@@ -1416,9 +1416,67 @@ export function IntegralSchaubild({ e, a, b, c, d }) {
     return d;
   };
 
+  /* Beschriftung: passt „I₁ = 1,11“ sauber in die Fläche, steht sie innen;
+     sonst daneben (außerhalb der Wölbung) mit einer feinen Hinweislinie. */
+  const textBreite = (t) => t.length * 7.1 + 2;
+  const belegt = [];
+  const ueberlappt = (bx) => belegt.some((o) => Math.abs(o.x - bx.x) < (o.breite + bx.breite) / 2 + 4 && Math.abs(o.y - bx.y) < 15);
+  const beschriftungen = intervalle.map((iv) => {
+    const text = `${iv.label} = ${zahl(iv.wert)}`;
+    const breite = textBreite(text);
+    // Höchste Auslenkung im Intervall suchen
+    const N = 120;
+    let xs = iv.x1, ys = 0;
+    for (let i = 1; i < N; i++) {
+      const x = iv.x1 + (i * (iv.x2 - iv.x1)) / N;
+      if (Math.abs(f(x)) > Math.abs(ys)) { xs = x; ys = f(x); }
+    }
+    const hoehePx = Math.abs(ys) * k;
+    const oben = ys >= 0;
+    // Mitte des Labels auf halber Höhe der Wölbung, in Pixeln
+    const yMitte = py(ys / 2);
+    // Zusammenhängende Breite der Fläche um xs herum, auf der Höhe, wo die
+    // Oberkante eines Labels mit halber Höhe halbH (Pixel) läge.
+    const spanne = (halbH) => {
+      const noetig = Math.abs(py(0) - yMitte) + halbH + 2;
+      let li = xs, re = xs;
+      const schritt = (iv.x2 - iv.x1) / 400;
+      while (li - schritt > iv.x1 && Math.abs(f(li - schritt)) * k >= noetig) li -= schritt;
+      while (re + schritt < iv.x2 && Math.abs(f(re + schritt)) * k >= noetig) re += schritt;
+      return { px: (re - li) * k, mitte: px((li + re) / 2) };
+    };
+    // 1) einzeilig „I₁ = 2,67“
+    const s1 = spanne(7);
+    if (hoehePx >= 26 && s1.px >= breite + 8) {
+      const bx = { text, breite, farbe: iv.farbe, innen: true, x: s1.mitte, y: yMitte + 4 };
+      belegt.push(bx);
+      return bx;
+    }
+    // 2) zweizeilig „I₁“ über „2,67“
+    const zeile2 = zahl(iv.wert);
+    const breite2 = Math.max(textBreite(iv.label), textBreite(zeile2));
+    const s2 = spanne(14);
+    if (hoehePx >= 40 && s2.px >= breite2 + 6) {
+      const bx = { text, zeilen: [iv.label, zeile2], breite: breite2, farbe: iv.farbe, innen: true, x: s2.mitte, y: yMitte };
+      belegt.push(bx);
+      return bx;
+    }
+    // Außen: jenseits der Wölbung, am Rand des Bildes geklemmt, bei Kollision versetzt
+    let x = Math.min(Math.max(px(xs), breite / 2 + 5), Sx - breite / 2 - 5);
+    let y = oben ? py(ys) - 10 : py(ys) + 20;
+    if (y < 14) y = oben ? py(ys) + 20 : 14;
+    if (y > Sy - 5) y = Sy - 5;
+    const bx = { text, breite, farbe: iv.farbe, innen: false, oben: y < py(ys), x, y,
+      ankerX: px(xs), ankerY: py(ys / 2) };
+    let versuche = 0;
+    while (ueberlappt(bx) && versuche < 6) { bx.y += bx.oben ? -15 : 15; versuche++; }
+    belegt.push(bx);
+    return bx;
+  });
+
   return (
     <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", marginTop: 18 }}>
-      <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 14 }}>Schaubild mit den Integralen</p>
+      <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 14 }}>Nullstellenintegrale</p>
       <svg viewBox={`0 0 ${Sx} ${Sy}`} style={{ width: "100%", maxWidth: 360, display: "block", margin: "0 auto" }}>
         <defs><clipPath id="integralfeld"><rect x="0" y="0" width={Sx} height={Sy} /></clipPath></defs>
         {linienX.map((v) => (
@@ -1448,14 +1506,26 @@ export function IntegralSchaubild({ e, a, b, c, d }) {
             <circle key={`n${i}`} cx={px(x)} cy={py(0)} r="4.5" fill={C.weiss} stroke={C.see} strokeWidth="2.5" />
           ))}
         </g>
-        {intervalle.map((iv, i) => {
-          const xm = (iv.x1 + iv.x2) / 2;
-          const ym = f(xm) / 2;
-          return (
-            <text key={`beschr${i}`} x={px(xm)} y={py(ym) + 4} fontSize="12" fontWeight="700"
-              fill={iv.farbe} textAnchor="middle">{iv.label} = {zahl(iv.wert)}</text>
-          );
-        })}
+        {beschriftungen.map((bs, i) => (
+          <g key={`beschr${i}`}>
+            {!bs.innen && (
+              <line x1={bs.ankerX} y1={bs.ankerY} x2={bs.x} y2={bs.y + (bs.oben ? 3 : -11)}
+                stroke={bs.farbe} strokeWidth="1" opacity="0.7" />
+            )}
+            {!bs.innen && (
+              <rect x={bs.x - bs.breite / 2 - 3} y={bs.y - 11} width={bs.breite + 6} height={15} rx="3"
+                fill={C.weiss} opacity="0.9" />
+            )}
+            {bs.zeilen ? (
+              <text x={bs.x} y={bs.y - 2} fontSize="12" fontWeight="700" fill={bs.farbe} textAnchor="middle">
+                <tspan x={bs.x} dy="0">{bs.zeilen[0]}</tspan>
+                <tspan x={bs.x} dy="13">{bs.zeilen[1]}</tspan>
+              </text>
+            ) : (
+              <text x={bs.x} y={bs.y} fontSize="12" fontWeight="700" fill={bs.farbe} textAnchor="middle">{bs.text}</text>
+            )}
+          </g>
+        ))}
       </svg>
       <div style={{ marginTop: 14 }}>
         {intervalle.map((iv, i) => (
