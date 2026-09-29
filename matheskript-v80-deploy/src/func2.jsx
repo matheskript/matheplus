@@ -12,6 +12,52 @@ import { EskalationsKarte, Wochenbericht, eskalationSignale, serieBerechnen, zei
 import { TerminHinweis } from "./func9.jsx";
 import { Mathilda } from "./func10.jsx";
 
+/* Eigenes Logo für die Polynomplotter-Kachel: Raster, Achsen, f (weiß), f′ (gold), f″ (grana gestrichelt). */
+function PlotterLogo() {
+  const W = 340, H = 170, x0 = W / 2, y0 = 92, sx = 34, sy = 22;
+  const f = (x) => 0.25 * x ** 4 - 1.6 * x ** 2 + 0.6;
+  const fs = (x) => x ** 3 - 3.2 * x;
+  const fss = (x) => 3 * x ** 2 - 3.2;
+  const pfad = (g, skal = 1) => {
+    let d = "";
+    for (let i = 0; i <= 160; i++) {
+      const x = -4.6 + (9.2 * i) / 160;
+      const y = Math.max(-6, Math.min(6, g(x) * skal));
+      d += `${i ? "L" : "M"}${(x0 + x * sx).toFixed(1)},${(y0 - y * sy).toFixed(1)}`;
+    }
+    return d;
+  };
+  const extrema = [-Math.sqrt(3.2), 0, Math.sqrt(3.2)];
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }} aria-hidden="true">
+      <defs>
+        <clipPath id="plotterKachelClip"><rect x="0" y="0" width={W} height={H} /></clipPath>
+      </defs>
+      <g clipPath="url(#plotterKachelClip)">
+        {Array.from({ length: 11 }, (_, i) => x0 + (i - 5) * sx).map((x) => (
+          <line key={`v${x}`} x1={x} y1="0" x2={x} y2={H} stroke="rgba(255,255,255,0.07)" strokeWidth="1" />
+        ))}
+        {Array.from({ length: 9 }, (_, i) => y0 + (i - 4) * sy).map((y) => (
+          <line key={`h${y}`} x1="0" y1={y} x2={W} y2={y} stroke="rgba(255,255,255,0.07)" strokeWidth="1" />
+        ))}
+        <line x1="0" y1={y0} x2={W} y2={y0} stroke="rgba(255,255,255,0.35)" strokeWidth="1.2" />
+        <line x1={x0} y1="0" x2={x0} y2={H} stroke="rgba(255,255,255,0.35)" strokeWidth="1.2" />
+        <path d={pfad(fss, 0.35)} stroke={C.granaHell} strokeWidth="2" fill="none" strokeDasharray="5 5" opacity="0.9" />
+        <path d={pfad(fs, 0.55)} stroke={C.flaggold} strokeWidth="2.2" fill="none" opacity="0.95" />
+        <path d={pfad(f)} stroke={C.weiss} strokeWidth="3.2" fill="none" strokeLinecap="round" />
+        {extrema.map((x) => (
+          <circle key={x} cx={x0 + x * sx} cy={y0 - f(x) * sy} r="5" fill={C.seeTief} stroke={C.weiss} strokeWidth="2.4" />
+        ))}
+      </g>
+      <g fontSize="13" fontWeight="700" fontStyle="italic">
+        <text x={W - 34} y="22" fill={C.weiss}>f</text>
+        <text x={W - 34} y="40" fill={C.flaggold}>f′</text>
+        <text x={W - 34} y="58" fill={C.granaHell}>f″</text>
+      </g>
+    </svg>
+  );
+}
+
 export function Startseite({ gehe }) {
   const [wieder, setWieder] = useState(false);
   const [hinweis, setHinweis] = useState("");
@@ -406,18 +452,36 @@ export function Startseite({ gehe }) {
 
   return (
     <div className="mx-auto px-6 pb-14" style={{ maxWidth: 620 }}>
-      <div style={{ marginTop: 22, marginBottom: 22, background: C.weiss, borderRadius: 16, padding: 22,
-        boxShadow: "0 2px 16px rgba(15,26,51,0.07)", border: `1.5px solid ${C.see}` }}>
-        <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 8 }}>Neu</p>
-        <h2 style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.15, marginBottom: 8 }}>
-          Polynomplotter
-        </h2>
-        <p style={{ color: C.grau, fontSize: 14.5, fontWeight: 300, lineHeight: 1.6, marginBottom: 16 }}>
-          Koeffizienten einstellen, f, f′ und f″ live sehen — und dir eine vollständige Kurvendiskussion mit
-          Lösungsweg erzeugen lassen.
-        </p>
-        <Knopf onClick={() => gehe({ ansicht: "plotter" })}>Polynomplotter öffnen</Knopf>
-      </div>
+      <button onClick={() => gehe({ ansicht: "plotter" })} aria-label="Polynomplotter öffnen" className="plotter-kachel"
+        style={{ display: "block", width: "100%", marginTop: 22, marginBottom: 22, padding: 0, border: "none", borderRadius: 22,
+          overflow: "hidden", cursor: "pointer", fontFamily: "inherit", textAlign: "left",
+          background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`,
+          boxShadow: "0 10px 32px rgba(0,77,152,0.28)" }}>
+        <style>{`.plotter-kachel{transition:transform .15s ease, box-shadow .15s ease}
+          .plotter-kachel:active{transform:scale(0.985)}
+          @media (hover:hover){.plotter-kachel:hover{transform:translateY(-2px);box-shadow:0 14px 38px rgba(0,77,152,0.36)}}`}</style>
+        <PlotterLogo />
+        <div style={{ padding: "4px 24px 24px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+            <span style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase",
+              color: C.seeTief, background: C.flaggold, borderRadius: 999, padding: "3px 10px" }}>Neu</span>
+            <span style={{ fontSize: 12.5, color: C.goldText, fontWeight: 300 }}>Werkzeug</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12 }}>
+            <div>
+              <h2 style={{ color: C.weiss, fontSize: 30, fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.05, margin: 0 }}>
+                Polynomplotter
+              </h2>
+              <p style={{ color: C.goldText, fontSize: 14.5, fontWeight: 300, lineHeight: 1.55, marginTop: 8, marginBottom: 0 }}>
+                Koeffizienten einstellen, f, f′ und f″ live sehen und die komplette Kurvendiskussion mit Lösungsweg erzeugen.
+              </p>
+            </div>
+            <span aria-hidden="true" style={{ flexShrink: 0, width: 48, height: 48, borderRadius: 999, background: C.gruen,
+              color: C.weiss, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, fontWeight: 700,
+              boxShadow: "0 4px 14px rgba(165,0,68,0.45)" }}>→</span>
+          </div>
+        </div>
+      </button>
 
       <div style={{ marginTop: 22 }}>
         <ErklaerVideo id={DEMO_VIDEO_ID} titel="So funktioniert Matheskript" />
@@ -806,7 +870,10 @@ export function loeseGanzrational(koeffsRoh) {
     if (treffer === null) break;
     schritte.push(`Ausprobieren: f(${treffer}) = 0 - x = ${treffer} ist eine Nullstelle.`);
     loesungen.push({ x: treffer, text: `x = ${treffer}` });
-    polynomdivisionSchritte(f, treffer).forEach((z) => schritte.push(z));
+    // Als ein Block: Anfang (Divisionsaufgabe mit Ergebnis) und Ende (Rest, Probe)
+    // sind immer sichtbar, die eigentliche Rechnung dazwischen ist aufklappbar.
+    const pdZeilen = polynomdivisionSchritte(f, treffer);
+    schritte.push({ pd: true, anfang: pdZeilen[0], mitte: pdZeilen.slice(1, -2), ende: pdZeilen.slice(-2) });
     f = syntheticDivInt(f, treffer);
   }
 
@@ -900,6 +967,7 @@ export function baueKurvendiskussionInhalt(e, a, b, c, d) {
   // reiner Text (Standardfall) oder ein Objekt mit eigenem fett-/prosa-/formel-Flag.
   const zSchritt = (sek, sc) => {
     if (typeof sc === "string") z(sek, sc);
+    else if (sc.pd) sek.zeilen.push(sc);
     else if (sc.prosa) zP(sek, sc.txt);
     else z(sek, sc.txt, sc.fett, sc.formel);
   };
@@ -938,7 +1006,7 @@ export function baueKurvendiskussionInhalt(e, a, b, c, d) {
   nsErg.schritte.forEach((sc) => zSchritt(s4, sc));
   if (nsErg.loesungen.length === 0) zP(s4, "f besitzt keine reelle Nullstelle.");
   else {
-    const txt = nsErg.loesungen.map((l, i) => `N${nsErg.loesungen.length > 1 ? i + 1 : ""}(${zahl(l.x)} | 0)`).join(",  ");
+    const txt = nsErg.loesungen.map((l, i) => `x${nsErg.loesungen.length > 1 ? "₁₂₃₄₅₆"[i] ?? i + 1 : ""} = ${zahl(l.x)}`).join(",  ");
     z(s4, `Nullstellen: ${txt}`, true);
   }
 
@@ -1115,6 +1183,53 @@ export function schoenText(txt) {
    Zeilen), damit jede Rechnung sauber in einer Zeile steht. Oben stehen f, f′
    und f″ automatisch farbig untereinander, genau wie über dem Polynomplotter. */
 
+/* Polynomdivision in der Kurvendiskussion: Anfang und Ende stehen immer da,
+   die Rechnung dazwischen klappt erst auf Tippen auf. */
+function PdZeile({ zl }) {
+  return zl.prosa ? (
+    <p style={{ fontSize: 12.5, fontWeight: zl.fett ? 700 : 400, color: zl.fett ? C.tinte : C.grau,
+      lineHeight: 1.7, whiteSpace: "normal", marginBottom: 4 }}>
+      {schoenText(zl.txt)}
+    </p>
+  ) : (
+    <div style={{ overflowX: "auto" }}>
+      <p style={{ fontSize: 12.5, fontWeight: zl.fett ? 700 : 400, color: zl.fett ? C.tinte : C.grau,
+        lineHeight: 1.7, whiteSpace: "pre", marginBottom: 3 }}>
+        {schoenText(zl.txt)}
+      </p>
+    </div>
+  );
+}
+
+function PolynomdivisionBlock({ block }) {
+  const [offen, setOffen] = useState(false);
+  return (
+    <div style={{ borderLeft: `3px solid ${C.see}`, background: C.himmel, borderRadius: 10,
+      padding: "10px 12px", margin: "6px 0 10px" }}>
+      <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase",
+        color: C.see, marginBottom: 6 }}>Polynomdivision</p>
+      <PdZeile zl={block.anfang} />
+      {block.mitte.length > 0 && (
+        <>
+          <button onClick={() => setOffen(!offen)} aria-expanded={offen}
+            style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", margin: "6px 0",
+              padding: "8px 12px", background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 8,
+              cursor: "pointer", fontFamily: "inherit", fontSize: 12.5, fontWeight: 600, color: C.see, textAlign: "left" }}>
+            <span style={{ display: "inline-block", transition: "transform .15s", transform: offen ? "rotate(90deg)" : "none" }}>›</span>
+            {offen ? "Rechnung ausblenden" : "Rechnung Schritt für Schritt anzeigen"}
+          </button>
+          {offen && (
+            <div style={{ background: C.weiss, borderRadius: 8, padding: "8px 10px", marginBottom: 6 }}>
+              {block.mitte.map((zl, i) => <PdZeile key={i} zl={zl} />)}
+            </div>
+          )}
+        </>
+      )}
+      {block.ende.map((zl, i) => <PdZeile key={i} zl={zl} />)}
+    </div>
+  );
+}
+
 export function KurvendiskussionAnzeige({ e, a, b, c, d }) {
   const inhalt = React.useMemo(() => baueKurvendiskussionInhalt(e, a, b, c, d), [e, a, b, c, d]);
   const zeileF = baueReihe([
@@ -1153,7 +1268,9 @@ export function KurvendiskussionAnzeige({ e, a, b, c, d }) {
             {sek.titel}
           </p>
           {sek.zeilen.map((zl, j) =>
-            zl.formel ? (
+            zl.pd ? (
+              <PolynomdivisionBlock key={j} block={zl} />
+            ) : zl.formel ? (
               <div key={j} style={{ overflowX: "auto" }}>
                 <p style={{
                   fontSize: 14, fontWeight: zl.fett ? 700 : 400, color: zl.fett ? C.tinte : C.grau,

@@ -193,7 +193,7 @@ export function Plotter() {
 
         <Zeile marke={<circle cx="7" cy="7" r="4.5" fill={C.weiss} stroke={C.see} strokeWidth="2.5" />}
           titel="Nullstellen"
-          wert={ns.length ? ns.map((x) => `(${zahl(x)} | 0)`).join("  ") : "keine reellen Nullstellen"} />
+          wert={ns.length ? ns.map((x, i) => `x${ns.length > 1 ? "₁₂₃₄₅₆"[i] ?? i + 1 : ""} = ${zahl(x)}`).join("   ") : "keine reellen Nullstellen"} />
 
         {markante.map((p, i) => (
           <Zeile key={i} marke={<circle cx="7" cy="7" r="5" fill={farbe(p.art)} />}
