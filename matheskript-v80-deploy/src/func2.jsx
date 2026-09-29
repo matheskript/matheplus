@@ -1327,6 +1327,45 @@ export function KurvendiskussionAnzeige({ e, a, b, c, d }) {
         </div>
       ))}
       <IntegralSchaubild e={e} a={a} b={b} c={c} d={d} />
+      <PdfKnopf e={e} a={a} b={b} c={c} d={d} />
+    </div>
+  );
+}
+
+/* Lädt den PDF-Export erst beim Tippen (eigene Datei func11.jsx mit jsPDF). */
+function PdfKnopf({ e, a, b, c, d }) {
+  const [status, setStatus] = useState("bereit");
+  const klick = async () => {
+    if (status === "laeuft") return;
+    setStatus("laeuft");
+    try {
+      const { kurvendiskussionPdf } = await import("./func11.jsx");
+      await kurvendiskussionPdf({ e, a, b, c, d });
+      setStatus("bereit");
+    } catch (err) {
+      console.error(err);
+      setStatus("fehler");
+    }
+  };
+  return (
+    <div style={{ marginTop: 22 }}>
+      <button onClick={klick} disabled={status === "laeuft"}
+        style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
+          padding: "15px 18px", border: "none", borderRadius: 14, cursor: status === "laeuft" ? "wait" : "pointer",
+          fontFamily: "inherit", fontSize: 15.5, fontWeight: 700, color: C.weiss,
+          background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`,
+          boxShadow: "0 6px 20px rgba(0,77,152,0.25)", opacity: status === "laeuft" ? 0.75 : 1 }}>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={C.flaggold} strokeWidth="2.4"
+          strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M12 3v12" /><path d="M7 10l5 5 5-5" /><path d="M5 20h14" />
+        </svg>
+        {status === "laeuft" ? "PDF wird erstellt …" : "Kurvendiskussion als PDF herunterladen"}
+      </button>
+      {status === "fehler" && (
+        <p style={{ fontSize: 12.5, color: C.signal, marginTop: 8, textAlign: "center" }}>
+          Das PDF konnte nicht erstellt werden. Bitte noch einmal versuchen.
+        </p>
+      )}
     </div>
   );
 }
