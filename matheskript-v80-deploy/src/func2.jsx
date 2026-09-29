@@ -1139,10 +1139,10 @@ export function baueKurvendiskussionInhalt(e, a, b, c, d) {
       const x1 = stellenSortiert[i], x2 = stellenSortiert[i + 1];
       const F1 = Fx(x1), F2 = Fx(x2);
       const wert = F2 - F1;
-      z(s11, `I${i + 1}:  Intervall [${zahl(x1)}; ${zahl(x2)}]`, true);
-      z(s11, `I${i + 1} = F(${zahl(x2)}) - F(${zahl(x1)})`);
-      z(s11, `I${i + 1} = ${zahl(F2)} - ${F1 < 0 ? `(${zahl(F1)})` : zahl(F1)}`);
-      z(s11, `I${i + 1} = ${zahl(wert)}`, true);
+      z(s11, `I${tiefZiffer(i + 1)}:  Intervall [${zahl(x1)}; ${zahl(x2)}]`, true);
+      z(s11, `I${tiefZiffer(i + 1)} = F(${zahl(x2)}) - F(${zahl(x1)})`);
+      z(s11, `I${tiefZiffer(i + 1)} = ${zahl(F2)} - ${F1 < 0 ? `(${zahl(F1)})` : zahl(F1)}`);
+      z(s11, `I${tiefZiffer(i + 1)} = ${zahl(wert)}`, true);
     }
   }
 
