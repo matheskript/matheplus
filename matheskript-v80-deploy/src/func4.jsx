@@ -113,7 +113,7 @@ Die drei neuen Aufgaben sollen denselben Typ und dasselbe Niveau haben, aber and
 
       {erg && (
         <div className="mt-6">
-          <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(20,20,20,0.07)", marginBottom: 16 }}>
+          <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", marginBottom: 16 }}>
             <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 6 }}>Aufgabentyp</p>
             <p style={{ fontSize: 17, fontWeight: 600, marginBottom: 8 }}>{erg.typ}</p>
             {erg.erkannt && <Text s={erg.erkannt} style={{ fontSize: 14.5, color: C.grau, fontWeight: 300, lineHeight: 1.75 }} />}
@@ -128,7 +128,7 @@ Die drei neuen Aufgaben sollen denselben Typ und dasselbe Niveau haben, aber and
             Drei Aufgaben derselben Sorte
           </p>
           {(erg.aufgaben || []).map((a, i) => (
-            <div key={i} style={{ background: C.weiss, borderRadius: 16, padding: 18, marginBottom: 10, boxShadow: "0 2px 14px rgba(20,20,20,0.06)" }}>
+            <div key={i} style={{ background: C.weiss, borderRadius: 16, padding: 18, marginBottom: 10, boxShadow: "0 2px 14px rgba(15,26,51,0.06)" }}>
               <div className="flex" style={{ gap: 10 }}>
                 <span style={{ color: C.gruenDunkel, fontWeight: 700, fontSize: 13, width: 16, flexShrink: 0 }}>{i + 1}</span>
                 <Text s={a.text} style={{ fontSize: 15.5, lineHeight: 1.8, margin: 0, flex: 1 }} />
@@ -190,7 +190,7 @@ export function Formelsammlung({ zuHerleitung }) {
             return (
               <div key={e.name} onClick={() => setOffen(auf ? null : e.name)}
                 style={{ background: C.weiss, borderRadius: 14, padding: "15px 17px", marginBottom: 9,
-                  boxShadow: "0 2px 12px rgba(20,20,20,0.06)", cursor: "pointer" }}>
+                  boxShadow: "0 2px 12px rgba(15,26,51,0.06)", cursor: "pointer" }}>
                 <p style={{ fontSize: 14.5, fontWeight: 600, marginBottom: 8 }}>{e.name}</p>
                 <div style={{ fontSize: 16.5, lineHeight: 2, color: C.tinte, overflowX: "auto" }}>
                   <M t={e.f} />
@@ -430,7 +430,7 @@ export function Kurvendiskussion({ onZurueck }) {
         trage hier nur das Ergebnis ein.
       </p>
 
-      <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(20,20,20,0.07)", marginBottom: 16 }}>
+      <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", marginBottom: 16 }}>
         <p style={{ fontSize: 12.5, color: C.grau, fontWeight: 300, marginBottom: 6 }}>Untersuche vollständig</p>
         <div style={{ fontSize: 19, lineHeight: 1.9 }}>f(x) = <M t={termText(a, b, c, d).replace(/x²/g, "x^2").replace(/x³/g, "x^3")} /></div>
       </div>
@@ -445,7 +445,7 @@ export function Kurvendiskussion({ onZurueck }) {
             <div style={{ height: 5, borderRadius: 999, background: C.see, width: `${(schritt / schritte.length) * 100}%` }} />
           </div>
 
-          <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(20,20,20,0.07)" }}>
+          <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" }}>
             <Text s={s.frage} style={{ fontSize: 16.5, lineHeight: 1.8, marginBottom: 16 }} />
 
             {s.typ === "wahl" ? (
@@ -499,7 +499,7 @@ export function Kurvendiskussion({ onZurueck }) {
           </div>
         </>
       ) : (
-        <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(20,20,20,0.07)" }}>
+        <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" }}>
           <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 4 }}>Schritt 13 · Der Graph</p>
           <p style={{ color: C.grau, fontSize: 14, fontWeight: 300, lineHeight: 1.7, marginBottom: 12 }}>
             Der Graph entsteht aus den berechneten Punkten — nicht umgekehrt.
@@ -637,7 +637,7 @@ export function GraphZuordnung({ onZurueck }) {
         ))}
       </div>
 
-      <div style={{ background: C.weiss, borderRadius: 16, padding: 12, boxShadow: "0 2px 16px rgba(20,20,20,0.07)", marginBottom: 12 }}>
+      <div style={{ background: C.weiss, borderRadius: 16, padding: 12, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", marginBottom: 12 }}>
         <div className="flex justify-between items-baseline" style={{ marginBottom: 2 }}>
           <span style={{ fontSize: 12.5, fontWeight: 600, color: C.see }}>
             {richtung === "ableitung" ? "Gegeben ist f" : "Gegeben ist f′"}
@@ -817,7 +817,7 @@ export function Klausur({ onZurueck }) {
       </p>
 
       {!klausur && (
-        <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(20,20,20,0.07)" }}>
+        <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" }}>
           <p style={{ fontSize: 13, color: C.grau, fontWeight: 300, marginBottom: 12 }}>Bearbeitungszeit wählen</p>
           <div className="flex gap-2 mb-5">
             {[25, 45, 65].map((m) => (
@@ -847,7 +847,7 @@ export function Klausur({ onZurueck }) {
         <>
           <div className="flex justify-between items-center" style={{ background: abgegeben ? C.weiss : C.seeTief,
             borderRadius: 14, padding: "12px 18px", marginBottom: 18 }}>
-            <span style={{ fontSize: 13, color: abgegeben ? C.grau : "#E8DCB5", fontWeight: 300 }}>
+            <span style={{ fontSize: 13, color: abgegeben ? C.grau : "#C9D6EE", fontWeight: 300 }}>
               {abgegeben ? "Bearbeitung beendet" : "verbleibende Zeit"}
             </span>
             <span style={{ fontSize: 20, fontWeight: 700, color: abgegeben ? C.tinte : (rest < 300 ? C.gruen : C.weiss), letterSpacing: "0.02em" }}>
@@ -856,7 +856,7 @@ export function Klausur({ onZurueck }) {
           </div>
 
           {klausur.teile.map((t, ti) => (
-            <div key={ti} style={{ background: C.weiss, borderRadius: 16, padding: 20, marginBottom: 16, boxShadow: "0 2px 16px rgba(20,20,20,0.07)" }}>
+            <div key={ti} style={{ background: C.weiss, borderRadius: 16, padding: 20, marginBottom: 16, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" }}>
               <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 8 }}>
                 Aufgabe {t.gruppe} · {t.punkte.reduce((s, p) => s + p.p, 0)} Punkte
               </p>
@@ -912,8 +912,8 @@ export function Klausur({ onZurueck }) {
                 <p style={{ fontSize: 24, fontWeight: 700, color: C.weiss, lineHeight: 1.3 }}>
                   {erreicht} von {klausur.gesamt} Punkten
                 </p>
-                <p style={{ fontSize: 15, color: "#E8DCB5", marginTop: 4 }}>{prozent} % · {note}</p>
-                <p style={{ fontSize: 14, color: "#E8DCB5", fontWeight: 300, lineHeight: 1.75, marginTop: 14 }}>
+                <p style={{ fontSize: 15, color: "#C9D6EE", marginTop: 4 }}>{prozent} % · {note}</p>
+                <p style={{ fontSize: 14, color: "#C9D6EE", fontWeight: 300, lineHeight: 1.75, marginTop: 14 }}>
                   Wichtiger als die Punktzahl: Schau dir die Aufgaben an, bei denen du danebenlagst, und finde
                   heraus, ob es am Verfahren lag oder am Rechnen. Nur das eine davon wiederholt sich.
                 </p>
@@ -1380,7 +1380,7 @@ Maschinenschreibweise: ^ für Potenzen, * für Produkte, sin(x), cos(x), ln(x), 
         <span style={{ fontSize: 13.5, color: C.gruenDunkel, fontWeight: 600 }}>{stufe} / 5</span>
       </div>
 
-      <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(20,20,20,0.07)" }}>
+      <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" }}>
         <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 4 }}>{typ.regel}</p>
         <p style={{ color: C.grau, fontSize: 13, fontWeight: 300, lineHeight: 1.6, marginBottom: 16 }}>{typ.erklaerung}</p>
 

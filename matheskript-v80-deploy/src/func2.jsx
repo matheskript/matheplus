@@ -129,8 +129,8 @@ export function Startseite({ gehe }) {
           Mathe ist kein<br />Talenttest.
         </h1>
         <div style={{ width: 62, height: 4, borderRadius: 2, marginBottom: 14,
-          background: `linear-gradient(90deg, ${C.gruen} 0%, rgba(221,0,0,0) 100%)` }} />
-        <p style={{ color: "#E8DCB5", fontSize: 15, fontWeight: 300, lineHeight: 1.75, marginBottom: 6 }}>
+          background: `linear-gradient(90deg, ${C.gruen} 0%, rgba(165,0,68,0) 100%)` }} />
+        <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.75, marginBottom: 6 }}>
           Es ist eine Art zu denken — und die kann man lernen. Hier zählt nicht, ob dein Ergebnis stimmt,
           sondern ob dein Weg trägt.
         </p>
@@ -152,7 +152,7 @@ export function Startseite({ gehe }) {
       <Sektion>
         {signal && <EskalationsKarte signal={signal} gehe={gehe} />}
         <TerminHinweis gehe={gehe} />
-        <div className="auftauchen" style={{ background: C.weiss, borderRadius: 18, padding: 22, boxShadow: "0 3px 18px rgba(20,20,20,0.08)", borderTop: `4px solid ${C.gruenDunkel}` }}>
+        <div className="auftauchen" style={{ background: C.weiss, borderRadius: 18, padding: 22, boxShadow: "0 3px 18px rgba(15,26,51,0.08)", borderTop: `4px solid ${C.gruenDunkel}` }}>
           {L.plan && (
             <div className="flex justify-between items-center" style={{ marginBottom: 14, paddingBottom: 12, borderBottom: `1px solid ${C.linie}` }}>
               <span style={{ fontSize: 13, color: C.grau }}>Heute {heuteMin} von {L.plan.minuten} min</span>
@@ -204,7 +204,7 @@ export function Startseite({ gehe }) {
     );
     return (
     <Sektion>
-      <div style={{ background: C.weiss, borderRadius: 18, padding: 22, boxShadow: "0 3px 18px rgba(20,20,20,0.08)" }}>
+      <div style={{ background: C.weiss, borderRadius: 18, padding: 22, boxShadow: "0 3px 18px rgba(15,26,51,0.08)" }}>
         {wieder ? (
           <>
             <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 10 }}>Dein Heute</p>
@@ -250,14 +250,14 @@ export function Startseite({ gehe }) {
               width: "100%", padding: 20, marginBottom: 14, borderRadius: 20,
               border: k.dunkel ? "none" : `1px solid ${C.linie}`,
               background: k.dunkel ? `linear-gradient(150deg, ${C.see} 0%, ${C.seeTief} 100%)` : C.weiss,
-              boxShadow: k.dunkel ? "0 6px 24px rgba(0,0,0,0.3)" : "0 3px 16px rgba(20,20,20,0.07)",
+              boxShadow: k.dunkel ? "0 6px 24px rgba(0,77,152,0.3)" : "0 3px 16px rgba(15,26,51,0.07)",
               animationDelay: `${ki * 90}ms` }}>
             <div style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
               <div style={{ flex: 1 }}>
                 <p style={{ fontSize: 20, fontWeight: 700, letterSpacing: "-0.02em",
                   color: k.dunkel ? C.weiss : C.tinte, marginBottom: 7 }}>{k.titel}</p>
                 <p style={{ fontSize: 14, fontWeight: 300, lineHeight: 1.7,
-                  color: k.dunkel ? "#E8DCB5" : C.grau, marginBottom: 10 }}>{k.satz}</p>
+                  color: k.dunkel ? "#C9D6EE" : C.grau, marginBottom: 10 }}>{k.satz}</p>
                 <p style={{ fontSize: 12, fontWeight: 500, color: k.dunkel ? C.gruen : C.gruenDunkel }}>{k.meta}</p>
               </div>
               <div className="motivfeld" style={{ width: 64, height: 64, flexShrink: 0, borderRadius: 16, padding: 6,
@@ -360,7 +360,7 @@ export function Startseite({ gehe }) {
 
   const Eltern = () => (
     <Sektion>
-      <div style={{ background: C.weiss, borderRadius: 18, padding: 22, boxShadow: "0 3px 18px rgba(20,20,20,0.07)" }}>
+      <div style={{ background: C.weiss, borderRadius: 18, padding: 22, boxShadow: "0 3px 18px rgba(15,26,51,0.07)" }}>
         <Titel>Für Eltern</Titel>
         <Satz>
           Jede Woche ein Bericht: wie eigenständig gearbeitet wurde, wie viel Zeit investiert wurde,
@@ -407,7 +407,7 @@ export function Startseite({ gehe }) {
   return (
     <div className="mx-auto px-6 pb-14" style={{ maxWidth: 620 }}>
       <div style={{ marginTop: 22, marginBottom: 22, background: C.weiss, borderRadius: 16, padding: 22,
-        boxShadow: "0 2px 16px rgba(20,20,20,0.07)", border: `1.5px solid ${C.see}` }}>
+        boxShadow: "0 2px 16px rgba(15,26,51,0.07)", border: `1.5px solid ${C.see}` }}>
         <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 8 }}>Neu</p>
         <h2 style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.15, marginBottom: 8 }}>
           Polynomplotter
@@ -1134,7 +1134,7 @@ export function KurvendiskussionAnzeige({ e, a, b, c, d }) {
   ]);
   const alleLeer = zeileF.every((t) => !t);
   return (
-    <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(20,20,20,0.07)", marginTop: 18 }}>
+    <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", marginTop: 18 }}>
       <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 6 }}>Kurvendiskussion</p>
       <div style={{ marginBottom: 16 }}>
         {alleLeer ? (
@@ -1273,7 +1273,7 @@ export function IntegralSchaubild({ e, a, b, c, d }) {
   };
 
   return (
-    <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(20,20,20,0.07)", marginTop: 18 }}>
+    <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", marginTop: 18 }}>
       <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 14 }}>Schaubild mit den Integralen</p>
       <svg viewBox={`0 0 ${Sx} ${Sy}`} style={{ width: "100%", maxWidth: 360, display: "block", margin: "0 auto" }}>
         <defs><clipPath id="integralfeld"><rect x="0" y="0" width={Sx} height={Sy} /></clipPath></defs>

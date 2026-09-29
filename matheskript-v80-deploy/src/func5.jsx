@@ -69,7 +69,7 @@ export function KurvenGenerator() {
         Geprüft wird erst am Schluss — wie auf dem Klausurblatt.
       </p>
 
-      <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(20,20,20,0.07)", marginBottom: 16 }}>
+      <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", marginBottom: 16 }}>
         <p style={{ fontSize: 12.5, color: C.grau, fontWeight: 300, marginBottom: 6 }}>Untersuche vollständig</p>
         <div style={{ fontSize: 19, lineHeight: 1.9 }}>
           f(x) = <M t={termText(a, b, c, d).replace(/x²/g, "x^2").replace(/x³/g, "x^3")} />
@@ -81,7 +81,7 @@ export function KurvenGenerator() {
         const rand = !geprueft ? C.linie : ok ? C.see : C.signal;
         return (
           <div key={feld.id} style={{ background: C.weiss, borderRadius: 14, padding: "14px 16px", marginBottom: 10,
-            boxShadow: "0 2px 12px rgba(20,20,20,0.06)", borderLeft: `4px solid ${rand}` }}>
+            boxShadow: "0 2px 12px rgba(15,26,51,0.06)", borderLeft: `4px solid ${rand}` }}>
             <div className="flex justify-between items-baseline" style={{ marginBottom: 8 }}>
               <span style={{ fontSize: 14, fontWeight: 500 }}>{feld.titel}</span>
               <span style={{ fontSize: 11, color: C.hellgrau }}>Schritt {feld.nr}</span>
@@ -133,7 +133,7 @@ export function KurvenGenerator() {
           <div style={{ background: `linear-gradient(160deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 16, padding: 22, marginTop: 6, marginBottom: 16 }}>
             <p style={{ fontSize: 13, fontWeight: 600, color: C.gruen, marginBottom: 8 }}>Auswertung</p>
             <p style={{ fontSize: 22, fontWeight: 700, color: C.weiss }}>{richtige} von {felder.length} richtig</p>
-            <p style={{ fontSize: 14, color: "#E8DCB5", fontWeight: 300, lineHeight: 1.75, marginTop: 10 }}>
+            <p style={{ fontSize: 14, color: "#C9D6EE", fontWeight: 300, lineHeight: 1.75, marginTop: 10 }}>
               Der Graph entsteht aus den berechneten Punkten — hier zur Kontrolle, nicht als Ersatz für die Rechnung.
             </p>
           </div>
@@ -309,7 +309,7 @@ export function DifferenzenquotientGenerator() {
         )}
       </div>
 
-      <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(20,20,20,0.07)" }}>
+      <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" }}>
         <div style={{ fontSize: 19, lineHeight: 2.1, marginBottom: 6 }}>
           f(x) = <M t={auf.tex} />
         </div>
@@ -463,7 +463,7 @@ export function DifferenzenquotientSeite() {
           style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.8, marginBottom: 4 }} />
       </div>
 
-      <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(20,20,20,0.07)", margin: "22px 0" }}>
+      <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", margin: "22px 0" }}>
         <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 10 }}>Zieh am Regler und beobachte, wie aus der Sekante die Tangente wird</p>
         <VisSekante />
       </div>
@@ -500,7 +500,7 @@ export function GeneratorHub({ ziel, setZiel }) {
         {GEN_MODULE.map((m) => (
           <button key={m.id} onClick={() => setOffen(m)} className="w-full px-5 py-5 mb-3"
             style={{ background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 16, textAlign: "left",
-              cursor: "pointer", fontFamily: "inherit", color: C.tinte, boxShadow: "0 2px 14px rgba(20,20,20,0.06)" }}>
+              cursor: "pointer", fontFamily: "inherit", color: C.tinte, boxShadow: "0 2px 14px rgba(15,26,51,0.06)" }}>
             <p style={{ fontSize: 17.5, fontWeight: 600, marginBottom: 4 }}>{m.titel}</p>
             <p style={{ color: C.grau, fontSize: 13.5, fontWeight: 300, lineHeight: 1.6 }}>{m.kurz}</p>
           </button>
@@ -665,13 +665,13 @@ export function Primfaktoren() {
       {/* Die Zahl, an der gerade gearbeitet wird */}
       <div style={{ background: `linear-gradient(160deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 18,
         padding: "24px 20px", textAlign: "center", marginBottom: 14 }}>
-        <p style={{ fontSize: 12.5, color: "#E8DCB5", fontWeight: 300, marginBottom: 6 }}>
+        <p style={{ fontSize: 12.5, color: "#C9D6EE", fontWeight: 300, marginBottom: 6 }}>
           Zerlege in Primfaktoren
         </p>
         <p style={{ fontSize: 52, fontWeight: 700, color: C.weiss, letterSpacing: "-0.03em", lineHeight: 1 }}>
           {auf.n}
         </p>
-        <p style={{ fontSize: 12.5, color: "#E8DCB5", fontWeight: 300, marginTop: 10, lineHeight: 1.6 }}>
+        <p style={{ fontSize: 12.5, color: "#C9D6EE", fontWeight: 300, marginTop: 10, lineHeight: 1.6 }}>
           {naechsteQuadratzahl(auf.n).k} · {naechsteQuadratzahl(auf.n).k} = {naechsteQuadratzahl(auf.n).q} —
           du musst nur bis {naechsteQuadratzahl(auf.n).k - 1} testen.
         </p>
@@ -681,14 +681,14 @@ export function Primfaktoren() {
           </p>
         )}
         {serie.n > 0 && (
-          <p style={{ fontSize: 12.5, color: "#E8DCB5", fontWeight: 300, marginTop: 8 }}>
+          <p style={{ fontSize: 12.5, color: "#C9D6EE", fontWeight: 300, marginTop: 8 }}>
             {serie.ok} von {serie.n} richtig
           </p>
         )}
       </div>
 
       {/* Die Zerlegungsleiter */}
-      <div style={{ background: C.weiss, borderRadius: 16, padding: 18, boxShadow: "0 2px 16px rgba(20,20,20,0.07)", marginBottom: 12 }}>
+      <div style={{ background: C.weiss, borderRadius: 16, padding: 18, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", marginBottom: 12 }}>
         {leiter.length === 0 ? (
           <p style={{ color: C.hellgrau, fontSize: 14, fontWeight: 300 }}>
             Tipp eine Primzahl ein, die {auf.n} teilt.
@@ -813,7 +813,7 @@ export function Kopfrechnen() {
         {KOPF_WERKZEUGE.map((w) => (
           <button key={w.id} onClick={() => setOffen(w)} className="w-full px-5 py-5 mb-3"
             style={{ background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 16, textAlign: "left",
-              cursor: "pointer", fontFamily: "inherit", color: C.tinte, boxShadow: "0 2px 14px rgba(20,20,20,0.06)" }}>
+              cursor: "pointer", fontFamily: "inherit", color: C.tinte, boxShadow: "0 2px 14px rgba(15,26,51,0.06)" }}>
             <p style={{ fontSize: 17.5, fontWeight: 600, marginBottom: 4 }}>{w.titel}</p>
             <p style={{ color: C.grau, fontSize: 13.5, fontWeight: 300, lineHeight: 1.6 }}>{w.kurz}</p>
           </button>
@@ -903,9 +903,9 @@ export function Fortschritt() {
   return (
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
       <div style={{ background: `linear-gradient(160deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 18, padding: 24, marginBottom: 18 }}>
-        <p style={{ fontSize: 12.5, color: "#E8DCB5", fontWeight: 300, marginBottom: 8 }}>Eigenständigkeit</p>
+        <p style={{ fontSize: 12.5, color: "#C9D6EE", fontWeight: 300, marginBottom: 8 }}>Eigenständigkeit</p>
         <p style={{ fontSize: 46, fontWeight: 700, color: C.weiss, letterSpacing: "-0.03em", lineHeight: 1 }}>{quote}</p>
-        <p style={{ fontSize: 14, color: "#E8DCB5", fontWeight: 300, lineHeight: 1.7, marginTop: 10 }}>
+        <p style={{ fontSize: 14, color: "#C9D6EE", fontWeight: 300, lineHeight: 1.7, marginTop: 10 }}>
           Du hast {a.treffer} von {a.gesamt} Aufgaben ohne Hilfe richtig gelöst.
           {a.median ? ` Im Mittel brauchst du ${a.median} Sekunden pro Aufgabe.` : ""}
         </p>
@@ -913,7 +913,7 @@ export function Fortschritt() {
 
       {/* Fehlerarten */}
       <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 10 }}>Woran es hakt</p>
-      <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(20,20,20,0.07)", marginBottom: 18 }}>
+      <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", marginBottom: 18 }}>
         {fehlerListe.length === 0 ? (
           <p style={{ fontSize: 14, color: C.grau, fontWeight: 300, lineHeight: 1.7 }}>
             Noch kein wiederkehrender Fehler erkennbar.
@@ -941,7 +941,7 @@ export function Fortschritt() {
 
       {/* Nach Regelgruppe */}
       <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 10 }}>Nach Themen</p>
-      <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(20,20,20,0.07)", marginBottom: 18 }}>
+      <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", marginBottom: 18 }}>
         {Object.entries(a.proGruppe).map(([g, w]) => {
           const p = Math.round((w.ok / w.n) * 100);
           const med = w.zeiten.length ? w.zeiten.slice().sort((x, y) => x - y)[Math.floor(w.zeiten.length / 2)] : null;
@@ -965,7 +965,7 @@ export function Fortschritt() {
       {a.letzte.length > 2 && (
         <>
           <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 10 }}>Tempo</p>
-          <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(20,20,20,0.07)" }}>
+          <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" }}>
             <div className="flex items-end" style={{ gap: 4, height: 70 }}>
               {a.letzte.map((l, i) => (
                 <div key={i} title={`${l.sekunden} s`}
@@ -1050,7 +1050,7 @@ export function Arbeitsblatt() {
       </div>
 
       {blatt && (
-        <div className="druckblatt" style={{ background: C.weiss, borderRadius: 16, padding: 26, boxShadow: "0 2px 16px rgba(20,20,20,0.07)" }}>
+        <div className="druckblatt" style={{ background: C.weiss, borderRadius: 16, padding: 26, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" }}>
           <div style={{ borderBottom: `3px solid ${C.gruen}`, paddingBottom: 10, marginBottom: 18 }}>
             <p style={{ fontSize: 10.5, letterSpacing: "1.6px", color: C.gruenDunkel, fontWeight: 600 }}>
               MYTHOS MATHE · MATHESKRIPT
@@ -1278,7 +1278,7 @@ Jede geschriebene Zeile kommt als eigener Eintrag in "zeilen", in Maschinenschre
 
       {zeilen && (
         <>
-          <div style={{ background: C.weiss, borderRadius: 16, padding: 18, boxShadow: "0 2px 16px rgba(20,20,20,0.07)", marginBottom: 14 }}>
+          <div style={{ background: C.weiss, borderRadius: 16, padding: 18, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", marginBottom: 14 }}>
             <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 4 }}>
               {kopf ? kopf.typ.titel : "Aufgabentyp nicht erkannt"}
             </p>
@@ -1294,7 +1294,7 @@ Jede geschriebene Zeile kommt als eigener Eintrag in "zeilen", in Maschinenschre
           </p>
           {zeilen.map((z, i) => (
             <div key={i} style={{ background: C.weiss, borderRadius: 12, padding: "10px 14px", marginBottom: 8,
-              boxShadow: "0 2px 12px rgba(20,20,20,0.05)",
+              boxShadow: "0 2px 12px rgba(15,26,51,0.05)",
               borderLeft: `3px solid ${bericht && bericht.fehler.some((f) => f.startsWith(`Zeile ${i + 1}:`)) ? C.signal : C.linie}` }}>
               <div style={{ fontSize: 16, lineHeight: 1.9, marginBottom: 6 }}>{zeileSetzen(z)}</div>
               <input value={z} onChange={(e) => zeileAendern(i, e.target.value)}
@@ -1318,7 +1318,7 @@ Jede geschriebene Zeile kommt als eigener Eintrag in "zeilen", in Maschinenschre
       )}
 
       {bericht && (
-        <div style={{ background: C.weiss, borderRadius: 16, padding: 20, marginTop: 18, boxShadow: "0 2px 16px rgba(20,20,20,0.07)" }}>
+        <div style={{ background: C.weiss, borderRadius: 16, padding: 20, marginTop: 18, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" }}>
           <p style={{ fontSize: 16, fontWeight: 600, color: bericht.vollstaendig ? C.see : C.signal, marginBottom: 12 }}>
             {bericht.vollstaendig
               ? (bericht.nurZeilen ? "Alle Umformungen tragen." : "Der Weg ist vollständig und trägt.")

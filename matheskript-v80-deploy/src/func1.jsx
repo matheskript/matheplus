@@ -66,7 +66,7 @@ export function ErklaerVideo({ id, titel }) {
   };
 
   return (
-    <div style={{ borderRadius: 16, overflow: "hidden", marginBottom: 20, background: C.seeTief, boxShadow: "0 3px 18px rgba(20,20,20,0.1)" }}>
+    <div style={{ borderRadius: 16, overflow: "hidden", marginBottom: 20, background: C.seeTief, boxShadow: "0 3px 18px rgba(15,26,51,0.1)" }}>
       <div style={{ position: "relative", width: "100%", paddingTop: "56.25%", background: "#000" }}>
         <div id={domId} style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }} />
         <button onClick={umschalten} aria-label={spielt ? "Pause" : "Abspielen"}
@@ -99,7 +99,7 @@ export function ErklaerVideo({ id, titel }) {
       </div>
       {titel && (
         <div className="flex items-center justify-between" style={{ padding: "10px 14px" }}>
-          <p style={{ fontSize: 12.5, color: "#E8DCB5", fontWeight: 300, margin: 0 }}>{titel} · Demo</p>
+          <p style={{ fontSize: 12.5, color: "#C9D6EE", fontWeight: 300, margin: 0 }}>{titel} · Demo</p>
           <a href={`https://youtu.be/${id}`} target="_blank" rel="noopener noreferrer"
             style={{ fontSize: 12, color: C.gruen, fontWeight: 600, textDecoration: "underline", whiteSpace: "nowrap", marginLeft: 12 }}>
             in neuem Tab öffnen
@@ -320,19 +320,19 @@ export function Trainingsbereich({ sprung, setSprung, ziel, setZiel }) {
 
         {!nurModule && (<>
         <button onClick={() => setKlausurOffen(true)} className="w-full px-5 py-5 mb-3"
-          style={{ background: `linear-gradient(160deg, ${C.seeTief} 0%, #000000 100%)`, border: "none", borderRadius: 16, textAlign: "left", cursor: "pointer", fontFamily: "inherit", boxShadow: "0 3px 18px rgba(0,0,0,0.24)" }}>
+          style={{ background: `linear-gradient(160deg, ${C.seeTief} 0%, #061233 100%)`, border: "none", borderRadius: 16, textAlign: "left", cursor: "pointer", fontFamily: "inherit", boxShadow: "0 3px 18px rgba(0,0,0,0.24)" }}>
           <p style={{ fontSize: 12, fontWeight: 600, color: C.gruen, marginBottom: 6 }}>Werkzeug · mit Uhr</p>
           <p style={{ fontSize: 18, fontWeight: 700, color: C.weiss, marginBottom: 4 }}>Klausurgenerator</p>
-          <p style={{ color: "#E8DCB5", fontSize: 13, fontWeight: 300, lineHeight: 1.55 }}>
+          <p style={{ color: "#C9D6EE", fontSize: 13, fontWeight: 300, lineHeight: 1.55 }}>
             Drei Aufgaben im Abiturformat, neu erzeugt, ohne Rückmeldung bis zur Abgabe.
           </p>
         </button>
 
         <button onClick={() => setKdOffen(true)} className="w-full px-5 py-5 mb-3"
-          style={{ background: `linear-gradient(160deg, ${C.gruenDunkel} 0%, #8A0000 100%)`, border: "none", borderRadius: 16, textAlign: "left", cursor: "pointer", fontFamily: "inherit", boxShadow: "0 3px 18px rgba(179,0,0,0.22)" }}>
+          style={{ background: `linear-gradient(160deg, ${C.gruenDunkel} 0%, #5E0026 100%)`, border: "none", borderRadius: 16, textAlign: "left", cursor: "pointer", fontFamily: "inherit", boxShadow: "0 3px 18px rgba(127,0,52,0.22)" }}>
           <p style={{ fontSize: 12, fontWeight: 600, color: C.gruen, marginBottom: 6 }}>Werkzeug · 12 Schritte</p>
           <p style={{ fontSize: 18, fontWeight: 700, color: C.weiss, marginBottom: 4 }}>Kurvendiskussion</p>
-          <p style={{ color: "#FFD6D6", fontSize: 13, fontWeight: 300, lineHeight: 1.55 }}>
+          <p style={{ color: "#F3C6D8", fontSize: 13, fontWeight: 300, lineHeight: 1.55 }}>
             Das Protokoll geführt durchlaufen, an immer neuen Funktionen. Jeder Schritt wird geprüft.
           </p>
         </button>
@@ -383,7 +383,7 @@ export function Trainingsbereich({ sprung, setSprung, ziel, setZiel }) {
 
         {MODULE.map((m) => (
           <button key={m.id} onClick={() => starten(m.id)} className="w-full px-5 py-5 mb-3"
-            style={{ background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 16, textAlign: "left", cursor: "pointer", fontFamily: "inherit", color: C.tinte, boxShadow: "0 2px 14px rgba(20,20,20,0.06)" }}>
+            style={{ background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 16, textAlign: "left", cursor: "pointer", fontFamily: "inherit", color: C.tinte, boxShadow: "0 2px 14px rgba(15,26,51,0.06)" }}>
             <div className="flex justify-between items-start">
               <div style={{ paddingRight: 12 }}>
                 <p style={{ fontSize: 17, fontWeight: 600, marginBottom: 4 }}>{m.titel}</p>
@@ -408,7 +408,7 @@ export function Trainingsbereich({ sprung, setSprung, ziel, setZiel }) {
         {modul.einleitung.map((t, i) => (
           <p key={i} style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.75, marginBottom: 14 }}>{t}</p>
         ))}
-        <div style={{ background: C.weiss, borderRadius: 16, padding: 22, marginTop: 8, marginBottom: 24, boxShadow: "0 2px 14px rgba(20,20,20,0.06)" }}>
+        <div style={{ background: C.weiss, borderRadius: 16, padding: 22, marginTop: 8, marginBottom: 24, boxShadow: "0 2px 14px rgba(15,26,51,0.06)" }}>
           {modul.punkte.map((p, i) => (
             <div key={i} className="flex" style={{ marginBottom: i === modul.punkte.length - 1 ? 0 : 12 }}>
               <span style={{ color: C.gruenDunkel, fontWeight: 700, fontSize: 14, width: 22, flexShrink: 0 }}>{i + 1}</span>
@@ -428,11 +428,11 @@ export function Trainingsbereich({ sprung, setSprung, ziel, setZiel }) {
     return (
       <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
         <div style={{ background: `linear-gradient(160deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 16, padding: 28, marginBottom: 20 }}>
-          <p style={{ color: "#E8DCB5", fontSize: 13, fontWeight: 600, marginBottom: 10 }}>{modul.titel}</p>
+          <p style={{ color: "#C9D6EE", fontSize: 13, fontWeight: 600, marginBottom: 10 }}>{modul.titel}</p>
           <p style={{ color: C.weiss, fontSize: 22, fontWeight: 600, lineHeight: 1.4 }}>
             {treffer} von {modul.aufgaben.length} richtig
           </p>
-          <p style={{ color: "#E8DCB5", fontSize: 14, fontWeight: 300, lineHeight: 1.7, marginTop: 12 }}>
+          <p style={{ color: "#C9D6EE", fontSize: 14, fontWeight: 300, lineHeight: 1.7, marginTop: 12 }}>
             Wichtiger als die Zahl ist, ob du die Begründungen nachvollziehen konntest. Wenn nicht: Modul einfach nochmal durchgehen.
           </p>
         </div>
@@ -483,7 +483,7 @@ export function Trainingsbereich({ sprung, setSprung, ziel, setZiel }) {
       })}
 
       {fertig && (
-        <div style={{ background: C.weiss, borderLeft: `4px solid ${gewaehlt === a.richtig ? C.see : C.signal}`, borderRadius: 14, padding: 20, marginTop: 8, boxShadow: "0 2px 14px rgba(20,20,20,0.06)" }}>
+        <div style={{ background: C.weiss, borderLeft: `4px solid ${gewaehlt === a.richtig ? C.see : C.signal}`, borderRadius: 14, padding: 20, marginTop: 8, boxShadow: "0 2px 14px rgba(15,26,51,0.06)" }}>
           <p style={{ fontSize: 13, fontWeight: 600, color: gewaehlt === a.richtig ? C.see : C.signal, marginBottom: 8 }}>
             {gewaehlt === a.richtig ? "Richtig" : "Noch nicht"}
           </p>
@@ -720,7 +720,7 @@ export function KIAufgaben({ eingebettet }) {
 
       {a && (
         <>
-          <div style={{ background: C.weiss, borderRadius: 16, padding: 22, boxShadow: "0 2px 16px rgba(20,20,20,0.07)", marginBottom: 18 }}>
+          <div style={{ background: C.weiss, borderRadius: 16, padding: 22, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", marginBottom: 18 }}>
             <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 10 }}>
               {a.typ === "zweipunkte" ? "Gerade durch zwei Punkte" : "Gerade durch Punkt mit gegebener Steigung"}
             </p>
@@ -738,7 +738,7 @@ export function KIAufgaben({ eingebettet }) {
             <p style={{ color: C.hellgrau, fontSize: 12, fontWeight: 300, marginTop: 12 }}>{quelle}</p>
           </div>
 
-          <div style={{ background: C.weiss, borderRadius: 16, padding: 22, boxShadow: "0 2px 16px rgba(20,20,20,0.07)" }}>
+          <div style={{ background: C.weiss, borderRadius: 16, padding: 22, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" }}>
             <p style={{ fontSize: 13, color: C.grau, fontWeight: 300, marginBottom: 14 }}>Deine Lösung</p>
             <div className="flex items-center flex-wrap" style={{ gap: 8 }}>
               <span style={{ fontSize: 19 }}>y =</span>
@@ -774,7 +774,7 @@ export function KIAufgaben({ eingebettet }) {
           </div>
 
           {geprueft && (
-            <div className="mt-5" style={{ background: C.weiss, borderRadius: 16, padding: 16, boxShadow: "0 2px 16px rgba(20,20,20,0.07)" }}>
+            <div className="mt-5" style={{ background: C.weiss, borderRadius: 16, padding: 16, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" }}>
               <Schaubild a={a} mS={mS} bS={bS} />
               <div className="flex flex-wrap justify-center mt-3" style={{ gap: 18 }}>
                 <span className="flex items-center" style={{ gap: 7, fontSize: 12, color: C.grau }}>
@@ -877,7 +877,7 @@ export function Kurse() {
   const KaufBlock = ({ k, gross }) => (
     <div>
       <button onClick={() => kaufen(k.id)} className={gross ? "w-full px-6 py-4" : "px-6 py-3"}
-        style={{ background: C.gruenDunkel, color: C.weiss, border: "none", borderRadius: 999, fontSize: gross ? 17 : 15, fontWeight: 600, fontFamily: "inherit", cursor: "pointer", boxShadow: "0 4px 18px rgba(179,0,0,0.22)" }}>
+        style={{ background: C.gruenDunkel, color: C.weiss, border: "none", borderRadius: 999, fontSize: gross ? 17 : 15, fontWeight: 600, fontFamily: "inherit", cursor: "pointer", boxShadow: "0 4px 18px rgba(127,0,52,0.22)" }}>
         Kurs kaufen · {k.preis} €
       </button>
       {hinweis && (
@@ -897,7 +897,7 @@ export function Kurse() {
           ← Alle Kurse
         </button>
 
-        <div style={{ borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 22px rgba(20,20,20,0.14)", marginBottom: 20 }}>
+        <div style={{ borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 22px rgba(15,26,51,0.14)", marginBottom: 20 }}>
           <KursGrafik art={k.grafik} hoehe={170} />
         </div>
 
@@ -914,7 +914,7 @@ export function Kurse() {
           <p key={i} style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.75, marginBottom: 14 }}>{t}</p>
         ))}
 
-        <div style={{ background: C.weiss, borderRadius: 16, padding: 22, marginTop: 12, marginBottom: 20, boxShadow: "0 2px 16px rgba(20,20,20,0.07)" }}>
+        <div style={{ background: C.weiss, borderRadius: 16, padding: 22, marginTop: 12, marginBottom: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" }}>
           <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 14 }}>Das kannst du danach</p>
           {k.lernst.map((t, i) => (
             <div key={i} className="flex" style={{ marginBottom: i === k.lernst.length - 1 ? 0 : 11 }}>
@@ -950,7 +950,7 @@ export function Kurse() {
       </p>
 
       {KURSE.map((k) => (
-        <div key={k.id} style={{ background: C.weiss, borderRadius: 18, overflow: "hidden", marginBottom: 20, boxShadow: "0 3px 18px rgba(20,20,20,0.09)" }}>
+        <div key={k.id} style={{ background: C.weiss, borderRadius: 18, overflow: "hidden", marginBottom: 20, boxShadow: "0 3px 18px rgba(15,26,51,0.09)" }}>
           <KursGrafik art={k.grafik} />
           <div className="px-5 py-5">
             <p style={{ fontSize: 12, fontWeight: 600, color: C.gruenDunkel, marginBottom: 6 }}>{k.stufe}</p>
@@ -1029,7 +1029,7 @@ export function BeweisTraining() {
     <div>
       <div className="flex items-end" style={{ gap: 5, height: 46 }}>
         {DEMO.wochen.map((w, i) => (
-          <div key={i} style={{ flex: 1, height: `${w}%`, background: i === DEMO.wochen.length - 1 ? C.see : "#E5E0D2", borderRadius: 3 }} />
+          <div key={i} style={{ flex: 1, height: `${w}%`, background: i === DEMO.wochen.length - 1 ? C.see : "#D5DEEE", borderRadius: 3 }} />
         ))}
       </div>
       <div className="flex justify-between mt-2" style={{ fontSize: 11, color: C.hellgrau }}>
@@ -1096,7 +1096,7 @@ export function Satz({ children }) {
 export function Knopf({ children, onClick, breit }) {
   return (
     <button onClick={onClick} className={breit ? "w-full px-6 py-4" : "px-6 py-3"}
-      style={{ background: C.gruenDunkel, color: C.weiss, border: "none", borderRadius: 999, fontSize: breit ? 16 : 15, fontWeight: 600, fontFamily: "inherit", cursor: "pointer", boxShadow: "0 4px 18px rgba(179,0,0,0.2)" }}>
+      style={{ background: C.gruenDunkel, color: C.weiss, border: "none", borderRadius: 999, fontSize: breit ? 16 : 15, fontWeight: 600, fontFamily: "inherit", cursor: "pointer", boxShadow: "0 4px 18px rgba(127,0,52,0.2)" }}>
       {children}
     </button>
   );

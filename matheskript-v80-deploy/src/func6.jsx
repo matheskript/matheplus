@@ -116,7 +116,7 @@ export function LoesungsWeg({ titelTex, aufgabeText, typ, auf, onSchliessen }) {
         {/* Aufgabe */}
         {(titelTex || aufgabeText) && (
           <div style={{ background: C.weiss, borderRadius: 14, padding: 16, marginTop: 14, marginBottom: 12,
-            boxShadow: "0 2px 14px rgba(20,20,20,0.06)" }}>
+            boxShadow: "0 2px 14px rgba(15,26,51,0.06)" }}>
             {aufgabeText && <p style={{ fontSize: 14, color: C.grau, fontWeight: 300, lineHeight: 1.7, marginBottom: titelTex ? 8 : 0 }}>{aufgabeText}</p>}
             {titelTex && <div style={{ fontSize: 18, lineHeight: 2 }}>f(x) = <M t={titelTex} /></div>}
           </div>
@@ -124,7 +124,7 @@ export function LoesungsWeg({ titelTex, aufgabeText, typ, auf, onSchliessen }) {
 
         {/* Zeilen */}
         <div style={{ background: C.weiss, borderRadius: 14, padding: 12, marginBottom: 8,
-          boxShadow: "0 2px 14px rgba(20,20,20,0.06)" }}>
+          boxShadow: "0 2px 14px rgba(15,26,51,0.06)" }}>
           {zeilen.map((z, i) => {
             const dran = i === aktiv;
             const fehlerhaft = bericht && bericht.fehler.some((f) => f.startsWith(`Zeile ${i + 1}:`));
@@ -165,7 +165,7 @@ export function LoesungsWeg({ titelTex, aufgabeText, typ, auf, onSchliessen }) {
         {/* Untertastatur */}
         {panel && (
           <div style={{ background: C.weiss, borderRadius: 14, padding: 12, marginTop: 6,
-            boxShadow: "0 2px 14px rgba(20,20,20,0.06)" }}>
+            boxShadow: "0 2px 14px rgba(15,26,51,0.06)" }}>
             {panel === "abc" && (
               <div className="flex gap-2 mb-2">
                 {[["klein", false], ["GROSS", true]].map(([n, v]) => (
@@ -222,7 +222,7 @@ export function LoesungsWeg({ titelTex, aufgabeText, typ, auf, onSchliessen }) {
 
         {bericht && (
           <div style={{ background: C.weiss, borderRadius: 14, padding: 18, marginTop: 14,
-            boxShadow: "0 2px 14px rgba(20,20,20,0.06)" }}>
+            boxShadow: "0 2px 14px rgba(15,26,51,0.06)" }}>
             <p style={{ fontSize: 15.5, fontWeight: 600, marginBottom: 10,
               color: bericht.vollstaendig ? C.see : C.signal }}>
               {bericht.vollstaendig ? "Der Weg ist vollständig und trägt." : "Der Weg ist noch nicht vollständig."}
@@ -426,7 +426,7 @@ export function Profil({ gehe }) {
           : "Dein Profil und dein Lernstand. Beides wird auf diesem Gerät gespeichert."}
       </p>
 
-      <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(20,20,20,0.07)", marginBottom: 18 }}>
+      <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", marginBottom: 18 }}>
         <p style={{ fontSize: 13, color: C.grau, fontWeight: 300, marginBottom: 8 }}>Wie sollen wir dich nennen?</p>
         <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Vorname"
           style={{ width: "100%", boxSizing: "border-box", padding: "12px 14px", fontSize: 16, fontFamily: "inherit",
@@ -461,7 +461,7 @@ export function Profil({ gehe }) {
 
       {!neu && (
         <>
-          <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(20,20,20,0.07)", marginTop: 22 }}>
+          <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", marginTop: 22 }}>
             <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 12 }}>Dein Lernstand</p>
             {["sicher", "vermutet", "arbeit", "luecke"].map((s) => (
               <div key={s} className="flex justify-between items-center" style={{ marginBottom: 9 }}>
@@ -686,7 +686,7 @@ export function Einstufung({ gehe }) {
           <div style={{ height: 5, borderRadius: 999, background: C.see, width: `${(gefragt.size / EINSTUFUNG_MAX) * 100}%` }} />
         </div>
 
-        <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(20,20,20,0.07)" }}>
+        <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" }}>
           <p style={{ fontSize: 12, color: C.hellgrau, marginBottom: 8 }}>{STUFEN.find((s) => s.id === k.stufe).name}</p>
           <Text s={aufgabe.frage} style={{ fontSize: 17, lineHeight: 1.85, marginBottom: 16 }} />
 
@@ -742,7 +742,7 @@ export function Einstufung({ gehe }) {
         <p style={{ fontSize: 22, fontWeight: 700, color: C.weiss, lineHeight: 1.35 }}>
           {richtig} von {gesamt} Kompetenzen sitzen.
         </p>
-        <p style={{ fontSize: 14.5, color: "#E8DCB5", fontWeight: 300, lineHeight: 1.75, marginTop: 10 }}>
+        <p style={{ fontSize: 14.5, color: "#C9D6EE", fontWeight: 300, lineHeight: 1.75, marginTop: 10 }}>
           {luecken.length === 0
             ? "Keine Lücke gefunden. Du kannst direkt auf deiner Stufe weitermachen."
             : `Die tiefste Lücke liegt in ${STUFEN.find((s) => s.id === luecken[0].stufe).name}. Dort fängt dein Weg an — nicht bei der Klassenarbeit, sondern bei dem, worauf sie aufbaut.`}
@@ -750,7 +750,7 @@ export function Einstufung({ gehe }) {
       </div>
 
       {luecken.length > 0 && (
-        <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(20,20,20,0.07)", marginBottom: 18 }}>
+        <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", marginBottom: 18 }}>
           <p style={{ fontSize: 13, fontWeight: 600, color: C.signal, marginBottom: 12 }}>Gefundene Lücken</p>
           {luecken.map((k) => (
             <div key={k.id} className="flex justify-between" style={{ marginBottom: 9, gap: 10 }}>
@@ -833,7 +833,7 @@ export function Liniennetz({ bereich, stand, auswahl, naechste, waehlen }) {
   const H = y0 + 6;
 
   return (
-    <div style={{ background: C.weiss, borderRadius: 18, padding: "16px 8px 10px", boxShadow: "0 3px 18px rgba(20,20,20,0.08)", marginBottom: 16 }}>
+    <div style={{ background: C.weiss, borderRadius: 18, padding: "16px 8px 10px", boxShadow: "0 3px 18px rgba(15,26,51,0.08)", marginBottom: 16 }}>
       <div style={{ padding: "0 10px 10px" }}>
         <p style={{ fontSize: 11.5, letterSpacing: "1.4px", color: C.gruenDunkel, fontWeight: 600, marginBottom: 4 }}>BEREICH {bereich.id}</p>
         <p style={{ fontSize: 18, fontWeight: 700, letterSpacing: "-0.01em" }}>{bereich.name}</p>
@@ -846,7 +846,7 @@ export function Liniennetz({ bereich, stand, auswahl, naechste, waehlen }) {
         ))}
         {baender.map((b, bi) => (
           <g key={b.s.id}>
-            <rect x="3" y={b.y} width={B - 6} height={b.hoehe - 3} rx="10" fill={bi % 2 ? "#FAF8F2" : "#FFFFFF"} stroke={C.linie} strokeWidth="0.8" />
+            <rect x="3" y={b.y} width={B - 6} height={b.hoehe - 3} rx="10" fill={bi % 2 ? "#F3F7FC" : "#FFFFFF"} stroke={C.linie} strokeWidth="0.8" />
             <text x="9" y={b.y + 14} fontSize="8" fill={C.hellgrau} fontWeight="600">{b.s.name}</text>
           </g>
         ))}
@@ -910,7 +910,7 @@ export function Lernlandkarte({ gehe }) {
   return (
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
       {/* Zusammenfassung */}
-      <div style={{ background: C.weiss, borderRadius: 18, padding: 20, boxShadow: "0 3px 18px rgba(20,20,20,0.08)", marginBottom: 16 }}>
+      <div style={{ background: C.weiss, borderRadius: 18, padding: 20, boxShadow: "0 3px 18px rgba(15,26,51,0.08)", marginBottom: 16 }}>
         <div className="flex justify-between items-baseline" style={{ marginBottom: 10 }}>
           <span style={{ fontSize: 13, fontWeight: 600, color: C.see }}>
             {L.profil ? `${L.profil.name} · Klasse ${L.profil.klasse}` : "Noch kein Profil"}
@@ -920,7 +920,7 @@ export function Lernlandkarte({ gehe }) {
         <div style={{ height: 8, borderRadius: 999, background: C.himmel, overflow: "hidden", display: "flex" }}>
           {["sicher", "vermutet", "arbeit", "luecke"].map((s) => (
             <div key={s} style={{ width: `${((zaehler[s] || 0) / AKTIVE.length) * 100}%`,
-              background: s === "sicher" ? C.see : s === "vermutet" ? "#F2D46B" : s === "arbeit" ? C.gruenDunkel : C.signal }} />
+              background: s === "sicher" ? C.see : s === "vermutet" ? "#8FB1DD" : s === "arbeit" ? C.gruenDunkel : C.signal }} />
           ))}
         </div>
         {naechste && (
@@ -969,7 +969,7 @@ export function Lernlandkarte({ gehe }) {
         const s2 = stand[k.id];
         const niveau = STUFEN.find((s) => s.id === k.stufe);
         return (
-          <div className="auftauchen" style={{ background: C.weiss, borderRadius: 18, padding: 20, boxShadow: "0 3px 18px rgba(20,20,20,0.1)", marginBottom: 16, borderTop: `4px solid ${linie.farbe}` }}>
+          <div className="auftauchen" style={{ background: C.weiss, borderRadius: 18, padding: 20, boxShadow: "0 3px 18px rgba(15,26,51,0.1)", marginBottom: 16, borderTop: `4px solid ${linie.farbe}` }}>
             <p style={{ fontSize: 12, color: linie.farbe, fontWeight: 600, marginBottom: 6 }}>
               {linie.kurz} · {linie.name} · {niveau.name}
             </p>
@@ -995,7 +995,7 @@ export function Lernlandkarte({ gehe }) {
             <BrueckenListe titel="Das brauchst du wieder bei" eintraege={VORAUSBLICK[k.id] || []} waehlen={waehlen} stand={stand} />
 
             {k.buch && (
-              <div style={{ background: "#FAF8F2", borderRadius: 12, padding: "10px 12px", marginTop: 16 }}>
+              <div style={{ background: "#F3F7FC", borderRadius: 12, padding: "10px 12px", marginTop: 16 }}>
                 <p style={{ fontSize: 11.5, fontWeight: 600, color: C.see, marginBottom: 3 }}>Im Schulbuch · Lambacher Schweizer</p>
                 {buchVerweis(k.buch).map((z, i) => <p key={i} style={{ fontSize: 13, color: C.tinte, lineHeight: 1.6 }}>{z}</p>)}
               </div>

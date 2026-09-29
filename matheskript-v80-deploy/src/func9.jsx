@@ -40,7 +40,7 @@ export function Auswertung() {
   const vergleich = paarTest || welch(a.A.g, a.B.g);
   const vergleichHalten = welch(a.A.halten, a.B.halten);
   const gi = intervall(a.g);
-  const karte = { background: C.weiss, borderRadius: 18, padding: 20, boxShadow: "0 3px 18px rgba(20,20,20,0.08)", marginBottom: 14 };
+  const karte = { background: C.weiss, borderRadius: 18, padding: 20, boxShadow: "0 3px 18px rgba(15,26,51,0.08)", marginBottom: 14 };
   const zeile = (n, v) => (
     <div className="flex justify-between" style={{ marginBottom: 8, gap: 12 }}>
       <span style={{ fontSize: 14, color: C.grau }}>{n}</span><span style={{ fontSize: 14, fontWeight: 600, textAlign: "right" }}>{v}</span>
@@ -289,12 +289,12 @@ export function TerminHinweis({ gehe }) {
     <div className="auftauchen" style={{ background: `linear-gradient(160deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 18, padding: 20, marginBottom: 14 }}>
       <div className="flex justify-between items-baseline" style={{ gap: 10 }}>
         <span style={{ fontSize: 13, fontWeight: 600, color: C.weiss }}>{t.art} {tageText(p.rest)}</span>
-        <span style={{ fontSize: 12.5, color: "#E8DCB5" }}>{p.sitzen} von {p.ziel.length} sitzen</span>
+        <span style={{ fontSize: 12.5, color: "#C9D6EE" }}>{p.sitzen} von {p.ziel.length} sitzen</span>
       </div>
       <p style={{ fontSize: 17, fontWeight: 600, color: C.weiss, lineHeight: 1.4, marginTop: 10 }}>
         {titel ? `Heute: ${titel}` : p.naechster ? `Heute frei. Weiter am ${datumKurz(p.naechster.d)}.` : "Heute frei."}
       </p>
-      {heute.length > 1 && <p style={{ fontSize: 13, color: "#E8DCB5", marginTop: 4 }}>und {heute.length - 1} weitere{heute.length > 2 ? "" : "r"} Schritt{heute.length > 2 ? "e" : ""}</p>}
+      {heute.length > 1 && <p style={{ fontSize: 13, color: "#C9D6EE", marginTop: 4 }}>und {heute.length - 1} weitere{heute.length > 2 ? "" : "r"} Schritt{heute.length > 2 ? "e" : ""}</p>}
       {p.fehlend > 0 && <p style={{ fontSize: 13, color: C.weiss, marginTop: 8 }}>Die Zeit ist knapp — schau in den Plan.</p>}
       <button onClick={() => gehe({ ansicht: "vorbereiten", termin: t.id })} className="mt-4"
         style={{ height: 42, padding: "0 20px", background: C.weiss, color: C.seeTief, border: "none", borderRadius: 999,
@@ -343,7 +343,7 @@ export function TerminProbe({ termin, minuten, onFertig, onAbbruch }) {
     return () => clearTimeout(z);
   }, [rest, ergebnis]);
 
-  const karte = { background: C.weiss, borderRadius: 18, padding: 20, boxShadow: "0 3px 18px rgba(20,20,20,0.08)", marginBottom: 14 };
+  const karte = { background: C.weiss, borderRadius: 18, padding: 20, boxShadow: "0 3px 18px rgba(15,26,51,0.08)", marginBottom: 14 };
   const knopf = { height: 48, padding: "0 24px", background: C.gruenDunkel, color: C.weiss, border: "none", borderRadius: 999, fontSize: 15.5, fontWeight: 600, fontFamily: "inherit", cursor: "pointer" };
 
   if (!aufgaben.length) return (
@@ -360,7 +360,7 @@ export function TerminProbe({ termin, minuten, onFertig, onAbbruch }) {
       <div>
         <div style={{ background: `linear-gradient(160deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 18, padding: 22, marginBottom: 14 }}>
           <p style={{ fontSize: 22, fontWeight: 700, color: C.weiss }}>{n} von {aufgaben.length} richtig</p>
-          <p style={{ fontSize: 14, color: "#E8DCB5", fontWeight: 300, lineHeight: 1.7, marginTop: 8 }}>
+          <p style={{ fontSize: 14, color: "#C9D6EE", fontWeight: 300, lineHeight: 1.7, marginTop: 8 }}>
             {fehler.length
               ? `Am letzten Tag vor dem Termin arbeitest du nur noch an: ${fehler.map((id) => KOMP[id].titel).join(", ")}.`
               : "Alles hat getragen. Am letzten Tag reicht eine kurze Runde zum Aufwärmen."}
@@ -433,7 +433,7 @@ export function TerminFormular({ onFertig, onAbbruch }) {
     onFertig(t.id);
   };
 
-  const karte = { background: C.weiss, borderRadius: 18, padding: 20, boxShadow: "0 3px 18px rgba(20,20,20,0.08)", marginBottom: 14 };
+  const karte = { background: C.weiss, borderRadius: 18, padding: 20, boxShadow: "0 3px 18px rgba(15,26,51,0.08)", marginBottom: 14 };
   return (
     <div>
       <div style={karte}>
@@ -508,7 +508,7 @@ export function TerminAnsicht({ t, gehe, zurueck, probeStarten }) {
   const L = LERN;
   const [loeschen, setLoeschen] = useState(false);
   const p = terminPlan(L, t);
-  const karte = { background: C.weiss, borderRadius: 18, padding: 20, boxShadow: "0 3px 18px rgba(20,20,20,0.08)", marginBottom: 14 };
+  const karte = { background: C.weiss, borderRadius: 18, padding: 20, boxShadow: "0 3px 18px rgba(15,26,51,0.08)", marginBottom: 14 };
 
   if (p.vorbei) return (
     <div style={karte}>
@@ -550,15 +550,15 @@ export function TerminAnsicht({ t, gehe, zurueck, probeStarten }) {
       </button>
 
       <div style={{ background: `linear-gradient(160deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 20, padding: 22, marginBottom: 14 }}>
-        <p style={{ fontSize: 13, color: "#E8DCB5" }}>{t.art} am {datumKurz(datumAus(t.datum))}</p>
+        <p style={{ fontSize: 13, color: "#C9D6EE" }}>{t.art} am {datumKurz(datumAus(t.datum))}</p>
         <div className="flex items-end" style={{ gap: 12, marginTop: 6 }}>
           <span style={{ fontSize: 50, fontWeight: 700, color: C.weiss, lineHeight: 1, letterSpacing: "-0.03em" }}>{p.rest}</span>
-          <span style={{ fontSize: 15, color: "#E8DCB5", paddingBottom: 6 }}>{p.rest === 1 ? "Tag" : "Tage"} bis dahin</span>
+          <span style={{ fontSize: 15, color: "#C9D6EE", paddingBottom: 6 }}>{p.rest === 1 ? "Tag" : "Tage"} bis dahin</span>
         </div>
         <div style={{ height: 6, borderRadius: 999, background: "rgba(255,255,255,0.18)", marginTop: 16, overflow: "hidden" }}>
           <div style={{ height: 6, borderRadius: 999, background: C.gruen, width: `${p.ziel.length ? (p.sitzen / p.ziel.length) * 100 : 0}%` }} />
         </div>
-        <p style={{ fontSize: 13, color: "#E8DCB5", marginTop: 8 }}>
+        <p style={{ fontSize: 13, color: "#C9D6EE", marginTop: 8 }}>
           {p.sitzen} von {p.ziel.length} Stationen der Arbeit sitzen
           {t.probe?.am ? " · Probeklausur geschrieben" : ""}
         </p>
@@ -682,7 +682,7 @@ export function KlausurVorbereitung({ gehe, start }) {
         return (
           <button key={t.id} onClick={() => setModus(t.id)} className="kachel w-full"
             style={{ display: "block", width: "100%", textAlign: "left", background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 16,
-              padding: "16px 18px", marginBottom: 10, cursor: "pointer", fontFamily: "inherit", boxShadow: "0 2px 14px rgba(20,20,20,0.06)" }}>
+              padding: "16px 18px", marginBottom: 10, cursor: "pointer", fontFamily: "inherit", boxShadow: "0 2px 14px rgba(15,26,51,0.06)" }}>
             <span className="flex justify-between items-baseline" style={{ gap: 10 }}>
               <span style={{ fontSize: 16, fontWeight: 600, color: C.tinte }}>{t.art} · {datumKurz(datumAus(t.datum))}</span>
               <span style={{ fontSize: 13, fontWeight: 600, color: p.rest <= 3 ? C.signal : C.gruenDunkel }}>{tageText(p.rest)}</span>
@@ -743,7 +743,7 @@ export function Einwilligung({ onJa }) {
   ];
   return (
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620 }}>
-      <div style={{ background: C.weiss, borderRadius: 18, padding: 22, boxShadow: "0 3px 18px rgba(20,20,20,0.08)", marginBottom: 14 }}>
+      <div style={{ background: C.weiss, borderRadius: 18, padding: 22, boxShadow: "0 3px 18px rgba(15,26,51,0.08)", marginBottom: 14 }}>
         <p style={{ fontSize: 19, fontWeight: 700, letterSpacing: "-0.01em", marginBottom: 14 }}>Bevor du das erste Foto machst</p>
         {punkte.map(([t, s], i) => (
           <div key={i} style={{ paddingBottom: 12, marginBottom: 12, borderBottom: i < punkte.length - 1 ? `1px solid ${C.linie}` : "none" }}>

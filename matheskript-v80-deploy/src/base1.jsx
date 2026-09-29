@@ -11,29 +11,30 @@ export function hexZuRgba(hex, alpha) {
 
 /* Matheskript · Version 80 */
 
-/* Deutschlandfarben: Schwarz trägt die Flächen (Kopfleiste, Menü, dunkle Karten),
-   Rot ist Marke und Handlung, Gold setzt Akzente und markiert das Aktive.
-   Rostbraun bleibt der Fehlerfarbe vorbehalten, damit sie nicht mit Rot verschwimmt.
-   (Die Schlüsselnamen see/seeTief/himmel sind historisch und bleiben aus Kompatibilität.) */
+/* FC-Barcelona-Farben (Blaugrana): Barça-Blau trägt die Flächen (Kopfleiste, Menü,
+   dunkle Karten), Grana ist Marke und Handlung, Gold aus dem Wappen setzt Akzente
+   und markiert das Aktive. Rostbraun bleibt der Fehlerfarbe vorbehalten.
+   (Die Schlüsselnamen see/seeTief/gruen/flaggold sind historisch und bleiben aus Kompatibilität.) */
 
 export const C = {
-  see: "#1C1C1C",
-  seeTief: "#0A0A0A",
-  himmel: "#FFF6D9",
-  sand: "#FBFAF7",
+  see: "#004D98",
+  seeTief: "#0E1E4A",
+  himmel: "#E8EFF9",
+  sand: "#F8FAFD",
   weiss: "#FFFFFF",
-  gruen: "#DD0000",
-  gruenDunkel: "#B30000",
+  gruen: "#A50044",
+  gruenDunkel: "#7F0034",
+  granaHell: "#D4145A",
   signal: "#B85C2E",
-  tinte: "#141414",
-  grau: "#666666",
-  hellgrau: "#A8A8A8",
-  linie: "#ECE8DF",
-  seeHell: "#E0B000",
-  ablGrau: "#9A9A9A",
-  /* Flaggengold für Akzente auf Schwarz */
-  flaggold: "#FFCE00",
-  goldText: "#E8DCB5",
+  tinte: "#0F1A33",
+  grau: "#5A6582",
+  hellgrau: "#A3ACC2",
+  linie: "#E3E8F2",
+  seeHell: "#5B8FD1",
+  ablGrau: "#8E98B3",
+  /* Barça-Gold für Akzente auf Blau */
+  flaggold: "#EDBB00",
+  goldText: "#C9D6EE",
   /* Nur für die Koeffizienten-Farbcodierung im Polynomplotter — dort trägt jeder
      der fünf Koeffizienten eine eigene Farbe, das reguläre Farbschema reicht dafür nicht. */
   gold: "#B8860B",

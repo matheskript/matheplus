@@ -71,14 +71,14 @@ Antworte auf Deutsch, ohne Vorrede.`;
   };
 
   return (
-    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 130, display: "flex", alignItems: "flex-end" }}>
+    <div style={{ position: "fixed", inset: 0, background: "rgba(14,30,74,0.5)", zIndex: 130, display: "flex", alignItems: "flex-end" }}>
       <div className="auftauchen" style={{ width: "100%", maxWidth: 620, margin: "0 auto", background: C.sand, borderRadius: "20px 20px 0 0",
         maxHeight: "86vh", display: "flex", flexDirection: "column" }}>
         <div className="flex items-center justify-between" style={{ padding: "14px 20px", background: C.seeTief, borderRadius: "20px 20px 0 0" }}>
           <span style={{ color: C.weiss, fontSize: 15.5, fontWeight: 600 }}>
             Frag <span style={{ color: C.gruen }}>Mathilda</span>
           </span>
-          <button onClick={onSchliessen} style={{ background: "none", border: "none", color: "#E8DCB5", fontSize: 14, fontFamily: "inherit", cursor: "pointer" }}>
+          <button onClick={onSchliessen} style={{ background: "none", border: "none", color: "#C9D6EE", fontSize: 14, fontFamily: "inherit", cursor: "pointer" }}>
             schließen
           </button>
         </div>
@@ -104,7 +104,7 @@ Antworte auf Deutsch, ohne Vorrede.`;
             <div key={i} style={{ display: "flex", justifyContent: m.rolle === "schueler" ? "flex-end" : "flex-start", marginBottom: 10 }}>
               <div style={{ maxWidth: "84%", padding: "10px 14px", borderRadius: 16,
                 background: m.rolle === "schueler" ? C.see : C.weiss, color: m.rolle === "schueler" ? C.weiss : C.tinte,
-                boxShadow: m.rolle === "schueler" ? "none" : "0 2px 10px rgba(20,20,20,0.06)",
+                boxShadow: m.rolle === "schueler" ? "none" : "0 2px 10px rgba(15,26,51,0.06)",
                 borderBottomRightRadius: m.rolle === "schueler" ? 4 : 16, borderBottomLeftRadius: m.rolle === "schueler" ? 16 : 4 }}>
                 <Text s={m.text} style={{ margin: 0, fontSize: 14.5, lineHeight: 1.7 }} />
               </div>
@@ -275,7 +275,7 @@ export function EinheitSpieler({ id, gehe }) {
   const testRichtig = testErg.filter(Boolean).length;
 
   const Vis = e.visual ? VISUALISIERUNGEN[e.visual] : null;
-  const karte = { background: C.weiss, borderRadius: 18, padding: 20, boxShadow: "0 3px 18px rgba(20,20,20,0.08)", marginBottom: 16 };
+  const karte = { background: C.weiss, borderRadius: 18, padding: 20, boxShadow: "0 3px 18px rgba(15,26,51,0.08)", marginBottom: 16 };
   const hauptKnopf = { height: 48, padding: "0 26px", background: C.gruenDunkel, color: C.weiss, border: "none", borderRadius: 999,
     fontSize: 15.5, fontWeight: 600, fontFamily: "inherit", cursor: "pointer" };
   const nebenKnopf = { height: 48, padding: "0 22px", background: C.weiss, color: C.see, border: `1px solid ${C.linie}`,
@@ -561,7 +561,7 @@ export function EinheitSpieler({ id, gehe }) {
                   {testRichtig >= TEST_GRENZE ? "GESICHERT" : "NOCH NICHT GANZ"}
                 </p>
                 <p style={{ fontSize: 22, fontWeight: 700, color: C.weiss }}>{testRichtig} von {TEST_ANZAHL} richtig</p>
-                <p style={{ fontSize: 14.5, color: "#E8DCB5", fontWeight: 300, lineHeight: 1.75, marginTop: 10 }}>
+                <p style={{ fontSize: 14.5, color: "#C9D6EE", fontWeight: 300, lineHeight: 1.75, marginTop: 10 }}>
                   {testRichtig >= TEST_GRENZE
                     ? "Diese Kompetenz trägt. Morgen kommt sie zum ersten Mal zur Wiederholung — erst wenn sie dann noch sitzt, ist sie wirklich gefestigt."
                     : `Für die Sicherung fehlen ${TEST_GRENZE - testRichtig}. Das ist keine Niederlage, sondern eine Information: Übe noch ein paar Aufgaben, dann versuch es erneut.`}
@@ -642,7 +642,7 @@ export function Wiederholen({ gehe }) {
     setBilanz((b) => ({ n: b.n + 1, ok: b.ok + (ok ? 1 : 0) }));
   };
 
-  const karte = { background: C.weiss, borderRadius: 18, padding: 20, boxShadow: "0 3px 18px rgba(20,20,20,0.08)", marginBottom: 16 };
+  const karte = { background: C.weiss, borderRadius: 18, padding: 20, boxShadow: "0 3px 18px rgba(15,26,51,0.08)", marginBottom: 16 };
   const hauptKnopf = { height: 48, padding: "0 26px", background: C.gruenDunkel, color: C.weiss, border: "none", borderRadius: 999,
     fontSize: 15.5, fontWeight: 600, fontFamily: "inherit", cursor: "pointer" };
 
@@ -691,7 +691,7 @@ export function Wiederholen({ gehe }) {
       {sitzung && (
         <div className="auftauchen" style={{ background: `linear-gradient(160deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 18, padding: 22, marginBottom: 16 }}>
           <p style={{ fontSize: 20, fontWeight: 700, color: C.weiss }}>{bilanz.ok} von {bilanz.n} sitzen noch</p>
-          <p style={{ fontSize: 14, color: "#E8DCB5", fontWeight: 300, lineHeight: 1.7, marginTop: 8 }}>
+          <p style={{ fontSize: 14, color: "#C9D6EE", fontWeight: 300, lineHeight: 1.7, marginTop: 8 }}>
             Was sitzt, kommt jetzt seltener. Was verblasst ist, morgen wieder.
           </p>
         </div>
@@ -818,7 +818,7 @@ export function Operatoren() {
 
       {reiter === "training" && (
         <>
-          <div style={{ background: C.weiss, borderRadius: 18, padding: 20, boxShadow: "0 3px 18px rgba(20,20,20,0.08)", marginBottom: 14 }}>
+          <div style={{ background: C.weiss, borderRadius: 18, padding: 20, boxShadow: "0 3px 18px rgba(15,26,51,0.08)", marginBottom: 14 }}>
             <div className="flex justify-between items-center" style={{ marginBottom: 12 }}>
               <OperatorMarke op={fall.op} afb={fall.afb} />
               {bilanz.n > 0 && <span style={{ fontSize: 12, color: C.hellgrau }}>{bilanz.ok} von {bilanz.n}</span>}
@@ -858,7 +858,7 @@ export function Operatoren() {
       )}
 
       {reiter === "liste" && OPERATOREN.map((o) => (
-        <div key={o.op} style={{ background: C.weiss, borderRadius: 14, marginBottom: 8, boxShadow: "0 2px 12px rgba(20,20,20,0.05)" }}>
+        <div key={o.op} style={{ background: C.weiss, borderRadius: 14, marginBottom: 8, boxShadow: "0 2px 12px rgba(15,26,51,0.05)" }}>
           <button onClick={() => setOffen(offen === o.op ? null : o.op)} className="w-full flex justify-between items-center"
             style={{ background: "none", border: "none", padding: "14px 16px", cursor: "pointer", fontFamily: "inherit" }}>
             <OperatorMarke op={o.op} afb={o.afb} />
@@ -955,7 +955,7 @@ Die Liste "kriterien" hat genau ${a.raster.length} Einträge in der Reihenfolge 
         ))}
       </div>
 
-      <div style={{ background: C.weiss, borderRadius: 18, padding: 20, boxShadow: "0 3px 18px rgba(20,20,20,0.08)", marginBottom: 14 }}>
+      <div style={{ background: C.weiss, borderRadius: 18, padding: 20, boxShadow: "0 3px 18px rgba(15,26,51,0.08)", marginBottom: 14 }}>
         <div style={{ marginBottom: 12 }}><OperatorMarke op={a.op} afb={a.afb} /></div>
         <Text s={a.aufgabe} style={{ fontSize: 16.5, lineHeight: 1.8, marginBottom: 14 }} />
         <textarea value={text} onChange={(e) => setText(e.target.value)} disabled={phase === "ergebnis"} rows={6}
@@ -971,7 +971,7 @@ Die Liste "kriterien" hat genau ${a.raster.length} Einträge in der Reihenfolge 
       </div>
 
       {phase !== "schreiben" && (
-        <div className="auftauchen" style={{ background: C.weiss, borderRadius: 18, padding: 20, boxShadow: "0 3px 18px rgba(20,20,20,0.08)", marginBottom: 14 }}>
+        <div className="auftauchen" style={{ background: C.weiss, borderRadius: 18, padding: 20, boxShadow: "0 3px 18px rgba(15,26,51,0.08)", marginBottom: 14 }}>
           <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 4 }}>Bewertungsraster</p>
           <p style={{ fontSize: 13, color: C.grau, fontWeight: 300, marginBottom: 14 }}>
             {phase === "selbst" ? "Hake ab, was in deiner Antwort wirklich steht — nicht, was du gemeint hast." : "Links deine Einschätzung, rechts Mathildas."}
@@ -1016,7 +1016,7 @@ Die Liste "kriterien" hat genau ${a.raster.length} Einträge in der Reihenfolge 
         <div className="auftauchen">
           <div style={{ background: `linear-gradient(160deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 18, padding: 22, marginBottom: 14 }}>
             <p style={{ fontSize: 20, fontWeight: 700, color: C.weiss }}>{erfuelltKI} von {a.raster.length} Kriterien</p>
-            <p style={{ fontSize: 13.5, color: "#E8DCB5", fontWeight: 300, marginTop: 4 }}>
+            <p style={{ fontSize: 13.5, color: "#C9D6EE", fontWeight: 300, marginTop: 4 }}>
               Du hattest dir {erfuelltSelbst} gegeben.{" "}
               {erfuelltSelbst > erfuelltKI ? "Du schätzt dich großzügiger ein — genau das kostet in Klausuren Punkte."
                 : erfuelltSelbst < erfuelltKI ? "Du bist strenger mit dir als nötig." : "Deine Einschätzung trifft."}

@@ -36,25 +36,25 @@ export function ausAbleitungstyp(typId, stufen) {
 
 
 export const LINIEN = [
-  { id: "A1", bereich: "A", name: "Zahlen und Zahlbereiche", kurz: "A1", farbe: "#1C1C1C",
+  { id: "A1", bereich: "A", name: "Zahlen und Zahlbereiche", kurz: "A1", farbe: "#004D98",
     satz: "Jeder neue Zahlbereich entsteht, weil eine Rechnung rückwärts nicht aufging." },
-  { id: "A2", bereich: "A", name: "Terme als Werkzeug", kurz: "A2", farbe: "#B8860B",
+  { id: "A2", bereich: "A", name: "Terme als Werkzeug", kurz: "A2", farbe: "#3E7CC4",
     satz: "Das Handwerk, das jede Gleichung braucht: umformen, ausklammern, faktorisieren." },
-  { id: "A3", bereich: "A", name: "Die Leiter der Umkehrungen", kurz: "A3", farbe: "#B30000",
+  { id: "A3", bereich: "A", name: "Die Leiter der Umkehrungen", kurz: "A3", farbe: "#7F0034",
     satz: "Jede Sprosse bringt eine Rechenart, ihre Umkehrung und die Gleichung, die sie löst." },
-  { id: "A4", bereich: "A", name: "Mehrere Unbekannte", kurz: "A4", farbe: "#4A4A4A",
+  { id: "A4", bereich: "A", name: "Mehrere Unbekannte", kurz: "A4", farbe: "#1A2B5F",
     satz: "Mehr Unbekannte, mehr Gleichungen — und ein System, das sie auflöst." },
-  { id: "B1", bereich: "B", name: "Funktionen verstehen", kurz: "B1", farbe: "#6B6B6B",
+  { id: "B1", bereich: "B", name: "Funktionen verstehen", kurz: "B1", farbe: "#5A6582",
     satz: "Situation, Tabelle, Graph und Term sind vier Ansichten derselben Sache." },
-  { id: "B2", bereich: "B", name: "Funktionsfamilien", kurz: "B2", farbe: "#1C1C1C",
+  { id: "B2", bereich: "B", name: "Funktionsfamilien", kurz: "B2", farbe: "#004D98",
     satz: "Jede Familie hat ihren Charakter — wer ihn kennt, erkennt den Graphen am Term." },
-  { id: "B3", bereich: "B", name: "Funktionen verwandeln", kurz: "B3", farbe: "#DD0000",
+  { id: "B3", bereich: "B", name: "Funktionen verwandeln", kurz: "B3", farbe: "#A50044",
     satz: "Verschieben, strecken, spiegeln: eine Idee, die fünf Jahre lang wiederkommt." },
-  { id: "B4", bereich: "B", name: "Änderung und Steigung", kurz: "B4", farbe: "#B30000",
+  { id: "B4", bereich: "B", name: "Änderung und Steigung", kurz: "B4", farbe: "#7F0034",
     satz: "Vom Steigungsdreieck der Geraden bis zur Ableitung jeder Kurve." },
-  { id: "B5", bereich: "B", name: "Graphen untersuchen", kurz: "B5", farbe: "#4A4A4A",
+  { id: "B5", bereich: "B", name: "Graphen untersuchen", kurz: "B5", farbe: "#1A2B5F",
     satz: "Nullstellen, Extrema, Wendepunkte — alles Gleichungen aus der Algebra." },
-  { id: "B6", bereich: "B", name: "Ansammeln", kurz: "B6", farbe: "#D4A017",
+  { id: "B6", bereich: "B", name: "Ansammeln", kurz: "B6", farbe: "#C99A00",
     satz: "Integrieren ist Ableiten rückwärts." },
   { id: "B7", bereich: "B", name: "Modellieren mit Funktionen", kurz: "B7", farbe: "#8C2330",
     satz: "Wirklichkeit in Funktionen übersetzen — und das Ergebnis zurück." },
@@ -64,11 +64,11 @@ export const LINIEN = [
    bis diese Bereiche nach demselben Muster umgebaut sind. */
 
 export const LEITIDEEN_ALT = [
-  { id: "zahl", name: "Zahl · Variable · Operation", kurz: "Zahl", farbe: "#1C1C1C", versteckt: true },
-  { id: "mess", name: "Messen", kurz: "Messen", farbe: "#D4A017", versteckt: true },
-  { id: "raum", name: "Raum und Form", kurz: "Raum", farbe: "#4A4A4A", versteckt: true },
-  { id: "funk", name: "Funktionaler Zusammenhang", kurz: "Funktion", farbe: "#B30000", versteckt: true },
-  { id: "daten", name: "Daten und Zufall", kurz: "Daten", farbe: "#6B6B6B", versteckt: true },
+  { id: "zahl", name: "Zahl · Variable · Operation", kurz: "Zahl", farbe: "#004D98", versteckt: true },
+  { id: "mess", name: "Messen", kurz: "Messen", farbe: "#C99A00", versteckt: true },
+  { id: "raum", name: "Raum und Form", kurz: "Raum", farbe: "#1A2B5F", versteckt: true },
+  { id: "funk", name: "Funktionaler Zusammenhang", kurz: "Funktion", farbe: "#7F0034", versteckt: true },
+  { id: "daten", name: "Daten und Zufall", kurz: "Daten", farbe: "#5A6582", versteckt: true },
 ];
 
 export const LEITIDEEN = [...LINIEN, ...LEITIDEEN_ALT];
@@ -371,7 +371,7 @@ export const GRUPPE_ZU_KOMPETENZ = {
 
 export const STATUS_STIL = {
   sicher: { name: "gesichert", fuell: C.see, rand: C.see, text: C.weiss },
-  vermutet: { name: "vermutlich sicher", fuell: "#FFEFB0", rand: C.see, text: C.see },
+  vermutet: { name: "vermutlich sicher", fuell: "#D6E4F7", rand: C.see, text: C.see },
   arbeit: { name: "in Arbeit", fuell: C.weiss, rand: C.gruenDunkel, text: C.gruenDunkel },
   luecke: { name: "Lücke", fuell: "#F6E3DA", rand: C.signal, text: C.signal },
   offen: { name: "offen", fuell: C.weiss, rand: C.linie, text: C.grau },

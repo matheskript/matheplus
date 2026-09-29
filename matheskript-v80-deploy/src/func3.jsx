@@ -103,7 +103,7 @@ export function Plotter() {
         Ableitungen: Wo f′ die x-Achse schneidet, hat f einen Extrempunkt — wo f″ sie schneidet, einen Wendepunkt.
       </p>
 
-      <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(20,20,20,0.07)" }}>
+      <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" }}>
         {alleLeer ? (
           <p style={{ fontSize: 23, fontWeight: 700, marginBottom: 14, letterSpacing: "-0.01em" }}>f(x) = 0</p>
         ) : (
@@ -162,7 +162,7 @@ export function Plotter() {
           <div style={{
             position: "absolute", right: 8, bottom: 8, display: "flex", flexDirection: "column",
             borderRadius: 10, overflow: "hidden", border: `1px solid ${C.linie}`,
-            boxShadow: "0 2px 8px rgba(20,20,20,0.18)",
+            boxShadow: "0 2px 8px rgba(15,26,51,0.18)",
           }}>
             <button onClick={() => zoomen(1.3)} style={{ ...knopfZoom, borderBottom: `1px solid ${C.linie}` }}>+</button>
             <button onClick={() => zoomen(1 / 1.3)} style={knopfZoom}>−</button>
@@ -188,7 +188,7 @@ export function Plotter() {
         </div>
       </div>
 
-      <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(20,20,20,0.07)", marginTop: 18 }}>
+      <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", marginTop: 18 }}>
         <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 14 }}>Markante Punkte</p>
 
         <Zeile marke={<circle cx="7" cy="7" r="4.5" fill={C.weiss} stroke={C.see} strokeWidth="2.5" />}
@@ -865,7 +865,7 @@ Maschinenschreibweise: Potenzen mit ^, Multiplikation mit *, Funktionen als sin(
         {zaehler.n > 0 && <span style={{ fontSize: 12, color: C.hellgrau }}>{zaehler.ok} von {zaehler.n} richtig</span>}
       </div>
 
-      <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(20,20,20,0.07)" }}>
+      <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" }}>
         <Text s={aufgabe.frage} style={{ fontSize: 16.5, lineHeight: 1.85, marginBottom: 18 }} />
 
         {aufgabe.frei ? (
@@ -970,7 +970,7 @@ export function LernModul({ modul, onZurueck, startKapitel }) {
 
         {modul.kapitel.map((k) => (
           <button key={k.nr} onClick={() => { setKapitel(k); setReiter("theorie"); }} className="w-full px-5 py-5 mb-3"
-            style={{ background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 16, textAlign: "left", cursor: "pointer", fontFamily: "inherit", color: C.tinte, boxShadow: "0 2px 14px rgba(20,20,20,0.06)" }}>
+            style={{ background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 16, textAlign: "left", cursor: "pointer", fontFamily: "inherit", color: C.tinte, boxShadow: "0 2px 14px rgba(15,26,51,0.06)" }}>
             <div className="flex">
               <span style={{ color: C.gruenDunkel, fontWeight: 700, fontSize: 14, width: 26, flexShrink: 0 }}>{k.nr}</span>
               <div style={{ flex: 1 }}>
@@ -1027,7 +1027,7 @@ export function LernModul({ modul, onZurueck, startKapitel }) {
       {reiter === "beispiele" && (
         <div>
           {kapitel.beispiele.map((b, i) => (
-            <div key={i} style={{ background: C.weiss, borderRadius: 16, padding: 20, marginBottom: 16, boxShadow: "0 2px 16px rgba(20,20,20,0.07)" }}>
+            <div key={i} style={{ background: C.weiss, borderRadius: 16, padding: 20, marginBottom: 16, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" }}>
               <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 6 }}>Beispiel {i + 1} · {b.titel}</p>
               {b.schritte.map((s, j) => (
                 <div key={j} style={{ fontSize: 16.5, lineHeight: 2.2, color: C.tinte, overflowX: "auto" }}><M t={s} /></div>
@@ -1402,14 +1402,14 @@ export function RechenwegEditor({ onZurueck }) {
         ))}
       </div>
 
-      <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(20,20,20,0.07)", marginBottom: 16 }}>
+      <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", marginBottom: 16 }}>
         <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 8 }}>Aufgabe</p>
         <p style={{ fontSize: 15.5, lineHeight: 1.7, marginBottom: 10 }}>{typ.aufgabe(auf)}</p>
         <div style={{ fontSize: 20, lineHeight: 2 }}>f(x) = <M t={auf.tex} /></div>
       </div>
 
       <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 8 }}>Dein Rechenweg</p>
-      <div style={{ background: C.weiss, borderRadius: 16, padding: 14, boxShadow: "0 2px 16px rgba(20,20,20,0.07)", marginBottom: 10 }}>
+      <div style={{ background: C.weiss, borderRadius: 16, padding: 14, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", marginBottom: 10 }}>
         {zeilen.map((z, i) => {
           const dran = i === aktiv;
           const stand = anzeige ? (anzeige.fehler.some((f) => f.startsWith(`Zeile ${i + 1}:`)) ? "fehler" : (!istLeer(z) ? "ok" : null)) : null;
@@ -1491,7 +1491,7 @@ export function RechenwegEditor({ onZurueck }) {
             <p style={{ fontSize: 14.5, lineHeight: 1.75, color: C.grau, fontWeight: 300 }}>{schritt.tipp}</p>
           )}
           {hilfe > 2 && (
-            <div style={{ marginTop: 14, paddingTop: 12, borderTop: `1px solid #E5E0D2` }}>
+            <div style={{ marginTop: 14, paddingTop: 12, borderTop: `1px solid #D5DEEE` }}>
               <p style={{ fontSize: 12.5, color: C.grau, fontWeight: 300, marginBottom: 6 }}>So sähe diese Zeile aus:</p>
               <div style={{ fontSize: 17, lineHeight: 2 }}>{zeileSetzen(schritt.muster(auf))}</div>
               <button onClick={() => { setzen(schritt.muster(auf).replace(/\s/g, ""), 0); setHilfe(0); }}
@@ -1514,7 +1514,7 @@ export function RechenwegEditor({ onZurueck }) {
 
       {/* Bericht */}
       {bericht && (
-        <div style={{ background: C.weiss, borderRadius: 16, padding: 20, marginTop: 18, boxShadow: "0 2px 16px rgba(20,20,20,0.07)" }}>
+        <div style={{ background: C.weiss, borderRadius: 16, padding: 20, marginTop: 18, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" }}>
           <p style={{ fontSize: 16, fontWeight: 600, color: bericht.vollstaendig ? C.see : C.signal, marginBottom: 12 }}>
             {bericht.vollstaendig ? "Der Weg ist vollständig und trägt." : "Der Weg ist noch nicht vollständig."}
             <span style={{ display: "block", fontSize: 13, fontWeight: 400, color: C.grau, marginTop: 4 }}>
