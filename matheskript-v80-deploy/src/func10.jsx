@@ -1,0 +1,839 @@
+import React, { useState, useRef } from "react";
+import { API_URL, C, PROMPT, REGELN, VIDEO_URL } from "./base1.jsx";
+import { KOMP } from "./base3.jsx";
+import { NAV, SCHULKLASSEN, kiKopf } from "./base4.jsx";
+import { Kurse, Trainingsbereich, dekodieren, jsonLesen, rendern } from "./func1.jsx";
+import { Startseite } from "./func2.jsx";
+import { Plotter, Text, Zeile } from "./func3.jsx";
+import { Formelsammlung, FotoAufgaben, Klausur, Kurvendiskussion } from "./func4.jsx";
+import { DifferenzenquotientSeite, Fortschritt, GeneratorHub, Kopfrechnen, WegVomBlatt } from "./func5.jsx";
+import { Einstufung, Lernlandkarte, Liniennetz, Profil, lernLaden, useLern } from "./func6.jsx";
+import { Begruenden, EinheitSpieler, Operatoren, Wiederholen } from "./func7.jsx";
+import { MeinPlan, Messbericht, Modellieren, Probeabitur, Wochenbericht } from "./func8.jsx";
+import { Auswertung, Einwilligung, KlasseAnsicht, KlausurVorbereitung, einwilligungLesen } from "./func9.jsx";
+
+export function Mathilda() {
+  const [ansicht, setAnsicht] = useState("start");
+  const [sprung, setSprung] = useState(null);
+  const [fotoModus, setFotoModus] = useState("blatt");
+  const [terminStart, setTerminStart] = useState(null);
+  const [klasseAktiv, setKlasseAktiv] = useState(8);
+  const [fotoErlaubt, setFotoErlaubt] = useState(() => !!einwilligungLesen());
+  const [trainZiel, setTrainZiel] = useState(null);
+  const [genZiel, setGenZiel] = useState(null);
+  const [gruppeOffen, setGruppeOffen] = useState(null);
+  const [einheitId, setEinheitId] = useState(null);
+
+  React.useEffect(() => { lernLaden(); }, []);
+  const lern = useLern();
+
+  const gehe = (eintrag) => {
+    setAnsicht(eintrag.ansicht);
+    if (eintrag.ansicht === "training") setTrainZiel(eintrag.ziel ?? null);
+    if (eintrag.ansicht === "ki") setGenZiel(eintrag.ziel ?? null);
+    if (eintrag.foto) setFotoModus(eintrag.foto);
+    if (eintrag.kompetenz) setEinheitId(eintrag.kompetenz);
+    if (eintrag.ansicht === "vorbereiten") setTerminStart(eintrag.termin || null);
+    if (eintrag.ansicht === "klasse") setKlasseAktiv(eintrag.klasse);
+    setMenuOffen(false); setGruppeOffen(null);
+    window.scrollTo(0, 0);
+  };
+  const [menuOffen, setMenuOffen] = useState(false);
+  const [quelle, setQuelle] = useState(null);
+  const [bild, setBild] = useState(null);
+  const [b64, setB64] = useState(null);
+  const [info, setInfo] = useState("");
+  const [drehung, setDrehung] = useState(0);
+  const [laeuft, setLaeuft] = useState(false);
+  const [laden, setLaden] = useState(false);
+  const [fehler, setFehler] = useState(null);
+  const [roh, setRoh] = useState(null);
+  const [zeigeRoh, setZeigeRoh] = useState(false);
+  const [erg, setErg] = useState(null);
+  const kameraRef = useRef(null);
+  const galerieRef = useRef(null);
+  const videoRef = useRef(null);
+  const [videoQuelle, setVideoQuelle] = useState(VIDEO_URL);
+
+  const videoWaehlen = (file) => {
+    if (file) setVideoQuelle(URL.createObjectURL(file));
+  };
+
+  const dateiWaehlen = async (file) => {
+    if (!file) return;
+    setFehler(null); setErg(null); setRoh(null); setDrehung(0); setLaden(true);
+    let weg = "";
+    try {
+      const src = await dekodieren(file, (m) => { weg = m; });
+      setQuelle(src);
+      const r = rendern(src, 0);
+      setB64(r.b64); setBild(r.vorschau);
+      setInfo(`${weg} · ${r.w}×${r.h} px · ${r.kb} KB`);
+    } catch (e) {
+      setFehler(e.message);
+    } finally {
+      setLaden(false);
+    }
+  };
+
+  const drehen = () => {
+    if (!quelle) return;
+    const d = (drehung + 90) % 360;
+    setDrehung(d);
+    const r = rendern(quelle, d);
+    setB64(r.b64); setBild(r.vorschau);
+    setInfo(`gedreht · ${r.w}×${r.h} px · ${r.kb} KB`);
+  };
+
+  const analysieren = async () => {
+    if (!b64) return;
+    setLaeuft(true); setFehler(null); setRoh(null);
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: kiKopf(),
+        body: JSON.stringify({
+          model: "claude-sonnet-4-6",
+          max_tokens: 4000,
+          messages: [{
+            role: "user",
+            content: [
+              { type: "image", source: { type: "base64", media_type: "image/jpeg", data: b64 } },
+              { type: "text", text: PROMPT },
+            ],
+          }],
+        }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(`Die API hat abgelehnt: ${data.error.message}`);
+      if (!data.content) throw new Error("Die Antwort kam ohne Inhalt zurück.");
+      const text = data.content.map((i) => (i.type === "text" ? i.text : "")).join("");
+      setRoh(text);
+      setErg(jsonLesen(text));
+    } catch (e) {
+      setFehler(e.message || "Unbekannter Fehler.");
+    } finally {
+      setLaeuft(false);
+    }
+  };
+
+  const zuruecksetzen = () => {
+    setQuelle(null); setBild(null); setB64(null); setErg(null); setFehler(null);
+    setRoh(null); setZeigeRoh(false); setInfo(""); setDrehung(0);
+    if (kameraRef.current) kameraRef.current.value = "";
+    if (galerieRef.current) galerieRef.current.value = "";
+  };
+
+  const zeilenFarbe = (s) => (s === "fehler" ? C.signal : s === "unklar" ? C.hellgrau : C.tinte);
+
+  const Karte = ({ children, style }) => (
+    <div style={{ background: C.weiss, borderRadius: 16, padding: 22, boxShadow: "0 2px 16px rgba(16,42,67,0.07)", ...style }}>
+      {children}
+    </div>
+  );
+
+  const Welle = ({ fill }) => (
+    <svg viewBox="0 0 1440 70" preserveAspectRatio="none" style={{ display: "block", width: "100%", height: 44 }}>
+      <path d="M0,34 C180,70 340,6 560,26 C780,46 900,70 1120,40 C1260,21 1350,30 1440,38 L1440,70 L0,70 Z" fill={fill} />
+    </svg>
+  );
+
+  return (
+    <div style={{ background: C.sand, color: C.tinte, fontFamily: "Montserrat, system-ui, sans-serif", minHeight: "100vh" }}>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+      .kachel { transition: transform .16s ease, box-shadow .16s ease; }
+      .kachel:hover { transform: translateY(-2px); }
+      .kachel:active { transform: scale(.988); }
+      .zeichnen { stroke-dasharray: 560; stroke-dashoffset: 560; animation: malen 1.9s cubic-bezier(.4,0,.2,1) forwards; }
+      @keyframes malen { to { stroke-dashoffset: 0; } }
+      .auftauchen { animation: auftauchen .5s cubic-bezier(.2,.7,.3,1) both; }
+      @keyframes auftauchen { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+      .kachel:hover .motivfeld { transform: scale(1.06) rotate(-2deg); }
+      .motivfeld { transition: transform .22s cubic-bezier(.2,.7,.3,1); }
+      .pulsieren { animation: pulsieren 3.2s ease-in-out infinite; }
+      @keyframes pulsieren { 0%,100% { opacity: .55; } 50% { opacity: 1; } }
+      .schweben { animation: schweben 5.5s ease-in-out infinite; }
+      @keyframes schweben { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+      @media print {
+        .nichtdrucken { display: none !important; }
+        .druckblatt { box-shadow: none !important; border-radius: 0 !important; padding: 0 !important; }
+        .seitenumbruch { page-break-before: always; }
+      }`}</style>
+
+      {/* Kopfleiste mit Menü */}
+      <div style={{ position: "sticky", top: 0, zIndex: 50, background: C.seeTief }}>
+        <div className="mx-auto px-6 flex items-center justify-between" style={{ maxWidth: 620, height: 56 }}>
+          <span style={{ color: C.weiss, fontSize: 25.5, fontWeight: 700, letterSpacing: "-0.02em", textTransform: "uppercase" }}>
+            <span style={{ color: C.gruen }}>mathe</span>skript<span style={{ color: C.gruen }}>.de</span>
+          </span>
+          <div className="flex items-center" style={{ gap: 6 }}>
+          <button onClick={() => gehe({ ansicht: lern.profil ? "karte" : "profil2" })} aria-label="Mein Weg"
+            style={{ width: 32, height: 32, borderRadius: 999, border: `1.5px solid ${lern.profil ? C.gruen : "rgba(255,255,255,0.35)"}`,
+              background: lern.profil ? "rgba(228,3,46,0.14)" : "transparent", color: C.weiss, fontSize: 13, fontWeight: 700,
+              fontFamily: "inherit", cursor: "pointer", padding: 0 }}>
+            {lern.profil ? (lern.profil.name || "?").slice(0, 1).toUpperCase() : "+"}
+          </button>
+          <button onClick={() => setMenuOffen(!menuOffen)} aria-label="Menü"
+            style={{ background: "none", border: "none", cursor: "pointer", padding: 8, display: "flex", flexDirection: "column", gap: 5 }}>
+            {[0, 1, 2].map((i) => (
+              <span key={i} style={{ display: "block", width: 22, height: 2, background: C.weiss, borderRadius: 2 }} />
+            ))}
+          </button>
+          </div>
+        </div>
+
+        {menuOffen && (
+          <div style={{ background: C.see, borderTop: `1px solid rgba(255,255,255,0.12)`, maxHeight: "72vh", overflowY: "auto" }}>
+            <div className="mx-auto px-6 py-2" style={{ maxWidth: 620 }}>
+              <button onClick={() => { setAnsicht("start"); setMenuOffen(false); setGruppeOffen(null); window.scrollTo(0, 0); }}
+                className="w-full py-3" style={{ background: "none", border: "none", borderBottom: `1px solid rgba(255,255,255,0.12)`, textAlign: "left", cursor: "pointer", fontFamily: "inherit" }}>
+                <span style={{ color: ansicht === "start" ? C.gruen : C.weiss, fontSize: 15.5, fontWeight: 600 }}>Start</span>
+              </button>
+
+              {NAV.map((g, gi) => {
+                const auf = gruppeOffen === g.id;
+                const drin = g.eintraege.some((e) => e.ansicht === ansicht);
+                const direkt = g.eintraege.length === 1;
+                return (
+                  <div key={g.id} style={{ borderBottom: gi < NAV.length - 1 ? `1px solid rgba(255,255,255,0.12)` : "none" }}>
+                    <button onClick={() => (direkt ? gehe(g.eintraege[0]) : setGruppeOffen(auf ? null : g.id))} className="w-full py-3.5 flex items-center justify-between"
+                      style={{ background: "none", border: "none", textAlign: "left", cursor: "pointer", fontFamily: "inherit" }}>
+                      <span>
+                        <span style={{ display: "block", color: drin ? C.gruen : C.weiss, fontSize: 15.5, fontWeight: 600 }}>{g.name}</span>
+                        <span style={{ display: "block", color: "#BBD6EA", fontSize: 12.5, fontWeight: 300, marginTop: 2 }}>{g.kurz}</span>
+                      </span>
+                      {!direkt && (
+                        <span style={{ color: "#BBD6EA", fontSize: 13, transform: auf ? "rotate(90deg)" : "none", transition: "transform .15s" }}>›</span>
+                      )}
+                    </button>
+
+                    {auf && (
+                      <div style={{ paddingBottom: 10 }}>
+                        {g.eintraege.map((e) => (
+                          <button key={e.name} onClick={() => gehe(e)} className="w-full py-2.5"
+                            style={{ background: "none", border: "none", textAlign: "left", cursor: "pointer", fontFamily: "inherit", paddingLeft: 14 }}>
+                            <span style={{ display: "block", color: C.weiss, fontSize: 14.5, fontWeight: 500 }}>{e.name}</span>
+                            <span style={{ display: "block", color: "#9FC3DD", fontSize: 12, fontWeight: 300, marginTop: 1 }}>{e.kurz}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {ansicht === "messung" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+            <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 style={{ fontWeight: 700, fontSize: 32, letterSpacing: "-0.03em", lineHeight: 1.1, color: C.weiss }}>Messbericht</h1>
+              <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+                Was eine Einheit gebracht hat — und ob es nach Wochen noch da ist.
+              </p>
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <Messbericht gehe={gehe} />
+        </>
+      ) : ansicht === "auswertung" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+            <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 style={{ fontWeight: 700, fontSize: 32, letterSpacing: "-0.03em", lineHeight: 1.1, color: C.weiss }}>Auswertung</h1>
+              <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+                Wirksamkeit zeigt sich erst über eine Gruppe.
+              </p>
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <Auswertung />
+        </>
+      ) : ansicht === "klasse" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+            <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <div className="flex gap-2 mb-4" style={{ overflowX: "auto" }}>
+                {SCHULKLASSEN.map((k) => (
+                  <button key={k} onClick={() => { setKlasseAktiv(k); window.scrollTo(0, 0); }}
+                    style={{ flexShrink: 0, width: 38, height: 38, borderRadius: 999, fontFamily: "inherit", cursor: "pointer",
+                      border: `1.5px solid ${k === klasseAktiv ? C.gruen : "rgba(255,255,255,0.35)"}`,
+                      background: k === klasseAktiv ? "rgba(228,3,46,0.18)" : "transparent", color: C.weiss, fontSize: 14, fontWeight: 600 }}>
+                    {k}
+                  </button>
+                ))}
+              </div>
+              <h1 style={{ fontWeight: 700, fontSize: 32, letterSpacing: "-0.03em", lineHeight: 1.1, color: C.weiss }}>Klasse {klasseAktiv}</h1>
+              <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14 }} />
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <KlasseAnsicht klasse={klasseAktiv} gehe={gehe} />
+        </>
+      ) : ansicht === "vorbereiten" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+            <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 style={{ fontWeight: 700, fontSize: 32, letterSpacing: "-0.03em", lineHeight: 1.1, color: C.weiss }}>Klausur vorbereiten</h1>
+              <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+                Ein Termin, ein Plan — rückwärts gerechnet bis zum Tag der Arbeit.
+              </p>
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <KlausurVorbereitung key={terminStart || "liste"} gehe={gehe} start={terminStart} />
+        </>
+      ) : ansicht === "plan" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+            <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 style={{ fontWeight: 700, fontSize: 32, letterSpacing: "-0.03em", lineHeight: 1.1, color: C.weiss }}>Mein Plan</h1>
+              <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+                Eine Verabredung mit dir selbst — klein genug, um sie zu halten.
+              </p>
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <MeinPlan gehe={gehe} />
+        </>
+      ) : ansicht === "bericht" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+            <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 style={{ fontWeight: 700, fontSize: 32, letterSpacing: "-0.03em", lineHeight: 1.1, color: C.weiss }}>Wochenbericht</h1>
+              <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+                Wie regelmäßig und wie eigenständig — ohne Noten.
+              </p>
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <Wochenbericht />
+        </>
+      ) : ansicht === "abitur" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+            <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 style={{ fontWeight: 700, fontSize: 32, letterSpacing: "-0.03em", lineHeight: 1.1, color: C.weiss }}>Probeabitur</h1>
+              <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+                Teil A ohne Hilfsmittel, Teil B mit — und am Ende Notenpunkte.
+              </p>
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <Probeabitur />
+        </>
+      ) : ansicht === "operatoren" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+            <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 style={{ fontWeight: 700, fontSize: 32, letterSpacing: "-0.03em", lineHeight: 1.1, color: C.weiss }}>Operatoren</h1>
+              <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+                Das erste Wort der Aufgabe entscheidet, wofür es Punkte gibt.
+              </p>
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <Operatoren />
+        </>
+      ) : ansicht === "begruenden" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+            <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 style={{ fontWeight: 700, fontSize: 32, letterSpacing: "-0.03em", lineHeight: 1.1, color: C.weiss }}>Begründen und Beweisen</h1>
+              <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+                In ganzen Sätzen, am Bewertungsraster gemessen.
+              </p>
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <Begruenden />
+        </>
+      ) : ansicht === "modellieren" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+            <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 style={{ fontWeight: 700, fontSize: 32, letterSpacing: "-0.03em", lineHeight: 1.1, color: C.weiss }}>Modellieren</h1>
+              <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+                Vom Text zur Gleichung — und zurück zur Antwort.
+              </p>
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <Modellieren />
+        </>
+      ) : ansicht === "einheit" && einheitId ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+            <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 style={{ fontWeight: 700, fontSize: 30, letterSpacing: "-0.03em", lineHeight: 1.12, color: C.weiss }}>{KOMP[einheitId]?.titel}</h1>
+              <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+                {KOMP[einheitId]?.kann}
+              </p>
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <EinheitSpieler key={einheitId} id={einheitId} gehe={gehe} />
+        </>
+      ) : ansicht === "wiederholen" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+            <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 style={{ fontWeight: 700, fontSize: 30, letterSpacing: "-0.03em", lineHeight: 1.12, color: C.weiss }}>Wiederholen</h1>
+              <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+                Was heute fällig ist — damit es im Abitur noch da ist.
+              </p>
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <Wiederholen gehe={gehe} />
+        </>
+      ) : ansicht === "karte" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+            <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 style={{ fontWeight: 700, fontSize: 34, letterSpacing: "-0.03em", lineHeight: 1.05, color: C.weiss }}>Lernlandkarte</h1>
+              <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+                Der ganze Lehrplan als Liniennetz — jede Station eine Kompetenz.
+              </p>
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <Lernlandkarte gehe={gehe} />
+        </>
+      ) : ansicht === "einstufung" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+            <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 style={{ fontWeight: 700, fontSize: 34, letterSpacing: "-0.03em", lineHeight: 1.05, color: C.weiss }}>Einstufung</h1>
+              <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+                Herausfinden, wo die Lücken wirklich beginnen.
+              </p>
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <Einstufung gehe={gehe} />
+        </>
+      ) : ansicht === "profil2" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+            <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 style={{ fontWeight: 700, fontSize: 34, letterSpacing: "-0.03em", lineHeight: 1.05, color: C.weiss }}>Profil</h1>
+              <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+                Klasse, Ziel und Lernstand.
+              </p>
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <Profil gehe={gehe} />
+        </>
+      ) : ansicht === "profil" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+            <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 style={{ fontWeight: 700, fontSize: 36, letterSpacing: "-0.03em", lineHeight: 1.05, color: C.weiss }}>Fortschritt</h1>
+              <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+                Nicht wie viele Fehler — welche.
+              </p>
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <Fortschritt />
+        </>
+      ) : ansicht === "kopf" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+            <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 style={{ fontWeight: 700, fontSize: 36, letterSpacing: "-0.03em", lineHeight: 1.05, color: C.weiss }}>Kopfrechnen</h1>
+              <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+                Head &amp; Numbers — damit der Kopf beim Rechnen für das Eigentliche frei bleibt.
+              </p>
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <Kopfrechnen />
+        </>
+      ) : ansicht === "formeln" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+            <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 style={{ fontWeight: 700, fontSize: 34, letterSpacing: "-0.03em", lineHeight: 1.05, color: C.weiss }}>Formelsammlung</h1>
+              <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+                Alles auf einen Blick — und zu jeder Regel der Weg zurück zur Herleitung.
+              </p>
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <Formelsammlung zuHerleitung={(nr) => { setSprung(nr); setAnsicht("training"); }} />
+        </>
+      ) : ansicht === "plotter" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+            <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 style={{ fontWeight: 700, fontSize: 33, letterSpacing: "-0.03em", lineHeight: 1.05, color: C.weiss }}>Polynomplotter</h1>
+              <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+                f(x) = a·x³ + b·x² + c·x + d
+              </p>
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <Plotter />
+        </>
+      ) : ansicht === "start" ? (
+        <Startseite gehe={gehe} />
+      ) : ansicht === "kurse" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+            <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 style={{ fontWeight: 700, fontSize: 36, letterSpacing: "-0.03em", lineHeight: 1, color: C.weiss }}>Schulkurse</h1>
+              <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+                Komplette Abiturthemen, aufgebaut nach dem Matheskript-System.
+              </p>
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <Kurse />
+        </>
+      ) : ansicht === "ki" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+            <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 style={{ fontWeight: 700, fontSize: 29, letterSpacing: "-0.03em", lineHeight: 1.05, color: C.weiss }}>Aufgabengenerator</h1>
+              <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+                Frisch erzeugt, so oft du willst. Gerechnet wird auf Papier.
+              </p>
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <GeneratorHub ziel={genZiel} setZiel={setGenZiel} />
+        </>
+      ) : ansicht === "diffq" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+            <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 style={{ fontWeight: 700, fontSize: 29, letterSpacing: "-0.03em", lineHeight: 1.05, color: C.weiss }}>Differenzenquotient</h1>
+              <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+                Vom Tangentenproblem zur Ableitung — Herleitung, Sekanten-Visualisierung und eigenes Übungswerkzeug.
+              </p>
+            </div>
+            <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
+          </div>
+          <DifferenzenquotientSeite />
+        </>
+      ) : ansicht === "training" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+            <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 style={{ fontWeight: 700, fontSize: 36, letterSpacing: "-0.03em", lineHeight: 1, color: C.weiss }}>Training</h1>
+              <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+                Arbeitsheft Analysis 01 — von der Geraden zur Kurvendiskussion, in acht Bausteinen.
+              </p>
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <Trainingsbereich sprung={sprung} setSprung={setSprung} ziel={trainZiel} setZiel={setTrainZiel} />
+        </>
+      ) : (
+      <>
+
+      {/* Meer */}
+      <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+        <div className="mx-auto px-6 pt-12 pb-4" style={{ maxWidth: 620 }}>
+          <h1 style={{ fontWeight: 700, fontSize: 40, letterSpacing: "-0.03em", lineHeight: 1, color: C.weiss }}>Mathilda<span style={{ color: C.gruen }}>.AI</span></h1>
+          <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+          <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+            {fotoModus === "blatt"
+              ? "Fotografiere dein Blatt. Mathilda liest den Rechenweg und schaut sich an, wie du gearbeitet hast."
+              : fotoModus === "weg"
+                ? "Fotografiere deinen Rechenweg. Mathilda überträgt ihn in Zeilen und prüft ihn wie im Editor."
+                : "Fotografiere eine Aufgabe. Mathilda erkennt den Typ und erzeugt drei weitere derselben Sorte."}
+          </p>
+        </div>
+        <Welle fill={C.sand} />
+      </div>
+
+      <div className="mx-auto px-6" style={{ maxWidth: 620, marginTop: -8 }}>
+        <div className="flex gap-2 mb-6">
+          {[["blatt", "Blatt prüfen"], ["weg", "Weg prüfen"], ["aufgabe", "Aufgabe scannen"]].map(([id, n]) => (
+            <button key={id} onClick={() => setFotoModus(id)} className="px-3 py-2"
+              style={{ flex: 1, background: fotoModus === id ? C.see : C.weiss, color: fotoModus === id ? C.weiss : C.grau,
+                border: `1px solid ${fotoModus === id ? C.see : C.linie}`, borderRadius: 999, fontSize: 12.5, fontFamily: "inherit", cursor: "pointer" }}>
+              {n}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {!fotoErlaubt ? <Einwilligung onJa={() => setFotoErlaubt(true)} /> : fotoModus === "aufgabe" ? <FotoAufgaben /> : fotoModus === "weg" ? <WegVomBlatt /> : (
+      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620 }}>
+
+        {!bild && !laden && (
+          <section className="mb-10">
+            <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 8 }}>So funktioniert es</p>
+            <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
+              In dreißig Sekunden vom Blatt zur Rückmeldung
+            </h2>
+            <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 20 }}>
+              Du rechnest wie immer auf Papier. Mathilda übernimmt danach den Teil, den sonst niemand macht:
+              Sie schaut sich nicht nur an, ob das Ergebnis stimmt, sondern wie du dahin gekommen bist.
+            </p>
+
+            <div style={{ position: "relative", width: "100%", aspectRatio: "1 / 1", borderRadius: 20, overflow: "hidden", background: C.seeTief, boxShadow: "0 6px 26px rgba(16,42,67,0.16)" }}>
+              {videoQuelle ? (
+                <video src={videoQuelle} playsInline controls loop muted
+                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+              ) : (
+                <div className="flex flex-col items-center justify-center" style={{ width: "100%", height: "100%" }}>
+                  <div className="flex items-center justify-center" style={{ width: 66, height: 66, borderRadius: 999, background: C.gruenDunkel }}>
+                    <div style={{ width: 0, height: 0, borderTop: "12px solid transparent", borderBottom: "12px solid transparent", borderLeft: `19px solid ${C.seeTief}`, marginLeft: 6 }} />
+                  </div>
+                  <p className="px-8" style={{ color: "#BBD6EA", fontSize: 13, fontWeight: 300, marginTop: 18, textAlign: "center", lineHeight: 1.6 }}>
+                    Erklärvideo, quadratischer Ausschnitt aus der Bildmitte
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center justify-between mt-3">
+              <p style={{ color: C.hellgrau, fontSize: 12, fontWeight: 300, lineHeight: 1.6 }}>
+                Blankopapier, schwarzer Stift, Kamera von oben.
+              </p>
+              <button onClick={() => videoRef.current?.click()}
+                style={{ background: "none", border: "none", color: C.see, fontSize: 12, fontFamily: "inherit", textDecoration: "underline", cursor: "pointer", padding: 0, whiteSpace: "nowrap" }}>
+                Testvideo laden
+              </button>
+            </div>
+            <input ref={videoRef} type="file" accept="video/*" className="hidden"
+              onChange={(e) => videoWaehlen(e.target.files?.[0])} />
+
+            <div className="mt-8">
+              {[
+                ["Blatt abfotografieren", "Ein Foto von oben genügt. Schief, dunkel oder im falschen Format ist kein Problem, das rechnet die App gerade."],
+                ["Mathilda liest mit", "Zeile für Zeile. Sie zeigt dir zuerst, was sie gelesen hat, und erst danach, wo der Weg bricht."],
+                ["Ein einziger nächster Schritt", "Keine Notenliste, keine zwölf Verbesserungsvorschläge. Genau eine Sache, die du beim nächsten Blatt anders machst."],
+              ].map(([titel, text], i) => (
+                <div key={i} className="flex mb-5">
+                  <span style={{ color: C.gruenDunkel, fontSize: 14, fontWeight: 700, width: 26, flexShrink: 0 }}>{i + 1}</span>
+                  <div>
+                    <p style={{ fontSize: 15, fontWeight: 600, marginBottom: 4 }}>{titel}</p>
+                    <p style={{ color: C.grau, fontSize: 14, fontWeight: 300, lineHeight: 1.65 }}>{text}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ height: 1, background: C.linie, margin: "26px 0" }} />
+          </section>
+        )}
+
+        {!bild && !laden && (
+          <div>
+            <button onClick={() => kameraRef.current?.click()} className="w-full px-6 py-7"
+              style={{ background: C.gruenDunkel, border: "none", borderRadius: 16, textAlign: "left", cursor: "pointer", color: C.weiss, fontFamily: "inherit", boxShadow: "0 4px 18px rgba(200,16,46,0.25)" }}>
+              <span style={{ fontSize: 18, fontWeight: 600 }}>Blatt fotografieren</span>
+              <span className="block mt-2" style={{ fontSize: 13, fontWeight: 300, lineHeight: 1.6, opacity: 0.9 }}>
+                Kamera öffnen und direkt abfotografieren.
+              </span>
+            </button>
+
+            <button onClick={() => galerieRef.current?.click()} className="w-full px-6 py-7 mt-3"
+              style={{ background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 16, textAlign: "left", cursor: "pointer", color: C.tinte, fontFamily: "inherit" }}>
+              <span style={{ fontSize: 18, fontWeight: 600 }}>Foto aus der Galerie wählen</span>
+              <span className="block mt-2" style={{ color: C.grau, fontSize: 13, fontWeight: 300, lineHeight: 1.6 }}>
+                Jedes Format, auch HEIC vom iPhone.
+              </span>
+            </button>
+
+            <p className="mt-6" style={{ color: C.grau, fontSize: 13, fontWeight: 300, lineHeight: 1.7 }}>
+              Weißes Blankopapier, schwarzer Stift, von oben aufgenommen, gutes Licht. Alles Weitere macht die App.
+            </p>
+
+            <div className="mt-12">
+              <div style={{ height: 1, background: C.linie, marginBottom: 26 }} />
+              <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 10 }}>Warum das Blatt zählt</p>
+              <p style={{ color: C.grau, fontSize: 14, fontWeight: 300, lineHeight: 1.75, marginBottom: 14 }}>
+                Die meisten Fehler in Klausuren entstehen nicht, weil jemand den Stoff nicht kann. Sie entstehen,
+                weil das Blatt das Denken zusätzlich belastet statt es zu entlasten: drei Schritte in einer Zeile,
+                Nebenrechnung mitten im Hauptweg, ein Gleichheitszeichen, das in Wahrheit ein Pfeil ist.
+              </p>
+              <p style={{ color: C.grau, fontSize: 14, fontWeight: 300, lineHeight: 1.75, marginBottom: 22 }}>
+                Genau diese Muster sieht Mathilda. Sie bewertet dein Blatt, niemals dich.
+              </p>
+              <blockquote style={{ borderLeft: `3px solid ${C.gruenDunkel}`, paddingLeft: 16, margin: 0 }}>
+                <p style={{ fontSize: 16, fontWeight: 500, lineHeight: 1.6, color: C.tinte }}>
+                  Mathe ist kein Talenttest. Mathe ist eine Art zu denken, und diese Art zu denken kann man lernen.
+                </p>
+              </blockquote>
+            </div>
+          </div>
+        )}
+
+        <input ref={kameraRef} type="file" accept="image/*" capture="environment" className="hidden"
+          onChange={(e) => dateiWaehlen(e.target.files?.[0])} />
+        <input ref={galerieRef} type="file" accept="image/*,.heic,.heif" className="hidden"
+          onChange={(e) => dateiWaehlen(e.target.files?.[0])} />
+
+        {laden && (
+          <Karte><p style={{ fontSize: 15, color: C.grau }}>Foto wird vorbereitet…</p></Karte>
+        )}
+
+        {bild && (
+          <div>
+            <div style={{ borderRadius: 16, overflow: "hidden", boxShadow: "0 4px 22px rgba(16,42,67,0.12)" }}>
+              <img src={bild} alt="Dein Blatt" style={{ width: "100%", display: "block" }} />
+            </div>
+            <p className="mt-3" style={{ color: C.hellgrau, fontSize: 12, fontWeight: 300 }}>{info}</p>
+
+            <div className="flex flex-wrap gap-3 mt-4">
+              {!erg && (
+                <button onClick={analysieren} disabled={laeuft} className="px-7 py-3"
+                  style={{ background: laeuft ? C.hellgrau : C.gruenDunkel, color: C.weiss, border: "none", borderRadius: 999, fontSize: 15, fontWeight: 600, fontFamily: "inherit", cursor: laeuft ? "wait" : "pointer" }}>
+                  {laeuft ? "Mathilda liest…" : "Blatt analysieren"}
+                </button>
+              )}
+              <button onClick={drehen} className="px-6 py-3"
+                style={{ background: C.weiss, color: C.see, border: `1px solid ${C.linie}`, borderRadius: 999, fontSize: 15, fontFamily: "inherit", cursor: "pointer" }}>
+                Drehen
+              </button>
+              <button onClick={zuruecksetzen} className="px-6 py-3"
+                style={{ background: "transparent", color: C.grau, border: `1px solid ${C.linie}`, borderRadius: 999, fontSize: 15, fontFamily: "inherit", cursor: "pointer" }}>
+                Anderes Blatt
+              </button>
+            </div>
+          </div>
+        )}
+
+        {fehler && (
+          <Karte style={{ marginTop: 20, borderLeft: `4px solid ${C.signal}` }}>
+            <p style={{ fontSize: 14, lineHeight: 1.65 }}>{fehler}</p>
+            {roh && (
+              <button onClick={() => setZeigeRoh(!zeigeRoh)} className="mt-3"
+                style={{ background: "none", border: "none", color: C.grau, fontSize: 13, fontFamily: "inherit", textDecoration: "underline", cursor: "pointer", padding: 0 }}>
+                {zeigeRoh ? "Rohantwort ausblenden" : "Rohantwort anzeigen"}
+              </button>
+            )}
+            {zeigeRoh && roh && (
+              <pre style={{ marginTop: 12, fontSize: 11, color: C.grau, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{roh}</pre>
+            )}
+          </Karte>
+        )}
+
+        {erg && (
+          <div className="mt-10">
+
+            <section className="mb-8">
+              <h2 style={{ fontSize: 13, fontWeight: 600, marginBottom: 4, color: C.see }}>Das habe ich gelesen</h2>
+              <p style={{ color: C.grau, fontSize: 13, fontWeight: 300, marginBottom: 14, lineHeight: 1.6 }}>
+                Stimmt etwas nicht? Dann liegt es an der Schrift, nicht an dir.
+              </p>
+              <Karte style={{ padding: 0, overflow: "hidden" }}>
+                {(erg.zeilen || []).map((z, i) => (
+                  <div key={i} className="flex px-5 py-3" style={{ borderBottom: i < erg.zeilen.length - 1 ? `1px solid ${C.linie}` : "none" }}>
+                    <span style={{ color: C.hellgrau, fontSize: 12, width: 22, flexShrink: 0, paddingTop: 3 }}>{i + 1}</span>
+                    <span style={{ color: zeilenFarbe(z.s), fontSize: 15, fontWeight: z.s === "fehler" ? 600 : 400, lineHeight: 1.5 }}>
+                      {z.t}
+                      {z.s === "unklar" && <span style={{ color: C.hellgrau, fontSize: 12, fontWeight: 400 }}> · unsicher gelesen</span>}
+                    </span>
+                  </div>
+                ))}
+              </Karte>
+              {erg.hinweis && <p className="mt-3" style={{ color: C.grau, fontSize: 13, fontWeight: 300, lineHeight: 1.6 }}>{erg.hinweis}</p>}
+            </section>
+
+            <section className="mb-8">
+              <h2 style={{ fontSize: 13, fontWeight: 600, marginBottom: 12, color: C.see }}>Der Rechenweg</h2>
+              <Karte style={{ borderLeft: `4px solid ${erg.fehler?.zeile ? C.signal : C.see}` }}>
+                {erg.fehler?.zeile ? (
+                  <>
+                    <p style={{ fontSize: 15, lineHeight: 1.65 }}>
+                      Bis Zeile {erg.fehler.zeile - 1} trägt der Weg. In Zeile {erg.fehler.zeile} bricht er: {erg.fehler.was}
+                    </p>
+                    {erg.fehler.richtig && <p className="mt-3" style={{ fontSize: 15, lineHeight: 1.65, color: C.see, fontWeight: 500 }}>{erg.fehler.richtig}</p>}
+                  </>
+                ) : (
+                  <p style={{ fontSize: 15, lineHeight: 1.65 }}>Die Kette hält von oben bis unten. Kein Bruch gefunden.</p>
+                )}
+              </Karte>
+            </section>
+
+            <section className="mb-8">
+              <h2 style={{ fontSize: 13, fontWeight: 600, marginBottom: 4, color: C.see }}>Wie du gearbeitet hast</h2>
+              <p style={{ fontSize: 15, marginBottom: 16, fontWeight: 300, color: C.grau }}>Struktur {erg.gesamt} von 10</p>
+              <Karte>
+                {REGELN.map((name, i) => {
+                  const r = (erg.regeln || [])[i] || { p: 0, b: "" };
+                  return (
+                    <div key={i} style={{ marginBottom: i === REGELN.length - 1 ? 0 : 20 }}>
+                      <div className="flex justify-between items-baseline mb-2">
+                        <span style={{ fontSize: 14, fontWeight: 500 }}>{name}</span>
+                        <span style={{ fontSize: 13, color: C.hellgrau }}>{r.p}</span>
+                      </div>
+                      <div style={{ height: 5, background: C.himmel, borderRadius: 999 }}>
+                        <div style={{ height: 5, borderRadius: 999, width: `${Math.max(0, Math.min(10, r.p || 0)) * 10}%`, background: r.p >= 7 ? C.see : C.signal }} />
+                      </div>
+                      {r.b && <p className="mt-2" style={{ fontSize: 13, color: C.grau, fontWeight: 300, lineHeight: 1.55 }}>{r.b}</p>}
+                    </div>
+                  );
+                })}
+              </Karte>
+
+              {(erg.fatal || []).length > 0 && (
+                <div className="mt-5">
+                  <p style={{ fontSize: 13, color: C.grau, marginBottom: 8, fontWeight: 300 }}>Auf diesem Blatt sichtbar:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {erg.fatal.map((f, i) => (
+                      <span key={i} className="px-4 py-2" style={{ background: C.weiss, border: `1px solid ${C.signal}`, borderRadius: 999, fontSize: 13, color: C.signal }}>{f}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </section>
+
+            <div style={{ background: `linear-gradient(160deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 16, overflow: "hidden" }}>
+              <div className="px-6 pt-6 pb-7">
+                <h2 style={{ fontSize: 13, fontWeight: 600, marginBottom: 10, color: "#BBD6EA" }}>Dein nächstes Blatt</h2>
+                <p style={{ fontSize: 17, lineHeight: 1.6, fontWeight: 500, color: C.weiss }}>{erg.schritt}</p>
+              </div>
+            </div>
+
+            <button onClick={() => setZeigeRoh(!zeigeRoh)} className="mt-6"
+              style={{ background: "none", border: "none", color: C.hellgrau, fontSize: 12, fontFamily: "inherit", textDecoration: "underline", cursor: "pointer", padding: 0 }}>
+              {zeigeRoh ? "Rohantwort ausblenden" : "Rohantwort anzeigen"}
+            </button>
+            {zeigeRoh && roh && (
+              <pre style={{ marginTop: 12, fontSize: 11, color: C.grau, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{roh}</pre>
+            )}
+          </div>
+        )}
+      </div>
+      )}
+      </>
+      )}
+    </div>
+  );
+}
+
