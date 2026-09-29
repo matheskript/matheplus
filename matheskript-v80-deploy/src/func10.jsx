@@ -127,7 +127,7 @@ export function Mathilda() {
   const zeilenFarbe = (s) => (s === "fehler" ? C.signal : s === "unklar" ? C.hellgrau : C.tinte);
 
   const Karte = ({ children, style }) => (
-    <div style={{ background: C.weiss, borderRadius: 16, padding: 22, boxShadow: "0 2px 16px rgba(16,42,67,0.07)", ...style }}>
+    <div style={{ background: C.weiss, borderRadius: 16, padding: 22, boxShadow: "0 2px 16px rgba(20,20,20,0.07)", ...style }}>
       {children}
     </div>
   );
@@ -164,12 +164,12 @@ export function Mathilda() {
       <div style={{ position: "sticky", top: 0, zIndex: 50, background: C.seeTief }}>
         <div className="mx-auto px-6 flex items-center justify-between" style={{ maxWidth: 620, height: 56 }}>
           <span style={{ color: C.weiss, fontSize: 25.5, fontWeight: 700, letterSpacing: "-0.02em", textTransform: "uppercase" }}>
-            <span style={{ color: C.gruen }}>mathe</span>skript<span style={{ color: C.gruen }}>.de</span>
+            <span style={{ color: C.gruen }}>mathe</span>skript<span style={{ color: C.flaggold }}>.de</span>
           </span>
           <div className="flex items-center" style={{ gap: 6 }}>
           <button onClick={() => gehe({ ansicht: lern.profil ? "karte" : "profil2" })} aria-label="Mein Weg"
-            style={{ width: 32, height: 32, borderRadius: 999, border: `1.5px solid ${lern.profil ? C.gruen : "rgba(255,255,255,0.35)"}`,
-              background: lern.profil ? "rgba(228,3,46,0.14)" : "transparent", color: C.weiss, fontSize: 13, fontWeight: 700,
+            style={{ width: 32, height: 32, borderRadius: 999, border: `1.5px solid ${lern.profil ? C.flaggold : "rgba(255,255,255,0.35)"}`,
+              background: lern.profil ? "rgba(255,206,0,0.14)" : "transparent", color: C.weiss, fontSize: 13, fontWeight: 700,
               fontFamily: "inherit", cursor: "pointer", padding: 0 }}>
             {lern.profil ? (lern.profil.name || "?").slice(0, 1).toUpperCase() : "+"}
           </button>
@@ -181,13 +181,17 @@ export function Mathilda() {
           </button>
           </div>
         </div>
+        <div aria-hidden="true" style={{ display: "flex", height: 3 }}>
+          <span style={{ flex: 1, background: C.gruen }} />
+          <span style={{ flex: 1, background: C.flaggold }} />
+        </div>
 
         {menuOffen && (
-          <div style={{ background: C.see, borderTop: `1px solid rgba(255,255,255,0.12)`, maxHeight: "72vh", overflowY: "auto" }}>
+          <div style={{ background: C.seeTief, maxHeight: "72vh", overflowY: "auto" }}>
             <div className="mx-auto px-6 py-2" style={{ maxWidth: 620 }}>
               <button onClick={() => { setAnsicht("start"); setMenuOffen(false); setGruppeOffen(null); window.scrollTo(0, 0); }}
                 className="w-full py-3" style={{ background: "none", border: "none", borderBottom: `1px solid rgba(255,255,255,0.12)`, textAlign: "left", cursor: "pointer", fontFamily: "inherit" }}>
-                <span style={{ color: ansicht === "start" ? C.gruen : C.weiss, fontSize: 15.5, fontWeight: 600 }}>Start</span>
+                <span style={{ color: ansicht === "start" ? C.flaggold : C.weiss, fontSize: 15.5, fontWeight: 600 }}>Start</span>
               </button>
 
               {NAV.map((g, gi) => {
@@ -199,11 +203,11 @@ export function Mathilda() {
                     <button onClick={() => (direkt ? gehe(g.eintraege[0]) : setGruppeOffen(auf ? null : g.id))} className="w-full py-3.5 flex items-center justify-between"
                       style={{ background: "none", border: "none", textAlign: "left", cursor: "pointer", fontFamily: "inherit" }}>
                       <span>
-                        <span style={{ display: "block", color: drin ? C.gruen : C.weiss, fontSize: 15.5, fontWeight: 600 }}>{g.name}</span>
-                        <span style={{ display: "block", color: "#BBD6EA", fontSize: 12.5, fontWeight: 300, marginTop: 2 }}>{g.kurz}</span>
+                        <span style={{ display: "block", color: drin ? C.flaggold : C.weiss, fontSize: 15.5, fontWeight: 600 }}>{g.name}</span>
+                        <span style={{ display: "block", color: "#E8DCB5", fontSize: 12.5, fontWeight: 300, marginTop: 2 }}>{g.kurz}</span>
                       </span>
                       {!direkt && (
-                        <span style={{ color: "#BBD6EA", fontSize: 13, transform: auf ? "rotate(90deg)" : "none", transition: "transform .15s" }}>›</span>
+                        <span style={{ color: "#E8DCB5", fontSize: 13, transform: auf ? "rotate(90deg)" : "none", transition: "transform .15s" }}>›</span>
                       )}
                     </button>
 
@@ -212,8 +216,8 @@ export function Mathilda() {
                         {g.eintraege.map((e) => (
                           <button key={e.name} onClick={() => gehe(e)} className="w-full py-2.5"
                             style={{ background: "none", border: "none", textAlign: "left", cursor: "pointer", fontFamily: "inherit", paddingLeft: 14 }}>
-                            <span style={{ display: "block", color: C.weiss, fontSize: 14.5, fontWeight: 500 }}>{e.name}</span>
-                            <span style={{ display: "block", color: "#9FC3DD", fontSize: 12, fontWeight: 300, marginTop: 1 }}>{e.kurz}</span>
+                            <span style={{ display: "block", color: e.ansicht === ansicht ? C.flaggold : C.weiss, fontSize: 14.5, fontWeight: 500 }}>{e.name}</span>
+                            <span style={{ display: "block", color: "#BFB38C", fontSize: 12, fontWeight: 300, marginTop: 1 }}>{e.kurz}</span>
                           </button>
                         ))}
                       </div>
@@ -232,7 +236,7 @@ export function Mathilda() {
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 style={{ fontWeight: 700, fontSize: 32, letterSpacing: "-0.03em", lineHeight: 1.1, color: C.weiss }}>Messbericht</h1>
               <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
-              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+              <p style={{ color: "#E8DCB5", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
                 Was eine Einheit gebracht hat — und ob es nach Wochen noch da ist.
               </p>
             </div>
@@ -246,7 +250,7 @@ export function Mathilda() {
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 style={{ fontWeight: 700, fontSize: 32, letterSpacing: "-0.03em", lineHeight: 1.1, color: C.weiss }}>Auswertung</h1>
               <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
-              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+              <p style={{ color: "#E8DCB5", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
                 Wirksamkeit zeigt sich erst über eine Gruppe.
               </p>
             </div>
@@ -263,7 +267,7 @@ export function Mathilda() {
                   <button key={k} onClick={() => { setKlasseAktiv(k); window.scrollTo(0, 0); }}
                     style={{ flexShrink: 0, width: 38, height: 38, borderRadius: 999, fontFamily: "inherit", cursor: "pointer",
                       border: `1.5px solid ${k === klasseAktiv ? C.gruen : "rgba(255,255,255,0.35)"}`,
-                      background: k === klasseAktiv ? "rgba(228,3,46,0.18)" : "transparent", color: C.weiss, fontSize: 14, fontWeight: 600 }}>
+                      background: k === klasseAktiv ? "rgba(221,0,0,0.18)" : "transparent", color: C.weiss, fontSize: 14, fontWeight: 600 }}>
                     {k}
                   </button>
                 ))}
@@ -281,7 +285,7 @@ export function Mathilda() {
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 style={{ fontWeight: 700, fontSize: 32, letterSpacing: "-0.03em", lineHeight: 1.1, color: C.weiss }}>Klausur vorbereiten</h1>
               <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
-              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+              <p style={{ color: "#E8DCB5", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
                 Ein Termin, ein Plan — rückwärts gerechnet bis zum Tag der Arbeit.
               </p>
             </div>
@@ -295,7 +299,7 @@ export function Mathilda() {
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 style={{ fontWeight: 700, fontSize: 32, letterSpacing: "-0.03em", lineHeight: 1.1, color: C.weiss }}>Mein Plan</h1>
               <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
-              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+              <p style={{ color: "#E8DCB5", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
                 Eine Verabredung mit dir selbst — klein genug, um sie zu halten.
               </p>
             </div>
@@ -309,7 +313,7 @@ export function Mathilda() {
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 style={{ fontWeight: 700, fontSize: 32, letterSpacing: "-0.03em", lineHeight: 1.1, color: C.weiss }}>Wochenbericht</h1>
               <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
-              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+              <p style={{ color: "#E8DCB5", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
                 Wie regelmäßig und wie eigenständig — ohne Noten.
               </p>
             </div>
@@ -323,7 +327,7 @@ export function Mathilda() {
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 style={{ fontWeight: 700, fontSize: 32, letterSpacing: "-0.03em", lineHeight: 1.1, color: C.weiss }}>Probeabitur</h1>
               <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
-              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+              <p style={{ color: "#E8DCB5", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
                 Teil A ohne Hilfsmittel, Teil B mit — und am Ende Notenpunkte.
               </p>
             </div>
@@ -337,7 +341,7 @@ export function Mathilda() {
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 style={{ fontWeight: 700, fontSize: 32, letterSpacing: "-0.03em", lineHeight: 1.1, color: C.weiss }}>Operatoren</h1>
               <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
-              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+              <p style={{ color: "#E8DCB5", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
                 Das erste Wort der Aufgabe entscheidet, wofür es Punkte gibt.
               </p>
             </div>
@@ -351,7 +355,7 @@ export function Mathilda() {
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 style={{ fontWeight: 700, fontSize: 32, letterSpacing: "-0.03em", lineHeight: 1.1, color: C.weiss }}>Begründen und Beweisen</h1>
               <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
-              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+              <p style={{ color: "#E8DCB5", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
                 In ganzen Sätzen, am Bewertungsraster gemessen.
               </p>
             </div>
@@ -365,7 +369,7 @@ export function Mathilda() {
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 style={{ fontWeight: 700, fontSize: 32, letterSpacing: "-0.03em", lineHeight: 1.1, color: C.weiss }}>Modellieren</h1>
               <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
-              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+              <p style={{ color: "#E8DCB5", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
                 Vom Text zur Gleichung — und zurück zur Antwort.
               </p>
             </div>
@@ -379,7 +383,7 @@ export function Mathilda() {
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 style={{ fontWeight: 700, fontSize: 30, letterSpacing: "-0.03em", lineHeight: 1.12, color: C.weiss }}>{KOMP[einheitId]?.titel}</h1>
               <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
-              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+              <p style={{ color: "#E8DCB5", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
                 {KOMP[einheitId]?.kann}
               </p>
             </div>
@@ -393,7 +397,7 @@ export function Mathilda() {
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 style={{ fontWeight: 700, fontSize: 30, letterSpacing: "-0.03em", lineHeight: 1.12, color: C.weiss }}>Wiederholen</h1>
               <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
-              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+              <p style={{ color: "#E8DCB5", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
                 Was heute fällig ist — damit es im Abitur noch da ist.
               </p>
             </div>
@@ -407,7 +411,7 @@ export function Mathilda() {
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 style={{ fontWeight: 700, fontSize: 34, letterSpacing: "-0.03em", lineHeight: 1.05, color: C.weiss }}>Lernlandkarte</h1>
               <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
-              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+              <p style={{ color: "#E8DCB5", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
                 Der ganze Lehrplan als Liniennetz — jede Station eine Kompetenz.
               </p>
             </div>
@@ -421,7 +425,7 @@ export function Mathilda() {
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 style={{ fontWeight: 700, fontSize: 34, letterSpacing: "-0.03em", lineHeight: 1.05, color: C.weiss }}>Einstufung</h1>
               <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
-              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+              <p style={{ color: "#E8DCB5", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
                 Herausfinden, wo die Lücken wirklich beginnen.
               </p>
             </div>
@@ -435,7 +439,7 @@ export function Mathilda() {
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 style={{ fontWeight: 700, fontSize: 34, letterSpacing: "-0.03em", lineHeight: 1.05, color: C.weiss }}>Profil</h1>
               <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
-              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+              <p style={{ color: "#E8DCB5", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
                 Klasse, Ziel und Lernstand.
               </p>
             </div>
@@ -449,7 +453,7 @@ export function Mathilda() {
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 style={{ fontWeight: 700, fontSize: 36, letterSpacing: "-0.03em", lineHeight: 1.05, color: C.weiss }}>Fortschritt</h1>
               <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
-              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+              <p style={{ color: "#E8DCB5", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
                 Nicht wie viele Fehler — welche.
               </p>
             </div>
@@ -463,7 +467,7 @@ export function Mathilda() {
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 style={{ fontWeight: 700, fontSize: 36, letterSpacing: "-0.03em", lineHeight: 1.05, color: C.weiss }}>Kopfrechnen</h1>
               <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
-              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+              <p style={{ color: "#E8DCB5", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
                 Head &amp; Numbers — damit der Kopf beim Rechnen für das Eigentliche frei bleibt.
               </p>
             </div>
@@ -477,7 +481,7 @@ export function Mathilda() {
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 style={{ fontWeight: 700, fontSize: 34, letterSpacing: "-0.03em", lineHeight: 1.05, color: C.weiss }}>Formelsammlung</h1>
               <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
-              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+              <p style={{ color: "#E8DCB5", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
                 Alles auf einen Blick — und zu jeder Regel der Weg zurück zur Herleitung.
               </p>
             </div>
@@ -491,7 +495,7 @@ export function Mathilda() {
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 style={{ fontWeight: 700, fontSize: 33, letterSpacing: "-0.03em", lineHeight: 1.05, color: C.weiss }}>Polynomplotter</h1>
               <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
-              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+              <p style={{ color: "#E8DCB5", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
                 f(x) = a·x³ + b·x² + c·x + d
               </p>
             </div>
@@ -507,7 +511,7 @@ export function Mathilda() {
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 style={{ fontWeight: 700, fontSize: 36, letterSpacing: "-0.03em", lineHeight: 1, color: C.weiss }}>Schulkurse</h1>
               <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
-              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+              <p style={{ color: "#E8DCB5", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
                 Komplette Abiturthemen, aufgebaut nach dem Matheskript-System.
               </p>
             </div>
@@ -521,7 +525,7 @@ export function Mathilda() {
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 style={{ fontWeight: 700, fontSize: 29, letterSpacing: "-0.03em", lineHeight: 1.05, color: C.weiss }}>Aufgabengenerator</h1>
               <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
-              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+              <p style={{ color: "#E8DCB5", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
                 Frisch erzeugt, so oft du willst. Gerechnet wird auf Papier.
               </p>
             </div>
@@ -535,7 +539,7 @@ export function Mathilda() {
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 style={{ fontWeight: 700, fontSize: 29, letterSpacing: "-0.03em", lineHeight: 1.05, color: C.weiss }}>Differenzenquotient</h1>
               <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
-              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+              <p style={{ color: "#E8DCB5", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
                 Vom Tangentenproblem zur Ableitung — Herleitung, Sekanten-Visualisierung und eigenes Übungswerkzeug.
               </p>
             </div>
@@ -549,7 +553,7 @@ export function Mathilda() {
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 style={{ fontWeight: 700, fontSize: 36, letterSpacing: "-0.03em", lineHeight: 1, color: C.weiss }}>Training</h1>
               <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
-              <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+              <p style={{ color: "#E8DCB5", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
                 Arbeitsheft Analysis 01 — von der Geraden zur Kurvendiskussion, in acht Bausteinen.
               </p>
             </div>
@@ -565,7 +569,7 @@ export function Mathilda() {
         <div className="mx-auto px-6 pt-12 pb-4" style={{ maxWidth: 620 }}>
           <h1 style={{ fontWeight: 700, fontSize: 40, letterSpacing: "-0.03em", lineHeight: 1, color: C.weiss }}>Mathilda<span style={{ color: C.gruen }}>.AI</span></h1>
           <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
-          <p style={{ color: "#BBD6EA", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+          <p style={{ color: "#E8DCB5", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
             {fotoModus === "blatt"
               ? "Fotografiere dein Blatt. Mathilda liest den Rechenweg und schaut sich an, wie du gearbeitet hast."
               : fotoModus === "weg"
@@ -602,7 +606,7 @@ export function Mathilda() {
               Sie schaut sich nicht nur an, ob das Ergebnis stimmt, sondern wie du dahin gekommen bist.
             </p>
 
-            <div style={{ position: "relative", width: "100%", aspectRatio: "1 / 1", borderRadius: 20, overflow: "hidden", background: C.seeTief, boxShadow: "0 6px 26px rgba(16,42,67,0.16)" }}>
+            <div style={{ position: "relative", width: "100%", aspectRatio: "1 / 1", borderRadius: 20, overflow: "hidden", background: C.seeTief, boxShadow: "0 6px 26px rgba(20,20,20,0.16)" }}>
               {videoQuelle ? (
                 <video src={videoQuelle} playsInline controls loop muted
                   style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
@@ -611,7 +615,7 @@ export function Mathilda() {
                   <div className="flex items-center justify-center" style={{ width: 66, height: 66, borderRadius: 999, background: C.gruenDunkel }}>
                     <div style={{ width: 0, height: 0, borderTop: "12px solid transparent", borderBottom: "12px solid transparent", borderLeft: `19px solid ${C.seeTief}`, marginLeft: 6 }} />
                   </div>
-                  <p className="px-8" style={{ color: "#BBD6EA", fontSize: 13, fontWeight: 300, marginTop: 18, textAlign: "center", lineHeight: 1.6 }}>
+                  <p className="px-8" style={{ color: "#E8DCB5", fontSize: 13, fontWeight: 300, marginTop: 18, textAlign: "center", lineHeight: 1.6 }}>
                     Erklärvideo, quadratischer Ausschnitt aus der Bildmitte
                   </p>
                 </div>
@@ -653,7 +657,7 @@ export function Mathilda() {
         {!bild && !laden && (
           <div>
             <button onClick={() => kameraRef.current?.click()} className="w-full px-6 py-7"
-              style={{ background: C.gruenDunkel, border: "none", borderRadius: 16, textAlign: "left", cursor: "pointer", color: C.weiss, fontFamily: "inherit", boxShadow: "0 4px 18px rgba(200,16,46,0.25)" }}>
+              style={{ background: C.gruenDunkel, border: "none", borderRadius: 16, textAlign: "left", cursor: "pointer", color: C.weiss, fontFamily: "inherit", boxShadow: "0 4px 18px rgba(179,0,0,0.25)" }}>
               <span style={{ fontSize: 18, fontWeight: 600 }}>Blatt fotografieren</span>
               <span className="block mt-2" style={{ fontSize: 13, fontWeight: 300, lineHeight: 1.6, opacity: 0.9 }}>
                 Kamera öffnen und direkt abfotografieren.
@@ -703,7 +707,7 @@ export function Mathilda() {
 
         {bild && (
           <div>
-            <div style={{ borderRadius: 16, overflow: "hidden", boxShadow: "0 4px 22px rgba(16,42,67,0.12)" }}>
+            <div style={{ borderRadius: 16, overflow: "hidden", boxShadow: "0 4px 22px rgba(20,20,20,0.12)" }}>
               <img src={bild} alt="Dein Blatt" style={{ width: "100%", display: "block" }} />
             </div>
             <p className="mt-3" style={{ color: C.hellgrau, fontSize: 12, fontWeight: 300 }}>{info}</p>
@@ -815,7 +819,7 @@ export function Mathilda() {
 
             <div style={{ background: `linear-gradient(160deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 16, overflow: "hidden" }}>
               <div className="px-6 pt-6 pb-7">
-                <h2 style={{ fontSize: 13, fontWeight: 600, marginBottom: 10, color: "#BBD6EA" }}>Dein nächstes Blatt</h2>
+                <h2 style={{ fontSize: 13, fontWeight: 600, marginBottom: 10, color: "#E8DCB5" }}>Dein nächstes Blatt</h2>
                 <p style={{ fontSize: 17, lineHeight: 1.6, fontWeight: 500, color: C.weiss }}>{erg.schritt}</p>
               </div>
             </div>

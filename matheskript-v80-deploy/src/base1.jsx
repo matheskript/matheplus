@@ -11,26 +11,31 @@ export function hexZuRgba(hex, alpha) {
 
 /* Matheskript · Version 80 */
 
-/* Vereinsfarben: Blau trägt die Flächen und bestätigt, Rot ist Marke und Handlung,
-   Rostbraun bleibt der Fehlerfarbe vorbehalten, damit sie nicht mit Rot verschwimmt. */
+/* Deutschlandfarben: Schwarz trägt die Flächen (Kopfleiste, Menü, dunkle Karten),
+   Rot ist Marke und Handlung, Gold setzt Akzente und markiert das Aktive.
+   Rostbraun bleibt der Fehlerfarbe vorbehalten, damit sie nicht mit Rot verschwimmt.
+   (Die Schlüsselnamen see/seeTief/himmel sind historisch und bleiben aus Kompatibilität.) */
 
 export const C = {
-  see: "#0066B2",
-  seeTief: "#00417E",
-  himmel: "#E8F1FA",
-  sand: "#FBFAF8",
+  see: "#1C1C1C",
+  seeTief: "#0A0A0A",
+  himmel: "#FFF6D9",
+  sand: "#FBFAF7",
   weiss: "#FFFFFF",
-  gruen: "#E4032E",
-  gruenDunkel: "#C8102E",
+  gruen: "#DD0000",
+  gruenDunkel: "#B30000",
   signal: "#B85C2E",
-  tinte: "#102A43",
-  grau: "#5A7691",
-  hellgrau: "#9FB3C8",
-  linie: "#E4EDF4",
-  seeHell: "#5E9FD0",
-  ablGrau: "#8FA3BF",
+  tinte: "#141414",
+  grau: "#666666",
+  hellgrau: "#A8A8A8",
+  linie: "#ECE8DF",
+  seeHell: "#E0B000",
+  ablGrau: "#9A9A9A",
+  /* Flaggengold für Akzente auf Schwarz */
+  flaggold: "#FFCE00",
+  goldText: "#E8DCB5",
   /* Nur für die Koeffizienten-Farbcodierung im Polynomplotter — dort trägt jeder
-     der fünf Koeffizienten eine eigene Farbe, das reguläre Vereinsfarbschema reicht dafür nicht. */
+     der fünf Koeffizienten eine eigene Farbe, das reguläre Farbschema reicht dafür nicht. */
   gold: "#B8860B",
   smaragd: "#2F8F5B",
   lila: "#7B4FA0",

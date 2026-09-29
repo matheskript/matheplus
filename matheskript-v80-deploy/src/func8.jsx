@@ -52,7 +52,7 @@ export function Probeabitur() {
   const uhr = `${Math.floor(Math.max(rest, 0) / 60)}:${String(Math.max(rest, 0) % 60).padStart(2, "0")}`;
   const knopf = { height: 50, padding: "0 26px", background: C.gruenDunkel, color: C.weiss, border: "none", borderRadius: 999,
     fontSize: 16, fontWeight: 600, fontFamily: "inherit", cursor: "pointer" };
-  const karte = { background: C.weiss, borderRadius: 18, padding: 20, boxShadow: "0 3px 18px rgba(16,42,67,0.08)", marginBottom: 14 };
+  const karte = { background: C.weiss, borderRadius: 18, padding: 20, boxShadow: "0 3px 18px rgba(20,20,20,0.08)", marginBottom: 14 };
 
   const feld = (t, wert, setzen) => (
     <div className="flex items-center" style={{ gap: 10, marginTop: 8 }}>
@@ -141,9 +141,9 @@ export function Probeabitur() {
         <p style={{ fontSize: 12, letterSpacing: "1.4px", color: C.gruen, fontWeight: 600, marginBottom: 10 }}>PROBEABITUR</p>
         <div className="flex items-end" style={{ gap: 14 }}>
           <span style={{ fontSize: 56, fontWeight: 700, color: C.weiss, lineHeight: 1, letterSpacing: "-0.03em" }}>{e.np}</span>
-          <span style={{ fontSize: 15, color: "#BBD6EA", paddingBottom: 8 }}>Notenpunkte · {notenText(e.np)}</span>
+          <span style={{ fontSize: 15, color: "#E8DCB5", paddingBottom: 8 }}>Notenpunkte · {notenText(e.np)}</span>
         </div>
-        <p style={{ fontSize: 14.5, color: "#BBD6EA", fontWeight: 300, lineHeight: 1.7, marginTop: 12 }}>
+        <p style={{ fontSize: 14.5, color: "#E8DCB5", fontWeight: 300, lineHeight: 1.7, marginTop: 12 }}>
           {e.erreicht} von {e.max} BE ({e.prozent} %) · Teil A {e.a.e}/{e.a.m} · Teil B {e.b.e}/{e.b.m}
         </p>
       </div>
@@ -260,13 +260,13 @@ export function Modellieren() {
         {fertig ? "Geschafft" : `${schritt + 1} · ${SCHRITTE[schritt]}`}
       </p>
 
-      <div style={{ background: C.weiss, borderRadius: 18, padding: 20, boxShadow: "0 3px 18px rgba(16,42,67,0.08)", marginBottom: 14, borderTop: `4px solid ${C.see}` }}>
+      <div style={{ background: C.weiss, borderRadius: 18, padding: 20, boxShadow: "0 3px 18px rgba(20,20,20,0.08)", marginBottom: 14, borderTop: `4px solid ${C.see}` }}>
         <p style={{ fontSize: 12.5, fontWeight: 600, color: C.see, marginBottom: 6 }}>{m.titel}</p>
         <p style={{ fontSize: 15.5, lineHeight: 1.8 }}>{m.text}</p>
       </div>
 
       {!fertig && (
-        <div style={{ background: C.weiss, borderRadius: 18, padding: 20, boxShadow: "0 3px 18px rgba(16,42,67,0.08)", marginBottom: 14 }}>
+        <div style={{ background: C.weiss, borderRadius: 18, padding: 20, boxShadow: "0 3px 18px rgba(20,20,20,0.08)", marginBottom: 14 }}>
           {schritt === 0 && auswahlBlock(m.groessen, mischung.g)}
           {schritt === 1 && eingabeBlock(m.modell)}
           {schritt === 2 && eingabeBlock(m.rechnen)}
@@ -422,7 +422,7 @@ export function EskalationsKarte({ signal, gehe, klein }) {
   const [hinweis, setHinweis] = useState(false);
   return (
     <div className="auftauchen" style={{ background: C.weiss, borderRadius: 18, padding: klein ? 16 : 20, marginBottom: 14,
-      boxShadow: "0 3px 18px rgba(16,42,67,0.08)", borderLeft: `4px solid ${C.gruenDunkel}` }}>
+      boxShadow: "0 3px 18px rgba(20,20,20,0.08)", borderLeft: `4px solid ${C.gruenDunkel}` }}>
       <p style={{ fontSize: 12, fontWeight: 600, color: C.gruenDunkel, letterSpacing: "0.04em", marginBottom: 6 }}>PERSÖNLICH</p>
       <p style={{ fontSize: klein ? 15.5 : 17, fontWeight: 600, lineHeight: 1.4, marginBottom: 6 }}>{signal.titel}</p>
       <p style={{ fontSize: 14, color: C.grau, fontWeight: 300, lineHeight: 1.7, marginBottom: 14 }}>{signal.text}</p>
@@ -538,7 +538,7 @@ export function MeinPlan({ gehe }) {
   const faellig = wiederholListe(L);
   const naechste = naechsteKompetenz(L.profil, L.stand);
 
-  const karte = { background: C.weiss, borderRadius: 18, padding: 20, boxShadow: "0 3px 18px rgba(16,42,67,0.08)", marginBottom: 14 };
+  const karte = { background: C.weiss, borderRadius: 18, padding: 20, boxShadow: "0 3px 18px rgba(20,20,20,0.08)", marginBottom: 14 };
   const R = 38, U = 2 * Math.PI * R;
 
   if (bearbeiten) {
@@ -740,7 +740,7 @@ export function Wochenbericht() {
     } catch (e) { setGeteilt("fehler"); }
   };
 
-  const karte = { background: C.weiss, borderRadius: 18, padding: 20, boxShadow: "0 3px 18px rgba(16,42,67,0.08)", marginBottom: 14 };
+  const karte = { background: C.weiss, borderRadius: 18, padding: 20, boxShadow: "0 3px 18px rgba(20,20,20,0.08)", marginBottom: 14 };
   const Zahl = ({ wert, name, klein }) => (
     <div style={{ background: C.himmel, borderRadius: 14, padding: "14px 12px", textAlign: "center" }}>
       <p style={{ fontSize: klein ? 18 : 24, fontWeight: 700, letterSpacing: "-0.02em", color: C.tinte, lineHeight: 1.1 }}>{wert}</p>
@@ -1058,7 +1058,7 @@ export function Messbericht({ gehe }) {
 
   const eigene = auswerten([messExport(L)]);
   const zeilen = Object.entries(L.messungen || {}).filter(([id]) => KOMP[id]);
-  const karte = { background: C.weiss, borderRadius: 18, padding: 20, boxShadow: "0 3px 18px rgba(16,42,67,0.08)", marginBottom: 14 };
+  const karte = { background: C.weiss, borderRadius: 18, padding: 20, boxShadow: "0 3px 18px rgba(20,20,20,0.08)", marginBottom: 14 };
 
   const noteSpeichern = () => {
     const wert = parseInt(np, 10);
@@ -1094,7 +1094,7 @@ export function Messbericht({ gehe }) {
           {[["vorher", mittel(eigene.vor)], ["nach der Einheit", mittel(eigene.nach)], ["nach Wochen", mittel(eigene.halten)]].map(([n, v]) => (
             <div key={n}>
               <p style={{ fontSize: 26, fontWeight: 700, color: C.weiss, letterSpacing: "-0.02em" }}>{pz(v)}</p>
-              <p style={{ fontSize: 12, color: "#BBD6EA" }}>{n}</p>
+              <p style={{ fontSize: 12, color: "#E8DCB5" }}>{n}</p>
             </div>
           ))}
         </div>
