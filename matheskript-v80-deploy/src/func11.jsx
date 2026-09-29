@@ -105,6 +105,9 @@ const RAND = 12;
 const SPALTE_ABSTAND = 7;
 const SPALTE_B = (SEITE_B - 2 * RAND - SPALTE_ABSTAND) / 2;
 const FUSS_Y = SEITE_H - 9;
+/* Skalierung für Schrift und Zeilenabstände. Der Generator verkleinert sie
+   schrittweise, bis die ganze Kurvendiskussion auf eine einzige Seite passt. */
+let SK = 1;
 const INHALT_UNTEN = SEITE_H - 15;
 
 function kopfleiste(doc, gross) {
@@ -150,10 +153,12 @@ function schaubild(doc, x0, y0, B, H, e, a, b, c, d) {
   const spanne = Math.max(xMax - xMin, 2);
   xMin -= spanne * 0.18 + 0.5; xMax += spanne * 0.18 + 0.5;
   let yMin = Math.min(0, d, ...mark.map((p) => p.y)), yMax = Math.max(0, d, ...mark.map((p) => p.y));
+  // Kurvenenden nur begrenzt einbeziehen, damit die markanten Punkte groß genug bleiben.
+  const grenze = Math.max(yMax - yMin, 2) * 0.6;
+  const yUnten = yMin - grenze, yOben = yMax + grenze;
   for (let i = 0; i <= 200; i++) {
     const y = f(xMin + ((xMax - xMin) * i) / 200);
-    // Kurvenenden nur begrenzt einbeziehen, damit die Mitte nicht zu flach wird
-    if (Math.abs(y) < (Math.max(Math.abs(yMin), Math.abs(yMax), 1)) * 1.6) { yMin = Math.min(yMin, y); yMax = Math.max(yMax, y); }
+    if (y >= yUnten && y <= yOben) { yMin = Math.min(yMin, y); yMax = Math.max(yMax, y); }
   }
   const ySpanne = Math.max(yMax - yMin, 2);
   yMin -= ySpanne * 0.12; yMax += ySpanne * 0.12;
@@ -259,19 +264,12 @@ function schaubild(doc, x0, y0, B, H, e, a, b, c, d) {
 
 /* ---------- Fließtext in zwei Spalten ---------- */
 
-function spaltenSetzer(doc, startY) {
-  const zustand = { spalte: 0, y: startY, oben: startY, seite: 1 };
+function spaltenSetzer(obenLinks, obenRechts) {
+  const zustand = { spalte: 0, y: obenLinks, ueberlauf: false };
   const x = () => RAND + zustand.spalte * (SPALTE_B + SPALTE_ABSTAND);
   const weiter = () => {
-    if (zustand.spalte === 0) { zustand.spalte = 1; zustand.y = zustand.oben; }
-    else {
-      doc.addPage();
-      zustand.seite++;
-      const h = kopfleiste(doc, false);
-      zustand.oben = h + 7;
-      zustand.spalte = 0;
-      zustand.y = zustand.oben;
-    }
+    if (zustand.spalte === 0) { zustand.spalte = 1; zustand.y = obenRechts; }
+    else zustand.ueberlauf = true; // passt nicht auf eine Seite → kleiner neu setzen
   };
   const platz = (h) => { if (zustand.y + h > INHALT_UNTEN) weiter(); };
   return { zustand, x, platz, weiter };
@@ -280,10 +278,10 @@ function spaltenSetzer(doc, startY) {
 /* Setzt eine Zeile ein; lange Rechenzeilen werden verkleinert statt umbrochen. */
 function rechenZeile(doc, s, txt, { fett, farbe, mono }) {
   const schrift = mono ? "Mono" : "Sans";
-  let gr = mono ? 7.4 : 8.2;
+  let gr = (mono ? 7.4 : 8.2) * SK;
   doc.setFont(schrift, fett ? "bold" : "normal");
   doc.setFontSize(gr);
-  while (doc.getTextWidth(txt) > SPALTE_B - 2 && gr > 5.2) { gr -= 0.2; doc.setFontSize(gr); }
+  while (doc.getTextWidth(txt) > SPALTE_B - 2 && gr > 4) { gr -= 0.2; doc.setFontSize(gr); }
   const h = gr * 0.46;
   s.platz(h);
   setzeText(doc, farbe);
@@ -293,13 +291,14 @@ function rechenZeile(doc, s, txt, { fett, farbe, mono }) {
 
 function prosaZeile(doc, s, txt, { fett, farbe }) {
   doc.setFont("Sans", fett ? "bold" : "normal");
-  doc.setFontSize(8);
+  doc.setFontSize(8 * SK);
   const zeilen = doc.splitTextToSize(txt, SPALTE_B - 1);
+  const h = 3.9 * SK;
   zeilen.forEach((z) => {
-    s.platz(3.9);
+    s.platz(h);
     setzeText(doc, farbe);
-    doc.text(z, s.x(), s.zustand.y + 3);
-    s.zustand.y += 3.9;
+    doc.text(z, s.x(), s.zustand.y + h * 0.77);
+    s.zustand.y += h;
   });
 }
 
@@ -320,39 +319,33 @@ function zeileSetzen(doc, s, zl, mono = false) {
 
 function polynomdivisionSetzen(doc, s, block) {
   const zeilen = [block.anfang, ...block.mitte, ...block.ende];
-  // Block möglichst zusammenhalten
-  const hoehe = zeilen.length * 3.6 + 7;
-  if (hoehe < INHALT_UNTEN - s.zustand.oben) s.platz(hoehe);
+  // Block möglichst in einer Spalte zusammenhalten
+  s.platz(zeilen.length * 3.5 * SK + 7 * SK);
   const yStart = s.zustand.y;
-  const spalteStart = s.zustand.spalte, seiteStart = s.zustand.seite;
-  s.zustand.y += 1.5;
+  const spalteStart = s.zustand.spalte;
+  s.zustand.y += 1.2 * SK;
   doc.setFont("Sans", "bold");
-  doc.setFontSize(6.5);
+  doc.setFontSize(6.5 * SK);
   setzeText(doc, C.see);
-  doc.text("POLYNOMDIVISION", s.x() + 3, s.zustand.y + 2.4);
-  s.zustand.y += 3.6;
+  doc.text("POLYNOMDIVISION", s.x() + 3, s.zustand.y + 2.4 * SK);
+  s.zustand.y += 3.6 * SK;
   const xAlt = s.x;
   s.x = () => xAlt() + 3;
   zeilen.forEach((zl, i) => zeileSetzen(doc, s, zl, i > 0 && i < zeilen.length - block.ende.length));
   s.x = xAlt;
-  s.zustand.y += 1.5;
-  // Hinterlegung nur, wenn der Block nicht umgebrochen wurde
-  if (s.zustand.spalte === spalteStart && s.zustand.seite === seiteStart) {
+  s.zustand.y += 1.2 * SK;
+  if (s.zustand.spalte === spalteStart) {
     setzeFuell(doc, C.see);
     doc.rect(s.x(), yStart, 0.7, s.zustand.y - yStart, "F");
   }
-  s.zustand.y += 1;
+  s.zustand.y += 1 * SK;
 }
 
 /* ---------- Hauptfunktion ---------- */
 
-export async function kurvendiskussionPdf({ e, a, b, c, d }) {
-  const schriften = await ladeSchriften();
-  const doc = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait", compress: true });
-  schriftenEinbinden(doc, schriften);
-  const inhalt = baueKurvendiskussionInhalt(e, a, b, c, d);
-
-  // Seite 1: Kopf, Funktion, Schaubild
+/* Setzt die komplette Seite mit Skalierung SK; meldet, ob etwas überläuft. */
+function seiteSetzen(doc, inhalt, { e, a, b, c, d }) {
+  // Kopf: Logo, Titel, Funktion und Ableitungen über die ganze Breite
   let y = kopfleiste(doc, true) + 8;
   doc.setFont("Sans", "bold");
   doc.setFontSize(20);
@@ -369,40 +362,52 @@ export async function kurvendiskussionPdf({ e, a, b, c, d }) {
   setzeText(doc, C.grau);
   doc.text(pdfText(`f'(x) = ${polyTextPdf([4 * e, 3 * a, 2 * b, c])}`), RAND, y);
   doc.text(pdfText(`f''(x) = ${polyTextPdf([12 * e, 6 * a, 2 * b])}`), RAND + SPALTE_B + SPALTE_ABSTAND, y);
-  y += 5;
+  y += 6;
 
-  y = schaubild(doc, RAND, y, SEITE_B - 2 * RAND, 70, e, a, b, c, d) + 3;
+  // Schaubild als kleine Box oben in der rechten Spalte
+  const boxH = Math.max(40, 58 * SK);
+  const unterSchaubild = schaubild(doc, RAND + SPALTE_B + SPALTE_ABSTAND, y, SPALTE_B, boxH, e, a, b, c, d) + 3;
 
-  // Abschnitte zweispaltig
-  const s = spaltenSetzer(doc, y);
+  // Text: links direkt unter dem Kopf, rechts unter dem Schaubild
+  const s = spaltenSetzer(y, unterSchaubild);
   inhalt.abschnitte.forEach((sek) => {
-    s.platz(5.5 + 4 * Math.min(sek.zeilen.length, 2));
+    s.platz((5.5 + 4 * Math.min(sek.zeilen.length, 2)) * SK);
     doc.setFont("Sans", "bold");
-    doc.setFontSize(9.2);
+    doc.setFontSize(9.2 * SK);
     setzeText(doc, C.see);
-    doc.text(sek.titel, s.x(), s.zustand.y + 3.4);
+    doc.text(sek.titel, s.x(), s.zustand.y + 3.4 * SK);
     setzeStrich(doc, C.linie);
     doc.setLineWidth(0.25);
-    doc.line(s.x(), s.zustand.y + 4.8, s.x() + SPALTE_B, s.zustand.y + 4.8);
-    s.zustand.y += 6.6;
+    doc.line(s.x(), s.zustand.y + 4.8 * SK, s.x() + SPALTE_B, s.zustand.y + 4.8 * SK);
+    s.zustand.y += 6.6 * SK;
     sek.zeilen.forEach((zl) => (zl.pd ? polynomdivisionSetzen(doc, s, zl) : zeileSetzen(doc, s, zl)));
-    s.zustand.y += 3;
+    s.zustand.y += 3 * SK;
   });
 
-  // Fußzeile auf jeder Seite
-  const n = doc.getNumberOfPages();
-  for (let i = 1; i <= n; i++) {
-    doc.setPage(i);
-    setzeStrich(doc, C.linie);
-    doc.setLineWidth(0.25);
-    doc.line(RAND, FUSS_Y - 4, SEITE_B - RAND, FUSS_Y - 4);
-    doc.setFont("Sans", "normal");
-    doc.setFontSize(7);
-    setzeText(doc, C.hellgrau);
-    doc.text(pdfText(`matheskript.de · Kurvendiskussion für f(x) = ${polyTextPdf([e, a, b, c, d])}`), RAND, FUSS_Y);
-    doc.text(`Seite ${i} von ${n}`, SEITE_B - RAND, FUSS_Y, { align: "right" });
-  }
+  // Fußzeile
+  setzeStrich(doc, C.linie);
+  doc.setLineWidth(0.25);
+  doc.line(RAND, FUSS_Y - 4, SEITE_B - RAND, FUSS_Y - 4);
+  doc.setFont("Sans", "normal");
+  doc.setFontSize(7);
+  setzeText(doc, C.hellgrau);
+  doc.text(pdfText(`Kurvendiskussion für f(x) = ${polyTextPdf([e, a, b, c, d])}`), RAND, FUSS_Y);
+  doc.text("matheskript.de", SEITE_B - RAND, FUSS_Y, { align: "right" });
 
+  return s.zustand.ueberlauf;
+}
+
+export async function kurvendiskussionPdf({ e, a, b, c, d }) {
+  const schriften = await ladeSchriften();
+  const inhalt = baueKurvendiskussionInhalt(e, a, b, c, d);
+  // Ausnahmslos eine Seite: so lange kleiner setzen, bis nichts mehr überläuft.
+  let doc = null;
+  for (SK = 1; SK >= 0.4; SK = Math.round((SK - 0.04) * 100) / 100) {
+    doc = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait", compress: true });
+    schriftenEinbinden(doc, schriften);
+    if (!seiteSetzen(doc, inhalt, { e, a, b, c, d })) break;
+  }
+  SK = 1;
   const name = `Kurvendiskussion_${polyTextPdf([e, a, b, c, d]).replace(/\s+/g, "").replace(/\^/g, "").replace(/[^\w+\-]/g, "")}.pdf`;
   doc.save(name);
 }
