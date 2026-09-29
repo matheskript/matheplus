@@ -345,8 +345,13 @@ function polynomdivisionSetzen(doc, s, block) {
 
 /* Setzt die komplette Seite mit Skalierung SK; meldet, ob etwas überläuft. */
 function seiteSetzen(doc, inhalt, { e, a, b, c, d }) {
-  // Kopf: Logo, Titel, Funktion und Ableitungen über die ganze Breite
-  let y = kopfleiste(doc, true) + 8;
+  // Kopf: Logo; darunter links Titel, f, f′, f″ — rechts daneben ganz oben das Schaubild
+  const kopfUnten = kopfleiste(doc, true);
+  let y = kopfUnten + 8;
+  const xRechts = RAND + SPALTE_B + SPALTE_ABSTAND;
+  const boxH = Math.max(42, 62 * SK);
+  const unterSchaubild = schaubild(doc, xRechts, kopfUnten + 4, SPALTE_B, boxH, e, a, b, c, d) + 3;
+
   doc.setFont("Sans", "bold");
   doc.setFontSize(20);
   setzeText(doc, C.tinte);
@@ -354,19 +359,20 @@ function seiteSetzen(doc, inhalt, { e, a, b, c, d }) {
   setzeFuell(doc, C.gruen);
   doc.rect(RAND, y + 2.2, 14, 0.9, "F");
   y += 9;
-  doc.setFontSize(13);
-  doc.text(pdfText(`f(x) = ${polyTextPdf([e, a, b, c, d])}`), RAND, y);
+  // Funktion so groß wie möglich, aber nie breiter als die linke Spalte
+  const fText = pdfText(`f(x) = ${polyTextPdf([e, a, b, c, d])}`);
+  let grF = 13;
+  doc.setFontSize(grF);
+  while (doc.getTextWidth(fText) > SPALTE_B && grF > 8) { grF -= 0.5; doc.setFontSize(grF); }
+  doc.text(fText, RAND, y);
   y += 5.5;
   doc.setFont("Sans", "normal");
   doc.setFontSize(9);
   setzeText(doc, C.grau);
   doc.text(pdfText(`f'(x) = ${polyTextPdf([4 * e, 3 * a, 2 * b, c])}`), RAND, y);
-  doc.text(pdfText(`f''(x) = ${polyTextPdf([12 * e, 6 * a, 2 * b])}`), RAND + SPALTE_B + SPALTE_ABSTAND, y);
+  y += 4.4;
+  doc.text(pdfText(`f''(x) = ${polyTextPdf([12 * e, 6 * a, 2 * b])}`), RAND, y);
   y += 6;
-
-  // Schaubild als kleine Box oben in der rechten Spalte
-  const boxH = Math.max(40, 58 * SK);
-  const unterSchaubild = schaubild(doc, RAND + SPALTE_B + SPALTE_ABSTAND, y, SPALTE_B, boxH, e, a, b, c, d) + 3;
 
   // Text: links direkt unter dem Kopf, rechts unter dem Schaubild
   const s = spaltenSetzer(y, unterSchaubild);
