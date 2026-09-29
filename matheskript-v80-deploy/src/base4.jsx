@@ -71,52 +71,52 @@ export const kursTrifftKlasse = (kurs, klasse) => {
 };
 
 
+/* Menü entlang des Lernwegs: erst der eigene Stand, dann verstehen → üben → prüfen,
+   danach Kamera, Werkzeuge und Berichte. Jeder Eintrag steht genau einmal im Menü. */
 export const NAV = [
-  { id: "plotter-rubrik", name: "Polynomplotter", kurz: "Koeffizienten einstellen, f, f′ und f″ sehen", eintraege: [
-    { name: "Polynomplotter", kurz: "Koeffizienten einstellen, f, f′ und f″ sehen", ansicht: "plotter" },
-  ] },
-  { id: "weg", name: "Mein Weg", kurz: "Lernlandkarte, Einstufung, Profil", eintraege: [
+  { id: "weg", name: "Mein Weg", kurz: "Plan, Wiederholung, Fortschritt", eintraege: [
     { name: "Lernlandkarte", kurz: "Der ganze Lehrplan als Liniennetz", ansicht: "karte" },
-    { name: "Klausur vorbereiten", kurz: "Plan bis zur nächsten Klassenarbeit", ansicht: "vorbereiten" },
     { name: "Mein Plan", kurz: "Tage, Minuten, Serie und Erinnerung", ansicht: "plan" },
     { name: "Wiederholen", kurz: "Was heute fällig ist, damit es bleibt", ansicht: "wiederholen" },
-    { name: "Wochenbericht", kurz: "Für Eltern und Lehrkräfte", ansicht: "bericht" },
-    { name: "Messbericht", kurz: "Vorher, nachher, nach Wochen", ansicht: "messung" },
+    { name: "Fortschritt", kurz: "Trefferquote, Fehlerarten und Tempo", ansicht: "profil" },
     { name: "Einstufung", kurz: "Herausfinden, wo die Lücken wirklich liegen", ansicht: "einstufung" },
     { name: "Profil", kurz: "Klasse, Ziel und Lernstand", ansicht: "profil2" },
   ] },
-  { id: "klassen", name: "Schulklassen", kurz: "Der Stoff, geordnet nach Klasse 8 bis 13", eintraege:
-    SCHULKLASSEN.map((k) => ({ name: `Klasse ${k}`, kurz: k >= 11 ? "Kursstufe" : "Nach dem Lambacher Schweizer", ansicht: "klasse", klasse: k })) },
-  { id: "wissen", name: "Wissen", kurz: "Herleitungen, Regeln, Kurse", eintraege: [
+  { id: "lernen", name: "Lernen", kurz: "Verstehen, herleiten, nachschlagen", eintraege: [
     { name: "Arbeitsheft", kurz: "Acht Bausteine mit Herleitung und Aufgaben", ansicht: "training", ziel: "module" },
-    { name: "Formelsammlung", kurz: "Alle Regeln zum Nachschlagen", ansicht: "formeln" },
     { name: "Schulkurse", kurz: "Analysis 1, Analysis 2 und Vektoren", ansicht: "kurse" },
+    { name: "Differenzenquotient", kurz: "Vom Tangentenproblem zur Ableitung", ansicht: "diffq" },
+    { name: "Formelsammlung", kurz: "Alle Regeln zum Nachschlagen", ansicht: "formeln" },
+    { name: "Operatoren", kurz: "Was „bestimmen“, „zeigen“, „begründen“ verlangen", ansicht: "operatoren" },
   ] },
-  { id: "ueben", name: "Üben", kurz: "Aufgaben, Wege, Klausuren", eintraege: [
+  { id: "klassen", name: "Nach Klasse", kurz: "Der Stoff von Klasse 8 bis 13", eintraege:
+    SCHULKLASSEN.map((k) => ({ name: `Klasse ${k}`, kurz: k >= 11 ? "Kursstufe" : "Nach dem Lambacher Schweizer", ansicht: "klasse", klasse: k })) },
+  { id: "ueben", name: "Üben", kurz: "Aufgaben und ganze Rechenwege", eintraege: [
     { name: "Aufgabengenerator", kurz: "Geraden, Ableitungen, Kurvendiskussion", ansicht: "ki", ziel: null },
-    { name: "Differenzenquotient", kurz: "Vom Tangentenproblem zur Ableitung — mit eigenem Kürzungs-Tool", ansicht: "diffq" },
     { name: "Rechenweg schreiben", kurz: "Ganze Wege eintippen und prüfen lassen", ansicht: "training", ziel: "weg" },
     { name: "Kurvendiskussion", kurz: "Das Protokoll in zwölf Schritten", ansicht: "training", ziel: "kd" },
     { name: "Graph-Zuordnung", kurz: "Welcher Graph ist f′?", ansicht: "training", ziel: "gz" },
-    { name: "Klausurgenerator", kurz: "Drei Aufgaben mit Uhr", ansicht: "training", ziel: "klausur" },
     { name: "Kopfrechnen", kurz: "Primfaktorzerlegung", ansicht: "kopf" },
   ] },
-  { id: "pruefung", name: "Prüfung", kurz: "Probeabitur, Operatoren, Begründen", eintraege: [
+  { id: "pruefung", name: "Prüfung", kurz: "Klassenarbeit und Abitur", eintraege: [
     { name: "Klausur vorbereiten", kurz: "Termin eintragen, Plan bekommen", ansicht: "vorbereiten" },
+    { name: "Klausurgenerator", kurz: "Drei Aufgaben mit Uhr", ansicht: "training", ziel: "klausur" },
     { name: "Probeabitur", kurz: "Teil A und B mit Uhr und Notenpunkten", ansicht: "abitur" },
-    { name: "Operatoren", kurz: "Was „bestimmen“, „zeigen“, „begründen“ verlangen", ansicht: "operatoren" },
     { name: "Begründen und Beweisen", kurz: "Freie Antworten am Bewertungsraster", ansicht: "begruenden" },
     { name: "Modellieren", kurz: "Sachaufgaben in vier Schritten", ansicht: "modellieren" },
-    { name: "Klausurgenerator", kurz: "Drei Aufgaben mit Uhr", ansicht: "training", ziel: "klausur" },
   ] },
   { id: "mathilda", name: "Mathilda AI", kurz: "Alles mit der Kamera", eintraege: [
     { name: "Blatt prüfen", kurz: "Rechenweg und Schriftbild vom Foto", ansicht: "analyse", foto: "blatt" },
     { name: "Weg prüfen", kurz: "Handschrift in Zeilen übertragen", ansicht: "analyse", foto: "weg" },
     { name: "Aufgabe scannen", kurz: "Ähnliche Aufgaben dazu erzeugen", ansicht: "analyse", foto: "aufgabe" },
   ] },
-  { id: "werkzeuge", name: "Werkzeuge", kurz: "Blätter, Fortschritt", eintraege: [
+  { id: "werkzeuge", name: "Werkzeuge", kurz: "Polynomplotter, Arbeitsblätter", eintraege: [
+    { name: "Polynomplotter", kurz: "Koeffizienten einstellen, f, f′ und f″ sehen", ansicht: "plotter" },
     { name: "Arbeitsblatt drucken", kurz: "Aufgabenblatt mit Lösungsteil", ansicht: "ki", ziel: "blatt" },
-    { name: "Fortschritt", kurz: "Trefferquote, Fehlerarten und Tempo", ansicht: "profil" },
+  ] },
+  { id: "berichte", name: "Berichte", kurz: "Für Eltern und Lehrkräfte", eintraege: [
+    { name: "Wochenbericht", kurz: "Was diese Woche passiert ist", ansicht: "bericht" },
+    { name: "Messbericht", kurz: "Vorher, nachher, nach Wochen", ansicht: "messung" },
     { name: "Auswertung", kurz: "Wirksamkeit über viele Schüler", ansicht: "auswertung" },
   ] },
 ];

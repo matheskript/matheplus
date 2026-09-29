@@ -39,6 +39,16 @@ export function Mathilda() {
     window.scrollTo(0, 0);
   };
   const [menuOffen, setMenuOffen] = useState(false);
+  /* Ein Menüeintrag ist nur aktiv, wenn Ansicht UND Unterziel passen
+     (mehrere Einträge teilen sich z. B. die Ansicht "training"). */
+  const istAktiv = (e) => {
+    if (e.ansicht !== ansicht) return false;
+    if (e.ansicht === "training") return (e.ziel ?? null) === trainZiel;
+    if (e.ansicht === "ki") return (e.ziel ?? null) === genZiel;
+    if (e.ansicht === "analyse") return e.foto === fotoModus;
+    if (e.ansicht === "klasse") return e.klasse === klasseAktiv;
+    return true;
+  };
   const [quelle, setQuelle] = useState(null);
   const [bild, setBild] = useState(null);
   const [b64, setB64] = useState(null);
@@ -173,7 +183,7 @@ export function Mathilda() {
               fontFamily: "inherit", cursor: "pointer", padding: 0 }}>
             {lern.profil ? (lern.profil.name || "?").slice(0, 1).toUpperCase() : "+"}
           </button>
-          <button onClick={() => setMenuOffen(!menuOffen)} aria-label="Menü"
+          <button onClick={() => { if (!menuOffen) { const g = NAV.find((g) => g.eintraege.some(istAktiv)); setGruppeOffen(g ? g.id : null); } setMenuOffen(!menuOffen); }} aria-label="Menü"
             style={{ background: "none", border: "none", cursor: "pointer", padding: 8, display: "flex", flexDirection: "column", gap: 5 }}>
             {[0, 1, 2].map((i) => (
               <span key={i} style={{ display: "block", width: 22, height: 2, background: C.weiss, borderRadius: 2 }} />
@@ -196,7 +206,7 @@ export function Mathilda() {
 
               {NAV.map((g, gi) => {
                 const auf = gruppeOffen === g.id;
-                const drin = g.eintraege.some((e) => e.ansicht === ansicht);
+                const drin = g.eintraege.some(istAktiv);
                 const direkt = g.eintraege.length === 1;
                 return (
                   <div key={g.id} style={{ borderBottom: gi < NAV.length - 1 ? `1px solid rgba(255,255,255,0.12)` : "none" }}>
@@ -216,7 +226,7 @@ export function Mathilda() {
                         {g.eintraege.map((e) => (
                           <button key={e.name} onClick={() => gehe(e)} className="w-full py-2.5"
                             style={{ background: "none", border: "none", textAlign: "left", cursor: "pointer", fontFamily: "inherit", paddingLeft: 14 }}>
-                            <span style={{ display: "block", color: e.ansicht === ansicht ? C.flaggold : C.weiss, fontSize: 14.5, fontWeight: 500 }}>{e.name}</span>
+                            <span style={{ display: "block", color: istAktiv(e) ? C.flaggold : C.weiss, fontSize: 14.5, fontWeight: 500 }}>{e.name}</span>
                             <span style={{ display: "block", color: "#BFB38C", fontSize: 12, fontWeight: 300, marginTop: 1 }}>{e.kurz}</span>
                           </button>
                         ))}
