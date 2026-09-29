@@ -1000,6 +1000,9 @@ export function baueKurvendiskussionInhalt(e, a, b, c, d) {
     zP(s3, `Damit gilt: f(x) strebt für x -> plus unendlich gegen ${rP}, und für x -> minus unendlich gegen ${rM}.`);
   }
 
+  // Sammelt alle markanten Punkte für die Übersicht in Abschnitt 10.
+  const punkte = [];
+
   const s4 = abschnitt("4. Nullstellen");
   z(s4, "Ansatz: f(x) = 0", true);
   const nsErg = loeseGanzrational([e, a, b, c, d]);
@@ -1008,6 +1011,8 @@ export function baueKurvendiskussionInhalt(e, a, b, c, d) {
   else {
     const txt = nsErg.loesungen.map((l, i) => `x${nsErg.loesungen.length > 1 ? "₁₂₃₄₅₆"[i] ?? i + 1 : ""} = ${zahl(l.x)}`).join(",  ");
     z(s4, `Nullstellen: ${txt}`, true);
+    nsErg.loesungen.map((l) => l.x).sort((p, q) => p - q)
+      .forEach((x) => punkte.push({ art: "Nullstelle", kurz: "N", x, y: 0 }));
   }
 
   const s5 = abschnitt("5. Erste und zweite Ableitung");
@@ -1037,6 +1042,7 @@ export function baueKurvendiskussionInhalt(e, a, b, c, d) {
         const kurz = art === "Hochpunkt" ? "H" : art === "Tiefpunkt" ? "T" : "S";
         z(s6, `f''(${zahl(l.x)}) = ${zahl(fssx)} ${fssx < 0 ? "< 0 => Hochpunkt" : fssx > 0 ? "> 0 => Tiefpunkt" : "= 0 => Sattelpunkt"}`);
         z(s6, `${art} ${kurz}(${zahl(l.x)} | ${zahl(yWert)})`, true);
+        punkte.push({ art, kurz, x: l.x, y: yWert });
       });
     }
   }
@@ -1086,6 +1092,7 @@ export function baueKurvendiskussionInhalt(e, a, b, c, d) {
       weErg.loesungen.forEach((l) => {
         const yWert = f(l.x);
         z(s8, `Wendepunkt W(${zahl(l.x)} | ${zahl(yWert)})`, true);
+        punkte.push({ art: "Wendepunkt", kurz: "W", x: l.x, y: yWert });
       });
     }
   }
@@ -1120,8 +1127,28 @@ export function baueKurvendiskussionInhalt(e, a, b, c, d) {
     }
   }
 
-  const s10 = abschnitt("10. y-Achsenabschnitt");
-  z(s10, `f(0) = ${d}  =>  Schnittpunkt mit der y-Achse: (0 | ${d})`);
+  const s10 = abschnitt("10. Alle markanten Punkte");
+  punkte.push({ art: "y-Achsenabschnitt", kurz: "Sᵧ", x: 0, y: d, ohneIndex: true });
+  {
+    // Gleiche Punktarten durchnummerieren (N₁, N₂, …), sobald es mehr als einen gibt.
+    const anzahl = {};
+    punkte.forEach((p) => { anzahl[p.kurz] = (anzahl[p.kurz] || 0) + 1; });
+    const zaehler = {};
+    const gruppen = [
+      ["Nullstellen", ["N"]], ["Extrempunkte", ["H", "T", "S"]], ["Wendepunkte", ["W"]], ["y-Achsenabschnitt", ["Sᵧ"]],
+    ];
+    const nummeriert = punkte.map((p) => {
+      zaehler[p.kurz] = (zaehler[p.kurz] || 0) + 1;
+      const idx = !p.ohneIndex && anzahl[p.kurz] > 1 ? tiefZiffer(zaehler[p.kurz]) : "";
+      return { ...p, name: `${p.kurz}${idx}(${zahl(p.x)} | ${zahl(p.y)})` };
+    });
+    gruppen.forEach(([titel, kuerzel]) => {
+      const liste = nummeriert.filter((p) => kuerzel.includes(p.kurz));
+      if (!liste.length) return;
+      z(s10, `${titel}:`, true);
+      liste.forEach((p) => z(s10, `   ${p.name}${p.kurz === "S" ? "   (Sattelpunkt)" : ""}${p.kurz === "Sᵧ" ? "   da f(0) = " + zahl(p.y) : ""}`));
+    });
+  }
 
   const s11 = abschnitt("11. Integrale zwischen den Nullstellen");
   if (nsErg.loesungen.length < 2) {
