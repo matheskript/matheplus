@@ -124,22 +124,22 @@ function Kopf({ n, p, k, setN, setP, setK, pT, qT, bruch, setBruch }) {
       </div>
       {/* Formel von Bernoulli oben, Kurzform X ∼ B(n; p) darunter */}
       <div style={{ gridArea: "formel", minWidth: 0 }}>
-        <BernoulliFormel n={n} k={k} pT={pT} qT={qT} wert={bin(n, p, k)} />
-        <p style={{ textAlign: "center", fontSize: "clamp(18px, 5vw, 24px)", fontWeight: 800, color: C.tinte, letterSpacing: "-0.02em",
-          marginTop: 8, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>
-          X ∼ B(<span style={{ color: FARBEN.n }}>{n}</span>; <Wert t={pT} farbe={FARBEN.p} klammer={false} />)
-        </p>
+        <BernoulliFormel n={n} k={k} pT={pT} qT={qT} wert={bin(n, p, k)} p={p} />
       </div>
     </div>
   );
 }
 
 /* Bernoulli-Formel, farbig wie die Regler – immer einzeilig, Schriftgröße passt sich der Breite an */
-function BernoulliFormel({ n, k, pT, qT, wert }) {
-  // Ergebnis auf höchstens 3 Nachkommastellen; geht es nicht auf, folgt „…“
-  const gerundet = Math.round(wert * 1000) / 1000;
-  const exakt = Math.abs(wert * 1000 - Math.round(wert * 1000)) < 1e-9;
-  const ergebnis = String(gerundet).replace(".", ",") + (exakt ? "" : "…");
+// Zahl auf höchstens 3 Nachkommastellen (sehr kleine Werte: 3 gültige Ziffern); geht sie nicht auf, folgt „…“
+function kurzZahl(x) {
+  if (Math.abs(x * 1000 - Math.round(x * 1000)) < 1e-9) return String(Math.round(x * 1000) / 1000).replace(".", ",");
+  const r = Math.abs(x) >= 0.001 ? Math.round(x * 1000) / 1000 : Number(x.toPrecision(3));
+  return String(r).replace(".", ",") + "…";
+}
+
+function BernoulliFormel({ n, k, pT, qT, wert, p }) {
+  const ergebnis = kurzZahl(wert);
   const v = (t, farbe) => <span style={{ color: farbe, fontWeight: 800 }}>{t}</span>;
   const rahmen = useRef(null), innen = useRef(null);
   const [gr, setGr] = useState(16);
@@ -159,16 +159,29 @@ function BernoulliFormel({ n, k, pT, qT, wert }) {
   return (
     <div ref={rahmen} style={{ background: C.sand, borderRadius: 12, padding: "8px 6px 10px", overflow: "hidden" }}>
       <p style={{ fontSize: 10.5, fontWeight: 600, color: C.grau, marginBottom: 4, textAlign: "center", whiteSpace: "nowrap" }}>Formel von Bernoulli</p>
-      <div ref={innen} style={{ display: "flex", alignItems: "center", gap: "0.2em", width: "max-content", margin: "0 auto",
-        fontSize: gr, fontWeight: 700, color: C.tinte, whiteSpace: "nowrap" }}>
-        <span>P(X = {v(k, FARBEN.k)}) =</span>
-        <Binom o={n} u={k} farbeO={FARBEN.n} farbeU={FARBEN.k} />
-        <span>·</span>
-        <Pot basis={<Wert t={pT} farbe={FARBEN.p} />} exp={<span style={{ color: FARBEN.k }}>{k}</span>} />
-        <span>·</span>
-        <Pot basis={<Wert t={qT} farbe={FARBEN.p} />} exp={n - k} />
-        <span>=</span>
-        <span style={{ fontVariantNumeric: "tabular-nums" }}>{ergebnis}</span>
+      <div ref={innen} style={{ display: "flex", flexDirection: "column", gap: "0.35em",
+        width: "max-content", margin: "0 auto", fontSize: gr, fontWeight: 700, color: C.tinte, whiteSpace: "nowrap" }}>
+        {/* Zeile 1: allgemeine Form mit den eingestellten Werten */}
+        <span style={{ display: "flex", alignItems: "center", gap: "0.2em" }}>
+          <span>P(X = {v(k, FARBEN.k)})</span>
+          <span>=</span>
+          <Binom o={n} u={k} farbeO={FARBEN.n} farbeU={FARBEN.k} />
+          <span>·</span>
+          <Pot basis={<Wert t={pT} farbe={FARBEN.p} />} exp={<span style={{ color: FARBEN.k }}>{k}</span>} />
+          <span>·</span>
+          <Pot basis={<Wert t={qT} farbe={FARBEN.p} />} exp={n - k} />
+        </span>
+        {/* Zeile 2: ausgerechnet */}
+        <span style={{ alignSelf: "flex-end", display: "flex", alignItems: "center", gap: "0.2em", fontVariantNumeric: "tabular-nums" }}>
+          <span>=</span>
+          {v(binomKoeff(n, k), FARBEN.n)}
+          <span>·</span>
+          {v(kurzZahl(Math.pow(p, k)), FARBEN.p)}
+          <span>·</span>
+          {v(kurzZahl(Math.pow(1 - p, n - k)), FARBEN.p)}
+          <span>=</span>
+          <span style={{ fontWeight: 800 }}>{ergebnis}</span>
+        </span>
       </div>
     </div>
   );
