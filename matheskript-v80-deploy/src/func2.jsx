@@ -12,6 +12,7 @@ import { EskalationsKarte, Wochenbericht, eskalationSignale, serieBerechnen, zei
 import { TerminHinweis } from "./func9.jsx";
 import { Mathilda } from "./func10.jsx";
 import { KopfrechnenLogoKlein } from "./func14.jsx";
+import { VektorenLogoKlein } from "./func16.jsx";
 
 /* Große, ganz anklickbare Kachel für die Plotter auf der Startseite. */
 /* Polynomplotter-Grafik im Hochformat für die Kachel. */
@@ -554,6 +555,9 @@ export function Startseite({ gehe }) {
       <PlotterKachel onClick={() => gehe({ ansicht: "analysis" })} label="Analysis öffnen" logo={<PlotterLogoKlein />}
         titel="Analysis" marke="Neu" kategorie="Werkzeuge"
         text="Polynomplotter, Advanced Plotter und Ableitungstrainer – Graphen erkunden." />
+      <PlotterKachel onClick={() => gehe({ ansicht: "vektoren" })} label="Vektoren öffnen" logo={<VektorenLogoKlein />}
+        titel="Vektoren" marke="Neu" kategorie="Werkzeuge"
+        text="Ebenen-Visualizer und Videokurs – Geometrie im Raum sehen." />
       <PlotterKachel onClick={() => gehe({ ansicht: "kopf" })} label="KopfrechenZentrum öffnen" logo={<KopfrechnenLogoKlein />}
         titel="KopfrechenZentrum" marke="Neu" kategorie="Üben"
         text="Primfaktoren, Quadratzahlen, Brüche und Einmaleins – schnell auf Zeit." />

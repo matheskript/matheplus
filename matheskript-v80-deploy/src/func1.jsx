@@ -882,8 +882,8 @@ export function KursGrafik({ art, hoehe = 150 }) {
 }
 
 
-export function Kurse({ gehe }) {
-  const [offen, setOffen] = useState(null);
+export function Kurse({ gehe, startKurs = null }) {
+  const [offen, setOffen] = useState(startKurs);
   const [hinweis, setHinweis] = useState(false);
   const [video, setVideo] = useState(null);   // null oder Index der Lektion
 

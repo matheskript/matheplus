@@ -14,6 +14,7 @@ import { Auswertung, Einwilligung, KlasseAnsicht, KlausurVorbereitung, einwillig
 import { AdvancedPlotter } from "./func12.jsx";
 import { Ableitungstrainer } from "./func13.jsx";
 import { AnalysisZentrum, KopfrechenZentrum } from "./func14.jsx";
+import { EbenenVisualizer, VektorenZentrum } from "./func16.jsx";
 
 export function Mathilda() {
   const [ansicht, setAnsicht] = useState("start");
@@ -21,6 +22,7 @@ export function Mathilda() {
   const [fotoModus, setFotoModus] = useState("blatt");
   const [terminStart, setTerminStart] = useState(null);
   const [klasseAktiv, setKlasseAktiv] = useState(8);
+  const [kursStart, setKursStart] = useState(null);
   const [fotoErlaubt, setFotoErlaubt] = useState(() => !!einwilligungLesen());
   const [trainZiel, setTrainZiel] = useState(null);
   const [genZiel, setGenZiel] = useState(null);
@@ -38,6 +40,7 @@ export function Mathilda() {
     if (eintrag.kompetenz) setEinheitId(eintrag.kompetenz);
     if (eintrag.ansicht === "vorbereiten") setTerminStart(eintrag.termin || null);
     if (eintrag.ansicht === "klasse") setKlasseAktiv(eintrag.klasse);
+    setKursStart(eintrag.ansicht === "kurse" ? eintrag.kurs || null : null);
     setMenuOffen(false); setGruppeOffen(null);
     window.scrollTo(0, 0);
   };
@@ -492,6 +495,34 @@ export function Mathilda() {
           </div>
           <KopfrechenZentrum />
         </>
+      ) : ansicht === "ebenen" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+            <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 style={{ fontWeight: 700, fontSize: "clamp(28px, 8vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05, color: C.weiss }}>Ebenen-Visualizer</h1>
+              <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <p style={{ color: C.goldText, fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+                E: a·x₁ + b·x₂ + c·x₃ = d
+              </p>
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <EbenenVisualizer />
+        </>
+      ) : ansicht === "vektoren" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+            <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 style={{ fontWeight: 700, fontSize: "clamp(28px, 8vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05, color: C.weiss }}>Vektoren</h1>
+              <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <p style={{ color: C.goldText, fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+                Ebenen, Geraden und Abstände – im Raum sichtbar gemacht.
+              </p>
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <VektorenZentrum gehe={gehe} />
+        </>
       ) : ansicht === "analysis" ? (
         <>
           <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
@@ -576,7 +607,7 @@ export function Mathilda() {
             </div>
             <Welle fill={C.sand} />
           </div>
-          <Kurse gehe={gehe} />
+          <Kurse gehe={gehe} startKurs={kursStart} />
         </>
       ) : ansicht === "ki" ? (
         <>
