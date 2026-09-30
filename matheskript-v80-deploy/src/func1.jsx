@@ -955,6 +955,7 @@ export function KursGrafik({ art, hoehe = 150 }) {
 export function Kurse({ gehe, startKurs = null }) {
   const [offen, setOffen] = useState(startKurs);
   const [hinweis, setHinweis] = useState(false);
+  const [analysisAuf, setAnalysisAuf] = useState(false);   // Dropdown der fünf Analysis-Kurse
   const [video, setVideo] = useState(null);   // null oder Index der Lektion
 
   const kaufen = (id) => {
@@ -1046,31 +1047,75 @@ export function Kurse({ gehe, startKurs = null }) {
         Modulen im Trainingsbereich. Tipp auf einen Kurs – dort findest du alle Infos, die Videos und den Kauf.
       </p>
 
-      {KURSE.map((k) => {
-        const n = videoAnzahl(k.id);
-        return (
-          <button key={k.id} onClick={() => { setOffen(k.id); setHinweis(false); window.scrollTo(0, 0); }}
-            aria-label={`${k.titel} öffnen`} className="kurs-kachel"
-            style={{ display: "flex", width: "calc(100% + 32px)", marginLeft: -16, marginRight: -16, height: 138, marginBottom: 12,
-              padding: 0, border: "none", borderRadius: 18, overflow: "hidden", cursor: "pointer", fontFamily: "inherit", textAlign: "left",
+      {(() => {
+        // Eine Kachel im Stil der Startseite; klein = kompakte Variante für das Analysis-Dropdown
+        const kachel = ({ key, titel, unter, info, grafik, onClick, label, klein, rechts }) => (
+          <button key={key} onClick={onClick} aria-label={label} className="kurs-kachel"
+            style={{ display: "flex", width: klein ? "100%" : "calc(100% + 32px)", marginLeft: klein ? 0 : -16, marginRight: klein ? 0 : -16,
+              height: klein ? 92 : 138, marginBottom: klein ? 8 : 12,
+              padding: 0, border: "none", borderRadius: klein ? 14 : 18, overflow: "hidden", cursor: "pointer", fontFamily: "inherit", textAlign: "left",
               background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`,
               boxShadow: `0 6px 22px rgba(0,77,152,0.24), inset 0 0 0 1px ${C.silber}40` }}>
-            <div style={{ flex: "1 1 60%", minWidth: 0, padding: "13px 10px 12px 16px", display: "flex", flexDirection: "column" }}>
-              <p className="titel-silber" style={{ fontSize: "clamp(15px, 4.1vw, 22px)", fontWeight: 700, letterSpacing: "-0.03em",
-                lineHeight: 1.1, margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{k.titel}</p>
-              <span aria-hidden="true" style={{ display: "block", width: 34, height: 2.5, borderRadius: 2, marginTop: 6,
+            <div style={{ flex: klein ? "1 1 68%" : "1 1 60%", minWidth: 0, padding: klein ? "10px 8px 9px 14px" : "13px 10px 12px 16px", display: "flex", flexDirection: "column" }}>
+              <p className="titel-silber" style={{ fontSize: klein ? "clamp(14px, 3.8vw, 18px)" : "clamp(15px, 4.1vw, 22px)", fontWeight: 700, letterSpacing: "-0.03em",
+                lineHeight: 1.1, margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{titel}</p>
+              <span aria-hidden="true" style={{ display: "block", width: klein ? 26 : 34, height: 2.5, borderRadius: 2, marginTop: klein ? 5 : 6,
                 background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)` }} />
-              <p className="kurs-text" style={{ color: C.weiss, fontSize: 12.5, fontWeight: 300, lineHeight: 1.4, marginTop: 6, marginBottom: 0 }}>{k.unter}</p>
-              <p style={{ marginTop: "auto", marginBottom: 0, color: C.goldText, fontSize: 11.5, fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                {k.stufe.replace("Klasse ", "Kl. ").replace(" – ", "–")}{n > 0 ? ` · ${n} Videos` : ""} · {k.preis} €
+              <p className="kurs-text" style={{ color: C.weiss, fontSize: klein ? 12 : 12.5, fontWeight: 300, lineHeight: 1.4, marginTop: klein ? 4 : 6, marginBottom: 0 }}>{unter}</p>
+              <p style={{ marginTop: "auto", marginBottom: 0, color: C.goldText, fontSize: klein ? 11 : 11.5, fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                {info}
               </p>
             </div>
-            <div style={{ flex: "0 0 40%", borderLeft: `1px solid ${C.silber}33` }}>
-              <KursGrafik art={k.grafik} hoehe="100%" />
-            </div>
+            {rechts || (
+              <div style={{ flex: klein ? "0 0 32%" : "0 0 40%", borderLeft: `1px solid ${C.silber}33` }}>
+                <KursGrafik art={grafik} hoehe="100%" />
+              </div>
+            )}
           </button>
         );
-      })}
+        const infoText = (k) => {
+          const n = videoAnzahl(k.id);
+          return `${k.stufe.replace("Klasse ", "Kl. ").replace(" – ", "–")}${n > 0 ? ` · ${n} Videos` : ""} · ${k.preis} €`;
+        };
+        const oeffne = (id) => { setOffen(id); setHinweis(false); window.scrollTo(0, 0); };
+        const analysis = KURSE.filter((k) => k.id.startsWith("analysis"));
+        const videosAnalysis = analysis.reduce((s0, k) => s0 + videoAnzahl(k.id), 0);
+        const ausgabe = [];
+        KURSE.forEach((k) => {
+          if (k.id.startsWith("analysis")) {
+            if (k.id !== analysis[0].id) return;
+            ausgabe.push(
+              <div key="analysis-gruppe">
+                {kachel({
+                  key: "analysis", titel: "Analysis", label: analysisAuf ? "Analysis-Kurse zuklappen" : "Analysis-Kurse aufklappen",
+                  unter: "Geraden · Polynome · Andere Funktionen · Kurvendiskussion · Integrale",
+                  info: `Kl. 8–13 · ${analysis.length} Kurse · ${videosAnalysis} Videos`, grafik: "kurve",
+                  onClick: () => setAnalysisAuf(!analysisAuf),
+                  rechts: (
+                    <div style={{ flex: "0 0 40%", borderLeft: `1px solid ${C.silber}33`, position: "relative" }}>
+                      <KursGrafik art="kurve" hoehe="100%" />
+                      <span aria-hidden="true" style={{ position: "absolute", right: 10, bottom: 10, width: 30, height: 30, borderRadius: 999,
+                        background: C.flaggold, color: C.seeTief, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 800,
+                        transform: analysisAuf ? "rotate(180deg)" : "none", transition: "transform .2s ease", boxShadow: "0 2px 8px rgba(0,0,0,0.25)" }}>▾</span>
+                    </div>
+                  ),
+                })}
+                {analysisAuf && (
+                  <div style={{ margin: "-4px 0 14px", padding: "10px 0 2px 12px", borderLeft: `3px solid ${C.flaggold}` }}>
+                    {analysis.map((a) => kachel({
+                      key: a.id, klein: true, titel: a.titel, unter: a.unter, info: infoText(a), grafik: a.grafik,
+                      label: `${a.titel} öffnen`, onClick: () => oeffne(a.id),
+                    }))}
+                  </div>
+                )}
+              </div>
+            );
+            return;
+          }
+          ausgabe.push(kachel({ key: k.id, titel: k.titel, unter: k.unter, info: infoText(k), grafik: k.grafik, label: `${k.titel} öffnen`, onClick: () => oeffne(k.id) }));
+        });
+        return ausgabe;
+      })()}
       <style>{`.kurs-kachel{transition:transform .15s ease, box-shadow .15s ease}
         .kurs-kachel:active{transform:scale(0.985)}
         @media (hover:hover){.kurs-kachel:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,77,152,0.32)}}
