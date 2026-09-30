@@ -851,6 +851,7 @@ export function PenPaperBlatt() {
 /* Einzelne Themenseiten zur Analysis – erscheinen im Analysis-Dropdown der Schulkurse */
 const ANALYSIS_THEMEN = [
   { ansicht: "diffq", titel: "Differenzenquotient", unter: "Vom Tangentenproblem zur Ableitung", info: "Thema · Video · Übung", grafik: "sekante" },
+  { ansicht: "potenzregel", titel: "Potenzregel", unter: "Beweis per Produktregel und Induktion", info: "Thema · Video · Übung", grafik: "potenz" },
 ];
 
 export function KursGrafik({ art, hoehe = 150 }) {
@@ -879,6 +880,21 @@ export function KursGrafik({ art, hoehe = 150 }) {
           <circle cx="241.6" cy="66" r="5.5" fill={C.flaggold} />
           <path d="M 134.4 122 L 241.6 122 L 241.6 66" stroke="rgba(255,255,255,0.55)" strokeWidth="1.4" fill="none" strokeDasharray="4 3" />
           <text x="188" y="138" fill="rgba(255,255,255,0.8)" fontSize="13" fontWeight="700" fontStyle="italic" textAnchor="middle">h</text>
+        </>
+      )}
+
+      {art === "potenz" && (
+        <>
+          {/* Dominokette: umgefallene Steine (weiß), der aktuelle Stein gold, dahinter x³ */}
+          <line x1="20" y1="135" x2="320" y2="135" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" />
+          <path d="M 30 132 C 120 128 170 110 200 80 S 250 20 262 10" stroke="rgba(255,255,255,0.35)" strokeWidth="2" fill="none" />
+          {[0, 1, 2, 3].map((i) => (
+            <rect key={i} x={48 + i * 42} y="72" width="18" height="62" rx="3" fill={C.weiss} opacity={0.55 + i * 0.12}
+              transform={`rotate(-38 ${66 + i * 42} 134)`} />
+          ))}
+          <rect x="218" y="72" width="18" height="62" rx="3" fill={C.flaggold} transform="rotate(-12 236 134)" />
+          <rect x="262" y="72" width="18" height="62" rx="3" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="1.6" />
+          <rect x="300" y="72" width="18" height="62" rx="3" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="1.6" />
         </>
       )}
 

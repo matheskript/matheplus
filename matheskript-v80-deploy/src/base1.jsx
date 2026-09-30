@@ -106,6 +106,7 @@ export const DEMO_VIDEO_ID = "50LsVekhMCU";
    bis Basti ein eigenes aufgenommen hat (siehe DIFFQ-Bereich weiter unten). */
 
 export const DIFFQ_VIDEO_ID = "7xd_G5uIp7k";
+export const POTENZREGEL_VIDEO_ID = "2f_TkmDkz2E";
 
 /* Lädt die YouTube-IFrame-API genau einmal, egal wie viele Videos auf der
    Seite stehen. Läuft nur in einem echten Browser — in Claudes eigener
