@@ -54,6 +54,17 @@ function potenzAufgabe(modus) {
   const n = zufall(2, 10); return { text: `∛${n ** 3}`, loesung: n };
 }
 
+/* ---------- Gleichungs-Layout ----------
+   Aufgabe (2/3) links, Eingabe (1/3) rechts auf gleicher Höhe — liest sich wie eine
+   Gleichung. Unter 560 px Breite rutscht die Eingabe wieder unter die Aufgabe. */
+const GLEICHUNG_CSS = `
+  .kr-gleichung{display:grid;grid-template-columns:2fr 1fr;align-items:stretch;gap:16px;margin-bottom:6px}
+  .kr-gleichung > *{min-width:0}
+  .kr-aufgabe{display:flex;align-items:center;justify-content:flex-end;text-align:right}
+  @media (max-width:560px){
+    .kr-gleichung{grid-template-columns:1fr;gap:12px}
+  }`;
+
 /* ---------- Schnellrechen-Baustein ---------- */
 
 const RUNDE = 10;
@@ -195,21 +206,24 @@ function Schnellrechnen({ erzeugen, gruppe, bestSchluessel }) {
         {serie >= 3 && <span style={{ fontSize: 12.5, fontWeight: 700, color: C.gruen, whiteSpace: "nowrap" }}>🔥 {serie}</span>}
       </div>
 
-      {/* Aufgabe */}
-      <div style={{ background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 16,
-        padding: "22px 16px", textAlign: "center", marginBottom: 12 }}>
-        <p style={{ color: C.weiss, fontSize: 44, fontWeight: 800, letterSpacing: "-0.01em", lineHeight: 1.1 }}>
-          {aufgabe.text} <span style={{ color: C.goldText, fontWeight: 600 }}>=</span>
-        </p>
-      </div>
+      <style>{GLEICHUNG_CSS}</style>
+      <div className="kr-gleichung">
+        {/* Aufgabe: rechtsbündig, endet mit „=“ */}
+        <div className="kr-aufgabe" style={{ background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 16,
+          padding: "20px 18px", minHeight: 96 }}>
+          <p style={{ color: C.weiss, fontSize: "clamp(34px, 9vw, 44px)", fontWeight: 800, letterSpacing: "-0.01em", lineHeight: 1.1, whiteSpace: "nowrap" }}>
+            {aufgabe.text} <span style={{ color: C.goldText, fontWeight: 600 }}>=</span>
+          </p>
+        </div>
 
-      {/* Eingabe */}
-      <div style={{ border: `2.5px solid ${farbe}`, borderRadius: 14, height: 64, marginBottom: 6,
-        display: "flex", alignItems: "center", justifyContent: "center", gap: 12,
-        background: rueck === "richtig" ? "#EEF8F2" : rueck === "falsch" ? "#FBEFEA" : C.weiss, transition: "all .15s" }}>
-        <span style={{ fontSize: 34, fontWeight: 800, color: C.tinte, minWidth: 20 }}>{eingabe || <span style={{ color: C.hellgrau }}>?</span>}</span>
-        {rueck === "richtig" && <span style={{ fontSize: 26, color: C.smaragd, fontWeight: 800 }}>✓</span>}
-        {rueck === "falsch" && <span style={{ fontSize: 17, color: C.signal, fontWeight: 700 }}>✗ richtig: {aufgabe.loesung}</span>}
+        {/* Eingabe */}
+        <div style={{ border: `2.5px solid ${farbe}`, borderRadius: 14, minHeight: 64,
+          display: "flex", alignItems: "center", justifyContent: "center", gap: 10, flexWrap: "wrap", padding: "6px 8px",
+          background: rueck === "richtig" ? "#EEF8F2" : rueck === "falsch" ? "#FBEFEA" : C.weiss, transition: "all .15s" }}>
+          <span style={{ fontSize: 34, fontWeight: 800, color: C.tinte, minWidth: 20 }}>{eingabe || <span style={{ color: C.hellgrau }}>?</span>}</span>
+          {rueck === "richtig" && <span style={{ fontSize: 26, color: C.smaragd, fontWeight: 800 }}>✓</span>}
+          {rueck === "falsch" && <span style={{ fontSize: 17, color: C.signal, fontWeight: 700 }}>✗ richtig: {aufgabe.loesung}</span>}
+        </div>
       </div>
       <p style={{ fontSize: 12, color: C.hellgrau, textAlign: "center", marginBottom: 12, minHeight: 16 }}>
         {best ? `Bestwert: ${best.richtig}/${RUNDE} in ${String(best.sek).replace(".", ",")} s` : "Tippe die Lösung ein und drücke OK."}
@@ -240,6 +254,68 @@ function Modi({ liste, wert, setWert }) {
   );
 }
 
+/* ---------- Übersichten zum Anschauen ---------- */
+
+function UebersichtKopf({ titel, text }) {
+  return (
+    <div style={{ marginBottom: 10 }}>
+      <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: C.gruenDunkel }}>Übersicht</p>
+      <p style={{ fontSize: 17, fontWeight: 700, color: C.tinte, marginTop: 2 }}>{titel}</p>
+      {text && <p style={{ fontSize: 13, color: C.grau, fontWeight: 300, lineHeight: 1.55, marginTop: 2 }}>{text}</p>}
+    </div>
+  );
+}
+
+/* 1×1 als Schachbrett: 10×10 Produkte, Zeilen/Spalten beschriftet, Diagonale hervorgehoben. */
+export function EinmaleinsSchachbrett() {
+  const zahlen = Array.from({ length: 10 }, (_, i) => i + 1);
+  const zelle = { display: "flex", alignItems: "center", justifyContent: "center", aspectRatio: "1 / 1",
+    fontSize: "clamp(10px, 2.9vw, 14px)", fontVariantNumeric: "tabular-nums" };
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(11, 1fr)", gap: 2, background: C.weiss,
+      borderRadius: 14, padding: 6, boxShadow: "0 2px 14px rgba(15,26,51,0.06)", border: `1px solid ${C.linie}` }}>
+      <div style={{ ...zelle, color: C.gruen, fontWeight: 800 }}>·</div>
+      {zahlen.map((s) => (
+        <div key={`k${s}`} style={{ ...zelle, fontWeight: 800, color: C.gruen }}>{s}</div>
+      ))}
+      {zahlen.map((z) => (
+        <React.Fragment key={`z${z}`}>
+          <div style={{ ...zelle, fontWeight: 800, color: C.gruen }}>{z}</div>
+          {zahlen.map((s) => {
+            const diag = z === s, dunkel = (z + s) % 2 === 1;
+            return (
+              <div key={`${z}-${s}`} title={`${z} · ${s} = ${z * s}`}
+                style={{ ...zelle, borderRadius: 4, fontWeight: diag ? 800 : 600,
+                  background: diag ? C.flaggold : dunkel ? C.see : C.himmel,
+                  color: diag ? C.seeTief : dunkel ? C.weiss : C.tinte,
+                  boxShadow: diag ? "inset 0 0 0 1.5px rgba(14,30,74,0.35)" : "none" }}>
+                {z * s}
+              </div>
+            );
+          })}
+        </React.Fragment>
+      ))}
+    </div>
+  );
+}
+
+/* Liste „n² = Wert“ bzw. „n³ = Wert“ */
+function PotenzListe({ bis, hoch }) {
+  const zeichen = hoch === 2 ? "²" : "³";
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(104px, 1fr))", gap: 6 }}>
+      {Array.from({ length: bis }, (_, i) => i + 1).map((n) => (
+        <div key={n} style={{ background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 10, padding: "7px 10px",
+          fontSize: 15, color: C.tinte, fontVariantNumeric: "tabular-nums", display: "flex", justifyContent: "space-between", gap: 6 }}>
+          <span style={{ color: C.see, fontWeight: 700 }}>{n}{zeichen}</span>
+          <span style={{ color: C.hellgrau }}>=</span>
+          <span style={{ fontWeight: 800 }}>{n ** hoch}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 /* ---------- EinMalEins ---------- */
 
 function EinMalEins() {
@@ -249,6 +325,11 @@ function EinMalEins() {
   const erzeugen = React.useCallback(() => einmaleinsAufgabe(modus, reihe), [modus, reihe]);
   return (
     <div>
+      <div style={{ marginBottom: 22 }}>
+        <UebersichtKopf titel="Das kleine 1×1 als Schachbrett" text="Alle Produkte von 1 · 1 bis 10 · 10. Auf der goldenen Diagonale stehen die Quadratzahlen." />
+        <EinmaleinsSchachbrett />
+      </div>
+      <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: C.gruenDunkel, marginBottom: 8 }}>Üben</p>
       <Modi liste={EINMALEINS_MODI} wert={modus} setWert={(m) => { setModus(m); setReihe(null); }} />
       {modus !== "mix" && (
         <div style={{ display: "flex", alignItems: "center", gap: 5, flexWrap: "wrap", marginBottom: 14 }}>
@@ -264,51 +345,37 @@ function EinMalEins() {
         </div>
       )}
       <Schnellrechnen erzeugen={erzeugen} gruppe="Einmaleins" bestSchluessel={`kr-best-1x1-${modus}-${reihe || "alle"}`} />
+      <details className="kr-details" style={{ marginTop: 16, background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 14, padding: "0 14px" }}>
+        <style>{`.kr-details > summary{list-style:none;cursor:pointer;padding:13px 0;font-size:14px;font-weight:600;color:${C.see}}
+          .kr-details > summary::-webkit-details-marker{display:none}
+          .kr-details > summary::before{content:"›";display:inline-block;margin-right:8px;transition:transform .15s}
+          .kr-details[open] > summary::before{transform:rotate(90deg)}
+          .kr-details[open]{padding-bottom:14px}`}</style>
+        <summary>Alle Produkte von 1·1 bis 10·10 anzeigen</summary>
+        <EinmaleinsSchachbrett />
+      </details>
     </div>
   );
 }
 
 /* ---------- Quadrat- und Kubikzahlen ---------- */
 
-function PotenzTabelle() {
-  const [offen, setOffen] = useState(false);
-  const zelle = (oben, unten, i) => (
-    <div key={i} style={{ background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 10, padding: "6px 4px", textAlign: "center" }}>
-      <span style={{ display: "block", fontSize: 11.5, color: C.grau }}>{oben}</span>
-      <span style={{ display: "block", fontSize: 15, fontWeight: 700, color: C.tinte }}>{unten}</span>
-    </div>
-  );
-  return (
-    <div style={{ marginTop: 16 }}>
-      <button onClick={() => setOffen(!offen)}
-        style={{ width: "100%", height: 44, borderRadius: 12, border: `1px solid ${C.linie}`, background: C.weiss,
-          color: C.see, fontFamily: "inherit", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
-        {offen ? "Lerntabelle ausblenden" : "Lerntabelle zum Einprägen anzeigen"}
-      </button>
-      {offen && (
-        <div style={{ marginTop: 12 }}>
-          <p style={{ fontSize: 13, fontWeight: 700, color: C.see, marginBottom: 8 }}>Quadratzahlen</p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 6, marginBottom: 14 }}>
-            {Array.from({ length: 25 }, (_, i) => zelle(`${i + 1}²`, (i + 1) ** 2, i))}
-          </div>
-          <p style={{ fontSize: 13, fontWeight: 700, color: C.see, marginBottom: 8 }}>Kubikzahlen</p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 6 }}>
-            {Array.from({ length: 10 }, (_, i) => zelle(`${i + 1}³`, (i + 1) ** 3, i))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
 function QuadratKubik() {
   const [modus, setModus] = useState("quadrat");
   const erzeugen = React.useCallback(() => potenzAufgabe(modus), [modus]);
   return (
     <div>
+      <div style={{ marginBottom: 18 }}>
+        <UebersichtKopf titel="Quadratzahlen" text="Von 1² bis 25²." />
+        <PotenzListe bis={25} hoch={2} />
+      </div>
+      <div style={{ marginBottom: 22 }}>
+        <UebersichtKopf titel="Kubikzahlen" text="Von 1³ bis 10³." />
+        <PotenzListe bis={10} hoch={3} />
+      </div>
+      <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: C.gruenDunkel, marginBottom: 8 }}>Üben</p>
       <Modi liste={POTENZ_MODI} wert={modus} setWert={setModus} />
       <Schnellrechnen erzeugen={erzeugen} gruppe="Potenzen" bestSchluessel={`kr-best-pot-${modus}`} />
-      <PotenzTabelle />
     </div>
   );
 }
@@ -539,7 +606,7 @@ function BruchRunde({ modus, stufe }) {
 
   const rahmen = rueck === "richtig" ? C.smaragd : rueck === "falsch" ? C.signal : rueck ? C.flaggold : C.see;
   const feldStil = (aktiv) => ({
-    minWidth: 76, height: 50, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center",
+    minWidth: 66, height: 50, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center",
     fontSize: 30, fontWeight: 800, color: C.tinte, cursor: "pointer",
     border: `2px ${aktiv && !(rueck === "richtig" || rueck === "falsch") ? "solid" : "dashed"} ${aktiv ? rahmen : C.linie}`,
     background: aktiv ? C.weiss : C.sand, padding: "0 10px",
@@ -557,9 +624,12 @@ function BruchRunde({ modus, stufe }) {
         {serie >= 3 && <span style={{ fontSize: 12.5, fontWeight: 700, color: C.gruen, whiteSpace: "nowrap" }}>🔥 {serie}</span>}
       </div>
 
-      {/* Aufgabe */}
-      <div style={{ background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 16,
-        padding: "18px 12px", marginBottom: 12, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, flexWrap: "wrap" }}>
+      <style>{GLEICHUNG_CSS}</style>
+      <div className="kr-gleichung">
+      {/* Aufgabe: rechtsbündig, endet mit „=“. Beide Blöcke gleich hoch und vertikal zentriert,
+          dadurch liegen die Bruchstriche von Aufgabe und Eingabe auf derselben Höhe. */}
+      <div className="kr-aufgabe" style={{ background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 16,
+        padding: "14px 16px", gap: 6, flexWrap: "nowrap" }}>
         {!auf.op && <span style={{ color: C.goldText, fontSize: 15, fontWeight: 600, marginRight: 6 }}>Kürze</span>}
         <Bruch z={auf.a.z} n={auf.a.n} />
         {auf.op && <span style={{ color: C.flaggold, fontSize: 34, fontWeight: 800, margin: "0 4px" }}>{auf.op}</span>}
@@ -568,8 +638,8 @@ function BruchRunde({ modus, stufe }) {
       </div>
 
       {/* Eingabe als Bruch */}
-      <div style={{ border: `2.5px solid ${rahmen}`, borderRadius: 14, padding: "10px 12px", marginBottom: 6,
-        display: "flex", alignItems: "center", justifyContent: "center", gap: 16, transition: "all .15s",
+      <div style={{ border: `2.5px solid ${rahmen}`, borderRadius: 14, padding: "10px 10px",
+        display: "flex", alignItems: "center", justifyContent: "center", gap: 12, transition: "all .15s",
         background: rueck === "richtig" ? "#EEF8F2" : rueck === "falsch" ? "#FBEFEA" : C.weiss }}>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
           <div onClick={() => setFeld("z")} style={feldStil(feld === "z")}>{z || <span style={{ color: C.hellgrau, fontSize: 18 }}>Zähler</span>}</div>
@@ -582,6 +652,7 @@ function BruchRunde({ modus, stufe }) {
             ✗ <Bruch z={auf.loes.z} n={auf.loes.n} gross={26} farbe={C.signal} />
           </span>
         )}
+      </div>
       </div>
 
       <div style={{ minHeight: 20, margin: "6px 2px 12px" }}>
