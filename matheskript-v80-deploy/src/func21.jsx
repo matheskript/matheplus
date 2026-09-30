@@ -8,7 +8,7 @@
    Keine base-Datei darf diese Datei importieren.
    ============================================================ */
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { C } from "./base1.jsx";
 
 const FARBE = { a: "#A50044", b: "#004D98", c: "#C99A00", d: "#1F8A5B" };
@@ -166,17 +166,50 @@ function Schaubild({ ziel, p, zeigeAbl, ns }) {
 
 /* ---------- Regler: Wert groß, + und − untereinander ---------- */
 
-function Regler({ name, farbe, children, plus, minus }) {
-  const knopf = { width: "100%", maxWidth: 48, height: 28, borderRadius: 8, border: `1.5px solid ${farbe}66`, background: `${farbe}14`,
-    color: farbe, fontSize: 18, fontWeight: 700, fontFamily: "inherit", cursor: "pointer", padding: 0, lineHeight: 1,
+function Regler({ name, farbe, children, plus, minus, extra }) {
+  const knopf = { width: 34, height: 24, borderRadius: 7, border: `1.5px solid ${farbe}66`, background: `${farbe}14`,
+    color: farbe, fontSize: 16, fontWeight: 700, fontFamily: "inherit", cursor: "pointer", padding: 0, lineHeight: 1,
     display: "flex", alignItems: "center", justifyContent: "center" };
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, minWidth: 0 }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, minWidth: 0 }}>
       <span style={{ fontSize: 13, fontWeight: 800, color: farbe }}>{name}</span>
-      <span style={{ minHeight: 40, display: "flex", alignItems: "center", fontSize: "clamp(17px, 5vw, 22px)", fontWeight: 800, color: farbe, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{children}</span>
+      <span style={{ minHeight: 34, display: "flex", alignItems: "center", fontSize: 16, fontWeight: 800, color: farbe, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{children}</span>
       <button aria-label={`${name} erhöhen`} style={knopf} onClick={plus}>+</button>
       <button aria-label={`${name} verringern`} style={knopf} onClick={minus}>−</button>
+      {extra}
     </div>
+  );
+}
+
+// Mehrere Formelzeilen in gleicher Schriftgröße; die Größe passt sich der Breite an
+function FormelBlock({ children, max = 24, min = 12 }) {
+  const rahmen = useRef(null), innen = useRef(null);
+  const [gr, setGr] = useState(max);
+  useEffect(() => {
+    const anpassen = () => {
+      if (!rahmen.current || !innen.current) return;
+      const breite = innen.current.scrollWidth * (max / parseFloat(getComputedStyle(innen.current).fontSize));
+      setGr(Math.max(min, Math.min(max, Math.floor((max * rahmen.current.clientWidth / breite) * 10) / 10)));
+    };
+    anpassen();
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(anpassen) : null;
+    if (ro && rahmen.current) ro.observe(rahmen.current);
+    return () => { if (ro) ro.disconnect(); };
+  });
+  return (
+    <div ref={rahmen} style={{ minWidth: 0, overflow: "hidden" }}>
+      <div ref={innen} style={{ width: "max-content", fontSize: gr, display: "flex", flexDirection: "column", gap: "0.35em" }}>{children}</div>
+    </div>
+  );
+}
+
+// Allgemeine Form, Parameter farbig
+function Allgemein() {
+  const f = (t, farbe) => <span style={{ color: farbe }}>{t}</span>;
+  return (
+    <span style={{ fontWeight: 800, color: C.tinte, whiteSpace: "nowrap" }}>
+      f(x) = {f("a", FARBE.a)} · sin({f("b", FARBE.b)} · (x − {f("c", FARBE.c)})) + {f("d", FARBE.d)}
+    </span>
   );
 }
 
@@ -230,28 +263,28 @@ export function Sinusfunktion() {
       </div>
 
       <div style={karte}>
-        <p style={{ fontSize: 12.5, fontWeight: 600, color: C.grau, textAlign: "center", marginBottom: 4 }}>f(x) = a · sin(b · (x − c)) + d</p>
-        <div style={{ textAlign: "center", marginBottom: 12, minHeight: 40, display: "flex", alignItems: "center", justifyContent: "center", overflowX: "auto" }}>
-          <Term p={p} gross />
-        </div>
-
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 8, marginBottom: 10 }}>
-          <Regler name="a" farbe={FARBE.a} plus={() => setze("a", grenz(p.a + 0.5, -5, 5))} minus={() => setze("a", grenz(p.a - 0.5, -5, 5))}>{zahl(p.a)}</Regler>
-          <Regler name="b" farbe={FARBE.b} plus={() => setze("b", grenz(p.b + 0.5, 0.5, 5))} minus={() => setze("b", grenz(p.b - 0.5, 0.5, 5))}>{zahl(p.b)}</Regler>
-          <Regler name="c" farbe={FARBE.c} plus={() => setze("c", grenz(p.c + cSchritt, -4, 4))} minus={() => setze("c", grenz(p.c - cSchritt, -4, 4))}>
-            <Wert v={p.c} pi={p.cPi} />
-          </Regler>
-          <Regler name="d" farbe={FARBE.d} plus={() => setze("d", grenz(p.d + 0.5, -4, 4))} minus={() => setze("d", grenz(p.d - 0.5, -4, 4))}>{zahl(p.d)}</Regler>
-        </div>
-
-        {/* c als Zahl oder als Vielfaches von π */}
-        <div style={{ display: "flex", justifyContent: "center", gap: 6, marginBottom: 14 }}>
-          <span style={{ fontSize: 12.5, color: C.grau, alignSelf: "center" }}>c als</span>
-          {[[false, "Zahl"], [true, "Vielfaches von π"]].map(([w, t]) => (
-            <button key={t} onClick={() => setP((q) => ({ ...q, cPi: w, c: w ? Math.round(q.c * 4) / 4 : Math.round(q.c * 2) / 2 }))}
-              style={{ padding: "5px 12px", borderRadius: 999, fontSize: 12.5, fontFamily: "inherit", cursor: "pointer", fontWeight: 600,
-                border: `1px solid ${p.cPi === w ? FARBE.c : C.linie}`, background: p.cPi === w ? `${FARBE.c}1A` : C.weiss, color: p.cPi === w ? "#8A6D00" : C.grau }}>{t}</button>
-          ))}
+        {/* links die Formeln (allgemein und eingesetzt, gleich groß), rechts die Regler */}
+        <div className="sin-kopf" style={{ marginBottom: 12 }}>
+          <style>{`.sin-kopf{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center}
+            @media (max-width:520px){.sin-kopf{grid-template-columns:minmax(0,1fr)}}`}</style>
+          <FormelBlock max={24}>
+            <Allgemein />
+            <Term p={p} />
+          </FormelBlock>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 44px)", gap: 4, justifyContent: "center", alignItems: "start" }}>
+            <Regler name="a" farbe={FARBE.a} plus={() => setze("a", grenz(p.a + 0.5, -5, 5))} minus={() => setze("a", grenz(p.a - 0.5, -5, 5))}>{zahl(p.a)}</Regler>
+            <Regler name="b" farbe={FARBE.b} plus={() => setze("b", grenz(p.b + 0.5, 0.5, 5))} minus={() => setze("b", grenz(p.b - 0.5, 0.5, 5))}>{zahl(p.b)}</Regler>
+            <Regler name="c" farbe={FARBE.c} plus={() => setze("c", grenz(p.c + cSchritt, -4, 4))} minus={() => setze("c", grenz(p.c - cSchritt, -4, 4))}
+              extra={
+                <button aria-label={p.cPi ? "c als Zahl" : "c als Vielfaches von π"} title="c als Vielfaches von π"
+                  onClick={() => setP((q) => ({ ...q, cPi: !q.cPi, c: !q.cPi ? Math.round(q.c * 4) / 4 : Math.round(q.c * 2) / 2 }))}
+                  style={{ width: 34, height: 22, borderRadius: 7, fontSize: 14, fontWeight: 800, fontFamily: "inherit", cursor: "pointer", padding: 0,
+                    border: `1.5px solid ${p.cPi ? FARBE.c : C.linie}`, background: p.cPi ? FARBE.c : C.weiss, color: p.cPi ? C.weiss : "#8A6D00" }}>π</button>
+              }>
+              <Wert v={p.c} pi={p.cPi} />
+            </Regler>
+            <Regler name="d" farbe={FARBE.d} plus={() => setze("d", grenz(p.d + 0.5, -4, 4))} minus={() => setze("d", grenz(p.d - 0.5, -4, 4))}>{zahl(p.d)}</Regler>
+          </div>
         </div>
 
         <Schaubild ziel={aktivesZiel} p={p} zeigeAbl={zeigeAbl} ns={ns.liste} />
