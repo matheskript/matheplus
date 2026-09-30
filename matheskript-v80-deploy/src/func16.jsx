@@ -38,7 +38,7 @@ export function ebenenText(a, b, c, d) {
 
 /* ---------- 3D-Projektion ---------- */
 
-function kamera(phi, theta) {
+export function kamera(phi, theta) {
   const cp = Math.cos(phi), sp = Math.sin(phi), ct = Math.cos(theta), st = Math.sin(theta);
   return {
     // Bildschirm: u nach rechts, v nach oben; t = Tiefe zum Betrachter
@@ -52,7 +52,7 @@ function kamera(phi, theta) {
 }
 
 /* Schnittpolygon der Ebene mit dem Würfel [−L, L]³ */
-function ebenenPolygon(n, d, L) {
+export function ebenenPolygon(n, d, L) {
   const ecken = [];
   for (const x of [-L, L]) for (const y of [-L, L]) for (const z of [-L, L]) ecken.push([x, y, z]);
   const kanten = [];
@@ -105,7 +105,7 @@ function spurStrecke(n, d, achse, L) {
 
 /* ---------- 3D-Ansicht ---------- */
 
-const FARBE_ACHSE = { 0: "#C99A00", 1: "#A50044", 2: "#004D98" };
+export const FARBE_ACHSE = { 0: "#C99A00", 1: "#A50044", 2: "#004D98" };
 
 function Raum({ a, b, c, d, phi, theta, setPhi, setTheta, zeigen, zoom = 1 }) {
   const n = [a, b, c];
@@ -376,7 +376,7 @@ function GleichungMitReglern({ a, b, c, d, setA, setB, setC, setD }) {
 }
 
 /* Drehknöpfe rund um das Schaubild; Gedrückthalten dreht weiter. */
-function DrehKnoepfe({ setPhi, setTheta, zuruecksetzen }) {
+export function DrehKnoepfe({ setPhi, setTheta, zuruecksetzen }) {
   const timer = React.useRef(null);
   const SCHRITT = Math.PI / 24; // 7,5°
   const drehe = (dp, dt) => {
@@ -540,6 +540,7 @@ export function EbenenVisualizer() {
 
 const VEKTOREN = [
   { ziel: { ansicht: "ebenen" }, titel: "Ebenen-Visualizer", kurz: "Ebenen in Koordinatenform live im 3D-Koordinatensystem sehen – mit Spurpunkten und Normalenvektor.", zeichen: "E" },
+  { ziel: { ansicht: "ebenevsebene" }, titel: "Ebene vs. Ebene", kurz: "Zwei Ebenen gleichzeitig im Raum – mit Schnittgerade und Schnittwinkel über die Kosinusformel.", zeichen: "E₁E₂" },
   { ziel: { ansicht: "kurse", kurs: "vektoren" }, titel: "Videokurs Vektoren", kurz: "Fünf Lektionen von den Grundlagen bis zu Ebenen – mit Merksätzen und Kurz-Checks.", zeichen: "▶" },
 ];
 
