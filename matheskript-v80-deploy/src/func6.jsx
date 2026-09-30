@@ -419,7 +419,7 @@ export function Profil({ gehe }) {
   const zaehler = Object.values(L.stand).reduce((z, s) => { z[s.status] = (z[s.status] || 0) + 1; return z; }, {});
 
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
       <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 22 }}>
         {neu
           ? "Drei Angaben, dann weiß Matheskript, wo es für dich losgeht. Danach folgt eine kurze Einstufung."
@@ -638,7 +638,7 @@ export function Einstufung({ gehe }) {
 
   if (!L.profil) {
     return (
-      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
+      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
         <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 18 }}>
           Für die Einstufung brauchen wir zuerst deine Klassenstufe.
         </p>
@@ -652,7 +652,7 @@ export function Einstufung({ gehe }) {
 
   if (phase === "start") {
     return (
-      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
+      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
         <p style={{ fontSize: 17, fontWeight: 500, lineHeight: 1.6, marginBottom: 12 }}>
           {L.profil.name}, in etwa zehn Minuten wissen wir, wo du wirklich stehst.
         </p>
@@ -677,7 +677,7 @@ export function Einstufung({ gehe }) {
     const k = KOMP[aktuell];
     const idee = LEITIDEEN.find((i) => i.id === k.idee);
     return (
-      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
+      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
         <div className="flex justify-between items-baseline mb-2">
           <span style={{ fontSize: 12.5, fontWeight: 600, color: idee.farbe }}>{k.titel}</span>
           <span style={{ fontSize: 12, color: C.hellgrau }}>Aufgabe {gefragt.size + 1} von höchstens {EINSTUFUNG_MAX}</span>
@@ -736,7 +736,7 @@ export function Einstufung({ gehe }) {
   const start = naechsteKompetenz(L.profil, L.stand);
 
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
       <div style={{ background: `linear-gradient(160deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 18, padding: 24, marginBottom: 18 }}>
         <p style={{ fontSize: 12, letterSpacing: "1.4px", color: C.gruen, fontWeight: 600, marginBottom: 10 }}>EINSTUFUNG ABGESCHLOSSEN</p>
         <p style={{ fontSize: 22, fontWeight: 700, color: C.weiss, lineHeight: 1.35 }}>
@@ -908,7 +908,7 @@ export function Lernlandkarte({ gehe }) {
   const k = auswahl ? KOMP[auswahl] : null;
 
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
       {/* Zusammenfassung */}
       <div style={{ background: C.weiss, borderRadius: 18, padding: 20, boxShadow: "0 3px 18px rgba(15,26,51,0.08)", marginBottom: 16 }}>
         <div className="flex justify-between items-baseline" style={{ marginBottom: 10 }}>

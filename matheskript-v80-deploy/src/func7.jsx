@@ -282,7 +282,7 @@ export function EinheitSpieler({ id, gehe }) {
     borderRadius: 999, fontSize: 15, fontFamily: "inherit", cursor: "pointer" };
 
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
       <button onClick={() => gehe({ ansicht: "karte" })} className="mb-4"
         style={{ background: "none", border: "none", color: C.see, fontSize: 13, fontFamily: "inherit", cursor: "pointer", padding: 0 }}>
         ← Lernlandkarte
@@ -649,7 +649,7 @@ export function Wiederholen({ gehe }) {
   if (sitzung && nr < sitzung.length) {
     const e = sitzung[nr], k = KOMP[e.id], idee = LEITIDEEN.find((i) => i.id === k.idee);
     return (
-      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
+      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
         <div className="flex justify-between" style={{ marginBottom: 8 }}>
           <span style={{ fontSize: 12.5, fontWeight: 600, color: idee.farbe }}>
             {k.titel}{e.fuer ? <span style={{ color: C.grau, fontWeight: 400 }}> · Brücke zu {KOMP[e.fuer]?.titel}</span> : null}
@@ -687,7 +687,7 @@ export function Wiederholen({ gehe }) {
   }
 
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
       {sitzung && (
         <div className="auftauchen" style={{ background: `linear-gradient(160deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 18, padding: 22, marginBottom: 16 }}>
           <p style={{ fontSize: 20, fontWeight: 700, color: C.weiss }}>{bilanz.ok} von {bilanz.n} sitzen noch</p>
@@ -799,7 +799,7 @@ export function Operatoren() {
   const folge = React.useMemo(() => mischen(fall.antworten.length), [nr]);
 
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
       <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.75, marginBottom: 18 }}>
         Im Abitur entscheidet das erste Wort der Aufgabe, wofür es Punkte gibt. „Bestimmen“ verlangt etwas anderes
         als „angeben“, „zeigen“ etwas anderes als „berechnen“. Wer das weiß, verliert keine Punkte mehr an Stellen,
@@ -940,7 +940,7 @@ Die Liste "kriterien" hat genau ${a.raster.length} Einträge in der Reihenfolge 
     fontSize: 15.5, fontWeight: 600, fontFamily: "inherit", cursor: "pointer" };
 
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
       <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.75, marginBottom: 16 }}>
         Rechnen kann man üben, Begründen auch — nur wird es in der Schule selten systematisch gemacht. Schreib deine
         Antwort in ganzen Sätzen, schätze sie dann selbst am Raster ein und vergleiche mit Mathildas Einschätzung.

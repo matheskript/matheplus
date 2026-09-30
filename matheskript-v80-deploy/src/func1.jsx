@@ -268,7 +268,7 @@ export function Trainingsbereich({ sprung, setSprung, ziel, setZiel }) {
   const modulAuf = sprung ? MODUL_KATALOG.find((m) => m.id === "ableitung") : direktModul || offenesModul;
   if (modulAuf) {
     return (
-      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
+      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
         <LernModul modul={modulAuf} startKapitel={sprung}
           onZurueck={() => { setOffenesModul(null); setSprung(null); if (direktModul) setZiel("module"); }} />
       </div>
@@ -277,7 +277,7 @@ export function Trainingsbereich({ sprung, setSprung, ziel, setZiel }) {
 
   if (klausurOffen) {
     return (
-      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
+      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
         <Klausur onZurueck={() => setKlausurOffen(false)} />
       </div>
     );
@@ -285,7 +285,7 @@ export function Trainingsbereich({ sprung, setSprung, ziel, setZiel }) {
 
   if (wegOffen) {
     return (
-      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
+      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
         <RechenwegEditor onZurueck={() => setWegOffen(false)} />
       </div>
     );
@@ -293,7 +293,7 @@ export function Trainingsbereich({ sprung, setSprung, ziel, setZiel }) {
 
   if (kdOffen) {
     return (
-      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
+      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
         <Kurvendiskussion onZurueck={() => setKdOffen(false)} />
       </div>
     );
@@ -301,7 +301,7 @@ export function Trainingsbereich({ sprung, setSprung, ziel, setZiel }) {
 
   if (gzOffen) {
     return (
-      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
+      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
         <GraphZuordnung onZurueck={() => setGzOffen(false)} />
       </div>
     );
@@ -309,8 +309,7 @@ export function Trainingsbereich({ sprung, setSprung, ziel, setZiel }) {
 
   if (!modul) {
     return (
-      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
-        <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 8 }}>Trainingsbereich</p>
+      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
         <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
           Erst das Prinzip, dann die Aufgaben
         </h2>
@@ -400,11 +399,10 @@ export function Trainingsbereich({ sprung, setSprung, ziel, setZiel }) {
 
   if (phase === "einleitung") {
     return (
-      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
+      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
         <button onClick={zurueck} className="mb-6" style={{ background: "none", border: "none", color: C.see, fontSize: 13, fontFamily: "inherit", cursor: "pointer", padding: 0 }}>
           ← Alle Module
         </button>
-        <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 8 }}>{modul.unter}</p>
         <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 16 }}>{modul.titel}</h2>
         {modul.einleitung.map((t, i) => (
           <p key={i} style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.75, marginBottom: 14 }}>{t}</p>
@@ -427,7 +425,7 @@ export function Trainingsbereich({ sprung, setSprung, ziel, setZiel }) {
 
   if (phase === "fertig") {
     return (
-      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
+      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
         <div style={{ background: `linear-gradient(160deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 16, padding: 28, marginBottom: 20 }}>
           <p style={{ color: "#C9D6EE", fontSize: 13, fontWeight: 600, marginBottom: 10 }}>{modul.titel}</p>
           <p style={{ color: C.weiss, fontSize: 22, fontWeight: 600, lineHeight: 1.4 }}>
@@ -455,7 +453,7 @@ export function Trainingsbereich({ sprung, setSprung, ziel, setZiel }) {
   const fertig = gewaehlt !== null;
 
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
       <button onClick={zurueck} className="mb-5" style={{ background: "none", border: "none", color: C.see, fontSize: 13, fontFamily: "inherit", cursor: "pointer", padding: 0 }}>
         ← Alle Module
       </button>
@@ -691,9 +689,8 @@ export function KIAufgaben({ eingebettet }) {
   });
 
   return (
-    <div className={eingebettet ? "" : "mx-auto px-6 pb-16"} style={eingebettet ? {} : { maxWidth: 620, marginTop: -8 }}>
+    <div className={eingebettet ? "" : "mx-auto px-6 pb-16"} style={eingebettet ? {} : { maxWidth: 620, paddingTop: 30 }}>
       {!eingebettet && (<>
-        <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 8 }}>Aufgabengenerator</p>
         <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
           Immer neue Geraden
         </h2>
@@ -918,7 +915,7 @@ export function Kurse({ gehe, startKurs = null }) {
   if (offen) {
     const k = KURSE.find((x) => x.id === offen);
     return (
-      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
+      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
         <button onClick={() => { setOffen(null); setHinweis(false); setVideo(null); }} className="mb-5"
           style={{ background: "none", border: "none", color: C.see, fontSize: 13, fontFamily: "inherit", cursor: "pointer", padding: 0 }}>
           ← Alle Kurse
@@ -928,7 +925,6 @@ export function Kurse({ gehe, startKurs = null }) {
           <KursGrafik art={k.grafik} hoehe={170} />
         </div>
 
-        <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 8 }}>{k.unter}</p>
         <h2 style={{ fontSize: 30, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.15, marginBottom: 14 }}>{k.titel}</h2>
 
         <div className="flex flex-wrap gap-2 mb-6">
@@ -968,8 +964,7 @@ export function Kurse({ gehe, startKurs = null }) {
   }
 
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
-      <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 8 }}>Schulkurse</p>
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
       <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
         Ein Halbjahr, ein Thema, ein System
       </h2>

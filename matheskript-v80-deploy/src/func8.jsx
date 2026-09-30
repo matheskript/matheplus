@@ -64,7 +64,7 @@ export function Probeabitur() {
 
   if (teil === "start") {
     return (
-      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
+      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
         <div style={karte}>
           <p style={{ fontSize: 18, fontWeight: 700, marginBottom: 10 }}>So läuft das Probeabitur</p>
           {[["Teil A · ohne Hilfsmittel", `${ABI_ZEIT.A / 60} Minuten, sechs kürzere Aufgaben. Kein Taschenrechner, keine Formelsammlung.`],
@@ -88,7 +88,7 @@ export function Probeabitur() {
 
   if (teil === "A" || teil === "B") {
     return (
-      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
+      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
         <div className="flex justify-between items-center" style={{ position: "sticky", top: 56, zIndex: 20, background: C.sand, padding: "10px 0", marginBottom: 8 }}>
           <span style={{ fontSize: 14, fontWeight: 600, color: C.see }}>{teil === "A" ? "Teil A · ohne Hilfsmittel" : "Teil B · mit Hilfsmitteln"}</span>
           <span style={{ fontSize: 17, fontWeight: 700, fontVariantNumeric: "tabular-nums", color: rest < 300 ? C.signal : C.tinte }}>{uhr}</span>
@@ -136,7 +136,7 @@ export function Probeabitur() {
   // Auswertung
   const e = ergebnis;
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
       <div className="auftauchen" style={{ background: `linear-gradient(160deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 20, padding: 24, marginBottom: 16 }}>
         <p style={{ fontSize: 12, letterSpacing: "1.4px", color: C.gruen, fontWeight: 600, marginBottom: 10 }}>PROBEABITUR</p>
         <div className="flex items-end" style={{ gap: 14 }}>
@@ -245,7 +245,7 @@ export function Modellieren() {
   const aktuellFertig = schritt === 0 || schritt === 3 ? wahl !== null : stand !== null;
 
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
       <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.75, marginBottom: 16 }}>
         An Sachaufgaben scheitern auch Schüler, die rechnen können — weil der schwierigste Schritt vor der Rechnung
         liegt. Hier wird jeder Schritt des Modellierens einzeln geübt und geprüft.
@@ -497,7 +497,7 @@ export function MeinPlan({ gehe }) {
 
   if (!L.profil) {
     return (
-      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
+      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
         <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 18 }}>Für einen Plan brauchen wir zuerst dein Profil.</p>
         <button onClick={() => gehe({ ansicht: "profil2" })} style={{ height: 50, padding: "0 26px", background: C.gruenDunkel, color: C.weiss, border: "none", borderRadius: 999, fontSize: 16, fontWeight: 600, fontFamily: "inherit", cursor: "pointer" }}>
           Profil anlegen
@@ -543,7 +543,7 @@ export function MeinPlan({ gehe }) {
 
   if (bearbeiten) {
     return (
-      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
+      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
         <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.75, marginBottom: 18 }}>
           Ein Plan ist eine Verabredung mit dir selbst. Lieber klein und gehalten als groß und gebrochen — zwanzig
           Minuten an vier Tagen bringen mehr als zwei Stunden am Sonntag.
@@ -584,7 +584,7 @@ export function MeinPlan({ gehe }) {
   }
 
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
       {/* Heute */}
       <div style={{ ...karte, display: "flex", gap: 18, alignItems: "center" }}>
         <svg width="96" height="96" viewBox="0 0 96 96" style={{ flexShrink: 0 }}>
@@ -687,7 +687,7 @@ export function Wochenbericht() {
   const [geteilt, setGeteilt] = useState(null);
 
   if (!L.profil) return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
       <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7 }}>Der Bericht entsteht, sobald ein Profil angelegt ist und gelernt wurde.</p>
     </div>
   );
@@ -749,7 +749,7 @@ export function Wochenbericht() {
   );
 
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
       <div className="flex gap-2 mb-4">
         {[["eltern", "Für Eltern"], ["lehrer", "Für Lehrkräfte"]].map(([id, n]) => (
           <button key={id} onClick={() => setFuer(id)} className="px-4 py-2"
@@ -1051,7 +1051,7 @@ export function Messbericht({ gehe }) {
   React.useEffect(() => { pseudonymSichern(); }, [L.profil]);
 
   if (!L.profil) return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
       <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7 }}>Messungen entstehen, sobald ein Profil angelegt ist und Einheiten bearbeitet werden.</p>
     </div>
   );
@@ -1082,7 +1082,7 @@ export function Messbericht({ gehe }) {
   };
 
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
       <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.75, marginBottom: 18 }}>
         Vor jeder Einheit zwei kurze Aufgaben, danach der Test, später die Wiederholungen. Daraus wird sichtbar,
         was eine Einheit wirklich gebracht hat — und ob es nach Wochen noch da ist.

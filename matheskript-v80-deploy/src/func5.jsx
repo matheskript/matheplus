@@ -441,8 +441,7 @@ export function DifferenzenquotientGenerator() {
 
 export function DifferenzenquotientSeite() {
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
-      <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 8 }}>Der Ableitungsbegriff</p>
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
       <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 14 }}>
         Vom Tangentenproblem zum Differenzenquotienten
       </h2>
@@ -488,8 +487,7 @@ export function GeneratorHub({ ziel, setZiel }) {
 
   if (!offen) {
     return (
-      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
-        <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 8 }}>Aufgabengenerator</p>
+      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
         <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
           So viele Aufgaben, wie du willst
         </h2>
@@ -510,12 +508,11 @@ export function GeneratorHub({ ziel, setZiel }) {
   }
 
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
       <button onClick={() => setOffen(null)} className="mb-5"
         style={{ background: "none", border: "none", color: C.see, fontSize: 13, fontFamily: "inherit", cursor: "pointer", padding: 0 }}>
         ← Alle Bereiche
       </button>
-      <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 8 }}>Aufgabengenerator</p>
       <h2 style={{ fontSize: 25, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 14 }}>
         {offen.titel}
       </h2>
@@ -801,8 +798,7 @@ export function Kopfrechnen() {
 
   if (!offen) {
     return (
-      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
-        <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 8 }}>Zahlentheorie</p>
+      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
         <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
           Sicherheit im Umgang mit Zahlen
         </h2>
@@ -823,12 +819,11 @@ export function Kopfrechnen() {
   }
 
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
       <button onClick={() => setOffen(null)} className="mb-5"
         style={{ background: "none", border: "none", color: C.see, fontSize: 13, fontFamily: "inherit", cursor: "pointer", padding: 0 }}>
         ← Kopfrechnen
       </button>
-      <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 8 }}>Zahlentheorie</p>
       <h2 style={{ fontSize: 25, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 14 }}>
         {offen.titel}
       </h2>
@@ -888,7 +883,7 @@ export function Fortschritt() {
 
   if (!a.gesamt) {
     return (
-      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
+      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
         <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.75 }}>
           Hier steht bald, wie weit du ohne Hilfe kommst, welche Fehlerarten sich wiederholen und wie schnell
           dir das Ableiten von der Hand geht. Rechne ein paar Aufgaben im Aufgabengenerator, dann füllt sich diese Seite.
@@ -901,7 +896,7 @@ export function Fortschritt() {
   }
 
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
       <div style={{ background: `linear-gradient(160deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 18, padding: 24, marginBottom: 18 }}>
         <p style={{ fontSize: 12.5, color: "#C9D6EE", fontWeight: 300, marginBottom: 8 }}>Eigenständigkeit</p>
         <p style={{ fontSize: 46, fontWeight: 700, color: C.weiss, letterSpacing: "-0.03em", lineHeight: 1 }}>{quote}</p>
@@ -1227,7 +1222,7 @@ Jede geschriebene Zeile kommt als eigener Eintrag in "zeilen", in Maschinenschre
   };
 
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
       <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 20 }}>
         Fotografiere deinen Rechenweg. Mathilda überträgt ihn Zeile für Zeile — du korrigierst, wo sie sich
         verlesen hat, und lässt den Weg dann prüfen wie im Editor.

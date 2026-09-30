@@ -1,8 +1,8 @@
 import React, { useState, useRef } from "react";
-import { BIBEL_URL, C, DEMO, DEMO_VIDEO_ID, KOEFF_FARBEN, KOEFF_HOCH } from "./base1.jsx";
+import { BIBEL_URL, C, DEMO, KOEFF_FARBEN, KOEFF_HOCH } from "./base1.jsx";
 import { vz } from "./base2.jsx";
 import { LERN, hatEinheit, tagSchluessel } from "./base3.jsx";
-import { ErklaerVideo, Knopf, Satz, Schaubild, Sektion, TextLink, Titel, bruch, bruchLatex, bruchText } from "./func1.jsx";
+import { Knopf, Satz, Schaubild, Sektion, TextLink, Titel, bruch, bruchLatex, bruchText } from "./func1.jsx";
 import { M } from "./func3.jsx";
 import { Kurvendiskussion } from "./func4.jsx";
 import { Fortschritt, Kopfrechnen } from "./func5.jsx";
@@ -267,11 +267,11 @@ export function Startseite({ gehe }) {
         <p style={{ fontSize: 11.5, letterSpacing: "1.8px", color: C.gruen, fontWeight: 600, marginBottom: 12 }}>
           MATHESKRIPT
         </p>
-        <h1 style={{ fontSize: 31, fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.15, color: C.weiss, marginBottom: 10 }}>
+        <h1 className="titel-silber" style={{ fontSize: 31, fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.15, marginBottom: 10 }}>
           Mathe ist kein<br />Talenttest.
         </h1>
         <div style={{ width: 62, height: 4, borderRadius: 2, marginBottom: 14,
-          background: `linear-gradient(90deg, ${C.gruen} 0%, rgba(165,0,68,0) 100%)` }} />
+          background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)` }} />
         <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.75, marginBottom: 6 }}>
           Es ist eine Art zu denken — und die kann man lernen. Hier zählt nicht, ob dein Ergebnis stimmt,
           sondern ob dein Weg trägt.
@@ -548,6 +548,7 @@ export function Startseite({ gehe }) {
 
   return (
     <div className="mx-auto px-6 pb-14" style={{ maxWidth: 620 }}>
+      {!wieder && <Auftakt />}
       <PlotterKachel onClick={() => gehe({ ansicht: "analysis" })} label="Analysis öffnen" logo={<PlotterLogoKlein />}
         titel="Analysis"
         text="Polynomplotter, Advanced Plotter und Ableitungstrainer: Graphen live erkunden." />
@@ -564,14 +565,7 @@ export function Startseite({ gehe }) {
         titel="Schulkurse"
         text="Analysis, Vektoren und Stochastik – mit Videolektionen und Kurz-Checks." />
 
-      <div style={{ marginTop: 22 }}>
-        <ErklaerVideo id={DEMO_VIDEO_ID} titel="So funktioniert Matheskript" />
-      </div>
-      {wieder ? (
-        <><Heute /><Kacheln /><System /><Fortschritt2 /><Eltern /><Coaching /></>
-      ) : (
-        <><Auftakt /><Heute /><Kacheln /><System /><Fortschritt2 /><Eltern /><Coaching /></>
-      )}
+      <Heute /><Kacheln /><System /><Fortschritt2 /><Eltern /><Coaching />
       <Fuss />
     </div>
   );

@@ -60,7 +60,7 @@ Die drei neuen Aufgaben sollen denselben Typ und dasselbe Niveau haben, aber and
   };
 
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
       <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 20 }}>
         Fotografiere eine Aufgabe aus deinem Buch oder vom Arbeitsblatt. Mathilda erkennt den Typ und erzeugt
         drei weitere derselben Sorte — damit du genau das übst, was gerade dran ist.
@@ -169,7 +169,7 @@ export function Formelsammlung({ zuHerleitung }) {
   const gruppen = [...new Set(treffer.map((e) => e.gruppe))];
 
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
       <input value={suche} onChange={(e) => setSuche(e.target.value)}
         placeholder="Suchen: Produktregel, sin, Wendepunkt …"
         style={{ width: "100%", padding: "13px 16px", fontSize: 15.5, fontFamily: "inherit",
@@ -421,7 +421,6 @@ export function Kurvendiskussion({ onZurueck }) {
         style={{ background: "none", border: "none", color: C.see, fontSize: 13, fontFamily: "inherit", cursor: "pointer", padding: 0 }}>
         ← Trainingsbereich
       </button>
-      <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 8 }}>Kurvendiskussion</p>
       <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
         Das Protokoll, Schritt für Schritt
       </h2>
@@ -610,7 +609,6 @@ export function GraphZuordnung({ onZurueck }) {
         style={{ background: "none", border: "none", color: C.see, fontSize: 13, fontFamily: "inherit", cursor: "pointer", padding: 0 }}>
         ← Trainingsbereich
       </button>
-      <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 8 }}>Graph-Zuordnung</p>
       <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
         Sehen statt rechnen
       </h2>
@@ -807,7 +805,6 @@ export function Klausur({ onZurueck }) {
         style={{ background: "none", border: "none", color: C.see, fontSize: 13, fontFamily: "inherit", cursor: "pointer", padding: 0 }}>
         ← Trainingsbereich
       </button>
-      <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 8 }}>Klausurgenerator</p>
       <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
         Drei Aufgaben, eine Uhr
       </h2>

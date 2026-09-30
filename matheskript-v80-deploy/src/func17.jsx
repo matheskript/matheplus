@@ -215,8 +215,7 @@ export function BernoulliBingo() {
       : [`P(X ≥ ${k}) = 1 − P(X ≤ ${k - 1})`, `= 1 − ${dez(1 - wahrscheinlichkeit)}`, `≈ ${dez(wahrscheinlichkeit)}`];
 
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
-      <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 8 }}>Bernoulli-Bingo</p>
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
       <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
         Wie oft trifft der Zufall?
       </h2>
@@ -360,8 +359,7 @@ const STOCHASTIK = [
 
 export function StochastikZentrum({ gehe }) {
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
-      <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 8 }}>Stochastik</p>
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
       <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
         Zufall zum Anfassen
       </h2>

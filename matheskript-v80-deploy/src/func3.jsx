@@ -93,8 +93,7 @@ export function Plotter() {
   };
 
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
-      <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 8 }}>Polynomplotter</p>
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
       <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
         Sieh, was die Koeffizienten tun
       </h2>
@@ -957,7 +956,6 @@ export function LernModul({ modul, onZurueck, startKapitel }) {
           style={{ background: "none", border: "none", color: C.see, fontSize: 13, fontFamily: "inherit", cursor: "pointer", padding: 0 }}>
           ← Trainingsbereich
         </button>
-        <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 8 }}>{modul.unter}</p>
         <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
           {modul.titel}
         </h2>
@@ -993,7 +991,6 @@ export function LernModul({ modul, onZurueck, startKapitel }) {
         style={{ background: "none", border: "none", color: C.see, fontSize: 13, fontFamily: "inherit", cursor: "pointer", padding: 0 }}>
         {einzel ? "← Trainingsbereich" : "← Alle Kapitel"}
       </button>
-      <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 8 }}>{einzel ? modul.unter : `Kapitel ${kapitel.nr}`}</p>
       <h2 style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 16 }}>
         {kapitel.titel}
       </h2>
@@ -1373,7 +1370,6 @@ export function RechenwegEditor({ onZurueck }) {
         style={{ background: "none", border: "none", color: C.see, fontSize: 13, fontFamily: "inherit", cursor: "pointer", padding: 0 }}>
         ← Trainingsbereich
       </button>
-      <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 8 }}>Rechenweg</p>
       <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
         Nicht das Ergebnis, der Weg
       </h2>

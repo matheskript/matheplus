@@ -57,7 +57,7 @@ export function Auswertung() {
   })();
 
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
       <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.75, marginBottom: 18 }}>
         Für Lehrkräfte und für dich als Kursleiter: Hier werden die anonymen Messdateien vieler Schüler
         zusammengeführt. Erst über eine Gruppe lässt sich sagen, ob etwas wirkt.
@@ -653,7 +653,7 @@ export function KlausurVorbereitung({ gehe, start }) {
   const [probe, setProbe] = useState(false);
 
   if (!L.profil) return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
       <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 18 }}>Für einen Vorbereitungsplan brauchen wir zuerst dein Profil.</p>
       <button onClick={() => gehe({ ansicht: "profil2" })} style={{ height: 50, padding: "0 26px", background: C.gruenDunkel, color: C.weiss, border: "none", borderRadius: 999, fontSize: 16, fontWeight: 600, fontFamily: "inherit", cursor: "pointer" }}>
         Profil anlegen
@@ -662,7 +662,7 @@ export function KlausurVorbereitung({ gehe, start }) {
   );
 
   const termin = (L.termine || []).find((t) => t.id === modus);
-  const huelle = (inhalt) => <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>{inhalt}</div>;
+  const huelle = (inhalt) => <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>{inhalt}</div>;
 
   if (modus === "neu") return huelle(<TerminFormular onFertig={(id) => setModus(id)} onAbbruch={() => setModus("liste")} />);
   if (termin && probe) return huelle(
@@ -833,7 +833,7 @@ export function KlasseAnsicht({ klasse, gehe }) {
   const stand = L.stand || {};
 
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
       <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.75, marginBottom: 4 }}>
         {klasse >= 11
           ? "Stoff der Kursstufe. Die genaue Reihenfolge hängt von deiner Schule ab — G8 oder G9, welches Halbjahr welches Thema hat."
