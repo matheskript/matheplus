@@ -530,7 +530,7 @@ export function Mathilda() {
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(28px, 8vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Kreuzprodukt</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
               <p style={{ color: C.goldText, fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
-                a⃗ × b⃗ – Formel, eingesetzt, Ergebnis
+                Zwei Vektoren – Formel, eingesetzt, Ergebnis
               </p>
             </div>
             <Welle fill={C.sand} />
