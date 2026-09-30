@@ -1435,6 +1435,40 @@ export function AdvancedPlotter() {
   );
 }
 
+/* Hochformat-Grafik für die Startseiten-Kachel. */
+export function AdvancedLogoKlein() {
+  const W = 160, H = 190, x0 = 50, y0 = 104, sx = 20, sy = 26;
+  const pfad = (g, von, bis) => {
+    let d = "", offen = false;
+    for (let i = 0; i <= 200; i++) {
+      const x = von + ((bis - von) * i) / 200, y = g(x);
+      if (!isFinite(y) || Math.abs(y) > 3.6) { offen = false; continue; }
+      d += `${offen ? "L" : "M"}${(x0 + x * sx).toFixed(1)},${(y0 - y * sy).toFixed(1)}`;
+      offen = true;
+    }
+    return d;
+  };
+  const pol = 4.2;
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
+      {Array.from({ length: 9 }, (_, i) => x0 + (i - 2) * sx).map((x) => <line key={`v${x}`} x1={x} y1="0" x2={x} y2={H} stroke="rgba(255,255,255,0.06)" />)}
+      {Array.from({ length: 8 }, (_, i) => y0 + (i - 4) * sy).map((y) => <line key={`h${y}`} x1="0" y1={y} x2={W} y2={y} stroke="rgba(255,255,255,0.06)" />)}
+      <line x1="0" y1={y0} x2={W} y2={y0} stroke="rgba(255,255,255,0.3)" />
+      <line x1={x0} y1="0" x2={x0} y2={H} stroke="rgba(255,255,255,0.3)" />
+      <line x1={x0 + pol * sx} y1="0" x2={x0 + pol * sx} y2={H} stroke={C.granaHell} strokeWidth="1.4" strokeDasharray="4 4" />
+      <path d={pfad((x) => 1 / (pol - x) - 0.3, 2.6, pol - 0.05)} stroke={C.granaHell} strokeWidth="2" fill="none" />
+      <path d={pfad((x) => 1 / (pol - x) - 0.3, pol + 0.05, 6)} stroke={C.granaHell} strokeWidth="2" fill="none" />
+      <path d={pfad((x) => Math.log(x + 2.4) - 0.6, -2.35, 5.5)} stroke={C.flaggold} strokeWidth="2" fill="none" />
+      <path d={pfad((x) => 2.2 * Math.sin(2 * x) * Math.exp(-0.25 * (x + 2.5)), -2.5, 3.8)} stroke={C.weiss} strokeWidth="2.8" fill="none" strokeLinecap="round" />
+      <g fontSize="12" fontWeight="700" fontStyle="italic">
+        <text x="10" y="20" fill={C.weiss}>sin</text>
+        <text x="34" y="20" fill={C.flaggold}>ln</text>
+        <text x="52" y="20" fill={C.granaHell}>1/x</text>
+      </g>
+    </svg>
+  );
+}
+
 /* Logo für die Startseiten-Kachel: Sinus-Welle mal abklingender e-Funktion,
    Polstelle als gestrichelte Asymptote, dazu eine Logarithmus-Kurve. */
 export function AdvancedLogo() {

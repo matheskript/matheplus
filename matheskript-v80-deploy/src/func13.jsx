@@ -312,6 +312,39 @@ export function Ableitungstrainer() {
   );
 }
 
+/* Hochformat-Grafik für die Startseiten-Kachel: f, f′, f″ untereinander. */
+export function AbleitungLogoKlein() {
+  const W = 160, H = 190;
+  const kurve = (g, y0, s) => {
+    let d = "";
+    for (let i = 0; i <= 120; i++) {
+      const x = -3 + (6 * i) / 120, y = g(x);
+      d += `${i ? "L" : "M"}${(30 + (x + 3) * 17).toFixed(1)},${(y0 - y * s).toFixed(1)}`;
+    }
+    return d;
+  };
+  const zeilen = [
+    { g: (x) => x ** 3 / 6 - x, y: 42, farbe: C.weiss, t: "f", s: 7, ok: true },
+    { g: (x) => x ** 2 / 2 - 1, y: 100, farbe: C.flaggold, t: "f′", s: 6.5, ok: true },
+    { g: (x) => x, y: 158, farbe: C.granaHell, t: "f″", s: 5, ok: false },
+  ];
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
+      {zeilen.map((z, i) => (
+        <g key={i}>
+          <line x1="30" y1={z.y} x2="132" y2={z.y} stroke="rgba(255,255,255,0.14)" />
+          <text x="8" y={z.y + 5} fill={z.farbe} fontSize="14" fontWeight="700" fontStyle="italic">{z.t}</text>
+          <path d={kurve(z.g, z.y, z.s)} stroke={z.farbe} strokeWidth={i === 0 ? 2.8 : 2.3} fill="none" strokeLinecap="round" />
+          <circle cx="146" cy={z.y - 18} r="8" fill={z.ok ? C.smaragd : "rgba(255,255,255,0.14)"} />
+          {z.ok ? <path d={`M142,${z.y - 18} l3,3 l5.5,-6`} stroke={C.weiss} strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+            : <text x="146" y={z.y - 14} fill={C.weiss} fontSize="11" fontWeight="700" textAnchor="middle">?</text>}
+          {i < 2 && <path d={`M81,${z.y + 19} l0,12 m-4,-4 l4,4 l4,-4`} stroke="rgba(255,255,255,0.28)" strokeWidth="1.5" fill="none" />}
+        </g>
+      ))}
+    </svg>
+  );
+}
+
 /* Logo für die Startseiten-Kachel: f, f′, f″ gestaffelt, mit Häkchen. */
 export function AbleitungLogo() {
   const W = 340, H = 170;
