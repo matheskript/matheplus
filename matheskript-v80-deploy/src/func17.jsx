@@ -84,7 +84,9 @@ function Kopf({ n, p, k, setN, setP, setK, pT, qT, bruch, setBruch }) {
   const Regler1 = ({ z }) => (
     <div>
       <p style={{ fontSize: 16, fontWeight: 700, color: C.tinte, lineHeight: 1.2, marginBottom: 4, textAlign: "center", whiteSpace: "nowrap" }}>
-        <span style={{ color: z.farbe, fontWeight: 800 }}>{z.name}</span> {z.kurz}
+        {z.name === "p"
+          ? <>{z.kurz} <span style={{ color: z.farbe, fontWeight: 800 }}>{z.name}</span></>
+          : <><span style={{ color: z.farbe, fontWeight: 800 }}>{z.name}</span> {z.kurz}</>}
       </p>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>
         <button aria-label={`${z.name} verringern`} style={knopf(z.farbe)} onClick={z.minus}>−</button>
@@ -100,11 +102,11 @@ function Kopf({ n, p, k, setN, setP, setK, pT, qT, bruch, setBruch }) {
         @media (max-width:560px){.bk-kopf{grid-template-columns:minmax(0,1fr);grid-template-areas:"formel" "regler";gap:12px}}`}</style>
       {/* Regler: links n (oben) und k (unten), rechts p mit Kommazahl- und Bruch-Knöpfen */}
       <div style={{ gridArea: "regler", display: "flex", justifyContent: "center", alignItems: "stretch", gap: 10 }}>
-        <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 8 }}>
+        <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 8, paddingTop: 7 }}>
           <Regler1 z={zn} />
           <Regler1 z={zk} />
         </div>
-        <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", gap: 6, padding: "6px 8px",
+        <div style={{ display: "flex", flexDirection: "column", justifyContent: "flex-start", gap: 6, padding: "6px 8px",
           borderRadius: 12, border: `1px solid ${FARBEN.p}33`, background: `${FARBEN.p}08` }}>
           <Regler1 z={zp} />
           <div style={{ display: "flex", justifyContent: "center", gap: 10 }}>
