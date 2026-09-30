@@ -6,6 +6,7 @@ import { kiKopf } from "./base4.jsx";
 import { LernModul, RechenwegEditor } from "./func3.jsx";
 import { GraphZuordnung, Klausur, Kurvendiskussion } from "./func4.jsx";
 import { intervall } from "./func8.jsx";
+import { VideoAbzeichen, VideokursPlayer, VideokursVorschau, naechsteLektion, videoAnzahl } from "./func15.jsx";
 
 export function useYouTubeApi() {
   const [bereit, setBereit] = useState(() => typeof window !== "undefined" && !!(window.YT && window.YT.Player));
@@ -846,6 +847,23 @@ export function KursGrafik({ art, hoehe = 150 }) {
         </>
       )}
 
+      {art === "stochastik" && (
+        <>
+          {/* Binomialverteilung als Säulendiagramm mit Glockenkurve */}
+          {[0.03, 0.1, 0.22, 0.3, 0.22, 0.1, 0.03].map((p, i) => {
+            const x = 70 + i * 32, hoehe = p * 330;
+            return <rect key={i} x={x} y={130 - hoehe} width="24" height={hoehe} rx="3"
+              fill={i === 3 ? C.flaggold : "rgba(255,255,255,0.22)"} stroke="rgba(255,255,255,0.45)" strokeWidth="1" />;
+          })}
+          <path d="M 50 128 C 120 126, 140 26, 178 26 C 216 26, 236 126, 306 128" stroke={C.weiss} strokeWidth="2.5" fill="none" />
+          <line x1="40" y1="130" x2="320" y2="130" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" />
+          <circle cx="42" cy="36" r="9" fill="none" stroke={C.gruen} strokeWidth="2" />
+          <circle cx="42" cy="36" r="2.5" fill={C.gruen} />
+          <line x1="42" y1="45" x2="30" y2="66" stroke="rgba(255,255,255,0.4)" strokeWidth="1.2" />
+          <line x1="42" y1="45" x2="54" y2="66" stroke="rgba(255,255,255,0.4)" strokeWidth="1.2" />
+        </>
+      )}
+
       {art === "vektor" && (
         <>
           <path d="M 120 100 L 235 62 L 300 92 L 185 130 Z" fill="rgba(255,255,255,0.14)" stroke="rgba(255,255,255,0.45)" strokeWidth="1.5" />
@@ -864,9 +882,10 @@ export function KursGrafik({ art, hoehe = 150 }) {
 }
 
 
-export function Kurse() {
+export function Kurse({ gehe }) {
   const [offen, setOffen] = useState(null);
   const [hinweis, setHinweis] = useState(false);
+  const [video, setVideo] = useState(null);   // null oder Index der Lektion
 
   const kaufen = (id) => {
     const url = KAUF_LINKS[id];
@@ -888,11 +907,19 @@ export function Kurse() {
     </div>
   );
 
+  if (offen && video !== null) {
+    const k = KURSE.find((x) => x.id === offen);
+    return (
+      <VideokursPlayer kursId={k.id} kursTitel={k.titel} start={video} gehe={gehe}
+        onZurueck={() => { setVideo(null); window.scrollTo(0, 0); }} />
+    );
+  }
+
   if (offen) {
     const k = KURSE.find((x) => x.id === offen);
     return (
       <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, marginTop: -8 }}>
-        <button onClick={() => { setOffen(null); setHinweis(false); }} className="mb-5"
+        <button onClick={() => { setOffen(null); setHinweis(false); setVideo(null); }} className="mb-5"
           style={{ background: "none", border: "none", color: C.see, fontSize: 13, fontFamily: "inherit", cursor: "pointer", padding: 0 }}>
           ← Alle Kurse
         </button>
@@ -909,6 +936,8 @@ export function Kurse() {
             <span key={i} className="px-4 py-2" style={{ background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 999, fontSize: 12, color: C.grau }}>{t}</span>
           ))}
         </div>
+
+        <VideokursVorschau kursId={k.id} onStart={(i) => { setVideo(i); window.scrollTo(0, 0); }} />
 
         {k.text.map((t, i) => (
           <p key={i} style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.75, marginBottom: 14 }}>{t}</p>
@@ -953,6 +982,7 @@ export function Kurse() {
         <div key={k.id} style={{ background: C.weiss, borderRadius: 18, overflow: "hidden", marginBottom: 20, boxShadow: "0 3px 18px rgba(15,26,51,0.09)" }}>
           <KursGrafik art={k.grafik} />
           <div className="px-5 py-5">
+            <VideoAbzeichen kursId={k.id} />
             <p style={{ fontSize: 12, fontWeight: 600, color: C.gruenDunkel, marginBottom: 6 }}>{k.stufe}</p>
             <p style={{ fontSize: 20, fontWeight: 700, letterSpacing: "-0.02em", marginBottom: 4 }}>{k.titel}</p>
             <p style={{ color: C.see, fontSize: 14, fontWeight: 500, marginBottom: 10 }}>{k.unter}</p>
@@ -966,6 +996,12 @@ export function Kurse() {
                 style={{ background: C.weiss, color: C.see, border: `1px solid ${C.linie}`, borderRadius: 999, fontSize: 15, fontFamily: "inherit", cursor: "pointer" }}>
                 Mehr Infos
               </button>
+              {videoAnzahl(k.id) > 0 && (
+                <button onClick={() => { setOffen(k.id); setVideo(naechsteLektion(k.id)); setHinweis(false); window.scrollTo(0, 0); }} className="px-5 py-3"
+                  style={{ background: C.see, color: C.weiss, border: "none", borderRadius: 999, fontSize: 15, fontWeight: 600, fontFamily: "inherit", cursor: "pointer" }}>
+                  ▶ Videos
+                </button>
+              )}
             </div>
           </div>
         </div>

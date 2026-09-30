@@ -657,6 +657,7 @@ export const KAUF_LINKS = {
   analysis1: "",
   analysis2: "",
   vektoren: "",
+  stochastik: "",
 };
 
 
@@ -732,6 +733,29 @@ export const KURSE = [
       "Abstände: Punkt–Gerade, Punkt–Ebene, windschiefe Geraden",
     ],
     fuerWen: "Für die Oberstufe, unabhängig von Analysis. Der Kurs ist eigenständig und setzt nur Grundrechenarten und etwas räumliches Vorstellungsvermögen voraus.",
+  },
+  {
+    id: "stochastik",
+    titel: "Stochastik",
+    unter: "Wahrscheinlichkeit, Verteilungen und Tests",
+    preis: 100,
+    stufe: "Klasse 11 – 13",
+    umfang: "5 Bausteine · Videokurs mit Kurz-Checks",
+    grafik: "stochastik",
+    kurz: "Vom Baumdiagramm bis zum Hypothesentest – die Stochastik des Abiturs, zurückgeführt auf wenige klare Regeln.",
+    text: [
+      "Stochastik wirkt oft wie eine Sammlung von Tricks: hier ein Baumdiagramm, dort eine Formel, dann plötzlich ein Test. Tatsächlich stecken dahinter nur wenige Grundideen – Pfade, Bedingungen, Erwartungswerte und Verteilungen.",
+      "Dieser Kurs führt diese Ideen der Reihe nach ein und zeigt bei jeder Aufgabe, welche davon gerade gefragt ist. So erkennst du im Abitur auf einen Blick, ob du ein Baumdiagramm, eine Vierfeldertafel oder die Binomialverteilung brauchst.",
+    ],
+    lernst: [
+      "Mehrstufige Zufallsversuche mit Baumdiagramm und Pfadregeln lösen",
+      "Vierfeldertafeln aufstellen und bedingte Wahrscheinlichkeiten berechnen",
+      "Unabhängigkeit von Ereignissen prüfen",
+      "Zufallsgrößen beschreiben und ihren Erwartungswert berechnen",
+      "Binomialverteilte Zufallsgrößen erkennen und mit der Bernoulli-Formel rechnen",
+      "Einen einseitigen Hypothesentest aufstellen und das Ergebnis deuten",
+    ],
+    fuerWen: "Für die Oberstufe, unabhängig von Analysis und Vektoren. Vorausgesetzt wird nur sicheres Bruchrechnen – das kannst du im KopfrechenZentrum auffrischen.",
   },
 ];
 

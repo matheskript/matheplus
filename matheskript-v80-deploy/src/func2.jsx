@@ -218,8 +218,8 @@ export function Startseite({ gehe }) {
       meta: "Generator · Rechenweg · Klausur mit Uhr",
       ziel: { ansicht: "ki", ziel: null } },
     { id: "kurse", titel: "Schulkurse", motiv: <MotivKurse />,
-      satz: "Ein Halbjahr, ein klarer Plan. Analysis 1, Analysis 2 und Vektoren — jeweils vollständig von Grund auf.",
-      meta: "drei Kurse · je 100 €",
+      satz: "Ein Halbjahr, ein klarer Plan. Analysis, Vektoren und Stochastik — jeweils vollständig von Grund auf, mit Videokurs.",
+      meta: "vier Kurse · je 100 €",
       ziel: { ansicht: "kurse" } },
   ];
 

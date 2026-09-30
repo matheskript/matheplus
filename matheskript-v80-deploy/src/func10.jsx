@@ -571,12 +571,12 @@ export function Mathilda() {
               <h1 style={{ fontWeight: 700, fontSize: 36, letterSpacing: "-0.03em", lineHeight: 1, color: C.weiss }}>Schulkurse</h1>
               <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
               <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
-                Komplette Abiturthemen, aufgebaut nach dem Matheskript-System.
+                Komplette Abiturthemen mit Videokurs, aufgebaut nach dem Matheskript-System.
               </p>
             </div>
             <Welle fill={C.sand} />
           </div>
-          <Kurse />
+          <Kurse gehe={gehe} />
         </>
       ) : ansicht === "ki" ? (
         <>
