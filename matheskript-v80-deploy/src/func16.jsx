@@ -107,13 +107,13 @@ function spurStrecke(n, d, achse, L) {
 
 const FARBE_ACHSE = { 0: "#C99A00", 1: "#A50044", 2: "#004D98" };
 
-function Raum({ a, b, c, d, phi, theta, setPhi, setTheta, zeigen }) {
+function Raum({ a, b, c, d, phi, theta, setPhi, setTheta, zeigen, zoom = 1 }) {
   const n = [a, b, c];
   const nLen = Math.hypot(a, b, c);
   // Würfelgröße: alle Spurpunkte sollen sichtbar sein
   const abschnitte = [a, b, c].filter((k) => k !== 0).map((k) => Math.abs(d / k));
   const L = Math.min(12, Math.max(5, Math.ceil(Math.max(0, ...abschnitte) + 1)));
-  const W = 360, H = 320, s = (Math.min(W, H) / 2 - 18) / (L * 1.55);
+  const W = 360, H = 320, s = ((Math.min(W, H) / 2 - 18) / (L * 1.55)) * zoom;
   const cam = kamera(phi, theta);
   const P = (p) => { const q = cam.proj(p); return [W / 2 + s * q.u, H / 2 - s * q.v]; };
   const pfad = (pts) => pts.map((p, k) => `${k ? "L" : "M"}${P(p)[0].toFixed(1)},${P(p)[1].toFixed(1)}`).join(" ") + " Z";
@@ -329,24 +329,48 @@ function Eigenschaften({ a, b, c, d }) {
 
 /* ---------- Bedienelemente ---------- */
 
-/* Sehr kompakter Plus/Minus-Regler: − Wert + in einer Zeile, Bereich −10 … +10 */
-function MiniRegler({ label, wert, setzen, farbe }) {
-  const knopf = {
-    width: 26, height: 26, borderRadius: 8, border: `1px solid ${farbe}55`, background: C.weiss, color: farbe,
-    fontSize: 16, fontWeight: 700, fontFamily: "inherit", cursor: "pointer", padding: 0, lineHeight: 1,
-    display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+/* Ebenengleichung groß über die ganze Breite; jeder Koeffizient in seiner Farbe,
+   direkt darunter + und − übereinander in derselben Farbe. */
+function GleichungMitReglern({ a, b, c, d, setA, setB, setC, setD }) {
+  const minus = "−";
+  const term = (k, x, erster) => {
+    const betrag = Math.abs(k);
+    const zahl = betrag === 1 ? "" : betrag;
+    if (erster) return `${k < 0 ? minus : ""}${zahl}${x}`;
+    return `${zahl}${x}`;
   };
+  const op = (k) => (k < 0 ? minus : "+");
+  const spalten = [
+    { art: "text", inhalt: "E:" },
+    { art: "term", inhalt: term(a, "x₁", true), wert: a, setzen: setA, farbe: FARBE_ACHSE[0], name: "a" },
+    { art: "op", inhalt: op(b) },
+    { art: "term", inhalt: term(b, "x₂", false), wert: b, setzen: setB, farbe: FARBE_ACHSE[1], name: "b" },
+    { art: "op", inhalt: op(c) },
+    { art: "term", inhalt: term(c, "x₃", false), wert: c, setzen: setC, farbe: FARBE_ACHSE[2], name: "c" },
+    { art: "op", inhalt: "=" },
+    { art: "term", inhalt: String(d).replace("-", minus), wert: d, setzen: setD, farbe: C.smaragd, name: "d" },
+  ];
+  const knopf = (farbe) => ({
+    width: "100%", maxWidth: 52, height: 30, borderRadius: 9, border: `1.5px solid ${farbe}66`, background: `${farbe}14`,
+    color: farbe, fontSize: 19, fontWeight: 700, fontFamily: "inherit", cursor: "pointer", padding: 0, lineHeight: 1,
+    display: "flex", alignItems: "center", justifyContent: "center",
+  });
   return (
-    <div style={{ borderRadius: 10, border: `1.5px solid ${farbe}40`, background: `${farbe}12`, padding: "4px 4px 5px",
-      display: "flex", flexDirection: "column", alignItems: "center", minWidth: 0 }}>
-      <span style={{ fontSize: 10.5, fontWeight: 700, color: farbe, fontStyle: "italic", lineHeight: 1.2 }}>{label}</span>
-      <div style={{ display: "flex", alignItems: "center", gap: 3, marginTop: 2 }}>
-        <button aria-label={`${label} verringern`} style={knopf} onClick={() => setzen(Math.max(-10, wert - 1))}>−</button>
-        <span style={{ minWidth: 24, textAlign: "center", fontSize: 14, fontWeight: 800, color: farbe, fontVariantNumeric: "tabular-nums" }}>
-          {wert > 0 ? `+${wert}` : String(wert).replace("-", "−")}
+    <div style={{ display: "grid", gridTemplateColumns: "auto 1fr auto 1fr auto 1fr auto 1fr", columnGap: 4, rowGap: 8,
+      alignItems: "center", justifyItems: "center", marginBottom: 14 }}>
+      {spalten.map((sp, i) => (
+        <span key={`g${i}`} style={{ fontSize: "clamp(22px, 6.6vw, 44px)", fontWeight: 800, letterSpacing: "-0.02em",
+          whiteSpace: "nowrap", lineHeight: 1.1, fontVariantNumeric: "tabular-nums",
+          color: sp.art === "term" ? (sp.wert === 0 ? `${sp.farbe}66` : sp.farbe) : C.tinte }}>
+          {sp.art === "term" && sp.wert === 0 && sp.name !== "d" ? `0${sp.inhalt}` : sp.inhalt}
         </span>
-        <button aria-label={`${label} erhöhen`} style={knopf} onClick={() => setzen(Math.min(10, wert + 1))}>+</button>
-      </div>
+      ))}
+      {spalten.map((sp, i) => sp.art === "term" ? (
+        <div key={`r${i}`} style={{ display: "flex", flexDirection: "column", gap: 4, width: "100%", alignItems: "center" }}>
+          <button aria-label={`${sp.name} erhöhen`} style={knopf(sp.farbe)} onClick={() => sp.setzen(Math.min(10, sp.wert + 1))}>+</button>
+          <button aria-label={`${sp.name} verringern`} style={knopf(sp.farbe)} onClick={() => sp.setzen(Math.max(-10, sp.wert - 1))}>−</button>
+        </div>
+      ) : <span key={`r${i}`} />)}
     </div>
   );
 }
@@ -384,7 +408,7 @@ function DrehKnoepfe({ setPhi, setTheta, zuruecksetzen }) {
       {knopf("▲", { top: 6, left: "50%", transform: "translateX(-50%)" }, 0, SCHRITT, "Nach oben kippen")}
       {knopf("▼", { bottom: 6, left: "50%", transform: "translateX(-50%)" }, 0, -SCHRITT, "Nach unten kippen")}
       <button aria-label="Ansicht zurücksetzen" title="Ansicht zurücksetzen" onClick={zuruecksetzen}
-        style={{ position: "absolute", right: 6, bottom: 6, height: 30, padding: "0 10px", borderRadius: 999,
+        style={{ position: "absolute", left: 6, bottom: 6, height: 30, padding: "0 10px", borderRadius: 999,
           border: `1px solid ${C.linie}`, background: "rgba(255,255,255,0.92)", color: C.see, fontSize: 12.5, fontWeight: 600,
           fontFamily: "inherit", cursor: "pointer", boxShadow: "0 2px 8px rgba(15,26,51,0.14)" }}>
         ↺ Zurück
@@ -410,6 +434,7 @@ export function EbenenVisualizer() {
   const [d, setD] = useState(6);
   const [phi, setPhi] = useState(0.62);
   const [theta, setTheta] = useState(0.42);
+  const [zoom, setZoom] = useState(1);
   const [zeigen, setZeigen] = useState({ spur: true, normale: true, box: false });
   const setze = ([x, y, z, w]) => { setA(x); setB(y); setC(z); setD(w); };
   const zufall = () => {
@@ -446,17 +471,7 @@ export function EbenenVisualizer() {
       </p>
 
       <div style={karte}>
-        <p style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.01em", marginBottom: 12, overflowX: "auto", whiteSpace: "nowrap" }}>
-          E: {ebenenText(a, b, c, d)}
-        </p>
-
-        {/* Koeffizienten: kompakt direkt unter der Gleichung */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6, marginBottom: 12 }}>
-          <MiniRegler label="a" wert={a} setzen={setA} farbe={FARBE_ACHSE[0]} />
-          <MiniRegler label="b" wert={b} setzen={setB} farbe={FARBE_ACHSE[1]} />
-          <MiniRegler label="c" wert={c} setzen={setC} farbe={FARBE_ACHSE[2]} />
-          <MiniRegler label="d" wert={d} setzen={setD} farbe={C.smaragd} />
-        </div>
+        <GleichungMitReglern a={a} b={b} c={c} d={d} setA={setA} setB={setB} setC={setC} setD={setD} />
 
         <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 10 }}>
           {schalter("spur", "Spurgeraden", C.flaggold)}
@@ -465,8 +480,18 @@ export function EbenenVisualizer() {
         </div>
 
         <div style={{ position: "relative" }}>
-          <Raum a={a} b={b} c={c} d={d} phi={phi} theta={theta} setPhi={setPhi} setTheta={setTheta} zeigen={zeigen} />
-          <DrehKnoepfe setPhi={setPhi} setTheta={setTheta} zuruecksetzen={() => { setPhi(0.62); setTheta(0.42); }} />
+          <Raum a={a} b={b} c={c} d={d} phi={phi} theta={theta} setPhi={setPhi} setTheta={setTheta} zeigen={zeigen} zoom={zoom} />
+          <DrehKnoepfe setPhi={setPhi} setTheta={setTheta} zuruecksetzen={() => { setPhi(0.62); setTheta(0.42); setZoom(1); }} />
+          {/* Zoom unten rechts */}
+          <div style={{ position: "absolute", right: 6, bottom: 6, display: "flex", flexDirection: "column", borderRadius: 10,
+            overflow: "hidden", border: `1px solid ${C.linie}`, boxShadow: "0 2px 8px rgba(15,26,51,0.14)" }}>
+            {[["+", 1.25, "Hineinzoomen"], ["−", 1 / 1.25, "Herauszoomen"]].map(([z, f, t], i) => (
+              <button key={z} aria-label={t} title={t} onClick={() => setZoom((v) => Math.min(4, Math.max(0.4, v * f)))}
+                style={{ width: 34, height: 32, border: "none", borderTop: i ? `1px solid ${C.linie}` : "none",
+                  background: "rgba(255,255,255,0.95)", color: C.see, fontSize: 19, fontWeight: 700, fontFamily: "inherit",
+                  cursor: "pointer", padding: 0 }}>{z}</button>
+            ))}
+          </div>
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginTop: 10 }}>
