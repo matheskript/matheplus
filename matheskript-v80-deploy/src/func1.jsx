@@ -6,7 +6,7 @@ import { kiKopf } from "./base4.jsx";
 import { LernModul, RechenwegEditor } from "./func3.jsx";
 import { GraphZuordnung, Klausur, Kurvendiskussion } from "./func4.jsx";
 import { intervall } from "./func8.jsx";
-import { VideoAbzeichen, VideokursPlayer, VideokursVorschau, naechsteLektion, videoAnzahl } from "./func15.jsx";
+import { VideokursPlayer, VideokursVorschau, naechsteLektion, videoAnzahl } from "./func15.jsx";
 
 export function useYouTubeApi() {
   const [bereit, setBereit] = useState(() => typeof window !== "undefined" && !!(window.YT && window.YT.Player));
@@ -970,43 +970,38 @@ export function Kurse({ gehe, startKurs = null }) {
       </h2>
       <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 26 }}>
         Jeder Kurs führt ein komplettes Abiturthema von Grund auf durch – mit Arbeitsheft, Aufgaben und den passenden
-        Modulen im Trainingsbereich. Einmal kaufen, dauerhaft nutzen.
+        Modulen im Trainingsbereich. Tipp auf einen Kurs – dort findest du alle Infos, die Videos und den Kauf.
       </p>
 
-      {KURSE.map((k) => (
-        <div key={k.id} style={{ background: C.weiss, borderRadius: 18, overflow: "hidden", marginBottom: 20, boxShadow: "0 3px 18px rgba(15,26,51,0.09)" }}>
-          <KursGrafik art={k.grafik} />
-          <div className="px-5 py-5">
-            <VideoAbzeichen kursId={k.id} />
-            <p style={{ fontSize: 12, fontWeight: 600, color: C.gruenDunkel, marginBottom: 6 }}>{k.stufe}</p>
-            <p style={{ fontSize: 20, fontWeight: 700, letterSpacing: "-0.02em", marginBottom: 4 }}>{k.titel}</p>
-            <p style={{ color: C.see, fontSize: 14, fontWeight: 500, marginBottom: 10 }}>{k.unter}</p>
-            <p style={{ color: C.grau, fontSize: 14, fontWeight: 300, lineHeight: 1.65, marginBottom: 16 }}>{k.kurz}</p>
-            <div className="flex flex-wrap items-center" style={{ gap: 10 }}>
-              <button onClick={() => kaufen(k.id)} className="px-5 py-3"
-                style={{ background: C.gruenDunkel, color: C.weiss, border: "none", borderRadius: 999, fontSize: 15, fontWeight: 600, fontFamily: "inherit", cursor: "pointer" }}>
-                Kaufen · {k.preis} €
-              </button>
-              <button onClick={() => { setOffen(k.id); setHinweis(false); }} className="px-5 py-3"
-                style={{ background: C.weiss, color: C.see, border: `1px solid ${C.linie}`, borderRadius: 999, fontSize: 15, fontFamily: "inherit", cursor: "pointer" }}>
-                Mehr Infos
-              </button>
-              {videoAnzahl(k.id) > 0 && (
-                <button onClick={() => { setOffen(k.id); setVideo(naechsteLektion(k.id)); setHinweis(false); window.scrollTo(0, 0); }} className="px-5 py-3"
-                  style={{ background: C.see, color: C.weiss, border: "none", borderRadius: 999, fontSize: 15, fontWeight: 600, fontFamily: "inherit", cursor: "pointer" }}>
-                  ▶ Videos
-                </button>
-              )}
+      {KURSE.map((k) => {
+        const n = videoAnzahl(k.id);
+        return (
+          <button key={k.id} onClick={() => { setOffen(k.id); setHinweis(false); window.scrollTo(0, 0); }}
+            aria-label={`${k.titel} öffnen`} className="kurs-kachel"
+            style={{ display: "flex", width: "calc(100% + 32px)", marginLeft: -16, marginRight: -16, height: 138, marginBottom: 12,
+              padding: 0, border: "none", borderRadius: 18, overflow: "hidden", cursor: "pointer", fontFamily: "inherit", textAlign: "left",
+              background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`,
+              boxShadow: `0 6px 22px rgba(0,77,152,0.24), inset 0 0 0 1px ${C.silber}40` }}>
+            <div style={{ flex: "1 1 60%", minWidth: 0, padding: "13px 10px 12px 16px", display: "flex", flexDirection: "column" }}>
+              <p className="titel-silber" style={{ fontSize: "clamp(15px, 4.1vw, 22px)", fontWeight: 700, letterSpacing: "-0.03em",
+                lineHeight: 1.1, margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{k.titel}</p>
+              <span aria-hidden="true" style={{ display: "block", width: 34, height: 2.5, borderRadius: 2, marginTop: 6,
+                background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)` }} />
+              <p className="kurs-text" style={{ color: C.weiss, fontSize: 12.5, fontWeight: 300, lineHeight: 1.4, marginTop: 6, marginBottom: 0 }}>{k.unter}</p>
+              <p style={{ marginTop: "auto", marginBottom: 0, color: C.goldText, fontSize: 11.5, fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                {k.stufe.replace("Klasse ", "Kl. ").replace(" – ", "–")}{n > 0 ? ` · ${n} Videos` : ""} · {k.preis} €
+              </p>
             </div>
-          </div>
-        </div>
-      ))}
-
-      {hinweis && (
-        <p style={{ color: C.grau, fontSize: 12, fontWeight: 300, marginTop: 4, lineHeight: 1.6 }}>
-          Der Zahlungslink ist noch nicht hinterlegt. Er wird im Code unter KAUF_LINKS eingetragen.
-        </p>
-      )}
+            <div style={{ flex: "0 0 40%", borderLeft: `1px solid ${C.silber}33` }}>
+              <KursGrafik art={k.grafik} hoehe="100%" />
+            </div>
+          </button>
+        );
+      })}
+      <style>{`.kurs-kachel{transition:transform .15s ease, box-shadow .15s ease}
+        .kurs-kachel:active{transform:scale(0.985)}
+        @media (hover:hover){.kurs-kachel:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,77,152,0.32)}}
+        .kurs-text{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}`}</style>
     </div>
   );
 }
