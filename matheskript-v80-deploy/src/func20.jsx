@@ -134,15 +134,19 @@ function neueAufgabe(art) {
       }
     }
     case "abstandGG": {
-      // Gemeinsamer Normalenvektor mit ganzzahliger Länge, B = A + t·n + … → Abstand |t|·|n|
-      for (;;) {
+      // Gemeinsamer Normalenvektor mit ganzzahliger Länge, B = A + t·n + s0·u → Abstand |t|·|n|
+      for (let versuch = 0; ; versuch++) {
         const nv = mitLaenge();
-        const senkrecht = () => { for (;;) { const x = [rnd(-3, 3), rnd(-3, 3), rnd(-3, 3)]; if (x.some((y) => y) && skalar(x, nv) === 0) return x; } };
+        const L = Math.round(Math.sqrt(skalar(nv, nv)));
+        const senkrecht = () => {
+          for (let i = 0; i < 400; i++) { const x = [rnd(-5, 5), rnd(-5, 5), rnd(-5, 5)]; if (x.some((y) => y) && skalar(x, nv) === 0) return x; }
+          return null;
+        };
         const u = senkrecht(), v = senkrecht();
-        if (kreuz(u, v).every((x) => x === 0)) continue;
-        const A = vektor(3), t = wahlAus([-1, 1]), s0 = rnd(-1, 1);
+        if (!u || !v || kreuz(u, v).every((x) => x === 0)) continue;
+        const A = vektor(5), t = L <= 3 ? wahlAus([-3, -2, 2, 3]) : L <= 5 ? wahlAus([-2, -1, 1, 2]) : wahlAus([-1, 1]), s0 = rnd(-1, 1);
         const B = A.map((x, i) => x + t * nv[i] + s0 * u[i]);
-        if (B.some((x) => Math.abs(x) > 9)) continue;
+        if (B.some((x) => Math.abs(x) > 12)) continue;
         return { art, A, u, B, v };
       }
     }
@@ -504,8 +508,12 @@ function AbstandPG({ A, u, P, t0, F }) {
       <p style={{ fontSize: 15, fontWeight: 700, textAlign: "center", marginBottom: 12, lineHeight: 1.7 }}>
         <span style={{ color: FB, whiteSpace: "nowrap" }}>P({P.map(n).join(" | ")})</span>
         <span style={{ margin: "0 10px", color: C.hellgrau }}>und</span>
-        <span style={{ color: FA }}>g: <Name t="x" farbe={FA} /> == ({A.map(n).join(" | ")}) + t · ({u.map(n).join(" | ")})</span>
       </p>
+      <div style={{ marginBottom: 12 }}>
+        <Einzeilig max={17}>
+          <span style={{ color: FA }}>g:</span><Name t="x" farbe={FA} /><Gl /><Vek w={A.map(n)} farbe={FA} /><span>+ t ·</span><Vek w={u.map(n)} farbe={FA} />
+        </Einzeilig>
+      </div>
       <Schritt nr="1" titel="Allgemeiner Punkt auf g und Verbindungsvektor von P">
         <Einzeilig max={16}>
           <Name t="PFₜ" farbe={FE} /><Gl /><Vek w={A.map((x, i) => lin(x - P[i], u[i]))} />
@@ -552,10 +560,14 @@ function AbstandGG({ A, u, B, v }) {
   const paare = [[1, 2], [2, 0], [0, 1]];
   return (
     <>
-      <p style={{ fontSize: 14.5, fontWeight: 700, textAlign: "center", marginBottom: 12, lineHeight: 1.8 }}>
-        <span style={{ color: FA, whiteSpace: "nowrap" }}>g: <Name t="x" farbe={FA} /> == ({A.map(n).join(" | ")}) + r · ({u.map(n).join(" | ")})</span><br />
-        <span style={{ color: C.see, whiteSpace: "nowrap" }}>h: <Name t="x" farbe={C.see} /> == ({B.map(n).join(" | ")}) + s · ({v.map(n).join(" | ")})</span>
-      </p>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 12 }}>
+        <Einzeilig max={17}>
+          <span style={{ color: FA }}>g:</span><Name t="x" farbe={FA} /><Gl /><Vek w={A.map(n)} farbe={FA} /><span>+ r ·</span><Vek w={u.map(n)} farbe={FA} />
+        </Einzeilig>
+        <Einzeilig max={17}>
+          <span style={{ color: C.see }}>h:</span><Name t="x" farbe={C.see} /><Gl /><Vek w={B.map(n)} farbe={C.see} /><span>+ s ·</span><Vek w={v.map(n)} farbe={C.see} />
+        </Einzeilig>
+      </div>
       <Schritt nr="1" titel="Gemeinsamer Normalenvektor: Kreuzprodukt der Richtungsvektoren">
         <Einzeilig max={15}>
           <Name t="n" farbe={FE} /><Gl /><Vek w={u.map(n)} farbe={FA} /><span>×</span><Vek w={v.map(n)} farbe={C.see} />
