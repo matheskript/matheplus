@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import { BIBEL_URL, C, DEMO, KOEFF_FARBEN, KOEFF_HOCH } from "./base1.jsx";
 import { vz } from "./base2.jsx";
 import { LERN, hatEinheit, tagSchluessel } from "./base3.jsx";
-import { Knopf, Satz, Schaubild, Sektion, TextLink, Titel, bruch, bruchLatex, bruchText } from "./func1.jsx";
+import { Knopf, PenPaperBlatt, Satz, Schaubild, Sektion, TextLink, Titel, bruch, bruchLatex, bruchText } from "./func1.jsx";
 import { M } from "./func3.jsx";
 import { Kurvendiskussion } from "./func4.jsx";
 import { Fortschritt, Kopfrechnen } from "./func5.jsx";
@@ -104,35 +104,6 @@ function SchulkurseLogoKlein() {
           <rect x="50" y={134 + k * 20} width={[120, 96, 136][k]} height="8" rx="4" fill={k < 2 ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.28)"} />
         </g>
       ))}
-    </svg>
-  );
-}
-
-/* Grafik für die Pen-&-Paper-Kachel: Blatt mit geordnetem Rechenweg und Stift. */
-function PenPaperLogoKlein() {
-  const W = 230, H = 190;
-  return (
-    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
-      {Array.from({ length: 9 }, (_, i) => <line key={`v${i}`} x1={i * 28} y1="0" x2={i * 28} y2={H} stroke="rgba(255,255,255,0.05)" />)}
-      {Array.from({ length: 7 }, (_, i) => <line key={`h${i}`} x1="0" y1={i * 28} x2={W} y2={i * 28} stroke="rgba(255,255,255,0.05)" />)}
-      <g transform="rotate(-5 110 96)">
-        <rect x="26" y="26" width="160" height="140" rx="7" fill="rgba(255,255,255,0.95)" />
-        {[62, 94, 126].map((y) => <line key={y} x1="36" y1={y + 8} x2="176" y2={y + 8} stroke="#C9D6EE" strokeWidth="1" />)}
-        <line x1="46" y1="26" x2="46" y2="166" stroke={C.granaHell} strokeWidth="1" opacity="0.55" />
-        <g fontFamily="Montserrat, system-ui, sans-serif" fontWeight="700" fontSize="19" fill={C.seeTief}>
-          <text x="104" y="66" textAnchor="end">2x+4</text><text x="110" y="66">= 10</text>
-          <text x="104" y="98" textAnchor="end">2x</text><text x="110" y="98">= 6</text>
-          <text x="104" y="130" textAnchor="end">x</text><text x="110" y="130">= 3</text>
-        </g>
-        <line x1="88" y1="138" x2="152" y2="138" stroke={C.flaggold} strokeWidth="2.5" />
-        <line x1="88" y1="143" x2="152" y2="143" stroke={C.flaggold} strokeWidth="2.5" />
-      </g>
-      <g transform="rotate(34 196 104)">
-        <rect x="186" y="34" width="20" height="104" rx="4" fill={C.flaggold} />
-        <rect x="186" y="34" width="20" height="18" rx="4" fill={C.goldWarm} />
-        <path d="M 186 138 L 206 138 L 196 158 Z" fill="#F3E2B0" />
-        <path d="M 192.5 151 L 199.5 151 L 196 158 Z" fill={C.seeTief} />
-      </g>
     </svg>
   );
 }
@@ -593,7 +564,7 @@ export function Startseite({ gehe }) {
           und schnelle Kopfrechenrunden. Such dir unten einen Bereich aus und leg los.
         </p>
       </section>
-      <PlotterKachel onClick={() => gehe({ ansicht: "kurse", kurs: "penpaper" })} label="Pen & Paper öffnen" logo={<PenPaperLogoKlein />}
+      <PlotterKachel onClick={() => gehe({ ansicht: "kurse", kurs: "penpaper" })} label="Pen & Paper öffnen" logo={<PenPaperBlatt />}
         titel="Pen & Paper"
         text="Das Fundament: klar aufschreiben, strukturiert arbeiten, sicher mit Fehlern umgehen – 7 Videolektionen." />
       <PlotterKachel onClick={() => gehe({ ansicht: "analysis" })} label="Analysis öffnen" logo={<PlotterLogoKlein />}

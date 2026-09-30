@@ -809,8 +809,50 @@ export function KIAufgaben({ eingebettet }) {
 /* Hier die eigenen Zahlungslinks eintragen (Stripe, Digistore24, CopeCart …).
    Solange ein Feld leer ist, zeigt der Button einen Hinweis statt ins Leere zu führen. */
 
+/* Pen-&-Paper-Grafik: blankes Blatt mit einer Rechnung nach den Pen-&-Paper-Regeln
+   (Abstände zwischen Termen und Operatoren, ein Schritt pro Zeile, „=“ untereinander,
+   Umformungen rechts kommentiert, Ergebnis doppelt unterstrichen) und ein Stift. */
+export function PenPaperBlatt() {
+  const W = 230, H = 190;
+  const T = { fontFamily: "Montserrat, system-ui, sans-serif", fontWeight: 700, fontSize: 17, fill: C.seeTief };
+  const K = { fontFamily: "Montserrat, system-ui, sans-serif", fontWeight: 600, fontSize: 12, fill: C.gruen };
+  const zeilen = [
+    { y: 66, links: [["3x", 60, "end"], ["+", 75, "middle"], ["5", 101, "end"]], rechts: "20", kommentar: "|  − 5" },
+    { y: 100, links: [["3x", 101, "end"]], rechts: "15", kommentar: "|  : 3" },
+    { y: 134, links: [["x", 101, "end"]], rechts: "5" },
+  ];
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
+      {Array.from({ length: 9 }, (_, i) => <line key={`v${i}`} x1={i * 28} y1="0" x2={i * 28} y2={H} stroke="rgba(255,255,255,0.05)" />)}
+      {Array.from({ length: 7 }, (_, i) => <line key={`h${i}`} x1="0" y1={i * 28} x2={W} y2={i * 28} stroke="rgba(255,255,255,0.05)" />)}
+      <g transform="rotate(-3 115 96)">
+        <rect x="8" y="30" width="214" height="136" rx="6" fill="#FFFFFF" />
+        {zeilen.map((z) => (
+          <g key={z.y}>
+            {z.links.map(([t, x, anker]) => <text key={t + x} x={x} y={z.y} textAnchor={anker} {...T}>{t}</text>)}
+            <text x="116" y={z.y} textAnchor="middle" {...T}>=</text>
+            <text x="131" y={z.y} {...T}>{z.rechts}</text>
+            {z.kommentar && <text x="164" y={z.y - 1} {...K}>{z.kommentar}</text>}
+          </g>
+        ))}
+        <line x1="84" y1="142" x2="152" y2="142" stroke={C.flaggold} strokeWidth="2.5" />
+        <line x1="84" y1="147" x2="152" y2="147" stroke={C.flaggold} strokeWidth="2.5" />
+      </g>
+      <g transform="translate(-10 -4) rotate(38 206 150)">
+        <rect x="199" y="104" width="14" height="66" rx="3" fill={C.flaggold} />
+        <rect x="199" y="104" width="14" height="12" rx="3" fill={C.goldWarm} />
+        <path d="M 199 170 L 213 170 L 206 184 Z" fill="#F3E2B0" />
+        <path d="M 203.5 179 L 208.5 179 L 206 184 Z" fill={C.seeTief} />
+      </g>
+    </svg>
+  );
+}
+
 export function KursGrafik({ art, hoehe = 150 }) {
   const w = 340, h = 150;
+  if (art === "papier") return (
+    <div style={{ height: hoehe, background: C.seeTief }}><PenPaperBlatt /></div>
+  );
   return (
     <svg viewBox={`0 0 ${w} ${h}`} style={{ width: "100%", height: hoehe, display: "block" }} preserveAspectRatio="none">
       <rect x="0" y="0" width={w} height={h} fill={C.seeTief} />
@@ -858,33 +900,6 @@ export function KursGrafik({ art, hoehe = 150 }) {
           <circle cx="42" cy="36" r="2.5" fill={C.gruen} />
           <line x1="42" y1="45" x2="30" y2="66" stroke="rgba(255,255,255,0.4)" strokeWidth="1.2" />
           <line x1="42" y1="45" x2="54" y2="66" stroke="rgba(255,255,255,0.4)" strokeWidth="1.2" />
-        </>
-      )}
-
-      {art === "papier" && (
-        <>
-          {/* Blatt mit sauber untereinander geordnetem Rechenweg und Stift */}
-          <g transform="rotate(-4 170 78)">
-            <rect x="78" y="14" width="184" height="126" rx="6" fill="rgba(255,255,255,0.94)" />
-            {[40, 64, 88, 112].map((y) => <line key={y} x1="90" y1={y} x2="250" y2={y} stroke="#C9D6EE" strokeWidth="1" />)}
-            <line x1="102" y1="14" x2="102" y2="140" stroke={C.granaHell} strokeWidth="1" opacity="0.6" />
-            <g fontFamily="Montserrat, system-ui, sans-serif" fontWeight="700" fontSize="15" fill={C.seeTief}>
-              <text x="160" y="36" textAnchor="end">2x + 4</text><text x="166" y="36">= 10</text>
-              <text x="160" y="60" textAnchor="end">2x</text><text x="166" y="60">= 6</text>
-              <text x="160" y="84" textAnchor="end">x</text><text x="166" y="84">= 3</text>
-            </g>
-            <g fontFamily="Montserrat, system-ui, sans-serif" fontWeight="600" fontSize="11" fill={C.gruen}>
-              <text x="212" y="36">| − 4</text><text x="212" y="60">| : 2</text>
-            </g>
-            <line x1="142" y1="90" x2="198" y2="90" stroke={C.flaggold} strokeWidth="2" />
-            <line x1="142" y1="94" x2="198" y2="94" stroke={C.flaggold} strokeWidth="2" />
-          </g>
-          <g transform="rotate(38 282 96)">
-            <rect x="272" y="30" width="18" height="96" rx="4" fill={C.flaggold} />
-            <rect x="272" y="30" width="18" height="16" rx="4" fill={C.goldWarm} />
-            <path d="M 272 126 L 290 126 L 281 144 Z" fill="#F3E2B0" />
-            <path d="M 278 138 L 284 138 L 281 144 Z" fill={C.seeTief} />
-          </g>
         </>
       )}
 
