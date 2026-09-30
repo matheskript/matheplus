@@ -11,6 +11,10 @@
    `youtube` (bzw. später `bunny`) austauschen.
    ============================================================ */
 
+/* Bunny Stream: Video-Library von Mythos Mathe. Lektionen mit Feld
+   `bunny` (Video-ID) werden über Bunny abgespielt, sonst über YouTube. */
+export const BUNNY_LIBRARY = "766655";
+
 export const VIDEOKURSE = {
   penpaper: {
     titel: "Das Blatt als Arbeitsplatz des Denkens",
@@ -587,7 +591,7 @@ export const VIDEOKURSE = {
     intro: "Vom einzelnen Vektor bis zur Ebene: In fünf Lektionen baust du die Werkzeuge der analytischen Geometrie auf – und für jede typische Abiturfrage ein festes Verfahren.",
     lektionen: [
       {
-        id: "v1", kapitel: "Grundlagen", titel: "Grundlagen der Vektorrechnung", youtube: "R4nJTT60zU8",
+        id: "v1", kapitel: "Grundlagen", titel: "Grundlagen der Vektorrechnung", youtube: "R4nJTT60zU8", bunny: "747ff5cf-827e-42bf-918d-030297740883",
         worum: "Ein Vektor ist eine Verschiebung: Er hat eine Richtung und eine Länge, aber keinen festen Ort. Du lernst Ortsvektoren, Verbindungsvektoren und den Betrag eines Vektors kennen.",
         mitnehmen: [
           "Verbindungsvektor: AB = B − A („Spitze minus Fuß“)",
