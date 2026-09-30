@@ -50,38 +50,64 @@ function PlotterLogoKlein() {
 function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "Werkzeug" }) {
   return (
     <button onClick={onClick} aria-label={label} className="plotter-kachel"
-      style={{ display: "flex", width: "100%", minHeight: 196, marginTop: 14, padding: 0, border: "none", borderRadius: 20,
+      style={{ display: "flex", width: "100%", height: 138, marginTop: 12, padding: 0, border: "none", borderRadius: 18,
         overflow: "hidden", cursor: "pointer", fontFamily: "inherit", textAlign: "left",
         background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`,
-        boxShadow: "0 8px 26px rgba(0,77,152,0.26)" }}>
+        boxShadow: "0 6px 22px rgba(0,77,152,0.24)" }}>
       <style>{`.plotter-kachel{transition:transform .15s ease, box-shadow .15s ease}
         .plotter-kachel:active{transform:scale(0.985)}
-        @media (hover:hover){.plotter-kachel:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(0,77,152,0.34)}}
+        @media (hover:hover){.plotter-kachel:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,77,152,0.32)}}
         .kachel-text{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}`}</style>
-      {/* Links: Text von oben, Pfeil unten */}
-      <div style={{ flex: "0 0 40%", minWidth: 0, padding: "14px 4px 14px 16px", display: "flex", flexDirection: "column" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+      {/* Links (60 %): Kopfzeile mit Pfeil, Titel, Erklärtext */}
+      <div style={{ flex: "1 1 60%", minWidth: 0, padding: "13px 10px 13px 16px", display: "flex", flexDirection: "column" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
           <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase",
             color: C.seeTief, background: C.flaggold, borderRadius: 999, padding: "2px 8px" }}>{marke}</span>
-          <span style={{ fontSize: 12, color: C.goldText, fontWeight: 300 }}>{kategorie}</span>
+          <span style={{ fontSize: 12, color: C.goldText, fontWeight: 300, flex: 1 }}>{kategorie}</span>
+          <span aria-hidden="true" style={{ flexShrink: 0, width: 28, height: 28, borderRadius: 999, background: C.gruen,
+            color: C.weiss, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 700,
+            boxShadow: "0 3px 10px rgba(165,0,68,0.45)" }}>→</span>
         </div>
-        <h2 style={{ color: C.weiss, fontSize: "clamp(16px, 4.6vw, 21px)", fontWeight: 700, letterSpacing: "-0.03em",
-          lineHeight: 1.1, margin: 0, hyphens: "manual" }}>
+        <h2 style={{ color: C.weiss, fontSize: "clamp(15px, 4.2vw, 22px)", fontWeight: 700, letterSpacing: "-0.03em",
+          lineHeight: 1.1, margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
           {titel}
         </h2>
-        <p className="kachel-text" style={{ color: C.goldText, fontSize: 12.5, fontWeight: 300, lineHeight: 1.4, marginTop: 6, marginBottom: 10 }}>
+        <p className="kachel-text" style={{ color: C.goldText, fontSize: 12.5, fontWeight: 300, lineHeight: 1.42, marginTop: 5, marginBottom: 0 }}>
           {text}
         </p>
-        <span aria-hidden="true" style={{ marginTop: "auto", alignSelf: "flex-start", display: "inline-flex", alignItems: "center", gap: 8,
-          height: 32, padding: "0 12px 0 14px", borderRadius: 999, background: C.gruen, color: C.weiss, fontSize: 13, fontWeight: 700,
-          boxShadow: "0 3px 10px rgba(165,0,68,0.45)" }}>Öffnen <span style={{ fontSize: 16 }}>→</span></span>
       </div>
-      {/* Rechts: nur die Grafik */}
-      <div style={{ flex: "0 0 60%", position: "relative", background: "rgba(255,255,255,0.04)",
+      {/* Rechts (40 %): nur die Grafik */}
+      <div style={{ flex: "0 0 40%", position: "relative", background: "rgba(255,255,255,0.04)",
         borderLeft: "1px solid rgba(255,255,255,0.08)", display: "flex" }}>
         {logo}
       </div>
     </button>
+  );
+}
+
+/* Grafik für die Schulkurse-Kachel: Videoplayer mit Lektionsliste. */
+function SchulkurseLogoKlein() {
+  const W = 230, H = 190;
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
+      {Array.from({ length: 9 }, (_, i) => <line key={`v${i}`} x1={i * 28} y1="0" x2={i * 28} y2={H} stroke="rgba(255,255,255,0.05)" />)}
+      {Array.from({ length: 7 }, (_, i) => <line key={`h${i}`} x1="0" y1={i * 28} x2={W} y2={i * 28} stroke="rgba(255,255,255,0.05)" />)}
+      {/* Player */}
+      <rect x="22" y="18" width="186" height="98" rx="12" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.28)" />
+      <path d="M 36 96 C 70 40, 100 40, 118 70 C 136 100, 170 96, 194 40" stroke="rgba(255,255,255,0.35)" strokeWidth="2" fill="none" />
+      <circle cx="115" cy="62" r="20" fill={C.flaggold} />
+      <path d="M 109 52 L 109 72 L 126 62 Z" fill={C.seeTief} />
+      <rect x="34" y="104" width="162" height="4" rx="2" fill="rgba(255,255,255,0.2)" />
+      <rect x="34" y="104" width="68" height="4" rx="2" fill={C.granaHell} />
+      {/* Lektionen */}
+      {[0, 1, 2].map((k) => (
+        <g key={k}>
+          <circle cx="34" cy={138 + k * 20} r="7" fill={k < 2 ? C.smaragd : "rgba(255,255,255,0.15)"} />
+          {k < 2 && <path d={`M30.5,${138 + k * 20} l2.5,2.5 l4.5,-5`} stroke={C.weiss} strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round" />}
+          <rect x="50" y={134 + k * 20} width={[120, 96, 136][k]} height="8" rx="4" fill={k < 2 ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.28)"} />
+        </g>
+      ))}
+    </svg>
   );
 }
 
@@ -527,10 +553,13 @@ export function Startseite({ gehe }) {
     <div className="mx-auto px-6 pb-14" style={{ maxWidth: 620 }}>
       <PlotterKachel onClick={() => gehe({ ansicht: "analysis" })} label="Analysis öffnen" logo={<PlotterLogoKlein />}
         titel="Analysis" marke="Neu" kategorie="Werkzeuge"
-        text="Plotter, Kurven­diskussion und Ableitungen." />
+        text="Polynomplotter, Advanced Plotter und Ableitungstrainer – Graphen erkunden." />
       <PlotterKachel onClick={() => gehe({ ansicht: "kopf" })} label="KopfrechenZentrum öffnen" logo={<KopfrechnenLogoKlein />}
-        titel={"Kopfrechen\u00ADZentrum"} marke="Neu" kategorie="Üben"
-        text="Primfaktoren, Einmaleins, Brüche und mehr." />
+        titel="KopfrechenZentrum" marke="Neu" kategorie="Üben"
+        text="Primfaktoren, Quadratzahlen, Brüche und Einmaleins – schnell auf Zeit." />
+      <PlotterKachel onClick={() => gehe({ ansicht: "kurse" })} label="Schulkurse öffnen" logo={<SchulkurseLogoKlein />}
+        titel="Schulkurse" marke="Neu" kategorie="Lernen"
+        text="Analysis, Vektoren und Stochastik – mit Videokurs und Kurz-Checks." />
 
       <div style={{ marginTop: 22 }}>
         <ErklaerVideo id={DEMO_VIDEO_ID} titel="So funktioniert Matheskript" />
