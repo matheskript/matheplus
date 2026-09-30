@@ -848,6 +848,11 @@ export function PenPaperBlatt() {
   );
 }
 
+/* Einzelne Themenseiten zur Analysis – erscheinen im Analysis-Dropdown der Schulkurse */
+const ANALYSIS_THEMEN = [
+  { ansicht: "diffq", titel: "Differenzenquotient", unter: "Vom Tangentenproblem zur Ableitung", info: "Thema · Video · Übung", grafik: "sekante" },
+];
+
 export function KursGrafik({ art, hoehe = 150 }) {
   const w = 340, h = 150;
   if (art === "papier") return (
@@ -862,6 +867,20 @@ export function KursGrafik({ art, hoehe = 150 }) {
       {[30, 60, 90, 120].map((y) => (
         <line key={y} x1="0" y1={y} x2={w} y2={y} stroke="rgba(255,255,255,0.07)" strokeWidth="1" />
       ))}
+
+      {art === "sekante" && (
+        <>
+          {/* Parabel mit Sekante (gold) und Tangente (grana) im Punkt P */}
+          <line x1="20" y1="135" x2="320" y2="135" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" />
+          <path d="M 40 130 Q 150 150 300 20" stroke={C.weiss} strokeWidth="2.5" fill="none" />
+          <line x1="70" y1="155.6" x2="300" y2="35.5" stroke={C.flaggold} strokeWidth="2.2" />
+          <line x1="40" y1="152" x2="320" y2="63.1" stroke={C.gruen} strokeWidth="2" strokeDasharray="6 4" />
+          <circle cx="134.4" cy="122" r="5.5" fill={C.flaggold} />
+          <circle cx="241.6" cy="66" r="5.5" fill={C.flaggold} />
+          <path d="M 134.4 122 L 241.6 122 L 241.6 66" stroke="rgba(255,255,255,0.55)" strokeWidth="1.4" fill="none" strokeDasharray="4 3" />
+          <text x="188" y="138" fill="rgba(255,255,255,0.8)" fontSize="13" fontWeight="700" fontStyle="italic" textAnchor="middle">h</text>
+        </>
+      )}
 
       {art === "gerade" && (
         <>
@@ -1105,6 +1124,12 @@ export function Kurse({ gehe, startKurs = null }) {
                     {analysis.map((a) => kachel({
                       key: a.id, klein: true, titel: a.titel, unter: a.unter, info: infoText(a), grafik: a.grafik,
                       label: `${a.titel} öffnen`, onClick: () => oeffne(a.id),
+                    }))}
+                    {/* Einzelne Themenseiten (Aufbau: Video, Herleitung, Visualisierung, Übung) */}
+                    <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: C.grau, margin: "10px 0 6px 2px" }}>Themen</p>
+                    {ANALYSIS_THEMEN.map((t) => kachel({
+                      key: t.ansicht, klein: true, titel: t.titel, unter: t.unter, info: t.info, grafik: t.grafik,
+                      label: `Thema ${t.titel} öffnen`, onClick: () => { gehe({ ansicht: t.ansicht }); window.scrollTo(0, 0); },
                     }))}
                   </div>
                 )}
