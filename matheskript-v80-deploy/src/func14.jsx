@@ -313,11 +313,336 @@ function QuadratKubik() {
   );
 }
 
+/* ---------- Bruchrechnen ---------- */
+
+const ggT = (a, b) => (b ? ggT(b, a % b) : Math.abs(a));
+const kgV = (a, b) => Math.abs(a * b) / ggT(a, b);
+const kuerze = (z, n) => { const g = ggT(z, n) || 1; const s = n < 0 ? -1 : 1; return { z: (s * z) / g, n: (s * n) / g }; };
+const waehle = (l) => l[zufall(0, l.length - 1)];
+
+const BRUCH_MODI = [
+  { id: "kuerzen", name: "Kürzen", kurz: "vollständig kürzen" },
+  { id: "plusminus", name: "Plus & Minus", kurz: "Hauptnenner finden" },
+  { id: "mal", name: "Mal", kurz: "Zähler · Zähler" },
+  { id: "geteilt", name: "Geteilt", kurz: "mal Kehrwert" },
+  { id: "mix", name: "Gemischt", kurz: "alles durcheinander" },
+];
+
+const BRUCH_STUFEN = [
+  { id: 1, name: "Leicht" },
+  { id: 2, name: "Mittel" },
+  { id: 3, name: "Schwer" },
+];
+
+/* Erzeugt einen gekürzten echten Bruch mit Nenner aus der Liste. */
+function echterBruch(nenner) {
+  const n = waehle(nenner);
+  let z = zufall(1, n - 1);
+  while (ggT(z, n) !== 1) z = zufall(1, n - 1);
+  return { z, n };
+}
+
+export function bruchAufgabe(modus, stufe) {
+  const m = modus === "mix" ? waehle(["kuerzen", "plusminus", "mal", "geteilt"]) : modus;
+  const nenner = stufe === 1 ? [2, 3, 4, 5, 6, 8, 10] : stufe === 2 ? [2, 3, 4, 5, 6, 7, 8, 9, 10, 12] : [3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 16, 18, 20];
+
+  if (m === "kuerzen") {
+    const b = echterBruch(stufe === 1 ? [2, 3, 4, 5, 6] : stufe === 2 ? [3, 4, 5, 6, 7, 8, 9] : [5, 7, 8, 9, 11, 12, 13]);
+    const k = stufe === 1 ? zufall(2, 5) : stufe === 2 ? zufall(3, 9) : waehle([6, 8, 9, 12, 14, 15, 16, 18]);
+    const g = k;
+    return { a: { z: b.z * k, n: b.n * k }, op: null, loes: b, weg: `ggT(${b.z * k}; ${b.n * k}) = ${g} → Zähler und Nenner durch ${g} teilen.` };
+  }
+
+  let a = echterBruch(nenner), b = echterBruch(nenner);
+  if (stufe === 1 && m === "plusminus") b = { z: zufall(1, a.n - 1), n: a.n };          // gleichnamig
+  if (stufe === 3 && Math.random() < 0.5) a = { z: a.z + a.n * zufall(1, 2), n: a.n };  // unechter Bruch
+
+  if (m === "plusminus") {
+    let minus = Math.random() < 0.5;
+    if (minus && a.z / a.n < b.z / b.n) [a, b] = [b, a];
+    if (minus && a.z * b.n === b.z * a.n) minus = false;
+    const hn = kgV(a.n, b.n);
+    const za = a.z * (hn / a.n), zb = b.z * (hn / b.n);
+    const loes = kuerze(minus ? za - zb : za + zb, hn);
+    const erw = a.n === b.n ? "Gleiche Nenner: nur die Zähler verrechnen." : `Hauptnenner ${hn}: ${za}/${hn} ${minus ? "−" : "+"} ${zb}/${hn}.`;
+    const erg = (minus ? za - zb : za + zb);
+    const kz = ggT(erg, hn) > 1 ? ` = ${erg}/${hn}, gekürzt ${loes.n === 1 ? loes.z : `${loes.z}/${loes.n}`}.` : ` = ${erg}/${hn}.`;
+    return { a, b, op: minus ? "−" : "+", loes, weg: erw + kz };
+  }
+  if (m === "mal") {
+    const loes = kuerze(a.z * b.z, a.n * b.n);
+    const roh = `${a.z * b.z}/${a.n * b.n}`, lt = loes.n === 1 ? `${loes.z}` : `${loes.z}/${loes.n}`;
+    return { a, b, op: "·", loes, weg: `Zähler mal Zähler, Nenner mal Nenner: ${roh}${roh === lt ? "" : ` → gekürzt ${lt}. Tipp: vorher über Kreuz kürzen`}.` };
+  }
+  const loes = kuerze(a.z * b.n, a.n * b.z);
+  const roh = `${a.z * b.n}/${a.n * b.z}`, lt = loes.n === 1 ? `${loes.z}` : `${loes.z}/${loes.n}`;
+  return { a, b, op: ":", loes, weg: `Mit dem Kehrwert multiplizieren: ${a.z}/${a.n} · ${b.n}/${b.z} = ${roh}${roh === lt ? "" : ` → gekürzt ${lt}`}.` };
+}
+
+/* Gesetzter Bruch */
+function Bruch({ z, n, gross = 40, farbe = C.weiss }) {
+  return (
+    <span style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", verticalAlign: "middle",
+      margin: "0 4px", lineHeight: 1.05, fontSize: gross, fontWeight: 800, color: farbe }}>
+      <span style={{ padding: "0 6px" }}>{z}</span>
+      <span style={{ alignSelf: "stretch", height: Math.max(3, gross / 13), background: farbe, borderRadius: 2, margin: "3px 0" }} />
+      <span style={{ padding: "0 6px" }}>{n}</span>
+    </span>
+  );
+}
+
+function BruchZahlenfeld({ onZiffer, onLoeschen, onWechsel, onOk, gesperrt }) {
+  const taste = (inhalt, onClick, art, span) => (
+    <button key={String(inhalt)} onClick={onClick} disabled={gesperrt} className="kr-taste"
+      style={{ gridColumn: span ? `span ${span}` : undefined, height: 54, borderRadius: 14, fontFamily: "inherit",
+        cursor: gesperrt ? "default" : "pointer", fontSize: art === "ok" ? 18 : art === "wechsel" ? 14 : 24, fontWeight: 700,
+        border: `1px solid ${art === "ok" ? C.smaragd : art === "nav" || art === "wechsel" ? C.seeTief : C.linie}`,
+        background: art === "ok" ? C.smaragd : art === "nav" || art === "wechsel" ? C.seeTief : C.weiss,
+        color: art === "ok" ? C.weiss : art === "nav" || art === "wechsel" ? C.flaggold : C.tinte,
+        boxShadow: art === "ok" ? "0 4px 12px rgba(47,143,91,0.3)" : "0 1px 0 rgba(15,26,51,0.06)" }}>
+      {inhalt}
+    </button>
+  );
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+      <style>{`.kr-taste{transition:transform .08s ease, filter .12s ease}.kr-taste:active{transform:scale(0.94);filter:brightness(0.94)}`}</style>
+      {[7, 8, 9, 4, 5, 6, 1, 2, 3].map((z) => taste(z, () => onZiffer(String(z))))}
+      {taste("⌫", onLoeschen, "nav")}
+      {taste(0, () => onZiffer("0"))}
+      {taste("Zähler ⇅ Nenner", onWechsel, "wechsel")}
+      {taste("OK", onOk, "ok", 3)}
+    </div>
+  );
+}
+
+const BRUCH_RUNDE = 10;
+
+function BruchRunde({ modus, stufe }) {
+  const erzeugen = () => bruchAufgabe(modus, stufe);
+  const [nr, setNr] = useState(0);
+  const [auf, setAuf] = useState(erzeugen);
+  const [z, setZ] = useState("");
+  const [n, setN] = useState("");
+  const [feld, setFeld] = useState("z");
+  const [rueck, setRueck] = useState(null);          // null | richtig | falsch | kuerzen
+  const [richtig, setRichtig] = useState(0);
+  const [serie, setSerie] = useState(0);
+  const [start, setStart] = useState(() => Date.now());
+  const [aufgStart, setAufgStart] = useState(() => Date.now());
+  const [fertig, setFertig] = useState(null);
+  const [fehler, setFehler] = useState([]);
+  const schluessel = `kr-best-bruch-${modus}-${stufe}`;
+  const [best, setBest] = useState(() => { try { return JSON.parse(localStorage.getItem(schluessel) || "null"); } catch { return null; } });
+  const timer = useRef(null);
+
+  const neueRunde = () => {
+    clearTimeout(timer.current);
+    setNr(0); setAuf(erzeugen()); setZ(""); setN(""); setFeld("z"); setRueck(null); setRichtig(0); setSerie(0);
+    setStart(Date.now()); setAufgStart(Date.now()); setFertig(null); setFehler([]);
+    try { setBest(JSON.parse(localStorage.getItem(schluessel) || "null")); } catch { setBest(null); }
+  };
+  useEffect(neueRunde, [modus, stufe]);  // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => () => clearTimeout(timer.current), []);
+
+  const weiter = (warRichtig) => {
+    const k = nr + 1;
+    if (k >= BRUCH_RUNDE) {
+      const sek = Math.round((Date.now() - start) / 100) / 10;
+      const erg = { richtig: richtig + (warRichtig ? 1 : 0), sek };
+      setFertig(erg);
+      if (!best || erg.richtig > best.richtig || (erg.richtig === best.richtig && sek < best.sek)) {
+        setBest(erg);
+        try { localStorage.setItem(schluessel, JSON.stringify(erg)); } catch { /* optional */ }
+      }
+      return;
+    }
+    setNr(k); setAuf(erzeugen()); setZ(""); setN(""); setFeld("z"); setRueck(null); setAufgStart(Date.now());
+  };
+
+  const pruefen = () => {
+    if (fertig || (rueck && rueck !== "kuerzen")) return;
+    if (z === "") return;
+    const ez = Number(z), en = n === "" ? 1 : Number(n);
+    if (en === 0) { setRueck("null"); return; }
+    const sekunden = Math.round((Date.now() - aufgStart) / 100) / 10;
+    const wertGleich = ez * auf.loes.n === en * auf.loes.z;
+    const gekuerzt = ggT(ez, en) === 1;
+    if (wertGleich && !gekuerzt) { setRueck("kuerzen"); return; }   // nochmal versuchen, zählt nicht als Fehler
+    const ok = wertGleich && gekuerzt;
+    try { merken({ gruppe: "Bruchrechnen", richtig: ok, sekunden, fehlerart: ok ? null : "rechnen" }); } catch { /* optional */ }
+    setRueck(ok ? "richtig" : "falsch");
+    if (ok) { setRichtig((r) => r + 1); setSerie((s) => s + 1); timer.current = setTimeout(() => weiter(true), 650); }
+    else { setSerie(0); setFehler((l) => [...l, { ...auf, eingabe: n === "" || n === "1" ? z : `${z}/${n}` }]); }
+  };
+
+  const ziffer = (d) => {
+    if (rueck && rueck !== "kuerzen" && rueck !== "null") return;
+    if (rueck) setRueck(null);
+    if (feld === "z") setZ((v) => (v.length >= 4 ? v : v + d)); else setN((v) => (v.length >= 4 ? v : v + d));
+  };
+  const loeschen = () => {
+    if (rueck && rueck !== "kuerzen" && rueck !== "null") return;
+    if (rueck) setRueck(null);
+    if (feld === "n") { if (n === "") setFeld("z"); else setN((v) => v.slice(0, -1)); }
+    else setZ((v) => v.slice(0, -1));
+  };
+  const wechsel = () => setFeld((f) => (f === "z" ? "n" : "z"));
+
+  useEffect(() => {
+    const taste = (e) => {
+      if (/^[0-9]$/.test(e.key)) ziffer(e.key);
+      else if (e.key === "Backspace") loeschen();
+      else if (e.key === "/" || e.key === "Tab" || e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); wechsel(); }
+      else if (e.key === "Enter") { if (rueck === "falsch") weiter(false); else pruefen(); }
+    };
+    window.addEventListener("keydown", taste);
+    return () => window.removeEventListener("keydown", taste);
+  });
+
+  const karte = { background: C.weiss, borderRadius: 18, padding: 18, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" };
+  const bText = (b) => (b.n === 1 ? `${b.z}` : `${b.z}/${b.n}`);
+
+  if (fertig) {
+    const quote = Math.round((fertig.richtig / BRUCH_RUNDE) * 100);
+    return (
+      <div style={karte}>
+        <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 6 }}>Runde geschafft</p>
+        <p style={{ fontSize: 44, fontWeight: 800, color: C.tinte, lineHeight: 1.1 }}>
+          {fertig.richtig} <span style={{ fontSize: 22, color: C.grau, fontWeight: 600 }}>von {BRUCH_RUNDE}</span>
+        </p>
+        <p style={{ fontSize: 15, color: C.grau, marginTop: 6 }}>
+          in {String(fertig.sek).replace(".", ",")} s · {quote} %
+          {best && <span style={{ marginLeft: 8, color: C.see }}>· Bestwert {best.richtig}/{BRUCH_RUNDE} in {String(best.sek).replace(".", ",")} s</span>}
+        </p>
+        <p style={{ fontSize: 15, fontWeight: 600, color: quote === 100 ? C.smaragd : C.tinte, marginTop: 14 }}>
+          {quote === 100 ? "Fehlerfrei! 🎉" : quote >= 80 ? "Stark — Brüche sitzen." : quote >= 50 ? "Gute Basis, weiter üben." : "Dranbleiben — Schritt für Schritt wird’s sicher."}
+        </p>
+        {fehler.length > 0 && (
+          <div style={{ marginTop: 14, background: C.sand, borderRadius: 12, padding: "10px 14px" }}>
+            <p style={{ fontSize: 12.5, fontWeight: 700, color: C.grau, marginBottom: 6 }}>Nochmal anschauen</p>
+            {fehler.map((f, i) => (
+              <p key={i} style={{ fontSize: 14.5, color: C.tinte, marginBottom: 4, lineHeight: 1.5 }}>
+                {f.op ? `${bText(f.a)} ${f.op} ${bText(f.b)}` : `${bText(f.a)} kürzen`} = <b>{bText(f.loes)}</b>
+                <span style={{ color: C.signal, fontSize: 13, marginLeft: 6 }}>(du: {f.eingabe})</span>
+              </p>
+            ))}
+          </div>
+        )}
+        <button onClick={neueRunde}
+          style={{ width: "100%", height: 52, marginTop: 16, borderRadius: 14, border: "none", cursor: "pointer", fontFamily: "inherit",
+            fontSize: 16, fontWeight: 700, color: C.weiss, background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+          Neue Runde
+        </button>
+      </div>
+    );
+  }
+
+  const rahmen = rueck === "richtig" ? C.smaragd : rueck === "falsch" ? C.signal : rueck ? C.flaggold : C.see;
+  const feldStil = (aktiv) => ({
+    minWidth: 76, height: 50, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center",
+    fontSize: 30, fontWeight: 800, color: C.tinte, cursor: "pointer",
+    border: `2px ${aktiv && !(rueck === "richtig" || rueck === "falsch") ? "solid" : "dashed"} ${aktiv ? rahmen : C.linie}`,
+    background: aktiv ? C.weiss : C.sand, padding: "0 10px",
+  });
+
+  return (
+    <div style={karte}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+        <div style={{ flex: 1, display: "flex", gap: 4 }}>
+          {Array.from({ length: BRUCH_RUNDE }, (_, i) => (
+            <span key={i} style={{ flex: 1, height: 6, borderRadius: 3, background: i < nr ? C.see : i === nr ? C.flaggold : C.linie }} />
+          ))}
+        </div>
+        <span style={{ fontSize: 12.5, color: C.grau, whiteSpace: "nowrap" }}>{nr + 1} / {BRUCH_RUNDE}</span>
+        {serie >= 3 && <span style={{ fontSize: 12.5, fontWeight: 700, color: C.gruen, whiteSpace: "nowrap" }}>🔥 {serie}</span>}
+      </div>
+
+      {/* Aufgabe */}
+      <div style={{ background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 16,
+        padding: "18px 12px", marginBottom: 12, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, flexWrap: "wrap" }}>
+        {!auf.op && <span style={{ color: C.goldText, fontSize: 15, fontWeight: 600, marginRight: 6 }}>Kürze</span>}
+        <Bruch z={auf.a.z} n={auf.a.n} />
+        {auf.op && <span style={{ color: C.flaggold, fontSize: 34, fontWeight: 800, margin: "0 4px" }}>{auf.op}</span>}
+        {auf.op && <Bruch z={auf.b.z} n={auf.b.n} />}
+        <span style={{ color: C.goldText, fontSize: 34, fontWeight: 700, marginLeft: 6 }}>=</span>
+      </div>
+
+      {/* Eingabe als Bruch */}
+      <div style={{ border: `2.5px solid ${rahmen}`, borderRadius: 14, padding: "10px 12px", marginBottom: 6,
+        display: "flex", alignItems: "center", justifyContent: "center", gap: 16, transition: "all .15s",
+        background: rueck === "richtig" ? "#EEF8F2" : rueck === "falsch" ? "#FBEFEA" : C.weiss }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <div onClick={() => setFeld("z")} style={feldStil(feld === "z")}>{z || <span style={{ color: C.hellgrau, fontSize: 18 }}>Zähler</span>}</div>
+          <div style={{ alignSelf: "stretch", height: 4, background: C.tinte, borderRadius: 2, margin: "6px 0" }} />
+          <div onClick={() => setFeld("n")} style={feldStil(feld === "n")}>{n || <span style={{ color: C.hellgrau, fontSize: 18 }}>Nenner</span>}</div>
+        </div>
+        {rueck === "richtig" && <span style={{ fontSize: 30, color: C.smaragd, fontWeight: 800 }}>✓</span>}
+        {rueck === "falsch" && (
+          <span style={{ display: "flex", alignItems: "center", gap: 6, color: C.signal, fontWeight: 700 }}>
+            ✗ <Bruch z={auf.loes.z} n={auf.loes.n} gross={26} farbe={C.signal} />
+          </span>
+        )}
+      </div>
+
+      <div style={{ minHeight: 20, margin: "6px 2px 12px" }}>
+        {rueck === "kuerzen" && <p style={{ fontSize: 13.5, color: C.gruenDunkel, fontWeight: 600 }}>Der Wert stimmt — aber noch nicht vollständig gekürzt.</p>}
+        {rueck === "null" && <p style={{ fontSize: 13.5, color: C.signal, fontWeight: 600 }}>Der Nenner darf nicht 0 sein.</p>}
+        {rueck === "falsch" && <p style={{ fontSize: 13.5, color: C.tinte, lineHeight: 1.55 }}><b>So geht’s:</b> {auf.weg}</p>}
+        {!rueck && <p style={{ fontSize: 12, color: C.hellgrau, textAlign: "center" }}>
+          {best ? `Bestwert: ${best.richtig}/${BRUCH_RUNDE} in ${String(best.sek).replace(".", ",")} s · ` : ""}Ergebnis vollständig gekürzt eingeben. Ganze Zahl: Nenner leer lassen.
+        </p>}
+      </div>
+
+      {rueck === "falsch" ? (
+        <button onClick={() => weiter(false)}
+          style={{ width: "100%", height: 54, borderRadius: 14, border: "none", cursor: "pointer", fontFamily: "inherit",
+            fontSize: 17, fontWeight: 700, color: C.weiss, background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+          Weiter →
+        </button>
+      ) : (
+        <BruchZahlenfeld gesperrt={rueck === "richtig"} onZiffer={ziffer} onLoeschen={loeschen} onWechsel={wechsel} onOk={pruefen} />
+      )}
+    </div>
+  );
+}
+
+function Bruchrechnen() {
+  const [modus, setModus] = useState("kuerzen");
+  const [stufe, setStufe] = useState(1);
+  return (
+    <div>
+      <Modi liste={BRUCH_MODI} wert={modus} setWert={setModus} />
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 14 }}>
+        <span style={{ fontSize: 12.5, color: C.grau, marginRight: 4 }}>Stufe</span>
+        {BRUCH_STUFEN.map((s) => (
+          <button key={s.id} onClick={() => setStufe(s.id)}
+            style={{ height: 30, padding: "0 12px", borderRadius: 999, fontFamily: "inherit", cursor: "pointer", fontSize: 12.5, fontWeight: 600,
+              border: `1px solid ${stufe === s.id ? C.gruen : C.linie}`, background: stufe === s.id ? C.gruen : C.weiss,
+              color: stufe === s.id ? C.weiss : C.tinte }}>{s.name}</button>
+        ))}
+      </div>
+      <BruchRunde modus={modus} stufe={stufe} />
+      <div style={{ marginTop: 16, background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 14, padding: "12px 14px" }}>
+        <p style={{ fontSize: 13, fontWeight: 700, color: C.see, marginBottom: 6 }}>Die Regeln auf einen Blick</p>
+        {[
+          ["Kürzen", "Zähler und Nenner durch dieselbe Zahl teilen — am schnellsten durch den ggT."],
+          ["Plus & Minus", "Erst auf den Hauptnenner (kgV der Nenner) erweitern, dann nur die Zähler verrechnen."],
+          ["Mal", "Zähler mal Zähler, Nenner mal Nenner. Vorher über Kreuz kürzen spart Arbeit."],
+          ["Geteilt", "Durch einen Bruch teilen heißt: mit seinem Kehrwert multiplizieren."],
+        ].map(([t, s]) => (
+          <p key={t} style={{ fontSize: 13, color: C.grau, lineHeight: 1.55, marginBottom: 4 }}><b style={{ color: C.tinte }}>{t}:</b> {s}</p>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /* ---------- Übersicht ---------- */
 
 const TRAINER = [
   { id: "primfaktoren", titel: "Primfaktorzerlegung", kurz: "Primzahl erkennen oder vollständig zerlegen — jeden Faktor einzeln.", zeichen: "2·3·7" },
   { id: "potenzen", titel: "Quadrat- und Kubikzahlen", kurz: "Quadrat- und Kubikzahlen sowie ihre Wurzeln blitzschnell abrufen.", zeichen: "12²" },
+  { id: "bruchrechnen", titel: "Bruchrechnen", kurz: "Kürzen, Plus, Minus, Mal und Geteilt — mit Lösungsweg bei jedem Fehler.", zeichen: "¾" },
   { id: "einmaleins", titel: "EinMalEins", kurz: "Kleines und großes Einmaleins, auch als Umkehraufgaben — auf Zeit.", zeichen: "7·8" },
 ];
 
@@ -333,7 +658,7 @@ export function KopfrechenZentrum() {
           Zahlen, die einfach sitzen
         </h2>
         <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 22 }}>
-          Drei Trainer für das Kopfrechnen. Wer Zahlen sofort abrufen kann, kürzt schneller, sieht Teiler auf einen
+          Vier Trainer für das Kopfrechnen. Wer Zahlen sofort abrufen kann, kürzt schneller, sieht Teiler auf einen
           Blick und hat beim Rechnen den Kopf für das Eigentliche frei.
         </p>
         {TRAINER.map((x) => (
@@ -363,7 +688,7 @@ export function KopfrechenZentrum() {
       </button>
       <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 8 }}>KopfrechenZentrum</p>
       <h2 style={{ fontSize: 25, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 14 }}>{t.titel}</h2>
-      {t.id === "primfaktoren" ? <Primfaktoren /> : t.id === "potenzen" ? <QuadratKubik /> : <EinMalEins />}
+      {t.id === "primfaktoren" ? <Primfaktoren /> : t.id === "potenzen" ? <QuadratKubik /> : t.id === "bruchrechnen" ? <Bruchrechnen /> : <EinMalEins />}
     </div>
   );
 }

@@ -97,7 +97,7 @@ export const NAV = [
     { name: "Rechenweg schreiben", kurz: "Ganze Wege eintippen und prüfen lassen", ansicht: "training", ziel: "weg" },
     { name: "Kurvendiskussion", kurz: "Das Protokoll in zwölf Schritten", ansicht: "training", ziel: "kd" },
     { name: "Graph-Zuordnung", kurz: "Welcher Graph ist f′?", ansicht: "training", ziel: "gz" },
-    { name: "KopfrechenZentrum", kurz: "Primfaktoren, Quadratzahlen, Einmaleins", ansicht: "kopf" },
+    { name: "KopfrechenZentrum", kurz: "Primfaktoren, Quadratzahlen, Brüche, Einmaleins", ansicht: "kopf" },
   ] },
   { id: "pruefung", name: "Prüfung", kurz: "Klassenarbeit und Abitur", eintraege: [
     { name: "Klausur vorbereiten", kurz: "Termin eintragen, Plan bekommen", ansicht: "vorbereiten" },

@@ -530,7 +530,7 @@ export function Startseite({ gehe }) {
         text="Plotter, Kurven­diskussion und Ableitungen." />
       <PlotterKachel onClick={() => gehe({ ansicht: "kopf" })} label="KopfrechenZentrum öffnen" logo={<KopfrechnenLogoKlein />}
         titel={"Kopfrechen\u00ADZentrum"} marke="Neu" kategorie="Üben"
-        text="Primfaktoren, Quadrate und Einmaleins." />
+        text="Primfaktoren, Einmaleins, Brüche und mehr." />
 
       <div style={{ marginTop: 22 }}>
         <ErklaerVideo id={DEMO_VIDEO_ID} titel="So funktioniert Matheskript" />
