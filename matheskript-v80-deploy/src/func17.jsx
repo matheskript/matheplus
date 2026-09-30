@@ -142,13 +142,13 @@ function BernoulliFormel({ n, k, pT, qT, wert, p }) {
   const ergebnis = kurzZahl(wert);
   const v = (t, farbe) => <span style={{ color: farbe, fontWeight: 800 }}>{t}</span>;
   const rahmen = useRef(null), innen = useRef(null);
-  const [gr, setGr] = useState(16);
+  const [gr, setGr] = useState(14);
   useEffect(() => {
     const anpassen = () => {
       if (!rahmen.current || !innen.current) return;
       const platz = rahmen.current.clientWidth - 12;
-      const breite16 = innen.current.scrollWidth * (16 / parseFloat(getComputedStyle(innen.current).fontSize));
-      setGr(Math.max(9, Math.min(16, Math.floor((16 * platz / breite16) * 10) / 10)));
+      const breite14 = innen.current.scrollWidth * (14 / parseFloat(getComputedStyle(innen.current).fontSize));
+      setGr(Math.max(9, Math.min(14, Math.floor((14 * platz / breite14) * 10) / 10)));
     };
     anpassen();
     const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(anpassen) : null;
@@ -159,29 +159,25 @@ function BernoulliFormel({ n, k, pT, qT, wert, p }) {
   return (
     <div ref={rahmen} style={{ background: C.sand, borderRadius: 12, padding: "8px 6px 10px", overflow: "hidden" }}>
       <p style={{ fontSize: 10.5, fontWeight: 600, color: C.grau, marginBottom: 4, textAlign: "center", whiteSpace: "nowrap" }}>Formel von Bernoulli</p>
-      <div ref={innen} style={{ display: "flex", flexDirection: "column", gap: "0.35em",
-        width: "max-content", margin: "0 auto", fontSize: gr, fontWeight: 700, color: C.tinte, whiteSpace: "nowrap" }}>
-        {/* Zeile 1: allgemeine Form mit den eingestellten Werten */}
-        <span style={{ display: "flex", alignItems: "center", gap: "0.2em" }}>
-          <span>P(X = {v(k, FARBEN.k)})</span>
-          <span>=</span>
-          <Binom o={n} u={k} farbeO={FARBEN.n} farbeU={FARBEN.k} />
-          <span>·</span>
-          <Pot basis={<Wert t={pT} farbe={FARBEN.p} />} exp={<span style={{ color: FARBEN.k }}>{k}</span>} />
-          <span>·</span>
-          <Pot basis={<Wert t={qT} farbe={FARBEN.p} />} exp={n - k} />
-        </span>
-        {/* Zeile 2: ausgerechnet */}
-        <span style={{ alignSelf: "flex-end", display: "flex", alignItems: "center", gap: "0.2em", fontVariantNumeric: "tabular-nums" }}>
-          <span>=</span>
-          {v(binomKoeff(n, k), FARBEN.n)}
-          <span>·</span>
-          {v(kurzZahl(Math.pow(p, k)), FARBEN.p)}
-          <span>·</span>
-          {v(kurzZahl(Math.pow(1 - p, n - k)), FARBEN.p)}
-          <span>=</span>
-          <span style={{ fontWeight: 800 }}>{ergebnis}</span>
-        </span>
+      <div ref={innen} style={{ display: "grid", gridTemplateColumns: "repeat(7, auto)", columnGap: "0.18em", rowGap: "0.3em",
+        alignItems: "center", justifyItems: "center", width: "max-content", margin: "0 auto",
+        fontSize: gr, fontWeight: 700, color: C.tinte, whiteSpace: "nowrap", fontVariantNumeric: "tabular-nums" }}>
+        {/* Zeile 1: Formel mit den eingestellten Werten */}
+        <span style={{ justifySelf: "end" }}>P(X = {v(k, FARBEN.k)})</span>
+        <span>=</span>
+        <Binom o={n} u={k} farbeO={FARBEN.n} farbeU={FARBEN.k} />
+        <span>·</span>
+        <Pot basis={<Wert t={pT} farbe={FARBEN.p} />} exp={<span style={{ color: FARBEN.k }}>{k}</span>} />
+        <span>·</span>
+        <Pot basis={<Wert t={qT} farbe={FARBEN.p} />} exp={n - k} />
+        {/* Zeile 2: Ergebnis unter P(X = k), jeder Faktor unter seinem Term */}
+        <span style={{ fontWeight: 800, justifySelf: "end" }}>{ergebnis}</span>
+        <span>=</span>
+        {v(binomKoeff(n, k), FARBEN.n)}
+        <span>·</span>
+        {v(kurzZahl(Math.pow(p, k)), FARBEN.p)}
+        <span>·</span>
+        {v(kurzZahl(Math.pow(1 - p, n - k)), FARBEN.p)}
       </div>
     </div>
   );
