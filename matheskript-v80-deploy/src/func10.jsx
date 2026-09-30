@@ -23,6 +23,7 @@ import { Vierfeldertafel } from "./func18.jsx";
 
 // Menü-Button im Header: vorübergehend aus (true = wieder einblenden)
 const ZEIGE_MENUE = false;
+const ZEIGE_PROFIL = false;
 
 export function Mathilda() {
   const [ansicht, setAnsicht] = useState("start");
@@ -223,16 +224,17 @@ export function Mathilda() {
           <button type="button" aria-label="Zur Startseite" title="Zur Startseite"
             onClick={() => { setAnsicht("start"); setMenuOffen(false); setGruppeOffen(null); window.scrollTo(0, 0); }}
             style={{ background: "none", border: "none", padding: 0, margin: 0, cursor: "pointer", fontFamily: "inherit",
-              color: C.weiss, fontSize: "clamp(22px, 7.2vw, 31px)", fontWeight: 700, letterSpacing: "-0.02em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
+              color: C.weiss, fontSize: "clamp(24px, 8.4vw, 38px)", fontWeight: 700, letterSpacing: "-0.02em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
             <span className="logo-silber">mythos</span><span className="logo-gold">mathe</span><span className="logo-silber">.de</span>
           </button>
           <div className="flex items-center" style={{ gap: 6 }}>
-          <button onClick={() => gehe({ ansicht: lern.profil ? "karte" : "profil2" })} aria-label="Mein Weg"
+          {/* Profil-Button vorübergehend ausgeblendet */}
+          {ZEIGE_PROFIL && <button onClick={() => gehe({ ansicht: lern.profil ? "karte" : "profil2" })} aria-label="Mein Weg"
             style={{ width: 32, height: 32, borderRadius: 999, border: `1.5px solid ${lern.profil ? C.flaggold : "rgba(255,255,255,0.35)"}`,
               background: lern.profil ? "rgba(237,187,0,0.14)" : "transparent", color: C.weiss, fontSize: 13, fontWeight: 700,
               fontFamily: "inherit", cursor: "pointer", padding: 0 }}>
             {lern.profil ? (lern.profil.name || "?").slice(0, 1).toUpperCase() : "+"}
-          </button>
+          </button>}
           {/* Menü-Button vorübergehend ausgeblendet – alle Bereiche bleiben in der App erreichbar */}
           {ZEIGE_MENUE && <button onClick={() => { if (!menuOffen) { const g = NAV.find((g) => g.eintraege.some(istAktiv)); setGruppeOffen(g ? g.id : null); } setMenuOffen(!menuOffen); }} aria-label="Menü"
             style={{ background: "none", border: "none", cursor: "pointer", padding: 8, display: "flex", flexDirection: "column", gap: 5 }}>
