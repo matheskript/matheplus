@@ -12,6 +12,7 @@ import { Begruenden, EinheitSpieler, Operatoren, Wiederholen } from "./func7.jsx
 import { MeinPlan, Messbericht, Modellieren, Probeabitur, Wochenbericht } from "./func8.jsx";
 import { Auswertung, Einwilligung, KlasseAnsicht, KlausurVorbereitung, einwilligungLesen } from "./func9.jsx";
 import { AdvancedPlotter } from "./func12.jsx";
+import { Ableitungstrainer } from "./func13.jsx";
 
 export function Mathilda() {
   const [ansicht, setAnsicht] = useState("start");
@@ -513,6 +514,20 @@ export function Mathilda() {
             <Welle fill={C.sand} />
           </div>
           <Plotter />
+        </>
+      ) : ansicht === "ableitungstrainer" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+            <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 style={{ fontWeight: 700, fontSize: 33, letterSpacing: "-0.03em", lineHeight: 1.05, color: C.weiss }}>Ableitungstrainer</h1>
+              <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <p style={{ color: C.goldText, fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+                Erste, zweite und dritte Ableitung — mit Tastenfeld und sofortiger Prüfung
+              </p>
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <Ableitungstrainer />
         </>
       ) : ansicht === "advplotter" ? (
         <>

@@ -122,9 +122,9 @@ export function parse(text) {
   return n && p === t.length ? n : null;
 }
 
-const hatBox = (n) => !!n && (n.k === "box" || ["a", "b"].some((s) => n[s] && hatBox(n[s])));
+export const hatBox = (n) => !!n && (n.k === "box" || ["a", "b"].some((s) => n[s] && hatBox(n[s])));
 const hatX = (n) => !!n && (n.k === "x" || ["a", "b"].some((s) => n[s] && hatX(n[s])));
-const ohnePar = (n) => {
+export const ohnePar = (n) => {
   if (!n) return n;
   if (n.k === "par") return ohnePar(n.a);
   const m = { ...n };
@@ -1040,7 +1040,7 @@ const BEISPIELE = [
   ["√(4 − x²)", "sqrt(4-x^2)"], ["2sin(x) + cos(2x)", "2sin(x)+cos(2x)"], ["(x²−1)/(x²+1)", "(x^2-1)/(x^2+1)"],
 ];
 
-function zufallsFunktion() {
+export function zufallsFunktion() {
   const r = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
   const rz = (a, b) => { let v = 0; while (v === 0) v = r(a, b); return v; };
   const vz = (v) => (v < 0 ? `-${-v}` : `+${v}`);
@@ -1064,7 +1064,7 @@ function zufallsFunktion() {
   return vorlagen[r(0, vorlagen.length - 1)]().replace(/\+-/g, "-").replace(/--/g, "+");
 }
 
-function Tastenfeld({ wert: text, setWert, pos, setPos }) {
+export function Tastenfeld({ wert: text, setWert, pos, setPos }) {
   const setzen = (t, p) => { setWert(t); setPos(Math.max(0, Math.min(p, t.length))); };
   const einfuegen = (s) => {
     let t = text, p = pos;

@@ -92,6 +92,7 @@ export const NAV = [
   { id: "klassen", name: "Nach Klasse", kurz: "Der Stoff von Klasse 8 bis 13", eintraege:
     SCHULKLASSEN.map((k) => ({ name: `Klasse ${k}`, kurz: k >= 11 ? "Kursstufe" : "Nach dem Lambacher Schweizer", ansicht: "klasse", klasse: k })) },
   { id: "ueben", name: "Üben", kurz: "Aufgaben und ganze Rechenwege", eintraege: [
+    { name: "Ableitungstrainer", kurz: "f′, f″ und f‴ eingeben und sofort prüfen lassen", ansicht: "ableitungstrainer" },
     { name: "Aufgabengenerator", kurz: "Geraden, Ableitungen, Kurvendiskussion", ansicht: "ki", ziel: null },
     { name: "Rechenweg schreiben", kurz: "Ganze Wege eintippen und prüfen lassen", ansicht: "training", ziel: "weg" },
     { name: "Kurvendiskussion", kurz: "Das Protokoll in zwölf Schritten", ansicht: "training", ziel: "kd" },

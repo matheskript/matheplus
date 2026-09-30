@@ -12,9 +12,10 @@ import { EskalationsKarte, Wochenbericht, eskalationSignale, serieBerechnen, zei
 import { TerminHinweis } from "./func9.jsx";
 import { Mathilda } from "./func10.jsx";
 import { AdvancedLogo } from "./func12.jsx";
+import { AbleitungLogo } from "./func13.jsx";
 
 /* Große, ganz anklickbare Kachel für die Plotter auf der Startseite. */
-function PlotterKachel({ onClick, label, logo, titel, text, marke }) {
+function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "Werkzeug" }) {
   return (
         <button onClick={onClick} aria-label={label} className="plotter-kachel"
           style={{ display: "block", width: "100%", marginTop: 22, marginBottom: 4, padding: 0, border: "none", borderRadius: 22,
@@ -29,11 +30,11 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke }) {
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
               <span style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase",
                 color: C.seeTief, background: C.flaggold, borderRadius: 999, padding: "3px 10px" }}>{marke}</span>
-              <span style={{ fontSize: 12.5, color: C.goldText, fontWeight: 300 }}>Werkzeug</span>
+              <span style={{ fontSize: 12.5, color: C.goldText, fontWeight: 300 }}>{kategorie}</span>
             </div>
             <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12 }}>
-              <div>
-                <h2 style={{ color: C.weiss, fontSize: 30, fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.05, margin: 0 }}>
+              <div style={{ minWidth: 0 }}>
+                <h2 style={{ color: C.weiss, fontSize: "clamp(24px, 7.2vw, 30px)", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.05, margin: 0, hyphens: "manual" }}>
                   {titel}
                 </h2>
                 <p style={{ color: C.goldText, fontSize: 14.5, fontWeight: 300, lineHeight: 1.55, marginTop: 8, marginBottom: 0 }}>
@@ -495,6 +496,9 @@ export function Startseite({ gehe }) {
       <PlotterKachel onClick={() => gehe({ ansicht: "advplotter" })} label="Advanced Plotter öffnen" logo={<AdvancedLogo />}
         titel="Advanced Plotter" marke="Neu"
         text="Beliebige Funktionen mit sin, cos, tan, ln, logₐ, eˣ, Wurzeln und Brüchen bauen — mit Tastenfeld, Graph und Kurvendiskussion." />
+      <PlotterKachel onClick={() => gehe({ ansicht: "ableitungstrainer" })} label="Ableitungstrainer öffnen" logo={<AbleitungLogo />}
+        titel={"Ableitungs\u00ADtrainer"} marke="Neu" kategorie="Üben"
+        text="Erste, zweite und dritte Ableitung per Tastenfeld eingeben, OK drücken und sofort erfahren, ob sie stimmt." />
 
       <div style={{ marginTop: 22 }}>
         <ErklaerVideo id={DEMO_VIDEO_ID} titel="So funktioniert Matheskript" />

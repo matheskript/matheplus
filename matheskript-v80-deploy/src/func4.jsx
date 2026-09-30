@@ -1458,3 +1458,7 @@ Maschinenschreibweise: ^ für Potenzen, * für Produkte, sin(x), cos(x), ln(x), 
 
 /* ---------- Generator: vollständige Kurvendiskussion ---------- */
 FR.kubischErzeugen = kubischErzeugen;
+FR.wegSumme = wegSumme;
+FR.wegProdukt = wegProdukt;
+FR.wegKette = wegKette;
+FR.wegQuotient = wegQuotient;
