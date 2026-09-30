@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import { API_URL, C, DEMO_VIDEO_ID, DIFFQ_TESTPAARE, DIFFQ_VIDEO_ID, Regler, ganz } from "./base1.jsx";
 import { ABL_TYPEN, FEHLERARTEN, GEN_MODULE, KOPF_WERKZEUGE, PF_STUFEN, PRIMLISTE, PROTOKOLL, WEG_TYPEN } from "./base2.jsx";
 import { LERN } from "./base3.jsx";
-import { kiKopf } from "./base4.jsx";
+import { kiKopf, kiAntwort } from "./base4.jsx";
 import { ErklaerVideo, KIAufgaben, dekodieren, jsonLesen, parseZahl, rendern } from "./func1.jsx";
 import { hoch, termText } from "./func2.jsx";
 import { Formel, M, Text, Zeile, alsFunktion, alsFunktionXH, diffqAufgabe, diffqLoesung1, diffqLoesung2, diffqStimmtVorLimes, diffqX0, numAbleitung, stimmtUeberein, wegPruefen, zeileSetzen, zerlegen } from "./func3.jsx";
@@ -1172,7 +1172,7 @@ export function WegVomBlatt() {
       const res = await fetch(API_URL, {
         method: "POST", headers: kiKopf(),
         body: JSON.stringify({
-          model: "claude-sonnet-4-6", max_tokens: 1000,
+          model: "claude-sonnet-5-5", max_tokens: 1000,
           messages: [{ role: "user", content: [
             { type: "image", source: { type: "base64", media_type: "image/jpeg", data: b64 } },
             { type: "text", text: `Auf dem Blatt steht ein handschriftlicher Rechenweg zu einer Mathematikaufgabe.
@@ -1185,7 +1185,7 @@ Jede geschriebene Zeile kommt als eigener Eintrag in "zeilen", in Maschinenschre
           ] }],
         }),
       });
-      const daten = await res.json();
+      const daten = await kiAntwort(res);
       if (daten.error) throw new Error(`Die API hat abgelehnt: ${daten.error.message}`);
       const text = (daten.content || []).map((t) => (t.type === "text" ? t.text : "")).join("");
       const roh = jsonLesen(text);

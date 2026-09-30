@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import { API_URL, C, DEMO_VIDEO_ID, ganz, zuf } from "./base1.jsx";
 import { AFB_FARBE, BEGRUENDEN, DIAG, KOMP, LEITIDEEN, LERN, LINIEN, OPERATOREN, OPERATOR_FAELLE, PHASEN_NAME, SR_ABSTAENDE, TEST_ANZAHL, TEST_GRENZE, UEBEN_ANZAHL, VISUALISIERUNGEN, VORAUSBLICK, aktiv, hatEinheit, messungHalten, messungNach, messungVor, mischen } from "./base3.jsx";
-import { kiKopf } from "./base4.jsx";
+import { kiKopf, kiAntwort } from "./base4.jsx";
 import { ErklaerVideo, Satz, jsonLesen } from "./func1.jsx";
 import { Formel, M, Text, alsFunktion, normieren, stimmtUeberein, zahlAus } from "./func3.jsx";
 import { TermTastatur, kubischErzeugen } from "./func4.jsx";
@@ -55,9 +55,9 @@ Antworte auf Deutsch, ohne Vorrede.`;
     try {
       const res = await fetch(API_URL, {
         method: "POST", headers: kiKopf(),
-        body: JSON.stringify({ model: "claude-sonnet-4-6", max_tokens: 400, messages: nachrichten }),
+        body: JSON.stringify({ model: "claude-sonnet-5-5", max_tokens: 400, messages: nachrichten }),
       });
-      const daten = await res.json();
+      const daten = await kiAntwort(res);
       let antwort = (daten.content || []).map((x) => (x.type === "text" ? x.text : "")).join("").trim();
       if (!antwort) antwort = "Da ist gerade etwas schiefgegangen. Magst du es noch einmal schreiben?";
       if (verraet(antwort)) antwort = "Das Ergebnis verrate ich dir nicht — aber ich helfe dir hin. Was steht bei dir in der ersten Zeile?";
@@ -918,9 +918,9 @@ Die Liste "kriterien" hat genau ${a.raster.length} Einträge in der Reihenfolge 
     try {
       const res = await fetch(API_URL, {
         method: "POST", headers: kiKopf(),
-        body: JSON.stringify({ model: "claude-sonnet-4-6", max_tokens: 700, messages: [{ role: "user", content: prompt }] }),
+        body: JSON.stringify({ model: "claude-sonnet-5-5", max_tokens: 700, messages: [{ role: "user", content: prompt }] }),
       });
-      const daten = await res.json();
+      const daten = await kiAntwort(res);
       if (daten.error) throw new Error(daten.error.message);
       const roh = jsonLesen((daten.content || []).map((x) => (x.type === "text" ? x.text : "")).join(""));
       if (!roh || !Array.isArray(roh.kriterien)) throw new Error("Die Einschätzung ließ sich nicht lesen.");

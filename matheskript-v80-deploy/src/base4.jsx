@@ -42,6 +42,18 @@ export const ART_FARBE = { luecke: C.signal, neu: C.gruenDunkel, wiederholen: C.
 
 export const EINWILLIGUNG_SCHLUESSEL = "matheskript-einwilligung-v1";
 
+/* Antwort der KI sicher lesen: Kommt kein JSON zurück (z. B. eine HTML-Fehlerseite),
+   gibt es eine verständliche Meldung statt „The string did not match the expected pattern“. */
+export async function kiAntwort(res) {
+  const text = await res.text();
+  try { return JSON.parse(text); }
+  catch {
+    throw new Error(res.status === 404
+      ? "Mathilda ist auf diesem Server noch nicht eingerichtet (die KI-Schnittstelle fehlt)."
+      : `Mathilda hat gerade keine lesbare Antwort geliefert (Fehler ${res.status}). Bitte gleich noch einmal versuchen.`);
+  }
+}
+
 export const kiKopf = () => (API_URL === "/api/claude"
   ? { "Content-Type": "application/json", "X-Geraet": FR.geraetKennung() }
   : { "Content-Type": "application/json" });

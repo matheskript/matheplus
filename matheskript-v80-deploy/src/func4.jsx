@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import { API_URL, C, ganz, zuf } from "./base1.jsx";
 import { ABL_TYPEN, FORMELN, GZ_FAMILIEN, PLATZ, TASTEN_FUNK, TASTEN_PARAM, TASTEN_ZAHL, W, ohneKlammer } from "./base2.jsx";
-import { kiKopf } from "./base4.jsx";
+import { kiKopf, kiAntwort } from "./base4.jsx";
 import { Trainingsbereich, dekodieren, jsonLesen, parseZahl, rendern } from "./func1.jsx";
 import { hoch, termText, zahl } from "./func2.jsx";
 import { M, Text, alsFunktion, normieren, numAbleitung, stimmtUeberein } from "./func3.jsx";
@@ -38,7 +38,7 @@ export function FotoAufgaben() {
       const res = await fetch(API_URL, {
         method: "POST", headers: kiKopf(),
         body: JSON.stringify({
-          model: "claude-sonnet-4-6", max_tokens: 1200,
+          model: "claude-sonnet-5-5", max_tokens: 1200,
           messages: [{ role: "user", content: [
             { type: "image", source: { type: "base64", media_type: "image/jpeg", data: b64 } },
             { type: "text", text: `Auf dem Foto steht eine Mathematikaufgabe aus einem Schulbuch oder von einem Arbeitsblatt.
@@ -50,7 +50,7 @@ Die drei neuen Aufgaben sollen denselben Typ und dasselbe Niveau haben, aber and
           ] }],
         }),
       });
-      const daten = await res.json();
+      const daten = await kiAntwort(res);
       if (daten.error) throw new Error(`Die API hat abgelehnt: ${daten.error.message}`);
       const text = (daten.content || []).map((t) => (t.type === "text" ? t.text : "")).join("");
       setErg(jsonLesen(text));
@@ -1303,13 +1303,13 @@ export function AbleitungsGenerator() {
       const res = await fetch(API_URL, {
         method: "POST", headers: kiKopf(),
         body: JSON.stringify({
-          model: "claude-sonnet-4-6", max_tokens: 300,
+          model: "claude-sonnet-5-5", max_tokens: 300,
           messages: [{ role: "user", content: `Erzeuge eine neue Ableitungsaufgabe zur ${typ.regel}. Schwierigkeitsstufe ${stufe} von 5, wobei 1 sehr einfach und 5 anspruchsvolles Abiturniveau ist.
 Antworte nur mit JSON: {"tex":"die Funktion in LaTeX","f":"die Funktion in Maschinenschreibweise","fs":"ihre Ableitung in Maschinenschreibweise"}
 Maschinenschreibweise: ^ für Potenzen, * für Produkte, sin(x), cos(x), ln(x), sqrt(x), e^x. Nur die Variable x.` }],
         }),
       });
-      const daten = await res.json();
+      const daten = await kiAntwort(res);
       const text = (daten.content || []).map((t) => (t.type === "text" ? t.text : "")).join("");
       const roh = jsonLesen(text);
       const f = alsFunktion(roh.f), fs = alsFunktion(roh.fs);

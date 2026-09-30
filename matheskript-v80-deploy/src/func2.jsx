@@ -108,6 +108,28 @@ function SchulkurseLogoKlein() {
   );
 }
 
+/* Grafik für die „Frag Mathilda“-Kachel: Blatt mit handschriftlicher Rechnung im Kamera-Sucher, Häkchen. */
+function MathildaLogoKlein() {
+  const W = 230, H = 190;
+  const ecke = (x, y, dx, dy) => <path d={`M ${x} ${y + dy * 18} L ${x} ${y} L ${x + dx * 18} ${y}`} stroke={C.flaggold} strokeWidth="4" fill="none" strokeLinecap="round" />;
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
+      {Array.from({ length: 9 }, (_, i) => <line key={`v${i}`} x1={i * 28} y1="0" x2={i * 28} y2={H} stroke="rgba(255,255,255,0.05)" />)}
+      {Array.from({ length: 7 }, (_, i) => <line key={`h${i}`} x1="0" y1={i * 28} x2={W} y2={i * 28} stroke="rgba(255,255,255,0.05)" />)}
+      <g transform="rotate(-4 115 95)">
+        <rect x="42" y="34" width="146" height="122" rx="6" fill="#FFFFFF" />
+        <path d="M 58 62 q 8 -8 16 0 t 16 0 M 98 60 l 10 0 M 116 62 q 8 -8 16 0" stroke={C.seeTief} strokeWidth="2.6" fill="none" strokeLinecap="round" />
+        <path d="M 58 92 q 8 -8 16 0 M 84 90 l 10 0 M 102 92 q 8 -8 16 0 t 16 0" stroke={C.seeTief} strokeWidth="2.6" fill="none" strokeLinecap="round" />
+        <path d="M 58 122 l 10 0 M 76 124 q 8 -8 16 0" stroke={C.seeTief} strokeWidth="2.6" fill="none" strokeLinecap="round" />
+        <line x1="56" y1="132" x2="100" y2="132" stroke={C.flaggold} strokeWidth="2" />
+      </g>
+      {ecke(26, 20, 1, 1)}{ecke(204, 20, -1, 1)}{ecke(26, 170, 1, -1)}{ecke(204, 170, -1, -1)}
+      <circle cx="176" cy="138" r="20" fill={C.smaragd} stroke={C.weiss} strokeWidth="3" />
+      <path d="M 166 138 l 7 7 l 13 -14" stroke={C.weiss} strokeWidth="4" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 /* Eigenes Logo für die Polynomplotter-Kachel: Raster, Achsen, f (weiß), f′ (gold), f″ (grana gestrichelt). */
 function PlotterLogo() {
   const W = 340, H = 170, x0 = W / 2, y0 = 92, sx = 34, sy = 22;
@@ -567,6 +589,9 @@ export function Startseite({ gehe }) {
       <PlotterKachel onClick={() => gehe({ ansicht: "kurse", kurs: "penpaper" })} label="Pen & Paper öffnen" logo={<PenPaperBlatt />}
         titel="Pen & Paper"
         text="Das Fundament: klar aufschreiben, strukturiert arbeiten, sicher mit Fehlern umgehen – 7 Videolektionen." />
+      <PlotterKachel onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })} label="Frag Mathilda öffnen" logo={<MathildaLogoKlein />}
+        titel="Frag Mathilda"
+        text="Foto von deinem Blatt – Mathilda prüft deinen Rechenweg und gibt dir Feedback." />
       <PlotterKachel onClick={() => gehe({ ansicht: "analysis" })} label="Analysis öffnen" logo={<PlotterLogoKlein />}
         titel="Analysis"
         text="Polynomplotter, Advanced Plotter und Ableitungstrainer: Graphen live erkunden." />

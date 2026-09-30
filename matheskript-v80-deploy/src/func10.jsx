@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import { API_URL, C, PROMPT, REGELN, VIDEO_URL } from "./base1.jsx";
 import { KOMP } from "./base3.jsx";
-import { NAV, SCHULKLASSEN, kiKopf } from "./base4.jsx";
+import { NAV, SCHULKLASSEN, kiKopf, kiAntwort } from "./base4.jsx";
 import { Kurse, Trainingsbereich, dekodieren, jsonLesen, rendern } from "./func1.jsx";
 import { Startseite } from "./func2.jsx";
 import { Plotter, Text, Zeile } from "./func3.jsx";
@@ -114,7 +114,7 @@ export function Mathilda() {
         method: "POST",
         headers: kiKopf(),
         body: JSON.stringify({
-          model: "claude-sonnet-4-6",
+          model: "claude-sonnet-5-5",
           max_tokens: 4000,
           messages: [{
             role: "user",
@@ -125,7 +125,7 @@ export function Mathilda() {
           }],
         }),
       });
-      const data = await res.json();
+      const data = await kiAntwort(res);
       if (data.error) throw new Error(`Die API hat abgelehnt: ${data.error.message}`);
       if (!data.content) throw new Error("Die Antwort kam ohne Inhalt zurück.");
       const text = data.content.map((i) => (i.type === "text" ? i.text : "")).join("");

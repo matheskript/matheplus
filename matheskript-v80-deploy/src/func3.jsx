@@ -3,7 +3,7 @@ import { API_URL, C, DEMO_VIDEO_ID, DIFFQ_TESTPAARE, FUNKTIONEN, HOCH, KOEFF_FAR
 import { FormelReihe, KurvendiskussionAnzeige, baueReihe, markanteAllg, nullstellenAllg, schoenerSchritt, zahl } from "./func2.jsx";
 import { FR } from "./funcRegistry.jsx";
 import { PLATZ, WEG_TYPEN, gleichZahl, istLeer } from "./base2.jsx";
-import { kiKopf } from "./base4.jsx";
+import { kiKopf, kiAntwort } from "./base4.jsx";
 import { ErklaerVideo, jsonLesen, parseZahl } from "./func1.jsx";
 import { LoesungsWeg } from "./func6.jsx";
 import { merken } from "./func5.jsx";
@@ -828,7 +828,7 @@ export function Uebung({ kapitel }) {
         method: "POST",
         headers: kiKopf(),
         body: JSON.stringify({
-          model: "claude-sonnet-4-6",
+          model: "claude-sonnet-5-5",
           max_tokens: 300,
           messages: [{
             role: "user",
@@ -839,7 +839,7 @@ Maschinenschreibweise: Potenzen mit ^, Multiplikation mit *, Funktionen als sin(
           }],
         }),
       });
-      const daten = await res.json();
+      const daten = await kiAntwort(res);
       const text = (daten.content || []).map((t) => (t.type === "text" ? t.text : "")).join("");
       const roh = jsonLesen(text);
       const f = alsFunktion(roh.f), fs = alsFunktion(roh.fs);

@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import { API_URL, C, DEMO, GRENZE, KAUF_LINKS, KURSE, MODULE, M_AUSWAHL, ganz, videoZeit } from "./base1.jsx";
 import { MODUL_KATALOG } from "./base2.jsx";
 import { aktiv } from "./base3.jsx";
-import { kiKopf } from "./base4.jsx";
+import { kiKopf, kiAntwort } from "./base4.jsx";
 import { LernModul, RechenwegEditor } from "./func3.jsx";
 import { GraphZuordnung, Klausur, Kurvendiskussion } from "./func4.jsx";
 import { intervall } from "./func8.jsx";
@@ -646,7 +646,7 @@ export function KIAufgaben({ eingebettet }) {
         method: "POST",
         headers: kiKopf(),
         body: JSON.stringify({
-          model: "claude-sonnet-4-6",
+          model: "claude-sonnet-5-5",
           max_tokens: 300,
           messages: [{
             role: "user",
@@ -656,7 +656,7 @@ export function KIAufgaben({ eingebettet }) {
           }],
         }),
       });
-      const data = await res.json();
+      const data = await kiAntwort(res);
       const text = (data.content || []).map((i) => (i.type === "text" ? i.text : "")).join("");
       const roh = jsonLesen(text);
       const fertig = ausRohdaten(roh);
