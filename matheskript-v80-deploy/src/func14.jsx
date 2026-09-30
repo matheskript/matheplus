@@ -791,6 +791,7 @@ export function KopfrechnenLogoKlein() {
 const ANALYSIS = [
   { ansicht: "plotter", titel: "Polynomplotter", kurz: "Koeffizienten einstellen, Graph mit f′ und f″ live sehen — inklusive Kurvendiskussion und PDF.", zeichen: "ax³" },
   { ansicht: "advplotter", titel: "Advanced Plotter", kurz: "Beliebige Funktionen mit sin, cos, ln, eˣ, Wurzeln und Brüchen bauen und untersuchen.", zeichen: "sin" },
+  { ansicht: "sinus", titel: "Sinusfunktion", kurz: "Parameter a, b, c und d finden, bis der Graph passt – mit Periode, Ableitung und Nullstellen.", zeichen: "∿" },
   { ansicht: "ableitungstrainer", titel: "Ableitungstrainer", kurz: "f′, f″ und f‴ per Tastenfeld eingeben und sofort prüfen lassen.", zeichen: "f′" },
 ];
 
@@ -801,8 +802,8 @@ export function AnalysisZentrum({ gehe }) {
         Funktionen sehen, verstehen, ableiten
       </h2>
       <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 22 }}>
-        Drei Werkzeuge für die Analysis: Graphen live erkunden, komplette Kurvendiskussionen erzeugen und das
-        Ableiten trainieren.
+        Vier Werkzeuge für die Analysis: Graphen live erkunden, komplette Kurvendiskussionen erzeugen,
+        Sinusfunktionen anpassen und das Ableiten trainieren.
       </p>
       {ANALYSIS.map((x) => (
         <button key={x.ansicht} onClick={() => gehe({ ansicht: x.ansicht })} className="w-full px-5 py-5 mb-3"
