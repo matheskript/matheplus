@@ -135,8 +135,276 @@ export const VIDEOKURSE = {
     ],
   },
   analysis1: {
+    titel: "Geraden verstehen",
+    intro: "Fünf Lektionen rund um die lineare Funktion: Steigung, Achsenabschnitt, Geradengleichungen aufstellen, Schnittpunkte und die Lage zweier Geraden. Das Fundament, auf dem die ganze Analysis steht.",
+    lektionen: [
+      {
+        id: "g1", kapitel: "Grundlagen", titel: "Die Geradengleichung y = mx + b", youtube: "VTl1ht-G5Qk",
+        worum: "Jede nicht senkrechte Gerade lässt sich als f(x) = mx + b schreiben. m ist die Steigung – um wie viel f wächst, wenn x um 1 wächst –, b ist der y-Achsenabschnitt, also der Funktionswert an der Stelle 0.",
+        mitnehmen: [
+          "m > 0: steigend, m < 0: fallend, m = 0: waagerecht",
+          "b ist der Schnittpunkt mit der y-Achse: S_y(0 | b)",
+          "Nullstelle: mx + b = 0 ⇔ x = −b/m (für m ≠ 0)",
+        ],
+        merksatz: "m sagt, wie steil – b sagt, wo die Gerade die y-Achse trifft.",
+        check: {
+          frage: "Welche Steigung und welchen y-Achsenabschnitt hat f(x) = −2x + 5?",
+          optionen: ["m = 5, b = −2", "m = −2, b = 5", "m = 2, b = 5"],
+          richtig: 1,
+          erklaerung: "In f(x) = mx + b steht die Steigung vor dem x, der Achsenabschnitt ist die Zahl ohne x: m = −2, b = 5.",
+        },
+        ueben: { label: "Polynomplotter (a = b = 0)", ansicht: "plotter" },
+      },
+      {
+        id: "g2", kapitel: "Grundlagen", titel: "Steigung mit dem Steigungsdreieck", youtube: "28W1JyerKuA",
+        worum: "Die Steigung ist ein Verhältnis: Höhenunterschied durch Längenunterschied. Mit zwei Punkten P(x₁ | y₁) und Q(x₂ | y₂) berechnest du sie über den Differenzenquotienten – dieselbe Idee, aus der später die Ableitung entsteht.",
+        mitnehmen: [
+          "m = (y₂ − y₁) / (x₂ − x₁) – „Δy durch Δx“",
+          "Das Steigungsdreieck darf beliebig groß sein, das Verhältnis bleibt gleich",
+          "Reihenfolge der Punkte egal – aber oben und unten dieselbe",
+        ],
+        merksatz: "Steigung = Höhenunterschied geteilt durch Längenunterschied.",
+        check: {
+          frage: "Wie groß ist die Steigung der Geraden durch P(1 | 2) und Q(4 | 11)?",
+          optionen: ["3", "1/3", "9"],
+          richtig: 0,
+          erklaerung: "m = (11 − 2) / (4 − 1) = 9 / 3 = 3.",
+        },
+        ueben: { label: "Differenzenquotient-Trainer", ansicht: "diffq" },
+      },
+      {
+        id: "g3", kapitel: "Aufstellen", titel: "Geradengleichung aus zwei Punkten", youtube: "qwwkQyRURuo",
+        worum: "Aus zwei Punkten wird eine Gleichung: erst m über den Differenzenquotienten, dann einen Punkt in y = mx + b einsetzen und nach b auflösen. Zwei Schritte, jedes Mal gleich.",
+        mitnehmen: [
+          "Schritt 1: m = (y₂ − y₁) / (x₂ − x₁)",
+          "Schritt 2: Punkt einsetzen, nach b auflösen",
+          "Probe mit dem zweiten Punkt – kostet zehn Sekunden",
+        ],
+        merksatz: "Erst m, dann b – und am Ende die Probe mit dem anderen Punkt.",
+        check: {
+          frage: "Die Gerade durch P(0 | 1) und Q(2 | 5) hat welche Gleichung?",
+          optionen: ["y = 2x + 1", "y = 3x + 1", "y = 2x + 5"],
+          richtig: 0,
+          erklaerung: "m = (5 − 1) / (2 − 0) = 2. P liegt auf der y-Achse, also b = 1: y = 2x + 1. Probe: 2 · 2 + 1 = 5 ✓.",
+        },
+      },
+      {
+        id: "g4", kapitel: "Lage", titel: "Schnittpunkt zweier Geraden", youtube: "HAiLYnT4Enc",
+        worum: "Wo sich zwei Geraden schneiden, haben sie denselben x- und denselben y-Wert. Also setzt du die Funktionsterme gleich, löst nach x auf und setzt x in eine der Gleichungen ein.",
+        mitnehmen: [
+          "Gleichsetzen: f(x) = g(x)",
+          "x ausrechnen, dann y = f(x)",
+          "Gleiche Steigung, verschiedenes b: parallel, kein Schnittpunkt",
+        ],
+        merksatz: "Schnittpunkt heißt: gleichsetzen, x finden, y nachrechnen.",
+        check: {
+          frage: "Wo schneiden sich f(x) = 2x − 1 und g(x) = −x + 5?",
+          optionen: ["S(2 | 3)", "S(3 | 2)", "S(−2 | −5)"],
+          richtig: 0,
+          erklaerung: "2x − 1 = −x + 5 ⇔ 3x = 6 ⇔ x = 2. f(2) = 3, also S(2 | 3).",
+        },
+      },
+      {
+        id: "g5", kapitel: "Lage", titel: "Parallele und senkrechte Geraden", youtube: "Mw5r1ISG7-o",
+        worum: "Parallele Geraden haben dieselbe Steigung. Senkrechte (orthogonale) Geraden erkennst du daran, dass das Produkt ihrer Steigungen −1 ergibt – die eine Steigung ist der negative Kehrwert der anderen.",
+        mitnehmen: [
+          "Parallel: m₁ = m₂",
+          "Orthogonal: m₁ · m₂ = −1 ⇔ m₂ = −1/m₁",
+          "Senkrechte durch einen Punkt: Steigung bestimmen, Punkt einsetzen",
+        ],
+        merksatz: "Senkrecht heißt: Kehrwert nehmen und das Vorzeichen umdrehen.",
+        check: {
+          frage: "Welche Steigung hat eine Gerade, die senkrecht auf y = 4x − 3 steht?",
+          optionen: ["−4", "1/4", "−1/4"],
+          richtig: 2,
+          erklaerung: "m₂ = −1/m₁ = −1/4. Probe: 4 · (−1/4) = −1 ✓.",
+        },
+      },
+    ],
+  },
+  analysis2: {
+    titel: "Polynome im Griff",
+    intro: "Fünf Lektionen zu ganzrationalen Funktionen: Grad und Leitkoeffizient, Verhalten im Unendlichen, Symmetrie, Nullstellen und Polynomdivision. Danach liest du einem Funktionsterm seinen Graphen ab, bevor du rechnest.",
+    lektionen: [
+      {
+        id: "p1", kapitel: "Grundlagen", titel: "Grad und Leitkoeffizient", youtube: "97X1F2EX2Yg",
+        worum: "Eine ganzrationale Funktion ist eine Summe von Potenzen von x mit Zahlen davor. Die höchste Potenz ist der Grad, die Zahl davor der Leitkoeffizient – zusammen bestimmen sie die Grundform des Graphen.",
+        mitnehmen: [
+          "f(x) = aₙxⁿ + … + a₁x + a₀ mit aₙ ≠ 0",
+          "Grad n: höchste vorkommende Potenz",
+          "Höchstens n Nullstellen und höchstens n − 1 Extrempunkte",
+        ],
+        merksatz: "Grad und Leitkoeffizient verraten die Grundform – der Rest formt die Details.",
+        check: {
+          frage: "Welchen Grad und welchen Leitkoeffizienten hat f(x) = 3x² − 2x⁴ + x − 7?",
+          optionen: ["Grad 2, Leitkoeffizient 3", "Grad 4, Leitkoeffizient −2", "Grad 4, Leitkoeffizient −7"],
+          richtig: 1,
+          erklaerung: "Die höchste Potenz ist x⁴ mit dem Faktor −2. Die Reihenfolge der Summanden spielt keine Rolle.",
+        },
+        ueben: { label: "Polynomplotter", ansicht: "plotter" },
+      },
+      {
+        id: "p2", kapitel: "Grundlagen", titel: "Verhalten im Unendlichen", youtube: "kGs-aUTQZVs",
+        worum: "Für sehr große |x| dominiert der Summand mit der höchsten Potenz. Deshalb reichen Grad (gerade oder ungerade) und das Vorzeichen des Leitkoeffizienten, um zu sagen, wohin der Graph links und rechts verläuft.",
+        mitnehmen: [
+          "Gerader Grad: beide Enden in dieselbe Richtung",
+          "Ungerader Grad: die Enden in entgegengesetzte Richtungen",
+          "Leitkoeffizient > 0: rechts nach +∞",
+        ],
+        merksatz: "Im Unendlichen zählt nur der Summand mit der höchsten Potenz.",
+        check: {
+          frage: "Wie verläuft f(x) = −x³ + 5x für x → +∞?",
+          optionen: ["f(x) → +∞", "f(x) → −∞", "f(x) → 0"],
+          richtig: 1,
+          erklaerung: "Der höchste Summand ist −x³. Für große positive x ist x³ riesig, mit dem Minus davor geht f(x) → −∞.",
+        },
+      },
+      {
+        id: "p3", kapitel: "Eigenschaften", titel: "Symmetrie", youtube: "-vNj5TMwB5k",
+        worum: "Kommen nur gerade Exponenten vor, ist der Graph achsensymmetrisch zur y-Achse. Kommen nur ungerade vor, ist er punktsymmetrisch zum Ursprung. Gemischt: keine dieser Symmetrien.",
+        mitnehmen: [
+          "Nur gerade Exponenten (auch x⁰): f(−x) = f(x), achsensymmetrisch",
+          "Nur ungerade Exponenten: f(−x) = −f(x), punktsymmetrisch",
+          "Formal immer mit f(−x) nachweisen",
+        ],
+        merksatz: "Gerade Exponenten – Spiegel an der y-Achse. Ungerade – Drehung um den Ursprung.",
+        check: {
+          frage: "Welche Symmetrie hat f(x) = x⁴ − 3x² + 2?",
+          optionen: ["Achsensymmetrie zur y-Achse", "Punktsymmetrie zum Ursprung", "Keine"],
+          richtig: 0,
+          erklaerung: "Alle Exponenten sind gerade (4, 2 und 0 bei der Konstanten). Also gilt f(−x) = f(x).",
+        },
+      },
+      {
+        id: "p4", kapitel: "Nullstellen", titel: "Nullstellen berechnen", youtube: "e7Exrrn1U-w",
+        worum: "Welche Technik passt, erkennst du am Term: kein konstanter Summand – x ausklammern. Quadratisch – pq- oder abc-Formel. Nur x⁴ und x² – Substitution. Und wenn nichts davon geht, hilft eine geratene Nullstelle mit Polynomdivision.",
+        mitnehmen: [
+          "Ausklammern + Satz vom Nullprodukt",
+          "pq-Formel: x = −p/2 ± √((p/2)² − q)",
+          "Substitution z = x² bei biquadratischen Gleichungen",
+        ],
+        merksatz: "Erst den Term anschauen, dann die Technik wählen – nicht umgekehrt.",
+        check: {
+          frage: "Welche Technik ist für x⁴ − 5x² + 4 = 0 am geschicktesten?",
+          optionen: ["x ausklammern", "Substitution z = x²", "Polynomdivision"],
+          richtig: 1,
+          erklaerung: "Es kommen nur x⁴ und x² vor. Mit z = x² wird daraus z² − 5z + 4 = 0 mit z = 1 und z = 4, also x = ±1 und x = ±2.",
+        },
+        ueben: { label: "Polynomplotter", ansicht: "plotter" },
+      },
+      {
+        id: "p5", kapitel: "Nullstellen", titel: "Polynomdivision", youtube: "7uGnCErxzxw",
+        worum: "Kennst du eine Nullstelle x₀ – meist durch Raten unter den Teilern des Absolutglieds –, kannst du den Linearfaktor (x − x₀) abspalten. Übrig bleibt ein Polynom mit einem Grad weniger, das du mit den bekannten Techniken löst.",
+        mitnehmen: [
+          "Nullstelle raten: Teiler des Absolutglieds testen",
+          "f(x) : (x − x₀) geht ohne Rest auf",
+          "Das Ergebnis hat Grad n − 1",
+        ],
+        merksatz: "Eine Nullstelle raten, abspalten, den Rest mit pq-Formel lösen.",
+        check: {
+          frage: "f(x) = x³ − 6x² + 11x − 6 hat die Nullstelle x = 1. Was ergibt f(x) : (x − 1)?",
+          optionen: ["x² − 5x + 6", "x² − 6x + 11", "x² + 5x − 6"],
+          richtig: 0,
+          erklaerung: "Die Division ergibt x² − 5x + 6 = (x − 2)(x − 3). Also hat f die Nullstellen 1, 2 und 3.",
+        },
+        ueben: { label: "Polynomplotter mit Polynomdivision", ansicht: "plotter" },
+      },
+    ],
+  },
+  analysis3: {
+    titel: "Mehr als Polynome",
+    intro: "Fünf Funktionsklassen, an denen im Abitur viele Punkte hängen: e-Funktion, natürlicher Logarithmus, Sinus und Kosinus, Wurzelfunktionen und gebrochenrationale Funktionen – jeweils mit Graph, Definitionsbereich und den typischen Eigenschaften.",
+    lektionen: [
+      {
+        id: "f1", kapitel: "Exponential", titel: "Die e-Funktion", youtube: "xRftyh3kC_Q",
+        worum: "Die natürliche Exponentialfunktion f(x) = eˣ ist die einzige Funktion, die ihre eigene Ableitung ist. Sie ist immer positiv, streng monoton steigend und nähert sich für x → −∞ der x-Achse an.",
+        mitnehmen: [
+          "e ≈ 2,71828, eˣ > 0 für alle x",
+          "(eˣ)′ = eˣ",
+          "Waagerechte Asymptote y = 0 für x → −∞",
+        ],
+        merksatz: "eˣ ist nie null – eine Gleichung eˣ = 0 hat keine Lösung.",
+        check: {
+          frage: "Wie viele Nullstellen hat f(x) = eˣ?",
+          optionen: ["Keine", "Genau eine bei x = 0", "Genau eine bei x = 1"],
+          richtig: 0,
+          erklaerung: "eˣ ist für jedes x positiv, erreicht die 0 also nie. Bei x = 0 ist f(0) = 1 – das ist der y-Achsenabschnitt, keine Nullstelle.",
+        },
+        ueben: { label: "Advanced Plotter", ansicht: "advplotter" },
+      },
+      {
+        id: "f2", kapitel: "Exponential", titel: "Der natürliche Logarithmus", youtube: "FZ_OLFMlS6o",
+        worum: "ln ist die Umkehrfunktion von eˣ: ln(x) beantwortet die Frage „e hoch wie viel ergibt x?“. Deshalb ist ln nur für positive x definiert, hat die Nullstelle x = 1 und löst Gleichungen wie eˣ = 5.",
+        mitnehmen: [
+          "D = ]0; ∞[, Nullstelle bei x = 1",
+          "ln(eˣ) = x und e^(ln x) = x",
+          "(ln x)′ = 1/x",
+        ],
+        merksatz: "ln macht eˣ rückgängig – und umgekehrt.",
+        check: {
+          frage: "Wie löst man eˣ = 5?",
+          optionen: ["x = 5/e", "x = ln(5)", "x = e⁵"],
+          richtig: 1,
+          erklaerung: "Auf beiden Seiten ln anwenden: ln(eˣ) = ln(5), also x = ln(5) ≈ 1,609.",
+        },
+        ueben: { label: "Advanced Plotter", ansicht: "advplotter" },
+      },
+      {
+        id: "f3", kapitel: "Periodisch", titel: "Sinus und Kosinus", youtube: "d_u7yYf30yA",
+        worum: "f(x) = a · sin(b(x − c)) + d: a streckt in y-Richtung (Amplitude), b verändert die Periode, c verschiebt nach rechts, d nach oben. So modellierst du alles, was sich regelmäßig wiederholt.",
+        mitnehmen: [
+          "Amplitude |a|, Periode p = 2π / b",
+          "c: Verschiebung in x-Richtung, d: Mittellinie y = d",
+          "(sin x)′ = cos x, (cos x)′ = −sin x",
+        ],
+        merksatz: "a für die Höhe, b für die Breite, c und d fürs Verschieben.",
+        check: {
+          frage: "Welche Periode hat f(x) = 3 · sin(2x)?",
+          optionen: ["2π", "π", "3"],
+          richtig: 1,
+          erklaerung: "p = 2π / b = 2π / 2 = π. Die 3 ist die Amplitude und ändert die Periode nicht.",
+        },
+        ueben: { label: "Advanced Plotter", ansicht: "advplotter" },
+      },
+      {
+        id: "f4", kapitel: "Weitere", titel: "Wurzelfunktionen", youtube: "b9m7O_fSzvY",
+        worum: "Die Wurzelfunktion f(x) = √x ist die Umkehrfunktion von x² für x ≥ 0. Ihr Definitionsbereich ist eingeschränkt – unter der Wurzel darf nichts Negatives stehen –, und ihr Graph startet mit senkrechter Tangente im Ursprung.",
+        mitnehmen: [
+          "D: Radikand ≥ 0 – bei √(x − 2) also x ≥ 2",
+          "(√x)′ = 1 / (2√x)",
+          "Verschiebungen wie bei Parabeln: √(x − c) + d",
+        ],
+        merksatz: "Bei jeder Wurzel zuerst fragen: Wo ist der Radikand nicht negativ?",
+        check: {
+          frage: "Welchen Definitionsbereich hat f(x) = √(3 − x)?",
+          optionen: ["x ≥ 3", "x ≤ 3", "alle reellen Zahlen"],
+          richtig: 1,
+          erklaerung: "3 − x ≥ 0 ⇔ x ≤ 3.",
+        },
+        ueben: { label: "Advanced Plotter", ansicht: "advplotter" },
+      },
+      {
+        id: "f5", kapitel: "Weitere", titel: "Gebrochenrationale Funktionen", youtube: "WtvNDLmftV0",
+        worum: "Ein Bruch aus zwei Polynomen. Wo der Nenner null wird, ist die Funktion nicht definiert – dort liegt eine Polstelle mit senkrechter Asymptote oder eine hebbare Lücke. Der Vergleich der Grade von Zähler und Nenner liefert das Verhalten im Unendlichen.",
+        mitnehmen: [
+          "Definitionslücken: Nullstellen des Nenners",
+          "Pol mit senkrechter Asymptote, wenn der Zähler dort nicht auch 0 ist",
+          "Zählergrad < Nennergrad: waagerechte Asymptote y = 0",
+        ],
+        merksatz: "Erst den Nenner untersuchen – er entscheidet über Lücken und Pole.",
+        check: {
+          frage: "Welche senkrechte Asymptote hat f(x) = (x + 1) / (x − 2)?",
+          optionen: ["x = −1", "x = 2", "y = 1"],
+          richtig: 1,
+          erklaerung: "Der Nenner wird bei x = 2 null, der Zähler dort nicht (3 ≠ 0). Also Pol mit senkrechter Asymptote x = 2. y = 1 ist die waagerechte Asymptote.",
+        },
+        ueben: { label: "Advanced Plotter", ansicht: "advplotter" },
+      },
+    ],
+  },
+  analysis4: {
     titel: "Der Weg zur Kurvendiskussion",
-    intro: "Fünf Lektionen, eine Kette: von der Steigung zwischen zwei Punkten bis zur vollständigen Kurvendiskussion. Jede Lektion baut auf der vorherigen auf – schau sie in dieser Reihenfolge.",
+    intro: "Fünf Lektionen, eine Kette: vom Differenzenquotienten über die Ableitungsregeln bis zur vollständigen Kurvendiskussion. Jede Lektion baut auf der vorherigen auf – schau sie in dieser Reihenfolge.",
     lektionen: [
       {
         id: "a1", kapitel: "Grundlagen", titel: "Vom Differenzenquotienten zur Ableitung", youtube: "7xd_G5uIp7k",
@@ -226,6 +494,94 @@ export const VIDEOKURSE = {
     ],
   },
 
+  analysis5: {
+    titel: "Integrale und Flächen",
+    intro: "Fünf Lektionen, eine Umkehrung: Aus der Ableitung wird die Stammfunktion, aus der Stammfunktion das Integral – und damit Flächen, Flächen zwischen Graphen und Rotationsvolumina.",
+    lektionen: [
+      {
+        id: "i1", kapitel: "Grundlagen", titel: "Stammfunktionen bilden", youtube: "q92R2rwmov0",
+        worum: "Eine Stammfunktion F ist eine Funktion, deren Ableitung f ist. Du bildest sie, indem du die Ableitungsregeln rückwärts anwendest – bei Potenzen: Exponent um 1 erhöhen und durch den neuen Exponenten teilen.",
+        mitnehmen: [
+          "F′(x) = f(x)",
+          "xⁿ → xⁿ⁺¹ / (n + 1) für n ≠ −1",
+          "Jede Stammfunktion + C ist wieder eine Stammfunktion",
+        ],
+        merksatz: "Probe durch Ableiten: F′ muss wieder f ergeben.",
+        check: {
+          frage: "Welche Funktion ist eine Stammfunktion von f(x) = 3x²?",
+          optionen: ["F(x) = 6x", "F(x) = x³", "F(x) = 3x³"],
+          richtig: 1,
+          erklaerung: "x² → x³/3, mal 3 ergibt x³. Probe: (x³)′ = 3x² ✓.",
+        },
+      },
+      {
+        id: "i2", kapitel: "Grundlagen", titel: "Der Hauptsatz", youtube: "I4dVI2kqXJU",
+        worum: "Der Hauptsatz der Differential- und Integralrechnung verbindet beides: Das bestimmte Integral von a bis b ist die Differenz der Stammfunktionswerte, ∫ₐᵇ f(x) dx = F(b) − F(a). Eine Fläche wird so zur einfachen Rechnung.",
+        mitnehmen: [
+          "∫ₐᵇ f(x) dx = [F(x)]ₐᵇ = F(b) − F(a)",
+          "Die Konstante C fällt bei der Differenz weg",
+          "Sauber notieren: erst die eckige Klammer, dann einsetzen",
+        ],
+        merksatz: "Stammfunktion bilden, obere Grenze minus untere Grenze.",
+        check: {
+          frage: "Wie groß ist ∫₀² 3x² dx?",
+          optionen: ["12", "8", "6"],
+          richtig: 1,
+          erklaerung: "[x³]₀² = 2³ − 0³ = 8.",
+        },
+        ueben: { label: "Polynomplotter (Nullstellenintegrale)", ansicht: "plotter" },
+      },
+      {
+        id: "i3", kapitel: "Flächen", titel: "Fläche mit der x-Achse", youtube: "lP1sALCSxQs",
+        worum: "Das Integral zählt Flächen unter der x-Achse negativ – es ist eine Flächenbilanz. Wer die echte Fläche will, zerlegt an den Nullstellen und addiert die Beträge der Teilintegrale.",
+        mitnehmen: [
+          "Zuerst die Nullstellen im Intervall bestimmen",
+          "Einzelintegrale zwischen den Nullstellen berechnen",
+          "Fläche = Summe der Beträge",
+        ],
+        merksatz: "Integral ist Bilanz, Fläche ist Betrag – an den Nullstellen trennen.",
+        check: {
+          frage: "∫₋₁¹ x³ dx = 0. Wie groß ist die Fläche zwischen Graph und x-Achse von −1 bis 1?",
+          optionen: ["0", "1/2", "1/4"],
+          richtig: 1,
+          erklaerung: "Zerlegen bei 0: |∫₋₁⁰ x³ dx| + |∫₀¹ x³ dx| = 1/4 + 1/4 = 1/2.",
+        },
+        ueben: { label: "Polynomplotter (Nullstellenintegrale)", ansicht: "plotter" },
+      },
+      {
+        id: "i4", kapitel: "Flächen", titel: "Fläche zwischen zwei Graphen", youtube: "IZl59-G6rBo",
+        worum: "Die Fläche zwischen f und g berechnest du über die Differenzfunktion d(x) = f(x) − g(x). Die Schnittstellen von f und g sind die Nullstellen von d – und damit die Grenzen.",
+        mitnehmen: [
+          "Schnittstellen: f(x) = g(x)",
+          "A = |∫ (f(x) − g(x)) dx| zwischen benachbarten Schnittstellen",
+          "Bei mehreren Schnittstellen: Teilflächen einzeln, Beträge addieren",
+        ],
+        merksatz: "Erst die Differenzfunktion, dann wie bei der Fläche mit der x-Achse.",
+        check: {
+          frage: "Welche Grenzen hat die Fläche zwischen f(x) = x² und g(x) = x?",
+          optionen: ["0 und 1", "−1 und 1", "0 und 2"],
+          richtig: 0,
+          erklaerung: "x² = x ⇔ x(x − 1) = 0 ⇔ x = 0 oder x = 1.",
+        },
+      },
+      {
+        id: "i5", kapitel: "Anwendung", titel: "Rotationskörper", youtube: "qmv_w0MoyaA",
+        worum: "Dreht sich der Graph von f um die x-Achse, entsteht ein Körper. Sein Volumen setzt sich aus unendlich dünnen Kreisscheiben mit Radius f(x) zusammen: V = π · ∫ₐᵇ (f(x))² dx.",
+        mitnehmen: [
+          "V = π · ∫ₐᵇ f(x)² dx",
+          "Erst quadrieren, dann integrieren – nicht umgekehrt",
+          "Einheit: Volumeneinheiten (VE)",
+        ],
+        merksatz: "Kreisscheiben aufsummieren: π mal das Integral über f².",
+        check: {
+          frage: "Welches Volumen hat der Körper, der entsteht, wenn f(x) = √x über [0; 2] um die x-Achse rotiert?",
+          optionen: ["2π", "4π", "π"],
+          richtig: 0,
+          erklaerung: "V = π · ∫₀² (√x)² dx = π · ∫₀² x dx = π · [x²/2]₀² = 2π.",
+        },
+      },
+    ],
+  },
   vektoren: {
     titel: "Geometrie im Raum",
     intro: "Vom einzelnen Vektor bis zur Ebene: In fünf Lektionen baust du die Werkzeuge der analytischen Geometrie auf – und für jede typische Abiturfrage ein festes Verfahren.",

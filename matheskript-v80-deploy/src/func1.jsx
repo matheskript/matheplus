@@ -863,6 +863,37 @@ export function KursGrafik({ art, hoehe = 150 }) {
         <line key={y} x1="0" y1={y} x2={w} y2={y} stroke="rgba(255,255,255,0.07)" strokeWidth="1" />
       ))}
 
+      {art === "gerade" && (
+        <>
+          {/* zwei sich schneidende Geraden mit Steigungsdreieck */}
+          <line x1="20" y1="135" x2="320" y2="130" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" />
+          <line x1="40" y1="130" x2="300" y2="22" stroke={C.weiss} strokeWidth="2.5" />
+          <line x1="40" y1="30" x2="300" y2="118" stroke={C.gruen} strokeWidth="2.5" />
+          <path d="M 110 100.9 L 190 100.9 L 190 67.7" stroke={C.flaggold} strokeWidth="2" fill="none" strokeDasharray="5 4" />
+          <circle cx="172.6" cy="74.9" r="5.5" fill={C.flaggold} />
+        </>
+      )}
+
+      {art === "polynom" && (
+        <>
+          {/* kubische Parabel mit drei markierten Nullstellen */}
+          <line x1="20" y1="80" x2="320" y2="80" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" />
+          <path d="M 30 140 C 60 20, 110 20, 140 80 C 165 128, 205 128, 230 80 C 250 45, 280 25, 315 10" stroke={C.weiss} strokeWidth="2.5" fill="none" />
+          {[56, 140, 230].map((x) => <circle key={x} cx={x} cy="80" r="5.5" fill={C.flaggold} />)}
+        </>
+      )}
+
+      {art === "funktionen" && (
+        <>
+          {/* e-Funktion, Sinuswelle und Hyperbelast */}
+          <line x1="20" y1="120" x2="320" y2="120" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" />
+          <path d="M 20 116 C 120 114, 190 100, 230 60 C 250 40, 262 22, 270 8" stroke={C.weiss} strokeWidth="2.5" fill="none" />
+          <path d="M 20 80 C 45 50, 70 50, 95 80 C 120 110, 145 110, 170 80 C 195 50, 220 50, 245 80 C 270 110, 295 110, 320 80"
+            stroke={C.gruen} strokeWidth="2.3" fill="none" opacity="0.9" />
+          <path d="M 250 146 C 262 120, 285 104, 320 98" stroke={C.flaggold} strokeWidth="2.3" fill="none" />
+        </>
+      )}
+
       {art === "kurve" && (
         <>
           <path d="M 20 130 C 70 20, 110 20, 150 75 C 190 130, 240 130, 320 30"

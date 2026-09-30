@@ -84,7 +84,7 @@ export const NAV = [
   ] },
   { id: "lernen", name: "Lernen", kurz: "Verstehen, herleiten, nachschlagen", eintraege: [
     { name: "Arbeitsheft", kurz: "Acht Bausteine mit Herleitung und Aufgaben", ansicht: "training", ziel: "module" },
-    { name: "Schulkurse", kurz: "Analysis, Vektoren und Stochastik – mit Videokurs", ansicht: "kurse" },
+    { name: "Schulkurse", kurz: "Analysis 1–5, Vektoren, Stochastik, Pen & Paper – mit Videokurs", ansicht: "kurse" },
     { name: "Differenzenquotient", kurz: "Vom Tangentenproblem zur Ableitung", ansicht: "diffq" },
     { name: "Formelsammlung", kurz: "Alle Regeln zum Nachschlagen", ansicht: "formeln" },
     { name: "Operatoren", kurz: "Was „bestimmen“, „zeigen“, „begründen“ verlangen", ansicht: "operatoren" },

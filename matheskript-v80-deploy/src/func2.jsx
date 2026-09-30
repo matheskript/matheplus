@@ -241,7 +241,7 @@ export function Startseite({ gehe }) {
       meta: "Generator · Rechenweg · Klausur mit Uhr",
       ziel: { ansicht: "ki", ziel: null } },
     { id: "kurse", titel: "Schulkurse", motiv: <MotivKurse />,
-      satz: "Ein Halbjahr, ein klarer Plan. Analysis, Vektoren und Stochastik — jeweils vollständig von Grund auf, mit Videokurs.",
+      satz: "Ein klarer Plan für jedes Thema. Analysis in fünf Kursen, Vektoren, Stochastik und Pen & Paper — jeweils von Grund auf, mit Videokurs.",
       meta: "vier Kurse · je 100 €",
       ziel: { ansicht: "kurse" } },
   ];
@@ -581,7 +581,7 @@ export function Startseite({ gehe }) {
         text="Primfaktoren, Quadratzahlen, Brüche und Einmaleins – schnelle Runden auf Zeit." />
       <PlotterKachel onClick={() => gehe({ ansicht: "kurse" })} label="Schulkurse öffnen" logo={<SchulkurseLogoKlein />}
         titel="Schulkurse"
-        text="Analysis, Vektoren und Stochastik – mit Videolektionen und Kurz-Checks." />
+        text="Analysis 1–5, Vektoren, Stochastik und Pen & Paper – mit Videolektionen und Kurz-Checks." />
 
       {wieder ? (
         <><Heute /><Kacheln /><System /><Fortschritt2 /><Eltern /><Coaching /></>
