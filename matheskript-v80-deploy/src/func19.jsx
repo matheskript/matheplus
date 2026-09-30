@@ -47,7 +47,7 @@ export function Bruch({ oben, unten, gross }) {
   );
 }
 
-function Wurzel({ children }) {
+export function Wurzel({ children }) {
   return (
     <span style={{ display: "inline-flex", alignItems: "stretch", whiteSpace: "nowrap" }}>
       <span style={{ fontWeight: 400, transform: "scaleY(1.15)", marginRight: 1 }}>√</span>

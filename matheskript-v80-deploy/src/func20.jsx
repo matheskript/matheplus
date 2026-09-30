@@ -12,7 +12,7 @@
 import React, { useRef, useState } from "react";
 import { C } from "./base1.jsx";
 import { DrehKnoepfe, FARBE_ACHSE, ebenenPolygon, kamera } from "./func16.jsx";
-import { Einzeilig, SpaltenVektor, VecName, kreuz, minus, skalar, strahlImWuerfel } from "./func19.jsx";
+import { Bruch, Einzeilig, SpaltenVektor, VecName, Wurzel, ggT, kreuz, minus, skalar, strahlImWuerfel } from "./func19.jsx";
 
 const FA = C.see, FB = C.gruen, FE = "#8A6D00", FS = C.smaragd;
 
@@ -99,13 +99,41 @@ function neueAufgabe(art) {
       while (kreuz(ab, ac).every((x) => x === 0)) { P = vektor(4); ac = P.map((x, i) => x - A[i]); }
       return { art, A, B, C: P };
     }
+    case "abstandPE": {
+      let nv = vektor(4);
+      while (nv.every((x) => x === 0)) nv = vektor(4);
+      const Q = vektor(3), Pp = vektor(5);
+      return { art, n: nv, d: skalar(nv, Q), P: Pp };
+    }
+    case "abstandPG": {
+      // Lotfußpunkt ganzzahlig: F = A + t0·u, P = F + w mit w ⟂ u
+      for (;;) {
+        const A = vektor(4), u = vektor(3);
+        const t0 = rnd(-2, 2);
+        const e = [[1, 0, 0], [0, 1, 0], [0, 0, 1]][rnd(0, 2)].map((x) => x * (Math.random() < 0.5 ? -1 : 1));
+        const w = kreuz(u, e);
+        if (w.every((x) => x === 0)) continue;
+        const F = A.map((x, i) => x + t0 * u[i]);
+        const P = F.map((x, i) => x + w[i]);
+        if ([...P, ...F].some((x) => Math.abs(x) > 8)) continue;
+        return { art, A, u, P, t0, F };
+      }
+    }
+    case "abstandGG": {
+      for (;;) {
+        const A = vektor(4), u = vektor(3), B = vektor(4), v = vektor(3);
+        const nv = kreuz(u, v);
+        if (nv.every((x) => x === 0)) continue;
+        return { art, A, u, B, v };
+      }
+    }
     default: return null;
   }
 }
 
 /* ---------- 3D-Schaubild (Punkte, Gerade, Ebene) ---------- */
 
-function Raum3({ punkte, gerade, ebene }) {
+function Raum3({ punkte, gerade, gerade2, lot, ebene }) {
   const [phi, setPhi] = useState(0.62);
   const [theta, setTheta] = useState(0.42);
   const maxK = Math.max(4, ...punkte.flatMap((p) => p.p.map(Math.abs)));
@@ -116,6 +144,7 @@ function Raum3({ punkte, gerade, ebene }) {
   const pfad = (pts) => pts.map((p, i) => `${i ? "L" : "M"}${P(p)[0].toFixed(1)},${P(p)[1].toFixed(1)}`).join(" ") + " Z";
   const poly = ebene ? ebenenPolygon(ebene.n, ebene.d, L) : [];
   const strecke = gerade ? strahlImWuerfel(gerade.p, gerade.r, L) : null;
+  const strecke2 = gerade2 ? strahlImWuerfel(gerade2.p, gerade2.r, L) : null;
 
   const ziehen = useRef(null);
   const start = (e) => { ziehen.current = { x: e.clientX, y: e.clientY, phi, theta }; e.currentTarget.setPointerCapture?.(e.pointerId); };
@@ -153,7 +182,11 @@ function Raum3({ punkte, gerade, ebene }) {
         {ebene && punkte.length === 3 && <path d={pfad(punkte.map((x) => x.p))} fill={C.flaggold} fillOpacity="0.25" stroke={FE} strokeWidth="1.4" />}
         {strecke && (() => { const [x1, y1] = P(strecke[0]), [x2, y2] = P(strecke[1]);
           return <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={FE} strokeWidth="2.6" strokeLinecap="round" />; })()}
-        {gerade && (() => { const [x1, y1] = P(gerade.p), [x2, y2] = P(gerade.p.map((v, i) => v + gerade.r[i]));
+        {strecke2 && (() => { const [x1, y1] = P(strecke2[0]), [x2, y2] = P(strecke2[1]);
+          return <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={C.see} strokeWidth="2.6" strokeLinecap="round" />; })()}
+        {lot && (() => { const [x1, y1] = P(lot[0]), [x2, y2] = P(lot[1]);
+          return <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={C.gruen} strokeWidth="2.4" strokeDasharray="5 4" />; })()}
+        {gerade && !gerade.ohnePfeil && (() => { const [x1, y1] = P(gerade.p), [x2, y2] = P(gerade.p.map((v, i) => v + gerade.r[i]));
           return <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={FB} strokeWidth="3" markerEnd="url(#vg1)" />; })()}
         {(() => { const [x, y] = P([0, 0, 0]); return <circle cx={x} cy={y} r="2.5" fill={C.tinte} />; })()}
         {punkte.map((pt) => {
@@ -377,6 +410,171 @@ function Ebene({ A, B, C: Cp }) {
   );
 }
 
+
+/* ---------- Abstände ---------- */
+
+// |z| / √q schön darstellen: gekürzt, wenn q eine Quadratzahl ist, sonst mit Wurzel und Näherung
+function AbstandErgebnis({ z, q }) {
+  const w = Math.round(Math.sqrt(q));
+  const dez = (x) => String(Math.round(x * 1000) / 1000).replace(".", ",");
+  const az = Math.abs(z);
+  if (w * w === q) {
+    const g = ggT(az, w) || 1;
+    const zz = az / g, nn = w / g;
+    return <span style={{ color: FE }}>{nn === 1 ? zz : <Bruch oben={zz} unten={nn} />}{nn !== 1 && <span style={{ color: C.tinte }}> ≈ {dez(az / w)}</span>} LE</span>;
+  }
+  return <span style={{ color: FE, display: "inline-flex", alignItems: "center", gap: "0.25em" }}><Bruch oben={az} unten={<Wurzel>{q}</Wurzel>} /><span style={{ color: C.tinte }}>≈ {dez(az / Math.sqrt(q))} LE</span></span>;
+}
+
+function koordText(nv, d) {
+  const teile = [];
+  ["x₁", "x₂", "x₃"].forEach((x, i) => {
+    const c = nv[i]; if (!c) return;
+    const b = Math.abs(c) === 1 ? "" : Math.abs(c);
+    teile.push(teile.length ? `${c < 0 ? "−" : "+"} ${b}${x}` : `${c < 0 ? "−" : ""}${b}${x}`);
+  });
+  return `${teile.join(" ")} = ${n(d)}`;
+}
+
+function AbstandPE({ n: nv, d, P }) {
+  const z = skalar(nv, P) - d, q = skalar(nv, nv);
+  const lambda = -z / q;
+  const F = P.map((x, i) => x + lambda * nv[i]);
+  return (
+    <>
+      <p style={{ fontSize: 15, fontWeight: 700, textAlign: "center", marginBottom: 12, lineHeight: 1.7 }}>
+        <span style={{ color: FB, whiteSpace: "nowrap" }}>P({P.map(n).join(" | ")})</span>
+        <span style={{ margin: "0 10px", color: C.hellgrau }}>und</span>
+        <span style={{ color: FA, display: "inline-block" }}>E: {koordText(nv, d)}</span>
+      </p>
+      <Schritt nr="1" titel="Formel (Hessesche Normalform)">
+        <Einzeilig max={17}>
+          <span>d(P; E) =</span>
+          <Bruch oben={<span>|n₁p₁ + n₂p₂ + n₃p₃ − d|</span>} unten={<Wurzel>n₁² + n₂² + n₃²</Wurzel>} />
+        </Einzeilig>
+      </Schritt>
+      <Schritt nr="2" titel="Einsetzen">
+        <Einzeilig max={17}>
+          <span>d(P; E) =</span>
+          <Bruch oben={<span>|{nv.map((x, i) => `${k(x)}·${k(P[i])}`).join(" + ")} − {k(d)}|</span>} unten={<Wurzel>{nv.map((x) => `${k(x)}²`).join(" + ")}</Wurzel>} />
+        </Einzeilig>
+      </Schritt>
+      <Schritt nr="3" titel="Ausrechnen">
+        <Einzeilig max={18}>
+          <span>d(P; E) =</span>
+          <Bruch oben={<span>|{n(z)}|</span>} unten={<Wurzel>{q}</Wurzel>} /><Gl />
+          <AbstandErgebnis z={z} q={q} />
+        </Einzeilig>
+      </Schritt>
+      <p style={{ fontSize: 13, color: C.grau, lineHeight: 1.55, marginBottom: 12 }}>
+        {z === 0 ? "Der Zähler ist 0 – P liegt in der Ebene." : "Der Betrag im Zähler sorgt dafür, dass der Abstand nie negativ ist. Das Vorzeichen innen verrät nur, auf welcher Seite der Ebene P liegt."}
+      </p>
+      <Raum3 punkte={[{ p: P, label: "P", farbe: FB }, { p: F, label: "F", farbe: C.gruen }]} ebene={{ n: nv, d }} lot={[P, F]} />
+    </>
+  );
+}
+
+function AbstandPG({ A, u, P, t0, F }) {
+  const AP = A.map((x, i) => x - P[i]);           // Vektor von P zu A
+  const kA = skalar(AP, u), kU = skalar(u, u);
+  const PF = F.map((x, i) => x - P[i]);
+  const q = skalar(PF, PF);
+  const lin = (c, t) => `${n(c)} ${t < 0 ? "−" : "+"} ${Math.abs(t) === 1 ? "" : Math.abs(t)}t`;
+  return (
+    <>
+      <p style={{ fontSize: 15, fontWeight: 700, textAlign: "center", marginBottom: 12, lineHeight: 1.7 }}>
+        <span style={{ color: FB, whiteSpace: "nowrap" }}>P({P.map(n).join(" | ")})</span>
+        <span style={{ margin: "0 10px", color: C.hellgrau }}>und</span>
+        <span style={{ color: FA }}>g: <Name t="x" farbe={FA} /> == ({A.map(n).join(" | ")}) + t · ({u.map(n).join(" | ")})</span>
+      </p>
+      <Schritt nr="1" titel="Allgemeiner Punkt auf g und Verbindungsvektor von P">
+        <Einzeilig max={16}>
+          <Name t="PFₜ" farbe={FE} /><Gl /><Vek w={A.map((x, i) => lin(x - P[i], u[i]))} />
+        </Einzeilig>
+      </Schritt>
+      <Schritt nr="2" titel="Lotbedingung: Verbindungsvektor senkrecht zum Richtungsvektor">
+        <Einzeilig max={16}>
+          <Name t="PFₜ" farbe={FE} /><span>·</span><Vek w={u.map(n)} farbe={FA} /><span>= 0</span>
+        </Einzeilig>
+        <div style={{ height: 6 }} />
+        <Einzeilig max={16}>
+          <span>{u.map((c, i) => `${k(c)}·(${lin(AP[i], u[i])})`).join(" + ")} = 0</span>
+        </Einzeilig>
+        <div style={{ height: 6 }} />
+        <Einzeilig max={16}>
+          <span>{n(kA)} {kU >= 0 ? "+" : "−"} {Math.abs(kU)}t = 0</span><span style={{ margin: "0 0.4em", color: C.hellgrau }}>⇔</span>
+          <span style={{ color: FE }}>t = {n(t0)}</span>
+        </Einzeilig>
+      </Schritt>
+      <Schritt nr="3" titel="Lotfußpunkt und Abstand">
+        <Einzeilig max={16}>
+          <span>F({F.map(n).join(" | ")})</span><span style={{ margin: "0 0.4em", color: C.hellgrau }}>⇒</span>
+          <Name t="PF" farbe={FE} /><Gl /><Vek w={PF.map(n)} farbe={FE} />
+        </Einzeilig>
+        <div style={{ height: 6 }} />
+        <Einzeilig max={17}>
+          <span>d(P; g) = |</span><Name t="PF" farbe={FE} /><span>| =</span>
+          <Wurzel>{PF.map((x) => `${k(x)}²`).join(" + ")}</Wurzel><Gl />
+          {Math.round(Math.sqrt(q)) ** 2 === q
+            ? <span style={{ color: FE }}>{Math.round(Math.sqrt(q))} LE</span>
+            : <><span style={{ color: FE }}><Wurzel>{q}</Wurzel></span><span>≈ {String(Math.round(Math.sqrt(q) * 1000) / 1000).replace(".", ",")} LE</span></>}
+        </Einzeilig>
+      </Schritt>
+      <Raum3 punkte={[{ p: P, label: "P", farbe: FB }, { p: F, label: "F", farbe: C.gruen }, { p: A, label: "A", farbe: FA }]}
+        gerade={{ p: A, r: u }} lot={[P, F]} />
+    </>
+  );
+}
+
+function AbstandGG({ A, u, B, v }) {
+  const nv = kreuz(u, v);
+  const AB = B.map((x, i) => x - A[i]);
+  const z = skalar(AB, nv), q = skalar(nv, nv);
+  const paare = [[1, 2], [2, 0], [0, 1]];
+  return (
+    <>
+      <p style={{ fontSize: 14.5, fontWeight: 700, textAlign: "center", marginBottom: 12, lineHeight: 1.8 }}>
+        <span style={{ color: FA, whiteSpace: "nowrap" }}>g: <Name t="x" farbe={FA} /> == ({A.map(n).join(" | ")}) + r · ({u.map(n).join(" | ")})</span><br />
+        <span style={{ color: C.see, whiteSpace: "nowrap" }}>h: <Name t="x" farbe={C.see} /> == ({B.map(n).join(" | ")}) + s · ({v.map(n).join(" | ")})</span>
+      </p>
+      <Schritt nr="1" titel="Gemeinsamer Normalenvektor: Kreuzprodukt der Richtungsvektoren">
+        <Einzeilig max={15}>
+          <Name t="n" farbe={FE} /><Gl /><Vek w={u.map(n)} farbe={FA} /><span>×</span><Vek w={v.map(n)} farbe={C.see} />
+        </Einzeilig>
+        <div style={{ height: 6 }} />
+        <Einzeilig max={15}>
+          <Gl /><Vek w={paare.map(([i, j]) => `${k(u[i])}·${k(v[j])} − ${k(u[j])}·${k(v[i])}`)} /><Gl /><Vek w={nv.map(n)} farbe={FE} />
+        </Einzeilig>
+      </Schritt>
+      <Schritt nr="2" titel="Verbindungsvektor der Stützpunkte">
+        <Einzeilig max={16}>
+          <Name t="AB" farbe={FE} /><Gl /><Vek w={B.map(n)} /><span>−</span><Vek w={A.map(n)} /><Gl /><Vek w={AB.map(n)} farbe={FE} />
+        </Einzeilig>
+      </Schritt>
+      <Schritt nr="3" titel="Abstand: Projektion auf den Normalenvektor">
+        <Einzeilig max={17}>
+          <span>d(g; h) =</span>
+          <Bruch oben={<span>|<Name t="AB" farbe={FE} /> · <Name t="n" farbe={FE} />|</span>} unten={<span>|<Name t="n" farbe={FE} />|</span>} /><Gl />
+          <Bruch oben={<span>|{AB.map((x, i) => `${k(x)}·${k(nv[i])}`).join(" + ")}|</span>} unten={<Wurzel>{nv.map((x) => `${k(x)}²`).join(" + ")}</Wurzel>} />
+        </Einzeilig>
+        <div style={{ height: 6 }} />
+        <Einzeilig max={18}>
+          <Gl /><Bruch oben={<span>|{n(z)}|</span>} unten={<Wurzel>{q}</Wurzel>} /><Gl />
+          <AbstandErgebnis z={z} q={q} />
+        </Einzeilig>
+      </Schritt>
+      <p style={{ fontSize: 13, color: C.grau, lineHeight: 1.55, marginBottom: 12 }}>
+        {z === 0
+          ? "Der Abstand ist 0 – die Geraden schneiden sich."
+          : "Der Abstand ist nicht 0 und die Richtungsvektoren sind nicht parallel – die Geraden sind windschief."}
+        {" "}Bei parallelen Geraden funktioniert dieser Weg nicht (der Normalenvektor wäre der Nullvektor) – dort rechnet man den Abstand Punkt–Gerade.
+      </p>
+      <Raum3 punkte={[{ p: A, label: "A", farbe: FA }, { p: B, label: "B", farbe: C.see }]}
+        gerade={{ p: A, r: u, ohnePfeil: true }} gerade2={{ p: B, r: v }} />
+    </>
+  );
+}
+
 /* ---------- Seite ---------- */
 
 const ARTEN = [
@@ -387,6 +585,9 @@ const ARTEN = [
   { id: "kreuzprodukt", name: "Kreuzprodukt", info: "Liefert einen Vektor, der auf beiden Vektoren senkrecht steht – zum Beispiel den Normalenvektor einer Ebene." },
   { id: "gerade", name: "2 Punkte → Gerade", info: "Stützvektor ist der Ortsvektor eines Punktes, Richtungsvektor der Verbindungsvektor zum anderen Punkt." },
   { id: "ebene", name: "3 Punkte → Ebene", info: "Ein Punkt als Stützpunkt, zwei Verbindungsvektoren als Spannvektoren – drei gleichwertige Wege." },
+  { id: "abstandPG", name: "Abstand Punkt–Gerade", info: "Lotfußpunkt über die Bedingung „Verbindungsvektor senkrecht zum Richtungsvektor“ – dann die Länge des Lots." },
+  { id: "abstandPE", name: "Abstand Punkt–Ebene", info: "Mit der Hesseschen Normalform: Punkt in die Koordinatenform einsetzen und durch die Länge des Normalenvektors teilen." },
+  { id: "abstandGG", name: "Abstand Gerade–Gerade", info: "Für windschiefe Geraden: gemeinsamer Normalenvektor per Kreuzprodukt, dann den Verbindungsvektor darauf projizieren." },
 ];
 
 export function VektorGenerator() {
@@ -433,6 +634,9 @@ export function VektorGenerator() {
           {art === "kreuzprodukt" && <KreuzProd {...aufgabe} />}
           {art === "gerade" && <Gerade {...aufgabe} />}
           {art === "ebene" && <Ebene {...aufgabe} />}
+          {art === "abstandPG" && <AbstandPG {...aufgabe} />}
+          {art === "abstandPE" && <AbstandPE {...aufgabe} />}
+          {art === "abstandGG" && <AbstandGG {...aufgabe} />}
         </div>
 
         <button onClick={neu}
