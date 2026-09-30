@@ -131,10 +131,11 @@ function Kopf({ n, p, k, setN, setP, setK, pT, qT, bruch, setBruch }) {
 }
 
 /* Bernoulli-Formel, farbig wie die Regler – immer einzeilig, Schriftgröße passt sich der Breite an */
-// Zahl auf höchstens 3 Nachkommastellen (sehr kleine Werte: 3 gültige Ziffern); geht sie nicht auf, folgt „…“
+// Zahl auf höchstens 5 Nachkommastellen (sehr kleine Werte: 3 gültige Ziffern); geht sie nicht auf, folgt „…“
 function kurzZahl(x) {
-  if (Math.abs(x * 1000 - Math.round(x * 1000)) < 1e-9) return String(Math.round(x * 1000) / 1000).replace(".", ",");
-  const r = Math.abs(x) >= 0.001 ? Math.round(x * 1000) / 1000 : Number(x.toPrecision(3));
+  const F = 100000;
+  if (Math.abs(x * F - Math.round(x * F)) < 1e-7) return String(Math.round(x * F) / F).replace(".", ",");
+  const r = Math.abs(x) >= 0.00001 ? Math.round(x * F) / F : Number(x.toPrecision(3));
   return String(r).replace(".", ",") + "…";
 }
 
