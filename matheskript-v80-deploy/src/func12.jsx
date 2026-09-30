@@ -1450,7 +1450,7 @@ export function AdvancedLogo() {
     return d;
   };
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }} aria-hidden="true">
+    <svg viewBox={`0 34 ${W} 108`} preserveAspectRatio="xMidYMid slice" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
       {Array.from({ length: 14 }, (_, i) => x0 + (i - 6) * sx).map((x) => (
         <line key={`v${x}`} x1={x} y1="0" x2={x} y2={H} stroke="rgba(255,255,255,0.07)" />
       ))}
@@ -1464,11 +1464,6 @@ export function AdvancedLogo() {
       <path d={pfad((x) => 1 / (5 - x) - 0.4, 5.07, 7)} stroke={C.granaHell} strokeWidth="2.2" fill="none" />
       <path d={pfad((x) => Math.log(x + 5.6) - 1.1, -5.55, 3)} stroke={C.flaggold} strokeWidth="2.2" fill="none" opacity="0.95" />
       <path d={pfad((x) => 2.4 * Math.sin(1.6 * x) * Math.exp(-0.18 * (x + 5.5)), -5.8, 4.6)} stroke={C.weiss} strokeWidth="3.2" fill="none" strokeLinecap="round" />
-      <g fontSize="12" fontWeight="700" fontStyle="italic">
-        <text x="12" y="20" fill={C.weiss}>sin · eˣ</text>
-        <text x="12" y="36" fill={C.flaggold}>ln(x)</text>
-        <text x="12" y="52" fill={C.granaHell}>1/x</text>
-      </g>
     </svg>
   );
 }

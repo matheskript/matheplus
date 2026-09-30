@@ -17,36 +17,35 @@ import { AbleitungLogo } from "./func13.jsx";
 /* Große, ganz anklickbare Kachel für die Plotter auf der Startseite. */
 function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "Werkzeug" }) {
   return (
-        <button onClick={onClick} aria-label={label} className="plotter-kachel"
-          style={{ display: "block", width: "100%", marginTop: 22, marginBottom: 4, padding: 0, border: "none", borderRadius: 22,
-            overflow: "hidden", cursor: "pointer", fontFamily: "inherit", textAlign: "left",
-            background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`,
-            boxShadow: "0 10px 32px rgba(0,77,152,0.28)" }}>
-          <style>{`.plotter-kachel{transition:transform .15s ease, box-shadow .15s ease}
-            .plotter-kachel:active{transform:scale(0.985)}
-            @media (hover:hover){.plotter-kachel:hover{transform:translateY(-2px);box-shadow:0 14px 38px rgba(0,77,152,0.36)}}`}</style>
-          {logo}
-          <div style={{ padding: "4px 24px 24px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-              <span style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase",
-                color: C.seeTief, background: C.flaggold, borderRadius: 999, padding: "3px 10px" }}>{marke}</span>
-              <span style={{ fontSize: 12.5, color: C.goldText, fontWeight: 300 }}>{kategorie}</span>
-            </div>
-            <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12 }}>
-              <div style={{ minWidth: 0 }}>
-                <h2 style={{ color: C.weiss, fontSize: "clamp(24px, 7.2vw, 30px)", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.05, margin: 0, hyphens: "manual" }}>
-                  {titel}
-                </h2>
-                <p style={{ color: C.goldText, fontSize: 14.5, fontWeight: 300, lineHeight: 1.55, marginTop: 8, marginBottom: 0 }}>
-                  {text}
-                </p>
-              </div>
-              <span aria-hidden="true" style={{ flexShrink: 0, width: 48, height: 48, borderRadius: 999, background: C.gruen,
-                color: C.weiss, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, fontWeight: 700,
-                boxShadow: "0 4px 14px rgba(165,0,68,0.45)" }}>→</span>
-            </div>
-          </div>
-        </button>
+    <button onClick={onClick} aria-label={label} className="plotter-kachel"
+      style={{ display: "block", width: "100%", marginTop: 16, marginBottom: 0, padding: 0, border: "none", borderRadius: 20,
+        overflow: "hidden", cursor: "pointer", fontFamily: "inherit", textAlign: "left",
+        background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`,
+        boxShadow: "0 8px 26px rgba(0,77,152,0.26)" }}>
+      <style>{`.plotter-kachel{transition:transform .15s ease, box-shadow .15s ease}
+        .plotter-kachel:active{transform:scale(0.985)}
+        @media (hover:hover){.plotter-kachel:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(0,77,152,0.34)}}
+        .kachel-text{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}`}</style>
+      {/* Logo als flaches Band */}
+      <div style={{ height: 104, overflow: "hidden" }}>{logo}</div>
+      <div style={{ padding: "6px 20px 16px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase",
+            color: C.seeTief, background: C.flaggold, borderRadius: 999, padding: "2px 9px" }}>{marke}</span>
+          <span style={{ fontSize: 12, color: C.goldText, fontWeight: 300, flex: 1 }}>{kategorie}</span>
+          <span aria-hidden="true" style={{ flexShrink: 0, width: 36, height: 36, borderRadius: 999, background: C.gruen,
+            color: C.weiss, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 19, fontWeight: 700,
+            boxShadow: "0 3px 10px rgba(165,0,68,0.45)" }}>→</span>
+        </div>
+        <h2 style={{ color: C.weiss, fontSize: "clamp(22px, 6.6vw, 27px)", fontWeight: 700, letterSpacing: "-0.03em",
+          lineHeight: 1.1, margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+          {titel}
+        </h2>
+        <p className="kachel-text" style={{ color: C.goldText, fontSize: 14, fontWeight: 300, lineHeight: 1.5, marginTop: 5, marginBottom: 0 }}>
+          {text}
+        </p>
+      </div>
+    </button>
   );
 }
 
@@ -67,7 +66,7 @@ function PlotterLogo() {
   };
   const extrema = [-Math.sqrt(3.2), 0, Math.sqrt(3.2)];
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }} aria-hidden="true">
+    <svg viewBox={`0 40 ${W} 108`} preserveAspectRatio="xMidYMid slice" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
       <defs>
         <clipPath id="plotterKachelClip"><rect x="0" y="0" width={W} height={H} /></clipPath>
       </defs>
@@ -88,9 +87,9 @@ function PlotterLogo() {
         ))}
       </g>
       <g fontSize="13" fontWeight="700" fontStyle="italic">
-        <text x={W - 34} y="22" fill={C.weiss}>f</text>
-        <text x={W - 34} y="40" fill={C.flaggold}>f′</text>
-        <text x={W - 34} y="58" fill={C.granaHell}>f″</text>
+        <text x={W - 34} y="60" fill={C.weiss}>f</text>
+        <text x={W - 34} y="77" fill={C.flaggold}>f′</text>
+        <text x={W - 34} y="94" fill={C.granaHell}>f″</text>
       </g>
     </svg>
   );
@@ -492,13 +491,13 @@ export function Startseite({ gehe }) {
     <div className="mx-auto px-6 pb-14" style={{ maxWidth: 620 }}>
       <PlotterKachel onClick={() => gehe({ ansicht: "plotter" })} label="Polynomplotter öffnen" logo={<PlotterLogo />}
         titel="Polynomplotter" marke="Neu"
-        text="Koeffizienten einstellen, f, f′ und f″ live sehen und die komplette Kurvendiskussion mit Lösungsweg erzeugen." />
+        text="Koeffizienten einstellen und live sehen, wie sich der Graph verändert." />
       <PlotterKachel onClick={() => gehe({ ansicht: "advplotter" })} label="Advanced Plotter öffnen" logo={<AdvancedLogo />}
         titel="Advanced Plotter" marke="Neu"
-        text="Beliebige Funktionen mit sin, cos, tan, ln, logₐ, eˣ, Wurzeln und Brüchen bauen — mit Tastenfeld, Graph und Kurvendiskussion." />
+        text="Eigene Funktionen bauen und die komplette Kurvendiskussion sehen." />
       <PlotterKachel onClick={() => gehe({ ansicht: "ableitungstrainer" })} label="Ableitungstrainer öffnen" logo={<AbleitungLogo />}
-        titel={"Ableitungs\u00ADtrainer"} marke="Neu" kategorie="Üben"
-        text="Erste, zweite und dritte Ableitung per Tastenfeld eingeben, OK drücken und sofort erfahren, ob sie stimmt." />
+        titel="Ableitungstrainer" marke="Neu" kategorie="Üben"
+        text="Ableitungen eingeben und sofort erfahren, ob sie stimmen." />
 
       <div style={{ marginTop: 22 }}>
         <ErklaerVideo id={DEMO_VIDEO_ID} titel="So funktioniert Matheskript" />

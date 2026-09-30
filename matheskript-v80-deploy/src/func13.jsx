@@ -324,21 +324,20 @@ export function AbleitungLogo() {
     return d;
   };
   const zeilen = [
-    { g: (x) => x ** 3 / 6 - x, y: 38, farbe: C.weiss, t: "f", s: 9 },
-    { g: (x) => x ** 2 / 2 - 1, y: 90, farbe: C.flaggold, t: "f′", s: 9 },
-    { g: (x) => x, y: 140, farbe: C.granaHell, t: "f″", s: 7 },
+    { g: (x) => x ** 3 / 6 - x, y: 22, farbe: C.weiss, t: "f", s: 5 },
+    { g: (x) => x ** 2 / 2 - 1, y: 56, farbe: C.flaggold, t: "f′", s: 4.5 },
+    { g: (x) => x, y: 88, farbe: C.granaHell, t: "f″", s: 3.5 },
   ];
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }} aria-hidden="true">
+    <svg viewBox={`0 0 ${W} 108`} preserveAspectRatio="xMidYMid slice" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
       {zeilen.map((z, i) => (
         <g key={i}>
           <line x1="40" y1={z.y} x2="280" y2={z.y} stroke="rgba(255,255,255,0.14)" />
           <text x="12" y={z.y + 5} fill={z.farbe} fontSize="15" fontWeight="700" fontStyle="italic">{z.t}</text>
           <path d={kurve(z.g, z.y, z.s)} stroke={z.farbe} strokeWidth={i === 0 ? 3 : 2.4} fill="none" strokeLinecap="round" />
-          <circle cx="306" cy={z.y} r="12" fill={i < 2 ? C.smaragd : "rgba(255,255,255,0.12)"} />
-          {i < 2 && <path d={`M300,${z.y} l4,4 l8,-8`} stroke={C.weiss} strokeWidth="2.6" fill="none" strokeLinecap="round" strokeLinejoin="round" />}
+          <circle cx="306" cy={z.y} r="10" fill={i < 2 ? C.smaragd : "rgba(255,255,255,0.12)"} />
+          {i < 2 && <path d={`M301,${z.y} l3.5,3.5 l7,-7`} stroke={C.weiss} strokeWidth="2.6" fill="none" strokeLinecap="round" strokeLinejoin="round" />}
           {i === 2 && <text x="306" y={z.y + 5} fill={C.weiss} fontSize="14" fontWeight="700" textAnchor="middle">?</text>}
-          {i < 2 && <path d={`M160,${z.y + 16} l0,14 m-5,-5 l5,5 l5,-5`} stroke="rgba(255,255,255,0.3)" strokeWidth="1.6" fill="none" />}
         </g>
       ))}
     </svg>
