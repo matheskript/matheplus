@@ -17,7 +17,7 @@ import { AbleitungLogoKlein } from "./func13.jsx";
 /* Große, ganz anklickbare Kachel für die Plotter auf der Startseite. */
 /* Polynomplotter-Grafik im Hochformat für die Kachel. */
 function PlotterLogoKlein() {
-  const W = 160, H = 190, x0 = 80, y0 = 108, sx = 25, sy = 17;
+  const W = 230, H = 190, x0 = 115, y0 = 110, sx = 34, sy = 17;
   const f = (x) => 0.25 * x ** 4 - 1.6 * x ** 2 + 0.6;
   const fs = (x) => x ** 3 - 3.2 * x;
   const pfad = (g, skal = 1) => {
@@ -33,7 +33,7 @@ function PlotterLogoKlein() {
   const ext = [-Math.sqrt(3.2), 0, Math.sqrt(3.2)];
   return (
     <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
-      {[-3, -2, -1, 0, 1, 2, 3].map((i) => <line key={`v${i}`} x1={x0 + i * sx} y1="0" x2={x0 + i * sx} y2={H} stroke="rgba(255,255,255,0.06)" />)}
+      {[-4, -3, -2, -1, 0, 1, 2, 3, 4].map((i) => <line key={`v${i}`} x1={x0 + i * sx} y1="0" x2={x0 + i * sx} y2={H} stroke="rgba(255,255,255,0.06)" />)}
       {[-4, -3, -2, -1, 0, 1, 2, 3, 4].map((i) => <line key={`h${i}`} x1="0" y1={y0 + i * sy} x2={W} y2={y0 + i * sy} stroke="rgba(255,255,255,0.06)" />)}
       <line x1="0" y1={y0} x2={W} y2={y0} stroke="rgba(255,255,255,0.3)" />
       <line x1={x0} y1="0" x2={x0} y2={H} stroke="rgba(255,255,255,0.3)" />
@@ -51,7 +51,7 @@ function PlotterLogoKlein() {
 function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "Werkzeug" }) {
   return (
     <button onClick={onClick} aria-label={label} className="plotter-kachel"
-      style={{ display: "flex", width: "100%", minHeight: 176, marginTop: 14, padding: 0, border: "none", borderRadius: 20,
+      style={{ display: "flex", width: "100%", minHeight: 196, marginTop: 14, padding: 0, border: "none", borderRadius: 20,
         overflow: "hidden", cursor: "pointer", fontFamily: "inherit", textAlign: "left",
         background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`,
         boxShadow: "0 8px 26px rgba(0,77,152,0.26)" }}>
@@ -60,25 +60,25 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
         @media (hover:hover){.plotter-kachel:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(0,77,152,0.34)}}
         .kachel-text{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}`}</style>
       {/* Links: Text von oben, Pfeil unten */}
-      <div style={{ flex: "1 1 62%", minWidth: 0, padding: "16px 6px 16px 18px", display: "flex", flexDirection: "column" }}>
+      <div style={{ flex: "0 0 40%", minWidth: 0, padding: "14px 4px 14px 16px", display: "flex", flexDirection: "column" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
           <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase",
             color: C.seeTief, background: C.flaggold, borderRadius: 999, padding: "2px 8px" }}>{marke}</span>
           <span style={{ fontSize: 12, color: C.goldText, fontWeight: 300 }}>{kategorie}</span>
         </div>
-        <h2 style={{ color: C.weiss, fontSize: "clamp(16px, 4.7vw, 22px)", fontWeight: 700, letterSpacing: "-0.03em",
-          lineHeight: 1.1, margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+        <h2 style={{ color: C.weiss, fontSize: "clamp(16px, 4.6vw, 21px)", fontWeight: 700, letterSpacing: "-0.03em",
+          lineHeight: 1.1, margin: 0, hyphens: "manual" }}>
           {titel}
         </h2>
-        <p className="kachel-text" style={{ color: C.goldText, fontSize: 13, fontWeight: 300, lineHeight: 1.45, marginTop: 6, marginBottom: 12 }}>
+        <p className="kachel-text" style={{ color: C.goldText, fontSize: 12.5, fontWeight: 300, lineHeight: 1.4, marginTop: 6, marginBottom: 10 }}>
           {text}
         </p>
         <span aria-hidden="true" style={{ marginTop: "auto", alignSelf: "flex-start", display: "inline-flex", alignItems: "center", gap: 8,
-          height: 34, padding: "0 14px 0 16px", borderRadius: 999, background: C.gruen, color: C.weiss, fontSize: 13, fontWeight: 700,
+          height: 32, padding: "0 12px 0 14px", borderRadius: 999, background: C.gruen, color: C.weiss, fontSize: 13, fontWeight: 700,
           boxShadow: "0 3px 10px rgba(165,0,68,0.45)" }}>Öffnen <span style={{ fontSize: 16 }}>→</span></span>
       </div>
       {/* Rechts: nur die Grafik */}
-      <div style={{ flex: "0 0 38%", position: "relative", background: "rgba(255,255,255,0.04)",
+      <div style={{ flex: "0 0 60%", position: "relative", background: "rgba(255,255,255,0.04)",
         borderLeft: "1px solid rgba(255,255,255,0.08)", display: "flex" }}>
         {logo}
       </div>
@@ -527,14 +527,14 @@ export function Startseite({ gehe }) {
   return (
     <div className="mx-auto px-6 pb-14" style={{ maxWidth: 620 }}>
       <PlotterKachel onClick={() => gehe({ ansicht: "plotter" })} label="Polynomplotter öffnen" logo={<PlotterLogoKlein />}
-        titel="Polynomplotter" marke="Neu"
-        text="Koeffizienten einstellen und live sehen, wie sich der Graph verändert." />
+        titel={"Polynom\u00ADplotter"} marke="Neu"
+        text="Koeffizienten einstellen, Graph live sehen." />
       <PlotterKachel onClick={() => gehe({ ansicht: "advplotter" })} label="Advanced Plotter öffnen" logo={<AdvancedLogoKlein />}
-        titel="Advanced Plotter" marke="Neu"
-        text="Eigene Funktionen bauen, plotten und die komplette Kurvendiskussion sehen." />
+        titel={"Advanced Plotter"} marke="Neu"
+        text="Eigene Funktionen bauen und untersuchen." />
       <PlotterKachel onClick={() => gehe({ ansicht: "ableitungstrainer" })} label="Ableitungstrainer öffnen" logo={<AbleitungLogoKlein />}
-        titel="Ableitungstrainer" marke="Neu" kategorie="Üben"
-        text="f′, f″ und f‴ eingeben und sofort erfahren, ob sie stimmen." />
+        titel={"Ableitungs\u00ADtrainer"} marke="Neu" kategorie="Üben"
+        text="f′, f″ und f‴ eingeben und prüfen lassen." />
 
       <div style={{ marginTop: 22 }}>
         <ErklaerVideo id={DEMO_VIDEO_ID} titel="So funktioniert Matheskript" />

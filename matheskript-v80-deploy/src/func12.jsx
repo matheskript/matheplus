@@ -1437,7 +1437,7 @@ export function AdvancedPlotter() {
 
 /* Hochformat-Grafik für die Startseiten-Kachel. */
 export function AdvancedLogoKlein() {
-  const W = 160, H = 190, x0 = 50, y0 = 104, sx = 20, sy = 26;
+  const W = 230, H = 190, x0 = 62, y0 = 104, sx = 27, sy = 26;
   const pfad = (g, von, bis) => {
     let d = "", offen = false;
     for (let i = 0; i <= 200; i++) {
@@ -1451,7 +1451,7 @@ export function AdvancedLogoKlein() {
   const pol = 4.2;
   return (
     <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
-      {Array.from({ length: 9 }, (_, i) => x0 + (i - 2) * sx).map((x) => <line key={`v${x}`} x1={x} y1="0" x2={x} y2={H} stroke="rgba(255,255,255,0.06)" />)}
+      {Array.from({ length: 10 }, (_, i) => x0 + (i - 2) * sx).map((x) => <line key={`v${x}`} x1={x} y1="0" x2={x} y2={H} stroke="rgba(255,255,255,0.06)" />)}
       {Array.from({ length: 8 }, (_, i) => y0 + (i - 4) * sy).map((y) => <line key={`h${y}`} x1="0" y1={y} x2={W} y2={y} stroke="rgba(255,255,255,0.06)" />)}
       <line x1="0" y1={y0} x2={W} y2={y0} stroke="rgba(255,255,255,0.3)" />
       <line x1={x0} y1="0" x2={x0} y2={H} stroke="rgba(255,255,255,0.3)" />
