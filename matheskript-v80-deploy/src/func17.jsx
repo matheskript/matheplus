@@ -138,6 +138,10 @@ function kurzZahl(x) {
   return String(r).replace(".", ",") + "…";
 }
 
+// Schmale, nicht fette Schrift für die ausgerechneten Einzelwahrscheinlichkeiten
+const SCHMAL = { color: FARBEN.p, fontWeight: 400, fontFamily: "'Roboto Condensed', 'Arial Narrow', 'Helvetica Neue Condensed', sans-serif",
+  fontStretch: "condensed", letterSpacing: "-0.01em" };
+
 function BernoulliFormel({ n, k, pT, qT, wert, p }) {
   const ergebnis = kurzZahl(wert);
   const v = (t, farbe) => <span style={{ color: farbe, fontWeight: 800 }}>{t}</span>;
@@ -175,9 +179,9 @@ function BernoulliFormel({ n, k, pT, qT, wert, p }) {
         <span>=</span>
         {v(binomKoeff(n, k), FARBEN.n)}
         <span>·</span>
-        {v(kurzZahl(Math.pow(p, k)), FARBEN.p)}
+        <span style={SCHMAL}>{kurzZahl(Math.pow(p, k))}</span>
         <span>·</span>
-        {v(kurzZahl(Math.pow(1 - p, n - k)), FARBEN.p)}
+        <span style={SCHMAL}>{kurzZahl(Math.pow(1 - p, n - k))}</span>
       </div>
     </div>
   );

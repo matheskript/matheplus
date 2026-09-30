@@ -155,7 +155,7 @@ export function Mathilda() {
 
   return (
     <div style={{ background: C.sand, color: C.tinte, fontFamily: "Montserrat, system-ui, sans-serif", minHeight: "100vh" }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Roboto+Condensed:wght@400;500&display=swap');
       .kachel { transition: transform .16s ease, box-shadow .16s ease; }
       .kachel:hover { transform: translateY(-2px); }
       .kachel:active { transform: scale(.988); }
