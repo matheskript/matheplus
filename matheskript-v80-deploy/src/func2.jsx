@@ -11,6 +11,43 @@ import { Wiederholen } from "./func7.jsx";
 import { EskalationsKarte, Wochenbericht, eskalationSignale, serieBerechnen, zeitraum } from "./func8.jsx";
 import { TerminHinweis } from "./func9.jsx";
 import { Mathilda } from "./func10.jsx";
+import { AdvancedLogo } from "./func12.jsx";
+
+/* Große, ganz anklickbare Kachel für die Plotter auf der Startseite. */
+function PlotterKachel({ onClick, label, logo, titel, text, marke }) {
+  return (
+        <button onClick={onClick} aria-label={label} className="plotter-kachel"
+          style={{ display: "block", width: "100%", marginTop: 22, marginBottom: 4, padding: 0, border: "none", borderRadius: 22,
+            overflow: "hidden", cursor: "pointer", fontFamily: "inherit", textAlign: "left",
+            background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`,
+            boxShadow: "0 10px 32px rgba(0,77,152,0.28)" }}>
+          <style>{`.plotter-kachel{transition:transform .15s ease, box-shadow .15s ease}
+            .plotter-kachel:active{transform:scale(0.985)}
+            @media (hover:hover){.plotter-kachel:hover{transform:translateY(-2px);box-shadow:0 14px 38px rgba(0,77,152,0.36)}}`}</style>
+          {logo}
+          <div style={{ padding: "4px 24px 24px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+              <span style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase",
+                color: C.seeTief, background: C.flaggold, borderRadius: 999, padding: "3px 10px" }}>{marke}</span>
+              <span style={{ fontSize: 12.5, color: C.goldText, fontWeight: 300 }}>Werkzeug</span>
+            </div>
+            <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12 }}>
+              <div>
+                <h2 style={{ color: C.weiss, fontSize: 30, fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.05, margin: 0 }}>
+                  {titel}
+                </h2>
+                <p style={{ color: C.goldText, fontSize: 14.5, fontWeight: 300, lineHeight: 1.55, marginTop: 8, marginBottom: 0 }}>
+                  {text}
+                </p>
+              </div>
+              <span aria-hidden="true" style={{ flexShrink: 0, width: 48, height: 48, borderRadius: 999, background: C.gruen,
+                color: C.weiss, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, fontWeight: 700,
+                boxShadow: "0 4px 14px rgba(165,0,68,0.45)" }}>→</span>
+            </div>
+          </div>
+        </button>
+  );
+}
 
 /* Eigenes Logo für die Polynomplotter-Kachel: Raster, Achsen, f (weiß), f′ (gold), f″ (grana gestrichelt). */
 function PlotterLogo() {
@@ -452,36 +489,12 @@ export function Startseite({ gehe }) {
 
   return (
     <div className="mx-auto px-6 pb-14" style={{ maxWidth: 620 }}>
-      <button onClick={() => gehe({ ansicht: "plotter" })} aria-label="Polynomplotter öffnen" className="plotter-kachel"
-        style={{ display: "block", width: "100%", marginTop: 22, marginBottom: 22, padding: 0, border: "none", borderRadius: 22,
-          overflow: "hidden", cursor: "pointer", fontFamily: "inherit", textAlign: "left",
-          background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`,
-          boxShadow: "0 10px 32px rgba(0,77,152,0.28)" }}>
-        <style>{`.plotter-kachel{transition:transform .15s ease, box-shadow .15s ease}
-          .plotter-kachel:active{transform:scale(0.985)}
-          @media (hover:hover){.plotter-kachel:hover{transform:translateY(-2px);box-shadow:0 14px 38px rgba(0,77,152,0.36)}}`}</style>
-        <PlotterLogo />
-        <div style={{ padding: "4px 24px 24px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-            <span style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase",
-              color: C.seeTief, background: C.flaggold, borderRadius: 999, padding: "3px 10px" }}>Neu</span>
-            <span style={{ fontSize: 12.5, color: C.goldText, fontWeight: 300 }}>Werkzeug</span>
-          </div>
-          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12 }}>
-            <div>
-              <h2 style={{ color: C.weiss, fontSize: 30, fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.05, margin: 0 }}>
-                Polynomplotter
-              </h2>
-              <p style={{ color: C.goldText, fontSize: 14.5, fontWeight: 300, lineHeight: 1.55, marginTop: 8, marginBottom: 0 }}>
-                Koeffizienten einstellen, f, f′ und f″ live sehen und die komplette Kurvendiskussion mit Lösungsweg erzeugen.
-              </p>
-            </div>
-            <span aria-hidden="true" style={{ flexShrink: 0, width: 48, height: 48, borderRadius: 999, background: C.gruen,
-              color: C.weiss, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, fontWeight: 700,
-              boxShadow: "0 4px 14px rgba(165,0,68,0.45)" }}>→</span>
-          </div>
-        </div>
-      </button>
+      <PlotterKachel onClick={() => gehe({ ansicht: "plotter" })} label="Polynomplotter öffnen" logo={<PlotterLogo />}
+        titel="Polynomplotter" marke="Neu"
+        text="Koeffizienten einstellen, f, f′ und f″ live sehen und die komplette Kurvendiskussion mit Lösungsweg erzeugen." />
+      <PlotterKachel onClick={() => gehe({ ansicht: "advplotter" })} label="Advanced Plotter öffnen" logo={<AdvancedLogo />}
+        titel="Advanced Plotter" marke="Neu"
+        text="Beliebige Funktionen mit sin, cos, tan, ln, logₐ, eˣ, Wurzeln und Brüchen bauen — mit Tastenfeld, Graph und Kurvendiskussion." />
 
       <div style={{ marginTop: 22 }}>
         <ErklaerVideo id={DEMO_VIDEO_ID} titel="So funktioniert Matheskript" />

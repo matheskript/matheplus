@@ -110,8 +110,9 @@ export const NAV = [
     { name: "Weg prüfen", kurz: "Handschrift in Zeilen übertragen", ansicht: "analyse", foto: "weg" },
     { name: "Aufgabe scannen", kurz: "Ähnliche Aufgaben dazu erzeugen", ansicht: "analyse", foto: "aufgabe" },
   ] },
-  { id: "werkzeuge", name: "Werkzeuge", kurz: "Polynomplotter, Arbeitsblätter", eintraege: [
+  { id: "werkzeuge", name: "Werkzeuge", kurz: "Plotter, Arbeitsblätter", eintraege: [
     { name: "Polynomplotter", kurz: "Koeffizienten einstellen, f, f′ und f″ sehen", ansicht: "plotter" },
+    { name: "Advanced Plotter", kurz: "Beliebige Funktionen mit Tastenfeld und Kurvendiskussion", ansicht: "advplotter" },
     { name: "Arbeitsblatt drucken", kurz: "Aufgabenblatt mit Lösungsteil", ansicht: "ki", ziel: "blatt" },
   ] },
   { id: "berichte", name: "Berichte", kurz: "Für Eltern und Lehrkräfte", eintraege: [

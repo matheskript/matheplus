@@ -11,6 +11,7 @@ import { Einstufung, Lernlandkarte, Liniennetz, Profil, lernLaden, useLern } fro
 import { Begruenden, EinheitSpieler, Operatoren, Wiederholen } from "./func7.jsx";
 import { MeinPlan, Messbericht, Modellieren, Probeabitur, Wochenbericht } from "./func8.jsx";
 import { Auswertung, Einwilligung, KlasseAnsicht, KlausurVorbereitung, einwilligungLesen } from "./func9.jsx";
+import { AdvancedPlotter } from "./func12.jsx";
 
 export function Mathilda() {
   const [ansicht, setAnsicht] = useState("start");
@@ -512,6 +513,20 @@ export function Mathilda() {
             <Welle fill={C.sand} />
           </div>
           <Plotter />
+        </>
+      ) : ansicht === "advplotter" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+            <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 style={{ fontWeight: 700, fontSize: 33, letterSpacing: "-0.03em", lineHeight: 1.05, color: C.weiss }}>Advanced Plotter</h1>
+              <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <p style={{ color: C.goldText, fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+                Beliebige Funktionen: sin, cos, tan, ln, logₐ, eˣ, aˣ, Wurzeln, Brüche und Potenzen
+              </p>
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <AdvancedPlotter />
         </>
       ) : ansicht === "start" ? (
         <Startseite gehe={gehe} />

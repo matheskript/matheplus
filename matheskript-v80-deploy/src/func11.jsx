@@ -110,7 +110,7 @@ const FUSS_Y = SEITE_H - 9;
 let SK = 1;
 const INHALT_UNTEN = SEITE_H - 15;
 
-function kopfleiste(doc, gross) {
+function kopfleiste(doc, gross, untertitel = "Kurvendiskussion · Polynomplotter") {
   const h = gross ? 20 : 13;
   setzeFuell(doc, C.seeTief);
   doc.rect(0, 0, SEITE_B, h, "F");
@@ -133,32 +133,53 @@ function kopfleiste(doc, gross) {
   doc.setFont("Sans", "normal");
   doc.setFontSize(gross ? 9 : 8);
   setzeText(doc, C.goldText);
-  doc.text("Kurvendiskussion · Polynomplotter", SEITE_B - RAND, y, { align: "right" });
+  doc.text(untertitel, SEITE_B - RAND, y, { align: "right" });
   return h + 1.1;
 }
 
 /* ---------- Schaubild ---------- */
 
-function schaubild(doc, x0, y0, B, H, e, a, b, c, d) {
+/* Modell für ein Polynom (Polynomplotter). */
+function polyModell(e, a, b, c, d) {
   const f = (x) => e * x ** 4 + a * x ** 3 + b * x ** 2 + c * x + d;
   const fs = (x) => 4 * e * x ** 3 + 3 * a * x ** 2 + 2 * b * x + c;
   const fss = (x) => 12 * e * x ** 2 + 6 * a * x + 2 * b;
   const grad = e !== 0 ? 4 : a !== 0 ? 3 : b !== 0 ? 2 : c !== 0 ? 1 : 0;
   const ns = grad >= 1 ? nullstellenAllg(f, -40, 40).sort((p, q) => p - q) : [];
   const mark = markanteAllg(f, fs, fss, grad, -40, 40);
+  return { f, ns, mark, yAchse: d };
+}
+
+/* Zeichnet das Schaubild eines beliebigen Modells:
+   { f, ns: Nullstellen, mark: [{x, y, art}], yAchse: f(0) oder null,
+     integrale: [[x1, x2], …] (Standard: zwischen benachbarten Nullstellen),
+     fenster: {xMin, xMax} (optional, Untersuchungsbereich) } */
+function schaubild(doc, x0, y0, B, H, modell) {
+  const { f, mark } = modell;
+  const ns = modell.ns.slice().sort((p, q) => p - q);
+  const yAchse = modell.yAchse;
+  const ok = (y) => typeof y === "number" && isFinite(y);
 
   // Ausschnitt: alle interessanten Stellen plus Rand
-  const xs = [0, ...ns, ...mark.map((p) => p.x)];
-  let xMin = Math.min(...xs), xMax = Math.max(...xs);
-  const spanne = Math.max(xMax - xMin, 2);
-  xMin -= spanne * 0.18 + 0.5; xMax += spanne * 0.18 + 0.5;
-  let yMin = Math.min(0, d, ...mark.map((p) => p.y)), yMax = Math.max(0, d, ...mark.map((p) => p.y));
+  const xs = [...(ok(yAchse) ? [0] : []), ...ns, ...mark.map((p) => p.x)];
+  let xMin, xMax;
+  if (xs.length) {
+    xMin = Math.min(...xs); xMax = Math.max(...xs);
+    const spanne = Math.max(xMax - xMin, 2);
+    xMin -= spanne * 0.18 + 0.5; xMax += spanne * 0.18 + 0.5;
+  } else { xMin = -5; xMax = 5; }
+  if (modell.fenster) {
+    xMin = Math.max(xMin, modell.fenster.xMin); xMax = Math.min(xMax, modell.fenster.xMax);
+    if (xMax - xMin < 1) { xMin = modell.fenster.xMin; xMax = modell.fenster.xMax; }
+  }
+  const yWerte = [0, ...(ok(yAchse) ? [yAchse] : []), ...mark.map((p) => p.y)].filter(ok);
+  let yMin = Math.min(...yWerte), yMax = Math.max(...yWerte);
   // Kurvenenden nur begrenzt einbeziehen, damit die markanten Punkte groß genug bleiben.
   const grenze = Math.max(yMax - yMin, 2) * 0.6;
   const yUnten = yMin - grenze, yOben = yMax + grenze;
   for (let i = 0; i <= 200; i++) {
     const y = f(xMin + ((xMax - xMin) * i) / 200);
-    if (y >= yUnten && y <= yOben) { yMin = Math.min(yMin, y); yMax = Math.max(yMax, y); }
+    if (ok(y) && y >= yUnten && y <= yOben) { yMin = Math.min(yMin, y); yMax = Math.max(yMax, y); }
   }
   const ySpanne = Math.max(yMax - yMin, 2);
   yMin -= ySpanne * 0.12; yMax += ySpanne * 0.12;
@@ -187,10 +208,11 @@ function schaubild(doc, x0, y0, B, H, e, a, b, c, d) {
   const farben = [C.see, C.gruen, C.gold, C.smaragd, C.lila];
   doc.saveGraphicsState();
   doc.setGState(new doc.GState({ opacity: 0.22 }));
-  for (let i = 0; i < ns.length - 1; i++) {
-    const x1 = ns[i], x2 = ns[i + 1];
+  const integrale = modell.integrale || ns.slice(0, -1).map((x1, i) => [x1, ns[i + 1]]);
+  for (let i = 0; i < integrale.length; i++) {
+    const [x1, x2] = integrale[i];
     const pts = [[px(x1), py(0)]];
-    for (let j = 0; j <= 60; j++) { const x = x1 + ((x2 - x1) * j) / 60; pts.push([px(x), py(f(x))]); }
+    for (let j = 0; j <= 60; j++) { const x = x1 + ((x2 - x1) * j) / 60; const y = f(x); if (ok(y)) pts.push([px(x), py(Math.min(Math.max(y, yMin), yMax))]); }
     pts.push([px(x2), py(0)]);
     const rel = pts.slice(1).map((p, j) => [p[0] - pts[j][0], p[1] - pts[j][1]]);
     setzeFuell(doc, farben[i % farben.length]);
@@ -204,11 +226,11 @@ function schaubild(doc, x0, y0, B, H, e, a, b, c, d) {
   if (yMin <= 0 && yMax >= 0) doc.line(x0, py(0), x0 + B, py(0));
   if (xMin <= 0 && xMax >= 0) doc.line(px(0), y0, px(0), y0 + H);
   setzeText(doc, C.hellgrau);
-  const yAchse = yMin <= 0 && yMax >= 0 ? py(0) : y0 + H;
+  const xAchsePos = yMin <= 0 && yMax >= 0 ? py(0) : y0 + H;
   for (let v = Math.ceil(xMin / sx) * sx; v <= xMax; v += sx) {
     const vv = Math.round(v * 1000) / 1000;
     if (Math.abs(vv) < 1e-9) continue;
-    doc.text(zahl(vv), px(vv), Math.min(yAchse + 3, y0 + H - 1), { align: "center" });
+    doc.text(zahl(vv), px(vv), Math.min(xAchsePos + 3, y0 + H - 1), { align: "center" });
   }
   const xAchse = xMin <= 0 && xMax >= 0 ? px(0) : x0;
   for (let v = Math.ceil(yMin / sy) * sy; v <= yMax; v += sy) {
@@ -220,14 +242,18 @@ function schaubild(doc, x0, y0, B, H, e, a, b, c, d) {
   // Kurve (auf das Feld beschnitten)
   setzeStrich(doc, C.see);
   doc.setLineWidth(0.6);
+  // Lücken (nicht definiert) und Sprünge an Polstellen unterbrechen die Linie.
   let vorher = null;
-  for (let i = 0; i <= 400; i++) {
-    const x = xMin + ((xMax - xMin) * i) / 400;
+  const hoehe = yMax - yMin;
+  for (let i = 0; i <= 800; i++) {
+    const x = xMin + ((xMax - xMin) * i) / 800;
     const y = f(x);
+    if (!ok(y)) { vorher = null; continue; }
     const innen = y >= yMin && y <= yMax;
     const p = [px(x), py(Math.min(Math.max(y, yMin), yMax))];
-    if (vorher && (innen || vorher.innen)) doc.line(vorher.p[0], vorher.p[1], p[0], p[1]);
-    vorher = { p, innen };
+    const sprung = vorher && Math.abs(y - vorher.y) > hoehe * 1.5 && Math.sign(y) !== Math.sign(vorher.y);
+    if (vorher && !sprung && (innen || vorher.innen)) doc.line(vorher.p[0], vorher.p[1], p[0], p[1]);
+    vorher = { p, innen, y };
   }
 
   // Punkte
@@ -241,9 +267,9 @@ function schaubild(doc, x0, y0, B, H, e, a, b, c, d) {
     setzeFuell(doc, punktFarbe(p.art));
     doc.circle(px(p.x), py(p.y), 1.05, "F");
   });
-  if (d >= yMin && d <= yMax && xMin <= 0 && xMax >= 0) {
+  if (ok(yAchse) && yAchse >= yMin && yAchse <= yMax && xMin <= 0 && xMax >= 0) {
     setzeFuell(doc, C.seeHell);
-    doc.circle(px(0), py(d), 0.85, "F");
+    doc.circle(px(0), py(yAchse), 0.85, "F");
   }
 
   // Legende
@@ -344,13 +370,13 @@ function polynomdivisionSetzen(doc, s, block) {
 /* ---------- Hauptfunktion ---------- */
 
 /* Setzt die komplette Seite mit Skalierung SK; meldet, ob etwas überläuft. */
-function seiteSetzen(doc, inhalt, { e, a, b, c, d }) {
+function seiteSetzen(doc, inhalt, kopf, modell) {
   // Kopf: Logo; darunter links Titel, f, f′, f″ — rechts daneben ganz oben das Schaubild
-  const kopfUnten = kopfleiste(doc, true);
+  const kopfUnten = kopfleiste(doc, true, kopf.untertitel);
   let y = kopfUnten + 8;
   const xRechts = RAND + SPALTE_B + SPALTE_ABSTAND;
   const boxH = Math.max(42, 62 * SK);
-  const unterSchaubild = schaubild(doc, xRechts, kopfUnten + 4, SPALTE_B, boxH, e, a, b, c, d) + 3;
+  const unterSchaubild = schaubild(doc, xRechts, kopfUnten + 4, SPALTE_B, boxH, modell) + 3;
 
   doc.setFont("Sans", "bold");
   doc.setFontSize(20);
@@ -360,7 +386,7 @@ function seiteSetzen(doc, inhalt, { e, a, b, c, d }) {
   doc.rect(RAND, y + 2.2, 14, 0.9, "F");
   y += 9;
   // Funktion so groß wie möglich, aber nie breiter als die linke Spalte
-  const fText = pdfText(`f(x) = ${polyTextPdf([e, a, b, c, d])}`);
+  const fText = kopf.f;
   let grF = 13;
   doc.setFontSize(grF);
   while (doc.getTextWidth(fText) > SPALTE_B && grF > 8) { grF -= 0.5; doc.setFontSize(grF); }
@@ -369,10 +395,15 @@ function seiteSetzen(doc, inhalt, { e, a, b, c, d }) {
   doc.setFont("Sans", "normal");
   doc.setFontSize(9);
   setzeText(doc, C.grau);
-  doc.text(pdfText(`f'(x) = ${polyTextPdf([4 * e, 3 * a, 2 * b, c])}`), RAND, y);
-  y += 4.4;
-  doc.text(pdfText(`f''(x) = ${polyTextPdf([12 * e, 6 * a, 2 * b])}`), RAND, y);
-  y += 6;
+  // Lange Ableitungen (Advanced Plotter) werden verkleinert, damit sie in die Spalte passen
+  [kopf.f1, kopf.f2].forEach((t) => {
+    let g = 9;
+    doc.setFontSize(g);
+    while (doc.getTextWidth(t) > SPALTE_B && g > 5) { g -= 0.25; doc.setFontSize(g); }
+    doc.text(t, RAND, y);
+    y += 4.4;
+  });
+  y += 1.6;
 
   // Text: links direkt unter dem Kopf, rechts unter dem Schaubild
   const s = spaltenSetzer(y, unterSchaubild);
@@ -397,23 +428,39 @@ function seiteSetzen(doc, inhalt, { e, a, b, c, d }) {
   doc.setFont("Sans", "normal");
   doc.setFontSize(7);
   setzeText(doc, C.hellgrau);
-  doc.text(pdfText(`Kurvendiskussion für f(x) = ${polyTextPdf([e, a, b, c, d])}`), RAND, FUSS_Y);
+  doc.text(kopf.fuss, RAND, FUSS_Y);
   doc.text("matheskript.de", SEITE_B - RAND, FUSS_Y, { align: "right" });
 
   return s.zustand.ueberlauf;
 }
 
-export async function kurvendiskussionPdf({ e, a, b, c, d }) {
+/* Generischer Export: kopf = { f, f1, f2, fuss, untertitel } (fertige Texte),
+   inhalt = { abschnitte }, modell für das Schaubild (siehe schaubild()). */
+export async function allgemeinesPdf({ kopf, inhalt, modell, dateiname }) {
   const schriften = await ladeSchriften();
-  const inhalt = baueKurvendiskussionInhalt(e, a, b, c, d);
   // Ausnahmslos eine Seite: so lange kleiner setzen, bis nichts mehr überläuft.
   let doc = null;
   for (SK = 1; SK >= 0.4; SK = Math.round((SK - 0.04) * 100) / 100) {
     doc = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait", compress: true });
     schriftenEinbinden(doc, schriften);
-    if (!seiteSetzen(doc, inhalt, { e, a, b, c, d })) break;
+    if (!seiteSetzen(doc, inhalt, kopf, modell)) break;
   }
   SK = 1;
-  const name = `Kurvendiskussion_${polyTextPdf([e, a, b, c, d]).replace(/\s+/g, "").replace(/\^/g, "").replace(/[^\w+\-]/g, "")}.pdf`;
-  doc.save(name);
+  doc.save(dateiname);
+}
+
+export async function kurvendiskussionPdf({ e, a, b, c, d }) {
+  const poly = polyTextPdf([e, a, b, c, d]);
+  await allgemeinesPdf({
+    kopf: {
+      f: pdfText(`f(x) = ${poly}`),
+      f1: pdfText(`f'(x) = ${polyTextPdf([4 * e, 3 * a, 2 * b, c])}`),
+      f2: pdfText(`f''(x) = ${polyTextPdf([12 * e, 6 * a, 2 * b])}`),
+      fuss: pdfText(`Kurvendiskussion für f(x) = ${poly}`),
+      untertitel: "Kurvendiskussion · Polynomplotter",
+    },
+    inhalt: baueKurvendiskussionInhalt(e, a, b, c, d),
+    modell: polyModell(e, a, b, c, d),
+    dateiname: `Kurvendiskussion_${poly.replace(/\s+/g, "").replace(/\^/g, "").replace(/[^\w+\-]/g, "")}.pdf`,
+  });
 }
