@@ -539,11 +539,11 @@ export function EbenenVisualizer() {
 /* ---------- Vektoren-Übersicht ---------- */
 
 const VEKTOREN = [
-  { ziel: { ansicht: "ebenen" }, titel: "Ebenen-Visualizer", slogan: "Ebenen live im Raum drehen", kurz: "Ebenen in Koordinatenform live im 3D-Koordinatensystem sehen – mit Spurpunkten und Normalenvektor.", zeichen: "E" },
-  { ziel: { ansicht: "ebenevsebene" }, titel: "Ebene vs. Ebene", slogan: "Schnittgerade und Schnittwinkel", kurz: "Zwei Ebenen gleichzeitig im Raum – mit Schnittgerade und Schnittwinkel über die Kosinusformel.", zeichen: "E₁E₂" },
-  { ziel: { ansicht: "vektorgenerator" }, titel: "Vektor-Generator", slogan: "Beispiele ohne Ende", kurz: "Addition, Skalarmultiplikation, Linearkombination, Skalar- und Kreuzprodukt, Geraden und Ebenen – immer neue Beispiele mit Rechenweg.", zeichen: "🎲" },
-  { ziel: { ansicht: "kreuzprodukt" }, titel: "Kreuzprodukt", slogan: "Formel, eingesetzt, Ergebnis", kurz: "Zwei Vektoren eingeben – Formel, eingesetzte Koordinaten und Ergebnis in einer Zeile.", zeichen: "×" },
-  { ziel: { ansicht: "kurse", kurs: "vektoren" }, titel: "Videokurs Vektoren", slogan: "Fünf Lektionen mit Kurz-Checks", kurz: "Fünf Lektionen von den Grundlagen bis zu Ebenen – mit Merksätzen und Kurz-Checks.", zeichen: "▶" },
+  { ziel: { ansicht: "ebenen" }, titel: "Ebenen-Visualizer", slogan: "Ebenen in Koordinatenform live im Raum drehen.", kurz: "Ebenen in Koordinatenform live im 3D-Koordinatensystem sehen – mit Spurpunkten und Normalenvektor.", zeichen: "E" },
+  { ziel: { ansicht: "ebenevsebene" }, titel: "Ebene vs. Ebene", slogan: "Schnittgerade und Schnittwinkel zweier Ebenen.", kurz: "Zwei Ebenen gleichzeitig im Raum – mit Schnittgerade und Schnittwinkel über die Kosinusformel.", zeichen: "E₁E₂" },
+  { ziel: { ansicht: "vektorgenerator" }, titel: "Vektor-Generator", slogan: "Zufällige Rechnungen mit Rechenweg.", kurz: "Addition, Skalarmultiplikation, Linearkombination, Skalar- und Kreuzprodukt, Geraden und Ebenen – immer neue Beispiele mit Rechenweg.", zeichen: "🎲" },
+  { ziel: { ansicht: "kreuzprodukt" }, titel: "Kreuzprodukt", slogan: "Zwei Vektoren eingeben – Formel, eingesetzt, Ergebnis.", kurz: "Zwei Vektoren eingeben – Formel, eingesetzte Koordinaten und Ergebnis in einer Zeile.", zeichen: "×" },
+  { ziel: { ansicht: "kurse", kurs: "vektoren" }, titel: "Videokurs Vektoren", slogan: "Fünf Lektionen bis zu Ebenen – mit Kurz-Checks.", kurz: "Fünf Lektionen von den Grundlagen bis zu Ebenen – mit Merksätzen und Kurz-Checks.", zeichen: "▶" },
 ];
 
 export function VektorenZentrum({ gehe }) {
@@ -566,8 +566,8 @@ export function VektorenZentrum({ gehe }) {
             {x.zeichen}
           </span>
           <span style={{ flex: 1, minWidth: 0 }}>
-            <span style={{ display: "block", fontSize: "clamp(15px, 4.4vw, 17.5px)", fontWeight: 600, lineHeight: 1.25, marginBottom: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{x.titel}</span>
-            <span style={{ display: "block", color: C.grau, fontSize: 13.5, fontWeight: 300, lineHeight: 1.4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{x.slogan || x.kurz}</span>
+            <span style={{ display: "block", fontSize: "clamp(15px, 4.4vw, 17.5px)", fontWeight: 600, lineHeight: 1.25, marginBottom: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{x.kurzTitel ? <><span className="titel-lang">{x.titel}</span><span className="titel-kurz">{x.kurzTitel}</span></> : x.titel}</span>
+            <span style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", minHeight: "2.8em", color: C.grau, fontSize: 13.5, fontWeight: 300, lineHeight: 1.4 }}>{x.slogan || x.kurz}</span>
           </span>
         </button>
       ))}

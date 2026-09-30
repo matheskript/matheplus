@@ -711,10 +711,10 @@ function Bruchrechnen() {
 /* ---------- Übersicht ---------- */
 
 const TRAINER = [
-  { id: "primfaktoren", titel: "Primfaktorzerlegung", slogan: "Jede Zahl in Primfaktoren", kurz: "Primzahl erkennen oder vollständig zerlegen — jeden Faktor einzeln.", zeichen: "2·3·7" },
-  { id: "potenzen", titel: "Quadrate & Kuben", slogan: "Quadrat-, Kubikzahlen, Wurzeln", kurz: "Quadrat- und Kubikzahlen sowie ihre Wurzeln blitzschnell abrufen.", zeichen: "12²" },
-  { id: "bruchrechnen", titel: "Bruchrechnen", slogan: "Kürzen und Rechnen – mit Weg", kurz: "Kürzen, Plus, Minus, Mal und Geteilt — mit Lösungsweg bei jedem Fehler.", zeichen: "¾" },
-  { id: "einmaleins", titel: "EinMalEins", slogan: "Klein, groß und rückwärts", kurz: "Kleines und großes Einmaleins, auch als Umkehraufgaben — auf Zeit.", zeichen: "7·8" },
+  { id: "primfaktoren", titel: "Primfaktorzerlegung", slogan: "Primzahlen erkennen und Zahlen zerlegen.", kurz: "Primzahl erkennen oder vollständig zerlegen — jeden Faktor einzeln.", zeichen: "2·3·7" },
+  { id: "potenzen", titel: "Quadrat- und Kubikzahlen", kurzTitel: "Quadrate & Kuben", slogan: "Quadrat-, Kubikzahlen und Wurzeln blitzschnell abrufen.", kurz: "Quadrat- und Kubikzahlen sowie ihre Wurzeln blitzschnell abrufen.", zeichen: "12²" },
+  { id: "bruchrechnen", titel: "Bruchrechnen", slogan: "Kürzen, Plus, Minus, Mal, Geteilt – mit Lösungsweg.", kurz: "Kürzen, Plus, Minus, Mal und Geteilt — mit Lösungsweg bei jedem Fehler.", zeichen: "¾" },
+  { id: "einmaleins", titel: "EinMalEins", slogan: "Klein und groß, auch rückwärts, auf Zeit.", kurz: "Kleines und großes Einmaleins, auch als Umkehraufgaben — auf Zeit.", zeichen: "7·8" },
 ];
 
 export function KopfrechenZentrum() {
@@ -741,8 +741,8 @@ export function KopfrechenZentrum() {
               {x.zeichen}
             </span>
             <span style={{ flex: 1, minWidth: 0 }}>
-              <span style={{ display: "block", fontSize: "clamp(15px, 4.4vw, 17.5px)", fontWeight: 600, lineHeight: 1.25, marginBottom: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{x.titel}</span>
-              <span style={{ display: "block", color: C.grau, fontSize: 13.5, fontWeight: 300, lineHeight: 1.4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{x.slogan || x.kurz}</span>
+              <span style={{ display: "block", fontSize: "clamp(15px, 4.4vw, 17.5px)", fontWeight: 600, lineHeight: 1.25, marginBottom: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{x.kurzTitel ? <><span className="titel-lang">{x.titel}</span><span className="titel-kurz">{x.kurzTitel}</span></> : x.titel}</span>
+              <span style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", minHeight: "2.8em", color: C.grau, fontSize: 13.5, fontWeight: 300, lineHeight: 1.4 }}>{x.slogan || x.kurz}</span>
             </span>
           </button>
         ))}
@@ -789,10 +789,10 @@ export function KopfrechnenLogoKlein() {
 /* ---------- Analysis-Übersicht ---------- */
 
 const ANALYSIS = [
-  { ansicht: "plotter", titel: "Polynomplotter", slogan: "Graph mit f′ und f″ – mit PDF", kurz: "Koeffizienten einstellen, Graph mit f′ und f″ live sehen — inklusive Kurvendiskussion und PDF.", zeichen: "ax³" },
-  { ansicht: "advplotter", titel: "Advanced Plotter", slogan: "Jede Funktion untersuchen", kurz: "Beliebige Funktionen mit sin, cos, ln, eˣ, Wurzeln und Brüchen bauen und untersuchen.", zeichen: "sin" },
-  { ansicht: "sinus", titel: "Sinusfunktion", slogan: "Parameter finden, bis es passt", kurz: "Parameter a, b, c und d finden, bis der Graph passt – mit Periode, Ableitung und Nullstellen.", zeichen: "∿" },
-  { ansicht: "ableitungstrainer", titel: "Ableitungstrainer", slogan: "f′, f″ und f‴ sicher ableiten", kurz: "f′, f″ und f‴ per Tastenfeld eingeben und sofort prüfen lassen.", zeichen: "f′" },
+  { ansicht: "plotter", titel: "Polynomplotter", slogan: "Graph mit f′ und f″ live – mit Kurvendiskussion und PDF.", kurz: "Koeffizienten einstellen, Graph mit f′ und f″ live sehen — inklusive Kurvendiskussion und PDF.", zeichen: "ax³" },
+  { ansicht: "advplotter", titel: "Advanced Plotter", slogan: "Beliebige Funktionen untersuchen – sin, ln, eˣ.", kurz: "Beliebige Funktionen mit sin, cos, ln, eˣ, Wurzeln und Brüchen bauen und untersuchen.", zeichen: "sin" },
+  { ansicht: "sinus", titel: "Sinusfunktion", slogan: "a, b, c und d finden, bis der Graph passt.", kurz: "Parameter a, b, c und d finden, bis der Graph passt – mit Periode, Ableitung und Nullstellen.", zeichen: "∿" },
+  { ansicht: "ableitungstrainer", titel: "Ableitungstrainer", slogan: "f′, f″ und f‴ eingeben und sofort prüfen lassen.", kurz: "f′, f″ und f‴ per Tastenfeld eingeben und sofort prüfen lassen.", zeichen: "f′" },
 ];
 
 export function AnalysisZentrum({ gehe }) {
@@ -815,8 +815,8 @@ export function AnalysisZentrum({ gehe }) {
             {x.zeichen}
           </span>
           <span style={{ flex: 1, minWidth: 0 }}>
-            <span style={{ display: "block", fontSize: "clamp(15px, 4.4vw, 17.5px)", fontWeight: 600, lineHeight: 1.25, marginBottom: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{x.titel}</span>
-            <span style={{ display: "block", color: C.grau, fontSize: 13.5, fontWeight: 300, lineHeight: 1.4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{x.slogan || x.kurz}</span>
+            <span style={{ display: "block", fontSize: "clamp(15px, 4.4vw, 17.5px)", fontWeight: 600, lineHeight: 1.25, marginBottom: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{x.kurzTitel ? <><span className="titel-lang">{x.titel}</span><span className="titel-kurz">{x.kurzTitel}</span></> : x.titel}</span>
+            <span style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", minHeight: "2.8em", color: C.grau, fontSize: 13.5, fontWeight: 300, lineHeight: 1.4 }}>{x.slogan || x.kurz}</span>
           </span>
         </button>
       ))}

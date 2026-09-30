@@ -547,9 +547,9 @@ export function BernoulliBingo() {
 /* ---------- Übersicht ---------- */
 
 const STOCHASTIK = [
-  { ziel: { ansicht: "bernoulli" }, titel: "Bernoulli-Kette", slogan: "Binomialverteilung live erleben", kurz: "Bernoulli-Kette einstellen, Binomialverteilung live sehen und das Experiment simulieren.", zeichen: "B" },
-  { ziel: { ansicht: "vierfelder" }, titel: "Vier-Felder-Tafel", slogan: "Absolut oder in Prozent", kurz: "Absolute Häufigkeiten oder Wahrscheinlichkeiten, die sich zu 100 % ergänzen – mit Baumdiagramm und bedingter Wahrscheinlichkeit.", zeichen: "▦" },
-  { ziel: { ansicht: "kurse", kurs: "stochastik" }, titel: "Videokurs Stochastik", slogan: "Fünf Lektionen mit Kurz-Checks", kurz: "Fünf Lektionen vom Baumdiagramm bis zum Hypothesentest – mit Merksätzen und Kurz-Checks.", zeichen: "▶" },
+  { ziel: { ansicht: "bernoulli" }, titel: "Bernoulli-Kette", slogan: "Binomialverteilung live sehen und simulieren.", kurz: "Bernoulli-Kette einstellen, Binomialverteilung live sehen und das Experiment simulieren.", zeichen: "B" },
+  { ziel: { ansicht: "vierfelder" }, titel: "Vier-Felder-Tafel", slogan: "Absolut oder in Prozent – mit Baum und bedingter WKT.", kurz: "Absolute Häufigkeiten oder Wahrscheinlichkeiten, die sich zu 100 % ergänzen – mit Baumdiagramm und bedingter Wahrscheinlichkeit.", zeichen: "▦" },
+  { ziel: { ansicht: "kurse", kurs: "stochastik" }, titel: "Videokurs Stochastik", slogan: "Fünf Lektionen vom Baum bis zum Hypothesentest.", kurz: "Fünf Lektionen vom Baumdiagramm bis zum Hypothesentest – mit Merksätzen und Kurz-Checks.", zeichen: "▶" },
 ];
 
 export function StochastikZentrum({ gehe }) {
@@ -572,8 +572,8 @@ export function StochastikZentrum({ gehe }) {
             {x.zeichen}
           </span>
           <span style={{ flex: 1, minWidth: 0 }}>
-            <span style={{ display: "block", fontSize: "clamp(15px, 4.4vw, 17.5px)", fontWeight: 600, lineHeight: 1.25, marginBottom: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{x.titel}</span>
-            <span style={{ display: "block", color: C.grau, fontSize: 13.5, fontWeight: 300, lineHeight: 1.4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{x.slogan || x.kurz}</span>
+            <span style={{ display: "block", fontSize: "clamp(15px, 4.4vw, 17.5px)", fontWeight: 600, lineHeight: 1.25, marginBottom: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{x.kurzTitel ? <><span className="titel-lang">{x.titel}</span><span className="titel-kurz">{x.kurzTitel}</span></> : x.titel}</span>
+            <span style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", minHeight: "2.8em", color: C.grau, fontSize: 13.5, fontWeight: 300, lineHeight: 1.4 }}>{x.slogan || x.kurz}</span>
           </span>
         </button>
       ))}

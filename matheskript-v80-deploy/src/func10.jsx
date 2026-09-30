@@ -211,6 +211,8 @@ export function Mathilda() {
         <div className="mx-auto px-6 flex items-center justify-between" style={{ maxWidth: 620, height: 56 }}>
           <style>{`
             .logo-silber{background:linear-gradient(180deg,#FFFFFF 0%,${C.silberHell} 35%,${C.silber} 60%,${C.silberDunkel} 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+            .titel-kurz{display:none}
+            @media (max-width:480px){.titel-lang{display:none}.titel-kurz{display:inline}}
             .titel-silber{background:linear-gradient(180deg,#FFFFFF 0%,${C.silberHell} 50%,${C.silber} 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
             .logo-gold{background:linear-gradient(180deg,#FFE58A 0%,${C.flaggold} 45%,${C.goldWarm} 70%,#A67C00 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
           `}</style>
