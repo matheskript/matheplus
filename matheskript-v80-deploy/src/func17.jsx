@@ -88,11 +88,11 @@ function Kopf({ n, p, k, setN, setP, setK, pT, qT, bruch, setBruch }) {
           ? <>{z.kurz} <span style={{ color: z.farbe, fontWeight: 800 }}>{z.name}</span></>
           : <><span style={{ color: z.farbe, fontWeight: 800 }}>{z.name}</span> {z.kurz}</>}
       </p>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: z.name === "p" ? 4 : 3 }}>
-        <button aria-label={`${z.name} verringern`} style={knopf(z.farbe, z.name === "p" ? 28 : 26)} onClick={z.minus}>−</button>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: z.name === "p" ? 4 : 3, height: z.name === "k" ? undefined : ZEILE_H }}>
+        <button aria-label={`${z.name} verringern`} style={knopf(z.farbe, z.name === "p" ? 28 : 23)} onClick={z.minus}>−</button>
         <span style={{ minWidth: z.name === "p" ? 42 : 36, textAlign: "center", fontSize: "clamp(17px, 4.8vw, 22px)", fontWeight: 800, color: z.farbe, lineHeight: z.name === "p" ? undefined : 1,
           fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap", letterSpacing: "-0.02em" }}>{z.wert}</span>
-        <button aria-label={`${z.name} erhöhen`} style={knopf(z.farbe, z.name === "p" ? 28 : 26)} onClick={z.plus}>+</button>
+        <button aria-label={`${z.name} erhöhen`} style={knopf(z.farbe, z.name === "p" ? 28 : 23)} onClick={z.plus}>+</button>
       </div>
     </div>
   );
@@ -141,6 +141,7 @@ function kurzZahl(x) {
 }
 
 // Gemeinsamer Stil der Überschriften im Kopf (n Versuche, k Treffer, Treffer-WKT p, Formel von Bernoulli)
+const ZEILE_H = 44;   // Höhe der Wertzeile von n und p – die erste Formelzeile steht auf derselben Höhe
 const UEBERSCHRIFT = { fontSize: 14, fontWeight: 700, color: C.tinte, lineHeight: 1.2, marginBottom: 4, textAlign: "center", whiteSpace: "nowrap" };
 
 // Schmale, nicht fette Schrift für die ausgerechneten Einzelwahrscheinlichkeiten
@@ -173,7 +174,7 @@ function BernoulliFormel({ n, k, pT, qT, wert, p }) {
     <div ref={rahmen} style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", background: C.sand, borderRadius: 12,
       padding: "6px 8px", border: `1px solid ${C.linie}`, overflow: "hidden" }}>
       <p style={UEBERSCHRIFT}>Formel von Bernoulli</p>
-      <div ref={innen} style={{ flex: 1, alignContent: "center", display: "grid", gridTemplateColumns: "repeat(8, auto)", justifyContent: "space-between", columnGap: "0.18em", rowGap: "0.3em",
+      <div ref={innen} style={{ alignContent: "start", display: "grid", gridTemplateColumns: "repeat(7, auto)", gridTemplateRows: `${ZEILE_H}px auto auto`, justifyContent: "space-between", columnGap: "0.18em", rowGap: "0.12em",
         alignItems: "center", justifyItems: "center", width: "100%",
         fontSize: gr, fontWeight: 700, color: C.tinte, whiteSpace: "nowrap", fontVariantNumeric: "tabular-nums" }}>
         {/* Zeile 1: Formel mit den eingestellten Werten */}
@@ -184,16 +185,18 @@ function BernoulliFormel({ n, k, pT, qT, wert, p }) {
         <Pot basis={<Wert t={pT} farbe={FARBEN.p} />} exp={<span style={{ color: FARBEN.k }}>{k}</span>} />
         <span>·</span>
         <Pot basis={<Wert t={qT} farbe={FARBEN.p} />} exp={n - k} />
-        <span>=</span>
-        {/* Zeile 2: Ergebnis unter P(X = k), jeder Faktor unter seinem Term */}
-        <span style={{ fontWeight: 800, justifySelf: "end" }}>{ergebnis}</span>
+        {/* Zeile 2: jeder Faktor ausgerechnet unter seinem Term */}
+        <span />
         <span>=</span>
         {v(binomKoeff(n, k), FARBEN.n)}
         <span>·</span>
         <span style={SCHMAL}>{kurzZahl(Math.pow(p, k))}</span>
         <span>·</span>
         <span style={SCHMAL}>{kurzZahl(Math.pow(1 - p, n - k))}</span>
+        {/* Zeile 3: Endergebnis */}
         <span />
+        <span>=</span>
+        <span style={{ gridColumn: "3 / -1", justifySelf: "start", fontWeight: 800 }}>{ergebnis}</span>
       </div>
     </div>
   );
