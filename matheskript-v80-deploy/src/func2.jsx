@@ -583,12 +583,6 @@ export function Startseite({ gehe }) {
         titel="Schulkurse"
         text="Analysis 1–5, Vektoren, Stochastik und Pen & Paper – mit Videolektionen und Kurz-Checks." />
 
-      {wieder ? (
-        <><Heute /><Kacheln /><System /><Fortschritt2 /><Eltern /><Coaching /></>
-      ) : (
-        <><Auftakt /><Heute /><Kacheln /><System /><Fortschritt2 /><Eltern /><Coaching /></>
-      )}
-      <Fuss />
     </div>
   );
 }
