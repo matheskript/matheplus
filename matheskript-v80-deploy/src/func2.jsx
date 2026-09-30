@@ -104,6 +104,28 @@ function SchulmatheLogoKlein() {
   );
 }
 
+/* Grafik für die Formelsammlung-Kachel: aufgeschlagenes Heft mit Formeln. */
+function FormelLogoKlein() {
+  const W = 230, H = 190;
+  const T = { fontFamily: "Montserrat, system-ui, sans-serif", fontWeight: 700, fill: C.seeTief };
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
+      {Array.from({ length: 9 }, (_, i) => <line key={`v${i}`} x1={i * 28} y1="0" x2={i * 28} y2={H} stroke="rgba(255,255,255,0.05)" />)}
+      {Array.from({ length: 7 }, (_, i) => <line key={`h${i}`} x1="0" y1={i * 28} x2={W} y2={i * 28} stroke="rgba(255,255,255,0.05)" />)}
+      <path d="M 115 40 L 20 30 L 20 160 L 115 170 Z" fill="#FFFFFF" />
+      <path d="M 115 40 L 210 30 L 210 160 L 115 170 Z" fill="#F1F4F9" />
+      <line x1="115" y1="40" x2="115" y2="170" stroke={C.silberDunkel} strokeWidth="1.5" />
+      <text x="32" y="72" fontSize="17" {...T}>(xⁿ)′</text>
+      <text x="32" y="100" fontSize="15" {...T}>= n·xⁿ⁻¹</text>
+      <text x="32" y="138" fontSize="22" {...T} fill={C.gruen}>eˣ</text>
+      <text x="126" y="78" fontSize="30" {...T} fill={C.flaggold}>∫</text>
+      <text x="146" y="74" fontSize="15" {...T}>f dx</text>
+      <text x="126" y="120" fontSize="17" {...T}>a² + b²</text>
+      <text x="126" y="146" fontSize="17" {...T} fill={C.see}>sin α</text>
+    </svg>
+  );
+}
+
 /* Grafik für die Schulkurse-Kachel: Videoplayer mit Lektionsliste. */
 function SchulkurseLogoKlein() {
   const W = 230, H = 190;
@@ -611,7 +633,7 @@ export function Startseite({ gehe }) {
       </section>
       <PlotterKachel onClick={() => setSchulAuf(!schulAuf)} label={schulAuf ? "Schulmathematik zuklappen" : "Schulmathematik aufklappen"}
         logo={<SchulmatheLogoKlein />} titel="Schulmathematik"
-        text="Analysis, Vektoren, Stochastik und die Schulkurse – Werkzeuge und Videokurse."
+        text="Analysis, Vektoren, Stochastik, Formelsammlung und die Schulkurse."
         extra={
           <span aria-hidden="true" style={{ position: "absolute", right: 10, bottom: 10, width: 40, height: 40, borderRadius: 999,
             background: C.flaggold, color: C.seeTief, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, fontWeight: 700,
@@ -628,6 +650,9 @@ export function Startseite({ gehe }) {
       <PlotterKachel klein onClick={() => gehe({ ansicht: "stochastik" })} label="Stochastik öffnen" logo={<StochastikLogoKlein />}
         titel="Stochastik"
         text="Bernoulli-Kette: Binomialverteilung live sehen und den Zufall selbst laufen lassen." />
+      <PlotterKachel klein onClick={() => gehe({ ansicht: "formeln" })} label="Formelsammlung öffnen" logo={<FormelLogoKlein />}
+        titel="Formelsammlung"
+        text="Alle wichtigen Formeln der Oberstufe zum Nachschlagen." />
       <PlotterKachel klein onClick={() => gehe({ ansicht: "kurse" })} label="Schulkurse öffnen" logo={<SchulkurseLogoKlein />}
         titel="Schulkurse"
         text="Analysis 1–5, Vektoren, Stochastik und Pen & Paper – mit Videolektionen und Kurz-Checks." />
