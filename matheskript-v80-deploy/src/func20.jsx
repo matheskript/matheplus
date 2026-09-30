@@ -26,6 +26,14 @@ const vektor = (r = 7) => {
   return v;
 };
 const gleich = (u, v) => u.every((x, i) => x === v[i]);
+const wahlAus = (l) => l[Math.floor(Math.random() * l.length)];
+// Vektoren mit ganzzahliger Länge (pythagoreische Quadrupel), zufällig permutiert und mit Vorzeichen
+const QUADRUPEL = [[1, 2, 2], [2, 3, 6], [1, 4, 8], [4, 4, 7], [2, 6, 9], [0, 3, 4], [2, 1, 2], [0, 4, 3], [3, 0, 4], [1, 2, 2]];
+function mitLaenge() {
+  const q = [...wahlAus(QUADRUPEL)];
+  for (let i = 2; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [q[i], q[j]] = [q[j], q[i]]; }
+  return q.map((x) => (Math.random() < 0.5 ? -x : x));
+}
 
 /* ---------- Darstellung ---------- */
 
@@ -100,30 +108,41 @@ function neueAufgabe(art) {
       return { art, A, B, C: P };
     }
     case "abstandPE": {
-      let nv = vektor(4);
-      while (nv.every((x) => x === 0)) nv = vektor(4);
-      const Q = vektor(3), Pp = vektor(5);
-      return { art, n: nv, d: skalar(nv, Q), P: Pp };
+      // Normalenvektor mit ganzzahliger Länge, P = F + t·n → Abstand |t|·|n| ganzzahlig
+      for (;;) {
+        const nv = mitLaenge();
+        const L = Math.round(Math.sqrt(skalar(nv, nv)));
+        const t = L <= 3 ? wahlAus([-2, -1, 1, 2]) : wahlAus([-1, 1]);
+        const F = vektor(3);
+        const P = F.map((x, i) => x + t * nv[i]);
+        if (P.some((x) => Math.abs(x) > 9)) continue;
+        return { art, n: nv, d: skalar(nv, F), P };
+      }
     }
     case "abstandPG": {
-      // Lotfußpunkt ganzzahlig: F = A + t0·u, P = F + w mit w ⟂ u
+      // Lotfußpunkt ganzzahlig: F = A + t0·u, P = F + w mit w ⟂ u und |w| ganzzahlig
       for (;;) {
         const A = vektor(4), u = vektor(3);
         const t0 = rnd(-2, 2);
-        const e = [[1, 0, 0], [0, 1, 0], [0, 0, 1]][rnd(0, 2)].map((x) => x * (Math.random() < 0.5 ? -1 : 1));
-        const w = kreuz(u, e);
-        if (w.every((x) => x === 0)) continue;
+        const w = [rnd(-6, 6), rnd(-6, 6), rnd(-6, 6)];
+        const q = skalar(w, w);
+        if (!q || skalar(w, u) !== 0 || Math.round(Math.sqrt(q)) ** 2 !== q) continue;
         const F = A.map((x, i) => x + t0 * u[i]);
         const P = F.map((x, i) => x + w[i]);
-        if ([...P, ...F].some((x) => Math.abs(x) > 8)) continue;
+        if ([...P, ...F].some((x) => Math.abs(x) > 9)) continue;
         return { art, A, u, P, t0, F };
       }
     }
     case "abstandGG": {
+      // Gemeinsamer Normalenvektor mit ganzzahliger Länge, B = A + t·n + … → Abstand |t|·|n|
       for (;;) {
-        const A = vektor(4), u = vektor(3), B = vektor(4), v = vektor(3);
-        const nv = kreuz(u, v);
-        if (nv.every((x) => x === 0)) continue;
+        const nv = mitLaenge();
+        const senkrecht = () => { for (;;) { const x = [rnd(-3, 3), rnd(-3, 3), rnd(-3, 3)]; if (x.some((y) => y) && skalar(x, nv) === 0) return x; } };
+        const u = senkrecht(), v = senkrecht();
+        if (kreuz(u, v).every((x) => x === 0)) continue;
+        const A = vektor(3), t = wahlAus([-1, 1]), s0 = rnd(-1, 1);
+        const B = A.map((x, i) => x + t * nv[i] + s0 * u[i]);
+        if (B.some((x) => Math.abs(x) > 9)) continue;
         return { art, A, u, B, v };
       }
     }
