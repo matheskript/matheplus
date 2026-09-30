@@ -1094,9 +1094,9 @@ export function Kurse({ gehe, startKurs = null }) {
                   rechts: (
                     <div style={{ flex: "0 0 40%", borderLeft: `1px solid ${C.silber}33`, position: "relative" }}>
                       <KursGrafik art="kurve" hoehe="100%" />
-                      <span aria-hidden="true" style={{ position: "absolute", right: 10, bottom: 10, width: 30, height: 30, borderRadius: 999,
-                        background: C.flaggold, color: C.seeTief, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 800,
-                        transform: analysisAuf ? "rotate(180deg)" : "none", transition: "transform .2s ease", boxShadow: "0 2px 8px rgba(0,0,0,0.25)" }}>▾</span>
+                      <span aria-hidden="true" style={{ position: "absolute", right: 10, bottom: 10, width: 40, height: 40, borderRadius: 999,
+                        background: C.flaggold, color: C.seeTief, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, fontWeight: 700,
+                        lineHeight: 1, transform: analysisAuf ? "rotate(45deg)" : "none", transition: "transform .2s ease", boxShadow: "0 2px 10px rgba(0,0,0,0.3)" }}>+</span>
                     </div>
                   ),
                 })}

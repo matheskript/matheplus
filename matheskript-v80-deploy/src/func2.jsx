@@ -49,10 +49,11 @@ function PlotterLogoKlein() {
   );
 }
 
-function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "Werkzeug" }) {
+function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "Werkzeug", klein, extra }) {
   return (
     <button onClick={onClick} aria-label={label} className="plotter-kachel"
-      style={{ display: "flex", width: "calc(100% + 32px)", marginLeft: -16, marginRight: -16, height: 138, marginTop: 12, padding: 0, border: "none", borderRadius: 18,
+      style={{ display: "flex", width: klein ? "100%" : "calc(100% + 32px)", marginLeft: klein ? 0 : -16, marginRight: klein ? 0 : -16,
+        height: klein ? 92 : 138, marginTop: klein ? 8 : 12, padding: 0, border: "none", borderRadius: klein ? 14 : 18,
         overflow: "hidden", cursor: "pointer", fontFamily: "inherit", textAlign: "left", position: "relative",
         background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`,
         boxShadow: `0 6px 22px rgba(0,77,152,0.24), inset 0 0 0 1px ${C.silber}40` }}>
@@ -62,23 +63,44 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
         .kachel-text{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
         .kachel-titel{background:linear-gradient(180deg,#FFFFFF 0%,${C.silberHell} 55%,${C.silber} 100%);-webkit-background-clip:text;background-clip:text;color:transparent}`}</style>
       {/* Links (60 %): Titel und Erklärtext von oben */}
-      <div style={{ flex: "1 1 60%", minWidth: 0, padding: "13px 10px 12px 16px", display: "flex", flexDirection: "column" }}>
-        <h2 className="kachel-titel" style={{ fontSize: "clamp(15px, 4.1vw, 22px)", fontWeight: 700, letterSpacing: "-0.03em",
+      <div style={{ flex: klein ? "1 1 68%" : "1 1 60%", minWidth: 0, padding: klein ? "10px 8px 9px 14px" : "13px 10px 12px 16px", display: "flex", flexDirection: "column" }}>
+        <h2 className="kachel-titel" style={{ fontSize: klein ? "clamp(14px, 3.8vw, 18px)" : "clamp(15px, 4.1vw, 22px)", fontWeight: 700, letterSpacing: "-0.03em",
           lineHeight: 1.1, margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
           {titel}
         </h2>
         <span aria-hidden="true" style={{ display: "block", width: 34, height: 2.5, borderRadius: 2, marginTop: 6,
           background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)` }} />
-        <p className="kachel-text" style={{ color: C.weiss, fontSize: 12.5, fontWeight: 300, lineHeight: 1.4, marginTop: 6, marginBottom: 0 }}>
+        <p className="kachel-text" style={{ color: C.weiss, fontSize: klein ? 12 : 12.5, fontWeight: 300, lineHeight: 1.4, marginTop: klein ? 4 : 6, marginBottom: 0,
+          ...(klein ? { WebkitLineClamp: 2 } : {}) }}>
           {text}
         </p>
       </div>
       {/* Rechts (40 %): nur die Grafik */}
-      <div style={{ flex: "0 0 40%", position: "relative", background: "rgba(255,255,255,0.04)",
+      <div style={{ flex: klein ? "0 0 32%" : "0 0 40%", position: "relative", background: "rgba(255,255,255,0.04)",
         borderLeft: `1px solid ${C.silber}33`, display: "flex" }}>
         {logo}
+        {extra}
       </div>
     </button>
+  );
+}
+
+/* Grafik für die Schulmathematik-Kachel: vier Mini-Motive (Kurve, Vektor, Säulen, Video). */
+function SchulmatheLogoKlein() {
+  const W = 230, H = 190;
+  const feld = (x, y, inhalt) => (
+    <g transform={`translate(${x} ${y})`}>
+      <rect width="92" height="72" rx="10" fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.22)" />
+      {inhalt}
+    </g>
+  );
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
+      {feld(18, 18, <path d="M 10 58 C 26 6, 42 6, 50 36 C 58 64, 72 60, 84 14" stroke={C.weiss} strokeWidth="2.6" fill="none" />)}
+      {feld(120, 18, <><line x1="16" y1="58" x2="70" y2="18" stroke={C.flaggold} strokeWidth="3" /><path d="M 70 18 L 58 20 L 64 29 Z" fill={C.flaggold} /><line x1="16" y1="58" x2="80" y2="58" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" /></>)}
+      {feld(18, 100, [10, 26, 42, 58, 74].map((x, i) => <rect key={x} x={x} y={62 - [14, 30, 44, 26, 12][i]} width="11" height={[14, 30, 44, 26, 12][i]} rx="2" fill={i === 2 ? C.flaggold : "rgba(255,255,255,0.45)"} />))}
+      {feld(120, 100, <><circle cx="46" cy="36" r="17" fill={C.flaggold} /><path d="M 41 27 L 41 45 L 56 36 Z" fill={C.seeTief} /></>)}
+    </svg>
   );
 }
 
@@ -179,6 +201,7 @@ function PlotterLogo() {
 export function Startseite({ gehe }) {
   const [wieder, setWieder] = useState(false);
   const [hinweis, setHinweis] = useState("");
+  const [schulAuf, setSchulAuf] = useState(false);   // Dropdown „Schulmathematik“
 
   /* --- Motive --- */
 
@@ -586,21 +609,33 @@ export function Startseite({ gehe }) {
           und schnelle Kopfrechenrunden. Such dir unten einen Bereich aus und leg los.
         </p>
       </section>
-      <PlotterKachel onClick={() => gehe({ ansicht: "analysis" })} label="Analysis öffnen" logo={<PlotterLogoKlein />}
+      <PlotterKachel onClick={() => setSchulAuf(!schulAuf)} label={schulAuf ? "Schulmathematik zuklappen" : "Schulmathematik aufklappen"}
+        logo={<SchulmatheLogoKlein />} titel="Schulmathematik"
+        text="Analysis, Vektoren, Stochastik und die Schulkurse – Werkzeuge und Videokurse."
+        extra={
+          <span aria-hidden="true" style={{ position: "absolute", right: 10, bottom: 10, width: 40, height: 40, borderRadius: 999,
+            background: C.flaggold, color: C.seeTief, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, fontWeight: 700,
+            lineHeight: 1, transform: schulAuf ? "rotate(45deg)" : "none", transition: "transform .2s ease", boxShadow: "0 2px 10px rgba(0,0,0,0.3)" }}>+</span>
+        } />
+      {schulAuf && (
+        <div style={{ margin: "4px 0 4px", padding: "2px 0 2px 12px", borderLeft: `3px solid ${C.flaggold}` }}>
+      <PlotterKachel klein onClick={() => gehe({ ansicht: "analysis" })} label="Analysis öffnen" logo={<PlotterLogoKlein />}
         titel="Analysis"
         text="Polynomplotter, Advanced Plotter und Ableitungstrainer: Graphen live erkunden." />
-      <PlotterKachel onClick={() => gehe({ ansicht: "vektoren" })} label="Vektoren öffnen" logo={<VektorenLogoKlein />}
+      <PlotterKachel klein onClick={() => gehe({ ansicht: "vektoren" })} label="Vektoren öffnen" logo={<VektorenLogoKlein />}
         titel="Vektoren"
         text="Der Ebenen-Visualizer zeigt jede Ebene live im Raum – dazu der Videokurs." />
-      <PlotterKachel onClick={() => gehe({ ansicht: "stochastik" })} label="Stochastik öffnen" logo={<StochastikLogoKlein />}
+      <PlotterKachel klein onClick={() => gehe({ ansicht: "stochastik" })} label="Stochastik öffnen" logo={<StochastikLogoKlein />}
         titel="Stochastik"
         text="Bernoulli-Kette: Binomialverteilung live sehen und den Zufall selbst laufen lassen." />
+      <PlotterKachel klein onClick={() => gehe({ ansicht: "kurse" })} label="Schulkurse öffnen" logo={<SchulkurseLogoKlein />}
+        titel="Schulkurse"
+        text="Analysis 1–5, Vektoren, Stochastik und Pen & Paper – mit Videolektionen und Kurz-Checks." />
+        </div>
+      )}
       <PlotterKachel onClick={() => gehe({ ansicht: "kopf" })} label="Kopfrechnen öffnen" logo={<KopfrechnenLogoKlein />}
         titel="Kopfrechnen"
         text="Primfaktoren, Quadratzahlen, Brüche und Einmaleins – schnelle Runden auf Zeit." />
-      <PlotterKachel onClick={() => gehe({ ansicht: "kurse" })} label="Schulkurse öffnen" logo={<SchulkurseLogoKlein />}
-        titel="Schulkurse"
-        text="Analysis 1–5, Vektoren, Stochastik und Pen & Paper – mit Videolektionen und Kurz-Checks." />
       <PlotterKachel onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })} label="Frag Mathilda öffnen" logo={<MathildaLogoKlein />}
         titel="Frag Mathilda"
         text="Foto von deinem Blatt – Mathilda prüft deinen Rechenweg und gibt dir Feedback." />
