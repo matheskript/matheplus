@@ -49,19 +49,22 @@ function PlotterLogoKlein() {
   );
 }
 
-function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "Werkzeug", klein, extra }) {
+function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "Werkzeug", klein, extra, gesperrt }) {
   return (
-    <button onClick={onClick} aria-label={label} className="plotter-kachel"
+    <button onClick={gesperrt ? undefined : onClick} disabled={gesperrt} aria-disabled={gesperrt || undefined}
+      aria-label={gesperrt ? `${titel} – noch gesperrt` : label} title={gesperrt ? "Noch gesperrt – bald verfügbar" : undefined}
+      className={gesperrt ? "kachel-gesperrt" : "plotter-kachel"}
       style={{ display: "flex", width: klein ? "100%" : "calc(100% + 32px)", marginLeft: klein ? 0 : -16, marginRight: klein ? 0 : -16,
         height: klein ? 92 : 138, marginTop: klein ? 8 : 12, padding: 0, border: "none", borderRadius: klein ? 14 : 18,
-        overflow: "hidden", cursor: "pointer", fontFamily: "inherit", textAlign: "left", position: "relative",
-        background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`,
-        boxShadow: `0 6px 22px rgba(0,77,152,0.24), inset 0 0 0 1px ${C.silber}40` }}>
+        overflow: "hidden", cursor: gesperrt ? "not-allowed" : "pointer", fontFamily: "inherit", textAlign: "left", position: "relative",
+        background: gesperrt ? "linear-gradient(155deg, #B9C2CE 0%, #8C97A6 55%, #6E7989 100%)" : `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`,
+        boxShadow: gesperrt ? "0 4px 14px rgba(40,50,70,0.18), inset 0 0 0 1px rgba(255,255,255,0.45)" : `0 6px 22px rgba(0,77,152,0.24), inset 0 0 0 1px ${C.silber}40` }}>
       <style>{`.plotter-kachel{transition:transform .15s ease, box-shadow .15s ease}
         .plotter-kachel:active{transform:scale(0.985)}
         @media (hover:hover){.plotter-kachel:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,77,152,0.32)}}
         .kachel-text{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
-        .kachel-titel{background:linear-gradient(180deg,#FFFFFF 0%,${C.silberHell} 55%,${C.silber} 100%);-webkit-background-clip:text;background-clip:text;color:transparent}`}</style>
+        .kachel-titel{background:linear-gradient(180deg,#FFFFFF 0%,${C.silberHell} 55%,${C.silber} 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+        .kachel-gesperrt .kachel-titel{background:none;color:#FFFFFF;text-shadow:0 1px 2px rgba(30,40,60,0.25)}`}</style>
       {/* Links (60 %): Titel und Erklärtext von oben */}
       <div style={{ flex: klein ? "1 1 68%" : "1 1 60%", minWidth: 0, padding: klein ? "10px 8px 9px 14px" : "13px 10px 12px 16px", display: "flex", flexDirection: "column" }}>
         <h2 className="kachel-titel" style={{ fontSize: klein ? "clamp(14px, 3.8vw, 18px)" : "clamp(15px, 4.1vw, 22px)", fontWeight: 700, letterSpacing: "-0.03em",
@@ -69,17 +72,30 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
           {titel}
         </h2>
         <span aria-hidden="true" style={{ display: "block", width: 34, height: 2.5, borderRadius: 2, marginTop: 6,
-          background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)` }} />
-        <p className="kachel-text" style={{ color: C.weiss, fontSize: klein ? 12 : 12.5, fontWeight: 300, lineHeight: 1.4, marginTop: klein ? 4 : 6, marginBottom: 0,
+          background: gesperrt ? "rgba(255,255,255,0.7)" : `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)` }} />
+        <p className="kachel-text" style={{ color: gesperrt ? "rgba(255,255,255,0.92)" : C.weiss, fontSize: klein ? 12 : 12.5, fontWeight: 300, lineHeight: 1.4, marginTop: klein ? 4 : 6, marginBottom: 0,
           ...(klein ? { WebkitLineClamp: 2 } : {}) }}>
           {text}
         </p>
       </div>
       {/* Rechts (40 %): nur die Grafik */}
       <div style={{ flex: klein ? "0 0 32%" : "0 0 40%", position: "relative", background: "rgba(255,255,255,0.04)",
-        borderLeft: `1px solid ${C.silber}33`, display: "flex" }}>
-        {logo}
+        borderLeft: `1px solid ${gesperrt ? "rgba(255,255,255,0.35)" : `${C.silber}33`}`, display: "flex" }}>
+        <div style={{ flex: 1, display: "flex", ...(gesperrt ? { filter: "grayscale(1) brightness(1.15)", opacity: 0.35 } : {}) }}>{logo}</div>
         {extra}
+        {gesperrt && (
+          <div aria-hidden="true" style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4 }}>
+            <span style={{ width: klein ? 34 : 44, height: klein ? 34 : 44, borderRadius: 999, background: "rgba(255,255,255,0.92)",
+              boxShadow: "0 3px 10px rgba(30,40,60,0.25)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <svg viewBox="0 0 24 24" width={klein ? 17 : 22} height={klein ? 17 : 22} fill="none" stroke="#5E6878" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="5" y="11" width="14" height="10" rx="2.2" fill="#5E6878" />
+                <path d="M 8 11 V 7.5 a 4 4 0 0 1 8 0 V 11" />
+              </svg>
+            </span>
+            <span style={{ fontSize: klein ? 9.5 : 10.5, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#FFFFFF",
+              textShadow: "0 1px 2px rgba(30,40,60,0.35)" }}>Bald</span>
+          </div>
+        )}
       </div>
     </button>
   );
@@ -653,7 +669,7 @@ export function Startseite({ gehe }) {
       <PlotterKachel klein onClick={() => gehe({ ansicht: "formeln" })} label="Formelsammlung öffnen" logo={<FormelLogoKlein />}
         titel="Formelsammlung"
         text="Alle wichtigen Formeln der Oberstufe zum Nachschlagen." />
-      <PlotterKachel klein onClick={() => gehe({ ansicht: "kurse" })} label="Schulkurse öffnen" logo={<SchulkurseLogoKlein />}
+      <PlotterKachel klein gesperrt onClick={() => gehe({ ansicht: "kurse" })} label="Schulkurse öffnen" logo={<SchulkurseLogoKlein />}
         titel="Schulkurse"
         text="Analysis 1–5, Vektoren, Stochastik und Pen & Paper – mit Videolektionen und Kurz-Checks." />
         </div>
@@ -661,10 +677,10 @@ export function Startseite({ gehe }) {
       <PlotterKachel onClick={() => gehe({ ansicht: "kopf" })} label="Kopfrechnen öffnen" logo={<KopfrechnenLogoKlein />}
         titel="Kopfrechnen"
         text="Primfaktoren, Quadratzahlen, Brüche und Einmaleins – schnelle Runden auf Zeit." />
-      <PlotterKachel onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })} label="Frag Mathilda öffnen" logo={<MathildaLogoKlein />}
+      <PlotterKachel gesperrt onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })} label="Frag Mathilda öffnen" logo={<MathildaLogoKlein />}
         titel="Frag Mathilda"
         text="Foto von deinem Blatt – Mathilda prüft deinen Rechenweg und gibt dir Feedback." />
-      <PlotterKachel onClick={() => gehe({ ansicht: "kurse", kurs: "penpaper" })} label="Pen & Paper öffnen" logo={<PenPaperBlatt />}
+      <PlotterKachel gesperrt onClick={() => gehe({ ansicht: "kurse", kurs: "penpaper" })} label="Pen & Paper öffnen" logo={<PenPaperBlatt />}
         titel="Pen & Paper"
         text="Das Fundament: klar aufschreiben, strukturiert arbeiten, sicher mit Fehlern umgehen – 7 Videolektionen." />
 
