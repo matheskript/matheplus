@@ -108,6 +108,8 @@ const FUSS_Y = SEITE_H - 9;
 /* Skalierung für Schrift und Zeilenabstände. Der Generator verkleinert sie
    schrittweise, bis die ganze Kurvendiskussion auf eine einzige Seite passt. */
 let SK = 1;
+/* Zeilenabstand-Faktor: > 1, wenn die Seite genug Platz lässt (entspannteres Schriftbild). */
+let ZA = 1;
 const INHALT_UNTEN = SEITE_H - 15;
 
 function kopfleiste(doc, gross, untertitel = "Kurvendiskussion · Polynomplotter") {
@@ -308,10 +310,10 @@ function rechenZeile(doc, s, txt, { fett, farbe, mono }) {
   doc.setFont(schrift, fett ? "bold" : "normal");
   doc.setFontSize(gr);
   while (doc.getTextWidth(txt) > SPALTE_B - 2 && gr > 4) { gr -= 0.2; doc.setFontSize(gr); }
-  const h = gr * 0.46;
+  const basis = gr * 0.46, h = basis * ZA;
   s.platz(h);
   setzeText(doc, farbe);
-  doc.text(txt, s.x(), s.zustand.y + h * 0.78);
+  doc.text(txt, s.x(), s.zustand.y + (h - basis) / 2 + basis * 0.78);
   s.zustand.y += h;
 }
 
@@ -319,11 +321,11 @@ function prosaZeile(doc, s, txt, { fett, farbe }) {
   doc.setFont("Sans", fett ? "bold" : "normal");
   doc.setFontSize(8 * SK);
   const zeilen = doc.splitTextToSize(txt, SPALTE_B - 1);
-  const h = 3.9 * SK;
+  const basis = 3.9 * SK, h = basis * ZA;
   zeilen.forEach((z) => {
     s.platz(h);
     setzeText(doc, farbe);
-    doc.text(z, s.x(), s.zustand.y + h * 0.77);
+    doc.text(z, s.x(), s.zustand.y + (h - basis) / 2 + basis * 0.77);
     s.zustand.y += h;
   });
 }
@@ -416,9 +418,9 @@ function seiteSetzen(doc, inhalt, kopf, modell) {
     setzeStrich(doc, C.linie);
     doc.setLineWidth(0.25);
     doc.line(s.x(), s.zustand.y + 4.8 * SK, s.x() + SPALTE_B, s.zustand.y + 4.8 * SK);
-    s.zustand.y += 6.6 * SK;
+    s.zustand.y += 6.6 * SK + 1.2 * (ZA - 1) * 4;
     sek.zeilen.forEach((zl) => (zl.pd ? polynomdivisionSetzen(doc, s, zl) : zeileSetzen(doc, s, zl)));
-    s.zustand.y += 3 * SK;
+    s.zustand.y += 3 * SK * ZA;
   });
 
   // Fußzeile
@@ -440,12 +442,31 @@ export async function allgemeinesPdf({ kopf, inhalt, modell, dateiname }) {
   const schriften = await ladeSchriften();
   // Ausnahmslos eine Seite: so lange kleiner setzen, bis nichts mehr überläuft.
   let doc = null;
+  const versuch = () => {
+    const d = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait", compress: true });
+    schriftenEinbinden(d, schriften);
+    return { d, ueber: seiteSetzen(d, inhalt, kopf, modell) };
+  };
+  ZA = 1;
   for (SK = 1; SK >= 0.4; SK = Math.round((SK - 0.04) * 100) / 100) {
-    doc = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait", compress: true });
-    schriftenEinbinden(doc, schriften);
-    if (!seiteSetzen(doc, inhalt, kopf, modell)) break;
+    const v = versuch();
+    doc = v.d;
+    if (!v.ueber) break;
   }
-  SK = 1;
+  // Viel Platz übrig? Dann Zeilen etwas lockerer setzen — aber nie bis an den Rand:
+  // größten passenden Faktor (max. 1,35) suchen und davon nur 70 % nutzen.
+  if (SK === 1) {
+    let zaMax = 1;
+    for (let z = 1.35; z > 1.001; z = Math.round((z - 0.05) * 100) / 100) {
+      ZA = z;
+      if (!versuch().ueber) { zaMax = z; break; }
+    }
+    if (zaMax > 1) {
+      ZA = Math.round((1 + (zaMax - 1) * 0.7) * 100) / 100;
+      doc = versuch().d;
+    }
+  }
+  SK = 1; ZA = 1;
   doc.save(dateiname);
 }
 
