@@ -50,7 +50,7 @@ function alsBruch(p) {
   return { z: Math.max(1, Math.round(p * 100)), nn: 100 };
 }
 
-function Kopf({ n, p, k, setN, setP, setK, pT, bruch, setBruch }) {
+function Kopf({ n, p, k, setN, setP, setK, pT, qT, bruch, setBruch }) {
   const naechstesP = (richtung) => {
     // von Brüchen wie 1/6 aus zum nächsten 5-%-Schritt
     const liste = richtung > 0 ? P_WERTE.filter((v) => v > p + 1e-9) : P_WERTE.filter((v) => v < p - 1e-9).reverse();
@@ -58,7 +58,7 @@ function Kopf({ n, p, k, setN, setP, setK, pT, bruch, setBruch }) {
   };
   const zeilen = [
     { name: "n", kurz: "Versuche", label: "Versuche", wert: `${n}`, farbe: FARBEN.n, plus: () => setN(Math.min(40, n + 1)), minus: () => setN(Math.max(1, n - 1)) },
-    { name: "p", kurz: "Trefferwahrsch.", label: "Treffer\u00ADwahr\u00ADschein\u00ADlich\u00ADkeit", wert: pT, farbe: FARBEN.p, plus: () => { setBruch(null); setP(naechstesP(1)); }, minus: () => { setBruch(null); setP(naechstesP(-1)); } },
+    { name: "p", kurz: "Treffer-WKT", label: "Treffer\u00ADwahr\u00ADschein\u00ADlich\u00ADkeit", wert: <Wert t={pT} farbe={FARBEN.p} klammer={false} />, farbe: FARBEN.p, plus: () => { setBruch(null); setP(naechstesP(1)); }, minus: () => { setBruch(null); setP(naechstesP(-1)); } },
     { name: "k", kurz: "Treffer", label: "Treffer", wert: `${k}`, farbe: FARBEN.k, plus: () => setK(Math.min(n, k + 1)), minus: () => setK(Math.max(0, k - 1)) },
   ];
   // Zähler/Nenner ändern – aus einer Kommazahl wird dabei automatisch ein Bruch
@@ -83,8 +83,8 @@ function Kopf({ n, p, k, setN, setP, setK, pT, bruch, setBruch }) {
   const [zn, zp, zk] = zeilen;
   const Regler1 = ({ z }) => (
     <div>
-      <p style={{ fontSize: 10.5, fontWeight: 600, color: C.grau, lineHeight: 1.2, marginBottom: 2, textAlign: "center", whiteSpace: "nowrap" }}>
-        {z.kurz} <span style={{ color: z.farbe, fontWeight: 800 }}>{z.name}</span>
+      <p style={{ fontSize: 16, fontWeight: 700, color: C.tinte, lineHeight: 1.2, marginBottom: 4, textAlign: "center", whiteSpace: "nowrap" }}>
+        <span style={{ color: z.farbe, fontWeight: 800 }}>{z.name}</span> {z.kurz}
       </p>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>
         <button aria-label={`${z.name} verringern`} style={knopf(z.farbe)} onClick={z.minus}>−</button>
@@ -122,10 +122,10 @@ function Kopf({ n, p, k, setN, setP, setK, pT, bruch, setBruch }) {
       </div>
       {/* Formel von Bernoulli oben, Kurzform X ∼ B(n; p) darunter */}
       <div style={{ gridArea: "formel", minWidth: 0 }}>
-        <BernoulliFormel />
+        <BernoulliFormel n={n} k={k} pT={pT} qT={qT} />
         <p style={{ textAlign: "center", fontSize: "clamp(18px, 5vw, 24px)", fontWeight: 800, color: C.tinte, letterSpacing: "-0.02em",
           marginTop: 8, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>
-          X ∼ B(<span style={{ color: FARBEN.n }}>{n}</span>; <span style={{ color: FARBEN.p }}>{pT}</span>)
+          X ∼ B(<span style={{ color: FARBEN.n }}>{n}</span>; <Wert t={pT} farbe={FARBEN.p} klammer={false} />)
         </p>
       </div>
     </div>
@@ -133,9 +133,8 @@ function Kopf({ n, p, k, setN, setP, setK, pT, bruch, setBruch }) {
 }
 
 /* Bernoulli-Formel, farbig wie die Regler – immer einzeilig, Schriftgröße passt sich der Breite an */
-function BernoulliFormel() {
+function BernoulliFormel({ n, k, pT, qT }) {
   const v = (t, farbe) => <span style={{ color: farbe, fontWeight: 800 }}>{t}</span>;
-  const hoch = { fontSize: "0.62em", verticalAlign: "0.85em", lineHeight: 0, fontWeight: 700 };
   const rahmen = useRef(null), innen = useRef(null);
   const [gr, setGr] = useState(18);
   useEffect(() => {
@@ -150,24 +149,18 @@ function BernoulliFormel() {
     if (ro && rahmen.current) ro.observe(rahmen.current);
     window.addEventListener("resize", anpassen);
     return () => { if (ro) ro.disconnect(); window.removeEventListener("resize", anpassen); };
-  }, []);
+  }, [n, k, pT]);
   return (
     <div ref={rahmen} style={{ background: C.sand, borderRadius: 12, padding: "8px 6px 10px", overflow: "hidden" }}>
       <p style={{ fontSize: 10.5, fontWeight: 600, color: C.grau, marginBottom: 4, textAlign: "center", whiteSpace: "nowrap" }}>Formel von Bernoulli</p>
       <div ref={innen} style={{ display: "flex", alignItems: "center", gap: "0.2em", width: "max-content", margin: "0 auto",
         fontSize: gr, fontWeight: 700, color: C.tinte, whiteSpace: "nowrap" }}>
-        <span>P(X = {v("k", FARBEN.k)}) =</span>
-        <span style={{ display: "inline-flex", alignItems: "center" }}>
-          <span style={{ fontSize: "2.1em", fontWeight: 300, lineHeight: 1, marginTop: "-0.12em" }}>(</span>
-          <span style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", lineHeight: 1.05, margin: "0 1px" }}>
-            {v("n", FARBEN.n)}{v("k", FARBEN.k)}
-          </span>
-          <span style={{ fontSize: "2.1em", fontWeight: 300, lineHeight: 1, marginTop: "-0.12em" }}>)</span>
-        </span>
+        <span>P(X = {v(k, FARBEN.k)}) =</span>
+        <Binom o={n} u={k} farbeO={FARBEN.n} farbeU={FARBEN.k} />
         <span>·</span>
-        <span>{v("p", FARBEN.p)}<span style={hoch}>{v("k", FARBEN.k)}</span></span>
+        <Pot basis={<Wert t={pT} farbe={FARBEN.p} />} exp={<span style={{ color: FARBEN.k }}>{k}</span>} />
         <span>·</span>
-        <span>(1 − {v("p", FARBEN.p)})<span style={hoch}>{v("n", FARBEN.n)} − {v("k", FARBEN.k)}</span></span>
+        <Pot basis={<Wert t={qT} farbe={FARBEN.p} />} exp={n - k} />
       </div>
     </div>
   );
@@ -189,27 +182,29 @@ function Binom({ o, u, farbeO, farbeU }) {
   );
 }
 
-function Wert({ t, farbe }) {
-  // "1/6" als echter Bruch in Klammern, Dezimalzahlen schlicht
+function Wert({ t, farbe, klammer = true }) {
+  // "1/6" als echter Bruch (übereinander, optional in Klammern), Dezimalzahlen schlicht
   const m = /^(\d+)\/(\d+)$/.exec(t);
   if (!m) return <span style={{ color: farbe }}>{t}</span>;
   return (
     <span style={{ display: "inline-flex", alignItems: "center", verticalAlign: "middle", color: farbe }}>
-      <span style={{ ...KL, color: C.tinte }}>(</span>
+      {klammer && <span style={{ ...KL, color: C.tinte }}>(</span>}
       <span style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", lineHeight: 1.05, fontSize: "0.85em" }}>
         <span style={{ padding: "0 2px" }}>{m[1]}</span>
-        <span style={{ borderTop: `1.5px solid currentColor`, padding: "0 2px" }}>{m[2]}</span>
+        <span style={{ borderTop: `0.09em solid currentColor`, padding: "0 2px" }}>{m[2]}</span>
       </span>
-      <span style={{ ...KL, color: C.tinte }}>)</span>
+      {klammer && <span style={{ ...KL, color: C.tinte }}>)</span>}
     </span>
   );
 }
 
 function Pot({ basis, exp }) {
+  // Bruch-Basis (in Klammern, hoch): Exponent oben an der Klammer; Dezimalzahl: Exponent knapp über der Zeile
+  const bruch = React.isValidElement(basis) && /\//.test(String(basis.props?.t || ""));
   return (
-    <span style={{ display: "inline-flex", alignItems: "flex-start", verticalAlign: "middle" }}>
+    <span style={{ display: "inline-flex", alignItems: "flex-start", verticalAlign: "middle", lineHeight: bruch ? undefined : 1 }}>
       {basis}
-      <sup style={{ fontSize: "0.68em", fontWeight: 700, marginLeft: 1, marginTop: "-0.2em", lineHeight: 1 }}>{exp}</sup>
+      <sup style={{ fontSize: "0.68em", fontWeight: 700, marginLeft: 1, marginTop: bruch ? "0.05em" : "-0.12em", lineHeight: 1, verticalAlign: "baseline" }}>{exp}</sup>
     </span>
   );
 }
@@ -394,7 +389,7 @@ export function BernoulliBingo() {
 
       {/* Einstellungen + Verteilung */}
       <div style={karte}>
-        <Kopf n={n} p={p} k={k} setN={setN} setP={setP} setK={setK} pT={pT} bruch={bruch} setBruch={setBruch} />
+        <Kopf n={n} p={p} k={k} setN={setN} setP={setP} setK={setK} pT={pT} qT={qT} bruch={bruch} setBruch={setBruch} />
         <Histogramm n={n} p={p} k={k} modus={modus} simuliert={sim} letzter={fertig ? treffer : null} />
         <div style={{ display: "flex", gap: 6, overflowX: "auto", padding: "8px 0 4px" }}>
           {VORLAGEN.map((v) => (
@@ -437,7 +432,7 @@ export function BernoulliBingo() {
       <div style={{ ...karte, marginTop: 16 }}>
         <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 4 }}>Das Experiment</p>
         <p style={{ fontSize: 14, color: C.grau, lineHeight: 1.6, marginBottom: 12 }}>
-          {n} Versuche, jeder mit der Trefferwahrscheinlichkeit {pT}. Bingo gibt es bei <b>{ereignisText}</b> Treffer{k === 1 && modus === "gleich" ? "" : "n"}.
+          {n} Versuche, jeder mit der Trefferwahrscheinlichkeit <Wert t={pT} farbe={FARBEN.p} klammer={false} />. Bingo gibt es bei <b>{ereignisText}</b> Treffer{k === 1 && modus === "gleich" ? "" : "n"}.
         </p>
 
         <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(10, n)}, 1fr)`, gap: 5, marginBottom: 12 }}>

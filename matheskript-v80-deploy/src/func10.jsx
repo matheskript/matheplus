@@ -251,7 +251,7 @@ export function Mathilda() {
 
       {ansicht === "messung" ? (
         <>
-          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 32, letterSpacing: "-0.03em", lineHeight: 1.1 }}>Messbericht</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
@@ -265,7 +265,7 @@ export function Mathilda() {
         </>
       ) : ansicht === "auswertung" ? (
         <>
-          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 32, letterSpacing: "-0.03em", lineHeight: 1.1 }}>Auswertung</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
@@ -279,7 +279,7 @@ export function Mathilda() {
         </>
       ) : ansicht === "klasse" ? (
         <>
-          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <div className="flex gap-2 mb-4" style={{ overflowX: "auto" }}>
                 {SCHULKLASSEN.map((k) => (
@@ -300,7 +300,7 @@ export function Mathilda() {
         </>
       ) : ansicht === "vorbereiten" ? (
         <>
-          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 32, letterSpacing: "-0.03em", lineHeight: 1.1 }}>Klausur vorbereiten</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
@@ -314,7 +314,7 @@ export function Mathilda() {
         </>
       ) : ansicht === "plan" ? (
         <>
-          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 32, letterSpacing: "-0.03em", lineHeight: 1.1 }}>Mein Plan</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
@@ -328,7 +328,7 @@ export function Mathilda() {
         </>
       ) : ansicht === "bericht" ? (
         <>
-          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 32, letterSpacing: "-0.03em", lineHeight: 1.1 }}>Wochenbericht</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
@@ -342,7 +342,7 @@ export function Mathilda() {
         </>
       ) : ansicht === "abitur" ? (
         <>
-          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 32, letterSpacing: "-0.03em", lineHeight: 1.1 }}>Probeabitur</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
@@ -356,7 +356,7 @@ export function Mathilda() {
         </>
       ) : ansicht === "operatoren" ? (
         <>
-          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 32, letterSpacing: "-0.03em", lineHeight: 1.1 }}>Operatoren</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
@@ -370,7 +370,7 @@ export function Mathilda() {
         </>
       ) : ansicht === "begruenden" ? (
         <>
-          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 32, letterSpacing: "-0.03em", lineHeight: 1.1 }}>Begründen und Beweisen</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
@@ -384,7 +384,7 @@ export function Mathilda() {
         </>
       ) : ansicht === "modellieren" ? (
         <>
-          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 32, letterSpacing: "-0.03em", lineHeight: 1.1 }}>Modellieren</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
@@ -398,7 +398,7 @@ export function Mathilda() {
         </>
       ) : ansicht === "einheit" && einheitId ? (
         <>
-          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 30, letterSpacing: "-0.03em", lineHeight: 1.12 }}>{KOMP[einheitId]?.titel}</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
@@ -412,7 +412,7 @@ export function Mathilda() {
         </>
       ) : ansicht === "wiederholen" ? (
         <>
-          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 30, letterSpacing: "-0.03em", lineHeight: 1.12 }}>Wiederholen</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
@@ -426,7 +426,7 @@ export function Mathilda() {
         </>
       ) : ansicht === "karte" ? (
         <>
-          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 34, letterSpacing: "-0.03em", lineHeight: 1.05 }}>Lernlandkarte</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
@@ -440,7 +440,7 @@ export function Mathilda() {
         </>
       ) : ansicht === "einstufung" ? (
         <>
-          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 34, letterSpacing: "-0.03em", lineHeight: 1.05 }}>Einstufung</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
@@ -454,7 +454,7 @@ export function Mathilda() {
         </>
       ) : ansicht === "profil2" ? (
         <>
-          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 34, letterSpacing: "-0.03em", lineHeight: 1.05 }}>Profil</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
@@ -468,7 +468,7 @@ export function Mathilda() {
         </>
       ) : ansicht === "profil" ? (
         <>
-          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 36, letterSpacing: "-0.03em", lineHeight: 1.05 }}>Fortschritt</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
@@ -482,7 +482,7 @@ export function Mathilda() {
         </>
       ) : ansicht === "kopf" ? (
         <>
-          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(26px, 8vw, 36px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Kopfrechnen</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
@@ -496,7 +496,7 @@ export function Mathilda() {
         </>
       ) : ansicht === "ebenen" ? (
         <>
-          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(28px, 8vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Ebenen-Visualizer</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
@@ -510,7 +510,7 @@ export function Mathilda() {
         </>
       ) : ansicht === "vektoren" ? (
         <>
-          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(28px, 8vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Vektoren</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
@@ -524,7 +524,7 @@ export function Mathilda() {
         </>
       ) : ansicht === "bernoulli" ? (
         <>
-          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(28px, 8vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Bernoulli-Kette</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
@@ -538,7 +538,7 @@ export function Mathilda() {
         </>
       ) : ansicht === "vierfelder" ? (
         <>
-          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(28px, 8vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Vier-Felder-Tafel</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
@@ -552,7 +552,7 @@ export function Mathilda() {
         </>
       ) : ansicht === "stochastik" ? (
         <>
-          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(28px, 8vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Stochastik</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
@@ -566,7 +566,7 @@ export function Mathilda() {
         </>
       ) : ansicht === "analysis" ? (
         <>
-          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 36, letterSpacing: "-0.03em", lineHeight: 1.05 }}>Analysis</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
@@ -580,7 +580,7 @@ export function Mathilda() {
         </>
       ) : ansicht === "formeln" ? (
         <>
-          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 34, letterSpacing: "-0.03em", lineHeight: 1.05 }}>Formelsammlung</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
@@ -594,7 +594,7 @@ export function Mathilda() {
         </>
       ) : ansicht === "plotter" ? (
         <>
-          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 33, letterSpacing: "-0.03em", lineHeight: 1.05 }}>Polynomplotter</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
@@ -608,7 +608,7 @@ export function Mathilda() {
         </>
       ) : ansicht === "ableitungstrainer" ? (
         <>
-          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 33, letterSpacing: "-0.03em", lineHeight: 1.05 }}>Ableitungstrainer</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
@@ -622,7 +622,7 @@ export function Mathilda() {
         </>
       ) : ansicht === "advplotter" ? (
         <>
-          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 33, letterSpacing: "-0.03em", lineHeight: 1.05 }}>Advanced Plotter</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
@@ -638,7 +638,7 @@ export function Mathilda() {
         <Startseite gehe={gehe} />
       ) : ansicht === "kurse" ? (
         <>
-          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 36, letterSpacing: "-0.03em", lineHeight: 1 }}>Schulkurse</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
@@ -652,7 +652,7 @@ export function Mathilda() {
         </>
       ) : ansicht === "ki" ? (
         <>
-          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 29, letterSpacing: "-0.03em", lineHeight: 1.05 }}>Aufgabengenerator</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
@@ -666,7 +666,7 @@ export function Mathilda() {
         </>
       ) : ansicht === "diffq" ? (
         <>
-          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 29, letterSpacing: "-0.03em", lineHeight: 1.05 }}>Differenzenquotient</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
@@ -680,7 +680,7 @@ export function Mathilda() {
         </>
       ) : ansicht === "training" ? (
         <>
-          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 36, letterSpacing: "-0.03em", lineHeight: 1 }}>Training</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
@@ -696,7 +696,7 @@ export function Mathilda() {
       <>
 
       {/* Meer */}
-      <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+      <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
         <div className="mx-auto px-6 pt-12 pb-4" style={{ maxWidth: 620 }}>
           <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 40, letterSpacing: "-0.03em", lineHeight: 1 }}>Mathilda<span style={{ color: C.gruen }}>.AI</span></h1>
           <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
