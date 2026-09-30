@@ -12,6 +12,128 @@
    ============================================================ */
 
 export const VIDEOKURSE = {
+  penpaper: {
+    titel: "Das Blatt als Arbeitsplatz des Denkens",
+    intro: "Sieben Lektionen, ein System: Wie du so aufschreibst, dass dein Blatt dein Denken entlastet statt belastet – von den zwei Grundgesetzen über die 7 Goldenen Regeln bis zum Pen-&-Paper-Check vor jeder Abgabe. Schau die Lektionen in dieser Reihenfolge und nimm nach jeder ein Blatt Papier zur Hand.",
+    lektionen: [
+      {
+        id: "p1", kapitel: "Fundament", titel: "Dein Blatt ist dein Arbeitsplatz", youtube: "qWULZSn8kJk",
+        worum: "Das Blatt ist nicht der Ort, an dem am Ende das Ergebnis steht – es ist dein externes Arbeitsgedächtnis. Wer alles im Kopf hält, hat keinen Platz mehr zum Denken. Zwei Gesetze tragen das ganze System: Dein Blatt muss dein Denken entlasten, nicht zusätzlich belasten. Und jeder relevante Schritt muss für dein späteres Ich rekonstruierbar sein.",
+        mitnehmen: [
+          "Gesetz 1: Das Blatt entlastet dein Denken – es belastet es nicht zusätzlich",
+          "Gesetz 2: Jeder relevante Schritt ist für dein späteres Ich rekonstruierbar",
+          "Klarheit vor Kompression: lieber eine Zeile mehr als ein Gedanke zu viel im Kopf",
+        ],
+        merksatz: "Das Ziel ist nicht, weniger denken zu müssen. Das Ziel ist, besser denken zu können.",
+        check: {
+          frage: "Woran erkennst du, dass eine Lösung Gesetz 2 erfüllt?",
+          optionen: ["Das Endergebnis ist richtig", "Du kannst den Weg am nächsten Tag ohne Erinnerung Schritt für Schritt nachvollziehen", "Die Lösung passt auf eine halbe Seite"],
+          richtig: 1,
+          erklaerung: "Rekonstruierbarkeit heißt: Dein späteres Ich – oder die Lehrkraft – kann jeden entscheidenden Schritt nachvollziehen, ohne dass du daneben stehst und erklärst. Ein richtiges Ergebnis allein zeigt das nicht.",
+        },
+        ueben: { label: "Mathilda: Blatt prüfen", ansicht: "analyse", foto: "blatt" },
+      },
+      {
+        id: "p2", kapitel: "Fundament", titel: "Die 7 Goldenen Regeln", youtube: "n2F5VSO45XA",
+        worum: "Sieben Regeln machen aus einem Zettelchaos einen lesbaren Rechenweg. Sie klingen banal – und genau deshalb werden sie in Klausuren ständig gebrochen. Du lernst, was jede Regel konkret auf dem Papier bedeutet: eine mathematische Idee pro Zeile, Zeilen untereinander statt nebeneinander, Weißraum als Werkzeug.",
+        mitnehmen: [
+          "1 Raum geben · 2 lesbar schreiben · 3 entscheidende Schritte zeigen · 4 vertikal ordnen",
+          "5 Operatoren korrekt verwenden · 6 Nebenrechnung vom Hauptweg trennen · 7 Ergebnisse abschließen",
+          "Eine mathematische Idee pro Zeile – Gleichheitszeichen untereinander",
+        ],
+        merksatz: "Weißraum ist keine Verschwendung, sondern Denkfläche.",
+        check: {
+          frage: "Du rechnest eine Gleichung um. Welche Anordnung folgt den Goldenen Regeln?",
+          optionen: ["Alle Umformungen in einer Zeile, mit Pfeilen verbunden", "Jede Umformung in eine neue Zeile, die Gleichheitszeichen untereinander", "Nur Aufgabe und Ergebnis, die Umformungen im Kopf"],
+          richtig: 1,
+          erklaerung: "Regel 4 (vertikal ordnen) und Regel 3 (entscheidende Schritte zeigen): Jede Umformung bekommt ihre eigene Zeile, die Gleichheitszeichen stehen untereinander. So sieht man sofort, wo sich was verändert hat.",
+        },
+      },
+      {
+        id: "p3", kapitel: "Handwerk", titel: "Das Gleichheitszeichen ist kein Pfeil", youtube: "OgftiLPhGxQ",
+        worum: "„=“ bedeutet: Links und rechts steht derselbe Wert. Nicht „und dann“, nicht „daraus folgt“. Wer das Gleichheitszeichen als Pfeil benutzt, schreibt falsche Aussagen auf – und verliert in Klausuren Punkte, auch wenn das Ergebnis stimmt. Hier lernst du, wann „=“, wann „⇔“ und wann „⇒“ gehört und wie du Umformungen sauber kommentierst.",
+        mitnehmen: [
+          "„=“ verbindet gleiche Werte, „⇔“ gleichwertige Gleichungen, „⇒“ eine Folgerung",
+          "Umformungen rechts mit Strich kommentieren: | −4 oder | : 2",
+          "Nebenrechnungen abgrenzen (Kasten, Rand) – der Hauptweg bleibt ungestört",
+        ],
+        merksatz: "Jedes Gleichheitszeichen auf deinem Blatt ist eine Behauptung. Sie muss stimmen.",
+        check: {
+          frage: "Welche Zeile ist mathematisch korrekt notiert?",
+          optionen: ["2x + 4 = 10 = 2x = 6 = x = 3", "2x + 4 = 10  | −4  ⇔  2x = 6  | : 2  ⇔  x = 3", "2x + 4 = 10 → −4 = 6 → : 2 = 3"],
+          richtig: 1,
+          erklaerung: "In der ersten Zeile steht u. a. „10 = 2x“ und „6 = x = 3“ als Kette – das behauptet, dass alle Ausdrücke denselben Wert haben. Richtig ist: Umformung kommentieren und gleichwertige Gleichungen mit ⇔ (oder jeweils in eine neue Zeile) verbinden.",
+        },
+        ueben: { label: "Mathilda: Weg prüfen", ansicht: "analyse", foto: "weg" },
+      },
+      {
+        id: "p4", kapitel: "Arbeitsprozess", titel: "Der Arbeitsprozess in 6 Stufen", youtube: "KR0tK27u_uA",
+        worum: "Wer sofort losrechnet, rechnet oft ohne Ziel. Der Matheskript-Arbeitsprozess gibt jeder Aufgabe dieselbe Reihenfolge: Orientieren, Struktur erkennen, Plan formulieren, Ausführen, Prüfen, Abschließen. Die ersten drei Stufen kosten eine Minute – und sparen dir zehn.",
+        mitnehmen: [
+          "Orientieren: Was ist gegeben, was ist gesucht? Operator lesen",
+          "Struktur erkennen und einen Plan in einem Satz formulieren – erst dann rechnen",
+          "Prüfen und Abschließen: Probe, Plausibilität, Antwortsatz, Ergebnis markieren",
+        ],
+        merksatz: "Erst der Plan, dann die Rechnung – nie umgekehrt.",
+        check: {
+          frage: "Welche Stufe kommt direkt vor dem Ausführen?",
+          optionen: ["Prüfen", "Plan formulieren", "Abschließen"],
+          richtig: 1,
+          erklaerung: "Die Reihenfolge lautet: Orientieren → Struktur erkennen → Plan formulieren → Ausführen → Prüfen → Abschließen. Ohne Plan rechnest du ohne klares Ziel – einer der sechs fatalen Fehler.",
+        },
+        ueben: { label: "Aufgabe rechnen", ansicht: "ki" },
+      },
+      {
+        id: "p5", kapitel: "Arbeitsprozess", titel: "Wenn du feststeckst: das 5-Fragen-Protokoll", youtube: "_wnGH7uVcN0",
+        worum: "Steckenbleiben ist kein Zeichen von Unfähigkeit, sondern ein normaler Teil von Mathematik. Entscheidend ist, was du dann tust. Statt auf die Lösung zu schauen, arbeitest du fünf Fragen ab – und schreibst die Antworten auf dein Blatt. Meist löst sich der Knoten schon bei Frage drei.",
+        mitnehmen: [
+          "1 Was weiß ich sicher? · 2 Was verstehe ich nicht genau?",
+          "3 Was ist das kleinste Teilproblem? · 4 Welche Darstellung hilft (Skizze, Tabelle, Graph)?",
+          "5 Was kann ich testen? – Zahlen einsetzen, Spezialfall ausprobieren",
+        ],
+        merksatz: "Ich erwarte nicht, alles sofort zu verstehen. Ich erwarte von mir, präzise herauszufinden, was ich noch nicht verstehe.",
+        check: {
+          frage: "Du kommst bei einer Aufgabe nicht weiter. Was ist laut Protokoll ein guter nächster Schritt?",
+          optionen: ["Sofort die Musterlösung ansehen", "Das kleinste Teilproblem suchen und nur das lösen", "Die Aufgabe überspringen und später hoffen"],
+          richtig: 1,
+          erklaerung: "Frage 3 des Protokolls: Was ist das kleinste Teilproblem? Wer ein kleines Stück löst, gewinnt Information und Selbstvertrauen. Die Musterlösung sofort anzusehen heißt, Lösungen zu konsumieren statt selbst zu rekonstruieren.",
+        },
+      },
+      {
+        id: "p6", kapitel: "Mathe & Ich", titel: "Die 6 fatalen Fehler – und warum Fehler Information sind", youtube: "-XkemtBqrNo",
+        worum: "Es gibt sechs Arten, wie gute Schülerinnen und Schüler sich selbst sabotieren: wichtige Schritte im Kopf machen, mehrere Schritte in eine Zeile pressen, „=“ als Pfeil benutzen, ohne klares Ziel rechnen, Fehler mit Unfähigkeit verwechseln und Lösungen konsumieren statt rekonstruieren. Die ersten vier sind Handwerk – die letzten zwei sind Haltung.",
+        mitnehmen: [
+          "Handwerk: Kopfschritte, Zeilen-Quetschen, „=“ als Pfeil, Rechnen ohne Ziel",
+          "Haltung: Ein Fehler zeigt dir, wo du gerade stehst – nicht, wer du bist",
+          "Mathe ist kein Talenttest. Mathe ist eine Art zu denken – und die kann man lernen",
+        ],
+        merksatz: "Ein Fehler ist eine präzise Information über den nächsten Lernschritt.",
+        check: {
+          frage: "Welcher der sechs fatalen Fehler ist ein Haltungsfehler und kein Handwerksfehler?",
+          optionen: ["Mehrere Schritte in eine Zeile pressen", "Fehler mit Unfähigkeit verwechseln", "Das Gleichheitszeichen als Pfeil benutzen"],
+          richtig: 1,
+          erklaerung: "„Ich hab’s falsch, also kann ich kein Mathe“ ist ein Denkfehler über dich selbst, kein Schreibfehler. Er kostet mehr als jeder Rechenfehler, weil er dich aufhören lässt, genau hinzuschauen.",
+        },
+      },
+      {
+        id: "p7", kapitel: "Abschluss", titel: "Der Pen-&-Paper-Check und deine 7-Tage-Routine", youtube: "ZPLUGYhQKoY",
+        worum: "Vor jeder Abgabe prüfst du dein Blatt mit acht Punkten – in unter einer Minute. Und damit das System zur Gewohnheit wird, bekommst du eine 7-Tage-Routine: eine alte Lösung sauber neu schreiben, 15 Minuten ohne Musterlösung an einer schweren Aufgabe arbeiten, eigene Lösungen mit dem Check bewerten.",
+        mitnehmen: [
+          "Check: Aufgaben klar getrennt · Hauptweg erkennbar · ein Schritt pro Zeile · „=“ korrekt",
+          "Check: Einheiten und Definitionsbereich · Endergebnis markiert · morgen noch rekonstruierbar",
+          "7 Tage, jeden Tag 15 Minuten: Neu-Schreiben, Aushalten ohne Lösung, Selbst-Bewerten",
+        ],
+        merksatz: "Fortschritt heißt nicht, dass Mathe sich leicht anfühlt – sondern dass du immer eigenständiger arbeitest.",
+        check: {
+          frage: "Welcher Punkt gehört zum Pen-&-Paper-Check vor der Abgabe?",
+          optionen: ["Möglichst wenig Platz verbrauchen", "Das Endergebnis ist klar markiert und abgeschlossen", "Nebenrechnungen in den Hauptweg einbauen"],
+          richtig: 1,
+          erklaerung: "Regel 7 und Check-Punkt: Ergebnisse abschließen – doppelt unterstrichen oder eingerahmt, bei Sachaufgaben mit Antwortsatz. Platz sparen und Nebenrechnungen mischen widersprechen den Goldenen Regeln.",
+        },
+        ueben: { label: "Mathilda: Blatt prüfen", ansicht: "analyse", foto: "blatt" },
+      },
+    ],
+  },
   analysis1: {
     titel: "Der Weg zur Kurvendiskussion",
     intro: "Fünf Lektionen, eine Kette: von der Steigung zwischen zwei Punkten bis zur vollständigen Kurvendiskussion. Jede Lektion baut auf der vorherigen auf – schau sie in dieser Reihenfolge.",

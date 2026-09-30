@@ -668,6 +668,29 @@ export const KAUF_LINKS = {
 
 export const KURSE = [
   {
+    id: "penpaper",
+    titel: "Pen & Paper",
+    unter: "Das Blatt als Arbeitsplatz des Denkens",
+    preis: 100,
+    stufe: "Klasse 8 – 13",
+    umfang: "7 Bausteine · Videokurs mit Kurz-Checks",
+    grafik: "papier",
+    kurz: "Das Fundament für jedes Thema: klar aufschreiben, strukturiert arbeiten, sicher mit Fehlern umgehen – nach dem Matheskript-System.",
+    text: [
+      "Wer in Klausuren scheitert, scheitert fast nie am Stoff, sondern an der Art zu arbeiten: Schritte im Kopf, zu viel in einer Zeile, ein Gleichheitszeichen als Pfeil, Rechnen ohne Ziel. Pen & Paper setzt genau dort an – nicht mit mehr Aufgaben, sondern mit besserem Denken auf dem Papier.",
+      "Der Kurs behandelt dein Blatt als Arbeitsplatz des Denkens: zwei Grundgesetze, die 7 Goldenen Regeln, ein Arbeitsprozess in sechs Stufen, das 5-Fragen-Protokoll für den Moment, in dem du feststeckst, und ein Pen-&-Paper-Check für jede Abgabe. Das alles gilt in Analysis genauso wie in Vektoren und Stochastik.",
+    ],
+    lernst: [
+      "So aufschreiben, dass dein Blatt dein Denken entlastet statt belastet",
+      "Die 7 Goldenen Regeln sicher anwenden – eine Idee pro Zeile, vertikal geordnet",
+      "Gleichheitszeichen, Äquivalenz- und Folgepfeile korrekt verwenden",
+      "Jede Aufgabe mit dem 6-Stufen-Prozess angehen: Orientieren bis Abschließen",
+      "Mit dem 5-Fragen-Protokoll weiterkommen, statt auf die Lösung zu schauen",
+      "Deine Lösung vor der Abgabe mit dem Pen-&-Paper-Check prüfen",
+    ],
+    fuerWen: "Für alle ab Klasse 8 bis zum Abitur – unabhängig vom Thema. Besonders für alle, die „eigentlich alles verstehen“, aber in Klausuren trotzdem Punkte verlieren. Am besten vor oder parallel zu den Themenkursen.",
+  },
+  {
     id: "analysis1",
     titel: "Analysis 1",
     unter: "Von der Geraden zur Kurvendiskussion",

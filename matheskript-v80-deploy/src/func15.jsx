@@ -258,7 +258,7 @@ export function VideokursPlayer({ kursId, kursTitel, start = 0, onZurueck, gehe 
 
       {/* Jetzt üben */}
       {l.ueben && gehe && (
-        <button onClick={() => gehe({ ansicht: l.ueben.ansicht, ziel: l.ueben.ziel })}
+        <button onClick={() => gehe({ ansicht: l.ueben.ansicht, ziel: l.ueben.ziel, foto: l.ueben.foto })}
           style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 22,
             padding: "14px 16px", borderRadius: 14, cursor: "pointer", fontFamily: "inherit", textAlign: "left",
             border: `1px solid ${C.linie}`, background: C.weiss, boxShadow: "0 2px 14px rgba(15,26,51,0.06)" }}>

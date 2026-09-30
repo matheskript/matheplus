@@ -861,6 +861,33 @@ export function KursGrafik({ art, hoehe = 150 }) {
         </>
       )}
 
+      {art === "papier" && (
+        <>
+          {/* Blatt mit sauber untereinander geordnetem Rechenweg und Stift */}
+          <g transform="rotate(-4 170 78)">
+            <rect x="78" y="14" width="184" height="126" rx="6" fill="rgba(255,255,255,0.94)" />
+            {[40, 64, 88, 112].map((y) => <line key={y} x1="90" y1={y} x2="250" y2={y} stroke="#C9D6EE" strokeWidth="1" />)}
+            <line x1="102" y1="14" x2="102" y2="140" stroke={C.granaHell} strokeWidth="1" opacity="0.6" />
+            <g fontFamily="Montserrat, system-ui, sans-serif" fontWeight="700" fontSize="15" fill={C.seeTief}>
+              <text x="160" y="36" textAnchor="end">2x + 4</text><text x="166" y="36">= 10</text>
+              <text x="160" y="60" textAnchor="end">2x</text><text x="166" y="60">= 6</text>
+              <text x="160" y="84" textAnchor="end">x</text><text x="166" y="84">= 3</text>
+            </g>
+            <g fontFamily="Montserrat, system-ui, sans-serif" fontWeight="600" fontSize="11" fill={C.gruen}>
+              <text x="212" y="36">| − 4</text><text x="212" y="60">| : 2</text>
+            </g>
+            <line x1="142" y1="90" x2="198" y2="90" stroke={C.flaggold} strokeWidth="2" />
+            <line x1="142" y1="94" x2="198" y2="94" stroke={C.flaggold} strokeWidth="2" />
+          </g>
+          <g transform="rotate(38 282 96)">
+            <rect x="272" y="30" width="18" height="96" rx="4" fill={C.flaggold} />
+            <rect x="272" y="30" width="18" height="16" rx="4" fill={C.goldWarm} />
+            <path d="M 272 126 L 290 126 L 281 144 Z" fill="#F3E2B0" />
+            <path d="M 278 138 L 284 138 L 281 144 Z" fill={C.seeTief} />
+          </g>
+        </>
+      )}
+
       {art === "vektor" && (
         <>
           <path d="M 120 100 L 235 62 L 300 92 L 185 130 Z" fill="rgba(255,255,255,0.14)" stroke="rgba(255,255,255,0.45)" strokeWidth="1.5" />
