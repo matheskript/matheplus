@@ -71,12 +71,12 @@ function Kopf({ n, p, k, setN, setP, setK, pT, qT, bruch, setBruch }) {
     setP(z / nn);
   };
   const mini = {
-    width: 28, height: 26, borderRadius: 7, border: `1px solid ${FARBEN.p}55`, background: C.weiss,
+    width: 25, height: 26, borderRadius: 7, border: `1px solid ${FARBEN.p}55`, background: C.weiss,
     color: FARBEN.p, fontSize: 15, fontWeight: 700, fontFamily: "inherit", cursor: "pointer", padding: 0, lineHeight: 1,
     display: "flex", alignItems: "center", justifyContent: "center",
   };
-  const knopf = (farbe) => ({
-    width: 28, height: 28, flexShrink: 0, borderRadius: 8, border: `1.5px solid ${farbe}66`, background: `${farbe}14`,
+  const knopf = (farbe, gr = 28) => ({
+    width: gr, height: gr, flexShrink: 0, borderRadius: 8, border: `1.5px solid ${farbe}66`, background: `${farbe}14`,
     color: farbe, fontSize: 17, fontWeight: 700, fontFamily: "inherit", cursor: "pointer", padding: 0, lineHeight: 1,
     display: "flex", alignItems: "center", justifyContent: "center",
   });
@@ -88,11 +88,11 @@ function Kopf({ n, p, k, setN, setP, setK, pT, qT, bruch, setBruch }) {
           ? <>{z.kurz} <span style={{ color: z.farbe, fontWeight: 800 }}>{z.name}</span></>
           : <><span style={{ color: z.farbe, fontWeight: 800 }}>{z.name}</span> {z.kurz}</>}
       </p>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>
-        <button aria-label={`${z.name} verringern`} style={knopf(z.farbe)} onClick={z.minus}>−</button>
-        <span style={{ minWidth: 42, textAlign: "center", fontSize: "clamp(17px, 4.8vw, 22px)", fontWeight: 800, color: z.farbe,
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: z.name === "p" ? 4 : 3 }}>
+        <button aria-label={`${z.name} verringern`} style={knopf(z.farbe, z.name === "p" ? 28 : 26)} onClick={z.minus}>−</button>
+        <span style={{ minWidth: z.name === "p" ? 42 : 36, textAlign: "center", fontSize: "clamp(17px, 4.8vw, 22px)", fontWeight: 800, color: z.farbe, lineHeight: z.name === "p" ? undefined : 1,
           fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap", letterSpacing: "-0.02em" }}>{z.wert}</span>
-        <button aria-label={`${z.name} erhöhen`} style={knopf(z.farbe)} onClick={z.plus}>+</button>
+        <button aria-label={`${z.name} erhöhen`} style={knopf(z.farbe, z.name === "p" ? 28 : 26)} onClick={z.plus}>+</button>
       </div>
     </div>
   );
@@ -102,14 +102,14 @@ function Kopf({ n, p, k, setN, setP, setK, pT, qT, bruch, setBruch }) {
         @media (max-width:560px){.bk-kopf{grid-template-columns:minmax(0,1fr);grid-template-areas:"formel" "regler";gap:12px}}`}</style>
       {/* Regler: links n (oben) und k (unten), rechts p mit Kommazahl- und Bruch-Knöpfen */}
       <div style={{ gridArea: "regler", display: "flex", justifyContent: "center", alignItems: "stretch", gap: 10 }}>
-        <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 8, paddingTop: 7 }}>
+        <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 6, paddingTop: 7, paddingBottom: 7 }}>
           <Regler1 z={zn} />
           <Regler1 z={zk} />
         </div>
-        <div style={{ display: "flex", flexDirection: "column", justifyContent: "flex-start", gap: 6, padding: "6px 8px",
+        <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 6, padding: "6px 5px",
           borderRadius: 12, border: `1px solid ${FARBEN.p}33`, background: `${FARBEN.p}08` }}>
           <Regler1 z={zp} />
-          <div style={{ display: "flex", justifyContent: "center", gap: 10 }}>
+          <div style={{ display: "flex", justifyContent: "center", gap: 6 }}>
             {[["z", "Zähler"], ["nn", "Nenner"]].map(([teil, t]) => (
               <div key={teil} style={{ textAlign: "center" }}>
                 <p style={{ fontSize: 9.5, fontWeight: 600, color: C.grau, lineHeight: 1.1, marginBottom: 2 }}>{t}</p>
@@ -124,7 +124,7 @@ function Kopf({ n, p, k, setN, setP, setK, pT, qT, bruch, setBruch }) {
       </div>
       {/* Formel von Bernoulli oben, Kurzform X ∼ B(n; p) darunter */}
       <div style={{ gridArea: "formel", minWidth: 0 }}>
-        <BernoulliFormel n={n} k={k} pT={pT} qT={qT} />
+        <BernoulliFormel n={n} k={k} pT={pT} qT={qT} wert={bin(n, p, k)} />
         <p style={{ textAlign: "center", fontSize: "clamp(18px, 5vw, 24px)", fontWeight: 800, color: C.tinte, letterSpacing: "-0.02em",
           marginTop: 8, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>
           X ∼ B(<span style={{ color: FARBEN.n }}>{n}</span>; <Wert t={pT} farbe={FARBEN.p} klammer={false} />)
@@ -135,16 +135,20 @@ function Kopf({ n, p, k, setN, setP, setK, pT, qT, bruch, setBruch }) {
 }
 
 /* Bernoulli-Formel, farbig wie die Regler – immer einzeilig, Schriftgröße passt sich der Breite an */
-function BernoulliFormel({ n, k, pT, qT }) {
+function BernoulliFormel({ n, k, pT, qT, wert }) {
+  // Ergebnis auf höchstens 3 Nachkommastellen; geht es nicht auf, folgt „…“
+  const gerundet = Math.round(wert * 1000) / 1000;
+  const exakt = Math.abs(wert * 1000 - Math.round(wert * 1000)) < 1e-9;
+  const ergebnis = String(gerundet).replace(".", ",") + (exakt ? "" : "…");
   const v = (t, farbe) => <span style={{ color: farbe, fontWeight: 800 }}>{t}</span>;
   const rahmen = useRef(null), innen = useRef(null);
-  const [gr, setGr] = useState(18);
+  const [gr, setGr] = useState(16);
   useEffect(() => {
     const anpassen = () => {
       if (!rahmen.current || !innen.current) return;
       const platz = rahmen.current.clientWidth - 12;
-      const breite18 = innen.current.scrollWidth * (18 / parseFloat(getComputedStyle(innen.current).fontSize));
-      setGr(Math.max(9, Math.min(18, Math.floor((18 * platz / breite18) * 10) / 10)));
+      const breite16 = innen.current.scrollWidth * (16 / parseFloat(getComputedStyle(innen.current).fontSize));
+      setGr(Math.max(9, Math.min(16, Math.floor((16 * platz / breite16) * 10) / 10)));
     };
     anpassen();
     const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(anpassen) : null;
@@ -163,6 +167,8 @@ function BernoulliFormel({ n, k, pT, qT }) {
         <Pot basis={<Wert t={pT} farbe={FARBEN.p} />} exp={<span style={{ color: FARBEN.k }}>{k}</span>} />
         <span>·</span>
         <Pot basis={<Wert t={qT} farbe={FARBEN.p} />} exp={n - k} />
+        <span>=</span>
+        <span style={{ fontVariantNumeric: "tabular-nums" }}>{ergebnis}</span>
       </div>
     </div>
   );
