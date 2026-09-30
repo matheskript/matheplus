@@ -41,7 +41,16 @@ const VORLAGEN = [
 
 /* ---------- Kopf: X ~ B(n; p) mit k, groß und farbig, + / − darunter ---------- */
 
-function Kopf({ n, p, k, setN, setP, setK }) {
+// Wahrscheinlichkeit als (möglichst einfachen) Bruch mit Nenner bis 100
+function alsBruch(p) {
+  for (let d = 1; d <= 100; d++) {
+    const z = Math.round(p * d);
+    if (Math.abs(p - z / d) < 1e-9) return { z, nn: d };
+  }
+  return { z: Math.max(1, Math.round(p * 100)), nn: 100 };
+}
+
+function Kopf({ n, p, k, setN, setP, setK, pT, bruch, setBruch }) {
   const naechstesP = (richtung) => {
     // von Brüchen wie 1/6 aus zum nächsten 5-%-Schritt
     const liste = richtung > 0 ? P_WERTE.filter((v) => v > p + 1e-9) : P_WERTE.filter((v) => v < p - 1e-9).reverse();
@@ -49,67 +58,116 @@ function Kopf({ n, p, k, setN, setP, setK }) {
   };
   const zeilen = [
     { name: "n", kurz: "Versuche", label: "Versuche", wert: `${n}`, farbe: FARBEN.n, plus: () => setN(Math.min(40, n + 1)), minus: () => setN(Math.max(1, n - 1)) },
-    { name: "p", kurz: "Trefferwahrsch.", label: "Treffer\u00ADwahr\u00ADschein\u00ADlich\u00ADkeit", wert: pText(p), farbe: FARBEN.p, plus: () => setP(naechstesP(1)), minus: () => setP(naechstesP(-1)) },
+    { name: "p", kurz: "Trefferwahrsch.", label: "Treffer\u00ADwahr\u00ADschein\u00ADlich\u00ADkeit", wert: pT, farbe: FARBEN.p, plus: () => { setBruch(null); setP(naechstesP(1)); }, minus: () => { setBruch(null); setP(naechstesP(-1)); } },
     { name: "k", kurz: "Treffer", label: "Treffer", wert: `${k}`, farbe: FARBEN.k, plus: () => setK(Math.min(n, k + 1)), minus: () => setK(Math.max(0, k - 1)) },
   ];
+  // Zähler/Nenner ändern – aus einer Kommazahl wird dabei automatisch ein Bruch
+  const bruchAendern = (teil, d) => {
+    const b = bruch || alsBruch(p);
+    let { z, nn } = b;
+    if (teil === "z") z = Math.min(nn, Math.max(1, z + d));
+    else nn = Math.min(100, Math.max(z, 1, nn + d));
+    setBruch({ z, nn });
+    setP(z / nn);
+  };
+  const mini = {
+    width: 28, height: 26, borderRadius: 7, border: `1px solid ${FARBEN.p}55`, background: C.weiss,
+    color: FARBEN.p, fontSize: 15, fontWeight: 700, fontFamily: "inherit", cursor: "pointer", padding: 0, lineHeight: 1,
+    display: "flex", alignItems: "center", justifyContent: "center",
+  };
   const knopf = (farbe) => ({
     width: 28, height: 28, flexShrink: 0, borderRadius: 8, border: `1.5px solid ${farbe}66`, background: `${farbe}14`,
     color: farbe, fontSize: 17, fontWeight: 700, fontFamily: "inherit", cursor: "pointer", padding: 0, lineHeight: 1,
     display: "flex", alignItems: "center", justifyContent: "center",
   });
-  return (
-    <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) auto", gap: 12, alignItems: "center", marginBottom: 6 }}>
-      {/* Links: Kurzform und Formel */}
-      <div style={{ minWidth: 0 }}>
-        <p style={{ textAlign: "center", fontSize: "clamp(17px, 4.8vw, 24px)", fontWeight: 800, color: C.tinte, letterSpacing: "-0.02em",
-          marginBottom: 8, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>
-          X ∼ B(<span style={{ color: FARBEN.n }}>{n}</span>; <span style={{ color: FARBEN.p }}>{pText(p)}</span>)
-        </p>
-        <BernoulliFormel />
+  const [zn, zp, zk] = zeilen;
+  const Regler1 = ({ z }) => (
+    <div>
+      <p style={{ fontSize: 10.5, fontWeight: 600, color: C.grau, lineHeight: 1.2, marginBottom: 2, textAlign: "center", whiteSpace: "nowrap" }}>
+        {z.kurz} <span style={{ color: z.farbe, fontWeight: 800 }}>{z.name}</span>
+      </p>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>
+        <button aria-label={`${z.name} verringern`} style={knopf(z.farbe)} onClick={z.minus}>−</button>
+        <span style={{ minWidth: 42, textAlign: "center", fontSize: "clamp(17px, 4.8vw, 22px)", fontWeight: 800, color: z.farbe,
+          fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap", letterSpacing: "-0.02em" }}>{z.wert}</span>
+        <button aria-label={`${z.name} erhöhen`} style={knopf(z.farbe)} onClick={z.plus}>+</button>
       </div>
-      {/* Rechts: n, p, k kompakt einstellen */}
-      <div style={{ minWidth: 0, display: "flex", flexDirection: "column", gap: 4 }}>
-        {zeilen.map((z) => (
-          <div key={z.name}>
-            <p style={{ fontSize: 10.5, fontWeight: 600, color: C.grau, lineHeight: 1.2, marginBottom: 2, textAlign: "center",
-              whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-              {z.kurz} <span style={{ color: z.farbe, fontWeight: 800 }}>{z.name}</span>
-            </p>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>
-              <button aria-label={`${z.name} verringern`} style={knopf(z.farbe)} onClick={z.minus}>−</button>
-              <span style={{ minWidth: 42, textAlign: "center", fontSize: "clamp(17px, 4.8vw, 22px)", fontWeight: 800, color: z.farbe,
-                fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap", letterSpacing: "-0.02em" }}>{z.wert}</span>
-              <button aria-label={`${z.name} erhöhen`} style={knopf(z.farbe)} onClick={z.plus}>+</button>
-            </div>
+    </div>
+  );
+  return (
+    <div className="bk-kopf" style={{ marginBottom: 6 }}>
+      <style>{`.bk-kopf{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-areas:"regler formel";gap:14px;align-items:center}
+        @media (max-width:560px){.bk-kopf{grid-template-columns:minmax(0,1fr);grid-template-areas:"formel" "regler";gap:12px}}`}</style>
+      {/* Regler: links n (oben) und k (unten), rechts p mit Kommazahl- und Bruch-Knöpfen */}
+      <div style={{ gridArea: "regler", display: "flex", justifyContent: "center", alignItems: "stretch", gap: 10 }}>
+        <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 8 }}>
+          <Regler1 z={zn} />
+          <Regler1 z={zk} />
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", gap: 6, padding: "6px 8px",
+          borderRadius: 12, border: `1px solid ${FARBEN.p}33`, background: `${FARBEN.p}08` }}>
+          <Regler1 z={zp} />
+          <div style={{ display: "flex", justifyContent: "center", gap: 10 }}>
+            {[["z", "Zähler"], ["nn", "Nenner"]].map(([teil, t]) => (
+              <div key={teil} style={{ textAlign: "center" }}>
+                <p style={{ fontSize: 9.5, fontWeight: 600, color: C.grau, lineHeight: 1.1, marginBottom: 2 }}>{t}</p>
+                <div style={{ display: "flex", gap: 3 }}>
+                  <button aria-label={`${t} verringern`} style={mini} onClick={() => bruchAendern(teil, -1)}>−</button>
+                  <button aria-label={`${t} erhöhen`} style={mini} onClick={() => bruchAendern(teil, 1)}>+</button>
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
+      </div>
+      {/* Formel von Bernoulli oben, Kurzform X ∼ B(n; p) darunter */}
+      <div style={{ gridArea: "formel", minWidth: 0 }}>
+        <BernoulliFormel />
+        <p style={{ textAlign: "center", fontSize: "clamp(18px, 5vw, 24px)", fontWeight: 800, color: C.tinte, letterSpacing: "-0.02em",
+          marginTop: 8, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>
+          X ∼ B(<span style={{ color: FARBEN.n }}>{n}</span>; <span style={{ color: FARBEN.p }}>{pT}</span>)
+        </p>
       </div>
     </div>
   );
 }
 
-/* Bernoulli-Formel, farbig wie die Regler (zweizeilig, damit sie in die halbe Breite passt) */
+/* Bernoulli-Formel, farbig wie die Regler – immer einzeilig, Schriftgröße passt sich der Breite an */
 function BernoulliFormel() {
   const v = (t, farbe) => <span style={{ color: farbe, fontWeight: 800 }}>{t}</span>;
   const hoch = { fontSize: "0.62em", verticalAlign: "0.85em", lineHeight: 0, fontWeight: 700 };
+  const rahmen = useRef(null), innen = useRef(null);
+  const [gr, setGr] = useState(18);
+  useEffect(() => {
+    const anpassen = () => {
+      if (!rahmen.current || !innen.current) return;
+      const platz = rahmen.current.clientWidth - 12;
+      const breite18 = innen.current.scrollWidth * (18 / parseFloat(getComputedStyle(innen.current).fontSize));
+      setGr(Math.max(9, Math.min(18, Math.floor((18 * platz / breite18) * 10) / 10)));
+    };
+    anpassen();
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(anpassen) : null;
+    if (ro && rahmen.current) ro.observe(rahmen.current);
+    window.addEventListener("resize", anpassen);
+    return () => { if (ro) ro.disconnect(); window.removeEventListener("resize", anpassen); };
+  }, []);
   return (
-    <div style={{ background: C.sand, borderRadius: 12, padding: "8px 6px 10px", overflowX: "auto" }}>
-      <p style={{ fontSize: 10.5, fontWeight: 600, color: C.grau, marginBottom: 2, textAlign: "center", whiteSpace: "nowrap" }}>Formel von Bernoulli</p>
-      <div style={{ width: "max-content", margin: "0 auto", fontSize: "clamp(12px, 3.6vw, 18px)", fontWeight: 700, color: C.tinte, whiteSpace: "nowrap" }}>
-        <div>P(X = {v("k", FARBEN.k)}) =</div>
-        <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
-          <span style={{ display: "inline-flex", alignItems: "center" }}>
-            <span style={{ fontSize: "2.1em", fontWeight: 300, lineHeight: 1, marginTop: "-0.12em" }}>(</span>
-            <span style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", lineHeight: 1.05, margin: "0 1px" }}>
-              {v("n", FARBEN.n)}{v("k", FARBEN.k)}
-            </span>
-            <span style={{ fontSize: "2.1em", fontWeight: 300, lineHeight: 1, marginTop: "-0.12em" }}>)</span>
+    <div ref={rahmen} style={{ background: C.sand, borderRadius: 12, padding: "8px 6px 10px", overflow: "hidden" }}>
+      <p style={{ fontSize: 10.5, fontWeight: 600, color: C.grau, marginBottom: 4, textAlign: "center", whiteSpace: "nowrap" }}>Formel von Bernoulli</p>
+      <div ref={innen} style={{ display: "flex", alignItems: "center", gap: "0.2em", width: "max-content", margin: "0 auto",
+        fontSize: gr, fontWeight: 700, color: C.tinte, whiteSpace: "nowrap" }}>
+        <span>P(X = {v("k", FARBEN.k)}) =</span>
+        <span style={{ display: "inline-flex", alignItems: "center" }}>
+          <span style={{ fontSize: "2.1em", fontWeight: 300, lineHeight: 1, marginTop: "-0.12em" }}>(</span>
+          <span style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", lineHeight: 1.05, margin: "0 1px" }}>
+            {v("n", FARBEN.n)}{v("k", FARBEN.k)}
           </span>
-          <span>·</span>
-          <span>{v("p", FARBEN.p)}<span style={hoch}>{v("k", FARBEN.k)}</span></span>
-          <span>·</span>
-          <span>(1 − {v("p", FARBEN.p)})<span style={hoch}>{v("n", FARBEN.n)} − {v("k", FARBEN.k)}</span></span>
-        </div>
+          <span style={{ fontSize: "2.1em", fontWeight: 300, lineHeight: 1, marginTop: "-0.12em" }}>)</span>
+        </span>
+        <span>·</span>
+        <span>{v("p", FARBEN.p)}<span style={hoch}>{v("k", FARBEN.k)}</span></span>
+        <span>·</span>
+        <span>(1 − {v("p", FARBEN.p)})<span style={hoch}>{v("n", FARBEN.n)} − {v("k", FARBEN.k)}</span></span>
       </div>
     </div>
   );
@@ -227,6 +285,9 @@ function Histogramm({ n, p, k, modus, simuliert, letzter }) {
 export function BernoulliBingo() {
   const [n, setN] = useState(10);
   const [p, setP] = useState(1 / 6);
+  const [bruch, setBruch] = useState({ z: 1, nn: 6 });   // null = Kommazahl-Darstellung
+  const pT = bruch ? `${bruch.z}/${bruch.nn}` : pText(p);
+  const qT = bruch ? `${bruch.nn - bruch.z}/${bruch.nn}` : pText(1 - p);
   const [k, setK] = useState(2);
   const [modus, setModus] = useState("gleich");
   const [ergebnis, setErgebnis] = useState(null);     // Array aus true/false (laufender/letzter Versuch)
@@ -304,8 +365,8 @@ export function BernoulliBingo() {
   const summand = (i) => (
     <>
       <Binom o={n} u={i} farbeO={FARBEN.n} farbeU={FARBEN.k} /><span> · </span>
-      <Pot basis={<Wert t={pText(p)} farbe={FARBEN.p} />} exp={i} /><span> · </span>
-      <Pot basis={<Wert t={pText(q)} farbe={FARBEN.p} />} exp={typeof i === "number" ? n - i : <>{n} − {i}</>} />
+      <Pot basis={<Wert t={pT} farbe={FARBEN.p} />} exp={i} /><span> · </span>
+      <Pot basis={<Wert t={qT} farbe={FARBEN.p} />} exp={typeof i === "number" ? n - i : <>{n} − {i}</>} />
     </>
   );
   const formel = modus === "gleich"
@@ -333,11 +394,11 @@ export function BernoulliBingo() {
 
       {/* Einstellungen + Verteilung */}
       <div style={karte}>
-        <Kopf n={n} p={p} k={k} setN={setN} setP={setP} setK={setK} />
+        <Kopf n={n} p={p} k={k} setN={setN} setP={setP} setK={setK} pT={pT} bruch={bruch} setBruch={setBruch} />
         <Histogramm n={n} p={p} k={k} modus={modus} simuliert={sim} letzter={fertig ? treffer : null} />
         <div style={{ display: "flex", gap: 6, overflowX: "auto", padding: "8px 0 4px" }}>
           {VORLAGEN.map((v) => (
-            <button key={v.name} onClick={() => { setP(v.p); setTrefferName(v.text); }}
+            <button key={v.name} onClick={() => { setP(v.p); setBruch(alsBruch(v.p)); setTrefferName(v.text); }}
               style={{ flexShrink: 0, padding: "6px 11px", borderRadius: 999, border: `1px solid ${Math.abs(p - v.p) < 1e-9 ? FARBEN.p : C.linie}`,
                 background: Math.abs(p - v.p) < 1e-9 ? `${FARBEN.p}12` : C.weiss, color: C.tinte, fontSize: 12.5,
                 fontFamily: "inherit", cursor: "pointer", whiteSpace: "nowrap" }}>{v.name}</button>
@@ -376,7 +437,7 @@ export function BernoulliBingo() {
       <div style={{ ...karte, marginTop: 16 }}>
         <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 4 }}>Das Experiment</p>
         <p style={{ fontSize: 14, color: C.grau, lineHeight: 1.6, marginBottom: 12 }}>
-          {n} Versuche, jeder mit der Trefferwahrscheinlichkeit {pText(p)}. Bingo gibt es bei <b>{ereignisText}</b> Treffer{k === 1 && modus === "gleich" ? "" : "n"}.
+          {n} Versuche, jeder mit der Trefferwahrscheinlichkeit {pT}. Bingo gibt es bei <b>{ereignisText}</b> Treffer{k === 1 && modus === "gleich" ? "" : "n"}.
         </p>
 
         <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(10, n)}, 1fr)`, gap: 5, marginBottom: 12 }}>
