@@ -548,7 +548,22 @@ export function Startseite({ gehe }) {
 
   return (
     <div className="mx-auto px-6 pb-14" style={{ maxWidth: 620 }}>
-      {!wieder && <Auftakt />}
+      {/* Willkommensbereich über der ersten Box */}
+      <section style={{ paddingTop: 26, paddingBottom: 6 }}>
+        <h1 style={{ fontSize: "clamp(24px, 6.6vw, 30px)", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.15, color: C.tinte, margin: 0 }}>
+          Willkommen bei <span style={{ color: C.see, whiteSpace: "nowrap" }}>Mythos Mathe</span>.
+        </h1>
+        <span aria-hidden="true" style={{ display: "block", width: 54, height: 4, borderRadius: 2, marginTop: 12, marginBottom: 14,
+          background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)` }} />
+        <p style={{ fontSize: 16.5, fontWeight: 500, lineHeight: 1.6, color: C.tinte, marginBottom: 8 }}>
+          Mathe verstehen, nicht auswendig lernen.
+        </p>
+        <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.8, margin: 0 }}>
+          Hier wird Oberstufenmathe <b style={{ color: C.tinte, fontWeight: 600 }}>sichtbar</b>: Graphen live plotten,
+          Ebenen im Raum drehen, Wahrscheinlichkeiten in Tafeln und Bäumen sehen. Dazu Videokurse mit Kurz-Checks
+          und schnelle Kopfrechenrunden. Such dir unten einen Bereich aus und leg los.
+        </p>
+      </section>
       <PlotterKachel onClick={() => gehe({ ansicht: "analysis" })} label="Analysis öffnen" logo={<PlotterLogoKlein />}
         titel="Analysis"
         text="Polynomplotter, Advanced Plotter und Ableitungstrainer: Graphen live erkunden." />
@@ -565,7 +580,11 @@ export function Startseite({ gehe }) {
         titel="Schulkurse"
         text="Analysis, Vektoren und Stochastik – mit Videolektionen und Kurz-Checks." />
 
-      <Heute /><Kacheln /><System /><Fortschritt2 /><Eltern /><Coaching />
+      {wieder ? (
+        <><Heute /><Kacheln /><System /><Fortschritt2 /><Eltern /><Coaching /></>
+      ) : (
+        <><Auftakt /><Heute /><Kacheln /><System /><Fortschritt2 /><Eltern /><Coaching /></>
+      )}
       <Fuss />
     </div>
   );
