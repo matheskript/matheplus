@@ -586,12 +586,6 @@ export function Startseite({ gehe }) {
           und schnelle Kopfrechenrunden. Such dir unten einen Bereich aus und leg los.
         </p>
       </section>
-      <PlotterKachel onClick={() => gehe({ ansicht: "kurse", kurs: "penpaper" })} label="Pen & Paper öffnen" logo={<PenPaperBlatt />}
-        titel="Pen & Paper"
-        text="Das Fundament: klar aufschreiben, strukturiert arbeiten, sicher mit Fehlern umgehen – 7 Videolektionen." />
-      <PlotterKachel onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })} label="Frag Mathilda öffnen" logo={<MathildaLogoKlein />}
-        titel="Frag Mathilda"
-        text="Foto von deinem Blatt – Mathilda prüft deinen Rechenweg und gibt dir Feedback." />
       <PlotterKachel onClick={() => gehe({ ansicht: "analysis" })} label="Analysis öffnen" logo={<PlotterLogoKlein />}
         titel="Analysis"
         text="Polynomplotter, Advanced Plotter und Ableitungstrainer: Graphen live erkunden." />
@@ -607,6 +601,12 @@ export function Startseite({ gehe }) {
       <PlotterKachel onClick={() => gehe({ ansicht: "kurse" })} label="Schulkurse öffnen" logo={<SchulkurseLogoKlein />}
         titel="Schulkurse"
         text="Analysis 1–5, Vektoren, Stochastik und Pen & Paper – mit Videolektionen und Kurz-Checks." />
+      <PlotterKachel onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })} label="Frag Mathilda öffnen" logo={<MathildaLogoKlein />}
+        titel="Frag Mathilda"
+        text="Foto von deinem Blatt – Mathilda prüft deinen Rechenweg und gibt dir Feedback." />
+      <PlotterKachel onClick={() => gehe({ ansicht: "kurse", kurs: "penpaper" })} label="Pen & Paper öffnen" logo={<PenPaperBlatt />}
+        titel="Pen & Paper"
+        text="Das Fundament: klar aufschreiben, strukturiert arbeiten, sicher mit Fehlern umgehen – 7 Videolektionen." />
 
     </div>
   );
