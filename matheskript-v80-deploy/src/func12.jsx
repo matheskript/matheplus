@@ -1028,7 +1028,7 @@ const TASTEN = [
 
   { z: "0", e: "0" }, { z: ",", e: "," }, { z: "e", e: "e", art: "var" },
   { z: "+", e: "+", art: "op" }, { z: "▯→", e: null, art: "nav", aktion: "platz", titel: "nächster Platzhalter" },
-  { z: "C", e: null, art: "nav", aktion: "leer" },
+  { z: "Clear", e: null, art: "nav", aktion: "leer", titel: "Clear – alles löschen" },
 ];
 
 const LOESCH_EINHEITEN = ["sqrt(", "sin(", "cos(", "tan(", "log[", "log(", "ln(", "pi", "e^("];
