@@ -541,6 +541,7 @@ export function EbenenVisualizer() {
 const VEKTOREN = [
   { ziel: { ansicht: "ebenen" }, titel: "Ebenen-Visualizer", kurz: "Ebenen in Koordinatenform live im 3D-Koordinatensystem sehen – mit Spurpunkten und Normalenvektor.", zeichen: "E" },
   { ziel: { ansicht: "ebenevsebene" }, titel: "Ebene vs. Ebene", kurz: "Zwei Ebenen gleichzeitig im Raum – mit Schnittgerade und Schnittwinkel über die Kosinusformel.", zeichen: "E₁E₂" },
+  { ziel: { ansicht: "kreuzprodukt" }, titel: "Kreuzprodukt", kurz: "Zwei Vektoren eingeben – Formel, eingesetzte Koordinaten und Ergebnis in einer Zeile.", zeichen: "×" },
   { ziel: { ansicht: "kurse", kurs: "vektoren" }, titel: "Videokurs Vektoren", kurz: "Fünf Lektionen von den Grundlagen bis zu Ebenen – mit Merksätzen und Kurz-Checks.", zeichen: "▶" },
 ];
 

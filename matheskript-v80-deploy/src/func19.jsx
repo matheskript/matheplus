@@ -414,3 +414,185 @@ export function EbeneVsEbene() {
     </div>
   );
 }
+
+/* ============================================================
+   Kreuzprodukt-Rechner: zwei Vektoren eingeben, daneben in einer
+   Zeile die allgemeine Formel, die eingesetzte Formel und das Ergebnis.
+   ============================================================ */
+
+const lies = (t) => {
+  const v = parseFloat(String(t).replace(",", ".").replace("−", "-"));
+  return Number.isFinite(v) ? v : 0;
+};
+const zahlText = (v) => {
+  const r = Math.round(v * 1e6) / 1e6;
+  return minus(String(r).replace(".", ","));
+};
+const inKlammer = (v) => (v < 0 ? `(${zahlText(v)})` : zahlText(v));
+
+function VektorEingabe({ name, farbe, werte, setWerte }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+      <VecName t={name} idx="" farbe={farbe} />
+      <span>=</span>
+      <SpaltenVektor farbe={farbe} eintraege={werte.map((w, i) => (
+        <input key={i} value={w} inputMode="decimal" aria-label={`${name}${i + 1}`}
+          onChange={(e) => { const n = [...werte]; n[i] = e.target.value.replace(/[^0-9,.\-−]/g, "").slice(0, 6); setWerte(n); }}
+          onFocus={(e) => e.target.select()}
+          style={{ width: 46, height: 30, textAlign: "center", fontSize: 17, fontWeight: 800, fontFamily: "inherit", color: farbe,
+            border: `1.5px solid ${farbe}55`, borderRadius: 8, background: `${farbe}0D`, outline: "none", margin: "2px 0" }} />
+      ))} />
+    </span>
+  );
+}
+
+// Passt die Schriftgröße so an, dass der Inhalt in eine Zeile passt
+function Einzeilig({ children, max = 17, min = 9 }) {
+  const rahmen = useRef(null), innen = useRef(null);
+  const [gr, setGr] = useState(max);
+  React.useEffect(() => {
+    const anpassen = () => {
+      if (!rahmen.current || !innen.current) return;
+      const platz = rahmen.current.clientWidth;
+      const breite = innen.current.scrollWidth * (max / parseFloat(getComputedStyle(innen.current).fontSize));
+      setGr(Math.max(min, Math.min(max, Math.floor((max * platz / breite) * 10) / 10)));
+    };
+    anpassen();
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(anpassen) : null;
+    if (ro && rahmen.current) ro.observe(rahmen.current);
+    return () => { if (ro) ro.disconnect(); };
+  });
+  return (
+    <div ref={rahmen} style={{ overflow: "hidden" }}>
+      <div ref={innen} style={{ width: "max-content", margin: "0 auto", fontSize: gr, fontWeight: 700, color: C.tinte, whiteSpace: "nowrap",
+        display: "flex", alignItems: "center", gap: "0.35em", fontVariantNumeric: "tabular-nums" }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+const KP_BEISPIELE = [
+  { name: "Einheitsvektoren", a: ["1", "0", "0"], b: ["0", "1", "0"] },
+  { name: "Standard", a: ["2", "1", "3"], b: ["1", "−1", "2"] },
+  { name: "Parallel", a: ["1", "2", "3"], b: ["2", "4", "6"] },
+  { name: "Mit Kommazahlen", a: ["0,5", "2", "−1"], b: ["3", "−1,5", "4"] },
+];
+
+export function KreuzproduktRechner() {
+  const [a, setA] = useState(["2", "1", "3"]);
+  const [b, setB] = useState(["1", "−1", "2"]);
+  const A = a.map(lies), B = b.map(lies);
+  const k = kreuz(A, B);
+  const FA = C.see, FB = C.gruen, FE = "#8A6D00";
+  const karte = { background: C.weiss, borderRadius: 16, padding: 18, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" };
+  const titel = { fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 10 };
+  const va = (i) => <span style={{ color: FA }}>a<sub style={{ fontSize: "0.65em" }}>{i}</sub></span>;
+  const vb = (i) => <span style={{ color: FB }}>b<sub style={{ fontSize: "0.65em" }}>{i}</sub></span>;
+  const na = (i) => <span style={{ color: FA }}>{inKlammer(A[i])}</span>;
+  const nb = (i) => <span style={{ color: FB }}>{inKlammer(B[i])}</span>;
+  // Komponenten: (2,3), (3,1), (1,2)
+  const paare = [[1, 2], [2, 0], [0, 1]];
+  const allgemein = paare.map(([i, j], z) => <span key={z}>{va(i + 1)}{vb(j + 1)} − {va(j + 1)}{vb(i + 1)}</span>);
+  const eingesetzt = paare.map(([i, j], z) => <span key={z}>{na(i)}·{nb(j)} − {na(j)}·{nb(i)}</span>);
+  const ergebnis = k.map((v, z) => <span key={z} style={{ color: FE }}>{zahlText(v)}</span>);
+  const laenge2 = skalar(k, k);
+  const parallel = k.every((v) => Math.abs(v) < 1e-12);
+  const kreuzZeichen = <span style={{ display: "inline-flex", alignItems: "center", gap: "0.2em" }}><VecName t="a" idx="" farbe={FA} /> × <VecName t="b" idx="" farbe={FB} /></span>;
+
+  return (
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
+      <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
+        Kreuzprodukt auf einen Blick
+      </h2>
+      <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 22 }}>
+        Gib die Koordinaten von zwei Vektoren ein. Daneben siehst du die Formel, die eingesetzten Koordinaten und das
+        fertige Kreuzprodukt – ein Vektor, der auf beiden senkrecht steht.
+      </p>
+
+      {/* breiter als die übrige Seite, damit Eingabe und Rechnung in eine Zeile passen */}
+      <div style={{ ...karte, width: "min(940px, calc(100vw - 32px))", position: "relative", left: "50%", transform: "translateX(-50%)" }}>
+        <div className="kp-zeile">
+          <style>{`.kp-zeile{display:flex;align-items:stretch;gap:16px}
+            @media (max-width:760px){.kp-zeile{flex-direction:column}}`}</style>
+          <div style={{ flexShrink: 0 }}>
+            <p style={titel}>Deine Vektoren</p>
+            <div style={{ display: "flex", justifyContent: "center", gap: 14, fontSize: 18, fontWeight: 700, color: C.tinte }}>
+              <VektorEingabe name="a" farbe={FA} werte={a} setWerte={setA} />
+              <VektorEingabe name="b" farbe={FB} werte={b} setWerte={setB} />
+            </div>
+          </div>
+          <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
+        <p style={titel}>Formel · eingesetzt · Ergebnis</p>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", background: C.sand, borderRadius: 12, padding: "12px 10px" }}>
+          <Einzeilig max={17}>
+            {kreuzZeichen}
+            <span>=</span>
+            <SpaltenVektor farbe={C.tinte} eintraege={allgemein} />
+            <span>=</span>
+            <SpaltenVektor farbe={C.tinte} eintraege={eingesetzt} />
+            <span>=</span>
+            <SpaltenVektor farbe={FE} eintraege={ergebnis} />
+          </Einzeilig>
+        </div>
+          </div>
+        </div>
+
+        <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingTop: 14 }}>
+          {KP_BEISPIELE.map((x) => (
+            <button key={x.name} onClick={() => { setA(x.a); setB(x.b); }}
+              style={{ flexShrink: 0, padding: "7px 12px", borderRadius: 999, border: `1px solid ${C.linie}`, background: C.weiss,
+                color: C.see, fontSize: 12.5, fontFamily: "inherit", cursor: "pointer", whiteSpace: "nowrap" }}>{x.name}</button>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ ...karte, marginTop: 16 }}>
+        <p style={titel}>Was das Ergebnis bedeutet</p>
+        {parallel ? (
+          <p style={{ fontSize: 14.5, color: C.tinte, lineHeight: 1.6 }}>
+            Das Kreuzprodukt ist der Nullvektor – die beiden Vektoren sind parallel (linear abhängig). Sie spannen keine Fläche auf.
+          </p>
+        ) : (
+          <>
+            <Einzeilig max={15.5}>
+              <span>Probe:</span>
+              <VecName t="a" idx="" farbe={FA} /><span>·</span><span>({kreuzZeichen})</span>
+              <span>= {zahlText(skalar(A, k))}</span>
+              <span style={{ margin: "0 0.4em", color: C.hellgrau }}>und</span>
+              <VecName t="b" idx="" farbe={FB} /><span>·</span><span>({kreuzZeichen})</span>
+              <span>= {zahlText(skalar(B, k))}</span>
+            </Einzeilig>
+            <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, margin: "8px 0 12px" }}>
+              Beide Skalarprodukte sind 0 – das Kreuzprodukt steht senkrecht auf a⃗ und auf b⃗. Deshalb liefert es zum Beispiel
+              den Normalenvektor einer Ebene aus zwei Spannvektoren.
+            </p>
+            <Einzeilig max={15.5}>
+              <span>|{kreuzZeichen}|</span>
+              <span>=</span>
+              <Wurzel>{k.map((v) => `${inKlammer(v)}²`).join(" + ")}</Wurzel>
+              <span>=</span>
+              {Number.isInteger(Math.sqrt(laenge2)) ? <span>{Math.sqrt(laenge2)}</span> : <><Wurzel>{zahlText(laenge2)}</Wurzel><span>≈ {dez(Math.sqrt(laenge2), 3)}</span></>}
+            </Einzeilig>
+            <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, marginTop: 8 }}>
+              Die Länge des Kreuzprodukts ist der Flächeninhalt des Parallelogramms, das a⃗ und b⃗ aufspannen – das Dreieck hat die Hälfte davon.
+            </p>
+          </>
+        )}
+      </div>
+
+      <div style={{ ...karte, marginTop: 16 }}>
+        <p style={titel}>So merkst du dir die Formel</p>
+        {[
+          ["Zyklisch", "Die Indizes laufen im Kreis: Zeile 1 benutzt 2 und 3, Zeile 2 benutzt 3 und 1, Zeile 3 benutzt 1 und 2."],
+          ["Über Kreuz", "Jede Zeile: „überkreuz multiplizieren, dann abziehen“ – erst von oben links nach unten rechts, dann umgekehrt."],
+          ["Reihenfolge", "b⃗ × a⃗ = −(a⃗ × b⃗): Wer die Vektoren vertauscht, dreht das Ergebnis um."],
+        ].map(([t, s]) => (
+          <p key={t} style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, marginBottom: 6 }}>
+            <b style={{ color: C.tinte }}>{t}:</b> {s}
+          </p>
+        ))}
+      </div>
+    </div>
+  );
+}
