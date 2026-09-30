@@ -484,7 +484,7 @@ export function Mathilda() {
         <>
           <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(26px, 8vw, 36px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>KopfrechenZentrum</h1>
+              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(26px, 8vw, 36px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Kopfrechnen</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
               <p style={{ color: C.goldText, fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
                 Head &amp; Numbers — damit der Kopf beim Rechnen für das Eigentliche frei bleibt.

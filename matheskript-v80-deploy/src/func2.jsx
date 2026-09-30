@@ -573,8 +573,8 @@ export function Startseite({ gehe }) {
       <PlotterKachel onClick={() => gehe({ ansicht: "stochastik" })} label="Stochastik öffnen" logo={<StochastikLogoKlein />}
         titel="Stochastik"
         text="Bernoulli-Bingo: Binomialverteilung live sehen und den Zufall selbst laufen lassen." />
-      <PlotterKachel onClick={() => gehe({ ansicht: "kopf" })} label="KopfrechenZentrum öffnen" logo={<KopfrechnenLogoKlein />}
-        titel="KopfrechenZentrum"
+      <PlotterKachel onClick={() => gehe({ ansicht: "kopf" })} label="Kopfrechnen öffnen" logo={<KopfrechnenLogoKlein />}
+        titel="Kopfrechnen"
         text="Primfaktoren, Quadratzahlen, Brüche und Einmaleins – schnelle Runden auf Zeit." />
       <PlotterKachel onClick={() => gehe({ ansicht: "kurse" })} label="Schulkurse öffnen" logo={<SchulkurseLogoKlein />}
         titel="Schulkurse"

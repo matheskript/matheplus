@@ -211,7 +211,7 @@ export const VIDEOKURSE = {
           richtig: 1,
           erklaerung: "Zwei passende Pfade (Kopf–Zahl und Zahl–Kopf) mit je 1/2 · 1/2 = 1/4. Zusammen 1/4 + 1/4 = 1/2.",
         },
-        ueben: { label: "Bruchrechnen im KopfrechenZentrum", ansicht: "kopf" },
+        ueben: { label: "Bruchrechnen beim Kopfrechnen", ansicht: "kopf" },
       },
       {
         id: "s2", kapitel: "Wahrscheinlichkeit", titel: "Vierfeldertafel und bedingte Wahrscheinlichkeit", youtube: "WULhyNxOIBw",

@@ -754,7 +754,7 @@ export function KopfrechenZentrum() {
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
       <button onClick={() => setOffen(null)} className="mb-5"
         style={{ background: "none", border: "none", color: C.see, fontSize: 13, fontFamily: "inherit", cursor: "pointer", padding: 0 }}>
-        ← KopfrechenZentrum
+        ← Kopfrechnen
       </button>
       <h2 style={{ fontSize: 25, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 14 }}>{t.titel}</h2>
       {t.id === "primfaktoren" ? <Primfaktoren /> : t.id === "potenzen" ? <QuadratKubik /> : t.id === "bruchrechnen" ? <Bruchrechnen /> : <EinMalEins />}

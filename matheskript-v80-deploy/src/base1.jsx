@@ -760,7 +760,7 @@ export const KURSE = [
       "Binomialverteilte Zufallsgrößen erkennen und mit der Bernoulli-Formel rechnen",
       "Einen einseitigen Hypothesentest aufstellen und das Ergebnis deuten",
     ],
-    fuerWen: "Für die Oberstufe, unabhängig von Analysis und Vektoren. Vorausgesetzt wird nur sicheres Bruchrechnen – das kannst du im KopfrechenZentrum auffrischen.",
+    fuerWen: "Für die Oberstufe, unabhängig von Analysis und Vektoren. Vorausgesetzt wird nur sicheres Bruchrechnen – das kannst du im Bereich Kopfrechnen auffrischen.",
   },
 ];
 
