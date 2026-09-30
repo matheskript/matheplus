@@ -16,6 +16,7 @@ import { Ableitungstrainer } from "./func13.jsx";
 import { AnalysisZentrum, KopfrechenZentrum } from "./func14.jsx";
 import { EbenenVisualizer, VektorenZentrum } from "./func16.jsx";
 import { BernoulliBingo, StochastikZentrum } from "./func17.jsx";
+import { Vierfeldertafel } from "./func18.jsx";
 
 export function Mathilda() {
   const [ansicht, setAnsicht] = useState("start");
@@ -188,9 +189,12 @@ export function Mathilda() {
             .logo-silber{background:linear-gradient(180deg,#FFFFFF 0%,${C.silberHell} 35%,${C.silber} 60%,${C.silberDunkel} 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
             .logo-gold{background:linear-gradient(180deg,#FFE58A 0%,${C.flaggold} 45%,${C.goldWarm} 70%,#A67C00 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
           `}</style>
-          <span style={{ color: C.weiss, fontSize: "clamp(20px, 6.2vw, 25.5px)", fontWeight: 700, letterSpacing: "-0.02em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
+          <button type="button" aria-label="Zur Startseite" title="Zur Startseite"
+            onClick={() => { setAnsicht("start"); setMenuOffen(false); setGruppeOffen(null); window.scrollTo(0, 0); }}
+            style={{ background: "none", border: "none", padding: 0, margin: 0, cursor: "pointer", fontFamily: "inherit",
+              color: C.weiss, fontSize: "clamp(20px, 6.2vw, 25.5px)", fontWeight: 700, letterSpacing: "-0.02em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
             <span className="logo-silber">mythos</span><span className="logo-gold">mathe</span><span className="logo-silber">.de</span>
-          </span>
+          </button>
           <div className="flex items-center" style={{ gap: 6 }}>
           <button onClick={() => gehe({ ansicht: lern.profil ? "karte" : "profil2" })} aria-label="Mein Weg"
             style={{ width: 32, height: 32, borderRadius: 999, border: `1.5px solid ${lern.profil ? C.flaggold : "rgba(255,255,255,0.35)"}`,
@@ -537,6 +541,20 @@ export function Mathilda() {
             <Welle fill={C.sand} />
           </div>
           <BernoulliBingo />
+        </>
+      ) : ansicht === "vierfelder" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+            <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 style={{ fontWeight: 700, fontSize: "clamp(28px, 8vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05, color: C.weiss }}>Vier-Felder-Tafel</h1>
+              <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <p style={{ color: C.goldText, fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+                Absolute Häufigkeiten und Wahrscheinlichkeiten – mit Baumdiagramm und bedingter Wahrscheinlichkeit
+              </p>
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <Vierfeldertafel />
         </>
       ) : ansicht === "stochastik" ? (
         <>

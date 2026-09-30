@@ -228,6 +228,7 @@ export const VIDEOKURSE = {
           richtig: 1,
           erklaerung: "P_A(B) = P(A ∩ B) / P(A) = 0,1 / 0,4 = 0,25.",
         },
+        ueben: { label: "Vier-Felder-Tafel", ansicht: "vierfelder" },
       },
       {
         id: "s3", kapitel: "Zufallsgrößen", titel: "Zufallsgröße und Erwartungswert", youtube: "fWozBbgM0gc",

@@ -354,6 +354,7 @@ export function BernoulliBingo() {
 
 const STOCHASTIK = [
   { ziel: { ansicht: "bernoulli" }, titel: "Bernoulli-Bingo", kurz: "Bernoulli-Kette einstellen, Binomialverteilung live sehen und das Experiment simulieren.", zeichen: "B" },
+  { ziel: { ansicht: "vierfelder" }, titel: "Vier-Felder-Tafel", kurz: "Absolute Häufigkeiten oder Wahrscheinlichkeiten, die sich zu 100 % ergänzen – mit Baumdiagramm und bedingter Wahrscheinlichkeit.", zeichen: "▦" },
   { ziel: { ansicht: "kurse", kurs: "stochastik" }, titel: "Videokurs Stochastik", kurz: "Fünf Lektionen vom Baumdiagramm bis zum Hypothesentest – mit Merksätzen und Kurz-Checks.", zeichen: "▶" },
 ];
 

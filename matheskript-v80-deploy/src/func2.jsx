@@ -52,13 +52,10 @@ function PlotterLogoKlein() {
 function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "Werkzeug" }) {
   return (
     <button onClick={onClick} aria-label={label} className="plotter-kachel"
-      style={{ display: "flex", width: "100%", height: 138, marginTop: 12, padding: 0, border: "none", borderRadius: 18,
+      style={{ display: "flex", width: "calc(100% + 32px)", marginLeft: -16, marginRight: -16, height: 138, marginTop: 12, padding: 0, border: "none", borderRadius: 18,
         overflow: "hidden", cursor: "pointer", fontFamily: "inherit", textAlign: "left", position: "relative",
         background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`,
         boxShadow: `0 6px 22px rgba(0,77,152,0.24), inset 0 0 0 1px ${C.silber}40` }}>
-      {/* Gold-Silber-Kante links */}
-      <span aria-hidden="true" style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 4,
-        background: `linear-gradient(180deg, ${C.flaggold} 0%, ${C.goldWarm} 45%, ${C.silber} 55%, ${C.silberDunkel} 100%)` }} />
       <style>{`.plotter-kachel{transition:transform .15s ease, box-shadow .15s ease}
         .plotter-kachel:active{transform:scale(0.985)}
         @media (hover:hover){.plotter-kachel:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,77,152,0.32)}}
@@ -71,8 +68,8 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
           {titel}
         </h2>
         <span aria-hidden="true" style={{ display: "block", width: 34, height: 2.5, borderRadius: 2, marginTop: 6,
-          background: `linear-gradient(90deg, ${C.flaggold} 0%, ${C.flaggold} 50%, ${C.silber} 50%, ${C.silber} 100%)` }} />
-        <p className="kachel-text" style={{ color: C.silber, fontSize: 12.5, fontWeight: 300, lineHeight: 1.4, marginTop: 6, marginBottom: 0 }}>
+          background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)` }} />
+        <p className="kachel-text" style={{ color: C.weiss, fontSize: 12.5, fontWeight: 300, lineHeight: 1.4, marginTop: 6, marginBottom: 0 }}>
           {text}
         </p>
       </div>
