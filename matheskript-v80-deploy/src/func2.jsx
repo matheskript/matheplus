@@ -27,8 +27,8 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
         @media (hover:hover){.plotter-kachel:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(0,77,152,0.34)}}
         .kachel-text{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}`}</style>
       {/* Logo als flaches Band */}
-      <div style={{ height: 104, overflow: "hidden" }}>{logo}</div>
-      <div style={{ padding: "6px 20px 16px" }}>
+      <div style={{ height: 62, overflow: "hidden" }}>{logo}</div>
+      <div style={{ padding: "8px 20px 14px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
           <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase",
             color: C.seeTief, background: C.flaggold, borderRadius: 999, padding: "2px 9px" }}>{marke}</span>
@@ -66,7 +66,7 @@ function PlotterLogo() {
   };
   const extrema = [-Math.sqrt(3.2), 0, Math.sqrt(3.2)];
   return (
-    <svg viewBox={`0 40 ${W} 108`} preserveAspectRatio="xMidYMid slice" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
+    <svg viewBox={`0 77 ${W} 64`} preserveAspectRatio="xMidYMid slice" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
       <defs>
         <clipPath id="plotterKachelClip"><rect x="0" y="0" width={W} height={H} /></clipPath>
       </defs>
@@ -87,9 +87,9 @@ function PlotterLogo() {
         ))}
       </g>
       <g fontSize="13" fontWeight="700" fontStyle="italic">
-        <text x={W - 34} y="60" fill={C.weiss}>f</text>
-        <text x={W - 34} y="77" fill={C.flaggold}>f′</text>
-        <text x={W - 34} y="94" fill={C.granaHell}>f″</text>
+        <text x={W - 30} y="93" fill={C.weiss}>f</text>
+        <text x={W - 30} y="109" fill={C.flaggold}>f′</text>
+        <text x={W - 30} y="125" fill={C.granaHell}>f″</text>
       </g>
     </svg>
   );

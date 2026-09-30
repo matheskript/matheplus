@@ -1450,7 +1450,7 @@ export function AdvancedLogo() {
     return d;
   };
   return (
-    <svg viewBox={`0 34 ${W} 108`} preserveAspectRatio="xMidYMid slice" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
+    <svg viewBox={`0 62 ${W} 64`} preserveAspectRatio="xMidYMid slice" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
       {Array.from({ length: 14 }, (_, i) => x0 + (i - 6) * sx).map((x) => (
         <line key={`v${x}`} x1={x} y1="0" x2={x} y2={H} stroke="rgba(255,255,255,0.07)" />
       ))}
