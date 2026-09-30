@@ -11,8 +11,7 @@ import { Wiederholen } from "./func7.jsx";
 import { EskalationsKarte, Wochenbericht, eskalationSignale, serieBerechnen, zeitraum } from "./func8.jsx";
 import { TerminHinweis } from "./func9.jsx";
 import { Mathilda } from "./func10.jsx";
-import { AdvancedLogoKlein } from "./func12.jsx";
-import { AbleitungLogoKlein } from "./func13.jsx";
+import { KopfrechnenLogoKlein } from "./func14.jsx";
 
 /* Große, ganz anklickbare Kachel für die Plotter auf der Startseite. */
 /* Polynomplotter-Grafik im Hochformat für die Kachel. */
@@ -526,15 +525,12 @@ export function Startseite({ gehe }) {
 
   return (
     <div className="mx-auto px-6 pb-14" style={{ maxWidth: 620 }}>
-      <PlotterKachel onClick={() => gehe({ ansicht: "plotter" })} label="Polynomplotter öffnen" logo={<PlotterLogoKlein />}
-        titel={"Polynom\u00ADplotter"} marke="Neu"
-        text="Koeffizienten einstellen, Graph live sehen." />
-      <PlotterKachel onClick={() => gehe({ ansicht: "advplotter" })} label="Advanced Plotter öffnen" logo={<AdvancedLogoKlein />}
-        titel={"Advanced Plotter"} marke="Neu"
-        text="Eigene Funktionen bauen und untersuchen." />
-      <PlotterKachel onClick={() => gehe({ ansicht: "ableitungstrainer" })} label="Ableitungstrainer öffnen" logo={<AbleitungLogoKlein />}
-        titel={"Ableitungs\u00ADtrainer"} marke="Neu" kategorie="Üben"
-        text="f′, f″ und f‴ eingeben und prüfen lassen." />
+      <PlotterKachel onClick={() => gehe({ ansicht: "analysis" })} label="Analysis öffnen" logo={<PlotterLogoKlein />}
+        titel="Analysis" marke="Neu" kategorie="Werkzeuge"
+        text="Plotter, Kurven­diskussion und Ableitungen." />
+      <PlotterKachel onClick={() => gehe({ ansicht: "kopf" })} label="KopfrechenZentrum öffnen" logo={<KopfrechnenLogoKlein />}
+        titel={"Kopfrechen\u00ADZentrum"} marke="Neu" kategorie="Üben"
+        text="Primfaktoren, Quadrate und Einmaleins." />
 
       <div style={{ marginTop: 22 }}>
         <ErklaerVideo id={DEMO_VIDEO_ID} titel="So funktioniert Matheskript" />

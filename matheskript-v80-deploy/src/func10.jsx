@@ -13,6 +13,7 @@ import { MeinPlan, Messbericht, Modellieren, Probeabitur, Wochenbericht } from "
 import { Auswertung, Einwilligung, KlasseAnsicht, KlausurVorbereitung, einwilligungLesen } from "./func9.jsx";
 import { AdvancedPlotter } from "./func12.jsx";
 import { Ableitungstrainer } from "./func13.jsx";
+import { AnalysisZentrum, KopfrechenZentrum } from "./func14.jsx";
 
 export function Mathilda() {
   const [ansicht, setAnsicht] = useState("start");
@@ -477,15 +478,29 @@ export function Mathilda() {
         <>
           <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 style={{ fontWeight: 700, fontSize: 36, letterSpacing: "-0.03em", lineHeight: 1.05, color: C.weiss }}>Kopfrechnen</h1>
+              <h1 style={{ fontWeight: 700, fontSize: "clamp(26px, 8vw, 36px)", letterSpacing: "-0.03em", lineHeight: 1.05, color: C.weiss }}>KopfrechenZentrum</h1>
               <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
-              <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+              <p style={{ color: C.goldText, fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
                 Head &amp; Numbers — damit der Kopf beim Rechnen für das Eigentliche frei bleibt.
               </p>
             </div>
             <Welle fill={C.sand} />
           </div>
-          <Kopfrechnen />
+          <KopfrechenZentrum />
+        </>
+      ) : ansicht === "analysis" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+            <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 style={{ fontWeight: 700, fontSize: 36, letterSpacing: "-0.03em", lineHeight: 1.05, color: C.weiss }}>Analysis</h1>
+              <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <p style={{ color: C.goldText, fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+                Plotten, untersuchen, ableiten — alles an einem Ort.
+              </p>
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <AnalysisZentrum gehe={gehe} />
         </>
       ) : ansicht === "formeln" ? (
         <>
