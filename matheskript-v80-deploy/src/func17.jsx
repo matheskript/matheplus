@@ -163,7 +163,7 @@ function BernoulliFormel({ n, k, pT, qT, wert, p }) {
   return (
     <div ref={rahmen} style={{ background: C.sand, borderRadius: 12, padding: "8px 6px 10px", overflow: "hidden" }}>
       <p style={{ fontSize: 10.5, fontWeight: 600, color: C.grau, marginBottom: 4, textAlign: "center", whiteSpace: "nowrap" }}>Formel von Bernoulli</p>
-      <div ref={innen} style={{ display: "grid", gridTemplateColumns: "repeat(7, auto)", columnGap: "0.18em", rowGap: "0.3em",
+      <div ref={innen} style={{ display: "grid", gridTemplateColumns: "repeat(8, auto)", columnGap: "0.18em", rowGap: "0.3em",
         alignItems: "center", justifyItems: "center", width: "max-content", margin: "0 auto",
         fontSize: gr, fontWeight: 700, color: C.tinte, whiteSpace: "nowrap", fontVariantNumeric: "tabular-nums" }}>
         {/* Zeile 1: Formel mit den eingestellten Werten */}
@@ -174,6 +174,7 @@ function BernoulliFormel({ n, k, pT, qT, wert, p }) {
         <Pot basis={<Wert t={pT} farbe={FARBEN.p} />} exp={<span style={{ color: FARBEN.k }}>{k}</span>} />
         <span>·</span>
         <Pot basis={<Wert t={qT} farbe={FARBEN.p} />} exp={n - k} />
+        <span>=</span>
         {/* Zeile 2: Ergebnis unter P(X = k), jeder Faktor unter seinem Term */}
         <span style={{ fontWeight: 800, justifySelf: "end" }}>{ergebnis}</span>
         <span>=</span>
@@ -182,6 +183,7 @@ function BernoulliFormel({ n, k, pT, qT, wert, p }) {
         <span style={SCHMAL}>{kurzZahl(Math.pow(p, k))}</span>
         <span>·</span>
         <span style={SCHMAL}>{kurzZahl(Math.pow(1 - p, n - k))}</span>
+        <span />
       </div>
     </div>
   );
