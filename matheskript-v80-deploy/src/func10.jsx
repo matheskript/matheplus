@@ -146,8 +146,12 @@ export function Mathilda() {
   );
 
   const Welle = ({ fill }) => (
-    <svg viewBox="0 0 1440 70" preserveAspectRatio="none" style={{ display: "block", width: "100%", height: 44 }}>
-      <path d="M0,34 C180,70 340,6 560,26 C780,46 900,70 1120,40 C1260,21 1350,30 1440,38 L1440,70 L0,70 Z" fill={fill} />
+    // Die Wellenfläche ragt ein Stück unter den Kopfbereich hinaus (overflow sichtbar):
+    // Bei Bildschirmskalierung (z. B. 125 % / 150 %) entstand sonst an der Unterkante
+    // eine feine, quer über die Seite laufende Linie.
+    <svg viewBox="0 0 1440 70" preserveAspectRatio="none"
+      style={{ display: "block", width: "100%", height: 44, overflow: "visible", position: "relative", zIndex: 1 }}>
+      <path d="M0,34 C180,70 340,6 560,26 C780,46 900,70 1120,40 C1260,21 1350,30 1440,38 L1440,76 L0,76 Z" fill={fill} />
     </svg>
   );
 
