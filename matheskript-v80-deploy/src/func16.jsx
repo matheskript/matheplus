@@ -10,7 +10,7 @@
    ============================================================ */
 
 import React, { useMemo, useRef, useState } from "react";
-import { C, Regler } from "./base1.jsx";
+import { C } from "./base1.jsx";
 
 /* ---------- Zahlen und Brüche ---------- */
 
@@ -327,6 +327,72 @@ function Eigenschaften({ a, b, c, d }) {
   );
 }
 
+/* ---------- Bedienelemente ---------- */
+
+/* Sehr kompakter Plus/Minus-Regler: − Wert + in einer Zeile, Bereich −10 … +10 */
+function MiniRegler({ label, wert, setzen, farbe }) {
+  const knopf = {
+    width: 26, height: 26, borderRadius: 8, border: `1px solid ${farbe}55`, background: C.weiss, color: farbe,
+    fontSize: 16, fontWeight: 700, fontFamily: "inherit", cursor: "pointer", padding: 0, lineHeight: 1,
+    display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+  };
+  return (
+    <div style={{ borderRadius: 10, border: `1.5px solid ${farbe}40`, background: `${farbe}12`, padding: "4px 4px 5px",
+      display: "flex", flexDirection: "column", alignItems: "center", minWidth: 0 }}>
+      <span style={{ fontSize: 10.5, fontWeight: 700, color: farbe, fontStyle: "italic", lineHeight: 1.2 }}>{label}</span>
+      <div style={{ display: "flex", alignItems: "center", gap: 3, marginTop: 2 }}>
+        <button aria-label={`${label} verringern`} style={knopf} onClick={() => setzen(Math.max(-10, wert - 1))}>−</button>
+        <span style={{ minWidth: 24, textAlign: "center", fontSize: 14, fontWeight: 800, color: farbe, fontVariantNumeric: "tabular-nums" }}>
+          {wert > 0 ? `+${wert}` : String(wert).replace("-", "−")}
+        </span>
+        <button aria-label={`${label} erhöhen`} style={knopf} onClick={() => setzen(Math.min(10, wert + 1))}>+</button>
+      </div>
+    </div>
+  );
+}
+
+/* Drehknöpfe rund um das Schaubild; Gedrückthalten dreht weiter. */
+function DrehKnoepfe({ setPhi, setTheta, zuruecksetzen }) {
+  const timer = React.useRef(null);
+  const SCHRITT = Math.PI / 24; // 7,5°
+  const drehe = (dp, dt) => {
+    setPhi((p) => p + dp);
+    setTheta((t) => Math.max(-1.35, Math.min(1.35, t + dt)));
+  };
+  const start = (dp, dt) => (e) => {
+    e.preventDefault(); e.stopPropagation();
+    drehe(dp, dt);
+    clearInterval(timer.current);
+    timer.current = setInterval(() => drehe(dp / 2, dt / 2), 60);
+  };
+  const stopp = () => clearInterval(timer.current);
+  React.useEffect(() => () => clearInterval(timer.current), []);
+  const knopf = (inhalt, stil, dp, dt, titel) => (
+    <button aria-label={titel} title={titel}
+      onPointerDown={start(dp, dt)} onPointerUp={stopp} onPointerLeave={stopp} onPointerCancel={stopp}
+      style={{ position: "absolute", width: 34, height: 34, borderRadius: 999, border: `1px solid ${C.linie}`,
+        background: "rgba(255,255,255,0.92)", color: C.see, fontSize: 15, fontWeight: 700, cursor: "pointer", padding: 0,
+        display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(15,26,51,0.14)",
+        touchAction: "none", userSelect: "none", ...stil }}>
+      {inhalt}
+    </button>
+  );
+  return (
+    <>
+      {knopf("◀", { left: 6, top: "50%", transform: "translateY(-50%)" }, SCHRITT, 0, "Nach links drehen")}
+      {knopf("▶", { right: 6, top: "50%", transform: "translateY(-50%)" }, -SCHRITT, 0, "Nach rechts drehen")}
+      {knopf("▲", { top: 6, left: "50%", transform: "translateX(-50%)" }, 0, SCHRITT, "Nach oben kippen")}
+      {knopf("▼", { bottom: 6, left: "50%", transform: "translateX(-50%)" }, 0, -SCHRITT, "Nach unten kippen")}
+      <button aria-label="Ansicht zurücksetzen" title="Ansicht zurücksetzen" onClick={zuruecksetzen}
+        style={{ position: "absolute", right: 6, bottom: 6, height: 30, padding: "0 10px", borderRadius: 999,
+          border: `1px solid ${C.linie}`, background: "rgba(255,255,255,0.92)", color: C.see, fontSize: 12.5, fontWeight: 600,
+          fontFamily: "inherit", cursor: "pointer", boxShadow: "0 2px 8px rgba(15,26,51,0.14)" }}>
+        ↺ Zurück
+      </button>
+    </>
+  );
+}
+
 /* ---------- Ebenen-Visualizer ---------- */
 
 const BEISPIELE = [
@@ -384,13 +450,24 @@ export function EbenenVisualizer() {
           E: {ebenenText(a, b, c, d)}
         </p>
 
+        {/* Koeffizienten: kompakt direkt unter der Gleichung */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6, marginBottom: 12 }}>
+          <MiniRegler label="a" wert={a} setzen={setA} farbe={FARBE_ACHSE[0]} />
+          <MiniRegler label="b" wert={b} setzen={setB} farbe={FARBE_ACHSE[1]} />
+          <MiniRegler label="c" wert={c} setzen={setC} farbe={FARBE_ACHSE[2]} />
+          <MiniRegler label="d" wert={d} setzen={setD} farbe={C.smaragd} />
+        </div>
+
         <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 10 }}>
           {schalter("spur", "Spurgeraden", C.flaggold)}
           {schalter("normale", "Normalenvektor", C.smaragd)}
           {schalter("box", "Würfel", C.hellgrau)}
         </div>
 
-        <Raum a={a} b={b} c={c} d={d} phi={phi} theta={theta} setPhi={setPhi} setTheta={setTheta} zeigen={zeigen} />
+        <div style={{ position: "relative" }}>
+          <Raum a={a} b={b} c={c} d={d} phi={phi} theta={theta} setPhi={setPhi} setTheta={setTheta} zeigen={zeigen} />
+          <DrehKnoepfe setPhi={setPhi} setTheta={setTheta} zuruecksetzen={() => { setPhi(0.62); setTheta(0.42); }} />
+        </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginTop: 10 }}>
           <span style={{ fontSize: 12.5, color: C.grau, marginRight: 2 }}>Ansicht</span>
@@ -400,12 +477,6 @@ export function EbenenVisualizer() {
           {ansicht("Von der Seite", 1.5707, 0.0001)}
         </div>
 
-        <div className="flex items-start" style={{ gap: 6, marginTop: 18 }}>
-          <Regler label="a · x₁" wert={a} setzen={setA} min={-10} max={10} farbe={FARBE_ACHSE[0]} />
-          <Regler label="b · x₂" wert={b} setzen={setB} min={-10} max={10} farbe={FARBE_ACHSE[1]} />
-          <Regler label="c · x₃" wert={c} setzen={setC} min={-10} max={10} farbe={FARBE_ACHSE[2]} />
-          <Regler label="= d" wert={d} setzen={setD} min={-10} max={10} farbe={C.smaragd} />
-        </div>
 
         <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingTop: 14 }}>
           <button onClick={zufall}
