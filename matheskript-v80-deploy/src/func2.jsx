@@ -850,7 +850,7 @@ export function polynomdivisionSchritte(fRoh, r) {
     zeilen.push({ txt: "   ──────────" });
     const rest = naechster + qi * r;
     if (i < n - 1) {
-      zeilen.push({ txt: `   = ${paareText([[rest, powLow]])}   (nächster Term wird heruntergeholt)` });
+      zeilen.push({ txt: `   = ${paareText([[rest, powLow]])}`, notiz: "(nächster Term)" });
     } else {
       zeilen.push({ txt: `   = ${rest}`, fett: true });
       zeilen.push({ txt: "Rest = 0  ⇒  die Division geht ohne Rest auf.", fett: true, prosa: true });
@@ -1276,6 +1276,7 @@ function PdZeile({ zl }) {
       <p style={{ fontSize: 12.5, fontWeight: zl.fett ? 700 : 400, color: zl.fett ? C.tinte : C.grau,
         lineHeight: 1.7, whiteSpace: "pre", marginBottom: 3 }}>
         {schoenText(zl.txt)}
+        {zl.notiz && <span style={{ marginLeft: 44, fontWeight: 300, color: C.hellgrau }}>{zl.notiz}</span>}
       </p>
     </div>
   );

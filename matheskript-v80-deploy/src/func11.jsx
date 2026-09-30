@@ -304,16 +304,27 @@ function spaltenSetzer(obenLinks, obenRechts) {
 }
 
 /* Setzt eine Zeile ein; lange Rechenzeilen werden verkleinert statt umbrochen. */
-function rechenZeile(doc, s, txt, { fett, farbe, mono }) {
+function rechenZeile(doc, s, txt, { fett, farbe, mono, notiz }) {
   const schrift = mono ? "Mono" : "Sans";
   let gr = (mono ? 7.4 : 8.2) * SK;
   doc.setFont(schrift, fett ? "bold" : "normal");
   doc.setFontSize(gr);
-  while (doc.getTextWidth(txt) > SPALTE_B - 2 && gr > 4) { gr -= 0.2; doc.setFontSize(gr); }
+  // Randbemerkung (z. B. „(nächster Term)“) steht mit deutlichem Abstand rechts daneben
+  const ABSTAND = 12;
+  const breite = () => doc.getTextWidth(txt) + (notiz ? ABSTAND + doc.getTextWidth(notiz) * 0.9 : 0);
+  while (breite() > SPALTE_B - 2 && gr > 4) { gr -= 0.2; doc.setFontSize(gr); }
   const basis = gr * 0.46, h = basis * ZA;
   s.platz(h);
   setzeText(doc, farbe);
-  doc.text(txt, s.x(), s.zustand.y + (h - basis) / 2 + basis * 0.78);
+  const yText = s.zustand.y + (h - basis) / 2 + basis * 0.78;
+  doc.text(txt, s.x(), yText);
+  if (notiz) {
+    const xn = s.x() + doc.getTextWidth(txt) + ABSTAND;
+    doc.setFont("Sans", "normal");
+    doc.setFontSize(gr * 0.9);
+    setzeText(doc, C.hellgrau);
+    doc.text(notiz, xn, yText);
+  }
   s.zustand.y += h;
 }
 
@@ -334,7 +345,7 @@ function zeileSetzen(doc, s, zl, mono = false) {
   const farbe = zl.fett ? C.tinte : C.grau;
   if (zl.formel) rechenZeile(doc, s, latexZuText(zl.txt), { fett: zl.fett, farbe });
   else if (zl.prosa) prosaZeile(doc, s, pdfText(zl.txt), { fett: zl.fett, farbe });
-  else if (mono) rechenZeile(doc, s, pdfText(zl.txt), { fett: zl.fett, farbe, mono: true });
+  else if (mono) rechenZeile(doc, s, pdfText(zl.txt), { fett: zl.fett, farbe, mono: true, notiz: zl.notiz });
   else {
     // Eingerückte Zeilen (z. B. Punkteliste) mit echtem Einzug statt Leerzeichen
     const einzug = /^\s+/.test(zl.txt);
