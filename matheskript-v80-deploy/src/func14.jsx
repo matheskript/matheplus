@@ -321,6 +321,34 @@ function PotenzListe({ bis, hoch }) {
   );
 }
 
+/* Potenzen untereinander: eine Spalte je Zehnerblock. Die erste Spalte (1–10) ist breit und groß,
+   die weiteren Zehnerschritte stehen schmaler daneben. */
+function PotenzSpalten({ hoch, bloecke }) {
+  const zeichen = hoch === 2 ? "²" : "³";
+  const breiten = bloecke.map((_, i) => (i === 0 ? "2fr" : "1fr")).join(" ");
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: breiten, gap: 8 }}>
+      {bloecke.map(([von, bis], b) => {
+        const gross = b === 0;
+        return (
+          <div key={von} style={{ background: gross ? C.himmel : C.weiss, border: `1px solid ${C.linie}`, borderRadius: 12,
+            padding: gross ? "6px 12px" : "6px 8px", minWidth: 0 }}>
+            {Array.from({ length: bis - von + 1 }, (_, i) => von + i).map((n, i) => (
+              <div key={n} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 4,
+                height: 34, borderTop: i ? `1px solid ${C.linie}` : "none",
+                fontSize: gross ? "clamp(15px, 4.4vw, 18px)" : "clamp(11.5px, 3.3vw, 14px)", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>
+                <span style={{ color: C.see, fontWeight: 700 }}>{n}{zeichen}</span>
+                {gross && <span style={{ color: C.hellgrau }}>=</span>}
+                <span style={{ fontWeight: 800, color: C.tinte }}>{n ** hoch}</span>
+              </div>
+            ))}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 /* ---------- EinMalEins ---------- */
 
 function EinMalEins() {
@@ -365,14 +393,19 @@ function QuadratKubik() {
   const erzeugen = React.useCallback(() => potenzAufgabe(modus), [modus]);
   return (
     <div>
-      <div style={{ marginBottom: 18 }}>
-        <UebersichtKopf titel="Quadratzahlen" text="Von 1² bis 25²." />
-        <PotenzListe bis={25} hoch={2} />
-      </div>
-      <div style={{ marginBottom: 22 }}>
-        <UebersichtKopf titel="Kubikzahlen" text="Von 1³ bis 10³." />
-        <PotenzListe bis={10} hoch={3} />
-      </div>
+      <style>{`.kr-details > summary{list-style:none;cursor:pointer;padding:13px 0;font-size:15px;font-weight:700;color:${C.see}}
+        .kr-details > summary::-webkit-details-marker{display:none}
+        .kr-details > summary::before{content:"›";display:inline-block;margin-right:8px;transition:transform .15s}
+        .kr-details[open] > summary::before{transform:rotate(90deg)}
+        .kr-details[open]{padding-bottom:14px}`}</style>
+      <details className="kr-details" style={{ marginBottom: 10, background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 14, padding: "0 14px" }}>
+        <summary>Quadratzahlen · 1² bis 30²</summary>
+        <PotenzSpalten hoch={2} bloecke={[[1, 10], [11, 20], [21, 30]]} />
+      </details>
+      <details className="kr-details" style={{ marginBottom: 22, background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 14, padding: "0 14px" }}>
+        <summary>Kubikzahlen · 1³ bis 20³</summary>
+        <PotenzSpalten hoch={3} bloecke={[[1, 10], [11, 20]]} />
+      </details>
       <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: C.gruenDunkel, marginBottom: 8 }}>Üben</p>
       <Modi liste={POTENZ_MODI} wert={modus} setWert={setModus} />
       <Schnellrechnen erzeugen={erzeugen} gruppe="Potenzen" bestSchluessel={`kr-best-pot-${modus}`} />
