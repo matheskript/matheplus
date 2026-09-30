@@ -16,6 +16,7 @@ import { Ableitungstrainer } from "./func13.jsx";
 import { AnalysisZentrum, KopfrechenZentrum } from "./func14.jsx";
 import { EbenenVisualizer, VektorenZentrum } from "./func16.jsx";
 import { EbeneVsEbene, KreuzproduktRechner } from "./func19.jsx";
+import { VektorGenerator } from "./func20.jsx";
 import { BernoulliBingo, StochastikZentrum } from "./func17.jsx";
 import { Vierfeldertafel } from "./func18.jsx";
 
@@ -536,6 +537,20 @@ export function Mathilda() {
             <Welle fill={C.sand} />
           </div>
           <KreuzproduktRechner />
+        </>
+      ) : ansicht === "vektorgenerator" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
+            <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(28px, 8vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Vektor-Generator</h1>
+              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <p style={{ color: C.goldText, fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+                Zufällige Rechnungen mit vollständigem Rechenweg
+              </p>
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <VektorGenerator />
         </>
       ) : ansicht === "vektoren" ? (
         <>

@@ -119,6 +119,7 @@ export const NAV = [
     { name: "Ebenen-Visualizer", kurz: "Ebenen in Koordinatenform live im Raum", ansicht: "ebenen" },
     { name: "Ebene vs. Ebene", kurz: "Schnittgerade und Schnittwinkel zweier Ebenen", ansicht: "ebenevsebene" },
     { name: "Kreuzprodukt", kurz: "Rechner mit Formel und eingesetzten Werten", ansicht: "kreuzprodukt" },
+    { name: "Vektor-Generator", kurz: "Zufällige Beispielrechnungen mit Rechenweg", ansicht: "vektorgenerator" },
     { name: "Stochastik", kurz: "Alle Stochastik-Werkzeuge im Überblick", ansicht: "stochastik" },
     { name: "Bernoulli-Kette", kurz: "Binomialverteilung live mit Formel und Experiment", ansicht: "bernoulli" },
     { name: "Vier-Felder-Tafel", kurz: "Absolut oder in Prozent, mit Baumdiagramm", ansicht: "vierfelder" },

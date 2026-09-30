@@ -17,10 +17,10 @@ const FARBE_G = "#C99A00";
 
 /* ---------- Zahlen ---------- */
 
-const ggT = (a, b) => (b ? ggT(b, a % b) : Math.abs(a));
-const minus = (x) => String(x).replace("-", "−");
+export const ggT = (a, b) => (b ? ggT(b, a % b) : Math.abs(a));
+export const minus = (x) => String(x).replace("-", "−");
 // Bruch z/n gekürzt als { z, n } (n > 0)
-function kuerze(z, n) {
+export function kuerze(z, n) {
   const g = ggT(Math.abs(z), Math.abs(n)) || 1;
   let a = z / g, b = n / g;
   if (b < 0) { a = -a; b = -b; }
@@ -32,12 +32,12 @@ const dez = (v, st = 5) => {
   const exakt = Math.abs(v * F - Math.round(v * F)) < 1e-7;
   return minus(String(r).replace(".", ",")) + (exakt ? "" : "…");
 };
-const kreuz = (u, v) => [u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]];
-const skalar = (u, v) => u[0] * v[0] + u[1] * v[1] + u[2] * v[2];
+export const kreuz = (u, v) => [u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]];
+export const skalar = (u, v) => u[0] * v[0] + u[1] * v[1] + u[2] * v[2];
 
 /* ---------- Darstellung: Bruch, Wurzel, Vektor ---------- */
 
-function Bruch({ oben, unten, gross }) {
+export function Bruch({ oben, unten, gross }) {
   return (
     <span style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", verticalAlign: "middle", margin: "0 2px",
       fontSize: gross ? "1em" : "0.92em", lineHeight: 1.15 }}>
@@ -57,7 +57,7 @@ function Wurzel({ children }) {
 }
 
 // Zahl oder Bruch als Eintrag
-function Zahl({ q }) {
+export function Zahl({ q }) {
   if (q.n === 1) return <span>{minus(q.z)}</span>;
   return (
     <span style={{ display: "inline-flex", alignItems: "center" }}>
@@ -68,7 +68,7 @@ function Zahl({ q }) {
 }
 
 // n⃗ mit Pfeil darüber
-function VecName({ t, idx, farbe }) {
+export function VecName({ t, idx, farbe }) {
   return (
     <span style={{ color: farbe, whiteSpace: "nowrap" }}>
       {/* Pfeil absolut über dem Buchstaben – der Buchstabe bleibt auf der Grundlinie des Textes */}
@@ -82,7 +82,7 @@ function VecName({ t, idx, farbe }) {
   );
 }
 
-function SpaltenVektor({ eintraege, farbe }) {
+export function SpaltenVektor({ eintraege, farbe }) {
   return (
     <span style={{ display: "inline-flex", alignItems: "stretch", verticalAlign: "middle", color: farbe }}>
       <span style={{ width: 7, borderLeft: "1.8px solid currentColor", borderTop: "1.8px solid currentColor", borderBottom: "1.8px solid currentColor", borderRadius: "8px 0 0 8px" }} />
@@ -167,7 +167,7 @@ function lage(k1, k2) {
 
 /* ---------- 3D-Schaubild mit beiden Ebenen und Schnittgerade ---------- */
 
-function strahlImWuerfel(p, r, L) {
+export function strahlImWuerfel(p, r, L) {
   // Gerade p + t·r auf den Würfel [−L, L]³ zuschneiden
   let t0 = -Infinity, t1 = Infinity;
   for (let k = 0; k < 3; k++) {
@@ -452,7 +452,7 @@ function VektorEingabe({ name, farbe, werte, setWerte }) {
 }
 
 // Passt die Schriftgröße so an, dass der Inhalt in eine Zeile passt
-function Einzeilig({ children, max = 17, min = 9 }) {
+export function Einzeilig({ children, max = 17, min = 9 }) {
   const rahmen = useRef(null), innen = useRef(null);
   const [gr, setGr] = useState(max);
   React.useEffect(() => {
