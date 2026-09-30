@@ -83,7 +83,7 @@ function Kopf({ n, p, k, setN, setP, setK, pT, qT, bruch, setBruch }) {
   const [zn, zp, zk] = zeilen;
   const Regler1 = ({ z }) => (
     <div>
-      <p style={{ fontSize: 16, fontWeight: 700, color: C.tinte, lineHeight: 1.2, marginBottom: 4, textAlign: "center", whiteSpace: "nowrap" }}>
+      <p style={UEBERSCHRIFT}>
         {z.name === "p"
           ? <>{z.kurz} <span style={{ color: z.farbe, fontWeight: 800 }}>{z.name}</span></>
           : <><span style={{ color: z.farbe, fontWeight: 800 }}>{z.name}</span> {z.kurz}</>}
@@ -98,11 +98,12 @@ function Kopf({ n, p, k, setN, setP, setK, pT, qT, bruch, setBruch }) {
   );
   return (
     <div className="bk-kopf" style={{ marginBottom: 6 }}>
-      <style>{`.bk-kopf{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-areas:"regler formel";gap:14px;align-items:center}
+      <style>{`.bk-kopf{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-areas:"regler formel";gap:12px;align-items:stretch}
         @media (max-width:560px){.bk-kopf{grid-template-columns:minmax(0,1fr);grid-template-areas:"formel" "regler";gap:12px}}`}</style>
       {/* Regler: links n (oben) und k (unten), rechts p mit Kommazahl- und Bruch-Knöpfen */}
       <div style={{ gridArea: "regler", display: "flex", justifyContent: "center", alignItems: "stretch", gap: 10 }}>
-        <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 6, paddingTop: 7, paddingBottom: 7 }}>
+        <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 6, padding: "6px 5px",
+          borderRadius: 12, border: `1px solid ${FARBEN.n}33`, background: `${FARBEN.n}08` }}>
           <Regler1 z={zn} />
           <Regler1 z={zk} />
         </div>
@@ -123,7 +124,7 @@ function Kopf({ n, p, k, setN, setP, setK, pT, qT, bruch, setBruch }) {
         </div>
       </div>
       {/* Formel von Bernoulli oben, Kurzform X ∼ B(n; p) darunter */}
-      <div style={{ gridArea: "formel", minWidth: 0 }}>
+      <div style={{ gridArea: "formel", minWidth: 0, display: "flex" }}>
         <BernoulliFormel n={n} k={k} pT={pT} qT={qT} wert={bin(n, p, k)} p={p} />
       </div>
     </div>
@@ -139,6 +140,9 @@ function kurzZahl(x) {
   return String(r).replace(".", ",") + "…";
 }
 
+// Gemeinsamer Stil der Überschriften im Kopf (n Versuche, k Treffer, Treffer-WKT p, Formel von Bernoulli)
+const UEBERSCHRIFT = { fontSize: 14, fontWeight: 700, color: C.tinte, lineHeight: 1.2, marginBottom: 4, textAlign: "center", whiteSpace: "nowrap" };
+
 // Schmale, nicht fette Schrift für die ausgerechneten Einzelwahrscheinlichkeiten
 const SCHMAL = { color: FARBEN.p, fontWeight: 400, fontFamily: "'Roboto Condensed', 'Arial Narrow', 'Helvetica Neue Condensed', sans-serif",
   fontStretch: "condensed", letterSpacing: "-0.01em" };
@@ -151,8 +155,12 @@ function BernoulliFormel({ n, k, pT, qT, wert, p }) {
   useEffect(() => {
     const anpassen = () => {
       if (!rahmen.current || !innen.current) return;
-      const platz = rahmen.current.clientWidth - 12;
-      const breite14 = innen.current.scrollWidth * (14 / parseFloat(getComputedStyle(innen.current).fontSize));
+      const el = innen.current;
+      const platz = rahmen.current.clientWidth - 18;
+      // natürliche Breite messen (ohne Verteilung über die Box), danach wieder verteilen
+      el.style.width = "max-content"; el.style.justifyContent = "start";
+      const breite14 = el.scrollWidth * (14 / parseFloat(getComputedStyle(el).fontSize));
+      el.style.width = "100%"; el.style.justifyContent = "space-between";
       setGr(Math.max(9, Math.min(14, Math.floor((14 * platz / breite14) * 10) / 10)));
     };
     anpassen();
@@ -162,10 +170,11 @@ function BernoulliFormel({ n, k, pT, qT, wert, p }) {
     return () => { if (ro) ro.disconnect(); window.removeEventListener("resize", anpassen); };
   }, [n, k, pT]);
   return (
-    <div ref={rahmen} style={{ background: C.sand, borderRadius: 12, padding: "8px 6px 10px", overflow: "hidden" }}>
-      <p style={{ fontSize: 10.5, fontWeight: 600, color: C.grau, marginBottom: 4, textAlign: "center", whiteSpace: "nowrap" }}>Formel von Bernoulli</p>
-      <div ref={innen} style={{ display: "grid", gridTemplateColumns: "repeat(8, auto)", columnGap: "0.18em", rowGap: "0.3em",
-        alignItems: "center", justifyItems: "center", width: "max-content", margin: "0 auto",
+    <div ref={rahmen} style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", background: C.sand, borderRadius: 12,
+      padding: "6px 8px", border: `1px solid ${C.linie}`, overflow: "hidden" }}>
+      <p style={UEBERSCHRIFT}>Formel von Bernoulli</p>
+      <div ref={innen} style={{ flex: 1, alignContent: "center", display: "grid", gridTemplateColumns: "repeat(8, auto)", justifyContent: "space-between", columnGap: "0.18em", rowGap: "0.3em",
+        alignItems: "center", justifyItems: "center", width: "100%",
         fontSize: gr, fontWeight: 700, color: C.tinte, whiteSpace: "nowrap", fontVariantNumeric: "tabular-nums" }}>
         {/* Zeile 1: Formel mit den eingestellten Werten */}
         <span style={{ justifySelf: "end" }}>P(X = {v(k, FARBEN.k)})</span>
