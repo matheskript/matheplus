@@ -35,6 +35,11 @@ export const C = {
   /* Barça-Gold für Akzente auf Blau */
   flaggold: "#EDBB00",
   goldText: "#C9D6EE",
+  /* Silber als zweite Akzentfarbe neben Gold (Logo mythosmathe.de, Kacheln) */
+  silber: "#C7CDD6",
+  silberHell: "#E9ECF1",
+  silberDunkel: "#8E97A6",
+  goldWarm: "#E2B53C",
   /* Nur für die Koeffizienten-Farbcodierung im Polynomplotter — dort trägt jeder
      der fünf Koeffizienten eine eigene Farbe, das reguläre Farbschema reicht dafür nicht. */
   gold: "#B8860B",

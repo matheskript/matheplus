@@ -184,8 +184,12 @@ export function Mathilda() {
       {/* Kopfleiste mit Menü */}
       <div style={{ position: "sticky", top: 0, zIndex: 50, background: C.seeTief }}>
         <div className="mx-auto px-6 flex items-center justify-between" style={{ maxWidth: 620, height: 56 }}>
-          <span style={{ color: C.weiss, fontSize: 25.5, fontWeight: 700, letterSpacing: "-0.02em", textTransform: "uppercase" }}>
-            matheskript<span style={{ color: C.flaggold }}>.de</span>
+          <style>{`
+            .logo-silber{background:linear-gradient(180deg,#FFFFFF 0%,${C.silberHell} 35%,${C.silber} 60%,${C.silberDunkel} 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+            .logo-gold{background:linear-gradient(180deg,#FFE58A 0%,${C.flaggold} 45%,${C.goldWarm} 70%,#A67C00 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+          `}</style>
+          <span style={{ color: C.weiss, fontSize: "clamp(20px, 6.2vw, 25.5px)", fontWeight: 700, letterSpacing: "-0.02em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
+            <span className="logo-silber">mythos</span><span className="logo-gold">mathe</span><span className="logo-silber">.de</span>
           </span>
           <div className="flex items-center" style={{ gap: 6 }}>
           <button onClick={() => gehe({ ansicht: lern.profil ? "karte" : "profil2" })} aria-label="Mein Weg"

@@ -53,26 +53,32 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
   return (
     <button onClick={onClick} aria-label={label} className="plotter-kachel"
       style={{ display: "flex", width: "100%", height: 138, marginTop: 12, padding: 0, border: "none", borderRadius: 18,
-        overflow: "hidden", cursor: "pointer", fontFamily: "inherit", textAlign: "left",
+        overflow: "hidden", cursor: "pointer", fontFamily: "inherit", textAlign: "left", position: "relative",
         background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`,
-        boxShadow: "0 6px 22px rgba(0,77,152,0.24)" }}>
+        boxShadow: `0 6px 22px rgba(0,77,152,0.24), inset 0 0 0 1px ${C.silber}40` }}>
+      {/* Gold-Silber-Kante links */}
+      <span aria-hidden="true" style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 4,
+        background: `linear-gradient(180deg, ${C.flaggold} 0%, ${C.goldWarm} 45%, ${C.silber} 55%, ${C.silberDunkel} 100%)` }} />
       <style>{`.plotter-kachel{transition:transform .15s ease, box-shadow .15s ease}
         .plotter-kachel:active{transform:scale(0.985)}
         @media (hover:hover){.plotter-kachel:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,77,152,0.32)}}
-        .kachel-text{display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}`}</style>
+        .kachel-text{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+        .kachel-titel{background:linear-gradient(180deg,#FFFFFF 0%,${C.silberHell} 55%,${C.silber} 100%);-webkit-background-clip:text;background-clip:text;color:transparent}`}</style>
       {/* Links (60 %): Titel und Erklärtext von oben */}
       <div style={{ flex: "1 1 60%", minWidth: 0, padding: "13px 10px 12px 16px", display: "flex", flexDirection: "column" }}>
-        <h2 style={{ color: C.weiss, fontSize: "clamp(15px, 4.1vw, 22px)", fontWeight: 700, letterSpacing: "-0.03em",
+        <h2 className="kachel-titel" style={{ fontSize: "clamp(15px, 4.1vw, 22px)", fontWeight: 700, letterSpacing: "-0.03em",
           lineHeight: 1.1, margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
           {titel}
         </h2>
-        <p className="kachel-text" style={{ color: C.goldText, fontSize: 12.5, fontWeight: 300, lineHeight: 1.4, marginTop: 6, marginBottom: 0 }}>
+        <span aria-hidden="true" style={{ display: "block", width: 34, height: 2.5, borderRadius: 2, marginTop: 6,
+          background: `linear-gradient(90deg, ${C.flaggold} 0%, ${C.flaggold} 50%, ${C.silber} 50%, ${C.silber} 100%)` }} />
+        <p className="kachel-text" style={{ color: C.silber, fontSize: 12.5, fontWeight: 300, lineHeight: 1.4, marginTop: 6, marginBottom: 0 }}>
           {text}
         </p>
       </div>
       {/* Rechts (40 %): nur die Grafik */}
       <div style={{ flex: "0 0 40%", position: "relative", background: "rgba(255,255,255,0.04)",
-        borderLeft: "1px solid rgba(255,255,255,0.08)", display: "flex" }}>
+        borderLeft: `1px solid ${C.silber}33`, display: "flex" }}>
         {logo}
       </div>
     </button>
@@ -547,19 +553,19 @@ export function Startseite({ gehe }) {
     <div className="mx-auto px-6 pb-14" style={{ maxWidth: 620 }}>
       <PlotterKachel onClick={() => gehe({ ansicht: "analysis" })} label="Analysis öffnen" logo={<PlotterLogoKlein />}
         titel="Analysis"
-        text="Polynomplotter, Advanced Plotter und Ableitungstrainer: Graphen live erkunden und Kurvendiskussionen erzeugen." />
+        text="Polynomplotter, Advanced Plotter und Ableitungstrainer: Graphen live erkunden." />
       <PlotterKachel onClick={() => gehe({ ansicht: "vektoren" })} label="Vektoren öffnen" logo={<VektorenLogoKlein />}
         titel="Vektoren"
-        text="Der Ebenen-Visualizer zeigt jede Ebene live im 3D-Koordinatensystem – dazu der Videokurs von Vektoren bis Ebenen." />
+        text="Der Ebenen-Visualizer zeigt jede Ebene live im Raum – dazu der Videokurs." />
       <PlotterKachel onClick={() => gehe({ ansicht: "stochastik" })} label="Stochastik öffnen" logo={<StochastikLogoKlein />}
         titel="Stochastik"
-        text="Bernoulli-Bingo: Bernoulli-Ketten einstellen, die Binomialverteilung live sehen und den Zufall selbst laufen lassen." />
+        text="Bernoulli-Bingo: Binomialverteilung live sehen und den Zufall selbst laufen lassen." />
       <PlotterKachel onClick={() => gehe({ ansicht: "kopf" })} label="KopfrechenZentrum öffnen" logo={<KopfrechnenLogoKlein />}
         titel="KopfrechenZentrum"
-        text="Primfaktoren, Quadrat- und Kubikzahlen, Bruchrechnen und Einmaleins – in schnellen Runden auf Zeit, mit Bestwert." />
+        text="Primfaktoren, Quadratzahlen, Brüche und Einmaleins – schnelle Runden auf Zeit." />
       <PlotterKachel onClick={() => gehe({ ansicht: "kurse" })} label="Schulkurse öffnen" logo={<SchulkurseLogoKlein />}
         titel="Schulkurse"
-        text="Analysis, Vektoren und Stochastik als komplette Abiturthemen – mit Videolektionen, Merksätzen und Kurz-Checks." />
+        text="Analysis, Vektoren und Stochastik – mit Videolektionen und Kurz-Checks." />
 
       <div style={{ marginTop: 22 }}>
         <ErklaerVideo id={DEMO_VIDEO_ID} titel="So funktioniert Matheskript" />
