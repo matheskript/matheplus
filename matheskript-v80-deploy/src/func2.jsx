@@ -572,7 +572,7 @@ export function Startseite({ gehe }) {
         text="Der Ebenen-Visualizer zeigt jede Ebene live im Raum – dazu der Videokurs." />
       <PlotterKachel onClick={() => gehe({ ansicht: "stochastik" })} label="Stochastik öffnen" logo={<StochastikLogoKlein />}
         titel="Stochastik"
-        text="Bernoulli-Bingo: Binomialverteilung live sehen und den Zufall selbst laufen lassen." />
+        text="Bernoulli-Kette: Binomialverteilung live sehen und den Zufall selbst laufen lassen." />
       <PlotterKachel onClick={() => gehe({ ansicht: "kopf" })} label="Kopfrechnen öffnen" logo={<KopfrechnenLogoKlein />}
         titel="Kopfrechnen"
         text="Primfaktoren, Quadratzahlen, Brüche und Einmaleins – schnelle Runden auf Zeit." />

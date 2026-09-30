@@ -118,7 +118,7 @@ export const NAV = [
     { name: "Vektoren", kurz: "Alle Vektor-Werkzeuge im Überblick", ansicht: "vektoren" },
     { name: "Ebenen-Visualizer", kurz: "Ebenen in Koordinatenform live im Raum", ansicht: "ebenen" },
     { name: "Stochastik", kurz: "Alle Stochastik-Werkzeuge im Überblick", ansicht: "stochastik" },
-    { name: "Bernoulli-Bingo", kurz: "Bernoulli-Ketten und Binomialverteilung live", ansicht: "bernoulli" },
+    { name: "Bernoulli-Kette", kurz: "Binomialverteilung live mit Formel und Experiment", ansicht: "bernoulli" },
     { name: "Vier-Felder-Tafel", kurz: "Absolut oder in Prozent, mit Baumdiagramm", ansicht: "vierfelder" },
     { name: "Arbeitsblatt drucken", kurz: "Aufgabenblatt mit Lösungsteil", ansicht: "ki", ziel: "blatt" },
   ] },

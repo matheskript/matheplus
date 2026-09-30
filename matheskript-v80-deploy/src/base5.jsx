@@ -261,7 +261,7 @@ export const VIDEOKURSE = {
           richtig: 1,
           erklaerung: "μ = n · p = 60 · 1/6 = 10.",
         },
-        ueben: { label: "Bernoulli-Bingo", ansicht: "bernoulli" },
+        ueben: { label: "Bernoulli-Kette", ansicht: "bernoulli" },
       },
       {
         id: "s5", kapitel: "Beurteilende Statistik", titel: "Der Hypothesentest", youtube: "zoxDjuRa6xM",

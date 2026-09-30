@@ -47,36 +47,63 @@ function Kopf({ n, p, k, setN, setP, setK }) {
     const liste = richtung > 0 ? P_WERTE.filter((v) => v > p + 1e-9) : P_WERTE.filter((v) => v < p - 1e-9).reverse();
     return liste.length ? liste[0] : p;
   };
-  const spalten = [
-    { art: "text", inhalt: "X ∼ B(" },
-    { art: "wert", inhalt: `${n}`, farbe: FARBEN.n, plus: () => setN(Math.min(40, n + 1)), minus: () => setN(Math.max(1, n - 1)), name: "n" },
-    { art: "text", inhalt: ";" },
-    { art: "wert", inhalt: pText(p), farbe: FARBEN.p, plus: () => setP(naechstesP(1)), minus: () => setP(naechstesP(-1)), name: "p" },
-    { art: "text", inhalt: ")" },
-    { art: "text", inhalt: "k =" },
-    { art: "wert", inhalt: `${k}`, farbe: FARBEN.k, plus: () => setK(Math.min(n, k + 1)), minus: () => setK(Math.max(0, k - 1)), name: "k" },
+  const zeilen = [
+    { name: "n", label: "Versuche", wert: `${n}`, farbe: FARBEN.n, plus: () => setN(Math.min(40, n + 1)), minus: () => setN(Math.max(1, n - 1)) },
+    { name: "p", label: "Treffer\u00ADwahr\u00ADschein\u00ADlich\u00ADkeit", wert: pText(p), farbe: FARBEN.p, plus: () => setP(naechstesP(1)), minus: () => setP(naechstesP(-1)) },
+    { name: "k", label: "Treffer", wert: `${k}`, farbe: FARBEN.k, plus: () => setK(Math.min(n, k + 1)), minus: () => setK(Math.max(0, k - 1)) },
   ];
   const knopf = (farbe) => ({
-    width: "100%", maxWidth: 52, height: 30, borderRadius: 9, border: `1.5px solid ${farbe}66`, background: `${farbe}14`,
-    color: farbe, fontSize: 19, fontWeight: 700, fontFamily: "inherit", cursor: "pointer", padding: 0, lineHeight: 1,
+    width: 38, height: 38, flexShrink: 0, borderRadius: 11, border: `1.5px solid ${farbe}66`, background: `${farbe}14`,
+    color: farbe, fontSize: 22, fontWeight: 700, fontFamily: "inherit", cursor: "pointer", padding: 0, lineHeight: 1,
     display: "flex", alignItems: "center", justifyContent: "center",
   });
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "auto 1fr auto 1.3fr auto auto 1fr", columnGap: 4, rowGap: 8,
-      alignItems: "center", justifyItems: "center", marginBottom: 6 }}>
-      {spalten.map((sp, i) => (
-        <span key={`s${i}`} style={{ fontSize: sp.art === "wert" ? "clamp(26px, 7vw, 44px)" : "clamp(18px, 5vw, 32px)",
-          fontWeight: 800, whiteSpace: "nowrap", letterSpacing: "-0.02em", lineHeight: 1.1,
-          color: sp.art === "wert" ? sp.farbe : C.tinte, marginLeft: sp.inhalt === "k =" ? 10 : 0, fontVariantNumeric: "tabular-nums" }}>
-          {sp.inhalt}
-        </span>
-      ))}
-      {spalten.map((sp, i) => sp.art === "wert" ? (
-        <div key={`r${i}`} style={{ display: "flex", flexDirection: "column", gap: 4, width: "100%", alignItems: "center" }}>
-          <button aria-label={`${sp.name} erhöhen`} style={knopf(sp.farbe)} onClick={sp.plus}>+</button>
-          <button aria-label={`${sp.name} verringern`} style={knopf(sp.farbe)} onClick={sp.minus}>−</button>
+    <div style={{ marginBottom: 6 }}>
+      <p style={{ textAlign: "center", fontSize: "clamp(20px, 5.6vw, 26px)", fontWeight: 800, color: C.tinte, letterSpacing: "-0.02em",
+        marginBottom: 10, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>
+        X ∼ B(<span style={{ color: FARBEN.n }}>{n}</span>; <span style={{ color: FARBEN.p }}>{pText(p)}</span>)
+      </p>
+      <BernoulliFormel />
+      {zeilen.map((z, i) => (
+        <div key={z.name} style={{ display: "flex", alignItems: "center", gap: 8, padding: "9px 0",
+          borderTop: i ? `1px solid ${C.linie}` : "none" }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <span style={{ fontSize: "clamp(14px, 4vw, 18px)", fontWeight: 600, color: C.tinte, lineHeight: 1.25, overflowWrap: "anywhere" }}>
+              {z.label} <b style={{ color: z.farbe, fontStyle: "italic", fontWeight: 800 }}>{z.name}</b>
+            </span>
+          </div>
+          <button aria-label={`${z.name} verringern`} style={knopf(z.farbe)} onClick={z.minus}>−</button>
+          <span style={{ minWidth: 54, textAlign: "center", fontSize: "clamp(24px, 6.8vw, 32px)", fontWeight: 800, color: z.farbe,
+            fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap", letterSpacing: "-0.02em" }}>{z.wert}</span>
+          <button aria-label={`${z.name} erhöhen`} style={knopf(z.farbe)} onClick={z.plus}>+</button>
         </div>
-      ) : <span key={`r${i}`} />)}
+      ))}
+    </div>
+  );
+}
+
+/* Bernoulli-Formel, farbig wie die Regler */
+function BernoulliFormel() {
+  const v = (t, farbe) => <i style={{ color: farbe, fontWeight: 800 }}>{t}</i>;
+  const hoch = { fontSize: "0.62em", verticalAlign: "0.85em", lineHeight: 0, fontWeight: 700 };
+  return (
+    <div style={{ background: C.sand, borderRadius: 12, padding: "10px 12px", margin: "0 0 8px", overflowX: "auto" }}>
+      <p style={{ fontSize: 11.5, fontWeight: 600, color: C.grau, marginBottom: 4, textAlign: "center" }}>Formel von Bernoulli</p>
+      <div style={{ display: "flex", alignItems: "center", gap: 5, whiteSpace: "nowrap", width: "max-content", margin: "0 auto",
+        fontSize: "clamp(14px, 4.1vw, 20px)", fontWeight: 700, color: C.tinte }}>
+        <span>P(X = {v("k", FARBEN.k)}) =</span>
+        <span style={{ display: "inline-flex", alignItems: "center" }}>
+          <span style={{ fontSize: "2.1em", fontWeight: 300, lineHeight: 1, marginTop: "-0.12em" }}>(</span>
+          <span style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", lineHeight: 1.05, margin: "0 1px" }}>
+            {v("n", FARBEN.n)}{v("k", FARBEN.k)}
+          </span>
+          <span style={{ fontSize: "2.1em", fontWeight: 300, lineHeight: 1, marginTop: "-0.12em" }}>)</span>
+        </span>
+        <span>·</span>
+        <span>{v("p", FARBEN.p)}<span style={hoch}>{v("k", FARBEN.k)}</span></span>
+        <span>·</span>
+        <span>(1 − {v("p", FARBEN.p)})<span style={hoch}>{v("n", FARBEN.n)} − {v("k", FARBEN.k)}</span></span>
+      </div>
     </div>
   );
 }
@@ -228,6 +255,7 @@ export function BernoulliBingo() {
       {/* Einstellungen + Verteilung */}
       <div style={karte}>
         <Kopf n={n} p={p} k={k} setN={setN} setP={setP} setK={setK} />
+        <Histogramm n={n} p={p} k={k} modus={modus} simuliert={sim} letzter={fertig ? treffer : null} />
         <div style={{ display: "flex", gap: 6, overflowX: "auto", padding: "8px 0 4px" }}>
           {VORLAGEN.map((v) => (
             <button key={v.name} onClick={() => { setP(v.p); setTrefferName(v.text); }}
@@ -246,7 +274,6 @@ export function BernoulliBingo() {
           ))}
         </div>
 
-        <Histogramm n={n} p={p} k={k} modus={modus} simuliert={sim} letzter={fertig ? treffer : null} />
 
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginTop: 8 }}>
           <span style={{ fontSize: 15, color: C.grau }}>P(<b style={{ color: FARBEN.k }}>{ereignisText}</b> {trefferName === "Treffer" ? "Treffer" : `× ${trefferName}`})</span>
@@ -258,8 +285,8 @@ export function BernoulliBingo() {
               whiteSpace: "nowrap", lineHeight: 1.7, fontVariantNumeric: "tabular-nums" }}>{z}</p>
           ))}
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, marginTop: 10 }}>
-          {[["Erwartungswert", "μ = n · p", dez(n * p, 2)], ["Standardabw.", "σ = √(n·p·(1−p))", dez(Math.sqrt(n * p * q), 2)], ["Tipp", "k", `${k}`]].map(([t, f, w]) => (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8, marginTop: 10 }}>
+          {[["Erwartungs\u00ADwert", "μ = n · p", dez(n * p, 2)], ["Standardabw.", "σ = √(n·p·(1−p))", dez(Math.sqrt(n * p * q), 2)], ["Tipp", "k", `${k}`]].map(([t, f, w]) => (
             <div key={t} style={{ background: C.himmel, borderRadius: 12, padding: "8px 10px" }}>
               <p style={{ fontSize: 11, color: C.grau, fontWeight: 600 }}>{t}</p>
               <p style={{ fontSize: 18, fontWeight: 800, color: C.see }}>{w}</p>
@@ -352,7 +379,7 @@ export function BernoulliBingo() {
 /* ---------- Übersicht ---------- */
 
 const STOCHASTIK = [
-  { ziel: { ansicht: "bernoulli" }, titel: "Bernoulli-Bingo", kurz: "Bernoulli-Kette einstellen, Binomialverteilung live sehen und das Experiment simulieren.", zeichen: "B" },
+  { ziel: { ansicht: "bernoulli" }, titel: "Bernoulli-Kette", kurz: "Bernoulli-Kette einstellen, Binomialverteilung live sehen und das Experiment simulieren.", zeichen: "B" },
   { ziel: { ansicht: "vierfelder" }, titel: "Vier-Felder-Tafel", kurz: "Absolute Häufigkeiten oder Wahrscheinlichkeiten, die sich zu 100 % ergänzen – mit Baumdiagramm und bedingter Wahrscheinlichkeit.", zeichen: "▦" },
   { ziel: { ansicht: "kurse", kurs: "stochastik" }, titel: "Videokurs Stochastik", kurz: "Fünf Lektionen vom Baumdiagramm bis zum Hypothesentest – mit Merksätzen und Kurz-Checks.", zeichen: "▶" },
 ];
