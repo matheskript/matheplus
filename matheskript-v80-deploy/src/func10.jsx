@@ -156,6 +156,34 @@ export function Mathilda() {
   // Früher eine Welle – jetzt ein gerader, sauberer Abschluss des Kopfbereichs.
   const Welle = () => <div aria-hidden="true" style={{ height: 22 }} />;
 
+  // Untermenü im Kopfbereich: alle Übungsbereiche der aktuellen Sektion als Buttons
+  const SEKTIONEN = [
+    [{ ansicht: "analysis", name: "Übersicht" }, { ansicht: "plotter", name: "Polynomplotter" }, { ansicht: "advplotter", name: "Advanced Plotter" },
+      { ansicht: "sinus", name: "Sinusfunktion" }, { ansicht: "ableitungstrainer", name: "Ableitungstrainer" }],
+    [{ ansicht: "vektoren", name: "Übersicht" }, { ansicht: "ebenen", name: "Ebenen-Visualizer" }, { ansicht: "ebenevsebene", name: "Ebene vs. Ebene" },
+      { ansicht: "kreuzprodukt", name: "Kreuzprodukt" }, { ansicht: "vektorgenerator", name: "Vektor-Generator" }],
+    [{ ansicht: "stochastik", name: "Übersicht" }, { ansicht: "bernoulli", name: "Bernoulli-Kette" }, { ansicht: "vierfelder", name: "Vier-Felder-Tafel" }],
+  ];
+  const SektionsMenue = () => {
+    const sektion = SEKTIONEN.find((liste) => liste.some((x) => x.ansicht === ansicht));
+    if (!sektion) return null;
+    return (
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, paddingBottom: 4 }}>
+        {sektion.map((x) => {
+          const aktiv = x.ansicht === ansicht;
+          return (
+            <button key={x.ansicht} onClick={() => gehe({ ansicht: x.ansicht })} aria-current={aktiv ? "page" : undefined}
+              style={{ padding: "6px 12px", borderRadius: 999, fontSize: 12.5, fontWeight: aktiv ? 700 : 500, fontFamily: "inherit", cursor: "pointer",
+                whiteSpace: "nowrap", border: `1px solid ${aktiv ? C.flaggold : "rgba(255,255,255,0.28)"}`,
+                background: aktiv ? "rgba(237,187,0,0.16)" : "rgba(255,255,255,0.08)", color: aktiv ? C.flaggold : C.silberHell }}>
+              {x.name}
+            </button>
+          );
+        })}
+      </div>
+    );
+  };
+
   return (
     <div style={{ background: C.sand, color: C.tinte, fontFamily: "Montserrat, system-ui, sans-serif", minHeight: "100vh" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Roboto+Condensed:wght@400;500&display=swap');
@@ -503,9 +531,7 @@ export function Mathilda() {
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(28px, 8vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Ebenen-Visualizer</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
-              <p style={{ color: C.goldText, fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
-                E: a·x₁ + b·x₂ + c·x₃ = d
-              </p>
+              <SektionsMenue />
             </div>
             <Welle fill={C.sand} />
           </div>
@@ -517,9 +543,7 @@ export function Mathilda() {
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(28px, 8vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Ebene vs. Ebene</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
-              <p style={{ color: C.goldText, fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
-                Schnittgerade und Schnittwinkel zweier Ebenen
-              </p>
+              <SektionsMenue />
             </div>
             <Welle fill={C.sand} />
           </div>
@@ -531,9 +555,7 @@ export function Mathilda() {
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(28px, 8vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Kreuzprodukt</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
-              <p style={{ color: C.goldText, fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
-                Zwei Vektoren – Formel, eingesetzt, Ergebnis
-              </p>
+              <SektionsMenue />
             </div>
             <Welle fill={C.sand} />
           </div>
@@ -545,9 +567,7 @@ export function Mathilda() {
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(28px, 8vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Vektor-Generator</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
-              <p style={{ color: C.goldText, fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
-                Zufällige Rechnungen mit vollständigem Rechenweg
-              </p>
+              <SektionsMenue />
             </div>
             <Welle fill={C.sand} />
           </div>
@@ -559,9 +579,7 @@ export function Mathilda() {
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(28px, 8vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Vektoren</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
-              <p style={{ color: C.goldText, fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
-                Ebenen, Geraden und Abstände – im Raum sichtbar gemacht.
-              </p>
+              <SektionsMenue />
             </div>
             <Welle fill={C.sand} />
           </div>
@@ -573,9 +591,7 @@ export function Mathilda() {
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(28px, 8vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Bernoulli-Kette</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
-              <p style={{ color: C.goldText, fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
-                X ∼ B(n; p) – Bernoulli-Ketten live erleben
-              </p>
+              <SektionsMenue />
             </div>
             <Welle fill={C.sand} />
           </div>
@@ -587,9 +603,7 @@ export function Mathilda() {
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(28px, 8vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Vier-Felder-Tafel</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
-              <p style={{ color: C.goldText, fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
-                Absolute Häufigkeiten und Wahrscheinlichkeiten – mit Baumdiagramm und bedingter Wahrscheinlichkeit
-              </p>
+              <SektionsMenue />
             </div>
             <Welle fill={C.sand} />
           </div>
@@ -601,9 +615,7 @@ export function Mathilda() {
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(28px, 8vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Stochastik</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
-              <p style={{ color: C.goldText, fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
-                Wahrscheinlichkeit, Verteilungen und Tests – zum Ausprobieren.
-              </p>
+              <SektionsMenue />
             </div>
             <Welle fill={C.sand} />
           </div>
@@ -615,9 +627,7 @@ export function Mathilda() {
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 36, letterSpacing: "-0.03em", lineHeight: 1.05 }}>Analysis</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
-              <p style={{ color: C.goldText, fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
-                Plotten, untersuchen, ableiten — alles an einem Ort.
-              </p>
+              <SektionsMenue />
             </div>
             <Welle fill={C.sand} />
           </div>
@@ -629,9 +639,7 @@ export function Mathilda() {
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(28px, 8vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Sinusfunktion</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
-              <p style={{ color: C.goldText, fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
-                f(x) = a · sin(b · (x − c)) + d – strecken, stauchen, verschieben
-              </p>
+              <SektionsMenue />
             </div>
             <Welle fill={C.sand} />
           </div>
@@ -657,9 +665,7 @@ export function Mathilda() {
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 33, letterSpacing: "-0.03em", lineHeight: 1.05 }}>Polynomplotter</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
-              <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
-                f(x) = a·x³ + b·x² + c·x + d
-              </p>
+              <SektionsMenue />
             </div>
             <Welle fill={C.sand} />
           </div>
@@ -671,9 +677,7 @@ export function Mathilda() {
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 33, letterSpacing: "-0.03em", lineHeight: 1.05 }}>Ableitungstrainer</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
-              <p style={{ color: C.goldText, fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
-                Erste, zweite und dritte Ableitung — mit Tastenfeld und sofortiger Prüfung
-              </p>
+              <SektionsMenue />
             </div>
             <Welle fill={C.sand} />
           </div>
@@ -685,9 +689,7 @@ export function Mathilda() {
             <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 33, letterSpacing: "-0.03em", lineHeight: 1.05 }}>Advanced Plotter</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
-              <p style={{ color: C.goldText, fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
-                Beliebige Funktionen: sin, cos, tan, ln, logₐ, eˣ, aˣ, Wurzeln, Brüche und Potenzen
-              </p>
+              <SektionsMenue />
             </div>
             <Welle fill={C.sand} />
           </div>
