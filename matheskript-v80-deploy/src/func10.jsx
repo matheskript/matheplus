@@ -15,6 +15,7 @@ import { AdvancedPlotter } from "./func12.jsx";
 import { Ableitungstrainer } from "./func13.jsx";
 import { AnalysisZentrum, KopfrechenZentrum } from "./func14.jsx";
 import { EbenenVisualizer, VektorenZentrum } from "./func16.jsx";
+import { BernoulliBingo, StochastikZentrum } from "./func17.jsx";
 
 export function Mathilda() {
   const [ansicht, setAnsicht] = useState("start");
@@ -184,7 +185,7 @@ export function Mathilda() {
       <div style={{ position: "sticky", top: 0, zIndex: 50, background: C.seeTief }}>
         <div className="mx-auto px-6 flex items-center justify-between" style={{ maxWidth: 620, height: 56 }}>
           <span style={{ color: C.weiss, fontSize: 25.5, fontWeight: 700, letterSpacing: "-0.02em", textTransform: "uppercase" }}>
-            <span style={{ color: C.granaHell }}>mathe</span>skript<span style={{ color: C.flaggold }}>.de</span>
+            matheskript<span style={{ color: C.flaggold }}>.de</span>
           </span>
           <div className="flex items-center" style={{ gap: 6 }}>
           <button onClick={() => gehe({ ansicht: lern.profil ? "karte" : "profil2" })} aria-label="Mein Weg"
@@ -200,10 +201,6 @@ export function Mathilda() {
             ))}
           </button>
           </div>
-        </div>
-        <div aria-hidden="true" style={{ display: "flex", height: 3 }}>
-          <span style={{ flex: 1, background: C.gruen }} />
-          <span style={{ flex: 1, background: C.flaggold }} />
         </div>
 
         {menuOffen && (
@@ -522,6 +519,34 @@ export function Mathilda() {
             <Welle fill={C.sand} />
           </div>
           <VektorenZentrum gehe={gehe} />
+        </>
+      ) : ansicht === "bernoulli" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+            <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 style={{ fontWeight: 700, fontSize: "clamp(28px, 8vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05, color: C.weiss }}>Bernoulli-Bingo</h1>
+              <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <p style={{ color: C.goldText, fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+                X ∼ B(n; p) – Bernoulli-Ketten live erleben
+              </p>
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <BernoulliBingo />
+        </>
+      ) : ansicht === "stochastik" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+            <div className="mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 style={{ fontWeight: 700, fontSize: "clamp(28px, 8vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05, color: C.weiss }}>Stochastik</h1>
+              <div style={{ width: 54, height: 4, background: C.gruen, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <p style={{ color: C.goldText, fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+                Wahrscheinlichkeit, Verteilungen und Tests – zum Ausprobieren.
+              </p>
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <StochastikZentrum gehe={gehe} />
         </>
       ) : ansicht === "analysis" ? (
         <>

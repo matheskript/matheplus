@@ -13,6 +13,7 @@ import { TerminHinweis } from "./func9.jsx";
 import { Mathilda } from "./func10.jsx";
 import { KopfrechnenLogoKlein } from "./func14.jsx";
 import { VektorenLogoKlein } from "./func16.jsx";
+import { StochastikLogoKlein } from "./func17.jsx";
 
 /* Große, ganz anklickbare Kachel für die Plotter auf der Startseite. */
 /* Polynomplotter-Grafik im Hochformat für die Kachel. */
@@ -58,22 +59,14 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
       <style>{`.plotter-kachel{transition:transform .15s ease, box-shadow .15s ease}
         .plotter-kachel:active{transform:scale(0.985)}
         @media (hover:hover){.plotter-kachel:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,77,152,0.32)}}
-        .kachel-text{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}`}</style>
-      {/* Links (60 %): Kopfzeile mit Pfeil, Titel, Erklärtext */}
-      <div style={{ flex: "1 1 60%", minWidth: 0, padding: "13px 10px 13px 16px", display: "flex", flexDirection: "column" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-          <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase",
-            color: C.seeTief, background: C.flaggold, borderRadius: 999, padding: "2px 8px" }}>{marke}</span>
-          <span style={{ fontSize: 12, color: C.goldText, fontWeight: 300, flex: 1 }}>{kategorie}</span>
-          <span aria-hidden="true" style={{ flexShrink: 0, width: 28, height: 28, borderRadius: 999, background: C.gruen,
-            color: C.weiss, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 700,
-            boxShadow: "0 3px 10px rgba(165,0,68,0.45)" }}>→</span>
-        </div>
-        <h2 style={{ color: C.weiss, fontSize: "clamp(15px, 4.2vw, 22px)", fontWeight: 700, letterSpacing: "-0.03em",
+        .kachel-text{display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}`}</style>
+      {/* Links (60 %): Titel und Erklärtext von oben */}
+      <div style={{ flex: "1 1 60%", minWidth: 0, padding: "13px 10px 12px 16px", display: "flex", flexDirection: "column" }}>
+        <h2 style={{ color: C.weiss, fontSize: "clamp(15px, 4.1vw, 22px)", fontWeight: 700, letterSpacing: "-0.03em",
           lineHeight: 1.1, margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
           {titel}
         </h2>
-        <p className="kachel-text" style={{ color: C.goldText, fontSize: 12.5, fontWeight: 300, lineHeight: 1.42, marginTop: 5, marginBottom: 0 }}>
+        <p className="kachel-text" style={{ color: C.goldText, fontSize: 12.5, fontWeight: 300, lineHeight: 1.4, marginTop: 6, marginBottom: 0 }}>
           {text}
         </p>
       </div>
@@ -553,17 +546,20 @@ export function Startseite({ gehe }) {
   return (
     <div className="mx-auto px-6 pb-14" style={{ maxWidth: 620 }}>
       <PlotterKachel onClick={() => gehe({ ansicht: "analysis" })} label="Analysis öffnen" logo={<PlotterLogoKlein />}
-        titel="Analysis" marke="Neu" kategorie="Werkzeuge"
-        text="Polynomplotter, Advanced Plotter und Ableitungstrainer – Graphen erkunden." />
+        titel="Analysis"
+        text="Polynomplotter, Advanced Plotter und Ableitungstrainer: Graphen live erkunden und Kurvendiskussionen erzeugen." />
       <PlotterKachel onClick={() => gehe({ ansicht: "vektoren" })} label="Vektoren öffnen" logo={<VektorenLogoKlein />}
-        titel="Vektoren" marke="Neu" kategorie="Werkzeuge"
-        text="Ebenen-Visualizer und Videokurs – Geometrie im Raum sehen." />
+        titel="Vektoren"
+        text="Der Ebenen-Visualizer zeigt jede Ebene live im 3D-Koordinatensystem – dazu der Videokurs von Vektoren bis Ebenen." />
+      <PlotterKachel onClick={() => gehe({ ansicht: "stochastik" })} label="Stochastik öffnen" logo={<StochastikLogoKlein />}
+        titel="Stochastik"
+        text="Bernoulli-Bingo: Bernoulli-Ketten einstellen, die Binomialverteilung live sehen und den Zufall selbst laufen lassen." />
       <PlotterKachel onClick={() => gehe({ ansicht: "kopf" })} label="KopfrechenZentrum öffnen" logo={<KopfrechnenLogoKlein />}
-        titel="KopfrechenZentrum" marke="Neu" kategorie="Üben"
-        text="Primfaktoren, Quadratzahlen, Brüche und Einmaleins – schnell auf Zeit." />
+        titel="KopfrechenZentrum"
+        text="Primfaktoren, Quadrat- und Kubikzahlen, Bruchrechnen und Einmaleins – in schnellen Runden auf Zeit, mit Bestwert." />
       <PlotterKachel onClick={() => gehe({ ansicht: "kurse" })} label="Schulkurse öffnen" logo={<SchulkurseLogoKlein />}
-        titel="Schulkurse" marke="Neu" kategorie="Lernen"
-        text="Analysis, Vektoren und Stochastik – mit Videokurs und Kurz-Checks." />
+        titel="Schulkurse"
+        text="Analysis, Vektoren und Stochastik als komplette Abiturthemen – mit Videolektionen, Merksätzen und Kurz-Checks." />
 
       <div style={{ marginTop: 22 }}>
         <ErklaerVideo id={DEMO_VIDEO_ID} titel="So funktioniert Matheskript" />

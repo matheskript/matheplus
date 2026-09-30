@@ -111,12 +111,14 @@ export const NAV = [
     { name: "Weg prüfen", kurz: "Handschrift in Zeilen übertragen", ansicht: "analyse", foto: "weg" },
     { name: "Aufgabe scannen", kurz: "Ähnliche Aufgaben dazu erzeugen", ansicht: "analyse", foto: "aufgabe" },
   ] },
-  { id: "werkzeuge", name: "Werkzeuge", kurz: "Plotter, Ebenen, Arbeitsblätter", eintraege: [
+  { id: "werkzeuge", name: "Werkzeuge", kurz: "Plotter, Ebenen, Bernoulli, Arbeitsblätter", eintraege: [
     { name: "Analysis", kurz: "Alle Analysis-Werkzeuge im Überblick", ansicht: "analysis" },
     { name: "Polynomplotter", kurz: "Koeffizienten einstellen, f, f′ und f″ sehen", ansicht: "plotter" },
     { name: "Advanced Plotter", kurz: "Beliebige Funktionen mit Tastenfeld und Kurvendiskussion", ansicht: "advplotter" },
     { name: "Vektoren", kurz: "Alle Vektor-Werkzeuge im Überblick", ansicht: "vektoren" },
     { name: "Ebenen-Visualizer", kurz: "Ebenen in Koordinatenform live im Raum", ansicht: "ebenen" },
+    { name: "Stochastik", kurz: "Alle Stochastik-Werkzeuge im Überblick", ansicht: "stochastik" },
+    { name: "Bernoulli-Bingo", kurz: "Bernoulli-Ketten und Binomialverteilung live", ansicht: "bernoulli" },
     { name: "Arbeitsblatt drucken", kurz: "Aufgabenblatt mit Lösungsteil", ansicht: "ki", ziel: "blatt" },
   ] },
   { id: "berichte", name: "Berichte", kurz: "Für Eltern und Lehrkräfte", eintraege: [
