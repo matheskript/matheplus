@@ -207,7 +207,8 @@ function FormelBlock({ children, max = 24, min = 12 }) {
 function Allgemein() {
   const f = (t, farbe) => <span style={{ color: farbe }}>{t}</span>;
   return (
-    <span style={{ fontWeight: 800, color: C.tinte, whiteSpace: "nowrap" }}>
+    <span style={{ display: "inline-block", alignSelf: "flex-start", fontWeight: 800, color: C.tinte, whiteSpace: "nowrap",
+      background: "#EEF1F5", border: `1px solid ${C.linie}`, borderRadius: "0.35em", padding: "0.15em 0.45em" }}>
       f(x) = {f("a", FARBE.a)} · sin({f("b", FARBE.b)} · (x − {f("c", FARBE.c)})) + {f("d", FARBE.d)}
     </span>
   );
@@ -269,7 +270,7 @@ export function Sinusfunktion() {
             @media (max-width:520px){.sin-kopf{grid-template-columns:minmax(0,1fr)}}`}</style>
           <FormelBlock max={24}>
             <Allgemein />
-            <Term p={p} />
+            <span style={{ paddingLeft: "calc(0.45em + 1px)" }}><Term p={p} /></span>
           </FormelBlock>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 44px)", gap: 4, justifyContent: "center", alignItems: "start" }}>
             <Regler name="a" farbe={FARBE.a} plus={() => setze("a", grenz(p.a + 0.5, -5, 5))} minus={() => setze("a", grenz(p.a - 0.5, -5, 5))}>{zahl(p.a)}</Regler>
