@@ -158,18 +158,18 @@ export function Mathilda() {
 
   // Untermenü im Kopfbereich: alle Übungsbereiche der aktuellen Sektion als Buttons
   const SEKTIONEN = [
-    [{ ansicht: "analysis", name: "Übersicht" }, { ansicht: "plotter", name: "Polynomplotter" }, { ansicht: "advplotter", name: "Advanced Plotter" },
+    [{ ansicht: "analysis", name: "Übersicht", versteckt: true }, { ansicht: "plotter", name: "Polynomplotter" }, { ansicht: "advplotter", name: "Advanced Plotter" },
       { ansicht: "sinus", name: "Sinusfunktion" }, { ansicht: "ableitungstrainer", name: "Ableitungstrainer" }],
-    [{ ansicht: "vektoren", name: "Übersicht" }, { ansicht: "ebenen", name: "Ebenen-Visualizer" }, { ansicht: "ebenevsebene", name: "Ebene vs. Ebene" },
+    [{ ansicht: "vektoren", name: "Übersicht", versteckt: true }, { ansicht: "ebenen", name: "Ebenen-Visualizer" }, { ansicht: "ebenevsebene", name: "Ebene vs. Ebene" },
       { ansicht: "kreuzprodukt", name: "Kreuzprodukt" }, { ansicht: "vektorgenerator", name: "Vektor-Generator" }],
-    [{ ansicht: "stochastik", name: "Übersicht" }, { ansicht: "bernoulli", name: "Bernoulli-Kette" }, { ansicht: "vierfelder", name: "Vier-Felder-Tafel" }],
+    [{ ansicht: "stochastik", name: "Übersicht", versteckt: true }, { ansicht: "bernoulli", name: "Bernoulli-Kette" }, { ansicht: "vierfelder", name: "Vier-Felder-Tafel" }],
   ];
   const SektionsMenue = () => {
     const sektion = SEKTIONEN.find((liste) => liste.some((x) => x.ansicht === ansicht));
     if (!sektion) return null;
     return (
       <div style={{ display: "flex", flexWrap: "wrap", gap: 6, paddingBottom: 4 }}>
-        {sektion.map((x) => {
+        {sektion.filter((x) => !x.versteckt).map((x) => {
           const aktiv = x.ansicht === ansicht;
           return (
             <button key={x.ansicht} onClick={() => gehe({ ansicht: x.ansicht })} aria-current={aktiv ? "page" : undefined}
