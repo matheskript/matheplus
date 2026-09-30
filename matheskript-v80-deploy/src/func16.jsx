@@ -539,11 +539,11 @@ export function EbenenVisualizer() {
 /* ---------- Vektoren-Übersicht ---------- */
 
 const VEKTOREN = [
-  { ziel: { ansicht: "ebenen" }, titel: "Ebenen-Visualizer", kurz: "Ebenen in Koordinatenform live im 3D-Koordinatensystem sehen – mit Spurpunkten und Normalenvektor.", zeichen: "E" },
-  { ziel: { ansicht: "ebenevsebene" }, titel: "Ebene vs. Ebene", kurz: "Zwei Ebenen gleichzeitig im Raum – mit Schnittgerade und Schnittwinkel über die Kosinusformel.", zeichen: "E₁E₂" },
-  { ziel: { ansicht: "vektorgenerator" }, titel: "Vektor-Generator", kurz: "Addition, Skalarmultiplikation, Linearkombination, Skalar- und Kreuzprodukt, Geraden und Ebenen – immer neue Beispiele mit Rechenweg.", zeichen: "🎲" },
-  { ziel: { ansicht: "kreuzprodukt" }, titel: "Kreuzprodukt", kurz: "Zwei Vektoren eingeben – Formel, eingesetzte Koordinaten und Ergebnis in einer Zeile.", zeichen: "×" },
-  { ziel: { ansicht: "kurse", kurs: "vektoren" }, titel: "Videokurs Vektoren", kurz: "Fünf Lektionen von den Grundlagen bis zu Ebenen – mit Merksätzen und Kurz-Checks.", zeichen: "▶" },
+  { ziel: { ansicht: "ebenen" }, titel: "Ebenen-Visualizer", slogan: "Ebenen live im Raum drehen", kurz: "Ebenen in Koordinatenform live im 3D-Koordinatensystem sehen – mit Spurpunkten und Normalenvektor.", zeichen: "E" },
+  { ziel: { ansicht: "ebenevsebene" }, titel: "Ebene vs. Ebene", slogan: "Schnittgerade und Schnittwinkel", kurz: "Zwei Ebenen gleichzeitig im Raum – mit Schnittgerade und Schnittwinkel über die Kosinusformel.", zeichen: "E₁E₂" },
+  { ziel: { ansicht: "vektorgenerator" }, titel: "Vektor-Generator", slogan: "Beispiele ohne Ende", kurz: "Addition, Skalarmultiplikation, Linearkombination, Skalar- und Kreuzprodukt, Geraden und Ebenen – immer neue Beispiele mit Rechenweg.", zeichen: "🎲" },
+  { ziel: { ansicht: "kreuzprodukt" }, titel: "Kreuzprodukt", slogan: "Formel, eingesetzt, Ergebnis", kurz: "Zwei Vektoren eingeben – Formel, eingesetzte Koordinaten und Ergebnis in einer Zeile.", zeichen: "×" },
+  { ziel: { ansicht: "kurse", kurs: "vektoren" }, titel: "Videokurs Vektoren", slogan: "Fünf Lektionen mit Kurz-Checks", kurz: "Fünf Lektionen von den Grundlagen bis zu Ebenen – mit Merksätzen und Kurz-Checks.", zeichen: "▶" },
 ];
 
 export function VektorenZentrum({ gehe }) {
@@ -557,17 +557,17 @@ export function VektorenZentrum({ gehe }) {
         Gleichungen im Raum bedeuten.
       </p>
       {VEKTOREN.map((x) => (
-        <button key={x.titel} onClick={() => gehe(x.ziel)} className="w-full px-5 py-5 mb-3"
-          style={{ display: "flex", alignItems: "center", gap: 14, background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 16,
+        <button key={x.titel} onClick={() => gehe(x.ziel)} className="w-full mb-3"
+          style={{ display: "flex", alignItems: "center", gap: 14, padding: 14, background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 18,
             textAlign: "left", cursor: "pointer", fontFamily: "inherit", color: C.tinte, boxShadow: "0 2px 14px rgba(15,26,51,0.06)" }}>
-          <span aria-hidden="true" style={{ flexShrink: 0, width: 58, height: 58, borderRadius: 14,
+          <span aria-hidden="true" style={{ flexShrink: 0, width: 64, height: 64, borderRadius: 15,
             background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, color: C.flaggold,
-            display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, fontWeight: 800, fontStyle: "italic" }}>
+            display: "flex", alignItems: "center", justifyContent: "center", fontSize: x.zeichen.length > 3 ? 18 : 22, fontWeight: 800, fontStyle: "italic" }}>
             {x.zeichen}
           </span>
           <span style={{ flex: 1, minWidth: 0 }}>
-            <span style={{ display: "block", fontSize: 17.5, fontWeight: 600, marginBottom: 4 }}>{x.titel}</span>
-            <span style={{ display: "block", color: C.grau, fontSize: 13.5, fontWeight: 300, lineHeight: 1.6 }}>{x.kurz}</span>
+            <span style={{ display: "block", fontSize: "clamp(15px, 4.4vw, 17.5px)", fontWeight: 600, lineHeight: 1.25, marginBottom: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{x.titel}</span>
+            <span style={{ display: "block", color: C.grau, fontSize: 13.5, fontWeight: 300, lineHeight: 1.4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{x.slogan || x.kurz}</span>
           </span>
         </button>
       ))}

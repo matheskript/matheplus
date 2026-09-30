@@ -711,10 +711,10 @@ function Bruchrechnen() {
 /* ---------- Übersicht ---------- */
 
 const TRAINER = [
-  { id: "primfaktoren", titel: "Primfaktorzerlegung", kurz: "Primzahl erkennen oder vollständig zerlegen — jeden Faktor einzeln.", zeichen: "2·3·7" },
-  { id: "potenzen", titel: "Quadrat- und Kubikzahlen", kurz: "Quadrat- und Kubikzahlen sowie ihre Wurzeln blitzschnell abrufen.", zeichen: "12²" },
-  { id: "bruchrechnen", titel: "Bruchrechnen", kurz: "Kürzen, Plus, Minus, Mal und Geteilt — mit Lösungsweg bei jedem Fehler.", zeichen: "¾" },
-  { id: "einmaleins", titel: "EinMalEins", kurz: "Kleines und großes Einmaleins, auch als Umkehraufgaben — auf Zeit.", zeichen: "7·8" },
+  { id: "primfaktoren", titel: "Primfaktorzerlegung", slogan: "Jede Zahl in Primfaktoren", kurz: "Primzahl erkennen oder vollständig zerlegen — jeden Faktor einzeln.", zeichen: "2·3·7" },
+  { id: "potenzen", titel: "Quadrate & Kuben", slogan: "Quadrat-, Kubikzahlen, Wurzeln", kurz: "Quadrat- und Kubikzahlen sowie ihre Wurzeln blitzschnell abrufen.", zeichen: "12²" },
+  { id: "bruchrechnen", titel: "Bruchrechnen", slogan: "Kürzen und Rechnen – mit Weg", kurz: "Kürzen, Plus, Minus, Mal und Geteilt — mit Lösungsweg bei jedem Fehler.", zeichen: "¾" },
+  { id: "einmaleins", titel: "EinMalEins", slogan: "Klein, groß und rückwärts", kurz: "Kleines und großes Einmaleins, auch als Umkehraufgaben — auf Zeit.", zeichen: "7·8" },
 ];
 
 export function KopfrechenZentrum() {
@@ -732,17 +732,17 @@ export function KopfrechenZentrum() {
           Blick und hat beim Rechnen den Kopf für das Eigentliche frei.
         </p>
         {TRAINER.map((x) => (
-          <button key={x.id} onClick={() => { setOffen(x.id); window.scrollTo(0, 0); }} className="w-full px-5 py-5 mb-3"
-            style={{ display: "flex", alignItems: "center", gap: 14, background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 16,
+          <button key={x.id} onClick={() => { setOffen(x.id); window.scrollTo(0, 0); }} className="w-full mb-3"
+            style={{ display: "flex", alignItems: "center", gap: 14, padding: 14, background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 18,
               textAlign: "left", cursor: "pointer", fontFamily: "inherit", color: C.tinte, boxShadow: "0 2px 14px rgba(15,26,51,0.06)" }}>
-            <span aria-hidden="true" style={{ flexShrink: 0, width: 58, height: 58, borderRadius: 14,
+            <span aria-hidden="true" style={{ flexShrink: 0, width: 64, height: 64, borderRadius: 15,
               background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, color: C.flaggold,
-              display: "flex", alignItems: "center", justifyContent: "center", fontSize: x.zeichen.length > 4 ? 13 : 18, fontWeight: 800 }}>
+              display: "flex", alignItems: "center", justifyContent: "center", fontSize: x.zeichen.length > 4 ? 14.5 : 20, fontWeight: 800 }}>
               {x.zeichen}
             </span>
             <span style={{ flex: 1, minWidth: 0 }}>
-              <span style={{ display: "block", fontSize: 17.5, fontWeight: 600, marginBottom: 4 }}>{x.titel}</span>
-              <span style={{ display: "block", color: C.grau, fontSize: 13.5, fontWeight: 300, lineHeight: 1.6 }}>{x.kurz}</span>
+              <span style={{ display: "block", fontSize: "clamp(15px, 4.4vw, 17.5px)", fontWeight: 600, lineHeight: 1.25, marginBottom: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{x.titel}</span>
+              <span style={{ display: "block", color: C.grau, fontSize: 13.5, fontWeight: 300, lineHeight: 1.4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{x.slogan || x.kurz}</span>
             </span>
           </button>
         ))}
@@ -789,10 +789,10 @@ export function KopfrechnenLogoKlein() {
 /* ---------- Analysis-Übersicht ---------- */
 
 const ANALYSIS = [
-  { ansicht: "plotter", titel: "Polynomplotter", kurz: "Koeffizienten einstellen, Graph mit f′ und f″ live sehen — inklusive Kurvendiskussion und PDF.", zeichen: "ax³" },
-  { ansicht: "advplotter", titel: "Advanced Plotter", kurz: "Beliebige Funktionen mit sin, cos, ln, eˣ, Wurzeln und Brüchen bauen und untersuchen.", zeichen: "sin" },
-  { ansicht: "sinus", titel: "Sinusfunktion", kurz: "Parameter a, b, c und d finden, bis der Graph passt – mit Periode, Ableitung und Nullstellen.", zeichen: "∿" },
-  { ansicht: "ableitungstrainer", titel: "Ableitungstrainer", kurz: "f′, f″ und f‴ per Tastenfeld eingeben und sofort prüfen lassen.", zeichen: "f′" },
+  { ansicht: "plotter", titel: "Polynomplotter", slogan: "Graph mit f′ und f″ – mit PDF", kurz: "Koeffizienten einstellen, Graph mit f′ und f″ live sehen — inklusive Kurvendiskussion und PDF.", zeichen: "ax³" },
+  { ansicht: "advplotter", titel: "Advanced Plotter", slogan: "Jede Funktion untersuchen", kurz: "Beliebige Funktionen mit sin, cos, ln, eˣ, Wurzeln und Brüchen bauen und untersuchen.", zeichen: "sin" },
+  { ansicht: "sinus", titel: "Sinusfunktion", slogan: "Parameter finden, bis es passt", kurz: "Parameter a, b, c und d finden, bis der Graph passt – mit Periode, Ableitung und Nullstellen.", zeichen: "∿" },
+  { ansicht: "ableitungstrainer", titel: "Ableitungstrainer", slogan: "f′, f″ und f‴ sicher ableiten", kurz: "f′, f″ und f‴ per Tastenfeld eingeben und sofort prüfen lassen.", zeichen: "f′" },
 ];
 
 export function AnalysisZentrum({ gehe }) {
@@ -806,17 +806,17 @@ export function AnalysisZentrum({ gehe }) {
         Sinusfunktionen anpassen und das Ableiten trainieren.
       </p>
       {ANALYSIS.map((x) => (
-        <button key={x.ansicht} onClick={() => gehe({ ansicht: x.ansicht })} className="w-full px-5 py-5 mb-3"
-          style={{ display: "flex", alignItems: "center", gap: 14, background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 16,
+        <button key={x.ansicht} onClick={() => gehe({ ansicht: x.ansicht })} className="w-full mb-3"
+          style={{ display: "flex", alignItems: "center", gap: 14, padding: 14, background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 18,
             textAlign: "left", cursor: "pointer", fontFamily: "inherit", color: C.tinte, boxShadow: "0 2px 14px rgba(15,26,51,0.06)" }}>
-          <span aria-hidden="true" style={{ flexShrink: 0, width: 58, height: 58, borderRadius: 14,
+          <span aria-hidden="true" style={{ flexShrink: 0, width: 64, height: 64, borderRadius: 15,
             background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, color: C.flaggold,
-            display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 800, fontStyle: "italic" }}>
+            display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, fontWeight: 800, fontStyle: "italic" }}>
             {x.zeichen}
           </span>
           <span style={{ flex: 1, minWidth: 0 }}>
-            <span style={{ display: "block", fontSize: 17.5, fontWeight: 600, marginBottom: 4 }}>{x.titel}</span>
-            <span style={{ display: "block", color: C.grau, fontSize: 13.5, fontWeight: 300, lineHeight: 1.6 }}>{x.kurz}</span>
+            <span style={{ display: "block", fontSize: "clamp(15px, 4.4vw, 17.5px)", fontWeight: 600, lineHeight: 1.25, marginBottom: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{x.titel}</span>
+            <span style={{ display: "block", color: C.grau, fontSize: 13.5, fontWeight: 300, lineHeight: 1.4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{x.slogan || x.kurz}</span>
           </span>
         </button>
       ))}
