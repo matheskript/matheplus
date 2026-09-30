@@ -55,14 +55,19 @@ function potenzAufgabe(modus) {
 }
 
 /* ---------- Gleichungs-Layout ----------
-   Aufgabe (2/3) links, Eingabe (1/3) rechts auf gleicher Höhe — liest sich wie eine
-   Gleichung. Unter 560 px Breite rutscht die Eingabe wieder unter die Aufgabe. */
+   Aufgabe links, Eingabe rechts auf gleicher Höhe — liest sich wie eine Gleichung.
+   Das Breitenverhältnis passt sich dem Inhalt an: Jede Box startet mit der Breite
+   ihres Inhalts, der freie Platz wird gleichmäßig verteilt. Viel Inhalt in der
+   Aufgabe → breitere Aufgabe; wenig Inhalt → beide etwa gleich breit.
+   Inhalt immer mittig. Unter 560 px Breite rutscht die Eingabe unter die Aufgabe. */
 const GLEICHUNG_CSS = `
-  .kr-gleichung{display:grid;grid-template-columns:2fr 1fr;align-items:stretch;gap:16px;margin-bottom:6px}
-  .kr-gleichung > *{min-width:0}
-  .kr-aufgabe{display:flex;align-items:center;justify-content:flex-end;text-align:right}
+  .kr-gleichung{display:flex;align-items:stretch;gap:16px;margin-bottom:6px}
+  .kr-gleichung > *{flex:1 1 auto;min-width:0}
+  .kr-aufgabe{display:flex;align-items:center;justify-content:center;text-align:center}
+  .kr-eingabe{min-width:150px}
   @media (max-width:560px){
-    .kr-gleichung{grid-template-columns:1fr;gap:12px}
+    .kr-gleichung{flex-direction:column;gap:12px}
+    .kr-eingabe{min-width:0}
   }`;
 
 /* ---------- Schnellrechen-Baustein ---------- */
@@ -217,7 +222,7 @@ function Schnellrechnen({ erzeugen, gruppe, bestSchluessel }) {
         </div>
 
         {/* Eingabe */}
-        <div style={{ border: `2.5px solid ${farbe}`, borderRadius: 14, minHeight: 64,
+        <div className="kr-eingabe" style={{ border: `2.5px solid ${farbe}`, borderRadius: 14, minHeight: 64,
           display: "flex", alignItems: "center", justifyContent: "center", gap: 10, flexWrap: "wrap", padding: "6px 8px",
           background: rueck === "richtig" ? "#EEF8F2" : rueck === "falsch" ? "#FBEFEA" : C.weiss, transition: "all .15s" }}>
           <span style={{ fontSize: 34, fontWeight: 800, color: C.tinte, minWidth: 20 }}>{eingabe || <span style={{ color: C.hellgrau }}>?</span>}</span>
@@ -325,11 +330,6 @@ function EinMalEins() {
   const erzeugen = React.useCallback(() => einmaleinsAufgabe(modus, reihe), [modus, reihe]);
   return (
     <div>
-      <div style={{ marginBottom: 22 }}>
-        <UebersichtKopf titel="Das kleine 1×1 als Schachbrett" text="Alle Produkte von 1 · 1 bis 10 · 10. Auf der goldenen Diagonale stehen die Quadratzahlen." />
-        <EinmaleinsSchachbrett />
-      </div>
-      <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: C.gruenDunkel, marginBottom: 8 }}>Üben</p>
       <Modi liste={EINMALEINS_MODI} wert={modus} setWert={(m) => { setModus(m); setReihe(null); }} />
       {modus !== "mix" && (
         <div style={{ display: "flex", alignItems: "center", gap: 5, flexWrap: "wrap", marginBottom: 14 }}>
@@ -638,7 +638,7 @@ function BruchRunde({ modus, stufe }) {
       </div>
 
       {/* Eingabe als Bruch */}
-      <div style={{ border: `2.5px solid ${rahmen}`, borderRadius: 14, padding: "10px 10px",
+      <div className="kr-eingabe" style={{ border: `2.5px solid ${rahmen}`, borderRadius: 14, padding: "10px 14px",
         display: "flex", alignItems: "center", justifyContent: "center", gap: 12, transition: "all .15s",
         background: rueck === "richtig" ? "#EEF8F2" : rueck === "falsch" ? "#FBEFEA" : C.weiss }}>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
