@@ -113,7 +113,7 @@ function NotenVerlauf({ punkte }) {
         </g>
       ))}
       <path d={pfad} stroke={C.see} strokeWidth="2.5" fill="none" strokeLinejoin="round" strokeLinecap="round" />
-      {punkte.map((p) => <circle key={p.klasse} cx={x(p.klasse)} cy={y(p.note)} r="3.6" fill={C.flaggold} stroke={NAVY} strokeWidth="1.4" />)}
+      {punkte.map((p) => <circle key={String(p.klasse)} cx={x(p.klasse)} cy={y(p.note)} r="3.6" fill={C.flaggold} stroke={NAVY} strokeWidth="1.4" />)}
     </svg>
   );
 }
@@ -139,7 +139,11 @@ function Profil({ nutzer, profil, geworben, gehe }) {
   });
 
   const speichern = async () => {
-    const noten = Object.fromEntries(Object.entries(form.noten).filter(([k]) => !klasse || Number(k) <= klasse));
+    const noten = Object.fromEntries(Object.entries(form.noten).filter(([k]) => {
+      const kl = parseInt(k, 10), hj = String(k).includes(".");
+      if (klasse && kl > klasse) return false;
+      return sf ? (kl >= sf.kursstufe ? hj : !hj) : true;   // Kursstufe nur Halbjahre, davor nur Jahresnoten
+    }));
     try {
       await profilSpeichern({ name: form.name.trim(), schulform: form.schulform || null, klasse: klasse, noten });
       setStatus({ ok: true, text: "Gespeichert." });
@@ -154,7 +158,11 @@ function Profil({ nutzer, profil, geworben, gehe }) {
     try { await navigator.share({ title: "Mythos Mathe", text: "Schau dir Mythos Mathe an – Mathe verstehen mit System:", url: link }); } catch (e) { /* abgebrochen */ }
   };
 
-  const verlauf = notenKlassen.filter((k) => form.noten[k] !== undefined).map((k) => ({ klasse: k, note: alsNote(form.noten[k], istPunkte(k)) }));
+  const verlauf = [];
+  notenKlassen.forEach((k) => {
+    if (istPunkte(k)) [1, 2].forEach((h) => { const v = form.noten[`${k}.${h}`]; if (v !== undefined) verlauf.push({ klasse: k + (h === 1 ? 0 : 0.5), note: alsNote(v, true) }); });
+    else if (form.noten[k] !== undefined) verlauf.push({ klasse: k, note: alsNote(form.noten[k], false) });
+  });
   const feld = { width: "100%", boxSizing: "border-box", border: `1.5px solid ${C.linie}`, borderRadius: 12, padding: "11px 14px", fontSize: 16, fontFamily: "inherit", color: C.tinte, background: C.weiss, outline: "none" };
   const pille = (an) => ({ padding: "9px 12px", borderRadius: 12, border: `1.5px solid ${an ? C.see : C.linie}`, background: an ? C.himmel : C.weiss,
     color: an ? C.see : C.tinte, fontFamily: "inherit", cursor: "pointer", textAlign: "left" });
@@ -220,7 +228,7 @@ function Profil({ nutzer, profil, geworben, gehe }) {
         ) : (
           <>
             <p style={{ fontSize: 12.5, color: C.grau, fontWeight: 300, marginBottom: 8, lineHeight: 1.5 }}>
-              Endjahresnote in Mathe ab Klasse 5{sf ? `, in der Kursstufe ab Klasse ${sf.kursstufe} in Punkten (0–15)` : ""}. Antippen zum Auswählen, nochmal antippen zum Entfernen.
+              Endjahresnote in Mathe ab Klasse 5{sf ? `; in der Kursstufe die Punkte (0–15) für jedes Halbjahr ${sf.kursstufe}.1 bis ${sf.kursstufe + 1}.2` : ""}. Antippen zum Auswählen, nochmal antippen zum Entfernen.
             </p>
             {notenKlassen.map((k) => (
               <div key={k} style={{ display: "flex", alignItems: "center", gap: 10, padding: "7px 0", borderTop: `1px solid ${C.linie}` }}>
@@ -228,11 +236,22 @@ function Profil({ nutzer, profil, geworben, gehe }) {
                   Kl. {k}{k === klasse && <span style={{ display: "block", fontSize: 10.5, color: C.hellgrau, fontWeight: 500 }}>aktuell</span>}
                 </span>
                 {istPunkte(k) ? (
-                  <select value={form.noten[k] ?? ""} onChange={(e) => noteSetzen(k, e.target.value === "" ? null : Number(e.target.value))}
-                    style={{ ...feld, padding: "8px 10px", fontSize: 15, width: "auto", minWidth: 130 }}>
-                    <option value="">– Punkte –</option>
-                    {Array.from({ length: 16 }, (_, i) => 15 - i).map((p) => <option key={p} value={p}>{p} Punkte</option>)}
-                  </select>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, flex: 1 }}>
+                    {[1, 2].map((h) => {
+                      const key = `${k}.${h}`;
+                      return (
+                        <label key={key} style={{ display: "block" }}>
+                          <span style={{ display: "block", fontSize: 11.5, fontWeight: 700, color: C.hellgrau, marginBottom: 3 }}>{key}</span>
+                          <select value={form.noten[key] ?? ""} onChange={(e) => noteSetzen(key, e.target.value === "" ? null : Number(e.target.value))}
+                            aria-label={`Halbjahr ${key}: Punkte`}
+                            style={{ ...feld, padding: "8px 8px", fontSize: 15, width: "100%" }}>
+                            <option value="">– Punkte –</option>
+                            {Array.from({ length: 16 }, (_, i) => 15 - i).map((p) => <option key={p} value={p}>{p} P.</option>)}
+                          </select>
+                        </label>
+                      );
+                    })}
+                  </div>
                 ) : (
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(6, minmax(0, 1fr))", gap: 5, flex: 1 }}>
                     {[1, 2, 3, 4, 5, 6].map((n) => {
