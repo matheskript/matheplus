@@ -42,12 +42,14 @@ export function Fusszeile({ gehe }) {
   return (
     <footer style={{ background: C.seeTief, marginTop: 24 }}>
       <div className="mx-auto px-6" style={{ maxWidth: 620, padding: "26px 24px 30px" }}>
-        <p style={{ fontSize: 18, fontWeight: 700, letterSpacing: "-0.02em", textTransform: "uppercase", textAlign: "center" }}>
-          <span className="logo-silber">mythos</span><span className="logo-gold">mathe</span><span className="logo-silber">.de</span>
-        </p>
-        <p style={{ fontSize: 14, fontWeight: 600, marginTop: 6, textAlign: "center", letterSpacing: "0.02em", color: "#C9D6EE" }}>
-          System <span style={{ color: C.flaggold }}>+</span> Freude <span style={{ color: C.flaggold }}>=</span> <span className="logo-gold" style={{ fontWeight: 700 }}>Erfolg</span>
-        </p>
+        <div style={{ display: "inline-flex", flexDirection: "column", alignItems: "center" }}>
+          <p style={{ fontSize: 18, fontWeight: 700, letterSpacing: "-0.02em", textTransform: "uppercase", lineHeight: 1.15 }}>
+            <span className="logo-silber">mythos</span><span className="logo-gold">mathe</span><span className="logo-silber">.de</span>
+          </p>
+          <p style={{ fontSize: 10.5, fontWeight: 600, marginTop: 1, letterSpacing: "0.03em", color: "#C9D6EE", whiteSpace: "nowrap" }}>
+            System <span style={{ color: C.flaggold }}>+</span> Freude <span style={{ color: C.flaggold }}>=</span> <span className="logo-gold" style={{ fontWeight: 700 }}>Erfolg</span>
+          </p>
+        </div>
         <div style={{ height: 1, background: "rgba(255,255,255,0.12)", margin: "16px 0 12px" }} />
         <nav aria-label="Rechtliches" className="flex flex-wrap" style={{ columnGap: 20, rowGap: 2 }}>
           {link("impressum", "Impressum")}
