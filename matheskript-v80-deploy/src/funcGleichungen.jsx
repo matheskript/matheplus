@@ -1,6 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import { C } from "./base1.jsx";
 import { merken } from "./func5.jsx";
+import { API_URL } from "./base1.jsx";
+import { kiKopf, kiAntwort } from "./base4.jsx";
+import { dekodieren, rendern } from "./func1.jsx";
 import * as G from "./gleichungen/engine.js";
 
 /* ======================================================================
@@ -196,6 +199,13 @@ export function Gleichungsloeser() {
   const [tippsGenutzt, setTippsGenutzt] = useState(0);
   const [eigenText, setEigenText] = useState("");
   const [eigenFehler, setEigenFehler] = useState("");
+  const [fotoListe, setFotoListe] = useState([]);   // [{ label, text, lesbar, fehler, erledigt }]
+  const [fotoAktiv, setFotoAktiv] = useState(null);
+  const [fotoLaeuft, setFotoLaeuft] = useState(false);
+  const [fotoFehler, setFotoFehler] = useState("");
+  const [fotoBild, setFotoBild] = useState(null);
+  const kameraRef = useRef(null);
+  const galerieRef = useRef(null);
   const [muster, setMuster] = useState(null);
   const startZeit = useRef(Date.now());
   const gemerkt = useRef(false);
@@ -211,6 +221,12 @@ export function Gleichungsloeser() {
   useEffect(() => {
     if (heftRef.current) heftRef.current.scrollLeft = 0;
   }, [zeilen.length]);
+
+  useEffect(() => {
+    if (L && art === "eigen" && fotoAktiv !== null) {
+      setFotoListe((liste) => liste.map((a, i) => (i === fotoAktiv && !a.erledigt ? { ...a, erledigt: true } : a)));
+    }
+  }, [L, art, fotoAktiv]);
 
   useEffect(() => {
     if (L && !gemerkt.current) {
@@ -234,17 +250,97 @@ export function Gleichungsloeser() {
   const artWaehlen = (a) => { setArt(a); setEigenFehler(""); if (a !== "eigen") neueGleichung(a, stufe); };
   const stufeWaehlen = (s) => { setStufe(s); if (art !== "eigen") neueGleichung(art, s); };
 
-  const eigeneUebernehmen = () => {
+  const eigeneUebernehmen = (text = eigenText, index = null) => {
     try {
-      const g = G.gleichungLesen(eigenText);
+      const g = G.gleichungLesen(text);
       const z = G.status({ l: g.l, r: g.r });
       if (z.status !== "offen") { setEigenFehler("Diese Gleichung ist schon gelöst — schreib eine, in der noch etwas zu tun ist."); return; }
       setEigenFehler("");
+      setFotoAktiv(index);
       zuruecksetzen({ start: { l: g.l, r: g.r }, zeilen: [{ zweige: [z], op: null }] });
+      return true;
     } catch (e) {
       setEigenFehler(e instanceof G.Fehler || e instanceof G.Undefiniert ? e.message : "Die Gleichung lässt sich nicht lesen.");
     }
   };
+
+  /* Eigene Gleichung über das Tastenfeld */
+  const tippeEigen = (w) => {
+    setEigenFehler("");
+    setEigenText((alt) => alt + ({ ln: "ln(", lg: "lg(", "e^": "e^(", "√": "√(", log_: "log_" }[w] ?? w));
+  };
+  const loeschenEigen = () => setEigenText((alt) => {
+    for (const t of ["log_", "ln(", "lg(", "e^(", "√("]) if (alt.endsWith(t)) return alt.slice(0, -t.length);
+    return alt.slice(0, -1);
+  });
+  const eigenVorschau = (() => {
+    try { return eigenText.includes("=") ? G.gleichungLesen(eigenText) : null; } catch (e) { return null; }
+  })();
+
+  /* Foto: alle Gleichungen eines Aufgabenblocks herauslesen */
+  const FOTO_PROMPT = `Auf dem Foto steht eine Mathe-Aufgabe oder ein Aufgabenblock mit Gleichungen (oft Teilaufgaben a), b), c) …).
+Lies ALLE Gleichungen heraus, in der Reihenfolge, in der sie dastehen. Antworte NUR mit JSON, ohne Erklärung:
+{"aufgaben":[{"label":"a","gleichung":"3x + 5 = 20"}]}
+Regeln für "gleichung":
+- genau ein Gleichheitszeichen, Variable immer x (heißt sie anders, ersetze sie durch x)
+- Potenzen mit ^ (x^2, 2^x, e^(2x)), Malpunkt als *, Brüche mit / und Klammern, z. B. (x+1)/3
+- Funktionen: ln(…), lg(…), log_3(…), Wurzeln als sqrt(…)
+- Dezimalzahlen mit Punkt, keine Einheiten, kein Text
+"label" ist die Teilaufgabe (a, b, c … oder 1, 2, 3 …); gibt es keine, nummeriere selbst ab 1.
+Steht keine Gleichung auf dem Foto, antworte {"aufgaben":[]}.`;
+
+  const fotoWaehlen = async (file) => {
+    if (!file) return;
+    setFotoFehler(""); setFotoLaeuft(true);
+    try {
+      const src = await dekodieren(file, () => {});
+      const r = rendern(src, 0);
+      setFotoBild(r.vorschau);
+      const res = await fetch(API_URL, {
+        method: "POST", headers: kiKopf(),
+        body: JSON.stringify({
+          model: "claude-sonnet-5-5", max_tokens: 2000,
+          messages: [{ role: "user", content: [
+            { type: "image", source: { type: "base64", media_type: "image/jpeg", data: r.b64 } },
+            { type: "text", text: FOTO_PROMPT },
+          ] }],
+        }),
+      });
+      const data = await kiAntwort(res);
+      if (data.error) throw new Error(data.error.message || "Die KI hat die Anfrage abgelehnt.");
+      const text = (data.content || []).map((i) => (i.type === "text" ? i.text : "")).join("");
+      const roh = text.slice(text.indexOf("{"), text.lastIndexOf("}") + 1);
+      const liste = (JSON.parse(roh).aufgaben || []).filter((a) => a && a.gleichung);
+      if (!liste.length) throw new Error("Auf dem Foto habe ich keine Gleichung gefunden. Versuch es mit einem schärferen Foto.");
+      const geprueft = liste.map((a, i) => {
+        const label = String(a.label ?? i + 1).replace(/[).]/g, "").trim() || String(i + 1);
+        try {
+          const g = G.gleichungLesen(a.gleichung);
+          const st = G.status({ l: g.l, r: g.r });
+          return { label, text: a.gleichung, g, lesbar: st.status === "offen", fehler: st.status === "offen" ? "" : "schon gelöst", erledigt: false };
+        } catch (e) {
+          return { label, text: a.gleichung, lesbar: false, fehler: "nicht lesbar", erledigt: false };
+        }
+      });
+      setFotoListe(geprueft);
+      const erste = geprueft.findIndex((a) => a.lesbar);
+      if (erste >= 0) { setEigenText(geprueft[erste].text); eigeneUebernehmen(geprueft[erste].text, erste); }
+    } catch (e) {
+      setFotoFehler(e.message || "Das Foto konnte nicht ausgewertet werden.");
+    } finally {
+      setFotoLaeuft(false);
+      if (kameraRef.current) kameraRef.current.value = "";
+      if (galerieRef.current) galerieRef.current.value = "";
+    }
+  };
+  const fotoAufgabe = (i) => {
+    const a = fotoListe[i];
+    setEigenText(a.text);
+    if (a.lesbar) eigeneUebernehmen(a.text, i);
+    else setEigenFehler("Diese Aufgabe konnte ich nicht sicher lesen — korrigiere sie mit dem Tastenfeld und tippe auf „Los“.");
+    if (heftRef.current) heftRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+  const naechsteFoto = fotoListe.findIndex((a, i) => a.lesbar && !a.erledigt && i !== fotoAktiv);
 
   const ausfuehren = (op) => {
     try {
@@ -343,25 +439,108 @@ export function Gleichungsloeser() {
           <span style={{ fontSize: 13, color: C.hellgrau, fontWeight: 300 }}>{G.ARTEN.find((a) => a.id === art)?.kurz}</span>
         </div>
       ) : (
-        <div style={{ ...karte, padding: 18, marginTop: 14, marginBottom: 18 }}>
-          <label htmlFor="gl-eigen" style={{ display: "block", fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 8 }}>
-            Deine Gleichung aus Heft oder Buch
-          </label>
-          <div className="flex" style={{ gap: 8 }}>
-            <input id="gl-eigen" value={eigenText} onChange={(e) => setEigenText(e.target.value)}
+        <div style={{ ...karte, padding: 16, marginTop: 14, marginBottom: 18 }}>
+          <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 10 }}>Deine Gleichung aus Heft oder Buch</p>
+
+          {/* Foto: ganzer Aufgabenblock */}
+          <div className="flex" style={{ gap: 8, marginBottom: 12 }}>
+            <button type="button" onClick={() => kameraRef.current && kameraRef.current.click()} disabled={fotoLaeuft} className="gl-taste"
+              style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, height: 46, borderRadius: 14, border: "none",
+                background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, color: C.weiss, fontSize: 14.5, fontWeight: 600, fontFamily: "inherit", cursor: "pointer" }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinejoin="round" aria-hidden="true"><path d="M3 8h4l2-3h6l2 3h4v11H3z" /><circle cx="12" cy="13" r="3.6" /></svg>
+              <span className="titel-lang">Foto aufnehmen</span><span className="titel-kurz">Foto</span>
+            </button>
+            <button type="button" onClick={() => galerieRef.current && galerieRef.current.click()} disabled={fotoLaeuft} className="gl-taste"
+              style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, height: 46, borderRadius: 14, border: `1px solid ${C.linie}`,
+                background: C.weiss, color: C.see, fontSize: 14.5, fontWeight: 600, fontFamily: "inherit", cursor: "pointer" }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2.5" /><circle cx="9" cy="10" r="1.8" /><path d="M21 16l-5-5-9 9" /></svg>
+              <span className="titel-lang">Bild hochladen</span><span className="titel-kurz">Hochladen</span>
+            </button>
+            <input ref={kameraRef} type="file" accept="image/*" capture="environment" style={{ display: "none" }} onChange={(e) => fotoWaehlen(e.target.files[0])} />
+            <input ref={galerieRef} type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => fotoWaehlen(e.target.files[0])} />
+          </div>
+          {fotoLaeuft && (
+            <div className="flex items-center" style={{ gap: 10, marginBottom: 12, fontSize: 13.5, color: C.see }}>
+              {fotoBild && <img src={fotoBild} alt="" style={{ width: 44, height: 44, objectFit: "cover", borderRadius: 8 }} />}
+              Mathilda liest die Aufgaben vom Foto …
+            </div>
+          )}
+          {fotoFehler && <p style={{ fontSize: 13, color: C.signal, marginBottom: 10, lineHeight: 1.5 }}>{fotoFehler}</p>}
+
+          {fotoListe.length > 0 && (
+            <div style={{ marginBottom: 14 }}>
+              <p style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.08em", color: C.hellgrau, marginBottom: 8 }}>
+                VOM FOTO · {fotoListe.filter((a) => a.erledigt).length} / {fotoListe.length} GELÖST
+              </p>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(118px, 1fr))", gap: 7 }}>
+                {fotoListe.map((a, i) => {
+                  const aktiv = i === fotoAktiv;
+                  return (
+                    <button key={i} type="button" onClick={() => fotoAufgabe(i)} className="gl-taste"
+                      style={{ display: "flex", alignItems: "center", gap: 8, textAlign: "left", padding: "8px 10px", borderRadius: 12, cursor: "pointer", fontFamily: "inherit",
+                        border: `1.5px solid ${aktiv ? C.see : a.erledigt ? "#BFD8C9" : C.linie}`,
+                        background: aktiv ? C.himmel : a.erledigt ? "#F0F8F3" : C.weiss, minWidth: 0 }}>
+                      <span style={{ flexShrink: 0, width: 24, height: 24, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center",
+                        fontSize: 12, fontWeight: 700, background: a.erledigt ? C.smaragd : aktiv ? C.see : "#EEF2F8", color: a.erledigt || aktiv ? C.weiss : C.see }}>
+                        {a.erledigt ? "✓" : a.label}
+                      </span>
+                      <span style={{ minWidth: 0, flex: 1 }}>
+                        <span style={{ display: "block", fontSize: 13.5, fontWeight: 600, color: a.lesbar ? C.tinte : C.grau, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                          {a.g ? <><Baum n={G.sumBaum(a.g.l)} /> = <Baum n={G.sumBaum(a.g.r)} /></> : a.text.replace(/\*/g, "·").replace(/-/g, "−")}
+                        </span>
+                        {!a.lesbar && <span style={{ display: "block", fontSize: 11, color: C.signal }}>{a.fehler} – antippen</span>}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Eingabe über das Tastenfeld */}
+          <div className="flex items-center" style={{ gap: 8, background: C.sand, border: `1.5px solid ${eigenFehler ? C.signal : C.linie}`, borderRadius: 14, padding: "4px 6px 4px 14px" }}>
+            <input id="gl-eigen" value={eigenText} inputMode="none" onChange={(e) => { setEigenText(e.target.value); setEigenFehler(""); }}
               onKeyDown={(e) => { if (e.key === "Enter") eigeneUebernehmen(); }}
-              placeholder="z. B. 2x² − 8 = 0" autoComplete="off" spellCheck={false}
-              style={{ flex: 1, minWidth: 0, border: `1px solid ${C.linie}`, borderRadius: 12, padding: "11px 14px", fontSize: 16,
-                fontFamily: "inherit", color: C.tinte, outline: "none" }} />
-            <button type="button" onClick={eigeneUebernehmen}
-              style={{ background: C.see, color: C.weiss, border: "none", borderRadius: 12, padding: "0 18px", fontSize: 15, fontWeight: 600, fontFamily: "inherit", cursor: "pointer" }}>
-              Los
+              placeholder="z. B. 2x² − 8 = 0" autoComplete="off" spellCheck={false} aria-label="Eigene Gleichung"
+              style={{ flex: 1, minWidth: 0, border: "none", background: "transparent", outline: "none", fontSize: 19, fontWeight: 600,
+                fontFamily: "inherit", color: C.tinte, padding: "8px 0" }} />
+            <button type="button" onClick={loeschenEigen} aria-label="Zeichen löschen" className="gl-taste"
+              style={{ width: 44, height: 40, border: "none", background: "transparent", color: C.grau, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <svg width="24" height="18" viewBox="0 0 24 18" aria-hidden="true"><path d="M8 1h13a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H8L1 9z" stroke="currentColor" strokeWidth="1.6" fill="none" strokeLinejoin="round" /><path d="M11 6l6 6M17 6l-6 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /></svg>
             </button>
           </div>
-          <p style={{ fontSize: 12.5, color: C.grau, fontWeight: 300, lineHeight: 1.6, marginTop: 8 }}>
-            Schreibweise: x^2 oder x², 2^x, e^(2x), ln(x), lg(x), log_3(x), Brüche mit / und Kommazahlen mit Komma.
-          </p>
-          {eigenFehler && <p style={{ fontSize: 13, color: C.signal, marginTop: 6, lineHeight: 1.5 }}>{eigenFehler}</p>}
+          <div style={{ minHeight: 30, padding: "6px 4px 0", fontSize: 17, color: C.see, fontWeight: 500 }}>
+            {eigenVorschau && <><Baum n={G.sumBaum(eigenVorschau.l)} /> = <Baum n={G.sumBaum(eigenVorschau.r)} /></>}
+          </div>
+          {eigenFehler && <p style={{ fontSize: 13, color: C.signal, marginTop: 2, marginBottom: 6, lineHeight: 1.5 }}>{eigenFehler}</p>}
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(6, minmax(0, 1fr))", gap: 7, marginTop: 8 }}>
+            <Taste tippe={tippeEigen} ton="fn" wert="ln" label="ln" />
+            <Taste tippe={tippeEigen} ton="fn" wert="lg" label="lg" />
+            <Taste tippe={tippeEigen} ton="fn" wert="log_" label={<>log<sub className="gl-tief">a</sub></>} aria="Logarithmus zur Basis a" />
+            <Taste tippe={tippeEigen} ton="fn" wert="e^" label={<>e<sup className="gl-hoch">x</sup></>} aria="e hoch" />
+            <Taste tippe={tippeEigen} ton="fn" wert="√" label="√" aria="Wurzel" />
+            <Taste tippe={tippeEigen} ton="fn" wert="=" label="=" aria="gleich" />
+
+            <Taste tippe={tippeEigen} wert="7" label="7" /><Taste tippe={tippeEigen} wert="8" label="8" /><Taste tippe={tippeEigen} wert="9" label="9" />
+            <Taste tippe={tippeEigen} ton="op" wert="+" label="+" aria="plus" />
+            <Taste tippe={tippeEigen} ton="op" wert="(" label="(" /><Taste tippe={tippeEigen} ton="op" wert=")" label=")" />
+
+            <Taste tippe={tippeEigen} wert="4" label="4" /><Taste tippe={tippeEigen} wert="5" label="5" /><Taste tippe={tippeEigen} wert="6" label="6" />
+            <Taste tippe={tippeEigen} ton="op" wert="−" label="−" aria="minus" />
+            <Taste tippe={tippeEigen} ton="op" wert="x" label={<i className="gl-x">x</i>} aria="x" />
+            <Taste tippe={tippeEigen} ton="op" wert="²" label={<><i className="gl-x">x</i><sup className="gl-hoch">2</sup></>} aria="hoch zwei" />
+
+            <Taste tippe={tippeEigen} wert="1" label="1" /><Taste tippe={tippeEigen} wert="2" label="2" /><Taste tippe={tippeEigen} wert="3" label="3" />
+            <Taste tippe={tippeEigen} ton="op" wert="·" label="·" aria="mal" />
+            <Taste tippe={tippeEigen} ton="op" wert="e" label="e" />
+            <Taste tippe={tippeEigen} ton="op" wert="^" label="^" aria="hoch" />
+
+            <Taste tippe={tippeEigen} wert="0" label="0" /><Taste tippe={tippeEigen} wert="," label="," aria="Komma" />
+            <Taste tippe={tippeEigen} ton="op" wert="/" label="/" aria="Bruchstrich" />
+            <Taste tippe={tippeEigen} ton="op" label="C" aria="Alles löschen" onClick={() => { setEigenText(""); setEigenFehler(""); }} />
+            <Taste tippe={tippeEigen} ton="aktion" breit label="Los" onClick={() => eigeneUebernehmen()} />
+          </div>
         </div>
       )}
 
@@ -415,6 +594,12 @@ export function Gleichungsloeser() {
                 <button type="button" onClick={() => neueGleichung()}
                   style={{ background: C.gruen, color: C.weiss, border: "none", borderRadius: 999, padding: "10px 20px", fontSize: 14.5, fontWeight: 600, fontFamily: "inherit", cursor: "pointer" }}>
                   Nächste Gleichung
+                </button>
+              )}
+              {art === "eigen" && naechsteFoto >= 0 && (
+                <button type="button" onClick={() => fotoAufgabe(naechsteFoto)}
+                  style={{ background: C.gruen, color: C.weiss, border: "none", borderRadius: 999, padding: "10px 20px", fontSize: 14.5, fontWeight: 600, fontFamily: "inherit", cursor: "pointer" }}>
+                  Weiter mit Aufgabe {fotoListe[naechsteFoto].label}
                 </button>
               )}
               <button type="button" onClick={() => setMuster(muster ? null : G.musterweg(start))}
