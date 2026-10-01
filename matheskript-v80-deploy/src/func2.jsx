@@ -51,7 +51,7 @@ function PlotterLogoKlein() {
   );
 }
 
-function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "Werkzeug", klein, extra, gesperrt, logoHell }) {
+function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "Werkzeug", klein, extra, gesperrt, logoHell, portraet }) {
   return (
     <button onClick={gesperrt ? undefined : onClick} disabled={gesperrt} aria-disabled={gesperrt || undefined}
       aria-label={gesperrt ? `${titel} – noch gesperrt` : label} title={gesperrt ? "Noch gesperrt" : undefined}
@@ -80,8 +80,13 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
           {text}
         </p>
       </div>
+      {portraet && (
+        <div aria-hidden="true" style={{ flex: "0 0 auto", width: "clamp(96px, 27vw, 124px)", alignSelf: "stretch", display: "flex", alignItems: "flex-end", paddingTop: 4, marginLeft: -6 }}>
+          {portraet}
+        </div>
+      )}
       {/* Rechts (40 %): nur die Grafik */}
-      <div style={{ flex: klein ? "0 0 32%" : "0 0 40%", position: "relative", background: "rgba(255,255,255,0.04)",
+      <div style={{ flex: klein ? "0 0 32%" : portraet ? "0 0 29%" : "0 0 40%", position: "relative", background: "rgba(255,255,255,0.04)",
         borderLeft: `1px solid ${gesperrt ? "rgba(255,255,255,0.35)" : `${C.silber}33`}`, display: "flex" }}>
         <div style={{ flex: 1, display: "flex", ...(gesperrt && !logoHell ? { filter: "grayscale(1) brightness(1.15)", opacity: 0.35 } : {}) }}>{logo}</div>
         {extra}
@@ -170,76 +175,59 @@ function SchulkurseLogoKlein() {
 
 /* Grafik für die „Frag Mathilda“-Kachel: Blatt mit handschriftlicher Rechnung im Kamera-Sucher, Häkchen. */
 function MathildaLogoKlein() {
-  /* Mathilda als gezeichnete Karikatur: blonde Haare hinter die Ohren gestrichen, Creolen,
-     Kette, dunkles Langarmshirt — abends vor dem Eiffelturm. */
+  const W = 230, H = 190;
+  const ecke = (x, y, dx, dy) => <path d={`M ${x} ${y + dy * 18} L ${x} ${y} L ${x + dx * 18} ${y}`} stroke={C.flaggold} strokeWidth="4" fill="none" strokeLinecap="round" />;
   return (
-    <svg viewBox="36 22 166 168" preserveAspectRatio="xMidYMax slice" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
-<defs>
-    <linearGradient id="mt-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#004D98"/><stop offset="1" stopColor="#0B1E4A"/></linearGradient>
-    <linearGradient id="mt-haar" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#FFF3C4"/><stop offset="0.5" stopColor="#EDCF82"/><stop offset="1" stopColor="#CFA75A"/></linearGradient>
-    <linearGradient id="mt-haut" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#FCE3D2"/><stop offset="1" stopColor="#F2C2A6"/></linearGradient>
-    <linearGradient id="mt-top" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#4E3C37"/><stop offset="1" stopColor="#2A201D"/></linearGradient>
-  </defs>
-  
-  <g stroke="#EDBB00" strokeWidth="1.6" fill="none" opacity="0.45">
-    <path d="M 182 190 Q 197 120 201 16 Q 205 120 222 190"/>
-    <path d="M 187 160 L 217 160 M 192 128 L 211 128 M 196 92 L 206 92"/>
-    <path d="M 187 190 Q 202 168 217 190"/><path d="M 201 16 L 201 6"/>
-  </g>
-  <g fill="#EDBB00"><circle cx="22" cy="30" r="2.4" opacity="0.8"/><circle cx="40" cy="20" r="2" opacity="0.6"/><circle cx="58" cy="13" r="1.6" opacity="0.5"/><circle cx="18" cy="66" r="1.6" opacity="0.4"/><circle cx="172" cy="34" r="1.8" opacity="0.5"/></g>
-  <circle cx="28" cy="104" r="2.2" fill="#E5484D" opacity="0.7"/>
-  {/* Haare hinten bis auf die Schultern */}
-  <path d="M 78 70 C 74 28, 156 28, 152 70 C 156 100, 160 128, 154 150 C 146 154, 140 150, 136 144 L 94 144 C 90 150, 84 154, 76 150 C 70 128, 74 100, 78 70 Z" fill="url(#mt-haar)"/>
-  {/* Körper */}
-  <path d="M 46 190 C 50 162, 78 147, 104 142 L 126 142 C 152 147, 180 162, 184 190 Z" fill="url(#mt-top)"/>
-  <path d="M 105 142 Q 115 151 125 142 L 123 126 L 107 126 Z" fill="url(#mt-haut)"/>
-  <path d="M 105 142 Q 115 159 125 142" stroke="#EDBB00" strokeWidth="1" fill="none"/>
-  <path d="M 115 155 l -3 4 l 3 4 l 3 -4 z" fill="#EDBB00"/>
-  {/* Arme: Ellbogen außen, Hände an den Haaren */}
-  <path d="M 64 172 Q 40 140 58 106" stroke="url(#mt-top)" strokeWidth="19" fill="none" strokeLinecap="round"/>
-  <path d="M 166 172 Q 190 140 172 106" stroke="url(#mt-top)" strokeWidth="19" fill="none" strokeLinecap="round"/>
-  {/* Gesicht */}
-  <path d="M 85 72 C 85 42, 145 42, 145 72 C 146 98, 133 119, 115 121 C 97 119, 84 98, 85 72 Z" fill="url(#mt-haut)"/>
-  {/* Creolen */}
-  <circle cx="86" cy="96" r="6.5" stroke="#E6E9EF" strokeWidth="2.2" fill="none"/>
-  <circle cx="144" cy="96" r="6.5" stroke="#E6E9EF" strokeWidth="2.2" fill="none"/>
-  {/* Haare vorne: Mittelscheitel, Strähnen zu den Händen */}
-  <path d="M 115 40 C 95 40, 82 52, 80 74 C 86 60, 96 52, 112 50 Z" fill="url(#mt-haar)"/>
-  <path d="M 115 40 C 135 40, 148 52, 150 74 C 144 60, 134 52, 118 50 Z" fill="url(#mt-haar)"/>
-  <path d="M 115 39 C 104 39, 94 43, 88 52 C 99 45, 108 45, 114.5 47 C 122 45, 131 45, 142 52 C 136 43, 126 39, 115 39 Z" fill="#FFF3C4"/>
-  <path d="M 114.5 40 L 114.5 48" stroke="#D9B66A" strokeWidth="1"/>
-  {/* Hände: Finger streichen die Haare hinters Ohr */}
-  <g transform="translate(-7 2)">
-  <g stroke="#F4C9AF" strokeWidth="5.2" strokeLinecap="round" fill="none">
-    <path d="M 66 92 L 79 64"/><path d="M 70 94 L 83 68"/><path d="M 73 97 L 85 74"/><path d="M 75 100 L 85 81"/>
-  </g>
-  <path d="M 62 104 C 60 94, 64 88, 70 90 L 80 98 C 78 106, 68 110, 62 104 Z" fill="#F4C9AF"/>
-  </g>
-  <g transform="translate(7 2)">
-  <g stroke="#F4C9AF" strokeWidth="5.2" strokeLinecap="round" fill="none">
-    <path d="M 164 92 L 151 64"/><path d="M 160 94 L 147 68"/><path d="M 157 97 L 145 74"/><path d="M 155 100 L 145 81"/>
-  </g>
-  <path d="M 168 104 C 170 94, 166 88, 160 90 L 150 98 C 152 106, 162 110, 168 104 Z" fill="#F4C9AF"/>
-  <g fill="#1E1A18"><circle cx="156" cy="110" r="1.9"/><circle cx="160.5" cy="111" r="1.9"/><circle cx="165" cy="110" r="1.9"/><circle cx="169" cy="108" r="1.9"/></g>
-  </g>
-  {/* Brauen */}
-  <path d="M 96 66 Q 103 62 110 65" stroke="#B8925A" strokeWidth="2.2" fill="none" strokeLinecap="round"/>
-  <path d="M 120 65 Q 127 62 134 66" stroke="#B8925A" strokeWidth="2.2" fill="none" strokeLinecap="round"/>
-  {/* Augen, leicht verschmitzt */}
-  <ellipse cx="103" cy="77" rx="6.8" ry="3.8" fill="#FFFFFF"/>
-  <ellipse cx="127" cy="77" rx="6.8" ry="3.8" fill="#FFFFFF"/>
-  <circle cx="103.5" cy="77.6" r="3.2" fill="#7090B2"/><circle cx="127.5" cy="77.6" r="3.2" fill="#7090B2"/>
-  <circle cx="103.5" cy="77.6" r="1.5" fill="#1E1A18"/><circle cx="127.5" cy="77.6" r="1.5" fill="#1E1A18"/>
-  <circle cx="104.6" cy="76.6" r="0.8" fill="#FFFFFF"/><circle cx="128.6" cy="76.6" r="0.8" fill="#FFFFFF"/>
-  <path d="M 95.5 77 Q 103 71.5 110.5 76.5" stroke="#3A2E2A" strokeWidth="2" fill="none" strokeLinecap="round"/>
-  <path d="M 119.5 76.5 Q 127 71.5 134.5 77" stroke="#3A2E2A" strokeWidth="2" fill="none" strokeLinecap="round"/>
-  {/* Nase, Wangen, Mund (verschmitztes Lächeln) */}
-  <path d="M 115 82 Q 112.5 92 116.5 94" stroke="#D99A80" strokeWidth="1.6" fill="none" strokeLinecap="round"/>
-  <circle cx="95" cy="92" r="6.5" fill="#F28B8B" opacity="0.35"/><circle cx="135" cy="92" r="6.5" fill="#F28B8B" opacity="0.35"/>
-  <path d="M 104 102 Q 116 100.5 127 99.5 Q 118 108.5 104 102 Z" fill="#E08484"/>
-  <path d="M 104 102 Q 116 106 127 99.5" stroke="#B5545A" strokeWidth="1.4" fill="none" strokeLinecap="round"/>
-  <path d="M 127 99.5 q 2 -1 2.5 -3" stroke="#D99A80" strokeWidth="1.1" fill="none" strokeLinecap="round"/>
+    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
+      {Array.from({ length: 9 }, (_, i) => <line key={`v${i}`} x1={i * 28} y1="0" x2={i * 28} y2={H} stroke="rgba(255,255,255,0.05)" />)}
+      {Array.from({ length: 7 }, (_, i) => <line key={`h${i}`} x1="0" y1={i * 28} x2={W} y2={i * 28} stroke="rgba(255,255,255,0.05)" />)}
+      <g transform="rotate(-4 115 95)">
+        <rect x="42" y="34" width="146" height="122" rx="6" fill="#FFFFFF" />
+        <path d="M 58 62 q 8 -8 16 0 t 16 0 M 98 60 l 10 0 M 116 62 q 8 -8 16 0" stroke={C.seeTief} strokeWidth="2.6" fill="none" strokeLinecap="round" />
+        <path d="M 58 92 q 8 -8 16 0 M 84 90 l 10 0 M 102 92 q 8 -8 16 0 t 16 0" stroke={C.seeTief} strokeWidth="2.6" fill="none" strokeLinecap="round" />
+        <path d="M 58 122 l 10 0 M 76 124 q 8 -8 16 0" stroke={C.seeTief} strokeWidth="2.6" fill="none" strokeLinecap="round" />
+        <line x1="56" y1="132" x2="100" y2="132" stroke={C.flaggold} strokeWidth="2" />
+      </g>
+      {ecke(26, 20, 1, 1)}{ecke(204, 20, -1, 1)}{ecke(26, 170, 1, -1)}{ecke(204, 170, -1, -1)}
+      <circle cx="176" cy="138" r="20" fill={C.smaragd} stroke={C.weiss} strokeWidth="3" />
+      <path d="M 166 138 l 7 7 l 13 -14" stroke={C.weiss} strokeWidth="4" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
 
+/* Mathilda als Schablonen-Porträt (Stencil, wie die bekannten Revolutions-Drucke):
+   flache Flächen in den Silbertönen der gesperrten Kachel. */
+function MathildaPortraet() {
+  return (
+    <svg viewBox="0 0 120 138" preserveAspectRatio="xMidYMax meet" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
+      <path d="M 24 60 C 18 18, 102 18, 96 60 C 100 90, 106 116, 102 138 L 18 138 C 14 116, 20 90, 24 60 Z" fill="#F4F6F9"/>
+      <path d="M 4 138 C 8 120, 28 111, 47 109 L 73 109 C 92 111, 112 120, 116 138 Z" fill="#3E4756"/>
+      <path d="M 49 94 L 49 111 Q 60 117 71 111 L 71 94 Z" fill="#DCE2EA"/>
+      <path d="M 64 96 L 71 94 L 71 111 Q 67 113 64 113 Z" fill="#8C97A6"/>
+      <path d="M 35 58 C 35 31, 85 31, 85 58 C 86 83, 75 100, 60 101 C 45 100, 34 83, 35 58 Z" fill="#E8ECF1"/>
+      <path d="M 78 40 C 85 47, 86 54, 85 60 C 85 82, 76 98, 63 101 C 72 92, 79 80, 79 64 C 79 54, 79 46, 78 40 Z" fill="#8C97A6"/>
+      <path d="M 60 22 C 41 22, 28 34, 29 62 C 33 46, 42 37, 58 34 Z" fill="#F4F6F9"/>
+      <path d="M 60 22 C 79 22, 92 34, 91 62 C 87 46, 78 37, 62 34 Z" fill="#F4F6F9"/>
+      <path d="M 59 22 L 61 22 L 61.5 35 L 58.5 35 Z" fill="#5E6878"/>
+      <path d="M 45 27 C 36 34, 32 44, 31 56 C 34 46, 39 37, 47 31 Z" fill="#B9C2CE"/>
+      <path d="M 75 27 C 84 34, 88 44, 89 56 C 86 46, 81 37, 73 31 Z" fill="#B9C2CE"/>
+      <path d="M 30 70 C 27 90, 26 112, 28 134 C 23 112, 23 88, 30 70 Z" fill="#8C97A6"/>
+      <path d="M 90 70 C 94 92, 96 114, 94 134 C 99 112, 98 88, 90 70 Z" fill="#5E6878"/>
+      <path d="M 22 92 C 20 108, 20 122, 22 136 C 17 122, 17 106, 22 92 Z" fill="#B9C2CE"/>
+      <path d="M 98 92 C 100 108, 100 122, 98 136 C 103 122, 103 106, 98 92 Z" fill="#B9C2CE"/>
+      <path d="M 42 51 Q 48 46.5 55 49.5 L 55 52 Q 48 49.5 42 53.5 Z" fill="#3E4756"/>
+      <path d="M 65 49.5 Q 72 46.5 78 51 L 78 53.5 Q 72 49.5 65 52 Z" fill="#3E4756"/>
+      <path d="M 42.5 60 Q 49 54.5 55.5 59 Q 49 57.5 42.5 61.5 Z" fill="#3E4756"/>
+      <path d="M 64.5 59 Q 71 54.5 77.5 60 Q 71 57.5 64.5 61 Z" fill="#3E4756"/>
+      <circle cx="49.5" cy="61" r="2.7" fill="#3E4756"/><circle cx="71" cy="61" r="2.7" fill="#3E4756"/>
+      <path d="M 61.5 62 C 63.5 69, 65 73, 64 76.5 C 62.5 77.5, 60.5 77.5, 58.5 76.5 C 61.5 75.5, 62.5 72, 61.5 62 Z" fill="#8C97A6"/>
+      <path d="M 57 76 Q 58.5 74.8 60 76 Z" fill="#3E4756"/>
+      <path d="M 50 85 Q 55 83.5 60 84.5 Q 66 83 71.5 82.5 Q 63 90.5 50 85 Z" fill="#3E4756"/>
+      <path d="M 54 89 Q 60 92 66 88.5 Q 60 90 54 89 Z" fill="#8C97A6"/>
+      <circle cx="33" cy="80" r="5" stroke="#3E4756" strokeWidth="2" fill="none"/>
+      <circle cx="87" cy="80" r="5" stroke="#3E4756" strokeWidth="2" fill="none"/>
+      <path d="M 49 111 Q 60 124 71 111" stroke="#F4F6F9" strokeWidth="1" fill="none"/>
+      <path d="M 60 120.5 l -2 3 l 2 3 l 2 -3 z" fill="#F4F6F9"/>
     </svg>
   );
 }
@@ -734,9 +722,9 @@ export function Startseite({ gehe }) {
       <PlotterKachel onClick={() => gehe({ ansicht: "kopf" })} label="Kopfrechnen öffnen" logo={<KopfrechnenLogoKlein />}
         titel="Kopfrechnen"
         text="Primfaktoren, Quadratzahlen, Brüche und Einmaleins – schnelle Runden auf Zeit." />
-      <PlotterKachel gesperrt logoHell onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })} label="Frag Mathilda öffnen" logo={<MathildaLogoKlein />}
+      <PlotterKachel gesperrt portraet={<MathildaPortraet />} onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })} label="Frag Mathilda öffnen" logo={<MathildaLogoKlein />}
         titel="Frag Mathilda"
-        text="Foto von deinem Blatt – Mathilda prüft deinen Rechenweg und gibt dir Feedback." />
+        text="Foto vom Blatt – Mathilda prüft deinen Rechenweg." />
       <PlotterKachel gesperrt onClick={() => gehe({ ansicht: "kurse", kurs: "penpaper" })} label="Pen & Paper öffnen" logo={<PenPaperBlatt />}
         titel="Pen & Paper"
         text="Das Fundament: klar aufschreiben, strukturiert arbeiten, sicher mit Fehlern umgehen – 7 Videolektionen." />
