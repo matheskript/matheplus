@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { C } from "./base1.jsx";
-import { DEMO, useKonto, anmelden, abmelden, profilAnlegen, profilSpeichern, empfehlungsLink, neuerCode, refPruefen, refFestlegen, istRefGleichung } from "./konto.js";
+import { DEMO, useKonto, anmelden, abmelden, profilAnlegen, profilSpeichern, empfehlungsLink, neuerCode, refPruefen, refFestlegen, istRefCode } from "./konto.js";
 
 /* ======================================================================
    KONTOBEREICH (ansicht "konto")
@@ -119,11 +119,11 @@ function NotenVerlauf({ punkte }) {
 }
 
 /* ---------- Empfehlungslink aussuchen (einmalig) ---------- */
-const anzeigeGl = (c) => c.replace(/-/g, "−").replace(/x/g, "×");
+const anzeigeGl = (c) => String(c);
 
 function RefErsteller({ startCode }) {
   const [modus, setModus] = useState("vorschlag");            // "vorschlag" | "wunsch"
-  const [vorschlag, setVorschlag] = useState(startCode);
+  const [vorschlag, setVorschlag] = useState(() => (istRefCode(startCode) ? startCode : neuerCode()));
   const [wunsch, setWunsch] = useState("");
   const [pruef, setPruef] = useState({ gueltig: true, frei: true, laeuft: false });
   const [bestaetigen, setBestaetigen] = useState(false);
@@ -134,7 +134,7 @@ function RefErsteller({ startCode }) {
   useEffect(() => {
     setBestaetigen(false); setFehler("");
     if (!code) { setPruef({ gueltig: false, frei: false, laeuft: false }); return; }
-    if (!istRefGleichung(code)) { setPruef({ gueltig: false, frei: false, laeuft: false }); return; }
+    if (!istRefCode(code)) { setPruef({ gueltig: false, frei: false, laeuft: false }); return; }
     let aktiv = true;
     setPruef((p) => ({ ...p, laeuft: true }));
     const t = setTimeout(async () => {
@@ -145,7 +145,7 @@ function RefErsteller({ startCode }) {
   }, [code]);
 
   const wuerfeln = () => setVorschlag(neuerCode());
-  const tippe = (z) => setWunsch((w) => (w.length >= 18 ? w : w + z));
+  const tippe = (z) => setWunsch((w) => (w.length >= 6 || (w === "" && z === "0") ? w : w + z));
   const festlegen = async () => {
     setLaeuft(true); setFehler("");
     try { await refFestlegen(code); } catch (e) { setFehler(e.message); setBestaetigen(false); }
@@ -153,9 +153,9 @@ function RefErsteller({ startCode }) {
   };
 
   const ok = pruef.gueltig && pruef.frei && !pruef.laeuft;
-  const status = !code ? "Tippe deine Gleichung ein, z. B. 7×8=56."
-    : !pruef.gueltig ? (/=/.test(code) && /[0-9]$/.test(code) ? "Die Rechnung stimmt nicht." : "Noch nicht fertig – eine Gleichung wie 12+30=42.")
-    : pruef.laeuft ? "Prüfe …" : pruef.frei ? "Richtig und noch frei ✓" : "Schon vergeben – nimm eine andere.";
+  const status = !code ? "Tippe deine sechsstellige Wunschzahl ein."
+    : !pruef.gueltig ? `Noch ${6 - code.length} ${6 - code.length === 1 ? "Ziffer" : "Ziffern"}.`
+    : pruef.laeuft ? "Prüfe …" : pruef.frei ? "Noch frei ✓" : "Schon vergeben – nimm eine andere.";
   const pille = (an) => ({ flex: 1, height: 38, borderRadius: 999, border: "none", fontFamily: "inherit", fontSize: 13.5, fontWeight: an ? 700 : 500, cursor: "pointer",
     background: an ? C.weiss : "transparent", color: an ? NAVY : "#C9D6EE" });
   const taste = { height: 44, borderRadius: 11, border: "1px solid rgba(255,255,255,0.22)", background: "rgba(255,255,255,0.08)", color: C.weiss,
@@ -164,17 +164,19 @@ function RefErsteller({ startCode }) {
   return (
     <>
       <p style={{ fontSize: 14.5, color: "#C9D6EE", fontWeight: 300, lineHeight: 1.6, marginBottom: 12 }}>
-        Such dir deinen persönlichen Einladungslink aus: eine richtige Gleichung, die nur dir gehört. Einmal festgelegt, bleibt sie für immer deine.
+        Such dir deinen persönlichen Einladungslink aus: eine sechsstellige Zahl, die nur dir gehört – zufällig oder deine Wunschzahl. Einmal festgelegt, bleibt sie für immer deine.
       </p>
       <div className="flex" style={{ background: "rgba(255,255,255,0.1)", borderRadius: 999, padding: 3, marginBottom: 12 }}>
-        <button type="button" onClick={() => setModus("vorschlag")} style={pille(modus === "vorschlag")}>Vorschlag</button>
-        <button type="button" onClick={() => setModus("wunsch")} style={pille(modus === "wunsch")}>Wunschgleichung</button>
+        <button type="button" onClick={() => setModus("vorschlag")} style={pille(modus === "vorschlag")}>Zufallszahl</button>
+        <button type="button" onClick={() => setModus("wunsch")} style={pille(modus === "wunsch")}>Wunschzahl</button>
       </div>
 
       <div style={{ background: "rgba(255,255,255,0.1)", border: `1.5px solid ${code && ok ? C.flaggold : "rgba(255,255,255,0.22)"}`, borderRadius: 14, padding: "14px 14px 12px", textAlign: "center" }}>
         <p style={{ fontSize: 12.5, color: "#8FA3C8", marginBottom: 2 }}>mythosmathe.de/</p>
-        <p style={{ fontSize: "clamp(26px, 8vw, 34px)", fontWeight: 800, color: C.flaggold, letterSpacing: "0.01em", minHeight: 40, wordBreak: "break-all" }}>
-          {code ? anzeigeGl(code) : <span style={{ color: "rgba(255,255,255,0.3)" }}>?</span>}
+        <p style={{ fontSize: "clamp(30px, 9vw, 38px)", fontWeight: 800, color: C.flaggold, letterSpacing: "0.12em", fontVariantNumeric: "tabular-nums", minHeight: 40, wordBreak: "break-all" }}>
+          {modus === "wunsch"
+            ? (code + "______".slice(code.length)).split("").map((z, i) => <span key={i} style={{ color: z === "_" ? "rgba(255,255,255,0.25)" : C.flaggold }}>{z}</span>)
+            : code}
         </p>
         <p style={{ fontSize: 12.5, marginTop: 2, color: !code ? "#8FA3C8" : ok ? "#7FE0A8" : pruef.laeuft ? "#C9D6EE" : "#FF9DA8" }}>{status}</p>
       </div>
@@ -184,14 +186,15 @@ function RefErsteller({ startCode }) {
           style={{ marginTop: 10, width: "100%", height: 46, borderRadius: 999, border: "1px solid rgba(255,255,255,0.4)", background: "transparent", color: C.weiss,
             fontSize: 15, fontWeight: 600, fontFamily: "inherit", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
           <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="3" width="18" height="18" rx="4" /><circle cx="8" cy="8" r="1.4" fill="currentColor" /><circle cx="16" cy="16" r="1.4" fill="currentColor" /><circle cx="12" cy="12" r="1.4" fill="currentColor" /></svg>
-          Neue Gleichung
+          Neue Zufallszahl
         </button>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, minmax(0, 1fr))", gap: 6, marginTop: 10 }}>
-          {["7", "8", "9", "+", "−", "4", "5", "6", "×", "=", "1", "2", "3", "0"].map((t) => (
-            <button key={t} type="button" onClick={() => tippe({ "−": "-", "×": "x" }[t] || t)}
-              style={{ ...taste, color: /[0-9]/.test(t) ? C.weiss : C.flaggold }}>{t}</button>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 6, marginTop: 10 }}>
+          {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((t) => (
+            <button key={t} type="button" onClick={() => tippe(t)} style={taste}>{t}</button>
           ))}
+          <button type="button" aria-label="Zahl leeren" onClick={() => setWunsch("")} style={{ ...taste, fontSize: 14, color: "#C9D6EE" }}>C</button>
+          <button type="button" onClick={() => tippe("0")} style={taste}>0</button>
           <button type="button" aria-label="Zeichen löschen" onClick={() => setWunsch((w) => w.slice(0, -1))} style={{ ...taste, fontSize: 16 }}>⌫</button>
         </div>
       )}

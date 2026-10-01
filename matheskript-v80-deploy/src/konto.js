@@ -27,26 +27,20 @@ export function useKonto() {
   return useSyncExternalStore((h) => { hoerer.add(h); return () => hoerer.delete(h); }, () => zustand);
 }
 
-/* ---------- Empfehlungslink: mythosmathe.de/2+5=7 ----------
-   Jeder Schüler bekommt eine eigene, richtige Gleichung als Code. Ruft jemand
-   den Link auf, merkt sich die Seite die Gleichung, bis er sich anmeldet. */
-export const GLEICHUNG = /^(\d{1,4})([+\-x])(\d{1,4})=(\d{1,8})$/;
-/* Gültig ist eine richtige Gleichung a+b=c, a-b=c oder a x b = c (x = mal), ohne führende Nullen. */
-export function istRefGleichung(t) {
-  const m = GLEICHUNG.exec(t);
-  if (!m) return false;
-  if ([m[1], m[3], m[4]].some((z) => z.length > 1 && z[0] === "0")) return false;
-  const [a, op, b, c] = [Number(m[1]), m[2], Number(m[3]), Number(m[4])];
-  return (op === "+" ? a + b : op === "-" ? a - b : a * b) === c;
-}
+/* ---------- Empfehlungslink: mythosmathe.de/482913 ----------
+   Jeder Schüler bekommt eine eigene sechsstellige Zahl als Code – zufällig
+   oder selbst gewählt. Ruft jemand den Link auf, merkt sich die Seite die Zahl,
+   bis er sich anmeldet. */
+export const REF_ZAHL = /^[1-9][0-9]{5}$/;
+export const istRefCode = (t) => REF_ZAHL.test(String(t));
 export function refAusUrlMerken() {
   try {
     const u = new URL(window.location.href);
     let code = null;
-    const pfad = decodeURIComponent(u.pathname.slice(1)).replace(/\s+/g, "").replace(/[−–]/g, "-").replace(/[×X·*]/g, "x");
-    if (istRefGleichung(pfad)) code = pfad;
-    const alt = u.searchParams.get("ref");               // ältere Links ?ref=…
-    if (!code && alt) code = alt.replace(/ /g, "+");   // „+“ wird in Query-Strings zu Leerzeichen
+    const pfad = decodeURIComponent(u.pathname.slice(1)).replace(/[\s/]+/g, "");
+    if (istRefCode(pfad)) code = pfad;
+    const alt = (u.searchParams.get("ref") || "").trim();   // ältere Links ?ref=…
+    if (!code && istRefCode(alt)) code = alt;
     if (code) {
       schreib(REF_SPEICHER, { code, zeit: Date.now() });
       u.searchParams.delete("ref");
@@ -111,19 +105,11 @@ export async function abmelden() {
   profilLaden(null);
 }
 
-export const neuerCode = () => {
-  const z = () => 2 + Math.floor(Math.random() * 98);
-  let a = z(), b = z();
-  const r = Math.random();
-  if (r < 0.2) { a = 2 + Math.floor(Math.random() * 18); b = 2 + Math.floor(Math.random() * 18); return `${a}x${b}=${a * b}`; }
-  if (r < 0.6 || a === b) return `${a}+${b}=${a + b}`;
-  if (a < b) [a, b] = [b, a];
-  return `${a}-${b}=${a - b}`;
-};
+export const neuerCode = () => String(100000 + Math.floor(Math.random() * 900000));
 
-/* Ist die Gleichung richtig und noch frei? */
+/* Ist die Zahl gültig und noch frei? */
 export async function refPruefen(code) {
-  if (!istRefGleichung(code)) return { gueltig: false, frei: false };
+  if (!istRefCode(code)) return { gueltig: false, frei: false };
   if (DEMO) return { gueltig: true, frei: true };
   const { data, error } = await sb.rpc("ref_frei", { code });
   return { gueltig: true, frei: !error && !!data };
@@ -131,7 +117,7 @@ export async function refPruefen(code) {
 
 /* Legt den Empfehlungslink endgültig fest. */
 export async function refFestlegen(code) {
-  if (!istRefGleichung(code)) throw new Error("Die Gleichung stimmt nicht.");
+  if (!istRefCode(code)) throw new Error("Bitte eine sechsstellige Zahl wählen.");
   if (DEMO) {
     const profil = { ...zustand.profil, ref_code: code, ref_fest: true };
     schreib(DEMO_SPEICHER, { nutzer: zustand.nutzer, profil });
@@ -140,8 +126,8 @@ export async function refFestlegen(code) {
   }
   const { data, error } = await sb.rpc("ref_festlegen", { code });
   if (error) throw new Error("Das hat nicht geklappt. Bitte versuch es noch einmal.");
-  if (data === "vergeben") throw new Error("Diese Gleichung hat schon jemand anderes – nimm eine andere.");
-  if (data === "ungueltig") throw new Error("Die Gleichung stimmt nicht.");
+  if (data === "vergeben") throw new Error("Diese Zahl hat schon jemand anderes – nimm eine andere.");
+  if (data === "ungueltig") throw new Error("Bitte eine sechsstellige Zahl wählen.");
   if (data === "schon_fest") throw new Error("Dein Link ist bereits festgelegt.");
   setzen({ profil: { ...zustand.profil, ref_code: code, ref_fest: true } });
 }

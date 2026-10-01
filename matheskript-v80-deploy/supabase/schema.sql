@@ -3,8 +3,8 @@
 -- Einmal im Supabase-Dashboard unter „SQL Editor“ ausführen.
 -- ======================================================================
 
--- Jeder Empfehlungscode ist eine eigene, richtige Gleichung: mythosmathe.de/23+48=71
-create or replace function public.neue_gleichung()
+-- Jeder Empfehlungscode ist eine eigene sechsstellige Zahl: mythosmathe.de/482913
+create or replace function public.neue_refzahl()
 returns text
 language plpgsql
 volatile
@@ -12,18 +12,10 @@ security definer          -- muss alle Codes sehen, um Doppelte zu vermeiden
 set search_path = public
 as $$
 declare
-  a int; b int; grenze int := 99; versuch int := 0; code text;
+  code text;
 begin
   loop
-    versuch := versuch + 1;
-    if versuch > 40 then grenze := 999; end if;
-    a := 2 + floor(random() * (grenze - 1))::int;
-    b := 2 + floor(random() * (grenze - 1))::int;
-    if random() < 0.5 or a = b then
-      code := a || '+' || b || '=' || (a + b);
-    else
-      code := greatest(a, b) || '-' || least(a, b) || '=' || (greatest(a, b) - least(a, b));
-    end if;
+    code := (100000 + floor(random() * 900000))::int::text;
     exit when not exists (select 1 from profile where ref_code = code);
   end loop;
   return code;
@@ -42,7 +34,8 @@ create table if not exists public.profile (
 );
 
 create index if not exists profile_geworben_von_idx on public.profile (geworben_von);
-alter table public.profile alter column ref_code set default public.neue_gleichung();
+alter table public.profile alter column ref_code set default public.neue_refzahl();
+drop function if exists public.neue_gleichung();
 alter table public.profile add column if not exists ref_fest boolean not null default false;  -- true = vom Schüler endgültig gewählt
 
 alter table public.profile enable row level security;
@@ -101,24 +94,17 @@ grant execute on function public.werber_setzen(text) to authenticated;
 grant execute on function public.anzahl_geworben()   to authenticated;
 
 
--- ---------- Wunschgleichung als Empfehlungslink ----------
--- Gültig: a+b=c, a-b=c, axb=c (x = mal), Zahlen ohne führende Nullen, Ergebnis stimmt.
+-- ---------- Wunschzahl als Empfehlungslink ----------
+-- Gültig: genau sechs Ziffern, keine führende Null (100000 – 999999).
 create or replace function public.ref_gueltig(code text)
 returns boolean
-language plpgsql
+language sql
 immutable
 as $$
-declare
-  m text[]; a bigint; b bigint; c bigint;
-begin
-  m := regexp_match(code, '^([1-9][0-9]{0,3}|0)([-+x])([1-9][0-9]{0,3}|0)=([1-9][0-9]{0,7}|0)$');
-  if m is null then return false; end if;
-  a := m[1]::bigint; b := m[3]::bigint; c := m[4]::bigint;
-  return case m[2] when '+' then a + b = c when '-' then a - b = c else a * b = c end;
-end;
+  select coalesce(code ~ '^[1-9][0-9]{5}$', false);
 $$;
 
--- Ist die Gleichung richtig und noch nicht vergeben? (verrät nur ja/nein)
+-- Ist die Zahl gültig und noch nicht vergeben? (verrät nur ja/nein)
 create or replace function public.ref_frei(code text)
 returns boolean
 language sql
