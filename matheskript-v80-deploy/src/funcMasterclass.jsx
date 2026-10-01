@@ -41,7 +41,7 @@ export function MasterclassKachel({ onClick }) {
     <button type="button" onClick={onClick} aria-label="Mathe Abi Masterclass ansehen" className="mc-kachel"
       style={{ display: "flex", width: "calc(100% + 32px)", marginLeft: -16, marginRight: -16, marginTop: 12, padding: 0, border: "none",
         borderRadius: 20, overflow: "hidden", cursor: "pointer", fontFamily: "inherit", textAlign: "left", position: "relative",
-        height: "calc(202px + 2.2 * clamp(15px, 4.1vw, 22px))", background: GOLD, color: NAVY,
+        height: "calc(148px + 1.65 * clamp(15px, 4.1vw, 22px))", background: GOLD, color: NAVY,
         boxShadow: "0 10px 30px rgba(181,134,18,0.35), inset 0 0 0 1px rgba(255,255,255,0.55)" }}>
       <style>{`.mc-kachel{transition:transform .15s ease, box-shadow .15s ease}
         .mc-kachel:active{transform:scale(0.985)}
@@ -50,23 +50,24 @@ export function MasterclassKachel({ onClick }) {
           background-size:250% 100%;animation:mcGlanz 5.5s ease-in-out infinite;pointer-events:none}
         @keyframes mcGlanz{0%,60%{background-position:120% 0}100%{background-position:-120% 0}}`}</style>
       <span className="mc-glanz" aria-hidden="true" />
-      <div style={{ flex: "1 1 62%", minWidth: 0, padding: "16px 10px 14px 18px", display: "flex", flexDirection: "column", position: "relative" }}>
-        <span style={{ alignSelf: "flex-start", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.12em", background: NAVY, color: MIND,
-          padding: "4px 9px", borderRadius: 999 }}>6-MONATS-PROGRAMM</span>
-        <h2 style={{ fontSize: "clamp(21px, 6.2vw, 32px)", fontWeight: 800, letterSpacing: "-0.035em", lineHeight: 1.02, margin: "11px 0 0" }}>
+      <div style={{ flex: "1 1 63%", minWidth: 0, padding: "12px 8px 12px 16px", display: "flex", flexDirection: "column", position: "relative" }}>
+        <h2 style={{ fontSize: "clamp(21px, 6.2vw, 32px)", fontWeight: 800, letterSpacing: "-0.035em", lineHeight: 1.02, margin: 0 }}>
           Mathe Abi<br />Masterclass
         </h2>
-        <span aria-hidden="true" style={{ display: "block", width: 44, height: 3, borderRadius: 2, marginTop: 9, background: NAVY }} />
-        <p style={{ fontSize: 12.5, fontWeight: 500, lineHeight: 1.4, marginTop: 8, marginBottom: 0, color: "#1B2A4F" }}>
-          Werde die beste Version von dir – für ein starkes Mathe-Abi und echte Freude am Fach.
+        <span aria-hidden="true" style={{ display: "block", width: 44, height: 3, borderRadius: 2, marginTop: 7, background: NAVY }} />
+        <p style={{ fontSize: 12.5, fontWeight: 500, lineHeight: 1.4, marginTop: 6, marginBottom: 0, color: "#1B2A4F",
+          display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+          Werde die beste Version von dir – für ein starkes Abi und Freude am Fach.
         </p>
-        <span style={{ marginTop: "auto", paddingTop: 10, fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
+        <span style={{ marginTop: "auto", paddingTop: 6, fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
           Programm ansehen
           <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4l4 4-4 4" stroke={NAVY} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </span>
       </div>
-      <div style={{ flex: "0 0 38%", position: "relative", borderLeft: "1px solid rgba(11,30,74,0.12)" }}>
-        <div style={{ position: "absolute", inset: "10px 6px 10px 2px" }}><MasterclassLogo /></div>
+      <div style={{ flex: "0 0 37%", position: "relative", borderLeft: "1px solid rgba(11,30,74,0.12)" }}>
+        <span style={{ position: "absolute", top: 10, left: 10, fontSize: 9.5, fontWeight: 700, letterSpacing: "0.1em", background: NAVY, color: MIND,
+          padding: "3px 7px", borderRadius: 999, zIndex: 1 }}>6 MONATE</span>
+        <div style={{ position: "absolute", inset: "30px 6px 8px 2px" }}><MasterclassLogo /></div>
       </div>
     </button>
   );
