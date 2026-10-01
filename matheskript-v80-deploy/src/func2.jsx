@@ -15,6 +15,7 @@ import { KopfrechnenLogoKlein } from "./func14.jsx";
 import { VektorenLogoKlein } from "./func16.jsx";
 import { StochastikLogoKlein } from "./func17.jsx";
 import { GleichungenLogoKlein } from "./funcGleichungen.jsx";
+import { LGSLogoKlein } from "./funcLGS.jsx";
 
 /* Große, ganz anklickbare Kachel für die Plotter auf der Startseite. */
 /* Polynomplotter-Grafik im Hochformat für die Kachel. */
@@ -673,6 +674,9 @@ export function Startseite({ gehe }) {
       <PlotterKachel onClick={() => gehe({ ansicht: "gleichungen" })} label="Gleichungslöser öffnen" logo={<GleichungenLogoKlein />}
         titel="Gleichungslöser"
         text="Du tippst die Umformung, die App rechnet sie auf beiden Seiten aus – linear, quadratisch, Exponential und Logarithmus." />
+      <PlotterKachel onClick={() => gehe({ ansicht: "lgs" })} label="Gleichungssysteme öffnen" logo={<LGSLogoKlein />}
+        titel="Gleichungssysteme"
+        text="Drei Gleichungen, drei Unbekannte: Kombiniere I, II und III, bis x, y und z dastehen – mit Gauß-Musterlösung." />
       <PlotterKachel onClick={() => gehe({ ansicht: "kopf" })} label="Kopfrechnen öffnen" logo={<KopfrechnenLogoKlein />}
         titel="Kopfrechnen"
         text="Primfaktoren, Quadratzahlen, Brüche und Einmaleins – schnelle Runden auf Zeit." />
