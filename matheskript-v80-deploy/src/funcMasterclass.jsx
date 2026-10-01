@@ -103,17 +103,17 @@ export function MatheCheckenKachel({ onClick }) {
         .mc-silber .mc-glanz{animation-delay:1.2s}
         @keyframes mcGlanz{0%,60%{background-position:120% 0}100%{background-position:-120% 0}}`}</style>
       <span className="mc-glanz" aria-hidden="true" />
-      <div style={{ flex: "1 1 60%", minWidth: 0, padding: "14px 10px 14px 16px", display: "flex", flexDirection: "column", position: "relative" }}>
-        <h2 style={{ fontSize: "clamp(15px, 4.1vw, 22px)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.1, margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+      <div style={{ flex: "1 1 63%", minWidth: 0, padding: "10px 8px 10px 16px", display: "flex", flexDirection: "column", justifyContent: "center", position: "relative" }}>
+        <h2 style={{ fontSize: "clamp(21px, 6.2vw, 32px)", fontWeight: 800, letterSpacing: "-0.035em", lineHeight: 1.02, margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
           Mathe checken
         </h2>
-        <span aria-hidden="true" style={{ display: "block", width: 34, height: 2.5, borderRadius: 2, marginTop: 6, background: NAVY }} />
-        <p style={{ fontSize: 12.5, fontWeight: 500, lineHeight: 1.4, marginTop: 6, marginBottom: 0, color: "#1B2A4F",
+        <span aria-hidden="true" style={{ display: "block", width: 34, height: 2.5, borderRadius: 2, marginTop: 5, background: NAVY }} />
+        <p style={{ fontSize: 12.5, fontWeight: 500, lineHeight: 1.4, marginTop: 5, marginBottom: 0, color: "#1B2A4F",
           display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden", height: "4.2em" }}>
           In zwei Monaten Lücken schließen, Mathe verstehen und sicher werden.
         </p>
       </div>
-      <div style={{ flex: "0 0 40%", position: "relative", borderLeft: "1px solid rgba(11,30,74,0.12)" }}>
+      <div style={{ flex: "0 0 37%", position: "relative", borderLeft: "1px solid rgba(11,30,74,0.12)" }}>
         <span style={{ position: "absolute", top: 10, left: 10, fontSize: 9.5, fontWeight: 700, letterSpacing: "0.1em", background: NAVY, color: "#E4E8EE",
           padding: "3px 7px", borderRadius: 999, zIndex: 1 }}>2 MONATE</span>
         <div style={{ position: "absolute", inset: "14px 8px 8px 8px" }}><CheckenLogo /></div>
@@ -199,18 +199,18 @@ export function MathCreatorKachel() {
           animation:mcrSchimmer 7s ease-in-out infinite}
         @keyframes mcrSchimmer{0%,55%{background-position:120% 0}100%{background-position:-120% 0}}`}</style>
       <span className="mcr-schimmer" aria-hidden="true" />
-      <div style={{ flex: "1 1 60%", minWidth: 0, padding: "14px 10px 14px 16px", display: "flex", flexDirection: "column", position: "relative" }}>
-        <h2 style={{ fontSize: "clamp(15px, 4.1vw, 22px)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.1, margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+      <div style={{ flex: "1 1 63%", minWidth: 0, padding: "10px 8px 10px 16px", display: "flex", flexDirection: "column", justifyContent: "center", position: "relative" }}>
+        <h2 style={{ fontSize: "clamp(21px, 6.2vw, 32px)", fontWeight: 800, letterSpacing: "-0.035em", lineHeight: 1.02, margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
           background: "linear-gradient(180deg,#FFFFFF 0%,#D5D9E2 55%,#9AA3B3 100%)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>
           Math Creator
         </h2>
-        <span aria-hidden="true" style={{ display: "block", width: 34, height: 2.5, borderRadius: 2, marginTop: 6, background: "linear-gradient(90deg,#6E5BD8 0%,#B7A9FF 100%)" }} />
-        <p style={{ fontSize: 12.5, fontWeight: 300, lineHeight: 1.4, marginTop: 6, marginBottom: 0, color: "rgba(255,255,255,0.78)",
+        <span aria-hidden="true" style={{ display: "block", width: 34, height: 2.5, borderRadius: 2, marginTop: 5, background: "linear-gradient(90deg,#6E5BD8 0%,#B7A9FF 100%)" }} />
+        <p style={{ fontSize: 12.5, fontWeight: 300, lineHeight: 1.4, marginTop: 5, marginBottom: 0, color: "rgba(255,255,255,0.78)",
           display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden", height: "4.2em" }}>
           Noch geheim. Nur so viel: Nach drei Monaten erschaffst du Mathe.
         </p>
       </div>
-      <div style={{ flex: "0 0 40%", position: "relative", borderLeft: "1px solid rgba(255,255,255,0.08)" }}>
+      <div style={{ flex: "0 0 37%", position: "relative", borderLeft: "1px solid rgba(255,255,255,0.08)" }}>
         <span style={{ position: "absolute", top: 10, left: 10, fontSize: 9.5, fontWeight: 700, letterSpacing: "0.1em", background: "rgba(255,255,255,0.1)",
           border: "1px solid rgba(255,255,255,0.2)", color: "#D5D9E2", padding: "3px 7px", borderRadius: 999, zIndex: 1 }}>3 MONATE</span>
         <div style={{ position: "absolute", inset: "12px 6px 6px 6px", opacity: 0.9 }}><CreatorLogo /></div>
