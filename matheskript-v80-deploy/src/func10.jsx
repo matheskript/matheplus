@@ -26,6 +26,7 @@ import { LGSLoeser } from "./funcLGS.jsx";
 import { MasterclassSeite, MatheCheckenSeite } from "./funcMasterclass.jsx";
 import { Fusszeile, ImpressumSeite, AGBSeite, WiderrufSeite } from "./funcRecht.jsx";
 import { KontoSeite } from "./funcKonto.jsx";
+import { ElternabendSeite } from "./funcElternabend.jsx";
 import { useKonto, kontoStarten } from "./konto.js";
 
 // Menü-Button im Header: vorübergehend aus (true = wieder einblenden)
@@ -769,6 +770,21 @@ export function Mathilda() {
             <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
           </div>
           <Gleichungsloeser />
+        </>
+      ) : ansicht === "elternabend" ? (
+        <>
+          <div style={{ background: "radial-gradient(130% 150% at 90% 0%, #2A2210 0%, #0E0C08 55%, #050404 100%)" }}>
+            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.14em", color: C.flaggold, marginBottom: 8 }}>MYTHOS MATHE LIVE</p>
+              <h1 className="logo-gold" style={{ fontWeight: 800, fontSize: "clamp(28px, 8.4vw, 38px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Elternabend</h1>
+              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <p style={{ color: "rgba(255,255,255,0.78)", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+                Warum Mathe-Talent ein Mythos ist – und wie Ihr Kind mit System und Freude stark wird.
+              </p>
+            </div>
+            <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
+          </div>
+          <ElternabendSeite />
         </>
       ) : ansicht === "konto" ? (
         <>
