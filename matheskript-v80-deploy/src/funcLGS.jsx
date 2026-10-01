@@ -562,9 +562,9 @@ export function LGSLoeser() {
   const [stufe, setStufe] = useState(1);
   const [aufgabe, setAufgabe] = useState(() => lgsErzeugen(1));
   const [bloecke, setBloecke] = useState(() => [{ rows: aufgabe.rows, notizen: null }]);
-  const [felder, setFelder] = useState(["I", "II", "III"]);
-  const [aktiv, setAktiv] = useState(1);
-  const [frisch, setFrisch] = useState([true, true, true]);
+  const [felder, setFelder] = useState(["", "", ""]);
+  const [aktiv, setAktiv] = useState(0);
+  const [frisch, setFrisch] = useState([false, false, false]);
   const [meldung, setMeldung] = useState(null);
   const [muster, setMuster] = useState(null);   // "gauss" | "direkt" | null
   const startZeit = useRef(Date.now());
@@ -578,7 +578,7 @@ export function LGSLoeser() {
   const neu = (s = stufe) => {
     const a = lgsErzeugen(s);
     setAufgabe(a); setBloecke([{ rows: a.rows, notizen: null }]);
-    setFelder(["I", "II", "III"]); setFrisch([true, true, true]); setAktiv(1); setMeldung(null); setMuster(null);
+    setFelder(["", "", ""]); setFrisch([false, false, false]); setAktiv(0); setMeldung(null); setMuster(null);
     startZeit.current = Date.now(); gemerkt.current = false;
   };
   const stufeWaehlen = (s) => { setStufe(s); neu(s); };
@@ -621,7 +621,7 @@ export function LGSLoeser() {
     if (vorschau.some((v) => !v.ok)) {
       const i = vorschau.findIndex((v) => !v.ok);
       setAktiv(i);
-      setMeldung({ art: "fehler", text: `Neue ${ROEM[i]}: ${vorschau[i].fehler}` });
+      setMeldung({ art: "fehler", text: `${ROEM[i]} neu: ${vorschau[i].fehler}${felder[i].trim() ? "" : " Soll sie unverändert bleiben, tippe einfach " + ROEM[i] + "."}` });
       return;
     }
     const M = vorschau.map((v) => v.vec);
@@ -636,7 +636,7 @@ export function LGSLoeser() {
       return;
     }
     setBloecke((b) => [...b, { rows, notizen }]);
-    setFelder(["I", "II", "III"]); setFrisch([true, true, true]); setAktiv(1);
+    setFelder(["", "", ""]); setFrisch([false, false, false]); setAktiv(0);
     const g = geloest(rows);
     if (g) setMeldung(null);
     else if (treppe(rows)) setMeldung({ art: "info", text: "Treppenform erreicht! Jetzt von unten nach oben weiter eliminieren — oder die letzte Zeile auflösen und einsetzen." });
@@ -731,10 +731,12 @@ export function LGSLoeser() {
                 style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", textAlign: "left", fontFamily: "inherit", cursor: "pointer",
                   background: an ? C.sand : C.weiss, border: `1.5px solid ${an ? (v.ok || !f ? C.see : C.signal) : C.linie}`, borderRadius: 14,
                   padding: "8px 12px", marginBottom: 8, minHeight: 58 }}>
-                <span style={{ flexShrink: 0, width: 50, fontSize: 12.5, fontWeight: 700, color: an ? C.see : C.hellgrau, whiteSpace: "nowrap" }}>neu {ROEM[i]}</span>
+                <span style={{ flexShrink: 0, width: 50, fontSize: 15, fontWeight: 500, color: C.hellgrau, whiteSpace: "nowrap" }}>
+                  {ROEM[i]}<sub style={{ fontSize: "0.68em", position: "relative", top: "0.3em", verticalAlign: "baseline", lineHeight: 0, marginLeft: "0.08em" }}>neu</sub>
+                </span>
                 <span style={{ flex: 1, minWidth: 0 }}>
                   <span style={{ display: "block", fontSize: 19, fontWeight: 700, color: C.gruen, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                    {f ? minus(f) : <span style={{ color: C.hellgrau, fontWeight: 400, fontSize: 15 }}>z. B. II − I</span>}
+                    {f ? minus(f) : null}
                     {an && <span className="pulsieren" style={{ color: C.see, fontWeight: 300 }}>|</span>}
                   </span>
                   <span style={{ display: "block", fontSize: 13.5, color: v.ok ? C.grau : C.signal, fontWeight: v.ok ? 400 : 300, marginTop: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>

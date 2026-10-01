@@ -251,6 +251,12 @@ function rang(t, mitX) {
     return mitX ? [2, zahl ? 1 : 0] : [0, zahl ? 0 : 1];
   }
   const nichtPoly = t.f.some((f) => (f.a.t === "exp" || f.a.t === "log") && atomHatX(f.a));
+  if (nichtPoly) {
+    // e^(2x) vor e^x: nach dem x-Koeffizienten im Exponenten
+    let m = 0;
+    for (const f of t.f) if (f.a.t === "exp" && atomHatX(f.a)) for (const u of f.a.a) if (u.f.some((g) => g.a.t === "x")) m = Math.max(m, rwert(u.k));
+    return [0, -m];
+  }
   let grad = 0;
   for (const f of t.f) if (f.a.t === "x") grad += rwert(f.e); else if (f.a.t === "sum" && hatX(f.a.s)) grad += rwert(f.e) * sumGrad(f.a.s);
   return mitX ? [nichtPoly ? 0 : 1, -grad] : [1, -grad];
@@ -548,7 +554,6 @@ export function ausdruckLesen(eingabe) {
 }
 
 function teilen(A, B) {
-  if (hatX(B)) throw new Fehler("Brüche mit x im Nenner kann der Gleichungslöser noch nicht.");
   if (B.length === 0) throw new Fehler("Durch 0 kann man nicht teilen.");
   if (B.length === 1) return sMul(A, [kehrTerm(B[0])]);
   return sMul(A, normSum([{ k: EINS, f: [sumAtom(B, R(-1))] }]));
@@ -575,9 +580,111 @@ export function status(z) {
     if (d.length === 0 || Math.abs(v) < 1e-12) return { ...z, status: "alle" };
     return { ...z, status: "keine", grund: "Widerspruch: Beide Seiten sind verschieden, egal was x ist." };
   }
+  if (z.sub) return { ...z, status: "offen" };
   if (istX(z.l) && !rx) return { ...z, status: "geloest", wert: z.r };
   if (istX(z.r) && !lx) return { ...z, status: "geloest", wert: z.l };
   return { ...z, status: "offen" };
+}
+
+/* ---------- Bruchgleichungen ---------- */
+
+/* Sammelt die Nenner mit x: Map akey → { a, e } (größter Exponent) */
+function nennerFaktoren(S, map = new Map()) {
+  for (const t of S) for (const f of t.f) {
+    if (f.e.n < 0 && atomHatX(f.a)) {
+      const key = akey(f.a), e = rneg(f.e), alt = map.get(key);
+      if (!alt || rwert(e) > rwert(alt.e)) map.set(key, { a: f.a, e });
+    }
+  }
+  return map;
+}
+export const hatXNenner = (z) => nennerFaktoren(z.r, nennerFaktoren(z.l)).size > 0;
+
+/* Stellen, an denen ein Nenner 0 wird — sie gehören nicht zur Definitionsmenge. */
+export function definitionsluecken(start) {
+  const werte = [];
+  for (const { a } of nennerFaktoren(start.r, nennerFaktoren(start.l)).values()) {
+    const S = a.t === "x" ? X_SUMME : a.t === "sum" ? a.s : null;
+    if (!S) continue;
+    const k = polyKoeff(S);
+    if (!k || k.length < 2) continue;
+    if (k.length === 2) werte.push(zahlSumme(rdiv(rneg(k[0]), k[1])));
+    else if (k.length === 3) {
+      try { mitternacht({ l: S, r: [] }).zweige.filter((z) => z.status === "geloest").forEach((z) => werte.push(z.wert)); } catch (e) { /* ignorieren */ }
+    }
+  }
+  const eindeutig = [];
+  werte.forEach((w) => { if (!eindeutig.some((u) => Math.abs(wert(u) - wert(w)) < 1e-9)) eindeutig.push(w); });
+  return eindeutig.sort((p, q) => wert(p) - wert(q));
+}
+
+function hauptnennerZweig(z) {
+  const map = nennerFaktoren(z.r, nennerFaktoren(z.l));
+  if (!map.size) throw new Fehler("Hier steht kein x im Nenner — den Hauptnenner braucht man nur bei Bruchgleichungen.");
+  let zahlNenner = 1;
+  for (const t of [...z.l, ...z.r]) zahlNenner = (zahlNenner * t.k.d) / ggT(zahlNenner, t.k.d);
+  const hn = { k: R(zahlNenner), f: [...map.values()] };
+  const l = ausmultiplizieren(seiteMal(z.l, hn)), r = ausmultiplizieren(seiteMal(z.r, hn));
+  return { zweige: [status({ l, r })], hn: normSum([hn]) };
+}
+
+/* ---------- Substitution ---------- */
+
+/* Prüft, ob sich die Gleichung mit u = x² (biquadratisch) oder u = b^(kx) in eine
+   quadratische Gleichung verwandeln lässt. */
+export function substInfo(z) {
+  if (z.sub) return null;
+  const pk = [polyKoeff(z.l), polyKoeff(z.r)];
+  if (pk[0] && pk[1]) {
+    const grad = Math.max(pk[0].length, pk[1].length) - 1;
+    const gerade = pk.every((k) => k.every((c, i) => i % 2 === 0 || rnull(c)));
+    return grad === 4 && gerade ? { art: "quad", ziel: [{ k: EINS, f: [{ a: { t: "x" }, e: R(2) }] }] } : null;
+  }
+  let basis = null;
+  const ms = new Map();
+  for (const S of [z.l, z.r]) for (const t of S) for (const f of t.f) {
+    if (!atomHatX(f.a)) continue;
+    if (f.a.t !== "exp" || !reins(f.e)) return null;
+    const a = f.a.a;
+    if (!(a.length === 1 && a[0].f.length === 1 && a[0].f[0].a.t === "x" && reins(a[0].f[0].e) && a[0].k.n > 0)) return null;
+    if (basis && !baseEq(basis, f.a.b)) return null;
+    basis = f.a.b;
+    ms.set(rs(a[0].k), a[0].k);
+  }
+  if (!basis || ms.size !== 2) return null;
+  const [m1, m2] = [...ms.values()].sort((p, q) => rwert(p) - rwert(q));
+  if (!rgleich(m2, rmul(m1, R(2)))) return null;
+  const ziel = normSum([{ k: EINS, f: [{ a: { t: "exp", b: basis, a: [{ k: m1, f: [{ a: { t: "x" }, e: EINS }] }] }, e: EINS }] }]);
+  return { art: "exp", b: basis, k: m1, ziel };
+}
+
+function substZweig(z) {
+  const info = substInfo(z);
+  if (!info) {
+    throw new Fehler(z.sub ? "Hier wurde schon substituiert. Löse nach u auf und mach dann die Rücksubstitution."
+      : "Substitution hilft, wenn nur x⁴ und x² vorkommen (u = x²) oder e^(2x) und e^x (u = e^x). Das ist hier nicht der Fall.");
+  }
+  let l, r;
+  if (info.art === "quad") {
+    const neu = (k) => normSum(k.map((c, i) => ({ k: c, f: i ? [{ a: { t: "x" }, e: R(i, 2) }] : [] })).filter((t) => !rnull(t.k)));
+    l = neu(polyKoeff(z.l)); r = neu(polyKoeff(z.r));
+  } else {
+    const ersetze = (S) => normSum(S.map((t) => ({
+      k: t.k,
+      f: t.f.map((f) => (f.a.t === "exp" && atomHatX(f.a) ? { a: { t: "x" }, e: rgleich(f.a.a[0].k, info.k) ? EINS : R(2) } : f)),
+    })));
+    l = ersetze(z.l); r = ersetze(z.r);
+  }
+  return { zweige: [status({ l, r, sub: { ziel: info.ziel }, var: "u" })], ziel: info.ziel };
+}
+
+function ruecksubZweig(z) {
+  if (!z.sub) throw new Fehler("Hier wurde nichts substituiert — eine Rücksubstitution ist nicht nötig.");
+  let wertU;
+  if (istX(z.l) && !hatX(z.r)) wertU = z.r;
+  else if (istX(z.r) && !hatX(z.l)) wertU = z.l;
+  else throw new Fehler("Löse zuerst nach u auf (u = …). Erst dann setzt du für u wieder den ursprünglichen Term ein.");
+  return [status({ l: z.sub.ziel, r: wertU })];
 }
 
 /* ---------- Umformungen ---------- */
@@ -672,7 +779,7 @@ function einzweig(z, op) {
     case "mul":
     case "div": {
       const A = op.arg;
-      if (hatX(A)) {
+      if (hatX(A) && !(op.art === "mul" && hatXNenner(z))) {
         throw new Fehler(op.art === "mul"
           ? "Mit einem Term mit x zu multiplizieren ist keine sichere Äquivalenzumformung: Dabei kann die falsche Lösung x = 0 dazukommen."
           : "Durch x zu teilen ist keine Äquivalenzumformung, wenn x = 0 sein könnte. Klammere x lieber aus und nutze den Satz vom Nullprodukt.");
@@ -681,7 +788,9 @@ function einzweig(z, op) {
       let t;
       if (A.length === 1) t = op.art === "mul" ? A[0] : kehrTerm(A[0]);
       else t = { k: EINS, f: [sumAtom(A, op.art === "mul" ? EINS : R(-1))] };
-      if (Math.abs(wert([t])) < 1e-14) throw new Fehler("Dieser Ausdruck ist 0 — damit darf man nicht multiplizieren oder teilen.");
+      if (!hatX(A) && Math.abs(wert([t])) < 1e-14) throw new Fehler("Dieser Ausdruck ist 0 — damit darf man nicht multiplizieren oder teilen.");
+      // Bei Bruchgleichungen: mit dem Nenner multiplizieren und gleich ausmultiplizieren
+      if (hatX(A)) return mitBeidenSeiten(z, (S) => ausmultiplizieren(seiteMal(S, t)));
       return mitBeidenSeiten(z, (S) => seiteMal(S, t));
     }
     case "log": {
@@ -793,11 +902,19 @@ export function anwenden(zweige, op) {
   for (const z of zweige) {
     if (z.status !== "offen") { neu.push(z); continue; }
     try {
-      if (op.art === "mitternacht") { const m = mitternacht(z); detail = m.detail; neu.push(...m.zweige); }
-      else if (op.art === "ausmult") neu.push(status({ l: ausmultiplizieren(z.l), r: ausmultiplizieren(z.r) }));
-      else if (op.art === "ausklam") neu.push(...ausklammernZweig(z));
-      else if (op.art === "nullprod") neu.push(...nullproduktZweig(z));
-      else neu.push(...einzweig(z, op));
+      let erg;
+      if (op.art === "mitternacht") { const m = mitternacht(z); detail = { ...m.detail, var: z.var || "x" }; erg = m.zweige; }
+      else if (op.art === "ausmult") erg = [status({ l: ausmultiplizieren(z.l), r: ausmultiplizieren(z.r) })];
+      else if (op.art === "ausklam") erg = ausklammernZweig(z);
+      else if (op.art === "nullprod") erg = nullproduktZweig(z);
+      else if (op.art === "hauptnenner") { const h = hauptnennerZweig(z); detail = { hn: h.hn }; erg = h.zweige; }
+      else if (op.art === "subst") { const h = substZweig(z); detail = { ziel: h.ziel }; erg = h.zweige; }
+      else if (op.art === "ruecksub") erg = ruecksubZweig(z);
+      else erg = einzweig(z, op);
+      if (z.sub && op.art !== "ruecksub" && op.art !== "subst") {
+        erg = erg.map((n) => (n.status === "keine" ? { ...n, sub: z.sub, var: z.var } : status({ l: n.l, r: n.r, sub: z.sub, var: z.var })));
+      }
+      neu.push(...erg);
     } catch (e) {
       if (!(e instanceof Fehler)) throw e;
       if (offen.length === 1) throw e;
@@ -816,7 +933,7 @@ export function anwenden(zweige, op) {
 
 export function loesung(zweige, start) {
   if (zweige.some((z) => z.status === "offen")) return null;
-  if (zweige.some((z) => z.status === "alle")) return { alle: true, werte: [] };
+  if (zweige.some((z) => z.status === "alle")) return { alle: true, werte: [], entfallen: [] };
   const werte = [];
   for (const z of zweige) {
     if (z.status !== "geloest") continue;
@@ -827,7 +944,7 @@ export function loesung(zweige, start) {
     werte.push({ s: z.wert, v, exakt: alsBruch(z.wert) !== null, probe: ok, probeL: l, probeR: r, definiert: Number.isFinite(l) && Number.isFinite(r) });
   }
   werte.sort((a, b) => a.v - b.v);
-  return { alle: false, werte };
+  return { alle: false, werte: werte.filter((w) => w.definiert), entfallen: werte.filter((w) => !w.definiert) };
 }
 
 export function komplexitaet(zweige) {
@@ -851,12 +968,13 @@ function faktorRang(f) {
   }
 }
 
+let VARNAME = "x";
 function atomBaum(a, e) {
   const hoch = (b) => (reins(e) ? b : { t: "hoch", b, e: txt(rs(e)) });
   switch (a.t) {
     case "x":
-      if (rgleich(e, HALB)) return { t: "wurzel", c: { t: "var" } };
-      return hoch({ t: "var" });
+      if (rgleich(e, HALB)) return { t: "wurzel", c: { t: "var", n: VARNAME } };
+      return hoch({ t: "var", n: VARNAME });
     case "num":
       if (rgleich(e, HALB)) return { t: "wurzel", c: txt(rs(a.v)) };
       return hoch(txt(rs(a.v)));
@@ -903,10 +1021,12 @@ function termBaum(t) {
   let o;
   if (t.k.n === 1 && oben.length === 1 && oben[0].a.t === "sum" && reins(oben[0].e)) o = sumBaum(oben[0].a.s);
   else o = produktBaum(t.k.n, oben);
-  return { t: "bruch", o, u: produktBaum(t.k.d, unten) };
+  const u = t.k.d === 1 && unten.length === 1 && unten[0].a.t === "sum" && reins(unten[0].e) ? sumBaum(unten[0].a.s) : produktBaum(t.k.d, unten);
+  return { t: "bruch", o, u };
 }
 
-export function sumBaum(S) {
+export function sumBaum(S, v) {
+  if (v && v !== VARNAME) { const alt = VARNAME; VARNAME = v; try { return sumBaum(S); } finally { VARNAME = alt; } }
   if (!S.length) return txt("0");
   const teile = [];
   S.forEach((t, i) => {
@@ -924,7 +1044,7 @@ const TIEFZ = "₀₁₂₃₄₅₆₇₈₉";
 export function baumText(n) {
   switch (n.t) {
     case "txt": return n.v;
-    case "var": return "x";
+    case "var": return n.n || "x";
     case "reihe": return n.c.map(baumText).join("");
     case "klammer": return `(${baumText(n.c)})`;
     case "tief": return baumText(n.b) + baumText(n.i).split("").map((z) => TIEFZ[+z] ?? z).join("");
@@ -943,7 +1063,7 @@ export function baumText(n) {
   }
 }
 
-export const alsText = (S) => baumText(sumBaum(S));
+export const alsText = (S, v) => baumText(sumBaum(S, v));
 export const gleichungText = (z) => `${alsText(z.l)} = ${alsText(z.r)}`;
 
 /* Baum für die Randnotiz „| −5“ */
@@ -968,6 +1088,9 @@ export function opBaum(op) {
     case "ausmult": return txt("ausmultiplizieren");
     case "ausklam": return txt("x ausklammern");
     case "nullprod": return txt("Nullprodukt");
+    case "ruecksub": return txt("Rück\u00ADsubstitution");
+    case "subst": return txt("Substitution");
+    case "hauptnenner": return txt("· Hauptnenner");
     default: return txt("");
   }
 }
@@ -987,6 +1110,19 @@ export function tipp(zweige) {
   const z = zweige.find((w) => w.status === "offen");
   if (!z) return null;
   const lx = hatX(z.l), rx = hatX(z.r);
+
+  if (z.sub && ((istX(z.l) && !rx) || (istX(z.r) && !lx))) {
+    return { text: `u ist bestimmt. Jetzt zurück zu x: Bei der Rücksubstitution setzt du für u wieder ${alsText(z.sub.ziel)} ein.`, op: "#ruecksub" };
+  }
+  if (hatXNenner(z)) {
+    return { text: "Bruchgleichung: Werte, bei denen ein Nenner 0 wird, sind verboten — sie stehen oben in der Definitionsmenge. Multipliziere dann beide Seiten mit dem Hauptnenner, danach steht kein Bruch mehr da.", op: "#hauptnenner" };
+  }
+  const si = substInfo(z);
+  if (si) {
+    return { text: si.art === "quad"
+      ? "Hier kommen nur x⁴ und x² vor — eine biquadratische Gleichung. Substituiere u = x², dann wird daraus eine quadratische Gleichung in u."
+      : `Hier steckt ${alsText(si.ziel)} zweimal drin: einmal so und einmal im Quadrat. Mit u = ${alsText(si.ziel)} wird daraus eine quadratische Gleichung in u.`, op: "#subst" };
+  }
 
   if (lx && rx) {
     const beideExp = [z.l, z.r].every((S) => S.length === 1 && S[0].f.some((f) => f.a.t === "exp" && atomHatX(f.a)));
@@ -1071,6 +1207,9 @@ export function tippAlsOp(op) {
   if (op === "#ausklam") return { art: "ausklam" };
   if (op === "#nullprod") return { art: "nullprod" };
   if (op === "#wurzel") return { art: "wurzel" };
+  if (op === "#subst") return { art: "subst" };
+  if (op === "#ruecksub") return { art: "ruecksub" };
+  if (op === "#hauptnenner") return { art: "hauptnenner" };
   return opLesen(op);
 }
 
@@ -1098,6 +1237,7 @@ export const ARTEN = [
   { id: "quadratisch", name: "Quadratisch", kurz: "x² − 5x + 6 = 0" },
   { id: "exponential", name: "Exponential", kurz: "3·2^x = 48" },
   { id: "logarithmus", name: "Logarithmus", kurz: "ln(x) = 2" },
+  { id: "bruch", name: "Bruchgleichung", kurz: "3/(x − 1) = 2" },
 ];
 export const STUFEN = [
   { id: 1, name: "Einstieg" },
@@ -1175,6 +1315,8 @@ const GENERATOREN = {
         return `${glieder([[1, "x²"], [b, "x"], [c, ""]])} = 0`;
       },
       () => { const p = zufall(1, 4), c = p * p + zufall(1, 6); return `${glieder([[1, "x²"], [2 * p, "x"], [c, ""]])} = 0`; },
+      () => { const a = zufall(1, 3); let b = zufall(1, 4); while (b === a) b = zufall(1, 4); return `${glieder([[1, "x^4"], [-(a * a + b * b), "x²"], [a * a * b * b, ""]])} = 0`; },
+      () => { const a = zufall(1, 4), c = zufall(1, 5); return `${glieder([[1, "x^4"], [c - a * a, "x²"], [-a * a * c, ""]])} = 0`; },
     ])(),
   },
   exponential: {
@@ -1199,6 +1341,9 @@ const GENERATOREN = {
       },
       () => { const m = nichtNull(-5, 5), k = wahl([2, 3]); return `e^(${k}x) = e^(${glieder([[1, "x"], [m, ""]])})`; },
       () => { const a = zufall(2, 4), [b, max] = wahl([[2, 5], [3, 3]]); const n = zufall(1, max), c = zufall(1, 12); return `${a}·${b}^x − ${c} = ${a * b ** n - c}`; },
+      () => { const p = zufall(1, 6); let q = zufall(1, 6); while (q === p) q = zufall(1, 6); return `e^(2x) − ${p + q}e^x + ${p * q} = 0`; },
+      () => { const m = zufall(0, 3); let n = zufall(0, 3); while (n === m) n = zufall(0, 3); return `2^(2x) − ${2 ** m + 2 ** n}·2^x + ${2 ** (m + n)} = 0`; },
+      () => { const p = zufall(2, 6), q = zufall(1, 5); return `${glieder([[1, "e^(2x)"], [q - p, "e^x"], [-p * q, ""]])} = 0`; },
     ])(),
   },
   logarithmus: {
@@ -1226,13 +1371,44 @@ const GENERATOREN = {
   },
 };
 
+GENERATOREN.bruch = {
+  1: () => wahl([
+    () => { const x = nichtNull(-9, 9), b = nichtNull(-6, 6); return `${b * x}/x = ${b}`; },
+    () => { const x = nichtNull(-6, 6), q = nichtNull(-6, 6), c = nichtNull(-9, 9); return `${q * x}/x ${c < 0 ? "−" : "+"} ${Math.abs(c)} = ${q + c}`; },
+    () => { const x = nichtNull(-8, 8), b = wahl([2, 3, 4, 5]); return `${b * x * 2}/(2x) = ${b}`; },
+  ])(),
+  2: () => wahl([
+    () => { const x = zufall(-6, 8), p = nichtNull(-6, 6), b = nichtNull(-5, 5); if (x + p === 0) return GENERATOREN.bruch[2](); return `${b * (x + p)}/(${glieder([[1, "x"], [p, ""]])}) = ${b}`; },
+    () => { const p = zufall(-5, 5); let q = zufall(-5, 5); while (q === p) q = zufall(-5, 5); const a = nichtNull(-6, 6); let b = nichtNull(-6, 6); while (b === a) b = nichtNull(-6, 6);
+      return `${a}/(${glieder([[1, "x"], [-p, ""]])}) = ${b}/(${glieder([[1, "x"], [-q, ""]])})`; },
+    () => { const a = nichtNull(-6, 6), p = nichtNull(-5, 5), c = wahl([-3, -2, 2, 3, 4]); return `(${glieder([[1, "x"], [a, ""]])})/(${glieder([[1, "x"], [-p, ""]])}) = ${c}`; },
+  ])(),
+  3: () => wahl([
+    () => { const a = nichtNull(-6, 6), b = nichtNull(-6, 6), p = zufall(-4, 4); let q = zufall(-4, 4); while (q === p) q = zufall(-4, 4); const c = nichtNull(-3, 3);
+      return `${a}/(${glieder([[1, "x"], [-p, ""]])}) + ${b}/(${glieder([[1, "x"], [-q, ""]])}) = ${c}`.replace("+ -", "− "); },
+    () => { const p = nichtNull(-5, 5), c = wahl([2, 3, 4, -2]); return `x/(${glieder([[1, "x"], [-p, ""]])}) = ${p}/(${glieder([[1, "x"], [-p, ""]])}) ${c < 0 ? "−" : "+"} ${Math.abs(c)}`.replace("= -", "= −"); },
+    () => { const a = nichtNull(-6, 6), b = nichtNull(-6, 6), p = nichtNull(-4, 4), c = nichtNull(-3, 3); return `${a}/x + ${b}/(${glieder([[1, "x"], [p, ""]])}) = ${c}`.replace("+ -", "− "); },
+    () => { const a = nichtNull(-5, 5), b = nichtNull(-5, 5), p = nichtNull(-4, 4); let q = nichtNull(-4, 4); while (q === p) q = nichtNull(-4, 4);
+      return `(${glieder([[1, "x"], [a, ""]])})/(${glieder([[1, "x"], [-p, ""]])}) = (${glieder([[1, "x"], [b, ""]])})/(${glieder([[1, "x"], [-q, ""]])})`; },
+  ])(),
+};
+
+/* Eine Aufgabe taugt, wenn der Musterweg sie löst und alle Lösungen glatt sind. */
+function tauglich(g) {
+  const m = musterweg(g);
+  if (!m || m.schritte.length < 1) return false;
+  const L = loesung(m.ende, g);
+  if (!L) return false;
+  return L.werte.every((w) => w.probe && (w.exakt ? w.s[0] ? w.s[0].k.d <= 4 && Math.abs(w.v) <= 40 : true : true));
+}
+
 export function erzeugen(art, stufe) {
   for (let versuch = 0; versuch < 30; versuch++) {
     const text = GENERATOREN[art][stufe]();
     try {
       const g = gleichungLesen(text);
       const z = status({ ...g });
-      if (z.status === "offen") return { ...g, text };
+      if (z.status === "offen" && (art !== "bruch" || tauglich(g))) return { ...g, text };
     } catch (e) { /* neuer Versuch */ }
   }
   return { ...gleichungLesen("2x + 3 = 11"), text: "2x + 3 = 11" };

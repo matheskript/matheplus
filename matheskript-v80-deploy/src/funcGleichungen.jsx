@@ -40,7 +40,7 @@ export function Baum({ n }) {
   if (!n) return null;
   switch (n.t) {
     case "txt": return n.v;
-    case "var": return <i className="gl-x">x</i>;
+    case "var": return <i className="gl-x">{n.n || "x"}</i>;
     case "reihe": return <>{n.c.map((c, i) => <Baum key={i} n={c} />)}</>;
     case "klammer": return <>(<Baum n={n.c} />)</>;
     case "tief": return <><Baum n={n.b} /><sub className="gl-tief"><Baum n={n.i} /></sub></>;
@@ -50,7 +50,7 @@ export function Baum({ n }) {
     default: return null;
   }
 }
-const Ausdruck = ({ s }) => <Baum n={G.sumBaum(s)} />;
+const Ausdruck = ({ s, v }) => <Baum n={G.sumBaum(s, v)} />;
 const komma = (v, stellen = 3) => (Number.isFinite(v) ? (Math.abs(v - Math.round(v)) < 1e-9 ? String(Math.round(v)) : v.toFixed(stellen).replace(".", ",").replace(/0+$/, "").replace(/,$/, "")).replace("-", "−") : "—");
 
 const WERKZEUGE = [
@@ -60,6 +60,12 @@ const WERKZEUGE = [
   { id: "ausklam", name: "x ausklammern", kurz: "x² − 5x = x(x − 5)" },
   { id: "nullprod", name: "Nullprodukt", kurz: "Produkt = 0" },
 ];
+const WERKZEUGE_EXTRA = [
+  { id: "hauptnenner", name: "Mit Hauptnenner multiplizieren", kurz: "Brüche mit x im Nenner beseitigen", nur: "bruch", breit: true },
+  { id: "subst", name: "Substituieren", kurz: "u = x² oder u = eˣ" },
+  { id: "ruecksub", name: "Rücksubstitution", kurz: "für u wieder einsetzen", nur: "sub" },
+];
+WERKZEUGE.push(...WERKZEUGE_EXTRA);
 const WERKZEUG_NAME = Object.fromEntries(WERKZEUGE.map((w) => [`#${w.id}`, w.name]));
 
 function ersterStart(art, stufe) {
@@ -69,12 +75,14 @@ function ersterStart(art, stufe) {
 
 /* ---------- Darstellung ---------- */
 
-const Randnotiz = ({ op }) => {
+const Randnotiz = ({ op, detail }) => {
   if (!op) return <span />;
   let inhalt;
   if (op.art === "exp") inhalt = <>{op.b === "e" ? "e" : G.bruchText(op.b)}<sup className="gl-hoch">( )</sup></>;
   else inhalt = <Baum n={G.opBaum(op)} />;
-  const lang = ["mitternacht", "ausmult", "ausklam", "nullprod"].includes(op.art);
+  if (op.art === "subst" && detail && detail.ziel) inhalt = <><i className="gl-x">u</i> = <Baum n={G.sumBaum(detail.ziel)} /></>;
+  if (op.art === "hauptnenner" && detail && detail.hn) inhalt = <Baum n={G.opBaum({ art: "mul", arg: detail.hn })} />;
+  const lang = ["mitternacht", "ausmult", "ausklam", "nullprod", "ruecksub"].includes(op.art);
   return (
     <span style={{ borderLeft: `1.5px solid ${C.hellgrau}`, paddingLeft: 10, color: C.gruen, fontWeight: 600,
       fontSize: lang ? 11.5 : "0.86em", whiteSpace: lang ? "normal" : "nowrap", display: "inline-block", maxWidth: lang ? 84 : "none", lineHeight: lang ? 1.25 : "inherit", hyphens: "manual" }}>
@@ -101,7 +109,7 @@ const MitternachtsKasten = ({ d }) => {
         <span style={{ marginLeft: 10 }}>c = <Zahl r={c} /></span>
       </div>
       <div style={zeile}>
-        <span><i className="gl-x">x</i><sub className="gl-tief">1,2</sub> =</span>
+        <span><i className="gl-x">{d.var || "x"}</i><sub className="gl-tief">1,2</sub> =</span>
         <span className="gl-bruch"><span className="gl-oben">−b ± <span className="gl-wurzel"><span className="gl-wz">√</span><span className="gl-rad">b² − 4ac</span></span></span><span className="gl-unten">2a</span></span>
         <span>=</span>
         <span className="gl-bruch">
@@ -112,7 +120,7 @@ const MitternachtsKasten = ({ d }) => {
       <div style={zeile}>
         <span style={{ color: C.grau, fontSize: 14 }}>Diskriminante</span>
         <span>D = b² − 4ac = <b style={{ fontWeight: 600 }}><Zahl r={D} /></b></span>
-        {D.n > 0 && <span>→ <i className="gl-x">x</i><sub className="gl-tief">1,2</sub> = <span className="gl-bruch"><span className="gl-oben"><Zahl r={neg(b)} /> ± {d.wurzelD ? <Ausdruck s={d.wurzelD} /> : "√D"}</span><span className="gl-unten"><Zahl r={zwei} /></span></span></span>}
+        {D.n > 0 && <span>→ <i className="gl-x">{d.var || "x"}</i><sub className="gl-tief">1,2</sub> = <span className="gl-bruch"><span className="gl-oben"><Zahl r={neg(b)} /> ± {d.wurzelD ? <Ausdruck s={d.wurzelD} /> : "√D"}</span><span className="gl-unten"><Zahl r={zwei} /></span></span></span>}
       </div>
       <p style={{ fontSize: 13, color: C.grau, fontWeight: 300, lineHeight: 1.6, marginTop: 4 }}>
         {D.n > 0 ? "D > 0: zwei Lösungen." : D.n === 0 ? "D = 0: genau eine Lösung." : "D < 0: Unter der Wurzel steht etwas Negatives — keine reelle Lösung."}
@@ -144,10 +152,10 @@ const Heft = ({ zeilen: zs, fertig }) => (
             }
             return (
               <React.Fragment key={j}>
-                <div className={letzte ? "gl-zeile-neu" : ""} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", whiteSpace: "nowrap", color: geloest ? C.see : farbe }}>{oder || <span />}<span><Ausdruck s={z.l} /></span></div>
+                <div className={letzte ? "gl-zeile-neu" : ""} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", whiteSpace: "nowrap", color: geloest ? C.see : farbe }}>{oder || <span />}<span><Ausdruck s={z.l} v={z.var} /></span></div>
                 <div className={letzte ? "gl-zeile-neu" : ""} style={{ color: geloest ? C.see : C.hellgrau, fontWeight: 400 }}>=</div>
                 <div className={letzte ? "gl-zeile-neu" : ""} style={{ whiteSpace: "nowrap", display: "flex", alignItems: "center", color: geloest ? C.see : farbe }}>
-                  <Ausdruck s={z.r} />
+                  <span><Ausdruck s={z.r} v={z.var} /></span>
                   {geloest && fertig && (
                     <svg width="18" height="18" viewBox="0 0 18 18" style={{ marginLeft: 8, flexShrink: 0 }} aria-label="gelöst">
                       <circle cx="9" cy="9" r="9" fill={C.smaragd} />
@@ -155,7 +163,7 @@ const Heft = ({ zeilen: zs, fertig }) => (
                     </svg>
                   )}
                 </div>
-                {j === 0 ? <Randnotiz op={zeile.op} /> : <span />}
+                {j === 0 ? <Randnotiz op={zeile.op} detail={zeile.detail} /> : <span />}
               </React.Fragment>
             );
           })}
@@ -216,7 +224,14 @@ export function Gleichungsloeser() {
   const aktuell = zeilen[zeilen.length - 1].zweige;
   const L = G.loesung(aktuell, start);
   const schritte = zeilen.length - 1;
-  const tipp = L ? null : G.tipp(aktuell);
+  const tippRoh = L ? null : G.tipp(aktuell);
+  const offeneZweige = aktuell.filter((z) => z.status === "offen");
+  const varAktiv = offeneZweige.some((z) => z.var === "u") ? "u" : "x";
+  const tipp = tippRoh && varAktiv === "u" && tippRoh.op && !tippRoh.op.startsWith("#") ? { ...tippRoh, op: tippRoh.op.replace(/x/g, "u") } : tippRoh;
+  const luecken = G.definitionsluecken(start);
+  const werkzeugeSichtbar = WERKZEUGE.filter((w) => !w.nur
+    || (w.nur === "sub" && offeneZweige.some((z) => z.sub))
+    || (w.nur === "bruch" && offeneZweige.some((z) => G.hatXNenner(z))));
 
   useEffect(() => {
     if (heftRef.current) heftRef.current.scrollLeft = 0;
@@ -362,7 +377,9 @@ Steht keine Gleichung auf dem Foto, antworte {"aufgaben":[]}.`;
 
   const eingabeAusfuehren = () => {
     if (L) return;
-    try { ausfuehren(G.opLesen(eingabe)); }
+    const text = varAktiv === "u" && !/wurzel/i.test(eingabe) ? eingabe.replace(/x/g, "§").replace(/u/g, "x") : eingabe;
+    if (text.includes("§")) { setMeldung({ art: "fehler", text: "Nach der Substitution heißt die Variable u. Tippe u statt x." }); return; }
+    try { ausfuehren(G.opLesen(text)); }
     catch (e) { setMeldung({ art: "fehler", text: e instanceof G.Fehler || e instanceof G.Undefiniert ? e.message : "Die Eingabe lässt sich nicht lesen." }); }
   };
 
@@ -558,6 +575,12 @@ Steht keine Gleichung auf dem Foto, antworte {"aufgaben":[]}.`;
             </button>
           )}
         </div>
+        {luecken.length > 0 && (
+          <div style={{ margin: "0 20px 14px", padding: "9px 14px", borderRadius: 12, background: C.himmel, fontSize: 15, color: C.tinte, display: "flex", alignItems: "center", flexWrap: "wrap", gap: "4px 10px" }}>
+            <span style={{ fontWeight: 600 }}><i style={{ fontStyle: "italic" }}>D</i> = ℝ \ {"{ "}{luecken.map((w, i) => <React.Fragment key={i}>{i > 0 && " ; "}<Ausdruck s={w} /></React.Fragment>)}{" }"}</span>
+            <span style={{ fontSize: 12.5, color: C.grau, fontWeight: 300 }}>Hier wäre ein Nenner 0 — diese Werte sind verboten.</span>
+          </div>
+        )}
         <div ref={heftRef} className="gl-scroll" style={{ padding: "4px 20px 6px" }}>
           <Heft zeilen={zeilen} fertig={!!L} />
         </div>
@@ -567,12 +590,18 @@ Steht keine Gleichung auf dem Foto, antworte {"aufgaben":[]}.`;
             background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, color: C.weiss }}>
             <p style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.08em", color: C.flaggold, marginBottom: 6 }}>LÖSUNGSMENGE</p>
             <p style={{ fontSize: 22, fontWeight: 600, lineHeight: 1.5 }}>
-              𝕃 = {L.alle ? "ℝ" : L.werte.length === 0 ? "{ }" : (
+              𝕃 = {L.alle ? (luecken.length ? <i style={{ fontStyle: "italic" }}>D</i> : "ℝ") : L.werte.length === 0 ? "{ }" : (
                 <>{"{ "}{L.werte.map((w, i) => <React.Fragment key={i}>{i > 0 && " ; "}<Ausdruck s={w.s} /></React.Fragment>)}{" }"}</>
               )}
             </p>
             {L.alle && <p style={{ fontSize: 13.5, color: "#C9D6EE", fontWeight: 300, marginTop: 4 }}>Wahre Aussage: Jede Zahl erfüllt die Gleichung.</p>}
             {!L.alle && L.werte.length === 0 && <p style={{ fontSize: 13.5, color: "#C9D6EE", fontWeight: 300, marginTop: 4 }}>Die Gleichung hat keine Lösung.</p>}
+            {L.entfallen && L.entfallen.length > 0 && (
+              <p style={{ fontSize: 13.5, color: C.weiss, fontWeight: 400, marginTop: 6, padding: "8px 12px", borderRadius: 10, background: "rgba(255,255,255,0.1)", lineHeight: 1.55 }}>
+                {L.entfallen.map((w, i) => <React.Fragment key={i}>{i > 0 && ", "}<i className="gl-x">x</i> = <Ausdruck s={w.s} /></React.Fragment>)}{" "}
+                {L.entfallen.length === 1 ? "ist" : "sind"} beim Rechnen herausgekommen, aber keine Lösung: Dort ist die Ausgangsgleichung nicht definiert{luecken.length ? " (nicht in D)" : ""}.
+              </p>
+            )}
             {L.werte.some((w) => !w.exakt) && (
               <p style={{ fontSize: 14, color: "#C9D6EE", fontWeight: 300, marginTop: 4 }}>
                 {L.werte.map((w, i) => <span key={i} style={{ marginRight: 14, whiteSpace: "nowrap" }}><i className="gl-x">x</i>{L.werte.length > 1 && <sub className="gl-tief">{i + 1}</sub>} ≈ {komma(w.v)}</span>)}
@@ -583,8 +612,7 @@ Steht keine Gleichung auf dem Foto, antworte {"aufgaben":[]}.`;
                 <b style={{ color: C.weiss, fontWeight: 600 }}>Probe</b> in der Ausgangsgleichung:{" "}
                 {L.werte.map((w, i) => (
                   <span key={i} style={{ display: "block" }}>
-                    {!w.definiert ? `x = ${komma(w.v)} entfällt — dort ist die Gleichung nicht definiert.`
-                      : <>x = {komma(w.v)}: links {komma(w.probeL, 4)}, rechts {komma(w.probeR, 4)} {w.probe ? "✓" : "✗"}</>}
+                    x = {komma(w.v)}: links {komma(w.probeL, 4)}, rechts {komma(w.probeR, 4)} {w.probe ? "✓" : "✗"}
                   </span>
                 ))}
               </div>
@@ -664,8 +692,8 @@ Steht keine Gleichung auf dem Foto, antworte {"aufgaben":[]}.`;
 
               <Taste tippe={tippe} wert="4" label="4" /><Taste tippe={tippe} wert="5" label="5" /><Taste tippe={tippe} wert="6" label="6" />
               <Taste tippe={tippe} ton="op" wert="−" label="−" aria="minus" />
-              <Taste tippe={tippe} ton="op" wert="x" label={<i className="gl-x">x</i>} aria="x" />
-              <Taste tippe={tippe} ton="op" wert="²" label={<><i className="gl-x">x</i><sup className="gl-hoch">2</sup></>} aria="hoch zwei" />
+              <Taste tippe={tippe} ton="op" wert={varAktiv} label={<i className="gl-x">{varAktiv}</i>} aria={varAktiv} />
+              <Taste tippe={tippe} ton="op" wert="²" label={<><i className="gl-x">{varAktiv}</i><sup className="gl-hoch">2</sup></>} aria="hoch zwei" />
 
               <Taste tippe={tippe} wert="1" label="1" /><Taste tippe={tippe} wert="2" label="2" /><Taste tippe={tippe} wert="3" label="3" />
               <Taste tippe={tippe} ton="op" wert="·" label="·" aria="mal" />
@@ -681,9 +709,9 @@ Steht keine Gleichung auf dem Foto, antworte {"aufgaben":[]}.`;
 
           {/* Werkzeuge */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8, marginTop: 12 }}>
-            {WERKZEUGE.map((w) => (
+            {werkzeugeSichtbar.map((w) => (
               <button key={w.id} type="button" className="gl-taste" onClick={() => ausfuehren({ art: w.id })}
-                style={{ gridColumn: w.haupt ? "1 / -1" : "auto", textAlign: "left", cursor: "pointer", fontFamily: "inherit",
+                style={{ gridColumn: w.haupt || w.breit ? "1 / -1" : "auto", textAlign: "left", cursor: "pointer", fontFamily: "inherit",
                   padding: w.haupt ? "14px 18px" : "11px 14px", borderRadius: 14,
                   background: w.haupt ? `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)` : C.weiss,
                   border: w.haupt ? "none" : `1px solid ${C.linie}`,
@@ -745,6 +773,8 @@ Steht keine Gleichung auf dem Foto, antworte {"aufgaben":[]}.`;
               <p><b style={{ color: C.tinte, fontWeight: 600 }}>ln, lg, log_2</b> allein: beide Seiten logarithmieren.</p>
               <p><b style={{ color: C.tinte, fontWeight: 600 }}>e^ oder 10^</b> allein: beide Seiten als Exponent nehmen — die Umkehrung des Logarithmus.</p>
               <p><b style={{ color: C.tinte, fontWeight: 600 }}>Werkzeuge</b>: Wurzel ziehen liefert beide Lösungen (±), die Mitternachtsformel braucht auf einer Seite eine 0.</p>
+              <p><b style={{ color: C.tinte, fontWeight: 600 }}>Substituieren</b>: Bei x⁴ und x² setzt du u = x², bei e^(2x) und e^x setzt du u = e^x. Dann löst du in u und machst am Ende die Rücksubstitution.</p>
+              <p><b style={{ color: C.tinte, fontWeight: 600 }}>Bruchgleichungen</b>: Oben steht die Definitionsmenge D. Multipliziere mit dem Hauptnenner (Knopf oder z. B. ·(x − 2)). Lösungen, die nicht in D liegen, entfallen.</p>
             </div>
           </details>
         </div>
