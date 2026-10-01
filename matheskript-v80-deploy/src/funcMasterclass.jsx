@@ -72,6 +72,90 @@ export function MasterclassKachel({ onClick }) {
   );
 }
 
+/* ---------- „Mathe checken“: 2-Monats-Programm, silberne Kachel in Normalgröße ---------- */
+
+const SILBER = "linear-gradient(150deg, #FFFFFF 0%, #E4E8EE 20%, #BCC5D1 46%, #F1F3F7 60%, #A7B1BF 84%, #D3D9E1 100%)";
+
+function CheckenLogo() {
+  // Zwei Ringsegmente (zwei Monate), in der Mitte ein Haken
+  return (
+    <svg viewBox="0 0 120 120" preserveAspectRatio="xMidYMid meet" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
+      <circle cx="60" cy="60" r="40" fill="none" stroke="rgba(11,30,74,0.12)" strokeWidth="10" />
+      <path d="M 60 20 A 40 40 0 0 1 60 100" fill="none" stroke={NAVY} strokeWidth="10" strokeLinecap="round" />
+      <path d="M 54 99.5 A 40 40 0 0 1 54 20.5" fill="none" stroke="#5E6878" strokeWidth="10" strokeLinecap="round" />
+      <path d="M 42 61 l 12 12 l 25 -27" fill="none" stroke={NAVY} strokeWidth="9" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export function MatheCheckenKachel({ onClick }) {
+  return (
+    <button type="button" onClick={onClick} aria-label="Mathe checken ansehen" className="mc-kachel mc-silber"
+      style={{ display: "flex", width: "calc(100% + 32px)", marginLeft: -16, marginRight: -16, marginTop: 12, padding: 0, border: "none",
+        borderRadius: 18, overflow: "hidden", cursor: "pointer", fontFamily: "inherit", textAlign: "left", position: "relative",
+        height: "calc(95px + 1.1 * clamp(15px, 4.1vw, 22px))", background: SILBER, color: NAVY,
+        boxShadow: "0 8px 24px rgba(60,72,92,0.28), inset 0 0 0 1px rgba(255,255,255,0.8)" }}>
+      <style>{`.mc-kachel{transition:transform .15s ease, box-shadow .15s ease}
+        .mc-kachel:active{transform:scale(0.985)}
+        @media (hover:hover){.mc-kachel:hover{transform:translateY(-2px)}}
+        .mc-glanz{position:absolute;inset:0;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,0.55) 45%,transparent 60%);
+          background-size:250% 100%;animation:mcGlanz 5.5s ease-in-out infinite;pointer-events:none}
+        .mc-silber .mc-glanz{animation-delay:1.2s}
+        @keyframes mcGlanz{0%,60%{background-position:120% 0}100%{background-position:-120% 0}}`}</style>
+      <span className="mc-glanz" aria-hidden="true" />
+      <div style={{ flex: "1 1 60%", minWidth: 0, padding: "14px 10px 14px 16px", display: "flex", flexDirection: "column", position: "relative" }}>
+        <h2 style={{ fontSize: "clamp(15px, 4.1vw, 22px)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.1, margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+          Mathe checken
+        </h2>
+        <span aria-hidden="true" style={{ display: "block", width: 34, height: 2.5, borderRadius: 2, marginTop: 6, background: NAVY }} />
+        <p style={{ fontSize: 12.5, fontWeight: 500, lineHeight: 1.4, marginTop: 6, marginBottom: 0, color: "#1B2A4F",
+          display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden", height: "4.2em" }}>
+          In zwei Monaten Lücken schließen, Mathe verstehen und sicher werden.
+        </p>
+      </div>
+      <div style={{ flex: "0 0 40%", position: "relative", borderLeft: "1px solid rgba(11,30,74,0.12)" }}>
+        <span style={{ position: "absolute", top: 10, left: 10, fontSize: 9.5, fontWeight: 700, letterSpacing: "0.1em", background: NAVY, color: "#E4E8EE",
+          padding: "3px 7px", borderRadius: 999, zIndex: 1 }}>2 MONATE</span>
+        <div style={{ position: "absolute", inset: "14px 8px 8px 8px" }}><CheckenLogo /></div>
+      </div>
+    </button>
+  );
+}
+
+export function MatheCheckenSeite() {
+  const punkte = [
+    ["Lücken finden", "Zu Beginn eine Standortbestimmung: Wo genau hakt es – und warum?"],
+    ["Verstehen statt auswendig lernen", "Jedes Thema von Grund auf, mit Bildern, Beispielen und den Werkzeugen der App."],
+    ["Pen & Paper", "Sauber aufschreiben, strukturiert rechnen, Fehler selbst finden."],
+    ["Sicher werden", "Regelmäßiges Training, bis die nächste Klausur kein Grund mehr zur Sorge ist."],
+  ];
+  return (
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
+      <H2>In zwei Monaten Mathe checken</H2>
+      <Absatz>
+        Mathe checken ist das kompakte Programm für alle, die das Gefühl haben, den Anschluss verloren zu haben – oder die
+        endlich verstehen wollen, was sie da eigentlich rechnen. In acht Wochen schließt du deine Lücken und baust ein
+        Fundament, auf dem du sicher weiterlernen kannst.
+      </Absatz>
+      <div style={{ ...karte, padding: "6px 16px" }}>
+        {punkte.map(([t, s], i) => (
+          <div key={t} style={{ display: "flex", gap: 12, padding: "12px 0", borderBottom: i < punkte.length - 1 ? `1px solid ${C.linie}` : "none" }}>
+            <span style={{ flexShrink: 0, width: 28, height: 28, borderRadius: 999, background: SILBER, border: `1px solid ${C.linie}`, color: NAVY, fontSize: 13, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" }}>{i + 1}</span>
+            <span>
+              <span style={{ display: "block", fontSize: 15, fontWeight: 700, color: C.tinte }}>{t}</span>
+              <span style={{ display: "block", fontSize: 13.5, fontWeight: 300, color: C.grau, lineHeight: 1.55, marginTop: 2 }}>{s}</span>
+            </span>
+          </div>
+        ))}
+      </div>
+      <p style={{ fontSize: 13.5, color: C.grau, fontWeight: 300, lineHeight: 1.7, marginTop: 18 }}>
+        Ablauf, Termine und alle Details folgen in Kürze. Wer danach weitergehen will, steigt in die{" "}
+        <b style={{ color: NAVY, fontWeight: 700 }}>Mathe Abi Masterclass</b> ein.
+      </p>
+    </div>
+  );
+}
+
 /* ---------- Programmseite ---------- */
 
 const BAUSTEINE = [
