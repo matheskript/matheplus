@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.117.2",
     "dejavu-fonts-ttf": "^2.37.3",
     "jspdf": "^4.2.1",
     "react": "^18.3.1",

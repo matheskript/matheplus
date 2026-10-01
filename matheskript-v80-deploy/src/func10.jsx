@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { API_URL, C, PROMPT, REGELN, VIDEO_URL } from "./base1.jsx";
 import { KOMP } from "./base3.jsx";
 import { NAV, SCHULKLASSEN, kiKopf, kiAntwort } from "./base4.jsx";
@@ -25,13 +25,25 @@ import { Gleichungsloeser } from "./funcGleichungen.jsx";
 import { LGSLoeser } from "./funcLGS.jsx";
 import { MasterclassSeite, MatheCheckenSeite } from "./funcMasterclass.jsx";
 import { Fusszeile, ImpressumSeite, AGBSeite, WiderrufSeite } from "./funcRecht.jsx";
+import { KontoSeite } from "./funcKonto.jsx";
+import { useKonto, kontoStarten } from "./konto.js";
 
 // Menü-Button im Header: vorübergehend aus (true = wieder einblenden)
 const ZEIGE_MENUE = false;
-const ZEIGE_PROFIL = false;
+const ZEIGE_PROFIL = true;
 
 export function Mathilda() {
-  const [ansicht, setAnsicht] = useState("start");
+  const [ansicht, setAnsicht] = useState(() => {
+    try { return new URLSearchParams(window.location.search).has("konto") ? "konto" : "start"; } catch (e) { return "start"; }
+  });
+  const konto = useKonto();
+  useEffect(() => {
+    kontoStarten();
+    try {
+      const u = new URL(window.location.href);
+      if (u.searchParams.has("konto")) { u.searchParams.delete("konto"); window.history.replaceState({}, "", u.pathname + u.search + u.hash); }
+    } catch (e) { /* ignorieren */ }
+  }, []);
   const [sprung, setSprung] = useState(null);
   const [fotoModus, setFotoModus] = useState("blatt");
   const [terminStart, setTerminStart] = useState(null);
@@ -234,16 +246,16 @@ export function Mathilda() {
           <button type="button" aria-label="Zur Startseite" title="Zur Startseite"
             onClick={() => { setAnsicht("start"); setMenuOffen(false); setGruppeOffen(null); window.scrollTo(0, 0); }}
             style={{ background: "none", border: "none", padding: 0, margin: 0, cursor: "pointer", fontFamily: "inherit",
-              color: C.weiss, fontSize: "clamp(24px, 8.4vw, 38px)", fontWeight: 700, letterSpacing: "-0.02em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
+              color: C.weiss, fontSize: "clamp(20px, 7vw, 38px)", fontWeight: 700, letterSpacing: "-0.02em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
             <span className="logo-silber">mythos</span><span className="logo-gold">mathe</span><span className="logo-silber">.de</span>
           </button>
           <div className="flex items-center" style={{ gap: 6 }}>
           {/* Profil-Button vorübergehend ausgeblendet */}
-          {ZEIGE_PROFIL && <button onClick={() => gehe({ ansicht: lern.profil ? "karte" : "profil2" })} aria-label="Mein Weg"
-            style={{ width: 32, height: 32, borderRadius: 999, border: `1.5px solid ${lern.profil ? C.flaggold : "rgba(255,255,255,0.35)"}`,
-              background: lern.profil ? "rgba(237,187,0,0.14)" : "transparent", color: C.weiss, fontSize: 13, fontWeight: 700,
-              fontFamily: "inherit", cursor: "pointer", padding: 0 }}>
-            {lern.profil ? (lern.profil.name || "?").slice(0, 1).toUpperCase() : "+"}
+          {ZEIGE_PROFIL && <button onClick={() => { gehe({ ansicht: "konto" }); window.scrollTo(0, 0); }} aria-label={konto.profil ? "Mein Konto" : "Anmelden"} title={konto.profil ? "Mein Konto" : "Anmelden"}
+            style={{ width: 34, height: 34, flexShrink: 0, borderRadius: 999, border: `1.5px solid ${konto.profil ? C.flaggold : "rgba(255,255,255,0.45)"}`,
+              background: konto.profil ? "rgba(237,187,0,0.16)" : "transparent", color: konto.profil ? C.flaggold : C.weiss, fontSize: konto.profil ? 14 : 20, fontWeight: 700,
+              fontFamily: "inherit", cursor: "pointer", padding: 0, lineHeight: 1 }}>
+            {konto.profil ? (konto.profil.name || "?").slice(0, 1).toUpperCase() : "+"}
           </button>}
           {/* Menü-Button vorübergehend ausgeblendet – alle Bereiche bleiben in der App erreichbar */}
           {ZEIGE_MENUE && <button onClick={() => { if (!menuOffen) { const g = NAV.find((g) => g.eintraege.some(istAktiv)); setGruppeOffen(g ? g.id : null); } setMenuOffen(!menuOffen); }} aria-label="Menü"
@@ -757,6 +769,18 @@ export function Mathilda() {
             <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
           </div>
           <Gleichungsloeser />
+        </>
+      ) : ansicht === "konto" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
+            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(26px, 7.6vw, 31px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Mein Konto</h1>
+              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>Deine Kurse, deine Daten und dein Einladungslink.</p>
+            </div>
+            <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
+          </div>
+          <KontoSeite gehe={gehe} />
         </>
       ) : ansicht === "impressum" ? (
         <>
