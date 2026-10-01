@@ -723,12 +723,27 @@ function grenzwertUnendlich(f, richtung) {
   return { art: "keins" };
 }
 
+/* Einseitiger Grenzwert bei p. Abgetastet wird dekadenweise (h = 10⁻² … 10⁻⁹).
+   Neben schnellen Polen (1/x) erkennt das auch langsame Divergenz wie ln(x) für x → 0⁺:
+   Dort wächst |f| pro Dekade um einen festen Betrag (≈ 2,3), die Zuwächse klingen also
+   nicht ab — bei echter Konvergenz schrumpfen sie dagegen von Dekade zu Dekade deutlich. */
 function einseitig(f, p, seite) {
-  const vals = [1e-3, 1e-5, 1e-7].map((h) => f(p + seite * h));
-  if (!vals.every(endlich)) return { art: "undef" };
-  const [a, , c] = vals;
-  if (Math.abs(c) > 1e4 && Math.abs(c) > Math.abs(a)) return { art: "unendlich", vz: Math.sign(c) };
-  return { art: "wert", wert: c };
+  const hs = [1e-2, 1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9];
+  const v = hs.map((h) => f(p + seite * h));
+  const unend = v.find((y) => y === Infinity || y === -Infinity);
+  if (unend !== undefined) return { art: "unendlich", vz: Math.sign(unend) };
+  if (!v.slice(-5).every(endlich)) return { art: "undef" };
+  const w = v.filter(endlich);
+  const letzter = w[w.length - 1];
+  if (Math.abs(letzter) > 1e4 && Math.abs(letzter) > 10 * Math.abs(w[0])) return { art: "unendlich", vz: Math.sign(letzter) };
+  const d = w.slice(1).map((y, i) => y - w[i]).slice(-4);
+  const gleichesVZ = d.every((x) => x > 0) || d.every((x) => x < 0);
+  const summe = d.reduce((s0, x) => s0 + x, 0);
+  const deutlich = Math.abs(summe) > 1e-3 * (1 + Math.abs(letzter));
+  const klingtNichtAb = Math.abs(d[3]) >= 0.8 * Math.abs(d[0]);
+  if (gleichesVZ && deutlich && klingtNichtAb) return { art: "unendlich", vz: Math.sign(summe) };
+  if (!gleichesVZ && deutlich && klingtNichtAb) return { art: "keins" };
+  return { art: "wert", wert: Math.abs(letzter) < 1e-6 ? 0 : letzter };
 }
 
 /* Hauptanalyse im Untersuchungsbereich [L, R]. */
@@ -941,7 +956,9 @@ export function baueAllgemeineDiskussion(baum, A) {
     if (g.art === "keins") zP(s3, `x → ${u}: kein eindeutiger Grenzwert erkennbar.`);
   });
   mitKappe(A.pole, (p) => {
-    z(s3, `x → ${wert(p.x)}⁻: f(x) → ${gTxt(p.li)},   x → ${wert(p.x)}⁺: f(x) → ${gTxt(p.re)}`);
+    const seitenTxt = [[p.li, "⁻"], [p.re, "⁺"]].filter(([g]) => g.art === "unendlich" || g.art === "wert")
+      .map(([g, z0]) => `x → ${wert(p.x)}${z0}: f(x) → ${gTxt(g)}`);
+    z(s3, seitenTxt.join(",   "));
     z(s3, `Polstelle ⇒ senkrechte Asymptote x = ${wert(p.x)}`, true);
   }, s3);
   A.hebbar.forEach((p) => z(s3, `x = ${wert(p.x)}: hebbare Definitionslücke, f(x) → ${gTxt(p.li)}`, true));
@@ -949,6 +966,7 @@ export function baueAllgemeineDiskussion(baum, A) {
   A.raender.filter((r) => !schonGenannt(r.x)).slice(0, 6).forEach((r) => {
     if (r.def || r.g.art === "undef") return;
     const pfeil = `x → ${wert(r.x)}${r.seite > 0 ? "⁺" : "⁻"}`;
+    if (r.g.art === "keins") { zP(s3, `${pfeil}: f schwingt und hat keinen Grenzwert.`); return; }
     z(s3, `${pfeil}:  f(x) → ${gTxt(r.g)}`, true);
     if (r.g.art === "unendlich") zP(s3, `Senkrechte Asymptote x = ${wert(r.x)} am Rand des Definitionsbereichs.`);
   });
