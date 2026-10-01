@@ -164,25 +164,25 @@ export function Mathilda() {
 
   // Untermenü im Kopfbereich: alle Übungsbereiche der aktuellen Sektion als Buttons
   const SEKTIONEN = [
-    [{ ansicht: "analysis", name: "Übersicht", versteckt: true }, { ansicht: "plotter", name: "Polynomplotter" }, { ansicht: "advplotter", name: "Advanced Plotter" },
-      { ansicht: "sinus", name: "Sinusfunktion" }, { ansicht: "ableitungstrainer", name: "Ableitungstrainer" }],
-    [{ ansicht: "vektoren", name: "Übersicht", versteckt: true }, { ansicht: "ebenen", name: "Ebenen-Visualizer" }, { ansicht: "ebenevsebene", name: "Ebene vs. Ebene" },
-      { ansicht: "kreuzprodukt", name: "Kreuzprodukt" }, { ansicht: "vektorgenerator", name: "Vektor-Generator" }],
-    [{ ansicht: "stochastik", name: "Übersicht", versteckt: true }, { ansicht: "bernoulli", name: "Bernoulli-Kette" }, { ansicht: "vierfelder", name: "Vier-Felder-Tafel" }],
+    [{ ansicht: "analysis", name: "Übersicht", versteckt: true }, { ansicht: "plotter", name: "Polynomplotter", kurz: "Polynome" }, { ansicht: "advplotter", name: "Advanced Plotter", kurz: "Advanced" },
+      { ansicht: "sinus", name: "Sinusfunktion", kurz: "Sinus" }, { ansicht: "ableitungstrainer", name: "Ableitungstrainer", kurz: "Ableitung" }],
+    [{ ansicht: "vektoren", name: "Übersicht", versteckt: true }, { ansicht: "ebenen", name: "Ebenen-Visualizer", kurz: "Ebenen" }, { ansicht: "ebenevsebene", name: "Ebene vs. Ebene", kurz: "E vs. E" },
+      { ansicht: "kreuzprodukt", name: "Kreuzprodukt", kurz: "Kreuz" }, { ansicht: "vektorgenerator", name: "Vektor-Generator", kurz: "Generator" }],
+    [{ ansicht: "stochastik", name: "Übersicht", versteckt: true }, { ansicht: "bernoulli", name: "Bernoulli-Kette", kurz: "Bernoulli" }, { ansicht: "vierfelder", name: "Vier-Felder-Tafel", kurz: "Vierfelder" }],
   ];
   const SektionsMenue = () => {
     const sektion = SEKTIONEN.find((liste) => liste.some((x) => x.ansicht === ansicht));
     if (!sektion) return null;
     return (
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, paddingBottom: 4 }}>
+      <div className="sek-menue" style={{ display: "flex", flexWrap: "wrap", gap: 6, paddingBottom: 4 }}>
         {sektion.filter((x) => !x.versteckt).map((x) => {
           const aktiv = x.ansicht === ansicht;
           return (
-            <button key={x.ansicht} onClick={() => gehe({ ansicht: x.ansicht })} aria-current={aktiv ? "page" : undefined}
+            <button key={x.ansicht} onClick={() => gehe({ ansicht: x.ansicht })} aria-current={aktiv ? "page" : undefined} className="sek-chip" title={x.name}
               style={{ padding: "6px 12px", borderRadius: 999, fontSize: 12.5, fontWeight: aktiv ? 700 : 500, fontFamily: "inherit", cursor: "pointer",
                 whiteSpace: "nowrap", border: `1px solid ${aktiv ? C.flaggold : "rgba(255,255,255,0.28)"}`,
                 background: aktiv ? "rgba(237,187,0,0.16)" : "rgba(255,255,255,0.08)", color: aktiv ? C.flaggold : C.silberHell }}>
-              {x.name}
+              {x.kurz ? <><span className="titel-lang">{x.name}</span><span className="titel-kurz">{x.kurz}</span></> : x.name}
             </button>
           );
         })}
@@ -219,7 +219,12 @@ export function Mathilda() {
             .logo-silber{background:linear-gradient(180deg,#FFFFFF 0%,${C.silberHell} 35%,${C.silber} 60%,${C.silberDunkel} 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
             .titel-kurz{display:none}
             @media (max-width:520px){.held{padding-top:18px !important;padding-bottom:4px !important}.held h1{font-size:25px !important;line-height:1.1 !important}.held h1+div{margin-top:9px !important;margin-bottom:10px !important}.held-welle{height:12px !important}}
-            @media (max-width:480px){.titel-lang{display:none}.titel-kurz{display:inline}}
+            @media (max-width:480px){.titel-lang{display:none}.titel-kurz{display:inline}
+              .sek-menue{flex-wrap:nowrap !important;gap:5px !important}
+              .sek-chip{flex:1 1 auto;padding:6px 6px !important;font-size:12px !important;text-align:center}
+              .intro-h2{font-size:clamp(20px,6.6vw,26px) !important;white-space:nowrap}
+              .intro-p{display:-webkit-box !important;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}}
+            @media (max-width:340px){.sek-chip{padding:6px 4px !important;font-size:11.5px !important}.sek-menue{gap:4px !important}}
             .titel-silber{background:linear-gradient(180deg,#FFFFFF 0%,${C.silberHell} 50%,${C.silber} 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
             .logo-gold{background:linear-gradient(180deg,#FFE58A 0%,${C.flaggold} 45%,${C.goldWarm} 70%,#A67C00 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
           `}</style>

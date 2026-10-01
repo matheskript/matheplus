@@ -10,6 +10,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { C } from "./base1.jsx";
+import { GesperrteKurse } from "./func1.jsx";
 
 /* ---------- Mathematik ---------- */
 
@@ -555,12 +556,13 @@ const STOCHASTIK = [
 export function StochastikZentrum({ gehe }) {
   return (
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
-      <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
-        Zufall zum Anfassen
+      <h2 className="intro-h2" style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
+        <span className="titel-lang">Zufall zum Anfassen</span><span className="titel-kurz">Spiel mit dem Zufall</span>
       </h2>
-      <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 22 }}>
-        Wahrscheinlichkeiten werden greifbar, wenn man den Zufall selbst laufen lässt. Hier rechnest du nicht nur – du
-        siehst, was die Formeln vorhersagen.
+      <p className="intro-p" style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 22 }}>
+        <span className="titel-lang">Wahrscheinlichkeiten werden greifbar, wenn man den Zufall selbst laufen lässt. Hier rechnest du nicht nur – du
+        siehst, was die Formeln vorhersagen.</span>
+        <span className="titel-kurz">Lass tausend Versuche in Sekunden laufen und sieh live, wie die Formel recht behält. Probier’s aus!</span>
       </p>
       {STOCHASTIK.map((x) => (
         <button key={x.titel} onClick={() => gehe(x.ziel)} className="w-full mb-3"
@@ -577,6 +579,7 @@ export function StochastikZentrum({ gehe }) {
           </span>
         </button>
       ))}
+      <GesperrteKurse ids={["stochastik"]} ueberschrift="Der Stochastik-Kurs" />
     </div>
   );
 }

@@ -1309,3 +1309,48 @@ export function Bereich({ titel, satz, beweis, knopf, onClick }) {
   );
 }
 
+
+/* Gesperrte Kurs-Kacheln unter den Gratis-Werkzeugen einer Sektion (Analysis, Vektoren, Stochastik):
+   blau wie in den Schulkursen, aber mit Schloss und nicht anklickbar. */
+export function GesperrteKurse({ ids, ueberschrift = "Die Kurse dazu" }) {
+  const kurse = ids.map((id) => KURSE.find((k) => k.id === id)).filter(Boolean);
+  if (!kurse.length) return null;
+  return (
+    <div style={{ marginTop: 30 }}>
+      <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 6 }}>Videokurse</p>
+      <h3 style={{ fontSize: 21, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.25, marginBottom: 12 }}>{ueberschrift}</h3>
+      {kurse.map((k) => {
+        const n = videoAnzahl(k.id);
+        const info = `${k.stufe.replace("Klasse ", "Kl. ").replace(" – ", "–")}${n > 0 ? ` · ${n} Videos` : ""}`;
+        return (
+          <div key={k.id} role="button" aria-disabled="true" aria-label={`${k.titel} – noch gesperrt`} title="Noch gesperrt"
+            style={{ display: "flex", width: "100%", height: 92, marginBottom: 8, borderRadius: 14, overflow: "hidden", cursor: "not-allowed",
+              background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, userSelect: "none",
+              boxShadow: `0 6px 22px rgba(0,77,152,0.18), inset 0 0 0 1px ${C.silber}40` }}>
+            <div style={{ flex: "1 1 68%", minWidth: 0, padding: "10px 8px 9px 14px", display: "flex", flexDirection: "column" }}>
+              <p className="titel-silber" style={{ fontSize: "clamp(14px, 3.8vw, 18px)", fontWeight: 700, letterSpacing: "-0.03em",
+                lineHeight: 1.1, margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{k.titel}</p>
+              <span aria-hidden="true" style={{ display: "block", width: 26, height: 2.5, borderRadius: 2, marginTop: 5,
+                background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)` }} />
+              <p style={{ color: C.weiss, fontSize: 12, fontWeight: 300, lineHeight: 1.4, marginTop: 4, marginBottom: 0,
+                whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{k.unter}</p>
+              <p style={{ marginTop: "auto", marginBottom: 0, color: C.goldText, fontSize: 11, fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{info}</p>
+            </div>
+            <div style={{ flex: "0 0 32%", position: "relative", borderLeft: `1px solid ${C.silber}33` }}>
+              <div style={{ position: "absolute", inset: 0, opacity: 0.4 }}><KursGrafik art={k.grafik} hoehe="100%" /></div>
+              <div aria-hidden="true" style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <span style={{ width: 34, height: 34, borderRadius: 999, background: "rgba(255,255,255,0.94)", boxShadow: "0 3px 10px rgba(0,0,0,0.3)",
+                  display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke={C.seeTief} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="5" y="11" width="14" height="10" rx="2.2" fill={C.seeTief} />
+                    <path d="M 8 11 V 7.5 a 4 4 0 0 1 8 0 V 11" />
+                  </svg>
+                </span>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}

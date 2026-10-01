@@ -11,6 +11,7 @@
 
 import React, { useMemo, useRef, useState } from "react";
 import { C } from "./base1.jsx";
+import { GesperrteKurse } from "./func1.jsx";
 
 /* ---------- Zahlen und Brüche ---------- */
 
@@ -549,12 +550,13 @@ const VEKTOREN = [
 export function VektorenZentrum({ gehe }) {
   return (
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
-      <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
-        Geometrie im Raum sehen
+      <h2 className="intro-h2" style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
+        <span className="titel-lang">Geometrie im Raum sehen</span><span className="titel-kurz">Ab in den Raum!</span>
       </h2>
-      <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 22 }}>
-        Analytische Geometrie scheitert selten am Rechnen, sondern an der Vorstellung. Hier siehst du, was die
-        Gleichungen im Raum bedeuten.
+      <p className="intro-p" style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 22 }}>
+        <span className="titel-lang">Analytische Geometrie scheitert selten am Rechnen, sondern an der Vorstellung. Hier siehst du, was die
+        Gleichungen im Raum bedeuten.</span>
+        <span className="titel-kurz">Dreh Ebenen mit dem Finger, lass sie sich schneiden und knack jede Raumgeometrie-Aufgabe im Abi.</span>
       </p>
       {VEKTOREN.map((x) => (
         <button key={x.titel} onClick={() => gehe(x.ziel)} className="w-full mb-3"
@@ -571,6 +573,7 @@ export function VektorenZentrum({ gehe }) {
           </span>
         </button>
       ))}
+      <GesperrteKurse ids={["vektoren"]} ueberschrift="Der Vektoren-Kurs" />
     </div>
   );
 }

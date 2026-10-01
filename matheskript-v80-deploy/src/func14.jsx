@@ -9,6 +9,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { C } from "./base1.jsx";
+import { GesperrteKurse } from "./func1.jsx";
 import { Primfaktoren, merken } from "./func5.jsx";
 
 const zufall = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
@@ -831,12 +832,13 @@ const ANALYSIS = [
 export function AnalysisZentrum({ gehe }) {
   return (
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
-      <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
-        Funktionen sehen, verstehen, ableiten
+      <h2 className="intro-h2" style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
+        <span className="titel-lang">Funktionen sehen, verstehen, ableiten</span><span className="titel-kurz">Kurven live erleben</span>
       </h2>
-      <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 22 }}>
-        Vier Werkzeuge für die Analysis: Graphen live erkunden, komplette Kurvendiskussionen erzeugen,
-        Sinusfunktionen anpassen und das Ableiten trainieren.
+      <p className="intro-p" style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 22 }}>
+        <span className="titel-lang">Vier Werkzeuge für die Analysis: Graphen live erkunden, komplette Kurvendiskussionen erzeugen,
+        Sinusfunktionen anpassen und das Ableiten trainieren.</span>
+        <span className="titel-kurz">Dreh an den Reglern und sieh sofort, was passiert. Mit jeder Ableitung wirst du schneller!</span>
       </p>
       {ANALYSIS.map((x) => (
         <button key={x.ansicht} onClick={() => gehe({ ansicht: x.ansicht })} className="w-full mb-3"
@@ -853,6 +855,7 @@ export function AnalysisZentrum({ gehe }) {
           </span>
         </button>
       ))}
+      <GesperrteKurse ids={["analysis1", "analysis2", "analysis3", "analysis4", "analysis5"]} ueberschrift="Die fünf Analysis-Kurse" />
     </div>
   );
 }
