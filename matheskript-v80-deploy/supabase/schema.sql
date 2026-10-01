@@ -43,6 +43,7 @@ create table if not exists public.profile (
 
 create index if not exists profile_geworben_von_idx on public.profile (geworben_von);
 alter table public.profile alter column ref_code set default public.neue_gleichung();
+alter table public.profile add column if not exists ref_fest boolean not null default false;  -- true = vom Schüler endgültig gewählt
 
 alter table public.profile enable row level security;
 
@@ -98,3 +99,56 @@ revoke all on function public.werber_setzen(text) from public, anon;
 revoke all on function public.anzahl_geworben()   from public, anon;
 grant execute on function public.werber_setzen(text) to authenticated;
 grant execute on function public.anzahl_geworben()   to authenticated;
+
+
+-- ---------- Wunschgleichung als Empfehlungslink ----------
+-- Gültig: a+b=c, a-b=c, axb=c (x = mal), Zahlen ohne führende Nullen, Ergebnis stimmt.
+create or replace function public.ref_gueltig(code text)
+returns boolean
+language plpgsql
+immutable
+as $$
+declare
+  m text[]; a bigint; b bigint; c bigint;
+begin
+  m := regexp_match(code, '^([1-9][0-9]{0,3}|0)([-+x])([1-9][0-9]{0,3}|0)=([1-9][0-9]{0,7}|0)$');
+  if m is null then return false; end if;
+  a := m[1]::bigint; b := m[3]::bigint; c := m[4]::bigint;
+  return case m[2] when '+' then a + b = c when '-' then a - b = c else a * b = c end;
+end;
+$$;
+
+-- Ist die Gleichung richtig und noch nicht vergeben? (verrät nur ja/nein)
+create or replace function public.ref_frei(code text)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select public.ref_gueltig(code)
+     and not exists (select 1 from profile where ref_code = code and id <> auth.uid());
+$$;
+
+-- Einmalig und für immer festlegen.
+create or replace function public.ref_festlegen(code text)
+returns text
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if not public.ref_gueltig(code) then return 'ungueltig'; end if;
+  if exists (select 1 from profile where id = auth.uid() and ref_fest) then return 'schon_fest'; end if;
+  if exists (select 1 from profile where ref_code = code and id <> auth.uid()) then return 'vergeben'; end if;
+  update profile set ref_code = code, ref_fest = true where id = auth.uid();
+  return 'ok';
+exception when unique_violation then
+  return 'vergeben';
+end;
+$$;
+
+revoke all on function public.ref_frei(text)      from public, anon;
+revoke all on function public.ref_festlegen(text) from public, anon;
+grant execute on function public.ref_frei(text)      to authenticated;
+grant execute on function public.ref_festlegen(text) to authenticated;

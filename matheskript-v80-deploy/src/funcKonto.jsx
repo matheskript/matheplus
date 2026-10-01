@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { C } from "./base1.jsx";
-import { DEMO, useKonto, anmelden, abmelden, profilAnlegen, profilSpeichern, empfehlungsLink } from "./konto.js";
+import { DEMO, useKonto, anmelden, abmelden, profilAnlegen, profilSpeichern, empfehlungsLink, neuerCode, refPruefen, refFestlegen, istRefGleichung } from "./konto.js";
 
 /* ======================================================================
    KONTOBEREICH (ansicht "konto")
@@ -115,6 +115,112 @@ function NotenVerlauf({ punkte }) {
       <path d={pfad} stroke={C.see} strokeWidth="2.5" fill="none" strokeLinejoin="round" strokeLinecap="round" />
       {punkte.map((p) => <circle key={String(p.klasse)} cx={x(p.klasse)} cy={y(p.note)} r="3.6" fill={C.flaggold} stroke={NAVY} strokeWidth="1.4" />)}
     </svg>
+  );
+}
+
+/* ---------- Empfehlungslink aussuchen (einmalig) ---------- */
+const anzeigeGl = (c) => c.replace(/-/g, "−").replace(/x/g, "×");
+
+function RefErsteller({ startCode }) {
+  const [modus, setModus] = useState("vorschlag");            // "vorschlag" | "wunsch"
+  const [vorschlag, setVorschlag] = useState(startCode);
+  const [wunsch, setWunsch] = useState("");
+  const [pruef, setPruef] = useState({ gueltig: true, frei: true, laeuft: false });
+  const [bestaetigen, setBestaetigen] = useState(false);
+  const [fehler, setFehler] = useState("");
+  const [laeuft, setLaeuft] = useState(false);
+  const code = modus === "vorschlag" ? vorschlag : wunsch;
+
+  useEffect(() => {
+    setBestaetigen(false); setFehler("");
+    if (!code) { setPruef({ gueltig: false, frei: false, laeuft: false }); return; }
+    if (!istRefGleichung(code)) { setPruef({ gueltig: false, frei: false, laeuft: false }); return; }
+    let aktiv = true;
+    setPruef((p) => ({ ...p, laeuft: true }));
+    const t = setTimeout(async () => {
+      const r = await refPruefen(code);
+      if (aktiv) setPruef({ ...r, laeuft: false });
+    }, 300);
+    return () => { aktiv = false; clearTimeout(t); };
+  }, [code]);
+
+  const wuerfeln = () => setVorschlag(neuerCode());
+  const tippe = (z) => setWunsch((w) => (w.length >= 18 ? w : w + z));
+  const festlegen = async () => {
+    setLaeuft(true); setFehler("");
+    try { await refFestlegen(code); } catch (e) { setFehler(e.message); setBestaetigen(false); }
+    setLaeuft(false);
+  };
+
+  const ok = pruef.gueltig && pruef.frei && !pruef.laeuft;
+  const status = !code ? "Tippe deine Gleichung ein, z. B. 7×8=56."
+    : !pruef.gueltig ? (/=/.test(code) && /[0-9]$/.test(code) ? "Die Rechnung stimmt nicht." : "Noch nicht fertig – eine Gleichung wie 12+30=42.")
+    : pruef.laeuft ? "Prüfe …" : pruef.frei ? "Richtig und noch frei ✓" : "Schon vergeben – nimm eine andere.";
+  const pille = (an) => ({ flex: 1, height: 38, borderRadius: 999, border: "none", fontFamily: "inherit", fontSize: 13.5, fontWeight: an ? 700 : 500, cursor: "pointer",
+    background: an ? C.weiss : "transparent", color: an ? NAVY : "#C9D6EE" });
+  const taste = { height: 44, borderRadius: 11, border: "1px solid rgba(255,255,255,0.22)", background: "rgba(255,255,255,0.08)", color: C.weiss,
+    fontSize: 18, fontWeight: 600, fontFamily: "inherit", cursor: "pointer", padding: 0 };
+
+  return (
+    <>
+      <p style={{ fontSize: 14.5, color: "#C9D6EE", fontWeight: 300, lineHeight: 1.6, marginBottom: 12 }}>
+        Such dir deinen persönlichen Einladungslink aus: eine richtige Gleichung, die nur dir gehört. Einmal festgelegt, bleibt sie für immer deine.
+      </p>
+      <div className="flex" style={{ background: "rgba(255,255,255,0.1)", borderRadius: 999, padding: 3, marginBottom: 12 }}>
+        <button type="button" onClick={() => setModus("vorschlag")} style={pille(modus === "vorschlag")}>Vorschlag</button>
+        <button type="button" onClick={() => setModus("wunsch")} style={pille(modus === "wunsch")}>Wunschgleichung</button>
+      </div>
+
+      <div style={{ background: "rgba(255,255,255,0.1)", border: `1.5px solid ${code && ok ? C.flaggold : "rgba(255,255,255,0.22)"}`, borderRadius: 14, padding: "14px 14px 12px", textAlign: "center" }}>
+        <p style={{ fontSize: 12.5, color: "#8FA3C8", marginBottom: 2 }}>mythosmathe.de/</p>
+        <p style={{ fontSize: "clamp(26px, 8vw, 34px)", fontWeight: 800, color: C.flaggold, letterSpacing: "0.01em", minHeight: 40, wordBreak: "break-all" }}>
+          {code ? anzeigeGl(code) : <span style={{ color: "rgba(255,255,255,0.3)" }}>?</span>}
+        </p>
+        <p style={{ fontSize: 12.5, marginTop: 2, color: !code ? "#8FA3C8" : ok ? "#7FE0A8" : pruef.laeuft ? "#C9D6EE" : "#FF9DA8" }}>{status}</p>
+      </div>
+
+      {modus === "vorschlag" ? (
+        <button type="button" onClick={wuerfeln}
+          style={{ marginTop: 10, width: "100%", height: 46, borderRadius: 999, border: "1px solid rgba(255,255,255,0.4)", background: "transparent", color: C.weiss,
+            fontSize: 15, fontWeight: 600, fontFamily: "inherit", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="3" width="18" height="18" rx="4" /><circle cx="8" cy="8" r="1.4" fill="currentColor" /><circle cx="16" cy="16" r="1.4" fill="currentColor" /><circle cx="12" cy="12" r="1.4" fill="currentColor" /></svg>
+          Neue Gleichung
+        </button>
+      ) : (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, minmax(0, 1fr))", gap: 6, marginTop: 10 }}>
+          {["7", "8", "9", "+", "−", "4", "5", "6", "×", "=", "1", "2", "3", "0"].map((t) => (
+            <button key={t} type="button" onClick={() => tippe({ "−": "-", "×": "x" }[t] || t)}
+              style={{ ...taste, color: /[0-9]/.test(t) ? C.weiss : C.flaggold }}>{t}</button>
+          ))}
+          <button type="button" aria-label="Zeichen löschen" onClick={() => setWunsch((w) => w.slice(0, -1))} style={{ ...taste, fontSize: 16 }}>⌫</button>
+        </div>
+      )}
+
+      {fehler && <p style={{ fontSize: 13, color: "#FF9DA8", marginTop: 10 }}>{fehler}</p>}
+      {!bestaetigen ? (
+        <button type="button" onClick={() => setBestaetigen(true)} disabled={!ok}
+          style={{ marginTop: 12, width: "100%", height: 48, borderRadius: 999, border: "none", background: ok ? C.flaggold : "rgba(255,255,255,0.18)",
+            color: ok ? NAVY : "rgba(255,255,255,0.5)", fontSize: 15.5, fontWeight: 800, fontFamily: "inherit", cursor: ok ? "pointer" : "default" }}>
+          Diesen Link festlegen
+        </button>
+      ) : (
+        <div style={{ marginTop: 12, background: "rgba(255,255,255,0.1)", borderRadius: 14, padding: 14 }}>
+          <p style={{ fontSize: 14, lineHeight: 1.55, color: C.weiss, marginBottom: 10 }}>
+            <b>mythosmathe.de/{anzeigeGl(code)}</b> wird für immer dein Einladungslink. Du kannst ihn danach nicht mehr ändern.
+          </p>
+          <div className="flex" style={{ gap: 8 }}>
+            <button type="button" onClick={festlegen} disabled={laeuft}
+              style={{ flex: 1, height: 44, borderRadius: 999, border: "none", background: C.flaggold, color: NAVY, fontSize: 15, fontWeight: 800, fontFamily: "inherit", cursor: "pointer" }}>
+              {laeuft ? "Einen Moment …" : "Ja, festlegen"}
+            </button>
+            <button type="button" onClick={() => setBestaetigen(false)}
+              style={{ flex: 1, height: 44, borderRadius: 999, border: "1px solid rgba(255,255,255,0.4)", background: "transparent", color: C.weiss, fontSize: 15, fontFamily: "inherit", cursor: "pointer" }}>
+              Abbrechen
+            </button>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
@@ -281,11 +387,13 @@ function Profil({ nutzer, profil, geworben, gehe }) {
       {/* Freunde einladen */}
       <div style={{ ...karte, padding: 18, marginBottom: 14, background: `linear-gradient(155deg, ${C.see} 0%, ${NAVY} 100%)`, color: C.weiss }}>
         <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", color: C.flaggold, marginBottom: 6 }}>FREUNDE EINLADEN</p>
+        {!profil.ref_fest ? <RefErsteller startCode={profil.ref_code} /> : (
+        <>
         <p style={{ fontSize: 14.5, color: "#C9D6EE", fontWeight: 300, lineHeight: 1.6, marginBottom: 12 }}>
           Teile deinen persönlichen Link. Wer sich darüber anmeldet, wird automatisch dir zugeordnet.
         </p>
         <div style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: 12, padding: "10px 12px" }}>
-          <span style={{ flex: 1, minWidth: 0, fontSize: 14, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", userSelect: "all" }}>mythosmathe.de/<span style={{ color: C.flaggold }}>{profil.ref_code}</span></span>
+          <span style={{ flex: 1, minWidth: 0, fontSize: 14, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", userSelect: "all" }}>mythosmathe.de/<span style={{ color: C.flaggold }}>{anzeigeGl(profil.ref_code)}</span></span>
         </div>
         <div className="flex flex-wrap items-center" style={{ gap: 8, marginTop: 10 }}>
           <button type="button" onClick={kopieren}
@@ -302,6 +410,8 @@ function Profil({ nutzer, profil, geworben, gehe }) {
             <b style={{ color: C.flaggold, fontSize: 18 }}>{geworben}</b> {geworben === 1 ? "Person" : "Personen"} eingeladen
           </span>
         </div>
+        </>
+        )}
         {profil.geworben_von && <p style={{ fontSize: 12.5, color: "#8FA3C8", marginTop: 10 }}>Du bist selbst über eine Einladung zu Mythos Mathe gekommen.</p>}
       </div>
 

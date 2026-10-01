@@ -30,18 +30,20 @@ export function useKonto() {
 /* ---------- Empfehlungslink: mythosmathe.de/2+5=7 ----------
    Jeder Schüler bekommt eine eigene, richtige Gleichung als Code. Ruft jemand
    den Link auf, merkt sich die Seite die Gleichung, bis er sich anmeldet. */
-export const GLEICHUNG = /^(\d{1,3})([+-])(\d{1,3})=(\d{1,4})$/;
+export const GLEICHUNG = /^(\d{1,4})([+\-x])(\d{1,4})=(\d{1,8})$/;
+/* Gültig ist eine richtige Gleichung a+b=c, a-b=c oder a x b = c (x = mal), ohne führende Nullen. */
 export function istRefGleichung(t) {
   const m = GLEICHUNG.exec(t);
   if (!m) return false;
+  if ([m[1], m[3], m[4]].some((z) => z.length > 1 && z[0] === "0")) return false;
   const [a, op, b, c] = [Number(m[1]), m[2], Number(m[3]), Number(m[4])];
-  return (op === "+" ? a + b : a - b) === c;
+  return (op === "+" ? a + b : op === "-" ? a - b : a * b) === c;
 }
 export function refAusUrlMerken() {
   try {
     const u = new URL(window.location.href);
     let code = null;
-    const pfad = decodeURIComponent(u.pathname.slice(1)).replace(/\s+/g, "").replace(/[−–]/g, "-");
+    const pfad = decodeURIComponent(u.pathname.slice(1)).replace(/\s+/g, "").replace(/[−–]/g, "-").replace(/[×X·*]/g, "x");
     if (istRefGleichung(pfad)) code = pfad;
     const alt = u.searchParams.get("ref");               // ältere Links ?ref=…
     if (!code && alt) code = alt.replace(/ /g, "+");   // „+“ wird in Query-Strings zu Leerzeichen
@@ -109,20 +111,47 @@ export async function abmelden() {
   profilLaden(null);
 }
 
-const neuerCode = () => {
+export const neuerCode = () => {
   const z = () => 2 + Math.floor(Math.random() * 98);
   let a = z(), b = z();
-  if (Math.random() < 0.5 || a === b) return `${a}+${b}=${a + b}`;
+  const r = Math.random();
+  if (r < 0.2) { a = 2 + Math.floor(Math.random() * 18); b = 2 + Math.floor(Math.random() * 18); return `${a}x${b}=${a * b}`; }
+  if (r < 0.6 || a === b) return `${a}+${b}=${a + b}`;
   if (a < b) [a, b] = [b, a];
   return `${a}-${b}=${a - b}`;
 };
+
+/* Ist die Gleichung richtig und noch frei? */
+export async function refPruefen(code) {
+  if (!istRefGleichung(code)) return { gueltig: false, frei: false };
+  if (DEMO) return { gueltig: true, frei: true };
+  const { data, error } = await sb.rpc("ref_frei", { code });
+  return { gueltig: true, frei: !error && !!data };
+}
+
+/* Legt den Empfehlungslink endgültig fest. */
+export async function refFestlegen(code) {
+  if (!istRefGleichung(code)) throw new Error("Die Gleichung stimmt nicht.");
+  if (DEMO) {
+    const profil = { ...zustand.profil, ref_code: code, ref_fest: true };
+    schreib(DEMO_SPEICHER, { nutzer: zustand.nutzer, profil });
+    setzen({ profil });
+    return;
+  }
+  const { data, error } = await sb.rpc("ref_festlegen", { code });
+  if (error) throw new Error("Das hat nicht geklappt. Bitte versuch es noch einmal.");
+  if (data === "vergeben") throw new Error("Diese Gleichung hat schon jemand anderes – nimm eine andere.");
+  if (data === "ungueltig") throw new Error("Die Gleichung stimmt nicht.");
+  if (data === "schon_fest") throw new Error("Dein Link ist bereits festgelegt.");
+  setzen({ profil: { ...zustand.profil, ref_code: code, ref_fest: true } });
+}
 
 /* Legt das Profil beim ersten Mal an (nur der Name ist Pflicht) und verknüpft den Werber. */
 export async function profilAnlegen(name) {
   const n = name.trim();
   if (!n) throw new Error("Bitte gib deinen Namen ein.");
   if (DEMO) {
-    const profil = { id: "demo", name: n, schulform: null, klasse: null, noten: {}, ref_code: neuerCode(), geworben_von: gemerkterRef() ? "demo-werber" : null };
+    const profil = { id: "demo", name: n, schulform: null, klasse: null, noten: {}, ref_code: neuerCode(), ref_fest: false, geworben_von: gemerkterRef() ? "demo-werber" : null };
     schreib(DEMO_SPEICHER, { nutzer: zustand.nutzer, profil });
     schreib(REF_SPEICHER, null);
     setzen({ profil });
