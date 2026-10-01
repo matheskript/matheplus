@@ -53,7 +53,7 @@ function PlotterLogoKlein() {
 function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "Werkzeug", klein, extra, gesperrt }) {
   return (
     <button onClick={gesperrt ? undefined : onClick} disabled={gesperrt} aria-disabled={gesperrt || undefined}
-      aria-label={gesperrt ? `${titel} – noch gesperrt` : label} title={gesperrt ? "Noch gesperrt – bald verfügbar" : undefined}
+      aria-label={gesperrt ? `${titel} – noch gesperrt` : label} title={gesperrt ? "Noch gesperrt" : undefined}
       className={gesperrt ? "kachel-gesperrt" : "plotter-kachel"}
       style={{ display: "flex", width: klein ? "100%" : "calc(100% + 32px)", marginLeft: klein ? 0 : -16, marginRight: klein ? 0 : -16,
         height: klein ? 92 : 138, marginTop: klein ? 8 : 12, padding: 0, border: "none", borderRadius: klein ? 14 : 18,
@@ -93,8 +93,6 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
                 <path d="M 8 11 V 7.5 a 4 4 0 0 1 8 0 V 11" />
               </svg>
             </span>
-            <span style={{ fontSize: klein ? 9.5 : 10.5, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#FFFFFF",
-              textShadow: "0 1px 2px rgba(30,40,60,0.35)" }}>Bald</span>
           </div>
         )}
       </div>
