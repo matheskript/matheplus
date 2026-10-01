@@ -47,7 +47,7 @@ export function Fusszeile({ gehe }) {
             <span className="logo-silber">mythos</span><span className="logo-gold">mathe</span><span className="logo-silber">.de</span>
           </p>
           <p style={{ fontSize: 10.5, fontWeight: 600, marginTop: 1, letterSpacing: "0.03em", color: "#C9D6EE", whiteSpace: "nowrap" }}>
-            System <span style={{ color: C.flaggold }}>+</span> Freude <span style={{ color: C.flaggold }}>=</span> <span className="logo-gold" style={{ fontWeight: 700 }}>Erfolg</span>
+            System <span style={{ color: C.flaggold }}>+</span> Freude <span style={{ color: C.flaggold }}>=</span> Erfolg
           </p>
         </div>
         <div style={{ height: 1, background: "rgba(255,255,255,0.12)", margin: "16px 0 12px" }} />
