@@ -16,7 +16,7 @@ import { VektorenLogoKlein } from "./func16.jsx";
 import { StochastikLogoKlein } from "./func17.jsx";
 import { GleichungenLogoKlein } from "./funcGleichungen.jsx";
 import { LGSLogoKlein } from "./funcLGS.jsx";
-import { MasterclassKachel, MatheCheckenKachel } from "./funcMasterclass.jsx";
+import { MasterclassKachel, MatheCheckenKachel, MathCreatorKachel } from "./funcMasterclass.jsx";
 
 /* Große, ganz anklickbare Kachel für die Plotter auf der Startseite. */
 /* Polynomplotter-Grafik im Hochformat für die Kachel. */
@@ -725,6 +725,7 @@ export function Startseite({ gehe }) {
         text="Primfaktoren, Quadratzahlen, Einmaleins – schnelle Runden auf Zeit." />
       <MatheCheckenKachel onClick={() => gehe({ ansicht: "mathecheck" })} />
       <MasterclassKachel onClick={() => gehe({ ansicht: "masterclass" })} />
+      <MathCreatorKachel />
       <PlotterKachel gesperrt portraet={<MathildaPortraet />} onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })} label="Frag Mathilda öffnen" logo={<MathildaLogoKlein />}
         titel="Frag Mathilda"
         text="Foto vom Blatt – Mathilda prüft deinen Rechenweg." />

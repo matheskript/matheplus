@@ -156,6 +156,78 @@ export function MatheCheckenSeite() {
   );
 }
 
+/* ---------- „Math Creator“: 3-Monats-Programm, schwarz und geheimnisvoll, noch gesperrt ---------- */
+
+function CreatorLogo() {
+  const fragen = [
+    { x: 30, y: 52, g: 30, o: 0.9, r: -12 }, { x: 78, y: 40, g: 44, o: 1, r: 8 }, { x: 58, y: 92, g: 22, o: 0.55, r: -4 },
+    { x: 104, y: 86, g: 26, o: 0.7, r: 14 }, { x: 22, y: 104, g: 18, o: 0.4, r: 6 }, { x: 110, y: 30, g: 16, o: 0.45, r: -18 },
+  ];
+  return (
+    <svg viewBox="0 0 130 120" preserveAspectRatio="xMidYMid meet" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
+      <defs>
+        <radialGradient id="mcr-glow" cx="50%" cy="50%" r="50%">
+          <stop offset="0" stopColor="#6E5BD8" stopOpacity="0.55" />
+          <stop offset="1" stopColor="#6E5BD8" stopOpacity="0" />
+        </radialGradient>
+        <linearGradient id="mcr-silber" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#FFFFFF" /><stop offset="0.5" stopColor="#C9CFDA" /><stop offset="1" stopColor="#7E8798" />
+        </linearGradient>
+      </defs>
+      <circle cx="65" cy="62" r="56" fill="url(#mcr-glow)" />
+      {[[14, 18], [120, 60], [40, 14], [96, 112], [8, 78], [124, 100]].map(([x, y], i) => (
+        <circle key={i} cx={x} cy={y} r={i % 2 ? 1 : 1.5} fill="#FFFFFF" opacity="0.6" />
+      ))}
+      {fragen.map((f, i) => (
+        <text key={i} x={f.x} y={f.y} fontSize={f.g} fontWeight="800" fill="url(#mcr-silber)" opacity={f.o} textAnchor="middle"
+          transform={`rotate(${f.r} ${f.x} ${f.y})`} fontFamily="Montserrat, system-ui, sans-serif">?</text>
+      ))}
+    </svg>
+  );
+}
+
+export function MathCreatorKachel() {
+  return (
+    <div role="button" aria-disabled="true" aria-label="Math Creator – noch gesperrt" title="Noch gesperrt" className="mcr-kachel"
+      style={{ display: "flex", width: "calc(100% + 32px)", marginLeft: -16, marginRight: -16, marginTop: 12, borderRadius: 18, overflow: "hidden",
+        cursor: "not-allowed", position: "relative", userSelect: "none",
+        height: "calc(95px + 1.1 * clamp(15px, 4.1vw, 22px))",
+        background: "radial-gradient(120% 140% at 85% 20%, #241C3D 0%, #0D0B14 55%, #050407 100%)", color: "#FFFFFF",
+        boxShadow: "0 8px 26px rgba(10,6,25,0.45), inset 0 0 0 1px rgba(255,255,255,0.08)" }}>
+      <style>{`.mcr-kachel .mcr-schimmer{position:absolute;inset:0;pointer-events:none;
+          background:linear-gradient(115deg,transparent 35%,rgba(160,140,255,0.16) 48%,transparent 62%);background-size:260% 100%;
+          animation:mcrSchimmer 7s ease-in-out infinite}
+        @keyframes mcrSchimmer{0%,55%{background-position:120% 0}100%{background-position:-120% 0}}`}</style>
+      <span className="mcr-schimmer" aria-hidden="true" />
+      <div style={{ flex: "1 1 60%", minWidth: 0, padding: "14px 10px 14px 16px", display: "flex", flexDirection: "column", position: "relative" }}>
+        <h2 style={{ fontSize: "clamp(15px, 4.1vw, 22px)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.1, margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+          background: "linear-gradient(180deg,#FFFFFF 0%,#D5D9E2 55%,#9AA3B3 100%)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>
+          Math Creator
+        </h2>
+        <span aria-hidden="true" style={{ display: "block", width: 34, height: 2.5, borderRadius: 2, marginTop: 6, background: "linear-gradient(90deg,#6E5BD8 0%,#B7A9FF 100%)" }} />
+        <p style={{ fontSize: 12.5, fontWeight: 300, lineHeight: 1.4, marginTop: 6, marginBottom: 0, color: "rgba(255,255,255,0.78)",
+          display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden", height: "4.2em" }}>
+          Noch geheim. Nur so viel: Nach drei Monaten erschaffst du Mathe.
+        </p>
+      </div>
+      <div style={{ flex: "0 0 40%", position: "relative", borderLeft: "1px solid rgba(255,255,255,0.08)" }}>
+        <span style={{ position: "absolute", top: 10, left: 10, fontSize: 9.5, fontWeight: 700, letterSpacing: "0.1em", background: "rgba(255,255,255,0.1)",
+          border: "1px solid rgba(255,255,255,0.2)", color: "#D5D9E2", padding: "3px 7px", borderRadius: 999, zIndex: 1 }}>3 MONATE</span>
+        <div style={{ position: "absolute", inset: "12px 6px 6px 6px", opacity: 0.9 }}><CreatorLogo /></div>
+        <div aria-hidden="true" style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <span style={{ width: 40, height: 40, borderRadius: 999, background: "rgba(255,255,255,0.92)", boxShadow: "0 3px 14px rgba(110,91,216,0.5)",
+            display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#14111F" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="5" y="11" width="14" height="10" rx="2.2" fill="#14111F" />
+              <path d="M 8 11 V 7.5 a 4 4 0 0 1 8 0 V 11" />
+            </svg>
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ---------- Programmseite ---------- */
 
 const BAUSTEINE = [
