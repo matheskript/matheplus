@@ -51,7 +51,7 @@ function PlotterLogoKlein() {
   );
 }
 
-function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "Werkzeug", klein, extra, gesperrt }) {
+function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "Werkzeug", klein, extra, gesperrt, logoHell }) {
   return (
     <button onClick={gesperrt ? undefined : onClick} disabled={gesperrt} aria-disabled={gesperrt || undefined}
       aria-label={gesperrt ? `${titel} – noch gesperrt` : label} title={gesperrt ? "Noch gesperrt" : undefined}
@@ -83,13 +83,13 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
       {/* Rechts (40 %): nur die Grafik */}
       <div style={{ flex: klein ? "0 0 32%" : "0 0 40%", position: "relative", background: "rgba(255,255,255,0.04)",
         borderLeft: `1px solid ${gesperrt ? "rgba(255,255,255,0.35)" : `${C.silber}33`}`, display: "flex" }}>
-        <div style={{ flex: 1, display: "flex", ...(gesperrt ? { filter: "grayscale(1) brightness(1.15)", opacity: 0.35 } : {}) }}>{logo}</div>
+        <div style={{ flex: 1, display: "flex", ...(gesperrt && !logoHell ? { filter: "grayscale(1) brightness(1.15)", opacity: 0.35 } : {}) }}>{logo}</div>
         {extra}
         {gesperrt && (
-          <div aria-hidden="true" style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4 }}>
-            <span style={{ width: klein ? 34 : 44, height: klein ? 34 : 44, borderRadius: 999, background: "rgba(255,255,255,0.92)",
+          <div aria-hidden="true" style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", gap: 4, ...(logoHell ? { alignItems: "flex-end", justifyContent: "flex-end", padding: 8 } : { alignItems: "center", justifyContent: "center" }) }}>
+            <span style={{ width: klein || logoHell ? 32 : 44, height: klein || logoHell ? 32 : 44, borderRadius: 999, background: "rgba(255,255,255,0.92)",
               boxShadow: "0 3px 10px rgba(30,40,60,0.25)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <svg viewBox="0 0 24 24" width={klein ? 17 : 22} height={klein ? 17 : 22} fill="none" stroke="#5E6878" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <svg viewBox="0 0 24 24" width={klein || logoHell ? 16 : 22} height={klein || logoHell ? 16 : 22} fill="none" stroke="#5E6878" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="5" y="11" width="14" height="10" rx="2.2" fill="#5E6878" />
                 <path d="M 8 11 V 7.5 a 4 4 0 0 1 8 0 V 11" />
               </svg>
@@ -170,22 +170,76 @@ function SchulkurseLogoKlein() {
 
 /* Grafik für die „Frag Mathilda“-Kachel: Blatt mit handschriftlicher Rechnung im Kamera-Sucher, Häkchen. */
 function MathildaLogoKlein() {
-  const W = 230, H = 190;
-  const ecke = (x, y, dx, dy) => <path d={`M ${x} ${y + dy * 18} L ${x} ${y} L ${x + dx * 18} ${y}`} stroke={C.flaggold} strokeWidth="4" fill="none" strokeLinecap="round" />;
+  /* Mathilda als gezeichnete Karikatur: blonde Haare hinter die Ohren gestrichen, Creolen,
+     Kette, dunkles Langarmshirt — abends vor dem Eiffelturm. */
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
-      {Array.from({ length: 9 }, (_, i) => <line key={`v${i}`} x1={i * 28} y1="0" x2={i * 28} y2={H} stroke="rgba(255,255,255,0.05)" />)}
-      {Array.from({ length: 7 }, (_, i) => <line key={`h${i}`} x1="0" y1={i * 28} x2={W} y2={i * 28} stroke="rgba(255,255,255,0.05)" />)}
-      <g transform="rotate(-4 115 95)">
-        <rect x="42" y="34" width="146" height="122" rx="6" fill="#FFFFFF" />
-        <path d="M 58 62 q 8 -8 16 0 t 16 0 M 98 60 l 10 0 M 116 62 q 8 -8 16 0" stroke={C.seeTief} strokeWidth="2.6" fill="none" strokeLinecap="round" />
-        <path d="M 58 92 q 8 -8 16 0 M 84 90 l 10 0 M 102 92 q 8 -8 16 0 t 16 0" stroke={C.seeTief} strokeWidth="2.6" fill="none" strokeLinecap="round" />
-        <path d="M 58 122 l 10 0 M 76 124 q 8 -8 16 0" stroke={C.seeTief} strokeWidth="2.6" fill="none" strokeLinecap="round" />
-        <line x1="56" y1="132" x2="100" y2="132" stroke={C.flaggold} strokeWidth="2" />
-      </g>
-      {ecke(26, 20, 1, 1)}{ecke(204, 20, -1, 1)}{ecke(26, 170, 1, -1)}{ecke(204, 170, -1, -1)}
-      <circle cx="176" cy="138" r="20" fill={C.smaragd} stroke={C.weiss} strokeWidth="3" />
-      <path d="M 166 138 l 7 7 l 13 -14" stroke={C.weiss} strokeWidth="4" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+    <svg viewBox="36 22 166 168" preserveAspectRatio="xMidYMax slice" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
+<defs>
+    <linearGradient id="mt-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#004D98"/><stop offset="1" stopColor="#0B1E4A"/></linearGradient>
+    <linearGradient id="mt-haar" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#FFF3C4"/><stop offset="0.5" stopColor="#EDCF82"/><stop offset="1" stopColor="#CFA75A"/></linearGradient>
+    <linearGradient id="mt-haut" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#FCE3D2"/><stop offset="1" stopColor="#F2C2A6"/></linearGradient>
+    <linearGradient id="mt-top" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#4E3C37"/><stop offset="1" stopColor="#2A201D"/></linearGradient>
+  </defs>
+  
+  <g stroke="#EDBB00" strokeWidth="1.6" fill="none" opacity="0.45">
+    <path d="M 182 190 Q 197 120 201 16 Q 205 120 222 190"/>
+    <path d="M 187 160 L 217 160 M 192 128 L 211 128 M 196 92 L 206 92"/>
+    <path d="M 187 190 Q 202 168 217 190"/><path d="M 201 16 L 201 6"/>
+  </g>
+  <g fill="#EDBB00"><circle cx="22" cy="30" r="2.4" opacity="0.8"/><circle cx="40" cy="20" r="2" opacity="0.6"/><circle cx="58" cy="13" r="1.6" opacity="0.5"/><circle cx="18" cy="66" r="1.6" opacity="0.4"/><circle cx="172" cy="34" r="1.8" opacity="0.5"/></g>
+  <circle cx="28" cy="104" r="2.2" fill="#E5484D" opacity="0.7"/>
+  {/* Haare hinten bis auf die Schultern */}
+  <path d="M 78 70 C 74 28, 156 28, 152 70 C 156 100, 160 128, 154 150 C 146 154, 140 150, 136 144 L 94 144 C 90 150, 84 154, 76 150 C 70 128, 74 100, 78 70 Z" fill="url(#mt-haar)"/>
+  {/* Körper */}
+  <path d="M 46 190 C 50 162, 78 147, 104 142 L 126 142 C 152 147, 180 162, 184 190 Z" fill="url(#mt-top)"/>
+  <path d="M 105 142 Q 115 151 125 142 L 123 126 L 107 126 Z" fill="url(#mt-haut)"/>
+  <path d="M 105 142 Q 115 159 125 142" stroke="#EDBB00" strokeWidth="1" fill="none"/>
+  <path d="M 115 155 l -3 4 l 3 4 l 3 -4 z" fill="#EDBB00"/>
+  {/* Arme: Ellbogen außen, Hände an den Haaren */}
+  <path d="M 64 172 Q 40 140 58 106" stroke="url(#mt-top)" strokeWidth="19" fill="none" strokeLinecap="round"/>
+  <path d="M 166 172 Q 190 140 172 106" stroke="url(#mt-top)" strokeWidth="19" fill="none" strokeLinecap="round"/>
+  {/* Gesicht */}
+  <path d="M 85 72 C 85 42, 145 42, 145 72 C 146 98, 133 119, 115 121 C 97 119, 84 98, 85 72 Z" fill="url(#mt-haut)"/>
+  {/* Creolen */}
+  <circle cx="86" cy="96" r="6.5" stroke="#E6E9EF" strokeWidth="2.2" fill="none"/>
+  <circle cx="144" cy="96" r="6.5" stroke="#E6E9EF" strokeWidth="2.2" fill="none"/>
+  {/* Haare vorne: Mittelscheitel, Strähnen zu den Händen */}
+  <path d="M 115 40 C 95 40, 82 52, 80 74 C 86 60, 96 52, 112 50 Z" fill="url(#mt-haar)"/>
+  <path d="M 115 40 C 135 40, 148 52, 150 74 C 144 60, 134 52, 118 50 Z" fill="url(#mt-haar)"/>
+  <path d="M 115 39 C 104 39, 94 43, 88 52 C 99 45, 108 45, 114.5 47 C 122 45, 131 45, 142 52 C 136 43, 126 39, 115 39 Z" fill="#FFF3C4"/>
+  <path d="M 114.5 40 L 114.5 48" stroke="#D9B66A" strokeWidth="1"/>
+  {/* Hände: Finger streichen die Haare hinters Ohr */}
+  <g transform="translate(-7 2)">
+  <g stroke="#F4C9AF" strokeWidth="5.2" strokeLinecap="round" fill="none">
+    <path d="M 66 92 L 79 64"/><path d="M 70 94 L 83 68"/><path d="M 73 97 L 85 74"/><path d="M 75 100 L 85 81"/>
+  </g>
+  <path d="M 62 104 C 60 94, 64 88, 70 90 L 80 98 C 78 106, 68 110, 62 104 Z" fill="#F4C9AF"/>
+  </g>
+  <g transform="translate(7 2)">
+  <g stroke="#F4C9AF" strokeWidth="5.2" strokeLinecap="round" fill="none">
+    <path d="M 164 92 L 151 64"/><path d="M 160 94 L 147 68"/><path d="M 157 97 L 145 74"/><path d="M 155 100 L 145 81"/>
+  </g>
+  <path d="M 168 104 C 170 94, 166 88, 160 90 L 150 98 C 152 106, 162 110, 168 104 Z" fill="#F4C9AF"/>
+  <g fill="#1E1A18"><circle cx="156" cy="110" r="1.9"/><circle cx="160.5" cy="111" r="1.9"/><circle cx="165" cy="110" r="1.9"/><circle cx="169" cy="108" r="1.9"/></g>
+  </g>
+  {/* Brauen */}
+  <path d="M 96 66 Q 103 62 110 65" stroke="#B8925A" strokeWidth="2.2" fill="none" strokeLinecap="round"/>
+  <path d="M 120 65 Q 127 62 134 66" stroke="#B8925A" strokeWidth="2.2" fill="none" strokeLinecap="round"/>
+  {/* Augen, leicht verschmitzt */}
+  <ellipse cx="103" cy="77" rx="6.8" ry="3.8" fill="#FFFFFF"/>
+  <ellipse cx="127" cy="77" rx="6.8" ry="3.8" fill="#FFFFFF"/>
+  <circle cx="103.5" cy="77.6" r="3.2" fill="#7090B2"/><circle cx="127.5" cy="77.6" r="3.2" fill="#7090B2"/>
+  <circle cx="103.5" cy="77.6" r="1.5" fill="#1E1A18"/><circle cx="127.5" cy="77.6" r="1.5" fill="#1E1A18"/>
+  <circle cx="104.6" cy="76.6" r="0.8" fill="#FFFFFF"/><circle cx="128.6" cy="76.6" r="0.8" fill="#FFFFFF"/>
+  <path d="M 95.5 77 Q 103 71.5 110.5 76.5" stroke="#3A2E2A" strokeWidth="2" fill="none" strokeLinecap="round"/>
+  <path d="M 119.5 76.5 Q 127 71.5 134.5 77" stroke="#3A2E2A" strokeWidth="2" fill="none" strokeLinecap="round"/>
+  {/* Nase, Wangen, Mund (verschmitztes Lächeln) */}
+  <path d="M 115 82 Q 112.5 92 116.5 94" stroke="#D99A80" strokeWidth="1.6" fill="none" strokeLinecap="round"/>
+  <circle cx="95" cy="92" r="6.5" fill="#F28B8B" opacity="0.35"/><circle cx="135" cy="92" r="6.5" fill="#F28B8B" opacity="0.35"/>
+  <path d="M 104 102 Q 116 100.5 127 99.5 Q 118 108.5 104 102 Z" fill="#E08484"/>
+  <path d="M 104 102 Q 116 106 127 99.5" stroke="#B5545A" strokeWidth="1.4" fill="none" strokeLinecap="round"/>
+  <path d="M 127 99.5 q 2 -1 2.5 -3" stroke="#D99A80" strokeWidth="1.1" fill="none" strokeLinecap="round"/>
+
     </svg>
   );
 }
@@ -680,7 +734,7 @@ export function Startseite({ gehe }) {
       <PlotterKachel onClick={() => gehe({ ansicht: "kopf" })} label="Kopfrechnen öffnen" logo={<KopfrechnenLogoKlein />}
         titel="Kopfrechnen"
         text="Primfaktoren, Quadratzahlen, Brüche und Einmaleins – schnelle Runden auf Zeit." />
-      <PlotterKachel gesperrt onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })} label="Frag Mathilda öffnen" logo={<MathildaLogoKlein />}
+      <PlotterKachel gesperrt logoHell onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })} label="Frag Mathilda öffnen" logo={<MathildaLogoKlein />}
         titel="Frag Mathilda"
         text="Foto von deinem Blatt – Mathilda prüft deinen Rechenweg und gibt dir Feedback." />
       <PlotterKachel gesperrt onClick={() => gehe({ ansicht: "kurse", kurs: "penpaper" })} label="Pen & Paper öffnen" logo={<PenPaperBlatt />}
