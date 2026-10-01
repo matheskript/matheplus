@@ -27,15 +27,28 @@ export function useKonto() {
   return useSyncExternalStore((h) => { hoerer.add(h); return () => hoerer.delete(h); }, () => zustand);
 }
 
-/* ---------- Empfehlungslink: ?ref=CODE merken, bis sich jemand anmeldet ---------- */
+/* ---------- Empfehlungslink: mythosmathe.de/2+5=7 ----------
+   Jeder Schüler bekommt eine eigene, richtige Gleichung als Code. Ruft jemand
+   den Link auf, merkt sich die Seite die Gleichung, bis er sich anmeldet. */
+export const GLEICHUNG = /^(\d{1,3})([+-])(\d{1,3})=(\d{1,4})$/;
+export function istRefGleichung(t) {
+  const m = GLEICHUNG.exec(t);
+  if (!m) return false;
+  const [a, op, b, c] = [Number(m[1]), m[2], Number(m[3]), Number(m[4])];
+  return (op === "+" ? a + b : a - b) === c;
+}
 export function refAusUrlMerken() {
   try {
     const u = new URL(window.location.href);
-    const ref = u.searchParams.get("ref");
-    if (ref && /^[a-z0-9]{4,16}$/i.test(ref)) {
-      schreib(REF_SPEICHER, { code: ref.toLowerCase(), zeit: Date.now() });
+    let code = null;
+    const pfad = decodeURIComponent(u.pathname.slice(1)).replace(/\s+/g, "").replace(/[−–]/g, "-");
+    if (istRefGleichung(pfad)) code = pfad;
+    const alt = u.searchParams.get("ref");               // ältere Links ?ref=…
+    if (!code && alt) code = alt.replace(/ /g, "+");   // „+“ wird in Query-Strings zu Leerzeichen
+    if (code) {
+      schreib(REF_SPEICHER, { code, zeit: Date.now() });
       u.searchParams.delete("ref");
-      window.history.replaceState({}, "", u.pathname + (u.search ? u.search : "") + u.hash);
+      window.history.replaceState({}, "", "/" + (u.search ? u.search : "") + u.hash);
     }
   } catch (e) { /* ignorieren */ }
 }
@@ -44,7 +57,7 @@ const gemerkterRef = () => {
   return r && Date.now() - r.zeit < 30 * 24 * 3600 * 1000 ? r.code : null;
 };
 
-export const empfehlungsLink = (code) => `https://mythosmathe.de/?ref=${code}`;
+export const empfehlungsLink = (code) => `https://mythosmathe.de/${code}`;
 
 /* ---------- Laden ---------- */
 async function profilLaden(nutzer) {
@@ -96,7 +109,13 @@ export async function abmelden() {
   profilLaden(null);
 }
 
-const neuerCode = () => Math.random().toString(36).slice(2, 10);
+const neuerCode = () => {
+  const z = () => 2 + Math.floor(Math.random() * 98);
+  let a = z(), b = z();
+  if (Math.random() < 0.5 || a === b) return `${a}+${b}=${a + b}`;
+  if (a < b) [a, b] = [b, a];
+  return `${a}-${b}=${a - b}`;
+};
 
 /* Legt das Profil beim ersten Mal an (nur der Name ist Pflicht) und verknüpft den Werber. */
 export async function profilAnlegen(name) {

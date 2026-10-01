@@ -3,18 +3,46 @@
 -- Einmal im Supabase-Dashboard unter „SQL Editor“ ausführen.
 -- ======================================================================
 
+-- Jeder Empfehlungscode ist eine eigene, richtige Gleichung: mythosmathe.de/23+48=71
+create or replace function public.neue_gleichung()
+returns text
+language plpgsql
+volatile
+security definer          -- muss alle Codes sehen, um Doppelte zu vermeiden
+set search_path = public
+as $$
+declare
+  a int; b int; grenze int := 99; versuch int := 0; code text;
+begin
+  loop
+    versuch := versuch + 1;
+    if versuch > 40 then grenze := 999; end if;
+    a := 2 + floor(random() * (grenze - 1))::int;
+    b := 2 + floor(random() * (grenze - 1))::int;
+    if random() < 0.5 or a = b then
+      code := a || '+' || b || '=' || (a + b);
+    else
+      code := greatest(a, b) || '-' || least(a, b) || '=' || (greatest(a, b) - least(a, b));
+    end if;
+    exit when not exists (select 1 from profile where ref_code = code);
+  end loop;
+  return code;
+end;
+$$;
+
 create table if not exists public.profile (
   id            uuid primary key references auth.users (id) on delete cascade,
   name          text not null check (char_length(name) between 1 and 80),
   schulform     text check (schulform in ('G8', 'G9', 'GMS')),
   klasse        smallint check (klasse between 5 and 13),
   noten         jsonb not null default '{}'::jsonb,          -- {"5": 2, "6": 1, …, "12": 13}
-  ref_code      text not null unique default substr(md5(random()::text || clock_timestamp()::text), 1, 8),
+  ref_code      text not null unique,
   geworben_von  uuid references public.profile (id) on delete set null,
   erstellt      timestamptz not null default now()
 );
 
 create index if not exists profile_geworben_von_idx on public.profile (geworben_von);
+alter table public.profile alter column ref_code set default public.neue_gleichung();
 
 alter table public.profile enable row level security;
 
@@ -42,7 +70,7 @@ as $$
 declare
   w uuid;
 begin
-  select id into w from profile where ref_code = lower(code);
+  select id into w from profile where ref_code = replace(code, ' ', '');
   if w is null or w = auth.uid() then
     return false;
   end if;

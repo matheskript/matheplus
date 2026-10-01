@@ -285,7 +285,7 @@ function Profil({ nutzer, profil, geworben, gehe }) {
           Teile deinen persönlichen Link. Wer sich darüber anmeldet, wird automatisch dir zugeordnet.
         </p>
         <div style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: 12, padding: "10px 12px" }}>
-          <span style={{ flex: 1, minWidth: 0, fontSize: 14, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", userSelect: "all" }}>{link.replace("https://", "")}</span>
+          <span style={{ flex: 1, minWidth: 0, fontSize: 14, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", userSelect: "all" }}>mythosmathe.de/<span style={{ color: C.flaggold }}>{profil.ref_code}</span></span>
         </div>
         <div className="flex flex-wrap items-center" style={{ gap: 8, marginTop: 10 }}>
           <button type="button" onClick={kopieren}
