@@ -648,7 +648,7 @@ export function Startseite({ gehe }) {
       </section>
       <PlotterKachel onClick={() => setSchulAuf(!schulAuf)} label={schulAuf ? "Schulmathematik zuklappen" : "Schulmathematik aufklappen"}
         logo={<SchulmatheLogoKlein />} titel="Schulmathematik"
-        text="Analysis, Vektoren, Stochastik, Formelsammlung und die Schulkurse."
+        text="Analysis, Vektoren, Stochastik und die Formelsammlung."
         extra={
           <span aria-hidden="true" style={{ position: "absolute", right: 10, bottom: 10, width: 40, height: 40, borderRadius: 999,
             background: C.flaggold, color: C.seeTief, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, fontWeight: 700,
@@ -668,9 +668,6 @@ export function Startseite({ gehe }) {
       <PlotterKachel klein onClick={() => gehe({ ansicht: "formeln" })} label="Formelsammlung öffnen" logo={<FormelLogoKlein />}
         titel="Formelsammlung"
         text="Alle wichtigen Formeln der Oberstufe zum Nachschlagen." />
-      <PlotterKachel klein gesperrt onClick={() => gehe({ ansicht: "kurse" })} label="Schulkurse öffnen" logo={<SchulkurseLogoKlein />}
-        titel="Schulkurse"
-        text="Analysis 1–5, Vektoren, Stochastik und Pen & Paper – mit Videolektionen und Kurz-Checks." />
         </div>
       )}
       <PlotterKachel onClick={() => gehe({ ansicht: "gleichungen" })} label="Gleichungslöser öffnen" logo={<GleichungenLogoKlein />}
@@ -685,6 +682,9 @@ export function Startseite({ gehe }) {
       <PlotterKachel gesperrt onClick={() => gehe({ ansicht: "kurse", kurs: "penpaper" })} label="Pen & Paper öffnen" logo={<PenPaperBlatt />}
         titel="Pen & Paper"
         text="Das Fundament: klar aufschreiben, strukturiert arbeiten, sicher mit Fehlern umgehen – 7 Videolektionen." />
+      <PlotterKachel gesperrt onClick={() => gehe({ ansicht: "kurse" })} label="Schulkurse öffnen" logo={<SchulkurseLogoKlein />}
+        titel="Schulkurse"
+        text="Analysis 1–5, Vektoren, Stochastik und Pen & Paper – mit Videolektionen und Kurz-Checks." />
 
     </div>
   );
