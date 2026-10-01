@@ -57,7 +57,7 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
       aria-label={gesperrt ? `${titel} – noch gesperrt` : label} title={gesperrt ? "Noch gesperrt" : undefined}
       className={gesperrt ? "kachel-gesperrt" : "plotter-kachel"}
       style={{ display: "flex", width: klein ? "100%" : "calc(100% + 32px)", marginLeft: klein ? 0 : -16, marginRight: klein ? 0 : -16,
-        height: klein ? 92 : 138, marginTop: klein ? 8 : 12, padding: 0, border: "none", borderRadius: klein ? 14 : 18,
+        height: "auto", marginTop: klein ? 8 : 12, padding: 0, border: "none", borderRadius: klein ? 14 : 18,
         overflow: "hidden", cursor: gesperrt ? "not-allowed" : "pointer", fontFamily: "inherit", textAlign: "left", position: "relative",
         background: gesperrt ? "linear-gradient(155deg, #B9C2CE 0%, #8C97A6 55%, #6E7989 100%)" : `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`,
         boxShadow: gesperrt ? "0 4px 14px rgba(40,50,70,0.18), inset 0 0 0 1px rgba(255,255,255,0.45)" : `0 6px 22px rgba(0,77,152,0.24), inset 0 0 0 1px ${C.silber}40` }}>
@@ -68,33 +68,33 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
         .kachel-titel{background:linear-gradient(180deg,#FFFFFF 0%,${C.silberHell} 55%,${C.silber} 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
         .kachel-gesperrt .kachel-titel{background:none;color:#FFFFFF;text-shadow:0 1px 2px rgba(30,40,60,0.25)}`}</style>
       {/* Links (60 %): Titel und Erklärtext von oben */}
-      <div style={{ flex: klein ? "1 1 68%" : "1 1 60%", minWidth: 0, padding: klein ? "10px 8px 9px 14px" : "13px 10px 12px 16px", display: "flex", flexDirection: "column" }}>
-        <h2 className="kachel-titel" style={{ fontSize: klein ? "clamp(14px, 3.8vw, 18px)" : "clamp(15px, 4.1vw, 22px)", fontWeight: 700, letterSpacing: "-0.03em",
+      <div style={{ flex: klein ? "1 1 68%" : "1 1 60%", minWidth: 0, padding: klein ? "14px 8px 14px 14px" : "14px 10px 14px 16px", display: "flex", flexDirection: "column" }}>
+        <h2 className="kachel-titel" style={{ fontSize: "clamp(15px, 4.1vw, 22px)", fontWeight: 700, letterSpacing: "-0.03em",
           lineHeight: 1.1, margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
           {titel}
         </h2>
         <span aria-hidden="true" style={{ display: "block", width: 34, height: 2.5, borderRadius: 2, marginTop: 6,
           background: gesperrt ? "rgba(255,255,255,0.7)" : `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)` }} />
-        <p className="kachel-text" style={{ color: gesperrt ? "rgba(255,255,255,0.92)" : C.weiss, fontSize: klein ? 12 : 12.5, fontWeight: 300, lineHeight: 1.4, marginTop: klein ? 4 : 6, marginBottom: 0,
-          ...(klein ? { WebkitLineClamp: 2 } : {}) }}>
+        <p className="kachel-text" style={{ color: gesperrt ? "rgba(255,255,255,0.92)" : C.weiss, fontSize: 12.5, fontWeight: 300, lineHeight: 1.4, marginTop: 6, marginBottom: 0,
+          WebkitLineClamp: 3, height: "4.2em" }}>
           {text}
         </p>
       </div>
       {portraet && (
-        <div aria-hidden="true" style={{ flex: "0 0 auto", width: "clamp(96px, 27vw, 124px)", alignSelf: "stretch", display: "flex", alignItems: "flex-end", paddingTop: 4, marginLeft: -6 }}>
-          {portraet}
+        <div aria-hidden="true" style={{ flex: "0 0 auto", width: "clamp(92px, 26vw, 124px)", position: "relative", marginLeft: -6 }}>
+          <div style={{ position: "absolute", inset: "6px 0 0 0", display: "flex" }}>{portraet}</div>
         </div>
       )}
       {/* Rechts (40 %): nur die Grafik */}
       <div style={{ flex: klein ? "0 0 32%" : portraet ? "0 0 29%" : "0 0 40%", position: "relative", background: "rgba(255,255,255,0.04)",
         borderLeft: `1px solid ${gesperrt ? "rgba(255,255,255,0.35)" : `${C.silber}33`}`, display: "flex" }}>
-        <div style={{ flex: 1, display: "flex", ...(gesperrt && !logoHell ? { filter: "grayscale(1) brightness(1.15)", opacity: 0.35 } : {}) }}>{logo}</div>
+        <div style={{ position: "absolute", inset: 0, display: "flex", ...(gesperrt && !logoHell ? { filter: "grayscale(1) brightness(1.15)", opacity: 0.35 } : {}) }}>{logo}</div>
         {extra}
         {gesperrt && (
           <div aria-hidden="true" style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", gap: 4, ...(logoHell ? { alignItems: "flex-end", justifyContent: "flex-end", padding: 8 } : { alignItems: "center", justifyContent: "center" }) }}>
-            <span style={{ width: klein || logoHell ? 32 : 44, height: klein || logoHell ? 32 : 44, borderRadius: 999, background: "rgba(255,255,255,0.92)",
+            <span style={{ width: klein || logoHell ? 34 : 40, height: klein || logoHell ? 34 : 40, borderRadius: 999, background: "rgba(255,255,255,0.92)",
               boxShadow: "0 3px 10px rgba(30,40,60,0.25)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <svg viewBox="0 0 24 24" width={klein || logoHell ? 16 : 22} height={klein || logoHell ? 16 : 22} fill="none" stroke="#5E6878" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <svg viewBox="0 0 24 24" width={klein || logoHell ? 17 : 20} height={klein || logoHell ? 17 : 20} fill="none" stroke="#5E6878" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="5" y="11" width="14" height="10" rx="2.2" fill="#5E6878" />
                 <path d="M 8 11 V 7.5 a 4 4 0 0 1 8 0 V 11" />
               </svg>
@@ -199,7 +199,7 @@ function MathildaLogoKlein() {
    flache Flächen in den Silbertönen der gesperrten Kachel. */
 function MathildaPortraet() {
   return (
-    <svg viewBox="0 0 120 138" preserveAspectRatio="xMidYMax meet" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
+    <svg viewBox="0 0 120 138" preserveAspectRatio="xMidYMin slice" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
       <path d="M 24 60 C 18 18, 102 18, 96 60 C 100 90, 106 116, 102 138 L 18 138 C 14 116, 20 90, 24 60 Z" fill="#F4F6F9"/>
       <path d="M 4 138 C 8 120, 28 111, 47 109 L 73 109 C 92 111, 112 120, 116 138 Z" fill="#3E4756"/>
       <path d="M 49 94 L 49 111 Q 60 117 71 111 L 71 94 Z" fill="#DCE2EA"/>
@@ -691,7 +691,7 @@ export function Startseite({ gehe }) {
       </section>
       <PlotterKachel onClick={() => setSchulAuf(!schulAuf)} label={schulAuf ? "Schulmathematik zuklappen" : "Schulmathematik aufklappen"}
         logo={<SchulmatheLogoKlein />} titel="Schulmathematik"
-        text="Analysis, Vektoren, Stochastik und die Formelsammlung."
+        text="Analysis, Vektoren, Stochastik und Formeln – live zum Ausprobieren."
         extra={
           <span aria-hidden="true" style={{ position: "absolute", right: 10, bottom: 10, width: 40, height: 40, borderRadius: 999,
             background: C.flaggold, color: C.seeTief, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, fontWeight: 700,
@@ -701,36 +701,36 @@ export function Startseite({ gehe }) {
         <div style={{ margin: "4px 0 4px", padding: "2px 0 2px 12px", borderLeft: `3px solid ${C.flaggold}` }}>
       <PlotterKachel klein onClick={() => gehe({ ansicht: "analysis" })} label="Analysis öffnen" logo={<PlotterLogoKlein />}
         titel="Analysis"
-        text="Polynomplotter, Advanced Plotter und Ableitungstrainer: Graphen live erkunden." />
+        text="Polynomplotter, Advanced Plotter, Ableitungstrainer – Graphen live." />
       <PlotterKachel klein onClick={() => gehe({ ansicht: "vektoren" })} label="Vektoren öffnen" logo={<VektorenLogoKlein />}
         titel="Vektoren"
         text="Der Ebenen-Visualizer zeigt jede Ebene live im Raum – dazu der Videokurs." />
       <PlotterKachel klein onClick={() => gehe({ ansicht: "stochastik" })} label="Stochastik öffnen" logo={<StochastikLogoKlein />}
         titel="Stochastik"
-        text="Bernoulli-Kette: Binomialverteilung live sehen und den Zufall selbst laufen lassen." />
+        text="Bernoulli-Kette und Vier-Felder-Tafel: den Zufall live laufen lassen." />
       <PlotterKachel klein onClick={() => gehe({ ansicht: "formeln" })} label="Formelsammlung öffnen" logo={<FormelLogoKlein />}
         titel="Formelsammlung"
-        text="Alle wichtigen Formeln der Oberstufe zum Nachschlagen." />
+        text="Alle wichtigen Formeln der Oberstufe – sauber sortiert zum Nachschlagen." />
         </div>
       )}
       <PlotterKachel onClick={() => gehe({ ansicht: "gleichungen" })} label="Gleichungslöser öffnen" logo={<GleichungenLogoKlein />}
         titel="Gleichungslöser"
-        text="Du tippst die Umformung, die App rechnet sie auf beiden Seiten aus – linear, quadratisch, Exponential und Logarithmus." />
+        text="Du tippst die Umformung, die App rechnet sie auf beiden Seiten aus." />
       <PlotterKachel onClick={() => gehe({ ansicht: "lgs" })} label="Gleichungssysteme öffnen" logo={<LGSLogoKlein />}
         titel="Gleichungssysteme"
-        text="Drei Gleichungen, drei Unbekannte: Kombiniere I, II und III, bis x, y und z dastehen – mit Gauß-Musterlösung." />
+        text="Kombiniere I, II und III, bis x, y und z dastehen – mit Musterlösung." />
       <PlotterKachel onClick={() => gehe({ ansicht: "kopf" })} label="Kopfrechnen öffnen" logo={<KopfrechnenLogoKlein />}
         titel="Kopfrechnen"
-        text="Primfaktoren, Quadratzahlen, Brüche und Einmaleins – schnelle Runden auf Zeit." />
+        text="Primfaktoren, Quadratzahlen, Einmaleins – schnelle Runden auf Zeit." />
       <PlotterKachel gesperrt portraet={<MathildaPortraet />} onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })} label="Frag Mathilda öffnen" logo={<MathildaLogoKlein />}
         titel="Frag Mathilda"
         text="Foto vom Blatt – Mathilda prüft deinen Rechenweg." />
       <PlotterKachel gesperrt onClick={() => gehe({ ansicht: "kurse", kurs: "penpaper" })} label="Pen & Paper öffnen" logo={<PenPaperBlatt />}
         titel="Pen & Paper"
-        text="Das Fundament: klar aufschreiben, strukturiert arbeiten, sicher mit Fehlern umgehen – 7 Videolektionen." />
+        text="Klar aufschreiben, strukturiert arbeiten, sicher mit Fehlern umgehen." />
       <PlotterKachel gesperrt onClick={() => gehe({ ansicht: "kurse" })} label="Schulkurse öffnen" logo={<SchulkurseLogoKlein />}
         titel="Schulkurse"
-        text="Analysis 1–5, Vektoren, Stochastik und Pen & Paper – mit Videolektionen und Kurz-Checks." />
+        text="Analysis 1–5, Vektoren und Stochastik – mit Videolektionen und Checks." />
 
     </div>
   );
