@@ -23,6 +23,36 @@ import { M } from "./func3.jsx";
 /* ---------- 1. Formel-Engine ---------- */
 
 const FUNKTIONEN = ["sqrt", "sin", "cos", "tan", "ln", "log"];
+const CURSOR = "‸", FELD_AUF = "⟦", FELD_ZU = "⟧";
+
+/* Anzeige-Text mit Schreibmarke: ‸ an der Position, und die innerste Klammer,
+   in der sie steht, wird mit ⟦ … ⟧ als Feld markiert (grau hinterlegt). */
+export function mitSchreibmarke(text, pos) {
+  const p = Math.max(0, Math.min(pos, text.length));
+  const zu = { "(": ")", "[": "]" };
+  const stapel = [];
+  let auf = -1;
+  for (let i = 0; i < p; i++) {
+    if (text[i] === "(" || text[i] === "[") stapel.push(i);
+    else if ((text[i] === ")" || text[i] === "]") && stapel.length) stapel.pop();
+  }
+  if (stapel.length) auf = stapel[stapel.length - 1];
+  let ende = -1;
+  if (auf >= 0) {
+    let tiefe = 0;
+    for (let i = p; i < text.length; i++) {
+      if (text[i] === "(" || text[i] === "[") tiefe++;
+      else if (text[i] === ")" || text[i] === "]") {
+        if (tiefe === 0) { if (text[i] === zu[text[auf]]) ende = i; break; }
+        tiefe--;
+      }
+    }
+  }
+  const mitMarke = text.slice(0, p) + CURSOR + text.slice(p);
+  if (auf < 0 || ende < 0) return mitMarke;
+  const e = ende + 1; // Position der Klammer nach dem Einfügen der Marke
+  return mitMarke.slice(0, auf + 1) + FELD_AUF + mitMarke.slice(auf + 1, e) + FELD_ZU + mitMarke.slice(e);
+}
 
 export function tokenisiere(s) {
   const t = [];
@@ -30,6 +60,9 @@ export function tokenisiere(s) {
   while (i < s.length) {
     const ch = s[i];
     if (ch === PLATZ) { t.push({ k: "box" }); i++; continue; }
+    // Nur für die Anzeige: Schreibmarke ‸ und das Feld ⟦…⟧, in dem sie steht
+    if (ch === CURSOR) { t.push({ k: "cur" }); i++; continue; }
+    if (ch === FELD_AUF || ch === FELD_ZU) { t.push({ k: ch }); i++; continue; }
     if (/\s/.test(ch)) { i++; continue; }
     if (/[0-9.,]/.test(ch)) {
       let j = i;
@@ -84,7 +117,7 @@ export function parse(text) {
         p++;
         const r = vorz(); if (!r) return null;
         n = { k: s.k, a: n, b: r };
-      } else if (s && ["num", "x", "e", "pi", "box", "fn", "("].includes(s.k)) {
+      } else if (s && ["num", "x", "e", "pi", "box", "fn", "(", "cur", FELD_AUF].includes(s.k)) {
         const r = potenz(); if (!r) return null;
         n = { k: "*", a: n, b: r, still: true };
       } else return n;
@@ -103,7 +136,8 @@ export function parse(text) {
   function atom() {
     const s = schau(); if (!s) return null;
     if (s.k === "num") { p++; return { k: "num", v: s.v }; }
-    if (s.k === "x" || s.k === "e" || s.k === "pi" || s.k === "box") { p++; return { k: s.k }; }
+    if (s.k === "x" || s.k === "e" || s.k === "pi" || s.k === "box" || s.k === "cur") { p++; return { k: s.k }; }
+    if (s.k === FELD_AUF) { p++; const n = summe(); if (!n || !nimm(FELD_ZU)) return null; return { k: "feld", a: n }; }
     if (s.k === "(") { p++; const n = summe(); if (!n || !nimm(")")) return null; return { k: "par", a: n }; }
     if (s.k === "fn") {
       p++;
@@ -482,6 +516,8 @@ export function alsTex(n, aussen = 0, rechts = false) {
     case "e": return "e";
     case "pi": return "π";
     case "box": return "▯";
+    case "cur": return "\\cursor ";
+    case "feld": return `\\feld{${alsTex(ohneAussenPar(n.a), 0)}}`;
     case "par": return `(${alsTex(n.a, 0)})`;
     case "neg": return klam(`-${alsTex(n.a, 2)}`, 2);
     case "+": return klam(`${alsTex(n.a, 1)} + ${alsTex(n.b, 1, true)}`, 1);
@@ -1152,11 +1188,14 @@ function Eingabe({ text, setText }) {
   const [pos, setPos] = useState(text.length);
   const [tippen, setTippen] = useState(false);
   const baum = useMemo(() => parse(text), [text]);
-  const tex = baum ? alsTex(baum) : null;
+  const anzeige = useMemo(() => (tippen ? null : parse(mitSchreibmarke(text, pos))), [text, pos, tippen]);
+  const tex = anzeige ? alsTex(anzeige) : baum ? alsTex(baum) : null;
   const unfertig = baum && hatBox(baum);
 
   return (
     <div>
+      <style>{`@keyframes mBlink{0%,55%{opacity:1}56%,100%{opacity:0}} .m-cursor{animation:mBlink 1.05s infinite}
+        @media (prefers-reduced-motion: reduce){.m-cursor{animation:none}}`}</style>
       {/* Anzeige */}
       <div style={{ background: C.weiss, border: `1.5px solid ${baum || !text ? C.linie : C.signal}`, borderRadius: 14,
         padding: "12px 14px", minHeight: 64, overflowX: "auto", display: "flex", alignItems: "center", gap: 8 }}>

@@ -272,6 +272,14 @@ export function mLies(s, i, ende) {
         let u = null;
         if (s[i] === "_") { i++; [u, i] = mArg(s, i); }
         teile.push({ typ: "lim", u });
+      } else if (name === "cursor") {
+        raus();
+        teile.push({ typ: "cursor" });
+        while (s[i] === " ") i++;
+      } else if (name === "feld") {
+        raus();
+        let a; [a, i] = mArg(s, i);
+        teile.push({ typ: "feld", a });
       } else if (name === "mathbb") {
         let a; [a, i] = mRoh(s, i);
         text += MMENGEN[a] || a;
@@ -339,6 +347,17 @@ export function mZeichne(teile) {
       </span>
     );
     if (t.typ === "grp") return <span key={i}>{mZeichne(t.a)}</span>;
+    if (t.typ === "cursor") return (
+      <span key={i} className="m-cursor" aria-hidden="true"
+        style={{ display: "inline-block", width: "0.12em", height: "1.08em", background: C.gruen, borderRadius: 1.5,
+          margin: "0 0.05em", verticalAlign: "middle" }} />
+    );
+    if (t.typ === "feld") return (
+      <span key={i} style={{ background: "#E4E9F1", borderRadius: 5, padding: "0.04em 0.16em", margin: "0 0.03em",
+        boxShadow: "inset 0 0 0 1px #D5DDEA", display: "inline-flex", alignItems: "center", verticalAlign: "middle" }}>
+        {mZeichne(t.a)}
+      </span>
+    );
     return null;
   });
 }
