@@ -1006,15 +1006,17 @@ export function baueAllgemeineDiskussion(baum, A) {
 /* ---------- 4. Oberfläche ---------- */
 
 /* Tastenfeld: sechs Spalten. e = einzufügender Text; ▯ ist ein Platzhalter,
-   in den die Schreibmarke springt. */
+   in den die Schreibmarke springt. Funktionstasten haben zwei Modi:
+   „von x“ (zx/ex) fügt die Funktion direkt mit x ein (sin(x), eˣ),
+   „von ?“ (z/e) öffnet die Klammer zum Verketten (sin(▯), e^(▯)). */
 const TASTEN = [
-  { z: "sin", e: `sin(${PLATZ})`, art: "fn" }, { z: "cos", e: `cos(${PLATZ})`, art: "fn" },
-  { z: "tan", e: `tan(${PLATZ})`, art: "fn" }, { z: "ln", e: `ln(${PLATZ})`, art: "fn" },
-  { z: "log", e: `log(${PLATZ})`, art: "fn" }, { z: "logₐ", e: `log[${PLATZ}](${PLATZ})`, art: "fn" },
+  { z: "sin(?)", zx: "sin x", e: `sin(${PLATZ})`, ex: "sin(x)", art: "fn" }, { z: "cos(?)", zx: "cos x", e: `cos(${PLATZ})`, ex: "cos(x)", art: "fn" },
+  { z: "tan(?)", zx: "tan x", e: `tan(${PLATZ})`, ex: "tan(x)", art: "fn" }, { z: "ln(?)", zx: "ln x", e: `ln(${PLATZ})`, ex: "ln(x)", art: "fn" },
+  { z: "log(?)", zx: "log x", e: `log(${PLATZ})`, ex: "log(x)", art: "fn" }, { z: "logₐ(?)", zx: "logₐx", e: `log[${PLATZ}](${PLATZ})`, ex: `log[${PLATZ}](x)`, art: "fn" },
 
-  { z: "eˣ", e: `e^(${PLATZ})`, art: "fn" }, { z: "aˣ", e: `${PLATZ}^(x)`, art: "fn" },
+  { z: "e^?", zx: "eˣ", e: `e^(${PLATZ})`, ex: "e^x", art: "fn" }, { z: "a^?", zx: "aˣ", e: `${PLATZ}^(${PLATZ})`, ex: `${PLATZ}^x`, art: "fn" },
   { z: "xⁿ", e: `x^(${PLATZ})`, art: "fn" }, { z: "x²", e: "x^2", art: "fn" },
-  { z: "x⁻¹", e: "x^(-1)", art: "fn" }, { z: "√", e: `sqrt(${PLATZ})`, art: "fn" },
+  { z: "x⁻¹", e: "x^(-1)", art: "fn" }, { z: "√?", zx: "√x", e: `sqrt(${PLATZ})`, ex: "sqrt(x)", art: "fn" },
 
   { z: "7", e: "7" }, { z: "8", e: "8" }, { z: "9", e: "9" },
   { z: "▯/▯", e: `(${PLATZ})/(${PLATZ})`, art: "op", titel: "Bruch" },
@@ -1027,8 +1029,7 @@ const TASTEN = [
   { z: "−", e: "-", art: "op" }, { z: "▯ⁿ", e: `^(${PLATZ})`, art: "op", titel: "hoch" }, { z: "π", e: "pi", art: "var" },
 
   { z: "0", e: "0" }, { z: ",", e: "," }, { z: "e", e: "e", art: "var" },
-  { z: "+", e: "+", art: "op" }, { z: "▯→", e: null, art: "nav", aktion: "platz", titel: "nächster Platzhalter" },
-  { z: "Clear", e: null, art: "nav", aktion: "leer", titel: "Clear – alles löschen" },
+  { z: "+", e: "+", art: "op" }, { z: "▯ →", e: null, art: "nav", aktion: "platz", titel: "nächster Platzhalter", span: 2 },
 ];
 
 const LOESCH_EINHEITEN = ["sqrt(", "sin(", "cos(", "tan(", "log[", "log(", "ln(", "pi", "e^("];
@@ -1065,6 +1066,7 @@ export function zufallsFunktion() {
 }
 
 export function Tastenfeld({ wert: text, setWert, pos, setPos }) {
+  const [vonX, setVonX] = useState(true);
   const setzen = (t, p) => { setWert(t); setPos(Math.max(0, Math.min(p, t.length))); };
   const einfuegen = (s) => {
     let t = text, p = pos;
@@ -1091,7 +1093,7 @@ export function Tastenfeld({ wert: text, setWert, pos, setPos }) {
     if (t.aktion === "links") return setPos(Math.max(0, pos - 1));
     if (t.aktion === "rechts") return setPos(Math.min(text.length, pos + 1));
     if (t.aktion === "zurueck") return zurueck();
-    einfuegen(t.e);
+    einfuegen(vonX && t.ex ? t.ex : t.e);
   };
   const stil = (art) => {
     if (art === "fn") return { bg: C.himmel, fg: C.see, rand: "#C7D8EF" };
@@ -1102,14 +1104,15 @@ export function Tastenfeld({ wert: text, setWert, pos, setPos }) {
   };
   const Taste = ({ t, span }) => {
     const s = stil(t.art);
+    const z = vonX && t.zx ? t.zx : t.z;
     return (
-      <button onClick={() => klick(t)} aria-label={t.titel || t.z} className="adv-taste"
+      <button onClick={() => klick(t)} aria-label={t.titel || z} className="adv-taste"
         style={{ gridColumn: span ? `span ${span}` : undefined, height: 46, background: s.bg, color: s.fg,
-          border: `1px solid ${s.rand}`, borderRadius: 12, fontSize: t.z.length > 3 ? 14 : 17,
+          border: `1px solid ${s.rand}`, borderRadius: 12, fontSize: z.length > 6 ? "clamp(10px, 2.9vw, 12px)" : z.length > 5 ? "clamp(11px, 3.2vw, 12.5px)" : z.length > 3 ? 13.5 : 17, whiteSpace: "nowrap", overflow: "hidden", minWidth: 0,
           fontWeight: t.art === "op" || t.art === "nav" ? 700 : 600, fontFamily: "inherit", cursor: "pointer",
           padding: 0, display: "flex", alignItems: "center", justifyContent: "center",
           fontStyle: t.art === "var" && t.z === "x" ? "italic" : "normal", boxShadow: "0 1px 0 rgba(15,26,51,0.06)" }}>
-        {t.z}
+        {z}
       </button>
     );
   };
@@ -1117,11 +1120,29 @@ export function Tastenfeld({ wert: text, setWert, pos, setPos }) {
     <div>
       <style>{`.adv-taste{transition:transform .08s ease, filter .12s ease}
         .adv-taste:active{transform:scale(0.93);filter:brightness(0.93)}`}</style>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 6 }}>
-        {TASTEN.map((t, i) => <Taste key={i} t={t} />)}
-        <Taste t={{ z: "←", art: "nav", aktion: "links", titel: "Schreibmarke nach links" }} span={2} />
-        <Taste t={{ z: "→", art: "nav", aktion: "rechts", titel: "Schreibmarke nach rechts" }} span={2} />
+      {/* Umschalter für die Funktionstasten */}
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+        <div role="group" aria-label="Funktionstasten einfügen als" style={{ display: "flex", background: "#EEF2F8", borderRadius: 999, padding: 3, flexShrink: 0 }}>
+          {[[true, "von x", "Funktion direkt mit x einfügen, z. B. sin x"], [false, "von ?", "Klammer öffnen zum Verketten, z. B. sin(x²)"]].map(([wert, name, titel]) => (
+            <button key={name} type="button" onClick={() => setVonX(wert)} aria-pressed={vonX === wert} title={titel}
+              style={{ border: "none", borderRadius: 999, padding: "6px 14px", fontFamily: "inherit", cursor: "pointer", fontSize: 13.5,
+                fontWeight: vonX === wert ? 700 : 500, background: vonX === wert ? C.weiss : "transparent",
+                color: vonX === wert ? C.see : C.grau, boxShadow: vonX === wert ? "0 1px 6px rgba(15,26,51,0.12)" : "none",
+                fontStyle: "normal" }}>
+              {name}
+            </button>
+          ))}
+        </div>
+        <span style={{ fontSize: 12, color: C.grau, fontWeight: 300, lineHeight: 1.35 }}>
+          {vonX ? <>direkt mit x, z. B. <span style={{ whiteSpace: "nowrap" }}>sin x</span></> : <>zum Verketten, z. B. <span style={{ whiteSpace: "nowrap" }}>sin(x²)</span></>}
+        </span>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(6, minmax(0, 1fr))", gap: 6 }}>
+        {TASTEN.map((t, i) => <Taste key={i} t={t} span={t.span} />)}
+        <Taste t={{ z: "←", art: "nav", aktion: "links", titel: "Schreibmarke nach links" }} />
+        <Taste t={{ z: "→", art: "nav", aktion: "rechts", titel: "Schreibmarke nach rechts" }} />
         <Taste t={{ z: "⌫", art: "nav", aktion: "zurueck", titel: "Löschen" }} span={2} />
+        <Taste t={{ z: "Clear", art: "nav", aktion: "leer", titel: "Clear – alles löschen" }} span={2} />
       </div>
     </div>
   );
@@ -1153,8 +1174,23 @@ function Eingabe({ text, setText }) {
         {unfertig && <span style={{ color: C.gruenDunkel, marginLeft: 8 }}>· Platzhalter ▯ füllen</span>}
       </p>
 
+      {tippen ? (
+        <div>
+          <input value={text} onChange={(e) => { setText(e.target.value); setPos(e.target.value.length); }}
+            placeholder="z. B. x^2*sin(x) oder log[2](x+1)" autoCapitalize="off" autoCorrect="off" spellCheck="false"
+            style={{ width: "100%", boxSizing: "border-box", height: 46, borderRadius: 12, border: `1.5px solid ${C.linie}`,
+              padding: "0 12px", fontSize: 16, fontFamily: "ui-monospace, Menlo, monospace", color: C.tinte }} />
+          <p style={{ fontSize: 12, color: C.grau, fontWeight: 300, lineHeight: 1.6, marginTop: 8 }}>
+            Schreibweise: <b>^</b> hoch, <b>/</b> geteilt, <b>sqrt(…)</b> Wurzel, <b>ln(…)</b>, <b>log(…)</b> zur Basis 10,
+            <b> log[a](…)</b> zur Basis a, <b>e^(…)</b>, <b>pi</b>.
+          </p>
+        </div>
+      ) : (
+        <Tastenfeld wert={text} setWert={setText} pos={pos} setPos={setPos} />
+      )}
+
       {/* Spielerische Schnellstarts */}
-      <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+      <div style={{ display: "flex", gap: 8, marginTop: 12, marginBottom: 10 }}>
         <button onClick={() => { const t = zufallsFunktion(); setText(t); setPos(t.length); }}
           style={{ flex: 1, height: 42, borderRadius: 12, border: "none", cursor: "pointer", fontFamily: "inherit",
             fontSize: 14, fontWeight: 700, color: C.seeTief, background: C.flaggold, boxShadow: "0 3px 10px rgba(237,187,0,0.35)" }}>
@@ -1175,20 +1211,6 @@ function Eingabe({ text, setText }) {
         ))}
       </div>
 
-      {tippen ? (
-        <div>
-          <input value={text} onChange={(e) => { setText(e.target.value); setPos(e.target.value.length); }}
-            placeholder="z. B. x^2*sin(x) oder log[2](x+1)" autoCapitalize="off" autoCorrect="off" spellCheck="false"
-            style={{ width: "100%", boxSizing: "border-box", height: 46, borderRadius: 12, border: `1.5px solid ${C.linie}`,
-              padding: "0 12px", fontSize: 16, fontFamily: "ui-monospace, Menlo, monospace", color: C.tinte }} />
-          <p style={{ fontSize: 12, color: C.grau, fontWeight: 300, lineHeight: 1.6, marginTop: 8 }}>
-            Schreibweise: <b>^</b> hoch, <b>/</b> geteilt, <b>sqrt(…)</b> Wurzel, <b>ln(…)</b>, <b>log(…)</b> zur Basis 10,
-            <b> log[a](…)</b> zur Basis a, <b>e^(…)</b>, <b>pi</b>.
-          </p>
-        </div>
-      ) : (
-        <Tastenfeld wert={text} setWert={setText} pos={pos} setPos={setPos} />
-      )}
     </div>
   );
 }
