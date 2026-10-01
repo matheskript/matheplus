@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { C } from "./base1.jsx";
 import { merken } from "./func5.jsx";
+import { DrehKnoepfe, ebenenPolygon, kamera } from "./func16.jsx";
 
 /* ======================================================================
    LINEARE GLEICHUNGSSYSTEME (3 Unbekannte)
@@ -355,6 +356,207 @@ function Rueckwaerts({ rueck }) {
   );
 }
 
+/* ---------- Geometrische Deutung: Lösung = Schnittpunkt dreier Ebenen ----------
+   Jede Zeile des Ausgangssystems ist eine Ebenengleichung E₁, E₂, E₃.
+   Die Lösung (x | y | z) ist der gemeinsame Punkt S der drei Ebenen. */
+
+const EBENEN_FARBEN = [C.see, C.gruen, "#C99A00"];
+/* Lösung per Cramer-Regel (det ≠ 0 ist durch den Generator garantiert) */
+const cramer = (rows) => {
+  const A = rows.map((r) => r.slice(0, 3)), D = det3(A);
+  return [0, 1, 2].map((k) => Math.round((det3(A.map((r, i) => r.map((v, j) => (j === k ? rows[i][3] : v)))) / D) * 1000) / 1000);
+};
+const kreuz = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+
+/* E mit tiefgestelltem Index als HTML */
+export function EName({ i, farbe }) {
+  return (
+    <span style={{ color: farbe, fontWeight: 700, whiteSpace: "nowrap" }}>
+      E<sub style={{ fontSize: "0.68em", position: "relative", top: "0.32em", verticalAlign: "baseline", lineHeight: 0, marginLeft: "0.04em" }}>{i}</sub>
+    </span>
+  );
+}
+
+/* Gerade p + t·r auf den Quader M ± L zuschneiden */
+function strahlImQuader(p, r, M, L) {
+  let t0 = -Infinity, t1 = Infinity;
+  for (let k = 0; k < 3; k++) {
+    if (Math.abs(r[k]) < 1e-12) { if (Math.abs(p[k] - M[k]) > L) return null; continue; }
+    const a = (M[k] - L - p[k]) / r[k], b = (M[k] + L - p[k]) / r[k];
+    t0 = Math.max(t0, Math.min(a, b)); t1 = Math.min(t1, Math.max(a, b));
+  }
+  if (t0 > t1) return null;
+  return [p.map((v, k) => v + t0 * r[k]), p.map((v, k) => v + t1 * r[k])];
+}
+
+function DreiEbenenRaum({ rows, S, zeigeS, phi, theta, setPhi, setTheta }) {
+  const W = 360, H = 330;
+  const M = S.map((v) => v / 2);
+  const L = Math.max(5, Math.ceil(Math.max(...S.map(Math.abs)) / 2 + 3));
+  const sk = (Math.min(W, H) / 2 - 16) / (L * 1.55);
+  const cam = kamera(phi, theta);
+  const P = (p) => { const q = cam.proj([p[0] - M[0], p[1] - M[1], p[2] - M[2]]); return [W / 2 + sk * q.u, H / 2 - sk * q.v]; };
+  const tiefe = (p) => cam.proj([p[0] - M[0], p[1] - M[1], p[2] - M[2]]).t;
+  const pfad = (pts) => pts.map((p, k) => `${k ? "L" : "M"}${P(p)[0].toFixed(1)},${P(p)[1].toFixed(1)}`).join(" ") + " Z";
+
+  const ebenen = rows.map((r, i) => {
+    const n = r.slice(0, 3);
+    const dVersch = r[3] - (n[0] * M[0] + n[1] * M[1] + n[2] * M[2]);
+    const poly = ebenenPolygon(n, dVersch, L).map((q) => q.map((v, k) => v + M[k]));
+    const t = poly.length ? poly.reduce((s, p) => s + tiefe(p), 0) / poly.length : 0;
+    return { i, poly, t, farbe: EBENEN_FARBEN[i] };
+  }).sort((a, b) => a.t - b.t);
+
+  const geraden = [[0, 1], [0, 2], [1, 2]].map(([a, b]) => strahlImQuader(S, kreuz(rows[a].slice(0, 3), rows[b].slice(0, 3)), M, L)).filter(Boolean);
+  const achsen = [0, 1, 2].map((k) => { const r = [0, 0, 0]; r[k] = 1; return { k, seg: strahlImQuader([0, 0, 0], r, M, L) }; });
+
+  const ziehen = useRef(null);
+  const start = (e) => { e.preventDefault(); ziehen.current = { x: e.clientX, y: e.clientY, phi, theta }; e.currentTarget.setPointerCapture?.(e.pointerId); };
+  const bewege = (e) => {
+    if (!ziehen.current) return;
+    const dx = e.clientX - ziehen.current.x, dy = e.clientY - ziehen.current.y;
+    setPhi(ziehen.current.phi - dx * 0.01);
+    setTheta(Math.max(-1.35, Math.min(1.35, ziehen.current.theta + dy * 0.01)));
+  };
+  const ende = () => { ziehen.current = null; };
+
+  const [sx, sy] = P(S);
+  const linie = (a, b, props) => { const [x1, y1] = P(a), [x2, y2] = P(b); return <line x1={x1} y1={y1} x2={x2} y2={y2} {...props} />; };
+  const fuss = [S[0], S[1], 0];
+  const sText = `S(${S.map(minus).join(" | ")})`;
+  const rechts = sx < W - 150;
+
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", display: "block", touchAction: "none", cursor: "grab", background: C.weiss, borderRadius: 14, userSelect: "none", WebkitUserSelect: "none" }}
+      onPointerDown={start} onPointerMove={bewege} onPointerUp={ende} onPointerLeave={ende}
+      role="img" aria-label={zeigeS ? `Drei Ebenen E1, E2 und E3, die sich im Punkt ${sText} schneiden` : "Drei Ebenen E1, E2 und E3, die sich in einem Punkt S schneiden"}>
+      <defs>
+        <marker id="lgsAchsPfeil" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill={C.ablGrau} />
+        </marker>
+      </defs>
+      {/* Achsen */}
+      {achsen.map(({ k, seg }) => {
+        if (!seg) return null;
+        const [a, b] = seg;
+        const [lx, ly] = P(b.map((v, j) => (j === k ? v + L * 0.1 : v)));
+        return (
+          <g key={k}>
+            {linie(a, b, { stroke: C.ablGrau, strokeWidth: 1.4, markerEnd: "url(#lgsAchsPfeil)" })}
+            <text x={lx} y={ly + 4} textAnchor="middle" fontSize="13" fontWeight="700" fontStyle="italic" fill={C.grau}>{VARS[k]}</text>
+          </g>
+        );
+      })}
+      {(() => { const [x, y] = P([0, 0, 0]); return <circle cx={x} cy={y} r="2.4" fill={C.grau} />; })()}
+      {/* Ebenen, hintere zuerst */}
+      {ebenen.map((e) => e.poly.length >= 3 && (
+        <path key={e.i} d={pfad(e.poly)} fill={e.farbe} fillOpacity="0.17" stroke={e.farbe} strokeOpacity="0.8" strokeWidth="1.4" strokeLinejoin="round" />
+      ))}
+      {/* Schnittgeraden je zweier Ebenen — alle drei laufen durch S */}
+      {geraden.map((g, i) => <g key={i}>{linie(g[0], g[1], { stroke: C.tinte, strokeWidth: 1.6, strokeDasharray: "5 4", opacity: 0.55 })}</g>)}
+      {/* Koordinaten-Hilfslinien und Punkt */}
+      {zeigeS && (
+        <g stroke={C.grau} strokeWidth="1.1" strokeDasharray="2 3" opacity="0.8">
+          {linie(S, fuss, {})}
+          {linie(fuss, [S[0], 0, 0], {})}
+          {linie(fuss, [0, S[1], 0], {})}
+        </g>
+      )}
+      <circle cx={sx} cy={sy} r={zeigeS ? 9 : 7} fill={C.flaggold} opacity="0.3" />
+      <circle cx={sx} cy={sy} r={zeigeS ? 5.5 : 4.5} fill={zeigeS ? C.flaggold : C.weiss} stroke={C.seeTief} strokeWidth="2" />
+      {zeigeS ? (
+        <text x={rechts ? sx + 12 : sx - 12} y={sy - 10} textAnchor={rechts ? "start" : "end"} fontSize="14" fontWeight="700" fill={C.seeTief}
+          stroke={C.weiss} strokeWidth="4" paintOrder="stroke" strokeLinejoin="round">{sText}</text>
+      ) : (
+        <text x={rechts ? sx + 12 : sx - 12} y={sy - 10} textAnchor={rechts ? "start" : "end"} fontSize="14" fontWeight="700" fill={C.seeTief}
+          stroke={C.weiss} strokeWidth="4" paintOrder="stroke" strokeLinejoin="round">S(? | ? | ?)</text>
+      )}
+      {/* Legende mit tiefgestellten Indizes */}
+      <g fontSize="13" fontWeight="700">
+        {[0, 1, 2].map((i) => (
+          <g key={i} transform={`translate(${12 + i * 46} 12)`}>
+            <rect width="11" height="11" rx="2.5" fill={EBENEN_FARBEN[i]} opacity="0.55" />
+            <text x="16" y="10.5" fill={EBENEN_FARBEN[i]}>E<tspan fontSize="9" dy="3.5">{i + 1}</tspan></text>
+          </g>
+        ))}
+      </g>
+    </svg>
+  );
+}
+
+function EbenenDeutung({ rows, loesung, aufgedeckt }) {
+  const [phi, setPhi] = useState(0.62);
+  const [theta, setTheta] = useState(0.42);
+  const [zeigen, setZeigen] = useState(false);
+  const zeigeS = aufgedeckt || zeigen;
+  const karte = { background: C.weiss, borderRadius: 18, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" };
+  return (
+    <div style={{ marginTop: 30 }}>
+      <div style={{ height: 1, background: C.linie, marginBottom: 26 }} />
+      <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 8 }}>Geometrisch gedeutet</p>
+      <h3 style={{ fontSize: 21, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.25, marginBottom: 10 }}>
+        Die Lösung ist der Schnittpunkt dreier Ebenen
+      </h3>
+      <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.8, marginBottom: 16 }}>
+        Jede Gleichung des Ausgangssystems ist eine Ebenengleichung. Ein Punkt (<i>x</i> | <i>y</i> | <i>z</i>) erfüllt
+        eine Gleichung genau dann, wenn er auf dieser Ebene liegt. Die Lösung des Systems erfüllt alle drei
+        Gleichungen — sie ist also der Punkt <b style={{ color: C.tinte, fontWeight: 600 }}>S</b>, den alle drei Ebenen gemeinsam haben.
+      </p>
+
+      <div style={{ ...karte, padding: "16px 20px", marginBottom: 14 }}>
+        <div className="lgs-scroll">
+          <div style={{ display: "grid", gridTemplateColumns: "auto auto", columnGap: 12, rowGap: 8, alignItems: "baseline", fontSize: "clamp(15px, 4.4vw, 18px)", color: C.tinte, fontWeight: 500, width: "max-content" }}>
+            {rows.map((r, i) => (
+              <React.Fragment key={i}>
+                <span style={{ display: "flex", alignItems: "baseline", gap: 7 }}>
+                  <span aria-hidden="true" style={{ width: 10, height: 10, borderRadius: 3, background: EBENEN_FARBEN[i], opacity: 0.6, alignSelf: "center" }} />
+                  <EName i={i + 1} farbe={EBENEN_FARBEN[i]} /><span style={{ color: C.grau, marginLeft: -3 }}>:</span>
+                </span>
+                <GlText row={r} />
+              </React.Fragment>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div style={{ ...karte, padding: 12, position: "relative", userSelect: "none", WebkitUserSelect: "none" }}>
+        <p style={{ fontSize: 13, fontWeight: 600, color: C.see, margin: "4px 6px 8px" }}>Zieh am Bild, um die Ebenen im Raum zu drehen</p>
+        <div style={{ position: "relative" }}>
+          <DreiEbenenRaum rows={rows} S={loesung} zeigeS={zeigeS} phi={phi} theta={theta} setPhi={setPhi} setTheta={setTheta} />
+          <DrehKnoepfe setPhi={setPhi} setTheta={setTheta} zuruecksetzen={() => { setPhi(0.62); setTheta(0.42); }} />
+        </div>
+        <p style={{ fontSize: 12.5, color: C.grau, fontWeight: 300, lineHeight: 1.6, margin: "10px 6px 2px" }}>
+          Gestrichelt: Je zwei Ebenen schneiden sich in einer Geraden. Alle drei Schnittgeraden laufen durch denselben Punkt — das ist S.
+        </p>
+      </div>
+
+      <div className="lgs-neu" style={{ ...karte, padding: "14px 18px", marginTop: 14, display: "flex", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+        {zeigeS ? (
+          <>
+            <span style={{ fontSize: 18, fontWeight: 700, color: C.seeTief }}>
+              <EName i={1} farbe={EBENEN_FARBEN[0]} /> ∩ <EName i={2} farbe={EBENEN_FARBEN[1]} /> ∩ <EName i={3} farbe={EBENEN_FARBEN[2]} /> = {"{ "}S{" }"}
+            </span>
+            <span style={{ fontSize: 18, fontWeight: 700, color: C.tinte }}>S({loesung.map(minus).join(" | ")})</span>
+            <span style={{ fontSize: 13, color: C.grau, fontWeight: 300, flexBasis: "100%", lineHeight: 1.6 }}>
+              Die Koordinaten von S sind genau die Lösung des Gleichungssystems:{" "}{VARS.map((v, k) => <span key={v} style={{ whiteSpace: "nowrap" }}><i>{v}</i> = {minus(loesung[k])}{k < 2 ? ", " : "."}</span>)}
+            </span>
+          </>
+        ) : (
+          <>
+            <span style={{ fontSize: 14, color: C.grau, fontWeight: 300, lineHeight: 1.6, flex: "1 1 220px" }}>
+              Löse das System — dann stehen hier die Koordinaten von S.
+            </span>
+            <button type="button" onClick={() => setZeigen(true)}
+              style={{ background: "none", border: `1px solid ${C.linie}`, color: C.see, borderRadius: 999, padding: "8px 14px", fontSize: 13.5, fontWeight: 500, fontFamily: "inherit", cursor: "pointer" }}>
+              Schnittpunkt zeigen
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /* ---------- Hauptkomponente ---------- */
 export function LGSLoeser() {
   const [stufe, setStufe] = useState(1);
@@ -638,6 +840,9 @@ export function LGSLoeser() {
           </div>
         )}
       </div>
+
+      <EbenenDeutung key={bloecke[0].rows.flat().join(",")} rows={bloecke[0].rows} loesung={cramer(bloecke[0].rows)}
+        aufgedeckt={!!fertig || !!muster} />
 
       <details style={{ marginTop: 22 }}>
         <summary style={{ fontSize: 13.5, color: C.see, cursor: "pointer", fontWeight: 500 }}>Was kann ich eingeben?</summary>
