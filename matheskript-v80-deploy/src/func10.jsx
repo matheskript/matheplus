@@ -23,6 +23,7 @@ import { BernoulliBingo, StochastikZentrum } from "./func17.jsx";
 import { Vierfeldertafel } from "./func18.jsx";
 import { Gleichungsloeser } from "./funcGleichungen.jsx";
 import { LGSLoeser } from "./funcLGS.jsx";
+import { MasterclassSeite } from "./funcMasterclass.jsx";
 
 // Menü-Button im Header: vorübergehend aus (true = wieder einblenden)
 const ZEIGE_MENUE = false;
@@ -755,6 +756,21 @@ export function Mathilda() {
             <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
           </div>
           <Gleichungsloeser />
+        </>
+      ) : ansicht === "masterclass" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
+            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.14em", color: C.flaggold, marginBottom: 8 }}>6-MONATS-PROGRAMM</p>
+              <h1 className="logo-gold" style={{ fontWeight: 800, fontSize: "clamp(28px, 8.4vw, 38px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Mathe Abi Masterclass</h1>
+              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+                Werde die beste Version von dir – für ein erfolgreiches Mathe-Abi und echte Freude am Fach.
+              </p>
+            </div>
+            <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
+          </div>
+          <MasterclassSeite />
         </>
       ) : ansicht === "lgs" ? (
         <>

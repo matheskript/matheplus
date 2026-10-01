@@ -106,6 +106,7 @@ export const NAV = [
     SCHULKLASSEN.map((k) => ({ name: `Klasse ${k}`, kurz: k >= 11 ? "Kursstufe" : "Nach dem Lambacher Schweizer", ansicht: "klasse", klasse: k })) },
   { id: "ueben", name: "Üben", kurz: "Aufgaben und ganze Rechenwege", eintraege: [
     { name: "Gleichungslöser", kurz: "Äquivalenzumformungen eintippen – linear bis Logarithmus", ansicht: "gleichungen" },
+    { name: "Mathe Abi Masterclass", kurz: "Das 6-Monats-Programm fürs Mathe-Abi", ansicht: "masterclass" },
     { name: "Gleichungssysteme", kurz: "LGS mit drei Unbekannten – Gauß-Verfahren und direkter Weg", ansicht: "lgs" },
     { name: "Ableitungstrainer", kurz: "f′, f″ und f‴ eingeben und sofort prüfen lassen", ansicht: "ableitungstrainer" },
     { name: "Aufgabengenerator", kurz: "Geraden, Ableitungen, Kurvendiskussion", ansicht: "ki", ziel: null },

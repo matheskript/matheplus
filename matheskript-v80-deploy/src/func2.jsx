@@ -16,6 +16,7 @@ import { VektorenLogoKlein } from "./func16.jsx";
 import { StochastikLogoKlein } from "./func17.jsx";
 import { GleichungenLogoKlein } from "./funcGleichungen.jsx";
 import { LGSLogoKlein } from "./funcLGS.jsx";
+import { MasterclassKachel } from "./funcMasterclass.jsx";
 
 /* Große, ganz anklickbare Kachel für die Plotter auf der Startseite. */
 /* Polynomplotter-Grafik im Hochformat für die Kachel. */
@@ -689,6 +690,7 @@ export function Startseite({ gehe }) {
           und schnelle Kopfrechenrunden. Such dir unten einen Bereich aus und leg los.
         </p>
       </section>
+      <MasterclassKachel onClick={() => gehe({ ansicht: "masterclass" })} />
       <PlotterKachel onClick={() => setSchulAuf(!schulAuf)} label={schulAuf ? "Schulmathematik zuklappen" : "Schulmathematik aufklappen"}
         logo={<SchulmatheLogoKlein />} titel="Schulmathematik"
         text="Analysis, Vektoren, Stochastik und Formeln – live zum Ausprobieren."
