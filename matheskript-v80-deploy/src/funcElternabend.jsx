@@ -24,68 +24,99 @@ const GOLD = "#EDBB00";
 const GOLD_VERLAUF = "linear-gradient(180deg,#FFE58A 0%,#EDBB00 45%,#E2B53C 70%,#A67C00 100%)";
 const goldText = { background: GOLD_VERLAUF, WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" };
 
-/* Gezeichnetes Café als Ersatz, solange kein Foto hinterlegt ist */
-function CafeIllustration() {
+/* Relief des Cafés in Dingelsdorf (Schablonen-Stil in Silbertönen) – Ersatz, solange kein Foto hinterlegt ist */
+export function CafeRelief({ dunkel }) {
   return (
-    <svg viewBox="0 0 200 160" preserveAspectRatio="xMidYMid slice" style={{ width: "100%", height: "100%", display: "block", background: "#0E0C08" }} aria-hidden="true">
-      <g stroke={GOLD} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
-        {/* Haus mit Markise */}
-        <path d="M 30 150 V 70 L 100 30 L 170 70 V 150" opacity="0.9" />
-        <path d="M 40 88 H 160 L 152 102 H 48 Z" fill="rgba(237,187,0,0.12)" />
-        {[0, 1, 2, 3, 4, 5].map((i) => <path key={i} d={`M ${48 + i * 18.7} 102 q 9.3 10 18.7 0`} />)}
-        <rect x="55" y="112" width="30" height="38" rx="2" />
-        <rect x="112" y="112" width="34" height="24" rx="2" fill="rgba(237,187,0,0.18)" />
-        <path d="M 20 150 H 180" />
-        {/* Tasse mit Dampf */}
-        <path d="M 118 50 h 26 v 10 a 13 13 0 0 1 -26 0 z" fill="rgba(237,187,0,0.15)" />
-        <path d="M 144 54 a 5 5 0 0 1 0 10" />
-        <path d="M 124 44 q -4 -6 0 -12 M 131 44 q -4 -6 0 -12 M 138 44 q -4 -6 0 -12" opacity="0.7" />
-      </g>
-      {[[22, 30], [180, 24], [168, 120], [12, 110]].map(([x, y], i) => <circle key={i} cx={x} cy={y} r="1.6" fill={GOLD} opacity="0.6" />)}
+    <svg viewBox="0 0 200 160" preserveAspectRatio="xMidYMax slice" style={{ width: "100%", height: "100%", display: "block",
+      background: dunkel ? "linear-gradient(180deg,#2A2F38 0%,#14171C 100%)" : "transparent" }} aria-hidden="true">
+
+  {/* Boden */}
+  <path d="M 0 146 H 200 V 160 H 0 Z" fill="#8C97A6"/>
+  {/* Baum links */}
+  <path d="M 22 146 V 104" stroke="#5E6878" strokeWidth="4"/>
+  <ellipse cx="22" cy="92" rx="18" ry="22" fill="#8C97A6"/>
+  <path d="M 12 84 q 10 -10 20 0" stroke="#B9C2CE" strokeWidth="3" fill="none"/>
+  {/* Haus: Giebel, Schattenseite rechts */}
+  <path d="M 48 146 V 72 L 104 34 L 160 72 V 146 Z" fill="#F4F6F9"/>
+  <path d="M 104 34 L 160 72 V 146 H 136 V 80 Z" fill="#DCE2EA"/>
+  {/* Dach */}
+  <path d="M 40 76 L 104 30 L 168 76 L 160 80 L 104 40 L 48 80 Z" fill="#3E4756"/>
+  <path d="M 104 30 L 168 76 L 160 80 L 104 40 Z" fill="#5E6878"/>
+  {/* Fachwerk-Andeutung / Giebelfenster */}
+  <rect x="96" y="52" width="16" height="16" rx="2" fill="#5E6878"/>
+  <path d="M 104 52 V 68 M 96 60 H 112" stroke="#DCE2EA" strokeWidth="1.5"/>
+  {/* Obergeschoss-Fenster */}
+  <rect x="62" y="84" width="18" height="16" rx="2" fill="#5E6878"/><rect x="128" y="84" width="18" height="16" rx="2" fill="#5E6878"/>
+  <path d="M 71 84 V 100 M 137 84 V 100" stroke="#DCE2EA" strokeWidth="1.5"/>
+  {/* Markise gestreift */}
+  <path d="M 52 108 H 156 L 150 120 H 58 Z" fill="#3E4756"/>
+  <g fill="#B9C2CE">
+    <path d="M 62 108 h 8 l -2 12 h -8 z"/><path d="M 82 108 h 8 l -1 12 h -8 z"/><path d="M 102 108 h 8 v 12 h -8 z"/><path d="M 122 108 h 8 l 1 12 h -8 z"/><path d="M 142 108 h 8 l 2 12 h -8 z"/>
+  </g>
+  <path d="M 58 120 q 5 5 10 0 q 5 5 10 0 q 5 5 10 0 q 5 5 10 0 q 5 5 10 0 q 5 5 10 0 q 5 5 10 0 q 5 5 10 0 q 5 5 12 0" fill="#3E4756"/>
+  {/* Erdgeschoss: Tür und großes Fenster */}
+  <rect x="66" y="126" width="18" height="20" rx="2" fill="#3E4756"/>
+  <rect x="98" y="126" width="44" height="16" rx="2" fill="#5E6878"/>
+  <path d="M 120 126 V 142" stroke="#DCE2EA" strokeWidth="1.5"/>
+  {/* Schild */}
+  <rect x="86" y="99" width="36" height="7" rx="2" fill="#F4F6F9" stroke="#5E6878" strokeWidth="1"/>
+  <text x="104" y="104.6" fontSize="5" textAnchor="middle" fill="#3E4756" fontFamily="Montserrat, system-ui, sans-serif" fontWeight="700">CAFÉ</text>
+  {/* Tisch mit Schirm rechts */}
+  <path d="M 176 146 V 118" stroke="#5E6878" strokeWidth="2"/>
+  <path d="M 162 120 Q 176 106 190 120 Z" fill="#5E6878"/>
+  <rect x="168" y="136" width="16" height="3" fill="#3E4756"/><path d="M 172 139 V 146 M 180 139 V 146" stroke="#3E4756" strokeWidth="2"/>
+  {/* Tasse mit Dampf */}
+  <path d="M 172 132 h 7 v 3 a 3.5 3.5 0 0 1 -7 0 z" fill="#F4F6F9"/>
+
     </svg>
   );
 }
 
 export function CafeBild({ style }) {
   const [fehlt, setFehlt] = useState(false);
-  return fehlt ? <CafeIllustration /> : (
+  return fehlt ? <CafeRelief dunkel /> : (
     <img src={ELTERNABEND.foto} alt="Evelyn's Café in Dingelsdorf" onError={() => setFehlt(true)}
       style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", ...style }} />
   );
 }
 
-/* ---------- Startseiten-Kachel ---------- */
+/* ---------- Startseiten-Kachel (silbern, glänzend) ---------- */
+const SILBER = "linear-gradient(150deg, #FFFFFF 0%, #E4E8EE 20%, #BCC5D1 46%, #F1F3F7 60%, #A7B1BF 84%, #D3D9E1 100%)";
+const NAVY = "#0B1E4A";
+
 export function ElternabendKachel({ onClick }) {
   return (
     <button type="button" onClick={onClick} aria-label="Nächster Elternabend ansehen" className="ea-kachel"
       style={{ display: "flex", width: "calc(100% + 32px)", marginLeft: -16, marginRight: -16, marginTop: 12, padding: 0, border: "none",
         borderRadius: 20, overflow: "hidden", cursor: "pointer", fontFamily: "inherit", textAlign: "left", position: "relative",
-        height: "calc(148px + 1.65 * clamp(15px, 4.1vw, 22px))", background: SCHWARZ, color: C.weiss,
-        boxShadow: "0 10px 30px rgba(0,0,0,0.35), inset 0 0 0 1px rgba(237,187,0,0.35)" }}>
+        height: "calc(148px + 1.65 * clamp(15px, 4.1vw, 22px))", background: SILBER, color: NAVY,
+        boxShadow: "0 8px 24px rgba(60,72,92,0.28), inset 0 0 0 1px rgba(255,255,255,0.8)" }}>
       <style>{`.ea-kachel{transition:transform .15s ease, box-shadow .15s ease}
         .ea-kachel:active{transform:scale(0.985)}
         @media (hover:hover){.ea-kachel:hover{transform:translateY(-2px)}}
-        .ea-glanz{position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 35%,rgba(237,187,0,0.14) 48%,transparent 62%);
-          background-size:260% 100%;animation:eaGlanz 6s ease-in-out infinite}
-        @keyframes eaGlanz{0%,55%{background-position:120% 0}100%{background-position:-120% 0}}`}</style>
+        .ea-glanz{position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,0.6) 45%,transparent 60%);
+          background-size:250% 100%;animation:eaGlanz 5.5s ease-in-out infinite;animation-delay:.6s}
+        @keyframes eaGlanz{0%,60%{background-position:120% 0}100%{background-position:-120% 0}}`}</style>
       <span className="ea-glanz" aria-hidden="true" />
-      <div style={{ flex: "1 1 60%", minWidth: 0, padding: "12px 8px 12px 16px", display: "flex", flexDirection: "column", position: "relative" }}>
-        <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: "0.14em", color: GOLD }}>NÄCHSTER ELTERNABEND</span>
-        <h2 style={{ fontSize: "clamp(21px, 6.2vw, 32px)", fontWeight: 800, letterSpacing: "-0.035em", lineHeight: 1.02, margin: "6px 0 0", ...goldText }}>
-          Sonntag,<br />1. November
+      <div style={{ flex: "1 1 66%", minWidth: 0, padding: "12px 6px 12px 14px", display: "flex", flexDirection: "column", position: "relative" }}>
+        <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: "0.14em", color: "#5E6878" }}>NÄCHSTER ELTERNABEND</span>
+        <h2 style={{ fontSize: "clamp(15px, 4.35vw, 30px)", fontWeight: 800, letterSpacing: "-0.035em", lineHeight: 1.1, margin: "5px 0 0", whiteSpace: "nowrap" }}>
+          {ELTERNABEND.datumKurz}
         </h2>
-        <span aria-hidden="true" style={{ display: "block", width: 44, height: 3, borderRadius: 2, marginTop: 7, background: GOLD_VERLAUF }} />
-        <p style={{ fontSize: 13, fontWeight: 500, lineHeight: 1.4, marginTop: 6, marginBottom: 0, color: "rgba(255,255,255,0.88)" }}>
-          {ELTERNABEND.ort}<br /><span style={{ fontWeight: 300, color: "rgba(255,255,255,0.65)" }}>Dingelsdorf</span>
+        <span aria-hidden="true" style={{ display: "block", width: 44, height: 3, borderRadius: 2, marginTop: 6, background: NAVY }} />
+        <p style={{ fontSize: 13, fontWeight: 700, lineHeight: 1.35, marginTop: 6, marginBottom: 0 }}>
+          {ELTERNABEND.ort} <span style={{ fontWeight: 400, color: "#3B4763" }}>· Dingelsdorf</span>
         </p>
-        <span style={{ marginTop: "auto", paddingTop: 6, fontSize: 13, fontWeight: 700, color: GOLD, display: "flex", alignItems: "center", gap: 6 }}>
+        <p style={{ fontSize: 12.5, fontWeight: 500, lineHeight: 1.4, marginTop: 4, marginBottom: 0, color: "#1B2A4F" }}>
+          Die Infoveranstaltung mit Entertainment-Charakter und Aha-Momenten.
+        </p>
+        <span style={{ marginTop: "auto", paddingTop: 4, fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
           Mehr erfahren
-          <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4l4 4-4 4" stroke={GOLD} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
+          <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4l4 4-4 4" stroke={NAVY} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </span>
       </div>
-      <div style={{ flex: "0 0 40%", position: "relative", borderLeft: "1px solid rgba(237,187,0,0.25)" }}>
-        <div style={{ position: "absolute", inset: 0 }}><CafeBild /></div>
-        <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(14,12,8,0.55) 0%, rgba(14,12,8,0) 40%)" }} />
+      <div style={{ flex: "0 0 34%", position: "relative", borderLeft: "1px solid rgba(11,30,74,0.12)" }}>
+        <div style={{ position: "absolute", inset: "8px 0 0 0" }}><CafeRelief /></div>
       </div>
     </button>
   );
