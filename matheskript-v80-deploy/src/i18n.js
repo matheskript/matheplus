@@ -22,7 +22,7 @@ const CACHE = new Map();
 const FEHLT = new Set();   // zur Kontrolle: window.__i18nFehlt
 try { window.__i18nFehlt = FEHLT; } catch (e) { /* egal */ }
 
-const norm = (s) => s.replace(/\s+/g, " ").trim();
+const norm = (s) => s.replace(/\u00AD/g, "").replace(/\s+/g, " ").trim();   // weiche Trennstriche ignorieren
 const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 function musterBauen(liste) {
@@ -84,6 +84,7 @@ const ZUSATZ = {
   "EinMalEins": "Times tables",
   "TICKET": "TICKET", "pro Person": "per person", "INKLUSIVE": "INCLUDED",
   "Kursmaterialien: Block, Heft und Stift": "Course materials: notepad, exercise book and pen",
+  "Quadratwurzel bis 625": "Square roots up to 625", "Kubikwurzel bis 1000": "Cube roots up to 1000", "Wurzel 10k": "Root 10k", "Mix": "Mix",
   "Frag Mathilda AI": "Ask Mathilda AI", "Frag Mathilda AI öffnen": "Open Ask Mathilda AI",
   "Ticket buchen –": "Book ticket –", "Elternabend ·": "Parents' evening ·",
   "Sonntag, 1. November 2026": "Sunday, November 1, 2026", "Sonntag, 1. November": "Sunday, November 1",

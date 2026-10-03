@@ -39,12 +39,14 @@ function einmaleinsAufgabe(modus, reihe) {
   return { text: `${a * b} : ${a}`, loesung: b };
 }
 
+/* Reihenfolge = Raster mit drei Spalten: oben Zahlen + Mix, unten die Wurzeln */
 const POTENZ_MODI = [
-  { id: "quadrat", name: "Quadratzahlen", kurz: "1² bis 25²" },
-  { id: "kubik", name: "Kubikzahlen", kurz: "1³ bis 10³" },
-  { id: "wurzel", name: "Quadratwurzeln", kurz: "√ bis 625" },
-  { id: "kwurzel", name: "Kubikwurzeln", kurz: "∛ bis 1000" },
-  { id: "mix", name: "Gemischt", kurz: "alles durcheinander" },
+  { id: "quadrat", name: "Quadrat\u00ADzahlen" },
+  { id: "kubik", name: "Kubik\u00ADzahlen" },
+  { id: "mix", name: "Mix" },
+  { id: "wurzel", name: "Quadrat\u00ADwurzel bis 625" },
+  { id: "kwurzel", name: "Kubik\u00ADwurzel bis 1000" },
+  { id: "wurzel10k", name: "Wurzel 10k", gold: true },
 ];
 
 function potenzAufgabe(modus) {
@@ -52,6 +54,8 @@ function potenzAufgabe(modus) {
   if (m === "quadrat") { const n = zufall(2, 25); return { text: `${n}²`, loesung: n * n }; }
   if (m === "kubik") { const n = zufall(2, 10); return { text: `${n}³`, loesung: n ** 3 }; }
   if (m === "wurzel") { const n = zufall(2, 25); return { text: `√${n * n}`, loesung: n }; }
+  // Quadratwurzeln bis 10 000: überwiegend aus dem neuen Bereich 26–100, ab und zu kleinere
+  if (m === "wurzel10k") { const n = Math.random() < 0.85 ? zufall(26, 100) : zufall(11, 25); return { text: `√${n * n}`, loesung: n }; }
   const n = zufall(2, 10); return { text: `∛${n ** 3}`, loesung: n };
 }
 
@@ -402,6 +406,30 @@ function EinMalEins() {
 
 /* ---------- Quadrat- und Kubikzahlen ---------- */
 
+/* Übungsarten als Raster 3 × 2; „Wurzel 10k“ in Schwarz-Gold */
+function PotenzModi({ wert, setWert }) {
+  const GOLD_VERLAUF = "linear-gradient(180deg,#FFE58A 0%,#EDBB00 45%,#E2B53C 70%,#A67C00 100%)";
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 6, marginBottom: 14 }}>
+      {POTENZ_MODI.map((m) => {
+        const an = wert === m.id;
+        const stil = m.gold
+          ? { border: "1px solid #EDBB00", background: an ? GOLD_VERLAUF : "radial-gradient(130% 150% at 90% 10%, #2A2210 0%, #0E0C08 55%, #050404 100%)",
+              color: an ? "#0E0C08" : "#EDBB00", boxShadow: an ? "0 4px 14px rgba(237,187,0,0.35)" : "0 3px 10px rgba(0,0,0,0.25)" }
+          : { border: `1px solid ${an ? C.see : C.linie}`, background: an ? C.see : C.weiss, color: an ? C.weiss : C.see };
+        return (
+          <button key={m.id} onClick={() => setWert(m.id)}
+            lang="de" style={{ minHeight: 46, padding: "6px 4px", borderRadius: 14, fontFamily: "inherit", cursor: "pointer", textAlign: "center",
+              hyphens: "manual", WebkitHyphens: "manual",
+              fontSize: "clamp(11px, 3.3vw, 13.5px)", fontWeight: m.gold ? 800 : 600, lineHeight: 1.2, ...stil }}>
+            {m.name}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 function QuadratKubik() {
   const [modus, setModus] = useState("quadrat");
   const erzeugen = React.useCallback(() => potenzAufgabe(modus), [modus]);
@@ -421,7 +449,7 @@ function QuadratKubik() {
         <PotenzSpalten hoch={3} bloecke={[[1, 10], [11, 20]]} />
       </details>
       <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: C.gruenDunkel, marginBottom: 8 }}>Üben</p>
-      <Modi liste={POTENZ_MODI} wert={modus} setWert={setModus} />
+      <PotenzModi wert={modus} setWert={setModus} />
       <Schnellrechnen erzeugen={erzeugen} gruppe="Potenzen" bestSchluessel={`kr-best-pot-${modus}`} />
     </div>
   );
