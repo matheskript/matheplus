@@ -138,3 +138,46 @@ revoke all on function public.ref_frei(text)      from public, anon;
 revoke all on function public.ref_festlegen(text) from public, anon;
 grant execute on function public.ref_frei(text)      to authenticated;
 grant execute on function public.ref_festlegen(text) to authenticated;
+
+
+-- ======================================================================
+-- Käufe und Abos (Stripe). Geschrieben wird NUR vom Server (Webhook mit
+-- Service-Role-Schlüssel); jeder Nutzer darf seine eigenen Zeilen lesen.
+-- ======================================================================
+create table if not exists public.berechtigungen (
+  nutzer          uuid not null references auth.users (id) on delete cascade,
+  produkt         text not null check (produkt in ('analysis1', 'unlimited')),
+  status          text not null check (status in ('aktiv', 'gekuendigt', 'beendet', 'ueberfaellig', 'erstattet')),
+  bis             timestamptz,            -- Abo: Ende der bezahlten Periode; Kurs: null = unbefristet
+  kuendigung_zum  timestamptz,            -- Abo gekündigt zum …
+  stripe_kunde    text,
+  stripe_abo      text,
+  stripe_zahlung  text,                   -- PaymentIntent beim Einmalkauf (für Erstattungen)
+  aktualisiert    timestamptz not null default now(),
+  primary key (nutzer, produkt)
+);
+create index if not exists berechtigungen_zahlung_idx on public.berechtigungen (stripe_zahlung);
+
+alter table public.berechtigungen enable row level security;
+drop policy if exists "rechte_lesen" on public.berechtigungen;
+create policy "rechte_lesen" on public.berechtigungen for select using (auth.uid() = nutzer);
+revoke all on public.berechtigungen from anon, authenticated;
+grant select on public.berechtigungen to authenticated;
+
+-- Kündigungen und Widerrufe (Kündigungsbutton / Widerrufsfunktion).
+-- Nur der Server schreibt und liest; im Dashboard unter „Table Editor“ einsehbar.
+create table if not exists public.vertragsmeldungen (
+  id              uuid primary key default gen_random_uuid(),
+  art             text not null check (art in ('kuendigung', 'widerruf')),
+  name            text not null,
+  email           text not null,
+  vertrag         text,
+  kuendigungsart  text,
+  grund           text,
+  nachricht       text,
+  ergebnis        text,
+  eingang         timestamptz not null default now(),
+  erledigt        boolean not null default false
+);
+alter table public.vertragsmeldungen enable row level security;
+revoke all on public.vertragsmeldungen from anon, authenticated;
