@@ -1,7 +1,7 @@
 /* ============================================================
    KopfrechenZentrum — Übersicht mit drei Trainern:
    Primfaktorzerlegung (vorhanden, aus func5), Quadrat- und Kubikzahlen,
-   EinMalEins. Die beiden neuen Trainer teilen sich einen Schnellrechen-
+   Bruchrechnen und Multiplizieren (inkl. Einmaleins). Die beiden neuen Trainer teilen sich einen Schnellrechen-
    Baustein: Runde mit 10 Aufgaben, großes Zahlenfeld, sofortige
    Rückmeldung, Serie, Zeit und Bestwert.
    Keine base-Datei darf diese Datei importieren.
@@ -17,28 +17,6 @@ const zufall = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
 const HOCH = { 2: "²", 3: "³" };
 
 /* ---------- Aufgaben-Erzeuger ---------- */
-
-const EINMALEINS_MODI = [
-  { id: "klein", name: "Kleines 1×1", kurz: "1 bis 10" },
-  { id: "gross", name: "Großes 1×1", kurz: "bis 20" },
-  { id: "geteilt", name: "Geteilt", kurz: "Umkehraufgaben" },
-  { id: "mix", name: "Gemischt", kurz: "alles durcheinander" },
-];
-
-function einmaleinsAufgabe(modus, reihe) {
-  const m = modus === "mix" ? ["klein", "gross", "geteilt"][zufall(0, 2)] : modus;
-  const r = reihe || null;
-  if (m === "klein") {
-    const a = r || zufall(2, 10), b = zufall(1, 10);
-    return Math.random() < 0.5 ? { text: `${a} · ${b}`, loesung: a * b } : { text: `${b} · ${a}`, loesung: a * b };
-  }
-  if (m === "gross") {
-    const a = r || zufall(11, 20), b = zufall(2, r ? 20 : 12);
-    return Math.random() < 0.5 ? { text: `${a} · ${b}`, loesung: a * b } : { text: `${b} · ${a}`, loesung: a * b };
-  }
-  const a = r || zufall(2, 10), b = zufall(2, 10);
-  return { text: `${a * b} : ${a}`, loesung: b };
-}
 
 /* Reihenfolge = Raster mit drei Spalten: oben Zahlen + Mix, unten die Wurzeln */
 const POTENZ_MODI = [
@@ -364,43 +342,6 @@ function PotenzSpalten({ hoch, bloecke }) {
           </div>
         );
       })}
-    </div>
-  );
-}
-
-/* ---------- EinMalEins ---------- */
-
-function EinMalEins() {
-  const [modus, setModus] = useState("klein");
-  const [reihe, setReihe] = useState(null);
-  const reihen = modus === "gross" ? [11, 12, 13, 14, 15, 16, 17, 18, 19, 20] : [2, 3, 4, 5, 6, 7, 8, 9, 10];
-  const erzeugen = React.useCallback(() => einmaleinsAufgabe(modus, reihe), [modus, reihe]);
-  return (
-    <div>
-      <Modi liste={EINMALEINS_MODI} wert={modus} setWert={(m) => { setModus(m); setReihe(null); }} />
-      {modus !== "mix" && (
-        <div style={{ display: "flex", alignItems: "center", gap: 5, flexWrap: "wrap", marginBottom: 14 }}>
-          <span style={{ fontSize: 12.5, color: C.grau, marginRight: 4 }}>Reihe</span>
-          {[null, ...reihen].map((r) => (
-            <button key={String(r)} onClick={() => setReihe(r)}
-              style={{ minWidth: 34, height: 30, padding: "0 8px", borderRadius: 999, fontFamily: "inherit", cursor: "pointer",
-                fontSize: 12.5, fontWeight: 600, border: `1px solid ${reihe === r ? C.gruen : C.linie}`,
-                background: reihe === r ? C.gruen : C.weiss, color: reihe === r ? C.weiss : C.tinte }}>
-              {r === null ? "Alle" : r}
-            </button>
-          ))}
-        </div>
-      )}
-      <Schnellrechnen erzeugen={erzeugen} gruppe="Einmaleins" bestSchluessel={`kr-best-1x1-${modus}-${reihe || "alle"}`} />
-      <details className="kr-details" style={{ marginTop: 16, background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 14, padding: "0 14px" }}>
-        <style>{`.kr-details > summary{list-style:none;cursor:pointer;padding:13px 0;font-size:14px;font-weight:600;color:${C.see}}
-          .kr-details > summary::-webkit-details-marker{display:none}
-          .kr-details > summary::before{content:"›";display:inline-block;margin-right:8px;transition:transform .15s}
-          .kr-details[open] > summary::before{transform:rotate(90deg)}
-          .kr-details[open]{padding-bottom:14px}`}</style>
-        <summary>Alle Produkte von 1·1 bis 10·10 anzeigen</summary>
-        <EinmaleinsSchachbrett />
-      </details>
     </div>
   );
 }
@@ -786,51 +727,86 @@ function Bruchrechnen() {
 
 /* ---------- Multiplizieren im Kopf ---------- */
 
-const STELLEN_1 = [2, 3, 4];
-const STELLEN_2 = [1, 2, 3, 4];
+/* Bereiche je Faktor: kleine Zahlen fürs Einmaleins, dann beliebige zwei-, drei-, vierstellige */
+const BEREICHE = [
+  { id: "b5", name: "1–5" }, { id: "b10", name: "1–10" }, { id: "b20", name: "1–20" },
+  { id: "d2", name: "2-stellig" }, { id: "d3", name: "3-stellig" }, { id: "d4", name: "4-stellig" },
+];
 
 /* Zufallszahl mit genau d Stellen, ohne Endziffer 0 (sonst zu leicht) */
 function zahlMitStellen(d) {
-  for (;;) { const n = zufall(10 ** (d - 1), 10 ** d - 1); if (d === 1 ? n > 1 : n % 10 !== 0) return n; }
+  for (;;) { const n = zufall(10 ** (d - 1), 10 ** d - 1); if (n % 10 !== 0) return n; }
 }
 
-function multiAufgabe(a, b) {
-  const x = zahlMitStellen(a), y = zahlMitStellen(b);
+function zahlAusBereich(id) {
+  if (id === "b5") return Math.random() < 0.08 ? 1 : zufall(2, 5);
+  if (id === "b10") return Math.random() < 0.05 ? 1 : zufall(2, 10);
+  if (id === "b20") return zufall(2, 20);
+  return zahlMitStellen(Number(id.slice(1)));
+}
+
+function multiAufgabe(a, b, art) {
+  const x = zahlAusBereich(a), y = zahlAusBereich(b);
+  if (art === "geteilt") return { text: `${x * y} : ${x}`, loesung: y };
   return { text: `${x} · ${y}`, loesung: x * y };
 }
 
-function StellenWahl({ label, liste, wert, setWert }) {
+function BereichWahl({ label, wert, setWert, farbe }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 10 }}>
-      <style>{`.st-hinweis{display:none}@media (max-width:359px){.st-suffix{display:none}.st-hinweis{display:inline}}`}</style>
-      <span style={{ fontSize: 12.5, color: C.grau, width: 58, flexShrink: 0 }}>{label}</span>
-      <div style={{ flex: 1, display: "grid", gridTemplateColumns: `repeat(${STELLEN_2.length}, minmax(0, 1fr))`, gap: 6 }}>
-        {liste.map((d) => (
-          <button key={d} onClick={() => setWert(d)} data-kein-i18n aria-label={englisch() ? `${d}-digit` : `${d}-stellig`}
-            style={{ height: 38, borderRadius: 999, fontFamily: "inherit", cursor: "pointer", fontSize: "clamp(11.5px, 3.3vw, 13.5px)", fontWeight: 600,
-              border: `1px solid ${wert === d ? C.see : C.linie}`, background: wert === d ? C.see : C.weiss, color: wert === d ? C.weiss : C.see, whiteSpace: "nowrap" }}>
-            {d}<span className="st-suffix">{englisch() ? "-digit" : "-stellig"}</span>
-          </button>
-        ))}
+    <div style={{ display: "flex", alignItems: "flex-start", gap: 8, marginBottom: 12 }}>
+      <span style={{ fontSize: 12.5, fontWeight: 700, color: C.grau, width: 56, flexShrink: 0, paddingTop: 9 }}>{label}</span>
+      <div style={{ flex: 1, display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 6 }}>
+        {BEREICHE.map((m) => {
+          const an = wert === m.id;
+          return (
+            <button key={m.id} type="button" onClick={() => setWert(m.id)} aria-pressed={an}
+              style={{ height: 38, borderRadius: 999, fontFamily: "inherit", cursor: "pointer", fontSize: "clamp(11.5px, 3.3vw, 13.5px)", fontWeight: 700,
+                border: `1.5px solid ${an ? farbe : C.linie}`, background: an ? farbe : C.weiss, color: an ? C.weiss : C.tinte, whiteSpace: "nowrap",
+                boxShadow: an ? `0 3px 10px ${farbe}55` : "none" }}>
+              {m.name}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
 }
 
 function Multiplizieren() {
-  const [a, setA] = useState(2);
-  const [b, setB] = useState(2);
-  const erzeugen = React.useCallback(() => multiAufgabe(a, b), [a, b]);
+  const [a, setA] = useState("b10");
+  const [b, setB] = useState("b10");
+  const [art, setArt] = useState("mal");
+  const erzeugen = React.useCallback(() => multiAufgabe(a, b, art), [a, b, art]);
+  const stellen = (id) => (id.startsWith("d") ? Number(id.slice(1)) : id === "b5" ? 1 : 2);
   return (
     <div>
       <p style={{ color: C.grau, fontSize: 14.5, fontWeight: 300, lineHeight: 1.65, marginBottom: 16 }}>
-        Wähle, wie viele Stellen die beiden Zahlen haben. Rechne im Kopf und tippe das Ergebnis ein.
-        <span className="st-hinweis"> Die Knöpfe zeigen die Anzahl der Stellen.</span>
+        Wähle für beide Zahlen einen Bereich – vom kleinen Einmaleins bis zu vierstelligen Zahlen. Rechne im Kopf und tippe das Ergebnis ein.
       </p>
-      <StellenWahl label="1. Zahl" liste={STELLEN_1} wert={a} setWert={setA} />
-      <StellenWahl label="2. Zahl" liste={STELLEN_2} wert={b} setWert={setB} />
-      <div style={{ height: 6 }} />
-      <Schnellrechnen erzeugen={erzeugen} gruppe="Multiplizieren" bestSchluessel={`kr-best-multi-${a}x${b}`} maxLaenge={8} />
+      <BereichWahl label="1. Zahl" wert={a} setWert={setA} farbe="#F59E0B" />
+      <BereichWahl label="2. Zahl" wert={b} setWert={setB} farbe="#E07A00" />
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+        <span style={{ fontSize: 12.5, fontWeight: 700, color: C.grau, width: 56, flexShrink: 0 }}>Aufgabe</span>
+        <div role="group" aria-label="Rechenart" style={{ display: "flex", background: "#EEF2F8", borderRadius: 999, padding: 3 }}>
+          {[["mal", "Malnehmen"], ["geteilt", "Umkehraufgabe"]].map(([id, name]) => (
+            <button key={id} type="button" onClick={() => setArt(id)} aria-pressed={art === id}
+              style={{ border: "none", borderRadius: 999, padding: "7px 14px", fontFamily: "inherit", cursor: "pointer", fontSize: 13,
+                fontWeight: art === id ? 700 : 500, background: art === id ? C.weiss : "transparent", color: art === id ? C.see : C.grau,
+                boxShadow: art === id ? "0 1px 6px rgba(15,26,51,0.12)" : "none" }}>{name}</button>
+          ))}
+        </div>
+      </div>
+      <Schnellrechnen erzeugen={erzeugen} gruppe="Multiplizieren" bestSchluessel={`kr-best-multi2-${a}x${b}-${art}`}
+        maxLaenge={Math.max(4, stellen(a) + stellen(b))} />
+      <details className="kr-details" style={{ marginTop: 16, background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 14, padding: "0 14px" }}>
+        <style>{`.kr-details > summary{list-style:none;cursor:pointer;padding:13px 0;font-size:14px;font-weight:600;color:${C.see}}
+          .kr-details > summary::-webkit-details-marker{display:none}
+          .kr-details > summary::before{content:"›";display:inline-block;margin-right:8px;transition:transform .15s}
+          .kr-details[open] > summary::before{transform:rotate(90deg)}
+          .kr-details[open]{padding-bottom:14px}`}</style>
+        <summary>Alle Produkte von 1·1 bis 10·10 anzeigen</summary>
+        <EinmaleinsSchachbrett />
+      </details>
     </div>
   );
 }
@@ -841,12 +817,64 @@ export const TRAINER = [
   { id: "primfaktoren", titel: "Primfaktorzerlegung", slogan: "Primzahlen erkennen und Zahlen zerlegen.", kurz: "Primzahl erkennen oder vollständig zerlegen — jeden Faktor einzeln.", zeichen: "2·3·7" },
   { id: "potenzen", titel: "Quadrat- und Kubikzahlen", kurzTitel: "Quadrate & Kuben", slogan: "Quadrat-, Kubikzahlen und Wurzeln blitzschnell abrufen.", kurz: "Quadrat- und Kubikzahlen sowie ihre Wurzeln blitzschnell abrufen.", zeichen: "12²" },
   { id: "bruchrechnen", titel: "Bruchrechnen", slogan: "Kürzen, Plus, Minus, Mal, Geteilt – mit Lösungsweg.", kurz: "Kürzen, Plus, Minus, Mal und Geteilt — mit Lösungsweg bei jedem Fehler.", zeichen: "¾" },
-  { id: "multiplizieren", titel: "Multiplizieren im Kopf", kurzTitel: "Multiplizieren", slogan: "Zwei-, drei- und vierstellige Zahlen im Kopf malnehmen.", kurz: "Zwei-, drei- und vierstellige Zahlen im Kopf multiplizieren.", zeichen: "23·47" },
-  { id: "einmaleins", titel: "EinMalEins", slogan: "Klein und groß, auch rückwärts, auf Zeit.", kurz: "Kleines und großes Einmaleins, auch als Umkehraufgaben — auf Zeit.", zeichen: "7·8" },
+  { id: "multiplizieren", titel: "Multiplizieren", slogan: "Vom kleinen Einmaleins bis zu vierstelligen Zahlen.", kurz: "Vom kleinen Einmaleins bis zu vierstelligen Zahlen — auch als Umkehraufgaben, auf Zeit.", zeichen: "7·8" },
 ];
 
+/* Verspielte Farben je Trainer */
+/* Kurze Texte für die kleinen Kacheln */
+const KACHEL_TEXT = {
+  primfaktoren: ["Primfaktoren", "Zahlen blitzschnell zerlegen."],
+  potenzen: ["Quadrate & Kuben", "Potenzen und Wurzeln."],
+  bruchrechnen: ["Bruchrechnen", "Kürzen, plus, minus, mal, geteilt."],
+  multiplizieren: ["Multiplizieren", "Vom 1×1 bis vierstellig."],
+};
+
+const KOPF_LOOK = {
+  primfaktoren: { bg: "linear-gradient(150deg, #FF9A76 0%, #F4511E 100%)", schatten: "rgba(244,81,30,0.32)", akzent: "#B33A12", text: "#FFFFFF", r: -7 },
+  potenzen: { bg: "linear-gradient(150deg, #B79CFF 0%, #6D28D9 100%)", schatten: "rgba(109,40,217,0.32)", akzent: "#5B21B6", text: "#FFFFFF", r: 6 },
+  bruchrechnen: { bg: "linear-gradient(150deg, #4FE0CB 0%, #0F8A7E 100%)", schatten: "rgba(15,138,126,0.32)", akzent: "#0B6A61", text: "#FFFFFF", r: -5 },
+  multiplizieren: { bg: "linear-gradient(150deg, #FFE070 0%, #F59E0B 100%)", schatten: "rgba(245,158,11,0.35)", akzent: "#A15C00", text: "#3A2200", r: 8 },
+};
+
+/* Kompakte, bunte Trainer-Kacheln im 2er-Raster — für die Startseite und die Kopfrechen-Übersicht */
+export function KopfKacheln({ onWaehle }) {
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10 }}>
+      <style>{`.kopf-kachel{transition:transform .16s cubic-bezier(.2,.7,.3,1), box-shadow .16s ease}
+        .kopf-kachel:active{transform:scale(0.96)}
+        .kopf-karte{transition:transform .25s cubic-bezier(.3,1.6,.5,1)}
+        @media (hover:hover){.kopf-kachel:hover{transform:translateY(-3px) rotate(-0.6deg)}
+          .kopf-kachel:hover .kopf-karte{transform:rotate(0deg) scale(1.12)!important}}
+        .kopf-kachel:active .kopf-karte{transform:rotate(0deg) scale(1.12)!important}`}</style>
+      {TRAINER.map((t) => {
+        const f = KOPF_LOOK[t.id] || KOPF_LOOK.multiplizieren;
+        const [kTitel, kText] = KACHEL_TEXT[t.id] || [t.kurzTitel || t.titel, t.slogan];
+        return (
+          <button key={t.id} type="button" onClick={() => onWaehle(t.id)} aria-label={`${t.titel} öffnen`} className="kopf-kachel"
+            style={{ position: "relative", height: 116, borderRadius: 20, border: "none", padding: "10px 12px 11px", overflow: "hidden",
+              background: f.bg, color: f.text, textAlign: "left", cursor: "pointer", fontFamily: "inherit",
+              boxShadow: `0 6px 18px ${f.schatten}, inset 0 0 0 1px rgba(255,255,255,0.25)`, display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
+            <span aria-hidden="true" style={{ position: "absolute", width: 90, height: 90, borderRadius: 999, right: -28, bottom: -38, background: "rgba(255,255,255,0.16)" }} />
+            <span aria-hidden="true" style={{ position: "absolute", width: 34, height: 34, borderRadius: 999, left: -10, top: -12, background: "rgba(255,255,255,0.14)" }} />
+            <span aria-hidden="true" className="kopf-karte"
+              style={{ position: "absolute", top: 10, right: 10, padding: "4px 9px", borderRadius: 10, background: "rgba(255,255,255,0.95)",
+                color: f.akzent, fontSize: t.zeichen.length > 4 ? 14 : 17, fontWeight: 800, boxShadow: "0 3px 8px rgba(0,0,0,0.15)",
+                transform: `rotate(${f.r}deg)`, whiteSpace: "nowrap" }}>
+              {t.zeichen}
+            </span>
+            <span style={{ position: "relative", display: "block", fontSize: "clamp(13.5px, 3.9vw, 16px)", fontWeight: 800, lineHeight: 1.12, letterSpacing: "-0.01em",
+              paddingRight: 2 }}>{kTitel}</span>
+            <span style={{ position: "relative", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden",
+              fontSize: 11.5, fontWeight: 500, lineHeight: 1.3, marginTop: 3, opacity: 0.92 }}>{kText}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 export function KopfrechenZentrum({ start = null }) {
-  const [offen, setOffen] = useState(start);
+  const [offen, setOffen] = useState(start === "einmaleins" ? "multiplizieren" : start);
   const t = offen ? TRAINER.find((x) => x.id === offen) : null;
 
   if (!t) {
@@ -856,24 +884,10 @@ export function KopfrechenZentrum({ start = null }) {
           Zahlen, die einfach sitzen
         </h2>
         <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 22 }}>
-          Fünf Trainer für das Kopfrechnen. Wer Zahlen sofort abrufen kann, kürzt schneller, sieht Teiler auf einen
+          Vier Trainer für das Kopfrechnen. Wer Zahlen sofort abrufen kann, kürzt schneller, sieht Teiler auf einen
           Blick und hat beim Rechnen den Kopf für das Eigentliche frei.
         </p>
-        {TRAINER.map((x) => (
-          <button key={x.id} onClick={() => { setOffen(x.id); window.scrollTo(0, 0); }} className="w-full mb-3"
-            style={{ display: "flex", alignItems: "center", gap: 14, padding: 14, background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 18,
-              textAlign: "left", cursor: "pointer", fontFamily: "inherit", color: C.tinte, boxShadow: "0 2px 14px rgba(15,26,51,0.06)" }}>
-            <span aria-hidden="true" style={{ flexShrink: 0, width: 64, height: 64, borderRadius: 15,
-              background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, color: C.flaggold,
-              display: "flex", alignItems: "center", justifyContent: "center", fontSize: x.zeichen.length > 4 ? 14.5 : 20, fontWeight: 800 }}>
-              {x.zeichen}
-            </span>
-            <span style={{ flex: 1, minWidth: 0 }}>
-              <span style={{ display: "block", fontSize: "clamp(15px, 4.4vw, 17.5px)", fontWeight: 600, lineHeight: 1.25, marginBottom: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{x.kurzTitel ? <><span className="titel-lang">{x.titel}</span><span className="titel-kurz">{x.kurzTitel}</span></> : x.titel}</span>
-              <span style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", minHeight: "2.8em", color: C.grau, fontSize: 13.5, fontWeight: 300, lineHeight: 1.4 }}>{x.slogan || x.kurz}</span>
-            </span>
-          </button>
-        ))}
+        <KopfKacheln onWaehle={(id) => { setOffen(id); window.scrollTo(0, 0); }} />
       </div>
     );
   }
@@ -885,7 +899,7 @@ export function KopfrechenZentrum({ start = null }) {
         ← Kopfrechnen
       </button>
       <h2 style={{ fontSize: 25, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 14 }}>{t.titel}</h2>
-      {t.id === "primfaktoren" ? <Primfaktoren /> : t.id === "potenzen" ? <QuadratKubik /> : t.id === "bruchrechnen" ? <Bruchrechnen /> : t.id === "multiplizieren" ? <Multiplizieren /> : <EinMalEins />}
+      {t.id === "primfaktoren" ? <Primfaktoren /> : t.id === "potenzen" ? <QuadratKubik /> : t.id === "bruchrechnen" ? <Bruchrechnen /> : <Multiplizieren />}
     </div>
   );
 }

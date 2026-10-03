@@ -11,7 +11,7 @@ import { Wiederholen } from "./func7.jsx";
 import { EskalationsKarte, Wochenbericht, eskalationSignale, serieBerechnen, zeitraum } from "./func8.jsx";
 import { TerminHinweis } from "./func9.jsx";
 import { Mathilda } from "./func10.jsx";
-import { KopfrechnenLogoKlein, TRAINER as KOPF_TRAINER } from "./func14.jsx";
+import { KopfKacheln, KopfrechnenLogoKlein } from "./func14.jsx";
 import { VektorenLogoKlein } from "./func16.jsx";
 import { StochastikLogoKlein } from "./func17.jsx";
 import { GleichungenLogoKlein } from "./funcGleichungen.jsx";
@@ -884,10 +884,9 @@ export function Startseite({ gehe }) {
         extra={<PlusKnopf auf={kopfAuf} />} />
       {kopfAuf && (
         <div style={{ margin: "4px 0 4px", padding: "2px 0 2px 12px", borderLeft: `3px solid ${C.flaggold}` }}>
-          {KOPF_TRAINER.map((t) => (
-            <PlotterKachel key={t.id} klein onClick={() => gehe({ ansicht: "kopf", trainer: t.id })} label={`${t.titel} öffnen`}
-              logo={<ZeichenLogo zeichen={t.zeichen} />} titel={t.kurzTitel || t.titel} text={t.slogan} />
-          ))}
+          <div style={{ paddingTop: 8, paddingBottom: 4 }}>
+            <KopfKacheln onWaehle={(id) => gehe({ ansicht: "kopf", trainer: id })} />
+          </div>
         </div>
       )}
       <MatheCheckenKachel gesperrt onClick={() => gehe({ ansicht: "mathecheck" })} />
