@@ -20,9 +20,10 @@ const lies = (k) => { try { return JSON.parse(localStorage.getItem(k)); } catch 
 const schreib = (k, v) => { try { v === null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* privat */ } };
 
 /* ---------- kleiner Store für React ---------- */
-let zustand = { geladen: false, nutzer: null, profil: null, geworben: 0, fehler: "" };
+let zustand = { geladen: false, nutzer: null, profil: null, geworben: 0, fehler: "", rechte: {} };
 const hoerer = new Set();
 const setzen = (teil) => { zustand = { ...zustand, ...teil }; hoerer.forEach((h) => h()); };
+export const kontoStand = () => zustand;   // für Module außerhalb von React
 export function useKonto() {
   return useSyncExternalStore((h) => { hoerer.add(h); return () => hoerer.delete(h); }, () => zustand);
 }
@@ -57,6 +58,7 @@ export const empfehlungsLink = (code) => `https://mythosmathe.de/${code}`;
 
 /* ---------- Laden ---------- */
 async function profilLaden(nutzer) {
+  rechteAktualisieren(nutzer);
   if (!nutzer) { setzen({ geladen: true, nutzer: null, profil: null, geworben: 0 }); return; }
   if (DEMO) {
     const d = lies(DEMO_SPEICHER);
@@ -163,4 +165,91 @@ export async function profilSpeichern(aenderung) {
   const { error } = await sb.from("profile").update(erlaubt).eq("id", zustand.nutzer.id);
   if (error) throw new Error("Speichern hat nicht geklappt. Bitte versuch es noch einmal.");
   setzen({ profil: { ...zustand.profil, ...erlaubt } });
+}
+
+
+/* ======================================================================
+   KÄUFE: Selbstlernkurs Analysis 1 (einmalig) und Unlimited (Abo).
+   Bezahlt wird im Stripe-Checkout (Karte, PayPal …); freigeschaltet wird
+   per Webhook in der Tabelle public.berechtigungen. Im Demo-Modus wird
+   der Kauf nur in diesem Browser simuliert.
+   ====================================================================== */
+const DEMO_RECHTE = "mm-demo-rechte";
+const KULANZ_MS = 3 * 24 * 3600 * 1000;   // Abo-Verlängerung kommt per Webhook – kurze Kulanz
+
+async function rechteAktualisieren(nutzer = zustand.nutzer) {
+  if (!nutzer) { setzen({ rechte: {} }); return {}; }
+  let rechte = {};
+  if (DEMO) rechte = lies(DEMO_RECHTE) || {};
+  else {
+    const { data, error } = await sb.from("berechtigungen").select("produkt, status, bis, kuendigung_zum").eq("nutzer", nutzer.id);
+    if (!error) (data || []).forEach((z) => { rechte[z.produkt] = z; });
+  }
+  setzen({ rechte });
+  return rechte;
+}
+export const rechteNeuLaden = () => rechteAktualisieren();
+
+/* Darf dieses Konto das Produkt gerade nutzen? */
+export function hatRecht(rechte, produkt) {
+  const z = rechte?.[produkt];
+  if (!z || !["aktiv", "gekuendigt"].includes(z.status)) return false;
+  return !z.bis || new Date(z.bis).getTime() + KULANZ_MS > Date.now();
+}
+
+async function mitToken(pfad, body) {
+  const { data } = await sb.auth.getSession();
+  const token = data.session?.access_token;
+  if (!token) throw new Error("Bitte melde dich zuerst an.");
+  const res = await fetch(pfad, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify(body || {}),
+  });
+  let j = {};
+  try { j = await res.json(); } catch (e) { /* keine JSON-Antwort */ }
+  if (!res.ok || !j.url) throw new Error(j.error?.message || `Das hat nicht geklappt (Fehler ${res.status}).`);
+  return j.url;
+}
+
+/* Startet den Kauf. Leitet zum Stripe-Checkout weiter (Demo: schaltet sofort frei). */
+export async function kaufStarten(produkt, { volljaehrig, sofortBeginn }) {
+  if (!zustand.nutzer) throw new Error("Bitte melde dich zuerst an.");
+  if (!volljaehrig) throw new Error("Bitte bestätige, dass du volljährig bist.");
+  if (DEMO) {
+    const r = { ...(lies(DEMO_RECHTE) || {}) };
+    r[produkt] = { produkt, status: "aktiv", bis: produkt === "unlimited" ? new Date(Date.now() + 30 * 864e5).toISOString() : null, kuendigung_zum: null };
+    schreib(DEMO_RECHTE, r);
+    await rechteAktualisieren();
+    return { demo: true };
+  }
+  window.location.href = await mitToken("/api/kasse", { produkt, volljaehrig: true, sofortBeginn: !!sofortBeginn });
+  return { weitergeleitet: true };
+}
+
+/* Stripe-Kundenportal: Abo kündigen, Zahlungsmittel ändern, Rechnungen. */
+export async function aboVerwalten() {
+  if (DEMO) {
+    const r = { ...(lies(DEMO_RECHTE) || {}) };
+    if (r.unlimited) { r.unlimited = { ...r.unlimited, status: "gekuendigt", kuendigung_zum: r.unlimited.bis }; schreib(DEMO_RECHTE, r); }
+    await rechteAktualisieren();
+    return { demo: true };
+  }
+  window.location.href = await mitToken("/api/abo-verwalten");
+  return { weitergeleitet: true };
+}
+
+/* Kündigungsbutton / Widerrufsfunktion – ohne Anmeldung nutzbar. */
+export async function vertragMelden(daten) {
+  if (DEMO) {
+    if (daten.art === "kuendigung" && daten.vertrag === "unlimited") await aboVerwalten();
+    return { id: "demo", eingang: new Date().toISOString(), ergebnis: "Vorschau-Modus: Deine Erklärung wurde nur simuliert, nicht gesendet." };
+  }
+  const kopf = { "Content-Type": "application/json" };
+  try { const { data } = await sb.auth.getSession(); if (data.session) kopf.Authorization = `Bearer ${data.session.access_token}`; } catch (e) { /* ohne Anmeldung */ }
+  const res = await fetch("/api/vertrag-melden", { method: "POST", headers: kopf, body: JSON.stringify(daten) });
+  let j = {};
+  try { j = await res.json(); } catch (e) { /* leer */ }
+  if (!res.ok) throw new Error(j.error?.message || `Das hat nicht geklappt (Fehler ${res.status}).`);
+  return j;
 }

@@ -12,6 +12,9 @@
 import React, { useEffect, useState } from "react";
 import { C } from "./base1.jsx";
 import { BUNNY_LIBRARY, VIDEOKURSE } from "./base5.jsx";
+import { useKonto } from "./konto.js";
+import { lektionGesperrt } from "./zugang.js";
+import { LektionSperre } from "./funcKasse.jsx";
 
 const schluessel = (kursId) => `mm-videokurs-${kursId}`;
 
@@ -64,6 +67,7 @@ export function VideoAbzeichen({ kursId }) {
 /* Lektionsliste – auf der Kursseite und unter dem Player */
 function Lektionsliste({ kursId, aktiv, erledigt, onWahl }) {
   const vk = VIDEOKURSE[kursId];
+  const { rechte } = useKonto();
   let letztesKapitel = null;
   return (
     <div>
@@ -91,7 +95,8 @@ function Lektionsliste({ kursId, aktiv, erledigt, onWahl }) {
               <span style={{ flex: 1, minWidth: 0 }}>
                 <span style={{ display: "block", fontSize: 14.5, fontWeight: 600, color: C.tinte, lineHeight: 1.35 }}>{l.titel}</span>
               </span>
-              {istAktiv && <PlayIcon groesse={14} farbe={C.see} />}
+              {lektionGesperrt(kursId, i, rechte) ? <span aria-label="gesperrt" style={{ fontSize: 13, opacity: 0.55 }}>🔒</span>
+                : istAktiv && <PlayIcon groesse={14} farbe={C.see} />}
             </button>
           </div>
         );
@@ -184,8 +189,23 @@ export function VideokursPlayer({ kursId, kursTitel, start = 0, onZurueck, gehe 
   const vk = VIDEOKURSE[kursId];
   const [i, setI] = useState(start);
   const [erledigt, setErledigt] = useState(() => ladeErledigt(kursId));
+  const { rechte } = useKonto();
   useEffect(() => { window.scrollTo(0, 0); }, [i]);
   if (!vk) return null;
+  if (lektionGesperrt(kursId, i, rechte)) {
+    const l0 = vk.lektionen[i];
+    return (
+      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
+        <button onClick={onZurueck} className="mb-5"
+          style={{ background: "none", border: "none", color: C.see, fontSize: 13, fontFamily: "inherit", cursor: "pointer", padding: 0 }}>
+          ← {kursTitel}
+        </button>
+        <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 8 }}>Lektion {i + 1} von {vk.lektionen.length} · {l0.kapitel}</p>
+        <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 16 }}>{l0.titel}</h2>
+        <LektionSperre kursId={kursId} gehe={gehe} onZurueck={onZurueck} />
+      </div>
+    );
+  }
   const l = vk.lektionen[i];
   const n = vk.lektionen.length;
   const fertig = vk.lektionen.filter((x) => erledigt.includes(x.id)).length;

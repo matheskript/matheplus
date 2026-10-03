@@ -27,7 +27,9 @@ import { MasterclassSeite, MatheCheckenSeite } from "./funcMasterclass.jsx";
 import { Fusszeile, ImpressumSeite, AGBSeite, WiderrufSeite } from "./funcRecht.jsx";
 import { KontoSeite } from "./funcKonto.jsx";
 import { ElternabendSeite } from "./funcElternabend.jsx";
-import { useKonto, kontoStarten } from "./konto.js";
+import { useKonto, kontoStarten, hatRecht } from "./konto.js";
+import { geraetGeoeffnet, istTrainingsgeraet, useTageszaehler, FREI_PRO_TAG } from "./zugang.js";
+import { TrainingsSperre, TagesKontingent, VertraegeSeite } from "./funcKasse.jsx";
 import { englisch, spracheWechseln } from "./i18n.js";
 
 // Menü-Button im Header: vorübergehend aus (true = wieder einblenden)
@@ -71,6 +73,13 @@ export function Mathilda() {
 
   React.useEffect(() => { lernLaden(); }, []);
   const lern = useLern();
+
+  /* Tageslimit der Trainingsgeräte (Unlimited hebt es auf) */
+  const tageszaehler = useTageszaehler();
+  React.useEffect(() => { geraetGeoeffnet(ansicht, trainZiel); }, [ansicht, trainZiel]);
+  const istGeraet = istTrainingsgeraet(ansicht, trainZiel);
+  const unlimited = hatRecht(konto.rechte, "unlimited");
+  const geraetGesperrt = istGeraet && !unlimited && tageszaehler.n >= FREI_PRO_TAG;
 
   const gehe = (eintrag) => {
     setAnsicht(eintrag.ansicht);
@@ -331,7 +340,23 @@ export function Mathilda() {
         )}
       </div>
 
-      {ansicht === "messung" ? (
+      {istGeraet && !unlimited && !geraetGesperrt && <TagesKontingent gehe={gehe} />}
+
+      {geraetGesperrt ? (
+        <TrainingsSperre gehe={gehe} />
+      ) : ansicht === "vertraege" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
+            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(26px, 7.6vw, 31px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Verträge kündigen</h1>
+              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>Abo kündigen oder einen Kauf widerrufen – ohne Anmeldung.</p>
+            </div>
+            <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
+          </div>
+          <VertraegeSeite gehe={gehe} />
+        </>
+      ) : ansicht === "messung" ? (
         <>
           <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
@@ -1215,6 +1240,7 @@ export function Mathilda() {
       )}
       </>
       )}
+      {istGeraet && !unlimited && !geraetGesperrt && <div aria-hidden="true" style={{ height: 76 }} />}
       <Fusszeile gehe={gehe} />
     </div>
   );

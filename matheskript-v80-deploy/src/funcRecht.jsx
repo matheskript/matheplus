@@ -55,6 +55,8 @@ export function Fusszeile({ gehe }) {
           {link("impressum", "Impressum")}
           {link("agb", "AGB")}
           {link("widerruf", "Widerrufsbelehrung")}
+          {link("vertraege", "Verträge hier kündigen")}
+          {link("vertraege", "Vertrag widerrufen")}
         </nav>
         <p style={{ fontSize: 12.5, color: "#8FA3C8", marginTop: 12 }}>© 2026 Mythos Mathe · Alle Rechte vorbehalten.</p>
       </div>
@@ -93,15 +95,16 @@ const AGB = [
   ]],
   ["3 Leistungsumfang", [
     "Produktbeschreibungen nennen Inhalte, Preis, Zugangsdauer, etwaige Nutzungsgrenzen und technische Voraussetzungen. Digitale Selbstlernprodukte enthalten die dort bezeichneten Videos, Texte, Aufgaben und bereitgestellten Lösungen. Sie enthalten keine persönliche Korrektur, fachliche Sprechstunde oder individuelle Analyse des Lernerfolgs. Individuelle KI-Auswertung ist kein Bestandteil dieser bezahlten Selbstlernprodukte.",
+    "Die kostenlose Nutzung der Trainingsbereiche (Üben und Prüfung) ist auf zehn Aufgaben je Kalendertag begrenzt. Das Abo „Unlimited“ hebt diese Begrenzung für seine Laufzeit auf; persönliche Korrektur und KI-Funktionen sind darin nicht enthalten.",
     "Live-Kurse bestehen aus den beschriebenen Unterrichtsterminen mit unmittelbarer Kommunikation zwischen Lehrendem und Teilnehmern. Es werden keine Aufzeichnungen bereitgestellt. Ein bestimmter Schulabschluss, eine bestimmte Note oder ein bestimmter Lernerfolg wird nicht garantiert. Die vereinbarte fachgerechte Leistung bleibt geschuldet.",
   ]],
   ["4 Bestellung und Vertragsschluss", [
     "Produktdarstellungen sind eine Aufforderung zur Bestellung. Der Kunde wählt das Angebot, trägt die erforderlichen Angaben ein und kann Eingabefehler vor Abgabe der Bestellung mit den dafür vorgesehenen Funktionen berichtigen. Mit Betätigung des Buttons „zahlungspflichtig bestellen“ gibt er ein verbindliches Vertragsangebot ab.",
-    "Der Vertrag kommt durch eine ausdrücklich als Vertragsannahme bezeichnete E-Mail des Anbieters innerhalb von zwei Werktagen zustande. Eine automatische Eingangsbestätigung allein ist keine Annahme. Vor Annahme wird keine Zahlung eingezogen. Kommt innerhalb der Frist keine Annahme zustande, ist der Kunde nicht mehr an seine Bestellung gebunden. Vertragssprache ist Deutsch.",
+    "Der Kunde wird anschließend zum Zahlungsdienstleister Stripe weitergeleitet. Der Vertrag kommt zustande, sobald der Kunde den Zahlungsvorgang dort erfolgreich abschließt; damit nimmt der Anbieter das Angebot an. Bricht der Kunde den Zahlungsvorgang ab, kommt kein Vertrag zustande. Unmittelbar nach Vertragsschluss wird die Leistung freigeschaltet. Vertragssprache ist Deutsch.",
     "Der Kunde erhält Vertragsinhalt, diese AGB und die anwendbaren Widerrufsinformationen per E-Mail. Der Vertragstext wird vom Anbieter gespeichert, aber nicht als dauerhaft abrufbares Kundenarchiv zugesagt. Der Kunde kann seine Unterlagen selbst speichern.",
   ]],
   ["5 Preise und Zahlung", [
-    "Alle gegenüber Verbrauchern genannten Preise sind Endpreise einschließlich gesetzlich anfallender Steuern. Zusätzliche Kosten werden vor Bestellung ausdrücklich ausgewiesen. Die angebotenen Zahlungsmittel werden spätestens zu Beginn des Bestellvorgangs genannt. Einmalige Entgelte sind nach Vertragsannahme fällig. Die Leistung beginnt zum in der Produktbeschreibung genannten Zeitpunkt und bei vereinbarter Vorauszahlung nach Zahlungseingang. Bei Angeboten mit vereinbartem späterem Leistungsbeginn bleibt dieser Termin maßgeblich.",
+    "Alle gegenüber Verbrauchern genannten Preise sind Endpreise einschließlich gesetzlich anfallender Steuern. Zusätzliche Kosten werden vor Bestellung ausdrücklich ausgewiesen. Die angebotenen Zahlungsmittel werden spätestens zu Beginn des Bestellvorgangs genannt. Die Zahlung erfolgt über Stripe Payments Europe, Ltd. per Kreditkarte, PayPal oder einem anderen im Bezahlvorgang angezeigten Zahlungsmittel. Einmalige Entgelte sind mit Vertragsschluss fällig; Abo-Entgelte jeweils zu Beginn eines Abrechnungszeitraums. Die Leistung beginnt zum in der Produktbeschreibung genannten Zeitpunkt und bei vereinbarter Vorauszahlung nach Zahlungseingang. Bei Angeboten mit vereinbartem späterem Leistungsbeginn bleibt dieser Termin maßgeblich.",
   ]],
   ["6 Digitale Materialien und technische Voraussetzungen", [
     "Streamingzugang besteht für die vor Bestellung angegebene Dauer ab Freischaltung. Eine automatische Verlängerung erfolgt bei zeitlich befristeten Selbstlernprodukten nicht. Bereitgestellte Downloads können für die erlaubte private Nutzung gespeichert werden. Die Produktbeschreibung nennt Dateiformate, unterstützte Funktionen, wesentliche Kompatibilitätsanforderungen und gegebenenfalls technische Schutzmaßnahmen.",
@@ -124,7 +127,9 @@ const AGB = [
     "Soweit auf der Plattform kostenlose KI-Funktionen freigeschaltet sind, werden sie als solche gekennzeichnet. Sie sind kein Bestandteil der bezahlten Selbstlernprodukte oder Live-Kurse. Ihre Nutzung setzt die jeweils angezeigten Voraussetzungen voraus. Die konkret angegebenen Verarbeitungsinformationen sind in der Datenschutzerklärung beschrieben.",
     "KI-generierte Vorschläge können Fehler enthalten und sollen anhand der zugrunde liegenden Rechenregeln geprüft werden. Sie ersetzen keine amtliche Leistungsbewertung. Dieser Hinweis beschränkt keine gesetzlichen Rechte und befreit den Anbieter nicht von der Verantwortung für ausdrücklich zugesagte Eigenschaften.",
   ]],
-  ["11 Vertragsende", [
+  ["11 Monatliches Abo „Unlimited“ und Vertragsende", [
+    "Das als „Unlimited“ bezeichnete Abo läuft auf unbestimmte Zeit. Der Abrechnungszeitraum beträgt einen Monat ab Freischaltung. Es kann jederzeit zum Ende des laufenden Abrechnungszeitraums ohne zusätzliche Kündigungsfrist gekündigt werden. Der Monatspreis und die enthaltenen Funktionen werden vor Bestellung genannt. Eine Änderung vereinbarter Preise erfolgt nur mit ausdrücklicher Zustimmung des Kunden.",
+    "Die Kündigung ist über die Schaltfläche „Verträge hier kündigen“ in der Fußzeile jeder Seite, im Kundenkonto unter „Abo verwalten“ oder per E-Mail möglich. Der Zugang besteht bis zum Vertragsende. Das Recht zur außerordentlichen Kündigung bleibt unberührt.",
     "Für befristete Selbstlernprodukte endet der Streamingzugang ohne Kündigung nach der vereinbarten Dauer; zulässig gespeicherte Downloads dürfen weiter privat genutzt werden.",
   ]],
   ["12 Widerruf und gesetzliche Rechte", [
@@ -164,6 +169,7 @@ function Belehrung({ dienstleistung }) {
       <H3>Widerrufsrecht</H3>
       <P>Sie haben das Recht, binnen vierzehn Tagen ohne Angabe von Gründen diesen Vertrag zu widerrufen. Die Widerrufsfrist beträgt vierzehn Tage ab dem Tag des Vertragsabschlusses.</P>
       <P>Um Ihr Widerrufsrecht auszuüben, müssen Sie uns ({kontaktWiderruf}) mittels einer eindeutigen Erklärung (zum Beispiel ein mit der Post versandter Brief oder eine E-Mail) über Ihren Entschluss, diesen Vertrag zu widerrufen, informieren. Sie können dafür das unten stehende Muster-Widerrufsformular verwenden, das jedoch nicht vorgeschrieben ist.</P>
+      <P>Sie können Ihren Widerruf auch über die Widerrufsfunktion „Vertrag widerrufen“ in der Fußzeile jeder Seite erklären. Nutzen Sie diese Möglichkeit, erhalten Sie unverzüglich eine Bestätigung über den Eingang des Widerrufs.</P>
       <P>Zur Wahrung der Widerrufsfrist reicht es aus, dass Sie die Mitteilung über die Ausübung des Widerrufsrechts vor Ablauf der Widerrufsfrist absenden.</P>
       <H3>Folgen des Widerrufs</H3>
       <P>Wenn Sie diesen Vertrag widerrufen, haben wir Ihnen alle Zahlungen, die wir von Ihnen erhalten haben, einschließlich der Lieferkosten (mit Ausnahme der zusätzlichen Kosten, die sich daraus ergeben, dass Sie eine andere Art der Lieferung als die von uns angebotene, günstigste Standardlieferung gewählt haben), unverzüglich und spätestens binnen vierzehn Tagen ab dem Tag zurückzuzahlen, an dem die Mitteilung über Ihren Widerruf dieses Vertrags bei uns eingegangen ist. Für diese Rückzahlung verwenden wir dasselbe Zahlungsmittel, das Sie bei der ursprünglichen Transaktion eingesetzt haben, es sei denn, mit Ihnen wurde ausdrücklich etwas anderes vereinbart; in keinem Fall werden Ihnen wegen dieser Rückzahlung Entgelte berechnet.</P>

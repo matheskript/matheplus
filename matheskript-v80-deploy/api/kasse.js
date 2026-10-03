@@ -4,7 +4,7 @@
    Antwort: { url } → der Browser leitet dorthin weiter.
    Freigeschaltet wird erst durch den Webhook (api/stripe-webhook.js).
    ====================================================================== */
-import { PRODUKTE, stripe, admin, nutzerAus, fehler, herkunft } from "./_kasse.js";
+import { PRODUKTE, stripe, admin, nutzerAus, fehler, herkunft, preisId } from "./_kasse.js";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return fehler(res, 405, "Nur POST.");
@@ -37,18 +37,17 @@ export default async function handler(req, res) {
       mode: p.abo ? "subscription" : "payment",
       locale: "de",
       // Zahlungsarten (Karte, PayPal …) werden im Stripe-Dashboard aktiviert.
-      line_items: [{
-        quantity: 1,
-        price_data: {
-          currency: "eur",
-          unit_amount: p.preis,
-          product_data: { name: p.name, description: p.beschreibung },
-          ...(p.abo ? { recurring: { interval: "month" } } : {}),
-        },
-      }],
+      line_items: [{ price: await preisId(p), quantity: 1 }],
       client_reference_id: nutzer.id,
       ...(kunde ? { customer: kunde } : { customer_email: nutzer.email || undefined }),
-      ...(p.abo ? { subscription_data: { metadata: meta } } : { customer_creation: "always", payment_intent_data: { metadata: meta } }),
+      ...(p.abo
+        ? { subscription_data: { metadata: meta, billing_mode: { type: "flexible" } } }
+        : {
+            customer_creation: kunde ? undefined : "always",
+            payment_intent_data: { metadata: meta },
+            // Rechnung (PDF) auch beim Einmalkauf – Abos bekommen sie automatisch.
+            invoice_creation: { enabled: true, invoice_data: { description: p.name, metadata: meta } },
+          }),
       metadata: meta,
       success_url: `${basis}/?konto=1&kauf=erfolg&produkt=${produkt}`,
       cancel_url: `${basis}/?konto=1&kauf=abbruch`,

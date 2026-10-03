@@ -8,6 +8,7 @@ import { hoch, termText } from "./func2.jsx";
 import { Formel, M, Text, Zeile, alsFunktion, alsFunktionXH, diffqAufgabe, diffqLoesung1, diffqLoesung2, diffqStimmtVorLimes, diffqX0, numAbleitung, stimmtUeberein, wegPruefen, zeileSetzen, zerlegen } from "./func3.jsx";
 import { AbleitungsGenerator, MiniGraph, TermTastatur, kubischErzeugen } from "./func4.jsx";
 import { LoesungsWeg, VisSekante, lernAusUebung, lernSpeichern } from "./func6.jsx";
+import { aufgabeGezaehlt } from "./zugang.js";
 import { aktivitaetMelden } from "./func8.jsx";
 import { Auswertung } from "./func9.jsx";
 import { Mathilda } from "./func10.jsx";
@@ -839,6 +840,7 @@ export function Kopfrechnen() {
 
 export function merken(eintrag) {
   PROTOKOLL.push({ zeit: Date.now(), ...eintrag });
+  try { aufgabeGezaehlt(); } catch (e) { /* Tageslimit ist optional */ }
   try { lernAusUebung(eintrag); } catch (e) { /* Lernstand ist optional */ }
   try { aktivitaetMelden({ ok: eintrag.richtig ?? null, fehlerart: eintrag.fehlerart || null }); } catch (e) { /* optional */ }
   if (PROTOKOLL.length > 500) PROTOKOLL.splice(0, PROTOKOLL.length - 500);

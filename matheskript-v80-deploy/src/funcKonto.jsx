@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { C } from "./base1.jsx";
+import { KaufBereich, KaufRueckmeldung } from "./funcKasse.jsx";
 import { DEMO, useKonto, anmelden, abmelden, profilAnlegen, profilSpeichern, empfehlungsLink, neuerCode, refPruefen, refFestlegen, istRefCode } from "./konto.js";
 
 /* ======================================================================
@@ -387,6 +388,8 @@ function Profil({ nutzer, profil, geworben, gehe }) {
         </div>
       </div>
 
+      <KaufBereich gehe={gehe} />
+
       {/* Freunde einladen */}
       <div style={{ ...karte, padding: 18, marginBottom: 14, background: `linear-gradient(155deg, ${C.see} 0%, ${NAVY} 100%)`, color: C.weiss }}>
         <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", color: C.flaggold, marginBottom: 6 }}>FREUNDE EINLADEN</p>
@@ -436,6 +439,7 @@ export function KontoSeite({ gehe }) {
         </div>
       )}
       {fehler && <p style={{ fontSize: 13.5, color: C.signal, marginBottom: 12 }}>{fehler}</p>}
+      <KaufRueckmeldung />
       {!geladen ? (
         <p style={{ fontSize: 14, color: C.grau }}>Einen Moment …</p>
       ) : !nutzer ? (

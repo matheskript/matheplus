@@ -11,18 +11,22 @@
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 
-/* Alle verkäuflichen Produkte an EINER Stelle. Preise in Cent, Endpreise. */
+/* Alle verkäuflichen Produkte an EINER Stelle. Die Preise liegen als Produkte
+   in Stripe und werden über den Lookup-Key gefunden – so funktioniert derselbe
+   Code im Test- und im Live-Konto. `preis` (Cent) dient nur der Anzeige/Prüfung. */
 export const PRODUKTE = {
   analysis1: {
     name: "Selbstlernkurs Analysis 1 – Geraden",
     beschreibung: "Videokurs mit Lektionen, Merksätzen und Kurz-Checks. Unbefristeter Zugang, ohne persönliche Korrektur.",
     preis: 5000,
+    lookupKey: "analysis1_einmal",
     abo: false,
   },
   unlimited: {
     name: "Mythos Mathe Unlimited",
     beschreibung: "Alle Trainingsgeräte in Üben und Prüfung ohne Tageslimit. Monatlich kündbar.",
     preis: 2000,
+    lookupKey: "unlimited_monat",
     abo: true,
   },
 };
@@ -68,6 +72,17 @@ export function herkunft(req) {
 export function periodenEnde(abo) {
   const s = abo.current_period_end ?? abo.items?.data?.[0]?.current_period_end;
   return s ? new Date(s * 1000).toISOString() : null;
+}
+
+/* Stripe-Preis zum Produkt (wird je Server-Instanz zwischengespeichert). */
+const _preise = new Map();
+export async function preisId(p) {
+  if (_preise.has(p.lookupKey)) return _preise.get(p.lookupKey);
+  const { data } = await stripe().prices.list({ lookup_keys: [p.lookupKey], active: true, limit: 1 });
+  if (!data[0]) throw new Error(`In Stripe fehlt ein aktiver Preis mit Lookup-Key ${p.lookupKey}.`);
+  if (data[0].unit_amount !== p.preis) throw new Error(`Preis ${p.lookupKey} in Stripe (${data[0].unit_amount}) passt nicht zur App (${p.preis}).`);
+  _preise.set(p.lookupKey, data[0].id);
+  return data[0].id;
 }
 
 export const aboAktiv = (status) => ["active", "trialing"].includes(status);

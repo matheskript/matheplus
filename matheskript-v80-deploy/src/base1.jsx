@@ -699,7 +699,7 @@ export const KURSE = [
     id: "analysis1",
     titel: "Analysis 1",
     unter: "Geraden",
-    preis: 100,
+    preis: 50,
     stufe: "Klasse 8 – 11",
     umfang: "5 Bausteine · Videokurs mit Kurz-Checks",
     grafik: "gerade",

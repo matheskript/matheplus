@@ -7,6 +7,9 @@ import { LernModul, RechenwegEditor } from "./func3.jsx";
 import { GraphZuordnung, Klausur, Kurvendiskussion } from "./func4.jsx";
 import { intervall } from "./func8.jsx";
 import { VideokursPlayer, VideokursVorschau, naechsteLektion, videoAnzahl } from "./func15.jsx";
+import { KaufDialog } from "./funcKasse.jsx";
+import { useKonto, hatRecht } from "./konto.js";
+import { BEZAHLKURSE } from "./zugang.js";
 
 export function useYouTubeApi() {
   const [bereit, setBereit] = useState(() => typeof window !== "undefined" && !!(window.YT && window.YT.Player));
@@ -992,24 +995,36 @@ export function Kurse({ gehe, startKurs = null }) {
   const [hinweis, setHinweis] = useState(false);
   const [analysisAuf, setAnalysisAuf] = useState(false);   // Dropdown der fünf Analysis-Kurse
   const [video, setVideo] = useState(null);   // null oder Index der Lektion
+  const [kaufDialog, setKaufDialog] = useState(null);
+  const { rechte } = useKonto();
 
   const kaufen = (id) => {
+    if (BEZAHLKURSE[id]) { setKaufDialog(id); return; }   // über Stripe (funcKasse.jsx)
     const url = KAUF_LINKS[id];
     if (url) window.open(url, "_blank");
     else setHinweis(true);
   };
 
-  const KaufBlock = ({ k, gross }) => (
+  const KaufBlock = ({ k, gross }) => BEZAHLKURSE[k.id] && hatRecht(rechte, k.id) ? (
+    <div className="flex items-center" style={{ gap: 10 }}>
+      <span style={{ display: "inline-flex", alignItems: "center", gap: 8, height: gross ? 54 : 46, padding: "0 20px", borderRadius: 999, background: "#EEF8F2", color: C.smaragd, fontSize: 15, fontWeight: 700 }}>✓ Freigeschaltet</span>
+      {kaufDialog && <KaufDialog produkt={kaufDialog} gehe={gehe} onSchliessen={() => setKaufDialog(null)} />}
+    </div>
+  ) : (
     <div>
       <button onClick={() => kaufen(k.id)} className={gross ? "w-full px-6 py-4" : "px-6 py-3"}
         style={{ background: C.gruenDunkel, color: C.weiss, border: "none", borderRadius: 999, fontSize: gross ? 17 : 15, fontWeight: 600, fontFamily: "inherit", cursor: "pointer", boxShadow: "0 4px 18px rgba(127,0,52,0.22)" }}>
         Kurs kaufen · {k.preis} €
       </button>
-      {hinweis && (
+      {BEZAHLKURSE[k.id] && (
+        <p style={{ color: C.grau, fontSize: 12, fontWeight: 300, marginTop: 8, lineHeight: 1.6 }}>Einmalig, kein Abo · Kreditkarte oder PayPal · erste Lektion gratis</p>
+      )}
+      {hinweis && !BEZAHLKURSE[k.id] && (
         <p style={{ color: C.grau, fontSize: 12, fontWeight: 300, marginTop: 10, lineHeight: 1.6 }}>
           Der Zahlungslink ist noch nicht hinterlegt. Er wird im Code unter KAUF_LINKS eingetragen.
         </p>
       )}
+      {kaufDialog === k.id && <KaufDialog produkt={kaufDialog} gehe={gehe} onSchliessen={() => setKaufDialog(null)} />}
     </div>
   );
 
