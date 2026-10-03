@@ -1,3 +1,4 @@
+import { kdText } from "./kdEnglisch.js";
 /* ======================================================================
    SPRACHE: Deutsch (Original) oder Englisch.
    Die App ist auf Deutsch geschrieben. Im englischen Modus wird das
@@ -104,7 +105,7 @@ const GLOSSAR = [
 
 function glossar(s) {
   if (!/[=⇒<>|(]|\d/.test(s)) return null;
-  let t = s;
+  let t = kdText(s);
   for (const [re, en] of GLOSSAR) t = t.replace(re, en);
   return t === s ? null : t;
 }

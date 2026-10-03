@@ -9,6 +9,8 @@ import fontBoldUrl from "dejavu-fonts-ttf/ttf/DejaVuSans-Bold.ttf?url";
 import fontMonoUrl from "dejavu-fonts-ttf/ttf/DejaVuSansMono.ttf?url";
 import fontMonoBoldUrl from "dejavu-fonts-ttf/ttf/DejaVuSansMono-Bold.ttf?url";
 import { C } from "./base1.jsx";
+import { englisch } from "./i18n.js";
+import { kdInhalt, kdText } from "./kdEnglisch.js";
 import {
   baueKurvendiskussionInhalt, hochZiffer, markanteAllg, nullstellenAllg, polyTextPdf,
   schoenText, schoenerSchritt, tiefZiffer, zahl,
@@ -139,6 +141,9 @@ function kopfleiste(doc, gross, untertitel = "Kurvendiskussion · Polynomplotter
   return h + 1.1;
 }
 
+/* Achsenbeschriftung: im Englischen mit Dezimalpunkt */
+const achsZahl = (v) => (englisch() ? zahl(v).replace(/(\d),(\d)/g, "$1.$2") : zahl(v));
+
 /* ---------- Schaubild ---------- */
 
 /* Modell für ein Polynom (Polynomplotter). */
@@ -232,13 +237,13 @@ function schaubild(doc, x0, y0, B, H, modell) {
   for (let v = Math.ceil(xMin / sx) * sx; v <= xMax; v += sx) {
     const vv = Math.round(v * 1000) / 1000;
     if (Math.abs(vv) < 1e-9) continue;
-    doc.text(zahl(vv), px(vv), Math.min(xAchsePos + 3, y0 + H - 1), { align: "center" });
+    doc.text(achsZahl(vv), px(vv), Math.min(xAchsePos + 3, y0 + H - 1), { align: "center" });
   }
   const xAchse = xMin <= 0 && xMax >= 0 ? px(0) : x0;
   for (let v = Math.ceil(yMin / sy) * sy; v <= yMax; v += sy) {
     const vv = Math.round(v * 1000) / 1000;
     if (Math.abs(vv) < 1e-9) continue;
-    doc.text(zahl(vv), Math.max(xAchse - 1, x0 + 4), py(vv) + 1, { align: "right" });
+    doc.text(achsZahl(vv), Math.max(xAchse - 1, x0 + 4), py(vv) + 1, { align: "right" });
   }
 
   // Kurve (auf das Feld beschnitten)
@@ -276,7 +281,9 @@ function schaubild(doc, x0, y0, B, H, modell) {
 
   // Legende
   doc.setFontSize(6.5);
-  const leg = [["Nullstelle", C.weiss, C.see], ["Extrempunkt", C.gruen], ["Wendepunkt", C.flaggold], ["y-Achse", C.seeHell]];
+  const leg = englisch()
+    ? [["Zero", C.weiss, C.see], ["Extreme point", C.gruen], ["Inflection point", C.flaggold], ["y-intercept", C.seeHell]]
+    : [["Nullstelle", C.weiss, C.see], ["Extrempunkt", C.gruen], ["Wendepunkt", C.flaggold], ["y-Achse", C.seeHell]];
   let lx = x0 + 3;
   const ly = y0 + H + 4;
   leg.forEach(([t, fill, stroke]) => {
@@ -366,7 +373,7 @@ function polynomdivisionSetzen(doc, s, block) {
   doc.setFont("Sans", "bold");
   doc.setFontSize(6.5 * SK);
   setzeText(doc, C.see);
-  doc.text("POLYNOMDIVISION", s.x() + 3, s.zustand.y + 2.4 * SK);
+  doc.text(englisch() ? "POLYNOMIAL DIVISION" : "POLYNOMDIVISION", s.x() + 3, s.zustand.y + 2.4 * SK);
   s.zustand.y += 3.6 * SK;
   const xAlt = s.x;
   s.x = () => xAlt() + 3;
@@ -394,7 +401,7 @@ function seiteSetzen(doc, inhalt, kopf, modell) {
   doc.setFont("Sans", "bold");
   doc.setFontSize(20);
   setzeText(doc, C.tinte);
-  doc.text("Kurvendiskussion", RAND, y);
+  doc.text(englisch() ? "Curve Sketching" : "Kurvendiskussion", RAND, y);
   setzeFuell(doc, C.gruen);
   doc.rect(RAND, y + 2.2, 14, 0.9, "F");
   y += 9;
@@ -450,6 +457,16 @@ function seiteSetzen(doc, inhalt, kopf, modell) {
 /* Generischer Export: kopf = { f, f1, f2, fuss, untertitel } (fertige Texte),
    inhalt = { abschnitte }, modell für das Schaubild (siehe schaubild()). */
 export async function allgemeinesPdf({ kopf, inhalt, modell, dateiname }) {
+  if (englisch()) {
+    // Englische Seite: Rechenweg, Kopf, Fußzeile und Dateiname auf Englisch
+    inhalt = kdInhalt(inhalt);
+    kopf = {
+      ...kopf,
+      fuss: kopf.fuss.replace(/^Kurvendiskussion für/, "Curve sketching for"),
+      untertitel: kopf.untertitel.replace("Kurvendiskussion", "Curve Sketching").replace("Polynomplotter", "Polynomial Plotter"),
+    };
+    dateiname = dateiname.replace(/^Kurvendiskussion_/, "Curve_Sketching_");
+  }
   const schriften = await ladeSchriften();
   // Ausnahmslos eine Seite: so lange kleiner setzen, bis nichts mehr überläuft.
   let doc = null;
