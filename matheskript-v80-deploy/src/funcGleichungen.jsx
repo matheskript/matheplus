@@ -446,7 +446,7 @@ Steht keine Gleichung auf dem Foto, antworte {"aufgaben":[]}.`;
           <div className="flex" role="group" aria-label="Schwierigkeit" style={{ background: "#EEF2F8", borderRadius: 999, padding: 3 }}>
             {G.STUFEN.map((s) => (
               <button key={s.id} type="button" onClick={() => stufeWaehlen(s.id)}
-                style={{ border: "none", borderRadius: 999, padding: "7px 14px", fontFamily: "inherit", cursor: "pointer", fontSize: 13,
+                style={{ border: "none", borderRadius: 999, padding: "7px 11px", fontFamily: "inherit", cursor: "pointer", fontSize: 12.5, whiteSpace: "nowrap",
                   fontWeight: stufe === s.id ? 600 : 400, background: stufe === s.id ? C.weiss : "transparent",
                   color: stufe === s.id ? C.see : C.grau, boxShadow: stufe === s.id ? "0 1px 6px rgba(15,26,51,0.12)" : "none" }}>
                 {s.name}

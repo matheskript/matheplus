@@ -1241,8 +1241,10 @@ export const ARTEN = [
 ];
 export const STUFEN = [
   { id: 1, name: "Einstieg" },
-  { id: 2, name: "Standard" },
-  { id: 3, name: "Knifflig" },
+  { id: 2, name: "Leicht" },
+  { id: 3, name: "Standard" },
+  { id: 4, name: "Knifflig" },
+  { id: 5, name: "Profi" },
 ];
 
 const GENERATOREN = {
@@ -1252,7 +1254,7 @@ const GENERATOREN = {
       () => { const x = zufall(-12, 12), b = nichtNull(-20, 20); return `${glieder([[1, "x"], [b, ""]])} = ${x + b}`; },
       () => { const a = wahl([-6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8]), x = zufall(-9, 9); return `${glieder([[a, "x"]])} = ${a * x}`; },
     ])(),
-    2: () => wahl([
+    3: () => wahl([
       () => {
         const x = zufall(-8, 8); let a = nichtNull(-9, 9), c = nichtNull(-9, 9);
         while (a === c) c = nichtNull(-9, 9);
@@ -1264,7 +1266,7 @@ const GENERATOREN = {
         return `${glieder([[b, ""], [-a, "x"]])} = ${glieder([[c, "x"], [d, ""]])}`;
       },
     ])(),
-    3: () => wahl([
+    4: () => wahl([
       () => {
         const x = zufall(-7, 7), a = wahl([2, 3, 4, 5, -2, -3]), p = nichtNull(-6, 6);
         let c = nichtNull(-6, 6); while (c === a) c = nichtNull(-6, 6);
@@ -1275,7 +1277,7 @@ const GENERATOREN = {
         const x = zufall(-6, 6), a = wahl([2, 3, 4]), p = nichtNull(-5, 5), e = nichtNull(-9, 9);
         let c = wahl([2, 3, 5]); while (c === a) c = wahl([2, 3, 5, 6]);
         const q = (a * (x + p) + e) / c - x;
-        if (!Number.isInteger(q) || q === 0) return GENERATOREN.linear[3]();
+        if (!Number.isInteger(q) || q === 0) return GENERATOREN.linear[4]();
         return `${a}(${glieder([[1, "x"], [p, ""]])}) ${e < 0 ? "−" : "+"} ${Math.abs(e)} = ${c}(${glieder([[1, "x"], [q, ""]])})`;
       },
       () => { const a = wahl([2, 3, 4, 5]), x = a * zufall(-5, 6), b = nichtNull(-9, 9); return `x/${a} ${b < 0 ? "−" : "+"} ${Math.abs(b)} = ${x / a + b}`; },
@@ -1289,14 +1291,14 @@ const GENERATOREN = {
       () => { const r = zufall(1, 8), b = nichtNull(-20, 20); return `${glieder([[1, "x²"], [b, ""]])} = ${r * r + b}`; },
       () => { const a = wahl([2, 3, 5]), r = zufall(1, 6); return `${a}x² − ${a * r * r} = 0`; },
     ])(),
-    2: () => wahl([
+    3: () => wahl([
       () => { const p = nichtNull(-6, 6), q = zufall(1, 7); return `(${glieder([[1, "x"], [p, ""]])})² = ${q * q}`; },
       () => { const a = wahl([2, 3, 4]), p = nichtNull(-5, 5), q = zufall(1, 5); return `${a}(${glieder([[1, "x"], [p, ""]])})² = ${a * q * q}`; },
       () => { const b = nichtNull(-9, 9); return `${glieder([[1, "x²"], [b, "x"]])} = 0`; },
       () => { const a = wahl([2, 3, -2]), b = nichtNull(-6, 6); return `${glieder([[a, "x²"], [a * b, "x"]])} = 0`; },
       () => { const p = nichtNull(-5, 5), q = zufall(1, 6), c = nichtNull(-9, 9); return `(${glieder([[1, "x"], [p, ""]])})² ${c < 0 ? "−" : "+"} ${Math.abs(c)} = ${q * q + c}`; },
     ])(),
-    3: () => wahl([
+    4: () => wahl([
       () => {
         const a = wahl([1, 1, 2, -1, 3]); let r1 = zufall(-7, 7), r2 = zufall(-7, 7);
         while (r2 === r1) r2 = zufall(-7, 7);
@@ -1325,13 +1327,13 @@ const GENERATOREN = {
       () => `e^x = ${zufall(2, 9)}`,
       () => { const n = zufall(2, 4); return `e^x = e^${n}`; },
     ])(),
-    2: () => wahl([
+    3: () => wahl([
       () => { const a = zufall(2, 6), [b, max] = wahl([[2, 6], [3, 4], [5, 3]]); const n = zufall(1, max); return `${a}·${b}^x = ${a * b ** n}`; },
       () => { const [b, max] = wahl([[2, 7], [3, 4]]); const n = zufall(2, max), m = nichtNull(-3, 3); return `${b}^(${glieder([[1, "x"], [m, ""]])}) = ${b ** n}`; },
       () => { const c = nichtNull(-9, 9), k = zufall(2, 9); return `e^x ${c < 0 ? "−" : "+"} ${Math.abs(c)} = ${k + c}`; },
       () => { const a = zufall(2, 5), k = zufall(2, 8); return `${a}e^x = ${a * k}`; },
     ])(),
-    3: () => wahl([
+    4: () => wahl([
       () => { const a = zufall(2, 5), k = zufall(2, 3), q = zufall(2, 6), c = nichtNull(-9, 9); return `${a}e^(${k}x) ${c < 0 ? "−" : "+"} ${Math.abs(c)} = ${a * q + c}`; },
       () => {
         const [b, max] = wahl([[2, 6], [3, 4]]); const k = wahl([2, 3]), n = zufall(1, max);
@@ -1353,13 +1355,13 @@ const GENERATOREN = {
       () => `log₂(x) = ${zufall(2, 6)}`,
       () => `log₃(x) = ${zufall(2, 4)}`,
     ])(),
-    2: () => wahl([
+    3: () => wahl([
       () => { const a = zufall(2, 4), n = zufall(1, 3), c = nichtNull(-6, 6); return `${a}·ln(x) ${c < 0 ? "−" : "+"} ${Math.abs(c)} = ${a * n + c}`; },
       () => { const n = zufall(2, 5), m = nichtNull(-6, 6); return `log₂(${glieder([[1, "x"], [m, ""]])}) = ${n}`; },
       () => { const n = zufall(1, 3), a = wahl([2, 4, 5]); return `lg(${a}x) = ${n}`; },
       () => { const c = zufall(1, 5), d = zufall(1, 3); return `ln(x) − ${c} = ${d - c}`; },
     ])(),
-    3: () => wahl([
+    4: () => wahl([
       () => {
         const n = zufall(1, 3), k = wahl([1, 2, 3]), x = zufall(1, 8), m = 3 ** n - k * x, a = zufall(2, 3), c = zufall(1, 6);
         return `${a}·log₃(${glieder([[k, "x"], [m, ""]])}) − ${c} = ${a * n - c}`;
@@ -1377,13 +1379,13 @@ GENERATOREN.bruch = {
     () => { const x = nichtNull(-6, 6), q = nichtNull(-6, 6), c = nichtNull(-9, 9); return `${q * x}/x ${c < 0 ? "−" : "+"} ${Math.abs(c)} = ${q + c}`; },
     () => { const x = nichtNull(-8, 8), b = wahl([2, 3, 4, 5]); return `${b * x * 2}/(2x) = ${b}`; },
   ])(),
-  2: () => wahl([
-    () => { const x = zufall(-6, 8), p = nichtNull(-6, 6), b = nichtNull(-5, 5); if (x + p === 0) return GENERATOREN.bruch[2](); return `${b * (x + p)}/(${glieder([[1, "x"], [p, ""]])}) = ${b}`; },
+  3: () => wahl([
+    () => { const x = zufall(-6, 8), p = nichtNull(-6, 6), b = nichtNull(-5, 5); if (x + p === 0) return GENERATOREN.bruch[3](); return `${b * (x + p)}/(${glieder([[1, "x"], [p, ""]])}) = ${b}`; },
     () => { const p = zufall(-5, 5); let q = zufall(-5, 5); while (q === p) q = zufall(-5, 5); const a = nichtNull(-6, 6); let b = nichtNull(-6, 6); while (b === a) b = nichtNull(-6, 6);
       return `${a}/(${glieder([[1, "x"], [-p, ""]])}) = ${b}/(${glieder([[1, "x"], [-q, ""]])})`; },
     () => { const a = nichtNull(-6, 6), p = nichtNull(-5, 5), c = wahl([-3, -2, 2, 3, 4]); return `(${glieder([[1, "x"], [a, ""]])})/(${glieder([[1, "x"], [-p, ""]])}) = ${c}`; },
   ])(),
-  3: () => wahl([
+  4: () => wahl([
     () => { const a = nichtNull(-6, 6), b = nichtNull(-6, 6), p = zufall(-4, 4); let q = zufall(-4, 4); while (q === p) q = zufall(-4, 4); const c = nichtNull(-3, 3);
       return `${a}/(${glieder([[1, "x"], [-p, ""]])}) + ${b}/(${glieder([[1, "x"], [-q, ""]])}) = ${c}`.replace("+ -", "− "); },
     () => { const p = nichtNull(-5, 5), c = wahl([2, 3, 4, -2]); return `x/(${glieder([[1, "x"], [-p, ""]])}) = ${p}/(${glieder([[1, "x"], [-p, ""]])}) ${c < 0 ? "−" : "+"} ${Math.abs(c)}`.replace("= -", "= −"); },
@@ -1392,6 +1394,132 @@ GENERATOREN.bruch = {
       return `(${glieder([[1, "x"], [a, ""]])})/(${glieder([[1, "x"], [-p, ""]])}) = (${glieder([[1, "x"], [b, ""]])})/(${glieder([[1, "x"], [-q, ""]])})`; },
   ])(),
 };
+
+/* Stufe 2 („Leicht“) und Stufe 5 („Profi“) — zwischen Einstieg und Standard
+   bzw. oberhalb von Knifflig. Stufe 1, 3 und 4 sind die bisherigen Stufen. */
+const vz = (c) => `${c < 0 ? "−" : "+"} ${Math.abs(c)}`;
+
+Object.assign(GENERATOREN.linear, {
+  2: () => wahl([
+    () => { const x = zufall(-9, 9), b = zufall(3, 20), a = zufall(2, 7); return `${b} − ${a}x = ${b - a * x}`; },
+    () => { const x = zufall(-9, 9); let a = zufall(2, 9), c = zufall(1, 8); while (c === a) c = zufall(1, 8); return `${a}x = ${glieder([[c, "x"], [(a - c) * x, ""]])}`; },
+    () => { const x = zufall(-10, 10), a = wahl([-4, -3, -2, 2, 3, 4, 5]), b = nichtNull(-30, 30); return `${glieder([[a, "x"], [b, ""]])} = ${a * x + b}`; },
+  ])(),
+  5: () => wahl([
+    () => {
+      const x = zufall(-6, 6), a = wahl([2, 3, 4]), b = wahl([2, 3, 5]), p = nichtNull(-5, 5);
+      let q = nichtNull(-5, 5); while (q === p) q = nichtNull(-5, 5);
+      let c = wahl([2, 3, 4, 6]); while (c === a - b) c = wahl([2, 3, 4, 6, 7]);
+      const r = (a * (x + p) - b * (x + q)) / c - x;
+      if (!Number.isInteger(r) || r === 0) return GENERATOREN.linear[5]();
+      return `${a}(${glieder([[1, "x"], [p, ""]])}) − ${b}(${glieder([[1, "x"], [q, ""]])}) = ${c}(${glieder([[1, "x"], [r, ""]])})`;
+    },
+    () => { const [a, b] = wahl([[2, 3], [3, 4], [2, 5], [3, 5]]); const t = nichtNull(-3, 3); return `x/${a} + x/${b} = ${t * (a + b)}`; },
+    () => {
+      const [a, b] = wahl([[2, 3], [3, 4], [2, 5], [4, 3]]); const p = nichtNull(-6, 6); let q = nichtNull(-6, 6);
+      // (x + p)/a = (x + q)/b  →  b(x + p) = a(x + q)  →  x = (a q − b p)/(b − a)
+      const x = (a * q - b * p) / (b - a);
+      if (!Number.isInteger(x)) return GENERATOREN.linear[5]();
+      return `(${glieder([[1, "x"], [p, ""]])})/${a} = (${glieder([[1, "x"], [q, ""]])})/${b}`;
+    },
+    () => {
+      const x = zufall(-5, 5), a = wahl([2, 3, 4]), p = nichtNull(-4, 4);
+      let q = nichtNull(-4, 4); while (q === p) q = nichtNull(-4, 4);
+      const d = (x + p) * (x + q) - x * x - a * x;   // (x + p)(x + q) = x² + a·x + d
+      return `(${glieder([[1, "x"], [p, ""]])})(${glieder([[1, "x"], [q, ""]])}) = ${glieder([[1, "x²"], [a, "x"], [d, ""]])}`;
+    },
+  ])(),
+});
+
+Object.assign(GENERATOREN.quadratisch, {
+  2: () => wahl([
+    () => { const a = wahl([2, 3, 4, 5]), r = zufall(1, 6), b = nichtNull(-12, 12); return `${a}x² ${vz(b)} = ${a * r * r + b}`; },
+    () => { const r = zufall(1, 9), c = zufall(r * r + 1, r * r + 30); return `${c} − x² = ${c - r * r}`; },
+    () => { const b = nichtNull(-9, 9); return `x² = ${glieder([[b, "x"]])}`; },
+    () => { const r = zufall(1, 7), a = wahl([2, 3]); return `${a}x² = x² + ${(a - 1) * r * r}`; },
+  ])(),
+  5: () => wahl([
+    () => {
+      let r1 = zufall(-6, 6), r2 = zufall(-6, 6); while (r2 === r1) r2 = zufall(-6, 6);
+      const p = nichtNull(-5, 5), q = -(r1 + r2) - p, c = p * q - r1 * r2;
+      if (q === 0 || c === 0) return GENERATOREN.quadratisch[5]();
+      return `(${glieder([[1, "x"], [p, ""]])})(${glieder([[1, "x"], [q, ""]])}) = ${c}`;
+    },
+    () => {
+      let r1 = nichtNull(-7, 7), r2 = nichtNull(-7, 7); while (r2 === r1 || r1 + r2 === 0) r2 = nichtNull(-7, 7);
+      return `x(${glieder([[1, "x"], [-(r1 + r2), ""]])}) = ${-r1 * r2}`;
+    },
+    () => {
+      const a = wahl([2, 3, -2]); let r1 = zufall(-5, 5), r2 = zufall(-5, 5); while (r2 === r1) r2 = zufall(-5, 5);
+      const b = -a * (r1 + r2), c = a * r1 * r2, B = nichtNull(-6, 6), D = nichtNull(-9, 9);
+      // a·x² + b·x + c = 0, auf beide Seiten verteilt: (a + 1)x² + B·x + D = x² + (B − b)x + (D − c)
+      return `${glieder([[a + 1, "x²"], [B, "x"], [D, ""]])} = ${glieder([[1, "x²"], [B - b, "x"], [D - c, ""]])}`;
+    },
+    () => { const a = wahl([2, 3]), m = zufall(1, 3); let n = zufall(1, 3); while (n === m) n = zufall(1, 3); return `${glieder([[a, "x^4"], [-a * (m * m + n * n), "x²"], [a * m * m * n * n, ""]])} = 0`; },
+    () => { const p = nichtNull(-4, 4), q = zufall(2, 6); return `(${glieder([[1, "x"], [p, ""]])})² = ${glieder([[2 * p, "x"], [q * q + p * p, ""]])}`; },
+  ])(),
+});
+
+Object.assign(GENERATOREN.exponential, {
+  2: () => wahl([
+    () => { const a = zufall(2, 6), [b, max] = wahl([[2, 5], [3, 3], [10, 2]]); const n = zufall(1, max); return `${a}·${b}^x = ${a * b ** n}`; },
+    () => { const a = zufall(2, 5), k = zufall(2, 8); return `${a}e^x = ${a * k}`; },
+    () => { const [b, max] = wahl([[2, 6], [3, 4], [5, 3]]); const n = zufall(1, max), c = zufall(1, 15); return `${b}^x + ${c} = ${b ** n + c}`; },
+    () => { const k = zufall(2, 9), c = zufall(1, 9); return `e^x − ${c} = ${k - c}`; },
+  ])(),
+  5: () => wahl([
+    () => { const a = zufall(2, 4), k = wahl([2, 3]), m = nichtNull(-4, 4), q = zufall(2, 9), c = nichtNull(-9, 9); return `${a}e^(${glieder([[k, "x"], [m, ""]])}) ${vz(c)} = ${a * q + c}`; },
+    () => { const a = wahl([2, 3]), p = zufall(1, 5); let q = zufall(1, 5); while (q === p) q = zufall(1, 5); return `${a}e^(2x) − ${a * (p + q)}e^x + ${a * p * q} = 0`; },
+    () => { const m = zufall(0, 2); let n = zufall(0, 2); while (n === m) n = zufall(0, 2); return `3^(2x) − ${3 ** m + 3 ** n}·3^x + ${3 ** (m + n)} = 0`; },
+    () => { const a = zufall(2, 4), [b, max] = wahl([[2, 4], [3, 3]]); const n = zufall(1, max), c = zufall(1, 12), d = zufall(1, 2); return `${a}·${b}^(x + ${d}) − ${c} = ${a * b ** (n + d) - c}`; },
+    () => { const k = zufall(2, 9); return `e^(2x) = ${k}e^x`; },
+  ])(),
+});
+
+Object.assign(GENERATOREN.logarithmus, {
+  2: () => wahl([
+    () => { const a = zufall(2, 5), n = zufall(1, 3); return `${a}·ln(x) = ${a * n}`; },
+    () => { const n = zufall(2, 5), c = zufall(1, 8); return `log₂(x) + ${c} = ${n + c}`; },
+    () => { const n = zufall(1, 3), c = zufall(1, 6); return `lg(x) − ${c} = ${n - c}`; },
+    () => `log₅(x) = ${zufall(1, 3)}`,
+  ])(),
+  5: () => wahl([
+    () => {
+      const x = zufall(1, 9), a = zufall(2, 4), c = wahl([1, 2, 3]); let k = zufall(2, 5); while (k === c) k = zufall(2, 5);
+      const m = zufall(1, 6), d = (k - c) * x + m;   // ln(k·x + m) = ln(c·x + d)
+      return `ln(${glieder([[k, "x"], [m, ""]])}) = ln(${glieder([[c, "x"], [d, ""]])})`;
+    },
+    () => {
+      const n = zufall(1, 3), k = wahl([2, 3]), a = zufall(2, 4), c = zufall(1, 8);
+      let m; do { m = nichtNull(-8, 8); } while ((2 ** n - m) % k !== 0);
+      return `${a}·log₂(${glieder([[k, "x"], [m, ""]])}) + ${c} = ${a * n + c}`;
+    },
+    () => { const a = zufall(2, 6), b = zufall(2, 6), c = zufall(1, 4); return `ln(${a}x) + ln(${b}) = ln(${a * b * c})`; },
+    () => { const a = zufall(2, 4), m = zufall(1, 8), n = zufall(1, 2), c = zufall(1, 9); return `${a}·lg(x + ${m}) − ${c} = ${a * n - c}`; },
+  ])(),
+});
+
+Object.assign(GENERATOREN.bruch, {
+  2: () => wahl([
+    () => { const b = nichtNull(-6, 6), x = nichtNull(-8, 8); return `${b * x}/x = ${b}`.replace("= -", "= −"); },
+    () => { const x = nichtNull(-7, 7), b = nichtNull(-5, 5), c = nichtNull(-9, 9); return `${b * x}/x ${vz(c)} = ${b + c}`; },
+    () => { const p = nichtNull(-6, 6), b = wahl([2, 3, 4, 5]), x = zufall(-6, 6); if (x + p === 0) return GENERATOREN.bruch[2](); return `${b * (x + p)}/(${glieder([[1, "x"], [p, ""]])}) = ${b}`; },
+  ])(),
+  5: () => wahl([
+    () => { let r1 = nichtNull(-6, 6), r2 = nichtNull(-6, 6); while (r2 === r1 || r1 + r2 === 0) r2 = nichtNull(-6, 6); return `x + ${r1 * r2}/x = ${r1 + r2}`.replace("+ -", "− ").replace("= -", "= −"); },
+    () => {
+      let r1 = zufall(-5, 5), r2 = zufall(-5, 5); while (r2 === r1) r2 = zufall(-5, 5);
+      const p = nichtNull(-4, 4), q = r1 + r2 - p, a = p * q - r1 * r2;   // a/(x − p) = x − q
+      if (a === 0 || r1 === p || r2 === p) return GENERATOREN.bruch[5]();
+      return `${a}/(${glieder([[1, "x"], [-p, ""]])}) = ${glieder([[1, "x"], [-q, ""]])}`;
+    },
+    () => {
+      const p = nichtNull(-4, 4); let q = nichtNull(-4, 4); while (q === p || q === -p) q = nichtNull(-4, 4);
+      const a = nichtNull(-5, 5), b = nichtNull(-5, 5);
+      return `x/(${glieder([[1, "x"], [-p, ""]])}) + ${a}/(${glieder([[1, "x"], [-q, ""]])}) = ${b}`.replace("+ -", "− ").replace("= -", "= −");
+    },
+  ])(),
+});
 
 /* Eine Aufgabe taugt, wenn der Musterweg sie löst und alle Lösungen glatt sind. */
 function tauglich(g) {
@@ -1408,7 +1536,8 @@ export function erzeugen(art, stufe) {
     try {
       const g = gleichungLesen(text);
       const z = status({ ...g });
-      if (z.status === "offen" && (art !== "bruch" || tauglich(g))) return { ...g, text };
+      // Bruchgleichungen und alle Profi-Aufgaben müssen per Musterweg glatt lösbar sein.
+      if (z.status === "offen" && (art !== "bruch" && stufe < 5 || tauglich(g))) return { ...g, text };
     } catch (e) { /* neuer Versuch */ }
   }
   return { ...gleichungLesen("2x + 3 = 11"), text: "2x + 3 = 11" };
