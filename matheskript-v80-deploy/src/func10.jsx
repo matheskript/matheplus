@@ -27,7 +27,7 @@ import { MasterclassSeite, MatheCheckenSeite } from "./funcMasterclass.jsx";
 import { Fusszeile, ImpressumSeite, AGBSeite, WiderrufSeite } from "./funcRecht.jsx";
 import { KontoSeite } from "./funcKonto.jsx";
 import { ElternabendSeite } from "./funcElternabend.jsx";
-import { ENTWUERFE, istEntwurf, EntwurfStart, EntwurfChecken, EntwurfPakete } from "./funcEntwuerfe.jsx";
+import { ENTWUERFE, istEntwurf, EntwurfTor, EntwurfStart, EntwurfChecken, EntwurfPakete } from "./funcEntwuerfe.jsx";
 import { useKonto, kontoStarten } from "./konto.js";
 import { englisch, spracheWechseln } from "./i18n.js";
 
@@ -803,11 +803,11 @@ export function Mathilda() {
       ) : ansicht === "start" ? (
         <Startseite gehe={gehe} />
       ) : ansicht === "entwurf-start" ? (
-        <EntwurfStart gehe={gehe} />
+        <EntwurfTor gehe={gehe}><EntwurfStart gehe={gehe} /></EntwurfTor>
       ) : ansicht === "entwurf-checken" ? (
-        <EntwurfChecken gehe={gehe} />
+        <EntwurfTor gehe={gehe}><EntwurfChecken gehe={gehe} /></EntwurfTor>
       ) : ansicht === "entwurf-pakete" ? (
-        <EntwurfPakete gehe={gehe} />
+        <EntwurfTor gehe={gehe}><EntwurfPakete gehe={gehe} /></EntwurfTor>
       ) : ansicht === "kurse" ? (
         <>
           <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>

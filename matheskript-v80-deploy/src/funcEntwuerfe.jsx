@@ -22,6 +22,57 @@ export const ENTWUERFE = [
 ];
 export const istEntwurf = (a) => typeof a === "string" && a.startsWith("entwurf-");
 
+/* ---------------------------------------------------------------- Passwort-Sperre
+   Die drei Entwürfe sind intern: Zugang nur mit Passwort (klein geschrieben).
+   Im Code steht nur der SHA-256-Wert, nicht das Passwort selbst. Einmal
+   entsperrt, bleibt der Zugang für diese Browser-Sitzung offen.
+   Hinweis: Das ist eine Sperre im Browser, kein Server-Schutz. */
+const PW_HASH = "744ac4c7a298e917d88972fbbf5a9440cc04c24e24b63c62d292b1771ab69d7b";
+const FREI_KEY = "mm-entwurf-frei";
+const istFrei = () => { try { return sessionStorage.getItem(FREI_KEY) === PW_HASH; } catch (e) { return false; } };
+async function sha256(t) {
+  const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t));
+  return Array.from(new Uint8Array(b)).map((x) => x.toString(16).padStart(2, "0")).join("");
+}
+export function EntwurfTor({ children, gehe }) {
+  const [frei, setFrei] = useState(istFrei);
+  const [pw, setPw] = useState("");
+  const [fehler, setFehler] = useState(false);
+  if (frei) return children;
+  const pruefen = async (e) => {
+    e.preventDefault();
+    let ok = false;
+    try { ok = (await sha256(pw.trim().toLowerCase())) === PW_HASH; } catch (err) { ok = false; }
+    if (ok) { try { sessionStorage.setItem(FREI_KEY, PW_HASH); } catch (err) { /* privat */ } setFrei(true); window.scrollTo(0, 0); }
+    else { setFehler(true); setPw(""); }
+  };
+  return (
+    <div style={{ minHeight: "calc(100vh - 56px)", background: `radial-gradient(120% 90% at 80% 0%, #17306B 0%, ${N} 50%, ${N2} 100%)`, color: "#fff",
+      display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 18px", fontFamily: "Montserrat, system-ui, sans-serif" }}>
+      <form onSubmit={pruefen} style={{ width: "100%", maxWidth: 380, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.16)",
+        borderRadius: 18, padding: "30px 24px", textAlign: "center" }}>
+        <span style={{ width: 58, height: 58, borderRadius: 999, border: `2px solid ${GOLD}`, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke={GOLD} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <rect x="5" y="11" width="14" height="10" rx="2.2" /><path d="M8 11V7.5a4 4 0 0 1 8 0V11" /></svg>
+        </span>
+        <div style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.16em", color: GOLD, marginTop: 16 }}>INTERNER ENTWURF</div>
+        <h1 style={{ fontSize: 24, fontWeight: 800, margin: "8px 0 0", letterSpacing: "-0.02em" }}>Bitte Passwort eingeben</h1>
+        <p style={{ fontSize: 14, lineHeight: 1.5, color: "#DCE5F5", margin: "8px 0 20px" }}>Diese Seite ist noch nicht öffentlich.</p>
+        <input type="password" value={pw} autoFocus autoComplete="off" aria-label="Passwort"
+          onChange={(e) => { setPw(e.target.value); setFehler(false); }} placeholder="Passwort"
+          style={{ width: "100%", boxSizing: "border-box", padding: "13px 14px", borderRadius: 10, fontSize: 16, fontFamily: "inherit", color: TXT,
+            border: `2px solid ${fehler ? "#E5484D" : "transparent"}`, outline: "none", background: "#fff" }} />
+        {fehler && <div role="alert" style={{ color: "#FFB4B4", fontSize: 13, marginTop: 8 }}>Das Passwort stimmt nicht.</div>}
+        <Knopf typ="submit" breit style={{ marginTop: 14 }}><MitPfeil t="Entsperren" /></Knopf>
+        <button type="button" onClick={() => gehe({ ansicht: "start" })}
+          style={{ marginTop: 14, background: "none", border: "none", color: "#C9D6EE", fontSize: 13.5, fontFamily: "inherit", cursor: "pointer", textDecoration: "underline" }}>
+          Zur Startseite
+        </button>
+      </form>
+    </div>
+  );
+}
+
 const N = "#0B1E4A";        // Navy (Flächen, Überschriften)
 const N2 = "#08173B";       // Navy tief
 const GOLD = "#F5B820";
@@ -81,9 +132,9 @@ function Medaille({ n, s = 52, voll, rand, dunkel }) {
 }
 
 /* ---------------------------------------------------------------- Bausteine */
-function Knopf({ children, onClick, rand, klein, dunkel, breit, style }) {
+function Knopf({ children, onClick, rand, klein, dunkel, breit, style, typ = "button" }) {
   return (
-    <button type="button" onClick={onClick} className="ew-knopf"
+    <button type={typ} onClick={onClick} className="ew-knopf"
       style={{ fontFamily: "inherit", cursor: "pointer", fontWeight: 700, borderRadius: 10, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8,
         padding: klein ? "10px 18px" : "14px 26px", fontSize: klein ? 14 : 15.5, width: breit ? "100%" : undefined, lineHeight: 1.2,
         ...(rand
