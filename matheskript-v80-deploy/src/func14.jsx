@@ -9,6 +9,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { C } from "./base1.jsx";
+import { englisch } from "./i18n.js";
 import { GesperrteKurse } from "./func1.jsx";
 import { Primfaktoren, merken } from "./func5.jsx";
 
@@ -102,7 +103,7 @@ function Zahlenfeld({ onZiffer, onLoeschen, onOk, gesperrt }) {
   );
 }
 
-function Schnellrechnen({ erzeugen, gruppe, bestSchluessel }) {
+function Schnellrechnen({ erzeugen, gruppe, bestSchluessel, maxLaenge = 6 }) {
   const [nr, setNr] = useState(0);
   const [aufgabe, setAufgabe] = useState(() => erzeugen());
   const [eingabe, setEingabe] = useState("");
@@ -157,7 +158,7 @@ function Schnellrechnen({ erzeugen, gruppe, bestSchluessel }) {
   // Tastatur am Rechner
   useEffect(() => {
     const taste = (e) => {
-      if (/^[0-9]$/.test(e.key)) setEingabe((v) => (rueck || v.length >= 6 ? v : v + e.key));
+      if (/^[0-9]$/.test(e.key)) setEingabe((v) => (rueck || v.length >= maxLaenge ? v : v + e.key));
       else if (e.key === "Backspace") setEingabe((v) => (rueck ? v : v.slice(0, -1)));
       else if (e.key === "Enter") pruefen();
     };
@@ -221,7 +222,7 @@ function Schnellrechnen({ erzeugen, gruppe, bestSchluessel }) {
         {/* Aufgabe: rechtsbündig, endet mit „=“ */}
         <div className="kr-aufgabe" style={{ background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 16,
           padding: "20px 18px", minHeight: 96 }}>
-          <p style={{ color: C.weiss, fontSize: "clamp(34px, 9vw, 44px)", fontWeight: 800, letterSpacing: "-0.01em", lineHeight: 1.1, whiteSpace: "nowrap" }}>
+          <p style={{ color: C.weiss, fontSize: aufgabe.text.length > 9 ? "clamp(24px, 7.2vw, 40px)" : "clamp(34px, 9vw, 44px)", fontWeight: 800, letterSpacing: "-0.01em", lineHeight: 1.1, whiteSpace: "nowrap" }}>
             {aufgabe.text} <span style={{ color: C.goldText, fontWeight: 600 }}>=</span>
           </p>
         </div>
@@ -230,7 +231,7 @@ function Schnellrechnen({ erzeugen, gruppe, bestSchluessel }) {
         <div className="kr-eingabe" style={{ border: `2.5px solid ${farbe}`, borderRadius: 14, minHeight: 64,
           display: "flex", alignItems: "center", justifyContent: "center", gap: 10, flexWrap: "wrap", padding: "6px 8px",
           background: rueck === "richtig" ? "#EEF8F2" : rueck === "falsch" ? "#FBEFEA" : C.weiss, transition: "all .15s" }}>
-          <span style={{ fontSize: 34, fontWeight: 800, color: C.tinte, minWidth: 20 }}>{eingabe || <span style={{ color: C.hellgrau }}>?</span>}</span>
+          <span style={{ fontSize: eingabe.length > 6 ? 28 : 34, fontWeight: 800, color: C.tinte, minWidth: 20 }}>{eingabe || <span style={{ color: C.hellgrau }}>?</span>}</span>
           {rueck === "richtig" && <span style={{ fontSize: 26, color: C.smaragd, fontWeight: 800 }}>✓</span>}
           {rueck === "falsch" && <span style={{ fontSize: 17, color: C.signal, fontWeight: 700 }}>✗ richtig: {aufgabe.loesung}</span>}
         </div>
@@ -240,7 +241,7 @@ function Schnellrechnen({ erzeugen, gruppe, bestSchluessel }) {
       </p>
 
       <Zahlenfeld gesperrt={!!rueck}
-        onZiffer={(z) => setEingabe((v) => (v.length >= 6 ? v : v + z))}
+        onZiffer={(z) => setEingabe((v) => (v.length >= maxLaenge ? v : v + z))}
         onLoeschen={() => setEingabe((v) => v.slice(0, -1))}
         onOk={pruefen} />
     </div>
@@ -783,12 +784,64 @@ function Bruchrechnen() {
   );
 }
 
+/* ---------- Multiplizieren im Kopf ---------- */
+
+const STELLEN_1 = [2, 3, 4];
+const STELLEN_2 = [1, 2, 3, 4];
+
+/* Zufallszahl mit genau d Stellen, ohne Endziffer 0 (sonst zu leicht) */
+function zahlMitStellen(d) {
+  for (;;) { const n = zufall(10 ** (d - 1), 10 ** d - 1); if (d === 1 ? n > 1 : n % 10 !== 0) return n; }
+}
+
+function multiAufgabe(a, b) {
+  const x = zahlMitStellen(a), y = zahlMitStellen(b);
+  return { text: `${x} · ${y}`, loesung: x * y };
+}
+
+function StellenWahl({ label, liste, wert, setWert }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 10 }}>
+      <style>{`.st-hinweis{display:none}@media (max-width:359px){.st-suffix{display:none}.st-hinweis{display:inline}}`}</style>
+      <span style={{ fontSize: 12.5, color: C.grau, width: 58, flexShrink: 0 }}>{label}</span>
+      <div style={{ flex: 1, display: "grid", gridTemplateColumns: `repeat(${STELLEN_2.length}, minmax(0, 1fr))`, gap: 6 }}>
+        {liste.map((d) => (
+          <button key={d} onClick={() => setWert(d)} data-kein-i18n aria-label={englisch() ? `${d}-digit` : `${d}-stellig`}
+            style={{ height: 38, borderRadius: 999, fontFamily: "inherit", cursor: "pointer", fontSize: "clamp(11.5px, 3.3vw, 13.5px)", fontWeight: 600,
+              border: `1px solid ${wert === d ? C.see : C.linie}`, background: wert === d ? C.see : C.weiss, color: wert === d ? C.weiss : C.see, whiteSpace: "nowrap" }}>
+            {d}<span className="st-suffix">{englisch() ? "-digit" : "-stellig"}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Multiplizieren() {
+  const [a, setA] = useState(2);
+  const [b, setB] = useState(2);
+  const erzeugen = React.useCallback(() => multiAufgabe(a, b), [a, b]);
+  return (
+    <div>
+      <p style={{ color: C.grau, fontSize: 14.5, fontWeight: 300, lineHeight: 1.65, marginBottom: 16 }}>
+        Wähle, wie viele Stellen die beiden Zahlen haben. Rechne im Kopf und tippe das Ergebnis ein.
+        <span className="st-hinweis"> Die Knöpfe zeigen die Anzahl der Stellen.</span>
+      </p>
+      <StellenWahl label="1. Zahl" liste={STELLEN_1} wert={a} setWert={setA} />
+      <StellenWahl label="2. Zahl" liste={STELLEN_2} wert={b} setWert={setB} />
+      <div style={{ height: 6 }} />
+      <Schnellrechnen erzeugen={erzeugen} gruppe="Multiplizieren" bestSchluessel={`kr-best-multi-${a}x${b}`} maxLaenge={8} />
+    </div>
+  );
+}
+
 /* ---------- Übersicht ---------- */
 
 const TRAINER = [
   { id: "primfaktoren", titel: "Primfaktorzerlegung", slogan: "Primzahlen erkennen und Zahlen zerlegen.", kurz: "Primzahl erkennen oder vollständig zerlegen — jeden Faktor einzeln.", zeichen: "2·3·7" },
   { id: "potenzen", titel: "Quadrat- und Kubikzahlen", kurzTitel: "Quadrate & Kuben", slogan: "Quadrat-, Kubikzahlen und Wurzeln blitzschnell abrufen.", kurz: "Quadrat- und Kubikzahlen sowie ihre Wurzeln blitzschnell abrufen.", zeichen: "12²" },
   { id: "bruchrechnen", titel: "Bruchrechnen", slogan: "Kürzen, Plus, Minus, Mal, Geteilt – mit Lösungsweg.", kurz: "Kürzen, Plus, Minus, Mal und Geteilt — mit Lösungsweg bei jedem Fehler.", zeichen: "¾" },
+  { id: "multiplizieren", titel: "Multiplizieren im Kopf", kurzTitel: "Multiplizieren", slogan: "Zwei-, drei- und vierstellige Zahlen im Kopf malnehmen.", kurz: "Zwei-, drei- und vierstellige Zahlen im Kopf multiplizieren.", zeichen: "23·47" },
   { id: "einmaleins", titel: "EinMalEins", slogan: "Klein und groß, auch rückwärts, auf Zeit.", kurz: "Kleines und großes Einmaleins, auch als Umkehraufgaben — auf Zeit.", zeichen: "7·8" },
 ];
 
@@ -803,7 +856,7 @@ export function KopfrechenZentrum() {
           Zahlen, die einfach sitzen
         </h2>
         <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 22 }}>
-          Vier Trainer für das Kopfrechnen. Wer Zahlen sofort abrufen kann, kürzt schneller, sieht Teiler auf einen
+          Fünf Trainer für das Kopfrechnen. Wer Zahlen sofort abrufen kann, kürzt schneller, sieht Teiler auf einen
           Blick und hat beim Rechnen den Kopf für das Eigentliche frei.
         </p>
         {TRAINER.map((x) => (
@@ -832,7 +885,7 @@ export function KopfrechenZentrum() {
         ← Kopfrechnen
       </button>
       <h2 style={{ fontSize: 25, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 14 }}>{t.titel}</h2>
-      {t.id === "primfaktoren" ? <Primfaktoren /> : t.id === "potenzen" ? <QuadratKubik /> : t.id === "bruchrechnen" ? <Bruchrechnen /> : <EinMalEins />}
+      {t.id === "primfaktoren" ? <Primfaktoren /> : t.id === "potenzen" ? <QuadratKubik /> : t.id === "bruchrechnen" ? <Bruchrechnen /> : t.id === "multiplizieren" ? <Multiplizieren /> : <EinMalEins />}
     </div>
   );
 }
