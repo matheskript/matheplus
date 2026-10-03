@@ -9,6 +9,83 @@ import { LoesungsWeg } from "./func6.jsx";
 import { merken } from "./func5.jsx";
 import { termAlsTex } from "./func4.jsx";
 
+/* Kopf des Polynomplotters im Stil der Sinusfunktion: ein gemeinsames 5-Spalten-Raster.
+   Oben die Plus/Minus-Knöpfe, darunter die allgemeine Form im grauen Kasten, dann die
+   eingesetzte Funktion und ihre Ableitungen — jeder Knopf steht genau über seinem Koeffizienten. */
+const POLY_RASTER = "clamp(50px, 14vw, 70px) repeat(5, minmax(0, 1fr))";
+const POLY_HOCH = { 4: "⁴", 3: "³", 2: "²", 1: "", 0: "" };
+
+function PolyKnopf({ farbe, onClick, label, children }) {
+  return (
+    <button type="button" aria-label={label} onClick={onClick}
+      style={{ width: "min(34px, 100%)", height: 24, borderRadius: 7, border: `1.5px solid ${farbe}66`, background: `${farbe}14`,
+        color: farbe, fontSize: 16, fontWeight: 700, fontFamily: "inherit", cursor: "pointer", padding: 0, lineHeight: 1,
+        display: "flex", alignItems: "center", justifyContent: "center" }}>
+      {children}
+    </button>
+  );
+}
+
+function PolyKopf({ koeff, zeileF, zeileF1, zeileF2, alleLeer }) {
+  const raster = { display: "grid", gridTemplateColumns: POLY_RASTER, columnGap: 4, alignItems: "center" };
+  const label = (t, stil) => <span style={{ textAlign: "right", paddingRight: 6, whiteSpace: "nowrap", ...stil }}>{t}</span>;
+  const termZelle = (t, i, stil) => (
+    <span key={i} style={{ textAlign: "center", whiteSpace: "nowrap", ...stil }}>
+      {t && <><span>{t.vor}</span>{t.vor ? " " : ""}<span style={{ color: t.farbe }}>{t.text}</span></>}
+    </span>
+  );
+  return (
+    <div style={{ minWidth: 0 }}>
+      {/* Knöpfe */}
+      <div style={{ ...raster, alignItems: "start", marginBottom: 8 }}>
+        <span />
+        {koeff.map((q) => {
+          const farbe = KOEFF_FARBEN[q.k];
+          return (
+            <div key={q.k} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, minWidth: 0 }}>
+              <span style={{ fontSize: 13, fontWeight: 800, color: farbe }}>{q.k}</span>
+              <span style={{ fontSize: 15, fontWeight: 800, color: farbe, fontVariantNumeric: "tabular-nums", minHeight: 20 }}>
+                {q.wert > 0 ? `+${q.wert}` : String(q.wert).replace("-", "−")}
+              </span>
+              <PolyKnopf farbe={farbe} label={`${q.k} erhöhen`} onClick={() => q.setzen(Math.min(q.max, q.wert + 1))}>+</PolyKnopf>
+              <PolyKnopf farbe={farbe} label={`${q.k} verringern`} onClick={() => q.setzen(Math.max(q.min, q.wert - 1))}>−</PolyKnopf>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Allgemeine Form im grauen Kasten */}
+      <div style={{ ...raster, background: "#EEF1F5", border: `1px solid ${C.linie}`, borderRadius: 10, padding: "5px 0",
+        fontSize: "clamp(11px, 3.2vw, 15px)", fontWeight: 800, color: C.tinte, marginBottom: 6 }}>
+        {label("f(x) =")}
+        {koeff.map((q, i) => (
+          <span key={q.k} style={{ textAlign: "center", whiteSpace: "nowrap" }}>
+            {i > 0 && "+ "}<span style={{ color: KOEFF_FARBEN[q.k] }}>{q.k}</span>{q.pot > 0 && <>·x{POLY_HOCH[q.pot]}</>}
+          </span>
+        ))}
+      </div>
+
+      {/* Eingesetzte Funktion und Ableitungen */}
+      <div style={{ ...raster, fontSize: "clamp(13px, 4.1vw, 21px)", fontWeight: 800, color: C.tinte, fontVariantNumeric: "tabular-nums", padding: "3px 0" }}>
+        {label("f(x) =")}
+        {alleLeer ? <span style={{ gridColumn: "2 / -1", paddingLeft: 6 }}>0</span> : zeileF.map((t, i) => termZelle(t, i))}
+      </div>
+      {!alleLeer && (
+        <>
+          <div style={{ ...raster, fontSize: "clamp(11px, 3.3vw, 14px)", fontWeight: 700, color: C.grau, padding: "2px 0" }}>
+            {label("f′(x) =")}
+            {zeileF1.map((t, i) => termZelle(t, i))}
+          </div>
+          <div style={{ ...raster, fontSize: "clamp(11px, 3.3vw, 14px)", fontWeight: 700, color: C.grau, padding: "2px 0" }}>
+            {label("f″(x) =")}
+            {zeileF2.map((t, i) => termZelle(t, i))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 export function Plotter() {
   const [e, setE] = useState(0);
   const [a, setA] = useState(1);
@@ -103,15 +180,13 @@ export function Plotter() {
       </p>
 
       <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" }}>
-        {alleLeer ? (
-          <p style={{ fontSize: 23, fontWeight: 700, marginBottom: 14, letterSpacing: "-0.01em" }}>f(x) = 0</p>
-        ) : (
-          <>
-            <FormelReihe label="f(x) =" zeile={zeileF} fontSize={22} gewicht={700} labelFarbe={C.tinte} zeichenFarbe={C.tinte} />
-            <FormelReihe label="f′(x) =" zeile={zeileF1} fontSize={14} gewicht={600} labelFarbe={C.grau} zeichenFarbe={C.grau} />
-            <FormelReihe label="f″(x) =" zeile={zeileF2} fontSize={14} gewicht={600} labelFarbe={C.grau} zeichenFarbe={C.grau} />
-          </>
-        )}
+        <PolyKopf koeff={[
+          { k: "e", wert: e, setzen: setE, min: -1, max: 1, pot: 4 },
+          { k: "a", wert: a, setzen: setA, min: -3, max: 3, pot: 3 },
+          { k: "b", wert: b, setzen: setB, min: -10, max: 10, pot: 2 },
+          { k: "c", wert: c, setzen: setC, min: -10, max: 10, pot: 1 },
+          { k: "d", wert: d, setzen: setD, min: -10, max: 10, pot: 0 },
+        ]} zeileF={zeileF} zeileF1={zeileF1} zeileF2={zeileF2} alleLeer={alleLeer} />
 
         <div style={{ position: "relative", marginTop: 14 }}>
           <svg viewBox={`0 0 ${Sx} ${Sy}`} style={{ width: "100%", maxWidth: 360, display: "block", margin: "0 auto" }}>
@@ -178,13 +253,6 @@ export function Plotter() {
           ))}
         </div>
 
-        <div className="flex items-start" style={{ gap: 6, marginTop: 18 }}>
-          <Regler label="e · x⁴" wert={e} setzen={setE} min={-1} max={1} farbe={KOEFF_FARBEN.e} />
-          <Regler label="a · x³" wert={a} setzen={setA} min={-3} max={3} farbe={KOEFF_FARBEN.a} />
-          <Regler label="b · x²" wert={b} setzen={setB} min={-10} max={10} farbe={KOEFF_FARBEN.b} />
-          <Regler label="c · x" wert={c} setzen={setC} min={-10} max={10} farbe={KOEFF_FARBEN.c} />
-          <Regler label="d" wert={d} setzen={setD} min={-10} max={10} farbe={KOEFF_FARBEN.d} />
-        </div>
       </div>
 
       <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", marginTop: 18 }}>

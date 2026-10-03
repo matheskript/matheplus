@@ -36,16 +36,46 @@ function MasterclassLogo() {
   );
 }
 
-export function MasterclassKachel({ onClick }) {
+
+/* Schloss-Plakette für gesperrte Kacheln */
+function SchlossPlakette({ farbe = "#0B1E4A" }) {
   return (
-    <button type="button" onClick={onClick} aria-label="Mathe Abi Masterclass ansehen" className="mc-kachel"
-      style={{ display: "flex", width: "calc(100% + 32px)", marginLeft: -16, marginRight: -16, marginTop: 12, padding: 0, border: "none",
-        borderRadius: 20, overflow: "hidden", cursor: "pointer", fontFamily: "inherit", textAlign: "left", position: "relative",
+    <div aria-hidden="true" style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2 }}>
+      <span style={{ width: 42, height: 42, borderRadius: 999, background: "rgba(255,255,255,0.94)", boxShadow: "0 3px 12px rgba(30,40,60,0.3)",
+        display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke={farbe} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="5" y="11" width="14" height="10" rx="2.2" fill={farbe} />
+          <path d="M 8 11 V 7.5 a 4 4 0 0 1 8 0 V 11" />
+        </svg>
+      </span>
+    </div>
+  );
+}
+const baldVerfuegbar = (farbe) => (
+  <span style={{ marginTop: "auto", paddingTop: 6, fontSize: 12.5, fontWeight: 700, display: "flex", alignItems: "center", gap: 6, opacity: 0.75 }}>
+    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke={farbe} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="5" y="11" width="14" height="10" rx="2.2" fill={farbe} /><path d="M 8 11 V 7.5 a 4 4 0 0 1 8 0 V 11" />
+    </svg>
+    Bald verfügbar
+  </span>
+);
+/* Eigenschaften für eine gesperrte bzw. offene Kachel */
+const kachelProps = (gesperrt, onClick, label, klasse) => (gesperrt
+  ? { role: "button", "aria-disabled": "true", "aria-label": `${label} – noch gesperrt`, title: "Noch gesperrt", className: `${klasse} kachel-zu` }
+  : { type: "button", onClick, "aria-label": label, className: klasse });
+
+export function MasterclassKachel({ onClick, gesperrt }) {
+  const Tag = gesperrt ? "div" : "button";
+  return (
+    <Tag {...kachelProps(gesperrt, onClick, "Mathe Abi Masterclass", "mc-kachel")}
+      style={{ userSelect: gesperrt ? "none" : undefined, display: "flex", width: "calc(100% + 32px)", marginLeft: -16, marginRight: -16, marginTop: 12, padding: 0, border: "none",
+        borderRadius: 20, overflow: "hidden", cursor: gesperrt ? "not-allowed" : "pointer", fontFamily: "inherit", textAlign: "left", position: "relative",
         height: "calc(148px + 1.65 * clamp(15px, 4.1vw, 22px))", background: GOLD, color: NAVY,
         boxShadow: "0 10px 30px rgba(181,134,18,0.35), inset 0 0 0 1px rgba(255,255,255,0.55)" }}>
       <style>{`.mc-kachel{transition:transform .15s ease, box-shadow .15s ease}
         .mc-kachel:active{transform:scale(0.985)}
-        @media (hover:hover){.mc-kachel:hover{transform:translateY(-2px);box-shadow:0 14px 36px rgba(181,134,18,0.45)}}
+        @media (hover:hover){.mc-kachel:not(.kachel-zu):hover{transform:translateY(-2px);box-shadow:0 14px 36px rgba(181,134,18,0.45)}}
+        .kachel-zu:active{transform:none}
         .mc-glanz{position:absolute;inset:0;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,0.35) 45%,transparent 60%);
           background-size:250% 100%;animation:mcGlanz 5.5s ease-in-out infinite;pointer-events:none}
         @keyframes mcGlanz{0%,60%{background-position:120% 0}100%{background-position:-120% 0}}`}</style>
@@ -59,17 +89,20 @@ export function MasterclassKachel({ onClick }) {
           display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
           Werde die beste Version von dir – für ein starkes Abi und Freude am Fach.
         </p>
+        {gesperrt ? baldVerfuegbar(NAVY) : (
         <span style={{ marginTop: "auto", paddingTop: 6, fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
           Programm ansehen
           <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4l4 4-4 4" stroke={NAVY} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </span>
+        )}
       </div>
       <div style={{ flex: "0 0 37%", position: "relative", borderLeft: "1px solid rgba(11,30,74,0.12)" }}>
         <span style={{ position: "absolute", top: 10, left: 10, fontSize: 9.5, fontWeight: 700, letterSpacing: "0.1em", background: NAVY, color: MIND,
           padding: "3px 7px", borderRadius: 999, zIndex: 1 }}>6 MONATE</span>
-        <div style={{ position: "absolute", inset: "30px 6px 8px 2px" }}><MasterclassLogo /></div>
+        <div style={{ position: "absolute", inset: "30px 6px 8px 2px", opacity: gesperrt ? 0.55 : 1 }}><MasterclassLogo /></div>
+        {gesperrt && <SchlossPlakette farbe={NAVY} />}
       </div>
-    </button>
+    </Tag>
   );
 }
 
@@ -89,16 +122,18 @@ function CheckenLogo() {
   );
 }
 
-export function MatheCheckenKachel({ onClick }) {
+export function MatheCheckenKachel({ onClick, gesperrt }) {
+  const Tag = gesperrt ? "div" : "button";
   return (
-    <button type="button" onClick={onClick} aria-label="Mathe checken ansehen" className="mc-kachel mc-silber"
-      style={{ display: "flex", width: "calc(100% + 32px)", marginLeft: -16, marginRight: -16, marginTop: 12, padding: 0, border: "none",
-        borderRadius: 18, overflow: "hidden", cursor: "pointer", fontFamily: "inherit", textAlign: "left", position: "relative",
+    <Tag {...kachelProps(gesperrt, onClick, "Mathe checken", "mc-kachel mc-silber")}
+      style={{ userSelect: gesperrt ? "none" : undefined, display: "flex", width: "calc(100% + 32px)", marginLeft: -16, marginRight: -16, marginTop: 12, padding: 0, border: "none",
+        borderRadius: 18, overflow: "hidden", cursor: gesperrt ? "not-allowed" : "pointer", fontFamily: "inherit", textAlign: "left", position: "relative",
         height: "calc(95px + 1.1 * clamp(15px, 4.1vw, 22px))", background: SILBER, color: NAVY,
         boxShadow: "0 8px 24px rgba(60,72,92,0.28), inset 0 0 0 1px rgba(255,255,255,0.8)" }}>
       <style>{`.mc-kachel{transition:transform .15s ease, box-shadow .15s ease}
         .mc-kachel:active{transform:scale(0.985)}
-        @media (hover:hover){.mc-kachel:hover{transform:translateY(-2px)}}
+        @media (hover:hover){.mc-kachel:not(.kachel-zu):hover{transform:translateY(-2px)}}
+        .kachel-zu:active{transform:none}
         .mc-glanz{position:absolute;inset:0;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,0.55) 45%,transparent 60%);
           background-size:250% 100%;animation:mcGlanz 5.5s ease-in-out infinite;pointer-events:none}
         .mc-silber .mc-glanz{animation-delay:1.2s}
@@ -117,9 +152,10 @@ export function MatheCheckenKachel({ onClick }) {
       <div style={{ flex: "0 0 37%", position: "relative", borderLeft: "1px solid rgba(11,30,74,0.12)" }}>
         <span style={{ position: "absolute", top: 10, left: 10, fontSize: 9.5, fontWeight: 700, letterSpacing: "0.1em", background: NAVY, color: "#E4E8EE",
           padding: "3px 7px", borderRadius: 999, zIndex: 1 }}>2 MONATE</span>
-        <div style={{ position: "absolute", inset: "14px 8px 8px 8px" }}><CheckenLogo /></div>
+        <div style={{ position: "absolute", inset: "14px 8px 8px 8px", opacity: gesperrt ? 0.5 : 1 }}><CheckenLogo /></div>
+        {gesperrt && <SchlossPlakette farbe={NAVY} />}
       </div>
-    </button>
+    </Tag>
   );
 }
 

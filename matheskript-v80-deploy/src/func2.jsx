@@ -83,12 +83,12 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
         </p>
       </div>
       {portraet && (
-        <div aria-hidden="true" style={{ flex: "0 0 auto", width: "clamp(92px, 26vw, 124px)", position: "relative", marginLeft: -6 }}>
+        <div aria-hidden="true" style={{ flex: "0 0 auto", width: "clamp(78px, 21vw, 108px)", position: "relative", marginLeft: -8, marginRight: 4 }}>
           <div style={{ position: "absolute", inset: "6px 0 0 0", display: "flex" }}>{portraet}</div>
         </div>
       )}
       {/* Rechts (40 %): nur die Grafik */}
-      <div style={{ flex: klein ? "0 0 32%" : portraet ? "0 0 29%" : "0 0 40%", position: "relative", background: "rgba(255,255,255,0.04)",
+      <div style={{ flex: klein ? "0 0 32%" : "0 0 40%", position: "relative", background: "rgba(255,255,255,0.04)",
         borderLeft: `1px solid ${gesperrt ? "rgba(255,255,255,0.35)" : `${C.silber}33`}`, display: "flex" }}>
         <div style={{ position: "absolute", inset: 0, display: "flex", ...(gesperrt && !logoHell ? { filter: "grayscale(1) brightness(1.15)", opacity: 0.35 } : {}) }}>{logo}</div>
         {extra}
@@ -691,7 +691,7 @@ export function Startseite({ gehe }) {
           und schnelle Kopfrechenrunden. Such dir unten einen Bereich aus und leg los.
         </p>
       </section>
-      <ElternabendKachel onClick={() => gehe({ ansicht: "elternabend" })} />
+      <ElternabendKachel gesperrt onClick={() => gehe({ ansicht: "elternabend" })} />
       <PlotterKachel onClick={() => setSchulAuf(!schulAuf)} label={schulAuf ? "Schulmathematik zuklappen" : "Schulmathematik aufklappen"}
         logo={<SchulmatheLogoKlein />} titel="Schulmathematik"
         text="Analysis, Vektoren, Stochastik und Formeln – live zum Ausprobieren."
@@ -725,12 +725,12 @@ export function Startseite({ gehe }) {
       <PlotterKachel onClick={() => gehe({ ansicht: "kopf" })} label="Kopfrechnen öffnen" logo={<KopfrechnenLogoKlein />}
         titel="Kopfrechnen"
         text="Primfaktoren, Quadratzahlen, Einmaleins – schnelle Runden auf Zeit." />
-      <MatheCheckenKachel onClick={() => gehe({ ansicht: "mathecheck" })} />
-      <MasterclassKachel onClick={() => gehe({ ansicht: "masterclass" })} />
+      <MatheCheckenKachel gesperrt onClick={() => gehe({ ansicht: "mathecheck" })} />
+      <MasterclassKachel gesperrt onClick={() => gehe({ ansicht: "masterclass" })} />
       <MathCreatorKachel />
       <PlotterKachel gesperrt portraet={<MathildaPortraet />} onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })} label="Frag Mathilda öffnen" logo={<MathildaLogoKlein />}
         titel="Frag Mathilda"
-        text="Foto vom Blatt – Mathilda prüft deinen Rechenweg." />
+        text="Foto vom Blatt – Mathilda prüft deinen Weg." />
       <PlotterKachel gesperrt onClick={() => gehe({ ansicht: "kurse", kurs: "penpaper" })} label="Pen & Paper öffnen" logo={<PenPaperBlatt />}
         titel="Pen & Paper"
         text="Klar aufschreiben, strukturiert arbeiten, sicher mit Fehlern umgehen." />

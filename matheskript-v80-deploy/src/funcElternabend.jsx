@@ -84,16 +84,46 @@ export function CafeBild({ style }) {
 const SILBER = "linear-gradient(150deg, #FFFFFF 0%, #E4E8EE 20%, #BCC5D1 46%, #F1F3F7 60%, #A7B1BF 84%, #D3D9E1 100%)";
 const NAVY = "#0B1E4A";
 
-export function ElternabendKachel({ onClick }) {
+
+/* Schloss-Plakette für gesperrte Kacheln */
+function SchlossPlakette({ farbe = "#0B1E4A" }) {
   return (
-    <button type="button" onClick={onClick} aria-label="Nächster Elternabend ansehen" className="ea-kachel"
-      style={{ display: "flex", width: "calc(100% + 32px)", marginLeft: -16, marginRight: -16, marginTop: 12, padding: 0, border: "none",
-        borderRadius: 20, overflow: "hidden", cursor: "pointer", fontFamily: "inherit", textAlign: "left", position: "relative",
+    <div aria-hidden="true" style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2 }}>
+      <span style={{ width: 42, height: 42, borderRadius: 999, background: "rgba(255,255,255,0.94)", boxShadow: "0 3px 12px rgba(30,40,60,0.3)",
+        display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke={farbe} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="5" y="11" width="14" height="10" rx="2.2" fill={farbe} />
+          <path d="M 8 11 V 7.5 a 4 4 0 0 1 8 0 V 11" />
+        </svg>
+      </span>
+    </div>
+  );
+}
+const baldVerfuegbar = (farbe) => (
+  <span style={{ marginTop: "auto", paddingTop: 6, fontSize: 12.5, fontWeight: 700, display: "flex", alignItems: "center", gap: 6, opacity: 0.75 }}>
+    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke={farbe} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="5" y="11" width="14" height="10" rx="2.2" fill={farbe} /><path d="M 8 11 V 7.5 a 4 4 0 0 1 8 0 V 11" />
+    </svg>
+    Bald verfügbar
+  </span>
+);
+/* Eigenschaften für eine gesperrte bzw. offene Kachel */
+const kachelProps = (gesperrt, onClick, label, klasse) => (gesperrt
+  ? { role: "button", "aria-disabled": "true", "aria-label": `${label} – noch gesperrt`, title: "Noch gesperrt", className: `${klasse} kachel-zu` }
+  : { type: "button", onClick, "aria-label": label, className: klasse });
+
+export function ElternabendKachel({ onClick, gesperrt }) {
+  const Tag = gesperrt ? "div" : "button";
+  return (
+    <Tag {...kachelProps(gesperrt, onClick, "Nächster Elternabend", "ea-kachel")}
+      style={{ userSelect: gesperrt ? "none" : undefined, display: "flex", width: "calc(100% + 32px)", marginLeft: -16, marginRight: -16, marginTop: 12, padding: 0, border: "none",
+        borderRadius: 20, overflow: "hidden", cursor: gesperrt ? "not-allowed" : "pointer", fontFamily: "inherit", textAlign: "left", position: "relative",
         height: "calc(148px + 1.65 * clamp(15px, 4.1vw, 22px))", background: SILBER, color: NAVY,
         boxShadow: "0 8px 24px rgba(60,72,92,0.28), inset 0 0 0 1px rgba(255,255,255,0.8)" }}>
       <style>{`.ea-kachel{transition:transform .15s ease, box-shadow .15s ease}
         .ea-kachel:active{transform:scale(0.985)}
-        @media (hover:hover){.ea-kachel:hover{transform:translateY(-2px)}}
+        @media (hover:hover){.ea-kachel:not(.kachel-zu):hover{transform:translateY(-2px)}}
+        .kachel-zu:active{transform:none}
         .ea-glanz{position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,0.6) 45%,transparent 60%);
           background-size:250% 100%;animation:eaGlanz 5.5s ease-in-out infinite;animation-delay:.6s}
         @keyframes eaGlanz{0%,60%{background-position:120% 0}100%{background-position:-120% 0}}`}</style>
@@ -110,15 +140,18 @@ export function ElternabendKachel({ onClick }) {
         <p style={{ fontSize: 12.5, fontWeight: 500, lineHeight: 1.4, marginTop: 4, marginBottom: 0, color: "#1B2A4F" }}>
           Die Infoveranstaltung mit Entertainment-Charakter und Aha-Momenten.
         </p>
+        {gesperrt ? baldVerfuegbar(NAVY) : (
         <span style={{ marginTop: "auto", paddingTop: 4, fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
           Mehr erfahren
           <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4l4 4-4 4" stroke={NAVY} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </span>
+        )}
       </div>
       <div style={{ flex: "0 0 34%", position: "relative", borderLeft: "1px solid rgba(11,30,74,0.12)" }}>
-        <div style={{ position: "absolute", inset: "8px 0 0 0" }}><CafeRelief /></div>
+        <div style={{ position: "absolute", inset: "8px 0 0 0", opacity: gesperrt ? 0.55 : 1 }}><CafeRelief /></div>
+        {gesperrt && <SchlossPlakette farbe={NAVY} />}
       </div>
-    </button>
+    </Tag>
   );
 }
 

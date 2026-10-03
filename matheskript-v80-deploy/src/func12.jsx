@@ -1063,15 +1063,18 @@ export function baueAllgemeineDiskussion(baum, A) {
    in den die Schreibmarke springt. Funktionstasten haben zwei Modi:
    „von x“ (zx/ex) fügt die Funktion direkt mit x ein (sin(x), eˣ),
    „von ?“ (z/e) öffnet die Klammer zum Verketten (sin(▯), e^(▯)). */
-const TASTEN = [
+const FN_TASTEN = [
   { z: "sin(?)", zx: "sin x", e: `sin(${PLATZ})`, ex: "sin(x)", art: "fn" }, { z: "cos(?)", zx: "cos x", e: `cos(${PLATZ})`, ex: "cos(x)", art: "fn" },
   { z: "tan(?)", zx: "tan x", e: `tan(${PLATZ})`, ex: "tan(x)", art: "fn" }, { z: "ln(?)", zx: "ln x", e: `ln(${PLATZ})`, ex: "ln(x)", art: "fn" },
+
   { z: "log(?)", zx: "log x", e: `log(${PLATZ})`, ex: "log(x)", art: "fn" }, { z: "logₐ(?)", zx: "logₐx", e: `log[${PLATZ}](${PLATZ})`, ex: `log[${PLATZ}](x)`, art: "fn" },
+  { z: "√?", zx: "√x", e: `sqrt(${PLATZ})`, ex: "sqrt(x)", art: "fn" }, { z: "e^?", zx: "eˣ", e: `e^(${PLATZ})`, ex: "e^x", art: "fn" },
 
-  { z: "e^?", zx: "eˣ", e: `e^(${PLATZ})`, ex: "e^x", art: "fn" }, { z: "a^?", zx: "aˣ", e: `${PLATZ}^(${PLATZ})`, ex: `${PLATZ}^x`, art: "fn" },
-  { z: "xⁿ", e: `x^(${PLATZ})`, art: "fn" }, { z: "x²", e: "x^2", art: "fn" },
-  { z: "x⁻¹", e: "x^(-1)", art: "fn" }, { z: "√?", zx: "√x", e: `sqrt(${PLATZ})`, ex: "sqrt(x)", art: "fn" },
+  { z: "a^?", zx: "aˣ", e: `${PLATZ}^(${PLATZ})`, ex: `${PLATZ}^x`, art: "fn" }, { z: "?²", zx: "x²", e: `(${PLATZ})^2`, ex: "x^2", art: "fn" },
+  { z: "1/?", zx: "x⁻¹", e: `1/(${PLATZ})`, ex: "x^(-1)", art: "fn" }, { z: "?ⁿ", zx: "xⁿ", e: `(${PLATZ})^(${PLATZ})`, ex: `x^(${PLATZ})`, art: "fn" },
+];
 
+const TASTEN = [
   { z: "7", e: "7" }, { z: "8", e: "8" }, { z: "9", e: "9" },
   { z: "▯/▯", e: `(${PLATZ})/(${PLATZ})`, art: "op", titel: "Bruch" },
   { z: "(", e: "(", art: "op" }, { z: ")", e: ")", art: "op" },
@@ -1150,7 +1153,7 @@ export function Tastenfeld({ wert: text, setWert, pos, setPos }) {
     einfuegen(vonX && t.ex ? t.ex : t.e);
   };
   const stil = (art) => {
-    if (art === "fn") return { bg: C.himmel, fg: C.see, rand: "#C7D8EF" };
+    if (art === "fn") return { bg: C.weiss, fg: C.see, rand: "#C7D8EF" };
     if (art === "op") return { bg: C.gruen, fg: C.weiss, rand: C.gruen };
     if (art === "var") return { bg: "#FFF4CC", fg: C.seeTief, rand: "#F0DC8A" };
     if (art === "nav") return { bg: C.seeTief, fg: C.flaggold, rand: C.seeTief };
@@ -1174,22 +1177,26 @@ export function Tastenfeld({ wert: text, setWert, pos, setPos }) {
     <div>
       <style>{`.adv-taste{transition:transform .08s ease, filter .12s ease}
         .adv-taste:active{transform:scale(0.93);filter:brightness(0.93)}`}</style>
-      {/* Umschalter für die Funktionstasten */}
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-        <div role="group" aria-label="Funktionstasten einfügen als" style={{ display: "flex", background: "#EEF2F8", borderRadius: 999, padding: 3, flexShrink: 0 }}>
-          {[[true, "von x", "Funktion direkt mit x einfügen, z. B. sin x"], [false, "von ?", "Klammer öffnen zum Verketten, z. B. sin(x²)"]].map(([wert, name, titel]) => (
-            <button key={name} type="button" onClick={() => setVonX(wert)} aria-pressed={vonX === wert} title={titel}
-              style={{ border: "none", borderRadius: 999, padding: "6px 14px", fontFamily: "inherit", cursor: "pointer", fontSize: 13.5,
-                fontWeight: vonX === wert ? 700 : 500, background: vonX === wert ? C.weiss : "transparent",
-                color: vonX === wert ? C.see : C.grau, boxShadow: vonX === wert ? "0 1px 6px rgba(15,26,51,0.12)" : "none",
-                fontStyle: "normal" }}>
-              {name}
-            </button>
-          ))}
+      {/* Box: alle Funktionstasten, auf die „von x / von ?“ wirkt — der Umschalter steht links als Teil der Box */}
+      <div style={{ display: "grid", gridTemplateColumns: "minmax(58px, 0.95fr) repeat(4, minmax(0, 1fr))", gridTemplateRows: "repeat(3, 46px)", gap: 6,
+        padding: 6, marginBottom: 8, borderRadius: 16, background: "#F1F5FB", border: "1.5px solid rgba(0,77,152,0.28)" }}>
+        <div role="group" aria-label="Funktionstasten einfügen als" style={{ gridRow: "1 / 4", display: "flex", flexDirection: "column", gap: 6 }}>
+          {[[true, "von x", "sin x", "Funktion direkt mit x einfügen, z. B. sin x"], [false, "von ?", "sin(?)", "Klammer öffnen zum Verketten, z. B. sin(x²)"]].map(([wert, name, bsp, titel]) => {
+            const an = vonX === wert;
+            return (
+              <button key={name} type="button" onClick={() => setVonX(wert)} aria-pressed={an} title={titel}
+                style={{ flex: 1, borderRadius: 12, fontFamily: "inherit", cursor: "pointer", padding: "0 4px", display: "flex", flexDirection: "column",
+                  alignItems: "center", justifyContent: "center", gap: 2,
+                  border: an ? "none" : "1px solid #C7D8EF",
+                  background: an ? `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)` : C.weiss,
+                  boxShadow: an ? "0 4px 12px rgba(0,77,152,0.3)" : "none" }}>
+                <span style={{ fontSize: 15, fontWeight: 800, color: an ? C.flaggold : C.see, whiteSpace: "nowrap" }}>{name}</span>
+                <span style={{ fontSize: 10.5, fontWeight: 500, color: an ? "#C9D6EE" : C.hellgrau, whiteSpace: "nowrap" }}>{bsp}</span>
+              </button>
+            );
+          })}
         </div>
-        <span style={{ fontSize: 12, color: C.grau, fontWeight: 300, lineHeight: 1.35 }}>
-          {vonX ? <>direkt mit x, z. B. <span style={{ whiteSpace: "nowrap" }}>sin x</span></> : <>zum Verketten, z. B. <span style={{ whiteSpace: "nowrap" }}>sin(x²)</span></>}
-        </span>
+        {FN_TASTEN.map((t, i) => <Taste key={i} t={t} />)}
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(6, minmax(0, 1fr))", gap: 6 }}>
         {TASTEN.map((t, i) => <Taste key={i} t={t} span={t.span} />)}
@@ -1205,8 +1212,9 @@ export function Tastenfeld({ wert: text, setWert, pos, setPos }) {
 function Eingabe({ text, setText }) {
   const [pos, setPos] = useState(text.length);
   const [tippen, setTippen] = useState(false);
+  const [offen, setOffen] = useState(true);
   const baum = useMemo(() => parse(text), [text]);
-  const anzeige = useMemo(() => (tippen ? null : parse(mitSchreibmarke(text, pos))), [text, pos, tippen]);
+  const anzeige = useMemo(() => (tippen || !offen ? null : parse(mitSchreibmarke(text, pos))), [text, pos, tippen, offen]);
   const tex = anzeige ? alsTex(anzeige) : baum ? alsTex(baum) : null;
   const unfertig = baum && hatBox(baum);
 
@@ -1225,11 +1233,24 @@ function Eingabe({ text, setText }) {
           <span style={{ fontSize: 15, color: C.hellgrau, fontWeight: 300 }}>Tippe eine Funktion ein …</span>
         )}
       </div>
-      <p style={{ fontSize: 12, color: C.hellgrau, fontWeight: 300, margin: "6px 2px 10px", wordBreak: "break-all", minHeight: 16 }}>
-        {text.slice(0, pos)}<span style={{ color: C.gruen, fontWeight: 700 }}>|</span>{text.slice(pos)}
-        {!baum && text && <span style={{ color: C.signal, marginLeft: 8 }}>· noch nicht vollständig</span>}
-        {unfertig && <span style={{ color: C.gruenDunkel, marginLeft: 8 }}>· Platzhalter ▯ füllen</span>}
-      </p>
+      <div style={{ display: "flex", alignItems: "flex-start", gap: 10, margin: "6px 2px 10px" }}>
+        <p style={{ flex: 1, minWidth: 0, fontSize: 12, color: C.hellgrau, fontWeight: 300, margin: 0, wordBreak: "break-all", minHeight: 16, paddingTop: 5 }}>
+          {offen && <>{text.slice(0, pos)}<span style={{ color: C.gruen, fontWeight: 700 }}>|</span>{text.slice(pos)}</>}
+          {!baum && text && <span style={{ color: C.signal, marginLeft: offen ? 8 : 0 }}>{offen ? "· " : ""}noch nicht vollständig</span>}
+          {unfertig && <span style={{ color: C.gruenDunkel, marginLeft: offen ? 8 : 0 }}>{offen ? "· " : ""}Platzhalter ▯ füllen</span>}
+        </p>
+        <button type="button" onClick={() => setOffen(!offen)} aria-expanded={offen} aria-controls="adv-eingabe"
+          style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: 6, height: 30, padding: "0 12px", borderRadius: 999, fontFamily: "inherit",
+            cursor: "pointer", fontSize: 12.5, fontWeight: 700, border: `1px solid ${offen ? C.linie : C.see}`,
+            background: offen ? C.weiss : `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, color: offen ? C.see : C.weiss }}>
+          {offen ? "Eingabe einklappen" : "Funktion eingeben"}
+          <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" style={{ transform: offen ? "rotate(180deg)" : "none", transition: "transform .2s ease" }}>
+            <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+      </div>
+
+      {offen && <div id="adv-eingabe">
 
       {tippen ? (
         <div>
@@ -1267,7 +1288,7 @@ function Eingabe({ text, setText }) {
               fontFamily: "inherit", cursor: "pointer", whiteSpace: "nowrap" }}>{n}</button>
         ))}
       </div>
-
+      </div>}
     </div>
   );
 }
