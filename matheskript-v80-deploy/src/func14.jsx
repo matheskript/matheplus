@@ -45,9 +45,9 @@ const POTENZ_MODI = [
   { id: "quadrat", name: "Quadrat\u00ADzahlen" },
   { id: "kubik", name: "Kubik\u00ADzahlen" },
   { id: "mix", name: "Mix" },
-  { id: "wurzel", name: "Quadrat\u00ADwurzel bis 625" },
-  { id: "kwurzel", name: "Kubik\u00ADwurzel bis 1000" },
-  { id: "wurzel10k", name: "Wurzel 10k", gold: true },
+  { id: "wurzel", name: "√ ≤ 25²", aria: "Quadratwurzeln bis 625" },
+  { id: "kwurzel", name: "∛ ≤ 10³", aria: "Kubikwurzeln bis 1000" },
+  { id: "wurzel10k", name: "√10k", aria: "Quadratwurzeln bis 10 000", gold: true },
 ];
 
 function potenzAufgabe(modus) {
@@ -419,10 +419,10 @@ function PotenzModi({ wert, setWert }) {
               color: an ? "#0E0C08" : "#EDBB00", boxShadow: an ? "0 4px 14px rgba(237,187,0,0.35)" : "0 3px 10px rgba(0,0,0,0.25)" }
           : { border: `1px solid ${an ? C.see : C.linie}`, background: an ? C.see : C.weiss, color: an ? C.weiss : C.see };
         return (
-          <button key={m.id} onClick={() => setWert(m.id)}
+          <button key={m.id} onClick={() => setWert(m.id)} aria-label={m.aria} title={m.aria}
             lang="de" style={{ minHeight: 46, padding: "6px 4px", borderRadius: 14, fontFamily: "inherit", cursor: "pointer", textAlign: "center",
               hyphens: "manual", WebkitHyphens: "manual",
-              fontSize: "clamp(11px, 3.3vw, 13.5px)", fontWeight: m.gold ? 800 : 600, lineHeight: 1.2, ...stil }}>
+              fontSize: m.aria ? "clamp(15px, 4.4vw, 18px)" : "clamp(11px, 3.3vw, 13.5px)", fontWeight: m.gold ? 800 : 700, lineHeight: 1.2, whiteSpace: m.aria ? "nowrap" : undefined, ...stil }}>
             {m.name}
           </button>
         );

@@ -84,7 +84,7 @@ const ZUSATZ = {
   "EinMalEins": "Times tables",
   "TICKET": "TICKET", "pro Person": "per person", "INKLUSIVE": "INCLUDED",
   "Kursmaterialien: Block, Heft und Stift": "Course materials: notepad, exercise book and pen",
-  "Quadratwurzel bis 625": "Square roots up to 625", "Kubikwurzel bis 1000": "Cube roots up to 1000", "Wurzel 10k": "Root 10k", "Mix": "Mix",
+  "Quadratwurzel bis 625": "Square roots up to 625", "Kubikwurzel bis 1000": "Cube roots up to 1000", "Wurzel 10k": "Root 10k", "Quadratwurzeln bis 625": "Square roots up to 625", "Kubikwurzeln bis 1000": "Cube roots up to 1000", "Quadratwurzeln bis 10 000": "Square roots up to 10,000", "Mix": "Mix",
   "Multiplizieren im Kopf": "Mental Multiplication", "Multiplizieren": "Multiplication",
   "Zwei-, drei- und vierstellige Zahlen im Kopf malnehmen.": "Multiply two-, three- and four-digit numbers in your head.",
   "Wähle, wie viele Stellen die beiden Zahlen haben. Rechne im Kopf und tippe das Ergebnis ein.": "Choose how many digits the two numbers have. Work it out in your head and type in the result.",
