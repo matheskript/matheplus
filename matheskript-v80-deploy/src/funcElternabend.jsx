@@ -17,11 +17,11 @@ export const ELTERNABEND = {
   plzOrt: "78465 Konstanz-Dingelsdorf",
   foto: "/elternabend/evelyns-cafe.jpg",
   karte: "https://www.google.com/maps/search/?api=1&query=Evelyn%27s%20Caf%C3%A9%20Thingoltstra%C3%9Fe%209%2078465%20Konstanz",
-  preis: 27,                                       // Euro pro Ticket
+  preis: 1,                                        // Euro pro Ticket
   inklusive: ["Kursmaterialien: Block, Heft und Stift", "Zwei Getränke", "Ein Snack"],
   // Stripe-Zahlungslink (Karte + PayPal). Aktuell aus dem Stripe-Testmodus –
   // für echte Zahlungen den Live-Link aus dem Stripe-Dashboard hier eintragen.
-  ticketLink: "https://book.stripe.com/test_dRm4gA6VGcsy5xS21vgbm00",
+  ticketLink: "https://book.stripe.com/test_7sY7sM3Ju3W28K46hLgbm01",
 };
 
 const SCHWARZ = "radial-gradient(130% 150% at 90% 10%, #2A2210 0%, #0E0C08 50%, #050404 100%)";
