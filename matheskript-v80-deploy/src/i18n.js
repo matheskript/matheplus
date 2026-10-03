@@ -84,6 +84,7 @@ const ZUSATZ = {
   "EinMalEins": "Times tables",
   "TICKET": "TICKET", "pro Person": "per person", "INKLUSIVE": "INCLUDED",
   "Kursmaterialien: Block, Heft und Stift": "Course materials: notepad, exercise book and pen",
+  "Frag Mathilda AI": "Ask Mathilda AI", "Frag Mathilda AI öffnen": "Open Ask Mathilda AI",
   "Ticket buchen –": "Book ticket –", "Elternabend ·": "Parents' evening ·",
   "Sonntag, 1. November 2026": "Sunday, November 1, 2026", "Sonntag, 1. November": "Sunday, November 1",
   "Die Bestätigung kommt per E-Mail. Wir freuen uns auf dich am": "The confirmation arrives by email. We look forward to seeing you on",

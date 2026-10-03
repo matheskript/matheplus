@@ -456,7 +456,7 @@ export function EinheitSpieler({ id, gehe }) {
                 {!bspStand ? (
                   <div className="flex flex-wrap gap-3 mt-4">
                     <button onClick={() => setBspStand(antwortPruefen(bsp, bspEingabe) ? "ok" : "nein")} disabled={!bspEingabe.trim()} style={hauptKnopf}>Prüfen</button>
-                    <button onClick={() => setTutor({ aufgabe: bsp, eingabe: bspEingabe })} style={nebenKnopf}>Frag Mathilda</button>
+                    <button onClick={() => setTutor({ aufgabe: bsp, eingabe: bspEingabe })} style={nebenKnopf}>Frag Mathilda AI</button>
                   </div>
                 ) : (
                   <div style={{ borderLeft: `4px solid ${bspStand === "ok" ? C.see : C.signal}`, paddingLeft: 14, marginTop: 14 }}>
@@ -485,7 +485,7 @@ export function EinheitSpieler({ id, gehe }) {
             {!uebStand ? (
               <div className="flex flex-wrap gap-3 mt-4">
                 <button onClick={uebPruefen} disabled={!uebEingabe.trim()} style={hauptKnopf}>Prüfen</button>
-                <button onClick={() => setTutor({ aufgabe: ueb, eingabe: uebEingabe })} style={nebenKnopf}>Frag Mathilda</button>
+                <button onClick={() => setTutor({ aufgabe: ueb, eingabe: uebEingabe })} style={nebenKnopf}>Frag Mathilda AI</button>
               </div>
             ) : (
               <div style={{ borderLeft: `4px solid ${uebStand === "ok" ? C.see : C.signal}`, paddingLeft: 14, marginTop: 14 }}>

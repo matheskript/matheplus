@@ -68,11 +68,15 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
         @media (hover:hover){.plotter-kachel:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,77,152,0.32)}}
         .kachel-text{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
         .kachel-titel{background:linear-gradient(180deg,#FFFFFF 0%,${C.silberHell} 55%,${C.silber} 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+        @media (max-width:520px){.kachel-portraet{top:24px !important}}
         .kachel-gesperrt .kachel-titel{background:none;color:#FFFFFF;text-shadow:0 1px 2px rgba(30,40,60,0.25)}`}</style>
       {/* Links (60 %): Titel und Erklärtext von oben */}
       <div style={{ flex: klein ? "1 1 68%" : "1 1 60%", minWidth: 0, padding: klein ? "14px 8px 14px 14px" : "14px 10px 14px 16px", display: "flex", flexDirection: "column" }}>
         <h2 className="kachel-titel" style={{ fontSize: "clamp(15px, 4.1vw, 22px)", fontWeight: 700, letterSpacing: "-0.03em",
-          lineHeight: 1.1, margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+          lineHeight: 1.1, margin: 0, whiteSpace: "nowrap", ...(portraet
+            // Titel darf über das Porträt hinauslaufen (das Porträt beginnt erst darunter)
+            ? { overflow: "visible", position: "relative", zIndex: 2 }
+            : { overflow: "hidden", textOverflow: "ellipsis" }) }}>
           {titel}
         </h2>
         <span aria-hidden="true" style={{ display: "block", width: 34, height: 2.5, borderRadius: 2, marginTop: 6,
@@ -84,7 +88,7 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
       </div>
       {portraet && (
         <div aria-hidden="true" style={{ flex: "0 0 auto", width: "clamp(78px, 21vw, 108px)", position: "relative", marginLeft: -8, marginRight: 4 }}>
-          <div style={{ position: "absolute", inset: "6px 0 0 0", display: "flex" }}>{portraet}</div>
+          <div className="kachel-portraet" style={{ position: "absolute", inset: "6px 0 0 0", display: "flex" }}>{portraet}</div>
         </div>
       )}
       {/* Rechts (40 %): nur die Grafik */}
@@ -691,7 +695,7 @@ export function Startseite({ gehe }) {
           und schnelle Kopfrechenrunden. Such dir unten einen Bereich aus und leg los.
         </p>
       </section>
-      <ElternabendKachel onClick={() => gehe({ ansicht: "elternabend" })} />
+      <ElternabendKachel gesperrt onClick={() => gehe({ ansicht: "elternabend" })} />
       <PlotterKachel onClick={() => setSchulAuf(!schulAuf)} label={schulAuf ? "Schulmathematik zuklappen" : "Schulmathematik aufklappen"}
         logo={<SchulmatheLogoKlein />} titel="Schulmathematik"
         text="Analysis, Vektoren, Stochastik und Formeln – live zum Ausprobieren."
@@ -728,8 +732,8 @@ export function Startseite({ gehe }) {
       <MatheCheckenKachel gesperrt onClick={() => gehe({ ansicht: "mathecheck" })} />
       <MasterclassKachel gesperrt onClick={() => gehe({ ansicht: "masterclass" })} />
       <MathCreatorKachel />
-      <PlotterKachel gesperrt portraet={<MathildaPortraet />} onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })} label="Frag Mathilda öffnen" logo={<MathildaLogoKlein />}
-        titel="Frag Mathilda"
+      <PlotterKachel gesperrt portraet={<MathildaPortraet />} onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })} label="Frag Mathilda AI öffnen" logo={<MathildaLogoKlein />}
+        titel="Frag Mathilda AI"
         text="Foto vom Blatt – Mathilda prüft deinen Weg." />
       <PlotterKachel gesperrt onClick={() => gehe({ ansicht: "kurse", kurs: "penpaper" })} label="Pen & Paper öffnen" logo={<PenPaperBlatt />}
         titel="Pen & Paper"

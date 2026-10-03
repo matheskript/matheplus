@@ -279,10 +279,10 @@ export function Mathilda() {
           <button type="button" data-kein-i18n aria-label={englisch() ? "Home" : "Zur Startseite"} title={englisch() ? "Home" : "Zur Startseite"}
             onClick={() => { setAnsicht("start"); setMenuOffen(false); setGruppeOffen(null); window.scrollTo(0, 0); }}
             style={{ background: "none", border: "none", padding: 0, margin: 0, cursor: "pointer", fontFamily: "inherit",
-              color: C.weiss, fontSize: "clamp(18px, 6.3vw, 38px)", fontWeight: 700, letterSpacing: "-0.02em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
+              color: C.weiss, fontSize: "clamp(17px, 5.7vw, 38px)", fontWeight: 700, letterSpacing: "-0.02em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
             <span className="logo-silber">mythos</span><span className="logo-gold">mathe</span><span className="logo-silber">.de</span>
           </button>
-          <div className="flex items-center" style={{ gap: 6 }}>
+          <div className="flex items-center" style={{ gap: "clamp(4px, 1.4vw, 6px)" }}>
           {/* Seiten-Umschalter: aktuelle App und die Webseiten-Entwürfe */}
           <button type="button" onClick={() => setSeitenOffen(!seitenOffen)} aria-expanded={seitenOffen} aria-label="Seite wechseln" title="Seite wechseln"
             style={{ height: "clamp(28px, 8.6vw, 34px)", width: "clamp(28px, 8.6vw, 34px)", flexShrink: 0, borderRadius: 999, padding: 0, cursor: "pointer",
