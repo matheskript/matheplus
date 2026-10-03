@@ -15,6 +15,7 @@ import { KopfrechnenLogoKlein, TRAINER as KOPF_TRAINER } from "./func14.jsx";
 import { VektorenLogoKlein } from "./func16.jsx";
 import { StochastikLogoKlein } from "./func17.jsx";
 import { GleichungenLogoKlein } from "./funcGleichungen.jsx";
+import { MedailleLogo, KarteLogo } from "./funcWettbewerbe.jsx";
 import { MasterclassKachel, MatheCheckenKachel, MathCreatorKachel } from "./funcMasterclass.jsx";
 import { ElternabendKachel } from "./funcElternabend.jsx";
 
@@ -285,34 +286,34 @@ function PlotterLogo() {
 
 /* Schulmathematik → Bereiche → Werkzeuge (zweistufiges Aufklappmenü) */
 const SCHUL_BEREICHE = [
-  { id: "analysis", titel: "Analysis", text: "Polynomplotter, Advanced Plotter, Ableitungstrainer – Graphen live.", logo: <PlotterLogoKlein />,
+  { id: "analysis", titel: "Analysis", text: "Kurvendiskussion, Sinus und Ableitungen – live.", logo: <PlotterLogoKlein />,
     tools: [
-      { name: "Übersicht Analysis", ziel: { ansicht: "analysis" } },
-      { name: "Polynomplotter", ziel: { ansicht: "plotter" } },
-      { name: "Advanced Plotter", ziel: { ansicht: "advplotter" } },
-      { name: "Sinusfunktion", ziel: { ansicht: "sinus" } },
-      { name: "Ableitungstrainer", ziel: { ansicht: "ableitungstrainer" } },
+      { name: "Kurvendiskussion", zeile: "Graph, Ableitungen und PDF auf Knopfdruck", bild: "kurve",
+        kinder: [
+          { name: "Polynome", zeile: "Ganzrationale Funktionen bis Grad 4", bild: "poly", ziel: { ansicht: "plotter" } },
+          { name: "Beliebige Funktionen", zeile: "Mit sin, ln, eˣ, Wurzeln und Brüchen", bild: "beliebig", ziel: { ansicht: "advplotter" } },
+        ] },
+      { name: "Sinusfunktion", zeile: "f(x) = a · sin(b · (x − c)) + d", bild: "sinus", ziel: { ansicht: "sinus" } },
+      { name: "Ableitungstrainer", zeile: "f′, f″ und f‴ eingeben und prüfen", bild: "ableitung", ziel: { ansicht: "ableitungstrainer" } },
     ] },
   { id: "vektoren", titel: "Vektoren", text: "Der Ebenen-Visualizer zeigt jede Ebene live im Raum – dazu der Videokurs.", logo: <VektorenLogoKlein />,
     tools: [
-      { name: "Übersicht Vektoren", ziel: { ansicht: "vektoren" } },
-      { name: "Ebenen-Visualizer", ziel: { ansicht: "ebenen" } },
-      { name: "Ebene vs. Ebene", ziel: { ansicht: "ebenevsebene" } },
-      { name: "Vektor-Generator", ziel: { ansicht: "vektorgenerator" } },
-      { name: "Kreuzprodukt", ziel: { ansicht: "kreuzprodukt" } },
-      { name: "Videokurs Vektoren", ziel: { ansicht: "kurse", kurs: "vektoren" } },
+      { name: "Ebenen-Visualizer", zeile: "Ebenen live im Raum drehen", bild: "ebene", ziel: { ansicht: "ebenen" } },
+      { name: "Ebene vs. Ebene", zeile: "Schnittgerade und Schnittwinkel", bild: "ebenen2", ziel: { ansicht: "ebenevsebene" } },
+      { name: "Vektor-Generator", zeile: "Immer neue Rechnungen mit Rechenweg", bild: "wuerfel", ziel: { ansicht: "vektorgenerator" } },
+      { name: "Kreuzprodukt", zeile: "a × b – Formel, eingesetzt, Ergebnis", bild: "kreuz", ziel: { ansicht: "kreuzprodukt" } },
+      { name: "Videokurs Vektoren", zeile: "Fünf Lektionen mit Kurz-Checks", bild: "video", ziel: { ansicht: "kurse", kurs: "vektoren" } },
     ] },
   { id: "stochastik", titel: "Stochastik", text: "Bernoulli-Kette und Vier-Felder-Tafel: den Zufall live laufen lassen.", logo: <StochastikLogoKlein />,
     tools: [
-      { name: "Übersicht Stochastik", ziel: { ansicht: "stochastik" } },
-      { name: "Bernoulli-Kette", ziel: { ansicht: "bernoulli" } },
-      { name: "Vier-Felder-Tafel", ziel: { ansicht: "vierfelder" } },
-      { name: "Videokurs Stochastik", ziel: { ansicht: "kurse", kurs: "stochastik" } },
+      { name: "Bernoulli-Kette", zeile: "Binomialverteilung live simulieren", bild: "balken", ziel: { ansicht: "bernoulli" } },
+      { name: "Vier-Felder-Tafel", zeile: "Mit Baumdiagramm und bedingter WKT", bild: "tafel", ziel: { ansicht: "vierfelder" } },
+      { name: "Videokurs Stochastik", zeile: "Vom Baumdiagramm zum Hypothesentest", bild: "video", ziel: { ansicht: "kurse", kurs: "stochastik" } },
     ] },
   { id: "gleichungen", titel: "Gleichungen", text: "Gleichungen umformen und Gleichungssysteme lösen – mit Musterlösung.", logo: <GleichungenLogoKlein />,
     tools: [
-      { name: "Gleichungen lösen", ziel: { ansicht: "gleichungen" } },
-      { name: "Gleichungssysteme", ziel: { ansicht: "lgs" } },
+      { name: "Gleichungen lösen", zeile: "Du formst um, die App rechnet mit", bild: "gleichung", ziel: { ansicht: "gleichungen" } },
+      { name: "Gleichungssysteme", zeile: "Mit drei Variablen", bild: "lgs", ziel: { ansicht: "lgs" } },
     ] },
 ];
 
@@ -336,36 +337,79 @@ function ZeichenLogo({ zeichen }) {
 }
 
 /* Runder Pfeil unten rechts in der Grafik eines aufklappbaren Bereichs */
-function AufklappPfeil({ auf }) {
+function AufklappPfeil({ auf, klein }) {
+  const g = klein ? 24 : 30;
   return (
-    <span aria-hidden="true" style={{ position: "absolute", right: 8, bottom: 8, width: 30, height: 30, borderRadius: 999,
+    <span aria-hidden="true" style={{ position: "absolute", right: 8, bottom: 8, width: g, height: g, borderRadius: 999,
       background: C.flaggold, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
       transform: auf ? "rotate(180deg)" : "none", transition: "transform .2s ease" }}>
-      <svg width="14" height="14" viewBox="0 0 14 14"><path d="M3 5l4 4 4-4" stroke={C.seeTief} strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
+      <svg width={klein ? 12 : 14} height={klein ? 12 : 14} viewBox="0 0 14 14"><path d="M3 5l4 4 4-4" stroke={C.seeTief} strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
     </span>
   );
 }
 
-/* Dunkelsilberne Werkzeug-Knöpfe unter einem Bereich – gleiche Breite wie die Bereichs-Kachel */
-function UnterMenue({ eintraege, gehe }) {
+/* Kleine, dünn gezeichnete Motive für die Werkzeug-Knöpfe (viewBox 120 × 56) */
+function MiniBild({ art }) {
+  const w = "rgba(255,255,255,0.62)", g = C.flaggold;
+  const linie = { fill: "none", stroke: w, strokeWidth: 1.3, strokeLinecap: "round", strokeLinejoin: "round" };
+  const achsen = <><path d="M8 46 H112" {...linie} strokeWidth="0.9" opacity="0.6" /><path d="M20 52 V6" {...linie} strokeWidth="0.9" opacity="0.6" /></>;
+  const txt = (x, y, s, f = w, gr = 11, anchor = "start") => <text x={x} y={y} textAnchor={anchor} style={{ fontSize: gr, fill: f, fontFamily: "inherit", fontWeight: 500 }}>{s}</text>;
+  const m = {
+    kurve: <>{achsen}<path d="M10 44 C 30 -8, 52 54, 72 22 S 104 6, 112 4" {...linie} stroke={w} /><circle cx="33" cy="17" r="2.6" fill={g} /><circle cx="61" cy="34" r="2.6" fill={g} /><circle cx="48" cy="26" r="2" fill="#fff" /></>,
+    poly: <>{achsen}<path d="M12 50 C 30 -10, 60 60, 78 18 S 104 2, 112 0" {...linie} /><circle cx="36" cy="16" r="2.4" fill={g} /><circle cx="64" cy="36" r="2.4" fill={g} /></>,
+    beliebig: <>{achsen}<path d="M10 30 Q 20 10 30 30 T 50 30 T 70 30" {...linie} /><path d="M66 44 C 84 42, 98 30, 112 6" {...linie} stroke={g} /></>,
+    sinus: <>{achsen}<path d="M8 30 Q 20 4 32 30 T 56 30 T 80 30 T 104 30" {...linie} /><path d="M8 30 H112" stroke={g} strokeWidth="0.9" strokeDasharray="3 3" opacity="0.8" /></>,
+    ableitung: <>{txt(60, 25, "f′(x) = …", "#fff", 15, "middle")}{txt(60, 44, "f″(x) = …", w, 11, "middle")}</>,
+    ebene: <><path d="M18 40 L52 12 L104 18 L70 46 Z" {...linie} fill="rgba(255,255,255,0.08)" /><path d="M61 29 V4" stroke={g} strokeWidth="1.6" /><path d="M57 9 L61 3 L65 9" stroke={g} strokeWidth="1.4" fill="none" /></>,
+    ebenen2: <><path d="M14 38 L48 14 L100 20 L66 44 Z" {...linie} fill="rgba(255,255,255,0.06)" /><path d="M40 6 L84 8 L82 50 L38 48 Z" {...linie} fill="rgba(255,255,255,0.06)" /><path d="M39 26 L83 30" stroke={g} strokeWidth="1.8" /></>,
+    wuerfel: <><path d="M40 16 L60 8 L80 16 L60 24 Z" {...linie} /><path d="M40 16 V38 L60 48 V24" {...linie} /><path d="M80 16 V38 L60 48" {...linie} /><circle cx="60" cy="16" r="2" fill={g} /><circle cx="50" cy="30" r="1.8" fill="#fff" /><circle cx="70" cy="28" r="1.8" fill="#fff" /><circle cx="70" cy="38" r="1.8" fill="#fff" /></>,
+    kreuz: <><path d="M30 44 L84 44" {...linie} /><path d="M30 44 L58 22" {...linie} /><path d="M30 44 L30 6" stroke={g} strokeWidth="1.7" /><path d="M26 11 L30 5 L34 11" stroke={g} strokeWidth="1.4" fill="none" />{txt(88, 47, "a", w, 10)}{txt(60, 22, "b", w, 10)}{txt(36, 12, "a×b", g, 10)}</>,
+    video: <><rect x="34" y="8" width="52" height="38" rx="7" {...linie} /><path d="M54 18 L70 27 L54 36 Z" fill={g} /></>,
+    balken: <>{[6, 14, 26, 36, 30, 18, 9, 4].map((h, i) => <rect key={i} x={20 + i * 11} y={48 - h} width="7" height={h} rx="1.5" fill={i === 3 ? g : "rgba(255,255,255,0.5)"} />)}</>,
+    tafel: <><rect x="30" y="8" width="60" height="40" rx="4" {...linie} /><path d="M60 8 V48 M30 28 H90" {...linie} /><rect x="31" y="9" width="28" height="18" fill="rgba(237,187,0,0.35)" /></>,
+    gleichung: <>{txt(60, 22, "3x + 5 = 20", "#fff", 13, "middle")}{txt(60, 42, "x = 5", g, 13, "middle")}<path d="M42 47 H78" stroke={g} strokeWidth="1" /></>,
+    lgs: <><path d="M20 8 C 14 8, 16 28, 11 28 C 16 28, 14 48, 20 48" {...linie} stroke={g} />{txt(26, 18, "x + y + z = 6", w, 10.5)}{txt(26, 32, "2x − y + z = 3", w, 10.5)}{txt(26, 46, "x + 2y − z = 2", w, 10.5)}</>,
+  };
+  return <svg viewBox="0 0 120 56" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" aria-hidden="true">{m[art]}</svg>;
+}
+
+/* Werkzeug-Knöpfe unter einem Bereich: helleres Blau als die Bereichs-Kachel, gleiche Breite,
+   Titel + eine Zeile darunter, rechts ein kleines Motiv. Einträge mit „kinder“ klappen eine
+   weitere Ebene auf (z. B. Kurvendiskussion → Polynome / Beliebige Funktionen). */
+function UnterMenue({ eintraege, gehe, tiefe = 0 }) {
+  const [offen, setOffen] = useState(null);
+  const hg = tiefe === 0 ? "linear-gradient(155deg, #2C78C4 0%, #17599C 100%)" : "linear-gradient(155deg, #4A90D6 0%, #2A6FB3 100%)";
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 6, margin: "6px 0 10px" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 6, margin: tiefe ? "0 0 4px 14px" : "6px 0 10px" }}>
       <style>{`.unter-knopf{transition:transform .12s ease, filter .12s ease}
         .unter-knopf:active{transform:scale(0.985)}
-        @media (hover:hover){.unter-knopf:hover{filter:brightness(1.08)}}
+        @media (hover:hover){.unter-knopf:hover{filter:brightness(1.07)}}
+        .unter-zeile{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
         @keyframes unterAuf{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}`}</style>
-      {eintraege.map((e, i) => (
-        <button key={e.name} className="unter-knopf" onClick={() => gehe(e.ziel)}
-          style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10,
-            padding: "12px 14px", border: "none", borderRadius: 12, cursor: "pointer", fontFamily: "inherit", textAlign: "left",
-            background: "linear-gradient(155deg, #8D97A6 0%, #6C7787 55%, #566170 100%)", color: C.weiss,
-            boxShadow: "0 3px 10px rgba(40,50,70,0.2), inset 0 0 0 1px rgba(255,255,255,0.28)",
-            fontSize: 14.5, fontWeight: 600, letterSpacing: "-0.01em",
-            animation: `unterAuf .18s ease ${i * 0.03}s both` }}>
-          <span>{e.name}</span>
-          <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4l4 4-4 4" stroke={C.flaggold} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
-        </button>
-      ))}
+      {eintraege.map((e, i) => {
+        const auf = offen === e.name;
+        return (
+          <React.Fragment key={e.name}>
+            <button className="unter-knopf" onClick={() => (e.kinder ? setOffen(auf ? null : e.name) : gehe(e.ziel))}
+              aria-expanded={e.kinder ? auf : undefined}
+              style={{ width: "100%", display: "flex", alignItems: "stretch", padding: 0, border: "none", borderRadius: 13, overflow: "hidden",
+                cursor: "pointer", fontFamily: "inherit", textAlign: "left", background: hg, color: C.weiss, position: "relative",
+                boxShadow: "0 4px 14px rgba(0,77,152,0.22), inset 0 0 0 1px rgba(255,255,255,0.18)",
+                animation: `unterAuf .18s ease ${i * 0.03}s both` }}>
+              <span style={{ flex: "1 1 auto", minWidth: 0, padding: "11px 8px 11px 14px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+                <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: "-0.01em", lineHeight: 1.2 }}>{e.name}</span>
+                <span className="unter-zeile" style={{ fontSize: "clamp(11px, 3.1vw, 12.5px)", fontWeight: 400, color: "rgba(255,255,255,0.78)", marginTop: 3 }}>{e.zeile}</span>
+              </span>
+              <span style={{ flex: "0 0 clamp(78px, 26%, 150px)", position: "relative", borderLeft: "1px solid rgba(255,255,255,0.14)", padding: "6px 6px",
+                display: "flex", alignItems: "center" }}>
+                <MiniBild art={e.bild} />
+                {e.kinder && <AufklappPfeil auf={auf} klein />}
+              </span>
+            </button>
+            {e.kinder && auf && <UnterMenue eintraege={e.kinder} gehe={gehe} tiefe={tiefe + 1} />}
+          </React.Fragment>
+        );
+      })}
     </div>
   );
 }
@@ -373,10 +417,11 @@ function UnterMenue({ eintraege, gehe }) {
 export function Startseite({ gehe }) {
   const [wieder, setWieder] = useState(false);
   const [hinweis, setHinweis] = useState("");
-  const [schulAuf, setSchulAuf] = useState(false);   // Dropdown „Schulmathematik“
-  const [bereichAuf, setBereichAuf] = useState(null);
-  const [kopfAuf, setKopfAuf] = useState(false);
-  const [matheAuf, setMatheAuf] = useState(false);       // Dropdown „Mathematik“       // Dropdown „Kopfrechnen“ // aufgeklappter Unterbereich (analysis, vektoren, …)
+  const [schulAuf, setSchulAuf] = useState(false);     // Dropdown „Mathe-Training“
+  const [bereichAuf, setBereichAuf] = useState(null);   // aufgeklappter Unterbereich (analysis, vektoren, …)
+  const [kopfAuf, setKopfAuf] = useState(false);        // Dropdown „Kopfrechnen“
+  const [matheAuf, setMatheAuf] = useState(false);      // Dropdown „Mathematik“
+  const [wettAuf, setWettAuf] = useState(false);        // Dropdown „Mathe-Wettbewerbe“
 
   /* --- Motive --- */
 
@@ -817,6 +862,20 @@ export function Startseite({ gehe }) {
           <PlotterKachel klein gesperrt logo={<ZeichenLogo zeichen="∴" />}
             titel="Sätze"
             text="Die zentralen Sätze der Oberstufe – klar formuliert." />
+        </div>
+      )}
+      <PlotterKachel onClick={() => setWettAuf(!wettAuf)} label={wettAuf ? "Mathe-Wettbewerbe zuklappen" : "Mathe-Wettbewerbe aufklappen"}
+        logo={<MedailleLogo />} titel="Mathe-Wettbewerbe"
+        text="Bundeswettbewerb und Landeswettbewerbe – Termine, Aufgaben, Lösungen."
+        extra={<PlusKnopf auf={wettAuf} />} />
+      {wettAuf && (
+        <div style={{ margin: "4px 0 4px", padding: "2px 0 2px 12px", borderLeft: `3px solid ${C.flaggold}` }}>
+          <PlotterKachel klein onClick={() => gehe({ ansicht: "bwm" })} label="Bundeswettbewerb Mathematik öffnen" logo={<MedailleLogo />}
+            titel="Bundeswettbewerb"
+            text="Die nächste 1. Runde und die Aufgaben mit Lösungen vom letzten Jahr." />
+          <PlotterKachel klein onClick={() => gehe({ ansicht: "landeswettbewerbe" })} label="Landeswettbewerbe öffnen" logo={<KarteLogo />}
+            titel="Landeswettbewerbe"
+            text="Deutschlandkarte: Tippe auf dein Bundesland." />
         </div>
       )}
       <PlotterKachel onClick={() => setKopfAuf(!kopfAuf)} label={kopfAuf ? "Kopfrechnen zuklappen" : "Kopfrechnen aufklappen"} logo={<KopfrechnenLogoKlein />}

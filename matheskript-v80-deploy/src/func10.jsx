@@ -27,6 +27,7 @@ import { MasterclassSeite, MatheCheckenSeite } from "./funcMasterclass.jsx";
 import { Fusszeile, ImpressumSeite, AGBSeite, WiderrufSeite } from "./funcRecht.jsx";
 import { KontoSeite } from "./funcKonto.jsx";
 import { ElternabendSeite } from "./funcElternabend.jsx";
+import { BundeswettbewerbSeite, LandeswettbewerbeSeite, LandeswettbewerbSeite, LAENDER } from "./funcWettbewerbe.jsx";
 import { ENTWUERFE, istEntwurf, EntwurfTor, EntwurfStart, EntwurfChecken, EntwurfPakete } from "./funcEntwuerfe.jsx";
 import { useKonto, kontoStarten } from "./konto.js";
 import { englisch, spracheWechseln } from "./i18n.js";
@@ -63,11 +64,12 @@ export function Mathilda() {
   const sprachKnopf = () => {
     try {
       sessionStorage.setItem("mm-nach-sprachwechsel", JSON.stringify({ ansicht, ziel: ansicht === "training" ? trainZiel : ansicht === "ki" ? genZiel : undefined,
-        kompetenz: einheitId || undefined, klasse: klasseAktiv, kurs: kursStart || undefined, trainer: kopfTrainer || undefined, foto: fotoModus }));
+        kompetenz: einheitId || undefined, klasse: klasseAktiv, kurs: kursStart || undefined, trainer: kopfTrainer || undefined, land: ansicht === "landeswettbewerb" ? landWahl : undefined, foto: fotoModus }));
     } catch (e) { /* privat */ }
     spracheWechseln();
   };
   const [kopfTrainer, setKopfTrainer] = useState(null);   // direkt geöffneter Kopfrechen-Trainer
+  const [landWahl, setLandWahl] = useState("bw");          // Bundesland der Landeswettbewerb-Seite
   const [sprung, setSprung] = useState(null);
   const [fotoModus, setFotoModus] = useState("blatt");
   const [terminStart, setTerminStart] = useState(null);
@@ -102,6 +104,7 @@ export function Mathilda() {
     if (eintrag.ansicht === "klasse") setKlasseAktiv(eintrag.klasse);
     setKursStart(eintrag.ansicht === "kurse" ? eintrag.kurs || null : null);
     setKopfTrainer(eintrag.ansicht === "kopf" ? eintrag.trainer || null : null);
+    if (eintrag.land) setLandWahl(eintrag.land);
     setMenuOffen(false); setGruppeOffen(null);
     window.scrollTo(0, 0);
   };
@@ -851,6 +854,45 @@ export function Mathilda() {
             <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
           </div>
           <Gleichungsloeser />
+        </>
+      ) : ansicht === "bwm" ? (
+        <>
+          <div style={{ background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.14em", color: C.flaggold, marginBottom: 8 }}>MATHE-WETTBEWERBE</p>
+              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(26px, 7.6vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.08 }}>Bundeswettbewerb Mathematik</h1>
+              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <p style={{ color: "rgba(255,255,255,0.78)", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>Drei Runden, echte Probleme, saubere Beweise – der große Mathe-Wettbewerb für die Oberstufe.</p>
+            </div>
+            <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
+          </div>
+          <BundeswettbewerbSeite />
+        </>
+      ) : ansicht === "landeswettbewerbe" ? (
+        <>
+          <div style={{ background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.14em", color: C.flaggold, marginBottom: 8 }}>MATHE-WETTBEWERBE</p>
+              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(26px, 7.6vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.08 }}>Landeswettbewerbe</h1>
+              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <p style={{ color: "rgba(255,255,255,0.78)", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>Von Baden-Württemberg bis Thüringen: der Mathe-Wettbewerb in deinem Bundesland.</p>
+            </div>
+            <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
+          </div>
+          <LandeswettbewerbeSeite gehe={gehe} />
+        </>
+      ) : ansicht === "landeswettbewerb" ? (
+        <>
+          <div style={{ background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.14em", color: C.flaggold, marginBottom: 8 }}>LANDESWETTBEWERB</p>
+              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(26px, 7.6vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.08 }}>{LAENDER[landWahl]?.name || "Bundesland"}</h1>
+              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <p style={{ color: "rgba(255,255,255,0.78)", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>{LAENDER[landWahl]?.art === "lw" ? "Der Mathematik-Wettbewerb des Landes – Termine, Aufgaben und Lösungen." : "Die Landesrunde der Mathematik-Olympiade – Termine, Aufgaben und Lösungen."}</p>
+            </div>
+            <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
+          </div>
+          <LandeswettbewerbSeite land={landWahl} gehe={gehe} />
         </>
       ) : ansicht === "elternabend" ? (
         <>
