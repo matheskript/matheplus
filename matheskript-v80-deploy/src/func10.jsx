@@ -28,6 +28,7 @@ import { Fusszeile, ImpressumSeite, AGBSeite, WiderrufSeite } from "./funcRecht.
 import { KontoSeite } from "./funcKonto.jsx";
 import { ElternabendSeite } from "./funcElternabend.jsx";
 import { useKonto, kontoStarten } from "./konto.js";
+import { englisch, spracheWechseln } from "./i18n.js";
 
 // Menü-Button im Header: vorübergehend aus (true = wieder einblenden)
 const ZEIGE_MENUE = false;
@@ -44,7 +45,19 @@ export function Mathilda() {
       const u = new URL(window.location.href);
       if (u.searchParams.has("konto")) { u.searchParams.delete("konto"); window.history.replaceState({}, "", u.pathname + u.search + u.hash); }
     } catch (e) { /* ignorieren */ }
+    try {   // nach dem Sprachwechsel dieselbe Seite wieder öffnen
+      const z = JSON.parse(sessionStorage.getItem("mm-nach-sprachwechsel") || "null");
+      sessionStorage.removeItem("mm-nach-sprachwechsel");
+      if (z && z.ansicht && z.ansicht !== "start") gehe(z);
+    } catch (e) { /* ignorieren */ }
   }, []);
+  const sprachKnopf = () => {
+    try {
+      sessionStorage.setItem("mm-nach-sprachwechsel", JSON.stringify({ ansicht, ziel: ansicht === "training" ? trainZiel : ansicht === "ki" ? genZiel : undefined,
+        kompetenz: einheitId || undefined, klasse: klasseAktiv, kurs: kursStart || undefined, foto: fotoModus }));
+    } catch (e) { /* privat */ }
+    spracheWechseln();
+  };
   const [sprung, setSprung] = useState(null);
   const [fotoModus, setFotoModus] = useState("blatt");
   const [terminStart, setTerminStart] = useState(null);
@@ -244,16 +257,22 @@ export function Mathilda() {
             .titel-silber{background:linear-gradient(180deg,#FFFFFF 0%,${C.silberHell} 50%,${C.silber} 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
             .logo-gold{background:linear-gradient(180deg,#FFE58A 0%,${C.flaggold} 45%,${C.goldWarm} 70%,#A67C00 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
           `}</style>
-          <button type="button" aria-label="Zur Startseite" title="Zur Startseite"
+          <button type="button" data-kein-i18n aria-label={englisch() ? "Home" : "Zur Startseite"} title={englisch() ? "Home" : "Zur Startseite"}
             onClick={() => { setAnsicht("start"); setMenuOffen(false); setGruppeOffen(null); window.scrollTo(0, 0); }}
             style={{ background: "none", border: "none", padding: 0, margin: 0, cursor: "pointer", fontFamily: "inherit",
-              color: C.weiss, fontSize: "clamp(20px, 7vw, 38px)", fontWeight: 700, letterSpacing: "-0.02em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
+              color: C.weiss, fontSize: "clamp(18px, 6.3vw, 38px)", fontWeight: 700, letterSpacing: "-0.02em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
             <span className="logo-silber">mythos</span><span className="logo-gold">mathe</span><span className="logo-silber">.de</span>
           </button>
           <div className="flex items-center" style={{ gap: 6 }}>
+          <button type="button" onClick={sprachKnopf} data-kein-i18n
+            aria-label={englisch() ? "Auf Deutsch umschalten" : "Switch to English"} title={englisch() ? "Deutsch" : "English"}
+            style={{ height: "clamp(28px, 8.6vw, 34px)", minWidth: "clamp(32px, 10vw, 40px)", flexShrink: 0, borderRadius: 999, border: "1.5px solid rgba(255,255,255,0.45)", background: "transparent",
+              color: C.weiss, fontSize: "clamp(11px, 3.4vw, 13px)", fontWeight: 700, letterSpacing: "0.06em", fontFamily: "inherit", cursor: "pointer", padding: "0 7px", lineHeight: 1 }}>
+            {englisch() ? "DE" : "EN"}
+          </button>
           {/* Profil-Button vorübergehend ausgeblendet */}
           {ZEIGE_PROFIL && <button onClick={() => { gehe({ ansicht: "konto" }); window.scrollTo(0, 0); }} aria-label={konto.profil ? "Mein Konto" : "Anmelden"} title={konto.profil ? "Mein Konto" : "Anmelden"}
-            style={{ width: 34, height: 34, flexShrink: 0, borderRadius: 999, border: `1.5px solid ${konto.profil ? C.flaggold : "rgba(255,255,255,0.45)"}`,
+            style={{ width: "clamp(28px, 8.6vw, 34px)", height: "clamp(28px, 8.6vw, 34px)", flexShrink: 0, borderRadius: 999, border: `1.5px solid ${konto.profil ? C.flaggold : "rgba(255,255,255,0.45)"}`,
               background: konto.profil ? "rgba(237,187,0,0.16)" : "transparent", color: konto.profil ? C.flaggold : C.weiss, fontSize: konto.profil ? 14 : 20, fontWeight: 700,
               fontFamily: "inherit", cursor: "pointer", padding: 0, lineHeight: 1 }}>
             {konto.profil ? (konto.profil.name || "?").slice(0, 1).toUpperCase() : "+"}

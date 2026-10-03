@@ -1,3 +1,4 @@
+import { sprache } from "./i18n.js";
 import React, { useState, useRef } from "react";
 import { API_URL, C } from "./base1.jsx";
 import { EINHEITEN, TAG_MS, WOCHENTAGE, tagSchluessel, wochentagIdx } from "./base3.jsx";
@@ -55,7 +56,7 @@ export async function kiAntwort(res) {
 }
 
 export const kiKopf = () => (API_URL === "/api/claude"
-  ? { "Content-Type": "application/json", "X-Geraet": FR.geraetKennung() }
+  ? { "Content-Type": "application/json", "X-Geraet": FR.geraetKennung(), "X-Sprache": sprache() }
   : { "Content-Type": "application/json" });
 
 

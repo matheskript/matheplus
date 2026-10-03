@@ -1,3 +1,4 @@
+import { tr } from "./i18n.js";
 import React, { useState, useRef } from "react";
 import { API_URL, C, DEMO_VIDEO_ID, DIFFQ_TESTPAARE, FUNKTIONEN, HOCH, KOEFF_FARBEN, MMENGEN, MODUL_PDF_URL, MSYM, PARAM_WERTE, PRUEFSTELLEN, Regler, ganz, ganzNZ, zuf } from "./base1.jsx";
 import { FormelReihe, KurvendiskussionAnzeige, baueReihe, markanteAllg, nullstellenAllg, schoenerSchritt, zahl } from "./func2.jsx";
@@ -446,7 +447,7 @@ export function M({ t }) {
 /* Fließtext mit eingebetteten Formeln zwischen $ … $ */
 
 export function Text({ s, style }) {
-  const stuecke = String(s).split("$");
+  const stuecke = String(tr(s)).split("$");
   return (
     <p style={style}>
       {stuecke.map((teil, i) => (i % 2 === 1 ? <M key={i} t={teil} /> : <span key={i}>{teil}</span>))}

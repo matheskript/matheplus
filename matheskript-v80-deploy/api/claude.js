@@ -54,6 +54,12 @@ export default async function handler(req, res) {
     messages: body.messages,
   };
   if (typeof body.system === "string") anfrage.system = body.system;
+  if (String(req.headers["x-sprache"] || "") === "en") {
+    const hinweis = "LANGUAGE: The student is using the English version of the site. Write every text meant for the student in English "
+      + "(explanations, feedback, task texts, hints). Keep any requested JSON structure, keys and formatting exactly as specified; "
+      + "only the human-readable values are in English.";
+    anfrage.system = anfrage.system ? anfrage.system + "\n\n" + hinweis : hinweis;
+  }
 
   try {
     const antwort = await fetch("https://api.anthropic.com/v1/messages", {
