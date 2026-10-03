@@ -27,6 +27,7 @@ import { MasterclassSeite, MatheCheckenSeite } from "./funcMasterclass.jsx";
 import { Fusszeile, ImpressumSeite, AGBSeite, WiderrufSeite } from "./funcRecht.jsx";
 import { KontoSeite } from "./funcKonto.jsx";
 import { ElternabendSeite } from "./funcElternabend.jsx";
+import { ENTWUERFE, istEntwurf, EntwurfStart, EntwurfChecken, EntwurfPakete } from "./funcEntwuerfe.jsx";
 import { useKonto, kontoStarten } from "./konto.js";
 import { englisch, spracheWechseln } from "./i18n.js";
 
@@ -38,7 +39,10 @@ export function Mathilda() {
   const [ansicht, setAnsicht] = useState(() => {
     try {
       const q = new URLSearchParams(window.location.search);
-      return q.has("konto") ? "konto" : q.get("ticket") === "danke" ? "elternabend" : "start";
+      if (q.has("konto")) return "konto";
+      if (q.get("ticket") === "danke") return "elternabend";
+      const h = window.location.hash.slice(1);
+      return ENTWUERFE.some((e) => e.ansicht === h) ? h : "start";
     } catch (e) { return "start"; }
   });
   // Rückkehr von Stripe nach erfolgreicher Ticketbuchung
@@ -77,8 +81,18 @@ export function Mathilda() {
   React.useEffect(() => { lernLaden(); }, []);
   const lern = useLern();
 
+  const [seitenOffen, setSeitenOffen] = useState(false);
+  // Webseiten-Entwürfe bekommen einen Anker in der Adresse (#entwurf-…), damit man sie direkt aufrufen kann
+  useEffect(() => {
+    try {
+      const h = window.location.hash.slice(1);
+      if (istEntwurf(ansicht) && h !== ansicht) window.history.replaceState({}, "", window.location.pathname + window.location.search + "#" + ansicht);
+      else if (!istEntwurf(ansicht) && istEntwurf(h)) window.history.replaceState({}, "", window.location.pathname + window.location.search);
+    } catch (e) { /* ignorieren */ }
+  }, [ansicht]);
   const gehe = (eintrag) => {
     setAnsicht(eintrag.ansicht);
+    setSeitenOffen(false);
     if (eintrag.ansicht === "training") setTrainZiel(eintrag.ziel ?? null);
     if (eintrag.ansicht === "ki") setGenZiel(eintrag.ziel ?? null);
     if (eintrag.foto) setFotoModus(eintrag.foto);
@@ -269,6 +283,16 @@ export function Mathilda() {
             <span className="logo-silber">mythos</span><span className="logo-gold">mathe</span><span className="logo-silber">.de</span>
           </button>
           <div className="flex items-center" style={{ gap: 6 }}>
+          {/* Seiten-Umschalter: aktuelle App und die Webseiten-Entwürfe */}
+          <button type="button" onClick={() => setSeitenOffen(!seitenOffen)} aria-expanded={seitenOffen} aria-label="Seite wechseln" title="Seite wechseln"
+            style={{ height: "clamp(28px, 8.6vw, 34px)", width: "clamp(28px, 8.6vw, 34px)", flexShrink: 0, borderRadius: 999, padding: 0, cursor: "pointer",
+              border: `1.5px solid ${seitenOffen || istEntwurf(ansicht) ? C.flaggold : "rgba(255,255,255,0.45)"}`,
+              background: seitenOffen || istEntwurf(ansicht) ? "rgba(237,187,0,0.16)" : "transparent", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke={seitenOffen || istEntwurf(ansicht) ? C.flaggold : C.weiss} strokeWidth="2" strokeLinejoin="round" aria-hidden="true">
+              <rect x="3.5" y="3.5" width="7" height="7" rx="1.6" /><rect x="13.5" y="3.5" width="7" height="7" rx="1.6" />
+              <rect x="3.5" y="13.5" width="7" height="7" rx="1.6" /><rect x="13.5" y="13.5" width="7" height="7" rx="1.6" />
+            </svg>
+          </button>
           <button type="button" onClick={sprachKnopf} data-kein-i18n
             aria-label={englisch() ? "Auf Deutsch umschalten" : "Switch to English"} title={englisch() ? "Deutsch" : "English"}
             style={{ height: "clamp(28px, 8.6vw, 34px)", minWidth: "clamp(32px, 10vw, 40px)", flexShrink: 0, borderRadius: 999, border: "1.5px solid rgba(255,255,255,0.45)", background: "transparent",
@@ -292,6 +316,31 @@ export function Mathilda() {
           </div>
         </div>
 
+        {seitenOffen && (
+          <>
+            <div onClick={() => setSeitenOffen(false)} style={{ position: "fixed", inset: 0, top: 56, zIndex: 1 }} aria-hidden="true" />
+            <div style={{ position: "absolute", right: "max(12px, calc(50% - 298px))", top: 60, zIndex: 2, width: "min(320px, calc(100vw - 24px))", background: C.weiss,
+              borderRadius: 14, boxShadow: "0 14px 40px rgba(8,23,59,0.32)", padding: 8, color: C.tinte }}>
+              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", color: C.grau, padding: "8px 12px 6px" }}>SEITE WECHSELN</div>
+              {[{ ansicht: "start", name: "Aktuelle Version", kurz: "Die App, wie sie jetzt online ist" }, ...ENTWUERFE].map((e, i) => {
+                const an = e.ansicht === "start" ? !istEntwurf(ansicht) : ansicht === e.ansicht;
+                return (
+                  <button key={e.ansicht} type="button" onClick={() => gehe({ ansicht: e.ansicht })} aria-current={an ? "page" : undefined}
+                    style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", borderRadius: 10, border: "none", cursor: "pointer",
+                      fontFamily: "inherit", textAlign: "left", background: an ? "rgba(237,187,0,0.14)" : "transparent", color: C.tinte, marginTop: i === 1 ? 6 : 0,
+                      borderTop: i === 1 ? `1px solid ${C.linie}` : "none" }}>
+                    <span style={{ width: 28, height: 28, borderRadius: 999, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12.5, fontWeight: 700,
+                      background: an ? C.flaggold : C.himmel, color: an ? C.seeTief : C.grau }}>{i === 0 ? "A" : i}</span>
+                    <span style={{ flex: 1 }}>
+                      <span style={{ display: "block", fontSize: 14.5, fontWeight: 700 }}>{e.name}</span>
+                      <span style={{ display: "block", fontSize: 12, color: C.grau, marginTop: 1 }}>{i === 0 ? e.kurz : "Entwurf " + i + " · " + e.kurz}</span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </>
+        )}
         {menuOffen && (
           <div style={{ background: C.seeTief, maxHeight: "72vh", overflowY: "auto" }}>
             <div className="mx-auto px-6 py-2" style={{ maxWidth: 620 }}>
@@ -753,6 +802,12 @@ export function Mathilda() {
         </>
       ) : ansicht === "start" ? (
         <Startseite gehe={gehe} />
+      ) : ansicht === "entwurf-start" ? (
+        <EntwurfStart gehe={gehe} />
+      ) : ansicht === "entwurf-checken" ? (
+        <EntwurfChecken gehe={gehe} />
+      ) : ansicht === "entwurf-pakete" ? (
+        <EntwurfPakete gehe={gehe} />
       ) : ansicht === "kurse" ? (
         <>
           <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
@@ -1220,7 +1275,7 @@ export function Mathilda() {
       )}
       </>
       )}
-      <Fusszeile gehe={gehe} />
+      {!istEntwurf(ansicht) && <Fusszeile gehe={gehe} />}
     </div>
   );
 }
