@@ -244,7 +244,20 @@ function Schnellrechnen({ erzeugen, gruppe, bestSchluessel }) {
 }
 
 /* Modus-Leiste (Chips) */
-function Modi({ liste, wert, setWert }) {
+function Modi({ liste, wert, setWert, kompakt }) {
+  if (kompakt) return (
+    // Nur die Namen, alle nebeneinander sichtbar (ohne Unterzeile, ohne Scrollen)
+    <div style={{ display: "flex", gap: "clamp(3px, 1vw, 6px)", marginBottom: 14 }}>
+      {liste.map((m) => (
+        <button key={m.id} onClick={() => setWert(m.id)}
+          style={{ flex: "1 1 auto", padding: "8px clamp(3px, 1.2vw, 12px)", borderRadius: 999, fontFamily: "inherit", cursor: "pointer",
+            border: `1px solid ${wert === m.id ? C.see : C.linie}`, background: wert === m.id ? C.see : C.weiss,
+            color: wert === m.id ? C.weiss : C.see, fontSize: "clamp(10.5px, 3vw, 13.5px)", fontWeight: 600, lineHeight: 1.2, whiteSpace: "nowrap" }}>
+          {m.name}
+        </button>
+      ))}
+    </div>
+  );
   return (
     <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 6, marginBottom: 12 }}>
       {liste.map((m) => (
@@ -716,7 +729,7 @@ function Bruchrechnen() {
   const [stufe, setStufe] = useState(1);
   return (
     <div>
-      <Modi liste={BRUCH_MODI} wert={modus} setWert={setModus} />
+      <Modi kompakt liste={BRUCH_MODI} wert={modus} setWert={setModus} />
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 14 }}>
         <span style={{ fontSize: 12.5, color: C.grau, marginRight: 4 }}>Stufe</span>
         {BRUCH_STUFEN.map((s) => (
