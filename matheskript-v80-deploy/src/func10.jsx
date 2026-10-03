@@ -63,10 +63,11 @@ export function Mathilda() {
   const sprachKnopf = () => {
     try {
       sessionStorage.setItem("mm-nach-sprachwechsel", JSON.stringify({ ansicht, ziel: ansicht === "training" ? trainZiel : ansicht === "ki" ? genZiel : undefined,
-        kompetenz: einheitId || undefined, klasse: klasseAktiv, kurs: kursStart || undefined, foto: fotoModus }));
+        kompetenz: einheitId || undefined, klasse: klasseAktiv, kurs: kursStart || undefined, trainer: kopfTrainer || undefined, foto: fotoModus }));
     } catch (e) { /* privat */ }
     spracheWechseln();
   };
+  const [kopfTrainer, setKopfTrainer] = useState(null);   // direkt geöffneter Kopfrechen-Trainer
   const [sprung, setSprung] = useState(null);
   const [fotoModus, setFotoModus] = useState("blatt");
   const [terminStart, setTerminStart] = useState(null);
@@ -100,6 +101,7 @@ export function Mathilda() {
     if (eintrag.ansicht === "vorbereiten") setTerminStart(eintrag.termin || null);
     if (eintrag.ansicht === "klasse") setKlasseAktiv(eintrag.klasse);
     setKursStart(eintrag.ansicht === "kurse" ? eintrag.kurs || null : null);
+    setKopfTrainer(eintrag.ansicht === "kopf" ? eintrag.trainer || null : null);
     setMenuOffen(false); setGruppeOffen(null);
     window.scrollTo(0, 0);
   };
@@ -628,7 +630,7 @@ export function Mathilda() {
             </div>
             <Welle fill={C.sand} />
           </div>
-          <KopfrechenZentrum />
+          <KopfrechenZentrum key={kopfTrainer || "liste"} start={kopfTrainer} />
         </>
       ) : ansicht === "ebenen" ? (
         <>

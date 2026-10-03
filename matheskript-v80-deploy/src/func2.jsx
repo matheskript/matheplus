@@ -11,7 +11,7 @@ import { Wiederholen } from "./func7.jsx";
 import { EskalationsKarte, Wochenbericht, eskalationSignale, serieBerechnen, zeitraum } from "./func8.jsx";
 import { TerminHinweis } from "./func9.jsx";
 import { Mathilda } from "./func10.jsx";
-import { KopfrechnenLogoKlein } from "./func14.jsx";
+import { KopfrechnenLogoKlein, TRAINER as KOPF_TRAINER } from "./func14.jsx";
 import { VektorenLogoKlein } from "./func16.jsx";
 import { StochastikLogoKlein } from "./func17.jsx";
 import { GleichungenLogoKlein } from "./funcGleichungen.jsx";
@@ -284,10 +284,99 @@ function PlotterLogo() {
   );
 }
 
+/* Schulmathematik → Bereiche → Werkzeuge (zweistufiges Aufklappmenü) */
+const SCHUL_BEREICHE = [
+  { id: "analysis", titel: "Analysis", text: "Polynomplotter, Advanced Plotter, Ableitungstrainer – Graphen live.", logo: <PlotterLogoKlein />,
+    tools: [
+      { name: "Übersicht Analysis", ziel: { ansicht: "analysis" } },
+      { name: "Polynomplotter", ziel: { ansicht: "plotter" } },
+      { name: "Advanced Plotter", ziel: { ansicht: "advplotter" } },
+      { name: "Sinusfunktion", ziel: { ansicht: "sinus" } },
+      { name: "Ableitungstrainer", ziel: { ansicht: "ableitungstrainer" } },
+    ] },
+  { id: "vektoren", titel: "Vektoren", text: "Der Ebenen-Visualizer zeigt jede Ebene live im Raum – dazu der Videokurs.", logo: <VektorenLogoKlein />,
+    tools: [
+      { name: "Übersicht Vektoren", ziel: { ansicht: "vektoren" } },
+      { name: "Ebenen-Visualizer", ziel: { ansicht: "ebenen" } },
+      { name: "Ebene vs. Ebene", ziel: { ansicht: "ebenevsebene" } },
+      { name: "Vektor-Generator", ziel: { ansicht: "vektorgenerator" } },
+      { name: "Kreuzprodukt", ziel: { ansicht: "kreuzprodukt" } },
+      { name: "Videokurs Vektoren", ziel: { ansicht: "kurse", kurs: "vektoren" } },
+    ] },
+  { id: "stochastik", titel: "Stochastik", text: "Bernoulli-Kette und Vier-Felder-Tafel: den Zufall live laufen lassen.", logo: <StochastikLogoKlein />,
+    tools: [
+      { name: "Übersicht Stochastik", ziel: { ansicht: "stochastik" } },
+      { name: "Bernoulli-Kette", ziel: { ansicht: "bernoulli" } },
+      { name: "Vier-Felder-Tafel", ziel: { ansicht: "vierfelder" } },
+      { name: "Videokurs Stochastik", ziel: { ansicht: "kurse", kurs: "stochastik" } },
+    ] },
+  { id: "gleichungen", titel: "Gleichungen", text: "Gleichungen umformen und Gleichungssysteme lösen – mit Musterlösung.", logo: <GleichungenLogoKlein />,
+    tools: [
+      { name: "Gleichungen lösen", ziel: { ansicht: "gleichungen" } },
+      { name: "Gleichungssysteme", ziel: { ansicht: "lgs" } },
+    ] },
+];
+
+/* Goldener Plus-Knopf einer aufklappbaren Hauptkachel (dreht sich zum ×) */
+function PlusKnopf({ auf }) {
+  return (
+    <span aria-hidden="true" style={{ position: "absolute", right: 10, bottom: 10, width: 40, height: 40, borderRadius: 999,
+      background: C.flaggold, color: C.seeTief, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, fontWeight: 700,
+      lineHeight: 1, transform: auf ? "rotate(45deg)" : "none", transition: "transform .2s ease", boxShadow: "0 2px 10px rgba(0,0,0,0.3)" }}>+</span>
+  );
+}
+
+/* Grafik für die kleinen Trainer-Kacheln: großes goldenes Zeichen (z. B. 12², ¾) */
+function ZeichenLogo({ zeichen }) {
+  return (
+    <span style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center",
+      color: C.flaggold, fontWeight: 800, fontSize: zeichen.length > 4 ? "clamp(17px, 4.6vw, 24px)" : "clamp(24px, 6.5vw, 32px)", letterSpacing: "-0.01em" }}>
+      {zeichen}
+    </span>
+  );
+}
+
+/* Runder Pfeil unten rechts in der Grafik eines aufklappbaren Bereichs */
+function AufklappPfeil({ auf }) {
+  return (
+    <span aria-hidden="true" style={{ position: "absolute", right: 8, bottom: 8, width: 30, height: 30, borderRadius: 999,
+      background: C.flaggold, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
+      transform: auf ? "rotate(180deg)" : "none", transition: "transform .2s ease" }}>
+      <svg width="14" height="14" viewBox="0 0 14 14"><path d="M3 5l4 4 4-4" stroke={C.seeTief} strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
+    </span>
+  );
+}
+
+/* Dunkelsilberne Werkzeug-Knöpfe unter einem Bereich – gleiche Breite wie die Bereichs-Kachel */
+function UnterMenue({ eintraege, gehe }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 6, margin: "6px 0 10px" }}>
+      <style>{`.unter-knopf{transition:transform .12s ease, filter .12s ease}
+        .unter-knopf:active{transform:scale(0.985)}
+        @media (hover:hover){.unter-knopf:hover{filter:brightness(1.08)}}
+        @keyframes unterAuf{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}`}</style>
+      {eintraege.map((e, i) => (
+        <button key={e.name} className="unter-knopf" onClick={() => gehe(e.ziel)}
+          style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10,
+            padding: "12px 14px", border: "none", borderRadius: 12, cursor: "pointer", fontFamily: "inherit", textAlign: "left",
+            background: "linear-gradient(155deg, #8D97A6 0%, #6C7787 55%, #566170 100%)", color: C.weiss,
+            boxShadow: "0 3px 10px rgba(40,50,70,0.2), inset 0 0 0 1px rgba(255,255,255,0.28)",
+            fontSize: 14.5, fontWeight: 600, letterSpacing: "-0.01em",
+            animation: `unterAuf .18s ease ${i * 0.03}s both` }}>
+          <span>{e.name}</span>
+          <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4l4 4-4 4" stroke={C.flaggold} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export function Startseite({ gehe }) {
   const [wieder, setWieder] = useState(false);
   const [hinweis, setHinweis] = useState("");
   const [schulAuf, setSchulAuf] = useState(false);   // Dropdown „Schulmathematik“
+  const [bereichAuf, setBereichAuf] = useState(null);
+  const [kopfAuf, setKopfAuf] = useState(false);       // Dropdown „Kopfrechnen“ // aufgeklappter Unterbereich (analysis, vektoren, …)
 
   /* --- Motive --- */
 
@@ -696,28 +785,24 @@ export function Startseite({ gehe }) {
         </p>
       </section>
       <ElternabendKachel gesperrt onClick={() => gehe({ ansicht: "elternabend" })} />
-      <PlotterKachel onClick={() => setSchulAuf(!schulAuf)} label={schulAuf ? "Schulmathematik zuklappen" : "Schulmathematik aufklappen"}
+      <PlotterKachel onClick={() => { setSchulAuf(!schulAuf); setBereichAuf(null); }} label={schulAuf ? "Schulmathematik zuklappen" : "Schulmathematik aufklappen"}
         logo={<SchulmatheLogoKlein />} titel="Schulmathematik"
-        text="Analysis, Vektoren, Stochastik und Formeln – live zum Ausprobieren."
-        extra={
-          <span aria-hidden="true" style={{ position: "absolute", right: 10, bottom: 10, width: 40, height: 40, borderRadius: 999,
-            background: C.flaggold, color: C.seeTief, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, fontWeight: 700,
-            lineHeight: 1, transform: schulAuf ? "rotate(45deg)" : "none", transition: "transform .2s ease", boxShadow: "0 2px 10px rgba(0,0,0,0.3)" }}>+</span>
-        } />
+        text="Analysis, Vektoren, Stochastik und Gleichungen live erleben."
+        extra={<PlusKnopf auf={schulAuf} />} />
       {schulAuf && (
         <div style={{ margin: "4px 0 4px", padding: "2px 0 2px 12px", borderLeft: `3px solid ${C.flaggold}` }}>
-      <PlotterKachel klein onClick={() => gehe({ ansicht: "analysis" })} label="Analysis öffnen" logo={<PlotterLogoKlein />}
-        titel="Analysis"
-        text="Polynomplotter, Advanced Plotter, Ableitungstrainer – Graphen live." />
-      <PlotterKachel klein onClick={() => gehe({ ansicht: "vektoren" })} label="Vektoren öffnen" logo={<VektorenLogoKlein />}
-        titel="Vektoren"
-        text="Der Ebenen-Visualizer zeigt jede Ebene live im Raum – dazu der Videokurs." />
-      <PlotterKachel klein onClick={() => gehe({ ansicht: "stochastik" })} label="Stochastik öffnen" logo={<StochastikLogoKlein />}
-        titel="Stochastik"
-        text="Bernoulli-Kette und Vier-Felder-Tafel: den Zufall live laufen lassen." />
-      <PlotterKachel klein onClick={() => gehe({ ansicht: "formeln" })} label="Formelsammlung öffnen" logo={<FormelLogoKlein />}
-        titel="Formelsammlung"
-        text="Alle wichtigen Formeln der Oberstufe – sauber sortiert zum Nachschlagen." />
+          {SCHUL_BEREICHE.map((b) => (
+            <React.Fragment key={b.id}>
+              <PlotterKachel klein onClick={() => setBereichAuf(bereichAuf === b.id ? null : b.id)}
+                label={bereichAuf === b.id ? `${b.titel} zuklappen` : `${b.titel} aufklappen`}
+                logo={b.logo} titel={b.titel} text={b.text}
+                extra={<AufklappPfeil auf={bereichAuf === b.id} />} />
+              {bereichAuf === b.id && <UnterMenue eintraege={b.tools} gehe={gehe} />}
+            </React.Fragment>
+          ))}
+          <PlotterKachel klein onClick={() => gehe({ ansicht: "formeln" })} label="Formelsammlung öffnen" logo={<FormelLogoKlein />}
+            titel="Formelsammlung"
+            text="Alle wichtigen Formeln der Oberstufe – sauber sortiert zum Nachschlagen." />
         </div>
       )}
       <PlotterKachel onClick={() => gehe({ ansicht: "gleichungen" })} label="Gleichungslöser öffnen" logo={<GleichungenLogoKlein />}
@@ -726,9 +811,18 @@ export function Startseite({ gehe }) {
       <PlotterKachel onClick={() => gehe({ ansicht: "lgs" })} label="Gleichungssysteme öffnen" logo={<LGSLogoKlein />}
         titel="Gleichungssysteme"
         text="Kombiniere I, II und III, bis x, y und z dastehen – mit Musterlösung." />
-      <PlotterKachel onClick={() => gehe({ ansicht: "kopf" })} label="Kopfrechnen öffnen" logo={<KopfrechnenLogoKlein />}
+      <PlotterKachel onClick={() => setKopfAuf(!kopfAuf)} label={kopfAuf ? "Kopfrechnen zuklappen" : "Kopfrechnen aufklappen"} logo={<KopfrechnenLogoKlein />}
         titel="Kopfrechnen"
-        text="Primfaktoren, Quadratzahlen, Einmaleins – schnelle Runden auf Zeit." />
+        text="Primfaktoren, Quadratzahlen, Brüche, Einmaleins – auf Zeit."
+        extra={<PlusKnopf auf={kopfAuf} />} />
+      {kopfAuf && (
+        <div style={{ margin: "4px 0 4px", padding: "2px 0 2px 12px", borderLeft: `3px solid ${C.flaggold}` }}>
+          {KOPF_TRAINER.map((t) => (
+            <PlotterKachel key={t.id} klein onClick={() => gehe({ ansicht: "kopf", trainer: t.id })} label={`${t.titel} öffnen`}
+              logo={<ZeichenLogo zeichen={t.zeichen} />} titel={t.kurzTitel || t.titel} text={t.slogan} />
+          ))}
+        </div>
+      )}
       <MatheCheckenKachel gesperrt onClick={() => gehe({ ansicht: "mathecheck" })} />
       <MasterclassKachel gesperrt onClick={() => gehe({ ansicht: "masterclass" })} />
       <MathCreatorKachel />

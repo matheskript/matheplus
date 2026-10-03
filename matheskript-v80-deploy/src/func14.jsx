@@ -837,7 +837,7 @@ function Multiplizieren() {
 
 /* ---------- Übersicht ---------- */
 
-const TRAINER = [
+export const TRAINER = [
   { id: "primfaktoren", titel: "Primfaktorzerlegung", slogan: "Primzahlen erkennen und Zahlen zerlegen.", kurz: "Primzahl erkennen oder vollständig zerlegen — jeden Faktor einzeln.", zeichen: "2·3·7" },
   { id: "potenzen", titel: "Quadrat- und Kubikzahlen", kurzTitel: "Quadrate & Kuben", slogan: "Quadrat-, Kubikzahlen und Wurzeln blitzschnell abrufen.", kurz: "Quadrat- und Kubikzahlen sowie ihre Wurzeln blitzschnell abrufen.", zeichen: "12²" },
   { id: "bruchrechnen", titel: "Bruchrechnen", slogan: "Kürzen, Plus, Minus, Mal, Geteilt – mit Lösungsweg.", kurz: "Kürzen, Plus, Minus, Mal und Geteilt — mit Lösungsweg bei jedem Fehler.", zeichen: "¾" },
@@ -845,8 +845,8 @@ const TRAINER = [
   { id: "einmaleins", titel: "EinMalEins", slogan: "Klein und groß, auch rückwärts, auf Zeit.", kurz: "Kleines und großes Einmaleins, auch als Umkehraufgaben — auf Zeit.", zeichen: "7·8" },
 ];
 
-export function KopfrechenZentrum() {
-  const [offen, setOffen] = useState(null);
+export function KopfrechenZentrum({ start = null }) {
+  const [offen, setOffen] = useState(start);
   const t = offen ? TRAINER.find((x) => x.id === offen) : null;
 
   if (!t) {
