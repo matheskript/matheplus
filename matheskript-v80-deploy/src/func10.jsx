@@ -38,7 +38,10 @@ const ZEIGE_PROFIL = true;
 
 export function Mathilda() {
   const [ansicht, setAnsicht] = useState(() => {
-    try { return new URLSearchParams(window.location.search).has("konto") ? "konto" : "start"; } catch (e) { return "start"; }
+    try {
+      const q = new URLSearchParams(window.location.search);
+      return q.has("konto") ? "konto" : q.has("elternabend") ? "elternabend" : "start";
+    } catch (e) { return "start"; }
   });
   const konto = useKonto();
   useEffect(() => {
@@ -828,7 +831,7 @@ export function Mathilda() {
             </div>
             <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
           </div>
-          <ElternabendSeite />
+          <ElternabendSeite gehe={gehe} />
         </>
       ) : ansicht === "konto" ? (
         <>

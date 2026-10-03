@@ -181,3 +181,65 @@ create table if not exists public.vertragsmeldungen (
 );
 alter table public.vertragsmeldungen enable row level security;
 revoke all on public.vertragsmeldungen from anon, authenticated;
+
+
+-- ======================================================================
+-- Event-Buchungen (z. B. Elternabend). Plätze werden beim Start des
+-- Bezahlvorgangs 30 Minuten reserviert; nur der Server schreibt.
+-- ======================================================================
+create table if not exists public.eventbuchungen (
+  id              uuid primary key default gen_random_uuid(),
+  event           text not null,
+  name            text not null,
+  email           text not null,
+  plaetze         smallint not null check (plaetze between 1 and 4),
+  status          text not null default 'reserviert' check (status in ('reserviert', 'bezahlt', 'storniert', 'erstattet')),
+  laeuft_ab       timestamptz not null,
+  stripe_session  text,
+  stripe_zahlung  text,
+  erstellt        timestamptz not null default now()
+);
+create index if not exists eventbuchungen_event_idx on public.eventbuchungen (event, status);
+alter table public.eventbuchungen enable row level security;
+revoke all on public.eventbuchungen from anon, authenticated;
+
+-- Belegte Plätze: bezahlt + noch gültige Reservierungen.
+create or replace function public.event_belegt(ev text)
+returns integer
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select coalesce(sum(plaetze), 0)::int from eventbuchungen
+   where event = ev and (status = 'bezahlt' or (status = 'reserviert' and laeuft_ab > now()));
+$$;
+
+-- Atomar reservieren: gibt die neue Buchungs-ID zurück oder null, wenn es nicht mehr passt.
+create or replace function public.event_reservieren(ev text, anzahl int, maximum int, kunde_name text, kunde_email text, minuten int)
+returns uuid
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  neu uuid;
+begin
+  perform pg_advisory_xact_lock(hashtext(ev));
+  if public.event_belegt(ev) + anzahl > maximum then
+    return null;
+  end if;
+  insert into eventbuchungen (event, name, email, plaetze, laeuft_ab)
+  values (ev, kunde_name, kunde_email, anzahl, now() + make_interval(mins => minuten))
+  returning id into neu;
+  return neu;
+end;
+$$;
+
+revoke all on function public.event_belegt(text) from public, anon, authenticated;
+revoke all on function public.event_reservieren(text, int, int, text, text, int) from public, anon, authenticated;
+grant execute on function public.event_belegt(text) to service_role;
+grant execute on function public.event_reservieren(text, int, int, text, text, int) to service_role;
+grant all on public.eventbuchungen to service_role;
+grant all on public.berechtigungen to service_role;
+grant all on public.vertragsmeldungen to service_role;

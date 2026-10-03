@@ -3,6 +3,7 @@
    Im Stripe-Dashboard als Webhook-Endpunkt eintragen mit den Ereignissen:
      checkout.session.completed
      checkout.session.async_payment_succeeded
+     checkout.session.expired
      customer.subscription.updated
      customer.subscription.deleted
      charge.refunded
@@ -57,6 +58,14 @@ export default async function handler(req, res) {
     switch (ereignis.type) {
       case "checkout.session.completed":
       case "checkout.session.async_payment_succeeded": {
+        if (o.metadata?.art === "event") {   // Elternabend & Co.: Plätze bestätigen
+          if (o.payment_status === "paid") {
+            await admin().from("eventbuchungen")
+              .update({ status: "bezahlt", stripe_session: o.id, stripe_zahlung: o.payment_intent || null })
+              .eq("id", o.metadata.buchung);
+          }
+          break;
+        }
         const nutzer = o.metadata?.nutzer || o.client_reference_id;
         const produkt = o.metadata?.produkt;
         if (!nutzer || !produkt) break;
@@ -72,6 +81,13 @@ export default async function handler(req, res) {
         }
         break;
       }
+      case "checkout.session.expired": {
+        if (o.metadata?.art === "event") {   // Reservierung verfallen → Plätze wieder frei
+          await admin().from("eventbuchungen").update({ status: "storniert" })
+            .eq("id", o.metadata.buchung).eq("status", "reserviert");
+        }
+        break;
+      }
       case "customer.subscription.updated":
       case "customer.subscription.deleted": {
         const z = aboZeile(o);
@@ -83,6 +99,9 @@ export default async function handler(req, res) {
         if (o.refunded && o.payment_intent) {
           await admin().from("berechtigungen")
             .update({ status: "erstattet", aktualisiert: new Date().toISOString() })
+            .eq("stripe_zahlung", o.payment_intent);
+          await admin().from("eventbuchungen")
+            .update({ status: "erstattet" })
             .eq("stripe_zahlung", o.payment_intent);
         }
         break;

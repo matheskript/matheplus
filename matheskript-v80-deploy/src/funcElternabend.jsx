@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { C } from "./base1.jsx";
+import { DEMO, eventStand, eventBuchen } from "./konto.js";
 
 /* ======================================================================
    ELTERNABEND — Schwarz-Gold-Kachel für die Startseite und Infoseite.
@@ -16,6 +17,11 @@ export const ELTERNABEND = {
   strasse: "Thingoltstraße 9",
   plzOrt: "78465 Konstanz-Dingelsdorf",
   foto: "/elternabend/evelyns-cafe.jpg",
+  event: "elternabend_2026_11_01",                 // Schlüssel in api/_kasse.js (EVENTS) und Stripe-Lookup-Key
+  preis: 27,                                       // € je Platz, Endpreis
+  plaetze: 40,
+  maxProBuchung: 4,
+  inklusive: ["Zwei Getränke", "Ein Snack", "Kursunterlagen mit Stift, Heft und Block"],
   karte: "https://www.google.com/maps/search/?api=1&query=Evelyn%27s%20Caf%C3%A9%20Thingoltstra%C3%9Fe%209%2078465%20Konstanz",
 };
 
@@ -115,7 +121,7 @@ const kachelProps = (gesperrt, onClick, label, klasse) => (gesperrt
 export function ElternabendKachel({ onClick, gesperrt }) {
   const Tag = gesperrt ? "div" : "button";
   return (
-    <Tag {...kachelProps(gesperrt, onClick, "Nächster Elternabend", "ea-kachel")}
+    <Tag {...kachelProps(gesperrt, onClick, gesperrt ? "Nächster Elternabend" : `Nächster Elternabend am ${ELTERNABEND.datumKurz} – Platz sichern für ${ELTERNABEND.preis} €`, "ea-kachel")}
       style={{ userSelect: gesperrt ? "none" : undefined, display: "flex", width: "calc(100% + 32px)", marginLeft: -16, marginRight: -16, marginTop: 12, padding: 0, border: "none",
         borderRadius: 20, overflow: "hidden", cursor: gesperrt ? "not-allowed" : "pointer", fontFamily: "inherit", textAlign: "left", position: "relative",
         height: "calc(148px + 1.65 * clamp(15px, 4.1vw, 22px))", background: SILBER, color: NAVY,
@@ -142,7 +148,7 @@ export function ElternabendKachel({ onClick, gesperrt }) {
         </p>
         {gesperrt ? baldVerfuegbar(NAVY) : (
         <span style={{ marginTop: "auto", paddingTop: 4, fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
-          Mehr erfahren
+          Platz sichern · {ELTERNABEND.preis} €
           <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4l4 4-4 4" stroke={NAVY} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </span>
         )}
@@ -171,14 +177,14 @@ const THEMEN = [
 ];
 
 const ABLAUF = [
-  ["Ankommen", "Kaffee, Kuchen und erstes Kennenlernen"],
+  ["Ankommen", "Getränk, Snack und erstes Kennenlernen"],
   ["Vortrag", "Der Mythos Mathe – und wie es wirklich funktioniert"],
   ["Einblick", "Live gezeigt: Pen & Paper und die Mythos-Mathe-App"],
   ["Die Programme", "Mathe checken und Mathe Abi Masterclass"],
   ["Fragen & Gespräche", "Offene Runde und persönliche Gespräche"],
 ];
 
-export function ElternabendSeite() {
+export function ElternabendSeite({ gehe }) {
   const E = ELTERNABEND;
   return (
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
@@ -206,6 +212,9 @@ export function ElternabendSeite() {
         </div>
       </div>
 
+      <BuchungsRueckmeldung />
+      <Buchung gehe={gehe} kompakt />
+
       <div style={{ marginTop: 26 }}>
         <H2>Ein Abend für Eltern, die mehr wollen als Nachhilfe</H2>
         <Absatz>
@@ -214,7 +223,7 @@ export function ElternabendSeite() {
           Kinder mit System und Freude in Mathe wirklich stark werden.
         </Absatz>
         <Absatz>
-          In entspannter Atmosphäre bei Kaffee und Kuchen in Evelyn's Café erfahren Sie, wie Mathe lernen funktioniert, was Sie
+          In entspannter Atmosphäre bei einem Getränk und einem Snack in Evelyn's Café erfahren Sie, wie Mathe lernen funktioniert, was Sie
           zu Hause beitragen können und wie die Programme von Mythos Mathe aufgebaut sind. Und natürlich ist Zeit für all Ihre Fragen.
         </Absatz>
       </div>
@@ -276,9 +285,171 @@ export function ElternabendSeite() {
         <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.12em", color: GOLD }}>{E.datum.toUpperCase()}</p>
         <p style={{ fontSize: 22, fontWeight: 700, lineHeight: 1.3, margin: "8px 0 6px" }}>Wir freuen uns auf Sie.</p>
         <p style={{ fontSize: 14, color: "rgba(255,255,255,0.72)", fontWeight: 300, lineHeight: 1.6 }}>
-          Die Plätze im Café sind begrenzt. Alle Details zur Anmeldung folgen hier in Kürze.
+          Die Plätze im Café sind auf {E.plaetze} begrenzt – sichern Sie sich Ihren Platz.
         </p>
       </div>
+      <div id="platz-sichern" style={{ marginTop: 16 }}><Buchung gehe={gehe} /></div>
+    </div>
+  );
+}
+
+
+/* ---------- Buchung: 27 € je Platz, max. 40 Plätze, Bezahlung über Stripe ---------- */
+const euro = (n) => n.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
+
+function BuchungsRueckmeldung() {
+  const [info, setInfo] = useState(() => {
+    try {
+      const u = new URL(window.location.href);
+      const b = u.searchParams.get("buchung");
+      if (b) { u.searchParams.delete("buchung"); u.searchParams.delete("elternabend"); window.history.replaceState({}, "", u.pathname + u.search + u.hash); }
+      return b;
+    } catch (e) { return null; }
+  });
+  if (!info) return null;
+  const ok = info === "erfolg";
+  return (
+    <div style={{ marginTop: 16, borderRadius: 16, padding: "14px 42px 14px 16px", position: "relative",
+      background: ok ? "#EEF8F2" : C.weiss, border: `1px solid ${ok ? C.smaragd : C.linie}55` }}>
+      <p style={{ fontSize: 15, fontWeight: 700, color: ok ? C.smaragd : C.tinte, marginBottom: 2 }}>{ok ? "Ihr Platz ist gebucht." : "Die Bezahlung wurde abgebrochen."}</p>
+      <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.55 }}>{ok ? "Bestätigung und Rechnung kommen per E-Mail. Wir freuen uns auf Sie!" : "Es wurde nichts berechnet. Ihre Reservierung verfällt automatisch."}</p>
+      <button type="button" onClick={() => setInfo(null)} aria-label="Hinweis schließen"
+        style={{ position: "absolute", top: 8, right: 8, width: 30, height: 30, border: "none", background: "none", fontSize: 18, color: C.grau, cursor: "pointer" }}>×</button>
+    </div>
+  );
+}
+
+function Buchung({ gehe, kompakt }) {
+  const E = ELTERNABEND;
+  const [stand, setStand] = useState(null);
+  const [fehlerStand, setFehlerStand] = useState("");
+  const [n, setN] = useState(1);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [volljaehrig, setVolljaehrig] = useState(false);
+  const [sofort, setSofort] = useState(false);
+  const [laeuft, setLaeuft] = useState(false);
+  const [fehler, setFehler] = useState("");
+  const [demoFertig, setDemoFertig] = useState(false);
+
+  const laden = () => eventStand(E.event).then((s) => { setStand(s); setFehlerStand(""); }).catch((e) => setFehlerStand(e.message));
+  useEffect(() => {   // beide Anzeigen (oben und unten) aktuell halten
+    laden();
+    window.addEventListener("mm-plaetze", laden);
+    return () => window.removeEventListener("mm-plaetze", laden);
+  }, []);
+  const alleNeuLaden = () => window.dispatchEvent(new Event("mm-plaetze"));
+
+  const frei = stand ? stand.frei : null;
+  const maxWahl = Math.max(1, Math.min(E.maxProBuchung, frei ?? E.maxProBuchung));
+  const gueltig = name.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) && volljaehrig && n <= maxWahl;
+  const ausgebucht = stand && !stand.buchbar;
+
+  const buchen = async () => {
+    setFehler(""); setLaeuft(true);
+    try {
+      const r = await eventBuchen(E.event, { plaetze: n, name: name.trim(), email: email.trim(), volljaehrig, sofortBeginn: sofort });
+      if (r.demo) { setDemoFertig(true); setLaeuft(false); alleNeuLaden(); }
+    } catch (e) { setFehler(e.message); setLaeuft(false); alleNeuLaden(); }
+  };
+
+  const Zaehler = () => (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
+        <span style={{ fontSize: 13.5, color: "rgba(255,255,255,0.75)" }}>
+          {stand ? (ausgebucht ? "Ausgebucht" : <>Noch <b style={{ color: GOLD }}>{frei}</b> von {stand.gesamt} Plätzen frei</>) : fehlerStand || "Plätze werden geladen …"}
+        </span>
+        <span style={{ fontSize: 13.5, fontWeight: 700, ...goldText }}>{E.preis},00 € p. P.</span>
+      </div>
+      <div style={{ height: 5, borderRadius: 3, background: "rgba(255,255,255,0.14)" }}>
+        {stand && <div style={{ height: 5, borderRadius: 3, width: `${((stand.gesamt - frei) / stand.gesamt) * 100}%`, background: GOLD_VERLAUF, transition: "width .4s" }} />}
+      </div>
+    </div>
+  );
+
+  if (kompakt) {
+    return (
+      <div style={{ marginTop: 16, borderRadius: 20, padding: "16px 18px", background: SCHWARZ, color: C.weiss, boxShadow: "inset 0 0 0 1px rgba(237,187,0,0.35)" }}>
+        <Zaehler />
+        <button type="button" disabled={ausgebucht}
+          onClick={() => document.getElementById("platz-sichern")?.scrollIntoView({ behavior: "smooth", block: "start" })}
+          style={{ width: "100%", height: 50, marginTop: 14, borderRadius: 999, border: "none", fontFamily: "inherit", fontSize: 16, fontWeight: 800,
+            cursor: ausgebucht ? "not-allowed" : "pointer", color: "#0E0C08", background: ausgebucht ? "#8E97A6" : GOLD_VERLAUF }}>
+          {ausgebucht ? "Leider ausgebucht" : `Platz sichern · ${E.preis} €`}
+        </button>
+        <p style={{ fontSize: 12.5, color: "rgba(255,255,255,0.65)", textAlign: "center", marginTop: 8 }}>Inklusive {E.inklusive.join(", ").replace(/, ([^,]*)$/, " und $1")}.</p>
+      </div>
+    );
+  }
+
+  const feld = { width: "100%", height: 48, borderRadius: 12, border: "1.5px solid rgba(237,187,0,0.35)", padding: "0 14px", fontSize: 15.5,
+    fontFamily: "inherit", color: "#0E0C08", background: "rgba(255,255,255,0.96)", marginBottom: 12, outline: "none" };
+  const Haken = ({ an, setze, children, pflicht }) => (
+    <label style={{ display: "flex", gap: 12, alignItems: "flex-start", cursor: "pointer", marginBottom: 12 }}>
+      <input type="checkbox" checked={an} onChange={() => setze(!an)} style={{ width: 20, height: 20, marginTop: 2, flexShrink: 0, accentColor: GOLD, cursor: "pointer" }} />
+      <span style={{ fontSize: 13, lineHeight: 1.55, color: "rgba(255,255,255,0.85)" }}>{children}{pflicht && <span style={{ color: GOLD, fontWeight: 700 }}> *</span>}</span>
+    </label>
+  );
+  const Link = ({ ziel, children }) => (
+    <button type="button" onClick={() => gehe && gehe({ ansicht: ziel })} style={{ background: "none", border: "none", padding: 0, color: GOLD, textDecoration: "underline", fontFamily: "inherit", fontSize: "inherit", cursor: "pointer" }}>{children}</button>
+  );
+
+  return (
+    <div style={{ borderRadius: 22, padding: "22px 20px", background: SCHWARZ, color: C.weiss, boxShadow: "0 10px 30px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(237,187,0,0.35)" }}>
+      <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.12em", color: GOLD, marginBottom: 6 }}>PLATZ SICHERN</p>
+      <p style={{ fontSize: 22, fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 14 }}>{E.preis} € pro Person – alles inklusive</p>
+      {E.inklusive.map((t) => (
+        <div key={t} style={{ display: "flex", gap: 10, marginBottom: 7 }}>
+          <svg width="18" height="18" viewBox="0 0 20 20" style={{ flexShrink: 0, marginTop: 1 }} aria-hidden="true"><circle cx="10" cy="10" r="9" fill={GOLD} /><path d="M6 10.2l2.6 2.6L14.2 7" stroke="#0E0C08" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
+          <span style={{ fontSize: 14.5 }}>{t}</span>
+        </div>
+      ))}
+      <div style={{ height: 1, background: "rgba(237,187,0,0.3)", margin: "16px 0" }} />
+      <Zaehler />
+
+      {demoFertig ? (
+        <div style={{ marginTop: 18, borderRadius: 14, background: "rgba(255,255,255,0.08)", padding: 16, textAlign: "center" }}>
+          <p style={{ fontSize: 17, fontWeight: 700, color: GOLD, marginBottom: 4 }}>Gebucht ✓</p>
+          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.75)", lineHeight: 1.55 }}>Vorschau-Modus: Die Buchung wurde nur in diesem Browser simuliert, es wurde nichts bezahlt.</p>
+        </div>
+      ) : ausgebucht ? (
+        <p style={{ marginTop: 16, fontSize: 14.5, color: "rgba(255,255,255,0.8)", lineHeight: 1.6 }}>Dieser Abend ist leider ausgebucht. Schreiben Sie uns gern über das Impressum – wir melden uns, sobald es einen neuen Termin gibt.</p>
+      ) : (
+        <div style={{ marginTop: 18 }}>
+          <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 8, color: "rgba(255,255,255,0.85)" }}>Anzahl Plätze</p>
+          <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 16 }}>
+            {[["−", -1], ["+", 1]].map(([z, d], i) => {
+              const aus = d < 0 ? n <= 1 : n >= maxWahl;
+              const knopf = (
+                <button key={z} type="button" aria-label={d < 0 ? "Einen Platz weniger" : "Einen Platz mehr"} disabled={aus} onClick={() => setN(n + d)}
+                  style={{ width: 44, height: 44, borderRadius: 999, border: "1.5px solid rgba(237,187,0,0.5)", background: "transparent", color: aus ? "rgba(255,255,255,0.3)" : GOLD,
+                    fontSize: 22, fontWeight: 700, fontFamily: "inherit", cursor: aus ? "not-allowed" : "pointer" }}>{z}</button>
+              );
+              return i === 0 ? knopf : <React.Fragment key={z}><span style={{ fontSize: 24, fontWeight: 800, minWidth: 24, textAlign: "center" }}>{n}</span>{knopf}</React.Fragment>;
+            })}
+            <span style={{ marginLeft: "auto", fontSize: 18, fontWeight: 800, ...goldText }}>{euro(n * E.preis)}</span>
+          </div>
+          <input style={feld} placeholder="Ihr Name" value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" aria-label="Name" />
+          <input style={feld} type="email" placeholder="E-Mail für Bestätigung und Rechnung" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" aria-label="E-Mail" />
+          <div style={{ height: 4 }} />
+          <Haken an={volljaehrig} setze={setVolljaehrig} pflicht>
+            Ich bin volljährig und buche verbindlich. Es gelten die <Link ziel="agb">AGB</Link>; die <Link ziel="widerruf">Widerrufsbelehrung</Link> habe ich zur Kenntnis genommen.
+          </Haken>
+          <Haken an={sofort} setze={setSofort}>
+            Freiwillig: Ich verlange ausdrücklich, dass die Veranstaltung auch dann stattfindet, wenn sie vor Ablauf meiner 14-tägigen Widerrufsfrist liegt. Mir ist bekannt, dass mein Widerrufsrecht mit vollständiger Erbringung erlischt und ich bei einem Widerruf vorher anteiligen Wertersatz schulde.
+          </Haken>
+          {fehler && <p style={{ fontSize: 13.5, color: "#FF9DA8", marginBottom: 10, lineHeight: 1.5 }}>{fehler}</p>}
+          <button type="button" onClick={buchen} disabled={!gueltig || laeuft}
+            style={{ width: "100%", height: 54, borderRadius: 999, border: "none", fontFamily: "inherit", fontSize: 16, fontWeight: 800,
+              cursor: gueltig && !laeuft ? "pointer" : "not-allowed", color: "#0E0C08", background: gueltig ? GOLD_VERLAUF : "#8E97A6" }}>
+            {laeuft ? "Einen Moment …" : `Zahlungspflichtig buchen · ${euro(n * E.preis)}`}
+          </button>
+          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", textAlign: "center", lineHeight: 1.55, marginTop: 10 }}>
+            Weiter zur sicheren Bezahlung bei Stripe – mit <b>Kreditkarte</b> oder <b>PayPal</b>. Ihre Plätze sind währenddessen 30 Minuten reserviert.
+          </p>
+          {DEMO && <p style={{ fontSize: 12, color: "#6B5310", background: "#FDF8EA", borderRadius: 10, padding: "8px 12px", marginTop: 10, textAlign: "center" }}>Vorschau-Modus: Es wird nichts bezahlt, die Buchung wird nur simuliert.</p>}
+        </div>
+      )}
     </div>
   );
 }

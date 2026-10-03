@@ -31,6 +31,19 @@ export const PRODUKTE = {
   },
 };
 
+/* Veranstaltungen mit begrenzten Plätzen. Preis je Platz in Cent. */
+export const EVENTS = {
+  elternabend_2026_11_01: {
+    name: "Elternabend 1. November 2026 – Evelyn's Café",
+    beschreibung: "Inklusive zwei Getränke, ein Snack und Kursunterlagen mit Stift, Heft und Block.",
+    preis: 2700,
+    lookupKey: "elternabend_2026_11_01",
+    maxPlaetze: 40,
+    maxProBuchung: 4,
+    buchbarBis: "2026-11-01T12:00:00+01:00",
+  },
+};
+
 let _stripe = null;
 export function stripe() {
   if (!process.env.STRIPE_SECRET_KEY) throw new Error("STRIPE_SECRET_KEY fehlt in Vercel.");

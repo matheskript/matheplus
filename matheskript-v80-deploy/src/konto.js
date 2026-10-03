@@ -253,3 +253,29 @@ export async function vertragMelden(daten) {
   if (!res.ok) throw new Error(j.error?.message || `Das hat nicht geklappt (Fehler ${res.status}).`);
   return j;
 }
+
+/* ---------- Veranstaltungen (Elternabend): Plätze und Buchung, ohne Anmeldung ---------- */
+const DEMO_EVENT = "mm-demo-event";
+export async function eventStand(event) {
+  if (DEMO) {
+    const belegt = (lies(DEMO_EVENT) || {})[event] || 23;
+    return { frei: Math.max(0, 40 - belegt), gesamt: 40, buchbar: belegt < 40, offen: true, demo: true };
+  }
+  const res = await fetch(`/api/elternabend?event=${encodeURIComponent(event)}`, { cache: "no-store" });
+  const j = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(j.error?.message || "Die freien Plätze konnten nicht geladen werden.");
+  return j;
+}
+export async function eventBuchen(event, daten) {
+  if (DEMO) {
+    const alle = lies(DEMO_EVENT) || {};
+    alle[event] = (alle[event] || 23) + daten.plaetze;
+    schreib(DEMO_EVENT, alle);
+    return { demo: true };
+  }
+  const res = await fetch("/api/elternabend", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ event, ...daten }) });
+  const j = await res.json().catch(() => ({}));
+  if (!res.ok || !j.url) throw new Error(j.error?.message || `Das hat nicht geklappt (Fehler ${res.status}).`);
+  window.location.href = j.url;
+  return { weitergeleitet: true };
+}
