@@ -82,6 +82,17 @@ const ZUSATZ = {
   "Kl. 10–13 · 5 Videos": "Gr. 10–13 · 5 videos", "Kl. 11–13 · 5 Videos": "Gr. 11–13 · 5 videos",
   "Kl. 8–13 · 7 Videos · 100 €": "Gr. 8–13 · 7 videos · €100", "Kl. 11–13 · 5 Videos · 100 €": "Gr. 11–13 · 5 videos · €100",
   "EinMalEins": "Times tables",
+  "TICKET": "TICKET", "pro Person": "per person", "INKLUSIVE": "INCLUDED",
+  "Kursmaterialien: Block, Heft und Stift": "Course materials: notepad, exercise book and pen",
+  "Ticket buchen –": "Book ticket –", "Elternabend ·": "Parents' evening ·",
+  "Sonntag, 1. November 2026": "Sunday, November 1, 2026", "Sonntag, 1. November": "Sunday, November 1",
+  "Die Bestätigung kommt per E-Mail. Wir freuen uns auf dich am": "The confirmation arrives by email. We look forward to seeing you on",
+  "in Evelyn's Café.": "at Evelyn's Café.",
+  "Zwei Getränke": "Two drinks", "Ein Snack": "One snack", "Kreditkarte": "Credit card", "Jetzt buchen": "Book now", "Ticket buchen": "Book ticket",
+  "Sichere Zahlung über Stripe. Mehrere Tickets in einem Schritt möglich, die Bestätigung kommt per E-Mail.": "Secure payment via Stripe. You can book several tickets at once; the confirmation arrives by email.",
+  "Danke, dein Ticket ist gebucht!": "Thank you, your ticket is booked!",
+  "Die Plätze im Café sind begrenzt – sichern Sie sich Ihr Ticket.": "Seats in the café are limited – secure your ticket now.",
+  "Getränke, Snack und erstes Kennenlernen": "Drinks, a snack and getting to know each other",
 };
 
 /* Fachbegriffe in berechneten Texten (Kurvendiskussion usw.) */

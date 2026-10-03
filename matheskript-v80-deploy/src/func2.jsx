@@ -691,7 +691,7 @@ export function Startseite({ gehe }) {
           und schnelle Kopfrechenrunden. Such dir unten einen Bereich aus und leg los.
         </p>
       </section>
-      <ElternabendKachel gesperrt onClick={() => gehe({ ansicht: "elternabend" })} />
+      <ElternabendKachel onClick={() => gehe({ ansicht: "elternabend" })} />
       <PlotterKachel onClick={() => setSchulAuf(!schulAuf)} label={schulAuf ? "Schulmathematik zuklappen" : "Schulmathematik aufklappen"}
         logo={<SchulmatheLogoKlein />} titel="Schulmathematik"
         text="Analysis, Vektoren, Stochastik und Formeln – live zum Ausprobieren."

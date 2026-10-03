@@ -17,6 +17,11 @@ export const ELTERNABEND = {
   plzOrt: "78465 Konstanz-Dingelsdorf",
   foto: "/elternabend/evelyns-cafe.jpg",
   karte: "https://www.google.com/maps/search/?api=1&query=Evelyn%27s%20Caf%C3%A9%20Thingoltstra%C3%9Fe%209%2078465%20Konstanz",
+  preis: 27,                                       // Euro pro Ticket
+  inklusive: ["Kursmaterialien: Block, Heft und Stift", "Zwei Getränke", "Ein Snack"],
+  // Stripe-Zahlungslink (Karte + PayPal). Aktuell aus dem Stripe-Testmodus –
+  // für echte Zahlungen den Live-Link aus dem Stripe-Dashboard hier eintragen.
+  ticketLink: "https://book.stripe.com/test_dRm4gA6VGcsy5xS21vgbm00",
 };
 
 const SCHWARZ = "radial-gradient(130% 150% at 90% 10%, #2A2210 0%, #0E0C08 50%, #050404 100%)";
@@ -142,7 +147,8 @@ export function ElternabendKachel({ onClick, gesperrt }) {
         </p>
         {gesperrt ? baldVerfuegbar(NAVY) : (
         <span style={{ marginTop: "auto", paddingTop: 4, fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
-          Mehr erfahren
+          <span style={{ background: NAVY, color: "#fff", borderRadius: 999, padding: "2px 9px", fontSize: 12, whiteSpace: "nowrap" }}>{ELTERNABEND.preis} €</span>
+          <span style={{ whiteSpace: "nowrap" }}>Ticket buchen</span>
           <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4l4 4-4 4" stroke={NAVY} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </span>
         )}
@@ -152,6 +158,76 @@ export function ElternabendKachel({ onClick, gesperrt }) {
         {gesperrt && <SchlossPlakette farbe={NAVY} />}
       </div>
     </Tag>
+  );
+}
+
+/* ---------- Ticket ---------- */
+function PayPalMarke() {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", height: 26, padding: "0 10px", borderRadius: 7, background: "#fff",
+      fontSize: 13, fontWeight: 800, fontStyle: "italic", letterSpacing: "-0.01em", boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.08)" }}>
+      <span style={{ color: "#003087" }}>Pay</span><span style={{ color: "#009CDE" }}>Pal</span>
+    </span>
+  );
+}
+function KarteMarke() {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 6, height: 26, padding: "0 10px", borderRadius: 7, background: "#fff",
+      fontSize: 12.5, fontWeight: 700, color: "#1B2A4F", boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.08)" }}>
+      <svg width="20" height="14" viewBox="0 0 20 14" aria-hidden="true"><rect x="0.5" y="0.5" width="19" height="13" rx="2.5" fill="#1B2A4F" /><rect x="0.5" y="3.2" width="19" height="2.4" fill="#EDBB00" /><rect x="3" y="9" width="6" height="1.6" rx="0.8" fill="#fff" opacity="0.8" /></svg>
+      Kreditkarte
+    </span>
+  );
+}
+
+export function TicketKarte({ id }) {
+  const E = ELTERNABEND;
+  return (
+    <div id={id} style={{ marginTop: 22, borderRadius: 22, overflow: "hidden", background: SILBER, color: NAVY,
+      boxShadow: "0 8px 24px rgba(60,72,92,0.22), inset 0 0 0 1px rgba(255,255,255,0.8)" }}>
+      <div style={{ padding: "18px 18px 20px" }}>
+        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12 }}>
+          <span>
+            <span style={{ display: "block", fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", color: "#5E6878" }}>TICKET</span>
+            <span style={{ display: "block", fontSize: 19, fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1.2, marginTop: 3 }}>Elternabend · {E.datumKurz}</span>
+          </span>
+          <span style={{ textAlign: "right", flexShrink: 0 }}>
+            <span style={{ display: "block", fontSize: 34, fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1 }}>{E.preis} €</span>
+            <span style={{ display: "block", fontSize: 11.5, color: "#5E6878", marginTop: 3 }}>pro Person</span>
+          </span>
+        </div>
+        <div style={{ height: 1, background: "rgba(11,30,74,0.14)", margin: "14px 0 12px" }} />
+        <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", color: "#5E6878", marginBottom: 8 }}>INKLUSIVE</p>
+        {E.inklusive.map((t) => (
+          <div key={t} style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "4px 0" }}>
+            <svg width="18" height="18" viewBox="0 0 20 20" style={{ flexShrink: 0, marginTop: 1 }} aria-hidden="true"><circle cx="10" cy="10" r="9" fill={NAVY} /><path d="M6 10.2l2.6 2.6L14.2 7" stroke="#fff" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            <span style={{ fontSize: 14.5, fontWeight: 500, lineHeight: 1.45 }}>{t}</span>
+          </div>
+        ))}
+        <a href={E.ticketLink} rel="noopener"
+          style={{ marginTop: 16, display: "flex", alignItems: "center", justifyContent: "center", gap: 10, padding: "15px 18px", borderRadius: 14,
+            background: "linear-gradient(155deg, #13265A 0%, #0B1E4A 100%)", color: "#fff", fontSize: 16, fontWeight: 700, textDecoration: "none",
+            boxShadow: "0 6px 18px rgba(11,30,74,0.3)" }}>
+          Ticket buchen – {E.preis} €
+          <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4l4 4-4 4" stroke={GOLD} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
+        </a>
+        <div style={{ marginTop: 12, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, flexWrap: "wrap" }}>
+          <PayPalMarke /><KarteMarke />
+        </div>
+        <p style={{ marginTop: 10, fontSize: 12, color: "#5E6878", textAlign: "center", lineHeight: 1.5 }}>
+          Sichere Zahlung über Stripe. Mehrere Tickets in einem Schritt möglich, die Bestätigung kommt per E-Mail.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function DankeKarte() {
+  return (
+    <div role="status" style={{ marginBottom: 20, borderRadius: 18, padding: "16px 18px", background: "#E8F5EC", border: "1px solid #9FD3B0", color: "#14532D" }}>
+      <p style={{ fontSize: 17, fontWeight: 800 }}>Danke, dein Ticket ist gebucht!</p>
+      <p style={{ fontSize: 14, lineHeight: 1.55, marginTop: 4 }}>Die Bestätigung kommt per E-Mail. Wir freuen uns auf dich am {ELTERNABEND.datum} in Evelyn's Café.</p>
+    </div>
   );
 }
 
@@ -171,17 +247,18 @@ const THEMEN = [
 ];
 
 const ABLAUF = [
-  ["Ankommen", "Kaffee, Kuchen und erstes Kennenlernen"],
+  ["Ankommen", "Getränke, Snack und erstes Kennenlernen"],
   ["Vortrag", "Der Mythos Mathe – und wie es wirklich funktioniert"],
   ["Einblick", "Live gezeigt: Pen & Paper und die Mythos-Mathe-App"],
   ["Die Programme", "Mathe checken und Mathe Abi Masterclass"],
   ["Fragen & Gespräche", "Offene Runde und persönliche Gespräche"],
 ];
 
-export function ElternabendSeite() {
+export function ElternabendSeite({ gebucht }) {
   const E = ELTERNABEND;
   return (
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
+      {gebucht && <DankeKarte />}
       {/* Termin-Karte */}
       <div style={{ borderRadius: 22, overflow: "hidden", background: SCHWARZ, color: C.weiss, boxShadow: "0 10px 30px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(237,187,0,0.35)" }}>
         <div style={{ height: 200, position: "relative" }}>
@@ -206,6 +283,8 @@ export function ElternabendSeite() {
         </div>
       </div>
 
+      <TicketKarte />
+
       <div style={{ marginTop: 26 }}>
         <H2>Ein Abend für Eltern, die mehr wollen als Nachhilfe</H2>
         <Absatz>
@@ -214,7 +293,7 @@ export function ElternabendSeite() {
           Kinder mit System und Freude in Mathe wirklich stark werden.
         </Absatz>
         <Absatz>
-          In entspannter Atmosphäre bei Kaffee und Kuchen in Evelyn's Café erfahren Sie, wie Mathe lernen funktioniert, was Sie
+          In entspannter Atmosphäre bei Getränken und einem Snack in Evelyn's Café erfahren Sie, wie Mathe lernen funktioniert, was Sie
           zu Hause beitragen können und wie die Programme von Mythos Mathe aufgebaut sind. Und natürlich ist Zeit für all Ihre Fragen.
         </Absatz>
       </div>
@@ -276,8 +355,13 @@ export function ElternabendSeite() {
         <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.12em", color: GOLD }}>{E.datum.toUpperCase()}</p>
         <p style={{ fontSize: 22, fontWeight: 700, lineHeight: 1.3, margin: "8px 0 6px" }}>Wir freuen uns auf Sie.</p>
         <p style={{ fontSize: 14, color: "rgba(255,255,255,0.72)", fontWeight: 300, lineHeight: 1.6 }}>
-          Die Plätze im Café sind begrenzt. Alle Details zur Anmeldung folgen hier in Kürze.
+          Die Plätze im Café sind begrenzt – sichern Sie sich Ihr Ticket.
         </p>
+        <a href={E.ticketLink} rel="noopener"
+          style={{ marginTop: 16, display: "inline-flex", alignItems: "center", gap: 8, padding: "13px 22px", borderRadius: 999,
+            background: GOLD_VERLAUF, color: "#0E0C08", fontSize: 15.5, fontWeight: 800, textDecoration: "none" }}>
+          Ticket buchen – {E.preis} €
+        </a>
       </div>
     </div>
   );

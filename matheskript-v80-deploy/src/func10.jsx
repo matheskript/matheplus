@@ -36,14 +36,19 @@ const ZEIGE_PROFIL = true;
 
 export function Mathilda() {
   const [ansicht, setAnsicht] = useState(() => {
-    try { return new URLSearchParams(window.location.search).has("konto") ? "konto" : "start"; } catch (e) { return "start"; }
+    try {
+      const q = new URLSearchParams(window.location.search);
+      return q.has("konto") ? "konto" : q.get("ticket") === "danke" ? "elternabend" : "start";
+    } catch (e) { return "start"; }
   });
+  // Rückkehr von Stripe nach erfolgreicher Ticketbuchung
+  const [ticketGebucht] = useState(() => { try { return new URLSearchParams(window.location.search).get("ticket") === "danke"; } catch (e) { return false; } });
   const konto = useKonto();
   useEffect(() => {
     kontoStarten();
     try {
       const u = new URL(window.location.href);
-      if (u.searchParams.has("konto")) { u.searchParams.delete("konto"); window.history.replaceState({}, "", u.pathname + u.search + u.hash); }
+      if (u.searchParams.has("konto") || u.searchParams.has("ticket")) { u.searchParams.delete("konto"); u.searchParams.delete("ticket"); window.history.replaceState({}, "", u.pathname + u.search + u.hash); }
     } catch (e) { /* ignorieren */ }
     try {   // nach dem Sprachwechsel dieselbe Seite wieder öffnen
       const z = JSON.parse(sessionStorage.getItem("mm-nach-sprachwechsel") || "null");
@@ -803,7 +808,7 @@ export function Mathilda() {
             </div>
             <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
           </div>
-          <ElternabendSeite />
+          <ElternabendSeite gebucht={ticketGebucht} />
         </>
       ) : ansicht === "konto" ? (
         <>
