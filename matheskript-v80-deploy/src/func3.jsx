@@ -42,6 +42,26 @@ function PolyKopf({ koeff, zeileF, zeileF1, zeileF2, alleLeer }) {
         <span />
         {koeff.map((q) => {
           const farbe = KOEFF_FARBEN[q.k];
+          // Feste Auswahl statt Plus/Minus (x⁴-Glied): drei Knöpfe übereinander, aktiver gefüllt.
+          if (q.auswahl) {
+            return (
+              <div key={q.k} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, minWidth: 0 }}>
+                {q.auswahl.map((o) => {
+                  const aktiv = q.wert === o.wert;
+                  return (
+                    <button key={o.wert} type="button" aria-pressed={aktiv} aria-label={`x⁴-Glied: ${o.text}`}
+                      onClick={() => q.setzen(o.wert)}
+                      style={{ width: "min(44px, 100%)", height: 26, borderRadius: 7, border: `1.5px solid ${aktiv ? farbe : farbe + "66"}`,
+                        background: aktiv ? farbe : `${farbe}14`, color: aktiv ? C.weiss : farbe,
+                        fontSize: 13, fontWeight: 800, fontFamily: "inherit", cursor: "pointer", padding: 0, lineHeight: 1,
+                        display: "flex", alignItems: "center", justifyContent: "center", whiteSpace: "nowrap" }}>
+                      {o.text}
+                    </button>
+                  );
+                })}
+              </div>
+            );
+          }
           return (
             <div key={q.k} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, minWidth: 0 }}>
               <span style={{ fontSize: 13, fontWeight: 800, color: farbe }}>{q.k}</span>
@@ -61,7 +81,9 @@ function PolyKopf({ koeff, zeileF, zeileF1, zeileF2, alleLeer }) {
         {label("f(x) =")}
         {koeff.map((q, i) => (
           <span key={q.k} style={{ textAlign: "center", whiteSpace: "nowrap" }}>
-            {i > 0 && "+ "}<span style={{ color: KOEFF_FARBEN[q.k] }}>{q.k}</span>{q.pot > 0 && <>·x{POLY_HOCH[q.pot]}</>}
+            {i > 0 && "+ "}{q.auswahl
+              ? <span style={{ color: KOEFF_FARBEN[q.k] }}>±x{POLY_HOCH[q.pot]}</span>
+              : <><span style={{ color: KOEFF_FARBEN[q.k] }}>{q.k}</span>{q.pot > 0 && <>·x{POLY_HOCH[q.pot]}</>}</>}
           </span>
         ))}
       </div>
@@ -182,7 +204,8 @@ export function Plotter() {
 
       <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" }}>
         <PolyKopf koeff={[
-          { k: "e", wert: e, setzen: setE, min: -1, max: 1, pot: 4 },
+          { k: "e", wert: e, setzen: setE, pot: 4,
+            auswahl: [{ wert: 1, text: "+x⁴" }, { wert: -1, text: "−x⁴" }, { wert: 0, text: "0" }] },
           { k: "a", wert: a, setzen: setA, min: -3, max: 3, pot: 3 },
           { k: "b", wert: b, setzen: setB, min: -10, max: 10, pot: 2 },
           { k: "c", wert: c, setzen: setC, min: -10, max: 10, pot: 1 },
