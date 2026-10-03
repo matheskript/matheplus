@@ -42,23 +42,29 @@ function PolyKopf({ koeff, zeileF, zeileF1, zeileF2, alleLeer }) {
         <span />
         {koeff.map((q) => {
           const farbe = KOEFF_FARBEN[q.k];
-          // Feste Auswahl statt Plus/Minus (x⁴-Glied): drei Knöpfe übereinander, aktiver gefüllt.
+          // Feste Auswahl statt Plus/Minus (x⁴-Glied), im selben Spaltengerüst wie die Nachbarn:
+          // „0“ sitzt auf Höhe der Werte, „+x⁴“ auf Höhe der Plusse, „−x⁴“ auf Höhe der Minusse.
           if (q.auswahl) {
+            const knopf = (wert, hoehe) => {
+              const o = q.auswahl.find((x) => x.wert === wert);
+              const aktiv = q.wert === wert;
+              return (
+                <button type="button" aria-pressed={aktiv} aria-label={`x⁴-Glied: ${o.text}`}
+                  onClick={() => q.setzen(wert)}
+                  style={{ width: "min(44px, 100%)", height: hoehe, borderRadius: 7, border: `1.5px solid ${aktiv ? farbe : farbe + "66"}`,
+                    background: aktiv ? farbe : `${farbe}14`, color: aktiv ? C.weiss : farbe,
+                    fontSize: 13, fontWeight: 800, fontFamily: "inherit", cursor: "pointer", padding: 0, lineHeight: 1,
+                    display: "flex", alignItems: "center", justifyContent: "center", whiteSpace: "nowrap" }}>
+                  {o.text}
+                </button>
+              );
+            };
             return (
-              <div key={q.k} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, minWidth: 0 }}>
-                {q.auswahl.map((o) => {
-                  const aktiv = q.wert === o.wert;
-                  return (
-                    <button key={o.wert} type="button" aria-pressed={aktiv} aria-label={`x⁴-Glied: ${o.text}`}
-                      onClick={() => q.setzen(o.wert)}
-                      style={{ width: "min(44px, 100%)", height: 26, borderRadius: 7, border: `1.5px solid ${aktiv ? farbe : farbe + "66"}`,
-                        background: aktiv ? farbe : `${farbe}14`, color: aktiv ? C.weiss : farbe,
-                        fontSize: 13, fontWeight: 800, fontFamily: "inherit", cursor: "pointer", padding: 0, lineHeight: 1,
-                        display: "flex", alignItems: "center", justifyContent: "center", whiteSpace: "nowrap" }}>
-                      {o.text}
-                    </button>
-                  );
-                })}
+              <div key={q.k} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, minWidth: 0 }}>
+                <span aria-hidden="true" style={{ fontSize: 13, fontWeight: 800, visibility: "hidden" }}>{q.k}</span>
+                <span style={{ display: "flex", justifyContent: "center", width: "100%", minHeight: 20 }}>{knopf(0, 20)}</span>
+                {knopf(1, 24)}
+                {knopf(-1, 24)}
               </div>
             );
           }
