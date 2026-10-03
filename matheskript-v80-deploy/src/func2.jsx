@@ -15,7 +15,6 @@ import { KopfrechnenLogoKlein, TRAINER as KOPF_TRAINER } from "./func14.jsx";
 import { VektorenLogoKlein } from "./func16.jsx";
 import { StochastikLogoKlein } from "./func17.jsx";
 import { GleichungenLogoKlein } from "./funcGleichungen.jsx";
-import { LGSLogoKlein } from "./funcLGS.jsx";
 import { MasterclassKachel, MatheCheckenKachel, MathCreatorKachel } from "./funcMasterclass.jsx";
 import { ElternabendKachel } from "./funcElternabend.jsx";
 
@@ -376,7 +375,8 @@ export function Startseite({ gehe }) {
   const [hinweis, setHinweis] = useState("");
   const [schulAuf, setSchulAuf] = useState(false);   // Dropdown „Schulmathematik“
   const [bereichAuf, setBereichAuf] = useState(null);
-  const [kopfAuf, setKopfAuf] = useState(false);       // Dropdown „Kopfrechnen“ // aufgeklappter Unterbereich (analysis, vektoren, …)
+  const [kopfAuf, setKopfAuf] = useState(false);
+  const [matheAuf, setMatheAuf] = useState(false);       // Dropdown „Mathematik“       // Dropdown „Kopfrechnen“ // aufgeklappter Unterbereich (analysis, vektoren, …)
 
   /* --- Motive --- */
 
@@ -785,8 +785,8 @@ export function Startseite({ gehe }) {
         </p>
       </section>
       <ElternabendKachel gesperrt onClick={() => gehe({ ansicht: "elternabend" })} />
-      <PlotterKachel onClick={() => { setSchulAuf(!schulAuf); setBereichAuf(null); }} label={schulAuf ? "Schulmathematik zuklappen" : "Schulmathematik aufklappen"}
-        logo={<SchulmatheLogoKlein />} titel="Schulmathematik"
+      <PlotterKachel onClick={() => { setSchulAuf(!schulAuf); setBereichAuf(null); }} label={schulAuf ? "Mathe-Training zuklappen" : "Mathe-Training aufklappen"}
+        logo={<SchulmatheLogoKlein />} titel="Mathe-Training"
         text="Analysis, Vektoren, Stochastik und Gleichungen live erleben."
         extra={<PlusKnopf auf={schulAuf} />} />
       {schulAuf && (
@@ -800,17 +800,25 @@ export function Startseite({ gehe }) {
               {bereichAuf === b.id && <UnterMenue eintraege={b.tools} gehe={gehe} />}
             </React.Fragment>
           ))}
+        </div>
+      )}
+      <PlotterKachel onClick={() => setMatheAuf(!matheAuf)} label={matheAuf ? "Mathematik zuklappen" : "Mathematik aufklappen"}
+        logo={<FormelLogoKlein />} titel="Mathematik"
+        text="Formelsammlung, Definitionen und Sätze – zum Nachschlagen."
+        extra={<PlusKnopf auf={matheAuf} />} />
+      {matheAuf && (
+        <div style={{ margin: "4px 0 4px", padding: "2px 0 2px 12px", borderLeft: `3px solid ${C.flaggold}` }}>
           <PlotterKachel klein onClick={() => gehe({ ansicht: "formeln" })} label="Formelsammlung öffnen" logo={<FormelLogoKlein />}
             titel="Formelsammlung"
             text="Alle wichtigen Formeln der Oberstufe – sauber sortiert zum Nachschlagen." />
+          <PlotterKachel klein gesperrt logo={<ZeichenLogo zeichen="≔" />}
+            titel="Definitionen"
+            text="Alle wichtigen Begriffe der Oberstufe – präzise definiert." />
+          <PlotterKachel klein gesperrt logo={<ZeichenLogo zeichen="∴" />}
+            titel="Sätze"
+            text="Die zentralen Sätze der Oberstufe – klar formuliert." />
         </div>
       )}
-      <PlotterKachel onClick={() => gehe({ ansicht: "gleichungen" })} label="Gleichungslöser öffnen" logo={<GleichungenLogoKlein />}
-        titel="Gleichungslöser"
-        text="Du tippst die Umformung, die App rechnet sie auf beiden Seiten aus." />
-      <PlotterKachel onClick={() => gehe({ ansicht: "lgs" })} label="Gleichungssysteme öffnen" logo={<LGSLogoKlein />}
-        titel="Gleichungssysteme"
-        text="Kombiniere I, II und III, bis x, y und z dastehen – mit Musterlösung." />
       <PlotterKachel onClick={() => setKopfAuf(!kopfAuf)} label={kopfAuf ? "Kopfrechnen zuklappen" : "Kopfrechnen aufklappen"} logo={<KopfrechnenLogoKlein />}
         titel="Kopfrechnen"
         text="Primfaktoren, Quadratzahlen, Brüche, Einmaleins – auf Zeit."
