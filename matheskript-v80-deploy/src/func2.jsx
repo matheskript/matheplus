@@ -300,6 +300,8 @@ function PlotterLogo() {
 }
 
 const ZEIGE_WETTBEWERBE = true;
+/* Gesperrte Kurse/Angebote (Schloss) vorerst nicht auf der Startseite zeigen. Auf true setzen, um sie wieder einzublenden. */
+const ZEIGE_GESPERRTE = false;
 
 /* Schulmathematik → Bereiche → Werkzeuge (zweistufiges Aufklappmenü) */
 const SCHUL_BEREICHE = [
@@ -1022,7 +1024,7 @@ export function Startseite({ gehe }) {
                     logo={b.logo} titel={b.titel} text={b.text}
                     extra={<AufklappPfeil auf={bereichAuf === b.id} />} />
                   {bereichAuf === b.id && <UnterMenue eintraege={b.tools} gehe={gehe} />}
-                  {bereichAuf === b.id && b.video && <VideokursGesperrt name={b.video.name} zeile={b.video.zeile} />}
+                  {ZEIGE_GESPERRTE && bereichAuf === b.id && b.video && <VideokursGesperrt name={b.video.name} zeile={b.video.zeile} />}
                 </React.Fragment>
               ))}
               <MeinTrainingZeile gehe={gehe} />
@@ -1040,12 +1042,14 @@ export function Startseite({ gehe }) {
                 text="Alle wichtigen Formeln der Oberstufe – sauber sortiert zum Nachschlagen."
                 extra={<AufklappPfeil auf={formelAuf} />} />
               {formelAuf && <UnterMenue eintraege={FORMEL_MENUE} gehe={gehe} />}
+              {ZEIGE_GESPERRTE && (<>
               <PlotterKachel halb gesperrt logo={<ZeichenLogo zeichen="≔" />}
                 titel="Definitionen"
                 text="Alle wichtigen Begriffe der Oberstufe – präzise definiert." />
               <PlotterKachel halb gesperrt logo={<ZeichenLogo zeichen="∴" />}
                 titel="Sätze"
                 text="Die zentralen Sätze der Oberstufe – klar formuliert." />
+              </>)}
             </div>
           )}
 
@@ -1079,10 +1083,12 @@ export function Startseite({ gehe }) {
           </>)}
         </div>
       )}
+      {ZEIGE_GESPERRTE && (<>
       <MatheCheckenKachel gesperrt onClick={() => gehe({ ansicht: "mathecheck" })} />
       <MasterclassKachel gesperrt onClick={() => gehe({ ansicht: "masterclass" })} />
       <MathCreatorKachel />
       <ElternabendKachel gesperrt onClick={() => gehe({ ansicht: "elternabend" })} />
+      </>)}
       <PlotterKachel gesperrt portraet={<MathildaPortraet />} onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })} label="Frag Mathilda AI öffnen" logo={<MathildaLogoKlein />}
         titel="Frag Mathilda AI"
         text="Foto vom Blatt – Mathilda prüft deinen Weg." />
