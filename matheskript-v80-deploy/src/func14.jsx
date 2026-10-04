@@ -12,6 +12,7 @@ import { C } from "./base1.jsx";
 import { englisch } from "./i18n.js";
 import { GesperrteKurse } from "./func1.jsx";
 import { Primfaktoren, merken } from "./func5.jsx";
+import { SchriftlichPlusMinus, SchriftlicheDivision } from "./funcSchriftlich.jsx";
 
 const zufall = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
 const HOCH = { 2: "²", 3: "³" };
@@ -818,6 +819,8 @@ export const TRAINER = [
   { id: "potenzen", titel: "Quadrat- und Kubikzahlen", kurzTitel: "Quadrate & Kuben", slogan: "Quadrat-, Kubikzahlen und Wurzeln blitzschnell abrufen.", kurz: "Quadrat- und Kubikzahlen sowie ihre Wurzeln blitzschnell abrufen.", zeichen: "12²" },
   { id: "bruchrechnen", titel: "Bruchrechnen", slogan: "Kürzen, Plus, Minus, Mal, Geteilt – mit Lösungsweg.", kurz: "Kürzen, Plus, Minus, Mal und Geteilt — mit Lösungsweg bei jedem Fehler.", zeichen: "¾" },
   { id: "multiplizieren", titel: "Multiplizieren", slogan: "Vom kleinen Einmaleins bis zu vierstelligen Zahlen.", kurz: "Vom kleinen Einmaleins bis zu vierstelligen Zahlen — auch als Umkehraufgaben, auf Zeit.", zeichen: "7·8" },
+  { id: "plusminus", titel: "Schriftlich Plus & Minus", kurzTitel: "Plus & Minus", slogan: "Untereinander rechnen wie im Heft – mit Übertrag.", kurz: "Schriftliche Addition und Subtraktion auf Kästchenpapier – von rechts nach links, mit Übertrag.", zeichen: "+ −" },
+  { id: "division", titel: "Schriftliche Division", kurzTitel: "Schriftlich teilen", slogan: "Schritt für Schritt teilen – mit oder ohne Rest.", kurz: "Schriftlich dividieren wie im Heft – Stellenzahl wählbar, mit oder ohne Rest, mit Rechenweg.", zeichen: "÷" },
 ];
 
 /* Verspielte Farben je Trainer */
@@ -827,6 +830,8 @@ const KACHEL_TEXT = {
   potenzen: ["Quadrate & Kuben", "Potenzen und Wurzeln."],
   bruchrechnen: ["Bruchrechnen", "Kürzen, plus, minus, mal, geteilt."],
   multiplizieren: ["Multiplizieren", "Vom 1×1 bis vierstellig."],
+  plusminus: ["Plus & Minus", "Schriftlich untereinander."],
+  division: ["Schriftlich teilen", "Mit und ohne Rest."],
 };
 
 const KOPF_LOOK = {
@@ -834,6 +839,8 @@ const KOPF_LOOK = {
   potenzen: { bg: "linear-gradient(150deg, #B79CFF 0%, #6D28D9 100%)", schatten: "rgba(109,40,217,0.32)", akzent: "#5B21B6", text: "#FFFFFF", r: 6 },
   bruchrechnen: { bg: "linear-gradient(150deg, #4FE0CB 0%, #0F8A7E 100%)", schatten: "rgba(15,138,126,0.32)", akzent: "#0B6A61", text: "#FFFFFF", r: -5 },
   multiplizieren: { bg: "linear-gradient(150deg, #FFE070 0%, #F59E0B 100%)", schatten: "rgba(245,158,11,0.35)", akzent: "#A15C00", text: "#3A2200", r: 8 },
+  plusminus: { bg: "linear-gradient(150deg, #7CC8FF 0%, #1D6FD6 100%)", schatten: "rgba(29,111,214,0.32)", akzent: "#14529E", text: "#FFFFFF", r: -6 },
+  division: { bg: "linear-gradient(150deg, #FF9CC9 0%, #D6336C 100%)", schatten: "rgba(214,51,108,0.32)", akzent: "#9E1F4D", text: "#FFFFFF", r: 7 },
 };
 
 /* Kompakte, bunte Trainer-Kacheln im 2er-Raster — für die Startseite und die Kopfrechen-Übersicht */
@@ -884,7 +891,7 @@ export function KopfrechenZentrum({ start = null }) {
           Zahlen, die einfach sitzen
         </h2>
         <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 22 }}>
-          Vier Trainer für das Kopfrechnen. Wer Zahlen sofort abrufen kann, kürzt schneller, sieht Teiler auf einen
+          Sechs Trainer für das Kopfrechnen und schriftliche Rechnen. Wer Zahlen sofort abrufen kann, kürzt schneller, sieht Teiler auf einen
           Blick und hat beim Rechnen den Kopf für das Eigentliche frei.
         </p>
         <KopfKacheln onWaehle={(id) => { setOffen(id); window.scrollTo(0, 0); }} />
@@ -899,7 +906,8 @@ export function KopfrechenZentrum({ start = null }) {
         ← Kopfrechnen
       </button>
       <h2 style={{ fontSize: 25, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 14 }}>{t.titel}</h2>
-      {t.id === "primfaktoren" ? <Primfaktoren /> : t.id === "potenzen" ? <QuadratKubik /> : t.id === "bruchrechnen" ? <Bruchrechnen /> : <Multiplizieren />}
+      {t.id === "primfaktoren" ? <Primfaktoren /> : t.id === "potenzen" ? <QuadratKubik /> : t.id === "bruchrechnen" ? <Bruchrechnen />
+        : t.id === "plusminus" ? <SchriftlichPlusMinus Zahlenfeld={Zahlenfeld} /> : t.id === "division" ? <SchriftlicheDivision Zahlenfeld={Zahlenfeld} /> : <Multiplizieren />}
     </div>
   );
 }
