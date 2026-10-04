@@ -298,6 +298,8 @@ function PlotterLogo() {
   );
 }
 
+const ZEIGE_WETTBEWERBE = false;
+
 /* Schulmathematik → Bereiche → Werkzeuge (zweistufiges Aufklappmenü) */
 const SCHUL_BEREICHE = [
   { id: "analysis", titel: "Analysis", text: "Kurvendiskussion, Steckbriefe, Sinus und Ableitungen – live.", logo: <PlotterLogoKlein />,
@@ -1043,6 +1045,8 @@ export function Startseite({ gehe }) {
           </div>
         </div>
       )}
+      {/* Mathe-Wettbewerbe vorübergehend ausgeblendet – zum Einblenden ZEIGE_WETTBEWERBE auf true setzen */}
+      {ZEIGE_WETTBEWERBE && (<>
       <PlotterKachel onClick={() => setWettAuf(!wettAuf)} auf={wettAuf} label={wettAuf ? "Mathe-Wettbewerbe zuklappen" : "Mathe-Wettbewerbe aufklappen"}
         logo={<MedaillenschrankLogo />} titel="Mathe-Wettbewerbe"
         text="Bundeswettbewerb Mathematik und Landeswettbewerbe."
@@ -1057,6 +1061,7 @@ export function Startseite({ gehe }) {
             text="Deutschlandkarte: Tippe auf dein Bundesland." />
         </div>
       )}
+      </>)}
       <MatheCheckenKachel gesperrt onClick={() => gehe({ ansicht: "mathecheck" })} />
       <MasterclassKachel gesperrt onClick={() => gehe({ ansicht: "masterclass" })} />
       <MathCreatorKachel />
