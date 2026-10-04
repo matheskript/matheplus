@@ -20,6 +20,7 @@ import { VektorGenerator } from "./func20.jsx";
 import { Integrale } from "./func25.jsx";
 import { Abstaende } from "./func24.jsx";
 import { Optimierungswerkstatt } from "./funcOptimierung.jsx";
+import { ErwartungswertSpiele } from "./funcErwartung.jsx";
 import { TermeUndPotenzgesetze } from "./funcTerme.jsx";
 import { GeradenImRaum, WinkelSkalarprodukt } from "./funcGeraden.jsx";
 import { DreiPunkteEbene, ZweiPunkteGerade } from "./func23.jsx";
@@ -234,7 +235,7 @@ export function Mathilda() {
       { ansicht: "kreuzprodukt", name: "Kreuzprodukt", kurz: "Kreuz" }, { ansicht: "vektorgenerator", name: "Rechnen mit Vektoren", kurz: "Rechnen" },
       { ansicht: "zweipunkte", name: "Zwei Punkte – eine Gerade", kurz: "2 Punkte" }, { ansicht: "dreipunkte", name: "Drei Punkte – eine Ebene", kurz: "3 Punkte" }, { ansicht: "abstaende", name: "Abstände", kurz: "Abstände" },
       { ansicht: "geraden", name: "Geraden im Raum", kurz: "Geraden" }, { ansicht: "winkel", name: "Winkel und Skalarprodukt", kurz: "Winkel" }],
-    [{ ansicht: "stochastik", name: "Übersicht", versteckt: true }, { ansicht: "bernoulli", name: "Bernoulli-Kette", kurz: "Bernoulli" }, { ansicht: "vierfelder", name: "Vier-Felder-Tafel", kurz: "Vierfelder" }],
+    [{ ansicht: "stochastik", name: "Übersicht", versteckt: true }, { ansicht: "bernoulli", name: "Bernoulli-Kette", kurz: "Bernoulli" }, { ansicht: "vierfelder", name: "Vier-Felder-Tafel", kurz: "Vierfelder" }, { ansicht: "erwartungswert", name: "Erwartungswert und faire Spiele", kurz: "Erwartungswert" }],
   ];
   const SektionsMenue = () => {
     const sektion = SEKTIONEN.find((liste) => liste.some((x) => x.ansicht === ansicht));
@@ -793,6 +794,18 @@ export function Mathilda() {
             <Welle fill={C.sand} />
           </div>
           <Vierfeldertafel />
+        </>
+      ) : ansicht === "erwartungswert" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
+            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(24px, 7vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Erwartungswert und faire Spiele</h1>
+              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <SektionsMenue />
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <ErwartungswertSpiele />
         </>
       ) : ansicht === "stochastik" ? (
         <>

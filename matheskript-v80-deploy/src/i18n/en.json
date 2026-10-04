@@ -5144,7 +5144,10 @@
   "Definitionen und Vorwissen": "Definitions and prior knowledge",
   "Bernoulli-Kette, Formel und ein Beispiel": "Bernoulli process, formula and an example",
   "Trainer für das Kopfrechnen und schriftliche Rechnen. Wer Zahlen sofort abrufen kann, kürzt schneller, sieht Teiler auf einen Blick und hat beim Rechnen den Kopf für das Eigentliche frei.": "Trainers for mental math and written calculation. If you can recall numbers instantly, you simplify faster, spot divisors at a glance and keep your head free for the actual problem.",
-  "leer": "empty"
+  "leer": "empty",
+  "Erwartungswert und faire Spiele": "Expected value and fair games",
+  "Gewinnverteilung, fairer Einsatz, Simulation": "Payout distribution, fair stake, simulation",
+  "Nettogewinn, Erwartungswert, fairer Einsatz – mit Simulation.": "Net gain, expected value, fair stake – with simulation."
  },
  "muster": [
   [

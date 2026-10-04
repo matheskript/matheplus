@@ -52,14 +52,14 @@ function bernoulliHilfe(n, pT, k, modus) {
 
 /* ---------- Mathematik ---------- */
 
-function binomKoeff(n, k) {
+export function binomKoeff(n, k) {
   if (k < 0 || k > n) return 0;
   k = Math.min(k, n - k);
   let r = 1;
   for (let i = 1; i <= k; i++) r = (r * (n - k + i)) / i;
   return Math.round(r);
 }
-const bin = (n, p, k) => binomKoeff(n, k) * Math.pow(p, k) * Math.pow(1 - p, n - k);
+export const bin = (n, p, k) => binomKoeff(n, k) * Math.pow(p, k) * Math.pow(1 - p, n - k);
 const prozent = (v) => `${(v * 100).toFixed(2).replace(".", ",")} %`;
 const dez = (v, st = 4) => v.toFixed(st).replace(".", ",");
 
@@ -592,6 +592,7 @@ export function BernoulliBingo() {
 const STOCHASTIK = [
   { ziel: { ansicht: "bernoulli" }, titel: "Bernoulli-Kette", slogan: "Binomialverteilung live sehen und simulieren.", kurz: "Bernoulli-Kette einstellen, Binomialverteilung live sehen und das Experiment simulieren.", zeichen: "B" },
   { ziel: { ansicht: "vierfelder" }, titel: "Vier-Felder-Tafel", slogan: "Absolut oder in Prozent – mit Baum und bedingter WKT.", kurz: "Absolute Häufigkeiten oder Wahrscheinlichkeiten, die sich zu 100 % ergänzen – mit Baumdiagramm und bedingter Wahrscheinlichkeit.", zeichen: "▦" },
+  { ziel: { ansicht: "erwartungswert" }, titel: "Erwartungswert und faire Spiele", kurzTitel: "Erwartungswert", slogan: "Nettogewinn, Erwartungswert, fairer Einsatz – mit Simulation.", zeichen: "E(X)" },
   { ziel: { ansicht: "kurse", kurs: "stochastik" }, titel: "Videokurs Stochastik", slogan: "Fünf Lektionen vom Baum bis zum Hypothesentest.", kurz: "Fünf Lektionen vom Baumdiagramm bis zum Hypothesentest – mit Merksätzen und Kurz-Checks.", zeichen: "▶" },
 ];
 
