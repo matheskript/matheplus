@@ -20,6 +20,7 @@ import { VektorGenerator } from "./func20.jsx";
 import { Integrale } from "./func25.jsx";
 import { Abstaende } from "./func24.jsx";
 import { Optimierungswerkstatt } from "./funcOptimierung.jsx";
+import { TrainingSeite, TrainingFortschritt } from "./funcTraining.jsx";
 import { Funktionsscharen } from "./funcScharen.jsx";
 import { WachstumLogarithmen } from "./funcWachstum.jsx";
 import { Hypothesentests } from "./funcHypothesentest.jsx";
@@ -640,6 +641,55 @@ export function Mathilda() {
             <Welle fill={C.sand} />
           </div>
           <Fortschritt />
+          <TrainingFortschritt gehe={gehe} />
+        </>
+      ) : ansicht === "warmup" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
+            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(24px, 7vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>5 Minuten Mathe</h1>
+              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>Kurz üben, ohne Druck.</p>
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <TrainingSeite modus="warmup" gehe={gehe} />
+        </>
+      ) : ansicht === "fehlertraining" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
+            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(24px, 7vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Meine Fehler üben</h1>
+              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>Nicht wie viele Fehler – welche.</p>
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <TrainingSeite modus="fehlertraining" gehe={gehe} />
+        </>
+      ) : ansicht === "pruefung" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
+            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(24px, 7vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Prüfungsmodus</h1>
+              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>Wie in der Klausur: ohne Hilfen, mit Punkten.</p>
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <TrainingSeite modus="pruefung" gehe={gehe} />
+        </>
+      ) : ansicht === "klausurnach" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
+            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(24px, 7vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Klausur nachbereiten</h1>
+              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>Aus verlorenen Punkten einen Plan machen.</p>
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <TrainingSeite modus="klausurnach" gehe={gehe} />
         </>
       ) : ansicht === "kopf" ? (
         <>

@@ -12,6 +12,7 @@ import { EskalationsKarte, Wochenbericht, eskalationSignale, serieBerechnen, zei
 import { TerminHinweis } from "./func9.jsx";
 import { Mathilda } from "./func10.jsx";
 import { KopfKacheln, KopfrechnenLogoKlein } from "./func14.jsx";
+import { MeinTrainingZeile } from "./funcTraining.jsx";
 import { AppAnleitung } from "./funcAnleitung.jsx";
 import { VektorenLogoKlein } from "./func16.jsx";
 import { StochastikLogoKlein } from "./func17.jsx";
@@ -945,6 +946,7 @@ export function Startseite({ gehe }) {
           ))}
         </div>
       )}
+      <MeinTrainingZeile gehe={gehe} />
       <PlotterKachel onClick={() => setMatheAuf(!matheAuf)} label={matheAuf ? "Mathematik zuklappen" : "Mathematik aufklappen"}
         logo={<FormelLogoKlein />} titel="Mathematik"
         text="Formelsammlung, Definitionen und Sätze – zum Nachschlagen."

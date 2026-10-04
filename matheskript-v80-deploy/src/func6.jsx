@@ -305,7 +305,7 @@ export function lernBenachrichtigen() { LERN.hoerer.forEach((h) => h()); }
 export function lernSpeichern() {
   speicherSchreiben({ profil: LERN.profil, stand: LERN.stand, einstufung: LERN.einstufung, aktivitaet: LERN.aktivitaet,
     plan: LERN.plan, verlauf: LERN.verlauf, testFehl: LERN.testFehl, letzteAktivitaet: LERN.letzteAktivitaet,
-    messungen: LERN.messungen, experimente: LERN.experimente, noten: LERN.noten, pseudonym: LERN.pseudonym, termine: LERN.termine, protokoll: PROTOKOLL.slice(-500) });
+    messungen: LERN.messungen, experimente: LERN.experimente, noten: LERN.noten, pseudonym: LERN.pseudonym, termine: LERN.termine, training: LERN.training || null, protokoll: PROTOKOLL.slice(-500) });
 }
 
 
@@ -347,7 +347,7 @@ export async function lernLaden() {
     LERN.profil = d.profil || null; LERN.stand = d.stand || {}; LERN.einstufung = d.einstufung || null;
     LERN.aktivitaet = d.aktivitaet || {}; LERN.plan = d.plan || null; LERN.verlauf = d.verlauf || [];
     LERN.testFehl = d.testFehl || {}; LERN.letzteAktivitaet = d.letzteAktivitaet || 0;
-    LERN.messungen = d.messungen || {}; LERN.experimente = d.experimente || {}; LERN.noten = d.noten || []; LERN.pseudonym = d.pseudonym || null; LERN.termine = d.termine || [];
+    LERN.messungen = d.messungen || {}; LERN.experimente = d.experimente || {}; LERN.noten = d.noten || []; LERN.pseudonym = d.pseudonym || null; LERN.termine = d.termine || []; LERN.training = d.training || null;
     PROTOKOLL.splice(0, PROTOKOLL.length, ...(d.protokoll || []));
   }
   LERN.geladen = true;
@@ -494,7 +494,7 @@ export function Profil({ gehe }) {
                 Damit werden Profil und alle Einträge auf diesem Gerät gelöscht. Wirklich?
               </p>
               <div className="flex gap-3">
-                <button onClick={() => { lernAendern((X) => { PROTOKOLL.length = 0; X.profil = null; X.stand = {}; X.einstufung = null; X.aktivitaet = {}; X.plan = null; X.verlauf = []; X.testFehl = {}; X.messungen = {}; X.experimente = {}; X.noten = []; X.pseudonym = null; X.termine = []; }); setLoeschen(false); }}
+                <button onClick={() => { lernAendern((X) => { PROTOKOLL.length = 0; X.profil = null; X.stand = {}; X.einstufung = null; X.aktivitaet = {}; X.plan = null; X.verlauf = []; X.testFehl = {}; X.messungen = {}; X.experimente = {}; X.noten = []; X.pseudonym = null; X.termine = []; X.training = null; }); setLoeschen(false); }}
                   className="px-5 py-2" style={{ background: C.signal, color: C.weiss, border: "none", borderRadius: 999, fontSize: 13.5, fontFamily: "inherit", cursor: "pointer" }}>
                   Ja, löschen
                 </button>
