@@ -980,10 +980,11 @@ export function Startseite({ gehe }) {
   );
 
   return (
+    <>
+    {/* Banner ganz oben, bündig unter dem Header und über die volle Breite */}
+    <StartBanner />
     <div className="mx-auto px-6 pb-14" style={{ maxWidth: 620 }}>
-      {/* Banner ganz oben unter dem Header, danach der Einführungstext */}
-      <StartBanner />
-      <section style={{ paddingTop: 18, paddingBottom: 6 }}>
+      <section style={{ paddingTop: 24, paddingBottom: 6 }}>
         <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.8, margin: 0 }}>
           Hier wird Oberstufenmathe <b style={{ color: C.tinte, fontWeight: 600 }}>sichtbar</b>: Graphen live plotten,
           Ebenen im Raum drehen, Wahrscheinlichkeiten in Tafeln und Bäumen sehen. Dazu Videokurse mit Kurz-Checks
@@ -1087,6 +1088,7 @@ export function Startseite({ gehe }) {
         text="Analysis 1–5, Vektoren und Stochastik – mit Videolektionen und Checks." />
 
     </div>
+    </>
   );
 }
 
