@@ -3,6 +3,7 @@
 Aufruf (im Ordner matheskript-v80-deploy):
     npx vite build && npx vite preview --port 4377 &
     python3 scripts/anleitung-screenshots.py
+Mit --en entstehen die englischen Bilder (*-en.webp + daten_en.js).
 Danach erneut bauen. Jede Folie: echte App, Handy-Ansicht 390 × 640,
 die wichtige Stelle als Rechteck in Prozent der Bildgröße.
 """
@@ -10,7 +11,22 @@ import io, json, os, re, sys
 from PIL import Image
 from playwright.sync_api import sync_playwright
 
-URL = os.environ.get("ANLEITUNG_URL", "http://localhost:4377/")
+EN = "--en" in sys.argv
+URL = os.environ.get("ANLEITUNG_URL", "http://localhost:4377/") + ("?lang=en" if EN else "")
+# Sichtbare Texte, nach denen gesucht wird (aria-labels bleiben deutsch)
+T = {"mult": re.compile(r"^7·8Multiply"), "zwei": "^2-digit$", "kd": "Curve sketching", "poly": "Polynomials", "sym": "2. Symmetry", "pdf": "as PDF"} if EN else \
+    {"mult": "Multiplizieren", "zwei": "^2-stellig$", "kd": "Kurvendiskussion", "poly": "Polynome", "sym": "2. Symmetrie", "pdf": "als PDF"}
+ENDUNG = "-en" if EN else ""
+ARIA_EN = {"Mathe-Training aufklappen": "^Expand maths training$", "Mathematik aufklappen": "^Expand mathematics$",
+           "Mathe-Wettbewerbe aufklappen": "^Expand maths competitions$", "Kopfrechnen aufklappen": "^Expand mental arithmetic$",
+           "Analysis aufklappen": "^Expand analysis$"}  # wird beim Erzeugen aus dem Wörterbuch übersetzt
+
+
+def aria(pg, de):
+    """Knopf über sein aria-label (im Englischen über die übersetzte Beschriftung)."""
+    if EN:
+        return pg.get_by_role("button", name=re.compile(ARIA_EN[de], re.I)).first
+    return pg.locator(f'button[aria-label="{de}"]')
 W, H = 390, 640
 ZIEL = os.path.join(os.path.dirname(__file__), "..", "src", "anleitung")
 BREITE_PX = 600
@@ -39,7 +55,7 @@ def foto(pg, fid, markiert):
     png = pg.screenshot()
     im = Image.open(io.BytesIO(png)).convert("RGB")
     im = im.resize((BREITE_PX, round(BREITE_PX * im.height / im.width)), Image.LANCZOS)
-    pfad = os.path.join(ZIEL, f"{fid}.webp")
+    pfad = os.path.join(ZIEL, f"{fid}{ENDUNG}.webp")
     im.save(pfad, "WEBP", quality=80, method=6)
     daten[fid] = {"box": box_von(pg, markiert) if markiert else None}
     print(fid, os.path.getsize(pfad) // 1024, "kB", daten[fid]["box"])
@@ -60,7 +76,7 @@ with sync_playwright() as p:
 
     # --- Überblick ---
     start(pg)
-    blau = [pg.locator(f'button[aria-label="{t} aufklappen"]') for t in ["Mathe-Training", "Mathematik", "Mathe-Wettbewerbe", "Kopfrechnen"]]
+    blau = [aria(pg, f"{t} aufklappen") for t in ["Mathe-Training", "Mathematik", "Mathe-Wettbewerbe", "Kopfrechnen"]]
     zeige(pg, blau[0], oben=70)
     foto(pg, "ueberblick-1", blau)
     kurse = [pg.locator(".mc-silber").first, pg.locator(".mc-kachel:not(.mc-silber)").first]
@@ -69,15 +85,15 @@ with sync_playwright() as p:
 
     # --- Kopfrechnen ---
     start(pg)
-    kopf = pg.locator('button[aria-label="Kopfrechnen aufklappen"]')
+    kopf = aria(pg, "Kopfrechnen aufklappen")
     zeige(pg, kopf)
     foto(pg, "kopf-1", [kopf])
     kopf.click(); pg.wait_for_timeout(500)
-    mult = pg.locator(".kopf-kachel", has_text="Multiplizieren")
+    mult = pg.locator(".kopf-kachel", has_text=T["mult"])
     zeige(pg, mult)
     foto(pg, "kopf-2", [mult])
     mult.click(); pg.wait_for_timeout(700)
-    zwei = pg.locator("button", has_text=re.compile("^2-stellig$"))
+    zwei = pg.locator("button", has_text=re.compile(T["zwei"]))
     zwei.nth(0).click(); pg.wait_for_timeout(250); zwei.nth(1).click(); pg.wait_for_timeout(500)
     zeige(pg, zwei.nth(0), oben=150)
     foto(pg, "kopf-3", [zwei.nth(0), zwei.nth(1)])
@@ -97,14 +113,14 @@ with sync_playwright() as p:
 
     # --- Kurvendiskussion ---
     start(pg)
-    pg.locator('button[aria-label="Mathe-Training aufklappen"]').click(); pg.wait_for_timeout(400)
-    ana = pg.locator('button[aria-label="Analysis aufklappen"]')
+    aria(pg, "Mathe-Training aufklappen").click(); pg.wait_for_timeout(400)
+    ana = aria(pg, "Analysis aufklappen")
     zeige(pg, ana)
     foto(pg, "kurve-1", [ana])
     ana.click(); pg.wait_for_timeout(500)
-    kd = pg.locator(".unter-knopf", has_text="Kurvendiskussion").first
+    kd = pg.locator(".unter-knopf", has_text=T["kd"]).first
     kd.click(); pg.wait_for_timeout(500)
-    poly = pg.locator(".unter-knopf", has_text="Polynome").first
+    poly = pg.locator(".unter-knopf", has_text=T["poly"]).first
     zeige(pg, kd, oben=150)
     foto(pg, "kurve-2", [poly])
     poly.click(); pg.wait_for_timeout(1000)
@@ -112,10 +128,10 @@ with sync_playwright() as p:
     zeige(pg, pm.first, oben=120)
     unten = [pm.nth(i) for i in range(pm.count()) if (pm.nth(i).bounding_box() or {"y": 0})["y"] > 120][:8]
     foto(pg, "kurve-3", unten)
-    kopf_kd = pg.get_by_text("Kurvendiskussion", exact=True).last
+    kopf_kd = pg.get_by_text("Curve Sketching" if EN else "Kurvendiskussion", exact=True).last
     zeige(pg, kopf_kd, oben=80)
-    foto(pg, "kurve-4", [kopf_kd, pg.get_by_text("2. Symmetrie").first])
-    pdf = pg.locator("button", has_text="als PDF")
+    foto(pg, "kurve-4", [kopf_kd, pg.get_by_text(T["sym"]).first])
+    pdf = pg.locator("button", has_text=T["pdf"])
     zeige(pg, pdf)
     foto(pg, "kurve-5", [pdf])
     b.close()
@@ -123,11 +139,11 @@ with sync_playwright() as p:
 # daten.js schreiben
 zeilen = ["/* Automatisch erzeugt von scripts/anleitung-screenshots.py — nicht von Hand ändern. */"]
 for fid in daten:
-    zeilen.append(f'import b_{fid.replace("-", "_")} from "./{fid}.webp";')
+    zeilen.append(f'import b_{fid.replace("-", "_")} from "./{fid}{ENDUNG}.webp";')
 zeilen.append("")
-zeilen.append("export const ANLEITUNG_BILDER = {")
+zeilen.append("export const ANLEITUNG_BILDER = {")  # (in daten_en.js gleicher Name)
 for fid, d in daten.items():
     zeilen.append(f'  "{fid}": {{ src: b_{fid.replace("-", "_")}, w: {W}, h: {H}, box: {json.dumps(d["box"])} }},')
 zeilen.append("};")
-open(os.path.join(ZIEL, "daten.js"), "w").write("\n".join(zeilen) + "\n")
+open(os.path.join(ZIEL, "daten_en.js" if EN else "daten.js"), "w").write("\n".join(zeilen) + "\n")
 print("daten.js geschrieben:", len(daten), "Folien")

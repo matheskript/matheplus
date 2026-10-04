@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { C } from "./base1.jsx";
-import { ANLEITUNG_BILDER } from "./anleitung/daten.js";
+import { ANLEITUNG_BILDER as BILDER_DE } from "./anleitung/daten.js";
+import { ANLEITUNG_BILDER as BILDER_EN } from "./anleitung/daten_en.js";
+import { englisch } from "./i18n.js";
 
 /* ======================================================================
    „SO NUTZT DU DIE APP“
@@ -10,37 +12,64 @@ import { ANLEITUNG_BILDER } from "./anleitung/daten.js";
    scripts/anleitung-screenshots.py → src/anleitung/.
    ====================================================================== */
 
+const L = (de, en) => (englisch() ? en : de);
+
 const KAPITEL = [
-  { id: "ueberblick", name: "Überblick" },
-  { id: "kopf", name: "Kopfrechnen" },
-  { id: "kurve", name: "Kurvendiskussion" },
+  { id: "ueberblick", name: ["Überblick", "Overview"] },
+  { id: "kopf", name: ["Kopfrechnen", "Mental math"] },
+  { id: "kurve", name: ["Kurvendiskussion", "Curve sketching"] },
 ];
 
+/* Jede Folie: Titel und ein Erklärtext von etwa drei Zeilen (auf dem Handy) – Deutsch und Englisch */
 const FOLIEN = [
-  { id: "ueberblick-1", kap: "ueberblick", titel: "Oben: dein Trainingsbereich",
-    text: "Die blauen Kacheln sind der Trainingsbereich. Hier rechnest, plottest und übst du direkt – jede Kachel klappt auf, wenn du sie antippst." },
-  { id: "ueberblick-2", kap: "ueberblick", titel: "Unten: die Kurse",
-    text: "Weiter unten liegen die Kurse. Die sind gerade noch in Arbeit und deshalb mit einem Schloss markiert. Konzentrier dich also erstmal auf die blauen Kacheln oben." },
-  { id: "kopf-1", kap: "kopf", titel: "Kopfrechnen aufklappen",
-    text: "Tippe auf die Kachel „Kopfrechnen“. Darunter erscheinen die vier Kopfrechen-Trainer." },
-  { id: "kopf-2", kap: "kopf", titel: "Multiplizieren wählen",
-    text: "Für dieses Beispiel nehmen wir „Multiplizieren“ – vom kleinen Einmaleins bis zu vierstelligen Zahlen." },
-  { id: "kopf-3", kap: "kopf", titel: "Schwierigkeit einstellen",
-    text: "Stell für die 1. und die 2. Zahl jeweils „2-stellig“ ein. Sofort kommt eine passende Aufgabe." },
-  { id: "kopf-4", kap: "kopf", titel: "Im Kopf rechnen, Lösung eintippen",
-    text: "Rechne die Aufgabe im Kopf, tippe das Ergebnis über das Tastenfeld ein und drücke OK." },
-  { id: "kopf-5", kap: "kopf", titel: "Sofort Rückmeldung",
-    text: "Die App prüft dein Ergebnis direkt. Zehn Aufgaben pro Runde – danach siehst du, wie schnell und sicher du warst." },
-  { id: "kurve-1", kap: "kurve", titel: "Mathe-Training → Analysis",
-    text: "Klapp „Mathe-Training“ auf und tippe auf „Analysis“." },
-  { id: "kurve-2", kap: "kurve", titel: "Kurvendiskussion → Polynome",
-    text: "Tippe auf „Kurvendiskussion“ und dann auf „Polynome“. Damit öffnest du den Polynomplotter." },
-  { id: "kurve-3", kap: "kurve", titel: "Funktion einstellen",
-    text: "Mit + und − stellst du die Koeffizienten a, b, c, d ein. Der Graph und seine Ableitungen ändern sich live mit." },
-  { id: "kurve-4", kap: "kurve", titel: "Die komplette Kurvendiskussion",
-    text: "Weiter unten steht die vollständige Kurvendiskussion für genau deine Funktion – Nullstellen, Extrempunkte, Wendepunkte, Schritt für Schritt." },
-  { id: "kurve-5", kap: "kurve", titel: "Als PDF herunterladen",
-    text: "Ganz unten lädst du die komplette Kurvendiskussion als PDF herunter – zum Ausdrucken oder zum Vergleichen mit deiner eigenen Lösung." },
+  { id: "ueberblick-1", kap: "ueberblick",
+    titel: ["Oben: dein Trainingsbereich", "At the top: your training area"],
+    text: ["Die blauen Kacheln sind dein Trainingsbereich. Tippe eine an, sie klappt mit ihren Werkzeugen auf.",
+      "The blue tiles are your training area. Tap one and it opens up with its tools."] },
+  { id: "ueberblick-2", kap: "ueberblick",
+    titel: ["Unten: die Kurse", "Further down: the courses"],
+    text: ["Unten liegen die Kurse. Sie sind noch in Arbeit und mit einem Schloss markiert.",
+      "Further down are the courses. They are still being built and marked with a lock."] },
+  { id: "kopf-1", kap: "kopf",
+    titel: ["Kopfrechnen aufklappen", "Open Mental Math"],
+    text: ["Tippe auf „Kopfrechnen“. Darunter erscheinen die bunten Trainer, vom Einmaleins bis zur Division.",
+      "Tap “Mental Math”. The colourful trainers appear below, from times tables to long division."] },
+  { id: "kopf-2", kap: "kopf",
+    titel: ["Multiplizieren wählen", "Choose multiplication"],
+    text: ["Wir nehmen „Multiplizieren“. Hier übst du vom kleinen Einmaleins bis zu vierstelligen Zahlen.",
+      "We pick “Multiply”. Here you practise from small times tables up to four-digit numbers."] },
+  { id: "kopf-3", kap: "kopf",
+    titel: ["Schwierigkeit einstellen", "Set the difficulty"],
+    text: ["Stelle beide Zahlen auf „2-stellig“. Sofort erscheint eine Aufgabe, umstellen geht jederzeit.",
+      "Set both numbers to “2-digit”. A task appears at once, and you can change it any time."] },
+  { id: "kopf-4", kap: "kopf",
+    titel: ["Im Kopf rechnen, Lösung eintippen", "Work it out, type the answer"],
+    text: ["Rechne im Kopf, ohne Taschenrechner. Tippe das Ergebnis ein und bestätige mit OK.",
+      "Work it out in your head, no calculator. Type the result and confirm with OK."] },
+  { id: "kopf-5", kap: "kopf",
+    titel: ["Sofort Rückmeldung", "Instant feedback"],
+    text: ["Die App prüft sofort. Nach zehn Aufgaben siehst du Tempo und Treffsicherheit.",
+      "The app checks instantly. After ten tasks you see your speed and accuracy."] },
+  { id: "kurve-1", kap: "kurve",
+    titel: ["Mathe-Training → Analysis", "Math Training → Analysis"],
+    text: ["Klappe „Mathe-Training“ auf und tippe auf „Analysis“. Alle Werkzeuge erscheinen darunter.",
+      "Open “Math Training” and tap “Analysis”. All the tools appear below."] },
+  { id: "kurve-2", kap: "kurve",
+    titel: ["Kurvendiskussion → Polynome", "Curve sketching → Polynomials"],
+    text: ["Tippe auf „Kurvendiskussion“, dann auf „Polynome“. Das öffnet den Plotter für ganzrationale Funktionen.",
+      "Tap “Curve sketching”, then “Polynomials”. This opens the plotter for polynomial functions."] },
+  { id: "kurve-3", kap: "kurve",
+    titel: ["Funktion einstellen", "Set up your function"],
+    text: ["Mit + und − stellst du a, b, c und d ein. Graph und Ableitungen ändern sich live mit.",
+      "Use + and − to set a, b, c and d. The graph and its derivatives update live."] },
+  { id: "kurve-4", kap: "kurve",
+    titel: ["Die komplette Kurvendiskussion", "The complete curve sketch"],
+    text: ["Darunter steht die komplette Kurvendiskussion deiner Funktion, Schritt für Schritt.",
+      "Below is the complete curve sketch of your function, step by step."] },
+  { id: "kurve-5", kap: "kurve",
+    titel: ["Als PDF herunterladen", "Download as PDF"],
+    text: ["Ganz unten lädst du die Kurvendiskussion als PDF herunter, zum Ausdrucken oder Vergleichen.",
+      "At the bottom you can download the curve sketch as a PDF to print or compare."] },
 ];
 
 const CSS = `
@@ -57,18 +86,18 @@ const CSS = `
 `;
 
 function Folie({ f, nr, gesamt }) {
-  const bild = ANLEITUNG_BILDER[f.id];
+  const bild = (englisch() ? BILDER_EN : BILDER_DE)[f.id];   // Screenshots in der jeweiligen Sprache
   const kap = KAPITEL.find((k) => k.id === f.kap);
   const imKap = FOLIEN.filter((x) => x.kap === f.kap);
   const stelle = imKap.indexOf(f) + 1;
   return (
-    <div className="anl-folie" aria-roledescription="Folie" aria-label={`${nr} von ${gesamt}: ${f.titel}`}>
+    <div className="anl-folie" aria-roledescription={L("Folie", "Slide")} aria-label={`${nr} ${L("von", "of")} ${gesamt}: ${L(...f.titel)}`}>
       <div style={{ padding: "0 4px" }}>
         {/* Bild im Handyrahmen */}
         <div style={{ position: "relative", margin: "0 auto", maxWidth: 300, borderRadius: 26, padding: 7,
           background: `linear-gradient(160deg, #22325E 0%, ${C.seeTief} 100%)`, boxShadow: "0 14px 30px -12px rgba(14,30,74,0.55), inset 0 1px 0 rgba(255,255,255,0.12)" }}>
           <div style={{ position: "relative", borderRadius: 20, overflow: "hidden", background: C.sand, aspectRatio: bild ? `${bild.w} / ${bild.h}` : "390 / 640" }}>
-            {bild && <img src={bild.src} alt={f.titel} loading="lazy" draggable="false" style={{ width: "100%", height: "100%", display: "block", objectFit: "cover", userSelect: "none" }} />}
+            {bild && <img src={bild.src} alt={L(...f.titel)} loading="lazy" draggable="false" style={{ width: "100%", height: "100%", display: "block", objectFit: "cover", userSelect: "none" }} />}
             {bild && bild.box && (
               <span aria-hidden="true" className="anl-ring" style={{ position: "absolute", left: `${bild.box[0]}%`, top: `${bild.box[1]}%`, width: `${bild.box[2]}%`, height: `${bild.box[3]}%`,
                 borderRadius: 12, border: `2.5px solid ${C.flaggold}`, pointerEvents: "none" }} />
@@ -78,10 +107,10 @@ function Folie({ f, nr, gesamt }) {
         {/* Text */}
         <div style={{ padding: "16px 6px 0", textAlign: "left", maxWidth: 420, margin: "0 auto" }}>
           <p style={{ fontSize: 11.5, fontWeight: 600, letterSpacing: "0.08em", color: C.gruen, marginBottom: 5 }}>
-            {kap.name.toUpperCase()} · SCHRITT {stelle} VON {imKap.length}
+            {L(...kap.name).toUpperCase()} · {L("SCHRITT", "STEP")} {stelle} {L("VON", "OF")} {imKap.length}
           </p>
-          <h4 style={{ fontSize: 17.5, fontWeight: 700, letterSpacing: "-0.01em", lineHeight: 1.3, color: C.tinte, marginBottom: 6 }}>{f.titel}</h4>
-          <p style={{ fontSize: 14.5, fontWeight: 300, lineHeight: 1.65, color: C.grau, minHeight: "4.95em" }}>{f.text}</p>
+          <h4 style={{ fontSize: 17.5, fontWeight: 700, letterSpacing: "-0.01em", lineHeight: 1.3, color: C.tinte, marginBottom: 6 }}>{L(...f.titel)}</h4>
+          <p style={{ fontSize: 14.5, fontWeight: 300, lineHeight: 1.65, color: C.grau, minHeight: "4.95em" }}>{L(...f.text)}</p>
         </div>
       </div>
     </div>
@@ -90,7 +119,7 @@ function Folie({ f, nr, gesamt }) {
 
 function Pfeil({ richtung, onClick, aus }) {
   return (
-    <button type="button" className="anl-pfeil" onClick={onClick} disabled={aus} aria-label={richtung < 0 ? "Vorherige Folie" : "Nächste Folie"}
+    <button type="button" className="anl-pfeil" onClick={onClick} disabled={aus} aria-label={richtung < 0 ? L("Vorherige Folie", "Previous slide") : L("Nächste Folie", "Next slide")}
       style={{ position: "absolute", top: "calc(50% - 70px)", [richtung < 0 ? "left" : "right"]: -2, width: 40, height: 40, borderRadius: 999, border: "none",
         background: C.weiss, boxShadow: "0 4px 14px rgba(15,26,51,0.18)", cursor: aus ? "default" : "pointer", opacity: aus ? 0 : 1,
         display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2 }}>
@@ -142,8 +171,8 @@ export function AppAnleitung() {
           </svg>
         </span>
         <span style={{ flex: 1, minWidth: 0 }}>
-          <span style={{ display: "block", fontSize: 16, fontWeight: 700, letterSpacing: "-0.01em" }}>So nutzt du die App</span>
-          <span style={{ display: "block", fontSize: 12.5, fontWeight: 300, color: C.grau, marginTop: 2 }}>In {FOLIEN.length} Bildern durchgeklickt</span>
+          <span style={{ display: "block", fontSize: 16, fontWeight: 700, letterSpacing: "-0.01em" }}>{L("So nutzt du die App", "How to use this app")}</span>
+          <span style={{ display: "block", fontSize: 12.5, fontWeight: 300, color: C.grau, marginTop: 2 }}>{L(`In ${FOLIEN.length} Bildern durchgeklickt`, `Click through ${FOLIEN.length} pictures`)}</span>
         </span>
         <span aria-hidden="true" style={{ flexShrink: 0, width: 32, height: 32, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center",
           background: auf ? C.see : "#EEF2F8", transition: "background .2s ease" }}>
@@ -157,14 +186,14 @@ export function AppAnleitung() {
         <div>
           <div style={{ borderTop: `1px solid ${C.linie}`, padding: "14px 12px 18px" }}>
             {/* Kapitel */}
-            <div role="tablist" aria-label="Kapitel" style={{ display: "flex", gap: 6, justifyContent: "center", flexWrap: "wrap", marginBottom: 16 }}>
+            <div role="tablist" aria-label={L("Kapitel", "Chapters")} style={{ display: "flex", gap: 6, justifyContent: "center", flexWrap: "wrap", marginBottom: 16 }}>
               {KAPITEL.map((k) => {
                 const an = k.id === kapAkt;
                 return (
                   <button key={k.id} type="button" role="tab" aria-selected={an} onClick={() => geheZu(FOLIEN.findIndex((x) => x.kap === k.id))}
                     style={{ padding: "6px 12px", borderRadius: 999, fontSize: 12.5, fontWeight: an ? 700 : 500, fontFamily: "inherit", cursor: "pointer",
                       border: `1px solid ${an ? C.see : C.linie}`, background: an ? C.see : C.weiss, color: an ? C.weiss : C.grau, whiteSpace: "nowrap" }}>
-                    {k.name}
+                    {L(...k.name)}
                   </button>
                 );
               })}
@@ -172,7 +201,7 @@ export function AppAnleitung() {
 
             <div style={{ position: "relative" }}>
               {auf && (
-                <div ref={band} className="anl-band" onScroll={beimScrollen} aria-roledescription="Karussell" aria-label="So nutzt du die App">
+                <div ref={band} className="anl-band" onScroll={beimScrollen} aria-roledescription={L("Karussell", "Carousel")} aria-label={L("So nutzt du die App", "How to use this app")}>
                   {FOLIEN.map((f, i) => <Folie key={f.id} f={f} nr={i + 1} gesamt={FOLIEN.length} />)}
                 </div>
               )}
@@ -183,14 +212,14 @@ export function AppAnleitung() {
             {/* Punkte */}
             <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 5, marginTop: 14 }}>
               {FOLIEN.map((f, i) => (
-                <button key={f.id} type="button" onClick={() => geheZu(i)} aria-label={`Zu Folie ${i + 1}`}
+                <button key={f.id} type="button" onClick={() => geheZu(i)} aria-label={L(`Zu Folie ${i + 1}`, `Go to slide ${i + 1}`)}
                   style={{ width: i === akt ? 18 : 6, height: 6, borderRadius: 999, border: "none", padding: 0, cursor: "pointer",
                     background: i === akt ? C.see : f.kap === kapAkt ? "#9DB6D8" : C.linie, transition: "width .25s ease, background .25s ease" }} />
               ))}
             </div>
             {akt === FOLIEN.length - 1 && (
               <p style={{ textAlign: "center", fontSize: 13, color: C.see, fontWeight: 500, marginTop: 12 }}>
-                Jetzt bist du dran – such dir unten eine blaue Kachel aus.
+                {L("Jetzt bist du dran – such dir unten eine blaue Kachel aus.", "Now it's your turn – pick a blue tile below.")}
               </p>
             )}
           </div>
