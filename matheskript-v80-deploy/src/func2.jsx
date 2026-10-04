@@ -12,6 +12,7 @@ import { EskalationsKarte, Wochenbericht, eskalationSignale, serieBerechnen, zei
 import { TerminHinweis } from "./func9.jsx";
 import { Mathilda } from "./func10.jsx";
 import { KopfKacheln, KopfrechnenLogoKlein } from "./func14.jsx";
+import { AppAnleitung } from "./funcAnleitung.jsx";
 import { VektorenLogoKlein } from "./func16.jsx";
 import { StochastikLogoKlein } from "./func17.jsx";
 import { GleichungenLogoKlein } from "./funcGleichungen.jsx";
@@ -873,6 +874,7 @@ export function Startseite({ gehe }) {
           und schnelle Kopfrechenrunden. Such dir unten einen Bereich aus und leg los.
         </p>
       </section>
+      <AppAnleitung />
       <ElternabendKachel gesperrt onClick={() => gehe({ ansicht: "elternabend" })} />
       <PlotterKachel onClick={() => { setSchulAuf(!schulAuf); setBereichAuf(null); }} label={schulAuf ? "Mathe-Training zuklappen" : "Mathe-Training aufklappen"}
         logo={<SchulmatheLogoKlein />} titel="Mathe-Training"
