@@ -17,6 +17,63 @@ import { M } from "./func3.jsx";
 import {
   Tastenfeld, ableitung, alsTex, hatBox, kompiliere, ohnePar, parse, zufallsFunktion,
 } from "./func12.jsx";
+import { IchHaengeFest, ableitRegeln, aussenTex, summanden } from "./funcHilfe.jsx";
+
+/* Kontext für „Ich hänge fest“: Hinweise aus dem Term, der gerade abgeleitet wird */
+const NAME_F = ["f", "f′", "f″", "f‴"];
+function ableitHilfe(kette, aktiv) {
+  if (!kette || !kette[aktiv]) return null;
+  const baum = kette[aktiv].baum, tex = alsTex(baum), fn = kette[aktiv].fn;
+  const wer = NAME_F[aktiv], ziel = NAME_F[aktiv + 1];
+  const { regeln, haupt } = ableitRegeln(baum);
+  const teile = summanden(baum);
+  let schritt;
+  if (haupt && haupt.regel === "Produktregel") schritt = `Produktregel mit $u = ${alsTex(haupt.u)}$ und $v = ${alsTex(haupt.v)}$: Bilde zuerst $u′$ und $v′$, dann $u′ \\cdot v + u \\cdot v′$.`;
+  else if (haupt && haupt.regel === "Quotientenregel") schritt = `Quotientenregel mit Zähler $u = ${alsTex(haupt.u)}$ und Nenner $v = ${alsTex(haupt.v)}$: $\\frac{u′ v - u v′}{v^{2}}$.`;
+  else if (haupt && haupt.regel === "Kettenregel") schritt = `Kettenregel: innere Funktion $${alsTex(haupt.innen)}$, äußere Funktion $${aussenTex(haupt.ganz, haupt.innen)}$. Leite außen ab, lass die innere Funktion stehen und multipliziere mit der inneren Ableitung $(${alsTex(haupt.innen)})′$.`;
+  else if (haupt && haupt.regel === "Umschreiben") schritt = `Schreib $${alsTex(haupt.term)}$ als Potenz mit negativem Exponenten – dann reicht die Potenzregel.`;
+  else if (haupt && haupt.regel === "eForm") schritt = "Variable in Basis und Exponent: schreibe den Term als e-Funktion, zum Beispiel $x^{x} = e^{x \\cdot \\ln(x)}$, und nutze dann die Kettenregel.";
+  else if (teile.length > 1) schritt = `Leite Summand für Summand ab. Beginne mit dem ersten: $(${alsTex(teile[0])})′ = ${alsTex(ableitung(teile[0]))}$.`;
+  else schritt = `Grundableitung: $(${tex})′$ steht direkt in der Formelsammlung (${regeln.filter((r) => r !== "Konstante").join(", ") || "Konstante"}).`;
+  const x0 = [1, 1.29, 0.5, 2].find((x) => Number.isFinite(fn(x)) && Number.isFinite(fn(x + 1e-4)));
+  const steigung = x0 !== undefined ? (fn(x0 + 1e-5) - fn(x0 - 1e-5)) / 2e-5 : null;
+  const dz = (v) => String(Math.round(v * 1000) / 1000).replace(".", ",").replace("-", "−");
+  const brueche = /\\frac|\./.test(tex);
+  return {
+    id: `abl-${tex}-${aktiv}`,
+    aufgabe: `Ableitung ${regeln.join(" ")} ${tex.includes("ln") ? "ln Definitionsmenge" : ""}`,
+    hilfen: {
+      verstehen: [
+        `Gesucht ist ${ziel}(x). Abgeleitet wird also ${wer}(x) = $${tex}$ – die Zeile darüber.`,
+        "Die Ableitung gibt zu jedem x die Steigung des Graphen an. Summen leitest du Summand für Summand ab, konstante Faktoren bleiben stehen.",
+        `Schreib „${ziel}(x) =“ und arbeite dann die Bausteine von $${tex}$ einzeln ab.`,
+      ],
+      ansatz: [
+        "Ist der Term eine Summe, ein Produkt, ein Quotient oder eine Verkettung (Funktion in einer Funktion)?",
+        `Hier brauchst du: ${regeln.filter((r) => r !== "Konstante" || regeln.length === 1).join(", ")}.`,
+        schritt,
+      ],
+      regel: [
+        "Welche Grundableitungen kennst du für die Bausteine – xⁿ, eˣ, sin x, cos x, ln x?",
+        `Die Regeln für diesen Term: ${regeln.filter((r) => r !== "Konstante" || regeln.length === 1).join(", ")}. Unten unter „Passende Regel ansehen“ stehen sie mit Beispiel.`,
+        schritt,
+      ],
+      umformen: [
+        "Lässt sich der Term vorher vereinfachen? Brüche und Wurzeln als Potenz geschrieben sparen oft eine Regel.",
+        "$\\frac{1}{x^{n}} = x^{-n}$ und $\\sqrt{x} = x^{\\frac{1}{2}}$. Ausmultiplizieren kann die Produktregel ersparen.",
+        "Dein Ergebnis musst du nicht vereinfachen – jede gleichwertige Schreibweise wird als richtig erkannt.",
+      ],
+      pruefen: [
+        `Passt das Vorzeichen deiner Ableitung zum Verlauf von ${wer}: Wo ${wer} steigt, muss ${ziel} positiv sein.`,
+        "Typische Fehler: (u·v)′ ≠ u′·v′, bei der Kettenregel die innere Ableitung vergessen, (cos x)′ = −sin x.",
+        steigung !== null ? `Probe mit einer Zahl: Die Steigung von ${wer} bei x = ${dz(x0)} ist ungefähr ${dz(steigung)}. Setz x = ${dz(x0)} in deine Ableitung ein – es muss derselbe Wert herauskommen.` : "Setz eine Zahl in deine Ableitung ein und vergleiche mit der Steigung im Schaubild.",
+      ],
+    },
+    regeln: regeln.filter((r) => r !== "Konstante" || regeln.length === 1).map((name) => ({ name, bereich: "analysis" })),
+    grundlage: brueche ? { trainer: "bruchrechnen", name: "Brüche", grund: "Im Term stehen Brüche. Ein paar schnelle Runden Bruchrechnen helfen beim Zusammenfassen." } : null,
+    loesung: `$${ziel}(x) = ${alsTex(kette[aktiv + 1].baum)}$`,
+  };
+}
 
 const STRICHE = ["", "′", "″", "‴"];
 const endlich = (y) => typeof y === "number" && isFinite(y);
@@ -231,11 +288,14 @@ export function Ableitungstrainer() {
       {/* Aufgabe und Ableitungszeilen */}
       {kette && !(quelle === "eigen" && eigenOffen) && (
         <div style={{ ...karte, marginTop: 16 }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-            <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel }}>Leite ab</p>
-            <span style={{ fontSize: 12.5, color: C.grau }}>
-              {bilanz.gesamt ? `${bilanz.richtig} von ${bilanz.gesamt} Versuchen richtig` : ""}
-            </span>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 12 }}>
+            <div>
+              <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel }}>Leite ab</p>
+              <span style={{ fontSize: 12.5, color: C.grau }}>
+                {bilanz.gesamt ? `${bilanz.richtig} von ${bilanz.gesamt} Versuchen richtig` : ""}
+              </span>
+            </div>
+            {!fertig && <IchHaengeFest kontext={ableitHilfe(kette, aktiv)} />}
           </div>
           <div style={{ background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 14,
             padding: "14px 16px", marginBottom: 14, overflowX: "auto" }}>

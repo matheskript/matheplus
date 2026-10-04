@@ -157,7 +157,7 @@ export function parse(text) {
 }
 
 export const hatBox = (n) => !!n && (n.k === "box" || ["a", "b"].some((s) => n[s] && hatBox(n[s])));
-const hatX = (n) => !!n && (n.k === "x" || ["a", "b"].some((s) => n[s] && hatX(n[s])));
+export const hatX = (n) => !!n && (n.k === "x" || ["a", "b"].some((s) => n[s] && hatX(n[s])));
 export const ohnePar = (n) => {
   if (!n) return n;
   if (n.k === "par") return ohnePar(n.a);

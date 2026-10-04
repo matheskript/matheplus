@@ -3,6 +3,7 @@ import { C } from "./base1.jsx";
 import { M, Text } from "./func3.jsx";
 import { merken } from "./func5.jsx";
 import { NeueZeile } from "./funcLGS.jsx";
+import { IchHaengeFest } from "./funcHilfe.jsx";
 const LGS_ZEILE_CSS = ".lgs-blink{animation:sbBlink 1s step-end infinite}";
 
 /* ======================================================================
@@ -1239,6 +1240,88 @@ function ErgebnisSchritt({ auf, L, weg, neu }) {
 }
 
 /* ======================================================================
+   Lernhilfe „Ich hänge fest“ – Hinweise passend zum aktuellen Arbeitsschritt
+   ====================================================================== */
+function steckbriefHilfe(auf, phase, rows) {
+  const ans = ANSAETZE[auf.ansatz];
+  const eigenschaften = auf.props.map((p) => (p.rolle === "wstelle" ? `Wendestelle bei x = ${minus(p.x)}` : `${ROLLEN[p.rolle]} $${lbl(p)}$`)).join(", ");
+  const b0 = auf.bed[0];
+  const beispielBed = `${fehltHinweis(b0, auf)} Das ergibt $${fName(b0.k)}(${minus(b0.x)}) = ${minus(b0.y)}$.`;
+  let ansatz;
+  if (phase === "ansatz") ansatz = [
+    "Welcher Funktionstyp ist gesucht – und welcher Grad bzw. welche Form steht im Text?",
+    "Ein Polynom vom Grad n hat n + 1 Unbekannte. Achsensymmetrie zur y-Achse: nur gerade Exponenten. Punktsymmetrie zum Ursprung: nur ungerade Exponenten.",
+    `Passender Ansatz: $f(x) = ${ans.formel}$.`,
+  ];
+  else if (phase === "bedingungen") ansatz = [
+    `Dein Ansatz hat ${ans.vars.length} Unbekannte. Wie viele Bedingungen brauchst du also?`,
+    "Punkt P(a | b): f(a) = b. Extremstelle a: f′(a) = 0. Wendestelle a: f″(a) = 0. Tangentensteigung m an der Stelle a: f′(a) = m.",
+    beispielBed,
+  ];
+  else if (phase === "einsetzen") ansatz = [
+    "Welche Ableitungen des Ansatzes brauchen deine Bedingungen?",
+    "Setze den x-Wert jeder Bedingung in f, f′ oder f″ ein. Die Unbekannten bleiben als Buchstaben stehen.",
+    `Für Bedingung I: $${einsetzFormel(ans, b0)}$.`,
+  ];
+  else if (ans.art === "poly") {
+    let musterSchritt = "Eliminiere eine Unbekannte, indem du zwei Gleichungen passend subtrahierst.";
+    try { const g = gaussWeg(rows, ans.vars); if (g.schritte[0]) musterSchritt = `Erster Schritt im Gauß-Verfahren: ${g.schritte[0].titel} – mit ${g.schritte[0].notizen.filter((t) => /[−+]/.test(t)).join(" und ")}.`; } catch (e) { /* egal */ }
+    ansatz = [
+      "Welche Unbekannte lässt sich am leichtesten eliminieren? Achte auf Koeffizienten 1 oder Gleichungen mit nur einer Unbekannten.",
+      "Kombiniere zwei Gleichungen so, dass sich die Koeffizienten einer Unbekannten aufheben – zum Beispiel II − I oder III − 2·I.",
+      musterSchritt,
+    ];
+  } else if (ans.art === "sin") ansatz = [
+    "Was verraten Hoch- und Tiefpunkt über Amplitude, Mittellinie und Periode?",
+    "Amplitude $a = \\frac{y_H - y_T}{2}$, Mittellinie $d = \\frac{y_H + y_T}{2}$. Von einem Hochpunkt zum benachbarten Tiefpunkt ist es eine halbe Periode.",
+    "Bestimme zuerst a und d, dann aus dem Abstand der beiden Stellen die Periode p und damit $b = \\frac{2\\pi}{p}$.",
+  ];
+  else ansatz = [
+    "Die Gleichungen sind nicht linear. Wie wirst du den Faktor c los?",
+    "Teile eine Gleichung durch die andere: Der Faktor c kürzt sich weg, übrig bleibt eine Gleichung nur für die Basis.",
+    "Ist die Basis bestimmt, setzt du sie in eine der beiden Gleichungen ein und berechnest c.",
+  ];
+  const brauchtWende = auf.props.some((p) => ["wende", "wendeTang", "sattel", "wstelle"].includes(p.rolle));
+  const brauchtExtrem = auf.props.some((p) => ["hoch", "tief", "scheitel", "sattel"].includes(p.rolle));
+  const brauchtTangente = auf.props.some((p) => ["tangente", "wendeTang"].includes(p.rolle));
+  return {
+    id: `sb-${auf.satz}-${phase}`,
+    aufgabe: auf.satz,
+    hilfen: {
+      verstehen: [
+        "Welche Eigenschaften des Graphen nennt der Text? Unterstreiche jede einzelne.",
+        `Im Steckbrief stecken: ${eigenschaften}.`,
+        "Jede Eigenschaft liefert Bedingungen: Punkt → eine für f; Hoch- oder Tiefpunkt → f und f′; Wendepunkt → f und f″; Tangente → f und f′.",
+      ],
+      ansatz,
+      regel: [
+        "Welche Bedingung gehört zu welcher Eigenschaft?",
+        "Notwendige Bedingung für eine Extremstelle: f′(a) = 0. Für eine Wendestelle: f″(a) = 0. Die Steigung der Tangente ist f′(a).",
+        "Diese Bedingungen sind nur notwendig. Ob wirklich ein Hoch-, Tief- oder Wendepunkt vorliegt, zeigt erst die Probe am Ende (f″(a) ≠ 0 bzw. Vorzeichenwechsel).",
+      ],
+      umformen: [
+        "Hast du beim Einsetzen die Potenzen richtig ausgerechnet? Negative x-Werte gehören in Klammern.",
+        "$(-2)^{3} = -8$, $(-2)^{2} = 4$ – aber $-2^{2} = -4$.",
+        "Fasse jede Gleichung so zusammen, dass links nur noch die Unbekannten mit ihren Zahlen stehen und rechts eine Zahl.",
+      ],
+      pruefen: [
+        "Erfüllt deine Funktion wirklich alle Bedingungen? Setze sie ein.",
+        "Die Zahl der Angaben ist nicht automatisch die Zahl der unabhängigen Bedingungen. Wiederholt eine Bedingung nur eine andere, fehlt dir eine Information.",
+        "Bei Extrem- und Wendepunkten gehört der Nachweis dazu: f″(a) ≠ 0 bzw. ein Vorzeichenwechsel von f′ oder f″. Das Schaubild am Ende zeigt es dir.",
+      ],
+    },
+    regeln: [
+      ...(brauchtExtrem ? [{ name: "Extrempunkt", bereich: "analysis" }] : []),
+      ...(brauchtWende ? [{ name: "Wendepunkt", bereich: "analysis" }] : []),
+      ...(brauchtTangente ? [{ name: "Tangente", bereich: "analysis" }] : []),
+      { name: "Potenzregel", bereich: "analysis" },
+    ],
+    grundlage: phase === "einsetzen" || phase === "loesen" ? { trainer: "kuben", name: "Potenzen", grund: "Beim Einsetzen rechnest du viele Potenzen wie 2³ oder (−1)⁴. Eine schnelle Runde hilft." } : null,
+    loesung: `$${ergebnisFormel(auf, auf.koeff)}$`,
+  };
+}
+
+/* ======================================================================
    Hauptkomponente
    ====================================================================== */
 const SUB = {
@@ -1307,6 +1390,11 @@ export function Steckbriefaufgaben() {
           Neue Aufgabe
         </button>
       </div>
+      {!ergebnis && (
+        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 4 }}>
+          <IchHaengeFest kontext={steckbriefHilfe(auf, !ansatz ? "ansatz" : !bedZeilen ? "bedingungen" : !loesen ? "einsetzen" : "loesen", rows)} />
+        </div>
+      )}
 
       <div key={`s${nr}`}>
         <Schritt nr={num()} titel="Ansatz wählen" fertig={!!ansatz}>

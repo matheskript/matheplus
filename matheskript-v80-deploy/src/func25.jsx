@@ -16,6 +16,7 @@ import { C } from "./base1.jsx";
 import { M } from "./func3.jsx";
 import { Tastenfeld, ableitung, alsTex, analysiere, hatBox, kompiliere, ohnePar, parse, wert } from "./func12.jsx";
 import { STELLEN, vergleich } from "./func13.jsx";
+import { IchHaengeFest, summanden } from "./funcHilfe.jsx";
 
 const endlich = (y) => typeof y === "number" && isFinite(y);
 const zz = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
@@ -189,6 +190,132 @@ function diagnose(F, fBaum) {
   return "Leite dein F zur Probe ab und vergleiche mit f.";
 }
 
+/* ---------- Lernhilfe: Stammfunktion Baustein für Baustein ---------- */
+
+const qq = (z, n) => { const g = (function ggt(a, b) { return b ? ggt(b, a % b) : Math.abs(a); })(z, n) || 1; const s = n < 0 ? -1 : 1; return { z: (s * z) / g, n: (s * n) / g }; };
+/* Ein Summand → { q: Faktor, teil: TeX ohne Faktor, art } oder null */
+function baustein(n) {
+  if (!n) return null;
+  if (n.k === "neg") { const b = baustein(n.a); return b && { ...b, q: qq(-b.q.z, b.q.n) }; }
+  if (n.k === "num") return Number.isInteger(n.v) ? { q: qq(n.v, 1), teil: "x", art: "Konstante" } : null;
+  if (n.k === "x") return { q: qq(1, 2), teil: "x^{2}", art: "Potenz" };
+  if (n.k === "^" && n.a.k === "x" && n.b.k === "num" && Number.isInteger(n.b.v) && n.b.v !== -1) return { q: qq(1, n.b.v + 1), teil: `x^{${n.b.v + 1}}`, art: "Potenz" };
+  if (n.k === "^" && n.a.k === "e" && n.b.k === "x") return { q: qq(1, 1), teil: "e^{x}", art: "eˣ" };
+  if (n.k === "fn" && n.a.k === "x" && n.n === "sin") return { q: qq(-1, 1), teil: "\\cos(x)", art: "sin" };
+  if (n.k === "fn" && n.a.k === "x" && n.n === "cos") return { q: qq(1, 1), teil: "\\sin(x)", art: "cos" };
+  if (n.k === "/" && n.a.k === "num" && Number.isInteger(n.a.v) && n.b.k === "x") return { q: qq(n.a.v, 1), teil: "\\ln|x|", art: "1/x" };
+  if (n.k === "*" && n.a.k === "num" && Number.isInteger(n.a.v)) { const b = baustein(n.b); return b && { ...b, q: qq(b.q.z * n.a.v, b.q.n) }; }
+  return null;
+}
+const faktorTex = (q, erster) => {
+  const vz = q.z < 0 ? "-" : erster ? "" : "+";
+  const b = Math.abs(q.z);
+  const zahl = q.n === 1 ? (b === 1 ? "" : `${b}`) : `\\frac{${b}}{${q.n}}`;
+  return { vz, zahl };
+};
+function stammTex(fBaum) {
+  const teile = summanden(fBaum).map(baustein);
+  if (teile.some((t) => !t)) return null;
+  return teile.map((t, i) => { const { vz, zahl } = faktorTex(t.q, i === 0); return `${i ? ` ${vz || "+"} ` : vz}${zahl}${t.teil}`; }).join("");
+}
+const REGEL_TEXT = {
+  Potenz: "Potenzregel rückwärts: Exponent um 1 erhöhen und durch den neuen Exponenten teilen, $x^{n} \\to \\frac{1}{n+1} x^{n+1}$.",
+  Konstante: "Eine Konstante c hat die Stammfunktion c·x.",
+  sin: "$\\sin(x) \\to -\\cos(x)$ – denn $(-\\cos(x))′ = \\sin(x)$.",
+  cos: "$\\cos(x) \\to \\sin(x)$.",
+  "eˣ": "$e^{x} \\to e^{x}$ – die e-Funktion ist ihre eigene Stammfunktion.",
+  "1/x": "$\\frac{1}{x} \\to \\ln|x|$ auf Intervallen ohne 0.",
+};
+function stammHilfe(fText, fBaum) {
+  if (!fBaum) return null;
+  const tex = tx(fBaum);
+  const teile = summanden(fBaum);
+  const b = teile.map(baustein);
+  const arten = [...new Set(b.filter(Boolean).map((x) => x.art))];
+  const erster = b[0];
+  const ersterTex = tx(teile[0]);
+  const schritt = erster
+    ? (() => { const { vz, zahl } = faktorTex(erster.q, true); return `Beginne mit $${ersterTex}$: Eine Stammfunktion davon ist $${vz}${zahl}${erster.teil}$. Kontrolle: Ableiten ergibt wieder $${ersterTex}$.`; })()
+    : `Beginne mit $${ersterTex}$ und überlege: Welche Funktion hat genau diese Ableitung?`;
+  const fk = kompiliere(fBaum);
+  const x0 = [1, 2, 0.5].find((x) => endlich(fk(x)));
+  const loes = stammTex(fBaum);
+  return {
+    id: `stamm-${fText}`,
+    aufgabe: `Stammfunktion ${tex} ${arten.includes("1/x") ? "ln Definitionsmenge" : ""}`,
+    hilfen: {
+      verstehen: [
+        "Gesucht ist eine Funktion F, deren Ableitung f ist: F′ = f. Welche Funktion hat f als Ableitung?",
+        "Aufleiten ist Ableiten rückwärts. Jede Idee kannst du kontrollieren, indem du sie ableitest.",
+        "Das „+ C“ ergänzt die App. Du gibst nur F(x) ohne Konstante ein.",
+      ],
+      ansatz: [
+        teile.length > 1 ? `f besteht aus ${teile.length} Summanden. Darfst du jeden einzeln aufleiten?` : "Welcher Grundbaustein steckt in f – eine Potenz von x, sin, cos, eˣ oder 1/x?",
+        arten.map((a) => REGEL_TEXT[a]).filter(Boolean).join(" ") || "Konstante Faktoren bleiben beim Aufleiten stehen; Summen werden gliedweise aufgeleitet.",
+        schritt,
+      ],
+      regel: [
+        "Welche Ableitungen kennst du? Lies sie rückwärts: Aus (xⁿ)′ = n·xⁿ⁻¹ wird die Potenzregel fürs Aufleiten.",
+        arten.map((a) => REGEL_TEXT[a]).filter(Boolean).join(" ") || "Faktor- und Summenregel gelten auch beim Aufleiten.",
+        schritt,
+      ],
+      umformen: [
+        "Lässt sich f vorher als Summe von Potenzen schreiben?",
+        "$\\frac{1}{x^{2}} = x^{-2}$ – damit greift die Potenzregel. Nur $\\frac{1}{x} = x^{-1}$ ist der Sonderfall mit $\\ln|x|$.",
+        "Ein konstanter Faktor bleibt beim Aufleiten einfach stehen: $\\int 5 \\cdot g(x) \\, dx = 5 \\int g(x) \\, dx$.",
+      ],
+      pruefen: [
+        "Leite dein F ab. Kommt genau f heraus?",
+        "Typische Fehler: Vorzeichen bei sin und cos, vergessenes Teilen durch n + 1, Faktor beim Ableiten statt beim Aufleiten.",
+        x0 !== undefined ? `Probe an einer Stelle: f(${String(x0).replace(".", ",")}) = ${dez(fk(x0))}. Dein F′(${String(x0).replace(".", ",")}) muss genau diesen Wert haben.` : "Setz eine Zahl in F′ und f ein und vergleiche.",
+      ],
+    },
+    regeln: [{ name: "Potenzregel rückwärts", bereich: "analysis" }, { name: "Stammfunktion", bereich: "analysis" },
+      ...(arten.includes("sin") || arten.includes("cos") ? [{ name: "Sinus", bereich: "analysis" }, { name: "Kosinus", bereich: "analysis" }] : []),
+      ...(arten.includes("eˣ") ? [{ name: "e-Funktion", bereich: "analysis" }] : []),
+      ...(arten.includes("1/x") ? [{ name: "Natürlicher Logarithmus", bereich: "analysis" }] : [])],
+    grundlage: /\\frac/.test(loes || "") ? { trainer: "bruchrechnen", name: "Brüche", grund: "Beim Aufleiten entstehen Brüche wie 1/(n + 1). Ein paar Runden Bruchrechnen helfen." } : null,
+    loesung: loes ? `$F(x) = ${loes} + C$` : null,
+  };
+}
+
+function integralHilfe(felder) {
+  return {
+    id: `int-${felder.f}-${felder.a}-${felder.b}`,
+    aufgabe: `bestimmtes Integral Stammfunktion ${felder.f}`,
+    hilfen: {
+      verstehen: [
+        "Gesucht ist eine Zahl: die Flächenbilanz von f zwischen a und b. Teile unterhalb der x-Achse zählen negativ.",
+        "Der Hauptsatz macht daraus eine Rechnung mit einer Stammfunktion: $\\int_{a}^{b} f(x) \\, dx = F(b) - F(a)$.",
+        "Du brauchst drei Dinge: eine Stammfunktion F, die obere Grenze b und die untere Grenze a.",
+      ],
+      ansatz: [
+        "Was brauchst du zuerst – die Grenzen oder die Stammfunktion?",
+        "Erst F bestimmen (F′ = f), dann oben einsetzen, unten einsetzen, subtrahieren.",
+        "Trag f, dein F und die Grenzen ein. Für 3x² wäre F(x) = x³, für ∫ von 2 bis 3 also F(3) − F(2).",
+      ],
+      regel: [
+        "Wie lautet der Hauptsatz der Differential- und Integralrechnung?",
+        "$\\int_{a}^{b} f(x) \\, dx = F(b) - F(a)$, wenn f auf [a; b] stetig ist und F′ = f gilt.",
+        "Die Stammfunktionen der Bausteine findest du im Modus „Spezielle Funktionen“ oder unter „Passende Regel ansehen“.",
+      ],
+      umformen: [
+        "Setzt du negative Grenzen ein, brauchst du Klammern: F(−2) bei F(x) = x³ ist (−2)³ = −8.",
+        "Bei F(b) − F(a) steht vor F(a) ein Minus – bei einer Summe also die ganze Klammer abziehen.",
+        "Rechne F(b) und F(a) zuerst einzeln aus und subtrahiere erst dann.",
+      ],
+      pruefen: [
+        "Ist das Vorzeichen plausibel? Liegt der Graph zwischen a und b überwiegend oberhalb der x-Achse, ist das Integral positiv.",
+        "Die App prüft beim Berechnen, ob F′ = f auf dem ganzen Intervall gilt und ob f dort stetig ist.",
+        "Vertauschst du a und b, ändert sich nur das Vorzeichen des Ergebnisses.",
+      ],
+    },
+    regeln: [{ name: "Hauptsatz", bereich: "analysis" }, { name: "Stammfunktion", bereich: "analysis" }, { name: "Potenzregel rückwärts", bereich: "analysis" }],
+    grundlage: { trainer: "quadrate", name: "Potenzen", grund: "Beim Einsetzen der Grenzen rechnest du viele Potenzen – zum Beispiel 3³ − 2³." },
+    loesung: null,
+  };
+}
+
 /* ---------- Stammfunktion bilden (drei Varianten) ---------- */
 
 function StammTrainer({ art, onC }) {
@@ -221,8 +348,11 @@ function StammTrainer({ art, onC }) {
   return (
     <div style={{ ...karte, marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 12 }}>
-        <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel }}>Bilde eine Stammfunktion</p>
-        <span style={{ fontSize: 12.5, color: C.grau }}>{bilanz.gesamt ? `${bilanz.richtig} von ${bilanz.gesamt} richtig` : ""}</span>
+        <div>
+          <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel }}>Bilde eine Stammfunktion</p>
+          <span style={{ fontSize: 12.5, color: C.grau }}>{bilanz.gesamt ? `${bilanz.richtig} von ${bilanz.gesamt} richtig` : ""}</span>
+        </div>
+        {status !== "richtig" && <IchHaengeFest kontext={stammHilfe(fText, fBaum)} />}
       </div>
       <div style={{ background: blau, borderRadius: 14, padding: "14px 16px", marginBottom: 14, overflowX: "auto" }}>
         <span style={{ color: C.weiss, fontSize: 22, fontWeight: 700, whiteSpace: "nowrap", lineHeight: 1.9 }}>{fBaum && <M t={`f(x) = ${tx(fBaum)}`} />}</span>
@@ -442,6 +572,9 @@ function BestimmtesIntegral({ zeigeHauptsatz }) {
     <div style={{ ...karte, marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 12 }}>
         <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel }}>Bestimmtes Integral mit dem Hauptsatz</p>
+        <IchHaengeFest kontext={integralHilfe(felder)} />
+      </div>
+      <div style={{ marginTop: -6, marginBottom: 6 }}>
         <button type="button" onClick={zeigeHauptsatz}
           style={{ background: "none", border: "none", color: C.see, fontSize: 13, fontWeight: 600, fontFamily: "inherit", cursor: "pointer", padding: 0 }}>ⓘ Hauptsatz ansehen</button>
       </div>
