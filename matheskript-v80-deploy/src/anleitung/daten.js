@@ -13,7 +13,7 @@ import b_kurve_4 from "./kurve-4.webp";
 import b_kurve_5 from "./kurve-5.webp";
 
 export const ANLEITUNG_BILDER = {
-  "ueberblick-1": { src: b_ueberblick_1, w: 390, h: 640, box: [0.51, 9.96, 98.97, 77.86] },
+  "ueberblick-1": { src: b_ueberblick_1, w: 390, h: 562, box: [0.51, 11.34, 98.97, 88.66] },
   "ueberblick-2": { src: b_ueberblick_2, w: 390, h: 640, box: [0.51, 10.32, 98.97, 48.59] },
   "kopf-1": { src: b_kopf_1, w: 390, h: 640, box: [0.51, 40.29, 98.97, 19.47] },
   "kopf-2": { src: b_kopf_2, w: 390, h: 640, box: [66.07, 40.07, 29.32, 20.0] },

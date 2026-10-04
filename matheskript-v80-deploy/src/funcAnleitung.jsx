@@ -17,7 +17,6 @@ const L = (de, en) => (englisch() ? en : de);
 
 const KAPITEL = [
   { id: "ueberblick", name: ["Überblick", "Overview"] },
-  { id: "kopf", name: ["Kopfrechnen", "Mental math"] },
   { id: "kurve", name: ["Kurvendiskussion", "Curve sketching"] },
 ];
 
@@ -27,30 +26,6 @@ const FOLIEN = [
     titel: ["Oben: dein Trainingsbereich", "At the top: your training area"],
     text: ["Die blauen Kacheln sind dein Trainingsbereich. Tippe eine an, sie klappt mit ihren Werkzeugen auf.",
       "The blue tiles are your training area. Tap one and it opens up with its tools."] },
-  { id: "ueberblick-2", kap: "ueberblick",
-    titel: ["Unten: die Kurse", "Further down: the courses"],
-    text: ["Unten liegen die Kurse. Sie sind noch in Arbeit und mit einem Schloss markiert.",
-      "Further down are the courses. They are still being built and marked with a lock."] },
-  { id: "kopf-1", kap: "kopf",
-    titel: ["Kopfrechnen aufklappen", "Open Mental Math"],
-    text: ["Tippe auf „Kopfrechnen“. Darunter erscheinen die bunten Trainer, vom Einmaleins bis zur Division.",
-      "Tap “Mental Math”. The colourful trainers appear below, from times tables to long division."] },
-  { id: "kopf-2", kap: "kopf",
-    titel: ["Multiplizieren wählen", "Choose multiplication"],
-    text: ["Wir nehmen „Multiplizieren“. Hier übst du vom kleinen Einmaleins bis zu vierstelligen Zahlen.",
-      "We pick “Multiply”. Here you practise from small times tables up to four-digit numbers."] },
-  { id: "kopf-3", kap: "kopf",
-    titel: ["Schwierigkeit einstellen", "Set the difficulty"],
-    text: ["Stelle beide Zahlen auf „2-stellig“. Sofort erscheint eine Aufgabe, umstellen geht jederzeit.",
-      "Set both numbers to “2-digit”. A task appears at once, and you can change it any time."] },
-  { id: "kopf-4", kap: "kopf",
-    titel: ["Im Kopf rechnen, Lösung eintippen", "Work it out, type the answer"],
-    text: ["Rechne im Kopf, ohne Taschenrechner. Tippe das Ergebnis ein und bestätige mit OK.",
-      "Work it out in your head, no calculator. Type the result and confirm with OK."] },
-  { id: "kopf-5", kap: "kopf",
-    titel: ["Sofort Rückmeldung", "Instant feedback"],
-    text: ["Die App prüft sofort. Nach zehn Aufgaben siehst du Tempo und Treffsicherheit.",
-      "The app checks instantly. After ten tasks you see your speed and accuracy."] },
   { id: "kurve-1", kap: "kurve",
     titel: ["Mathe-Training → Analysis", "Math Training → Analysis"],
     text: ["Klappe „Mathe-Training“ auf und tippe auf „Analysis“. Alle Werkzeuge erscheinen darunter.",
@@ -88,9 +63,6 @@ const CSS = `
 
 function Folie({ f, nr, gesamt }) {
   const bild = (englisch() ? BILDER_EN : BILDER_DE)[f.id];   // Screenshots in der jeweiligen Sprache
-  const kap = KAPITEL.find((k) => k.id === f.kap);
-  const imKap = FOLIEN.filter((x) => x.kap === f.kap);
-  const stelle = imKap.indexOf(f) + 1;
   return (
     <div className="anl-folie" aria-roledescription={L("Folie", "Slide")} aria-label={`${nr} ${L("von", "of")} ${gesamt}: ${L(...f.titel)}`}>
       <div style={{ padding: "0 4px" }}>
@@ -107,9 +79,6 @@ function Folie({ f, nr, gesamt }) {
         </div>
         {/* Text */}
         <div style={{ padding: "16px 6px 0", textAlign: "left", maxWidth: 420, margin: "0 auto" }}>
-          <p style={{ fontSize: 11.5, fontWeight: 600, letterSpacing: "0.08em", color: C.gruen, marginBottom: 5 }}>
-            {L(...kap.name).toUpperCase()} · {L("SCHRITT", "STEP")} {stelle} {L("VON", "OF")} {imKap.length}
-          </p>
           <h4 style={{ fontSize: 17.5, fontWeight: 700, letterSpacing: "-0.01em", lineHeight: 1.3, color: C.tinte, marginBottom: 6 }}>{L(...f.titel)}</h4>
           <p style={{ fontSize: 14.5, fontWeight: 300, lineHeight: 1.65, color: C.grau, minHeight: "4.95em" }}>{L(...f.text)}</p>
         </div>
@@ -154,8 +123,6 @@ export function AppAnleitung() {
     return () => window.removeEventListener("keydown", taste);
   }, [auf, akt]);
 
-  const kapAkt = FOLIEN[akt].kap;
-
   return (
     <div style={{ background: C.weiss, borderRadius: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", margin: "18px 0 14px", overflow: "hidden",
       border: `1px solid ${auf ? "rgba(0,77,152,0.18)" : C.linie}` }}>
@@ -181,20 +148,6 @@ export function AppAnleitung() {
       <div className={`anl-koerper${auf ? " auf" : ""}`} aria-hidden={!auf} data-aufklapp-inhalt>
         <div>
           <div style={{ borderTop: `1px solid ${C.linie}`, padding: "14px 12px 18px" }}>
-            {/* Kapitel */}
-            <div role="tablist" aria-label={L("Kapitel", "Chapters")} style={{ display: "flex", gap: 6, justifyContent: "center", flexWrap: "wrap", marginBottom: 16 }}>
-              {KAPITEL.map((k) => {
-                const an = k.id === kapAkt;
-                return (
-                  <button key={k.id} type="button" role="tab" aria-selected={an} onClick={() => geheZu(FOLIEN.findIndex((x) => x.kap === k.id))}
-                    style={{ padding: "6px 12px", borderRadius: 999, fontSize: 12.5, fontWeight: an ? 700 : 500, fontFamily: "inherit", cursor: "pointer",
-                      border: `1px solid ${an ? C.see : C.linie}`, background: an ? C.see : C.weiss, color: an ? C.weiss : C.grau, whiteSpace: "nowrap" }}>
-                    {L(...k.name)}
-                  </button>
-                );
-              })}
-            </div>
-
             <div style={{ position: "relative" }}>
               {auf && (
                 <div ref={band} className="anl-band" onScroll={beimScrollen} aria-roledescription={L("Karussell", "Carousel")} aria-label={L("So nutzt du die App", "How to use this app")}>
@@ -210,7 +163,7 @@ export function AppAnleitung() {
               {FOLIEN.map((f, i) => (
                 <button key={f.id} type="button" onClick={() => geheZu(i)} aria-label={L(`Zu Folie ${i + 1}`, `Go to slide ${i + 1}`)}
                   style={{ width: i === akt ? 18 : 6, height: 6, borderRadius: 999, border: "none", padding: 0, cursor: "pointer",
-                    background: i === akt ? C.see : f.kap === kapAkt ? "#9DB6D8" : C.linie, transition: "width .25s ease, background .25s ease" }} />
+                    background: i === akt ? C.see : C.linie, transition: "width .25s ease, background .25s ease" }} />
               ))}
             </div>
             {akt === FOLIEN.length - 1 && (
