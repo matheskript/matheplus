@@ -308,6 +308,7 @@ const SCHUL_BEREICHE = [
       { name: "Steckbriefaufgaben", zeile: "Aus Eigenschaften die Funktion bestimmen", bild: "steckbrief", ziel: { ansicht: "steckbrief" } },
       { name: "Ableitungstrainer", zeile: "f′, f″ und f‴ eingeben und prüfen", bild: "ableitung", ziel: { ansicht: "ableitungstrainer" } },
       { name: "Integrale", zeile: "Stammfunktionen und bestimmte Integrale", bild: "integral", ziel: { ansicht: "integrale" } },
+      { name: "Optimierungswerkstatt", zeile: "Schachtel, Fläche, eigener Ansatz", bild: "optimierung", ziel: { ansicht: "optimierung" } },
     ], video: { name: "Videokurse Analysis", zeile: "Analysis 1–5 mit Videolektionen und Checks" } },
   { id: "vektoren", titel: "Vektoren", text: "Der Ebenen-Visualizer zeigt jede Ebene live im Raum – dazu der Videokurs.", logo: <VektorenLogoKlein />,
     tools: [
@@ -329,6 +330,7 @@ const SCHUL_BEREICHE = [
   { id: "gleichungen", titel: "Gleichungen", text: "Gleichungen umformen und Gleichungssysteme lösen – mit Musterlösung.", logo: <GleichungenLogoKlein />,
     tools: [
       { name: "Gleichungen lösen", zeile: "Du formst um, die App rechnet mit", bild: "gleichung", ziel: { ansicht: "gleichungen" } },
+      { name: "Terme und Potenzgesetze", zeile: "Vereinfachen, ausklammern, kürzen", bild: "termkarte", ziel: { ansicht: "terme" } },
       { name: "Gleichungssysteme", zeile: "Mit drei Variablen", bild: "lgs", ziel: { ansicht: "lgs" } },
     ], video: { name: "Videokurs Gleichungen", zeile: "Umformen, Gleichungssysteme, Musterlösungen" } },
 ];
@@ -440,6 +442,8 @@ function MiniBild({ art }) {
     abstand: <><path d="M12 42 L46 18 L108 22 L74 48 Z" {...linie} fill="rgba(255,255,255,0.06)" /><path d="M60 33 V6" stroke={g} strokeWidth="1.4" strokeDasharray="3 3" /><circle cx="60" cy="6" r="3" fill={g} /><circle cx="60" cy="33" r="2.2" fill="#fff" />{txt(66, 22, "d", g, 11)}</>,
     geraden: <><path d="M10 42 L110 12" {...linie} /><path d="M20 10 L100 46" stroke={g} strokeWidth="1.6" fill="none" strokeLinecap="round" /><circle cx="58" cy="28" r="3" fill="#fff" /></>,
     winkel: <><path d="M16 44 L106 44" {...linie} /><path d="M16 44 L84 12" stroke={g} strokeWidth="1.6" fill="none" strokeLinecap="round" /><path d="M44 44 A28 28 0 0 0 38 31" stroke="#fff" strokeWidth="1.2" fill="none" />{txt(50, 38, "φ", g, 11)}</>,
+    optimierung: <>{achsen}<path d="M12 44 C 30 40, 40 8, 60 8 S 92 40, 112 44" {...linie} /><circle cx="60" cy="8" r="3.2" fill={g} /><path d="M60 8 V46" stroke={g} strokeWidth="1.2" strokeDasharray="3 3" /></>,
+    termkarte: <>{txt(14, 34, "a(b+c)", "#fff", 13)}{txt(14, 50, "= ab + ac", g, 11)}{txt(86, 20, "xⁿ", g, 15)}</>,
     integral: <>{achsen}<path d="M30 46 L30 30 C 44 14, 60 10, 76 20 L76 46 Z" fill="rgba(237,187,0,0.35)" /><path d="M10 40 C 26 34, 34 22, 48 15 S 80 14, 112 30" {...linie} />{txt(84, 18, "∫", g, 15)}</>,
     video: <><rect x="34" y="8" width="52" height="38" rx="7" {...linie} /><path d="M54 18 L70 27 L54 36 Z" fill={g} /></>,
     balken: <>{[6, 14, 26, 36, 30, 18, 9, 4].map((h, i) => <rect key={i} x={20 + i * 11} y={48 - h} width="7" height={h} rx="1.5" fill={i === 3 ? g : "rgba(255,255,255,0.5)"} />)}</>,

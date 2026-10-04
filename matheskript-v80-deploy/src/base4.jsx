@@ -107,6 +107,7 @@ export const NAV = [
     SCHULKLASSEN.map((k) => ({ name: `Klasse ${k}`, kurz: k >= 11 ? "Kursstufe" : "Nach dem Lambacher Schweizer", ansicht: "klasse", klasse: k })) },
   { id: "ueben", name: "Üben", kurz: "Aufgaben und ganze Rechenwege", eintraege: [
     { name: "Gleichungslöser", kurz: "Äquivalenzumformungen eintippen – linear bis Logarithmus", ansicht: "gleichungen" },
+    { name: "Terme und Potenzgesetze", kurz: "Vereinfachen, Ausklammern, Binomische Formeln, Potenzen, Brüche", ansicht: "terme" },
     { name: "Mathe Abi Masterclass", kurz: "Das 6-Monats-Programm fürs Mathe-Abi", ansicht: "masterclass" },
     { name: "Gleichungssysteme", kurz: "LGS mit drei Unbekannten – Gauß-Verfahren und direkter Weg", ansicht: "lgs" },
     { name: "Ableitungstrainer", kurz: "f′, f″ und f‴ eingeben und sofort prüfen lassen", ansicht: "ableitungstrainer" },
@@ -135,6 +136,7 @@ export const NAV = [
     { name: "Sinusfunktion", kurz: "a, b, c, d finden, bis der Graph passt", ansicht: "sinus" },
     { name: "Steckbriefaufgaben", kurz: "Aus Eigenschaften die Funktion bestimmen", ansicht: "steckbrief" },
     { name: "Integrale", kurz: "Stammfunktionen und bestimmte Integrale", ansicht: "integrale" },
+    { name: "Optimierungswerkstatt", kurz: "Schachtel, Fläche und Umfang, eigener Ansatz", ansicht: "optimierung" },
     { name: "Vektoren", kurz: "Alle Vektor-Werkzeuge im Überblick", ansicht: "vektoren" },
     { name: "Ebenen-Visualizer", kurz: "Ebenen in Koordinatenform live im Raum", ansicht: "ebenen" },
     { name: "Ebene vs. Ebene", kurz: "Schnittgerade und Schnittwinkel zweier Ebenen", ansicht: "ebenevsebene" },

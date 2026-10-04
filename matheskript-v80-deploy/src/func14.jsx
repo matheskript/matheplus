@@ -967,6 +967,7 @@ const ANALYSIS = [
   { ansicht: "steckbrief", titel: "Steckbriefaufgaben", kurzTitel: "Steckbriefe", slogan: "Aus Hochpunkt, Wendepunkt & Co. die Funktion bauen.", kurz: "Bedingungen aufstellen, einsetzen, LGS lösen – mit Schaubild als Probe.", zeichen: "f(?)" },
   { ansicht: "ableitungstrainer", titel: "Ableitungstrainer", slogan: "f′, f″ und f‴ eingeben und sofort prüfen lassen.", kurz: "f′, f″ und f‴ per Tastenfeld eingeben und sofort prüfen lassen.", zeichen: "f′" },
   { ansicht: "integrale", titel: "Integrale", slogan: "Stammfunktionen bilden und bestimmte Integrale berechnen.", zeichen: "∫" },
+  { ansicht: "optimierung", titel: "Optimierungswerkstatt", kurzTitel: "Optimierung", slogan: "Vom Text zur Zielfunktion – Schachtel, Fläche, eigener Ansatz.", zeichen: "max" },
 ];
 
 export function AnalysisZentrum({ gehe }) {
