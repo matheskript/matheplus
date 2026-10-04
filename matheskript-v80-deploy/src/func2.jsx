@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import StartBanner from "./funcStartBanner.jsx";
 import { createPortal } from "react-dom";
 import { BIBEL_URL, C, DEMO, KOEFF_FARBEN, KOEFF_HOCH } from "./base1.jsx";
 import { vz } from "./base2.jsx";
@@ -979,16 +980,9 @@ export function Startseite({ gehe }) {
 
   return (
     <div className="mx-auto px-6 pb-14" style={{ maxWidth: 620 }}>
-      {/* Willkommensbereich über der ersten Box */}
-      <section style={{ paddingTop: 26, paddingBottom: 6 }}>
-        <h1 style={{ fontSize: "clamp(24px, 6.6vw, 30px)", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.15, color: C.tinte, margin: 0 }}>
-          Willkommen bei <span style={{ color: C.see, whiteSpace: "nowrap" }}>Mythos Mathe</span>.
-        </h1>
-        <span aria-hidden="true" style={{ display: "block", width: 54, height: 4, borderRadius: 2, marginTop: 12, marginBottom: 14,
-          background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)` }} />
-        <p style={{ fontSize: 16.5, fontWeight: 500, lineHeight: 1.6, color: C.tinte, marginBottom: 8 }}>
-          Mathe verstehen, nicht auswendig lernen.
-        </p>
+      {/* Banner ganz oben unter dem Header, danach der Einführungstext */}
+      <StartBanner />
+      <section style={{ paddingTop: 18, paddingBottom: 6 }}>
         <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.8, margin: 0 }}>
           Hier wird Oberstufenmathe <b style={{ color: C.tinte, fontWeight: 600 }}>sichtbar</b>: Graphen live plotten,
           Ebenen im Raum drehen, Wahrscheinlichkeiten in Tafeln und Bäumen sehen. Dazu Videokurse mit Kurz-Checks
