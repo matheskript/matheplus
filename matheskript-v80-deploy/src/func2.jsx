@@ -16,7 +16,7 @@ import { AppAnleitung } from "./funcAnleitung.jsx";
 import { VektorenLogoKlein } from "./func16.jsx";
 import { StochastikLogoKlein } from "./func17.jsx";
 import { GleichungenLogoKlein } from "./funcGleichungen.jsx";
-import { MedailleLogo, KarteLogo } from "./funcWettbewerbe.jsx";
+import { MedaillenschrankLogo, BwmLogo, KarteLogo } from "./funcWettbewerbe.jsx";
 import { MasterclassKachel, MatheCheckenKachel, MathCreatorKachel } from "./funcMasterclass.jsx";
 import { ElternabendKachel } from "./funcElternabend.jsx";
 import { SatzZeilen, saetze } from "./baseSatz.jsx";
@@ -55,7 +55,7 @@ function PlotterLogoKlein() {
   );
 }
 
-function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "Werkzeug", klein, halb, extra, gesperrt, logoHell, portraet }) {
+function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "Werkzeug", klein, halb, extra, gesperrt, logoHell, portraet, titelUmbruch, keinI18nTitel }) {
   if (halb) klein = true;   // halbe Höhe: nur Titel und eine Textzeile
   const mehrereSaetze = saetze(text).length > 1;
   return (
@@ -76,8 +76,8 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
         .kachel-gesperrt .kachel-titel{background:none;color:#FFFFFF;text-shadow:0 1px 2px rgba(30,40,60,0.25)}`}</style>
       {/* Links (60 %): Titel und Erklärtext von oben */}
       <div style={{ flex: klein ? "1 1 68%" : "1 1 60%", minWidth: 0, padding: halb ? "8px 8px 8px 14px" : klein ? "14px 8px 14px 14px" : "14px 10px 14px 16px", display: "flex", flexDirection: "column", justifyContent: halb ? "center" : undefined }}>
-        <h2 className="kachel-titel" style={{ fontSize: halb ? "clamp(14px, 3.8vw, 18px)" : "clamp(15px, 4.1vw, 22px)", fontWeight: 700, letterSpacing: "-0.03em",
-          lineHeight: 1.1, margin: 0, whiteSpace: "nowrap", ...(portraet
+        <h2 className="kachel-titel" data-kein-i18n={keinI18nTitel || undefined} style={{ fontSize: halb ? "clamp(14px, 3.8vw, 18px)" : "clamp(15px, 4.1vw, 22px)", fontWeight: 700, letterSpacing: "-0.03em",
+          lineHeight: 1.1, margin: 0, whiteSpace: titelUmbruch ? "normal" : "nowrap", ...(titelUmbruch ? {} : portraet
             // Titel darf über das Porträt hinauslaufen (das Porträt beginnt erst darunter)
             ? { overflow: "visible", position: "relative", zIndex: 2 }
             : { overflow: "hidden", textOverflow: "ellipsis" }) }}>
@@ -958,13 +958,13 @@ export function Startseite({ gehe }) {
         </div>
       )}
       <PlotterKachel onClick={() => setWettAuf(!wettAuf)} label={wettAuf ? "Mathe-Wettbewerbe zuklappen" : "Mathe-Wettbewerbe aufklappen"}
-        logo={<MedailleLogo />} titel="Mathe-Wettbewerbe"
-        text="Bundeswettbewerb und Landeswettbewerbe – Termine, Aufgaben, Lösungen."
+        logo={<MedaillenschrankLogo />} titel="Mathe-Wettbewerbe"
+        text="Bundeswettbewerb Mathematik und Landeswettbewerbe."
         extra={<PlusKnopf auf={wettAuf} />} />
       {wettAuf && (
         <div style={{ margin: "4px 0 4px", padding: "2px 0 2px 12px", borderLeft: `3px solid ${C.flaggold}` }}>
-          <PlotterKachel klein onClick={() => gehe({ ansicht: "bwm" })} label="Bundeswettbewerb Mathematik öffnen" logo={<MedailleLogo />}
-            titel="Bundeswettbewerb"
+          <PlotterKachel klein onClick={() => gehe({ ansicht: "bwm" })} label="Bundeswettbewerb Mathematik öffnen" logo={<BwmLogo />} titelUmbruch keinI18nTitel
+            titel="Bundeswettbewerb Mathematik"
             text="Die nächste 1. Runde und die Aufgaben mit Lösungen vom letzten Jahr." />
           <PlotterKachel klein onClick={() => gehe({ ansicht: "landeswettbewerbe" })} label="Landeswettbewerbe öffnen" logo={<KarteLogo />}
             titel="Landeswettbewerbe"

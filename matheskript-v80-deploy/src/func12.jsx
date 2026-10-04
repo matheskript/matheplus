@@ -1128,11 +1128,31 @@ export function zufallsFunktion() {
   return vorlagen[r(0, vorlagen.length - 1)]().replace(/\+-/g, "-").replace(/--/g, "+");
 }
 
+/* Steht die Schreibmarke am Ende eines Exponenten ^( … ), der schon fertig ist
+   (eine Zahl, x, −x, e oder π), dann schreibt + bzw. − hinter der Potenz weiter
+   und nicht im Exponenten: e^(x) + 2 statt e^(x+2). Längere Exponenten wie
+   e^(2x … bleiben offen – dort geht es mit → hinaus. */
+const FERTIGER_EXPONENT = /^-?(\d+([.,]\d+)?|x|e|pi|π)$/;
+export function hinterFertigemExponenten(t, p) {
+  if (t[p] !== ")") return p;
+  let tiefe = 0;
+  for (let i = p - 1; i >= 0; i--) {
+    if (t[i] === ")") tiefe++;
+    else if (t[i] === "(") {
+      if (tiefe > 0) { tiefe--; continue; }
+      if (t[i - 1] !== "^") return p;
+      return FERTIGER_EXPONENT.test(t.slice(i + 1, p)) ? p + 1 : p;
+    }
+  }
+  return p;
+}
+
 export function Tastenfeld({ wert: text, setWert, pos, setPos }) {
   const [vonX, setVonX] = useState(true);
   const setzen = (t, p) => { setWert(t); setPos(Math.max(0, Math.min(p, t.length))); };
   const einfuegen = (s) => {
     let t = text, p = pos;
+    if ((s === "+" || s === "-") && t[p] === ")") p = hinterFertigemExponenten(t, p);
     if (t[p] === PLATZ) t = t.slice(0, p) + s + t.slice(p + 1);
     else t = t.slice(0, p) + s + t.slice(p);
     const rel = s.indexOf(PLATZ);

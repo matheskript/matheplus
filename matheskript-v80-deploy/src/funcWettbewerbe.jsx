@@ -419,6 +419,107 @@ export function LandeswettbewerbSeite({ land, gehe }) {
 }
 
 /* ---------- Kleine Grafiken für die Startseiten-Kacheln ---------- */
+
+/* Medaillenschrank für „Mathe-Wettbewerbe“: sechs Glasfächer, ein Fach pro Jahr –
+   Bronze · Gold+Gold · Gold+Gold · Gold+Bronze · Gold+Silber · Gold+Pokal. */
+const METALL = {
+  gold: ["#FFE58A", "#EDBB00", "#A67C00", "#7A5A00"],
+  silber: ["#FFFFFF", "#D3D9E3", "#8E99AA", "#5E6878"],
+  bronze: ["#F4C79A", "#C8813F", "#8A5220", "#5E3412"],
+};
+const FAECHER = [["bronze"], ["gold", "gold"], ["gold", "gold"], ["gold", "bronze"], ["gold", "silber"], ["gold", "pokal"]];
+
+export function MedaillenschrankLogo() {
+  // Hochformat 2 × 3, links in der Grafikfläche – rechts unten sitzt der Plus-Knopf.
+  const fw = 60, fh = 46, x0 = 13, y0 = 13, gap = 5;
+  const medaille = (cx, top, art, key) => {
+    const [hell, , dunkel, text] = METALL[art];
+    const cy = top + 28;
+    return (
+      <g key={key}>
+        <path d={`M${cx - 6} ${top + 3} L${cx} ${cy - 8} L${cx + 6} ${top + 3}`} fill="none" stroke="#1B62AE" strokeWidth="4.2" strokeLinejoin="round" />
+        <path d={`M${cx - 6} ${top + 3} L${cx - 1.6} ${cy - 10}`} stroke="#E8EEF7" strokeWidth="1.3" />
+        <circle cx={cx} cy={cy} r="9.5" fill={`url(#ms-${art})`} stroke={dunkel} strokeWidth="1.1" />
+        <circle cx={cx} cy={cy} r="6.4" fill="none" stroke={hell} strokeWidth="0.8" opacity="0.8" />
+        <text x={cx} y={cy + 3} textAnchor="middle" style={{ fontSize: 8.5, fontWeight: 800, fill: text, fontFamily: "Montserrat, system-ui, sans-serif" }}>
+          {art === "gold" ? "1" : art === "silber" ? "2" : "3"}
+        </text>
+      </g>
+    );
+  };
+  const pokal = (cx, top, key) => (
+    <g key={key}>
+      <path d={`M${cx - 9} ${top + 7} h18 v5 a9 9 0 0 1 -18 0 Z`} fill="url(#ms-gold)" stroke="#7A5A00" strokeWidth="1" />
+      <path d={`M${cx - 9} ${top + 9.5} h-3.5 a4 4 0 0 0 4.5 6.5 M${cx + 9} ${top + 9.5} h3.5 a4 4 0 0 1 -4.5 6.5`} fill="none" stroke="#A67C00" strokeWidth="1.5" />
+      <rect x={cx - 1.6} y={top + 20.5} width="3.2" height="6" fill="#A67C00" />
+      <rect x={cx - 7} y={top + 26.5} width="14" height="4.5" rx="1.1" fill="url(#ms-gold)" stroke="#7A5A00" strokeWidth="0.8" />
+      <rect x={cx - 8.5} y={top + 31} width="17" height="4" rx="1" fill="#5A4300" />
+      <path d={`M${cx - 5.5} ${top + 9.5} q 1 6 4.5 8`} stroke="#FFFFFF" strokeWidth="1.1" fill="none" opacity="0.6" />
+    </g>
+  );
+  const W = x0 * 2 + fw * 2 + gap, H = y0 + fh * 3 + gap * 2 + 22;
+  return (
+    <div style={{ width: "100%", height: "100%", padding: "9px 56px 9px 10px", boxSizing: "border-box" }}>
+      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
+        <defs>
+          {Object.entries(METALL).map(([k, [hell, mitte, dunkel]]) => (
+            <radialGradient key={k} id={`ms-${k}`} cx="38%" cy="32%" r="75%">
+              <stop offset="0" stopColor={hell} /><stop offset="0.55" stopColor={mitte} /><stop offset="1" stopColor={dunkel} />
+            </radialGradient>
+          ))}
+          <linearGradient id="ms-korpus" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#0E2F5E" /><stop offset="1" stopColor="#061A38" /></linearGradient>
+          <linearGradient id="ms-glas" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stopColor="#FFFFFF" stopOpacity="0.22" /><stop offset="0.45" stopColor="#FFFFFF" stopOpacity="0.04" /><stop offset="1" stopColor="#FFFFFF" stopOpacity="0.12" />
+          </linearGradient>
+        </defs>
+        {/* Korpus mit Sockel */}
+        <rect x="3" y="3" width={W - 6} height={H - 12} rx="8" fill="url(#ms-korpus)" stroke={C.flaggold} strokeWidth="1.8" />
+        <rect x="9" y={H - 12} width={W - 18} height="9" rx="2.5" fill="#04122A" stroke="rgba(237,187,0,0.55)" strokeWidth="1" />
+        {FAECHER.map((inhalt, i) => {
+          const sp = i % 2, ze = Math.floor(i / 2);
+          const x = x0 + sp * (fw + gap), y = y0 + ze * (fh + gap);
+          const mitte = x + fw / 2;
+          const pos = inhalt.length === 1 ? [mitte] : [mitte - 13, mitte + 13];
+          return (
+            <g key={i}>
+              <rect x={x} y={y} width={fw} height={fh} rx="4" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.28)" strokeWidth="0.9" />
+              <rect x={x + 3} y={y + fh - 6} width={fw - 6} height="3" rx="1.2" fill="rgba(255,255,255,0.18)" />
+              {inhalt.map((art, k) => (art === "pokal" ? pokal(pos[k], y + 4, k) : medaille(pos[k], y + 1, art, k)))}
+              <rect x={x} y={y} width={fw} height={fh} rx="4" fill="url(#ms-glas)" />
+              <path d={`M${x + 7} ${y + fh - 5} L${x + 19} ${y + 5}`} stroke="#FFFFFF" strokeWidth="2" opacity="0.13" strokeLinecap="round" />
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
+}
+
+/* Logo-Kachel „Bundeswettbewerb Mathematik“: geviertelte Fläche mit Kreis,
+   Quadrat, Dreieck und Karo – eigene Grafik im Stil der App. */
+export function BwmLogo() {
+  const feld = (x, y, inhalt, hg) => (
+    <g transform={`translate(${x} ${y})`}>
+      <rect width="66" height="66" fill={hg} />
+      {inhalt}
+    </g>
+  );
+  const w = "#FFFFFF", g = C.flaggold;
+  return (
+    <svg viewBox="0 0 230 190" preserveAspectRatio="xMidYMid meet" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
+      <defs><clipPath id="bwm-rund"><rect x="49" y="29" width="132" height="132" rx="16" /></clipPath></defs>
+      <g clipPath="url(#bwm-rund)">
+        {feld(49, 29, <circle cx="33" cy="33" r="19" fill="none" stroke={g} strokeWidth="5" />, "rgba(255,255,255,0.10)")}
+        {feld(115, 29, <rect x="15" y="15" width="36" height="36" fill={w} />, "rgba(237,187,0,0.22)")}
+        {feld(49, 95, <path d="M33 13 L53 51 H13 Z" fill={w} />, "rgba(237,187,0,0.22)")}
+        {feld(115, 95, <path d="M33 11 L55 33 L33 55 L11 33 Z" fill="none" stroke={g} strokeWidth="5" strokeLinejoin="round" />, "rgba(255,255,255,0.10)")}
+      </g>
+      <rect x="49" y="29" width="132" height="132" rx="16" fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth="2" />
+      <path d="M115 29 V161 M49 95 H181" stroke="rgba(255,255,255,0.55)" strokeWidth="2" />
+    </svg>
+  );
+}
+
 export function MedailleLogo() {
   return (
     <svg viewBox="0 0 100 100" style={{ width: "100%", height: "100%" }} aria-hidden="true">
