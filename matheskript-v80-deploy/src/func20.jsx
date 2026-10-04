@@ -1,5 +1,5 @@
 /* ============================================================
-   Vektoren-Bereich: Vektor-Generator
+   Vektoren-Bereich: Rechnen mit Vektoren (früher „Vektor-Generator“)
    Zufällige Beispielrechnungen (Koeffizienten zwischen −7 und +7)
    zum Anschauen – jede Rechnung mit vollständigem Rechenweg:
    Addition/Subtraktion, Skalarmultiplikation, Linearkombination,
@@ -11,7 +11,7 @@
 
 import React, { useRef, useState } from "react";
 import { C } from "./base1.jsx";
-import { DrehKnoepfe, FARBE_ACHSE, ebenenPolygon, kamera } from "./func16.jsx";
+import { DrehKnoepfe, FARBE_ACHSE, GRUND_AUS, GrundebenenGitter, GrundebenenSchalter, ebenenPolygon, kamera } from "./func16.jsx";
 import { Bruch, Einzeilig, SpaltenVektor, VecName, Wurzel, ggT, kreuz, minus, skalar, strahlImWuerfel } from "./func19.jsx";
 
 const FA = C.see, FB = C.gruen, FE = "#8A6D00", FS = C.smaragd;
@@ -156,7 +156,8 @@ function neueAufgabe(art) {
 
 /* ---------- 3D-Schaubild (Punkte, Gerade, Ebene) ---------- */
 
-function Raum3({ punkte, gerade, gerade2, lot, ebene }) {
+export function Raum3({ punkte, gerade, gerade2, lot, ebene, ebene2, lot2 }) {
+  const [grund, setGrund] = useState(GRUND_AUS);
   const [phi, setPhi] = useState(0.62);
   const [theta, setTheta] = useState(0.42);
   const maxK = Math.max(4, ...punkte.flatMap((p) => p.p.map(Math.abs)));
@@ -166,6 +167,7 @@ function Raum3({ punkte, gerade, gerade2, lot, ebene }) {
   const P = (p) => { const q = cam.proj(p); return [W / 2 + s * q.u, H / 2 - s * q.v]; };
   const pfad = (pts) => pts.map((p, i) => `${i ? "L" : "M"}${P(p)[0].toFixed(1)},${P(p)[1].toFixed(1)}`).join(" ") + " Z";
   const poly = ebene ? ebenenPolygon(ebene.n, ebene.d, L) : [];
+  const poly2 = ebene2 ? ebenenPolygon(ebene2.n, ebene2.d, L) : [];
   const strecke = gerade ? strahlImWuerfel(gerade.p, gerade.r, L) : null;
   const strecke2 = gerade2 ? strahlImWuerfel(gerade2.p, gerade2.r, L) : null;
 
@@ -179,6 +181,7 @@ function Raum3({ punkte, gerade, gerade2, lot, ebene }) {
   const ende = () => { ziehen.current = null; };
 
   return (
+    <div>
     <div style={{ position: "relative" }}>
       <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", display: "block", touchAction: "none", cursor: "grab", background: C.weiss,
         borderRadius: 14, border: `1px solid ${C.linie}` }}
@@ -190,6 +193,7 @@ function Raum3({ punkte, gerade, gerade2, lot, ebene }) {
             </marker>
           ))}
         </defs>
+        <GrundebenenGitter an={grund} P={P} L={L} />
         {[0, 1, 2].map((i) => {
           const a = [0, 0, 0], b = [0, 0, 0], l = [0, 0, 0];
           a[i] = -L; b[i] = L * 1.12; l[i] = L * 1.24;
@@ -202,13 +206,14 @@ function Raum3({ punkte, gerade, gerade2, lot, ebene }) {
           );
         })}
         {poly.length >= 3 && <path d={pfad(poly)} fill={C.see} fillOpacity="0.16" stroke={C.see} strokeOpacity="0.6" strokeWidth="1.3" />}
+        {poly2.length >= 3 && <path d={pfad(poly2)} fill={C.gruen} fillOpacity="0.13" stroke={C.gruen} strokeOpacity="0.55" strokeWidth="1.3" />}
         {ebene && punkte.length === 3 && <path d={pfad(punkte.map((x) => x.p))} fill={C.flaggold} fillOpacity="0.25" stroke={FE} strokeWidth="1.4" />}
         {strecke && (() => { const [x1, y1] = P(strecke[0]), [x2, y2] = P(strecke[1]);
           return <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={FE} strokeWidth="2.6" strokeLinecap="round" />; })()}
         {strecke2 && (() => { const [x1, y1] = P(strecke2[0]), [x2, y2] = P(strecke2[1]);
           return <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={C.see} strokeWidth="2.6" strokeLinecap="round" />; })()}
-        {lot && (() => { const [x1, y1] = P(lot[0]), [x2, y2] = P(lot[1]);
-          return <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={C.gruen} strokeWidth="2.4" strokeDasharray="5 4" />; })()}
+        {[lot, lot2].filter(Boolean).map((l, i) => { const [x1, y1] = P(l[0]), [x2, y2] = P(l[1]);
+          return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={C.gruen} strokeWidth="2.4" strokeDasharray="5 4" />; })}
         {gerade && !gerade.ohnePfeil && (() => { const [x1, y1] = P(gerade.p), [x2, y2] = P(gerade.p.map((v, i) => v + gerade.r[i]));
           return <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={FB} strokeWidth="3" markerEnd="url(#vg1)" />; })()}
         {(() => { const [x, y] = P([0, 0, 0]); return <circle cx={x} cy={y} r="2.5" fill={C.tinte} />; })()}
@@ -226,6 +231,8 @@ function Raum3({ punkte, gerade, gerade2, lot, ebene }) {
         })}
       </svg>
       <DrehKnoepfe setPhi={setPhi} setTheta={setTheta} zuruecksetzen={() => { setPhi(0.62); setTheta(0.42); }} />
+    </div>
+      <div style={{ marginTop: 10 }}><GrundebenenSchalter an={grund} setAn={setGrund} /></div>
     </div>
   );
 }
@@ -609,9 +616,9 @@ function AbstandGG({ A, u, B, v }) {
 /* ---------- Seite ---------- */
 
 const ARTEN = [
-  { id: "addsub", name: "Addition / Subtraktion", info: "Komponentenweise addieren oder subtrahieren – oben mit oben, Mitte mit Mitte, unten mit unten." },
-  { id: "skalar", name: "Skalarmultiplikation", info: "Die Zahl vor dem Vektor wird mit jeder Komponente multipliziert. Der Vektor wird gestreckt, gestaucht oder umgedreht." },
-  { id: "linear", name: "Linearkombination", info: "Erst jeden Vektor mit seinem Skalar multiplizieren, dann komponentenweise zusammenfassen." },
+  { id: "addsub", name: "Vektor A ± Vektor B", haupt: true, info: "Komponentenweise addieren oder subtrahieren – oben mit oben, Mitte mit Mitte, unten mit unten." },
+  { id: "skalar", name: "k · Vektor A", titel: "Skalarmultiplikation", haupt: true, info: "Die Zahl vor dem Vektor wird mit jeder Komponente multipliziert. Der Vektor wird gestreckt, gestaucht oder umgedreht." },
+  { id: "linear", name: "k · A + j · B", titel: "Linearkombination", haupt: true, info: "Erst jeden Vektor mit seinem Skalar multiplizieren, dann komponentenweise zusammenfassen." },
   { id: "skalarprodukt", name: "Skalarprodukt", info: "Komponenten paarweise multiplizieren und alles addieren – das Ergebnis ist eine Zahl. Ist sie 0, stehen die Vektoren senkrecht." },
   { id: "kreuzprodukt", name: "Kreuzprodukt", info: "Liefert einen Vektor, der auf beiden Vektoren senkrecht steht – zum Beispiel den Normalenvektor einer Ebene." },
   { id: "gerade", name: "2 Punkte → Gerade", info: "Stützvektor ist der Ortsvektor eines Punktes, Richtungsvektor der Verbindungsvektor zum anderen Punkt." },
@@ -629,7 +636,7 @@ export function VektorGenerator() {
   const neu = () => { setAufgabe(neueAufgabe(art)); setZaehler((z) => z + 1); };
   const karte = { background: C.weiss, borderRadius: 16, padding: 18, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" };
   const info = ARTEN.find((x) => x.id === art);
-  const titel = art === "addsub" ? (aufgabe.op === "+" ? "Vektoraddition" : "Vektorsubtraktion") : info.name;
+  const titel = art === "addsub" ? (aufgabe.op === "+" ? "Vektoraddition" : "Vektorsubtraktion") : info.titel || info.name;
 
   return (
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
@@ -641,8 +648,24 @@ export function VektorGenerator() {
         Alle Koordinaten liegen zwischen −7 und 7.
       </p>
 
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>
-        {ARTEN.map((x) => (
+      <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: C.gruenDunkel, marginBottom: 8 }}>Rechnen</p>
+      <div className="rv-haupt" style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8, marginBottom: 16 }}>
+        <style>{`@media (max-width:420px){.rv-haupt{grid-template-columns:1fr!important}}`}</style>
+        {ARTEN.filter((x) => x.haupt).map((x) => {
+          const an = art === x.id;
+          return (
+            <button key={x.id} type="button" onClick={() => wechsle(x.id)} aria-pressed={an}
+              style={{ minHeight: 52, padding: "8px 10px", borderRadius: 14, fontFamily: "inherit", cursor: "pointer", textAlign: "center",
+                border: `1px solid ${an ? C.see : C.linie}`, background: an ? C.see : C.weiss, color: an ? C.weiss : C.see,
+                fontSize: 15, fontWeight: 700, whiteSpace: "nowrap", boxShadow: an ? "0 4px 14px rgba(0,77,152,0.25)" : "0 2px 10px rgba(15,26,51,0.05)" }}>
+              {x.name}
+            </button>
+          );
+        })}
+      </div>
+      <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: C.grau, marginBottom: 8 }}>Weitere Beispiele</p>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 18 }}>
+        {ARTEN.filter((x) => !x.haupt).map((x) => (
           <button key={x.id} onClick={() => wechsle(x.id)}
             style={{ padding: "7px 12px", borderRadius: 999, fontSize: 12.5, fontFamily: "inherit", cursor: "pointer", whiteSpace: "nowrap",
               border: `1px solid ${art === x.id ? C.see : C.linie}`, background: art === x.id ? C.see : C.weiss,

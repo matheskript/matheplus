@@ -312,7 +312,7 @@ const SCHUL_BEREICHE = [
     tools: [
       { name: "Ebenen-Visualizer", zeile: "Ebenen live im Raum drehen", bild: "ebene", ziel: { ansicht: "ebenen" } },
       { name: "Ebene vs. Ebene", zeile: "Schnittgerade und Schnittwinkel", bild: "ebenen2", ziel: { ansicht: "ebenevsebene" } },
-      { name: "Vektor-Generator", zeile: "Immer neue Rechnungen mit Rechenweg", bild: "wuerfel", ziel: { ansicht: "vektorgenerator" } },
+      { name: "Rechnen mit Vektoren", zeile: "A ± B, k · A, k · A + j · B mit Rechenweg", bild: "wuerfel", ziel: { ansicht: "vektorgenerator" } },
       { name: "Kreuzprodukt", zeile: "a × b – Formel, eingesetzt, Ergebnis", bild: "kreuz", ziel: { ansicht: "kreuzprodukt" } },
     ], video: { name: "Videokurs Vektoren", zeile: "Fünf Lektionen mit Kurz-Checks" } },
   { id: "stochastik", titel: "Stochastik", text: "Bernoulli-Kette und Vier-Felder-Tafel: den Zufall live laufen lassen.", logo: <StochastikLogoKlein />,

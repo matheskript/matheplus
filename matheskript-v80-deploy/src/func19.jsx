@@ -9,7 +9,7 @@
 
 import React, { useRef, useState } from "react";
 import { C } from "./base1.jsx";
-import { DrehKnoepfe, FARBE_ACHSE, ebenenPolygon, ebenenText, kamera } from "./func16.jsx";
+import { DrehKnoepfe, FARBE_ACHSE, GRUND_AUS, GrundebenenGitter, GrundebenenSchalter, ebenenPolygon, ebenenText, kamera } from "./func16.jsx";
 
 const FARBE_E1 = C.see;
 const FARBE_E2 = C.gruen;
@@ -179,7 +179,7 @@ export function strahlImWuerfel(p, r, L) {
   return [p.map((v, k) => v + t0 * r[k]), p.map((v, k) => v + t1 * r[k])];
 }
 
-function Raum2({ k1, k2, info, phi, theta, setPhi, setTheta, zoom }) {
+function Raum2({ k1, k2, info, phi, theta, setPhi, setTheta, zoom, grund }) {
   const abschnitte = [k1, k2].flatMap((k) => k.slice(0, 3).filter((v) => v !== 0).map((v) => Math.abs(k[3] / v)));
   const L = Math.min(12, Math.max(5, Math.ceil(Math.max(0, ...abschnitte) + 1)));
   const W = 360, H = 320, s = ((Math.min(W, H) / 2 - 18) / (L * 1.55)) * zoom;
@@ -220,6 +220,7 @@ function Raum2({ k1, k2, info, phi, theta, setPhi, setTheta, zoom }) {
           </marker>
         ))}
       </defs>
+      <GrundebenenGitter an={grund} P={P} L={L} />
       {/* Achsen */}
       {[0, 1, 2].map((k) => {
         const a = [0, 0, 0], b = [0, 0, 0], lab = [0, 0, 0];
@@ -341,6 +342,7 @@ export function EbeneVsEbene() {
   const [phi, setPhi] = useState(0.62);
   const [theta, setTheta] = useState(0.42);
   const [zoom, setZoom] = useState(1);
+  const [grund, setGrund] = useState(GRUND_AUS);
   const info = lage(k1, k2);
   const karte = { background: C.weiss, borderRadius: 16, padding: 18, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" };
   const titel = { fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 10 };
@@ -367,9 +369,10 @@ export function EbeneVsEbene() {
           <EbenenEingabe name="₁" farbe={FARBE_E1} k={k1} setK={setK1} />
           <EbenenEingabe name="₂" farbe={FARBE_E2} k={k2} setK={setK2} />
         </div>
+        <div style={{ marginBottom: 10 }}><GrundebenenSchalter an={grund} setAn={setGrund} /></div>
 
         <div style={{ position: "relative" }}>
-          <Raum2 k1={k1} k2={k2} info={info} phi={phi} theta={theta} setPhi={setPhi} setTheta={setTheta} zoom={zoom} />
+          <Raum2 k1={k1} k2={k2} info={info} phi={phi} theta={theta} setPhi={setPhi} setTheta={setTheta} zoom={zoom} grund={grund} />
           <DrehKnoepfe setPhi={setPhi} setTheta={setTheta} zuruecksetzen={() => { setPhi(0.62); setTheta(0.42); setZoom(1); }} />
           <div style={{ position: "absolute", right: 6, bottom: 6, display: "flex", flexDirection: "column", borderRadius: 10,
             overflow: "hidden", border: `1px solid ${C.linie}`, boxShadow: "0 2px 8px rgba(15,26,51,0.14)" }}>

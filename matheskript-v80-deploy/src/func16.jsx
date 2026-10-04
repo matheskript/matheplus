@@ -108,7 +108,69 @@ function spurStrecke(n, d, achse, L) {
 
 export const FARBE_ACHSE = { 0: "#C99A00", 1: "#A50044", 2: "#004D98" };
 
-function Raum({ a, b, c, d, phi, theta, setPhi, setTheta, zeigen, zoom = 1 }) {
+/* ---------- Grundebenen (x₁-x₂, x₂-x₃, x₁-x₃) als Gitter ----------
+   Drei unabhängige Schalter; jede Grundebene wird als Gitter aus ihren beiden Koordinatenachsen gezeichnet.
+   Farbe = Farbe der Achse, die senkrecht auf der Grundebene steht (x₁-x₂-Ebene ⟂ x₃ → blau). */
+export const GRUNDEBENEN = [
+  { id: "x12", name: "x₁-x₂-Ebene", achsen: [0, 1], senkrecht: 2 },
+  { id: "x23", name: "x₂-x₃-Ebene", achsen: [1, 2], senkrecht: 0 },
+  { id: "x13", name: "x₁-x₃-Ebene", achsen: [0, 2], senkrecht: 1 },
+];
+export const GRUND_AUS = { x12: false, x23: false, x13: false };
+
+export function GrundebenenGitter({ an, P, L }) {
+  if (!an || !GRUNDEBENEN.some((g) => an[g.id])) return null;
+  const schritt = L > 8 ? 2 : 1;
+  const werte = [];
+  for (let t = -L + (L % schritt); t <= L + 1e-9; t += schritt) werte.push(t);
+  return (
+    <g pointerEvents="none">
+      {GRUNDEBENEN.filter((g) => an[g.id]).map((g) => {
+        const [i, j] = g.achsen, farbe = FARBE_ACHSE[g.senkrecht];
+        const pt = (a, b) => { const p = [0, 0, 0]; p[i] = a; p[j] = b; return P(p); };
+        const ecken = [pt(-L, -L), pt(L, -L), pt(L, L), pt(-L, L)];
+        const [lx, ly] = pt(L * 0.92, L * 0.92);
+        return (
+          <g key={g.id}>
+            <path d={ecken.map(([x, y], k) => `${k ? "L" : "M"}${x.toFixed(1)},${y.toFixed(1)}`).join(" ") + " Z"} fill={farbe} fillOpacity="0.06" stroke={farbe} strokeOpacity="0.45" strokeWidth="1" />
+            {werte.map((t) => {
+              const [a1, b1] = pt(t, -L), [a2, b2] = pt(t, L), [c1, d1] = pt(-L, t), [c2, d2] = pt(L, t);
+              return (
+                <g key={t}>
+                  <line x1={a1} y1={b1} x2={a2} y2={b2} stroke={farbe} strokeOpacity={t === 0 ? 0 : 0.22} strokeWidth="0.8" />
+                  <line x1={c1} y1={d1} x2={c2} y2={d2} stroke={farbe} strokeOpacity={t === 0 ? 0 : 0.22} strokeWidth="0.8" />
+                </g>
+              );
+            })}
+            <text x={lx} y={ly} textAnchor="middle" fontSize="10.5" fontWeight="700" fill={farbe} fillOpacity="0.85">{g.name.replace("-Ebene", "")}</text>
+          </g>
+        );
+      })}
+    </g>
+  );
+}
+
+export function GrundebenenSchalter({ an, setAn }) {
+  return (
+    <div role="group" aria-label="Grundebenen anzeigen" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 6 }}>
+      <span style={{ fontSize: 12.5, color: C.grau, marginRight: 2 }}>Grundebenen</span>
+      {GRUNDEBENEN.map((g) => {
+        const aktiv = !!an[g.id], farbe = FARBE_ACHSE[g.senkrecht];
+        return (
+          <button key={g.id} type="button" aria-pressed={aktiv} onClick={() => setAn({ ...an, [g.id]: !aktiv })}
+            style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 10px", minHeight: 32, borderRadius: 999,
+              border: `1px solid ${aktiv ? farbe : C.linie}`, background: aktiv ? C.himmel : C.weiss,
+              color: C.tinte, fontSize: 12.5, fontFamily: "inherit", cursor: "pointer", whiteSpace: "nowrap" }}>
+            <span aria-hidden="true" style={{ width: 12, height: 12, borderRadius: 3, border: `1.5px solid ${farbe}`,
+              background: aktiv ? farbe : "transparent", opacity: aktiv ? 0.85 : 0.5 }} />{g.name}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function Raum({ a, b, c, d, phi, theta, setPhi, setTheta, zeigen, zoom = 1, grund }) {
   const n = [a, b, c];
   const nLen = Math.hypot(a, b, c);
   // Würfelgröße: alle Spurpunkte sollen sichtbar sein
@@ -197,6 +259,7 @@ function Raum({ a, b, c, d, phi, theta, setPhi, setTheta, zeigen, zoom = 1 }) {
           <path d="M0,0 L10,5 L0,10 z" fill={C.smaragd} />
         </marker>
       </defs>
+      <GrundebenenGitter an={grund} P={P} L={L} />
 
       {/* Würfel */}
       {kanten.map(([p, q], i) => { const [x1, y1] = P(p), [x2, y2] = P(q);
@@ -437,6 +500,7 @@ export function EbenenVisualizer() {
   const [theta, setTheta] = useState(0.42);
   const [zoom, setZoom] = useState(1);
   const [zeigen, setZeigen] = useState({ spur: true, normale: true, box: false });
+  const [grund, setGrund] = useState(GRUND_AUS);
   const setze = ([x, y, z, w]) => { setA(x); setB(y); setC(z); setD(w); };
   const zufall = () => {
     const r = () => Math.floor(Math.random() * 11) - 5;
@@ -478,9 +542,10 @@ export function EbenenVisualizer() {
           {schalter("normale", "Normalenvektor", C.smaragd)}
           {schalter("box", "Würfel", C.hellgrau)}
         </div>
+        <div style={{ marginBottom: 10 }}><GrundebenenSchalter an={grund} setAn={setGrund} /></div>
 
         <div style={{ position: "relative" }}>
-          <Raum a={a} b={b} c={c} d={d} phi={phi} theta={theta} setPhi={setPhi} setTheta={setTheta} zeigen={zeigen} zoom={zoom} />
+          <Raum a={a} b={b} c={c} d={d} phi={phi} theta={theta} setPhi={setPhi} setTheta={setTheta} zeigen={zeigen} zoom={zoom} grund={grund} />
           <DrehKnoepfe setPhi={setPhi} setTheta={setTheta} zuruecksetzen={() => { setPhi(0.62); setTheta(0.42); setZoom(1); }} />
           {/* Zoom unten rechts */}
           <div style={{ position: "absolute", right: 6, bottom: 6, display: "flex", flexDirection: "column", borderRadius: 10,
@@ -542,7 +607,7 @@ export function EbenenVisualizer() {
 const VEKTOREN = [
   { ziel: { ansicht: "ebenen" }, titel: "Ebenen-Visualizer", slogan: "Ebenen in Koordinatenform live im Raum drehen.", kurz: "Ebenen in Koordinatenform live im 3D-Koordinatensystem sehen – mit Spurpunkten und Normalenvektor.", zeichen: "E" },
   { ziel: { ansicht: "ebenevsebene" }, titel: "Ebene vs. Ebene", slogan: "Schnittgerade und Schnittwinkel zweier Ebenen.", kurz: "Zwei Ebenen gleichzeitig im Raum – mit Schnittgerade und Schnittwinkel über die Kosinusformel.", zeichen: "E₁E₂" },
-  { ziel: { ansicht: "vektorgenerator" }, titel: "Vektor-Generator", slogan: "Zufällige Rechnungen mit Rechenweg.", kurz: "Addition, Skalarmultiplikation, Linearkombination, Skalar- und Kreuzprodukt, Geraden und Ebenen – immer neue Beispiele mit Rechenweg.", zeichen: "🎲" },
+  { ziel: { ansicht: "vektorgenerator" }, titel: "Rechnen mit Vektoren", slogan: "A ± B, k · A und k · A + j · B mit Rechenweg.", kurz: "Addition, Skalarmultiplikation, Linearkombination, Skalar- und Kreuzprodukt, Geraden und Ebenen – immer neue Beispiele mit Rechenweg.", zeichen: "🎲" },
   { ziel: { ansicht: "kreuzprodukt" }, titel: "Kreuzprodukt", slogan: "Zwei Vektoren eingeben – Formel, eingesetzt, Ergebnis.", kurz: "Zwei Vektoren eingeben – Formel, eingesetzte Koordinaten und Ergebnis in einer Zeile.", zeichen: "×" },
   { ziel: { ansicht: "kurse", kurs: "vektoren" }, titel: "Videokurs Vektoren", slogan: "Fünf Lektionen bis zu Ebenen – mit Kurz-Checks.", kurz: "Fünf Lektionen von den Grundlagen bis zu Ebenen – mit Merksätzen und Kurz-Checks.", zeichen: "▶" },
 ];
