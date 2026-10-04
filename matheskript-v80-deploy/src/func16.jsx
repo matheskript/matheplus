@@ -610,6 +610,8 @@ const VEKTOREN = [
   { ziel: { ansicht: "vektorgenerator" }, titel: "Rechnen mit Vektoren", slogan: "A ± B, k · A und k · A + j · B mit Rechenweg.", kurz: "Addition, Skalarmultiplikation, Linearkombination, Skalar- und Kreuzprodukt, Geraden und Ebenen – immer neue Beispiele mit Rechenweg.", zeichen: "🎲" },
   { ziel: { ansicht: "kreuzprodukt" }, titel: "Kreuzprodukt", slogan: "Zwei Vektoren eingeben – Formel, eingesetzt, Ergebnis.", kurz: "Zwei Vektoren eingeben – Formel, eingesetzte Koordinaten und Ergebnis in einer Zeile.", zeichen: "×" },
   { ziel: { ansicht: "kurse", kurs: "vektoren" }, titel: "Videokurs Vektoren", slogan: "Fünf Lektionen bis zu Ebenen – mit Kurz-Checks.", kurz: "Fünf Lektionen von den Grundlagen bis zu Ebenen – mit Merksätzen und Kurz-Checks.", zeichen: "▶" },
+  { ziel: { ansicht: "zweipunkte" }, titel: "Zwei Punkte – eine Gerade", kurzTitel: "Zwei Punkte", slogan: "Geradengleichung aus zwei Punkten – auf zwei Wegen.", zeichen: "AB" },
+  { ziel: { ansicht: "dreipunkte" }, titel: "Drei Punkte – eine Ebene", kurzTitel: "Drei Punkte", slogan: "Drei Wege zur Ebene, mit Koordinatenform.", zeichen: "ABC" },
 ];
 
 export function VektorenZentrum({ gehe }) {

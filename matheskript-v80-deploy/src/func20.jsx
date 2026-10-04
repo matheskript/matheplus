@@ -3,9 +3,9 @@
    Zufällige Beispielrechnungen (Koeffizienten zwischen −7 und +7)
    zum Anschauen – jede Rechnung mit vollständigem Rechenweg:
    Addition/Subtraktion, Skalarmultiplikation, Linearkombination,
-   Skalarprodukt, Kreuzprodukt, Gerade durch zwei Punkte (mit 3D-
-   Schaubild) und Ebene durch drei Punkte (drei Parameterformen,
-   mit 3D-Schaubild).
+   Skalarprodukt, Kreuzprodukt und Abstände (mit 3D-Schaubild).
+   „Zwei Punkte – eine Gerade“ und „Drei Punkte – eine Ebene“ sind
+   eigenständige Trainingstools in func23.jsx.
    Keine base-Datei darf diese Datei importieren.
    ============================================================ */
 
@@ -14,7 +14,7 @@ import { C } from "./base1.jsx";
 import { DrehKnoepfe, FARBE_ACHSE, GRUND_AUS, GrundebenenGitter, GrundebenenSchalter, ebenenPolygon, kamera } from "./func16.jsx";
 import { Bruch, Einzeilig, SpaltenVektor, VecName, Wurzel, ggT, kreuz, minus, skalar, strahlImWuerfel } from "./func19.jsx";
 
-const FA = C.see, FB = C.gruen, FE = "#8A6D00", FS = C.smaragd;
+export const FA = C.see, FB = C.gruen, FE = "#8A6D00", FS = C.smaragd;
 
 /* ---------- Zufall ---------- */
 
@@ -37,13 +37,13 @@ function mitLaenge() {
 
 /* ---------- Darstellung ---------- */
 
-const n = (x) => minus(String(x));
-const k = (x) => (x < 0 ? `(${n(x)})` : n(x));
-const Vek = ({ w, farbe = C.tinte }) => <SpaltenVektor farbe={farbe} eintraege={w.map((x, i) => <span key={i}>{x}</span>)} />;
-const Name = ({ t, farbe = C.tinte }) => <VecName t={t} idx="" farbe={farbe} />;
-const Gl = () => <span>=</span>;
+export const n = (x) => minus(String(x));
+export const k = (x) => (x < 0 ? `(${n(x)})` : n(x));
+export const Vek = ({ w, farbe = C.tinte }) => <SpaltenVektor farbe={farbe} eintraege={w.map((x, i) => <span key={i}>{x}</span>)} />;
+export const Name = ({ t, farbe = C.tinte }) => <VecName t={t} idx="" farbe={farbe} />;
+export const Gl = () => <span>=</span>;
 
-function Schritt({ nr, titel, children }) {
+export function Schritt({ nr, titel, children }) {
   return (
     <div style={{ marginBottom: 14 }}>
       {titel && (
@@ -93,19 +93,6 @@ function neueAufgabe(art) {
       const a = vektor(5); let b = vektor(5);
       while (kreuz(a, b).every((x) => x === 0)) b = vektor(5);
       return { art, a, b };
-    }
-    case "gerade": {
-      const A = vektor(5); let B = vektor(5);
-      while (gleich(A, B)) B = vektor(5);
-      return { art, A, B };
-    }
-    case "ebene": {
-      const A = vektor(4); let B = vektor(4), P = vektor(4);
-      while (gleich(A, B)) B = vektor(4);
-      const ab = B.map((x, i) => x - A[i]);
-      let ac = P.map((x, i) => x - A[i]);
-      while (kreuz(ab, ac).every((x) => x === 0)) { P = vektor(4); ac = P.map((x, i) => x - A[i]); }
-      return { art, A, B, C: P };
     }
     case "abstandPE": {
       // Normalenvektor mit ganzzahliger Länge, P = F + t·n → Abstand |t|·|n| ganzzahlig
@@ -357,94 +344,10 @@ function KreuzProd({ a, b }) {
   );
 }
 
-function Gerade({ A, B }) {
-  const d = B.map((x, i) => x - A[i]);
-  return (
-    <>
-      <p style={{ fontSize: 15, fontWeight: 700, color: C.tinte, textAlign: "center", marginBottom: 12 }}>
-        <span style={{ color: FA }}>A({A.map(n).join(" | ")})</span>
-        <span style={{ margin: "0 12px", color: C.hellgrau }}>und</span>
-        <span style={{ color: FB }}>B({B.map(n).join(" | ")})</span>
-      </p>
-      <Schritt nr="1" titel="Stützvektor: Ortsvektor von A">
-        <Einzeilig max={16}><Name t="OA" farbe={FA} /><Gl /><Vek w={A.map(n)} farbe={FA} /></Einzeilig>
-      </Schritt>
-      <Schritt nr="2" titel="Richtungsvektor: von A nach B">
-        <Einzeilig max={16}>
-          <Name t="AB" farbe={FE} /><Gl /><Name t="OB" farbe={FB} /><span>−</span><Name t="OA" farbe={FA} /><Gl />
-          <Vek w={B.map(n)} farbe={FB} /><span>−</span><Vek w={A.map(n)} farbe={FA} /><Gl />
-          <Vek w={B.map((x, i) => `${n(x)} − ${k(A[i])}`)} /><Gl />
-          <Vek w={d.map(n)} farbe={FE} />
-        </Einzeilig>
-      </Schritt>
-      <Schritt nr="3" titel="Geradengleichung in Parameterform">
-        <Einzeilig max={17}>
-          <span>g:</span><Name t="x" /><Gl /><Vek w={A.map(n)} farbe={FA} /><span>+ t ·</span><Vek w={d.map(n)} farbe={FE} />
-        </Einzeilig>
-      </Schritt>
-      <p style={{ fontSize: 13, color: C.grau, lineHeight: 1.55, marginBottom: 12 }}>
-        Probe: Für t = 0 landest du bei A, für t = 1 bei B. Jeder andere Wert von t liefert einen weiteren Punkt der Geraden.
-      </p>
-      <Raum3 punkte={[{ p: A, label: "A", farbe: FA }, { p: B, label: "B", farbe: FB }]} gerade={{ p: A, r: d }} />
-    </>
-  );
-}
-
-function Ebene({ A, B, C: Cp }) {
-  const diff = (P, Q) => Q.map((x, i) => x - P[i]); // P→Q
-  const pkt = { A, B, C: Cp };
-  const farbe = { A: FA, B: FB, C: FS };
-  const varianten = [["A", "B", "C"], ["B", "A", "C"], ["C", "A", "B"]];
-  const nv = kreuz(diff(A, B), diff(A, Cp));
-  const zeigeRV = (P, Q) => {
-    const d = diff(pkt[P], pkt[Q]);
-    return (
-      <Einzeilig max={15}>
-        <Name t={P + Q} farbe={FE} /><Gl /><Vek w={pkt[Q].map(n)} farbe={farbe[Q]} /><span>−</span><Vek w={pkt[P].map(n)} farbe={farbe[P]} /><Gl />
-        <Vek w={pkt[Q].map((x, i) => `${n(x)} − ${k(pkt[P][i])}`)} /><Gl /><Vek w={d.map(n)} farbe={FE} />
-      </Einzeilig>
-    );
-  };
-  return (
-    <>
-      <p style={{ fontSize: 15, fontWeight: 700, textAlign: "center", marginBottom: 12, lineHeight: 1.7 }}>
-        {["A", "B", "C"].map((P) => (
-          <span key={P} style={{ color: farbe[P], margin: "0 8px", whiteSpace: "nowrap" }}>{P}({pkt[P].map(n).join(" | ")})</span>
-        ))}
-      </p>
-      <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, marginBottom: 12 }}>
-        Rezept: Ein Punkt wird zum Stützpunkt, die Verbindungsvektoren zu den beiden anderen Punkten werden die Spannvektoren.
-        Welcher Punkt der Stützpunkt ist, darfst du frei wählen – so entstehen drei gleichwertige Parameterformen derselben Ebene.
-      </p>
-      {varianten.map(([S, P, Q], i) => (
-        <div key={S} style={{ border: `1px solid ${C.linie}`, borderRadius: 14, padding: "12px 10px 2px", marginBottom: 12 }}>
-          <p style={{ fontSize: 14, fontWeight: 800, color: C.tinte, marginBottom: 8 }}>
-            Weg {i + 1}: Stützpunkt <span style={{ color: farbe[S] }}>{S}</span>
-          </p>
-          <Schritt titel="Spannvektoren">{zeigeRV(S, P)}<div style={{ height: 6 }} />{zeigeRV(S, Q)}</Schritt>
-          <Schritt titel="Parameterform">
-            <Einzeilig max={16}>
-              <span>E:</span><Name t="x" /><Gl /><Vek w={pkt[S].map(n)} farbe={farbe[S]} />
-              <span>+ r ·</span><Vek w={diff(pkt[S], pkt[P]).map(n)} farbe={FE} />
-              <span>+ s ·</span><Vek w={diff(pkt[S], pkt[Q]).map(n)} farbe={FE} />
-            </Einzeilig>
-          </Schritt>
-        </div>
-      ))}
-      <p style={{ fontSize: 13, color: C.grau, lineHeight: 1.55, marginBottom: 12 }}>
-        Alle drei Gleichungen beschreiben dieselbe Ebene. Ein Normalenvektor ist <Name t="AB" farbe={FE} /> × <Name t="AC" farbe={FE} /> = ({nv.map(n).join(" | ")}).
-      </p>
-      <Raum3 punkte={[{ p: A, label: "A", farbe: FA }, { p: B, label: "B", farbe: FB }, { p: Cp, label: "C", farbe: FS }]}
-        ebene={{ n: nv, d: skalar(nv, A) }} />
-    </>
-  );
-}
-
-
 /* ---------- Abstände ---------- */
 
 // |z| / √q schön darstellen: gekürzt, wenn q eine Quadratzahl ist, sonst mit Wurzel und Näherung
-function AbstandErgebnis({ z, q }) {
+export function AbstandErgebnis({ z, q }) {
   const w = Math.round(Math.sqrt(q));
   const dez = (x) => String(Math.round(x * 1000) / 1000).replace(".", ",");
   const az = Math.abs(z);
@@ -456,7 +359,7 @@ function AbstandErgebnis({ z, q }) {
   return <span style={{ color: FE, display: "inline-flex", alignItems: "center", gap: "0.25em" }}><Bruch oben={az} unten={<Wurzel>{q}</Wurzel>} /><span style={{ color: C.tinte }}>≈ {dez(az / Math.sqrt(q))} LE</span></span>;
 }
 
-function koordText(nv, d) {
+export function koordText(nv, d) {
   const teile = [];
   ["x₁", "x₂", "x₃"].forEach((x, i) => {
     const c = nv[i]; if (!c) return;
@@ -621,8 +524,6 @@ const ARTEN = [
   { id: "linear", name: "k · A + j · B", titel: "Linearkombination", haupt: true, info: "Erst jeden Vektor mit seinem Skalar multiplizieren, dann komponentenweise zusammenfassen." },
   { id: "skalarprodukt", name: "Skalarprodukt", info: "Komponenten paarweise multiplizieren und alles addieren – das Ergebnis ist eine Zahl. Ist sie 0, stehen die Vektoren senkrecht." },
   { id: "kreuzprodukt", name: "Kreuzprodukt", info: "Liefert einen Vektor, der auf beiden Vektoren senkrecht steht – zum Beispiel den Normalenvektor einer Ebene." },
-  { id: "gerade", name: "2 Punkte → Gerade", info: "Stützvektor ist der Ortsvektor eines Punktes, Richtungsvektor der Verbindungsvektor zum anderen Punkt." },
-  { id: "ebene", name: "3 Punkte → Ebene", info: "Ein Punkt als Stützpunkt, zwei Verbindungsvektoren als Spannvektoren – drei gleichwertige Wege." },
   { id: "abstandPG", name: "Abstand Punkt–Gerade", info: "Lotfußpunkt über die Bedingung „Verbindungsvektor senkrecht zum Richtungsvektor“ – dann die Länge des Lots." },
   { id: "abstandPE", name: "Abstand Punkt–Ebene", info: "Mit der Hesseschen Normalform: Punkt in die Koordinatenform einsetzen und durch die Länge des Normalenvektors teilen." },
   { id: "abstandGG", name: "Abstand Gerade–Gerade", info: "Für windschiefe Geraden: gemeinsamer Normalenvektor per Kreuzprodukt, dann den Verbindungsvektor darauf projizieren." },
@@ -686,8 +587,6 @@ export function VektorGenerator() {
           {art === "linear" && <Linear {...aufgabe} />}
           {art === "skalarprodukt" && <SkalarProd {...aufgabe} />}
           {art === "kreuzprodukt" && <KreuzProd {...aufgabe} />}
-          {art === "gerade" && <Gerade {...aufgabe} />}
-          {art === "ebene" && <Ebene {...aufgabe} />}
           {art === "abstandPG" && <AbstandPG {...aufgabe} />}
           {art === "abstandPE" && <AbstandPE {...aufgabe} />}
           {art === "abstandGG" && <AbstandGG {...aufgabe} />}

@@ -139,6 +139,8 @@ export const NAV = [
     { name: "Ebene vs. Ebene", kurz: "Schnittgerade und Schnittwinkel zweier Ebenen", ansicht: "ebenevsebene" },
     { name: "Kreuzprodukt", kurz: "Rechner mit Formel und eingesetzten Werten", ansicht: "kreuzprodukt" },
     { name: "Rechnen mit Vektoren", kurz: "A ± B, k · A, k · A + j · B – mit Rechenweg", ansicht: "vektorgenerator" },
+    { name: "Zwei Punkte – eine Gerade", kurz: "Geradengleichung auf zwei Wegen", ansicht: "zweipunkte" },
+    { name: "Drei Punkte – eine Ebene", kurz: "Drei Wege, mit Koordinatenform", ansicht: "dreipunkte" },
     { name: "Stochastik", kurz: "Alle Stochastik-Werkzeuge im Überblick", ansicht: "stochastik" },
     { name: "Bernoulli-Kette", kurz: "Binomialverteilung live mit Formel und Experiment", ansicht: "bernoulli" },
     { name: "Vier-Felder-Tafel", kurz: "Absolut oder in Prozent, mit Baumdiagramm", ansicht: "vierfelder" },
