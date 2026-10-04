@@ -999,9 +999,9 @@ export function Startseite({ gehe }) {
         text={schulAuf ? "Abi-Training, Mathematik, Kopfrechnen und Wettbewerbe." : "Abi-Training, Formelsammlung, Kopfrechnen und Wettbewerbe – alles zum Üben und Nachschlagen."}
         extra={<PlusKnopf auf={schulAuf} klein={schulAuf} />} />
       {schulAuf && (
-        <div data-aufklapp-inhalt style={{ margin: "4px 0 4px", padding: "2px 0 2px 12px", borderLeft: `3px solid ${C.flaggold}` }}>
+        <div data-aufklapp-inhalt style={{ margin: "0 0 4px" }}>
           {/* Abi-Training: Analysis, Vektoren, Stochastik, Gleichungen und Mein Training */}
-          <PlotterKachel klein haupt onClick={() => { setAbiAuf(!abiAuf); setBereichAuf(null); }} auf={abiAuf}
+          <PlotterKachel klein breit haupt onClick={() => { setAbiAuf(!abiAuf); setBereichAuf(null); }} auf={abiAuf}
             label={abiAuf ? "Abi-Training zuklappen" : "Abi-Training aufklappen"}
             logo={<ZeichenLogo zeichen="Abi" />} titel="Abi-Training"
             text="Analysis, Vektoren, Stochastik und Gleichungen live erleben."
@@ -1022,7 +1022,7 @@ export function Startseite({ gehe }) {
             </div>
           )}
 
-          <PlotterKachel klein haupt onClick={() => setMatheAuf(!matheAuf)} auf={matheAuf} label={matheAuf ? "Mathematik zuklappen" : "Mathematik aufklappen"}
+          <PlotterKachel klein breit haupt onClick={() => setMatheAuf(!matheAuf)} auf={matheAuf} label={matheAuf ? "Mathematik zuklappen" : "Mathematik aufklappen"}
             logo={<FormelLogoKlein />} titel="Mathematik"
             text="Formelsammlung, Definitionen und Sätze – zum Nachschlagen."
             extra={<AufklappPfeil auf={matheAuf} />} />
@@ -1042,7 +1042,7 @@ export function Startseite({ gehe }) {
             </div>
           )}
 
-          <PlotterKachel klein haupt onClick={() => setKopfAuf(!kopfAuf)} auf={kopfAuf} label={kopfAuf ? "Kopfrechnen zuklappen" : "Kopfrechnen aufklappen"} logo={<KopfrechnenLogoKlein />}
+          <PlotterKachel klein breit haupt onClick={() => setKopfAuf(!kopfAuf)} auf={kopfAuf} label={kopfAuf ? "Kopfrechnen zuklappen" : "Kopfrechnen aufklappen"} logo={<KopfrechnenLogoKlein />}
             titel="Kopfrechnen"
             text="Primfaktoren, Quadratzahlen, Brüche, Einmaleins – auf Zeit."
             extra={<AufklappPfeil auf={kopfAuf} />} />
@@ -1055,7 +1055,7 @@ export function Startseite({ gehe }) {
           )}
 
           {ZEIGE_WETTBEWERBE && (<>
-            <PlotterKachel klein haupt onClick={() => setWettAuf(!wettAuf)} auf={wettAuf} label={wettAuf ? "Mathe-Wettbewerbe zuklappen" : "Mathe-Wettbewerbe aufklappen"}
+            <PlotterKachel klein breit haupt onClick={() => setWettAuf(!wettAuf)} auf={wettAuf} label={wettAuf ? "Mathe-Wettbewerbe zuklappen" : "Mathe-Wettbewerbe aufklappen"}
               logo={<MedaillenschrankLogo />} titel="Mathe-Wettbewerbe"
               text="Bundeswettbewerb Mathematik und Landeswettbewerbe."
               extra={<AufklappPfeil auf={wettAuf} />} />
