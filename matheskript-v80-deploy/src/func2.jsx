@@ -368,19 +368,8 @@ function toolKnoten(t) {
 function menueBaum() {
   return [
     ...SCHUL_BEREICHE.map((b) => ({ id: b.id, titel: b.titel, kinder: b.tools.map(toolKnoten) })),
-    { id: "mein", titel: "Mein Training", kinder: [
-      { titel: "5 Minuten Mathe", ziel: { ansicht: "warmup" } },
-      { titel: "Meine Fehler üben", ziel: { ansicht: "fehlertraining" } },
-      { titel: "Prüfungsmodus", ziel: { ansicht: "pruefung" } },
-      { titel: "Klausur nachbereiten", ziel: { ansicht: "klausurnach" } },
-    ] },
     { id: "mathe", titel: "Mathematik", kinder: [
       { id: "formel", titel: "Formelsammlung", kinder: FORMEL_MENUE.map((f) => ({ titel: f.name, ziel: f.ziel })) },
-    ] },
-    { id: "kopf", titel: "Kopfrechnen", kinder: TRAINER.map((t) => ({ titel: t.kurzTitel || t.titel, ziel: { ansicht: "kopf", trainer: t.id } })) },
-    { id: "wett", titel: "Mathe-Wettbewerbe", kinder: [
-      { titel: "Bundeswettbewerb Mathematik", ziel: { ansicht: "bwm" } },
-      { titel: "Landeswettbewerbe", ziel: { ansicht: "landeswettbewerbe" } },
     ] },
   ];
 }
@@ -399,22 +388,22 @@ export function ToolMenue({ gehe, schliessen, aktuell }) {
       const aktiv = k.ziel.ansicht === aktuell;
       return (
         <button key={id} type="button" onClick={() => gehe(k.ziel)} aria-current={aktiv ? "page" : undefined}
-          style={{ display: "block", width: "100%", textAlign: "left", fontFamily: "inherit", cursor: "pointer", minHeight: 38, padding: "7px 10px", marginTop: 4,
-            borderRadius: 9, border: `1px solid ${aktiv ? C.flaggold : C.linie}`, background: aktiv ? "rgba(237,187,0,0.14)" : C.weiss,
-            fontSize: 13.5, fontWeight: aktiv ? 700 : 500, color: C.tinte, lineHeight: 1.25 }}>{k.titel}</button>
+          style={{ display: "block", width: "100%", textAlign: "left", fontFamily: "inherit", cursor: "pointer", minHeight: 30, padding: "5px 9px", marginTop: 3,
+            borderRadius: 8, border: `1px solid ${aktiv ? C.flaggold : C.linie}`, background: aktiv ? "rgba(237,187,0,0.14)" : C.weiss,
+            fontSize: 12.5, fontWeight: aktiv ? 700 : 500, color: C.tinte, lineHeight: 1.2 }}>{k.titel}</button>
       );
     }
     const auf = !!offen[id];
     return (
-      <div key={id} style={{ marginTop: tiefe === 0 ? 6 : 4 }}>
+      <div key={id} style={{ marginTop: tiefe === 0 ? 5 : 3 }}>
         <button type="button" onClick={() => setOffen({ ...offen, [id]: !auf })} aria-expanded={auf} data-aufklapp-haupt={tiefe === 0 ? "" : undefined}
           style={{ display: "flex", width: "100%", alignItems: "center", justifyContent: "space-between", gap: 8, textAlign: "left", fontFamily: "inherit", cursor: "pointer",
-            minHeight: tiefe === 0 ? 42 : 38, padding: "6px 10px", borderRadius: tiefe === 0 ? 11 : 9, border: `1px solid ${auf ? C.see : C.linie}`,
-            background: auf ? C.himmel : C.weiss, fontSize: tiefe === 0 ? 14.5 : 13.5, fontWeight: 700, color: C.see }}>
-          <span>{k.titel}</span><AufklappZeichen auf={auf} groesse={16} />
+            minHeight: tiefe === 0 ? 36 : 30, padding: "4px 9px", borderRadius: tiefe === 0 ? 10 : 8, border: `1px solid ${auf ? C.see : C.linie}`,
+            background: auf ? C.himmel : C.weiss, fontSize: tiefe === 0 ? 13.5 : 12.5, fontWeight: 700, color: C.see, lineHeight: 1.2 }}>
+          <span>{k.titel}</span><AufklappZeichen auf={auf} groesse={15} />
         </button>
         {auf && (
-          <div data-aufklapp-inhalt style={{ margin: "0 0 4px 8px", paddingLeft: 8, borderLeft: `2px solid ${C.flaggold}` }}>
+          <div data-aufklapp-inhalt style={{ margin: "0 0 3px 5px", paddingLeft: 6, borderLeft: `2px solid ${C.flaggold}` }}>
             {k.kinder.map((x) => zeile(x, id, tiefe + 1))}
           </div>
         )}
@@ -424,9 +413,10 @@ export function ToolMenue({ gehe, schliessen, aktuell }) {
   return createPortal(
     <>
       <div onClick={schliessen} aria-hidden="true" style={{ position: "fixed", inset: 0, zIndex: 40, background: "rgba(8,23,59,0.45)" }} />
-      <div role="dialog" aria-label="Menü" data-scroll-box
-        style={{ position: "fixed", top: 64, left: "50%", transform: "translateX(-50%)", width: "min(604px, calc(100vw - 16px))", maxHeight: "calc(100dvh - 76px)", overflowY: "auto",
-          zIndex: 45, background: C.sand, borderRadius: 16, boxShadow: "0 18px 48px rgba(8,23,59,0.4)", padding: "8px 10px 12px", fontFamily: "Montserrat, system-ui, sans-serif" }}>
+      <style>{`.tool-menue-panel{position:fixed;top:64px;right:8px;width:60vw;min-width:220px;max-height:calc(100dvh - 76px);overflow-y:auto}
+        @media (min-width:768px){.tool-menue-panel{width:33.333vw;min-width:320px}}`}</style>
+      <div role="dialog" aria-label="Menü" data-scroll-box className="tool-menue-panel"
+        style={{ zIndex: 45, background: C.sand, borderRadius: 14, boxShadow: "0 18px 48px rgba(8,23,59,0.4)", padding: "6px 8px 10px", fontFamily: "Montserrat, system-ui, sans-serif" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "4px 2px 2px" }}>
           <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", color: C.grau }}>ALLE BEREICHE</span>
           <button type="button" onClick={schliessen} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 12.5, fontWeight: 700, color: C.see, padding: "6px 4px" }}>Schließen</button>
