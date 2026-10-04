@@ -59,15 +59,15 @@ function PlotterLogoKlein() {
   );
 }
 
-function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "Werkzeug", klein, halb, extra, gesperrt, logoHell, portraet, titelUmbruch, keinI18nTitel, auf, haupt }) {
+function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "Werkzeug", klein, halb, extra, gesperrt, logoHell, portraet, titelUmbruch, keinI18nTitel, auf, haupt, breit }) {
   if (halb) klein = true;   // halbe Höhe: nur Titel und eine Textzeile
   const mehrereSaetze = saetze(text).length > 1;
   return (
     <button onClick={gesperrt ? undefined : onClick} disabled={gesperrt} aria-disabled={gesperrt || undefined} aria-expanded={auf} data-aufklapp-haupt={haupt ? "" : undefined}
       aria-label={gesperrt ? `${titel} – noch gesperrt` : label} title={gesperrt ? "Noch gesperrt" : undefined}
       className={gesperrt ? "kachel-gesperrt" : "plotter-kachel"}
-      style={{ display: "flex", width: klein ? "100%" : "calc(100% + 32px)", marginLeft: klein ? 0 : -16, marginRight: klein ? 0 : -16,
-        height: "auto", marginTop: klein ? 8 : 12, padding: 0, border: "none", borderRadius: klein ? 14 : 18,
+      style={{ display: "flex", width: klein && !breit ? "100%" : "calc(100% + 32px)", marginLeft: klein && !breit ? 0 : -16, marginRight: klein && !breit ? 0 : -16,
+        height: "auto", marginTop: klein && !breit ? 8 : 12, padding: 0, border: "none", borderRadius: klein ? 14 : 18,
         overflow: "hidden", cursor: gesperrt ? "not-allowed" : "pointer", fontFamily: "inherit", textAlign: "left", position: "relative",
         background: gesperrt ? "linear-gradient(155deg, #B9C2CE 0%, #8C97A6 55%, #6E7989 100%)" : `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`,
         boxShadow: gesperrt ? "0 4px 14px rgba(40,50,70,0.18), inset 0 0 0 1px rgba(255,255,255,0.45)" : `0 6px 22px rgba(0,77,152,0.24), inset 0 0 0 1px ${C.silber}40` }}>
@@ -299,7 +299,7 @@ function PlotterLogo() {
   );
 }
 
-const ZEIGE_WETTBEWERBE = false;
+const ZEIGE_WETTBEWERBE = true;
 
 /* Schulmathematik → Bereiche → Werkzeuge (zweistufiges Aufklappmenü) */
 const SCHUL_BEREICHE = [
@@ -475,8 +475,8 @@ function VideokursGesperrt({ name, zeile }) {
 }
 
 /* Goldener Plus-/Minus-Knopf einer aufklappbaren Hauptkachel */
-function PlusKnopf({ auf }) {
-  return <AufklappZeichen art="gold" auf={auf} groesse={40} abstand={10} />;
+function PlusKnopf({ auf, klein }) {
+  return <AufklappZeichen art="gold" auf={auf} groesse={klein ? 28 : 40} abstand={klein ? 6 : 10} />;
 }
 
 /* Grafik für die kleinen Trainer-Kacheln: großes goldenes Zeichen (z. B. 12², ¾) */
@@ -584,6 +584,7 @@ export function Startseite({ gehe }) {
   const [wieder, setWieder] = useState(false);
   const [hinweis, setHinweis] = useState("");
   const [schulAuf, setSchulAuf] = useState(false);     // Dropdown „Mathe-Training“
+  const [abiAuf, setAbiAuf] = useState(false);          // Unterbereich „Abi-Training“
   const [bereichAuf, setBereichAuf] = useState(null);   // aufgeklappter Unterbereich (analysis, vektoren, …)
   const [kopfAuf, setKopfAuf] = useState(false);        // Dropdown „Kopfrechnen“
   const [matheAuf, setMatheAuf] = useState(false);      // Dropdown „Mathematik“
@@ -990,72 +991,87 @@ export function Startseite({ gehe }) {
         </p>
       </section>
       <AppAnleitung />
-      <PlotterKachel onClick={() => { setSchulAuf(!schulAuf); setBereichAuf(null); }} auf={schulAuf} label={schulAuf ? "Mathe-Training zuklappen" : "Mathe-Training aufklappen"}
+      {/* Oberbutton „Mathe-Training“: darunter Abi-Training, Mathematik, Kopfrechnen und Mathe-Wettbewerbe.
+          Aufgeklappt wird der Button halb so hoch. */}
+      <PlotterKachel breit halb={schulAuf} onClick={() => { setSchulAuf(!schulAuf); setBereichAuf(null); setAbiAuf(false); }} auf={schulAuf}
+        label={schulAuf ? "Mathe-Training zuklappen" : "Mathe-Training aufklappen"}
         logo={<SchulmatheLogoKlein />} titel="Mathe-Training"
-        text="Analysis, Vektoren, Stochastik und Gleichungen live erleben."
-        extra={<PlusKnopf auf={schulAuf} />} />
+        text={schulAuf ? "Abi-Training, Mathematik, Kopfrechnen und Wettbewerbe." : "Abi-Training, Formelsammlung, Kopfrechnen und Wettbewerbe – alles zum Üben und Nachschlagen."}
+        extra={<PlusKnopf auf={schulAuf} klein={schulAuf} />} />
       {schulAuf && (
         <div data-aufklapp-inhalt style={{ margin: "4px 0 4px", padding: "2px 0 2px 12px", borderLeft: `3px solid ${C.flaggold}` }}>
-          {SCHUL_BEREICHE.map((b) => (
-            <React.Fragment key={b.id}>
-              <PlotterKachel klein haupt onClick={() => setBereichAuf(bereichAuf === b.id ? null : b.id)}
-                auf={bereichAuf === b.id} label={bereichAuf === b.id ? `${b.titel} zuklappen` : `${b.titel} aufklappen`}
-                logo={b.logo} titel={b.titel} text={b.text}
-                extra={<AufklappPfeil auf={bereichAuf === b.id} />} />
-              {bereichAuf === b.id && <UnterMenue eintraege={b.tools} gehe={gehe} />}
-              {bereichAuf === b.id && b.video && <VideokursGesperrt name={b.video.name} zeile={b.video.zeile} />}
-            </React.Fragment>
-          ))}
+          {/* Abi-Training: Analysis, Vektoren, Stochastik, Gleichungen und Mein Training */}
+          <PlotterKachel klein haupt onClick={() => { setAbiAuf(!abiAuf); setBereichAuf(null); }} auf={abiAuf}
+            label={abiAuf ? "Abi-Training zuklappen" : "Abi-Training aufklappen"}
+            logo={<ZeichenLogo zeichen="Abi" />} titel="Abi-Training"
+            text="Analysis, Vektoren, Stochastik und Gleichungen live erleben."
+            extra={<AufklappPfeil auf={abiAuf} />} />
+          {abiAuf && (
+            <div data-aufklapp-inhalt style={{ margin: "4px 0 4px", padding: "2px 0 2px 12px", borderLeft: `3px solid ${C.flaggold}` }}>
+              {SCHUL_BEREICHE.map((b) => (
+                <React.Fragment key={b.id}>
+                  <PlotterKachel klein haupt onClick={() => setBereichAuf(bereichAuf === b.id ? null : b.id)}
+                    auf={bereichAuf === b.id} label={bereichAuf === b.id ? `${b.titel} zuklappen` : `${b.titel} aufklappen`}
+                    logo={b.logo} titel={b.titel} text={b.text}
+                    extra={<AufklappPfeil auf={bereichAuf === b.id} />} />
+                  {bereichAuf === b.id && <UnterMenue eintraege={b.tools} gehe={gehe} />}
+                  {bereichAuf === b.id && b.video && <VideokursGesperrt name={b.video.name} zeile={b.video.zeile} />}
+                </React.Fragment>
+              ))}
+              <MeinTrainingZeile gehe={gehe} />
+            </div>
+          )}
+
+          <PlotterKachel klein haupt onClick={() => setMatheAuf(!matheAuf)} auf={matheAuf} label={matheAuf ? "Mathematik zuklappen" : "Mathematik aufklappen"}
+            logo={<FormelLogoKlein />} titel="Mathematik"
+            text="Formelsammlung, Definitionen und Sätze – zum Nachschlagen."
+            extra={<AufklappPfeil auf={matheAuf} />} />
+          {matheAuf && (
+            <div data-aufklapp-inhalt style={{ margin: "4px 0 4px", padding: "2px 0 2px 12px", borderLeft: `3px solid ${C.flaggold}` }}>
+              <PlotterKachel klein onClick={() => setFormelAuf(!formelAuf)} auf={formelAuf} label={formelAuf ? "Formelsammlung zuklappen" : "Formelsammlung aufklappen"} logo={<FormelLogoKlein />}
+                titel="Formelsammlung"
+                text="Alle wichtigen Formeln der Oberstufe – sauber sortiert zum Nachschlagen."
+                extra={<AufklappPfeil auf={formelAuf} />} />
+              {formelAuf && <UnterMenue eintraege={FORMEL_MENUE} gehe={gehe} />}
+              <PlotterKachel halb gesperrt logo={<ZeichenLogo zeichen="≔" />}
+                titel="Definitionen"
+                text="Alle wichtigen Begriffe der Oberstufe – präzise definiert." />
+              <PlotterKachel halb gesperrt logo={<ZeichenLogo zeichen="∴" />}
+                titel="Sätze"
+                text="Die zentralen Sätze der Oberstufe – klar formuliert." />
+            </div>
+          )}
+
+          <PlotterKachel klein haupt onClick={() => setKopfAuf(!kopfAuf)} auf={kopfAuf} label={kopfAuf ? "Kopfrechnen zuklappen" : "Kopfrechnen aufklappen"} logo={<KopfrechnenLogoKlein />}
+            titel="Kopfrechnen"
+            text="Primfaktoren, Quadratzahlen, Brüche, Einmaleins – auf Zeit."
+            extra={<AufklappPfeil auf={kopfAuf} />} />
+          {kopfAuf && (
+            <div data-aufklapp-inhalt style={{ margin: "4px 0 4px", padding: "2px 0 2px 12px", borderLeft: `3px solid ${C.flaggold}` }}>
+              <div style={{ paddingTop: 8, paddingBottom: 4 }}>
+                <KopfKacheln onWaehle={(id) => gehe({ ansicht: "kopf", trainer: id })} />
+              </div>
+            </div>
+          )}
+
+          {ZEIGE_WETTBEWERBE && (<>
+            <PlotterKachel klein haupt onClick={() => setWettAuf(!wettAuf)} auf={wettAuf} label={wettAuf ? "Mathe-Wettbewerbe zuklappen" : "Mathe-Wettbewerbe aufklappen"}
+              logo={<MedaillenschrankLogo />} titel="Mathe-Wettbewerbe"
+              text="Bundeswettbewerb Mathematik und Landeswettbewerbe."
+              extra={<AufklappPfeil auf={wettAuf} />} />
+            {wettAuf && (
+              <div data-aufklapp-inhalt style={{ margin: "4px 0 4px", padding: "2px 0 2px 12px", borderLeft: `3px solid ${C.flaggold}` }}>
+                <PlotterKachel klein onClick={() => gehe({ ansicht: "bwm" })} label="Bundeswettbewerb Mathematik öffnen" logo={<BwmLogo />} titelUmbruch keinI18nTitel
+                  titel="Bundeswettbewerb Mathematik"
+                  text="Die nächste 1. Runde und die Aufgaben mit Lösungen vom letzten Jahr." />
+                <PlotterKachel klein onClick={() => gehe({ ansicht: "landeswettbewerbe" })} label="Landeswettbewerbe öffnen" logo={<KarteLogo />}
+                  titel="Landeswettbewerbe"
+                  text="Deutschlandkarte: Tippe auf dein Bundesland." />
+              </div>
+            )}
+          </>)}
         </div>
       )}
-      <MeinTrainingZeile gehe={gehe} />
-      <PlotterKachel onClick={() => setMatheAuf(!matheAuf)} auf={matheAuf} label={matheAuf ? "Mathematik zuklappen" : "Mathematik aufklappen"}
-        logo={<FormelLogoKlein />} titel="Mathematik"
-        text="Formelsammlung, Definitionen und Sätze – zum Nachschlagen."
-        extra={<PlusKnopf auf={matheAuf} />} />
-      {matheAuf && (
-        <div data-aufklapp-inhalt style={{ margin: "4px 0 4px", padding: "2px 0 2px 12px", borderLeft: `3px solid ${C.flaggold}` }}>
-          <PlotterKachel klein onClick={() => setFormelAuf(!formelAuf)} auf={formelAuf} label={formelAuf ? "Formelsammlung zuklappen" : "Formelsammlung aufklappen"} logo={<FormelLogoKlein />}
-            titel="Formelsammlung"
-            text="Alle wichtigen Formeln der Oberstufe – sauber sortiert zum Nachschlagen."
-            extra={<AufklappPfeil auf={formelAuf} />} />
-          {formelAuf && <UnterMenue eintraege={FORMEL_MENUE} gehe={gehe} />}
-          <PlotterKachel halb gesperrt logo={<ZeichenLogo zeichen="≔" />}
-            titel="Definitionen"
-            text="Alle wichtigen Begriffe der Oberstufe – präzise definiert." />
-          <PlotterKachel halb gesperrt logo={<ZeichenLogo zeichen="∴" />}
-            titel="Sätze"
-            text="Die zentralen Sätze der Oberstufe – klar formuliert." />
-        </div>
-      )}
-      <PlotterKachel onClick={() => setKopfAuf(!kopfAuf)} auf={kopfAuf} label={kopfAuf ? "Kopfrechnen zuklappen" : "Kopfrechnen aufklappen"} logo={<KopfrechnenLogoKlein />}
-        titel="Kopfrechnen"
-        text="Primfaktoren, Quadratzahlen, Brüche, Einmaleins – auf Zeit."
-        extra={<PlusKnopf auf={kopfAuf} />} />
-      {kopfAuf && (
-        <div data-aufklapp-inhalt style={{ margin: "4px 0 4px", padding: "2px 0 2px 12px", borderLeft: `3px solid ${C.flaggold}` }}>
-          <div style={{ paddingTop: 8, paddingBottom: 4 }}>
-            <KopfKacheln onWaehle={(id) => gehe({ ansicht: "kopf", trainer: id })} />
-          </div>
-        </div>
-      )}
-      {/* Mathe-Wettbewerbe vorübergehend ausgeblendet – zum Einblenden ZEIGE_WETTBEWERBE auf true setzen */}
-      {ZEIGE_WETTBEWERBE && (<>
-      <PlotterKachel onClick={() => setWettAuf(!wettAuf)} auf={wettAuf} label={wettAuf ? "Mathe-Wettbewerbe zuklappen" : "Mathe-Wettbewerbe aufklappen"}
-        logo={<MedaillenschrankLogo />} titel="Mathe-Wettbewerbe"
-        text="Bundeswettbewerb Mathematik und Landeswettbewerbe."
-        extra={<PlusKnopf auf={wettAuf} />} />
-      {wettAuf && (
-        <div data-aufklapp-inhalt style={{ margin: "4px 0 4px", padding: "2px 0 2px 12px", borderLeft: `3px solid ${C.flaggold}` }}>
-          <PlotterKachel klein onClick={() => gehe({ ansicht: "bwm" })} label="Bundeswettbewerb Mathematik öffnen" logo={<BwmLogo />} titelUmbruch keinI18nTitel
-            titel="Bundeswettbewerb Mathematik"
-            text="Die nächste 1. Runde und die Aufgaben mit Lösungen vom letzten Jahr." />
-          <PlotterKachel klein onClick={() => gehe({ ansicht: "landeswettbewerbe" })} label="Landeswettbewerbe öffnen" logo={<KarteLogo />}
-            titel="Landeswettbewerbe"
-            text="Deutschlandkarte: Tippe auf dein Bundesland." />
-        </div>
-      )}
-      </>)}
       <MatheCheckenKachel gesperrt onClick={() => gehe({ ansicht: "mathecheck" })} />
       <MasterclassKachel gesperrt onClick={() => gehe({ ansicht: "masterclass" })} />
       <MathCreatorKachel />
