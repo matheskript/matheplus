@@ -612,6 +612,7 @@ const VEKTOREN = [
   { ziel: { ansicht: "kurse", kurs: "vektoren" }, titel: "Videokurs Vektoren", slogan: "Fünf Lektionen bis zu Ebenen – mit Kurz-Checks.", kurz: "Fünf Lektionen von den Grundlagen bis zu Ebenen – mit Merksätzen und Kurz-Checks.", zeichen: "▶" },
   { ziel: { ansicht: "zweipunkte" }, titel: "Zwei Punkte – eine Gerade", kurzTitel: "Zwei Punkte", slogan: "Geradengleichung aus zwei Punkten – auf zwei Wegen.", zeichen: "AB" },
   { ziel: { ansicht: "dreipunkte" }, titel: "Drei Punkte – eine Ebene", kurzTitel: "Drei Punkte", slogan: "Drei Wege zur Ebene, mit Koordinatenform.", zeichen: "ABC" },
+  { ziel: { ansicht: "abstaende" }, titel: "Abstände", slogan: "Punkt, Gerade, Ebene – jede Kombination mit 3D-Bild.", zeichen: "d" },
 ];
 
 export function VektorenZentrum({ gehe }) {

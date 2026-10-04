@@ -316,6 +316,7 @@ const SCHUL_BEREICHE = [
       { name: "Kreuzprodukt", zeile: "a × b – Formel, eingesetzt, Ergebnis", bild: "kreuz", ziel: { ansicht: "kreuzprodukt" } },
       { name: "Zwei Punkte – eine Gerade", zeile: "Geradengleichung auf zwei Wegen", bild: "gerade2p", ziel: { ansicht: "zweipunkte" } },
       { name: "Drei Punkte – eine Ebene", zeile: "Drei Wege, mit Koordinatenform", bild: "ebene3p", ziel: { ansicht: "dreipunkte" } },
+      { name: "Abstände", zeile: "Punkt, Gerade, Ebene – alle Kombinationen", bild: "abstand", ziel: { ansicht: "abstaende" } },
     ], video: { name: "Videokurs Vektoren", zeile: "Fünf Lektionen mit Kurz-Checks" } },
   { id: "stochastik", titel: "Stochastik", text: "Bernoulli-Kette und Vier-Felder-Tafel: den Zufall live laufen lassen.", logo: <StochastikLogoKlein />,
     tools: [

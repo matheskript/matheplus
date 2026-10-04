@@ -141,6 +141,7 @@ export const NAV = [
     { name: "Rechnen mit Vektoren", kurz: "A ± B, k · A, k · A + j · B – mit Rechenweg", ansicht: "vektorgenerator" },
     { name: "Zwei Punkte – eine Gerade", kurz: "Geradengleichung auf zwei Wegen", ansicht: "zweipunkte" },
     { name: "Drei Punkte – eine Ebene", kurz: "Drei Wege, mit Koordinatenform", ansicht: "dreipunkte" },
+    { name: "Abstände", kurz: "Punkt, Gerade, Ebene – jede Kombination", ansicht: "abstaende" },
     { name: "Stochastik", kurz: "Alle Stochastik-Werkzeuge im Überblick", ansicht: "stochastik" },
     { name: "Bernoulli-Kette", kurz: "Binomialverteilung live mit Formel und Experiment", ansicht: "bernoulli" },
     { name: "Vier-Felder-Tafel", kurz: "Absolut oder in Prozent, mit Baumdiagramm", ansicht: "vierfelder" },

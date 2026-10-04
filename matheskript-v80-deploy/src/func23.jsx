@@ -20,8 +20,8 @@ const zufallsPunkt = (r = 5) => [rnd(-r, r), rnd(-r, r), rnd(-r, r)];
 const diff = (P, Q) => Q.map((x, i) => x - P[i]);          // Vektor von P nach Q
 const gleich = (u, v) => u.every((x, i) => x === v[i]);
 const istNull = (v) => v.every((x) => x === 0);
-const zahl = (s) => { const t = String(s).replace("−", "-").trim(); return /^-?\d+$/.test(t) ? Number(t) : null; };
-const leseVektor = (w) => { const z = w.map(zahl); return z.some((x) => x === null) ? null : z; };
+export const zahl = (s) => { const t = String(s).replace("−", "-").trim(); return /^-?\d+$/.test(t) ? Number(t) : null; };
+export const leseVektor = (w) => { const z = w.map(zahl); return z.some((x) => x === null) ? null : z; };
 const alsText = (v) => v.map(String);
 
 /* Gleichung n·x = d auf eine Normalform bringen: gekürzt, erster Koeffizient ≠ 0 positiv */
@@ -36,7 +36,7 @@ const karte = { background: C.weiss, borderRadius: 16, padding: 18, boxShadow: "
 const kicker = { fontSize: 11.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: C.gruenDunkel, marginBottom: 8 };
 const hinweis = { fontSize: 13, color: C.grau, lineHeight: 1.6, marginBottom: 12 };
 
-function Meldung({ art = "info", children }) {
+export function Meldung({ art = "info", children }) {
   const farben = { info: [C.himmel, C.see], warn: ["#FFF4D6", "#7A5A00"], gut: ["#E6F6EF", "#0F7A4D"], schlecht: ["#FCE8EE", C.gruenDunkel] }[art];
   return (
     <div role={art === "warn" || art === "schlecht" ? "alert" : "status"}
@@ -47,7 +47,7 @@ function Meldung({ art = "info", children }) {
 }
 
 /* Ganzzahliges Eingabefeld */
-function Feld({ wert, setWert, label, farbe = C.see, breite = 40 }) {
+export function Feld({ wert, setWert, label, farbe = C.see, breite = 40 }) {
   return (
     <input value={wert} inputMode="numeric" aria-label={label}
       onChange={(e) => setWert(e.target.value.replace(/[^0-9\-−]/g, "").replace("−", "-").slice(0, 4))}
@@ -58,7 +58,7 @@ function Feld({ wert, setWert, label, farbe = C.see, breite = 40 }) {
 }
 
 /* Punkt als Zeile: A( _ | _ | _ ) */
-function PunktEingabe({ name, farbe, werte, setWerte }) {
+export function PunktEingabe({ name, farbe, werte, setWerte }) {
   const setze = (i) => (v) => { const w = [...werte]; w[i] = v; setWerte(w); };
   return (
     <div style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 17, fontWeight: 800, color: farbe }}>
@@ -75,7 +75,7 @@ function PunktEingabe({ name, farbe, werte, setWerte }) {
 }
 
 /* Spaltenvektor zur Eingabe */
-function VektorFeld({ name, farbe, werte, setWerte }) {
+export function VektorFeld({ name, farbe, werte, setWerte }) {
   const setze = (i) => (v) => { const w = [...werte]; w[i] = v; setWerte(w); };
   return (
     <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 16, fontWeight: 800 }}>
@@ -102,7 +102,7 @@ function Weg({ titel, offen, umschalten, children, id }) {
   );
 }
 
-function Knopf({ children, onClick, gold, klein }) {
+export function Knopf({ children, onClick, gold, klein }) {
   return (
     <button type="button" onClick={onClick}
       style={{ padding: klein ? "7px 12px" : "0 16px", height: klein ? undefined : 44, borderRadius: 999, fontFamily: "inherit", cursor: "pointer",

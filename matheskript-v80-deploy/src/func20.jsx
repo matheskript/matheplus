@@ -60,7 +60,7 @@ export function Schritt({ nr, titel, children }) {
 
 /* ---------- Aufgaben erzeugen ---------- */
 
-function neueAufgabe(art) {
+export function neueAufgabe(art) {
   switch (art) {
     case "addsub": {
       const a = vektor(), b = vektor();
