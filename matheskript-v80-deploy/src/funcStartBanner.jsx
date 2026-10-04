@@ -1,5 +1,6 @@
 import React from "react";
 import berg from "./assets/start/berg.jpg";
+import bannerMobil from "./assets/start/banner-mobil.jpg";
 
 /* Banner ganz oben auf der Startseite, bündig unter dem Header, randlos über die volle Breite.
    Maße nach den Vorlagen: Handy 615 × 511 (Quadrat-Grafik ohne Header), Breit 766 × 366.
@@ -37,15 +38,11 @@ const CSS = `
   .sb-bild { -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 9%, #000 90%, transparent 100%);
     mask-image: linear-gradient(90deg, transparent 0%, #000 9%, #000 90%, transparent 100%); }
 }
+.sb-mobil { display: none; }
 @media (max-width: 559px) {
-  .sb { aspect-ratio: 615 / 511; }
-  .sb-bild { right: -16.6cqw; }
-  .sb-text { padding: 5cqw 2.9cqw 0; }
-  .sb h1 { font-size: 7.9cqw; line-height: 1.03; }
-  .sb .unter { font-size: 5.7cqw; margin-top: 4cqw; }
-  .sb ul { margin-top: 5.2cqw; gap: 2.9cqw; }
-  .sb li { font-size: 3.9cqw; gap: 4cqw; }
-  .sb .haken { width: 6.7cqw; height: 6.7cqw; }
+  .sb-wrap { display: none; }
+  .sb-mobil { display: block; width: 100%; height: auto; }
+  .sb-streifen { background: #0A1233; }
 }
 `;
 
@@ -63,6 +60,8 @@ export default function StartBanner() {
   return (
     <section className="sb-streifen" aria-label="Mythos Mathe">
       <style>{CSS}</style>
+      <img className="sb-mobil" src={bannerMobil} draggable="false"
+        alt="Mathe kann jeder verstehen. Hier lernst du wie! Mathe interaktiv entdecken, gezielt Aufgaben trainieren, Rechenwege Schritt für Schritt, in deinem Tempo lernen." />
       <div className="sb-wrap">
         <div className="sb">
           <img className="sb-bild" src={berg} alt="" aria-hidden="true" draggable="false" />
