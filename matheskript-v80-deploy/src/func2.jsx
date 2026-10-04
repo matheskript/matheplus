@@ -286,7 +286,7 @@ function PlotterLogo() {
 
 /* Schulmathematik → Bereiche → Werkzeuge (zweistufiges Aufklappmenü) */
 const SCHUL_BEREICHE = [
-  { id: "analysis", titel: "Analysis", text: "Kurvendiskussion, Sinus und Ableitungen – live.", logo: <PlotterLogoKlein />,
+  { id: "analysis", titel: "Analysis", text: "Kurvendiskussion, Steckbriefe, Sinus und Ableitungen – live.", logo: <PlotterLogoKlein />,
     tools: [
       { name: "Kurvendiskussion", zeile: "Graph, Ableitungen und PDF auf Knopfdruck", bild: "kurve",
         kinder: [
@@ -294,6 +294,7 @@ const SCHUL_BEREICHE = [
           { name: "Beliebige Funktionen", zeile: "Mit sin, ln, eˣ, Wurzeln und Brüchen", bild: "beliebig", ziel: { ansicht: "advplotter" } },
         ] },
       { name: "Sinusfunktion", zeile: "f(x) = a · sin(b · (x − c)) + d", bild: "sinus", ziel: { ansicht: "sinus" } },
+      { name: "Steckbriefaufgaben", zeile: "Aus Eigenschaften die Funktion bestimmen", bild: "steckbrief", ziel: { ansicht: "steckbrief" } },
       { name: "Ableitungstrainer", zeile: "f′, f″ und f‴ eingeben und prüfen", bild: "ableitung", ziel: { ansicht: "ableitungstrainer" } },
     ] },
   { id: "vektoren", titel: "Vektoren", text: "Der Ebenen-Visualizer zeigt jede Ebene live im Raum – dazu der Videokurs.", logo: <VektorenLogoKlein />,
@@ -359,6 +360,7 @@ function MiniBild({ art }) {
     poly: <>{achsen}<path d="M12 50 C 30 -10, 60 60, 78 18 S 104 2, 112 0" {...linie} /><circle cx="36" cy="16" r="2.4" fill={g} /><circle cx="64" cy="36" r="2.4" fill={g} /></>,
     beliebig: <>{achsen}<path d="M10 30 Q 20 10 30 30 T 50 30 T 70 30" {...linie} /><path d="M66 44 C 84 42, 98 30, 112 6" {...linie} stroke={g} /></>,
     sinus: <>{achsen}<path d="M8 30 Q 20 4 32 30 T 56 30 T 80 30 T 104 30" {...linie} /><path d="M8 30 H112" stroke={g} strokeWidth="0.9" strokeDasharray="3 3" opacity="0.8" /></>,
+    steckbrief: <>{achsen}<path d="M10 48 C 26 -6, 44 -2, 60 28 S 92 58, 110 6" {...linie} /><circle cx="32" cy="12" r="2.8" fill={g} /><circle cx="84" cy="43" r="2.8" fill={g} />{txt(38, 12, "H", g, 9.5)}{txt(90, 46, "T", g, 9.5)}{txt(70, 14, "f(x) = ?", "#fff", 10.5)}</>,
     ableitung: <>{txt(60, 25, "f′(x) = …", "#fff", 15, "middle")}{txt(60, 44, "f″(x) = …", w, 11, "middle")}</>,
     ebene: <><path d="M18 40 L52 12 L104 18 L70 46 Z" {...linie} fill="rgba(255,255,255,0.08)" /><path d="M61 29 V4" stroke={g} strokeWidth="1.6" /><path d="M57 9 L61 3 L65 9" stroke={g} strokeWidth="1.4" fill="none" /></>,
     ebenen2: <><path d="M14 38 L48 14 L100 20 L66 44 Z" {...linie} fill="rgba(255,255,255,0.06)" /><path d="M40 6 L84 8 L82 50 L38 48 Z" {...linie} fill="rgba(255,255,255,0.06)" /><path d="M39 26 L83 30" stroke={g} strokeWidth="1.8" /></>,

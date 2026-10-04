@@ -23,6 +23,7 @@ import { BernoulliBingo, StochastikZentrum } from "./func17.jsx";
 import { Vierfeldertafel } from "./func18.jsx";
 import { Gleichungsloeser } from "./funcGleichungen.jsx";
 import { LGSLoeser } from "./funcLGS.jsx";
+import { Steckbriefaufgaben } from "./funcSteckbrief.jsx";
 import { MasterclassSeite, MatheCheckenSeite } from "./funcMasterclass.jsx";
 import { Fusszeile, ImpressumSeite, AGBSeite, WiderrufSeite } from "./funcRecht.jsx";
 import { KontoSeite } from "./funcKonto.jsx";
@@ -218,7 +219,8 @@ export function Mathilda() {
   // Untermenü im Kopfbereich: alle Übungsbereiche der aktuellen Sektion als Buttons
   const SEKTIONEN = [
     [{ ansicht: "analysis", name: "Übersicht", versteckt: true }, { ansicht: "plotter", name: "Polynomplotter", kurz: "Polynome" }, { ansicht: "advplotter", name: "Advanced Plotter", kurz: "Advanced" },
-      { ansicht: "sinus", name: "Sinusfunktion", kurz: "Sinus" }, { ansicht: "ableitungstrainer", name: "Ableitungstrainer", kurz: "Ableitung" }],
+      { ansicht: "sinus", name: "Sinusfunktion", kurz: "Sinus" }, { ansicht: "ableitungstrainer", name: "Ableitungstrainer", kurz: "Ableitung" },
+      { ansicht: "steckbrief", name: "Steckbriefaufgaben", kurz: "Steckbrief" }],
     [{ ansicht: "vektoren", name: "Übersicht", versteckt: true }, { ansicht: "ebenen", name: "Ebenen-Visualizer", kurz: "Ebenen" }, { ansicht: "ebenevsebene", name: "Ebene vs. Ebene", kurz: "E vs. E" },
       { ansicht: "kreuzprodukt", name: "Kreuzprodukt", kurz: "Kreuz" }, { ansicht: "vektorgenerator", name: "Vektor-Generator", kurz: "Generator" }],
     [{ ansicht: "stochastik", name: "Übersicht", versteckt: true }, { ansicht: "bernoulli", name: "Bernoulli-Kette", kurz: "Bernoulli" }, { ansicht: "vierfelder", name: "Vier-Felder-Tafel", kurz: "Vierfelder" }],
@@ -227,7 +229,8 @@ export function Mathilda() {
     const sektion = SEKTIONEN.find((liste) => liste.some((x) => x.ansicht === ansicht));
     if (!sektion) return null;
     return (
-      <div className="sek-menue" style={{ display: "flex", flexWrap: "wrap", gap: 6, paddingBottom: 4 }}>
+      <div className="sek-menue" style={{ display: "flex", flexWrap: "wrap", gap: 6, paddingBottom: 4 }}
+        ref={(el) => { if (el) { const c = el.querySelector('[aria-current="page"]'); if (c && c.offsetLeft + c.offsetWidth > el.clientWidth) el.scrollLeft = c.offsetLeft + c.offsetWidth - el.clientWidth + 12; } }}>
         {sektion.filter((x) => !x.versteckt).map((x) => {
           const aktiv = x.ansicht === ansicht;
           return (
@@ -273,7 +276,8 @@ export function Mathilda() {
             .titel-kurz{display:none}
             @media (max-width:520px){.held{padding-top:18px !important;padding-bottom:4px !important}.held h1{font-size:25px !important;line-height:1.1 !important}.held h1+div{margin-top:9px !important;margin-bottom:10px !important}.held-welle{height:12px !important}}
             @media (max-width:480px){.titel-lang{display:none}.titel-kurz{display:inline}
-              .sek-menue{flex-wrap:nowrap !important;gap:5px !important}
+              .sek-menue{flex-wrap:nowrap !important;gap:5px !important;overflow-x:auto;scrollbar-width:none;margin-right:-24px;padding-right:24px}
+              .sek-menue::-webkit-scrollbar{display:none}
               .sek-chip{flex:1 1 auto;padding:6px 6px !important;font-size:12px !important;text-align:center}
               .intro-h2{font-size:clamp(20px,6.6vw,26px) !important;white-space:nowrap}
               .intro-p{display:-webkit-box !important;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}}
@@ -792,6 +796,18 @@ export function Mathilda() {
             <Welle fill={C.sand} />
           </div>
           <Ableitungstrainer />
+        </>
+      ) : ansicht === "steckbrief" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
+            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(26px, 7.6vw, 33px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Steckbriefaufgaben</h1>
+              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <SektionsMenue />
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <Steckbriefaufgaben />
         </>
       ) : ansicht === "advplotter" ? (
         <>
