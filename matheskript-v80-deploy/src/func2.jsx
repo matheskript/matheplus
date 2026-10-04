@@ -307,6 +307,7 @@ const SCHUL_BEREICHE = [
       { name: "Sinusfunktion", zeile: "f(x) = a · sin(b · (x − c)) + d", bild: "sinus", ziel: { ansicht: "sinus" } },
       { name: "Steckbriefaufgaben", zeile: "Aus Eigenschaften die Funktion bestimmen", bild: "steckbrief", ziel: { ansicht: "steckbrief" } },
       { name: "Ableitungstrainer", zeile: "f′, f″ und f‴ eingeben und prüfen", bild: "ableitung", ziel: { ansicht: "ableitungstrainer" } },
+      { name: "Integrale", zeile: "Stammfunktionen und bestimmte Integrale", bild: "integral", ziel: { ansicht: "integrale" } },
     ], video: { name: "Videokurse Analysis", zeile: "Analysis 1–5 mit Videolektionen und Checks" } },
   { id: "vektoren", titel: "Vektoren", text: "Der Ebenen-Visualizer zeigt jede Ebene live im Raum – dazu der Videokurs.", logo: <VektorenLogoKlein />,
     tools: [

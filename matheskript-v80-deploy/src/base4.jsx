@@ -134,6 +134,7 @@ export const NAV = [
     { name: "Advanced Plotter", kurz: "Beliebige Funktionen mit Tastenfeld und Kurvendiskussion", ansicht: "advplotter" },
     { name: "Sinusfunktion", kurz: "a, b, c, d finden, bis der Graph passt", ansicht: "sinus" },
     { name: "Steckbriefaufgaben", kurz: "Aus Eigenschaften die Funktion bestimmen", ansicht: "steckbrief" },
+    { name: "Integrale", kurz: "Stammfunktionen und bestimmte Integrale", ansicht: "integrale" },
     { name: "Vektoren", kurz: "Alle Vektor-Werkzeuge im Überblick", ansicht: "vektoren" },
     { name: "Ebenen-Visualizer", kurz: "Ebenen in Koordinatenform live im Raum", ansicht: "ebenen" },
     { name: "Ebene vs. Ebene", kurz: "Schnittgerade und Schnittwinkel zweier Ebenen", ansicht: "ebenevsebene" },

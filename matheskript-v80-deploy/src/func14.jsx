@@ -965,6 +965,7 @@ const ANALYSIS = [
   { ansicht: "sinus", titel: "Sinusfunktion", slogan: "a, b, c und d finden, bis der Graph passt.", kurz: "Parameter a, b, c und d finden, bis der Graph passt – mit Periode, Ableitung und Nullstellen.", zeichen: "∿" },
   { ansicht: "steckbrief", titel: "Steckbriefaufgaben", kurzTitel: "Steckbriefe", slogan: "Aus Hochpunkt, Wendepunkt & Co. die Funktion bauen.", kurz: "Bedingungen aufstellen, einsetzen, LGS lösen – mit Schaubild als Probe.", zeichen: "f(?)" },
   { ansicht: "ableitungstrainer", titel: "Ableitungstrainer", slogan: "f′, f″ und f‴ eingeben und sofort prüfen lassen.", kurz: "f′, f″ und f‴ per Tastenfeld eingeben und sofort prüfen lassen.", zeichen: "f′" },
+  { ansicht: "integrale", titel: "Integrale", slogan: "Stammfunktionen bilden und bestimmte Integrale berechnen.", zeichen: "∫" },
 ];
 
 export function AnalysisZentrum({ gehe }) {
@@ -974,8 +975,8 @@ export function AnalysisZentrum({ gehe }) {
         <span className="titel-lang">Funktionen sehen, verstehen, ableiten</span><span className="titel-kurz">Kurven live erleben</span>
       </h2>
       <p className="intro-p" style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 22 }}>
-        <span className="titel-lang">Fünf Werkzeuge für die Analysis: Graphen live erkunden, komplette Kurvendiskussionen erzeugen,
-        Sinusfunktionen anpassen, Funktionen aus Steckbriefen bestimmen und das Ableiten trainieren.</span>
+        <span className="titel-lang">Werkzeuge für die Analysis: Graphen live erkunden, komplette Kurvendiskussionen erzeugen,
+        Sinusfunktionen anpassen, Funktionen aus Steckbriefen bestimmen, das Ableiten trainieren und integrieren.</span>
         <span className="titel-kurz">Dreh an den Reglern und sieh sofort, was passiert. Mit jeder Ableitung wirst du schneller!</span>
       </p>
       {ANALYSIS.map((x) => (

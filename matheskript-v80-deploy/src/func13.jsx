@@ -22,9 +22,9 @@ const STRICHE = ["", "′", "″", "‴"];
 const endlich = (y) => typeof y === "number" && isFinite(y);
 
 /* Prüfstellen: verteilt, bewusst „krumm“, damit Zufallstreffer ausgeschlossen sind. */
-const STELLEN = [-2.73, -1.91, -1.17, -0.61, -0.29, 0.37, 0.83, 1.29, 1.77, 2.41, 3.13, 4.07];
+export const STELLEN = [-2.73, -1.91, -1.17, -0.61, -0.29, 0.37, 0.83, 1.29, 1.77, 2.41, 3.13, 4.07];
 
-function vergleich(g, soll) {
+export function vergleich(g, soll) {
   let gleich = 0, anders = 0;
   STELLEN.forEach((x) => {
     const s = soll(x), m = g(x);
