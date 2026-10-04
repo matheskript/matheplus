@@ -11,6 +11,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { C } from "./base1.jsx";
 import { GesperrteKurse } from "./func1.jsx";
+import { Vorwissen, BernoulliVorwissen } from "./funcVorwissen.jsx";
 
 /* ---------- Mathematik ---------- */
 
@@ -415,6 +416,7 @@ export function BernoulliBingo() {
 
   return (
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
+      <Vorwissen untertitel="Bernoulli-Kette, Formel und ein Beispiel"><BernoulliVorwissen /></Vorwissen>
       <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
         Wie oft trifft der Zufall?
       </h2>
