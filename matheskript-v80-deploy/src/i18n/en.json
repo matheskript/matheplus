@@ -5154,7 +5154,12 @@
   "Tests": "Tests",
   "Test aufbauen, Ablehnungsbereich, Fehler 1. und 2. Art": "Set up a test, rejection region, type I and II errors",
   "H₀, Ablehnungsbereich, Fehler 1. und 2. Art": "H₀, rejection region, type I and II errors",
-  "H₀ aufstellen, Ablehnungsbereich finden, Fehler verstehen.": "State H₀, find the rejection region, understand errors."
+  "H₀ aufstellen, Ablehnungsbereich finden, Fehler verstehen.": "State H₀, find the rejection region, understand errors.",
+  "Wachstum und Logarithmen": "Growth and logarithms",
+  "Wachstum": "Growth",
+  "Modell aus Messwerten, Halbwertszeit, Zielwert": "Model from data, half-life, target value",
+  "Messwerte, Halbwertszeit, Zielwert": "Data, half-life, target value",
+  "Exponentielle Modelle, Halbwertszeiten und Logarithmen.": "Exponential models, half-lives and logarithms."
  },
  "muster": [
   [

@@ -968,6 +968,7 @@ const ANALYSIS = [
   { ansicht: "ableitungstrainer", titel: "Ableitungstrainer", slogan: "f′, f″ und f‴ eingeben und sofort prüfen lassen.", kurz: "f′, f″ und f‴ per Tastenfeld eingeben und sofort prüfen lassen.", zeichen: "f′" },
   { ansicht: "integrale", titel: "Integrale", slogan: "Stammfunktionen bilden und bestimmte Integrale berechnen.", zeichen: "∫" },
   { ansicht: "optimierung", titel: "Optimierungswerkstatt", kurzTitel: "Optimierung", slogan: "Vom Text zur Zielfunktion – Schachtel, Fläche, eigener Ansatz.", zeichen: "max" },
+  { ansicht: "wachstum", titel: "Wachstum und Logarithmen", kurzTitel: "Wachstum", slogan: "Exponentielle Modelle, Halbwertszeiten und Logarithmen.", zeichen: "aᵗ" },
 ];
 
 export function AnalysisZentrum({ gehe }) {

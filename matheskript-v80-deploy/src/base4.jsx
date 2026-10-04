@@ -137,6 +137,7 @@ export const NAV = [
     { name: "Steckbriefaufgaben", kurz: "Aus Eigenschaften die Funktion bestimmen", ansicht: "steckbrief" },
     { name: "Integrale", kurz: "Stammfunktionen und bestimmte Integrale", ansicht: "integrale" },
     { name: "Optimierungswerkstatt", kurz: "Schachtel, Fläche und Umfang, eigener Ansatz", ansicht: "optimierung" },
+    { name: "Wachstum und Logarithmen", kurz: "Modell aus Messwerten, Halbwertszeit, Zielwert", ansicht: "wachstum" },
     { name: "Vektoren", kurz: "Alle Vektor-Werkzeuge im Überblick", ansicht: "vektoren" },
     { name: "Ebenen-Visualizer", kurz: "Ebenen in Koordinatenform live im Raum", ansicht: "ebenen" },
     { name: "Ebene vs. Ebene", kurz: "Schnittgerade und Schnittwinkel zweier Ebenen", ansicht: "ebenevsebene" },
