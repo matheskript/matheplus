@@ -873,21 +873,23 @@ export function KopfKacheln({ onWaehle }) {
         const schmal = reihe.length >= 3;
         return (
           <button key={t.id} type="button" onClick={() => onWaehle(t.id)} aria-label={`${t.titel} öffnen`} className="kopf-kachel"
-            style={{ position: "relative", height: 116, borderRadius: 20, border: "none", padding: schmal ? "10px 9px 11px" : "10px 12px 11px", overflow: "hidden",
+            style={{ position: "relative", minHeight: 88, borderRadius: 20, border: "none", padding: schmal ? "10px 9px 11px" : "10px 10px 11px 12px", overflow: "hidden",
               background: f.bg, color: f.text, textAlign: "left", cursor: "pointer", fontFamily: "inherit",
-              boxShadow: `0 6px 18px ${f.schatten}, inset 0 0 0 1px rgba(255,255,255,0.25)`, display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
+              boxShadow: `0 6px 18px ${f.schatten}, inset 0 0 0 1px rgba(255,255,255,0.25)`, display: "flex", flexDirection: "column", justifyContent: "flex-start", gap: 5 }}>
             <span aria-hidden="true" style={{ position: "absolute", width: 90, height: 90, borderRadius: 999, right: -28, bottom: -38, background: "rgba(255,255,255,0.16)" }} />
             <span aria-hidden="true" style={{ position: "absolute", width: 34, height: 34, borderRadius: 999, left: -10, top: -12, background: "rgba(255,255,255,0.14)" }} />
-            <span aria-hidden="true" className="kopf-karte"
-              style={{ position: "absolute", top: 10, right: 10, padding: "4px 9px", borderRadius: 10, background: "rgba(255,255,255,0.95)",
-                color: f.akzent, fontSize: t.zeichen.length > 4 ? 14 : 17, fontWeight: 800, boxShadow: "0 3px 8px rgba(0,0,0,0.15)",
-                transform: `rotate(${f.r}deg)`, whiteSpace: "nowrap" }}>
-              {t.zeichen}
+            <span style={{ position: "relative", display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 6 }}>
+              <span style={{ display: "block", flex: 1, minWidth: 0, fontSize: schmal ? "clamp(11px, 3.15vw, 16px)" : "clamp(13.5px, 3.9vw, 16px)", fontWeight: 800, lineHeight: 1.15, letterSpacing: "-0.01em",
+                paddingTop: 3, overflowWrap: "break-word" }}>{kTitel}</span>
+              <span aria-hidden="true" className="kopf-karte"
+                style={{ flexShrink: 0, padding: "3px 8px", borderRadius: 10, background: "rgba(255,255,255,0.95)",
+                  color: f.akzent, fontSize: t.zeichen.length > 4 ? 13 : 16, fontWeight: 800, boxShadow: "0 3px 8px rgba(0,0,0,0.15)",
+                  transform: `rotate(${f.r}deg)`, whiteSpace: "nowrap" }}>
+                {t.zeichen}
+              </span>
             </span>
-            <span style={{ position: "relative", display: "block", fontSize: schmal ? "clamp(11px, 3.15vw, 16px)" : "clamp(13.5px, 3.9vw, 16px)", fontWeight: 800, lineHeight: 1.12, letterSpacing: "-0.01em",
-              paddingRight: 2 }}>{kTitel}</span>
             <span style={{ position: "relative", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden",
-              fontSize: 11.5, fontWeight: 500, lineHeight: 1.3, marginTop: 3, opacity: 0.92 }} className={schmal ? "kopf-slogan-schmal" : undefined}>{kText}</span>
+              fontSize: 11.5, fontWeight: 500, lineHeight: 1.3, opacity: 0.92 }} className={schmal ? "kopf-slogan-schmal" : undefined}>{kText}</span>
           </button>
         );
       })}
