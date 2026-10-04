@@ -3,6 +3,7 @@ import { C } from "./base1.jsx";
 import { ANLEITUNG_BILDER as BILDER_DE } from "./anleitung/daten.js";
 import { ANLEITUNG_BILDER as BILDER_EN } from "./anleitung/daten_en.js";
 import { englisch } from "./i18n.js";
+import { AufklappZeichen } from "./aufklappen.jsx";
 
 /* ======================================================================
    „SO NUTZT DU DIE APP“
@@ -174,15 +175,10 @@ export function AppAnleitung() {
           <span style={{ display: "block", fontSize: 16, fontWeight: 700, letterSpacing: "-0.01em" }}>{L("So nutzt du die App", "How to use this app")}</span>
           <span style={{ display: "block", fontSize: 12.5, fontWeight: 300, color: C.grau, marginTop: 2 }}>{L(`In ${FOLIEN.length} Bildern durchgeklickt`, `Click through ${FOLIEN.length} pictures`)}</span>
         </span>
-        <span aria-hidden="true" style={{ flexShrink: 0, width: 32, height: 32, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center",
-          background: auf ? C.see : "#EEF2F8", transition: "background .2s ease" }}>
-          <svg width="13" height="13" viewBox="0 0 14 14" style={{ transform: auf ? "rotate(180deg)" : "none", transition: "transform .25s ease" }}>
-            <path d="M3 5l4 4 4-4" stroke={auf ? C.weiss : C.see} strokeWidth="2.1" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </span>
+        <AufklappZeichen art="badge" auf={auf} />
       </button>
 
-      <div className={`anl-koerper${auf ? " auf" : ""}`} aria-hidden={!auf}>
+      <div className={`anl-koerper${auf ? " auf" : ""}`} aria-hidden={!auf} data-aufklapp-inhalt>
         <div>
           <div style={{ borderTop: `1px solid ${C.linie}`, padding: "14px 12px 18px" }}>
             {/* Kapitel */}

@@ -383,8 +383,6 @@ function QuadratKubik({ art }) {
     <div>
       <style>{`.kr-details > summary{list-style:none;cursor:pointer;padding:13px 0;font-size:15px;font-weight:700;color:${C.see}}
         .kr-details > summary::-webkit-details-marker{display:none}
-        .kr-details > summary::before{content:"›";display:inline-block;margin-right:8px;transition:transform .15s}
-        .kr-details[open] > summary::before{transform:rotate(90deg)}
         .kr-details[open]{padding-bottom:14px}`}</style>
       {art !== "kubik" && <details className="kr-details" style={{ marginBottom: 10, background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 14, padding: "0 14px" }}>
         <summary>Quadratzahlen · 1² bis 30²</summary>
@@ -806,8 +804,6 @@ function Multiplizieren() {
       <details className="kr-details" style={{ marginTop: 16, background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 14, padding: "0 14px" }}>
         <style>{`.kr-details > summary{list-style:none;cursor:pointer;padding:13px 0;font-size:14px;font-weight:600;color:${C.see}}
           .kr-details > summary::-webkit-details-marker{display:none}
-          .kr-details > summary::before{content:"›";display:inline-block;margin-right:8px;transition:transform .15s}
-          .kr-details[open] > summary::before{transform:rotate(90deg)}
           .kr-details[open]{padding-bottom:14px}`}</style>
         <summary>Alle Produkte von 1·1 bis 10·10 anzeigen</summary>
         <EinmaleinsSchachbrett />

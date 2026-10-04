@@ -12,6 +12,7 @@ import { Auswertung } from "./func9.jsx";
 import { Mathilda } from "./func10.jsx";
 import { FR } from "./funcRegistry.jsx";
 import { GraphenUebungen, ZusaetzlichUeben } from "./funcGraphenUebung.jsx";
+import { AufklappZeichen } from "./aufklappen.jsx";
 
 export function FotoAufgaben() {
   const [bild, setBild] = useState(null);
@@ -229,15 +230,19 @@ export function Formelsammlung({ zuHerleitung, bereich: start = "analysis" }) {
               const id = e.bereich + "|" + e.name;
               const auf = offen === id;
               return (
-                <div key={id} onClick={() => setOffen(auf ? null : id)}
+                <div key={id} onClick={() => setOffen(auf ? null : id)} role="button" tabIndex={0} aria-expanded={auf}
+                  onKeyDown={(ev) => { if (ev.target === ev.currentTarget && (ev.key === "Enter" || ev.key === " ")) { ev.preventDefault(); setOffen(auf ? null : id); } }}
                   style={{ background: C.weiss, borderRadius: 14, padding: "15px 17px", marginBottom: 9,
                     boxShadow: "0 2px 12px rgba(15,26,51,0.06)", cursor: "pointer" }}>
-                  <p style={{ fontSize: 14.5, fontWeight: 600, marginBottom: 8 }}>{e.name}</p>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 8 }}>
+                    <p style={{ fontSize: 14.5, fontWeight: 600, margin: 0 }}>{e.name}</p>
+                    <AufklappZeichen auf={auf} farbe={C.see} />
+                  </div>
                   <div style={{ fontSize: 16.5, lineHeight: 2, color: C.tinte, overflowX: "auto", overflowY: "hidden" }}>
                     <M t={e.f} />
                   </div>
                   {auf && (
-                    <>
+                    <div data-aufklapp-inhalt>
                       <p style={{ color: C.grau, fontSize: 13.5, fontWeight: 300, lineHeight: 1.7, marginTop: 10 }}>
                         {e.kurz}
                       </p>
@@ -251,7 +256,7 @@ export function Formelsammlung({ zuHerleitung, bereich: start = "analysis" }) {
                           Herleitung folgt in einem späteren Modul.
                         </p>
                       ) : null}
-                    </>
+                    </div>
                   )}
                 </div>
               );

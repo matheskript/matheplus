@@ -26,6 +26,7 @@ import {
   RUECKMELDUNGEN, beobachte, einzelne, pruefungsThemen, fortschrittBuchen, generatorenFuerFehler, klausurAuswertung, klausurPlan, lies, neueAufgabe, normiere,
   pruefeAntwort, pruefeErklaerung, pruefungAuswahl, themaAktualisieren, typStatus, warmupAuswahl, wiederkehrende,
 } from "./trainingDaten.js";
+import { AufklappZeichen } from "./aufklappen.jsx";
 
 /* ---------- Speicher: im vorhandenen Lernstand (func6) ---------- */
 const aendere = (fn) => lernAendern((L) => { L.training = normiere(L.training); fn(L.training); });
@@ -84,10 +85,10 @@ export function MeinTrainingZeile({ gehe }) {
             <span style={{ display: "block", fontSize: 12.5, color: C.grau, fontWeight: 300 }}>Kurz üben, Fehler gezielt trainieren, Klausuren nachbereiten</span>
           </span>
         </span>
-        <span aria-hidden="true" style={{ color: C.see, fontSize: 16, transform: auf ? "rotate(180deg)" : "none", transition: "transform .15s" }}>▾</span>
+        <AufklappZeichen auf={auf} farbe={C.see} />
       </button>
       {auf && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 8, marginTop: 8 }}>
+        <div data-aufklapp-inhalt style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 8, marginTop: 8 }}>
           {knoepfe.map(([id, titel, zeile]) => (
             <button key={id} type="button" onClick={() => gehe({ ansicht: id })}
               style={{ minHeight: 74, padding: "12px 14px", borderRadius: 14, border: "none", cursor: "pointer", fontFamily: "inherit", textAlign: "left",
@@ -408,10 +409,10 @@ function FehlerKarte({ id, status, n, tage, gehe, ueben, T }) {
       <p style={{ fontSize: 13, color: C.tinte, lineHeight: 1.6, background: C.sand, borderRadius: 10, padding: "6px 10px" }}>{t.tipp}</p>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10 }}>
         <button type="button" onClick={() => ueben(id)} style={{ ...knopfKlein, background: C.see, color: C.weiss, borderColor: C.see }}>Gezielt üben</button>
-        <button type="button" onClick={() => setZeigen(!zeigen)} aria-expanded={zeigen} style={knopfKlein}>{zeigen ? "Beobachtungen ausblenden" : "Beobachtungen ansehen"}</button>
+        <button type="button" onClick={() => setZeigen(!zeigen)} aria-expanded={zeigen} style={{ ...knopfKlein, display: "inline-flex", alignItems: "center", gap: 6 }}>{zeigen ? "Beobachtungen ausblenden" : "Beobachtungen ansehen"}<AufklappZeichen auf={zeigen} groesse={14} /></button>
       </div>
       {zeigen && (
-        <div style={{ marginTop: 10 }}>
+        <div data-aufklapp-inhalt style={{ marginTop: 10 }}>
           <p style={{ fontSize: 12.5, color: C.grau, lineHeight: 1.55, marginBottom: 8 }}>Stimmt die Zuordnung nicht? Du kannst jede Beobachtung einem anderen Fehlertyp zuordnen oder entfernen.</p>
           {liste.map((b) => (
             <div key={b.id} style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", padding: "6px 0", borderTop: `1px solid ${C.linie}` }}>

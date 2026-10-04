@@ -19,6 +19,7 @@ import { C } from "./base1.jsx";
 import { PLATZ } from "./base2.jsx";
 import { schoenerSchritt, tiefZiffer, zahl } from "./func2.jsx";
 import { M } from "./func3.jsx";
+import { AufklappZeichen } from "./aufklappen.jsx";
 
 /* ---------- 1. Formel-Engine ---------- */
 
@@ -1270,13 +1271,11 @@ function Eingabe({ text, setText }) {
             cursor: "pointer", fontSize: 12.5, fontWeight: 700, border: `1px solid ${offen ? C.linie : C.see}`,
             background: offen ? C.weiss : `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, color: offen ? C.see : C.weiss }}>
           {offen ? "Eingabe einklappen" : "Funktion eingeben"}
-          <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" style={{ transform: offen ? "rotate(180deg)" : "none", transition: "transform .2s ease" }}>
-            <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
+          <AufklappZeichen auf={offen} groesse={14} />
         </button>
       </div>
 
-      {offen && <div id="adv-eingabe">
+      {offen && <div id="adv-eingabe" data-aufklapp-inhalt>
 
       {tippen ? (
         <div>

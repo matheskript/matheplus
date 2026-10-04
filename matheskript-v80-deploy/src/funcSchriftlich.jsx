@@ -7,6 +7,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { C } from "./base1.jsx";
 import { englisch } from "./i18n.js";
+import { AufklappZeichen } from "./aufklappen.jsx";
 
 const L = (de, en) => (englisch() ? en : de);
 const zufall = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
@@ -329,9 +330,10 @@ export function SchriftlicheDivision({ Zahlenfeld }) {
         <Rueckmeldung rueck={rueck} text={L(`Leider nicht – richtig ist ${aufg.q}${rest ? ` Rest ${aufg.r}` : ""}. Oben siehst du den Rechenweg.`,
           `Not quite – the answer is ${aufg.q}${rest ? ` remainder ${aufg.r}` : ""}. The working is shown above.`)} />
         {!rueck && (
-          <button type="button" onClick={() => setWegAuf(!wegAuf)}
-            style={{ display: "block", margin: "10px auto 12px", background: "none", border: "none", color: C.see, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+          <button type="button" onClick={() => setWegAuf(!wegAuf)} aria-expanded={wegAuf}
+            style={{ display: "flex", alignItems: "center", gap: 6, margin: "10px auto 12px", background: "none", border: "none", color: C.see, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
             {wegAuf ? L("Rechenweg ausblenden", "Hide working") : L("Rechenweg zeigen", "Show working")}
+            <AufklappZeichen auf={wegAuf} groesse={14} />
           </button>
         )}
         {rueck === "falsch" ? <button onClick={weiter} style={weiterKnopf}>{L("Nächste Aufgabe", "Next task")}</button>

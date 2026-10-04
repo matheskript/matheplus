@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { C } from "./base1.jsx";
+import { AufklappZeichen } from "./aufklappen.jsx";
 
 /* ======================================================================
    DEFINITIONEN UND VORWISSEN
@@ -39,14 +40,9 @@ export function Vorwissen({ children, untertitel, startOffen = false }) {
             {untertitel || "Was du für dieses Thema wissen musst"}
           </span>
         </span>
-        <span aria-hidden="true" style={{ flexShrink: 0, width: 32, height: 32, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center",
-          background: auf ? C.see : "#EEF2F8", transition: "background .2s ease" }}>
-          <svg width="13" height="13" viewBox="0 0 14 14" style={{ transform: auf ? "rotate(180deg)" : "none", transition: "transform .25s ease" }}>
-            <path d="M3 5l4 4 4-4" stroke={auf ? C.weiss : C.see} strokeWidth="2.1" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </span>
+        <AufklappZeichen art="badge" auf={auf} />
       </button>
-      <div className={`vw-koerper${auf ? " auf" : ""}`} aria-hidden={!auf}>
+      <div className={`vw-koerper${auf ? " auf" : ""}`} aria-hidden={!auf} data-aufklapp-inhalt>
         <div>
           <div style={{ padding: "4px clamp(16px, 4.5vw, 22px) 22px", borderTop: `1px solid ${C.linie}` }}>{auf && children}</div>
         </div>

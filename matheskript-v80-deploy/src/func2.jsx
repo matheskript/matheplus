@@ -1,4 +1,5 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { BIBEL_URL, C, DEMO, KOEFF_FARBEN, KOEFF_HOCH } from "./base1.jsx";
 import { vz } from "./base2.jsx";
 import { LERN, hatEinheit, tagSchluessel } from "./base3.jsx";
@@ -11,7 +12,7 @@ import { Wiederholen } from "./func7.jsx";
 import { EskalationsKarte, Wochenbericht, eskalationSignale, serieBerechnen, zeitraum } from "./func8.jsx";
 import { TerminHinweis } from "./func9.jsx";
 import { Mathilda } from "./func10.jsx";
-import { KopfKacheln, KopfrechnenLogoKlein } from "./func14.jsx";
+import { KopfKacheln, KopfrechnenLogoKlein, TRAINER } from "./func14.jsx";
 import { MeinTrainingZeile } from "./funcTraining.jsx";
 import { AppAnleitung } from "./funcAnleitung.jsx";
 import { VektorenLogoKlein } from "./func16.jsx";
@@ -21,6 +22,7 @@ import { MedaillenschrankLogo, BwmLogo, KarteLogo } from "./funcWettbewerbe.jsx"
 import { MasterclassKachel, MatheCheckenKachel, MathCreatorKachel } from "./funcMasterclass.jsx";
 import { ElternabendKachel } from "./funcElternabend.jsx";
 import { SatzZeilen, saetze } from "./baseSatz.jsx";
+import { AufklappZeichen } from "./aufklappen.jsx";
 
 /* Große, ganz anklickbare Kachel für die Plotter auf der Startseite. */
 /* Polynomplotter-Grafik im Hochformat für die Kachel. */
@@ -56,11 +58,11 @@ function PlotterLogoKlein() {
   );
 }
 
-function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "Werkzeug", klein, halb, extra, gesperrt, logoHell, portraet, titelUmbruch, keinI18nTitel }) {
+function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "Werkzeug", klein, halb, extra, gesperrt, logoHell, portraet, titelUmbruch, keinI18nTitel, auf }) {
   if (halb) klein = true;   // halbe Höhe: nur Titel und eine Textzeile
   const mehrereSaetze = saetze(text).length > 1;
   return (
-    <button onClick={gesperrt ? undefined : onClick} disabled={gesperrt} aria-disabled={gesperrt || undefined}
+    <button onClick={gesperrt ? undefined : onClick} disabled={gesperrt} aria-disabled={gesperrt || undefined} aria-expanded={auf}
       aria-label={gesperrt ? `${titel} – noch gesperrt` : label} title={gesperrt ? "Noch gesperrt" : undefined}
       className={gesperrt ? "kachel-gesperrt" : "plotter-kachel"}
       style={{ display: "flex", width: klein ? "100%" : "calc(100% + 32px)", marginLeft: klein ? 0 : -16, marginRight: klein ? 0 : -16,
@@ -353,6 +355,89 @@ const FORMEL_MENUE = [
   { name: "Mengenlehre und Logik", zeile: "Mengen, Junktoren, Beweisverfahren", bild: "menge", ziel: { ansicht: "formeln", bereich: "logik" } },
 ];
 
+/* ======================================================================
+   Menü in den Werkzeug-Seiten (Knopf oben rechts im blauen Kopfbereich)
+   Gleicher Aufbau wie die Startseite, aber kompakt: alle Hauptthemen sind
+   zugeklappt und lassen sich einzeln aufklappen (+ / −).
+   ====================================================================== */
+function toolKnoten(t) {
+  return t.kinder
+    ? { id: t.name, titel: t.name, kinder: t.kinder.map((k) => ({ titel: k.name, ziel: k.ziel })) }
+    : { titel: t.name, ziel: t.ziel };
+}
+function menueBaum() {
+  return [
+    { id: "schul", titel: "Mathe-Training", kinder: SCHUL_BEREICHE.map((b) => ({ id: b.id, titel: b.titel, kinder: b.tools.map(toolKnoten) })) },
+    { id: "mein", titel: "Mein Training", kinder: [
+      { titel: "5 Minuten Mathe", ziel: { ansicht: "warmup" } },
+      { titel: "Meine Fehler üben", ziel: { ansicht: "fehlertraining" } },
+      { titel: "Prüfungsmodus", ziel: { ansicht: "pruefung" } },
+      { titel: "Klausur nachbereiten", ziel: { ansicht: "klausurnach" } },
+    ] },
+    { id: "mathe", titel: "Mathematik", kinder: [
+      { id: "formel", titel: "Formelsammlung", kinder: FORMEL_MENUE.map((f) => ({ titel: f.name, ziel: f.ziel })) },
+    ] },
+    { id: "kopf", titel: "Kopfrechnen", kinder: TRAINER.map((t) => ({ titel: t.kurzTitel || t.titel, ziel: { ansicht: "kopf", trainer: t.id } })) },
+    { id: "wett", titel: "Mathe-Wettbewerbe", kinder: [
+      { titel: "Bundeswettbewerb Mathematik", ziel: { ansicht: "bwm" } },
+      { titel: "Landeswettbewerbe", ziel: { ansicht: "landeswettbewerbe" } },
+    ] },
+  ];
+}
+
+export function ToolMenue({ gehe, schliessen, aktuell }) {
+  const [offen, setOffen] = useState({});
+  const baum = React.useMemo(menueBaum, []);
+  useEffect(() => {
+    const taste = (e) => { if (e.key === "Escape") schliessen(); };
+    window.addEventListener("keydown", taste);
+    return () => window.removeEventListener("keydown", taste);
+  }, []);
+  const zeile = (k, pfad, tiefe) => {
+    const id = pfad + "/" + k.titel;
+    if (!k.kinder) {
+      const aktiv = k.ziel.ansicht === aktuell;
+      return (
+        <button key={id} type="button" onClick={() => gehe(k.ziel)} aria-current={aktiv ? "page" : undefined}
+          style={{ display: "block", width: "100%", textAlign: "left", fontFamily: "inherit", cursor: "pointer", minHeight: 38, padding: "7px 10px", marginTop: 4,
+            borderRadius: 9, border: `1px solid ${aktiv ? C.flaggold : C.linie}`, background: aktiv ? "rgba(237,187,0,0.14)" : C.weiss,
+            fontSize: 13.5, fontWeight: aktiv ? 700 : 500, color: C.tinte, lineHeight: 1.25 }}>{k.titel}</button>
+      );
+    }
+    const auf = !!offen[id];
+    return (
+      <div key={id} style={{ marginTop: tiefe === 0 ? 6 : 4 }}>
+        <button type="button" onClick={() => setOffen({ ...offen, [id]: !auf })} aria-expanded={auf}
+          style={{ display: "flex", width: "100%", alignItems: "center", justifyContent: "space-between", gap: 8, textAlign: "left", fontFamily: "inherit", cursor: "pointer",
+            minHeight: tiefe === 0 ? 42 : 38, padding: "6px 10px", borderRadius: tiefe === 0 ? 11 : 9, border: `1px solid ${auf ? C.see : C.linie}`,
+            background: auf ? C.himmel : C.weiss, fontSize: tiefe === 0 ? 14.5 : 13.5, fontWeight: 700, color: C.see }}>
+          <span>{k.titel}</span><AufklappZeichen auf={auf} groesse={16} />
+        </button>
+        {auf && (
+          <div data-aufklapp-inhalt style={{ margin: "0 0 4px 8px", paddingLeft: 8, borderLeft: `2px solid ${C.flaggold}` }}>
+            {k.kinder.map((x) => zeile(x, id, tiefe + 1))}
+          </div>
+        )}
+      </div>
+    );
+  };
+  return createPortal(
+    <>
+      <div onClick={schliessen} aria-hidden="true" style={{ position: "fixed", inset: 0, zIndex: 40, background: "rgba(8,23,59,0.45)" }} />
+      <div role="dialog" aria-label="Menü" data-scroll-box
+        style={{ position: "fixed", top: 64, left: "50%", transform: "translateX(-50%)", width: "min(604px, calc(100vw - 16px))", maxHeight: "calc(100dvh - 76px)", overflowY: "auto",
+          zIndex: 45, background: C.sand, borderRadius: 16, boxShadow: "0 18px 48px rgba(8,23,59,0.4)", padding: "8px 10px 12px", fontFamily: "Montserrat, system-ui, sans-serif" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "4px 2px 2px" }}>
+          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", color: C.grau }}>ALLE BEREICHE</span>
+          <button type="button" onClick={schliessen} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 12.5, fontWeight: 700, color: C.see, padding: "6px 4px" }}>Schließen</button>
+        </div>
+        {baum.map((k) => zeile(k, "", 0))}
+      </div>
+    </>,
+    document.body
+  );
+}
+
 /* Goldener Videokurs-Knopf am Ende jeder Sektion — vorerst gesperrt (Schloss) */
 function VideokursGesperrt({ name, zeile }) {
   const [hinweis, setHinweis] = useState(false);
@@ -396,13 +481,9 @@ function VideokursGesperrt({ name, zeile }) {
   );
 }
 
-/* Goldener Plus-Knopf einer aufklappbaren Hauptkachel (dreht sich zum ×) */
+/* Goldener Plus-/Minus-Knopf einer aufklappbaren Hauptkachel */
 function PlusKnopf({ auf }) {
-  return (
-    <span aria-hidden="true" style={{ position: "absolute", right: 10, bottom: 10, width: 40, height: 40, borderRadius: 999,
-      background: C.flaggold, color: C.seeTief, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, fontWeight: 700,
-      lineHeight: 1, transform: auf ? "rotate(45deg)" : "none", transition: "transform .2s ease", boxShadow: "0 2px 10px rgba(0,0,0,0.3)" }}>+</span>
-  );
+  return <AufklappZeichen art="gold" auf={auf} groesse={40} abstand={10} />;
 }
 
 /* Grafik für die kleinen Trainer-Kacheln: großes goldenes Zeichen (z. B. 12², ¾) */
@@ -415,16 +496,9 @@ function ZeichenLogo({ zeichen }) {
   );
 }
 
-/* Runder Pfeil unten rechts in der Grafik eines aufklappbaren Bereichs */
+/* Goldener Plus-/Minus-Knopf unten rechts in der Grafik eines aufklappbaren Bereichs */
 function AufklappPfeil({ auf, klein }) {
-  const g = klein ? 24 : 30;
-  return (
-    <span aria-hidden="true" style={{ position: "absolute", right: 8, bottom: 8, width: g, height: g, borderRadius: 999,
-      background: C.flaggold, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
-      transform: auf ? "rotate(180deg)" : "none", transition: "transform .2s ease" }}>
-      <svg width={klein ? 12 : 14} height={klein ? 12 : 14} viewBox="0 0 14 14"><path d="M3 5l4 4 4-4" stroke={C.seeTief} strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
-    </span>
-  );
+  return <AufklappZeichen art="gold" auf={auf} groesse={klein ? 26 : 30} abstand={8} />;
 }
 
 /* Kleine, dünn gezeichnete Motive für die Werkzeug-Knöpfe (viewBox 120 × 56) */
@@ -479,7 +553,7 @@ function UnterMenue({ eintraege, gehe, tiefe = 0 }) {
   // Dunkleres Blau für besseren Kontrast zur weißen Schrift; Ebene 2 etwas heller zur Unterscheidung
   const hg = tiefe === 0 ? "linear-gradient(160deg, #1B62AE 0%, #0F4A8A 55%, #0A3A70 100%)" : "linear-gradient(160deg, #2770BC 0%, #18589C 60%, #12487F 100%)";
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 6, margin: tiefe ? "0 0 4px 14px" : "6px 0 10px" }}>
+    <div data-aufklapp-inhalt style={{ display: "flex", flexDirection: "column", gap: 6, margin: tiefe ? "0 0 4px 14px" : "6px 0 10px" }}>
       <style>{`.unter-knopf{transition:transform .12s ease, filter .12s ease}
         .unter-knopf:active{transform:translateY(2px) scale(0.99);box-shadow:0 2px 6px rgba(10,40,90,0.3), inset 0 1px 0 rgba(255,255,255,0.22), inset 0 -1px 0 rgba(0,0,0,0.25) !important}
         @media (hover:hover){.unter-knopf:hover{filter:brightness(1.07)}}
@@ -930,16 +1004,16 @@ export function Startseite({ gehe }) {
         </p>
       </section>
       <AppAnleitung />
-      <PlotterKachel onClick={() => { setSchulAuf(!schulAuf); setBereichAuf(null); }} label={schulAuf ? "Mathe-Training zuklappen" : "Mathe-Training aufklappen"}
+      <PlotterKachel onClick={() => { setSchulAuf(!schulAuf); setBereichAuf(null); }} auf={schulAuf} label={schulAuf ? "Mathe-Training zuklappen" : "Mathe-Training aufklappen"}
         logo={<SchulmatheLogoKlein />} titel="Mathe-Training"
         text="Analysis, Vektoren, Stochastik und Gleichungen live erleben."
         extra={<PlusKnopf auf={schulAuf} />} />
       {schulAuf && (
-        <div style={{ margin: "4px 0 4px", padding: "2px 0 2px 12px", borderLeft: `3px solid ${C.flaggold}` }}>
+        <div data-aufklapp-inhalt style={{ margin: "4px 0 4px", padding: "2px 0 2px 12px", borderLeft: `3px solid ${C.flaggold}` }}>
           {SCHUL_BEREICHE.map((b) => (
             <React.Fragment key={b.id}>
               <PlotterKachel klein onClick={() => setBereichAuf(bereichAuf === b.id ? null : b.id)}
-                label={bereichAuf === b.id ? `${b.titel} zuklappen` : `${b.titel} aufklappen`}
+                auf={bereichAuf === b.id} label={bereichAuf === b.id ? `${b.titel} zuklappen` : `${b.titel} aufklappen`}
                 logo={b.logo} titel={b.titel} text={b.text}
                 extra={<AufklappPfeil auf={bereichAuf === b.id} />} />
               {bereichAuf === b.id && <UnterMenue eintraege={b.tools} gehe={gehe} />}
@@ -949,13 +1023,13 @@ export function Startseite({ gehe }) {
         </div>
       )}
       <MeinTrainingZeile gehe={gehe} />
-      <PlotterKachel onClick={() => setMatheAuf(!matheAuf)} label={matheAuf ? "Mathematik zuklappen" : "Mathematik aufklappen"}
+      <PlotterKachel onClick={() => setMatheAuf(!matheAuf)} auf={matheAuf} label={matheAuf ? "Mathematik zuklappen" : "Mathematik aufklappen"}
         logo={<FormelLogoKlein />} titel="Mathematik"
         text="Formelsammlung, Definitionen und Sätze – zum Nachschlagen."
         extra={<PlusKnopf auf={matheAuf} />} />
       {matheAuf && (
-        <div style={{ margin: "4px 0 4px", padding: "2px 0 2px 12px", borderLeft: `3px solid ${C.flaggold}` }}>
-          <PlotterKachel klein onClick={() => setFormelAuf(!formelAuf)} label={formelAuf ? "Formelsammlung zuklappen" : "Formelsammlung aufklappen"} logo={<FormelLogoKlein />}
+        <div data-aufklapp-inhalt style={{ margin: "4px 0 4px", padding: "2px 0 2px 12px", borderLeft: `3px solid ${C.flaggold}` }}>
+          <PlotterKachel klein onClick={() => setFormelAuf(!formelAuf)} auf={formelAuf} label={formelAuf ? "Formelsammlung zuklappen" : "Formelsammlung aufklappen"} logo={<FormelLogoKlein />}
             titel="Formelsammlung"
             text="Alle wichtigen Formeln der Oberstufe – sauber sortiert zum Nachschlagen."
             extra={<AufklappPfeil auf={formelAuf} />} />
@@ -968,23 +1042,23 @@ export function Startseite({ gehe }) {
             text="Die zentralen Sätze der Oberstufe – klar formuliert." />
         </div>
       )}
-      <PlotterKachel onClick={() => setKopfAuf(!kopfAuf)} label={kopfAuf ? "Kopfrechnen zuklappen" : "Kopfrechnen aufklappen"} logo={<KopfrechnenLogoKlein />}
+      <PlotterKachel onClick={() => setKopfAuf(!kopfAuf)} auf={kopfAuf} label={kopfAuf ? "Kopfrechnen zuklappen" : "Kopfrechnen aufklappen"} logo={<KopfrechnenLogoKlein />}
         titel="Kopfrechnen"
         text="Primfaktoren, Quadratzahlen, Brüche, Einmaleins – auf Zeit."
         extra={<PlusKnopf auf={kopfAuf} />} />
       {kopfAuf && (
-        <div style={{ margin: "4px 0 4px", padding: "2px 0 2px 12px", borderLeft: `3px solid ${C.flaggold}` }}>
+        <div data-aufklapp-inhalt style={{ margin: "4px 0 4px", padding: "2px 0 2px 12px", borderLeft: `3px solid ${C.flaggold}` }}>
           <div style={{ paddingTop: 8, paddingBottom: 4 }}>
             <KopfKacheln onWaehle={(id) => gehe({ ansicht: "kopf", trainer: id })} />
           </div>
         </div>
       )}
-      <PlotterKachel onClick={() => setWettAuf(!wettAuf)} label={wettAuf ? "Mathe-Wettbewerbe zuklappen" : "Mathe-Wettbewerbe aufklappen"}
+      <PlotterKachel onClick={() => setWettAuf(!wettAuf)} auf={wettAuf} label={wettAuf ? "Mathe-Wettbewerbe zuklappen" : "Mathe-Wettbewerbe aufklappen"}
         logo={<MedaillenschrankLogo />} titel="Mathe-Wettbewerbe"
         text="Bundeswettbewerb Mathematik und Landeswettbewerbe."
         extra={<PlusKnopf auf={wettAuf} />} />
       {wettAuf && (
-        <div style={{ margin: "4px 0 4px", padding: "2px 0 2px 12px", borderLeft: `3px solid ${C.flaggold}` }}>
+        <div data-aufklapp-inhalt style={{ margin: "4px 0 4px", padding: "2px 0 2px 12px", borderLeft: `3px solid ${C.flaggold}` }}>
           <PlotterKachel klein onClick={() => gehe({ ansicht: "bwm" })} label="Bundeswettbewerb Mathematik öffnen" logo={<BwmLogo />} titelUmbruch keinI18nTitel
             titel="Bundeswettbewerb Mathematik"
             text="Die nächste 1. Runde und die Aufgaben mit Lösungen vom letzten Jahr." />
@@ -1758,11 +1832,11 @@ function PolynomdivisionBlock({ block }) {
             style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", margin: "6px 0",
               padding: "8px 12px", background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 8,
               cursor: "pointer", fontFamily: "inherit", fontSize: 12.5, fontWeight: 600, color: C.see, textAlign: "left" }}>
-            <span style={{ display: "inline-block", transition: "transform .15s", transform: offen ? "rotate(90deg)" : "none" }}>›</span>
+            <AufklappZeichen auf={offen} groesse={16} />
             {offen ? "Rechnung ausblenden" : "Rechnung Schritt für Schritt anzeigen"}
           </button>
           {offen && (
-            <div style={{ background: C.weiss, borderRadius: 8, padding: "8px 10px", marginBottom: 6 }}>
+            <div data-aufklapp-inhalt style={{ background: C.weiss, borderRadius: 8, padding: "8px 10px", marginBottom: 6 }}>
               {block.mitte.map((zl, i) => <PdZeile key={i} zl={zl} />)}
             </div>
           )}

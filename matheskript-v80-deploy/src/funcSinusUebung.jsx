@@ -16,6 +16,7 @@ import { M } from "./func3.jsx";
 import { Auswahl, GrosserKnopf, KleinerLink, Rueck, ZahlFeld, hinweis, karte, kicker, zw } from "./ui2.jsx";
 import { FunktionsBild, SchrittFolge, liesZahl, zt } from "./ui3.jsx";
 import { wahl } from "./rechnen2.js";
+import { AufklappZeichen } from "./aufklappen.jsx";
 
 const PI = Math.PI;
 let zaehler = 0;
@@ -159,10 +160,10 @@ export function SinusUebungen() {
     <div className="mx-auto px-6" style={{ maxWidth: 620, paddingTop: 18 }}>
       <button type="button" aria-expanded={auf} onClick={() => setAuf(!auf)}
         style={{ width: "100%", minHeight: 48, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 16px", borderRadius: 14, cursor: "pointer", fontFamily: "inherit", background: C.weiss, border: `1.5px solid ${C.linie}`, fontSize: 15, fontWeight: 700, color: C.see }}>
-        <span>{zw("Zusätzlich üben", "Practise more")}</span><span aria-hidden="true" style={{ transform: auf ? "rotate(180deg)" : "none", transition: "transform .15s" }}>▾</span>
+        <span>{zw("Zusätzlich üben", "Practise more")}</span><AufklappZeichen auf={auf} />
       </button>
       {auf && (
-        <div style={{ marginTop: 8 }}>
+        <div data-aufklapp-inhalt style={{ marginTop: 8 }}>
           <Auswahl optionen={MODI.map(([id, de, en]) => [id, zw(de, en)])} wert={modus} setWert={setModus} label={zw("Sinus-Übungen", "Sine exercises")} />
           {modus === "bestimmen" && <ParameterBestimmen />}
           {modus === "ziel" && <Zielgraph />}

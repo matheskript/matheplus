@@ -16,6 +16,7 @@ import { GrosserKnopf, Rueck, Stufe, hilfeKontext, hinweis, karte, kicker } from
 import { M, Text } from "./func3.jsx";
 import { Aufklapp, FunktionsBild, ModusLeiste, minusZ } from "./ui3.jsx";
 import { mischen, wahl, zz } from "./rechnen2.js";
+import { AufklappZeichen } from "./aufklappen.jsx";
 
 const Tx = ({ s }) => <>{String(s).split("$").map((t, i) => (i % 2 === 1 ? <M key={i} t={t} /> : <span key={i}>{t}</span>))}</>;
 const FARBEN = [C.see, C.gruen, C.smaragd];
@@ -338,10 +339,10 @@ export function ZusaetzlichUeben({ onWaehle }) {
       <button type="button" aria-expanded={auf} onClick={() => setAuf(!auf)}
         style={{ width: "100%", minHeight: 48, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 16px", borderRadius: 14, cursor: "pointer", fontFamily: "inherit",
           background: C.weiss, border: `1.5px solid ${C.linie}`, fontSize: 15, fontWeight: 700, color: C.see }}>
-        <span>Zusätzlich üben</span><span aria-hidden="true" style={{ transform: auf ? "rotate(180deg)" : "none", transition: "transform .15s" }}>▾</span>
+        <span>Zusätzlich üben</span><AufklappZeichen auf={auf} />
       </button>
       {auf && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 8, marginTop: 8 }}>
+        <div data-aufklapp-inhalt style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 8, marginTop: 8 }}>
           {GRAPHEN_MODI.map(([id, l]) => (
             <button key={id} type="button" onClick={() => onWaehle(id)} style={{ ...knopf, textAlign: "left", minHeight: 52, hyphens: "manual" }}>{l}</button>
           ))}

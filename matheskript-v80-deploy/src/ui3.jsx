@@ -14,6 +14,7 @@ import React, { useId, useState } from "react";
 import { C } from "./base1.jsx";
 import { Auswahl, GrosserKnopf, KleinerLink, Rueck, ZahlFeld, hinweis, zw } from "./ui2.jsx";
 import { qLies, qNum } from "./rechnen2.js";
+import { AufklappZeichen } from "./aufklappen.jsx";
 
 /* ---------- Zahlen anzeigen ---------- */
 export const minusZ = (s) => String(s).replace(/-/g, "−");
@@ -163,9 +164,9 @@ export function Aufklapp({ titel, children, start = false }) {
       <button type="button" aria-expanded={auf} onClick={() => setAuf(!auf)}
         style={{ width: "100%", minHeight: 44, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, padding: "8px 14px", background: "none",
           border: "none", fontFamily: "inherit", fontSize: 14, fontWeight: 700, color: C.see, cursor: "pointer", textAlign: "left" }}>
-        <span>{titel}</span><span aria-hidden="true" style={{ transform: auf ? "rotate(180deg)" : "none", transition: "transform .15s" }}>▾</span>
+        <span>{titel}</span><AufklappZeichen auf={auf} />
       </button>
-      {auf && <div style={{ padding: "0 14px 12px", fontSize: 14, lineHeight: 1.65, color: C.tinte }}>{children}</div>}
+      {auf && <div data-aufklapp-inhalt style={{ padding: "0 14px 12px", fontSize: 14, lineHeight: 1.65, color: C.tinte }}>{children}</div>}
     </div>
   );
 }

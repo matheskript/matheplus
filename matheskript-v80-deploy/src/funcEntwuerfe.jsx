@@ -4,6 +4,7 @@ import bildHeft from "./assets/entwurf/heft.jpg";
 import bildMuenzen from "./assets/entwurf/muenzen.jpg";
 import bildStift from "./assets/entwurf/stift.jpg";
 import bildGipfel from "./assets/entwurf/gipfel.jpg";
+import { AufklappZeichen } from "./aufklappen.jsx";
 
 /* ======================================================================
    WEBSEITEN-ENTWÜRFE
@@ -278,9 +279,9 @@ function Fragen({ liste, offen0 = -1, zweispaltig, titel }) {
                   <span style={{ fontWeight: 700, fontSize: 14.5 }}>{f}</span>
                   {zweispaltig && !auf && <span className="ew-frage-vorschau" style={{ fontSize: 13.5, color: GRAU }}>{a}</span>}
                 </span>
-                <Ic n={auf ? "rauf" : "runter"} s={18} w={2.2} />
+                <AufklappZeichen auf={auf} groesse={20} />
               </button>
-              {auf && <div style={{ padding: "0 16px 14px", fontSize: 14, lineHeight: 1.55, color: GRAU }}>{a}</div>}
+              {auf && <div data-aufklapp-inhalt style={{ padding: "0 16px 14px", fontSize: 14, lineHeight: 1.55, color: GRAU }}>{a}</div>}
             </div>
           );
         })}

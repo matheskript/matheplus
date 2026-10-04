@@ -8,6 +8,7 @@ import { TermTastatur, kubischErzeugen } from "./func4.jsx";
 import { Lernlandkarte, antwortPruefen, brueckeErgebnis, einheitVon, lernAendern, testBestanden, testNichtBestanden, useLern, wannFaellig, wiederholListe, wiederholungErgebnis } from "./func6.jsx";
 import { EskalationsKarte, aktivitaetMelden, coachingAnfragen, eskalationSignale, variantenFestschreiben, variantenVorschlag } from "./func8.jsx";
 import { Mathilda } from "./func10.jsx";
+import { AufklappZeichen } from "./aufklappen.jsx";
 
 export function MathildaTutor({ kompetenz, aufgabe, eingabe, onSchliessen }) {
   const L = useLern();
@@ -859,13 +860,13 @@ export function Operatoren() {
 
       {reiter === "liste" && OPERATOREN.map((o) => (
         <div key={o.op} style={{ background: C.weiss, borderRadius: 14, marginBottom: 8, boxShadow: "0 2px 12px rgba(15,26,51,0.05)" }}>
-          <button onClick={() => setOffen(offen === o.op ? null : o.op)} className="w-full flex justify-between items-center"
+          <button onClick={() => setOffen(offen === o.op ? null : o.op)} aria-expanded={offen === o.op} className="w-full flex justify-between items-center"
             style={{ background: "none", border: "none", padding: "14px 16px", cursor: "pointer", fontFamily: "inherit" }}>
             <OperatorMarke op={o.op} afb={o.afb} />
-            <span style={{ color: C.hellgrau, transform: offen === o.op ? "rotate(90deg)" : "none", transition: "transform .15s" }}>›</span>
+            <AufklappZeichen auf={offen === o.op} farbe={C.see} />
           </button>
           {offen === o.op && (
-            <div style={{ padding: "0 16px 16px" }}>
+            <div data-aufklapp-inhalt style={{ padding: "0 16px 16px" }}>
               <p style={{ fontSize: 14.5, lineHeight: 1.75, marginBottom: 8 }}><b>Verlangt:</b> {o.verlangt}</p>
               {o.reichtNicht !== "—" && <p style={{ fontSize: 14, color: C.grau, lineHeight: 1.7, marginBottom: 8 }}><b>Reicht nicht:</b> {o.reichtNicht}</p>}
               <Text s={`Beispiel: ${o.beispiel}`} style={{ fontSize: 14, color: C.grau, lineHeight: 1.7, marginBottom: 8 }} />

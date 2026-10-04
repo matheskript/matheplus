@@ -13,6 +13,7 @@ import { C } from "./base1.jsx";
 import { Einzeilig, ggT, kreuz, skalar } from "./func19.jsx";
 import { FA, FB, FE, FS, Gl, Name, Raum3, Schritt, Vek, k, koordText, n } from "./func20.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
+import { AufklappZeichen } from "./aufklappen.jsx";
 
 const pt = (P) => P.map(n).join(" | ");
 function geradeHilfe(A, B) {
@@ -157,9 +158,9 @@ function Weg({ titel, offen, umschalten, children, id }) {
         style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, minHeight: 48, padding: "10px 14px",
           border: "none", background: offen ? C.himmel : C.weiss, cursor: "pointer", fontFamily: "inherit", textAlign: "left", color: C.tinte }}>
         <span style={{ fontSize: 15, fontWeight: 800 }}>{titel}</span>
-        <span aria-hidden="true" style={{ color: C.see, fontSize: 18, transform: offen ? "rotate(90deg)" : "none", transition: "transform .15s" }}>›</span>
+        <AufklappZeichen auf={offen} farbe={C.see} />
       </button>
-      {offen && <div id={id} style={{ padding: "12px 10px 2px" }}>{children}</div>}
+      {offen && <div id={id} data-aufklapp-inhalt style={{ padding: "12px 10px 2px" }}>{children}</div>}
     </div>
   );
 }

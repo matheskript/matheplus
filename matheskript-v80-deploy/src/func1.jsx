@@ -7,6 +7,7 @@ import { LernModul, RechenwegEditor } from "./func3.jsx";
 import { GraphZuordnung, Klausur, Kurvendiskussion } from "./func4.jsx";
 import { intervall } from "./func8.jsx";
 import { VideokursPlayer, VideokursVorschau, naechsteLektion, videoAnzahl } from "./func15.jsx";
+import { AufklappZeichen } from "./aufklappen.jsx";
 
 export function useYouTubeApi() {
   const [bereit, setBereit] = useState(() => typeof window !== "undefined" && !!(window.YT && window.YT.Player));
@@ -1084,8 +1085,8 @@ export function Kurse({ gehe, startKurs = null }) {
 
       {(() => {
         // Eine Kachel im Stil der Startseite; klein = kompakte Variante für das Analysis-Dropdown
-        const kachel = ({ key, titel, unter, info, grafik, onClick, label, klein, rechts }) => (
-          <button key={key} onClick={onClick} aria-label={label} className="kurs-kachel"
+        const kachel = ({ key, titel, unter, info, grafik, onClick, label, klein, rechts, auf }) => (
+          <button key={key} onClick={onClick} aria-label={label} aria-expanded={auf} className="kurs-kachel"
             style={{ display: "flex", width: klein ? "100%" : "calc(100% + 32px)", marginLeft: klein ? 0 : -16, marginRight: klein ? 0 : -16,
               height: klein ? 92 : 138, marginBottom: klein ? 8 : 12,
               padding: 0, border: "none", borderRadius: klein ? 14 : 18, overflow: "hidden", cursor: "pointer", fontFamily: "inherit", textAlign: "left",
@@ -1122,21 +1123,19 @@ export function Kurse({ gehe, startKurs = null }) {
             ausgabe.push(
               <div key="analysis-gruppe">
                 {kachel({
-                  key: "analysis", titel: "Analysis", label: analysisAuf ? "Analysis-Kurse zuklappen" : "Analysis-Kurse aufklappen",
+                  key: "analysis", titel: "Analysis", auf: analysisAuf, label: analysisAuf ? "Analysis-Kurse zuklappen" : "Analysis-Kurse aufklappen",
                   unter: "Geraden · Polynome · Andere Funktionen · Kurvendiskussion · Integrale",
                   info: `Kl. 8–13 · ${analysis.length} Kurse · ${videosAnalysis} Videos`, grafik: "kurve",
                   onClick: () => setAnalysisAuf(!analysisAuf),
                   rechts: (
                     <div style={{ flex: "0 0 40%", borderLeft: `1px solid ${C.silber}33`, position: "relative" }}>
                       <KursGrafik art="kurve" hoehe="100%" />
-                      <span aria-hidden="true" style={{ position: "absolute", right: 10, bottom: 10, width: 40, height: 40, borderRadius: 999,
-                        background: C.flaggold, color: C.seeTief, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, fontWeight: 700,
-                        lineHeight: 1, transform: analysisAuf ? "rotate(45deg)" : "none", transition: "transform .2s ease", boxShadow: "0 2px 10px rgba(0,0,0,0.3)" }}>+</span>
+                      <AufklappZeichen art="gold" auf={analysisAuf} groesse={40} abstand={10} />
                     </div>
                   ),
                 })}
                 {analysisAuf && (
-                  <div style={{ margin: "-4px 0 14px", padding: "10px 0 2px 12px", borderLeft: `3px solid ${C.flaggold}` }}>
+                  <div data-aufklapp-inhalt style={{ margin: "-4px 0 14px", padding: "10px 0 2px 12px", borderLeft: `3px solid ${C.flaggold}` }}>
                     {analysis.map((a) => kachel({
                       key: a.id, klein: true, titel: a.titel, unter: a.unter, info: infoText(a), grafik: a.grafik,
                       label: `${a.titel} öffnen`, onClick: () => oeffne(a.id),
