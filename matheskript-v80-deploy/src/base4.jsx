@@ -108,6 +108,7 @@ export const NAV = [
   { id: "ueben", name: "Üben", kurz: "Aufgaben und ganze Rechenwege", eintraege: [
     { name: "Gleichungslöser", kurz: "Äquivalenzumformungen eintippen – linear bis Logarithmus", ansicht: "gleichungen" },
     { name: "Terme und Potenzgesetze", kurz: "Vereinfachen, Ausklammern, Binomische Formeln, Potenzen, Brüche", ansicht: "terme" },
+    { name: "Gleichungen verstehen", kurz: "Umformen, Methode wählen, Fehler finden, Lösungsmenge, Graph", ansicht: "gleichverstehen" },
     { name: "Mathe Abi Masterclass", kurz: "Das 6-Monats-Programm fürs Mathe-Abi", ansicht: "masterclass" },
     { name: "Gleichungssysteme", kurz: "LGS mit drei Unbekannten – Gauß-Verfahren und direkter Weg", ansicht: "lgs" },
     { name: "Ableitungstrainer", kurz: "f′, f″ und f‴ eingeben und sofort prüfen lassen", ansicht: "ableitungstrainer" },

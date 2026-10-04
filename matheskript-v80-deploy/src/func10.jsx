@@ -19,8 +19,10 @@ import { EbeneVsEbene, KreuzproduktRechner } from "./func19.jsx";
 import { VektorGenerator } from "./func20.jsx";
 import { Integrale } from "./func25.jsx";
 import { Abstaende } from "./func24.jsx";
+import { GleichungenVerstehen } from "./funcGleichModi.jsx";
+import { SinusUebungen } from "./funcSinusUebung.jsx";
 import { Optimierungswerkstatt } from "./funcOptimierung.jsx";
-import { TrainingSeite, TrainingFortschritt } from "./funcTraining.jsx";
+import { TrainingSeite, TrainingFortschritt, PruefungsLink } from "./funcTraining.jsx";
 import { Funktionsscharen } from "./funcScharen.jsx";
 import { WachstumLogarithmen } from "./funcWachstum.jsx";
 import { Hypothesentests } from "./funcHypothesentest.jsx";
@@ -246,6 +248,7 @@ export function Mathilda() {
     const sektion = SEKTIONEN.find((liste) => liste.some((x) => x.ansicht === ansicht));
     if (!sektion) return null;
     return (
+      <>
       <div className="sek-menue" style={{ display: "flex", flexWrap: "wrap", gap: 6, paddingBottom: 4 }}
         ref={(el) => { if (el) { const c = el.querySelector('[aria-current="page"]'); if (c && c.offsetLeft + c.offsetWidth > el.clientWidth) el.scrollLeft = c.offsetLeft + c.offsetWidth - el.clientWidth + 12; } }}>
         {sektion.filter((x) => !x.versteckt).map((x) => {
@@ -260,6 +263,8 @@ export function Mathilda() {
           );
         })}
       </div>
+      <PruefungsLink ansicht={ansicht} gehe={gehe} />
+      </>
     );
   };
 
@@ -919,6 +924,7 @@ export function Mathilda() {
             </div>
             <Welle fill={C.sand} />
           </div>
+          <SinusUebungen />
           <Sinusfunktion />
         </>
       ) : ansicht === "formeln" ? (
@@ -1040,6 +1046,7 @@ export function Mathilda() {
               <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
                 Gleichung lösen heißt, die Rechnung rückwärts zu gehen — Schritt für Schritt, auf beiden Seiten.
               </p>
+              <PruefungsLink ansicht={ansicht} gehe={gehe} />
             </div>
             <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
           </div>
@@ -1081,13 +1088,25 @@ export function Mathilda() {
           </div>
           <Funktionsscharen />
         </>
+      ) : ansicht === "gleichverstehen" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
+            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(26px, 7.6vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Gleichungen verstehen</h1>
+              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <PruefungsLink ansicht={ansicht} gehe={gehe} />
+            </div>
+            <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
+          </div>
+          <GleichungenVerstehen />
+        </>
       ) : ansicht === "terme" ? (
         <>
           <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(26px, 7.6vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Terme und Potenzgesetze</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
-              
+              <PruefungsLink ansicht={ansicht} gehe={gehe} />
             </div>
             <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
           </div>

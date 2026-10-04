@@ -337,6 +337,7 @@ const SCHUL_BEREICHE = [
     tools: [
       { name: "Gleichungen lösen", zeile: "Du formst um, die App rechnet mit", bild: "gleichung", ziel: { ansicht: "gleichungen" } },
       { name: "Terme und Potenzgesetze", zeile: "Vereinfachen, ausklammern, kürzen", bild: "termkarte", ziel: { ansicht: "terme" } },
+      { name: "Gleichungen verstehen", zeile: "Umformen, Methode, Fehler, Lösungsmenge", bild: "gleichverstehen", ziel: { ansicht: "gleichverstehen" } },
       { name: "Gleichungssysteme", zeile: "Mit drei Variablen", bild: "lgs", ziel: { ansicht: "lgs" } },
     ], video: { name: "Videokurs Gleichungen", zeile: "Umformen, Gleichungssysteme, Musterlösungen" } },
 ];
@@ -449,6 +450,7 @@ function MiniBild({ art }) {
     geraden: <><path d="M10 42 L110 12" {...linie} /><path d="M20 10 L100 46" stroke={g} strokeWidth="1.6" fill="none" strokeLinecap="round" /><circle cx="58" cy="28" r="3" fill="#fff" /></>,
     winkel: <><path d="M16 44 L106 44" {...linie} /><path d="M16 44 L84 12" stroke={g} strokeWidth="1.6" fill="none" strokeLinecap="round" /><path d="M44 44 A28 28 0 0 0 38 31" stroke="#fff" strokeWidth="1.2" fill="none" />{txt(50, 38, "φ", g, 11)}</>,
     optimierung: <>{achsen}<path d="M12 44 C 30 40, 40 8, 60 8 S 92 40, 112 44" {...linie} /><circle cx="60" cy="8" r="3.2" fill={g} /><path d="M60 8 V46" stroke={g} strokeWidth="1.2" strokeDasharray="3 3" /></>,
+    gleichverstehen: <>{txt(12, 24, "2x + 3 = 11", "#fff", 12)}{txt(12, 40, "x = 4", g, 13)}<path d="M84 44 C 92 30, 100 30, 108 14" {...linie} /></>,
     termkarte: <>{txt(14, 34, "a(b+c)", "#fff", 13)}{txt(14, 50, "= ab + ac", g, 11)}{txt(86, 20, "xⁿ", g, 15)}</>,
     integral: <>{achsen}<path d="M30 46 L30 30 C 44 14, 60 10, 76 20 L76 46 Z" fill="rgba(237,187,0,0.35)" /><path d="M10 40 C 26 34, 34 22, 48 15 S 80 14, 112 30" {...linie} />{txt(84, 18, "∫", g, 15)}</>,
     erwartung: <>{txt(60, 24, "E(X) = 0", "#fff", 14, "middle")}{txt(60, 44, "fair", g, 12, "middle")}<path d="M44 47 H76" stroke={g} strokeWidth="1" /></>,

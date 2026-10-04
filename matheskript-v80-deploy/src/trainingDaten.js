@@ -618,11 +618,12 @@ export const MIN_TAGE = 2;            // … verteilt auf mindestens zwei versch
 const tagVon = (ts) => Math.floor(ts / 86400000);
 
 export function leereDaten() {
-  return { beobachtungen: [], ausgeblendet: [], themen: {}, fortschritt: {}, pruefungen: [], klausuren: [], zuletzt: null };
+  return { beobachtungen: [], ausgeblendet: [], themen: {}, fortschritt: {}, pruefungen: [], klausuren: [], rueckmeldungen: [], zuletzt: null };
 }
 export function normiere(T) {
   const d = { ...leereDaten(), ...(T || {}) };
   d.beobachtungen = Array.isArray(d.beobachtungen) ? d.beobachtungen : [];
+  d.rueckmeldungen = Array.isArray(d.rueckmeldungen) ? d.rueckmeldungen : [];
   return d;
 }
 
@@ -760,3 +761,18 @@ export function klausurPlan(auswertung) {
   if (u.darstellung) schritte.push({ art: "darstellung", punkte: u.darstellung, text: `Darstellung: ${kom(u.darstellung)} Punkte – jeden Schritt in eine eigene Zeile schreiben und das Ergebnis als Satz notieren`, ziel: null });
   return schritte;
 }
+
+/* ---------- Prüfungsmodus von einer Fachseite aus: passende Themen zur Ansicht ---------- */
+const ANSICHT_THEMA = { ableitungstrainer: "ableiten", plotter: "kurven", advplotter: "kurven", integrale: "integrale", gleichungen: "gleichungen", lgs: "gleichungen", gleichverstehen: "gleichungen", terme: "terme", bernoulli: "bernoulli" };
+const VEKTOR_ANSICHTEN = ["vektoren", "ebenen", "ebenevsebene", "kreuzprodukt", "vektorgenerator", "zweipunkte", "dreipunkte", "abstaende", "geraden", "winkel"];
+export function pruefungsThemen(ansicht) {
+  if (ANSICHT_THEMA[ansicht]) return [ANSICHT_THEMA[ansicht]];
+  if (VEKTOR_ANSICHTEN.includes(ansicht)) return ["vektoren"];
+  if (["stochastik", "vierfelder", "erwartungswert", "kombinatorik", "hypothesentest"].includes(ansicht)) return ["bernoulli"];
+  if (["analysis", "sinus", "steckbrief", "optimierung", "wachstum", "scharen"].includes(ansicht)) return ["kurven", "integrale"];
+  return null;
+}
+export const RUECKMELDUNGEN = [
+  ["hinweis", "Ein Hinweis zum Anfangen"], ["beispiel", "Ein Beispiel"], ["erklaerung", "Eine andere Erklärung"],
+  ["leichter", "Eine leichtere Aufgabe davor"], ["zeit", "Mehr Zeit"], ["nichts", "Nichts – es lief gut"],
+];

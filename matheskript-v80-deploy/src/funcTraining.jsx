@@ -23,7 +23,7 @@ import { GrosserKnopf, Rueck, ZahlFeld, hilfeKontext, hinweis, karte, kicker } f
 import { Aufklapp } from "./ui3.jsx";
 import {
   FEHLERTYPEN, FEHLER_IDS, MIN_BEOBACHTUNGEN, SCHWIERIGKEIT, THEMEN, THEMA_IDS, URSACHEN,
-  beobachte, einzelne, fortschrittBuchen, generatorenFuerFehler, klausurAuswertung, klausurPlan, lies, neueAufgabe, normiere,
+  RUECKMELDUNGEN, beobachte, einzelne, pruefungsThemen, fortschrittBuchen, generatorenFuerFehler, klausurAuswertung, klausurPlan, lies, neueAufgabe, normiere,
   pruefeAntwort, pruefeErklaerung, pruefungAuswahl, themaAktualisieren, typStatus, warmupAuswahl, wiederkehrende,
 } from "./trainingDaten.js";
 
@@ -210,6 +210,36 @@ function kontextFuer(a) {
   });
 }
 
+/* „Was hat dir gefehlt?“ – freiwillig, bleibt auf diesem Gerät */
+function WasFehlte({ quelle }) {
+  const [auswahl, setAuswahl] = useState([]);
+  const [gesendet, setGesendet] = useState(false);
+  const umschalten = (id) => setAuswahl((a) => (id === "nichts" ? (a.includes("nichts") ? [] : ["nichts"]) : a.filter((x) => x !== "nichts").includes(id) ? a.filter((x) => x !== id) : [...a.filter((x) => x !== "nichts"), id]));
+  if (gesendet) return <Rueck art="info">Danke – das merke ich mir für deine nächsten Aufgaben.</Rueck>;
+  return (
+    <div style={{ ...karte, marginTop: 14 }}>
+      <p style={kicker}>Was hat dir gefehlt?</p>
+      <p style={{ ...hinweis, marginBottom: 10 }}>Freiwillig. Mehrere Antworten sind möglich.</p>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+        {RUECKMELDUNGEN.map(([id, t]) => <Chip key={id} an={auswahl.includes(id)} onClick={() => umschalten(id)}>{t}</Chip>)}
+      </div>
+      <GrosserKnopf ghost disabled={auswahl.length === 0} onClick={() => { aendere((T) => { T.rueckmeldungen.push({ zeit: Date.now(), quelle, auswahl }); if (T.rueckmeldungen.length > 60) T.rueckmeldungen.splice(0, T.rueckmeldungen.length - 60); }); setGesendet(true); }}>Abschicken</GrosserKnopf>
+    </div>
+  );
+}
+
+/* Link „Prüfungsmodus“ auf den Fachseiten: öffnet den Prüfungsmodus mit den passenden Themen */
+export function PruefungsLink({ ansicht, gehe }) {
+  const themen = pruefungsThemen(ansicht);
+  if (!themen) return null;
+  return (
+    <button type="button" onClick={() => { try { sessionStorage.setItem("mm-pruefung-themen", JSON.stringify(themen)); } catch (e) { /* egal */ } gehe({ ansicht: "pruefung" }); }}
+      style={{ marginTop: 8, padding: "6px 12px", borderRadius: 999, fontSize: 12.5, fontWeight: 600, fontFamily: "inherit", cursor: "pointer", border: "1px dashed rgba(255,255,255,0.4)", background: "transparent", color: C.silberHell }}>
+      Prüfungsmodus zu diesem Thema ▸
+    </button>
+  );
+}
+
 export function Aufgabenlauf({ aufgaben, quelle, onEnde, endeText = "Fertig" }) {
   const [i, setI] = useState(0);
   const [zs, setZs] = useState(() => aufgaben.map(leerZustand));
@@ -275,6 +305,7 @@ export function Aufgabenlauf({ aufgaben, quelle, onEnde, endeText = "Fertig" }) 
         {typen.length > 0 && (
           <Rueck art="info">Auffällig war: {typen.map((t) => FEHLERTYPEN[t].name).join(", ")}. Ein einzelner Fehler ist kein Muster – wiederholt er sich, taucht er unter „Meine Fehler üben“ auf.</Rueck>
         )}
+        <WasFehlte quelle={quelle} />
         <GrosserKnopf onClick={() => onEnde(zs)}>{endeText}</GrosserKnopf>
       </div>
     );
@@ -475,7 +506,10 @@ const mmss = (s) => `${String(Math.floor(Math.max(0, s) / 60)).padStart(2, "0")}
 function Pruefung({ gehe }) {
   const T = useTraining();
   const [phase, setPhase] = useState(() => (LAUF ? (LAUF.ergebnis ? "ergebnis" : "lauf") : "wahl"));
-  const [themen, setThemen] = useState(["ableiten", "gleichungen", "integrale"]);
+  const [themen, setThemen] = useState(() => {
+    try { const v = JSON.parse(sessionStorage.getItem("mm-pruefung-themen") || "null"); sessionStorage.removeItem("mm-pruefung-themen"); if (Array.isArray(v) && v.length) return v.filter((t) => THEMEN[t]); } catch (e) { /* egal */ }
+    return ["ableiten", "gleichungen", "integrale"];
+  });
   const [dauer, setDauer] = useState(30);          // 0 = ohne Zeitlimit
   const [schw, setSchw] = useState("mittel");
   const [, neu] = useState(0);
@@ -852,6 +886,14 @@ export function TrainingFortschritt({ gehe }) {
             })}
             <p style={{ fontSize: 12, color: C.hellgrau, lineHeight: 1.6, marginTop: 8 }}>Eine einzelne richtige Aufgabe heißt noch nicht „beherrscht“. „Auf Neues übertragen“ zählt, wenn du eine andere Aufgabenart ohne Hilfe gelöst hast.</p>
           </div>
+          {T.rueckmeldungen.length > 0 && (
+            <div style={{ ...karte, marginBottom: 16 }}>
+              <p style={kicker}>Was dir gefehlt hat</p>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                {RUECKMELDUNGEN.map(([id, t]) => { const n = T.rueckmeldungen.filter((r) => r.auswahl.includes(id)).length; return n ? <span key={id} style={{ fontSize: 13, background: C.sand, borderRadius: 999, padding: "6px 12px", color: C.tinte }}>{t} · {n}×</span> : null; })}
+              </div>
+            </div>
+          )}
           {sp.length > 0 && (
             <div style={{ ...karte, marginBottom: 16 }}>
               <p style={kicker}>Selbstständige Prüfungen</p>
