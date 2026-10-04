@@ -969,6 +969,7 @@ const ANALYSIS = [
   { ansicht: "integrale", titel: "Integrale", slogan: "Stammfunktionen bilden und bestimmte Integrale berechnen.", zeichen: "∫" },
   { ansicht: "optimierung", titel: "Optimierungswerkstatt", kurzTitel: "Optimierung", slogan: "Vom Text zur Zielfunktion – Schachtel, Fläche, eigener Ansatz.", zeichen: "max" },
   { ansicht: "wachstum", titel: "Wachstum und Logarithmen", kurzTitel: "Wachstum", slogan: "Exponentielle Modelle, Halbwertszeiten und Logarithmen.", zeichen: "aᵗ" },
+  { ansicht: "scharen", titel: "Funktionsscharen", slogan: "Parameter per Regler verändern, Punkte und Ortskurven berechnen.", zeichen: "fₐ" },
 ];
 
 export function AnalysisZentrum({ gehe }) {

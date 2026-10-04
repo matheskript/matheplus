@@ -20,6 +20,7 @@ import { VektorGenerator } from "./func20.jsx";
 import { Integrale } from "./func25.jsx";
 import { Abstaende } from "./func24.jsx";
 import { Optimierungswerkstatt } from "./funcOptimierung.jsx";
+import { Funktionsscharen } from "./funcScharen.jsx";
 import { WachstumLogarithmen } from "./funcWachstum.jsx";
 import { Hypothesentests } from "./funcHypothesentest.jsx";
 import { UrnenKombinatorik } from "./funcKombinatorik.jsx";
@@ -233,7 +234,7 @@ export function Mathilda() {
     [{ ansicht: "analysis", name: "Übersicht", versteckt: true }, { ansicht: "plotter", name: "Polynomplotter", kurz: "Polynome" }, { ansicht: "advplotter", name: "Advanced Plotter", kurz: "Advanced" },
       { ansicht: "sinus", name: "Sinusfunktion", kurz: "Sinus" }, { ansicht: "ableitungstrainer", name: "Ableitungstrainer", kurz: "Ableitung" },
       { ansicht: "steckbrief", name: "Steckbriefaufgaben", kurz: "Steckbrief" }, { ansicht: "integrale", name: "Integrale", kurz: "Integrale" },
-      { ansicht: "optimierung", name: "Optimierungswerkstatt", kurz: "Optimierung" }, { ansicht: "wachstum", name: "Wachstum und Logarithmen", kurz: "Wachstum" }],
+      { ansicht: "optimierung", name: "Optimierungswerkstatt", kurz: "Optimierung" }, { ansicht: "wachstum", name: "Wachstum und Logarithmen", kurz: "Wachstum" }, { ansicht: "scharen", name: "Funktionsscharen", kurz: "Scharen" }],
     [{ ansicht: "vektoren", name: "Übersicht", versteckt: true }, { ansicht: "ebenen", name: "Ebenen-Visualizer", kurz: "Ebenen" }, { ansicht: "ebenevsebene", name: "Ebene vs. Ebene", kurz: "E vs. E" },
       { ansicht: "kreuzprodukt", name: "Kreuzprodukt", kurz: "Kreuz" }, { ansicht: "vektorgenerator", name: "Rechnen mit Vektoren", kurz: "Rechnen" },
       { ansicht: "zweipunkte", name: "Zwei Punkte – eine Gerade", kurz: "2 Punkte" }, { ansicht: "dreipunkte", name: "Drei Punkte – eine Ebene", kurz: "3 Punkte" }, { ansicht: "abstaende", name: "Abstände", kurz: "Abstände" },
@@ -1017,6 +1018,18 @@ export function Mathilda() {
             <Welle fill={C.sand} />
           </div>
           <WachstumLogarithmen />
+        </>
+      ) : ansicht === "scharen" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
+            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(24px, 7vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Funktionsscharen</h1>
+              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <SektionsMenue />
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <Funktionsscharen />
         </>
       ) : ansicht === "terme" ? (
         <>

@@ -310,6 +310,7 @@ const SCHUL_BEREICHE = [
       { name: "Integrale", zeile: "Stammfunktionen und bestimmte Integrale", bild: "integral", ziel: { ansicht: "integrale" } },
       { name: "Optimierungswerkstatt", zeile: "Schachtel, Fläche, eigener Ansatz", bild: "optimierung", ziel: { ansicht: "optimierung" } },
       { name: "Wachstum und Logarithmen", zeile: "Messwerte, Halbwertszeit, Zielwert", bild: "wachstum", ziel: { ansicht: "wachstum" } },
+      { name: "Funktionsscharen", zeile: "Parameter, Ortskurven, Sonderfälle", bild: "scharen", ziel: { ansicht: "scharen" } },
     ], video: { name: "Videokurse Analysis", zeile: "Analysis 1–5 mit Videolektionen und Checks" } },
   { id: "vektoren", titel: "Vektoren", text: "Der Ebenen-Visualizer zeigt jede Ebene live im Raum – dazu der Videokurs.", logo: <VektorenLogoKlein />,
     tools: [
@@ -453,6 +454,7 @@ function MiniBild({ art }) {
     urne: <><path d="M34 10 Q30 50 60 50 Q90 50 86 10" {...linie} fill="rgba(255,255,255,0.06)" /><circle cx="50" cy="40" r="5" fill={g} /><circle cx="62" cy="42" r="5" fill="#fff" /><circle cx="72" cy="36" r="5" fill={g} /><circle cx="57" cy="31" r="5" fill="#fff" /></>,
     hypothese: <>{[4, 10, 20, 30, 34, 26, 14, 6, 2].map((h, i) => <rect key={i} x={18 + i * 10} y={48 - h} width="7" height={h} rx="1.5" fill={i >= 7 ? g : "rgba(255,255,255,0.5)"} />)}<path d="M88 6 V50" stroke={g} strokeWidth="1.2" strokeDasharray="3 3" />{txt(92, 14, "α", g, 12)}</>,
     wachstum: <>{achsen}<path d="M12 46 C 50 44, 80 34, 112 4" {...linie} /><path d="M12 10 C 40 30, 70 42, 112 46" {...linie} stroke={g} />{txt(70, 16, "aᵗ", "#fff", 13)}</>,
+    scharen: <>{achsen}{[0.5, 1, 1.6].map((k, i) => <path key={i} d={`M12 ${46 - 4 * k} Q 60 ${46 - 40 * k} 108 ${46 - 4 * k}`} {...linie} stroke={i === 1 ? g : w} opacity={i === 1 ? 1 : 0.6} />)}{txt(92, 14, "a", g, 13)}</>,
     video: <><rect x="34" y="8" width="52" height="38" rx="7" {...linie} /><path d="M54 18 L70 27 L54 36 Z" fill={g} /></>,
     balken: <>{[6, 14, 26, 36, 30, 18, 9, 4].map((h, i) => <rect key={i} x={20 + i * 11} y={48 - h} width="7" height={h} rx="1.5" fill={i === 3 ? g : "rgba(255,255,255,0.5)"} />)}</>,
     tafel: <><rect x="30" y="8" width="60" height="40" rx="4" {...linie} /><path d="M60 8 V48 M30 28 H90" {...linie} /><rect x="31" y="9" width="28" height="18" fill="rgba(237,187,0,0.35)" /></>,

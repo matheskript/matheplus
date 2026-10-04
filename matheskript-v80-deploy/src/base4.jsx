@@ -138,6 +138,7 @@ export const NAV = [
     { name: "Integrale", kurz: "Stammfunktionen und bestimmte Integrale", ansicht: "integrale" },
     { name: "Optimierungswerkstatt", kurz: "Schachtel, Fläche und Umfang, eigener Ansatz", ansicht: "optimierung" },
     { name: "Wachstum und Logarithmen", kurz: "Modell aus Messwerten, Halbwertszeit, Zielwert", ansicht: "wachstum" },
+    { name: "Funktionsscharen", kurz: "Parameter entdecken, besondere Punkte, Parameterfälle", ansicht: "scharen" },
     { name: "Vektoren", kurz: "Alle Vektor-Werkzeuge im Überblick", ansicht: "vektoren" },
     { name: "Ebenen-Visualizer", kurz: "Ebenen in Koordinatenform live im Raum", ansicht: "ebenen" },
     { name: "Ebene vs. Ebene", kurz: "Schnittgerade und Schnittwinkel zweier Ebenen", ansicht: "ebenevsebene" },

@@ -5159,7 +5159,12 @@
   "Wachstum": "Growth",
   "Modell aus Messwerten, Halbwertszeit, Zielwert": "Model from data, half-life, target value",
   "Messwerte, Halbwertszeit, Zielwert": "Data, half-life, target value",
-  "Exponentielle Modelle, Halbwertszeiten und Logarithmen.": "Exponential models, half-lives and logarithms."
+  "Exponentielle Modelle, Halbwertszeiten und Logarithmen.": "Exponential models, half-lives and logarithms.",
+  "Funktionsscharen": "Families of functions",
+  "Scharen": "Families",
+  "Parameter entdecken, besondere Punkte, Parameterfälle": "Explore the parameter, special points, parameter cases",
+  "Parameter, Ortskurven, Sonderfälle": "Parameters, loci, special cases",
+  "Parameter per Regler verändern, Punkte und Ortskurven berechnen.": "Change the parameter with a slider, compute points and loci."
  },
  "muster": [
   [
