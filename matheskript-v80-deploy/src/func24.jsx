@@ -6,7 +6,8 @@
    bzw. Bruch mit Näherung. Schneidende oder enthaltene Objekte haben
    Abstand 0; bei windschiefen Geraden wird die gemeinsame Senkrechte
    (beide Lotfußpunkte) bestimmt.
-   Zusatzmodus „Lotfußpunkt üben“ für Punkt–Gerade und Punkt–Ebene.
+   Zusatzmodus „Lotpunkt bestimmen“ für Punkt–Gerade und Punkt–Ebene:
+   Ansatz wählen, Lotfußpunkt bestimmen, Länge des Lots berechnen.
    Keine base-Datei darf diese Datei importieren.
    ============================================================ */
 
@@ -441,7 +442,7 @@ function EbeneEbene({ n1, d1, n2, d2, nE1, nE2 }) {
   );
 }
 
-/* ---------- Lotfußpunkt üben ---------- */
+/* ---------- Lotpunkt bestimmen ---------- */
 
 const qLesen = (s) => {
   const t = String(s).replace("−", "-").replace(",", ".").trim();
@@ -464,11 +465,21 @@ function LotUeben({ art }) {
   const [a, setA] = useState(neu);
   const [w, setW] = useState(["", "", ""]);
   const [erg, setErg] = useState(null);
+  const [ansatz, setAnsatz] = useState(null);
+  const [laengeW, setLaengeW] = useState("");
   const F = art === "pg" ? a.F : (() => { const z = skalar(a.n, a.P) - a.d, qq = skalar(a.n, a.n); return a.P.map((x, i) => x - (z / qq) * a.n[i]); })();
   const pruefen = () => {
     const v = w.map(qLesen);
     if (v.some((x) => x === null)) return setErg({ art: "warn", text: "Bitte alle drei Koordinaten eintragen (ganze Zahl, Dezimalzahl oder Bruch wie 3/2)." });
-    if (v.every((x, i) => Math.abs(x - F[i]) < 1e-9)) return setErg({ art: "gut", text: "Richtig – das ist der Lotfußpunkt." });
+    if (v.every((x, i) => Math.abs(x - F[i]) < 1e-9)) {
+      const dReal = Math.hypot(...a.P.map((x, i) => x - F[i]));
+      if (laengeW.trim() === "") return setErg({ art: "gut", text: "Richtig – das ist der Lotfußpunkt. Trag noch die Länge des Lots ein, dann ist die Aufgabe vollständig." });
+      const dl = qLesen(laengeW);
+      if (dl === null) return setErg({ art: "warn", text: "Die Länge bitte als Zahl eintragen, z. B. 3,46 (auf zwei Nachkommastellen gerundet)." });
+      return Math.abs(dl - dReal) <= 0.011
+        ? setErg({ art: "gut", text: "Richtig – Lotfußpunkt und Länge des Lots stimmen. Die Länge ist der Abstand von P." })
+        : setErg({ art: "schlecht", text: "Der Lotfußpunkt stimmt, die Länge nicht: Sie ist der Betrag des Vektors PF, also √(PF₁² + PF₂² + PF₃²)." });
+    }
     const inObjekt = art === "pg"
       ? kreuz(v.map((x, i) => x - a.A[i]), a.u).every((x) => Math.abs(x) < 1e-9)
       : Math.abs(skalar(a.n, v) - a.d) < 1e-9;
@@ -476,7 +487,7 @@ function LotUeben({ art }) {
       ? `Dein Punkt liegt zwar ${art === "pg" ? "auf der Geraden" : "in der Ebene"}, aber das Lot steht dort nicht senkrecht. Prüfe die Lotbedingung.`
       : `Dein Punkt liegt nicht ${art === "pg" ? "auf der Geraden" : "in der Ebene"}. Setze ihn zur Probe ein.` });
   };
-  const naechste = () => { setA(neu()); setW(["", "", ""]); setErg(null); };
+  const naechste = () => { setA(neu()); setW(["", "", ""]); setErg(null); setAnsatz(null); setLaengeW(""); };
   return (
     <div>
       <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, marginBottom: 12 }}>
@@ -484,7 +495,25 @@ function LotUeben({ art }) {
       </p>
       <p style={{ textAlign: "center", fontWeight: 800, color: FB, marginBottom: 8 }}>P({a.P.map(n).join(" | ")})</p>
       {art === "pg" ? <GeradeText name="g" a={a.A} u={a.u} farbe={FA} /> : <p style={{ textAlign: "center", fontWeight: 700, color: FA }}>E: {koordText(a.n, a.d)}</p>}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 4, fontSize: 17, fontWeight: 800, margin: "14px 0" }}>
+      <p style={{ fontSize: 12.5, fontWeight: 700, color: C.grau, margin: "14px 0 6px" }}>1 · Ansatz wählen</p>
+      <div role="group" aria-label="Ansatz wählen" style={{ display: "grid", gap: 6 }}>
+        {(art === "pg"
+          ? [["ok", "F = A + t·u und PF · u = 0 (Lot steht senkrecht zur Richtung)"], ["f1", "F = P + t·u (Gerade durch P statt durch A)"], ["f2", "PF = t·u (Lot läuft entlang der Richtung)"]]
+          : [["ok", "Lotgerade P + λ·n in die Ebene einsetzen"], ["f1", "P in die Ebenengleichung einsetzen und t ablesen"], ["f2", "Richtung der Lotgeraden ist ein Spannvektor der Ebene"]]
+        ).map(([id, t]) => {
+          const an = ansatz === id;
+          const farbe = an ? (id === "ok" ? C.smaragd : C.signal) : C.linie;
+          return (
+            <button key={id} type="button" aria-pressed={an} onClick={() => setAnsatz(id)}
+              style={{ textAlign: "left", minHeight: 44, padding: "8px 12px", borderRadius: 12, fontFamily: "inherit", fontSize: 13.5, fontWeight: 600, cursor: "pointer",
+                border: `1.5px solid ${farbe}`, background: an ? (id === "ok" ? "#E6F6EF" : "#FCE8EE") : C.weiss, color: C.tinte }}>{t}</button>
+          );
+        })}
+      </div>
+      {ansatz && ansatz !== "ok" && <Meldung art="schlecht">Das führt nicht zum Lot: Das Lot steht senkrecht auf {art === "pg" ? "der Richtung der Geraden" : "der Ebene, also parallel zum Normalenvektor n"}.</Meldung>}
+      {ansatz === "ok" && <Meldung art="gut">Richtig gewählt – damit lässt sich der Lotfußpunkt bestimmen.</Meldung>}
+      <p style={{ fontSize: 12.5, fontWeight: 700, color: C.grau, margin: "14px 0 0" }}>2 · Lotfußpunkt bestimmen</p>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 4, fontSize: 17, fontWeight: 800, margin: "10px 0 14px" }}>
         <span>F(</span>
         {[0, 1, 2].map((i) => (
           <React.Fragment key={i}>
@@ -496,6 +525,13 @@ function LotUeben({ art }) {
           </React.Fragment>
         ))}
         <span>)</span>
+      </div>
+      <p style={{ fontSize: 12.5, fontWeight: 700, color: C.grau, margin: "0 0 8px" }}>3 · Länge des Lots (Abstand, gerundet)</p>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+        <span style={{ fontSize: 16, fontWeight: 800 }}>d =</span>
+        <input value={laengeW} aria-label="Länge des Lots" inputMode="text" placeholder="z. B. 3,46"
+          onChange={(e) => { setLaengeW(e.target.value.replace(/[^0-9,./−-]/g, "").slice(0, 8)); setErg(null); }}
+          style={{ width: 96, height: 36, textAlign: "center", fontSize: 15, fontWeight: 800, fontFamily: "inherit", color: C.see, border: `1.5px solid ${C.see}55`, borderRadius: 9, background: `${C.see}0D`, outline: "none" }} />
       </div>
       {erg && <Meldung art={erg.art}>{erg.text}</Meldung>}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: erg ? 14 : 0 }}>
@@ -561,7 +597,7 @@ export function Abstaende() {
 
         {lotArt && (
           <div role="tablist" aria-label="Modus" style={{ display: "flex", gap: 6, marginBottom: 16, flexWrap: "wrap" }}>
-            {[["rechnen", "Abstand berechnen"], ["lot", "Lotfußpunkt üben"]].map(([id, t]) => (
+            {[["rechnen", "Abstand berechnen"], ["lot", "Lotpunkt bestimmen"]].map(([id, t]) => (
               <button key={id} type="button" role="tab" aria-selected={modus === id} onClick={() => setModus(id)}
                 style={{ padding: "7px 14px", borderRadius: 999, fontSize: 13, fontFamily: "inherit", cursor: "pointer",
                   border: `1px solid ${modus === id ? C.see : C.linie}`, background: modus === id ? C.himmel : C.weiss, color: C.see, fontWeight: modus === id ? 700 : 500 }}>{t}</button>

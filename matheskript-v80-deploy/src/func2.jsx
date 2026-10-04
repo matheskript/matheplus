@@ -318,6 +318,8 @@ const SCHUL_BEREICHE = [
       { name: "Zwei Punkte – eine Gerade", zeile: "Geradengleichung auf zwei Wegen", bild: "gerade2p", ziel: { ansicht: "zweipunkte" } },
       { name: "Drei Punkte – eine Ebene", zeile: "Drei Wege, mit Koordinatenform", bild: "ebene3p", ziel: { ansicht: "dreipunkte" } },
       { name: "Abstände", zeile: "Punkt, Gerade, Ebene – alle Kombinationen", bild: "abstand", ziel: { ansicht: "abstaende" } },
+      { name: "Geraden im Raum", zeile: "Punktprobe, Lage von Gerade und Ebene", bild: "geraden", ziel: { ansicht: "geraden" } },
+      { name: "Winkel und Skalarprodukt", zeile: "Skalarprodukt, Vektorwinkel, Gerade-Ebene", bild: "winkel", ziel: { ansicht: "winkel" } },
     ], video: { name: "Videokurs Vektoren", zeile: "Fünf Lektionen mit Kurz-Checks" } },
   { id: "stochastik", titel: "Stochastik", text: "Bernoulli-Kette und Vier-Felder-Tafel: den Zufall live laufen lassen.", logo: <StochastikLogoKlein />,
     tools: [
@@ -436,6 +438,8 @@ function MiniBild({ art }) {
     gerade2p: <><path d="M10 46 L110 8" {...linie} /><circle cx="36" cy="36.1" r="3.2" fill={g} /><circle cx="84" cy="17.9" r="3.2" fill="#fff" />{txt(30, 50, "A", g, 10)}{txt(86, 32, "B", w, 10)}</>,
     ebene3p: <><path d="M14 40 L48 12 L106 18 L72 46 Z" {...linie} fill="rgba(255,255,255,0.06)" /><path d="M38 34 L62 18 L84 32 Z" stroke={g} strokeWidth="1.4" fill="rgba(237,187,0,0.22)" /><circle cx="38" cy="34" r="2.6" fill={g} /><circle cx="62" cy="18" r="2.6" fill="#fff" /><circle cx="84" cy="32" r="2.6" fill="#fff" /></>,
     abstand: <><path d="M12 42 L46 18 L108 22 L74 48 Z" {...linie} fill="rgba(255,255,255,0.06)" /><path d="M60 33 V6" stroke={g} strokeWidth="1.4" strokeDasharray="3 3" /><circle cx="60" cy="6" r="3" fill={g} /><circle cx="60" cy="33" r="2.2" fill="#fff" />{txt(66, 22, "d", g, 11)}</>,
+    geraden: <><path d="M10 42 L110 12" {...linie} /><path d="M20 10 L100 46" stroke={g} strokeWidth="1.6" fill="none" strokeLinecap="round" /><circle cx="58" cy="28" r="3" fill="#fff" /></>,
+    winkel: <><path d="M16 44 L106 44" {...linie} /><path d="M16 44 L84 12" stroke={g} strokeWidth="1.6" fill="none" strokeLinecap="round" /><path d="M44 44 A28 28 0 0 0 38 31" stroke="#fff" strokeWidth="1.2" fill="none" />{txt(50, 38, "φ", g, 11)}</>,
     integral: <>{achsen}<path d="M30 46 L30 30 C 44 14, 60 10, 76 20 L76 46 Z" fill="rgba(237,187,0,0.35)" /><path d="M10 40 C 26 34, 34 22, 48 15 S 80 14, 112 30" {...linie} />{txt(84, 18, "∫", g, 15)}</>,
     video: <><rect x="34" y="8" width="52" height="38" rx="7" {...linie} /><path d="M54 18 L70 27 L54 36 Z" fill={g} /></>,
     balken: <>{[6, 14, 26, 36, 30, 18, 9, 4].map((h, i) => <rect key={i} x={20 + i * 11} y={48 - h} width="7" height={h} rx="1.5" fill={i === 3 ? g : "rgba(255,255,255,0.5)"} />)}</>,

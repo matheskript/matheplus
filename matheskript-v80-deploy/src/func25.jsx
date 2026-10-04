@@ -17,6 +17,7 @@ import { M } from "./func3.jsx";
 import { Tastenfeld, ableitung, alsTex, analysiere, hatBox, kompiliere, ohnePar, parse, wert } from "./func12.jsx";
 import { STELLEN, vergleich } from "./func13.jsx";
 import { IchHaengeFest, summanden } from "./funcHilfe.jsx";
+import { Anfangsbedingung, BestandAenderungsrate, FlaecheBilanz, ZwischenZweiGraphen } from "./funcIntegraleNeu.jsx";
 
 const endlich = (y) => typeof y === "number" && isFinite(y);
 const zz = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
@@ -619,6 +620,9 @@ const MODI = [
   { id: "speziell", name: "Spezielle Funktionen" },
   { id: "advanced", name: "Advanced" },
   { id: "bestimmt", name: "∫ₐᵇ f(x) dx", aria: "Bestimmtes Integral von a bis b" },
+  { id: "bilanz", name: "Fläche und Bilanz" },
+  { id: "zwei", name: "Zwischen zwei Graphen" },
+  { id: "bestand", name: "Bestand und Änderungsrate" },
 ];
 
 const REGELN = [["sin(x)", "-\\cos(x) + C"], ["\\cos(x)", "\\sin(x) + C"], ["e^{x}", "e^{x} + C"], ["\\frac{1}{x}", "\\ln|x| + C"]];
@@ -637,7 +641,7 @@ export function Integrale() {
       <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>Rückwärts ableiten</h2>
       <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 18 }}>
         Eine Stammfunktion F ist eine Funktion, deren Ableitung f ist: F′ = f. Bilde Stammfunktionen und berechne
-        bestimmte Integrale mit dem Hauptsatz. Jede gleichwertige Schreibweise zählt.
+        bestimmte Integrale mit dem Hauptsatz. Jede gleichwertige Schreibweise zählt. Dazu Flächen, Bilanzen und Bestände.
       </p>
 
       <div role="tablist" aria-label="Integral-Übungen" className="int-modi" style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8 }}>
@@ -675,6 +679,10 @@ export function Integrale() {
       <div style={{ display: modus === "bestimmt" ? "block" : "none" }}>
         <BestimmtesIntegral zeigeHauptsatz={() => setDialog("hauptsatz")} />
       </div>
+      {modus === "stamm" && <Anfangsbedingung />}
+      <div style={{ display: modus === "bilanz" ? "block" : "none" }}><FlaecheBilanz /></div>
+      <div style={{ display: modus === "zwei" ? "block" : "none" }}><ZwischenZweiGraphen /></div>
+      <div style={{ display: modus === "bestand" ? "block" : "none" }}><BestandAenderungsrate /></div>
 
       {dialog === "c" && <CErklaerung onClose={() => setDialog(null)} />}
       {dialog === "hauptsatz" && <HauptsatzDialog onClose={() => setDialog(null)} />}

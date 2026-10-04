@@ -19,6 +19,7 @@ import { EbeneVsEbene, KreuzproduktRechner } from "./func19.jsx";
 import { VektorGenerator } from "./func20.jsx";
 import { Integrale } from "./func25.jsx";
 import { Abstaende } from "./func24.jsx";
+import { GeradenImRaum, WinkelSkalarprodukt } from "./funcGeraden.jsx";
 import { DreiPunkteEbene, ZweiPunkteGerade } from "./func23.jsx";
 import { Sinusfunktion } from "./func21.jsx";
 import { PotenzregelSeite } from "./func22.jsx";
@@ -228,7 +229,8 @@ export function Mathilda() {
       { ansicht: "steckbrief", name: "Steckbriefaufgaben", kurz: "Steckbrief" }, { ansicht: "integrale", name: "Integrale", kurz: "Integrale" }],
     [{ ansicht: "vektoren", name: "Übersicht", versteckt: true }, { ansicht: "ebenen", name: "Ebenen-Visualizer", kurz: "Ebenen" }, { ansicht: "ebenevsebene", name: "Ebene vs. Ebene", kurz: "E vs. E" },
       { ansicht: "kreuzprodukt", name: "Kreuzprodukt", kurz: "Kreuz" }, { ansicht: "vektorgenerator", name: "Rechnen mit Vektoren", kurz: "Rechnen" },
-      { ansicht: "zweipunkte", name: "Zwei Punkte – eine Gerade", kurz: "2 Punkte" }, { ansicht: "dreipunkte", name: "Drei Punkte – eine Ebene", kurz: "3 Punkte" }, { ansicht: "abstaende", name: "Abstände", kurz: "Abstände" }],
+      { ansicht: "zweipunkte", name: "Zwei Punkte – eine Gerade", kurz: "2 Punkte" }, { ansicht: "dreipunkte", name: "Drei Punkte – eine Ebene", kurz: "3 Punkte" }, { ansicht: "abstaende", name: "Abstände", kurz: "Abstände" },
+      { ansicht: "geraden", name: "Geraden im Raum", kurz: "Geraden" }, { ansicht: "winkel", name: "Winkel und Skalarprodukt", kurz: "Winkel" }],
     [{ ansicht: "stochastik", name: "Übersicht", versteckt: true }, { ansicht: "bernoulli", name: "Bernoulli-Kette", kurz: "Bernoulli" }, { ansicht: "vierfelder", name: "Vier-Felder-Tafel", kurz: "Vierfelder" }],
   ];
   const SektionsMenue = () => {
@@ -728,6 +730,30 @@ export function Mathilda() {
             <Welle fill={C.sand} />
           </div>
           <Abstaende />
+        </>
+      ) : ansicht === "geraden" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
+            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(26px, 7.6vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Geraden im Raum</h1>
+              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <SektionsMenue />
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <GeradenImRaum />
+        </>
+      ) : ansicht === "winkel" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
+            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(26px, 7.6vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Winkel und Skalarprodukt</h1>
+              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
+              <SektionsMenue />
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <WinkelSkalarprodukt />
         </>
       ) : ansicht === "vektoren" ? (
         <>

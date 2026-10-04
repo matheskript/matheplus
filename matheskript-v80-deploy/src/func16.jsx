@@ -613,6 +613,8 @@ const VEKTOREN = [
   { ziel: { ansicht: "zweipunkte" }, titel: "Zwei Punkte – eine Gerade", kurzTitel: "Zwei Punkte", slogan: "Geradengleichung aus zwei Punkten – auf zwei Wegen.", zeichen: "AB" },
   { ziel: { ansicht: "dreipunkte" }, titel: "Drei Punkte – eine Ebene", kurzTitel: "Drei Punkte", slogan: "Drei Wege zur Ebene, mit Koordinatenform.", zeichen: "ABC" },
   { ziel: { ansicht: "abstaende" }, titel: "Abstände", slogan: "Punkt, Gerade, Ebene – jede Kombination mit 3D-Bild.", zeichen: "d" },
+  { ziel: { ansicht: "geraden" }, titel: "Geraden im Raum", slogan: "Punktprobe und Lage: schneidend, parallel, windschief.", zeichen: "g" },
+  { ziel: { ansicht: "winkel" }, titel: "Winkel und Skalarprodukt", kurzTitel: "Winkel", slogan: "Skalarprodukt verstehen und Winkel berechnen.", zeichen: "φ" },
 ];
 
 export function VektorenZentrum({ gehe }) {
