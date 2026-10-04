@@ -19,6 +19,7 @@ import { GleichungenLogoKlein } from "./funcGleichungen.jsx";
 import { MedailleLogo, KarteLogo } from "./funcWettbewerbe.jsx";
 import { MasterclassKachel, MatheCheckenKachel, MathCreatorKachel } from "./funcMasterclass.jsx";
 import { ElternabendKachel } from "./funcElternabend.jsx";
+import { SatzZeilen, saetze } from "./baseSatz.jsx";
 
 /* Große, ganz anklickbare Kachel für die Plotter auf der Startseite. */
 /* Polynomplotter-Grafik im Hochformat für die Kachel. */
@@ -54,7 +55,9 @@ function PlotterLogoKlein() {
   );
 }
 
-function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "Werkzeug", klein, extra, gesperrt, logoHell, portraet }) {
+function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "Werkzeug", klein, halb, extra, gesperrt, logoHell, portraet }) {
+  if (halb) klein = true;   // halbe Höhe: nur Titel und eine Textzeile
+  const mehrereSaetze = saetze(text).length > 1;
   return (
     <button onClick={gesperrt ? undefined : onClick} disabled={gesperrt} aria-disabled={gesperrt || undefined}
       aria-label={gesperrt ? `${titel} – noch gesperrt` : label} title={gesperrt ? "Noch gesperrt" : undefined}
@@ -72,20 +75,27 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
         @media (max-width:520px){.kachel-portraet{top:24px !important}}
         .kachel-gesperrt .kachel-titel{background:none;color:#FFFFFF;text-shadow:0 1px 2px rgba(30,40,60,0.25)}`}</style>
       {/* Links (60 %): Titel und Erklärtext von oben */}
-      <div style={{ flex: klein ? "1 1 68%" : "1 1 60%", minWidth: 0, padding: klein ? "14px 8px 14px 14px" : "14px 10px 14px 16px", display: "flex", flexDirection: "column" }}>
-        <h2 className="kachel-titel" style={{ fontSize: "clamp(15px, 4.1vw, 22px)", fontWeight: 700, letterSpacing: "-0.03em",
+      <div style={{ flex: klein ? "1 1 68%" : "1 1 60%", minWidth: 0, padding: halb ? "8px 8px 8px 14px" : klein ? "14px 8px 14px 14px" : "14px 10px 14px 16px", display: "flex", flexDirection: "column", justifyContent: halb ? "center" : undefined }}>
+        <h2 className="kachel-titel" style={{ fontSize: halb ? "clamp(14px, 3.8vw, 18px)" : "clamp(15px, 4.1vw, 22px)", fontWeight: 700, letterSpacing: "-0.03em",
           lineHeight: 1.1, margin: 0, whiteSpace: "nowrap", ...(portraet
             // Titel darf über das Porträt hinauslaufen (das Porträt beginnt erst darunter)
             ? { overflow: "visible", position: "relative", zIndex: 2 }
             : { overflow: "hidden", textOverflow: "ellipsis" }) }}>
           {titel}
         </h2>
-        <span aria-hidden="true" style={{ display: "block", width: 34, height: 2.5, borderRadius: 2, marginTop: 6,
-          background: gesperrt ? "rgba(255,255,255,0.7)" : `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)` }} />
-        <p className="kachel-text" style={{ color: gesperrt ? "rgba(255,255,255,0.92)" : C.weiss, fontSize: 12.5, fontWeight: 300, lineHeight: 1.4, marginTop: 6, marginBottom: 0,
-          WebkitLineClamp: 3, height: "4.2em" }}>
-          {text}
-        </p>
+        {!halb && <span aria-hidden="true" style={{ display: "block", width: 34, height: 2.5, borderRadius: 2, marginTop: 6,
+          background: gesperrt ? "rgba(255,255,255,0.7)" : `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)` }} />}
+        {halb ? (
+          <p style={{ color: gesperrt ? "rgba(255,255,255,0.92)" : C.weiss, fontSize: 12, fontWeight: 300, lineHeight: 1.35, marginTop: 3, marginBottom: 0,
+            whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+            {text}
+          </p>
+        ) : (
+          <p className={mehrereSaetze ? undefined : "kachel-text"} style={{ color: gesperrt ? "rgba(255,255,255,0.92)" : C.weiss, fontSize: 12.5, fontWeight: 300, lineHeight: 1.4, marginTop: 6, marginBottom: 0,
+            WebkitLineClamp: 3, height: "4.2em", overflow: "hidden" }}>
+            <SatzZeilen text={text} />
+          </p>
+        )}
       </div>
       {portraet && (
         <div aria-hidden="true" style={{ flex: "0 0 auto", width: "clamp(78px, 21vw, 108px)", position: "relative", marginLeft: -8, marginRight: 4 }}>
@@ -99,9 +109,9 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
         {extra}
         {gesperrt && (
           <div aria-hidden="true" style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", gap: 4, ...(logoHell ? { alignItems: "flex-end", justifyContent: "flex-end", padding: 8 } : { alignItems: "center", justifyContent: "center" }) }}>
-            <span style={{ width: klein || logoHell ? 34 : 40, height: klein || logoHell ? 34 : 40, borderRadius: 999, background: "rgba(255,255,255,0.92)",
+            <span style={{ width: halb ? 26 : klein || logoHell ? 34 : 40, height: halb ? 26 : klein || logoHell ? 34 : 40, borderRadius: 999, background: "rgba(255,255,255,0.92)",
               boxShadow: "0 3px 10px rgba(30,40,60,0.25)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <svg viewBox="0 0 24 24" width={klein || logoHell ? 17 : 20} height={klein || logoHell ? 17 : 20} fill="none" stroke="#5E6878" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <svg viewBox="0 0 24 24" width={halb ? 13 : klein || logoHell ? 17 : 20} height={halb ? 13 : klein || logoHell ? 17 : 20} fill="none" stroke="#5E6878" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="5" y="11" width="14" height="10" rx="2.2" fill="#5E6878" />
                 <path d="M 8 11 V 7.5 a 4 4 0 0 1 8 0 V 11" />
               </svg>
@@ -317,6 +327,17 @@ const SCHUL_BEREICHE = [
     ], video: { name: "Videokurs Gleichungen", zeile: "Umformen, Gleichungssysteme, Musterlösungen" } },
 ];
 
+/* Formelsammlung → Bereiche (Untermenü wie bei Analysis) */
+const FORMEL_MENUE = [
+  { name: "Analysis", zeile: "Ableiten, Integrieren, Kurvendiskussion", bild: "kurve", ziel: { ansicht: "formeln", bereich: "analysis" } },
+  { name: "Vektoren", zeile: "Skalarprodukt, Ebenen, Abstände", bild: "kreuz", ziel: { ansicht: "formeln", bereich: "vektoren" } },
+  { name: "Stochastik", zeile: "Bayes, Erwartungswert, Binomialverteilung", bild: "balken", ziel: { ansicht: "formeln", bereich: "stochastik" } },
+  { name: "Kopfrechnen", zeile: "Rechentricks, Teilbarkeit, Brüche", bild: "kopf", ziel: { ansicht: "formeln", bereich: "kopfrechnen" } },
+  { name: "Trigonometrie", zeile: "Sinussatz, Kosinussatz, Bogenmaß", bild: "trig", ziel: { ansicht: "formeln", bereich: "trigonometrie" } },
+  { name: "Terme und Gleichungen", zeile: "Binomische Formeln, pq-Formel, Logarithmen", bild: "terme", ziel: { ansicht: "formeln", bereich: "terme" } },
+  { name: "Mengenlehre und Logik", zeile: "Mengen, Junktoren, Beweisverfahren", bild: "menge", ziel: { ansicht: "formeln", bereich: "logik" } },
+];
+
 /* Goldener Videokurs-Knopf am Ende jeder Sektion — vorerst gesperrt (Schloss) */
 function VideokursGesperrt({ name, zeile }) {
   const [hinweis, setHinweis] = useState(false);
@@ -412,6 +433,10 @@ function MiniBild({ art }) {
     balken: <>{[6, 14, 26, 36, 30, 18, 9, 4].map((h, i) => <rect key={i} x={20 + i * 11} y={48 - h} width="7" height={h} rx="1.5" fill={i === 3 ? g : "rgba(255,255,255,0.5)"} />)}</>,
     tafel: <><rect x="30" y="8" width="60" height="40" rx="4" {...linie} /><path d="M60 8 V48 M30 28 H90" {...linie} /><rect x="31" y="9" width="28" height="18" fill="rgba(237,187,0,0.35)" /></>,
     gleichung: <>{txt(60, 22, "3x + 5 = 20", "#fff", 13, "middle")}{txt(60, 42, "x = 5", g, 13, "middle")}<path d="M42 47 H78" stroke={g} strokeWidth="1" /></>,
+    kopf: <>{txt(60, 23, "17 · 11", "#fff", 14, "middle")}{txt(60, 44, "= 187", g, 13, "middle")}</>,
+    trig: <><path d="M22 46 H94 V12 Z" {...linie} fill="rgba(255,255,255,0.06)" /><path d="M87 46 V39 H94" {...linie} strokeWidth="1" /><path d="M38 46 A16 16 0 0 0 36.5 39.2" stroke={g} strokeWidth="1.6" fill="none" />{txt(41, 43, "α", g, 10)}{txt(99, 32, "a", w, 10)}{txt(56, 25, "c", w, 10)}</>,
+    terme: <>{txt(60, 23, "(a + b)²", "#fff", 14, "middle")}{txt(60, 43, "a² + 2ab + b²", g, 11, "middle")}</>,
+    menge: <><circle cx="48" cy="28" r="18" {...linie} fill="rgba(255,255,255,0.06)" /><circle cx="72" cy="28" r="18" {...linie} fill="rgba(255,255,255,0.06)" /><path d="M60 14.6 A18 18 0 0 1 60 41.4 A18 18 0 0 1 60 14.6 Z" fill={g} opacity="0.8" />{txt(38, 32, "A", w, 10)}{txt(78, 32, "B", w, 10)}</>,
     lgs: <><path d="M20 8 C 14 8, 16 28, 11 28 C 16 28, 14 48, 20 48" {...linie} stroke={g} />{txt(26, 18, "x + y + z = 6", w, 10.5)}{txt(26, 32, "2x − y + z = 3", w, 10.5)}{txt(26, 46, "x + 2y − z = 2", w, 10.5)}</>,
   };
   return <svg viewBox="0 0 120 56" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" aria-hidden="true">{m[art]}</svg>;
@@ -467,6 +492,7 @@ export function Startseite({ gehe }) {
   const [kopfAuf, setKopfAuf] = useState(false);        // Dropdown „Kopfrechnen“
   const [matheAuf, setMatheAuf] = useState(false);      // Dropdown „Mathematik“
   const [wettAuf, setWettAuf] = useState(false);        // Dropdown „Mathe-Wettbewerbe“
+  const [formelAuf, setFormelAuf] = useState(false);    // Untermenü „Formelsammlung“
 
   /* --- Motive --- */
 
@@ -875,7 +901,6 @@ export function Startseite({ gehe }) {
         </p>
       </section>
       <AppAnleitung />
-      <ElternabendKachel gesperrt onClick={() => gehe({ ansicht: "elternabend" })} />
       <PlotterKachel onClick={() => { setSchulAuf(!schulAuf); setBereichAuf(null); }} label={schulAuf ? "Mathe-Training zuklappen" : "Mathe-Training aufklappen"}
         logo={<SchulmatheLogoKlein />} titel="Mathe-Training"
         text="Analysis, Vektoren, Stochastik und Gleichungen live erleben."
@@ -900,15 +925,28 @@ export function Startseite({ gehe }) {
         extra={<PlusKnopf auf={matheAuf} />} />
       {matheAuf && (
         <div style={{ margin: "4px 0 4px", padding: "2px 0 2px 12px", borderLeft: `3px solid ${C.flaggold}` }}>
-          <PlotterKachel klein onClick={() => gehe({ ansicht: "formeln" })} label="Formelsammlung öffnen" logo={<FormelLogoKlein />}
+          <PlotterKachel klein onClick={() => setFormelAuf(!formelAuf)} label={formelAuf ? "Formelsammlung zuklappen" : "Formelsammlung aufklappen"} logo={<FormelLogoKlein />}
             titel="Formelsammlung"
-            text="Alle wichtigen Formeln der Oberstufe – sauber sortiert zum Nachschlagen." />
-          <PlotterKachel klein gesperrt logo={<ZeichenLogo zeichen="≔" />}
+            text="Alle wichtigen Formeln der Oberstufe – sauber sortiert zum Nachschlagen."
+            extra={<AufklappPfeil auf={formelAuf} />} />
+          {formelAuf && <UnterMenue eintraege={FORMEL_MENUE} gehe={gehe} />}
+          <PlotterKachel halb gesperrt logo={<ZeichenLogo zeichen="≔" />}
             titel="Definitionen"
             text="Alle wichtigen Begriffe der Oberstufe – präzise definiert." />
-          <PlotterKachel klein gesperrt logo={<ZeichenLogo zeichen="∴" />}
+          <PlotterKachel halb gesperrt logo={<ZeichenLogo zeichen="∴" />}
             titel="Sätze"
             text="Die zentralen Sätze der Oberstufe – klar formuliert." />
+        </div>
+      )}
+      <PlotterKachel onClick={() => setKopfAuf(!kopfAuf)} label={kopfAuf ? "Kopfrechnen zuklappen" : "Kopfrechnen aufklappen"} logo={<KopfrechnenLogoKlein />}
+        titel="Kopfrechnen"
+        text="Primfaktoren, Quadratzahlen, Brüche, Einmaleins – auf Zeit."
+        extra={<PlusKnopf auf={kopfAuf} />} />
+      {kopfAuf && (
+        <div style={{ margin: "4px 0 4px", padding: "2px 0 2px 12px", borderLeft: `3px solid ${C.flaggold}` }}>
+          <div style={{ paddingTop: 8, paddingBottom: 4 }}>
+            <KopfKacheln onWaehle={(id) => gehe({ ansicht: "kopf", trainer: id })} />
+          </div>
         </div>
       )}
       <PlotterKachel onClick={() => setWettAuf(!wettAuf)} label={wettAuf ? "Mathe-Wettbewerbe zuklappen" : "Mathe-Wettbewerbe aufklappen"}
@@ -925,20 +963,10 @@ export function Startseite({ gehe }) {
             text="Deutschlandkarte: Tippe auf dein Bundesland." />
         </div>
       )}
-      <PlotterKachel onClick={() => setKopfAuf(!kopfAuf)} label={kopfAuf ? "Kopfrechnen zuklappen" : "Kopfrechnen aufklappen"} logo={<KopfrechnenLogoKlein />}
-        titel="Kopfrechnen"
-        text="Primfaktoren, Quadratzahlen, Brüche, Einmaleins – auf Zeit."
-        extra={<PlusKnopf auf={kopfAuf} />} />
-      {kopfAuf && (
-        <div style={{ margin: "4px 0 4px", padding: "2px 0 2px 12px", borderLeft: `3px solid ${C.flaggold}` }}>
-          <div style={{ paddingTop: 8, paddingBottom: 4 }}>
-            <KopfKacheln onWaehle={(id) => gehe({ ansicht: "kopf", trainer: id })} />
-          </div>
-        </div>
-      )}
       <MatheCheckenKachel gesperrt onClick={() => gehe({ ansicht: "mathecheck" })} />
       <MasterclassKachel gesperrt onClick={() => gehe({ ansicht: "masterclass" })} />
       <MathCreatorKachel />
+      <ElternabendKachel gesperrt onClick={() => gehe({ ansicht: "elternabend" })} />
       <PlotterKachel gesperrt portraet={<MathildaPortraet />} onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })} label="Frag Mathilda AI öffnen" logo={<MathildaLogoKlein />}
         titel="Frag Mathilda AI"
         text="Foto vom Blatt – Mathilda prüft deinen Weg." />

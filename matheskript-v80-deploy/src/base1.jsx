@@ -938,6 +938,9 @@ export const MSYM = {
   le: "≤", leq: "≤", ge: "≥", geq: "≥", approx: "≈", Delta: "Δ", pi: "π", varepsilon: "ε",
   quad: "\u2003", qquad: "\u2003\u2003", ",": "\u2009", ";": "\u2009", ":": "\u2009",
   " ": " ", sin: "sin", cos: "cos", tan: "tan", ln: "ln", exp: "exp", prime: "′",
+  log: "log", cup: "∪", cap: "∩", subseteq: "⊆", subset: "⊂", setminus: "\\", emptyset: "∅", notin: "∉",
+  land: "∧", lor: "∨", wedge: "∧", vee: "∨", neg: "¬", forall: "∀", exists: "∃", mid: "|", perp: "⊥",
+  alpha: "α", beta: "β", gamma: "γ", sigma: "σ", mu: "μ", Omega: "Ω", circ: "°", int: "∫",
 };
 
 export const MMENGEN = { R: "ℝ", N: "ℕ", Z: "ℤ", Q: "ℚ", C: "ℂ" };

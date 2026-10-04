@@ -528,7 +528,7 @@ export const WEG_TYPEN = [
 /* --- Der typunabhängige Prüfer --- */
 
 
-export const FORMELN = [
+const FORMELN_ANALYSIS = [
   { gruppe: "Grundlagen", name: "Differenzenquotient", f: "\\frac{f(x_0+h) - f(x_0)}{h}",
     kurz: "Steigung der Sekante durch zwei Punkte · mittlere Änderungsrate", kap: 1 },
   { gruppe: "Grundlagen", name: "Ableitung an einer Stelle", f: "f′(x_0) = \\lim_{h \\to 0} \\frac{f(x_0+h) - f(x_0)}{h}",
@@ -589,6 +589,9 @@ export const FORMELN = [
   { gruppe: "Anwendung", name: "Sattelpunkt", f: "f′(x_0) = 0 \\quad \\text u n d \\quad f″(x_0) = 0",
     kurz: "Wendepunkt mit waagerechter Tangente · Vorzeichenwechsel prüfen" },
 ];
+
+export const FORMELN = FORMELN_ANALYSIS.map((e) => ({ bereich: "analysis", ...e }));
+
 
 
 export const GZ_FAMILIEN = [

@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
 import { API_URL, C, ganz, zuf } from "./base1.jsx";
+import { FORMEL_BEREICHE, FORMELN_ANALYSIS_EXTRA, FORMELN_WEITERE } from "./baseFormeln.jsx";
 import { ABL_TYPEN, FORMELN, GZ_FAMILIEN, PLATZ, TASTEN_FUNK, TASTEN_PARAM, TASTEN_ZAHL, W, ohneKlammer } from "./base2.jsx";
 import { kiKopf, kiAntwort } from "./base4.jsx";
 import { Trainingsbereich, dekodieren, jsonLesen, parseZahl, rendern } from "./func1.jsx";
@@ -157,21 +158,55 @@ Die drei neuen Aufgaben sollen denselben Typ und dasselbe Niveau haben, aber and
 /* ---------- Formelsammlung ---------- */
 
 
-export function Formelsammlung({ zuHerleitung }) {
+const FORMEL_SUCHTIPP = {
+  analysis: "Suchen: Produktregel, sin, Wendepunkt …",
+  vektoren: "Suchen: Skalarprodukt, Ebene …",
+  stochastik: "Suchen: Bayes, Varianz …",
+  kopfrechnen: "Suchen: Mal 11, Quersumme …",
+  trigonometrie: "Suchen: Sinussatz, Bogenmaß …",
+  terme: "Suchen: pq-Formel, Logarithmus …",
+  logik: "Suchen: Teilmenge, Induktion …",
+};
+
+export function Formelsammlung({ zuHerleitung, bereich: start = "analysis" }) {
+  const [bereich, setBereich] = useState(FORMEL_BEREICHE.some((x) => x.id === start) ? start : "analysis");
   const [suche, setSuche] = useState("");
   const [offen, setOffen] = useState(null);
 
+  const alle = [...FORMELN, ...FORMELN_ANALYSIS_EXTRA, ...FORMELN_WEITERE];
+  const bName = (id) => (FORMEL_BEREICHE.find((x) => x.id === id) || {}).name;
   const s = suche.trim().toLowerCase();
-  const treffer = FORMELN.filter((e) =>
-    !s || e.name.toLowerCase().includes(s) || e.kurz.toLowerCase().includes(s) ||
-    e.gruppe.toLowerCase().includes(s) || e.f.toLowerCase().includes(s));
+  /* Ohne Suchbegriff: nur der gewählte Bereich. Mit Suchbegriff: alle Bereiche,
+     damit man eine Formel auch findet, wenn man im falschen Bereich steht. */
+  const treffer = alle.filter((e) => s
+    ? e.name.toLowerCase().includes(s) || e.kurz.toLowerCase().includes(s) ||
+      e.gruppe.toLowerCase().includes(s) || e.f.toLowerCase().includes(s)
+    : e.bereich === bereich);
 
-  const gruppen = [...new Set(treffer.map((e) => e.gruppe))];
+  const gKey = (e) => (s ? e.bereich + "|" + e.gruppe : e.gruppe);
+  const gruppen = [...new Set(treffer.map(gKey))];
 
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 26 }}>
+      <div role="tablist" aria-label="Bereiche der Formelsammlung"
+        style={{ display: "flex", flexWrap: "wrap", gap: 7, marginBottom: 16 }}>
+        {FORMEL_BEREICHE.map((x) => {
+          const an = x.id === bereich && !s;
+          return (
+            <button key={x.id} role="tab" aria-selected={an}
+              onClick={() => { setBereich(x.id); setSuche(""); setOffen(null); }}
+              style={{ padding: "7px 13px", borderRadius: 999, fontSize: 13, fontWeight: an ? 600 : 500,
+                fontFamily: "inherit", cursor: "pointer", whiteSpace: "nowrap",
+                border: `1px solid ${an ? C.gruen : C.linie}`, background: an ? C.gruen : C.weiss,
+                color: an ? C.weiss : C.tinte, transition: "background 0.15s, color 0.15s" }}>
+              {x.name}
+            </button>
+          );
+        })}
+      </div>
+
       <input value={suche} onChange={(e) => setSuche(e.target.value)}
-        placeholder="Suchen: Produktregel, sin, Wendepunkt …"
+        placeholder={FORMEL_SUCHTIPP[bereich]}
         style={{ width: "100%", padding: "13px 16px", fontSize: 15.5, fontFamily: "inherit",
           border: `1px solid ${C.linie}`, borderRadius: 14, outline: "none", background: C.weiss,
           color: C.tinte, boxSizing: "border-box", marginBottom: 20 }} />
@@ -182,41 +217,47 @@ export function Formelsammlung({ zuHerleitung }) {
         </p>
       )}
 
-      {gruppen.map((g) => (
-        <div key={g} style={{ marginBottom: 26 }}>
-          <p style={{ fontSize: 12.5, fontWeight: 600, color: C.gruenDunkel, marginBottom: 10 }}>{g}</p>
-          {treffer.filter((e) => e.gruppe === g).map((e) => {
-            const auf = offen === e.name;
-            return (
-              <div key={e.name} onClick={() => setOffen(auf ? null : e.name)}
-                style={{ background: C.weiss, borderRadius: 14, padding: "15px 17px", marginBottom: 9,
-                  boxShadow: "0 2px 12px rgba(15,26,51,0.06)", cursor: "pointer" }}>
-                <p style={{ fontSize: 14.5, fontWeight: 600, marginBottom: 8 }}>{e.name}</p>
-                <div style={{ fontSize: 16.5, lineHeight: 2, color: C.tinte, overflowX: "auto" }}>
-                  <M t={e.f} />
-                </div>
-                {auf && (
-                  <>
-                    <p style={{ color: C.grau, fontSize: 13.5, fontWeight: 300, lineHeight: 1.7, marginTop: 10 }}>
-                      {e.kurz}
-                    </p>
-                    {e.kap ? (
-                      <button onClick={(ev) => { ev.stopPropagation(); zuHerleitung(e.kap); }} className="mt-3"
-                        style={{ background: "none", border: "none", color: C.see, fontSize: 13, fontFamily: "inherit", cursor: "pointer", padding: 0, textDecoration: "underline" }}>
-                        Zur Herleitung · Kapitel {e.kap}
-                      </button>
-                    ) : (
-                      <p style={{ color: C.hellgrau, fontSize: 12.5, fontWeight: 300, marginTop: 8 }}>
-                        Herleitung folgt in einem späteren Modul.
+      {gruppen.map((g) => {
+        const [gb, gg] = s ? g.split("|") : [bereich, g];
+        return (
+          <div key={g} style={{ marginBottom: 26 }}>
+            <p style={{ fontSize: 12.5, fontWeight: 600, color: C.gruenDunkel, marginBottom: 10 }}>
+              {s && <span style={{ color: C.grau, fontWeight: 500 }}><span>{bName(gb)}</span><span> · </span></span>}<span>{gg}</span>
+            </p>
+            {treffer.filter((e) => gKey(e) === g).map((e) => {
+              const id = e.bereich + "|" + e.name;
+              const auf = offen === id;
+              return (
+                <div key={id} onClick={() => setOffen(auf ? null : id)}
+                  style={{ background: C.weiss, borderRadius: 14, padding: "15px 17px", marginBottom: 9,
+                    boxShadow: "0 2px 12px rgba(15,26,51,0.06)", cursor: "pointer" }}>
+                  <p style={{ fontSize: 14.5, fontWeight: 600, marginBottom: 8 }}>{e.name}</p>
+                  <div style={{ fontSize: 16.5, lineHeight: 2, color: C.tinte, overflowX: "auto", overflowY: "hidden" }}>
+                    <M t={e.f} />
+                  </div>
+                  {auf && (
+                    <>
+                      <p style={{ color: C.grau, fontSize: 13.5, fontWeight: 300, lineHeight: 1.7, marginTop: 10 }}>
+                        {e.kurz}
                       </p>
-                    )}
-                  </>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      ))}
+                      {e.kap ? (
+                        <button onClick={(ev) => { ev.stopPropagation(); zuHerleitung(e.kap); }} className="mt-3"
+                          style={{ background: "none", border: "none", color: C.see, fontSize: 13, fontFamily: "inherit", cursor: "pointer", padding: 0, textDecoration: "underline" }}>
+                          Zur Herleitung · Kapitel {e.kap}
+                        </button>
+                      ) : e.bereich === "analysis" ? (
+                        <p style={{ color: C.hellgrau, fontSize: 12.5, fontWeight: 300, marginTop: 8 }}>
+                          Herleitung folgt in einem späteren Modul.
+                        </p>
+                      ) : null}
+                    </>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        );
+      })}
     </div>
   );
 }

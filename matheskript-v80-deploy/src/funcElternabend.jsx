@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { C } from "./base1.jsx";
+import { SatzZeilen } from "./baseSatz.jsx";
 
 /* ======================================================================
    ELTERNABEND — Schwarz-Gold-Kachel für die Startseite und Infoseite.
@@ -143,7 +144,7 @@ export function ElternabendKachel({ onClick, gesperrt }) {
           {ELTERNABEND.ort} <span style={{ fontWeight: 400, color: "#3B4763" }}>· Dingelsdorf</span>
         </p>
         <p style={{ fontSize: 12.5, fontWeight: 500, lineHeight: 1.4, marginTop: 4, marginBottom: 0, color: "#1B2A4F" }}>
-          Die Infoveranstaltung mit Entertainment-Charakter und Aha-Momenten.
+          <SatzZeilen text="Die Infoveranstaltung mit Entertainment-Charakter und Aha-Momenten." />
         </p>
         {gesperrt ? baldVerfuegbar(NAVY) : (
         <span style={{ marginTop: "auto", paddingTop: 4, fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>

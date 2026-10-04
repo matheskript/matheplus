@@ -363,8 +363,28 @@ export function mLies(s, i, ende) {
         teile.push({ typ: "frac", z, n });
       } else if (name === "sqrt") {
         raus();
+        let n = null;
+        if (s[i] === "[") { const j = s.indexOf("]", i); n = s.slice(i + 1, j); i = j + 1; }
         let a; [a, i] = mArg(s, i);
-        teile.push({ typ: "sqrt", a });
+        teile.push({ typ: "sqrt", a, n });
+      } else if (name === "vec" || name === "overline") {
+        raus();
+        let a; [a, i] = mArg(s, i);
+        teile.push({ typ: name === "vec" ? "vec" : "bar", a });
+      } else if (name === "binom") {
+        raus();
+        let z, n;
+        [z, i] = mArg(s, i);
+        [n, i] = mArg(s, i);
+        teile.push({ typ: "spalte", zeilen: [z, n] });
+      } else if (name === "spalte") {
+        raus();
+        const zeilen = [];
+        for (let k = 0; k < 3; k++) { let z; [z, i] = mArg(s, i); zeilen.push(z); }
+        teile.push({ typ: "spalte", zeilen });
+      } else if (name === "text") {
+        let a; [a, i] = mRoh(s, i);
+        text += a;
       } else if (name === "lim") {
         raus();
         let u = null;
@@ -408,6 +428,7 @@ export function mHoehe(teile) {
   for (const t of teile || []) {
     if (typeof t === "string") continue;
     if (t.typ === "frac") h = Math.max(h, mHoehe(t.z) + mHoehe(t.n) + 0.3);
+    else if (t.typ === "spalte") h = Math.max(h, t.zeilen.reduce((s, z) => s + mHoehe(z), 0) + 0.2);
     else if (t.a) h = Math.max(h, mHoehe(t.a));
     else if (t.u) h = Math.max(h, mHoehe(t.u));
   }
@@ -415,9 +436,19 @@ export function mHoehe(teile) {
 }
 
 
+const M_RAND = new Set(["sub", "sup", "vec", "bar", "spalte", "sqrt"]);
+
 export function mZeichne(teile) {
   return teile.map((t, i) => {
-    if (typeof t === "string") return <span key={i}>{t}</span>;
+    if (typeof t === "string") {
+      // Im Flex-Container gehen Leerzeichen am Rand eines Textstücks verloren –
+      // neben Indizes, Vektorpfeilen und Spaltenvektoren als feste Leerzeichen erhalten.
+      let s = t;
+      const vor = teile[i - 1], nach = teile[i + 1];
+      if (vor && M_RAND.has(vor.typ)) s = s.replace(/^ +/, "\u00A0");
+      if (nach && M_RAND.has(nach.typ)) s = s.replace(/ +$/, "\u00A0");
+      return <span key={i}>{s}</span>;
+    }
     if (t.typ === "frac") {
       const hz = mHoehe(t.z), hn = mHoehe(t.n);
       const obenAus = Math.max(0, hn - hz).toFixed(2);
@@ -435,7 +466,26 @@ export function mZeichne(teile) {
     if (t.typ === "sub") return <sub key={i} style={{ fontSize: "0.7em", lineHeight: 0 }}>{mZeichne(t.a)}</sub>;
     if (t.typ === "sqrt") return (
       <span key={i} style={{ verticalAlign: "middle", display: "inline-block" }}>
+        {t.n && <sup style={{ fontSize: "0.58em", lineHeight: 0, marginRight: "-0.18em", position: "relative", top: "-0.15em" }}>{t.n}</sup>}
         √<span style={{ borderTop: "1.1px solid currentColor", padding: "0.08em 0.12em 0" }}>{mZeichne(t.a)}</span>
+      </span>
+    );
+    if (t.typ === "vec") return (
+      <span key={i} style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", verticalAlign: "middle", lineHeight: 1 }}>
+        <svg width="0.95em" height="0.42em" viewBox="0 0 20 9" aria-hidden="true" style={{ display: "block", marginBottom: "-0.04em" }}>
+          <path d="M1 4.5 H17 M13 1 L18 4.5 L13 8" stroke="currentColor" strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+        <span>{mZeichne(t.a)}</span>
+      </span>
+    );
+    if (t.typ === "bar") return <span key={i} style={{ borderTop: "1.1px solid currentColor", paddingTop: "0.04em", display: "inline-block", lineHeight: 1.1 }}>{mZeichne(t.a)}</span>;
+    if (t.typ === "spalte") return (
+      <span key={i} style={{ display: "inline-flex", alignItems: "stretch", verticalAlign: "middle", margin: "0 0.12em" }}>
+        <span style={{ width: "0.32em", border: "1.2px solid currentColor", borderRight: "none", borderRadius: "0.45em 0 0 0.45em" }} />
+        <span style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", lineHeight: 1.2, padding: "0.1em 0.18em" }}>
+          {t.zeilen.map((z, k) => <span key={k} style={{ whiteSpace: "nowrap" }}>{mZeichne(z)}</span>)}
+        </span>
+        <span style={{ width: "0.32em", border: "1.2px solid currentColor", borderLeft: "none", borderRadius: "0 0.45em 0.45em 0" }} />
       </span>
     );
     if (t.typ === "lim") return (

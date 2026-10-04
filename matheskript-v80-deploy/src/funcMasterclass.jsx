@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { C } from "./base1.jsx";
+import { SatzZeilen } from "./baseSatz.jsx";
 
 /* ======================================================================
    MATHE ABI MASTERCLASS
@@ -87,7 +88,7 @@ export function MasterclassKachel({ onClick, gesperrt }) {
         <span aria-hidden="true" style={{ display: "block", width: 44, height: 3, borderRadius: 2, marginTop: 7, background: NAVY }} />
         <p style={{ fontSize: 12.5, fontWeight: 500, lineHeight: 1.4, marginTop: 6, marginBottom: 0, color: "#1B2A4F",
           display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
-          Werde die beste Version von dir – für ein starkes Abi und Freude am Fach.
+          <SatzZeilen text="Werde die beste Version von dir – für ein starkes Abi und Freude am Fach." />
         </p>
         {gesperrt ? baldVerfuegbar(NAVY) : (
         <span style={{ marginTop: "auto", paddingTop: 6, fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
@@ -146,7 +147,7 @@ export function MatheCheckenKachel({ onClick, gesperrt }) {
         <span aria-hidden="true" style={{ display: "block", width: 34, height: 2.5, borderRadius: 2, marginTop: 5, background: NAVY }} />
         <p style={{ fontSize: 12.5, fontWeight: 500, lineHeight: 1.4, marginTop: 5, marginBottom: 0, color: "#1B2A4F",
           display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden", height: "4.2em" }}>
-          In zwei Monaten Lücken schließen, Mathe verstehen und sicher werden.
+          <SatzZeilen text="In zwei Monaten Lücken schließen, Mathe verstehen und sicher werden." />
         </p>
       </div>
       <div style={{ flex: "0 0 37%", position: "relative", borderLeft: "1px solid rgba(11,30,74,0.12)" }}>
@@ -193,7 +194,7 @@ export function MatheCheckenSeite() {
   );
 }
 
-/* ---------- „Math Creator“: 3-Monats-Programm, schwarz und geheimnisvoll, noch gesperrt ---------- */
+/* ---------- „Mathe Creator“: 3-Monats-Programm, schwarz und geheimnisvoll, noch gesperrt ---------- */
 
 function CreatorLogo() {
   const fragen = [
@@ -225,7 +226,7 @@ function CreatorLogo() {
 
 export function MathCreatorKachel() {
   return (
-    <div role="button" aria-disabled="true" aria-label="Math Creator – noch gesperrt" title="Noch gesperrt" className="mcr-kachel"
+    <div role="button" aria-disabled="true" aria-label="Mathe Creator – noch gesperrt" title="Noch gesperrt" className="mcr-kachel"
       style={{ display: "flex", width: "calc(100% + 32px)", marginLeft: -16, marginRight: -16, marginTop: 12, borderRadius: 18, overflow: "hidden",
         cursor: "not-allowed", position: "relative", userSelect: "none",
         height: "calc(95px + 1.1 * clamp(15px, 4.1vw, 22px))",
@@ -236,18 +237,18 @@ export function MathCreatorKachel() {
           animation:mcrSchimmer 7s ease-in-out infinite}
         @keyframes mcrSchimmer{0%,55%{background-position:120% 0}100%{background-position:-120% 0}}`}</style>
       <span className="mcr-schimmer" aria-hidden="true" />
-      <div style={{ flex: "1 1 63%", minWidth: 0, padding: "10px 8px 10px 16px", display: "flex", flexDirection: "column", justifyContent: "center", position: "relative" }}>
+      <div style={{ flex: "1 1 67%", minWidth: 0, padding: "10px 6px 10px 16px", display: "flex", flexDirection: "column", justifyContent: "center", position: "relative" }}>
         <h2 style={{ fontSize: "clamp(21px, 6.2vw, 32px)", fontWeight: 800, letterSpacing: "-0.035em", lineHeight: 1.02, margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
           background: "linear-gradient(180deg,#FFFFFF 0%,#D5D9E2 55%,#9AA3B3 100%)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>
-          Math Creator
+          Mathe Creator
         </h2>
         <span aria-hidden="true" style={{ display: "block", width: 34, height: 2.5, borderRadius: 2, marginTop: 5, background: "linear-gradient(90deg,#6E5BD8 0%,#B7A9FF 100%)" }} />
         <p style={{ fontSize: 12.5, fontWeight: 300, lineHeight: 1.4, marginTop: 5, marginBottom: 0, color: "rgba(255,255,255,0.78)",
-          display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden", height: "4.2em" }}>
-          Noch geheim. Nur so viel: Nach drei Monaten erschaffst du Mathe.
+          overflow: "hidden", height: "4.2em" }}>
+          <SatzZeilen text="Noch geheim. In drei Monaten erschaffst du Mathe." />
         </p>
       </div>
-      <div style={{ flex: "0 0 37%", position: "relative", borderLeft: "1px solid rgba(255,255,255,0.08)" }}>
+      <div style={{ flex: "0 0 33%", position: "relative", borderLeft: "1px solid rgba(255,255,255,0.08)" }}>
         <span style={{ position: "absolute", top: 10, left: 10, fontSize: 9.5, fontWeight: 700, letterSpacing: "0.1em", background: "rgba(255,255,255,0.1)",
           border: "1px solid rgba(255,255,255,0.2)", color: "#D5D9E2", padding: "3px 7px", borderRadius: 999, zIndex: 1 }}>3 MONATE</span>
         <div style={{ position: "absolute", inset: "12px 6px 6px 6px", opacity: 0.9 }}><CreatorLogo /></div>

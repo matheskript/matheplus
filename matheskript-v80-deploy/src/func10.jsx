@@ -65,12 +65,13 @@ export function Mathilda() {
   const sprachKnopf = () => {
     try {
       sessionStorage.setItem("mm-nach-sprachwechsel", JSON.stringify({ ansicht, ziel: ansicht === "training" ? trainZiel : ansicht === "ki" ? genZiel : undefined,
-        kompetenz: einheitId || undefined, klasse: klasseAktiv, kurs: kursStart || undefined, trainer: kopfTrainer || undefined, land: ansicht === "landeswettbewerb" ? landWahl : undefined, foto: fotoModus }));
+        kompetenz: einheitId || undefined, klasse: klasseAktiv, kurs: kursStart || undefined, trainer: kopfTrainer || undefined, bereich: ansicht === "formeln" ? formelBereich : undefined, land: ansicht === "landeswettbewerb" ? landWahl : undefined, foto: fotoModus }));
     } catch (e) { /* privat */ }
     spracheWechseln();
   };
   const [kopfTrainer, setKopfTrainer] = useState(null);   // direkt geöffneter Kopfrechen-Trainer
-  const [landWahl, setLandWahl] = useState("bw");          // Bundesland der Landeswettbewerb-Seite
+  const [landWahl, setLandWahl] = useState("bw");
+  const [formelBereich, setFormelBereich] = useState("analysis");   // Bereich der Formelsammlung          // Bundesland der Landeswettbewerb-Seite
   const [sprung, setSprung] = useState(null);
   const [fotoModus, setFotoModus] = useState("blatt");
   const [terminStart, setTerminStart] = useState(null);
@@ -106,6 +107,7 @@ export function Mathilda() {
     setKursStart(eintrag.ansicht === "kurse" ? eintrag.kurs || null : null);
     setKopfTrainer(eintrag.ansicht === "kopf" ? eintrag.trainer || null : null);
     if (eintrag.land) setLandWahl(eintrag.land);
+    if (eintrag.ansicht === "formeln") setFormelBereich(eintrag.bereich || "analysis");
     setMenuOffen(false); setGruppeOffen(null);
     window.scrollTo(0, 0);
   };
@@ -766,12 +768,12 @@ export function Mathilda() {
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 34, letterSpacing: "-0.03em", lineHeight: 1.05 }}>Formelsammlung</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 14, marginBottom: 14 }} />
               <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
-                Alles auf einen Blick — und zu jeder Regel der Weg zurück zur Herleitung.
+                Alles auf einen Blick — sortiert nach Bereichen und durchsuchbar.
               </p>
             </div>
             <Welle fill={C.sand} />
           </div>
-          <Formelsammlung zuHerleitung={(nr) => { setSprung(nr); setAnsicht("training"); }} />
+          <Formelsammlung key={formelBereich} bereich={formelBereich} zuHerleitung={(nr) => { setSprung(nr); setAnsicht("training"); }} />
         </>
       ) : ansicht === "plotter" ? (
         <>
