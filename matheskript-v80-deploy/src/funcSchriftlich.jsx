@@ -123,8 +123,8 @@ function uebertraege(a, b, op, breite) {
   return u;
 }
 
-export function SchriftlichPlusMinus({ Zahlenfeld }) {
-  const [art, setArt] = useState("plus");
+export function SchriftlichPlusMinus({ Zahlenfeld, startArt = "plus" }) {
+  const [art, setArt] = useState(startArt);
   const [stellen, setStellen] = useState(3);
   const neu = useCallback(() => plusMinusAufgabe(art, stellen), [art, stellen]);
   const [aufg, setAufg] = useState(() => neu());

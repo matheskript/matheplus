@@ -350,11 +350,11 @@ function PotenzSpalten({ hoch, bloecke }) {
 /* ---------- Quadrat- und Kubikzahlen ---------- */
 
 /* Übungsarten als Raster 3 × 2; „Wurzel 10k“ in Schwarz-Gold */
-function PotenzModi({ wert, setWert }) {
+function PotenzModi({ wert, setWert, ids }) {
   const GOLD_VERLAUF = "linear-gradient(180deg,#FFE58A 0%,#EDBB00 45%,#E2B53C 70%,#A67C00 100%)";
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 6, marginBottom: 14 }}>
-      {POTENZ_MODI.map((m) => {
+    <div style={{ display: "grid", gridTemplateColumns: `repeat(${ids && ids.length === 4 ? 2 : 3}, minmax(0, 1fr))`, gap: 6, marginBottom: 14 }}>
+      {POTENZ_MODI.filter((m) => !ids || ids.includes(m.id)).map((m) => {
         const an = wert === m.id;
         const stil = m.gold
           ? { border: "1px solid #EDBB00", background: an ? GOLD_VERLAUF : "radial-gradient(130% 150% at 90% 10%, #2A2210 0%, #0E0C08 55%, #050404 100%)",
@@ -373,8 +373,11 @@ function PotenzModi({ wert, setWert }) {
   );
 }
 
-function QuadratKubik() {
-  const [modus, setModus] = useState("quadrat");
+/* art: "quadrat" | "kubik" | "wurzel" – jede Kopfrechen-Kachel öffnet ihren Teil; ohne art alles wie bisher */
+const POTENZ_GRUPPEN = { quadrat: ["quadrat"], kubik: ["kubik"], wurzel: ["wurzel", "kwurzel", "wurzel10k", "mix"] };
+function QuadratKubik({ art }) {
+  const ids = art ? POTENZ_GRUPPEN[art] : null;
+  const [modus, setModus] = useState(ids ? ids[0] : "quadrat");
   const erzeugen = React.useCallback(() => potenzAufgabe(modus), [modus]);
   return (
     <div>
@@ -383,16 +386,17 @@ function QuadratKubik() {
         .kr-details > summary::before{content:"›";display:inline-block;margin-right:8px;transition:transform .15s}
         .kr-details[open] > summary::before{transform:rotate(90deg)}
         .kr-details[open]{padding-bottom:14px}`}</style>
-      <details className="kr-details" style={{ marginBottom: 10, background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 14, padding: "0 14px" }}>
+      {art !== "kubik" && <details className="kr-details" style={{ marginBottom: 10, background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 14, padding: "0 14px" }}>
         <summary>Quadratzahlen · 1² bis 30²</summary>
         <PotenzSpalten hoch={2} bloecke={[[1, 10], [11, 20], [21, 30]]} />
-      </details>
-      <details className="kr-details" style={{ marginBottom: 22, background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 14, padding: "0 14px" }}>
+      </details>}
+      {art !== "quadrat" && <details className="kr-details" style={{ marginBottom: 22, background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 14, padding: "0 14px" }}>
         <summary>Kubikzahlen · 1³ bis 20³</summary>
         <PotenzSpalten hoch={3} bloecke={[[1, 10], [11, 20]]} />
-      </details>
+      </details>}
+      {art === "quadrat" && <div style={{ height: 12 }} />}
       <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: C.gruenDunkel, marginBottom: 8 }}>Üben</p>
-      <PotenzModi wert={modus} setWert={setModus} />
+      {(!ids || ids.length > 1) && <PotenzModi wert={modus} setWert={setModus} ids={ids} />}
       <Schnellrechnen erzeugen={erzeugen} gruppe="Potenzen" bestSchluessel={`kr-best-pot-${modus}`} />
     </div>
   );
@@ -814,51 +818,62 @@ function Multiplizieren() {
 
 /* ---------- Übersicht ---------- */
 
+/* Verbindliche Anordnung (Entwicklungsbrief 04.10.2026, Punkt 15):
+   Reihe 1: Plus | Minus | Multiplizieren · Reihe 2: Primfaktoren ·
+   Reihe 3: Quadrate | Kuben | Wurzeln · Reihe 4: Schriftlich Teilen | Buchrechnung.
+   „Buchrechnung" ist die wörtliche Bezeichnung aus dem Auftrag und öffnet vorerst den Bruchrechen-Trainer. */
 export const TRAINER = [
-  { id: "primfaktoren", titel: "Primfaktorzerlegung", slogan: "Primzahlen erkennen und Zahlen zerlegen.", kurz: "Primzahl erkennen oder vollständig zerlegen — jeden Faktor einzeln.", zeichen: "2·3·7" },
-  { id: "potenzen", titel: "Quadrat- und Kubikzahlen", kurzTitel: "Quadrate & Kuben", slogan: "Quadrat-, Kubikzahlen und Wurzeln blitzschnell abrufen.", kurz: "Quadrat- und Kubikzahlen sowie ihre Wurzeln blitzschnell abrufen.", zeichen: "12²" },
-  { id: "bruchrechnen", titel: "Bruchrechnen", slogan: "Kürzen, Plus, Minus, Mal, Geteilt – mit Lösungsweg.", kurz: "Kürzen, Plus, Minus, Mal und Geteilt — mit Lösungsweg bei jedem Fehler.", zeichen: "¾" },
-  { id: "multiplizieren", titel: "Multiplizieren", slogan: "Vom kleinen Einmaleins bis zu vierstelligen Zahlen.", kurz: "Vom kleinen Einmaleins bis zu vierstelligen Zahlen — auch als Umkehraufgaben, auf Zeit.", zeichen: "7·8" },
-  { id: "plusminus", titel: "Schriftlich Plus & Minus", kurzTitel: "Plus & Minus", slogan: "Untereinander rechnen wie im Heft – mit Übertrag.", kurz: "Schriftliche Addition und Subtraktion auf Kästchenpapier – von rechts nach links, mit Übertrag.", zeichen: "+ −" },
-  { id: "division", titel: "Schriftliche Division", kurzTitel: "Schriftlich teilen", slogan: "Schritt für Schritt teilen – mit oder ohne Rest.", kurz: "Schriftlich dividieren wie im Heft – Stellenzahl wählbar, mit oder ohne Rest, mit Rechenweg.", zeichen: "÷" },
+  { id: "plus", titel: "Schriftlich Plus", kurzTitel: "Plus", slogan: "Untereinander addieren – mit Übertrag.", zeichen: "+" },
+  { id: "minus", titel: "Schriftlich Minus", kurzTitel: "Minus", slogan: "Untereinander subtrahieren.", zeichen: "−" },
+  { id: "multiplizieren", titel: "Multiplizieren", slogan: "Vom kleinen Einmaleins bis zu vierstelligen Zahlen.", zeichen: "7·8" },
+  { id: "primfaktoren", titel: "Primfaktorzerlegung", kurzTitel: "Primfaktoren", slogan: "Primzahlen erkennen und Zahlen zerlegen.", zeichen: "2·3·7" },
+  { id: "quadrate", titel: "Quadratzahlen", kurzTitel: "Quadrate", slogan: "1² bis 25² sofort abrufen.", zeichen: "12²" },
+  { id: "kuben", titel: "Kubikzahlen", kurzTitel: "Kuben", slogan: "1³ bis 10³ sofort abrufen.", zeichen: "4³" },
+  { id: "wurzeln", titel: "Wurzeln", slogan: "Quadrat- und Kubikwurzeln.", zeichen: "√" },
+  { id: "division", titel: "Schriftlich Teilen", slogan: "Schritt für Schritt teilen – mit oder ohne Rest.", zeichen: "÷" },
+  { id: "bruchrechnen", titel: "Buchrechnung", slogan: "Kürzen, plus, minus, mal, geteilt – mit Lösungsweg.", zeichen: "¾" },
 ];
+const KOPF_REIHEN = [["plus", "minus", "multiplizieren"], ["primfaktoren"], ["quadrate", "kuben", "wurzeln"], ["division", "bruchrechnen"]];
+/* Alte Kennungen (Links, Sprachwechsel) weiterhin öffnen */
+const KOPF_ALT = { plusminus: "plus", potenzen: "quadrate", einmaleins: "multiplizieren" };
+
 
 /* Verspielte Farben je Trainer */
 /* Kurze Texte für die kleinen Kacheln */
-const KACHEL_TEXT = {
-  primfaktoren: ["Primfaktoren", "Zahlen blitzschnell zerlegen."],
-  potenzen: ["Quadrate & Kuben", "Potenzen und Wurzeln."],
-  bruchrechnen: ["Bruchrechnen", "Kürzen, plus, minus, mal, geteilt."],
-  multiplizieren: ["Multiplizieren", "Vom 1×1 bis vierstellig."],
-  plusminus: ["Plus & Minus", "Schriftlich untereinander."],
-  division: ["Schriftlich teilen", "Mit und ohne Rest."],
-};
+const KACHEL_TEXT = {};
 
 const KOPF_LOOK = {
-  primfaktoren: { bg: "linear-gradient(150deg, #FF9A76 0%, #F4511E 100%)", schatten: "rgba(244,81,30,0.32)", akzent: "#B33A12", text: "#FFFFFF", r: -7 },
-  potenzen: { bg: "linear-gradient(150deg, #B79CFF 0%, #6D28D9 100%)", schatten: "rgba(109,40,217,0.32)", akzent: "#5B21B6", text: "#FFFFFF", r: 6 },
-  bruchrechnen: { bg: "linear-gradient(150deg, #4FE0CB 0%, #0F8A7E 100%)", schatten: "rgba(15,138,126,0.32)", akzent: "#0B6A61", text: "#FFFFFF", r: -5 },
+  plus: { bg: "linear-gradient(150deg, #7CC8FF 0%, #1D6FD6 100%)", schatten: "rgba(29,111,214,0.32)", akzent: "#14529E", text: "#FFFFFF", r: -6 },
+  minus: { bg: "linear-gradient(150deg, #8FD8FF 0%, #0E86B8 100%)", schatten: "rgba(14,134,184,0.32)", akzent: "#0A5F84", text: "#FFFFFF", r: 6 },
   multiplizieren: { bg: "linear-gradient(150deg, #FFE070 0%, #F59E0B 100%)", schatten: "rgba(245,158,11,0.35)", akzent: "#A15C00", text: "#3A2200", r: 8 },
-  plusminus: { bg: "linear-gradient(150deg, #7CC8FF 0%, #1D6FD6 100%)", schatten: "rgba(29,111,214,0.32)", akzent: "#14529E", text: "#FFFFFF", r: -6 },
+  primfaktoren: { bg: "linear-gradient(150deg, #FF9A76 0%, #F4511E 100%)", schatten: "rgba(244,81,30,0.32)", akzent: "#B33A12", text: "#FFFFFF", r: -7 },
+  quadrate: { bg: "linear-gradient(150deg, #B79CFF 0%, #6D28D9 100%)", schatten: "rgba(109,40,217,0.32)", akzent: "#5B21B6", text: "#FFFFFF", r: 6 },
+  kuben: { bg: "linear-gradient(150deg, #C9B2FF 0%, #7C3AED 100%)", schatten: "rgba(124,58,237,0.32)", akzent: "#5B21B6", text: "#FFFFFF", r: -5 },
+  wurzeln: { bg: "linear-gradient(150deg, #A58BFF 0%, #4C1D95 100%)", schatten: "rgba(76,29,149,0.32)", akzent: "#4C1D95", text: "#FFFFFF", r: 5 },
   division: { bg: "linear-gradient(150deg, #FF9CC9 0%, #D6336C 100%)", schatten: "rgba(214,51,108,0.32)", akzent: "#9E1F4D", text: "#FFFFFF", r: 7 },
+  bruchrechnen: { bg: "linear-gradient(150deg, #4FE0CB 0%, #0F8A7E 100%)", schatten: "rgba(15,138,126,0.32)", akzent: "#0B6A61", text: "#FFFFFF", r: -5 },
 };
 
 /* Kompakte, bunte Trainer-Kacheln im 2er-Raster — für die Startseite und die Kopfrechen-Übersicht */
 export function KopfKacheln({ onWaehle }) {
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
       <style>{`.kopf-kachel{transition:transform .16s cubic-bezier(.2,.7,.3,1), box-shadow .16s ease}
         .kopf-kachel:active{transform:scale(0.96)}
         .kopf-karte{transition:transform .25s cubic-bezier(.3,1.6,.5,1)}
         @media (hover:hover){.kopf-kachel:hover{transform:translateY(-3px) rotate(-0.6deg)}
           .kopf-kachel:hover .kopf-karte{transform:rotate(0deg) scale(1.12)!important}}
-        .kopf-kachel:active .kopf-karte{transform:rotate(0deg) scale(1.12)!important}`}</style>
-      {TRAINER.map((t) => {
+        .kopf-kachel:active .kopf-karte{transform:rotate(0deg) scale(1.12)!important}
+        @media (max-width:420px){.kopf-slogan-schmal{display:none!important}}`}</style>
+      {KOPF_REIHEN.map((reihe) => (
+      <div key={reihe.join("-")} className="kopf-reihe" style={{ display: "grid", gridTemplateColumns: `repeat(${reihe.length}, minmax(0, 1fr))`, gap: 10 }}>
+      {reihe.map((id) => TRAINER.find((x) => x.id === id)).map((t) => {
         const f = KOPF_LOOK[t.id] || KOPF_LOOK.multiplizieren;
         const [kTitel, kText] = KACHEL_TEXT[t.id] || [t.kurzTitel || t.titel, t.slogan];
+        const schmal = reihe.length >= 3;
         return (
           <button key={t.id} type="button" onClick={() => onWaehle(t.id)} aria-label={`${t.titel} öffnen`} className="kopf-kachel"
-            style={{ position: "relative", height: 116, borderRadius: 20, border: "none", padding: "10px 12px 11px", overflow: "hidden",
+            style={{ position: "relative", height: 116, borderRadius: 20, border: "none", padding: schmal ? "10px 9px 11px" : "10px 12px 11px", overflow: "hidden",
               background: f.bg, color: f.text, textAlign: "left", cursor: "pointer", fontFamily: "inherit",
               boxShadow: `0 6px 18px ${f.schatten}, inset 0 0 0 1px rgba(255,255,255,0.25)`, display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
             <span aria-hidden="true" style={{ position: "absolute", width: 90, height: 90, borderRadius: 999, right: -28, bottom: -38, background: "rgba(255,255,255,0.16)" }} />
@@ -869,19 +884,21 @@ export function KopfKacheln({ onWaehle }) {
                 transform: `rotate(${f.r}deg)`, whiteSpace: "nowrap" }}>
               {t.zeichen}
             </span>
-            <span style={{ position: "relative", display: "block", fontSize: "clamp(13.5px, 3.9vw, 16px)", fontWeight: 800, lineHeight: 1.12, letterSpacing: "-0.01em",
+            <span style={{ position: "relative", display: "block", fontSize: schmal ? "clamp(11px, 3.15vw, 16px)" : "clamp(13.5px, 3.9vw, 16px)", fontWeight: 800, lineHeight: 1.12, letterSpacing: "-0.01em",
               paddingRight: 2 }}>{kTitel}</span>
             <span style={{ position: "relative", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden",
-              fontSize: 11.5, fontWeight: 500, lineHeight: 1.3, marginTop: 3, opacity: 0.92 }}>{kText}</span>
+              fontSize: 11.5, fontWeight: 500, lineHeight: 1.3, marginTop: 3, opacity: 0.92 }} className={schmal ? "kopf-slogan-schmal" : undefined}>{kText}</span>
           </button>
         );
       })}
+      </div>
+      ))}
     </div>
   );
 }
 
 export function KopfrechenZentrum({ start = null }) {
-  const [offen, setOffen] = useState(start === "einmaleins" ? "multiplizieren" : start);
+  const [offen, setOffen] = useState(KOPF_ALT[start] || start);
   const t = offen ? TRAINER.find((x) => x.id === offen) : null;
 
   if (!t) {
@@ -891,7 +908,7 @@ export function KopfrechenZentrum({ start = null }) {
           Zahlen, die einfach sitzen
         </h2>
         <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 22 }}>
-          Sechs Trainer für das Kopfrechnen und schriftliche Rechnen. Wer Zahlen sofort abrufen kann, kürzt schneller, sieht Teiler auf einen
+          Trainer für das Kopfrechnen und schriftliche Rechnen. Wer Zahlen sofort abrufen kann, kürzt schneller, sieht Teiler auf einen
           Blick und hat beim Rechnen den Kopf für das Eigentliche frei.
         </p>
         <KopfKacheln onWaehle={(id) => { setOffen(id); window.scrollTo(0, 0); }} />
@@ -906,8 +923,12 @@ export function KopfrechenZentrum({ start = null }) {
         ← Kopfrechnen
       </button>
       <h2 style={{ fontSize: 25, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 14 }}>{t.titel}</h2>
-      {t.id === "primfaktoren" ? <Primfaktoren /> : t.id === "potenzen" ? <QuadratKubik /> : t.id === "bruchrechnen" ? <Bruchrechnen />
-        : t.id === "plusminus" ? <SchriftlichPlusMinus Zahlenfeld={Zahlenfeld} /> : t.id === "division" ? <SchriftlicheDivision Zahlenfeld={Zahlenfeld} /> : <Multiplizieren />}
+      {t.id === "primfaktoren" ? <Primfaktoren />
+        : t.id === "quadrate" ? <QuadratKubik art="quadrat" /> : t.id === "kuben" ? <QuadratKubik art="kubik" /> : t.id === "wurzeln" ? <QuadratKubik art="wurzel" />
+        : t.id === "bruchrechnen" ? <Bruchrechnen />
+        : t.id === "plus" ? <SchriftlichPlusMinus Zahlenfeld={Zahlenfeld} startArt="plus" />
+        : t.id === "minus" ? <SchriftlichPlusMinus Zahlenfeld={Zahlenfeld} startArt="minus" />
+        : t.id === "division" ? <SchriftlicheDivision Zahlenfeld={Zahlenfeld} /> : <Multiplizieren />}
     </div>
   );
 }
