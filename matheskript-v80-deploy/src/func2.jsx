@@ -372,8 +372,8 @@ function toolKnoten(t) {
 }
 function menueBaum() {
   return [
-    ...SCHUL_BEREICHE.map((b) => ({ id: b.id, titel: b.titel, kinder: b.tools.map(toolKnoten) })),
     { id: "mathe", titel: "Mathematik", kinder: [
+      ...SCHUL_BEREICHE.map((b) => ({ id: b.id, titel: b.titel, kinder: b.tools.map(toolKnoten) })),
       { id: "formel", titel: "Formelsammlung", kinder: FORMEL_MENUE.map((f) => ({ titel: f.name, ziel: f.ziel })) },
     ] },
   ];
@@ -595,7 +595,6 @@ export function Startseite({ gehe }) {
   const [abiAuf, setAbiAuf] = useState(false);          // Unterbereich „Abi-Training“
   const [bereichAuf, setBereichAuf] = useState(null);   // aufgeklappter Unterbereich (analysis, vektoren, …)
   const [kopfAuf, setKopfAuf] = useState(false);        // Dropdown „Kopfrechnen“
-  const [matheAuf, setMatheAuf] = useState(false);      // Dropdown „Mathematik“
   const [wettAuf, setWettAuf] = useState(false);        // Dropdown „Mathe-Wettbewerbe“
   const [formelAuf, setFormelAuf] = useState(false);    // Untermenü „Formelsammlung“
 
@@ -1005,15 +1004,15 @@ export function Startseite({ gehe }) {
       <PlotterKachel breit halb={schulAuf} onClick={() => { setSchulAuf(!schulAuf); setBereichAuf(null); setAbiAuf(false); }} auf={schulAuf}
         label={schulAuf ? "Mathe-Training zuklappen" : "Mathe-Training aufklappen"}
         logo={<SchulmatheLogoKlein />} titel="Mathe-Training"
-        text={schulAuf ? "Abi-Training, Mathematik, Kopfrechnen und Wettbewerbe." : "Abi-Training, Formelsammlung, Kopfrechnen und Wettbewerbe – alles zum Üben und Nachschlagen."}
+        text={schulAuf ? "Mathematik, Kopfrechnen und Wettbewerbe." : "Mathematik mit Formelsammlung, Kopfrechnen und Wettbewerbe – alles zum Üben und Nachschlagen."}
         extra={<PlusKnopf auf={schulAuf} klein={schulAuf} />} />
       {schulAuf && (
         <div data-aufklapp-inhalt style={{ margin: "0 0 4px" }}>
-          {/* Abi-Training: Analysis, Vektoren, Stochastik, Gleichungen und Mein Training */}
+          {/* Mathematik (früher „Abi-Training“): Analysis, Vektoren, Stochastik, Gleichungen, Mein Training und Formelsammlung */}
           <PlotterKachel klein breit haupt onClick={() => { setAbiAuf(!abiAuf); setBereichAuf(null); }} auf={abiAuf}
-            label={abiAuf ? "Abi-Training zuklappen" : "Abi-Training aufklappen"}
-            logo={<ZeichenLogo zeichen="Abi" />} titel="Abi-Training"
-            text="Analysis, Vektoren, Stochastik und Gleichungen live erleben."
+            label={abiAuf ? "Mathematik zuklappen" : "Mathematik aufklappen"}
+            logo={<FormelLogoKlein />} titel="Mathematik"
+            text="Analysis, Vektoren, Stochastik, Gleichungen und Formelsammlung."
             extra={<AufklappPfeil auf={abiAuf} />} />
           {abiAuf && (
             <div data-aufklapp-inhalt style={{ margin: "4px 0 4px", padding: "2px 0 2px 12px", borderLeft: `3px solid ${C.flaggold}` }}>
@@ -1028,15 +1027,6 @@ export function Startseite({ gehe }) {
                 </React.Fragment>
               ))}
               <MeinTrainingZeile gehe={gehe} />
-            </div>
-          )}
-
-          <PlotterKachel klein breit haupt onClick={() => setMatheAuf(!matheAuf)} auf={matheAuf} label={matheAuf ? "Mathematik zuklappen" : "Mathematik aufklappen"}
-            logo={<FormelLogoKlein />} titel="Mathematik"
-            text="Formelsammlung, Definitionen und Sätze – zum Nachschlagen."
-            extra={<AufklappPfeil auf={matheAuf} />} />
-          {matheAuf && (
-            <div data-aufklapp-inhalt style={{ margin: "4px 0 4px", padding: "2px 0 2px 12px", borderLeft: `3px solid ${C.flaggold}` }}>
               <PlotterKachel klein onClick={() => setFormelAuf(!formelAuf)} auf={formelAuf} label={formelAuf ? "Formelsammlung zuklappen" : "Formelsammlung aufklappen"} logo={<FormelLogoKlein />}
                 titel="Formelsammlung"
                 text="Alle wichtigen Formeln der Oberstufe – sauber sortiert zum Nachschlagen."

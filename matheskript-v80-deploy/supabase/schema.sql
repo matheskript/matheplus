@@ -138,3 +138,42 @@ revoke all on function public.ref_frei(text)      from public, anon;
 revoke all on function public.ref_festlegen(text) from public, anon;
 grant execute on function public.ref_frei(text)      to authenticated;
 grant execute on function public.ref_festlegen(text) to authenticated;
+
+
+-- ======================================================================
+-- Feedback per Sprachnachricht (Knopf am rechten Rand jeder Seite)
+-- Einmal im Supabase-Dashboard unter „SQL Editor“ ausführen.
+-- Schüler dürfen nur senden, nie lesen. Anhören: Dashboard → Storage → feedback,
+-- die passende Seite steht in der Tabelle „feedback“ (Spalte seite / audio_pfad).
+-- ======================================================================
+create table if not exists public.feedback (
+  id           uuid primary key default gen_random_uuid(),
+  erstellt     timestamptz not null default now(),
+  nutzer       uuid default auth.uid(),            -- leer, wenn nicht angemeldet
+  seite        text not null check (char_length(seite) between 1 and 200),   -- z. B. „Üben › Kurvendiskussion“
+  ansicht      text not null check (char_length(ansicht) <= 60),             -- interne Seiten-ID
+  ueberschrift text check (char_length(ueberschrift) <= 200),
+  details      jsonb not null default '{}'::jsonb,                           -- Unterziel: Klasse, Bereich, Modus …
+  audio_pfad   text not null check (char_length(audio_pfad) <= 200),
+  dauer_s      integer check (dauer_s between 0 and 600),
+  sprache      text check (sprache in ('de', 'en')),
+  viewport     text check (char_length(viewport) <= 20),
+  geraet       text check (char_length(geraet) <= 200)
+);
+
+alter table public.feedback enable row level security;
+drop policy if exists "feedback_senden" on public.feedback;
+create policy "feedback_senden" on public.feedback for insert to anon, authenticated with check (true);
+
+revoke all on public.feedback from anon, authenticated;
+grant insert (seite, ansicht, ueberschrift, details, audio_pfad, dauer_s, sprache, viewport, geraet) on public.feedback to anon, authenticated;
+
+-- Privater Speicher, höchstens 5 MB pro Aufnahme, nur Audio.
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('feedback', 'feedback', false, 5242880,
+        array['audio/webm', 'audio/mp4', 'audio/ogg', 'audio/mpeg', 'audio/wav', 'audio/aac', 'audio/x-m4a'])
+on conflict (id) do update
+  set public = false, file_size_limit = 5242880, allowed_mime_types = excluded.allowed_mime_types;
+
+drop policy if exists "feedback_audio_senden" on storage.objects;
+create policy "feedback_audio_senden" on storage.objects for insert to anon, authenticated with check (bucket_id = 'feedback');

@@ -42,6 +42,7 @@ import { Steckbriefaufgaben } from "./funcSteckbrief.jsx";
 import { MasterclassSeite, MatheCheckenSeite } from "./funcMasterclass.jsx";
 import { Fusszeile, ImpressumSeite, AGBSeite, WiderrufSeite } from "./funcRecht.jsx";
 import { KontoSeite } from "./funcKonto.jsx";
+import { FeedbackKnopf } from "./funcFeedback.jsx";
 import { ElternabendSeite } from "./funcElternabend.jsx";
 import { BundeswettbewerbSeite, LandeswettbewerbeSeite, LandeswettbewerbSeite, LAENDER } from "./funcWettbewerbe.jsx";
 import { ENTWUERFE, istEntwurf, EntwurfTor, EntwurfStart, EntwurfChecken, EntwurfPakete } from "./funcEntwuerfe.jsx";
@@ -1600,6 +1601,19 @@ export function Mathilda() {
       </>
       )}
       {!istEntwurf(ansicht) && <Fusszeile gehe={gehe} />}
+      {!istEntwurf(ansicht) && (
+        <FeedbackKnopf aktuell={{
+          ansicht,
+          ziel: ansicht === "training" ? trainZiel : ansicht === "ki" ? genZiel : undefined,
+          klasse: ansicht === "klasse" ? klasseAktiv : undefined,
+          kurs: ansicht === "kurse" ? kursStart || undefined : undefined,
+          bereich: ansicht === "formeln" ? formelBereich : undefined,
+          trainer: ansicht === "kopf" ? kopfTrainer || undefined : undefined,
+          land: ansicht === "landeswettbewerb" ? landWahl : undefined,
+          kompetenz: einheitId || undefined,
+          foto: ansicht === "analyse" ? fotoModus : undefined,
+        }} />
+      )}
     </div>
   );
 }
