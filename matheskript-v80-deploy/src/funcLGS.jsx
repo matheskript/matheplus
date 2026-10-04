@@ -307,6 +307,8 @@ export function direkterWeg(start) {
 
 /* ---------- UI-Bausteine ---------- */
 const LGS_CSS = `
+.lgs-blink{animation:lgsBlink 1s step-end infinite}
+@keyframes lgsBlink{50%{opacity:0}}
 .lgs-taste{transition:transform .08s ease, background .12s ease}
 .lgs-taste:active{transform:scale(.94)}
 @media (hover:hover){.lgs-taste:hover{filter:brightness(0.97)}}
@@ -558,13 +560,38 @@ function EbenenDeutung({ rows, loesung, aufgedeckt }) {
 }
 
 /* ---------- Hauptkomponente ---------- */
+/* ---------- Gemeinsame Eingabezeile „neue Gleichung“ ----------
+   Wird im LGS-Werkzeug und im LGS-Schritt der Steckbriefaufgaben verwendet.
+   Bezeichnung (I, II, III …) ist vorbelegt und editierbar; die Vorschau der entstehenden
+   Gleichung steht rechts daneben in derselben Zeile – nicht darunter. */
+export function NeueZeile({ name, text, frisch, aktiv, ok, fehler, vorschau, onClick }) {
+  return (
+    <button type="button" onClick={onClick} aria-label={`Neue Gleichung ${name}: ${text || "leer"}`}
+      style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", textAlign: "left", fontFamily: "inherit", cursor: "pointer",
+        background: aktiv ? C.sand : C.weiss, border: `1.5px solid ${aktiv ? (ok || !text ? C.see : C.signal) : C.linie}`, borderRadius: 14,
+        padding: "6px 10px", marginBottom: 7, minHeight: 50 }}>
+      <span style={{ flexShrink: 0, width: 40, fontSize: 14, fontWeight: 500, color: C.hellgrau, whiteSpace: "nowrap" }}>
+        {name}<sub style={{ fontSize: "0.68em", position: "relative", top: "0.3em", verticalAlign: "baseline", lineHeight: 0, marginLeft: "0.08em" }}>neu</sub>
+      </span>
+      <span style={{ flexShrink: 1, minWidth: 34, maxWidth: "46%", fontSize: "clamp(15px, 4.4vw, 18px)", fontWeight: 700, color: frisch ? C.hellgrau : C.gruen,
+        whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+        {text ? minus(text) : null}{aktiv && <span className="lgs-blink" style={{ color: C.see, fontWeight: 300 }}>|</span>}
+      </span>
+      <span aria-hidden={!text} style={{ flex: "1 1 0", minWidth: 0, textAlign: "left", fontSize: "clamp(11px, 3.2vw, 14px)",
+        color: ok ? C.grau : C.signal, fontWeight: ok ? 400 : 300, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+        {ok ? <><span style={{ color: C.hellgrau, marginRight: 4 }}>→</span>{vorschau}</> : text ? fehler : ""}
+      </span>
+    </button>
+  );
+}
+
 export function LGSLoeser() {
   const [stufe, setStufe] = useState(1);
   const [aufgabe, setAufgabe] = useState(() => lgsErzeugen(1));
   const [bloecke, setBloecke] = useState(() => [{ rows: aufgabe.rows, notizen: null }]);
-  const [felder, setFelder] = useState(["", "", ""]);
+  const [felder, setFelder] = useState(["I", "II", "III"]);
   const [aktiv, setAktiv] = useState(0);
-  const [frisch, setFrisch] = useState([false, false, false]);
+  const [frisch, setFrisch] = useState([true, true, true]);
   const [meldung, setMeldung] = useState(null);
   const [muster, setMuster] = useState(null);   // "gauss" | "direkt" | null
   const startZeit = useRef(Date.now());
@@ -578,7 +605,7 @@ export function LGSLoeser() {
   const neu = (s = stufe) => {
     const a = lgsErzeugen(s);
     setAufgabe(a); setBloecke([{ rows: a.rows, notizen: null }]);
-    setFelder(["", "", ""]); setFrisch([false, false, false]); setAktiv(0); setMeldung(null); setMuster(null);
+    setFelder(["I", "II", "III"]); setFrisch([true, true, true]); setAktiv(0); setMeldung(null); setMuster(null);
     startZeit.current = Date.now(); gemerkt.current = false;
   };
   const stufeWaehlen = (s) => { setStufe(s); neu(s); };
@@ -636,7 +663,7 @@ export function LGSLoeser() {
       return;
     }
     setBloecke((b) => [...b, { rows, notizen }]);
-    setFelder(["", "", ""]); setFrisch([false, false, false]); setAktiv(0);
+    setFelder(["I", "II", "III"]); setFrisch([true, true, true]); setAktiv(0);
     const g = geloest(rows);
     if (g) setMeldung(null);
     else if (treppe(rows)) setMeldung({ art: "info", text: "Treppenform erreicht! Jetzt von unten nach oben weiter eliminieren — oder die letzte Zeile auflösen und einsetzen." });
@@ -723,29 +750,10 @@ export function LGSLoeser() {
       {!fertig && (
         <div style={{ ...karte, padding: 14, marginTop: 16 }}>
           <p style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.08em", color: C.hellgrau, margin: "2px 4px 10px" }}>NEUES SYSTEM BILDEN</p>
-          {felder.map((f, i) => {
-            const v = vorschau[i];
-            const an = aktiv === i;
-            return (
-              <button key={i} type="button" onClick={() => setAktiv(i)}
-                style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", textAlign: "left", fontFamily: "inherit", cursor: "pointer",
-                  background: an ? C.sand : C.weiss, border: `1.5px solid ${an ? (v.ok || !f ? C.see : C.signal) : C.linie}`, borderRadius: 14,
-                  padding: "8px 12px", marginBottom: 8, minHeight: 58 }}>
-                <span style={{ flexShrink: 0, width: 50, fontSize: 15, fontWeight: 500, color: C.hellgrau, whiteSpace: "nowrap" }}>
-                  {ROEM[i]}<sub style={{ fontSize: "0.68em", position: "relative", top: "0.3em", verticalAlign: "baseline", lineHeight: 0, marginLeft: "0.08em" }}>neu</sub>
-                </span>
-                <span style={{ flex: 1, minWidth: 0 }}>
-                  <span style={{ display: "block", fontSize: 19, fontWeight: 700, color: C.gruen, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                    {f ? minus(f) : null}
-                    {an && <span className="pulsieren" style={{ color: C.see, fontWeight: 300 }}>|</span>}
-                  </span>
-                  <span style={{ display: "block", fontSize: 13.5, color: v.ok ? C.grau : C.signal, fontWeight: v.ok ? 400 : 300, marginTop: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                    {v.ok ? <GlText row={v.row} /> : f ? v.fehler : ""}
-                  </span>
-                </span>
-              </button>
-            );
-          })}
+          {felder.map((f, i) => (
+            <NeueZeile key={i} name={ROEM[i]} text={f} frisch={frisch[i]} aktiv={aktiv === i} ok={vorschau[i].ok} fehler={vorschau[i].fehler}
+              vorschau={vorschau[i].ok ? <GlText row={vorschau[i].row} /> : null} onClick={() => setAktiv(i)} />
+          ))}
 
           {meldung && (
             <p role="status" style={{ fontSize: 13.5, lineHeight: 1.55, margin: "4px 4px 8px", color: meldung.art === "fehler" ? C.signal : C.see, fontWeight: meldung.art === "fehler" ? 500 : 400 }}>

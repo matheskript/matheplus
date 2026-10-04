@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from "react";
 import { C } from "./base1.jsx";
 import { M, Text } from "./func3.jsx";
 import { merken } from "./func5.jsx";
+import { NeueZeile } from "./funcLGS.jsx";
+const LGS_ZEILE_CSS = ".lgs-blink{animation:sbBlink 1s step-end infinite}";
 
 /* ======================================================================
    STECKBRIEFAUFGABEN (Analysis)
@@ -558,7 +560,7 @@ function AnsatzSchritt({ auf, gewaehlt, setGewaehlt }) {
   }
   return (
     <>
-      <Erklaer>Die erste Frage ist immer: Welche Struktur hat die gesuchte Funktion?</Erklaer>
+      <Erklaer>Die erste Frage ist immer: Welche Struktur hat die gesuchte Funktion? Lies den Steckbrief darunter und wähle den passenden Ansatz.</Erklaer>
       <div style={{ display: "grid", gap: 8 }}>
         {liste.map((id) => {
           const ans = ANSAETZE[id], rot = falsch === id;
@@ -899,27 +901,11 @@ function LGSSchritt({ start, vars, onGeloest }) {
         </div>
       ) : (
         <div style={{ marginTop: 14 }}>
-          {felder.map((f, i) => {
-            const v = vorschau[i], an = aktiv === i;
-            return (
-              <button key={i} type="button" onClick={() => setAktiv(i)}
-                style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", textAlign: "left", fontFamily: "inherit", cursor: "pointer",
-                  background: an ? C.sand : C.weiss, border: `1.5px solid ${an ? (v.ok || !f ? C.see : C.signal) : C.linie}`, borderRadius: 14,
-                  padding: "7px 12px", marginBottom: 7, minHeight: 54 }}>
-                <span style={{ flexShrink: 0, width: 50, fontSize: 15, fontWeight: 500, color: C.hellgrau, whiteSpace: "nowrap" }}>
-                  {ROEM[i]}<sub style={{ fontSize: "0.68em", position: "relative", top: "0.3em", verticalAlign: "baseline", lineHeight: 0, marginLeft: "0.08em" }}>neu</sub>
-                </span>
-                <span style={{ flex: 1, minWidth: 0 }}>
-                  <span style={{ display: "block", fontSize: 18, fontWeight: 700, color: frisch[i] ? C.hellgrau : C.gruen, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                    {f ? minus(f) : null}{an && <span className="sb-blink" style={{ color: C.see, fontWeight: 300 }}>|</span>}
-                  </span>
-                  <span style={{ display: "block", fontSize: 13, color: v.ok ? C.grau : C.signal, fontWeight: v.ok ? 400 : 300, marginTop: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                    {v.ok ? <GlText row={v.row} vars={vars} /> : f ? v.fehler : ""}
-                  </span>
-                </span>
-              </button>
-            );
-          })}
+          <style>{LGS_ZEILE_CSS}</style>
+          {felder.map((f, i) => (
+            <NeueZeile key={i} name={ROEM[i]} text={f} frisch={frisch[i]} aktiv={aktiv === i} ok={vorschau[i].ok} fehler={vorschau[i].fehler}
+              vorschau={vorschau[i].ok ? <GlText row={vorschau[i].row} vars={vars} /> : null} onClick={() => setAktiv(i)} />
+          ))}
           {meldung && <p role="status" style={{ fontSize: 13.5, lineHeight: 1.55, margin: "4px 4px 8px", color: meldung.art === "fehler" ? C.signal : C.see, fontWeight: meldung.art === "fehler" ? 500 : 400 }}>{meldung.text}</p>}
 
           {(() => {
@@ -1143,6 +1129,63 @@ function Schaubild({ f, abl1, props, sinH }) {
   );
 }
 
+/* Vollständige Kurvendiskussion der aktuell bestätigten Funktion als PDF.
+   Polynome nutzen den Export des Polynomplotters, die übrigen Funktionstypen den des Advanced Plotters. */
+const zahlTxt = (v) => { const r = Math.round(v * 1e6) / 1e6; return r < 0 ? `(${r})` : String(r); };
+function pdfQuelle(auf, L) {
+  const ans = ANSAETZE[auf.ansatz];
+  if (ans.art === "poly") {
+    const k = [0, 0, 0, 0, 0];   // Koeffizienten zu x⁴, x³, x², x, 1
+    ans.pot.forEach((p, i) => { k[4 - p] = Math.round(L[i] * 1e6) / 1e6; });
+    return { art: "poly", k };
+  }
+  const vor = (v) => (Math.round(v * 1e6) / 1e6 === 1 ? "" : `${zahlTxt(v)}*`);
+  if (ans.art === "exp") return { art: "text", text: `${vor(L[0])}${zahlTxt(L[1])}^x`, fenster: 5 };
+  if (ans.art === "ek") return { art: "text", text: `${vor(L[0])}e^(ln(${auf.q})*x)`, fenster: 5 };
+  const [A, , c, d] = L;
+  const r = (v) => Math.round(v * 1e6) / 1e6;
+  const faktor = r(A) === 1 ? "" : r(A) === -1 ? "-" : `${r(A)}*`;
+  const innen = r(c) === 0 ? "x" : r(c) > 0 ? `(x-${r(c)})` : `(x+${-r(c)})`;
+  const plus = r(d) === 0 ? "" : r(d) > 0 ? `+${r(d)}` : `-${-r(d)}`;
+  const b = auf.h === 1 ? "pi" : `pi/${auf.h}`;
+  return { art: "text", text: `${faktor}sin(${b}*${innen})${plus}`, fenster: Math.max(6, 2 * auf.h + 2) };
+}
+
+function KurvendiskussionPdfKnopf({ auf, L }) {
+  const [status, setStatus] = useState("bereit");
+  const klick = async () => {
+    if (status === "laeuft") return;
+    setStatus("laeuft");
+    try {
+      const q = pdfQuelle(auf, L);
+      if (q.art === "poly") {
+        const { kurvendiskussionPdf } = await import("./func11.jsx");
+        const [e, a, b, c, d] = q.k;
+        await kurvendiskussionPdf({ e, a, b, c, d, untertitel: "Kurvendiskussion · Steckbriefaufgabe" });
+      } else {
+        const { diskussionPdfAusText } = await import("./func12.jsx");
+        await diskussionPdfAusText(q.text, q.fenster, "Kurvendiskussion · Steckbriefaufgabe");
+      }
+      setStatus("bereit");
+    } catch (err) { console.error(err); setStatus("fehler"); }
+  };
+  return (
+    <div style={{ marginTop: 18 }}>
+      <button type="button" onClick={klick} disabled={status === "laeuft"}
+        style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, minHeight: 52,
+          padding: "13px 18px", border: "none", borderRadius: 14, cursor: status === "laeuft" ? "wait" : "pointer",
+          fontFamily: "inherit", fontSize: 15, fontWeight: 700, color: C.weiss, background: blauVerlauf,
+          boxShadow: "0 6px 20px rgba(0,77,152,0.25)", opacity: status === "laeuft" ? 0.75 : 1 }}>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={C.flaggold} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M12 3v12" /><path d="M7 10l5 5 5-5" /><path d="M5 20h14" />
+        </svg>
+        {status === "laeuft" ? "PDF wird erstellt …" : "Vollständige Kurvendiskussion als PDF downloaden"}
+      </button>
+      {status === "fehler" && <p role="alert" style={{ fontSize: 12.5, color: C.signal, marginTop: 8, textAlign: "center" }}>Das PDF konnte nicht erstellt werden. Bitte noch einmal versuchen.</p>}
+    </div>
+  );
+}
+
 function ErgebnisSchritt({ auf, L, weg, neu }) {
   const ans = ANSAETZE[auf.ansatz];
   let f, abl;
@@ -1189,6 +1232,7 @@ function ErgebnisSchritt({ auf, L, weg, neu }) {
           </div>
         ))}
       </div>
+      <KurvendiskussionPdfKnopf auf={auf} L={L} />
       <Knopf onClick={neu}>Nächste Aufgabe</Knopf>
     </>
   );
@@ -1264,20 +1308,20 @@ export function Steckbriefaufgaben() {
         </button>
       </div>
 
-      {/* Aufgabe */}
-      <div key={`a${nr}`} className="sb-neu" style={{ ...karte, padding: "18px 20px", borderLeft: `4px solid ${C.flaggold}` }}>
-        <p style={{ ...kicker, marginBottom: 8 }}>STECKBRIEF</p>
-        <Text s={auf.satz} style={{ fontSize: 16, lineHeight: 1.85, color: C.tinte, fontWeight: 400 }} />
-        <p style={{ fontSize: 13, color: C.grau, fontWeight: 300, marginTop: 8 }}>Bestimme den Funktionsterm von f.</p>
-      </div>
-
       <div key={`s${nr}`}>
         <Schritt nr={num()} titel="Ansatz wählen" fertig={!!ansatz}>
           <AnsatzSchritt auf={auf} gewaehlt={ansatz} setGewaehlt={setAnsatz} />
         </Schritt>
 
+        {/* Aufgabe: nach dem Ansatz, direkt darüber die Bedingungen (Reihenfolge laut Auftrag) */}
+        <div key={`a${nr}`} className="sb-neu" style={{ ...karte, padding: "18px 20px", marginTop: 16, borderLeft: `4px solid ${C.flaggold}` }}>
+          <p style={{ ...kicker, marginBottom: 8 }}>STECKBRIEF</p>
+          <Text s={auf.satz} style={{ fontSize: 16, lineHeight: 1.85, color: C.tinte, fontWeight: 400 }} />
+          <p style={{ fontSize: 13, color: C.grau, fontWeight: 300, marginTop: 8 }}>Bestimme den Funktionsterm von f.</p>
+        </div>
+
         {ansatz && (
-          <Schritt nr={num()} titel="Bedingungen aufstellen" fertig={!!bedZeilen} scrollen>
+          <Schritt nr={num()} titel="Bedingungen aufstellen" fertig={!!bedZeilen}>
             <BedingungsSchritt auf={auf} fertig={bedZeilen} onFertig={setBedZeilen} />
           </Schritt>
         )}

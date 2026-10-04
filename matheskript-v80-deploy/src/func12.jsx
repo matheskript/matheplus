@@ -700,7 +700,8 @@ function kritischeTerme(n, liste = []) {
 }
 
 function grenzwertUnendlich(f, richtung) {
-  const X = [1e1, 1e2, 1e3, 1e4, 1e5, 1e6].map((v) => v * richtung);
+  // Keine „runden“ Stellen: Bei periodischen Funktionen träfe man sonst womöglich immer Nullstellen (sin(π/2·x) bei x = 10ᵏ)
+  const X = [1e1, 1e2, 1e3, 1e4, 1e5, 1e6].map((v) => v * 1.0731 * richtung);
   const v = X.map(f);
   if (v.slice(2).every((y) => Number.isNaN(y) || y === undefined)) return { art: "undef" };
   // Überlauf auf ±Infinity mit festem Vorzeichen: bestimmt divergent
@@ -709,7 +710,12 @@ function grenzwertUnendlich(f, richtung) {
   const w = v.slice(2);
   if (!w.every(endlich)) return { art: "keins" };
   const [, b, c, d] = w;
-  if (Math.abs(d - c) < 1e-3 * (1 + Math.abs(d)) && Math.abs(c - b) < 1e-2 * (1 + Math.abs(c)))
+  // Zusätzlich dicht prüfen: Ein echter Grenzwert ändert sich auch zwischen den Stützstellen kaum
+  const ruhig = () => {
+    const t = []; for (let i = 0; i < 30; i++) t.push(f(richtung * (1e4 * 1.0731 + i * 0.377)));
+    return t.every(endlich) && Math.max(...t) - Math.min(...t) < 1e-3 * (1 + Math.abs(d));
+  };
+  if (Math.abs(d - c) < 1e-3 * (1 + Math.abs(d)) && Math.abs(c - b) < 1e-2 * (1 + Math.abs(c)) && ruhig())
     return { art: "wert", wert: Math.abs(d) < 1e-4 ? 0 : d };
   // dicht abtasten: monoton wachsend/fallend → ±∞, sonst schwingt f
   const dicht = [];
@@ -1423,6 +1429,29 @@ function Diskussion({ inhalt }) {
 
 const FENSTER = [["±5", 5], ["±10", 10], ["±20", 20], ["±2π", 2 * Math.PI]];
 
+/* Vollständige Kurvendiskussion einer beliebigen Funktion als PDF – gemeinsam genutzt vom
+   Advanced Plotter und vom Download am Ende der Steckbriefaufgaben. */
+export async function diskussionPdfAusText(text, fenster, untertitel = "Kurvendiskussion · Advanced Plotter") {
+  const baum = parse(text);
+  if (!baum || hatBox(baum)) throw new Error("Funktion nicht lesbar: " + text);
+  const A = analysiere(baum, -fenster, fenster);
+  const inhalt = baueAllgemeineDiskussion(baum, A);
+  const { allgemeinesPdf } = await import("./func11.jsx");
+  const fT = alsText(ohnePar(baum));
+  await allgemeinesPdf({
+    kopf: {
+      f: `f(x) = ${fT}`, f1: `f′(x) = ${alsText(A.d1)}`, f2: `f″(x) = ${alsText(A.d2)}`,
+      fuss: `Kurvendiskussion für f(x) = ${fT}`, untertitel,
+    },
+    inhalt,
+    modell: {
+      f: A.f, ns: A.ns, mark: [...A.ext, ...A.wende.filter((p) => p.art === "Wendepunkt")],
+      yAchse: A.yAchse, integrale: A.integrale.map((iv) => [iv.x1, iv.x2]), fenster: { xMin: A.L, xMax: A.R },
+    },
+    dateiname: `Kurvendiskussion_${text.replace(/[^\w+\-]/g, "").slice(0, 40) || "Funktion"}.pdf`,
+  });
+}
+
 export function AdvancedPlotter() {
   const [text, setText] = useState("x*e^(-x)");
   const [fenster, setFenster] = useState(10);
@@ -1439,23 +1468,8 @@ export function AdvancedPlotter() {
   const pdf = async () => {
     if (!A || pdfStatus === "laeuft") return;
     setPdfStatus("laeuft");
-    try {
-      const { allgemeinesPdf } = await import("./func11.jsx");
-      const fT = alsText(ohnePar(baum));
-      await allgemeinesPdf({
-        kopf: {
-          f: `f(x) = ${fT}`, f1: `f′(x) = ${alsText(A.d1)}`, f2: `f″(x) = ${alsText(A.d2)}`,
-          fuss: `Kurvendiskussion für f(x) = ${fT}`, untertitel: "Kurvendiskussion · Advanced Plotter",
-        },
-        inhalt,
-        modell: {
-          f: A.f, ns: A.ns, mark: [...A.ext, ...A.wende.filter((p) => p.art === "Wendepunkt")],
-          yAchse: A.yAchse, integrale: A.integrale.map((iv) => [iv.x1, iv.x2]), fenster: { xMin: A.L, xMax: A.R },
-        },
-        dateiname: `Kurvendiskussion_${text.replace(/[^\w+\-]/g, "").slice(0, 40) || "Funktion"}.pdf`,
-      });
-      setPdfStatus("bereit");
-    } catch (err) { console.error(err); setPdfStatus("fehler"); }
+    try { await diskussionPdfAusText(text, fenster); setPdfStatus("bereit"); }
+    catch (err) { console.error(err); setPdfStatus("fehler"); }
   };
 
   const karte = { background: C.weiss, borderRadius: 16, padding: 18, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" };

@@ -498,7 +498,7 @@ export async function allgemeinesPdf({ kopf, inhalt, modell, dateiname }) {
   doc.save(dateiname);
 }
 
-export async function kurvendiskussionPdf({ e, a, b, c, d }) {
+export async function kurvendiskussionPdf({ e, a, b, c, d, untertitel = "Kurvendiskussion · Polynomplotter" }) {
   const poly = polyTextPdf([e, a, b, c, d]);
   await allgemeinesPdf({
     kopf: {
@@ -506,7 +506,7 @@ export async function kurvendiskussionPdf({ e, a, b, c, d }) {
       f1: pdfText(`f'(x) = ${polyTextPdf([4 * e, 3 * a, 2 * b, c])}`),
       f2: pdfText(`f''(x) = ${polyTextPdf([12 * e, 6 * a, 2 * b])}`),
       fuss: pdfText(`Kurvendiskussion für f(x) = ${poly}`),
-      untertitel: "Kurvendiskussion · Polynomplotter",
+      untertitel,
     },
     inhalt: baueKurvendiskussionInhalt(e, a, b, c, d),
     modell: polyModell(e, a, b, c, d),
