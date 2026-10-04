@@ -5147,7 +5147,10 @@
   "leer": "empty",
   "Erwartungswert und faire Spiele": "Expected value and fair games",
   "Gewinnverteilung, fairer Einsatz, Simulation": "Payout distribution, fair stake, simulation",
-  "Nettogewinn, Erwartungswert, fairer Einsatz – mit Simulation.": "Net gain, expected value, fair stake – with simulation."
+  "Nettogewinn, Erwartungswert, fairer Einsatz – mit Simulation.": "Net gain, expected value, fair stake – with simulation.",
+  "Urnen und Kombinatorik": "Urns and combinatorics",
+  "Ziehen, Zählmethoden, Baumdiagramme": "Drawing, counting methods, tree diagrams",
+  "Mit und ohne Zurücklegen, Zählmethoden und Baumdiagramme.": "With and without replacement, counting methods and tree diagrams."
  },
  "muster": [
   [

@@ -151,6 +151,7 @@ export const NAV = [
     { name: "Bernoulli-Kette", kurz: "Binomialverteilung live mit Formel und Experiment", ansicht: "bernoulli" },
     { name: "Vier-Felder-Tafel", kurz: "Absolut oder in Prozent, mit Baumdiagramm", ansicht: "vierfelder" },
     { name: "Erwartungswert und faire Spiele", kurz: "Gewinnverteilung, fairer Einsatz, Simulation", ansicht: "erwartungswert" },
+    { name: "Urnen und Kombinatorik", kurz: "Ziehen, Zählmethoden, Baumdiagramme", ansicht: "kombinatorik" },
     { name: "Arbeitsblatt drucken", kurz: "Aufgabenblatt mit Lösungsteil", ansicht: "ki", ziel: "blatt" },
   ] },
   { id: "berichte", name: "Berichte", kurz: "Für Eltern und Lehrkräfte", eintraege: [
