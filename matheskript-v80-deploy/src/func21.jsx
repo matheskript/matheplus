@@ -10,6 +10,51 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { C } from "./base1.jsx";
+import { IchHaengeFest } from "./funcHilfe.jsx";
+
+const kz = (v) => String(Math.round(v * 100) / 100).replace(".", ",").replace("-", "−");
+function sinusHilfe(z) {
+  const A = Math.abs(z.a), hoch = z.d + A, tief = z.d - A, p = 2 / z.b;   // Periode in Vielfachen von π
+  const pText = p === 1 ? "π" : `${kz(p)}π`;
+  const cText = z.cPi ? `${kz(z.c)}π` : kz(z.c);
+  return {
+    id: `sin-${z.a}-${z.b}-${z.c}-${z.d}-${z.cPi}`,
+    aufgabe: "Sinusfunktion Amplitude Periode",
+    hilfen: {
+      verstehen: [
+        "Welche vier Eigenschaften des goldenen Graphen kannst du ablesen: Höhe der Mittellinie, Ausschlag nach oben und unten, Länge einer Periode, Verschiebung nach links oder rechts?",
+        "In f(x) = a · sin(b · (x − c)) + d: d ist die Mittellinie, |a| die Amplitude, p = 2π / b die Periode, c die Verschiebung in x-Richtung.",
+        "Stell die Parameter in dieser Reihenfolge ein: d, a, b und zuletzt c.",
+      ],
+      ansatz: [
+        "Wo liegen der höchste und der tiefste Punkt des goldenen Graphen?",
+        "Mittellinie d = (Hochwert + Tiefwert) / 2, Amplitude |a| = (Hochwert − Tiefwert) / 2.",
+        `Der goldene Graph pendelt zwischen y = ${kz(tief)} und y = ${kz(hoch)} – also d = ${kz(z.d)} und |a| = ${kz(A)}.`,
+      ],
+      regel: [
+        "Wie hängen b und die Periodenlänge zusammen?",
+        "p = 2π / |b|. Je größer b, desto schneller schwingt der Graph.",
+        `Eine volle Schwingung des goldenen Graphen ist ${pText} lang. Daraus folgt b = 2π / p.`,
+      ],
+      umformen: [
+        "Wo startet eine „normale“ Sinusschwingung – auf der Mittellinie und steigend?",
+        "Suche eine Stelle, an der der goldene Graph die Mittellinie steigend schneidet: Dort liegt c (bei a > 0). Bei a < 0 schneidet er dort fallend.",
+        `Eine passende Verschiebung ist c = ${cText}${z.cPi ? " (Schalter π einschalten)" : ""}. Andere c, die sich um ganze Perioden unterscheiden, passen ebenfalls.`,
+      ],
+      pruefen: [
+        "Liegt dein blauer Graph überall auf dem goldenen – auch weiter links und rechts?",
+        "Mehrere Parametersätze können denselben Graphen ergeben: zum Beispiel ein negatives a zusammen mit einer um eine halbe Periode verschobenen Stelle c.",
+        "Kontrolliere zuletzt einen Hochpunkt: Stimmen x- und y-Wert?",
+      ],
+    },
+    regeln: [
+      { gruppe: "Sinusfunktion", name: "Allgemeine Sinusfunktion", f: "f(x) = a \\cdot \\sin(b \\cdot (x - c)) + d", kurz: "|a| Amplitude · d Mittellinie · c Verschiebung nach rechts", beispiel: "$f(x) = 2\\sin(x - 1) + 3$ pendelt zwischen 1 und 5." },
+      { gruppe: "Sinusfunktion", name: "Periode", f: "p = \\frac{2\\pi}{|b|}", kurz: "je größer b, desto kürzer die Periode", beispiel: "$\\sin(2x)$ hat die Periode $\\pi$." },
+    ],
+    grundlage: null,
+    loesung: `Zum Beispiel a = ${kz(z.a)}, b = ${kz(z.b)}, c = ${cText}, d = ${kz(z.d)}.`,
+  };
+}
 
 const FARBE = { a: "#A50044", b: "#004D98", c: "#C99A00", d: "#1F8A5B" };
 const PI = Math.PI;
@@ -263,6 +308,11 @@ export function Sinusfunktion() {
         ))}
       </div>
 
+      {modus === "aufgabe" && (
+        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10 }}>
+          <IchHaengeFest kontext={sinusHilfe(ziel)} />
+        </div>
+      )}
       <div style={karte}>
         {/* links die Formeln (allgemein und eingesetzt, gleich groß), rechts die Regler */}
         <div className="sin-kopf" style={{ marginBottom: 12 }}>

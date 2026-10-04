@@ -5,6 +5,57 @@ import { API_URL } from "./base1.jsx";
 import { kiKopf, kiAntwort } from "./base4.jsx";
 import { dekodieren, rendern } from "./func1.jsx";
 import * as G from "./gleichungen/engine.js";
+import { IchHaengeFest } from "./funcHilfe.jsx";
+
+/* Kontext für „Ich hänge fest“ – nutzt den vorhandenen Tipp-Mechanismus der Engine */
+const METHODE = {
+  linear: "Bring alle x-Terme auf eine Seite und alle Zahlen auf die andere. Teile zum Schluss durch den Faktor vor x.",
+  quadratisch: "Bring alles auf eine Seite, sodass rechts 0 steht. Dann: Ausklammern und Satz vom Nullprodukt, die pq-Formel oder die Mitternachtsformel.",
+  exponential: "Isoliere die Potenz mit x im Exponenten und logarithmiere dann beide Seiten.",
+  logarithmus: "Isoliere den Logarithmus. Dann wendest du die Umkehrfunktion an: aus ln(x) = c wird x = eᶜ.",
+  bruch: "Bestimme zuerst die verbotenen Werte (Nenner 0). Multipliziere dann beide Seiten mit dem Hauptnenner – danach steht keine Bruchgleichung mehr da.",
+};
+const REGELN_ART = {
+  linear: [{ name: "Lineare Gleichung", bereich: "terme" }],
+  quadratisch: [{ name: "Mitternachtsformel", bereich: "terme" }, { name: "pq-Formel", bereich: "terme" }, { name: "Satz vom Nullprodukt", bereich: "terme" }],
+  exponential: [{ name: "Exponentialgleichung", bereich: "terme" }, { name: "Logarithmengesetze", bereich: "terme" }],
+  logarithmus: [{ name: "Definition", bereich: "terme" }, { name: "Logarithmengesetze", bereich: "terme" }],
+  bruch: [],
+};
+function gleichungHilfe(art, start, zeilenAnzahl, tipp, luecken, geloest) {
+  const text = G.gleichungText(start);
+  const verboten = luecken.map((l) => G.alsText(l)).join(", ");
+  return {
+    id: `gl-${text}-${zeilenAnzahl}`,
+    aufgabe: `${art === "bruch" ? "Bruch Definitionsmenge" : ""} ${art === "logarithmus" ? "ln Definitionsmenge" : ""} ${text}`,
+    hilfen: {
+      verstehen: [
+        "Gesucht sind alle Zahlen x, die die Gleichung wahr machen. Es kann keine, eine oder mehrere Lösungen geben.",
+        `Die Ausgangsgleichung lautet ${text}.`,
+        verboten ? `Achtung, verbotene Werte: x ≠ ${verboten}. Dort wäre ein Nenner 0.` : "Prüfe, ob es verbotene Werte gibt: Nenner 0, Logarithmus von Zahlen ≤ 0, negative Zahl unter der Wurzel.",
+      ],
+      ansatz: [
+        "Welche Art von Gleichung ist das: linear, quadratisch, Exponential-, Logarithmus- oder Bruchgleichung?",
+        METHODE[art] || "Überlege, welche Rechenart x „festhält“, und mache sie Schritt für Schritt rückgängig.",
+        geloest ? "Die Gleichung ist gelöst. Mach noch die Probe." : tipp ? tipp.text : "Wähle unten ein Werkzeug oder gib eine Umformung ein.",
+      ],
+      umformen: [
+        "Was soll am Ende allein stehen? Welche Rechenart „klebt“ noch an x?",
+        "Umkehroperationen auf beiden Seiten: + und −, · und :, Quadrat und Wurzel (mit ±!), eˣ und ln.",
+        geloest ? "Fertig – alle Zweige sind gelöst." : tipp && tipp.op && !tipp.op.startsWith("#") ? `Nächste Umformung: „| ${tipp.op}“ – das kannst du direkt eintippen.` : tipp ? `${tipp.text} Unten findest du dafür ein eigenes Werkzeug.` : "Nutze eines der Werkzeuge unter dem Tastenfeld.",
+      ],
+      pruefen: [
+        "Setze jede gefundene Lösung in die Ausgangsgleichung ein. Kommt links und rechts dasselbe heraus?",
+        "Quadrieren kann Scheinlösungen erzeugen, das Teilen durch einen Term mit x kann Lösungen verlieren. Begleite solche Schritte bewusst – und mach die Probe.",
+        verboten ? `Ist eine deiner Lösungen ${verboten}? Dann gehört sie nicht zur Lösungsmenge.` : "Liegt jede Lösung in der Definitionsmenge?",
+      ],
+    },
+    regeln: REGELN_ART[art] || [],
+    grundlage: art === "bruch" ? { trainer: "bruchrechnen", name: "Brüche", grund: "Bruchgleichungen brauchen sicheres Bruchrechnen – Kürzen, Erweitern, Hauptnenner." }
+      : art === "quadratisch" ? { trainer: "wurzeln", name: "Wurzeln", grund: "Bei quadratischen Gleichungen ziehst du oft Wurzeln. Eine schnelle Runde hilft." } : null,
+    loesung: null,
+  };
+}
 
 /* ======================================================================
    GLEICHUNGSLÖSER
@@ -734,6 +785,7 @@ Steht keine Gleichung auf dem Foto, antworte {"aufgaben":[]}.`;
               <svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5a4.5 4.5 0 0 0-2.6 8.2V12h5.2V9.7A4.5 4.5 0 0 0 8 1.5zM6 14h4" stroke={C.goldWarm} strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
               {tippStufe === 0 ? "Tipp" : "Zeig mir den Schritt"}
             </button>
+            <IchHaengeFest kontext={gleichungHilfe(art, start, zeilen.length, tipp, luecken, !!L)} />
             <button type="button" onClick={rueckgaengig} disabled={schritte === 0}
               style={{ display: "flex", alignItems: "center", gap: 7, background: "none", border: `1px solid ${C.linie}`, color: schritte === 0 ? C.hellgrau : C.grau,
                 borderRadius: 999, padding: "9px 16px", fontSize: 13.5, fontFamily: "inherit", cursor: schritte === 0 ? "default" : "pointer" }}>

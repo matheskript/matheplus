@@ -11,6 +11,39 @@
 
 import React, { useMemo, useState } from "react";
 import { C } from "./base1.jsx";
+import { IchHaengeFest } from "./funcHilfe.jsx";
+
+function vierfelderHilfe(ereignisName, bedingungName, sym) {
+  return {
+    id: `vf-${ereignisName}-${bedingungName}`,
+    aufgabe: "Vier-Felder bedingt Unabhängigkeit",
+    hilfen: {
+      verstehen: [
+        `Gefragt ist P(${sym.e} | ${sym.b}): die Wahrscheinlichkeit für „${ereignisName}“, wenn man schon weiß, dass „${bedingungName}“ gilt.`,
+        `Bezugsgruppe ist nur „${bedingungName}“ – nicht alle. Darum steht P(${sym.b}) im Nenner.`,
+        "Markiere in der Tafel zuerst die Zeile oder Spalte der Bedingung, dann darin das Feld, in dem beide Merkmale zutreffen.",
+      ],
+      ansatz: [
+        "Welches Feld der Tafel gehört zu „beides tritt ein“, welche Randsumme zur Bedingung?",
+        `P(${sym.e} | ${sym.b}) = P(${sym.e} ∩ ${sym.b}) / P(${sym.b}). Mit absoluten Häufigkeiten: Anzahl im Feld geteilt durch die Randsumme.`,
+        "Teile den Wert im Schnittfeld durch die Randsumme der Bedingung.",
+      ],
+      regel: [
+        "Wie unterscheiden sich P(A ∩ B) und P(A | B)?",
+        "P(A ∩ B) bezieht sich auf alle, P(A | B) nur auf die Gruppe B. Unabhängig sind A und B genau dann, wenn P(A ∩ B) = P(A) · P(B).",
+        "Im Baumdiagramm stehen die bedingten Wahrscheinlichkeiten auf den Ästen der zweiten Stufe.",
+      ],
+      pruefen: [
+        "Ergeben die vier inneren Felder zusammen die Gesamtzahl bzw. 100 %?",
+        "Stimmen die Randsummen? Zeilen- und Spaltensummen müssen zur Gesamtzahl passen.",
+        "Disjunkte Ereignisse mit positiver Wahrscheinlichkeit sind nie unabhängig – wenn A eintritt, kann B nicht mehr eintreten.",
+      ],
+    },
+    regeln: [{ name: "Bedingte Wahrscheinlichkeit", bereich: "stochastik" }, { name: "Unabhängigkeit", bereich: "stochastik" }, { name: "Satz von Bayes", bereich: "stochastik" }],
+    grundlage: { trainer: "bruchrechnen", name: "Brüche", grund: "Bedingte Wahrscheinlichkeiten sind Brüche. Kürzen und Umrechnen in Prozent wird so leichter." },
+    loesung: null,
+  };
+}
 
 const pr = (v, st = 1) => `${(v * 100).toFixed(st).replace(".", ",")} %`;
 const dz = (v, st = 3) => v.toFixed(st).replace(".", ",");
@@ -221,6 +254,9 @@ export function Vierfeldertafel() {
       <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
         Zwei Merkmale, vier Felder
       </h2>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 6 }}>
+        <IchHaengeFest kontext={vierfelderHilfe(name(ereignis), name(bedingung), { e: sym(ereignis), b: sym(bedingung) })} />
+      </div>
       <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 18 }}>
         Stell die vier inneren Felder ein – Randsummen, Baumdiagramme und alle bedingten Wahrscheinlichkeiten
         rechnen sich live mit. Wahlweise mit <b>absoluten Häufigkeiten</b> oder mit <b>Wahrscheinlichkeiten</b>, die sich zu 100 % ergänzen.

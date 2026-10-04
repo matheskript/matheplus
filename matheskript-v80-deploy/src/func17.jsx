@@ -12,6 +12,43 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { C } from "./base1.jsx";
 import { GesperrteKurse } from "./func1.jsx";
 import { Vorwissen, BernoulliVorwissen } from "./funcVorwissen.jsx";
+import { IchHaengeFest } from "./funcHilfe.jsx";
+
+function bernoulliHilfe(n, pT, k, modus) {
+  const ereignis = modus === "gleich" ? `genau ${k}` : modus === "hoechstens" ? `höchstens ${k}` : `mindestens ${k}`;
+  const zeichen = modus === "gleich" ? `X = ${k}` : modus === "hoechstens" ? `X ≤ ${k}` : `X ≥ ${k}`;
+  return {
+    id: `bern-${n}-${pT}-${k}-${modus}`,
+    aufgabe: "Bernoulli höchstens mindestens Trefferwahrscheinlichkeit",
+    hilfen: {
+      verstehen: [
+        `Gesucht ist die Wahrscheinlichkeit für ${ereignis} Treffer bei ${n} Versuchen. Wie schreibst du das Ereignis mit X?`,
+        `${ereignis[0].toUpperCase() + ereignis.slice(1)} Treffer heißt ${zeichen}. Vorsicht: „mehr als ${k}“ wäre X ≥ ${k + 1}, „weniger als ${k}“ wäre X ≤ ${k - 1}.`,
+        "Prüfe die Voraussetzungen einer Bernoulli-Kette: feste Versuchszahl n, nur Treffer oder Niete, die Versuche sind unabhängig, und p bleibt bei jedem Versuch gleich.",
+      ],
+      ansatz: [
+        "Brauchst du eine einzelne Wahrscheinlichkeit oder eine Summe mehrerer?",
+        modus === "gleich" ? "Für genau k Treffer: Bernoulli-Formel P(X = k) = (n über k) · pᵏ · (1 − p)ⁿ⁻ᵏ."
+          : modus === "hoechstens" ? "Für höchstens k Treffer: alle Fälle von 0 bis k aufsummieren – P(X ≤ k) = P(X = 0) + … + P(X = k)."
+            : "Für mindestens k Treffer ist das Gegenereignis meist kürzer: P(X ≥ k) = 1 − P(X ≤ k − 1).",
+        modus === "mindestens" ? `Hier: P(X ≥ ${k}) = 1 − P(X ≤ ${k - 1}). Berechne zuerst P(X ≤ ${k - 1}).` : modus === "hoechstens" ? `Hier: Summe von P(X = 0) bis P(X = ${k}) – mit dem Taschenrechner als kumulierte Binomialverteilung.` : `Hier: (${n} über ${k}) · (${pT})^${k} · (1 − ${pT})^${n - k}.`,
+      ],
+      regel: [
+        "Welche Formel beschreibt genau k Treffer in n Versuchen?",
+        "P(X = k) = (n über k) · pᵏ · (1 − p)ⁿ⁻ᵏ. Der Binomialkoeffizient zählt, an welchen Stellen die Treffer liegen können.",
+        "Für „mindestens“ und „höchstens“ siehe „Passende Regel ansehen“.",
+      ],
+      pruefen: [
+        "Liegt dein Ergebnis zwischen 0 und 1?",
+        "Vergleiche mit dem Histogramm: Ist der markierte Bereich groß oder klein?",
+        "Die Simulation zeigt eine relative Häufigkeit – sie schwankt um die exakte Wahrscheinlichkeit, stimmt aber nicht genau mit ihr überein.",
+      ],
+    },
+    regeln: [{ name: "Bernoulli-Formel", bereich: "stochastik" }, { name: "Höchstens und mindestens", bereich: "stochastik" }, { name: "Gegenereignis", bereich: "stochastik" }],
+    grundlage: { trainer: "bruchrechnen", name: "Brüche", grund: "Wahrscheinlichkeiten sind oft Brüche. Sicheres Bruchrechnen hilft beim Potenzieren und Multiplizieren." },
+    loesung: null,
+  };
+}
 
 /* ---------- Mathematik ---------- */
 
@@ -426,6 +463,9 @@ export function BernoulliBingo() {
         Die Binomialverteilung entsteht live – und im Experiment siehst du, ob der Zufall mitspielt.
       </p>
 
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10, marginTop: -8 }}>
+        <IchHaengeFest kontext={bernoulliHilfe(n, pT, k, modus)} />
+      </div>
       {/* Einstellungen + Verteilung */}
       <div style={karte}>
         <Kopf n={n} p={p} k={k} setN={setN} setP={setP} setK={setK} pT={pT} qT={qT} bruch={bruch} setBruch={setBruch} />

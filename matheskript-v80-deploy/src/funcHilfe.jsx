@@ -37,6 +37,7 @@ export const HILFE_BEREICHE = [
   { id: "pruefen", name: "Ergebnis prüfen", zeichen: "✓" },
 ];
 const STUFEN = ["Denkfrage", "Passende Regel", "Nächster Schritt"];
+const STUFEN_VERSTEHEN = ["Denkfrage", "Erklärung", "Nächster Schritt"];
 
 const ALLGEMEIN = {
   verstehen: [
@@ -229,7 +230,7 @@ export function summanden(baum) {
 const ROEM = ["I", "II", "III", "IV", "V"];
 const ggT = (a, b) => { a = Math.abs(a); b = Math.abs(b); while (b) [a, b] = [b, a % b]; return a; };
 /* rows: [[k1, …, kn, rechts], …] mit ganzen Zahlen. Liefert { zeile, text } oder null. */
-export function naechsteKombination(rows) {
+export function naechsteKombination(rows, vars = ["x", "y", "z", "u", "v"]) {
   const n = rows.length;
   const erste = (r) => r.slice(0, n).findIndex((v) => v !== 0);
   const mal = (k, name) => `${k === 1 ? "" : `${k}·`}${name}`;
@@ -250,7 +251,7 @@ export function naechsteKombination(rows) {
     if (kand.length >= 2) {
       const p = kand.reduce((b, i) => (Math.abs(rows[i][j]) < Math.abs(rows[b][j]) ? i : b), kand[0]);
       const t = kand.find((i) => i !== p);
-      return { ...kombi(t, p, j), wozu: `um die erste Unbekannte aus Gleichung ${ROEM[t]} zu eliminieren` };
+      return { ...kombi(t, p, j), wozu: `um ${vars[j]} aus Gleichung ${ROEM[t]} zu eliminieren` };
     }
   }
   // 2. Rückwärts: Zeile mit nur einer Unbekannten → diese aus den anderen Zeilen entfernen
@@ -259,12 +260,12 @@ export function naechsteKombination(rows) {
     if (nz.length !== 1) continue;
     const j = nz[0];
     const t = rows.findIndex((r, i) => i !== p && r[j] !== 0);
-    if (t >= 0) return { ...kombi(t, p, j), wozu: `um diese Unbekannte mit Hilfe von Gleichung ${ROEM[p]} aus Gleichung ${ROEM[t]} zu entfernen` };
+    if (t >= 0) return { ...kombi(t, p, j), wozu: `um ${vars[j]} mit Hilfe von Gleichung ${ROEM[p]} aus Gleichung ${ROEM[t]} zu entfernen` };
   }
   // 3. Kürzen: einzelne Unbekannte mit Koeffizient ≠ 1
   for (let i = 0; i < n; i++) {
     const nz = rows[i].slice(0, n).filter((v) => v !== 0);
-    if (nz.length === 1 && Math.abs(nz[0]) !== 1 && rows[i][n] % nz[0] === 0) return { zeile: i, text: `${ROEM[i]} : ${nz[0] < 0 ? `(${nz[0]})` : nz[0]}`, wozu: "damit die Unbekannte allein dasteht" };
+    if (nz.length === 1 && Math.abs(nz[0]) !== 1 && rows[i][n] % nz[0] === 0) return { zeile: i, text: `${ROEM[i]} : ${nz[0] < 0 ? `(${nz[0]})` : nz[0]}`, wozu: `damit ${vars[rows[i].slice(0, n).findIndex((v) => v !== 0)]} allein dasteht` };
   }
   return null;
 }
@@ -436,7 +437,7 @@ function Panel({ kontext, onHilfe, schliessen }) {
             <>
               {hinweise(bereich).slice(0, auf[bereich] || 0).map((h, i) => (
                 <div key={i} className="hilfe-neu" style={{ background: i === 2 ? "#FFF6D9" : C.sand, borderRadius: 14, padding: "10px 14px", marginBottom: 10 }}>
-                  <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.08em", color: i === 2 ? "#7A5A00" : C.see, marginBottom: 4 }}>{i + 1}. {STUFEN[i].toUpperCase()}</p>
+                  <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.08em", color: i === 2 ? "#7A5A00" : C.see, marginBottom: 4 }}>{i + 1}. {(bereich === "verstehen" ? STUFEN_VERSTEHEN : STUFEN)[i].toUpperCase()}</p>
                   <Text s={h} style={{ fontSize: 14.5, color: C.tinte, lineHeight: 1.7 }} />
                 </div>
               ))}
@@ -445,7 +446,7 @@ function Panel({ kontext, onHilfe, schliessen }) {
                   style={{ width: "100%", height: 48, borderRadius: 12, border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 15, fontWeight: 700, color: C.weiss, background: blau }}>
                   {(auf[bereich] || 0) === 0 ? "Hinweis" : "Nächster Hinweis"}
                 </button>
-              ) : <p style={{ fontSize: 13, color: C.grau, lineHeight: 1.6 }}>Alle drei Hinweise sind aufgedeckt. Versuch es jetzt selbst – die Lösung findest du unten.</p>}
+              ) : <p style={{ fontSize: 13, color: C.grau, lineHeight: 1.6 }}>Alle drei Hinweise sind aufgedeckt. Versuch es jetzt selbst{kontext.loesung ? " – die vollständige Lösung findest du unten" : ""}.</p>}
               {bereich === "verstehen" && <Begriffe text={kontext.aufgabe} />}
               <Zusatzknoepfe kontext={kontext} setAnsicht={setAnsicht} />
             </>

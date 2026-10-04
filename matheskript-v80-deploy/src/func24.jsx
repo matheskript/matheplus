@@ -15,6 +15,47 @@ import { C } from "./base1.jsx";
 import { Bruch, Einzeilig, Wurzel, Zahl, ggT, kreuz, skalar } from "./func19.jsx";
 import { FA, FB, FE, Gl, Name, Raum3, Schritt, Vek, k, koordText, n, neueAufgabe } from "./func20.jsx";
 import { Feld, Knopf, Meldung, PunktEingabe, VektorFeld, leseVektor } from "./func23.jsx";
+import { IchHaengeFest } from "./funcHilfe.jsx";
+
+/* Lernhilfe je Kombination */
+const ABSTAND_WEG = {
+  "punkt-punkt": ["Wie lang ist der Weg von einem Punkt zum anderen?", "Der Abstand ist die Länge des Verbindungsvektors: |PQ| = √((q₁ − p₁)² + (q₂ − p₂)² + (q₃ − p₃)²).", "Berechne zuerst PQ = Q − P und dann seine Länge."],
+  "punkt-gerade": ["Wo trifft das kürzeste Lot vom Punkt auf die Gerade?", "Ein allgemeiner Punkt der Geraden ist Fₜ = A + t·u. Der Vektor von P nach Fₜ muss senkrecht zum Richtungsvektor stehen: PFₜ · u = 0.", "Löse PFₜ · u = 0 nach t auf, setze t in Fₜ ein (Lotfußpunkt F) und berechne |PF|."],
+  "punkt-ebene": ["Welche Form der Ebenengleichung macht den Abstand am einfachsten?", "Hessesche Normalform: d(P; E) = |n₁p₁ + n₂p₂ + n₃p₃ − d| / |n|.", "Setze P in die linke Seite der Koordinatenform ein, ziehe d ab, nimm den Betrag und teile durch die Länge des Normalenvektors."],
+  "gerade-gerade": ["Sind die Richtungsvektoren parallel?", "Parallel: Abstand Punkt–Gerade mit einem Stützpunkt. Nicht parallel: gemeinsamer Normalenvektor n = u × v und d = |AB · n| / |n|. Ist das 0, schneiden sich die Geraden.", "Berechne zuerst u × v. Ist das der Nullvektor, sind die Geraden parallel – sonst projiziere AB auf n."],
+  "gerade-ebene": ["Ist die Gerade parallel zur Ebene?", "Parallel genau dann, wenn u · n = 0. Sonst schneidet die Gerade die Ebene – Abstand 0.", "Berechne u · n. Ist es 0, nimm den Stützpunkt der Geraden und rechne Abstand Punkt–Ebene."],
+  "ebene-ebene": ["Sind die Normalenvektoren Vielfache voneinander?", "Nur parallele Ebenen haben einen Abstand > 0. Sonst schneiden sie sich in einer Geraden.", "Wähle einen Punkt von E₂ (z. B. zwei Koordinaten 0 setzen) und rechne Abstand Punkt–Ebene zu E₁."],
+};
+function abstandHilfe(kombi) {
+  const w = ABSTAND_WEG[kombi];
+  return {
+    id: `abst-${kombi}`,
+    aufgabe: `Abstand ${kombi.replace("-", " ")} Lotfußpunkt Normalenvektor ${kombi === "gerade-gerade" ? "windschief" : ""}`,
+    hilfen: {
+      verstehen: [
+        "Abstand heißt immer: kürzeste Entfernung. Sie wird senkrecht gemessen und ist nie negativ.",
+        "Schneiden sich die Objekte oder liegt eines im anderen, ist der Abstand 0.",
+        "Mach dir eine Skizze: Wo verläuft die kürzeste Verbindung?",
+      ],
+      ansatz: w,
+      regel: [
+        "Welche Formel misst Längen, welche prüft Senkrechtstehen?",
+        "Länge: |v| = √(v₁² + v₂² + v₃²). Senkrecht: a · b = 0. Gemeinsame Senkrechte zweier Richtungen: a × b.",
+        w[1],
+      ],
+      pruefen: [
+        "Ist dein Abstand positiv (oder 0 bei Schnitt)? Ein negativer Abstand ist immer ein Rechenfehler.",
+        "Steht das Lot wirklich senkrecht? Prüfe mit dem Skalarprodukt.",
+        "Liegt dein Lotfußpunkt auf der Geraden bzw. in der Ebene? Setze ihn ein.",
+      ],
+    },
+    regeln: [{ name: "Betrag (Länge)", bereich: "vektoren" }, { name: "Orthogonalität", bereich: "vektoren" },
+      ...(kombi.includes("ebene") ? [{ name: "Abstand Punkt–Ebene", bereich: "vektoren" }] : []),
+      ...(kombi === "gerade-gerade" ? [{ name: "Kreuzprodukt", bereich: "vektoren" }] : [])],
+    grundlage: { trainer: "wurzeln", name: "Wurzeln", grund: "Abstände enden fast immer mit einer Wurzel. Eine schnelle Runde Wurzeln hilft." },
+    loesung: null,
+  };
+}
 
 /* ---------- exakte Bruchrechnung ---------- */
 
@@ -409,6 +450,15 @@ const qLesen = (s) => {
   return /^-?\d+(\.\d+)?$/.test(t) ? Number(t) : null;
 };
 
+function lotHilfe(art) {
+  const h = abstandHilfe(art === "pg" ? "punkt-gerade" : "punkt-ebene");
+  return { ...h, id: `lot-${art}`, hilfen: { ...h.hilfen, verstehen: [
+    "Gesucht ist der Punkt F, an dem das Lot von P auftrifft – nicht der Abstand.",
+    art === "pg" ? "F liegt auf der Geraden, und der Vektor PF steht senkrecht auf dem Richtungsvektor." : "F liegt in der Ebene, und PF ist ein Vielfaches des Normalenvektors.",
+    art === "pg" ? "Setze F = A + t·u an und bestimme t aus PF · u = 0." : "Lotgerade l: x = P + λ·n in die Ebene einsetzen, λ bestimmen, in l einsetzen.",
+  ] } };
+}
+
 function LotUeben({ art }) {
   const neu = () => neueAufgabe(art === "pg" ? "abstandPG" : "abstandPE");
   const [a, setA] = useState(neu);
@@ -500,6 +550,9 @@ export function Abstaende() {
       </p>
 
       <div style={karte}>
+        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10 }}>
+          <IchHaengeFest kontext={modus === "lot" && lotArt ? lotHilfe(lotArt) : abstandHilfe(kombi)} />
+        </div>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
           <Auswahl wert={links.typ} setWert={(t) => { setLinks({ ...links, typ: t }); setModus("rechnen"); }} seite={0} />
           <span style={{ fontSize: 15, fontWeight: 700, color: C.grau, flexShrink: 0 }}>zu</span>

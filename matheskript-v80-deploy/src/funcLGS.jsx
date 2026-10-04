@@ -2,6 +2,51 @@ import React, { useState, useRef, useEffect } from "react";
 import { C } from "./base1.jsx";
 import { merken } from "./func5.jsx";
 import { DrehKnoepfe, ebenenPolygon, kamera } from "./func16.jsx";
+import { IchHaengeFest, naechsteKombination } from "./funcHilfe.jsx";
+
+/* Kontext für „Ich hänge fest“ aus dem aktuellen System */
+function lgsHilfe(aktuell, loesung, start) {
+  const k = naechsteKombination(aktuell);
+  const t = (r) => {
+    const teile = [];
+    ["x", "y", "z"].forEach((v, j) => { const c = r[j]; if (!c) return; const b = Math.abs(c) === 1 ? "" : Math.abs(c); teile.push(teile.length ? `${c < 0 ? "−" : "+"} ${b}${v}` : `${c < 0 ? "−" : ""}${b}${v}`); });
+    return `${teile.join(" ") || "0"} = ${String(r[3]).replace("-", "−")}`;
+  };
+  return {
+    id: `lgs-${JSON.stringify(start)}-${JSON.stringify(aktuell)}`,
+    aufgabe: "Gleichungssystem",
+    hilfen: {
+      verstehen: [
+        "Gesucht sind Zahlen für x, y und z, die alle drei Gleichungen gleichzeitig erfüllen.",
+        "Du bildest neue Gleichungen aus den alten. Die Lösung bleibt gleich, solange keine Information verloren geht – darum muss jede alte Gleichung aus den neuen zurückzugewinnen sein.",
+        "Ziel ist die Treppenform: in der untersten Gleichung nur noch eine Unbekannte, darüber zwei, ganz oben drei.",
+      ],
+      ansatz: [
+        "Welche Unbekannte kannst du am leichtesten eliminieren? Achte auf Koeffizienten 1 oder −1.",
+        "Kombiniere zwei Gleichungen so, dass sich die Koeffizienten einer Unbekannten aufheben. Die übrigen Gleichungen übernimmst du unverändert.",
+        k ? `Probier für Gleichung ${["I", "II", "III"][k.zeile]} neu: ${k.text} – ${k.wozu}. Die anderen beiden Zeilen bleiben, wie sie sind.` : "Jede Gleichung enthält nur noch eine Unbekannte – lies die Lösung ab.",
+      ],
+      regel: [
+        "Welche Umformungen ändern die Lösungsmenge eines Gleichungssystems nicht?",
+        "Erlaubt: Gleichungen vertauschen, eine Gleichung mit einer Zahl ≠ 0 multiplizieren, das Vielfache einer Gleichung zu einer anderen addieren.",
+        k ? `Hier zum Beispiel: ${k.text}.` : "Du bist fertig – mach die Probe im Ausgangssystem.",
+      ],
+      umformen: [
+        "Rechnest du die Kombination Spalte für Spalte? Jede Unbekannte und die rechte Seite einzeln.",
+        "Bei „II − 2·I“ wird jeder Koeffizient von I verdoppelt und dann von II abgezogen – auch die rechte Seite.",
+        "Steht am Ende ein gemeinsamer Faktor in einer Zeile, darfst du sie mit „: Zahl“ kürzen, z. B. (II − I) : 2.",
+      ],
+      pruefen: [
+        "Setze deine Lösung in alle drei Ausgangsgleichungen ein – nicht nur in die letzte.",
+        "Eine Zeile 0 = 0 bedeutet: Information verloren oder unendlich viele Lösungen. 0 = 5 bedeutet: keine Lösung.",
+        `Ausgangssystem zur Probe: ${start.map((r, i) => `${["I", "II", "III"][i]}: ${t(r)}`).join("; ")}.`,
+      ],
+    },
+    regeln: [],
+    grundlage: { trainer: "multiplizieren", name: "Multiplizieren", grund: "Beim Kombinieren multiplizierst du ständig kleine Zahlen. Eine schnelle Runde Einmaleins hilft." },
+    loesung: loesung ? `$x = ${String(loesung[0]).replace("-", "-")}$,  $y = ${loesung[1]}$,  $z = ${loesung[2]}$` : null,
+  };
+}
 
 /* ======================================================================
    LINEARE GLEICHUNGSSYSTEME (3 Unbekannte)
@@ -749,7 +794,10 @@ export function LGSLoeser() {
       {/* Neues System bilden */}
       {!fertig && (
         <div style={{ ...karte, padding: 14, marginTop: 16 }}>
-          <p style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.08em", color: C.hellgrau, margin: "2px 4px 10px" }}>NEUES SYSTEM BILDEN</p>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexWrap: "wrap", margin: "2px 4px 10px" }}>
+            <p style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.08em", color: C.hellgrau }}>NEUES SYSTEM BILDEN</p>
+            <IchHaengeFest kontext={lgsHilfe(aktuell, aufgabe.loesung, bloecke[0].rows)} />
+          </div>
           {felder.map((f, i) => (
             <NeueZeile key={i} name={ROEM[i]} text={f} frisch={frisch[i]} aktiv={aktiv === i} ok={vorschau[i].ok} fehler={vorschau[i].fehler}
               vorschau={vorschau[i].ok ? <GlText row={vorschau[i].row} /> : null} onClick={() => setAktiv(i)} />

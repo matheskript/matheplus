@@ -12,6 +12,68 @@ import React, { useState } from "react";
 import { C } from "./base1.jsx";
 import { Einzeilig, ggT, kreuz, skalar } from "./func19.jsx";
 import { FA, FB, FE, FS, Gl, Name, Raum3, Schritt, Vek, k, koordText, n } from "./func20.jsx";
+import { IchHaengeFest } from "./funcHilfe.jsx";
+
+const pt = (P) => P.map(n).join(" | ");
+function geradeHilfe(A, B) {
+  const d = diff(A, B);
+  return {
+    id: `gerade-${pt(A)}-${pt(B)}`,
+    aufgabe: "Gerade Stützvektor Richtungsvektor",
+    hilfen: {
+      verstehen: [
+        "Gesucht ist eine Gleichung der Form x = p + t · u, deren Punkte genau die Gerade durch A und B bilden.",
+        "Stützvektor p: Ortsvektor eines Punkts der Geraden. Richtungsvektor u: zeigt entlang der Geraden – jedes Vielfache ≠ 0 geht genauso.",
+        "Du darfst jeden Punkt der Geraden als Stützpunkt nehmen und jedes Vielfache von AB als Richtungsvektor.",
+      ],
+      ansatz: [
+        "Welchen Punkt nimmst du als Stützpunkt, welchen Vektor als Richtung?",
+        "Richtungsvektor = Verbindungsvektor: AB = B − A, also „Spitze minus Fuß“.",
+        "Rechne B − A komponentenweise: (b₁ − a₁ | b₂ − a₂ | b₃ − a₃). Mit dem Stützpunkt A ist die Gerade fertig.",
+      ],
+      pruefen: [
+        "Liegt dein Stützpunkt wirklich auf der Geraden?",
+        "Dein Richtungsvektor muss ein Vielfaches von AB sein: Teile die Komponenten – überall derselbe Faktor?",
+        "Der Nullvektor zeigt in keine Richtung – er ist als Richtungsvektor nicht erlaubt.",
+      ],
+    },
+    regeln: [{ name: "Verbindungsvektor", bereich: "vektoren" }, { name: "Geradengleichung", bereich: "vektoren" }],
+    grundlage: null,
+    loesung: `Zum Beispiel g: x = (${pt(A)}) + t · (${pt(d)}). Ebenso richtig: Stützpunkt B oder jedes Vielfache des Richtungsvektors.`,
+  };
+}
+function ebeneHilfe(A, B, Cp, norm) {
+  const u = diff(A, B), v = diff(A, Cp);
+  return {
+    id: `ebene-${pt(A)}-${pt(B)}-${pt(Cp)}`,
+    aufgabe: "Ebene Koordinatenform Normalenvektor Kreuzprodukt",
+    hilfen: {
+      verstehen: [
+        "Gesucht ist eine Koordinatengleichung n₁x₁ + n₂x₂ + n₃x₃ = d der Ebene durch A, B und C.",
+        "Die Koeffizienten n₁, n₂, n₃ sind die Koordinaten eines Normalenvektors – er steht senkrecht auf der Ebene.",
+        "Jedes Vielfache ≠ 0 deiner Gleichung beschreibt dieselbe Ebene.",
+      ],
+      ansatz: [
+        "Wie bekommst du einen Vektor, der auf zwei Spannvektoren der Ebene senkrecht steht?",
+        "Mit dem Kreuzprodukt der Spannvektoren: n = AB × AC. Danach liefert ein Punkt der Ebene die Zahl d = n · a.",
+        `Spannvektoren: AB = (${pt(u)}), AC = (${pt(v)}). Berechne n = AB × AC und setze dann A ein.`,
+      ],
+      regel: [
+        "Wie lautet die Formel für das Kreuzprodukt?",
+        "a × b = (a₂b₃ − a₃b₂ | a₃b₁ − a₁b₃ | a₁b₂ − a₂b₁).",
+        "Die Koordinatenform: n₁x₁ + n₂x₂ + n₃x₃ = d mit d = n₁a₁ + n₂a₂ + n₃a₃.",
+      ],
+      pruefen: [
+        "Setze alle drei Punkte in deine Gleichung ein. Stimmt die Gleichung jedes Mal?",
+        "Prüfe, ob n wirklich senkrecht auf AB und AC steht: Beide Skalarprodukte müssen 0 sein.",
+        "Gemeinsame Faktoren darfst du kürzen – auch ein Vorzeichenwechsel ändert die Ebene nicht.",
+      ],
+    },
+    regeln: [{ name: "Ebene in Parameterform", bereich: "vektoren" }, { name: "Kreuzprodukt", bereich: "vektoren" }, { name: "Koordinatenform", bereich: "vektoren" }],
+    grundlage: { trainer: "multiplizieren", name: "Multiplizieren", grund: "Das Kreuzprodukt besteht aus vielen kleinen Produkten. Eine schnelle Runde hilft." },
+    loesung: `Gekürzt: E: ${koordText(norm.n, norm.d)}`,
+  };
+}
 
 /* ---------- kleine Helfer ---------- */
 
@@ -213,7 +275,10 @@ function GeradePruefen({ A, B }) {
   };
   return (
     <div style={{ ...karte, marginTop: 16 }}>
-      <p style={{ ...kicker, color: C.gruen }}>Jetzt selbst üben</p>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8, flexWrap: "wrap" }}>
+        <p style={{ ...kicker, color: C.gruen }}>Jetzt selbst üben</p>
+        <IchHaengeFest kontext={geradeHilfe(A, B)} />
+      </div>
       <h3 style={{ fontSize: 21, fontWeight: 700, letterSpacing: "-0.01em", marginBottom: 8 }}>Ist das dieselbe Gerade?</h3>
       <p style={hinweis}>Gib eine eigene Geradengleichung durch A und B ein – mit einem beliebigen Stützpunkt der Geraden und einem
         beliebigen Richtungsvektor. Die App prüft, ob sie dieselbe Gerade beschreibt.</p>
@@ -365,13 +430,13 @@ export function DreiPunkteEbene() {
         )}
       </div>
 
-      {!fehler && <EbenePruefen norm={formen[0].norm} key={[...A, ...B, ...Cp].join()} />}
+      {!fehler && <EbenePruefen norm={formen[0].norm} A={A} B={B} Cp={Cp} key={[...A, ...B, ...Cp].join()} />}
     </div>
   );
 }
 
 /* Eigene Koordinatengleichung prüfen: dieselbe Ebene? */
-function EbenePruefen({ norm }) {
+function EbenePruefen({ norm, A, B, Cp }) {
   const [w, setW] = useState(["", "", "", ""]);
   const [ergebnis, setErgebnis] = useState(null);
   const setze = (i) => (v) => { const x = [...w]; x[i] = v; setW(x); setErgebnis(null); };
@@ -387,7 +452,10 @@ function EbenePruefen({ norm }) {
   };
   return (
     <div style={{ ...karte, marginTop: 16 }}>
-      <p style={{ ...kicker, color: C.gruen }}>Jetzt selbst üben</p>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8, flexWrap: "wrap" }}>
+        <p style={{ ...kicker, color: C.gruen }}>Jetzt selbst üben</p>
+        <IchHaengeFest kontext={ebeneHilfe(A, B, Cp, norm)} />
+      </div>
       <h3 style={{ fontSize: 21, fontWeight: 700, letterSpacing: "-0.01em", marginBottom: 8 }}>Stimmt deine Koordinatengleichung?</h3>
       <p style={hinweis}>Rechne selbst und gib deine Koordinatengleichung ein. Auch Vielfache der gekürzten Form werden als richtig erkannt.</p>
       <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 6, fontSize: 16, fontWeight: 800, marginBottom: 14 }}>
