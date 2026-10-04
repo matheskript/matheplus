@@ -567,6 +567,8 @@ export function MedaillenschrankLogo() {
         ))}
         <linearGradient id="msch-glas" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#FFFFFF" stopOpacity="0.16" /><stop offset="0.45" stopColor="#FFFFFF" stopOpacity="0.03" /><stop offset="1" stopColor="#FFFFFF" stopOpacity="0.1" /></linearGradient>
       </defs>
+      {/* Schrank oben links, damit der Auf-/Zu-Knopf unten rechts nichts verdeckt */}
+      <g transform="translate(5 3) scale(0.8)">
       {/* Korpus */}
       <rect x={X0 - 4} y={Y0 - 5} width={2 * B + 8} height={3 * H + 9} rx="4" fill="#0B1838" stroke="#C9D3E2" strokeWidth="1.6" />
       <rect x={X0 - 6} y={Y0 + 3 * H + 3} width={2 * B + 12} height="4" rx="1.5" fill="#C9D3E2" />
@@ -589,6 +591,7 @@ export function MedaillenschrankLogo() {
       <rect x={X0} y={Y0} width={2 * B} height={3 * H} fill="url(#msch-glas)" />
       <line x1={X0 + B} y1={Y0} x2={X0 + B} y2={Y0 + 3 * H} stroke="#C9D3E2" strokeWidth="1.2" />
       <circle cx={X0 + B - 2.6} cy={Y0 + 1.5 * H} r="1.1" fill="#EDBB00" /><circle cx={X0 + B + 2.6} cy={Y0 + 1.5 * H} r="1.1" fill="#EDBB00" />
+      </g>
     </svg>
   );
 }

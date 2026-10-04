@@ -818,36 +818,36 @@ function Multiplizieren() {
 
 /* ---------- Übersicht ---------- */
 
-/* Verbindliche Anordnung (Entwicklungsbrief 04.10.2026, Punkt 15):
-   Reihe 1: Plus | Minus | Multiplizieren · Reihe 2: Primfaktoren ·
-   Reihe 3: Quadrate | Kuben | Wurzeln · Reihe 4: Schriftlich Teilen | Buchrechnung.
+/* Verbindliche Anordnung (Wunsch vom 04.10.2026, 14:58 – ersetzt Punkt 15 des Entwicklungsbriefs):
+   Reihe 1: Plus & Minus | Multiplizieren · Reihe 2: Primfaktoren | Quadrate, Kuben & Wurzeln ·
+   Reihe 3: Schriftlich Teilen | Buchrechnung.
    „Buchrechnung" ist die wörtliche Bezeichnung aus dem Auftrag und öffnet vorerst den Bruchrechen-Trainer. */
 export const TRAINER = [
-  { id: "plus", titel: "Schriftlich Plus", kurzTitel: "Plus", slogan: "Untereinander addieren – mit Übertrag.", zeichen: "+" },
-  { id: "minus", titel: "Schriftlich Minus", kurzTitel: "Minus", slogan: "Untereinander subtrahieren.", zeichen: "−" },
+  { id: "plusminus", titel: "Schriftlich Plus & Minus", kurzTitel: "Plus & Minus", slogan: "Untereinander rechnen wie im Heft – mit Übertrag.", zeichen: "+ −" },
   { id: "multiplizieren", titel: "Multiplizieren", slogan: "Vom kleinen Einmaleins bis zu vierstelligen Zahlen.", zeichen: "7·8" },
   { id: "primfaktoren", titel: "Primfaktorzerlegung", kurzTitel: "Primfaktoren", slogan: "Primzahlen erkennen und Zahlen zerlegen.", zeichen: "2·3·7" },
-  { id: "quadrate", titel: "Quadratzahlen", kurzTitel: "Quadrate", slogan: "1² bis 25² sofort abrufen.", zeichen: "12²" },
-  { id: "kuben", titel: "Kubikzahlen", kurzTitel: "Kuben", slogan: "1³ bis 10³ sofort abrufen.", zeichen: "4³" },
-  { id: "wurzeln", titel: "Wurzeln", slogan: "Quadrat- und Kubikwurzeln.", zeichen: "√" },
+  { id: "potenzen", titel: "Quadrate, Kuben & Wurzeln", slogan: "Quadrat-, Kubikzahlen und Wurzeln blitzschnell abrufen.", zeichen: "12²" },
   { id: "division", titel: "Schriftlich Teilen", slogan: "Schritt für Schritt teilen – mit oder ohne Rest.", zeichen: "÷" },
   { id: "bruchrechnen", titel: "Buchrechnung", slogan: "Kürzen, plus, minus, mal, geteilt – mit Lösungsweg.", zeichen: "¾" },
 ];
-const KOPF_REIHEN = [["plus", "minus", "multiplizieren"], ["primfaktoren"], ["quadrate", "kuben", "wurzeln"], ["division", "bruchrechnen"]];
+const KOPF_REIHEN = [["plusminus", "multiplizieren"], ["primfaktoren", "potenzen"], ["division", "bruchrechnen"]];
 /* Alte Kennungen (Links, Sprachwechsel) weiterhin öffnen */
-const KOPF_ALT = { plusminus: "plus", potenzen: "quadrate", einmaleins: "multiplizieren" };
+const KOPF_ALT = { plus: "plusminus", minus: "plusminus", quadrate: "potenzen", kuben: "potenzen", wurzeln: "potenzen", einmaleins: "multiplizieren" };
 
 
 /* Verspielte Farben je Trainer */
 /* Kurze Texte für die kleinen Kacheln */
-const KACHEL_TEXT = {};
+const KACHEL_TEXT = {
+  plusminus: ["Plus & Minus", "Schriftlich, mit Übertrag."],
+  potenzen: ["Quadrate, Kuben & Wurzeln", "Potenzen und Wurzeln."],
+};
 
 const KOPF_LOOK = {
-  plus: { bg: "linear-gradient(150deg, #7CC8FF 0%, #1D6FD6 100%)", schatten: "rgba(29,111,214,0.32)", akzent: "#14529E", text: "#FFFFFF", r: -6 },
+  plusminus: { bg: "linear-gradient(150deg, #7CC8FF 0%, #1D6FD6 100%)", schatten: "rgba(29,111,214,0.32)", akzent: "#14529E", text: "#FFFFFF", r: -6 },
   minus: { bg: "linear-gradient(150deg, #8FD8FF 0%, #0E86B8 100%)", schatten: "rgba(14,134,184,0.32)", akzent: "#0A5F84", text: "#FFFFFF", r: 6 },
   multiplizieren: { bg: "linear-gradient(150deg, #FFE070 0%, #F59E0B 100%)", schatten: "rgba(245,158,11,0.35)", akzent: "#A15C00", text: "#3A2200", r: 8 },
   primfaktoren: { bg: "linear-gradient(150deg, #FF9A76 0%, #F4511E 100%)", schatten: "rgba(244,81,30,0.32)", akzent: "#B33A12", text: "#FFFFFF", r: -7 },
-  quadrate: { bg: "linear-gradient(150deg, #B79CFF 0%, #6D28D9 100%)", schatten: "rgba(109,40,217,0.32)", akzent: "#5B21B6", text: "#FFFFFF", r: 6 },
+  potenzen: { bg: "linear-gradient(150deg, #B79CFF 0%, #6D28D9 100%)", schatten: "rgba(109,40,217,0.32)", akzent: "#5B21B6", text: "#FFFFFF", r: 6 },
   kuben: { bg: "linear-gradient(150deg, #C9B2FF 0%, #7C3AED 100%)", schatten: "rgba(124,58,237,0.32)", akzent: "#5B21B6", text: "#FFFFFF", r: -5 },
   wurzeln: { bg: "linear-gradient(150deg, #A58BFF 0%, #4C1D95 100%)", schatten: "rgba(76,29,149,0.32)", akzent: "#4C1D95", text: "#FFFFFF", r: 5 },
   division: { bg: "linear-gradient(150deg, #FF9CC9 0%, #D6336C 100%)", schatten: "rgba(214,51,108,0.32)", akzent: "#9E1F4D", text: "#FFFFFF", r: 7 },
@@ -924,10 +924,9 @@ export function KopfrechenZentrum({ start = null }) {
       </button>
       <h2 style={{ fontSize: 25, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 14 }}>{t.titel}</h2>
       {t.id === "primfaktoren" ? <Primfaktoren />
-        : t.id === "quadrate" ? <QuadratKubik art="quadrat" /> : t.id === "kuben" ? <QuadratKubik art="kubik" /> : t.id === "wurzeln" ? <QuadratKubik art="wurzel" />
+        : t.id === "potenzen" ? <QuadratKubik />
         : t.id === "bruchrechnen" ? <Bruchrechnen />
-        : t.id === "plus" ? <SchriftlichPlusMinus Zahlenfeld={Zahlenfeld} startArt="plus" />
-        : t.id === "minus" ? <SchriftlichPlusMinus Zahlenfeld={Zahlenfeld} startArt="minus" />
+        : t.id === "plusminus" ? <SchriftlichPlusMinus Zahlenfeld={Zahlenfeld} />
         : t.id === "division" ? <SchriftlicheDivision Zahlenfeld={Zahlenfeld} /> : <Multiplizieren />}
     </div>
   );
