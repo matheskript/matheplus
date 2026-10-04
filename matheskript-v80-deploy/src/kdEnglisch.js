@@ -110,11 +110,11 @@ const BEGRIFFE = [
   ["streng monoton fallend", "strictly decreasing"],
   ["Linkskurve (konvex)", "concave up"],
   ["Rechtskurve (konkav)", "concave down"],
-  ["kein Krümmungsverhalten", "no curvature"],
+  ["kein Krümmungsverhalten", "no concavity"],
   ["keine Krümmung", "no curvature"],
   ["Sattelpunkt", "saddle point"],
-  ["Hochpunkt", "maximum"],
-  ["Tiefpunkt", "minimum"],
+  ["Hochpunkt", "maximum point"],
+  ["Tiefpunkt", "minimum point"],
   ["Wendepunkte", "Inflection points"],
   ["Wendepunkt", "Inflection point"],
   ["Extrempunkte", "Extreme points"],
@@ -140,7 +140,7 @@ export function kdText(s) {
   t = t.replace(/(\d),(\d)/g, "$1.$2");   // Dezimalkomma → Dezimalpunkt
   t = t.replace(PUNKT_RE, (_, k, idx) => `${PUNKT[k]}${idx}(`);
   // Hochpunkt/Tiefpunkt/Sattelpunkt stehen jetzt klein mitten im Satz – am Zeilenanfang groß schreiben
-  t = t.replace(/^(maximum|minimum|saddle point)/u, (w) => w[0].toUpperCase() + w.slice(1));
+  t = t.replace(/^(maximum point|minimum point|saddle point|concave up|concave down)/u, (w) => w[0].toUpperCase() + w.slice(1));
   return vorne + t;
 }
 

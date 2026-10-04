@@ -91,7 +91,7 @@ const ZUSATZ = {
   "Die Knöpfe zeigen die Anzahl der Stellen.": "The buttons show the number of digits.",
   "1. Zahl": "1st number", "2. Zahl": "2nd number", "1-stellig": "1-digit", "2-stellig": "2-digit", "3-stellig": "3-digit", "4-stellig": "4-digit",
   "Fünf Trainer für das Kopfrechnen. Wer Zahlen sofort abrufen kann, kürzt schneller, sieht Teiler auf einen Blick und hat beim Rechnen den Kopf für das Eigentliche frei.": "Five trainers for mental math. If you can recall numbers instantly, you simplify faster, spot divisors at a glance and keep your mind free for what really matters when calculating.",
-  "Übersicht Analysis": "Analysis overview", "Übersicht Vektoren": "Vectors overview", "Übersicht Stochastik": "Stochastics overview",
+  "Übersicht Analysis": "Calculus overview", "Übersicht Vektoren": "Vectors overview", "Übersicht Stochastik": "Probability overview",
   "Primfaktoren, Quadratzahlen, Brüche, Einmaleins – auf Zeit.": "Prime factors, square numbers, fractions, times tables – against the clock.",
   "Quadrate & Kuben": "Squares & cubes",
   "Mathe-Wettbewerbe": "Math Competitions", "Landeswettbewerbe": "State Competitions", "Landeswettbewerb": "State competition",
@@ -100,11 +100,11 @@ const ZUSATZ = {
   "Die nächste 1. Runde und die Aufgaben mit Lösungen vom letzten Jahr.": "The next first round and last year's tasks with solutions.",
   "Deutschlandkarte: Tippe auf dein Bundesland.": "Map of Germany: tap your state.",
   "MATHE-WETTBEWERBE": "MATH COMPETITIONS", "LANDESWETTBEWERB": "STATE COMPETITION",
-  "Drei Runden, echte Probleme, saubere Beweise – der große Mathe-Wettbewerb für die Oberstufe.": "Three rounds, real problems, clean proofs – the big maths competition for upper secondary students.",
-  "Von Baden-Württemberg bis Thüringen: der Mathe-Wettbewerb in deinem Bundesland.": "From Baden-Württemberg to Thuringia: the maths competition in your state.",
+  "Drei Runden, echte Probleme, saubere Beweise – der große Mathe-Wettbewerb für die Oberstufe.": "Three rounds, real problems, clean proofs – the big math competition for upper-school students.",
+  "Von Baden-Württemberg bis Thüringen: der Mathe-Wettbewerb in deinem Bundesland.": "From Baden-Württemberg to Thuringia: the math competition in your state.",
   "Der Mathematik-Wettbewerb des Landes – Termine, Aufgaben und Lösungen.": "The state's mathematics competition – dates, tasks and solutions.",
   "Die Landesrunde der Mathematik-Olympiade – Termine, Aufgaben und Lösungen.": "The state round of the Mathematical Olympiad – dates, tasks and solutions.",
-  "Kurvendiskussion": "Curve sketching", "Polynome": "Polynomials", "Beliebige Funktionen": "Any functions",
+  "Kurvendiskussion": "Curve sketching", "Polynome": "Polynomials", "Beliebige Funktionen": "Any function",
   "Graph, Ableitungen und PDF auf Knopfdruck": "Graph, derivatives and PDF at the push of a button",
   "Ganzrationale Funktionen bis Grad 4": "Polynomial functions up to degree 4", "Mit sin, ln, eˣ, Wurzeln und Brüchen": "With sin, ln, eˣ, roots and fractions",
   "f′, f″ und f‴ eingeben und prüfen": "Enter and check f′, f″ and f‴", "Ebenen live im Raum drehen": "Rotate planes live in space",
@@ -114,6 +114,14 @@ const ZUSATZ = {
   "Vom Baumdiagramm zum Hypothesentest": "From tree diagram to hypothesis test", "Du formst um, die App rechnet mit": "You transform, the app does the arithmetic",
   "Mit drei Variablen": "With three variables",
   "Kurvendiskussion, Sinus und Ableitungen – live.": "Curve sketching, sine and derivatives – live.",
+  /* Steckbriefaufgaben (Funktionen aus Eigenschaften bestimmen) */
+  "Steckbriefaufgaben": "Function Reconstruction", "Steckbrief": "Reconstruction", "Steckbriefe": "Reconstruction",
+  "Aus Eigenschaften die Funktion bestimmen": "Determine the function from its properties",
+  "Kurvendiskussion, Steckbriefe, Sinus und Ableitungen – live.": "Curve sketching, function reconstruction, sine and derivatives – live.",
+  "Aus Hochpunkt, Wendepunkt & Co. die Funktion bauen.": "Build the function from maximum points, inflection points & co.",
+  "Bedingungen aufstellen, einsetzen, LGS lösen – mit Schaubild als Probe.": "Set up conditions, substitute, solve the linear system – with the graph as a check.",
+  "Fünf Werkzeuge für die Analysis: Graphen live erkunden, komplette Kurvendiskussionen erzeugen, Sinusfunktionen anpassen, Funktionen aus Steckbriefen bestimmen und das Ableiten trainieren.":
+    "Five tools for calculus: explore graphs live, generate complete curve sketches, fit sine functions, reconstruct functions from their properties and practice differentiating.",
   "Vom kleinen Einmaleins bis zu vierstelligen Zahlen.": "From times tables to four-digit numbers.",
   "Wähle für beide Zahlen einen Bereich – vom kleinen Einmaleins bis zu vierstelligen Zahlen. Rechne im Kopf und tippe das Ergebnis ein.": "Choose a range for both numbers – from times tables to four-digit numbers. Work it out in your head and type in the result.",
   "Vier Trainer für das Kopfrechnen. Wer Zahlen sofort abrufen kann, kürzt schneller, sieht Teiler auf einen Blick und hat beim Rechnen den Kopf für das Eigentliche frei.": "Four trainers for mental math. If you can recall numbers instantly, you simplify faster, spot divisors at a glance and keep your mind free for what really matters when calculating.",
@@ -129,7 +137,7 @@ const ZUSATZ = {
   "Alle wichtigen Begriffe der Oberstufe – präzise definiert.": "All key terms of upper-level math – precisely defined.",
   "Die zentralen Sätze der Oberstufe – klar formuliert.": "The central theorems of upper-level math – clearly stated.", "Gleichungen lösen": "Solving equations",
   "Gleichungen umformen und Gleichungssysteme lösen – mit Musterlösung.": "Transform equations and solve systems of equations – with model solutions.",
-  "Analysis, Vektoren, Stochastik und Gleichungen live erleben.": "Experience analysis, vectors, stochastics and equations live.",
+  "Analysis, Vektoren, Stochastik und Gleichungen live erleben.": "Experience calculus, vectors, probability and equations live.",
   "Frag Mathilda AI": "Ask Mathilda AI", "Frag Mathilda AI öffnen": "Open Ask Mathilda AI",
   "Ticket buchen –": "Book ticket –", "Elternabend ·": "Parents' evening ·",
   "Sonntag, 1. November 2026": "Sunday, November 1, 2026", "Sonntag, 1. November": "Sunday, November 1",
@@ -148,24 +156,30 @@ const GLOSSAR = [
   ["alle reellen Zahlen", "all real numbers"],
   ["streng monoton steigend", "strictly increasing"], ["streng monoton fallend", "strictly decreasing"],
   ["monoton steigend", "increasing"], ["monoton fallend", "decreasing"],
-  ["Rechtskurve", "right-hand curve"], ["Linkskurve", "left-hand curve"], ["konkav", "concave"], ["konvex", "convex"],
+  ["Rechtskurve (konkav)", "concave down"], ["Linkskurve (konvex)", "concave up"],
+  ["Rechtskurve", "concave down"], ["Linkskurve", "concave up"], ["konkav", "concave"], ["konvex", "convex"],
   ["senkrechte Asymptote", "vertical asymptote"], ["Senkrechte Asymptote", "Vertical asymptote"],
   ["Waagerechte Asymptote", "Horizontal asymptote"], ["waagerechte Asymptote", "horizontal asymptote"],
   ["am Rand des Definitionsbereichs", "at the edge of the domain"], ["im Untersuchungsbereich", "in the examined range"],
   ["Quadratische Gleichung", "Quadratic equation"], ["Lineare Gleichung", "Linear equation"],
   ["Hochpunkt", "maximum point"], ["Tiefpunkt", "minimum point"], ["Sattelpunkt", "saddle point"],
-  ["Wendepunkte", "inflection points"], ["Wendepunkt", "inflection point"], ["Extrempunkte", "extreme points"],
+  ["Wendepunkte", "inflection points"], ["Wendepunkt", "inflection point"], ["Extrempunkte", "extreme points"], ["Wendestelle", "inflection point"],
   ["Nullstellen", "zeros"], ["Nullstelle", "zero"], ["Polstelle", "pole"], ["Lücken", "gaps"], ["Lücke", "gap"],
   ["Negativ bedeutet", "Negative means"], ["Positiv bedeutet", "Positive means"],
   ["keine", "no"], ["kein", "no"], ["hat", "has"], ["ist", "is"], ["eine", "a"], ["und", "and"], ["oder", "or"],
   ["für", "for"], ["am", "at"], ["da", "since"], ["Ausprobieren", "Trial"], ["Gleichung", "equation"],
 ].map(([de, en]) => [new RegExp("(?<![\\p{L}])" + esc(de) + "(?![\\p{L}])", "gu"), en]);
 
+/* Bleiben nach dem Glossar noch deutsche Wörter übrig, wäre das Ergebnis ein
+   Sprachmix („The graph … has im Punkt …“) – dann lieber gar nicht übersetzen. */
+const NOCH_DEUTSCH = /[äöüÄÖÜß]|(?<![\p{L}])(der|die|das|den|dem|des|ein|einen|einem|einer|im|zum|zur|vom|mit|bei|nach|auf|durch|sich|wird|sind|nicht|noch|auch|nur|dort|hier|dann|wenn|also|liegt|verläuft|schneidet|Punkt|Punkte|Stelle|Graph|Graphen|Funktion|Bedingung|Steigung|Gleichung|Lösung|gesucht|Gesucht)(?![\p{L}])/u;
+
 function glossar(s) {
   if (!/[=⇒<>|(]|\d/.test(s)) return null;
   let t = kdText(s);
   for (const [re, en] of GLOSSAR) t = t.replace(re, en);
-  return t === s ? null : t;
+  if (t === s || NOCH_DEUTSCH.test(t)) return null;
+  return t;
 }
 
 /* Übersetzt einen Text; unbekannte Texte bleiben unverändert. */
@@ -187,7 +201,7 @@ export function tr(text) {
           const w = werte[n] ?? "";
           // deutsche Pluralendung als Platzhalter („Schritt{1}“) → englisches „s“
           if (vor && /^(e|en|n|er|s)?$/.test(w)) return vor + (w ? "s" : "");
-          return vor + (EXAKT.get(norm(w)) ?? w);
+          return vor + tr(w);
         });
         break;
       }
@@ -234,8 +248,13 @@ function baum(wurzel) {
   if (wurzel.nodeType === 3) { textKnoten(wurzel); return; }
   if (wurzel.nodeType !== 1 || gesperrt(wurzel)) return;
   const w = document.createTreeWalker(wurzel, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT, {
-    acceptNode: (n) => (n.nodeType === 1 && (AUSLASSEN.has(n.tagName) || n.hasAttribute("data-kein-i18n"))
-      ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT),
+    acceptNode: (n) => {
+      if (n.nodeType === 1 && (AUSLASSEN.has(n.tagName) || n.hasAttribute("data-kein-i18n"))) {
+        if (n.tagName === "TEXTAREA" && !gesperrt(n.parentNode)) attrKnoten(n, "placeholder");
+        return NodeFilter.FILTER_REJECT;
+      }
+      return NodeFilter.FILTER_ACCEPT;
+    },
   });
   for (let n = wurzel; n; n = w.nextNode()) {
     if (n.nodeType === 3) textKnoten(n);
@@ -249,7 +268,10 @@ function beobachten() {
   new MutationObserver((liste) => {
     for (const m of liste) {
       if (m.type === "characterData") textKnoten(m.target);
-      else if (m.type === "attributes") { if (!gesperrt(m.target)) attrKnoten(m.target, m.attributeName); }
+      else if (m.type === "attributes") {
+        const t = m.target;
+        if (!gesperrt(t) || (t.tagName === "TEXTAREA" && m.attributeName === "placeholder" && !gesperrt(t.parentNode))) attrKnoten(t, m.attributeName);
+      }
       else m.addedNodes.forEach(baum);
     }
   }).observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ATTRIBUTE });

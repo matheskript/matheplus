@@ -518,7 +518,7 @@ export function M({ t }) {
   return (
     <span style={{ fontVariantNumeric: "lining-nums", display: "inline-flex", alignItems: "center",
       flexWrap: "wrap", verticalAlign: "middle", lineHeight: 1.35 }}>
-      {mZeichne(mLies(String(t), 0, null)[0])}
+      {mZeichne(mLies(String(tr(t)), 0, null)[0])}
     </span>
   );
 }

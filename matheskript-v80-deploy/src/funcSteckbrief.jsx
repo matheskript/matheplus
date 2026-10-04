@@ -2,6 +2,11 @@ import React, { useState, useRef, useEffect } from "react";
 import { C } from "./base1.jsx";
 import { M, Text } from "./func3.jsx";
 import { merken } from "./func5.jsx";
+import { englisch } from "./i18n.js";
+
+/* Sprache: Texte stehen hier direkt zweisprachig (zw(deutsch, englisch)). */
+const EN = englisch();
+const zw = (de, en) => (EN ? en : de);
 import { NeueZeile } from "./funcLGS.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
 const LGS_ZEILE_CSS = ".lgs-blink{animation:sbBlink 1s step-end infinite}";
@@ -28,21 +33,21 @@ const kgV = (a, b) => Math.abs(a * b) / ggT(a, b);
 const minus = (s) => String(s).replace(/-/g, "−");
 const zk = (v) => (v < 0 ? `(${minus(v)})` : String(v));
 const rund = (v) => Math.round(v * 1e6) / 1e6;
-const dez = (v) => minus(String(Math.round(v * 1000) / 1000).replace(".", ","));
+const dez = (v) => minus(EN ? String(Math.round(v * 1000) / 1000) : String(Math.round(v * 1000) / 1000).replace(".", ","));
 const fallend = (p, k) => { let f = 1; for (let i = 0; i < k; i++) f *= p - i; return f; };
 const fName = (k) => `f${STRICH[k]}`;
 const zeilenGgT = (r) => r.reduce((g, v) => ggT(g, v), 0);
 
 /* ---------- Ansätze ---------- */
 const ANSAETZE = {
-  p2: { art: "poly", grad: 2, vars: ["a", "b", "c"], pot: [2, 1, 0], formel: "ax^2 + bx + c", kurz: "Grad 2" },
-  p3: { art: "poly", grad: 3, vars: ["a", "b", "c", "d"], pot: [3, 2, 1, 0], formel: "ax^3 + bx^2 + cx + d", kurz: "Grad 3" },
-  p3u: { art: "poly", grad: 3, vars: ["a", "b"], pot: [3, 1], formel: "ax^3 + bx", kurz: "Grad 3, nur ungerade Exponenten" },
-  p4g: { art: "poly", grad: 4, vars: ["a", "b", "c"], pot: [4, 2, 0], formel: "ax^4 + bx^2 + c", kurz: "Grad 4, nur gerade Exponenten" },
-  p4: { art: "poly", grad: 4, vars: ["a", "b", "c", "d", "e"], pot: [4, 3, 2, 1, 0], formel: "ax^4 + bx^3 + cx^2 + dx + e", kurz: "Grad 4, allgemein" },
-  exp: { art: "exp", vars: ["c", "a"], formel: "c·a^x", kurz: "Exponentialfunktion" },
-  ek: { art: "ek", vars: ["c", "k"], formel: "c·e^{k·x}", kurz: "e-Funktion" },
-  sin: { art: "sin", vars: ["a", "b", "c", "d"], formel: "a·sin(b·(x − c)) + d", kurz: "Sinusfunktion" },
+  p2: { art: "poly", grad: 2, vars: ["a", "b", "c"], pot: [2, 1, 0], formel: "ax^2 + bx + c", kurz: zw("Grad 2", "Degree 2") },
+  p3: { art: "poly", grad: 3, vars: ["a", "b", "c", "d"], pot: [3, 2, 1, 0], formel: "ax^3 + bx^2 + cx + d", kurz: zw("Grad 3", "Degree 3") },
+  p3u: { art: "poly", grad: 3, vars: ["a", "b"], pot: [3, 1], formel: "ax^3 + bx", kurz: zw("Grad 3, nur ungerade Exponenten", "Degree 3, odd exponents only") },
+  p4g: { art: "poly", grad: 4, vars: ["a", "b", "c"], pot: [4, 2, 0], formel: "ax^4 + bx^2 + c", kurz: zw("Grad 4, nur gerade Exponenten", "Degree 4, even exponents only") },
+  p4: { art: "poly", grad: 4, vars: ["a", "b", "c", "d", "e"], pot: [4, 3, 2, 1, 0], formel: "ax^4 + bx^3 + cx^2 + dx + e", kurz: zw("Grad 4, allgemein", "Degree 4, general") },
+  exp: { art: "exp", vars: ["c", "a"], formel: "c·a^x", kurz: zw("Exponentialfunktion", "Exponential function") },
+  ek: { art: "ek", vars: ["c", "k"], formel: "c·e^{k·x}", kurz: zw("e-Funktion", "Natural exponential function") },
+  sin: { art: "sin", vars: ["a", "b", "c", "d"], formel: "a·sin(b·(x − c)) + d", kurz: zw("Sinusfunktion", "Sine function") },
 };
 const WAHL = { poly: ["p2", "p3", "p3u", "p4g", "p4"], adv: ["exp", "ek", "sin", "p3"] };
 const GRADWORT = { 2: "zweiten", 3: "dritten", 4: "vierten" };
@@ -95,11 +100,19 @@ function detN(A) {
 }
 
 /* ---------- Eigenschaften → Bedingungen ---------- */
-const ROLLEN = {
+const ROLLEN = EN ? {
+  punkt: "Point", null: "Zero", yachse: "y-intercept",
+  hoch: "Maximum point", tief: "Minimum point", scheitel: "Vertex", wende: "Inflection point",
+  wendeTang: "Inflection point with tangent", sattel: "Saddle point", wstelle: "Inflection point", tangente: "Point with given tangent slope",
+} : {
   punkt: "Punkt", null: "Nullstelle", yachse: "Schnittpunkt mit der y-Achse",
   hoch: "Hochpunkt", tief: "Tiefpunkt", scheitel: "Scheitelpunkt", wende: "Wendepunkt",
   wendeTang: "Wendepunkt mit Wendetangente", sattel: "Sattelpunkt", wstelle: "Wendestelle", tangente: "Punkt mit Tangentensteigung",
 };
+/* englische Punktnamen wie in der Kurvendiskussion: Max, Min, IP, SP, V, Z₁, Y */
+const NAME_EN = { hoch: "Max", tief: "Min", wende: "IP", wendeTang: "IP", sattel: "SP", scheitel: "V", null: "Z" };
+const pName = (p) => (EN ? (p.rolle === "yachse" ? "Y" : NAME_EN[p.rolle] || p.name) : p.name);
+const pIdx = (p) => (EN && p.rolle === "yachse" ? "" : p.idx);
 
 function bedingungen(props, abl) {
   const b = [];
@@ -120,79 +133,91 @@ function bedingungen(props, abl) {
 }
 
 /* Punkt als Formeltext, z. B. H(1 | 2) oder N_1(3 | 0) */
-const lbl = (p) => `${p.name}${p.idx ? `_{${p.idx}}` : ""}(${dez(p.x)} | ${dez(p.y)})`;
+const lbl = (p) => `${pName(p)}${pIdx(p) ? `_{${pIdx(p)}}` : ""}(${dez(p.x)} | ${dez(p.y)})`;
 
 /* ---------- Aufgaben: Polynome ---------- */
-const extremWort = (p) => (p.rolle === "hoch" ? "Hochpunkt" : "Tiefpunkt");
+const extremWort = (p) => (p.rolle === "hoch" ? zw("Hochpunkt", "maximum point") : zw("Tiefpunkt", "minimum point"));
 
 const POLY_VORLAGEN = {
   2: [
     () => {
       const a = wahl([1, -1, 2, -2]), p = zz(-3, 3), q = zz(-4, 4), x1 = p + wahl([-2, -1, 1, 2, 3]);
       return { ansatz: "p2", koeff: [a, -2 * a * p, a * p * p + q], props: [{ rolle: "scheitel", name: "S", x: p }, { rolle: "punkt", name: "P", x: x1 }],
-        satz: (P) => `Der Graph einer ganzrationalen Funktion zweiten Grades hat den Scheitelpunkt $${lbl(P[0])}$ und verläuft durch den Punkt $${lbl(P[1])}$.` };
+        satz: (P) => zw(`Der Graph einer ganzrationalen Funktion zweiten Grades hat den Scheitelpunkt $${lbl(P[0])}$ und verläuft durch den Punkt $${lbl(P[1])}$.`,
+          `The graph of a polynomial function of degree 2 has its vertex at $${lbl(P[0])}$ and passes through the point $${lbl(P[1])}$.`) };
     },
     () => {
       const xs = mischen([-3, -2, -1, 0, 1, 2, 3]).slice(0, 3).sort((u, v) => u - v);
       return { ansatz: "p2", koeff: [wahl([1, -1, 2, -2]), zz(-4, 4), zz(-5, 5)], props: xs.map((x, i) => ({ rolle: "punkt", name: "ABC"[i], x })),
-        satz: (P) => `Der Graph einer ganzrationalen Funktion zweiten Grades verläuft durch die Punkte $${lbl(P[0])}$, $${lbl(P[1])}$ und $${lbl(P[2])}$.` };
+        satz: (P) => zw(`Der Graph einer ganzrationalen Funktion zweiten Grades verläuft durch die Punkte $${lbl(P[0])}$, $${lbl(P[1])}$ und $${lbl(P[2])}$.`,
+          `The graph of a polynomial function of degree 2 passes through the points $${lbl(P[0])}$, $${lbl(P[1])}$ and $${lbl(P[2])}$.`) };
     },
     () => {
       const [r1, r2] = mischen([-4, -3, -2, -1, 1, 2, 3, 4]).slice(0, 2).sort((u, v) => u - v), a = wahl([1, -1, 2, -2]);
       return { ansatz: "p2", koeff: [a, -a * (r1 + r2), a * r1 * r2],
         props: [{ rolle: "null", name: "N", idx: "1", x: r1 }, { rolle: "null", name: "N", idx: "2", x: r2 }, { rolle: "yachse", name: "S", idx: "y", x: 0 }],
-        satz: (P) => `Eine ganzrationale Funktion zweiten Grades hat die Nullstellen $x_1 = ${minus(r1)}$ und $x_2 = ${minus(r2)}$. Ihr Graph schneidet die y-Achse bei $y = ${minus(P[2].y)}$.` };
+        satz: (P) => zw(`Eine ganzrationale Funktion zweiten Grades hat die Nullstellen $x_1 = ${minus(r1)}$ und $x_2 = ${minus(r2)}$. Ihr Graph schneidet die y-Achse bei $y = ${minus(P[2].y)}$.`,
+          `A polynomial function of degree 2 has the zeros $x_1 = ${minus(r1)}$ and $x_2 = ${minus(r2)}$. Its graph intersects the y-axis at $y = ${minus(P[2].y)}$.`) };
     },
     () => {
       const x0 = zz(-2, 2), x1 = x0 + wahl([-3, -2, 2, 3]);
       return { ansatz: "p2", koeff: [wahl([1, -1, 2, -2]), zz(-4, 4), zz(-5, 5)], props: [{ rolle: "punkt", name: "P", x: x1 }, { rolle: "tangente", name: "Q", x: x0 }],
-        satz: (P) => `Der Graph einer ganzrationalen Funktion zweiten Grades verläuft durch $${lbl(P[0])}$. Die Tangente im Punkt $${lbl(P[1])}$ hat die Steigung $m = ${minus(P[1].m)}$.` };
+        satz: (P) => zw(`Der Graph einer ganzrationalen Funktion zweiten Grades verläuft durch $${lbl(P[0])}$. Die Tangente im Punkt $${lbl(P[1])}$ hat die Steigung $m = ${minus(P[1].m)}$.`,
+          `The graph of a polynomial function of degree 2 passes through $${lbl(P[0])}$. The tangent at the point $${lbl(P[1])}$ has slope $m = ${minus(P[1].m)}$.`) };
     },
   ],
   3: [
     () => {
       const a = wahl([1, -1, 2, -2]), diff = wahl(Math.abs(a) === 2 ? [2, 3, 4] : [2, 4]), p = zz(-3, 2), q = p + diff;
       return { ansatz: "p3", koeff: [a, (-3 * a * (p + q)) / 2, 3 * a * p * q, zz(-5, 5)], props: [{ rolle: "extrem", x: p }, { rolle: "extrem", x: q }],
-        satz: (P) => { const h = P.find((r) => r.rolle === "hoch"), t = P.find((r) => r.rolle === "tief"); return `Der Graph einer ganzrationalen Funktion dritten Grades hat den Hochpunkt $${lbl(h)}$ und den Tiefpunkt $${lbl(t)}$.`; } };
+        satz: (P) => { const h = P.find((r) => r.rolle === "hoch"), t = P.find((r) => r.rolle === "tief"); return zw(`Der Graph einer ganzrationalen Funktion dritten Grades hat den Hochpunkt $${lbl(h)}$ und den Tiefpunkt $${lbl(t)}$.`,
+          `The graph of a polynomial function of degree 3 has the maximum point $${lbl(h)}$ and the minimum point $${lbl(t)}$.`); } };
     },
     () => {
       const a = wahl([1, -1, 2, -2]), diff = wahl(Math.abs(a) === 2 ? [2, 3, 4] : [2, 4]), p = zz(-3, 2), q = p + diff;
       return { ansatz: "p3", koeff: [a, (-3 * a * (p + q)) / 2, 3 * a * p * q, zz(-5, 5)], props: [{ rolle: "extrem", x: p }, { rolle: "extrem", x: q }],
-        satz: (P) => { const h = P.find((r) => r.rolle === "hoch"), t = P.find((r) => r.rolle === "tief"); return `Der Graph einer ganzrationalen Funktion dritten Grades hat den Tiefpunkt $${lbl(t)}$ und den Hochpunkt $${lbl(h)}$.`; } };
+        satz: (P) => { const h = P.find((r) => r.rolle === "hoch"), t = P.find((r) => r.rolle === "tief"); return zw(`Der Graph einer ganzrationalen Funktion dritten Grades hat den Tiefpunkt $${lbl(t)}$ und den Hochpunkt $${lbl(h)}$.`,
+          `The graph of a polynomial function of degree 3 has the minimum point $${lbl(t)}$ and the maximum point $${lbl(h)}$.`); } };
     },
     () => {
       const a = wahl([1, -1]), w = zz(-2, 2), x1 = w + wahl([-2, -1, 1, 2]);
       return { ansatz: "p3", koeff: [a, -3 * a * w, zz(-4, 4), zz(-4, 4)], props: [{ rolle: "wendeTang", name: "W", x: w }, { rolle: "punkt", name: "P", x: x1 }],
-        satz: (P) => `Der Graph einer ganzrationalen Funktion dritten Grades hat den Wendepunkt $${lbl(P[0])}$, die Wendetangente hat dort die Steigung $m = ${minus(P[0].m)}$. Außerdem verläuft der Graph durch $${lbl(P[1])}$.` };
+        satz: (P) => zw(`Der Graph einer ganzrationalen Funktion dritten Grades hat den Wendepunkt $${lbl(P[0])}$, die Wendetangente hat dort die Steigung $m = ${minus(P[0].m)}$. Außerdem verläuft der Graph durch $${lbl(P[1])}$.`,
+          `The graph of a polynomial function of degree 3 has the inflection point $${lbl(P[0])}$; the tangent at this point has slope $m = ${minus(P[0].m)}$. The graph also passes through $${lbl(P[1])}$.`) };
     },
     () => {
       const a = wahl([1, -1, 2, -2]), s = zz(-2, 2), ys = zz(-3, 3), x1 = s + wahl([-2, -1, 1, 2]);
       return { ansatz: "p3", koeff: [a, -3 * a * s, 3 * a * s * s, -a * s * s * s + ys], props: [{ rolle: "sattel", name: "S", x: s }, { rolle: "punkt", name: "P", x: x1 }],
-        satz: (P) => `Der Graph einer ganzrationalen Funktion dritten Grades hat im Punkt $${lbl(P[0])}$ einen Sattelpunkt und verläuft durch $${lbl(P[1])}$.` };
+        satz: (P) => zw(`Der Graph einer ganzrationalen Funktion dritten Grades hat im Punkt $${lbl(P[0])}$ einen Sattelpunkt und verläuft durch $${lbl(P[1])}$.`,
+          `The graph of a polynomial function of degree 3 has a saddle point at $${lbl(P[0])}$ and passes through $${lbl(P[1])}$.`) };
     },
     () => {
       const a = wahl([1, -1]), w = zz(-1, 2), p = w + wahl([-2, -1, 1, 2]);
       if (p === 0) return null;
       return { ansatz: "p3", koeff: [a, -3 * a * w, -3 * a * p * p + 6 * a * w * p, zz(-5, 5)],
         props: [{ rolle: "wstelle", name: "W", x: w }, { rolle: "extrem", x: p }, { rolle: "yachse", name: "S", idx: "y", x: 0 }],
-        satz: (P) => `Eine ganzrationale Funktion dritten Grades hat an der Stelle $x = ${minus(w)}$ eine Wendestelle und im Punkt $${lbl(P[1])}$ einen ${extremWort(P[1])}. Ihr Graph schneidet die y-Achse bei $y = ${minus(P[2].y)}$.` };
+        satz: (P) => zw(`Eine ganzrationale Funktion dritten Grades hat an der Stelle $x = ${minus(w)}$ eine Wendestelle und im Punkt $${lbl(P[1])}$ einen ${extremWort(P[1])}. Ihr Graph schneidet die y-Achse bei $y = ${minus(P[2].y)}$.`,
+          `A polynomial function of degree 3 has an inflection point at $x = ${minus(w)}$ and a ${extremWort(P[1])} at $${lbl(P[1])}$. Its graph intersects the y-axis at $y = ${minus(P[2].y)}$.`) };
     },
     () => {
       const a = wahl([1, -1, 2, -2]), p = wahl([1, 2, -1, -2]);
       return { ansatz: "p3u", koeff: [a, -3 * a * p * p], props: [{ rolle: "extrem", x: p }],
-        satz: (P) => `Der Graph einer ganzrationalen Funktion dritten Grades ist punktsymmetrisch zum Ursprung und hat den ${extremWort(P[0])} $${lbl(P[0])}$.` };
+        satz: (P) => zw(`Der Graph einer ganzrationalen Funktion dritten Grades ist punktsymmetrisch zum Ursprung und hat den ${extremWort(P[0])} $${lbl(P[0])}$.`,
+          `The graph of a polynomial function of degree 3 is point-symmetric about the origin and has the ${extremWort(P[0])} $${lbl(P[0])}$.`) };
     },
   ],
   4: [
     () => {
       const a = wahl([1, -1]), p = wahl([1, 2, -1, -2]);
       return { ansatz: "p4g", koeff: [a, -2 * a * p * p, zz(-4, 6)], props: [{ rolle: "extrem", x: p }, { rolle: "yachse", name: "S", idx: "y", x: 0 }],
-        satz: (P) => `Der Graph einer ganzrationalen Funktion vierten Grades ist achsensymmetrisch zur y-Achse, hat den ${extremWort(P[0])} $${lbl(P[0])}$ und schneidet die y-Achse bei $y = ${minus(P[1].y)}$.` };
+        satz: (P) => zw(`Der Graph einer ganzrationalen Funktion vierten Grades ist achsensymmetrisch zur y-Achse, hat den ${extremWort(P[0])} $${lbl(P[0])}$ und schneidet die y-Achse bei $y = ${minus(P[1].y)}$.`,
+          `The graph of a polynomial function of degree 4 is symmetric about the y-axis, has the ${extremWort(P[0])} $${lbl(P[0])}$ and intersects the y-axis at $y = ${minus(P[1].y)}$.`) };
     },
     () => {
       const a = wahl([1, -1, 2, -2]), w = wahl([1, -1]), x1 = wahl([2, -2, 0]);
       return { ansatz: "p4g", koeff: [a, -6 * a, zz(-3, 5)], props: [{ rolle: "wende", name: "W", x: w }, { rolle: "punkt", name: "P", x: x1 }],
-        satz: (P) => `Der Graph einer ganzrationalen Funktion vierten Grades ist achsensymmetrisch zur y-Achse, hat den Wendepunkt $${lbl(P[0])}$ und verläuft durch $${lbl(P[1])}$.` };
+        satz: (P) => zw(`Der Graph einer ganzrationalen Funktion vierten Grades ist achsensymmetrisch zur y-Achse, hat den Wendepunkt $${lbl(P[0])}$ und verläuft durch $${lbl(P[1])}$.`,
+          `The graph of a polynomial function of degree 4 is symmetric about the y-axis, has the inflection point $${lbl(P[0])}$ and passes through $${lbl(P[1])}$.`) };
     },
   ],
 };
@@ -222,13 +247,15 @@ const ADV_VORLAGEN = {
     const q = wahl([2, 3]), c = zz(1, 5), x1 = wahl([0, 1]), x2 = x1 + wahl([1, 2]);
     return { ansatz: "exp", koeff: [c, q], f: (x) => c * Math.pow(q, x),
       props: [{ rolle: "punkt", name: "P", x: x1 }, { rolle: "punkt", name: "Q", x: x2 }],
-      satz: (P) => `Der Graph einer Exponentialfunktion verläuft durch die Punkte $${lbl(P[0])}$ und $${lbl(P[1])}$. Gesucht ist f in der Form $f(x) = c·a^x$.` };
+      satz: (P) => zw(`Der Graph einer Exponentialfunktion verläuft durch die Punkte $${lbl(P[0])}$ und $${lbl(P[1])}$. Gesucht ist f in der Form $f(x) = c·a^x$.`,
+        `The graph of an exponential function passes through the points $${lbl(P[0])}$ and $${lbl(P[1])}$. Find f in the form $f(x) = c·a^x$.`) };
   },
   ek: () => {
     const q = wahl([2, 3]), c = zz(1, 5), x1 = wahl([1, 2]);
     return { ansatz: "ek", koeff: [c, Math.log(q)], q, f: (x) => c * Math.pow(q, x),
       props: [{ rolle: "punkt", name: "P", x: 0 }, { rolle: "punkt", name: "Q", x: x1 }],
-      satz: (P) => `Der Graph einer Exponentialfunktion verläuft durch die Punkte $${lbl(P[0])}$ und $${lbl(P[1])}$. Gesucht ist f in der Form $f(x) = c·e^{k·x}$.` };
+      satz: (P) => zw(`Der Graph einer Exponentialfunktion verläuft durch die Punkte $${lbl(P[0])}$ und $${lbl(P[1])}$. Gesucht ist f in der Form $f(x) = c·e^{k·x}$.`,
+        `The graph of an exponential function passes through the points $${lbl(P[0])}$ and $${lbl(P[1])}$. Find f in the form $f(x) = c·e^{k·x}$.`) };
   },
   sin: () => {
     const h = wahl([1, 2, 2, 3, 4]), A = zz(1, 3), d = zz(-1, 3), xH = zz(-1, 3), rechts = Math.random() < 0.5;
@@ -236,7 +263,8 @@ const ADV_VORLAGEN = {
     const H = { rolle: "hoch", name: "H", x: xH }, T = { rolle: "tief", name: "T", x: xT };
     return { ansatz: "sin", koeff: [A, Math.PI / h, c, d], h, f: (x) => A * Math.sin((Math.PI / h) * (x - c)) + d,
       props: Math.random() < 0.7 ? [H, T] : [T, H],
-      satz: (P) => `Eine allgemeine Sinusfunktion hat den ${P[0].rolle === "hoch" ? "Hochpunkt" : "Tiefpunkt"} $${lbl(P[0])}$ und den benachbarten ${P[1].rolle === "hoch" ? "Hochpunkt" : "Tiefpunkt"} $${lbl(P[1])}$.` };
+      satz: (P) => zw(`Eine allgemeine Sinusfunktion hat den ${P[0].rolle === "hoch" ? "Hochpunkt" : "Tiefpunkt"} $${lbl(P[0])}$ und den benachbarten ${P[1].rolle === "hoch" ? "Hochpunkt" : "Tiefpunkt"} $${lbl(P[1])}$.`,
+        `A general sine function has the ${extremWort(P[0])} $${lbl(P[0])}$ and the adjacent ${extremWort(P[1])} $${lbl(P[1])}$.`) };
   },
 };
 
@@ -254,7 +282,8 @@ export function aufgabeErzeugen(modus, sub) {
     if (a) return a;
   }
   return fertigPoly({ ansatz: "p3", koeff: [1, -6, 9, -2], props: [{ rolle: "extrem", x: 1 }, { rolle: "extrem", x: 3 }],
-    satz: (P) => `Der Graph einer ganzrationalen Funktion dritten Grades hat den Hochpunkt $${lbl(P[0])}$ und den Tiefpunkt $${lbl(P[1])}$.` });
+    satz: (P) => zw(`Der Graph einer ganzrationalen Funktion dritten Grades hat den Hochpunkt $${lbl(P[0])}$ und den Tiefpunkt $${lbl(P[1])}$.`,
+      `The graph of a polynomial function of degree 3 has the maximum point $${lbl(P[0])}$ and the minimum point $${lbl(P[1])}$.`) });
 }
 
 /* Funktionsterm des Ergebnisses als Formeltext */
@@ -289,22 +318,22 @@ class KombiFehler extends Error {}
 
 function kombiLesen(text, n) {
   const s = String(text).replace(/[−–]/g, "-").replace(/[·*×]/g, "*").replace(/\s+/g, "").toUpperCase();
-  if (!s) throw new KombiFehler("Die Zeile ist noch leer.");
+  if (!s) throw new KombiFehler(zw("Die Zeile ist noch leer.", "The line is still empty."));
   const namen = ROEM.slice(0, n).map((t, k) => [t, k]).sort((u, v) => v[0].length - u[0].length);
   let i = 0;
   const zahl = () => { let j = i; while (j < s.length && /[0-9]/.test(s[j])) j++; if (j === i) return null; const v = parseInt(s.slice(i, j), 10); i = j; return v; };
   const roem = () => { for (const [t, k] of namen) if (s.startsWith(t, i)) { i += t.length; return k; } return null; };
   const vec = (k) => Array.from({ length: n }, (_, j) => (j === k ? 1 : 0));
   const faktor = () => {
-    if (s[i] === "(") { i++; const v = summe(); if (s[i] !== ")") throw new KombiFehler("Eine Klammer ist nicht geschlossen."); i++; return v; }
+    if (s[i] === "(") { i++; const v = summe(); if (s[i] !== ")") throw new KombiFehler(zw("Eine Klammer ist nicht geschlossen.", "A bracket has not been closed.")); i++; return v; }
     const k = roem(); if (k !== null) return vec(k);
-    throw new KombiFehler(`Hier fehlt eine Gleichung (${ROEM.slice(0, n).join(", ")}).`);
+    throw new KombiFehler(zw(`Hier fehlt eine Gleichung (${ROEM.slice(0, n).join(", ")}).`, `An equation is missing here (${ROEM.slice(0, n).join(", ")}).`));
   };
   const term = () => {
     const z = zahl();
     if (z !== null) {
       if (s[i] === "*") i++;
-      if (i >= s.length || !(s[i] === "(" || s[i] === "I")) throw new KombiFehler("Nach einer Zahl muss eine Gleichung kommen, z. B. 3·II.");
+      if (i >= s.length || !(s[i] === "(" || s[i] === "I")) throw new KombiFehler(zw("Nach einer Zahl muss eine Gleichung kommen, z. B. 3·II.", "A number must be followed by an equation, e.g. 3·II."));
       return faktor().map((v) => v * z);
     }
     return faktor();
@@ -318,18 +347,18 @@ function kombiLesen(text, n) {
   };
   const v = summe();
   let teiler = 1;
-  if (s[i] === ":" || s[i] === "/") { i++; const t = zahl(); if (!t) throw new KombiFehler("Nach „:“ gehört eine Zahl ungleich 0."); teiler = t; }
-  if (i < s.length) throw new KombiFehler(`„${minus(s.slice(i))}“ verstehe ich nicht.`);
-  if (v.every((x) => x === 0)) throw new KombiFehler("Diese Kombination ergibt 0 = 0 — da geht alle Information verloren.");
+  if (s[i] === ":" || s[i] === "/") { i++; const t = zahl(); if (!t) throw new KombiFehler(zw("Nach „:“ gehört eine Zahl ungleich 0.", "“:” must be followed by a non-zero number.")); teiler = t; }
+  if (i < s.length) throw new KombiFehler(zw(`„${minus(s.slice(i))}“ verstehe ich nicht.`, `I don't understand “${minus(s.slice(i))}”.`));
+  if (v.every((x) => x === 0)) throw new KombiFehler(zw("Diese Kombination ergibt 0 = 0 — da geht alle Information verloren.", "This combination gives 0 = 0 — all information is lost."));
   return { vec: v, teiler };
 }
 
 function kombiAnwenden(rows, text, n) {
   const { vec, teiler } = kombiLesen(text, n);
   const r = Array.from({ length: n + 1 }, (_, j) => vec.reduce((s, c, k) => s + c * rows[k][j], 0));
-  if (r.some((v) => v % teiler !== 0)) throw new KombiFehler(`Nicht alle Zahlen sind durch ${teiler} teilbar.`);
+  if (r.some((v) => v % teiler !== 0)) throw new KombiFehler(zw(`Nicht alle Zahlen sind durch ${teiler} teilbar.`, `Not all numbers are divisible by ${teiler}.`));
   const erg = r.map((v) => v / teiler);
-  if (erg.slice(0, n).every((v) => v === 0)) throw new KombiFehler(erg[n] === 0 ? "Hier bleibt nur 0 = 0 übrig — diese Gleichung trägt keine Information mehr." : `Widerspruch 0 = ${minus(erg[n])} — da ist etwas schiefgelaufen.`);
+  if (erg.slice(0, n).every((v) => v === 0)) throw new KombiFehler(erg[n] === 0 ? zw("Hier bleibt nur 0 = 0 übrig — diese Gleichung trägt keine Information mehr.", "Only 0 = 0 is left — this equation no longer carries any information.") : zw(`Widerspruch 0 = ${minus(erg[n])} — da ist etwas schiefgelaufen.`, `Contradiction 0 = ${minus(erg[n])} — something has gone wrong.`));
   return { row: erg, vec };
 }
 
@@ -443,14 +472,14 @@ function gaussWeg(start, vars) {
       if (pos <= j || R[i][j] === 0) { neu.push(R[i]); notiz.push(ROEM[i]); }
       else { const e = eliminiere(R[i], R[p], j, ROEM[i], ROEM[p]); neu.push(e.row); notiz.push(e.notiz); geaendert = true; }
     });
-    if (geaendert) schritte.push({ titel: `${vars[j]} aus den Gleichungen darunter eliminieren`, rows: neu, notizen: notiz });
+    if (geaendert) schritte.push({ titel: zw(`${vars[j]} aus den Gleichungen darunter eliminieren`, `Eliminate ${vars[j]} from the equations below`), rows: neu, notizen: notiz });
     R = neu;
   }
   const bekannt = {}, rueck = [];
   for (let j = n - 1; j >= 0; j--) {
     const r = aufloesen(R[j], j, bekannt, vars);
     bekannt[j] = r.wert;
-    rueck.push({ titel: j === n - 1 ? `${ROEM[j]} nach ${vars[j]} auflösen` : `In ${ROEM[j]} einsetzen und nach ${vars[j]} auflösen`, zeilen: r.zeilen });
+    rueck.push({ titel: j === n - 1 ? zw(`${ROEM[j]} nach ${vars[j]} auflösen`, `Solve ${ROEM[j]} for ${vars[j]}`) : zw(`In ${ROEM[j]} einsetzen und nach ${vars[j]} auflösen`, `Substitute into ${ROEM[j]} and solve for ${vars[j]}`), zeilen: r.zeilen });
   }
   return { schritte, rueck, loesung: vars.map((_, j) => bekannt[j]) };
 }
@@ -533,16 +562,16 @@ const Erklaer = ({ children, style }) => (
 function ansatzHinweis(id, auf) {
   const soll = auf.ansatz, g = ANSAETZE[id], s = ANSAETZE[soll];
   if (s.art === "poly") {
-    if (g.art !== "poly") return "Gesucht ist eine ganzrationale Funktion – also ein Polynom mit Potenzen von x.";
-    if (g.grad !== s.grad) return `Der Text spricht von einer Funktion ${GRADWORT[s.grad]} Grades – der höchste Exponent muss ${s.grad} sein.`;
-    if (soll === "p3u") return "Fast! Punktsymmetrie zum Ursprung heißt: Es kommen nur ungerade Exponenten vor. Die Terme mit x² und die Konstante fallen weg – zwei Unbekannte weniger.";
-    if (soll === "p4g") return "Fast! Achsensymmetrie zur y-Achse heißt: Es kommen nur gerade Exponenten vor. Die Terme mit x³ und x fallen weg – das spart zwei Unbekannte.";
-    if (id === "p3u") return "Nur ungerade Exponenten passen bloß, wenn der Graph punktsymmetrisch zum Ursprung ist – davon steht nichts im Text.";
-    if (id === "p4g") return "Nur gerade Exponenten passen bloß, wenn der Graph achsensymmetrisch zur y-Achse ist – davon steht nichts im Text.";
+    if (g.art !== "poly") return zw("Gesucht ist eine ganzrationale Funktion – also ein Polynom mit Potenzen von x.", "You are looking for a polynomial function – a sum of powers of x.");
+    if (g.grad !== s.grad) return zw(`Der Text spricht von einer Funktion ${GRADWORT[s.grad]} Grades – der höchste Exponent muss ${s.grad} sein.`, `The text describes a function of degree ${s.grad} – the highest exponent must be ${s.grad}.`);
+    if (soll === "p3u") return zw("Fast! Punktsymmetrie zum Ursprung heißt: Es kommen nur ungerade Exponenten vor. Die Terme mit x² und die Konstante fallen weg – zwei Unbekannte weniger.", "Almost! Point symmetry about the origin means only odd exponents occur. The x² term and the constant drop out – two fewer unknowns.");
+    if (soll === "p4g") return zw("Fast! Achsensymmetrie zur y-Achse heißt: Es kommen nur gerade Exponenten vor. Die Terme mit x³ und x fallen weg – das spart zwei Unbekannte.", "Almost! Symmetry about the y-axis means only even exponents occur. The x³ and x terms drop out – that saves two unknowns.");
+    if (id === "p3u") return zw("Nur ungerade Exponenten passen bloß, wenn der Graph punktsymmetrisch zum Ursprung ist – davon steht nichts im Text.", "Odd exponents only work if the graph is point-symmetric about the origin – the text says nothing about that.");
+    if (id === "p4g") return zw("Nur gerade Exponenten passen bloß, wenn der Graph achsensymmetrisch zur y-Achse ist – davon steht nichts im Text.", "Even exponents only work if the graph is symmetric about the y-axis – the text says nothing about that.");
   }
-  if (g.art === "poly") return "Gesucht ist keine ganzrationale Funktion – lies nach, welcher Funktionstyp im Text steht.";
-  if (s.art === "sin") return "Hoch- und Tiefpunkte im Wechsel, Amplitude und Periode – hier ist eine Sinusfunktion gesucht.";
-  return `Im Text steht, in welcher Form f gesucht ist: $f(x) = ${s.formel}$.`;
+  if (g.art === "poly") return zw("Gesucht ist keine ganzrationale Funktion – lies nach, welcher Funktionstyp im Text steht.", "You are not looking for a polynomial function – check which type of function the text names.");
+  if (s.art === "sin") return zw("Hoch- und Tiefpunkte im Wechsel, Amplitude und Periode – hier ist eine Sinusfunktion gesucht.", "Alternating maximum and minimum points, amplitude and period – you are looking for a sine function.");
+  return zw(`Im Text steht, in welcher Form f gesucht ist: $f(x) = ${s.formel}$.`, `The text states the form f should have: $f(x) = ${s.formel}$.`);
 }
 
 function AnsatzSchritt({ auf, gewaehlt, setGewaehlt }) {
@@ -554,14 +583,16 @@ function AnsatzSchritt({ auf, gewaehlt, setGewaehlt }) {
       <>
         <div className="sb-scroll" style={{ fontSize: 19, fontWeight: 600, color: C.tinte }}><F t={`f(x) = ${ans.formel}`} /></div>
         <Erklaer style={{ marginTop: 10, marginBottom: 0 }}>
-          {ans.vars.length} Unbekannte ({ans.vars.join(", ")}) – du brauchst also <b style={{ fontWeight: 600, color: C.tinte }}>{ans.vars.length} Bedingungen</b>, die du aus dem Text liest.
+          {EN
+            ? <>{ans.vars.length} unknowns ({ans.vars.join(", ")}) – so you need <b style={{ fontWeight: 600, color: C.tinte }}>{ans.vars.length} conditions</b>, which you read from the text.</>
+            : <>{ans.vars.length} Unbekannte ({ans.vars.join(", ")}) – du brauchst also <b style={{ fontWeight: 600, color: C.tinte }}>{ans.vars.length} Bedingungen</b>, die du aus dem Text liest.</>}
         </Erklaer>
       </>
     );
   }
   return (
     <>
-      <Erklaer>Die erste Frage ist immer: Welche Struktur hat die gesuchte Funktion? Lies den Steckbrief darunter und wähle den passenden Ansatz.</Erklaer>
+      <Erklaer>{zw("Die erste Frage ist immer: Welche Struktur hat die gesuchte Funktion? Lies den Steckbrief darunter und wähle den passenden Ansatz.", "The first question is always: what is the structure of the function you are looking for? Read the profile below and choose the matching general form.")}</Erklaer>
       <div style={{ display: "grid", gap: 8 }}>
         {liste.map((id) => {
           const ans = ANSAETZE[id], rot = falsch === id;
@@ -587,23 +618,33 @@ const zahlLesen = (s) => (/^−?\d+$/.test(s) ? parseInt(s.replace("−", "-"), 
 
 function bedingungsHinweis(r, auf) {
   const B = auf.bed, P = auf.props;
-  if (r.k === 0 && B.some((b) => b.k === 0 && b.x === r.y && b.y === r.x && r.x !== r.y)) return "x und y vertauscht? In f(x) = y steht in der Klammer die x-Koordinate.";
+  if (r.k === 0 && B.some((b) => b.k === 0 && b.x === r.y && b.y === r.x && r.x !== r.y)) return zw("x und y vertauscht? In f(x) = y steht in der Klammer die x-Koordinate.", "Mixed up x and y? In f(x) = y, the x-coordinate goes inside the brackets.");
   const gleicheStelle = B.filter((b) => b.k === r.k && b.x === r.x);
   if (gleicheStelle.length) {
-    if (r.k === 0) return `An der Stelle x = ${minus(r.x)} gehört ein anderer Funktionswert hin – lies die y-Koordinate im Text nach.`;
+    if (r.k === 0) return zw(`An der Stelle x = ${minus(r.x)} gehört ein anderer Funktionswert hin – lies die y-Koordinate im Text nach.`, `At x = ${minus(r.x)} the function value is different – check the y-coordinate in the text.`);
     const p = P[gleicheStelle[0].s];
-    if (r.k === 1 && ["hoch", "tief", "scheitel", "sattel"].includes(p.rolle)) return `Am ${ROLLEN[p.rolle]} ist die Steigung null: f′(${minus(r.x)}) = 0.`;
-    if (r.k === 2) return `An einer Wendestelle ist die zweite Ableitung null: f″(${minus(r.x)}) = 0.`;
-    return `Die Steigung an der Stelle x = ${minus(r.x)} stimmt nicht – sie steht im Text.`;
+    if (r.k === 1 && ["hoch", "tief", "scheitel", "sattel"].includes(p.rolle)) return zw(`Am ${ROLLEN[p.rolle]} ist die Steigung null: f′(${minus(r.x)}) = 0.`, `At a ${ROLLEN[p.rolle].toLowerCase()} the slope is zero: f′(${minus(r.x)}) = 0.`);
+    if (r.k === 2) return zw(`An einer Wendestelle ist die zweite Ableitung null: f″(${minus(r.x)}) = 0.`, `At an inflection point the second derivative is zero: f″(${minus(r.x)}) = 0.`);
+    return zw(`Die Steigung an der Stelle x = ${minus(r.x)} stimmt nicht – sie steht im Text.`, `The slope at x = ${minus(r.x)} is not right – it is given in the text.`);
   }
-  if (r.k === 1 && r.y === 0 && P.some((p) => p.x === r.x && ["wende", "wstelle"].includes(p.rolle))) return "An einer Wendestelle ist nicht f′, sondern f″ gleich null.";
-  if (r.k === 2 && r.y === 0 && P.some((p) => p.x === r.x && ["hoch", "tief", "scheitel"].includes(p.rolle))) return "An einer Extremstelle ist f′ gleich null, nicht f″.";
-  if (auf.modus === "adv" && r.k === 2) return "Für diese Aufgabe brauchst du keine zweite Ableitung.";
-  return "Diese Bedingung steckt so nicht im Text.";
+  if (r.k === 1 && r.y === 0 && P.some((p) => p.x === r.x && ["wende", "wstelle"].includes(p.rolle))) return zw("An einer Wendestelle ist nicht f′, sondern f″ gleich null.", "At an inflection point it is f″, not f′, that equals zero.");
+  if (r.k === 2 && r.y === 0 && P.some((p) => p.x === r.x && ["hoch", "tief", "scheitel"].includes(p.rolle))) return zw("An einer Extremstelle ist f′ gleich null, nicht f″.", "At an extreme point it is f′ that equals zero, not f″.");
+  if (auf.modus === "adv" && r.k === 2) return zw("Für diese Aufgabe brauchst du keine zweite Ableitung.", "You don't need a second derivative for this task.");
+  return zw("Diese Bedingung steckt so nicht im Text.", "This condition isn't in the text in this form.");
 }
 
 function fehltHinweis(b, auf) {
   const p = auf.props[b.s];
+  if (EN) {
+    const was = p.rolle === "yachse" ? `The y-intercept (0 | ${minus(p.y)})`
+      : p.rolle === "null" ? `The zero at x = ${minus(p.x)}`
+      : p.rolle === "wstelle" ? `The inflection point at x = ${minus(p.x)}`
+      : `The ${ROLLEN[p.rolle].toLowerCase()} ${pName(p)}(${dez(p.x)} | ${dez(p.y)})`;
+    if (b.k === 0) return `${was} lies on the graph – that is a condition for f.`;
+    if (b.k === 1 && b.y === 0) return `${was}: the graph is horizontal there – that gives a condition for f′.`;
+    if (b.k === 1) return `${was}: the slope is given – that is a condition for f′.`;
+    return `${was}: the concavity changes there – that gives a condition for f″.`;
+  }
   const was = p.rolle === "yachse" ? `Der Schnittpunkt mit der y-Achse (0 | ${minus(p.y)})`
     : p.rolle === "null" ? `Die Nullstelle bei x = ${minus(p.x)}`
     : p.rolle === "wstelle" ? `Die Wendestelle bei x = ${minus(p.x)}`
@@ -613,6 +654,8 @@ function fehltHinweis(b, auf) {
   if (b.k === 1) return `${was}: Die Steigung ist gegeben – das ist eine Bedingung für f′.`;
   return `${was}: Dort wechselt die Krümmung – das liefert eine Bedingung für f″.`;
 }
+
+const TIPP = zw("Tipp", "Tip");
 
 function BedingungsSchritt({ auf, fertig, onFertig }) {
   const n = auf.bed.length;
@@ -648,7 +691,7 @@ function BedingungsSchritt({ auf, fertig, onFertig }) {
     const unvoll = parsed.findIndex((r) => r.k === null || r.x === null || r.y === null);
     if (unvoll >= 0) {
       setAktiv({ z: unvoll, s: parsed[unvoll].x === null ? "x" : "y" });
-      setHinweise([`Bedingung ${ROEM[unvoll]} ist noch nicht vollständig: Wähle f, f′ oder f″ und trage x-Wert und Ergebnis ein.`]);
+      setHinweise([zw(`Bedingung ${ROEM[unvoll]} ist noch nicht vollständig: Wähle f, f′ oder f″ und trage x-Wert und Ergebnis ein.`, `Condition ${ROEM[unvoll]} is not complete yet: choose f, f′ or f″ and enter the x-value and the result.`)]);
       return;
     }
     const offen = [...auf.bed];
@@ -661,10 +704,10 @@ function BedingungsSchritt({ auf, fertig, onFertig }) {
     if (st.every((s) => s === "ok")) { setHinweise([]); onFertig(parsed); return; }
     const h = [];
     parsed.forEach((r, i) => {
-      if (st[i] === "doppelt") h.push(`${ROEM[i]}: Diese Bedingung hast du schon – jede Information zählt nur einmal.`);
+      if (st[i] === "doppelt") h.push(`${ROEM[i]}: ${zw("Diese Bedingung hast du schon – jede Information zählt nur einmal.", "You already have this condition – each piece of information only counts once.")}`);
       if (st[i] === "falsch") h.push(`${ROEM[i]}: ${bedingungsHinweis(r, auf)}`);
     });
-    if (offen.length) h.push(`Tipp: ${fehltHinweis(offen[0], auf)}`);
+    if (offen.length) h.push(`${TIPP}: ${fehltHinweis(offen[0], auf)}`);
     setHinweise(h);
   };
 
@@ -689,7 +732,7 @@ function BedingungsSchritt({ auf, fertig, onFertig }) {
   const Slot = ({ i, s }) => {
     const v = zeilen[i][s], an = aktiv.z === i && aktiv.s === s;
     return (
-      <span role="button" tabIndex={0} aria-label={`${s === "x" ? "x-Wert" : "Ergebnis"} von Bedingung ${ROEM[i]}`}
+      <span role="button" tabIndex={0} aria-label={EN ? `${s === "x" ? "x-value" : "Result"} of condition ${ROEM[i]}` : `${s === "x" ? "x-Wert" : "Ergebnis"} von Bedingung ${ROEM[i]}`}
         onClick={(e) => { e.stopPropagation(); setAktiv({ z: i, s }); }}
         style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", minWidth: "1.7em", padding: "0 0.2em", height: "1.45em", borderRadius: 7,
           background: an ? "#E6EEF9" : v ? "transparent" : "#F1F4FA", border: `1.5px solid ${an ? C.see : v ? "transparent" : C.linie}`, cursor: "pointer" }}>
@@ -701,8 +744,8 @@ function BedingungsSchritt({ auf, fertig, onFertig }) {
   return (
     <>
       <Erklaer>
-        Übersetze jede Eigenschaft in Bedingungen der Form <b style={{ fontWeight: 600, color: C.tinte }}>f(x) = y</b>, <b style={{ fontWeight: 600, color: C.tinte }}>f′(x) = m</b>
-        {maxK === 2 && <> oder <b style={{ fontWeight: 600, color: C.tinte }}>f″(x) = 0</b></>}. Tippe eine Zeile an und baue sie mit den Tasten.
+        {zw("Übersetze jede Eigenschaft in Bedingungen der Form", "Translate each property into conditions of the form")} <b style={{ fontWeight: 600, color: C.tinte }}>f(x) = y</b>, <b style={{ fontWeight: 600, color: C.tinte }}>f′(x) = m</b>
+        {maxK === 2 && <> {zw("oder", "or")} <b style={{ fontWeight: 600, color: C.tinte }}>f″(x) = 0</b></>}. {zw("Tippe eine Zeile an und baue sie mit den Tasten.", "Tap a line and build it with the keys.")}
       </Erklaer>
       {zeilen.map((z, i) => {
         const an = aktiv.z === i, st = status[i];
@@ -723,26 +766,26 @@ function BedingungsSchritt({ auf, fertig, onFertig }) {
 
       {hinweise.length > 0 && (
         <div role="status" className="sb-neu" style={{ margin: "4px 2px 10px" }}>
-          {hinweise.map((h, i) => <p key={i} style={{ fontSize: 13.5, lineHeight: 1.6, color: h.startsWith("Tipp") ? C.see : C.signal, fontWeight: h.startsWith("Tipp") ? 400 : 500, marginBottom: 4 }}>{h}</p>)}
+          {hinweise.map((h, i) => <p key={i} style={{ fontSize: 13.5, lineHeight: 1.6, color: h.startsWith(TIPP) ? C.see : C.signal, fontWeight: h.startsWith(TIPP) ? 400 : 500, marginBottom: 4 }}>{h}</p>)}
         </div>
       )}
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(6, minmax(0, 1fr))", gap: 7, marginTop: 6 }}>
         <Taste ton="gl" label="f" aria="f" onClick={() => setK(0)} />
-        <Taste ton="gl" label="f′" aria="f Strich" onClick={() => setK(1)} />
-        {maxK === 2 ? <Taste ton="gl" label="f″" aria="f zwei Strich" onClick={() => setK(2)} /> : <span />}
-        <Taste ton="op" label="±" aria="Vorzeichen" onClick={vorzeichen} />
-        <Taste ton="op" breit aria="Zeichen löschen" label={LoeschIcon} onClick={loeschen} />
+        <Taste ton="gl" label="f′" aria={zw("f Strich", "f prime")} onClick={() => setK(1)} />
+        {maxK === 2 ? <Taste ton="gl" label="f″" aria={zw("f zwei Strich", "f double prime")} onClick={() => setK(2)} /> : <span />}
+        <Taste ton="op" label="±" aria={zw("Vorzeichen", "Change sign")} onClick={vorzeichen} />
+        <Taste ton="op" breit aria={zw("Zeichen löschen", "Delete character")} label={LoeschIcon} onClick={loeschen} />
         {["7", "8", "9", "4", "5", "6"].map((d) => <Taste key={d} label={d} onClick={() => ziffer(d)} />)}
         {["1", "2", "3", "0"].map((d) => <Taste key={d} label={d} onClick={() => ziffer(d)} />)}
-        <Taste ton="op" breit label={<span style={{ fontSize: 14, fontWeight: 600 }}>weiter →</span>} aria="nächstes Feld" onClick={weiter} />
+        <Taste ton="op" breit label={<span style={{ fontSize: 14, fontWeight: 600 }}>{zw("weiter →", "next →")}</span>} aria={zw("nächstes Feld", "Next field")} onClick={weiter} />
       </div>
 
       <div className="flex items-center flex-wrap" style={{ gap: 10, marginTop: 4 }}>
-        <Knopf onClick={pruefen}>Bedingungen prüfen</Knopf>
+        <Knopf onClick={pruefen}>{zw("Bedingungen prüfen", "Check conditions")}</Knopf>
         <button type="button" onClick={aufdecken}
           style={{ marginTop: 16, background: "none", border: "none", color: C.see, fontSize: 13, fontWeight: 500, fontFamily: "inherit", cursor: "pointer", padding: "4px 2px" }}>
-          Bedingungen aufdecken
+          {zw("Bedingungen aufdecken", "Show conditions")}
         </button>
       </div>
     </>
@@ -757,11 +800,11 @@ function EinsetzSchritt({ auf, zeilen }) {
   const ords = [...new Set([0, ...zeilen.map((r) => r.k)])].sort();
   return (
     <>
-      <Erklaer>{ords.length > 1 ? "Die Bedingungen brauchen diese Ableitungen des Ansatzes:" : "Der Ansatz:"}</Erklaer>
+      <Erklaer>{ords.length > 1 ? zw("Die Bedingungen brauchen diese Ableitungen des Ansatzes:", "The conditions need these derivatives of the general form:") : zw("Der Ansatz:", "The general form:")}</Erklaer>
       <div className="sb-scroll" style={{ fontSize: 16.5, lineHeight: 2.1, color: C.tinte, marginBottom: 12 }}>
         {ords.map((k) => <div key={k} style={{ whiteSpace: "nowrap" }}><F t={ableitungFormel(ans, k)} /></div>)}
       </div>
-      <Erklaer>Jetzt in jeder Bedingung den x-Wert einsetzen:</Erklaer>
+      <Erklaer>{zw("Jetzt in jeder Bedingung den x-Wert einsetzen:", "Now substitute the x-value into each condition:")}</Erklaer>
       <div className="sb-scroll" style={{ fontSize: 16.5, lineHeight: 2.2, color: C.tinte }}>
         {zeilen.map((r, i) => (
           <div key={i} style={{ whiteSpace: "nowrap" }}>
@@ -778,7 +821,7 @@ function AusmultSchritt({ auf, rows }) {
   const ans = ANSAETZE[auf.ansatz];
   return (
     <>
-      <Erklaer>Potenzen ausrechnen und zusammenfassen – übrig bleibt ein lineares Gleichungssystem für {ans.vars.join(", ")}:</Erklaer>
+      <Erklaer>{zw("Potenzen ausrechnen und zusammenfassen – übrig bleibt ein lineares Gleichungssystem für", "Evaluate the powers and simplify – what remains is a system of linear equations in")} {ans.vars.join(", ")}:</Erklaer>
       <div className="sb-scroll">
         <div style={{ fontSize: "clamp(14.5px, 4.2vw, 18px)", color: C.tinte, fontWeight: 500, paddingBottom: 4 }}>
           <SystemBlock rows={rows} vars={ans.vars} neu />
@@ -826,7 +869,7 @@ function LGSSchritt({ start, vars, onGeloest }) {
 
   const vorschau = felder.map((f) => {
     try { return { ok: true, ...kombiAnwenden(aktuell, f, n) }; }
-    catch (e) { return { ok: false, fehler: e instanceof KombiFehler ? e.message : "Nicht lesbar." }; }
+    catch (e) { return { ok: false, fehler: e instanceof KombiFehler ? e.message : zw("Nicht lesbar.", "Can't read this.") }; }
   });
 
   const tippe = (w) => {
@@ -850,16 +893,16 @@ function LGSSchritt({ start, vars, onGeloest }) {
     if (vorschau.some((v) => !v.ok)) {
       const i = vorschau.findIndex((v) => !v.ok);
       setAktiv(i);
-      setMeldung({ art: "fehler", text: `${ROEM[i]} neu: ${vorschau[i].fehler}${felder[i].trim() ? "" : ` Soll sie unverändert bleiben, tippe einfach ${ROEM[i]}.`}` });
+      setMeldung({ art: "fehler", text: EN ? `New ${ROEM[i]}: ${vorschau[i].fehler}${felder[i].trim() ? "" : ` To keep it unchanged, just type ${ROEM[i]}.`}` : `${ROEM[i]} neu: ${vorschau[i].fehler}${felder[i].trim() ? "" : ` Soll sie unverändert bleiben, tippe einfach ${ROEM[i]}.`}` });
       return;
     }
     if (Math.abs(detN(vorschau.map((v) => v.vec))) < 1e-9) {
-      setMeldung({ art: "fehler", text: "So geht Information verloren: Die neuen Gleichungen hängen voneinander ab. Nimm z. B. eine der alten Gleichungen unverändert mit." });
+      setMeldung({ art: "fehler", text: zw("So geht Information verloren: Die neuen Gleichungen hängen voneinander ab. Nimm z. B. eine der alten Gleichungen unverändert mit.", "This loses information: the new equations depend on each other. Keep one of the old equations unchanged, for example.") });
       return;
     }
     const rows = vorschau.map((v) => v.row);
     if (rows.every((r, i) => r.every((v, j) => v === aktuell[i][j]))) {
-      setMeldung({ art: "info", text: "Das ist dasselbe System wie vorher. Ersetze mindestens eine Gleichung durch eine Kombination, z. B. II − I." });
+      setMeldung({ art: "info", text: zw("Das ist dasselbe System wie vorher. Ersetze mindestens eine Gleichung durch eine Kombination, z. B. II − I.", "That is the same system as before. Replace at least one equation with a combination, e.g. II − I.") });
       return;
     }
     setBloecke((b) => [...b, { rows, notizen: felder.map((f) => f.trim().replace(/\s+/g, " ")) }]);
@@ -875,12 +918,12 @@ function LGSSchritt({ start, vars, onGeloest }) {
   return (
     <>
       <Erklaer>
-        Bilde aus den Gleichungen ein neues System: Übernimm eine Gleichung unverändert oder kombiniere sie, z. B. <b style={{ fontWeight: 600, color: C.tinte }}>II − I</b> oder <b style={{ fontWeight: 600, color: C.tinte }}>III − 6·II</b> – bis jede Unbekannte allein dasteht.
-        {einzel >= 0 && <> Tipp: In Gleichung {ROEM[einzel]} steht schon nur eine Unbekannte.</>}
+        {zw("Bilde aus den Gleichungen ein neues System: Übernimm eine Gleichung unverändert oder kombiniere sie, z. B.", "Build a new system from the equations: keep an equation unchanged or combine equations, e.g.")} <b style={{ fontWeight: 600, color: C.tinte }}>II − I</b> {zw("oder", "or")} <b style={{ fontWeight: 600, color: C.tinte }}>III − 6·II</b> – {zw("bis jede Unbekannte allein dasteht.", "until each unknown stands on its own.")}
+        {einzel >= 0 && (EN ? <> Tip: equation {ROEM[einzel]} already contains only one unknown.</> : <> Tipp: In Gleichung {ROEM[einzel]} steht schon nur eine Unbekannte.</>)}
       </Erklaer>
 
       <div style={{ background: C.sand, borderRadius: 14, padding: "14px 0" }}>
-        <p style={{ ...kicker, padding: "0 16px", marginBottom: 10 }}>{schritte === 0 ? "AUSGANGSSYSTEM" : `${schritte} ${schritte === 1 ? "SCHRITT" : "SCHRITTE"}`}</p>
+        <p style={{ ...kicker, padding: "0 16px", marginBottom: 10 }}>{schritte === 0 ? zw("AUSGANGSSYSTEM", "INITIAL SYSTEM") : `${schritte} ${schritte === 1 ? zw("SCHRITT", "STEP") : zw("SCHRITTE", "STEPS")}`}</p>
         <div ref={heftRef} className="sb-scroll" style={{ padding: "0 16px 4px" }}>
           <div style={{ fontSize: "clamp(14px, 4vw, 18px)", color: C.tinte, fontWeight: 500 }}>
             {bloecke.map((b, i) => (
@@ -894,11 +937,11 @@ function LGSSchritt({ start, vars, onGeloest }) {
 
       {fertig ? (
         <div className="sb-neu" style={{ marginTop: 14, padding: "14px 16px", borderRadius: 14, background: blauVerlauf, color: C.weiss }}>
-          <p style={{ ...kicker, color: C.flaggold, marginBottom: 6 }}>GELÖST</p>
+          <p style={{ ...kicker, color: C.flaggold, marginBottom: 6 }}>{zw("GELÖST", "SOLVED")}</p>
           <p style={{ fontSize: 19, fontWeight: 600, lineHeight: 1.6 }}>
             {vars.map((v, j) => <span key={v} style={{ whiteSpace: "nowrap", marginRight: 14 }}><i>{v}</i> = {minus(L[j])}</span>)}
           </p>
-          <p style={{ fontSize: 12.5, color: C.goldText, fontWeight: 300, marginTop: 4 }}>in {schritte} {schritte === 1 ? "Schritt" : "Schritten"}</p>
+          <p style={{ fontSize: 12.5, color: C.goldText, fontWeight: 300, marginTop: 4 }}>{zw("in", "in")} {schritte} {schritte === 1 ? zw("Schritt", "step") : zw("Schritten", "steps")}</p>
         </div>
       ) : (
         <div style={{ marginTop: 14 }}>
@@ -916,9 +959,9 @@ function LGSSchritt({ start, vars, onGeloest }) {
             while (rest.length < 6) rest.splice(rest.length - 2, 0, null);
             const opTaste = (w, i) => {
               if (w === null) return <span key={`l${i}`} />;
-              if (w === "C") return <Taste key="C" ton="op" label="C" aria="Zeile leeren" onClick={leeren} />;
-              if (w === "⌫") return <Taste key="del" ton="op" aria="Zeichen löschen" label={LoeschIcon} onClick={zurueck} />;
-              return <Taste key={w} ton={NAMEN.includes(w) ? "gl" : "op"} label={w} aria={NAMEN.includes(w) ? `Gleichung ${w}` : w} onClick={() => tippe(w)} />;
+              if (w === "C") return <Taste key="C" ton="op" label="C" aria={zw("Zeile leeren", "Clear line")} onClick={leeren} />;
+              if (w === "⌫") return <Taste key="del" ton="op" aria={zw("Zeichen löschen", "Delete character")} label={LoeschIcon} onClick={zurueck} />;
+              return <Taste key={w} ton={NAMEN.includes(w) ? "gl" : "op"} label={w} aria={NAMEN.includes(w) ? `${zw("Gleichung", "Equation")} ${w}` : w} onClick={() => tippe(w)} />;
             };
             return (
               <div style={{ display: "grid", gridTemplateColumns: "repeat(6, minmax(0, 1fr))", gap: 7, marginTop: 6 }}>
@@ -928,7 +971,7 @@ function LGSSchritt({ start, vars, onGeloest }) {
                 {["4", "5", "6"].map((d) => <Taste key={d} label={d} onClick={() => tippe(d)} />)}
                 {rest.slice(3, 6).map((w, i) => opTaste(w, i + 3))}
                 {["1", "2", "3", "0"].map((d) => <Taste key={d} label={d} onClick={() => tippe(d)} />)}
-                <Taste ton="aktion" breit label="Neues System" onClick={uebernehmen} />
+                <Taste ton="aktion" breit label={zw("Neues System", "New system")} onClick={uebernehmen} />
               </div>
             );
           })()}
@@ -938,11 +981,11 @@ function LGSSchritt({ start, vars, onGeloest }) {
               style={{ display: "flex", alignItems: "center", gap: 7, background: "none", border: `1px solid ${C.linie}`, color: schritte === 0 ? C.hellgrau : C.grau,
                 borderRadius: 999, padding: "9px 16px", fontSize: 13.5, fontFamily: "inherit", cursor: schritte === 0 ? "default" : "pointer" }}>
               <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3L1.5 6.5 5 10M2 6.5h8a4.5 4.5 0 0 1 0 9H7" stroke="currentColor" strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
-              Rückgängig
+              {zw("Rückgängig", "Undo")}
             </button>
             <button type="button" onClick={() => setMuster(!muster)}
               style={{ background: "none", border: "none", color: C.see, fontSize: 13, fontWeight: 500, fontFamily: "inherit", cursor: "pointer", padding: "4px 2px" }}>
-              {muster ? "Musterlösung ausblenden" : "Musterlösung (Gauß)"}
+              {muster ? zw("Musterlösung ausblenden", "Hide model solution") : zw("Musterlösung (Gauß)", "Model solution (Gauss)")}
             </button>
           </div>
         </div>
@@ -950,7 +993,7 @@ function LGSSchritt({ start, vars, onGeloest }) {
 
       {gauss && !fertig && (
         <div className="sb-neu" style={{ marginTop: 14, padding: "14px 16px", borderRadius: 14, border: `1px solid ${C.linie}` }}>
-          <p style={{ ...kicker, marginBottom: 10 }}>GAUSS-VERFAHREN</p>
+          <p style={{ ...kicker, marginBottom: 10 }}>{zw("GAUSS-VERFAHREN", "GAUSSIAN ELIMINATION")}</p>
           <div className="sb-scroll" style={{ fontSize: "clamp(13.5px, 3.9vw, 17px)", color: C.tinte, fontWeight: 500 }}>
             <SystemBlock rows={start} vars={vars} />
             {gauss.schritte.map((s, i) => (
@@ -961,20 +1004,28 @@ function LGSSchritt({ start, vars, onGeloest }) {
             ))}
           </div>
           <div style={{ marginTop: 12, paddingTop: 10, borderTop: `1px dashed ${C.linie}` }}>
-            <p style={{ fontSize: 12, fontWeight: 600, color: C.see, marginBottom: 2 }}>{gauss.schritte.length + 1}. Rückwärts einsetzen</p>
+            <p style={{ fontSize: 12, fontWeight: 600, color: C.see, marginBottom: 2 }}>{gauss.schritte.length + 1}. {zw("Rückwärts einsetzen", "Back substitution")}</p>
             <Rueckwaerts rueck={gauss.rueck} />
           </div>
-          <Knopf onClick={() => { if (!gemeldet.current) { gemeldet.current = true; onGeloest(gauss.loesung, "muster"); } }}>Lösung übernehmen</Knopf>
+          <Knopf onClick={() => { if (!gemeldet.current) { gemeldet.current = true; onGeloest(gauss.loesung, "muster"); } }}>{zw("Lösung übernehmen", "Use this solution")}</Knopf>
         </div>
       )}
 
       <details style={{ marginTop: 16 }}>
-        <summary style={{ fontSize: 13.5, color: C.see, cursor: "pointer", fontWeight: 500 }}>Was kann ich eingeben?</summary>
+        <summary style={{ fontSize: 13.5, color: C.see, cursor: "pointer", fontWeight: 500 }}>{zw("Was kann ich eingeben?", "What can I enter?")}</summary>
+        {EN ? (
+          <div style={{ fontSize: 13.5, color: C.grau, fontWeight: 300, lineHeight: 1.8, marginTop: 8 }}>
+            <p><b style={{ color: C.tinte, fontWeight: 600 }}>Copy</b>: the equation itself, e.g. II – this also lets you change the order.</p>
+            <p><b style={{ color: C.tinte, fontWeight: 600 }}>Combination</b>: e.g. II − I, 2·I + III, III − 6·II.</p>
+            <p><b style={{ color: C.tinte, fontWeight: 600 }}>Divide</b>: “:” divides the whole equation, e.g. (II − I) : 2.</p>
+          </div>
+        ) : (
         <div style={{ fontSize: 13.5, color: C.grau, fontWeight: 300, lineHeight: 1.8, marginTop: 8 }}>
           <p><b style={{ color: C.tinte, fontWeight: 600 }}>Kopie</b>: die Gleichung selbst, z. B. II – so kannst du auch die Reihenfolge ändern.</p>
           <p><b style={{ color: C.tinte, fontWeight: 600 }}>Kombination</b>: z. B. II − I, 2·I + III, III − 6·II.</p>
           <p><b style={{ color: C.tinte, fontWeight: 600 }}>Kürzen</b>: mit „:“ teilst du die ganze Gleichung, z. B. (II − I) : 2.</p>
         </div>
+        )}
       </details>
     </>
   );
@@ -984,19 +1035,19 @@ function LGSSchritt({ start, vars, onGeloest }) {
    Schritt (Advanced): Gleichungen lösen durch Dividieren / Ablesen
    ====================================================================== */
 function advWeg(auf, zeilen) {
-  const L = (r) => ROEM[zeilen.findIndex((z) => z.k === r.k && z.x === r.x && z.y === r.y)];
+  const Z = (r) => ROEM[zeilen.findIndex((z) => z.k === r.k && z.x === r.x && z.y === r.y)];
   if (auf.ansatz === "exp") {
     const [c, q] = auf.koeff;
     const pts = zeilen.filter((z) => z.k === 0).sort((u, v) => u.x - v.x);
     const [lo, hi] = pts, R = hi.y / lo.y, dx = hi.x - lo.x;
     const wurzel = (exp, wert) => (exp === 1 ? [`a = ${wert}`] : [`a^{${exp}} = ${wert}`, `a = ${q}`]);
     if (lo.x === 0) return [
-      { titel: `Aus ${L(lo)} folgt sofort c, denn a⁰ = 1`, zeilen: [`c·a^0 = ${lo.y}`, `c = ${c}`] },
-      { titel: `c in ${L(hi)} einsetzen und durch ${c} teilen`, zeilen: [`${c}·a^{${hi.x}} = ${hi.y}`, ...wurzel(hi.x, hi.y / c)], notiz: hi.x > 1 ? `denn ${q}^${hi.x} = ${hi.y / c} und a > 0` : null },
+      { titel: zw(`Aus ${Z(lo)} folgt sofort c, denn a⁰ = 1`, `${Z(lo)} gives c straight away, since a⁰ = 1`), zeilen: [`c·a^0 = ${lo.y}`, `c = ${c}`] },
+      { titel: zw(`c in ${Z(hi)} einsetzen und durch ${c} teilen`, `Substitute c into ${Z(hi)} and divide by ${c}`), zeilen: [`${c}·a^{${hi.x}} = ${hi.y}`, ...wurzel(hi.x, hi.y / c)], notiz: hi.x > 1 ? zw(`denn ${q}^${hi.x} = ${hi.y / c} und a > 0`, `since ${q}^${hi.x} = ${hi.y / c} and a > 0`) : null },
     ];
     return [
-      { titel: `${L(hi)} durch ${L(lo)} teilen – c kürzt sich weg`, zeilen: [`\\frac{c·a^{${hi.x}}}{c·a^{${lo.x}}} = \\frac{${hi.y}}{${lo.y}}`, ...wurzel(dx, R)], notiz: dx > 1 ? `denn ${q}^${dx} = ${R} und a > 0` : null },
-      { titel: `a in ${L(lo)} einsetzen`, zeilen: [`c·${q}^{${lo.x}} = ${lo.y}`, `c = \\frac{${lo.y}}{${Math.pow(q, lo.x)}} = ${c}`] },
+      { titel: zw(`${Z(hi)} durch ${Z(lo)} teilen – c kürzt sich weg`, `Divide ${Z(hi)} by ${Z(lo)} – c cancels out`), zeilen: [`\\frac{c·a^{${hi.x}}}{c·a^{${lo.x}}} = \\frac{${hi.y}}{${lo.y}}`, ...wurzel(dx, R)], notiz: dx > 1 ? zw(`denn ${q}^${dx} = ${R} und a > 0`, `since ${q}^${dx} = ${R} and a > 0`) : null },
+      { titel: zw(`a in ${Z(lo)} einsetzen`, `Substitute a into ${Z(lo)}`), zeilen: [`c·${q}^{${lo.x}} = ${lo.y}`, `c = \\frac{${lo.y}}{${Math.pow(q, lo.x)}} = ${c}`] },
     ];
   }
   if (auf.ansatz === "ek") {
@@ -1004,20 +1055,20 @@ function advWeg(auf, zeilen) {
     const pts = zeilen.filter((z) => z.k === 0).sort((u, v) => u.x - v.x);
     const [lo, hi] = pts, R = hi.y / c;
     return [
-      { titel: `Aus ${L(lo)} folgt sofort c, denn e⁰ = 1`, zeilen: [`c·e^{k·0} = ${lo.y}`, `c = ${c}`] },
-      { titel: `c in ${L(hi)} einsetzen und logarithmieren`, zeilen: [`${c}·e^{${hi.x}k} = ${hi.y}`, `e^{${hi.x}k} = ${R}`, `${hi.x === 1 ? "" : hi.x}k = ln(${R})`,
+      { titel: zw(`Aus ${Z(lo)} folgt sofort c, denn e⁰ = 1`, `${Z(lo)} gives c straight away, since e⁰ = 1`), zeilen: [`c·e^{k·0} = ${lo.y}`, `c = ${c}`] },
+      { titel: zw(`c in ${Z(hi)} einsetzen und logarithmieren`, `Substitute c into ${Z(hi)} and take logarithms`), zeilen: [`${c}·e^{${hi.x}k} = ${hi.y}`, `e^{${hi.x}k} = ${R}`, `${hi.x === 1 ? "" : hi.x}k = ln(${R})`,
         hi.x === 1 ? `k = ln(${R}) ≈ ${dez(Math.log(R))}` : `k = \\frac{ln(${R})}{${hi.x}} = ln(${q}) ≈ ${dez(Math.log(q))}`],
-        notiz: hi.x > 1 ? `Logarithmusgesetz: ln(${q}^${hi.x}) = ${hi.x}·ln(${q})` : null },
+        notiz: hi.x > 1 ? zw(`Logarithmusgesetz: ln(${q}^${hi.x}) = ${hi.x}·ln(${q})`, `Logarithm rule: ln(${q}^${hi.x}) = ${hi.x}·ln(${q})`) : null },
     ];
   }
   // Sinus
   const [A, , c, d] = auf.koeff, h = auf.h;
   const H = auf.props.find((p) => p.rolle === "hoch"), T = auf.props.find((p) => p.rolle === "tief");
   return [
-    { titel: "Mittellinie: genau in der Mitte zwischen Hoch- und Tiefpunkt", zeilen: [`d = \\frac{${minus(H.y)} + ${zk(T.y)}}{2} = ${minus(d)}`] },
-    { titel: "Amplitude: Abstand von der Mittellinie bis zum Hochpunkt", zeilen: [`a = \\frac{${minus(H.y)} − ${zk(T.y)}}{2} = ${A}`] },
-    { titel: "Periode: Vom Hochpunkt zum benachbarten Tiefpunkt ist eine halbe Periode", zeilen: [`p = 2·${h} = ${2 * h}`, `b = \\frac{2π}{p} = \\frac{2π}{${2 * h}} = ${piBruch(h)}`] },
-    { titel: "Verschiebung: Eine Viertelperiode vor dem Hochpunkt steigt der Graph durch die Mittellinie", zeilen: [`c = ${minus(H.x)} − \\frac{${2 * h}}{4} = ${dez(c)}`], notiz: "c ist nur bis auf Vielfache der Periode festgelegt – jedes c + k·p passt auch." },
+    { titel: zw("Mittellinie: genau in der Mitte zwischen Hoch- und Tiefpunkt", "Midline: exactly halfway between the maximum and minimum points"), zeilen: [`d = \\frac{${minus(H.y)} + ${zk(T.y)}}{2} = ${minus(d)}`] },
+    { titel: zw("Amplitude: Abstand von der Mittellinie bis zum Hochpunkt", "Amplitude: distance from the midline to the maximum point"), zeilen: [`a = \\frac{${minus(H.y)} − ${zk(T.y)}}{2} = ${A}`] },
+    { titel: zw("Periode: Vom Hochpunkt zum benachbarten Tiefpunkt ist eine halbe Periode", "Period: from the maximum point to the adjacent minimum point is half a period"), zeilen: [`p = 2·${h} = ${2 * h}`, `b = \\frac{2π}{p} = \\frac{2π}{${2 * h}} = ${piBruch(h)}`] },
+    { titel: zw("Verschiebung: Eine Viertelperiode vor dem Hochpunkt steigt der Graph durch die Mittellinie", "Shift: a quarter period before the maximum point, the graph rises through the midline"), zeilen: [`c = ${minus(H.x)} − \\frac{${2 * h}}{4} = ${dez(c)}`], notiz: zw("c ist nur bis auf Vielfache der Periode festgelegt – jedes c + k·p passt auch.", "c is only determined up to multiples of the period – every c + k·p works too.") },
   ];
 }
 
@@ -1030,8 +1081,8 @@ function AdvSchritt({ auf, zeilen, onFertig }) {
     <>
       <Erklaer>
         {auf.ansatz === "sin"
-          ? "Diese Gleichungen sind nicht linear – ein LGS hilft hier nicht. Stattdessen liest man die Parameter direkt an Hoch- und Tiefpunkt ab:"
-          : "Kein lineares Gleichungssystem – die Unbekannte steht im Exponenten. Der Trick: Gleichungen geschickt teilen bzw. logarithmieren."}
+          ? zw("Diese Gleichungen sind nicht linear – ein LGS hilft hier nicht. Stattdessen liest man die Parameter direkt an Hoch- und Tiefpunkt ab:", "These equations are not linear – a linear system won't help here. Instead, read the parameters straight off the maximum and minimum points:")
+          : zw("Kein lineares Gleichungssystem – die Unbekannte steht im Exponenten. Der Trick: Gleichungen geschickt teilen bzw. logarithmieren.", "Not a system of linear equations – the unknown is in the exponent. The trick: divide the equations cleverly or take logarithms.")}
       </Erklaer>
       {weg.slice(0, gezeigt).map((s, i) => (
         <div key={i} className="sb-neu" style={{ marginBottom: 12, paddingTop: i ? 10 : 0, borderTop: i ? `1px dashed ${C.linie}` : "none" }}>
@@ -1042,7 +1093,7 @@ function AdvSchritt({ auf, zeilen, onFertig }) {
           {s.notiz && <p style={{ fontSize: 12.5, color: C.grau, fontWeight: 300, marginTop: 2 }}>{s.notiz}</p>}
         </div>
       ))}
-      {gezeigt < weg.length && <Knopf leise onClick={() => setGezeigt(gezeigt + 1)}>Nächster Schritt</Knopf>}
+      {gezeigt < weg.length && <Knopf leise onClick={() => setGezeigt(gezeigt + 1)}>{zw("Nächster Schritt", "Next step")}</Knopf>}
     </>
   );
 }
@@ -1091,7 +1142,7 @@ function Schaubild({ f, abl1, props, sinH }) {
   const tangenten = props.filter((p) => p.rolle === "tangente" || p.rolle === "wendeTang");
 
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", display: "block", background: C.weiss, borderRadius: 14 }} role="img" aria-label="Schaubild der gesuchten Funktion mit den gegebenen Eigenschaften">
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", display: "block", background: C.weiss, borderRadius: 14 }} role="img" aria-label={zw("Schaubild der gesuchten Funktion mit den gegebenen Eigenschaften", "Graph of the function with the given properties")}>
       <defs>
         <clipPath id="sbClip"><rect x={PL} y={PT} width={W - PL - PR} height={H - PT - PB} /></clipPath>
         <marker id="sbPfeil" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill={C.ablGrau} /></marker>
@@ -1121,7 +1172,7 @@ function Schaubild({ f, abl1, props, sinH }) {
             <circle cx={px} cy={py} r="5" fill={FARBE[p.rolle]} stroke={C.weiss} strokeWidth="2" />
             <text x={links ? px - 8 : px + 8} y={Math.max(14, Math.min(H - 6, ly))} textAnchor={links ? "end" : "start"} fontSize="13" fontWeight="700" fill={FARBE[p.rolle]}
               stroke={C.weiss} strokeWidth="4" paintOrder="stroke" strokeLinejoin="round">
-              {p.name}{p.idx && <tspan fontSize="9" dy="3.5">{p.idx}</tspan>}<tspan dy={p.idx ? -3.5 : 0}>({dez(p.x)} | {dez(p.y)})</tspan>
+              {pName(p)}{pIdx(p) && <tspan fontSize="9" dy="3.5">{pIdx(p)}</tspan>}<tspan dy={pIdx(p) ? -3.5 : 0}>({dez(p.x)} | {dez(p.y)})</tspan>
             </text>
           </g>
         );
@@ -1162,10 +1213,10 @@ function KurvendiskussionPdfKnopf({ auf, L }) {
       if (q.art === "poly") {
         const { kurvendiskussionPdf } = await import("./func11.jsx");
         const [e, a, b, c, d] = q.k;
-        await kurvendiskussionPdf({ e, a, b, c, d, untertitel: "Kurvendiskussion · Steckbriefaufgabe" });
+        await kurvendiskussionPdf({ e, a, b, c, d, untertitel: zw("Kurvendiskussion · Steckbriefaufgabe", "Curve Sketching · Function Reconstruction") });
       } else {
         const { diskussionPdfAusText } = await import("./func12.jsx");
-        await diskussionPdfAusText(q.text, q.fenster, "Kurvendiskussion · Steckbriefaufgabe");
+        await diskussionPdfAusText(q.text, q.fenster, zw("Kurvendiskussion · Steckbriefaufgabe", "Curve Sketching · Function Reconstruction"));
       }
       setStatus("bereit");
     } catch (err) { console.error(err); setStatus("fehler"); }
@@ -1180,9 +1231,9 @@ function KurvendiskussionPdfKnopf({ auf, L }) {
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={C.flaggold} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="M12 3v12" /><path d="M7 10l5 5 5-5" /><path d="M5 20h14" />
         </svg>
-        {status === "laeuft" ? "PDF wird erstellt …" : "Vollständige Kurvendiskussion als PDF downloaden"}
+        {status === "laeuft" ? zw("PDF wird erstellt …", "Creating PDF …") : zw("Vollständige Kurvendiskussion als PDF downloaden", "Download the complete curve sketch as PDF")}
       </button>
-      {status === "fehler" && <p role="alert" style={{ fontSize: 12.5, color: C.signal, marginTop: 8, textAlign: "center" }}>Das PDF konnte nicht erstellt werden. Bitte noch einmal versuchen.</p>}
+      {status === "fehler" && <p role="alert" style={{ fontSize: 12.5, color: C.signal, marginTop: 8, textAlign: "center" }}>{zw("Das PDF konnte nicht erstellt werden. Bitte noch einmal versuchen.", "The PDF couldn't be created. Please try again.")}</p>}
     </div>
   );
 }
@@ -1203,21 +1254,21 @@ function ErgebnisSchritt({ auf, L, weg, neu }) {
   return (
     <>
       <div style={{ padding: "16px 18px", borderRadius: 14, background: blauVerlauf, color: C.weiss }}>
-        <p style={{ ...kicker, color: C.flaggold, marginBottom: 6 }}>{weg === "muster" ? "ERGEBNIS (MUSTERLÖSUNG)" : "GESUCHTE FUNKTION"}</p>
+        <p style={{ ...kicker, color: C.flaggold, marginBottom: 6 }}>{weg === "muster" ? zw("ERGEBNIS (MUSTERLÖSUNG)", "RESULT (MODEL SOLUTION)") : zw("GESUCHTE FUNKTION", "THE FUNCTION")}</p>
         <div className="sb-scroll" style={{ fontSize: "clamp(18px, 5.4vw, 23px)", fontWeight: 700, lineHeight: 1.6 }}><F t={ergebnisFormel(auf, L)} /></div>
       </div>
 
-      <p style={{ fontSize: 13, fontWeight: 600, color: C.see, margin: "18px 2px 8px" }}>Das Schaubild – und die gegebenen Eigenschaften liegen genau drauf</p>
+      <p style={{ fontSize: 13, fontWeight: 600, color: C.see, margin: "18px 2px 8px" }}>{zw("Das Schaubild – und die gegebenen Eigenschaften liegen genau drauf", "The graph – and the given properties lie exactly on it")}</p>
       <div style={{ border: `1px solid ${C.linie}`, borderRadius: 14, padding: 4 }}>
         <Schaubild f={f} abl1={(x) => abl(x, 1)} props={auf.props} sinH={ans.art === "sin" ? auf.h : null} />
       </div>
 
-      <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, margin: "18px 2px 6px" }}>Probe</p>
+      <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, margin: "18px 2px 6px" }}>{zw("Probe", "Check")}</p>
       <div style={{ display: "grid", gap: 8 }}>
         {auf.props.map((p, s) => (
           <div key={s} style={{ padding: "10px 14px", borderRadius: 12, background: C.sand }}>
             <p style={{ fontSize: 13.5, fontWeight: 600, color: C.tinte, marginBottom: 2 }}>
-              {ROLLEN[p.rolle]}{p.rolle !== "wstelle" && <> <F t={lbl(p)} /></>}{p.rolle === "wstelle" && <> bei x = {minus(p.x)}</>}
+              {ROLLEN[p.rolle]}{p.rolle !== "wstelle" && <> <F t={lbl(p)} /></>}{p.rolle === "wstelle" && <> {zw("bei", "at")} x = {minus(p.x)}</>}
             </p>
             <div style={{ display: "flex", flexWrap: "wrap", columnGap: 16, rowGap: 2, fontSize: 14.5, color: C.grau }}>
               {auf.bed.filter((b) => b.s === s).map((b, k) => {
@@ -1234,7 +1285,7 @@ function ErgebnisSchritt({ auf, L, weg, neu }) {
         ))}
       </div>
       <KurvendiskussionPdfKnopf auf={auf} L={L} />
-      <Knopf onClick={neu}>Nächste Aufgabe</Knopf>
+      <Knopf onClick={neu}>{zw("Nächste Aufgabe", "Next task")}</Knopf>
     </>
   );
 }
@@ -1325,8 +1376,8 @@ function steckbriefHilfe(auf, phase, rows) {
    Hauptkomponente
    ====================================================================== */
 const SUB = {
-  poly: [{ id: 2, name: "Grad 2" }, { id: 3, name: "Grad 3" }, { id: 4, name: "Grad 4" }],
-  adv: [{ id: "exp", name: "c·aˣ" }, { id: "ek", name: "e-Funktion" }, { id: "sin", name: "Sinus" }],
+  poly: [{ id: 2, name: zw("Grad 2", "Degree 2") }, { id: 3, name: zw("Grad 3", "Degree 3") }, { id: 4, name: zw("Grad 4", "Degree 4") }],
+  adv: [{ id: "exp", name: "c·aˣ" }, { id: "ek", name: zw("e-Funktion", "eˣ") }, { id: "sin", name: zw("Sinus", "Sine") }],
 };
 
 export function Steckbriefaufgaben() {
@@ -1367,27 +1418,27 @@ export function Steckbriefaufgaben() {
       <style>{SB_CSS}</style>
 
       <h2 className="intro-h2" style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
-        <span className="titel-lang">Aus Eigenschaften die Funktion bauen</span><span className="titel-kurz">Funktion gesucht!</span>
+        <span className="titel-lang">{zw("Aus Eigenschaften die Funktion bauen", "Build the function from its properties")}</span><span className="titel-kurz">{zw("Funktion gesucht!", "Wanted: the function!")}</span>
       </h2>
       <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.8, marginBottom: 20 }}>
-        Hochpunkt, Wendepunkt, Tangente – jede Eigenschaft ist eine Bedingung. Ansatz wählen, Bedingungen aufstellen,
-        einsetzen, Gleichungssystem lösen. Am Ende siehst du, dass deine Funktion genau passt.
+        {zw("Hochpunkt, Wendepunkt, Tangente – jede Eigenschaft ist eine Bedingung. Ansatz wählen, Bedingungen aufstellen, einsetzen, Gleichungssystem lösen. Am Ende siehst du, dass deine Funktion genau passt.",
+          "Maximum point, inflection point, tangent – every property is a condition. Choose the general form, set up the conditions, substitute, solve the system of equations. At the end you'll see that your function fits exactly.")}
       </p>
 
       <div className="flex items-center flex-wrap" style={{ gap: 8, marginBottom: 10 }}>
-        <div className="flex" role="group" aria-label="Funktionstyp" style={{ background: "#EEF2F8", borderRadius: 999, padding: 3 }}>
-          <Pille aktiv={modus === "poly"} onClick={() => modusWaehlen("poly")}>Polynome</Pille>
+        <div className="flex" role="group" aria-label={zw("Funktionstyp", "Function type")} style={{ background: "#EEF2F8", borderRadius: 999, padding: 3 }}>
+          <Pille aktiv={modus === "poly"} onClick={() => modusWaehlen("poly")}>{zw("Polynome", "Polynomials")}</Pille>
           <Pille aktiv={modus === "adv"} onClick={() => modusWaehlen("adv")}>Advanced</Pille>
         </div>
       </div>
       <div className="flex items-center flex-wrap" style={{ gap: 10, marginBottom: 16 }}>
-        <div className="flex" role="group" aria-label="Aufgabenart" style={{ background: "#EEF2F8", borderRadius: 999, padding: 3 }}>
+        <div className="flex" role="group" aria-label={zw("Aufgabenart", "Task type")} style={{ background: "#EEF2F8", borderRadius: 999, padding: 3 }}>
           {SUB[modus].map((s) => <Pille key={s.id} aktiv={sub === s.id} onClick={() => subWaehlen(s.id)}>{s.name}</Pille>)}
         </div>
         <button type="button" onClick={() => neu()}
           style={{ marginLeft: "auto", background: "none", border: "none", color: C.see, fontSize: 13, fontWeight: 500, fontFamily: "inherit", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: 6 }}>
           <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 2.5v3h-3" stroke="currentColor" strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
-          Neue Aufgabe
+          {zw("Neue Aufgabe", "New task")}
         </button>
       </div>
       {!ergebnis && (
@@ -1397,40 +1448,40 @@ export function Steckbriefaufgaben() {
       )}
 
       <div key={`s${nr}`}>
-        <Schritt nr={num()} titel="Ansatz wählen" fertig={!!ansatz}>
+        <Schritt nr={num()} titel={zw("Ansatz wählen", "Choose the general form")} fertig={!!ansatz}>
           <AnsatzSchritt auf={auf} gewaehlt={ansatz} setGewaehlt={setAnsatz} />
         </Schritt>
 
         {/* Aufgabe: nach dem Ansatz, direkt darüber die Bedingungen (Reihenfolge laut Auftrag) */}
         <div key={`a${nr}`} className="sb-neu" style={{ ...karte, padding: "18px 20px", marginTop: 16, borderLeft: `4px solid ${C.flaggold}` }}>
-          <p style={{ ...kicker, marginBottom: 8 }}>STECKBRIEF</p>
+          <p style={{ ...kicker, marginBottom: 8 }}>{zw("STECKBRIEF", "WANTED")}</p>
           <Text s={auf.satz} style={{ fontSize: 16, lineHeight: 1.85, color: C.tinte, fontWeight: 400 }} />
-          <p style={{ fontSize: 13, color: C.grau, fontWeight: 300, marginTop: 8 }}>Bestimme den Funktionsterm von f.</p>
+          <p style={{ fontSize: 13, color: C.grau, fontWeight: 300, marginTop: 8 }}>{zw("Bestimme den Funktionsterm von f.", "Determine the equation of f.")}</p>
         </div>
 
         {ansatz && (
-          <Schritt nr={num()} titel="Bedingungen aufstellen" fertig={!!bedZeilen}>
+          <Schritt nr={num()} titel={zw("Bedingungen aufstellen", "Set up the conditions")} fertig={!!bedZeilen}>
             <BedingungsSchritt auf={auf} fertig={bedZeilen} onFertig={setBedZeilen} />
           </Schritt>
         )}
 
         {bedZeilen && (
-          <Schritt nr={num()} titel="Einsetzen" fertig={istPoly ? ausmult : loesen} scrollen>
+          <Schritt nr={num()} titel={zw("Einsetzen", "Substitute")} fertig={istPoly ? ausmult : loesen} scrollen>
             <EinsetzSchritt auf={auf} zeilen={bedZeilen} />
-            {istPoly && !ausmult && <Knopf onClick={() => setAusmult(true)}>Ausmultiplizieren</Knopf>}
-            {!istPoly && !loesen && <Knopf onClick={() => setLoesen(true)}>Gleichungen lösen</Knopf>}
+            {istPoly && !ausmult && <Knopf onClick={() => setAusmult(true)}>{zw("Ausmultiplizieren", "Expand")}</Knopf>}
+            {!istPoly && !loesen && <Knopf onClick={() => setLoesen(true)}>{zw("Gleichungen lösen", "Solve the equations")}</Knopf>}
           </Schritt>
         )}
 
         {istPoly && ausmult && (
-          <Schritt nr={num()} titel="Ausmultiplizieren" fertig={loesen} scrollen>
+          <Schritt nr={num()} titel={zw("Ausmultiplizieren", "Expand")} fertig={loesen} scrollen>
             <AusmultSchritt auf={auf} rows={rows} />
-            {!loesen && <Knopf onClick={() => setLoesen(true)}>Gleichungssystem lösen</Knopf>}
+            {!loesen && <Knopf onClick={() => setLoesen(true)}>{zw("Gleichungssystem lösen", "Solve the system of equations")}</Knopf>}
           </Schritt>
         )}
 
         {loesen && (
-          <Schritt nr={num()} titel={istPoly ? "Gleichungssystem lösen" : "Parameter bestimmen"} fertig={!!ergebnis} scrollen>
+          <Schritt nr={num()} titel={istPoly ? zw("Gleichungssystem lösen", "Solve the system of equations") : zw("Parameter bestimmen", "Determine the parameters")} fertig={!!ergebnis} scrollen>
             {istPoly
               ? <LGSSchritt start={rows} vars={ans.vars} onGeloest={fertig} />
               : <AdvSchritt auf={auf} zeilen={bedZeilen} onFertig={() => fertig(auf.koeff, "selbst")} />}
@@ -1438,7 +1489,7 @@ export function Steckbriefaufgaben() {
         )}
 
         {ergebnis && (
-          <Schritt nr={num()} titel="Die Funktion im Schaubild" fertig scrollen>
+          <Schritt nr={num()} titel={zw("Die Funktion im Schaubild", "The function in the graph")} fertig scrollen>
             <ErgebnisSchritt auf={auf} L={ergebnis.L} weg={ergebnis.weg} neu={() => neu()} />
           </Schritt>
         )}

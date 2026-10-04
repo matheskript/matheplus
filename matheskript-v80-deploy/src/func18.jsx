@@ -10,6 +10,7 @@
    ============================================================ */
 
 import React, { useMemo, useState } from "react";
+import { tr } from "./i18n.js";
 import { C } from "./base1.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
 
@@ -145,7 +146,7 @@ function Baum({ ersteStufe, P, namen }) {
   const s2 = o ? [namen.b, namen.bn, namen.b, namen.bn] : [namen.a, namen.an, namen.a, namen.an];
   const x0 = 14, x1 = 110, x2 = 212, y0 = H / 2;
   const y1 = [58, 152], y2 = [26, 88, 124, 186];
-  const kurz = (t) => (t.length > 13 ? `${t.slice(0, 12)}…` : t);
+  const kurz = (t0) => { const t = String(tr(t0)); return t.length > 13 ? `${t.slice(0, 12)}…` : t; };
   return (
     <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", display: "block" }}>
       <circle cx={x0} cy={y0} r="4" fill={C.tinte} />
