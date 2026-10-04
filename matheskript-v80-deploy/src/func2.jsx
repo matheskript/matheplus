@@ -296,27 +296,68 @@ const SCHUL_BEREICHE = [
       { name: "Sinusfunktion", zeile: "f(x) = a · sin(b · (x − c)) + d", bild: "sinus", ziel: { ansicht: "sinus" } },
       { name: "Steckbriefaufgaben", zeile: "Aus Eigenschaften die Funktion bestimmen", bild: "steckbrief", ziel: { ansicht: "steckbrief" } },
       { name: "Ableitungstrainer", zeile: "f′, f″ und f‴ eingeben und prüfen", bild: "ableitung", ziel: { ansicht: "ableitungstrainer" } },
-    ] },
+    ], video: { name: "Videokurse Analysis", zeile: "Analysis 1–5 mit Videolektionen und Checks" } },
   { id: "vektoren", titel: "Vektoren", text: "Der Ebenen-Visualizer zeigt jede Ebene live im Raum – dazu der Videokurs.", logo: <VektorenLogoKlein />,
     tools: [
       { name: "Ebenen-Visualizer", zeile: "Ebenen live im Raum drehen", bild: "ebene", ziel: { ansicht: "ebenen" } },
       { name: "Ebene vs. Ebene", zeile: "Schnittgerade und Schnittwinkel", bild: "ebenen2", ziel: { ansicht: "ebenevsebene" } },
       { name: "Vektor-Generator", zeile: "Immer neue Rechnungen mit Rechenweg", bild: "wuerfel", ziel: { ansicht: "vektorgenerator" } },
       { name: "Kreuzprodukt", zeile: "a × b – Formel, eingesetzt, Ergebnis", bild: "kreuz", ziel: { ansicht: "kreuzprodukt" } },
-      { name: "Videokurs Vektoren", zeile: "Fünf Lektionen mit Kurz-Checks", bild: "video", ziel: { ansicht: "kurse", kurs: "vektoren" } },
-    ] },
+    ], video: { name: "Videokurs Vektoren", zeile: "Fünf Lektionen mit Kurz-Checks" } },
   { id: "stochastik", titel: "Stochastik", text: "Bernoulli-Kette und Vier-Felder-Tafel: den Zufall live laufen lassen.", logo: <StochastikLogoKlein />,
     tools: [
       { name: "Bernoulli-Kette", zeile: "Binomialverteilung live simulieren", bild: "balken", ziel: { ansicht: "bernoulli" } },
       { name: "Vier-Felder-Tafel", zeile: "Mit Baumdiagramm und bedingter WKT", bild: "tafel", ziel: { ansicht: "vierfelder" } },
-      { name: "Videokurs Stochastik", zeile: "Vom Baumdiagramm zum Hypothesentest", bild: "video", ziel: { ansicht: "kurse", kurs: "stochastik" } },
-    ] },
+    ], video: { name: "Videokurs Stochastik", zeile: "Vom Baumdiagramm zum Hypothesentest" } },
   { id: "gleichungen", titel: "Gleichungen", text: "Gleichungen umformen und Gleichungssysteme lösen – mit Musterlösung.", logo: <GleichungenLogoKlein />,
     tools: [
       { name: "Gleichungen lösen", zeile: "Du formst um, die App rechnet mit", bild: "gleichung", ziel: { ansicht: "gleichungen" } },
       { name: "Gleichungssysteme", zeile: "Mit drei Variablen", bild: "lgs", ziel: { ansicht: "lgs" } },
-    ] },
+    ], video: { name: "Videokurs Gleichungen", zeile: "Umformen, Gleichungssysteme, Musterlösungen" } },
 ];
+
+/* Goldener Videokurs-Knopf am Ende jeder Sektion — vorerst gesperrt (Schloss) */
+function VideokursGesperrt({ name, zeile }) {
+  const [hinweis, setHinweis] = useState(false);
+  return (
+    <div style={{ margin: "2px 0 14px" }}>
+      <style>{`.video-gold{transition:transform .12s ease}
+        .video-gold:active{transform:translateY(2px) scale(0.99)}
+        @keyframes videoGlanz{0%{transform:translateX(-120%) skewX(-18deg)}60%,100%{transform:translateX(320%) skewX(-18deg)}}`}</style>
+      <button type="button" className="video-gold" aria-disabled="true" onClick={() => setHinweis(true)}
+        aria-label={`${name} – noch gesperrt`}
+        style={{ width: "100%", display: "flex", alignItems: "stretch", padding: 0, border: "none", borderRadius: 13, overflow: "hidden",
+          cursor: "not-allowed", fontFamily: "inherit", textAlign: "left", position: "relative", color: C.seeTief,
+          background: "linear-gradient(165deg, #FFE7A0 0%, #F3C93A 32%, #E2B53C 62%, #B88A12 100%)",
+          boxShadow: "0 8px 18px -5px rgba(120,85,0,0.55), 0 2px 4px rgba(90,60,0,0.25), inset 0 1px 0 rgba(255,255,255,0.75), inset 0 -3px 0 rgba(120,82,0,0.45), inset 0 0 0 1px rgba(255,255,255,0.25)" }}>
+        {/* Glanzstreifen */}
+        <span aria-hidden="true" style={{ position: "absolute", top: 0, bottom: 0, left: 0, width: "30%", pointerEvents: "none",
+          background: "linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.45) 50%, rgba(255,255,255,0) 100%)",
+          animation: "videoGlanz 4.5s ease-in-out 0.6s infinite" }} />
+        <span style={{ flex: "1 1 auto", minWidth: 0, padding: "11px 8px 11px 14px", display: "flex", flexDirection: "column", justifyContent: "center", position: "relative" }}>
+          <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: "-0.01em", lineHeight: 1.2 }}>{name}</span>
+          <span className="unter-zeile" style={{ fontSize: "clamp(11px, 3.1vw, 12.5px)", fontWeight: 500, color: "rgba(14,30,74,0.78)", marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+            {hinweis ? "Noch gesperrt – bald verfügbar" : zeile}
+          </span>
+        </span>
+        <span style={{ flex: "0 0 clamp(78px, 26%, 150px)", position: "relative", borderLeft: "1px solid rgba(120,82,0,0.22)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <svg viewBox="0 0 120 56" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" aria-hidden="true" style={{ position: "absolute", inset: 0, opacity: 0.4 }}>
+            <rect x="34" y="8" width="52" height="38" rx="7" fill="none" stroke={C.seeTief} strokeWidth="1.3" />
+            <path d="M54 18 L70 27 L54 36 Z" fill={C.seeTief} />
+          </svg>
+          <span style={{ position: "relative", width: 36, height: 36, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center",
+            background: `linear-gradient(160deg, #1B3A78 0%, ${C.seeTief} 100%)`, boxShadow: "0 3px 8px rgba(14,30,74,0.45), inset 0 1px 0 rgba(255,255,255,0.18)" }}>
+            <svg width="16" height="18" viewBox="0 0 16 18" aria-hidden="true">
+              <path d="M4 8V5.5a4 4 0 0 1 8 0V8" stroke={C.flaggold} strokeWidth="2" fill="none" strokeLinecap="round" />
+              <rect x="1.5" y="8" width="13" height="9" rx="2.2" fill={C.flaggold} />
+              <circle cx="8" cy="12.5" r="1.4" fill={C.seeTief} />
+            </svg>
+          </span>
+        </span>
+      </button>
+    </div>
+  );
+}
 
 /* Goldener Plus-Knopf einer aufklappbaren Hauptkachel (dreht sich zum ×) */
 function PlusKnopf({ auf }) {
@@ -380,11 +421,12 @@ function MiniBild({ art }) {
    weitere Ebene auf (z. B. Kurvendiskussion → Polynome / Beliebige Funktionen). */
 function UnterMenue({ eintraege, gehe, tiefe = 0 }) {
   const [offen, setOffen] = useState(null);
-  const hg = tiefe === 0 ? "linear-gradient(155deg, #2C78C4 0%, #17599C 100%)" : "linear-gradient(155deg, #4A90D6 0%, #2A6FB3 100%)";
+  // Dunkleres Blau für besseren Kontrast zur weißen Schrift; Ebene 2 etwas heller zur Unterscheidung
+  const hg = tiefe === 0 ? "linear-gradient(160deg, #1B62AE 0%, #0F4A8A 55%, #0A3A70 100%)" : "linear-gradient(160deg, #2770BC 0%, #18589C 60%, #12487F 100%)";
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 6, margin: tiefe ? "0 0 4px 14px" : "6px 0 10px" }}>
       <style>{`.unter-knopf{transition:transform .12s ease, filter .12s ease}
-        .unter-knopf:active{transform:scale(0.985)}
+        .unter-knopf:active{transform:translateY(2px) scale(0.99);box-shadow:0 2px 6px rgba(10,40,90,0.3), inset 0 1px 0 rgba(255,255,255,0.22), inset 0 -1px 0 rgba(0,0,0,0.25) !important}
         @media (hover:hover){.unter-knopf:hover{filter:brightness(1.07)}}
         .unter-zeile{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
         @keyframes unterAuf{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}`}</style>
@@ -396,11 +438,11 @@ function UnterMenue({ eintraege, gehe, tiefe = 0 }) {
               aria-expanded={e.kinder ? auf : undefined}
               style={{ width: "100%", display: "flex", alignItems: "stretch", padding: 0, border: "none", borderRadius: 13, overflow: "hidden",
                 cursor: "pointer", fontFamily: "inherit", textAlign: "left", background: hg, color: C.weiss, position: "relative",
-                boxShadow: "0 4px 14px rgba(0,77,152,0.22), inset 0 0 0 1px rgba(255,255,255,0.18)",
+                boxShadow: "0 7px 16px -4px rgba(8,34,78,0.45), 0 2px 4px rgba(8,34,78,0.18), inset 0 1px 0 rgba(255,255,255,0.28), inset 0 -3px 0 rgba(0,0,0,0.22), inset 0 0 0 1px rgba(255,255,255,0.10)",
                 animation: `unterAuf .18s ease ${i * 0.03}s both` }}>
               <span style={{ flex: "1 1 auto", minWidth: 0, padding: "11px 8px 11px 14px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
                 <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: "-0.01em", lineHeight: 1.2 }}>{e.name}</span>
-                <span className="unter-zeile" style={{ fontSize: "clamp(11px, 3.1vw, 12.5px)", fontWeight: 400, color: "rgba(255,255,255,0.78)", marginTop: 3 }}>{e.zeile}</span>
+                <span className="unter-zeile" style={{ fontSize: "clamp(11px, 3.1vw, 12.5px)", fontWeight: 400, color: "rgba(255,255,255,0.86)", marginTop: 3 }}>{e.zeile}</span>
               </span>
               <span style={{ flex: "0 0 clamp(78px, 26%, 150px)", position: "relative", borderLeft: "1px solid rgba(255,255,255,0.14)", padding: "6px 6px",
                 display: "flex", alignItems: "center" }}>
@@ -845,6 +887,7 @@ export function Startseite({ gehe }) {
                 logo={b.logo} titel={b.titel} text={b.text}
                 extra={<AufklappPfeil auf={bereichAuf === b.id} />} />
               {bereichAuf === b.id && <UnterMenue eintraege={b.tools} gehe={gehe} />}
+              {bereichAuf === b.id && b.video && <VideokursGesperrt name={b.video.name} zeile={b.video.zeile} />}
             </React.Fragment>
           ))}
         </div>
