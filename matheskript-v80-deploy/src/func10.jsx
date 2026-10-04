@@ -3,7 +3,7 @@ import { API_URL, C, PROMPT, REGELN, VIDEO_URL } from "./base1.jsx";
 import { KOMP } from "./base3.jsx";
 import { NAV, SCHULKLASSEN, kiKopf, kiAntwort } from "./base4.jsx";
 import { Kurse, Trainingsbereich, dekodieren, jsonLesen, rendern } from "./func1.jsx";
-import { Startseite, ToolMenue } from "./func2.jsx";
+import { Startseite, ToolMenue, istToolMenueSeite } from "./func2.jsx";
 import { AufklappStil, AufklappZeichen, aufklappScrollStarten } from "./aufklappen.jsx";
 import { Plotter, Text, Zeile } from "./func3.jsx";
 import { Formelsammlung, FotoAufgaben, Klausur, Kurvendiskussion } from "./func4.jsx";
@@ -249,7 +249,7 @@ export function Mathilda() {
   ];
   const SektionsMenue = () => {
     const sektion = SEKTIONEN.find((liste) => liste.some((x) => x.ansicht === ansicht));
-    const knopf = (sektion || ["gleichungen", "terme", "lgs"].includes(ansicht)) ? (
+    const knopf = (sektion || istToolMenueSeite(ansicht)) ? (
       <button type="button" className="tool-menue-knopf" onClick={() => setToolMenueOffen(!toolMenueOffen)} aria-haspopup="dialog" aria-expanded={toolMenueOffen}
         data-kein-scroll aria-label="Menü mit allen Bereichen" title="Menü"
         style={{ height: 34, width: 34, borderRadius: 999, padding: 0, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
@@ -951,6 +951,7 @@ export function Mathilda() {
             <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 34, letterSpacing: "-0.03em", lineHeight: 1.05 }}>Formelsammlung</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
+              <SektionsMenue />
               <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
                 Alles auf einen Blick — sortiert nach Bereichen und durchsuchbar.
               </p>
@@ -1113,6 +1114,7 @@ export function Mathilda() {
             <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(26px, 7.6vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Gleichungen verstehen</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
+              <SektionsMenue />
               <PruefungsLink ansicht={ansicht} gehe={gehe} />
             </div>
             <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />

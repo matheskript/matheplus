@@ -377,6 +377,12 @@ function menueBaum() {
   ];
 }
 
+/* Alle Seiten, die über das Menü erreichbar sind – dort erscheint der Menü-Knopf im Kopfbereich */
+export function istToolMenueSeite(ansicht) {
+  const sammle = (liste) => liste.flatMap((k) => (k.kinder ? sammle(k.kinder) : k.ziel ? [k.ziel.ansicht] : []));
+  return sammle(menueBaum()).includes(ansicht);
+}
+
 export function ToolMenue({ gehe, schliessen, aktuell }) {
   const [offen, setOffen] = useState({});
   const baum = React.useMemo(menueBaum, []);
