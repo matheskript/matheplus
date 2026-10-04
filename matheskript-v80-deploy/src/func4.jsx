@@ -11,6 +11,7 @@ import { LoesungsWeg } from "./func6.jsx";
 import { Auswertung } from "./func9.jsx";
 import { Mathilda } from "./func10.jsx";
 import { FR } from "./funcRegistry.jsx";
+import { GraphenUebungen, ZusaetzlichUeben } from "./funcGraphenUebung.jsx";
 
 export function FotoAufgaben() {
   const [bild, setBild] = useState(null);
@@ -323,6 +324,7 @@ export function MiniGraph({ fn, hoehe = 112, breite = 150, markieren = [] }) {
 
 
 export function Kurvendiskussion({ onZurueck }) {
+  const [uebung, setUebung] = useState(null);
   const [auf, setAuf] = useState(() => kubischErzeugen());
   const [schritt, setSchritt] = useState(0);
   const [eingabe, setEingabe] = useState({});
@@ -458,6 +460,8 @@ export function Kurvendiskussion({ onZurueck }) {
 
   return (
     <div>
+      {uebung && <div><GraphenUebungen start={uebung} onZurueck={() => setUebung(null)} /></div>}
+      <div style={{ display: uebung ? "none" : "block" }}>
       <button onClick={onZurueck} className="mb-5"
         style={{ background: "none", border: "none", color: C.see, fontSize: 13, fontFamily: "inherit", cursor: "pointer", padding: 0 }}>
         ← Trainingsbereich
@@ -469,6 +473,7 @@ export function Kurvendiskussion({ onZurueck }) {
         Jede Funktion wird neu erzeugt, und jeder Schritt wird einzeln geprüft. Rechne auf Papier,
         trage hier nur das Ergebnis ein.
       </p>
+      <ZusaetzlichUeben onWaehle={setUebung} />
 
       <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", marginBottom: 16 }}>
         <p style={{ fontSize: 12.5, color: C.grau, fontWeight: 300, marginBottom: 6 }}>Untersuche vollständig</p>
@@ -569,6 +574,7 @@ export function Kurvendiskussion({ onZurueck }) {
             fontWeight: fertig ? 600 : 400, fontFamily: "inherit", cursor: "pointer" }}>
           Neue Funktion
         </button>
+      </div>
       </div>
     </div>
   );
