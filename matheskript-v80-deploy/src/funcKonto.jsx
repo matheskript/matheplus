@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { C } from "./base1.jsx";
-import { DEMO, useKonto, anmelden, abmelden, profilAnlegen, profilSpeichern, empfehlungsLink, neuerCode, refPruefen, refFestlegen, istRefCode } from "./konto.js";
+import { DEMO, useKonto, anmelden, abmelden, profilAnlegen, profilSpeichern, empfehlungsLink, neuerCode, refPruefen, refFestlegen, istRefCode, REF_BASIS_ANZEIGE } from "./konto.js";
 
 /* ======================================================================
    KONTOBEREICH (ansicht "konto")
@@ -172,7 +172,7 @@ function RefErsteller({ startCode }) {
       </div>
 
       <div style={{ background: "rgba(255,255,255,0.1)", border: `1.5px solid ${code && ok ? C.flaggold : "rgba(255,255,255,0.22)"}`, borderRadius: 14, padding: "14px 14px 12px", textAlign: "center" }}>
-        <p style={{ fontSize: 12.5, color: "#8FA3C8", marginBottom: 2 }}>mythosmathe.de/</p>
+        <p style={{ fontSize: 12.5, color: "#8FA3C8", marginBottom: 2 }}>{REF_BASIS_ANZEIGE}/</p>
         <p style={{ fontSize: "clamp(30px, 9vw, 38px)", fontWeight: 800, color: C.flaggold, letterSpacing: "0.12em", fontVariantNumeric: "tabular-nums", minHeight: 40, wordBreak: "break-all" }}>
           {modus === "wunsch"
             ? (code + "______".slice(code.length)).split("").map((z, i) => <span key={i} style={{ color: z === "_" ? "rgba(255,255,255,0.25)" : C.flaggold }}>{z}</span>)
@@ -209,7 +209,7 @@ function RefErsteller({ startCode }) {
       ) : (
         <div style={{ marginTop: 12, background: "rgba(255,255,255,0.1)", borderRadius: 14, padding: 14 }}>
           <p style={{ fontSize: 14, lineHeight: 1.55, color: C.weiss, marginBottom: 10 }}>
-            <b>mythosmathe.de/{anzeigeGl(code)}</b> wird für immer dein Einladungslink. Du kannst ihn danach nicht mehr ändern.
+            <b>{REF_BASIS_ANZEIGE}/{anzeigeGl(code)}</b> wird für immer dein Einladungslink. Du kannst ihn danach nicht mehr ändern.
           </p>
           <div className="flex" style={{ gap: 8 }}>
             <button type="button" onClick={festlegen} disabled={laeuft}
@@ -396,7 +396,7 @@ function Profil({ nutzer, profil, geworben, gehe }) {
           Teile deinen persönlichen Link. Wer sich darüber anmeldet, wird automatisch dir zugeordnet.
         </p>
         <div style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: 12, padding: "10px 12px" }}>
-          <span style={{ flex: 1, minWidth: 0, fontSize: 14, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", userSelect: "all" }}>mythosmathe.de/<span style={{ color: C.flaggold }}>{anzeigeGl(profil.ref_code)}</span></span>
+          <span style={{ flex: 1, minWidth: 0, fontSize: 14, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", userSelect: "all" }}>{REF_BASIS_ANZEIGE}/<span style={{ color: C.flaggold }}>{anzeigeGl(profil.ref_code)}</span></span>
         </div>
         <div className="flex flex-wrap items-center" style={{ gap: 8, marginTop: 10 }}>
           <button type="button" onClick={kopieren}

@@ -3,7 +3,7 @@
 -- Einmal im Supabase-Dashboard unter „SQL Editor“ ausführen.
 -- ======================================================================
 
--- Jeder Empfehlungscode ist eine eigene sechsstellige Zahl: mythosmathe.de/482913
+-- Jeder Empfehlungscode ist eine eigene sechsstellige Zahl: matheplus-scls.vercel.app/482913
 create or replace function public.neue_refzahl()
 returns text
 language plpgsql
