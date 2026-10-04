@@ -5150,7 +5150,11 @@
   "Nettogewinn, Erwartungswert, fairer Einsatz – mit Simulation.": "Net gain, expected value, fair stake – with simulation.",
   "Urnen und Kombinatorik": "Urns and combinatorics",
   "Ziehen, Zählmethoden, Baumdiagramme": "Drawing, counting methods, tree diagrams",
-  "Mit und ohne Zurücklegen, Zählmethoden und Baumdiagramme.": "With and without replacement, counting methods and tree diagrams."
+  "Mit und ohne Zurücklegen, Zählmethoden und Baumdiagramme.": "With and without replacement, counting methods and tree diagrams.",
+  "Tests": "Tests",
+  "Test aufbauen, Ablehnungsbereich, Fehler 1. und 2. Art": "Set up a test, rejection region, type I and II errors",
+  "H₀, Ablehnungsbereich, Fehler 1. und 2. Art": "H₀, rejection region, type I and II errors",
+  "H₀ aufstellen, Ablehnungsbereich finden, Fehler verstehen.": "State H₀, find the rejection region, understand errors."
  },
  "muster": [
   [

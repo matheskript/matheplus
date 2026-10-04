@@ -328,6 +328,7 @@ const SCHUL_BEREICHE = [
       { name: "Vier-Felder-Tafel", zeile: "Mit Baumdiagramm und bedingter WKT", bild: "tafel", ziel: { ansicht: "vierfelder" } },
       { name: "Erwartungswert und faire Spiele", zeile: "Gewinnverteilung, fairer Einsatz, Simulation", bild: "erwartung", ziel: { ansicht: "erwartungswert" } },
       { name: "Urnen und Kombinatorik", zeile: "Ziehen, Zählmethoden, Baumdiagramme", bild: "urne", ziel: { ansicht: "kombinatorik" } },
+      { name: "Hypothesentests", zeile: "H₀, Ablehnungsbereich, Fehler 1. und 2. Art", bild: "hypothese", ziel: { ansicht: "hypothesentest" } },
     ], video: { name: "Videokurs Stochastik", zeile: "Vom Baumdiagramm zum Hypothesentest" } },
   { id: "gleichungen", titel: "Gleichungen", text: "Gleichungen umformen und Gleichungssysteme lösen – mit Musterlösung.", logo: <GleichungenLogoKlein />,
     tools: [
@@ -449,6 +450,7 @@ function MiniBild({ art }) {
     integral: <>{achsen}<path d="M30 46 L30 30 C 44 14, 60 10, 76 20 L76 46 Z" fill="rgba(237,187,0,0.35)" /><path d="M10 40 C 26 34, 34 22, 48 15 S 80 14, 112 30" {...linie} />{txt(84, 18, "∫", g, 15)}</>,
     erwartung: <>{txt(60, 24, "E(X) = 0", "#fff", 14, "middle")}{txt(60, 44, "fair", g, 12, "middle")}<path d="M44 47 H76" stroke={g} strokeWidth="1" /></>,
     urne: <><path d="M34 10 Q30 50 60 50 Q90 50 86 10" {...linie} fill="rgba(255,255,255,0.06)" /><circle cx="50" cy="40" r="5" fill={g} /><circle cx="62" cy="42" r="5" fill="#fff" /><circle cx="72" cy="36" r="5" fill={g} /><circle cx="57" cy="31" r="5" fill="#fff" /></>,
+    hypothese: <>{[4, 10, 20, 30, 34, 26, 14, 6, 2].map((h, i) => <rect key={i} x={18 + i * 10} y={48 - h} width="7" height={h} rx="1.5" fill={i >= 7 ? g : "rgba(255,255,255,0.5)"} />)}<path d="M88 6 V50" stroke={g} strokeWidth="1.2" strokeDasharray="3 3" />{txt(92, 14, "α", g, 12)}</>,
     video: <><rect x="34" y="8" width="52" height="38" rx="7" {...linie} /><path d="M54 18 L70 27 L54 36 Z" fill={g} /></>,
     balken: <>{[6, 14, 26, 36, 30, 18, 9, 4].map((h, i) => <rect key={i} x={20 + i * 11} y={48 - h} width="7" height={h} rx="1.5" fill={i === 3 ? g : "rgba(255,255,255,0.5)"} />)}</>,
     tafel: <><rect x="30" y="8" width="60" height="40" rx="4" {...linie} /><path d="M60 8 V48 M30 28 H90" {...linie} /><rect x="31" y="9" width="28" height="18" fill="rgba(237,187,0,0.35)" /></>,

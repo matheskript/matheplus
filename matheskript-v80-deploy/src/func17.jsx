@@ -594,6 +594,7 @@ const STOCHASTIK = [
   { ziel: { ansicht: "vierfelder" }, titel: "Vier-Felder-Tafel", slogan: "Absolut oder in Prozent – mit Baum und bedingter WKT.", kurz: "Absolute Häufigkeiten oder Wahrscheinlichkeiten, die sich zu 100 % ergänzen – mit Baumdiagramm und bedingter Wahrscheinlichkeit.", zeichen: "▦" },
   { ziel: { ansicht: "erwartungswert" }, titel: "Erwartungswert und faire Spiele", kurzTitel: "Erwartungswert", slogan: "Nettogewinn, Erwartungswert, fairer Einsatz – mit Simulation.", zeichen: "E(X)" },
   { ziel: { ansicht: "kombinatorik" }, titel: "Urnen und Kombinatorik", kurzTitel: "Kombinatorik", slogan: "Mit und ohne Zurücklegen, Zählmethoden und Baumdiagramme.", zeichen: "n!" },
+  { ziel: { ansicht: "hypothesentest" }, titel: "Hypothesentests", slogan: "H₀ aufstellen, Ablehnungsbereich finden, Fehler verstehen.", zeichen: "H₀" },
   { ziel: { ansicht: "kurse", kurs: "stochastik" }, titel: "Videokurs Stochastik", slogan: "Fünf Lektionen vom Baum bis zum Hypothesentest.", kurz: "Fünf Lektionen vom Baumdiagramm bis zum Hypothesentest – mit Merksätzen und Kurz-Checks.", zeichen: "▶" },
 ];
 

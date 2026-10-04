@@ -152,6 +152,7 @@ export const NAV = [
     { name: "Vier-Felder-Tafel", kurz: "Absolut oder in Prozent, mit Baumdiagramm", ansicht: "vierfelder" },
     { name: "Erwartungswert und faire Spiele", kurz: "Gewinnverteilung, fairer Einsatz, Simulation", ansicht: "erwartungswert" },
     { name: "Urnen und Kombinatorik", kurz: "Ziehen, Zählmethoden, Baumdiagramme", ansicht: "kombinatorik" },
+    { name: "Hypothesentests", kurz: "Test aufbauen, Ablehnungsbereich, Fehler 1. und 2. Art", ansicht: "hypothesentest" },
     { name: "Arbeitsblatt drucken", kurz: "Aufgabenblatt mit Lösungsteil", ansicht: "ki", ziel: "blatt" },
   ] },
   { id: "berichte", name: "Berichte", kurz: "Für Eltern und Lehrkräfte", eintraege: [
