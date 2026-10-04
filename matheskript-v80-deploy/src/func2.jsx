@@ -58,11 +58,11 @@ function PlotterLogoKlein() {
   );
 }
 
-function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "Werkzeug", klein, halb, extra, gesperrt, logoHell, portraet, titelUmbruch, keinI18nTitel, auf }) {
+function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "Werkzeug", klein, halb, extra, gesperrt, logoHell, portraet, titelUmbruch, keinI18nTitel, auf, haupt }) {
   if (halb) klein = true;   // halbe Höhe: nur Titel und eine Textzeile
   const mehrereSaetze = saetze(text).length > 1;
   return (
-    <button onClick={gesperrt ? undefined : onClick} disabled={gesperrt} aria-disabled={gesperrt || undefined} aria-expanded={auf}
+    <button onClick={gesperrt ? undefined : onClick} disabled={gesperrt} aria-disabled={gesperrt || undefined} aria-expanded={auf} data-aufklapp-haupt={haupt ? "" : undefined}
       aria-label={gesperrt ? `${titel} – noch gesperrt` : label} title={gesperrt ? "Noch gesperrt" : undefined}
       className={gesperrt ? "kachel-gesperrt" : "plotter-kachel"}
       style={{ display: "flex", width: klein ? "100%" : "calc(100% + 32px)", marginLeft: klein ? 0 : -16, marginRight: klein ? 0 : -16,
@@ -367,7 +367,7 @@ function toolKnoten(t) {
 }
 function menueBaum() {
   return [
-    { id: "schul", titel: "Mathe-Training", kinder: SCHUL_BEREICHE.map((b) => ({ id: b.id, titel: b.titel, kinder: b.tools.map(toolKnoten) })) },
+    ...SCHUL_BEREICHE.map((b) => ({ id: b.id, titel: b.titel, kinder: b.tools.map(toolKnoten) })),
     { id: "mein", titel: "Mein Training", kinder: [
       { titel: "5 Minuten Mathe", ziel: { ansicht: "warmup" } },
       { titel: "Meine Fehler üben", ziel: { ansicht: "fehlertraining" } },
@@ -407,7 +407,7 @@ export function ToolMenue({ gehe, schliessen, aktuell }) {
     const auf = !!offen[id];
     return (
       <div key={id} style={{ marginTop: tiefe === 0 ? 6 : 4 }}>
-        <button type="button" onClick={() => setOffen({ ...offen, [id]: !auf })} aria-expanded={auf}
+        <button type="button" onClick={() => setOffen({ ...offen, [id]: !auf })} aria-expanded={auf} data-aufklapp-haupt={tiefe === 0 ? "" : undefined}
           style={{ display: "flex", width: "100%", alignItems: "center", justifyContent: "space-between", gap: 8, textAlign: "left", fontFamily: "inherit", cursor: "pointer",
             minHeight: tiefe === 0 ? 42 : 38, padding: "6px 10px", borderRadius: tiefe === 0 ? 11 : 9, border: `1px solid ${auf ? C.see : C.linie}`,
             background: auf ? C.himmel : C.weiss, fontSize: tiefe === 0 ? 14.5 : 13.5, fontWeight: 700, color: C.see }}>
@@ -1012,7 +1012,7 @@ export function Startseite({ gehe }) {
         <div data-aufklapp-inhalt style={{ margin: "4px 0 4px", padding: "2px 0 2px 12px", borderLeft: `3px solid ${C.flaggold}` }}>
           {SCHUL_BEREICHE.map((b) => (
             <React.Fragment key={b.id}>
-              <PlotterKachel klein onClick={() => setBereichAuf(bereichAuf === b.id ? null : b.id)}
+              <PlotterKachel klein haupt onClick={() => setBereichAuf(bereichAuf === b.id ? null : b.id)}
                 auf={bereichAuf === b.id} label={bereichAuf === b.id ? `${b.titel} zuklappen` : `${b.titel} aufklappen`}
                 logo={b.logo} titel={b.titel} text={b.text}
                 extra={<AufklappPfeil auf={bereichAuf === b.id} />} />

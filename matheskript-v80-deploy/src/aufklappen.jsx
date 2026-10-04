@@ -45,6 +45,8 @@ function kopfHoehe() {
 
 /* Welcher Titel soll oben stehen? Bei einem Untermenü das übergeordnete Menü. */
 function titelZiel(kopf) {
+  /* Hauptmenüs (z. B. Analysis, Vektoren) stehen immer selbst oben */
+  if (kopf.hasAttribute("data-aufklapp-haupt")) return kopf;
   const inhalt = kopf.closest("[data-aufklapp-inhalt]");
   if (inhalt) {
     let k = inhalt.previousElementSibling;
