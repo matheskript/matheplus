@@ -70,8 +70,8 @@ export function MasterclassKachel({ onClick, gesperrt, name = "Mathe Abi Masterc
   return (
     <Tag {...kachelProps(gesperrt, onClick, name, "mc-kachel")}
       style={{ userSelect: gesperrt ? "none" : undefined, display: "flex", width: "calc(100% + 32px)", marginLeft: -16, marginRight: -16, marginTop: 12, padding: 0, border: "none",
-        borderRadius: 20, overflow: "hidden", cursor: gesperrt ? "not-allowed" : "pointer", fontFamily: "inherit", textAlign: "left", position: "relative",
-        height: "calc(148px + 1.65 * clamp(15px, 4.1vw, 22px))", background: GOLD, color: NAVY,
+        borderRadius: 18, overflow: "hidden", cursor: gesperrt ? "not-allowed" : "pointer", fontFamily: "inherit", textAlign: "left", position: "relative",
+        height: "calc(95px + 1.1 * clamp(15px, 4.1vw, 22px))", background: GOLD, color: NAVY,
         boxShadow: "0 10px 30px rgba(181,134,18,0.35), inset 0 0 0 1px rgba(255,255,255,0.55)" }}>
       <style>{`.mc-kachel{transition:transform .15s ease, box-shadow .15s ease}
         .mc-kachel:active{transform:scale(0.985)}
@@ -81,13 +81,13 @@ export function MasterclassKachel({ onClick, gesperrt, name = "Mathe Abi Masterc
           background-size:250% 100%;animation:mcGlanz 5.5s ease-in-out infinite;pointer-events:none}
         @keyframes mcGlanz{0%,60%{background-position:120% 0}100%{background-position:-120% 0}}`}</style>
       <span className="mc-glanz" aria-hidden="true" />
-      <div style={{ flex: "1 1 63%", minWidth: 0, padding: "12px 8px 12px 16px", display: "flex", flexDirection: "column", position: "relative" }}>
-        <h2 style={{ fontSize: "clamp(21px, 6.2vw, 32px)", fontWeight: 800, letterSpacing: "-0.035em", lineHeight: 1.02, margin: 0, ...(name === "Mathe Abi Masterclass" ? {} : { maxWidth: "8.5em" }) }}>
-          {name === "Mathe Abi Masterclass" ? <>Mathe Abi<br />Masterclass</> : name}
+      <div style={{ flex: "1 1 63%", minWidth: 0, padding: "12px 8px 10px 16px", display: "flex", flexDirection: "column", position: "relative" }}>
+        <h2 style={{ fontSize: "clamp(15px, 4.1vw, 22px)", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.1, margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+          {name}
         </h2>
-        <span aria-hidden="true" style={{ display: "block", width: 44, height: 3, borderRadius: 2, marginTop: 7, background: NAVY }} />
-        <p style={{ fontSize: 12.5, fontWeight: 500, lineHeight: 1.4, marginTop: 6, marginBottom: 0, color: "#1B2A4F",
-          display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+        <span aria-hidden="true" style={{ display: "block", width: 34, height: 2.5, borderRadius: 2, marginTop: 6, background: NAVY }} />
+        <p style={{ fontSize: 12.5, fontWeight: 500, lineHeight: 1.4, marginTop: 5, marginBottom: 0, color: "#1B2A4F",
+          display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
           <SatzZeilen text="Werde die beste Version von dir – für ein starkes Abi und Freude am Fach." />
         </p>
         {gesperrt ? baldVerfuegbar(NAVY) : (

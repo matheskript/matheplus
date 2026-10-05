@@ -1077,8 +1077,6 @@ export function Startseite({ gehe }) {
           </>)}
         </div>
       )}
-      {/* Einzige sichtbare Programm-Kachel: Mathe Masterclass (3 Monate, gesperrt) */}
-      <MasterclassKachel gesperrt name="Mathe Masterclass" monate="3 MONATE" onClick={() => gehe({ ansicht: "masterclass" })} />
       {ZEIGE_GESPERRTE && (<>
       <MatheCheckenKachel gesperrt onClick={() => gehe({ ansicht: "mathecheck" })} />
       <MasterclassKachel gesperrt onClick={() => gehe({ ansicht: "masterclass" })} />
@@ -1094,6 +1092,8 @@ export function Startseite({ gehe }) {
       <PlotterKachel gesperrt onClick={() => gehe({ ansicht: "kurse" })} label="Videokurse öffnen" logo={<SchulkurseLogoKlein />}
         titel="Videokurse"
         text="Analysis 1–5, Vektoren und Stochastik – mit Videolektionen und Checks." />
+      {/* Ganz unten: Mathe Masterclass (3 Monate, gesperrt) */}
+      <MasterclassKachel gesperrt name="Mathe Masterclass" monate="3 MONATE" onClick={() => gehe({ ansicht: "masterclass" })} />
 
     </div>
     </>
