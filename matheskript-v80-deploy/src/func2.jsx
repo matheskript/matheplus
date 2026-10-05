@@ -59,7 +59,7 @@ function PlotterLogoKlein() {
   );
 }
 
-function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "Werkzeug", klein, halb, extra, gesperrt, logoHell, portraet, titelUmbruch, keinI18nTitel, auf, haupt, breit }) {
+function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "Werkzeug", klein, halb, extra, gesperrt, logoHell, portraet, titelUmbruch, keinI18nTitel, auf, haupt, breit, goldRand }) {
   if (halb) klein = true;   // halbe Höhe: nur Titel und eine Textzeile
   const mehrereSaetze = saetze(text).length > 1;
   return (
@@ -67,7 +67,7 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
       aria-label={gesperrt ? `${titel} – noch gesperrt` : label} title={gesperrt ? "Noch gesperrt" : undefined}
       className={gesperrt ? "kachel-gesperrt" : "plotter-kachel"}
       style={{ display: "flex", width: klein && !breit ? "100%" : "calc(100% + 32px)", marginLeft: klein && !breit ? 0 : -16, marginRight: klein && !breit ? 0 : -16,
-        height: "auto", marginTop: klein && !breit ? 8 : 12, padding: 0, border: "none", borderRadius: klein ? 14 : 18,
+        height: "auto", marginTop: klein && !breit ? 8 : 12, padding: 0, border: goldRand ? `2px solid ${C.flaggold}` : "none", borderRadius: klein ? 14 : 18,
         overflow: "hidden", cursor: gesperrt ? "not-allowed" : "pointer", fontFamily: "inherit", textAlign: "left", position: "relative",
         background: gesperrt ? "linear-gradient(155deg, #B9C2CE 0%, #8C97A6 55%, #6E7989 100%)" : `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`,
         boxShadow: gesperrt ? "0 4px 14px rgba(40,50,70,0.18), inset 0 0 0 1px rgba(255,255,255,0.45)" : `0 6px 22px rgba(0,77,152,0.24), inset 0 0 0 1px ${C.silber}40` }}>
@@ -76,7 +76,6 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
         @media (hover:hover){.plotter-kachel:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,77,152,0.32)}}
         .kachel-text{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
         .kachel-titel{background:linear-gradient(180deg,#FFFFFF 0%,${C.silberHell} 55%,${C.silber} 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
-        @media (max-width:520px){.kachel-portraet{top:24px !important}}
         .kachel-gesperrt .kachel-titel{background:none;color:#FFFFFF;text-shadow:0 1px 2px rgba(30,40,60,0.25)}`}</style>
       {/* Links (60 %): Titel und Erklärtext von oben */}
       <div style={{ flex: klein ? "1 1 68%" : "1 1 60%", minWidth: 0, padding: halb ? "8px 8px 8px 14px" : klein ? "14px 8px 14px 14px" : "14px 10px 14px 16px", display: "flex", flexDirection: "column", justifyContent: halb ? "center" : undefined }}>
@@ -102,8 +101,8 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
         )}
       </div>
       {portraet && (
-        <div aria-hidden="true" style={{ flex: "0 0 auto", width: "clamp(78px, 21vw, 108px)", position: "relative", marginLeft: -8, marginRight: 4 }}>
-          <div className="kachel-portraet" style={{ position: "absolute", inset: "6px 0 0 0", display: "flex" }}>{portraet}</div>
+        <div aria-hidden="true" style={{ "--pw": "clamp(78px, 21vw, 108px)", flex: "0 0 auto", width: "var(--pw)", position: "relative", marginLeft: -8, marginRight: 4 }}>
+          <div className="kachel-portraet" style={{ position: "absolute", inset: "0 0 0 0", display: "flex" }}>{portraet}</div>
         </div>
       )}
       {/* Rechts (40 %): nur die Grafik */}
@@ -220,7 +219,10 @@ function MathildaLogoKlein() {
    flache Flächen in den Silbertönen der gesperrten Kachel. */
 function MathildaPortraet() {
   return (
-    <svg viewBox="0 0 120 138" preserveAspectRatio="xMidYMin slice" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
+    /* Größe hängt nur an der Breite der Spalte (--pw), nicht an der Kachelhöhe. Die Oberkante des Haares (y = 22 von 120×138)
+       liegt immer 16 px unter dem oberen Kachelinnenrand, also bündig mit der Oberkante des Titels. */
+    <svg viewBox="0 0 120 138" style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", width: "calc(var(--pw) * 1.2)", height: "auto",
+      top: "calc(16px - var(--pw) * 0.22)", display: "block", overflow: "visible" }} aria-hidden="true">
       <path d="M 24 60 C 18 18, 102 18, 96 60 C 100 90, 106 116, 102 138 L 18 138 C 14 116, 20 90, 24 60 Z" fill="#F4F6F9"/>
       <path d="M 4 138 C 8 120, 28 111, 47 109 L 73 109 C 92 111, 112 120, 116 138 Z" fill="#3E4756"/>
       <path d="M 49 94 L 49 111 Q 60 117 71 111 L 71 94 Z" fill="#DCE2EA"/>
@@ -1077,7 +1079,7 @@ export function Startseite({ gehe }) {
       <MathCreatorKachel />
       <ElternabendKachel gesperrt onClick={() => gehe({ ansicht: "elternabend" })} />
       </>)}
-      <PlotterKachel portraet={<MathildaPortraet />} onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })} label="Mathilda AI öffnen" logo={<MathildaLogoKlein />} keinI18nTitel
+      <PlotterKachel portraet={<MathildaPortraet />} onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })} label="Mathilda AI öffnen" logo={<MathildaLogoKlein />} keinI18nTitel goldRand
         titel={<MathildaName dunkel />}
         text="Foto vom Blatt – Mathilda prüft deinen Weg." />
       <PlotterKachel gesperrt onClick={() => gehe({ ansicht: "kurse", kurs: "penpaper" })} label="Pen & Paper öffnen" logo={<PenPaperBlatt />}
