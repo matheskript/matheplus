@@ -843,7 +843,7 @@ export function KlasseAnsicht({ klasse, gehe }) {
 
       {kurse.length > 0 && (
         <div style={{ marginBottom: 26 }}>
-          <p style={{ fontSize: 12.5, fontWeight: 600, color: C.gruenDunkel, marginBottom: 8 }}>Passende Schulkurse</p>
+          <p style={{ fontSize: 12.5, fontWeight: 600, color: C.gruenDunkel, marginBottom: 8 }}>Passende Videokurse</p>
           {kurse.map((k) => (
             <button key={k.id} onClick={() => gehe({ ansicht: "kurse" })} className="kachel w-full"
               style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", textAlign: "left",

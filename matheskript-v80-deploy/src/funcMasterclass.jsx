@@ -65,10 +65,10 @@ const kachelProps = (gesperrt, onClick, label, klasse) => (gesperrt
   ? { role: "button", "aria-disabled": "true", "aria-label": `${label} – noch gesperrt`, title: "Noch gesperrt", className: `${klasse} kachel-zu` }
   : { type: "button", onClick, "aria-label": label, className: klasse });
 
-export function MasterclassKachel({ onClick, gesperrt }) {
+export function MasterclassKachel({ onClick, gesperrt, name = "Mathe Abi Masterclass", monate = "6 MONATE" }) {
   const Tag = gesperrt ? "div" : "button";
   return (
-    <Tag {...kachelProps(gesperrt, onClick, "Mathe Abi Masterclass", "mc-kachel")}
+    <Tag {...kachelProps(gesperrt, onClick, name, "mc-kachel")}
       style={{ userSelect: gesperrt ? "none" : undefined, display: "flex", width: "calc(100% + 32px)", marginLeft: -16, marginRight: -16, marginTop: 12, padding: 0, border: "none",
         borderRadius: 20, overflow: "hidden", cursor: gesperrt ? "not-allowed" : "pointer", fontFamily: "inherit", textAlign: "left", position: "relative",
         height: "calc(148px + 1.65 * clamp(15px, 4.1vw, 22px))", background: GOLD, color: NAVY,
@@ -82,8 +82,8 @@ export function MasterclassKachel({ onClick, gesperrt }) {
         @keyframes mcGlanz{0%,60%{background-position:120% 0}100%{background-position:-120% 0}}`}</style>
       <span className="mc-glanz" aria-hidden="true" />
       <div style={{ flex: "1 1 63%", minWidth: 0, padding: "12px 8px 12px 16px", display: "flex", flexDirection: "column", position: "relative" }}>
-        <h2 style={{ fontSize: "clamp(21px, 6.2vw, 32px)", fontWeight: 800, letterSpacing: "-0.035em", lineHeight: 1.02, margin: 0 }}>
-          Mathe Abi<br />Masterclass
+        <h2 style={{ fontSize: "clamp(21px, 6.2vw, 32px)", fontWeight: 800, letterSpacing: "-0.035em", lineHeight: 1.02, margin: 0, ...(name === "Mathe Abi Masterclass" ? {} : { maxWidth: "8.5em" }) }}>
+          {name === "Mathe Abi Masterclass" ? <>Mathe Abi<br />Masterclass</> : name}
         </h2>
         <span aria-hidden="true" style={{ display: "block", width: 44, height: 3, borderRadius: 2, marginTop: 7, background: NAVY }} />
         <p style={{ fontSize: 12.5, fontWeight: 500, lineHeight: 1.4, marginTop: 6, marginBottom: 0, color: "#1B2A4F",
@@ -99,7 +99,7 @@ export function MasterclassKachel({ onClick, gesperrt }) {
       </div>
       <div style={{ flex: "0 0 37%", position: "relative", borderLeft: "1px solid rgba(11,30,74,0.12)" }}>
         <span style={{ position: "absolute", top: 10, left: 10, fontSize: 9.5, fontWeight: 700, letterSpacing: "0.1em", background: NAVY, color: MIND,
-          padding: "3px 7px", borderRadius: 999, zIndex: 1 }}>6 MONATE</span>
+          padding: "3px 7px", borderRadius: 999, zIndex: 1 }}>{monate}</span>
         <div style={{ position: "absolute", inset: "30px 6px 8px 2px", opacity: gesperrt ? 0.55 : 1 }}><MasterclassLogo /></div>
         {gesperrt && <SchlossPlakette farbe={NAVY} />}
       </div>

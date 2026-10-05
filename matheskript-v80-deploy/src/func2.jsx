@@ -680,7 +680,7 @@ export function Startseite({ gehe }) {
       satz: "So viele Aufgaben, wie du willst — in fünf Stufen. Geprüft wird nicht nur das Ergebnis, sondern der ganze Rechenweg.",
       meta: "Generator · Rechenweg · Klausur mit Uhr",
       ziel: { ansicht: "ki", ziel: null } },
-    { id: "kurse", titel: "Schulkurse", motiv: <MotivKurse />,
+    { id: "kurse", titel: "Videokurse", motiv: <MotivKurse />,
       satz: "Ein klarer Plan für jedes Thema. Analysis in fünf Kursen, Vektoren, Stochastik und Pen & Paper — jeweils von Grund auf, mit Videokurs.",
       meta: "vier Kurse · je 100 €",
       ziel: { ansicht: "kurse" } },
@@ -1073,6 +1073,8 @@ export function Startseite({ gehe }) {
           </>)}
         </div>
       )}
+      {/* Einzige sichtbare Programm-Kachel: Mathe Masterclass (3 Monate, gesperrt) */}
+      <MasterclassKachel gesperrt name="Mathe Masterclass" monate="3 MONATE" onClick={() => gehe({ ansicht: "masterclass" })} />
       {ZEIGE_GESPERRTE && (<>
       <MatheCheckenKachel gesperrt onClick={() => gehe({ ansicht: "mathecheck" })} />
       <MasterclassKachel gesperrt onClick={() => gehe({ ansicht: "masterclass" })} />
@@ -1085,8 +1087,8 @@ export function Startseite({ gehe }) {
       <PlotterKachel gesperrt onClick={() => gehe({ ansicht: "kurse", kurs: "penpaper" })} label="Pen & Paper öffnen" logo={<PenPaperBlatt />}
         titel="Pen & Paper"
         text="Klar aufschreiben, strukturiert arbeiten, sicher mit Fehlern umgehen." />
-      <PlotterKachel gesperrt onClick={() => gehe({ ansicht: "kurse" })} label="Schulkurse öffnen" logo={<SchulkurseLogoKlein />}
-        titel="Schulkurse"
+      <PlotterKachel gesperrt onClick={() => gehe({ ansicht: "kurse" })} label="Videokurse öffnen" logo={<SchulkurseLogoKlein />}
+        titel="Videokurse"
         text="Analysis 1–5, Vektoren und Stochastik – mit Videolektionen und Checks." />
 
     </div>
