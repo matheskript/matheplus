@@ -769,7 +769,7 @@ export function pruefungsThemen(ansicht) {
   if (ANSICHT_THEMA[ansicht]) return [ANSICHT_THEMA[ansicht]];
   if (VEKTOR_ANSICHTEN.includes(ansicht)) return ["vektoren"];
   if (["stochastik", "vierfelder", "erwartungswert", "kombinatorik", "hypothesentest"].includes(ansicht)) return ["bernoulli"];
-  if (["analysis", "sinus", "steckbrief", "optimierung", "wachstum", "scharen"].includes(ansicht)) return ["kurven", "integrale"];
+  if (["analysis", "geradengleichung", "parabeln", "sinus", "steckbrief", "optimierung", "wachstum", "scharen"].includes(ansicht)) return ["kurven", "integrale"];
   return null;
 }
 export const RUECKMELDUNGEN = [

@@ -957,6 +957,8 @@ export function KopfrechnenLogoKlein() {
 /* ---------- Analysis-Übersicht ---------- */
 
 const ANALYSIS = [
+  { ansicht: "geradengleichung", titel: "Geradengleichung", kurzTitel: "Geraden", slogan: "y = m·x + c aus zwei Punkten oder aus Punkt und Steigung.", zeichen: "mx+c" },
+  { ansicht: "parabeln", titel: "Parabeln", slogan: "Scheitelpunkt, Scheitelform, Nullstellen und Brennpunkt.", zeichen: "ax²" },
   { ansicht: "plotter", titel: "Polynomplotter", slogan: "Graph mit f′ und f″ live – mit Kurvendiskussion und PDF.", kurz: "Koeffizienten einstellen, Graph mit f′ und f″ live sehen — inklusive Kurvendiskussion und PDF.", zeichen: "ax³" },
   { ansicht: "advplotter", titel: "Advanced Plotter", slogan: "Beliebige Funktionen untersuchen – sin, ln, eˣ.", kurz: "Beliebige Funktionen mit sin, cos, ln, eˣ, Wurzeln und Brüchen bauen und untersuchen.", zeichen: "sin" },
   { ansicht: "sinus", titel: "Sinusfunktion", slogan: "a, b, c und d finden, bis der Graph passt.", kurz: "Parameter a, b, c und d finden, bis der Graph passt – mit Periode, Ableitung und Nullstellen.", zeichen: "∿" },

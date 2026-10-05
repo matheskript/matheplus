@@ -307,6 +307,8 @@ const ZEIGE_GESPERRTE = false;
 const SCHUL_BEREICHE = [
   { id: "analysis", titel: "Analysis", text: "Kurvendiskussion, Steckbriefe, Sinus und Ableitungen – live.", logo: <PlotterLogoKlein />,
     tools: [
+      { name: "Geradengleichung", zeile: "y = m·x + c aus zwei Punkten oder Punkt und Steigung", bild: "gerade", ziel: { ansicht: "geradengleichung" } },
+      { name: "Parabeln", zeile: "Scheitelpunkt, Scheitelform, Nullstellen, Brennpunkt", bild: "parabel", ziel: { ansicht: "parabeln" } },
       { name: "Kurvendiskussion", zeile: "Graph, Ableitungen und PDF auf Knopfdruck", bild: "kurve",
         kinder: [
           { name: "Polynome", zeile: "Ganzrationale Funktionen bis Grad 4", bild: "poly", ziel: { ansicht: "plotter" } },
@@ -509,6 +511,8 @@ function MiniBild({ art }) {
   const achsen = <><path d="M8 46 H112" {...linie} strokeWidth="0.9" opacity="0.6" /><path d="M20 52 V6" {...linie} strokeWidth="0.9" opacity="0.6" /></>;
   const txt = (x, y, s, f = w, gr = 11, anchor = "start") => <text x={x} y={y} textAnchor={anchor} style={{ fontSize: gr, fill: f, fontFamily: "inherit", fontWeight: 500 }}>{s}</text>;
   const m = {
+    gerade: <>{achsen}<path d="M10 50 L112 8" {...linie} /><circle cx="38" cy="38.3" r="2.8" fill={g} /><circle cx="84" cy="19.4" r="2.8" fill="#fff" />{txt(70, 44, "y = mx + c", "#fff", 10.5)}</>,
+    parabel: <>{achsen}<path d="M30 6 Q 62 90 94 6" {...linie} /><circle cx="62" cy="26" r="2.6" fill={g} /><circle cx="62" cy="14" r="2" fill="#fff" />{txt(68, 17, "F", "#fff", 9.5)}{txt(68, 36, "S", g, 9.5)}</>,
     kurve: <>{achsen}<path d="M10 44 C 30 -8, 52 54, 72 22 S 104 6, 112 4" {...linie} stroke={w} /><circle cx="33" cy="17" r="2.6" fill={g} /><circle cx="61" cy="34" r="2.6" fill={g} /><circle cx="48" cy="26" r="2" fill="#fff" /></>,
     poly: <>{achsen}<path d="M12 50 C 30 -10, 60 60, 78 18 S 104 2, 112 0" {...linie} /><circle cx="36" cy="16" r="2.4" fill={g} /><circle cx="64" cy="36" r="2.4" fill={g} /></>,
     beliebig: <>{achsen}<path d="M10 30 Q 20 10 30 30 T 50 30 T 70 30" {...linie} /><path d="M66 44 C 84 42, 98 30, 112 6" {...linie} stroke={g} /></>,

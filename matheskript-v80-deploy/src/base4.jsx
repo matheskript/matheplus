@@ -132,6 +132,8 @@ export const NAV = [
   ] },
   { id: "werkzeuge", name: "Werkzeuge", kurz: "Plotter, Ebenen, Bernoulli, Vier-Felder-Tafel", eintraege: [
     { name: "Analysis", kurz: "Alle Analysis-Werkzeuge im Überblick", ansicht: "analysis" },
+    { name: "Geradengleichung", kurz: "y = m·x + c aus zwei Punkten oder Punkt und Steigung", ansicht: "geradengleichung" },
+    { name: "Parabeln", kurz: "Scheitelpunkt, Scheitelform, Nullstellen und Brennpunkt", ansicht: "parabeln" },
     { name: "Polynomplotter", kurz: "Koeffizienten einstellen, f, f′ und f″ sehen", ansicht: "plotter" },
     { name: "Advanced Plotter", kurz: "Beliebige Funktionen mit Tastenfeld und Kurvendiskussion", ansicht: "advplotter" },
     { name: "Sinusfunktion", kurz: "a, b, c, d finden, bis der Graph passt", ansicht: "sinus" },

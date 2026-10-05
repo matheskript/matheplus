@@ -2,7 +2,8 @@ import React, { useState, useRef, useEffect } from "react";
 import { API_URL, C, PROMPT, REGELN, VIDEO_URL } from "./base1.jsx";
 import { KOMP } from "./base3.jsx";
 import { NAV, SCHULKLASSEN, kiKopf, kiAntwort } from "./base4.jsx";
-import { Kurse, Trainingsbereich, dekodieren, jsonLesen, rendern } from "./func1.jsx";
+import { KIAufgaben, Kurse, Trainingsbereich, dekodieren, jsonLesen, rendern } from "./func1.jsx";
+import { Parabeln } from "./funcParabeln.jsx";
 import { Startseite, ToolMenue, istToolMenueSeite } from "./func2.jsx";
 import { AufklappStil, AufklappZeichen, aufklappScrollStarten } from "./aufklappen.jsx";
 import { Plotter, Text, Zeile } from "./func3.jsx";
@@ -239,7 +240,7 @@ export function Mathilda() {
 
   // Untermenü im Kopfbereich: alle Übungsbereiche der aktuellen Sektion als Buttons
   const SEKTIONEN = [
-    [{ ansicht: "analysis", name: "Übersicht", versteckt: true }, { ansicht: "plotter", name: "Polynomplotter", kurz: "Polynome" }, { ansicht: "advplotter", name: "Advanced Plotter", kurz: "Advanced" },
+    [{ ansicht: "analysis", name: "Übersicht", versteckt: true }, { ansicht: "geradengleichung", name: "Geradengleichung", kurz: "Geraden" }, { ansicht: "parabeln", name: "Parabeln", kurz: "Parabeln" }, { ansicht: "plotter", name: "Polynomplotter", kurz: "Polynome" }, { ansicht: "advplotter", name: "Advanced Plotter", kurz: "Advanced" },
       { ansicht: "sinus", name: "Sinusfunktion", kurz: "Sinus" }, { ansicht: "ableitungstrainer", name: "Ableitungstrainer", kurz: "Ableitung" },
       { ansicht: "steckbrief", name: "Steckbriefaufgaben", kurz: "Steckbrief" }, { ansicht: "integrale", name: "Integrale", kurz: "Integrale" },
       { ansicht: "optimierung", name: "Optimierungswerkstatt", kurz: "Optimierung" }, { ansicht: "wachstum", name: "Wachstum und Logarithmen", kurz: "Wachstum" }, { ansicht: "scharen", name: "Funktionsscharen", kurz: "Scharen" }],
@@ -1099,6 +1100,33 @@ export function Mathilda() {
             <Welle fill={C.sand} />
           </div>
           <WachstumLogarithmen />
+        </>
+      ) : ansicht === "geradengleichung" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
+            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(24px, 7vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Geradengleichung</h1>
+              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
+              <SektionsMenue />
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
+            <h2 style={{ fontSize: 25, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 14 }}>Gerade durch zwei Punkte – oder durch Punkt und Steigung</h2>
+            <KIAufgaben eingebettet />
+          </div>
+        </>
+      ) : ansicht === "parabeln" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
+            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(24px, 7vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Parabeln</h1>
+              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
+              <SektionsMenue />
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <Parabeln />
         </>
       ) : ansicht === "scharen" ? (
         <>
