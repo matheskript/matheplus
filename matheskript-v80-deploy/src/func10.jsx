@@ -329,42 +329,30 @@ export function Mathilda() {
             .logo-gold{background:linear-gradient(180deg,#FFE58A 0%,${C.flaggold} 45%,${C.goldWarm} 70%,#A67C00 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
           `}</style>
           <button type="button" data-kein-i18n aria-label={englisch() ? "Home" : "Zur Startseite"} title={englisch() ? "Home" : "Zur Startseite"}
-            onClick={() => { setAnsicht("start"); setMenuOffen(false); setGruppeOffen(null); window.scrollTo(0, 0); }}
-            style={{ background: "none", border: "none", padding: 0, margin: 0, cursor: "pointer", fontFamily: "inherit",
-              color: C.weiss, fontSize: "clamp(17px, 5.7vw, 38px)", fontWeight: 700, letterSpacing: "-0.02em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
-            <span className="logo-silber">mythos</span><span className="logo-gold">mathe</span><span className="logo-silber">.de</span>
+            onClick={() => { setAnsicht("start"); setMenuOffen(false); setGruppeOffen(null); setSeitenOffen(false); window.scrollTo(0, 0); }}
+            style={{ background: "none", border: "none", padding: 0, margin: 0, cursor: "pointer", fontFamily: "inherit", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", minWidth: 0 }}>
+            <span style={{ color: C.weiss, fontSize: "clamp(21px, 7vw, 40px)", fontWeight: 700, letterSpacing: "-0.02em", textTransform: "uppercase", whiteSpace: "nowrap", lineHeight: 1.05 }}>
+              <span className="logo-silber">mythos</span><span className="logo-gold">mathe</span><span className="logo-silber">.de</span>
+            </span>
+            <span style={{ fontSize: "clamp(8.5px, 2.5vw, 11.5px)", fontWeight: 600, marginTop: 1, letterSpacing: "0.03em", color: "#C9D6EE", whiteSpace: "nowrap", lineHeight: 1.1 }}>
+              System <span style={{ color: C.flaggold }}>+</span> Freude <span style={{ color: C.flaggold }}>=</span> Erfolg
+            </span>
           </button>
           <div className="flex items-center" style={{ gap: "clamp(4px, 1.4vw, 6px)" }}>
-          {/* Seiten-Umschalter: aktuelle App und die Webseiten-Entwürfe */}
-          <button type="button" onClick={() => setSeitenOffen(!seitenOffen)} aria-expanded={seitenOffen} data-kein-scroll aria-label="Seite wechseln" title="Seite wechseln"
-            style={{ height: "clamp(28px, 8.6vw, 34px)", width: "clamp(28px, 8.6vw, 34px)", flexShrink: 0, borderRadius: 999, padding: 0, cursor: "pointer",
-              border: `1.5px solid ${seitenOffen || istEntwurf(ansicht) ? C.flaggold : "rgba(255,255,255,0.45)"}`,
-              background: seitenOffen || istEntwurf(ansicht) ? "rgba(237,187,0,0.16)" : "transparent", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke={seitenOffen || istEntwurf(ansicht) ? C.flaggold : C.weiss} strokeWidth="2" strokeLinejoin="round" aria-hidden="true">
-              <rect x="3.5" y="3.5" width="7" height="7" rx="1.6" /><rect x="13.5" y="3.5" width="7" height="7" rx="1.6" />
-              <rect x="3.5" y="13.5" width="7" height="7" rx="1.6" /><rect x="13.5" y="13.5" width="7" height="7" rx="1.6" />
-            </svg>
-          </button>
-          <button type="button" onClick={sprachKnopf} data-kein-i18n
-            aria-label={englisch() ? "Auf Deutsch umschalten" : "Switch to English"} title={englisch() ? "Deutsch" : "English"}
-            style={{ height: "clamp(28px, 8.6vw, 34px)", minWidth: "clamp(32px, 10vw, 40px)", flexShrink: 0, borderRadius: 999, border: "1.5px solid rgba(255,255,255,0.45)", background: "transparent",
-              color: C.weiss, fontSize: "clamp(11px, 3.4vw, 13px)", fontWeight: 700, letterSpacing: "0.06em", fontFamily: "inherit", cursor: "pointer", padding: "0 7px", lineHeight: 1 }}>
-            {englisch() ? "DE" : "EN"}
-          </button>
-          {/* Profil-Button vorübergehend ausgeblendet */}
-          {ZEIGE_PROFIL && <button onClick={() => { gehe({ ansicht: "konto" }); window.scrollTo(0, 0); }} aria-label={konto.profil ? "Mein Konto" : "Anmelden"} title={konto.profil ? "Mein Konto" : "Anmelden"}
+          {/* Profil-/Login-Button */}
+          {ZEIGE_PROFIL && <button onClick={() => { gehe({ ansicht: "konto" }); setSeitenOffen(false); window.scrollTo(0, 0); }} aria-label={konto.profil ? "Mein Konto" : "Anmelden"} title={konto.profil ? "Mein Konto" : "Anmelden"}
             style={{ width: "clamp(28px, 8.6vw, 34px)", height: "clamp(28px, 8.6vw, 34px)", flexShrink: 0, borderRadius: 999, border: `1.5px solid ${konto.profil ? C.flaggold : "rgba(255,255,255,0.45)"}`,
               background: konto.profil ? "rgba(237,187,0,0.16)" : "transparent", color: konto.profil ? C.flaggold : C.weiss, fontSize: konto.profil ? 14 : 20, fontWeight: 700,
               fontFamily: "inherit", cursor: "pointer", padding: 0, lineHeight: 1 }}>
             {konto.profil ? (konto.profil.name || "?").slice(0, 1).toUpperCase() : "+"}
           </button>}
-          {/* Menü-Button vorübergehend ausgeblendet – alle Bereiche bleiben in der App erreichbar */}
-          {ZEIGE_MENUE && <button onClick={() => { if (!menuOffen) { const g = NAV.find((g) => g.eintraege.some(istAktiv)); setGruppeOffen(g ? g.id : null); } setMenuOffen(!menuOffen); }} aria-label="Menü"
-            style={{ background: "none", border: "none", cursor: "pointer", padding: 8, display: "flex", flexDirection: "column", gap: 5 }}>
+          {/* Menü-Button (drei Linien): Startseite, Sprache und die passwortgeschützten Entwürfe */}
+          <button type="button" onClick={() => setSeitenOffen(!seitenOffen)} aria-expanded={seitenOffen} data-kein-scroll aria-label="Menü" title="Menü"
+            style={{ background: "none", border: "none", cursor: "pointer", padding: 8, display: "flex", flexDirection: "column", gap: 5, flexShrink: 0 }}>
             {[0, 1, 2].map((i) => (
-              <span key={i} style={{ display: "block", width: 22, height: 2, background: C.weiss, borderRadius: 2 }} />
+              <span key={i} style={{ display: "block", width: 22, height: 2, background: seitenOffen || istEntwurf(ansicht) ? C.flaggold : C.weiss, borderRadius: 2 }} />
             ))}
-          </button>}
+          </button>
           </div>
         </div>
 
@@ -374,22 +362,45 @@ export function Mathilda() {
             <div style={{ position: "absolute", right: "max(12px, calc(50% - 298px))", top: 60, zIndex: 2, width: "min(320px, calc(100vw - 24px))", background: C.weiss,
               borderRadius: 14, boxShadow: "0 14px 40px rgba(8,23,59,0.32)", padding: 8, color: C.tinte }}>
               <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", color: C.grau, padding: "8px 12px 6px" }}>SEITE WECHSELN</div>
-              {[{ ansicht: "start", name: "Aktuelle Version", kurz: "Die App, wie sie jetzt online ist" }, ...ENTWUERFE].map((e, i) => {
-                const an = e.ansicht === "start" ? !istEntwurf(ansicht) : ansicht === e.ansicht;
+              {(() => {
+                const zeile = { width: "100%", display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", borderRadius: 10, border: "none", cursor: "pointer", fontFamily: "inherit", textAlign: "left", color: C.tinte };
+                const kreis = (an) => ({ width: 28, height: 28, borderRadius: 999, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12.5, fontWeight: 700, background: an ? C.flaggold : C.himmel, color: an ? C.seeTief : C.grau });
+                const startAn = !istEntwurf(ansicht);
                 return (
-                  <button key={e.ansicht} type="button" onClick={() => gehe({ ansicht: e.ansicht })} aria-current={an ? "page" : undefined}
-                    style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", borderRadius: 10, border: "none", cursor: "pointer",
-                      fontFamily: "inherit", textAlign: "left", background: an ? "rgba(237,187,0,0.14)" : "transparent", color: C.tinte, marginTop: i === 1 ? 6 : 0,
-                      borderTop: i === 1 ? `1px solid ${C.linie}` : "none" }}>
-                    <span style={{ width: 28, height: 28, borderRadius: 999, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12.5, fontWeight: 700,
-                      background: an ? C.flaggold : C.himmel, color: an ? C.seeTief : C.grau }}>{i === 0 ? "A" : i}</span>
-                    <span style={{ flex: 1 }}>
-                      <span style={{ display: "block", fontSize: 14.5, fontWeight: 700 }}>{e.name}</span>
-                      <span style={{ display: "block", fontSize: 12, color: C.grau, marginTop: 1 }}>{i === 0 ? e.kurz : "Entwurf " + i + " · " + e.kurz}</span>
-                    </span>
-                  </button>
+                  <>
+                    <button type="button" onClick={() => gehe({ ansicht: "start" })} aria-current={startAn ? "page" : undefined}
+                      style={{ ...zeile, background: startAn ? "rgba(237,187,0,0.14)" : "transparent" }}>
+                      <span style={kreis(startAn)}>A</span>
+                      <span style={{ flex: 1 }}>
+                        <span style={{ display: "block", fontSize: 14.5, fontWeight: 700 }}>Startseite</span>
+                        <span style={{ display: "block", fontSize: 12, color: C.grau, marginTop: 1 }}>Die App, wie sie jetzt online ist</span>
+                      </span>
+                    </button>
+                    <button type="button" onClick={() => { setSeitenOffen(false); sprachKnopf(); }} data-kein-i18n style={{ ...zeile, background: "transparent" }}>
+                      <span style={kreis(false)}>{englisch() ? "DE" : "EN"}</span>
+                      <span style={{ flex: 1 }}>
+                        <span style={{ display: "block", fontSize: 14.5, fontWeight: 700 }}>{englisch() ? "Auf Deutsch wechseln" : "Switch to English"}</span>
+                      </span>
+                    </button>
+                    {ENTWUERFE.map((e, i) => {
+                      const an = ansicht === e.ansicht;
+                      return (
+                        <button key={e.ansicht} type="button" onClick={() => gehe({ ansicht: e.ansicht })} aria-current={an ? "page" : undefined}
+                          style={{ ...zeile, background: an ? "rgba(237,187,0,0.14)" : "transparent", marginTop: i === 0 ? 6 : 0, borderTop: i === 0 ? `1px solid ${C.linie}` : "none", borderRadius: i === 0 ? "0 0 10px 10px" : 10 }}>
+                          <span style={kreis(an)}>{i + 1}</span>
+                          <span style={{ flex: 1 }}>
+                            <span style={{ display: "block", fontSize: 14.5, fontWeight: 700 }}>{e.name}</span>
+                            <span style={{ display: "block", fontSize: 12, color: C.grau, marginTop: 1 }}>{"Entwurf " + (i + 1) + " · " + e.kurz}</span>
+                          </span>
+                          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke={C.grau} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-label="Passwortgeschützt" role="img" style={{ flexShrink: 0 }}>
+                            <rect x="5" y="11" width="14" height="9.5" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" />
+                          </svg>
+                        </button>
+                      );
+                    })}
+                  </>
                 );
-              })}
+              })()}
             </div>
           </>
         )}
