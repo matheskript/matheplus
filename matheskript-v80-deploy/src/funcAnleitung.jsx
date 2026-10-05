@@ -124,7 +124,7 @@ export function AppAnleitung() {
   }, [auf, akt]);
 
   return (
-    <div style={{ background: C.weiss, borderRadius: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", margin: "18px 0 14px", overflow: "hidden",
+    <div style={{ background: C.weiss, borderRadius: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", margin: "6px 0 14px", overflow: "hidden",
       border: `1px solid ${auf ? "rgba(0,77,152,0.18)" : C.linie}` }}>
       <style>{CSS}</style>
       <button type="button" onClick={() => setAuf(!auf)} aria-expanded={auf}
