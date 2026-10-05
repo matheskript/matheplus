@@ -252,16 +252,17 @@ export function Mathilda() {
   ];
   const SektionsMenue = () => {
     const sektion = SEKTIONEN.find((liste) => liste.some((x) => x.ansicht === ansicht));
-    const knopf = (sektion || istToolMenueSeite(ansicht)) ? (
+    const knopf = (sektion || istToolMenueSeite(ansicht)) ? (<>
       <button type="button" className="tool-menue-knopf" onClick={() => setToolMenueOffen(!toolMenueOffen)} aria-haspopup="dialog" aria-expanded={toolMenueOffen}
-        data-kein-scroll aria-label="Menü mit allen Bereichen" title="Menü"
-        style={{ height: 34, width: 34, borderRadius: 999, padding: 0, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+        data-kein-scroll aria-label={toolMenueOffen ? "Menü schließen" : "Menü mit allen Bereichen"} title="Menü"
+        style={{ height: 34, width: 34, borderRadius: 999, padding: 0, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 46,
           border: `1.5px solid ${toolMenueOffen ? C.flaggold : "rgba(255,255,255,0.45)"}`, background: toolMenueOffen ? "rgba(237,187,0,0.16)" : "rgba(255,255,255,0.06)" }}>
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke={toolMenueOffen ? C.flaggold : C.weiss} strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
-          <path d="M4 7h16M4 12h16M4 17h16" />
+          {toolMenueOffen ? <path d="M5 12h14" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
         </svg>
       </button>
-    ) : null;
+      {toolMenueOffen && <ToolMenue gehe={gehe} schliessen={() => setToolMenueOffen(false)} aktuell={ansicht} />}
+    </>) : null;
     if (!sektion) return knopf;
     return (<>
       {knopf}
@@ -392,7 +393,6 @@ export function Mathilda() {
             </div>
           </>
         )}
-        {toolMenueOffen && <ToolMenue gehe={gehe} schliessen={() => setToolMenueOffen(false)} aktuell={ansicht} />}
         {menuOffen && (
           <div style={{ background: C.seeTief, maxHeight: "72vh", overflowY: "auto" }}>
             <div className="mx-auto px-6 py-2" style={{ maxWidth: 620 }}>

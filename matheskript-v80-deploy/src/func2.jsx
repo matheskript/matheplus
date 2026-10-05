@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
 import StartBanner from "./funcStartBanner.jsx";
-import { createPortal } from "react-dom";
 import { BIBEL_URL, C, DEMO, KOEFF_FARBEN, KOEFF_HOCH } from "./base1.jsx";
 import { vz } from "./base2.jsx";
 import { LERN, hatEinheit, tagSchluessel } from "./base3.jsx";
@@ -374,10 +373,8 @@ function toolKnoten(t) {
 }
 function menueBaum() {
   return [
-    { id: "mathe", titel: "Mathematik", kinder: [
-      ...SCHUL_BEREICHE.map((b) => ({ id: b.id, titel: b.titel, kinder: b.tools.map(toolKnoten) })),
-      { id: "formel", titel: "Formelsammlung", kinder: FORMEL_MENUE.map((f) => ({ titel: f.name, ziel: f.ziel })) },
-    ] },
+    ...SCHUL_BEREICHE.map((b) => ({ id: b.id, titel: b.titel, kinder: b.tools.map(toolKnoten) })),
+    { id: "formel", titel: "Formelsammlung", kinder: FORMEL_MENUE.map((f) => ({ titel: f.name, ziel: f.ziel })) },
   ];
 }
 
@@ -423,21 +420,17 @@ export function ToolMenue({ gehe, schliessen, aktuell }) {
       </div>
     );
   };
-  return createPortal(
+  return (
     <>
-      <div onClick={schliessen} aria-hidden="true" style={{ position: "fixed", inset: 0, zIndex: 40, background: "rgba(8,23,59,0.45)" }} />
-      <style>{`.tool-menue-panel{position:fixed;top:64px;right:8px;width:60vw;min-width:220px;max-height:calc(100dvh - 76px);overflow-y:auto}
-        @media (min-width:768px){.tool-menue-panel{width:33.333vw;min-width:320px}}`}</style>
+      {/* unsichtbare Fläche: Klick daneben schließt das Menü */}
+      <div onClick={schliessen} aria-hidden="true" style={{ position: "fixed", inset: 0, zIndex: 44 }} />
+      <style>{`.tool-menue-panel{position:absolute;top:56px;right:24px;width:60vw;min-width:220px;max-width:340px;max-height:calc(100dvh - 130px);overflow-y:auto}
+        @media (min-width:768px){.tool-menue-panel{top:84px;width:clamp(300px, 33.333vw, 420px);max-width:none}}`}</style>
       <div role="dialog" aria-label="Menü" data-scroll-box className="tool-menue-panel"
-        style={{ zIndex: 45, background: C.sand, borderRadius: 14, boxShadow: "0 18px 48px rgba(8,23,59,0.4)", padding: "6px 8px 10px", fontFamily: "Montserrat, system-ui, sans-serif" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "4px 2px 2px" }}>
-          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", color: C.grau }}>ALLE BEREICHE</span>
-          <button type="button" onClick={schliessen} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 12.5, fontWeight: 700, color: C.see, padding: "6px 4px" }}>Schließen</button>
-        </div>
+        style={{ zIndex: 45, background: C.sand, borderRadius: 14, boxShadow: "0 14px 40px rgba(8,23,59,0.35)", border: `1px solid ${C.linie}`, padding: "2px 8px 8px", fontFamily: "Montserrat, system-ui, sans-serif" }}>
         {baum.map((k) => zeile(k, "", 0))}
       </div>
-    </>,
-    document.body
+    </>
   );
 }
 
