@@ -371,7 +371,7 @@ const Taste = ({ label, wert, ton, onClick, breit, aria, tippe }) => (
       background: ton === "aktion" ? C.gruen : ton === "gl" ? `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)` : ton === "op" ? "#F1F4FA" : C.weiss,
       color: ton === "aktion" ? C.weiss : ton === "gl" ? C.flaggold : C.tinte,
       border: `1px solid ${ton === "aktion" ? C.gruen : ton === "gl" ? C.seeTief : C.linie}`,
-      boxShadow: ton === "aktion" ? "0 4px 14px rgba(165,0,68,0.25)" : "0 1px 0 rgba(15,26,51,0.04)",
+      boxShadow: ton === "aktion" ? "0 4px 14px rgba(185,138,0,0.25)" : "0 1px 0 rgba(15,26,51,0.04)",
       display: "flex", alignItems: "center", justifyContent: "center" }}>
     {label}
   </button>

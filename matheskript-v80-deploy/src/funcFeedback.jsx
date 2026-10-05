@@ -192,7 +192,7 @@ export function FeedbackKnopf({ aktuell }) {
         .fb-tab span{writing-mode:vertical-rl;transform:rotate(180deg);font-size:12px;font-weight:700;letter-spacing:.08em}
         .fb-panel{position:fixed;z-index:60;right:12px;bottom:12px;width:min(360px,calc(100vw - 24px));max-height:calc(100dvh - 24px);overflow-y:auto;
           background:${C.sand};border-radius:16px;box-shadow:0 18px 48px rgba(8,23,59,.4);padding:16px 16px 18px;font-family:Montserrat,system-ui,sans-serif;color:${C.tinte}}
-        @keyframes fbPuls{0%,100%{box-shadow:0 0 0 0 rgba(165,0,68,.5)}50%{box-shadow:0 0 0 10px rgba(165,0,68,0)}}
+        @keyframes fbPuls{0%,100%{box-shadow:0 0 0 0 rgba(185,138,0,.5)}50%{box-shadow:0 0 0 10px rgba(185,138,0,0)}}
         .fb-rec{animation:fbPuls 1.4s ease-in-out infinite}
         @media (prefers-reduced-motion:reduce){.fb-rec{animation:none}}
         @media print{.fb-tab,.fb-panel{display:none}}

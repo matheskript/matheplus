@@ -127,7 +127,7 @@ export function VideokursVorschau({ kursId, onStart }) {
         <button onClick={() => onStart(weiter)}
           style={{ width: "100%", height: 52, marginTop: 8, borderRadius: 14, border: "none", cursor: "pointer", fontFamily: "inherit",
             display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
-            fontSize: 16, fontWeight: 700, color: C.weiss, background: C.gruen, boxShadow: "0 4px 14px rgba(165,0,68,0.3)" }}>
+            fontSize: 16, fontWeight: 700, color: C.weiss, background: C.gruen, boxShadow: "0 4px 14px rgba(185,138,0,0.3)" }}>
           <PlayIcon groesse={16} />
           {fertig === 0 ? "Videokurs starten" : fertig === n ? "Nochmal ansehen" : `Weiter mit Lektion ${weiter + 1}`}
         </button>

@@ -69,7 +69,7 @@ function pText(p) {
   return (Math.round(p * 100) / 100).toString().replace(".", ",");
 }
 
-const FARBEN = { n: "#004D98", p: "#A50044", k: "#C99A00" };
+const FARBEN = { n: "#004D98", p: "#B98A00", k: "#C99A00" };
 const P_WERTE = [0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95];
 const VORLAGEN = [
   { name: "🪙 Münze", p: 1 / 2, text: "Kopf" },
@@ -542,7 +542,7 @@ export function BernoulliBingo() {
 
         <button onClick={starten} disabled={laeuft}
           style={{ width: "100%", height: 54, borderRadius: 14, border: "none", cursor: laeuft ? "wait" : "pointer", fontFamily: "inherit",
-            fontSize: 17, fontWeight: 800, color: C.weiss, background: C.gruen, boxShadow: "0 4px 14px rgba(165,0,68,0.3)", opacity: laeuft ? 0.7 : 1 }}>
+            fontSize: 17, fontWeight: 800, color: C.weiss, background: C.gruen, boxShadow: "0 4px 14px rgba(185,138,0,0.3)", opacity: laeuft ? 0.7 : 1 }}>
           {laeuft ? "Läuft …" : ergebnis ? "Nochmal!" : "Experiment starten"}
         </button>
         <div style={{ display: "flex", gap: 8, marginTop: 8 }}>

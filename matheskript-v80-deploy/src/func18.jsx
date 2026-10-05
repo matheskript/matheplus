@@ -62,7 +62,7 @@ const VORLAGEN = [
     abs: [54, 6, 72, 18], text: "150 Abiturientinnen und Abiturienten: Hilft ein Lernplan?" },
 ];
 
-const FARBE = { A: "#004D98", An: "#5B8FD1", B: "#A50044", Bn: "#D4145A", rand: "#C99A00" };
+const FARBE = { A: "#004D98", An: "#5B8FD1", B: "#B98A00", Bn: "#E0AD00", rand: "#C99A00" };
 
 /* ---------- Eingabezelle ---------- */
 
@@ -120,13 +120,13 @@ function Einheitsquadrat({ P, namen }) {
       <text x={wA < 90 ? l : l + wA / 2} y={14} textAnchor={wA < 90 ? "start" : "middle"} fontSize="11" fontWeight="700" fill={FARBE.A}>{namen.a} · {pr(P.A, 0)}</text>
       <text x={b - wA < 90 ? W - l : l + wA + (b - wA) / 2} y={14} textAnchor={b - wA < 90 ? "end" : "middle"} fontSize="11" fontWeight="700" fill={FARBE.An}>{namen.an} · {pr(P.An, 0)}</text>
       {feld(l, o, wA, hAB, FARBE.B, pr(P.AB))}
-      {feld(l, o + hAB, wA, h - hAB, "#E4A6BE", pr(P.ABn))}
+      {feld(l, o + hAB, wA, h - hAB, "#F3DFA0", pr(P.ABn))}
       {feld(l + wA, o, b - wA, hAnB, FARBE.B, pr(P.AnB))}
-      {feld(l + wA, o + hAnB, b - wA, h - hAnB, "#E4A6BE", pr(P.AnBn))}
+      {feld(l + wA, o + hAnB, b - wA, h - hAnB, "#F3DFA0", pr(P.AnBn))}
       <g fontSize="10.5" fill={C.grau}>
         <rect x={l} y={H - 16} width="10" height="10" rx="2" fill={FARBE.B} />
         <text x={l + 14} y={H - 7}>{namen.b}</text>
-        <rect x={l + 130} y={H - 16} width="10" height="10" rx="2" fill="#E4A6BE" />
+        <rect x={l + 130} y={H - 16} width="10" height="10" rx="2" fill="#F3DFA0" />
         <text x={l + 144} y={H - 7}>{namen.bn}</text>
       </g>
     </svg>
@@ -388,7 +388,7 @@ export function Vierfeldertafel() {
         </div>
         <Baum ersteStufe={baum} P={P} namen={namen} />
         <p style={{ fontSize: 12.5, color: C.hellgrau, marginTop: 6, lineHeight: 1.5 }}>
-          Blau: Wahrscheinlichkeiten der ersten Stufe und Pfadwahrscheinlichkeiten (= innere Felder). Rot: bedingte Wahrscheinlichkeiten
+          Blau: Wahrscheinlichkeiten der ersten Stufe und Pfadwahrscheinlichkeiten (= innere Felder). Gold: bedingte Wahrscheinlichkeiten
           auf der zweiten Stufe. Der umgekehrte Baum ist der Kern des Satzes von Bayes.
         </p>
       </div>

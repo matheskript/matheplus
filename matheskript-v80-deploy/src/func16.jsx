@@ -106,7 +106,7 @@ function spurStrecke(n, d, achse, L) {
 
 /* ---------- 3D-Ansicht ---------- */
 
-export const FARBE_ACHSE = { 0: "#C99A00", 1: "#A50044", 2: "#004D98" };
+export const FARBE_ACHSE = { 0: "#C99A00", 1: "#B98A00", 2: "#004D98" };
 
 /* ---------- Grundebenen (x₁-x₂, x₂-x₃, x₁-x₃) als Gitter ----------
    Drei unabhängige Schalter; jede Grundebene wird als Gitter aus ihren beiden Koordinatenachsen gezeichnet.

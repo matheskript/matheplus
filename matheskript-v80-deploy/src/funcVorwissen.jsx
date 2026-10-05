@@ -110,7 +110,7 @@ const Mal = () => <span style={{ color: C.grau, fontWeight: 400 }}>·</span>;
 /* ======================================================================
    Bernoulli-Kette
    ====================================================================== */
-const FB = { n: "#004D98", p: "#A50044", k: "#C99A00" };
+const FB = { n: "#004D98", p: "#B98A00", k: "#C99A00" };
 
 /* Alle Reihenfolgen mit genau k Treffern unter n Würfen */
 function reihenfolgen(n, k) {

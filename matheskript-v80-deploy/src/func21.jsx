@@ -56,7 +56,7 @@ function sinusHilfe(z) {
   };
 }
 
-const FARBE = { a: "#A50044", b: "#004D98", c: "#C99A00", d: "#1F8A5B" };
+const FARBE = { a: "#B98A00", b: "#004D98", c: "#C99A00", d: "#1F8A5B" };
 const PI = Math.PI;
 
 /* ---------- Zahlen ---------- */

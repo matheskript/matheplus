@@ -313,7 +313,7 @@ function FehlerVerstehen() {
         <p style={{ fontSize: 14, fontWeight: 700, color: C.tinte, margin: "0 0 6px" }}>{zw("Ausprobieren: Was, wenn in Wahrheit p gilt?", "Try it: what if the true value is p?")}</p>
         <label style={{ display: "flex", justifyContent: "space-between", fontSize: 14, color: C.tinte }}><span>{zw("wahres p", "true p")}</span><b style={{ color: C.gruen }}>{zt(pWahr, 2)}</b></label>
         <input type="range" min={0.01} max={0.99} step={0.01} value={pWahr} onChange={(e) => { setPWahr(Number(e.target.value)); setSim(null); }} aria-label={zw("wahres p", "true p")} style={{ width: "100%", accentColor: C.gruen, height: 32 }} />
-        <Balken werte={werte} werte2={werte2} hoehe={170} markiert={(k) => (imBereich(k, r, au.r) ? "#E9B3C8" : null)} legende={zw(`Balken: p₀ = ${pT(p0)} · gestrichelt: p = ${zt(pWahr, 2)}`, `bars: p₀ = ${pT(p0)} · dashed: p = ${zt(pWahr, 2)}`)} />
+        <Balken werte={werte} werte2={werte2} hoehe={170} markiert={(k) => (imBereich(k, r, au.r) ? "#F3DFA0" : null)} legende={zw(`Balken: p₀ = ${pT(p0)} · gestrichelt: p = ${zt(pWahr, 2)}`, `bars: p₀ = ${pT(p0)} · dashed: p = ${zt(pWahr, 2)}`)} />
         <p style={{ fontSize: 14, color: C.tinte, margin: "8px 0 2px" }}>
           <Marke art="exakt" /> P({zw("H₀ verwerfen", "reject H₀")} | p = {zt(pWahr, 2)}) = <b>{zf(pAbl)}</b>
         </p>

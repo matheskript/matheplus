@@ -483,7 +483,7 @@ export function Mathilda() {
                   <button key={k} onClick={() => { setKlasseAktiv(k); window.scrollTo(0, 0); }}
                     style={{ flexShrink: 0, width: 38, height: 38, borderRadius: 999, fontFamily: "inherit", cursor: "pointer",
                       border: `1.5px solid ${k === klasseAktiv ? C.gruen : "rgba(255,255,255,0.35)"}`,
-                      background: k === klasseAktiv ? "rgba(165,0,68,0.18)" : "transparent", color: C.weiss, fontSize: 14, fontWeight: 600 }}>
+                      background: k === klasseAktiv ? "rgba(185,138,0,0.18)" : "transparent", color: C.weiss, fontSize: 14, fontWeight: 600 }}>
                     {k}
                   </button>
                 ))}
@@ -1465,7 +1465,7 @@ export function Mathilda() {
         {!bild && !laden && (
           <div>
             <button onClick={() => kameraRef.current?.click()} className="w-full px-6 py-7"
-              style={{ background: C.gruenDunkel, border: "none", borderRadius: 16, textAlign: "left", cursor: "pointer", color: C.weiss, fontFamily: "inherit", boxShadow: "0 4px 18px rgba(127,0,52,0.25)" }}>
+              style={{ background: C.gruenDunkel, border: "none", borderRadius: 16, textAlign: "left", cursor: "pointer", color: C.weiss, fontFamily: "inherit", boxShadow: "0 4px 18px rgba(122,88,0,0.25)" }}>
               <span style={{ fontSize: 18, fontWeight: 600 }}>Blatt fotografieren</span>
               <span className="block mt-2" style={{ fontSize: 13, fontWeight: 300, lineHeight: 1.6, opacity: 0.9 }}>
                 Kamera öffnen und direkt abfotografieren.

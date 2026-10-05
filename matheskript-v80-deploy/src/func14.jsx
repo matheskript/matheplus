@@ -842,11 +842,11 @@ const KOPF_LOOK = {
   plusminus: { bg: "linear-gradient(150deg, #7CC8FF 0%, #1D6FD6 100%)", schatten: "rgba(29,111,214,0.32)", akzent: "#14529E", text: "#FFFFFF", r: -6 },
   minus: { bg: "linear-gradient(150deg, #8FD8FF 0%, #0E86B8 100%)", schatten: "rgba(14,134,184,0.32)", akzent: "#0A5F84", text: "#FFFFFF", r: 6 },
   multiplizieren: { bg: "linear-gradient(150deg, #FFE070 0%, #F59E0B 100%)", schatten: "rgba(245,158,11,0.35)", akzent: "#A15C00", text: "#3A2200", r: 8 },
-  primfaktoren: { bg: "linear-gradient(150deg, #FF9A76 0%, #F4511E 100%)", schatten: "rgba(244,81,30,0.32)", akzent: "#B33A12", text: "#FFFFFF", r: -7 },
+  primfaktoren: { bg: "linear-gradient(150deg, #FFE08A 0%, #EDBB00 100%)", schatten: "rgba(237,187,0,0.32)", akzent: "#8A6500", text: "#FFFFFF", r: -7 },
   potenzen: { bg: "linear-gradient(150deg, #B79CFF 0%, #6D28D9 100%)", schatten: "rgba(109,40,217,0.32)", akzent: "#5B21B6", text: "#FFFFFF", r: 6 },
   kuben: { bg: "linear-gradient(150deg, #C9B2FF 0%, #7C3AED 100%)", schatten: "rgba(124,58,237,0.32)", akzent: "#5B21B6", text: "#FFFFFF", r: -5 },
   wurzeln: { bg: "linear-gradient(150deg, #A58BFF 0%, #4C1D95 100%)", schatten: "rgba(76,29,149,0.32)", akzent: "#4C1D95", text: "#FFFFFF", r: 5 },
-  division: { bg: "linear-gradient(150deg, #FF9CC9 0%, #D6336C 100%)", schatten: "rgba(214,51,108,0.32)", akzent: "#9E1F4D", text: "#FFFFFF", r: 7 },
+  division: { bg: "linear-gradient(150deg, #F5D36B 0%, #C99A00 100%)", schatten: "rgba(201,154,0,0.32)", akzent: "#7A5800", text: "#FFFFFF", r: 7 },
   bruchrechnen: { bg: "linear-gradient(150deg, #4FE0CB 0%, #0F8A7E 100%)", schatten: "rgba(15,138,126,0.32)", akzent: "#0B6A61", text: "#FFFFFF", r: -5 },
 };
 

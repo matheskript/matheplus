@@ -11,10 +11,11 @@ export function hexZuRgba(hex, alpha) {
 
 /* Matheskript · Version 80 */
 
-/* FC-Barcelona-Farben (Blaugrana): Barça-Blau trägt die Flächen (Kopfleiste, Menü,
-   dunkle Karten), Grana ist Marke und Handlung, Gold aus dem Wappen setzt Akzente
-   und markiert das Aktive. Rostbraun bleibt der Fehlerfarbe vorbehalten.
-   (Die Schlüsselnamen see/seeTief/gruen/flaggold sind historisch und bleiben aus Kompatibilität.) */
+/* Farbwelt Blau + Gold: Blau trägt die Flächen (Kopfleiste, Menü, dunkle Karten),
+   Gold ist Marke und Handlung und markiert das Aktive. Es gibt kein Rot mehr im Schema;
+   Rostbraun (signal) bleibt der Fehlerfarbe vorbehalten.
+   (Die Schlüsselnamen see/seeTief/gruen/gruenDunkel/granaHell/flaggold sind historisch und bleiben
+   aus Kompatibilität: gruen = Gold, gruenDunkel = Dunkelgold, granaHell = Bernstein.) */
 
 export const C = {
   see: "#004D98",
@@ -22,9 +23,9 @@ export const C = {
   himmel: "#E8EFF9",
   sand: "#F8FAFD",
   weiss: "#FFFFFF",
-  gruen: "#A50044",
-  gruenDunkel: "#7F0034",
-  granaHell: "#D4145A",
+  gruen: "#B98A00",
+  gruenDunkel: "#7A5800",
+  granaHell: "#D49A00",
   signal: "#B85C2E",
   tinte: "#0F1A33",
   grau: "#5A6582",
@@ -45,6 +46,7 @@ export const C = {
   gold: "#B8860B",
   smaragd: "#2F8F5B",
   lila: "#7B4FA0",
+  tuerkis: "#0E8A9B",
 };
 
 
@@ -875,7 +877,7 @@ export const DEMO = {
 };
 
 
-export const KOEFF_FARBEN = { e: C.see, a: C.gruen, b: C.gold, c: C.smaragd, d: C.lila };
+export const KOEFF_FARBEN = { e: C.see, a: C.gruen, b: C.tuerkis, c: C.smaragd, d: C.lila };
 
 export const KOEFF_SPALTEN = ["e", "a", "b", "c", "d"];
 

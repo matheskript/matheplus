@@ -252,7 +252,7 @@ function MathildaPortraet() {
   );
 }
 
-/* Eigenes Logo für die Polynomplotter-Kachel: Raster, Achsen, f (weiß), f′ (gold), f″ (grana gestrichelt). */
+/* Eigenes Logo für die Polynomplotter-Kachel: Raster, Achsen, f (weiß), f′ (gold), f″ (dunkelgold gestrichelt). */
 function PlotterLogo() {
   const W = 340, H = 170, x0 = W / 2, y0 = 92, sx = 34, sy = 22;
   const f = (x) => 0.25 * x ** 4 - 1.6 * x ** 2 + 0.6;
@@ -1259,7 +1259,7 @@ export function markanteAllg(f, fs, fss, grad, von, bis) {
 }
 
 
-/* Farbcode je Koeffizient im Polynomplotter: Blau, Rot, Gold, Grün, Lila. */
+/* Farbcode je Koeffizient im Polynomplotter: Blau, Gold, Türkis, Grün, Lila. */
 
 export function baueReihe(eintraege) {
   let erster = true;
@@ -2034,8 +2034,8 @@ export function IntegralSchaubild({ e, a, b, c, d }) {
   // Stammfunktion, um jedes Integral mit Vorzeichen konkret auszurechnen.
   const Fx = (x) => (e / 5) * x ** 5 + (a / 4) * x ** 4 + (b / 3) * x ** 3 + (c / 2) * x ** 2 + d * x;
 
-  // Dieselbe Farbfolge wie bei den Koeffizienten-Boxen — Blau, Rot, Gold, Grün, Lila.
-  const farben = [C.see, C.gruen, C.gold, C.smaragd, C.lila];
+  // Dieselbe Farbfolge wie bei den Koeffizienten-Boxen — Blau, Gold, Türkis, Grün, Lila.
+  const farben = [C.see, C.gruen, C.tuerkis, C.smaragd, C.lila];
   const intervalle = stellen.slice(0, -1).map((x1, i) => {
     const x2 = stellen[i + 1];
     return { x1, x2, wert: Fx(x2) - Fx(x1), farbe: farben[i % farben.length], label: `I${tiefZiffer(i + 1)}` };

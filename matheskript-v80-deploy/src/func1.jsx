@@ -330,7 +330,7 @@ export function Trainingsbereich({ sprung, setSprung, ziel, setZiel }) {
         </button>
 
         <button onClick={() => setKdOffen(true)} className="w-full px-5 py-5 mb-3"
-          style={{ background: `linear-gradient(160deg, ${C.gruenDunkel} 0%, #5E0026 100%)`, border: "none", borderRadius: 16, textAlign: "left", cursor: "pointer", fontFamily: "inherit", boxShadow: "0 3px 18px rgba(127,0,52,0.22)" }}>
+          style={{ background: `linear-gradient(160deg, ${C.gruenDunkel} 0%, #4D3700 100%)`, border: "none", borderRadius: 16, textAlign: "left", cursor: "pointer", fontFamily: "inherit", boxShadow: "0 3px 18px rgba(122,88,0,0.22)" }}>
           <p style={{ fontSize: 12, fontWeight: 600, color: C.gruen, marginBottom: 6 }}>Werkzeug · 12 Schritte</p>
           <p style={{ fontSize: 18, fontWeight: 700, color: C.weiss, marginBottom: 4 }}>Kurvendiskussion</p>
           <p style={{ color: "#F3C6D8", fontSize: 13, fontWeight: 300, lineHeight: 1.55 }}>
@@ -1003,7 +1003,7 @@ export function Kurse({ gehe, startKurs = null }) {
   const KaufBlock = ({ k, gross }) => (
     <div>
       <button onClick={() => kaufen(k.id)} className={gross ? "w-full px-6 py-4" : "px-6 py-3"}
-        style={{ background: C.gruenDunkel, color: C.weiss, border: "none", borderRadius: 999, fontSize: gross ? 17 : 15, fontWeight: 600, fontFamily: "inherit", cursor: "pointer", boxShadow: "0 4px 18px rgba(127,0,52,0.22)" }}>
+        style={{ background: C.gruenDunkel, color: C.weiss, border: "none", borderRadius: 999, fontSize: gross ? 17 : 15, fontWeight: 600, fontFamily: "inherit", cursor: "pointer", boxShadow: "0 4px 18px rgba(122,88,0,0.22)" }}>
         Kurs kaufen · {k.preis} €
       </button>
       {hinweis && (
@@ -1280,7 +1280,7 @@ export function Satz({ children }) {
 export function Knopf({ children, onClick, breit }) {
   return (
     <button onClick={onClick} className={breit ? "w-full px-6 py-4" : "px-6 py-3"}
-      style={{ background: C.gruenDunkel, color: C.weiss, border: "none", borderRadius: 999, fontSize: breit ? 16 : 15, fontWeight: 600, fontFamily: "inherit", cursor: "pointer", boxShadow: "0 4px 18px rgba(127,0,52,0.2)" }}>
+      style={{ background: C.gruenDunkel, color: C.weiss, border: "none", borderRadius: 999, fontSize: breit ? 16 : 15, fontWeight: 600, fontFamily: "inherit", cursor: "pointer", boxShadow: "0 4px 18px rgba(122,88,0,0.2)" }}>
       {children}
     </button>
   );

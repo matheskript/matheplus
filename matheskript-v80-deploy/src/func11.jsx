@@ -118,7 +118,7 @@ function kopfleiste(doc, gross, untertitel = "Kurvendiskussion · Polynomplotter
   const h = gross ? 20 : 13;
   setzeFuell(doc, C.seeTief);
   doc.rect(0, 0, SEITE_B, h, "F");
-  // Grana-Gold-Streifen
+  // Gold-Streifen
   setzeFuell(doc, C.gruen);
   doc.rect(0, h, SEITE_B / 2, 1.1, "F");
   setzeFuell(doc, C.flaggold);
@@ -212,7 +212,7 @@ function schaubild(doc, x0, y0, B, H, modell) {
   }
 
   // Nullstellenintegrale als Flächen
-  const farben = [C.see, C.gruen, C.gold, C.smaragd, C.lila];
+  const farben = [C.see, C.gruen, C.tuerkis, C.smaragd, C.lila];
   doc.saveGraphicsState();
   doc.setGState(new doc.GState({ opacity: 0.22 }));
   const integrale = modell.integrale || ns.slice(0, -1).map((x1, i) => [x1, ns[i + 1]]);

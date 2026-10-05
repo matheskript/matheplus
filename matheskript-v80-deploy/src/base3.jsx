@@ -40,7 +40,7 @@ export const LINIEN = [
     satz: "Jeder neue Zahlbereich entsteht, weil eine Rechnung rückwärts nicht aufging." },
   { id: "A2", bereich: "A", name: "Terme als Werkzeug", kurz: "A2", farbe: "#3E7CC4",
     satz: "Das Handwerk, das jede Gleichung braucht: umformen, ausklammern, faktorisieren." },
-  { id: "A3", bereich: "A", name: "Die Leiter der Umkehrungen", kurz: "A3", farbe: "#7F0034",
+  { id: "A3", bereich: "A", name: "Die Leiter der Umkehrungen", kurz: "A3", farbe: "#7A5800",
     satz: "Jede Sprosse bringt eine Rechenart, ihre Umkehrung und die Gleichung, die sie löst." },
   { id: "A4", bereich: "A", name: "Mehrere Unbekannte", kurz: "A4", farbe: "#1A2B5F",
     satz: "Mehr Unbekannte, mehr Gleichungen — und ein System, das sie auflöst." },
@@ -48,15 +48,15 @@ export const LINIEN = [
     satz: "Situation, Tabelle, Graph und Term sind vier Ansichten derselben Sache." },
   { id: "B2", bereich: "B", name: "Funktionsfamilien", kurz: "B2", farbe: "#004D98",
     satz: "Jede Familie hat ihren Charakter — wer ihn kennt, erkennt den Graphen am Term." },
-  { id: "B3", bereich: "B", name: "Funktionen verwandeln", kurz: "B3", farbe: "#A50044",
+  { id: "B3", bereich: "B", name: "Funktionen verwandeln", kurz: "B3", farbe: "#B98A00",
     satz: "Verschieben, strecken, spiegeln: eine Idee, die fünf Jahre lang wiederkommt." },
-  { id: "B4", bereich: "B", name: "Änderung und Steigung", kurz: "B4", farbe: "#7F0034",
+  { id: "B4", bereich: "B", name: "Änderung und Steigung", kurz: "B4", farbe: "#7A5800",
     satz: "Vom Steigungsdreieck der Geraden bis zur Ableitung jeder Kurve." },
   { id: "B5", bereich: "B", name: "Graphen untersuchen", kurz: "B5", farbe: "#1A2B5F",
     satz: "Nullstellen, Extrema, Wendepunkte — alles Gleichungen aus der Algebra." },
   { id: "B6", bereich: "B", name: "Ansammeln", kurz: "B6", farbe: "#C99A00",
     satz: "Integrieren ist Ableiten rückwärts." },
-  { id: "B7", bereich: "B", name: "Modellieren mit Funktionen", kurz: "B7", farbe: "#8C2330",
+  { id: "B7", bereich: "B", name: "Modellieren mit Funktionen", kurz: "B7", farbe: "#9A7000",
     satz: "Wirklichkeit in Funktionen übersetzen — und das Ergebnis zurück." },
 ];
 
@@ -67,7 +67,7 @@ export const LEITIDEEN_ALT = [
   { id: "zahl", name: "Zahl · Variable · Operation", kurz: "Zahl", farbe: "#004D98", versteckt: true },
   { id: "mess", name: "Messen", kurz: "Messen", farbe: "#C99A00", versteckt: true },
   { id: "raum", name: "Raum und Form", kurz: "Raum", farbe: "#1A2B5F", versteckt: true },
-  { id: "funk", name: "Funktionaler Zusammenhang", kurz: "Funktion", farbe: "#7F0034", versteckt: true },
+  { id: "funk", name: "Funktionaler Zusammenhang", kurz: "Funktion", farbe: "#7A5800", versteckt: true },
   { id: "daten", name: "Daten und Zufall", kurz: "Daten", farbe: "#5A6582", versteckt: true },
 ];
 

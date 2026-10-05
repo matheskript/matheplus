@@ -1370,7 +1370,7 @@ function AdvPlot({ A, zeigen }) {
   const sX = schoenerSchritt((xMax - xMin) / 2), sY = schoenerSchritt((yMax - yMin) / 2);
   const gx = []; for (let v = Math.ceil(xMin / sX) * sX; v <= xMax; v += sX) gx.push(Math.round(v * 1000) / 1000);
   const gy = []; for (let v = Math.ceil(yMin / sY) * sY; v <= yMax; v += sY) gy.push(Math.round(v * 1000) / 1000);
-  const farben = [C.see, C.gruen, C.gold, C.smaragd, C.lila];
+  const farben = [C.see, C.gruen, C.tuerkis, C.smaragd, C.lila];
   const knopf = { width: 34, height: 34, background: C.weiss, border: "none", fontSize: 18, color: C.see,
     cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "center" };
 
