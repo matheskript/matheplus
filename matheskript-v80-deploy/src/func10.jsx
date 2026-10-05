@@ -331,10 +331,10 @@ export function Mathilda() {
           <button type="button" data-kein-i18n aria-label={englisch() ? "Home" : "Zur Startseite"} title={englisch() ? "Home" : "Zur Startseite"}
             onClick={() => { setAnsicht("start"); setMenuOffen(false); setGruppeOffen(null); setSeitenOffen(false); window.scrollTo(0, 0); }}
             style={{ background: "none", border: "none", padding: 0, margin: 0, cursor: "pointer", fontFamily: "inherit", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", minWidth: 0 }}>
-            <span style={{ color: C.weiss, fontSize: "clamp(21px, 7vw, 40px)", fontWeight: 700, letterSpacing: "-0.02em", textTransform: "uppercase", whiteSpace: "nowrap", lineHeight: 1.05 }}>
+            <span style={{ color: C.weiss, fontSize: "clamp(21px, 7vw, 40px)", fontWeight: 700, letterSpacing: "-0.02em", textTransform: "uppercase", whiteSpace: "nowrap", lineHeight: 1 }}>
               <span className="logo-silber">mythos</span><span className="logo-gold">mathe</span><span className="logo-silber">.de</span>
             </span>
-            <span style={{ fontSize: "clamp(8.5px, 2.5vw, 11.5px)", fontWeight: 600, marginTop: 1, letterSpacing: "0.03em", color: "#C9D6EE", whiteSpace: "nowrap", lineHeight: 1.1 }}>
+            <span style={{ fontSize: "clamp(12.25px, 4.083vw, 23.33px)", fontWeight: 600, marginTop: 0, letterSpacing: "0.03em", color: "#C9D6EE", whiteSpace: "nowrap", lineHeight: 1 }}>
               System <span style={{ color: C.flaggold }}>+</span> Freude <span style={{ color: C.flaggold }}>=</span> Erfolg
             </span>
           </button>

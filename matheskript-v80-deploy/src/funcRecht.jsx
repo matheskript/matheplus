@@ -43,10 +43,10 @@ export function Fusszeile({ gehe }) {
     <footer style={{ background: C.seeTief, marginTop: 24 }}>
       <div className="mx-auto px-6" style={{ maxWidth: 620, padding: "26px 24px 30px" }}>
         <div style={{ display: "inline-flex", flexDirection: "column", alignItems: "center" }}>
-          <p style={{ fontSize: 18, fontWeight: 700, letterSpacing: "-0.02em", textTransform: "uppercase", lineHeight: 1.15 }}>
+          <p style={{ fontSize: 18, fontWeight: 700, letterSpacing: "-0.02em", textTransform: "uppercase", lineHeight: 1 }}>
             <span className="logo-silber">mythos</span><span className="logo-gold">mathe</span><span className="logo-silber">.de</span>
           </p>
-          <p style={{ fontSize: 10.5, fontWeight: 600, marginTop: 1, letterSpacing: "0.03em", color: "#C9D6EE", whiteSpace: "nowrap" }}>
+          <p style={{ fontSize: 10.5, fontWeight: 600, marginTop: 0, lineHeight: 1, letterSpacing: "0.03em", color: "#C9D6EE", whiteSpace: "nowrap" }}>
             System <span style={{ color: C.flaggold }}>+</span> Freude <span style={{ color: C.flaggold }}>=</span> Erfolg
           </p>
         </div>
