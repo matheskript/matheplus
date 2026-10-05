@@ -1,3 +1,4 @@
+import { MathildaName, mitMathildaAI } from "./mathildaName.jsx";
 import React, { useState, useRef, useEffect } from "react";
 import StartBanner from "./funcStartBanner.jsx";
 import { BIBEL_URL, C, DEMO, KOEFF_FARBEN, KOEFF_HOCH } from "./base1.jsx";
@@ -193,7 +194,7 @@ function SchulkurseLogoKlein() {
   );
 }
 
-/* Grafik für die „Frag Mathilda“-Kachel: Blatt mit handschriftlicher Rechnung im Kamera-Sucher, Häkchen. */
+/* Grafik für die „Mathilda AI“-Kachel: Blatt mit handschriftlicher Rechnung im Kamera-Sucher, Häkchen. */
 function MathildaLogoKlein() {
   const W = 230, H = 190;
   const ecke = (x, y, dx, dy) => <path d={`M ${x} ${y + dy * 18} L ${x} ${y} L ${x + dx * 18} ${y}`} stroke={C.flaggold} strokeWidth="4" fill="none" strokeLinecap="round" />;
@@ -665,7 +666,7 @@ export function Startseite({ gehe }) {
   );
 
   const KACHELN = [
-    { id: "mathilda", titel: "Frag Mathilda AI", dunkel: true, motiv: <MotivMathilda />,
+    { id: "mathilda", titel: "Mathilda AI", dunkel: true, motiv: <MotivMathilda />,
       satz: "Fotografiere dein Blatt. Mathilda liest deinen Rechenweg, findet die Stelle, an der er bricht — und sagt dir, was bis dahin trägt.",
       meta: "Blatt prüfen · Weg prüfen · Aufgabe scannen",
       ziel: { ansicht: "analyse", foto: "blatt" } },
@@ -834,7 +835,7 @@ export function Startseite({ gehe }) {
             <div style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
               <div style={{ flex: 1 }}>
                 <p style={{ fontSize: 20, fontWeight: 700, letterSpacing: "-0.02em",
-                  color: k.dunkel ? C.weiss : C.tinte, marginBottom: 7 }}>{k.titel}</p>
+                  color: k.dunkel ? C.weiss : C.tinte, marginBottom: 7 }}>{mitMathildaAI(k.titel, k.dunkel)}</p>
                 <p style={{ fontSize: 14, fontWeight: 300, lineHeight: 1.7,
                   color: k.dunkel ? "#C9D6EE" : C.grau, marginBottom: 10 }}>{k.satz}</p>
                 <p style={{ fontSize: 12, fontWeight: 500, color: k.dunkel ? C.gruen : C.gruenDunkel }}>{k.meta}</p>
@@ -1076,8 +1077,8 @@ export function Startseite({ gehe }) {
       <MathCreatorKachel />
       <ElternabendKachel gesperrt onClick={() => gehe({ ansicht: "elternabend" })} />
       </>)}
-      <PlotterKachel portraet={<MathildaPortraet />} onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })} label="Frag Mathilda AI öffnen" logo={<MathildaLogoKlein />}
-        titel="Frag Mathilda AI"
+      <PlotterKachel portraet={<MathildaPortraet />} onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })} label="Mathilda AI öffnen" logo={<MathildaLogoKlein />} keinI18nTitel
+        titel={<MathildaName dunkel />}
         text="Foto vom Blatt – Mathilda prüft deinen Weg." />
       <PlotterKachel gesperrt onClick={() => gehe({ ansicht: "kurse", kurs: "penpaper" })} label="Pen & Paper öffnen" logo={<PenPaperBlatt />}
         titel="Pen & Paper"

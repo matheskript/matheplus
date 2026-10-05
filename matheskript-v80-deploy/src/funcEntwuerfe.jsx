@@ -401,7 +401,7 @@ export function EntwurfStart({ gehe }) {
             <H2>Probier aus, wie sich Klarheit anfühlt.</H2>
             <Unter>Unsere Tools unterstützen dich dabei, Mathe wirklich zu verstehen — Schritt für Schritt.</Unter>
             <div style={{ marginTop: 20, background: "#FFFFFF", borderRadius: 14, padding: "8px 18px", boxShadow: "0 4px 22px rgba(15,26,51,0.06)" }}>
-              {[["hut", "Frag Mathilda AI", <>Erklärungen statt nur Lösungen.<br />Stelle deine Frage und erhalte einen hilfreichen Hinweis.</>, true],
+              {[["hut", "Mathilda AI", <>Erklärungen statt nur Lösungen.<br />Stelle deine Frage und erhalte einen hilfreichen Hinweis.</>, true],
                 ["play", "Trainingsbereich", "Erklärvideos, Übungen und strukturierte Lernpfade."],
                 ["dok", "Aufgabengenerator", "Individuelle Aufgaben zu deinem Thema."]].map(([ic, t, b, voll]) => (
                 <div key={t} style={{ display: "flex", gap: 16, alignItems: "center", padding: "12px 0" }}>
@@ -413,7 +413,7 @@ export function EntwurfStart({ gehe }) {
           </div>
           <div style={{ background: "#FFFFFF", borderRadius: 14, overflow: "hidden", boxShadow: "0 10px 32px rgba(15,26,51,0.12)" }}>
             <div style={{ background: N, color: "#fff", padding: "12px 16px", display: "flex", alignItems: "center", gap: 10 }}>
-              <Ic n="sprech" s={20} farbe="#fff" /><span style={{ fontWeight: 700, flex: 1 }}>Frag Mathilda AI</span><span style={{ letterSpacing: 2, fontWeight: 800 }}>•••</span>
+              <Ic n="sprech" s={20} farbe="#fff" /><span style={{ fontWeight: 700, flex: 1 }}>Mathilda AI</span><span style={{ letterSpacing: 2, fontWeight: 800 }}>•••</span>
             </div>
             <div style={{ padding: 16, display: "grid", gap: 12 }}>
               <div style={{ marginLeft: "14%", background: "#E7EEF9", borderRadius: 10, padding: "12px 14px", fontSize: 13.5, lineHeight: 1.5 }}>
@@ -773,7 +773,7 @@ export function EntwurfPakete({ gehe }) {
           <Plakette>Beispielansicht</Plakette>
         </div>
         <div style={{ display: "grid", gap: 10, marginTop: 18 }}>
-          {[["sprech", "Frag Mathilda AI", 1], ["play", "Trainingsbereich", 0], ["rechnung", "Aufgabengenerator", 2]].map(([ic, t, n]) => (
+          {[["sprech", "Mathilda AI", 1], ["play", "Trainingsbereich", 0], ["rechnung", "Aufgabengenerator", 2]].map(([ic, t, n]) => (
             <button key={t} type="button" onClick={() => gehe({ ansicht: "start" })}
               style={{ display: "flex", alignItems: "center", gap: 16, padding: "12px 16px", background: "#fff", border: "1px solid #E3E8F2", borderRadius: 12,
                 fontFamily: "inherit", cursor: "pointer", textAlign: "left", color: TXT, flexWrap: "wrap" }}>

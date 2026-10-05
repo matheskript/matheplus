@@ -1,3 +1,4 @@
+import { mitMathildaAI } from "./mathildaName.jsx";
 import React, { useState, useRef, useEffect } from "react";
 import { API_URL, C, PROMPT, REGELN, VIDEO_URL } from "./base1.jsx";
 import { KOMP } from "./base3.jsx";
@@ -419,7 +420,7 @@ export function Mathilda() {
                     <button onClick={() => (direkt ? gehe(g.eintraege[0]) : setGruppeOffen(auf ? null : g.id))} aria-expanded={direkt ? undefined : auf} className="w-full py-3.5 flex items-center justify-between"
                       style={{ background: "none", border: "none", textAlign: "left", cursor: "pointer", fontFamily: "inherit" }}>
                       <span>
-                        <span style={{ display: "block", color: drin ? C.flaggold : C.weiss, fontSize: 15.5, fontWeight: 600 }}>{g.name}</span>
+                        <span style={{ display: "block", color: drin ? C.flaggold : C.weiss, fontSize: 15.5, fontWeight: 600 }}>{mitMathildaAI(g.name, true)}</span>
                         <span style={{ display: "block", color: "#C9D6EE", fontSize: 12.5, fontWeight: 300, marginTop: 2 }}>{g.kurz}</span>
                       </span>
                       {!direkt && (
@@ -432,7 +433,7 @@ export function Mathilda() {
                         {g.eintraege.map((e) => (
                           <button key={e.name} onClick={() => gehe(e)} className="w-full py-2.5"
                             style={{ background: "none", border: "none", textAlign: "left", cursor: "pointer", fontFamily: "inherit", paddingLeft: 14 }}>
-                            <span style={{ display: "block", color: istAktiv(e) ? C.flaggold : C.weiss, fontSize: 14.5, fontWeight: 500 }}>{e.name}</span>
+                            <span style={{ display: "block", color: istAktiv(e) ? C.flaggold : C.weiss, fontSize: 14.5, fontWeight: 500 }}>{mitMathildaAI(e.name, true)}</span>
                             <span style={{ display: "block", color: "#9FB0D3", fontSize: 12, fontWeight: 300, marginTop: 1 }}>{e.kurz}</span>
                           </button>
                         ))}

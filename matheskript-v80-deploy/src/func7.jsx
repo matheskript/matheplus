@@ -1,3 +1,4 @@
+import { MathildaName } from "./mathildaName.jsx";
 import React, { useState, useRef } from "react";
 import { API_URL, C, DEMO_VIDEO_ID, ganz, zuf } from "./base1.jsx";
 import { AFB_FARBE, BEGRUENDEN, DIAG, KOMP, LEITIDEEN, LERN, LINIEN, OPERATOREN, OPERATOR_FAELLE, PHASEN_NAME, SR_ABSTAENDE, TEST_ANZAHL, TEST_GRENZE, UEBEN_ANZAHL, VISUALISIERUNGEN, VORAUSBLICK, aktiv, hatEinheit, messungHalten, messungNach, messungVor, mischen } from "./base3.jsx";
@@ -457,7 +458,7 @@ export function EinheitSpieler({ id, gehe }) {
                 {!bspStand ? (
                   <div className="flex flex-wrap gap-3 mt-4">
                     <button onClick={() => setBspStand(antwortPruefen(bsp, bspEingabe) ? "ok" : "nein")} disabled={!bspEingabe.trim()} style={hauptKnopf}>Prüfen</button>
-                    <button onClick={() => setTutor({ aufgabe: bsp, eingabe: bspEingabe })} style={nebenKnopf}>Frag Mathilda AI</button>
+                    <button onClick={() => setTutor({ aufgabe: bsp, eingabe: bspEingabe })} style={nebenKnopf}><MathildaName /></button>
                   </div>
                 ) : (
                   <div style={{ borderLeft: `4px solid ${bspStand === "ok" ? C.see : C.signal}`, paddingLeft: 14, marginTop: 14 }}>
@@ -486,7 +487,7 @@ export function EinheitSpieler({ id, gehe }) {
             {!uebStand ? (
               <div className="flex flex-wrap gap-3 mt-4">
                 <button onClick={uebPruefen} disabled={!uebEingabe.trim()} style={hauptKnopf}>Prüfen</button>
-                <button onClick={() => setTutor({ aufgabe: ueb, eingabe: uebEingabe })} style={nebenKnopf}>Frag Mathilda AI</button>
+                <button onClick={() => setTutor({ aufgabe: ueb, eingabe: uebEingabe })} style={nebenKnopf}><MathildaName /></button>
               </div>
             ) : (
               <div style={{ borderLeft: `4px solid ${uebStand === "ok" ? C.see : C.signal}`, paddingLeft: 14, marginTop: 14 }}>

@@ -34,7 +34,7 @@ export const useTraining = () => normiere(useLern().training);
 const datum = (ts) => new Date(ts).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
 
 /* Zugang zu Mathilda AI: hängt an der Berechtigung im Konto. Solange diese nicht freigeschaltet ist
-   (wie beim gesperrten Bereich „Frag Mathilda AI“), arbeitet der Erklärmodus mit festen, fachlich
+   (wie beim gesperrten Bereich „Mathilda AI“), arbeitet der Erklärmodus mit festen, fachlich
    geprüften Kriterien – ohne KI. */
 export const kiFreigegeben = (konto) => Boolean(konto && konto.profil && konto.profil.ki_frei === true);
 

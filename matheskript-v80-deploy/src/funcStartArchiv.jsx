@@ -179,7 +179,7 @@ function SchulkurseLogoKlein() {
   );
 }
 
-/* Grafik für die „Frag Mathilda“-Kachel: Blatt mit handschriftlicher Rechnung im Kamera-Sucher, Häkchen. */
+/* Grafik für die „Mathilda AI“-Kachel: Blatt mit handschriftlicher Rechnung im Kamera-Sucher, Häkchen. */
 function MathildaLogoKlein() {
   const W = 230, H = 190;
   const ecke = (x, y, dx, dy) => <path d={`M ${x} ${y + dy * 18} L ${x} ${y} L ${x + dx * 18} ${y}`} stroke={C.flaggold} strokeWidth="4" fill="none" strokeLinecap="round" />;
@@ -359,7 +359,7 @@ export function StartseiteArchiv({ gehe }) {
   );
 
   const KACHELN = [
-    { id: "mathilda", titel: "Frag Mathilda AI", dunkel: true, motiv: <MotivMathilda />,
+    { id: "mathilda", titel: "Mathilda AI", dunkel: true, motiv: <MotivMathilda />,
       satz: "Fotografiere dein Blatt. Mathilda liest deinen Rechenweg, findet die Stelle, an der er bricht — und sagt dir, was bis dahin trägt.",
       meta: "Blatt prüfen · Weg prüfen · Aufgabe scannen",
       ziel: { ansicht: "analyse", foto: "blatt" } },
@@ -732,8 +732,8 @@ export function StartseiteArchiv({ gehe }) {
       <MatheCheckenKachel gesperrt onClick={() => gehe({ ansicht: "mathecheck" })} />
       <MasterclassKachel gesperrt onClick={() => gehe({ ansicht: "masterclass" })} />
       <MathCreatorKachel />
-      <PlotterKachel gesperrt portraet={<MathildaPortraet />} onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })} label="Frag Mathilda AI öffnen" logo={<MathildaLogoKlein />}
-        titel="Frag Mathilda AI"
+      <PlotterKachel gesperrt portraet={<MathildaPortraet />} onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })} label="Mathilda AI öffnen" logo={<MathildaLogoKlein />}
+        titel="Mathilda AI"
         text="Foto vom Blatt – Mathilda prüft deinen Weg." />
       <PlotterKachel gesperrt onClick={() => gehe({ ansicht: "kurse", kurs: "penpaper" })} label="Pen & Paper öffnen" logo={<PenPaperBlatt />}
         titel="Pen & Paper"
