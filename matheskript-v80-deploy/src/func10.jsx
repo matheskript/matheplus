@@ -1381,6 +1381,11 @@ export function Mathilda() {
                 ? "Fotografiere deinen Rechenweg. Mathilda überträgt ihn in Zeilen und prüft ihn wie im Editor."
                 : "Fotografiere eine Aufgabe. Mathilda erkennt den Typ und erzeugt drei weitere derselben Sorte."}
           </p>
+          <div role="note" style={{ marginTop: 16, display: "flex", alignItems: "flex-start", gap: 10, background: "rgba(237,187,0,0.14)",
+            border: `1.5px solid ${C.flaggold}`, borderRadius: 12, padding: "10px 12px" }}>
+            <span style={{ flex: "none", background: C.flaggold, color: C.seeTief, fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", padding: "3px 8px", borderRadius: 999, marginTop: 1 }}>DEMO</span>
+            <span style={{ color: "#E8EEFA", fontSize: 13.5, fontWeight: 400, lineHeight: 1.5 }}>Mathilda AI ist aktuell nur eine Demo und funktioniert noch nicht ganz.</span>
+          </div>
         </div>
         <Welle fill={C.sand} />
       </div>
