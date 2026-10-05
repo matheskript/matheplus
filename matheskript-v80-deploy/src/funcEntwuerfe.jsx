@@ -8,10 +8,11 @@ import { AufklappZeichen } from "./aufklappen.jsx";
 
 /* ======================================================================
    WEBSEITEN-ENTWÜRFE
-   Drei parallele Seiten nach den Design-Entwürfen (Oktober 2026):
+   Parallele Seiten nach den Design-Entwürfen (Oktober 2026):
      entwurf-start    – neue Startseite „Weniger Mathe-Stress“
      entwurf-checken  – Kursseite „Mathe-Checken“ (2 Monate)
      entwurf-pakete   – Tool-Pakete „Dein Training“ (Kostenlos/Plus/Maximum)
+     entwurf-werkzeuge – Archiv: alte Startseite (Stand 3.10.) + Verzeichnis aller Werkzeuge (funcStartArchiv.jsx)
    Die bestehende App bleibt unverändert; umgeschaltet wird über den
    Seiten-Knopf in der Kopfleiste (func10.jsx).
    ====================================================================== */
@@ -20,11 +21,12 @@ export const ENTWUERFE = [
   { ansicht: "entwurf-start", name: "Neue Startseite", kurz: "Weniger Mathe-Stress – Einstieg & Überblick" },
   { ansicht: "entwurf-checken", name: "Mathe-Checken", kurz: "Kursseite – 2-Monats-Konzept" },
   { ansicht: "entwurf-pakete", name: "Tool-Pakete", kurz: "Kostenlos, Plus & Maximum" },
+  { ansicht: "entwurf-werkzeuge", name: "Alle Werkzeuge", kurz: "Alte Startseite mit allen Rechentools" },
 ];
 export const istEntwurf = (a) => typeof a === "string" && a.startsWith("entwurf-");
 
 /* ---------------------------------------------------------------- Passwort-Sperre
-   Die drei Entwürfe sind intern: Zugang nur mit Passwort (klein geschrieben).
+   Die Entwurfsseiten sind intern: Zugang nur mit Passwort (klein geschrieben).
    Im Code steht nur der SHA-256-Wert, nicht das Passwort selbst. Einmal
    entsperrt, bleibt der Zugang für diese Browser-Sitzung offen.
    Hinweis: Das ist eine Sperre im Browser, kein Server-Schutz. */

@@ -46,6 +46,7 @@ import { FeedbackKnopf } from "./funcFeedback.jsx";
 import { ElternabendSeite } from "./funcElternabend.jsx";
 import { BundeswettbewerbSeite, LandeswettbewerbeSeite, LandeswettbewerbSeite, LAENDER } from "./funcWettbewerbe.jsx";
 import { ENTWUERFE, istEntwurf, EntwurfTor, EntwurfStart, EntwurfChecken, EntwurfPakete } from "./funcEntwuerfe.jsx";
+import { EntwurfWerkzeuge } from "./funcStartArchiv.jsx";
 import { useKonto, kontoStarten } from "./konto.js";
 import { englisch, spracheWechseln } from "./i18n.js";
 
@@ -1029,6 +1030,8 @@ export function Mathilda() {
         <EntwurfTor gehe={gehe}><EntwurfChecken gehe={gehe} /></EntwurfTor>
       ) : ansicht === "entwurf-pakete" ? (
         <EntwurfTor gehe={gehe}><EntwurfPakete gehe={gehe} /></EntwurfTor>
+      ) : ansicht === "entwurf-werkzeuge" ? (
+        <EntwurfTor gehe={gehe}><EntwurfWerkzeuge gehe={gehe} /></EntwurfTor>
       ) : ansicht === "kurse" ? (
         <>
           <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
