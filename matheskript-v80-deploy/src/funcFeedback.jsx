@@ -185,7 +185,7 @@ export function FeedbackKnopf({ aktuell }) {
   return createPortal(
     <>
       <style>{`
-        .fb-tab{position:fixed;right:0;top:56%;transform:translateY(-50%);z-index:35;display:flex;flex-direction:column;align-items:center;gap:8px;
+        .fb-tab{position:fixed;right:0;bottom:54px;z-index:35;display:flex;flex-direction:column;align-items:center;gap:8px;
           padding:12px 7px 10px;border:none;border-radius:12px 0 0 12px;cursor:pointer;color:#fff;font-family:Montserrat,system-ui,sans-serif;
           background:${C.see};box-shadow:-3px 4px 14px rgba(8,23,59,.28);border-left:3px solid ${C.flaggold};transition:padding .15s ease,background .15s ease}
         .fb-tab:hover,.fb-tab:focus-visible{padding-right:11px;background:${C.seeTief}}

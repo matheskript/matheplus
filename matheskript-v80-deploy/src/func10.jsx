@@ -311,7 +311,7 @@ export function Mathilda() {
 
       {/* Kopfleiste mit Menü */}
       <div data-kopfleiste style={{ position: "sticky", top: 0, zIndex: 50, background: C.seeTief }}>
-        <div className="mx-auto px-3 flex items-center justify-between" style={{ maxWidth: 620, height: 56 }}>
+        <div className="mx-auto flex items-center justify-between" style={{ maxWidth: 620, height: 56, paddingLeft: 18, paddingRight: 12 }}>
           <style>{`
             .logo-silber{background:linear-gradient(180deg,#FFFFFF 0%,${C.silberHell} 35%,${C.silber} 60%,${C.silberDunkel} 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
             .titel-kurz{display:none}
