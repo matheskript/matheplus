@@ -81,16 +81,16 @@ export function MasterclassKachel({ onClick, gesperrt, name = "Mathe Abi Masterc
           background-size:250% 100%;animation:mcGlanz 5.5s ease-in-out infinite;pointer-events:none}
         @keyframes mcGlanz{0%,60%{background-position:120% 0}100%{background-position:-120% 0}}`}</style>
       <span className="mc-glanz" aria-hidden="true" />
-      <div style={{ flex: "1 1 63%", minWidth: 0, padding: "12px 8px 10px 16px", display: "flex", flexDirection: "column", position: "relative" }}>
+      <div style={{ flex: "1 1 63%", minWidth: 0, padding: "14px 10px 14px 16px", display: "flex", flexDirection: "column", position: "relative" }}>
         <h2 style={{ fontSize: "clamp(15px, 4.1vw, 22px)", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.1, margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
           {name}
         </h2>
         <span aria-hidden="true" style={{ display: "block", width: 34, height: 2.5, borderRadius: 2, marginTop: 6, background: NAVY }} />
-        <p style={{ fontSize: 12.5, fontWeight: 500, lineHeight: 1.4, marginTop: 5, marginBottom: 0, color: "#1B2A4F",
-          display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
-          <SatzZeilen text="Werde die beste Version von dir – für ein starkes Abi und Freude am Fach." />
+        <p style={{ fontSize: 12.5, fontWeight: 500, lineHeight: 1.4, marginTop: 6, marginBottom: 0, color: "#1B2A4F",
+          display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden", height: "4.2em" }}>
+          <SatzZeilen text="Werde die beste Version von dir selbst. Für ein starkes Abi und Freude daran, Mathe zu verstehen." />
         </p>
-        {gesperrt ? baldVerfuegbar(NAVY) : (
+        {gesperrt ? null : (
         <span style={{ marginTop: "auto", paddingTop: 6, fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
           Programm ansehen
           <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4l4 4-4 4" stroke={NAVY} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
