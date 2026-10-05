@@ -1372,7 +1372,7 @@ export function Mathilda() {
       {/* Meer */}
       <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
         <div className="mx-auto px-6 pt-12 pb-4" style={{ maxWidth: 620 }}>
-          <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 40, letterSpacing: "-0.03em", lineHeight: 1 }}>Mathilda<span style={{ color: C.gruen }}>.AI</span></h1>
+          <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 40, letterSpacing: "-0.03em", lineHeight: 1 }}>Mathilda<span style={{ color: C.flaggold }}>AI</span></h1>
           <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
           <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
             {fotoModus === "blatt"
