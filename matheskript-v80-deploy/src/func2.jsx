@@ -989,11 +989,11 @@ export function Startseite({ gehe }) {
     {/* Banner ganz oben, bündig unter dem Header und über die volle Breite */}
     <StartBanner />
     <div className="mx-auto px-6 pb-14" style={{ maxWidth: 620 }}>
-      <section style={{ paddingTop: 24, paddingBottom: 6, marginLeft: -6 }}>
+      <section style={{ paddingTop: 12, paddingBottom: 6, marginLeft: -6 }}>
         <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.8, margin: 0 }}>
           Hier wird Oberstufenmathe <b style={{ color: C.tinte, fontWeight: 600 }}>sichtbar</b>: Graphen live plotten,
           Ebenen im Raum drehen, Wahrscheinlichkeiten in Tafeln und Bäumen sehen. Dazu Videokurse mit Kurz-Checks
-          und schnelle Kopfrechenrunden. Such dir unten einen Bereich aus und leg los.
+          und schnelle Kopfrechenrunden. Such dir einen Bereich aus und leg los.
         </p>
       </section>
       <AppAnleitung />
