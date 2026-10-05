@@ -373,7 +373,6 @@ export function Mathilda() {
                       <span style={kreis(startAn)}>A</span>
                       <span style={{ flex: 1 }}>
                         <span style={{ display: "block", fontSize: 14.5, fontWeight: 700 }}>Startseite</span>
-                        <span style={{ display: "block", fontSize: 12, color: C.grau, marginTop: 1 }}>Die App, wie sie jetzt online ist</span>
                       </span>
                     </button>
                     <button type="button" onClick={() => { setSeitenOffen(false); sprachKnopf(); }} data-kein-i18n style={{ ...zeile, background: "transparent" }}>
@@ -386,11 +385,10 @@ export function Mathilda() {
                       const an = ansicht === e.ansicht;
                       return (
                         <button key={e.ansicht} type="button" onClick={() => gehe({ ansicht: e.ansicht })} aria-current={an ? "page" : undefined}
-                          style={{ ...zeile, background: an ? "rgba(237,187,0,0.14)" : "transparent", marginTop: i === 0 ? 6 : 0, borderTop: i === 0 ? `1px solid ${C.linie}` : "none", borderRadius: i === 0 ? "0 0 10px 10px" : 10 }}>
+                          style={{ ...zeile, width: "calc(100% - 16px)", marginLeft: 16, marginTop: i === 0 ? 6 : 4, background: an ? "rgba(237,187,0,0.18)" : "#EEF1F6" }}>
                           <span style={kreis(an)}>{i + 1}</span>
                           <span style={{ flex: 1 }}>
                             <span style={{ display: "block", fontSize: 14.5, fontWeight: 700 }}>{e.name}</span>
-                            <span style={{ display: "block", fontSize: 12, color: C.grau, marginTop: 1 }}>{"Entwurf " + (i + 1) + " · " + e.kurz}</span>
                           </span>
                           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke={C.grau} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-label="Passwortgeschützt" role="img" style={{ flexShrink: 0 }}>
                             <rect x="5" y="11" width="14" height="9.5" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" />
