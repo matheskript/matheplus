@@ -88,7 +88,7 @@ export function MasterclassKachel({ onClick, gesperrt, name = "Mathe Abi Masterc
         <span aria-hidden="true" style={{ display: "block", width: 34, height: 2.5, borderRadius: 2, marginTop: 6, background: NAVY }} />
         <p style={{ fontSize: 12.5, fontWeight: 500, lineHeight: 1.4, marginTop: 6, marginBottom: 0, color: "#1B2A4F",
           display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden", height: "4.2em" }}>
-          <SatzZeilen text="Werde die beste Version von dir selbst. Für ein starkes Abi und Freude daran, Mathe zu verstehen." />
+          <SatzZeilen text="Werde die beste Version von dir selbst. Für ein starkes Abi und Freude daran, endlich Mathe zu verstehen." />
         </p>
         {gesperrt ? null : (
         <span style={{ marginTop: "auto", paddingTop: 6, fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
