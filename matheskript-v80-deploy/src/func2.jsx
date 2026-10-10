@@ -1098,12 +1098,26 @@ export function Startseite({ gehe }) {
       <MathCreatorKachel />
       <ElternabendKachel gesperrt onClick={() => gehe({ ansicht: "elternabend" })} />
       </>)}
+      {/* Mathe-Mindset-Kurs: zwischen Mathe-Training und Mathilda AI, goldenes Band für Eltern und Lehrkräfte */}
+      <div style={{ position: "relative", marginTop: 32 }}>
+        <div style={{ position: "absolute", top: -16, left: -2, right: -2, zIndex: 3, pointerEvents: "none" }}>
+          <span aria-hidden="true" style={{ position: "absolute", left: -12, top: 7, width: 26, height: "100%", zIndex: 1, background: "#C79A10", clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%, 34% 50%)" }} />
+          <span aria-hidden="true" style={{ position: "absolute", right: -12, top: 7, width: 26, height: "100%", zIndex: 1, background: "#C79A10", clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%, 66% 50%)" }} />
+          <span style={{ position: "relative", zIndex: 2, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "6px 14px", borderRadius: 3,
+            background: "linear-gradient(180deg, #FFE58A 0%, #EDBB00 55%, #D9A800 100%)", boxShadow: "0 3px 8px rgba(120,85,0,0.35), inset 0 1px 0 rgba(255,255,255,0.7)",
+            color: C.seeTief, fontSize: "clamp(8.5px, 2.55vw, 12px)", fontWeight: 700, letterSpacing: "0.02em", textTransform: "uppercase", whiteSpace: "nowrap", lineHeight: 1.2 }}>
+            <svg width="11" height="11" viewBox="0 0 24 24" aria-hidden="true" style={{ flexShrink: 0 }}><path d="M12 2 L14.9 8.6 L22 9.3 L16.6 14 L18.2 21 L12 17.3 L5.8 21 L7.4 14 L2 9.3 L9.1 8.6 Z" fill="#FFFFFF" /></svg>
+            Besonders empfohlen für Eltern &amp; Lehrkräfte
+            <svg width="11" height="11" viewBox="0 0 24 24" aria-hidden="true" style={{ flexShrink: 0 }}><path d="M12 2 L14.9 8.6 L22 9.3 L16.6 14 L18.2 21 L12 17.3 L5.8 21 L7.4 14 L2 9.3 L9.1 8.6 Z" fill="#FFFFFF" /></svg>
+          </span>
+        </div>
+        <PlotterKachel onClick={() => gehe({ ansicht: "elternkurs" })} label="Mathe-Mindset-Kurs öffnen" logo={<ElternkursLogoKlein />}
+          titel="Mathe-Mindset-Kurs"
+          text="Sechs TED-Talks und ein Buch, die zeigen, wie Kinder wirklich lernen." />
+      </div>
       <PlotterKachel portraet={<MathildaPortraet />} onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })} label="Mathilda AI öffnen" logo={<MathildaLogoKlein />} keinI18nTitel goldRand
         titel={<MathildaName dunkel />}
         text="Foto vom Blatt – Mathilda prüft deinen Weg." />
-      <PlotterKachel onClick={() => gehe({ ansicht: "elternkurs" })} label="Elternkurs öffnen" logo={<ElternkursLogoKlein />}
-        titel="Elternkurs"
-        text="Sechs TED-Talks und ein Buch, die zeigen, wie Kinder wirklich lernen." />
       <PlotterKachel gesperrt onClick={() => gehe({ ansicht: "kurse", kurs: "penpaper" })} label="Pen & Paper öffnen" logo={<PenPaperBlatt />}
         titel="Pen & Paper"
         text="Klar aufschreiben, strukturiert arbeiten, sicher mit Fehlern umgehen." />
