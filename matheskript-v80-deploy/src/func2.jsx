@@ -193,23 +193,41 @@ function SchulkurseLogoKlein() {
   );
 }
 
-/* Grafik für die „Elternkurs“-Kachel: Videorahmen mit Play-Knopf, davor ein Buch, sieben Punkte für die sieben Kapitel. */
+/* Grafik für die „Mathe-Mindset-Kurs“-Kachel: lächelndes Gehirn mit goldenen Funken (Wachstums-Denkweise). */
 function ElternkursLogoKlein() {
   const W = 230, H = 190;
+  // Gehirn aus überlappenden Kreisen (links), rechts gespiegelt an x = 115
+  const lappen = [[84, 66, 28], [62, 92, 26], [82, 118, 24], [104, 78, 24], [103, 112, 22]];
+  const falten = ["M 66 60 Q 84 50 98 64", "M 54 86 Q 72 76 88 88"];
+  const funke = (x, y, r) => <path key={`${x}-${y}`} d={`M ${x} ${y - r} Q ${x} ${y} ${x + r} ${y} Q ${x} ${y} ${x} ${y + r} Q ${x} ${y} ${x - r} ${y} Q ${x} ${y} ${x} ${y - r} Z`} fill={C.flaggold} />;
   return (
     <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
       {Array.from({ length: 9 }, (_, i) => <line key={`v${i}`} x1={i * 28} y1="0" x2={i * 28} y2={H} stroke="rgba(255,255,255,0.05)" />)}
       {Array.from({ length: 7 }, (_, i) => <line key={`h${i}`} x1="0" y1={i * 28} x2={W} y2={i * 28} stroke="rgba(255,255,255,0.05)" />)}
-      <rect x="26" y="20" width="132" height="80" rx="11" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.28)" />
-      <circle cx="92" cy="60" r="19" fill={C.flaggold} />
-      <path d="M 86 50 L 86 70 L 103 60 Z" fill={C.seeTief} />
-      <g transform="rotate(6 170 120)">
-        <rect x="140" y="76" width="64" height="86" rx="5" fill="#FFFFFF" />
-        <rect x="140" y="76" width="9" height="86" rx="3" fill={C.gruen} />
-        <rect x="156" y="94" width="38" height="5" rx="2.5" fill={C.seeTief} />
-        <rect x="156" y="106" width="30" height="5" rx="2.5" fill="rgba(14,30,74,0.35)" />
+      {/* Strahlenkranz */}
+      <g stroke={C.flaggold} strokeWidth="3.5" strokeLinecap="round" opacity="0.9">
+        <path d="M 115 20 V 8" /><path d="M 60 34 L 52 24" /><path d="M 170 34 L 178 24" /><path d="M 30 70 L 18 66" /><path d="M 200 70 L 212 66" />
       </g>
-      {Array.from({ length: 7 }, (_, i) => <circle key={i} cx={34 + i * 15} cy="140" r="5" fill={i < 3 ? C.flaggold : "rgba(255,255,255,0.3)"} />)}
+      {/* Hirnstamm */}
+      <rect x="106" y="134" width="18" height="22" rx="7" fill="#C9D6EE" />
+      {/* Hirn: beide Hälften */}
+      <g fill="#F4F6F9">
+        {lappen.map(([x, y, r]) => <circle key={`l${x}-${y}`} cx={x} cy={y} r={r} />)}
+        {lappen.map(([x, y, r]) => <circle key={`r${x}-${y}`} cx={W - x} cy={y} r={r} />)}
+      </g>
+      {/* Falten und Mittelspalt */}
+      <g stroke="#9FB0D3" strokeWidth="2.6" fill="none" strokeLinecap="round">
+        {falten.map((d) => <path key={d} d={d} />)}
+        <path d="M 160 60 Q 146 50 132 64" /><path d="M 176 86 Q 158 76 142 88" />
+        <path d="M 115 46 V 74" />
+      </g>
+      {/* Lächeln */}
+      <g>
+        <circle cx="96" cy="102" r="5.2" fill={C.seeTief} /><circle cx="134" cy="102" r="5.2" fill={C.seeTief} />
+        <circle cx="87" cy="116" r="5.5" fill={C.flaggold} opacity="0.55" /><circle cx="143" cy="116" r="5.5" fill={C.flaggold} opacity="0.55" />
+        <path d="M 98 118 Q 115 136 132 118" stroke={C.seeTief} strokeWidth="4.2" fill="none" strokeLinecap="round" />
+      </g>
+      {funke(30, 128, 11)}{funke(202, 124, 13)}{funke(196, 34, 8)}
     </svg>
   );
 }
