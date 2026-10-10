@@ -1122,7 +1122,7 @@ export function Startseite({ gehe }) {
           padding: "7px 18px 7px 16px", borderTopLeftRadius: 12, borderBottomRightRadius: 18,
           background: "linear-gradient(180deg, #F5CB2E 0%, #EDBB00 100%)", color: C.seeTief, fontSize: "clamp(10px, 3vw, 13px)", fontWeight: 700,
           letterSpacing: "0.02em", textTransform: "uppercase", whiteSpace: "nowrap", lineHeight: 1.2 }}>
-          (Auch für Eltern und Lehrer!)
+          (Auch) für Eltern und Lehrer!
         </div>
         <PlotterKachel onClick={() => gehe({ ansicht: "elternkurs" })} label="Mathe-Mindset-Kurs öffnen" logo={<ElternkursLogoKlein />}
           titel="Mathe-Mindset-Kurs"
