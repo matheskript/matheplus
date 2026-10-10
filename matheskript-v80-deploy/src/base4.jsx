@@ -125,7 +125,7 @@ export const NAV = [
     { name: "Begründen und Beweisen", kurz: "Freie Antworten am Bewertungsraster", ansicht: "begruenden" },
     { name: "Modellieren", kurz: "Sachaufgaben in vier Schritten", ansicht: "modellieren" },
   ] },
-  { id: "mindset", name: "Mathe-Mindset-Kurs", kurz: "Besonders empfohlen für Eltern und Lehrkräfte", eintraege: [
+  { id: "mindset", name: "Mathe-Mindset-Kurs", kurz: "Must-Know für Eltern und Lehrkräfte", eintraege: [
     { name: "Mathe-Mindset-Kurs", kurz: "Sechs TED-Talks und ein Buch, die zeigen, wie Kinder wirklich lernen", ansicht: "elternkurs" },
   ] },
   { id: "mathilda", name: "Mathilda AI", kurz: "Alles mit der Kamera", eintraege: [

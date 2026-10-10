@@ -1331,7 +1331,7 @@ export function Mathilda() {
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 29, letterSpacing: "-0.03em", lineHeight: 1.1 }}>Mathe-Mindset-Kurs</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
               <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
-                Besonders empfohlen für Eltern und Lehrkräfte: sechs TED-Talks und ein Buch, die zeigen, wie Kinder wirklich lernen.
+                Must-Know für Eltern und Lehrkräfte: sechs TED-Talks und ein Buch, die zeigen, wie Kinder wirklich lernen.
               </p>
             </div>
             <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
