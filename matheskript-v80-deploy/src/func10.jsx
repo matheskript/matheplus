@@ -49,6 +49,7 @@ import { FeedbackKnopf } from "./funcFeedback.jsx";
 import { ElternabendSeite } from "./funcElternabend.jsx";
 import { BundeswettbewerbSeite, LandeswettbewerbeSeite, LandeswettbewerbSeite, LAENDER } from "./funcWettbewerbe.jsx";
 import { ENTWUERFE, istEntwurf, EntwurfTor, EntwurfStart, EntwurfChecken, EntwurfPakete } from "./funcEntwuerfe.jsx";
+import { LANDING, Landingpage } from "./funcLandingpage.jsx";
 import { EntwurfWerkzeuge } from "./funcStartArchiv.jsx";
 import { useKonto, kontoStarten } from "./konto.js";
 import { englisch, spracheWechseln } from "./i18n.js";
@@ -64,7 +65,7 @@ export function Mathilda() {
       if (q.has("konto")) return "konto";
       if (q.get("ticket") === "danke") return "elternabend";
       const h = window.location.hash.slice(1);
-      return ENTWUERFE.some((e) => e.ansicht === h) ? h : "start";
+      return h === LANDING || ENTWUERFE.some((e) => e.ansicht === h) ? h : "start";
     } catch (e) { return "start"; }
   });
   // Rückkehr von Stripe nach erfolgreicher Ticketbuchung
@@ -113,8 +114,9 @@ export function Mathilda() {
   useEffect(() => {
     try {
       const h = window.location.hash.slice(1);
-      if (istEntwurf(ansicht) && h !== ansicht) window.history.replaceState({}, "", window.location.pathname + window.location.search + "#" + ansicht);
-      else if (!istEntwurf(ansicht) && istEntwurf(h)) window.history.replaceState({}, "", window.location.pathname + window.location.search);
+      const hatAnker = istEntwurf(ansicht) || ansicht === LANDING;
+      if (hatAnker && h !== ansicht) window.history.replaceState({}, "", window.location.pathname + window.location.search + "#" + ansicht);
+      else if (!hatAnker && (istEntwurf(h) || h === LANDING)) window.history.replaceState({}, "", window.location.pathname + window.location.search);
     } catch (e) { /* ignorieren */ }
   }, [ansicht]);
   const gehe = (eintrag) => {
@@ -352,7 +354,7 @@ export function Mathilda() {
           <button type="button" onClick={() => setSeitenOffen(!seitenOffen)} aria-expanded={seitenOffen} data-kein-scroll aria-label="Menü" title="Menü"
             style={{ background: "none", border: "none", cursor: "pointer", padding: 8, display: "flex", flexDirection: "column", gap: 5, flexShrink: 0 }}>
             {[0, 1, 2].map((i) => (
-              <span key={i} style={{ display: "block", width: 22, height: 2, background: seitenOffen || istEntwurf(ansicht) ? C.flaggold : C.weiss, borderRadius: 2 }} />
+              <span key={i} style={{ display: "block", width: 22, height: 2, background: seitenOffen || istEntwurf(ansicht) || ansicht === LANDING ? C.flaggold : C.weiss, borderRadius: 2 }} />
             ))}
           </button>
           </div>
@@ -367,7 +369,8 @@ export function Mathilda() {
               {(() => {
                 const zeile = { width: "100%", display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", borderRadius: 10, border: "none", cursor: "pointer", fontFamily: "inherit", textAlign: "left", color: C.tinte };
                 const kreis = (an) => ({ width: 28, height: 28, borderRadius: 999, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12.5, fontWeight: 700, background: an ? C.flaggold : C.himmel, color: an ? C.seeTief : C.grau });
-                const startAn = !istEntwurf(ansicht);
+                const landAn = ansicht === LANDING;
+                const startAn = !istEntwurf(ansicht) && !landAn;
                 return (
                   <>
                     <button type="button" onClick={() => gehe({ ansicht: "start" })} aria-current={startAn ? "page" : undefined}
@@ -375,6 +378,14 @@ export function Mathilda() {
                       <span style={kreis(startAn)}>A</span>
                       <span style={{ flex: 1 }}>
                         <span style={{ display: "block", fontSize: 14.5, fontWeight: 700 }}>Startseite</span>
+                      </span>
+                    </button>
+                    {/* Landingpage: offen, ohne Passwort – steht direkt unter der Startseite */}
+                    <button type="button" onClick={() => gehe({ ansicht: LANDING })} aria-current={landAn ? "page" : undefined}
+                      style={{ ...zeile, background: landAn ? "rgba(237,187,0,0.14)" : "transparent" }}>
+                      <span style={kreis(landAn)}>B</span>
+                      <span style={{ flex: 1 }}>
+                        <span style={{ display: "block", fontSize: 14.5, fontWeight: 700 }}>Landingpage</span>
                       </span>
                     </button>
                     <button type="button" onClick={() => { setSeitenOffen(false); sprachKnopf(); }} data-kein-i18n style={{ ...zeile, background: "transparent" }}>
@@ -1036,6 +1047,8 @@ export function Mathilda() {
         </>
       ) : ansicht === "start" ? (
         <Startseite gehe={gehe} />
+      ) : ansicht === LANDING ? (
+        <Landingpage gehe={gehe} />
       ) : ansicht === "entwurf-start" ? (
         <EntwurfTor gehe={gehe}><EntwurfStart gehe={gehe} /></EntwurfTor>
       ) : ansicht === "entwurf-checken" ? (
