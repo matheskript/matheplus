@@ -223,21 +223,21 @@ function MathildaPortraet() {
        liegt immer 16 px unter dem oberen Kachelinnenrand, also bündig mit der Oberkante des Titels. */
     <svg viewBox="0 0 120 138" style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", width: "calc(var(--pw) * 1.2)", height: "auto",
       top: "calc(16px - var(--pw) * 0.22)", display: "block", overflow: "visible" }} aria-hidden="true">
-      <path d="M 24 60 C 18 18, 102 18, 96 60 C 100 90, 106 116, 102 138 L 18 138 C 14 116, 20 90, 24 60 Z" fill="#F4F6F9"/>
+      <path d="M 24 60 C 18 18, 102 18, 96 60 C 100 90, 106 116, 102 138 L 18 138 C 14 116, 20 90, 24 60 Z" fill="#EDBB00"/>
       <path d="M 4 138 C 8 120, 28 111, 47 109 L 73 109 C 92 111, 112 120, 116 138 Z" fill="#3E4756"/>
       <path d="M 49 94 L 49 111 Q 60 117 71 111 L 71 94 Z" fill="#DCE2EA"/>
       <path d="M 64 96 L 71 94 L 71 111 Q 67 113 64 113 Z" fill="#8C97A6"/>
       <path d="M 35 58 C 35 31, 85 31, 85 58 C 86 83, 75 100, 60 101 C 45 100, 34 83, 35 58 Z" fill="#E8ECF1"/>
       <path d="M 78 40 C 85 47, 86 54, 85 60 C 85 82, 76 98, 63 101 C 72 92, 79 80, 79 64 C 79 54, 79 46, 78 40 Z" fill="#8C97A6"/>
-      <path d="M 60 22 C 41 22, 28 34, 29 62 C 33 46, 42 37, 58 34 Z" fill="#F4F6F9"/>
-      <path d="M 60 22 C 79 22, 92 34, 91 62 C 87 46, 78 37, 62 34 Z" fill="#F4F6F9"/>
-      <path d="M 59 22 L 61 22 L 61.5 35 L 58.5 35 Z" fill="#5E6878"/>
-      <path d="M 45 27 C 36 34, 32 44, 31 56 C 34 46, 39 37, 47 31 Z" fill="#B9C2CE"/>
-      <path d="M 75 27 C 84 34, 88 44, 89 56 C 86 46, 81 37, 73 31 Z" fill="#B9C2CE"/>
-      <path d="M 30 70 C 27 90, 26 112, 28 134 C 23 112, 23 88, 30 70 Z" fill="#8C97A6"/>
-      <path d="M 90 70 C 94 92, 96 114, 94 134 C 99 112, 98 88, 90 70 Z" fill="#5E6878"/>
-      <path d="M 22 92 C 20 108, 20 122, 22 136 C 17 122, 17 106, 22 92 Z" fill="#B9C2CE"/>
-      <path d="M 98 92 C 100 108, 100 122, 98 136 C 103 122, 103 106, 98 92 Z" fill="#B9C2CE"/>
+      <path d="M 60 22 C 41 22, 28 34, 29 62 C 33 46, 42 37, 58 34 Z" fill="#EDBB00"/>
+      <path d="M 60 22 C 79 22, 92 34, 91 62 C 87 46, 78 37, 62 34 Z" fill="#EDBB00"/>
+      <path d="M 59 22 L 61 22 L 61.5 35 L 58.5 35 Z" fill="#8F6A00"/>
+      <path d="M 45 27 C 36 34, 32 44, 31 56 C 34 46, 39 37, 47 31 Z" fill="#C99A00"/>
+      <path d="M 75 27 C 84 34, 88 44, 89 56 C 86 46, 81 37, 73 31 Z" fill="#C99A00"/>
+      <path d="M 30 70 C 27 90, 26 112, 28 134 C 23 112, 23 88, 30 70 Z" fill="#B58A00"/>
+      <path d="M 90 70 C 94 92, 96 114, 94 134 C 99 112, 98 88, 90 70 Z" fill="#8F6A00"/>
+      <path d="M 22 92 C 20 108, 20 122, 22 136 C 17 122, 17 106, 22 92 Z" fill="#C99A00"/>
+      <path d="M 98 92 C 100 108, 100 122, 98 136 C 103 122, 103 106, 98 92 Z" fill="#C99A00"/>
       <path d="M 42 51 Q 48 46.5 55 49.5 L 55 52 Q 48 49.5 42 53.5 Z" fill="#3E4756"/>
       <path d="M 65 49.5 Q 72 46.5 78 51 L 78 53.5 Q 72 49.5 65 52 Z" fill="#3E4756"/>
       <path d="M 42.5 60 Q 49 54.5 55.5 59 Q 49 57.5 42.5 61.5 Z" fill="#3E4756"/>
