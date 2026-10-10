@@ -67,7 +67,7 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
       aria-label={gesperrt ? `${titel} – noch gesperrt` : label} title={gesperrt ? "Noch gesperrt" : undefined}
       className={gesperrt ? "kachel-gesperrt" : "plotter-kachel"}
       style={{ display: "flex", width: klein && !breit ? "100%" : "calc(100% + 32px)", marginLeft: klein && !breit ? 0 : -16, marginRight: klein && !breit ? 0 : -16,
-        height: "auto", marginTop: klein && !breit ? 8 : 12, padding: 0, border: goldRand ? `2px solid ${C.flaggold}` : "none", borderRadius: klein ? 14 : 18,
+        height: "auto", marginTop: klein && !breit ? 8 : 12, padding: 0, border: goldRand ? `4px solid ${C.flaggold}` : "none", borderRadius: klein ? 14 : 18,
         overflow: "hidden", cursor: gesperrt ? "not-allowed" : "pointer", fontFamily: "inherit", textAlign: "left", position: "relative",
         background: gesperrt ? "linear-gradient(155deg, #B9C2CE 0%, #8C97A6 55%, #6E7989 100%)" : `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`,
         boxShadow: gesperrt ? "0 4px 14px rgba(40,50,70,0.18), inset 0 0 0 1px rgba(255,255,255,0.45)" : `0 6px 22px rgba(0,77,152,0.24), inset 0 0 0 1px ${C.silber}40` }}>
