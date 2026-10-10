@@ -1116,18 +1116,13 @@ export function Startseite({ gehe }) {
       <MathCreatorKachel />
       <ElternabendKachel gesperrt onClick={() => gehe({ ansicht: "elternabend" })} />
       </>)}
-      {/* Mathe-Mindset-Kurs: zwischen Mathe-Training und Mathilda AI, goldenes Band „Auch für Eltern und Lehrer (!)“ unten rechts in der Ecke, reicht über die Trennlinie ins linke Feld */}
+      {/* Mathe-Mindset-Kurs: zwischen Mathe-Training und Mathilda AI; flacher goldener Balken „(Auch für Eltern und Lehrer!)“ in der Ecke unten rechts, schließt mit der abgerundeten Kachelecke ab und reicht über die Trennlinie ins linke Feld */}
       <div style={{ position: "relative", marginTop: 12 }}>
-        <div style={{ position: "absolute", bottom: -9, right: 4, zIndex: 3, pointerEvents: "none", width: "max-content", maxWidth: "calc(100% - 20px)" }}>
-          <span aria-hidden="true" style={{ position: "absolute", left: -12, top: -7, width: 26, height: "100%", zIndex: 1, background: "#C79A10", clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%, 34% 50%)" }} />
-          <span aria-hidden="true" style={{ position: "absolute", right: -12, top: -7, width: 26, height: "100%", zIndex: 1, background: "#C79A10", clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%, 66% 50%)" }} />
-          <span style={{ position: "relative", zIndex: 2, display: "flex", alignItems: "center", justifyContent: "center", gap: 7, padding: "6px 12px", borderRadius: 3,
-            background: "linear-gradient(180deg, #FFE58A 0%, #EDBB00 55%, #D9A800 100%)", boxShadow: "0 3px 8px rgba(120,85,0,0.35), inset 0 1px 0 rgba(255,255,255,0.7)",
-            color: C.seeTief, fontSize: "clamp(9px, 2.8vw, 12px)", fontWeight: 700, letterSpacing: "0.02em", textTransform: "uppercase", whiteSpace: "nowrap", lineHeight: 1.2 }}>
-            <svg width="10" height="10" viewBox="0 0 24 24" aria-hidden="true" style={{ flexShrink: 0 }}><path d="M12 2 L14.9 8.6 L22 9.3 L16.6 14 L18.2 21 L12 17.3 L5.8 21 L7.4 14 L2 9.3 L9.1 8.6 Z" fill="#FFFFFF" /></svg>
-            Auch für Eltern und Lehrer (!)
-            <svg width="10" height="10" viewBox="0 0 24 24" aria-hidden="true" style={{ flexShrink: 0 }}><path d="M12 2 L14.9 8.6 L22 9.3 L16.6 14 L18.2 21 L12 17.3 L5.8 21 L7.4 14 L2 9.3 L9.1 8.6 Z" fill="#FFFFFF" /></svg>
-          </span>
+        <div style={{ position: "absolute", bottom: 0, right: -16, zIndex: 3, pointerEvents: "none", display: "flex", alignItems: "center", justifyContent: "center",
+          padding: "7px 18px 7px 16px", borderTopLeftRadius: 12, borderBottomRightRadius: 18,
+          background: "linear-gradient(180deg, #F5CB2E 0%, #EDBB00 100%)", color: C.seeTief, fontSize: "clamp(10px, 3vw, 13px)", fontWeight: 700,
+          letterSpacing: "0.02em", textTransform: "uppercase", whiteSpace: "nowrap", lineHeight: 1.2 }}>
+          (Auch für Eltern und Lehrer!)
         </div>
         <PlotterKachel onClick={() => gehe({ ansicht: "elternkurs" })} label="Mathe-Mindset-Kurs öffnen" logo={<ElternkursLogoKlein />}
           titel="Mathe-Mindset-Kurs"
