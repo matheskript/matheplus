@@ -193,6 +193,27 @@ function SchulkurseLogoKlein() {
   );
 }
 
+/* Grafik für die „Elternkurs“-Kachel: Videorahmen mit Play-Knopf, davor ein Buch, sieben Punkte für die sieben Kapitel. */
+function ElternkursLogoKlein() {
+  const W = 230, H = 190;
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
+      {Array.from({ length: 9 }, (_, i) => <line key={`v${i}`} x1={i * 28} y1="0" x2={i * 28} y2={H} stroke="rgba(255,255,255,0.05)" />)}
+      {Array.from({ length: 7 }, (_, i) => <line key={`h${i}`} x1="0" y1={i * 28} x2={W} y2={i * 28} stroke="rgba(255,255,255,0.05)" />)}
+      <rect x="26" y="20" width="132" height="80" rx="11" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.28)" />
+      <circle cx="92" cy="60" r="19" fill={C.flaggold} />
+      <path d="M 86 50 L 86 70 L 103 60 Z" fill={C.seeTief} />
+      <g transform="rotate(6 170 120)">
+        <rect x="140" y="76" width="64" height="86" rx="5" fill="#FFFFFF" />
+        <rect x="140" y="76" width="9" height="86" rx="3" fill={C.gruen} />
+        <rect x="156" y="94" width="38" height="5" rx="2.5" fill={C.seeTief} />
+        <rect x="156" y="106" width="30" height="5" rx="2.5" fill="rgba(14,30,74,0.35)" />
+      </g>
+      {Array.from({ length: 7 }, (_, i) => <circle key={i} cx={34 + i * 15} cy="140" r="5" fill={i < 3 ? C.flaggold : "rgba(255,255,255,0.3)"} />)}
+    </svg>
+  );
+}
+
 /* Grafik für die „Mathilda AI“-Kachel: Blatt mit handschriftlicher Rechnung im Kamera-Sucher, Häkchen. */
 function MathildaLogoKlein() {
   const W = 230, H = 190;
@@ -1080,6 +1101,9 @@ export function Startseite({ gehe }) {
       <PlotterKachel portraet={<MathildaPortraet />} onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })} label="Mathilda AI öffnen" logo={<MathildaLogoKlein />} keinI18nTitel goldRand
         titel={<MathildaName dunkel />}
         text="Foto vom Blatt – Mathilda prüft deinen Weg." />
+      <PlotterKachel onClick={() => gehe({ ansicht: "elternkurs" })} label="Elternkurs öffnen" logo={<ElternkursLogoKlein />}
+        titel="Elternkurs"
+        text="Sechs TED-Talks und ein Buch, die zeigen, wie Kinder wirklich lernen." />
       <PlotterKachel gesperrt onClick={() => gehe({ ansicht: "kurse", kurs: "penpaper" })} label="Pen & Paper öffnen" logo={<PenPaperBlatt />}
         titel="Pen & Paper"
         text="Klar aufschreiben, strukturiert arbeiten, sicher mit Fehlern umgehen." />

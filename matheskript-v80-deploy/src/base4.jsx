@@ -129,6 +129,7 @@ export const NAV = [
     { name: "Blatt prüfen", kurz: "Rechenweg und Schriftbild vom Foto", ansicht: "analyse", foto: "blatt" },
     { name: "Weg prüfen", kurz: "Handschrift in Zeilen übertragen", ansicht: "analyse", foto: "weg" },
     { name: "Aufgabe scannen", kurz: "Ähnliche Aufgaben dazu erzeugen", ansicht: "analyse", foto: "aufgabe" },
+    { name: "Elternkurs", kurz: "Sechs TED-Talks und ein Buch für Eltern", ansicht: "elternkurs" },
   ] },
   { id: "werkzeuge", name: "Werkzeuge", kurz: "Plotter, Ebenen, Bernoulli, Vier-Felder-Tafel", eintraege: [
     { name: "Analysis", kurz: "Alle Analysis-Werkzeuge im Überblick", ansicht: "analysis" },
