@@ -223,10 +223,8 @@ function MathildaPortraet() {
        liegt immer 16 px unter dem oberen Kachelinnenrand, also bündig mit der Oberkante des Titels. */
     <svg viewBox="0 0 120 138" style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", width: "calc(var(--pw) * 1.2)", height: "auto",
       top: "calc(16px - var(--pw) * 0.22)", display: "block", overflow: "visible" }} aria-hidden="true">
-      <path d="M 24 60 C 18 18, 102 18, 96 60 C 100 90, 106 116, 102 138 L 18 138 C 14 116, 20 90, 24 60 Z" fill="#EDBB00"/>
+      <path d="M 24 60 C 18 18, 102 18, 96 60 C 100 90, 106 116, 102 138 L 18 138 C 14 116, 20 90, 24 60 Z M 27 86 Q 33 91 42 92 L 46 76 L 74 76 L 78 92 Q 88 91 93.2 86 L 96.5 112 L 96.5 125 L 25.5 125 L 25.5 112 Z" fill="#EDBB00" fillRule="evenodd"/>
       <path d="M 4 138 C 8 120, 28 111, 47 109 L 73 109 C 92 111, 112 120, 116 138 Z" fill="#3E4756"/>
-      <path d="M 49 94 L 49 111 Q 60 117 71 111 L 71 94 Z" fill="#DCE2EA"/>
-      <path d="M 64 96 L 71 94 L 71 111 Q 67 113 64 113 Z" fill="#8C97A6"/>
       <path d="M 35 58 C 35 31, 85 31, 85 58 C 86 83, 75 100, 60 101 C 45 100, 34 83, 35 58 Z" fill="#E8ECF1"/>
       <path d="M 78 40 C 85 47, 86 54, 85 60 C 85 82, 76 98, 63 101 C 72 92, 79 80, 79 64 C 79 54, 79 46, 78 40 Z" fill="#8C97A6"/>
       <path d="M 60 22 C 41 22, 28 34, 29 62 C 33 46, 42 37, 58 34 Z" fill="#EDBB00"/>
