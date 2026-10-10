@@ -59,6 +59,25 @@ function PlotterLogoKlein() {
   );
 }
 
+/* Dunkelsilberner Rahmen hinter einem aufgeklappten Menü (inkl. der aufgeklappten Kachel selbst),
+   damit man sieht, was gerade offen ist. Der Wrapper bleibt immer im DOM (kein Remount beim Umschalten);
+   zugeklappt ist er unsichtbar. Die breiten Kacheln ragen 16 px über die Inhaltsbreite hinaus – der Rahmen
+   fasst sie mit etwas Silber drumherum ein. */
+function AufklappRahmen({ auf, tief, children }) {
+  const rand = tief ? 16 : 22;
+  return (
+    <div data-aufklapp-rahmen={auf ? "" : undefined}
+      style={auf ? {
+        margin: `${tief ? 10 : 14}px -${rand}px 0`, padding: `0 ${rand}px ${tief ? 12 : 14}px`, borderRadius: tief ? 20 : 24,
+        background: tief ? "linear-gradient(160deg, #7C8696 0%, #5B6575 100%)" : "linear-gradient(160deg, #66707F 0%, #444D5B 100%)",
+        border: "1px solid rgba(255,255,255,0.30)",
+        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.28), inset 0 -2px 8px rgba(10,15,25,0.30), 0 6px 18px rgba(20,28,45,0.22)",
+      } : undefined}>
+      <div style={auf ? { marginTop: -4 } : undefined}>{children}</div>
+    </div>
+  );
+}
+
 function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "Werkzeug", klein, halb, extra, gesperrt, logoHell, portraet, titelUmbruch, keinI18nTitel, auf, haupt, breit, goldRand }) {
   if (halb) klein = true;   // halbe Höhe: nur Titel und eine Textzeile
   const mehrereSaetze = saetze(text).length > 1;
@@ -1024,6 +1043,7 @@ export function Startseite({ gehe }) {
       <AppAnleitung />
       {/* Oberbutton „Mathe-Training“: darunter Abi-Training, Mathematik, Kopfrechnen und Mathe-Wettbewerbe.
           Aufgeklappt wird der Button halb so hoch. */}
+      <AufklappRahmen auf={schulAuf}>
       <PlotterKachel breit halb={schulAuf} onClick={() => { setSchulAuf(!schulAuf); setBereichAuf(null); setAbiAuf(false); }} auf={schulAuf}
         label={schulAuf ? "Mathe-Training zuklappen" : "Mathe-Training aufklappen"}
         logo={<SchulmatheLogoKlein />} titel="Mathe-Training"
@@ -1032,6 +1052,7 @@ export function Startseite({ gehe }) {
       {schulAuf && (
         <div data-aufklapp-inhalt style={{ margin: "0 0 4px" }}>
           {/* Mathematik (früher „Abi-Training“): Analysis, Vektoren, Stochastik, Gleichungen, Mein Training und Formelsammlung */}
+          <AufklappRahmen auf={abiAuf} tief>
           <PlotterKachel klein breit haupt onClick={() => { setAbiAuf(!abiAuf); setBereichAuf(null); }} auf={abiAuf}
             label={abiAuf ? "Mathematik zuklappen" : "Mathematik aufklappen"}
             logo={<FormelLogoKlein />} titel="Mathematik"
@@ -1065,7 +1086,9 @@ export function Startseite({ gehe }) {
               </>)}
             </div>
           )}
+          </AufklappRahmen>
 
+          <AufklappRahmen auf={kopfAuf} tief>
           <PlotterKachel klein breit haupt onClick={() => setKopfAuf(!kopfAuf)} auf={kopfAuf} label={kopfAuf ? "Kopfrechnen zuklappen" : "Kopfrechnen aufklappen"} logo={<KopfrechnenLogoKlein />}
             titel="Kopfrechnen"
             text="Primfaktoren, Quadratzahlen, Brüche, Einmaleins – auf Zeit."
@@ -1077,8 +1100,10 @@ export function Startseite({ gehe }) {
               </div>
             </div>
           )}
+          </AufklappRahmen>
 
           {ZEIGE_WETTBEWERBE && (<>
+            <AufklappRahmen auf={wettAuf} tief>
             <PlotterKachel klein breit haupt onClick={() => setWettAuf(!wettAuf)} auf={wettAuf} label={wettAuf ? "Mathe-Wettbewerbe zuklappen" : "Mathe-Wettbewerbe aufklappen"}
               logo={<MedaillenschrankLogo />} titel="Mathe-Wettbewerbe"
               text="Bundeswettbewerb Mathematik und Landeswettbewerbe."
@@ -1093,9 +1118,11 @@ export function Startseite({ gehe }) {
                   text="Deutschlandkarte: Tippe auf dein Bundesland." />
               </div>
             )}
+            </AufklappRahmen>
           </>)}
         </div>
       )}
+      </AufklappRahmen>
       {ZEIGE_GESPERRTE && (<>
       <MatheCheckenKachel gesperrt onClick={() => gehe({ ansicht: "mathecheck" })} />
       <MasterclassKachel gesperrt onClick={() => gehe({ ansicht: "masterclass" })} />
