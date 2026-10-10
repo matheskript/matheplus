@@ -687,7 +687,16 @@ export function LGSLoeser() {
     }));
   };
   const zurueck = () => setFrisch((a) => a.map((v, i) => (i === aktiv ? false : v))) || setFelder((alt) => alt.map((f, i) => (i === aktiv ? f.replace(/\s+$/, "").slice(0, -1).replace(/\s+$/, "").replace(/·$/, "") : f)));
-  const leeren = () => setFrisch((a) => a.map((v, i) => (i === aktiv ? false : v))) || setFelder((alt) => alt.map((f, i) => (i === aktiv ? "" : f)));
+  // Leeren setzt die Zeile auf ihren Namen (I, II, III) zurück – die Zeile ist nie ganz leer.
+  const leeren = () => setFrisch((a) => a.map((v, i) => (i === aktiv ? true : v))) || setFelder((alt) => alt.map((f, i) => (i === aktiv ? ROEM[i] : f)));
+  // Klick auf eine leere Zeile schreibt ihren Namen wieder hinein.
+  const zeileWaehlen = (i) => {
+    setAktiv(i);
+    if (!felder[i].trim()) {
+      setFelder((alt) => alt.map((f, k) => (k === i ? ROEM[i] : f)));
+      setFrisch((a) => a.map((v, k) => (k === i ? true : v)));
+    }
+  };
 
   const uebernehmen = () => {
     if (vorschau.some((v) => !v.ok)) {
@@ -800,7 +809,7 @@ export function LGSLoeser() {
           </div>
           {felder.map((f, i) => (
             <NeueZeile key={i} name={ROEM[i]} text={f} frisch={frisch[i]} aktiv={aktiv === i} ok={vorschau[i].ok} fehler={vorschau[i].fehler}
-              vorschau={vorschau[i].ok ? <GlText row={vorschau[i].row} /> : null} onClick={() => setAktiv(i)} />
+              vorschau={vorschau[i].ok ? <GlText row={vorschau[i].row} /> : null} onClick={() => zeileWaehlen(i)} />
           ))}
 
           {meldung && (

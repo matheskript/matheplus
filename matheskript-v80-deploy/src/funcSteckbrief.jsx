@@ -887,7 +887,16 @@ function LGSSchritt({ start, vars, onGeloest }) {
     }));
   };
   const zurueck = () => { setFrisch((a) => a.map((v, i) => (i === aktiv ? false : v))); setFelder((alt) => alt.map((f, i) => (i === aktiv ? f.replace(/\s+$/, "").slice(0, -1).replace(/\s+$/, "").replace(/·$/, "") : f))); };
-  const leeren = () => { setFrisch((a) => a.map((v, i) => (i === aktiv ? false : v))); setFelder((alt) => alt.map((f, i) => (i === aktiv ? "" : f))); };
+  // Leeren setzt die Zeile auf ihren Namen (I, II, III …) zurück – die Zeile ist nie ganz leer.
+  const leeren = () => { setFrisch((a) => a.map((v, i) => (i === aktiv ? true : v))); setFelder((alt) => alt.map((f, i) => (i === aktiv ? NAMEN[i] : f))); };
+  // Klick auf eine leere Zeile schreibt ihren Namen wieder hinein.
+  const zeileWaehlen = (i) => {
+    setAktiv(i);
+    if (!felder[i].trim()) {
+      setFelder((alt) => alt.map((f, k) => (k === i ? NAMEN[i] : f)));
+      setFrisch((a) => a.map((v, k) => (k === i ? true : v)));
+    }
+  };
 
   const uebernehmen = () => {
     if (vorschau.some((v) => !v.ok)) {
@@ -948,7 +957,7 @@ function LGSSchritt({ start, vars, onGeloest }) {
           <style>{LGS_ZEILE_CSS}</style>
           {felder.map((f, i) => (
             <NeueZeile key={i} name={ROEM[i]} text={f} frisch={frisch[i]} aktiv={aktiv === i} ok={vorschau[i].ok} fehler={vorschau[i].fehler}
-              vorschau={vorschau[i].ok ? <GlText row={vorschau[i].row} vars={vars} /> : null} onClick={() => setAktiv(i)} />
+              vorschau={vorschau[i].ok ? <GlText row={vorschau[i].row} vars={vars} /> : null} onClick={() => zeileWaehlen(i)} />
           ))}
           {meldung && <p role="status" style={{ fontSize: 13.5, lineHeight: 1.55, margin: "4px 4px 8px", color: meldung.art === "fehler" ? C.signal : C.see, fontWeight: meldung.art === "fehler" ? 500 : 400 }}>{meldung.text}</p>}
 
