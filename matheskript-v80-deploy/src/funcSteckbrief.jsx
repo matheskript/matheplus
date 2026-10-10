@@ -874,7 +874,7 @@ function LGSSchritt({ start, vars, onGeloest }) {
 
   const tippe = (w) => {
     setMeldung(null);
-    const ersetzen = frisch[aktiv] && /^[0-9I(]/.test(w);
+    const ersetzen = frisch[aktiv] && /^[0-9IV(]/.test(w);
     setFrisch((alt) => alt.map((v, i) => (i === aktiv ? false : v)));
     setFelder((alt) => alt.map((f0, i) => {
       if (i !== aktiv) return f0;

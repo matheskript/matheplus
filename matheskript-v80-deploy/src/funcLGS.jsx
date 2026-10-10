@@ -618,9 +618,11 @@ export function NeueZeile({ name, text, frisch, aktiv, ok, fehler, vorschau, onC
       <span style={{ flexShrink: 0, width: 40, fontSize: 14, fontWeight: 500, color: C.hellgrau, whiteSpace: "nowrap" }}>
         {name}<sub style={{ fontSize: "0.68em", position: "relative", top: "0.3em", verticalAlign: "baseline", lineHeight: 0, marginLeft: "0.08em" }}>neu</sub>
       </span>
-      <span style={{ flexShrink: 1, minWidth: 34, maxWidth: "46%", fontSize: "clamp(15px, 4.4vw, 18px)", fontWeight: 700, color: frisch ? C.hellgrau : C.gruen,
+      <span style={{ flexShrink: 1, minWidth: 34, maxWidth: "46%", fontSize: "clamp(15px, 4.4vw, 18px)", fontWeight: 700, color: C.gruen,
         whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-        {text ? minus(text) : null}{aktiv && <span className="lgs-blink" style={{ color: C.see, fontWeight: 300 }}>|</span>}
+        {/* Vorbelegter Text sieht aus wie getippt; ist die Zeile angeklickt und noch unverändert, ist er markiert – die nächste Eingabe ersetzt ihn. */}
+        {text ? <span style={frisch && aktiv ? { background: "rgba(0,77,152,0.14)", borderRadius: 4, padding: "1px 3px", margin: "0 -3px" } : undefined}>{minus(text)}</span> : null}
+        {aktiv && !(frisch && text) && <span className="lgs-blink" style={{ color: C.see, fontWeight: 300 }}>|</span>}
       </span>
       <span aria-hidden={!text} style={{ flex: "1 1 0", minWidth: 0, textAlign: "left", fontSize: "clamp(11px, 3.2vw, 14px)",
         color: ok ? C.grau : C.signal, fontWeight: ok ? 400 : 300, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
