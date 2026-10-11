@@ -1144,7 +1144,7 @@ export function Startseite({ gehe }) {
       <PlotterKachel portraet={<MathildaPortraet />} onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })} label="Mathilda AI öffnen" logo={<MathildaLogoKlein />} keinI18nTitel goldRand
         titel={<MathildaName dunkel />}
         text="Foto vom Blatt – Mathilda prüft deinen Weg." />
-      <PlotterKachel gesperrt onClick={() => gehe({ ansicht: "kurse", kurs: "penpaper" })} label="Pen & Paper öffnen" logo={<PenPaperBlatt />}
+      <PlotterKachel onClick={() => gehe({ ansicht: "penpaperkurs" })} label="Pen & Paper Kurs öffnen" logo={<PenPaperBlatt />}
         titel="Pen & Paper"
         text="Klar aufschreiben, strukturiert arbeiten, sicher mit Fehlern umgehen." />
       <PlotterKachel gesperrt onClick={() => gehe({ ansicht: "kurse" })} label="Videokurse öffnen" logo={<SchulkurseLogoKlein />}

@@ -360,6 +360,11 @@ const ZUSATZ = {
   "Danke, dein Ticket ist gebucht!": "Thank you, your ticket is booked!",
   "Die Plätze im Café sind begrenzt – sichern Sie sich Ihr Ticket.": "Seats in the café are limited – secure your ticket now.",
   "Getränke, Snack und erstes Kennenlernen": "Drinks, a snack and getting to know each other",
+  /* Pen-&-Paper-Kurs (Seitenkopf in func10.jsx; der Seitentext selbst nutzt L() in funcPenPaperKurs.jsx) */
+  "2 KURSE · 9 EINHEITEN · 8 WOCHEN": "2 COURSES · 9 UNITS · 8 WEEKS",
+  "Pen & Paper Kurs": "Pen & Paper Course",
+  "Pen & Paper Kurs öffnen": "Open Pen & Paper course",
+  "Mathematik so aufschreiben, dass du deinen Denkweg siehst, verstehst und kontrollierst – für Mittelstufe und Oberstufe.": "Write down your maths so that you can see, understand and check your line of thought – for middle and upper school.",
 };
 
 /* Fachbegriffe in berechneten Texten (Kurvendiskussion usw.) */
