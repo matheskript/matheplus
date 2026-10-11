@@ -18,6 +18,7 @@ import { kiAntwort, kiKopf } from "./base4.jsx";
 import { M, Text } from "./func3.jsx";
 import { lernAendern, useLern } from "./func6.jsx";
 import { useKonto } from "./konto.js";
+import { digitalMelden, perfNutzerId } from "./perfSpeicher.js";
 import { IchHaengeFest } from "./funcHilfe.jsx";
 import { GrosserKnopf, Rueck, ZahlFeld, hilfeKontext, hinweis, karte, kicker } from "./ui2.jsx";
 import { Aufklapp } from "./ui3.jsx";
@@ -242,6 +243,7 @@ export function PruefungsLink({ ansicht, gehe }) {
 }
 
 export function Aufgabenlauf({ aufgaben, quelle, onEnde, endeText = "Fertig" }) {
+  const konto = useKonto();
   const [i, setI] = useState(0);
   const [zs, setZs] = useState(() => aufgaben.map(leerZustand));
   const [fertig, setFertig] = useState(false);
@@ -263,6 +265,8 @@ export function Aufgabenlauf({ aufgaben, quelle, onEnde, endeText = "Fertig" }) 
         themaAktualisieren(T, a.thema, r.ok, z.hilfe);
         if (!r.ok && r.typ) beobachte(T, r.typ, a.thema, quelle);
       });
+      /* Performance-Lab: dieselbe Beobachtung geht ins gemeinsame Fehlergedächtnis (Kanal „digital“) */
+      digitalMelden(perfNutzerId(konto), a, r, z.eingabe);
     }
     if (r.ok) aendere((T) => fortschrittBuchen(T, a, true, hilfeEff, quelle));
     setz({ versuche, ok: r.ok, typ: r.ok ? z.typ : r.typ, text: r.ok ? "" : r.text, meldung: "", gebucht: true, erstOk: z.gebucht ? z.erstOk : r.ok, hilfeEnde: hilfeEff });
@@ -505,6 +509,7 @@ const ANZAHL_ZU_DAUER = { 15: 4, 30: 6, 45: 8, 60: 10, 0: 6 };
 const mmss = (s) => `${String(Math.floor(Math.max(0, s) / 60)).padStart(2, "0")}:${String(Math.max(0, s) % 60).padStart(2, "0")}`;
 
 function Pruefung({ gehe }) {
+  const konto = useKonto();
   const T = useTraining();
   const [phase, setPhase] = useState(() => (LAUF ? (LAUF.ergebnis ? "ergebnis" : "lauf") : "wahl"));
   const [themen, setThemen] = useState(() => {
@@ -544,6 +549,8 @@ function Pruefung({ gehe }) {
         if (!e.ok && e.typ) beobachte(D, e.typ, e.a.thema, "pruefung");
         if (e.ok) fortschrittBuchen(D, e.a, true, 0, "pruefung");
       }
+      /* Performance-Lab: Prüfungsantworten gehen ebenfalls ins gemeinsame Fehlergedächtnis (leere Antworten zählen nicht) */
+      for (const e of einzel) if (e.eing !== "") digitalMelden(perfNutzerId(konto), e.a, { ok: e.ok, typ: e.typ }, e.eing);
       D.pruefungen.push({ id: String(LAUF.start), zeit: Date.now(), themen: LAUF.themen, schwierigkeit: LAUF.schw, mitZeit: LAUF.mitZeit, dauerMin: LAUF.dauerMin, genutzt, punkte, max,
         einzel: einzel.map((e) => ({ thema: e.a.thema, variante: e.a.variante, ok: e.ok, typ: e.typ, punkte: e.a.punkte })) });
       if (D.pruefungen.length > 40) D.pruefungen.splice(0, D.pruefungen.length - 40);

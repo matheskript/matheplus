@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { C } from "./base1.jsx";
 import { COACHING } from "./base3.jsx";
 import { Startseite } from "./func2.jsx";
+import { PerformanceLab } from "./funcPerformanceLab.jsx";
 
 /* ======================================================================
    LANDINGPAGE  (Adresse: #landingpage)
@@ -12,6 +13,7 @@ import { Startseite } from "./func2.jsx";
      2. Geschichte – „Dieses Problem kenne ich …“ (hell)
      3. Startseite – die bestehende Startseite, unverändert und mit allen Features
                      (<Startseite /> aus func2.jsx, also immer deckungsgleich)
+     3b. Performance-Lab – Testbereich (funcPerformanceLab.jsx), eigenständig, mit eigenem Speicher
      4. Abschluss  – was passiert, wenn sich nichts ändert, und die drei nächsten Schritte
 
    Der Text steht hier im Code; die Startseite wird nicht kopiert, sondern eingebunden.
@@ -190,6 +192,9 @@ export function Landingpage({ gehe }) {
       <div id="landing-tools" style={{ scrollMarginTop: 64 }}>
         <Startseite gehe={gehe} />
       </div>
+
+      {/* 3b · Performance-Lab (Testbereich): gemeinsames Fehlergedächtnis für digitales und handschriftliches Lernen */}
+      <PerformanceLab />
 
       {/* 4 · Abschluss */}
       <section style={{ background: C.sand }}>
