@@ -51,6 +51,7 @@ import { BundeswettbewerbSeite, LandeswettbewerbeSeite, LandeswettbewerbSeite, L
 import { ENTWUERFE, istEntwurf, EntwurfTor, EntwurfStart, EntwurfChecken, EntwurfPakete } from "./funcEntwuerfe.jsx";
 import { LANDING, Landingpage } from "./funcLandingpage.jsx";
 import { PenPaperKursSeite } from "./funcPenPaperKurs.jsx";
+import { HeadNumbersSeite } from "./funcHeadNumbers.jsx";
 import { EntwurfWerkzeuge } from "./funcStartArchiv.jsx";
 import { useKonto, kontoStarten } from "./konto.js";
 import { englisch, spracheWechseln } from "./i18n.js";
@@ -87,11 +88,12 @@ export function Mathilda() {
   const sprachKnopf = () => {
     try {
       sessionStorage.setItem("mm-nach-sprachwechsel", JSON.stringify({ ansicht, ziel: ansicht === "training" ? trainZiel : ansicht === "ki" ? genZiel : undefined,
-        kompetenz: einheitId || undefined, klasse: klasseAktiv, kurs: kursStart || undefined, trainer: kopfTrainer || undefined, bereich: ansicht === "formeln" ? formelBereich : undefined, land: ansicht === "landeswettbewerb" ? landWahl : undefined, foto: fotoModus }));
+        kompetenz: einheitId || undefined, klasse: klasseAktiv, kurs: kursStart || undefined, trainer: kopfTrainer || undefined, modul: hnModul || undefined, bereich: ansicht === "formeln" ? formelBereich : undefined, land: ansicht === "landeswettbewerb" ? landWahl : undefined, foto: fotoModus }));
     } catch (e) { /* privat */ }
     spracheWechseln();
   };
   const [kopfTrainer, setKopfTrainer] = useState(null);   // direkt geöffneter Kopfrechen-Trainer
+  const [hnModul, setHnModul] = useState(null);             // direkt geöffneter Bereich von Head & Numbers
   const [landWahl, setLandWahl] = useState("bw");
   const [formelBereich, setFormelBereich] = useState("analysis");   // Bereich der Formelsammlung          // Bundesland der Landeswettbewerb-Seite
   const [sprung, setSprung] = useState(null);
@@ -131,6 +133,7 @@ export function Mathilda() {
     if (eintrag.ansicht === "klasse") setKlasseAktiv(eintrag.klasse);
     setKursStart(eintrag.ansicht === "kurse" ? eintrag.kurs || null : null);
     setKopfTrainer(eintrag.ansicht === "kopf" ? eintrag.trainer || null : null);
+    setHnModul(eintrag.ansicht === "headnumbers" ? eintrag.modul || null : null);
     if (eintrag.land) setLandWahl(eintrag.land);
     if (eintrag.ansicht === "formeln") setFormelBereich(eintrag.bereich || "analysis");
     setMenuOffen(false); setGruppeOffen(null);
@@ -752,7 +755,7 @@ export function Mathilda() {
             </div>
             <Welle fill={C.sand} />
           </div>
-          <KopfrechenZentrum key={kopfTrainer || "liste"} start={kopfTrainer} />
+          <KopfrechenZentrum key={kopfTrainer || "liste"} start={kopfTrainer} gehe={gehe} />
         </>
       ) : ansicht === "ebenen" ? (
         <>
@@ -1337,6 +1340,21 @@ export function Mathilda() {
             <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
           </div>
           <PenPaperKursSeite gehe={gehe} />
+        </>
+      ) : ansicht === "headnumbers" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
+            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.14em", color: C.flaggold, marginBottom: 8 }}>KOPFRECHNEN · 3 BEREICHE</p>
+              <h1 className="logo-gold" style={{ fontWeight: 800, fontSize: "clamp(28px, 8.4vw, 38px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Head &amp; Numbers</h1>
+              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
+              <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+                Einmaleins, Quadratzahlen und Kubikzahlen – spielerisch trainiert, bis sie einfach sitzen.
+              </p>
+            </div>
+            <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
+          </div>
+          <HeadNumbersSeite key={hnModul || "start"} gehe={gehe} start={hnModul} />
         </>
       ) : ansicht === "lgs" ? (
         <>

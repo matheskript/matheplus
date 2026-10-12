@@ -14,6 +14,7 @@ import { EskalationsKarte, Wochenbericht, eskalationSignale, serieBerechnen, zei
 import { TerminHinweis } from "./func9.jsx";
 import { Mathilda } from "./func10.jsx";
 import { KopfKacheln, KopfrechnenLogoKlein, TRAINER } from "./func14.jsx";
+import { HeadNumbersLogoKlein } from "./funcHeadNumbers.jsx";
 import { MeinTrainingZeile } from "./funcTraining.jsx";
 import { AppAnleitung } from "./funcAnleitung.jsx";
 import { VektorenLogoKlein } from "./func16.jsx";
@@ -1147,6 +1148,9 @@ export function Startseite({ gehe }) {
       <PlotterKachel onClick={() => gehe({ ansicht: "penpaperkurs" })} label="Pen & Paper Kurs öffnen" logo={<PenPaperBlatt />}
         titel="Pen & Paper"
         text="Klar aufschreiben, strukturiert arbeiten, sicher mit Fehlern umgehen." />
+      <PlotterKachel onClick={() => gehe({ ansicht: "headnumbers" })} label="Head & Numbers öffnen" logo={<HeadNumbersLogoKlein />} keinI18nTitel
+        titel="Head & Numbers"
+        text="Einmaleins, Quadrat- und Kubikzahlen – spielerisch, bis sie sitzen." />
       <PlotterKachel gesperrt onClick={() => gehe({ ansicht: "kurse" })} label="Videokurse öffnen" logo={<SchulkurseLogoKlein />}
         titel="Videokurse"
         text="Analysis 1–5, Vektoren und Stochastik – mit Videolektionen und Checks." />

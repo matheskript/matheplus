@@ -645,7 +645,7 @@ export const einzelne = (T) => FEHLER_IDS
   .sort((a, b) => b.n - a.n);
 
 /* Wiederholungsabstände je Thema (Tage): wächst mit jeder richtigen Antwort ohne Hilfe, fällt bei Fehlern */
-const ABSTAENDE = [1, 2, 4, 8, 16, 30];
+export const ABSTAENDE = [1, 2, 4, 8, 16, 30];
 export function themaAktualisieren(T, thema, ok, hilfe, zeit = Date.now()) {
   const s = T.themen[thema] || { n: 0, ok: 0, stufe: 0, zuletzt: 0, faellig: 0 };
   s.n += 1; s.zuletzt = zeit;

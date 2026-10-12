@@ -364,6 +364,13 @@ const ZUSATZ = {
   "2 KURSE · 9 EINHEITEN · 8 WOCHEN": "2 COURSES · 9 UNITS · 8 WEEKS",
   "Pen & Paper Kurs": "Pen & Paper Course",
   "Pen & Paper Kurs öffnen": "Open Pen & Paper course",
+  /* Head & Numbers (Seitentext nutzt L() in funcHeadNumbers.jsx; hier Kopfbereich, Kachel, Menü) */
+  "KOPFRECHNEN · 3 BEREICHE": "MENTAL ARITHMETIC · 3 AREAS",
+  "Einmaleins, Quadratzahlen und Kubikzahlen – spielerisch trainiert, bis sie einfach sitzen.": "Times tables, square numbers and cube numbers – practised playfully until they simply stick.",
+  "Head & Numbers öffnen": "Open Head & Numbers",
+  "Einmaleins, Quadrat- und Kubikzahlen – spielerisch, bis sie sitzen.": "Times tables, squares and cubes – playfully, until they stick.",
+  "Einmaleins, Quadrat- und Kubikzahlen – mit Lernpfad, Spielen und Wiederholung.": "Times tables, squares and cubes – with a learning path, games and review.",
+  "Einmaleins, Quadrat- und Kubikzahlen – mit Lernpfad und Wiederholung": "Times tables, squares and cubes – with a learning path and review",
   "Mathematik so aufschreiben, dass du deinen Denkweg siehst, verstehst und kontrollierst – für Mittelstufe und Oberstufe.": "Write down your maths so that you can see, understand and check your line of thought – for middle and upper school.",
 };
 

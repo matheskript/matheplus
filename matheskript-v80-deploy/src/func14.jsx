@@ -45,7 +45,7 @@ function potenzAufgabe(modus) {
    ihres Inhalts, der freie Platz wird gleichmäßig verteilt. Viel Inhalt in der
    Aufgabe → breitere Aufgabe; wenig Inhalt → beide etwa gleich breit.
    Inhalt immer mittig. Unter 560 px Breite rutscht die Eingabe unter die Aufgabe. */
-const GLEICHUNG_CSS = `
+export const GLEICHUNG_CSS = `
   .kr-gleichung{display:flex;align-items:stretch;gap:16px;margin-bottom:6px}
   .kr-gleichung > *{flex:1 1 auto;min-width:0}
   .kr-aufgabe{display:flex;align-items:center;justify-content:center;text-align:center}
@@ -59,7 +59,7 @@ const GLEICHUNG_CSS = `
 
 const RUNDE = 10;
 
-function Zahlenfeld({ onZiffer, onLoeschen, onOk, gesperrt }) {
+export function Zahlenfeld({ onZiffer, onLoeschen, onOk, gesperrt }) {
   const taste = (inhalt, onClick, art) => (
     <button key={String(inhalt)} onClick={onClick} disabled={gesperrt} className="kr-taste"
       style={{ height: 58, borderRadius: 14, fontFamily: "inherit", cursor: gesperrt ? "default" : "pointer",
@@ -321,7 +321,7 @@ function PotenzListe({ bis, hoch }) {
 
 /* Potenzen untereinander: eine Spalte je Zehnerblock. Die erste Spalte (1–10) ist breit und groß,
    die weiteren Zehnerschritte stehen schmaler daneben. */
-function PotenzSpalten({ hoch, bloecke }) {
+export function PotenzSpalten({ hoch, bloecke }) {
   const zeichen = hoch === 2 ? "²" : "³";
   const breiten = bloecke.map((_, i) => (i === 0 ? "2fr" : "1fr")).join(" ");
   return (
@@ -895,7 +895,7 @@ export function KopfKacheln({ onWaehle }) {
   );
 }
 
-export function KopfrechenZentrum({ start = null }) {
+export function KopfrechenZentrum({ start = null, gehe = null }) {
   const [offen, setOffen] = useState(KOPF_ALT[start] || start);
   const t = offen ? TRAINER.find((x) => x.id === offen) : null;
 
@@ -909,6 +909,18 @@ export function KopfrechenZentrum({ start = null }) {
           Trainer für das Kopfrechnen und schriftliche Rechnen. Wer Zahlen sofort abrufen kann, kürzt schneller, sieht Teiler auf einen
           Blick und hat beim Rechnen den Kopf für das Eigentliche frei.
         </p>
+        {gehe && (
+          <button type="button" onClick={() => gehe({ ansicht: "headnumbers" })} aria-label="Head & Numbers öffnen"
+            style={{ display: "flex", alignItems: "center", gap: 14, width: "100%", textAlign: "left", fontFamily: "inherit", cursor: "pointer", marginBottom: 14, padding: 14, borderRadius: 18,
+              border: `2px solid ${C.flaggold}`, background: C.weiss, color: C.tinte, boxShadow: "0 2px 14px rgba(15,26,51,0.06)" }}>
+            <span aria-hidden="true" style={{ flexShrink: 0, width: 56, height: 56, borderRadius: 14, background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, color: C.flaggold,
+              display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17, fontWeight: 800 }}>7·8</span>
+            <span style={{ flex: 1, minWidth: 0 }}>
+              <span style={{ display: "block", fontSize: 16.5, fontWeight: 700, lineHeight: 1.25 }}>Head &amp; Numbers</span>
+              <span style={{ display: "block", fontSize: 13, color: C.grau, fontWeight: 300, lineHeight: 1.4, marginTop: 2 }}>Einmaleins, Quadrat- und Kubikzahlen – mit Lernpfad, Spielen und Wiederholung.</span>
+            </span>
+          </button>
+        )}
         <KopfKacheln onWaehle={(id) => { setOffen(id); window.scrollTo(0, 0); }} />
       </div>
     );
