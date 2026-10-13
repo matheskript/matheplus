@@ -152,7 +152,13 @@ export const istDatum = (s) => typeof s === "string" && /^\d{4}-\d{2}-\d{2}$/.te
 
 /* ---------- Zustand ---------- */
 
-export function leereEbb() { return { version: 1, plan: "standard", skills: {} }; }
+export function leereEbb() { return { version: 1, plan: "standard", skills: {}, tage: {} }; }
+export const MAX_TAGE = 60;     // gespeicherte Tagespläne
+export const ARTEN = {
+  wiederholung: "Wiederholen",
+  voraussetzung: "Voraussetzung auffrischen",
+  weiter: "Weiter lernen",
+};
 
 export function leererSkill(id, heute) {
   return {
@@ -181,6 +187,14 @@ export function normiereEbb(E) {
     skills[id] = s;
   }
   d.skills = skills;
+  const tage = {};
+  for (const [dat, t] of Object.entries(d.tage && typeof d.tage === "object" ? d.tage : {})) {
+    if (!istDatum(dat) || !t || !Array.isArray(t.items)) continue;
+    tage[dat] = { erstellt: typeof t.erstellt === "string" ? t.erstellt : null,
+      items: t.items.filter((i) => i && SKILL_INFO[i.skill_id]).map((i) => ({ skill_id: i.skill_id, art: ARTEN[i.art] ? i.art : "wiederholung", grund: typeof i.grund === "string" ? i.grund : "" })) };
+  }
+  const dl = Object.keys(tage).sort();
+  d.tage = Object.fromEntries(dl.slice(-MAX_TAGE).map((k) => [k, tage[k]]));
   return d;
 }
 
@@ -401,4 +415,136 @@ export function waehleGenerator(skillId, schritt, letzterGenerator = null, rng =
 export function letzterGeneratorVon(S) {
   const h = S && S.review_history;
   return h && h.length ? h[h.length - 1].generator : null;
+}
+
+
+/* ======================================================================
+   Tagesplan & Lernübersicht (erste Version)
+   ====================================================================== */
+
+const NEU_TAGE = 14;   // so lange zählt ein Thema als „aktuell“ nach der letzten Übung
+
+/* Woran lernt der Schüler gerade? Themen mit Übung in den letzten Tagen (jüngste zuerst, höchstens 3).
+   T = Trainingsstand (LERN.training), darf null sein. */
+export function aktuelleThemen(E, T, { jetzt = Date.now(), tz } = {}) {
+  const heute = datumVon(jetzt, tz);
+  const grenze = jetzt - NEU_TAGE * 86400000;
+  const zeiten = {};
+  if (T && T.themen) for (const [t, v] of Object.entries(T.themen)) if (THEMEN[t] && v && v.zuletzt >= grenze) zeiten[t] = Math.max(zeiten[t] || 0, v.zuletzt);
+  const ab = addTage(heute, -7);
+  for (const S of Object.values((E && E.skills) || {})) {
+    const k = skillKapitel(S.skill_id);
+    if (!k.thema) continue;
+    for (const h of S.review_history) if (h.datum >= ab) zeiten[k.thema] = Math.max(zeiten[k.thema] || 0, Date.parse(h.at) || 0);
+  }
+  return Object.entries(zeiten).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([thema, zuletzt]) => ({ thema, name: THEMEN[thema].name, zuletzt }));
+}
+
+const gelernt = (E, id) => Boolean(E.skills[id] && E.skills[id].first_learned_at);
+
+/* Neue Skills zum „Weiterlernen“: noch nie geübt, alle Voraussetzungen schon gelernt, bevorzugt in den aktuellen Themen */
+function weiterKandidaten(E, themen) {
+  const frei = SKILLS.filter((s) => !E.skills[s.id] && s.voraus.every((v) => gelernt(E, v)));
+  const imThema = (s) => themen.some((t) => skillKapitel(s.id).thema === t.thema);
+  return [...frei.filter(imThema), ...(themen.length ? [] : frei)];
+}
+
+/* Baut den Plan für heute (rein, ohne zu speichern). */
+export function tagesplanBauen(E, T, { jetzt = Date.now(), tz, max = 8 } = {}) {
+  const themen = aktuelleThemen(E, T, { jetzt, tz });
+  const sicht = heuteAuswahl(E, { jetzt, tz, aktuellesThema: themen.length ? themen[0].thema : null, max: 100 });
+  const wdh = sicht.items.filter((i) => i.prio < 4).slice(0, 6);
+  const vor = sicht.items.filter((i) => i.prio === 4).slice(0, 2);
+  const items = [
+    ...wdh.map((i) => ({ skill_id: i.skill_id, art: "wiederholung", grund: i.grund })),
+    ...vor.map((i) => ({ skill_id: i.skill_id, art: "voraussetzung", grund: i.grund })),
+  ];
+  const platz = Math.max(0, max - items.length);
+  const wunsch = wdh.length >= 5 ? 1 : 2;
+  for (const s of weiterKandidaten(E, themen).slice(0, Math.min(wunsch, platz))) {
+    const th = skillKapitel(s.id);
+    items.push({ skill_id: s.id, art: "weiter", grund: `Neuer Schritt in ${th.name || "deinem Stoff"}: Die Grundlagen dafür sitzen schon.` });
+  }
+  return { erstellt: new Date(jetzt).toISOString(), items: items.slice(0, max), themen };
+}
+
+/* Legt den Tagesplan an, falls es heute noch keinen gibt. Gibt es ihn schon, bleibt er stehen:
+   Neu fällige Skills (z. B. nach einem Fehler: „morgen wieder“ gilt für morgen, nicht für heute) werden nur ergänzt,
+   nichts verschwindet – was heute schon geübt wurde, bleibt als erledigt sichtbar. Verändert E. */
+export function tagesplanSichern(E, T, { jetzt = Date.now(), tz, max = 8 } = {}) {
+  if (!E.tage) E.tage = {};
+  const heute = datumVon(jetzt, tz);
+  const neu = tagesplanBauen(E, T, { jetzt, tz, max });
+  const alt = E.tage[heute];
+  if (!alt) {
+    E.tage[heute] = { erstellt: neu.erstellt, items: neu.items };
+  } else {
+    const da = new Set(alt.items.map((i) => i.skill_id));
+    for (const i of neu.items) if (!da.has(i.skill_id) && i.art !== "weiter" && alt.items.length < max + 4) alt.items.push(i);
+  }
+  const ds = Object.keys(E.tage).sort();
+  for (const k of ds.slice(0, Math.max(0, ds.length - MAX_TAGE))) delete E.tage[k];
+  return E.tage[heute];
+}
+
+/* Wie weit ist der heutige Plan? Je Eintrag: erledigt, Ergebnis, Termin danach. */
+export function tagesStand(E, { jetzt = Date.now(), tz } = {}) {
+  const heute = datumVon(jetzt, tz);
+  const plan = E.tage && E.tage[heute];
+  const geuebtHeute = (id) => ((E.skills[id] && E.skills[id].review_history) || []).filter((h) => h.datum === heute);
+  const items = ((plan && plan.items) || []).map((i) => {
+    const h = geuebtHeute(i.skill_id);
+    const S = E.skills[i.skill_id];
+    return { ...i, name: SKILL_INFO[i.skill_id].name, erledigt: h.length > 0, ergebnis: h.length ? h[h.length - 1].ergebnis : null,
+      naechster: h.length && S ? S.next_review_at : null, status: S ? statusVon(S, E) : "neu" };
+  });
+  const imPlan = new Set(items.map((i) => i.skill_id));
+  const zusaetzlich = Object.values(E.skills).filter((S) => !imPlan.has(S.skill_id) && geuebtHeute(S.skill_id).length).map((S) => ({ skill_id: S.skill_id, name: SKILL_INFO[S.skill_id].name }));
+  const erledigt = items.filter((i) => i.erledigt).length;
+  return { heute, vorhanden: Boolean(plan), items, erledigt, gesamt: items.length, fertig: items.length > 0 && erledigt === items.length, zusaetzlich,
+    minutenRest: minutenFuer(items.filter((i) => !i.erledigt).map((i) => i.skill_id)) };
+}
+
+/* Lernübersicht: was wurde gelernt (und wann), die letzten Tage, die nächsten Tage. */
+export function lernUebersicht(E, { jetzt = Date.now(), tz, rueck = 14, vor = 14 } = {}) {
+  const heute = datumVon(jetzt, tz);
+  const skills = Object.values(E.skills);
+  const alle = skills.filter((S) => S.first_learned_at).map((S) => ({
+    skill_id: S.skill_id, name: SKILL_INFO[S.skill_id].name, thema: skillKapitel(S.skill_id).name,
+    erstmals: datumVon(Date.parse(S.first_learned_at), tz), zuletzt: S.last_reviewed_at ? datumVon(Date.parse(S.last_reviewed_at), tz) : null,
+    naechster: S.next_review_at, status: statusVon(S, E), stufe: S.stufe, wiederholungen: S.review_history.filter((h) => h.faellig && h.schritt > 0).length,
+  })).sort((a, b) => (a.erstmals < b.erstmals ? 1 : a.erstmals > b.erstmals ? -1 : a.name.localeCompare(b.name)));
+
+  const proTag = {};
+  for (const S of skills) for (const h of S.review_history) (proTag[h.datum] = proTag[h.datum] || []).push({ skill_id: S.skill_id, ergebnis: h.ergebnis });
+  const rangE = { nicht: 0, teilweise: 1, sicher: 2 };
+  const rueckblick = [];
+  for (let i = 0; i < rueck; i++) {
+    const d = addTage(heute, -i);
+    const liste = proTag[d] || [];
+    const nach = {};
+    for (const x of liste) if (!nach[x.skill_id] || rangE[x.ergebnis] < rangE[nach[x.skill_id]]) nach[x.skill_id] = x.ergebnis;
+    const plan = E.tage && E.tage[d];
+    rueckblick.push({ datum: d, aufgaben: liste.length, skills: Object.entries(nach).map(([skill_id, ergebnis]) => ({ skill_id, name: SKILL_INFO[skill_id].name, ergebnis })),
+      geplant: plan ? plan.items.length : null, geplantErledigt: plan ? plan.items.filter((it) => nach[it.skill_id]).length : null });
+  }
+
+  const vorschau = Array.from({ length: vor }, (_, i) => ({ datum: addTage(heute, i), skills: [] }));
+  for (const S of skills) {
+    if (!S.first_learned_at && S.next_review_at > heute) continue;
+    const i = Math.max(0, tageZwischen(heute, S.next_review_at));
+    if (i < vor) vorschau[i].skills.push({ skill_id: S.skill_id, name: SKILL_INFO[S.skill_id].name, neu: !S.first_learned_at });
+  }
+  vorschau.forEach((v) => v.skills.sort((a, b) => a.name.localeCompare(b.name)));
+
+  let serie = 0;
+  let d = (proTag[heute] || []).length ? heute : addTage(heute, -1);
+  while ((proTag[d] || []).length) { serie++; d = addTage(d, -1); }
+  const stat = (k) => alle.filter((x) => x.status === k).length;
+  return {
+    heute, gelernt: alle, serie, aufgabenGesamt: skills.reduce((n, S) => n + S.review_history.length, 0),
+    seit: alle.length ? alle[alle.length - 1].erstmals : null,
+    anzahl: { gelernt: alle.length, training: stat("training"), unsicher: stat("unsicher"), stabil: stat("stabil"), gefestigt: stat("gefestigt"), neu: skills.length - alle.length },
+    rueckblick, vorschau,
+  };
 }

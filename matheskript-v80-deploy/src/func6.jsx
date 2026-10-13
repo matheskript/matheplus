@@ -7,6 +7,7 @@ import { M, Text, Zeile, alsFunktion, stimmtUeberein, wegPruefen, zahlAus, zeile
 import { FR } from "./funcRegistry.jsx";
 import { FotoEinwilligungVerwalten, terminWiederholungenHeute } from "./func9.jsx";
 import { TermTastatur } from "./func4.jsx";
+import { syncErsetzen, syncMelden } from "./lernSync.js";
 
 export function LoesungsWeg({ titelTex, aufgabeText, typ, auf, onSchliessen }) {
   const [zeilen, setZeilen] = useState(["", ""]);
@@ -302,12 +303,45 @@ export function diagPruefen(aufgabe, eingabe) {
 export function lernBenachrichtigen() { LERN.hoerer.forEach((h) => h()); }
 
 
-export function lernSpeichern() {
-  speicherSchreiben({ profil: LERN.profil, stand: LERN.stand, einstufung: LERN.einstufung, aktivitaet: LERN.aktivitaet,
+/* Der Lernstand in der gespeicherten Form – auch die Grundlage für den Abgleich mit dem Konto (lernSync.js). */
+export function lernSnapshot() {
+  return { profil: LERN.profil, stand: LERN.stand, einstufung: LERN.einstufung, aktivitaet: LERN.aktivitaet,
     plan: LERN.plan, verlauf: LERN.verlauf, testFehl: LERN.testFehl, letzteAktivitaet: LERN.letzteAktivitaet,
-    messungen: LERN.messungen, experimente: LERN.experimente, noten: LERN.noten, pseudonym: LERN.pseudonym, termine: LERN.termine, training: LERN.training || null, protokoll: PROTOKOLL.slice(-500) });
+    messungen: LERN.messungen, experimente: LERN.experimente, noten: LERN.noten, pseudonym: LERN.pseudonym, termine: LERN.termine, training: LERN.training || null, protokoll: PROTOKOLL.slice(-500),
+    _zeit: LERN.zeit || 0 };
 }
 
+/* Leerer Stand (z. B. nach dem Abmelden auf einem geteilten Gerät) */
+export function lernLeer() {
+  return { profil: null, stand: {}, einstufung: null, aktivitaet: {}, plan: null, verlauf: [], testFehl: {}, letzteAktivitaet: 0,
+    messungen: {}, experimente: {}, noten: [], pseudonym: null, termine: [], training: null, protokoll: [], _zeit: 0 };
+}
+
+/* Setzt einen gespeicherten Stand ein (Laden, Abgleich mit dem Konto). Ändert den Änderungsstempel nicht. */
+export function lernAnwenden(d) {
+  d = d || lernLeer();
+  LERN.profil = d.profil || null; LERN.stand = d.stand || {}; LERN.einstufung = d.einstufung || null;
+  LERN.aktivitaet = d.aktivitaet || {}; LERN.plan = d.plan || null; LERN.verlauf = d.verlauf || [];
+  LERN.testFehl = d.testFehl || {}; LERN.letzteAktivitaet = d.letzteAktivitaet || 0;
+  LERN.messungen = d.messungen || {}; LERN.experimente = d.experimente || {}; LERN.noten = d.noten || []; LERN.pseudonym = d.pseudonym || null; LERN.termine = d.termine || []; LERN.training = d.training || null;
+  LERN.zeit = d._zeit || 0;
+  PROTOKOLL.splice(0, PROTOKOLL.length, ...(d.protokoll || []));
+}
+
+function lernLokalSichern() { speicherSchreiben(lernSnapshot()); }
+
+export function lernSpeichern() {
+  LERN.zeit = Date.now();
+  lernLokalSichern();
+  syncMelden();
+}
+
+/* Vom Konto-Abgleich gesetzt: lokal sichern und anzeigen, ohne erneut hochzuladen */
+export function lernVomKonto(d) {
+  lernAnwenden(d);
+  lernLokalSichern();
+  lernBenachrichtigen();
+}
 
 export function lernAendern(fn) {
   fn(LERN);
@@ -343,13 +377,7 @@ export async function speicherSchreiben(daten) {
 
 export async function lernLaden() {
   const d = await speicherLesen();
-  if (d) {
-    LERN.profil = d.profil || null; LERN.stand = d.stand || {}; LERN.einstufung = d.einstufung || null;
-    LERN.aktivitaet = d.aktivitaet || {}; LERN.plan = d.plan || null; LERN.verlauf = d.verlauf || [];
-    LERN.testFehl = d.testFehl || {}; LERN.letzteAktivitaet = d.letzteAktivitaet || 0;
-    LERN.messungen = d.messungen || {}; LERN.experimente = d.experimente || {}; LERN.noten = d.noten || []; LERN.pseudonym = d.pseudonym || null; LERN.termine = d.termine || []; LERN.training = d.training || null;
-    PROTOKOLL.splice(0, PROTOKOLL.length, ...(d.protokoll || []));
-  }
+  if (d) lernAnwenden(d);
   LERN.geladen = true;
   lernBenachrichtigen();
 }
@@ -494,7 +522,7 @@ export function Profil({ gehe }) {
                 Damit werden Profil und alle Einträge auf diesem Gerät gelöscht. Wirklich?
               </p>
               <div className="flex gap-3">
-                <button onClick={() => { lernAendern((X) => { PROTOKOLL.length = 0; X.profil = null; X.stand = {}; X.einstufung = null; X.aktivitaet = {}; X.plan = null; X.verlauf = []; X.testFehl = {}; X.messungen = {}; X.experimente = {}; X.noten = []; X.pseudonym = null; X.termine = []; X.training = null; }); setLoeschen(false); }}
+                <button onClick={() => { lernAendern((X) => { PROTOKOLL.length = 0; X.profil = null; X.stand = {}; X.einstufung = null; X.aktivitaet = {}; X.plan = null; X.verlauf = []; X.testFehl = {}; X.messungen = {}; X.experimente = {}; X.noten = []; X.pseudonym = null; X.termine = []; X.training = null; }); syncErsetzen(); setLoeschen(false); }}
                   className="px-5 py-2" style={{ background: C.signal, color: C.weiss, border: "none", borderRadius: 999, fontSize: 13.5, fontFamily: "inherit", cursor: "pointer" }}>
                   Ja, löschen
                 </button>

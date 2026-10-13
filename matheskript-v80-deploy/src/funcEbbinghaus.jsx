@@ -18,8 +18,9 @@ import { Aufklapp } from "./ui3.jsx";
 import { THEMEN, lies, neueAufgabe, normiere } from "./trainingDaten.js";
 import {
   PLAENE, PLAN_IDS, SCHRITTE, SKILLS, SKILL_INFO, STATUS, ERGEBNIS_TEXT, SCHRITT_AB_HILFE_AUS,
-  datumVon, heuteAuswahl, heuteErledigt, letzterGeneratorVon, normiereEbb, planTage, schrittVon, skillKapitel, statusVon, waehleGenerator,
+  ARTEN, aktuelleThemen, datumVon, heuteAuswahl, letzterGeneratorVon, lernUebersicht, normiereEbb, planTage, schrittVon, skillKapitel, statusVon, tagesStand, tagesplanSichern, waehleGenerator,
 } from "./ebbinghaus.js";
+import { useSyncStatus } from "./lernSync.js";
 
 export const EBB_VIDEO_ID = "otTSq-5PNsE";
 export const EBB_SLOGAN = "Beende Vergess kennenlernen und lerne wirklich Mathe. Mit einem klaren System.";
@@ -37,7 +38,7 @@ function useEbb() {
   const L = useLern();
   const roh = L.training && L.training.ebbinghaus;
   const E = useMemo(() => normiereEbb(roh), [roh]);
-  return { E, geladen: L.geladen !== false, zuletzt: L.training && L.training.zuletzt };
+  return { E, geladen: L.geladen !== false, zuletzt: L.training && L.training.zuletzt, T: L.training || null };
 }
 function useJetzt() {
   const [t, setT] = useState(() => Date.now());
@@ -404,16 +405,39 @@ function Training({ items, E, onEnde, titel }) {
   );
 }
 
-/* ---------- 6. Dashboard „Heute in Mathe“ ---------- */
-function Dashboard({ E, geladen, zuletzt, gehe, laeuft, setLaeuft, zuSkills }) {
+/* ---------- 6. Dashboard „Heute in Mathe“: gespeicherter Tagesplan ---------- */
+const ART_FARBE = { wiederholung: C.see, voraussetzung: C.signal, weiter: C.smaragd };
+
+/* Der Plan für heute: einmal pro Tag angelegt und im Konto gespeichert, danach nur ergänzt.
+   Angezeigt wird immer der Plan, wie er gespeichert würde – gespeichert wird, sobald der Schüler schon Skills hat. */
+function useTagesplan(E, T, geladen, jetzt) {
+  const heute = datumVon(jetzt);
+  const { stand, noetig, schluessel } = useMemo(() => {
+    const E2 = { ...E, tage: JSON.parse(JSON.stringify(E.tage || {})) };
+    const vorher = JSON.stringify(E2.tage[heute] || null);
+    tagesplanSichern(E2, T, { jetzt });
+    const nachher = JSON.stringify(E2.tage[heute]);
+    return { stand: tagesStand(E2, { jetzt }), noetig: vorher !== nachher && Object.keys(E.skills).length > 0, schluessel: `${heute}|${nachher}` };
+  }, [E, T, jetzt, heute]);
+  const gesichert = useRef("");
+  useEffect(() => {
+    if (!geladen || !noetig || gesichert.current === schluessel) return;
+    gesichert.current = schluessel;
+    ebbAendern((X) => { tagesplanSichern(X, T, { jetzt: Date.now() }); });
+  }, [geladen, noetig, schluessel, T]);
+  return stand;
+}
+
+function Dashboard({ E, T, geladen, gehe, laeuft, setLaeuft, zuSkills }) {
   const jetzt = useJetzt();
   const heute = datumVon(jetzt);
-  const auswahl = useMemo(() => heuteAuswahl(E, { jetzt, aktuellesThema: zuletzt && THEMEN[zuletzt] ? zuletzt : null }), [E, jetzt, zuletzt]);
-  const erledigt = heuteErledigt(E, jetzt);
-  const gesamt = erledigt + auswahl.faellig;
-  const anteil = gesamt ? (erledigt / gesamt) * 100 : 0;
+  const stand = useTagesplan(E, T, geladen, jetzt);
+  const themen = useMemo(() => aktuelleThemen(E, T, { jetzt }), [E, T, jetzt]);
   const anzahlSkills = Object.keys(E.skills).length;
   const naechster = Object.values(E.skills).filter((S) => S.next_review_at > heute).sort((a, b) => a.next_review_at.localeCompare(b.next_review_at))[0];
+  const anteil = stand.gesamt ? (stand.erledigt / stand.gesamt) * 100 : 0;
+  const offen = stand.items.filter((i) => !i.erledigt);
+  const alsItem = (i) => { const S = E.skills[i.skill_id]; return { skill_id: i.skill_id, schritt: S ? schrittVon(S, E) : 0, prio: 3, grund: i.grund }; };
 
   if (!geladen) return <div style={karte}><p style={{ fontSize: 14, color: C.grau }}>Dein Lernstand wird geladen …</p></div>;
   if (laeuft) {
@@ -421,59 +445,174 @@ function Dashboard({ E, geladen, zuletzt, gehe, laeuft, setLaeuft, zuSkills }) {
   }
   return (
     <div style={karte}>
-      <p style={kicker}>Dein Training heute</p>
-      {anzahlSkills === 0 ? (
-        <>
-          <p style={{ fontSize: 17, fontWeight: 700, color: C.tinte, lineHeight: 1.4 }}>Noch nichts im Training</p>
-          <p style={{ fontSize: 14, color: C.grau, lineHeight: 1.7, margin: "6px 0 4px" }}>Sobald du einen Skill zum ersten Mal selbstständig löst, taucht er hier auf – und die App sagt dir, wann du ihn wiederholst. Dazu zählen auch Aufgaben aus „5 Minuten Mathe“ und „Meine Fehler üben“. Hier wird nichts erfunden: Es steht nur da, was du wirklich gemacht hast.</p>
-          <GrosserKnopf gold onClick={zuSkills}>Ersten Skill auswählen</GrosserKnopf>
-        </>
+      <p style={kicker}>Dein Tagesplan · {datumKurz(heute)}</p>
+      {anzahlSkills === 0 && (
+        <p style={{ fontSize: 14, color: C.grau, lineHeight: 1.7, margin: "0 0 8px" }}>Du hast noch nichts geübt. Hier ein Vorschlag zum Start – sobald du einen Skill zum ersten Mal selbstständig löst, plant die App deine Wiederholungen und stellt dir jeden Tag einen Plan zusammen. Es steht nur da, was du wirklich gemacht hast.</p>
+      )}
+      <p style={{ fontSize: 13, color: C.grau, lineHeight: 1.6, margin: "0 0 10px" }}>
+        {themen.length ? <>Du arbeitest gerade an: {themen.map((t) => <span key={t.thema} style={{ display: "inline-block", background: C.himmel, color: C.see, fontWeight: 700, fontSize: 12.5, borderRadius: 999, padding: "2px 10px", margin: "0 6px 4px 0" }}>{t.name}</span>)}</> : "Sobald du in einem Thema übst, erkennt die App, woran du gerade arbeitest, und richtet den Plan danach aus."}
+      </p>
+      {stand.items.length === 0 ? (
+        <Rueck art="gut">Heute ist nichts fällig. {naechster ? `Die nächste Wiederholung (${SKILL_INFO[naechster.skill_id].name}) ist ${wannText(naechster.next_review_at, heute)} dran.` : ""} Du kannst unten jederzeit freiwillig einen Skill üben.</Rueck>
       ) : (
         <>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             <div style={{ flex: "1 1 120px", background: C.sand, borderRadius: 12, padding: "10px 14px" }}>
-              <p style={{ fontSize: 30, fontWeight: 800, color: auswahl.faellig ? C.see : C.smaragd, lineHeight: 1.1 }}>{auswahl.faellig}</p>
-              <p style={{ fontSize: 12.5, color: C.grau, lineHeight: 1.4 }}>{auswahl.faellig === 1 ? "Wiederholung heute fällig" : "Wiederholungen heute fällig"}</p>
+              <p style={{ fontSize: 30, fontWeight: 800, color: stand.fertig ? C.smaragd : C.see, lineHeight: 1.1 }}>{stand.erledigt}<span style={{ fontSize: 16, color: C.grau, fontWeight: 700 }}> / {stand.gesamt}</span></p>
+              <p style={{ fontSize: 12.5, color: C.grau, lineHeight: 1.4 }}>heute erledigt</p>
             </div>
             <div style={{ flex: "1 1 120px", background: C.sand, borderRadius: 12, padding: "10px 14px" }}>
-              <p style={{ fontSize: 30, fontWeight: 800, color: C.tinte, lineHeight: 1.1 }}>{auswahl.minuten ? `ca. ${auswahl.minuten}` : "–"}<span style={{ fontSize: 14, fontWeight: 700 }}>{auswahl.minuten ? " Min." : ""}</span></p>
-              <p style={{ fontSize: 12.5, color: C.grau, lineHeight: 1.4 }}>geschätzte Trainingsdauer</p>
+              <p style={{ fontSize: 30, fontWeight: 800, color: C.tinte, lineHeight: 1.1 }}>{stand.minutenRest ? `ca. ${stand.minutenRest}` : "–"}<span style={{ fontSize: 14, fontWeight: 700 }}>{stand.minutenRest ? " Min." : ""}</span></p>
+              <p style={{ fontSize: 12.5, color: C.grau, lineHeight: 1.4 }}>noch zu tun</p>
             </div>
           </div>
-          <div style={{ marginTop: 12 }} aria-label={`Heutige Einheit: ${erledigt} erledigt`}>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, color: C.grau, marginBottom: 4 }}>
-              <span>Heutige Einheit</span><span>{erledigt} erledigt · {auswahl.faellig} offen</span>
-            </div>
-            <div role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(anteil)} aria-label="Fortschritt der heutigen Einheit" style={{ height: 8, borderRadius: 999, background: C.linie, overflow: "hidden" }}><div style={{ width: `${anteil}%`, height: "100%", background: C.smaragd, borderRadius: 999, transition: "width .3s ease" }} /></div>
+          <div style={{ marginTop: 12 }}>
+            <div role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(anteil)} aria-label="Fortschritt des Tagesplans" style={{ height: 8, borderRadius: 999, background: C.linie, overflow: "hidden" }}><div style={{ width: `${anteil}%`, height: "100%", background: C.smaragd, borderRadius: 999, transition: "width .3s ease" }} /></div>
           </div>
-          {auswahl.items.length === 0 ? (
-            <Rueck art="gut">Heute ist nichts mehr fällig. {naechster ? `Die nächste Wiederholung (${SKILL_INFO[naechster.skill_id].name}) ist ${wannText(naechster.next_review_at, heute)} dran.` : ""} Du kannst unten jederzeit freiwillig einen Skill üben.</Rueck>
-          ) : (
-            <>
-              <div style={{ marginTop: 6 }}>
-                {auswahl.items.map((it, k) => {
-                  const kap = skillKapitel(it.skill_id);
-                  return (
-                    <div key={it.skill_id} style={{ padding: "10px 0", borderTop: k ? `1px solid ${C.linie}` : "none" }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "baseline", flexWrap: "wrap" }}>
-                        <p style={{ fontSize: 15, fontWeight: 700, color: C.tinte }}>{SKILL_INFO[it.skill_id].name}</p>
-                        <Chip status={it.status} />
-                      </div>
-                      <p style={{ fontSize: 12.5, color: C.grau, lineHeight: 1.55 }}>
-                        {kap.gruppe}{kap.name ? ` · ${kap.name}` : ""} · {SCHRITTE[it.schritt].kurz}
-                      </p>
-                      <p style={{ fontSize: 12.5, color: it.prio === 1 ? C.signal : C.grau, lineHeight: 1.55 }}>{it.grund}</p>
+          <div style={{ marginTop: 6 }}>
+            {stand.items.map((it, k) => {
+              const kap = skillKapitel(it.skill_id);
+              const er = it.ergebnis ? ERGEBNIS_TEXT[it.ergebnis] : null;
+              return (
+                <div key={it.skill_id} style={{ padding: "10px 0", borderTop: k ? `1px solid ${C.linie}` : "none", display: "flex", gap: 10, alignItems: "flex-start" }}>
+                  <span aria-hidden="true" style={{ flex: "0 0 22px", height: 22, borderRadius: 999, marginTop: 2, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 800,
+                    background: it.erledigt ? C.smaragd : "transparent", color: C.weiss, border: it.erledigt ? "none" : `1.5px solid ${C.hellgrau}` }}>{it.erledigt ? "✓" : ""}</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "baseline", flexWrap: "wrap" }}>
+                      <p style={{ fontSize: 15, fontWeight: 700, color: it.erledigt ? C.grau : C.tinte }}>{it.name}</p>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: ART_FARBE[it.art] }}>{ARTEN[it.art]}</span>
                     </div>
-                  );
-                })}
-              </div>
-              <GrosserKnopf gold onClick={() => setLaeuft({ key: Date.now(), items: auswahl.items, titel: "Training" })}>Training starten</GrosserKnopf>
-            </>
+                    <p style={{ fontSize: 12.5, color: C.grau, lineHeight: 1.55 }}>{kap.gruppe}{kap.name ? ` · ${kap.name}` : ""}</p>
+                    {it.erledigt ? (
+                      <p style={{ fontSize: 12.5, lineHeight: 1.55, color: C.grau }}>
+                        <b style={{ color: er.farbe }}>{er.name}.</b> {it.naechster ? `Nächste Wiederholung: ${wannText(it.naechster, heute)}.` : ""}
+                      </p>
+                    ) : (
+                      <>
+                        <p style={{ fontSize: 12.5, color: C.grau, lineHeight: 1.55 }}>{it.grund}</p>
+                        <button type="button" onClick={() => setLaeuft({ key: Date.now(), items: [alsItem(it)], titel: it.name })} style={{ ...knopfKlein, minHeight: 40, padding: "4px 14px", fontSize: 13, marginTop: 6 }}>Nur diesen üben</button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          {stand.fertig ? (
+            <Rueck art="gut">Tagesplan geschafft. Mehr ist heute nicht nötig – wenn du Lust hast, kannst du unten freiwillig einen Skill üben.</Rueck>
+          ) : (
+            <GrosserKnopf gold onClick={() => setLaeuft({ key: Date.now(), items: offen.map(alsItem), titel: "Tagesplan" })}>{stand.erledigt ? "Restlichen Plan starten" : "Tagesplan starten"}</GrosserKnopf>
           )}
-          <p style={{ fontSize: 13, color: C.grau, lineHeight: 1.65, marginTop: 12 }}>Du musst nicht überlegen, was du heute lernen solltest. Öffne dein Training, bearbeite die passenden Aufgaben und baue dein Können Schritt für Schritt auf.</p>
+          {stand.zusaetzlich.length > 0 && <p style={{ fontSize: 12.5, color: C.grau, lineHeight: 1.6, marginTop: 8 }}>Zusätzlich geübt: {stand.zusaetzlich.map((z) => z.name).join(", ")}.</p>}
         </>
       )}
+      {anzahlSkills === 0 && <GrosserKnopf onClick={zuSkills}>Selbst einen Skill auswählen</GrosserKnopf>}
+      <p style={{ fontSize: 13, color: C.grau, lineHeight: 1.65, marginTop: 12 }}>Du musst nicht überlegen, was du heute lernen solltest: Der Plan besteht aus fälligen Wiederholungen und ein bis zwei neuen Schritten in dem Stoff, an dem du gerade arbeitest. Er wird einmal pro Tag zusammengestellt und gespeichert.</p>
     </div>
+  );
+}
+
+/* ---------- 6b. Dein Lernstand: was gelernt, wann, was kommt ---------- */
+const wochentag = (d) => new Date(d + "T00:00:00Z").toLocaleDateString("de-DE", { weekday: "short", timeZone: "UTC" });
+const tagLabel = (d, heute) => (d === heute ? "Heute" : wannText(d, heute) === "gestern" ? "Gestern" : wannText(d, heute) === "morgen" ? "Morgen" : `${wochentag(d)}, ${datumKurz(d).slice(0, 6)}`);
+
+function SyncHinweis() {
+  const st = useSyncStatus();
+  const zeit = st.zuletzt ? new Date(st.zuletzt).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }) : "";
+  const t = {
+    lokal: ["Nur in diesem Browser", "Der Speicher im Konto ist auf dieser Seite nicht aktiv. Dein Lernstand liegt nur in diesem Browser."],
+    aus: ["Nur in diesem Browser", "Du bist nicht angemeldet. Mit einem Konto wird dein Lernstand gesichert und ist auf jedem Gerät gleich."],
+    verbinde: ["Wird abgeglichen …", "Dein Lernstand wird mit deinem Konto abgeglichen."],
+    ok: ["In deinem Konto gespeichert", `Dein Lernstand ist gesichert${zeit ? ` (zuletzt ${zeit} Uhr)` : ""} und auf allen Geräten verfügbar.`],
+    ausstehend: ["Wird gespeichert …", "Deine letzte Änderung wird gleich in deinem Konto gesichert."],
+    "nicht-eingerichtet": ["Konto-Speicher noch nicht eingerichtet", "Dein Lernstand liegt vorerst nur in diesem Browser. Der Speicher im Konto muss noch einmalig aktiviert werden."],
+    fehler: ["Speichern im Konto gerade nicht möglich", "Dein Lernstand bleibt in diesem Browser erhalten und wird später erneut gesichert."],
+  }[st.status] || ["", ""];
+  const farbe = st.status === "ok" ? C.smaragd : st.status === "fehler" || st.status === "nicht-eingerichtet" ? C.signal : C.grau;
+  return (
+    <div role="status" style={{ display: "flex", gap: 8, alignItems: "flex-start", marginBottom: 12 }}>
+      <span aria-hidden="true" style={{ width: 9, height: 9, borderRadius: 999, background: farbe, marginTop: 6, flex: "0 0 9px" }} />
+      <p style={{ fontSize: 13, color: C.grau, lineHeight: 1.6 }}><b style={{ color: farbe }}>{t[0]}.</b> {t[1]}</p>
+    </div>
+  );
+}
+
+function Lernstand({ E, T, geladen }) {
+  const jetzt = useJetzt();
+  const heute = datumVon(jetzt);
+  const u = useMemo(() => lernUebersicht(E, { jetzt }), [E, jetzt]);
+  const [alle, setAlle] = useState(false);
+  if (!geladen) return null;
+  const sichtbar = alle ? u.gelernt : u.gelernt.slice(0, 6);
+  const kachel = (zahl, text, farbe) => (
+    <div style={{ flex: "1 1 130px", background: C.sand, borderRadius: 12, padding: "10px 14px" }}>
+      <p style={{ fontSize: 26, fontWeight: 800, color: farbe || C.tinte, lineHeight: 1.15 }}>{zahl}</p>
+      <p style={{ fontSize: 12.5, color: C.grau, lineHeight: 1.4 }}>{text}</p>
+    </div>
+  );
+  const ergFarbe = (e) => ERGEBNIS_TEXT[e].farbe;
+  const vorschauTage = u.vorschau.filter((v) => v.skills.length);
+  return (
+    <>
+      <SyncHinweis />
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+        {kachel(u.anzahl.gelernt, u.anzahl.gelernt === 1 ? "Skill gelernt" : "Skills gelernt", C.see)}
+        {kachel(u.serie, u.serie === 1 ? "Tag in Folge geübt" : "Tage in Folge geübt", u.serie ? C.smaragd : C.tinte)}
+        {kachel(u.aufgabenGesamt, "Aufgaben im Training")}
+        {kachel(u.seit ? datumKurz(u.seit).slice(0, 6) : "–", u.seit ? "Erster Skill gelernt am" : "Noch nichts gelernt")}
+      </div>
+
+      <div style={{ ...karte, marginTop: 14 }}>
+        <p style={kicker}>Das hast du gelernt</p>
+        {u.gelernt.length === 0 ? (
+          <p style={{ fontSize: 14, color: C.grau, lineHeight: 1.7 }}>Hier erscheint jeder Skill, sobald du ihn zum ersten Mal selbstständig gelöst hast – mit dem Datum, wann du ihn zuletzt geübt hast und wann er wiederkommt.</p>
+        ) : (
+          <>
+            {sichtbar.map((g, k) => (
+              <div key={g.skill_id} style={{ padding: "10px 0", borderTop: k ? `1px solid ${C.linie}` : "none" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "baseline", flexWrap: "wrap" }}>
+                  <p style={{ fontSize: 14.5, fontWeight: 700, color: C.tinte }}>{g.name}</p>
+                  <Chip status={g.status} />
+                </div>
+                <p style={{ fontSize: 12.5, color: C.grau, lineHeight: 1.6 }}>
+                  {g.thema} · gelernt am {datumKurz(g.erstmals)}{g.zuletzt ? ` · zuletzt geübt ${wannText(g.zuletzt, heute)}` : ""} · nächste Wiederholung {wannText(g.naechster, heute)} ({datumKurz(g.naechster).slice(0, 6)})
+                </p>
+              </div>
+            ))}
+            {u.gelernt.length > 6 && <button type="button" onClick={() => setAlle(!alle)} style={{ ...knopfKlein, marginTop: 8 }}>{alle ? "Weniger anzeigen" : `Alle ${u.gelernt.length} anzeigen`}</button>}
+          </>
+        )}
+      </div>
+
+      <div style={{ ...karte, marginTop: 14 }}>
+        <p style={kicker}>Die letzten 14 Tage</p>
+        {u.rueckblick.map((r, k) => (
+          <div key={r.datum} style={{ display: "flex", gap: 12, padding: "7px 0", borderTop: k ? `1px solid ${C.linie}` : "none", alignItems: "baseline" }}>
+            <p style={{ flex: "0 0 86px", fontSize: 12.5, fontWeight: r.datum === heute ? 800 : 600, color: r.datum === heute ? C.tinte : C.grau }}>{tagLabel(r.datum, heute)}</p>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              {r.skills.length === 0 ? <p style={{ fontSize: 12.5, color: C.hellgrau }}>{r.datum === heute ? "noch nichts geübt" : "–"}</p> : (
+                <p style={{ fontSize: 13, lineHeight: 1.6, color: C.tinte }}>
+                  {r.skills.map((x, i) => <span key={x.skill_id}>{i ? " · " : ""}<span style={{ color: ergFarbe(x.ergebnis), fontWeight: 700 }} title={ERGEBNIS_TEXT[x.ergebnis].name}>{x.ergebnis === "sicher" ? "✓" : x.ergebnis === "teilweise" ? "◐" : "↻"}</span> {x.name}</span>)}
+                </p>
+              )}
+              {r.geplant !== null && <p style={{ fontSize: 12, color: C.grau }}>Plan: {r.geplantErledigt} von {r.geplant} erledigt</p>}
+            </div>
+          </div>
+        ))}
+        <p style={{ fontSize: 12, color: C.grau, lineHeight: 1.6, marginTop: 8 }}>✓ sicher · ◐ mit Hilfe oder im zweiten Versuch · ↻ noch einmal üben</p>
+      </div>
+
+      <div style={{ ...karte, marginTop: 14 }}>
+        <p style={kicker}>Die nächsten 14 Tage</p>
+        {vorschauTage.length === 0 ? <p style={{ fontSize: 14, color: C.grau, lineHeight: 1.7 }}>Noch nichts geplant. Sobald du Skills gelernt hast, siehst du hier, wann sie wiederkommen.</p> : vorschauTage.map((v, k) => (
+          <div key={v.datum} style={{ display: "flex", gap: 12, padding: "7px 0", borderTop: k ? `1px solid ${C.linie}` : "none", alignItems: "baseline" }}>
+            <p style={{ flex: "0 0 86px", fontSize: 12.5, fontWeight: 600, color: C.grau }}>{tagLabel(v.datum, heute)}</p>
+            <p style={{ flex: 1, fontSize: 13, lineHeight: 1.6, color: C.tinte }}>{v.skills.map((x) => x.name).join(" · ")}</p>
+          </div>
+        ))}
+        <p style={{ fontSize: 12, color: C.grau, lineHeight: 1.6, marginTop: 8 }}>Das ist die Vorschau der Wiederholungen. Sie verschiebt sich je nach deinen Ergebnissen. Neue Schritte kommen im Tagesplan dazu.</p>
+      </div>
+    </>
   );
 }
 
@@ -537,9 +676,9 @@ function SkillListe({ E, gehe, start }) {
 
 /* ---------- Seite ---------- */
 export function EbbinghausSeite({ gehe }) {
-  const { E, geladen, zuletzt } = useEbb();
+  const { E, T, geladen } = useEbb();
   const [laeuft, setLaeuft] = useState(null);
-  const refs = { prinzip: useRef(null), video: useRef(null), stufen: useRef(null), plan: useRef(null), heute: useRef(null), skills: useRef(null) };
+  const refs = { lernstand: useRef(null), prinzip: useRef(null), video: useRef(null), stufen: useRef(null), plan: useRef(null), heute: useRef(null), skills: useRef(null) };
   const hin = (k) => { try { refs[k].current && refs[k].current.scrollIntoView({ behavior: "smooth", block: "start" }); } catch (e) { /* egal */ } };
   const jetzt = useJetzt();
   const faellig = heuteAuswahl(E, { jetzt }).faellig;
@@ -548,7 +687,7 @@ export function EbbinghausSeite({ gehe }) {
     setLaeuft({ key: Date.now(), items: [{ skill_id: id, schritt: S ? schrittVon(S, E) : 0, prio: 3, grund: "" }], titel: S && S.first_learned_at ? `Wiederholung: ${SKILL_INFO[id].name}` : `Neuer Skill: ${SKILL_INFO[id].name}` });
     hin("heute");
   };
-  const navi = [["heute", "Heute in Mathe"], ["prinzip", "Prinzip"], ["video", "Video"], ["stufen", "Drei Stufen"], ["plan", "Plan"], ["skills", "Skills"]];
+  const navi = [["heute", "Heute in Mathe"], ["lernstand", "Dein Lernstand"], ["prinzip", "Prinzip"], ["video", "Video"], ["stufen", "Drei Stufen"], ["plan", "Plan"], ["skills", "Skills"]];
   return (
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 6 }}>
       <nav aria-label="Abschnitte" style={{ display: "flex", gap: 8, overflowX: "auto", padding: "4px 0 10px", margin: "0 -4px" }}>
@@ -585,11 +724,13 @@ export function EbbinghausSeite({ gehe }) {
       <Abschnitt kicker="Der automatische Wiederholungsplan" titel="Du musst nicht allein planen" ref={refs.plan}><Plan E={E} /></Abschnitt>
 
       <Abschnitt kicker="Dein Training" titel="Heute in Mathe – dein nächster Schritt" ref={refs.heute}>
-        <Dashboard E={E} geladen={geladen} zuletzt={zuletzt} gehe={gehe} laeuft={laeuft} setLaeuft={setLaeuft} zuSkills={() => hin("skills")} />
+        <Dashboard E={E} T={T} geladen={geladen} gehe={gehe} laeuft={laeuft} setLaeuft={setLaeuft} zuSkills={() => hin("skills")} />
         <p style={{ fontSize: 12.5, color: C.grau, lineHeight: 1.6, marginTop: 10 }}>
           Alte Skills bleiben im Training: Auch wenn du gerade ein neues Thema bearbeitest, kommen ältere Skills wieder dran, sobald eine Wiederholung fällig ist – oder wenn sie für dein aktuelles Thema gebraucht werden. Dein Lernstand liegt in deinem Konto bzw. in diesem Browser.
         </p>
       </Abschnitt>
+
+      <Abschnitt kicker="Erste Version" titel="Dein Lernstand" ref={refs.lernstand}><Lernstand E={E} T={T} geladen={geladen} /></Abschnitt>
 
       <Abschnitt kicker="Alle Skills" titel="Deine Skills" ref={refs.skills}><SkillListe E={E} gehe={gehe} start={startSkill} /></Abschnitt>
 

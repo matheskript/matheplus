@@ -23,6 +23,10 @@ const schreib = (k, v) => { try { v === null ? localStorage.removeItem(k) : loca
 let zustand = { geladen: false, nutzer: null, profil: null, geworben: 0, fehler: "" };
 const hoerer = new Set();
 const setzen = (teil) => { zustand = { ...zustand, ...teil }; hoerer.forEach((h) => h()); };
+/* Für den Lernstand-Abgleich (lernSync.js): Zustand lesen, Änderungen abonnieren, vor dem Abmelden noch sichern */
+export const kontoZustand = () => zustand;
+export const kontoAbonnieren = (fn) => { hoerer.add(fn); return () => hoerer.delete(fn); };
+export const vorAbmelden = [];
 export function useKonto() {
   return useSyncExternalStore((h) => { hoerer.add(h); return () => hoerer.delete(h); }, () => zustand);
 }
@@ -103,6 +107,7 @@ export async function anmelden(anbieter) {
 }
 
 export async function abmelden() {
+  for (const f of vorAbmelden) { try { await f(); } catch (e) { /* Abmelden darf daran nicht scheitern */ } }
   if (DEMO) { schreib(DEMO_SPEICHER, null); profilLaden(null); return; }
   await sb.auth.signOut();
   profilLaden(null);

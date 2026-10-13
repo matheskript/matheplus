@@ -357,7 +357,7 @@ export const RAM_SPEICHER = {};
    luecke   — in einer Prüfung nicht gekonnt
    arbeit   — gerade im Üben                                              */
 
-export const LERN = { profil: null, stand: {}, einstufung: null, aktivitaet: {}, plan: null, verlauf: [], testFehl: {}, letzteAktivitaet: 0, messungen: {}, experimente: {}, noten: [], pseudonym: null, termine: [], geladen: false, hoerer: new Set() };
+export const LERN = { profil: null, stand: {}, einstufung: null, aktivitaet: {}, plan: null, verlauf: [], testFehl: {}, letzteAktivitaet: 0, messungen: {}, experimente: {}, noten: [], pseudonym: null, termine: [], zeit: 0, geladen: false, hoerer: new Set() };
 
 
 export const GRUPPE_ZU_KOMPETENZ = {

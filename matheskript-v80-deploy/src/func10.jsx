@@ -10,7 +10,8 @@ import { AufklappStil, AufklappZeichen, aufklappScrollStarten } from "./aufklapp
 import { Plotter, Text, Zeile } from "./func3.jsx";
 import { Formelsammlung, FotoAufgaben, Klausur, Kurvendiskussion } from "./func4.jsx";
 import { DifferenzenquotientSeite, Fortschritt, GeneratorHub, Kopfrechnen, WegVomBlatt } from "./func5.jsx";
-import { Einstufung, Lernlandkarte, Liniennetz, Profil, lernLaden, useLern } from "./func6.jsx";
+import { Einstufung, Lernlandkarte, Liniennetz, Profil, lernLaden, lernLeer, lernSnapshot, lernVomKonto, useLern } from "./func6.jsx";
+import { syncStarten } from "./lernSync.js";
 import { Begruenden, EinheitSpieler, Operatoren, Wiederholen } from "./func7.jsx";
 import { MeinPlan, Messbericht, Modellieren, Probeabitur, Wochenbericht } from "./func8.jsx";
 import { Auswertung, Einwilligung, KlasseAnsicht, KlausurVorbereitung, einwilligungLesen } from "./func9.jsx";
@@ -109,7 +110,7 @@ export function Mathilda() {
   const [gruppeOffen, setGruppeOffen] = useState(null);
   const [einheitId, setEinheitId] = useState(null);
 
-  React.useEffect(() => { lernLaden(); }, []);
+  React.useEffect(() => { lernLaden().then(() => syncStarten({ lesen: lernSnapshot, anwenden: lernVomKonto, leer: lernLeer })); }, []);
   const lern = useLern();
 
   const [seitenOffen, setSeitenOffen] = useState(false);
