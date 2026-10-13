@@ -16,7 +16,7 @@ import { Mathilda } from "./func10.jsx";
 import { KopfKacheln, KopfrechnenLogoKlein, TRAINER } from "./func14.jsx";
 import { HeadNumbersLogoKlein } from "./funcHeadNumbers.jsx";
 import { EBB_SLOGAN, EbbinghausBadge, EbbinghausLogoKlein } from "./funcEbbinghaus.jsx";
-import { MeinTrainingZeile } from "./funcTraining.jsx";
+import { MeinTrainingBadge, MeinTrainingLogoKlein, meinTrainingText, useOffenHeute } from "./funcMeinTraining.jsx";
 import { AppAnleitung } from "./funcAnleitung.jsx";
 import { VektorenLogoKlein } from "./func16.jsx";
 import { StochastikLogoKlein } from "./func17.jsx";
@@ -81,7 +81,7 @@ function AufklappRahmen({ auf, tief, children }) {
   );
 }
 
-function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "Werkzeug", klein, halb, extra, gesperrt, logoHell, portraet, titelUmbruch, keinI18nTitel, auf, haupt, breit, goldRand }) {
+function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "Werkzeug", klein, halb, extra, gesperrt, logoHell, portraet, titelUmbruch, keinI18nTitel, auf, haupt, breit, goldRand, hell }) {
   if (halb) klein = true;   // halbe Höhe: nur Titel und eine Textzeile
   const mehrereSaetze = saetze(text).length > 1;
   return (
@@ -89,10 +89,10 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
       aria-label={gesperrt ? `${titel} – noch gesperrt` : label} title={gesperrt ? "Noch gesperrt" : undefined}
       className={gesperrt ? "kachel-gesperrt" : "plotter-kachel"}
       style={{ display: "flex", width: klein && !breit ? "100%" : "calc(100% + 32px)", marginLeft: klein && !breit ? 0 : -16, marginRight: klein && !breit ? 0 : -16,
-        height: "auto", marginTop: klein && !breit ? 8 : 12, padding: 0, border: goldRand ? `4px solid ${C.flaggold}` : "none", borderRadius: klein ? 14 : 18,
+        height: "auto", marginTop: klein && !breit ? 8 : 12, padding: 0, border: goldRand ? `4px solid ${C.flaggold}` : hell ? `2px solid ${C.see}` : "none", borderRadius: klein ? 14 : 18,
         overflow: "hidden", cursor: gesperrt ? "not-allowed" : "pointer", fontFamily: "inherit", textAlign: "left", position: "relative",
-        background: gesperrt ? "linear-gradient(155deg, #B9C2CE 0%, #8C97A6 55%, #6E7989 100%)" : `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`,
-        boxShadow: gesperrt ? "0 4px 14px rgba(40,50,70,0.18), inset 0 0 0 1px rgba(255,255,255,0.45)" : `0 6px 22px rgba(0,77,152,0.24), inset 0 0 0 1px ${C.silber}40` }}>
+        background: gesperrt ? "linear-gradient(155deg, #B9C2CE 0%, #8C97A6 55%, #6E7989 100%)" : hell ? C.weiss : `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`,
+        boxShadow: hell ? "0 6px 22px rgba(0,77,152,0.14)" : gesperrt ? "0 4px 14px rgba(40,50,70,0.18), inset 0 0 0 1px rgba(255,255,255,0.45)" : `0 6px 22px rgba(0,77,152,0.24), inset 0 0 0 1px ${C.silber}40` }}>
       <style>{`.plotter-kachel{transition:transform .15s ease, box-shadow .15s ease}
         .plotter-kachel:active{transform:scale(0.985)}
         @media (hover:hover){.plotter-kachel:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,77,152,0.32)}}
@@ -102,7 +102,7 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
       {/* Links (60 %): Titel und Erklärtext von oben */}
       <div style={{ flex: klein ? "1 1 68%" : "1 1 60%", minWidth: 0, padding: halb ? "8px 8px 8px 14px" : klein ? "14px 8px 14px 14px" : "14px 10px 14px 16px", display: "flex", flexDirection: "column", justifyContent: halb ? "center" : undefined }}>
         <h2 className="kachel-titel" data-kein-i18n={keinI18nTitel || undefined} style={{ fontSize: halb ? "clamp(14px, 3.8vw, 18px)" : "clamp(15px, 4.1vw, 22px)", fontWeight: 700, letterSpacing: "-0.03em",
-          lineHeight: 1.1, margin: 0, whiteSpace: titelUmbruch ? "normal" : "nowrap", ...(titelUmbruch ? {} : portraet
+          lineHeight: 1.1, margin: 0, whiteSpace: titelUmbruch ? "normal" : "nowrap", ...(hell ? { background: "none", WebkitBackgroundClip: "initial", backgroundClip: "initial", color: C.see } : {}), ...(titelUmbruch ? {} : portraet
             // Titel darf über das Porträt hinauslaufen (das Porträt beginnt erst darunter)
             ? { overflow: "visible", position: "relative", zIndex: 2 }
             : { overflow: "hidden", textOverflow: "ellipsis" }) }}>
@@ -116,7 +116,7 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
             {text}
           </p>
         ) : (
-          <p className={mehrereSaetze ? undefined : "kachel-text"} style={{ color: gesperrt ? "rgba(255,255,255,0.92)" : C.weiss, fontSize: 12.5, fontWeight: 300, lineHeight: 1.4, marginTop: 6, marginBottom: 0,
+          <p className={mehrereSaetze ? undefined : "kachel-text"} style={{ color: gesperrt ? "rgba(255,255,255,0.92)" : hell ? C.grau : C.weiss, fontSize: 12.5, fontWeight: 300, lineHeight: 1.4, marginTop: 6, marginBottom: 0,
             WebkitLineClamp: 3, height: "4.2em", overflow: "hidden" }}>
             <SatzZeilen text={text} />
           </p>
@@ -128,8 +128,8 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
         </div>
       )}
       {/* Rechts (40 %): nur die Grafik */}
-      <div style={{ flex: klein ? "0 0 32%" : "0 0 40%", position: "relative", background: "rgba(255,255,255,0.04)",
-        borderLeft: `1px solid ${gesperrt ? "rgba(255,255,255,0.35)" : `${C.silber}33`}`, display: "flex" }}>
+      <div style={{ flex: klein ? "0 0 32%" : "0 0 40%", position: "relative", background: hell ? C.himmel : "rgba(255,255,255,0.04)",
+        borderLeft: `1px solid ${hell ? `${C.see}33` : gesperrt ? "rgba(255,255,255,0.35)" : `${C.silber}33`}`, display: "flex" }}>
         <div style={{ position: "absolute", inset: 0, display: "flex", ...(gesperrt && !logoHell ? { filter: "grayscale(1) brightness(1.15)", opacity: 0.35 } : {}) }}>{logo}</div>
         {extra}
         {gesperrt && (
@@ -145,6 +145,15 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
         )}
       </div>
     </button>
+  );
+}
+
+/* Kachel „Mein Training“ ganz oben: gleich groß wie „Mathe-Training“, aber weißer Grund mit blauem Rand */
+function MeinTrainingKachelStart({ gehe }) {
+  const s = useOffenHeute();
+  return (
+    <PlotterKachel hell breit onClick={() => gehe({ ansicht: "meintraining" })} label="Mein Training öffnen" logo={<MeinTrainingLogoKlein />}
+      extra={<MeinTrainingBadge offen={s.hatSkills ? s.offen : 0} />} titel="Mein Training" text={meinTrainingText(s)} />
   );
 }
 
@@ -1059,6 +1068,7 @@ export function Startseite({ gehe }) {
       <AppAnleitung />
       {/* Oberbutton „Mathe-Training“: darunter Abi-Training, Mathematik, Kopfrechnen und Mathe-Wettbewerbe.
           Aufgeklappt wird der Button halb so hoch. */}
+      <MeinTrainingKachelStart gehe={gehe} />
       <AufklappRahmen auf={schulAuf}>
       <PlotterKachel breit halb={schulAuf} onClick={() => { setSchulAuf(!schulAuf); setBereichAuf(null); setAbiAuf(false); }} auf={schulAuf}
         label={schulAuf ? "Mathe-Training zuklappen" : "Mathe-Training aufklappen"}
@@ -1086,7 +1096,6 @@ export function Startseite({ gehe }) {
                   {ZEIGE_GESPERRTE && bereichAuf === b.id && b.video && <VideokursGesperrt name={b.video.name} zeile={b.video.zeile} />}
                 </React.Fragment>
               ))}
-              <MeinTrainingZeile gehe={gehe} />
               <PlotterKachel klein onClick={() => setFormelAuf(!formelAuf)} auf={formelAuf} label={formelAuf ? "Formelsammlung zuklappen" : "Formelsammlung aufklappen"} logo={<FormelLogoKlein />}
                 titel="Formelsammlung"
                 text="Alle wichtigen Formeln der Oberstufe – sauber sortiert zum Nachschlagen."

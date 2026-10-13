@@ -65,7 +65,7 @@ const Chip = ({ an, onClick, children, farbe = C.see }) => (
       border: `1.5px solid ${an ? farbe : C.linie}`, background: an ? farbe : C.weiss, color: an ? C.weiss : C.see }}>{children}</button>
 );
 const Zurueck = ({ gehe }) => (
-  <button type="button" onClick={() => { try { sessionStorage.setItem("mm-mein-training", "1"); } catch (e) { /* egal */ } gehe({ ansicht: "start" }); }}
+  <button type="button" onClick={() => gehe({ ansicht: "meintraining" })}
     style={{ background: "none", border: "none", color: C.see, fontSize: 14, fontWeight: 700, fontFamily: "inherit", cursor: "pointer", padding: "10px 0", minHeight: 44 }}>
     ← Mein Training
   </button>
@@ -886,7 +886,7 @@ export function TrainingFortschritt({ gehe }) {
       {themen.length === 0 && sp.length === 0 ? (
         <div style={{ ...karte, fontSize: 14, color: C.grau, lineHeight: 1.7 }}>
           Hier erscheint, wie selbstständig du pro Thema arbeitest: mit Anleitung, mit Hinweisen, ohne Hilfe und auf neue Aufgaben übertragen. Starte mit „5 Minuten Mathe“ unter „Mein Training“.
-          <div style={{ marginTop: 8 }}><button type="button" onClick={() => { try { sessionStorage.setItem("mm-mein-training", "1"); } catch (e) { /* egal */ } gehe({ ansicht: "start" }); }} style={knopfKlein}>Mein Training öffnen</button></div>
+          <div style={{ marginTop: 8 }}><button type="button" onClick={() => gehe({ ansicht: "meintraining" })} style={knopfKlein}>Mein Training öffnen</button></div>
         </div>
       ) : (
         <>

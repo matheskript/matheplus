@@ -34,13 +34,13 @@ function ebbAendern(fn) {
     L.training.ebbinghaus = E;
   });
 }
-function useEbb() {
+export function useEbb() {
   const L = useLern();
   const roh = L.training && L.training.ebbinghaus;
   const E = useMemo(() => normiereEbb(roh), [roh]);
   return { E, geladen: L.geladen !== false, zuletzt: L.training && L.training.zuletzt, T: L.training || null };
 }
-function useJetzt() {
+export function useJetzt() {
   const [t, setT] = useState(() => Date.now());
   useEffect(() => { const i = setInterval(() => setT(Date.now()), 60000); return () => clearInterval(i); }, []);
   return t;
@@ -410,7 +410,7 @@ const ART_FARBE = { wiederholung: C.see, voraussetzung: C.signal, weiter: C.smar
 
 /* Der Plan für heute: einmal pro Tag angelegt und im Konto gespeichert, danach nur ergänzt.
    Angezeigt wird immer der Plan, wie er gespeichert würde – gespeichert wird, sobald der Schüler schon Skills hat. */
-function useTagesplan(E, T, geladen, jetzt) {
+export function useTagesplan(E, T, geladen, jetzt) {
   const heute = datumVon(jetzt);
   const { stand, noetig, schluessel } = useMemo(() => {
     const E2 = { ...E, tage: JSON.parse(JSON.stringify(E.tage || {})) };
@@ -428,7 +428,7 @@ function useTagesplan(E, T, geladen, jetzt) {
   return stand;
 }
 
-function Dashboard({ E, T, geladen, gehe, laeuft, setLaeuft, zuSkills }) {
+export function Dashboard({ E, T, geladen, gehe, laeuft, setLaeuft, zuSkills }) {
   const jetzt = useJetzt();
   const heute = datumVon(jetzt);
   const stand = useTagesplan(E, T, geladen, jetzt);
@@ -512,6 +512,8 @@ function Dashboard({ E, T, geladen, gehe, laeuft, setLaeuft, zuSkills }) {
   );
 }
 
+export const EbbDashboardSektion = Dashboard;
+
 /* ---------- 6b. Dein Lernstand: was gelernt, wann, was kommt ---------- */
 const wochentag = (d) => new Date(d + "T00:00:00Z").toLocaleDateString("de-DE", { weekday: "short", timeZone: "UTC" });
 const tagLabel = (d, heute) => (d === heute ? "Heute" : wannText(d, heute) === "gestern" ? "Gestern" : wannText(d, heute) === "morgen" ? "Morgen" : `${wochentag(d)}, ${datumKurz(d).slice(0, 6)}`);
@@ -537,7 +539,7 @@ function SyncHinweis() {
   );
 }
 
-function Lernstand({ E, T, geladen }) {
+export function Lernstand({ E, T, geladen }) {
   const jetzt = useJetzt();
   const heute = datumVon(jetzt);
   const u = useMemo(() => lernUebersicht(E, { jetzt }), [E, jetzt]);
