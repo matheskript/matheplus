@@ -11,11 +11,13 @@
      potenz:    { phase: 0–6, stand: [n0 … n6], fertig, phasenFertig, zeit },  // siebenphasiges Modul
      axiome:    { phase: 0–6, stand: [n0 … n6], fertig, zeit },                // Modul „Axiome“ (Lernangebot 1)
      module:    { pythagoras: { phase, stand: [n0 …], fertig, zeit } },        // weitere Module (MODULE in entdeckenMerge.js)
-     zuletzt:   { id: "axiome" | "einstieg" | "potenz" | "pythagoras", label, zeit },
+     teiler:    { stand: [n0 … n7], quiz: { runden, perfekt }, zeit },         // Teilbarkeitsregeln: Schritte je Regel (Reihenfolge 2,5,3,4,6,7,8,9), Quiz-Zähler
+     zuletzt:   { id: "axiome" | "einstieg" | "potenz" | "pythagoras" | "teiler", label, zeit },
      _zeit
    }
    ====================================================================== */
-import { AXIOM_PHASEN, MODULE, PHASEN, mergeEntdecken, normalisiere } from "./entdeckenMerge.js";
+import { AXIOM_PHASEN, MODULE, PHASEN, TEILER_REGELN, mergeEntdecken, normalisiere } from "./entdeckenMerge.js";
+import { TEILER_REIHE, TEILER_SCHRITTE } from "./teiler.js";
 
 const SCHLUESSEL = "matheskript-entdecken-v1";
 export const PHASEN_ANZAHL = PHASEN;
@@ -193,3 +195,34 @@ export function potenzPhasenFertigSetzen(liste) {
   sichern();
 }
 export const potenzPhasenFertig = () => D.potenz.phasenFertig || [];
+
+/* ---------- Teilbarkeitsregeln ---------- */
+export const teilerStandSetzen = (regel, anzahl) => {
+  const stand = D.teiler.stand.slice();
+  stand[regel] = Math.max(stand[regel], anzahl);
+  D.teiler = { ...D.teiler, stand, zeit: Date.now() };
+  D.zuletzt = { id: "teiler", label: `Teilbarkeit durch ${TEILER_REIHE[regel]}`, zeit: Date.now() };
+  sichern();
+};
+
+/* Eine Quiz-Runde ist ausgewertet (perfekt = keine Zahl falsch markiert oder übersehen) */
+export function teilerQuizBuchen(perfekt) {
+  const q = D.teiler.quiz;
+  D.teiler = { ...D.teiler, quiz: { runden: q.runden + 1, perfekt: q.perfekt + (perfekt ? 1 : 0) }, zeit: Date.now() };
+  D.zuletzt = { id: "teiler", label: "Quiz: Zahlen markieren", zeit: Date.now() };
+  sichern();
+}
+
+/* Bewusstes Zurücksetzen: ersetzt den Konto-Stand (kein Zusammenführen) */
+export function teilerZuruecksetzen() {
+  D.teiler = { ...leer().teiler, zeit: Date.now() };
+  sichern(true);
+}
+
+export const teilerRegelFertig = (regel) => D.teiler.stand[regel] >= TEILER_SCHRITTE[regel];
+export const teilerFertigAnzahl = () => TEILER_SCHRITTE.filter((_, k) => teilerRegelFertig(k)).length;
+export const teilerAnzahl = TEILER_REGELN;
+export const statusTeiler = () => {
+  if (teilerFertigAnzahl() === TEILER_REGELN) return "fertig";
+  return D.teiler.stand.some((n) => n > 0) || D.teiler.quiz.runden > 0 ? "arbeit" : "offen";
+};

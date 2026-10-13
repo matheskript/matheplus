@@ -11,6 +11,7 @@
    · Potenzregel-Modul und Axiome-Modul: erledigte Schritte je Phase = der größere Wert (Fortschritt geht nie verloren),
      „abgeschlossen“ = eines von beiden, aktuelle Phase vom jüngeren Stand.
    · Weitere Module (`module`, z. B. Satz des Pythagoras): dieselben Regeln wie beim Potenzregel-Modul.
+   · Teilbarkeitsregeln: erledigte Schritte je Regel = der größere Wert, Quiz-Zähler (Runden, fehlerfreie Runden) = der größere Wert.
    · zuletzt bearbeitet: der jüngere Eintrag.
    Bewusstes Zurücksetzen („Modul von vorn“) läuft nicht über das Zusammenführen,
    sondern über lernSync → ersetzen().
@@ -22,6 +23,7 @@ export const AXIOM_PHASEN = 10;
 /* Weitere Lernmodule (je ein Eintrag unter `module`): Kennung → Anzahl der Phasen.
    Das Potenzregel-Modul bleibt unter `potenz`, damit bestehende Konten unverändert weiterlaufen. */
 export const MODULE = { pythagoras: 6 };
+export const TEILER_REGELN = 8;   // Teilbarkeit durch 2, 5, 3, 4, 6, 7, 8, 9 (Reihenfolge siehe teiler.js)
 
 const istObj = (x) => x !== null && typeof x === "object" && !Array.isArray(x);
 const zahl = (v) => (typeof v === "number" && Number.isFinite(v) && v > 0 ? v : 0);
@@ -60,12 +62,21 @@ export function normalisiere(d) {
       zeit: zahl(m.zeit),
     };
   }
+  const t = istObj(d.teiler) ? d.teiler : {};
+  const tq = istObj(t.quiz) ? t.quiz : {};
+  const tRunden = ganz(tq.runden, 999999);
+  const teiler = {
+    stand: Array.from({ length: TEILER_REGELN }, (_, i) => ganz(Array.isArray(t.stand) ? t.stand[i] : 0, 99)),
+    quiz: { runden: tRunden, perfekt: Math.min(tRunden, ganz(tq.perfekt, 999999)) },
+    zeit: zahl(t.zeit),
+  };
   const z = istObj(d.zuletzt) && d.zuletzt.id ? { id: String(d.zuletzt.id), label: String(d.zuletzt.label || ""), zeit: zahl(d.zuletzt.zeit) } : null;
   return {
     reflexion, video,
     potenz: { phase: ganz(p.phase, PHASEN - 1), stand, fertig: !!p.fertig, phasenFertig, zeit: zahl(p.zeit) },
     axiome: { phase: ganz(ax.phase, AXIOM_PHASEN - 1), stand: axStand, fertig: !!ax.fertig, zeit: zahl(ax.zeit) },
     module: mods,
+    teiler,
     zuletzt: z,
     _zeit: zahl(d._zeit),
   };
@@ -117,6 +128,11 @@ export function mergeEntdecken(lokal, remote) {
       zeit: Math.max(xa, xb),
     },
     module: mods,
+    teiler: {
+      stand: a.teiler.stand.map((n, i) => Math.max(n, b.teiler.stand[i])),
+      quiz: { runden: Math.max(a.teiler.quiz.runden, b.teiler.quiz.runden), perfekt: Math.max(a.teiler.quiz.perfekt, b.teiler.quiz.perfekt) },
+      zeit: Math.max(a.teiler.zeit, b.teiler.zeit),
+    },
     zuletzt: juengere(a.zuletzt, b.zuletzt),
     _zeit: Math.max(a._zeit, b._zeit),
   });

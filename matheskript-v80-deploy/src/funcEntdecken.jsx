@@ -5,9 +5,11 @@ import { GrosserKnopf, karte } from "./ui2.jsx";
 import { PotenzModul } from "./funcEntdeckenPotenz.jsx";
 import { AxiomeModul } from "./funcEntdeckenAxiome.jsx";
 import { PYTHAGORAS_PHASEN_ANZAHL, PythagorasModul } from "./funcEntdeckenPythagoras.jsx";
+import { TeilerModul } from "./funcEntdeckenTeiler.jsx";
+import { TEILER_ANZAHL } from "./teiler.js";
 import { useEntdeckenSyncStatus } from "./entdeckenSync.js";
 import {
-  AXIOM_PHASEN_ANZAHL, PHASEN_ANZAHL, REFLEX_IDS, einstiegFortschritt, entdeckenHoeren, entdeckenStand, modulStand, reflexionBeantwortet, reflexionSetzen, statusAxiome, statusEinstieg, statusModul, statusPotenz, videoGesehen, videoSetzen,
+  AXIOM_PHASEN_ANZAHL, PHASEN_ANZAHL, REFLEX_IDS, einstiegFortschritt, entdeckenHoeren, entdeckenStand, modulStand, reflexionBeantwortet, reflexionSetzen, statusAxiome, statusEinstieg, statusModul, statusPotenz, statusTeiler, teilerFertigAnzahl, videoGesehen, videoSetzen,
 } from "./entdeckenSpeicher.js";
 
 /* ======================================================================
@@ -17,7 +19,8 @@ import {
      Lernangebot 2: Hauptvideo, Reflexionsfragen, zwei weitere Videos →
      Lernangebot 3: „Mathe entdecken in der Praxis“ mit Themenkarte →
      Modul: siebenphasiges Potenzregel-Modul (Zurück führt zur Übersicht) →
-     Lernangebot 4: „Satz des Pythagoras“ mit Themenkarte → sechsphasiges Pythagoras-Modul.
+     Lernangebot 4: „Satz des Pythagoras“ mit Themenkarte → sechsphasiges Pythagoras-Modul →
+     Lernangebot 5: „Teilbarkeitsregeln“ – acht Regeln herleiten, danach Quiz (funcEntdeckenTeiler.jsx).
    Fortschritt und Antworten liegen in entdeckenSpeicher.js (localStorage).
    Alle Video-IDs sind per YouTube-oEmbed geprüft.
    ====================================================================== */
@@ -242,13 +245,15 @@ function Uebersicht({ stand, oeffne }) {
   const sE = statusEinstieg();
   const sP = statusPotenz();
   const sA = statusAxiome();
+  const sT = statusTeiler();
+  const nT = teilerFertigAnzahl();
   const nE = einstiegFortschritt();
   const phase = Math.min((stand.potenz.phase || 0) + 1, PHASEN_ANZAHL);
   const phaseA = Math.min((stand.axiome.phase || 0) + 1, AXIOM_PHASEN_ANZAHL);
   const sY = statusModul("pythagoras");
   const phaseY = Math.min((modulStand("pythagoras").phase || 0) + 1, PYTHAGORAS_PHASEN_ANZAHL);
   const zuletzt = stand.zuletzt;
-  const ZIEL = { axiome: ["axiome", "Axiome"], potenz: ["praxis", "Pascalsches Dreieck"], pythagoras: ["pythagoras", "Satz des Pythagoras"] };
+  const ZIEL = { axiome: ["axiome", "Axiome"], potenz: ["praxis", "Pascalsches Dreieck"], pythagoras: ["pythagoras", "Satz des Pythagoras"], teiler: ["teiler", "Teilbarkeitsregeln"] };
   const [zuletztZiel, zuletztName] = (zuletzt && ZIEL[zuletzt.id]) || ["einstieg", "Mathe entdecken"];
   return (
     <>
@@ -275,6 +280,8 @@ function Uebersicht({ stand, oeffne }) {
             fortschritt={sP === "arbeit" ? `Phase ${phase} von ${PHASEN_ANZAHL}` : null} onClick={() => oeffne("praxis")} />
           <LernangebotKarte nr={4} titel="Satz des Pythagoras" text="Entdecke, warum a² + b² = c² gilt" status={sY}
             fortschritt={sY === "arbeit" ? `Phase ${phaseY} von ${PYTHAGORAS_PHASEN_ANZAHL}` : null} onClick={() => oeffne("pythagoras")} />
+          <LernangebotKarte nr={5} titel="Teilbarkeitsregeln" text="Warum funktionieren sie? Leite alle Regeln von 2 bis 9 selbst her" status={sT}
+            fortschritt={sT === "arbeit" ? `${nT} von ${TEILER_ANZAHL} Regeln` : null} onClick={() => oeffne("teiler")} />
         </div>
         {zuletzt && (
           <button type="button" onClick={() => oeffne(zuletztZiel)}
@@ -409,12 +416,13 @@ function Pythagoras({ zurueck, startModul }) {
 
 export function EntdeckenSeite() {
   const stand = useStand();
-  const [seite, setSeite] = useState("uebersicht"); // uebersicht | einstieg | praxis | modul | pythagoras | modulP
+  const [seite, setSeite] = useState("uebersicht"); // uebersicht | einstieg | praxis | modul | pythagoras | modulP | teiler
   useEffect(() => { window.scrollTo(0, 0); }, [seite]);
 
   if (seite === "axiome") return <AxiomeModul onZurueck={() => setSeite("uebersicht")} />;
   if (seite === "modul") return <PotenzModul onZurueck={() => setSeite("uebersicht")} />;
   if (seite === "modulP") return <PythagorasModul onZurueck={() => setSeite("uebersicht")} />;
+  if (seite === "teiler") return <TeilerModul onZurueck={() => setSeite("uebersicht")} />;
 
   return (
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>

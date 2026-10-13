@@ -8,7 +8,9 @@ const refl = (wahl, text, zeit) => ({ wahl, text, zeit });
 
 test("normalisiere: leer, alte Form (video: true) und feste Schlüsselreihenfolge", () => {
   const n = st({});
-  assert.deepEqual(Object.keys(n), ["reflexion", "video", "potenz", "axiome", "module", "zuletzt", "_zeit"]);
+  assert.deepEqual(Object.keys(n), ["reflexion", "video", "potenz", "axiome", "module", "teiler", "zuletzt", "_zeit"]);
+  assert.equal(n.teiler.stand.length, 8);
+  assert.deepEqual(n.teiler.quiz, { runden: 0, perfekt: 0 });
   assert.equal(n.potenz.stand.length, 7);
   assert.equal(n.axiome.stand.length, 10);
   assert.deepEqual(n.axiome, { phase: 0, stand: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], fertig: false, zeit: 0 });
@@ -188,4 +190,21 @@ test("sync: vorAbmelden sichert zuerst, leert dann den lokalen Stand", async () 
   assert.ok(c.tabellen.entdecken_fortschritt.u1.daten.reflexion.q2);          // gesichert
   assert.deepEqual(z.stand, st({}));                                          // lokal geleert
   assert.equal(sp.getItem("mm-entdecken-owner"), null);
+});
+
+test("Teilbarkeitsregeln: normalisieren, Zusammenführen (Maximum) und alte Stände ohne Schlüssel", () => {
+  const kaputt = st({ teiler: { stand: [1, "x", -5, 3, 200], quiz: { runden: 3, perfekt: 9 } } });
+  assert.deepEqual(kaputt.teiler.stand, [1, 0, 0, 3, 99, 0, 0, 0]);
+  assert.deepEqual(kaputt.teiler.quiz, { runden: 3, perfekt: 3 });           // fehlerfreie Runden nie mehr als alle Runden
+  const a = st({ teiler: { stand: [3, 0, 2, 0, 0, 0, 0, 0], quiz: { runden: 5, perfekt: 2 }, zeit: 10 } });
+  const b = st({ teiler: { stand: [1, 3, 0, 3, 0, 0, 0, 0], quiz: { runden: 2, perfekt: 2 }, zeit: 20 } });
+  const m = mergeEntdecken(a, b);
+  assert.deepEqual(m.teiler.stand, [3, 3, 2, 3, 0, 0, 0, 0]);
+  assert.deepEqual(m.teiler.quiz, { runden: 5, perfekt: 2 });
+  assert.equal(m.teiler.zeit, 20);
+  assert.deepEqual(mergeEntdecken(a, b), mergeEntdecken(b, a));
+  assert.deepEqual(mergeEntdecken(m, m), m);
+  // Stand eines älteren Geräts ohne „teiler“ lässt den Fortschritt unberührt
+  const alt = { reflexion: {}, video: {}, potenz: { phase: 0, stand: [], fertig: false, phasenFertig: [], zeit: 0 }, zuletzt: null, _zeit: 0 };
+  assert.deepEqual(mergeEntdecken(a, alt).teiler, a.teiler);
 });
