@@ -9,14 +9,16 @@
      reflexion: { q1: { wahl, text, zeit }, q2: …, q3: … },     // Reflexion zum Hauptvideo
      video:     { haupt: { an, zeit }, puzzle: …, calculus: … }, // vom Schüler als „gesehen“ markiert
      potenz:    { phase: 0–6, stand: [n0 … n6], fertig, phasenFertig, zeit },  // siebenphasiges Modul
-     zuletzt:   { id: "einstieg" | "potenz", label, zeit },
+     axiome:    { phase: 0–6, stand: [n0 … n6], fertig, zeit },                // Modul „Axiome“ (Lernangebot 1)
+     zuletzt:   { id: "axiome" | "einstieg" | "potenz", label, zeit },
      _zeit
    }
    ====================================================================== */
-import { PHASEN, mergeEntdecken, normalisiere } from "./entdeckenMerge.js";
+import { AXIOM_PHASEN, PHASEN, mergeEntdecken, normalisiere } from "./entdeckenMerge.js";
 
 const SCHLUESSEL = "matheskript-entdecken-v1";
 export const PHASEN_ANZAHL = PHASEN;
+export const AXIOM_PHASEN_ANZAHL = AXIOM_PHASEN;
 
 const leer = () => normalisiere({});
 
@@ -113,6 +115,38 @@ export function potenzZuruecksetzen() {
 export const statusPotenz = () => {
   if (D.potenz.fertig) return "fertig";
   return D.potenz.stand.some((n) => n > 0) || D.potenz.phase > 0 ? "arbeit" : "offen";
+};
+
+/* ---------- Axiome-Modul ---------- */
+export function axiomeStandSetzen(phase, anzahl) {
+  const stand = D.axiome.stand.slice();
+  stand[phase] = Math.max(stand[phase], anzahl);
+  D.axiome = { ...D.axiome, stand, zeit: Date.now() };
+  D.zuletzt = { id: "axiome", label: `Phase ${phase + 1} von ${AXIOM_PHASEN}`, zeit: Date.now() };
+  sichern();
+}
+
+export function axiomePhaseSetzen(phase) {
+  D.axiome = { ...D.axiome, phase, zeit: Date.now() };
+  D.zuletzt = { id: "axiome", label: `Phase ${phase + 1} von ${AXIOM_PHASEN}`, zeit: Date.now() };
+  sichern();
+}
+
+export function axiomeFertigSetzen(fertig) {
+  D.axiome = { ...D.axiome, fertig, zeit: Date.now() };
+  if (fertig) D.zuletzt = { id: "axiome", label: "Modul abgeschlossen", zeit: Date.now() };
+  sichern();
+}
+
+/* Bewusstes Zurücksetzen: ersetzt den Konto-Stand (kein Zurückmischen) */
+export function axiomeZuruecksetzen() {
+  D.axiome = { ...leer().axiome, zeit: Date.now() };
+  sichern(true);
+}
+
+export const statusAxiome = () => {
+  if (D.axiome.fertig) return "fertig";
+  return D.axiome.stand.some((n) => n > 0) || D.axiome.phase > 0 ? "arbeit" : "offen";
 };
 
 /* Phasen, die ganz durchgearbeitet sind (Anzahl der Schritte kennt nur das Modul selbst, deshalb meldet es sie) */

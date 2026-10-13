@@ -3,16 +3,18 @@ import { C } from "./base1.jsx";
 import { M } from "./func3.jsx";
 import { GrosserKnopf, karte } from "./ui2.jsx";
 import { PotenzModul } from "./funcEntdeckenPotenz.jsx";
+import { AxiomeModul } from "./funcEntdeckenAxiome.jsx";
 import { useEntdeckenSyncStatus } from "./entdeckenSync.js";
 import {
-  PHASEN_ANZAHL, REFLEX_IDS, einstiegFortschritt, entdeckenHoeren, entdeckenStand, reflexionBeantwortet, reflexionSetzen, statusEinstieg, statusPotenz, videoGesehen, videoSetzen,
+  AXIOM_PHASEN_ANZAHL, PHASEN_ANZAHL, REFLEX_IDS, einstiegFortschritt, entdeckenHoeren, entdeckenStand, reflexionBeantwortet, reflexionSetzen, statusAxiome, statusEinstieg, statusPotenz, videoGesehen, videoSetzen,
 } from "./entdeckenSpeicher.js";
 
 /* ======================================================================
    MATHE ENTDECKEN – zweiter Hauptbereich neben „Mathe-Training“.
    Aufbau: Übersicht (Begrüßung, zwei Lernangebote mit Status) →
-     Lernangebot 1: Hauptvideo, Reflexionsfragen, zwei weitere Videos →
-     Lernangebot 2: „Mathe entdecken in der Praxis“ mit Themenkarte →
+     Lernangebot 1: Axiome-Modul (zehn Phasen) →
+     Lernangebot 2: Hauptvideo, Reflexionsfragen, zwei weitere Videos →
+     Lernangebot 3: „Mathe entdecken in der Praxis“ mit Themenkarte →
      Modul: siebenphasiges Potenzregel-Modul (Zurück führt zur Übersicht).
    Fortschritt und Antworten liegen in entdeckenSpeicher.js (localStorage).
    Alle Video-IDs sind per YouTube-oEmbed geprüft.
@@ -229,8 +231,10 @@ function SpeicherHinweis() {
 function Uebersicht({ stand, oeffne }) {
   const sE = statusEinstieg();
   const sP = statusPotenz();
+  const sA = statusAxiome();
   const nE = einstiegFortschritt();
   const phase = Math.min((stand.potenz.phase || 0) + 1, PHASEN_ANZAHL);
+  const phaseA = Math.min((stand.axiome.phase || 0) + 1, AXIOM_PHASEN_ANZAHL);
   const zuletzt = stand.zuletzt;
   return (
     <>
@@ -249,16 +253,18 @@ function Uebersicht({ stand, oeffne }) {
       <div style={{ marginTop: 28 }}>
         <p style={kickerStil}>Deine Lernangebote</p>
         <div style={{ display: "grid", gap: 12 }}>
-          <LernangebotKarte nr={1} titel="Mathe entdecken" text="Wie entsteht mathematisches Denken?" status={sE}
+          <LernangebotKarte nr={1} titel="Axiome" text="Das Fundament der Mathematik – und deine ersten Beweise" status={sA}
+            fortschritt={sA === "arbeit" ? `Phase ${phaseA} von ${AXIOM_PHASEN_ANZAHL}` : null} onClick={() => oeffne("axiome")} />
+          <LernangebotKarte nr={2} titel="Mathe entdecken" text="Wie entsteht mathematisches Denken?" status={sE}
             fortschritt={sE === "arbeit" ? `Video ${videoGesehen("haupt") ? "✓" : "–"} · ${nE} von ${REFLEX_IDS.length} Fragen` : null} onClick={() => oeffne("einstieg")} />
-          <LernangebotKarte nr={2} titel="Pascalsches Dreieck" text="Entdecke die Potenzregel" status={sP}
+          <LernangebotKarte nr={3} titel="Pascalsches Dreieck" text="Entdecke die Potenzregel" status={sP}
             fortschritt={sP === "arbeit" ? `Phase ${phase} von ${PHASEN_ANZAHL}` : null} onClick={() => oeffne("praxis")} />
         </div>
         {zuletzt && (
-          <button type="button" onClick={() => oeffne(zuletzt.id === "potenz" ? "praxis" : "einstieg")}
+          <button type="button" onClick={() => oeffne(zuletzt.id === "axiome" ? "axiome" : zuletzt.id === "potenz" ? "praxis" : "einstieg")}
             style={{ display: "block", width: "100%", textAlign: "left", fontFamily: "inherit", cursor: "pointer", background: "none", border: "none", padding: 0,
               fontSize: 12.5, fontWeight: 300, color: C.grau, margin: "14px 2px 0", lineHeight: 1.5 }}>
-            Zuletzt bearbeitet: <b style={{ fontWeight: 600, color: C.tinte }}>{zuletzt.id === "potenz" ? "Pascalsches Dreieck" : "Mathe entdecken"}</b> · {zuletzt.label}{" "}
+            Zuletzt bearbeitet: <b style={{ fontWeight: 600, color: C.tinte }}>{zuletzt.id === "axiome" ? "Axiome" : zuletzt.id === "potenz" ? "Pascalsches Dreieck" : "Mathe entdecken"}</b> · {zuletzt.label}{" "}
             <span style={{ color: C.see, fontWeight: 600 }}>Weitermachen →</span>
           </button>
         )}
@@ -268,13 +274,13 @@ function Uebersicht({ stand, oeffne }) {
   );
 }
 
-/* ---------- Lernangebot 1: Einstieg ---------- */
+/* ---------- Lernangebot 2: Einstieg ---------- */
 function Einstieg({ stand, zurueck, weiter }) {
   const [haupt, v2, v3] = ENTDECKEN_VIDEOS;
   return (
     <>
       <ZurueckKnopf onClick={zurueck} />
-      <p style={kickerStil}>Lernangebot 1</p>
+      <p style={kickerStil}>Lernangebot 3</p>
       <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, color: C.tinte, margin: "0 0 18px" }}>
         Mathe entdecken – Wie entsteht mathematisches Denken?
       </h2>
@@ -311,14 +317,14 @@ function Einstieg({ stand, zurueck, weiter }) {
   );
 }
 
-/* ---------- Lernangebot 2: Praxis mit Themenkarte ---------- */
+/* ---------- Lernangebot 3: Praxis mit Themenkarte ---------- */
 function Praxis({ zurueck, startModul }) {
   const sP = statusPotenz();
   const phase = Math.min((entdeckenStand().potenz.phase || 0) + 1, PHASEN_ANZAHL);
   return (
     <>
       <ZurueckKnopf onClick={zurueck} />
-      <p style={kickerStil}>Lernangebot 2</p>
+      <p style={kickerStil}>Lernangebot 3</p>
       <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, color: C.tinte, margin: "0 0 6px" }}>Mathe entdecken in der Praxis</h2>
       <p style={{ fontSize: 16, fontWeight: 600, color: C.see, margin: "0 0 14px", lineHeight: 1.4 }}>Vom Zahlenmuster zur mathematischen Regel</p>
       <p style={{ ...absatz, marginBottom: 12 }}>Jetzt probieren wir diese Denkweise selbst aus.</p>
@@ -352,6 +358,7 @@ export function EntdeckenSeite() {
   const [seite, setSeite] = useState("uebersicht"); // uebersicht | einstieg | praxis | modul
   useEffect(() => { window.scrollTo(0, 0); }, [seite]);
 
+  if (seite === "axiome") return <AxiomeModul onZurueck={() => setSeite("uebersicht")} />;
   if (seite === "modul") return <PotenzModul onZurueck={() => setSeite("uebersicht")} />;
 
   return (

@@ -8,7 +8,7 @@
    Regeln (das Ergebnis hängt nicht von der Reihenfolge ab und ist idempotent):
    · Reflexionsantworten und Video-Markierungen: je Eintrag gewinnt der jüngere (zeit).
      So lässt sich eine Markierung auch bewusst zurücknehmen.
-   · Potenzregel-Modul: erledigte Schritte je Phase = der größere Wert (Fortschritt geht nie verloren),
+   · Potenzregel-Modul und Axiome-Modul: erledigte Schritte je Phase = der größere Wert (Fortschritt geht nie verloren),
      „abgeschlossen“ = eines von beiden, aktuelle Phase vom jüngeren Stand.
    · zuletzt bearbeitet: der jüngere Eintrag.
    Bewusstes Zurücksetzen („Modul von vorn“) läuft nicht über das Zusammenführen,
@@ -16,6 +16,8 @@
    ====================================================================== */
 
 export const PHASEN = 7;
+/* Modul „Axiome“ (Lernangebot 1): Anzahl der Phasen */
+export const AXIOM_PHASEN = 10;
 
 const istObj = (x) => x !== null && typeof x === "object" && !Array.isArray(x);
 const zahl = (v) => (typeof v === "number" && Number.isFinite(v) && v > 0 ? v : 0);
@@ -41,10 +43,13 @@ export function normalisiere(d) {
   const stand = Array.from({ length: PHASEN }, (_, i) => ganz(Array.isArray(p.stand) ? p.stand[i] : 0, 99));
   const fertigListe = Array.isArray(p.phasenFertig) ? p.phasenFertig : [];
   const phasenFertig = [...new Set(fertigListe.map((x) => ganz(x, PHASEN - 1)))].sort((a, b) => a - b);
+  const ax = istObj(d.axiome) ? d.axiome : {};
+  const axStand = Array.from({ length: AXIOM_PHASEN }, (_, i) => ganz(Array.isArray(ax.stand) ? ax.stand[i] : 0, 99));
   const z = istObj(d.zuletzt) && d.zuletzt.id ? { id: String(d.zuletzt.id), label: String(d.zuletzt.label || ""), zeit: zahl(d.zuletzt.zeit) } : null;
   return {
     reflexion, video,
     potenz: { phase: ganz(p.phase, PHASEN - 1), stand, fertig: !!p.fertig, phasenFertig, zeit: zahl(p.zeit) },
+    axiome: { phase: ganz(ax.phase, AXIOM_PHASEN - 1), stand: axStand, fertig: !!ax.fertig, zeit: zahl(ax.zeit) },
     zuletzt: z,
     _zeit: zahl(d._zeit),
   };
@@ -68,6 +73,7 @@ export function mergeEntdecken(lokal, remote) {
     return o;
   };
   const za = a.potenz.zeit, zb = b.potenz.zeit;
+  const xa = a.axiome.zeit, xb = b.axiome.zeit;
   return normalisiere({
     reflexion: vereint(a.reflexion, b.reflexion),
     video: vereint(a.video, b.video),
@@ -77,6 +83,12 @@ export function mergeEntdecken(lokal, remote) {
       fertig: a.potenz.fertig || b.potenz.fertig,
       phasenFertig: [...a.potenz.phasenFertig, ...b.potenz.phasenFertig],
       zeit: Math.max(za, zb),
+    },
+    axiome: {
+      phase: xa > xb ? a.axiome.phase : xb > xa ? b.axiome.phase : Math.max(a.axiome.phase, b.axiome.phase),
+      stand: a.axiome.stand.map((n, i) => Math.max(n, b.axiome.stand[i])),
+      fertig: a.axiome.fertig || b.axiome.fertig,
+      zeit: Math.max(xa, xb),
     },
     zuletzt: juengere(a.zuletzt, b.zuletzt),
     _zeit: Math.max(a._zeit, b._zeit),

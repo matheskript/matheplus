@@ -8,8 +8,10 @@ const refl = (wahl, text, zeit) => ({ wahl, text, zeit });
 
 test("normalisiere: leer, alte Form (video: true) und feste Schlüsselreihenfolge", () => {
   const n = st({});
-  assert.deepEqual(Object.keys(n), ["reflexion", "video", "potenz", "zuletzt", "_zeit"]);
+  assert.deepEqual(Object.keys(n), ["reflexion", "video", "potenz", "axiome", "zuletzt", "_zeit"]);
   assert.equal(n.potenz.stand.length, 7);
+  assert.equal(n.axiome.stand.length, 10);
+  assert.deepEqual(n.axiome, { phase: 0, stand: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], fertig: false, zeit: 0 });
   const alt = st({ video: { haupt: true }, reflexion: { q1: { wahl: "a" } } });
   assert.deepEqual(alt.video.haupt, { an: true, zeit: 0 });
   assert.deepEqual(alt.reflexion.q1, { wahl: "a", text: "", zeit: 0 });
@@ -45,6 +47,31 @@ test("merge: Modul – Fortschritt je Phase = Maximum, fertig = oder, Phase vom 
   assert.equal(m.potenz.fertig, true);
   assert.equal(m.potenz.phase, 1);
   assert.equal(m.potenz.zeit, 200);
+});
+
+test("normalisiere: alter Stand ohne Axiome-Modul bleibt gültig, kaputte Axiome-Daten werden begrenzt", () => {
+  const alt = st({ potenz: { stand: [1, 2, 3, 0, 0, 0, 0], zeit: 4 }, reflexion: { q1: { wahl: "a" } } });
+  assert.deepEqual(alt.axiome, { phase: 0, stand: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], fertig: false, zeit: 0 });
+  assert.deepEqual(alt.potenz.stand, [1, 2, 3, 0, 0, 0, 0]);
+  const kaputt = st({ axiome: { phase: 99, stand: [2, "x", -1, 500], fertig: 1, zeit: "q" } });
+  assert.equal(kaputt.axiome.phase, 9);
+  assert.deepEqual(kaputt.axiome.stand, [2, 0, 0, 99, 0, 0, 0, 0, 0, 0]);
+  assert.equal(kaputt.axiome.fertig, true);
+  assert.equal(kaputt.axiome.zeit, 0);
+});
+
+test("merge: Axiome-Modul – Fortschritt je Phase = Maximum, fertig = oder, Phase vom jüngeren Stand", () => {
+  const a = st({ axiome: { phase: 3, stand: [4, 5, 1, 0, 0, 0, 0, 0, 0, 7], fertig: false, zeit: 100 } });
+  const b = st({ axiome: { phase: 1, stand: [4, 2, 3, 2, 0, 0, 0, 0, 6, 0], fertig: true, zeit: 200 } });
+  const m = mergeEntdecken(a, b);
+  assert.deepEqual(m.axiome.stand, [4, 5, 3, 2, 0, 0, 0, 0, 6, 7]);
+  assert.equal(m.axiome.fertig, true);
+  assert.equal(m.axiome.phase, 1);
+  assert.equal(m.axiome.zeit, 200);
+  assert.deepEqual(mergeEntdecken(a, b), mergeEntdecken(b, a));
+  assert.deepEqual(mergeEntdecken(m, m), m);
+  // das Potenz-Modul bleibt davon unberührt
+  assert.deepEqual(m.potenz, st({}).potenz);
 });
 
 test("merge: zuletzt bearbeitet = jüngerer; Reihenfolge egal, idempotent, Form stabil", () => {
