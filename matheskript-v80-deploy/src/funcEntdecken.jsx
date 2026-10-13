@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { C } from "./base1.jsx";
 import { M } from "./func3.jsx";
 import { GrosserKnopf, karte } from "./ui2.jsx";
@@ -9,11 +9,10 @@ import {
 
 /* ======================================================================
    MATHE ENTDECKEN – zweiter Hauptbereich neben „Mathe-Training“.
-   Aufbau der Seite:
-     Begrüßung → Übersicht (zwei Lernangebote mit Status) →
-     Teil 1: Hauptvideo, Reflexionsfragen, zwei weitere Videos →
-     Teil 2: „Mathe entdecken in der Praxis“ mit Themenkarte →
-     Teil 3: das siebenphasige Potenzregel-Modul (eigene Ansicht, Zurück zur Seite).
+   Aufbau: Übersicht (Begrüßung, zwei Lernangebote mit Status) →
+     Lernangebot 1: Hauptvideo, Reflexionsfragen, zwei weitere Videos →
+     Lernangebot 2: „Mathe entdecken in der Praxis“ mit Themenkarte →
+     Modul: siebenphasiges Potenzregel-Modul (Zurück führt zur Übersicht).
    Fortschritt und Antworten liegen in entdeckenSpeicher.js (localStorage).
    Alle Video-IDs sind per YouTube-oEmbed geprüft.
    ====================================================================== */
@@ -181,29 +180,24 @@ function LernangebotKarte({ nr, titel, text, status, fortschritt, onClick }) {
   );
 }
 
-export function EntdeckenSeite() {
-  const stand = useStand();
-  const [modul, setModul] = useState(false);
-  const refEinstieg = useRef(null);
-  const refPraxis = useRef(null);
-  useEffect(() => { window.scrollTo(0, 0); }, [modul]);
+function ZurueckKnopf({ onClick }) {
+  return (
+    <button type="button" onClick={onClick}
+      style={{ fontFamily: "inherit", cursor: "pointer", background: "none", border: "none", padding: "6px 0", marginBottom: 14, fontSize: 13.5, fontWeight: 600, color: C.see }}>
+      ← Mathe entdecken
+    </button>
+  );
+}
 
-  if (modul) return <PotenzModul onZurueck={() => setModul(false)} />;
-
+/* ---------- Übersicht ---------- */
+function Uebersicht({ stand, oeffne }) {
   const sE = statusEinstieg();
   const sP = statusPotenz();
   const nE = einstiegFortschritt();
   const phase = Math.min((stand.potenz.phase || 0) + 1, PHASEN_ANZAHL);
-  const springe = (r) => { if (r.current) r.current.scrollIntoView({ behavior: "smooth", block: "start" }); };
-  const [haupt, v2, v3] = ENTDECKEN_VIDEOS;
   const zuletzt = stand.zuletzt;
-
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
-      {/* Begrüßung */}
-      <p style={{ ...absatz, color: C.tinte, fontSize: 16.5, fontWeight: 400, marginBottom: 14 }}>
-        Mathematik ist mehr als Regeln auswendig zu lernen. Entdecke Muster, stelle Fragen und finde selbst heraus, warum mathematische Zusammenhänge funktionieren.
-      </p>
+    <>
       <div style={{ ...karte, borderLeft: `4px solid ${C.flaggold}`, padding: "18px 20px" }}>
         <p style={{ ...absatz, color: C.tinte, fontWeight: 500, marginBottom: 12 }}>
           Die spannendsten Erkenntnisse entstehen oft mit einer einfachen Frage: Warum ist das eigentlich so?
@@ -216,80 +210,116 @@ export function EntdeckenSeite() {
         </p>
       </div>
 
-      {/* Übersicht der zwei Lernangebote */}
       <div style={{ marginTop: 28 }}>
         <p style={kickerStil}>Deine Lernangebote</p>
         <div style={{ display: "grid", gap: 12 }}>
           <LernangebotKarte nr={1} titel="Mathe entdecken" text="Wie entsteht mathematisches Denken?" status={sE}
-            fortschritt={sE === "arbeit" ? `${nE} von ${REFLEX_IDS.length} Fragen` : null} onClick={() => springe(refEinstieg)} />
+            fortschritt={sE === "arbeit" ? `${nE} von ${REFLEX_IDS.length} Fragen` : null} onClick={() => oeffne("einstieg")} />
           <LernangebotKarte nr={2} titel="Pascalsches Dreieck" text="Entdecke die Potenzregel" status={sP}
-            fortschritt={sP === "arbeit" ? `Phase ${phase} von ${PHASEN_ANZAHL}` : null} onClick={() => springe(refPraxis)} />
+            fortschritt={sP === "arbeit" ? `Phase ${phase} von ${PHASEN_ANZAHL}` : null} onClick={() => oeffne("praxis")} />
         </div>
         {zuletzt && (
-          <p style={{ fontSize: 12.5, fontWeight: 300, color: C.grau, margin: "12px 2px 0" }}>
-            Zuletzt bearbeitet: <b style={{ fontWeight: 600, color: C.tinte }}>{zuletzt.id === "potenz" ? "Pascalsches Dreieck" : "Mathe entdecken"}</b> · {zuletzt.label}
-          </p>
+          <button type="button" onClick={() => oeffne(zuletzt.id === "potenz" ? "praxis" : "einstieg")}
+            style={{ display: "block", width: "100%", textAlign: "left", fontFamily: "inherit", cursor: "pointer", background: "none", border: "none", padding: 0,
+              fontSize: 12.5, fontWeight: 300, color: C.grau, margin: "14px 2px 0", lineHeight: 1.5 }}>
+            Zuletzt bearbeitet: <b style={{ fontWeight: 600, color: C.tinte }}>{zuletzt.id === "potenz" ? "Pascalsches Dreieck" : "Mathe entdecken"}</b> · {zuletzt.label}{" "}
+            <span style={{ color: C.see, fontWeight: 600 }}>Weitermachen →</span>
+          </button>
         )}
       </div>
+    </>
+  );
+}
 
-      {/* TEIL 1 */}
-      <section ref={refEinstieg} style={{ marginTop: 40, scrollMarginTop: 70 }}>
-        <p style={kickerStil}>Teil 1 · Mathe entdecken</p>
-        <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, color: C.tinte, margin: "0 0 18px" }}>Wie entsteht mathematisches Denken?</h2>
-        <VideoRahmen v={haupt} gross />
-        <p style={{ ...absatz, marginTop: 18 }}>
-          Mathematik wird interessant, wenn du selbst denkst, ausprobierst und entdeckst.
+/* ---------- Lernangebot 1: Einstieg ---------- */
+function Einstieg({ stand, zurueck, weiter }) {
+  const [haupt, v2, v3] = ENTDECKEN_VIDEOS;
+  return (
+    <>
+      <ZurueckKnopf onClick={zurueck} />
+      <p style={kickerStil}>Lernangebot 1</p>
+      <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, color: C.tinte, margin: "0 0 18px" }}>
+        Mathe entdecken – Wie entsteht mathematisches Denken?
+      </h2>
+      <VideoRahmen v={haupt} gross />
+      <p style={{ ...absatz, marginTop: 18 }}>
+        Mathematik wird interessant, wenn du selbst denkst, ausprobierst und entdeckst.
+      </p>
+      <p style={{ ...absatz, marginTop: 10 }}>
+        Achte beim Anschauen darauf, welche Rolle Neugier, Fragen und eigene Ideen beim Lernen von Mathematik spielen.
+      </p>
+
+      <Reflexion stand={stand} />
+
+      <div style={{ marginTop: 34 }}>
+        <p style={kickerStil}>Mathematische Kreativität</p>
+        <p style={{ ...absatz, marginBottom: 18 }}>Zwei weitere Perspektiven, wenn du tiefer einsteigen möchtest.</p>
+        {[v2, v3].map((v, i) => (
+          <div key={v.id} style={{ ...karte, padding: 16, marginTop: i ? 16 : 0 }}>
+            <VideoRahmen v={v} />
+            <p style={{ fontSize: 12.5, fontWeight: 700, color: C.gruenDunkel, margin: "14px 0 6px" }}>{i + 2}. Video</p>
+            <p style={{ fontSize: 14, fontWeight: 600, color: C.tinte, lineHeight: 1.5, margin: "0 0 8px" }}>{v.ziel}</p>
+            <p style={{ ...absatz, fontSize: 14.5 }}>{v.text}</p>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ display: "flex", gap: 10, marginTop: 26 }}>
+        <div style={{ flex: "0 0 38%" }}><GrosserKnopf ghost onClick={zurueck}>Übersicht</GrosserKnopf></div>
+        <div style={{ flex: 1 }}><GrosserKnopf onClick={weiter}>Weiter zum Pascalschen Dreieck →</GrosserKnopf></div>
+      </div>
+    </>
+  );
+}
+
+/* ---------- Lernangebot 2: Praxis mit Themenkarte ---------- */
+function Praxis({ zurueck, startModul }) {
+  const sP = statusPotenz();
+  const phase = Math.min((entdeckenStand().potenz.phase || 0) + 1, PHASEN_ANZAHL);
+  return (
+    <>
+      <ZurueckKnopf onClick={zurueck} />
+      <p style={kickerStil}>Lernangebot 2</p>
+      <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, color: C.tinte, margin: "0 0 6px" }}>Mathe entdecken in der Praxis</h2>
+      <p style={{ fontSize: 16, fontWeight: 600, color: C.see, margin: "0 0 14px", lineHeight: 1.4 }}>Vom Zahlenmuster zur mathematischen Regel</p>
+      <p style={{ ...absatz, marginBottom: 12 }}>Jetzt probieren wir diese Denkweise selbst aus.</p>
+      <p style={{ ...absatz, marginBottom: 12 }}>
+        Wir beginnen mit einer bekannten Formel, entdecken ein Muster im Pascalschen Dreieck und verwenden dieses Muster schließlich, um eine wichtige Regel der Analysis herzuleiten: die Potenzregel.
+      </p>
+      <p style={{ ...absatz, marginBottom: 22 }}>
+        Du wirst sehen, wie aus drei scheinbar unterschiedlichen Themen ein einziger zusammenhängender Gedankengang entsteht.
+      </p>
+
+      <div style={{ ...karte, padding: 22, background: `linear-gradient(180deg, ${C.weiss} 0%, ${C.himmel} 100%)`, border: `1px solid ${C.linie}` }}>
+        <p style={kickerStil}>Lernmodul</p>
+        <h3 style={{ fontSize: 21, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.25, color: C.tinte, margin: 0 }}>
+          Pascalsches Dreieck – Entdecke die Potenzregel
+        </h3>
+        <Lernweg />
+      </div>
+
+      <GrosserKnopf onClick={startModul}>Jetzt selbst entdecken</GrosserKnopf>
+      {sP !== "offen" && (
+        <p style={{ fontSize: 12.5, fontWeight: 300, color: C.grau, textAlign: "center", margin: "10px 0 0" }}>
+          {sP === "fertig" ? "Modul abgeschlossen – du kannst es jederzeit wiederholen." : `Du bist bei Phase ${phase} von ${PHASEN_ANZAHL} – dein Stand ist gespeichert.`}
         </p>
-        <p style={{ ...absatz, marginTop: 10 }}>
-          Achte beim Anschauen darauf, welche Rolle Neugier, Fragen und eigene Ideen beim Lernen von Mathematik spielen.
-        </p>
+      )}
+    </>
+  );
+}
 
-        <Reflexion stand={stand} />
+export function EntdeckenSeite() {
+  const stand = useStand();
+  const [seite, setSeite] = useState("uebersicht"); // uebersicht | einstieg | praxis | modul
+  useEffect(() => { window.scrollTo(0, 0); }, [seite]);
 
-        <div style={{ marginTop: 34 }}>
-          <p style={kickerStil}>Mathematische Kreativität</p>
-          <p style={{ ...absatz, marginBottom: 18 }}>Zwei weitere Perspektiven, wenn du tiefer einsteigen möchtest.</p>
-          {[v2, v3].map((v, i) => (
-            <div key={v.id} style={{ ...karte, padding: 16, marginTop: i ? 16 : 0 }}>
-              <VideoRahmen v={v} />
-              <p style={{ fontSize: 12.5, fontWeight: 700, color: C.gruenDunkel, margin: "14px 0 6px" }}>{i + 2}. Video</p>
-              <p style={{ fontSize: 14, fontWeight: 600, color: C.tinte, lineHeight: 1.5, margin: "0 0 8px" }}>{v.ziel}</p>
-              <p style={{ ...absatz, fontSize: 14.5 }}>{v.text}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+  if (seite === "modul") return <PotenzModul onZurueck={() => setSeite("uebersicht")} />;
 
-      <div style={{ height: 1, background: C.linie, margin: "40px 0 34px" }} />
-
-      {/* TEIL 2 */}
-      <section ref={refPraxis} style={{ scrollMarginTop: 70 }}>
-        <p style={kickerStil}>Teil 2</p>
-        <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, color: C.tinte, margin: "0 0 6px" }}>Mathe entdecken in der Praxis</h2>
-        <p style={{ fontSize: 16, fontWeight: 600, color: C.see, margin: "0 0 14px", lineHeight: 1.4 }}>Vom Zahlenmuster zur mathematischen Regel</p>
-        <p style={{ ...absatz, marginBottom: 12 }}>Jetzt probieren wir diese Denkweise selbst aus.</p>
-        <p style={{ ...absatz, marginBottom: 12 }}>
-          Wir beginnen mit einer bekannten Formel, entdecken ein Muster im Pascalschen Dreieck und verwenden dieses Muster schließlich, um eine wichtige Regel der Analysis herzuleiten: die Potenzregel.
-        </p>
-        <p style={{ ...absatz, marginBottom: 22 }}>
-          Du wirst sehen, wie aus drei scheinbar unterschiedlichen Themen ein einziger zusammenhängender Gedankengang entsteht.
-        </p>
-
-        <div style={{ ...karte, padding: 22, background: `linear-gradient(180deg, ${C.weiss} 0%, ${C.himmel} 100%)`, border: `1px solid ${C.linie}` }}>
-          <p style={kickerStil}>Lernmodul</p>
-          <h3 style={{ fontSize: 21, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.25, color: C.tinte, margin: 0 }}>
-            Pascalsches Dreieck – Entdecke die Potenzregel
-          </h3>
-          <Lernweg />
-        </div>
-
-        <GrosserKnopf onClick={() => setModul(true)}>Jetzt selbst entdecken</GrosserKnopf>
-        {sP !== "offen" && (
-          <p style={{ fontSize: 12.5, fontWeight: 300, color: C.grau, textAlign: "center", margin: "10px 0 0" }}>
-            {sP === "fertig" ? "Modul abgeschlossen – du kannst es jederzeit wiederholen." : `Du bist bei Phase ${phase} von ${PHASEN_ANZAHL} – dein Stand ist gespeichert.`}
-          </p>
-        )}
-      </section>
+  return (
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
+      {seite === "uebersicht" && <Uebersicht stand={stand} oeffne={setSeite} />}
+      {seite === "einstieg" && <Einstieg stand={stand} zurueck={() => setSeite("uebersicht")} weiter={() => setSeite("praxis")} />}
+      {seite === "praxis" && <Praxis zurueck={() => setSeite("uebersicht")} startModul={() => setSeite("modul")} />}
     </div>
   );
 }
