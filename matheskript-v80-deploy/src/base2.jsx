@@ -982,6 +982,19 @@ export const FEHLERARTEN = {
   schreibweise: "Schreibweise",
   grenzuebergang: "Grenzübergang h → 0 noch nicht korrekt",
   sonstiges: "sonstige Abweichung",
+  /* Head & Numbers (Kopfrechnen): gleiche Schlüssel wie FEHLERART_KOPF in headNumbers.js, mit Präfix kopf_ */
+  kopf_nachbar: "Kopfrechnen: Nachbaraufgabe erwischt",
+  kopf_addiert: "Kopfrechnen: addiert statt multipliziert",
+  kopf_faktor: "Kopfrechnen: anderen Faktor genannt",
+  kopf_potenz: "Kopfrechnen: ² und ³ verwechselt",
+  kopf_verdoppelt: "Kopfrechnen: verdoppelt statt quadriert",
+  kopf_malDrei: "Kopfrechnen: mal 3 statt hoch 3",
+  kopf_halbiert: "Kopfrechnen: halbiert statt Wurzel gezogen",
+  kopf_drittel: "Kopfrechnen: gedrittelt statt Kubikwurzel",
+  kopf_zahlendreher: "Kopfrechnen: Zahlendreher",
+  kopf_zehner: "Kopfrechnen: Zehner oder Hunderter daneben",
+  kopf_knapp: "Kopfrechnen: knapp daneben",
+  kopf_rechnen: "Kopfrechnen: Ergebnis daneben",
 };
 
 

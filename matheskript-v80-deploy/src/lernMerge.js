@@ -68,10 +68,19 @@ function mergeEbb(a, b, aNeuer) {
   return { ...(aNeuer ? b : a), ...(aNeuer ? a : b), version: 1, skills, tage: tageGekappt };
 }
 
+function besserBest(x, y) {
+  const qx = x.gesamt ? x.richtig / x.gesamt : 0, qy = y.gesamt ? y.richtig / y.gesamt : 0;
+  if (qx !== qy) return qx > qy ? x : y;
+  if (typeof x.sek === "number" && typeof y.sek === "number" && x.sek !== y.sek) return x.sek < y.sek ? x : y;
+  return typeof x.sek === "number" ? x : typeof y.sek === "number" ? y : (x.zeit || 0) >= (y.zeit || 0) ? x : y;
+}
+
 function wert(x, y, aNeuer, pfad) {
   if (x === undefined || x === null) return y === undefined ? x : y;
   if (y === undefined || y === null) return x;
   if (pfad.endsWith("training.ebbinghaus") && istObj(x) && istObj(y)) return mergeEbb(x, y, aNeuer);
+  // Head & Numbers: Bestwert gehört als Ganzes zu einer Runde (nicht Felder mischen); die bessere Quote gewinnt, bei Gleichstand die kürzere Zeit
+  if (/^training\.kopf\.best\.[^.]+$/.test(pfad) && istObj(x) && istObj(y)) return besserBest(x, y);
   if (Array.isArray(x) && Array.isArray(y)) return vereinige(x, y, pfad === "protokoll" ? 500 : MAX_LISTE);
   if (istObj(x) && istObj(y)) {
     if (typeof x.zuletzt === "number" && typeof y.zuletzt === "number" && x.zuletzt !== y.zuletzt) return x.zuletzt > y.zuletzt ? x : y;   // jüngerer Eintrag

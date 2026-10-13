@@ -3,11 +3,13 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   ALLE_ITEMS, BEREICH, BLOECKE, EINMALEINS_100, FAKTEN, FORMATE, FORMAT_RICHTUNG, ITEMS, ITEM_INFO, KUBIK_SOLL, MODULE, QUADRATE_SOLL, SCHNELL_SEK, STUFEN, TAG_MS, RANG,
-  aufgabeFuer, baueRunde, bucheVerstehen, buche, empfehlung, faktStatus, formatFuerKey, gesamtUebersicht, gewichtVon, istFaellig, istKubik, istQuadrat, itemText, kandidaten,
+  FEHLERART_KOPF, aufgabeFuer, baueRunde, bucheFehler, fehlerAus, fehlerName, haeufigeFehlerarten, kurzStand, bucheVerstehen, buche, empfehlung, faktStatus, formatFuerKey, gesamtUebersicht, gewichtVon, istFaellig, istKubik, istQuadrat, itemText, kandidaten,
   leererKopfStand, markiereEntdeckt, modulUebersicht, musterAufgabe, normiereKopf, offeneBloecke, paarRunde, schwacheGrundlagen, setzeBest, status, stufenStand, tagNr,
   validiereBestand, waehleItems, wertung, formateFuer,
 } from "../src/headNumbers.js";
 import { normiere } from "../src/trainingDaten.js";
+import { mergeLernstand } from "../src/lernMerge.js";
+import { readFileSync } from "node:fs";
 
 /* deterministischer Zufall */
 function seed(a) { return () => { a |= 0; a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
@@ -571,4 +573,134 @@ test("Texte für Listen", () => {
   assert.equal(itemText("q:17:r"), "√289");
   assert.equal(itemText("k:8:v"), "8³");
   assert.equal(itemText("k:8:r"), "∛512");
+});
+
+
+/* ---------------- Fehlerarten ---------------- */
+const aufg = (key, format, rng = seed(5)) => aufgabeFuer(key, format, { rng });
+const art = (a, antwort) => { const f = fehlerAus(a, antwort); return f ? f.art : null; };
+
+test("Fehlerarten: Einmaleins vorwärts – Nachbaraufgabe und Summe", () => {
+  const a = aufg("e:7x8:v", "e-blitz");
+  assert.equal(a.loesung, 56);
+  assert.equal(art(a, 63), "nachbar");     // 7 · 9
+  assert.equal(art(a, 48), "nachbar");     // 6 · 8
+  assert.equal(art(a, 64), "nachbar");     // 8 · 8
+  assert.equal(art(a, 15), "addiert");     // 7 + 8
+  assert.equal(art(a, 56), null);          // richtig
+  assert.ok(fehlerAus(a, 63).text.includes("7 · 9"));
+});
+test("Fehlerarten: Einmaleins rückwärts – anderer Faktor und Nachbar", () => {
+  const a = aufg("e:7x8:r", "e-fehlt");
+  const L = a.loesung, anderer = L === 7 ? 8 : 7;
+  assert.equal(art(a, anderer), "faktor");
+  assert.equal(art(a, L + 1), "nachbar");
+});
+test("Fehlerarten: Quadratzahlen", () => {
+  const v = aufg("q:12:v", "q-blitz");
+  assert.equal(v.loesung, 144);
+  assert.equal(art(v, 169), "nachbar");     // 13²
+  assert.equal(art(v, 132), "nachbar");     // 12 · 11
+  assert.equal(art(v, 24), "verdoppelt");
+  assert.equal(art(v, 1728), "potenz");     // 12³
+  const r = aufg("q:12:r", "q-rueck");
+  assert.equal(r.loesung, 12);
+  assert.equal(art(r, 72), "halbiert");
+  assert.equal(art(r, 13), "nachbar");
+});
+test("Fehlerarten: Kubikzahlen", () => {
+  const v = aufg("k:5:v", "k-blitz");
+  assert.equal(v.loesung, 125);
+  assert.equal(art(v, 15), "malDrei");
+  assert.equal(art(v, 25), "potenz");
+  assert.equal(art(v, 216), "nachbar");     // 6³
+  const r = aufg("k:6:r", "k-rueck");
+  assert.equal(r.loesung, 6);
+  assert.equal(art(r, 72), "drittel");
+  assert.equal(art(r, 5), "nachbar");
+  const r4 = aufg("k:4:r", "k-rueck");
+  assert.equal(art(r4, 8), "potenz");       // √64 statt ∛64
+});
+test("Fehlerarten: allgemeine Muster und Fälle ohne Fehlerart", () => {
+  const a = aufg("q:23:v", "q-blitz");
+  assert.equal(a.loesung, 529);
+  assert.equal(art(a, 925), "zahlendreher");
+  assert.equal(art(a, 539), "zehner");
+  assert.equal(art(a, 530), "knapp");
+  assert.equal(art(a, 111), null);          // kein erkennbares Muster: kein Etikett erfinden
+  assert.equal(fehlerAus(a, ""), null);
+  assert.equal(fehlerAus(a, "abc"), null);
+  assert.equal(fehlerAus({ ...a, art: "wahl" }, 530), null);
+  assert.equal(fehlerAus({ ...a, modus: "verstehen" }, 530), null);
+  assert.equal(fehlerAus(null, 5), null);
+});
+test("Fehlerarten: Texte deutsch und englisch, jede Art hat einen Namen", () => {
+  const a = aufg("e:7x8:v", "e-blitz");
+  assert.ok(fehlerAus(a, 15, true).text.includes("sum"));
+  assert.ok(fehlerAus(a, 15, false).text.includes("Summe"));
+  for (const k of Object.keys(FEHLERART_KOPF)) { assert.ok(fehlerName(k).length > 3); assert.ok(fehlerName(k, true).length > 3); }
+  assert.equal(fehlerName("gibtsnicht"), "gibtsnicht");
+});
+test("Fehlerarten: wertung liefert die Fehlerart nur bei falscher Zahlenantwort", () => {
+  const a = aufg("e:7x8:v", "e-blitz");
+  assert.equal(wertung(a, 63).fehler.art, "nachbar");
+  assert.equal(wertung(a, 56).fehler, null);
+  const wahl = Object.values(FORMATE).length && baueRunde(K0(), { modul: "quadrate", stufe: "unterstuetzt", anzahl: 6 }).find((x) => x.art === "wahl");
+  if (wahl) assert.equal(wertung(wahl, "zzz").fehler, null);
+});
+test("Fehlerarten: erst ab drei Mal ein Muster; Speicher bleibt klein und wird bereinigt", () => {
+  const K = K0();
+  bucheFehler(K, "nachbar", "e:7x8:v", 63, tag(0)); bucheFehler(K, "nachbar", "e:6x7:v", 49, tag(0) + 1);
+  assert.deepEqual(haeufigeFehlerarten(K), []);
+  bucheFehler(K, "nachbar", "e:8x9:v", 81, tag(1)); bucheFehler(K, "nachbar", "e:3x4:v", 15, tag(2));
+  assert.equal(haeufigeFehlerarten(K)[0].art, "nachbar");
+  assert.equal(haeufigeFehlerarten(K)[0].n, 4);
+  assert.equal(K.fehler.nachbar.beispiele.length, 3);
+  assert.equal(bucheFehler(K, "erfunden", "e:7x8:v", 1), null);
+  assert.equal(schwacheGrundlagen(K).fehlerarten.length, 1);
+  const N = normiereKopf({ fehler: { nachbar: { n: 5, zeit: 7, beispiele: [{ k: "e:7x8:v", antwort: 63, zeit: 1 }, { k: "kaputt", antwort: 1 }] }, boese: { n: 9 } }, stand: { gesamt: 180, sicher: 3, gut: 10, angefangen: 20, zeit: 5 } });
+  assert.deepEqual(Object.keys(N.fehler), ["nachbar"]);
+  assert.equal(N.fehler.nachbar.beispiele.length, 1);
+  assert.equal(N.stand.sicher, 3);
+  assert.equal(normiereKopf(null).stand, null);
+});
+test("Kurzstand: zählt sichere, gute und begonnene Items über alle Bereiche", () => {
+  const K = K0();
+  assert.deepEqual({ ...kurzStand(K), zeit: 0 }, { gesamt: 180, sicher: 0, gut: 0, angefangen: 0, zeit: 0 });
+  for (let d = 0; d < 4; d++) buche(K, "q:12:v", true, { sek: 3, zeit: tag(d) });
+  buche(K, "e:7x8:v", true, { sek: 3, zeit: tag(0) });
+  const k = kurzStand(K, tag(5));
+  assert.equal(k.sicher, 1); assert.equal(k.gut, 1); assert.equal(k.angefangen, 2);
+});
+test("Tempo: ungemessene Antwort (Tab versteckt) lässt die Tempo-Serie unberührt", () => {
+  const K = K0();
+  for (let i = 0; i < 2; i++) buche(K, "q:11:v", true, { sek: 1, zeit: tag(0) + i * 1000 });
+  assert.equal(K.items["q:11:v"].sFolge, 2);
+  buche(K, "q:11:v", true, { sek: null, zeit: tag(1) });
+  assert.equal(K.items["q:11:v"].sFolge, 2);
+  buche(K, "q:11:v", true, { sek: 99, zeit: tag(1) + 1000 });   // gemessen und langsam: Serie bricht
+  assert.equal(K.items["q:11:v"].sFolge, 0);
+});
+test("Konto-Abgleich: Bestwerte, Fehlerarten und Items aus zwei Geräten gehen nicht verloren", () => {
+  const a = { _zeit: 100, training: { kopf: { items: { "e:7x8:v": { r: 3, f: 0, e: 0, h: 0, folge: 3, tage: [1, 2], sFolge: 0, sTage: [], ok: true, stufe: 2, stufeTag: 2, faellig: 9, zuletzt: 50 } },
+    best: { "einmaleins:selbst": { richtig: 9, gesamt: 10, sek: null, zeit: 40 }, "quadrate:schnell": { richtig: 8, gesamt: 10, sek: 30, zeit: 40 } },
+    fehler: { nachbar: { n: 3, zeit: 40, beispiele: [{ k: "e:7x8:v", antwort: 63, zeit: 40 }] } }, runden: 4, punkte: 100 } } };
+  const b = { _zeit: 200, training: { kopf: { items: { "e:7x8:v": { r: 5, f: 1, e: 0, h: 0, folge: 0, tage: [], sFolge: 0, sTage: [], ok: false, stufe: 0, stufeTag: 3, faellig: 99, zuletzt: 80 }, "q:12:v": { r: 1, f: 0, e: 0, h: 0, folge: 1, tage: [3], sFolge: 0, sTage: [], ok: true, stufe: 0, stufeTag: 3, faellig: 9, zuletzt: 70 } },
+    best: { "einmaleins:selbst": { richtig: 10, gesamt: 10, sek: null, zeit: 90 }, "quadrate:schnell": { richtig: 8, gesamt: 10, sek: 25, zeit: 90 } },
+    fehler: { nachbar: { n: 2, zeit: 90, beispiele: [{ k: "e:6x7:v", antwort: 49, zeit: 90 }] }, potenz: { n: 1, zeit: 95, beispiele: [] } }, runden: 2, punkte: 50 } } };
+  for (const m of [mergeLernstand(a, b), mergeLernstand(b, a)]) {
+    const K = normiereKopf(m.training.kopf);
+    assert.equal(K.items["e:7x8:v"].zuletzt, 80);                       // jüngerer Eintrag gewinnt als Ganzes
+    assert.ok(K.items["q:12:v"]);                                       // nur auf Gerät b
+    assert.deepEqual(K.best["einmaleins:selbst"].richtig, 10);          // bessere Quote
+    assert.equal(K.best["einmaleins:selbst"].gesamt, 10);
+    assert.equal(K.best["quadrate:schnell"].sek, 25);                   // gleiche Quote: schnellere Zeit, nicht gemischt
+    assert.equal(K.best["quadrate:schnell"].zeit, 90);
+    assert.ok(K.fehler.nachbar.n >= 3 && K.fehler.potenz);
+    assert.ok(K.runden >= 4 && K.punkte >= 100);
+  }
+});
+test("Fehlerarten: Beschriftungen für die Fortschrittsseite (base2.jsx) sind vollständig", () => {
+  const text = readFileSync(new URL("../src/base2.jsx", import.meta.url), "utf8");
+  for (const k of [...Object.keys(FEHLERART_KOPF), "rechnen"]) assert.ok(text.includes(`kopf_${k}:`), `kopf_${k} fehlt in FEHLERARTEN`);
 });

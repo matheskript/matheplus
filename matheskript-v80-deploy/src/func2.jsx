@@ -14,7 +14,7 @@ import { EskalationsKarte, Wochenbericht, eskalationSignale, serieBerechnen, zei
 import { TerminHinweis } from "./func9.jsx";
 import { Mathilda } from "./func10.jsx";
 import { KopfKacheln, KopfrechnenLogoKlein, TRAINER } from "./func14.jsx";
-import { HeadNumbersLogoKlein } from "./funcHeadNumbers.jsx";
+import { HeadNumbersLogoKlein } from "./funcHeadNumbersLogo.jsx";
 import { EBB_SLOGAN, EbbinghausBadge, EbbinghausLogoKlein } from "./funcEbbinghaus.jsx";
 import { MeinTrainingBadge, MeinTrainingLogoKlein, meinTrainingText, useOffenHeute } from "./funcMeinTraining.jsx";
 import { AppAnleitung } from "./funcAnleitung.jsx";

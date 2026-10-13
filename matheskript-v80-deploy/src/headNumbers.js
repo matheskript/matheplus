@@ -153,7 +153,7 @@ export const schlechterer = (a, b) => (RANG[a] <= RANG[b] ? a : b);
 export const tagNr = (zeit) => Math.floor((zeit - new Date(zeit).getTimezoneOffset() * 60000) / TAG_MS);
 
 export function leererKopfStand() {
-  return { items: {}, verstehen: {}, entdeckt: {}, best: {}, runden: 0, punkte: 0, seit: null, zuletzt: null };
+  return { items: {}, verstehen: {}, entdeckt: {}, best: {}, fehler: {}, stand: null, runden: 0, punkte: 0, seit: null, zuletzt: null };
 }
 
 const istObjekt = (x) => x && typeof x === "object" && !Array.isArray(x);
@@ -179,6 +179,13 @@ export function normiereKopf(K) {
   if (istObjekt(K.verstehen)) for (const [k, v] of Object.entries(K.verstehen)) if (istObjekt(v)) d.verstehen[k] = { r: zahl0(v.r), f: zahl0(v.f), zuletzt: zahl0(v.zuletzt) };
   if (istObjekt(K.entdeckt)) for (const [k, v] of Object.entries(K.entdeckt)) if (v) d.entdeckt[k] = true;
   if (istObjekt(K.best)) for (const [k, v] of Object.entries(K.best)) if (istObjekt(v) && Number.isFinite(v.richtig) && Number.isFinite(v.gesamt)) d.best[k] = { richtig: v.richtig, gesamt: v.gesamt, sek: Number.isFinite(v.sek) ? v.sek : null, zeit: zahl0(v.zeit) };
+  if (istObjekt(K.fehler)) {
+    for (const [art, v] of Object.entries(K.fehler)) {
+      if (!FEHLERART_KOPF[art] || !istObjekt(v)) continue;
+      d.fehler[art] = { n: zahl0(v.n), zeit: zahl0(v.zeit), beispiele: Array.isArray(v.beispiele) ? v.beispiele.filter((b) => istObjekt(b) && ITEM_INFO.has(b.k) && Number.isFinite(b.antwort)).map((b) => ({ k: b.k, antwort: b.antwort, zeit: zahl0(b.zeit) })).slice(-3) : [] };
+    }
+  }
+  if (istObjekt(K.stand)) d.stand = { gesamt: zahl0(K.stand.gesamt), sicher: zahl0(K.stand.sicher), gut: zahl0(K.stand.gut), angefangen: zahl0(K.stand.angefangen), zeit: zahl0(K.stand.zeit) };
   d.runden = zahl0(K.runden); d.punkte = zahl0(K.punkte); d.seit = Number.isFinite(K.seit) ? K.seit : null; d.zuletzt = typeof K.zuletzt === "string" ? K.zuletzt : null;
   return d;
 }
@@ -214,8 +221,11 @@ export function buche(K, key, ok, { sek = null, hilfe = 0, modus = "abruf", zeit
     if (!s.faellig) s.faellig = zeit + ABSTAENDE[0] * TAG_MS;   // neu erkannt: morgen selbst abrufen
   } else {
     s.r += 1; s.ok = true; s.folge += 1; merkeTag(s.tage, heute);
-    if (sek != null && sek <= SCHNELL_SEK[info.richtung][info.modul]) { s.sFolge += 1; merkeTag(s.sTage, heute); }
-    else { s.sFolge = 0; s.sTage = []; }
+    // Tempo nur werten, wenn es gemessen wurde (sek = null: Tab war versteckt o. Ä. – dann bleibt die Tempo-Serie unverändert)
+    if (sek != null) {
+      if (sek <= SCHNELL_SEK[info.richtung][info.modul]) { s.sFolge += 1; merkeTag(s.sTage, heute); }
+      else { s.sFolge = 0; s.sTage = []; }
+    }
     if (s.stufeTag !== heute) { s.stufe = Math.min(ABSTAENDE.length - 1, s.stufe + 1); s.stufeTag = heute; }   // höchstens eine Stufe pro Tag
     s.faellig = zeit + ABSTAENDE[s.stufe] * TAG_MS;
   }
@@ -372,7 +382,7 @@ export function schwacheGrundlagen(K) {
   }
   const nachModul = {};
   for (const t of treffer) (nachModul[t.modul] = nachModul[t.modul] || []).push(t);
-  return { treffer, nachModul, genug: treffer.length > 0 };
+  return { treffer, nachModul, genug: treffer.length > 0, fehlerarten: haeufigeFehlerarten(K) };
 }
 
 /* ---------------------------------------------------------------------
@@ -774,10 +784,106 @@ export function baueRunde(K, { modul = "gemischt", stufe = "selbst", anzahl = nu
 
 /* Antwort auswerten: Ergebnis und die zu verbuchenden Items.
    antwort bei „zahl“: Zahl oder Zahlentext, bei „wahl“: der Wert der gewählten Option. */
+/* ---------------------------------------------------------------------
+   Fehlerarten (Kopfrechnen)
+   ---------------------------------------------------------------------
+   Aus einer falschen Zahl lässt sich oft ablesen, was passiert ist: die Nachbaraufgabe erwischt,
+   addiert statt multipliziert, ² und ³ verwechselt. Das ist ein Hinweis auf das Muster dieser einen
+   Antwort – keine Aussage über Ursachen oder Fähigkeiten. Erst wiederholtes Auftreten zählt.   */
+export const FEHLERART_KOPF = Object.freeze({
+  nachbar:   { de: "Nachbaraufgabe erwischt", en: "Neighbouring fact grabbed" },
+  addiert:   { de: "Addiert statt multipliziert", en: "Added instead of multiplied" },
+  faktor:    { de: "Anderen Faktor genannt", en: "Named the other factor" },
+  potenz:    { de: "² und ³ verwechselt", en: "Mixed up ² and ³" },
+  verdoppelt:{ de: "Verdoppelt statt quadriert", en: "Doubled instead of squared" },
+  malDrei:   { de: "Mal 3 statt hoch 3", en: "Times 3 instead of cubed" },
+  halbiert:  { de: "Halbiert statt Wurzel gezogen", en: "Halved instead of taking the root" },
+  drittel:   { de: "Gedrittelt statt Kubikwurzel", en: "Divided by 3 instead of the cube root" },
+  zahlendreher: { de: "Zahlendreher", en: "Digits swapped" },
+  zehner:    { de: "Zehner oder Hunderter daneben", en: "Off by a ten or a hundred" },
+  knapp:     { de: "Knapp daneben", en: "Just off" },
+});
+export const fehlerName = (art, en = false) => (FEHLERART_KOPF[art] ? FEHLERART_KOPF[art][en ? "en" : "de"] : art);
+
+/* Fehlerart einer falschen Zahlenantwort bestimmen. Liefert { art, text } oder null.
+   Nur für Aufgaben mit getippter Zahl; die Prüfung geht von der erwarteten Lösung der Aufgabe aus. */
+export function fehlerAus(aufgabe, antwort, en = false) {
+  if (!aufgabe || aufgabe.art !== "zahl" || aufgabe.modus === "verstehen") return null;
+  const x = Number(antwort), L = aufgabe.loesung;
+  if (String(antwort).trim() === "" || !Number.isFinite(x) || !Number.isFinite(L) || x === L) return null;
+  const info = ITEM_INFO.get(aufgabe.key);
+  if (!info) return null;
+  const t = T(en), f = info.fakt;
+  const g = (art, de, e) => ({ art, text: t(de, e) });
+  const imBereich = (v) => v >= 1 && v <= 10;
+  if (info.modul === "einmaleins") {
+    if (info.richtung === "v") {
+      const { a, b } = f;
+      for (const [u, v] of [[a, b + 1], [a, b - 1], [a + 1, b], [a - 1, b]]) {
+        if (imBereich(u) && imBereich(v) && u * v === x) return g("nachbar", `${x} ist ${u} ${MAL} ${v} – die Nachbaraufgabe.`, `${x} is ${u} ${MAL} ${v} – the neighbouring fact.`);
+      }
+      if (x === a + b) return g("addiert", `${x} ist die Summe ${a} + ${b}. Hier wird multipliziert.`, `${x} is the sum ${a} + ${b}. Here you multiply.`);
+    } else {
+      const andere = f.wert / L;   // Gegenfaktor
+      if ((x === f.a || x === f.b) && x !== L) return g("faktor", `${x} ist der andere Faktor. Gefragt war die fehlende Zahl.`, `${x} is the other factor. The missing number was asked for.`);
+      if (Math.abs(x - L) === 1 && Number.isInteger(andere)) return g("nachbar", `${andere} ${MAL} ${x} = ${andere * x}, nicht ${f.wert}.`, `${andere} ${MAL} ${x} = ${andere * x}, not ${f.wert}.`);
+    }
+  } else if (info.modul === "quadrate") {
+    const n = f.n;
+    if (info.richtung === "v") {
+      for (const m of [n + 1, n - 1]) if (m >= 1 && m * m === x) return g("nachbar", `${x} = ${m}², das ist die Nachbarzahl.`, `${x} = ${m}², that is the neighbouring number.`);
+      for (const m of [n + 1, n - 1]) if (m >= 1 && n * m === x) return g("nachbar", `${x} = ${n} ${MAL} ${m}. Quadrieren heißt ${n} ${MAL} ${n}.`, `${x} = ${n} ${MAL} ${m}. Squaring means ${n} ${MAL} ${n}.`);
+      if (x === 2 * n) return g("verdoppelt", `${n} + ${n} = ${x}. Quadrieren heißt ${n} ${MAL} ${n}.`, `${n} + ${n} = ${x}. Squaring means ${n} ${MAL} ${n}.`);
+      if (x === n ** 3) return g("potenz", `${x} ist ${n}³. Gefragt war ${n}².`, `${x} is ${n}³. ${n}² was asked for.`);
+    } else {
+      if (f.wert % 2 === 0 && x === f.wert / 2) return g("halbiert", `${x} ist die Hälfte von ${f.wert}. Gesucht ist die Zahl, die mit sich selbst ${f.wert} ergibt.`, `${x} is half of ${f.wert}. You need the number that times itself gives ${f.wert}.`);
+      if (Math.abs(x - L) === 1) return g("nachbar", `${x}² = ${x * x}, nicht ${f.wert}.`, `${x}² = ${x * x}, not ${f.wert}.`);
+    }
+  } else {
+    const n = f.n;
+    if (info.richtung === "v") {
+      if (x === 3 * n) return g("malDrei", `${n} ${MAL} 3 = ${x}. Hoch 3 heißt ${n} ${MAL} ${n} ${MAL} ${n}.`, `${n} ${MAL} 3 = ${x}. Cubed means ${n} ${MAL} ${n} ${MAL} ${n}.`);
+      if (x === n * n) return g("potenz", `${x} ist ${n}². Für ${n}³ noch einmal mit ${n} malnehmen.`, `${x} is ${n}². For ${n}³ multiply by ${n} once more.`);
+      for (const m of [n + 1, n - 1]) if (m >= 1 && m ** 3 === x) return g("nachbar", `${x} = ${m}³, das ist die Nachbarzahl.`, `${x} = ${m}³, that is the neighbouring number.`);
+    } else {
+      if (f.wert % 3 === 0 && x === f.wert / 3) return g("drittel", `${x} ist ein Drittel von ${f.wert}. Gesucht ist die Zahl, die dreimal mit sich selbst malgenommen ${f.wert} ergibt.`, `${x} is a third of ${f.wert}. You need the number that, multiplied by itself three times, gives ${f.wert}.`);
+      if (Math.abs(x - L) === 1) return g("nachbar", `${x}³ = ${x ** 3}, nicht ${f.wert}.`, `${x}³ = ${x ** 3}, not ${f.wert}.`);
+      if (x === Math.round(Math.sqrt(f.wert)) && x !== L) return g("potenz", `${x} ist die Quadratwurzel. Gesucht ist die Kubikwurzel.`, `${x} is the square root. The cube root is asked for.`);
+    }
+  }
+  const sL = String(L), sx = String(x);
+  if (sL.length >= 2 && sx === [...sL].reverse().join("") && sx !== sL) return g("zahlendreher", `${x}: die Ziffern sind vertauscht.`, `${x}: the digits are swapped.`);
+  if (L >= 20 && [10, 100].includes(Math.abs(x - L))) return g("zehner", `Stellenwert prüfen: Zehner oder Hunderter ist verrutscht.`, `Check the place value: a ten or a hundred slipped.`);
+  if (L >= 10 && Math.abs(x - L) <= 2) return g("knapp", `Knapp daneben – meist ein Rechenschritt, nicht das ganze Verfahren.`, `Just off – usually one step, not the whole method.`);
+  return null;
+}
+
+/* Fehlerart mitzählen (zuletzt drei Beispiele merken) */
+export function bucheFehler(K, art, key, antwort, zeit = Date.now()) {
+  if (!FEHLERART_KOPF[art]) return null;
+  const v = K.fehler[art] || { n: 0, zeit: 0, beispiele: [] };
+  v.n += 1; v.zeit = zeit;
+  if (ITEM_INFO.has(key) && Number.isFinite(Number(antwort))) v.beispiele = [...v.beispiele, { k: key, antwort: Number(antwort), zeit }].slice(-3);
+  K.fehler[art] = v;
+  return v;
+}
+
+/* Wiederkehrende Fehlerarten: erst ab MIN_WIEDERHOLT Mal – einzelne Ausrutscher sind kein Muster. */
+export const MIN_WIEDERHOLT = 3;
+export function haeufigeFehlerarten(K, min = MIN_WIEDERHOLT) {
+  return Object.entries(K.fehler || {}).filter(([, v]) => v.n >= min).map(([art, v]) => ({ art, n: v.n, zeit: v.zeit })).sort((a, b) => b.n - a.n || b.zeit - a.zeit);
+}
+
+/* Kurzstand für andere Bereiche (Lernlandkarte, Mathilda): ohne Logik-Import lesbar. */
+export function kurzStand(K, jetzt = Date.now()) {
+  const g = gesamtUebersicht(K, jetzt);
+  return { gesamt: g.gesamt, sicher: g.sicher, gut: g.gut, angefangen: g.module.reduce((n, u) => n + u.angefangen, 0), zeit: jetzt };
+}
+
 export function wertung(aufgabe, antwort) {
   const ok = aufgabe.art === "zahl" ? Number(antwort) === aufgabe.loesung && String(antwort).trim() !== "" : String(antwort) === String(aufgabe.loesung);
   const items = ok ? aufgabe.betrifft : (aufgabe.schaden && aufgabe.schaden[String(antwort)]) || [aufgabe.key];
-  return { ok, items: [...new Set(items)] };
+  return { ok, items: [...new Set(items)], fehler: ok ? null : fehlerAus(aufgabe, antwort) };
 }
 
 /* ---------------------------------------------------------------------

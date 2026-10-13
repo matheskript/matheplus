@@ -59,9 +59,9 @@ export const GLEICHUNG_CSS = `
 
 const RUNDE = 10;
 
-export function Zahlenfeld({ onZiffer, onLoeschen, onOk, gesperrt }) {
-  const taste = (inhalt, onClick, art) => (
-    <button key={String(inhalt)} onClick={onClick} disabled={gesperrt} className="kr-taste"
+export function Zahlenfeld({ onZiffer, onLoeschen, onOk, gesperrt, labelLoeschen, labelOk }) {
+  const taste = (inhalt, onClick, art, label) => (
+    <button key={String(inhalt)} onClick={onClick} disabled={gesperrt} className="kr-taste" type="button" aria-label={label}
       style={{ height: 58, borderRadius: 14, fontFamily: "inherit", cursor: gesperrt ? "default" : "pointer",
         fontSize: art === "ok" ? 18 : 24, fontWeight: 700, letterSpacing: art === "ok" ? "0.04em" : 0,
         border: `1px solid ${art === "ok" ? C.smaragd : art === "nav" ? C.seeTief : C.linie}`,
@@ -75,9 +75,9 @@ export function Zahlenfeld({ onZiffer, onLoeschen, onOk, gesperrt }) {
     <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
       <style>{`.kr-taste{transition:transform .08s ease, filter .12s ease}.kr-taste:active{transform:scale(0.94);filter:brightness(0.94)}`}</style>
       {[7, 8, 9, 4, 5, 6, 1, 2, 3].map((z) => taste(z, () => onZiffer(String(z))))}
-      {taste("⌫", onLoeschen, "nav")}
+      {taste("⌫", onLoeschen, "nav", labelLoeschen)}
       {taste(0, () => onZiffer("0"))}
-      {taste("OK", onOk, "ok")}
+      {taste("OK", onOk, "ok", labelOk)}
     </div>
   );
 }

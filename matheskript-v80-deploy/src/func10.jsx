@@ -55,7 +55,8 @@ import { BundeswettbewerbSeite, LandeswettbewerbeSeite, LandeswettbewerbSeite, L
 import { ENTWUERFE, istEntwurf, EntwurfTor, EntwurfStart, EntwurfChecken, EntwurfPakete } from "./funcEntwuerfe.jsx";
 import { LANDING, Landingpage } from "./funcLandingpage.jsx";
 import { PenPaperKursSeite } from "./funcPenPaperKurs.jsx";
-import { HeadNumbersSeite } from "./funcHeadNumbers.jsx";
+/* Head & Numbers wird erst beim Öffnen nachgeladen (eigener Chunk, nicht im Hauptbündel) */
+const HeadNumbersSeite = React.lazy(() => import("./funcHeadNumbers.jsx").then((m) => ({ default: m.HeadNumbersSeite })));
 import { EBB_SLOGAN, EbbinghausSeite } from "./funcEbbinghaus.jsx";
 import { EntwurfWerkzeuge } from "./funcStartArchiv.jsx";
 import { useKonto, kontoStarten } from "./konto.js";
@@ -1387,7 +1388,9 @@ export function Mathilda() {
             </div>
             <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
           </div>
-          <HeadNumbersSeite key={hnModul || "start"} gehe={gehe} start={hnModul} />
+          <React.Suspense fallback={<p role="status" style={{ color: C.grau, fontSize: 15, fontWeight: 300, padding: "24px 0" }}>{englisch() ? "Loading …" : "Wird geladen …"}</p>}>
+            <HeadNumbersSeite key={hnModul || "start"} gehe={gehe} start={hnModul} />
+          </React.Suspense>
         </>
       ) : ansicht === "lgs" ? (
         <>
