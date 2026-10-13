@@ -52,6 +52,7 @@ import { ENTWUERFE, istEntwurf, EntwurfTor, EntwurfStart, EntwurfChecken, Entwur
 import { LANDING, Landingpage } from "./funcLandingpage.jsx";
 import { PenPaperKursSeite } from "./funcPenPaperKurs.jsx";
 import { HeadNumbersSeite } from "./funcHeadNumbers.jsx";
+import { EBB_SLOGAN, EbbinghausSeite } from "./funcEbbinghaus.jsx";
 import { EntwurfWerkzeuge } from "./funcStartArchiv.jsx";
 import { useKonto, kontoStarten } from "./konto.js";
 import { englisch, spracheWechseln } from "./i18n.js";
@@ -1340,6 +1341,21 @@ export function Mathilda() {
             <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
           </div>
           <PenPaperKursSeite gehe={gehe} />
+        </>
+      ) : ansicht === "ebbinghaus" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
+            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.14em", color: C.flaggold, marginBottom: 8 }}>LERNSYSTEM · VOM VERSTEHEN ZUM KÖNNEN</p>
+              <h1 className="logo-gold" data-kein-i18n style={{ fontWeight: 800, fontSize: "clamp(28px, 8.4vw, 38px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Ebbinghaus</h1>
+              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
+              <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+                {EBB_SLOGAN}
+              </p>
+            </div>
+            <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
+          </div>
+          <EbbinghausSeite gehe={gehe} />
         </>
       ) : ansicht === "headnumbers" ? (
         <>

@@ -28,11 +28,25 @@ import {
   pruefeAntwort, pruefeErklaerung, pruefungAuswahl, themaAktualisieren, typStatus, warmupAuswahl, wiederkehrende,
 } from "./trainingDaten.js";
 import { AufklappZeichen } from "./aufklappen.jsx";
+import { bucheLauf, normiereEbb } from "./ebbinghaus.js";
 
 /* ---------- Speicher: im vorhandenen Lernstand (func6) ---------- */
 const aendere = (fn) => lernAendern((L) => { L.training = normiere(L.training); fn(L.training); });
 export const useTraining = () => normiere(useLern().training);
 const datum = (ts) => new Date(ts).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
+
+/* Ebbinghaus-Wiederholungsplan: Ergebnisse von Aufgaben werden den Skills zugeordnet und im Lernstand
+   (training.ebbinghaus) gebucht. Aufgaben ohne Skill werden ignoriert. Liefert die Änderungen für die Anzeige. */
+export function ebbBuchen(aufgaben, zs, quelle) {
+  let aenderungen = [];
+  lernAendern((L) => {
+    L.training = normiere(L.training);
+    const E = normiereEbb(L.training.ebbinghaus);
+    aenderungen = bucheLauf(E, aufgaben, zs, Date.now(), quelle);
+    L.training.ebbinghaus = E;
+  });
+  return aenderungen;
+}
 
 /* Zugang zu Mathilda AI: hängt an der Berechtigung im Konto. Solange diese nicht freigeschaltet ist
    (wie beim gesperrten Bereich „Mathilda AI“), arbeitet der Erklärmodus mit festen, fachlich
@@ -242,7 +256,7 @@ export function PruefungsLink({ ansicht, gehe }) {
   );
 }
 
-export function Aufgabenlauf({ aufgaben, quelle, onEnde, endeText = "Fertig" }) {
+export function Aufgabenlauf({ aufgaben, quelle, onEnde, endeText = "Fertig", onWeiter }) {
   const konto = useKonto();
   const [i, setI] = useState(0);
   const [zs, setZs] = useState(() => aufgaben.map(leerZustand));
@@ -272,6 +286,7 @@ export function Aufgabenlauf({ aufgaben, quelle, onEnde, endeText = "Fertig" }) 
     setz({ versuche, ok: r.ok, typ: r.ok ? z.typ : r.typ, text: r.ok ? "" : r.text, meldung: "", gebucht: true, erstOk: z.gebucht ? z.erstOk : r.ok, hilfeEnde: hilfeEff });
   };
   const weiter = () => {
+    if (onWeiter) onWeiter(a, z);   // z. B. Ebbinghaus-Plan: jede bearbeitete Aufgabe wird beim Weitergehen gebucht
     if (i + 1 < aufgaben.length) setI(i + 1);
     else setFertig(true);
   };
@@ -375,7 +390,7 @@ function Warmup({ gehe }) {
       <Zurueck gehe={gehe} />
       <h2 style={{ fontSize: "clamp(20px, 6.2vw, 24px)", fontWeight: 700, color: C.tinte, letterSpacing: "-0.02em", marginBottom: 8 }}>5 Minuten Mathe</h2>
       {lauf ? (
-        <Aufgabenlauf key={runde} aufgaben={lauf} quelle="warmup" endeText="Fertig – zurück zur Übersicht" onEnde={() => setLauf(null)} />
+        <Aufgabenlauf key={runde} aufgaben={lauf} quelle="warmup" endeText="Fertig – zurück zur Übersicht" onEnde={() => setLauf(null)} onWeiter={(a, z) => ebbBuchen([a], [z], "warmup")} />
       ) : (
         <>
           <p style={hinweis}>Fünf kurze Aufgaben, gemischt aus Grundlagen, deinem letzten Thema und Dingen, die gern wieder auftauchen. Kein Zwang und keine Serie – wer pausiert, verliert nichts.</p>
@@ -464,7 +479,7 @@ function Fehlertraining({ gehe }) {
       {lauf ? (
         <>
           <p style={{ ...hinweis, marginBottom: 10 }}>Sechs neue Aufgaben zum Fehlertyp „{FEHLERTYPEN[typ].name}“. {FEHLERTYPEN[typ].tipp}</p>
-          <Aufgabenlauf key={runde} aufgaben={lauf} quelle="fehler" endeText="Fertig – zurück zur Übersicht" onEnde={() => setLauf(null)} />
+          <Aufgabenlauf key={runde} aufgaben={lauf} quelle="fehler" endeText="Fertig – zurück zur Übersicht" onEnde={() => setLauf(null)} onWeiter={(a, z) => ebbBuchen([a], [z], "fehler")} />
         </>
       ) : (
         <>
