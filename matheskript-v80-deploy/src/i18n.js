@@ -361,7 +361,7 @@ const ZUSATZ = {
   "Die Plätze im Café sind begrenzt – sichern Sie sich Ihr Ticket.": "Seats in the café are limited – secure your ticket now.",
   "Getränke, Snack und erstes Kennenlernen": "Drinks, a snack and getting to know each other",
   /* Pen-&-Paper-Kurs (Seitenkopf in func10.jsx; der Seitentext selbst nutzt L() in funcPenPaperKurs.jsx) */
-  "2 KURSE · 9 EINHEITEN · 8 WOCHEN": "2 COURSES · 9 UNITS · 8 WEEKS",
+  "MITTELSTUFE · OBERSTUFE": "MIDDLE SCHOOL · UPPER SCHOOL",
   "Pen & Paper Kurs": "Pen & Paper Course",
   "Pen & Paper Kurs öffnen": "Open Pen & Paper course",
   /* Head & Numbers (Seitentext nutzt L() in funcHeadNumbers.jsx; hier Kopfbereich, Kachel, Menü) */

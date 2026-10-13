@@ -1,9 +1,10 @@
 import React, { useMemo, useRef, useState } from "react";
 import { C } from "./base1.jsx";
-import { M } from "./func3.jsx";
+import { M, Text } from "./func3.jsx";
 import { Knopf } from "./func1.jsx";
 import { MathildaName } from "./mathildaName.jsx";
 import { englisch } from "./i18n.js";
+import { baueExtra } from "./funcPenPaperExtra.js";
 
 /* ======================================================================
    PEN-&-PAPER-KURS
@@ -31,6 +32,7 @@ const L = (de, en) => (englisch() ? en : de);
 const NAVY = "#0B1E4A";
 const GOLD = C.flaggold;
 const SILBER = "#8E97A6";
+const LABEL = "#626D8A";   // kleine Beschriftungen: mind. 4,5 : 1 auf Weiß, Sand und Blatt-Raster
 const GOLDFLAECHE = "linear-gradient(150deg, #FFE9A0 0%, #F4CE4A 28%, #EDBB00 55%, #D9A520 78%, #B58612 100%)";
 const karte = { background: C.weiss, borderRadius: 18, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" };
 
@@ -172,7 +174,8 @@ function baue() {
         { l: "f(−x)", r: "−x^3 − 3x^2" },
         { tx: L("Weder f(x) noch −f(x): keine einfache Symmetrie.", "Neither f(x) nor −f(x): no simple symmetry.") },
         { l: "f(x)", r: "x^2(x − 3)" },
-        { l: "f(x) = 0", o: "⇒", r: "x_1 = 0 \\; (\\text{" + L("doppelt", "double") + "}), \\; x_2 = 3" },
+        { l: "f(x) = 0", o: "⇒", r: "x_1 = 0 \\; (\\text{" + L("doppelt", "double") + "})" },
+        { r: "x_2 = 3" },
       ] } },
     { w: 3, titel: L("Extrempunkte: Von f′ zu den Punkten", "Extreme points: from f′ to the points"),
       text: L("Kandidaten bestimmst du über f′(x) = 0, berechnest die Funktionswerte und unterscheidest zwischen Extremstelle und Extrempunkt.",
@@ -262,7 +265,26 @@ function baue() {
     L("Möglichkeiten zur Selbstkontrolle", "Ways to check yourself"),
   ];
 
+  const extra = baueExtra(L);
+  einheitenA.forEach((e, i) => Object.assign(e, extra.A[i]));
+  einheitenB.forEach((e, i) => Object.assign(e, extra.B[i]));
+
   return { werkzeuge, stufen, aufbau, einheitenA, einheitenB, protokoll, arbeitsweise, mathematik, mathildaFelder };
+}
+
+/* Tab-Leisten per Tastatur: Pfeile, Pos1, Ende (nur der gewählte Tab ist per Tab erreichbar) */
+function tabTaste(e, n, aktuell, setze) {
+  const k = e.key;
+  let i = aktuell;
+  if (k === "ArrowRight" || k === "ArrowDown") i = (aktuell + 1) % n;
+  else if (k === "ArrowLeft" || k === "ArrowUp") i = (aktuell - 1 + n) % n;
+  else if (k === "Home") i = 0;
+  else if (k === "End") i = n - 1;
+  else return;
+  e.preventDefault();
+  setze(i);
+  const tabs = e.currentTarget.querySelectorAll('[role="tab"]');
+  if (tabs[i]) tabs[i].focus();
 }
 
 /* ---------------------------------------------------------------- Termhäuser */
@@ -366,7 +388,7 @@ function Rechnung({ zeilen }) {
           <div style={{ justifySelf: "end" }}>{z.l ? <M t={z.l} /> : null}</div>
           <div style={{ color: C.grau }}>{z.o === "" ? null : <M t={z.o || "="} />}</div>
           <div><M t={z.r} /></div>
-          <div style={{ fontSize: 12.5, color: "#A67C00", fontWeight: 600, whiteSpace: "nowrap" }}>{z.k || ""}</div>
+          <div style={{ fontSize: 12.5, color: C.gruenDunkel, fontWeight: 600, whiteSpace: "nowrap" }}>{z.k || ""}</div>
         </React.Fragment>
       )))}
     </div>
@@ -418,7 +440,7 @@ function Protokoll({ zeilen }) {
       {zeilen.map(([k, v], i) => (
         <div key={i} style={{ display: "grid", gridTemplateColumns: "minmax(98px, 34%) minmax(0, 1fr)", gap: 10, padding: "8px 12px", alignItems: "center",
           background: i % 2 ? "#F7F9FD" : "#fff", borderBottom: i < zeilen.length - 1 ? `1px solid ${C.linie}` : "none" }}>
-          <span style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.04em", color: C.hellgrau, textTransform: "uppercase" }}>{k}</span>
+          <span style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.04em", color: LABEL, textTransform: "uppercase" }}>{k}</span>
           <span style={{ fontSize: 15, color: C.tinte, lineHeight: 1.45 }}>{/[\\^_=|]/.test(v) ? <M t={v} /> : v}</span>
         </div>
       ))}
@@ -482,7 +504,7 @@ function WerkzeugBild({ id }) {
             <React.Fragment key={i}>
               <span style={{ justifySelf: "end" }}>{l}</span><span style={{ color: C.grau }}>=</span>
               <span style={{ borderBottom: i === kette.length - 1 ? `3px double ${GOLD}` : "none", justifySelf: "start" }}>{r}</span>
-              <span style={{ fontSize: 13, color: "#A67C00", fontWeight: 600 }}>{k}</span>
+              <span style={{ fontSize: 13, color: C.gruenDunkel, fontWeight: 600 }}>{k}</span>
             </React.Fragment>
           ))}
         </div>
@@ -496,13 +518,14 @@ function Werkzeuge({ daten }) {
   const w = daten.werkzeuge.find((x) => x.id === id);
   return (
     <>
-      <div role="tablist" aria-label={L("Die vier Werkzeuge", "The four tools")} style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8 }}>
+      <div role="tablist" aria-label={L("Die vier Werkzeuge", "The four tools")} style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8 }}
+        onKeyDown={(e) => tabTaste(e, daten.werkzeuge.length, daten.werkzeuge.findIndex((x) => x.id === id), (i) => setId(daten.werkzeuge[i].id))}>
         {daten.werkzeuge.map((x, i) => (
-          <button key={x.id} type="button" role="tab" aria-selected={id === x.id} onClick={() => setId(x.id)}
+          <button key={x.id} type="button" role="tab" aria-selected={id === x.id} tabIndex={id === x.id ? 0 : -1} onClick={() => setId(x.id)}
             style={{ textAlign: "left", padding: "12px 13px", borderRadius: 14, cursor: "pointer", fontFamily: "inherit",
               border: `1.5px solid ${id === x.id ? NAVY : C.linie}`, background: id === x.id ? NAVY : C.weiss, boxShadow: id === x.id ? "0 6px 18px rgba(11,30,74,0.22)" : "none",
               transition: "background .2s, border-color .2s" }}>
-            <span style={{ display: "block", fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: id === x.id ? GOLD : C.hellgrau }}>{`0${i + 1}`}</span>
+            <span style={{ display: "block", fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: id === x.id ? GOLD : LABEL }}>{`0${i + 1}`}</span>
             <span style={{ display: "block", fontSize: 15, fontWeight: 700, color: id === x.id ? "#fff" : NAVY, marginTop: 2, lineHeight: 1.2 }}>{x.name}</span>
             <span style={{ display: "block", fontSize: 11.5, fontWeight: 400, color: id === x.id ? "#C9D6EE" : C.grau, marginTop: 3, lineHeight: 1.35 }}>{x.kurz}</span>
           </button>
@@ -551,11 +574,11 @@ function Labor() {
           </button>
         ))}
       </div>
-      <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: C.hellgrau, letterSpacing: "0.04em", marginBottom: 5 }}>{L("ODER EIGENEN TERM EINGEBEN", "OR TYPE YOUR OWN TERM")}</label>
+      <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: LABEL, letterSpacing: "0.04em", marginBottom: 5 }}>{L("ODER EIGENEN TERM EINGEBEN", "OR TYPE YOUR OWN TERM")}</label>
       <input value={eingabe} onChange={(e) => setEingabe(e.target.value)} spellCheck={false} autoComplete="off" inputMode="text"
         placeholder="x^2 − 4x + 3" aria-label={L("Term eingeben", "Enter a term")}
         style={{ width: "100%", boxSizing: "border-box", padding: "11px 13px", borderRadius: 11, border: `1.5px solid ${C.linie}`, fontFamily: "inherit", fontSize: 16, color: C.tinte, background: "#FAFBFE", outline: "none" }} />
-      <p style={{ fontSize: 11.5, color: C.hellgrau, margin: "5px 0 14px" }}>{L("Potenzen mit ^ schreiben, zum Beispiel x^2.", "Write powers with ^, for example x^2.")}</p>
+      <p style={{ fontSize: 11.5, color: LABEL, margin: "5px 0 14px" }}>{L("Potenzen mit ^ schreiben, zum Beispiel x^2.", "Write powers with ^, for example x^2.")}</p>
 
       <div role="group" aria-label={L("Ansicht", "View")} style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 4, background: "#EEF3FA", borderRadius: 12, padding: 4, marginBottom: 12 }}>
         {stufenName.map((n, i) => (
@@ -618,14 +641,14 @@ function Treppe({ daten }) {
             );
           })}
         </svg>
-        <div aria-hidden="true" style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6, fontSize: 11, fontWeight: 600, color: C.hellgrau }}>
+        <div aria-hidden="true" style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6, fontSize: 11, fontWeight: 600, color: LABEL }}>
           <span>{L("viel Hilfe", "lots of support")}</span>
           <span style={{ flex: 1, height: 2, borderRadius: 2, background: `linear-gradient(90deg, ${C.linie}, ${GOLD})` }} />
           <span>{L("eigene Leistung", "your own work")}</span>
         </div>
       </div>
       <div key={i} className="pp-neu" style={{ ...karte, padding: 18, marginTop: 10, borderTop: `4px solid ${GOLD}` }}>
-        <p style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.1em", color: C.hellgrau }}>{L("STUFE", "STAGE")} {i + 1}</p>
+        <p style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.1em", color: LABEL }}>{L("STUFE", "STAGE")} {i + 1}</p>
         <p style={{ fontSize: 22, fontWeight: 700, color: NAVY, marginBottom: 6 }}>{S.k} <span style={{ fontWeight: 400, color: C.grau }}>· {S.name}</span></p>
         <p style={{ fontSize: 14.5, color: C.tinte, lineHeight: 1.7 }}>{S.text}</p>
       </div>
@@ -656,13 +679,14 @@ function Kurse({ daten, kurs, setKurs, einheit, setEinheit, anker }) {
 
   return (
     <div ref={anker} style={{ scrollMarginTop: 70 }}>
-      <div role="tablist" aria-label={L("Kurs wählen", "Choose a course")} style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8 }}>
+      <div role="tablist" aria-label={L("Kurs wählen", "Choose a course")} style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8 }}
+        onKeyDown={(e) => tabTaste(e, wahl.length, wahl.findIndex((w) => w.id === kurs), (i) => waehle(wahl[i].id))}>
         {wahl.map((w) => (
-          <button key={w.id} type="button" role="tab" aria-selected={kurs === w.id} onClick={() => waehle(w.id)}
+          <button key={w.id} type="button" role="tab" aria-selected={kurs === w.id} tabIndex={kurs === w.id ? 0 : -1} onClick={() => waehle(w.id)}
             style={{ textAlign: "left", padding: "14px 13px", borderRadius: 16, cursor: "pointer", fontFamily: "inherit", position: "relative", overflow: "hidden",
               border: `1.5px solid ${kurs === w.id ? NAVY : C.linie}`, background: kurs === w.id ? `linear-gradient(160deg, ${NAVY}, #17306B)` : C.weiss,
               boxShadow: kurs === w.id ? "0 8px 22px rgba(11,30,74,0.26)" : "none", transition: "all .2s" }}>
-            <span style={{ display: "block", fontSize: 11, fontWeight: 800, letterSpacing: "0.1em", color: kurs === w.id ? GOLD : C.hellgrau }}>{w.kicker}</span>
+            <span style={{ display: "block", fontSize: 11, fontWeight: 800, letterSpacing: "0.1em", color: kurs === w.id ? GOLD : LABEL }}>{w.kicker}</span>
             <span style={{ display: "block", fontSize: 17, fontWeight: 700, color: kurs === w.id ? "#fff" : NAVY, margin: "3px 0 6px", lineHeight: 1.2 }}>{w.name}</span>
             <span style={{ display: "block", fontSize: 11.5, fontWeight: 400, lineHeight: 1.4, color: kurs === w.id ? "#C9D6EE" : C.grau }}>{w.weg}</span>
           </button>
@@ -670,8 +694,8 @@ function Kurse({ daten, kurs, setKurs, einheit, setEinheit, anker }) {
       </div>
 
       <p style={{ fontSize: 14.5, color: C.grau, fontWeight: 300, lineHeight: 1.75, margin: "16px 0 6px" }}>{ziel}</p>
-      {kurs === "A" && <p style={{ fontSize: 12.5, color: C.hellgrau, lineHeight: 1.5, marginBottom: 6 }}>{L("Woche 1 enthält zwei Einheiten, danach folgt jeweils eine Einheit pro Woche.", "Week 1 has two units; after that there is one unit per week.")}</p>}
-      {kurs === "B" && <p style={{ fontSize: 12.5, color: C.hellgrau, lineHeight: 1.5, marginBottom: 6 }}>{L("Auch hier gibt es in Woche 1 zwei Einheiten, danach eine pro Woche.", "Here too, week 1 has two units; after that there is one per week.")}</p>}
+      {kurs === "A" && <p style={{ fontSize: 12.5, color: LABEL, lineHeight: 1.5, marginBottom: 6 }}>{L("Woche 1 enthält zwei Einheiten, danach folgt jeweils eine Einheit pro Woche.", "Week 1 has two units; after that there is one unit per week.")}</p>}
+      {kurs === "B" && <p style={{ fontSize: 12.5, color: LABEL, lineHeight: 1.5, marginBottom: 6 }}>{L("Auch hier gibt es in Woche 1 zwei Einheiten, danach eine pro Woche.", "Here too, week 1 has two units; after that there is one per week.")}</p>}
 
       <p style={{ fontSize: 13, fontWeight: 600, color: C.see, margin: "14px 0 10px" }}>{L("Einheit für Einheit – tippe eine Einheit an", "Unit by unit – tap a unit")}</p>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(9, minmax(0, 1fr))", gap: 4 }}>
@@ -692,11 +716,11 @@ function Kurse({ daten, kurs, setKurs, einheit, setEinheit, anker }) {
       </div>
 
       <div key={`${kurs}${einheit}`} className="pp-neu" style={{ ...karte, padding: 18, marginTop: 12 }}>
-        <p style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.1em", color: C.hellgrau }}>{L("WOCHE", "WEEK")} {E.w} · {L("EINHEIT", "UNIT")} {String(einheit + 1).padStart(2, "0")}</p>
+        <p style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.1em", color: LABEL }}>{L("WOCHE", "WEEK")} {E.w} · {L("EINHEIT", "UNIT")} {String(einheit + 1).padStart(2, "0")}</p>
         <p style={{ fontSize: 21, fontWeight: 700, color: NAVY, lineHeight: 1.25, margin: "3px 0 10px" }}>{E.titel}</p>
         <p style={{ fontSize: 14.5, color: C.tinte, lineHeight: 1.7 }}>{E.text}</p>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 6, margin: "12px 0 14px" }}>
-          <span style={{ fontSize: 11.5, fontWeight: 700, color: C.hellgrau, letterSpacing: "0.04em", alignSelf: "center", marginRight: 2 }}>{L("TRAINIERT", "TRAINS")}</span>
+          <span style={{ fontSize: 11.5, fontWeight: 700, color: LABEL, letterSpacing: "0.04em", alignSelf: "center", marginRight: 2 }}>{L("TRAINIERT", "TRAINS")}</span>
           {E.fokus.map((f) => (
             <span key={f} style={{ fontSize: 12, fontWeight: 600, color: NAVY, background: "#EEF3FA", borderRadius: 999, padding: "4px 10px" }}>{f}</span>
           ))}
@@ -709,6 +733,8 @@ function Kurse({ daten, kurs, setKurs, einheit, setEinheit, anker }) {
           {ex && ex.typ === "vorzeichen" && <Vorzeichentabelle />}
           {ex && ex.typ === "protokoll" && <Protokoll zeilen={daten.protokoll} />}
         </Blatt>
+        <Fehlerbox f={E.fehler} />
+        <Transfer t={E.transfer} />
         <div style={{ display: "flex", justifyContent: "space-between", gap: 8, marginTop: 14 }}>
           <button type="button" disabled={einheit === 0} onClick={() => setEinheit(einheit - 1)}
             style={{ padding: "9px 14px", borderRadius: 999, border: `1.5px solid ${C.linie}`, background: "#fff", color: einheit === 0 ? C.hellgrau : NAVY, fontFamily: "inherit", fontSize: 13, fontWeight: 600, cursor: einheit === 0 ? "default" : "pointer" }}>
@@ -720,6 +746,46 @@ function Kurse({ daten, kurs, setKurs, einheit, setEinheit, anker }) {
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+/* ---------------------------------------------------------------- Fehler und Transfer */
+
+function Fehlerbox({ f }) {
+  if (!f) return null;
+  return (
+    <div style={{ marginTop: 12, borderRadius: 14, border: `1px solid ${C.linie}`, background: "#fff", overflow: "hidden" }}>
+      <div style={{ padding: "13px 14px 12px", borderBottom: `1px dashed ${C.linie}` }}>
+        <Marke>{L("TYPISCHER FEHLER", "TYPICAL MISTAKE")}</Marke>
+        <Rechnung zeilen={f.falsch} />
+      </div>
+      <div style={{ padding: "13px 14px 14px" }}>
+        <Marke ok>{L("SO GEHT’S", "DO IT LIKE THIS")}</Marke>
+        <Rechnung zeilen={f.richtig} />
+        <p style={{ fontSize: 13.5, color: C.grau, fontWeight: 300, lineHeight: 1.65, marginTop: 10 }}>{f.warum}</p>
+      </div>
+    </div>
+  );
+}
+
+function Transfer({ t }) {
+  const [auf, setAuf] = useState(false);
+  if (!t) return null;
+  return (
+    <div style={{ ...karte, marginTop: 12, padding: "14px 16px", borderLeft: `4px solid ${GOLD}`, boxShadow: "0 1px 10px rgba(15,26,51,0.06)" }}>
+      <p style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: "0.1em", color: C.gruenDunkel, marginBottom: 6 }}>{L("TRANSFER – DEINE AUFGABE", "TRANSFER – YOUR TASK")}</p>
+      <Text s={t.aufgabe} style={{ fontSize: 14.5, color: C.tinte, lineHeight: 1.75 }} />
+      <button type="button" aria-expanded={auf} onClick={() => setAuf(!auf)}
+        style={{ marginTop: 10, padding: "8px 14px", borderRadius: 999, border: `1.5px solid ${NAVY}`, background: auf ? NAVY : "#fff", color: auf ? GOLD : NAVY,
+          fontFamily: "inherit", fontSize: 13, fontWeight: 700, cursor: "pointer", transition: "background .2s" }}>
+        {auf ? L("Lösung verbergen", "Hide solution") : L("Erst selbst lösen – dann Lösung zeigen", "Solve it yourself first – then show solution")}
+      </button>
+      {auf && (
+        <div className="pp-neu" style={{ marginTop: 10 }}>
+          <Blatt style={{ padding: "12px 14px 14px" }}><Rechnung zeilen={t.loesung} /></Blatt>
+        </div>
+      )}
     </div>
   );
 }
@@ -776,7 +842,7 @@ function Checkliste({ titel, punkte, vorne, an, schalte }) {
           <button key={id} type="button" role="checkbox" aria-checked={on} onClick={() => schalte(id)}
             style={{ display: "flex", gap: 11, alignItems: "flex-start", width: "100%", textAlign: "left", padding: "9px 0", background: "none", border: "none", borderTop: `1px solid ${C.linie}`, cursor: "pointer", fontFamily: "inherit" }}>
             <span aria-hidden="true" style={{ flexShrink: 0, width: 22, height: 22, borderRadius: 7, marginTop: 1, display: "flex", alignItems: "center", justifyContent: "center",
-              border: `1.8px solid ${on ? GOLD : C.hellgrau}`, background: on ? GOLD : "#fff", transition: "all .15s" }}>
+              border: `1.8px solid ${on ? GOLD : LABEL}`, background: on ? GOLD : "#fff", transition: "all .15s" }}>
               {on && <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke={NAVY} strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>}
             </span>
             <span style={{ fontSize: 14, color: C.tinte, lineHeight: 1.5 }}>{p}</span>
@@ -813,7 +879,7 @@ function Erfolg({ daten }) {
         <Checkliste titel={L("Arbeitsweise", "Way of working")} punkte={daten.arbeitsweise} vorne="a" an={an} schalte={schalte} />
         <Checkliste titel={L("Mathematik", "Mathematics")} punkte={daten.mathematik} vorne="m" an={an} schalte={schalte} />
       </div>
-      <p style={{ fontSize: 12.5, color: C.hellgrau, lineHeight: 1.6, marginTop: 10 }}>
+      <p style={{ fontSize: 12.5, color: LABEL, lineHeight: 1.6, marginTop: 10 }}>
         {L("Beides wird getrennt bewertet: Eine richtige Lösung kann schlecht dokumentiert sein – und ein sauberer Weg kann einen Rechenfehler enthalten.", "The two are rated separately: a correct solution can be poorly documented – and a clean working can still contain a slip in the calculation.")}
       </p>
     </>
@@ -827,6 +893,15 @@ export function PenPaperKursSeite({ gehe }) {
   const [kurs, setKurs] = useState("A");
   const [einheit, setEinheit] = useState(0);
   const anker = useRef(null);
+  const springe = (id) => {
+    try {
+      const el = document.getElementById("pp-" + id);
+      const ruhig = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (el) el.scrollIntoView({ behavior: ruhig ? "auto" : "smooth", block: "start" });
+    } catch (e) { /* ignorieren */ }
+  };
+  const sprung = [["werkzeuge", L("Werkzeuge", "Tools")], ["lernstufen", L("Lernstufen", "Stages")], ["kurse", L("Die Kurse", "The courses")],
+    ["ablauf", L("Ablauf", "Routine")], ["erfolg", L("Erfolg messen", "Progress")], ["mathilda", "Mathilda"]];
   const zuKurs = (k) => {
     setKurs(k); setEinheit(0);
     setTimeout(() => { try { anker.current && anker.current.scrollIntoView({ behavior: "smooth", block: "start" }); } catch (e) { /* ignorieren */ } }, 30);
@@ -871,9 +946,20 @@ export function PenPaperKursSeite({ gehe }) {
         ))}
       </div>
 
+      <nav aria-label={L("Auf dieser Seite", "On this page")} style={{ marginTop: 22 }}>
+        <p style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: "0.1em", color: LABEL, marginBottom: 8 }}>{L("AUF DIESER SEITE", "ON THIS PAGE")}</p>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+          {sprung.map(([id, t]) => (
+            <button key={id} type="button" onClick={() => springe(id)}
+              style={{ padding: "7px 13px", borderRadius: 999, border: `1.5px solid ${C.linie}`, background: "#fff", color: NAVY, fontFamily: "inherit", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>{t}</button>
+          ))}
+        </div>
+      </nav>
+
       <Trenner />
 
       {/* Werkzeuge */}
+      <div id="pp-werkzeuge" style={{ scrollMarginTop: 70 }} />
       <Kicker>{L("Das Handwerkszeug", "The toolkit")}</Kicker>
       <H2>{L("Vier Werkzeuge für ein klares Blatt", "Four tools for a clear page")}</H2>
       <Absatz>{L("Alles, was du in den Kursen trainierst, beruht auf vier Werkzeugen. Tippe eines an und sieh dir an, wie es auf dem Blatt aussieht.", "Everything you train in the courses rests on four tools. Tap one and see what it looks like on the page.")}</Absatz>
@@ -885,6 +971,7 @@ export function PenPaperKursSeite({ gehe }) {
       <Trenner />
 
       {/* Lernstufen */}
+      <div id="pp-lernstufen" style={{ scrollMarginTop: 70 }} />
       <Kicker>{L("Der Weg in jeder Einheit", "The path in every unit")}</Kicker>
       <H2>{L("Vier Lernstufen: Vom Lesen zum Vermitteln", "Four stages: from reading to delivering")}</H2>
       <Absatz>{L("Die Hilfestellung nimmt von Stufe zu Stufe ab, dein eigener Anteil wächst. Tippe eine Stufe an.", "The support decreases from stage to stage while your own share grows. Tap a stage.")}</Absatz>
@@ -893,16 +980,18 @@ export function PenPaperKursSeite({ gehe }) {
       <Trenner />
 
       {/* Kurse */}
+      <div id="pp-kurse" style={{ scrollMarginTop: 70 }} />
       <Kicker>{L("Die zwei Kurse", "The two courses")}</Kicker>
       <H2>{L("Neun Einheiten in acht Wochen", "Nine units in eight weeks")}</H2>
       <Kurse daten={daten} kurs={kurs} setKurs={setKurs} einheit={einheit} setEinheit={setEinheit} anker={anker} />
-      <p style={{ fontSize: 12.5, color: C.hellgrau, lineHeight: 1.6, marginTop: 12 }}>
+      <p style={{ fontSize: 12.5, color: LABEL, lineHeight: 1.6, marginTop: 12 }}>
         {L("Die Rechenbeispiele zeigen, wie die Aufgaben von Anfang an so gestaltet sind, dass sie zugleich die Arbeitsweise trainieren.", "The worked examples show how the tasks are designed from the start to train your way of working at the same time.")}
       </p>
 
       <Trenner />
 
       {/* Aufbau jeder Einheit */}
+      <div id="pp-ablauf" style={{ scrollMarginTop: 70 }} />
       <Kicker>{L("Der Ablauf", "The routine")}</Kicker>
       <H2>{L("So ist jede Einheit aufgebaut", "How every unit is structured")}</H2>
       <Absatz>{L("Jede Einheit folgt derselben didaktischen Struktur – so weißt du immer, was als Nächstes kommt.", "Every unit follows the same teaching structure – so you always know what comes next.")}</Absatz>
@@ -911,6 +1000,7 @@ export function PenPaperKursSeite({ gehe }) {
       <Trenner />
 
       {/* Erfolg messen */}
+      <div id="pp-erfolg" style={{ scrollMarginTop: 70 }} />
       <Kicker>{L("Fortschritt sehen", "Seeing progress")}</Kicker>
       <H2>{L("Erfolg messen – Mathematik und Arbeitsweise getrennt", "Measuring success – maths and working method separately")}</H2>
       <Erfolg daten={daten} />
@@ -918,6 +1008,7 @@ export function PenPaperKursSeite({ gehe }) {
       <Trenner />
 
       {/* Mathilda */}
+      <div id="pp-mathilda" style={{ scrollMarginTop: 70 }} />
       <Kicker>{L("Dein Feedback-Partner", "Your feedback partner")}</Kicker>
       <H2>{L("Mathilda schaut auf dein Blatt", "Mathilda looks at your page")}</H2>
       <div style={{ borderRadius: 20, padding: "20px 18px 18px", background: `linear-gradient(165deg, ${C.seeTief} 0%, ${C.see} 100%)`, color: "#fff", boxShadow: "0 10px 30px rgba(0,77,152,0.24)" }}>
@@ -951,7 +1042,7 @@ export function PenPaperKursSeite({ gehe }) {
         {[[L("Mittelstufe", "Middle school"), [L("Geradengleichungen", "Straight lines"), L("Parabeln", "Parabolas"), L("Ableitung", "Derivative")], NAVY],
           [L("Oberstufe", "Upper school"), [L("Ableitung", "Derivative"), L("Markante Punkte & Eigenschaften", "Key points & properties"), L("Vollständige Kurvendiskussion", "Complete curve sketch")], SILBER]].map(([n, w, f]) => (
           <div key={n} style={{ ...karte, padding: "12px 14px", borderLeft: `4px solid ${f}` }}>
-            <p style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", color: C.hellgrau, marginBottom: 6 }}>{n.toUpperCase()}</p>
+            <p style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", color: LABEL, marginBottom: 6 }}>{n.toUpperCase()}</p>
             <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "4px 8px", fontSize: 13.5, fontWeight: 600, color: NAVY }}>
               {w.map((x, i) => (<React.Fragment key={x}>{i > 0 && <span aria-hidden="true" style={{ color: GOLD, fontWeight: 800 }}>→</span>}<span>{x}</span></React.Fragment>))}
             </div>
