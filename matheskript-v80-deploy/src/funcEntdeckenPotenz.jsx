@@ -590,4 +590,7 @@ export function PotenzModul({ onZurueck }) {
   );
 }
 
+/* Gemeinsame Bausteine für weitere Module von „Mathe entdecken“ (z. B. funcEntdeckenPythagoras.jsx) */
+export { T, Zaehler, Aufforderung, BildKarte };
+
 export const POTENZ_PHASEN = ["Die erste binomische Formel", "Die Entwicklung der dritten Potenz", "Das Pascalsche Dreieck entdecken", "Die allgemeine binomische Formel", "Der Differenzenquotient", "Die Potenzregel selbst herleiten", "Die Potenzregel anwenden und überprüfen"];

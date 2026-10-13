@@ -10,15 +10,17 @@
      video:     { haupt: { an, zeit }, puzzle: …, calculus: … }, // vom Schüler als „gesehen“ markiert
      potenz:    { phase: 0–6, stand: [n0 … n6], fertig, phasenFertig, zeit },  // siebenphasiges Modul
      axiome:    { phase: 0–6, stand: [n0 … n6], fertig, zeit },                // Modul „Axiome“ (Lernangebot 1)
-     zuletzt:   { id: "axiome" | "einstieg" | "potenz", label, zeit },
+     module:    { pythagoras: { phase, stand: [n0 …], fertig, zeit } },        // weitere Module (MODULE in entdeckenMerge.js)
+     zuletzt:   { id: "axiome" | "einstieg" | "potenz" | "pythagoras", label, zeit },
      _zeit
    }
    ====================================================================== */
-import { AXIOM_PHASEN, PHASEN, mergeEntdecken, normalisiere } from "./entdeckenMerge.js";
+import { AXIOM_PHASEN, MODULE, PHASEN, mergeEntdecken, normalisiere } from "./entdeckenMerge.js";
 
 const SCHLUESSEL = "matheskript-entdecken-v1";
 export const PHASEN_ANZAHL = PHASEN;
 export const AXIOM_PHASEN_ANZAHL = AXIOM_PHASEN;
+export const MODUL_PHASEN = MODULE;
 
 const leer = () => normalisiere({});
 
@@ -147,6 +149,42 @@ export function axiomeZuruecksetzen() {
 export const statusAxiome = () => {
   if (D.axiome.fertig) return "fertig";
   return D.axiome.stand.some((n) => n > 0) || D.axiome.phase > 0 ? "arbeit" : "offen";
+};
+
+/* ---------- Weitere Module (z. B. „pythagoras“) – gleiche Logik wie beim Potenzregel-Modul ---------- */
+export const modulStand = (id) => D.module[id];
+
+export function modulStandSetzen(id, phase, anzahl) {
+  const m = D.module[id];
+  const stand = m.stand.slice();
+  stand[phase] = Math.max(stand[phase], anzahl);
+  D.module = { ...D.module, [id]: { ...m, stand, zeit: Date.now() } };
+  D.zuletzt = { id, label: `Phase ${phase + 1} von ${MODULE[id]}`, zeit: Date.now() };
+  sichern();
+}
+
+export function modulPhaseSetzen(id, phase) {
+  D.module = { ...D.module, [id]: { ...D.module[id], phase, zeit: Date.now() } };
+  D.zuletzt = { id, label: `Phase ${phase + 1} von ${MODULE[id]}`, zeit: Date.now() };
+  sichern();
+}
+
+export function modulFertigSetzen(id, fertig) {
+  D.module = { ...D.module, [id]: { ...D.module[id], fertig, zeit: Date.now() } };
+  if (fertig) D.zuletzt = { id, label: "Modul abgeschlossen", zeit: Date.now() };
+  sichern();
+}
+
+/* Bewusstes Zurücksetzen: ersetzt den Konto-Stand (kein Zusammenführen) */
+export function modulZuruecksetzen(id) {
+  D.module = { ...D.module, [id]: { ...leer().module[id], zeit: Date.now() } };
+  sichern(true);
+}
+
+export const statusModul = (id) => {
+  const m = D.module[id];
+  if (m.fertig) return "fertig";
+  return m.stand.some((n) => n > 0) || m.phase > 0 ? "arbeit" : "offen";
 };
 
 /* Phasen, die ganz durchgearbeitet sind (Anzahl der Schritte kennt nur das Modul selbst, deshalb meldet es sie) */

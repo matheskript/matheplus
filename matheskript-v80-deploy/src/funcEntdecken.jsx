@@ -4,9 +4,10 @@ import { M } from "./func3.jsx";
 import { GrosserKnopf, karte } from "./ui2.jsx";
 import { PotenzModul } from "./funcEntdeckenPotenz.jsx";
 import { AxiomeModul } from "./funcEntdeckenAxiome.jsx";
+import { PYTHAGORAS_PHASEN_ANZAHL, PythagorasModul } from "./funcEntdeckenPythagoras.jsx";
 import { useEntdeckenSyncStatus } from "./entdeckenSync.js";
 import {
-  AXIOM_PHASEN_ANZAHL, PHASEN_ANZAHL, REFLEX_IDS, einstiegFortschritt, entdeckenHoeren, entdeckenStand, reflexionBeantwortet, reflexionSetzen, statusAxiome, statusEinstieg, statusPotenz, videoGesehen, videoSetzen,
+  AXIOM_PHASEN_ANZAHL, PHASEN_ANZAHL, REFLEX_IDS, einstiegFortschritt, entdeckenHoeren, entdeckenStand, modulStand, reflexionBeantwortet, reflexionSetzen, statusAxiome, statusEinstieg, statusModul, statusPotenz, videoGesehen, videoSetzen,
 } from "./entdeckenSpeicher.js";
 
 /* ======================================================================
@@ -15,7 +16,8 @@ import {
      Lernangebot 1: Axiome-Modul (zehn Phasen) →
      Lernangebot 2: Hauptvideo, Reflexionsfragen, zwei weitere Videos →
      Lernangebot 3: „Mathe entdecken in der Praxis“ mit Themenkarte →
-     Modul: siebenphasiges Potenzregel-Modul (Zurück führt zur Übersicht).
+     Modul: siebenphasiges Potenzregel-Modul (Zurück führt zur Übersicht) →
+     Lernangebot 4: „Satz des Pythagoras“ mit Themenkarte → sechsphasiges Pythagoras-Modul.
    Fortschritt und Antworten liegen in entdeckenSpeicher.js (localStorage).
    Alle Video-IDs sind per YouTube-oEmbed geprüft.
    ====================================================================== */
@@ -146,12 +148,20 @@ function Reflexion({ stand }) {
 }
 
 /* ---------- Themenkarte: Lernweg in drei Schritten ---------- */
-function Lernweg() {
-  const schritte = [
-    { nr: 1, titel: "Binomische Formel", text: "Eine bekannte Formel genau untersuchen." },
-    { nr: 2, titel: "Pascalsches Dreieck", text: "Ein Zahlenmuster erkennen." },
-    { nr: 3, titel: "Potenzregel:", formel: "f′(x)=n\\cdot x^{n-1}", text: "Eine allgemeine Regel selbst herleiten." },
-  ];
+const LERNWEG_POTENZ = [
+  { nr: 1, titel: "Binomische Formel", text: "Eine bekannte Formel genau untersuchen." },
+  { nr: 2, titel: "Pascalsches Dreieck", text: "Ein Zahlenmuster erkennen." },
+  { nr: 3, titel: "Potenzregel:", formel: "f′(x)=n\\cdot x^{n-1}", text: "Eine allgemeine Regel selbst herleiten." },
+];
+const LERNWEG_PYTHAGORAS = [
+  { nr: 1, titel: "Rechteck", text: "Die Fläche aus Kästchen entdecken." },
+  { nr: 2, titel: "Rechtwinkliges Dreieck", text: "Das halbe Rechteck." },
+  { nr: 3, titel: "Beliebiges Dreieck", text: "Zwei rechtwinklige Dreiecke ergeben jedes Dreieck." },
+  { nr: 4, titel: "Satz des Pythagoras:", formel: "a^2+b^2=c^2", text: "Ein Beweis allein mit Flächen." },
+  { nr: 5, titel: "Zweiter Beweis", text: "Das Quadrat in der Mitte." },
+  { nr: 6, titel: "Anwenden", text: "Hypotenuse, Kathete und rechter Winkel." },
+];
+function Lernweg({ schritte = LERNWEG_POTENZ }) {
   return (
     <ol style={{ listStyle: "none", margin: "18px 0 0", padding: 0 }}>
       {schritte.map((s, i) => (
@@ -235,7 +245,11 @@ function Uebersicht({ stand, oeffne }) {
   const nE = einstiegFortschritt();
   const phase = Math.min((stand.potenz.phase || 0) + 1, PHASEN_ANZAHL);
   const phaseA = Math.min((stand.axiome.phase || 0) + 1, AXIOM_PHASEN_ANZAHL);
+  const sY = statusModul("pythagoras");
+  const phaseY = Math.min((modulStand("pythagoras").phase || 0) + 1, PYTHAGORAS_PHASEN_ANZAHL);
   const zuletzt = stand.zuletzt;
+  const ZIEL = { axiome: ["axiome", "Axiome"], potenz: ["praxis", "Pascalsches Dreieck"], pythagoras: ["pythagoras", "Satz des Pythagoras"] };
+  const [zuletztZiel, zuletztName] = (zuletzt && ZIEL[zuletzt.id]) || ["einstieg", "Mathe entdecken"];
   return (
     <>
       <div style={{ ...karte, borderLeft: `4px solid ${C.flaggold}`, padding: "18px 20px" }}>
@@ -259,12 +273,14 @@ function Uebersicht({ stand, oeffne }) {
             fortschritt={sE === "arbeit" ? `Video ${videoGesehen("haupt") ? "✓" : "–"} · ${nE} von ${REFLEX_IDS.length} Fragen` : null} onClick={() => oeffne("einstieg")} />
           <LernangebotKarte nr={3} titel="Pascalsches Dreieck" text="Entdecke die Potenzregel" status={sP}
             fortschritt={sP === "arbeit" ? `Phase ${phase} von ${PHASEN_ANZAHL}` : null} onClick={() => oeffne("praxis")} />
+          <LernangebotKarte nr={4} titel="Satz des Pythagoras" text="Entdecke, warum a² + b² = c² gilt" status={sY}
+            fortschritt={sY === "arbeit" ? `Phase ${phaseY} von ${PYTHAGORAS_PHASEN_ANZAHL}` : null} onClick={() => oeffne("pythagoras")} />
         </div>
         {zuletzt && (
-          <button type="button" onClick={() => oeffne(zuletzt.id === "axiome" ? "axiome" : zuletzt.id === "potenz" ? "praxis" : "einstieg")}
+          <button type="button" onClick={() => oeffne(zuletztZiel)}
             style={{ display: "block", width: "100%", textAlign: "left", fontFamily: "inherit", cursor: "pointer", background: "none", border: "none", padding: 0,
               fontSize: 12.5, fontWeight: 300, color: C.grau, margin: "14px 2px 0", lineHeight: 1.5 }}>
-            Zuletzt bearbeitet: <b style={{ fontWeight: 600, color: C.tinte }}>{zuletzt.id === "axiome" ? "Axiome" : zuletzt.id === "potenz" ? "Pascalsches Dreieck" : "Mathe entdecken"}</b> · {zuletzt.label}{" "}
+            Zuletzt bearbeitet: <b style={{ fontWeight: 600, color: C.tinte }}>{zuletztName}</b> · {zuletzt.label}{" "}
             <span style={{ color: C.see, fontWeight: 600 }}>Weitermachen →</span>
           </button>
         )}
@@ -353,19 +369,59 @@ function Praxis({ zurueck, startModul }) {
   );
 }
 
+/* ---------- Lernangebot 4: Satz des Pythagoras mit Themenkarte ---------- */
+function Pythagoras({ zurueck, startModul }) {
+  const sY = statusModul("pythagoras");
+  const phase = Math.min((modulStand("pythagoras").phase || 0) + 1, PYTHAGORAS_PHASEN_ANZAHL);
+  return (
+    <>
+      <ZurueckKnopf onClick={zurueck} />
+      <p style={kickerStil}>Lernangebot 4</p>
+      <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, color: C.tinte, margin: "0 0 6px" }}>Satz des Pythagoras</h2>
+      <p style={{ fontSize: 16, fontWeight: 600, color: C.see, margin: "0 0 14px", lineHeight: 1.4 }}>Von der Fläche zum Beweis</p>
+      <p style={{ ...absatz, marginBottom: 12 }}>
+        Vermutlich kennst du die Formel <M t="a^2+b^2=c^2" /> schon. Aber warum stimmt sie eigentlich?
+      </p>
+      <p style={{ ...absatz, marginBottom: 12 }}>
+        Wir beginnen mit der Fläche eines Rechtecks, halbieren es zum rechtwinkligen Dreieck und zerlegen damit jedes Dreieck. Mit diesem Wissen bauen wir ein Quadrat aus vier Dreiecken – und der Satz des Pythagoras fällt wie von selbst heraus.
+      </p>
+      <p style={{ ...absatz, marginBottom: 22 }}>
+        Du schiebst und drehst die Bilder selbst. Am Ende kannst du den Satz nicht nur anwenden, sondern auch auf zwei verschiedene Arten beweisen.
+      </p>
+
+      <div style={{ ...karte, padding: 22, background: `linear-gradient(180deg, ${C.weiss} 0%, ${C.himmel} 100%)`, border: `1px solid ${C.linie}` }}>
+        <p style={kickerStil}>Lernmodul</p>
+        <h3 style={{ fontSize: 21, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.25, color: C.tinte, margin: 0 }}>
+          Satz des Pythagoras – Entdecke, warum er gilt
+        </h3>
+        <Lernweg schritte={LERNWEG_PYTHAGORAS} />
+      </div>
+
+      <GrosserKnopf onClick={startModul}>Jetzt selbst entdecken</GrosserKnopf>
+      {sY !== "offen" && (
+        <p style={{ fontSize: 12.5, fontWeight: 300, color: C.grau, textAlign: "center", margin: "10px 0 0" }}>
+          {sY === "fertig" ? "Modul abgeschlossen – du kannst es jederzeit wiederholen." : `Du bist bei Phase ${phase} von ${PYTHAGORAS_PHASEN_ANZAHL} – dein Stand ist gespeichert.`}
+        </p>
+      )}
+    </>
+  );
+}
+
 export function EntdeckenSeite() {
   const stand = useStand();
-  const [seite, setSeite] = useState("uebersicht"); // uebersicht | einstieg | praxis | modul
+  const [seite, setSeite] = useState("uebersicht"); // uebersicht | einstieg | praxis | modul | pythagoras | modulP
   useEffect(() => { window.scrollTo(0, 0); }, [seite]);
 
   if (seite === "axiome") return <AxiomeModul onZurueck={() => setSeite("uebersicht")} />;
   if (seite === "modul") return <PotenzModul onZurueck={() => setSeite("uebersicht")} />;
+  if (seite === "modulP") return <PythagorasModul onZurueck={() => setSeite("uebersicht")} />;
 
   return (
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
       {seite === "uebersicht" && <Uebersicht stand={stand} oeffne={setSeite} />}
       {seite === "einstieg" && <Einstieg stand={stand} zurueck={() => setSeite("uebersicht")} weiter={() => setSeite("praxis")} />}
       {seite === "praxis" && <Praxis zurueck={() => setSeite("uebersicht")} startModul={() => setSeite("modul")} />}
+      {seite === "pythagoras" && <Pythagoras zurueck={() => setSeite("uebersicht")} startModul={() => setSeite("modulP")} />}
     </div>
   );
 }

@@ -10,6 +10,7 @@
      So lässt sich eine Markierung auch bewusst zurücknehmen.
    · Potenzregel-Modul und Axiome-Modul: erledigte Schritte je Phase = der größere Wert (Fortschritt geht nie verloren),
      „abgeschlossen“ = eines von beiden, aktuelle Phase vom jüngeren Stand.
+   · Weitere Module (`module`, z. B. Satz des Pythagoras): dieselben Regeln wie beim Potenzregel-Modul.
    · zuletzt bearbeitet: der jüngere Eintrag.
    Bewusstes Zurücksetzen („Modul von vorn“) läuft nicht über das Zusammenführen,
    sondern über lernSync → ersetzen().
@@ -18,6 +19,9 @@
 export const PHASEN = 7;
 /* Modul „Axiome“ (Lernangebot 1): Anzahl der Phasen */
 export const AXIOM_PHASEN = 10;
+/* Weitere Lernmodule (je ein Eintrag unter `module`): Kennung → Anzahl der Phasen.
+   Das Potenzregel-Modul bleibt unter `potenz`, damit bestehende Konten unverändert weiterlaufen. */
+export const MODULE = { pythagoras: 6 };
 
 const istObj = (x) => x !== null && typeof x === "object" && !Array.isArray(x);
 const zahl = (v) => (typeof v === "number" && Number.isFinite(v) && v > 0 ? v : 0);
@@ -45,11 +49,23 @@ export function normalisiere(d) {
   const phasenFertig = [...new Set(fertigListe.map((x) => ganz(x, PHASEN - 1)))].sort((a, b) => a - b);
   const ax = istObj(d.axiome) ? d.axiome : {};
   const axStand = Array.from({ length: AXIOM_PHASEN }, (_, i) => ganz(Array.isArray(ax.stand) ? ax.stand[i] : 0, 99));
+  const modIn = istObj(d.module) ? d.module : {};
+  const mods = {};
+  for (const id of Object.keys(MODULE)) {
+    const n = MODULE[id], m = istObj(modIn[id]) ? modIn[id] : {};
+    mods[id] = {
+      phase: ganz(m.phase, n - 1),
+      stand: Array.from({ length: n }, (_, i) => ganz(Array.isArray(m.stand) ? m.stand[i] : 0, 99)),
+      fertig: !!m.fertig,
+      zeit: zahl(m.zeit),
+    };
+  }
   const z = istObj(d.zuletzt) && d.zuletzt.id ? { id: String(d.zuletzt.id), label: String(d.zuletzt.label || ""), zeit: zahl(d.zuletzt.zeit) } : null;
   return {
     reflexion, video,
     potenz: { phase: ganz(p.phase, PHASEN - 1), stand, fertig: !!p.fertig, phasenFertig, zeit: zahl(p.zeit) },
     axiome: { phase: ganz(ax.phase, AXIOM_PHASEN - 1), stand: axStand, fertig: !!ax.fertig, zeit: zahl(ax.zeit) },
+    module: mods,
     zuletzt: z,
     _zeit: zahl(d._zeit),
   };
@@ -74,6 +90,16 @@ export function mergeEntdecken(lokal, remote) {
   };
   const za = a.potenz.zeit, zb = b.potenz.zeit;
   const xa = a.axiome.zeit, xb = b.axiome.zeit;
+  const mods = {};
+  for (const id of Object.keys(MODULE)) {
+    const x = a.module[id], y = b.module[id];
+    mods[id] = {
+      phase: x.zeit > y.zeit ? x.phase : y.zeit > x.zeit ? y.phase : Math.max(x.phase, y.phase),
+      stand: x.stand.map((n, i) => Math.max(n, y.stand[i])),
+      fertig: x.fertig || y.fertig,
+      zeit: Math.max(x.zeit, y.zeit),
+    };
+  }
   return normalisiere({
     reflexion: vereint(a.reflexion, b.reflexion),
     video: vereint(a.video, b.video),
@@ -90,6 +116,7 @@ export function mergeEntdecken(lokal, remote) {
       fertig: a.axiome.fertig || b.axiome.fertig,
       zeit: Math.max(xa, xb),
     },
+    module: mods,
     zuletzt: juengere(a.zuletzt, b.zuletzt),
     _zeit: Math.max(a._zeit, b._zeit),
   });

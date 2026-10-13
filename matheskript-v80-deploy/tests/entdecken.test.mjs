@@ -8,10 +8,11 @@ const refl = (wahl, text, zeit) => ({ wahl, text, zeit });
 
 test("normalisiere: leer, alte Form (video: true) und feste Schlüsselreihenfolge", () => {
   const n = st({});
-  assert.deepEqual(Object.keys(n), ["reflexion", "video", "potenz", "axiome", "zuletzt", "_zeit"]);
+  assert.deepEqual(Object.keys(n), ["reflexion", "video", "potenz", "axiome", "module", "zuletzt", "_zeit"]);
   assert.equal(n.potenz.stand.length, 7);
   assert.equal(n.axiome.stand.length, 10);
   assert.deepEqual(n.axiome, { phase: 0, stand: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], fertig: false, zeit: 0 });
+  assert.deepEqual(n.module.pythagoras, { phase: 0, stand: [0, 0, 0, 0, 0, 0], fertig: false, zeit: 0 });
   const alt = st({ video: { haupt: true }, reflexion: { q1: { wahl: "a" } } });
   assert.deepEqual(alt.video.haupt, { an: true, zeit: 0 });
   assert.deepEqual(alt.reflexion.q1, { wahl: "a", text: "", zeit: 0 });
@@ -72,6 +73,30 @@ test("merge: Axiome-Modul – Fortschritt je Phase = Maximum, fertig = oder, Pha
   assert.deepEqual(mergeEntdecken(m, m), m);
   // das Potenz-Modul bleibt davon unberührt
   assert.deepEqual(m.potenz, st({}).potenz);
+});
+
+test("normalisiere: Pythagoras-Modul – kaputte Eingaben werden begrenzt, fremde Kennungen verworfen, alter Stand ohne `module` bleibt gültig", () => {
+  const k = st({ module: { pythagoras: { phase: 99, stand: [1, "x", -3, 120, 2], fertig: 1, zeit: "7" }, unbekannt: { phase: 1 } } });
+  assert.deepEqual(k.module.pythagoras, { phase: 5, stand: [1, 0, 0, 99, 2, 0], fertig: true, zeit: 0 });
+  assert.equal(k.module.unbekannt, undefined);
+  const alt = st({ reflexion: { q1: { wahl: "a" } }, potenz: { phase: 2, stand: [4, 5, 1, 0, 0, 0, 0], zeit: 3 } });   // Stand von vor dem Modul
+  assert.equal(alt.potenz.phase, 2);
+  assert.deepEqual(alt.module.pythagoras.stand, [0, 0, 0, 0, 0, 0]);
+});
+
+test("merge: Pythagoras-Modul – Fortschritt je Phase = Maximum, fertig = oder, Phase vom jüngeren Stand; Potenz bleibt unberührt", () => {
+  const a = st({ potenz: { stand: [4, 0, 0, 0, 0, 0, 0], zeit: 50 }, module: { pythagoras: { phase: 3, stand: [4, 4, 5, 1, 0, 0], fertig: false, zeit: 100 } } });
+  const b = st({ module: { pythagoras: { phase: 2, stand: [4, 3, 5, 2, 3, 0], fertig: true, zeit: 200 } } });
+  const m = mergeEntdecken(a, b);
+  assert.deepEqual(m.module.pythagoras.stand, [4, 4, 5, 2, 3, 0]);
+  assert.equal(m.module.pythagoras.fertig, true);
+  assert.equal(m.module.pythagoras.phase, 2);
+  assert.equal(m.module.pythagoras.zeit, 200);
+  assert.deepEqual(m.potenz.stand, [4, 0, 0, 0, 0, 0, 0]);
+  assert.deepEqual(mergeEntdecken(a, b), mergeEntdecken(b, a));
+  assert.deepEqual(mergeEntdecken(m, m), m);
+  assert.equal(JSON.stringify(mergeEntdecken(m, a)), JSON.stringify(m));      // nichts Neues → unverändert (keine Hochlade-Schleife)
+  assert.deepEqual(mergeEntdecken(null, b).module.pythagoras, b.module.pythagoras);
 });
 
 test("merge: zuletzt bearbeitet = jüngerer; Reihenfolge egal, idempotent, Form stabil", () => {
