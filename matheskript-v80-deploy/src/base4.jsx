@@ -131,6 +131,7 @@ export const NAV = [
   ] },
   { id: "mindset", name: "Mathe-Mindset-Kurs", kurz: "Must-Know für Eltern und Lehrkräfte", eintraege: [
     { name: "Mathe-Mindset-Kurs", kurz: "Sechs TED-Talks und ein Buch, die zeigen, wie Kinder wirklich lernen", ansicht: "elternkurs" },
+    { name: "Nachhilfe-Kurs", kurz: "Sechs Module für Nachhilfelehrer:innen", ansicht: "nachhilfekurs" },
   ] },
   { id: "mathilda", name: "Mathilda AI", kurz: "Alles mit der Kamera", eintraege: [
     { name: "Blatt prüfen", kurz: "Rechenweg und Schriftbild vom Foto", ansicht: "analyse", foto: "blatt" },

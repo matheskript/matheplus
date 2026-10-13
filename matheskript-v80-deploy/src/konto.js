@@ -7,6 +7,7 @@
    ====================================================================== */
 import { useSyncExternalStore } from "react";
 import { createClient } from "@supabase/supabase-js";
+import { einladungAusUrl } from "./rollenLogik.js";
 
 const URL_ = import.meta.env.VITE_SUPABASE_URL;
 const KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -15,12 +16,13 @@ export const DEMO = !sb;
 
 const REF_SPEICHER = "mm-werber";
 const DEMO_SPEICHER = "mm-demo-konto";
+const EINLADUNG_SPEICHER = "mm-einladung";
 
 const lies = (k) => { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } };
 const schreib = (k, v) => { try { v === null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* privat */ } };
 
 /* ---------- kleiner Store für React ---------- */
-let zustand = { geladen: false, nutzer: null, profil: null, geworben: 0, fehler: "" };
+let zustand = { geladen: false, nutzer: null, profil: null, geworben: 0, fehler: "", hinweis: "" };
 const hoerer = new Set();
 const setzen = (teil) => { zustand = { ...zustand, ...teil }; hoerer.forEach((h) => h()); };
 /* Für den Lernstand-Abgleich (lernSync.js): Zustand lesen, Änderungen abonnieren, vor dem Abmelden noch sichern */
@@ -45,13 +47,29 @@ export function refAusUrlMerken() {
     if (istRefCode(pfad)) code = pfad;
     const alt = (u.searchParams.get("ref") || "").trim();   // ältere Links ?ref=…
     if (!code && istRefCode(alt)) code = alt;
-    if (code) {
-      schreib(REF_SPEICHER, { code, zeit: Date.now() });
-      u.searchParams.delete("ref");
+    /* Einladung: ?als=eltern&e=<Token> (Eltern) oder ?klasse=<Code> (Klassenbeitritt) */
+    const einl = einladungAusUrl(window.location.href);
+    if (einl) schreib(EINLADUNG_SPEICHER, { ...einl, zeit: Date.now() });
+    const hatEinl = ["als", "e", "klasse"].some((k) => u.searchParams.has(k));
+    if (code) schreib(REF_SPEICHER, { code, zeit: Date.now() });
+    if (code || hatEinl) {
+      ["ref", "als", "e", "klasse"].forEach((k) => u.searchParams.delete(k));
       window.history.replaceState({}, "", "/" + (u.search ? u.search : "") + u.hash);
     }
   } catch (e) { /* ignorieren */ }
 }
+/* Gemerkte Einladung (30 Tage): { als, token, klasse } oder null */
+export const gemerkteEinladung = () => {
+  const r = lies(EINLADUNG_SPEICHER);
+  return r && Date.now() - r.zeit < 30 * 24 * 3600 * 1000 ? r : null;
+};
+export const einladungVergessen = (feld) => {
+  const r = lies(EINLADUNG_SPEICHER);
+  if (!r) return;
+  const n = feld ? { ...r, [feld]: null } : null;
+  if (feld === "token") n.als = null;
+  schreib(EINLADUNG_SPEICHER, n && (n.als || n.token || n.klasse) ? n : null);
+};
 const gemerkterRef = () => {
   const r = lies(REF_SPEICHER);
   return r && Date.now() - r.zeit < 30 * 24 * 3600 * 1000 ? r.code : null;
@@ -80,6 +98,9 @@ async function profilLaden(nutzer) {
   setzen({ geladen: true, nutzer, profil: data || null, geworben, fehler: "" });
 }
 
+export const profilNeuLaden = () => profilLaden(zustand.nutzer);
+export const hinweisSchliessen = () => setzen({ hinweis: "" });
+
 export function kontoStarten() {
   refAusUrlMerken();
   if (DEMO) {
@@ -104,6 +125,36 @@ export async function anmelden(anbieter) {
     options: { redirectTo: `${window.location.origin}/?konto=1` },
   });
   if (error) setzen({ fehler: "Die Anmeldung konnte nicht gestartet werden." });
+}
+
+/* ---------- E-Mail und Passwort ----------
+   (Instagram-Anmeldung gibt es technisch nicht: Meta bietet dafür keine Schnittstelle an.)
+   Hinweis: Solange „Confirm email“ in Supabase aus ist, gibt es keine E-Mail-Bestätigung und kein „Passwort vergessen“. */
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const fehlerText = (m = "") => {
+  const t = m.toLowerCase();
+  if (t.includes("invalid login")) return "E-Mail oder Passwort stimmt nicht.";
+  if (t.includes("already registered") || t.includes("already been registered")) return "Mit dieser E-Mail gibt es schon ein Konto – bitte melde dich an.";
+  if (t.includes("password") && (t.includes("least") || t.includes("short") || t.includes("weak"))) return "Das Passwort ist zu kurz oder zu einfach (mindestens 8 Zeichen).";
+  if (t.includes("rate") || t.includes("too many")) return "Zu viele Versuche. Bitte warte kurz und versuch es dann noch einmal.";
+  if (t.includes("email not confirmed")) return "Die E-Mail-Adresse ist noch nicht bestätigt.";
+  return "Das hat nicht geklappt. Bitte versuch es noch einmal.";
+};
+export async function anmeldenEmail(email, passwort, neu) {
+  const mail = String(email || "").trim().toLowerCase();
+  if (!EMAIL.test(mail)) throw new Error("Bitte gib eine gültige E-Mail-Adresse ein.");
+  if (String(passwort || "").length < 8) throw new Error("Das Passwort braucht mindestens 8 Zeichen.");
+  if (DEMO) {
+    const alt = lies(DEMO_SPEICHER);
+    if (!neu && !(alt && alt.nutzer && alt.nutzer.email === mail)) throw new Error("E-Mail oder Passwort stimmt nicht.");
+    const nutzer = { id: "demo", email: mail, user_metadata: {}, demo: true };
+    schreib(DEMO_SPEICHER, { nutzer, profil: alt && alt.nutzer && alt.nutzer.email === mail ? alt.profil : null });
+    await profilLaden(nutzer);
+    return;
+  }
+  const r = neu ? await sb.auth.signUp({ email: mail, password: passwort }) : await sb.auth.signInWithPassword({ email: mail, password: passwort });
+  if (r.error) throw new Error(fehlerText(r.error.message));
+  if (neu && !r.data.session) throw new Error("Zum Fertigstellen wird eine Bestätigung per E-Mail verlangt – die ist hier noch nicht eingerichtet.");
 }
 
 export async function abmelden() {
@@ -140,22 +191,36 @@ export async function refFestlegen(code) {
   setzen({ profil: { ...zustand.profil, ref_code: code, ref_fest: true } });
 }
 
-/* Legt das Profil beim ersten Mal an (nur der Name ist Pflicht) und verknüpft den Werber. */
-export async function profilAnlegen(name) {
+/* Legt das Profil beim ersten Mal an (Name und Rolle) und verknüpft Werber und – bei Eltern – das einladende Kind. */
+export async function profilAnlegen(name, rolle = "schueler") {
   const n = name.trim();
   if (!n) throw new Error("Bitte gib deinen Namen ein.");
+  if (!["schueler", "eltern", "lehrkraft", "nachhilfe"].includes(rolle)) throw new Error("Bitte wähle aus, wer du bist.");
+  const einl = gemerkteEinladung();
+  const tokenFuerEltern = rolle === "eltern" && einl && einl.token ? einl.token : null;
   if (DEMO) {
-    const profil = { id: "demo", name: n, schulform: null, klasse: null, noten: {}, ref_code: neuerCode(), ref_fest: false, geworben_von: gemerkterRef() ? "demo-werber" : null };
+    const profil = { id: "demo", name: n, rolle, plan: "free", schulform: null, klasse: null, noten: {}, ref_code: neuerCode(), ref_fest: false,
+      eltern_token: Array.from({ length: 16 }, () => "0123456789abcdef"[Math.floor(Math.random() * 16)]).join(""),
+      geworben_von: gemerkterRef() ? "demo-werber" : null };
     schreib(DEMO_SPEICHER, { nutzer: zustand.nutzer, profil });
     schreib(REF_SPEICHER, null);
+    if (tokenFuerEltern) { schreib(EINLADUNG_SPEICHER, null); setzen({ hinweis: "Du bist jetzt mit dem Konto deines Kindes verbunden (Vorschau)." }); }
     setzen({ profil });
     return;
   }
-  const { error } = await sb.from("profile").insert({ id: zustand.nutzer.id, name: n });
+  const { error } = await sb.from("profile").insert({ id: zustand.nutzer.id, name: n, rolle });
   if (error) throw new Error("Das Profil konnte nicht angelegt werden.");
   const ref = gemerkterRef();
   if (ref) { await sb.rpc("werber_setzen", { code: ref }); schreib(REF_SPEICHER, null); }
+  let hinweis = "";
+  if (tokenFuerEltern) {
+    const r = await sb.rpc("eltern_verbinden", { token: tokenFuerEltern });
+    if (!r.error && r.data && (r.data.status === "ok" || r.data.status === "schon")) { hinweis = `Du bist jetzt mit ${r.data.name} verbunden.`; schreib(EINLADUNG_SPEICHER, null); }
+    else if (!r.error && r.data && r.data.status === "zu_viele") hinweis = "Dieses Kind hat schon die höchste Zahl an verbundenen Elternteilen.";
+    else hinweis = "Der Einladungslink war nicht mehr gültig. Bitte lass dir von deinem Kind einen neuen schicken.";
+  }
   await profilLaden(zustand.nutzer);
+  if (hinweis) setzen({ hinweis });
 }
 
 export async function profilSpeichern(aenderung) {

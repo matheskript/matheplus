@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { C } from "./base1.jsx";
-import { DEMO, useKonto, anmelden, abmelden, profilAnlegen, profilSpeichern, empfehlungsLink, neuerCode, refPruefen, refFestlegen, istRefCode, REF_BASIS_ANZEIGE } from "./konto.js";
+import { RollenWahl, EmailAnmeldung, HinweisLeiste, ElternEinladen, MeineKlassen, PlanKarte, ElternBereich, LehrBereich, RolleAendern } from "./funcKontoRollen.jsx";
+import { rolleName, istLehrend } from "./rollenLogik.js";
+import { DEMO, useKonto, gemerkteEinladung, anmelden, abmelden, profilAnlegen, profilSpeichern, empfehlungsLink, neuerCode, refPruefen, refFestlegen, istRefCode, REF_BASIS_ANZEIGE } from "./konto.js";
 
 /* ======================================================================
    KONTOBEREICH (ansicht "konto")
@@ -59,6 +61,8 @@ function Anmelden({ gehe }) {
         style={{ ...knopf, background: "#1877F2", color: C.weiss, border: "none" }}>
         <FacebookIcon /> {laeuft === "facebook" ? "Weiterleitung …" : "Mit Facebook anmelden"}
       </button>
+      <p style={{ fontSize: 12.5, color: C.hellgrau, textAlign: "center", margin: "16px 0 8px" }}>oder mit E-Mail und Passwort</p>
+      <EmailAnmeldung />
       <p style={{ fontSize: 12, color: C.hellgrau, lineHeight: 1.6, marginTop: 14 }}>
         Mit der Anmeldung akzeptierst du unsere{" "}
         <button type="button" onClick={() => gehe({ ansicht: "agb" })} style={{ background: "none", border: "none", padding: 0, color: C.see, textDecoration: "underline", fontFamily: "inherit", fontSize: 12, cursor: "pointer" }}>AGB</button>.
@@ -70,25 +74,31 @@ function Anmelden({ gehe }) {
 /* ---------- Erstes Anmelden: nur der Name ---------- */
 function Willkommen({ nutzer }) {
   const [name, setName] = useState(nutzer?.user_metadata?.full_name || nutzer?.user_metadata?.name || "");
+  const einl = gemerkteEinladung();
+  const [rolle, setRolle] = useState(() => (einl && einl.als === "eltern" ? "eltern" : einl && einl.klasse ? "schueler" : ""));
   const [fehler, setFehler] = useState("");
   const [laeuft, setLaeuft] = useState(false);
   const anlegen = async () => {
+    if (!rolle) { setFehler("Bitte wähle aus, wer du bist."); return; }
     setLaeuft(true); setFehler("");
-    try { await profilAnlegen(name); } catch (e) { setFehler(e.message); }
+    try { await profilAnlegen(name, rolle); } catch (e) { setFehler(e.message); }
     setLaeuft(false);
   };
   return (
     <div style={{ ...karte, padding: 22 }}>
       <p style={{ fontSize: 22, fontWeight: 700, color: C.tinte, marginBottom: 6 }}>Willkommen!</p>
-      <p style={{ fontSize: 14.5, color: C.grau, fontWeight: 300, lineHeight: 1.65, marginBottom: 16 }}>Wie dürfen wir dich nennen? Mehr brauchen wir nicht, um dein Konto anzulegen.</p>
+      <p style={{ fontSize: 14.5, color: C.grau, fontWeight: 300, lineHeight: 1.65, marginBottom: 16 }}>Wer bist du, und wie dürfen wir dich nennen? Mehr brauchen wir nicht, um dein Konto anzulegen.</p>
+      {einl && einl.token && <p style={{ fontSize: 13.5, color: "#1B5E3A", background: "#E9F7EF", borderRadius: 10, padding: "8px 12px", marginBottom: 14 }}>Du wurdest von deinem Kind eingeladen – nach dem Anlegen bist du automatisch verbunden.</p>}
+      <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 6 }}>Ich bin …</p>
+      <div style={{ marginBottom: 16 }}><RollenWahl wert={rolle} onWahl={(r) => { setRolle(r); setFehler(""); }} /></div>
       <label htmlFor="konto-name" style={{ fontSize: 13, fontWeight: 600, color: C.see }}>Dein Name</label>
       <input id="konto-name" value={name} onChange={(e) => setName(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") anlegen(); }}
         autoComplete="name" maxLength={80}
         style={{ display: "block", width: "100%", boxSizing: "border-box", marginTop: 6, border: `1.5px solid ${fehler ? C.signal : C.linie}`, borderRadius: 12,
           padding: "12px 14px", fontSize: 16, fontFamily: "inherit", color: C.tinte, outline: "none" }} />
       {fehler && <p style={{ fontSize: 13, color: C.signal, marginTop: 6 }}>{fehler}</p>}
-      <button type="button" onClick={anlegen} disabled={laeuft || !name.trim()}
-        style={{ marginTop: 14, width: "100%", height: 50, borderRadius: 999, border: "none", background: name.trim() ? C.see : C.hellgrau,
+      <button type="button" onClick={anlegen} disabled={laeuft || !name.trim() || !rolle}
+        style={{ marginTop: 14, width: "100%", height: 50, borderRadius: 999, border: "none", background: name.trim() && rolle ? C.see : C.hellgrau,
           color: C.weiss, fontSize: 15.5, fontWeight: 700, fontFamily: "inherit", cursor: "pointer" }}>
         {laeuft ? "Einen Moment …" : "Konto anlegen"}
       </button>
@@ -227,6 +237,28 @@ function RefErsteller({ startCode }) {
   );
 }
 
+/* ---------- Name ändern (Eltern, Lehrkräfte) ---------- */
+function NameKarte({ profil }) {
+  const [name, setName] = useState(profil.name || "");
+  const [status, setStatus] = useState(null);
+  const speichern = async () => {
+    try { await profilSpeichern({ name: name.trim() }); setStatus({ ok: true, text: "Gespeichert." }); } catch (e) { setStatus({ ok: false, text: e.message }); }
+  };
+  return (
+    <div style={{ ...karte, padding: 18, marginBottom: 14 }}>
+      <Kicker>MEINE DATEN</Kicker>
+      <label htmlFor="konto-name2" style={{ fontSize: 13, fontWeight: 600, color: C.see }}>Name</label>
+      <input id="konto-name2" value={name} onChange={(e) => { setName(e.target.value); setStatus(null); }} maxLength={80}
+        style={{ display: "block", width: "100%", boxSizing: "border-box", marginTop: 6, border: `1.5px solid ${C.linie}`, borderRadius: 12, padding: "11px 14px", fontSize: 16, fontFamily: "inherit", color: C.tinte, outline: "none" }} />
+      <p style={{ fontSize: 12.5, color: C.grau, fontWeight: 300, marginTop: 6 }}>Diesen Namen sehen die Schüler:innen, die mit dir verbunden sind.</p>
+      <div className="flex items-center" style={{ gap: 12, marginTop: 12 }}>
+        <button type="button" onClick={speichern} disabled={!name.trim()} style={{ height: 44, padding: "0 22px", borderRadius: 999, border: "none", background: name.trim() ? C.see : C.hellgrau, color: C.weiss, fontSize: 15, fontWeight: 700, fontFamily: "inherit", cursor: "pointer" }}>Speichern</button>
+        {status && <span style={{ fontSize: 13.5, color: status.ok ? C.smaragd : C.signal }}>{status.text}</span>}
+      </div>
+    </div>
+  );
+}
+
 /* ---------- Angemeldet ---------- */
 function Profil({ nutzer, profil, geworben, gehe }) {
   const [form, setForm] = useState(() => ({ name: profil.name || "", schulform: profil.schulform || "", klasse: profil.klasse || "", noten: profil.noten || {} }));
@@ -259,6 +291,8 @@ function Profil({ nutzer, profil, geworben, gehe }) {
     } catch (e) { setStatus({ ok: false, text: e.message }); }
   };
 
+  const rolle = profil.rolle || "schueler";
+  const [kinder, setKinder] = useState([]);
   const link = empfehlungsLink(profil.ref_code);
   const kopieren = async () => {
     try { await navigator.clipboard.writeText(link); setKopiert(true); setTimeout(() => setKopiert(false), 1800); } catch (e) { /* manuell markieren */ }
@@ -287,9 +321,12 @@ function Profil({ nutzer, profil, geworben, gehe }) {
         <span style={{ minWidth: 0 }}>
           <span style={{ display: "block", fontSize: 22, fontWeight: 700, color: C.tinte, letterSpacing: "-0.02em" }}>Hallo, {profil.name.split(" ")[0]}!</span>
           <span style={{ display: "block", fontSize: 13, color: C.grau, fontWeight: 300, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{nutzer.email}</span>
+          <span style={{ display: "inline-block", marginTop: 4, fontSize: 11.5, fontWeight: 700, color: C.see, background: C.himmel, borderRadius: 999, padding: "2px 10px" }}>{rolleName(rolle)}</span>
         </span>
       </div>
 
+      {rolle === "schueler" && (
+        <>
       {/* Meine Kurse */}
       <div style={{ ...karte, padding: 18, marginBottom: 14 }}>
         <Kicker>MEINE KURSE</Kicker>
@@ -306,6 +343,9 @@ function Profil({ nutzer, profil, geworben, gehe }) {
         </div>
       </div>
 
+          <ElternEinladen profil={profil} />
+          <MeineKlassen rolle={rolle} />
+          <PlanKarte profil={profil} />
       {/* Meine Daten */}
       <div style={{ ...karte, padding: 18, marginBottom: 14 }}>
         <Kicker>MEINE DATEN</Kicker>
@@ -418,6 +458,24 @@ function Profil({ nutzer, profil, geworben, gehe }) {
         {profil.geworben_von && <p style={{ fontSize: 12.5, color: "#8FA3C8", marginTop: 10 }}>Du bist selbst über eine Einladung zu Mythos Mathe gekommen.</p>}
       </div>
 
+        </>
+      )}
+      {rolle === "eltern" && (
+        <>
+          <ElternBereich profil={profil} gehe={gehe} kinderRef={setKinder} />
+          <PlanKarte profil={profil} kinder={kinder} />
+          <NameKarte profil={profil} />
+        </>
+      )}
+      {istLehrend(rolle) && (
+        <>
+          <LehrBereich profil={profil} gehe={gehe} />
+          <PlanKarte profil={profil} />
+          <NameKarte profil={profil} />
+        </>
+      )}
+
+      <RolleAendern profil={profil} />
       <button type="button" onClick={abmelden}
         style={{ background: "none", border: `1px solid ${C.linie}`, borderRadius: 999, padding: "10px 20px", color: C.grau, fontSize: 14, fontFamily: "inherit", cursor: "pointer" }}>
         Abmelden
@@ -436,6 +494,7 @@ export function KontoSeite({ gehe }) {
         </div>
       )}
       {fehler && <p style={{ fontSize: 13.5, color: C.signal, marginBottom: 12 }}>{fehler}</p>}
+      <HinweisLeiste />
       {!geladen ? (
         <p style={{ fontSize: 14, color: C.grau }}>Einen Moment …</p>
       ) : !nutzer ? (
