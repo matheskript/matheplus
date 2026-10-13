@@ -21,6 +21,7 @@ import { PerformanceLab } from "./funcPerformanceLab.jsx";
      4. System        – die Stellschrauben = die Methoden der App, jeweils direkt verlinkt
      5. MathildaAI    – Rechenweg prüfen, Fehlermuster, Performance-Lab (aufklappbar)
      6. Werkzeuge     – kompaktes Inhaltsverzeichnis, verlinkt in die App
+     6b. Stimmen      – Rückmeldungen (STIMMEN); Platzhalter sichtbar als „Beispiel“ markiert
      7. Programme     – Mathe checken, Mathe Masterclass (Texte wie auf deren Seiten)
      8. Für Eltern    – Elternabend (Daten aus ELTERNABEND, funcElternabend.jsx)
      9. Über mich
@@ -37,7 +38,7 @@ export const LANDING = "landingpage";
 const F = {
   nacht: "#0E1E4A", nachtTief: "#091535", see: "#004D98", seeHell: "#5B8FD1",
   gold: "#EDBB00", goldText: "#8A6500", papier: "#F8FAFD", karo: "#D7E1F0",
-  tinte: "#0F1A33", grau: "#4B5675", still: "#6B7590", linie: "#E1E7F1", rot: "#C8372D", weiss: "#FFFFFF",
+  tinte: "#0F1A33", himmel: "#E8EFF9", grau: "#4B5675", still: "#6B7590", linie: "#E1E7F1", rot: "#C8372D", weiss: "#FFFFFF",
   blauText: "#C9D6EE",
 };
 
@@ -192,6 +193,16 @@ const CSS = `
   .lp-werkzeug { padding: 12px 0; min-height: 48px; }
 }
 
+/* Stimmen */
+.lp-stimmen { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; margin-top: 48px; }
+@media (min-width: 900px) { .lp-stimmen { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; } }
+.lp-stimme { position: relative; display: flex; flex-direction: column; margin: 0; background: ${F.weiss}; border: 1px solid ${F.linie}; border-radius: 24px; padding: 32px 28px 28px; }
+.lp-stimme blockquote { margin: 0; font-size: 18px; font-weight: 500; line-height: 1.6; letter-spacing: -0.005em; color: ${F.tinte}; }
+.lp-stimme blockquote::before { content: "„"; display: block; font-size: 64px; font-weight: 800; line-height: 0.6; color: ${F.gold}; margin-bottom: 14px; }
+.lp-stimme figcaption { display: flex; align-items: center; gap: 14px; margin-top: auto; padding-top: 24px; }
+.lp-avatar { width: 52px; height: 52px; border-radius: 50%; flex-shrink: 0; object-fit: cover; background: ${F.himmel}; display: flex; align-items: center; justify-content: center; }
+.lp-beispiel { position: absolute; top: 18px; right: 18px; font-size: 12px; font-weight: 700; color: ${F.goldText}; background: #FFF6D6; border: 1px dashed ${F.goldText}; border-radius: 999px; padding: 4px 10px; }
+
 /* Fragen */
 .lp-frage { border-bottom: 1px solid ${F.linie}; }
 .lp-frage summary { list-style: none; cursor: pointer; padding: 22px 44px 22px 0; position: relative; font-size: 18px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.4; }
@@ -248,6 +259,18 @@ const UEBER_MICH = {
     "Mythos Mathe ist aus einer einfachen Beobachtung entstanden: Fast jeder, der an Mathe scheitert, scheitert nicht am Kopf, sondern an der Methode. Deshalb gibt es hier keine Abkürzungen, sondern ein System – und die Werkzeuge, um es jeden Tag anzuwenden.",
   ],
 };
+
+/* Stimmen: Echte Rückmeldungen hier eintragen (nur mit Einverständnis, bei Minderjährigen der Eltern).
+   beispiel: true markiert Platzhalter sichtbar als „Beispiel“ – entfernen, sobald die Stimme echt ist.
+   foto: optionaler Pfad unter public/, z. B. "/landingpage/stimme-1.jpg"; ohne Foto erscheint ein neutrales Zeichen. */
+const STIMMEN = [
+  { beispiel: true, rolle: "Schülerin, Klasse 11", thema: "Pen & Paper",
+    text: "Ich dachte immer, ich bin einfach kein Mathe-Mensch. Seit ich jeden Schritt sauber aufschreibe, finde ich meine Fehler selbst – und vor der letzten Klausur hatte ich zum ersten Mal keine Angst." },
+  { beispiel: true, rolle: "Schüler, Klasse 9", thema: "MathildaAI",
+    text: "Mathilda hat mir gezeigt, dass ich fast immer am selben Vorzeichen hängen bleibe. Nach drei Trainingsrunden war das Thema für mich erledigt." },
+  { beispiel: true, rolle: "Mutter eines Schülers, Klasse 12", thema: "Elternabend",
+    text: "Bei uns gibt es keinen Streit mehr um Mathe. Unser Sohn lernt mit einem Plan, und er erzählt sogar freiwillig, was er gerade verstanden hat." },
+];
 
 const FRAGEN = [
   ["Für wen ist Mythos Mathe?", "Für Schülerinnen und Schüler am Gymnasium von Klasse 8 bis zum Abitur, mit Schwerpunkt auf der Oberstufe. Das Coaching findet in Konstanz und am Bodensee statt, die Werkzeuge funktionieren überall im Browser."],
@@ -490,6 +513,40 @@ export function Landingpage({ gehe }) {
                   <button key={n} type="button" className="lp-werkzeug" onClick={() => gehe(ziel)}><b>{n}</b><span>{z}</span></button>
                 ))}
               </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 6b · Stimmen */}
+      <section className="lp-sektion" style={{ paddingTop: 0 }}>
+        <div className="lp-innen">
+          <div style={{ maxWidth: 720 }}>
+            <h2 className="lp-h2">Was sich verändert</h2>
+            <p className="lp-text" style={{ marginTop: 20 }}>Stimmen von Schülerinnen, Schülern und Eltern, die mit dem System arbeiten.</p>
+            {STIMMEN.some((x) => x.beispiel) && (
+              <p className="lp-klein" style={{ marginTop: 12 }}>Die mit „Beispiel“ markierten Texte sind Platzhalter und werden durch echte Rückmeldungen ersetzt.</p>
+            )}
+          </div>
+          <div className="lp-stimmen">
+            {STIMMEN.map((x, i) => (
+              <figure key={i} className="lp-stimme">
+                {x.beispiel && <span className="lp-beispiel">Beispiel</span>}
+                <blockquote>{x.text}</blockquote>
+                <figcaption>
+                  {x.foto
+                    ? <img className="lp-avatar" src={x.foto} alt="" loading="lazy" />
+                    : (
+                      <span className="lp-avatar" aria-hidden="true">
+                        <svg viewBox="0 0 52 52" width="52" height="52"><circle cx="26" cy="20" r="9" fill="#B9C8E2" /><path d="M9 46c2-10 9-15 17-15s15 5 17 15" fill="#B9C8E2" /></svg>
+                      </span>
+                    )}
+                  <span>
+                    <span style={{ display: "block", fontSize: 15, fontWeight: 700, color: F.tinte }}>{x.name || x.rolle}</span>
+                    <span style={{ display: "block", fontSize: 13.5, color: F.still, marginTop: 2 }}>{x.name ? `${x.rolle} · ` : ""}{x.thema}</span>
+                  </span>
+                </figcaption>
+              </figure>
             ))}
           </div>
         </div>
