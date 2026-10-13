@@ -43,14 +43,15 @@ const WhatsAppIcon = () => (
 );
 
 /* ---------- Schüler / Schülerin: eine Karte, in der Mitte geteilt ---------- */
-const halbKnopf = (an, erster) => ({ flex: 1, padding: "13px 8px", border: "none", borderLeft: erster ? "none" : `1.5px solid ${C.linie}`,
-  background: an ? C.see : C.weiss, color: an ? C.weiss : C.tinte, fontFamily: "inherit", fontSize: 15, fontWeight: 700, cursor: "pointer" });
+const halbKnopf = (g, an, andereGewaehlt, erster) => ({ flex: 1, padding: "14px 8px", border: "none", borderLeft: erster ? "none" : "1.5px solid rgba(255,255,255,0.55)",
+  background: g === "w" ? C.flaggold : NAVY, color: g === "w" ? NAVY : C.weiss, fontFamily: "inherit", fontSize: 15, fontWeight: 700, cursor: "pointer",
+  opacity: andereGewaehlt && !an ? 0.45 : 1, boxShadow: an ? `inset 0 0 0 3px ${g === "w" ? NAVY : C.flaggold}` : "none", transition: "opacity .15s" });
 
 export function GeschlechtWahl({ wert, onWahl }) {
   return (
-    <div role="radiogroup" aria-label="Schüler oder Schülerin?" style={{ display: "flex", borderRadius: 14, overflow: "hidden", border: `1.5px solid ${istGeschlecht(wert) ? C.see : C.linie}` }}>
+    <div role="radiogroup" aria-label="Schüler oder Schülerin?" style={{ display: "flex", borderRadius: 14, overflow: "hidden", border: `1.5px solid ${istGeschlecht(wert) ? NAVY : C.linie}` }}>
       {GESCHLECHTER.map((g, i) => (
-        <button key={g.id} type="button" role="radio" aria-checked={wert === g.id} onClick={() => onWahl(g.id)} style={halbKnopf(wert === g.id, i === 0)}>{g.name}</button>
+        <button key={g.id} type="button" role="radio" aria-checked={wert === g.id} onClick={() => onWahl(g.id)} style={halbKnopf(g.id, wert === g.id, istGeschlecht(wert), i === 0)}>{wert === g.id ? "✓ " : ""}{g.name}</button>
       ))}
     </div>
   );
@@ -64,14 +65,12 @@ export function RollenWahl({ wert, geschlecht, onWahl }) {
       {ROLLEN.map((r) => {
         const an = wert === r.id;
         if (r.id === "schueler") {
+          const gewaehlt = an && istGeschlecht(geschlecht);
           return (
-            <div key={r.id} style={{ display: "flex", flexDirection: "column", borderRadius: 14, overflow: "hidden", border: `1.5px solid ${an ? C.see : C.linie}`, background: an ? C.himmel : C.weiss }}>
-              <div style={{ display: "flex", flex: 1 }}>
-                {GESCHLECHTER.map((g, i) => (
-                  <button key={g.id} type="button" role="radio" aria-checked={an && geschlecht === g.id} onClick={() => onWahl("schueler", g.id)} style={halbKnopf(an && geschlecht === g.id, i === 0)}>{g.name}</button>
-                ))}
-              </div>
-              <span style={{ display: "block", textAlign: "center", fontSize: 12.5, color: C.grau, fontWeight: 300, padding: "6px 14px 9px" }}>{r.kurz}</span>
+            <div key={r.id} role="presentation" style={{ display: "flex", borderRadius: 14, overflow: "hidden", border: `1.5px solid ${an ? NAVY : C.linie}` }}>
+              {GESCHLECHTER.map((g, i) => (
+                <button key={g.id} type="button" role="radio" aria-checked={an && geschlecht === g.id} onClick={() => onWahl("schueler", g.id)} style={halbKnopf(g.id, an && geschlecht === g.id, gewaehlt, i === 0)}>{an && geschlecht === g.id ? "✓ " : ""}{g.name}</button>
+              ))}
             </div>
           );
         }
