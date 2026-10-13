@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { ampel, ampelSortiert, ampelZaehlung, wochenUebersicht, tagKey, elternLink, klassenLink, einladungAusUrl, zuletztText, entdeckenText, elternNachricht, whatsappLink, maxStufe, rolleName, istGeschlecht, anredeHinweis, GESCHLECHTER } from "../src/rollenLogik.js";
+import { ampel, ampelSortiert, ampelZaehlung, wochenUebersicht, tagKey, elternLink, klassenLink, einladungAusUrl, zuletztText, entdeckenText, elternNachricht, whatsappLink, maxStufe, rolleName, istGeschlecht, anredeHinweis, GESCHLECHTER, datenVollstaendig, notenSchluessel } from "../src/rollenLogik.js";
 
 const jetzt = new Date(2026, 9, 14, 10, 0);     // Mittwoch, 14.10.2026
 const vor = (n) => { const d = new Date(jetzt); d.setDate(d.getDate() - n); return tagKey(d); };
@@ -75,4 +75,19 @@ test("Schüler/Schülerin: Rollenname und Anrede nach Geschlecht", () => {
   assert.match(anredeHinweis("w"), /sie/); assert.doesNotMatch(anredeHinweis("w"), /Der Schüler ist/);
   assert.match(anredeHinweis("m"), /er/);
   assert.equal(anredeHinweis(null), "");
+});
+
+test("Meine Daten: vollständig erst mit Schulform, Klasse und allen Noten ab Klasse 3", () => {
+  assert.deepEqual(notenSchluessel("G8", 12), ["3", "4", "5", "6", "7", "8", "9", "10", "11.1", "11.2", "12.1", "12.2"]);
+  assert.deepEqual(notenSchluessel("G9", 11).slice(-2), ["10", "11"]);
+  const noten7 = { 3: 1, 4: 2, 5: 2, 6: 3 };
+  const p = { name: "Anna", schulform: "G9", klasse: 7, noten: noten7 };
+  assert.equal(datenVollstaendig(p), true);                                  // aktuelle Klasse 7 braucht noch keine Note
+  assert.equal(datenVollstaendig({ ...p, noten: { 4: 2, 5: 2, 6: 3 } }), false);   // Klasse 3 fehlt
+  assert.equal(datenVollstaendig({ ...p, schulform: null }), false);
+  assert.equal(datenVollstaendig({ ...p, klasse: null }), false);
+  assert.equal(datenVollstaendig({ ...p, name: " " }), false);
+  const kurs = { name: "Ben", schulform: "G8", klasse: 12, noten: { 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1, 9: 1, 10: 1, "11.1": 12 } };
+  assert.equal(datenVollstaendig(kurs), false);                              // 11.2 fehlt
+  assert.equal(datenVollstaendig({ ...kurs, noten: { ...kurs.noten, "11.2": 13 } }), true);
 });

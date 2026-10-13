@@ -31,6 +31,28 @@ export const anredeHinweis = (geschlecht) => (geschlecht === "w"
     ? "Der Schüler ist männlich: Sprich von ihm als „er“ und „der Schüler“."
     : "");
 
+/* ---------- Meine Daten (Schüler): wann ist alles eingetragen? ----------
+   Noten gibt es ab Klasse 3. In der Kursstufe zählen Punkte je Halbjahr (k.1, k.2), davor Jahresnoten.
+   „Vollständig“ heißt: Name, Schulform, Klassenstufe und alle Noten bis zur Klasse VOR der aktuellen
+   (die aktuelle Endnote gibt es ja noch nicht). */
+export const KURSSTUFE = { G8: 11, G9: 12, GMS: 12 };
+export const NOTEN_AB = 3;
+export function notenSchluessel(schulform, bisKlasse) {
+  const ks = KURSSTUFE[schulform];
+  const keys = [];
+  for (let k = NOTEN_AB; k <= bisKlasse; k++) {
+    if (ks && k >= ks) keys.push(`${k}.1`, `${k}.2`); else keys.push(String(k));
+  }
+  return keys;
+}
+export function datenVollstaendig(p) {
+  if (!p || !String(p.name || "").trim() || !KURSSTUFE[p.schulform]) return false;
+  const kl = Number(p.klasse);
+  if (!kl) return false;
+  const noten = p.noten || {};
+  return notenSchluessel(p.schulform, kl - 1).every((k) => noten[k] !== undefined && noten[k] !== null);
+}
+
 /* ---------- Datum ---------- */
 export const tagKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 const tageZurueck = (jetzt, n) => { const d = new Date(jetzt); d.setHours(12, 0, 0, 0); d.setDate(d.getDate() - n); return d; };

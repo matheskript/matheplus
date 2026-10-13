@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { C } from "./base1.jsx";
 import { RollenWahl, EmailAnmeldung, HinweisLeiste, ElternEinladen, MeineKlassen, PlanKarte, ElternBereich, LehrBereich, RolleAendern, GeschlechtFrage } from "./funcKontoRollen.jsx";
-import { rolleName, istLehrend, istGeschlecht } from "./rollenLogik.js";
+import { rolleName, istLehrend, istGeschlecht, KURSSTUFE, NOTEN_AB, datenVollstaendig } from "./rollenLogik.js";
 import { DEMO, useKonto, gemerkteEinladung, anmelden, abmelden, profilAnlegen, profilSpeichern, empfehlungsLink, neuerCode, refPruefen, refFestlegen, istRefCode, REF_BASIS_ANZEIGE } from "./konto.js";
 
 /* ======================================================================
@@ -13,9 +13,9 @@ const karte = { background: C.weiss, borderRadius: 18, boxShadow: "0 2px 16px rg
 const Kicker = ({ children }) => <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", color: C.hellgrau, marginBottom: 10 }}>{children}</p>;
 
 export const SCHULFORMEN = [
-  { id: "G8", name: "Gymnasium G8", kurz: "Abi nach Klasse 12", bis: 12, kursstufe: 11 },
-  { id: "G9", name: "Gymnasium G9", kurz: "Abi nach Klasse 13", bis: 13, kursstufe: 12 },
-  { id: "GMS", name: "Gemeinschaftsschule", kurz: "Oberstufe bis Klasse 13", bis: 13, kursstufe: 12 },
+  { id: "G8", name: "Gymnasium G8", kurz: "Abi nach Klasse 12", bis: 12, kursstufe: KURSSTUFE.G8 },
+  { id: "G9", name: "Gymnasium G9", kurz: "Abi nach Klasse 13", bis: 13, kursstufe: KURSSTUFE.G9 },
+  { id: "GMS", name: "Gemeinschaftsschule", kurz: "Oberstufe bis Klasse 13", bis: 13, kursstufe: KURSSTUFE.GMS },
 ];
 
 /* Punkte (Kursstufe) in eine Note umrechnen, nur für die Verlaufsgrafik */
@@ -273,7 +273,9 @@ function Profil({ nutzer, profil, geworben, gehe }) {
   const bis = sf ? sf.bis : 13;
   const klassen = Array.from({ length: bis - 4 }, (_, i) => i + 5);
   const klasse = Number(form.klasse) || null;
-  const notenKlassen = klasse ? Array.from({ length: klasse - 4 }, (_, i) => i + 5) : [];
+  const notenKlassen = klasse ? Array.from({ length: klasse - NOTEN_AB + 1 }, (_, i) => i + NOTEN_AB) : [];
+  const gold = (k) => !!klasse && k >= klasse - 1;   // die letzten beiden Jahre
+  const [offen, setOffen] = useState(() => !datenVollstaendig(profil));
   const istPunkte = (k) => sf && k >= sf.kursstufe;
 
   const noteSetzen = (k, v) => setForm((f) => {
@@ -291,6 +293,7 @@ function Profil({ nutzer, profil, geworben, gehe }) {
     try {
       await profilSpeichern({ name: form.name.trim(), schulform: form.schulform || null, klasse: klasse, noten });
       setStatus({ ok: true, text: "Gespeichert." });
+      if (datenVollstaendig({ ...profil, name: form.name.trim(), schulform: form.schulform, klasse, noten })) setOffen(false);
     } catch (e) { setStatus({ ok: false, text: e.message }); }
   };
 
@@ -330,6 +333,97 @@ function Profil({ nutzer, profil, geworben, gehe }) {
 
       {rolle === "schueler" && (
         <>
+      {/* Meine Daten */}
+      <div style={{ ...karte, marginBottom: 14, overflow: "hidden" }}>
+        <button type="button" onClick={() => setOffen(!offen)} aria-expanded={offen} aria-controls="meine-daten-inhalt"
+          style={{ display: "flex", width: "100%", alignItems: "center", justifyContent: "space-between", padding: offen ? "18px 18px 6px" : "18px", background: "none", border: "none", fontFamily: "inherit", cursor: "pointer", textAlign: "left" }}>
+          <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", color: offen ? C.hellgrau : C.see }}>MEINE DATEN</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke={C.see} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"
+            style={{ transform: offen ? "rotate(180deg)" : "none", transition: "transform .2s" }}><path d="M6 9l6 6 6-6" /></svg>
+        </button>
+        {offen && (
+        <div id="meine-daten-inhalt" style={{ padding: "0 18px 18px" }}>
+        {!datenVollstaendig(profil) && <p style={{ fontSize: 14, color: C.grau, fontWeight: 300, lineHeight: 1.55, marginBottom: 14 }}>Trag hier bitte deine Schulform, deine Klassenstufe und deine Mathe-Noten ein.</p>}
+        <label style={{ fontSize: 13, fontWeight: 600, color: C.see }}>Name <span style={{ color: C.gruen }}>*</span></label>
+        <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} maxLength={80} style={{ ...feld, marginTop: 6, marginBottom: 16 }} />
+
+        <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 6 }}>Schulform</p>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 8, marginBottom: 16 }}>
+          {SCHULFORMEN.map((s) => (
+            <button key={s.id} type="button" onClick={() => setForm((f) => ({ ...f, schulform: f.schulform === s.id ? "" : s.id, klasse: s.bis < Number(f.klasse) ? "" : f.klasse }))} style={pille(form.schulform === s.id)}>
+              <span style={{ display: "block", fontSize: 14, fontWeight: 700 }}>{s.name}</span>
+              <span style={{ display: "block", fontSize: 12, color: C.grau }}>{s.kurz}</span>
+            </button>
+          ))}
+        </div>
+
+        <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 6 }}>Aktuelle Klassenstufe</p>
+        <div className="flex flex-wrap" style={{ gap: 6, marginBottom: 16 }}>
+          {klassen.map((k) => (
+            <button key={k} type="button" onClick={() => setForm((f) => ({ ...f, klasse: Number(f.klasse) === k ? "" : k }))}
+              style={{ width: 44, height: 40, borderRadius: 10, border: `1.5px solid ${klasse === k ? C.see : C.linie}`, background: klasse === k ? C.see : C.weiss,
+                color: klasse === k ? C.weiss : C.tinte, fontSize: 15, fontWeight: 700, fontFamily: "inherit", cursor: "pointer" }}>{k}</button>
+          ))}
+        </div>
+
+        <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 2 }}>Mathe-Jahresnoten</p>
+        {!klasse ? (
+          <p style={{ fontSize: 13, color: C.grau, fontWeight: 300, marginBottom: 6 }}>Wähle zuerst deine Klassenstufe.</p>
+        ) : (
+          <>
+            <p style={{ fontSize: 12.5, color: C.grau, fontWeight: 300, marginBottom: 8, lineHeight: 1.5 }}>
+              Endjahresnote in Mathe ab Klasse 3{sf ? `; in der Kursstufe die Punkte (0–15) für jedes Halbjahr ${sf.kursstufe}.1 bis ${sf.kursstufe + 1}.2` : ""}. Antippen zum Auswählen, nochmal antippen zum Entfernen. Gold markiert sind die letzten beiden Jahre.
+            </p>
+            {notenKlassen.map((k) => (
+              <div key={k} style={{ display: "flex", alignItems: "center", gap: 10, padding: "7px 0", borderTop: `1px solid ${C.linie}` }}>
+                <span style={{ width: 62, flexShrink: 0, fontSize: 13.5, fontWeight: 600, color: C.tinte }}>
+                  Kl. {k}{gold(k) && <span style={{ display: "block", fontSize: 10.5, color: "#9A7400", fontWeight: 700 }}>{k === klasse ? "aktuell" : "Vorjahr"}</span>}
+                </span>
+                {istPunkte(k) ? (
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, flex: 1 }}>
+                    {[1, 2].map((h) => {
+                      const key = `${k}.${h}`;
+                      return (
+                        <label key={key} style={{ display: "block" }}>
+                          <span style={{ display: "block", fontSize: 11.5, fontWeight: 700, color: C.hellgrau, marginBottom: 3 }}>{key}</span>
+                          <select value={form.noten[key] ?? ""} onChange={(e) => noteSetzen(key, e.target.value === "" ? null : Number(e.target.value))}
+                            aria-label={`Halbjahr ${key}: Punkte`}
+                            style={{ ...feld, padding: "8px 8px", fontSize: 15, width: "100%", ...(gold(k) ? { background: C.flaggold, borderColor: C.flaggold, color: NAVY, fontWeight: 600 } : {}) }}>
+                            <option value="">– Punkte –</option>
+                            {Array.from({ length: 16 }, (_, i) => 15 - i).map((p) => <option key={p} value={p}>{p} P.</option>)}
+                          </select>
+                        </label>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(6, minmax(0, 1fr))", gap: 5, flex: 1 }}>
+                    {[1, 2, 3, 4, 5, 6].map((n) => {
+                      const an = form.noten[k] === n;
+                      return (
+                        <button key={n} type="button" onClick={() => noteSetzen(k, n)} aria-label={`Klasse ${k}: Note ${n}`}
+                          style={{ height: 36, borderRadius: 9, border: `1.5px solid ${an ? NAVY : gold(k) ? C.flaggold : C.linie}`, background: an ? NAVY : gold(k) ? C.flaggold : C.weiss,
+                            color: an ? C.flaggold : gold(k) ? NAVY : C.tinte, fontSize: 15, fontWeight: 700, fontFamily: "inherit", cursor: "pointer", padding: 0 }}>{n}</button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            ))}
+            <NotenVerlauf punkte={verlauf} />
+          </>
+        )}
+
+        <div className="flex items-center flex-wrap" style={{ gap: 12, marginTop: 16 }}>
+          <button type="button" onClick={speichern} disabled={!form.name.trim()}
+            style={{ height: 46, padding: "0 24px", borderRadius: 999, border: "none", background: form.name.trim() ? C.see : C.hellgrau, color: C.weiss,
+              fontSize: 15, fontWeight: 700, fontFamily: "inherit", cursor: "pointer" }}>Speichern</button>
+          {status && <span style={{ fontSize: 13.5, color: status.ok ? C.smaragd : C.signal, fontWeight: 500 }}>{status.text}</span>}
+        </div>
+        </div>
+        )}
+      </div>
+
       <GeschlechtFrage profil={profil} />
       {/* Meine Kurse */}
       <div style={{ ...karte, padding: 18, marginBottom: 14 }}>
@@ -350,87 +444,6 @@ function Profil({ nutzer, profil, geworben, gehe }) {
           <ElternEinladen profil={profil} />
           <MeineKlassen rolle={rolle} />
           <PlanKarte profil={profil} />
-      {/* Meine Daten */}
-      <div style={{ ...karte, padding: 18, marginBottom: 14 }}>
-        <Kicker>MEINE DATEN</Kicker>
-        <label style={{ fontSize: 13, fontWeight: 600, color: C.see }}>Name <span style={{ color: C.gruen }}>*</span></label>
-        <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} maxLength={80} style={{ ...feld, marginTop: 6, marginBottom: 16 }} />
-
-        <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 6 }}>Schulform <span style={{ color: C.hellgrau, fontWeight: 400 }}>(freiwillig)</span></p>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 8, marginBottom: 16 }}>
-          {SCHULFORMEN.map((s) => (
-            <button key={s.id} type="button" onClick={() => setForm((f) => ({ ...f, schulform: f.schulform === s.id ? "" : s.id, klasse: s.bis < Number(f.klasse) ? "" : f.klasse }))} style={pille(form.schulform === s.id)}>
-              <span style={{ display: "block", fontSize: 14, fontWeight: 700 }}>{s.name}</span>
-              <span style={{ display: "block", fontSize: 12, color: C.grau }}>{s.kurz}</span>
-            </button>
-          ))}
-        </div>
-
-        <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 6 }}>Aktuelle Klassenstufe <span style={{ color: C.hellgrau, fontWeight: 400 }}>(freiwillig)</span></p>
-        <div className="flex flex-wrap" style={{ gap: 6, marginBottom: 16 }}>
-          {klassen.map((k) => (
-            <button key={k} type="button" onClick={() => setForm((f) => ({ ...f, klasse: Number(f.klasse) === k ? "" : k }))}
-              style={{ width: 44, height: 40, borderRadius: 10, border: `1.5px solid ${klasse === k ? C.see : C.linie}`, background: klasse === k ? C.see : C.weiss,
-                color: klasse === k ? C.weiss : C.tinte, fontSize: 15, fontWeight: 700, fontFamily: "inherit", cursor: "pointer" }}>{k}</button>
-          ))}
-        </div>
-
-        <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 2 }}>Mathe-Jahresnoten <span style={{ color: C.hellgrau, fontWeight: 400 }}>(freiwillig)</span></p>
-        {!klasse ? (
-          <p style={{ fontSize: 13, color: C.grau, fontWeight: 300, marginBottom: 6 }}>Wähle zuerst deine Klassenstufe.</p>
-        ) : (
-          <>
-            <p style={{ fontSize: 12.5, color: C.grau, fontWeight: 300, marginBottom: 8, lineHeight: 1.5 }}>
-              Endjahresnote in Mathe ab Klasse 5{sf ? `; in der Kursstufe die Punkte (0–15) für jedes Halbjahr ${sf.kursstufe}.1 bis ${sf.kursstufe + 1}.2` : ""}. Antippen zum Auswählen, nochmal antippen zum Entfernen.
-            </p>
-            {notenKlassen.map((k) => (
-              <div key={k} style={{ display: "flex", alignItems: "center", gap: 10, padding: "7px 0", borderTop: `1px solid ${C.linie}` }}>
-                <span style={{ width: 62, flexShrink: 0, fontSize: 13.5, fontWeight: 600, color: C.tinte }}>
-                  Kl. {k}{k === klasse && <span style={{ display: "block", fontSize: 10.5, color: C.hellgrau, fontWeight: 500 }}>aktuell</span>}
-                </span>
-                {istPunkte(k) ? (
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, flex: 1 }}>
-                    {[1, 2].map((h) => {
-                      const key = `${k}.${h}`;
-                      return (
-                        <label key={key} style={{ display: "block" }}>
-                          <span style={{ display: "block", fontSize: 11.5, fontWeight: 700, color: C.hellgrau, marginBottom: 3 }}>{key}</span>
-                          <select value={form.noten[key] ?? ""} onChange={(e) => noteSetzen(key, e.target.value === "" ? null : Number(e.target.value))}
-                            aria-label={`Halbjahr ${key}: Punkte`}
-                            style={{ ...feld, padding: "8px 8px", fontSize: 15, width: "100%" }}>
-                            <option value="">– Punkte –</option>
-                            {Array.from({ length: 16 }, (_, i) => 15 - i).map((p) => <option key={p} value={p}>{p} P.</option>)}
-                          </select>
-                        </label>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(6, minmax(0, 1fr))", gap: 5, flex: 1 }}>
-                    {[1, 2, 3, 4, 5, 6].map((n) => {
-                      const an = form.noten[k] === n;
-                      return (
-                        <button key={n} type="button" onClick={() => noteSetzen(k, n)} aria-label={`Klasse ${k}: Note ${n}`}
-                          style={{ height: 36, borderRadius: 9, border: `1.5px solid ${an ? NAVY : C.linie}`, background: an ? NAVY : C.weiss,
-                            color: an ? C.flaggold : C.tinte, fontSize: 15, fontWeight: 700, fontFamily: "inherit", cursor: "pointer", padding: 0 }}>{n}</button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            ))}
-            <NotenVerlauf punkte={verlauf} />
-          </>
-        )}
-
-        <div className="flex items-center flex-wrap" style={{ gap: 12, marginTop: 16 }}>
-          <button type="button" onClick={speichern} disabled={!form.name.trim()}
-            style={{ height: 46, padding: "0 24px", borderRadius: 999, border: "none", background: form.name.trim() ? C.see : C.hellgrau, color: C.weiss,
-              fontSize: 15, fontWeight: 700, fontFamily: "inherit", cursor: "pointer" }}>Speichern</button>
-          {status && <span style={{ fontSize: 13.5, color: status.ok ? C.smaragd : C.signal, fontWeight: 500 }}>{status.text}</span>}
-        </div>
-      </div>
-
       {/* Freunde einladen */}
       <div style={{ ...karte, padding: 18, marginBottom: 14, background: `linear-gradient(155deg, ${C.see} 0%, ${NAVY} 100%)`, color: C.weiss }}>
         <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", color: C.flaggold, marginBottom: 6 }}>FREUNDE EINLADEN</p>
