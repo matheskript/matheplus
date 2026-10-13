@@ -51,6 +51,7 @@ import { MasterclassSeite, MatheCheckenSeite } from "./funcMasterclass.jsx";
 import { Fusszeile, ImpressumSeite, AGBSeite, WiderrufSeite } from "./funcRecht.jsx";
 import { KontoSeite } from "./funcKonto.jsx";
 import { FeedbackKnopf } from "./funcFeedback.jsx";
+import { MatheTastaturHost } from "./matheTastatur.jsx";
 import { ElternabendSeite } from "./funcElternabend.jsx";
 import { BundeswettbewerbSeite, LandeswettbewerbeSeite, LandeswettbewerbSeite, LAENDER } from "./funcWettbewerbe.jsx";
 import { ENTWUERFE, istEntwurf, EntwurfTor, EntwurfStart, EntwurfChecken, EntwurfPakete } from "./funcEntwuerfe.jsx";
@@ -1787,6 +1788,7 @@ export function Mathilda() {
           foto: ansicht === "analyse" ? fotoModus : undefined,
         }} />
       )}
+      <MatheTastaturHost />
     </div>
   );
 }

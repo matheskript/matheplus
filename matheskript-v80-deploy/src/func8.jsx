@@ -8,6 +8,7 @@ import { Lernlandkarte, Profil, antwortPruefen, lernAendern, naechsteKompetenz, 
 import { AufgabeFeld, probeabiturErzeugen, pruefungsBefund, teilPruefen } from "./func7.jsx";
 import { aktiveTermine, terminPlan } from "./func9.jsx";
 import { FR } from "./funcRegistry.jsx";
+import { MatheFeld } from "./matheTastatur.jsx";
 
 export function Probeabitur() {
   const [abi, setAbi] = useState(null);
@@ -57,7 +58,7 @@ export function Probeabitur() {
   const feld = (t, wert, setzen) => (
     <div className="flex items-center" style={{ gap: 10, marginTop: 8 }}>
       {t.praefix && <span style={{ fontSize: 15, fontWeight: 500, flexShrink: 0 }}><M t={t.praefix} /></span>}
-      <input value={wert || ""} onChange={(e) => setzen(e.target.value)}
+      <MatheFeld modus="formel" value={wert || ""} onChange={(e) => setzen(e.target.value)}
         style={{ flex: 1, minWidth: 0, padding: "10px 12px", fontSize: 15.5, fontFamily: "inherit", border: `1px solid ${C.linie}`, borderRadius: 11, outline: "none" }} />
     </div>
   );
@@ -1139,7 +1140,7 @@ export function Messbericht({ gehe }) {
         <div style={{ display: "grid", gridTemplateColumns: "1.3fr 0.8fr", gap: 8, marginTop: 10 }}>
           <input type="date" value={datum} onChange={(e) => setDatum(e.target.value)}
             style={{ padding: "9px 10px", fontSize: 14, fontFamily: "inherit", border: `1px solid ${C.linie}`, borderRadius: 10 }} />
-          <input value={np} onChange={(e) => setNp(e.target.value)} placeholder="Punkte 0–15" inputMode="numeric"
+          <MatheFeld modus="ganz" value={np} onChange={(e) => setNp(e.target.value)} placeholder="Punkte 0–15"
             style={{ padding: "9px 10px", fontSize: 14, fontFamily: "inherit", border: `1px solid ${C.linie}`, borderRadius: 10 }} />
         </div>
         <div className="flex flex-wrap" style={{ gap: 6, marginTop: 8 }}>

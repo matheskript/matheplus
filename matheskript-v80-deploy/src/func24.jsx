@@ -17,6 +17,7 @@ import { Bruch, Einzeilig, Wurzel, Zahl, ggT, kreuz, skalar } from "./func19.jsx
 import { FA, FB, FE, Gl, Name, Raum3, Schritt, Vek, k, koordText, n, neueAufgabe } from "./func20.jsx";
 import { Feld, Knopf, Meldung, PunktEingabe, VektorFeld, leseVektor } from "./func23.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
+import { MatheFeld } from "./matheTastatur.jsx";
 
 /* Lernhilfe je Kombination */
 const ABSTAND_WEG = {
@@ -518,7 +519,7 @@ function LotUeben({ art }) {
         {[0, 1, 2].map((i) => (
           <React.Fragment key={i}>
             {i > 0 && <span style={{ color: C.hellgrau, fontWeight: 400 }}>|</span>}
-            <input value={w[i]} aria-label={`F Koordinate x${i + 1}`} inputMode="text"
+            <MatheFeld modus="zahl" value={w[i]} aria-label={`F Koordinate x${i + 1}`}
               onChange={(e) => { const x = [...w]; x[i] = e.target.value.slice(0, 7); setW(x); setErg(null); }}
               style={{ width: 52, height: 36, textAlign: "center", fontSize: 15, fontWeight: 800, fontFamily: "inherit", color: C.see,
                 border: `1.5px solid ${C.see}55`, borderRadius: 9, background: `${C.see}0D`, outline: "none" }} />
@@ -529,7 +530,7 @@ function LotUeben({ art }) {
       <p style={{ fontSize: 12.5, fontWeight: 700, color: C.grau, margin: "0 0 8px" }}>3 · Länge des Lots (Abstand, gerundet)</p>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
         <span style={{ fontSize: 16, fontWeight: 800 }}>d =</span>
-        <input value={laengeW} aria-label="Länge des Lots" inputMode="text" placeholder="z. B. 3,46"
+        <MatheFeld modus="zahl" value={laengeW} aria-label="Länge des Lots" placeholder="z. B. 3,46"
           onChange={(e) => { setLaengeW(e.target.value.replace(/[^0-9,./−-]/g, "").slice(0, 8)); setErg(null); }}
           style={{ width: 96, height: 36, textAlign: "center", fontSize: 15, fontWeight: 800, fontFamily: "inherit", color: C.see, border: `1.5px solid ${C.see}55`, borderRadius: 9, background: `${C.see}0D`, outline: "none" }} />
       </div>

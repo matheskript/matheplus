@@ -10,6 +10,7 @@ import { Lernlandkarte, antwortPruefen, brueckeErgebnis, einheitVon, lernAendern
 import { EskalationsKarte, aktivitaetMelden, coachingAnfragen, eskalationSignale, variantenFestschreiben, variantenVorschlag } from "./func8.jsx";
 import { Mathilda } from "./func10.jsx";
 import { AufklappZeichen } from "./aufklappen.jsx";
+import { MatheFeld } from "./matheTastatur.jsx";
 
 export function MathildaTutor({ kompetenz, aufgabe, eingabe, onSchliessen }) {
   const L = useLern();
@@ -144,7 +145,7 @@ export function AufgabeFeld({ aufgabe, wert, setWert, stand }) {
       {tastatur && aufgabe.art === "term" ? (
         <TermTastatur wert={wert} setWert={setWert} />
       ) : (
-        <input value={wert} onChange={(e) => setWert(e.target.value)} placeholder="Ergebnis"
+        <MatheFeld modus="bruch" value={wert} onChange={(e) => setWert(e.target.value)} placeholder="Ergebnis"
           style={{ width: "100%", boxSizing: "border-box", padding: "11px 14px", fontSize: 16.5, fontFamily: "inherit",
             border: `1.5px solid ${rand}`, borderRadius: 12, outline: "none", background: stand === "ok" ? C.himmel : C.weiss }} />
       )}

@@ -8,6 +8,7 @@ import { GraphZuordnung, Klausur, Kurvendiskussion } from "./func4.jsx";
 import { intervall } from "./func8.jsx";
 import { VideokursPlayer, VideokursVorschau, naechsteLektion, videoAnzahl } from "./func15.jsx";
 import { AufklappZeichen } from "./aufklappen.jsx";
+import { MatheFeld } from "./matheTastatur.jsx";
 
 export function useYouTubeApi() {
   const [bereit, setBereit] = useState(() => typeof window !== "undefined" && !!(window.YT && window.YT.Player));
@@ -741,10 +742,10 @@ export function KIAufgaben({ eingebettet }) {
             <p style={{ fontSize: 13, color: C.grau, fontWeight: 300, marginBottom: 14 }}>Deine Lösung</p>
             <div className="flex items-center flex-wrap" style={{ gap: 8 }}>
               <span style={{ fontSize: 19 }}>y =</span>
-              <input value={eM} onChange={(e) => { setEM(e.target.value); setGeprueft(false); }}
+              <MatheFeld modus="bruch" value={eM} onChange={(e) => { setEM(e.target.value); setGeprueft(false); }}
                 placeholder="m" inputMode="text" style={feldStil(mOk)} />
               <span style={{ fontSize: 19 }}>· x +</span>
-              <input value={eB} onChange={(e) => { setEB(e.target.value); setGeprueft(false); }}
+              <MatheFeld modus="bruch" value={eB} onChange={(e) => { setEB(e.target.value); setGeprueft(false); }}
                 placeholder="c" inputMode="text" style={feldStil(bOk)} />
             </div>
             <p style={{ color: C.hellgrau, fontSize: 12, fontWeight: 300, marginTop: 10, lineHeight: 1.6 }}>

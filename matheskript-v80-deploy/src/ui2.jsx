@@ -8,6 +8,7 @@ import { C } from "./base1.jsx";
 import { englisch } from "./i18n.js";
 import { M } from "./func3.jsx";
 import { pNum, qTex } from "./rechnen2.js";
+import { MatheFeld } from "./matheTastatur.jsx";
 
 const EN = englisch();
 export const zw = (de, en) => (EN ? en : de);
@@ -20,7 +21,7 @@ export const zeileStil = { display: "flex", alignItems: "center", gap: 6, fontSi
 /* Eingabefeld für ganze Zahlen, Brüche (7/3) und Dezimalzahlen (2,5) */
 export function ZahlFeld({ wert, setWert, label, breite = 92, platzhalter = "", onEnter, farbe = C.see }) {
   return (
-    <input value={wert} aria-label={label} placeholder={platzhalter} inputMode="text" autoCapitalize="off" autoCorrect="off" spellCheck="false"
+    <MatheFeld modus="bruch" value={wert} aria-label={label} placeholder={platzhalter}
       onChange={(e) => setWert(e.target.value.replace(/[^0-9\-−,./ ]/g, "").slice(0, 14))}
       onFocus={(e) => e.target.select()}
       onKeyDown={(e) => { if (e.key === "Enter" && onEnter) onEnter(); }}
@@ -32,7 +33,7 @@ export function ZahlFeld({ wert, setWert, label, breite = 92, platzhalter = "", 
 /* Freies Textfeld (Listen, Terme) */
 export function TextFeld({ wert, setWert, label, platzhalter = "", breite = "100%", onEnter }) {
   return (
-    <input value={wert} aria-label={label} placeholder={platzhalter} autoCapitalize="off" autoCorrect="off" spellCheck="false"
+    <MatheFeld modus="formel" value={wert} aria-label={label} placeholder={platzhalter}
       onChange={(e) => setWert(e.target.value.slice(0, 80))}
       onKeyDown={(e) => { if (e.key === "Enter" && onEnter) onEnter(); }}
       style={{ width: breite, height: 44, boxSizing: "border-box", padding: "0 12px", fontSize: 16, fontFamily: "ui-monospace, Menlo, monospace", color: C.tinte,

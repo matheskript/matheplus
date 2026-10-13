@@ -18,6 +18,7 @@ import {
   Tastenfeld, ableitung, alsTex, hatBox, kompiliere, ohnePar, parse, zufallsFunktion,
 } from "./func12.jsx";
 import { IchHaengeFest, ableitRegeln, aussenTex, summanden } from "./funcHilfe.jsx";
+import { MatheFeld } from "./matheTastatur.jsx";
 
 /* Kontext für „Ich hänge fest“: Hinweise aus dem Term, der gerade abgeleitet wird */
 const NAME_F = ["f", "f′", "f″", "f‴"];
@@ -336,7 +337,7 @@ export function Ableitungstrainer() {
                 )}
               </div>
               {tippen ? (
-                <input value={eintrag.text} onChange={(e) => setEintragText(e.target.value)}
+                <MatheFeld modus="formel" value={eintrag.text} onChange={(e) => setEintragText(e.target.value)}
                   onKeyDown={(e) => { if (e.key === "Enter") pruefen(); }}
                   placeholder="z. B. 2x*cos(x) oder e^(2x)" autoCapitalize="off" autoCorrect="off" spellCheck="false"
                   style={{ width: "100%", boxSizing: "border-box", height: 46, borderRadius: 12, border: `1.5px solid ${C.linie}`,

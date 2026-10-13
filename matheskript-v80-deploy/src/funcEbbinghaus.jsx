@@ -23,6 +23,7 @@ import {
 import { useSyncStatus } from "./lernSync.js";
 import { aktiveTermine } from "./func9.jsx";
 import { LERN } from "./base3.jsx";
+import { MatheFeld } from "./matheTastatur.jsx";
 
 export const EBB_VIDEO_ID = "otTSq-5PNsE";
 export const EBB_SLOGAN = "Beende Vergess kennenlernen und lerne wirklich Mathe. Mit einem klaren System.";
@@ -263,7 +264,7 @@ function KurzUebung({ starteSkill }) {
       <p style={{ fontSize: 14, color: C.grau, lineHeight: 1.65, margin: "6px 0 10px" }}>Rechne zuerst <b>auf Papier und ohne Musterlösung</b>. Zur Kontrolle setzt du danach <i>x</i> = 1 in deine Ableitung ein.</p>
       <label style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", fontSize: 15, color: C.tinte }}>
         <span style={{ fontWeight: 600 }}><M t="f'(1) =" /></span>
-        <input value={eingabe} disabled={abgegeben} inputMode="decimal" aria-label="Wert von f′ an der Stelle 1" autoComplete="off" spellCheck="false"
+        <MatheFeld modus="zahl" value={eingabe} disabled={abgegeben} aria-label="Wert von f′ an der Stelle 1" autoComplete="off" spellCheck="false"
           onChange={(e) => { setEingabe(e.target.value.replace(/[^0-9\-−,.]/g, "").slice(0, 10)); setMeldung(""); }}
           onKeyDown={(e) => { if (e.key === "Enter" && !abgegeben) abgeben(); }}
           style={{ width: 120, minHeight: 44, borderRadius: 10, border: `1.5px solid ${C.linie}`, padding: "0 12px", fontSize: 17, fontFamily: "inherit", color: C.tinte, background: abgegeben ? C.sand : C.weiss }} />

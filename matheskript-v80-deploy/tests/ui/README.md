@@ -10,3 +10,5 @@ python3 tests/ui/headnumbers.ui.py                         # optional: BASE_URL=
 ```
 
 Exit-Code 0 = alles in Ordnung. Das Skript löscht beim Start den lokalen Lernstand des Browser-Profils (leeres Profil je Lauf).
+
+Mathe-Tastatur (Handy-Emulation, Formelfeld im Advanced Plotter): `python3 tests/ui/matheTastatur.ui.py`

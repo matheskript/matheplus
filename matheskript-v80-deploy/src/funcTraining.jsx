@@ -29,6 +29,7 @@ import {
 } from "./trainingDaten.js";
 import { AufklappZeichen } from "./aufklappen.jsx";
 import { bucheLauf, normiereEbb } from "./ebbinghaus.js";
+import { MatheFeld } from "./matheTastatur.jsx";
 
 /* ---------- Speicher: im vorhandenen Lernstand (func6) ---------- */
 const aendere = (fn) => lernAendern((L) => { L.training = normiere(L.training); fn(L.training); });
@@ -805,7 +806,7 @@ function Klausur({ gehe }) {
           <div style={karte}>
             <div style={{ display: "grid", gap: 8, gridTemplateColumns: "minmax(0,1fr) minmax(0,110px)" }}>
               <input aria-label="Name der Klausur" placeholder="Name, z. B. Klausur 2 Analysis" value={titel} onChange={(e) => setTitel(e.target.value.slice(0, 60))} style={feld} />
-              <input aria-label="Datum" placeholder="Datum" value={dat} onChange={(e) => setDat(e.target.value.slice(0, 12))} style={feld} />
+              <MatheFeld modus="datum" aria-label="Datum" placeholder="Datum" value={dat} onChange={(e) => setDat(e.target.value.slice(0, 12))} style={feld} />
             </div>
             <p style={{ ...kicker, marginTop: 16 }}>Aufgaben</p>
             {zeilen.map((z, i) => {
@@ -815,8 +816,8 @@ function Klausur({ gehe }) {
                 <div key={z.id} style={{ border: `1px solid ${C.linie}`, borderRadius: 12, padding: 10, marginBottom: 10 }}>
                   <div style={{ display: "grid", gap: 8, gridTemplateColumns: "minmax(0,1fr) minmax(0,1fr) minmax(0,1fr)" }}>
                     <input aria-label={`Aufgabe ${i + 1}: Name`} placeholder="Aufgabe" value={z.name} onChange={(e) => setz(z.id, { name: e.target.value.slice(0, 12) })} style={feld} />
-                    <input aria-label={`Aufgabe ${i + 1}: erreichbare Punkte`} inputMode="decimal" placeholder="max. P." value={z.max} onChange={(e) => setz(z.id, { max: e.target.value.replace(/[^0-9,.]/g, "").slice(0, 5) })} style={feld} />
-                    <input aria-label={`Aufgabe ${i + 1}: erreichte Punkte`} inputMode="decimal" placeholder="erreicht" value={z.erreicht} onChange={(e) => setz(z.id, { erreicht: e.target.value.replace(/[^0-9,.]/g, "").slice(0, 5) })} style={feld} />
+                    <MatheFeld modus="zahl" aria-label={`Aufgabe ${i + 1}: erreichbare Punkte`} placeholder="max. P." value={z.max} onChange={(e) => setz(z.id, { max: e.target.value.replace(/[^0-9,.]/g, "").slice(0, 5) })} style={feld} />
+                    <MatheFeld modus="zahl" aria-label={`Aufgabe ${i + 1}: erreichte Punkte`} placeholder="erreicht" value={z.erreicht} onChange={(e) => setz(z.id, { erreicht: e.target.value.replace(/[^0-9,.]/g, "").slice(0, 5) })} style={feld} />
                   </div>
                   <select aria-label={`Aufgabe ${i + 1}: Thema`} value={z.thema} onChange={(e) => setz(z.id, { thema: e.target.value })} style={{ ...feld, width: "100%", marginTop: 8 }}>
                     {THEMA_IDS.map((t) => <option key={t} value={t}>{THEMEN[t].name}</option>)}

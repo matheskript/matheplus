@@ -18,6 +18,7 @@ import { Tastenfeld, ableitung, alsTex, analysiere, hatBox, kompiliere, ohnePar,
 import { STELLEN, vergleich } from "./func13.jsx";
 import { IchHaengeFest, summanden } from "./funcHilfe.jsx";
 import { Anfangsbedingung, BestandAenderungsrate, FlaecheBilanz, ZwischenZweiGraphen } from "./funcIntegraleNeu.jsx";
+import { MatheFeld } from "./matheTastatur.jsx";
 
 const endlich = (y) => typeof y === "number" && isFinite(y);
 const zz = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
@@ -406,7 +407,7 @@ function StammTrainer({ art, onC }) {
             )}
           </div>
           {tippen ? (
-            <input value={eingabe} onChange={(e) => { setEingabe(e.target.value); setStatus(null); setHinweis(""); }} onKeyDown={(e) => { if (e.key === "Enter") pruefen(); }}
+            <MatheFeld modus="formel" value={eingabe} onChange={(e) => { setEingabe(e.target.value); setStatus(null); setHinweis(""); }} onKeyDown={(e) => { if (e.key === "Enter") pruefen(); }}
               placeholder="z. B. x^3 - cos(x)" aria-label="Stammfunktion F(x)" autoCapitalize="off" autoCorrect="off" spellCheck="false"
               style={{ width: "100%", boxSizing: "border-box", height: 46, borderRadius: 12, border: `1.5px solid ${C.linie}`, padding: "0 12px", fontSize: 16, fontFamily: "ui-monospace, Menlo, monospace" }} />
           ) : (
@@ -453,7 +454,7 @@ function Anfangswert({ F, mitLn }) {
       <p style={{ fontSize: 14, color: C.tinte, lineHeight: 1.6, marginBottom: 8 }}>Welche Stammfunktion geht durch den Punkt P({aufg.x0} | {String(aufg.y0).replace("-", "−")})? Bestimme C.</p>
       <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
         <span style={{ fontSize: 17, fontWeight: 700 }}>C =</span>
-        <input value={w} aria-label="Wert von C" inputMode="text" onChange={(e) => { setW(e.target.value.slice(0, 8)); setErg(null); }} onKeyDown={(e) => { if (e.key === "Enter") pruefen(); }}
+        <MatheFeld modus="zahl" value={w} aria-label="Wert von C" onChange={(e) => { setW(e.target.value.slice(0, 8)); setErg(null); }} onKeyDown={(e) => { if (e.key === "Enter") pruefen(); }}
           style={{ width: 90, height: 40, textAlign: "center", fontSize: 16, fontWeight: 800, fontFamily: "inherit", color: C.see, border: `1.5px solid ${C.see}55`, borderRadius: 10, background: C.weiss, outline: "none" }} />
         <button type="button" onClick={pruefen}
           style={{ height: 40, padding: "0 16px", borderRadius: 999, border: "none", background: C.flaggold, color: C.seeTief, fontSize: 14, fontWeight: 700, fontFamily: "inherit", cursor: "pointer" }}>Prüfen</button>
@@ -589,7 +590,7 @@ function BestimmtesIntegral({ zeigeHauptsatz }) {
         <div style={{ flex: 1 }}>{feld("b", "b =")}</div>
       </div>
       {tippen ? (
-        <input value={aktivText} onChange={(e) => setze(aktiv, e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") rechnen(); }}
+        <MatheFeld modus="formel" value={aktivText} onChange={(e) => setze(aktiv, e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") rechnen(); }}
           aria-label={`Eingabe für ${aktiv}`} autoCapitalize="off" autoCorrect="off" spellCheck="false"
           style={{ width: "100%", boxSizing: "border-box", height: 46, borderRadius: 12, border: `1.5px solid ${C.linie}`, padding: "0 12px", fontSize: 16, fontFamily: "ui-monospace, Menlo, monospace", marginTop: 4 }} />
       ) : (

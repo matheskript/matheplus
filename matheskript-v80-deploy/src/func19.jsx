@@ -10,6 +10,7 @@
 import React, { useRef, useState } from "react";
 import { C } from "./base1.jsx";
 import { DrehKnoepfe, FARBE_ACHSE, GRUND_AUS, GrundebenenGitter, GrundebenenSchalter, ebenenPolygon, ebenenText, kamera } from "./func16.jsx";
+import { MatheFeld } from "./matheTastatur.jsx";
 
 const FARBE_E1 = C.see;
 const FARBE_E2 = C.gruen;
@@ -444,7 +445,7 @@ function VektorEingabe({ name, farbe, werte, setWerte }) {
       <VecName t={name} idx="" farbe={farbe} />
       <span>=</span>
       <SpaltenVektor farbe={farbe} eintraege={werte.map((w, i) => (
-        <input key={i} value={w} inputMode="decimal" aria-label={`${name}${i + 1}`}
+        <MatheFeld modus="zahl" key={i} value={w} aria-label={`${name}${i + 1}`}
           onChange={(e) => { const n = [...werte]; n[i] = e.target.value.replace(/[^0-9,.\-−]/g, "").slice(0, 6); setWerte(n); }}
           onFocus={(e) => e.target.select()}
           style={{ width: 36, height: 25, textAlign: "center", fontSize: 14, fontWeight: 800, fontFamily: "inherit", color: farbe,

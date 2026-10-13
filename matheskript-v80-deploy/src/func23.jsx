@@ -14,6 +14,7 @@ import { Einzeilig, ggT, kreuz, skalar } from "./func19.jsx";
 import { FA, FB, FE, FS, Gl, Name, Raum3, Schritt, Vek, k, koordText, n } from "./func20.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
 import { AufklappZeichen } from "./aufklappen.jsx";
+import { MatheFeld } from "./matheTastatur.jsx";
 
 const pt = (P) => P.map(n).join(" | ");
 function geradeHilfe(A, B) {
@@ -112,7 +113,7 @@ export function Meldung({ art = "info", children }) {
 /* Ganzzahliges Eingabefeld */
 export function Feld({ wert, setWert, label, farbe = C.see, breite = 40 }) {
   return (
-    <input value={wert} inputMode="numeric" aria-label={label}
+    <MatheFeld modus="ganzvz" value={wert} aria-label={label}
       onChange={(e) => setWert(e.target.value.replace(/[^0-9\-−]/g, "").replace("−", "-").slice(0, 4))}
       onFocus={(e) => e.target.select()}
       style={{ width: breite, height: 34, textAlign: "center", fontSize: 15, fontWeight: 800, fontFamily: "inherit", color: farbe,

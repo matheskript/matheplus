@@ -11,6 +11,7 @@ import { LoesungsWeg, VisSekante, lernAusUebung, lernSpeichern } from "./func6.j
 import { aktivitaetMelden } from "./func8.jsx";
 import { Auswertung } from "./func9.jsx";
 import { Mathilda } from "./func10.jsx";
+import { MatheFeld } from "./matheTastatur.jsx";
 
 export function KurvenGenerator() {
   const [auf, setAuf] = useState(() => kubischErzeugen());
@@ -105,7 +106,7 @@ export function KurvenGenerator() {
               </div>
             ) : (
               <div className="flex items-center" style={{ gap: 8 }}>
-                <input value={e[feld.id] || ""} disabled={geprueft}
+                <MatheFeld modus={feld.typ === "term" ? "formel" : "bruch"} value={e[feld.id] || ""} disabled={geprueft}
                   onChange={(ev) => setE({ ...e, [feld.id]: ev.target.value })}
                   placeholder={feld.hilfe || (feld.typ === "term" ? "z. B. 3x^2-6x" : "Zahl")}
                   style={{ flex: 1, padding: "9px 12px", fontSize: 15.5, fontFamily: "inherit",
@@ -322,7 +323,7 @@ export function DifferenzenquotientGenerator() {
               1. Kürze den Bruch, bis h nicht mehr im Nenner steht:
             </p>
             {tippen ? (
-              <input value={e1} onChange={(e) => { setE1(e.target.value); setStand1(null); }}
+              <MatheFeld modus="formel" value={e1} onChange={(e) => { setE1(e.target.value); setStand1(null); }}
                 placeholder={stelle !== null ? "Term mit h" : "Term mit x und h"}
                 style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", fontSize: 16, fontFamily: "inherit",
                   border: `1.5px solid ${stand1 === "ok" ? C.see : stand1 ? C.signal : C.linie}`,
@@ -374,13 +375,13 @@ export function DifferenzenquotientGenerator() {
               2. Bilde jetzt den Grenzwert für h → 0:
             </p>
             {stelle !== null ? (
-              <input value={e2} onChange={(e) => { setE2(e.target.value); setStand2(null); }}
+              <MatheFeld modus="bruch" value={e2} onChange={(e) => { setE2(e.target.value); setStand2(null); }}
                 placeholder="f′(x₀) als Zahl"
                 style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", fontSize: 16, fontFamily: "inherit",
                   border: `1.5px solid ${stand2 === "ok" ? C.see : stand2 ? C.signal : C.linie}`,
                   borderRadius: 12, outline: "none", background: stand2 === "ok" ? C.himmel : C.weiss, color: C.tinte, marginBottom: 8 }} />
             ) : tippen ? (
-              <input value={e2} onChange={(e) => { setE2(e.target.value); setStand2(null); }}
+              <MatheFeld modus="bruch" value={e2} onChange={(e) => { setE2(e.target.value); setStand2(null); }}
                 placeholder="f′(x)"
                 style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", fontSize: 16, fontFamily: "inherit",
                   border: `1.5px solid ${stand2 === "ok" ? C.see : stand2 ? C.signal : C.linie}`,
@@ -1292,7 +1293,7 @@ Jede geschriebene Zeile kommt als eigener Eintrag in "zeilen", in Maschinenschre
               boxShadow: "0 2px 12px rgba(15,26,51,0.05)",
               borderLeft: `3px solid ${bericht && bericht.fehler.some((f) => f.startsWith(`Zeile ${i + 1}:`)) ? C.signal : C.linie}` }}>
               <div style={{ fontSize: 16, lineHeight: 1.9, marginBottom: 6 }}>{zeileSetzen(z)}</div>
-              <input value={z} onChange={(e) => zeileAendern(i, e.target.value)}
+              <MatheFeld modus="formel" value={z} onChange={(e) => zeileAendern(i, e.target.value)}
                 style={{ width: "100%", boxSizing: "border-box", padding: "7px 10px", fontSize: 13.5,
                   fontFamily: "ui-monospace, monospace", border: `1px solid ${C.linie}`, borderRadius: 9,
                   outline: "none", color: C.grau }} />

@@ -6,6 +6,7 @@ import { MathildaName } from "./mathildaName.jsx";
 import { englisch } from "./i18n.js";
 import { baueExtra } from "./funcPenPaperExtra.js";
 import { HeftVergleich, MathildaBeispiel } from "./funcPenPaperHeft.jsx";
+import { MatheFeld } from "./matheTastatur.jsx";
 
 /* ======================================================================
    PEN-&-PAPER-KURS
@@ -576,7 +577,7 @@ function Labor() {
         ))}
       </div>
       <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: LABEL, letterSpacing: "0.04em", marginBottom: 5 }}>{L("ODER EIGENEN TERM EINGEBEN", "OR TYPE YOUR OWN TERM")}</label>
-      <input value={eingabe} onChange={(e) => setEingabe(e.target.value)} spellCheck={false} autoComplete="off" inputMode="text"
+      <MatheFeld modus="formel" value={eingabe} onChange={(e) => setEingabe(e.target.value)} spellCheck={false} autoComplete="off"
         placeholder="x^2 − 4x + 3" aria-label={L("Term eingeben", "Enter a term")}
         style={{ width: "100%", boxSizing: "border-box", padding: "11px 13px", borderRadius: 11, border: `1.5px solid ${C.linie}`, fontFamily: "inherit", fontSize: 16, color: C.tinte, background: "#FAFBFE", outline: "none" }} />
       <p style={{ fontSize: 11.5, color: LABEL, margin: "5px 0 14px" }}>{L("Potenzen mit ^ schreiben, zum Beispiel x^2.", "Write powers with ^, for example x^2.")}</p>

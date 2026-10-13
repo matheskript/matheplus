@@ -8,6 +8,7 @@ import { FR } from "./funcRegistry.jsx";
 import { FotoEinwilligungVerwalten, terminWiederholungenHeute } from "./func9.jsx";
 import { TermTastatur } from "./func4.jsx";
 import { syncErsetzen, syncMelden } from "./lernSync.js";
+import { MatheFeld } from "./matheTastatur.jsx";
 
 export function LoesungsWeg({ titelTex, aufgabeText, typ, auf, onSchliessen }) {
   const [zeilen, setZeilen] = useState(["", ""]);
@@ -721,7 +722,7 @@ export function Einstufung({ gehe }) {
           {tastatur && aufgabe.art === "term" ? (
             <TermTastatur wert={eingabe} setWert={setEingabe} />
           ) : (
-            <input value={eingabe} onChange={(e) => setEingabe(e.target.value)} placeholder="Ergebnis"
+            <MatheFeld modus="bruch" value={eingabe} onChange={(e) => setEingabe(e.target.value)} placeholder="Ergebnis"
               style={{ width: "100%", boxSizing: "border-box", padding: "12px 14px", fontSize: 17, fontFamily: "inherit",
                 border: `1.5px solid ${C.linie}`, borderRadius: 12, outline: "none" }} />
           )}

@@ -7,6 +7,7 @@ import { Einstufung, Profil, antwortPruefen, buchVerweis, einheitVon, lernAender
 import { pruefungsBefund } from "./func7.jsx";
 import { aktivitaetMelden, auswerten, gepaart, intervall, messExport, tagVon, welch } from "./func8.jsx";
 import { FR } from "./funcRegistry.jsx";
+import { MatheFeld } from "./matheTastatur.jsx";
 
 export function Auswertung() {
   const [exporte, setExporte] = useState([]);
@@ -398,7 +399,7 @@ export function TerminProbe({ termin, minuten, onFertig, onAbbruch }) {
           <Text s={x.a.frage} style={{ fontSize: 15.5, lineHeight: 1.8, marginBottom: 10 }} />
           <div className="flex items-center" style={{ gap: 10 }}>
             {x.a.praefix && <span style={{ fontSize: 15, fontWeight: 500, flexShrink: 0 }}><M t={x.a.praefix} /></span>}
-            <input value={eingaben[i] || ""} onChange={(e) => setEingaben({ ...eingaben, [i]: e.target.value })}
+            <MatheFeld modus="formel" value={eingaben[i] || ""} onChange={(e) => setEingaben({ ...eingaben, [i]: e.target.value })}
               style={{ flex: 1, minWidth: 0, padding: "10px 12px", fontSize: 15.5, fontFamily: "inherit", border: `1px solid ${C.linie}`, borderRadius: 11, outline: "none" }} />
           </div>
         </div>

@@ -1,6 +1,7 @@
 import React, { useRef } from "react";
 import { M } from "./func3.jsx";
 import { anzeige } from "./perfAufgaben.js";
+import { MatheFeld } from "./matheTastatur.jsx";
 
 /* ======================================================================
    perfUi.jsx – gemeinsame Bausteine des Performance-Labs
@@ -121,9 +122,9 @@ export function Formeleingabe({ wert, setWert, onEnter, placeholder, label = "De
   return (
     <div>
       <label style={{ display: "block", fontSize: 12.5, fontWeight: 600, color: L.ged, marginBottom: 6 }}>{label}</label>
-      <input ref={ref} value={wert} onChange={(e) => setWert(e.target.value)} disabled={disabled} autoFocus={autoFokus}
+      <MatheFeld modus="formel" ref={ref} value={wert} onChange={(e) => setWert(e.target.value)} disabled={disabled} autoFocus={autoFokus}
         onKeyDown={(e) => { if (e.key === "Enter" && onEnter) onEnter(); }}
-        placeholder={placeholder} inputMode="text" autoCapitalize="off" autoCorrect="off" spellCheck={false} aria-label={label}
+        placeholder={placeholder} aria-label={label}
         style={{ width: "100%", boxSizing: "border-box", fontFamily: "inherit", fontSize: 19, fontWeight: 500, letterSpacing: "0.01em", color: L.text, background: L.bg, caretColor: L.tuerkis,
           border: `1.5px solid ${L.linieStark}`, borderRadius: 14, padding: "14px 16px", outline: "none" }} className="perf-feld" />
       <div role="group" aria-label="Zeichen einfügen" style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8 }}>

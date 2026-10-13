@@ -13,6 +13,7 @@ import { Mathilda } from "./func10.jsx";
 import { FR } from "./funcRegistry.jsx";
 import { GraphenUebungen, ZusaetzlichUeben } from "./funcGraphenUebung.jsx";
 import { AufklappZeichen } from "./aufklappen.jsx";
+import { MatheFeld } from "./matheTastatur.jsx";
 
 export function FotoAufgaben() {
   const [bild, setBild] = useState(null);
@@ -518,7 +519,7 @@ export function Kurvendiskussion({ onZurueck }) {
             ) : (
               <div className="flex items-center" style={{ gap: 8 }}>
                 <span style={{ fontSize: 16, color: C.grau }}>{s.typ === "term" ? "=" : "Antwort:"}</span>
-                <input value={eingabe[schritt] || ""} onChange={(e) => { setEingabe({ ...eingabe, [schritt]: e.target.value }); setStand(null); }}
+                <MatheFeld modus={s.typ === "term" ? "formel" : "bruch"} value={eingabe[schritt] || ""} onChange={(e) => { setEingabe({ ...eingabe, [schritt]: e.target.value }); setStand(null); }}
                   placeholder={s.typ === "term" ? "z. B. 3x^2-6x" : "Zahl"}
                   style={{ flex: 1, padding: "10px 12px", fontSize: 16, fontFamily: "inherit",
                     border: `1.5px solid ${stand === "ok" ? C.see : stand === "nein" ? C.signal : C.linie}`,
@@ -918,7 +919,7 @@ export function Klausur({ onZurueck }) {
                   <div key={pi} style={{ marginBottom: 14 }}>
                     <Text s={p.frage} style={{ fontSize: 14.5, lineHeight: 1.7, marginBottom: 6 }} />
                     <div className="flex items-center" style={{ gap: 8 }}>
-                      <input value={antworten[schluessel] || ""} disabled={abgegeben}
+                      <MatheFeld modus="formel" value={antworten[schluessel] || ""} disabled={abgegeben}
                         onChange={(e) => setAntworten({ ...antworten, [schluessel]: e.target.value })}
                         placeholder="Ergebnis"
                         style={{ flex: 1, padding: "9px 12px", fontSize: 15.5, fontFamily: "inherit",
@@ -1439,7 +1440,7 @@ Maschinenschreibweise: ^ für Potenzen, * für Produkte, sin(x), cos(x), ln(x), 
 
         <p style={{ fontSize: 15, fontWeight: 500, marginBottom: 8 }}>f′(x) =</p>
         {tippen ? (
-          <input value={eingabe} onChange={(e) => { setEingabe(e.target.value); setStand(null); }}
+          <MatheFeld modus="formel" value={eingabe} onChange={(e) => { setEingabe(e.target.value); setStand(null); }}
             placeholder="deine Lösung"
             style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", fontSize: 16, fontFamily: "inherit",
               border: `1.5px solid ${stand === "ok" ? C.see : stand ? C.signal : C.linie}`,

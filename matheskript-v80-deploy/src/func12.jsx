@@ -20,6 +20,7 @@ import { PLATZ } from "./base2.jsx";
 import { schoenerSchritt, tiefZiffer, zahl } from "./func2.jsx";
 import { M } from "./func3.jsx";
 import { AufklappZeichen } from "./aufklappen.jsx";
+import { MatheFeld } from "./matheTastatur.jsx";
 
 /* ---------- 1. Formel-Engine ---------- */
 
@@ -1279,7 +1280,7 @@ function Eingabe({ text, setText }) {
 
       {tippen ? (
         <div>
-          <input value={text} onChange={(e) => { setText(e.target.value); setPos(e.target.value.length); }}
+          <MatheFeld modus="formel" value={text} onChange={(e) => { setText(e.target.value); setPos(e.target.value.length); }}
             placeholder="z. B. x^2*sin(x) oder log[2](x+1)" autoCapitalize="off" autoCorrect="off" spellCheck="false"
             style={{ width: "100%", boxSizing: "border-box", height: 46, borderRadius: 12, border: `1.5px solid ${C.linie}`,
               padding: "0 12px", fontSize: 16, fontFamily: "ui-monospace, Menlo, monospace", color: C.tinte }} />

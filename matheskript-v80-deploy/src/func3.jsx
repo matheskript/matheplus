@@ -9,6 +9,7 @@ import { ErklaerVideo, jsonLesen, parseZahl } from "./func1.jsx";
 import { LoesungsWeg } from "./func6.jsx";
 import { merken } from "./func5.jsx";
 import { termAlsTex } from "./func4.jsx";
+import { MatheFeld } from "./matheTastatur.jsx";
 
 /* Kopf des Polynomplotters im Stil der Sinusfunktion: ein gemeinsames 5-Spalten-Raster.
    Oben die Plus/Minus-Knöpfe, darunter die allgemeine Form im grauen Kasten, dann die
@@ -1049,7 +1050,7 @@ Maschinenschreibweise: Potenzen mit ^, Multiplikation mit *, Funktionen als sin(
           <>
             <div className="flex items-center flex-wrap" style={{ gap: 8, marginBottom: 10 }}>
               <span style={{ fontSize: 17 }}>f′(x) =</span>
-              <input value={eingabe} onChange={(e) => { setEingabe(e.target.value); setStand(null); }}
+              <MatheFeld modus="formel" value={eingabe} onChange={(e) => { setEingabe(e.target.value); setStand(null); }}
                 placeholder="deine Lösung"
                 style={{ flex: 1, minWidth: 150, padding: "10px 12px", fontSize: 16, fontFamily: "inherit",
                   border: `1.5px solid ${randFarbe}`, borderRadius: 12, outline: "none",

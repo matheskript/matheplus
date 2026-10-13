@@ -6,6 +6,7 @@ import { M, Text, alsFunktion, stimmtUeberein } from "./func3.jsx";
 import { TermTastatur } from "./func4.jsx";
 import { DiffqStufenknopf, merken } from "./func5.jsx";
 import { plotAbbildung, Achsen, Schieber } from "./func6.jsx";
+import { MatheFeld } from "./matheTastatur.jsx";
 
 /* ---------- Themenseite Potenzregel ----------
    Aufbau nach dem Muster der Differenzenquotient-Seite:
@@ -292,7 +293,7 @@ export function PotenzregelTrainer() {
 
         <p style={{ fontSize: 15, fontWeight: 500, marginBottom: 8 }}>Gib f′(x) ein:</p>
         {tippen ? (
-          <input value={eingabe} onChange={(e) => { setEingabe(e.target.value); setStand(null); }} placeholder="f′(x)" style={feldStil} />
+          <MatheFeld modus="formel" value={eingabe} onChange={(e) => { setEingabe(e.target.value); setStand(null); }} placeholder="f′(x)" style={feldStil} />
         ) : (
           <TermTastatur wert={eingabe} setWert={(w) => { setEingabe(w); setStand(null); }} />
         )}
