@@ -98,6 +98,7 @@ export const NAV = [
   { id: "lernen", name: "Lernen", kurz: "Verstehen, herleiten, nachschlagen", eintraege: [
     { name: "Arbeitsheft", kurz: "Acht Bausteine mit Herleitung und Aufgaben", ansicht: "training", ziel: "module" },
     { name: "Videokurse", kurz: "Analysis 1–5, Vektoren, Stochastik, Pen & Paper – mit Videokurs", ansicht: "kurse" },
+    { name: "Mathe entdecken", kurz: "Muster erkennen, Vermutungen aufstellen, Formeln selbst herleiten", ansicht: "entdecken" },
     { name: "Differenzenquotient", kurz: "Vom Tangentenproblem zur Ableitung", ansicht: "diffq" },
     { name: "Potenzregel", kurz: "Beweis mit Produktregel und vollständiger Induktion", ansicht: "potenzregel" },
     { name: "Formelsammlung", kurz: "Alle Regeln zum Nachschlagen", ansicht: "formeln" },

@@ -24,6 +24,7 @@ import { GleichungenLogoKlein } from "./funcGleichungen.jsx";
 import { MedaillenschrankLogo, BwmLogo, KarteLogo } from "./funcWettbewerbe.jsx";
 import { MasterclassKachel, MatheCheckenKachel, MathCreatorKachel } from "./funcMasterclass.jsx";
 import { ElternabendKachel } from "./funcElternabend.jsx";
+import { EntdeckenLogoKlein } from "./funcEntdecken.jsx";
 import { SatzZeilen, saetze } from "./baseSatz.jsx";
 import { AufklappZeichen } from "./aufklappen.jsx";
 
@@ -1138,6 +1139,10 @@ export function Startseite({ gehe }) {
         </div>
       )}
       </AufklappRahmen>
+      {/* Mathe entdecken: gleichwertiger zweiter Hauptbereich direkt unter „Mathe-Training“ */}
+      <PlotterKachel breit onClick={() => gehe({ ansicht: "entdecken" })} label="Mathe entdecken öffnen" logo={<EntdeckenLogoKlein />}
+        titel="Mathe entdecken"
+        text="Muster erkennen, Vermutungen aufstellen und Formeln selbst herleiten." />
       {ZEIGE_GESPERRTE && (<>
       <MatheCheckenKachel gesperrt onClick={() => gehe({ ansicht: "mathecheck" })} />
       <MasterclassKachel gesperrt onClick={() => gehe({ ansicht: "masterclass" })} />
