@@ -1247,7 +1247,7 @@ export function Mathilda() {
           <div style={{ background: "radial-gradient(130% 150% at 90% 0%, #2A2210 0%, #0E0C08 55%, #050404 100%)" }}>
             <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.14em", color: C.flaggold, marginBottom: 8 }}>MYTHOS MATHE LIVE</p>
-              <h1 className="logo-gold" style={{ fontWeight: 800, fontSize: "clamp(28px, 8.4vw, 38px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Elternabend</h1>
+              <h1 className="titel-silber" style={{ fontWeight: 800, fontSize: "clamp(28px, 8.4vw, 38px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Elternabend</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
               <p style={{ color: "rgba(255,255,255,0.78)", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
                 Warum Mathe-Talent ein Mythos ist – und wie Ihr Kind mit System und Freude stark wird.
@@ -1325,7 +1325,7 @@ export function Mathilda() {
           <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.14em", color: C.flaggold, marginBottom: 8 }}>6-MONATS-PROGRAMM</p>
-              <h1 className="logo-gold" style={{ fontWeight: 800, fontSize: "clamp(28px, 8.4vw, 38px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Mathe Abi Masterclass</h1>
+              <h1 className="titel-silber" style={{ fontWeight: 800, fontSize: "clamp(28px, 8.4vw, 38px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Mathe Abi Masterclass</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
               <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
                 Werde die beste Version von dir – für ein erfolgreiches Mathe-Abi und echte Freude am Fach.
@@ -1340,7 +1340,7 @@ export function Mathilda() {
           <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.14em", color: C.flaggold, marginBottom: 8 }}>MITTELSTUFE · OBERSTUFE</p>
-              <h1 className="logo-gold" style={{ fontWeight: 800, fontSize: "clamp(28px, 8.4vw, 38px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Pen &amp; Paper Kurs</h1>
+              <h1 className="titel-silber" style={{ fontWeight: 800, fontSize: "clamp(28px, 8.4vw, 38px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Pen &amp; Paper Kurs</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
               <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
                 Mathematik so aufschreiben, dass du deinen Denkweg siehst, verstehst und kontrollierst – für Mittelstufe und Oberstufe.
@@ -1366,8 +1366,8 @@ export function Mathilda() {
         <>
           <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.14em", color: C.flaggold, marginBottom: 8 }}>LERNSYSTEM · VOM VERSTEHEN ZUM KÖNNEN</p>
-              <h1 className="logo-gold" data-kein-i18n style={{ fontWeight: 800, fontSize: "clamp(28px, 8.4vw, 38px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Ebbinghaus</h1>
+              <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.14em", color: C.flaggold, marginBottom: 8 }}>VOM VERSTEHEN ZUM KÖNNEN</p>
+              <h1 className="titel-silber" data-kein-i18n style={{ fontWeight: 800, fontSize: "clamp(28px, 8.4vw, 38px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Ebbinghaus</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
               <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
                 {EBB_SLOGAN}
@@ -1382,7 +1382,7 @@ export function Mathilda() {
           <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.14em", color: C.flaggold, marginBottom: 8 }}>KOPFRECHNEN · 3 BEREICHE</p>
-              <h1 className="logo-gold" style={{ fontWeight: 800, fontSize: "clamp(28px, 8.4vw, 38px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Head &amp; Numbers</h1>
+              <h1 className="titel-silber" style={{ fontWeight: 800, fontSize: "clamp(28px, 8.4vw, 38px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Head &amp; Numbers</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
               <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
                 Einmaleins, Quadratzahlen und Kubikzahlen – spielerisch trainiert, bis sie einfach sitzen.

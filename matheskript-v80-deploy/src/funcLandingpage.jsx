@@ -5,6 +5,7 @@ import { COACHING } from "./base3.jsx";
 import { M } from "./func3.jsx";
 import { ELTERNABEND } from "./funcElternabend.jsx";
 import { PerformanceLab } from "./funcPerformanceLab.jsx";
+import { MathildaName } from "./mathildaName.jsx";
 
 /* ======================================================================
    LANDINGPAGE  (Adresse: #landingpage) – offen erreichbar, ohne Passwort.
@@ -457,7 +458,7 @@ export function Landingpage({ gehe }) {
               <div key={m.name} className="lp-methode">
                 <span className="lp-zeichen" aria-hidden="true">{m.zeichen}</span>
                 <div>
-                  <h3 className="lp-h3">{m.name}</h3>
+                  <h3 className="lp-h3">{m.name === "MathildaAI" ? <MathildaName /> : m.name}</h3>
                   <p className="lp-text" style={{ marginTop: 6, fontSize: 16 }}>{m.text}</p>
                   <button type="button" className="lp-link" style={{ marginTop: 10 }} onClick={() => gehe(m.ziel)}>{m.knopf}</button>
                 </div>
@@ -471,7 +472,7 @@ export function Landingpage({ gehe }) {
       <section className="lp-sektion lp-dunkel" style={{ background: `radial-gradient(110% 120% at 10% 0%, #17306E 0%, ${F.nacht} 55%)` }}>
         <div className="lp-innen lp-raster-2">
           <div>
-            <h2 className="lp-h2">MathildaAI findet die Stelle, an der dein Weg bricht.</h2>
+            <h2 className="lp-h2"><MathildaName dunkel /> findet die Stelle, an der dein Weg bricht.</h2>
             <p className="lp-text" style={{ marginTop: 22 }}>
               Nicht nur „falsch“, sondern wo und warum. Und weil Mathilda sich deine Fehler über Wochen merkt, erkennt sie Muster –
               aus digitalen Übungen und aus deinen Blättern.
