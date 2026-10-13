@@ -55,7 +55,7 @@ const VORLAGEN = [
   { id: "test", name: "Medizinischer Test", a: "krank", an: "gesund", b: "Test positiv", bn: "Test negativ",
     abs: [19, 1, 49, 931], text: "1000 Personen werden getestet. Die Krankheit ist selten, der Test ist gut – trotzdem überrascht P_B(A)." },
   { id: "verein", name: "Sportverein", a: "Mädchen", an: "Junge", b: "im Verein", bn: "nicht im Verein",
-    abs: [9, 7, 8, 6], text: "Eine Klasse mit 30 Schülerinnen und Schülern: Wer ist im Sportverein?" },
+    abs: [9, 7, 8, 6], text: "Eine Klasse mit 30 Schülern: Wer ist im Sportverein?" },
   { id: "unabh", name: "Münze & Würfel", a: "Kopf", an: "Zahl", b: "gerade Zahl", bn: "ungerade Zahl",
     abs: [50, 50, 50, 50], text: "Münze und Würfel beeinflussen sich nicht – die Tafel zeigt Unabhängigkeit." },
   { id: "abi", name: "Abi-Vorbereitung", a: "mit Lernplan", an: "ohne Lernplan", b: "bestanden", bn: "nicht bestanden",

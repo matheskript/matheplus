@@ -255,7 +255,7 @@ const UEBER_MICH = {
   foto: "/landingpage/basti.jpg",
   fotoAlt: "Basti Blumenröther, Gründer von Mythos Mathe",
   absaetze: [
-    "Ich bin Basti. Ich studiere Mathematik an der Universität Konstanz, lebe in Dingelsdorf und begleite seit vielen Jahren Schülerinnen und Schüler durch Mathe – von der Mittelstufe bis zum Abitur.",
+    "Ich bin Basti. Ich studiere Mathematik an der Universität Konstanz, lebe in Dingelsdorf und begleite seit vielen Jahren Schüler durch Mathe – von der Mittelstufe bis zum Abitur.",
     "Mythos Mathe ist aus einer einfachen Beobachtung entstanden: Fast jeder, der an Mathe scheitert, scheitert nicht am Kopf, sondern an der Methode. Deshalb gibt es hier keine Abkürzungen, sondern ein System – und die Werkzeuge, um es jeden Tag anzuwenden.",
   ],
 };
@@ -273,7 +273,7 @@ const STIMMEN = [
 ];
 
 const FRAGEN = [
-  ["Für wen ist Mythos Mathe?", "Für Schülerinnen und Schüler am Gymnasium von Klasse 8 bis zum Abitur, mit Schwerpunkt auf der Oberstufe. Das Coaching findet in Konstanz und am Bodensee statt, die Werkzeuge funktionieren überall im Browser."],
+  ["Für wen ist Mythos Mathe?", "Für Schüler am Gymnasium von Klasse 8 bis zum Abitur, mit Schwerpunkt auf der Oberstufe. Das Coaching findet in Konstanz und am Bodensee statt, die Werkzeuge funktionieren überall im Browser."],
   ["Brauche ich Talent für Mathe?", "Nein. Genau das ist der Mythos, um den es hier geht. Gute Mathenoten entstehen aus Methode, Wiederholung im richtigen Abstand und einer Haltung, die Fehler als Information sieht – nicht aus einer Begabung, die man hat oder nicht hat."],
   ["Kann ich die Werkzeuge einfach ausprobieren?", "Ja. Plotter, Trainer und Generatoren öffnen sich direkt im Browser. Für die Foto-Auswertung mit MathildaAI wirst du vor dem ersten Foto um deine Einwilligung gebeten."],
   ["Was passiert im ersten Gespräch?", "Wir schauen gemeinsam, wo du gerade stehst, wo es hakt und welcher Weg zu dir passt – ein Programm, gezieltes Training mit den Werkzeugen oder für deine Eltern erst einmal der Elternabend."],
@@ -523,7 +523,7 @@ export function Landingpage({ gehe }) {
         <div className="lp-innen">
           <div style={{ maxWidth: 720 }}>
             <h2 className="lp-h2">Was sich verändert</h2>
-            <p className="lp-text" style={{ marginTop: 20 }}>Stimmen von Schülerinnen, Schülern und Eltern, die mit dem System arbeiten.</p>
+            <p className="lp-text" style={{ marginTop: 20 }}>Stimmen von Schülern und Eltern, die mit dem System arbeiten.</p>
             {STIMMEN.some((x) => x.beispiel) && (
               <p className="lp-klein" style={{ marginTop: 12 }}>Die mit „Beispiel“ markierten Texte sind Platzhalter und werden durch echte Rückmeldungen ersetzt.</p>
             )}

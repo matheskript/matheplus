@@ -191,7 +191,7 @@ export async function refFestlegen(code) {
   setzen({ profil: { ...zustand.profil, ref_code: code, ref_fest: true } });
 }
 
-/* Legt das Profil beim ersten Mal an (Name, Rolle, bei Schüler:innen das Geschlecht) und verknüpft Werber und – bei Eltern – das einladende Kind. */
+/* Legt das Profil beim ersten Mal an (Name, Rolle, bei Schüler das Geschlecht) und verknüpft Werber und – bei Eltern – das einladende Kind. */
 export async function profilAnlegen(name, rolle = "schueler", geschlecht = null) {
   const n = name.trim();
   if (!n) throw new Error("Bitte gib deinen Namen ein.");

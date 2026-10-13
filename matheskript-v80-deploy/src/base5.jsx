@@ -105,7 +105,7 @@ export const VIDEOKURSE = {
       },
       {
         id: "p6", kapitel: "Mathe & Ich", titel: "Die 6 fatalen Fehler – und warum Fehler Information sind", youtube: "-XkemtBqrNo",
-        worum: "Es gibt sechs Arten, wie gute Schülerinnen und Schüler sich selbst sabotieren: wichtige Schritte im Kopf machen, mehrere Schritte in eine Zeile pressen, „=“ als Pfeil benutzen, ohne klares Ziel rechnen, Fehler mit Unfähigkeit verwechseln und Lösungen konsumieren statt rekonstruieren. Die ersten vier sind Handwerk – die letzten zwei sind Haltung.",
+        worum: "Es gibt sechs Arten, wie gute Schüler sich selbst sabotieren: wichtige Schritte im Kopf machen, mehrere Schritte in eine Zeile pressen, „=“ als Pfeil benutzen, ohne klares Ziel rechnen, Fehler mit Unfähigkeit verwechseln und Lösungen konsumieren statt rekonstruieren. Die ersten vier sind Handwerk – die letzten zwei sind Haltung.",
         mitnehmen: [
           "Handwerk: Kopfschritte, Zeilen-Quetschen, „=“ als Pfeil, Rechnen ohne Ziel",
           "Haltung: Ein Fehler zeigt dir, wo du gerade stehst – nicht, wer du bist",

@@ -246,7 +246,7 @@ export function BundeswettbewerbSeite() {
 
       <div style={{ marginTop: 26 }}>
         <H2>{L("Der anspruchsvollste Mathe-Wettbewerb für die Oberstufe", "Germany's most demanding maths competition for upper secondary students")}</H2>
-        <Absatz>{L("Der Bundeswettbewerb Mathematik richtet sich an alle Schülerinnen und Schüler, die auf dem Weg zum Abitur sind – auch an deutschen Schulen im Ausland. Es geht nicht um Schulstoff, sondern um echte mathematische Probleme, die man mit Ausdauer, Ideen und sauberen Beweisen löst.",
+        <Absatz>{L("Der Bundeswettbewerb Mathematik richtet sich an alle Schüler, die auf dem Weg zum Abitur sind – auch an deutschen Schulen im Ausland. Es geht nicht um Schulstoff, sondern um echte mathematische Probleme, die man mit Ausdauer, Ideen und sauberen Beweisen löst.",
           "The Bundeswettbewerb Mathematik is open to all students on their way to the Abitur – including German schools abroad. It is not about school material but about real mathematical problems that you solve with persistence, ideas and clean proofs.")}</Absatz>
       </div>
 

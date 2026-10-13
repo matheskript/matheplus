@@ -253,7 +253,7 @@ function NameKarte({ profil }) {
       <label htmlFor="konto-name2" style={{ fontSize: 13, fontWeight: 600, color: C.see }}>Name</label>
       <input id="konto-name2" value={name} onChange={(e) => { setName(e.target.value); setStatus(null); }} maxLength={80}
         style={{ display: "block", width: "100%", boxSizing: "border-box", marginTop: 6, border: `1.5px solid ${C.linie}`, borderRadius: 12, padding: "11px 14px", fontSize: 16, fontFamily: "inherit", color: C.tinte, outline: "none" }} />
-      <p style={{ fontSize: 12.5, color: C.grau, fontWeight: 300, marginTop: 6 }}>Diesen Namen sehen die Schüler:innen, die mit dir verbunden sind.</p>
+      <p style={{ fontSize: 12.5, color: C.grau, fontWeight: 300, marginTop: 6 }}>Diesen Namen sehen die Schüler, die mit dir verbunden sind.</p>
       <div className="flex items-center" style={{ gap: 12, marginTop: 12 }}>
         <button type="button" onClick={speichern} disabled={!name.trim()} style={{ height: 44, padding: "0 22px", borderRadius: 999, border: "none", background: name.trim() ? C.see : C.hellgrau, color: C.weiss, fontSize: 15, fontWeight: 700, fontFamily: "inherit", cursor: "pointer" }}>Speichern</button>
         {status && <span style={{ fontSize: 13.5, color: status.ok ? C.smaragd : C.signal }}>{status.text}</span>}

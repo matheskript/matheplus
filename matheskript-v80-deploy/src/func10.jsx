@@ -1444,7 +1444,7 @@ export function Mathilda() {
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 29, letterSpacing: "-0.03em", lineHeight: 1.1 }}>Nachhilfe-Kurs</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
               <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
-                Für Nachhilfelehrer:innen: von der Diagnose über Erklären und Üben bis zur Zusammenarbeit mit den Eltern.
+                Für Nachhilfelehrernen: von der Diagnose über Erklären und Üben bis zur Zusammenarbeit mit den Eltern.
               </p>
             </div>
             <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />

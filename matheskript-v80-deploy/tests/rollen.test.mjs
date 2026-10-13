@@ -68,7 +68,7 @@ test("Schüler/Schülerin: Rollenname und Anrede nach Geschlecht", () => {
   assert.deepEqual(GESCHLECHTER.map((g) => g.name), ["Schüler", "Schülerin"]);
   assert.equal(rolleName("schueler", "m"), "Schüler");
   assert.equal(rolleName("schueler", "w"), "Schülerin");
-  assert.equal(rolleName("schueler"), "Schüler:in");          // ältere Konten ohne Angabe
+  assert.equal(rolleName("schueler"), "Schüler");          // ältere Konten ohne Angabe
   assert.equal(rolleName("eltern", "w"), "Elternteil");        // Geschlecht ändert andere Rollen nicht
   assert.equal(istGeschlecht("m"), true); assert.equal(istGeschlecht("w"), true);
   assert.equal(istGeschlecht(""), false); assert.equal(istGeschlecht(null), false); assert.equal(istGeschlecht("x"), false);

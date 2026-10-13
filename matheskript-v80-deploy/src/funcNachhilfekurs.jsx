@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { C } from "./base1.jsx";
 
 /* ======================================================================
-   NACHHILFE-KURS — sechs Module für Nachhilfelehrer:innen (ENTWURF zur Durchsicht durch Basti).
+   NACHHILFE-KURS — sechs Module für Nachhilfelehrernen (ENTWURF zur Durchsicht durch Basti).
    Aufbau je Modul: Kernidee · So gehst du vor · Typischer Fehler · Probier es in der nächsten Stunde · Mit Mythos Mathe.
    Reiner Text, keine Videos (keine ungeprüften Links). Fortschritt („erledigt“) nur lokal im Browser.
    ====================================================================== */
@@ -84,7 +84,7 @@ export const NACHHILFEKURS = [
     ],
     fehler: "Nur dann mit den Eltern sprechen, wenn etwas schiefgeht.",
     aufgabe: "Formuliere einen Musterbericht von drei Sätzen für Eltern nach einer Nachhilfestunde.",
-    tool: "Mit deinem Gruppencode verbindet sich der Schüler; Eltern verbinden sich über den Einladungslink ihres Kindes und sehen eine Wochenübersicht. So seid ihr alle auf demselben Stand. Hinweis: Die Datenschutz-Texte zur Nutzung mit Schüler:innen und Eltern werden noch ergänzt." },
+    tool: "Mit deinem Gruppencode verbindet sich der Schüler; Eltern verbinden sich über den Einladungslink ihres Kindes und sehen eine Wochenübersicht. So seid ihr alle auf demselben Stand. Hinweis: Die Datenschutz-Texte zur Nutzung mit Schüler und Eltern werden noch ergänzt." },
 ];
 
 const SCHLUESSEL = "mm-nachhilfekurs";
@@ -134,7 +134,7 @@ export function NachhilfekursSeite() {
   if (offen === null) {
     return (
       <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
-        <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 12 }}>Sechs Module für Nachhilfelehrer:innen</h2>
+        <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 12 }}>Sechs Module für Nachhilfelehrernen</h2>
         <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.8, marginBottom: 8 }}>
           Von der ersten Diagnose bis zur Zusammenarbeit mit den Eltern – kompakt und praxisnah. Jedes Modul endet mit einer kleinen Aufgabe für deine nächste Stunde.
         </p>

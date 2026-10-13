@@ -38,7 +38,7 @@ create unique index if not exists profile_eltern_token_idx on public.profile (el
 -- Früher vergebene Empfehlungscodes bleiben gültig, wenn jemand später eine Wunschzahl festlegt
 alter table public.profile add column if not exists ref_frueher text[] not null default '{}';
 
--- Geschlecht der Schüler:innen: 'm' = Schüler, 'w' = Schülerin (Auswahl bei der Anmeldung, damit die
+-- Geschlecht der Schüler: 'm' = Schüler, 'w' = Schülerin (Auswahl bei der Anmeldung, damit die
 -- Anrede ohne Gendersprache eindeutig ist). Leer bei Eltern/Lehrkräften und bei älteren Konten.
 alter table public.profile add column if not exists geschlecht text;
 alter table public.profile drop constraint if exists profile_geschlecht_check;

@@ -4,16 +4,16 @@
    ====================================================================== */
 
 export const ROLLEN = [
-  { id: "schueler", name: "Schüler:in", kurz: "Ich lerne Mathe" },
+  { id: "schueler", name: "Schüler", kurz: "Ich lerne Mathe" },
   { id: "eltern", name: "Elternteil", kurz: "Ich begleite mein Kind" },
   { id: "lehrkraft", name: "Lehrkraft", kurz: "Ich unterrichte eine Klasse" },
-  { id: "nachhilfe", name: "Nachhilfelehrer:in", kurz: "Ich gebe Nachhilfe" },
+  { id: "nachhilfe", name: "Nachhilfelehrer", kurz: "Ich gebe Nachhilfe" },
 ];
 export const istLehrend = (rolle) => rolle === "lehrkraft" || rolle === "nachhilfe";
 
-/* ---------- Geschlecht der Schüler:innen ----------
+/* ---------- Geschlecht der Schüler ----------
    Bei der Anmeldung wählt man „Schüler“ (m) oder „Schülerin“ (w) – so sind Anrede und Fürwörter
-   ohne Gendersprache eindeutig. Bestehende Konten ohne Angabe (null) zeigen vorläufig „Schüler:in“. */
+   ohne Gendersprache eindeutig. Bestehende Konten ohne Angabe (null) zeigen vorläufig „Schüler“. */
 export const GESCHLECHTER = [
   { id: "m", name: "Schüler" },
   { id: "w", name: "Schülerin" },

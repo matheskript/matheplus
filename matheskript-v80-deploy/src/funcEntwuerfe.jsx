@@ -541,7 +541,7 @@ export function EntwurfStart({ gehe }) {
       <Bereich innen={{ paddingTop: 36, paddingBottom: 36 }}>
         <Fragen titel={<H2 style={{ fontSize: 22 }}>Häufige Fragen.</H2>} liste={[
           ["Was kostet Mythos Mathe?", "Jedes Tool kannst du dreimal täglich kostenlos nutzen. Für mehr Training gibt es Plus (10 € pro Monat) und Maximum (20 € pro Monat). Kurse werden separat angeboten."],
-          ["Für welche Klassen ist das gedacht?", "Für Schülerinnen und Schüler am Gymnasium von Klasse 8 bis zum Abitur."],
+          ["Für welche Klassen ist das gedacht?", "Für Schüler am Gymnasium von Klasse 8 bis zum Abitur."],
           ["Wie funktioniert die KI?", "Mathilda gibt dir Hinweise und Erklärungen statt fertiger Lösungen. Gerechnet wird auf Papier – du denkst selbst, die KI begleitet dich."],
         ]} />
       </Bereich>
