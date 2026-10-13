@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "@fontsource/caveat/600.css";
 import "@fontsource/caveat/700.css";
 import { COACHING } from "./base3.jsx";
@@ -175,6 +175,23 @@ const CSS = `
 .lp-eltern { background: radial-gradient(120% 140% at 85% 10%, #2A2210 0%, #0E0C08 55%, #050404 100%); color: ${F.weiss}; border-radius: 28px; padding: clamp(32px, 5vw, 56px); }
 .lp-eltern .lp-text { color: #D8D2C2; }
 
+/* Zeitleiste: gezeichneter Anstieg statt Note */
+.lp-anstieg { display: block; width: clamp(84px, 9vw, 112px); height: auto; margin: 2px 0 6px; }
+
+/* Über mich mit Foto */
+.lp-ueber { display: grid; gap: 40px; grid-template-columns: minmax(0, 1fr); align-items: center; }
+@media (min-width: 900px) { .lp-ueber { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 72px; } }
+.lp-foto { width: 100%; max-width: 420px; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 24px; box-shadow: 0 24px 48px rgba(14,30,74,0.18); }
+
+/* Smartphone: Knöpfe volle Breite, Werkzeuge zweispaltig und knapper */
+@media (max-width: 560px) {
+  .lp-knopf { width: 100%; }
+  .lp-werkzeuge { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 18px; row-gap: 32px; }
+  .lp-werkzeug span { display: none; }
+  .lp-werkzeug b { font-size: 14.5px; line-height: 1.35; }
+  .lp-werkzeug { padding: 12px 0; min-height: 48px; }
+}
+
 /* Fragen */
 .lp-frage { border-bottom: 1px solid ${F.linie}; }
 .lp-frage summary { list-style: none; cursor: pointer; padding: 22px 44px 22px 0; position: relative; font-size: 18px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.4; }
@@ -220,6 +237,17 @@ const WERKZEUGE = [
     ["Gleichungssysteme", "Mit drei Variablen", { ansicht: "lgs" }],
   ] },
 ];
+
+/* Über mich: hier ergänzen, sobald weitere Infos vorliegen. Das Foto erscheint automatisch,
+   sobald die Datei public/landingpage/basti.jpg existiert (sonst bleibt der Bereich einspaltig). */
+const UEBER_MICH = {
+  foto: "/landingpage/basti.jpg",
+  fotoAlt: "Basti Blumenröther, Gründer von Mythos Mathe",
+  absaetze: [
+    "Ich bin Basti. Ich studiere Mathematik an der Universität Konstanz, lebe in Dingelsdorf und begleite seit vielen Jahren Schülerinnen und Schüler durch Mathe – von der Mittelstufe bis zum Abitur.",
+    "Mythos Mathe ist aus einer einfachen Beobachtung entstanden: Fast jeder, der an Mathe scheitert, scheitert nicht am Kopf, sondern an der Methode. Deshalb gibt es hier keine Abkürzungen, sondern ein System – und die Werkzeuge, um es jeden Tag anzuwenden.",
+  ],
+};
 
 const FRAGEN = [
   ["Für wen ist Mythos Mathe?", "Für Schülerinnen und Schüler am Gymnasium von Klasse 8 bis zum Abitur, mit Schwerpunkt auf der Oberstufe. Das Coaching findet in Konstanz und am Bodensee statt, die Werkzeuge funktionieren überall im Browser."],
@@ -270,6 +298,22 @@ function Pruefung() {
 export function Landingpage({ gehe }) {
   const [hinweis, setHinweis] = useState(false);
   const [labOffen, setLabOffen] = useState(false);
+  const [fotoDa, setFotoDa] = useState(false);
+
+  /* Foto nur zeigen, wenn es wirklich geladen werden kann – kein Springen des Layouts */
+  useEffect(() => {
+    const bild = new Image();
+    bild.onload = () => { if (bild.naturalWidth > 0) setFotoDa(true); };
+    bild.src = UEBER_MICH.foto;
+    return () => { bild.onload = null; };
+  }, []);
+
+  /* Eigener Seitentitel für Browser-Tab und geteilte Links, beim Verlassen zurück */
+  useEffect(() => {
+    const alt = document.title;
+    document.title = "Mythos Mathe – Mathetalent ist ein Mythos";
+    return () => { document.title = alt; };
+  }, []);
 
   const scrollen = (id) => { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); };
   const kontaktDa = !!(COACHING.termin || COACHING.mail);
@@ -357,7 +401,10 @@ export function Landingpage({ gehe }) {
             <li>
               <span className="lp-punkt" aria-hidden="true" style={{ borderColor: F.see }} />
               <p className="lp-wann">ab Klasse 8</p>
-              <p className="lp-note" style={{ color: F.see }}>↗</p>
+              <svg className="lp-anstieg" viewBox="0 0 120 64" role="img" aria-label="Kurve, die steil ansteigt">
+                <path d="M4 58 C 40 56, 62 50, 78 34 S 104 8, 116 6" fill="none" stroke={F.see} strokeWidth="5" strokeLinecap="round" />
+                <circle cx="116" cy="6" r="5" fill={F.see} />
+              </svg>
               <p className="lp-text" style={{ marginTop: 12 }}>Ein komplett anderer Weg: andere Methoden, eine andere Haltung zu Fehlern, ein klares System.</p>
             </li>
             <li className="lp-ziel">
@@ -519,17 +566,13 @@ export function Landingpage({ gehe }) {
 
       {/* 9 · Über mich */}
       <section className="lp-sektion" style={{ background: F.weiss, borderTop: `1px solid ${F.linie}`, borderBottom: `1px solid ${F.linie}` }}>
-        <div className="lp-innen lp-schmal">
-          <h2 className="lp-h2">Wer hinter Mythos Mathe steht</h2>
-          <p className="lp-text" style={{ marginTop: 24 }}>
-            Ich bin Basti. Ich studiere Mathematik an der Universität Konstanz, lebe in Dingelsdorf und begleite seit vielen Jahren
-            Schülerinnen und Schüler durch Mathe – von der Mittelstufe bis zum Abitur.
-          </p>
-          <p className="lp-text" style={{ marginTop: 18 }}>
-            Mythos Mathe ist aus einer einfachen Beobachtung entstanden: Fast jeder, der an Mathe scheitert, scheitert nicht am Kopf, sondern
-            an der Methode. Deshalb gibt es hier keine Abkürzungen, sondern ein System – und die Werkzeuge, um es jeden Tag anzuwenden.
-          </p>
-          <p style={{ marginTop: 32, fontSize: 24, fontWeight: 800, letterSpacing: "-0.02em", color: F.nacht }}>System + Freude = Erfolg</p>
+        <div className={fotoDa ? "lp-innen lp-ueber" : "lp-innen lp-schmal"}>
+          {fotoDa && <img className="lp-foto" src={UEBER_MICH.foto} alt={UEBER_MICH.fotoAlt} loading="lazy" onError={() => setFotoDa(false)} />}
+          <div>
+            <h2 className="lp-h2">Wer hinter Mythos Mathe steht</h2>
+            {UEBER_MICH.absaetze.map((a, i) => <p key={i} className="lp-text" style={{ marginTop: i ? 18 : 24 }}>{a}</p>)}
+            <p style={{ marginTop: 32, fontSize: 24, fontWeight: 800, letterSpacing: "-0.02em", color: F.nacht }}>System + Freude = Erfolg</p>
+          </div>
         </div>
       </section>
 
