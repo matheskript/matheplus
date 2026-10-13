@@ -214,26 +214,39 @@ function SchulkurseLogoKlein() {
   );
 }
 
-/* Grafik für die „Mathe-Mindset-Kurs“-Kachel: vereinfachtes Gehirn in Weiß mit goldenen Windungen. Bleibt oberhalb von y≈135 (unten liegt der goldene Balken). */
+/* Grafik für die „Mathe-Mindset-Kurs“-Kachel: Gehirn in Seitenansicht (Stirn links), ganz aus schlichten Blüten gelegt.
+   Bleibt oberhalb von y≈135 (unten liegt der goldene Balken). */
 function ElternkursLogoKlein() {
   const W = 230, H = 190;
-  // linke Hälfte aus drei Kreisen, rechte Hälfte gespiegelt an x = 115
-  const lappen = [[86, 64, 30], [62, 94, 26], [90, 100, 28]];
-  const falten = ["M 70 58 Q 88 48 104 62", "M 50 92 Q 68 82 84 94", "M 98 96 Q 106 108 100 120"];
-  const haelfte = (
-    <>
-      <g fill="#FFFFFF">{lappen.map(([x, y, r]) => <circle key={`${x}-${y}`} cx={x} cy={y} r={r} />)}</g>
-      <g stroke={C.flaggold} strokeWidth="4.5" fill="none" strokeLinecap="round">{falten.map((d) => <path key={d} d={d} />)}</g>
-    </>
+  const hell = "#9DB9E3";
+  // Blüten [x, y, Radius, Blütenfarbe, Mittelpunkt]: dicht gelegt, damit die Hirn-Silhouette (Kuppel, Schläfenlappen, Kleinhirn) lesbar bleibt
+  const G = C.flaggold, W_ = C.weiss, S = C.silberHell, B = hell;
+  const blueten = [
+    // Kleinhirn und Hirnstamm (hinten unten)
+    [176, 108, 14, B, C.weiss], [160, 116, 13, W_, G], [146, 126, 8.5, S, G], [142, 136, 7, G, C.seeTief],
+    // Schläfenlappen (unten Mitte)
+    [88, 116, 15, G, C.seeTief], [114, 118, 16, W_, G], [136, 110, 14, S, G],
+    // Stirn und Frontallappen (links)
+    [40, 78, 16, S, G], [52, 100, 15, W_, G], [78, 100, 16, B, C.weiss],
+    // mittlere Reihen
+    [66, 76, 18, W_, G], [96, 78, 18, G, C.seeTief], [126, 78, 18, B, C.weiss], [156, 82, 18, W_, G], [186, 82, 15, S, G],
+    [104, 100, 15, S, G], [134, 94, 15, G, C.seeTief], [164, 100, 15, S, G], [188, 98, 12, W_, G],
+    // obere Reihen (Kuppel)
+    [54, 56, 17, G, C.seeTief], [82, 52, 19, S, G], [112, 48, 19, W_, G], [142, 52, 19, G, C.seeTief], [170, 62, 18, B, C.weiss],
+    [96, 32, 15, W_, G], [124, 30, 16, B, C.weiss], [150, 36, 14, S, G],
+  ];
+  const blume = ([x, y, r, f, m], i) => (
+    <g key={i} transform={`translate(${x} ${y}) rotate(${(i * 23) % 60})`}>
+      {[0, 1, 2, 3, 4, 5].map((k) => <circle key={k} cx={Math.cos((k * Math.PI) / 3) * r * 0.56} cy={Math.sin((k * Math.PI) / 3) * r * 0.56} r={r * 0.46} fill={f} stroke={C.seeTief} strokeOpacity="0.28" strokeWidth="0.8" />)}
+      <circle r={r * 0.3} fill={m} />
+    </g>
   );
   return (
     <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
       {Array.from({ length: 9 }, (_, i) => <line key={`v${i}`} x1={i * 28} y1="0" x2={i * 28} y2={H} stroke="rgba(255,255,255,0.05)" />)}
       {Array.from({ length: 7 }, (_, i) => <line key={`h${i}`} x1="0" y1={i * 28} x2={W} y2={i * 28} stroke="rgba(255,255,255,0.05)" />)}
-      <g transform="translate(0 -6)">
-        {haelfte}
-        <g transform={`translate(${W} 0) scale(-1 1)`}>{haelfte}</g>
-        <path d="M 115 40 V 126" stroke={C.flaggold} strokeWidth="4.5" strokeLinecap="round" fill="none" />
+      <g transform="translate(0 -4)">
+        {blueten.map(blume)}
       </g>
     </svg>
   );
