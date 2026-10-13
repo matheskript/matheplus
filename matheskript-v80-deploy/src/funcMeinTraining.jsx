@@ -8,8 +8,8 @@ import React, { useState } from "react";
 import { C } from "./base1.jsx";
 import { useTraining, TrainingFortschritt } from "./funcTraining.jsx";
 import { wiederkehrende } from "./trainingDaten.js";
-import { EbbDashboardSektion, useEbb, useJetzt, useTagesplan } from "./funcEbbinghaus.jsx";
-import { Lernstand } from "./funcEbbinghaus.jsx";
+import { EbbDashboardSektion, Klassenarbeiten, Lernstand, useEbb, useJetzt, useTagesplan } from "./funcEbbinghaus.jsx";
+import { kommendeArbeiten, tageText } from "./ebbinghaus.js";
 import { karte, kicker } from "./ui2.jsx";
 
 /* Logo: ansteigende Säulen mit Haken – blau/gold auf hellem Grund */
@@ -32,7 +32,8 @@ export function useOffenHeute() {
   const jetzt = useJetzt();
   const stand = useTagesplan(E, T, geladen, jetzt);
   const hatSkills = Object.keys(E.skills).length > 0;
-  return { offen: stand.gesamt - stand.erledigt, gesamt: stand.gesamt, fertig: stand.fertig, hatSkills, geladen };
+  const arbeit = kommendeArbeiten(E, { jetzt })[0] || null;
+  return { offen: stand.gesamt - stand.erledigt, gesamt: stand.gesamt, fertig: stand.fertig, hatSkills, geladen, arbeit: arbeit && arbeit.tage <= 14 ? { art: arbeit.art, tage: arbeit.tage } : null };
 }
 
 export function MeinTrainingBadge({ offen }) {
@@ -44,6 +45,7 @@ export function MeinTrainingBadge({ offen }) {
 }
 
 export function meinTrainingText(s) {
+  if (s.geladen && s.arbeit) return `${s.arbeit.art} ${tageText(s.arbeit.tage)}. ${s.fertig ? "Tagesplan geschafft." : s.offen > 0 ? `Heute ${s.offen === 1 ? "wartet 1 Übung" : `warten ${s.offen} Übungen`} auf dich.` : "Dein Tagesplan und dein Lernfortschritt."}`;
   if (!s.geladen || !s.hatSkills) return "Dein Tagesplan, dein Lernfortschritt und alle Übungsmodi an einem Ort.";
   if (s.fertig) return "Tagesplan geschafft. Dein Lernfortschritt und alle Übungsmodi.";
   if (s.offen > 0) return `Heute ${s.offen === 1 ? "wartet 1 Übung" : `warten ${s.offen} Übungen`} auf dich – dein Tagesplan und dein Lernfortschritt.`;
@@ -97,6 +99,14 @@ function Erinnerung() {
 }
 
 /* ---------- Seite ---------- */
+const Abschnitt = ({ kick, titel, children }) => (
+  <section style={{ marginTop: 26 }}>
+    <p style={kicker}>{kick}</p>
+    <h2 style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em", color: C.tinte, margin: "2px 0 12px", lineHeight: 1.2 }}>{titel}</h2>
+    {children}
+  </section>
+);
+
 export function MeinTrainingSeite({ gehe }) {
   const { E, T, geladen } = useEbb();
   const Tn = useTraining();
@@ -108,13 +118,6 @@ export function MeinTrainingSeite({ gehe }) {
     ["pruefung", "Prüfungsmodus", "Ohne Hilfen, mit Punkten"],
     ["klausurnach", "Klausur nachbereiten", "Verlorene Punkte auswerten"],
   ];
-  const Abschnitt = ({ kick, titel, children }) => (
-    <section style={{ marginTop: 26 }}>
-      <p style={kicker}>{kick}</p>
-      <h2 style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em", color: C.tinte, margin: "2px 0 12px", lineHeight: 1.2 }}>{titel}</h2>
-      {children}
-    </section>
-  );
   return (
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 6 }}>
       <Abschnitt kick="Heute" titel="Dein Tagesplan">
@@ -122,6 +125,9 @@ export function MeinTrainingSeite({ gehe }) {
       </Abschnitt>
       {!laeuft && (
         <>
+          <Abschnitt kick="Vorbereiten" titel="Klassenarbeiten und Tests">
+            <Klassenarbeiten E={E} T={T} geladen={geladen} />
+          </Abschnitt>
           <Abschnitt kick="Dein Lernfortschritt" titel="Was du gelernt hast – und wann">
             <Lernstand E={E} T={T} geladen={geladen} />
             <TrainingFortschritt gehe={gehe} />

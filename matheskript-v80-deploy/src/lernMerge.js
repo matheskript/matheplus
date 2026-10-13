@@ -16,7 +16,7 @@
 const istObj = (x) => x !== null && typeof x === "object" && !Array.isArray(x);
 const ms = (v) => (typeof v === "number" ? v : typeof v === "string" ? Date.parse(v) || 0 : 0);
 const FRUEH = new Set(["seit", "first_learned_at", "erstellt"]);   // hier gilt der frühere Wert
-const MAX_LISTE = 1000, MAX_HISTORIE = 60, MAX_QUELLEN = 30, MAX_TAGE = 60;
+const MAX_LISTE = 1000, MAX_HISTORIE = 60, MAX_QUELLEN = 30, MAX_TAGE = 60, MAX_ARBEITEN = 40;
 
 /* Liste vereinigen: gleiche Einträge (gleiche id oder gleicher Inhalt) nur einmal, nach Zeit sortiert */
 function vereinige(a, b, max = MAX_LISTE) {
@@ -65,7 +65,14 @@ function mergeEbb(a, b, aNeuer) {
   }
   const datumsListe = Object.keys(tage).sort().slice(-MAX_TAGE);
   const tageGekappt = Object.fromEntries(datumsListe.map((d) => [d, tage[d]]));
-  return { ...(aNeuer ? b : a), ...(aNeuer ? a : b), version: 1, skills, tage: tageGekappt };
+  /* Klassenarbeiten: je id der jüngere Stand (Löschen ist eine Markierung und bleibt erhalten) */
+  const arb = new Map();
+  for (const x of [...(a.arbeiten || []), ...(b.arbeiten || [])]) {
+    const alt = arb.get(x.id);
+    if (!alt || ms(x.geaendert) >= ms(alt.geaendert)) arb.set(x.id, x);
+  }
+  const arbeiten = [...arb.values()].sort((p, q) => String(p.datum).localeCompare(String(q.datum)) || String(p.id).localeCompare(String(q.id))).slice(-MAX_ARBEITEN);
+  return { ...(aNeuer ? b : a), ...(aNeuer ? a : b), version: 1, skills, tage: tageGekappt, arbeiten };
 }
 
 function besserBest(x, y) {

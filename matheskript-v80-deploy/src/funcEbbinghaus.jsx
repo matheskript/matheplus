@@ -18,9 +18,11 @@ import { Aufklapp } from "./ui3.jsx";
 import { THEMEN, lies, neueAufgabe, normiere } from "./trainingDaten.js";
 import {
   PLAENE, PLAN_IDS, SCHRITTE, SKILLS, SKILL_INFO, STATUS, ERGEBNIS_TEXT, SCHRITT_AB_HILFE_AUS,
-  ARTEN, aktuelleThemen, datumVon, heuteAuswahl, letzterGeneratorVon, lernUebersicht, normiereEbb, planTage, schrittVon, skillKapitel, statusVon, tagesStand, tagesplanSichern, waehleGenerator,
+  ARBEIT_ARTEN, ARTEN, addTage, aktuelleThemen, arbeitLoeschen, arbeitNeu, arbeitsPlanung, kommendeArbeiten, tageText, wochenDaten, datumVon, heuteAuswahl, letzterGeneratorVon, lernUebersicht, normiereEbb, planTage, schrittVon, skillKapitel, statusVon, tagesStand, tagesplanSichern, waehleGenerator,
 } from "./ebbinghaus.js";
 import { useSyncStatus } from "./lernSync.js";
+import { aktiveTermine } from "./func9.jsx";
+import { LERN } from "./base3.jsx";
 
 export const EBB_VIDEO_ID = "otTSq-5PNsE";
 export const EBB_SLOGAN = "Beende Vergess kennenlernen und lerne wirklich Mathe. Mit einem klaren System.";
@@ -406,7 +408,7 @@ function Training({ items, E, onEnde, titel }) {
 }
 
 /* ---------- 6. Dashboard „Heute in Mathe“: gespeicherter Tagesplan ---------- */
-const ART_FARBE = { wiederholung: C.see, voraussetzung: C.signal, weiter: C.smaragd };
+const ART_FARBE = { wiederholung: C.see, voraussetzung: C.signal, weiter: C.smaragd, pruefung: C.gold };
 
 /* Der Plan für heute: einmal pro Tag angelegt und im Konto gespeichert, danach nur ergänzt.
    Angezeigt wird immer der Plan, wie er gespeichert würde – gespeichert wird, sobald der Schüler schon Skills hat. */
@@ -417,7 +419,7 @@ export function useTagesplan(E, T, geladen, jetzt) {
     const vorher = JSON.stringify(E2.tage[heute] || null);
     tagesplanSichern(E2, T, { jetzt });
     const nachher = JSON.stringify(E2.tage[heute]);
-    return { stand: tagesStand(E2, { jetzt }), noetig: vorher !== nachher && Object.keys(E.skills).length > 0, schluessel: `${heute}|${nachher}` };
+    return { stand: tagesStand(E2, { jetzt }), noetig: vorher !== nachher && (Object.keys(E.skills).length > 0 || (E.arbeiten || []).some((x) => !x.geloescht)), schluessel: `${heute}|${nachher}` };
   }, [E, T, jetzt, heute]);
   const gesichert = useRef("");
   useEffect(() => {
@@ -552,8 +554,6 @@ export function Lernstand({ E, T, geladen }) {
       <p style={{ fontSize: 12.5, color: C.grau, lineHeight: 1.4 }}>{text}</p>
     </div>
   );
-  const ergFarbe = (e) => ERGEBNIS_TEXT[e].farbe;
-  const vorschauTage = u.vorschau.filter((v) => v.skills.length);
   return (
     <>
       <SyncHinweis />
@@ -586,35 +586,210 @@ export function Lernstand({ E, T, geladen }) {
         )}
       </div>
 
-      <div style={{ ...karte, marginTop: 14 }}>
-        <p style={kicker}>Die letzten 14 Tage</p>
-        {u.rueckblick.map((r, k) => (
-          <div key={r.datum} style={{ display: "flex", gap: 12, padding: "7px 0", borderTop: k ? `1px solid ${C.linie}` : "none", alignItems: "baseline" }}>
-            <p style={{ flex: "0 0 86px", fontSize: 12.5, fontWeight: r.datum === heute ? 800 : 600, color: r.datum === heute ? C.tinte : C.grau }}>{tagLabel(r.datum, heute)}</p>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              {r.skills.length === 0 ? <p style={{ fontSize: 12.5, color: C.hellgrau }}>{r.datum === heute ? "noch nichts geübt" : "–"}</p> : (
-                <p style={{ fontSize: 13, lineHeight: 1.6, color: C.tinte }}>
-                  {r.skills.map((x, i) => <span key={x.skill_id}>{i ? " · " : ""}<span style={{ color: ergFarbe(x.ergebnis), fontWeight: 700 }} title={ERGEBNIS_TEXT[x.ergebnis].name}>{x.ergebnis === "sicher" ? "✓" : x.ergebnis === "teilweise" ? "◐" : "↻"}</span> {x.name}</span>)}
-                </p>
-              )}
-              {r.geplant !== null && <p style={{ fontSize: 12, color: C.grau }}>Plan: {r.geplantErledigt} von {r.geplant} erledigt</p>}
-            </div>
-          </div>
-        ))}
-        <p style={{ fontSize: 12, color: C.grau, lineHeight: 1.6, marginTop: 8 }}>✓ sicher · ◐ mit Hilfe oder im zweiten Versuch · ↻ noch einmal üben</p>
-      </div>
-
-      <div style={{ ...karte, marginTop: 14 }}>
-        <p style={kicker}>Die nächsten 14 Tage</p>
-        {vorschauTage.length === 0 ? <p style={{ fontSize: 14, color: C.grau, lineHeight: 1.7 }}>Noch nichts geplant. Sobald du Skills gelernt hast, siehst du hier, wann sie wiederkommen.</p> : vorschauTage.map((v, k) => (
-          <div key={v.datum} style={{ display: "flex", gap: 12, padding: "7px 0", borderTop: k ? `1px solid ${C.linie}` : "none", alignItems: "baseline" }}>
-            <p style={{ flex: "0 0 86px", fontSize: 12.5, fontWeight: 600, color: C.grau }}>{tagLabel(v.datum, heute)}</p>
-            <p style={{ flex: 1, fontSize: 13, lineHeight: 1.6, color: C.tinte }}>{v.skills.map((x) => x.name).join(" · ")}</p>
-          </div>
-        ))}
-        <p style={{ fontSize: 12, color: C.grau, lineHeight: 1.6, marginTop: 8 }}>Das ist die Vorschau der Wiederholungen. Sie verschiebt sich je nach deinen Ergebnissen. Neue Schritte kommen im Tagesplan dazu.</p>
-      </div>
+      <Wochenkalender E={E} T={T} geladen={geladen} />
     </>
+  );
+}
+
+
+/* ---------- 6c. Klassenarbeiten eintragen ---------- */
+const GRUPPEN = (() => { const g = {}; for (const [id, t] of Object.entries(THEMEN)) (g[t.gruppe] = g[t.gruppe] || []).push([id, t.name]); return g; })();
+const langDatum = (d) => `${d.slice(8, 10)}.${d.slice(5, 7)}.${d.slice(0, 4)}`;
+
+export function Klassenarbeiten({ E, T, geladen }) {
+  const jetzt = useJetzt();
+  const heute = datumVon(jetzt);
+  const liste = kommendeArbeiten(E, { jetzt });
+  const [offen, setOffen] = useState(false);
+  const [art, setArt] = useState(ARBEIT_ARTEN[0]);
+  const [datum, setDatum] = useState(addTage(heute, 14));
+  const [themen, setThemen] = useState([]);
+  const [notiz, setNotiz] = useState("");
+  const [frisch, setFrisch] = useState(null);
+  const [loesch, setLoesch] = useState(null);
+  if (!geladen) return null;
+  const gueltig = datum >= heute && (themen.length > 0 || notiz.trim().length > 0);
+  const speichern = () => {
+    let id = null;
+    ebbAendern((X) => {
+      const a = arbeitNeu(X, { art, datum, themen, notiz: notiz.trim() }, Date.now());
+      id = a ? a.id : null;
+      tagesplanSichern(X, T, { jetzt: Date.now() });
+    });
+    setFrisch(id); setOffen(false); setThemen([]); setNotiz("");
+  };
+  const feedback = frisch ? liste.find((a) => a.id === frisch) : null;
+  const plan = feedback ? arbeitsPlanung(E, feedback, { jetzt }) : null;
+  return (
+    <div style={karte}>
+      <p style={kicker}>Deine Klassenarbeiten</p>
+      {liste.length === 0 && !offen && (
+        <p style={{ fontSize: 14, color: C.grau, lineHeight: 1.7, margin: "0 0 10px" }}>Trag ein, wann die nächste Arbeit ist und welcher Stoff drankommt – so früh wie möglich. Dein Tagesplan richtet sich dann sofort darauf aus: neue Schritte im Prüfungsthema kommen früher, Gelerntes wird rechtzeitig aufgefrischt.</p>
+      )}
+      {feedback && plan && (
+        <div role="status" style={{ background: "#EAF6EF", border: `1.5px solid ${C.smaragd}`, borderRadius: 12, padding: "10px 14px", marginBottom: 10 }}>
+          <p style={{ fontSize: 14, fontWeight: 700, color: C.tinte, lineHeight: 1.5 }}>Eingetragen: {feedback.art} am {langDatum(feedback.datum)} ({tageText(feedback.tage)})</p>
+          <p style={{ fontSize: 13, color: C.grau, lineHeight: 1.65, marginTop: 2 }}>
+            {plan.keineSkills ? "Zu dieser Angabe kennt die App noch keine Skills – dein Plan kann sich dafür noch nicht anpassen. Das Datum ist trotzdem im Kalender." : <>Im Stoff stecken {plan.anzahl} Skills: {plan.sitzen} sitzen schon, {plan.unsicher} brauchen Auffrischung, {plan.neu} sind noch neu. Dein Tagesplan berücksichtigt das ab sofort.</>}
+            {plan.knapp ? " Das wird zeitlich eng – übe am besten jeden Tag." : ""}
+          </p>
+        </div>
+      )}
+      {liste.map((a, k) => {
+        const p = arbeitsPlanung(E, a, { jetzt });
+        return (
+          <div key={a.id} style={{ padding: "10px 0", borderTop: k || feedback ? `1px solid ${C.linie}` : "none" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "baseline", flexWrap: "wrap" }}>
+              <p style={{ fontSize: 15, fontWeight: 700, color: C.tinte }}>{a.art} · {langDatum(a.datum)}</p>
+              <span style={{ fontSize: 13, fontWeight: 700, color: a.tage <= 3 ? C.signal : C.see }}>{tageText(a.tage)}</span>
+            </div>
+            <p style={{ fontSize: 13, color: C.grau, lineHeight: 1.6 }}>{a.themenNamen.join(" · ")}{a.notiz ? `${a.themenNamen.length ? " · " : ""}${a.notiz}` : ""}</p>
+            {!p.keineSkills && <p style={{ fontSize: 12.5, color: C.grau, lineHeight: 1.6 }}>{p.sitzen} von {p.anzahl} Skills sitzen{p.neu ? ` · ${p.neu} noch neu` : ""}{p.knapp ? " · Zeit wird knapp" : ""}</p>}
+            {loesch === a.id ? (
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 6 }}>
+                <button type="button" onClick={() => { ebbAendern((X) => arbeitLoeschen(X, a.id)); setLoesch(null); if (frisch === a.id) setFrisch(null); }} style={{ ...knopfKlein, minHeight: 40, padding: "4px 14px", fontSize: 13, color: C.signal, borderColor: C.signal }}>Ja, löschen</button>
+                <button type="button" onClick={() => setLoesch(null)} style={{ ...knopfKlein, minHeight: 40, padding: "4px 14px", fontSize: 13 }}>Behalten</button>
+              </div>
+            ) : <button type="button" onClick={() => setLoesch(a.id)} style={{ background: "none", border: "none", color: C.grau, fontSize: 12.5, fontFamily: "inherit", cursor: "pointer", padding: "6px 0", minHeight: 36, textDecoration: "underline" }}>Eintrag löschen</button>}
+          </div>
+        );
+      })}
+      {!offen ? (
+        <GrosserKnopf onClick={() => { setOffen(true); setFrisch(null); }}>{liste.length ? "Weitere Arbeit eintragen" : "Klassenarbeit eintragen"}</GrosserKnopf>
+      ) : (
+        <div data-aufklapp-inhalt style={{ marginTop: 10, background: C.sand, borderRadius: 12, padding: "14px 14px 16px" }}>
+          <p style={{ fontSize: 13, fontWeight: 700, color: C.tinte, marginBottom: 6 }}>Was steht an?</p>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
+            {ARBEIT_ARTEN.map((x) => <button key={x} type="button" aria-pressed={art === x} onClick={() => setArt(x)} style={{ ...knopfKlein, background: art === x ? C.see : C.weiss, color: art === x ? C.weiss : C.see, borderColor: art === x ? C.see : C.linie }}>{x}</button>)}
+          </div>
+          <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: C.tinte, marginBottom: 6 }}>Wann?
+            <input type="date" value={datum} min={heute} onChange={(e) => setDatum(e.target.value)} style={{ display: "block", marginTop: 6, minHeight: 44, padding: "6px 12px", fontSize: 15, fontFamily: "inherit", border: `1.5px solid ${C.linie}`, borderRadius: 12 }} />
+          </label>
+          <p style={{ fontSize: 13, fontWeight: 700, color: C.tinte, margin: "14px 0 6px" }}>Welcher Stoff? <span style={{ fontWeight: 400, color: C.grau }}>(mehrere möglich)</span></p>
+          {Object.entries(GRUPPEN).map(([gruppe, ts]) => (
+            <div key={gruppe} style={{ marginBottom: 8 }}>
+              <p style={{ fontSize: 12, color: C.grau, marginBottom: 4 }}>{gruppe}</p>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                {ts.map(([id, name]) => { const an = themen.includes(id); return (
+                  <button key={id} type="button" aria-pressed={an} onClick={() => setThemen(an ? themen.filter((x) => x !== id) : [...themen, id])}
+                    style={{ ...knopfKlein, background: an ? C.see : C.weiss, color: an ? C.weiss : C.see, borderColor: an ? C.see : C.linie }}>{name}</button>
+                ); })}
+              </div>
+            </div>
+          ))}
+          <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: C.tinte, margin: "12px 0 0" }}>Eigene Notiz <span style={{ fontWeight: 400, color: C.grau }}>(optional, z. B. „Trigonometrie“)</span>
+            <input value={notiz} maxLength={80} onChange={(e) => setNotiz(e.target.value)} style={{ display: "block", width: "100%", boxSizing: "border-box", marginTop: 6, minHeight: 44, padding: "6px 12px", fontSize: 15, fontFamily: "inherit", border: `1.5px solid ${C.linie}`, borderRadius: 12 }} />
+          </label>
+          {themen.length === 0 && notiz.trim() && <p style={{ fontSize: 12.5, color: C.grau, lineHeight: 1.6, marginTop: 6 }}>Ohne Thema aus der Liste kann sich dein Tagesplan nicht anpassen – das Datum erscheint nur im Kalender.</p>}
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
+            <button type="button" disabled={!gueltig} onClick={speichern} style={{ ...knopfKlein, background: C.see, color: C.weiss, borderColor: C.see, opacity: gueltig ? 1 : 0.45 }}>Eintragen</button>
+            <button type="button" onClick={() => setOffen(false)} style={knopfKlein}>Abbrechen</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+/* ---------- 6d. Interaktiver Wochenkalender ---------- */
+const WT = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
+const WT_LANG = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"];
+const SYM = { sicher: "✓", teilweise: "◐", nicht: "↻" };
+
+export function Wochenkalender({ E, T, geladen }) {
+  const jetzt = useJetzt();
+  const heute = datumVon(jetzt);
+  const stand = useTagesplan(E, T, geladen, jetzt);
+  const [woche, setWoche] = useState(0);
+  const [gewaehlt, setGewaehlt] = useState(null);
+  const fremde = useMemo(() => { try { return aktiveTermine(LERN).map((t) => ({ datum: t.datum, art: t.art })); } catch (e) { return []; } }, [E]);
+  const w = useMemo(() => wochenDaten(E, { jetzt, woche, heutePlan: stand, fremde }), [E, jetzt, woche, stand, fremde]);
+  if (!geladen) return null;
+  const auswahl = w.tage.find((t) => t.datum === gewaehlt) || w.tage.find((t) => t.datum === heute) || w.tage[0];
+  const idx = w.tage.indexOf(auswahl);
+  const kw = `${w.start.slice(8, 10)}.${w.start.slice(5, 7)}. – ${w.ende.slice(8, 10)}.${w.ende.slice(5, 7)}.${w.ende.slice(0, 4)}`;
+  const gehWoche = (d) => { setWoche(Math.max(-8, Math.min(8, woche + d))); setGewaehlt(null); };
+  const pfeil = { ...knopfKlein, minWidth: 44, padding: "6px 12px", fontSize: 16, lineHeight: 1 };
+  return (
+    <div style={{ ...karte, marginTop: 14 }}>
+      <p style={kicker}>Dein Kalender</p>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 10 }}>
+        <button type="button" aria-label="Vorige Woche" disabled={woche <= -8} onClick={() => gehWoche(-1)} style={{ ...pfeil, opacity: woche <= -8 ? 0.4 : 1 }}>‹</button>
+        <div style={{ textAlign: "center" }}>
+          <p style={{ fontSize: 14, fontWeight: 700, color: C.tinte }}>{woche === 0 ? "Diese Woche" : woche === -1 ? "Letzte Woche" : woche === 1 ? "Nächste Woche" : woche < 0 ? `Vor ${-woche} Wochen` : `In ${woche} Wochen`}</p>
+          <p style={{ fontSize: 12, color: C.grau }}>{kw}</p>
+        </div>
+        <button type="button" aria-label="Nächste Woche" disabled={woche >= 8} onClick={() => gehWoche(1)} style={{ ...pfeil, opacity: woche >= 8 ? 0.4 : 1 }}>›</button>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", gap: 4 }} role="group" aria-label="Tage der Woche">
+        {w.tage.map((t, i) => {
+          const an = t === auswahl;
+          const istHeute = t.zeit === "heute";
+          const arb = t.arbeiten.length > 0;
+          const fertig = t.plan && t.plan.gesamt > 0 && t.plan.erledigt === t.plan.gesamt;
+          const beschr = `${WT_LANG[i]} ${t.datum.slice(8, 10)}.${t.datum.slice(5, 7)}.${t.geuebt.length ? `, ${t.geuebt.length} Skills geübt` : ""}${t.plan ? `, Plan ${t.plan.erledigt} von ${t.plan.gesamt}` : ""}${t.faellig.length ? `, ${t.faellig.length} Wiederholungen geplant` : ""}${arb ? `, ${t.arbeiten[0].art}` : ""}`;
+          return (
+            <button key={t.datum} type="button" aria-pressed={an} aria-label={beschr} onClick={() => setGewaehlt(t.datum)}
+              style={{ minHeight: 78, padding: "6px 2px 6px", borderRadius: 12, fontFamily: "inherit", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
+                border: `1.5px solid ${an ? C.see : istHeute ? C.flaggold : C.linie}`, background: an ? C.see : C.weiss, color: an ? C.weiss : C.tinte }}>
+              <span style={{ fontSize: 11, fontWeight: 700, opacity: an ? 0.9 : 0.7 }}>{WT[i]}</span>
+              <span style={{ fontSize: 16, fontWeight: 800, lineHeight: 1 }}>{Number(t.datum.slice(8, 10))}</span>
+              <span style={{ minHeight: 18, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+                {arb && <span aria-hidden="true" style={{ fontSize: 10, fontWeight: 800, padding: "1px 5px", borderRadius: 999, background: an ? C.flaggold : C.signal, color: an ? C.seeTief : C.weiss }}>Arbeit</span>}
+                {!arb && t.zeit !== "zukunft" && (t.plan ? <span aria-hidden="true" style={{ fontSize: 10.5, fontWeight: 800, color: an ? C.weiss : fertig ? C.smaragd : C.grau }}>{fertig ? "✓ " : ""}{t.plan.erledigt}/{t.plan.gesamt}</span>
+                  : t.geuebt.length ? <span aria-hidden="true" style={{ fontSize: 10.5, fontWeight: 800, color: an ? C.weiss : C.smaragd }}>✓ {t.geuebt.length}</span> : null)}
+                {t.zeit === "zukunft" && t.faellig.length > 0 && !arb && <span aria-hidden="true" style={{ fontSize: 10.5, fontWeight: 800, color: an ? C.weiss : C.see }}>{t.faellig.length} ↺</span>}
+                {t.zeit === "heute" && !arb && !t.plan && !t.geuebt.length && <span aria-hidden="true" style={{ fontSize: 10, color: an ? C.weiss : C.grau }}>heute</span>}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+      {woche !== 0 && <button type="button" onClick={() => { setWoche(0); setGewaehlt(heute); }} style={{ ...knopfKlein, minHeight: 40, padding: "4px 14px", fontSize: 13, marginTop: 8 }}>Zurück zu heute</button>}
+
+      <div aria-live="polite" style={{ marginTop: 14, background: C.sand, borderRadius: 12, padding: "12px 14px" }}>
+        <p style={{ fontSize: 15, fontWeight: 800, color: C.tinte }}>{WT_LANG[idx]}, {langDatum(auswahl.datum)}{auswahl.zeit === "heute" ? " · heute" : ""}</p>
+        {auswahl.arbeiten.map((a) => (
+          <div key={a.id} style={{ marginTop: 8, borderLeft: `3px solid ${C.signal}`, padding: "2px 0 2px 10px" }}>
+            <p style={{ fontSize: 14, fontWeight: 700, color: C.signal }}>{a.art}</p>
+            {(a.themen.length > 0 || a.notiz) && <p style={{ fontSize: 13, color: C.grau, lineHeight: 1.55 }}>{[...a.themen, a.notiz].filter(Boolean).join(" · ")}</p>}
+          </div>
+        ))}
+        {auswahl.plan && auswahl.plan.gesamt > 0 && (
+          <div style={{ marginTop: 10 }}>
+            <p style={{ fontSize: 12.5, fontWeight: 700, color: C.grau }}>{auswahl.zeit === "zukunft" ? "Geplant" : `Tagesplan: ${auswahl.plan.erledigt} von ${auswahl.plan.gesamt} erledigt`}</p>
+            {auswahl.plan.items.map((it) => (
+              <p key={it.skill_id} style={{ fontSize: 13.5, lineHeight: 1.7, color: it.erledigt ? C.tinte : C.grau }}>
+                <span aria-hidden="true" style={{ display: "inline-block", width: 18, fontWeight: 800, color: it.erledigt ? (it.ergebnis ? ERGEBNIS_TEXT[it.ergebnis].farbe : C.smaragd) : C.hellgrau }}>{it.erledigt ? (SYM[it.ergebnis] || "✓") : "○"}</span>
+                {it.name} <span style={{ fontSize: 12, color: ART_FARBE[it.art], fontWeight: 600 }}>· {ARTEN[it.art]}</span>
+              </p>
+            ))}
+          </div>
+        )}
+        {auswahl.geuebt.filter((g) => !(auswahl.plan && auswahl.plan.items.some((i) => i.skill_id === g.skill_id))).length > 0 && (
+          <div style={{ marginTop: 10 }}>
+            <p style={{ fontSize: 12.5, fontWeight: 700, color: C.grau }}>{auswahl.plan ? "Zusätzlich geübt" : "Geübt"}</p>
+            {auswahl.geuebt.filter((g) => !(auswahl.plan && auswahl.plan.items.some((i) => i.skill_id === g.skill_id))).map((g) => (
+              <p key={g.skill_id} style={{ fontSize: 13.5, lineHeight: 1.7, color: C.tinte }}>
+                <span aria-hidden="true" style={{ display: "inline-block", width: 18, fontWeight: 800, color: ERGEBNIS_TEXT[g.ergebnis].farbe }}>{SYM[g.ergebnis]}</span>{g.name} <span style={{ fontSize: 12, color: C.grau }}>· {ERGEBNIS_TEXT[g.ergebnis].name}</span>
+              </p>
+            ))}
+          </div>
+        )}
+        {auswahl.faellig.length > 0 && (
+          <div style={{ marginTop: 10 }}>
+            <p style={{ fontSize: 12.5, fontWeight: 700, color: C.grau }}>Wiederholungen geplant</p>
+            {auswahl.faellig.map((f) => <p key={f.skill_id} style={{ fontSize: 13.5, lineHeight: 1.7, color: C.tinte }}><span aria-hidden="true" style={{ display: "inline-block", width: 18, color: C.see, fontWeight: 800 }}>↺</span>{f.name}</p>)}
+          </div>
+        )}
+        {!auswahl.arbeiten.length && !(auswahl.plan && auswahl.plan.gesamt) && !auswahl.geuebt.length && !auswahl.faellig.length && (
+          <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, marginTop: 6 }}>{auswahl.zeit === "vergangen" ? "An diesem Tag wurde nichts geübt." : auswahl.zeit === "heute" ? "Noch nichts geübt." : "Noch nichts geplant. Der Tagesplan entsteht am Tag selbst aus deinem aktuellen Stand."}</p>
+        )}
+        {auswahl.zeit === "zukunft" && <p style={{ fontSize: 12, color: C.hellgrau, lineHeight: 1.55, marginTop: 8 }}>Vorschau: Sie verschiebt sich je nach deinen Ergebnissen.</p>}
+      </div>
+      <p style={{ fontSize: 12, color: C.grau, lineHeight: 1.6, marginTop: 8 }}>✓ sicher · ◐ mit Hilfe · ↻ noch einmal üben · ○ offen · ↺ Wiederholung geplant</p>
+    </div>
   );
 }
 

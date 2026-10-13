@@ -152,13 +152,16 @@ export const istDatum = (s) => typeof s === "string" && /^\d{4}-\d{2}-\d{2}$/.te
 
 /* ---------- Zustand ---------- */
 
-export function leereEbb() { return { version: 1, plan: "standard", skills: {}, tage: {} }; }
+export function leereEbb() { return { version: 1, plan: "standard", skills: {}, tage: {}, arbeiten: [] }; }
 export const MAX_TAGE = 60;     // gespeicherte Tagespläne
 export const ARTEN = {
   wiederholung: "Wiederholen",
   voraussetzung: "Voraussetzung auffrischen",
   weiter: "Weiter lernen",
+  pruefung: "Für die Arbeit auffrischen",
 };
+export const ARBEIT_ARTEN = ["Klassenarbeit", "Test", "Klausur"];
+export const MAX_ARBEITEN = 40;
 
 export function leererSkill(id, heute) {
   return {
@@ -191,10 +194,11 @@ export function normiereEbb(E) {
   for (const [dat, t] of Object.entries(d.tage && typeof d.tage === "object" ? d.tage : {})) {
     if (!istDatum(dat) || !t || !Array.isArray(t.items)) continue;
     tage[dat] = { erstellt: typeof t.erstellt === "string" ? t.erstellt : null,
-      items: t.items.filter((i) => i && SKILL_INFO[i.skill_id]).map((i) => ({ skill_id: i.skill_id, art: ARTEN[i.art] ? i.art : "wiederholung", grund: typeof i.grund === "string" ? i.grund : "" })) };
+      items: t.items.filter((i) => i && SKILL_INFO[i.skill_id]).map((i) => ({ skill_id: i.skill_id, art: ARTEN[i.art] ? i.art : "wiederholung", grund: typeof i.grund === "string" ? i.grund : "", ...(typeof i.arbeit === "string" ? { arbeit: i.arbeit } : {}) })) };
   }
   const dl = Object.keys(tage).sort();
   d.tage = Object.fromEntries(dl.slice(-MAX_TAGE).map((k) => [k, tage[k]]));
+  d.arbeiten = normiereArbeiten(d.arbeiten);
   return d;
 }
 
@@ -453,17 +457,22 @@ function weiterKandidaten(E, themen) {
 export function tagesplanBauen(E, T, { jetzt = Date.now(), tz, max = 8 } = {}) {
   const themen = aktuelleThemen(E, T, { jetzt, tz });
   const sicht = heuteAuswahl(E, { jetzt, tz, aktuellesThema: themen.length ? themen[0].thema : null, max: 100 });
-  const wdh = sicht.items.filter((i) => i.prio < 4).slice(0, 6);
-  const vor = sicht.items.filter((i) => i.prio === 4).slice(0, 2);
-  const items = [
-    ...wdh.map((i) => ({ skill_id: i.skill_id, art: "wiederholung", grund: i.grund })),
-    ...vor.map((i) => ({ skill_id: i.skill_id, art: "voraussetzung", grund: i.grund })),
-  ];
+  const wdh = sicht.items.filter((i) => i.prio < 4).slice(0, 6).map((i) => ({ skill_id: i.skill_id, art: "wiederholung", grund: i.grund }));
+  const vor = sicht.items.filter((i) => i.prio === 4).slice(0, 2).map((i) => ({ skill_id: i.skill_id, art: "voraussetzung", grund: i.grund }));
+  const belegt = [...wdh, ...vor].map((i) => i.skill_id);
+  const ar = arbeitsItems(E, { jetzt, tz, bereits: belegt });
+  /* Reihenfolge: fällige Wiederholungen, dann alles für die Arbeit, dann Grundlagen, dann sonstige neue Schritte */
+  const items = [...wdh, ...ar.weiter, ...ar.auffrisch, ...vor];
   const platz = Math.max(0, max - items.length);
   const wunsch = wdh.length >= 5 ? 1 : 2;
-  for (const s of weiterKandidaten(E, themen).slice(0, Math.min(wunsch, platz))) {
+  const schon = new Set(items.map((i) => i.skill_id));
+  let n = 0;
+  for (const s of weiterKandidaten(E, themen)) {
+    if (n >= Math.min(wunsch, platz)) break;
+    if (schon.has(s.id)) continue;
     const th = skillKapitel(s.id);
     items.push({ skill_id: s.id, art: "weiter", grund: `Neuer Schritt in ${th.name || "deinem Stoff"}: Die Grundlagen dafür sitzen schon.` });
+    n++;
   }
   return { erstellt: new Date(jetzt).toISOString(), items: items.slice(0, max), themen };
 }
@@ -480,7 +489,7 @@ export function tagesplanSichern(E, T, { jetzt = Date.now(), tz, max = 8 } = {})
     E.tage[heute] = { erstellt: neu.erstellt, items: neu.items };
   } else {
     const da = new Set(alt.items.map((i) => i.skill_id));
-    for (const i of neu.items) if (!da.has(i.skill_id) && i.art !== "weiter" && alt.items.length < max + 4) alt.items.push(i);
+    for (const i of neu.items) if (!da.has(i.skill_id) && (i.art !== "weiter" || i.arbeit) && alt.items.length < max + 4) alt.items.push(i);
   }
   const ds = Object.keys(E.tage).sort();
   for (const k of ds.slice(0, Math.max(0, ds.length - MAX_TAGE))) delete E.tage[k];
@@ -547,4 +556,129 @@ export function lernUebersicht(E, { jetzt = Date.now(), tz, rueck = 14, vor = 14
     anzahl: { gelernt: alle.length, training: stat("training"), unsicher: stat("unsicher"), stabil: stat("stabil"), gefestigt: stat("gefestigt"), neu: skills.length - alle.length },
     rueckblick, vorschau,
   };
+}
+
+
+/* ======================================================================
+   Klassenarbeiten: Schüler trägt Datum und Themen ein, der Tagesplan reagiert sofort.
+   Gespeichert in E.arbeiten. Löschen = Markierung (geloescht), damit der Abgleich zwischen Geräten
+   nichts wiederbelebt.
+   ====================================================================== */
+
+export function normiereArbeiten(liste) {
+  const aus = new Map();
+  for (const a of Array.isArray(liste) ? liste : []) {
+    if (!a || typeof a.id !== "string" || !istDatum(a.datum)) continue;
+    const neu = {
+      id: a.id, art: typeof a.art === "string" && a.art ? a.art.slice(0, 30) : "Klassenarbeit", datum: a.datum,
+      themen: [...new Set((Array.isArray(a.themen) ? a.themen : []).filter((t) => THEMEN[t]))],
+      notiz: typeof a.notiz === "string" ? a.notiz.slice(0, 80) : "",
+      erstellt: Number.isFinite(a.erstellt) ? a.erstellt : 0, geaendert: Number.isFinite(a.geaendert) ? a.geaendert : (Number.isFinite(a.erstellt) ? a.erstellt : 0),
+      geloescht: a.geloescht === true,
+    };
+    const alt = aus.get(neu.id);
+    if (!alt || neu.geaendert >= alt.geaendert) aus.set(neu.id, neu);
+  }
+  return [...aus.values()].sort((x, y) => x.datum.localeCompare(y.datum) || x.id.localeCompare(y.id)).slice(-MAX_ARBEITEN);
+}
+
+export function arbeitNeu(E, { art = "Klassenarbeit", datum, themen = [], notiz = "" }, jetzt = Date.now()) {
+  if (!istDatum(datum)) return null;
+  const a = { id: `a${jetzt.toString(36)}${Math.random().toString(36).slice(2, 5)}`, art, datum, themen, notiz, erstellt: jetzt, geaendert: jetzt, geloescht: false };
+  E.arbeiten = normiereArbeiten([...(E.arbeiten || []), a]);
+  return E.arbeiten.find((x) => x.id === a.id) || null;
+}
+export function arbeitLoeschen(E, id, jetzt = Date.now()) {
+  E.arbeiten = normiereArbeiten((E.arbeiten || []).map((a) => (a.id === id ? { ...a, geloescht: true, geaendert: jetzt } : a)));
+}
+
+export const tageText = (n) => (n <= 0 ? "heute" : n === 1 ? "morgen" : `in ${n} Tagen`);
+const datumKurzTT = (d) => `${d.slice(8, 10)}.${d.slice(5, 7)}.`;
+
+/* Bevorstehende Arbeiten (ab heute), nächste zuerst */
+export function kommendeArbeiten(E, { jetzt = Date.now(), tz } = {}) {
+  const heute = datumVon(jetzt, tz);
+  return (E.arbeiten || []).filter((a) => !a.geloescht && a.datum >= heute)
+    .map((a) => ({ ...a, tage: tageZwischen(heute, a.datum), themenNamen: a.themen.map((t) => THEMEN[t].name) }));
+}
+
+/* Skills zu den Themen einer Arbeit */
+export const skillsZuThemen = (themen) => SKILLS.filter((s) => themen.includes(skillKapitel(s.id).thema));
+
+/* Wie steht es um eine Arbeit? Reiner Überblick für die Anzeige direkt nach dem Eintragen. */
+export function arbeitsPlanung(E, a, { jetzt = Date.now(), tz } = {}) {
+  const heute = datumVon(jetzt, tz);
+  const tage = Math.max(0, tageZwischen(heute, a.datum));
+  const skills = skillsZuThemen(a.themen);
+  const gelernt = skills.filter((s) => E.skills[s.id] && E.skills[s.id].first_learned_at);
+  const sitzen = gelernt.filter((s) => E.skills[s.id].last_result === "sicher").length;
+  const neu = skills.length - gelernt.length;
+  const proTag = 3;                                           // höchstens so viele neue Schritte am Tag im Plan
+  return { tage, anzahl: skills.length, neu, sitzen, unsicher: gelernt.length - sitzen, knapp: neu > proTag * Math.max(0, tage - 1), keineSkills: skills.length === 0 };
+}
+
+/* Auswahl für den Tagesplan aus den Arbeiten der nächsten 28 Tage */
+function arbeitsItems(E, { jetzt, tz, bereits }) {
+  const heute = datumVon(jetzt, tz);
+  const arbeiten = kommendeArbeiten(E, { jetzt, tz }).filter((a) => a.tage <= 28);
+  const weiter = [], auffrisch = [];
+  const belegt = new Set(bereits);
+  for (const a of arbeiten) {
+    const ziele = skillsZuThemen(a.themen).map((s) => s.id);
+    const name = (id) => skillKapitel(id).name;
+    const wann = `${a.art} ${tageText(a.tage)} (${datumKurzTT(a.datum)})`;
+    /* neue Schritte: nicht begonnene Skills des Themas und ihre nicht begonnenen Grundlagen, sobald deren Grundlagen sitzen */
+    const kandidaten = [];
+    for (const id of ziele) for (const id2 of [...voraussetzungen(id).reverse(), id]) if (!E.skills[id2] && !kandidaten.includes(id2)) kandidaten.push(id2);
+    const frei = kandidaten.filter((id) => SKILL_INFO[id].voraus.every((v) => gelernt_(E, v)));
+    const grundlage = (id) => !ziele.includes(id);
+    for (const id of frei.slice(0, a.tage <= 14 ? 3 : 2)) {
+      if (belegt.has(id)) continue;
+      belegt.add(id);
+      weiter.push({ skill_id: id, art: "weiter", arbeit: a.id, grund: grundlage(id) ? `Grundlage für deine ${wann}: Ohne ${SKILL_INFO[id].name} wird ${name(ziele[0])} schwer.` : `Für deine ${wann}: Dieser Skill gehört zum Stoff (${name(id)}).` });
+    }
+    /* Auffrischen: bekannte Skills, deren nächste Wiederholung zu spät oder lange her wäre */
+    const abstand = a.tage <= 3 ? 1 : 3;
+    for (const id of ziele) {
+      const S = E.skills[id];
+      if (belegt.has(id) || !S || !S.first_learned_at || S.next_review_at <= heute) continue;
+      const letzte = S.last_reviewed_at ? datumVon(Date.parse(S.last_reviewed_at), tz) : null;
+      if (letzte && tageZwischen(letzte, heute) < abstand) continue;
+      if (!(a.tage <= 7 || S.next_review_at > addTage(a.datum, -2))) continue;
+      belegt.add(id);
+      auffrisch.push({ skill_id: id, art: "pruefung", arbeit: a.id, grund: `Auffrischen für deine ${wann}.` });
+    }
+  }
+  return { weiter: weiter.slice(0, 3), auffrisch: auffrisch.slice(0, arbeiten.some((a) => a.tage <= 3) ? 4 : 3) };
+}
+const gelernt_ = (E, id) => Boolean(E.skills[id] && E.skills[id].first_learned_at);
+
+/* Eine Woche (Mo–So) für den Kalender. woche: 0 = diese Woche, -1 = vorige, 1 = nächste …
+   heutePlan: Plan von heute in der Form tagesStand(...) (damit der Kalender den angezeigten Plan zeigt). fremde: [{datum, art}] */
+export function wochenDaten(E, { jetzt = Date.now(), tz, woche = 0, heutePlan = null, fremde = [] } = {}) {
+  const heute = datumVon(jetzt, tz);
+  const dow = new Date(heute + "T00:00:00Z").getUTCDay();
+  const montag = addTage(heute, -((dow + 6) % 7) + 7 * woche);
+  const skills = Object.values(E.skills);
+  const rang = { nicht: 0, teilweise: 1, sicher: 2 };
+  const tage = Array.from({ length: 7 }, (_, i) => {
+    const d = addTage(montag, i);
+    const nach = {};
+    let aufgaben = 0;
+    for (const S of skills) for (const h of S.review_history) if (h.datum === d) { aufgaben++; if (!nach[S.skill_id] || rang[h.ergebnis] < rang[nach[S.skill_id]]) nach[S.skill_id] = h.ergebnis; }
+    const geuebt = Object.entries(nach).map(([skill_id, ergebnis]) => ({ skill_id, name: SKILL_INFO[skill_id].name, ergebnis }));
+    let plan = null;
+    if (d === heute && heutePlan) plan = { items: heutePlan.items, gesamt: heutePlan.gesamt, erledigt: heutePlan.erledigt };
+    else if (E.tage && E.tage[d]) {
+      const items = E.tage[d].items.map((it) => ({ ...it, name: SKILL_INFO[it.skill_id].name, erledigt: Boolean(nach[it.skill_id]), ergebnis: nach[it.skill_id] || null }));
+      plan = { items, gesamt: items.length, erledigt: items.filter((x) => x.erledigt).length };
+    }
+    const faellig = d > heute ? skills.filter((S) => S.next_review_at === d).map((S) => ({ skill_id: S.skill_id, name: SKILL_INFO[S.skill_id].name, neu: !S.first_learned_at })).sort((a, b) => a.name.localeCompare(b.name)) : [];
+    const arbeiten = [
+      ...(E.arbeiten || []).filter((a) => !a.geloescht && a.datum === d).map((a) => ({ id: a.id, art: a.art, themen: a.themen.map((t) => THEMEN[t].name), notiz: a.notiz })),
+      ...fremde.filter((f) => f.datum === d).map((f) => ({ id: `x${f.datum}`, art: f.art, themen: [], notiz: "" })),
+    ];
+    return { datum: d, zeit: d < heute ? "vergangen" : d === heute ? "heute" : "zukunft", geuebt, aufgaben, plan, faellig, arbeiten };
+  });
+  return { woche, start: montag, ende: addTage(montag, 6), tage };
 }
