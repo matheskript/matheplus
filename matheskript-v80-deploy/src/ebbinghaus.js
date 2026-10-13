@@ -383,9 +383,16 @@ export function heuteErledigt(E, jetzt = Date.now(), tz) {
 
 /* Wählt den Generator für die Wiederholung. Schritt 2 (Tag 3): eine andere Aufgabenart als zuletzt.
    Schritt 4 (Tag 14): die anspruchsvollste Art (mehr Rechenschritte). Sonst: möglichst nicht dieselbe wie zuletzt. */
-export function waehleGenerator(skillId, schritt, letzterGenerator = null, rng = Math.random) {
+export function waehleGenerator(skillId, schritt, letzterGenerator = null, rng = Math.random, fehlerTyp = null) {
   const gens = skillGeneratoren(skillId);
   if (!gens.length) return null;
+  /* Nach einem Fehler: gezielt eine Aufgabenart, die genau diesen Fehlertyp trainiert (statt nur die Musterlösung zu zeigen) */
+  const gezielt = fehlerTyp ? gens.filter((g) => (g.fuer || []).includes(fehlerTyp)) : [];
+  if (gezielt.length) {
+    const neu = gezielt.filter((g) => g.id !== letzterGenerator);
+    const p = neu.length ? neu : gezielt;
+    return p[Math.floor(rng() * p.length) % p.length].id;
+  }
   if (schritt === 4) return gens.slice().sort((a, b) => b.afb - a.afb)[0].id;
   const andere = gens.filter((g) => g.id !== letzterGenerator);
   const pool = andere.length ? andere : gens;

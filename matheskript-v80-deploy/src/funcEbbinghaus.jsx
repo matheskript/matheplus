@@ -346,7 +346,8 @@ function Plan({ E }) {
 function baueAufgaben(items, E) {
   return items.map((it) => {
     const S = E.skills[it.skill_id];
-    const gen = waehleGenerator(it.skill_id, it.schritt, S ? letzterGeneratorVon(S) : null);
+    const fehler = S && (S.last_result === "nicht" || S.last_result === "teilweise") ? S.last_error_type : null;   // gezielt den Fehlertyp üben
+    const gen = waehleGenerator(it.skill_id, it.schritt, S ? letzterGeneratorVon(S) : null, Math.random, fehler);
     return gen ? neueAufgabe(gen) : null;
   }).filter(Boolean);
 }
@@ -443,7 +444,7 @@ function Dashboard({ E, geladen, zuletzt, gehe, laeuft, setLaeuft, zuSkills }) {
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, color: C.grau, marginBottom: 4 }}>
               <span>Heutige Einheit</span><span>{erledigt} erledigt · {auswahl.faellig} offen</span>
             </div>
-            <div style={{ height: 8, borderRadius: 999, background: C.linie, overflow: "hidden" }}><div style={{ width: `${anteil}%`, height: "100%", background: C.smaragd, borderRadius: 999, transition: "width .3s ease" }} /></div>
+            <div role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(anteil)} aria-label="Fortschritt der heutigen Einheit" style={{ height: 8, borderRadius: 999, background: C.linie, overflow: "hidden" }}><div style={{ width: `${anteil}%`, height: "100%", background: C.smaragd, borderRadius: 999, transition: "width .3s ease" }} /></div>
           </div>
           {auswahl.items.length === 0 ? (
             <Rueck art="gut">Heute ist nichts mehr fällig. {naechster ? `Die nächste Wiederholung (${SKILL_INFO[naechster.skill_id].name}) ist ${wannText(naechster.next_review_at, heute)} dran.` : ""} Du kannst unten jederzeit freiwillig einen Skill üben.</Rueck>
@@ -566,6 +567,9 @@ export function EbbinghausSeite({ gehe }) {
       <Abschnitt kicker="Video" titel="Warum wir vergessen – und wie du dagegen trainierst" ref={refs.video}>
         <Absatz s="Du hast heute etwas verstanden. Aber kannst du es nächste Woche noch ohne Hilfe anwenden? Genau hier liegt der Unterschied zwischen kurzfristigem Kennenlernen und dauerhaftem Können. Schau dir an, warum Wiederholungen so wichtig sind – und wie Mythos Mathe dir dabei hilft." />
         <VideoBox />
+        <p style={{ fontSize: 13, color: C.grau, lineHeight: 1.65, margin: "12px 0 0" }}>
+          <b style={{ color: C.tinte }}>Warum „Ebbinghaus“?</b> Der Psychologe Hermann Ebbinghaus hat 1885 als einer der Ersten untersucht, wie schnell Gelerntes ohne Wiederholung verblasst – und dass Wiederholungen es festigen. Nach ihm ist die Vergessenskurve benannt.
+        </p>
         <div style={{ ...karte, marginTop: 14 }}>
           <p style={{ fontSize: 16.5, fontWeight: 700, color: C.tinte, lineHeight: 1.5 }}>Du hast heute eine Aufgabe verstanden und richtig gelöst. Kannst du sie in sieben Tagen noch ohne Hilfe lösen?</p>
           <p style={{ fontSize: 14, color: C.grau, lineHeight: 1.7, marginTop: 6 }}>Das lässt sich nicht zuverlässig allein aus dem heutigen Erfolg ableiten. Deshalb überprüft die App dein Können später noch einmal.</p>

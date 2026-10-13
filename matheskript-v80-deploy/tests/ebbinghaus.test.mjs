@@ -224,6 +224,14 @@ test("Variation: Aufgabenart wechselt, Tag 14 wählt die anspruchsvollste", () =
   const a = neueAufgabe("abl-kette"), b = neueAufgabe("abl-kette");
   assert.notEqual(a.id, b.id);
 });
+test("Gezieltes Üben: nach einem Fehler wird eine Aufgabenart gewählt, die genau diesen Fehlertyp trainiert", () => {
+  // abl-kette trainiert kettenregel + potenzregel, abl-exp nur kettenregel
+  assert.equal(waehleGenerator("kettenregel", 1, "abl-exp", () => 0, "potenzregel"), "abl-kette");
+  assert.equal(waehleGenerator("kettenregel", 1, "abl-kette", () => 0, "kettenregel"), "abl-exp");
+  assert.equal(waehleGenerator("kettenregel", 4, null, () => 0, "potenzregel"), "abl-kette");   // auch bei Schritt 4
+  assert.equal(waehleGenerator("kettenregel", 1, "abl-kette", () => 0, "unbekannt"), "abl-exp"); // kein Treffer: normale Variation
+  assert.equal(waehleGenerator("potenzregel", 1, "abl-potenz", () => 0, "potenzregel"), "abl-potenz");
+});
 test("Einordnung: sicher, teilweise, nicht abrufbar", () => {
   assert.equal(bewerte({ gebucht: true, ok: true, versuche: 1, hilfeEnde: 0 }), "sicher");
   assert.equal(bewerte({ gebucht: true, ok: true, versuche: 2, hilfeEnde: 1 }), "teilweise");
