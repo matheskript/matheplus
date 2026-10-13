@@ -7,7 +7,7 @@
    ====================================================================== */
 import { useSyncExternalStore } from "react";
 import { createClient } from "@supabase/supabase-js";
-import { einladungAusUrl } from "./rollenLogik.js";
+import { einladungAusUrl, istGeschlecht } from "./rollenLogik.js";
 
 const URL_ = import.meta.env.VITE_SUPABASE_URL;
 const KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -191,15 +191,17 @@ export async function refFestlegen(code) {
   setzen({ profil: { ...zustand.profil, ref_code: code, ref_fest: true } });
 }
 
-/* Legt das Profil beim ersten Mal an (Name und Rolle) und verknüpft Werber und – bei Eltern – das einladende Kind. */
-export async function profilAnlegen(name, rolle = "schueler") {
+/* Legt das Profil beim ersten Mal an (Name, Rolle, bei Schüler:innen das Geschlecht) und verknüpft Werber und – bei Eltern – das einladende Kind. */
+export async function profilAnlegen(name, rolle = "schueler", geschlecht = null) {
   const n = name.trim();
   if (!n) throw new Error("Bitte gib deinen Namen ein.");
   if (!["schueler", "eltern", "lehrkraft", "nachhilfe"].includes(rolle)) throw new Error("Bitte wähle aus, wer du bist.");
+  if (rolle === "schueler" && !istGeschlecht(geschlecht)) throw new Error("Bitte wähle Schüler oder Schülerin.");
+  const g = rolle === "schueler" ? geschlecht : null;
   const einl = gemerkteEinladung();
   const tokenFuerEltern = rolle === "eltern" && einl && einl.token ? einl.token : null;
   if (DEMO) {
-    const profil = { id: "demo", name: n, rolle, plan: "free", schulform: null, klasse: null, noten: {}, ref_code: neuerCode(), ref_fest: false,
+    const profil = { id: "demo", name: n, rolle, geschlecht: g, plan: "free", schulform: null, klasse: null, noten: {}, ref_code: neuerCode(), ref_fest: false,
       eltern_token: Array.from({ length: 16 }, () => "0123456789abcdef"[Math.floor(Math.random() * 16)]).join(""),
       geworben_von: gemerkterRef() ? "demo-werber" : null };
     schreib(DEMO_SPEICHER, { nutzer: zustand.nutzer, profil });
@@ -208,7 +210,7 @@ export async function profilAnlegen(name, rolle = "schueler") {
     setzen({ profil });
     return;
   }
-  const { error } = await sb.from("profile").insert({ id: zustand.nutzer.id, name: n, rolle });
+  const { error } = await sb.from("profile").insert({ id: zustand.nutzer.id, name: n, rolle, ...(g ? { geschlecht: g } : {}) });
   if (error) throw new Error("Das Profil konnte nicht angelegt werden.");
   const ref = gemerkterRef();
   if (ref) { await sb.rpc("werber_setzen", { code: ref }); schreib(REF_SPEICHER, null); }
@@ -225,8 +227,9 @@ export async function profilAnlegen(name, rolle = "schueler") {
 
 export async function profilSpeichern(aenderung) {
   const erlaubt = {};
-  ["name", "schulform", "klasse", "noten"].forEach((k) => { if (k in aenderung) erlaubt[k] = aenderung[k]; });
+  ["name", "schulform", "klasse", "noten", "geschlecht"].forEach((k) => { if (k in aenderung) erlaubt[k] = aenderung[k]; });
   if ("name" in erlaubt && !String(erlaubt.name).trim()) throw new Error("Der Name darf nicht leer sein.");
+  if ("geschlecht" in erlaubt && !istGeschlecht(erlaubt.geschlecht)) throw new Error("Bitte wähle Schüler oder Schülerin.");
   if (DEMO) {
     const profil = { ...zustand.profil, ...erlaubt };
     schreib(DEMO_SPEICHER, { nutzer: zustand.nutzer, profil });

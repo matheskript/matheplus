@@ -9,8 +9,27 @@ export const ROLLEN = [
   { id: "lehrkraft", name: "Lehrkraft", kurz: "Ich unterrichte eine Klasse" },
   { id: "nachhilfe", name: "Nachhilfelehrer:in", kurz: "Ich gebe Nachhilfe" },
 ];
-export const rolleName = (id) => (ROLLEN.find((r) => r.id === id) || ROLLEN[0]).name;
 export const istLehrend = (rolle) => rolle === "lehrkraft" || rolle === "nachhilfe";
+
+/* ---------- Geschlecht der Schüler:innen ----------
+   Bei der Anmeldung wählt man „Schüler“ (m) oder „Schülerin“ (w) – so sind Anrede und Fürwörter
+   ohne Gendersprache eindeutig. Bestehende Konten ohne Angabe (null) zeigen vorläufig „Schüler:in“. */
+export const GESCHLECHTER = [
+  { id: "m", name: "Schüler" },
+  { id: "w", name: "Schülerin" },
+];
+export const istGeschlecht = (g) => g === "m" || g === "w";
+export const rolleName = (id, geschlecht) => {
+  const r = ROLLEN.find((x) => x.id === id) || ROLLEN[0];
+  if (r.id === "schueler" && istGeschlecht(geschlecht)) return geschlecht === "w" ? "Schülerin" : "Schüler";
+  return r.name;
+};
+/* Hinweis für Mathilda (KI), damit sie die richtige Anrede und die richtigen Fürwörter benutzt */
+export const anredeHinweis = (geschlecht) => (geschlecht === "w"
+  ? "Die Schülerin ist weiblich: Sprich von ihr als „sie“ und „die Schülerin“, nie als „er“ oder „der Schüler“."
+  : geschlecht === "m"
+    ? "Der Schüler ist männlich: Sprich von ihm als „er“ und „der Schüler“."
+    : "");
 
 /* ---------- Datum ---------- */
 export const tagKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;

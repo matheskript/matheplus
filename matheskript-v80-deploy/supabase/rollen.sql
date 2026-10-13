@@ -38,8 +38,15 @@ create unique index if not exists profile_eltern_token_idx on public.profile (el
 -- Früher vergebene Empfehlungscodes bleiben gültig, wenn jemand später eine Wunschzahl festlegt
 alter table public.profile add column if not exists ref_frueher text[] not null default '{}';
 
+-- Geschlecht der Schüler:innen: 'm' = Schüler, 'w' = Schülerin (Auswahl bei der Anmeldung, damit die
+-- Anrede ohne Gendersprache eindeutig ist). Leer bei Eltern/Lehrkräften und bei älteren Konten.
+alter table public.profile add column if not exists geschlecht text;
+alter table public.profile drop constraint if exists profile_geschlecht_check;
+alter table public.profile add constraint profile_geschlecht_check check (geschlecht in ('m', 'w'));
+
 -- Die Rolle wählt der Nutzer beim Anlegen; Plan, Token und Rest kann er nicht selbst schreiben.
-grant insert (id, name, schulform, klasse, noten, rolle) on public.profile to authenticated;
+grant insert (id, name, schulform, klasse, noten, rolle, geschlecht) on public.profile to authenticated;
+grant update (geschlecht) on public.profile to authenticated;
 
 -- ---------- Empfehlungscodes: alte Codes bleiben gültig ----------
 create or replace function public.werber_setzen(code text)

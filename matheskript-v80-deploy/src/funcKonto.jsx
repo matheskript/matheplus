@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { C } from "./base1.jsx";
-import { RollenWahl, EmailAnmeldung, HinweisLeiste, ElternEinladen, MeineKlassen, PlanKarte, ElternBereich, LehrBereich, RolleAendern } from "./funcKontoRollen.jsx";
-import { rolleName, istLehrend } from "./rollenLogik.js";
+import { RollenWahl, EmailAnmeldung, HinweisLeiste, ElternEinladen, MeineKlassen, PlanKarte, ElternBereich, LehrBereich, RolleAendern, GeschlechtFrage } from "./funcKontoRollen.jsx";
+import { rolleName, istLehrend, istGeschlecht } from "./rollenLogik.js";
 import { DEMO, useKonto, gemerkteEinladung, anmelden, abmelden, profilAnlegen, profilSpeichern, empfehlungsLink, neuerCode, refPruefen, refFestlegen, istRefCode, REF_BASIS_ANZEIGE } from "./konto.js";
 
 /* ======================================================================
@@ -76,12 +76,15 @@ function Willkommen({ nutzer }) {
   const [name, setName] = useState(nutzer?.user_metadata?.full_name || nutzer?.user_metadata?.name || "");
   const einl = gemerkteEinladung();
   const [rolle, setRolle] = useState(() => (einl && einl.als === "eltern" ? "eltern" : einl && einl.klasse ? "schueler" : ""));
+  const [geschlecht, setGeschlecht] = useState("");
   const [fehler, setFehler] = useState("");
   const [laeuft, setLaeuft] = useState(false);
+  const bereit = !!rolle && (rolle !== "schueler" || istGeschlecht(geschlecht));
   const anlegen = async () => {
     if (!rolle) { setFehler("Bitte wähle aus, wer du bist."); return; }
+    if (rolle === "schueler" && !istGeschlecht(geschlecht)) { setFehler("Bitte wähle Schüler oder Schülerin."); return; }
     setLaeuft(true); setFehler("");
-    try { await profilAnlegen(name, rolle); } catch (e) { setFehler(e.message); }
+    try { await profilAnlegen(name, rolle, geschlecht || null); } catch (e) { setFehler(e.message); }
     setLaeuft(false);
   };
   return (
@@ -90,15 +93,15 @@ function Willkommen({ nutzer }) {
       <p style={{ fontSize: 14.5, color: C.grau, fontWeight: 300, lineHeight: 1.65, marginBottom: 16 }}>Wer bist du, und wie dürfen wir dich nennen? Mehr brauchen wir nicht, um dein Konto anzulegen.</p>
       {einl && einl.token && <p style={{ fontSize: 13.5, color: "#1B5E3A", background: "#E9F7EF", borderRadius: 10, padding: "8px 12px", marginBottom: 14 }}>Du wurdest von deinem Kind eingeladen – nach dem Anlegen bist du automatisch verbunden.</p>}
       <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 6 }}>Ich bin …</p>
-      <div style={{ marginBottom: 16 }}><RollenWahl wert={rolle} onWahl={(r) => { setRolle(r); setFehler(""); }} /></div>
+      <div style={{ marginBottom: 16 }}><RollenWahl wert={rolle} geschlecht={geschlecht} onWahl={(r, g) => { setRolle(r); setGeschlecht(g || ""); setFehler(""); }} /></div>
       <label htmlFor="konto-name" style={{ fontSize: 13, fontWeight: 600, color: C.see }}>Dein Name</label>
       <input id="konto-name" value={name} onChange={(e) => setName(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") anlegen(); }}
         autoComplete="name" maxLength={80}
         style={{ display: "block", width: "100%", boxSizing: "border-box", marginTop: 6, border: `1.5px solid ${fehler ? C.signal : C.linie}`, borderRadius: 12,
           padding: "12px 14px", fontSize: 16, fontFamily: "inherit", color: C.tinte, outline: "none" }} />
       {fehler && <p style={{ fontSize: 13, color: C.signal, marginTop: 6 }}>{fehler}</p>}
-      <button type="button" onClick={anlegen} disabled={laeuft || !name.trim() || !rolle}
-        style={{ marginTop: 14, width: "100%", height: 50, borderRadius: 999, border: "none", background: name.trim() && rolle ? C.see : C.hellgrau,
+      <button type="button" onClick={anlegen} disabled={laeuft || !name.trim() || !bereit}
+        style={{ marginTop: 14, width: "100%", height: 50, borderRadius: 999, border: "none", background: name.trim() && bereit ? C.see : C.hellgrau,
           color: C.weiss, fontSize: 15.5, fontWeight: 700, fontFamily: "inherit", cursor: "pointer" }}>
         {laeuft ? "Einen Moment …" : "Konto anlegen"}
       </button>
@@ -321,12 +324,13 @@ function Profil({ nutzer, profil, geworben, gehe }) {
         <span style={{ minWidth: 0 }}>
           <span style={{ display: "block", fontSize: 22, fontWeight: 700, color: C.tinte, letterSpacing: "-0.02em" }}>Hallo, {profil.name.split(" ")[0]}!</span>
           <span style={{ display: "block", fontSize: 13, color: C.grau, fontWeight: 300, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{nutzer.email}</span>
-          <span style={{ display: "inline-block", marginTop: 4, fontSize: 11.5, fontWeight: 700, color: C.see, background: C.himmel, borderRadius: 999, padding: "2px 10px" }}>{rolleName(rolle)}</span>
+          <span style={{ display: "inline-block", marginTop: 4, fontSize: 11.5, fontWeight: 700, color: C.see, background: C.himmel, borderRadius: 999, padding: "2px 10px" }}>{rolleName(rolle, profil.geschlecht)}</span>
         </span>
       </div>
 
       {rolle === "schueler" && (
         <>
+      <GeschlechtFrage profil={profil} />
       {/* Meine Kurse */}
       <div style={{ ...karte, padding: 18, marginBottom: 14 }}>
         <Kicker>MEINE KURSE</Kicker>

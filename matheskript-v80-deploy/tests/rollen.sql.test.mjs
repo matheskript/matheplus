@@ -61,6 +61,12 @@ test("rollen.sql: Rollen, Eltern, Klassen, Sichtbarkeit", { skip: !PGlite && "pg
   await assert.rejects(als(db, U.s1, "update profile set rolle='lehrkraft' where id=$1", [U.s1]));
   await assert.rejects(als(db, U.s1, "update profile set eltern_token='abc' where id=$1", [U.s1]));
 
+  // Geschlecht: nur 'm' oder 'w', Nutzer darf es selbst setzen
+  await als(db, U.s1, "update profile set geschlecht='w' where id=$1", [U.s1]);
+  assert.equal((await als(db, U.s1, "select geschlecht from profile where id=$1", [U.s1])).rows[0].geschlecht, "w");
+  await assert.rejects(als(db, U.s1, "update profile set geschlecht='x' where id=$1", [U.s1]));
+  assert.equal((await als(db, U.s2, "select geschlecht from profile where id=$1", [U.s2])).rows[0].geschlecht, null);
+
   // Fremder sieht fremdes Profil nicht
   assert.equal((await als(db, U.x, "select * from profile where id=$1", [U.s1])).rows.length, 0);
 

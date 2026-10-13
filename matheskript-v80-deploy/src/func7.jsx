@@ -11,6 +11,8 @@ import { EskalationsKarte, aktivitaetMelden, coachingAnfragen, eskalationSignale
 import { Mathilda } from "./func10.jsx";
 import { AufklappZeichen } from "./aufklappen.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
+import { kontoZustand } from "./konto.js";
+import { anredeHinweis } from "./rollenLogik.js";
 
 export function MathildaTutor({ kompetenz, aufgabe, eingabe, onSchliessen }) {
   const L = useLern();
@@ -23,6 +25,7 @@ export function MathildaTutor({ kompetenz, aufgabe, eingabe, onSchliessen }) {
 
   const kontext = `Du bist Mathilda, Tutorin im Lernsystem Matheskript für Gymnasiasten.
 Der Schüler heißt ${L.profil?.name || "unbekannt"} und ist in Klasse ${L.profil?.klasse || "?"}.
+${anredeHinweis(kontoZustand().profil?.geschlecht)}
 Er arbeitet an der Kompetenz „${kompetenz.titel}": ${kompetenz.kann}
 Aktuelle Aufgabe: ${aufgabe ? aufgabe.frage.replace(/\$/g, "") : "keine"}
 ${eingabe ? `Sein bisheriger Eintrag: ${eingabe}` : ""}

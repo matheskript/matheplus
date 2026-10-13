@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { ampel, ampelSortiert, ampelZaehlung, wochenUebersicht, tagKey, elternLink, klassenLink, einladungAusUrl, zuletztText, entdeckenText, elternNachricht, whatsappLink, maxStufe } from "../src/rollenLogik.js";
+import { ampel, ampelSortiert, ampelZaehlung, wochenUebersicht, tagKey, elternLink, klassenLink, einladungAusUrl, zuletztText, entdeckenText, elternNachricht, whatsappLink, maxStufe, rolleName, istGeschlecht, anredeHinweis, GESCHLECHTER } from "../src/rollenLogik.js";
 
 const jetzt = new Date(2026, 9, 14, 10, 0);     // Mittwoch, 14.10.2026
 const vor = (n) => { const d = new Date(jetzt); d.setDate(d.getDate() - n); return tagKey(d); };
@@ -62,4 +62,17 @@ test("Texte und Grenzen", () => {
   assert.equal(entdeckenText({ potenz_phase: 2, potenz_schritte: 4 }), "Potenzregel: Phase 3 von 7");
   assert.equal(entdeckenText(null), "noch nicht gestartet");
   assert.equal(maxStufe("G8"), 12); assert.equal(maxStufe("GMS"), 13);
+});
+
+test("Schüler/Schülerin: Rollenname und Anrede nach Geschlecht", () => {
+  assert.deepEqual(GESCHLECHTER.map((g) => g.name), ["Schüler", "Schülerin"]);
+  assert.equal(rolleName("schueler", "m"), "Schüler");
+  assert.equal(rolleName("schueler", "w"), "Schülerin");
+  assert.equal(rolleName("schueler"), "Schüler:in");          // ältere Konten ohne Angabe
+  assert.equal(rolleName("eltern", "w"), "Elternteil");        // Geschlecht ändert andere Rollen nicht
+  assert.equal(istGeschlecht("m"), true); assert.equal(istGeschlecht("w"), true);
+  assert.equal(istGeschlecht(""), false); assert.equal(istGeschlecht(null), false); assert.equal(istGeschlecht("x"), false);
+  assert.match(anredeHinweis("w"), /sie/); assert.doesNotMatch(anredeHinweis("w"), /Der Schüler ist/);
+  assert.match(anredeHinweis("m"), /er/);
+  assert.equal(anredeHinweis(null), "");
 });
