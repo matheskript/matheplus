@@ -5,6 +5,7 @@ import { Knopf } from "./func1.jsx";
 import { MathildaName } from "./mathildaName.jsx";
 import { englisch } from "./i18n.js";
 import { baueExtra } from "./funcPenPaperExtra.js";
+import { HeftVergleich, MathildaBeispiel } from "./funcPenPaperHeft.jsx";
 
 /* ======================================================================
    PEN-&-PAPER-KURS
@@ -900,7 +901,7 @@ export function PenPaperKursSeite({ gehe }) {
       if (el) el.scrollIntoView({ behavior: ruhig ? "auto" : "smooth", block: "start" });
     } catch (e) { /* ignorieren */ }
   };
-  const sprung = [["werkzeuge", L("Werkzeuge", "Tools")], ["lernstufen", L("Lernstufen", "Stages")], ["kurse", L("Die Kurse", "The courses")],
+  const sprung = [["vergleich", L("Vorher / Nachher", "Before / after")], ["werkzeuge", L("Werkzeuge", "Tools")], ["lernstufen", L("Lernstufen", "Stages")], ["kurse", L("Die Kurse", "The courses")],
     ["ablauf", L("Ablauf", "Routine")], ["erfolg", L("Erfolg messen", "Progress")], ["mathilda", "Mathilda"]];
   const zuKurs = (k) => {
     setKurs(k); setEinheit(0);
@@ -955,6 +956,16 @@ export function PenPaperKursSeite({ gehe }) {
           ))}
         </div>
       </nav>
+
+      <Trenner />
+
+      {/* Vorher / Nachher */}
+      <div id="pp-vergleich" style={{ scrollMarginTop: 70 }} />
+      <Kicker>{L("Der Unterschied", "The difference")}</Kicker>
+      <H2>{L("Dieselbe Aufgabe, zwei Blätter", "The same task, two pages")}</H2>
+      <Absatz>{L("Die Mathematik ist identisch. Was sich ändert, ist das Blatt – und damit, wie gut du deinen eigenen Gedanken folgen kannst. Schalte um und tippe die Markierungen an.",
+        "The maths is identical. What changes is the page – and with it, how well you can follow your own thinking. Switch between the two and tap the markers.")}</Absatz>
+      <HeftVergleich />
 
       <Trenner />
 
@@ -1032,6 +1043,7 @@ export function PenPaperKursSeite({ gehe }) {
           {L("Foto vom Blatt prüfen lassen", "Have your page checked")} →
         </button>
       </div>
+      <div style={{ marginTop: 14 }}><MathildaBeispiel /></div>
 
       <Trenner />
 
