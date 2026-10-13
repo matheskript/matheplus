@@ -4,7 +4,7 @@ import { M } from "./func3.jsx";
 import { GrosserKnopf, karte } from "./ui2.jsx";
 import { PotenzModul } from "./funcEntdeckenPotenz.jsx";
 import {
-  PHASEN_ANZAHL, REFLEX_IDS, einstiegFortschritt, entdeckenHoeren, entdeckenStand, reflexionBeantwortet, reflexionSetzen, statusEinstieg, statusPotenz,
+  PHASEN_ANZAHL, REFLEX_IDS, einstiegFortschritt, entdeckenHoeren, entdeckenStand, reflexionBeantwortet, reflexionSetzen, statusEinstieg, statusPotenz, videoGesehen, videoSetzen,
 } from "./entdeckenSpeicher.js";
 
 /* ======================================================================
@@ -82,6 +82,20 @@ function VideoRahmen({ v, gross }) {
         <a href={v.url} target="_blank" rel="noopener noreferrer" style={{ color: C.see, fontWeight: 600, textDecoration: "none" }}>Auf YouTube ansehen</a>
       </p>
     </div>
+  );
+}
+
+/* „Video gesehen“-Schalter: der Schüler markiert selbst (YouTube meldet den Fortschritt nicht zuverlässig zurück) */
+function GesehenSchalter({ id }) {
+  const an = videoGesehen(id);
+  return (
+    <button type="button" aria-pressed={an} onClick={() => videoSetzen(id, !an)}
+      style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: 10, minHeight: 40, padding: "6px 14px 6px 10px", borderRadius: 999, fontFamily: "inherit", cursor: "pointer",
+        fontSize: 13, fontWeight: 700, border: `1.5px solid ${an ? "#0F7A4D" : C.linie}`, background: an ? "#E6F6EF" : C.weiss, color: an ? "#0F7A4D" : C.see }}>
+      <span aria-hidden="true" style={{ width: 20, height: 20, borderRadius: 999, display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 12,
+        background: an ? "#0F7A4D" : C.himmel, color: an ? C.weiss : C.see }}>{an ? "✓" : ""}</span>
+      {an ? "Video gesehen" : "Ich habe das Video gesehen"}
+    </button>
   );
 }
 
@@ -214,7 +228,7 @@ function Uebersicht({ stand, oeffne }) {
         <p style={kickerStil}>Deine Lernangebote</p>
         <div style={{ display: "grid", gap: 12 }}>
           <LernangebotKarte nr={1} titel="Mathe entdecken" text="Wie entsteht mathematisches Denken?" status={sE}
-            fortschritt={sE === "arbeit" ? `${nE} von ${REFLEX_IDS.length} Fragen` : null} onClick={() => oeffne("einstieg")} />
+            fortschritt={sE === "arbeit" ? `Video ${videoGesehen("haupt") ? "✓" : "–"} · ${nE} von ${REFLEX_IDS.length} Fragen` : null} onClick={() => oeffne("einstieg")} />
           <LernangebotKarte nr={2} titel="Pascalsches Dreieck" text="Entdecke die Potenzregel" status={sP}
             fortschritt={sP === "arbeit" ? `Phase ${phase} von ${PHASEN_ANZAHL}` : null} onClick={() => oeffne("praxis")} />
         </div>
@@ -242,6 +256,7 @@ function Einstieg({ stand, zurueck, weiter }) {
         Mathe entdecken – Wie entsteht mathematisches Denken?
       </h2>
       <VideoRahmen v={haupt} gross />
+      <GesehenSchalter id={haupt.id} />
       <p style={{ ...absatz, marginTop: 18 }}>
         Mathematik wird interessant, wenn du selbst denkst, ausprobierst und entdeckst.
       </p>
@@ -257,6 +272,7 @@ function Einstieg({ stand, zurueck, weiter }) {
         {[v2, v3].map((v, i) => (
           <div key={v.id} style={{ ...karte, padding: 16, marginTop: i ? 16 : 0 }}>
             <VideoRahmen v={v} />
+            <GesehenSchalter id={v.id} />
             <p style={{ fontSize: 12.5, fontWeight: 700, color: C.gruenDunkel, margin: "14px 0 6px" }}>{i + 2}. Video</p>
             <p style={{ fontSize: 14, fontWeight: 600, color: C.tinte, lineHeight: 1.5, margin: "0 0 8px" }}>{v.ziel}</p>
             <p style={{ ...absatz, fontSize: 14.5 }}>{v.text}</p>

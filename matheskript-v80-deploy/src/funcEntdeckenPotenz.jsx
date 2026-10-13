@@ -388,7 +388,7 @@ function bauePhasen(z) {
           fehler: [{ wahl: "f", text: "(x+h)³ ist nicht x³ + h³ – die gemischten Terme aus Phase 2 fehlen." }, { wahl: "g", text: "Es fehlt die Differenz: Man vergleicht f(x+h) mit f(x), also (x+h)³ − x³." }],
           erklaerung: <T s="Steigung = Höhenunterschied durch Abstand: $\frac{f(x+h)-f(x)}{h} = \frac{(x+h)^3-x^3}{h}$." /> },
         { id: "p5b", titel: "Kürzen", typ: "wahl", frage: <T s="Mit der Entwicklung aus Phase 2 gilt $(x+h)^3 - x^3 = 3x^2h + 3xh^2 + h^3$. Was steht nach dem Teilen durch $h$ da?" />, richtig: "r",
-          optionen: [["f", <T key="f" s="$3x^2 + 3xh + h^2$" />], ["g", <T key="g" s="$3x^2h + 3xh^2 + h^3$" />], ["r", <T key="r" s="$3x^2 + 3xh + h^2$" />]].slice(0, 0).concat([["g", <T key="g" s="$3x^2h + 3xh^2 + h^3$" />], ["r", <T key="r" s="$3x^2 + 3xh + h^2$" />], ["h", <T key="h" s="$3x^2 + 3x + 1$" />]]),
+          optionen: [["g", <T key="g" s="$3x^2h + 3xh^2 + h^3$" />], ["r", <T key="r" s="$3x^2 + 3xh + h^2$" />], ["h", <T key="h" s="$3x^2 + 3x + 1$" />]],
           fehler: [{ wahl: "g", text: "Es wurde nicht geteilt: Jeder Summand im Zähler verliert einen Faktor h." }, { wahl: "h", text: "h verschwindet nicht einfach – es bleibt als Faktor stehen: 3xh und h²." }],
           erklaerung: <T s="$\frac{3x^2h + 3xh^2 + h^3}{h} = 3x^2 + 3xh + h^2$." /> },
         { id: "p5c", titel: "h gegen 0", typ: "zahl", frage: <T s="Setze $x=2$: Der Quotient ist $12 + 6h + h^2$. Welchem Wert nähert er sich für $h\to 0$?" />, text: "Grenzwert:", wert: 12, breite: 96,
@@ -465,7 +465,7 @@ export { PotenzregelAnzeige };
 
 /* ---------- Das Modul ---------- */
 export function PotenzModul({ onZurueck }) {
-  const zuf = useMemo(() => ({ n7: pick([3, 4, 5, 6]), x7: pick([1, 2, 3]), m7: pick([5, 6, 7, 8]), k7: pick([6, 7, 8, 9]) }), []);
+  const zuf = useMemo(() => ({ n7: pick([3, 4, 5, 6]), x7: pick([2, 3]), m7: pick([5, 6, 7, 8]), k7: pick([6, 7, 8, 9]) }), []);
   const phasen = useMemo(() => bauePhasen(zuf), [zuf]);
   const [stand, setStandLok] = useState(() => entdeckenStand().potenz.stand.slice());
   const fertigePhase = (k) => stand[k] >= phasen[k].schritte.length;

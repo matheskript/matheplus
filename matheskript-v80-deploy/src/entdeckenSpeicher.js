@@ -5,6 +5,7 @@
    Form:
    {
      reflexion: { q1: { wahl, text }, q2: …, q3: … },     // Reflexion zum Hauptvideo
+     video:     { haupt: true, puzzle: true, calculus: true },   // vom Schüler als „gesehen“ markiert
      potenz:    { phase: 0–6, stand: [n0 … n6], fertig: false },  // siebenphasiges Modul
      zuletzt:   { id: "einstieg" | "potenz", label, zeit }
    }
@@ -13,7 +14,7 @@
 const SCHLUESSEL = "matheskript-entdecken-v1";
 export const PHASEN_ANZAHL = 7;
 
-const leer = () => ({ reflexion: {}, potenz: { phase: 0, stand: Array(PHASEN_ANZAHL).fill(0), fertig: false }, zuletzt: null });
+const leer = () => ({ reflexion: {}, video: {}, potenz: { phase: 0, stand: Array(PHASEN_ANZAHL).fill(0), fertig: false }, zuletzt: null });
 
 let D = leer();
 const hoerer = new Set();
@@ -23,7 +24,7 @@ try {
   if (t) {
     const p = JSON.parse(t);
     if (p && typeof p === "object") {
-      D = { ...leer(), ...p, potenz: { ...leer().potenz, ...(p.potenz || {}) } };
+      D = { ...leer(), ...p, video: { ...(p.video || {}) }, potenz: { ...leer().potenz, ...(p.potenz || {}) } };
       if (!Array.isArray(D.potenz.stand) || D.potenz.stand.length !== PHASEN_ANZAHL) D.potenz.stand = Array(PHASEN_ANZAHL).fill(0);
     }
   }
@@ -48,9 +49,18 @@ export function reflexionSetzen(id, teil) {
   sichern();
 }
 
+/* Einstieg: „abgeschlossen“, wenn das Hauptvideo als gesehen markiert ist und alle drei Reflexionsfragen beantwortet sind */
+export const videoGesehen = (id) => !!D.video[id];
+export function videoSetzen(id, gesehen) {
+  D.video = { ...D.video, [id]: !!gesehen };
+  if (gesehen) D.zuletzt = { id: "einstieg", label: "Video angesehen", zeit: Date.now() };
+  sichern();
+}
+
 export const statusEinstieg = () => {
   const n = REFLEX_IDS.filter((id) => reflexionBeantwortet(D.reflexion[id])).length;
-  return n === 0 ? "offen" : n === REFLEX_IDS.length ? "fertig" : "arbeit";
+  const v = !!D.video.haupt;
+  return n === REFLEX_IDS.length && v ? "fertig" : n > 0 || v ? "arbeit" : "offen";
 };
 export const einstiegFortschritt = () => REFLEX_IDS.filter((id) => reflexionBeantwortet(D.reflexion[id])).length;
 
