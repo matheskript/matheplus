@@ -6,9 +6,9 @@ import { lernAendern, useLern } from "./func6.jsx";
 import { normiere } from "./trainingDaten.js";
 import { EinmaleinsSchachbrett, GLEICHUNG_CSS, PotenzSpalten, Zahlenfeld } from "./func14.jsx";
 import {
-  ALLE_ITEMS, ITEMS, ITEM_INFO, MODULE, STUFEN,
+  ALLE_ITEMS, BLOECKE, ITEMS, ITEM_INFO, MODULE, STUFEN, offeneBloecke,
   aufgabeFuer, baueRunde, buche, bucheVerstehen, empfehlung, gesamtUebersicht, itemText, markiereEntdeckt, modulUebersicht, musterAufgabe,
-  normiereKopf, paarRunde, schwacheGrundlagen, setzeBest, status, stufenStand, mischen, wertung,
+  normiereKopf, paarRunde, RANG, schwacheGrundlagen, setzeBest, status, stufenStand, mischen, wertung,
 } from "./headNumbers.js";
 
 /* ======================================================================
@@ -66,8 +66,8 @@ const stufeInfo = (s) => ({
   challenge: { nr: 6, name: L("Challenge", "Challenge"), text: L("Gemischte Runde: zeigt, was wirklich sitzt.", "Mixed round: shows what really sticks.") },
 }[s]);
 
-const STATUS_NAME = () => ({ neu: L("neu", "new"), unsicher: L("unsicher", "shaky"), aufbau: L("im Aufbau", "building"), sicher: L("sicher", "secure"), automatisiert: L("automatisiert", "automatic") });
-const STATUS_FARBE = { neu: "#CDD5E4", unsicher: C.signal, aufbau: C.seeHell, sicher: C.smaragd, automatisiert: C.flaggold };
+const STATUS_NAME = () => ({ neu: L("neu", "new"), gesehen: L("gesehen", "seen"), unsicher: L("unsicher", "shaky"), aufbau: L("im Aufbau", "building"), sicher: L("sicher", "secure"), automatisiert: L("automatisiert", "automatic") });
+const STATUS_FARBE = { neu: "#CDD5E4", gesehen: "#9DB4D6", unsicher: C.signal, aufbau: C.seeHell, sicher: C.smaragd, automatisiert: C.flaggold };
 const RICHTUNG_NAME = (r) => (r === "v" ? L("vorwärts", "forwards") : L("rückwärts", "backwards"));
 
 /* ---------------------------------------------------------------- kleine Bausteine */
@@ -89,7 +89,7 @@ const Knopf = ({ onClick, children, haupt = true, style, disabled }) => (
 );
 
 function StandBalken({ zaehler, gesamt, hoehe = 10 }) {
-  const reihenfolge = ["automatisiert", "sicher", "aufbau", "unsicher", "neu"];
+  const reihenfolge = ["automatisiert", "sicher", "aufbau", "gesehen", "unsicher", "neu"];
   const namen = STATUS_NAME();
   const text = reihenfolge.map((s) => `${zaehler[s] || 0} ${namen[s]}`).join(", ");
   return (
@@ -102,7 +102,7 @@ function Legende({ zaehler }) {
   const namen = STATUS_NAME();
   return (
     <div style={{ display: "flex", flexWrap: "wrap", gap: "4px 14px", marginTop: 10 }}>
-      {["automatisiert", "sicher", "aufbau", "unsicher", "neu"].map((s) => (
+      {["automatisiert", "sicher", "aufbau", "gesehen", "unsicher", "neu"].map((s) => (
         <span key={s} style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12.5, color: C.grau }}>
           <span aria-hidden="true" style={{ width: 9, height: 9, borderRadius: 3, background: STATUS_FARBE[s] }} />{namen[s]} <b style={{ color: C.tinte }}>{zaehler[s] || 0}</b>
         </span>
@@ -143,7 +143,6 @@ export function HeadNumbersLogoKlein() {
    Verbuchung je Zahlenbeziehung und eine Auswertung ohne Zeit-Rangliste.
    ====================================================================== */
 const snapshot = (K) => Object.fromEntries(ALLE_ITEMS.map((k) => [k, status(K.items[k])]));
-const RANG = { unsicher: 0, neu: 1, aufbau: 2, sicher: 3, automatisiert: 4 };
 
 function Runde({ aufgaben, modul, stufe, onNochmal, onZurueck, nochmalText }) {
   const K = useKopf();
@@ -162,11 +161,13 @@ function Runde({ aufgaben, modul, stufe, onNochmal, onZurueck, nochmalText }) {
   const [ergebnisse, setErgebnisse] = useState([]);
   const [abschluss, setAbschluss] = useState(null);
   const vorher = useRef(null);
+  const vorherOffen = useRef(null);
   const start = useRef(Date.now());
   const aufgStart = useRef(Date.now());
   const timer = useRef(null);
   const weiterRef = useRef(null);
   if (vorher.current === null) vorher.current = snapshot(K);
+  if (vorherOffen.current === null) vorherOffen.current = Object.fromEntries(MODULE.map((m) => [m, offeneBloecke(K, m)]));
   useEffect(() => { aufgStart.current = Date.now(); }, [idx]);
   useEffect(() => () => clearTimeout(timer.current), []);
 
@@ -251,6 +252,9 @@ function Runde({ aufgaben, modul, stufe, onNochmal, onZurueck, nochmalText }) {
     const namen = STATUS_NAME();
     const aenderungen = ALLE_ITEMS.filter((k) => nachher[k] !== vorher.current[k]).map((k) => ({ k, von: vorher.current[k], nach: nachher[k], besser: RANG[nachher[k]] > RANG[vorher.current[k]] }))
       .sort((x, y) => Number(y.besser) - Number(x.besser)).slice(0, 8);
+    const beruehrt = new Set(ergebnisse.map((e) => e.a && e.a.key).filter(Boolean));
+    const nurGesehen = [...beruehrt].filter((k) => nachher[k] === "gesehen").length;
+    const neuePakete = MODULE.flatMap((m) => offeneBloecke(K, m).filter((i) => !vorherOffen.current[m].includes(i)).map((i) => ({ m, i })));
     const quote = abschluss.gesamt ? abschluss.richtig / abschluss.gesamt : 0;
     const lob = quote === 1 ? L("Fehlerfrei – stark!", "No mistakes – well done!") : quote >= 0.8 ? L("Fast alles sitzt.", "Almost everything sticks.")
       : quote >= 0.5 ? L("Eine gute Basis. Das Unsichere kommt wieder – so wird es sicher.", "A good base. What is shaky will come back – that is how it becomes secure.")
@@ -270,6 +274,12 @@ function Runde({ aufgaben, modul, stufe, onNochmal, onZurueck, nochmalText }) {
         {!abschluss.neuerBest && best && <p style={{ fontSize: 13, color: C.grau, marginTop: 6 }}>{L("Deine beste Runde hier", "Your best round here")}: {best.richtig}/{best.gesamt}</p>}
         {laengste >= 3 && <p style={{ fontSize: 13, color: C.grau, marginTop: 6 }}>{L("Längste Serie in dieser Runde", "Longest streak this round")}: {laengste}. {L("Eine Serie zeigt den Tag – gesichert ist etwas erst, wenn es an mehreren Tagen sitzt.", "A streak shows today – something is only secured once it sticks across several days.")}</p>}
 
+        {neuePakete.length > 0 && (
+          <div style={{ marginTop: 16, background: "#EAF6EF", border: `1.5px solid ${C.smaragd}`, borderRadius: 14, padding: "12px 14px" }}>
+            <p style={{ fontSize: 12.5, fontWeight: 700, color: C.gruenDunkel, marginBottom: 6 }}>{neuePakete.length === 1 ? L("Neues Paket freigeschaltet", "New set unlocked") : L("Neue Pakete freigeschaltet", "New sets unlocked")}</p>
+            {neuePakete.map(({ m, i }) => <p key={`${m}${i}`} style={{ fontSize: 14.5, color: C.tinte, marginBottom: 2 }}><b>{modulInfo(m).gruppe}</b> · {L(BLOECKE[m][i].de, BLOECKE[m][i].en)}</p>)}
+          </div>
+        )}
         {aenderungen.length > 0 && (
           <div style={{ marginTop: 16, background: C.sand, borderRadius: 14, padding: "12px 14px" }}>
             <p style={{ fontSize: 12.5, fontWeight: 700, color: C.grau, marginBottom: 8 }}>{L("Dein Lernstand hat sich verändert", "Your progress changed")}</p>
@@ -280,6 +290,14 @@ function Runde({ aufgaben, modul, stufe, onNochmal, onZurueck, nochmalText }) {
               </p>
             ))}
           </div>
+        )}
+        {nurGesehen > 0 && (
+          <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, marginTop: 14 }}>
+            {nurGesehen === 1
+              ? L("1 Zahlenbeziehung ist erst gesehen.", "1 number fact is only seen so far.")
+              : L(`${nurGesehen} Zahlenbeziehungen sind erst gesehen.`, `${nurGesehen} number facts are only seen so far.`)}{" "}
+            {L("Zwei saubere, selbst gerechnete Antworten in Folge machen daraus „im Aufbau“, an mehreren Tagen wird es „sicher“. Ein einzelner Treffer, Raten oder ein Tipp reicht dafür nicht.", "Two clean answers in a row, worked out yourself, make it “building”; across several days it becomes “secure”. A single hit, a guess or a hint is not enough.")}
+          </p>
         )}
         {falsche.length > 0 && (
           <div style={{ marginTop: 14, background: C.sand, borderRadius: 14, padding: "12px 14px" }}>
@@ -844,7 +862,7 @@ function BereichSeite({ modul, onZurueck, onStart, gehe }) {
       {!gemischt && (
         <>
           <Kicker>{L("Bereiche zum Üben", "Areas to practise")}</Kicker>
-          <p style={{ fontSize: 13.5, color: C.grau, fontWeight: 300, lineHeight: 1.55, marginBottom: 10 }}>{L("Zu Beginn sind die leichteren Blöcke offen; die nächsten öffnen sich mit dem Fortschritt. Du kannst auch gezielt auswählen.", "At first the easier blocks are open; the next ones open as you progress. You can also choose directly.")}</p>
+          <p style={{ fontSize: 13.5, color: C.grau, fontWeight: 300, lineHeight: 1.55, marginBottom: 10 }}>{L("Zu Beginn sind die leichteren Pakete offen; die nächsten öffnen sich mit dem Fortschritt. Du kannst auch gezielt auswählen.", "At first the easier sets are open; the next ones open as you progress. You can also choose directly.")}</p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 18 }}>
             {u.bloecke.map((b) => {
               const an = auswahl ? auswahl.includes(b.index) : b.offen;

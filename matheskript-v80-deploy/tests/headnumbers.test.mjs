@@ -2,9 +2,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
-  ALLE_ITEMS, BEREICH, BLOECKE, EINMALEINS_100, FAKTEN, FORMATE, FORMAT_RICHTUNG, ITEMS, ITEM_INFO, KUBIK_SOLL, MODULE, QUADRATE_SOLL, SCHNELL_SEK, STUFEN, TAG_MS,
+  ALLE_ITEMS, BEREICH, BLOECKE, EINMALEINS_100, FAKTEN, FORMATE, FORMAT_RICHTUNG, ITEMS, ITEM_INFO, KUBIK_SOLL, MODULE, QUADRATE_SOLL, SCHNELL_SEK, STUFEN, TAG_MS, RANG,
   aufgabeFuer, baueRunde, bucheVerstehen, buche, empfehlung, faktStatus, formatFuerKey, gesamtUebersicht, gewichtVon, istFaellig, istKubik, istQuadrat, itemText, kandidaten,
-  leererKopfStand, markiereEntdeckt, modulUebersicht, musterAufgabe, normiereKopf, offeneBloecke, paarRunde, schwacheGrundlagen, setzeBest, status, stufenStand,
+  leererKopfStand, markiereEntdeckt, modulUebersicht, musterAufgabe, normiereKopf, offeneBloecke, paarRunde, schwacheGrundlagen, setzeBest, status, stufenStand, tagNr,
   validiereBestand, waehleItems, wertung, formateFuer,
 } from "../src/headNumbers.js";
 import { normiere } from "../src/trainingDaten.js";
@@ -44,7 +44,9 @@ test("Bestand: jeder Fakt liegt in genau einem Block, Blöcke decken alles ab", 
     assert.equal(zaehler.reduce((a, b) => a + b, 0), FAKTEN[m].length);
     zaehler.forEach((z) => assert.ok(z > 0, `${m}: leerer Block`));
   }
-  assert.deepEqual(BLOECKE.einmaleins.map((_, i) => FAKTEN.einmaleins.filter((f) => f.block === i).length), [34, 11, 7, 3]);
+  assert.deepEqual(BLOECKE.einmaleins.map((_, i) => FAKTEN.einmaleins.filter((f) => f.block === i).length), [10, 11, 7, 8, 9, 10]);
+  // kleine Pakete: nirgends mehr als 11 Fakten (= 22 Items) in einem Block
+  for (const m of MODULE) for (let i = 0; i < BLOECKE[m].length; i++) assert.ok(FAKTEN[m].filter((f) => f.block === i).length <= 11, `${m}: Block ${i} zu groß`);
 });
 test("Bestand: alle 100 Aufgaben a · b sind abfragbar, in beiden Faktorreihenfolgen", () => {
   for (const [a, b] of EINMALEINS_100) {
@@ -244,7 +246,50 @@ test("Lernstand: einmal richtig ist nicht beherrscht", () => {
   const K = K0();
   assert.equal(status(K.items["e:7x8:v"]), "neu");
   buche(K, "e:7x8:v", true, { sek: 2, zeit: tag(0) });
-  assert.equal(status(K.items["e:7x8:v"]), "aufbau");
+  assert.equal(status(K.items["e:7x8:v"]), "gesehen");          // ein Treffer belegt noch nichts
+  buche(K, "e:7x8:v", true, { sek: 2, zeit: tag(0) + 1000 });
+  assert.equal(status(K.items["e:7x8:v"]), "aufbau");           // erst zwei saubere Treffer in Folge
+});
+test("Lernstand: Raten (Auswahl) und Antworten mit Tipp bleiben „gesehen“ und schalten nichts frei", () => {
+  const K = K0();
+  buche(K, "e:3x4:v", true, { modus: "erkennen", zeit: tag(0) });
+  buche(K, "e:3x5:v", true, { hilfe: 2, zeit: tag(0) });
+  assert.equal(status(K.items["e:3x4:v"]), "gesehen");
+  assert.equal(status(K.items["e:3x5:v"]), "gesehen");
+  // jedes Item des ersten Blocks einmal erraten/angetippt: der nächste Block bleibt zu
+  for (const m of MODULE) {
+    for (const k of ITEMS[m].filter((x) => ITEM_INFO.get(x).block === 0)) buche(K, k, true, { modus: "erkennen", zeit: tag(0) });
+    assert.deepEqual(offeneBloecke(K, m), [0], m);
+  }
+  assert.equal(modulUebersicht(K, "kubik").zaehler.gesehen, ITEMS.kubik.filter((x) => ITEM_INFO.get(x).block === 0).length);
+  assert.ok(RANG.gesehen > RANG.unsicher && RANG.gesehen < RANG.aufbau);
+});
+test("Lernstand: erster Fehler wirft nur eine Stufe zurück, wiederholter Fehler weiter", () => {
+  const K = K0();
+  for (let d = 0; d < 4; d++) buche(K, "e:6x7:v", true, { sek: 2, zeit: tag(d) });
+  const hoch = K.items["e:6x7:v"].stufe;
+  assert.ok(hoch >= 3);
+  buche(K, "e:6x7:v", false, { zeit: tag(5) });                 // Vertipper o. Ä.
+  assert.equal(K.items["e:6x7:v"].stufe, hoch - 1);
+  buche(K, "e:6x7:v", false, { zeit: tag(5) + 1000 });          // nochmals falsch
+  assert.equal(K.items["e:6x7:v"].stufe, Math.max(0, hoch - 3));
+  // falsch erraten beim Erkennen kostet beim ersten Mal keine Stufe, aber der Fehler zählt
+  buche(K, "q:18:v", true, { sek: 5, zeit: tag(0) });
+  const st = K.items["q:18:v"].stufe;
+  buche(K, "q:18:v", false, { modus: "erkennen", zeit: tag(1) });
+  assert.equal(K.items["q:18:v"].stufe, st);
+  assert.equal(K.items["q:18:v"].f, 1);
+  assert.equal(status(K.items["q:18:v"]), "unsicher");
+});
+test("Tage: tagNr zählt Kalendertage in Ortszeit, nicht in UTC", () => {
+  for (const z of [Date.UTC(2026, 0, 5, 0, 30), Date.UTC(2026, 6, 1, 23, 30), Date.UTC(2026, 9, 12, 12), Date.UTC(2026, 2, 29, 1, 30)]) {
+    const d = new Date(z);
+    assert.equal(tagNr(z), Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / TAG_MS);
+  }
+  // zwei Zeitpunkte am selben Ortstag haben dieselbe Tagesnummer
+  const morgens = new Date(2026, 9, 12, 0, 5).getTime(), abends = new Date(2026, 9, 12, 23, 55).getTime();
+  assert.equal(tagNr(morgens), tagNr(abends));
+  assert.equal(tagNr(abends) + 1, tagNr(new Date(2026, 9, 13, 0, 5).getTime()));
 });
 test("Lernstand: drei richtige am selben Tag reichen nicht für „sicher“, am zweiten Tag schon", () => {
   const K = K0();
@@ -275,7 +320,7 @@ test("Lernstand: Hilfe wird gezählt, bringt die Serie aber nicht voran", () => 
 test("Lernstand: Erkennen allein (Auswahl, Zuordnung) macht nie „sicher“", () => {
   const K = K0();
   for (let d = 0; d < 10; d++) buche(K, "q:13:r", true, { modus: "erkennen", zeit: tag(d) });
-  assert.equal(status(K.items["q:13:r"]), "aufbau");
+  assert.equal(status(K.items["q:13:r"]), "gesehen");
   assert.equal(K.items["q:13:r"].folge, 0);
 });
 test("Lernstand: Richtungen sind getrennt", () => {
@@ -310,7 +355,7 @@ test("Lernstand: Wiederholungsabstand wächst höchstens einmal pro Tag und fäl
   buche(K, "e:3x4:v", true, { sek: 2, zeit: tag(2) });
   assert.equal(K.items["e:3x4:v"].stufe, 2);
   buche(K, "e:3x4:v", false, { zeit: tag(3) });
-  assert.equal(K.items["e:3x4:v"].stufe, 0);
+  assert.equal(K.items["e:3x4:v"].stufe, 1);                    // erster Fehler: eine Stufe zurück
   assert.equal(K.items["e:3x4:v"].faellig, tag(3));
   assert.ok(istFaellig(K.items["e:3x4:v"], tag(3)));
   assert.ok(!istFaellig(undefined, tag(3)));
@@ -356,9 +401,10 @@ test("Auswahl: zu Beginn nur der erste Block; der nächste öffnet nach 60 % „
   const K = K0();
   assert.deepEqual(offeneBloecke(K, "quadrate"), [0]);
   const erster = ITEMS.quadrate.filter((k) => ITEM_INFO.get(k).block === 0);
-  erster.slice(0, 11).forEach((k) => buche(K, k, true, { sek: 5, zeit: tag(0) }));      // 11 von 20 = 55 %
+  const zweimal = (k) => { buche(K, k, true, { sek: 5, zeit: tag(0) }); buche(K, k, true, { sek: 5, zeit: tag(0) + 1000 }); };
+  erster.slice(0, 11).forEach(zweimal);                                                  // 11 von 20 = 55 % „aufbau“
   assert.deepEqual(offeneBloecke(K, "quadrate"), [0]);
-  buche(K, erster[11], true, { sek: 5, zeit: tag(0) });                                  // 12 von 20 = 60 %
+  zweimal(erster[11]);                                                                    // 12 von 20 = 60 %
   assert.deepEqual(offeneBloecke(K, "quadrate"), [0, 1]);
   const k = kandidaten(K, { module: ["quadrate"] });
   assert.ok(k.some((x) => ITEM_INFO.get(x).block === 1));

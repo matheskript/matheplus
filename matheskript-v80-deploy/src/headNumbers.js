@@ -36,15 +36,19 @@ export const KUBIK_SOLL = Object.freeze([1, 8, 27, 64, 125, 216, 343, 512, 729, 
 export const MODULE = Object.freeze(["einmaleins", "quadrate", "kubik"]);
 export const RICHTUNGEN = Object.freeze(["v", "r"]);   // v = vorwärts (Aufgabe → Ergebnis), r = rückwärts (Ergebnis → Aufgabe)
 
-/* Reihenfolge der Einmaleins-Reihen vom Leichten zum Schweren (bestimmt die Blöcke) */
-const REIHEN_RANG = { 1: 0, 10: 0, 2: 0, 5: 0, 3: 1, 4: 1, 6: 2, 9: 2, 7: 3, 8: 3 };
+/* Einführungsreihenfolge der Einmaleins-Reihen (leicht → schwer). Ein Fakt gehört zu dem Block,
+   in dem sein später eingeführter Faktor dazukommt. So entstehen kleine Pakete von 7–11 Fakten
+   (außer dem ersten mit 10), und jedes Paket baut auf bekannten Reihen auf. */
+const REIHEN_BLOCK = { 1: 0, 10: 0, 2: 0, 5: 0, 3: 1, 4: 1, 9: 2, 6: 3, 7: 4, 8: 5 };
 
 export const BLOECKE = {
   einmaleins: [
     { id: "e0", de: "1er, 2er, 5er, 10er", en: "1s, 2s, 5s, 10s" },
     { id: "e1", de: "3er und 4er", en: "3s and 4s" },
-    { id: "e2", de: "6er und 9er", en: "6s and 9s" },
-    { id: "e3", de: "7er und 8er", en: "7s and 8s" },
+    { id: "e2", de: "9er", en: "9s" },
+    { id: "e3", de: "6er", en: "6s" },
+    { id: "e4", de: "7er", en: "7s" },
+    { id: "e5", de: "8er", en: "8s" },
   ],
   quadrate: [
     { id: "q0", von: 1, bis: 10, de: "1² bis 10²", en: "1² to 10²" },
@@ -58,7 +62,7 @@ export const BLOECKE = {
   ],
 };
 
-const blockEinmaleins = (a, b) => Math.min(REIHEN_RANG[a], REIHEN_RANG[b]);
+const blockEinmaleins = (a, b) => Math.max(REIHEN_BLOCK[a], REIHEN_BLOCK[b]);
 const blockQuadrat = (n) => (n <= 10 ? 0 : n <= 15 ? 1 : n <= 20 ? 2 : 3);
 const blockKubik = (n) => (n <= 5 ? 0 : 1);
 
@@ -140,11 +144,13 @@ export const SCHNELL_SEK = {
   v: { einmaleins: 4, quadrate: 6, kubik: 6 },
   r: { einmaleins: 5, quadrate: 8, kubik: 8 },
 };
-export const STATUS = ["neu", "unsicher", "aufbau", "sicher", "automatisiert"];
-const RANG = { unsicher: 0, neu: 1, aufbau: 2, sicher: 3, automatisiert: 4 };
+export const STATUS = ["neu", "gesehen", "unsicher", "aufbau", "sicher", "automatisiert"];
+export const RANG = { unsicher: 0, neu: 1, gesehen: 2, aufbau: 3, sicher: 4, automatisiert: 5 };
 export const schlechterer = (a, b) => (RANG[a] <= RANG[b] ? a : b);
 
-export const tagNr = (zeit) => Math.floor(zeit / TAG_MS);
+/* Kalendertag in Ortszeit (nicht UTC): „einmal pro Tag“ und „an mehreren Tagen“ richten sich nach dem
+   Tag des Lernenden, nicht nach UTC-Mitternacht. */
+export const tagNr = (zeit) => Math.floor((zeit - new Date(zeit).getTimezoneOffset() * 60000) / TAG_MS);
 
 export function leererKopfStand() {
   return { items: {}, verstehen: {}, entdeckt: {}, best: {}, runden: 0, punkte: 0, seit: null, zuletzt: null };
@@ -193,8 +199,11 @@ export function buche(K, key, ok, { sek = null, hilfe = 0, modus = "abruf", zeit
   K.zuletzt = info.modul;
   if (!K.seit) K.seit = zeit;
   if (!ok) {
+    const schonUnsicher = s.ok === false;   // vor dem Überschreiben merken
     s.f += 1; s.folge = 0; s.tage = []; s.sFolge = 0; s.sTage = []; s.ok = false;
-    s.stufe = Math.max(0, s.stufe - (modus === "abruf" ? 2 : 1));
+    // Erster Fehler nach richtigem Stand: nur eine Stufe zurück (ein Vertipper wirft nicht weit zurück);
+    // wer es schon unsicher hatte und wieder falsch liegt, fällt weiter zurück. Raten/Erkennen kostet beim ersten Mal keine Stufe.
+    s.stufe = Math.max(0, s.stufe - (modus === "abruf" ? (schonUnsicher ? 2 : 1) : (schonUnsicher ? 1 : 0)));
     s.faellig = zeit;                                   // gleich wieder fällig
   } else if (hilfe > 0) {
     if (modus === "erkennen") s.e += 1; else s.r += 1;   // zählt, bringt die Serie aber nicht voran
@@ -232,14 +241,21 @@ export function setzeBest(K, id, { richtig, gesamt, sek = null }, zeit = Date.no
   return besser;
 }
 
-/* Status eines Items – „sicher“ erst nach einer Serie über mindestens zwei Tage,
-   „automatisiert“ zusätzlich mit wiederholt schnellem, richtigem Abruf. */
+/* Status eines Items. Streng, damit Raten und Einzeltreffer nichts freischalten:
+     neu            noch nie beantwortet
+     gesehen        beantwortet (auch richtig), aber noch nicht belegt – z. B. nur Auswahl, nur mit Tipp,
+                    nur ein selbst getippter Treffer
+     unsicher       zuletzt falsch oder Fehler ohne zwei saubere Treffer danach
+     aufbau         zwei selbst getippte Treffer in Folge ohne Hilfe
+     sicher         mindestens drei in Folge, verteilt auf mindestens zwei Tage
+     automatisiert  zusätzlich wiederholt schnell, an mindestens zwei Tagen                   */
 export function status(s) {
   if (!s || s.r + s.f + s.e === 0) return "neu";
   if (s.ok === false) return "unsicher";
   if (s.f > 0 && s.folge < 2) return "unsicher";
   if (s.folge >= 3 && s.tage.length >= 2) return s.sFolge >= 3 && s.sTage.length >= 2 ? "automatisiert" : "sicher";
-  return "aufbau";
+  if (s.folge >= 2) return "aufbau";
+  return "gesehen";
 }
 
 export const istFaellig = (s, jetzt = Date.now()) => Boolean(s && (s.r + s.f + s.e) > 0 && s.faellig <= jetzt);
@@ -253,7 +269,7 @@ export function faktStatus(K, fakt) {
    3. Fortschritt, Blöcke, Stufen
    --------------------------------------------------------------------- */
 const GUT = ["aufbau", "sicher", "automatisiert"];
-const BLOCK_OEFFNEN = 0.6;   // Anteil der Items früherer Blöcke, die mindestens „aufbau“ sein müssen
+const BLOCK_OEFFNEN = 0.6;   // Anteil der Items früherer Blöcke, die mindestens „aufbau“ (zwei saubere Treffer in Folge) sein müssen
 
 export const itemsVon = (modul) => ITEMS[modul] || [];
 
@@ -268,7 +284,7 @@ export function offeneBloecke(K, modul) {
 }
 
 const zaehlen = (K, keys, jetzt) => {
-  const z = { neu: 0, unsicher: 0, aufbau: 0, sicher: 0, automatisiert: 0 };
+  const z = { neu: 0, gesehen: 0, unsicher: 0, aufbau: 0, sicher: 0, automatisiert: 0 };
   let faellig = 0;
   for (const k of keys) {
     const s = K.items[k], st = status(s);
@@ -370,6 +386,7 @@ export function gewichtVon(K, key, jetzt = Date.now()) {
   const ueber = s && s.faellig ? Math.min(7, Math.max(0, (jetzt - s.faellig) / TAG_MS)) : 0;
   const basis = {
     neu: 3, unsicher: 8,
+    gesehen: faellig ? 5 : 2,   // bald selbst abrufen lassen, damit aus „gesehen“ etwas Belegtes wird
     aufbau: faellig ? 4 : 1.5,
     sicher: faellig ? 2 : 0.2,
     automatisiert: faellig ? 0.8 : 0.05,
