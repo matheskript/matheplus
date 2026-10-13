@@ -13,6 +13,8 @@
 
    Zustände: lokal (kein Konto-Speicher) · aus (nicht angemeldet) · verbinde · ok · ausstehend ·
    nicht-eingerichtet (SQL noch nicht ausgeführt) · fehler.
+   Die Fabrik ist allgemein: tabelle, besitzerSchluessel und merge sind austauschbar (Standard = Lernstand);
+   entdeckenSync.js nutzt sie für „Mathe entdecken“.
    Keine base-Datei darf diese Datei importieren.
    ====================================================================== */
 import { useSyncExternalStore } from "react";
@@ -26,15 +28,16 @@ const FEHLT = /42P01|PGRST205|does not exist|schema cache|relation .* not found/
 
 /* Fabrik – mit eingesetztem Client testbar. client: Supabase-Client oder null (dann nur lokal).
    speicher: localStorage-ähnlich. lesen(): aktueller Stand. anwenden(snap): Stand setzen und lokal sichern. leer(): leerer Stand. */
-export function erzeugeSync({ client, speicher, lesen, anwenden, leer, verzoegerung = 3000, uhr = () => Date.now() }) {
+export function erzeugeSync({ client, speicher, lesen, anwenden, leer, verzoegerung = 3000, uhr = () => Date.now(),
+  tabelle = TABELLE, besitzerSchluessel = OWNER_SCHLUESSEL, merge = mergeLernstand }) {
   let st = { status: client ? "aus" : "lokal", zuletzt: null, nutzerId: null, fehler: "" };
   const hoerer = new Set();
   const setze = (t) => { st = { ...st, ...t }; hoerer.forEach((h) => h()); };
   let timer = null, laufend = null, nochmal = false, ersetzen = false;
   const json = (o) => JSON.stringify(o);
 
-  const besitzer = () => { try { return (speicher && speicher.getItem(OWNER_SCHLUESSEL)) || ""; } catch (e) { return ""; } };
-  const setzeBesitzer = (v) => { try { if (!speicher) return; v ? speicher.setItem(OWNER_SCHLUESSEL, v) : speicher.removeItem(OWNER_SCHLUESSEL); } catch (e) { /* privat */ } };
+  const besitzer = () => { try { return (speicher && speicher.getItem(besitzerSchluessel)) || ""; } catch (e) { return ""; } };
+  const setzeBesitzer = (v) => { try { if (!speicher) return; v ? speicher.setItem(besitzerSchluessel, v) : speicher.removeItem(besitzerSchluessel); } catch (e) { /* privat */ } };
   const fehlerStatus = (err) => (FEHLT.test(`${err.code || ""} ${err.message || ""}`) ? "nicht-eingerichtet" : "fehler");
 
   async function abgleich(erster) {
@@ -43,20 +46,20 @@ export function erzeugeSync({ client, speicher, lesen, anwenden, leer, verzoeger
     if (erster) setze({ status: "verbinde", fehler: "" });
     let r;
     try {
-      r = await client.from(TABELLE).select("daten,geaendert").eq("nutzer_id", id).maybeSingle();
+      r = await client.from(tabelle).select("daten,geaendert").eq("nutzer_id", id).maybeSingle();
     } catch (e) { setze({ status: "fehler", fehler: String(e && e.message || e) }); return false; }
     if (r.error) { setze({ status: fehlerStatus(r.error), fehler: r.error.message || "" }); return false; }
     const remote = r.data ? r.data.daten : null;
     const lokal = lesen();
     const fremd = erster && besitzer() && besitzer() !== id;       // lokaler Stand gehört einem anderen Konto
     const ersetzt = ersetzen && !erster; ersetzen = false;
-    const ziel = ersetzt ? lokal : fremd ? (remote || leer()) : remote ? mergeLernstand(lokal, remote) : lokal;
+    const ziel = ersetzt ? lokal : fremd ? (remote || leer()) : remote ? merge(lokal, remote) : lokal;
     if (json(ziel) !== json(lokal)) anwenden(ziel);
     setzeBesitzer(id);
     if (!remote || json(ziel) !== json(remote)) {
       if (json(ziel).length > MAX_ZEICHEN) { setze({ status: "fehler", fehler: "Lernstand zu groß zum Speichern." }); return false; }
       let p;
-      try { p = await client.from(TABELLE).upsert({ nutzer_id: id, daten: ziel, version: 1 }, { onConflict: "nutzer_id" }); }
+      try { p = await client.from(tabelle).upsert({ nutzer_id: id, daten: ziel, version: 1 }, { onConflict: "nutzer_id" }); }
       catch (e) { setze({ status: "fehler", fehler: String(e && e.message || e) }); return false; }
       if (p.error) { setze({ status: fehlerStatus(p.error), fehler: p.error.message || "" }); return false; }
     }

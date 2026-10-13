@@ -3,6 +3,7 @@ import { C } from "./base1.jsx";
 import { M } from "./func3.jsx";
 import { GrosserKnopf, karte } from "./ui2.jsx";
 import { PotenzModul } from "./funcEntdeckenPotenz.jsx";
+import { useEntdeckenSyncStatus } from "./entdeckenSync.js";
 import {
   PHASEN_ANZAHL, REFLEX_IDS, einstiegFortschritt, entdeckenHoeren, entdeckenStand, reflexionBeantwortet, reflexionSetzen, statusEinstieg, statusPotenz, videoGesehen, videoSetzen,
 } from "./entdeckenSpeicher.js";
@@ -203,6 +204,27 @@ function ZurueckKnopf({ onClick }) {
   );
 }
 
+/* ---------- Wo ist der Fortschritt gespeichert? ---------- */
+const SPEICHER_TEXT = {
+  lokal: ["Dein Fortschritt ist auf diesem Gerät gespeichert.", C.hellgrau],
+  aus: ["Dein Fortschritt ist auf diesem Gerät gespeichert. Mit einem Konto ist er auf allen Geräten da.", C.hellgrau],
+  verbinde: ["Verbinde mit deinem Konto …", C.grau],
+  ausstehend: ["Wird in deinem Konto gesichert …", C.grau],
+  ok: ["Im Konto gesichert – auf allen deinen Geräten verfügbar.", "#0F7A4D"],
+  "nicht-eingerichtet": ["Konto-Speicher noch nicht eingerichtet – dein Fortschritt bleibt vorerst auf diesem Gerät.", C.grau],
+  fehler: ["Sichern im Konto hat nicht geklappt. Dein Fortschritt bleibt auf diesem Gerät, bei der nächsten Änderung versuchen wir es erneut.", "#B3261E"],
+};
+function SpeicherHinweis() {
+  const st = useEntdeckenSyncStatus();
+  const [text, farbe] = SPEICHER_TEXT[st.status] || SPEICHER_TEXT.lokal;
+  return (
+    <p role="status" style={{ display: "flex", gap: 8, alignItems: "flex-start", fontSize: 12.5, fontWeight: 400, color: C.grau, lineHeight: 1.55, margin: "22px 2px 0" }}>
+      <span aria-hidden="true" style={{ flexShrink: 0, width: 8, height: 8, borderRadius: 999, background: farbe, marginTop: 6 }} />
+      <span>{text}</span>
+    </p>
+  );
+}
+
 /* ---------- Übersicht ---------- */
 function Uebersicht({ stand, oeffne }) {
   const sE = statusEinstieg();
@@ -241,6 +263,7 @@ function Uebersicht({ stand, oeffne }) {
           </button>
         )}
       </div>
+      <SpeicherHinweis />
     </>
   );
 }

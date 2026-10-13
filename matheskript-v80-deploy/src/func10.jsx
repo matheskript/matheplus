@@ -12,6 +12,7 @@ import { Formelsammlung, FotoAufgaben, Klausur, Kurvendiskussion } from "./func4
 import { DifferenzenquotientSeite, Fortschritt, GeneratorHub, Kopfrechnen, WegVomBlatt } from "./func5.jsx";
 import { Einstufung, Lernlandkarte, Liniennetz, Profil, lernLaden, lernLeer, lernSnapshot, lernVomKonto, useLern } from "./func6.jsx";
 import { syncStarten } from "./lernSync.js";
+import { entdeckenSyncStarten } from "./entdeckenSync.js";
 import { MeinTrainingSeite } from "./funcMeinTraining.jsx";
 import { Begruenden, EinheitSpieler, Operatoren, Wiederholen } from "./func7.jsx";
 import { MeinPlan, Messbericht, Modellieren, Probeabitur, Wochenbericht } from "./func8.jsx";
@@ -112,6 +113,7 @@ export function Mathilda() {
   const [einheitId, setEinheitId] = useState(null);
 
   React.useEffect(() => { lernLaden().then(() => syncStarten({ lesen: lernSnapshot, anwenden: lernVomKonto, leer: lernLeer })); }, []);
+  React.useEffect(() => { entdeckenSyncStarten(); }, []);
   const lern = useLern();
 
   const [seitenOffen, setSeitenOffen] = useState(false);
