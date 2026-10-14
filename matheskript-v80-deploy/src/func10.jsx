@@ -1,6 +1,6 @@
 import { mitMathildaAI } from "./mathildaName.jsx";
 import React, { useState, useRef, useEffect } from "react";
-import { API_URL, C, PROMPT, REGELN, VIDEO_URL } from "./base1.jsx";
+import { API_URL, C, REGELN, VIDEO_URL, blattPrompt } from "./base1.jsx";
 import { KOMP } from "./base3.jsx";
 import { NAV, SCHULKLASSEN, kiKopf, kiAntwort } from "./base4.jsx";
 import { KIAufgaben, Kurse, Trainingsbereich, dekodieren, jsonLesen, rendern } from "./func1.jsx";
@@ -177,6 +177,7 @@ export function Mathilda() {
   const [fehler, setFehler] = useState(null);
   const [roh, setRoh] = useState(null);
   const [zeigeRoh, setZeigeRoh] = useState(false);
+  const [abschriftOk, setAbschriftOk] = useState(null);   // Schritt 1 des Prüfkatalogs: Abschrift bestätigen
   const [erg, setErg] = useState(null);
   const kameraRef = useRef(null);
   const galerieRef = useRef(null);
@@ -213,9 +214,14 @@ export function Mathilda() {
     setInfo(`gedreht · ${r.w}×${r.h} px · ${r.kb} KB`);
   };
 
+  /* Stift-Hinweis jedes dritte Mal: Zähler der Blatt-Analysen auf diesem Gerät */
+  const ANALYSE_ZAEHLER = "matheplus-blattanalysen";
   const analysieren = async () => {
     if (!b64) return;
-    setLaeuft(true); setFehler(null); setRoh(null);
+    setLaeuft(true); setFehler(null); setRoh(null); setAbschriftOk(null);
+    let zaehler = 0;
+    try { zaehler = parseInt(localStorage.getItem(ANALYSE_ZAEHLER) || "0", 10) || 0; } catch (e) { /* privat */ }
+    const prompt = blattPrompt({ stiftHinweis: (zaehler + 1) % 3 === 0 });
     try {
       const res = await fetch(API_URL, {
         method: "POST",
@@ -227,7 +233,7 @@ export function Mathilda() {
             role: "user",
             content: [
               { type: "image", source: { type: "base64", media_type: "image/jpeg", data: b64 } },
-              { type: "text", text: PROMPT },
+              { type: "text", text: prompt },
             ],
           }],
         }),
@@ -238,6 +244,7 @@ export function Mathilda() {
       const text = data.content.map((i) => (i.type === "text" ? i.text : "")).join("");
       setRoh(text);
       setErg(jsonLesen(text));
+      try { localStorage.setItem(ANALYSE_ZAEHLER, String(zaehler + 1)); } catch (e) { /* privat */ }
     } catch (e) {
       setFehler(e.message || "Unbekannter Fehler.");
     } finally {
@@ -1698,7 +1705,22 @@ export function Mathilda() {
                 ))}
               </Karte>
               {erg.hinweis && <p className="mt-3" style={{ color: C.grau, fontSize: 13, fontWeight: 300, lineHeight: 1.6 }}>{erg.hinweis}</p>}
+              {erg.neuesFoto ? (
+                <Karte style={{ marginTop: 14, borderLeft: `4px solid ${C.signal}` }}>
+                  <p style={{ fontSize: 15, lineHeight: 1.6 }}>Ich kann dein Blatt nicht sicher lesen. Mach bitte ein neues Foto – gerade von oben, mit gutem Licht.</p>
+                  <button type="button" onClick={zuruecksetzen} className="mt-4 px-6 py-3"
+                    style={{ background: C.see, color: C.weiss, border: "none", borderRadius: 999, fontSize: 15, fontWeight: 600, fontFamily: "inherit", cursor: "pointer" }}>Neues Foto</button>
+                </Karte>
+              ) : abschriftOk === null ? (
+                <div style={{ marginTop: 14, display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: C.tinte }}>Stimmt die Abschrift?</span>
+                  <button type="button" onClick={() => setAbschriftOk(true)} style={{ minHeight: 40, padding: "0 18px", borderRadius: 999, border: "none", background: C.see, color: C.weiss, fontSize: 14, fontWeight: 600, fontFamily: "inherit", cursor: "pointer" }}>Ja, weiter</button>
+                  <button type="button" onClick={zuruecksetzen} style={{ minHeight: 40, padding: "0 18px", borderRadius: 999, border: `1px solid ${C.linie}`, background: C.weiss, color: C.see, fontSize: 14, fontWeight: 600, fontFamily: "inherit", cursor: "pointer" }}>Nein, neues Foto</button>
+                </div>
+              ) : null}
             </section>
+
+            {abschriftOk && !erg.neuesFoto && (<>
 
             <section className="mb-8">
               <h2 style={{ fontSize: 13, fontWeight: 600, marginBottom: 12, color: C.see }}>Der Rechenweg</h2>
@@ -1715,6 +1737,36 @@ export function Mathilda() {
                 )}
               </Karte>
             </section>
+
+            {erg.gelungen && (
+              <section className="mb-8">
+                <h2 style={{ fontSize: 13, fontWeight: 600, marginBottom: 12, color: C.see }}>Das ist schon gut</h2>
+                <Karte style={{ borderLeft: `4px solid ${C.smaragd}` }}><p style={{ fontSize: 15, lineHeight: 1.65 }}>{erg.gelungen}</p></Karte>
+              </section>
+            )}
+
+            {(erg.papier?.art === "karo" || erg.papier?.art === "liniert" || erg.stift?.hinweis) && (
+              <section className="mb-8">
+                <h2 style={{ fontSize: 13, fontWeight: 600, marginBottom: 12, color: C.see }}>Papier und Stift</h2>
+                {(erg.papier?.art === "karo" || erg.papier?.art === "liniert") && (
+                  <Karte>
+                    <p style={{ fontSize: 15, lineHeight: 1.65, fontWeight: 600 }}>Blankopapier statt {erg.papier.art === "karo" ? "Karo" : "Linien"}</p>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 10, marginTop: 12 }}>
+                      {erg.papier.jetzt && (<div><p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.06em", color: C.hellgrau, marginBottom: 6 }}>SO SIEHT ES JETZT AUS</p>
+                        <pre style={{ margin: 0, padding: "10px 12px", borderRadius: 10, background: C.sand, fontSize: 13.5, lineHeight: 1.6, whiteSpace: "pre-wrap", fontFamily: "ui-monospace, Menlo, monospace" }}>{erg.papier.jetzt}</pre></div>)}
+                      {erg.papier.blanko && (<div><p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.06em", color: C.see, marginBottom: 6 }}>SO AUF BLANKO</p>
+                        <pre style={{ margin: 0, padding: "10px 12px", borderRadius: 10, background: C.weiss, border: `1px solid ${C.linie}`, fontSize: 13.5, lineHeight: 1.9, whiteSpace: "pre-wrap", fontFamily: "ui-monospace, Menlo, monospace" }}>{erg.papier.blanko}</pre></div>)}
+                    </div>
+                    {erg.papier.frage && <p className="mt-3" style={{ fontSize: 14.5, color: C.see, fontWeight: 600, lineHeight: 1.6 }}>{erg.papier.frage}</p>}
+                  </Karte>
+                )}
+                {erg.stift?.hinweis && (
+                  <Karte style={{ marginTop: 12 }}>
+                    <p style={{ fontSize: 15, lineHeight: 1.65 }}>{erg.stift.hinweis}</p>
+                  </Karte>
+                )}
+              </section>
+            )}
 
             <section className="mb-8">
               <h2 style={{ fontSize: 13, fontWeight: 600, marginBottom: 4, color: C.see }}>Wie du gearbeitet hast</h2>
@@ -1749,12 +1801,48 @@ export function Mathilda() {
               )}
             </section>
 
+            {(erg.unvereinfacht || []).length > 0 && (
+              <section className="mb-8">
+                <h2 style={{ fontSize: 13, fontWeight: 600, marginBottom: 12, color: C.see }}>Hier kannst du noch weiterrechnen</h2>
+                <Karte style={{ padding: 0, overflow: "hidden" }}>
+                  {erg.unvereinfacht.map((u, i) => (
+                    <div key={i} className="px-5 py-3" style={{ borderBottom: i < erg.unvereinfacht.length - 1 ? `1px solid ${C.linie}` : "none" }}>
+                      <p style={{ fontSize: 13, color: C.hellgrau }}>{u.zeile ? `Zeile ${u.zeile}` : ""}</p>
+                      <p style={{ fontSize: 15, lineHeight: 1.55 }}>{u.was} <span style={{ color: C.see, fontWeight: 600 }}>{u.weiter}</span></p>
+                    </div>
+                  ))}
+                </Karte>
+              </section>
+            )}
+
+            {(erg.zusammenhang || erg.muster || (erg.hebel || []).length > 0) && (
+              <section className="mb-8">
+                <h2 style={{ fontSize: 13, fontWeight: 600, marginBottom: 12, color: C.see }}>Was dahintersteckt</h2>
+                <Karte>
+                  {(erg.hebel || []).slice(0, 2).map((h, i) => <p key={i} style={{ fontSize: 15, lineHeight: 1.65, marginBottom: 8 }}><b style={{ color: C.see }}>Hebel {i + 1}:</b> {h}</p>)}
+                  {erg.zusammenhang && <p style={{ fontSize: 15, lineHeight: 1.65, marginBottom: 8 }}><b style={{ color: C.see }}>Zusammenhang:</b> {erg.zusammenhang}</p>}
+                  {erg.muster && <p style={{ fontSize: 15, lineHeight: 1.65 }}><b style={{ color: C.see }}>Muster:</b> {erg.muster}</p>}
+                </Karte>
+              </section>
+            )}
+
+            {erg.aufgabe && (
+              <section className="mb-8">
+                <h2 style={{ fontSize: 13, fontWeight: 600, marginBottom: 12, color: C.see }}>Deine Aufgabe</h2>
+                <Karte style={{ borderLeft: `4px solid ${C.flaggold}` }}>
+                  <p style={{ fontSize: 15.5, lineHeight: 1.65, fontWeight: 500 }}>{erg.aufgabe}</p>
+                  <p className="mt-2" style={{ fontSize: 13, color: C.grau, lineHeight: 1.55 }}>Schreib die Stelle selbst neu und schick mir danach ein neues Foto.</p>
+                </Karte>
+              </section>
+            )}
+
             <div style={{ background: `linear-gradient(160deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 16, overflow: "hidden" }}>
               <div className="px-6 pt-6 pb-7">
                 <h2 style={{ fontSize: 13, fontWeight: 600, marginBottom: 10, color: "#C9D6EE" }}>Dein nächstes Blatt</h2>
                 <p style={{ fontSize: 17, lineHeight: 1.6, fontWeight: 500, color: C.weiss }}>{erg.schritt}</p>
               </div>
             </div>
+            </>)}
 
             <button onClick={() => setZeigeRoh(!zeigeRoh)} className="mt-6"
               style={{ background: "none", border: "none", color: C.hellgrau, fontSize: 12, fontFamily: "inherit", textDecoration: "underline", cursor: "pointer", padding: 0 }}>

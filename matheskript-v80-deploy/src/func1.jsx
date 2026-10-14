@@ -205,7 +205,7 @@ export async function dekodieren(file, melden) {
 export function rendern(quelle, drehung) {
   const bw = quelle.width || quelle.naturalWidth;
   const bh = quelle.height || quelle.naturalHeight;
-  let kante = 1700;
+  let kante = 1600;   // Prüfkatalog: Fotos auf ca. 1600 px (Body-Limit der Route api/claude.js: 4 MB)
   let qualitaet = 0.85;
 
   for (let versuch = 0; versuch < 6; versuch++) {
