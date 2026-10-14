@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { C } from "./base1.jsx";
+import { FR } from "./funcRegistry.jsx";
 import { M } from "./func3.jsx";
 import { GrosserKnopf, karte } from "./ui2.jsx";
 import { PotenzModul } from "./funcEntdeckenPotenz.jsx";
@@ -210,6 +211,25 @@ function LernangebotKarte({ nr, titel, text, status, fortschritt, onClick }) {
   );
 }
 
+/* Mathe-Wettbewerbe (früher eigener Block auf der Startseite unter „Mathe-Training“) */
+function WettbewerbKarte({ zeichen, titel, text, onClick }) {
+  return (
+    <button type="button" onClick={onClick} aria-label={`${titel} öffnen`}
+      style={{ display: "flex", alignItems: "center", gap: 14, textAlign: "left", width: "100%", fontFamily: "inherit", cursor: "pointer",
+        background: C.weiss, border: "none", borderRadius: 16, padding: "16px 18px", boxShadow: "0 2px 16px rgba(15,26,51,0.07)" }}>
+      <span aria-hidden="true" style={{ flexShrink: 0, width: 40, height: 40, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center",
+        background: C.flaggold, color: C.seeTief, fontSize: 18, fontWeight: 800 }}>{zeichen}</span>
+      <span style={{ flex: 1, minWidth: 0 }}>
+        <span style={{ display: "block", fontSize: 15.5, fontWeight: 700, color: C.tinte, lineHeight: 1.3 }}>{titel}</span>
+        <span style={{ display: "block", fontSize: 13, fontWeight: 300, color: C.grau, lineHeight: 1.5, marginTop: 2 }}>{text}</span>
+      </span>
+      <svg width="9" height="15" viewBox="0 0 9 15" aria-hidden="true" style={{ flexShrink: 0 }}>
+        <path d="M1.5 1.5 L7.5 7.5 L1.5 13.5" fill="none" stroke={C.see} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </button>
+  );
+}
+
 function ZurueckKnopf({ onClick }) {
   return (
     <button type="button" onClick={onClick}
@@ -291,6 +311,16 @@ function Uebersicht({ stand, oeffne }) {
             <span style={{ color: C.see, fontWeight: 600 }}>Weitermachen →</span>
           </button>
         )}
+      </div>
+
+      <div style={{ marginTop: 28 }}>
+        <p style={kickerStil}>Mathe-Wettbewerbe</p>
+        <div style={{ display: "grid", gap: 12 }}>
+          <WettbewerbKarte zeichen="∑" titel="Bundeswettbewerb Mathematik" text="Die nächste 1. Runde und die Aufgaben mit Lösungen vom letzten Jahr."
+            onClick={() => FR.gehe && FR.gehe({ ansicht: "bwm" })} />
+          <WettbewerbKarte zeichen="◇" titel="Landeswettbewerbe" text="Deutschlandkarte: Tippe auf dein Bundesland."
+            onClick={() => FR.gehe && FR.gehe({ ansicht: "landeswettbewerbe" })} />
+        </div>
       </div>
       <SpeicherHinweis />
     </>

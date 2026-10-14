@@ -69,22 +69,24 @@ function PlotterLogoKlein() {
    wird per Schatten (0 0 0 200vmax) abgedunkelt. „Innerstes“ = ein offener Rahmen ohne weiteren offenen
    Rahmen darin (CSS :has). Ohne :has-Unterstützung bleibt es bei den weißen Rahmen ohne Abdunklung.
    Der Wrapper bleibt immer im DOM (kein Remount beim Umschalten); zugeklappt ist er unsichtbar.
-   Stufen: 0 = Mathe-Training, 1 = Mathematik/Wettbewerbe (tief), 2 = einzelner Bereich (innen). */
+   Geometrie: Der Rahmen reicht 24 px (= Seitenrand px-6) nach links und rechts, also auf dem Handy bis an
+   den Bildschirmrand. Die breiten Kacheln ragen 16 px über die Inhaltsbreite → überall 8 px Abstand zum
+   Rahmen. Ecken konzentrisch: Kachelradius 14 + 8 = 22 (unten im Bereich: Werkzeugknopf 13 + 10 = 23).
+   Stufen: Schulmathe-Training (außen) und einzelner Bereich bzw. Formelsammlung (innen). */
+const AUFKLAPP_RAND = 24;
 const AUFKLAPP_CSS = `.aufklapp-rahmen{transition:box-shadow .25s ease}
   .aufklapp-rahmen[data-aufklapp-rahmen]{box-shadow:0 6px 18px rgba(20,28,45,0.14)}
   .aufklapp-rahmen[data-aufklapp-rahmen]:not(:has([data-aufklapp-rahmen])){position:relative;z-index:5;
-    box-shadow:0 0 0 200vmax rgba(8,16,40,0.62);border-radius:0 !important;border-color:transparent !important;
-    border-image:linear-gradient(#fff,#fff) 0 fill / 0 / 0 100vw !important}`;
-function AufklappRahmen({ auf, tief, innen, children }) {
-  const rand = innen ? 8 : tief ? 16 : 22;
+    box-shadow:0 0 0 200vmax rgba(8,16,40,0.62)}`;
+function AufklappRahmen({ auf, innen, children }) {
   return (
     <div className="aufklapp-rahmen" data-aufklapp-rahmen={auf ? "" : undefined}
       style={auf ? {
-        margin: `${innen ? 8 : tief ? 10 : 14}px -${rand}px 0`, padding: `0 ${rand}px ${innen ? 8 : tief ? 12 : 14}px`, borderRadius: innen ? 18 : tief ? 20 : 24,
-        background: C.weiss, border: "1px solid rgba(14,30,74,0.10)",
+        margin: `${innen ? 8 : 14}px -${AUFKLAPP_RAND}px 0`, padding: `0 ${AUFKLAPP_RAND}px ${innen ? 0 : 8}px`,
+        borderRadius: innen ? "22px 22px 23px 23px" : 22, background: C.weiss,
       } : undefined}>
       <style>{AUFKLAPP_CSS}</style>
-      <div style={auf ? { marginTop: innen ? 0 : -4 } : undefined}>{children}</div>
+      <div style={auf ? { marginTop: -4 } : undefined}>{children}</div>
     </div>
   );
 }
@@ -647,11 +649,9 @@ function UnterMenue({ eintraege, gehe, tiefe = 0 }) {
 export function Startseite({ gehe }) {
   const [wieder, setWieder] = useState(false);
   const [hinweis, setHinweis] = useState("");
-  const [schulAuf, setSchulAuf] = useState(false);     // Dropdown „Mathe-Training“
-  const [abiAuf, setAbiAuf] = useState(false);          // Unterbereich „Abi-Training“
+  const [schulAuf, setSchulAuf] = useState(false);     // Dropdown „Schulmathe-Training“
   const [bereichAuf, setBereichAuf] = useState(null);   // aufgeklappter Unterbereich (analysis, vektoren, …)
   const [kopfAuf, setKopfAuf] = useState(false);        // Dropdown „Kopfrechnen“
-  const [wettAuf, setWettAuf] = useState(false);        // Dropdown „Mathe-Wettbewerbe“
   const [formelAuf, setFormelAuf] = useState(false);    // Untermenü „Formelsammlung“
 
   /* --- Motive --- */
@@ -1055,81 +1055,51 @@ export function Startseite({ gehe }) {
         </p>
       </section>
       <AppAnleitung />
-      {/* Oberbutton „Mathe-Training“: darunter Abi-Training, Mathematik, Kopfrechnen und Mathe-Wettbewerbe.
-          Aufgeklappt wird der Button halb so hoch. */}
+      {/* Oberbutton „Schulmathe-Training“: darunter direkt die Bereiche (Analysis, Vektoren, Stochastik,
+          Gleichungen), Abi-Ketten und Formelsammlung. Aufgeklappt wird der Button halb so hoch.
+          Alle Kacheln laufen auf voller Breite (breit); es ist immer nur ein Bereich offen. */}
       <MeinTrainingKachelStart gehe={gehe} />
       <AufklappRahmen auf={schulAuf}>
-      <PlotterKachel breit halb={schulAuf} onClick={() => { setSchulAuf(!schulAuf); setBereichAuf(null); setAbiAuf(false); }} auf={schulAuf}
-        label={schulAuf ? "Mathe-Training zuklappen" : "Mathe-Training aufklappen"}
-        logo={<SchulmatheLogoKlein />} titel="Mathe-Training"
-        text={schulAuf ? "Mathematik und Wettbewerbe." : "Mathematik in zwölf Stationen, Formelsammlung und Wettbewerbe – alles zum Üben und Nachschlagen."}
+      <PlotterKachel breit halb={schulAuf} onClick={() => { setSchulAuf(!schulAuf); setBereichAuf(null); setFormelAuf(false); }} auf={schulAuf}
+        label={schulAuf ? "Schulmathe-Training zuklappen" : "Schulmathe-Training aufklappen"}
+        logo={<SchulmatheLogoKlein />} titel="Schulmathe-Training"
+        text={schulAuf ? "Mathematik der Mittel- und Oberstufe." : "Mittel- und Oberstufe bis zum Abi: Analysis, Vektoren, Stochastik, Gleichungen."}
         extra={<PlusKnopf auf={schulAuf} klein={schulAuf} />} />
       {schulAuf && (
         <div data-aufklapp-inhalt style={{ margin: "0 0 4px" }}>
-          {/* Mathematik (früher „Abi-Training“): Analysis, Vektoren, Stochastik, Gleichungen, Mein Training und Formelsammlung */}
-          <AufklappRahmen auf={abiAuf} tief>
-          <PlotterKachel klein breit haupt onClick={() => { setAbiAuf(!abiAuf); setBereichAuf(null); setFormelAuf(false); setWettAuf(false); }} auf={abiAuf}
-            label={abiAuf ? "Mathematik zuklappen" : "Mathematik aufklappen"}
-            logo={<FormelLogoKlein />} titel="Mathematik"
-            text="Analysis, Vektoren, Stochastik, Gleichungen und Formelsammlung."
-            extra={<AufklappPfeil auf={abiAuf} />} />
-          {abiAuf && (
-            <div data-aufklapp-inhalt style={{ margin: "4px 0 4px", padding: "2px 0 2px 12px", borderLeft: `3px solid ${C.flaggold}` }}>
-              <div style={{ padding: "8px 2px 2px" }}><EtikettLegende /></div>
-              {SCHUL_BEREICHE.map((b) => (
-                <AufklappRahmen key={b.id} auf={bereichAuf === b.id} innen>
-                  <PlotterKachel klein haupt onClick={() => { setBereichAuf(bereichAuf === b.id ? null : b.id); setFormelAuf(false); }}
-                    auf={bereichAuf === b.id} label={bereichAuf === b.id ? `${b.titel} zuklappen` : `${b.titel} aufklappen`}
-                    logo={b.logo} titel={b.titel} text={b.text}
-                    extra={<AufklappPfeil auf={bereichAuf === b.id} />} />
-                  {bereichAuf === b.id && <UnterMenue eintraege={b.tools} gehe={gehe} />}
-                  {ZEIGE_GESPERRTE && bereichAuf === b.id && b.video && <VideokursGesperrt name={b.video.name} zeile={b.video.zeile} />}
-                </AufklappRahmen>
-              ))}
-              <PlotterKachel klein onClick={() => gehe({ ansicht: "abiketten" })} label="Abi-Ketten öffnen" logo={<ZeichenLogo zeichen="a→d" />}
-                titel="Abi-Ketten"
-                text="Eine Abi-Aufgabe, die durch mehrere Werkzeuge läuft – mit Punkten und Uhr." />
-              <AufklappRahmen auf={formelAuf} innen>
-              <PlotterKachel klein onClick={() => { setFormelAuf(!formelAuf); setBereichAuf(null); }} auf={formelAuf} label={formelAuf ? "Formelsammlung zuklappen" : "Formelsammlung aufklappen"} logo={<FormelLogoKlein />}
-                titel="Formelsammlung"
-                text="Alle wichtigen Formeln der Oberstufe – sauber sortiert zum Nachschlagen."
-                extra={<AufklappPfeil auf={formelAuf} />} />
-              {formelAuf && <UnterMenue eintraege={FORMEL_MENUE} gehe={gehe} />}
-              </AufklappRahmen>
-              {ZEIGE_GESPERRTE && (<>
-              <PlotterKachel halb gesperrt logo={<ZeichenLogo zeichen="≔" />}
-                titel="Definitionen"
-                text="Alle wichtigen Begriffe der Oberstufe – präzise definiert." />
-              <PlotterKachel halb gesperrt logo={<ZeichenLogo zeichen="∴" />}
-                titel="Sätze"
-                text="Die zentralen Sätze der Oberstufe – klar formuliert." />
-              </>)}
-            </div>
-          )}
-          </AufklappRahmen>
-
-          {ZEIGE_WETTBEWERBE && (<>
-            <AufklappRahmen auf={wettAuf} tief>
-            <PlotterKachel klein breit haupt onClick={() => { setWettAuf(!wettAuf); setAbiAuf(false); setBereichAuf(null); setFormelAuf(false); }} auf={wettAuf} label={wettAuf ? "Mathe-Wettbewerbe zuklappen" : "Mathe-Wettbewerbe aufklappen"}
-              logo={<MedaillenschrankLogo />} titel="Mathe-Wettbewerbe"
-              text="Bundeswettbewerb Mathematik und Landeswettbewerbe."
-              extra={<AufklappPfeil auf={wettAuf} />} />
-            {wettAuf && (
-              <div data-aufklapp-inhalt style={{ margin: "4px 0 4px", padding: "2px 0 2px 12px", borderLeft: `3px solid ${C.flaggold}` }}>
-                <PlotterKachel klein onClick={() => gehe({ ansicht: "bwm" })} label="Bundeswettbewerb Mathematik öffnen" logo={<BwmLogo />} titelUmbruch keinI18nTitel
-                  titel="Bundeswettbewerb Mathematik"
-                  text="Die nächste 1. Runde und die Aufgaben mit Lösungen vom letzten Jahr." />
-                <PlotterKachel klein onClick={() => gehe({ ansicht: "landeswettbewerbe" })} label="Landeswettbewerbe öffnen" logo={<KarteLogo />}
-                  titel="Landeswettbewerbe"
-                  text="Deutschlandkarte: Tippe auf dein Bundesland." />
-              </div>
-            )}
+          <div style={{ padding: "12px 2px 0" }}><EtikettLegende /></div>
+          {SCHUL_BEREICHE.map((b) => (
+            <AufklappRahmen key={b.id} auf={bereichAuf === b.id} innen>
+              <PlotterKachel klein breit haupt onClick={() => { setBereichAuf(bereichAuf === b.id ? null : b.id); setFormelAuf(false); }}
+                auf={bereichAuf === b.id} label={bereichAuf === b.id ? `${b.titel} zuklappen` : `${b.titel} aufklappen`}
+                logo={b.logo} titel={b.titel} text={b.text}
+                extra={<AufklappPfeil auf={bereichAuf === b.id} />} />
+              {bereichAuf === b.id && <div style={{ margin: "0 -16px" }}><UnterMenue eintraege={b.tools} gehe={gehe} /></div>}
+              {ZEIGE_GESPERRTE && bereichAuf === b.id && b.video && <VideokursGesperrt name={b.video.name} zeile={b.video.zeile} />}
             </AufklappRahmen>
+          ))}
+          <PlotterKachel klein breit onClick={() => gehe({ ansicht: "abiketten" })} label="Abi-Ketten öffnen" logo={<ZeichenLogo zeichen="a→d" />}
+            titel="Abi-Ketten"
+            text="Eine Abi-Aufgabe, die durch mehrere Werkzeuge läuft – mit Punkten und Uhr." />
+          <AufklappRahmen auf={formelAuf} innen>
+            <PlotterKachel klein breit onClick={() => { setFormelAuf(!formelAuf); setBereichAuf(null); }} auf={formelAuf} label={formelAuf ? "Formelsammlung zuklappen" : "Formelsammlung aufklappen"} logo={<FormelLogoKlein />}
+              titel="Formelsammlung"
+              text="Alle wichtigen Formeln der Oberstufe – sauber sortiert zum Nachschlagen."
+              extra={<AufklappPfeil auf={formelAuf} />} />
+            {formelAuf && <div style={{ margin: "0 -16px" }}><UnterMenue eintraege={FORMEL_MENUE} gehe={gehe} /></div>}
+          </AufklappRahmen>
+          {ZEIGE_GESPERRTE && (<>
+          <PlotterKachel halb breit gesperrt logo={<ZeichenLogo zeichen="≔" />}
+            titel="Definitionen"
+            text="Alle wichtigen Begriffe der Oberstufe – präzise definiert." />
+          <PlotterKachel halb breit gesperrt logo={<ZeichenLogo zeichen="∴" />}
+            titel="Sätze"
+            text="Die zentralen Sätze der Oberstufe – klar formuliert." />
           </>)}
         </div>
       )}
       </AufklappRahmen>
-      {/* Mathe entdecken: gleichwertiger zweiter Hauptbereich direkt unter „Mathe-Training“ */}
+      {/* Mathe entdecken: gleichwertiger zweiter Hauptbereich direkt unter „Schulmathe-Training“ */}
       <PlotterKachel breit onClick={() => gehe({ ansicht: "entdecken" })} label="Mathe entdecken öffnen" logo={<EntdeckenLogoKlein />}
         titel="Mathe entdecken"
         text="Muster erkennen, Vermutungen aufstellen und Formeln selbst herleiten." />

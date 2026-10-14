@@ -223,7 +223,7 @@ const METHODEN = [
   { zeichen: "7·8", name: "Head & Numbers", text: "Einmaleins, Quadrat- und Kubikzahlen, die sitzen. Sicheres Kopfrechnen macht jede Aufgabe schneller und entspannter.", ziel: { ansicht: "headnumbers" }, knopf: "Kopfrechnen trainieren" },
   { zeichen: "∿", name: "Ebbinghaus", text: "Wiederholen im richtigen Abstand, damit das Thema vom letzten Jahr nicht wieder weg ist, wenn es im Abi zurückkommt.", ziel: { ansicht: "ebbinghaus" }, knopf: "Wiederholen starten" },
   { zeichen: "AI", name: "MathildaAI", text: "Fotografiere dein Blatt. Mathilda liest deinen Rechenweg und zeigt dir die Stelle, an der er bricht.", ziel: { ansicht: "analyse", foto: "blatt" }, knopf: "Blatt prüfen lassen" },
-  { zeichen: "f′", name: "Mathe-Training", text: "Formelsammlung, interaktive Werkzeuge und Trainer für Analysis, Vektoren und Stochastik – zum Üben und Nachschlagen.", ziel: { ansicht: "start" }, knopf: "Zu den Werkzeugen" },
+  { zeichen: "f′", name: "Schulmathe-Training", text: "Formelsammlung, interaktive Werkzeuge und Trainer für Analysis, Vektoren und Stochastik – zum Üben und Nachschlagen.", ziel: { ansicht: "start" }, knopf: "Zu den Werkzeugen" },
 ];
 
 const WERKZEUGE = [

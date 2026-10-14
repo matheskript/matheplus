@@ -1,6 +1,6 @@
 /* ============================================================
    WERKZEUGE – die eine Liste aller Mathe-Werkzeuge
-   Startseite (Mathe-Training → Mathematik), Werkzeug-Menü (☰ im Kopf),
+   Startseite (Schulmathe-Training → Bereiche), Werkzeug-Menü (☰ im Kopf),
    Leiste im Kopfbereich jeder Werkzeugseite, Übersichtsseiten
    (Analysis, Vektoren, Stochastik) und das Seitenmenü NAV werden
    alle aus dieser Datei erzeugt. Ein neues Werkzeug braucht nur
