@@ -323,6 +323,7 @@ export function Mathilda() {
          (Bühne 760 px, Textrand 25 px) bis zum rechten Ende der Berggrafik. Darunter bleibt alles wie gehabt. */
       @media (min-width: 840px) {
         .mx-auto[style*="max-width: 620px"].px-6 { width: 783px !important; max-width: 783px !important; margin-left: calc(50% - 379px) !important; margin-right: 0 !important; }
+        .mx-auto[style*="max-width: 680px"].px-6 { width: 783px !important; max-width: 783px !important; margin-left: calc(50% - 379px) !important; margin-right: 0 !important; }
         .mx-auto[style*="max-width: 620px"].px-5 { width: 775px !important; max-width: 775px !important; margin-left: calc(50% - 375px) !important; margin-right: 0 !important; }
         .mx-auto.kopf-zeile { width: 735px !important; max-width: 735px !important; margin-left: calc(50% - 355px) !important; margin-right: 0 !important; padding-left: 0 !important; padding-right: 0 !important; }
         .kopf-zeile .kopf-hamburger { margin-right: -8px; }
