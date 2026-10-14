@@ -11,6 +11,7 @@ import React, { useRef, useState } from "react";
 import { C } from "./base1.jsx";
 import { DrehKnoepfe, FARBE_ACHSE, GRUND_AUS, GrundebenenGitter, GrundebenenSchalter, ebenenPolygon, ebenenText, kamera } from "./func16.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
+import { wAdd, wGanz, wIstNull, wIstRational, wLies, wMul, wNegativ, wNum, wSub, wText, wZ } from "./wzahl.js";
 
 const FARBE_E1 = C.see;
 const FARBE_E2 = C.gruen;
@@ -455,19 +456,85 @@ const zahlText = (v) => {
 };
 const inKlammer = (v) => (v < 0 ? `(${zahlText(v)})` : zahlText(v));
 
-function VektorEingabe({ name, farbe, werte, setWerte }) {
+/* ---------- Kreuzprodukt: exakte Zahlen (ganz, Bruch, Kommazahl, Wurzel) ---------- */
+const KP_GRENZE = 100;                                                   // größter Betrag je Koordinate
+const wKlammer = (z) => (z.length > 1 || wNegativ(z) ? `(${wText(z)})` : wText(z));
+const wSkalar = (u, v) => u.reduce((s, x, i) => wAdd(s, wMul(x, v[i])), []);
+const wKreuz = (u, v) => [wSub(wMul(u[1], v[2]), wMul(u[2], v[1])), wSub(wMul(u[2], v[0]), wMul(u[0], v[2])), wSub(wMul(u[0], v[1]), wMul(u[1], v[0]))];
+const kpLies = (t) => t.map((s) => wLies(String(s).replace("−", "-")));
+
+/* − und + wirken auf die nächste ganze Zahl: 3 → 4, ½ → 1 (oder 0), √5 ≈ 2,24 → 3 (oder 2) */
+function naechsteGanze(wert, r) {
+  const x = wNum(wert);
+  let ziel = wGanz(wert) ? x + r : r > 0 ? Math.ceil(x) : Math.floor(x);
+  ziel = Math.max(-KP_GRENZE, Math.min(KP_GRENZE, ziel)) + 0;
+  return wZ(ziel);
+}
+
+/* Ein Eingabefeld für eine Koordinate. Schrift mindestens 16 px, sonst zoomt das iPhone beim Antippen die ganze Seite heran. */
+function KpFeld({ name, nr, farbe, wert, setWert, meldeFehler }) {
+  const text = wText(wert);
+  const [entwurf, setEntwurf] = useState(null);       // null: das Feld zeigt den Wert
+  const [fehler, setFehler] = useState(false);
+  const [fokus, setFokus] = useState(false);
+  const eigen = useRef(null);
+  React.useEffect(() => {
+    if (eigen.current === text) { eigen.current = null; return; }
+    setEntwurf(null); setFehler(false); meldeFehler(false);
+  }, [text]);
+  const aendern = (e) => {
+    const t = e.target.value;
+    setEntwurf(t);
+    if (t.trim() === "") { setFehler(false); meldeFehler(false); return; }
+    const z = wLies(t);
+    if (!z || Math.abs(wNum(z)) > KP_GRENZE) { setFehler(true); meldeFehler(true); return; }
+    setFehler(false); meldeFehler(false); eigen.current = wText(z); setWert(z);
+  };
+  const verlassen = () => {
+    setFokus(false); eigen.current = null;
+    if (entwurf !== null && (entwurf.trim() === "" || !fehler)) { setEntwurf(null); setFehler(false); meldeFehler(false); }
+  };
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
-      <VecName t={name} idx="" farbe={farbe} />
-      <span>=</span>
-      <SpaltenVektor farbe={farbe} eintraege={werte.map((w, i) => (
-        <MatheFeld modus="zahl" key={i} value={w} aria-label={`${name}${i + 1}`}
-          onChange={(e) => { const n = [...werte]; n[i] = e.target.value.replace(/[^0-9,.\-−]/g, "").slice(0, 6); setWerte(n); }}
-          onFocus={(e) => e.target.select()}
-          style={{ width: 36, height: 25, textAlign: "center", fontSize: 14, fontWeight: 800, fontFamily: "inherit", color: farbe,
-            border: `1.5px solid ${farbe}55`, borderRadius: 8, background: `${farbe}0D`, outline: "none", margin: "2px 0" }} />
-      ))} />
-    </span>
+    <MatheFeld modus="wurzel" value={entwurf ?? text} onChange={aendern} onBlur={verlassen}
+      onFocus={(e) => { setFokus(true); e.target.select(); }}
+      onKeyDown={(e) => { if (e.key === "Enter") e.target.blur(); }}
+      aria-label={`${name}${nr}`} aria-invalid={fehler ? true : undefined}
+      style={{ gridColumn: 3, width: "100%", minWidth: 0, height: 36, textAlign: "center", fontSize: 16, fontWeight: 800, fontFamily: "inherit", color: farbe,
+        fontVariantNumeric: "tabular-nums", padding: "0 2px", borderRadius: 9, outline: "none",
+        border: `1.5px solid ${fehler ? C.signal : fokus ? farbe : `${farbe}66`}`, background: fehler ? "#FCE8EE" : `${farbe}10`,
+        boxShadow: fokus ? `0 0 0 3px ${farbe}26` : "none" }} />
+  );
+}
+
+/* Ein Vektor: oben „a⃗ =“, darunter drei Zeilen aus − | Feld | + zwischen den Klammern */
+function VektorEingabe({ name, farbe, werte, setWerte }) {
+  const [fehler, setFehler] = useState([false, false, false]);
+  const knopf = (i, r, spalte) => (
+    <button type="button" aria-label={`${name}${i + 1} ${r > 0 ? "+" : "−"}`} onClick={() => { const n = [...werte]; n[i] = naechsteGanze(werte[i], r); setWerte(n); }}
+      style={{ gridColumn: spalte, gridRow: i + 1, width: "100%", height: 32, borderRadius: 9, border: `1.5px solid ${farbe}66`, background: `${farbe}14`, color: farbe,
+        fontSize: 19, fontWeight: 800, fontFamily: "inherit", cursor: "pointer", padding: 0, lineHeight: 1, touchAction: "manipulation",
+        display: "flex", alignItems: "center", justifyContent: "center" }}>{r > 0 ? "+" : "−"}</button>
+  );
+  const klammer = (links) => (
+    <span aria-hidden="true" style={{ gridColumn: links ? 2 : 4, gridRow: "1 / 4", alignSelf: "stretch", color: farbe,
+      [links ? "borderLeft" : "borderRight"]: "1.8px solid currentColor", borderTop: "1.8px solid currentColor", borderBottom: "1.8px solid currentColor",
+      borderRadius: links ? "8px 0 0 8px" : "0 8px 8px 0" }} />
+  );
+  return (
+    <div style={{ flex: 1, minWidth: 0, maxWidth: 210 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginBottom: 8, fontSize: 18, fontWeight: 800, color: farbe }}>
+        <VecName t={name} idx="" farbe={farbe} /><span>=</span>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 30px) 7px minmax(0, 1fr) 7px minmax(0, 30px)", gridTemplateRows: "repeat(3, 36px)", rowGap: 4, columnGap: 3, alignItems: "center" }}>
+        {werte.map((w, i) => knopf(i, -1, 1))}
+        {klammer(true)}
+        {werte.map((w, i) => <KpFeld key={i} name={name} nr={i + 1} farbe={farbe} wert={w} meldeFehler={(f) => setFehler((alt) => (alt[i] === f ? alt : alt.map((x, k) => (k === i ? f : x))))}
+          setWert={(z) => { const n = [...werte]; n[i] = z; setWerte(n); }} />)}
+        {klammer(false)}
+        {werte.map((w, i) => knopf(i, 1, 5))}
+      </div>
+      {fehler.some(Boolean) && <p role="alert" style={{ fontSize: 11.5, lineHeight: 1.35, color: C.signal, fontWeight: 600, margin: "6px 0 0", textAlign: "center" }}>Das kann ich so nicht lesen – probiere 2, 1/2, 0,5 oder √5 (bis 100).</p>}
+    </div>
   );
 }
 
@@ -502,27 +569,30 @@ const KP_BEISPIELE = [
   { name: "Standard", a: ["2", "1", "3"], b: ["1", "−1", "2"] },
   { name: "Parallel", a: ["1", "2", "3"], b: ["2", "4", "6"] },
   { name: "Mit Kommazahlen", a: ["0,5", "2", "−1"], b: ["3", "−1,5", "4"] },
+  { name: "Mit Wurzeln", a: ["√2", "1", "0"], b: ["√2", "−1", "2"] },
 ];
 
 export function KreuzproduktRechner() {
-  const [a, setA] = useState(["2", "1", "3"]);
-  const [b, setB] = useState(["1", "−1", "2"]);
-  const A = a.map(lies), B = b.map(lies);
-  const k = kreuz(A, B);
+  const [a, setA] = useState(() => kpLies(["2", "1", "3"]));
+  const [b, setB] = useState(() => kpLies(["1", "−1", "2"]));
+  const A = a, B = b;
+  const k = wKreuz(A, B);
   const FA = C.see, FB = C.gruen, FE = "#8A6D00";
   const karte = { background: C.weiss, borderRadius: 16, padding: 18, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" };
   const titel = { fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 10 };
   const va = (i) => <span style={{ color: FA }}>a<sub style={{ fontSize: "0.65em" }}>{i}</sub></span>;
   const vb = (i) => <span style={{ color: FB }}>b<sub style={{ fontSize: "0.65em" }}>{i}</sub></span>;
-  const na = (i) => <span style={{ color: FA }}>{inKlammer(A[i])}</span>;
-  const nb = (i) => <span style={{ color: FB }}>{inKlammer(B[i])}</span>;
+  const na = (i) => <span style={{ color: FA }}>{wKlammer(A[i])}</span>;
+  const nb = (i) => <span style={{ color: FB }}>{wKlammer(B[i])}</span>;
   // Komponenten: (2,3), (3,1), (1,2)
   const paare = [[1, 2], [2, 0], [0, 1]];
   const allgemein = paare.map(([i, j], z) => <span key={z}>{va(i + 1)}{vb(j + 1)} − {va(j + 1)}{vb(i + 1)}</span>);
   const eingesetzt = paare.map(([i, j], z) => <span key={z}>{na(i)}·{nb(j)} − {na(j)}·{nb(i)}</span>);
-  const ergebnis = k.map((v, z) => <span key={z} style={{ color: FE }}>{zahlText(v)}</span>);
-  const laenge2 = skalar(k, k);
-  const parallel = k.every((v) => Math.abs(v) < 1e-12);
+  const ergebnis = k.map((v, z) => <span key={z} style={{ color: FE }}>{wText(v)}</span>);
+  const laenge2 = wSkalar(k, k);
+  const laenge = Math.sqrt(Math.max(0, wNum(laenge2)));
+  const laengeGanz = wIstRational(laenge2) && Math.abs(laenge - Math.round(laenge)) < 1e-9;
+  const parallel = k.every(wIstNull);
   const kreuzZeichen = <span style={{ whiteSpace: "nowrap" }}><VecName t="a" idx="" farbe={FA} /> × <VecName t="b" idx="" farbe={FB} /></span>;
 
   return (
@@ -531,23 +601,20 @@ export function KreuzproduktRechner() {
         Kreuzprodukt auf einen Blick
       </h2>
       <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 22 }}>
-        Gib die Koordinaten von zwei Vektoren ein. Daneben siehst du die Formel, die eingesetzten Koordinaten und das
+        Gib die Koordinaten von zwei Vektoren ein. Darunter siehst du die Formel, die eingesetzten Koordinaten und das
         fertige Kreuzprodukt – ein Vektor, der auf beiden senkrecht steht.
       </p>
 
-      {/* breiter als die übrige Seite, damit Eingabe und Rechnung in eine Zeile passen */}
       <div style={karte}>
-        <div className="kp-zeile">
-          <style>{`.kp-zeile{display:flex;align-items:stretch;gap:10px}
-            @media (max-width:520px){.kp-zeile{flex-direction:column}}`}</style>
-          <div style={{ flexShrink: 0 }}>
-            <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontSize: 15, fontWeight: 700, color: C.tinte }}>
-              <VektorEingabe name="a" farbe={FA} werte={a} setWerte={setA} />
-              <VektorEingabe name="b" farbe={FB} werte={b} setWerte={setB} />
-            </div>
-          </div>
-          <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", background: C.sand, borderRadius: 12, padding: "10px 6px" }}>
+        <div style={{ display: "flex", justifyContent: "center", gap: 10 }}>
+          <VektorEingabe name="a" farbe={FA} werte={a} setWerte={setA} />
+          <VektorEingabe name="b" farbe={FB} werte={b} setWerte={setB} />
+        </div>
+        <p style={{ fontSize: 12.5, lineHeight: 1.5, color: C.grau, margin: "12px 0 0", textAlign: "center" }}>
+          Mit − und + änderst du die Zahl in ganzen Schritten. Tippe auf eine Zahl, um sie direkt einzugeben – auch als Bruch (1/2), Kommazahl (0,5) oder Wurzel (√5).
+        </p>
+
+        <div style={{ background: C.sand, borderRadius: 12, padding: "12px 6px", marginTop: 14 }}>
           <Einzeilig max={14}>
             {kreuzZeichen}
             <span>=</span>
@@ -558,12 +625,10 @@ export function KreuzproduktRechner() {
             <SpaltenVektor farbe={FE} eintraege={ergebnis} />
           </Einzeilig>
         </div>
-          </div>
-        </div>
 
         <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingTop: 14 }}>
           {KP_BEISPIELE.map((x) => (
-            <button key={x.name} onClick={() => { setA(x.a); setB(x.b); }}
+            <button key={x.name} onClick={() => { setA(kpLies(x.a)); setB(kpLies(x.b)); }}
               style={{ flexShrink: 0, padding: "7px 12px", borderRadius: 999, border: `1px solid ${C.linie}`, background: C.weiss,
                 color: C.see, fontSize: 12.5, fontFamily: "inherit", cursor: "pointer", whiteSpace: "nowrap" }}>{x.name}</button>
           ))}
@@ -581,10 +646,10 @@ export function KreuzproduktRechner() {
             <Einzeilig max={15.5}>
               <span>Probe:</span>
               <VecName t="a" idx="" farbe={FA} /><span>·</span><span>({kreuzZeichen})</span>
-              <span>= {zahlText(skalar(A, k))}</span>
+              <span>= {wText(wSkalar(A, k))}</span>
               <span style={{ margin: "0 0.4em", color: C.hellgrau }}>und</span>
               <VecName t="b" idx="" farbe={FB} /><span>·</span><span>({kreuzZeichen})</span>
-              <span>= {zahlText(skalar(B, k))}</span>
+              <span>= {wText(wSkalar(B, k))}</span>
             </Einzeilig>
             <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, margin: "8px 0 12px" }}>
               Beide Skalarprodukte sind 0 – das Kreuzprodukt steht senkrecht auf <VecName t="a" idx="" farbe={FA} /> und auf <VecName t="b" idx="" farbe={FB} />. Deshalb liefert es zum Beispiel
@@ -593,9 +658,9 @@ export function KreuzproduktRechner() {
             <Einzeilig max={15.5}>
               <span>|{kreuzZeichen}|</span>
               <span>=</span>
-              <Wurzel>{k.map((v) => `${inKlammer(v)}²`).join(" + ")}</Wurzel>
+              <Wurzel>{k.map((v) => `${wKlammer(v)}²`).join(" + ")}</Wurzel>
               <span>=</span>
-              {Number.isInteger(Math.sqrt(laenge2)) ? <span>{Math.sqrt(laenge2)}</span> : <><Wurzel>{zahlText(laenge2)}</Wurzel><span>≈ {dez(Math.sqrt(laenge2), 3)}</span></>}
+              {laengeGanz ? <span>{Math.round(laenge)}</span> : <><Wurzel>{wText(laenge2)}</Wurzel><span>≈ {dez(laenge, 3)}</span></>}
             </Einzeilig>
             <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, marginTop: 8 }}>
               Die Länge des Kreuzprodukts ist der Flächeninhalt des Parallelogramms, das <VecName t="a" idx="" farbe={FA} /> und <VecName t="b" idx="" farbe={FB} /> aufspannen – das Dreieck hat die Hälfte davon.
