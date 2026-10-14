@@ -840,7 +840,7 @@ function GeradenHilfe({ a }) {
 
 export function KIAufgaben({ eingebettet }) {
   const [typ, setTyp] = useState("zweipunkte");
-  const [a, setA] = useState(null);
+  const [a, setA] = useState(() => aufgabeLokal("zweipunkte"));
   const [nr, setNr] = useState(0);
   const [laedt, setLaedt] = useState(false);
   const [eM, setEM] = useState("");
@@ -880,7 +880,8 @@ export function KIAufgaben({ eingebettet }) {
     }
   };
 
-  const wechseln = (t) => { setTyp(t); setA(null); setGeprueft(false); setEM(""); setEB(""); };
+  /* Sofort eine Aufgabe zeigen (lokal erzeugt, ohne Wartezeit); „Nächste Aufgabe“ holt neue von Mathilda */
+  const wechseln = (t) => { setTyp(t); setA(aufgabeLokal(t)); setQuelle(""); setNr((n) => n + 1); setGeprueft(false); setEM(""); setEB(""); };
 
   const mS = parseZahl(eM), bS = parseZahl(eB);
   const mR = a ? a.m.n / a.m.d : 0, bR = a ? a.b.n / a.b.d : 0;
@@ -919,13 +920,6 @@ export function KIAufgaben({ eingebettet }) {
           </button>
         ))}
       </div>
-
-      {!a && (
-        <button onClick={() => neueAufgabe()} disabled={laedt} className="px-7 py-3"
-          style={{ background: laedt ? C.hellgrau : C.gruenDunkel, color: C.weiss, border: "none", borderRadius: 999, fontSize: 15, fontWeight: 600, fontFamily: "inherit", cursor: laedt ? "wait" : "pointer" }}>
-          {laedt ? "Aufgabe wird erzeugt…" : "Aufgabe erzeugen"}
-        </button>
-      )}
 
       {a && (
         <>
