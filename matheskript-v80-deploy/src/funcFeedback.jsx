@@ -182,28 +182,29 @@ export function FeedbackKnopf({ aktuell }) {
   const knopfStil = (hell) => ({ ...gross, cursor: "pointer", border: hell ? `1px solid ${C.linie}` : "none", borderRadius: 10, minHeight: 44, padding: "0 16px",
     fontSize: 14, fontWeight: 700, background: hell ? C.weiss : C.see, color: hell ? C.see : "#fff" });
 
-  return createPortal(
+  /* Feedback-Knopf unten auf jeder Seite (inline, über der Fußzeile); das Aufnahme-Fenster bleibt ein schwebendes Panel. */
+  return (<>
+    <div className="fb-fuss">
+      <button type="button" className="fb-knopf" onClick={oeffnen} aria-label="Feedback per Sprachnachricht geben" aria-expanded={offen}>
+        <MikroIcon groesse={18} farbe={C.flaggold} />
+        <span>Feedback geben</span>
+      </button>
+    </div>
+    {createPortal(
     <>
       <style>{`
-        .fb-tab{position:fixed;right:0;bottom:54px;z-index:35;display:flex;flex-direction:column;align-items:center;gap:8px;
-          padding:12px 7px 10px;border:none;border-radius:12px 0 0 12px;cursor:pointer;color:#fff;font-family:Montserrat,system-ui,sans-serif;
-          background:${C.see};box-shadow:-3px 4px 14px rgba(8,23,59,.28);border-left:3px solid ${C.flaggold};transition:padding .15s ease,background .15s ease}
-        .fb-tab:hover,.fb-tab:focus-visible{padding-right:11px;background:${C.seeTief}}
-        .fb-tab span{writing-mode:vertical-rl;transform:rotate(180deg);font-size:12px;font-weight:700;letter-spacing:.08em}
+        .fb-fuss{display:flex;justify-content:center;padding:28px 24px 4px}
+        .fb-knopf{display:inline-flex;align-items:center;gap:10px;min-height:48px;padding:0 22px;border-radius:999px;cursor:pointer;
+          font-family:Montserrat,system-ui,sans-serif;font-size:14.5px;font-weight:700;color:${C.see};background:${C.weiss};
+          border:1.5px solid ${C.see};box-shadow:0 4px 14px rgba(0,77,152,.12);transition:background .15s ease,color .15s ease}
+        .fb-knopf:hover,.fb-knopf:focus-visible{background:${C.see};color:#fff}
         .fb-panel{position:fixed;z-index:60;right:12px;bottom:12px;width:min(360px,calc(100vw - 24px));max-height:calc(100dvh - 24px);overflow-y:auto;
           background:${C.sand};border-radius:16px;box-shadow:0 18px 48px rgba(8,23,59,.4);padding:16px 16px 18px;font-family:Montserrat,system-ui,sans-serif;color:${C.tinte}}
         @keyframes fbPuls{0%,100%{box-shadow:0 0 0 0 rgba(185,138,0,.5)}50%{box-shadow:0 0 0 10px rgba(185,138,0,0)}}
         .fb-rec{animation:fbPuls 1.4s ease-in-out infinite}
         @media (prefers-reduced-motion:reduce){.fb-rec{animation:none}}
-        @media print{.fb-tab,.fb-panel{display:none}}
+        @media print{.fb-fuss,.fb-panel{display:none}}
       `}</style>
-
-      {!offen && (
-        <button type="button" className="fb-tab" onClick={oeffnen} aria-label="Feedback per Sprachnachricht geben">
-          <MikroIcon groesse={20} farbe={C.flaggold} />
-          <span>Feedback</span>
-        </button>
-      )}
 
       {offen && (
         <div role="dialog" aria-label="Feedback per Sprachnachricht" className="fb-panel">
@@ -282,5 +283,6 @@ export function FeedbackKnopf({ aktuell }) {
       )}
     </>,
     document.body
-  );
+    )}
+  </>);
 }

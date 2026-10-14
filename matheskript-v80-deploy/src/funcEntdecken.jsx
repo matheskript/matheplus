@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { C } from "./base1.jsx";
 import { FR } from "./funcRegistry.jsx";
+import { BwmLogo, KarteLogo } from "./funcWettbewerbe.jsx";
 import { M } from "./func3.jsx";
 import { GrosserKnopf, karte } from "./ui2.jsx";
 import { PotenzModul } from "./funcEntdeckenPotenz.jsx";
@@ -212,13 +213,13 @@ function LernangebotKarte({ nr, titel, text, status, fortschritt, onClick }) {
 }
 
 /* Mathe-Wettbewerbe (früher eigener Block auf der Startseite unter „Mathe-Training“) */
-function WettbewerbKarte({ zeichen, titel, text, onClick }) {
+function WettbewerbKarte({ logo, titel, text, onClick }) {
   return (
     <button type="button" onClick={onClick} aria-label={`${titel} öffnen`}
       style={{ display: "flex", alignItems: "center", gap: 14, textAlign: "left", width: "100%", fontFamily: "inherit", cursor: "pointer",
         background: C.weiss, border: "none", borderRadius: 16, padding: "16px 18px", boxShadow: "0 2px 16px rgba(15,26,51,0.07)" }}>
-      <span aria-hidden="true" style={{ flexShrink: 0, width: 40, height: 40, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center",
-        background: C.flaggold, color: C.seeTief, fontSize: 18, fontWeight: 800 }}>{zeichen}</span>
+      <span aria-hidden="true" style={{ flexShrink: 0, width: 64, height: 52, borderRadius: 12, overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center",
+        background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>{logo}</span>
       <span style={{ flex: 1, minWidth: 0 }}>
         <span style={{ display: "block", fontSize: 15.5, fontWeight: 700, color: C.tinte, lineHeight: 1.3 }}>{titel}</span>
         <span style={{ display: "block", fontSize: 13, fontWeight: 300, color: C.grau, lineHeight: 1.5, marginTop: 2 }}>{text}</span>
@@ -316,9 +317,9 @@ function Uebersicht({ stand, oeffne }) {
       <div style={{ marginTop: 28 }}>
         <p style={kickerStil}>Mathe-Wettbewerbe</p>
         <div style={{ display: "grid", gap: 12 }}>
-          <WettbewerbKarte zeichen="∑" titel="Bundeswettbewerb Mathematik" text="Die nächste 1. Runde und die Aufgaben mit Lösungen vom letzten Jahr."
+          <WettbewerbKarte logo={<BwmLogo />} titel="Bundeswettbewerb Mathematik" text="Die nächste 1. Runde und die Aufgaben mit Lösungen vom letzten Jahr."
             onClick={() => FR.gehe && FR.gehe({ ansicht: "bwm" })} />
-          <WettbewerbKarte zeichen="◇" titel="Landeswettbewerbe" text="Deutschlandkarte: Tippe auf dein Bundesland."
+          <WettbewerbKarte logo={<KarteLogo />} titel="Landeswettbewerbe" text="Deutschlandkarte: Tippe auf dein Bundesland."
             onClick={() => FR.gehe && FR.gehe({ ansicht: "landeswettbewerbe" })} />
         </div>
       </div>

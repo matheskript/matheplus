@@ -20,6 +20,8 @@
      auch     – weitere Ansichten, die zu diesem Werkzeug gehören
                 (Umschalter oben auf der Seite, z. B. Polynome | Beliebige)
      etikett  – entdecken | rechnen | trainieren
+     stufe    – mittel | ober | beide (Stufen-Schalter auf der Startseite)
+     Die Zeile muss auf dem Handy (360 px) in eine Zeile passen.
    ============================================================ */
 
 export const ETIKETTEN = {
@@ -30,68 +32,68 @@ export const ETIKETTEN = {
 
 export const WERKZEUGE = {
   /* ---------- Analysis ---------- */
-  geradengleichung: { name: "Geradengleichung", kurz: "Geraden", zeile: "y = m·x + c aus zwei Punkten oder Punkt und Steigung", slogan: "y = m·x + c aus zwei Punkten oder aus Punkt und Steigung.",
-    zeichen: "mx+c", bild: "gerade", ziel: { ansicht: "geradengleichung" }, etikett: "trainieren" },
-  parabeln: { name: "Parabeln", kurz: "Parabeln", zeile: "Scheitelpunkt, Scheitelform, Nullstellen, Brennpunkt", slogan: "Scheitelpunkt, Scheitelform, Nullstellen und Brennpunkt.",
-    zeichen: "ax²", bild: "parabel", ziel: { ansicht: "parabeln" }, etikett: "entdecken" },
+  geradengleichung: { name: "Geradengleichung", kurz: "Geraden", zeile: "Aus zwei Punkten oder mit Steigung", slogan: "y = m·x + c aus zwei Punkten oder aus Punkt und Steigung.",
+    zeichen: "mx+c", bild: "gerade", ziel: { ansicht: "geradengleichung" }, etikett: "trainieren", stufe: "mittel" },
+  parabeln: { name: "Parabeln", kurz: "Parabeln", zeile: "Scheitel, Nullstellen, Brennpunkt", slogan: "Scheitelpunkt, Scheitelform, Nullstellen und Brennpunkt.",
+    zeichen: "ax²", bild: "parabel", ziel: { ansicht: "parabeln" }, etikett: "entdecken", stufe: "mittel" },
   sinus: { name: "Sinusfunktion", kurz: "Sinus", zeile: "f(x) = a · sin(b · (x − c)) + d", slogan: "a, b, c und d finden, bis der Graph passt.",
-    zeichen: "∿", bild: "sinus", ziel: { ansicht: "sinus" }, etikett: "entdecken" },
+    zeichen: "∿", bild: "sinus", ziel: { ansicht: "sinus" }, etikett: "entdecken", stufe: "beide" },
   wachstum: { name: "Wachstum und Logarithmen", kurz: "Wachstum", zeile: "Messwerte, Halbwertszeit, Zielwert", slogan: "Exponentielle Modelle, Halbwertszeiten und Logarithmen.",
-    zeichen: "aᵗ", bild: "wachstum", ziel: { ansicht: "wachstum" }, etikett: "trainieren" },
+    zeichen: "aᵗ", bild: "wachstum", ziel: { ansicht: "wachstum" }, etikett: "trainieren", stufe: "beide" },
   ableitungstrainer: { name: "Ableitungstrainer", kurz: "Ableiten", zeile: "f′, f″ und f‴ eingeben und prüfen", slogan: "f′, f″ und f‴ eingeben und sofort prüfen lassen.",
-    zeichen: "f′", bild: "ableitung", ziel: { ansicht: "ableitungstrainer" }, etikett: "trainieren" },
-  kurvendiskussion: { name: "Kurvendiskussion", kurz: "Kurven", zeile: "Polynome oder beliebige Funktionen – Graph, Ableitungen, PDF", slogan: "Graph, Ableitungen und die komplette Kurvendiskussion – für Polynome und beliebige Funktionen.",
-    zeichen: "f(x)", bild: "kurve", ziel: { ansicht: "plotter" }, auch: ["advplotter"], etikett: "rechnen",
+    zeichen: "f′", bild: "ableitung", ziel: { ansicht: "ableitungstrainer" }, etikett: "trainieren", stufe: "ober" },
+  kurvendiskussion: { name: "Kurvendiskussion", kurz: "Kurven", zeile: "Graph, Ableitungen und PDF", slogan: "Graph, Ableitungen und die komplette Kurvendiskussion – für Polynome und beliebige Funktionen.",
+    zeichen: "f(x)", bild: "kurve", ziel: { ansicht: "plotter" }, auch: ["advplotter"], etikett: "rechnen", stufe: "ober",
     modi: [{ ansicht: "plotter", name: "Polynome" }, { ansicht: "advplotter", name: "Beliebige Funktionen" }] },
   scharen: { name: "Funktionsscharen", kurz: "Scharen", zeile: "Parameter, Ortskurven, Sonderfälle", slogan: "Parameter per Regler verändern, Punkte und Ortskurven berechnen.",
-    zeichen: "fₐ", bild: "scharen", ziel: { ansicht: "scharen" }, etikett: "entdecken" },
-  steckbrief: { name: "Steckbriefaufgaben", kurz: "Steckbrief", zeile: "Aus Eigenschaften die Funktion bestimmen", slogan: "Aus Hochpunkt, Wendepunkt & Co. die Funktion bauen.",
-    zeichen: "f(?)", bild: "steckbrief", ziel: { ansicht: "steckbrief" }, etikett: "trainieren" },
+    zeichen: "fₐ", bild: "scharen", ziel: { ansicht: "scharen" }, etikett: "entdecken", stufe: "ober" },
+  steckbrief: { name: "Steckbriefaufgaben", kurz: "Steckbrief", zeile: "Aus Eigenschaften die Funktion", slogan: "Aus Hochpunkt, Wendepunkt & Co. die Funktion bauen.",
+    zeichen: "f(?)", bild: "steckbrief", ziel: { ansicht: "steckbrief" }, etikett: "trainieren", stufe: "ober" },
   optimierung: { name: "Optimierungswerkstatt", kurz: "Optimierung", zeile: "Schachtel, Fläche, eigener Ansatz", slogan: "Vom Text zur Zielfunktion – Schachtel, Fläche, eigener Ansatz.",
-    zeichen: "max", bild: "optimierung", ziel: { ansicht: "optimierung" }, etikett: "trainieren" },
+    zeichen: "max", bild: "optimierung", ziel: { ansicht: "optimierung" }, etikett: "trainieren", stufe: "ober" },
   integrale: { name: "Integrale", kurz: "Integrale", zeile: "Stammfunktionen, Flächen, Bestand", slogan: "Stammfunktionen bilden, Flächen und Bestände berechnen.",
-    zeichen: "∫", bild: "integral", ziel: { ansicht: "integrale" }, etikett: "trainieren" },
+    zeichen: "∫", bild: "integral", ziel: { ansicht: "integrale" }, etikett: "trainieren", stufe: "ober" },
 
   /* ---------- Vektoren ---------- */
-  vektorgenerator: { name: "Rechnen mit Vektoren", kurz: "Rechnen", zeile: "A ± B, k · A, k · A + j · B und Skalarprodukt mit Rechenweg", slogan: "Addition, Vielfache, Linearkombination und Skalarprodukt – immer neue Beispiele mit Rechenweg.",
-    zeichen: "a⃗", bild: "wuerfel", ziel: { ansicht: "vektorgenerator" }, etikett: "rechnen" },
+  vektorgenerator: { name: "Rechnen mit Vektoren", kurz: "Rechnen", zeile: "A ± B, k · A, Skalarprodukt mit Weg", slogan: "Addition, Vielfache, Linearkombination und Skalarprodukt – immer neue Beispiele mit Rechenweg.",
+    zeichen: "a⃗", bild: "wuerfel", ziel: { ansicht: "vektorgenerator" }, etikett: "rechnen", stufe: "ober" },
   kreuzprodukt: { name: "Kreuzprodukt", kurz: "Kreuz", zeile: "a × b – Formel, eingesetzt, Ergebnis", slogan: "Zwei Vektoren eingeben – Formel, eingesetzt, Ergebnis.",
-    zeichen: "×", bild: "kreuz", ziel: { ansicht: "kreuzprodukt" }, etikett: "rechnen" },
-  winkel: { name: "Winkel und Skalarprodukt", kurz: "Winkel", zeile: "Skalarprodukt, Vektorwinkel, Gerade-Ebene", slogan: "Skalarprodukt verstehen und Winkel berechnen.",
-    zeichen: "φ", bild: "winkel", ziel: { ansicht: "winkel" }, etikett: "trainieren" },
+    zeichen: "×", bild: "kreuz", ziel: { ansicht: "kreuzprodukt" }, etikett: "rechnen", stufe: "ober" },
+  winkel: { name: "Winkel und Skalarprodukt", kurz: "Winkel", zeile: "Skalarprodukt und Vektorwinkel", slogan: "Skalarprodukt verstehen und Winkel berechnen.",
+    zeichen: "φ", bild: "winkel", ziel: { ansicht: "winkel" }, etikett: "trainieren", stufe: "ober" },
   zweipunkte: { name: "Zwei Punkte – eine Gerade", kurz: "Gerade", zeile: "Geradengleichung auf zwei Wegen", slogan: "Geradengleichung aus zwei Punkten – auf zwei Wegen.",
-    zeichen: "AB", bild: "gerade2p", ziel: { ansicht: "zweipunkte" }, etikett: "trainieren" },
+    zeichen: "AB", bild: "gerade2p", ziel: { ansicht: "zweipunkte" }, etikett: "trainieren", stufe: "ober" },
   dreipunkte: { name: "Drei Punkte – eine Ebene", kurz: "Ebene", zeile: "Drei Wege, mit Koordinatenform", slogan: "Drei Wege zur Ebene, mit Koordinatenform.",
-    zeichen: "ABC", bild: "ebene3p", ziel: { ansicht: "dreipunkte" }, etikett: "trainieren" },
+    zeichen: "ABC", bild: "ebene3p", ziel: { ansicht: "dreipunkte" }, etikett: "trainieren", stufe: "ober" },
   ebenen: { name: "Ebenen-Visualizer", kurz: "Visualizer", zeile: "Ebenen live im Raum drehen", slogan: "Ebenen in Koordinatenform live im Raum drehen.",
-    zeichen: "E", bild: "ebene", ziel: { ansicht: "ebenen" }, etikett: "entdecken" },
-  geraden: { name: "Geraden im Raum", kurz: "Lage", zeile: "Punktprobe, Lage von Geraden und Ebenen", slogan: "Punktprobe und Lage: schneidend, parallel, windschief.",
-    zeichen: "g", bild: "geraden", ziel: { ansicht: "geraden" }, etikett: "trainieren" },
+    zeichen: "E", bild: "ebene", ziel: { ansicht: "ebenen" }, etikett: "entdecken", stufe: "ober" },
+  geraden: { name: "Geraden im Raum", kurz: "Lage", zeile: "Punktprobe und Lage", slogan: "Punktprobe und Lage: schneidend, parallel, windschief.",
+    zeichen: "g", bild: "geraden", ziel: { ansicht: "geraden" }, etikett: "trainieren", stufe: "ober" },
   ebenevsebene: { name: "Ebene vs. Ebene", kurz: "E vs. E", zeile: "Schnittgerade und Schnittwinkel", slogan: "Schnittgerade und Schnittwinkel zweier Ebenen.",
-    zeichen: "E₁E₂", bild: "ebenen2", ziel: { ansicht: "ebenevsebene" }, etikett: "rechnen" },
-  abstaende: { name: "Abstände", kurz: "Abstände", zeile: "Punkt, Gerade, Ebene – alle Kombinationen", slogan: "Punkt, Gerade, Ebene – jede Kombination mit 3D-Bild.",
-    zeichen: "d", bild: "abstand", ziel: { ansicht: "abstaende" }, etikett: "rechnen" },
+    zeichen: "E₁E₂", bild: "ebenen2", ziel: { ansicht: "ebenevsebene" }, etikett: "rechnen", stufe: "ober" },
+  abstaende: { name: "Abstände", kurz: "Abstände", zeile: "Alle Kombinationen mit 3D-Bild", slogan: "Punkt, Gerade, Ebene – jede Kombination mit 3D-Bild.",
+    zeichen: "d", bild: "abstand", ziel: { ansicht: "abstaende" }, etikett: "rechnen", stufe: "ober" },
 
   /* ---------- Stochastik ---------- */
-  kombinatorik: { name: "Urnen und Kombinatorik", kurz: "Kombinatorik", zeile: "Ziehen, Zählmethoden, Baumdiagramme", slogan: "Ziehen, Zählmethoden, Baumdiagramme.",
-    zeichen: "n!", bild: "urne", ziel: { ansicht: "kombinatorik" }, etikett: "trainieren" },
+  kombinatorik: { name: "Urnen und Kombinatorik", kurz: "Kombinatorik", zeile: "Ziehen, Zählen, Baumdiagramme", slogan: "Ziehen, Zählmethoden, Baumdiagramme.",
+    zeichen: "n!", bild: "urne", ziel: { ansicht: "kombinatorik" }, etikett: "trainieren", stufe: "beide" },
   vierfelder: { name: "Vier-Felder-Tafel", kurz: "Vierfelder", zeile: "Mit Baumdiagramm und bedingter WKT", slogan: "Absolut oder in Prozent – mit Baum und bedingter WKT.",
-    zeichen: "▦", bild: "tafel", ziel: { ansicht: "vierfelder" }, etikett: "rechnen" },
-  erwartungswert: { name: "Erwartungswert und faire Spiele", kurz: "Erwartung", zeile: "Gewinnverteilung, fairer Einsatz, Simulation", slogan: "Nettogewinn, Erwartungswert, fairer Einsatz – mit Simulation.",
-    zeichen: "E(X)", bild: "erwartung", ziel: { ansicht: "erwartungswert" }, etikett: "trainieren" },
+    zeichen: "▦", bild: "tafel", ziel: { ansicht: "vierfelder" }, etikett: "rechnen", stufe: "beide" },
+  erwartungswert: { name: "Erwartungswert und faire Spiele", kurz: "Erwartung", zeile: "Fairer Einsatz und Simulation", slogan: "Nettogewinn, Erwartungswert, fairer Einsatz – mit Simulation.",
+    zeichen: "E(X)", bild: "erwartung", ziel: { ansicht: "erwartungswert" }, etikett: "trainieren", stufe: "beide" },
   bernoulli: { name: "Bernoulli-Kette", kurz: "Bernoulli", zeile: "Binomialverteilung live simulieren", slogan: "Binomialverteilung live sehen und simulieren.",
-    zeichen: "B", bild: "balken", ziel: { ansicht: "bernoulli" }, etikett: "entdecken" },
-  hypothesentest: { name: "Hypothesentests", kurz: "Tests", zeile: "H₀, Ablehnungsbereich, Fehler 1. und 2. Art", slogan: "H₀ aufstellen, Ablehnungsbereich finden, Fehler verstehen.",
-    zeichen: "H₀", bild: "hypothese", ziel: { ansicht: "hypothesentest" }, etikett: "trainieren" },
+    zeichen: "B", bild: "balken", ziel: { ansicht: "bernoulli" }, etikett: "entdecken", stufe: "ober" },
+  hypothesentest: { name: "Hypothesentests", kurz: "Tests", zeile: "H₀, Ablehnungsbereich, Fehlerarten", slogan: "H₀ aufstellen, Ablehnungsbereich finden, Fehler verstehen.",
+    zeichen: "H₀", bild: "hypothese", ziel: { ansicht: "hypothesentest" }, etikett: "trainieren", stufe: "ober" },
 
   /* ---------- Gleichungen ---------- */
   terme: { name: "Terme und Potenzgesetze", kurz: "Terme", zeile: "Vereinfachen, ausklammern, kürzen", slogan: "Vereinfachen, Ausklammern, Binomische Formeln, Potenzen, Brüche.",
-    zeichen: "xⁿ", bild: "termkarte", ziel: { ansicht: "terme" }, etikett: "trainieren" },
-  gleichungen: { name: "Gleichungen lösen", kurz: "Lösen", zeile: "Du formst um, die App rechnet mit – dazu fünf Verstehen-Modi", slogan: "Äquivalenzumformungen eintippen – linear bis Logarithmus, mit Verstehen-Modi.",
-    zeichen: "x =", bild: "gleichung", ziel: { ansicht: "gleichungen" }, auch: ["gleichverstehen"], etikett: "trainieren",
+    zeichen: "xⁿ", bild: "termkarte", ziel: { ansicht: "terme" }, etikett: "trainieren", stufe: "mittel" },
+  gleichungen: { name: "Gleichungen lösen", kurz: "Lösen", zeile: "Umformen und verstehen", slogan: "Äquivalenzumformungen eintippen – linear bis Logarithmus, mit Verstehen-Modi.",
+    zeichen: "x =", bild: "gleichung", ziel: { ansicht: "gleichungen" }, auch: ["gleichverstehen"], etikett: "trainieren", stufe: "beide",
     modi: [{ ansicht: "gleichungen", name: "Lösen" }, { ansicht: "gleichverstehen", name: "Verstehen" }] },
   lgs: { name: "Gleichungssysteme", kurz: "LGS", zeile: "Mit drei Variablen", slogan: "LGS mit drei Unbekannten – Gauß-Verfahren und direkter Weg.",
-    zeichen: "I II III", bild: "lgs", ziel: { ansicht: "lgs" }, etikett: "trainieren" },
+    zeichen: "I II III", bild: "lgs", ziel: { ansicht: "lgs" }, etikett: "trainieren", stufe: "beide" },
 };
 
 /* Bereiche → Stationen (in Abi-Reihenfolge) → Werkzeuge */
@@ -127,6 +129,9 @@ export const BEREICHE = [
 ];
 
 /* ---------- Abfragen ---------- */
+
+/* Stufen-Schalter: passt ein Werkzeug zur gewählten Stufe? (wahl: alle | mittel | ober) */
+export const passtStufe = (w, wahl) => !wahl || wahl === "alle" || w.stufe === "beide" || w.stufe === wahl;
 
 export const werkzeug = (id) => (WERKZEUGE[id] ? { id, ...WERKZEUGE[id] } : null);
 

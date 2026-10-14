@@ -5,7 +5,7 @@ import { KOMP } from "./base3.jsx";
 import { NAV, SCHULKLASSEN, kiKopf, kiAntwort } from "./base4.jsx";
 import { KIAufgaben, Kurse, Trainingsbereich, dekodieren, jsonLesen, rendern } from "./func1.jsx";
 import { Parabeln } from "./funcParabeln.jsx";
-import { Startseite, ToolMenue, istToolMenueSeite } from "./func2.jsx";
+import { Startseite, ToolMenue, istToolMenueSeite, werkzeugMerken } from "./func2.jsx";
 import { WerkzeugLeiste } from "./funcWerkzeuge.jsx";
 import { AbiKettenSeite } from "./funcAbiKetten.jsx";
 import { wo } from "./werkzeuge.js";
@@ -126,6 +126,7 @@ export function Mathilda() {
   const [seitenOffen, setSeitenOffen] = useState(false);
   const [toolMenueOffen, setToolMenueOffen] = useState(false);
   useEffect(() => { aufklappScrollStarten(); }, []);
+  useEffect(() => { werkzeugMerken(ansicht); }, [ansicht]);   // für „Weitermachen“ auf der Startseite
   // Webseiten-Entwürfe bekommen einen Anker in der Adresse (#entwurf-…), damit man sie direkt aufrufen kann
   useEffect(() => {
     try {
@@ -1767,7 +1768,6 @@ export function Mathilda() {
       )}
       </>
       )}
-      {!istEntwurf(ansicht) && <Fusszeile gehe={gehe} />}
       {!istEntwurf(ansicht) && (
         <FeedbackKnopf aktuell={{
           ansicht,
@@ -1781,6 +1781,7 @@ export function Mathilda() {
           foto: ansicht === "analyse" ? fotoModus : undefined,
         }} />
       )}
+      {!istEntwurf(ansicht) && <Fusszeile gehe={gehe} />}
       <MatheTastaturHost />
     </div>
   );

@@ -27,8 +27,8 @@ import { ElternabendKachel } from "./funcElternabend.jsx";
 import { EntdeckenLogoKlein } from "./funcEntdecken.jsx";
 import { SatzZeilen, saetze } from "./baseSatz.jsx";
 import { AufklappZeichen } from "./aufklappen.jsx";
-import { BEREICHE, WERKZEUGE, ansichtenVon, istWerkzeugAnsicht } from "./werkzeuge.js";
-import { EtikettPille, EtikettLegende } from "./funcWerkzeuge.jsx";
+import { BEREICHE, WERKZEUGE, ansichtenVon, istWerkzeugAnsicht, passtStufe, wo } from "./werkzeuge.js";
+import { EtikettPille, EtikettLegende, EtikettFilter } from "./funcWerkzeuge.jsx";
 
 /* Große, ganz anklickbare Kachel für die Plotter auf der Startseite. */
 /* Polynomplotter-Grafik im Hochformat für die Kachel. */
@@ -80,9 +80,9 @@ const AUFKLAPP_CSS = `.aufklapp-rahmen{transition:box-shadow .25s ease}
   [data-aufklapp-innen]>:last-child,[data-aufklapp-innen]>:last-child>[data-aufklapp-inhalt]:last-child{margin-bottom:0 !important}
   .aufklapp-rahmen[data-aufklapp-rahmen]:not(:has([data-aufklapp-rahmen])){position:relative;z-index:5;
     box-shadow:0 0 0 200vmax rgba(8,16,40,0.62)}`;
-function AufklappRahmen({ auf, innen, children }) {
+function AufklappRahmen({ auf, innen, rahmenRef, children }) {
   return (
-    <div className="aufklapp-rahmen" data-aufklapp-rahmen={auf ? "" : undefined}
+    <div ref={rahmenRef} className="aufklapp-rahmen" data-aufklapp-rahmen={auf ? "" : undefined}
       style={auf ? {
         margin: `${innen ? 8 : 14}px -${AUFKLAPP_RAND}px 0`, padding: `0 ${AUFKLAPP_RAND}px ${AUFKLAPP_ABSTAND}px`,
         display: "flow-root",   // verhindert, dass der Kachel-Abstand oben/unten aus dem Rahmen „herausrutscht“
@@ -388,14 +388,28 @@ const ZEIGE_GESPERRTE = false;
 /* Schulmathematik → Bereiche → Stationen → Werkzeuge. Die Daten stehen in werkzeuge.js (eine Liste für
    Startseite, Werkzeug-Menü, Kopfleiste und Übersichtsseiten); hier kommen nur die Logos dazu. */
 const BEREICH_LOGO = { analysis: <PlotterLogoKlein />, vektoren: <VektorenLogoKlein />, stochastik: <StochastikLogoKlein />, gleichungen: <GleichungenLogoKlein /> };
+/* Liniennetz: jeder Bereich ist eine „Linie“ mit eigenem Strich, die Stationen sind ihre Halte */
+const LINIEN_MUSTER = { analysis: "4px solid", vektoren: "7px double", stochastik: "4px dashed", gleichungen: "4px dotted" };
+
 const SCHUL_BEREICHE = BEREICHE.map((b) => ({
-  id: b.id, titel: b.titel, text: b.text, logo: BEREICH_LOGO[b.id], video: b.video,
-  /* flache Liste für das Untermenü: je Station eine Kopfzeile, darunter ihre Werkzeuge */
-  tools: b.stationen.flatMap((st, i) => [
-    { kopf: true, name: `${b.id}-${st.id}`, nr: i + 1, titel: st.titel, zeile: st.zeile },
-    ...st.werkzeuge.map((id) => { const w = WERKZEUGE[id]; return { name: w.name, zeile: w.zeile, bild: w.bild, ziel: w.ziel, etikett: w.etikett }; }),
-  ]),
+  id: b.id, titel: b.titel, text: b.text, logo: BEREICH_LOGO[b.id], video: b.video, linie: LINIEN_MUSTER[b.id],
+  stationen: b.stationen.map((st) => ({ ...st, werkzeuge: st.werkzeuge.map((id) => ({ id, ...WERKZEUGE[id] })) })),
 }));
+
+/* Flache Liste fürs Untermenü – je Station eine Kopfzeile, darunter ihre Werkzeuge –
+   gefiltert nach Stufe (alle | mittel | ober) und Etikett (null = alle). Leere Stationen fallen weg. */
+function bereichsEintraege(b, stufe, etikett) {
+  const liste = [];
+  let nr = 0;
+  for (const st of b.stationen) {
+    const ws = st.werkzeuge.filter((w) => passtStufe(w, stufe) && (!etikett || w.etikett === etikett));
+    if (!ws.length) continue;
+    nr += 1;
+    liste.push({ kopf: true, name: `${b.id}-${st.id}`, nr, titel: st.titel, zeile: st.zeile });
+    for (const w of ws) liste.push({ name: w.name, zeile: w.zeile, bild: w.bild, ziel: w.ziel, etikett: w.etikett });
+  }
+  return liste;
+}
 
 /* Formelsammlung → Bereiche (Untermenü wie bei Analysis) */
 const FORMEL_MENUE = [
@@ -423,7 +437,7 @@ function toolKnoten(t) {
 const WERKZEUG_ANSICHTEN = Object.fromEntries(Object.values(WERKZEUGE).map((w) => [w.ziel.ansicht, ansichtenVon(w)]));
 function menueBaum() {
   return [
-    ...SCHUL_BEREICHE.map((b) => ({ id: b.id, titel: b.titel, kinder: b.tools.map(toolKnoten) })),
+    ...SCHUL_BEREICHE.map((b) => ({ id: b.id, titel: b.titel, kinder: bereichsEintraege(b, "alle", null).map(toolKnoten) })),
     { id: "formel", titel: "Formelsammlung", kinder: FORMEL_MENUE.map((f) => ({ titel: f.name, ziel: f.ziel })) },
   ];
 }
@@ -599,12 +613,16 @@ function MiniBild({ art }) {
 /* Werkzeug-Knöpfe unter einem Bereich: helleres Blau als die Bereichs-Kachel, gleiche Breite,
    Titel + eine Zeile darunter, rechts ein kleines Motiv. Einträge mit „kinder“ klappen eine
    weitere Ebene auf (z. B. Kurvendiskussion → Polynome / Beliebige Funktionen). */
-function UnterMenue({ eintraege, gehe, tiefe = 0 }) {
+function UnterMenue({ eintraege, gehe, tiefe = 0, linie }) {
   const [offen, setOffen] = useState(null);
+  const mitLinie = !!linie && tiefe === 0 && eintraege.some((e) => e.kopf);
   // Dunkleres Blau für besseren Kontrast zur weißen Schrift; Ebene 2 etwas heller zur Unterscheidung
   const hg = tiefe === 0 ? "linear-gradient(160deg, #1B62AE 0%, #0F4A8A 55%, #0A3A70 100%)" : "linear-gradient(160deg, #2770BC 0%, #18589C 60%, #12487F 100%)";
   return (
-    <div data-aufklapp-inhalt style={{ display: "flex", flexDirection: "column", gap: 6, margin: tiefe ? "0 0 4px 14px" : "6px 0 10px" }}>
+    <div data-aufklapp-inhalt style={{ display: "flex", flexDirection: "column", gap: 6, margin: tiefe ? "0 0 4px 14px" : "6px 0 10px",
+      ...(mitLinie ? { position: "relative", paddingLeft: 30 } : null) }}>
+      {/* Liniennetz: goldene Linie links, die Stationsnummern sitzen als Halte darauf */}
+      {mitLinie && <span aria-hidden="true" style={{ position: "absolute", left: linie.startsWith("7px") ? 8 : 9, top: 13, bottom: 18, borderLeft: `${linie} ${C.flaggold}` }} />}
       <style>{`.unter-knopf{transition:transform .12s ease, filter .12s ease}
         .unter-knopf:active{transform:translateY(2px) scale(0.99);box-shadow:0 2px 6px rgba(10,40,90,0.3), inset 0 1px 0 rgba(255,255,255,0.22), inset 0 -1px 0 rgba(0,0,0,0.25) !important}
         @media (hover:hover){.unter-knopf:hover{filter:brightness(1.07)}}
@@ -613,9 +631,10 @@ function UnterMenue({ eintraege, gehe, tiefe = 0 }) {
       {eintraege.map((e, i) => {
         const auf = offen === e.name;
         if (e.kopf) return (
-          <div key={e.name} data-station-kopf style={{ display: "flex", alignItems: "center", gap: 9, margin: i ? "10px 2px 0" : "2px 2px 0" }}>
+          <div key={e.name} data-station-kopf data-station-titel={e.titel} style={{ display: "flex", alignItems: "center", gap: 9, margin: i ? "10px 2px 0" : "2px 2px 0",
+            ...(mitLinie ? { marginLeft: -30, position: "relative" } : null) }}>
             <span aria-hidden="true" style={{ flexShrink: 0, width: 22, height: 22, borderRadius: 999, background: C.flaggold, color: C.seeTief, fontSize: 12, fontWeight: 800,
-              display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{e.nr}</span>
+              display: "inline-flex", alignItems: "center", justifyContent: "center", boxShadow: mitLinie ? `0 0 0 3px ${C.weiss}` : undefined }}>{e.nr}</span>
             <span style={{ minWidth: 0, lineHeight: 1.2 }}>
               <span style={{ display: "block", fontSize: 14, fontWeight: 700, color: C.seeTief, letterSpacing: "-0.005em" }}>{e.titel}</span>
               <span className="unter-zeile" style={{ display: "block", fontSize: 11.5, fontWeight: 400, color: C.grau }}>{e.zeile}</span>
@@ -649,6 +668,115 @@ function UnterMenue({ eintraege, gehe, tiefe = 0 }) {
   );
 }
 
+/* ---------- Schulmathe-Training: Bausteine ---------- */
+const STUFE_SCHLUESSEL = "matheplus-stufe";
+const ZULETZT_SCHLUESSEL = "matheplus-zuletzt-werkzeug";
+const lies = (k, d) => { try { return localStorage.getItem(k) ?? d; } catch { return d; } };
+
+/* Zuletzt benutztes Werkzeug merken (aufgerufen aus func10 bei jedem Ansichtswechsel) */
+export function werkzeugMerken(ansicht) {
+  if (!istWerkzeugAnsicht(ansicht)) return;
+  try { localStorage.setItem(ZULETZT_SCHLUESSEL, JSON.stringify({ ansicht, zeit: Date.now() })); } catch { /* privat/gesperrt */ }
+}
+function zuletztWerkzeug() {
+  try {
+    const z = JSON.parse(localStorage.getItem(ZULETZT_SCHLUESSEL) || "null");
+    const ort = z && wo(z.ansicht);
+    if (!ort || !ort.werkzeug) return null;
+    const tage = Math.floor((new Date().setHours(0, 0, 0, 0) - new Date(z.zeit).setHours(0, 0, 0, 0)) / 864e5);
+    const wann = tage <= 0 ? "heute" : tage === 1 ? "gestern" : `vor ${tage} Tagen`;
+    return { ...ort, ansicht: z.ansicht, wann };
+  } catch { return null; }
+}
+
+function WeitermachenZeile({ gehe }) {
+  const z = zuletztWerkzeug();
+  if (!z) return null;
+  return (
+    <button type="button" onClick={() => gehe({ ansicht: z.ansicht })} aria-label={`Weitermachen mit ${z.werkzeug.name}`}
+      style={{ width: "100%", marginTop: 12, display: "flex", alignItems: "center", gap: 12, padding: "11px 14px", borderRadius: 14, cursor: "pointer",
+        fontFamily: "inherit", textAlign: "left", border: `1.5px solid ${C.flaggold}`, background: "#FFFBEA" }}>
+      <span aria-hidden="true" style={{ flexShrink: 0, width: 36, height: 36, borderRadius: 999, background: C.flaggold, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <svg width="13" height="15" viewBox="0 0 14 16"><path d="M2 1.5 L12.5 8 L2 14.5 Z" fill={C.seeTief} /></svg>
+      </span>
+      <span style={{ flex: 1, minWidth: 0 }}>
+        <span style={{ display: "block", fontSize: 10.5, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "#8A6A00" }}>Weitermachen</span>
+        <span style={{ display: "block", fontSize: 14.5, fontWeight: 700, color: C.tinte, lineHeight: 1.25 }}>{z.werkzeug.name}</span>
+        <span style={{ display: "block", fontSize: 12, color: C.grau }}>{z.bereich.titel} · {z.wann}</span>
+      </span>
+      <span aria-hidden="true" style={{ fontSize: 22, color: "#8A6A00" }}>›</span>
+    </button>
+  );
+}
+
+const STUFEN = [["mittel", "Mittelstufe"], ["ober", "Oberstufe"], ["alle", "Alle"]];
+function StufenSchalter({ wert, setze }) {
+  return (
+    <div role="group" aria-label="Schulstufe wählen" style={{ marginTop: 12, padding: 4, borderRadius: 14, background: "#EEF2F8",
+      display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 4 }}>
+      {STUFEN.map(([k, name]) => (
+        <button key={k} type="button" aria-pressed={wert === k} onClick={() => setze(k)}
+          style={{ minHeight: 40, borderRadius: 10, border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 13, fontWeight: 700,
+            background: wert === k ? C.weiss : "transparent", color: wert === k ? C.seeTief : C.grau,
+            boxShadow: wert === k ? "0 2px 6px rgba(14,30,74,0.15)" : "none", transition: "background .15s ease" }}>{name}</button>
+      ))}
+    </div>
+  );
+}
+
+/* Mitlaufender Bereichskopf: Sobald die Bereichskachel nach oben aus dem Bild scrollt, bleibt eine schmale
+   Leiste unter der Kopfleiste stehen – mit Bereich, aktueller Station und dem Minus-Knopf. */
+function BereichsKopfLeiste({ rahmenRef, titel, onZu }) {
+  const [lage, setLage] = useState(null);
+  useEffect(() => {
+    let raf = 0;
+    const pruefe = () => {
+      raf = 0;
+      const r = rahmenRef.current;
+      if (!r || !r.hasAttribute("data-aufklapp-rahmen")) return setLage(null);
+      const kopf = document.querySelector("[data-kopfleiste]");
+      const oben = kopf ? kopf.getBoundingClientRect().bottom : 0;
+      const fr = r.getBoundingClientRect();
+      const kachel = r.querySelector("button");
+      if (!kachel || kachel.getBoundingClientRect().bottom > oben + 4 || fr.bottom < oben + 110) return setLage(null);
+      const koepfe = [...r.querySelectorAll("[data-station-kopf]")];
+      let nr = koepfe.length ? 1 : 0;
+      koepfe.forEach((k, i) => { if (k.getBoundingClientRect().top < oben + 80) nr = i + 1; });
+      const st = nr ? koepfe[nr - 1].getAttribute("data-station-titel") : "";
+      setLage((alt) => (alt && alt.left === fr.left && alt.width === fr.width && alt.top === oben && alt.nr === nr ? alt
+        : { left: fr.left, width: fr.width, top: oben, nr, st, anzahl: koepfe.length }));
+    };
+    const plane = () => { if (!raf) raf = requestAnimationFrame(pruefe); };
+    pruefe();
+    window.addEventListener("scroll", plane, { passive: true });
+    window.addEventListener("resize", plane);
+    return () => { window.removeEventListener("scroll", plane); window.removeEventListener("resize", plane); if (raf) cancelAnimationFrame(raf); };
+  }, [rahmenRef]);
+  if (!lage) return null;
+  return (
+    <div data-bereichs-leiste style={{ position: "fixed", top: lage.top, left: lage.left, width: lage.width, zIndex: 6, boxSizing: "border-box",
+      background: C.weiss, padding: "8px 14px 8px 18px", display: "flex", alignItems: "center", gap: 12,
+      boxShadow: "0 6px 14px rgba(14,30,74,0.14)", borderRadius: "0 0 16px 16px", animation: "unterAuf .15s ease both" }}>
+      <span style={{ flex: 1, minWidth: 0, lineHeight: 1.2 }}>
+        <span style={{ display: "block", fontSize: 16, fontWeight: 800, color: C.seeTief }}>{titel}</span>
+        {lage.nr > 0 && <span className="unter-zeile" style={{ display: "block", fontSize: 12, color: C.grau }}>Station {lage.nr} von {lage.anzahl} · {lage.st}</span>}
+      </span>
+      {lage.anzahl > 1 && (
+        <span aria-hidden="true" style={{ display: "flex", gap: 3 }}>
+          {Array.from({ length: lage.anzahl }, (_, i) => (
+            <span key={i} style={{ width: 14, height: 5, borderRadius: 3, background: i < lage.nr ? C.flaggold : "#D5DAE3" }} />
+          ))}
+        </span>
+      )}
+      <button type="button" onClick={onZu} aria-label={`${titel} zuklappen`}
+        style={{ flexShrink: 0, width: 44, height: 44, borderRadius: 999, border: "none", cursor: "pointer", background: C.flaggold,
+          display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 3px 8px rgba(14,30,74,0.2)" }}>
+        <svg width="16" height="16" viewBox="0 0 14 14" aria-hidden="true"><path d="M2.8 7h8.4" stroke={C.seeTief} strokeWidth="2.4" strokeLinecap="round" /></svg>
+      </button>
+    </div>
+  );
+}
+
 export function Startseite({ gehe }) {
   const [wieder, setWieder] = useState(false);
   const [hinweis, setHinweis] = useState("");
@@ -656,6 +784,34 @@ export function Startseite({ gehe }) {
   const [bereichAuf, setBereichAuf] = useState(null);   // aufgeklappter Unterbereich (analysis, vektoren, …)
   const [kopfAuf, setKopfAuf] = useState(false);        // Dropdown „Kopfrechnen“
   const [formelAuf, setFormelAuf] = useState(false);    // Untermenü „Formelsammlung“
+  const [stufe, setStufe] = useState(() => { const w = lies(STUFE_SCHLUESSEL, "alle"); return ["mittel", "ober", "alle"].includes(w) ? w : "alle"; });
+  const [etikett, setEtikett] = useState(null);         // Filter Entdecken | Rechnen | Trainieren
+  const offenRahmen = useRef(null);                     // Rahmen des offenen Bereichs (für die mitlaufende Leiste)
+  const stufeSetzen = (w) => { setStufe(w); setBereichAuf(null); try { localStorage.setItem(STUFE_SCHLUESSEL, w); } catch { /* egal */ } };
+  const bereichZuUndZeigen = () => {
+    const r = offenRahmen.current;
+    setBereichAuf(null);
+    requestAnimationFrame(() => {
+      if (!r) return;
+      const kopf = document.querySelector("[data-kopfleiste]");
+      window.scrollTo({ top: r.getBoundingClientRect().top + window.scrollY - (kopf ? kopf.offsetHeight : 0) - 12 });
+    });
+  };
+  /* Außen tippen schließt: Ein Tipp auf die abgedunkelte Fläche (kein Knopf, kein Link) klappt das innerste offene Menü zu. */
+  useEffect(() => {
+    if (!schulAuf) return undefined;
+    const klick = (ev) => {
+      const t = ev.target;
+      if (!(t instanceof Element)) return;
+      if (t.closest('button, a, input, select, textarea, label, [role="dialog"], [data-kopfleiste], .fb-panel, [data-bereichs-leiste]')) return;
+      let aktiv = null;
+      try { aktiv = document.querySelector("[data-aufklapp-rahmen]:not(:has([data-aufklapp-rahmen]))"); } catch { return; }
+      if (!aktiv || aktiv.contains(t)) return;
+      if (bereichAuf || formelAuf) { setBereichAuf(null); setFormelAuf(false); } else setSchulAuf(false);
+    };
+    document.addEventListener("click", klick);
+    return () => document.removeEventListener("click", klick);
+  }, [schulAuf, bereichAuf, formelAuf]);
 
   /* --- Motive --- */
 
@@ -1063,27 +1219,56 @@ export function Startseite({ gehe }) {
           Alle Kacheln laufen auf voller Breite (breit); es ist immer nur ein Bereich offen. */}
       <MeinTrainingKachelStart gehe={gehe} />
       <AufklappRahmen auf={schulAuf}>
-      <PlotterKachel breit halb={schulAuf} onClick={() => { setSchulAuf(!schulAuf); setBereichAuf(null); setFormelAuf(false); }} auf={schulAuf}
+      <PlotterKachel breit halb={schulAuf} onClick={() => { setSchulAuf(!schulAuf); setBereichAuf(null); setFormelAuf(false); setEtikett(null); }} auf={schulAuf}
         label={schulAuf ? "Schulmathe-Training zuklappen" : "Schulmathe-Training aufklappen"}
         logo={<SchulmatheLogoKlein />} titel="Schulmathe-Training"
         text={schulAuf ? "Mathematik der Mittel- und Oberstufe." : "Mittel- und Oberstufe bis zum Abi: Analysis, Vektoren, Stochastik, Gleichungen."}
         extra={<PlusKnopf auf={schulAuf} klein={schulAuf} />} />
       {schulAuf && (
         <div data-aufklapp-inhalt style={{ margin: "0 0 4px" }}>
-          <div style={{ padding: "12px 2px 0" }}><EtikettLegende /></div>
-          {SCHUL_BEREICHE.map((b) => (
-            <AufklappRahmen key={b.id} auf={bereichAuf === b.id} innen>
-              <PlotterKachel klein breit haupt onClick={() => { setBereichAuf(bereichAuf === b.id ? null : b.id); setFormelAuf(false); }}
-                auf={bereichAuf === b.id} label={bereichAuf === b.id ? `${b.titel} zuklappen` : `${b.titel} aufklappen`}
-                logo={b.logo} titel={b.titel} text={b.text}
-                extra={<AufklappPfeil auf={bereichAuf === b.id} />} />
-              {bereichAuf === b.id && <div style={{ margin: "0 -16px" }}><UnterMenue eintraege={b.tools} gehe={gehe} /></div>}
-              {ZEIGE_GESPERRTE && bereichAuf === b.id && b.video && <VideokursGesperrt name={b.video.name} zeile={b.video.zeile} />}
-            </AufklappRahmen>
-          ))}
+          <WeitermachenZeile gehe={gehe} />
+          <StufenSchalter wert={stufe} setze={stufeSetzen} />
+          <div style={{ padding: "14px 2px 0" }}><EtikettFilter wert={etikett} setze={(e) => { setEtikett(e); setBereichAuf(null); setFormelAuf(false); }} /></div>
+          {etikett ? (
+            /* Filter aktiv: passende Werkzeuge direkt sichtbar, nach Bereich gruppiert */
+            SCHUL_BEREICHE.map((b) => {
+              const ws = bereichsEintraege(b, stufe, etikett).filter((e) => !e.kopf);
+              if (!ws.length) return null;
+              return (
+                <div key={b.id} style={{ marginTop: 14 }}>
+                  <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", padding: "0 2px 2px" }}>
+                    <span style={{ fontSize: 15, fontWeight: 800, color: C.seeTief }}>{b.titel}</span>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: C.grau }}>{ws.length === 1 ? "1 Werkzeug" : `${ws.length} Werkzeuge`}</span>
+                  </div>
+                  <div style={{ margin: "0 -16px" }}><UnterMenue eintraege={ws} gehe={gehe} /></div>
+                </div>
+              );
+            })
+          ) : SCHUL_BEREICHE.map((b) => {
+            const eintraege = bereichsEintraege(b, stufe, null);
+            if (!eintraege.length) return null;   // z. B. Vektoren in der Mittelstufe
+            const offen = bereichAuf === b.id;
+            const koepfe = eintraege.filter((e) => e.kopf);
+            const ZAHL = ["", "Eine Station", "Zwei Stationen", "Drei Stationen", "Vier Stationen"];
+            const text = stufe === "alle" ? b.text : `${ZAHL[koepfe.length] || `${koepfe.length} Stationen`}: ${koepfe.map((k) => k.titel).join(", ")}.`;
+            return (
+              <AufklappRahmen key={b.id} auf={offen} innen rahmenRef={offen ? offenRahmen : undefined}>
+                <PlotterKachel klein breit haupt onClick={() => { setBereichAuf(offen ? null : b.id); setFormelAuf(false); }}
+                  auf={offen} label={offen ? `${b.titel} zuklappen` : `${b.titel} aufklappen`}
+                  logo={b.logo} titel={b.titel} text={text}
+                  extra={<AufklappPfeil auf={offen} />} />
+                {offen && <BereichsKopfLeiste rahmenRef={offenRahmen} titel={b.titel} onZu={bereichZuUndZeigen} />}
+                {offen && <div style={{ margin: "0 -16px" }}><UnterMenue eintraege={eintraege} gehe={gehe} linie={b.linie} /></div>}
+                {ZEIGE_GESPERRTE && offen && b.video && <VideokursGesperrt name={b.video.name} zeile={b.video.zeile} />}
+              </AufklappRahmen>
+            );
+          })}
+          {(!etikett || etikett === "trainieren") && (
           <PlotterKachel klein breit onClick={() => gehe({ ansicht: "abiketten" })} label="Abi-Ketten öffnen" logo={<ZeichenLogo zeichen="a→d" />}
             titel="Abi-Ketten"
             text="Eine Abi-Aufgabe, die durch mehrere Werkzeuge läuft – mit Punkten und Uhr." />
+          )}
+          {!etikett && (
           <AufklappRahmen auf={formelAuf} innen>
             <PlotterKachel klein breit onClick={() => { setFormelAuf(!formelAuf); setBereichAuf(null); }} auf={formelAuf} label={formelAuf ? "Formelsammlung zuklappen" : "Formelsammlung aufklappen"} logo={<FormelLogoKlein />}
               titel="Formelsammlung"
@@ -1091,6 +1276,7 @@ export function Startseite({ gehe }) {
               extra={<AufklappPfeil auf={formelAuf} />} />
             {formelAuf && <div style={{ margin: "0 -16px" }}><UnterMenue eintraege={FORMEL_MENUE} gehe={gehe} /></div>}
           </AufklappRahmen>
+          )}
           {ZEIGE_GESPERRTE && (<>
           <PlotterKachel halb breit gesperrt logo={<ZeichenLogo zeichen="≔" />}
             titel="Definitionen"
@@ -1105,7 +1291,7 @@ export function Startseite({ gehe }) {
       {/* Mathe entdecken: gleichwertiger zweiter Hauptbereich direkt unter „Schulmathe-Training“ */}
       <PlotterKachel breit onClick={() => gehe({ ansicht: "entdecken" })} label="Mathe entdecken öffnen" logo={<EntdeckenLogoKlein />}
         titel="Mathe entdecken"
-        text="Muster erkennen, Vermutungen aufstellen und Formeln selbst herleiten." />
+        text="Muster erkennen, Formeln selbst herleiten – und Mathe-Wettbewerbe." />
       {ZEIGE_GESPERRTE && (<>
       <MatheCheckenKachel gesperrt onClick={() => gehe({ ansicht: "mathecheck" })} />
       <MasterclassKachel gesperrt onClick={() => gehe({ ansicht: "masterclass" })} />

@@ -35,6 +35,33 @@ export function EtikettPille({ etikett, dunkel = false, klein = false, style }) 
   );
 }
 
+/* Etiketten als Filter (Startseite): antippen zeigt nur Werkzeuge dieser Art, nochmal antippen hebt den Filter auf */
+export function EtikettFilter({ wert, setze }) {
+  const aktiv = wert && ETIKETTEN[wert];
+  return (
+    <div style={{ margin: "4px 0 2px" }}>
+      <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: C.grau, marginBottom: 7 }}>Zeig mir</div>
+      <div role="group" aria-label="Werkzeuge nach Art filtern" style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+        {Object.keys(ETIKETTEN).map((k) => {
+          const an = wert === k, f = ETIKETT_FARBE[k];
+          return (
+            <button key={k} type="button" aria-pressed={an} onClick={() => setze(an ? null : k)}
+              style={{ minHeight: 36, padding: "0 13px", borderRadius: 999, cursor: "pointer", fontFamily: "inherit", fontSize: 11.5, fontWeight: 800,
+                letterSpacing: "0.05em", textTransform: "uppercase", border: `1.5px solid ${an ? f.text : f.rand}`, background: an ? f.text : f.hg, color: an ? "#fff" : f.text,
+                transition: "background .15s ease, color .15s ease" }}>
+              {ETIKETTEN[k].name}
+            </button>
+          );
+        })}
+      </div>
+      <div style={{ fontSize: 12.5, color: C.grau, marginTop: 7, lineHeight: 1.45 }}>
+        {aktiv ? <>{ETIKETTEN[wert].text}. <button type="button" onClick={() => setze(null)} style={{ background: "none", border: "none", padding: 0, cursor: "pointer", fontFamily: "inherit", fontSize: 12.5, fontWeight: 600, color: C.see }}>Alle zeigen</button></>
+          : "Tippe ein Etikett an, um nur diese Werkzeuge zu sehen."}
+      </div>
+    </div>
+  );
+}
+
 /* Kleine Legende der drei Etiketten */
 export function EtikettLegende({ dunkel = false }) {
   return (
