@@ -10,6 +10,7 @@
    ============================================================ */
 
 import React, { useState } from "react";
+import { useStateGebucht } from "./buchung.jsx";
 import { C } from "./base1.jsx";
 import { M } from "./func3.jsx";
 import { parse, kompiliere, hatX, hatBox, alsTex } from "./func12.jsx";
@@ -131,7 +132,7 @@ function Aufgabe({ au, neu, titel, kopf, platzhalter, hilfeText, einleitung }) {
   const [wahl, setWahl] = useState("");
   const [liste, setListe] = useState("");
   const [eing, setEing] = useState("");
-  const [rueck, setRueck] = useState(null);
+  const [rueck, setRueck] = useStateGebucht(null);
   const [vers, setVers] = useState(0);
   const [zeigen, setZeigen] = useState(false);
   const [erledigt, setErledigt] = useState(false);

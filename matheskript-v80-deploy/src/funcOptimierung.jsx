@@ -12,6 +12,7 @@
    ============================================================ */
 
 import React, { useState } from "react";
+import { useStateGebucht } from "./buchung.jsx";
 import { C } from "./base1.jsx";
 import { M } from "./func3.jsx";
 import { parse, kompiliere, hatX, hatBox } from "./func12.jsx";
@@ -179,7 +180,7 @@ function baueSchritte(au) {
 function Schritt({ st, nr, aktiv, fertig, onFertig, au }) {
   const [eing, setEing] = useState("");
   const [versuche, setVersuche] = useState(0);
-  const [rueck, setRueck] = useState(null);
+  const [rueck, setRueck] = useStateGebucht(null);
   const [zeigen, setZeigen] = useState(false);
   const [ok, setOk] = useState(false);
   const pruefen = () => {

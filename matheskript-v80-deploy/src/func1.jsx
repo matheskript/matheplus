@@ -8,6 +8,9 @@ import { GraphZuordnung, Klausur, Kurvendiskussion } from "./func4.jsx";
 import { intervall } from "./func8.jsx";
 import { VideokursPlayer, VideokursVorschau, naechsteLektion, videoAnzahl } from "./func15.jsx";
 import { AufklappZeichen } from "./aufklappen.jsx";
+import { buchen } from "./buchung.jsx";
+import { IchHaengeFest } from "./funcHilfe.jsx";
+import { hilfeKontext } from "./ui2.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
 
 export function useYouTubeApi() {
@@ -918,7 +921,16 @@ export function KIAufgaben({ eingebettet }) {
     if (mS === null || bS === null) return;
     setGeprueft(true);
     setSerie((s) => ({ versuche: s.versuche + 1, treffer: s.treffer + (mOk && bOk ? 1 : 0) }));
+    buchen({ richtig: mOk && bOk, gruppe: `gerade-${typ}`, fehlerart: mOk && !bOk ? "achsenabschnitt" : !mOk ? "steigung" : null });
   };
+  const hilfe = hilfeKontext({
+    id: `gerade-${typ}-${nr}`,
+    aufgabe: typ === "zweipunkte" ? "Bestimme m und c der Geraden y = m · x + c durch die beiden Punkte." : "Bestimme m und c der Geraden y = m · x + c durch den Punkt mit der gegebenen Steigung.",
+    verstehen: "Gesucht sind zwei Zahlen: die Steigung m und der y-Achsenabschnitt c, also der Wert bei x = 0.",
+    ansatz: typ === "zweipunkte" ? "Erst m = (y₂ − y₁) / (x₂ − x₁). Dann einen Punkt in y = m · x + c einsetzen und nach c auflösen." : "m ist gegeben. Setze den Punkt in y = m · x + c ein und löse nach c auf.",
+    regel: "Steigung = Unterschied der y-Werte geteilt durch Unterschied der x-Werte – immer in derselben Reihenfolge.",
+    pruefen: "Setze den Punkt (bzw. beide Punkte) in deine Gleichung ein. Jeder Punkt muss sie erfüllen.",
+  });
 
   const feldStil = (ok) => ({
     width: 74, padding: "10px 12px", fontSize: 17, fontFamily: "inherit", textAlign: "center",
@@ -1031,6 +1043,7 @@ export function KIAufgaben({ eingebettet }) {
               </span>
             )}
           </div>
+          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfe} /></div>
         </>
       )}
     </div>

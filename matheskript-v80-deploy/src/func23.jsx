@@ -9,6 +9,7 @@
    ============================================================ */
 
 import React, { useState } from "react";
+import { useStateGebucht } from "./buchung.jsx";
 import { WeiterKnopf, WeiterMit } from "./funcWerkzeuge.jsx";
 import { C } from "./base1.jsx";
 import { Einzeilig, ggT, kreuz, skalar } from "./func19.jsx";
@@ -281,7 +282,7 @@ export function ZweiPunkteGerade() {
 function GeradePruefen({ A, B }) {
   const [Pw, setPw] = useState(["", "", ""]);
   const [rw, setRw] = useState(["", "", ""]);
-  const [ergebnis, setErgebnis] = useState(null);
+  const [ergebnis, setErgebnis] = useStateGebucht(null);
   const pruefen = () => {
     const P = leseVektor(Pw), r = leseVektor(rw), ab = diff(A, B);
     if (!P || !r) return setErgebnis({ art: "warn", text: "Bitte alle sechs Felder mit ganzen Zahlen füllen." });
@@ -467,7 +468,7 @@ export function DreiPunkteEbene() {
 /* Eigene Koordinatengleichung prüfen: dieselbe Ebene? */
 function EbenePruefen({ norm, A, B, Cp }) {
   const [w, setW] = useState(["", "", "", ""]);
-  const [ergebnis, setErgebnis] = useState(null);
+  const [ergebnis, setErgebnis] = useStateGebucht(null);
   const setze = (i) => (v) => { const x = [...w]; x[i] = v; setW(x); setErgebnis(null); };
   const pruefen = () => {
     const z = w.map(zahl);

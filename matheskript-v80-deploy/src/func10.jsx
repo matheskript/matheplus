@@ -155,6 +155,7 @@ export function Mathilda() {
     window.scrollTo(0, 0);
   };
   FR.gehe = gehe;   // für „Weiter mit …“-Knöpfe in den Werkzeugen (uebergabe.js)
+  FR.ansicht = () => ansicht;   // für buchung.jsx: Bereich einer Buchung
   const [menuOffen, setMenuOffen] = useState(false);
   /* Ein Menüeintrag ist nur aktiv, wenn Ansicht UND Unterziel passen
      (mehrere Einträge teilen sich z. B. die Ansicht "training"). */

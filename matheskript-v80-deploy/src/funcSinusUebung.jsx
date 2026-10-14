@@ -11,6 +11,7 @@
    ============================================================ */
 
 import React, { useMemo, useState } from "react";
+import { useStateGebucht } from "./buchung.jsx";
 import { C } from "./base1.jsx";
 import { M } from "./func3.jsx";
 import { Auswahl, GrosserKnopf, KleinerLink, Rueck, ZahlFeld, hinweis, karte, kicker, zw } from "./ui2.jsx";
@@ -103,7 +104,7 @@ function ParameterBestimmen() {
 function Zielgraph() {
   const [ziel, setZiel] = useState(zufallsSinus);
   const [v, setV] = useState({ a: "1", b: "1", c: "0", d: "0" });
-  const [rueck, setRueck] = useState(null);
+  const [rueck, setRueck] = useStateGebucht(null);
   const [hilfe, setHilfe] = useState(0);
   const setF = (k) => (x) => { setV((alt) => ({ ...alt, [k]: x })); setRueck(null); };
   const w = { a: liesZahl(v.a), b: liesZahl(v.b), c: liesZahl(v.c), d: liesZahl(v.d) };

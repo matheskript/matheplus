@@ -11,6 +11,7 @@
    ============================================================ */
 
 import React, { useState } from "react";
+import { useStateGebucht } from "./buchung.jsx";
 import { C } from "./base1.jsx";
 import { M } from "./func3.jsx";
 import { Einzeilig } from "./func19.jsx";
@@ -466,7 +467,7 @@ function SkalarproduktVerstehen() {
   const { w, setW, gelesen, fehler } = useVektoren([start.a, start.b]);
   const [vm, setVm] = useState(null);
   const [antwort, setAntwort] = useState("");
-  const [pr, setPr] = useState(null);
+  const [pr, setPr] = useStateGebucht(null);
   const [winkelAn, setWinkelAn] = useState(false);
   const neu = () => { const p = neuesVektorPaar(0.25); setW([wirf(p.a), wirf(p.b)]); setVm(null); setAntwort(""); setPr(null); setWinkelAn(false); };
   const [a, b] = gelesen;
@@ -547,7 +548,7 @@ function Vektorwinkel() {
   const [geschaetzt, setGeschaetzt] = useState(false);
   const [antwort, setAntwort] = useState("");
   const [gerade, setGerade] = useState(false);
-  const [pr, setPr] = useState(null);
+  const [pr, setPr] = useStateGebucht(null);
   const neu = () => { const p = neuesVektorPaar(0.1); setW([wirf(p.a), wirf(p.b)]); setSchaetz(90); setGeschaetzt(false); setAntwort(""); setPr(null); };
   const [a, b] = gelesen;
   const phi = a && b ? winkelZwischen(a, b) : null;
@@ -626,7 +627,7 @@ function GeradeEbeneWinkel() {
   const { w, setW, gelesen, fehler } = useVektoren([start.a, start.b]);
   const [formel, setFormel] = useState(null);
   const [antwort, setAntwort] = useState("");
-  const [pr, setPr] = useState(null);
+  const [pr, setPr] = useStateGebucht(null);
   const neu = () => { const p = neuesVektorPaar(0.1); setW([wirf(p.a), wirf(p.b)]); setFormel(null); setAntwort(""); setPr(null); };
   const [u, nv] = gelesen;
   const alpha = u && nv ? winkelGeradeEbene(u, nv) : null;

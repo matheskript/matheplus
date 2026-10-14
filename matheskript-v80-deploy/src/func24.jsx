@@ -12,6 +12,7 @@
    ============================================================ */
 
 import React, { useState } from "react";
+import { useStateGebucht } from "./buchung.jsx";
 import { uebergabeErledigt, uebergabeLesen } from "./uebergabe.js";
 import { C } from "./base1.jsx";
 import { Bruch, Einzeilig, Wurzel, Zahl, ggT, kreuz, skalar } from "./func19.jsx";
@@ -458,7 +459,7 @@ function LotUeben({ art }) {
   const neu = () => neueAufgabe(art === "pg" ? "abstandPG" : "abstandPE");
   const [a, setA] = useState(neu);
   const [w, setW] = useState(["", "", ""]);
-  const [erg, setErg] = useState(null);
+  const [erg, setErg] = useStateGebucht(null);
   const [ansatz, setAnsatz] = useState(null);
   const [laengeW, setLaengeW] = useState("");
   const F = art === "pg" ? a.F : (() => { const z = skalar(a.n, a.P) - a.d, qq = skalar(a.n, a.n); return a.P.map((x, i) => x - (z / qq) * a.n[i]); })();

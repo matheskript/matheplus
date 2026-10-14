@@ -12,6 +12,7 @@
    ============================================================ */
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { buchen, useStateGebucht } from "./buchung.jsx";
 import { uebergabeErledigt, uebergabeLesen } from "./uebergabe.js";
 import { C } from "./base1.jsx";
 import { M } from "./func3.jsx";
@@ -326,7 +327,7 @@ function StammTrainer({ art }) {
   const [eingabe, setEingabe] = useState("");
   const [pos, setPos] = useState(0);
   const [tippen, setTippen] = useState(false);
-  const [status, setStatus] = useState(null);       // null | richtig | falsch | gezeigt
+  const [status, setStatus] = useStateGebucht(null);       // null | richtig | falsch | gezeigt
   const [hinweis, setHinweis] = useState("");
   const [versuche, setVersuche] = useState(0);
   const [bilanz, setBilanz] = useState({ richtig: 0, gesamt: 0 });
@@ -515,6 +516,7 @@ function BestimmtesIntegral({ zeigeHauptsatz, start }) {
     for (let i = 0; i <= 16; i++) innen.push(hi > lo ? lo + ((hi - lo) * i) / 16 : lo + i * 0.1);
     if (innen.some((x) => !endlich(Fk(x)))) return setErg({ fehler: "Dein F ist nicht auf dem ganzen Intervall definiert. Für 1/x mit negativen x brauchst du ln|x|, hier also ln(−x)." });
     const passt = innen.every((x) => { const s = fk(x), m = dF(x); return endlich(s) && endlich(m) && Math.abs(s - m) <= 1e-6 * (1 + Math.abs(s)); });
+    buchen({ richtig: passt, gruppe: "bestimmtes-integral", fehlerart: passt ? null : "stammfunktion" });
     if (!passt) return setErg({ fehler: "F ist keine Stammfunktion von f: Leitest du F ab, kommt nicht f heraus. Prüfe F zuerst – zum Beispiel im Modus „Stammfunktion bilden“." });
     const Fb = Fk(b.v), Fa = Fk(a.v);
     setErg({ f, F, a, b, Fa, Fb, I: Fb - Fa });

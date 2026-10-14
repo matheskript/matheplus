@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import { FR } from "./funcRegistry.jsx";
 import { API_URL, C, DEMO_VIDEO_ID, DIFFQ_TESTPAARE, DIFFQ_VIDEO_ID, Regler, ganz } from "./base1.jsx";
 import { ABL_TYPEN, FEHLERARTEN, GEN_MODULE, KOPF_WERKZEUGE, PF_STUFEN, PRIMLISTE, PROTOKOLL, WEG_TYPEN } from "./base2.jsx";
 import { LERN } from "./base3.jsx";
@@ -845,6 +846,7 @@ export function merken(eintrag) {
   if (PROTOKOLL.length > 500) PROTOKOLL.splice(0, PROTOKOLL.length - 500);
   if (LERN.geladen) lernSpeichern();
 }
+FR.merken = merken;   // für buchung.jsx (Trainer melden richtig/falsch)
 
 
 export function profilAuswertung() {

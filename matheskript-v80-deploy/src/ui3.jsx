@@ -11,6 +11,7 @@
    Keine base-Datei darf diese Datei importieren.
    ====================================================================== */
 import React, { useId, useState } from "react";
+import { buchen } from "./buchung.jsx";
 import { C } from "./base1.jsx";
 import { Auswahl, GrosserKnopf, KleinerLink, Rueck, ZahlFeld, hinweis, zw } from "./ui2.jsx";
 import { qLies, qNum } from "./rechnen2.js";
@@ -63,6 +64,7 @@ export function Schritt({ st, nr, aktiv, fertig, onFertig }) {
       if (v === null) { setRueck({ art: "warn", text: zw("Bitte eine Zahl eingeben (Bruch wie 3/8 oder Dezimalzahl wie 0,375).", "Please enter a number (fraction like 3/8 or decimal like 0.375).") }); return; }
       r = Math.abs(v - st.wert) <= tol + 1e-12;
     }
+    buchen({ richtig: r, gruppe: st.id });   // ins Fortschrittsprotokoll
     if (r) { setOk(true); setRueck(null); onFertig(); return; }
     const n = versuche + 1; setVersuche(n);
     const typisch = (st.fehler || []).find((f) => (st.typ === "wahl" ? f.wahl === eing : Math.abs(v - f.wert) <= (f.toleranz ?? tol) + 1e-12));

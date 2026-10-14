@@ -11,6 +11,7 @@
    ============================================================ */
 
 import React, { useMemo, useState } from "react";
+import { useStateGebucht } from "./buchung.jsx";
 import { C } from "./base1.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
 import { WeiterKnopf, WeiterMit } from "./funcWerkzeuge.jsx";
@@ -338,7 +339,7 @@ function BaumAufbauen() {
   const [au, setAu] = useState(baumAufgabe);
   const [eing, setEing] = useState({});
   const [ok, setOk] = useState({});
-  const [meld, setMeld] = useState(null);
+  const [meld, setMeld] = useStateGebucht(null);
   const [stand, setStand] = useState(0);
   const neu = () => { setAu(baumAufgabe()); setEing({}); setOk({}); setMeld(null); setStand(0); };
   const alleOk = ZWEIGE.every(([k]) => ok[k] === true);

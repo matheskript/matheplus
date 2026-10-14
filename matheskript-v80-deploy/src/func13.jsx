@@ -11,6 +11,7 @@
    ============================================================ */
 
 import React, { useMemo, useState } from "react";
+import { buchen } from "./buchung.jsx";
 import { uebergabeErledigt, uebergabeLesen } from "./uebergabe.js";
 import { C } from "./base1.jsx";
 import { ABL_TYPEN } from "./base2.jsx";
@@ -188,6 +189,7 @@ export function Ableitungstrainer() {
     const soll = kette[stufe].fn, vorher = kette[stufe - 1].fn;
     const erg = vergleich(g, soll);
     setBilanz((bz) => ({ richtig: bz.richtig + (erg.ok ? 1 : 0), gesamt: bz.gesamt + 1 }));
+    buchen({ richtig: !!erg.ok, gruppe: `ableitung-${stufe}`, stufe });
     if (erg.ok) {
       const neu = zeilen.map((z, i) => (i === aktiv ? { ...z, status: "richtig", hinweis: "" } : z));
       if (stufe < 3) { neu.push(leer()); setAktiv(aktiv + 1); setPos(0); }

@@ -12,6 +12,7 @@
    ============================================================ */
 
 import React, { useMemo, useState } from "react";
+import { useStateGebucht } from "./buchung.jsx";
 import { uebergabeErledigt, uebergabeLesen } from "./uebergabe.js";
 import { C } from "./base1.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
@@ -210,7 +211,7 @@ function Ablehnungsbereich({ start: mitStart = null }) {
   const [au, setAu] = useState(() => mitStart || testAufgabe());
   const start = (a) => { const mu = Math.round(a.n * a.p0); return a.r === "beide" ? { gl: Math.max(0, mu - 3), gr: Math.min(a.n, mu + 3) } : { g: a.r === "links" ? Math.max(0, mu - 3) : Math.min(a.n, mu + 3) }; };
   const [wahlG, setWahlG] = useState(() => start(au));
-  const [meld, setMeld] = useState(null);
+  const [meld, setMeld] = useStateGebucht(null);
   const neu = () => { const a = testAufgabe(); setAu(a); setWahlG(start(a)); setMeld(null); };
   const { n, p0, alpha, krit: r } = au;
   const t = useMemo(() => binomTabelle(n, p0), [au]);
