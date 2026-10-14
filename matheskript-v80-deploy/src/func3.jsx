@@ -360,6 +360,12 @@ export function Plotter() {
           <WeiterMit titel="Weiter mit dieser Funktion">
             <WeiterKnopf ziel="ableitungstrainer" von="Kurvendiskussion" daten={{ text: polyEingabeText(K6) }}
               zeile="f′, f″ und f‴ dieser Funktion selbst bilden und prüfen lassen" />
+            {grad >= 1 && (() => {
+              const g = ns.length >= 2 ? [ns[0], ns[1]] : [0, 1];
+              const t = (v) => String(Math.round(v * 1e4) / 1e4);
+              return <WeiterKnopf ziel="integrale" von="Kurvendiskussion" daten={{ f: polyEingabeText(K6), a: t(g[0]), b: t(g[1]) }}
+                zeile={ns.length >= 2 ? "Integral zwischen den ersten beiden Nullstellen – Stammfunktion selbst finden" : "Bestimmtes Integral von 0 bis 1 – Stammfunktion selbst finden"} />;
+            })()}
           </WeiterMit>
         </div>
       )}

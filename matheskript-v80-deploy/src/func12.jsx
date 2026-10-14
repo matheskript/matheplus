@@ -1550,6 +1550,12 @@ export function AdvancedPlotter() {
           <WeiterMit titel="Weiter mit dieser Funktion">
             <WeiterKnopf ziel="ableitungstrainer" von="Kurvendiskussion" daten={{ text }}
               zeile="f′, f″ und f‴ dieser Funktion selbst bilden und prüfen lassen" />
+            {A && (() => {
+              const iv = A.integrale && A.integrale[0];
+              const t = (v) => String(Math.round(v * 1e4) / 1e4);
+              return <WeiterKnopf ziel="integrale" von="Kurvendiskussion" daten={{ f: text, a: iv ? t(iv.x1) : "0", b: iv ? t(iv.x2) : "1" }}
+                zeile={iv ? "Erstes Nullstellenintegral – Stammfunktion selbst finden" : "Bestimmtes Integral von 0 bis 1 – Stammfunktion selbst finden"} />;
+            })()}
           </WeiterMit>
         </div>
       )}

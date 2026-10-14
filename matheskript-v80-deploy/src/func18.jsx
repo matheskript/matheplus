@@ -13,6 +13,8 @@ import React, { useMemo, useState } from "react";
 import { tr } from "./i18n.js";
 import { C } from "./base1.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
+import { WeiterKnopf, WeiterMit } from "./funcWerkzeuge.jsx";
+import { uebergabeErledigt, uebergabeLesen } from "./uebergabe.js";
 
 function vierfelderHilfe(ereignisName, bedingungName, sym) {
   return {
@@ -175,12 +177,21 @@ function Baum({ ersteStufe, P, namen }) {
 
 /* ---------- Hauptkomponente ---------- */
 
+/* Übergabe aus „Urnen und Kombinatorik“: { namen, abs } – sonst die erste Vorlage */
+function startVorlage() {
+  const u = uebergabeLesen("vierfelder");
+  if (u && u.namen && Array.isArray(u.abs) && u.abs.length === 4 && u.abs.every((v) => Number.isInteger(v) && v >= 0) && u.abs.some((v) => v > 0))
+    return { ...VORLAGEN[0], ...u.namen, abs: u.abs, aus: true };
+  return VORLAGEN[0];
+}
 export function Vierfeldertafel() {
-  const [vorlage, setVorlage] = useState(VORLAGEN[0]);
-  const [namen, setNamen] = useState({ a: VORLAGEN[0].a, an: VORLAGEN[0].an, b: VORLAGEN[0].b, bn: VORLAGEN[0].bn });
+  const [start] = useState(startVorlage);
+  React.useEffect(() => { uebergabeErledigt("vierfelder"); }, []);
+  const [vorlage, setVorlage] = useState(start);
+  const [namen, setNamen] = useState({ a: start.a, an: start.an, b: start.b, bn: start.bn });
   const [modus, setModus] = useState("abs");
-  const [abs, setAbs] = useState(VORLAGEN[0].abs);                     // [A∩B, A∩B̄, Ā∩B, Ā∩B̄]
-  const [rel, setRel] = useState(() => { const s = VORLAGEN[0].abs.reduce((x, y) => x + y, 0); return VORLAGEN[0].abs.map((v) => Math.round((v / s) * 1000) / 1000); });
+  const [abs, setAbs] = useState(start.abs);                     // [A∩B, A∩B̄, Ā∩B, Ā∩B̄]
+  const [rel, setRel] = useState(() => { const s = start.abs.reduce((x, y) => x + y, 0); return start.abs.map((v) => Math.round((v / s) * 1000) / 1000); });
   const [frage, setFrage] = useState({ ereignis: "A", bedingung: "B" });
   const [baum, setBaum] = useState("A");
 
@@ -413,6 +424,11 @@ export function Vierfeldertafel() {
       <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}>
         <IchHaengeFest kontext={vierfelderHilfe(name(ereignis), name(bedingung), { e: sym(ereignis), b: sym(bedingung) })} />
       </div>
+
+      <WeiterMit titel="Weiter zum Baumdiagramm">
+        <WeiterKnopf ziel="kombinatorik" von="Vier-Felder-Tafel" daten={{ modus: "baum" }}
+          titel="Baumdiagramm aufbauen" zeile="Zweige selbst beschriften – Pfadregel und Summenregel üben" />
+      </WeiterMit>
 
       {/* Merkkarte */}
       <div style={{ ...karte, marginTop: 16 }}>

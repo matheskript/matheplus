@@ -13,6 +13,8 @@
 import React, { useMemo, useState } from "react";
 import { C } from "./base1.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
+import { WeiterKnopf, WeiterMit } from "./funcWerkzeuge.jsx";
+import { uebergabeErledigt, uebergabeLesen } from "./uebergabe.js";
 import { binomKoeff } from "./func17.jsx";
 import { Auswahl, GrosserKnopf, Rueck, ZahlFeld, hilfeKontext, hinweis, karte, kicker, zw } from "./ui2.jsx";
 import { ggT, wahl, zz } from "./rechnen2.js";
@@ -409,6 +411,15 @@ function BaumAufbauen() {
         </details>
       )}
       {alleOk && <SchrittFolge schritte={schritte} stand={stand} setStand={setStand} fertigText={zw("Pfadregel und Summenregel sitzen.", "Product and sum rule done.")} />}
+      {alleOk && (
+        <WeiterMit titel={zw("Weiter mit diesem Baum", "Continue with this tree")}>
+          {/* Alle geordneten Ziehungen als Anzahlen: A = 1. Zug rot, B = 2. Zug rot */}
+          <WeiterKnopf ziel="vierfelder" von={zw("Urnen und Kombinatorik", "Urns and combinatorics")}
+            daten={{ namen: { a: zw("1. Zug rot", "1st red"), an: zw("1. Zug blau", "1st blue"), b: zw("2. Zug rot", "2nd red"), bn: zw("2. Zug blau", "2nd blue") },
+              abs: [au.w.r[0] * au.w.rr[0], au.w.r[0] * au.w.rb[0], au.w.b[0] * au.w.br[0], au.w.b[0] * au.w.bb[0]] }}
+            zeile={zw("Dieselbe Ziehung als Vier-Felder-Tafel – mit bedingten Wahrscheinlichkeiten", "The same draw as a two-way table – with conditional probabilities")} />
+        </WeiterMit>
+      )}
       <GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>
       <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfeUrne(`baum-${au.id}`)} /></div>
     </div>
@@ -417,7 +428,8 @@ function BaumAufbauen() {
 
 const MODI = [["versuche", zw("Versuche durchführen", "Run experiments")], ["zaehlen", zw("Zählmethode wählen", "Choose counting method")], ["baum", zw("Baum\u00ADdiagramm aufbauen", "Build tree diagram")]];
 export function UrnenKombinatorik() {
-  const [modus, setModus] = useState("versuche");
+  const [modus, setModus] = useState(() => { const u = uebergabeLesen("kombinatorik"); return u && ["versuche", "zaehlen", "baum"].includes(u.modus) ? u.modus : "versuche"; });
+  React.useEffect(() => { uebergabeErledigt("kombinatorik"); }, []);
   return (
     <Seite titel={zw("Urnen und Kombinatorik", "Urns and combinatorics")}
       text={zw("Ziehen mit und ohne Zurücklegen, die passende Zählmethode finden und Baumdiagramme sicher beschriften.", "Drawing with and without replacement, finding the right counting method and labelling tree diagrams.")}>

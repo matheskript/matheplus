@@ -12,6 +12,7 @@
    ============================================================ */
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { uebergabeErledigt, uebergabeLesen } from "./uebergabe.js";
 import { C } from "./base1.jsx";
 import { M } from "./func3.jsx";
 import { Tastenfeld, ableitung, alsTex, analysiere, hatBox, kompiliere, ohnePar, parse, wert } from "./func12.jsx";
@@ -478,9 +479,9 @@ const grenzeLesen = (t) => {
   return endlich(v) ? { v, tex: tx(baum), baum: einfach ? baum : { k: "par", a: baum } } : null;
 };
 
-function BestimmtesIntegral({ zeigeHauptsatz }) {
-  const [felder, setFelder] = useState({ f: "", F: "", a: "", b: "" });
-  const [aktiv, setAktiv] = useState("f");
+function BestimmtesIntegral({ zeigeHauptsatz, start }) {
+  const [felder, setFelder] = useState(() => (start ? { f: start.f, F: "", a: start.a, b: start.b } : { f: "", F: "", a: "", b: "" }));
+  const [aktiv, setAktiv] = useState(() => (start ? "F" : "f"));
   const [pos, setPos] = useState(0);
   const [tippen, setTippen] = useState(false);
   const [erg, setErg] = useState(null);
@@ -569,6 +570,7 @@ function BestimmtesIntegral({ zeigeHauptsatz }) {
         <button type="button" onClick={zeigeHauptsatz}
           style={{ background: "none", border: "none", color: C.see, fontSize: 13, fontWeight: 600, fontFamily: "inherit", cursor: "pointer", padding: 0 }}>ⓘ Hauptsatz ansehen</button>
       </div>
+      {start && <p style={{ fontSize: 13.5, color: C.see, fontWeight: 600, lineHeight: 1.6, marginBottom: 8 }}>f und die Grenzen sind übernommen. Finde jetzt eine Stammfunktion F.</p>}
       <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, marginBottom: 12 }}>
         Gib f, eine Stammfunktion F und die Grenzen ein. Die App prüft F′ = f auf dem Intervall und rechnet zeilenweise.
       </p>
@@ -663,7 +665,10 @@ function ModusAuswahl({ modus, onWahl }) {
 const REGELN = [["sin(x)", "-\\cos(x) + C"], ["\\cos(x)", "\\sin(x) + C"], ["e^{x}", "e^{x} + C"], ["\\frac{1}{x}", "\\ln|x| + C"]];
 
 export function Integrale() {
-  const [modus, setModus] = useState("stamm");
+  /* Übergabe aus der Kurvendiskussion: { f, a, b } → direkt „Bestimmtes Integral“, F trägt der Schüler selbst ein */
+  const [start] = useState(() => { const u = uebergabeLesen("integrale"); return u && u.f && u.a !== undefined && u.b !== undefined ? u : null; });
+  useEffect(() => { uebergabeErledigt("integrale"); }, []);
+  const [modus, setModus] = useState(() => (start ? "bestimmt" : "stamm"));
   const [dialog, setDialog] = useState(null);           // "c" | "hauptsatz" | null
   const hauptsatzGesehen = useRef(false);
   const waehle = (id) => {
@@ -694,7 +699,7 @@ export function Integrale() {
         </div>
       ))}
       <div style={{ display: modus === "bestimmt" ? "block" : "none" }}>
-        <BestimmtesIntegral zeigeHauptsatz={() => setDialog("hauptsatz")} />
+        <BestimmtesIntegral zeigeHauptsatz={() => setDialog("hauptsatz")} start={start} />
       </div>
       {modus === "stamm" && <Anfangsbedingung />}
       <div style={{ display: modus === "bilanz" ? "block" : "none" }}><FlaecheBilanz /></div>
