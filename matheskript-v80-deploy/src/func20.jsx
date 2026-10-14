@@ -556,13 +556,13 @@ export function VektorGenerator({ gehe }) {
 
       <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: C.gruenDunkel, marginBottom: 8 }}>Rechnen</p>
       <div className="rv-haupt" style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8, marginBottom: 16 }}>
-        <style>{`@media (max-width:420px){.rv-haupt{grid-template-columns:1fr!important}}`}</style>
+        <style>{`@media (max-width:560px){.rv-haupt{grid-template-columns:1fr!important}}`}</style>
         {ARTEN.filter((x) => x.haupt).map((x) => {
           const an = art === x.id;
           return (
             <button key={x.id} type="button" onClick={() => wechsle(x.id)} aria-pressed={an} aria-label={x.name}
               style={{ minHeight: 64, padding: "9px 8px", borderRadius: 14, fontFamily: "inherit", cursor: "pointer", textAlign: "center",
-                display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 5,
+                display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8,
                 border: `1px solid ${an ? C.see : C.linie}`, background: an ? C.see : C.weiss, color: an ? C.weiss : C.see,
                 boxShadow: an ? "0 4px 14px rgba(0,77,152,0.25)" : "0 2px 10px rgba(15,26,51,0.05)" }}>
               <span style={{ fontSize: "clamp(11px, 2.9vw, 13px)", fontWeight: 700, letterSpacing: "0.01em", whiteSpace: "nowrap" }}>{x.name}</span>
