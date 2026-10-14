@@ -877,11 +877,11 @@ export const DEMO = {
 };
 
 
-export const KOEFF_FARBEN = { e: C.see, a: C.gruen, b: C.tuerkis, c: C.smaragd, d: C.lila };
+export const KOEFF_FARBEN = { e: C.see, a: C.gruen, b: C.tuerkis, c: C.smaragd, d: C.lila, f: C.signal };
 
 export const KOEFF_SPALTEN = ["e", "a", "b", "c", "d"];
 
-export const KOEFF_HOCH = { 4: "⁴", 3: "³", 2: "²" };
+export const KOEFF_HOCH = { 5: "⁵", 4: "⁴", 3: "³", 2: "²" };
 
 /* Baut eine Formel-Zeile (f, f′ oder f″) als festes 5-Spalten-Raster auf —
    eine Spalte je Koeffizient, leer wenn der Term in dieser Zeile wegfällt.

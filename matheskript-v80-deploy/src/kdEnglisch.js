@@ -28,6 +28,8 @@ const MUSTER = [
   [/^D\(f\) = (ℝ|R) \(alle reellen Zahlen\), da f eine ganzrationale Funktion \(ein Polynom\) ist\.$/u, "D(f) = $1 (all real numbers), since f is a polynomial function."],
   [/^f enthält nur ungerade Exponenten \(x\^3 und x\^1\)\. Es gilt f\(-x\) = -f\(x\), daher ist f punktsymmetrisch zum Ursprung\.$/u,
     "f contains only odd exponents (x^3 and x^1). Since f(-x) = -f(x), f is point-symmetric about the origin."],
+  [/^f enthält nur ungerade Exponenten \(x\^5, x\^3 und x\^1\)\. Es gilt f\(-x\) = -f\(x\), daher ist f punktsymmetrisch zum Ursprung\.$/u,
+    "f contains only odd exponents (x^5, x^3 and x^1). Since f(-x) = -f(x), f is point-symmetric about the origin."],
   [/^f enthält nur gerade Exponenten \(x\^4, x\^2, x\^0\)\. Es gilt f\(-x\) = f\(x\), daher ist f achsensymmetrisch zur y-Achse\.$/u,
     "f contains only even exponents (x^4, x^2, x^0). Since f(-x) = f(x), f is symmetric about the y-axis."],
   [/^f enthält sowohl gerade als auch ungerade Exponenten mit Koeffizient ungleich 0\. Es gilt weder f\(-x\) = f\(x\) noch f\(-x\) = -f\(x\) [-−–] es liegt keine Symmetrie zur y-Achse oder zum Ursprung vor\.$/u,

@@ -1,7 +1,7 @@
 import { tr } from "./i18n.js";
 import React, { useState, useRef } from "react";
 import { API_URL, C, DEMO_VIDEO_ID, DIFFQ_TESTPAARE, FUNKTIONEN, HOCH, KOEFF_FARBEN, MMENGEN, MODUL_PDF_URL, MSYM, PARAM_WERTE, PRUEFSTELLEN, Regler, ganz, ganzNZ, zuf } from "./base1.jsx";
-import { FormelReihe, KurvendiskussionAnzeige, baueReihe, markanteAllg, nullstellenAllg, schoenerSchritt, zahl } from "./func2.jsx";
+import { FormelReihe, KurvendiskussionAnzeige, baueReihe, horner, markanteAllg, nullstellenAllg, polyAbleitungen, polyReihen, schoenerSchritt, zahl } from "./func2.jsx";
 import { FR } from "./funcRegistry.jsx";
 import { PLATZ, WEG_TYPEN, gleichZahl, istLeer } from "./base2.jsx";
 import { kiKopf, kiAntwort } from "./base4.jsx";
@@ -11,16 +11,17 @@ import { merken } from "./func5.jsx";
 import { termAlsTex } from "./func4.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
 
-/* Kopf des Polynomplotters im Stil der Sinusfunktion: ein gemeinsames 5-Spalten-Raster.
+/* Kopf des Polynomplotters im Stil der Sinusfunktion: ein gemeinsames Raster mit einer Spalte je Koeffizient.
    Oben die Plus/Minus-Knöpfe, darunter die allgemeine Form im grauen Kasten, dann die
-   eingesetzte Funktion und ihre Ableitungen — jeder Knopf steht genau über seinem Koeffizienten. */
-const POLY_RASTER = "clamp(50px, 14vw, 70px) repeat(5, minmax(0, 1fr))";
-const POLY_HOCH = { 4: "⁴", 3: "³", 2: "²", 1: "", 0: "" };
+   eingesetzte Funktion und ihre Ableitungen — jeder Knopf steht genau über seinem Koeffizienten.
+   Die Spaltenzahl folgt dem Grad (1 bis 5 → 2 bis 6 Spalten), der Platz wird gleichmäßig verteilt. */
+const polyRaster = (spalten) => `clamp(50px, 14vw, 70px) repeat(${spalten}, minmax(0, 1fr))`;
+const POLY_HOCH = { 5: "⁵", 4: "⁴", 3: "³", 2: "²", 1: "", 0: "" };
 
-export function PolyKnopf({ farbe, onClick, label, children }) {
+export function PolyKnopf({ farbe, onClick, label, children, breite = 34, hoehe = 24 }) {
   return (
     <button type="button" aria-label={label} onClick={onClick}
-      style={{ width: "min(34px, 100%)", height: 24, borderRadius: 7, border: `1.5px solid ${farbe}66`, background: `${farbe}14`,
+      style={{ width: `min(${breite}px, 100%)`, height: hoehe, borderRadius: 7, border: `1.5px solid ${farbe}66`, background: `${farbe}14`,
         color: farbe, fontSize: 16, fontWeight: 700, fontFamily: "inherit", cursor: "pointer", padding: 0, lineHeight: 1,
         display: "flex", alignItems: "center", justifyContent: "center" }}>
       {children}
@@ -29,13 +30,20 @@ export function PolyKnopf({ farbe, onClick, label, children }) {
 }
 
 function PolyKopf({ koeff, zeileF, zeileF1, zeileF2, alleLeer }) {
-  const raster = { display: "grid", gridTemplateColumns: POLY_RASTER, columnGap: 4, alignItems: "center" };
+  const n = koeff.length;
+  // Schrift wird nur bei sechs Spalten verkleinert; bei weniger Spalten bleibt sie gleich, die Spalten werden breiter.
+  const fk = Math.min(1, 5.2 / n);
+  const gr = (min, vw, max) => `clamp(${(min * fk).toFixed(1)}px, ${(vw * fk).toFixed(2)}vw, ${(max * fk).toFixed(1)}px)`;
+  const knopfB = n <= 3 ? 52 : n === 4 ? 42 : 34;
+  const knopfH = n <= 3 ? 28 : 24;
+  const raster = { display: "grid", gridTemplateColumns: polyRaster(n), columnGap: 4, alignItems: "center" };
   const label = (t, stil) => <span style={{ textAlign: "right", paddingRight: 6, whiteSpace: "nowrap", ...stil }}>{t}</span>;
   const termZelle = (t, i, stil) => (
     <span key={i} style={{ textAlign: "center", whiteSpace: "nowrap", ...stil }}>
       {t && <><span>{t.vor}</span>{t.vor ? " " : ""}<span style={{ color: t.farbe }}>{t.text}</span></>}
     </span>
   );
+  const wertText = (w) => (w > 0 ? `+${w}` : String(w).replace("-", "−"));
   return (
     <div style={{ minWidth: 0 }}>
       {/* Knöpfe */}
@@ -43,16 +51,15 @@ function PolyKopf({ koeff, zeileF, zeileF1, zeileF2, alleLeer }) {
         <span />
         {koeff.map((q) => {
           const farbe = KOEFF_FARBEN[q.k];
-          // Feste Auswahl statt Plus/Minus (x⁴-Glied), im selben Spaltengerüst wie die Nachbarn:
-          // „0“ sitzt auf Höhe der Werte, „+x⁴“ auf Höhe der Plusse, „−x⁴“ auf Höhe der Minusse.
+          // Höchste Potenz bei Grad 4 und 5: feste Wahl zwischen +xⁿ und −xⁿ, in den Zeilen der Plus-/Minus-Knöpfe.
           if (q.auswahl) {
-            const knopf = (wert, hoehe) => {
+            const knopf = (wert) => {
               const o = q.auswahl.find((x) => x.wert === wert);
               const aktiv = q.wert === wert;
               return (
-                <button type="button" aria-pressed={aktiv} aria-label={`x⁴-Glied: ${o.text}`}
+                <button type="button" aria-pressed={aktiv} aria-label={`Höchste Potenz: ${o.text}`}
                   onClick={() => q.setzen(wert)}
-                  style={{ width: "min(44px, 100%)", height: hoehe, borderRadius: 7, border: `1.5px solid ${aktiv ? farbe : farbe + "66"}`,
+                  style={{ width: `min(${knopfB + 8}px, 100%)`, height: 24, borderRadius: 7, border: `1.5px solid ${aktiv ? farbe : farbe + "66"}`,
                     background: aktiv ? farbe : `${farbe}14`, color: aktiv ? C.weiss : farbe,
                     fontSize: 13, fontWeight: 800, fontFamily: "inherit", cursor: "pointer", padding: 0, lineHeight: 1,
                     display: "flex", alignItems: "center", justifyContent: "center", whiteSpace: "nowrap" }}>
@@ -62,10 +69,10 @@ function PolyKopf({ koeff, zeileF, zeileF1, zeileF2, alleLeer }) {
             };
             return (
               <div key={q.k} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, minWidth: 0 }}>
-                <span aria-hidden="true" style={{ fontSize: 13, fontWeight: 800, visibility: "hidden" }}>{q.k}</span>
-                <span style={{ display: "flex", justifyContent: "center", width: "100%", minHeight: 20 }}>{knopf(0, 20)}</span>
-                {knopf(1, 24)}
-                {knopf(-1, 24)}
+                <span style={{ fontSize: 13, fontWeight: 800, color: farbe }}>{q.k}</span>
+                <span style={{ fontSize: 15, fontWeight: 800, color: farbe, fontVariantNumeric: "tabular-nums", minHeight: 20 }}>{wertText(q.wert)}</span>
+                {knopf(1)}
+                {knopf(-1)}
               </div>
             );
           }
@@ -73,10 +80,10 @@ function PolyKopf({ koeff, zeileF, zeileF1, zeileF2, alleLeer }) {
             <div key={q.k} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, minWidth: 0 }}>
               <span style={{ fontSize: 13, fontWeight: 800, color: farbe }}>{q.k}</span>
               <span style={{ fontSize: 15, fontWeight: 800, color: farbe, fontVariantNumeric: "tabular-nums", minHeight: 20 }}>
-                {q.wert > 0 ? `+${q.wert}` : String(q.wert).replace("-", "−")}
+                {wertText(q.wert)}
               </span>
-              <PolyKnopf farbe={farbe} label={`${q.k} erhöhen`} onClick={() => q.setzen(Math.min(q.max, q.wert + 1))}>+</PolyKnopf>
-              <PolyKnopf farbe={farbe} label={`${q.k} verringern`} onClick={() => q.setzen(Math.max(q.min, q.wert - 1))}>−</PolyKnopf>
+              <PolyKnopf farbe={farbe} breite={knopfB} hoehe={knopfH} label={`${q.k} erhöhen`} onClick={() => q.schritt(1)}>+</PolyKnopf>
+              <PolyKnopf farbe={farbe} breite={knopfB} hoehe={knopfH} label={`${q.k} verringern`} onClick={() => q.schritt(-1)}>−</PolyKnopf>
             </div>
           );
         })}
@@ -84,29 +91,27 @@ function PolyKopf({ koeff, zeileF, zeileF1, zeileF2, alleLeer }) {
 
       {/* Allgemeine Form im grauen Kasten */}
       <div style={{ ...raster, background: "#EEF1F5", border: `1px solid ${C.linie}`, borderRadius: 10, padding: "5px 0",
-        fontSize: "clamp(11px, 3.2vw, 15px)", fontWeight: 800, color: C.tinte, marginBottom: 6 }}>
+        fontSize: gr(11, 3.2, 15), fontWeight: 800, color: C.tinte, marginBottom: 6 }}>
         {label("f(x) =")}
         {koeff.map((q, i) => (
           <span key={q.k} style={{ textAlign: "center", whiteSpace: "nowrap" }}>
-            {i > 0 && "+ "}{q.auswahl
-              ? <span style={{ color: KOEFF_FARBEN[q.k] }}>±x{POLY_HOCH[q.pot]}</span>
-              : <><span style={{ color: KOEFF_FARBEN[q.k] }}>{q.k}</span>{q.pot > 0 && <>·x{POLY_HOCH[q.pot]}</>}</>}
+            {i > 0 && "+ "}<span style={{ color: KOEFF_FARBEN[q.k] }}>{q.k}</span>{q.pot > 0 && <>·x{POLY_HOCH[q.pot]}</>}
           </span>
         ))}
       </div>
 
       {/* Eingesetzte Funktion und Ableitungen */}
-      <div style={{ ...raster, fontSize: "clamp(13px, 4.1vw, 21px)", fontWeight: 800, color: C.tinte, fontVariantNumeric: "tabular-nums", padding: "3px 0" }}>
+      <div style={{ ...raster, fontSize: gr(13, 4.1, 21), fontWeight: 800, color: C.tinte, fontVariantNumeric: "tabular-nums", padding: "3px 0" }}>
         {label("f(x) =")}
         {alleLeer ? <span style={{ gridColumn: "2 / -1", paddingLeft: 6 }}>0</span> : zeileF.map((t, i) => termZelle(t, i))}
       </div>
       {!alleLeer && (
         <>
-          <div style={{ ...raster, fontSize: "clamp(11px, 3.3vw, 14px)", fontWeight: 700, color: C.grau, padding: "2px 0" }}>
+          <div style={{ ...raster, fontSize: gr(11, 3.3, 14), fontWeight: 700, color: C.grau, padding: "2px 0" }}>
             {label("f′(x) =")}
             {zeileF1.map((t, i) => termZelle(t, i))}
           </div>
-          <div style={{ ...raster, fontSize: "clamp(11px, 3.3vw, 14px)", fontWeight: 700, color: C.grau, padding: "2px 0" }}>
+          <div style={{ ...raster, fontSize: gr(11, 3.3, 14), fontWeight: 700, color: C.grau, padding: "2px 0" }}>
             {label("f″(x) =")}
             {zeileF2.map((t, i) => termZelle(t, i))}
           </div>
@@ -116,18 +121,24 @@ function PolyKopf({ koeff, zeileF, zeileF1, zeileF2, alleLeer }) {
   );
 }
 
-export function Plotter() {
-  const [e, setE] = useState(0);
-  const [a, setA] = useState(1);
-  const [b, setB] = useState(-2);
-  const [c, setC] = useState(-1);
-  const [d, setD] = useState(2);
-  const [zoom, setZoom] = useState(1);
+/* Wertebereich je Koeffizient: höchste Potenz darf nie 0 sein (sonst stimmt der Grad nicht mehr). */
+const koeffMax = (pot, fuehrend) => (fuehrend ? (pot >= 4 ? 1 : pot === 3 ? 3 : 10) : pot >= 3 ? 3 : 10);
 
-  const f = (x) => e * x ** 4 + a * x ** 3 + b * x ** 2 + c * x + d;
-  const fs = (x) => 4 * e * x ** 3 + 3 * a * x ** 2 + 2 * b * x + c;
-  const fss = (x) => 12 * e * x ** 2 + 6 * a * x + 2 * b;
-  const grad = e !== 0 ? 4 : a !== 0 ? 3 : b !== 0 ? 2 : c !== 0 ? 1 : 0;
+export function Plotter() {
+  const [grad, setGrad] = useState(3);
+  // Koeffizienten je Potenz; Werte oberhalb des gewählten Grades bleiben gespeichert, zählen aber nicht.
+  const [kk, setKk] = useState({ 5: 1, 4: 1, 3: 1, 2: -2, 1: -1, 0: 2 });
+  const [zoom, setZoom] = useState(1);
+  const [offen, setOffen] = useState(false);
+  const ergebnisRef = useRef(null);
+
+  const K6 = [5, 4, 3, 2, 1, 0].map((p) => (p <= grad ? kk[p] : 0));
+  const { D1, D2 } = polyAbleitungen(K6);
+  const f = (x) => horner(K6, x);
+  const fs = (x) => horner(D1, x);
+  const fss = (x) => horner(D2, x);
+  const d = K6[5];
+  const schluessel = K6.join(",");
 
   // Weiträumig genug suchen, unabhängig vom später gezeigten Ausschnitt.
   const suchR = 40;
@@ -135,23 +146,37 @@ export function Plotter() {
   const markante = markanteAllg(f, fs, fss, grad, -suchR, suchR);
 
   // Zoom setzt sich zurück, sobald sich die Funktion ändert.
-  React.useEffect(() => { setZoom(1); }, [e, a, b, c, d]);
+  React.useEffect(() => { setZoom(1); }, [schluessel]);
 
-  const zeileF = baueReihe([
-    { schluessel: "e", wert: e, potenz: 4 }, { schluessel: "a", wert: a, potenz: 3 },
-    { schluessel: "b", wert: b, potenz: 2 }, { schluessel: "c", wert: c, potenz: 1 },
-    { schluessel: "d", wert: d, potenz: 0 },
-  ]);
-  const zeileF1 = baueReihe([
-    { schluessel: "e", wert: 4 * e, potenz: 3 }, { schluessel: "a", wert: 3 * a, potenz: 2 },
-    { schluessel: "b", wert: 2 * b, potenz: 1 }, { schluessel: "c", wert: c, potenz: 0 },
-    { schluessel: "d", wert: 0, potenz: 0 },
-  ]);
-  const zeileF2 = baueReihe([
-    { schluessel: "e", wert: 12 * e, potenz: 2 }, { schluessel: "a", wert: 6 * a, potenz: 1 },
-    { schluessel: "b", wert: 2 * b, potenz: 0 }, { schluessel: "c", wert: 0, potenz: 0 },
-    { schluessel: "d", wert: 0, potenz: 0 },
-  ]);
+  const waehleGrad = (n) => {
+    setGrad(n);
+    setKk((alt) => {
+      const max = koeffMax(n, true);
+      let v = alt[n] === 0 ? 1 : alt[n];
+      v = Math.max(-max, Math.min(max, v));
+      return v === alt[n] ? alt : { ...alt, [n]: v };
+    });
+  };
+
+  const koeff = [];
+  for (let pot = grad; pot >= 0; pot--) {
+    const fuehrend = pot === grad;
+    const max = koeffMax(pot, fuehrend);
+    const q = {
+      k: "abcdef"[grad - pot], wert: kk[pot], pot, min: -max, max,
+      setzen: (v) => setKk((alt) => ({ ...alt, [pot]: v })),
+      schritt: (r) => setKk((alt) => {
+        let v = alt[pot] + r;
+        if (fuehrend && v === 0) v += r;   // die höchste Potenz überspringt die 0
+        v = Math.max(-max, Math.min(max, v));
+        return { ...alt, [pot]: v };
+      }),
+    };
+    if (fuehrend && pot >= 4) q.auswahl = [{ wert: 1, text: `+x${POLY_HOCH[pot]}` }, { wert: -1, text: `−x${POLY_HOCH[pot]}` }];
+    koeff.push(q);
+  }
+
+  const { zeileF, zeileF1, zeileF2 } = polyReihen(K6);
   const alleLeer = zeileF.every((t) => !t);
 
   // Benötigten Bildausschnitt bestimmen: alle markanten Punkte, Nullstellen und
@@ -199,25 +224,33 @@ export function Plotter() {
     cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "center",
   };
 
+  const diskussionUmschalten = () => {
+    const neu = !offen;
+    setOffen(neu);
+    if (neu) setTimeout(() => { try { ergebnisRef.current && ergebnisRef.current.scrollIntoView({ behavior: "smooth", block: "start" }); } catch (err) { /* egal */ } }, 80);
+  };
+
   return (
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
-      <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
-        Sieh, was die Koeffizienten tun
-      </h2>
-      <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 22 }}>
-        Stell die Koeffizienten ein und beobachte, wie sich der Graph verändert. Mitgezeichnet sind die beiden
-        Ableitungen: Wo f′ die x-Achse schneidet, hat f einen Extrempunkt — wo f″ sie schneidet, einen Wendepunkt.
-      </p>
-
       <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" }}>
-        <PolyKopf koeff={[
-          { k: "e", wert: e, setzen: setE, pot: 4,
-            auswahl: [{ wert: 1, text: "+x⁴" }, { wert: -1, text: "−x⁴" }, { wert: 0, text: "0" }] },
-          { k: "a", wert: a, setzen: setA, min: -3, max: 3, pot: 3 },
-          { k: "b", wert: b, setzen: setB, min: -10, max: 10, pot: 2 },
-          { k: "c", wert: c, setzen: setC, min: -10, max: 10, pot: 1 },
-          { k: "d", wert: d, setzen: setD, min: -10, max: 10, pot: 0 },
-        ]} zeileF={zeileF} zeileF1={zeileF1} zeileF2={zeileF2} alleLeer={alleLeer} />
+        {/* Grad wählen */}
+        <div style={{ marginBottom: 18 }}>
+          <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 8 }}>Grad des Polynoms</p>
+          <div role="group" aria-label="Grad des Polynoms" style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 8 }}>
+            {[1, 2, 3, 4, 5].map((n) => {
+              const aktiv = n === grad;
+              return (
+                <button key={n} type="button" aria-pressed={aktiv} onClick={() => waehleGrad(n)}
+                  style={{ height: 40, borderRadius: 10, border: `1.5px solid ${aktiv ? C.see : C.linie}`, background: aktiv ? C.see : C.weiss,
+                    color: aktiv ? C.weiss : C.see, fontSize: 16, fontWeight: 700, fontFamily: "inherit", cursor: "pointer", padding: 0 }}>
+                  {n}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <PolyKopf koeff={koeff} zeileF={zeileF} zeileF1={zeileF1} zeileF2={zeileF2} alleLeer={alleLeer} />
 
         <div style={{ position: "relative", marginTop: 14 }}>
           <svg viewBox={`0 0 ${Sx} ${Sy}`} style={{ width: "100%", maxWidth: 360, display: "block", margin: "0 auto" }}>
@@ -286,31 +319,44 @@ export function Plotter() {
 
       </div>
 
-      <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", marginTop: 18 }}>
-        <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 14 }}>Markante Punkte</p>
+      {/* Erst auf Knopfdruck kommt die ganze Kurvendiskussion */}
+      <button type="button" aria-expanded={offen} onClick={diskussionUmschalten}
+        style={{ marginTop: 18, width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
+          padding: "15px 18px", border: "none", borderRadius: 14, cursor: "pointer", fontFamily: "inherit", fontSize: 15.5, fontWeight: 700,
+          color: C.weiss, background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, boxShadow: "0 6px 20px rgba(0,77,152,0.25)" }}>
+        {offen ? "Kurvendiskussion ausblenden" : "Kurvendiskussion"}
+      </button>
 
-        <Zeile marke={<circle cx="7" cy="7" r="4.5" fill={C.weiss} stroke={C.see} strokeWidth="2.5" />}
-          titel="Nullstellen"
-          wert={ns.length ? ns.map((x, i) => `x${ns.length > 1 ? "₁₂₃₄₅₆"[i] ?? i + 1 : ""} = ${zahl(x)}`).join("   ") : "keine reellen Nullstellen"} />
+      {offen && (
+        <div ref={ergebnisRef} style={{ scrollMarginTop: 12 }}>
+          <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", marginTop: 18 }}>
+            <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 14 }}>Markante Punkte</p>
 
-        {markante.map((p, i) => (
-          <Zeile key={i} marke={<circle cx="7" cy="7" r="5" fill={farbe(p.art)} />}
-            titel={p.art} wert={`(${zahl(p.x)} | ${zahl(p.y)})`} />
-        ))}
+            <Zeile marke={<circle cx="7" cy="7" r="4.5" fill={C.weiss} stroke={C.see} strokeWidth="2.5" />}
+              titel="Nullstellen"
+              wert={ns.length ? ns.map((x, i) => `x${ns.length > 1 ? "₁₂₃₄₅₆"[i] ?? i + 1 : ""} = ${zahl(x)}`).join("   ") : "keine reellen Nullstellen"} />
 
-        <Zeile marke={<circle cx="7" cy="7" r="4" fill={C.see} opacity="0.45" />}
-          titel="y-Achsenabschnitt" wert={`(0 | ${d})`} />
+            {markante.map((p, i) => (
+              <Zeile key={i} marke={<circle cx="7" cy="7" r="5" fill={farbe(p.art)} />}
+                titel={p.art} wert={`(${zahl(p.x)} | ${zahl(p.y)})`} />
+            ))}
 
-        <p style={{ fontSize: 13, color: C.grau, fontWeight: 300, lineHeight: 1.7, marginTop: 14 }}>
-          {grad === 4 && "Vierter Grad: f′ hat Grad 3, also höchstens drei Extremstellen — f″ hat Grad 2, also höchstens zwei Wendestellen."}
-          {grad === 3 && "Dritter Grad: f′ ist eine Parabel, also höchstens zwei Extremstellen — f″ ist eine Gerade, also genau eine Wendestelle."}
-          {grad === 2 && "Eine Parabel: f′ ist eine Gerade mit genau einer Nullstelle, also genau ein Extrempunkt und kein Wendepunkt."}
-          {grad === 1 && "Eine Gerade: überall dieselbe Steigung, also weder Extrem- noch Wendepunkt."}
-          {grad === 0 && "Eine Konstante: waagerecht, ohne jede Steigung."}
-        </p>
-      </div>
+            <Zeile marke={<circle cx="7" cy="7" r="4" fill={C.see} opacity="0.45" />}
+              titel="y-Achsenabschnitt" wert={`(0 | ${d})`} />
 
-      <KurvendiskussionAnzeige e={e} a={a} b={b} c={c} d={d} />
+            <p style={{ fontSize: 13, color: C.grau, fontWeight: 300, lineHeight: 1.7, marginTop: 14 }}>
+              {grad === 5 && "Fünfter Grad: f′ hat Grad 4, also höchstens vier Extremstellen — f″ hat Grad 3, also höchstens drei Wendestellen."}
+              {grad === 4 && "Vierter Grad: f′ hat Grad 3, also höchstens drei Extremstellen — f″ hat Grad 2, also höchstens zwei Wendestellen."}
+              {grad === 3 && "Dritter Grad: f′ ist eine Parabel, also höchstens zwei Extremstellen — f″ ist eine Gerade, also genau eine Wendestelle."}
+              {grad === 2 && "Eine Parabel: f′ ist eine Gerade mit genau einer Nullstelle, also genau ein Extrempunkt und kein Wendepunkt."}
+              {grad === 1 && "Eine Gerade: überall dieselbe Steigung, also weder Extrem- noch Wendepunkt."}
+              {grad === 0 && "Eine Konstante: waagerecht, ohne jede Steigung."}
+            </p>
+          </div>
+
+          <KurvendiskussionAnzeige k={K6} />
+        </div>
+      )}
     </div>
   );
 }

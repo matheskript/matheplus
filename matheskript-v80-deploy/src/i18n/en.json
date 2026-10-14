@@ -1,5 +1,9 @@
 {
  "exakt": {
+  "f enthält nur ungerade Exponenten (x^5, x^3 und x^1). Es gilt f(-x) = -f(x), daher ist f punktsymmetrisch zum Ursprung.": "f contains only odd exponents (x^5, x^3 and x^1). f(-x) = -f(x) holds, so f is point-symmetric about the origin.",
+  "Grad des Polynoms": "Degree of the polynomial",
+  "Kurvendiskussion ausblenden": "Hide curve sketching",
+  "Fünfter Grad: f′ hat Grad 4, also höchstens vier Extremstellen — f″ hat Grad 3, also höchstens drei Wendestellen.": "Fifth degree: f′ has degree 4, so at most four extreme points — f″ has degree 3, so at most three inflection points.",
   "Aufgabe verstehen": "Understand the problem",
   "Bald verfügbar": "Coming soon",
   "Bei jeder Aufgabe kannst du „Ich hänge fest“ öffnen. Wie viel Hilfe du gebraucht hast, wird ehrlich festgehalten – Aufgaben mit Hilfe zählen als Training, ohne Hilfe als selbstständig.": "On every problem you can open “I’m stuck”. How much help you needed is recorded honestly – problems with help count as training, without help as independent.",

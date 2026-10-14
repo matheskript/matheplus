@@ -1380,7 +1380,7 @@ export function FormelReihe({ label, zeile, fontSize, gewicht, labelFarbe, zeich
   return (
     <div className="flex items-center" style={{ marginBottom: 3 }}>
       <span style={{ width: 82, flexShrink: 0, fontSize, fontWeight: gewicht, color: labelFarbe, textAlign: "right", paddingRight: 8, whiteSpace: "nowrap" }}>{label}</span>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 6, flex: 1 }}>
+      <div style={{ display: "grid", gridTemplateColumns: `repeat(${zeile.length}, 1fr)`, gap: 6, flex: 1 }}>
         {zeile.map((t, i) => (
           <span key={i} style={{ textAlign: "center", fontSize, fontWeight: gewicht, whiteSpace: "nowrap" }}>
             {t && (
@@ -1649,8 +1649,24 @@ export function loeseGanzrational(koeffsRoh) {
    Text und dieselben Rechnungen verwendet. */
 
 export function baueKurvendiskussionInhalt(e, a, b, c, d) {
-  const f = (x) => e * x ** 4 + a * x ** 3 + b * x ** 2 + c * x + d;
-  const grad = e !== 0 ? 4 : a !== 0 ? 3 : b !== 0 ? 2 : c !== 0 ? 1 : 0;
+  return baueKurvendiskussionInhaltK([0, e, a, b, c, d]);
+}
+
+/* Ableitungen eines Polynoms als Koeffizientenlisten (höchste Potenz zuerst, Länge 6 → 5 → 4). */
+export function polyAbleitungen(K6) {
+  const D1 = K6.slice(0, 5).map((v, i) => v * (5 - i));
+  const D2 = D1.slice(0, 4).map((v, i) => v * (4 - i));
+  return { D1, D2 };
+}
+
+/* Allgemeine Fassung: k = Koeffizienten von x⁵ bis x⁰ (höchste Potenz zuerst; kürzere Listen werden links mit 0 aufgefüllt). */
+export function baueKurvendiskussionInhaltK(k) {
+  const K6 = k.length >= 6 ? k.slice(-6) : [...Array(6 - k.length).fill(0), ...k];
+  const [p5, e, a, b, c, d] = K6;
+  const { D1, D2 } = polyAbleitungen(K6);
+  const f = (x) => horner(K6, x);
+  const ersterIdx = K6.findIndex((v) => v !== 0);
+  const grad = ersterIdx === -1 ? 0 : 5 - ersterIdx;
 
   const abschnitte = [];
   const abschnitt = (titel) => { const s = { titel, zeilen: [] }; abschnitte.push(s); return s; };
@@ -1673,10 +1689,12 @@ export function baueKurvendiskussionInhalt(e, a, b, c, d) {
   zP(s1, "D(f) = R (alle reellen Zahlen), da f eine ganzrationale Funktion (ein Polynom) ist.");
 
   const s2 = abschnitt("2. Symmetrie");
-  const nurUngerade = e === 0 && b === 0 && d === 0 && (a !== 0 || c !== 0);
-  const nurGerade = a === 0 && c === 0;
+  const nurUngerade = p5 !== 0 ? (e === 0 && b === 0 && d === 0) : (e === 0 && b === 0 && d === 0 && (a !== 0 || c !== 0));
+  const nurGerade = p5 === 0 && a === 0 && c === 0;
   if (nurUngerade) {
-    zP(s2, "f enthält nur ungerade Exponenten (x^3 und x^1). Es gilt f(-x) = -f(x), daher ist f punktsymmetrisch zum Ursprung.");
+    zP(s2, p5 !== 0
+      ? "f enthält nur ungerade Exponenten (x^5, x^3 und x^1). Es gilt f(-x) = -f(x), daher ist f punktsymmetrisch zum Ursprung."
+      : "f enthält nur ungerade Exponenten (x^3 und x^1). Es gilt f(-x) = -f(x), daher ist f punktsymmetrisch zum Ursprung.");
   } else if (nurGerade) {
     zP(s2, "f enthält nur gerade Exponenten (x^4, x^2, x^0). Es gilt f(-x) = f(x), daher ist f achsensymmetrisch zur y-Achse.");
   } else {
@@ -1684,7 +1702,7 @@ export function baueKurvendiskussionInhalt(e, a, b, c, d) {
   }
 
   const s3 = abschnitt("3. Verhalten im Unendlichen");
-  const leit = grad === 4 ? e : grad === 3 ? a : grad === 2 ? b : grad === 1 ? c : d;
+  const leit = ersterIdx === -1 ? d : K6[ersterIdx];
   if (grad === 0) {
     zP(s3, `f ist konstant: f(x) = ${d} für alle x.`);
   } else if (grad % 2 === 0) {
@@ -1702,7 +1720,7 @@ export function baueKurvendiskussionInhalt(e, a, b, c, d) {
 
   const s4 = abschnitt("4. Nullstellen");
   z(s4, "Ansatz: f(x) = 0", true);
-  const nsErg = loeseGanzrational([e, a, b, c, d]);
+  const nsErg = loeseGanzrational(K6);
   nsErg.schritte.forEach((sc) => zSchritt(s4, sc));
   if (nsErg.loesungen.length === 0) zP(s4, "f besitzt keine reelle Nullstelle.");
   else {
@@ -1713,26 +1731,26 @@ export function baueKurvendiskussionInhalt(e, a, b, c, d) {
   }
 
   const s5 = abschnitt("5. Erste und zweite Ableitung");
-  z(s5, `f'(x)  = ${polyTextPdf([4 * e, 3 * a, 2 * b, c])}`);
-  z(s5, `f''(x) = ${polyTextPdf([12 * e, 6 * a, 2 * b])}`);
+  z(s5, `f'(x)  = ${polyTextPdf(D1)}`);
+  z(s5, `f''(x) = ${polyTextPdf(D2)}`);
 
   const s6 = abschnitt("6. Extrempunkte");
   if (grad <= 1) {
     zP(s6, "Da f höchstens linear ist (Grad kleiner/gleich 1), besitzt f keine Extrempunkte.");
   } else {
-    z(s6, `Notw. Bed.: f'(x) = ${polyTextPdf([4 * e, 3 * a, 2 * b, c])} = 0`, true);
-    const exErg = loeseGanzrational([4 * e, 3 * a, 2 * b, c]);
+    z(s6, `Notw. Bed.: f'(x) = ${polyTextPdf(D1)} = 0`, true);
+    const exErg = loeseGanzrational(D1);
     exErg.schritte.forEach((sc) => zSchritt(s6, sc));
     if (exErg.loesungen.length === 0) zP(s6, "f besitzt keine Extrempunkte.");
     else {
       z(s6, "Hinr. Bed.: Vorzeichen von f'' prüfen", true);
       exErg.loesungen.forEach((l) => {
-        const fssx = 12 * e * l.x ** 2 + 6 * a * l.x + 2 * b;
+        const fssx = horner(D2, l.x);
         let art;
         if (Math.abs(fssx) > 1e-6) art = fssx < 0 ? "Hochpunkt" : "Tiefpunkt";
         else {
-          const l1 = 4 * e * (l.x - 1e-3) ** 3 + 3 * a * (l.x - 1e-3) ** 2 + 2 * b * (l.x - 1e-3) + c;
-          const r1 = 4 * e * (l.x + 1e-3) ** 3 + 3 * a * (l.x + 1e-3) ** 2 + 2 * b * (l.x + 1e-3) + c;
+          const l1 = horner(D1, l.x - 1e-3);
+          const r1 = horner(D1, l.x + 1e-3);
           art = l1 > 0 && r1 < 0 ? "Hochpunkt" : l1 < 0 && r1 > 0 ? "Tiefpunkt" : "Sattelpunkt";
         }
         const yWert = f(l.x);
@@ -1749,8 +1767,8 @@ export function baueKurvendiskussionInhalt(e, a, b, c, d) {
 
   const s7 = abschnitt("7. Monotonieverhalten");
   {
-    const fs = (x) => 4 * e * x ** 3 + 3 * a * x ** 2 + 2 * b * x + c;
-    const monErg = loeseGanzrational([4 * e, 3 * a, 2 * b, c]);
+    const fs = (x) => horner(D1, x);
+    const monErg = loeseGanzrational(D1);
     const stellen = monErg.loesungen.map((l) => l.x).sort((p, q) => p - q);
     const grenzen = [-Infinity, ...stellen, Infinity];
     const roh = [];
@@ -1781,8 +1799,8 @@ export function baueKurvendiskussionInhalt(e, a, b, c, d) {
   if (grad <= 2) {
     zP(s8, "Da f höchstens quadratisch ist (Grad kleiner/gleich 2), besitzt f keine Wendepunkte.");
   } else {
-    z(s8, `Notw. Bed.: f''(x) = ${polyTextPdf([12 * e, 6 * a, 2 * b])} = 0`, true);
-    const weErg = loeseGanzrational([12 * e, 6 * a, 2 * b]);
+    z(s8, `Notw. Bed.: f''(x) = ${polyTextPdf(D2)} = 0`, true);
+    const weErg = loeseGanzrational(D2);
     weErg.schritte.forEach((sc) => zSchritt(s8, sc));
     if (weErg.loesungen.length === 0) zP(s8, "f besitzt keine Wendepunkte.");
     else {
@@ -1796,8 +1814,8 @@ export function baueKurvendiskussionInhalt(e, a, b, c, d) {
 
   const s9 = abschnitt("9. Krümmungsverhalten");
   {
-    const fss = (x) => 12 * e * x ** 2 + 6 * a * x + 2 * b;
-    const kruErg = loeseGanzrational([12 * e, 6 * a, 2 * b]);
+    const fss = (x) => horner(D2, x);
+    const kruErg = loeseGanzrational(D2);
     const stellen = kruErg.loesungen.map((l) => l.x).sort((p, q) => p - q);
     const grenzen = [-Infinity, ...stellen, Infinity];
     const roh = [];
@@ -1851,13 +1869,13 @@ export function baueKurvendiskussionInhalt(e, a, b, c, d) {
   if (nsErg.loesungen.length < 2) {
     zP(s11, "Es gibt weniger als zwei Nullstellen — dadurch lässt sich kein Intervall zwischen Nullstellen bilden.");
   } else {
-    const Fe = bruch(e, 5), Fa = bruch(a, 4), Fb = bruch(b, 3), Fc = bruch(c, 2), Fd = bruch(d, 1);
+    const Fp = bruch(p5, 6), Fe = bruch(e, 5), Fa = bruch(a, 4), Fb = bruch(b, 3), Fc = bruch(c, 2), Fd = bruch(d, 1);
     const stammText = stammfunktionText([
-      { coef: Fe, potenz: 5 }, { coef: Fa, potenz: 4 }, { coef: Fb, potenz: 3 },
+      { coef: Fp, potenz: 6 }, { coef: Fe, potenz: 5 }, { coef: Fa, potenz: 4 }, { coef: Fb, potenz: 3 },
       { coef: Fc, potenz: 2 }, { coef: Fd, potenz: 1 },
     ]);
     z(s11, `Stammfunktion: F(x) = ${stammText}`, true);
-    const Fx = (x) => (e / 5) * x ** 5 + (a / 4) * x ** 4 + (b / 3) * x ** 3 + (c / 2) * x ** 2 + d * x;
+    const Fx = (x) => (p5 / 6) * x ** 6 + (e / 5) * x ** 5 + (a / 4) * x ** 4 + (b / 3) * x ** 3 + (c / 2) * x ** 2 + d * x;
     const stellenSortiert = nsErg.loesungen.map((l) => l.x).sort((p, q) => p - q);
     for (let i = 0; i < stellenSortiert.length - 1; i++) {
       const x1 = stellenSortiert[i], x2 = stellenSortiert[i + 1];
@@ -1870,7 +1888,7 @@ export function baueKurvendiskussionInhalt(e, a, b, c, d) {
     }
   }
 
-  return { funktionstext: `f(x) = ${polyTextPdf([e, a, b, c, d])}`, abschnitte };
+  return { funktionstext: `f(x) = ${polyTextPdf(K6)}`, abschnitte };
 }
 
 /* Wandelt eine Ziffernfolge (Exponent) in Unicode-Hochstellung um. */
@@ -1955,23 +1973,24 @@ function PolynomdivisionBlock({ block }) {
   );
 }
 
-export function KurvendiskussionAnzeige({ e, a, b, c, d }) {
-  const inhalt = React.useMemo(() => baueKurvendiskussionInhalt(e, a, b, c, d), [e, a, b, c, d]);
-  const zeileF = baueReihe([
-    { schluessel: "e", wert: e, potenz: 4 }, { schluessel: "a", wert: a, potenz: 3 },
-    { schluessel: "b", wert: b, potenz: 2 }, { schluessel: "c", wert: c, potenz: 1 },
-    { schluessel: "d", wert: d, potenz: 0 },
-  ]);
-  const zeileF1 = baueReihe([
-    { schluessel: "e", wert: 4 * e, potenz: 3 }, { schluessel: "a", wert: 3 * a, potenz: 2 },
-    { schluessel: "b", wert: 2 * b, potenz: 1 }, { schluessel: "c", wert: c, potenz: 0 },
-    { schluessel: "d", wert: 0, potenz: 0 },
-  ]);
-  const zeileF2 = baueReihe([
-    { schluessel: "e", wert: 12 * e, potenz: 2 }, { schluessel: "a", wert: 6 * a, potenz: 1 },
-    { schluessel: "b", wert: 2 * b, potenz: 0 }, { schluessel: "c", wert: 0, potenz: 0 },
-    { schluessel: "d", wert: 0, potenz: 0 },
-  ]);
+/* k = Koeffizienten von x⁵ bis x⁰ (Länge 6); fehlt k, werden e, a, b, c, d (x⁴ … x⁰) verwendet. */
+export function polyReihen(K6) {
+  const n = K6.findIndex((v) => v !== 0);
+  const grad = n === -1 ? 0 : 5 - n;
+  const buchst = "abcdef";
+  const spalten = [];
+  for (let pot = grad; pot >= 0; pot--) spalten.push({ pot, wert: K6[5 - pot], schluessel: buchst[grad - pot] });
+  const zeileF = baueReihe(spalten.map((s) => ({ schluessel: s.schluessel, wert: s.wert, potenz: s.pot })));
+  const zeileF1 = baueReihe(spalten.map((s) => ({ schluessel: s.schluessel, wert: s.pot * s.wert, potenz: Math.max(s.pot - 1, 0) })));
+  const zeileF2 = baueReihe(spalten.map((s) => ({ schluessel: s.schluessel, wert: s.pot * (s.pot - 1) * s.wert, potenz: Math.max(s.pot - 2, 0) })));
+  return { grad, spalten, zeileF, zeileF1, zeileF2 };
+}
+
+export function KurvendiskussionAnzeige({ k, e, a, b, c, d }) {
+  const K6 = k || [0, e, a, b, c, d];
+  const schluessel = K6.join(",");
+  const inhalt = React.useMemo(() => baueKurvendiskussionInhaltK(K6), [schluessel]);
+  const { zeileF, zeileF1, zeileF2 } = polyReihen(K6);
   const alleLeer = zeileF.every((t) => !t);
   return (
     <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", marginTop: 18 }}>
@@ -2024,21 +2043,21 @@ export function KurvendiskussionAnzeige({ e, a, b, c, d }) {
           )}
         </div>
       ))}
-      <IntegralSchaubild e={e} a={a} b={b} c={c} d={d} />
-      <PdfKnopf e={e} a={a} b={b} c={c} d={d} />
+      <IntegralSchaubild k={K6} />
+      <PdfKnopf k={K6} />
     </div>
   );
 }
 
 /* Lädt den PDF-Export erst beim Tippen (eigene Datei func11.jsx mit jsPDF). */
-function PdfKnopf({ e, a, b, c, d }) {
+function PdfKnopf({ k }) {
   const [status, setStatus] = useState("bereit");
   const klick = async () => {
     if (status === "laeuft") return;
     setStatus("laeuft");
     try {
       const { kurvendiskussionPdf } = await import("./func11.jsx");
-      await kurvendiskussionPdf({ e, a, b, c, d });
+      await kurvendiskussionPdf({ k });
       setStatus("bereit");
     } catch (err) {
       console.error(err);
@@ -2073,9 +2092,11 @@ function PdfKnopf({ e, a, b, c, d }) {
    Flächen zwischen den Nullstellen sind farbig markiert und mit I₁, I₂, …
    beschriftet, passend zum Abschnitt "Integrale zwischen den Nullstellen". */
 
-export function IntegralSchaubild({ e, a, b, c, d }) {
-  const f = (x) => e * x ** 4 + a * x ** 3 + b * x ** 2 + c * x + d;
-  const grad = e !== 0 ? 4 : a !== 0 ? 3 : b !== 0 ? 2 : c !== 0 ? 1 : 0;
+export function IntegralSchaubild({ k: kListe, e, a, b, c, d }) {
+  const K6 = kListe || [0, e, a, b, c, d];
+  const f = (x) => horner(K6, x);
+  const ersterIdx = K6.findIndex((v) => v !== 0);
+  const grad = ersterIdx === -1 ? 0 : 5 - ersterIdx;
 
   const suchR = 40;
   const ns = grad >= 1 ? nullstellenAllg(f, -suchR, suchR) : [];
@@ -2132,7 +2153,7 @@ export function IntegralSchaubild({ e, a, b, c, d }) {
   const linienY = []; for (let v = ersteY; v <= ansichtYMax + 1e-9; v += schrittY) linienY.push(Math.round(v * 1000) / 1000);
 
   // Stammfunktion, um jedes Integral mit Vorzeichen konkret auszurechnen.
-  const Fx = (x) => (e / 5) * x ** 5 + (a / 4) * x ** 4 + (b / 3) * x ** 3 + (c / 2) * x ** 2 + d * x;
+  const Fx = (x) => K6.reduce((summe, v, i) => summe + (v / (6 - i)) * x ** (6 - i), 0);
 
   // Dieselbe Farbfolge wie bei den Koeffizienten-Boxen — Blau, Gold, Türkis, Grün, Lila.
   const farben = [C.see, C.gruen, C.tuerkis, C.smaragd, C.lila];

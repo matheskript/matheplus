@@ -12,7 +12,7 @@ import { C } from "./base1.jsx";
 import { englisch } from "./i18n.js";
 import { kdInhalt, kdText } from "./kdEnglisch.js";
 import {
-  baueKurvendiskussionInhalt, hochZiffer, markanteAllg, nullstellenAllg, polyTextPdf,
+  baueKurvendiskussionInhaltK, horner, polyAbleitungen, hochZiffer, markanteAllg, nullstellenAllg, polyTextPdf,
   schoenText, schoenerSchritt, tiefZiffer, zahl,
 } from "./func2.jsx";
 
@@ -147,14 +147,16 @@ const achsZahl = (v) => (englisch() ? zahl(v).replace(/(\d),(\d)/g, "$1.$2") : z
 /* ---------- Schaubild ---------- */
 
 /* Modell für ein Polynom (Polynomplotter). */
-function polyModell(e, a, b, c, d) {
-  const f = (x) => e * x ** 4 + a * x ** 3 + b * x ** 2 + c * x + d;
-  const fs = (x) => 4 * e * x ** 3 + 3 * a * x ** 2 + 2 * b * x + c;
-  const fss = (x) => 12 * e * x ** 2 + 6 * a * x + 2 * b;
-  const grad = e !== 0 ? 4 : a !== 0 ? 3 : b !== 0 ? 2 : c !== 0 ? 1 : 0;
+function polyModell(K6) {
+  const { D1, D2 } = polyAbleitungen(K6);
+  const f = (x) => horner(K6, x);
+  const fs = (x) => horner(D1, x);
+  const fss = (x) => horner(D2, x);
+  const ersterIdx = K6.findIndex((v) => v !== 0);
+  const grad = ersterIdx === -1 ? 0 : 5 - ersterIdx;
   const ns = grad >= 1 ? nullstellenAllg(f, -40, 40).sort((p, q) => p - q) : [];
   const mark = markanteAllg(f, fs, fss, grad, -40, 40);
-  return { f, ns, mark, yAchse: d };
+  return { f, ns, mark, yAchse: K6[5] };
 }
 
 /* Zeichnet das Schaubild eines beliebigen Modells:
@@ -498,18 +500,21 @@ export async function allgemeinesPdf({ kopf, inhalt, modell, dateiname }) {
   doc.save(dateiname);
 }
 
-export async function kurvendiskussionPdf({ e, a, b, c, d, untertitel = "Kurvendiskussion · Polynomplotter" }) {
-  const poly = polyTextPdf([e, a, b, c, d]);
+/* Entweder k (Koeffizienten von x⁵ bis x⁰) oder e, a, b, c, d (x⁴ bis x⁰) angeben. */
+export async function kurvendiskussionPdf({ k, e, a, b, c, d, untertitel = "Kurvendiskussion · Polynomplotter" }) {
+  const K6 = k ? [...Array(Math.max(6 - k.length, 0)).fill(0), ...k].slice(-6) : [0, e, a, b, c, d];
+  const { D1, D2 } = polyAbleitungen(K6);
+  const poly = polyTextPdf(K6);
   await allgemeinesPdf({
     kopf: {
       f: pdfText(`f(x) = ${poly}`),
-      f1: pdfText(`f'(x) = ${polyTextPdf([4 * e, 3 * a, 2 * b, c])}`),
-      f2: pdfText(`f''(x) = ${polyTextPdf([12 * e, 6 * a, 2 * b])}`),
+      f1: pdfText(`f'(x) = ${polyTextPdf(D1)}`),
+      f2: pdfText(`f''(x) = ${polyTextPdf(D2)}`),
       fuss: pdfText(`Kurvendiskussion für f(x) = ${poly}`),
       untertitel,
     },
-    inhalt: baueKurvendiskussionInhalt(e, a, b, c, d),
-    modell: polyModell(e, a, b, c, d),
+    inhalt: baueKurvendiskussionInhaltK(K6),
+    modell: polyModell(K6),
     dateiname: `Kurvendiskussion_${poly.replace(/\s+/g, "").replace(/\^/g, "").replace(/[^\w+\-]/g, "")}.pdf`,
   });
 }
