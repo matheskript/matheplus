@@ -9,9 +9,10 @@
      ganzvz   Ziffern und Minus (ganze Zahlen mit Vorzeichen)
      zahl     Ziffern, Komma/Punkt, Minus
      bruch    wie zahl, zusätzlich Bruchstrich /
+     wurzel   wie bruch, zusätzlich Wurzelzeichen √ (für exakte Zahlen wie 1/2, 0,5, √5, −√7)
      datum    Ziffern, Punkt, Minus, Schrägstrich
      formel   alles: Variablen, Funktionen, Potenzen, Klammern, f(x) …                 */
-export const MODI = ["ganz", "ganzvz", "zahl", "bruch", "datum", "formel"];
+export const MODI = ["ganz", "ganzvz", "zahl", "bruch", "wurzel", "datum", "formel"];
 export const istModus = (m) => MODI.includes(m);
 
 /* Tastenart: { id, anz (Beschriftung), text (einzufügen), zurueck (Schreibmarke so viele Zeichen zurück), label (Vorlese-Text) } */
@@ -21,9 +22,10 @@ export const Z = (n) => ({ id: n, anz: n, text: n, label: n });
 export function zahlenTasten(modus, dez = ",") {
   return {
     minus: modus !== "ganz" ? { id: "minus", anz: "−", text: "-", label: "Minus" } : null,
-    dez: modus === "zahl" || modus === "bruch" ? { id: "dez", anz: dez, text: dez, label: dez === "," ? "Komma" : "Punkt" }
+    dez: modus === "zahl" || modus === "bruch" || modus === "wurzel" ? { id: "dez", anz: dez, text: dez, label: dez === "," ? "Komma" : "Punkt" }
       : modus === "datum" ? { id: "punkt", anz: ".", text: ".", label: "Punkt" } : null,
-    bruch: modus === "bruch" ? { id: "bruch", anz: "/", text: "/", label: "Bruchstrich" } : modus === "datum" ? { id: "schraeg", anz: "/", text: "/", label: "Schrägstrich" } : null,
+    bruch: modus === "bruch" || modus === "wurzel" ? { id: "bruch", anz: "/", text: "/", label: "Bruchstrich" } : modus === "datum" ? { id: "schraeg", anz: "/", text: "/", label: "Schrägstrich" } : null,
+    wurzel: modus === "wurzel" ? { id: "wurzel", anz: "√", text: "√", label: "Wurzel" } : null,
   };
 }
 
@@ -53,6 +55,7 @@ export const ERLAUBT = {
   ganzvz: /^[0-9-]$/,
   zahl: /^[0-9,.\-]$/,
   bruch: /^[0-9,./\-]$/,
+  wurzel: /^[0-9,./\-√]$/,
   datum: /^[0-9.\-/]$/,
 };
 

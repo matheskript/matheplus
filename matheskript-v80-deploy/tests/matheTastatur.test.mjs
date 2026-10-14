@@ -35,6 +35,11 @@ test("Zahlenblock je Modus", () => {
   assert.equal(zahlenTasten("zahl").bruch, null);
   assert.equal(zahlenTasten("bruch").bruch.text, "/");
   assert.equal(zahlenTasten("datum").dez.text, ".");
+  assert.equal(zahlenTasten("wurzel").bruch.text, "/");
+  assert.equal(zahlenTasten("wurzel").dez.text, ",");
+  assert.equal(zahlenTasten("wurzel").wurzel.text, "√");
+  assert.ok(zahlenTasten("wurzel").minus);
+  for (const m of ["ganz", "ganzvz", "zahl", "bruch", "datum"]) assert.equal(zahlenTasten(m).wurzel, null, m);
 });
 test("Anzeige: Handy alle Modi, Maus nur Formeln", () => {
   for (const m of MODI) assert.equal(zeigeAutomatisch(m, true), true);
@@ -43,7 +48,7 @@ test("Anzeige: Handy alle Modi, Maus nur Formeln", () => {
   assert.ok(istModus("formel") && !istModus("irgendwas"));
 });
 test("alle Zahlentasten passen zum erlaubten Zeichensatz des Modus", () => {
-  for (const m of ["ganz", "ganzvz", "zahl", "bruch", "datum"]) {
+  for (const m of ["ganz", "ganzvz", "zahl", "bruch", "wurzel", "datum"]) {
     const t = zahlenTasten(m);
     for (const k of Object.values(t)) if (k) assert.match(k.text, ERLAUBT[m], `${m}: ${k.id}`);
   }

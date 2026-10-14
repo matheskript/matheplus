@@ -190,7 +190,7 @@ export function MatheTastaturHost() {
         {["7", "8", "9"].map((n) => <Taste key={n} t={Z(n)} />)}<Taste t={weg} />
         {["4", "5", "6"].map((n) => <Taste key={n} t={Z(n)} />)}{zt.minus ? <Taste t={zt.minus} ton="hell" /> : <span />}
         {["1", "2", "3"].map((n) => <Taste key={n} t={Z(n)} />)}{zt.dez ? <Taste t={zt.dez} ton="hell" /> : <span />}
-        <Taste t={Z("0")} stil={{ gridColumn: zt.bruch ? "span 2" : "span 3" }} />{zt.bruch ? <Taste t={zt.bruch} ton="hell" /> : null}<Taste t={ok} />
+        <Taste t={Z("0")} stil={{ gridColumn: `span ${4 - 1 - (zt.bruch ? 1 : 0) - (zt.wurzel ? 1 : 0)}` }} />{zt.bruch ? <Taste t={zt.bruch} ton="hell" /> : null}{zt.wurzel ? <Taste t={zt.wurzel} ton="hell" /> : null}<Taste t={ok} />
       </div>
     );
   } else if (ebene === "abc") {

@@ -12,17 +12,22 @@
    Keine base-Datei darf diese Datei importieren.
    ============================================================ */
 
-import React, { useId, useMemo, useState } from "react";
+import React, { useEffect, useId, useMemo, useRef, useState } from "react";
 import { C, KOEFF_FARBEN } from "./base1.jsx";
-import { M, PolyKnopf } from "./func3.jsx";
+import { M } from "./func3.jsx";
+import { MatheFeld } from "./matheTastatur.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
 import { Auswahl, GrosserKnopf, Rueck, Stufe, hilfeKontext, hinweis, karte, kicker, zw } from "./ui2.jsx";
 import { Aufklapp, ModusLeiste, Seite, SchrittFolge, minusZ, zt } from "./ui3.jsx";
-import { q, qAdd, qDiv, qGleich, qMul, qNeg, qNull, qNum, qSub, qTex, qText } from "./rechnen2.js";
+import { dez, q, qAdd, qDiv, qGleich, qMul, qNeg, qNull, qNum, qSub, qTex, qText } from "./rechnen2.js";
 import {
   FENSTER, ausScheitel, brennpunkt, f as fVon, maxS, normalTex, nullstellen, parabel, scheitelTex,
   scheitelOK, zufallParabel, zufallScheitelAufgabe, zufallVieta,
 } from "./parabel.js";
+import { ausScheitelW, fW, normalTexW, parabelW, scheitelTexW, vorfaktorTex } from "./parabelW.js";
+import {
+  wAnh, wBetrag, wBetragTex, wDiv, wGanz, wIstEins, wIstMinusEins, wIstNull, wIstRational, wLies, wMul, wNegativ, wNum, wTeile, wTex, wTexKl, wText, wZ,
+} from "./wzahl.js";
 
 const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
 const wahl = (l) => l[Math.floor(Math.random() * l.length)];
@@ -153,50 +158,117 @@ const Text = ({ children }) => <p style={{ fontSize: 14, lineHeight: 1.65, color
 /* ============================================================
    1  Scheitelpunkt
    ============================================================ */
-const A_STUFEN = ["-3", "-2", "-1", "-1/2", "1/2", "1", "2", "3"];       // a ≠ 0, Schrittfolge der Plus/Minus-Knöpfe
-const A_ANZEIGE = { "-1/2": "−½", "1/2": "½" };
-const aAnzeige = (id) => A_ANZEIGE[id] || id.replace("-", "−");
 const aVon = (id) => { const [z, n] = id.split("/"); return q(+z, n ? +n : 1); };
-const vorzeichenZahl = (n) => (n > 0 ? `+${n}` : String(n).replace("-", "−"));
 
-/* ---------- Eingabe-Kopf: derselbe Aufbau wie beim Polynomplotter ----------
-   Oben die Plus/Minus-Knöpfe in farbigen Spalten, darunter die allgemeine Form im grauen Kasten,
-   darunter die eingesetzte Funktion – jeder Knopf steht genau über seinem Term. */
-const PARAM_RASTER = "clamp(50px, 14vw, 70px) repeat(3, minmax(0, 1fr))";
+/* ---------- Eingabe: drei Felder „a = …“, darunter − und + nebeneinander ----------
+   Die Zahl im Feld lässt sich antippen und direkt eingeben: ganze Zahl, Bruch (1/2), Kommazahl (0,5),
+   Wurzel (√5, −√7, 2√3/5). Gerechnet wird exakt (wzahl.js). */
+const WZ_GRENZE = 100;                                                 // größter Betrag, den ein Feld annimmt
+const A_ZUFALL = ["-3", "-2", "-1", "-1/2", "1/2", "1", "2", "3"];
 const PARAM_FARBE = { a: KOEFF_FARBEN.a, b: KOEFF_FARBEN.b, c: KOEFF_FARBEN.c, xs: KOEFF_FARBEN.b, ys: KOEFF_FARBEN.c };
 const Buchstabe = ({ k }) => (k === "xs" || k === "ys"
   ? <>{k[0]}<sub style={{ fontSize: "0.68em", lineHeight: 0 }}>s</sub></>
   : <>{k}</>);
-const Bu = ({ k }) => <span style={{ color: PARAM_FARBE[k] }}><Buchstabe k={k} /></span>;
-const Term = ({ k, vor, text }) => (
-  <><span>{vor}</span>{vor ? " " : ""}<span style={{ color: PARAM_FARBE[k] }}>{text}</span></>
-);
 
-function ParamKopf({ spalten, formKopf, formWert }) {
-  const raster = { display: "grid", gridTemplateColumns: PARAM_RASTER, columnGap: 4, alignItems: "center" };
-  const label = (t, stil) => <span style={{ textAlign: "right", paddingRight: 6, whiteSpace: "nowrap", ...stil }}>{t}</span>;
-  const zelle = (n, i) => <span key={i} style={{ textAlign: "center", whiteSpace: "nowrap" }}>{n}</span>;
+/* − und + wirken auf die nächste ganze Zahl: 3 → 4, ½ → 1 (oder 0), √5 ≈ 2,24 → 3 (oder 2) */
+function naechsteGanze(wert, r, nichtNull) {
+  const x = wNum(wert);
+  let ziel = wGanz(wert) ? x + r : r > 0 ? Math.ceil(x) : Math.floor(x);
+  if (nichtNull && ziel === 0) ziel = r > 0 ? 1 : -1;
+  ziel = Math.max(-WZ_GRENZE, Math.min(WZ_GRENZE, ziel)) + 0;
+  return wZ(q(ziel));
+}
+
+function ZKnopf({ farbe, label, onClick, children }) {
+  return (
+    <button type="button" aria-label={label} onClick={onClick}
+      style={{ flex: 1, minWidth: 0, height: 38, borderRadius: 10, border: `1.5px solid ${farbe}66`, background: `${farbe}14`, color: farbe,
+        fontSize: 20, fontWeight: 800, fontFamily: "inherit", cursor: "pointer", padding: 0, lineHeight: 1, touchAction: "manipulation" }}>{children}</button>
+  );
+}
+
+function ZahlFeld({ k, wert, setWert, einzeln, nichtNull }) {
+  const farbe = PARAM_FARBE[k];
+  const text = wText(wert);
+  const [entwurf, setEntwurf] = useState(null);                         // null: das Feld zeigt den Wert
+  const [fehler, setFehler] = useState("");
+  const [zeigeFehler, setZeigeFehler] = useState(false);
+  const [fokus, setFokus] = useState(false);
+  const eigen = useRef(null);
+  /* Ändert sich der Wert von außen (− / +, Zufall, Umschalten), verschwindet ein angefangener Text */
+  useEffect(() => {
+    if (eigen.current === text) { eigen.current = null; return; }
+    setEntwurf(null); setFehler(""); setZeigeFehler(false);
+  }, [text]);
+
+  const pruefen = (t) => {
+    const z = wLies(t);
+    if (!z) return { fehler: zw("Das kann ich so nicht lesen – probiere 2, 1/2, 0,5 oder √5.", "I can't read that – try 2, 1/2, 0.5 or √5.") };
+    if (nichtNull && wIstNull(z)) return { fehler: zw(`${k} darf nicht 0 sein.`, `${k} must not be 0.`) };
+    if (einzeln && z.length > 1) return { fehler: zw("Bitte eine einzelne Zahl oder Wurzel, keine Summe.", "Please enter a single number or root, not a sum.") };
+    if (Math.abs(wNum(z)) > WZ_GRENZE) return { fehler: zw(`Bitte einen Betrag bis ${WZ_GRENZE} eingeben.`, `Please enter a value up to ${WZ_GRENZE} in size.`) };
+    return { z };
+  };
+  const aendern = (e) => {
+    const t = e.target.value;
+    setEntwurf(t); setZeigeFehler(false);
+    if (t.trim() === "") { setFehler(""); return; }
+    const r = pruefen(t);
+    if (r.z) { setFehler(""); eigen.current = wText(r.z); setWert(r.z); } else setFehler(r.fehler);
+  };
+  const verlassen = () => {
+    setFokus(false);
+    eigen.current = null;
+    if (entwurf !== null && entwurf.trim() === "") { setEntwurf(null); setFehler(""); return; }
+    if (fehler) setZeigeFehler(true); else setEntwurf(null);
+  };
+  const rot = zeigeFehler && fehler;
   return (
     <div style={{ minWidth: 0 }}>
-      <div style={{ ...raster, alignItems: "start", marginBottom: 8 }}>
-        <span />
-        {spalten.map((s) => (
-          <div key={s.k} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, minWidth: 0 }}>
-            <span style={{ fontSize: 13, fontWeight: 800, color: PARAM_FARBE[s.k] }}><Buchstabe k={s.k} /></span>
-            <span style={{ fontSize: 15, fontWeight: 800, color: PARAM_FARBE[s.k], fontVariantNumeric: "tabular-nums", minHeight: 20 }}>{s.wert}</span>
-            <PolyKnopf farbe={PARAM_FARBE[s.k]} label={`${s.k} +`} onClick={s.plus}>+</PolyKnopf>
-            <PolyKnopf farbe={PARAM_FARBE[s.k]} label={`${s.k} −`} onClick={s.minus}>−</PolyKnopf>
-          </div>
-        ))}
+      <label style={{ display: "flex", alignItems: "center", gap: 5, minWidth: 0 }}>
+        <span style={{ fontSize: 15, fontWeight: 800, color: farbe, whiteSpace: "nowrap" }}><Buchstabe k={k} /> =</span>
+        <MatheFeld modus="wurzel" value={entwurf ?? text} onChange={aendern} onBlur={verlassen}
+          onFocus={(e) => { setFokus(true); e.target.select(); }}
+          onKeyDown={(e) => { if (e.key === "Enter") e.target.blur(); }}
+          aria-label={`${k} ${zw("Wert eingeben", "enter value")}`} aria-invalid={rot ? true : undefined}
+          style={{ flex: 1, minWidth: 0, width: "100%", height: 40, textAlign: "center", fontSize: "clamp(14px, 4.2vw, 17px)", fontWeight: 800, color: farbe,
+            fontFamily: "inherit", fontVariantNumeric: "tabular-nums", padding: "0 3px", borderRadius: 10, outline: "none",
+            border: `1.5px solid ${rot ? C.signal : fokus ? farbe : `${farbe}66`}`, background: rot ? "#FCE8EE" : `${farbe}10`,
+            boxShadow: fokus ? `0 0 0 3px ${farbe}26` : "none" }} />
+      </label>
+      <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
+        <ZKnopf farbe={farbe} label={`${k} −`} onClick={() => setWert(naechsteGanze(wert, -1, nichtNull))}>−</ZKnopf>
+        <ZKnopf farbe={farbe} label={`${k} +`} onClick={() => setWert(naechsteGanze(wert, 1, nichtNull))}>+</ZKnopf>
       </div>
-      <div style={{ ...raster, background: "#EEF1F5", border: `1px solid ${C.linie}`, borderRadius: 10, padding: "5px 0",
-        fontSize: "clamp(11px, 3.2vw, 15px)", fontWeight: 800, color: C.tinte, marginBottom: 6 }}>
-        {label("f(x) =")}
-        {formKopf.map(zelle)}
+      {rot && <p role="alert" style={{ fontSize: 11.5, lineHeight: 1.35, color: C.signal, fontWeight: 600, margin: "6px 0 0" }}>{fehler}</p>}
+    </div>
+  );
+}
+
+/* Eine Formelzeile aus farbigen TeX-Stücken: it = { t, k?, eng? } (eng: ohne Lücke an das vorige Stück) */
+function FormelZeile({ items, groesse, gewicht = 800, grau }) {
+  return (
+    <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "center", columnGap: 6, rowGap: 2,
+      fontSize: groesse, fontWeight: gewicht, color: grau ? C.grau : C.tinte, fontVariantNumeric: "lining-nums" }}>
+      <span style={{ whiteSpace: "nowrap" }}>f(x) =</span>
+      {items.map((it, i) => (
+        <span key={i} style={{ whiteSpace: "nowrap", marginLeft: it.eng ? -6 : 0, color: it.k ? PARAM_FARBE[it.k] : undefined }}><M t={it.t} /></span>
+      ))}
+    </div>
+  );
+}
+
+function ParamKopf({ spalten, kopf, funktion }) {
+  return (
+    <div style={{ minWidth: 0 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", columnGap: 8, alignItems: "start", marginBottom: 12 }}>
+        {spalten.map((s) => <ZahlFeld key={s.k} {...s} />)}
       </div>
-      <div style={{ ...raster, fontSize: "clamp(13px, 4.1vw, 21px)", fontWeight: 800, color: C.tinte, fontVariantNumeric: "tabular-nums", padding: "3px 0" }}>
-        {label("f(x) =")}
-        {formWert.map(zelle)}
+      <div style={{ background: "#EEF1F5", border: `1px solid ${C.linie}`, borderRadius: 10, padding: "8px 6px", marginBottom: 6 }}>
+        <FormelZeile items={kopf} groesse="clamp(12px, 3.6vw, 16px)" />
+      </div>
+      <div style={{ padding: "6px 0 2px" }}>
+        <FormelZeile items={funktion} groesse="clamp(14px, 4.4vw, 21px)" />
       </div>
     </div>
   );
@@ -204,99 +276,104 @@ function ParamKopf({ spalten, formKopf, formWert }) {
 
 function Rechenweg({ p }) {
   const { a, b, c, d, e } = p;
-  if (qNull(b)) return <Text>{zw("Hier ist b = 0: Die Parabel ist schon in Scheitelform, der Scheitel liegt auf der y-Achse bei S(0 | c).", "Here b = 0: the parabola is already in vertex form, its vertex lies on the y-axis at S(0 | c).")}</Text>;
-  const pA = qDiv(b, a), half = qDiv(pA, q(2)), quad = qMul(half, half);
-  const klam = `x ${vz(half)} ${qTex(betrag(half))}`;
-  const cRest = qNull(c) ? "" : ` ${vz(c)} ${qTex(betrag(c))}`;
-  const eins = qGleich(a, q(1));
+  if (wIstNull(b)) return <Text>{zw("Hier ist b = 0: Die Parabel ist schon in Scheitelform, der Scheitel liegt auf der y-Achse bei S(0 | c).", "Here b = 0: the parabola is already in vertex form, its vertex lies on the y-axis at S(0 | c).")}</Text>;
+  const pA = wDiv(b, a), half = wDiv(pA, wZ(2)), quad = wMul(half, half);
+  const zeichen = (z) => (wNegativ(z) ? "−" : "+");
+  const mitEins = (z) => (wIstEins(wBetrag(z)) ? "" : wBetragTex(z));        // Faktor 1 vor x entfällt
+  const klam = `x ${zeichen(half)} ${wBetragTex(half)}`;
+  const cRest = wAnh(c);
+  const pre = vorfaktorTex(a);
+  const eins = wIstEins(a);
   return (
     <>
       <Text><b>{zw("Weg 1 – Formeln", "Way 1 – formulas")}</b></Text>
-      <Formel t={`x_s = −\\frac{b}{2a} = −\\frac{${qTex(b)}}{2 \\cdot ${kl(a)}} = ${qTex(d)}`} />
-      <Formel t={`y_s = f(x_s) = f(${qTex(d)}) = ${qTex(e)}`} />
+      <Formel t={`x_s = −\\frac{b}{2a} = −\\frac{${wTex(b)}}{2 \\cdot ${wTexKl(a)}} = ${wTex(d)}`} />
+      <Formel t={`y_s = f(x_s) = f(${wTex(d)}) = ${wTex(e)}`} />
       <Text><b>{zw("Weg 2 – quadratische Ergänzung", "Way 2 – completing the square")}</b></Text>
-      <Formel t={`f(x) = ${normalTex(p)}`} />
-      {!eins && <Formel t={`= ${pre(a)}\\left(x^2 ${vz(pA)} ${qTex(betrag(pA))}x\\right)${cRest}`} />}
-      <Formel t={`= ${pre(a)}\\left(\\left(${klam}\\right)^2 − ${qTex(quad)}\\right)${cRest}`} />
-      <Formel t={`= ${pre(a)}\\left(${klam}\\right)^2 ${vz(e)} ${qTex(betrag(e))}`} />
-      <Text>{zw("Die Zahl in der Klammer hat das umgekehrte Vorzeichen von", "The number in the bracket has the opposite sign of")} <M t="x_s" /> {zw("– darum ist der Scheitel", "– so the vertex is")} <b>S({qt(d)} | {qt(e)})</b>.</Text>
+      <Formel t={`f(x) = ${normalTexW(p)}`} />
+      {!eins && <Formel t={`= ${pre}\\left(x^2 ${zeichen(pA)} ${mitEins(pA)}x\\right)${cRest}`} />}
+      <Formel t={`= ${pre}\\left(\\left(${klam}\\right)^2 − ${wTex(quad)}\\right)${cRest}`} />
+      <Formel t={`= ${pre}\\left(${klam}\\right)^2${wAnh(e)}`} />
+      <Text>{zw("Die Zahl in der Klammer hat das umgekehrte Vorzeichen von", "The number in the bracket has the opposite sign of")} <M t="x_s" /> {zw("– darum ist der Scheitel", "– so the vertex is")} <b>S({wText(d)} | {wText(e)})</b>.</Text>
     </>
   );
 }
 
-/* Zufallsparabel für die Koeffizienten-Eingabe: b, c im Bereich der Knöpfe (−10 … 10), Scheitel im Bild. */
+/* Zufallsparabel für die Koeffizienten-Eingabe: ganze b, c bis ±10, Scheitel im Bild. */
 function zufallKoeff() {
   for (let v = 0; v < 4000; v++) {
-    const id = wahl(["-3", "-2", "-1", "-1/2", "1/2", "1", "2", "3"]);
+    const id = wahl(A_ZUFALL);
     const bb = rnd(-10, 10), cc = rnd(-10, 10);
     if (bb === 0 && cc === 0) continue;
     if (!scheitelOK(parabel(aVon(id), bb, cc))) continue;
-    return { id, b: bb, c: cc };
+    return { a: wZ(aVon(id)), b: wZ(bb), c: wZ(cc) };
   }
-  return { id: "1", b: -4, c: 1 };
+  return { a: wZ(1), b: wZ(-4), c: wZ(1) };
 }
+
+const imRahmen = (z) => Math.abs(wNum(z)) <= WZ_GRENZE;
 
 function ScheitelErkunden() {
   const [eingabe, setEingabe] = useState("koeff");            // "koeff" = ax² + bx + c, "scheitel" = a(x − xₛ)² + yₛ
-  const [aId, setAId] = useState("1");
-  const [b, setB] = useState(-4);
-  const [c, setC] = useState(1);
-  const [xs, setXs] = useState(2);
-  const [ys, setYs] = useState(-3);
+  const [a, setA] = useState(wZ(1));
+  const [b, setB] = useState(wZ(-4));
+  const [c, setC] = useState(wZ(1));
+  const [xs, setXs] = useState(wZ(2));
+  const [ys, setYs] = useState(wZ(-3));
   const koeff = eingabe === "koeff";
-  const a = aVon(aId);
-  const aZahl = qNum(a);
-  const p = useMemo(() => (koeff ? parabel(a, b, c) : ausScheitel(a, xs, ys)), [koeff, aId, b, c, xs, ys]);
-  const dN = qNum(p.d), eN = qNum(p.e);
+  const p = useMemo(() => (koeff ? parabelW(a, b, c) : ausScheitelW(a, xs, ys)), [koeff, a, b, c, xs, ys]);
+  const dN = wNum(p.d), eN = wNum(p.e), aN = wNum(p.a);
+  const exakt = wIstRational(p.d) && wIstRational(p.e);
   const ausserhalb = Math.abs(dN) > FENSTER + 1e-9 || Math.abs(eN) > FENSTER + 1e-9;
 
-  /* Beim Umschalten dieselbe Parabel mitnehmen – wenn sie in der anderen Eingabe darstellbar ist. */
+  /* Beim Umschalten dieselbe Parabel mitnehmen (a bleibt ohnehin gleich) */
   const wechseln = (neu) => {
     if (neu === eingabe) return;
     if (neu === "koeff") {
-      const bb = -2 * aZahl * xs, cc = aZahl * xs * xs + ys;
-      if (Number.isInteger(bb) && Number.isInteger(cc) && Math.abs(bb) <= 10 && Math.abs(cc) <= 10) { setB(bb); setC(cc); }
-    } else if (Number.isInteger(dN) && Number.isInteger(eN) && Math.abs(dN) <= 5 && Math.abs(eN) <= 5) {
-      setXs(dN); setYs(eN);
+      const r = ausScheitelW(a, xs, ys);
+      if (imRahmen(r.b) && imRahmen(r.c)) { setB(r.b); setC(r.c); }
+    } else {
+      const r = parabelW(a, b, c);
+      if (imRahmen(r.d) && imRahmen(r.e)) { setXs(r.d); setYs(r.e); }
     }
     setEingabe(neu);
   };
-  const aSchritt = (r) => setAId(A_STUFEN[Math.max(0, Math.min(A_STUFEN.length - 1, A_STUFEN.indexOf(aId) + r))]);
   const zufall = () => {
-    if (koeff) { const z = zufallKoeff(); setAId(z.id); setB(z.b); setC(z.c); }
-    else { setAId(wahl(A_STUFEN)); setXs(rnd(-5, 5)); setYs(rnd(-5, 5)); }
+    if (koeff) { const z = zufallKoeff(); setA(z.a); setB(z.b); setC(z.c); }
+    else { setA(wZ(aVon(wahl(A_ZUFALL)))); setXs(wZ(rnd(-5, 5))); setYs(wZ(rnd(-5, 5))); }
   };
 
-  /* Anzeige der eingesetzten Terme – leere Terme (Koeffizient 0) bleiben leer, wie im Polynomplotter */
-  const aBetrag = aAnzeige(aId).replace("−", "");
-  const aVor = aZahl < 0 ? "−" : "";
-  const vorz = (n) => (n < 0 ? "−" : "+");
-  const aSpalte = { k: "a", wert: aZahl > 0 ? `+${aAnzeige(aId)}` : aAnzeige(aId), plus: () => aSchritt(1), minus: () => aSchritt(-1) };
   const spalten = koeff ? [
-    aSpalte,
-    { k: "b", wert: vorzeichenZahl(b), plus: () => setB(Math.min(10, b + 1)), minus: () => setB(Math.max(-10, b - 1)) },
-    { k: "c", wert: vorzeichenZahl(c), plus: () => setC(Math.min(10, c + 1)), minus: () => setC(Math.max(-10, c - 1)) },
+    { k: "a", wert: a, setWert: setA, einzeln: true, nichtNull: true },
+    { k: "b", wert: b, setWert: setB, einzeln: true },
+    { k: "c", wert: c, setWert: setC },
   ] : [
-    aSpalte,
-    { k: "xs", wert: vorzeichenZahl(xs), plus: () => setXs(Math.min(5, xs + 1)), minus: () => setXs(Math.max(-5, xs - 1)) },
-    { k: "ys", wert: vorzeichenZahl(ys), plus: () => setYs(Math.min(5, ys + 1)), minus: () => setYs(Math.max(-5, ys - 1)) },
+    { k: "a", wert: a, setWert: setA, einzeln: true, nichtNull: true },
+    { k: "xs", wert: xs, setWert: setXs, einzeln: true },
+    { k: "ys", wert: ys, setWert: setYs },
   ];
-  const formKopf = koeff
-    ? [<><Bu k="a" />·x²</>, <>+ <Bu k="b" />·x</>, <>+ <Bu k="c" /></>]
-    : [<><Bu k="a" />·</>, <>(x − <Bu k="xs" />)²</>, <>+ <Bu k="ys" /></>];
-  const formWert = koeff
-    ? [
-      <Term k="a" vor={aVor} text={`${aBetrag === "1" ? "" : aBetrag}x²`} />,
-      b === 0 ? null : <Term k="b" vor={vorz(b)} text={`${Math.abs(b) === 1 ? "" : Math.abs(b)}x`} />,
-      c === 0 ? null : <Term k="c" vor={vorz(c)} text={String(Math.abs(c))} />,
-    ]
-    : [
-      aBetrag === "1" ? (aVor ? <Term k="a" vor={aVor} text="" /> : null) : <Term k="a" vor={aVor} text={`${aBetrag}·`} />,
-      <Term k="xs" vor="" text={xs === 0 ? "x²" : `(x ${xs < 0 ? "+" : "−"} ${Math.abs(xs)})²`} />,
-      ys === 0 ? null : <Term k="ys" vor={vorz(ys)} text={String(Math.abs(ys))} />,
-    ];
 
-  const scheitelName = `S(${qt(p.d)}|${qt(p.e)})`;
+  /* Kopfzeile (allgemeine Form) und eingesetzte Funktion – Terme in der Farbe ihres Feldes */
+  const op = (z) => ({ t: wNegativ(z) ? "−" : "+" });
+  const kopf = koeff
+    ? [{ t: "a", k: "a" }, { t: "\\cdot x^2", eng: true }, { t: "+" }, { t: "b", k: "b" }, { t: "\\cdot x", eng: true }, { t: "+" }, { t: "c", k: "c" }]
+    : [{ t: "a", k: "a" }, { t: "\\cdot (x −" }, { t: "x_s", k: "xs" }, { t: ")^2", eng: true }, { t: "+" }, { t: "y_s", k: "ys" }];
+  const betragOhne1 = (z) => (wIstEins(wBetrag(z)) ? "" : wBetragTex(z));
+  const funktion = [];
+  if (koeff) {
+    funktion.push({ t: `${wNegativ(a) ? "−" : ""}${betragOhne1(a)}x^2`, k: "a" });
+    if (!wIstNull(b)) funktion.push(op(b), { t: `${betragOhne1(b)}x`, k: "b" });
+    wTeile(c).forEach((t) => funktion.push({ t: t.neg ? "−" : "+" }, { t: t.text, k: "c" }));
+  } else {
+    const minus1 = wIstMinusEins(a);
+    if (minus1) funktion.push({ t: "−", k: "a" });
+    else if (!wIstEins(a)) funktion.push({ t: wTex(a), k: "a" }, { t: "\\cdot" });
+    if (wIstNull(xs)) funktion.push({ t: "x^2", eng: minus1 });
+    else funktion.push({ t: `(x ${wNegativ(xs) ? "+" : "−"}`, eng: minus1 }, { t: wBetragTex(xs), k: "xs" }, { t: ")^2", eng: true });
+    wTeile(ys).forEach((t) => funktion.push({ t: t.neg ? "−" : "+" }, { t: t.text, k: "ys" }));
+  }
+
+  const scheitelName = exakt ? `S(${wText(p.d)}|${wText(p.e)})` : `S(${dez(dN)}|${dez(eN)})`;
   return (
     <>
       <div style={karte}>
@@ -307,25 +384,28 @@ function ScheitelErkunden() {
         </div>
         {koeff
           ? <Text>{zw("Mit a drehst du die Öffnung und stauchst oder streckst, b und c verschieben die Parabel – c ist der y-Achsenabschnitt.", "a flips the opening and stretches or squashes; b and c move the parabola – c is the y-intercept.")}</Text>
-          : <Text>{zw("Mit a drehst du die Öffnung und stauchst oder streckst, ", "a flips the opening and stretches or squashes, ")}<Buchstabe k="xs" />{zw(" schiebt nach rechts, ", " shifts to the right, ")}<Buchstabe k="ys" />{zw(" nach oben. Der Scheitel bleibt immer zwischen −5 und 5.", " upwards. The vertex always stays between −5 and 5.")}</Text>}
-        <div style={{ margin: "10px 0 4px" }}>
-          <ParamKopf spalten={spalten} formKopf={formKopf} formWert={formWert} />
+          : <Text>{zw("Mit a drehst du die Öffnung und stauchst oder streckst, ", "a flips the opening and stretches or squashes, ")}<Buchstabe k="xs" />{zw(" schiebt nach rechts, ", " shifts to the right, ")}<Buchstabe k="ys" />{zw(" nach oben.", " upwards.")}</Text>}
+        <div style={{ margin: "12px 0 4px" }}>
+          <ParamKopf spalten={spalten} kopf={kopf} funktion={funktion} />
         </div>
+        <p style={{ fontSize: 12.5, lineHeight: 1.5, color: C.grau, margin: "10px 0 0" }}>
+          {zw("Tipp: Tippe auf eine Zahl und gib sie direkt ein – auch als Bruch (1/2), Kommazahl (0,5) oder Wurzel (√5, −√7).", "Tip: tap a number and type it directly – also as a fraction (1/2), decimal (0.5) or root (√5, −√7).")}
+        </p>
         <GrosserKnopf ghost onClick={zufall}>🎲 {zw("Zufällige Parabel", "Random parabola")}</GrosserKnopf>
       </div>
 
       <div style={{ ...karte, marginTop: 12 }}>
         {ausserhalb && <Rueck art="info">{zw("Der Scheitel liegt außerhalb des Bildausschnitts (−10 bis 10) – das Schaubild zeigt nur einen Teil der Parabel.", "The vertex lies outside the graph window (−10 to 10) – the graph shows only part of the parabola.")}</Rueck>}
         <div style={{ marginTop: ausserhalb ? 12 : 0 }}>
-          <ParabelBild kurven={[{ f: fVon(p), farbe: C.see }]} senkrechte={[{ x: dN }]}
-            punkte={[{ x: dN, y: eN, farbe: C.flaggold, name: scheitelName, unten: aZahl < 0 ? false : true }]}
+          <ParabelBild kurven={[{ f: fW(p), farbe: C.see }]} senkrechte={[{ x: dN }]}
+            punkte={[{ x: dN, y: eN, farbe: C.flaggold, name: scheitelName, unten: aN < 0 ? false : true }]}
             legende={[[C.see, "f"], [C.hellgrau, zw("Symmetrieachse", "axis of symmetry"), true], [C.flaggold, zw("Scheitelpunkt", "vertex"), false, true]]} />
         </div>
         <div style={{ marginTop: 12 }}>
           {koeff
-            ? <><Formel gross t={`f(x) = ${normalTex(p)}`} /><Formel gross t={`f(x) = ${scheitelTex(a, p.d, p.e)}`} /></>
-            : <><Formel gross t={`f(x) = ${scheitelTex(a, p.d, p.e)}`} /><Formel gross t={`f(x) = ${normalTex(p)}`} /></>}
-          <Text>{zw("Scheitelpunkt", "Vertex")} <b>S({qt(p.d)} | {qt(p.e)})</b> · {aZahl > 0 ? zw("nach oben geöffnet (a > 0): Tiefpunkt", "opens upwards (a > 0): minimum") : zw("nach unten geöffnet (a < 0): Hochpunkt", "opens downwards (a < 0): maximum")}</Text>
+            ? <><Formel gross t={`f(x) = ${normalTexW(p)}`} /><Formel gross t={`f(x) = ${scheitelTexW(p.a, p.d, p.e)}`} /></>
+            : <><Formel gross t={`f(x) = ${scheitelTexW(p.a, p.d, p.e)}`} /><Formel gross t={`f(x) = ${normalTexW(p)}`} /></>}
+          <Text>{zw("Scheitelpunkt", "Vertex")} <b>S({wText(p.d)} | {wText(p.e)})</b>{!exakt && <> ≈ ({dez(dN)} | {dez(eN)})</>} · {aN > 0 ? zw("nach oben geöffnet (a > 0): Tiefpunkt", "opens upwards (a > 0): minimum") : zw("nach unten geöffnet (a < 0): Hochpunkt", "opens downwards (a < 0): maximum")}</Text>
         </div>
         <Aufklapp titel={zw("Von der Normalform zum Scheitelpunkt – so rechnest du", "From normal form to the vertex – how to calculate it")}>
           <Rechenweg p={p} />
