@@ -30,6 +30,9 @@ const sgn = (b) => (b < 0 ? `- ${-b}` : `+ ${b}`);
 const tm = (c, v) => (c === 0 ? "" : Math.abs(c) === 1 && v ? `${c < 0 ? "-" : "+"} ${v}` : `${c < 0 ? "-" : "+"} ${Math.abs(c)}${v}`);
 const koef = (a) => (a === 1 ? "" : a === -1 ? "-" : String(a));
 const klam = (v) => (v < 0 ? `(${v})` : String(v));
+/* Regel A5: keine Hochzahl 1, kein „x^0“, kein „1·“ */
+const xp = (n) => (n === 0 ? "" : n === 1 ? "x" : `x^{${n}}`);
+const hoch = (t, n) => (n === 1 ? t : `${t}^{${n}}`);
 const ggT = (a, b) => (b ? ggT(b, a % b) : Math.abs(a));
 const bruchTex = (z, n) => { const g = ggT(z, n) || 1; z /= g; n /= g; if (n < 0) { z = -z; n = -n; } return n === 1 ? String(z) : `${z < 0 ? "-" : ""}\\frac{${Math.abs(z)}}{${n}}`; };
 const bruchTxt = (z, n) => { const g = ggT(z, n) || 1; z /= g; n /= g; if (n < 0) { z = -z; n = -n; } return n === 1 ? mi(z) : `${mi(z)}/${n}`; };
@@ -131,9 +134,9 @@ reg({ id: "abl-potenz", thema: "ableiten", afb: 1, fuer: ["potenzregel", "vorzei
   return bereinigen({
     daten: { a, n, b, x0 },
     text: `Gegeben ist $f(x) = ${koef(a)}x^{${n}} ${tm(b, "x")}$. Bestimme $f′(${x0})$.`, typ: "zahl", wert: richtig, toleranz: 1e-9, fehler,
-    hinweise: ["Welche Ableitungsregel gehört zu einer Potenz $x^n$, und was passiert mit dem Summanden $b·x$?", "Potenzregel: $(x^n)′ = n·x^{n-1}$, Faktorregel: Konstante Faktoren bleiben stehen.", `Leite zuerst $f$ ab: $f′(x) = ${a * n}x^{${n - 1}} ${sgn(b)}$. Setze dann $x = ${x0}$ ein.`],
+    hinweise: ["Welche Ableitungsregel gehört zu einer Potenz $x^n$, und was passiert mit dem Summanden $b·x$?", "Potenzregel: $(x^n)′ = n·x^{n-1}$, Faktorregel: Konstante Faktoren bleiben stehen.", `Leite zuerst $f$ ab: $f′(x) = ${a * n}${xp(n - 1)} ${sgn(b)}$. Setze dann $x = ${x0}$ ein.`],
     regeln: [{ name: "Potenzregel" }, { name: "Faktorregel" }, { name: "Summenregel" }],
-    loesung: [`$f′(x) = ${a * n}x^{${n - 1}} ${sgn(b)}$`, `$f′(${x0}) = ${a * n}·${klam(x0)}^{${n - 1}} ${sgn(b)} = ${mi(richtig)}$`],
+    loesung: [`$f′(x) = ${a * n}${xp(n - 1)} ${sgn(b)}$`, `$f′(${x0}) = ${a * n}·${hoch(klam(x0), n - 1)} ${sgn(b)} = ${mi(richtig)}$`],
     erklaer: erklaerAbleiten("potenz"),
   });
 } });
@@ -150,9 +153,9 @@ reg({ id: "abl-kette", thema: "ableiten", afb: 2, fuer: ["kettenregel", "potenzr
   return bereinigen({
     daten: { a, b, n, x0 },
     text: `Gegeben ist $f(x) = (${koef(a)}x ${sgn(b)})^{${n}}$. Bestimme $f′(${x0})$.`, typ: "zahl", wert: richtig, toleranz: 1e-9, fehler,
-    hinweise: ["Was ist die innere, was die äußere Funktion? Was gehört zur inneren Ableitung?", "Kettenregel: $f′(x) = u′(v(x)) · v′(x)$. Hier ist $v(x)$ der Term in der Klammer.", `Äußere Ableitung: $${n}·(${koef(a)}x ${sgn(b)})^{${n - 1}}$, innere Ableitung: $${a}$. Multipliziere beide und setze $x = ${x0}$ ein.`],
+    hinweise: ["Was ist die innere, was die äußere Funktion? Was gehört zur inneren Ableitung?", "Kettenregel: $f′(x) = u′(v(x)) · v′(x)$. Hier ist $v(x)$ der Term in der Klammer.", `Äußere Ableitung: $${n}·${hoch(`(${koef(a)}x ${sgn(b)})`, n - 1)}$, innere Ableitung: $${a}$. Multipliziere beide und setze $x = ${x0}$ ein.`],
     regeln: [{ name: "Kettenregel" }, { name: "Potenzregel" }],
-    loesung: [`$f′(x) = ${n}·(${koef(a)}x ${sgn(b)})^{${n - 1}} · ${klam(a)}$`, `$f′(${x0}) = ${n}·${klam(innen)}^{${n - 1}}·${klam(a)} = ${mi(richtig)}$`],
+    loesung: [`$f′(x) = ${n}·${hoch(`(${koef(a)}x ${sgn(b)})`, n - 1)} · ${klam(a)} = ${n * a}${n - 1 === 1 ? "" : "·"}${hoch(`(${koef(a)}x ${sgn(b)})`, n - 1)}$`, `$f′(${x0}) = ${n}·${hoch(klam(innen), n - 1)}·${klam(a)} = ${mi(richtig)}$`],
     erklaer: erklaerAbleiten("kette"),
   });
 } });
@@ -161,12 +164,12 @@ reg({ id: "abl-exp", thema: "ableiten", afb: 2, fuer: ["kettenregel"], mach() {
   const richtig = c * k;
   return bereinigen({
     daten: { c, k },
-    text: `Es ist $f(x) = ${koef(c)}e^{${k}x}$. Die Ableitung hat die Form $f′(x) = c·e^{${k}x}$. Bestimme $c$.`, typ: "zahl", wert: richtig, toleranz: 1e-9,
+    text: `Es ist $f(x) = ${koef(c)}e^{${koef(k)}x}$. Die Ableitung hat die Form $f′(x) = c·e^{${koef(k)}x}$. Bestimme $c$.`, typ: "zahl", wert: richtig, toleranz: 1e-9,
     fehler: [{ wert: c, typ: "kettenregel", text: `Im Exponenten steht $${k}x$, nicht nur $x$. Die innere Ableitung ${k} muss als Faktor dazu.` },
              { wert: c * Math.abs(k), typ: "vorzeichen", text: "Auch das Vorzeichen der inneren Ableitung gehört zum Faktor." }],
     hinweise: ["Was steht im Exponenten, und wie leitest du diesen Teil ab?", "$(e^{kx})′ = k·e^{kx}$ – die innere Ableitung des Exponenten kommt als Faktor dazu.", `Multipliziere den Vorfaktor ${c} mit der inneren Ableitung ${k}.`],
     regeln: [{ name: "e-Funktion" }, { name: "Kettenregel" }],
-    loesung: [`$f′(x) = ${koef(c)}·${klam(k)}·e^{${k}x}$`, `$c = ${mi(richtig)}$`],
+    loesung: [`$f′(x) = ${c}·${klam(k)}·e^{${koef(k)}x} = ${mi(richtig)}e^{${koef(k)}x}$`, `$c = ${mi(richtig)}$`],
     erklaer: erklaerAbleiten("exp"),
   });
 } });
@@ -351,9 +354,9 @@ reg({ id: "vek-ortho", thema: "vektoren", afb: 2, fuer: ["vorzeichen"], mach() {
       text: `Für welchen Wert von $t$ stehen $\\vec{u} = \\spalte{${a}}{${b}}{${c}}$ und $\\vec{w} = \\spalte{${d}}{${e}}{t}$ senkrecht aufeinander?`,
       typ: "zahl", wert: t, toleranz: 1e-9,
       fehler: [{ wert: s / c, typ: "vorzeichen", text: `Prüfe das Vorzeichen: $${s} + ${c}·t = 0$ führt zu $t = -\\frac{${s}}{${c}}$.` }],
-      hinweise: ["Wann sind zwei Vektoren orthogonal? Welche Rechnung gehört dazu?", "Orthogonal bedeutet: Das Skalarprodukt ist null.", `Berechne $\\vec{u} · \\vec{w} = ${a}·${klam(d)} + ${b}·${klam(e)} + ${c}·t$ und setze es gleich 0.`],
+      hinweise: ["Wann sind zwei Vektoren orthogonal? Welche Rechnung gehört dazu?", "Orthogonal bedeutet: Das Skalarprodukt ist null.", `Berechne $\\vec{u} · \\vec{w} = ${a}·${klam(d)} + ${klam(b)}·${klam(e)} + ${klam(c)}·t = ${s} ${c < 0 ? "-" : "+"} ${Math.abs(c) === 1 ? "" : `${Math.abs(c)}·`}t$ und setze es gleich 0.`],
       regeln: [{ name: "Orthogonalität" }, { name: "Skalarprodukt" }],
-      loesung: [`$\\vec{u} · \\vec{w} = ${s} ${c < 0 ? "-" : "+"} ${Math.abs(c)}·t = 0$`, `$t = ${mi(t)}$`],
+      loesung: [`$\\vec{u} · \\vec{w} = ${s} ${c < 0 ? "-" : "+"} ${Math.abs(c) === 1 ? "" : `${Math.abs(c)}·`}t = 0$`, `$t = ${mi(t)}$`],
       erklaer: erklaerVektor("ortho"),
     });
   }
@@ -374,7 +377,7 @@ reg({ id: "vek-geradeebene", thema: "vektoren", afb: 3, fuer: ["normalenwinkel"]
       fehler: [{ wert: rund(zumNormalen, 1), typ: "normalenwinkel", text: "Das ist der Winkel zwischen Gerade und Normalenvektor. Der Schnittwinkel mit der Ebene ist $90° - $ dieser Winkel, also rechne mit dem Sinus." }],
       hinweise: ["Zwischen welchen beiden Objekten misst du den Winkel – Gerade und Ebene oder Gerade und Normalenvektor?", "$\\sin φ = \\frac{|\\vec{u} · \\vec{n}|}{|\\vec{u}|·|\\vec{n}|}$ für den Winkel zwischen Gerade und Ebene.", `Berechne $\\vec{u}·\\vec{n} = ${skalar(u, n)}$, $|\\vec{u}| ≈ ${dez(laenge(u), 3)}$, $|\\vec{n}| ≈ ${dez(laenge(n), 3)}$ und wende $arcsin$ an.`],
       regeln: [{ name: "Winkel Gerade–Ebene" }, { name: "Skalarprodukt" }],
-      loesung: [`$\\sin φ = \\frac{|${skalar(u, n)}|}{${dez(laenge(u), 3)}·${dez(laenge(n), 3)}}$`, `$φ ≈ ${dez(richtig, 1)}°$`],
+      loesung: [`$\\sin φ = \\frac{|${skalar(u, n)}|}{${dez(laenge(u), 3)}·${dez(laenge(n), 3)}} ≈ ${dez(Math.abs(skalar(u, n)) / (laenge(u) * laenge(n)), 4)}$`, `$φ ≈ ${dez(richtig, 1)}°$`],
       erklaer: erklaerVektor("winkel"),
     });
   }
@@ -406,7 +409,7 @@ reg({ id: "int-grenzen", thema: "integrale", afb: 1, fuer: ["grenzen", "stammfun
       typ: "zahl", wert: w, toleranz: 6e-4, eingabe: "Bruch oder Dezimalzahl", fehler,
       hinweise: ["Wie kommt man von einer Funktion zu ihrer Stammfunktion? Und was sagt der Hauptsatz?", "Potenzregel rückwärts: $\\int x^n dx = \\frac{x^{n+1}}{n+1}$. Hauptsatz: $\\int_a^b f(x) dx = F(b) - F(a)$.", `Bilde die Stammfunktion Term für Term, setze dann zuerst $x = ${b}$ und danach $x = ${a}$ ein und subtrahiere.`],
       regeln: [{ name: "Potenzregel rückwärts" }, { name: "Hauptsatz" }],
-      loesung: [`$F(x) = \\frac{${c2}}{3}x^3 + \\frac{${c1}}{2}x^2 + ${c0}x$`, `$F(${b}) - F(${a}) = ${qTexS(wertQ)}$`],
+      loesung: [`$F(x) = ${polyTex(F)}$`, `$F(${b}) - F(${a}) = ${qTexS(wertQ)}$`],
       erklaer: erklaerIntegral("grenzen"),
     });
   }

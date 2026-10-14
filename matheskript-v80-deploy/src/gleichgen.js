@@ -8,6 +8,9 @@ const M = (v) => String(v).replace(/-/g, "−");
 export const kT = (c, v = "x") => (c === 1 ? v : c === -1 ? `−${v}` : `${M(c)}${v}`);               // Koeffizient + Variable
 export const pl = (b) => (b < 0 ? `− ${-b}` : `+ ${b}`);                                              // "+ 3" / "− 3"
 export const lin = (a, b) => `${kT(a)} ${pl(b)}`;
+/* Regel A5: „+ 1x“ → „+ x“, „+ 0“ entfällt */
+export const plx = (p) => (p === 1 ? "+ x" : p === -1 ? "− x" : `${pl(p)}x`);
+export const rechts = (c, d) => { const t = []; if (c !== 0) t.push(kT(c)); if (d !== 0) t.push(t.length ? pl(d) : M(d)); return t.join(" ") || "0"; };
 export const bruchTex = (z, n) => { if (n < 0) { z = -z; n = -n; } const g = ggT(z, n) || 1; z /= g; n /= g; return n === 1 ? M(z) : `${z < 0 ? "−" : ""}\\frac{${Math.abs(z)}}{${n}}`; };
 let zaehler = 0;
 const id = () => ++zaehler;
@@ -16,18 +19,18 @@ const id = () => ++zaehler;
 export function neuUmformung() {
   let a, b, c, d, X;
   do { a = zz(2, 7); c = zz(1, a - 1); X = zzOhne0(-6, 6); b = zzOhne0(-9, 9); d = a * X + b - c * X; } while (d === b);
-  return { id: id(), a, b, c, d, X, gl: `${lin(a, b)} = ${c === 0 ? "" : kT(c)} ${pl(d)}`, k: a - c, r: d - b };
+  return { id: id(), a, b, c, d, X, gl: `${lin(a, b)} = ${rechts(c, d)}`, k: a - c, r: d - b };
 }
 
 /* ---------- 2) Methode wählen ---------- */
 export function neueMethode() {
   const t = wahl(["lin", "aus", "wurzel", "pq", "log"]);
   if (t === "lin") { const a = zz(2, 9), X = zzOhne0(-8, 8), b = zzOhne0(-9, 9); return { id: id(), t, gl: `${lin(a, b)} = ${a * X + b}`, loesungen: [X] }; }
-  if (t === "aus") { const p = zzOhne0(-9, 9); return { id: id(), t, gl: `x^{2} ${pl(p)}x = 0`, loesungen: [-p, 0].sort((u, v) => u - v) }; }
+  if (t === "aus") { const p = zzOhne0(-9, 9); return { id: id(), t, gl: `x^{2} ${plx(p)} = 0`, loesungen: [-p, 0].sort((u, v) => u - v) }; }
   if (t === "wurzel") { const k = zz(2, 12); return { id: id(), t, gl: `x^{2} − ${k * k} = 0`, loesungen: [-k, k] }; }
   if (t === "pq") {
     let r1, r2; do { r1 = zzOhne0(-8, 8); r2 = zzOhne0(-8, 8); } while (r1 === r2 || r1 + r2 === 0);
-    return { id: id(), t, gl: `x^{2} ${pl(-(r1 + r2))}x ${pl(r1 * r2)} = 0`, loesungen: [r1, r2].sort((u, v) => u - v) };
+    return { id: id(), t, gl: `x^{2}${r1 + r2 === 0 ? "" : ` ${plx(-(r1 + r2))}`}${r1 * r2 === 0 ? "" : ` ${pl(r1 * r2)}`} = 0`, loesungen: [r1, r2].sort((u, v) => u - v) };
   }
   const base = wahl([2, 3, 5]), n = zz(2, 5); return { id: id(), t: "log", gl: `${base}^{x} = ${base ** n}`, loesungen: [n] };
 }
@@ -43,7 +46,7 @@ export function neuFehler() {
   const k = a - c, r = d - b;
   const e = wahl([1, 2, 3]);                                   // Übergang mit dem Fehler (1→2, 2→3, 3→4)
   const L = [];
-  L[0] = `${lin(a, b)} = ${kT(c)} ${pl(d)}`;
+  L[0] = `${lin(a, b)} = ${rechts(c, d)}`;
   const k2 = e === 1 ? a + c : k;
   L[1] = `${lin(k2, b)} = ${d}`;
   const r3 = e === 2 ? d + b : r;
@@ -63,13 +66,13 @@ export function neuFehler() {
 export function neueLoesungsmenge() {
   const art = wahl(["eine", "keine", "alle"]);
   let gl, X = null;
-  if (art === "eine") { let a, c, b, d; do { a = zz(2, 6); c = zz(1, a - 1); X = zzOhne0(-7, 7); b = zzOhne0(-8, 8); d = a * X + b - c * X; } while (false); gl = `${lin(a, b)} = ${kT(c)} ${pl(d)}`; }
-  else if (art === "keine") { const a = zz(2, 6), b = zzOhne0(-8, 8); let d; do { d = zzOhne0(-8, 8); } while (d === b); gl = `${lin(a, b)} = ${kT(a)} ${pl(d)}`; }
+  if (art === "eine") { let a, c, b, d; do { a = zz(2, 6); c = zz(1, a - 1); X = zzOhne0(-7, 7); b = zzOhne0(-8, 8); d = a * X + b - c * X; } while (false); gl = `${lin(a, b)} = ${rechts(c, d)}`; }
+  else if (art === "keine") { const a = zz(2, 6), b = zzOhne0(-8, 8); let d; do { d = zzOhne0(-8, 8); } while (d === b); gl = `${lin(a, b)} = ${rechts(a, d)}`; }
   else { const a = zz(2, 5), k = zzOhne0(-5, 5); gl = `${a}(x ${pl(k)}) = ${kT(a)} ${pl(a * k)}`; }
   let p, q, D;
   do { p = zzOhne0(-6, 6); q = zz(-8, 9); D = p * p - 4 * q; } while (false);
   const anzahl = D > 0 ? 2 : D === 0 ? 1 : 0;
-  return { id: id(), art, gl, X, quad: `x^{2} ${pl(p)}x ${pl(q)} = 0`, p, q, D, anzahl };
+  return { id: id(), art, gl, X, quad: `x^{2} ${p === 0 ? "" : `${plx(p)} `}${q === 0 ? "" : `${pl(q)} `}= 0`, p, q, D, anzahl };
 }
 
 /* ---------- 5) Geometrisch deuten: f(x) = g(x) ---------- */

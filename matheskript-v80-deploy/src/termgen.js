@@ -118,15 +118,16 @@ const GESETZE = [
 function neuPotenz_() {
   const t = wahl(["mal", "geteilt", "potpot", "produkt", "negativ", "kombi"]);
   let tex, ref, gesetz, loesung, hinweise, ziel, pruef = "potenz", negativ = false;
+  const xh = (n) => (n === 0 ? "1" : n === 1 ? "x" : `x^{${n}}`);   // Regel A5: keine Hochzahl 1, x⁰ = 1
   if (t === "mal") { const m = zz(2, 6), n = zz(2, 6); tex = `x^{${m}} \\cdot x^{${n}}`; ref = (x) => x ** (m + n); gesetz = "mal"; ziel = `x^{${m + n}}`; loesung = [tex, `x^{${m} + ${n}}`, ziel]; }
   else if (t === "geteilt") {
     const n = zz(2, 4), m = n + zz(1, 5), c = wahl([1, 1, 2, 3]), d = c === 1 ? 1 : wahl([1, c]);
     tex = `\\frac{${c === 1 ? "" : c}x^{${m}}}{${d === 1 ? "" : d}x^{${n}}}`; ref = (x) => (c / d) * x ** (m - n); gesetz = "geteilt";
-    ziel = `${c / d === 1 ? "" : c / d}x^{${m - n}}`; loesung = [tex, `${c === d ? "" : `${c / d} \\cdot `}x^{${m} - ${n}}`, ziel];
+    ziel = `${c / d === 1 ? "" : c / d}${xh(m - n)}`; loesung = [tex, `${c === d ? "" : `${c / d} \\cdot `}x^{${m} - ${n}}`, ziel];
   } else if (t === "potpot") { const m = zz(2, 4), n = zz(2, 4); tex = `\\left(x^{${m}}\\right)^{${n}}`; ref = (x) => x ** (m * n); gesetz = "potpot"; ziel = `x^{${m * n}}`; loesung = [tex, `x^{${m} \\cdot ${n}}`, ziel]; }
   else if (t === "produkt") { const c = zz(2, 3), n = zz(2, 4); tex = `(${c}x)^{${n}}`; ref = (x) => c ** n * x ** n; gesetz = "produkt"; ziel = `${c ** n}x^{${n}}`; loesung = [tex, `${c}^{${n}} \\cdot x^{${n}}`, ziel]; }
   else if (t === "negativ") { const n = zz(2, 5); tex = `x^{-${n}}`; ref = (x) => x ** -n; gesetz = "negativ"; ziel = `\\frac{1}{x^{${n}}}`; loesung = [tex, `\\frac{1}{x^{${n}}}`]; pruef = "potenzNeg"; negativ = true; }
-  else { const c = zz(1, 4), a = zz(2, 5), b = zz(2, 5); const m = a + b + c; tex = `\\frac{x^{${a}} \\cdot x^{${b}}}{x^{${c}}}`; ref = (x) => x ** (a + b - c); gesetz = "mal"; ziel = `x^{${a + b - c}}`; loesung = [tex, `\\frac{x^{${a + b}}}{x^{${c}}}`, ziel]; void m; }
+  else { const a = zz(2, 5), b = zz(2, 5), c = zz(1, Math.min(4, a + b - 1)); const m = a + b + c; tex = `\\frac{x^{${a}} \\cdot x^{${b}}}{${xh(c)}}`; ref = (x) => x ** (a + b - c); gesetz = "mal"; ziel = xh(a + b - c); loesung = [tex, `\\frac{x^{${a + b}}}{${xh(c)}}`, ziel]; void m; }
   hinweise = {
     mal: ["Wie hängen die Basen zusammen?", "Bei gleicher Basis und Mal gilt: aᵐ · aⁿ = aᵐ⁺ⁿ.", "Addiere die Exponenten; die Basis bleibt."],
     geteilt: ["Zähler und Nenner haben dieselbe Basis x.", "Bei Division gilt: aᵐ : aⁿ = aᵐ⁻ⁿ. Zahlen vor dem x kürzt du separat.", "Subtrahiere die Exponenten: Zähler minus Nenner."],

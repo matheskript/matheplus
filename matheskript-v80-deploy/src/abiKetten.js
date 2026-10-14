@@ -142,7 +142,7 @@ export function geometrieKette(zufall = Math.random) {
         { id: "b", titel: "Höhe der Pyramide", punkte: 3,
           frage: "Berechne die Höhe h der Pyramide, also den Abstand von S zur Ebene E (auf zwei Nachkommastellen).",
           felder: [{ name: "h", wert: h, toleranz: 0.0051 }],
-          loesung: `Hessesche Normalform mit n = (${nN.map(zahl).join(" | ")}): h = |n · S − ${zahl(k[3])}| / |n| = |${zahl(skalar(nN, S))} − ${k[3] < 0 ? `(${zahl(k[3])})` : zahl(k[3])}| / √${zahl(skalar(nN, nN))} = ${zahl(Math.abs(skalar(nN, S) - k[3]))} / √${zahl(skalar(nN, nN))} ≈ ${komma(h)}.`,
+          loesung: `Hessesche Normalform mit n = (${nN.map(zahl).join(" | ")}): h = |n · S − ${k[3] < 0 ? `(${zahl(k[3])})` : zahl(k[3])}| / |n| = |${zahl(skalar(nN, S))} − ${k[3] < 0 ? `(${zahl(k[3])})` : zahl(k[3])}| / √${zahl(skalar(nN, nN))} = ${zahl(Math.abs(skalar(nN, S) - k[3]))} / √${zahl(skalar(nN, nN))} ≈ ${komma(h)}.`,
           werkzeug: { ziel: "abstaende", daten: { ebene: k, punkt: S }, titel: "Abstand im Werkzeug nachrechnen" } },
         { id: "c", titel: "Grundfläche", punkte: 2,
           frage: "Berechne den Flächeninhalt G des Dreiecks ABC (auf zwei Nachkommastellen).",
