@@ -16,5 +16,6 @@ export const FS_ERG = {
   ...ERG_5,
 };
 
-export const FS_NEU = [
-];
+import { NEU } from "./fsNeu.js";
+
+export const FS_NEU = NEU;

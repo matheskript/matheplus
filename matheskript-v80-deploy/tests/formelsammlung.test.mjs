@@ -112,3 +112,16 @@ test("Suche findet über Namen", () => {
   assert.equal(fsSuche("bayes")[0].id, "bayes");
   assert.ok(fsSuche("kettenregel").some((e) => e.id === "kettenregel"));
 });
+
+test("Qualitätsregel: jede Formel hat Bild, ≥ 3 Beweisschritte, mehrere Beweise oder ≥ 4 Schritte, ≥ 2 Verknüpfungen", () => {
+  const rueck = {};
+  for (const e of FS_ALLE) for (const [id] of e.nutzt || []) (rueck[id] ||= []).push(e.id);
+  for (const e of FS_ALLE) {
+    const hs = herleitungen(e);
+    const schritte = hs.reduce((a, h) => a + h.s.length, 0);
+    assert.ok(e.bild, `${e.id}: Bild fehlt`);
+    assert.ok(schritte >= 3, `${e.id}: weniger als 3 Beweisschritte`);
+    assert.ok(hs.length >= 2 || schritte >= 4, `${e.id}: nur ein kurzer Beweis`);
+    assert.ok((e.nutzt || []).length + (rueck[e.id] || []).length >= 2, `${e.id}: weniger als 2 Verknüpfungen`);
+  }
+});

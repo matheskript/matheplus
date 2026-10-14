@@ -114,7 +114,6 @@ export const ERG_1 = {
       "Liegt $(x | y)$ auf dem Graphen von $f$, also $y = f(x)$, dann liegt $(y | x)$ auf dem Spiegelbild. Dieses ist der Graph von $f^{-1}$ mit $f^{-1}(y) = x$.",
       "Die Ableitungen stehen im Kehrwertverhältnis: Wo $f$ die Steigung $m$ hat, hat $f^{-1}$ an der gespiegelten Stelle die Steigung $\\frac{1}{m}$.",
     ] }],
-    nutzt: [["umkehrregel", "Ableitung der Umkehrfunktion"]],
   },
   expfkt: {
     her: [{ t: "Aus dem Bild: Vervielfachen", s: [
