@@ -90,7 +90,7 @@ test("Werkzeug-Verweise existieren", () => {
 });
 
 test("Illustrationen existieren", () => {
-  const bilder = ["funcFsBilder1.jsx", "funcFsBilder2.jsx", "funcFsBilder3.jsx", "funcFsBilder4.jsx"].filter((d) => fs.existsSync(new URL("../src/" + d, import.meta.url))).map(src).join("\n");
+  const bilder = fs.readdirSync(new URL("../src/", import.meta.url)).filter((d) => /^funcFsBilder\d+\.jsx$/.test(d)).map(src).join("\n");
   const namen = new Set([...bilder.matchAll(/^\s+([a-zA-Z0-9]+): \(p\) =>/gm)].map((m) => m[1]));
   for (const e of FS_ALLE) {
     if (!e.bild) continue;

@@ -4,7 +4,7 @@
    Illustration, Beispiel, typischer Falle, Zusammenhängen zu anderen
    Formeln und dem passenden Werkzeug zum Üben.
    Dazu die Roten Fäden: Wege quer durch alle Bereiche.
-   Daten: fs*.js (fsIndex.js), Bilder: funcFsBilder1–4.jsx.
+   Daten: fs*.js (fsIndex.js), Bilder: funcFsBilder1–7.jsx.
    ====================================================================== */
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { C } from "./base1.jsx";
@@ -16,8 +16,9 @@ import { BILDER_1 } from "./funcFsBilder1.jsx";
 import { BILDER_2 } from "./funcFsBilder2.jsx";
 import { BILDER_3 } from "./funcFsBilder3.jsx";
 import { BILDER_4 } from "./funcFsBilder4.jsx";
+import { BILDER_5 } from "./funcFsBilder5.jsx";
 
-const BILDER = { ...BILDER_1, ...BILDER_2, ...BILDER_3, ...BILDER_4 };
+const BILDER = { ...BILDER_1, ...BILDER_2, ...BILDER_3, ...BILDER_4, ...BILDER_5 };
 
 const MERK = "matheplus-formeln-gemerkt";
 const STUFE = "matheplus-stufe";
