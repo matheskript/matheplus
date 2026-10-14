@@ -282,7 +282,7 @@ export function Mathilda() {
     if (!sektion) return knopf;
     return (<>
       {knopf}
-      <div className="sek-menue" style={{ display: "flex", flexWrap: "wrap", gap: 6, paddingBottom: 4 }}
+      <div className="sek-menue" style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 6, paddingBottom: 4 }}
         ref={(el) => { if (el) { const c = el.querySelector('[aria-current="page"]'); if (c && c.offsetLeft + c.offsetWidth > el.clientWidth) el.scrollLeft = c.offsetLeft + c.offsetWidth - el.clientWidth + 12; } }}>
         {sektion.filter((x) => !x.versteckt).map((x) => {
           const aktiv = x.ansicht === ansicht;
@@ -296,7 +296,7 @@ export function Mathilda() {
           );
         })}
       </div>
-      {ansicht !== "sinus" && ansicht !== "steckbrief" && <PruefungsLink ansicht={ansicht} gehe={gehe} klein={ansicht === "plotter" || ansicht === "advplotter"} />}
+      {ansicht !== "sinus" && ansicht !== "steckbrief" && <PruefungsLink ansicht={ansicht} gehe={gehe} klein />}
     </>);
   };
 
@@ -1108,7 +1108,7 @@ export function Mathilda() {
               <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
                 Gleichung lösen heißt, die Rechnung rückwärts zu gehen — Schritt für Schritt, auf beiden Seiten.
               </p>
-              <PruefungsLink ansicht={ansicht} gehe={gehe} />
+              <PruefungsLink ansicht={ansicht} gehe={gehe} klein />
             </div>
             <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
           </div>
@@ -1184,7 +1184,7 @@ export function Mathilda() {
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(26px, 7.6vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Gleichungen verstehen</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
               <SektionsMenue />
-              <PruefungsLink ansicht={ansicht} gehe={gehe} />
+              <PruefungsLink ansicht={ansicht} gehe={gehe} klein />
             </div>
             <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
           </div>
@@ -1197,7 +1197,7 @@ export function Mathilda() {
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(26px, 7.6vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Terme und Potenzgesetze</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
               <SektionsMenue />
-              <PruefungsLink ansicht={ansicht} gehe={gehe} />
+              <PruefungsLink ansicht={ansicht} gehe={gehe} klein />
             </div>
             <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
           </div>

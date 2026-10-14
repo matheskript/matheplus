@@ -1149,7 +1149,8 @@ export function hinterFertigemExponenten(t, p) {
   return p;
 }
 
-export function Tastenfeld({ wert: text, setWert, pos, setPos }) {
+export function Tastenfeld({ wert: text, setWert, pos, setPos, kompakt }) {
+  const TH = kompakt ? 34 : 46, TG = kompakt ? 5 : 6;
   const [vonX, setVonX] = useState(true);
   const setzen = (t, p) => { setWert(t); setPos(Math.max(0, Math.min(p, t.length))); };
   const einfuegen = (s) => {
@@ -1192,7 +1193,7 @@ export function Tastenfeld({ wert: text, setWert, pos, setPos }) {
     const z = vonX && t.zx ? t.zx : t.z;
     return (
       <button onClick={() => klick(t)} aria-label={t.titel || z} className="adv-taste"
-        style={{ gridColumn: span ? `span ${span}` : undefined, height: 46, background: s.bg, color: s.fg,
+        style={{ gridColumn: span ? `span ${span}` : undefined, height: TH, background: s.bg, color: s.fg,
           border: `1px solid ${s.rand}`, borderRadius: 12, fontSize: z.length > 6 ? "clamp(10px, 2.9vw, 12px)" : z.length > 5 ? "clamp(11px, 3.2vw, 12.5px)" : z.length > 3 ? 13.5 : 17, whiteSpace: "nowrap", overflow: "hidden", minWidth: 0,
           fontWeight: t.art === "op" || t.art === "nav" ? 700 : 600, fontFamily: "inherit", cursor: "pointer",
           padding: 0, display: "flex", alignItems: "center", justifyContent: "center",
@@ -1206,9 +1207,9 @@ export function Tastenfeld({ wert: text, setWert, pos, setPos }) {
       <style>{`.adv-taste{transition:transform .08s ease, filter .12s ease}
         .adv-taste:active{transform:scale(0.93);filter:brightness(0.93)}`}</style>
       {/* Box: alle Funktionstasten, auf die „von x / von ?“ wirkt — der Umschalter steht links als Teil der Box */}
-      <div style={{ display: "grid", gridTemplateColumns: "minmax(58px, 0.95fr) repeat(4, minmax(0, 1fr))", gridTemplateRows: "repeat(3, 46px)", gap: 6,
-        padding: 6, marginBottom: 8, borderRadius: 16, background: "#F1F5FB", border: "1.5px solid rgba(0,77,152,0.28)" }}>
-        <div role="group" aria-label="Funktionstasten einfügen als" style={{ gridRow: "1 / 4", display: "flex", flexDirection: "column", gap: 6 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "minmax(58px, 0.95fr) repeat(4, minmax(0, 1fr))", gridTemplateRows: `repeat(3, ${TH}px)`, gap: TG,
+        padding: kompakt ? 5 : 6, marginBottom: kompakt ? 6 : 8, borderRadius: 16, background: "#F1F5FB", border: "1.5px solid rgba(0,77,152,0.28)" }}>
+        <div role="group" aria-label="Funktionstasten einfügen als" style={{ gridRow: "1 / 4", display: "flex", flexDirection: "column", gap: TG }}>
           {[[true, "von x", "sin x", "Funktion direkt mit x einfügen, z. B. sin x"], [false, "von ?", "sin(?)", "Klammer öffnen zum Verketten, z. B. sin(x²)"]].map(([wert, name, bsp, titel]) => {
             const an = vonX === wert;
             return (
@@ -1226,7 +1227,7 @@ export function Tastenfeld({ wert: text, setWert, pos, setPos }) {
         </div>
         {FN_TASTEN.map((t, i) => <Taste key={i} t={t} />)}
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(6, minmax(0, 1fr))", gap: 6 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(6, minmax(0, 1fr))", gap: TG }}>
         {TASTEN.map((t, i) => <Taste key={i} t={t} span={t.span} />)}
         <Taste t={{ z: "←", art: "nav", aktion: "links", titel: "Schreibmarke nach links" }} />
         <Taste t={{ z: "→", art: "nav", aktion: "rechts", titel: "Schreibmarke nach rechts" }} />

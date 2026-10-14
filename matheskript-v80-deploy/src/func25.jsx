@@ -320,7 +320,7 @@ function integralHilfe(felder) {
 
 /* ---------- Stammfunktion bilden (drei Varianten) ---------- */
 
-function StammTrainer({ art, onC }) {
+function StammTrainer({ art, titel }) {
   const [fText, setFText] = useState(() => ERZEUGER[art]());
   const [eingabe, setEingabe] = useState("");
   const [pos, setPos] = useState(0);
@@ -349,21 +349,18 @@ function StammTrainer({ art, onC }) {
 
   return (
     <div style={{ ...karte, marginTop: 16 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 12 }}>
-        <div>
-          <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel }}>Bilde eine Stammfunktion</p>
-          <span style={{ fontSize: 12.5, color: C.grau }}>{bilanz.gesamt ? `${bilanz.richtig} von ${bilanz.gesamt} richtig` : ""}</span>
-        </div>
-        {status !== "richtig" && <IchHaengeFest kontext={stammHilfe(fText, fBaum)} />}
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, marginBottom: 10 }}>
+        <h2 style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, margin: 0, color: C.tinte }}>{titel}</h2>
+        {bilanz.gesamt > 0 && <span style={{ fontSize: 12.5, color: C.grau, whiteSpace: "nowrap" }}>{`${bilanz.richtig} von ${bilanz.gesamt} richtig`}</span>}
       </div>
-      <div style={{ background: blau, borderRadius: 14, padding: "14px 16px", marginBottom: 14, overflowX: "auto" }}>
-        <span style={{ color: C.weiss, fontSize: 22, fontWeight: 700, whiteSpace: "nowrap", lineHeight: 1.9 }}>{fBaum && <M t={`f(x) = ${tx(fBaum)}`} />}</span>
+      <div style={{ background: blau, borderRadius: 14, padding: "8px 16px", marginBottom: 10, overflowX: "auto" }}>
+        <span style={{ color: C.weiss, fontSize: 21, fontWeight: 700, whiteSpace: "nowrap", lineHeight: 1.7 }}>{fBaum && <M t={`f(x) = ${tx(fBaum)}`} />}</span>
       </div>
 
-      <div style={{ border: `2px solid ${rand}`, borderRadius: 14, padding: "10px 14px", marginBottom: 10, display: "flex", alignItems: "center", gap: 8, overflowX: "auto",
+      <div style={{ border: `2px solid ${rand}`, borderRadius: 14, padding: "6px 14px", marginBottom: 8, display: "flex", alignItems: "center", gap: 8, overflowX: "auto",
         background: status === "richtig" ? "#EEF8F2" : C.weiss }}>
         <span style={{ fontSize: 18, fontWeight: 700, color: C.tinte, whiteSpace: "nowrap" }}>F(x) =</span>
-        <span style={{ fontSize: 19, lineHeight: 1.9, whiteSpace: "nowrap" }}>
+        <span style={{ fontSize: 19, lineHeight: 1.7, whiteSpace: "nowrap" }}>
           {eingabe ? (eingabeBaum ? <M t={tx(eingabeBaum)} /> : <span style={{ color: C.signal, fontSize: 15 }}>{eingabe}</span>)
             : <span style={{ color: C.hellgrau, fontSize: 14, fontWeight: 300 }}>hier eingeben …</span>}
         </span>
@@ -371,16 +368,12 @@ function StammTrainer({ art, onC }) {
         {status === "richtig" && <span style={{ marginLeft: "auto", fontSize: 22, color: C.smaragd, fontWeight: 700 }}>✓</span>}
         {status === "falsch" && <span style={{ marginLeft: "auto", fontSize: 22, color: C.signal, fontWeight: 700 }}>✗</span>}
       </div>
-      {hinweis && <p role="status" style={{ fontSize: 13.5, color: C.signal, lineHeight: 1.6, margin: "0 4px 12px" }}>{hinweis}</p>}
+      {status !== "richtig" && <div style={{ marginBottom: 8 }}><IchHaengeFest kontext={stammHilfe(fText, fBaum)} /></div>}
+      {hinweis && <p role="status" style={{ fontSize: 13.5, color: C.signal, lineHeight: 1.6, margin: "0 4px 10px" }}>{hinweis}</p>}
       {status === "gezeigt" && (
         <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, margin: "0 4px 12px" }}>Prüfe dein F, indem du es ableitest – bei einer richtigen Stammfunktion kommt genau f heraus. Typische Regeln:
           xⁿ → xⁿ⁺¹/(n + 1), sin(x) → −cos(x), cos(x) → sin(x), eˣ → eˣ, 1/x → ln|x|.</p>
       )}
-
-      <button type="button" onClick={onC}
-        style={{ background: "none", border: "none", color: C.see, fontSize: 13.5, fontWeight: 600, fontFamily: "inherit", cursor: "pointer", padding: "4px 0", marginBottom: 10 }}>
-        ⓘ Was bedeutet das C und warum ist es egal?
-      </button>
 
       {status === "richtig" ? (
         <>
@@ -395,13 +388,13 @@ function StammTrainer({ art, onC }) {
         </>
       ) : (
         <>
-          <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+          <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
             <button type="button" onClick={pruefen}
-              style={{ flex: 2, height: 50, borderRadius: 12, border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 18, fontWeight: 800,
+              style={{ flex: 2, height: 44, borderRadius: 12, border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 18, fontWeight: 800,
                 color: C.weiss, background: C.smaragd, letterSpacing: "0.04em", boxShadow: "0 4px 14px rgba(47,143,91,0.35)" }}>OK</button>
             {versuche > 0 && (
               <button type="button" onClick={() => setStatus("gezeigt")}
-                style={{ flex: 1, height: 50, borderRadius: 12, border: `1px solid ${C.linie}`, cursor: "pointer", fontFamily: "inherit", fontSize: 13, fontWeight: 600, color: C.see, background: C.weiss }}>
+                style={{ flex: 1, height: 44, borderRadius: 12, border: `1px solid ${C.linie}`, cursor: "pointer", fontFamily: "inherit", fontSize: 13, fontWeight: 600, color: C.see, background: C.weiss }}>
                 Regeln zeigen
               </button>
             )}
@@ -411,9 +404,9 @@ function StammTrainer({ art, onC }) {
               placeholder="z. B. x^3 - cos(x)" aria-label="Stammfunktion F(x)" autoCapitalize="off" autoCorrect="off" spellCheck="false"
               style={{ width: "100%", boxSizing: "border-box", height: 46, borderRadius: 12, border: `1.5px solid ${C.linie}`, padding: "0 12px", fontSize: 16, fontFamily: "ui-monospace, Menlo, monospace" }} />
           ) : (
-            <Tastenfeld wert={eingabe} setWert={(t) => { setEingabe(t); setStatus(null); setHinweis(""); }} pos={pos} setPos={setPos} />
+            <Tastenfeld kompakt wert={eingabe} setWert={(t) => { setEingabe(t); setStatus(null); setHinweis(""); }} pos={pos} setPos={setPos} />
           )}
-          <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginTop: 10 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginTop: 8 }}>
             <button type="button" onClick={() => setTippen(!tippen)}
               style={{ background: "none", border: "none", color: C.see, fontSize: 13, fontFamily: "inherit", cursor: "pointer", padding: 0 }}>
               {tippen ? "Tastenfeld benutzen" : "Lieber selbst tippen"}
@@ -626,6 +619,51 @@ const MODI = [
   { id: "bestand", name: "Bestand und Änderungsrate" },
 ];
 
+const STAMM_TITEL = { stamm: "Bilde eine Stammfunktion", speziell: "Spezielle Funktionen", advanced: "Advanced" };
+
+/* Auswahlfeld über die ganze Breite: zeigt die gewählte Übung, ein Klick klappt alle sieben auf */
+function ModusAuswahl({ modus, onWahl }) {
+  const [offen, setOffen] = useState(false);
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!offen) return undefined;
+    const aussen = (e) => { if (ref.current && !ref.current.contains(e.target)) setOffen(false); };
+    const taste = (e) => { if (e.key === "Escape") setOffen(false); };
+    document.addEventListener("pointerdown", aussen);
+    window.addEventListener("keydown", taste);
+    return () => { document.removeEventListener("pointerdown", aussen); window.removeEventListener("keydown", taste); };
+  }, [offen]);
+  const aktuell = MODI.find((m) => m.id === modus) || MODI[0];
+  return (
+    <div ref={ref} style={{ position: "relative" }}>
+      <button type="button" onClick={() => setOffen(!offen)} aria-haspopup="listbox" aria-expanded={offen} aria-label={`Übung wählen, aktuell: ${aktuell.aria || aktuell.name}`}
+        style={{ width: "100%", height: 50, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, padding: "0 16px", borderRadius: 14,
+          fontFamily: "inherit", cursor: "pointer", fontSize: 15.5, fontWeight: 700, color: C.see, background: C.weiss,
+          border: `1.5px solid ${offen ? C.see : C.linie}`, boxShadow: "0 2px 12px rgba(15,26,51,0.07)" }}>
+        <span>{aktuell.name}</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"
+          style={{ transform: offen ? "rotate(180deg)" : "none", transition: "transform .15s ease", flexShrink: 0 }}><path d="M6 9l6 6 6-6" /></svg>
+      </button>
+      {offen && (
+        <div role="listbox" aria-label="Integral-Übungen"
+          style={{ position: "absolute", left: 0, right: 0, top: 56, zIndex: 40, background: C.weiss, borderRadius: 14, padding: 6,
+            border: `1px solid ${C.linie}`, boxShadow: "0 12px 32px rgba(15,26,51,0.2)" }}>
+          {MODI.map((m) => {
+            const an = modus === m.id;
+            return (
+              <button key={m.id} type="button" role="option" aria-selected={an} aria-label={m.aria} onClick={() => { onWahl(m.id); setOffen(false); }}
+                style={{ width: "100%", textAlign: "left", minHeight: 44, padding: "8px 12px", borderRadius: 10, border: "none", fontFamily: "inherit", cursor: "pointer",
+                  fontSize: 15, fontWeight: an ? 700 : 500, color: an ? C.weiss : C.tinte, background: an ? C.see : "transparent" }}>
+                {m.name}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 const REGELN = [["sin(x)", "-\\cos(x) + C"], ["\\cos(x)", "\\sin(x) + C"], ["e^{x}", "e^{x} + C"], ["\\frac{1}{x}", "\\ln|x| + C"]];
 
 export function Integrale() {
@@ -638,26 +676,8 @@ export function Integrale() {
   };
 
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
-      <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>Rückwärts ableiten</h2>
-      <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 18 }}>
-        Eine Stammfunktion F ist eine Funktion, deren Ableitung f ist: F′ = f. Bilde Stammfunktionen und berechne
-        bestimmte Integrale mit dem Hauptsatz. Jede gleichwertige Schreibweise zählt. Dazu Flächen, Bilanzen und Bestände.
-      </p>
-
-      <div role="tablist" aria-label="Integral-Übungen" className="int-modi" style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8 }}>
-        {MODI.map((m) => {
-          const an = modus === m.id;
-          return (
-            <button key={m.id} type="button" role="tab" aria-selected={an} aria-label={m.aria} onClick={() => waehle(m.id)}
-              style={{ minHeight: 48, padding: "8px 10px", borderRadius: 14, fontFamily: "inherit", cursor: "pointer", fontSize: m.id === "bestimmt" ? 16 : 14, fontWeight: 700,
-                border: `1px solid ${an ? C.see : C.linie}`, background: an ? C.see : C.weiss, color: an ? C.weiss : C.see,
-                boxShadow: an ? "0 4px 14px rgba(0,77,152,0.25)" : "none" }}>
-              {m.name}
-            </button>
-          );
-        })}
-      </div>
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 18 }}>
+      <ModusAuswahl modus={modus} onWahl={waehle} />
 
       {modus === "speziell" && (
         <div style={{ ...karte, marginTop: 16, padding: "14px 16px" }}>
@@ -674,7 +694,7 @@ export function Integrale() {
       {/* Alle Modi bleiben eingehängt, damit Eingaben beim Wechsel erhalten bleiben */}
       {["stamm", "speziell", "advanced"].map((id) => (
         <div key={id} style={{ display: modus === id ? "block" : "none" }}>
-          <StammTrainer art={id} onC={() => setDialog("c")} />
+          <StammTrainer art={id} titel={STAMM_TITEL[id]} />
         </div>
       ))}
       <div style={{ display: modus === "bestimmt" ? "block" : "none" }}>
