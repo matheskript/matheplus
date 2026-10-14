@@ -528,69 +528,7 @@ export const WEG_TYPEN = [
 /* --- Der typunabhängige Prüfer --- */
 
 
-const FORMELN_ANALYSIS = [
-  { gruppe: "Grundlagen", name: "Differenzenquotient", f: "\\frac{f(x_0+h) - f(x_0)}{h}",
-    kurz: "Steigung der Sekante durch zwei Punkte · mittlere Änderungsrate", kap: 1 },
-  { gruppe: "Grundlagen", name: "Ableitung an einer Stelle", f: "f′(x_0) = \\lim_{h \\to 0} \\frac{f(x_0+h) - f(x_0)}{h}",
-    kurz: "Steigung der Tangente · lokale Änderungsrate", kap: 1 },
-  { gruppe: "Grundlagen", name: "Tangente", f: "t(x) = f′(x_0)(x - x_0) + f(x_0)",
-    kurz: "Gerade, die den Graphen in einem Punkt berührt", kap: 2 },
-  { gruppe: "Grundlagen", name: "Normale", f: "m_n = -\\frac{1}{f′(x_0)}",
-    kurz: "steht senkrecht auf der Tangente · gleicher Punkt", kap: 2 },
-
-  { gruppe: "Grundableitungen", name: "Konstante", f: "f(x) = c \\quad\\Rightarrow\\quad f′(x) = 0",
-    kurz: "gilt für jede feste Zahl, auch π und Parameter", kap: 3 },
-  { gruppe: "Grundableitungen", name: "Identität", f: "f(x) = x \\quad\\Rightarrow\\quad f′(x) = 1",
-    kurz: "die Winkelhalbierende · überall Steigung 1", kap: 3 },
-  { gruppe: "Grundableitungen", name: "Potenzregel", f: "f(x) = x^n \\quad\\Rightarrow\\quad f′(x) = n \\, x^{n-1}",
-    kurz: "gilt für alle reellen Exponenten, nicht nur natürliche", kap: 5 },
-  { gruppe: "Grundableitungen", name: "Kehrwert", f: "f(x) = \\frac{1}{x} \\quad\\Rightarrow\\quad f′(x) = -\\frac{1}{x^2}",
-    kurz: "Spezialfall der Potenzregel mit n = -1", kap: 1 },
-  { gruppe: "Grundableitungen", name: "Wurzel", f: "f(x) = \\sqrt{x} \\quad\\Rightarrow\\quad f′(x) = \\frac{1}{2\\sqrt{x}}",
-    kurz: "erst umschreiben zu x^{1/2}, dann Potenzregel", kap: 5 },
-
-  { gruppe: "Ableitungsregeln", name: "Faktorregel", f: "(c \\cdot f)′ = c \\cdot f′",
-    kurz: "konstanter Faktor bleibt unverändert stehen", kap: 4 },
-  { gruppe: "Ableitungsregeln", name: "Summenregel", f: "(u + v)′ = u′ + v′",
-    kurz: "gliedweise ableiten", kap: 4 },
-  { gruppe: "Ableitungsregeln", name: "Differenzregel", f: "(u - v)′ = u′ - v′",
-    kurz: "folgt aus Summen- und Faktorregel mit c = -1", kap: 4 },
-  { gruppe: "Ableitungsregeln", name: "Produktregel", f: "(u \\cdot v)′ = u′v + uv′",
-    kurz: "nicht u′·v′ — der häufigste Fehler überhaupt", kap: 4 },
-  { gruppe: "Ableitungsregeln", name: "Quotientenregel", f: "\\left( \\frac{u}{v} \\right)′ = \\frac{u′v - uv′}{v^2}",
-    kurz: "Reihenfolge im Zähler beachten · oft durch Umschreiben vermeidbar" },
-  { gruppe: "Ableitungsregeln", name: "Kettenregel", f: "f(x) = u(v(x)) \\quad\\Rightarrow\\quad f′ = u′(v(x)) \\cdot v′(x)",
-    kurz: "äußere mal innere Ableitung · innere nie vergessen" },
-
-  { gruppe: "Spezielle Funktionen", name: "e-Funktion", f: "f(x) = e^x \\quad\\Rightarrow\\quad f′(x) = e^x",
-    kurz: "ihre eigene Ableitung · wird nie null", kap: 6 },
-  { gruppe: "Spezielle Funktionen", name: "Natürlicher Logarithmus", f: "f(x) = \\ln x \\quad\\Rightarrow\\quad f′(x) = \\frac{1}{x}",
-    kurz: "nur für x > 0 definiert", kap: 6 },
-  { gruppe: "Spezielle Funktionen", name: "Sinus", f: "f(x) = \\sin x \\quad\\Rightarrow\\quad f′(x) = \\cos x",
-    kurz: "nur im Bogenmaß gültig", kap: 6 },
-  { gruppe: "Spezielle Funktionen", name: "Kosinus", f: "f(x) = \\cos x \\quad\\Rightarrow\\quad f′(x) = -\\sin x",
-    kurz: "Viererzyklus: sin → cos → −sin → −cos → sin", kap: 6 },
-  { gruppe: "Spezielle Funktionen", name: "Allgemeine Exponentialfunktion", f: "f(x) = a^x \\quad\\Rightarrow\\quad f′(x) = a^x \\ln a",
-    kurz: "für a = e wird ln a = 1 — daher die Sonderrolle von e" },
-
-  { gruppe: "Vorher umschreiben", name: "Bruch als Potenz", f: "\\frac{1}{x^n} = x^{-n}",
-    kurz: "spart fast immer die Quotientenregel", kap: 5 },
-  { gruppe: "Vorher umschreiben", name: "Wurzel als Potenz", f: "\\sqrt{x} = x^{\\frac{1}{2}} \\, , \\quad \\frac{1}{\\sqrt{x}} = x^{-\\frac{1}{2}}",
-    kurz: "danach greift die Potenzregel direkt", kap: 5 },
-
-  { gruppe: "Anwendung", name: "Monotonie", f: "f′(x) > 0 \\Rightarrow \\text s t e i g e n d \\, , \\quad f′(x) < 0 \\Rightarrow \\text f a l l e n d",
-    kurz: "auf Intervallen argumentieren, nicht punktweise" },
-  { gruppe: "Anwendung", name: "Extrempunkt", f: "f′(x_0) = 0 \\, , \\quad f″(x_0) \\neq 0",
-    kurz: "f″ < 0 Hochpunkt · f″ > 0 Tiefpunkt · notwendig ≠ hinreichend" },
-  { gruppe: "Anwendung", name: "Wendepunkt", f: "f″(x_0) = 0 \\, , \\quad f‴(x_0) \\neq 0",
-    kurz: "y-Wert immer über f berechnen, nie über f″" },
-  { gruppe: "Anwendung", name: "Krümmung", f: "f″(x) > 0 \\Rightarrow \\text l i n k s \\, , \\quad f″(x) < 0 \\Rightarrow \\text r e c h t s",
-    kurz: "linksgekrümmt heißt konvex, rechtsgekrümmt konkav" },
-  { gruppe: "Anwendung", name: "Sattelpunkt", f: "f′(x_0) = 0 \\quad \\text u n d \\quad f″(x_0) = 0",
-    kurz: "Wendepunkt mit waagerechter Tangente · Vorzeichenwechsel prüfen" },
-];
-
-export const FORMELN = FORMELN_ANALYSIS.map((e) => ({ bereich: "analysis", ...e }));
+/* Die Formeln der Analysis stehen jetzt in fsAnalysis.js (Formelsammlung). */
 
 
 

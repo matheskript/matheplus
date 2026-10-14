@@ -19,8 +19,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { C } from "./base1.jsx";
-import { FORMELN } from "./base2.jsx";
-import { FORMELN_ANALYSIS_EXTRA, FORMELN_WEITERE } from "./baseFormeln.jsx";
+import { FS_ALLE, FS_BEREICH_ALIAS, FS_NACH_ID } from "./fsIndex.js";
+import { FR } from "./funcRegistry.jsx";
 import { M, Text } from "./func3.jsx";
 import { alsTex, hatX } from "./func12.jsx";
 import { KopfrechenZentrum } from "./func14.jsx";
@@ -100,9 +100,12 @@ const GLOSSAR = [
 
 /* ---------- Formelsammlung: Eintrag suchen ---------- */
 
-const ALLE_FORMELN = [...FORMELN, ...FORMELN_ANALYSIS_EXTRA, ...FORMELN_WEITERE];
+/* Ältere Namen aus den Werkzeugen → Kennung in der Formelsammlung */
+const FORMEL_ALIAS = { "Binomische Formeln": "binom1", "Extremwertaufgaben": "optimierung", "Hauptsatz der Differential- und Integralrechnung": "hauptsatz", "Äquivalenzumformung": "lineargl" };
 export function formelEintrag(name, bereich) {
-  return ALLE_FORMELN.find((e) => e.name === name && (!bereich || e.bereich === bereich)) || null;
+  const b = FS_BEREICH_ALIAS[bereich] || bereich;
+  const e = FS_NACH_ID[FORMEL_ALIAS[name]] || FS_ALLE.find((x) => x.n === name && (!b || x.bereich === b)) || FS_ALLE.find((x) => x.n === name);
+  return e ? { id: e.id, bereich: e.bereich, gruppe: e.g, name: e.n, f: e.f, kurz: e.k, kap: e.kap } : null;
 }
 
 /* kurze Beispiele zu häufigen Regeln */
@@ -294,7 +297,7 @@ function Begriffe({ text }) {
   );
 }
 
-function RegelAnsicht({ regeln }) {
+function RegelAnsicht({ regeln, schliessen }) {
   const eintraege = (regeln || []).map((r) => (r.f ? r : (() => { const e = formelEintrag(r.name, r.bereich); return e ? { ...e, beispiel: BEISPIEL[r.name] } : null; })())).filter(Boolean);
   if (!eintraege.length) return <p style={{ fontSize: 14, color: C.grau }}>Zu dieser Aufgabe ist noch keine Regel hinterlegt.</p>;
   return (
@@ -308,6 +311,16 @@ function RegelAnsicht({ regeln }) {
           {e.beispiel && <Text s={`Beispiel: ${e.beispiel}`} style={{ fontSize: 13.5, color: C.tinte, lineHeight: 1.7, marginTop: 6, background: C.sand, borderRadius: 10, padding: "6px 10px" }} />}
         </div>
       ))}
+      {eintraege.some((e) => e.id) && (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 8 }}>
+          {eintraege.filter((e) => e.id).map((e) => (
+            <button key={e.id} type="button" onClick={() => { if (schliessen) schliessen(); if (FR.gehe) FR.gehe({ ansicht: "formeln", bereich: e.bereich, formel: e.id }); }}
+              style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 11px", borderRadius: 999, border: `1px solid ${C.linie}`, background: C.weiss, color: C.see, fontSize: 12.5, fontWeight: 700, fontFamily: "inherit", cursor: "pointer" }}>
+              {e.name}: Herleitung und Bild ›
+            </button>
+          ))}
+        </div>
+      )}
       <p style={{ fontSize: 12.5, color: C.hellgrau, lineHeight: 1.6 }}>Aus der Formelsammlung von Mythos Mathe.</p>
     </div>
   );
@@ -392,7 +405,7 @@ function Panel({ kontext, onHilfe, schliessen }) {
         </div>
 
         <div style={{ padding: "16px 18px 22px" }}>
-          {ansicht === "regel" && <RegelAnsicht regeln={kontext.regeln} />}
+          {ansicht === "regel" && <RegelAnsicht regeln={kontext.regeln} schliessen={schliessen} />}
 
           {ansicht === "grundlage" && kontext.grundlage && (
             <div style={{ margin: "0 -24px" }}>

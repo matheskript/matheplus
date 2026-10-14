@@ -13,7 +13,7 @@ import { hinweisVerwerfen } from "./uebergabe.js";
 import { FR } from "./funcRegistry.jsx";
 import { AufklappStil, AufklappZeichen, aufklappScrollStarten } from "./aufklappen.jsx";
 import { Plotter, Text, Zeile } from "./func3.jsx";
-import { Formelsammlung, FotoAufgaben, Klausur, Kurvendiskussion } from "./func4.jsx";
+import { FotoAufgaben, Klausur, Kurvendiskussion } from "./func4.jsx";
 import { DifferenzenquotientSeite, Fortschritt, GeneratorHub, Kopfrechnen, WegVomBlatt } from "./func5.jsx";
 import { Einstufung, Lernlandkarte, Liniennetz, Profil, lernLaden, lernLeer, lernSnapshot, lernVomKonto, useLern } from "./func6.jsx";
 import { syncStarten } from "./lernSync.js";
@@ -62,6 +62,7 @@ import { ENTWUERFE, istEntwurf, EntwurfTor, EntwurfStart, EntwurfChecken, Entwur
 import { LANDING, Landingpage } from "./funcLandingpage.jsx";
 import { PenPaperKursSeite } from "./funcPenPaperKurs.jsx";
 /* Head & Numbers wird erst beim Öffnen nachgeladen (eigener Chunk, nicht im Hauptbündel) */
+const FormelsammlungNeu = React.lazy(() => import("./funcFormelsammlung.jsx").then((m) => ({ default: m.FormelsammlungNeu })));
 const HeadNumbersSeite = React.lazy(() => import("./funcHeadNumbers.jsx").then((m) => ({ default: m.HeadNumbersSeite })));
 import { EBB_SLOGAN, EbbinghausSeite } from "./funcEbbinghaus.jsx";
 import { EntwurfWerkzeuge } from "./funcStartArchiv.jsx";
@@ -107,7 +108,8 @@ export function Mathilda() {
   const [kopfTrainer, setKopfTrainer] = useState(null);   // direkt geöffneter Kopfrechen-Trainer
   const [hnModul, setHnModul] = useState(null);             // direkt geöffneter Bereich von Head & Numbers
   const [landWahl, setLandWahl] = useState("bw");
-  const [formelBereich, setFormelBereich] = useState("analysis");   // Bereich der Formelsammlung          // Bundesland der Landeswettbewerb-Seite
+  const [formelBereich, setFormelBereich] = useState("analysis");
+  const [formelZiel, setFormelZiel] = useState(null);   // Deep-Link auf eine einzelne Formel   // Bereich der Formelsammlung          // Bundesland der Landeswettbewerb-Seite
   const [sprung, setSprung] = useState(null);
   const [fotoModus, setFotoModus] = useState("blatt");
   const [terminStart, setTerminStart] = useState(null);
@@ -150,7 +152,7 @@ export function Mathilda() {
     setKopfTrainer(eintrag.ansicht === "kopf" ? eintrag.trainer || null : null);
     setHnModul(eintrag.ansicht === "headnumbers" ? eintrag.modul || null : null);
     if (eintrag.land) setLandWahl(eintrag.land);
-    if (eintrag.ansicht === "formeln") setFormelBereich(eintrag.bereich || "analysis");
+    if (eintrag.ansicht === "formeln") { setFormelBereich(eintrag.bereich || "analysis"); setFormelZiel(eintrag.formel || null); }
     setMenuOffen(false); setGruppeOffen(null);
     window.scrollTo(0, 0);
   };
@@ -997,12 +999,14 @@ export function Mathilda() {
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
               <SektionsMenue />
               <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
-                Alles auf einen Blick — sortiert nach Bereichen und durchsuchbar.
+                Jede Formel mit Herleitung, interaktivem Bild und ihren Zusammenhängen.
               </p>
             </div>
             <Welle fill={C.sand} />
           </div>
-          <Formelsammlung key={formelBereich} bereich={formelBereich} zuHerleitung={(nr) => { setSprung(nr); setAnsicht("training"); }} />
+          <React.Suspense fallback={<p role="status" style={{ color: C.grau, fontSize: 15, fontWeight: 300, padding: "24px", textAlign: "center" }}>{englisch() ? "Loading …" : "Wird geladen …"}</p>}>
+            <FormelsammlungNeu key={formelBereich + "|" + (formelZiel || "")} bereich={formelBereich} formel={formelZiel} zuHerleitung={(nr) => { setSprung(nr); setAnsicht("training"); }} />
+          </React.Suspense>
         </>
       ) : ansicht === "plotter" ? (
         <>

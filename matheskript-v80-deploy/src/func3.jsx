@@ -475,6 +475,7 @@ export function mLies(s, i, ende) {
       let a; [a, i] = mArg(s, i + 1);
       teile.push({ typ: ch === "^" ? "sup" : "sub", a });
     } else if (ch === "{") {
+      raus();   // vorher gesammelten Text zuerst ausgeben, sonst rutscht die Gruppe nach vorn (z. B. „0{,}5“)
       let a; [a, i] = mArg(s, i);
       teile.push({ typ: "grp", a });
     } else { text += ch; i++; }

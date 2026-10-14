@@ -414,11 +414,12 @@ function bereichsEintraege(b, stufe, etikett) {
 /* Formelsammlung → Bereiche (Untermenü wie bei Analysis) */
 const FORMEL_MENUE = [
   { name: "Analysis", zeile: "Ableiten, Integrieren, Kurvendiskussion", bild: "kurve", ziel: { ansicht: "formeln", bereich: "analysis" } },
+  { name: "Funktionen", zeile: "Geraden, Parabeln, Wachstum, Sinus", bild: "parabel", ziel: { ansicht: "formeln", bereich: "funktionen" } },
   { name: "Vektoren", zeile: "Skalarprodukt, Ebenen, Abstände", bild: "kreuz", ziel: { ansicht: "formeln", bereich: "vektoren" } },
-  { name: "Stochastik", zeile: "Bayes, Erwartungswert, Binomialverteilung", bild: "balken", ziel: { ansicht: "formeln", bereich: "stochastik" } },
-  { name: "Kopfrechnen", zeile: "Rechentricks, Teilbarkeit, Brüche", bild: "kopf", ziel: { ansicht: "formeln", bereich: "kopfrechnen" } },
-  { name: "Trigonometrie", zeile: "Sinussatz, Kosinussatz, Bogenmaß", bild: "trig", ziel: { ansicht: "formeln", bereich: "trigonometrie" } },
+  { name: "Stochastik", zeile: "Bayes, Binomialverteilung, Tests", bild: "balken", ziel: { ansicht: "formeln", bereich: "stochastik" } },
+  { name: "Geometrie und Trigonometrie", zeile: "Pythagoras, Kreis, Körper, Einheitskreis", bild: "trig", ziel: { ansicht: "formeln", bereich: "geometrie" } },
   { name: "Terme und Gleichungen", zeile: "Binomische Formeln, pq-Formel, Logarithmen", bild: "terme", ziel: { ansicht: "formeln", bereich: "terme" } },
+  { name: "Kopfrechnen", zeile: "Rechentricks, Teilbarkeit, Brüche", bild: "kopf", ziel: { ansicht: "formeln", bereich: "kopfrechnen" } },
   { name: "Mengenlehre und Logik", zeile: "Mengen, Junktoren, Beweisverfahren", bild: "menge", ziel: { ansicht: "formeln", bereich: "logik" } },
 ];
 
