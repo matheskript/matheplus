@@ -429,13 +429,51 @@ function EingabeVektoren({ namen, w, setW, farben, zuruecksetzen }) {
 
 /* ---------- Skalarprodukt verstehen ---------- */
 
+/* Winkel konkret bestimmen – komplette Rechnung mit der Kosinus-Formel */
+function WinkelRechnung({ a, b, ab }) {
+  const la2 = skalar(a, a), lb2 = skalar(b, b);
+  const cosw = ab / (laenge(a) * laenge(b));
+  const phi = winkelZwischen(a, b);
+  const kl = (v) => (v < 0 ? `(${n(v)})` : n(v));
+  const quad = (v) => v.map((x) => `${kl(x)}^2`).join(" + ");
+  const klein = { fontSize: 13.5, color: C.grau, lineHeight: 1.6, whiteSpace: "normal", margin: "4px 0 0" };
+  return (
+    <div style={{ marginTop: 6 }}>
+      {schritt(3, zw("Die Formel für den Winkel", "The formula for the angle"))}
+      <div style={box}>
+        <div style={zeile}><M t={"\\cos\\varphi = \\frac{\\vec{a}\\cdot\\vec{b}}{|\\vec{a}|\\cdot|\\vec{b}|}"} /></div>
+        <p style={klein}>{zw("Der Kosinus des Winkels ist das Skalarprodukt geteilt durch das Produkt der Beträge (Längen) der beiden Vektoren.", "The cosine of the angle is the dot product divided by the product of the lengths of the two vectors.")}</p>
+        <p style={klein}>{zw("Willst du nur den spitzen Winkel zwischen zwei Geraden, setzt du im Zähler Betragsstriche: |a · b|.", "If you only want the acute angle between two lines, put absolute value bars in the numerator: |a · b|.")}</p>
+      </div>
+      {schritt(4, zw("Die Beträge der Vektoren", "The lengths of the vectors"))}
+      <div style={box}>
+        <div style={zeile}><M t={`|\\vec{a}| = \\sqrt{${quad(a)}} = \\sqrt{${la2}}`} /></div>
+        <div style={zeile}><M t={`|\\vec{b}| = \\sqrt{${quad(b)}} = \\sqrt{${lb2}}`} /></div>
+      </div>
+      {schritt(5, zw("Einsetzen", "Plug in"))}
+      <div style={box}>
+        <div style={zeile}><M t={`\\cos\\varphi = \\frac{${n(ab)}}{\\sqrt{${la2}}\\cdot\\sqrt{${lb2}}} \\approx ${dez(cosw, 4)}`} /></div>
+      </div>
+      {schritt(6, zw("Mit arccos zum Winkel", "Get the angle with arccos"))}
+      <div style={box}>
+        <div style={zeile}><M t={`\\varphi = \\arccos(${dez(cosw, 4)}) \\approx ${dez(phi, 1)}°`} /></div>
+        <p style={klein}>{ab > 0 ? zw("Das Skalarprodukt ist positiv – passend dazu ist der Winkel spitz.", "The dot product is positive – matching that, the angle is acute.")
+          : ab < 0 ? zw("Das Skalarprodukt ist negativ – passend dazu ist der Winkel stumpf.", "The dot product is negative – matching that, the angle is obtuse.")
+          : zw("Das Skalarprodukt ist 0 – der Winkel ist genau 90°.", "The dot product is 0 – the angle is exactly 90°.")}</p>
+        <p style={klein}>{zw("Taschenrechner auf Gradmaß (DEG) stellen.", "Set your calculator to degrees (DEG).")}</p>
+      </div>
+    </div>
+  );
+}
+
 function SkalarproduktVerstehen() {
   const start = useState(() => neuesVektorPaar(0.25))[0];
   const { w, setW, gelesen, fehler } = useVektoren([start.a, start.b]);
   const [vm, setVm] = useState(null);
   const [antwort, setAntwort] = useState("");
   const [pr, setPr] = useState(null);
-  const neu = () => { const p = neuesVektorPaar(0.25); setW([wirf(p.a), wirf(p.b)]); setVm(null); setAntwort(""); setPr(null); };
+  const [winkelAn, setWinkelAn] = useState(false);
+  const neu = () => { const p = neuesVektorPaar(0.25); setW([wirf(p.a), wirf(p.b)]); setVm(null); setAntwort(""); setPr(null); setWinkelAn(false); };
   const [a, b] = gelesen;
   const ab = a && b ? skalar(a, b) : null;
   const art = ab === null ? null : ab > 0 ? "spitz" : ab < 0 ? "stumpf" : "recht";
@@ -461,7 +499,7 @@ function SkalarproduktVerstehen() {
   return (
     <div style={{ ...karte, marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
-        <p style={kicker}>{zw("Skalarprodukt verstehen", "Understanding the dot product")}</p>
+        <p style={kicker}>{zw("Berechne das Skalarprodukt", "Compute the dot product")}</p>
         <IchHaengeFest kontext={hilfe} />
       </div>
       <p style={hinweis}>{zw("Das Skalarprodukt zweier Vektoren ist eine Zahl. Ihr Vorzeichen sagt dir, ob der Winkel spitz, recht oder stumpf ist.", "The dot product of two vectors is a number. Its sign tells you whether the angle is acute, right or obtuse.")}</p>
@@ -492,6 +530,10 @@ function SkalarproduktVerstehen() {
                   {ab > 0 ? zw("Positiv: Der Winkel ist spitz.", "Positive: the angle is acute.") : ab < 0 ? zw("Negativ: Der Winkel ist stumpf.", "Negative: the angle is obtuse.") : zw("Null: Die Vektoren stehen senkrecht aufeinander (orthogonal).", "Zero: the vectors are perpendicular (orthogonal).")}
                 </p>
               </div>
+              <GrosserKnopf ghost onClick={() => setWinkelAn((x) => !x)}>
+                {winkelAn ? zw("Winkelrechnung ausblenden", "Hide the angle calculation") : zw("Und wie groß ist der Winkel genau?", "And what is the exact angle?")}
+              </GrosserKnopf>
+              {winkelAn && <WinkelRechnung a={a} b={b} ab={ab} />}
             </>
           )}
         </>
@@ -623,6 +665,22 @@ function GeradeEbeneWinkel() {
         <IchHaengeFest kontext={hilfe} />
       </div>
       <p style={hinweis}>{zw("Der Winkel zwischen Gerade und Ebene wird mit dem Sinus berechnet – nicht mit dem Kosinus.", "The angle between line and plane is computed with the sine – not with the cosine.")}</p>
+      <div style={{ ...box, marginTop: 4, marginBottom: 6 }}>
+        <p style={{ fontSize: 14, fontWeight: 700, color: C.see, margin: "0 0 6px" }}>{zw("Warum Sinus und nicht Kosinus?", "Why sine and not cosine?")}</p>
+        <p style={{ fontSize: 13.5, color: C.tinte, lineHeight: 1.65, margin: "0 0 6px", whiteSpace: "normal" }}>
+          {zw("Die Kosinus-Formel misst den Winkel zwischen zwei Vektoren. Von der Ebene haben wir aber nur den Normalenvektor n – und der steht senkrecht auf der Ebene. Der Kosinus-Weg liefert also den Winkel θ zwischen u und n, nicht den Winkel zur Ebene.",
+            "The cosine formula measures the angle between two vectors. But of the plane we only have the normal vector n – and it stands perpendicular to the plane. The cosine route therefore gives the angle θ between u and n, not the angle to the plane.")}
+        </p>
+        <p style={{ fontSize: 13.5, color: C.tinte, lineHeight: 1.65, margin: "0 0 6px", whiteSpace: "normal" }}>
+          {zw("Zwischen n und der Ebene liegen genau 90°. Deshalb gilt α = 90° − θ. Und für Komplementwinkel vertauschen sich Sinus und Kosinus:", "Between n and the plane there are exactly 90°. So α = 90° − θ. And for complementary angles sine and cosine swap:")}
+        </p>
+        <div style={zeile}><M t={"\\sin\\alpha = \\sin(90° - \\theta) = \\cos\\theta"} /></div>
+        <div style={zeile}><M t={"\\cos\\theta = \\frac{|\\vec{u}\\cdot\\vec{n}|}{|\\vec{u}|\\cdot|\\vec{n}|}"} /></div>
+        <p style={{ fontSize: 13, color: C.grau, lineHeight: 1.6, margin: "4px 0 0", whiteSpace: "normal" }}>
+          {zw("Der Kosinus von θ steckt also im Bruch – er heißt nur sin α, weil wir den Winkel zur Ebene suchen. Die Betragsstriche sorgen dafür, dass α zwischen 0° und 90° bleibt.",
+            "So the cosine of θ is inside the fraction – it is just called sin α because we want the angle to the plane. The absolute value bars keep α between 0° and 90°.")}
+        </p>
+      </div>
       <EingabeVektoren namen={["u", "n"]} w={w} setW={setW} farben={[farbA, farbB]} zuruecksetzen={() => { setPr(null); setFormel(null); }} />
       {fehler ? <Rueck art="warn">{fehler}</Rueck> : <GeBild u={u} nv={nv} />}
       <p style={{ fontSize: 12.5, color: C.hellgrau, marginTop: 6 }}>{zw("u: Richtungsvektor der Geraden · n: Normalenvektor der Ebene", "u: direction vector of the line · n: normal vector of the plane")}</p>
@@ -659,7 +717,7 @@ function GeradeEbeneWinkel() {
    ====================================================================== */
 
 const WINKEL_MODI = [
-  { id: "skalar", name: ["Skalarprodukt verstehen", "Understanding the dot product"] },
+  { id: "skalar", name: ["Berechne das Skalarprodukt", "Compute the dot product"] },
   { id: "winkel", name: ["Vektorwinkel", "Angle between vectors"] },
   { id: "ge", name: ["Gerade-Ebene-Winkel", "Line–plane angle"] },
 ];
