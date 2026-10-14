@@ -64,21 +64,26 @@ function PlotterLogoKlein() {
   );
 }
 
-/* Dunkelsilberner Rahmen hinter einem aufgeklappten Menü (inkl. der aufgeklappten Kachel selbst),
-   damit man sieht, was gerade offen ist. Der Wrapper bleibt immer im DOM (kein Remount beim Umschalten);
-   zugeklappt ist er unsichtbar. Die breiten Kacheln ragen 16 px über die Inhaltsbreite hinaus – der Rahmen
-   fasst sie mit etwas Silber drumherum ein. */
-function AufklappRahmen({ auf, tief, children }) {
-  const rand = tief ? 16 : 22;
+/* Weißer Rahmen hinter einem aufgeklappten Menü (inkl. der aufgeklappten Kachel selbst).
+   Das jeweils innerste offene Menü wird hervorgehoben: Es bleibt weiß, und alles andere auf der Seite
+   wird per Schatten (0 0 0 200vmax) abgedunkelt. „Innerstes“ = ein offener Rahmen ohne weiteren offenen
+   Rahmen darin (CSS :has). Ohne :has-Unterstützung bleibt es bei den weißen Rahmen ohne Abdunklung.
+   Der Wrapper bleibt immer im DOM (kein Remount beim Umschalten); zugeklappt ist er unsichtbar.
+   Stufen: 0 = Mathe-Training, 1 = Mathematik/Wettbewerbe (tief), 2 = einzelner Bereich (innen). */
+const AUFKLAPP_CSS = `.aufklapp-rahmen{transition:box-shadow .25s ease}
+  .aufklapp-rahmen[data-aufklapp-rahmen]{box-shadow:0 6px 18px rgba(20,28,45,0.14)}
+  .aufklapp-rahmen[data-aufklapp-rahmen]:not(:has([data-aufklapp-rahmen])){position:relative;z-index:5;
+    box-shadow:0 0 0 200vmax rgba(8,16,40,0.62), 0 12px 34px rgba(0,0,0,0.30)}`;
+function AufklappRahmen({ auf, tief, innen, children }) {
+  const rand = innen ? 8 : tief ? 16 : 22;
   return (
-    <div data-aufklapp-rahmen={auf ? "" : undefined}
+    <div className="aufklapp-rahmen" data-aufklapp-rahmen={auf ? "" : undefined}
       style={auf ? {
-        margin: `${tief ? 10 : 14}px -${rand}px 0`, padding: `0 ${rand}px ${tief ? 12 : 14}px`, borderRadius: tief ? 20 : 24,
-        background: tief ? "linear-gradient(160deg, #7C8696 0%, #5B6575 100%)" : "linear-gradient(160deg, #66707F 0%, #444D5B 100%)",
-        border: "1px solid rgba(255,255,255,0.30)",
-        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.28), inset 0 -2px 8px rgba(10,15,25,0.30), 0 6px 18px rgba(20,28,45,0.22)",
+        margin: `${innen ? 8 : tief ? 10 : 14}px -${rand}px 0`, padding: `0 ${rand}px ${innen ? 8 : tief ? 12 : 14}px`, borderRadius: innen ? 18 : tief ? 20 : 24,
+        background: C.weiss, border: "1px solid rgba(14,30,74,0.10)",
       } : undefined}>
-      <div style={auf ? { marginTop: -4 } : undefined}>{children}</div>
+      <style>{AUFKLAPP_CSS}</style>
+      <div style={auf ? { marginTop: innen ? 0 : -4 } : undefined}>{children}</div>
     </div>
   );
 }
@@ -606,8 +611,8 @@ function UnterMenue({ eintraege, gehe, tiefe = 0 }) {
             <span aria-hidden="true" style={{ flexShrink: 0, width: 22, height: 22, borderRadius: 999, background: C.flaggold, color: C.seeTief, fontSize: 12, fontWeight: 800,
               display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{e.nr}</span>
             <span style={{ minWidth: 0, lineHeight: 1.2 }}>
-              <span style={{ display: "block", fontSize: 14, fontWeight: 700, color: C.weiss, letterSpacing: "-0.005em" }}>{e.titel}</span>
-              <span className="unter-zeile" style={{ display: "block", fontSize: 11.5, fontWeight: 400, color: "rgba(255,255,255,0.78)" }}>{e.zeile}</span>
+              <span style={{ display: "block", fontSize: 14, fontWeight: 700, color: C.seeTief, letterSpacing: "-0.005em" }}>{e.titel}</span>
+              <span className="unter-zeile" style={{ display: "block", fontSize: 11.5, fontWeight: 400, color: C.grau }}>{e.zeile}</span>
             </span>
           </div>
         );
@@ -1062,32 +1067,34 @@ export function Startseite({ gehe }) {
         <div data-aufklapp-inhalt style={{ margin: "0 0 4px" }}>
           {/* Mathematik (früher „Abi-Training“): Analysis, Vektoren, Stochastik, Gleichungen, Mein Training und Formelsammlung */}
           <AufklappRahmen auf={abiAuf} tief>
-          <PlotterKachel klein breit haupt onClick={() => { setAbiAuf(!abiAuf); setBereichAuf(null); }} auf={abiAuf}
+          <PlotterKachel klein breit haupt onClick={() => { setAbiAuf(!abiAuf); setBereichAuf(null); setFormelAuf(false); setWettAuf(false); }} auf={abiAuf}
             label={abiAuf ? "Mathematik zuklappen" : "Mathematik aufklappen"}
             logo={<FormelLogoKlein />} titel="Mathematik"
             text="Analysis, Vektoren, Stochastik, Gleichungen und Formelsammlung."
             extra={<AufklappPfeil auf={abiAuf} />} />
           {abiAuf && (
             <div data-aufklapp-inhalt style={{ margin: "4px 0 4px", padding: "2px 0 2px 12px", borderLeft: `3px solid ${C.flaggold}` }}>
-              <div style={{ padding: "8px 2px 2px" }}><EtikettLegende dunkel /></div>
+              <div style={{ padding: "8px 2px 2px" }}><EtikettLegende /></div>
               {SCHUL_BEREICHE.map((b) => (
-                <React.Fragment key={b.id}>
-                  <PlotterKachel klein haupt onClick={() => setBereichAuf(bereichAuf === b.id ? null : b.id)}
+                <AufklappRahmen key={b.id} auf={bereichAuf === b.id} innen>
+                  <PlotterKachel klein haupt onClick={() => { setBereichAuf(bereichAuf === b.id ? null : b.id); setFormelAuf(false); }}
                     auf={bereichAuf === b.id} label={bereichAuf === b.id ? `${b.titel} zuklappen` : `${b.titel} aufklappen`}
                     logo={b.logo} titel={b.titel} text={b.text}
                     extra={<AufklappPfeil auf={bereichAuf === b.id} />} />
                   {bereichAuf === b.id && <UnterMenue eintraege={b.tools} gehe={gehe} />}
                   {ZEIGE_GESPERRTE && bereichAuf === b.id && b.video && <VideokursGesperrt name={b.video.name} zeile={b.video.zeile} />}
-                </React.Fragment>
+                </AufklappRahmen>
               ))}
               <PlotterKachel klein onClick={() => gehe({ ansicht: "abiketten" })} label="Abi-Ketten öffnen" logo={<ZeichenLogo zeichen="a→d" />}
                 titel="Abi-Ketten"
                 text="Eine Abi-Aufgabe, die durch mehrere Werkzeuge läuft – mit Punkten und Uhr." />
-              <PlotterKachel klein onClick={() => setFormelAuf(!formelAuf)} auf={formelAuf} label={formelAuf ? "Formelsammlung zuklappen" : "Formelsammlung aufklappen"} logo={<FormelLogoKlein />}
+              <AufklappRahmen auf={formelAuf} innen>
+              <PlotterKachel klein onClick={() => { setFormelAuf(!formelAuf); setBereichAuf(null); }} auf={formelAuf} label={formelAuf ? "Formelsammlung zuklappen" : "Formelsammlung aufklappen"} logo={<FormelLogoKlein />}
                 titel="Formelsammlung"
                 text="Alle wichtigen Formeln der Oberstufe – sauber sortiert zum Nachschlagen."
                 extra={<AufklappPfeil auf={formelAuf} />} />
               {formelAuf && <UnterMenue eintraege={FORMEL_MENUE} gehe={gehe} />}
+              </AufklappRahmen>
               {ZEIGE_GESPERRTE && (<>
               <PlotterKachel halb gesperrt logo={<ZeichenLogo zeichen="≔" />}
                 titel="Definitionen"
@@ -1102,7 +1109,7 @@ export function Startseite({ gehe }) {
 
           {ZEIGE_WETTBEWERBE && (<>
             <AufklappRahmen auf={wettAuf} tief>
-            <PlotterKachel klein breit haupt onClick={() => setWettAuf(!wettAuf)} auf={wettAuf} label={wettAuf ? "Mathe-Wettbewerbe zuklappen" : "Mathe-Wettbewerbe aufklappen"}
+            <PlotterKachel klein breit haupt onClick={() => { setWettAuf(!wettAuf); setAbiAuf(false); setBereichAuf(null); setFormelAuf(false); }} auf={wettAuf} label={wettAuf ? "Mathe-Wettbewerbe zuklappen" : "Mathe-Wettbewerbe aufklappen"}
               logo={<MedaillenschrankLogo />} titel="Mathe-Wettbewerbe"
               text="Bundeswettbewerb Mathematik und Landeswettbewerbe."
               extra={<AufklappPfeil auf={wettAuf} />} />
