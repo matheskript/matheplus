@@ -97,41 +97,66 @@ export function SpaltenVektor({ eintraege, farbe }) {
 
 /* ---------- Eingabe einer Ebene ---------- */
 
-function EbenenEingabe({ name, farbe, k, setK }) {
-  const labels = ["a", "b", "c", "d"];
-  const farben = [FARBE_ACHSE[0], FARBE_ACHSE[1], FARBE_ACHSE[2], C.smaragd];
+const BUCHSTABEN = ["a", "b", "c", "d"];
+const KOEFF_FARBEN = [FARBE_ACHSE[0], FARBE_ACHSE[1], FARBE_ACHSE[2], C.smaragd];
+
+/* Eine Reihe aus vier Reglern: „a = 3“ und darunter/darüber − und + nebeneinander */
+function ReglerReihe({ name, k, setK, beschriftungOben }) {
+  const aendern = (i, delta) => { const n = [...k]; n[i] = Math.max(-10, Math.min(10, n[i] + delta)); setK(n); };
   const knopf = (f) => ({
-    width: "100%", maxWidth: 40, height: 26, borderRadius: 8, border: `1.5px solid ${f}66`, background: `${f}14`,
+    flex: 1, minWidth: 0, maxWidth: 38, height: 30, borderRadius: 8, border: `1.5px solid ${f}66`, background: `${f}14`,
     color: f, fontSize: 17, fontWeight: 700, fontFamily: "inherit", cursor: "pointer", padding: 0, lineHeight: 1,
     display: "flex", alignItems: "center", justifyContent: "center",
   });
-  const aendern = (i, delta) => { const n = [...k]; n[i] = Math.max(-10, Math.min(10, n[i] + delta)); setK(n); };
   return (
-    <div style={{ flex: 1, minWidth: 0, borderRadius: 14, border: `1.5px solid ${farbe}44`, background: `${farbe}08`, padding: "10px 8px 10px" }}>
-      <p style={{ fontSize: 15, fontWeight: 800, color: farbe, textAlign: "center", marginBottom: 2 }}>
-        E{name}
-      </p>
-      <p style={{ fontSize: "clamp(11px, 3.1vw, 15px)", fontWeight: 700, color: C.tinte, textAlign: "center", marginBottom: 8,
-        lineHeight: 1.3, minHeight: "2.6em", display: "flex", alignItems: "center", justifyContent: "center", fontVariantNumeric: "tabular-nums" }}>
-        {ebenenText(...k)}
-      </p>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", columnGap: 4, rowGap: 4, justifyItems: "center" }}>
-        {labels.map((l, i) => (
-          <span key={`l${i}`} style={{ fontSize: 11, fontWeight: 700, color: farben[i] }}>{l}</span>
-        ))}
-        {k.map((v, i) => (
-          <span key={`v${i}`} style={{ fontSize: "clamp(15px, 4.4vw, 20px)", fontWeight: 800, color: farben[i], fontVariantNumeric: "tabular-nums", lineHeight: 1.1 }}>{minus(v)}</span>
-        ))}
-        {k.map((_, i) => (
-          <button key={`p${i}`} aria-label={`${l(i)} von E${name} erhöhen`} style={knopf(farben[i])} onClick={() => aendern(i, 1)}>+</button>
-        ))}
-        {k.map((_, i) => (
-          <button key={`m${i}`} aria-label={`${l(i)} von E${name} verringern`} style={knopf(farben[i])} onClick={() => aendern(i, -1)}>−</button>
-        ))}
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 6 }}>
+      {k.map((v, i) => {
+        const f = KOEFF_FARBEN[i];
+        const beschriftung = (
+          <span style={{ fontSize: "clamp(14px, 4.2vw, 17px)", fontWeight: 800, color: f, fontVariantNumeric: "tabular-nums", lineHeight: 1.1, whiteSpace: "nowrap" }}>
+            {BUCHSTABEN[i]} = {minus(v)}
+          </span>
+        );
+        return (
+          <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}>
+            {beschriftungOben && beschriftung}
+            <div style={{ display: "flex", gap: 4, width: "100%", justifyContent: "center" }}>
+              <button aria-label={`${BUCHSTABEN[i]} von E${name} verringern`} style={knopf(f)} onClick={() => aendern(i, -1)}>−</button>
+              <button aria-label={`${BUCHSTABEN[i]} von E${name} erhöhen`} style={knopf(f)} onClick={() => aendern(i, 1)}>+</button>
+            </div>
+            {!beschriftungOben && beschriftung}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* „E₁: 3x₁ + 2x₂ + x₃ = 6“ in einer Zeile */
+function GleichungsZeile({ name, farbe, k }) {
+  return (
+    <p style={{ fontSize: "clamp(13px, 4vw, 18px)", fontWeight: 700, color: C.tinte, textAlign: "center", lineHeight: 1.3, margin: 0, whiteSpace: "nowrap",
+      fontVariantNumeric: "tabular-nums", padding: "10px 0" }}>
+      <span style={{ color: farbe, fontWeight: 800 }}>E{name}:</span> {ebenenText(...k)}
+    </p>
+  );
+}
+
+/* Beide Ebenen übereinander: Regler E₁ – Gleichung E₁ – Gleichung E₂ – Regler E₂ */
+function EbenenPaar({ k1, setK1, k2, setK2 }) {
+  const box = (farbe, rundung) => ({ border: `1.5px solid ${farbe}44`, background: `${farbe}08`, borderRadius: rundung, padding: "10px 10px" });
+  return (
+    <div>
+      <div style={{ ...box(FARBE_E1, "14px 14px 0 0"), paddingBottom: 0, borderBottom: "none" }}>
+        <ReglerReihe name="₁" k={k1} setK={setK1} beschriftungOben />
+        <GleichungsZeile name="₁" farbe={FARBE_E1} k={k1} />
+      </div>
+      <div style={{ ...box(FARBE_E2, "0 0 14px 14px"), paddingTop: 0, borderTop: "none" }}>
+        <GleichungsZeile name="₂" farbe={FARBE_E2} k={k2} />
+        <ReglerReihe name="₂" k={k2} setK={setK2} beschriftungOben={false} />
       </div>
     </div>
   );
-  function l(i) { return labels[i]; }
 }
 
 /* ---------- Lage der beiden Ebenen ---------- */
@@ -356,19 +381,10 @@ export function EbeneVsEbene() {
   }[info.art];
 
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
-      <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
-        Wie liegen zwei Ebenen zueinander?
-      </h2>
-      <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 22 }}>
-        Stell beide Ebenen in Koordinatenform ein. Du siehst sie gemeinsam im Raum, dazu die Schnittgerade und den
-        Schnittwinkel – berechnet mit der Kosinusformel über die Normalenvektoren.
-      </p>
-
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 16 }}>
       <div style={karte}>
-        <div style={{ display: "flex", gap: 10, marginBottom: 14 }}>
-          <EbenenEingabe name="₁" farbe={FARBE_E1} k={k1} setK={setK1} />
-          <EbenenEingabe name="₂" farbe={FARBE_E2} k={k2} setK={setK2} />
+        <div style={{ marginBottom: 14 }}>
+          <EbenenPaar k1={k1} setK1={setK1} k2={k2} setK2={setK2} />
         </div>
         <div style={{ marginBottom: 10 }}><GrundebenenSchalter an={grund} setAn={setGrund} /></div>
 
