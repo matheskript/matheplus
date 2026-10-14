@@ -50,7 +50,7 @@ export function EntwurfTor({ children, gehe }) {
     else { setFehler(true); setPw(""); }
   };
   return (
-    <div style={{ minHeight: "calc(100vh - 56px)", background: `radial-gradient(120% 90% at 80% 0%, #17306B 0%, ${N} 50%, ${N2} 100%)`, color: "#fff",
+    <div style={{ minHeight: "calc(100vh - var(--kopf-h, 56px))", background: `radial-gradient(120% 90% at 80% 0%, #17306B 0%, ${N} 50%, ${N2} 100%)`, color: "#fff",
       display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 18px", fontFamily: "Montserrat, system-ui, sans-serif" }}>
       <form onSubmit={pruefen} style={{ width: "100%", maxWidth: 380, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.16)",
         borderRadius: 18, padding: "30px 24px", textAlign: "center" }}>
