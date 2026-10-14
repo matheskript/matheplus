@@ -651,41 +651,56 @@ function HKl({ f, fs }) {
 }
 
 function SchrittSchaubild({ a, dreieck }) {
-  const S = 300, mitte = S / 2;
-  const R = Math.max(6, Math.ceil(Math.max(Math.abs(a.x1), Math.abs(a.x2), Math.abs(a.y1), Math.abs(a.y2)) + 1.5));
-  const k = (S / 2 - 18) / R;
-  const px = (x) => mitte + x * k;
-  const py = (y) => mitte - y * k;
-  const schritt = R > 9 ? 2 : 1;
-  const striche = [];
-  for (let i = -R; i <= R; i += schritt) striche.push(i);
+  const S = 300;
+  /* Ausschnitt: Ursprung ± 1,5 und beide Punkte müssen immer sichtbar sein, dazu Rand;
+     Achsen 1 : 1, Mitte des Ausschnitts = Mitte dieser Fläche (die Punkte liegen so zentral) */
+  const RAND = 2;
+  const bx0 = Math.min(-1.5, a.x1, a.x2), bx1 = Math.max(1.5, a.x1, a.x2);
+  const by0 = Math.min(-1.5, a.y1, a.y2), by1 = Math.max(1.5, a.y1, a.y2);
+  const W = Math.max(6, bx1 - bx0 + 2 * RAND, by1 - by0 + 2 * RAND);
+  const cx = (bx0 + bx1) / 2, cy = (by0 + by1) / 2;
+  const x0 = cx - W / 2, y0 = cy - W / 2;
+  const k = S / W;
+  const px = (x) => (x - x0) * k;
+  const py = (y) => S - (y - y0) * k;
+  const schritt = W <= 9 ? 1 : W <= 18 ? 2 : W <= 45 ? 5 : 10;
+  const ticks = (von) => {
+    const t = [];
+    for (let i = Math.ceil((von + 0.001) / schritt) * schritt; i <= von + W; i += schritt) t.push(i);
+    return t;
+  };
+  const tx = ticks(x0), ty = ticks(y0);
+  const jede = tx.length > 12 ? 2 : 1;
 
-  const rechtsP = a.x1 <= a.x2;       // Q liegt rechts von P (oder gleich)
-  const obenP = a.y1 <= a.y2;         // Q liegt über P
+  const qOben = a.y2 > a.y1, qRechts = a.x2 > a.x1;
   const T = { fontFamily: "inherit", fontWeight: 600, fontSize: 11 };
-  const punktLabel = (x, y, name, links) => (
-    <text x={px(x) + (links ? -9 : 9)} y={py(y) + 4} textAnchor={links ? "end" : "start"} fill={C.tinte} {...T}>
-      {name}({minusZ(x)} | {minusZ(y)})
-    </text>
-  );
+  const halo = { stroke: C.weiss, strokeWidth: 3, paintOrder: "stroke" };
+  const LB = 70; /* grobe Breite einer Punktbeschriftung */
+  const punktLabel = (x, y, name, rechts, oben) => {
+    let anker = rechts ? "start" : "end";
+    let lx = px(x) + (rechts ? 9 : -9);
+    if (anker === "end" && lx - LB < 2) { anker = "start"; lx = px(x) + 9; }
+    else if (anker === "start" && lx + LB > S - 2) { anker = "end"; lx = px(x) - 9; }
+    return (
+      <text x={lx} y={py(y) + (oben ? -9 : 17)} textAnchor={anker} fill={C.tinte} {...T} {...halo}>
+        {name}({minusZ(x)} | {minusZ(y)})
+      </text>
+    );
+  };
 
   return (
     <svg viewBox={`0 0 ${S} ${S}`} role="img" aria-label="Die Punkte P und Q mit Steigungsdreieck"
       style={{ width: "100%", maxWidth: 340, display: "block", margin: "0 auto", overflow: "visible" }}>
       <rect x="0" y="0" width={S} height={S} fill={C.weiss} rx="12" />
-      {striche.map((i) => (
-        <g key={i}>
-          <line x1={px(i)} y1={0} x2={px(i)} y2={S} stroke={C.linie} strokeWidth="1" />
-          <line x1={0} y1={py(i)} x2={S} y2={py(i)} stroke={C.linie} strokeWidth="1" />
-        </g>
-      ))}
+      {tx.map((i) => <line key={`gx${i}`} x1={px(i)} y1={0} x2={px(i)} y2={S} stroke={C.linie} strokeWidth="1" />)}
+      {ty.map((i) => <line key={`gy${i}`} x1={0} y1={py(i)} x2={S} y2={py(i)} stroke={C.linie} strokeWidth="1" />)}
       <line x1={0} y1={py(0)} x2={S} y2={py(0)} stroke={C.hellgrau} strokeWidth="1.5" />
       <line x1={px(0)} y1={0} x2={px(0)} y2={S} stroke={C.hellgrau} strokeWidth="1.5" />
-      {striche.filter((i) => i !== 0 && i % (schritt * 2) === 0).map((i) => (
-        <g key={`l${i}`}>
-          <text x={px(i)} y={py(0) + 13} fontSize="9" fill={C.hellgrau} textAnchor="middle">{i}</text>
-          <text x={px(0) - 6} y={py(i) + 3} fontSize="9" fill={C.hellgrau} textAnchor="end">{i}</text>
-        </g>
+      {tx.filter((i, n) => i !== 0 && n % jede === 0).map((i) => (
+        <text key={`lx${i}`} x={px(i)} y={py(0) + 13} fontSize="9" fill={C.hellgrau} textAnchor="middle" {...halo} strokeWidth={2.5}>{i}</text>
+      ))}
+      {ty.filter((i, n) => i !== 0 && n % jede === 0).map((i) => (
+        <text key={`ly${i}`} x={px(0) - 6} y={py(i) + 3} fontSize="9" fill={C.hellgrau} textAnchor="end" {...halo} strokeWidth={2.5}>{i}</text>
       ))}
 
       {/* Steigungsdreieck: erscheint automatisch kurz nach den Punkten */}
@@ -694,14 +709,14 @@ function SchrittSchaubild({ a, dreieck }) {
         <line x1={px(a.x1)} y1={py(a.y1)} x2={px(a.x2)} y2={py(a.y2)} stroke={C.see} strokeWidth="2" strokeDasharray="5 4" />
         <line x1={px(a.x1)} y1={py(a.y1)} x2={px(a.x2)} y2={py(a.y1)} stroke={C.gruen} strokeWidth="2.5" />
         <line x1={px(a.x2)} y1={py(a.y1)} x2={px(a.x2)} y2={py(a.y2)} stroke={C.signal} strokeWidth="2.5" />
-        <text x={(px(a.x1) + px(a.x2)) / 2} y={py(a.y1) + (obenP ? -7 : 16)} textAnchor="middle" fill={C.gruen} {...T}>Δx</text>
-        <text x={px(a.x2) + (rechtsP ? -8 : 8)} y={(py(a.y1) + py(a.y2)) / 2 + 4} textAnchor={rechtsP ? "end" : "start"} fill={C.signal} {...T}>Δy</text>
+        <text x={(px(a.x1) + px(a.x2)) / 2} y={py(a.y1) + (qOben ? 16 : -7)} textAnchor="middle" fill={C.gruen} {...T} {...halo}>Δx</text>
+        <text x={px(a.x2) + (qRechts ? 9 : -9)} y={(py(a.y1) + py(a.y2)) / 2 + 4} textAnchor={qRechts ? "start" : "end"} fill={C.signal} {...T} {...halo}>Δy</text>
       </g>
 
       <circle cx={px(a.x1)} cy={py(a.y1)} r="5" fill={C.tinte} />
       <circle cx={px(a.x2)} cy={py(a.y2)} r="5" fill={C.tinte} />
-      {punktLabel(a.x1, a.y1, "P", rechtsP)}
-      {punktLabel(a.x2, a.y2, "Q", !rechtsP)}
+      {punktLabel(a.x1, a.y1, "P", !qRechts, !qOben)}
+      {punktLabel(a.x2, a.y2, "Q", qRechts, qOben)}
     </svg>
   );
 }
@@ -758,15 +773,9 @@ function GeradenHilfe({ a }) {
     <div style={{ background: C.weiss, borderRadius: 16, padding: 22, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", marginBottom: 18 }}>
       <HSchritt nr={1} titel="Punkte und Steigungsdreieck">
         <SchrittSchaubild a={a} dreieck={dreieck} />
-        <p style={{ color: C.grau, fontSize: 13, fontWeight: 300, lineHeight: 1.7, marginTop: 14 }}>
-          Das Steigungsdreieck zeigt: Von P nach Q gehst du Δx nach rechts bzw. links und Δy nach oben bzw. unten.
-        </p>
       </HSchritt>
 
       <HSchritt nr={2} titel="Steigung m berechnen">
-        <p style={{ color: C.grau, fontSize: 13, fontWeight: 300, lineHeight: 1.7, marginBottom: 10 }}>
-          Trage die Koordinaten von P und Q selbst ein – oben die y-Werte, unten die x-Werte, jeweils in derselben Reihenfolge.
-        </p>
         <div style={zeile}>
           <span style={{ fontWeight: 600 }}>m =</span>
           <span style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
@@ -787,6 +796,15 @@ function GeradenHilfe({ a }) {
               : "Das passt noch nicht zur Geraden durch P und Q. Prüfe Vorzeichen und Reihenfolge: y-Wert minus y-Wert, x-Wert minus x-Wert, beide mit demselben Punkt zuerst."}
           </p>
         )}
+        <details style={{ marginTop: 14, borderTop: `1px solid ${C.linie}`, paddingTop: 12 }}>
+          <summary style={{ cursor: "pointer", fontSize: 14, fontWeight: 600, color: C.see }}>Erklärung</summary>
+          <p style={{ color: C.grau, fontSize: 13, fontWeight: 300, lineHeight: 1.7, marginTop: 10 }}>
+            Das Steigungsdreieck zeigt: Von P nach Q gehst du Δx nach rechts bzw. links und Δy nach oben bzw. unten.
+          </p>
+          <p style={{ color: C.grau, fontSize: 13, fontWeight: 300, lineHeight: 1.7, marginTop: 8 }}>
+            Trage die Koordinaten von P und Q selbst ein – oben die y-Werte, unten die x-Werte, jeweils in derselben Reihenfolge.
+          </p>
+        </details>
       </HSchritt>
 
       <HSchritt nr={3} titel="y-Achsenabschnitt c berechnen">
