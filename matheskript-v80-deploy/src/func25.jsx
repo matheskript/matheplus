@@ -320,7 +320,7 @@ function integralHilfe(felder) {
 
 /* ---------- Stammfunktion bilden (drei Varianten) ---------- */
 
-function StammTrainer({ art, titel }) {
+function StammTrainer({ art }) {
   const [fText, setFText] = useState(() => ERZEUGER[art]());
   const [eingabe, setEingabe] = useState("");
   const [pos, setPos] = useState(0);
@@ -349,10 +349,7 @@ function StammTrainer({ art, titel }) {
 
   return (
     <div style={{ ...karte, marginTop: 16 }}>
-      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, marginBottom: 10 }}>
-        <h2 style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, margin: 0, color: C.tinte }}>{titel}</h2>
-        {bilanz.gesamt > 0 && <span style={{ fontSize: 12.5, color: C.grau, whiteSpace: "nowrap" }}>{`${bilanz.richtig} von ${bilanz.gesamt} richtig`}</span>}
-      </div>
+      {bilanz.gesamt > 0 && <p style={{ fontSize: 12.5, color: C.grau, textAlign: "right", margin: "0 2px 6px" }}>{`${bilanz.richtig} von ${bilanz.gesamt} richtig`}</p>}
       <div style={{ background: blau, borderRadius: 14, padding: "8px 16px", marginBottom: 10, overflowX: "auto" }}>
         <span style={{ color: C.weiss, fontSize: 21, fontWeight: 700, whiteSpace: "nowrap", lineHeight: 1.7 }}>{fBaum && <M t={`f(x) = ${tx(fBaum)}`} />}</span>
       </div>
@@ -619,7 +616,6 @@ const MODI = [
   { id: "bestand", name: "Bestand und Änderungsrate" },
 ];
 
-const STAMM_TITEL = { stamm: "Bilde eine Stammfunktion", speziell: "Spezielle Funktionen", advanced: "Advanced" };
 
 /* Auswahlfeld über die ganze Breite: zeigt die gewählte Übung, ein Klick klappt alle sieben auf */
 function ModusAuswahl({ modus, onWahl }) {
@@ -694,7 +690,7 @@ export function Integrale() {
       {/* Alle Modi bleiben eingehängt, damit Eingaben beim Wechsel erhalten bleiben */}
       {["stamm", "speziell", "advanced"].map((id) => (
         <div key={id} style={{ display: modus === id ? "block" : "none" }}>
-          <StammTrainer art={id} titel={STAMM_TITEL[id]} />
+          <StammTrainer art={id} />
         </div>
       ))}
       <div style={{ display: modus === "bestimmt" ? "block" : "none" }}>
