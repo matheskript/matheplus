@@ -296,7 +296,7 @@ export function Mathilda() {
           );
         })}
       </div>
-      {ansicht !== "sinus" && <PruefungsLink ansicht={ansicht} gehe={gehe} klein={ansicht === "plotter" || ansicht === "advplotter"} />}
+      {ansicht !== "sinus" && ansicht !== "steckbrief" && <PruefungsLink ansicht={ansicht} gehe={gehe} klein={ansicht === "plotter" || ansicht === "advplotter"} />}
     </>);
   };
 

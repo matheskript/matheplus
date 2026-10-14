@@ -592,7 +592,7 @@ function AnsatzSchritt({ auf, gewaehlt, setGewaehlt }) {
   }
   return (
     <>
-      <Erklaer>{zw("Die erste Frage ist immer: Welche Struktur hat die gesuchte Funktion? Lies den Steckbrief darunter und wähle den passenden Ansatz.", "The first question is always: what is the structure of the function you are looking for? Read the profile below and choose the matching general form.")}</Erklaer>
+      <Erklaer>{zw("Die erste Frage ist immer: Welche Struktur hat die gesuchte Funktion? Lies den Steckbrief oben und wähle den passenden Ansatz.", "The first question is always: what is the structure of the function you are looking for? Read the profile above and choose the matching general form.")}</Erklaer>
       <div style={{ display: "grid", gap: 8 }}>
         {liste.map((id) => {
           const ans = ANSAETZE[id], rot = falsch === id;
@@ -1426,23 +1426,10 @@ export function Steckbriefaufgaben() {
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
       <style>{SB_CSS}</style>
 
-      <h2 className="intro-h2" style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
-        <span className="titel-lang">{zw("Aus Eigenschaften die Funktion bauen", "Build the function from its properties")}</span><span className="titel-kurz">{zw("Funktion gesucht!", "Wanted: the function!")}</span>
-      </h2>
-      <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.8, marginBottom: 20 }}>
-        {zw("Hochpunkt, Wendepunkt, Tangente – jede Eigenschaft ist eine Bedingung. Ansatz wählen, Bedingungen aufstellen, einsetzen, Gleichungssystem lösen. Am Ende siehst du, dass deine Funktion genau passt.",
-          "Maximum point, inflection point, tangent – every property is a condition. Choose the general form, set up the conditions, substitute, solve the system of equations. At the end you'll see that your function fits exactly.")}
-      </p>
-
       <div className="flex items-center flex-wrap" style={{ gap: 8, marginBottom: 10 }}>
         <div className="flex" role="group" aria-label={zw("Funktionstyp", "Function type")} style={{ background: "#EEF2F8", borderRadius: 999, padding: 3 }}>
           <Pille aktiv={modus === "poly"} onClick={() => modusWaehlen("poly")}>{zw("Polynome", "Polynomials")}</Pille>
           <Pille aktiv={modus === "adv"} onClick={() => modusWaehlen("adv")}>Advanced</Pille>
-        </div>
-      </div>
-      <div className="flex items-center flex-wrap" style={{ gap: 10, marginBottom: 16 }}>
-        <div className="flex" role="group" aria-label={zw("Aufgabenart", "Task type")} style={{ background: "#EEF2F8", borderRadius: 999, padding: 3 }}>
-          {SUB[modus].map((s) => <Pille key={s.id} aktiv={sub === s.id} onClick={() => subWaehlen(s.id)}>{s.name}</Pille>)}
         </div>
         <button type="button" onClick={() => neu()}
           style={{ marginLeft: "auto", background: "none", border: "none", color: C.see, fontSize: 13, fontWeight: 500, fontFamily: "inherit", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: 6 }}>
@@ -1450,23 +1437,29 @@ export function Steckbriefaufgaben() {
           {zw("Neue Aufgabe", "New task")}
         </button>
       </div>
-      {!ergebnis && (
-        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 4 }}>
-          <IchHaengeFest kontext={steckbriefHilfe(auf, !ansatz ? "ansatz" : !bedZeilen ? "bedingungen" : !loesen ? "einsetzen" : "loesen", rows)} />
+      <div className="flex items-center flex-wrap" style={{ gap: 10, marginBottom: 16 }}>
+        <div className="flex" role="group" aria-label={zw("Aufgabenart", "Task type")} style={{ background: "#EEF2F8", borderRadius: 999, padding: 3 }}>
+          {SUB[modus].map((s) => <Pille key={s.id} aktiv={sub === s.id} onClick={() => subWaehlen(s.id)}>{s.name}</Pille>)}
         </div>
-      )}
+      </div>
 
       <div key={`s${nr}`}>
-        <Schritt nr={num()} titel={zw("Ansatz wählen", "Choose the general form")} fertig={!!ansatz}>
-          <AnsatzSchritt auf={auf} gewaehlt={ansatz} setGewaehlt={setAnsatz} />
-        </Schritt>
-
-        {/* Aufgabe: nach dem Ansatz, direkt darüber die Bedingungen (Reihenfolge laut Auftrag) */}
-        <div key={`a${nr}`} className="sb-neu" style={{ ...karte, padding: "18px 20px", marginTop: 16, borderLeft: `4px solid ${C.flaggold}` }}>
+        {/* Steckbrief: zwischen Aufgabenart-Menü und „Ansatz wählen“ */}
+        <div key={`a${nr}`} className="sb-neu" style={{ ...karte, padding: "18px 20px", marginTop: 0, borderLeft: `4px solid ${C.flaggold}` }}>
           <p style={{ ...kicker, marginBottom: 8 }}>{zw("STECKBRIEF", "WANTED")}</p>
           <Text s={auf.satz} style={{ fontSize: 16, lineHeight: 1.85, color: C.tinte, fontWeight: 400 }} />
           <p style={{ fontSize: 13, color: C.grau, fontWeight: 300, marginTop: 8 }}>{zw("Bestimme den Funktionsterm von f.", "Determine the equation of f.")}</p>
         </div>
+
+        <Schritt nr={num()} titel={zw("Ansatz wählen", "Choose the general form")} fertig={!!ansatz}>
+          <AnsatzSchritt auf={auf} gewaehlt={ansatz} setGewaehlt={setAnsatz} />
+        </Schritt>
+
+        {!ergebnis && (
+          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 12 }}>
+            <IchHaengeFest kontext={steckbriefHilfe(auf, !ansatz ? "ansatz" : !bedZeilen ? "bedingungen" : !loesen ? "einsetzen" : "loesen", rows)} />
+          </div>
+        )}
 
         {ansatz && (
           <Schritt nr={num()} titel={zw("Bedingungen aufstellen", "Set up the conditions")} fertig={!!bedZeilen}>
