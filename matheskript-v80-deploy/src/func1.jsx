@@ -630,9 +630,218 @@ export function Schaubild({ a, mS, bS }) {
 }
 
 
+/* ---------- Schritt-für-Schritt-Hilfe: Gerade durch zwei Punkte ---------- */
+
+const minusZ = (n) => String(n).replace("-", "−");
+
+/* Zahl oder gestapelter Bruch (n/d, Vorzeichen im Zähler bzw. roh im Nenner) */
+function HZahl({ f, fs = 18 }) {
+  if (f.d === 1) return <span>{minusZ(f.n)}</span>;
+  return (
+    <span style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", verticalAlign: "middle", lineHeight: 1.2, fontSize: fs * 0.85, margin: "0 3px" }}>
+      <span style={{ padding: "0 4px", borderBottom: "1.5px solid currentColor" }}>{minusZ(f.n)}</span>
+      <span>{minusZ(f.d)}</span>
+    </span>
+  );
+}
+
+/* wie HZahl, aber negative Werte in Klammern */
+function HKl({ f, fs }) {
+  return f.n < 0 ? <span>(<HZahl f={f} fs={fs} />)</span> : <HZahl f={f} fs={fs} />;
+}
+
+function SchrittSchaubild({ a, dreieck }) {
+  const S = 300, mitte = S / 2;
+  const R = Math.max(6, Math.ceil(Math.max(Math.abs(a.x1), Math.abs(a.x2), Math.abs(a.y1), Math.abs(a.y2)) + 1.5));
+  const k = (S / 2 - 18) / R;
+  const px = (x) => mitte + x * k;
+  const py = (y) => mitte - y * k;
+  const schritt = R > 9 ? 2 : 1;
+  const striche = [];
+  for (let i = -R; i <= R; i += schritt) striche.push(i);
+
+  const rechtsP = a.x1 <= a.x2;       // Q liegt rechts von P (oder gleich)
+  const obenP = a.y1 <= a.y2;         // Q liegt über P
+  const T = { fontFamily: "inherit", fontWeight: 600, fontSize: 11 };
+  const punktLabel = (x, y, name, links) => (
+    <text x={px(x) + (links ? -9 : 9)} y={py(y) + 4} textAnchor={links ? "end" : "start"} fill={C.tinte} {...T}>
+      {name}({minusZ(x)} | {minusZ(y)})
+    </text>
+  );
+
+  return (
+    <svg viewBox={`0 0 ${S} ${S}`} role="img" aria-label="Die Punkte P und Q mit Steigungsdreieck"
+      style={{ width: "100%", maxWidth: 340, display: "block", margin: "0 auto", overflow: "visible" }}>
+      <rect x="0" y="0" width={S} height={S} fill={C.weiss} rx="12" />
+      {striche.map((i) => (
+        <g key={i}>
+          <line x1={px(i)} y1={0} x2={px(i)} y2={S} stroke={C.linie} strokeWidth="1" />
+          <line x1={0} y1={py(i)} x2={S} y2={py(i)} stroke={C.linie} strokeWidth="1" />
+        </g>
+      ))}
+      <line x1={0} y1={py(0)} x2={S} y2={py(0)} stroke={C.hellgrau} strokeWidth="1.5" />
+      <line x1={px(0)} y1={0} x2={px(0)} y2={S} stroke={C.hellgrau} strokeWidth="1.5" />
+      {striche.filter((i) => i !== 0 && i % (schritt * 2) === 0).map((i) => (
+        <g key={`l${i}`}>
+          <text x={px(i)} y={py(0) + 13} fontSize="9" fill={C.hellgrau} textAnchor="middle">{i}</text>
+          <text x={px(0) - 6} y={py(i) + 3} fontSize="9" fill={C.hellgrau} textAnchor="end">{i}</text>
+        </g>
+      ))}
+
+      {/* Steigungsdreieck: erscheint automatisch kurz nach den Punkten */}
+      <g style={{ opacity: dreieck ? 1 : 0, transition: "opacity 0.7s ease" }}>
+        <polygon points={`${px(a.x1)},${py(a.y1)} ${px(a.x2)},${py(a.y1)} ${px(a.x2)},${py(a.y2)}`} fill={C.flaggold} fillOpacity="0.18" />
+        <line x1={px(a.x1)} y1={py(a.y1)} x2={px(a.x2)} y2={py(a.y2)} stroke={C.see} strokeWidth="2" strokeDasharray="5 4" />
+        <line x1={px(a.x1)} y1={py(a.y1)} x2={px(a.x2)} y2={py(a.y1)} stroke={C.gruen} strokeWidth="2.5" />
+        <line x1={px(a.x2)} y1={py(a.y1)} x2={px(a.x2)} y2={py(a.y2)} stroke={C.signal} strokeWidth="2.5" />
+        <text x={(px(a.x1) + px(a.x2)) / 2} y={py(a.y1) + (obenP ? -7 : 16)} textAnchor="middle" fill={C.gruen} {...T}>Δx</text>
+        <text x={px(a.x2) + (rechtsP ? -8 : 8)} y={(py(a.y1) + py(a.y2)) / 2 + 4} textAnchor={rechtsP ? "end" : "start"} fill={C.signal} {...T}>Δy</text>
+      </g>
+
+      <circle cx={px(a.x1)} cy={py(a.y1)} r="5" fill={C.tinte} />
+      <circle cx={px(a.x2)} cy={py(a.y2)} r="5" fill={C.tinte} />
+      {punktLabel(a.x1, a.y1, "P", rechtsP)}
+      {punktLabel(a.x2, a.y2, "Q", !rechtsP)}
+    </svg>
+  );
+}
+
+function HSchritt({ nr, titel, children }) {
+  return (
+    <div style={{ marginTop: nr === 1 ? 0 : 26 }}>
+      <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 12 }}>
+        <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 22, height: 22, borderRadius: 999, background: C.see, color: C.weiss, fontSize: 12, marginRight: 8 }}>{nr}</span>
+        {titel}
+      </p>
+      {children}
+    </div>
+  );
+}
+
+function GeradenHilfe({ a }) {
+  const [dreieck, setDreieck] = useState(false);
+  const [f, setF] = useState(["", "", "", ""]);
+  const [frei, setFrei] = useState(false);
+  const [stufe, setStufe] = useState(1);
+
+  React.useEffect(() => {
+    const t = setTimeout(() => setDreieck(true), 900);
+    return () => clearTimeout(t);
+  }, []);
+
+  const mR = a.m.n / a.m.d;
+  const v = f.map(parseZahl);
+  const alle = v.every((x) => x !== null);
+  const z = alle ? v[0] - v[1] : null;
+  const n = alle ? v[2] - v[3] : null;
+  const definiert = alle && n !== 0;
+  const wert = definiert ? z / n : null;
+  const mOk = definiert && Math.abs(wert - mR) < 1e-6;
+  const ganzZN = definiert && Number.isInteger(z) && Number.isInteger(n);
+  const red = ganzZN ? bruch(z, n) : null;
+  const zeigeRoh = ganzZN && (n < 0 || red.n !== z || red.d !== n);
+
+  React.useEffect(() => { if (mOk) setFrei(true); }, [mOk]);
+
+  const setze = (i, w) => setF((alt) => alt.map((x, j) => (j === i ? w : x)));
+  const feld = (i, platz) => (
+    <MatheFeld modus="bruch" value={f[i]} onChange={(e) => setze(i, e.target.value)} placeholder={platz} inputMode="text"
+      aria-label={platz}
+      style={{ width: 62, padding: "8px 6px", fontSize: 16, fontFamily: "inherit", textAlign: "center", border: `1.5px solid ${C.linie}`, borderRadius: 12, background: C.weiss, color: C.tinte, outline: "none" }} />
+  );
+
+  const prod = bruch(a.m.n * a.x1, a.m.d);
+  const zeile = { display: "flex", alignItems: "center", flexWrap: "wrap", gap: 6, fontSize: 18, lineHeight: 1.9 };
+  const dezimal = (x) => minusZ(String(+x.toFixed(4)).replace(".", ","));
+
+  return (
+    <div style={{ background: C.weiss, borderRadius: 16, padding: 22, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", marginBottom: 18 }}>
+      <HSchritt nr={1} titel="Punkte und Steigungsdreieck">
+        <SchrittSchaubild a={a} dreieck={dreieck} />
+        <p style={{ color: C.grau, fontSize: 13, fontWeight: 300, lineHeight: 1.7, marginTop: 14 }}>
+          Das Steigungsdreieck zeigt: Von P nach Q gehst du Δx nach rechts bzw. links und Δy nach oben bzw. unten.
+        </p>
+      </HSchritt>
+
+      <HSchritt nr={2} titel="Steigung m berechnen">
+        <p style={{ color: C.grau, fontSize: 13, fontWeight: 300, lineHeight: 1.7, marginBottom: 10 }}>
+          Trage die Koordinaten von P und Q selbst ein – oben die y-Werte, unten die x-Werte, jeweils in derselben Reihenfolge.
+        </p>
+        <div style={zeile}>
+          <span style={{ fontWeight: 600 }}>m =</span>
+          <span style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>{feld(0, "y")}<span>−</span>{feld(1, "y")}</span>
+            <span style={{ width: "100%", height: 2, background: C.tinte, borderRadius: 1 }} />
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>{feld(2, "x")}<span>−</span>{feld(3, "x")}</span>
+          </span>
+          <span>=</span>
+          {!alle && <span style={{ color: C.hellgrau }}>…</span>}
+          {alle && !definiert && <span style={{ color: C.signal, fontSize: 14 }}>Der Nenner darf nicht 0 sein.</span>}
+          {definiert && zeigeRoh && <><HZahl f={{ n: z, d: n }} /><span>=</span></>}
+          {definiert && (ganzZN ? <HZahl f={red} /> : <span>{dezimal(wert)}</span>)}
+        </div>
+        {definiert && (
+          <p style={{ fontSize: 14, fontWeight: 600, color: mOk ? C.see : C.signal, marginTop: 8, lineHeight: 1.6 }}>
+            {mOk
+              ? "Stimmt – das ist die Steigung m."
+              : "Das passt noch nicht zur Geraden durch P und Q. Prüfe Vorzeichen und Reihenfolge: y-Wert minus y-Wert, x-Wert minus x-Wert, beide mit demselben Punkt zuerst."}
+          </p>
+        )}
+      </HSchritt>
+
+      <HSchritt nr={3} titel="y-Achsenabschnitt c berechnen">
+        {!frei ? (
+          <p style={{ color: C.hellgrau, fontSize: 13, fontWeight: 300, lineHeight: 1.7 }}>Sobald m stimmt, geht es hier mit c weiter.</p>
+        ) : (
+          <>
+            <div style={zeile}><span>y = m · x + c</span></div>
+            <p style={{ color: C.grau, fontSize: 13, fontWeight: 300, marginTop: 8, marginBottom: 2 }}>
+              m und die Koordinaten von P eingesetzt:
+            </p>
+            <div style={zeile}>
+              <span>{minusZ(a.y1)}</span><span>=</span><HKl f={a.m} /><span>·</span><span>{a.x1 < 0 ? `(${minusZ(a.x1)})` : a.x1}</span><span>+ c</span>
+            </div>
+
+            {stufe >= 2 && (
+              <>
+                <p style={{ color: C.grau, fontSize: 13, fontWeight: 300, marginTop: 14, marginBottom: 2 }}>m mal x ausgerechnet:</p>
+                <div style={zeile}>
+                  <span>{minusZ(a.y1)}</span><span>=</span><HZahl f={prod} /><span>+ c</span>
+                </div>
+              </>
+            )}
+
+            {stufe >= 3 && (
+              <>
+                <p style={{ color: C.grau, fontSize: 13, fontWeight: 300, marginTop: 14, marginBottom: 2 }}>m · x vom y abgezogen – c steht allein:</p>
+                <div style={zeile}>
+                  <span style={{ fontWeight: 600 }}>c =</span><span>{minusZ(a.y1)}</span><span>−</span><HKl f={prod} /><span>=</span>
+                  <span style={{ fontWeight: 700, color: C.see }}><HZahl f={a.b} /></span>
+                </div>
+                <p style={{ color: C.grau, fontSize: 13, fontWeight: 300, lineHeight: 1.7, marginTop: 10 }}>
+                  Trage jetzt m und c unten in die Gleichung ein.
+                </p>
+              </>
+            )}
+
+            {stufe < 3 && (
+              <button onClick={() => setStufe((s) => s + 1)} className="px-5 py-2 mt-4"
+                style={{ background: C.gruenDunkel, color: C.weiss, border: "none", borderRadius: 999, fontSize: 14, fontWeight: 600, fontFamily: "inherit", cursor: "pointer" }}>
+                Nächster Schritt
+              </button>
+            )}
+          </>
+        )}
+      </HSchritt>
+    </div>
+  );
+}
+
+
 export function KIAufgaben({ eingebettet }) {
   const [typ, setTyp] = useState("zweipunkte");
   const [a, setA] = useState(null);
+  const [nr, setNr] = useState(0);
   const [laedt, setLaedt] = useState(false);
   const [eM, setEM] = useState("");
   const [eB, setEB] = useState("");
@@ -642,7 +851,7 @@ export function KIAufgaben({ eingebettet }) {
 
   const neueAufgabe = async (gewuenschterTyp) => {
     const t = gewuenschterTyp || typ;
-    setLaedt(true); setGeprueft(false); setEM(""); setEB("");
+    setLaedt(true); setGeprueft(false); setEM(""); setEB(""); setNr((n) => n + 1);
     try {
       const res = await fetch(API_URL, {
         method: "POST",
@@ -737,6 +946,8 @@ export function KIAufgaben({ eingebettet }) {
             )}
             <p style={{ color: C.hellgrau, fontSize: 12, fontWeight: 300, marginTop: 12 }}>{quelle}</p>
           </div>
+
+          {a.typ === "zweipunkte" && <GeradenHilfe key={nr} a={a} />}
 
           <div style={{ background: C.weiss, borderRadius: 16, padding: 22, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" }}>
             <p style={{ fontSize: 13, color: C.grau, fontWeight: 300, marginBottom: 14 }}>Deine Lösung</p>
