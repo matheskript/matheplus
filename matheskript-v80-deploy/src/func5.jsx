@@ -840,6 +840,7 @@ export function Kopfrechnen() {
    in die Datenbank — die Auswertung darüber bleibt dieselbe. */
 
 export function merken(eintrag) {
+  if (!eintrag.bereich && FR.ansicht) { try { eintrag = { bereich: FR.ansicht(), ...eintrag }; } catch (e) { /* egal */ } }
   PROTOKOLL.push({ zeit: Date.now(), ...eintrag });
   try { lernAusUebung(eintrag); } catch (e) { /* Lernstand ist optional */ }
   try { aktivitaetMelden({ ok: eintrag.richtig ?? null, fehlerart: eintrag.fehlerart || null }); } catch (e) { /* optional */ }

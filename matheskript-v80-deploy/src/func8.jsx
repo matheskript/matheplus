@@ -312,7 +312,7 @@ export function tagVon(offset) { const d = new Date(); d.setDate(d.getDate() + o
    den Abständen zwischen den Aufgaben geschätzt — Pausen über drei Minuten zählen nicht. */
 
 export function aktivitaetMelden({ ok = null, fehlerart = null, hilfe = false, anzahl = 1 } = {}) {
-  if (!LERN.profil) return;
+  if (!LERN.profil && !(FR.kontoAngemeldet && FR.kontoAngemeldet())) return;
   lernAendern((L) => {
     const k = tagSchluessel();
     const t = L.aktivitaet[k] || { sekunden: 0, aufgaben: 0, richtig: 0, hilfe: 0, fehler: {} };
