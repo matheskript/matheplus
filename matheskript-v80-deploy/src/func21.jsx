@@ -11,6 +11,8 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { C } from "./base1.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
+import { PruefungsLink } from "./funcTraining.jsx";
+import { SinusUebungen } from "./funcSinusUebung.jsx";
 
 const kz = (v) => String(Math.round(v * 100) / 100).replace(".", ",").replace("-", "−");
 function sinusHilfe(z) {
@@ -264,7 +266,7 @@ function Allgemein() {
 const START = { a: 1, b: 1, c: 0, d: 0, cPi: false };
 const grenz = (v, lo, hi) => Math.max(lo, Math.min(hi, Math.round(v * 100) / 100));
 
-export function Sinusfunktion() {
+export function Sinusfunktion({ gehe, ansicht = "sinus" }) {
   const [modus, setModus] = useState("aufgabe");
   const [ziel, setZiel] = useState(() => neueAufgabe());
   const [p, setP] = useState(START);
@@ -289,15 +291,19 @@ export function Sinusfunktion() {
   );
   const ab = p.a * p.b;
 
+  /* „Ich hänge fest“ und „Prüfungsmodus“ liegen im Aufklappmenü „Zusätzlich üben“ */
+  const menueExtra = (modus === "aufgabe" || gehe) ? (<>
+    {modus === "aufgabe" && <IchHaengeFest kontext={sinusHilfe(ziel)} />}
+    {gehe && <PruefungsLink ansicht={ansicht} gehe={gehe} hell />}
+  </>) : null;
+
   return (
+    <>
+    <SinusUebungen extra={menueExtra} />
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
-      <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
+      <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 18 }}>
         Finde die Parameter
       </h2>
-      <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 18 }}>
-        Der goldene Graph ist vorgegeben. Stell a, b, c und d so ein, dass dein blauer Graph genau darauf liegt.
-        a streckt in y-Richtung, b bestimmt die Periode p = 2π / b, c verschiebt in x-Richtung, d in y-Richtung.
-      </p>
 
       <div style={{ display: "flex", gap: 6, marginBottom: 12, background: C.weiss, borderRadius: 14, padding: 5, boxShadow: "0 2px 12px rgba(15,26,51,0.06)" }}>
         {[["aufgabe", "Aufgabe lösen"], ["frei", "Frei erkunden"]].map(([id, t]) => (
@@ -308,11 +314,6 @@ export function Sinusfunktion() {
         ))}
       </div>
 
-      {modus === "aufgabe" && (
-        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10 }}>
-          <IchHaengeFest kontext={sinusHilfe(ziel)} />
-        </div>
-      )}
       <div style={karte}>
         {/* links die Formeln (allgemein und eingesetzt, gleich groß), rechts die Regler */}
         <div className="sin-kopf" style={{ marginBottom: 12 }}>
@@ -414,5 +415,6 @@ export function Sinusfunktion() {
         )}
       </div>
     </div>
+    </>
   );
 }

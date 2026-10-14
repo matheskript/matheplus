@@ -246,7 +246,7 @@ function WasFehlte({ quelle }) {
 }
 
 /* Link „Prüfungsmodus“ auf den Fachseiten: öffnet den Prüfungsmodus mit den passenden Themen */
-export function PruefungsLink({ ansicht, gehe, klein }) {
+export function PruefungsLink({ ansicht, gehe, klein, hell = false }) {
   const themen = pruefungsThemen(ansicht);
   if (!themen) return null;
   const los = () => { try { sessionStorage.setItem("mm-pruefung-themen", JSON.stringify(themen)); } catch (e) { /* egal */ } gehe({ ansicht: "pruefung" }); };
@@ -259,9 +259,13 @@ export function PruefungsLink({ ansicht, gehe, klein }) {
       </button>
     );
   }
+  /* hell = auf hellem Grund (z. B. im Aufklappmenü), sonst im dunklen Seitenkopf */
+  const stil = hell
+    ? { height: 34, padding: "0 12px", border: `1px solid ${C.linie}`, background: C.weiss, color: C.see }
+    : { marginTop: 8, padding: "6px 12px", border: "1px dashed rgba(255,255,255,0.4)", background: "transparent", color: C.silberHell };
   return (
     <button type="button" onClick={los}
-      style={{ marginTop: 8, padding: "6px 12px", borderRadius: 999, fontSize: 12.5, fontWeight: 600, fontFamily: "inherit", cursor: "pointer", border: "1px dashed rgba(255,255,255,0.4)", background: "transparent", color: C.silberHell }}>
+      style={{ borderRadius: 999, fontSize: hell ? 13 : 12.5, fontWeight: 600, fontFamily: "inherit", cursor: "pointer", whiteSpace: "nowrap", ...stil }}>
       Prüfungsmodus zu diesem Thema ▸
     </button>
   );

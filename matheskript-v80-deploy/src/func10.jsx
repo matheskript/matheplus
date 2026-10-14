@@ -26,7 +26,6 @@ import { VektorGenerator } from "./func20.jsx";
 import { Integrale } from "./func25.jsx";
 import { Abstaende } from "./func24.jsx";
 import { GleichungenVerstehen } from "./funcGleichModi.jsx";
-import { SinusUebungen } from "./funcSinusUebung.jsx";
 import { Optimierungswerkstatt } from "./funcOptimierung.jsx";
 import { TrainingSeite, TrainingFortschritt, PruefungsLink } from "./funcTraining.jsx";
 import { Funktionsscharen } from "./funcScharen.jsx";
@@ -297,7 +296,7 @@ export function Mathilda() {
           );
         })}
       </div>
-      <PruefungsLink ansicht={ansicht} gehe={gehe} klein={ansicht === "plotter" || ansicht === "advplotter"} />
+      {ansicht !== "sinus" && <PruefungsLink ansicht={ansicht} gehe={gehe} klein={ansicht === "plotter" || ansicht === "advplotter"} />}
     </>);
   };
 
@@ -982,8 +981,7 @@ export function Mathilda() {
             </div>
             <Welle fill={C.sand} />
           </div>
-          <SinusUebungen />
-          <Sinusfunktion />
+          <Sinusfunktion gehe={gehe} ansicht={ansicht} />
         </>
       ) : ansicht === "formeln" ? (
         <>

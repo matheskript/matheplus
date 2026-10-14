@@ -153,7 +153,7 @@ function Zielgraph() {
 
 /* ---------- Einklappbarer Abschnitt unter dem Sinus-Titel ---------- */
 const MODI = [["bestimmen", "Parameter bestimmen", "Determine parameters"], ["ziel", "Zielgraph treffen", "Hit the target graph"]];
-export function SinusUebungen() {
+export function SinusUebungen({ extra = null }) {
   const [auf, setAuf] = useState(false);
   const [modus, setModus] = useState(null);
   return (
@@ -164,6 +164,7 @@ export function SinusUebungen() {
       </button>
       {auf && (
         <div data-aufklapp-inhalt style={{ marginTop: 8 }}>
+          {extra && <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 10 }}>{extra}</div>}
           <Auswahl optionen={MODI.map(([id, de, en]) => [id, zw(de, en)])} wert={modus} setWert={setModus} label={zw("Sinus-Übungen", "Sine exercises")} />
           {modus === "bestimmen" && <ParameterBestimmen />}
           {modus === "ziel" && <Zielgraph />}
