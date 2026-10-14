@@ -73,7 +73,8 @@ function PlotterLogoKlein() {
 const AUFKLAPP_CSS = `.aufklapp-rahmen{transition:box-shadow .25s ease}
   .aufklapp-rahmen[data-aufklapp-rahmen]{box-shadow:0 6px 18px rgba(20,28,45,0.14)}
   .aufklapp-rahmen[data-aufklapp-rahmen]:not(:has([data-aufklapp-rahmen])){position:relative;z-index:5;
-    box-shadow:0 0 0 200vmax rgba(8,16,40,0.62), 0 12px 34px rgba(0,0,0,0.30)}`;
+    box-shadow:0 0 0 200vmax rgba(8,16,40,0.62);border-radius:0 !important;border-color:transparent !important;
+    border-image:linear-gradient(#fff,#fff) 0 fill / 0 / 0 100vw !important}`;
 function AufklappRahmen({ auf, tief, innen, children }) {
   const rand = innen ? 8 : tief ? 16 : 22;
   return (
