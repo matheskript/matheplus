@@ -111,13 +111,29 @@ export function Meldung({ art = "info", children }) {
 }
 
 /* Ganzzahliges Eingabefeld */
-export function Feld({ wert, setWert, label, farbe = C.see, breite = 40 }) {
+export function Feld({ wert, setWert, label, farbe = C.see, breite = 40, schmal = false }) {
+  /* schmal: Feld darf in einer nicht umbrechenden Zeile (z. B. Ebenengleichung) bis auf 24 px schrumpfen */
+  const groesse = schmal ? { width: 0, flex: `1 1 ${breite}px`, minWidth: 24, maxWidth: breite, padding: 0, fontSize: "inherit" } : { width: breite, fontSize: 15 };
   return (
     <MatheFeld modus="ganzvz" value={wert} aria-label={label}
       onChange={(e) => setWert(e.target.value.replace(/[^0-9\-−]/g, "").replace("−", "-").slice(0, 4))}
       onFocus={(e) => e.target.select()}
-      style={{ width: breite, height: 34, textAlign: "center", fontSize: 15, fontWeight: 800, fontFamily: "inherit", color: farbe,
+      style={{ ...groesse, height: 34, textAlign: "center", fontWeight: 800, fontFamily: "inherit", color: farbe,
         border: `1.5px solid ${farbe}55`, borderRadius: 9, background: `${farbe}0D`, outline: "none" }} />
+  );
+}
+
+/* Ebenengleichung a·x₁ + b·x₂ + c·x₃ = d – steht immer in EINER Zeile (Schrift und Felder schrumpfen mit der Breite) */
+export function EbenenZeile({ name, w, setze, farbe = C.see, textFarbe, labelVor = "", style }) {
+  const lab = (b) => (labelVor ? `${labelVor} ${b}` : b);
+  return (
+    <div style={{ display: "flex", flexWrap: "nowrap", alignItems: "center", gap: 3, fontSize: "clamp(12px, 3.9vw, 16px)", fontWeight: 800, whiteSpace: "nowrap", color: textFarbe || farbe, ...style }}>
+      <span>{name}:</span>
+      <Feld wert={w[0]} setWert={setze(0)} label={lab("a")} farbe={farbe} schmal /><span>x₁ +</span>
+      <Feld wert={w[1]} setWert={setze(1)} label={lab("b")} farbe={farbe} schmal /><span>x₂ +</span>
+      <Feld wert={w[2]} setWert={setze(2)} label={lab("c")} farbe={farbe} schmal /><span>x₃ =</span>
+      <Feld wert={w[3]} setWert={setze(3)} label={lab("d")} farbe={farbe} breite={48} schmal />
+    </div>
   );
 }
 
@@ -279,7 +295,6 @@ function GeradePruefen({ A, B }) {
     <div style={{ ...karte, marginTop: 16 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8, flexWrap: "wrap" }}>
         <p style={{ ...kicker, color: C.gruen }}>Jetzt selbst üben</p>
-        <IchHaengeFest kontext={geradeHilfe(A, B)} />
       </div>
       <h3 style={{ fontSize: 21, fontWeight: 700, letterSpacing: "-0.01em", marginBottom: 8 }}>Ist das dieselbe Gerade?</h3>
       <p style={hinweis}>Gib eine eigene Geradengleichung durch A und B ein – mit einem beliebigen Stützpunkt der Geraden und einem
@@ -292,6 +307,7 @@ function GeradePruefen({ A, B }) {
       </div>
       {ergebnis && <Meldung art={ergebnis.art}>{ergebnis.text}</Meldung>}
       <Knopf gold onClick={pruefen}>Prüfen</Knopf>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={geradeHilfe(A, B)} /></div>
     </div>
   );
 }
@@ -456,19 +472,13 @@ function EbenePruefen({ norm, A, B, Cp }) {
     <div style={{ ...karte, marginTop: 16 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8, flexWrap: "wrap" }}>
         <p style={{ ...kicker, color: C.gruen }}>Jetzt selbst üben</p>
-        <IchHaengeFest kontext={ebeneHilfe(A, B, Cp, norm)} />
       </div>
       <h3 style={{ fontSize: 21, fontWeight: 700, letterSpacing: "-0.01em", marginBottom: 8 }}>Stimmt deine Koordinatengleichung?</h3>
       <p style={hinweis}>Rechne selbst und gib deine Koordinatengleichung ein. Auch Vielfache der gekürzten Form werden als richtig erkannt.</p>
-      <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 6, fontSize: 16, fontWeight: 800, marginBottom: 14 }}>
-        <span>E:</span>
-        <Feld wert={w[0]} setWert={setze(0)} label="a" /><span>x₁ +</span>
-        <Feld wert={w[1]} setWert={setze(1)} label="b" /><span>x₂ +</span>
-        <Feld wert={w[2]} setWert={setze(2)} label="c" /><span>x₃ =</span>
-        <Feld wert={w[3]} setWert={setze(3)} label="d" breite={48} />
-      </div>
+      <EbenenZeile name="E" w={w} setze={setze} textFarbe="inherit" style={{ marginBottom: 14 }} />
       {ergebnis && <Meldung art={ergebnis.art}>{ergebnis.text}</Meldung>}
       <Knopf gold onClick={pruefen}>Prüfen</Knopf>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={ebeneHilfe(A, B, Cp, norm)} /></div>
     </div>
   );
 }

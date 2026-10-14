@@ -357,7 +357,6 @@ export function Aufgabenlauf({ aufgaben, quelle, onEnde, endeText = "Fertig", on
       <div style={{ ...karte, marginTop: 14 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 10, flexWrap: "wrap" }}>
           <p style={kicker}>{a.afb === 1 ? "Grundaufgabe" : a.afb === 2 ? "Anwenden" : "Nachdenken"}</p>
-          <IchHaengeFest kontext={kontextFuer(a)} onHilfe={(b, n) => setz({ hilfe: Math.max(zs[i].hilfe, b === "loesung" ? 4 : Math.max(1, n || 1)) })} />
         </div>
         <Text s={a.text} style={{ fontSize: 16.5, lineHeight: 1.85, color: C.tinte }} />
         <Eingabe a={a} wert={z.eingabe} setWert={(v) => setz({ eingabe: v, meldung: "" })} onEnter={pruefen} gesperrt={z.ok === true} />
@@ -373,6 +372,11 @@ export function Aufgabenlauf({ aufgaben, quelle, onEnde, endeText = "Fertig", on
           {z.ok !== true && <div style={{ flex: "1 1 160px" }}><GrosserKnopf onClick={pruefen} disabled={String(z.eingabe).trim() === ""}>Prüfen</GrosserKnopf></div>}
           {(z.ok === true || z.versuche > 0) && <div style={{ flex: "1 1 160px" }}><GrosserKnopf gold={z.ok === true} ghost={z.ok !== true} onClick={weiter}>{i + 1 < aufgaben.length ? "Weiter" : "Auswertung"}</GrosserKnopf></div>}
         </div>
+        {z.ok !== true && (
+          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}>
+            <IchHaengeFest kontext={kontextFuer(a)} onHilfe={(b, n) => setz({ hilfe: Math.max(zs[i].hilfe, b === "loesung" ? 4 : Math.max(1, n || 1)) })} />
+          </div>
+        )}
         {z.gebucht && <ErklaerKasten key={a.id} a={a} eingabe={z.eingabe} ok={z.ok === true} />}
         {z.ok === true && <Aufklapp titel="Lösungsweg ansehen">{a.loesung.map((l, k) => <Text key={k} s={l} style={{ lineHeight: 1.9 }} />)}</Aufklapp>}
       </div>

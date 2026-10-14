@@ -807,7 +807,6 @@ export function LGSLoeser() {
         <div style={{ ...karte, padding: 14, marginTop: 16 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexWrap: "wrap", margin: "2px 4px 10px" }}>
             <p style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.08em", color: C.hellgrau }}>NEUES SYSTEM BILDEN</p>
-            <IchHaengeFest kontext={lgsHilfe(aktuell, aufgabe.loesung, bloecke[0].rows)} />
           </div>
           {felder.map((f, i) => (
             <NeueZeile key={i} name={ROEM[i]} text={f} frisch={frisch[i]} aktiv={aktiv === i} ok={vorschau[i].ok} fehler={vorschau[i].fehler}
@@ -851,6 +850,7 @@ export function LGSLoeser() {
             </button>
             <span style={{ fontSize: 12.5, color: C.hellgrau, fontWeight: 300 }}>Tippe eine Zeile an und baue sie mit den Tasten.</span>
           </div>
+          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={lgsHilfe(aktuell, aufgabe.loesung, bloecke[0].rows)} /></div>
         </div>
       )}
 

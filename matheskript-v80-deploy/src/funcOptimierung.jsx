@@ -285,7 +285,6 @@ function Werkstatt({ au, neu, titel }) {
     <div style={{ ...karte, marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
         <p style={kicker}>{titel}</p>
-        <IchHaengeFest kontext={hilfe} />
       </div>
       <p style={{ ...hinweis, color: C.tinte, marginBottom: 6 }}>{au.kopf}</p>
       {stand >= 3 && (
@@ -298,6 +297,7 @@ function Werkstatt({ au, neu, titel }) {
       ))}
       {fertig && <Rueck art="gut">{zw("Geschafft: Du hast die Aufgabe vollständig gelöst – von der Zielgröße bis zum Antwortsatz.", "Done: you solved the problem completely – from target quantity to answer sentence.")}</Rueck>}
       <GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfe} /></div>
     </div>
   );
 }

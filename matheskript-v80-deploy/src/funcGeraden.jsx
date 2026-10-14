@@ -96,7 +96,6 @@ function Punktprobe() {
     <div style={{ ...karte, marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
         <p style={kicker}>{zw("Punktprobe", "Point test")}</p>
-        <IchHaengeFest kontext={hilfe} />
       </div>
       <p style={hinweis}>{zw("Bewege den Parameter und sieh, wo Aₜ liegt. Dann vermute: Liegt P auf g?", "Move the parameter and see where Aₜ is. Then guess: is P on g?")}</p>
       <GeradeZeile name="g" A={au.A} u={au.u} farbe={FA} />
@@ -122,6 +121,7 @@ function Punktprobe() {
         </>
       )}
       <GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfe} /></div>
     </div>
   );
 }
@@ -166,7 +166,6 @@ function GeradeVsGerade() {
     <div style={{ ...karte, marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
         <p style={kicker}>{zw("Gerade vs. Gerade", "Line vs. line")}</p>
-        <IchHaengeFest kontext={hilfe} />
       </div>
       <p style={hinweis}>{zw("Erst vermuten, dann Parallelität und Schnitt rechnerisch prüfen.", "First guess, then check parallelism and intersection by calculation.")}</p>
       <div style={{ marginBottom: 12 }}>
@@ -222,6 +221,7 @@ function GeradeVsGerade() {
         </>
       )}
       <GrosserKnopf ghost onClick={() => neu()}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfe} /></div>
     </div>
   );
 }
@@ -257,7 +257,6 @@ function GeradeVsEbene() {
     <div style={{ ...karte, marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
         <p style={kicker}>{zw("Gerade vs. Ebene", "Line vs. plane")}</p>
-        <IchHaengeFest kontext={hilfe} />
       </div>
       <p style={hinweis}>{zw("Erst vermuten, dann mit dem Skalarprodukt u · n entscheiden.", "First guess, then decide with the dot product u · n.")}</p>
       <div style={{ marginBottom: 12 }}>
@@ -302,6 +301,7 @@ function GeradeVsEbene() {
         </>
       )}
       <GrosserKnopf ghost onClick={() => neu()}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfe} /></div>
     </div>
   );
 }
@@ -500,7 +500,6 @@ function SkalarproduktVerstehen() {
     <div style={{ ...karte, marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
         <p style={kicker}>{zw("Berechne das Skalarprodukt", "Compute the dot product")}</p>
-        <IchHaengeFest kontext={hilfe} />
       </div>
       <p style={hinweis}>{zw("Das Skalarprodukt zweier Vektoren ist eine Zahl. Ihr Vorzeichen sagt dir, ob der Winkel spitz, recht oder stumpf ist.", "The dot product of two vectors is a number. Its sign tells you whether the angle is acute, right or obtuse.")}</p>
       <EingabeVektoren namen={["a", "b"]} w={w} setW={setW} farben={[farbA, farbB]} zuruecksetzen={() => { setPr(null); setVm(null); }} />
@@ -539,6 +538,7 @@ function SkalarproduktVerstehen() {
         </>
       )}
       <GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfe} /></div>
     </div>
   );
 }
@@ -585,7 +585,6 @@ function Vektorwinkel() {
     <div style={{ ...karte, marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
         <p style={kicker}>{zw("Vektorwinkel", "Angle between vectors")}</p>
-        <IchHaengeFest kontext={hilfe} />
       </div>
       <p style={hinweis}>{zw("Schätze den Winkel am Bild, dann berechne ihn mit dem Skalarprodukt.", "Estimate the angle from the picture, then compute it with the dot product.")}</p>
       <EingabeVektoren namen={["a", "b"]} w={w} setW={setW} farben={[farbA, farbB]} zuruecksetzen={() => { setPr(null); setGeschaetzt(false); }} />
@@ -620,6 +619,7 @@ function Vektorwinkel() {
         </>
       )}
       <GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfe} /></div>
     </div>
   );
 }
@@ -662,7 +662,6 @@ function GeradeEbeneWinkel() {
     <div style={{ ...karte, marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
         <p style={kicker}>{zw("Gerade-Ebene-Winkel", "Line–plane angle")}</p>
-        <IchHaengeFest kontext={hilfe} />
       </div>
       <p style={hinweis}>{zw("Der Winkel zwischen Gerade und Ebene wird mit dem Sinus berechnet – nicht mit dem Kosinus.", "The angle between line and plane is computed with the sine – not with the cosine.")}</p>
       <div style={{ ...box, marginTop: 4, marginBottom: 6 }}>
@@ -708,6 +707,7 @@ function GeradeEbeneWinkel() {
         </>
       )}
       <GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfe} /></div>
     </div>
   );
 }

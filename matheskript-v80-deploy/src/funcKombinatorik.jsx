@@ -151,7 +151,6 @@ function Versuche() {
     <div style={{ ...karte, marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
         <p style={kicker}>{zw("Versuche durchführen", "Run experiments")}</p>
-        <IchHaengeFest kontext={hilfeUrne(`urne-${au.id}`)} />
       </div>
       <Auswahl optionen={[["ohne", zw("ohne Zurücklegen", "without replacement")], ["mit", zw("mit Zurücklegen", "with replacement")]]} wert={zurueck} setWert={wechsel} label={zw("Ziehen", "Drawing")} />
       <p style={{ ...hinweis, color: C.tinte, margin: "10px 0 6px" }}>
@@ -176,6 +175,7 @@ function Versuche() {
         </div>
       )}
       <GrosserKnopf ghost onClick={() => neu()}>{zw("Neue Urne", "New urn")}</GrosserKnopf>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfeUrne(`urne-${au.id}`)} /></div>
     </div>
   );
 }
@@ -272,14 +272,6 @@ function Zaehlen() {
     <div style={{ ...karte, marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
         <p style={kicker}>{zw("Zählmethode wählen", "Choose a counting method")}</p>
-        <IchHaengeFest kontext={hilfeKontext({
-          id: `zaehl-${au.id}`, aufgabe: "Kombinatorik Reihenfolge Zurücklegen Binomialkoeffizient Fakultät",
-          verstehen: [zw("Zwei Fragen entscheiden alles: Kommt es auf die Reihenfolge an? Darf sich etwas wiederholen?", "Two questions decide everything: does order matter? May something repeat?"), zw("Verschiedene Ämter oder Plätze bedeuten Reihenfolge; eine Gruppe ohne Rollen bedeutet keine Reihenfolge.", "Different offices or places mean order; a group without roles means no order."), zw("Zähle bei Unsicherheit einen kleinen Fall von Hand.", "If unsure, count a small case by hand.")],
-          ansatz: [zw("Welche der vier Situationen liegt vor?", "Which of the four situations applies?"), zw("Ordne zu: Reihenfolge ja/nein × Wiederholung ja/nein.", "Match: order yes/no × repetition yes/no."), zw("Dann n und k bestimmen und in die Formel einsetzen.", "Then determine n and k and plug into the formula.")],
-          regel: [zw("Welche Formel gehört zu deiner Situation?", "Which formula belongs to your situation?"), "nᵏ · n!/(n − k)! · (n über k) · (n + k − 1 über k)", zw("Ohne Reihenfolge teilt man die geordneten Möglichkeiten durch k!, weil jede Gruppe k!-mal gezählt wurde.", "Without order divide the ordered count by k!, because each group was counted k! times.")],
-          pruefen: [zw("Mit Reihenfolge muss mindestens so viel herauskommen wie ohne.", "With order you must get at least as many as without."), zw("Prüfe mit dem kleinen Fall (4 Elemente, k = 2).", "Check with the small case (4 elements, k = 2)."), zw("Eine Wahrscheinlichkeit liegt zwischen 0 und 1.", "A probability lies between 0 and 1.")],
-          regeln: KOMB_REGELN,
-        })} />
       </div>
       <p style={{ ...hinweis, color: C.tinte, marginBottom: 6 }}>{au.text}</p>
       <SchrittFolge schritte={schritte} stand={stand} setStand={setStand} fertigText={zw("Gezählt und – wo gefragt – die Wahrscheinlichkeit getrennt berechnet.", "Counted, and – where asked – the probability computed separately.")} />
@@ -289,6 +281,14 @@ function Zaehlen() {
         <p style={{ margin: "8px 0 0" }}>{zw(`Das sind ${liste.length} Möglichkeiten – genau ${t.formel} mit n = 4, k = 2.`, `That is ${liste.length} possibilities – exactly ${t.formel} with n = 4, k = 2.`)}</p>
       </Aufklapp>
       <GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfeKontext({
+          id: `zaehl-${au.id}`, aufgabe: "Kombinatorik Reihenfolge Zurücklegen Binomialkoeffizient Fakultät",
+          verstehen: [zw("Zwei Fragen entscheiden alles: Kommt es auf die Reihenfolge an? Darf sich etwas wiederholen?", "Two questions decide everything: does order matter? May something repeat?"), zw("Verschiedene Ämter oder Plätze bedeuten Reihenfolge; eine Gruppe ohne Rollen bedeutet keine Reihenfolge.", "Different offices or places mean order; a group without roles means no order."), zw("Zähle bei Unsicherheit einen kleinen Fall von Hand.", "If unsure, count a small case by hand.")],
+          ansatz: [zw("Welche der vier Situationen liegt vor?", "Which of the four situations applies?"), zw("Ordne zu: Reihenfolge ja/nein × Wiederholung ja/nein.", "Match: order yes/no × repetition yes/no."), zw("Dann n und k bestimmen und in die Formel einsetzen.", "Then determine n and k and plug into the formula.")],
+          regel: [zw("Welche Formel gehört zu deiner Situation?", "Which formula belongs to your situation?"), "nᵏ · n!/(n − k)! · (n über k) · (n + k − 1 über k)", zw("Ohne Reihenfolge teilt man die geordneten Möglichkeiten durch k!, weil jede Gruppe k!-mal gezählt wurde.", "Without order divide the ordered count by k!, because each group was counted k! times.")],
+          pruefen: [zw("Mit Reihenfolge muss mindestens so viel herauskommen wie ohne.", "With order you must get at least as many as without."), zw("Prüfe mit dem kleinen Fall (4 Elemente, k = 2).", "Check with the small case (4 elements, k = 2)."), zw("Eine Wahrscheinlichkeit liegt zwischen 0 und 1.", "A probability lies between 0 and 1.")],
+          regeln: KOMB_REGELN,
+        })} /></div>
     </div>
   );
 }
@@ -381,7 +381,6 @@ function BaumAufbauen() {
     <div style={{ ...karte, marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
         <p style={kicker}>{zw("Baumdiagramm aufbauen", "Build a tree diagram")}</p>
-        <IchHaengeFest kontext={hilfeUrne(`baum-${au.id}`)} />
       </div>
       <p style={{ ...hinweis, color: C.tinte, marginBottom: 6 }}>
         {zw(`In einer Urne liegen ${au.r} rote und ${au.b} blaue Kugeln. Es werden zwei Kugeln nacheinander ${au.mit ? "mit" : "ohne"} Zurücklegen gezogen. Beschrifte alle Zweige.`,
@@ -411,6 +410,7 @@ function BaumAufbauen() {
       )}
       {alleOk && <SchrittFolge schritte={schritte} stand={stand} setStand={setStand} fertigText={zw("Pfadregel und Summenregel sitzen.", "Product and sum rule done.")} />}
       <GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfeUrne(`baum-${au.id}`)} /></div>
     </div>
   );
 }

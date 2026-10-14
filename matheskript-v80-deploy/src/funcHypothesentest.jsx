@@ -182,7 +182,6 @@ function TestAufbauen() {
     <div style={{ ...karte, marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
         <p style={kicker}>{zw("Test aufbauen", "Set up a test")}</p>
-        <IchHaengeFest kontext={hilfeTest(`ht-${au.id}`, au)} />
       </div>
       <p style={{ ...hinweis, color: C.tinte, marginBottom: 4 }}>{au.text(n)} {zw(`Signifikanzniveau α = ${prz(alpha)}.`, `Significance level α = ${prz(alpha)}.`)}</p>
       {stand >= 3 && (
@@ -200,6 +199,7 @@ function TestAufbauen() {
       )}
       <SchrittFolge schritte={schritte} stand={stand} setStand={setStand} fertigText={zw("Test vollständig: Hypothesen, Richtung, Ablehnungsbereich und vorsichtig formulierte Entscheidung.", "Test complete: hypotheses, direction, rejection region and a carefully phrased decision.")} />
       <GrosserKnopf ghost onClick={neu}>{zw("Neuer Test", "New test")}</GrosserKnopf>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfeTest(`ht-${au.id}`, au)} /></div>
     </div>
   );
 }
@@ -235,7 +235,6 @@ function Ablehnungsbereich() {
     <div style={{ ...karte, marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
         <p style={kicker}>{zw("Ablehnungsbereich", "Rejection region")}</p>
-        <IchHaengeFest kontext={hilfeTest(`ab-${au.id}`, au)} />
       </div>
       <p style={{ ...hinweis, color: C.tinte, marginBottom: 4 }}>{au.text(n)}</p>
       <p style={{ fontSize: 14, color: C.tinte, margin: "0 0 8px", lineHeight: 1.6 }}>
@@ -255,6 +254,7 @@ function Ablehnungsbereich() {
       <GrosserKnopf onClick={pruefen}>{zw("Ablehnungsbereich prüfen", "Check rejection region")}</GrosserKnopf>
       {meld && <Rueck art={meld.art}>{meld.text}</Rueck>}
       <GrosserKnopf ghost onClick={neu}>{zw("Neuer Test", "New test")}</GrosserKnopf>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfeTest(`ab-${au.id}`, au)} /></div>
     </div>
   );
 }
@@ -304,7 +304,6 @@ function FehlerVerstehen() {
     <div style={{ ...karte, marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
         <p style={kicker}>{zw("Fehler verstehen", "Understand errors")}</p>
-        <IchHaengeFest kontext={hilfeTest(`fv-${au.id}`, au)} />
       </div>
       <p style={{ ...hinweis, color: C.tinte, marginBottom: 4 }}>{au.text(n)}</p>
       <p style={{ fontSize: 14, color: C.tinte, margin: "0 0 8px", lineHeight: 1.6 }}><b>{H0(au)}</b>, α = {prz(au.alpha)}, <b>{bereichText(r, au.r, n)}</b></p>
@@ -329,6 +328,7 @@ function FehlerVerstehen() {
         )}
       </div>
       <GrosserKnopf ghost onClick={neu}>{zw("Neuer Test", "New test")}</GrosserKnopf>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfeTest(`fv-${au.id}`, au)} /></div>
     </div>
   );
 }

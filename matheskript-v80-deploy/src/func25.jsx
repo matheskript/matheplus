@@ -368,7 +368,6 @@ function StammTrainer({ art, titel }) {
         {status === "richtig" && <span style={{ marginLeft: "auto", fontSize: 22, color: C.smaragd, fontWeight: 700 }}>✓</span>}
         {status === "falsch" && <span style={{ marginLeft: "auto", fontSize: 22, color: C.signal, fontWeight: 700 }}>✗</span>}
       </div>
-      {status !== "richtig" && <div style={{ marginBottom: 8 }}><IchHaengeFest kontext={stammHilfe(fText, fBaum)} /></div>}
       {hinweis && <p role="status" style={{ fontSize: 13.5, color: C.signal, lineHeight: 1.6, margin: "0 4px 10px" }}>{hinweis}</p>}
       {status === "gezeigt" && (
         <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, margin: "0 4px 12px" }}>Prüfe dein F, indem du es ableitest – bei einer richtigen Stammfunktion kommt genau f heraus. Typische Regeln:
@@ -416,6 +415,7 @@ function StammTrainer({ art, titel }) {
           </div>
         </>
       )}
+      {status !== "richtig" && <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={stammHilfe(fText, fBaum)} /></div>}
     </div>
   );
 }
@@ -567,7 +567,6 @@ function BestimmtesIntegral({ zeigeHauptsatz }) {
     <div style={{ ...karte, marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 12 }}>
         <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel }}>Bestimmtes Integral mit dem Hauptsatz</p>
-        <IchHaengeFest kontext={integralHilfe(felder)} />
       </div>
       <div style={{ marginTop: -6, marginBottom: 6 }}>
         <button type="button" onClick={zeigeHauptsatz}
@@ -603,6 +602,7 @@ function BestimmtesIntegral({ zeigeHauptsatz }) {
       </button>
       {erg && erg.fehler && <p role="alert" style={{ fontSize: 13.5, color: C.signal, lineHeight: 1.6, marginTop: 12, fontWeight: 500 }}>{erg.fehler}</p>}
       {rechnung}
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={integralHilfe(felder)} /></div>
     </div>
   );
 }

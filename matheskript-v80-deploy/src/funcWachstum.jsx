@@ -131,7 +131,6 @@ function MesswertModell() {
     <div style={{ ...karte, marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
         <p style={kicker}>{zw("Modell aus Messwerten", "Model from data")}</p>
-        <IchHaengeFest kontext={hilfeW(`w1-${au.id}`, au)} />
       </div>
       <p style={{ ...hinweis, color: C.tinte, marginBottom: 4 }}>
         {au.id === "kapital" ? zw("Ein Kapital wird jährlich verzinst; die Zinsen werden am Jahresende gutgeschrieben. Kontostand:", "A capital earns yearly interest, credited at the end of each year. Balance:")
@@ -148,6 +147,7 @@ function MesswertModell() {
       {stand >= 3 && <Graph au={au} bis={au.diskret ? 10 : 6} punkte={stand >= 7 ? [{ x: tP, y: NP, farbe: C.gruen, name: `N(${tP})` }] : werte.map((v, t) => ({ x: t, y: v, farbe: C.gruen }))} />}
       <SchrittFolge schritte={schritte} stand={stand} setStand={setStand} fertigText={zw("Modell vollständig: Faktor, Prozentsatz, e-Form, Modelltyp und Prognose.", "Model complete: factor, percentage, e-form, model type and forecast.")} />
       <GrosserKnopf ghost onClick={neu}>{zw("Neue Messreihe", "New data")}</GrosserKnopf>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfeW(`w1-${au.id}`, au)} /></div>
     </div>
   );
 }
@@ -214,7 +214,6 @@ function Verdopplung() {
     <div style={{ ...karte, marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
         <p style={kicker}>{zw("Verdopplung und Halbwertszeit", "Doubling and half-life")}</p>
-        <IchHaengeFest kontext={hilfeW(`w2-${au.id}`, au.art === "rueck" ? { ...kx, wachstum: false } : au)} />
       </div>
       <p style={{ ...hinweis, color: C.tinte, marginBottom: 4 }}>
         {au.art === "rueck" ? zw(`Ein radioaktives Isotop hat eine Halbwertszeit von ${au.T} Tagen. Bestimme den Faktor, mit dem die Menge pro Tag multipliziert wird.`, `A radioactive isotope has a half-life of ${au.T} days. Find the factor by which the amount is multiplied each day.`)
@@ -223,6 +222,7 @@ function Verdopplung() {
       {stand >= 3 && <Graph au={gAu} bis={Math.min(60, 3.4 * T)} punkte={marken} />}
       <SchrittFolge schritte={schritte} stand={stand} setStand={setStand} fertigText={zw("Gelöst – mit Logarithmus statt Probieren.", "Solved – with logarithms instead of trial and error.")} />
       <GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfeW(`w2-${au.id}`, au.art === "rueck" ? { ...kx, wachstum: false } : au)} /></div>
     </div>
   );
 }
@@ -276,7 +276,6 @@ function Zielwert() {
     <div style={{ ...karte, marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
         <p style={kicker}>{zw("Zielwert erreichen", "Reach a target")}</p>
-        <IchHaengeFest kontext={hilfeW(`w3-${au.id}`, au)} />
       </div>
       <p style={{ ...hinweis, color: C.tinte, marginBottom: 4 }}>
         {au.text(au.N0, au.a)}{" "}
@@ -287,6 +286,7 @@ function Zielwert() {
       {stand >= 4 && !au.vergangen && <Graph au={au} bis={au.diskret ? Math.ceil(bis) : bis} waagerechte={[{ y: au.Z, farbe: C.gruen, text: zt(au.Z, 2) }]} zusatz={[{ x: t, farbe: C.gruen }]} />}
       <SchrittFolge schritte={schritte} stand={stand} setStand={setStand} fertigText={zw("Zielwert berechnet und richtig gedeutet.", "Target computed and interpreted correctly.")} />
       <GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfeW(`w3-${au.id}`, au)} /></div>
     </div>
   );
 }

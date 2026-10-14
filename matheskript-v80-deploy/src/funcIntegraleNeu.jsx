@@ -109,7 +109,6 @@ export function FlaecheBilanz() {
     <div style={{ ...karte, marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
         <p style={kicker}>{zw("Fläche und Bilanz", "Area and net change")}</p>
-        <IchHaengeFest kontext={hilfe} />
       </div>
       <p style={hinweis}>{zw("Das Integral ist eine Bilanz, der Flächeninhalt zählt alles positiv. Verschiebe die Grenzen, schätze – und rechne dann.", "The integral is a net total, the area counts everything as positive. Move the limits, estimate – then compute.")}</p>
       <div style={{ ...zeile, fontSize: 19, marginBottom: 6 }}><M t={`f(x) = ${pTex(aufg.p)}`} /></div>
@@ -202,6 +201,7 @@ export function FlaecheBilanz() {
         </div>
       )}
       <GrosserKnopf ghost onClick={() => neu()}>{zw("Neue Funktion", "New function")}</GrosserKnopf>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfe} /></div>
     </div>
   );
 }
@@ -285,7 +285,6 @@ export function ZwischenZweiGraphen() {
     <div style={{ ...karte, marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
         <p style={kicker}>{zw("Fläche zwischen zwei Graphen", "Area between two graphs")}</p>
-        <IchHaengeFest kontext={hilfe} />
       </div>
       <p style={hinweis}>{zw("Erst die Schnittpunkte, dann wer oben liegt, dann die Fläche – jeweils einzeln geprüft.", "First the intersection points, then who is on top, then the area – each checked separately.")}</p>
       <div style={zeile}><M t={`f(x) = ${pTex(au.f)}`} /></div>
@@ -343,6 +342,7 @@ export function ZwischenZweiGraphen() {
         </>
       )}
       <GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfe} /></div>
     </div>
   );
 }
@@ -397,7 +397,6 @@ function BestandAus() {
       <p style={hinweis}>{zw(`Ein Tank wird befüllt und entleert. Die Änderungsrate r(t) in Liter pro Minute ist gegeben, t in Minuten. Anfangsbestand: ${au.B0} Liter.`, `A tank is filled and emptied. The rate of change r(t) in litres per minute is given, t in minutes. Initial stock: ${au.B0} litres.`)}</p>
       <div style={zeile}><M t={`r(t) = ${pTex(au.r, "t")}`} /><span style={{ fontSize: 13, color: C.grau }}>{zw("l/min, 0 ≤ t ≤", "l/min, 0 ≤ t ≤")} {au.T}</span></div>
       <Schaubild kurven={[{ p: au.r, farbe: C.see, name: "r" }]} flaechen={flaechen} x0={0} x1={au.T + 0.5} einheitX="t (min)" einheitY="r (l/min)" hoehe={200} />
-      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 6 }}><IchHaengeFest kontext={hilfe} /></div>
 
       {schritt(1, zw("Prognose: Wie steht der Tank nach der Zeit?", "Prediction: how is the tank after the time?"))}
       <Auswahl label={zw("Prognose Bestand", "Stock prediction")} wert={prog} setWert={(v) => { setProg(v); setPr(null); }}
@@ -435,6 +434,7 @@ function BestandAus() {
           </div>
         </>
       )}
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfe} /></div>
       <GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>
     </>
   );
@@ -473,7 +473,6 @@ function RateAus() {
       <p style={hinweis}>{zw(`Gegeben ist der Bestand B(t) in Litern. Deute die Änderungsrate zum Zeitpunkt t = ${au.t0} Minuten.`, `The stock B(t) in litres is given. Interpret the rate of change at time t = ${au.t0} minutes.`)}</p>
       <div style={zeile}><M t={`B(t) = ${bTex}`} /><span style={{ fontSize: 13, color: C.grau }}>{zw("Liter", "litres")}, 0 ≤ t ≤ {au.T}</span></div>
       <Schaubild kurven={[{ p: au.Bf, farbe: C.gruen, name: "B" }, ...(fertig ? [{ p: tangente, farbe: C.flaggold, name: zw("Tangente", "tangent") }] : [])]} punkte={[{ x: au.t0, y: au.Bt0, farbe: C.tinte, name: `t = ${au.t0}` }]} x0={0} x1={au.T + 0.5} yMin={0} einheitX="t (min)" einheitY="B (l)" hoehe={210} />
-      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 6 }}><IchHaengeFest kontext={hilfe} /></div>
 
       {schritt(1, zw(`Was passiert bei t = ${au.t0}?`, `What happens at t = ${au.t0}?`))}
       <Auswahl label={zw("Entwicklung des Bestands", "Development of the stock")} wert={vz} setWert={(v) => { setVz(v); setPr(null); }}
@@ -509,6 +508,7 @@ function RateAus() {
           </div>
         </>
       )}
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfe} /></div>
       <GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>
     </>
   );

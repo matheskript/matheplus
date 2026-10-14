@@ -15,7 +15,7 @@ import React, { useState } from "react";
 import { C } from "./base1.jsx";
 import { Bruch, Einzeilig, Wurzel, Zahl, ggT, kreuz, skalar } from "./func19.jsx";
 import { FA, FB, FE, Gl, Name, Raum3, Schritt, Vek, k, koordText, n, neueAufgabe } from "./func20.jsx";
-import { Feld, Knopf, Meldung, PunktEingabe, VektorFeld, leseVektor } from "./func23.jsx";
+import { EbenenZeile, Feld, Knopf, Meldung, PunktEingabe, VektorFeld, leseVektor } from "./func23.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
 
@@ -179,15 +179,7 @@ function ObjektEingabe({ o, setO, name, farbe }) {
   }
   const w = o.ebene;
   const s = (i) => (v) => { const x = [...w]; x[i] = v; setO({ ...o, ebene: x }); };
-  return (
-    <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 6, fontSize: 16, fontWeight: 800, color: farbe }}>
-      <span>{name}:</span>
-      <Feld wert={w[0]} setWert={s(0)} label={`${name} a`} farbe={farbe} /><span>x₁ +</span>
-      <Feld wert={w[1]} setWert={s(1)} label={`${name} b`} farbe={farbe} /><span>x₂ +</span>
-      <Feld wert={w[2]} setWert={s(2)} label={`${name} c`} farbe={farbe} /><span>x₃ =</span>
-      <Feld wert={w[3]} setWert={s(3)} label={`${name} d`} farbe={farbe} breite={48} />
-    </div>
-  );
+  return <EbenenZeile name={name} w={w} setze={s} farbe={farbe} labelVor={name} />;
 }
 
 /* ---------- Gleichungen anzeigen ---------- */
@@ -587,9 +579,6 @@ export function Abstaende() {
       </p>
 
       <div style={karte}>
-        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10 }}>
-          <IchHaengeFest kontext={modus === "lot" && lotArt ? lotHilfe(lotArt) : abstandHilfe(kombi)} />
-        </div>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
           <Auswahl wert={links.typ} setWert={(t) => { setLinks({ ...links, typ: t }); setModus("rechnen"); }} seite={0} />
           <span style={{ fontSize: 15, fontWeight: 700, color: C.grau, flexShrink: 0 }}>zu</span>
@@ -597,10 +586,10 @@ export function Abstaende() {
         </div>
 
         {lotArt && (
-          <div role="tablist" aria-label="Modus" style={{ display: "flex", gap: 6, marginBottom: 16, flexWrap: "wrap" }}>
+          <div role="tablist" aria-label="Modus" style={{ display: "flex", gap: 6, marginBottom: 16, flexWrap: "nowrap" }}>
             {[["rechnen", "Abstand berechnen"], ["lot", "Lotpunkt bestimmen"]].map(([id, t]) => (
               <button key={id} type="button" role="tab" aria-selected={modus === id} onClick={() => setModus(id)}
-                style={{ padding: "7px 14px", borderRadius: 999, fontSize: 13, fontFamily: "inherit", cursor: "pointer",
+                style={{ flex: "1 1 0", minWidth: 0, padding: "7px 6px", borderRadius: 999, fontSize: "clamp(9px, calc((100vw - 130px) / 21.5), 13px)", whiteSpace: "nowrap", textAlign: "center", fontFamily: "inherit", cursor: "pointer",
                   border: `1px solid ${modus === id ? C.see : C.linie}`, background: modus === id ? C.himmel : C.weiss, color: C.see, fontWeight: modus === id ? 700 : 500 }}>{t}</button>
             ))}
           </div>
@@ -615,6 +604,7 @@ export function Abstaende() {
             {oL.fehler || oR.fehler ? <Meldung art="warn">{oL.fehler || oR.fehler}</Meldung> : rechnung}
           </>
         )}
+        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={modus === "lot" && lotArt ? lotHilfe(lotArt) : abstandHilfe(kombi)} /></div>
       </div>
     </div>
   );

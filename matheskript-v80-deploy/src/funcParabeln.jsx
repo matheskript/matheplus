@@ -538,7 +538,6 @@ function ScheitelUebung() {
       <div style={karte}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8, flexWrap: "wrap" }}>
           <p style={kicker}>{zw("Übung", "Exercise")}</p>
-          <IchHaengeFest kontext={hilfeForm(aufg, richtung)} />
         </div>
         <Auswahl optionen={[["nf", zw("Normalform → Scheitelform", "Normal form → vertex form")], ["sf", zw("Scheitelform → Normalform", "Vertex form → normal form")]]} wert={richtung} setWert={wechsel} label={zw("Richtung", "Direction")} />
         <Text>{richtung === "nf"
@@ -548,6 +547,7 @@ function ScheitelUebung() {
         <SchrittFolge key={`${aufg.id}-${richtung}`} schritte={schritte} stand={stand} setStand={setStand}
           fertigText={<>{zw("Geschafft: ", "Done: ")}<M t={`f(x) = ${normalTex(p)} = ${scheitelTex(a, d, e)}`} />{" · "}<b>S({qt(d)} | {qt(e)})</b></>} />
         <GrosserKnopf gold onClick={() => neu()}>{zw("Neue Aufgabe", "New exercise")}</GrosserKnopf>
+        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfeForm(aufg, richtung)} /></div>
       </div>
       <div style={{ ...karte, marginTop: 12 }}>
         <ParabelBild kurven={[{ f: fVon(p), farbe: C.see }]} senkrechte={vertexSichtbar ? [{ x: qNum(d) }] : []}
@@ -697,7 +697,6 @@ function NullstellenSeite() {
       <div style={karte}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8, flexWrap: "wrap" }}>
           <p style={kicker}>{zw("Nullstellen bestimmen", "Find the roots")}</p>
-          <IchHaengeFest kontext={hilfeNull(aufg)} />
         </div>
         <Auswahl optionen={[["mitternacht", zw("Mitternachtsformel", "Quadratic formula")], ["vieta", zw("Satz von Vieta", "Vieta's theorem")]]} wert={verf} setWert={wechsel} label={zw("Verfahren", "Method")} />
         <Text>{verf === "vieta"
@@ -723,6 +722,7 @@ function NullstellenSeite() {
             </>
           )}
         </Aufklapp>
+        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfeNull(aufg)} /></div>
       </div>
       <div style={{ ...karte, marginTop: 12 }}>
         <ParabelBild kurven={[{ f: fVon(p), farbe: C.see }]}

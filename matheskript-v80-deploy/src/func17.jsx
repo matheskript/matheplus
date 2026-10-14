@@ -463,9 +463,6 @@ export function BernoulliBingo() {
         Die Binomialverteilung entsteht live – und im Experiment siehst du, ob der Zufall mitspielt.
       </p>
 
-      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10, marginTop: -8 }}>
-        <IchHaengeFest kontext={bernoulliHilfe(n, pT, k, modus)} />
-      </div>
       {/* Einstellungen + Verteilung */}
       <div style={karte}>
         <Kopf n={n} p={p} k={k} setN={setN} setP={setP} setK={setK} pT={pT} qT={qT} bruch={bruch} setBruch={setBruch} />
@@ -569,6 +566,10 @@ export function BernoulliBingo() {
             </p>
           </div>
         )}
+      </div>
+
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}>
+        <IchHaengeFest kontext={bernoulliHilfe(n, pT, k, modus)} />
       </div>
 
       <div style={{ ...karte, marginTop: 16 }}>

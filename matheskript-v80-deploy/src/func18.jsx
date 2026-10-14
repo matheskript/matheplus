@@ -255,9 +255,6 @@ export function Vierfeldertafel() {
       <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
         Zwei Merkmale, vier Felder
       </h2>
-      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 6 }}>
-        <IchHaengeFest kontext={vierfelderHilfe(name(ereignis), name(bedingung), { e: sym(ereignis), b: sym(bedingung) })} />
-      </div>
       <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 18 }}>
         Stell die vier inneren Felder ein – Randsummen, Baumdiagramme und alle bedingten Wahrscheinlichkeiten
         rechnen sich live mit. Wahlweise mit <b>absoluten Häufigkeiten</b> oder mit <b>Wahrscheinlichkeiten</b>, die sich zu 100 % ergänzen.
@@ -411,6 +408,10 @@ export function Vierfeldertafel() {
             Vergleich: P<sub>A</sub>(B) ≈ {pr(P.AB / P.A)} gegenüber P(B) ≈ {pr(P.B)}.
           </p>
         )}
+      </div>
+
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}>
+        <IchHaengeFest kontext={vierfelderHilfe(name(ereignis), name(bedingung), { e: sym(ereignis), b: sym(bedingung) })} />
       </div>
 
       {/* Merkkarte */}

@@ -137,7 +137,6 @@ function Entdecken() {
     <div style={{ ...karte, marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
         <p style={kicker}>{zw("Parameter entdecken", "Explore the parameter")}</p>
-        <IchHaengeFest kontext={hilfeS(`sch-e-${sid}`)} />
       </div>
       <Auswahl optionen={SCHAR_WAHL} wert={sid} setWert={(v) => { setSid(v); setOrts(false); }} label={zw("Schar", "Family")} />
       <p style={{ fontSize: 16, fontWeight: 700, color: C.tinte, margin: "12px 0 4px" }}><PT t={s.name} /></p>
@@ -169,6 +168,7 @@ function Entdecken() {
         {s.formeln.map(([k, v]) => <p key={k} style={{ margin: "2px 0" }}><b>{k}:</b> <PT t={v} /></p>)}
         <p style={{ margin: "8px 0 0", color: C.grau }}>{zw("Der Regler zeigt Beispiele – begründet wird mit der Rechnung.", "The slider shows examples – the reasoning comes from the calculation.")}</p>
       </Aufklapp>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfeS(`sch-e-${sid}`)} /></div>
     </div>
   );
 }
@@ -252,7 +252,6 @@ function BesonderePunkte() {
     <div style={{ ...karte, marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
         <p style={kicker}>{zw("Besondere Punkte", "Special points")}</p>
-        <IchHaengeFest kontext={hilfeS(`sch-p-${sid}`)} />
       </div>
       <Auswahl optionen={SCHAR_WAHL} wert={sid} setWert={wechsel} label={zw("Schar", "Family")} />
       <p style={{ ...hinweis, color: C.tinte, margin: "10px 0 4px" }}>{zw("Bestimme die besonderen Punkte allgemein in Abhängigkeit von", "Determine the special points in general, depending on")} <b style={{ color: PARAM }}>a</b>: <PT t={SCHAREN[sid].name} /></p>
@@ -265,6 +264,7 @@ function BesonderePunkte() {
         </div>
       )}
       <GrosserKnopf ghost onClick={() => { setStand(0); setNr((n) => n + 1); }}>{zw("Von vorn", "Start again")}</GrosserKnopf>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfeS(`sch-p-${sid}`)} /></div>
     </div>
   );
 }
@@ -347,12 +347,12 @@ function Parameterfaelle() {
     <div style={{ ...karte, marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
         <p style={kicker}>{zw("Parameterfälle", "Parameter cases")}</p>
-        <IchHaengeFest kontext={hilfeS(`sch-f-${au.id}`)} />
       </div>
       <p style={{ ...hinweis, color: C.tinte, marginBottom: 4 }}>{DE ? <PT t={au.text.replace("f_a", "fₐ")} /> : au.text.replace("f_a", "fₐ")}</p>
       <SchrittFolge key={au.id} schritte={au.schritte} stand={stand} setStand={setStand} fertigText={zw("Gelöst – mit Probe und Blick auf die Sonderfälle.", "Solved – with a check and an eye on the special cases.")} />
       {stand >= au.schritte.length && <div style={{ marginTop: 10 }}><ScharBild sid={au.sid} a={au.aWert} ortskurve={false} /></div>}
       <GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfeS(`sch-f-${au.id}`)} /></div>
     </div>
   );
 }

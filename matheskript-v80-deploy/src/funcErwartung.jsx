@@ -163,7 +163,6 @@ function Gewinnverteilung() {
     <div style={{ ...karte, marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
         <p style={kicker}>{zw("Gewinnverteilung", "Payout distribution")}</p>
-        <IchHaengeFest kontext={hilfeFuer(`erw-v-${sp.id}`, sp)} />
       </div>
       <p style={{ ...hinweis, color: C.tinte, marginBottom: 4 }}>{sp.text} {zw(`Ein Spiel kostet ${euro(sp.e)} Einsatz. Ausgezahlt wird nach folgender Tabelle.`, `One game costs a stake of ${euro(sp.e)}. Payouts follow the table.`)}</p>
       <Tabelle sp={sp} zeigeP3={stand > 0} netto={nettoSichtbar} />
@@ -175,6 +174,7 @@ function Gewinnverteilung() {
       <SchrittFolge schritte={schritte} stand={stand} setStand={setStand}
         fertigText={zw("Vollständig: Verteilung aufgestellt, Erwartungswert berechnet und richtig gedeutet.", "Complete: distribution set up, expected value computed and interpreted correctly.")} />
       <GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfeFuer(`erw-v-${sp.id}`, sp)} /></div>
     </div>
   );
 }
@@ -209,7 +209,6 @@ function FairerEinsatz() {
     <div style={{ ...karte, marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
         <p style={kicker}>{zw("Fairer Einsatz", "Fair stake")}</p>
-        <IchHaengeFest kontext={hilfeFuer(`erw-f-${sp.id}`, { ...sp, e: einsatz })} />
       </div>
       <p style={{ ...hinweis, color: C.tinte, marginBottom: 4 }}>{sp.text} {zw("Wie hoch muss der Einsatz sein, damit das Spiel fair ist?", "How high must the stake be for the game to be fair?")}</p>
       <Tabelle sp={sp} zeigeP3 netto={[true, true, true]} einsatz={einsatz} />
@@ -227,6 +226,7 @@ function FairerEinsatz() {
       </div>
       <SchrittFolge schritte={schritte} stand={stand} setStand={setStand} fertigText={zw("Richtig: Der faire Einsatz ist die erwartete Auszahlung.", "Correct: the fair stake is the expected payout.")} />
       <GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfeFuer(`erw-f-${sp.id}`, { ...sp, e: einsatz })} /></div>
     </div>
   );
 }
@@ -267,7 +267,6 @@ function Langfristig() {
     <div style={{ ...karte, marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
         <p style={kicker}>{zw("Langfristig spielen", "Play in the long run")}</p>
-        <IchHaengeFest kontext={hilfeFuer(`erw-l-${sp.id}`, sp)} />
       </div>
       <p style={{ ...hinweis, color: C.tinte, marginBottom: 4 }}>{sp.text} {zw(`Einsatz ${euro(sp.e)} pro Spiel.`, `Stake ${euro(sp.e)} per game.`)}</p>
       <Tabelle sp={sp} zeigeP3 netto={[true, true, true]} />
@@ -328,6 +327,7 @@ function Langfristig() {
         </>
       )}
       <GrosserKnopf ghost onClick={neu}>{zw("Neues Spiel", "New game")}</GrosserKnopf>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfeFuer(`erw-l-${sp.id}`, sp)} /></div>
     </div>
   );
 }

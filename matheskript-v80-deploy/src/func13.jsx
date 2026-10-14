@@ -296,7 +296,6 @@ export function Ableitungstrainer() {
                 {bilanz.gesamt ? `${bilanz.richtig} von ${bilanz.gesamt} Versuchen richtig` : ""}
               </span>
             </div>
-            {!fertig && <IchHaengeFest kontext={ableitHilfe(kette, aktiv)} />}
           </div>
           <div style={{ background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 14,
             padding: "14px 16px", marginBottom: 14, overflowX: "auto" }}>
@@ -366,6 +365,7 @@ export function Ableitungstrainer() {
               </button>
             </div>
           )}
+          {!fertig && <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={ableitHilfe(kette, aktiv)} /></div>}
         </div>
       )}
     </div>

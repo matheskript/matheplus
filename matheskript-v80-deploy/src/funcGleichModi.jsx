@@ -33,10 +33,10 @@ const Karte = ({ titel, hilfeId, aufgabe, neu, children }) => (
   <div style={{ ...karte, marginTop: 16 }}>
     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
       <p style={kicker}>{titel}</p>
-      <IchHaengeFest kontext={hilfe(hilfeId, aufgabe)} />
     </div>
     {children}
     <GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>
+    <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfe(hilfeId, aufgabe)} /></div>
   </div>
 );
 const Zeile = ({ t }) => <div style={{ ...zeile, justifyContent: "center" }}><M t={t} /></div>;

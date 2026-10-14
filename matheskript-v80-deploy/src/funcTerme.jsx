@@ -183,7 +183,6 @@ function Aufgabe({ au, neu, titel, kopf, platzhalter, hilfeText, einleitung }) {
     <div style={{ ...karte, marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
         <p style={kicker}>{titel}</p>
-        <IchHaengeFest kontext={hilfe} />
       </div>
       <p style={hinweis}>{einleitung}</p>
       <p style={{ fontSize: 14.5, color: C.tinte, fontWeight: 600, margin: "0 0 4px" }}>{kopf}</p>
@@ -222,6 +221,7 @@ function Aufgabe({ au, neu, titel, kopf, platzhalter, hilfeText, einleitung }) {
         )}
       {erledigt && <p style={{ fontSize: 13, color: C.grau, margin: "6px 0 0" }}>{zw("Tipp: Probiere noch eine Aufgabe oder wechsle oben die Übung.", "Tip: try another problem or switch the exercise above.")}</p>}
       <GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfe} /></div>
     </div>
   );
 }
