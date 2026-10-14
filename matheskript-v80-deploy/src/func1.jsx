@@ -759,14 +759,18 @@ function GeradenHilfe({ a }) {
   React.useEffect(() => { if (mOk) setFrei(true); }, [mOk]);
 
   const setze = (i, w) => setF((alt) => alt.map((x, j) => (j === i ? w : x)));
+  /* Kompakte Felder über und unter dem Bruchstrich: die ganze Steigungsrechnung
+     (m = Bruch = Bruch = Ergebnis) soll auf einem Handy in EINER Zeile stehen. */
   const feld = (i, platz) => (
     <MatheFeld modus="bruch" value={f[i]} onChange={(e) => setze(i, e.target.value)} placeholder={platz} inputMode="text"
       aria-label={platz}
-      style={{ width: 62, padding: "8px 6px", fontSize: 16, fontFamily: "inherit", textAlign: "center", border: `1.5px solid ${C.linie}`, borderRadius: 12, background: C.weiss, color: C.tinte, outline: "none" }} />
+      style={{ width: 38, minWidth: 0, padding: "4px 2px", fontSize: 15, fontFamily: "inherit", textAlign: "center", border: `1.5px solid ${C.linie}`, borderRadius: 8, background: C.weiss, color: C.tinte, outline: "none" }} />
   );
 
   const prod = bruch(a.m.n * a.x1, a.m.d);
   const zeile = { display: "flex", alignItems: "center", flexWrap: "wrap", gap: 6, fontSize: 18, lineHeight: 1.9 };
+  /* Steigungsrechnung: nie umbrechen, engere Abstände, etwas kleinere Schrift */
+  const zeileM = { display: "flex", alignItems: "center", flexWrap: "nowrap", gap: 4, fontSize: 16, lineHeight: 1.5, whiteSpace: "nowrap" };
   const dezimal = (x) => minusZ(String(+x.toFixed(4)).replace(".", ","));
 
   return (
@@ -776,19 +780,19 @@ function GeradenHilfe({ a }) {
       </HSchritt>
 
       <HSchritt nr={2} titel="Steigung m berechnen">
-        <div style={zeile}>
+        <div style={zeileM}>
           <span style={{ fontWeight: 600 }}>m =</span>
-          <span style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-            <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>{feld(0, "y")}<span>−</span>{feld(1, "y")}</span>
+          <span style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>{feld(0, "y")}<span>−</span>{feld(1, "y")}</span>
             <span style={{ width: "100%", height: 2, background: C.tinte, borderRadius: 1 }} />
-            <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>{feld(2, "x")}<span>−</span>{feld(3, "x")}</span>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>{feld(2, "x")}<span>−</span>{feld(3, "x")}</span>
           </span>
           <span>=</span>
           {!alle && <span style={{ color: C.hellgrau }}>…</span>}
-          {alle && !definiert && <span style={{ color: C.signal, fontSize: 14 }}>Der Nenner darf nicht 0 sein.</span>}
-          {definiert && zeigeRoh && <><HZahl f={{ n: z, d: n }} /><span>=</span></>}
-          {definiert && (ganzZN ? <HZahl f={red} /> : <span>{dezimal(wert)}</span>)}
+          {definiert && zeigeRoh && <><HZahl f={{ n: z, d: n }} fs={16} /><span>=</span></>}
+          {definiert && (ganzZN ? <HZahl f={red} fs={16} /> : <span>{dezimal(wert)}</span>)}
         </div>
+        {alle && !definiert && <p style={{ color: C.signal, fontSize: 14, marginTop: 6 }}>Der Nenner darf nicht 0 sein.</p>}
         {definiert && (
           <p style={{ fontSize: 14, fontWeight: 600, color: mOk ? C.see : C.signal, marginTop: 8, lineHeight: 1.6 }}>
             {mOk
