@@ -71,22 +71,25 @@ function PlotterLogoKlein() {
    Der Wrapper bleibt immer im DOM (kein Remount beim Umschalten); zugeklappt ist er unsichtbar.
    Geometrie: Der Rahmen reicht 24 px (= Seitenrand px-6) nach links und rechts, also auf dem Handy bis an
    den Bildschirmrand. Die breiten Kacheln ragen 16 px über die Inhaltsbreite → überall 8 px Abstand zum
-   Rahmen. Ecken konzentrisch: Kachelradius 14 + 8 = 22 (unten im Bereich: Werkzeugknopf 13 + 10 = 23).
+   Rahmen, auch oben und unten. Ecken konzentrisch: Kachelradius 14 + 8 = 22 (unten im Bereich: Werkzeugknopf 13 + 8 = 21).
    Stufen: Schulmathe-Training (außen) und einzelner Bereich bzw. Formelsammlung (innen). */
 const AUFKLAPP_RAND = 24;
+const AUFKLAPP_ABSTAND = 8;   // Abstand Kachel ↔ Rahmen, oben, unten, links und rechts gleich
 const AUFKLAPP_CSS = `.aufklapp-rahmen{transition:box-shadow .25s ease}
   .aufklapp-rahmen[data-aufklapp-rahmen]{box-shadow:0 6px 18px rgba(20,28,45,0.14)}
+  [data-aufklapp-innen]>:last-child,[data-aufklapp-innen]>:last-child>[data-aufklapp-inhalt]:last-child{margin-bottom:0 !important}
   .aufklapp-rahmen[data-aufklapp-rahmen]:not(:has([data-aufklapp-rahmen])){position:relative;z-index:5;
     box-shadow:0 0 0 200vmax rgba(8,16,40,0.62)}`;
 function AufklappRahmen({ auf, innen, children }) {
   return (
     <div className="aufklapp-rahmen" data-aufklapp-rahmen={auf ? "" : undefined}
       style={auf ? {
-        margin: `${innen ? 8 : 14}px -${AUFKLAPP_RAND}px 0`, padding: `0 ${AUFKLAPP_RAND}px ${innen ? 0 : 8}px`,
-        borderRadius: innen ? "22px 22px 23px 23px" : 22, background: C.weiss,
+        margin: `${innen ? 8 : 14}px -${AUFKLAPP_RAND}px 0`, padding: `0 ${AUFKLAPP_RAND}px ${AUFKLAPP_ABSTAND}px`,
+        display: "flow-root",   // verhindert, dass der Kachel-Abstand oben/unten aus dem Rahmen „herausrutscht“
+        borderRadius: innen ? "22px 22px 21px 21px" : 22, background: C.weiss,
       } : undefined}>
       <style>{AUFKLAPP_CSS}</style>
-      <div style={auf ? { marginTop: -4 } : undefined}>{children}</div>
+      <div data-aufklapp-innen={auf ? "" : undefined} style={auf ? { marginTop: AUFKLAPP_ABSTAND - 12, display: "flow-root" } : undefined}>{children}</div>
     </div>
   );
 }
