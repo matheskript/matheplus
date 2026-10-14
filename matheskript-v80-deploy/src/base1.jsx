@@ -946,7 +946,7 @@ export const knopfWinzig = {
 
 
 export const MSYM = {
-  cdot: "·", times: "×", to: "→", rightarrow: "→", Rightarrow: "⇒", Leftrightarrow: "⇔",
+  cdot: "·", mapsto: "↦", approx2: "≈", times: "×", to: "→", rightarrow: "→", Rightarrow: "⇒", Leftrightarrow: "⇔",
   in: "∈", neq: "≠", ne: "≠", pm: "±", mp: "∓", infty: "∞", ldots: "…", dots: "…",
   le: "≤", leq: "≤", ge: "≥", geq: "≥", approx: "≈", Delta: "Δ", pi: "π", varepsilon: "ε",
   quad: "\u2003", qquad: "\u2003\u2003", ",": "\u2009", ";": "\u2009", ":": "\u2009",

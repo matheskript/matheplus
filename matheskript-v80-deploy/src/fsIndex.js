@@ -11,6 +11,7 @@ import { FS_STOCHASTIK } from "./fsStochastik.js";
 import { FS_GEOMETRIE } from "./fsGeometrie.js";
 import { FS_TERME } from "./fsTerme.js";
 import { FS_KOPF, FS_LOGIK } from "./fsKopfLogik.js";
+import { FS_ERG, FS_NEU } from "./fsErgaenzungen.js";
 
 export const FS_BEREICHE = [
   { id: "analysis", name: "Analysis", zeile: "Ableiten, Integrieren, Kurvendiskussion", bild: "kurve" },
@@ -26,7 +27,15 @@ export const FS_BEREICHE = [
 /* Alte Kennungen von Bereichen (Deep-Links, gespeicherte Zustände) */
 export const FS_BEREICH_ALIAS = { trigonometrie: "geometrie" };
 
-const mit = (bereich, liste) => liste.map((e) => ({ bereich, ...e }));
+/* Ergänzungen (fsErgaenzungen.js): weitere Beweise, Verknüpfungen, Beispiele – ohne die Grunddaten umzuschreiben */
+const erg = (e) => {
+  const z = FS_ERG[e.id];
+  if (!z) return e;
+  const her = [...(Array.isArray(e.her) ? e.her : e.her ? [e.her] : []), ...(z.her || [])];
+  return { ...e, ...(z.bild ? { bild: z.bild } : {}), her, nutzt: [...(e.nutzt || []), ...(z.nutzt || [])],
+    bsp: [...(e.bsp || []), ...(z.bsp || [])], ...(z.falle ? { falle: e.falle ? e.falle : z.falle } : {}) };
+};
+const mit = (bereich, liste) => liste.map((e) => ({ bereich, ...erg(e) }));
 
 export const FS_ALLE = [
   ...mit("analysis", FS_ANALYSIS),
@@ -37,6 +46,7 @@ export const FS_ALLE = [
   ...mit("terme", FS_TERME),
   ...mit("kopfrechnen", FS_KOPF),
   ...mit("logik", FS_LOGIK),
+  ...FS_NEU.map((e) => ({ ...erg(e) })),
 ];
 
 export const FS_NACH_ID = Object.fromEntries(FS_ALLE.map((e) => [e.id, e]));
