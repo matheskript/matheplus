@@ -17,7 +17,7 @@ import { MatheFeld } from "./matheTastatur.jsx";
 const POLY_RASTER = "clamp(50px, 14vw, 70px) repeat(5, minmax(0, 1fr))";
 const POLY_HOCH = { 4: "⁴", 3: "³", 2: "²", 1: "", 0: "" };
 
-function PolyKnopf({ farbe, onClick, label, children }) {
+export function PolyKnopf({ farbe, onClick, label, children }) {
   return (
     <button type="button" aria-label={label} onClick={onClick}
       style={{ width: "min(34px, 100%)", height: 24, borderRadius: 7, border: `1.5px solid ${farbe}66`, background: `${farbe}14`,

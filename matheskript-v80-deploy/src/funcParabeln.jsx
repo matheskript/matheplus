@@ -1,6 +1,7 @@
 /* ============================================================
    Analysis: Parabeln – alles über f(x) = ax² + bx + c
-   · Scheitelpunkt  – Parabel einstellen, Normalform ↔ Scheitelform, Rechenweg
+   · Scheitelpunkt  – Parabel einstellen (wahlweise als Koeffizienten a, b, c oder in Scheitelform
+                      a(x − xₛ)² + yₛ), Normalform ↔ Scheitelform, Rechenweg
    · Scheitelform   – Übung in beide Richtungen mit gezielten Denkfehler-Rückmeldungen
    · Nullstellen    – Mitternachtsformel oder Satz von Vieta (umschaltbar)
    · Brennpunkt     – Formel, Strahl vom Brennpunkt, Tangente und Normale,
@@ -12,15 +13,15 @@
    ============================================================ */
 
 import React, { useId, useMemo, useState } from "react";
-import { C } from "./base1.jsx";
-import { M } from "./func3.jsx";
+import { C, KOEFF_FARBEN } from "./base1.jsx";
+import { M, PolyKnopf } from "./func3.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
 import { Auswahl, GrosserKnopf, Rueck, Stufe, hilfeKontext, hinweis, karte, kicker, zw } from "./ui2.jsx";
 import { Aufklapp, ModusLeiste, Seite, SchrittFolge, minusZ, zt } from "./ui3.jsx";
 import { q, qAdd, qDiv, qGleich, qMul, qNeg, qNull, qNum, qSub, qTex, qText } from "./rechnen2.js";
 import {
   FENSTER, ausScheitel, brennpunkt, f as fVon, maxS, normalTex, nullstellen, parabel, scheitelTex,
-  zufallParabel, zufallScheitelAufgabe, zufallVieta,
+  scheitelOK, zufallParabel, zufallScheitelAufgabe, zufallVieta,
 } from "./parabel.js";
 
 const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
@@ -152,8 +153,54 @@ const Text = ({ children }) => <p style={{ fontSize: 14, lineHeight: 1.65, color
 /* ============================================================
    1  Scheitelpunkt
    ============================================================ */
-const A_WAHL = [["-2", "−2"], ["-1", "−1"], ["-1/2", "−½"], ["1/2", "½"], ["1", "1"], ["2", "2"]];
+const A_STUFEN = ["-3", "-2", "-1", "-1/2", "1/2", "1", "2", "3"];       // a ≠ 0, Schrittfolge der Plus/Minus-Knöpfe
+const A_ANZEIGE = { "-1/2": "−½", "1/2": "½" };
+const aAnzeige = (id) => A_ANZEIGE[id] || id.replace("-", "−");
 const aVon = (id) => { const [z, n] = id.split("/"); return q(+z, n ? +n : 1); };
+const vorzeichenZahl = (n) => (n > 0 ? `+${n}` : String(n).replace("-", "−"));
+
+/* ---------- Eingabe-Kopf: derselbe Aufbau wie beim Polynomplotter ----------
+   Oben die Plus/Minus-Knöpfe in farbigen Spalten, darunter die allgemeine Form im grauen Kasten,
+   darunter die eingesetzte Funktion – jeder Knopf steht genau über seinem Term. */
+const PARAM_RASTER = "clamp(50px, 14vw, 70px) repeat(3, minmax(0, 1fr))";
+const PARAM_FARBE = { a: KOEFF_FARBEN.a, b: KOEFF_FARBEN.b, c: KOEFF_FARBEN.c, xs: KOEFF_FARBEN.b, ys: KOEFF_FARBEN.c };
+const Buchstabe = ({ k }) => (k === "xs" || k === "ys"
+  ? <>{k[0]}<sub style={{ fontSize: "0.68em", lineHeight: 0 }}>s</sub></>
+  : <>{k}</>);
+const Bu = ({ k }) => <span style={{ color: PARAM_FARBE[k] }}><Buchstabe k={k} /></span>;
+const Term = ({ k, vor, text }) => (
+  <><span>{vor}</span>{vor ? " " : ""}<span style={{ color: PARAM_FARBE[k] }}>{text}</span></>
+);
+
+function ParamKopf({ spalten, formKopf, formWert }) {
+  const raster = { display: "grid", gridTemplateColumns: PARAM_RASTER, columnGap: 4, alignItems: "center" };
+  const label = (t, stil) => <span style={{ textAlign: "right", paddingRight: 6, whiteSpace: "nowrap", ...stil }}>{t}</span>;
+  const zelle = (n, i) => <span key={i} style={{ textAlign: "center", whiteSpace: "nowrap" }}>{n}</span>;
+  return (
+    <div style={{ minWidth: 0 }}>
+      <div style={{ ...raster, alignItems: "start", marginBottom: 8 }}>
+        <span />
+        {spalten.map((s) => (
+          <div key={s.k} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, minWidth: 0 }}>
+            <span style={{ fontSize: 13, fontWeight: 800, color: PARAM_FARBE[s.k] }}><Buchstabe k={s.k} /></span>
+            <span style={{ fontSize: 15, fontWeight: 800, color: PARAM_FARBE[s.k], fontVariantNumeric: "tabular-nums", minHeight: 20 }}>{s.wert}</span>
+            <PolyKnopf farbe={PARAM_FARBE[s.k]} label={`${s.k} +`} onClick={s.plus}>+</PolyKnopf>
+            <PolyKnopf farbe={PARAM_FARBE[s.k]} label={`${s.k} −`} onClick={s.minus}>−</PolyKnopf>
+          </div>
+        ))}
+      </div>
+      <div style={{ ...raster, background: "#EEF1F5", border: `1px solid ${C.linie}`, borderRadius: 10, padding: "5px 0",
+        fontSize: "clamp(11px, 3.2vw, 15px)", fontWeight: 800, color: C.tinte, marginBottom: 6 }}>
+        {label("f(x) =")}
+        {formKopf.map(zelle)}
+      </div>
+      <div style={{ ...raster, fontSize: "clamp(13px, 4.1vw, 21px)", fontWeight: 800, color: C.tinte, fontVariantNumeric: "tabular-nums", padding: "3px 0" }}>
+        {label("f(x) =")}
+        {formWert.map(zelle)}
+      </div>
+    </div>
+  );
+}
 
 function Rechenweg({ p }) {
   const { a, b, c, d, e } = p;
@@ -165,46 +212,120 @@ function Rechenweg({ p }) {
   return (
     <>
       <Text><b>{zw("Weg 1 – Formeln", "Way 1 – formulas")}</b></Text>
-      <Formel t={`d = −\\frac{b}{2a} = −\\frac{${qTex(b)}}{2 \\cdot ${kl(a)}} = ${qTex(d)}`} />
-      <Formel t={`e = f(d) = f(${qTex(d)}) = ${qTex(e)}`} />
+      <Formel t={`x_s = −\\frac{b}{2a} = −\\frac{${qTex(b)}}{2 \\cdot ${kl(a)}} = ${qTex(d)}`} />
+      <Formel t={`y_s = f(x_s) = f(${qTex(d)}) = ${qTex(e)}`} />
       <Text><b>{zw("Weg 2 – quadratische Ergänzung", "Way 2 – completing the square")}</b></Text>
       <Formel t={`f(x) = ${normalTex(p)}`} />
       {!eins && <Formel t={`= ${pre(a)}\\left(x^2 ${vz(pA)} ${qTex(betrag(pA))}x\\right)${cRest}`} />}
       <Formel t={`= ${pre(a)}\\left(\\left(${klam}\\right)^2 − ${qTex(quad)}\\right)${cRest}`} />
       <Formel t={`= ${pre(a)}\\left(${klam}\\right)^2 ${vz(e)} ${qTex(betrag(e))}`} />
-      <Text>{zw("Die Zahl in der Klammer hat das umgekehrte Vorzeichen von d – darum ist der Scheitel", "The number in the bracket has the opposite sign of d – so the vertex is")} <b>S({qt(d)} | {qt(e)})</b>.</Text>
+      <Text>{zw("Die Zahl in der Klammer hat das umgekehrte Vorzeichen von", "The number in the bracket has the opposite sign of")} <M t="x_s" /> {zw("– darum ist der Scheitel", "– so the vertex is")} <b>S({qt(d)} | {qt(e)})</b>.</Text>
     </>
   );
 }
 
+/* Zufallsparabel für die Koeffizienten-Eingabe: b, c im Bereich der Knöpfe (−10 … 10), Scheitel im Bild. */
+function zufallKoeff() {
+  for (let v = 0; v < 4000; v++) {
+    const id = wahl(["-3", "-2", "-1", "-1/2", "1/2", "1", "2", "3"]);
+    const bb = rnd(-10, 10), cc = rnd(-10, 10);
+    if (bb === 0 && cc === 0) continue;
+    if (!scheitelOK(parabel(aVon(id), bb, cc))) continue;
+    return { id, b: bb, c: cc };
+  }
+  return { id: "1", b: -4, c: 1 };
+}
+
 function ScheitelErkunden() {
+  const [eingabe, setEingabe] = useState("koeff");            // "koeff" = ax² + bx + c, "scheitel" = a(x − xₛ)² + yₛ
   const [aId, setAId] = useState("1");
-  const [d, setD] = useState(2);
-  const [e, setE] = useState(-3);
+  const [b, setB] = useState(-4);
+  const [c, setC] = useState(1);
+  const [xs, setXs] = useState(2);
+  const [ys, setYs] = useState(-3);
+  const koeff = eingabe === "koeff";
   const a = aVon(aId);
-  const p = useMemo(() => ausScheitel(a, d, e), [aId, d, e]);
-  const zufall = () => { setAId(wahl(A_WAHL)[0]); setD(rnd(-5, 5)); setE(rnd(-5, 5)); };
+  const aZahl = qNum(a);
+  const p = useMemo(() => (koeff ? parabel(a, b, c) : ausScheitel(a, xs, ys)), [koeff, aId, b, c, xs, ys]);
+  const dN = qNum(p.d), eN = qNum(p.e);
+  const ausserhalb = Math.abs(dN) > FENSTER + 1e-9 || Math.abs(eN) > FENSTER + 1e-9;
+
+  /* Beim Umschalten dieselbe Parabel mitnehmen – wenn sie in der anderen Eingabe darstellbar ist. */
+  const wechseln = (neu) => {
+    if (neu === eingabe) return;
+    if (neu === "koeff") {
+      const bb = -2 * aZahl * xs, cc = aZahl * xs * xs + ys;
+      if (Number.isInteger(bb) && Number.isInteger(cc) && Math.abs(bb) <= 10 && Math.abs(cc) <= 10) { setB(bb); setC(cc); }
+    } else if (Number.isInteger(dN) && Number.isInteger(eN) && Math.abs(dN) <= 5 && Math.abs(eN) <= 5) {
+      setXs(dN); setYs(eN);
+    }
+    setEingabe(neu);
+  };
+  const aSchritt = (r) => setAId(A_STUFEN[Math.max(0, Math.min(A_STUFEN.length - 1, A_STUFEN.indexOf(aId) + r))]);
+  const zufall = () => {
+    if (koeff) { const z = zufallKoeff(); setAId(z.id); setB(z.b); setC(z.c); }
+    else { setAId(wahl(A_STUFEN)); setXs(rnd(-5, 5)); setYs(rnd(-5, 5)); }
+  };
+
+  /* Anzeige der eingesetzten Terme – leere Terme (Koeffizient 0) bleiben leer, wie im Polynomplotter */
+  const aBetrag = aAnzeige(aId).replace("−", "");
+  const aVor = aZahl < 0 ? "−" : "";
+  const vorz = (n) => (n < 0 ? "−" : "+");
+  const aSpalte = { k: "a", wert: aZahl > 0 ? `+${aAnzeige(aId)}` : aAnzeige(aId), plus: () => aSchritt(1), minus: () => aSchritt(-1) };
+  const spalten = koeff ? [
+    aSpalte,
+    { k: "b", wert: vorzeichenZahl(b), plus: () => setB(Math.min(10, b + 1)), minus: () => setB(Math.max(-10, b - 1)) },
+    { k: "c", wert: vorzeichenZahl(c), plus: () => setC(Math.min(10, c + 1)), minus: () => setC(Math.max(-10, c - 1)) },
+  ] : [
+    aSpalte,
+    { k: "xs", wert: vorzeichenZahl(xs), plus: () => setXs(Math.min(5, xs + 1)), minus: () => setXs(Math.max(-5, xs - 1)) },
+    { k: "ys", wert: vorzeichenZahl(ys), plus: () => setYs(Math.min(5, ys + 1)), minus: () => setYs(Math.max(-5, ys - 1)) },
+  ];
+  const formKopf = koeff
+    ? [<><Bu k="a" />·x²</>, <>+ <Bu k="b" />·x</>, <>+ <Bu k="c" /></>]
+    : [<><Bu k="a" />·</>, <>(x − <Bu k="xs" />)²</>, <>+ <Bu k="ys" /></>];
+  const formWert = koeff
+    ? [
+      <Term k="a" vor={aVor} text={`${aBetrag === "1" ? "" : aBetrag}x²`} />,
+      b === 0 ? null : <Term k="b" vor={vorz(b)} text={`${Math.abs(b) === 1 ? "" : Math.abs(b)}x`} />,
+      c === 0 ? null : <Term k="c" vor={vorz(c)} text={String(Math.abs(c))} />,
+    ]
+    : [
+      aBetrag === "1" ? (aVor ? <Term k="a" vor={aVor} text="" /> : null) : <Term k="a" vor={aVor} text={`${aBetrag}·`} />,
+      <Term k="xs" vor="" text={xs === 0 ? "x²" : `(x ${xs < 0 ? "+" : "−"} ${Math.abs(xs)})²`} />,
+      ys === 0 ? null : <Term k="ys" vor={vorz(ys)} text={String(Math.abs(ys))} />,
+    ];
+
+  const scheitelName = `S(${qt(p.d)}|${qt(p.e)})`;
   return (
     <>
       <div style={karte}>
         <p style={kicker}>{zw("Stelle die Parabel ein", "Set up the parabola")}</p>
-        <Text>{zw("Mit a drehst du die Öffnung und stauchst oder streckst, d schiebt nach rechts, e nach oben. Der Scheitel bleibt immer zwischen −5 und 5.", "a flips the opening and stretches or squashes, d shifts to the right, e upwards. The vertex always stays between −5 and 5.")}</Text>
-        <div style={{ margin: "8px 0 12px" }}><Auswahl optionen={A_WAHL} wert={aId} setWert={setAId} label="a" /></div>
-        <div style={{ display: "flex", gap: 22, flexWrap: "wrap", alignItems: "center" }}>
-          <Stufe wert={d} setWert={setD} min={-5} max={5} label="d" text="d" />
-          <Stufe wert={e} setWert={setE} min={-5} max={5} label="e" text="e" />
+        <div style={{ margin: "4px 0 12px" }}>
+          <Auswahl optionen={[["koeff", zw("Koeffizienten", "Coefficients")], ["scheitel", zw("Scheitelform", "Vertex form")]]}
+            wert={eingabe} setWert={wechseln} label={zw("Eingabe der Parabel", "Input of the parabola")} />
+        </div>
+        {koeff
+          ? <Text>{zw("Mit a drehst du die Öffnung und stauchst oder streckst, b und c verschieben die Parabel – c ist der y-Achsenabschnitt.", "a flips the opening and stretches or squashes; b and c move the parabola – c is the y-intercept.")}</Text>
+          : <Text>{zw("Mit a drehst du die Öffnung und stauchst oder streckst, ", "a flips the opening and stretches or squashes, ")}<Buchstabe k="xs" />{zw(" schiebt nach rechts, ", " shifts to the right, ")}<Buchstabe k="ys" />{zw(" nach oben. Der Scheitel bleibt immer zwischen −5 und 5.", " upwards. The vertex always stays between −5 and 5.")}</Text>}
+        <div style={{ margin: "10px 0 4px" }}>
+          <ParamKopf spalten={spalten} formKopf={formKopf} formWert={formWert} />
         </div>
         <GrosserKnopf ghost onClick={zufall}>🎲 {zw("Zufällige Parabel", "Random parabola")}</GrosserKnopf>
       </div>
 
       <div style={{ ...karte, marginTop: 12 }}>
-        <ParabelBild kurven={[{ f: fVon(p), farbe: C.see }]} senkrechte={[{ x: d }]}
-          punkte={[{ x: d, y: e, farbe: C.flaggold, name: `S(${d}|${e})`.replace(/-/g, "−"), unten: qNum(a) < 0 ? false : true }]}
-          legende={[[C.see, "f"], [C.hellgrau, zw("Symmetrieachse", "axis of symmetry"), true], [C.flaggold, zw("Scheitelpunkt", "vertex"), false, true]]} />
+        {ausserhalb && <Rueck art="info">{zw("Der Scheitel liegt außerhalb des Bildausschnitts (−10 bis 10) – das Schaubild zeigt nur einen Teil der Parabel.", "The vertex lies outside the graph window (−10 to 10) – the graph shows only part of the parabola.")}</Rueck>}
+        <div style={{ marginTop: ausserhalb ? 12 : 0 }}>
+          <ParabelBild kurven={[{ f: fVon(p), farbe: C.see }]} senkrechte={[{ x: dN }]}
+            punkte={[{ x: dN, y: eN, farbe: C.flaggold, name: scheitelName, unten: aZahl < 0 ? false : true }]}
+            legende={[[C.see, "f"], [C.hellgrau, zw("Symmetrieachse", "axis of symmetry"), true], [C.flaggold, zw("Scheitelpunkt", "vertex"), false, true]]} />
+        </div>
         <div style={{ marginTop: 12 }}>
-          <Formel gross t={`f(x) = ${scheitelTex(a, d, e)}`} />
-          <Formel gross t={`f(x) = ${normalTex(p)}`} />
-          <Text>{zw("Scheitelpunkt", "Vertex")} <b>S({minusZ(d)} | {minusZ(e)})</b> · {qNum(a) > 0 ? zw("nach oben geöffnet (a > 0): Tiefpunkt", "opens upwards (a > 0): minimum") : zw("nach unten geöffnet (a < 0): Hochpunkt", "opens downwards (a < 0): maximum")}</Text>
+          {koeff
+            ? <><Formel gross t={`f(x) = ${normalTex(p)}`} /><Formel gross t={`f(x) = ${scheitelTex(a, p.d, p.e)}`} /></>
+            : <><Formel gross t={`f(x) = ${scheitelTex(a, p.d, p.e)}`} /><Formel gross t={`f(x) = ${normalTex(p)}`} /></>}
+          <Text>{zw("Scheitelpunkt", "Vertex")} <b>S({qt(p.d)} | {qt(p.e)})</b> · {aZahl > 0 ? zw("nach oben geöffnet (a > 0): Tiefpunkt", "opens upwards (a > 0): minimum") : zw("nach unten geöffnet (a < 0): Hochpunkt", "opens downwards (a < 0): maximum")}</Text>
         </div>
         <Aufklapp titel={zw("Von der Normalform zum Scheitelpunkt – so rechnest du", "From normal form to the vertex – how to calculate it")}>
           <Rechenweg p={p} />
