@@ -171,7 +171,7 @@ function MeinTrainingKachelStart({ gehe }) {
 }
 
 /* Grafik für die Schulmathematik-Kachel: vier Mini-Motive (Kurve, Vektor, Säulen, Video). */
-function SchulmatheLogoKlein() {
+export function SchulmatheLogoKlein() {
   const W = 230, H = 190;
   const feld = (x, y, inhalt) => (
     <g transform={`translate(${x} ${y})`}>
@@ -239,7 +239,7 @@ function SchulkurseLogoKlein() {
 
 /* Grafik für die „Mathe-Mindset-Kurs“-Kachel: Gehirn in Seitenansicht (Stirn links), ganz aus schlichten Blüten gelegt.
    Bleibt oberhalb von y≈135 (unten liegt der goldene Balken). */
-function ElternkursLogoKlein() {
+export function ElternkursLogoKlein() {
   const W = 230, H = 190;
   const hell = "#9DB9E3";
   // Blüten [x, y, Radius, Blütenfarbe, Mittelpunkt]: dicht gelegt, damit die Hirn-Silhouette (Kuppel, Schläfenlappen, Kleinhirn) lesbar bleibt
@@ -276,7 +276,7 @@ function ElternkursLogoKlein() {
 }
 
 /* Grafik für die „Mathilda AI“-Kachel: Blatt mit handschriftlicher Rechnung im Kamera-Sucher, Häkchen. */
-function MathildaLogoKlein() {
+export function MathildaLogoKlein() {
   const W = 230, H = 190;
   const ecke = (x, y, dx, dy) => <path d={`M ${x} ${y + dy * 18} L ${x} ${y} L ${x + dx * 18} ${y}`} stroke={C.flaggold} strokeWidth="4" fill="none" strokeLinecap="round" />;
   return (

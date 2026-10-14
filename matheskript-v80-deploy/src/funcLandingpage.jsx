@@ -6,6 +6,14 @@ import { M } from "./func3.jsx";
 import { ELTERNABEND } from "./funcElternabend.jsx";
 import { PerformanceLab } from "./funcPerformanceLab.jsx";
 import { MathildaName } from "./mathildaName.jsx";
+import { PenPaperBlatt } from "./func1.jsx";
+import { ElternkursLogoKlein, MathildaLogoKlein, SchulmatheLogoKlein } from "./func2.jsx";
+import { AdvancedLogoKlein } from "./func12.jsx";
+import { VektorenLogoKlein } from "./func16.jsx";
+import { StochastikLogoKlein } from "./func17.jsx";
+import { EbbinghausLogoKlein } from "./funcEbbinghaus.jsx";
+import { GleichungenLogoKlein } from "./funcGleichungen.jsx";
+import { HeadNumbersLogoKlein } from "./funcHeadNumbersLogo.jsx";
 
 /* ======================================================================
    LANDINGPAGE  (Adresse: #landingpage) – offen erreichbar, ohne Passwort.
@@ -19,7 +27,7 @@ import { MathildaName } from "./mathildaName.jsx";
      1. Kopf          – Versprechen, Rechenweg, zwei Handlungen
      2. Problem       – „Kennst du das?“
      3. Geschichte    – Note 2 → anderer Weg ab Klasse 8 → 1,0 ab Klasse 10 (echte Zeitleiste)
-     4. System        – die Stellschrauben = die Methoden der App, jeweils direkt verlinkt
+     4. System        – sechs Stellschrauben = die Methoden der App, als Kacheln mit den App-Logos, direkt verlinkt
      5. MathildaAI    – Rechenweg prüfen, Fehlermuster, Performance-Lab (aufklappbar)
      6. Werkzeuge     – kompaktes Inhaltsverzeichnis, verlinkt in die App
      6b. Stimmen      – Rückmeldungen (STIMMEN); Platzhalter sichtbar als „Beispiel“ markiert
@@ -135,12 +143,24 @@ const CSS = `
   .lp-punkt { top: 0; }
 }
 
-/* System */
-.lp-methoden { display: grid; grid-template-columns: minmax(0, 1fr); border-top: 1px solid ${F.linie}; margin-top: 48px; }
-@media (min-width: 900px) { .lp-methoden { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 64px; } }
-.lp-methode { display: grid; grid-template-columns: 60px minmax(0, 1fr); gap: 20px; padding: 30px 0; border-bottom: 1px solid ${F.linie}; align-items: start; }
-.lp-zeichen { width: 60px; height: 60px; border-radius: 16px; background: ${F.weiss}; border: 1px solid ${F.linie}; display: flex; align-items: center; justify-content: center;
-  font-weight: 800; font-size: 20px; color: ${F.see}; letter-spacing: -0.03em; }
+/* System: Kacheln mit den Logos der App */
+.lp-methoden { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; margin-top: 48px; }
+@media (min-width: 700px) { .lp-methoden { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; } }
+@media (min-width: 1040px) { .lp-methoden { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.lp-methode { display: flex; flex-direction: column; background: ${F.weiss}; border: 1px solid ${F.linie}; border-radius: 22px; overflow: hidden; }
+.lp-methode-bild { position: relative; height: 168px; padding: 10px 18px; background: radial-gradient(120% 120% at 80% 0%, #17306E 0%, ${F.nacht} 60%, ${F.nachtTief} 100%); }
+.lp-methode-text { padding: 22px 24px 24px; display: flex; flex-direction: column; flex: 1; }
+.lp-methode-text .lp-link { margin-top: auto; padding-top: 14px; align-self: flex-start; }
+/* Smartphone: Wisch-Karussell statt langer Liste (Kachel voll sichtbar, nächste schaut hervor) */
+@media (max-width: 699px) {
+  .lp-wisch { display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; margin-left: -24px; margin-right: -24px;
+    padding: 0 24px 10px; scroll-padding-left: 24px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .lp-wisch::-webkit-scrollbar { display: none; }
+  .lp-wisch > * { flex: 0 0 82%; scroll-snap-align: start; }
+  .lp-methode-bild { height: 150px; }
+}
+.lp-wisch-hinweis { display: none; }
+@media (max-width: 699px) { .lp-wisch-hinweis { display: block; margin-top: 14px; font-size: 13.5px; color: ${F.still}; } }
 
 /* MathildaAI */
 .lp-schritte { list-style: none; counter-reset: s; padding: 0; margin-top: 32px; display: grid; gap: 18px; }
@@ -158,6 +178,8 @@ const CSS = `
 .lp-werkzeuge { display: grid; grid-template-columns: minmax(0, 1fr); gap: 40px; margin-top: 48px; }
 @media (min-width: 640px) { .lp-werkzeuge { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (min-width: 1000px) { .lp-werkzeuge { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px; } }
+.lp-bereich-bild { height: 124px; border-radius: 16px; padding: 8px 14px; margin-bottom: 18px; background: radial-gradient(120% 120% at 80% 0%, #17306E 0%, ${F.nacht} 60%, ${F.nachtTief} 100%); }
+@media (max-width: 560px) { .lp-bereich-bild { height: 92px; padding: 6px 8px; margin-bottom: 12px; } }
 .lp-bereich h3 { font-size: 15px; font-weight: 800; color: ${F.tinte}; padding-bottom: 12px; border-bottom: 2px solid ${F.nacht}; margin-bottom: 2px; }
 .lp-werkzeug { display: block; width: 100%; text-align: left; background: none; border: none; border-bottom: 1px solid ${F.linie}; padding: 14px 0; cursor: pointer; font-family: inherit; }
 .lp-werkzeug b { display: block; font-size: 15.5px; font-weight: 700; color: ${F.tinte}; }
@@ -195,7 +217,7 @@ const CSS = `
 }
 
 /* Stimmen */
-.lp-stimmen { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; margin-top: 48px; }
+.lp-stimmen { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; margin-top: 40px; }
 @media (min-width: 900px) { .lp-stimmen { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; } }
 .lp-stimme { position: relative; display: flex; flex-direction: column; margin: 0; background: ${F.weiss}; border: 1px solid ${F.linie}; border-radius: 24px; padding: 32px 28px 28px; }
 .lp-stimme blockquote { margin: 0; font-size: 18px; font-weight: 500; line-height: 1.6; letter-spacing: -0.005em; color: ${F.tinte}; }
@@ -218,32 +240,32 @@ const CSS = `
 
 /* ---------------------------------------------------------------- Inhalte */
 const METHODEN = [
-  { zeichen: "Ich", name: "Mathe-Mindset", text: "Der Satz „Ich bin einfach nicht der Mathe-Typ“ ist der erste Mythos, der fällt. Sechs Vorträge und ein Buch zeigen, wie Lernen wirklich funktioniert.", ziel: { ansicht: "elternkurs" }, knopf: "Mindset-Kurs öffnen" },
-  { zeichen: "✎", name: "Pen & Paper", text: "Sauber aufschreiben, strukturiert rechnen, Fehler selbst finden. Wer ordentlich arbeitet, verliert keine Punkte mehr an Kleinigkeiten.", ziel: { ansicht: "penpaperkurs" }, knopf: "Pen & Paper öffnen" },
-  { zeichen: "7·8", name: "Head & Numbers", text: "Einmaleins, Quadrat- und Kubikzahlen, die sitzen. Sicheres Kopfrechnen macht jede Aufgabe schneller und entspannter.", ziel: { ansicht: "headnumbers" }, knopf: "Kopfrechnen trainieren" },
-  { zeichen: "∿", name: "Ebbinghaus", text: "Wiederholen im richtigen Abstand, damit das Thema vom letzten Jahr nicht wieder weg ist, wenn es im Abi zurückkommt.", ziel: { ansicht: "ebbinghaus" }, knopf: "Wiederholen starten" },
-  { zeichen: "AI", name: "MathildaAI", text: "Fotografiere dein Blatt. Mathilda liest deinen Rechenweg und zeigt dir die Stelle, an der er bricht.", ziel: { ansicht: "analyse", foto: "blatt" }, knopf: "Blatt prüfen lassen" },
-  { zeichen: "f′", name: "Schulmathe-Training", text: "Formelsammlung, interaktive Werkzeuge und Trainer für Analysis, Vektoren und Stochastik – zum Üben und Nachschlagen.", ziel: { ansicht: "start" }, knopf: "Zu den Werkzeugen" },
+  { logo: ElternkursLogoKlein, name: "Mathe-Mindset", text: "Der Satz „Ich bin kein Mathe-Typ“ ist der erste Mythos, der fällt. Sechs Vorträge und ein Buch zeigen, wie Lernen wirklich funktioniert.", ziel: { ansicht: "elternkurs" }, knopf: "Mindset-Kurs öffnen" },
+  { logo: PenPaperBlatt, name: "Pen & Paper", text: "Sauber aufschreiben, strukturiert rechnen, Fehler selbst finden. Wer klar schreibt, denkt klarer – und verschenkt keine Punkte mehr an Kleinigkeiten.", ziel: { ansicht: "penpaperkurs" }, knopf: "Pen & Paper öffnen" },
+  { logo: HeadNumbersLogoKlein, name: "Head & Numbers", text: "Einmaleins, Quadrat- und Kubikzahlen, die sitzen. Sicheres Kopfrechnen macht jede Aufgabe schneller und den Kopf frei für das Wesentliche.", ziel: { ansicht: "headnumbers" }, knopf: "Kopfrechnen trainieren" },
+  { logo: EbbinghausLogoKlein, name: "Ebbinghaus", text: "Wiederholen im richtigen Abstand. So ist das Thema vom letzten Jahr noch da, wenn es im Abi zurückkommt.", ziel: { ansicht: "ebbinghaus" }, knopf: "Wiederholen starten" },
+  { logo: MathildaLogoKlein, name: "MathildaAI", text: "Fotografiere dein Blatt. Mathilda liest deinen Rechenweg und zeigt dir genau die Stelle, an der er bricht.", ziel: { ansicht: "analyse", foto: "blatt" }, knopf: "Blatt prüfen lassen" },
+  { logo: SchulmatheLogoKlein, name: "Schulmathe-Training", text: "Interaktive Werkzeuge, Trainer und Formelsammlung für Analysis, Vektoren und Stochastik – von der Mittelstufe bis zum Abi.", ziel: { ansicht: "start" }, knopf: "Zum Training" },
 ];
 
 const WERKZEUGE = [
-  { bereich: "Analysis", liste: [
+  { bereich: "Analysis", logo: AdvancedLogoKlein, liste: [
     ["Polynome", "Kurvendiskussion bis Grad 4", { ansicht: "plotter" }],
     ["Beliebige Funktionen", "Mit sin, ln, eˣ und Brüchen", { ansicht: "advplotter" }],
     ["Steckbriefaufgaben", "Aus Eigenschaften die Funktion", { ansicht: "steckbrief" }],
     ["Ableitungstrainer", "f′, f″ und f‴ prüfen", { ansicht: "ableitungstrainer" }],
   ] },
-  { bereich: "Vektoren", liste: [
+  { bereich: "Vektoren", logo: VektorenLogoKlein, liste: [
     ["Ebenen-Visualizer", "Ebenen live im Raum drehen", { ansicht: "ebenen" }],
     ["Abstände", "Punkt, Gerade, Ebene", { ansicht: "abstaende" }],
     ["Kreuzprodukt", "Formel, eingesetzt, Ergebnis", { ansicht: "kreuzprodukt" }],
   ] },
-  { bereich: "Stochastik", liste: [
+  { bereich: "Stochastik", logo: StochastikLogoKlein, liste: [
     ["Bernoulli-Kette", "Binomialverteilung simulieren", { ansicht: "bernoulli" }],
     ["Vier-Felder-Tafel", "Mit Baumdiagramm", { ansicht: "vierfelder" }],
     ["Hypothesentests", "Fehler 1. und 2. Art", { ansicht: "hypothesentest" }],
   ] },
-  { bereich: "Grundlagen", liste: [
+  { bereich: "Grundlagen", logo: GleichungenLogoKlein, liste: [
     ["Gleichungen lösen", "Du formst um, die App rechnet mit", { ansicht: "gleichungen" }],
     ["Terme und Potenzgesetze", "Vereinfachen, ausklammern, kürzen", { ansicht: "terme" }],
     ["Gleichungssysteme", "Mit drei Variablen", { ansicht: "lgs" }],
@@ -276,6 +298,7 @@ const STIMMEN = [
 const FRAGEN = [
   ["Für wen ist Mythos Mathe?", "Für Schüler am Gymnasium von Klasse 8 bis zum Abitur, mit Schwerpunkt auf der Oberstufe. Das Coaching findet in Konstanz und am Bodensee statt, die Werkzeuge funktionieren überall im Browser."],
   ["Brauche ich Talent für Mathe?", "Nein. Genau das ist der Mythos, um den es hier geht. Gute Mathenoten entstehen aus Methode, Wiederholung im richtigen Abstand und einer Haltung, die Fehler als Information sieht – nicht aus einer Begabung, die man hat oder nicht hat."],
+  ["Ist das Nachhilfe?", "Nicht im klassischen Sinn. Nachhilfe erklärt den Stoff der nächsten Klausur. Mythos Mathe verändert, wie du lernst – damit du den Stoff danach selbst verstehst und behältst."],
   ["Kann ich die Werkzeuge einfach ausprobieren?", "Ja. Plotter, Trainer und Generatoren öffnen sich direkt im Browser. Für die Foto-Auswertung mit MathildaAI wirst du vor dem ersten Foto um deine Einwilligung gebeten."],
   ["Was passiert im ersten Gespräch?", "Wir schauen gemeinsam, wo du gerade stehst, wo es hakt und welcher Weg zu dir passt – ein Programm, gezieltes Training mit den Werkzeugen oder für deine Eltern erst einmal der Elternabend."],
 ];
@@ -368,8 +391,8 @@ export function Landingpage({ gehe }) {
           <div>
             <h1 className="lp-h1">Mathetalent ist ein Mythos.</h1>
             <p className="lp-lead">
-              Gute Noten in Mathe entstehen aus einem System, das man lernen kann. Ich zeige Gymnasiasten von Klasse 8 bis zum Abitur,
-              wie es geht – mit Methode, mit den richtigen Werkzeugen und mit Freude am Fach.
+              Gute Mathenoten sind weder Zufall noch Begabung. Sie entstehen aus einem System, das jeder lernen kann. Ich zeige
+              Gymnasiasten von Klasse 8 bis zum Abitur, wie es funktioniert – und wie Mathe dabei wieder Spaß macht.
             </p>
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 36 }}>
               <button type="button" className="lp-knopf lp-gold" onClick={gespraech}>Erstgespräch anfragen</button>
@@ -399,7 +422,7 @@ export function Landingpage({ gehe }) {
               <p className="lp-gedanke">„Ich bin halt kein Mathe-Typ.“</p>
             </div>
             <p style={{ marginTop: 32, fontSize: 20, fontWeight: 700, lineHeight: 1.45, letterSpacing: "-0.01em", maxWidth: "28em" }}>
-              Das liegt nicht an dir. Es liegt daran, dass dir niemand gezeigt hat, wie man Mathe lernt.
+              Das liegt nicht an dir. Es liegt daran, dass dir nie jemand gezeigt hat, wie man Mathe lernt.
             </p>
           </div>
         </div>
@@ -420,7 +443,7 @@ export function Landingpage({ gehe }) {
               <span className="lp-punkt" aria-hidden="true" />
               <p className="lp-wann">Klasse 5 bis 7</p>
               <p className="lp-note" style={{ color: F.still }}>2</p>
-              <p className="lp-text" style={{ marginTop: 12 }}>Festgefahren. Mehr Lernen brachte nicht mehr Erfolg.</p>
+              <p className="lp-text" style={{ marginTop: 12 }}>Festgefahren. Mehr lernen brachte nicht mehr Erfolg.</p>
             </li>
             <li>
               <span className="lp-punkt" aria-hidden="true" style={{ borderColor: F.see }} />
@@ -450,21 +473,25 @@ export function Landingpage({ gehe }) {
       <section className="lp-sektion">
         <div className="lp-innen">
           <div style={{ maxWidth: 760 }}>
-            <h2 className="lp-h2">Die Stellschrauben</h2>
-            <p className="lp-text" style={{ marginTop: 20 }}>Jede davon kannst du hier direkt ausprobieren. Zusammen ergeben sie das System.</p>
+            <h2 className="lp-h2">Sechs Stellschrauben. Ein System.</h2>
+            <p className="lp-text" style={{ marginTop: 20 }}>Jede einzelne bringt dich weiter. Zusammen verändern sie, wie du Mathe lernst. Und alle kannst du hier sofort ausprobieren.</p>
           </div>
-          <div className="lp-methoden">
-            {METHODEN.map((m) => (
-              <div key={m.name} className="lp-methode">
-                <span className="lp-zeichen" aria-hidden="true">{m.zeichen}</span>
-                <div>
-                  <h3 className="lp-h3">{m.name === "MathildaAI" ? <MathildaName /> : m.name}</h3>
-                  <p className="lp-text" style={{ marginTop: 6, fontSize: 16 }}>{m.text}</p>
-                  <button type="button" className="lp-link" style={{ marginTop: 10 }} onClick={() => gehe(m.ziel)}>{m.knopf}</button>
+          <div className="lp-methoden lp-wisch">
+            {METHODEN.map((m) => {
+              const Logo = m.logo;
+              return (
+                <div key={m.name} className="lp-methode">
+                  <div className="lp-methode-bild" aria-hidden="true"><Logo /></div>
+                  <div className="lp-methode-text">
+                    <h3 className="lp-h3">{m.name === "MathildaAI" ? <MathildaName /> : m.name}</h3>
+                    <p className="lp-text" style={{ marginTop: 8, fontSize: 15.5, lineHeight: 1.65 }}>{m.text}</p>
+                    <button type="button" className="lp-link" onClick={() => gehe(m.ziel)}>{m.knopf}</button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
+          <p className="lp-wisch-hinweis" aria-hidden="true">Zur Seite wischen für alle sechs</p>
         </div>
       </section>
 
@@ -509,6 +536,7 @@ export function Landingpage({ gehe }) {
           <div className="lp-werkzeuge">
             {WERKZEUGE.map((b) => (
               <div key={b.bereich} className="lp-bereich">
+                <div className="lp-bereich-bild" aria-hidden="true"><b.logo /></div>
                 <h3>{b.bereich}</h3>
                 {b.liste.map(([n, z, ziel]) => (
                   <button key={n} type="button" className="lp-werkzeug" onClick={() => gehe(ziel)}><b>{n}</b><span>{z}</span></button>
@@ -529,7 +557,7 @@ export function Landingpage({ gehe }) {
               <p className="lp-klein" style={{ marginTop: 12 }}>Die mit „Beispiel“ markierten Texte sind Platzhalter und werden durch echte Rückmeldungen ersetzt.</p>
             )}
           </div>
-          <div className="lp-stimmen">
+          <div className="lp-stimmen lp-wisch">
             {STIMMEN.map((x, i) => (
               <figure key={i} className="lp-stimme">
                 {x.beispiel && <span className="lp-beispiel">Beispiel</span>}
@@ -655,7 +683,7 @@ export function Landingpage({ gehe }) {
           <h2 className="lp-h2" style={{ fontSize: "clamp(34px, 5.2vw, 56px)" }}>Das muss nicht so bleiben.</h2>
           <p className="lp-lead" style={{ marginTop: 22, color: F.blauText }}>
             Ohne neuen Weg wird die Lücke größer und der Stress vor jeder Klausur stärker. Mit dem richtigen System wird Mathe
-            zu dem Fach, in dem du wächst. Du musst diesen Weg nicht allein gehen.
+            zu dem Fach, in dem du wächst. Und du musst diesen Weg nicht allein gehen.
           </p>
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center", marginTop: 36 }}>
             <button type="button" className="lp-knopf lp-gold" onClick={gespraech}>Erstgespräch anfragen</button>
