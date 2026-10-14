@@ -634,13 +634,17 @@ export function Schaubild({ a, mS, bS }) {
 
 const minusZ = (n) => String(n).replace("-", "−");
 
-/* Zahl oder gestapelter Bruch (n/d, Vorzeichen im Zähler bzw. roh im Nenner) */
+/* Zahl oder gestapelter Bruch; das Minus steht immer VOR dem Bruch (−2/3 statt (−2)/3) */
 function HZahl({ f, fs = 18 }) {
   if (f.d === 1) return <span>{minusZ(f.n)}</span>;
+  const neg = (f.n < 0) !== (f.d < 0);
   return (
-    <span style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", verticalAlign: "middle", lineHeight: 1.2, fontSize: fs * 0.85, margin: "0 3px" }}>
-      <span style={{ padding: "0 4px", borderBottom: "1.5px solid currentColor" }}>{minusZ(f.n)}</span>
-      <span>{minusZ(f.d)}</span>
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 3, verticalAlign: "middle" }}>
+      {neg && <span>−</span>}
+      <span style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", lineHeight: 1.2, fontSize: fs * 0.85, margin: "0 2px" }}>
+        <span style={{ padding: "0 4px", borderBottom: "1.5px solid currentColor" }}>{Math.abs(f.n)}</span>
+        <span>{Math.abs(f.d)}</span>
+      </span>
     </span>
   );
 }
@@ -754,7 +758,7 @@ function GeradenHilfe({ a }) {
   const mOk = definiert && Math.abs(wert - mR) < 1e-6;
   const ganzZN = definiert && Number.isInteger(z) && Number.isInteger(n);
   const red = ganzZN ? bruch(z, n) : null;
-  const zeigeRoh = ganzZN && (n < 0 || red.n !== z || red.d !== n);
+  const zeigeRoh = ganzZN && (Math.abs(red.n) !== Math.abs(z) || red.d !== Math.abs(n));
 
   React.useEffect(() => { if (mOk) setFrei(true); }, [mOk]);
 
@@ -817,9 +821,9 @@ function GeradenHilfe({ a }) {
         ) : (
           <>
             <div style={zeile}><span>y = m · x + c</span></div>
-            <p style={{ color: C.grau, fontSize: 13, fontWeight: 300, marginTop: 8, marginBottom: 2 }}>
-              m und die Koordinaten von P eingesetzt:
-            </p>
+            <div style={{ ...zeile, fontSize: 16, color: C.grau, fontWeight: 400, marginTop: 6 }}>
+              <span>m =</span><HZahl f={a.m} fs={16} /><span>und P({minusZ(a.x1)} | {minusZ(a.y1)}) eingesetzt:</span>
+            </div>
             <div style={zeile}>
               <span>{minusZ(a.y1)}</span><span>=</span><HKl f={a.m} /><span>·</span><span>{a.x1 < 0 ? `(${minusZ(a.x1)})` : a.x1}</span><span>+ c</span>
             </div>
