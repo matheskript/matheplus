@@ -6866,7 +6866,17 @@
   ". Das Spannende": ". The exciting part",
   "Folgerungen": "Consequences",
   "Gleichungen · Funktionen · Geometrie": "Equations · functions · geometry",
-  "Ableitung · Integral": "Derivative · integral"
+  "Ableitung · Integral": "Derivative · integral",
+  "Punkt und Steigungsdreieck": "Point and slope triangle",
+  "Stimmt – das ist die Steigung m.": "Correct – that is the slope m.",
+  "Das passt noch nicht zur Geraden durch P und Q. Prüfe Vorzeichen und Reihenfolge: y-Wert minus y-Wert, x-Wert minus x-Wert, beide mit demselben Punkt zuerst.": "That doesn't fit the line through P and Q yet. Check signs and order: y-value minus y-value, x-value minus x-value, both starting with the same point.",
+  "Das Steigungsdreieck zeigt: Von P nach Q gehst du Δx nach rechts bzw. links und Δy nach oben bzw. unten.": "The slope triangle shows: from P to Q you go Δx to the right or left and Δy up or down.",
+  "und P(": "and P(",
+  ") eingesetzt:": ") substituted:",
+  "m mal x ausgerechnet:": "m times x worked out:",
+  "m · x vom y abgezogen – c steht allein:": "m · x subtracted from y – c stands alone:",
+  "Trage jetzt m und c unten in die Gleichung ein.": "Now enter m and c in the equation below.",
+  "Weitere Beispiele": "More examples"
  },
  "muster": [
   [
@@ -8492,6 +8502,14 @@
   [
    "Phase {0}: {1}",
    "Phase {0}: {1}"
+  ],
+  [
+   "heißt: {0} nach rechts, {1} nach oben.",
+   "means: {0} to the right, {1} up."
+  ],
+  [
+   "heißt: {0} nach rechts, {1} nach unten.",
+   "means: {0} to the right, {1} down."
   ]
  ]
 }
