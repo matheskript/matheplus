@@ -246,11 +246,21 @@ function WasFehlte({ quelle }) {
 }
 
 /* Link „Prüfungsmodus“ auf den Fachseiten: öffnet den Prüfungsmodus mit den passenden Themen */
-export function PruefungsLink({ ansicht, gehe }) {
+export function PruefungsLink({ ansicht, gehe, klein }) {
   const themen = pruefungsThemen(ansicht);
   if (!themen) return null;
+  const los = () => { try { sessionStorage.setItem("mm-pruefung-themen", JSON.stringify(themen)); } catch (e) { /* egal */ } gehe({ ansicht: "pruefung" }); };
+  if (klein) {
+    return (
+      <button type="button" className="test-knopf-klein" onClick={los} title="Prüfungsmodus zu diesem Thema" aria-label="Prüfungsmodus zu diesem Thema"
+        style={{ height: 34, padding: "0 12px", borderRadius: 999, fontSize: 12.5, fontWeight: 700, fontFamily: "inherit", cursor: "pointer",
+          border: "1.5px solid rgba(255,255,255,0.45)", background: "rgba(255,255,255,0.06)", color: C.silberHell, zIndex: 46 }}>
+        Test
+      </button>
+    );
+  }
   return (
-    <button type="button" onClick={() => { try { sessionStorage.setItem("mm-pruefung-themen", JSON.stringify(themen)); } catch (e) { /* egal */ } gehe({ ansicht: "pruefung" }); }}
+    <button type="button" onClick={los}
       style={{ marginTop: 8, padding: "6px 12px", borderRadius: 999, fontSize: 12.5, fontWeight: 600, fontFamily: "inherit", cursor: "pointer", border: "1px dashed rgba(255,255,255,0.4)", background: "transparent", color: C.silberHell }}>
       Prüfungsmodus zu diesem Thema ▸
     </button>

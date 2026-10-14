@@ -1088,12 +1088,12 @@ const TASTEN = [
   { z: "(", e: "(", art: "op" }, { z: ")", e: ")", art: "op" },
 
   { z: "4", e: "4" }, { z: "5", e: "5" }, { z: "6", e: "6" },
-  { z: "×", e: "*", art: "op" }, { z: "÷", e: "/", art: "op" }, { z: "x", e: "x", art: "var" },
+  { z: "×", e: "*", art: "op" }, { z: "÷", e: "/", art: "op" }, { z: "e", e: "e", art: "var" },
 
   { z: "1", e: "1" }, { z: "2", e: "2" }, { z: "3", e: "3" },
   { z: "−", e: "-", art: "op" }, { z: "▯ⁿ", e: `^(${PLATZ})`, art: "op", titel: "hoch" }, { z: "π", e: "pi", art: "var" },
 
-  { z: "0", e: "0" }, { z: ",", e: "," }, { z: "e", e: "e", art: "var" },
+  { z: "0", e: "0" }, { z: ",", e: "," }, { z: "x", e: "x", art: "var" },
   { z: "+", e: "+", art: "op" }, { z: "▯ →", e: null, art: "nav", aktion: "platz", titel: "nächster Platzhalter", span: 2 },
 ];
 
@@ -1402,7 +1402,7 @@ function AdvPlot({ A, zeigen }) {
             <line key={`a${i}`} x1={0} y1={py(g.wert)} x2={Sx} y2={py(g.wert)} stroke={C.gruen} strokeWidth="1" strokeDasharray="4 4" opacity="0.45" />
           ))}
           {zeigen.f2 && <path d={pfad(A.fss)} stroke={C.granaHell} strokeWidth="1.7" fill="none" strokeDasharray="5 4" opacity="0.75" />}
-          {zeigen.f1 && <path d={pfad(A.fs)} stroke={C.flaggold} strokeWidth="2" fill="none" opacity="0.9" />}
+          {zeigen.f1 && <path d={pfad(A.fs)} stroke={C.ablGrau} strokeWidth="2" fill="none" opacity="0.95" />}
           <path d={pfad(A.f)} stroke={C.see} strokeWidth="2.6" fill="none" strokeLinejoin="round" />
           {A.ns.map((x, i) => <circle key={`n${i}`} cx={px(x)} cy={py(0)} r="4.2" fill={C.weiss} stroke={C.see} strokeWidth="2.3" />)}
           {A.ext.map((p, i) => ok(p.y) && <circle key={`e${i}`} cx={px(p.x)} cy={py(p.y)} r="5" fill={C.gruen} />)}
@@ -1447,8 +1447,6 @@ function Diskussion({ inhalt }) {
   );
 }
 
-const FENSTER = [["±5", 5], ["±10", 10], ["±20", 20], ["±2π", 2 * Math.PI]];
-
 /* Vollständige Kurvendiskussion einer beliebigen Funktion als PDF – gemeinsam genutzt vom
    Advanced Plotter und vom Download am Ende der Steckbriefaufgaben. */
 export async function diskussionPdfAusText(text, fenster, untertitel = "Kurvendiskussion · Advanced Plotter") {
@@ -1474,7 +1472,7 @@ export async function diskussionPdfAusText(text, fenster, untertitel = "Kurvendi
 
 export function AdvancedPlotter() {
   const [text, setText] = useState("x*e^(-x)");
-  const [fenster, setFenster] = useState(10);
+  const fenster = 10;
   const [zeigen, setZeigen] = useState({ f1: true, f2: false, integrale: true });
   const [pdfStatus, setPdfStatus] = useState("bereit");
   const baum = useMemo(() => parse(text), [text]);
@@ -1503,15 +1501,7 @@ export function AdvancedPlotter() {
   );
 
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
-      <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
-        Baue deine eigene Funktion
-      </h2>
-      <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 18 }}>
-        Setz Polynome, sin, cos, tan, ln, Logarithmen, e-Funktionen, Wurzeln und Brüche beliebig zusammen —
-        Graph und komplette Kurvendiskussion entstehen live mit.
-      </p>
-
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 22 }}>
       <div style={karte}>
         <Eingabe text={text} setText={setText} />
       </div>
@@ -1519,20 +1509,11 @@ export function AdvancedPlotter() {
       {A && (
         <div style={{ ...karte, marginTop: 16 }}>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>
-            {schalter("f1", "f′", C.flaggold)}
+            {schalter("f1", "f′", C.ablGrau)}
             {schalter("f2", "f″", C.granaHell)}
             {schalter("integrale", "Integrale", C.see)}
           </div>
           <AdvPlot A={A} zeigen={zeigen} />
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
-            <span style={{ fontSize: 12.5, color: C.grau }}>Untersuchungsbereich</span>
-            {FENSTER.map(([n, v]) => (
-              <button key={n} onClick={() => setFenster(v)}
-                style={{ padding: "5px 11px", borderRadius: 999, border: `1px solid ${fenster === v ? C.see : C.linie}`,
-                  background: fenster === v ? C.see : C.weiss, color: fenster === v ? C.weiss : C.see,
-                  fontSize: 12.5, fontFamily: "inherit", cursor: "pointer" }}>{n}</button>
-            ))}
-          </div>
         </div>
       )}
 

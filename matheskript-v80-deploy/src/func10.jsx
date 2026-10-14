@@ -297,7 +297,7 @@ export function Mathilda() {
           );
         })}
       </div>
-      <PruefungsLink ansicht={ansicht} gehe={gehe} />
+      <PruefungsLink ansicht={ansicht} gehe={gehe} klein={ansicht === "plotter" || ansicht === "advplotter"} />
     </>);
   };
 
@@ -309,7 +309,9 @@ export function Mathilda() {
       .held { position: relative; }
       .held:has(.tool-menue-knopf) h1 { padding-right: 46px; }
       .tool-menue-knopf { position: absolute; top: 41px; right: 24px; }
-      @media (max-width:520px){ .tool-menue-knopf { top: 14px; } }
+      .test-knopf-klein { position: absolute; top: 41px; right: 66px; }
+      .held:has(.test-knopf-klein) h1 { padding-right: 112px; }
+      @media (max-width:520px){ .tool-menue-knopf { top: 14px; } .test-knopf-klein { top: 14px; } }
       .kachel:hover { transform: translateY(-2px); }
       .kachel:active { transform: scale(.988); }
       .zeichnen { stroke-dasharray: 560; stroke-dashoffset: 560; animation: malen 1.9s cubic-bezier(.4,0,.2,1) forwards; }
