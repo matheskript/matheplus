@@ -14,7 +14,9 @@
    Keine base-Datei darf diese Datei importieren.
    ============================================================ */
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { uebergabeErledigt, uebergabeLesen } from "./uebergabe.js";
+import { WeiterKnopf, WeiterMit } from "./funcWerkzeuge.jsx";
 import { C } from "./base1.jsx";
 import { PLATZ } from "./base2.jsx";
 import { schoenerSchritt, tiefZiffer, zahl } from "./func2.jsx";
@@ -1472,7 +1474,8 @@ export async function diskussionPdfAusText(text, fenster, untertitel = "Kurvendi
 }
 
 export function AdvancedPlotter() {
-  const [text, setText] = useState("x*e^(-x)");
+  const [text, setText] = useState(() => (uebergabeLesen("advplotter") || {}).text || "x*e^(-x)");
+  useEffect(() => { uebergabeErledigt("advplotter"); }, []);
   const fenster = 10;
   const [zeigen, setZeigen] = useState({ f1: true, f2: false, integrale: true });
   const [pdfStatus, setPdfStatus] = useState("bereit");
@@ -1544,6 +1547,10 @@ export function AdvancedPlotter() {
               Das PDF konnte nicht erstellt werden. Bitte noch einmal versuchen.
             </p>
           )}
+          <WeiterMit titel="Weiter mit dieser Funktion">
+            <WeiterKnopf ziel="ableitungstrainer" von="Kurvendiskussion" daten={{ text }}
+              zeile="f′, f″ und f‴ dieser Funktion selbst bilden und prüfen lassen" />
+          </WeiterMit>
         </div>
       )}
     </div>

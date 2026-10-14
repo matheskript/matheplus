@@ -1,5 +1,7 @@
 import { tr } from "./i18n.js";
 import React, { useState, useRef } from "react";
+import { WeiterKnopf, WeiterMit } from "./funcWerkzeuge.jsx";
+import { polyEingabe } from "./uebergabe.js";
 import { API_URL, C, DEMO_VIDEO_ID, DIFFQ_TESTPAARE, FUNKTIONEN, HOCH, KOEFF_FARBEN, MMENGEN, MODUL_PDF_URL, MSYM, PARAM_WERTE, PRUEFSTELLEN, Regler, ganz, ganzNZ, zuf } from "./base1.jsx";
 import { FormelReihe, KurvendiskussionAnzeige, baueReihe, horner, markanteAllg, nullstellenAllg, polyAbleitungen, polyReihen, schoenerSchritt, zahl } from "./func2.jsx";
 import { FR } from "./funcRegistry.jsx";
@@ -355,10 +357,19 @@ export function Plotter() {
           </div>
 
           <KurvendiskussionAnzeige k={K6} />
+          <WeiterMit titel="Weiter mit dieser Funktion">
+            <WeiterKnopf ziel="ableitungstrainer" von="Kurvendiskussion" daten={{ text: polyEingabeText(K6) }}
+              zeile="f′, f″ und f‴ dieser Funktion selbst bilden und prüfen lassen" />
+          </WeiterMit>
         </div>
       )}
     </div>
   );
+}
+
+/* Koeffizienten [x⁵ … x⁰] als Eingabetext für die anderen Werkzeuge (Parser aus func12) */
+function polyEingabeText(K6) {
+  return polyEingabe(K6.map((c, i) => [c, 5 - i]));
 }
 
 

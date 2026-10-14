@@ -8,6 +8,7 @@
    ============================================================ */
 
 import React, { useRef, useState } from "react";
+import { uebergabeErledigt, uebergabeLesen } from "./uebergabe.js";
 import { C } from "./base1.jsx";
 import { DrehKnoepfe, FARBE_ACHSE, GRUND_AUS, GrundebenenGitter, GrundebenenSchalter, ebenenPolygon, ebenenText, kamera } from "./func16.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
@@ -364,7 +365,9 @@ const BEISPIELE = [
 ];
 
 export function EbeneVsEbene() {
-  const [k1, setK1] = useState([3, 2, 1, 6]);
+  // Übergabe (z. B. aus dem Ebenen-Visualizer): { k: [a, b, c, d] } wird E₁
+  const [k1, setK1] = useState(() => { const u = uebergabeLesen("ebenevsebene"); return u && Array.isArray(u.k) && u.k.length === 4 && u.k.every((v) => Number.isInteger(v) && Math.abs(v) <= 10) ? [...u.k] : [3, 2, 1, 6]; });
+  React.useEffect(() => { uebergabeErledigt("ebenevsebene"); }, []);
   const [k2, setK2] = useState([1, -1, 2, 2]);
   const [phi, setPhi] = useState(0.62);
   const [theta, setTheta] = useState(0.42);

@@ -12,6 +12,7 @@
    ============================================================ */
 
 import React, { useMemo, useState } from "react";
+import { uebergabeErledigt, uebergabeLesen } from "./uebergabe.js";
 import { C } from "./base1.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
 import { GrosserKnopf, Rueck, Stufe, hilfeKontext, hinweis, karte, kicker, zw } from "./ui2.jsx";
@@ -205,8 +206,8 @@ function TestAufbauen() {
 }
 
 /* ---------- Modus 2: Ablehnungsbereich am Histogramm ---------- */
-function Ablehnungsbereich() {
-  const [au, setAu] = useState(() => testAufgabe());
+function Ablehnungsbereich({ start: mitStart = null }) {
+  const [au, setAu] = useState(() => mitStart || testAufgabe());
   const start = (a) => { const mu = Math.round(a.n * a.p0); return a.r === "beide" ? { gl: Math.max(0, mu - 3), gr: Math.min(a.n, mu + 3) } : { g: a.r === "links" ? Math.max(0, mu - 3) : Math.min(a.n, mu + 3) }; };
   const [wahlG, setWahlG] = useState(() => start(au));
   const [meld, setMeld] = useState(null);
@@ -334,8 +335,22 @@ function FehlerVerstehen() {
 }
 
 const MODI = [["aufbauen", zw("Test aufbauen", "Set up a test")], ["bereich", zw("Ablehnungs­bereich", "Rejection region")], ["fehler", zw("Fehler verstehen", "Understand errors")]];
+/* Übergabe aus der Bernoulli-Kette: { n, p } → Test „Ist die Trefferwahrscheinlichkeit größer als p?“ */
+function testAusBernoulli(u) {
+  if (!u || !Number.isInteger(u.n) || u.n < 5 || u.n > 200 || !(u.p > 0 && u.p < 1)) return null;
+  const n = u.n, p0 = u.p, alpha = 0.05, r = "rechts";
+  const kx = { id: "bernoulli", p0, r, ns: [n], X: zw("Anzahl der Treffer", "number of hits"),
+    text: (m) => zw(`Für eine Bernoulli-Kette der Länge ${m} wird behauptet, die Trefferwahrscheinlichkeit sei höchstens ${pT(p0)}. Getestet wird, ob sie in Wahrheit größer ist.`,
+      `For a Bernoulli chain of length ${m} it is claimed that the success probability is at most ${pT(p0)}. The test checks whether it is actually larger.`),
+    h1: zw(`Nachgewiesen werden soll „größer“ – H₁: p > ${pT(p0)}, H₀: p ≤ ${pT(p0)}.`, `What should be shown is “larger” – H₁: p > ${pT(p0)}, H₀: p ≤ ${pT(p0)}.`) };
+  const p1 = Math.round(Math.min(0.95, p0 + (p0 < 0.1 ? 0.05 : 0.1)) * 100) / 100;
+  return { id: ++zaehler, ...kx, n, alpha, krit: kritisch(n, p0, alpha, r), p1, k: zufallsK(n, p0) };
+}
+
 export function Hypothesentests() {
-  const [modus, setModus] = useState("aufbauen");
+  const [mit] = useState(() => testAusBernoulli(uebergabeLesen("hypothesentest")));
+  React.useEffect(() => { uebergabeErledigt("hypothesentest"); }, []);
+  const [modus, setModus] = useState(mit ? "bereich" : "aufbauen");
   return (
     <Seite titel={zw("Hypothesentests", "Hypothesis tests")}
       text={zw("Vom Sachkontext zur Entscheidung: H₀ und Testrichtung bestimmen, den Ablehnungsbereich finden und verstehen, welche Fehler passieren können.", "From context to decision: set H₀ and direction, find the rejection region and understand which errors can happen.")}>
@@ -346,7 +361,7 @@ export function Hypothesentests() {
         <p style={{ margin: 0 }}>{zw("Beispiel: Münze, H₀: p = 0,5, n = 100, α = 5 %, zweiseitig: A = {0; …; 39} ∪ {61; …; 100}. Bei 58-mal Kopf wird H₀ nicht verworfen.", "Example: coin, H₀: p = 0.5, n = 100, α = 5 %, two-sided: A = {0; …; 39} ∪ {61; …; 100}. With 58 heads H₀ is not rejected.")}</p>
       </Aufklapp>
       <div style={{ display: modus === "aufbauen" ? "block" : "none" }}><TestAufbauen /></div>
-      <div style={{ display: modus === "bereich" ? "block" : "none" }}><Ablehnungsbereich /></div>
+      <div style={{ display: modus === "bereich" ? "block" : "none" }}><Ablehnungsbereich start={mit} /></div>
       <div style={{ display: modus === "fehler" ? "block" : "none" }}><FehlerVerstehen /></div>
     </Seite>
   );

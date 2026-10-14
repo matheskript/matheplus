@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { C } from "./base1.jsx";
 import { englisch } from "./i18n.js";
-import { EinmaleinsSchachbrett, PotenzSpalten } from "./func14.jsx";
+import { EinmaleinsSchachbrett, KopfKacheln, PotenzSpalten } from "./func14.jsx";
 import { ALLE_ITEMS, ITEMS, ITEM_INFO, MODULE, STUFEN, baueRunde, empfehlung, fehlerName, gesamtUebersicht, itemText, modulUebersicht, musterAufgabe, schwacheGrundlagen, status, stufenStand } from "./headNumbers.js";
 import { L, karte, NAVY, FEHLER_TIPP, useKopf, modulInfo, stufeInfo, RICHTUNG_NAME, Kicker, H2, Absatz, Zurueck, Knopf, StandBalken, Legende } from "./funcHeadNumbersBasis.jsx";
 import { Runde } from "./funcHeadNumbersRunde.jsx";
@@ -236,6 +236,12 @@ function StartSeite({ onWaehle, onStart, gehe }) {
           );
         })}
       </div>
+
+      <section data-kopf-trainer style={{ marginBottom: 20 }}>
+        <Kicker>{L("Weitere Trainer: schriftlich rechnen, zerlegen, Brüche", "More trainers: written arithmetic, factorising, fractions")}</Kicker>
+        <p style={{ fontSize: 13.5, color: C.grau, fontWeight: 300, lineHeight: 1.55, margin: "0 2px 12px" }}>{L("Schnelle Runden mit zehn Aufgaben, Serie und Bestwert – früher unter „Kopfrechnen“ auf der Startseite.", "Quick rounds of ten problems with streak and best score – formerly under “Mental arithmetic” on the start page.")}</p>
+        <KopfKacheln onWaehle={(id) => gehe && gehe({ ansicht: "kopf", trainer: id })} />
+      </section>
 
       <section style={{ ...karte, padding: 18, marginBottom: 18 }}>
         <Kicker>{L("So lernst du hier", "How you learn here")}</Kicker>

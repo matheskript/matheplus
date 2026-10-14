@@ -8,6 +8,7 @@
    ============================================================ */
 
 import React, { useEffect, useRef, useState } from "react";
+import { ZentrumListe } from "./funcWerkzeuge.jsx";
 import { C } from "./base1.jsx";
 import { englisch } from "./i18n.js";
 import { GesperrteKurse } from "./func1.jsx";
@@ -968,19 +969,7 @@ export function KopfrechnenLogoKlein() {
 
 /* ---------- Analysis-Übersicht ---------- */
 
-const ANALYSIS = [
-  { ansicht: "geradengleichung", titel: "Geradengleichung", kurzTitel: "Geraden", slogan: "y = m·x + c aus zwei Punkten oder aus Punkt und Steigung.", zeichen: "mx+c" },
-  { ansicht: "parabeln", titel: "Parabeln", slogan: "Scheitelpunkt, Scheitelform, Nullstellen und Brennpunkt.", zeichen: "ax²" },
-  { ansicht: "plotter", titel: "Polynomplotter", slogan: "Graph mit f′ und f″ live – mit Kurvendiskussion und PDF.", kurz: "Koeffizienten einstellen, Graph mit f′ und f″ live sehen — inklusive Kurvendiskussion und PDF.", zeichen: "ax³" },
-  { ansicht: "advplotter", titel: "Advanced Plotter", slogan: "Beliebige Funktionen untersuchen – sin, ln, eˣ.", kurz: "Beliebige Funktionen mit sin, cos, ln, eˣ, Wurzeln und Brüchen bauen und untersuchen.", zeichen: "sin" },
-  { ansicht: "sinus", titel: "Sinusfunktion", slogan: "a, b, c und d finden, bis der Graph passt.", kurz: "Parameter a, b, c und d finden, bis der Graph passt – mit Periode, Ableitung und Nullstellen.", zeichen: "∿" },
-  { ansicht: "steckbrief", titel: "Steckbriefaufgaben", kurzTitel: "Steckbriefe", slogan: "Aus Hochpunkt, Wendepunkt & Co. die Funktion bauen.", kurz: "Bedingungen aufstellen, einsetzen, LGS lösen – mit Schaubild als Probe.", zeichen: "f(?)" },
-  { ansicht: "ableitungstrainer", titel: "Ableitungstrainer", slogan: "f′, f″ und f‴ eingeben und sofort prüfen lassen.", kurz: "f′, f″ und f‴ per Tastenfeld eingeben und sofort prüfen lassen.", zeichen: "f′" },
-  { ansicht: "integrale", titel: "Integrale", slogan: "Stammfunktionen bilden und bestimmte Integrale berechnen.", zeichen: "∫" },
-  { ansicht: "optimierung", titel: "Optimierungswerkstatt", kurzTitel: "Optimierung", slogan: "Vom Text zur Zielfunktion – Schachtel, Fläche, eigener Ansatz.", zeichen: "max" },
-  { ansicht: "wachstum", titel: "Wachstum und Logarithmen", kurzTitel: "Wachstum", slogan: "Exponentielle Modelle, Halbwertszeiten und Logarithmen.", zeichen: "aᵗ" },
-  { ansicht: "scharen", titel: "Funktionsscharen", slogan: "Parameter per Regler verändern, Punkte und Ortskurven berechnen.", zeichen: "fₐ" },
-];
+/* Die Werkzeuge stehen jetzt in werkzeuge.js (Stationen) */
 
 export function AnalysisZentrum({ gehe }) {
   return (
@@ -993,21 +982,7 @@ export function AnalysisZentrum({ gehe }) {
         Sinusfunktionen anpassen, Funktionen aus Steckbriefen bestimmen, das Ableiten trainieren und integrieren.</span>
         <span className="titel-kurz">Dreh an den Reglern und sieh sofort, was passiert. Mit jeder Ableitung wirst du schneller!</span>
       </p>
-      {ANALYSIS.map((x) => (
-        <button key={x.ansicht} onClick={() => gehe({ ansicht: x.ansicht })} className="w-full mb-3"
-          style={{ display: "flex", alignItems: "center", gap: 14, padding: 14, background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 18,
-            textAlign: "left", cursor: "pointer", fontFamily: "inherit", color: C.tinte, boxShadow: "0 2px 14px rgba(15,26,51,0.06)" }}>
-          <span aria-hidden="true" style={{ flexShrink: 0, width: 64, height: 64, borderRadius: 15,
-            background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, color: C.flaggold,
-            display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, fontWeight: 800, fontStyle: "italic" }}>
-            {x.zeichen}
-          </span>
-          <span style={{ flex: 1, minWidth: 0 }}>
-            <span style={{ display: "block", fontSize: "clamp(15px, 4.4vw, 17.5px)", fontWeight: 600, lineHeight: 1.25, marginBottom: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{x.kurzTitel ? <><span className="titel-lang">{x.titel}</span><span className="titel-kurz">{x.kurzTitel}</span></> : x.titel}</span>
-            <span style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", minHeight: "2.8em", color: C.grau, fontSize: 13.5, fontWeight: 300, lineHeight: 1.4 }}>{x.slogan || x.kurz}</span>
-          </span>
-        </button>
-      ))}
+      <ZentrumListe bereichId="analysis" gehe={gehe} />
       <GesperrteKurse ids={["analysis1", "analysis2", "analysis3", "analysis4", "analysis5"]} ueberschrift="Die fünf Analysis-Kurse" />
     </div>
   );

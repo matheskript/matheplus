@@ -12,6 +12,7 @@
    ============================================================ */
 
 import React, { useState } from "react";
+import { uebergabeErledigt, uebergabeLesen } from "./uebergabe.js";
 import { C } from "./base1.jsx";
 import { Bruch, Einzeilig, Wurzel, Zahl, ggT, kreuz, skalar } from "./func19.jsx";
 import { FA, FB, FE, Gl, Name, Raum3, Schritt, Vek, k, koordText, n, neueAufgabe } from "./func20.jsx";
@@ -546,8 +547,17 @@ function LotUeben({ art }) {
 /* ---------- Seite ---------- */
 
 export function Abstaende() {
-  const [links, setLinks] = useState(START.links);
-  const [rechts, setRechts] = useState(START.rechts);
+  // Übergabe mit Punkt (z. B. Spitze S einer Pyramide aus der Abi-Kette): { ebene, punkt }
+  const [links, setLinks] = useState(() => {
+    const u = uebergabeLesen("abstaende");
+    return u && Array.isArray(u.punkt) && u.punkt.length === 3 && u.punkt.every(Number.isFinite) ? { ...START.links, typ: "punkt", punkt: u.punkt.map(String) } : START.links;
+  });
+  // Übergabe (z. B. aus dem Ebenen-Visualizer): { ebene: [a, b, c, d] } – Abstand Punkt–Ebene zu genau dieser Ebene
+  const [rechts, setRechts] = useState(() => {
+    const u = uebergabeLesen("abstaende");
+    return u && Array.isArray(u.ebene) && u.ebene.length === 4 && u.ebene.every(Number.isFinite) ? { ...START.rechts, typ: "ebene", ebene: u.ebene.map(String) } : START.rechts;
+  });
+  React.useEffect(() => { uebergabeErledigt("abstaende"); }, []);
   const [modus, setModus] = useState("rechnen");
   const [nL, nR] = namen(links.typ, rechts.typ);
   const oL = lese(links), oR = lese(rechts);

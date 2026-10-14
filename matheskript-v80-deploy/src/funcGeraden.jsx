@@ -312,21 +312,20 @@ const mkI = (x) => (x < 0 ? `(${n(x)})` : n(x));
    ====================================================================== */
 
 const GERADEN_MODI = [
-  { id: "zwei", name: ["Gerade aus zwei Punkten", "Line from two points"] },
   { id: "probe", name: ["Punktprobe", "Point test"] },
   { id: "gg", name: ["Gerade vs. Gerade", "Line vs. line"] },
   { id: "ge", name: ["Gerade vs. Ebene", "Line vs. plane"] },
 ];
 
 export function GeradenImRaum() {
-  const [modus, setModus] = useState("zwei");
+  const [modus, setModus] = useState("probe");
   return (
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
       <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>{zw("Geraden im Raum", "Lines in space")}</h2>
       <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 18 }}>
-        {zw("Aus Punkten Stütz- und Richtungsvektor bestimmen, einen Parameter bewegen und Lagebeziehungen erst vermuten, dann rechnerisch prüfen.", "Find the support and direction vectors from points, move a parameter, and first guess then calculate positions.")}
+        {zw("Einen Parameter bewegen und Lagebeziehungen erst vermuten, dann rechnerisch prüfen. Die Gerade aus zwei Punkten stellst du in der Station „Aufstellen“ auf.", "Move a parameter, and first guess then calculate positions. You set up a line from two points in the “Set up” station.")}
       </p>
-      <div role="tablist" aria-label={zw("Geraden-Übungen", "Line exercises")} style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8 }}>
+      <div role="tablist" aria-label={zw("Geraden-Übungen", "Line exercises")} style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8 }}>
         {GERADEN_MODI.map((m) => {
           const an = modus === m.id;
           return (
@@ -337,10 +336,6 @@ export function GeradenImRaum() {
             </button>
           );
         })}
-      </div>
-      <div style={{ display: modus === "zwei" ? "block" : "none", marginTop: 16 }}>
-        <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, marginBottom: 12 }}>{zw("Dieses Werkzeug gibt es auch eigenständig im Vektoren-Menü: „Zwei Punkte – eine Gerade“.", "This tool is also available on its own in the vectors menu: “Two points – one line”.")}</p>
-        <ZweiPunkteGerade />
       </div>
       <div style={{ display: modus === "probe" ? "block" : "none" }}><Punktprobe /></div>
       <div style={{ display: modus === "gg" ? "block" : "none" }}><GeradeVsGerade /></div>

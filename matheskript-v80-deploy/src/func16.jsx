@@ -10,6 +10,8 @@
    ============================================================ */
 
 import React, { useMemo, useRef, useState } from "react";
+import { uebergabeErledigt, uebergabeLesen } from "./uebergabe.js";
+import { WeiterKnopf, WeiterMit, ZentrumListe } from "./funcWerkzeuge.jsx";
 import { C } from "./base1.jsx";
 import { GesperrteKurse } from "./func1.jsx";
 
@@ -492,10 +494,13 @@ const BEISPIELE = [
 ];
 
 export function EbenenVisualizer() {
-  const [a, setA] = useState(3);
-  const [b, setB] = useState(2);
-  const [c, setC] = useState(1);
-  const [d, setD] = useState(6);
+  // Übergabe (z. B. aus „Drei Punkte – eine Ebene“): { k: [a, b, c, d] }
+  const [mit] = useState(() => { const u = uebergabeLesen("ebenen"); return u && Array.isArray(u.k) && u.k.length === 4 && u.k.every((v) => Number.isInteger(v) && Math.abs(v) <= 10) ? u.k : null; });
+  React.useEffect(() => { uebergabeErledigt("ebenen"); }, []);
+  const [a, setA] = useState(mit ? mit[0] : 3);
+  const [b, setB] = useState(mit ? mit[1] : 2);
+  const [c, setC] = useState(mit ? mit[2] : 1);
+  const [d, setD] = useState(mit ? mit[3] : 6);
   const [phi, setPhi] = useState(0.62);
   const [theta, setTheta] = useState(0.42);
   const [zoom, setZoom] = useState(1);
@@ -585,6 +590,13 @@ export function EbenenVisualizer() {
         <Eigenschaften a={a} b={b} c={c} d={d} />
       </div>
 
+      {(a !== 0 || b !== 0 || c !== 0) && (
+        <WeiterMit titel="Weiter mit dieser Ebene">
+          <WeiterKnopf ziel="ebenevsebene" von="Ebenen-Visualizer" daten={{ k: [a, b, c, d] }} zeile="Als E₁ mit einer zweiten Ebene schneiden – Schnittgerade und Schnittwinkel" />
+          <WeiterKnopf ziel="abstaende" von="Ebenen-Visualizer" daten={{ ebene: [a, b, c, d] }} zeile="Abstand eines Punktes zu genau dieser Ebene berechnen" />
+        </WeiterMit>
+      )}
+
       <div style={{ ...karte, marginTop: 16 }}>
         <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 10 }}>So liest du die Koordinatenform</p>
         {[
@@ -604,18 +616,7 @@ export function EbenenVisualizer() {
 
 /* ---------- Vektoren-Übersicht ---------- */
 
-const VEKTOREN = [
-  { ziel: { ansicht: "ebenen" }, titel: "Ebenen-Visualizer", slogan: "Ebenen in Koordinatenform live im Raum drehen.", kurz: "Ebenen in Koordinatenform live im 3D-Koordinatensystem sehen – mit Spurpunkten und Normalenvektor.", zeichen: "E" },
-  { ziel: { ansicht: "ebenevsebene" }, titel: "Ebene vs. Ebene", slogan: "Schnittgerade und Schnittwinkel zweier Ebenen.", kurz: "Zwei Ebenen gleichzeitig im Raum – mit Schnittgerade und Schnittwinkel über die Kosinusformel.", zeichen: "E₁E₂" },
-  { ziel: { ansicht: "vektorgenerator" }, titel: "Rechnen mit Vektoren", slogan: "A ± B, k · A und k · A + j · B mit Rechenweg.", kurz: "Addition, Skalarmultiplikation, Linearkombination, Skalar- und Kreuzprodukt, Geraden und Ebenen – immer neue Beispiele mit Rechenweg.", zeichen: "🎲" },
-  { ziel: { ansicht: "kreuzprodukt" }, titel: "Kreuzprodukt", slogan: "Zwei Vektoren eingeben – Formel, eingesetzt, Ergebnis.", kurz: "Zwei Vektoren eingeben – Formel, eingesetzte Koordinaten und Ergebnis in einer Zeile.", zeichen: "×" },
-  { ziel: { ansicht: "kurse", kurs: "vektoren" }, titel: "Videokurs Vektoren", slogan: "Fünf Lektionen bis zu Ebenen – mit Kurz-Checks.", kurz: "Fünf Lektionen von den Grundlagen bis zu Ebenen – mit Merksätzen und Kurz-Checks.", zeichen: "▶" },
-  { ziel: { ansicht: "zweipunkte" }, titel: "Zwei Punkte – eine Gerade", kurzTitel: "Zwei Punkte", slogan: "Geradengleichung aus zwei Punkten – auf zwei Wegen.", zeichen: "AB" },
-  { ziel: { ansicht: "dreipunkte" }, titel: "Drei Punkte – eine Ebene", kurzTitel: "Drei Punkte", slogan: "Drei Wege zur Ebene, mit Koordinatenform.", zeichen: "ABC" },
-  { ziel: { ansicht: "abstaende" }, titel: "Abstände", slogan: "Punkt, Gerade, Ebene – jede Kombination mit 3D-Bild.", zeichen: "d" },
-  { ziel: { ansicht: "geraden" }, titel: "Geraden im Raum", slogan: "Punktprobe und Lage: schneidend, parallel, windschief.", zeichen: "g" },
-  { ziel: { ansicht: "winkel" }, titel: "Winkel und Skalarprodukt", kurzTitel: "Winkel", slogan: "Skalarprodukt verstehen und Winkel berechnen.", zeichen: "φ" },
-];
+/* Die Werkzeuge stehen jetzt in werkzeuge.js (Stationen) */
 
 export function VektorenZentrum({ gehe }) {
   return (
@@ -628,21 +629,7 @@ export function VektorenZentrum({ gehe }) {
         Gleichungen im Raum bedeuten.</span>
         <span className="titel-kurz">Dreh Ebenen mit dem Finger, lass sie sich schneiden und knack jede Raumgeometrie-Aufgabe im Abi.</span>
       </p>
-      {VEKTOREN.map((x) => (
-        <button key={x.titel} onClick={() => gehe(x.ziel)} className="w-full mb-3"
-          style={{ display: "flex", alignItems: "center", gap: 14, padding: 14, background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 18,
-            textAlign: "left", cursor: "pointer", fontFamily: "inherit", color: C.tinte, boxShadow: "0 2px 14px rgba(15,26,51,0.06)" }}>
-          <span aria-hidden="true" style={{ flexShrink: 0, width: 64, height: 64, borderRadius: 15,
-            background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, color: C.flaggold,
-            display: "flex", alignItems: "center", justifyContent: "center", fontSize: x.zeichen.length > 3 ? 18 : 22, fontWeight: 800, fontStyle: "italic" }}>
-            {x.zeichen}
-          </span>
-          <span style={{ flex: 1, minWidth: 0 }}>
-            <span style={{ display: "block", fontSize: "clamp(15px, 4.4vw, 17.5px)", fontWeight: 600, lineHeight: 1.25, marginBottom: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{x.kurzTitel ? <><span className="titel-lang">{x.titel}</span><span className="titel-kurz">{x.kurzTitel}</span></> : x.titel}</span>
-            <span style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", minHeight: "2.8em", color: C.grau, fontSize: 13.5, fontWeight: 300, lineHeight: 1.4 }}>{x.slogan || x.kurz}</span>
-          </span>
-        </button>
-      ))}
+      <ZentrumListe bereichId="vektoren" gehe={gehe} />
       <GesperrteKurse ids={["vektoren"]} ueberschrift="Der Vektoren-Kurs" />
     </div>
   );

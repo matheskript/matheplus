@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { uebergabeErledigt, uebergabeLesen } from "./uebergabe.js";
 import { C } from "./base1.jsx";
 import { merken } from "./func5.jsx";
 import { DrehKnoepfe, ebenenPolygon, kamera } from "./func16.jsx";
@@ -634,7 +635,14 @@ export function NeueZeile({ name, text, frisch, aktiv, ok, fehler, vorschau, onC
 
 export function LGSLoeser() {
   const [stufe, setStufe] = useState(1);
-  const [aufgabe, setAufgabe] = useState(() => lgsErzeugen(1));
+  // Übergabe (z. B. aus den Steckbriefaufgaben): genau dieses System lösen – { rows: [[a, b, c, r], …] }
+  const [aufgabe, setAufgabe] = useState(() => {
+    const u = uebergabeLesen("lgs");
+    if (u && Array.isArray(u.rows) && u.rows.length === 3 && u.rows.every((r) => r.length === 4 && r.every(Number.isFinite)) && Array.isArray(u.loesung) && u.loesung.length === 3)
+      return { rows: u.rows.map((r) => [...r]), loesung: [...u.loesung] };
+    return lgsErzeugen(1);
+  });
+  useEffect(() => { uebergabeErledigt("lgs"); }, []);
   const [bloecke, setBloecke] = useState(() => [{ rows: aufgabe.rows, notizen: null }]);
   const [felder, setFelder] = useState(["I", "II", "III"]);
   const [aktiv, setAktiv] = useState(0);

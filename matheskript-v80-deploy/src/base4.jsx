@@ -1,3 +1,4 @@
+import { navWerkzeuge } from "./werkzeuge.js";
 import { sprache } from "./i18n.js";
 import React, { useState, useRef } from "react";
 import { API_URL, C } from "./base1.jsx";
@@ -107,12 +108,7 @@ export const NAV = [
   { id: "klassen", name: "Nach Klasse", kurz: "Der Stoff von Klasse 8 bis 13", eintraege:
     SCHULKLASSEN.map((k) => ({ name: `Klasse ${k}`, kurz: k >= 11 ? "Kursstufe" : "Nach dem Lambacher Schweizer", ansicht: "klasse", klasse: k })) },
   { id: "ueben", name: "Üben", kurz: "Aufgaben und ganze Rechenwege", eintraege: [
-    { name: "Gleichungslöser", kurz: "Äquivalenzumformungen eintippen – linear bis Logarithmus", ansicht: "gleichungen" },
-    { name: "Terme und Potenzgesetze", kurz: "Vereinfachen, Ausklammern, Binomische Formeln, Potenzen, Brüche", ansicht: "terme" },
-    { name: "Gleichungen verstehen", kurz: "Umformen, Methode wählen, Fehler finden, Lösungsmenge, Graph", ansicht: "gleichverstehen" },
     { name: "Mathe Abi Masterclass", kurz: "Das 6-Monats-Programm fürs Mathe-Abi", ansicht: "masterclass" },
-    { name: "Gleichungssysteme", kurz: "LGS mit drei Unbekannten – Gauß-Verfahren und direkter Weg", ansicht: "lgs" },
-    { name: "Ableitungstrainer", kurz: "f′, f″ und f‴ eingeben und sofort prüfen lassen", ansicht: "ableitungstrainer" },
     { name: "Aufgabengenerator", kurz: "Geraden, Ableitungen, Kurvendiskussion", ansicht: "ki", ziel: null },
     { name: "Rechenweg schreiben", kurz: "Ganze Wege eintippen und prüfen lassen", ansicht: "training", ziel: "weg" },
     { name: "Kurvendiskussion", kurz: "Das Protokoll in zwölf Schritten", ansicht: "training", ziel: "kd" },
@@ -120,12 +116,12 @@ export const NAV = [
     { name: "Head & Numbers", kurz: "Einmaleins, Quadrat- und Kubikzahlen – mit Lernpfad und Wiederholung", ansicht: "headnumbers" },
     { name: "Mein Training", kurz: "Tagesplan, Lernfortschritt und Übungsmodi", ansicht: "meintraining" },
     { name: "Ebbinghaus", kurz: "Vergessen beenden: Skills im richtigen Moment wiederholen", ansicht: "ebbinghaus" },
-    { name: "Kopfrechnen", kurz: "Primfaktoren, Quadratzahlen, Brüche, Einmaleins", ansicht: "kopf" },
   ] },
   { id: "pruefung", name: "Prüfung", kurz: "Klassenarbeit und Abitur", eintraege: [
     { name: "Klausur vorbereiten", kurz: "Termin eintragen, Plan bekommen", ansicht: "vorbereiten" },
     { name: "Klausurgenerator", kurz: "Drei Aufgaben mit Uhr", ansicht: "training", ziel: "klausur" },
     { name: "Probeabitur", kurz: "Teil A und B mit Uhr und Notenpunkten", ansicht: "abitur" },
+    { name: "Abi-Ketten", kurz: "Eine Abi-Aufgabe durch mehrere Werkzeuge – mit Punkten", ansicht: "abiketten" },
     { name: "Begründen und Beweisen", kurz: "Freie Antworten am Bewertungsraster", ansicht: "begruenden" },
     { name: "Modellieren", kurz: "Sachaufgaben in vier Schritten", ansicht: "modellieren" },
   ] },
@@ -138,34 +134,8 @@ export const NAV = [
     { name: "Weg prüfen", kurz: "Handschrift in Zeilen übertragen", ansicht: "analyse", foto: "weg" },
     { name: "Aufgabe scannen", kurz: "Ähnliche Aufgaben dazu erzeugen", ansicht: "analyse", foto: "aufgabe" },
   ] },
-  { id: "werkzeuge", name: "Werkzeuge", kurz: "Plotter, Ebenen, Bernoulli, Vier-Felder-Tafel", eintraege: [
-    { name: "Analysis", kurz: "Alle Analysis-Werkzeuge im Überblick", ansicht: "analysis" },
-    { name: "Geradengleichung", kurz: "y = m·x + c aus zwei Punkten oder Punkt und Steigung", ansicht: "geradengleichung" },
-    { name: "Parabeln", kurz: "Scheitelpunkt, Scheitelform, Nullstellen und Brennpunkt", ansicht: "parabeln" },
-    { name: "Polynomplotter", kurz: "Koeffizienten einstellen, f, f′ und f″ sehen", ansicht: "plotter" },
-    { name: "Advanced Plotter", kurz: "Beliebige Funktionen mit Tastenfeld und Kurvendiskussion", ansicht: "advplotter" },
-    { name: "Sinusfunktion", kurz: "a, b, c, d finden, bis der Graph passt", ansicht: "sinus" },
-    { name: "Steckbriefaufgaben", kurz: "Aus Eigenschaften die Funktion bestimmen", ansicht: "steckbrief" },
-    { name: "Integrale", kurz: "Stammfunktionen und bestimmte Integrale", ansicht: "integrale" },
-    { name: "Optimierungswerkstatt", kurz: "Schachtel, Fläche und Umfang, eigener Ansatz", ansicht: "optimierung" },
-    { name: "Wachstum und Logarithmen", kurz: "Modell aus Messwerten, Halbwertszeit, Zielwert", ansicht: "wachstum" },
-    { name: "Funktionsscharen", kurz: "Parameter entdecken, besondere Punkte, Parameterfälle", ansicht: "scharen" },
-    { name: "Vektoren", kurz: "Alle Vektor-Werkzeuge im Überblick", ansicht: "vektoren" },
-    { name: "Ebenen-Visualizer", kurz: "Ebenen in Koordinatenform live im Raum", ansicht: "ebenen" },
-    { name: "Ebene vs. Ebene", kurz: "Schnittgerade und Schnittwinkel zweier Ebenen", ansicht: "ebenevsebene" },
-    { name: "Kreuzprodukt", kurz: "Rechner mit Formel und eingesetzten Werten", ansicht: "kreuzprodukt" },
-    { name: "Rechnen mit Vektoren", kurz: "A ± B, k · A, k · A + j · B – mit Rechenweg", ansicht: "vektorgenerator" },
-    { name: "Zwei Punkte – eine Gerade", kurz: "Geradengleichung auf zwei Wegen", ansicht: "zweipunkte" },
-    { name: "Drei Punkte – eine Ebene", kurz: "Drei Wege, mit Koordinatenform", ansicht: "dreipunkte" },
-    { name: "Abstände", kurz: "Punkt, Gerade, Ebene – jede Kombination", ansicht: "abstaende" },
-    { name: "Geraden im Raum", kurz: "Punktprobe und Lage von Geraden und Ebenen", ansicht: "geraden" },
-    { name: "Winkel und Skalarprodukt", kurz: "Skalarprodukt, Vektorwinkel, Gerade-Ebene-Winkel", ansicht: "winkel" },
-    { name: "Stochastik", kurz: "Alle Stochastik-Werkzeuge im Überblick", ansicht: "stochastik" },
-    { name: "Bernoulli-Kette", kurz: "Binomialverteilung live mit Formel und Experiment", ansicht: "bernoulli" },
-    { name: "Vier-Felder-Tafel", kurz: "Absolut oder in Prozent, mit Baumdiagramm", ansicht: "vierfelder" },
-    { name: "Erwartungswert und faire Spiele", kurz: "Gewinnverteilung, fairer Einsatz, Simulation", ansicht: "erwartungswert" },
-    { name: "Urnen und Kombinatorik", kurz: "Ziehen, Zählmethoden, Baumdiagramme", ansicht: "kombinatorik" },
-    { name: "Hypothesentests", kurz: "Test aufbauen, Ablehnungsbereich, Fehler 1. und 2. Art", ansicht: "hypothesentest" },
+  { id: "werkzeuge", name: "Werkzeuge", kurz: "Zwölf Stationen: Analysis, Vektoren, Stochastik, Gleichungen", eintraege: [
+    ...navWerkzeuge(),
     { name: "Arbeitsblatt drucken", kurz: "Aufgabenblatt mit Lösungsteil", ansicht: "ki", ziel: "blatt" },
   ] },
   { id: "berichte", name: "Berichte", kurz: "Für Eltern und Lehrkräfte", eintraege: [

@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
+import { WeiterKnopf, WeiterMit } from "./funcWerkzeuge.jsx";
+import { polyEingabe } from "./uebergabe.js";
 import { C } from "./base1.jsx";
 import { M, Text } from "./func3.jsx";
 import { merken } from "./func5.jsx";
@@ -297,6 +299,21 @@ function polyFormel(k, pot) {
     s += s ? ` ${c < 0 ? "−" : "+"} ${zahl}${xt}` : `${c < 0 ? "−" : ""}${zahl}${xt}`;
   });
   return `f(x) = ${s || "0"}`;
+}
+
+/* Ergebnis als Eingabetext für Kurvendiskussion und Ableitungstrainer (Parser aus func12) */
+const zahlText = (v) => { const r = Math.round(v * 1e6) / 1e6; return r < 0 ? `(${r})` : String(r); };
+function funktionText(auf, L) {
+  const ans = ANSAETZE[auf.ansatz];
+  if (ans.art === "poly") return polyEingabe(L.map((c, i) => [c, ans.pot[i]]));
+  const vor = (c) => (Math.abs(c - 1) < 1e-9 ? "" : `${zahlText(c)}*`);
+  if (ans.art === "exp") return `${vor(L[0])}${zahlText(L[1])}^x`;
+  if (ans.art === "ek") return `${vor(L[0])}${zahlText(auf.q)}^x`;
+  const [A, , c, d] = L;
+  const innen = Math.abs(c) < 1e-9 ? "x" : `(x${c > 0 ? "-" : "+"}${zahlText(Math.abs(c))})`;
+  const dTeil = Math.abs(d) < 1e-9 ? "" : `${d > 0 ? "+" : "-"}${zahlText(Math.abs(d))}`;
+  const aTeil = Math.abs(A - 1) < 1e-9 ? "" : Math.abs(A + 1) < 1e-9 ? "-" : `${zahlText(A)}*`;
+  return `${aTeil}sin(${auf.h === 1 ? "pi" : `pi/${auf.h}`}*${innen})${dTeil}`;
 }
 
 const piBruch = (h) => (h === 1 ? "π" : `\\frac{π}{${h}}`);
@@ -1294,6 +1311,12 @@ function ErgebnisSchritt({ auf, L, weg, neu }) {
         ))}
       </div>
       <KurvendiskussionPdfKnopf auf={auf} L={L} />
+      <WeiterMit titel={zw("Weiter mit dieser Funktion", "Continue with this function")}>
+        <WeiterKnopf ziel="advplotter" von="Steckbriefaufgaben" daten={{ text: funktionText(auf, L) }} titel={zw("Kurvendiskussion", "Curve sketching")}
+          zeile={zw("Alle markanten Punkte, Monotonie, Krümmung und Integrale dieser Funktion", "All key points, monotonicity, curvature and integrals of this function")} />
+        <WeiterKnopf ziel="ableitungstrainer" von="Steckbriefaufgaben" daten={{ text: funktionText(auf, L) }}
+          zeile={zw("f′, f″ und f‴ dieser Funktion selbst bilden und prüfen lassen", "Form f′, f″ and f‴ of this function yourself and have them checked")} />
+      </WeiterMit>
       <Knopf onClick={neu}>{zw("Nächste Aufgabe", "Next task")}</Knopf>
     </>
   );
@@ -1485,7 +1508,15 @@ export function Steckbriefaufgaben() {
         {loesen && (
           <Schritt nr={num()} titel={istPoly ? zw("Gleichungssystem lösen", "Solve the system of equations") : zw("Parameter bestimmen", "Determine the parameters")} fertig={!!ergebnis} scrollen>
             {istPoly
-              ? <LGSSchritt start={rows} vars={ans.vars} onGeloest={fertig} />
+              ? <>
+                  <LGSSchritt start={rows} vars={ans.vars} onGeloest={fertig} />
+                  {rows.length === 3 && ans.vars.length === 3 && (
+                    <WeiterMit titel={zw("Lieber im LGS-Werkzeug?", "Prefer the LES tool?")}>
+                      <WeiterKnopf ziel="lgs" von="Steckbriefaufgaben" daten={{ rows, loesung: auf.koeff }}
+                        zeile={zw(`Dasselbe System mit x, y, z statt ${ans.vars.join(", ")} – mit Musterlösung und Ebenen-Deutung`, `The same system with x, y, z instead of ${ans.vars.join(", ")} – with model solution and planes`)} />
+                    </WeiterMit>
+                  )}
+                </>
               : <AdvSchritt auf={auf} zeilen={bedZeilen} onFertig={() => fertig(auf.koeff, "selbst")} />}
           </Schritt>
         )}

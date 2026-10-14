@@ -81,7 +81,7 @@
   "Fläche und Bilanz": "Area and net change",
   "Zwischen zwei Graphen": "Between two graphs",
   "Bestand und Änderungsrate": "Stock and rate of change",
-  "Lotpunkt bestimmen": "Find the foot of the perpendicular",
+  "Lotpunkt bestimmen": "Foot of perpendicular",
   "Raum geben": "Give it space",
   "Lesbar schreiben": "Write legibly",
   "Entscheidende Schritte zeigen": "Show the key steps",
@@ -5255,7 +5255,90 @@
   "Transformationen": "Transformations",
   "Graphen": "Graphs",
   "Puzzle": "Puzzle",
-  "Formen": "Shapes"
+  "Formen": "Shapes",
+  "Entdecken": "Explore",
+  "Trainieren": "Train",
+  "Regler, Live-Bild, ausprobieren": "Sliders, live picture, try it out",
+  "Die App rechnet dir den Weg vor": "The app shows you the full working",
+  "Du rechnest selbst, die App prüft": "You calculate, the app checks",
+  "Kennen": "Know",
+  "Die wichtigsten Funktionsklassen": "The key families of functions",
+  "Untersuchen": "Analyse",
+  "Ableiten und Kurven diskutieren": "Differentiate and sketch curves",
+  "Bestimmen": "Determine",
+  "Funktionen aufstellen und anwenden": "Set up and apply functions",
+  "Integrieren": "Integrate",
+  "Stammfunktionen, Flächen, Bestand": "Antiderivatives, areas, accumulation",
+  "Vektoren, Kreuz- und Skalarprodukt": "Vectors, cross and dot product",
+  "Geraden und Ebenen aus Punkten": "Lines and planes from points",
+  "Lage und Abstand": "Position and distance",
+  "Schneiden, parallel, windschief, Abstände": "Intersecting, parallel, skew, distances",
+  "Zählen und Bäume": "Counting and trees",
+  "Urnen, Pfade, Vier-Felder-Tafel": "Urns, paths, two-way table",
+  "Erwartungswert und Binomialverteilung": "Expected value and binomial distribution",
+  "Testen": "Testing",
+  "Hypothesen prüfen": "Testing hypotheses",
+  "Terme umformen": "Rearranging terms",
+  "Vereinfachen, ausklammern, Potenzen": "Simplify, factor out, powers",
+  "Einzelne Gleichungen und Systeme": "Single equations and systems",
+  "Vier Stationen: Funktionen kennen, untersuchen, bestimmen, integrieren.": "Four stations: know, analyse, determine and integrate functions.",
+  "Drei Stationen: rechnen, Geraden und Ebenen aufstellen, Lage und Abstand.": "Three stations: calculate, set up lines and planes, position and distance.",
+  "Drei Stationen: zählen, Zufallsgrößen, testen.": "Three stations: counting, random variables, testing.",
+  "Zwei Stationen: Terme umformen, Gleichungen lösen.": "Two stations: rearranging terms, solving equations.",
+  "Mathematik und Wettbewerbe.": "Mathematics and competitions.",
+  "Mathematik in zwölf Stationen, Formelsammlung und Wettbewerbe – alles zum Üben und Nachschlagen.": "Mathematics in twelve stations, formula sheet and competitions – everything for practice and reference.",
+  "Polynome oder beliebige Funktionen – Graph, Ableitungen, PDF": "Polynomials or any function – graph, derivatives, PDF",
+  "Graph, Ableitungen und die komplette Kurvendiskussion – für Polynome und beliebige Funktionen.": "Graph, derivatives and the complete curve sketch – for polynomials and any function.",
+  "Beliebige Funktionen": "Any function",
+  "Lösen": "Solve",
+  "Du formst um, die App rechnet mit – dazu fünf Verstehen-Modi": "You rearrange, the app keeps up – plus five understanding modes",
+  "Äquivalenzumformungen eintippen – linear bis Logarithmus, mit Verstehen-Modi.": "Type in equivalence transformations – linear to logarithmic, with understanding modes.",
+  "A ± B, k · A, k · A + j · B und Skalarprodukt mit Rechenweg": "A ± B, k · A, k · A + j · B and dot product with working",
+  "Addition, Vielfache, Linearkombination und Skalarprodukt – immer neue Beispiele mit Rechenweg.": "Addition, multiples, linear combination and dot product – always new examples with working.",
+  "Stammfunktionen bilden, Flächen und Bestände berechnen.": "Find antiderivatives, compute areas and accumulated amounts.",
+  "Ableiten": "Differentiate",
+  "Kurven": "Curves",
+  "Visualizer": "Visualizer",
+  "Erwartung": "Expectation",
+  "Ebene": "Plane",
+  "Zwölf Stationen: Analysis, Vektoren, Stochastik, Gleichungen": "Twelve stations: calculus, vectors, probability, equations",
+  "Weiter ›": "Next ›",
+  "Weiter mit diesem Ergebnis": "Continue with this result",
+  "Weiter mit dieser Funktion": "Continue with this function",
+  "Weiter mit dieser Ebene": "Continue with this plane",
+  "Weiter mit dieser Gleichung": "Continue with this equation",
+  "Lieber im LGS-Werkzeug?": "Prefer the LES tool?",
+  "f′, f″ und f‴ dieser Funktion selbst bilden und prüfen lassen": "Form f′, f″ and f‴ of this function yourself and have them checked",
+  "Alle markanten Punkte, Monotonie, Krümmung und Integrale dieser Funktion": "All key points, monotonicity, curvature and integrals of this function",
+  "Diese eine Kurve der Schar vollständig untersuchen": "Fully analyse this one curve of the family",
+  "Als E₁ mit einer zweiten Ebene schneiden – Schnittgerade und Schnittwinkel": "Intersect it as E₁ with a second plane – line and angle of intersection",
+  "Abstand eines Punktes zu genau dieser Ebene berechnen": "Compute the distance of a point to exactly this plane",
+  "f(x) = 0 Schritt für Schritt selbst umformen – ohne Formel": "Rearrange f(x) = 0 step by step yourself – without the formula",
+  "zurück": "back",
+  "Weitere Trainer: schriftlich rechnen, zerlegen, Brüche": "More trainers: written arithmetic, factorising, fractions",
+  "Einmaleins, Quadrat- und Kubikzahlen, schriftliches Rechnen und Brüche – bis alles sitzt.": "Times tables, square and cube numbers, written arithmetic and fractions – until everything sticks.",
+  "Kreuzprodukt ›": "Cross product ›",
+  "Abstände ›": "Distances ›",
+  "Abi-Ketten": "Abitur chains",
+  "Eine Abi-Aufgabe, die durch mehrere Werkzeuge läuft – mit Punkten und Uhr.": "An Abitur problem that runs through several tools – with points and a clock.",
+  "Eine Aufgabe, mehrere Werkzeuge": "One problem, several tools",
+  "Eine Abi-Aufgabe, mehrere Werkzeuge": "One Abitur problem, several tools",
+  "Eine Abi-Aufgabe durch mehrere Werkzeuge – mit Punkten": "One Abitur problem through several tools – with points",
+  "Eine Aufgabe, mehrere Werkzeuge ": "One problem, several tools",
+  "Im Abitur hängen die Teilaufgaben zusammen: Was du in a) bestimmst, brauchst du in b). Rechne jede Teilaufgabe selbst, tippe das Ergebnis ein und lass es prüfen. Danach kannst du sie im passenden Werkzeug mit genau diesen Zahlen nachbereiten.": "In the Abitur the parts belong together: what you find in a) you need in b). Solve each part yourself, type in the result and have it checked. Afterwards you can review it in the matching tool with exactly these numbers.",
+  "Eine Aufgabe, mehrere Werkzeuge.": "One problem, several tools.",
+  "‹ Alle Abi-Ketten": "‹ All Abitur chains",
+  "Lösung zeigen (0 P.)": "Show solution (0 pts)",
+  "Neue Kette mit anderen Zahlen": "New chain with different numbers",
+  "Angefangen – weitermachen ›": "Started – continue ›",
+  "10 Punkte · etwa 25 Minuten ›": "10 points · about 25 minutes ›",
+  "Analysis: vom Steckbrief zur Fläche": "Calculus: from conditions to area",
+  "Geometrie: Pyramide im Raum": "Geometry: pyramid in space",
+  "Stochastik: vom Modell zum Test": "Probability: from model to test",
+  "Funktion bestimmen → Wendepunkt → Tangente → Integral": "Determine the function → inflection point → tangent → integral",
+  "Ebene → Höhe als Abstand → Grundfläche → Volumen": "Plane → height as distance → base area → volume",
+  "Bernoulli-Modell → mindestens → Ablehnungsbereich → Fehler 2. Art": "Bernoulli model → at least → rejection region → type II error",
+  "Zeit": "Time"
  },
  "muster": [
   [
@@ -6333,6 +6416,50 @@
   [
    "In {0} Bildern durchgeklickt",
    "Walked through in {0} pictures"
+  ],
+  [
+   "· Station {0} von {1} ·",
+   "· Station {0} of {1} ·"
+  ],
+  [
+   "Weiter: {0} ›",
+   "Next: {0} ›"
+  ],
+  [
+   "↪ Übernommen aus „{0}“",
+   "↪ Taken from “{0}”"
+  ],
+  [
+   "Weiter mit a = {0}",
+   "Continue with a = {0}"
+  ],
+  [
+   "Weiter mit B({0})",
+   "Continue with B({0})"
+  ],
+  [
+   "Ablehnungsbereich für H₀: p ≤ {0} bei n = {1} und α = 5 % finden",
+   "Find the rejection region for H₀: p ≤ {0} with n = {1} and α = 5 %"
+  ],
+  [
+   "{0} im Raum drehen, Spurpunkte und Normalenvektor sehen",
+   "Rotate {0} in space, see trace points and normal vector"
+  ],
+  [
+   "Zuletzt {0} / 10 Punkte – Ergebnis ansehen ›",
+   "Last time {0} / 10 points – see result ›"
+  ],
+  [
+   "{0} / {1} Punkte",
+   "{0} / {1} points"
+  ],
+  [
+   "in {0} Minuten (Richtzeit {1} Minuten)",
+   "in {0} minutes (guide time {1} minutes)"
+  ],
+  [
+   "Weiter zur Station {0}: {1}",
+   "Go to station {0}: {1}"
   ]
  ]
 }

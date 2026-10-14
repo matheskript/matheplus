@@ -87,6 +87,7 @@ export function MeinTrainingZeile({ gehe }) {
     ["warmup", "5 Minuten Mathe", "Fünf kurze Aufgaben"],
     ["fehlertraining", "Meine Fehler üben", wk ? `${wk} wiederkehrende${wk === 1 ? "r" : ""} Fehlertyp${wk === 1 ? "" : "en"}` : "Gezielt ähnliche Aufgaben"],
     ["pruefung", "Prüfungsmodus", "Ohne Hilfen, mit Punkten"],
+    ["abiketten", "Abi-Ketten", "Eine Aufgabe, mehrere Werkzeuge"],
     ["klausurnach", "Klausur nachbereiten", "Verlorene Punkte auswerten"],
   ];
   return (

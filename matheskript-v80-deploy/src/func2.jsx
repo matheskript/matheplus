@@ -27,6 +27,8 @@ import { ElternabendKachel } from "./funcElternabend.jsx";
 import { EntdeckenLogoKlein } from "./funcEntdecken.jsx";
 import { SatzZeilen, saetze } from "./baseSatz.jsx";
 import { AufklappZeichen } from "./aufklappen.jsx";
+import { BEREICHE, WERKZEUGE, ansichtenVon, istWerkzeugAnsicht } from "./werkzeuge.js";
+import { EtikettPille, EtikettLegende } from "./funcWerkzeuge.jsx";
 
 /* Große, ganz anklickbare Kachel für die Plotter auf der Startseite. */
 /* Polynomplotter-Grafik im Hochformat für die Kachel. */
@@ -372,53 +374,17 @@ const ZEIGE_WETTBEWERBE = true;
 /* Gesperrte Kurse/Angebote (Schloss) vorerst nicht auf der Startseite zeigen. Auf true setzen, um sie wieder einzublenden. */
 const ZEIGE_GESPERRTE = false;
 
-/* Schulmathematik → Bereiche → Werkzeuge (zweistufiges Aufklappmenü) */
-const SCHUL_BEREICHE = [
-  { id: "analysis", titel: "Analysis", text: "Kurvendiskussion, Steckbriefe, Sinus und Ableitungen – live.", logo: <PlotterLogoKlein />,
-    tools: [
-      { name: "Geradengleichung", zeile: "y = m·x + c aus zwei Punkten oder Punkt und Steigung", bild: "gerade", ziel: { ansicht: "geradengleichung" } },
-      { name: "Parabeln", zeile: "Scheitelpunkt, Scheitelform, Nullstellen, Brennpunkt", bild: "parabel", ziel: { ansicht: "parabeln" } },
-      { name: "Kurvendiskussion", zeile: "Graph, Ableitungen und PDF auf Knopfdruck", bild: "kurve",
-        kinder: [
-          { name: "Polynome", zeile: "Ganzrationale Funktionen bis Grad 4", bild: "poly", ziel: { ansicht: "plotter" } },
-          { name: "Beliebige Funktionen", zeile: "Mit sin, ln, eˣ, Wurzeln und Brüchen", bild: "beliebig", ziel: { ansicht: "advplotter" } },
-        ] },
-      { name: "Sinusfunktion", zeile: "f(x) = a · sin(b · (x − c)) + d", bild: "sinus", ziel: { ansicht: "sinus" } },
-      { name: "Steckbriefaufgaben", zeile: "Aus Eigenschaften die Funktion bestimmen", bild: "steckbrief", ziel: { ansicht: "steckbrief" } },
-      { name: "Ableitungstrainer", zeile: "f′, f″ und f‴ eingeben und prüfen", bild: "ableitung", ziel: { ansicht: "ableitungstrainer" } },
-      { name: "Integrale", zeile: "Stammfunktionen und bestimmte Integrale", bild: "integral", ziel: { ansicht: "integrale" } },
-      { name: "Optimierungswerkstatt", zeile: "Schachtel, Fläche, eigener Ansatz", bild: "optimierung", ziel: { ansicht: "optimierung" } },
-      { name: "Wachstum und Logarithmen", zeile: "Messwerte, Halbwertszeit, Zielwert", bild: "wachstum", ziel: { ansicht: "wachstum" } },
-      { name: "Funktionsscharen", zeile: "Parameter, Ortskurven, Sonderfälle", bild: "scharen", ziel: { ansicht: "scharen" } },
-    ], video: { name: "Videokurse Analysis", zeile: "Analysis 1–5 mit Videolektionen und Checks" } },
-  { id: "vektoren", titel: "Vektoren", text: "Der Ebenen-Visualizer zeigt jede Ebene live im Raum – dazu der Videokurs.", logo: <VektorenLogoKlein />,
-    tools: [
-      { name: "Ebenen-Visualizer", zeile: "Ebenen live im Raum drehen", bild: "ebene", ziel: { ansicht: "ebenen" } },
-      { name: "Ebene vs. Ebene", zeile: "Schnittgerade und Schnittwinkel", bild: "ebenen2", ziel: { ansicht: "ebenevsebene" } },
-      { name: "Rechnen mit Vektoren", zeile: "A ± B, k · A, k · A + j · B mit Rechenweg", bild: "wuerfel", ziel: { ansicht: "vektorgenerator" } },
-      { name: "Kreuzprodukt", zeile: "a × b – Formel, eingesetzt, Ergebnis", bild: "kreuz", ziel: { ansicht: "kreuzprodukt" } },
-      { name: "Zwei Punkte – eine Gerade", zeile: "Geradengleichung auf zwei Wegen", bild: "gerade2p", ziel: { ansicht: "zweipunkte" } },
-      { name: "Drei Punkte – eine Ebene", zeile: "Drei Wege, mit Koordinatenform", bild: "ebene3p", ziel: { ansicht: "dreipunkte" } },
-      { name: "Abstände", zeile: "Punkt, Gerade, Ebene – alle Kombinationen", bild: "abstand", ziel: { ansicht: "abstaende" } },
-      { name: "Geraden im Raum", zeile: "Punktprobe, Lage von Gerade und Ebene", bild: "geraden", ziel: { ansicht: "geraden" } },
-      { name: "Winkel und Skalarprodukt", zeile: "Skalarprodukt, Vektorwinkel, Gerade-Ebene", bild: "winkel", ziel: { ansicht: "winkel" } },
-    ], video: { name: "Videokurs Vektoren", zeile: "Fünf Lektionen mit Kurz-Checks" } },
-  { id: "stochastik", titel: "Stochastik", text: "Bernoulli-Kette und Vier-Felder-Tafel: den Zufall live laufen lassen.", logo: <StochastikLogoKlein />,
-    tools: [
-      { name: "Bernoulli-Kette", zeile: "Binomialverteilung live simulieren", bild: "balken", ziel: { ansicht: "bernoulli" } },
-      { name: "Vier-Felder-Tafel", zeile: "Mit Baumdiagramm und bedingter WKT", bild: "tafel", ziel: { ansicht: "vierfelder" } },
-      { name: "Erwartungswert und faire Spiele", zeile: "Gewinnverteilung, fairer Einsatz, Simulation", bild: "erwartung", ziel: { ansicht: "erwartungswert" } },
-      { name: "Urnen und Kombinatorik", zeile: "Ziehen, Zählmethoden, Baumdiagramme", bild: "urne", ziel: { ansicht: "kombinatorik" } },
-      { name: "Hypothesentests", zeile: "H₀, Ablehnungsbereich, Fehler 1. und 2. Art", bild: "hypothese", ziel: { ansicht: "hypothesentest" } },
-    ], video: { name: "Videokurs Stochastik", zeile: "Vom Baumdiagramm zum Hypothesentest" } },
-  { id: "gleichungen", titel: "Gleichungen", text: "Gleichungen umformen und Gleichungssysteme lösen – mit Musterlösung.", logo: <GleichungenLogoKlein />,
-    tools: [
-      { name: "Gleichungen lösen", zeile: "Du formst um, die App rechnet mit", bild: "gleichung", ziel: { ansicht: "gleichungen" } },
-      { name: "Terme und Potenzgesetze", zeile: "Vereinfachen, ausklammern, kürzen", bild: "termkarte", ziel: { ansicht: "terme" } },
-      { name: "Gleichungen verstehen", zeile: "Umformen, Methode, Fehler, Lösungsmenge", bild: "gleichverstehen", ziel: { ansicht: "gleichverstehen" } },
-      { name: "Gleichungssysteme", zeile: "Mit drei Variablen", bild: "lgs", ziel: { ansicht: "lgs" } },
-    ], video: { name: "Videokurs Gleichungen", zeile: "Umformen, Gleichungssysteme, Musterlösungen" } },
-];
+/* Schulmathematik → Bereiche → Stationen → Werkzeuge. Die Daten stehen in werkzeuge.js (eine Liste für
+   Startseite, Werkzeug-Menü, Kopfleiste und Übersichtsseiten); hier kommen nur die Logos dazu. */
+const BEREICH_LOGO = { analysis: <PlotterLogoKlein />, vektoren: <VektorenLogoKlein />, stochastik: <StochastikLogoKlein />, gleichungen: <GleichungenLogoKlein /> };
+const SCHUL_BEREICHE = BEREICHE.map((b) => ({
+  id: b.id, titel: b.titel, text: b.text, logo: BEREICH_LOGO[b.id], video: b.video,
+  /* flache Liste für das Untermenü: je Station eine Kopfzeile, darunter ihre Werkzeuge */
+  tools: b.stationen.flatMap((st, i) => [
+    { kopf: true, name: `${b.id}-${st.id}`, nr: i + 1, titel: st.titel, zeile: st.zeile },
+    ...st.werkzeuge.map((id) => { const w = WERKZEUGE[id]; return { name: w.name, zeile: w.zeile, bild: w.bild, ziel: w.ziel, etikett: w.etikett }; }),
+  ]),
+}));
 
 /* Formelsammlung → Bereiche (Untermenü wie bei Analysis) */
 const FORMEL_MENUE = [
@@ -437,10 +403,13 @@ const FORMEL_MENUE = [
    zugeklappt und lassen sich einzeln aufklappen (+ / −).
    ====================================================================== */
 function toolKnoten(t) {
+  if (t.kopf) return { kopf: true, nr: t.nr, titel: t.titel };
   return t.kinder
     ? { id: t.name, titel: t.name, kinder: t.kinder.map((k) => ({ titel: k.name, ziel: k.ziel })) }
-    : { titel: t.name, ziel: t.ziel };
+    : { titel: t.name, ziel: t.ziel, etikett: t.etikett };
 }
+/* Hauptansicht eines Werkzeugs → alle seine Ansichten (z. B. plotter → plotter, advplotter) */
+const WERKZEUG_ANSICHTEN = Object.fromEntries(Object.values(WERKZEUGE).map((w) => [w.ziel.ansicht, ansichtenVon(w)]));
 function menueBaum() {
   return [
     ...SCHUL_BEREICHE.map((b) => ({ id: b.id, titel: b.titel, kinder: b.tools.map(toolKnoten) })),
@@ -451,7 +420,7 @@ function menueBaum() {
 /* Alle Seiten, die über das Menü erreichbar sind – dort erscheint der Menü-Knopf im Kopfbereich */
 export function istToolMenueSeite(ansicht) {
   const sammle = (liste) => liste.flatMap((k) => (k.kinder ? sammle(k.kinder) : k.ziel ? [k.ziel.ansicht] : []));
-  return sammle(menueBaum()).includes(ansicht);
+  return istWerkzeugAnsicht(ansicht) || sammle(menueBaum()).includes(ansicht);
 }
 
 export function ToolMenue({ gehe, schliessen, aktuell }) {
@@ -463,9 +432,12 @@ export function ToolMenue({ gehe, schliessen, aktuell }) {
     return () => window.removeEventListener("keydown", taste);
   }, []);
   const zeile = (k, pfad, tiefe) => {
-    const id = pfad + "/" + k.titel;
+    const id = pfad + "/" + (k.nr ? `${k.nr}-` : "") + k.titel;
+    if (k.kopf) {
+      return <p key={id} style={{ margin: "8px 2px 0", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: C.grau }}>{k.nr}{" "}<span>{k.titel}</span></p>;
+    }
     if (!k.kinder) {
-      const aktiv = k.ziel.ansicht === aktuell;
+      const aktiv = (WERKZEUG_ANSICHTEN[k.ziel.ansicht] || [k.ziel.ansicht]).includes(aktuell);
       return (
         <button key={id} type="button" onClick={() => gehe(k.ziel)} aria-current={aktiv ? "page" : undefined}
           style={{ display: "block", width: "100%", textAlign: "left", fontFamily: "inherit", cursor: "pointer", minHeight: 30, padding: "5px 9px", marginTop: 3,
@@ -629,6 +601,16 @@ function UnterMenue({ eintraege, gehe, tiefe = 0 }) {
         @keyframes unterAuf{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}`}</style>
       {eintraege.map((e, i) => {
         const auf = offen === e.name;
+        if (e.kopf) return (
+          <div key={e.name} data-station-kopf style={{ display: "flex", alignItems: "center", gap: 9, margin: i ? "10px 2px 0" : "2px 2px 0" }}>
+            <span aria-hidden="true" style={{ flexShrink: 0, width: 22, height: 22, borderRadius: 999, background: C.flaggold, color: C.seeTief, fontSize: 12, fontWeight: 800,
+              display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{e.nr}</span>
+            <span style={{ minWidth: 0, lineHeight: 1.2 }}>
+              <span style={{ display: "block", fontSize: 14, fontWeight: 700, color: C.weiss, letterSpacing: "-0.005em" }}>{e.titel}</span>
+              <span className="unter-zeile" style={{ display: "block", fontSize: 11.5, fontWeight: 400, color: "rgba(255,255,255,0.78)" }}>{e.zeile}</span>
+            </span>
+          </div>
+        );
         return (
           <React.Fragment key={e.name}>
             <button className="unter-knopf" onClick={() => (e.kinder ? setOffen(auf ? null : e.name) : gehe(e.ziel))}
@@ -644,6 +626,7 @@ function UnterMenue({ eintraege, gehe, tiefe = 0 }) {
               <span style={{ flex: "0 0 clamp(78px, 26%, 150px)", position: "relative", borderLeft: "1px solid rgba(255,255,255,0.14)", padding: "6px 6px",
                 display: "flex", alignItems: "center" }}>
                 <MiniBild art={e.bild} />
+                {e.etikett && <EtikettPille etikett={e.etikett} dunkel klein style={{ position: "absolute", top: 4, right: 4 }} />}
                 {e.kinder && <AufklappPfeil auf={auf} klein />}
               </span>
             </button>
@@ -1073,7 +1056,7 @@ export function Startseite({ gehe }) {
       <PlotterKachel breit halb={schulAuf} onClick={() => { setSchulAuf(!schulAuf); setBereichAuf(null); setAbiAuf(false); }} auf={schulAuf}
         label={schulAuf ? "Mathe-Training zuklappen" : "Mathe-Training aufklappen"}
         logo={<SchulmatheLogoKlein />} titel="Mathe-Training"
-        text={schulAuf ? "Mathematik, Kopfrechnen und Wettbewerbe." : "Mathematik mit Formelsammlung, Kopfrechnen und Wettbewerbe – alles zum Üben und Nachschlagen."}
+        text={schulAuf ? "Mathematik und Wettbewerbe." : "Mathematik in zwölf Stationen, Formelsammlung und Wettbewerbe – alles zum Üben und Nachschlagen."}
         extra={<PlusKnopf auf={schulAuf} klein={schulAuf} />} />
       {schulAuf && (
         <div data-aufklapp-inhalt style={{ margin: "0 0 4px" }}>
@@ -1086,6 +1069,7 @@ export function Startseite({ gehe }) {
             extra={<AufklappPfeil auf={abiAuf} />} />
           {abiAuf && (
             <div data-aufklapp-inhalt style={{ margin: "4px 0 4px", padding: "2px 0 2px 12px", borderLeft: `3px solid ${C.flaggold}` }}>
+              <div style={{ padding: "8px 2px 2px" }}><EtikettLegende dunkel /></div>
               {SCHUL_BEREICHE.map((b) => (
                 <React.Fragment key={b.id}>
                   <PlotterKachel klein haupt onClick={() => setBereichAuf(bereichAuf === b.id ? null : b.id)}
@@ -1096,6 +1080,9 @@ export function Startseite({ gehe }) {
                   {ZEIGE_GESPERRTE && bereichAuf === b.id && b.video && <VideokursGesperrt name={b.video.name} zeile={b.video.zeile} />}
                 </React.Fragment>
               ))}
+              <PlotterKachel klein onClick={() => gehe({ ansicht: "abiketten" })} label="Abi-Ketten öffnen" logo={<ZeichenLogo zeichen="a→d" />}
+                titel="Abi-Ketten"
+                text="Eine Abi-Aufgabe, die durch mehrere Werkzeuge läuft – mit Punkten und Uhr." />
               <PlotterKachel klein onClick={() => setFormelAuf(!formelAuf)} auf={formelAuf} label={formelAuf ? "Formelsammlung zuklappen" : "Formelsammlung aufklappen"} logo={<FormelLogoKlein />}
                 titel="Formelsammlung"
                 text="Alle wichtigen Formeln der Oberstufe – sauber sortiert zum Nachschlagen."
@@ -1109,20 +1096,6 @@ export function Startseite({ gehe }) {
                 titel="Sätze"
                 text="Die zentralen Sätze der Oberstufe – klar formuliert." />
               </>)}
-            </div>
-          )}
-          </AufklappRahmen>
-
-          <AufklappRahmen auf={kopfAuf} tief>
-          <PlotterKachel klein breit haupt onClick={() => setKopfAuf(!kopfAuf)} auf={kopfAuf} label={kopfAuf ? "Kopfrechnen zuklappen" : "Kopfrechnen aufklappen"} logo={<KopfrechnenLogoKlein />}
-            titel="Kopfrechnen"
-            text="Primfaktoren, Quadratzahlen, Brüche, Einmaleins – auf Zeit."
-            extra={<AufklappPfeil auf={kopfAuf} />} />
-          {kopfAuf && (
-            <div data-aufklapp-inhalt style={{ margin: "4px 0 4px", padding: "2px 0 2px 12px", borderLeft: `3px solid ${C.flaggold}` }}>
-              <div style={{ paddingTop: 8, paddingBottom: 4 }}>
-                <KopfKacheln onWaehle={(id) => gehe({ ansicht: "kopf", trainer: id })} />
-              </div>
             </div>
           )}
           </AufklappRahmen>
@@ -1178,7 +1151,7 @@ export function Startseite({ gehe }) {
         text="Klar aufschreiben, strukturiert arbeiten, sicher mit Fehlern umgehen." />
       <PlotterKachel onClick={() => gehe({ ansicht: "headnumbers" })} label="Head & Numbers öffnen" logo={<HeadNumbersLogoKlein />} keinI18nTitel
         titel="Head & Numbers"
-        text="Einmaleins, Quadrat- und Kubikzahlen – spielerisch, bis sie sitzen." />
+        text="Einmaleins, Quadrat- und Kubikzahlen, schriftliches Rechnen und Brüche – bis alles sitzt." />
       <PlotterKachel onClick={() => gehe({ ansicht: "ebbinghaus" })} label="Ebbinghaus öffnen" logo={<EbbinghausLogoKlein />} extra={<EbbinghausBadge />} keinI18nTitel
         titel="Ebbinghaus"
         text={EBB_SLOGAN} />

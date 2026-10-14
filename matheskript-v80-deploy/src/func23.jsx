@@ -9,6 +9,7 @@
    ============================================================ */
 
 import React, { useState } from "react";
+import { WeiterKnopf, WeiterMit } from "./funcWerkzeuge.jsx";
 import { C } from "./base1.jsx";
 import { Einzeilig, ggT, kreuz, skalar } from "./func19.jsx";
 import { FA, FB, FE, FS, Gl, Name, Raum3, Schritt, Vek, k, koordText, n } from "./func20.jsx";
@@ -444,6 +445,16 @@ export function DreiPunkteEbene() {
             </div>
             <Raum3 key={[...A, ...B, ...Cp].join()} punkte={[{ p: A, label: "A", farbe: FA }, { p: B, label: "B", farbe: FB }, { p: Cp, label: "C", farbe: FS }]}
               ebene={{ n: formen[0].nv, d: formen[0].d }} />
+            {(() => {
+              const k = [...formen[0].norm.n, formen[0].norm.d];
+              const passt = k.every((x) => Number.isInteger(x) && Math.abs(x) <= 10);
+              return (
+                <WeiterMit titel="Weiter mit dieser Ebene">
+                  {passt && <WeiterKnopf ziel="ebenen" von="Drei Punkte – eine Ebene" daten={{ k }} zeile={`${koordText(formen[0].norm.n, formen[0].norm.d)} im Raum drehen, Spurpunkte und Normalenvektor sehen`} />}
+                  <WeiterKnopf ziel="abstaende" von="Drei Punkte – eine Ebene" daten={{ ebene: k }} zeile="Abstand eines Punktes zu genau dieser Ebene berechnen" />
+                </WeiterMit>
+              );
+            })()}
           </>
         )}
       </div>

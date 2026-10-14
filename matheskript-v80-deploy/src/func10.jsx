@@ -6,6 +6,11 @@ import { NAV, SCHULKLASSEN, kiKopf, kiAntwort } from "./base4.jsx";
 import { KIAufgaben, Kurse, Trainingsbereich, dekodieren, jsonLesen, rendern } from "./func1.jsx";
 import { Parabeln } from "./funcParabeln.jsx";
 import { Startseite, ToolMenue, istToolMenueSeite } from "./func2.jsx";
+import { WerkzeugLeiste } from "./funcWerkzeuge.jsx";
+import { AbiKettenSeite } from "./funcAbiKetten.jsx";
+import { wo } from "./werkzeuge.js";
+import { hinweisVerwerfen } from "./uebergabe.js";
+import { FR } from "./funcRegistry.jsx";
 import { AufklappStil, AufklappZeichen, aufklappScrollStarten } from "./aufklappen.jsx";
 import { Plotter, Text, Zeile } from "./func3.jsx";
 import { Formelsammlung, FotoAufgaben, Klausur, Kurvendiskussion } from "./func4.jsx";
@@ -131,6 +136,7 @@ export function Mathilda() {
     } catch (e) { /* ignorieren */ }
   }, [ansicht]);
   const gehe = (eintrag) => {
+    if (!eintrag.uebergabe) hinweisVerwerfen();
     setAnsicht(eintrag.ansicht);
     setSeitenOffen(false); setToolMenueOffen(false);
     if (eintrag.ansicht === "training") setTrainZiel(eintrag.ziel ?? null);
@@ -147,6 +153,7 @@ export function Mathilda() {
     setMenuOffen(false); setGruppeOffen(null);
     window.scrollTo(0, 0);
   };
+  FR.gehe = gehe;   // für „Weiter mit …“-Knöpfe in den Werkzeugen (uebergabe.js)
   const [menuOffen, setMenuOffen] = useState(false);
   /* Ein Menüeintrag ist nur aktiv, wenn Ansicht UND Unterziel passen
      (mehrere Einträge teilen sich z. B. die Ansicht "training"). */
@@ -254,21 +261,11 @@ export function Mathilda() {
   // Früher eine Welle – jetzt ein gerader, sauberer Abschluss des Kopfbereichs.
   const Welle = () => <div aria-hidden="true" className="held-welle" style={{ height: 22 }} />;
 
-  // Untermenü im Kopfbereich: alle Übungsbereiche der aktuellen Sektion als Buttons
-  const SEKTIONEN = [
-    [{ ansicht: "analysis", name: "Übersicht", versteckt: true }, { ansicht: "geradengleichung", name: "Geradengleichung", kurz: "Geraden" }, { ansicht: "parabeln", name: "Parabeln", kurz: "Parabeln" }, { ansicht: "plotter", name: "Polynomplotter", kurz: "Polynome" }, { ansicht: "advplotter", name: "Advanced Plotter", kurz: "Advanced" },
-      { ansicht: "sinus", name: "Sinusfunktion", kurz: "Sinus" }, { ansicht: "ableitungstrainer", name: "Ableitungstrainer", kurz: "Ableitung" },
-      { ansicht: "steckbrief", name: "Steckbriefaufgaben", kurz: "Steckbrief" }, { ansicht: "integrale", name: "Integrale", kurz: "Integrale" },
-      { ansicht: "optimierung", name: "Optimierungswerkstatt", kurz: "Optimierung" }, { ansicht: "wachstum", name: "Wachstum und Logarithmen", kurz: "Wachstum" }, { ansicht: "scharen", name: "Funktionsscharen", kurz: "Scharen" }],
-    [{ ansicht: "vektoren", name: "Übersicht", versteckt: true }, { ansicht: "ebenen", name: "Ebenen-Visualizer", kurz: "Ebenen" }, { ansicht: "ebenevsebene", name: "Ebene vs. Ebene", kurz: "E vs. E" },
-      { ansicht: "kreuzprodukt", name: "Kreuzprodukt", kurz: "Kreuz" }, { ansicht: "vektorgenerator", name: "Rechnen mit Vektoren", kurz: "Rechnen" },
-      { ansicht: "zweipunkte", name: "Zwei Punkte – eine Gerade", kurz: "2 Punkte" }, { ansicht: "dreipunkte", name: "Drei Punkte – eine Ebene", kurz: "3 Punkte" }, { ansicht: "abstaende", name: "Abstände", kurz: "Abstände" },
-      { ansicht: "geraden", name: "Geraden im Raum", kurz: "Geraden" }, { ansicht: "winkel", name: "Winkel und Skalarprodukt", kurz: "Winkel" }],
-    [{ ansicht: "stochastik", name: "Übersicht", versteckt: true }, { ansicht: "bernoulli", name: "Bernoulli-Kette", kurz: "Bernoulli" }, { ansicht: "vierfelder", name: "Vier-Felder-Tafel", kurz: "Vierfelder" }, { ansicht: "erwartungswert", name: "Erwartungswert und faire Spiele", kurz: "Erwartungswert" }, { ansicht: "kombinatorik", name: "Urnen und Kombinatorik", kurz: "Kombinatorik" }, { ansicht: "hypothesentest", name: "Hypothesentests", kurz: "Tests" }],
-  ];
+  // Kopfbereich jeder Werkzeugseite: Menü-Knopf (☰) und die Werkzeug-Leiste aus werkzeuge.js
+  // (Bereich · Station, Werkzeuge der Station, Umschalter, „Weiter“ zur nächsten Station)
   const SektionsMenue = () => {
-    const sektion = SEKTIONEN.find((liste) => liste.some((x) => x.ansicht === ansicht));
-    const knopf = (sektion || istToolMenueSeite(ansicht)) ? (<>
+    const ort = wo(ansicht);
+    const knopf = (ort || istToolMenueSeite(ansicht)) ? (<>
       <button type="button" className="tool-menue-knopf" onClick={() => setToolMenueOffen(!toolMenueOffen)} aria-haspopup="dialog" aria-expanded={toolMenueOffen}
         data-kein-scroll aria-label={toolMenueOffen ? "Menü schließen" : "Menü mit allen Bereichen"} title="Menü"
         style={{ height: 34, width: 34, borderRadius: 999, padding: 0, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 46,
@@ -279,23 +276,10 @@ export function Mathilda() {
       </button>
       {toolMenueOffen && <ToolMenue gehe={gehe} schliessen={() => setToolMenueOffen(false)} aktuell={ansicht} />}
     </>) : null;
-    if (!sektion) return knopf;
+    if (!ort) return knopf;
     return (<>
       {knopf}
-      <div className="sek-menue" style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 6, paddingBottom: 4 }}
-        ref={(el) => { if (el) { const c = el.querySelector('[aria-current="page"]'); if (c && c.offsetLeft + c.offsetWidth > el.clientWidth) el.scrollLeft = c.offsetLeft + c.offsetWidth - el.clientWidth + 12; } }}>
-        {sektion.filter((x) => !x.versteckt).map((x) => {
-          const aktiv = x.ansicht === ansicht;
-          return (
-            <button key={x.ansicht} onClick={() => gehe({ ansicht: x.ansicht })} aria-current={aktiv ? "page" : undefined} className="sek-chip" title={x.name}
-              style={{ padding: "6px 12px", borderRadius: 999, fontSize: 12.5, fontWeight: aktiv ? 700 : 500, fontFamily: "inherit", cursor: "pointer",
-                whiteSpace: "nowrap", border: `1px solid ${aktiv ? C.flaggold : "rgba(255,255,255,0.28)"}`,
-                background: aktiv ? "rgba(237,187,0,0.16)" : "rgba(255,255,255,0.08)", color: aktiv ? C.flaggold : C.silberHell }}>
-              {x.kurz ? <><span className="titel-lang">{x.name}</span><span className="titel-kurz">{x.kurz}</span></> : x.name}
-            </button>
-          );
-        })}
-      </div>
+      <WerkzeugLeiste ansicht={ansicht} gehe={gehe} />
       {ansicht !== "sinus" && ansicht !== "steckbrief" && <PruefungsLink ansicht={ansicht} gehe={gehe} klein />}
     </>);
   };
@@ -729,6 +713,18 @@ export function Mathilda() {
           </div>
           <TrainingSeite modus="fehlertraining" gehe={gehe} />
         </>
+      ) : ansicht === "abiketten" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
+            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(24px, 7vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Abi-Ketten</h1>
+              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
+              <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>Eine Abi-Aufgabe, die durch mehrere Werkzeuge läuft – mit Punkten und Uhr.</p>
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <AbiKettenSeite />
+        </>
       ) : ansicht === "pruefung" ? (
         <>
           <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
@@ -813,7 +809,7 @@ export function Mathilda() {
             </div>
             <Welle fill={C.sand} />
           </div>
-          <VektorGenerator />
+          <VektorGenerator gehe={gehe} />
         </>
       ) : ansicht === "zweipunkte" ? (
         <>
@@ -1002,7 +998,7 @@ export function Mathilda() {
         <>
           <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 33, letterSpacing: "-0.03em", lineHeight: 1.05 }}>Polynomplotter</h1>
+              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 33, letterSpacing: "-0.03em", lineHeight: 1.05 }}>Kurvendiskussion</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
               <SektionsMenue />
             </div>
@@ -1050,7 +1046,7 @@ export function Mathilda() {
         <>
           <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 33, letterSpacing: "-0.03em", lineHeight: 1.05 }}>Advanced Plotter</h1>
+              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 33, letterSpacing: "-0.03em", lineHeight: 1.05 }}>Kurvendiskussion</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
               <SektionsMenue />
             </div>
@@ -1102,13 +1098,12 @@ export function Mathilda() {
         <>
           <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 31, letterSpacing: "-0.03em", lineHeight: 1.05 }}>Gleichungslöser</h1>
+              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 31, letterSpacing: "-0.03em", lineHeight: 1.05 }}>Gleichungen lösen</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
               <SektionsMenue />
               <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
                 Gleichung lösen heißt, die Rechnung rückwärts zu gehen — Schritt für Schritt, auf beiden Seiten.
               </p>
-              <PruefungsLink ansicht={ansicht} gehe={gehe} klein />
             </div>
             <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
           </div>
@@ -1181,10 +1176,9 @@ export function Mathilda() {
         <>
           <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(26px, 7.6vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Gleichungen verstehen</h1>
+              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(26px, 7.6vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Gleichungen lösen</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
               <SektionsMenue />
-              <PruefungsLink ansicht={ansicht} gehe={gehe} klein />
             </div>
             <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
           </div>
@@ -1197,7 +1191,6 @@ export function Mathilda() {
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(26px, 7.6vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Terme und Potenzgesetze</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
               <SektionsMenue />
-              <PruefungsLink ansicht={ansicht} gehe={gehe} klein />
             </div>
             <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
           </div>

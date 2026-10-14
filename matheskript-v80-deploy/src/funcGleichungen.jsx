@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { uebergabeErledigt, uebergabeLesen } from "./uebergabe.js";
 import { C } from "./base1.jsx";
 import { merken } from "./func5.jsx";
 import { API_URL } from "./base1.jsx";
@@ -249,14 +250,25 @@ const Pille = ({ aktiv, onClick, children }) => (
 
 
 export function Gleichungsloeser() {
-  const [art, setArt] = useState("linear");
+  // Übergabe aus einem anderen Werkzeug (z. B. Parabeln: Nullstellen-Gleichung): als eigene Gleichung starten
+  const [mit] = useState(() => {
+    const u = uebergabeLesen("gleichungen");
+    if (!u || !u.text) return null;
+    try {
+      const g = G.gleichungLesen(u.text);
+      const z = G.status({ l: g.l, r: g.r });
+      return z.status === "offen" ? { text: u.text, stand: { start: { l: g.l, r: g.r }, zeilen: [{ zweige: [z], op: null }] } } : null;
+    } catch (e) { return null; }
+  });
+  useEffect(() => { uebergabeErledigt("gleichungen"); }, []);
+  const [art, setArt] = useState(mit ? "eigen" : "linear");
   const [stufe, setStufe] = useState(1);
-  const [stand, setStand] = useState(() => ersterStart("linear", 1));
+  const [stand, setStand] = useState(() => (mit ? mit.stand : ersterStart("linear", 1)));
   const [eingabe, setEingabe] = useState("");
   const [meldung, setMeldung] = useState(null);     // { art: "fehler" | "info", text }
   const [tippStufe, setTippStufe] = useState(0);
   const [tippsGenutzt, setTippsGenutzt] = useState(0);
-  const [eigenText, setEigenText] = useState("");
+  const [eigenText, setEigenText] = useState(mit ? mit.text : "");
   const [eigenFehler, setEigenFehler] = useState("");
   const [fotoListe, setFotoListe] = useState([]);   // [{ label, text, lesbar, fehler, erledigt }]
   const [fotoAktiv, setFotoAktiv] = useState(null);

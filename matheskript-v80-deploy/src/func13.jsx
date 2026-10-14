@@ -11,6 +11,7 @@
    ============================================================ */
 
 import React, { useMemo, useState } from "react";
+import { uebergabeErledigt, uebergabeLesen } from "./uebergabe.js";
 import { C } from "./base1.jsx";
 import { ABL_TYPEN } from "./base2.jsx";
 import { M } from "./func3.jsx";
@@ -141,13 +142,16 @@ function Zeile({ stufe, aktiv, eintrag, onKlick }) {
 const leer = () => ({ text: "", status: null, hinweis: "", versuche: 0 });
 
 export function Ableitungstrainer() {
-  const [quelle, setQuelle] = useState("typ");            // typ | zufall | eigen
+  // Übergabe aus einem anderen Werkzeug (z. B. Kurvendiskussion, Steckbrief): diese Funktion selbst ableiten
+  const [mit] = useState(() => { const u = uebergabeLesen("ableitungstrainer"); return u && u.text && parse(u.text) ? u.text : null; });
+  React.useEffect(() => { uebergabeErledigt("ableitungstrainer"); }, []);
+  const [quelle, setQuelle] = useState(mit ? "eigen" : "typ");            // typ | zufall | eigen
   const [typ, setTyp] = useState(ABL_TYPEN[0]);
   const [stufeTyp, setStufeTyp] = useState(2);
-  const [fText, setFText] = useState(() => ABL_TYPEN[0].mach(2).f);
-  const [eigenText, setEigenText] = useState("");
-  const [eigenPos, setEigenPos] = useState(0);
-  const [eigenOffen, setEigenOffen] = useState(true);
+  const [fText, setFText] = useState(() => mit || ABL_TYPEN[0].mach(2).f);
+  const [eigenText, setEigenText] = useState(mit || "");
+  const [eigenPos, setEigenPos] = useState(mit ? mit.length : 0);
+  const [eigenOffen, setEigenOffen] = useState(!mit);
   const [zeilen, setZeilen] = useState([leer()]);
   const [aktiv, setAktiv] = useState(0);
   const [pos, setPos] = useState(0);

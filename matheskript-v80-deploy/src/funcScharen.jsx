@@ -12,6 +12,7 @@
    ============================================================ */
 
 import React, { useMemo, useState } from "react";
+import { WeiterKnopf, WeiterMit } from "./funcWerkzeuge.jsx";
 import { C } from "./base1.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
 import { Auswahl, GrosserKnopf, hilfeKontext, hinweis, karte, kicker, zw } from "./ui2.jsx";
@@ -127,6 +128,21 @@ function hilfeS(id) {
 }
 
 /* ---------- Modus 1: Parameter entdecken ---------- */
+/* Eine Kurve der Schar als Eingabetext für die Kurvendiskussion (Parser aus func12) */
+function scharText(sid, a) {
+  const r = (v) => Math.round(v * 1000) / 1000;
+  // c·x… ohne „1·“ und ohne „+ −“: nichts bleibt unvereinfacht stehen
+  const glied = (c, x, erstes) => {
+    c = r(c);
+    if (c === 0) return "";
+    const betrag = Math.abs(c), zahl = betrag === 1 && x ? "" : `${betrag}${x ? "*" : ""}`;
+    return `${c < 0 ? "-" : erstes ? "" : "+"}${zahl}${x}`;
+  };
+  if (sid === "kubisch") return `x^3${glied(-3 * a, "x", false)}`;
+  if (sid === "parabel") return (glied(a, "x^2", true) + glied(-4, "x", a === 0)) || "0";
+  return a === 0 ? "x" : `x*e^(${glied(-a, "x", true)})`;
+}
+
 function Entdecken() {
   const [sid, setSid] = useState("kubisch");
   const [a, setA] = useState(1);
@@ -168,6 +184,10 @@ function Entdecken() {
         {s.formeln.map(([k, v]) => <p key={k} style={{ margin: "2px 0" }}><b>{k}:</b> <PT t={v} /></p>)}
         <p style={{ margin: "8px 0 0", color: C.grau }}>{zw("Der Regler zeigt Beispiele – begründet wird mit der Rechnung.", "The slider shows examples – the reasoning comes from the calculation.")}</p>
       </Aufklapp>
+      <WeiterMit titel={zw(`Weiter mit a = ${zt(a, 2)}`, `Continue with a = ${zt(a, 2)}`)}>
+        <WeiterKnopf ziel="advplotter" von="Funktionsscharen" daten={{ text: scharText(sid, a) }} titel={zw("Kurvendiskussion", "Curve sketching")}
+          zeile={zw("Diese eine Kurve der Schar vollständig untersuchen", "Fully analyse this one curve of the family")} />
+      </WeiterMit>
       <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfeS(`sch-e-${sid}`)} /></div>
     </div>
   );

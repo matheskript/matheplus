@@ -523,13 +523,13 @@ const ARTEN = [
   { id: "skalar", name: "k · Vektor A", titel: "Skalarmultiplikation", haupt: true, info: "Die Zahl vor dem Vektor wird mit jeder Komponente multipliziert. Der Vektor wird gestreckt, gestaucht oder umgedreht." },
   { id: "linear", name: "k · A + j · B", titel: "Linearkombination", haupt: true, info: "Erst jeden Vektor mit seinem Skalar multiplizieren, dann komponentenweise zusammenfassen." },
   { id: "skalarprodukt", name: "Skalarprodukt", info: "Komponenten paarweise multiplizieren und alles addieren – das Ergebnis ist eine Zahl. Ist sie 0, stehen die Vektoren senkrecht." },
-  { id: "kreuzprodukt", name: "Kreuzprodukt", info: "Liefert einen Vektor, der auf beiden Vektoren senkrecht steht – zum Beispiel den Normalenvektor einer Ebene." },
-  { id: "abstandPG", name: "Abstand Punkt–Gerade", info: "Lotfußpunkt über die Bedingung „Verbindungsvektor senkrecht zum Richtungsvektor“ – dann die Länge des Lots." },
-  { id: "abstandPE", name: "Abstand Punkt–Ebene", info: "Mit der Hesseschen Normalform: Punkt in die Koordinatenform einsetzen und durch die Länge des Normalenvektors teilen." },
-  { id: "abstandGG", name: "Abstand Gerade–Gerade", info: "Für windschiefe Geraden: gemeinsamer Normalenvektor per Kreuzprodukt, dann den Verbindungsvektor darauf projizieren." },
+  /* Kreuzprodukt und Abstände haben eigene Werkzeuge (Stationen „Rechnen“ und „Lage und Abstand“) –
+     hier nur noch als Verweis, damit es dieselbe Rechnung nicht zweimal gibt. */
+  { id: "kreuzprodukt", name: "Kreuzprodukt", link: "kreuzprodukt" },
+  { id: "abstaende", name: "Abstände", link: "abstaende" },
 ];
 
-export function VektorGenerator() {
+export function VektorGenerator({ gehe }) {
   const [art, setArt] = useState("addsub");
   const [aufgabe, setAufgabe] = useState(() => neueAufgabe("addsub"));
   const [zaehler, setZaehler] = useState(1);
@@ -567,10 +567,10 @@ export function VektorGenerator() {
       <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: C.grau, marginBottom: 8 }}>Weitere Beispiele</p>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 18 }}>
         {ARTEN.filter((x) => !x.haupt).map((x) => (
-          <button key={x.id} onClick={() => wechsle(x.id)}
+          <button key={x.id} onClick={() => (x.link ? gehe && gehe({ ansicht: x.link }) : wechsle(x.id))} title={x.link ? `Zum Werkzeug „${x.name}“` : undefined}
             style={{ padding: "7px 12px", borderRadius: 999, fontSize: 12.5, fontFamily: "inherit", cursor: "pointer", whiteSpace: "nowrap",
               border: `1px solid ${art === x.id ? C.see : C.linie}`, background: art === x.id ? C.see : C.weiss,
-              color: art === x.id ? C.weiss : C.see, fontWeight: art === x.id ? 700 : 500 }}>{x.name}</button>
+              color: art === x.id ? C.weiss : C.see, fontWeight: art === x.id ? 700 : 500, ...(x.link ? { borderStyle: "dashed" } : {}) }}>{x.name}{x.link ? " ›" : ""}</button>
         ))}
       </div>
 

@@ -13,6 +13,7 @@
    ============================================================ */
 
 import React, { useEffect, useId, useMemo, useRef, useState } from "react";
+import { WeiterKnopf, WeiterMit } from "./funcWerkzeuge.jsx";
 import { C, KOEFF_FARBEN } from "./base1.jsx";
 import { M } from "./func3.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
@@ -669,6 +670,19 @@ function hilfeNull(aufg) {
   });
 }
 
+/* f(x) = 0 als Eingabetext für den Gleichungslöser, z. B. „(1/2)x^2 - 3x + 2 = 0“ */
+function nullGleichungText(p) {
+  const teile = [];
+  [[p.a, "x^2"], [p.b, "x"], [p.c, ""]].forEach(([k, x]) => {
+    const v = qNum(k);
+    if (v === 0) return;
+    const betragText = qText(v < 0 ? qNeg(k) : k);
+    const zahl = betragText.includes("/") ? `(${betragText})` : betragText;
+    teile.push({ neg: v < 0, t: (betragText === "1" && x ? "" : zahl) + x });
+  });
+  return teile.map((z, i) => (i === 0 ? (z.neg ? "-" : "") + z.t : ` ${z.neg ? "-" : "+"} ${z.t}`)).join("") + " = 0";
+}
+
 function NullstellenSeite() {
   const [verf, setVerf] = useState("mitternacht");
   const [aufg, setAufg] = useState(() => neueNullAufgabe("mitternacht"));
@@ -707,6 +721,12 @@ function NullstellenSeite() {
           <div style={{ fontSize: 13, color: C.grau }}>a = {qt(p.a)}, b = {qt(p.b)}, c = {qt(p.c)}</div>
         </div>
         <SchrittFolge key={aufg.id} schritte={schritte} stand={stand} setStand={setStand} fertigText={probe} />
+        {fertig && (
+          <WeiterMit titel={zw("Weiter mit dieser Gleichung", "Continue with this equation")}>
+            <WeiterKnopf ziel="gleichungen" von="Parabeln" daten={{ text: nullGleichungText(p) }}
+              zeile={zw("f(x) = 0 Schritt für Schritt selbst umformen – ohne Formel", "Rearrange f(x) = 0 step by step yourself – without the formula")} />
+          </WeiterMit>
+        )}
         <GrosserKnopf gold onClick={() => neu()}>{zw("Neue Aufgabe", "New exercise")}</GrosserKnopf>
         <Aufklapp titel={zw("Kurz erklärt", "In short")}>
           {verf === "vieta" ? (

@@ -9,6 +9,8 @@
    ============================================================ */
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { WeiterKnopf, WeiterMit, ZentrumListe } from "./funcWerkzeuge.jsx";
+import { uebergabeErledigt, uebergabeLesen } from "./uebergabe.js";
 import { C } from "./base1.jsx";
 import { GesperrteKurse } from "./func1.jsx";
 import { Vorwissen, BernoulliVorwissen } from "./funcVorwissen.jsx";
@@ -353,12 +355,15 @@ function Histogramm({ n, p, k, modus, simuliert, letzter }) {
 /* ---------- Bernoulli-Bingo ---------- */
 
 export function BernoulliBingo() {
-  const [n, setN] = useState(10);
-  const [p, setP] = useState(1 / 6);
-  const [bruch, setBruch] = useState({ z: 1, nn: 6 });   // null = Kommazahl-Darstellung
+  // Übergabe (z. B. aus einer Abi-Kette): { n, p }
+  const [mit] = useState(() => { const u = uebergabeLesen("bernoulli"); return u && Number.isInteger(u.n) && u.n >= 1 && u.n <= 40 && u.p > 0 && u.p < 1 ? u : null; });
+  React.useEffect(() => { uebergabeErledigt("bernoulli"); }, []);
+  const [n, setN] = useState(mit ? mit.n : 10);
+  const [p, setP] = useState(mit ? mit.p : 1 / 6);
+  const [bruch, setBruch] = useState(!mit || Math.abs(mit.p - 1 / 6) < 1e-12 ? { z: 1, nn: 6 } : null);   // null = Kommazahl-Darstellung
   const pT = bruch ? `${bruch.z}/${bruch.nn}` : pText(p);
   const qT = bruch ? `${bruch.nn - bruch.z}/${bruch.nn}` : pText(1 - p);
-  const [k, setK] = useState(2);
+  const [k, setK] = useState(() => (mit ? Math.round(mit.n * mit.p) : 2));
   const [modus, setModus] = useState("gleich");
   const [ergebnis, setErgebnis] = useState(null);     // Array aus true/false (laufender/letzter Versuch)
   const [sichtbar, setSichtbar] = useState(0);
@@ -572,6 +577,13 @@ export function BernoulliBingo() {
         <IchHaengeFest kontext={bernoulliHilfe(n, pT, k, modus)} />
       </div>
 
+      {n >= 5 && p > 0 && p < 1 && (
+        <WeiterMit titel={`Weiter mit B(${n}; ${pT})`}>
+          <WeiterKnopf ziel="hypothesentest" von="Bernoulli-Kette" daten={{ n, p }}
+            zeile={`Ablehnungsbereich für H₀: p ≤ ${pT} bei n = ${n} und α = 5 % finden`} />
+        </WeiterMit>
+      )}
+
       <div style={{ ...karte, marginTop: 16 }}>
         <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 10 }}>Die Bernoulli-Kette in drei Sätzen</p>
         {[
@@ -590,14 +602,7 @@ export function BernoulliBingo() {
 
 /* ---------- Übersicht ---------- */
 
-const STOCHASTIK = [
-  { ziel: { ansicht: "bernoulli" }, titel: "Bernoulli-Kette", slogan: "Binomialverteilung live sehen und simulieren.", kurz: "Bernoulli-Kette einstellen, Binomialverteilung live sehen und das Experiment simulieren.", zeichen: "B" },
-  { ziel: { ansicht: "vierfelder" }, titel: "Vier-Felder-Tafel", slogan: "Absolut oder in Prozent – mit Baum und bedingter WKT.", kurz: "Absolute Häufigkeiten oder Wahrscheinlichkeiten, die sich zu 100 % ergänzen – mit Baumdiagramm und bedingter Wahrscheinlichkeit.", zeichen: "▦" },
-  { ziel: { ansicht: "erwartungswert" }, titel: "Erwartungswert und faire Spiele", kurzTitel: "Erwartungswert", slogan: "Nettogewinn, Erwartungswert, fairer Einsatz – mit Simulation.", zeichen: "E(X)" },
-  { ziel: { ansicht: "kombinatorik" }, titel: "Urnen und Kombinatorik", kurzTitel: "Kombinatorik", slogan: "Ziehen, Zählmethoden, Baumdiagramme.", zeichen: "n!" },
-  { ziel: { ansicht: "hypothesentest" }, titel: "Hypothesentests", slogan: "H₀ aufstellen, Ablehnungsbereich finden, Fehler verstehen.", zeichen: "H₀" },
-  { ziel: { ansicht: "kurse", kurs: "stochastik" }, titel: "Videokurs Stochastik", slogan: "Fünf Lektionen vom Baum bis zum Hypothesentest.", kurz: "Fünf Lektionen vom Baumdiagramm bis zum Hypothesentest – mit Merksätzen und Kurz-Checks.", zeichen: "▶" },
-];
+/* Die Werkzeuge stehen jetzt in werkzeuge.js (Stationen) */
 
 export function StochastikZentrum({ gehe }) {
   return (
@@ -610,21 +615,7 @@ export function StochastikZentrum({ gehe }) {
         siehst, was die Formeln vorhersagen.</span>
         <span className="titel-kurz">Lass tausend Versuche in Sekunden laufen und sieh live, wie die Formel recht behält. Probier’s aus!</span>
       </p>
-      {STOCHASTIK.map((x) => (
-        <button key={x.titel} onClick={() => gehe(x.ziel)} className="w-full mb-3"
-          style={{ display: "flex", alignItems: "center", gap: 14, padding: 14, background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 18,
-            textAlign: "left", cursor: "pointer", fontFamily: "inherit", color: C.tinte, boxShadow: "0 2px 14px rgba(15,26,51,0.06)" }}>
-          <span aria-hidden="true" style={{ flexShrink: 0, width: 64, height: 64, borderRadius: 15,
-            background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, color: C.flaggold,
-            display: "flex", alignItems: "center", justifyContent: "center", fontSize: x.zeichen.length > 3 ? 18 : 22, fontWeight: 800, fontStyle: "italic" }}>
-            {x.zeichen}
-          </span>
-          <span style={{ flex: 1, minWidth: 0 }}>
-            <span style={{ display: "block", fontSize: "clamp(15px, 4.4vw, 17.5px)", fontWeight: 600, lineHeight: 1.25, marginBottom: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{x.kurzTitel ? <><span className="titel-lang">{x.titel}</span><span className="titel-kurz">{x.kurzTitel}</span></> : x.titel}</span>
-            <span style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", minHeight: "2.8em", color: C.grau, fontSize: 13.5, fontWeight: 300, lineHeight: 1.4 }}>{x.slogan || x.kurz}</span>
-          </span>
-        </button>
-      ))}
+      <ZentrumListe bereichId="stochastik" gehe={gehe} />
       <GesperrteKurse ids={["stochastik"]} ueberschrift="Der Stochastik-Kurs" />
     </div>
   );
