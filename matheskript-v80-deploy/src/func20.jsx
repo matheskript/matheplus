@@ -518,10 +518,12 @@ function AbstandGG({ A, u, B, v }) {
 
 /* ---------- Seite ---------- */
 
+/* Formeln auf den drei Hauptknöpfen: kleine Buchstaben mit Pfeil darüber (a⃗, b⃗) */
+const va = <VecName t="a" />, vb = <VecName t="b" />;
 const ARTEN = [
-  { id: "addsub", name: "Vektor A ± Vektor B", haupt: true, info: "Komponentenweise addieren oder subtrahieren – oben mit oben, Mitte mit Mitte, unten mit unten." },
-  { id: "skalar", name: "k · Vektor A", titel: "Skalarmultiplikation", haupt: true, info: "Die Zahl vor dem Vektor wird mit jeder Komponente multipliziert. Der Vektor wird gestreckt, gestaucht oder umgedreht." },
-  { id: "linear", name: "k · A + j · B", titel: "Linearkombination", haupt: true, info: "Erst jeden Vektor mit seinem Skalar multiplizieren, dann komponentenweise zusammenfassen." },
+  { id: "addsub", name: "Vektoraddition", formel: <>{va} ± {vb}</>, haupt: true, info: "Komponentenweise addieren oder subtrahieren – oben mit oben, Mitte mit Mitte, unten mit unten." },
+  { id: "skalar", name: "Skalarmultiplikation", formel: <>k · {va}</>, titel: "Skalarmultiplikation", haupt: true, info: "Die Zahl vor dem Vektor wird mit jeder Komponente multipliziert. Der Vektor wird gestreckt, gestaucht oder umgedreht." },
+  { id: "linear", name: "Linearkombination", formel: <>k · {va} + j · {vb}</>, titel: "Linearkombination", haupt: true, info: "Erst jeden Vektor mit seinem Skalar multiplizieren, dann komponentenweise zusammenfassen." },
   { id: "skalarprodukt", name: "Skalarprodukt", info: "Komponenten paarweise multiplizieren und alles addieren – das Ergebnis ist eine Zahl. Ist sie 0, stehen die Vektoren senkrecht." },
   /* Kreuzprodukt und Abstände haben eigene Werkzeuge (Stationen „Rechnen“ und „Lage und Abstand“) –
      hier nur noch als Verweis, damit es dieselbe Rechnung nicht zweimal gibt. */
@@ -535,6 +537,9 @@ export function VektorGenerator({ gehe }) {
   const [zaehler, setZaehler] = useState(1);
   const wechsle = (id) => { setArt(id); setAufgabe(neueAufgabe(id)); setZaehler(1); };
   const neu = () => { setAufgabe(neueAufgabe(art)); setZaehler((z) => z + 1); };
+  // Auswahl unten bei „Weitere Beispiele“: danach zur Rechnung hochscrollen
+  const karteRef = useRef(null);
+  const wechsleUnten = (id) => { wechsle(id); requestAnimationFrame(() => karteRef.current && karteRef.current.scrollIntoView({ behavior: "smooth", block: "start" })); };
   const karte = { background: C.weiss, borderRadius: 16, padding: 18, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" };
   const info = ARTEN.find((x) => x.id === art);
   const titel = art === "addsub" ? (aufgabe.op === "+" ? "Vektoraddition" : "Vektorsubtraktion") : info.titel || info.name;
@@ -555,26 +560,19 @@ export function VektorGenerator({ gehe }) {
         {ARTEN.filter((x) => x.haupt).map((x) => {
           const an = art === x.id;
           return (
-            <button key={x.id} type="button" onClick={() => wechsle(x.id)} aria-pressed={an}
-              style={{ minHeight: 52, padding: "8px 10px", borderRadius: 14, fontFamily: "inherit", cursor: "pointer", textAlign: "center",
+            <button key={x.id} type="button" onClick={() => wechsle(x.id)} aria-pressed={an} aria-label={x.name}
+              style={{ minHeight: 64, padding: "9px 8px", borderRadius: 14, fontFamily: "inherit", cursor: "pointer", textAlign: "center",
+                display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 5,
                 border: `1px solid ${an ? C.see : C.linie}`, background: an ? C.see : C.weiss, color: an ? C.weiss : C.see,
-                fontSize: 15, fontWeight: 700, whiteSpace: "nowrap", boxShadow: an ? "0 4px 14px rgba(0,77,152,0.25)" : "0 2px 10px rgba(15,26,51,0.05)" }}>
-              {x.name}
+                boxShadow: an ? "0 4px 14px rgba(0,77,152,0.25)" : "0 2px 10px rgba(15,26,51,0.05)" }}>
+              <span style={{ fontSize: "clamp(11px, 2.9vw, 13px)", fontWeight: 700, letterSpacing: "0.01em", whiteSpace: "nowrap" }}>{x.name}</span>
+              <span data-kein-i18n style={{ fontSize: 16, fontWeight: 600, whiteSpace: "nowrap", paddingTop: "0.25em", lineHeight: 1.15 }}>{x.formel}</span>
             </button>
           );
         })}
       </div>
-      <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: C.grau, marginBottom: 8 }}>Weitere Beispiele</p>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 18 }}>
-        {ARTEN.filter((x) => !x.haupt).map((x) => (
-          <button key={x.id} onClick={() => (x.link ? gehe && gehe({ ansicht: x.link }) : wechsle(x.id))} title={x.link ? `Zum Werkzeug „${x.name}“` : undefined}
-            style={{ padding: "7px 12px", borderRadius: 999, fontSize: 12.5, fontFamily: "inherit", cursor: "pointer", whiteSpace: "nowrap",
-              border: `1px solid ${art === x.id ? C.see : C.linie}`, background: art === x.id ? C.see : C.weiss,
-              color: art === x.id ? C.weiss : C.see, fontWeight: art === x.id ? 700 : 500, ...(x.link ? { borderStyle: "dashed" } : {}) }}>{x.name}{x.link ? " ›" : ""}</button>
-        ))}
-      </div>
 
-      <div style={karte}>
+      <div ref={karteRef} style={{ ...karte, scrollMarginTop: 80 }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 6 }}>
           <p style={{ fontSize: 18, fontWeight: 800, color: C.tinte }}>{titel}</p>
           <span style={{ fontSize: 12, color: C.hellgrau, whiteSpace: "nowrap" }}>Beispiel {zaehler}</span>
@@ -597,6 +595,17 @@ export function VektorGenerator({ gehe }) {
             background: C.flaggold, color: C.seeTief, fontSize: 16, fontWeight: 800, boxShadow: "0 4px 14px rgba(237,187,0,0.35)" }}>
           🎲 Neues Beispiel
         </button>
+      </div>
+
+      {/* Weitere Beispiele ganz unten – die gewählte Rechnung mit „Neues Beispiel“ steht direkt unter den Hauptknöpfen */}
+      <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: C.grau, marginTop: 26, marginBottom: 8 }}>Weitere Beispiele</p>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+        {ARTEN.filter((x) => !x.haupt).map((x) => (
+          <button key={x.id} onClick={() => (x.link ? gehe && gehe({ ansicht: x.link }) : wechsleUnten(x.id))} title={x.link ? `Zum Werkzeug „${x.name}“` : undefined}
+            style={{ padding: "7px 12px", borderRadius: 999, fontSize: 12.5, fontFamily: "inherit", cursor: "pointer", whiteSpace: "nowrap",
+              border: `1px solid ${art === x.id ? C.see : C.linie}`, background: art === x.id ? C.see : C.weiss,
+              color: art === x.id ? C.weiss : C.see, fontWeight: art === x.id ? 700 : 500, ...(x.link ? { borderStyle: "dashed" } : {}) }}>{x.name}{x.link ? " ›" : ""}</button>
+        ))}
       </div>
     </div>
   );
