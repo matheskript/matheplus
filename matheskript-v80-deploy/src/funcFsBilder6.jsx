@@ -7,6 +7,10 @@ import { C } from "./base1.jsx";
 import { M } from "./func3.jsx";
 import { Achsen, F, Griff, Hinweis, Messzeile, Punkt, Regler, Txt, Umschalter, klemm, koord, summe, svgStil, useZiehen, z } from "./funcFsBasis.jsx";
 
+const WTxt = ({ x, y, children, gr = 12, anker = "middle" }) => (
+  <text x={x} y={y} textAnchor={anker} fontSize={gr} fontWeight={700} fill="#fff">{children}</text>
+);
+
 /* ---------- (aᵐ)ⁿ: n Gruppen mit je m Faktoren ---------- */
 function PotenzGruppen() {
   const [m, setM] = useState(3), [n, setN] = useState(2);
@@ -19,7 +23,7 @@ function PotenzGruppen() {
         <g transform={`translate(${Math.max(8, (340 - breite) / 2)} 0)`}>
           {Array.from({ length: n }, (_, g) => (
             <g key={g} transform={`translate(${g * (m * dx + gap)} 0)`}>
-              <rect x={-4} y={24} width={m * dx + 2} height={50} rx={10} fill={F.seeHell} stroke={F.see} strokeWidth="1.6" />
+              <rect x={-4} y={24} width={m * dx + 2} height={50} rx={10} fill={F.blau} stroke={F.see} strokeWidth="1.6" />
               {Array.from({ length: m }, (_, i) => <circle key={i} cx={i * dx + dx / 2 - 4} cy={49} r={r} fill={F.gold3} stroke={F.tinte} strokeWidth="1" />)}
               <Txt x={(m * dx) / 2 - 4} y={92} farbe={F.see} gr={12}>{`a${["⁰", "¹", "²", "³", "⁴", "⁵"][m] || m}`}</Txt>
             </g>
@@ -76,7 +80,7 @@ function LogPotenz() {
         {Array.from({ length: kk }, (_, i) => (
           <g key={i}>
             <rect x={20 + i * L * sk} y={30} width={L * sk - 2} height={30} rx={5} fill={i % 2 ? F.rosaKraeftig : F.see} opacity="0.85" />
-            <Txt x={20 + (i + 0.5) * L * sk} y={50} farbe={C.weiss} gr={11}>log a</Txt>
+            <WTxt x={20 + (i + 0.5) * L * sk} y={50}  gr={11}>log a</WTxt>
           </g>
         ))}
         <line x1={20} x2={20 + tot * sk} y1={78} y2={78} stroke={F.gold3} strokeWidth="3" />
@@ -103,7 +107,7 @@ function Basiswechsel() {
       <Hinweis>log_b x fragt: Wie oft passt die Strecke ln b in die Strecke ln x? Das ist der Quotient der beiden Längen.</Hinweis>
       <svg viewBox="0 0 340 120" style={svgStil} role="img" aria-label="ln x gemessen in Schritten der Länge ln b">
         <rect x={20} y={18} width={lx * sk} height={26} rx={5} fill={F.see} opacity="0.9" />
-        <Txt x={20 + (lx * sk) / 2} y={36} farbe={C.weiss} gr={12}>ln x</Txt>
+        <WTxt x={20 + (lx * sk) / 2} y={36}  gr={12}>ln x</WTxt>
         {Array.from({ length: voll }, (_, i) => (
           <rect key={i} x={20 + i * lb * sk} y={56} width={Math.max(2, lb * sk - 2)} height={26} rx={5} fill={i % 2 ? F.rosaKraeftig : F.gold3} opacity="0.9" />
         ))}

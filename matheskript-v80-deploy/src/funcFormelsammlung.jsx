@@ -18,8 +18,9 @@ import { BILDER_3 } from "./funcFsBilder3.jsx";
 import { BILDER_4 } from "./funcFsBilder4.jsx";
 import { BILDER_5 } from "./funcFsBilder5.jsx";
 import { BILDER_6 } from "./funcFsBilder6.jsx";
+import { BILDER_7 } from "./funcFsBilder7.jsx";
 
-const BILDER = { ...BILDER_1, ...BILDER_2, ...BILDER_3, ...BILDER_4, ...BILDER_5, ...BILDER_6 };
+const BILDER = { ...BILDER_1, ...BILDER_2, ...BILDER_3, ...BILDER_4, ...BILDER_5, ...BILDER_6, ...BILDER_7 };
 
 const MERK = "matheplus-formeln-gemerkt";
 const STUFE = "matheplus-stufe";
