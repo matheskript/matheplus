@@ -18,6 +18,7 @@ import { HeadNumbersLogoKlein } from "./funcHeadNumbersLogo.jsx";
 import { EBB_SLOGAN, EbbinghausBadge, EbbinghausLogoKlein } from "./funcEbbinghaus.jsx";
 import { MeinTrainingBadge, MeinTrainingLogoKlein, meinTrainingText, useOffenHeute } from "./funcMeinTraining.jsx";
 import { AppAnleitung } from "./funcAnleitung.jsx";
+import { SuchBox } from "./funcSuche.jsx";
 import { VektorenLogoKlein } from "./func16.jsx";
 import { StochastikLogoKlein } from "./func17.jsx";
 import { GleichungenLogoKlein } from "./funcGleichungen.jsx";
@@ -1456,6 +1457,8 @@ export function Startseite({ gehe }) {
           und schnelle Kopfrechenrunden. Such dir einen Bereich aus und leg los.
         </p>
       </section>
+      {/* Suchfeld „Was möchtest du trainieren?“: mobil über „So nutzt du die App“, am Desktop über „Mathematik entdecken“ */}
+      <SuchBox gehe={gehe} />
       {!desktop && <AppAnleitung />}
       {/* Oberbutton „Schulmathe-Training“: darunter direkt die Bereiche (Analysis, Vektoren, Stochastik,
           Gleichungen), Abi-Ketten und Formelsammlung. Aufgeklappt wird der Button halb so hoch.
