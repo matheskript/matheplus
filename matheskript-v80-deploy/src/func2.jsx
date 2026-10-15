@@ -189,11 +189,33 @@ const START_TEXT = { color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1
 const START_KICKER = { fontSize: 11.5, letterSpacing: "1.8px", textTransform: "uppercase", color: C.gruenDunkel, fontWeight: 700, margin: "0 0 10px" };
 const START_H2 = { fontSize: 26, fontWeight: 700, letterSpacing: "-0.025em", lineHeight: 1.22, color: C.tinte, margin: "0 0 14px" };
 
+/* Überschrift immer in einer Zeile: Schrift startet bei 26 px und wird verkleinert, bis der Text in die Breite passt
+   (neu gemessen bei Schriftladen, Fenstergröße und Textwechsel, z. B. Sprachumschaltung). */
+function EinzeilerH2({ children }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return undefined;
+    const passen = () => {
+      let g = 26;
+      el.style.fontSize = g + "px";
+      while (el.scrollWidth > el.clientWidth + 0.5 && g > 13) { g -= 0.5; el.style.fontSize = g + "px"; }
+    };
+    passen();
+    let mo, fonts;
+    try { fonts = document.fonts && document.fonts.ready; fonts && fonts.then(passen); } catch { /* egal */ }
+    try { mo = new MutationObserver(passen); mo.observe(el, { childList: true, characterData: true, subtree: true }); } catch { /* egal */ }
+    window.addEventListener("resize", passen);
+    return () => { window.removeEventListener("resize", passen); mo && mo.disconnect(); };
+  }, [children]);
+  return <h2 ref={ref} style={{ ...START_H2, fontSize: undefined, whiteSpace: "nowrap", overflow: "hidden" }}>{children}</h2>;
+}
+
 function StartAbschnittKopf({ kicker, titel }) {
   return (
     <>
       <p style={START_KICKER}>{kicker}</p>
-      <h2 style={START_H2}>{titel}</h2>
+      <EinzeilerH2>{titel}</EinzeilerH2>
       <span aria-hidden="true" style={{ display: "block", width: 54, height: 3, borderRadius: 2, margin: "0 0 18px",
         background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)` }} />
     </>
