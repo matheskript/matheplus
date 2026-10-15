@@ -630,7 +630,7 @@ function hauptnennerZweig(z) {
 
 /* ---------- Substitution ---------- */
 
-/* Prüft, ob sich die Gleichung mit u = x² (biquadratisch) oder u = b^(kx) in eine
+/* Prüft, ob sich die Gleichung mit z = x² (biquadratisch) oder z = b^(kx) in eine
    quadratische Gleichung verwandeln lässt. */
 export function substInfo(z) {
   if (z.sub) return null;
@@ -661,8 +661,8 @@ export function substInfo(z) {
 function substZweig(z) {
   const info = substInfo(z);
   if (!info) {
-    throw new Fehler(z.sub ? "Hier wurde schon substituiert. Löse nach u auf und mach dann die Rücksubstitution."
-      : "Substitution hilft, wenn nur x⁴ und x² vorkommen (u = x²) oder e^(2x) und e^x (u = e^x). Das ist hier nicht der Fall.");
+    throw new Fehler(z.sub ? "Hier wurde schon substituiert. Löse nach z auf und mach dann die Rücksubstitution."
+      : "Substitution hilft, wenn nur x⁴ und x² vorkommen (z = x²) oder e^(2x) und e^x (z = e^x). Das ist hier nicht der Fall.");
   }
   let l, r;
   if (info.art === "quad") {
@@ -675,7 +675,7 @@ function substZweig(z) {
     })));
     l = ersetze(z.l); r = ersetze(z.r);
   }
-  return { zweige: [status({ l, r, sub: { ziel: info.ziel }, var: "u" })], ziel: info.ziel };
+  return { zweige: [status({ l, r, sub: { ziel: info.ziel }, var: "z" })], ziel: info.ziel };
 }
 
 function ruecksubZweig(z) {
@@ -683,7 +683,7 @@ function ruecksubZweig(z) {
   let wertU;
   if (istX(z.l) && !hatX(z.r)) wertU = z.r;
   else if (istX(z.r) && !hatX(z.l)) wertU = z.l;
-  else throw new Fehler("Löse zuerst nach u auf (u = …). Erst dann setzt du für u wieder den ursprünglichen Term ein.");
+  else throw new Fehler("Löse zuerst nach z auf (z = …). Erst dann setzt du für z wieder den ursprünglichen Term ein.");
   return [status({ l: z.sub.ziel, r: wertU })];
 }
 
@@ -1112,7 +1112,7 @@ export function tipp(zweige) {
   const lx = hatX(z.l), rx = hatX(z.r);
 
   if (z.sub && ((istX(z.l) && !rx) || (istX(z.r) && !lx))) {
-    return { text: `u ist bestimmt. Jetzt zurück zu x: Bei der Rücksubstitution setzt du für u wieder ${alsText(z.sub.ziel)} ein.`, op: "#ruecksub" };
+    return { text: `z ist bestimmt. Jetzt zurück zu x: Bei der Rücksubstitution setzt du für z wieder ${alsText(z.sub.ziel)} ein.`, op: "#ruecksub" };
   }
   if (hatXNenner(z)) {
     return { text: "Bruchgleichung: Werte, bei denen ein Nenner 0 wird, sind verboten — sie stehen oben in der Definitionsmenge. Multipliziere dann beide Seiten mit dem Hauptnenner, danach steht kein Bruch mehr da.", op: "#hauptnenner" };
@@ -1120,8 +1120,8 @@ export function tipp(zweige) {
   const si = substInfo(z);
   if (si) {
     return { text: si.art === "quad"
-      ? "Hier kommen nur x⁴ und x² vor — eine biquadratische Gleichung. Substituiere u = x², dann wird daraus eine quadratische Gleichung in u."
-      : `Hier steckt ${alsText(si.ziel)} zweimal drin: einmal so und einmal im Quadrat. Mit u = ${alsText(si.ziel)} wird daraus eine quadratische Gleichung in u.`, op: "#subst" };
+      ? "Hier kommen nur x⁴ und x² vor — eine biquadratische Gleichung. Substituiere z = x², dann wird daraus eine quadratische Gleichung in z."
+      : `Hier steckt ${alsText(si.ziel)} zweimal drin: einmal so und einmal im Quadrat. Mit z = ${alsText(si.ziel)} wird daraus eine quadratische Gleichung in z.`, op: "#subst" };
   }
 
   if (lx && rx) {
@@ -1319,6 +1319,8 @@ const GENERATOREN = {
       () => { const p = zufall(1, 4), c = p * p + zufall(1, 6); return `${glieder([[1, "x²"], [2 * p, "x"], [c, ""]])} = 0`; },
       () => { const a = zufall(1, 3); let b = zufall(1, 4); while (b === a) b = zufall(1, 4); return `${glieder([[1, "x^4"], [-(a * a + b * b), "x²"], [a * a * b * b, ""]])} = 0`; },
       () => { const a = zufall(1, 4), c = zufall(1, 5); return `${glieder([[1, "x^4"], [c - a * a, "x²"], [-a * a * c, ""]])} = 0`; },
+      // biquadratisch mit Termen auf beiden Seiten: x⁴ = (a² + b²)x² − a²b²
+      () => { const a = zufall(1, 3); let b = zufall(1, 4); while (b === a) b = zufall(1, 4); return `x^4 = ${glieder([[a * a + b * b, "x²"], [-a * a * b * b, ""]])}`; },
     ])(),
   },
   exponential: {
@@ -1457,6 +1459,14 @@ Object.assign(GENERATOREN.quadratisch, {
     },
     () => { const a = wahl([2, 3]), m = zufall(1, 3); let n = zufall(1, 3); while (n === m) n = zufall(1, 3); return `${glieder([[a, "x^4"], [-a * (m * m + n * n), "x²"], [a * m * m * n * n, ""]])} = 0`; },
     () => { const p = nichtNull(-4, 4), q = zufall(2, 6); return `(${glieder([[1, "x"], [p, ""]])})² = ${glieder([[2 * p, "x"], [q * q + p * p, ""]])}`; },
+    // biquadratisch, Lösungen ±√p und ±√q (nicht glatt): z = x², dann x = ±√z
+    () => { const p = zufall(2, 7); let q = zufall(2, 7); while (q === p) q = zufall(2, 7); return `${glieder([[1, "x^4"], [-(p + q), "x²"], [p * q, ""]])} = 0`; },
+    // biquadratisch mit einem negativen z: nur ein z liefert Lösungen
+    () => { const a = zufall(1, 5), c = zufall(1, 6); return `${glieder([[1, "x^4"], [c - a * a, "x²"], [-a * a * c, ""]])} = 0`; },
+    // biquadratisch ganz ohne reelle Lösung: beide z negativ
+    () => { const p = zufall(1, 4); let q = zufall(1, 4); while (q === p) q = zufall(1, 4); return `${glieder([[1, "x^4"], [p + q, "x²"], [p * q, ""]])} = 0`; },
+    // biquadratisch mit Faktor a und Termen auf beiden Seiten: a·x⁴ = a(m² + n²)x² − a·m²n²
+    () => { const a = wahl([2, 3]), m = zufall(1, 3); let n = zufall(1, 3); while (n === m) n = zufall(1, 3); return `${a}x^4 = ${glieder([[a * (m * m + n * n), "x²"], [-a * m * m * n * n, ""]])}`; },
   ])(),
 });
 

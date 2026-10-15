@@ -70,6 +70,33 @@ function Umformungen() {
   );
 }
 
+/* Schrittfolge für die biquadratische Gleichung: Substitution z = x², z-Gleichung lösen, zurücksubstituieren */
+function biSchritte(au) {
+  const [z1, z2] = au.z, L = au.loesungen;
+  const gr = L[L.length - 1];
+  const zGl = zw(`Mit z = x² wird daraus eine quadratische Gleichung in z (x⁴ = z²).`, `With z = x² this becomes a quadratic equation in z (x⁴ = z²).`);
+  return [
+    { id: "z1", titel: zw("Substitution: kleineres z", "Substitution: smaller z"), typ: "zahl", text: "z₁ =", wert: z1,
+      frage: zw("Setze z = x². Löse die entstehende quadratische Gleichung in z. Wie lautet das kleinere z?", "Set z = x². Solve the resulting quadratic equation in z. What is the smaller z?"),
+      hinweise: [zw("x⁴ = (x²)² = z². Die Gleichung heißt jetzt z² − (z₁ + z₂)·z + z₁·z₂ = 0 – pq-Formel oder Vieta.", "x⁴ = (x²)² = z². The equation is now z² − (z₁ + z₂)·z + z₁·z₂ = 0 – pq formula or Vieta.")],
+      erklaerung: `${zGl} z₁ = ${sym(z1)}, z₂ = ${sym(z2)}.` },
+    { id: "z2", titel: zw("Substitution: größeres z", "Substitution: larger z"), typ: "zahl", text: "z₂ =", wert: z2,
+      frage: zw("Und das größere z?", "And the larger z?"),
+      hinweise: [zw("Probe mit Vieta: z₁ + z₂ = −p und z₁ · z₂ = q.", "Check with Vieta: z₁ + z₂ = −p and z₁ · z₂ = q.")],
+      erklaerung: `z₂ = ${sym(z2)}. ${zw("Probe", "Check")}: ${sym(z1)} + ${z2 < 0 ? "(" + sym(z2) + ")" : z2} = ${sym(z1 + z2)}.` },
+    { id: "n", titel: zw("Rücksubstitution: Anzahl", "Back-substitution: count"), typ: "zahl", text: zw("Lösungen:", "Solutions:"), wert: L.length,
+      frage: zw("Aus z = x² folgt x = +√z oder x = −√z – aber nur für z ≥ 0. Wie viele Lösungen hat die Gleichung für x?", "z = x² gives x = +√z or x = −√z – but only for z ≥ 0. How many solutions does the equation have for x?"),
+      fehler: L.length === 4 ? [{ wert: 2, text: zw("Jedes positive z liefert zwei Lösungen: +√z und −√z. Zwei positive z-Werte ergeben vier Lösungen.", "Every positive z gives two solutions: +√z and −√z. Two positive z values give four solutions.") }]
+        : [{ wert: 4, text: zw("Ein negatives z liefert kein x – ein Quadrat ist nie negativ. Nur das positive z zählt, und das ergibt zwei Lösungen.", "A negative z gives no x – a square is never negative. Only the positive z counts, giving two solutions.") }],
+      hinweise: [zw("Prüfe das Vorzeichen von z₁ und z₂: Nur positive z haben eine Wurzel.", "Check the sign of z₁ and z₂: only positive z have a root.")],
+      erklaerung: L.length === 4 ? zw("Beide z sind positiv, aus jedem entstehen zwei x-Werte: vier Lösungen.", "Both z are positive, each gives two x values: four solutions.") : zw(`z = ${sym(z1)} ist negativ und liefert kein x. Aus z = ${z2} folgen x = ±${gr}: zwei Lösungen.`, `z = ${sym(z1)} is negative and gives no x. From z = ${z2} we get x = ±${gr}: two solutions.`) },
+    { id: "x", titel: zw("Größte Lösung", "Largest solution"), typ: "zahl", text: "x =", wert: gr,
+      frage: zw("Wie lautet die größte Lösung x?", "What is the largest solution x?"),
+      hinweise: [zw("Ziehe die Wurzel aus dem größten positiven z.", "Take the root of the largest positive z.")],
+      erklaerung: zw(`x = √${gr * gr} = ${gr}. Alle Lösungen: ${L.map(sym).join(", ")}. Probe: Setze eine Lösung in die Ausgangsgleichung ein.`, `x = √${gr * gr} = ${gr}. All solutions: ${L.map(sym).join(", ")}. Check: plug a solution into the original equation.`) },
+  ];
+}
+
 /* ---------- 2) Methode wählen ---------- */
 function MethodeWaehlen() {
   const [au, setAu] = useState(neueMethode);
@@ -81,14 +108,19 @@ function MethodeWaehlen() {
     aus: zw("Kein Absolutglied: x ausklammern, dann gilt der Satz vom Nullprodukt.", "No constant term: factor out x, then use the zero product property."),
     wurzel: zw("Nur x² und eine Zahl, kein x-Term: nach x² auflösen und beide Wurzeln nehmen (±).", "Only x² and a number, no x term: solve for x² and take both roots (±)."),
     pq: zw("Vollständige quadratische Gleichung: pq-Formel (oder Satz von Vieta).", "A complete quadratic equation: pq formula (or Vieta)."),
+    bi: zw("Nur x⁴, x² und eine Zahl: Substituiere z = x², löse die quadratische Gleichung in z und setze zurück (x = ±√z, nur für z ≥ 0). Es entstehen bis zu vier Lösungen.", "Only x⁴, x² and a number: substitute z = x², solve the quadratic equation in z and substitute back (x = ±√z, only for z ≥ 0). This gives up to four solutions."),
     log: zw("Die Unbekannte steht im Exponenten: Logarithmus bzw. Exponentenvergleich.", "The unknown is in the exponent: logarithm or comparing exponents."),
   }[au.t];
   const s = useMemo(() => {
     const out = [{ id: "m", titel: zw("Methode", "Method"), typ: "wahl", frage: zw("Welches Verfahren ist hier am schnellsten?", "Which method is the quickest here?"),
       optionen: METHODEN.map(([id, t]) => [id, t]), richtig: au.t, hinweise: [zw("Schau, welche Terme vorkommen: x², x, eine Zahl, oder x im Exponenten?", "Look at which terms appear: x², x, a number, or x in the exponent?")],
-      fehler: au.t === "aus" ? [{ wahl: "pq", text: zw("Mit der pq-Formel kämst du auch ans Ziel, aber es geht schneller: Hier fehlt das Absolutglied – klammere x aus.", "The pq formula also works, but there is a faster way: the constant term is missing – factor out x.") }] : au.t === "wurzel" ? [{ wahl: "pq", text: zw("Hier fehlt der x-Term (p = 0). Einfacher: nach x² auflösen und die Wurzel ziehen.", "The x term is missing (p = 0). Simpler: solve for x² and take the root.") }] : [],
+      fehler: au.t === "aus" ? [{ wahl: "pq", text: zw("Mit der pq-Formel kämst du auch ans Ziel, aber es geht schneller: Hier fehlt das Absolutglied – klammere x aus.", "The pq formula also works, but there is a faster way: the constant term is missing – factor out x.") }] : au.t === "wurzel" ? [{ wahl: "pq", text: zw("Hier fehlt der x-Term (p = 0). Einfacher: nach x² auflösen und die Wurzel ziehen.", "The x term is missing (p = 0). Simpler: solve for x² and take the root.") }] : au.t === "bi" ? [
+        { wahl: "wurzel", text: zw("Wurzelziehen allein reicht nicht: Hier stehen x⁴ und x² gleichzeitig. Substituiere z = x², dann wird es quadratisch.", "Taking roots alone is not enough: x⁴ and x² appear together. Substitute z = x² to make it quadratic.") },
+        { wahl: "pq", text: zw("Die pq-Formel passt zu x² und x – hier sind es x⁴ und x². Mit z = x² wird daraus erst eine quadratische Gleichung, auf die du sie anwenden kannst.", "The pq formula fits x² and x – here we have x⁴ and x². With z = x² it becomes a quadratic equation you can apply it to.") },
+      ] : [],
       erklaerung: erkl }];
-    if (L.length === 1) out.push({ id: "x", titel: zw("Lösung", "Solution"), typ: "zahl", text: "x =", wert: L[0], frage: zw("Löse die Gleichung.", "Solve the equation."), hinweise: [zw("Wende das gewählte Verfahren an und mache die Probe.", "Apply the chosen method and check.")], erklaerung: `x = ${sym(L[0])}` });
+    if (au.t === "bi") out.push(...biSchritte(au));
+    else if (L.length === 1) out.push({ id: "x", titel: zw("Lösung", "Solution"), typ: "zahl", text: "x =", wert: L[0], frage: zw("Löse die Gleichung.", "Solve the equation."), hinweise: [zw("Wende das gewählte Verfahren an und mache die Probe.", "Apply the chosen method and check.")], erklaerung: `x = ${sym(L[0])}` });
     else out.push(
       { id: "x1", titel: zw("Kleinere Lösung", "Smaller solution"), typ: "zahl", text: "x₁ =", wert: L[0], frage: zw("Bestimme die kleinere der beiden Lösungen.", "Find the smaller of the two solutions."), hinweise: [zw("Es gibt zwei Lösungen – berechne beide.", "There are two solutions – compute both.")], erklaerung: `x₁ = ${sym(L[0])}` },
       { id: "x2", titel: zw("Größere Lösung", "Larger solution"), typ: "zahl", text: "x₂ =", wert: L[1], frage: zw("Und die größere?", "And the larger one?"), hinweise: [zw("Probe: Setze beide Werte in die Gleichung ein.", "Check: plug both values into the equation.")], erklaerung: `x₂ = ${sym(L[1])}. ${zw("Probe für beide Werte durchführen.", "Check both values.")}` });

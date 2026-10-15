@@ -72,8 +72,10 @@ function latexZuText(t) {
       aus += `${einfach(z) ? z : `(${z})`} / ${einfach(n) ? n : `(${n})`}`;
     } else if (t.startsWith("\\sqrt", i)) {
       i += 5;
+      let wurzelIndex = "";
+      if (t[i] === "[") { const j = t.indexOf("]", i); wurzelIndex = hochZiffer(t.slice(i + 1, j)); i = j + 1; }   // \sqrt[4]{…}
       const r = latexZuText(gruppe());
-      aus += einfach(r) ? `√${r}` : `√(${r})`;
+      aus += wurzelIndex + (einfach(r) ? `√${r}` : `√(${r})`);
     } else if (t.startsWith("\\pm", i)) { i += 3; aus += "±"; }
     else if (t.startsWith("\\cdot", i)) { i += 5; aus += "·"; }
     else if (t.startsWith("\\Rightarrow", i)) { i += 11; aus += "⇒"; }

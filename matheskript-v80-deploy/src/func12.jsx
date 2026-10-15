@@ -19,7 +19,7 @@ import { uebergabeErledigt, uebergabeLesen } from "./uebergabe.js";
 import { WeiterKnopf, WeiterMit } from "./funcWerkzeuge.jsx";
 import { C } from "./base1.jsx";
 import { PLATZ } from "./base2.jsx";
-import { schoenerSchritt, tiefZiffer, zahl } from "./func2.jsx";
+import { loeseGanzrational, polyTextPdf, schoenerSchritt, tiefZiffer, zahl } from "./func2.jsx";
 import { M } from "./func3.jsx";
 import { AufklappZeichen } from "./aufklappen.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
@@ -990,6 +990,23 @@ function grenzeTxt(x, L, R) {
   return wert(x);
 }
 
+/* Ist f ein biquadratisches Polynom a·x⁴ + b·x² + c mit ganzen Koeffizienten (a ≠ 0)? Dann [a, 0, b, 0, c], sonst null.
+   Erkannt wird es an Funktionswerten – so zählt auch ein ausmultiplizierbares (x²−1)(x²−4) mit. */
+export function biquadratischeKoeffizienten(f) {
+  const v = (x) => { try { return f(x); } catch (e) { return NaN; } };
+  const c = v(0), p1 = v(1) - c, p2 = v(2) - c;
+  if (![c, p1, p2].every(Number.isFinite)) return null;
+  const a = (p2 - 4 * p1) / 12, b = p1 - a;
+  const ganz = (t) => Math.abs(t - Math.round(t)) < 1e-7 && Math.abs(t) <= 10000;
+  if (!ganz(a) || !ganz(b) || !ganz(c) || Math.round(a) === 0) return null;
+  const [A0, B0, C0] = [Math.round(a), Math.round(b), Math.round(c)];
+  for (const x of [-3, -1.5, -0.5, 0.7, 2.5, 3.3]) {
+    const soll = A0 * x ** 4 + B0 * x * x + C0, ist = v(x);
+    if (!Number.isFinite(ist) || Math.abs(ist - soll) > 1e-7 * (1 + Math.abs(soll))) return null;
+  }
+  return [A0, 0, B0, 0, C0];
+}
+
 export function baueAllgemeineDiskussion(baum, A) {
   const fText = alsText(ohnePar(baum));
   const abschnitte = [];
@@ -1062,10 +1079,23 @@ export function baueAllgemeineDiskussion(baum, A) {
   // 4. Nullstellen
   const s4 = abschnitt("4. Nullstellen");
   z(s4, "Ansatz: f(x) = 0", true);
+  // Biquadratisches Polynom: exakter Rechenweg mit der Substitution z = x² statt einer Näherung
+  const bi = biquadratischeKoeffizienten(A.f);
+  if (bi) {
+    const polyText = polyTextPdf(bi);
+    if (polyText.replace(/\s+/g, "") !== fText.replace(/\s+/g, "")) z(s4, `Zusammengefasst: f(x) = ${polyText}`);
+    loeseGanzrational(bi).schritte.forEach((sc) => {
+      if (typeof sc === "string") z(s4, sc);
+      else if (sc.pd) return;
+      else if (sc.formel) s4.zeilen.push({ txt: sc.txt, fett: !!sc.fett, formel: true });
+      else if (sc.prosa) zP(s4, sc.txt, sc.fett);
+      else z(s4, sc.txt, sc.fett);
+    });
+  }
   if (!A.ns.length) zP(s4, `f hat im Untersuchungsbereich ${fenster} keine Nullstelle.`);
   else {
-    mitKappe(A.ns, (x, i) => z(s4, `x${tiefZiffer(i + 1)} ${Number.isInteger(rund(x)) || /π/.test(wert(x)) ? "=" : "≈"} ${wert(x)}`), s4);
-    zP(s4, "Numerisch bestimmt (Vorzeichenwechsel und Bisektion).");
+    mitKappe(A.ns, (x, i) => z(s4, `x${tiefZiffer(i + 1)} ${Number.isInteger(rund(x)) || /π/.test(wert(x)) ? "=" : "≈"} ${wert(x)}`, bi && i === 0 ? true : false), s4);
+    if (!bi) zP(s4, "Numerisch bestimmt (Vorzeichenwechsel und Bisektion).");
   }
 
   // 5. Ableitungen
@@ -1202,6 +1232,10 @@ export function zufallsFunktion() {
     () => `sin(x)${vz(rz(-2, 2))}cos(${r(1, 3)}x)`,
     () => `sqrt(${r(4, 16)}-x^2)`,
     () => `x^3${vz(rz(-6, 6))}x^2${vz(rz(-9, 9))}x${vz(rz(-9, 9))}`,
+    // biquadratisch (Substitution z = x²): (x² − p)(x² − q) bzw. mit einer negativen z-Lösung
+    () => { const a = r(1, 3); let b = r(1, 4); while (b === a) b = r(1, 4); return `x^4${vz(-(a * a + b * b))}x^2${vz(a * a * b * b)}`; },
+    () => { const a = r(1, 4), c = r(1, 5); return `x^4${vz(c - a * a)}x^2${vz(-a * a * c)}`; },
+    () => { const p = r(2, 4); return `x^4${vz(-2 * p)}x^2${vz(r(1, p * p - 1))}`; },
     () => `ln(x)/x^${r(1, 2)}`,
     () => `(x^2${vz(rz(-4, 4))})*e^(${rz(-1, 1)}x)`,
     () => `tan(x/${r(1, 2)})`,
@@ -1512,7 +1546,11 @@ function Diskussion({ inhalt }) {
           <p style={{ fontSize: 13.5, fontWeight: 700, color: C.see, marginBottom: 8, paddingBottom: 6, borderBottom: `1px solid ${C.linie}` }}>
             {sek.titel}
           </p>
-          {sek.zeilen.map((zl, j) => zl.tex ? (
+          {sek.zeilen.map((zl, j) => zl.formel ? (
+            <div key={j} style={{ overflowX: "auto" }}>
+              <p style={{ fontSize: 14.5, fontWeight: zl.fett ? 700 : 400, color: zl.fett ? C.tinte : C.grau, marginBottom: 6, whiteSpace: "nowrap" }}><M t={zl.txt} /></p>
+            </div>
+          ) : zl.tex ? (
             <div key={j} style={{ overflowX: "auto" }}>
               <p style={{ fontSize: 14.5, color: C.tinte, marginBottom: 6, whiteSpace: "nowrap" }}><M t={zl.tex} /></p>
             </div>

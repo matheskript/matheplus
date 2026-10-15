@@ -1928,6 +1928,132 @@ export function stammfunktionText(terms) {
   return teile.length ? teile.join("") : "0";
 }
 
+/* Perfekte Potenz: liefert r mit r^k = n (n ≥ 0 ganz), sonst null. */
+function ganzWurzel(n, k = 2) {
+  const r = Math.round(Math.pow(n, 1 / k));
+  return r >= 0 && r ** k === n ? r : null;
+}
+
+/* k-te Wurzel aus einem positiven Bruch {n, d}: exakt als Bruch, wenn Zähler und Nenner perfekte k-te Potenzen sind, sonst null. */
+function bruchWurzel(b, k = 2) {
+  const z = ganzWurzel(b.n, k), n = ganzWurzel(b.d, k);
+  return z !== null && n !== null ? bruch(z, n) : null;
+}
+
+/* A·z² + B·z + C als Klartext (für die Gleichung nach der Substitution z = x²) */
+function zPolyText(A, B, Cc) {
+  const koef = (c, ersterTerm) => (Math.abs(c) === 1 ? (c < 0 && ersterTerm ? "-" : "") : String(c));
+  let t = `${koef(A, true)}z^2`;
+  if (B) t += ` ${B < 0 ? "-" : "+"} ${Math.abs(B) === 1 ? "" : Math.abs(B)}z`;
+  if (Cc) t += ` ${Cc < 0 ? "-" : "+"} ${Math.abs(Cc)}`;
+  return t;
+}
+
+/* Quadratische Gleichung A·v² + B·v + C = 0 (v = "x" oder "z") mit der Mitternachtsformel lösen.
+   Schreibt die Rechenschritte in `schritte` und gibt die Lösungen in der Reihenfolge v1, v2 zurück:
+   { art: "zwei" | "doppelt" | "keine", werte: [{ v: Zahl, b: Bruch oder null (null = gerundet), text }] } */
+function loeseQuadratMNF(A, B, Cc, v, gleichung, schritte) {
+  const negB = -B;
+  const bQuad = B * B;
+  const vierAC = 4 * A * Cc;
+  const disk = bQuad - vierAC;
+  const zweiA = 2 * A;
+  schritte.push(`Quadratische Gleichung: ${gleichung} = 0`);
+  schritte.push({ txt: v === "x" ? "Quadratische Gleichung lösen (MNF)" : `Quadratische Gleichung in ${v} lösen (MNF)`, fett: true });
+  // Erst nur die Koeffizienten einsetzen, ohne etwas auszurechnen …
+  schritte.push({ txt: `${v}_{1,2} = \\frac{-${potBasis(B)} \\pm \\sqrt{${potBasis(B)}^2 - 4 \\cdot ${potBasis(A)} \\cdot ${potBasis(Cc)}}}{2 \\cdot ${potBasis(A)}}`, formel: true });
+  // … -b vereinfachen, b² und 4ac getrennt ausrechnen (noch nicht verrechnet) …
+  schritte.push({ txt: `${v}_{1,2} = \\frac{${potBasis(negB)} \\pm \\sqrt{${bQuad} - ${potBasis(vierAC)}}}{${zweiA}}`, formel: true });
+  // … dann die Diskriminante zusammenfassen …
+  schritte.push({ txt: `${v}_{1,2} = \\frac{${potBasis(negB)} \\pm \\sqrt{${disk}}}{${zweiA}}`, formel: true });
+  if (disk > 1e-9) {
+    const wd = Math.sqrt(disk);
+    if (Number.isInteger(Math.round(wd)) && Math.round(wd) ** 2 === disk) {
+      // … die Wurzel zieht glatt auf, also die Wurzel auflösen …
+      const wdG = Math.round(wd);
+      schritte.push({ txt: `${v}_{1,2} = \\frac{${potBasis(negB)} \\pm ${wdG}}{${zweiA}}`, formel: true });
+      // … und zuletzt v1 und v2 einzeln als konkrete Ergebnisse.
+      const w1 = bruch(-B + wdG, 2 * A), w2 = bruch(-B - wdG, 2 * A);
+      schritte.push({ txt: `${v}_1 = ${bruchLatex(w1)}`, fett: true, formel: true });
+      schritte.push({ txt: `${v}_2 = ${bruchLatex(w2)}`, fett: true, formel: true });
+      return { art: "zwei", werte: [
+        { v: w1.n / w1.d, b: w1, text: `${v}1 = ${bruchText(w1)}` },
+        { v: w2.n / w2.d, b: w2, text: `${v}2 = ${bruchText(w2)}` },
+      ] };
+    }
+    // … die Wurzel ist irrational, also gerundet weiterrechnen …
+    schritte.push({ txt: `${v}_{1,2} = \\frac{${potBasis(negB)} \\pm ${zahlCa(wd)}}{${zweiA}}`, formel: true });
+    const w1 = (-B + wd) / (2 * A), w2 = (-B - wd) / (2 * A);
+    schritte.push({ txt: `${v}1 = ${zahlCa(w1)}`, fett: true });
+    schritte.push({ txt: `${v}2 = ${zahlCa(w2)}`, fett: true });
+    return { art: "zwei", werte: [
+      { v: w1, b: null, text: `${v}1 = ${zahlCa(w1)}` },
+      { v: w2, b: null, text: `${v}2 = ${zahlCa(w2)}` },
+    ] };
+  }
+  if (Math.abs(disk) <= 1e-9) {
+    const w0 = bruch(-B, 2 * A);
+    schritte.push({ txt: `${v}_{1,2} = \\frac{${potBasis(negB)} \\pm 0}{${zweiA}}`, formel: true });
+    schritte.push({ txt: `doppelte Lösung ${v} = ${bruchText(w0)}`, fett: true });
+    return { art: "doppelt", werte: [{ v: w0.n / w0.d, b: w0, text: `${v} = ${bruchText(w0)} (doppelt)` }] };
+  }
+  schritte.push({ txt: `D = ${disk} < 0  =>  keine reelle Lösung.`, fett: true });
+  return { art: "keine", werte: [] };
+}
+
+/* Biquadratische Gleichung A·x⁴ + B·x² + C = 0 (Koeffizienten f = [A, 0, B, 0, C], C ≠ 0) per Substitution z = x²:
+   A·z² + B·z + C = 0 lösen, dann zurücksubstituieren: aus jedem z > 0 werden x = +√z und x = −√z, z < 0 liefert nichts.
+   So entstehen bis zu vier Lösungen. Ist B = 0, steht nur x⁴ = k da: vierte Wurzel ziehen. */
+function loeseBiquadratisch(f, schritte, loesungen) {
+  const A = f[0], B = f[2], Cc = f[4];
+
+  if (B === 0) {
+    schritte.push({ txt: `Die Gleichung ${polyTextPdf(f)} = 0 enthält nur x^4 und eine Zahl: nach x^4 auflösen und die vierte Wurzel ziehen.`, prosa: true });
+    const k = bruch(-Cc, A);
+    schritte.push({ txt: `x^4 = ${bruchLatex(k)}`, formel: true });
+    if (k.n < 0) {
+      schritte.push({ txt: "x^4 ist nie negativ  =>  keine reelle Lösung.", fett: true });
+      return;
+    }
+    const r4 = bruchWurzel(k, 4);
+    const w = Math.pow(k.n / k.d, 0.25);
+    const wTex = r4 ? bruchLatex(r4) : zahlCa(w);
+    const wText = r4 ? bruchText(r4) : zahlCa(w);
+    schritte.push({ txt: `x_{1,2} = \\pm\\sqrt[4]{${bruchLatex(k)}} = \\pm ${wTex}`, fett: true, formel: true });
+    loesungen.push({ x: -w, text: `x = -${wText}` }, { x: w, text: `x = ${wText}` });
+    return;
+  }
+
+  schritte.push({ txt: `Biquadratische Gleichung: ${polyTextPdf(f)} = 0 enthält nur x^4, x^2 und eine Zahl. Das löst du mit einer Substitution: Setze z = x^2, dann ist x^4 = z^2.`, prosa: true });
+  schritte.push({ txt: "Substitution: z = x^2", fett: true });
+  const q = loeseQuadratMNF(A, B, Cc, "z", zPolyText(A, B, Cc), schritte);
+  if (q.art === "keine") {
+    schritte.push({ txt: "Für z gibt es keine reelle Lösung, also auch kein x: Die Gleichung hat keine reelle Lösung.", prosa: true });
+    return;
+  }
+  schritte.push({ txt: "Rücksubstitution: Aus z = x^2 folgt x = +√z oder x = −√z – aber nur, wenn z nicht negativ ist, denn ein Quadrat ist nie negativ.", prosa: true });
+  let positiv = 0;
+  q.werte.forEach((w, i) => {
+    const zn = q.art === "doppelt" ? "z" : `z_${i + 1}`;
+    const znText = q.art === "doppelt" ? "z" : `z${i + 1}`;
+    const zTex = w.b ? bruchLatex(w.b) : zahlCa(w.v);
+    if (w.v > 1e-12) {
+      positiv++;
+      const xv = Math.sqrt(w.v);
+      const r = w.b ? bruchWurzel(w.b) : null;
+      const xTex = r ? bruchLatex(r) : zahlCa(xv);
+      const xText = r ? bruchText(r) : zahlCa(xv);
+      schritte.push({ txt: `${zn} = ${zTex} \\quad\\Rightarrow\\quad x = \\pm\\sqrt{${zTex}} = \\pm ${xTex}`, fett: true, formel: true });
+      const zusatz = q.art === "doppelt" ? " (doppelt)" : "";
+      loesungen.push({ x: -xv, text: `x = -${xText}${zusatz}` }, { x: xv, text: `x = ${xText}${zusatz}` });
+    } else {
+      schritte.push({ txt: `${znText} = ${w.b ? bruchText(w.b) : zahlCa(w.v)} < 0  =>  keine reelle Lösung für x (ein Quadrat ist nie negativ).`, prosa: true });
+    }
+  });
+  if (positiv === 0) schritte.push({ txt: "Beide z-Werte sind negativ: Die Gleichung hat keine reelle Lösung.", prosa: true });
+  else schritte.push({ txt: `Aus jedem positiven z entstehen zwei Lösungen (+√z und −√z): Hier ${["keine", "zwei", "vier"][positiv]} Lösungen.`, prosa: true });
+}
+
 /* Löst eine ganzrationale Gleichung (Koeffizienten höchster bis niedrigster Grad,
    stets ganzzahlig) vollständig und dokumentiert dabei jeden Schritt: zuerst x = 0
    abspalten, dann ganzzahlige Nullstellen raten und per Polynomdivision reduzieren,
@@ -1952,11 +2078,19 @@ export function loeseGanzrational(koeffsRoh) {
   while (f.length > 1 && f[f.length - 1] === 0) { ausklammern++; f = f.slice(0, -1); }
   if (ausklammern > 0) {
     loesungen.push({ x: 0, text: "x = 0" });
-    schritte.push(`x ausklammern: x * (${polyTextPdf(f)}) = 0  =>  x = 0 ist eine Lösung.`);
+    const potx = ausklammern === 1 ? "x" : `x^${ausklammern}`;
+    schritte.push(`${potx} ausklammern: ${potx} * (${polyTextPdf(f)}) = 0  =>  x = 0 ist eine ${ausklammern === 1 ? "" : ausklammern === 2 ? "doppelte " : "mehrfache "}Lösung.`);
   }
 
-  // Ganzzahlige Nullstellen raten und per Polynomdivision reduzieren
+  // Ganzzahlige Nullstellen raten und per Polynomdivision reduzieren —
+  // außer bei einer biquadratischen Gleichung (nur x⁴, x², Zahl): die löst die Substitution z = x² exakt.
+  let biFertig = false;
   while (f.length - 1 > 2) {
+    if (f.length === 5 && f[1] === 0 && f[3] === 0 && f[4] !== 0) {
+      loeseBiquadratisch(f, schritte, loesungen);
+      biFertig = true;
+      break;
+    }
     const c0 = f[f.length - 1];
     if (c0 === 0) { loesungen.push({ x: 0, text: "x = 0" }); f = f.slice(0, -1); continue; }
     const kandidaten = teiler(c0);
@@ -1978,54 +2112,15 @@ export function loeseGanzrational(koeffsRoh) {
   }
 
   const restGrad = f.length - 1;
-  if (restGrad === 1) {
+  if (biFertig) {
+    // schon vollständig gelöst (Substitution)
+  } else if (restGrad === 1) {
     const br = bruch(-f[1], f[0]);
     schritte.push(`Lineare Gleichung: ${polyTextPdf(f)} = 0  =>  x = ${bruchText(br)}`);
     loesungen.push({ x: br.n / br.d, text: `x = ${bruchText(br)}` });
   } else if (restGrad === 2) {
-    const A = f[0], B = f[1], Cc = f[2];
-    const negB = -B;
-    const bQuad = B * B;
-    const vierAC = 4 * A * Cc;
-    const disk = bQuad - vierAC;
-    const zweiA = 2 * A;
-    schritte.push(`Quadratische Gleichung: ${polyTextPdf(f)} = 0`);
-    schritte.push({ txt: "Quadratische Gleichung lösen (MNF)", fett: true });
-    // Erst nur die Koeffizienten einsetzen, ohne etwas auszurechnen …
-    schritte.push({ txt: `x_{1,2} = \\frac{-${potBasis(B)} \\pm \\sqrt{${potBasis(B)}^2 - 4 \\cdot ${potBasis(A)} \\cdot ${potBasis(Cc)}}}{2 \\cdot ${potBasis(A)}}`, formel: true });
-    // … -b vereinfachen, b² und 4ac getrennt ausrechnen (noch nicht verrechnet) …
-    schritte.push({ txt: `x_{1,2} = \\frac{${potBasis(negB)} \\pm \\sqrt{${bQuad} - ${potBasis(vierAC)}}}{${zweiA}}`, formel: true });
-    // … dann die Diskriminante zusammenfassen …
-    schritte.push({ txt: `x_{1,2} = \\frac{${potBasis(negB)} \\pm \\sqrt{${disk}}}{${zweiA}}`, formel: true });
-    if (disk > 1e-9) {
-      const wd = Math.sqrt(disk);
-      if (Number.isInteger(Math.round(wd)) && Math.round(wd) ** 2 === disk) {
-        // … die Wurzel zieht glatt auf, also die Wurzel auflösen …
-        const wdG = Math.round(wd);
-        schritte.push({ txt: `x_{1,2} = \\frac{${potBasis(negB)} \\pm ${wdG}}{${zweiA}}`, formel: true });
-        // … und zuletzt x1 und x2 einzeln als konkrete Ergebnisse.
-        const x1 = bruch(-B + wdG, 2 * A), x2 = bruch(-B - wdG, 2 * A);
-        schritte.push({ txt: `x_1 = ${bruchLatex(x1)}`, fett: true, formel: true });
-        schritte.push({ txt: `x_2 = ${bruchLatex(x2)}`, fett: true, formel: true });
-        loesungen.push({ x: x1.n / x1.d, text: `x1 = ${bruchText(x1)}` });
-        loesungen.push({ x: x2.n / x2.d, text: `x2 = ${bruchText(x2)}` });
-      } else {
-        // … die Wurzel ist irrational, also gerundet weiterrechnen …
-        schritte.push({ txt: `x_{1,2} = \\frac{${potBasis(negB)} \\pm ${zahlCa(wd)}}{${zweiA}}`, formel: true });
-        const x1 = (-B + wd) / (2 * A), x2 = (-B - wd) / (2 * A);
-        schritte.push({ txt: `x1 = ${zahlCa(x1)}`, fett: true });
-        schritte.push({ txt: `x2 = ${zahlCa(x2)}`, fett: true });
-        loesungen.push({ x: x1, text: `x1 = ${zahlCa(x1)}` });
-        loesungen.push({ x: x2, text: `x2 = ${zahlCa(x2)}` });
-      }
-    } else if (Math.abs(disk) <= 1e-9) {
-      const x0 = bruch(-B, 2 * A);
-      schritte.push({ txt: `x_{1,2} = \\frac{${potBasis(negB)} \\pm 0}{${zweiA}}`, formel: true });
-      schritte.push({ txt: `doppelte Lösung x = ${bruchText(x0)}`, fett: true });
-      loesungen.push({ x: x0.n / x0.d, text: `x = ${bruchText(x0)} (doppelt)` });
-    } else {
-      schritte.push({ txt: `D = ${disk} < 0  =>  keine reelle Lösung.`, fett: true });
-    }
+    const qr = loeseQuadratMNF(f[0], f[1], f[2], "x", polyTextPdf(f), schritte);
+    qr.werte.forEach((w) => loesungen.push({ x: w.v, text: w.text }));
   } else if (restGrad >= 3) {
     schritte.push({ txt: `Für den verbleibenden Faktor vom Grad ${restGrad} gibt es keine ganzzahlige Nullstelle - die weiteren Lösungen werden numerisch angenähert (Bisektionsverfahren).`, prosa: true });
     const restFn = (x) => horner(f, x);

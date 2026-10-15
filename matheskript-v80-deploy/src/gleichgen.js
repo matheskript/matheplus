@@ -10,6 +10,8 @@ export const pl = (b) => (b < 0 ? `− ${-b}` : `+ ${b}`);                      
 export const lin = (a, b) => `${kT(a)} ${pl(b)}`;
 /* Regel A5: „+ 1x“ → „+ x“, „+ 0“ entfällt */
 export const plx = (p) => (p === 1 ? "+ x" : p === -1 ? "− x" : `${pl(p)}x`);
+/* „+ x²“ / „− 3x²“ als Glied in TeX */
+export const plx2 = (p) => (p === 1 ? "+ x^{2}" : p === -1 ? "− x^{2}" : `${pl(p)}x^{2}`);
 export const rechts = (c, d) => { const t = []; if (c !== 0) t.push(kT(c)); if (d !== 0) t.push(t.length ? pl(d) : M(d)); return t.join(" ") || "0"; };
 export const bruchTex = (z, n) => { if (n < 0) { z = -z; n = -n; } const g = ggT(z, n) || 1; z /= g; n /= g; return n === 1 ? M(z) : `${z < 0 ? "−" : ""}\\frac{${Math.abs(z)}}{${n}}`; };
 let zaehler = 0;
@@ -24,7 +26,7 @@ export function neuUmformung() {
 
 /* ---------- 2) Methode wählen ---------- */
 export function neueMethode() {
-  const t = wahl(["lin", "aus", "wurzel", "pq", "log"]);
+  const t = wahl(["lin", "aus", "wurzel", "pq", "bi", "log"]);
   if (t === "lin") { const a = zz(2, 9), X = zzOhne0(-8, 8), b = zzOhne0(-9, 9); return { id: id(), t, gl: `${lin(a, b)} = ${a * X + b}`, loesungen: [X] }; }
   if (t === "aus") { const p = zzOhne0(-9, 9); return { id: id(), t, gl: `x^{2} ${plx(p)} = 0`, loesungen: [-p, 0].sort((u, v) => u - v) }; }
   if (t === "wurzel") { const k = zz(2, 12); return { id: id(), t, gl: `x^{2} − ${k * k} = 0`, loesungen: [-k, k] }; }
@@ -32,11 +34,24 @@ export function neueMethode() {
     let r1, r2; do { r1 = zzOhne0(-8, 8); r2 = zzOhne0(-8, 8); } while (r1 === r2 || r1 + r2 === 0);
     return { id: id(), t, gl: `x^{2}${r1 + r2 === 0 ? "" : ` ${plx(-(r1 + r2))}`}${r1 * r2 === 0 ? "" : ` ${pl(r1 * r2)}`} = 0`, loesungen: [r1, r2].sort((u, v) => u - v) };
   }
+  if (t === "bi") {
+    /* x⁴ − (z₁ + z₂)·x² + z₁·z₂ = 0 mit z = x²: vier Lösungen (beide z positiv) oder zwei (ein z negativ) */
+    const vier = Math.random() < 0.65;
+    let z1, z2;
+    do {
+      if (vier) { const a = zz(1, 4); let b = zz(1, 4); while (b === a) b = zz(1, 4); z1 = a * a; z2 = b * b; }
+      else { z1 = -zz(1, 6); z2 = zz(1, 4) ** 2; }
+    } while (z1 + z2 === 0);
+    const S = z1 + z2, P = z1 * z2;
+    const pos = [z1, z2].filter((v) => v > 0).map(Math.sqrt);
+    const loes = [...pos.map((v) => -v), ...pos].sort((u, v) => u - v);
+    return { id: id(), t, gl: `x^{4} ${plx2(-S)} ${pl(P)} = 0`, z: [Math.min(z1, z2), Math.max(z1, z2)], loesungen: loes };
+  }
   const base = wahl([2, 3, 5]), n = zz(2, 5); return { id: id(), t: "log", gl: `${base}^{x} = ${base ** n}`, loesungen: [n] };
 }
 export const METHODEN = [
   ["lin", "Äquivalenzumformungen (nach x auflösen)"], ["aus", "Ausklammern, dann Satz vom Nullprodukt"],
-  ["wurzel", "Wurzel ziehen (±)"], ["pq", "pq-Formel"], ["log", "Logarithmus / Exponentenvergleich"],
+  ["wurzel", "Wurzel ziehen (±)"], ["pq", "pq-Formel"], ["bi", "Substitution z = x² (biquadratisch)"], ["log", "Logarithmus / Exponentenvergleich"],
 ];
 
 /* ---------- 3) Fehler finden ---------- */

@@ -114,8 +114,8 @@ const WERKZEUGE = [
 ];
 const WERKZEUGE_EXTRA = [
   { id: "hauptnenner", name: "Mit Hauptnenner multiplizieren", kurz: "Brüche mit x im Nenner beseitigen", nur: "bruch", breit: true },
-  { id: "subst", name: "Substituieren", kurz: "u = x² oder u = eˣ" },
-  { id: "ruecksub", name: "Rücksubstitution", kurz: "für u wieder einsetzen", nur: "sub" },
+  { id: "subst", name: "Substituieren", kurz: "z = x² oder z = eˣ" },
+  { id: "ruecksub", name: "Rücksubstitution", kurz: "für z wieder einsetzen", nur: "sub" },
 ];
 WERKZEUGE.push(...WERKZEUGE_EXTRA);
 const WERKZEUG_NAME = Object.fromEntries(WERKZEUGE.map((w) => [`#${w.id}`, w.name]));
@@ -132,7 +132,7 @@ const Randnotiz = ({ op, detail }) => {
   let inhalt;
   if (op.art === "exp") inhalt = <>{op.b === "e" ? "e" : G.bruchText(op.b)}<sup className="gl-hoch">( )</sup></>;
   else inhalt = <Baum n={G.opBaum(op)} />;
-  if (op.art === "subst" && detail && detail.ziel) inhalt = <><i className="gl-x">u</i> = <Baum n={G.sumBaum(detail.ziel)} /></>;
+  if (op.art === "subst" && detail && detail.ziel) inhalt = <><i className="gl-x">z</i> = <Baum n={G.sumBaum(detail.ziel)} /></>;
   if (op.art === "hauptnenner" && detail && detail.hn) inhalt = <Baum n={G.opBaum({ art: "mul", arg: detail.hn })} />;
   const lang = ["mitternacht", "ausmult", "ausklam", "nullprod", "ruecksub"].includes(op.art);
   return (
@@ -289,8 +289,8 @@ export function Gleichungsloeser() {
   const schritte = zeilen.length - 1;
   const tippRoh = L ? null : G.tipp(aktuell);
   const offeneZweige = aktuell.filter((z) => z.status === "offen");
-  const varAktiv = offeneZweige.some((z) => z.var === "u") ? "u" : "x";
-  const tipp = tippRoh && varAktiv === "u" && tippRoh.op && !tippRoh.op.startsWith("#") ? { ...tippRoh, op: tippRoh.op.replace(/x/g, "u") } : tippRoh;
+  const varAktiv = offeneZweige.some((z) => z.var === "z") ? "z" : "x";
+  const tipp = tippRoh && varAktiv === "z" && tippRoh.op && !tippRoh.op.startsWith("#") ? { ...tippRoh, op: tippRoh.op.replace(/x/g, "z") } : tippRoh;
   const luecken = G.definitionsluecken(start);
   const werkzeugeSichtbar = WERKZEUGE.filter((w) => !w.nur
     || (w.nur === "sub" && offeneZweige.some((z) => z.sub))
@@ -440,8 +440,8 @@ Steht keine Gleichung auf dem Foto, antworte {"aufgaben":[]}.`;
 
   const eingabeAusfuehren = () => {
     if (L) return;
-    const text = varAktiv === "u" && !/wurzel/i.test(eingabe) ? eingabe.replace(/x/g, "§").replace(/u/g, "x") : eingabe;
-    if (text.includes("§")) { setMeldung({ art: "fehler", text: "Nach der Substitution heißt die Variable u. Tippe u statt x." }); return; }
+    const text = varAktiv === "z" && !/wurzel/i.test(eingabe) ? eingabe.replace(/x/g, "§").replace(/z/g, "x") : eingabe;
+    if (text.includes("§")) { setMeldung({ art: "fehler", text: "Nach der Substitution heißt die Variable z. Tippe z statt x." }); return; }
     try { ausfuehren(G.opLesen(text)); }
     catch (e) { setMeldung({ art: "fehler", text: e instanceof G.Fehler || e instanceof G.Undefiniert ? e.message : "Die Eingabe lässt sich nicht lesen." }); }
   };
@@ -837,7 +837,7 @@ Steht keine Gleichung auf dem Foto, antworte {"aufgaben":[]}.`;
               <p><b style={{ color: C.tinte, fontWeight: 600 }}>ln, lg, log_2</b> allein: beide Seiten logarithmieren.</p>
               <p><b style={{ color: C.tinte, fontWeight: 600 }}>e^ oder 10^</b> allein: beide Seiten als Exponent nehmen — die Umkehrung des Logarithmus.</p>
               <p><b style={{ color: C.tinte, fontWeight: 600 }}>Werkzeuge</b>: Wurzel ziehen liefert beide Lösungen (±), die Mitternachtsformel braucht auf einer Seite eine 0.</p>
-              <p><b style={{ color: C.tinte, fontWeight: 600 }}>Substituieren</b>: Bei x⁴ und x² setzt du u = x², bei e^(2x) und e^x setzt du u = e^x. Dann löst du in u und machst am Ende die Rücksubstitution.</p>
+              <p><b style={{ color: C.tinte, fontWeight: 600 }}>Substituieren</b>: Bei x⁴ und x² setzt du z = x², bei e^(2x) und e^x setzt du z = e^x. Dann löst du in z und machst am Ende die Rücksubstitution.</p>
               <p><b style={{ color: C.tinte, fontWeight: 600 }}>Bruchgleichungen</b>: Oben steht die Definitionsmenge D. Multipliziere mit dem Hauptnenner (Knopf oder z. B. ·(x − 2)). Lösungen, die nicht in D liegen, entfallen.</p>
             </div>
           </details>
