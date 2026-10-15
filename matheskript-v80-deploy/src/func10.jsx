@@ -107,6 +107,7 @@ export function Mathilda() {
   };
   const [kopfTrainer, setKopfTrainer] = useState(null);   // direkt geöffneter Kopfrechen-Trainer
   const [hnModul, setHnModul] = useState(null);             // direkt geöffneter Bereich von Head & Numbers
+  const [entdeckenStart, setEntdeckenStart] = useState(null);   // direkt geöffnetes Lernangebot in „Mathe entdecken“
   const [landWahl, setLandWahl] = useState("bw");
   const [formelBereich, setFormelBereich] = useState("analysis");
   const [formelZiel, setFormelZiel] = useState(null);   // Deep-Link auf eine einzelne Formel   // Bereich der Formelsammlung          // Bundesland der Landeswettbewerb-Seite
@@ -151,6 +152,8 @@ export function Mathilda() {
     setKursStart(eintrag.ansicht === "kurse" ? eintrag.kurs || null : null);
     setKopfTrainer(eintrag.ansicht === "kopf" ? eintrag.trainer || null : null);
     setHnModul(eintrag.ansicht === "headnumbers" ? eintrag.modul || null : null);
+    setEntdeckenStart(eintrag.ansicht === "entdecken" ? eintrag.seite || null : null);
+    setEntdeckenStart(eintrag.ansicht === "entdecken" ? eintrag.seite || null : null);
     if (eintrag.land) setLandWahl(eintrag.land);
     if (eintrag.ansicht === "formeln") { setFormelBereich(eintrag.bereich || "analysis"); setFormelZiel(eintrag.formel || null); }
     setMenuOffen(false); setGruppeOffen(null);
@@ -1443,7 +1446,7 @@ export function Mathilda() {
             </div>
             <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
           </div>
-          <EntdeckenSeite />
+          <EntdeckenSeite key={entdeckenStart || "uebersicht"} start={entdeckenStart} />
         </>
       ) : ansicht === "elternkurs" ? (
         <>

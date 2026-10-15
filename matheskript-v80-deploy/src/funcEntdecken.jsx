@@ -445,9 +445,10 @@ function Pythagoras({ zurueck, startModul }) {
   );
 }
 
-export function EntdeckenSeite() {
+export const ENTDECKEN_SEITEN = ["uebersicht", "axiome", "einstieg", "praxis", "pythagoras", "teiler"];
+export function EntdeckenSeite({ start }) {
   const stand = useStand();
-  const [seite, setSeite] = useState("uebersicht"); // uebersicht | einstieg | praxis | modul | pythagoras | modulP | teiler
+  const [seite, setSeite] = useState(ENTDECKEN_SEITEN.includes(start) ? start : "uebersicht"); // uebersicht | einstieg | praxis | modul | pythagoras | modulP | teiler
   useEffect(() => { window.scrollTo(0, 0); }, [seite]);
 
   if (seite === "axiome") return <AxiomeModul onZurueck={() => setSeite("uebersicht")} />;

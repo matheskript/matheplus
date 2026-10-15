@@ -170,6 +170,137 @@ function MeinTrainingKachelStart({ gehe }) {
   );
 }
 
+/* ---------- Startseite, nur Desktop (ab 840 px, wie das Desktop-Layout in func10.jsx) ---------- */
+const DESKTOP_MQ = "(min-width: 840px)";
+function useDesktop() {
+  const [d, setD] = useState(() => { try { return window.matchMedia(DESKTOP_MQ).matches; } catch { return false; } });
+  useEffect(() => {
+    let mq; try { mq = window.matchMedia(DESKTOP_MQ); } catch { return undefined; }
+    const f = () => setD(mq.matches);
+    f();
+    mq.addEventListener ? mq.addEventListener("change", f) : mq.addListener(f);
+    return () => (mq.removeEventListener ? mq.removeEventListener("change", f) : mq.removeListener(f));
+  }, []);
+  return d;
+}
+
+const PHI = 1.618;
+const START_TEXT = { color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.8, margin: "0 0 12px" };
+const START_KICKER = { fontSize: 11.5, letterSpacing: "1.8px", textTransform: "uppercase", color: C.gruenDunkel, fontWeight: 700, margin: "0 0 10px" };
+const START_H2 = { fontSize: 26, fontWeight: 700, letterSpacing: "-0.025em", lineHeight: 1.22, color: C.tinte, margin: "0 0 14px" };
+
+function StartAbschnittKopf({ kicker, titel }) {
+  return (
+    <>
+      <p style={START_KICKER}>{kicker}</p>
+      <h2 style={START_H2}>{titel}</h2>
+      <span aria-hidden="true" style={{ display: "block", width: 54, height: 3, borderRadius: 2, margin: "0 0 18px",
+        background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)` }} />
+    </>
+  );
+}
+
+/* Kachel im goldenen Schnitt (Breite : Höhe = φ : 1). Innen dieselbe Teilung: links das Quadrat mit dem Text,
+   rechts das kleinere goldene Rechteck mit der Grafik. Im Quadrat läuft leise der Viertelkreis der goldenen Spirale. */
+function GoldKachel({ schritt, titel, text, aktion, logo, onClick, label, goldRand }) {
+  return (
+    <button type="button" onClick={onClick} aria-label={label} className="gold-kachel"
+      style={{ position: "relative", display: "flex", width: "100%", aspectRatio: `${PHI} / 1`, padding: 0, overflow: "hidden", cursor: "pointer",
+        fontFamily: "inherit", textAlign: "left", borderRadius: 18, boxSizing: "border-box",
+        border: goldRand ? `3px solid ${C.flaggold}` : `3px solid ${C.see}`,
+        background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`,
+        boxShadow: "0 8px 26px rgba(0,77,152,0.26)" }}>
+      <span style={{ flex: `0 0 ${100 / PHI}%`, minWidth: 0, position: "relative", padding: "20px 14px 18px 22px", display: "flex", flexDirection: "column" }}>
+        <svg aria-hidden="true" viewBox="0 0 100 100" preserveAspectRatio="none" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}>
+          <path d="M100 100 A100 100 0 0 0 0 0" fill="none" stroke={C.flaggold} strokeWidth="0.6" opacity="0.22" vectorEffect="non-scaling-stroke" />
+        </svg>
+        <span style={{ position: "relative", fontSize: 11, letterSpacing: "1.6px", textTransform: "uppercase", fontWeight: 700, color: C.flaggold }}>{schritt}</span>
+        <span className="kachel-titel" style={{ position: "relative", display: "block", fontSize: 26, fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.1, marginTop: 10 }}>{titel}</span>
+        <span aria-hidden="true" style={{ position: "relative", display: "block", width: 34, height: 2.5, borderRadius: 2, marginTop: 8,
+          background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)` }} />
+        <span style={{ position: "relative", display: "block", color: "#DCE5F4", fontSize: 13, fontWeight: 300, lineHeight: 1.5, marginTop: 10 }}>{text}</span>
+        <span style={{ position: "relative", marginTop: "auto", fontSize: 13, fontWeight: 700, color: C.flaggold }}>{aktion} →</span>
+      </span>
+      <span aria-hidden="true" style={{ flex: "1 1 auto", position: "relative", display: "flex", alignItems: "center",
+        background: "rgba(255,255,255,0.04)", borderLeft: `1px solid ${C.silber}33` }}>
+        <span style={{ position: "absolute", inset: "8px 4px", display: "flex" }}>{logo}</span>
+      </span>
+    </button>
+  );
+}
+
+/* Einleitung: wie Pen & Paper und Mathilda AI zusammenhängen, darunter beide Kacheln nebeneinander */
+function DesktopSystem({ gehe }) {
+  return (
+    <section style={{ marginTop: 44 }}>
+      <style>{`.gold-kachel{transition:transform .15s ease, box-shadow .15s ease}
+        .gold-kachel:active{transform:scale(0.985)}
+        @media (hover:hover){.gold-kachel:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(0,77,152,0.34)}}`}</style>
+      <StartAbschnittKopf kicker="Das System" titel="Erst sauber schreiben lernen. Dann trainieren, bis es sitzt." />
+      <p style={START_TEXT}>
+        Die meisten Fehler in Klausuren entstehen nicht im Kopf, sondern auf dem Blatt: Zeilen rutschen ineinander, ein Vorzeichen geht unterwegs verloren, die Nebenrechnung landet mitten im Lösungsweg.
+      </p>
+      <p style={START_TEXT}>
+        Pen & Paper ist der Kurs dazu. Du lernst, Mathematik so aufzuschreiben, dass dein Blatt das Denken entlastet: ein Schritt pro Zeile, Gleichheitszeichen untereinander, Nebenrechnungen in einer Box, das Ergebnis sauber abgeschlossen.
+      </p>
+      <p style={START_TEXT}>
+        Mathilda AI ist das Training dazu. Du fotografierst dein Blatt, Mathilda schreibt ab, was sie liest, prüft die Rechnung und zeigt dir die Stelle, an der dein Weg bricht – und was auf deinem Blatt den Fehler begünstigt hat. Statt einer fertigen Musterlösung bekommst du einen Hinweis, den du selbst umsetzt.
+      </p>
+      <p style={{ ...START_TEXT, color: C.tinte, fontWeight: 500, marginBottom: 0 }}>
+        So entsteht ein Kreislauf: lernen, schreiben, prüfen lassen, verbessern. Aus einer Regel wird eine Gewohnheit – und aus der Gewohnheit Sicherheit in der Klausur.
+      </p>
+      <div style={{ position: "relative", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 22, marginTop: 26 }}>
+        <GoldKachel schritt="Schritt 1 · Lernen" titel="Pen & Paper" logo={<PenPaperBlatt />}
+          text="Klar aufschreiben, strukturiert arbeiten, sicher mit Fehlern umgehen."
+          aktion="Kurs öffnen" label="Pen & Paper Kurs öffnen" onClick={() => gehe({ ansicht: "penpaperkurs" })} />
+        <GoldKachel goldRand schritt="Schritt 2 · Trainieren" titel={<MathildaName dunkel />} logo={<MathildaLogoKlein />}
+          text="Foto vom Blatt – Mathilda prüft deinen Weg und zeigt dir den nächsten Hebel."
+          aktion="Blatt prüfen lassen" label="Mathilda AI öffnen" onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })} />
+        {/* Verbindung zwischen den beiden Schritten */}
+        <span aria-hidden="true" style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%, -50%)", zIndex: 2,
+          width: 36, height: 36, borderRadius: 999, background: C.flaggold, color: C.seeTief, display: "flex", alignItems: "center", justifyContent: "center",
+          boxShadow: `0 0 0 4px ${C.sand}, 0 4px 10px rgba(14,30,74,0.25)` }}>
+          <svg width="16" height="16" viewBox="0 0 16 16"><path d="M3 8 H12.5 M8.5 4 L12.5 8 L8.5 12" stroke={C.seeTief} strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
+        </span>
+      </div>
+    </section>
+  );
+}
+
+/* Verkaufstext vor den Kursen (kürzer als die Landingpage) */
+const KURS_PUNKTE = [
+  ["Mathe-Mindset-Kurs", "Wie Kinder wirklich lernen – für Schüler, Eltern und Lehrer."],
+  ["Head & Numbers", "Kopfrechnen, bis Zahlen nicht mehr bremsen."],
+  ["Ebbinghaus", "Wiederholen im richtigen Abstand, damit Gelerntes bleibt."],
+  ["Videokurse und Masterclass", "Ein klarer Plan durch den Stoff bis zum Abi. Bald verfügbar."],
+];
+function DesktopKurse({ gehe }) {
+  return (
+    <section style={{ marginTop: 48, marginBottom: 6 }}>
+      <StartAbschnittKopf kicker="Kurse" titel="Mathetalent ist ein Mythos. Ein System kann man lernen." />
+      <p style={START_TEXT}>
+        Hinter guten Mathenoten steckt kein besonderes Gehirn, sondern eine Arbeitsweise. Die Kurse bauen sie Schritt für Schritt auf: wie du denkst, wie du rechnest, wie du schreibst und wie du Gelerntes behältst.
+      </p>
+      <p style={START_TEXT}>
+        Jeder Kurs ist für sich nutzbar. Zusammen ergeben sie das System, mit dem Mythos Mathe Gymnasiasten von Klasse 8 bis zum Abitur begleitet.
+      </p>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px 28px", margin: "20px 0 22px" }}>
+        {KURS_PUNKTE.map(([t, z]) => (
+          <div key={t} style={{ borderLeft: `3px solid ${C.flaggold}`, padding: "2px 0 2px 14px" }}>
+            <p style={{ fontSize: 15, fontWeight: 700, color: C.tinte, margin: 0, lineHeight: 1.3 }}>{t}</p>
+            <p style={{ fontSize: 13.5, fontWeight: 300, color: C.grau, margin: "4px 0 0", lineHeight: 1.55 }}>{z}</p>
+          </div>
+        ))}
+      </div>
+      <button type="button" onClick={() => gehe({ ansicht: "landingpage" })   /* = LANDING in funcLandingpage.jsx (nicht importiert, damit die Seite nicht ins Start-Bundle wandert) */}
+        style={{ fontFamily: "inherit", cursor: "pointer", border: "none", borderRadius: 999, padding: "11px 20px", fontSize: 14, fontWeight: 700,
+          background: C.seeTief, color: C.weiss, boxShadow: "0 4px 14px rgba(14,30,74,0.22)" }}>
+        Mehr über Mythos Mathe →
+      </button>
+    </section>
+  );
+}
+
 /* Grafik für die Schulmathematik-Kachel: vier Mini-Motive (Kurve, Vektor, Säulen, Video). */
 export function SchulmatheLogoKlein() {
   const W = 230, H = 190;
@@ -411,6 +542,21 @@ function bereichsEintraege(b, stufe, etikett) {
   return liste;
 }
 
+/* Mathe entdecken → Lernangebote und Wettbewerbe (aufklappbar wie Schulmathe-Training).
+   „seite“ öffnet das Lernangebot direkt (EntdeckenSeite start=…). */
+const ENTDECKEN_MENUE = [
+  { kopf: true, name: "entdecken-lernen", nr: 1, titel: "Lernangebote", zeile: "Selbst herleiten, warum Mathematik funktioniert" },
+  { name: "Axiome", zeile: "Fundament der Mathematik, erste Beweise", bild: "axiome", ziel: { ansicht: "entdecken", seite: "axiome" } },
+  { name: "Mathematisches Denken", zeile: "Video und Fragen zum Nachdenken", bild: "video", ziel: { ansicht: "entdecken", seite: "einstieg" } },
+  { name: "Pascalsches Dreieck", zeile: "Vom Zahlenmuster zur Potenzregel", bild: "pascal", ziel: { ansicht: "entdecken", seite: "praxis" } },
+  { name: "Satz des Pythagoras", zeile: "Entdecke, warum a² + b² = c² gilt", bild: "pythagoras", ziel: { ansicht: "entdecken", seite: "pythagoras" } },
+  { name: "Teilbarkeitsregeln", zeile: "Alle Regeln von 2 bis 9 selbst herleiten", bild: "teiler", ziel: { ansicht: "entdecken", seite: "teiler" } },
+  { kopf: true, name: "entdecken-wettbewerbe", nr: 2, titel: "Mathe-Wettbewerbe", zeile: "Für alle, die mehr wollen" },
+  { name: "Bundeswettbewerb Mathematik", zeile: "Nächste 1. Runde, Aufgaben vom Vorjahr", bild: "medaille", ziel: { ansicht: "bwm" } },
+  { name: "Landeswettbewerbe", zeile: "Tippe auf dein Bundesland", bild: "landkarte", ziel: { ansicht: "landeswettbewerbe" } },
+  { name: "Übersicht und Fortschritt", zeile: "Alle Lernangebote mit deinem Stand", bild: "lupe", ziel: { ansicht: "entdecken" } },
+];
+
 /* Formelsammlung → Bereiche (Untermenü wie bei Analysis) */
 const FORMEL_MENUE = [
   { name: "Analysis", zeile: "Ableiten, Integrieren, Kurvendiskussion", bild: "kurve", ziel: { ansicht: "formeln", bereich: "analysis" } },
@@ -606,6 +752,13 @@ function MiniBild({ art }) {
     trig: <><path d="M22 46 H94 V12 Z" {...linie} fill="rgba(255,255,255,0.06)" /><path d="M87 46 V39 H94" {...linie} strokeWidth="1" /><path d="M38 46 A16 16 0 0 0 36.5 39.2" stroke={g} strokeWidth="1.6" fill="none" />{txt(41, 43, "α", g, 10)}{txt(99, 32, "a", w, 10)}{txt(56, 25, "c", w, 10)}</>,
     terme: <>{txt(60, 23, "(a + b)²", "#fff", 14, "middle")}{txt(60, 43, "a² + 2ab + b²", g, 11, "middle")}</>,
     menge: <><circle cx="48" cy="28" r="18" {...linie} fill="rgba(255,255,255,0.06)" /><circle cx="72" cy="28" r="18" {...linie} fill="rgba(255,255,255,0.06)" /><path d="M60 14.6 A18 18 0 0 1 60 41.4 A18 18 0 0 1 60 14.6 Z" fill={g} opacity="0.8" />{txt(38, 32, "A", w, 10)}{txt(78, 32, "B", w, 10)}</>,
+    axiome: <>{txt(60, 22, "a + b = b + a", "#fff", 12, "middle")}<path d="M30 32 H90" {...linie} strokeWidth="0.9" opacity="0.6" />{txt(60, 47, "∎", g, 13, "middle")}</>,
+    pascal: <>{[[60, 14, "1"], [50, 27, "1"], [70, 27, "1"], [40, 40, "1"], [60, 40, "2"], [80, 40, "1"], [30, 53, "1"], [50, 53, "3"], [70, 53, "3"], [90, 53, "1"]].map(([x, y, z], i) => <React.Fragment key={i}>{txt(x, y, z, z === "1" ? w : g, 11, "middle")}</React.Fragment>)}</>,
+    pythagoras: <><path d="M44 44 H80 V20 Z" {...linie} fill="rgba(255,255,255,0.06)" /><rect x="44" y="44" width="36" height="10" fill={g} opacity="0.35" /><rect x="80" y="20" width="12" height="24" fill={g} opacity="0.6" /><path d="M74 44 V38 H80" {...linie} strokeWidth="1" />{txt(28, 24, "a²+b²=c²", "#fff", 10)}</>,
+    teiler: <>{txt(60, 23, "3 | 123", "#fff", 14, "middle")}{txt(60, 44, "1 + 2 + 3 = 6", g, 11, "middle")}</>,
+    medaille: <><path d="M50 6 L58 24 M70 6 L62 24" stroke={w} strokeWidth="2.4" strokeLinecap="round" /><circle cx="60" cy="34" r="14" fill={g} /><circle cx="60" cy="34" r="9" fill="none" stroke="rgba(14,30,74,0.45)" strokeWidth="1.2" />{txt(60, 38.5, "1", "#0E1E4A", 12, "middle")}</>,
+    landkarte: <><path d="M52 6 L66 8 L70 16 L76 18 L74 28 L80 36 L72 44 L74 52 L58 52 L48 46 L44 36 L48 26 L44 18 Z" {...linie} fill="rgba(255,255,255,0.06)" /><circle cx="56" cy="44" r="3.4" fill={g} /></>,
+    lupe: <><circle cx="54" cy="25" r="14" {...linie} strokeWidth="2" /><path d="M64 35 L78 49" stroke={g} strokeWidth="3.2" strokeLinecap="round" />{txt(54, 29.5, "?", g, 12, "middle")}</>,
     lgs: <><path d="M20 8 C 14 8, 16 28, 11 28 C 16 28, 14 48, 20 48" {...linie} stroke={g} />{txt(26, 18, "x + y + z = 6", w, 10.5)}{txt(26, 32, "2x − y + z = 3", w, 10.5)}{txt(26, 46, "x + 2y − z = 2", w, 10.5)}</>,
   };
   return <svg viewBox="0 0 120 56" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" aria-hidden="true">{m[art]}</svg>;
@@ -782,6 +935,8 @@ export function Startseite({ gehe }) {
   const [wieder, setWieder] = useState(false);
   const [hinweis, setHinweis] = useState("");
   const [schulAuf, setSchulAuf] = useState(false);     // Dropdown „Schulmathe-Training“
+  const [entdAuf, setEntdAuf] = useState(false);        // Dropdown „Mathe entdecken“
+  const desktop = useDesktop();
   const [bereichAuf, setBereichAuf] = useState(null);   // aufgeklappter Unterbereich (analysis, vektoren, …)
   const [kopfAuf, setKopfAuf] = useState(false);        // Dropdown „Kopfrechnen“
   const [formelAuf, setFormelAuf] = useState(false);    // Untermenü „Formelsammlung“
@@ -800,7 +955,7 @@ export function Startseite({ gehe }) {
   };
   /* Außen tippen schließt: Ein Tipp auf die abgedunkelte Fläche (kein Knopf, kein Link) klappt das innerste offene Menü zu. */
   useEffect(() => {
-    if (!schulAuf) return undefined;
+    if (!schulAuf && !entdAuf) return undefined;
     const klick = (ev) => {
       const t = ev.target;
       if (!(t instanceof Element)) return;
@@ -808,11 +963,12 @@ export function Startseite({ gehe }) {
       let aktiv = null;
       try { aktiv = document.querySelector("[data-aufklapp-rahmen]:not(:has([data-aufklapp-rahmen]))"); } catch { return; }
       if (!aktiv || aktiv.contains(t)) return;
-      if (bereichAuf || formelAuf) { setBereichAuf(null); setFormelAuf(false); } else setSchulAuf(false);
+      if (entdAuf) setEntdAuf(false);
+      else if (bereichAuf || formelAuf) { setBereichAuf(null); setFormelAuf(false); } else setSchulAuf(false);
     };
     document.addEventListener("click", klick);
     return () => document.removeEventListener("click", klick);
-  }, [schulAuf, bereichAuf, formelAuf]);
+  }, [schulAuf, entdAuf, bereichAuf, formelAuf]);
 
   /* --- Motive --- */
 
@@ -1220,10 +1376,12 @@ export function Startseite({ gehe }) {
           Alle Kacheln laufen auf voller Breite (breit); es ist immer nur ein Bereich offen. */}
       <MeinTrainingKachelStart gehe={gehe} />
       <AufklappRahmen auf={schulAuf}>
-      <PlotterKachel breit halb={schulAuf} onClick={() => { setSchulAuf(!schulAuf); setBereichAuf(null); setFormelAuf(false); setEtikett(null); }} auf={schulAuf}
-        label={schulAuf ? "Schulmathe-Training zuklappen" : "Schulmathe-Training aufklappen"}
-        logo={<SchulmatheLogoKlein />} titel="Schulmathe-Training"
-        text={schulAuf ? "Mathematik der Mittel- und Oberstufe." : "Mittel- und Oberstufe bis zum Abi: Analysis, Vektoren, Stochastik, Gleichungen."}
+      <PlotterKachel breit halb={schulAuf} onClick={() => { setSchulAuf(!schulAuf); setEntdAuf(false); setBereichAuf(null); setFormelAuf(false); setEtikett(null); }} auf={schulAuf}
+        label={desktop ? (schulAuf ? "Mittel- und Oberstufen-Mathematik zuklappen" : "Mittel- und Oberstufen-Mathematik aufklappen") : (schulAuf ? "Schulmathe-Training zuklappen" : "Schulmathe-Training aufklappen")}
+        logo={<SchulmatheLogoKlein />} titel={desktop ? "Mittel- und Oberstufen-Mathematik" : "Schulmathe-Training"}
+        text={desktop
+          ? (schulAuf ? "Analysis, Vektoren, Stochastik und Gleichungen." : "Bis zum Abi: Analysis, Vektoren, Stochastik, Gleichungen.")
+          : (schulAuf ? "Mathematik der Mittel- und Oberstufe." : "Mittel- und Oberstufe bis zum Abi: Analysis, Vektoren, Stochastik, Gleichungen.")}
         extra={<PlusKnopf auf={schulAuf} klein={schulAuf} />} />
       {schulAuf && (
         <div data-aufklapp-inhalt style={{ margin: "0 0 4px" }}>
@@ -1289,16 +1447,22 @@ export function Startseite({ gehe }) {
         </div>
       )}
       </AufklappRahmen>
-      {/* Mathe entdecken: gleichwertiger zweiter Hauptbereich direkt unter „Schulmathe-Training“ */}
-      <PlotterKachel breit onClick={() => gehe({ ansicht: "entdecken" })} label="Mathe entdecken öffnen" logo={<EntdeckenLogoKlein />}
-        titel="Mathe entdecken"
-        text="Muster erkennen, Formeln selbst herleiten – und Mathe-Wettbewerbe." />
+      {/* Mathe entdecken: gleichwertiger zweiter Hauptbereich direkt unter „Schulmathe-Training“, klappt wie dieser auf */}
+      <AufklappRahmen auf={entdAuf}>
+        <PlotterKachel breit halb={entdAuf} auf={entdAuf} onClick={() => { setEntdAuf(!entdAuf); setSchulAuf(false); setBereichAuf(null); setFormelAuf(false); }}
+          label={entdAuf ? "Mathe entdecken zuklappen" : "Mathe entdecken aufklappen"} logo={<EntdeckenLogoKlein />}
+          titel="Mathe entdecken"
+          text={entdAuf ? "Herleiten, entdecken, Wettbewerbe." : "Muster erkennen, Formeln selbst herleiten – und Mathe-Wettbewerbe."}
+          extra={<PlusKnopf auf={entdAuf} klein={entdAuf} />} />
+        {entdAuf && <div style={{ margin: "0 -16px" }}><UnterMenue eintraege={ENTDECKEN_MENUE} gehe={gehe} /></div>}
+      </AufklappRahmen>
       {ZEIGE_GESPERRTE && (<>
       <MatheCheckenKachel gesperrt onClick={() => gehe({ ansicht: "mathecheck" })} />
       <MasterclassKachel gesperrt onClick={() => gehe({ ansicht: "masterclass" })} />
       <MathCreatorKachel />
       <ElternabendKachel gesperrt onClick={() => gehe({ ansicht: "elternabend" })} />
       </>)}
+      {!desktop && (<>
       {/* Mathe-Mindset-Kurs: zwischen Mathe-Training und Mathilda AI; flacher goldener Balken „(Auch für Eltern und Lehrer!)“ in der Ecke unten rechts, schließt mit der abgerundeten Kachelecke ab und reicht über die Trennlinie ins linke Feld */}
       <div style={{ position: "relative", marginTop: 12 }}>
         <div style={{ position: "absolute", bottom: 0, right: -16, zIndex: 3, pointerEvents: "none", display: "flex", alignItems: "center", justifyContent: "center",
@@ -1317,6 +1481,24 @@ export function Startseite({ gehe }) {
       <PlotterKachel onClick={() => gehe({ ansicht: "penpaperkurs" })} label="Pen & Paper Kurs öffnen" logo={<PenPaperBlatt />}
         titel="Pen & Paper"
         text="Klar aufschreiben, strukturiert arbeiten, sicher mit Fehlern umgehen." />
+      </>)}
+      {/* Desktop: Einleitung + Pen & Paper / Mathilda AI im goldenen Schnitt, dann Kurstext und Kurse */}
+      {desktop && <DesktopSystem gehe={gehe} />}
+      {desktop && <DesktopKurse gehe={gehe} />}
+      {desktop && (<>
+      {/* Mathe-Mindset-Kurs: zwischen Mathe-Training und Mathilda AI; flacher goldener Balken „(Auch für Eltern und Lehrer!)“ in der Ecke unten rechts, schließt mit der abgerundeten Kachelecke ab und reicht über die Trennlinie ins linke Feld */}
+      <div style={{ position: "relative", marginTop: 12 }}>
+        <div style={{ position: "absolute", bottom: 0, right: -16, zIndex: 3, pointerEvents: "none", display: "flex", alignItems: "center", justifyContent: "center",
+          padding: "7px 18px 7px 16px", borderTopLeftRadius: 12, borderBottomRightRadius: 18,
+          background: "linear-gradient(180deg, #F5CB2E 0%, #EDBB00 100%)", color: C.seeTief, fontSize: "clamp(10px, 3vw, 13px)", fontWeight: 700,
+          letterSpacing: "0.02em", textTransform: "uppercase", whiteSpace: "nowrap", lineHeight: 1.2 }}>
+          (Auch) für Eltern und Lehrer!
+        </div>
+        <PlotterKachel onClick={() => gehe({ ansicht: "elternkurs" })} label="Mathe-Mindset-Kurs öffnen" logo={<ElternkursLogoKlein />}
+          titel="Mathe-Mindset-Kurs"
+          text="Sechs TED-Talks und ein Buch, die zeigen, wie Kinder wirklich lernen." />
+      </div>
+      </>)}
       <PlotterKachel onClick={() => gehe({ ansicht: "headnumbers" })} label="Head & Numbers öffnen" logo={<HeadNumbersLogoKlein />} keinI18nTitel
         titel="Head & Numbers"
         text="Einmaleins, Quadrat- und Kubikzahlen, schriftliches Rechnen und Brüche – bis alles sitzt." />
