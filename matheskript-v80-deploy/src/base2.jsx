@@ -637,6 +637,9 @@ export const vzm = (k) => (k < 0 ? `${k}` : `+${k}`);
 export const W = (t, f) => ({ t, f });
 
 
+/* x hoch 1 wird nie geschrieben: Exponent 1 → "x" */
+const px = (e) => (e === 1 ? "x" : `x^${e}`);
+const pxt = (e) => (e === 1 ? "x" : `x^{${e}}`);
 export const ABL_TYPEN = [
   {
     id: "polynom", name: "Polynome", regel: "Potenz-, Faktor- und Summenregel",
@@ -644,49 +647,49 @@ export const ABL_TYPEN = [
     mach: (st) => {
       const a = ohneNull(2, 5), b = ohneNull(-6, 6), c = ohneNull(-9, 9);
       const potenzH = "Potenzregel: der Exponent wandert als Faktor nach vorn und sinkt um eins.";
-      if (st <= 1) { const n = ganz(2, 4); const erg = `${a * n}x^{${n - 1}}`; return {
-        tex: `${a}x^{${n}}`, f: `${a}x^${n}`, loesung: `${a * n}x^${n - 1}`, zeig: erg,
-        weg: FR.wegSumme([{ tex: `${a}x^{${n}}`, abl: `${a} \\cdot ${n} \\cdot x^{${n - 1}} = ${erg}`, h: potenzH }], erg),
+      if (st <= 1) { const n = ganz(2, 4); const erg = `${a * n}${pxt(n - 1)}`; return {
+        tex: `${a}x^{${n}}`, f: `${a}x^${n}`, loesung: `${a * n}${px(n - 1)}`, zeig: erg,
+        weg: FR.wegSumme([{ tex: `${a}x^{${n}}`, abl: `${a} \\cdot ${n} \\cdot ${pxt(n - 1)} = ${erg}`, h: potenzH }], erg),
         fallen: [{ t: `${a * n}x^${n}`, h: "Der Exponent muss um eins sinken, nicht stehen bleiben." },
-                 { t: `${a}x^${n - 1}`, h: "Der alte Exponent wandert als Faktor nach vorn — er fehlt bei dir." }] }; }
+                 { t: `${a}${px(n - 1)}`, h: "Der alte Exponent wandert als Faktor nach vorn — er fehlt bei dir." }] }; }
       if (st === 2) { const n = ganz(3, 5), m = ganz(1, 2);
-        const erg = `${a * n}x^{${n - 1}} ${vz(b * m)}${m > 1 ? `x^{${m - 1}}` : ""}`; return {
-        tex: `${a}x^{${n}} ${vz(b)}x${m > 1 ? `^{${m}}` : ""}`, f: `${a}x^${n}+${b}x^${m}`,
-        loesung: `${a * n}x^${n - 1}${vzm(b * m)}${m > 1 ? `x^${m - 1}` : ""}`, zeig: erg,
+        const erg = `${a * n}${pxt(n - 1)} ${vz(b * m)}${m > 1 ? `${pxt(m - 1)}` : ""}`; return {
+        tex: `${a}x^{${n}} ${vz(b)}x${m > 1 ? `^{${m}}` : ""}`, f: `${a}x^${n}+${b}${px(m)}`,
+        loesung: `${a * n}${px(n - 1)}${vzm(b * m)}${m > 1 ? `${px(m - 1)}` : ""}`, zeig: erg,
         weg: FR.wegSumme([
-          { tex: `${a}x^{${n}}`, abl: `${a * n}x^{${n - 1}}`, h: potenzH },
-          { tex: `${b}x${m > 1 ? `^{${m}}` : ""}`, abl: `${b * m}${m > 1 ? `x^{${m - 1}}` : ""}`,
+          { tex: `${a}x^{${n}}`, abl: `${a * n}${pxt(n - 1)}`, h: potenzH },
+          { tex: `${b}x${m > 1 ? `^{${m}}` : ""}`, abl: `${b * m}${m > 1 ? `${pxt(m - 1)}` : ""}`,
             h: m > 1 ? potenzH : "Bei x hoch eins bleibt nur der Vorfaktor übrig." },
         ], erg) }; }
       if (st === 3) { const n = ganz(3, 5), m = ganz(1, 2);
-        const erg = `${a * n}x^{${n - 1}} ${vz(b * m)}${m > 1 ? `x^{${m - 1}}` : ""}`; return {
-        tex: `${a}x^{${n}} ${vz(b)}x${m > 1 ? `^{${m}}` : ""} ${vz(c)}`, f: `${a}x^${n}+${b}x^${m}+${c}`,
-        loesung: `${a * n}x^${n - 1}${vzm(b * m)}${m > 1 ? `x^${m - 1}` : ""}`, zeig: erg,
+        const erg = `${a * n}${pxt(n - 1)} ${vz(b * m)}${m > 1 ? `${pxt(m - 1)}` : ""}`; return {
+        tex: `${a}x^{${n}} ${vz(b)}x${m > 1 ? `^{${m}}` : ""} ${vz(c)}`, f: `${a}x^${n}+${b}${px(m)}+${c}`,
+        loesung: `${a * n}${px(n - 1)}${vzm(b * m)}${m > 1 ? `${px(m - 1)}` : ""}`, zeig: erg,
         weg: FR.wegSumme([
-          { tex: `${a}x^{${n}}`, abl: `${a * n}x^{${n - 1}}`, h: potenzH },
-          { tex: `${b}x${m > 1 ? `^{${m}}` : ""}`, abl: `${b * m}${m > 1 ? `x^{${m - 1}}` : ""}`, h: potenzH },
+          { tex: `${a}x^{${n}}`, abl: `${a * n}${pxt(n - 1)}`, h: potenzH },
+          { tex: `${b}x${m > 1 ? `^{${m}}` : ""}`, abl: `${b * m}${m > 1 ? `${pxt(m - 1)}` : ""}`, h: potenzH },
           { tex: `${c}`, abl: `0`, h: "Eine Konstante ändert sich nicht — ihre Ableitung ist null." },
         ], erg),
-        fallen: [{ t: `${a * n}x^${n - 1}${vzm(b * m)}${m > 1 ? `x^${m - 1}` : ""}${vzm(c)}`,
+        fallen: [{ t: `${a * n}${px(n - 1)}${vzm(b * m)}${m > 1 ? `${px(m - 1)}` : ""}${vzm(c)}`,
                    h: "Die Ableitung einer Konstanten ist null — das absolute Glied fällt weg." }] }; }
-      if (st === 4) { const n = ganz(3, 5); const erg = `${a * n}x^{${n - 1}} ${vz(-b)} \\cdot \\frac{1}{x^2}`; return {
+      if (st === 4) { const n = ganz(3, 5); const erg = `${a * n}${pxt(n - 1)} ${vz(-b)} \\cdot \\frac{1}{x^2}`; return {
         tex: `${a}x^{${n}} ${vz(b)} \\cdot \\frac{1}{x}`, f: `${a}x^${n}+${b}/x`,
-        loesung: `${a * n}x^${n - 1}-${b}/x^2`, zeig: erg,
+        loesung: `${a * n}${px(n - 1)}-${b}/x^2`, zeig: erg,
         weg: FR.wegSumme([
-          { tex: `${a}x^{${n}}`, abl: `${a * n}x^{${n - 1}}`, h: potenzH },
+          { tex: `${a}x^{${n}}`, abl: `${a * n}${pxt(n - 1)}`, h: potenzH },
           { tex: `${b} \\cdot \\frac{1}{x}`, abl: `${b} \\cdot (-1) \\cdot x^{-2} = ${-b} \\cdot \\frac{1}{x^2}`,
             h: "Schreib den Bruch erst als Potenz: 1 durch x ist x hoch minus eins. Dabei entsteht das Minuszeichen." },
         ], erg),
-        fallen: [{ t: `${a * n}x^${n - 1}+${b}/x^2`, h: "Beim Kehrwert entsteht ein Minuszeichen: aus x⁻¹ wird −x⁻²." }] }; }
-      const n = ganz(3, 5); const erg = `${a * n}x^{${n - 1}} ${vz(b)} \\cdot \\frac{1}{2\\sqrt{x}}`; return {
+        fallen: [{ t: `${a * n}${px(n - 1)}+${b}/x^2`, h: "Beim Kehrwert entsteht ein Minuszeichen: aus x⁻¹ wird −x⁻²." }] }; }
+      const n = ganz(3, 5); const erg = `${a * n}${pxt(n - 1)} ${vz(b)} \\cdot \\frac{1}{2\\sqrt{x}}`; return {
         tex: `${a}x^{${n}} ${vz(b)}\\sqrt{x}`, f: `${a}x^${n}+${b}*sqrt(x)`,
-        loesung: `${a * n}x^${n - 1}${vzm(b)}/(2*sqrt(x))`, zeig: erg,
+        loesung: `${a * n}${px(n - 1)}${vzm(b)}/(2*sqrt(x))`, zeig: erg,
         weg: FR.wegSumme([
-          { tex: `${a}x^{${n}}`, abl: `${a * n}x^{${n - 1}}`, h: potenzH },
+          { tex: `${a}x^{${n}}`, abl: `${a * n}${pxt(n - 1)}`, h: potenzH },
           { tex: `${b}\\sqrt{x}`, abl: `${b} \\cdot \\frac{1}{2}x^{-\\frac{1}{2}} = ${b} \\cdot \\frac{1}{2\\sqrt{x}}`,
             h: "Schreib die Wurzel erst als Potenz: √x ist x hoch ein halb. Dann greift die Potenzregel." },
         ], erg),
-        fallen: [{ t: `${a * n}x^${n - 1}+${b}*sqrt(x)`, h: "Die Wurzel muss erst als x^{1/2} geschrieben und dann abgeleitet werden." }] };
+        fallen: [{ t: `${a * n}${px(n - 1)}+${b}*sqrt(x)`, h: "Die Wurzel muss erst als x^{1/2} geschrieben und dann abgeleitet werden." }] };
     },
   },
   {
@@ -711,18 +714,18 @@ export const ABL_TYPEN = [
         loesung: `${3 * a * c}x^2${vzm(2 * a * d + 2 * b * c)}x${vzm(a * e2 + b * d)}`, zeig: erg,
         weg: FR.wegProdukt(`${a}x ${vz(b)}`, `${a}`, `${c}x^2 ${vz(d)}x ${vz(e2)}`, `${2 * c}x ${vz(d)}`,
           `f′ = ${a}(${c}x^2 ${vz(d)}x ${vz(e2)}) + (${a}x ${vz(b)})(${2 * c}x ${vz(d)})`, erg) }; }
-      if (st === 4) { const k = ganz(2, 3); const erg = `e^x(x^{${k}} + ${k}x^{${k - 1}})`; return {
+      if (st === 4) { const k = ganz(2, 3); const erg = `e^x(x^{${k}} + ${k}${pxt(k - 1)})`; return {
         tex: `x^{${k}} \\cdot e^x`, f: `x^${k}*e^x`,
-        loesung: `e^x*(x^${k}+${k}x^${k - 1})`, zeig: erg,
-        weg: FR.wegProdukt(`x^{${k}}`, `${k}x^{${k - 1}}`, `e^x`, `e^x`,
-          `f′ = ${k}x^{${k - 1}}e^x + x^{${k}}e^x`, erg),
-        fallen: [{ t: `${k}x^${k - 1}*e^x`, h: "Die Ableitung von e^x wurde vergessen — es fehlt der zweite Summand." }] }; }
-      const k = ganz(2, 3); const erg = `${k}x^{${k - 1}} \\sin x + x^{${k}} \\cos x`; return {
+        loesung: `e^x*(x^${k}+${k}${px(k - 1)})`, zeig: erg,
+        weg: FR.wegProdukt(`x^{${k}}`, `${k}${pxt(k - 1)}`, `e^x`, `e^x`,
+          `f′ = ${k}${pxt(k - 1)}e^x + x^{${k}}e^x`, erg),
+        fallen: [{ t: `${k}${px(k - 1)}*e^x`, h: "Die Ableitung von e^x wurde vergessen — es fehlt der zweite Summand." }] }; }
+      const k = ganz(2, 3); const erg = `${k}${pxt(k - 1)} \\sin x + x^{${k}} \\cos x`; return {
         tex: `x^{${k}} \\cdot \\sin x`, f: `x^${k}*sin(x)`,
-        loesung: `${k}x^${k - 1}*sin(x)+x^${k}*cos(x)`, zeig: erg,
-        weg: FR.wegProdukt(`x^{${k}}`, `${k}x^{${k - 1}}`, `\\sin x`, `\\cos x`,
-          `f′ = ${k}x^{${k - 1}} \\sin x + x^{${k}} \\cos x`, erg),
-        fallen: [{ t: `${k}x^${k - 1}*cos(x)`, h: "Das ist u′ · v′. Beide Summanden der Produktregel werden gebraucht." }] };
+        loesung: `${k}${px(k - 1)}*sin(x)+x^${k}*cos(x)`, zeig: erg,
+        weg: FR.wegProdukt(`x^{${k}}`, `${k}${pxt(k - 1)}`, `\\sin x`, `\\cos x`,
+          `f′ = ${k}${pxt(k - 1)} \\sin x + x^{${k}} \\cos x`, erg),
+        fallen: [{ t: `${k}${px(k - 1)}*cos(x)`, h: "Das ist u′ · v′. Beide Summanden der Produktregel werden gebraucht." }] };
     },
   },
   {

@@ -2191,8 +2191,8 @@ export function baueKurvendiskussionInhaltK(k) {
   const nurGerade = p5 === 0 && a === 0 && c === 0;
   if (nurUngerade) {
     zP(s2, p5 !== 0
-      ? "f enthält nur ungerade Exponenten (x^5, x^3 und x^1). Es gilt f(-x) = -f(x), daher ist f punktsymmetrisch zum Ursprung."
-      : "f enthält nur ungerade Exponenten (x^3 und x^1). Es gilt f(-x) = -f(x), daher ist f punktsymmetrisch zum Ursprung.");
+      ? "f enthält nur ungerade Exponenten (x^5, x^3 und x). Es gilt f(-x) = -f(x), daher ist f punktsymmetrisch zum Ursprung."
+      : "f enthält nur ungerade Exponenten (x^3 und x). Es gilt f(-x) = -f(x), daher ist f punktsymmetrisch zum Ursprung.");
   } else if (nurGerade) {
     zP(s2, "f enthält nur gerade Exponenten (x^4, x^2, x^0). Es gilt f(-x) = f(x), daher ist f achsensymmetrisch zur y-Achse.");
   } else {

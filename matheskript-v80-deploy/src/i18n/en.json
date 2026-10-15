@@ -1,6 +1,6 @@
 {
  "exakt": {
-  "f enthält nur ungerade Exponenten (x^5, x^3 und x^1). Es gilt f(-x) = -f(x), daher ist f punktsymmetrisch zum Ursprung.": "f contains only odd exponents (x^5, x^3 and x^1). f(-x) = -f(x) holds, so f is point-symmetric about the origin.",
+  "f enthält nur ungerade Exponenten (x^5, x^3 und x). Es gilt f(-x) = -f(x), daher ist f punktsymmetrisch zum Ursprung.": "f contains only odd exponents (x^5, x^3 and x). f(-x) = -f(x) holds, so f is point-symmetric about the origin.",
   "Mathetalent ist ein Mythos.": "Math talent is a myth.",
   "Gute Mathenoten sind weder Zufall noch Begabung. Sie entstehen aus einem System, das jeder lernen kann. Ich zeige Gymnasiasten von Klasse 8 bis zum Abitur, wie es funktioniert – und wie Mathe dabei wieder Spaß macht.": "Good math grades are neither luck nor talent. They come from a system that anyone can learn. I show secondary school students from grade 8 up to their final exams how it works – and how math becomes fun again along the way.",
   "Erstgespräch anfragen": "Request a first call",
@@ -3404,7 +3404,7 @@
   "Numerisch: x =": "Numerically: x =",
   "(doppelte Lösung)": "(double solution)",
   "D(f) = R (alle reellen Zahlen), da f eine ganzrationale Funktion (ein Polynom) ist.": "D(f) = R (all real numbers), since f is a polynomial function.",
-  "f enthält nur ungerade Exponenten (x^3 und x^1). Es gilt f(-x) = -f(x), daher ist f punktsymmetrisch zum Ursprung.": "f contains only odd exponents (x^3 and x^1). f(-x) = -f(x) holds, so f is point-symmetric about the origin.",
+  "f enthält nur ungerade Exponenten (x^3 und x). Es gilt f(-x) = -f(x), daher ist f punktsymmetrisch zum Ursprung.": "f contains only odd exponents (x^3 and x). f(-x) = -f(x) holds, so f is point-symmetric about the origin.",
   "f enthält nur gerade Exponenten (x^4, x^2, x^0). Es gilt f(-x) = f(x), daher ist f achsensymmetrisch zur y-Achse.": "f contains only even exponents (x^4, x^2, x^0). f(-x) = f(x) holds, so f is symmetric about the y-axis.",
   "f enthält sowohl gerade als auch ungerade Exponenten mit Koeffizient ungleich 0. Es gilt weder f(-x) = f(x) noch f(-x) = -f(x) - es liegt keine Symmetrie zur y-Achse oder zum Ursprung vor.": "f contains both even and odd exponents with non-zero coefficients. Neither f(-x) = f(x) nor f(-x) = -f(x) holds - there is no symmetry about the y-axis or the origin.",
   "3. Verhalten im Unendlichen": "3. End behavior",
