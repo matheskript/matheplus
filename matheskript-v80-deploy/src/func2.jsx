@@ -271,7 +271,7 @@ function DesktopSystem({ gehe }) {
         Die meisten Fehler in Klausuren entstehen nicht im Kopf, sondern auf dem Blatt.
       </p>
       <p style={START_TEXT}>
-        Pen & Paper ist der Kurs dazu: ein Schritt pro Zeile, Gleichheitszeichen untereinander, Nebenrechnungen in einer Box.
+        Pen & Paper ist der Kurs dazu: ein Schritt pro Zeile, Gleichheitszeichen untereinander.
       </p>
       <p style={START_TEXT}>
         Mathilda AI ist das Training dazu: Du fotografierst dein Blatt, Mathilda prüft die Rechnung und zeigt dir die Stelle, an der dein Weg bricht.
