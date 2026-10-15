@@ -297,36 +297,80 @@ function DesktopSystem({ gehe }) {
   );
 }
 
-/* Verkaufstext vor den Kursen (kürzer als die Landingpage) */
-const KURS_PUNKTE = [
-  ["Mathe-Mindset-Kurs", "Wie Kinder wirklich lernen – für Schüler, Eltern und Lehrer."],
-  ["Head & Numbers", "Kopfrechnen, bis Zahlen nicht mehr bremsen."],
-  ["Ebbinghaus", "Wiederholen im richtigen Abstand, damit Gelerntes bleibt."],
-  ["Videokurse und Masterclass", "Ein klarer Plan durch den Stoff bis zum Abi. Bald verfügbar."],
+/* Sieben Mathe-Mythen: Aufklappmenü mit Mini-Icons, jeder Mythos klappt einzeln zum Erklärtext auf */
+const MYTHEN = [
+  ["★", "„Mathe ist Talent“", "Es gibt kein Mathe-Gen. Gute Noten entstehen aus Methode, Wiederholung und Übung – genau wie beim Klavier oder beim Fußball. Wer früh Erfolg hatte, hat meist früher ein gutes System gefunden, kein besseres Gehirn."],
+  ["?", "„Ich bin kein Mathe-Typ“", "Der Satz beschreibt einen Zustand, kein Urteil. „Ich verstehe das noch nicht“ stimmt – „ich kann das nicht“ nie. Sobald die Lücke gefunden ist, lässt sie sich schließen."],
+  ["»", "„Gute Schüler rechnen schnell“", "Tempo ist ein Ergebnis von Sicherheit, nicht ihre Ursache. Wer sauber und in kleinen Schritten arbeitet, wird von allein schneller – wer hetzt, macht Flüchtigkeitsfehler."],
+  ["×", "„Fehler zeigen, dass ich es nicht kann“", "Fehler sind Information. Sie zeigen genau die Stelle, an der der Weg bricht. Wer seine Fehlerarten kennt, hat den größten Teil der Arbeit schon getan."],
+  ["✓", "„Wenn ich die Lösung verstehe, kann ich es“", "Eine Musterlösung nachzuvollziehen ist etwas anderes, als selbst auf die Idee zu kommen. Verstanden ist eine Aufgabe erst, wenn du sie ein paar Tage später ohne Hilfe löst."],
+  ["↻", "„Viel auf einmal üben bringt am meisten“", "Das Gehirn vergisst schnell – und behält, was im richtigen Abstand wiederkommt. Kurz und regelmäßig schlägt den Marathon am Abend vor der Klausur."],
+  ["✎", "„Im Kopf rechnen ist besser als aufschreiben“", "Der Kopf hat wenig Arbeitsspeicher. Ein klarer Rechenweg auf dem Papier entlastet ihn, macht Fehler sichtbar und ist zugleich dein Beweis in der Klausur."],
 ];
+
+function MythenMenue() {
+  const [auf, setAuf] = useState(false);
+  const [offen, setOffen] = useState(null);
+  return (
+    <div style={{ margin: "22px 0 4px" }}>
+      <button type="button" onClick={() => { setAuf(!auf); if (auf) setOffen(null); }} aria-expanded={auf}
+        style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14, cursor: "pointer", fontFamily: "inherit", textAlign: "left",
+          padding: "16px 20px", borderRadius: 16, border: `3px solid ${C.see}`, color: C.weiss,
+          background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, boxShadow: "0 6px 20px rgba(0,77,152,0.22)" }}>
+        <span>
+          <span style={{ display: "block", fontSize: 20, fontWeight: 700, letterSpacing: "-0.02em" }}>Die 7 Mathe-Mythen</span>
+          <span style={{ display: "block", fontSize: 13, fontWeight: 300, color: "#DCE5F4", marginTop: 4 }}>Sieben Sätze, die dich bremsen – und warum sie nicht stimmen.</span>
+        </span>
+        <span aria-hidden="true" style={{ width: 34, height: 34, flexShrink: 0, borderRadius: 999, background: C.flaggold, color: C.seeTief, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, fontWeight: 700, lineHeight: 1 }}>{auf ? "–" : "+"}</span>
+      </button>
+      {auf && (
+        <div style={{ marginTop: 10, borderRadius: 16, background: C.weiss, border: `1px solid ${C.linie}`, boxShadow: "0 3px 16px rgba(15,26,51,0.07)", overflow: "hidden" }}>
+          {MYTHEN.map(([zeichen, titel, text], i) => {
+            const o = offen === i;
+            return (
+              <div key={titel} style={{ borderTop: i ? `1px solid ${C.linie}` : "none" }}>
+                <button type="button" onClick={() => setOffen(o ? null : i)} aria-expanded={o}
+                  style={{ width: "100%", display: "flex", alignItems: "center", gap: 14, padding: "12px 18px", background: o ? C.himmel : "transparent",
+                    border: "none", cursor: "pointer", fontFamily: "inherit", textAlign: "left", color: C.tinte }}>
+                  <span aria-hidden="true" style={{ width: 34, height: 34, flexShrink: 0, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center",
+                    background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, color: C.flaggold, fontSize: 17, fontWeight: 700 }}>{zeichen}</span>
+                  <span style={{ flex: 1, fontSize: 15, fontWeight: 600, lineHeight: 1.35 }}>
+                    <span style={{ color: C.hellgrau, fontWeight: 600, marginRight: 8 }}>{i + 1}</span>{titel}
+                  </span>
+                  <AufklappPfeil auf={o} />
+                </button>
+                {o && (
+                  <p style={{ margin: 0, padding: "2px 18px 16px 66px", background: C.himmel, color: C.grau, fontSize: 14, fontWeight: 300, lineHeight: 1.7 }}>
+                    {text}
+                  </p>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function DesktopKurse({ gehe }) {
   return (
     <section style={{ marginTop: 48, marginBottom: 6 }}>
-      <StartAbschnittKopf kicker="Kurse" titel="Mathetalent ist ein Mythos. Ein System kann man lernen." />
+      <StartAbschnittKopf kicker="Mythen" titel="Mathetalent ist ein Mythos. Ein System kann man lernen." />
       <p style={START_TEXT}>
         Hinter guten Mathenoten steckt kein besonderes Gehirn, sondern eine Arbeitsweise. Die Kurse bauen sie Schritt für Schritt auf: wie du denkst, wie du rechnest, wie du schreibst und wie du Gelerntes behältst.
       </p>
       <p style={START_TEXT}>
         Jeder Kurs ist für sich nutzbar. Zusammen ergeben sie das System, mit dem Mythos Mathe Gymnasiasten von Klasse 8 bis zum Abitur begleitet.
       </p>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px 28px", margin: "20px 0 22px" }}>
-        {KURS_PUNKTE.map(([t, z]) => (
-          <div key={t} style={{ borderLeft: `3px solid ${C.flaggold}`, padding: "2px 0 2px 14px" }}>
-            <p style={{ fontSize: 15, fontWeight: 700, color: C.tinte, margin: 0, lineHeight: 1.3 }}>{t}</p>
-            <p style={{ fontSize: 13.5, fontWeight: 300, color: C.grau, margin: "4px 0 0", lineHeight: 1.55 }}>{z}</p>
-          </div>
-        ))}
+      <MythenMenue />
+
+      <div style={{ marginTop: 56 }}>
+        <StartAbschnittKopf kicker="Kurse" titel="Jeder Kurs ein Baustein, zusammen ein System" />
+        <p style={{ ...START_TEXT, marginBottom: 24 }}>
+          Hinter allen sieben Mythen steckt dieselbe Lücke: Es fehlt nicht an Begabung, sondern an einer Arbeitsweise. Die Kurse unten schließen sie Stück für Stück. Der Mathe-Mindset-Kurs räumt das Denken auf, Head &amp; Numbers macht Zahlen schnell und sicher, und Ebbinghaus sorgt dafür, dass Gelerntes im richtigen Abstand wiederkommt und bleibt. Die Videokurse und die Masterclass führen dich danach Schritt für Schritt durch den Stoff bis zum Abitur.
+        </p>
       </div>
-      <button type="button" onClick={() => gehe({ ansicht: "landingpage" })   /* = LANDING in funcLandingpage.jsx (nicht importiert, damit die Seite nicht ins Start-Bundle wandert) */}
-        style={{ fontFamily: "inherit", cursor: "pointer", border: "none", borderRadius: 999, padding: "11px 20px", fontSize: 14, fontWeight: 700,
-          background: C.seeTief, color: C.weiss, boxShadow: "0 4px 14px rgba(14,30,74,0.22)" }}>
-        Mehr über Mythos Mathe →
-      </button>
     </section>
   );
 }
