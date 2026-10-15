@@ -1545,14 +1545,8 @@ export function Startseite({ gehe }) {
       <ElternabendKachel gesperrt onClick={() => gehe({ ansicht: "elternabend" })} />
       </>)}
       {!desktop && (<>
-      {/* Mathe-Mindset-Kurs: zwischen Mathe-Training und Mathilda AI; flacher goldener Balken „(Auch für Eltern und Lehrer!)“ in der Ecke unten rechts, schließt mit der abgerundeten Kachelecke ab und reicht über die Trennlinie ins linke Feld */}
-      <div style={{ position: "relative", marginTop: 12 }}>
-        <div style={{ position: "absolute", bottom: 0, right: -16, zIndex: 3, pointerEvents: "none", display: "flex", alignItems: "center", justifyContent: "center",
-          padding: "7px 18px 7px 16px", borderTopLeftRadius: 12, borderBottomRightRadius: 18,
-          background: "linear-gradient(180deg, #F5CB2E 0%, #EDBB00 100%)", color: C.seeTief, fontSize: "clamp(10px, 3vw, 13px)", fontWeight: 700,
-          letterSpacing: "0.02em", textTransform: "uppercase", whiteSpace: "nowrap", lineHeight: 1.2 }}>
-          (Auch) für Eltern und Lehrer!
-        </div>
+      {/* Mathe-Mindset-Kurs: zwischen Mathe-Training und Mathilda AI */}
+      <div style={{ marginTop: 12 }}>
         <PlotterKachel onClick={() => gehe({ ansicht: "elternkurs" })} label="Mathe-Mindset-Kurs öffnen" logo={<ElternkursLogoKlein />}
           titel="Mathe-Mindset-Kurs"
           text="Sechs TED-Talks und ein Buch, die zeigen, wie Kinder wirklich lernen." />
@@ -1569,14 +1563,8 @@ export function Startseite({ gehe }) {
       {desktop && <div style={{ marginTop: 22 }}><MeinTrainingKachelStart gehe={gehe} /></div>}
       {desktop && <DesktopKurse gehe={gehe} />}
       {desktop && (<>
-      {/* Mathe-Mindset-Kurs: zwischen Mathe-Training und Mathilda AI; flacher goldener Balken „(Auch für Eltern und Lehrer!)“ in der Ecke unten rechts, schließt mit der abgerundeten Kachelecke ab und reicht über die Trennlinie ins linke Feld */}
-      <div style={{ position: "relative", marginTop: 12 }}>
-        <div style={{ position: "absolute", bottom: 0, right: -16, zIndex: 3, pointerEvents: "none", display: "flex", alignItems: "center", justifyContent: "center",
-          padding: "7px 18px 7px 16px", borderTopLeftRadius: 12, borderBottomRightRadius: 18,
-          background: "linear-gradient(180deg, #F5CB2E 0%, #EDBB00 100%)", color: C.seeTief, fontSize: "clamp(10px, 3vw, 13px)", fontWeight: 700,
-          letterSpacing: "0.02em", textTransform: "uppercase", whiteSpace: "nowrap", lineHeight: 1.2 }}>
-          (Auch) für Eltern und Lehrer!
-        </div>
+      {/* Mathe-Mindset-Kurs: zwischen Mathe-Training und Mathilda AI */}
+      <div style={{ marginTop: 12 }}>
         <PlotterKachel onClick={() => gehe({ ansicht: "elternkurs" })} label="Mathe-Mindset-Kurs öffnen" logo={<ElternkursLogoKlein />}
           titel="Mathe-Mindset-Kurs"
           text="Sechs TED-Talks und ein Buch, die zeigen, wie Kinder wirklich lernen." />
