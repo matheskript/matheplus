@@ -17,7 +17,7 @@ import { C } from "./base1.jsx";
 import { ABL_TYPEN } from "./base2.jsx";
 import { M } from "./func3.jsx";
 import {
-  Tastenfeld, ableitung, alsTex, hatBox, kompiliere, ohnePar, parse, zufallsFunktion,
+  LiveFormel, Tastenfeld, ableitung, alsTex, hatBox, kompiliere, ohnePar, parse, zufallsFunktion,
 } from "./func12.jsx";
 import { IchHaengeFest, ableitRegeln, aussenTex, summanden } from "./funcHilfe.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
@@ -119,8 +119,6 @@ function diagnose(g, soll, vorher, stufe) {
 
 /* Eine Ableitungszeile: Label, Formelanzeige, Status. */
 function Zeile({ stufe, aktiv, eintrag, onKlick }) {
-  const baum = eintrag.text ? parse(eintrag.text) : null;
-  const tex = baum ? alsTex(baum) : null;
   const farbe = eintrag.status === "richtig" ? C.smaragd : eintrag.status === "falsch" ? C.signal : aktiv ? C.see : C.linie;
   return (
     <div onClick={onKlick}
@@ -130,7 +128,7 @@ function Zeile({ stufe, aktiv, eintrag, onKlick }) {
         boxShadow: aktiv ? "0 4px 16px rgba(0,77,152,0.12)" : "none", transition: "box-shadow .2s, border-color .2s" }}>
       <span style={{ fontSize: 18, fontWeight: 700, color: C.tinte, whiteSpace: "nowrap" }}>f{STRICHE[stufe]}(x) =</span>
       <span style={{ flex: 1, fontSize: 19, lineHeight: 1.9, whiteSpace: "nowrap" }}>
-        {eintrag.text ? (tex ? <M t={tex} /> : <span style={{ color: C.signal, fontSize: 15 }}>{eintrag.text}</span>)
+        {eintrag.text ? <LiveFormel text={eintrag.text} />
           : <span style={{ color: C.hellgrau, fontSize: 14, fontWeight: 300 }}>{aktiv ? "hier eingeben …" : ""}</span>}
       </span>
       {eintrag.status === "richtig" && <span style={{ fontSize: 22, color: C.smaragd, fontWeight: 700 }}>✓</span>}
@@ -270,7 +268,7 @@ export function Ableitungstrainer() {
               display: "flex", alignItems: "center", gap: 8, overflowX: "auto", marginBottom: 8 }}>
               <span style={{ fontWeight: 700 }}>f(x) =</span>
               <span style={{ fontSize: 18, lineHeight: 1.9 }}>
-                {eigenText ? (parse(eigenText) ? <M t={alsTex(parse(eigenText))} /> : eigenText)
+                {eigenText ? <LiveFormel text={eigenText} />
                   : <span style={{ color: C.hellgrau, fontSize: 14 }}>…</span>}
               </span>
             </div>

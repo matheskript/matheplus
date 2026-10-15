@@ -511,11 +511,30 @@ export function wert(v, tex = false) {
   return zahl(v).replace("-", "−");
 }
 
+/* Das Minuszeichen der Anzeige ist das echte Minus (U+2212): genauso breit wie das Plus
+   und auf der Höhe des Pluszeichens — der Bindestrich „-“ ist kürzer und sitzt tiefer. */
+const MINUS = "−";
+
+/* Spaltet das Vorzeichen eines Summanden ab: „-3x²“ → [true, 3x²].
+   So wird aus „a + (−b)“ die Schreibweise „a − b“. */
+function vorzeichenWeg(n) {
+  if (!n) return [false, n];
+  if (n.k === "neg") return [true, n.a];
+  if (n.k === "num" && n.v < 0) return [true, { ...n, v: -n.v }];
+  if (n.k === "*") {
+    const [neg, a] = vorzeichenWeg(n.a);
+    if (!neg) return [false, n];
+    if (a.k === "num" && a.v === 1) return [true, n.b];   // −1·x → −x
+    return [true, { ...n, a }];
+  }
+  return [false, n];
+}
+
 export function alsTex(n, aussen = 0, rechts = false) {
   if (!n) return "";
   const klam = (s, r) => (r < aussen || (rechts && r === aussen && aussen <= 2) ? `(${s})` : s);
   switch (n.k) {
-    case "num": return n.v < 0 ? klam(`-${zahlTex(-n.v)}`, 2) : zahlTex(n.v);
+    case "num": return n.v < 0 ? klam(`${MINUS}${zahlTex(-n.v)}`, 2) : zahlTex(n.v);
     case "x": return "x";
     case "e": return "e";
     case "pi": return "π";
@@ -523,12 +542,23 @@ export function alsTex(n, aussen = 0, rechts = false) {
     case "cur": return "\\cursor ";
     case "feld": return `\\feld{${alsTex(ohneAussenPar(n.a), 0)}}`;
     case "par": return `(${alsTex(n.a, 0)})`;
-    case "neg": return klam(`-${alsTex(n.a, 2)}`, 2);
-    case "+": return klam(`${alsTex(n.a, 1)} + ${alsTex(n.b, 1, true)}`, 1);
-    case "-": return klam(`${alsTex(n.a, 1)} - ${alsTex(n.b, 1, true)}`, 1);
+    case "neg": return klam(`${MINUS}${alsTex(n.a, 2)}`, 2);
+    case "+": {
+      // a + (−b) wird als a − b geschrieben, nie als „+ −“
+      const [neg, b] = vorzeichenWeg(n.b);
+      if (!neg) return klam(`${alsTex(n.a, 1)} + ${alsTex(n.b, 1, true)}`, 1);
+      const rest = vorzeichenWeg(b)[0] ? `(${alsTex(b, 0)})` : alsTex(b, 1, true);
+      return klam(`${alsTex(n.a, 1)} ${MINUS} ${rest}`, 1);
+    }
+    case "-": {
+      // a − (−b): die Klammer bleibt, damit nie „− −“ dasteht
+      const neg = vorzeichenWeg(n.b)[0];
+      const rest = neg ? `(${alsTex(n.b, 0)})` : alsTex(n.b, 1, true);
+      return klam(`${alsTex(n.a, 1)} ${MINUS} ${rest}`, 1);
+    }
     case "*": {
       const l = alsTex(n.a, 2), r = alsTex(n.b, 2, n.b.k !== "*");
-      const punkt = /[0-9}]$/.test(l) && /^[0-9-]/.test(r);
+      const punkt = /[0-9}]$/.test(l) && /^[0-9−-]/.test(r);
       return klam(`${l}${punkt ? " \\cdot " : " "}${r}`, 2);
     }
     case "/": return klam(`\\frac{${alsTex(ohneAussenPar(n.a), 0)}}{${alsTex(ohneAussenPar(n.b), 0)}}`, 3);
@@ -550,6 +580,53 @@ export function alsTex(n, aussen = 0, rechts = false) {
   }
 }
 const ohneAussenPar = (n) => (n && n.k === "par" ? ohneAussenPar(n.a) : n);
+
+/* Live-Anzeige beim Tippen: Auch ein unvollständiger Term („15x^2+“, „sin(2x+“) erscheint
+   sofort als gesetzte Formel, nicht als Rohtext. Dafür wird er nur zur Anzeige ergänzt:
+   ein fehlender Operand wird zum Platzhalter ▯, offene Klammern werden geschlossen.
+   Gibt null zurück, wenn der Text Zeichen enthält, die keine Formel ergeben. */
+export function liveTex(text) {
+  const roh = String(text || "");
+  if (!roh.trim()) return null;
+  const direkt = parse(roh);
+  if (direkt) return alsTex(direkt);
+  const WILL_OPERAND = new Set(["+", "-", "*", "/", "^", "(", "[", "fn", "]"]);
+  let rand = [roh];
+  const gesehen = new Set(rand);
+  for (let tiefe = 0; tiefe < 6; tiefe++) {
+    const neu = [];
+    for (const s of rand) {
+      const tok = tokenisiere(s);
+      if (!tok || !tok.length) return null;
+      const stapel = [];
+      for (const z of tok) {
+        if (z.k === "(" || z.k === "[") stapel.push(z.k);
+        else if (z.k === ")" || z.k === "]") stapel.pop();
+      }
+      const letzt = tok[tok.length - 1].k;
+      const kandidaten = [];
+      if (WILL_OPERAND.has(letzt)) kandidaten.push(s + PLATZ);
+      if (stapel.length) kandidaten.push(s + (stapel[stapel.length - 1] === "(" ? ")" : "]"));
+      for (const c of kandidaten) {
+        if (gesehen.has(c)) continue;
+        gesehen.add(c);
+        const b = parse(c);
+        if (b) return alsTex(b);
+        neu.push(c);
+      }
+    }
+    if (!neu.length) break;
+    rand = neu.slice(0, 24);
+  }
+  return null;
+}
+
+/* Formel-Anzeige für Eingabezeilen: immer im gleichen Schriftbild wie die Aufgabe oben.
+   Was gar keine Formel ergibt, bleibt trotzdem in derselben Schrift (nicht als Skript-Text). */
+export function LiveFormel({ text }) {
+  const tex = liveTex(text);
+  return tex ? <M t={tex} /> : <span style={{ whiteSpace: "pre" }}>{text}</span>;
+}
 
 const HOCH = { "0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴", "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹", "-": "⁻", x: "ˣ" };
 const hochText = (s) => (/^-?\d+$|^x$/.test(s) ? s.split("").map((z) => HOCH[z]).join("") : null);
@@ -1246,7 +1323,9 @@ function Eingabe({ text, setText }) {
   const [offen, setOffen] = useState(true);
   const baum = useMemo(() => parse(text), [text]);
   const anzeige = useMemo(() => (tippen || !offen ? null : parse(mitSchreibmarke(text, pos))), [text, pos, tippen, offen]);
-  const tex = anzeige ? alsTex(anzeige) : baum ? alsTex(baum) : null;
+  // Auch ein unvollständiger Term wird beim Tippen als Formel gesetzt (nie als Rohtext)
+  const tex = useMemo(() => (anzeige ? alsTex(anzeige) : null) || (offen && !tippen ? liveTex(mitSchreibmarke(text, pos)) : null) || liveTex(text),
+    [anzeige, text, pos, tippen, offen]);
   const unfertig = baum && hatBox(baum);
 
   return (
@@ -1254,12 +1333,12 @@ function Eingabe({ text, setText }) {
       <style>{`@keyframes mBlink{0%,55%{opacity:1}56%,100%{opacity:0}} .m-cursor{animation:mBlink 1.05s infinite}
         @media (prefers-reduced-motion: reduce){.m-cursor{animation:none}}`}</style>
       {/* Anzeige */}
-      <div style={{ background: C.weiss, border: `1.5px solid ${baum || !text ? C.linie : C.signal}`, borderRadius: 14,
+      <div style={{ background: C.weiss, border: `1.5px solid ${tex || !text ? C.linie : C.signal}`, borderRadius: 14,
         padding: "12px 14px", minHeight: 64, overflowX: "auto", display: "flex", alignItems: "center", gap: 8 }}>
         <span style={{ fontSize: 20, fontWeight: 700, color: C.tinte, whiteSpace: "nowrap" }}>f(x) =</span>
         {text ? (
           tex ? <span style={{ fontSize: 21, lineHeight: 1.9 }}><M t={tex} /></span>
-            : <span style={{ fontSize: 16, color: C.signal }}>{text}</span>
+            : <span style={{ fontSize: 21, lineHeight: 1.9, whiteSpace: "pre" }}>{text}</span>
         ) : (
           <span style={{ fontSize: 15, color: C.hellgrau, fontWeight: 300 }}>Tippe eine Funktion ein …</span>
         )}
