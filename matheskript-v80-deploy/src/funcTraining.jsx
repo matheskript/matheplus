@@ -248,10 +248,20 @@ function WasFehlte({ quelle }) {
 }
 
 /* Link „Prüfungsmodus“ auf den Fachseiten: öffnet den Prüfungsmodus mit den passenden Themen */
-export function PruefungsLink({ ansicht, gehe, klein, hell = false }) {
+export function PruefungsLink({ ansicht, gehe, klein, hell = false, pille = false }) {
   const themen = pruefungsThemen(ansicht);
   if (!themen) return null;
   const los = () => { try { sessionStorage.setItem("mm-pruefung-themen", JSON.stringify(themen)); } catch (e) { /* egal */ } gehe({ ansicht: "pruefung" }); };
+  /* pille = „Test“-Knopf auf heller Leiste (schlanke Kopfleiste der Trainingswerkzeuge) */
+  if (pille) {
+    return (
+      <button type="button" onClick={los} title="Prüfungsmodus zu diesem Thema" aria-label="Prüfungsmodus zu diesem Thema"
+        style={{ height: 44, padding: "0 16px", borderRadius: 999, fontSize: 15, fontWeight: 700, fontFamily: "inherit", cursor: "pointer", flexShrink: 0,
+          border: `1.5px solid ${C.linie}`, background: C.weiss, color: C.see }}>
+        Test
+      </button>
+    );
+  }
   if (klein) {
     return (
       <button type="button" className="test-knopf-klein" onClick={los} title="Prüfungsmodus zu diesem Thema" aria-label="Prüfungsmodus zu diesem Thema"

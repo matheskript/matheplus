@@ -122,17 +122,17 @@ function Zeile({ stufe, aktiv, eintrag, onKlick }) {
   const farbe = eintrag.status === "richtig" ? C.smaragd : eintrag.status === "falsch" ? C.signal : aktiv ? C.see : C.linie;
   return (
     <div onClick={onKlick}
-      style={{ border: `2px solid ${farbe}`, borderRadius: 14, padding: "10px 14px", marginBottom: 10,
-        background: eintrag.status === "richtig" ? "#EEF8F2" : aktiv ? C.weiss : C.sand,
+      style={{ border: `2px solid ${farbe}`, borderRadius: 16, padding: "10px 16px", marginBottom: 12, minHeight: 66,
+        background: eintrag.status === "richtig" ? "#EEF8F2" : C.weiss,
         display: "flex", alignItems: "center", gap: 10, overflowX: "auto", cursor: onKlick ? "pointer" : "default",
         boxShadow: aktiv ? "0 4px 16px rgba(0,77,152,0.12)" : "none", transition: "box-shadow .2s, border-color .2s" }}>
-      <span style={{ fontSize: 18, fontWeight: 700, color: C.tinte, whiteSpace: "nowrap" }}>f{STRICHE[stufe]}(x) =</span>
-      <span style={{ flex: 1, fontSize: 19, lineHeight: 1.9, whiteSpace: "nowrap" }}>
+      <span style={{ fontSize: 20, fontWeight: 700, color: C.tinte, whiteSpace: "nowrap" }}>f{STRICHE[stufe]}(x) =</span>
+      <span style={{ flex: 1, fontSize: 22, lineHeight: 1.9, whiteSpace: "nowrap" }}>
         {eintrag.text ? <LiveFormel text={eintrag.text} />
-          : <span style={{ color: C.hellgrau, fontSize: 14, fontWeight: 300 }}>{aktiv ? "hier eingeben …" : ""}</span>}
+          : <span style={{ color: C.hellgrau, fontSize: 15, fontWeight: 300 }}>{aktiv ? "hier eingeben …" : ""}</span>}
       </span>
-      {eintrag.status === "richtig" && <span style={{ fontSize: 22, color: C.smaragd, fontWeight: 700 }}>✓</span>}
-      {eintrag.status === "falsch" && <span style={{ fontSize: 22, color: C.signal, fontWeight: 700 }}>✗</span>}
+      {eintrag.status === "richtig" && <span style={{ fontSize: 24, color: C.smaragd, fontWeight: 700 }}>✓</span>}
+      {eintrag.status === "falsch" && <span style={{ fontSize: 24, color: C.signal, fontWeight: 700 }}>✗</span>}
       {eintrag.status === "gezeigt" && <span style={{ fontSize: 12, color: C.grau, fontWeight: 600 }}>Lösung</span>}
     </div>
   );
@@ -205,173 +205,172 @@ export function Ableitungstrainer() {
   };
 
   const fertig = zeilen.length === 3 && ["richtig", "gezeigt"].includes(zeilen[2].status);
-  const karte = { background: C.weiss, borderRadius: 16, padding: 18, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" };
-  const chip = (aktivChip) => ({
-    padding: "6px 12px", borderRadius: 999, border: `1px solid ${aktivChip ? C.see : C.linie}`,
-    background: aktivChip ? C.see : C.weiss, color: aktivChip ? C.weiss : C.see, fontSize: 12.5,
-    fontFamily: "inherit", cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0,
-  });
+
+  // Funktionsart wählen: die Regel-Typen, Zufall und eigene Funktion in einer Reihe
+  const waehleTyp = (t) => { setQuelle("typ"); setTyp(t); neueAufgabe(t, stufeTyp); };
+  const waehleZufall = () => { setQuelle("zufall"); neustart(zufallsFunktion()); };
+  const waehleEigen = () => { setQuelle("eigen"); setEigenOffen(true); };
+  const neueFunktion = () => {
+    if (quelle === "zufall") neustart(zufallsFunktion());
+    else if (quelle === "typ") neueAufgabe();
+    else setEigenOffen(true);
+  };
+  const arten = [
+    ...ABL_TYPEN.map((t) => ({ id: t.id, name: t.name, an: quelle === "typ" && typ.id === t.id, los: () => waehleTyp(t) })),
+    { id: "zufall", name: "🎲 Zufall", an: quelle === "zufall", los: waehleZufall },
+    { id: "eigen", name: "Eigene Funktion", an: quelle === "eigen", los: waehleEigen },
+  ];
+  const regelText = quelle === "typ" ? typ.regel : quelle === "zufall" ? "Zufallsfunktion" : "Eigene Funktion";
 
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
-      <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
-        f′, f″, f‴ — Schritt für Schritt
-      </h2>
-      <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 18 }}>
-        Bilde die erste Ableitung, tippe auf OK — ist sie richtig, öffnet sich automatisch die nächste.
-        Jede gleichwertige Schreibweise zählt.
-      </p>
-
-      {/* Funktionsquelle */}
-      <div style={karte}>
-        <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
-          {[["typ", "Nach Regel"], ["zufall", "🎲 Zufall"], ["eigen", "Eigene Funktion"]].map(([id, n]) => (
-            <button key={id} onClick={() => {
-              setQuelle(id);
-              if (id === "eigen") setEigenOffen(true);
-              if (id === "zufall") neustart(zufallsFunktion());
-              if (id === "typ") neueAufgabe();
-            }} style={{ ...chip(quelle === id), flex: 1, padding: "9px 8px", fontSize: 13 }}>{n}</button>
-          ))}
+    <div className="abl-seite">
+      <style>{`
+        .abl-seite{background:#fff;min-height:calc(100dvh - 61px)}
+        .abl-innen{max-width:620px;margin:0 auto;padding:14px 16px 48px}
+        .abl-chipwrap{position:relative;margin:0 -16px 10px}
+        .abl-chips{display:flex;gap:8px;overflow-x:auto;padding:2px 16px 4px;scrollbar-width:none;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;scroll-padding-left:16px}
+        .abl-chips::-webkit-scrollbar{display:none}
+        .abl-chipwrap::after{content:"";position:absolute;right:0;top:0;bottom:4px;width:34px;pointer-events:none;background:linear-gradient(90deg,rgba(255,255,255,0),#fff)}
+        .abl-chip{flex:0 0 auto;scroll-snap-align:start;height:46px;padding:0 18px;border-radius:999px;font-family:inherit;font-size:15.5px;font-weight:600;cursor:pointer;white-space:nowrap;border:1.5px solid ${C.linie};background:#fff;color:${C.see}}
+        .abl-chip[aria-pressed="true"]{background:${C.see};border-color:${C.see};color:#fff}
+        .abl-stufe{width:46px;height:46px;padding:0;border-radius:999px;font-family:inherit;font-size:16px;font-weight:700;cursor:pointer;border:1.5px solid ${C.linie};background:#fff;color:${C.see}}
+        .abl-stufe[aria-pressed="true"]{background:${C.see};border-color:${C.see};color:#fff}
+        .abl-karte{background:transparent}
+        @media (min-width:601px){
+          .abl-seite{background:transparent}
+          .abl-chipwrap{margin:0 0 12px}
+          .abl-chipwrap::after{display:none}
+          .abl-chips{flex-wrap:wrap;overflow:visible;padding:0}
+          .abl-karte{background:#fff;border-radius:16px;padding:18px;box-shadow:0 2px 16px rgba(15,26,51,0.07)}
+        }`}</style>
+      <div className="abl-innen">
+        {/* Funktionsart: direkt wählen, alles in einer Reihe */}
+        <div className="abl-chipwrap">
+          <div className="abl-chips" role="group" aria-label="Welche Funktionen möchtest du ableiten?">
+            {arten.map((a) => (
+              <button key={a.id} type="button" className="abl-chip" aria-pressed={a.an} onClick={a.los}>{a.name}</button>
+            ))}
+          </div>
         </div>
 
         {quelle === "typ" && (
-          <>
-            <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 6 }}>
-              {ABL_TYPEN.map((t) => (
-                <button key={t.id} onClick={() => { setTyp(t); neueAufgabe(t, stufeTyp); }} style={chip(typ.id === t.id)}>{t.name}</button>
-              ))}
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 6 }}>
-              <span style={{ fontSize: 12.5, color: C.grau, marginRight: 4 }}>Stufe</span>
-              {[1, 2, 3, 4, 5].map((s) => (
-                <button key={s} onClick={() => { setStufeTyp(s); neueAufgabe(typ, s); }}
-                  style={{ ...chip(stufeTyp === s), width: 34, padding: "6px 0", textAlign: "center" }}>{s}</button>
-              ))}
-            </div>
-            <p style={{ fontSize: 12, color: C.hellgrau, fontWeight: 300, marginTop: 8 }}>{typ.regel}</p>
-          </>
-        )}
-
-        {quelle === "eigen" && !eigenOffen && (
-          <button onClick={() => setEigenOffen(true)}
-            style={{ width: "100%", height: 42, borderRadius: 12, border: `1px solid ${C.linie}`, cursor: "pointer",
-              fontFamily: "inherit", fontSize: 13.5, fontWeight: 600, color: C.see, background: C.weiss }}>
-            Funktion ändern
-          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+            <span style={{ fontSize: 14, fontWeight: 600, color: C.grau, marginRight: 4 }}>Stufe</span>
+            {[1, 2, 3, 4, 5].map((st) => (
+              <button key={st} type="button" className="abl-stufe" aria-pressed={stufeTyp === st}
+                onClick={() => { setStufeTyp(st); neueAufgabe(typ, st); }}>{st}</button>
+            ))}
+          </div>
         )}
 
         {quelle === "eigen" && eigenOffen && (
-          <div>
-            <p style={{ fontSize: 13, color: C.grau, marginBottom: 8 }}>Gib deine Funktion ein und tippe auf „Übernehmen“.</p>
-            <div style={{ border: `1.5px solid ${C.linie}`, borderRadius: 12, padding: "8px 12px", minHeight: 48,
-              display: "flex", alignItems: "center", gap: 8, overflowX: "auto", marginBottom: 8 }}>
-              <span style={{ fontWeight: 700 }}>f(x) =</span>
-              <span style={{ fontSize: 18, lineHeight: 1.9 }}>
+          <div className="abl-karte" style={{ marginBottom: 14 }}>
+            <p style={{ fontSize: 14, color: C.grau, marginBottom: 8 }}>Gib deine Funktion ein und tippe auf „Übernehmen“.</p>
+            <div style={{ border: `1.5px solid ${C.linie}`, borderRadius: 14, padding: "8px 14px", minHeight: 56,
+              display: "flex", alignItems: "center", gap: 8, overflowX: "auto", marginBottom: 10 }}>
+              <span style={{ fontWeight: 700, fontSize: 20 }}>f(x) =</span>
+              <span style={{ fontSize: 22, lineHeight: 1.9 }}>
                 {eigenText ? <LiveFormel text={eigenText} />
-                  : <span style={{ color: C.hellgrau, fontSize: 14 }}>…</span>}
+                  : <span style={{ color: C.hellgrau, fontSize: 15 }}>…</span>}
               </span>
             </div>
             <Tastenfeld wert={eigenText} setWert={setEigenText} pos={eigenPos} setPos={setEigenPos} />
             <button onClick={() => { const b = parse(eigenText); if (b && !hatBox(b)) { neustart(eigenText); setEigenOffen(false); } }}
-              style={{ width: "100%", height: 46, marginTop: 10, borderRadius: 12, border: "none", cursor: "pointer",
-                fontFamily: "inherit", fontSize: 15, fontWeight: 700, color: C.seeTief, background: C.flaggold }}>
+              style={{ width: "100%", height: 56, marginTop: 12, borderRadius: 14, border: "none", cursor: "pointer",
+                fontFamily: "inherit", fontSize: 17, fontWeight: 700, color: C.seeTief, background: C.flaggold }}>
               Übernehmen
             </button>
           </div>
         )}
 
-        {quelle === "zufall" && (
-          <button onClick={() => neustart(zufallsFunktion())}
-            style={{ width: "100%", height: 42, borderRadius: 12, border: "none", cursor: "pointer", fontFamily: "inherit",
-              fontSize: 14, fontWeight: 700, color: C.seeTief, background: C.flaggold }}>
-            🎲 Neue Zufallsfunktion
-          </button>
-        )}
-      </div>
-
-      {/* Aufgabe und Ableitungszeilen */}
-      {kette && !(quelle === "eigen" && eigenOffen) && (
-        <div style={{ ...karte, marginTop: 16 }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 12 }}>
-            <div>
-              <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel }}>Leite ab</p>
-              <span style={{ fontSize: 12.5, color: C.grau }}>
-                {bilanz.gesamt ? `${bilanz.richtig} von ${bilanz.gesamt} Versuchen richtig` : ""}
+        {/* Aufgabe und Ableitungszeilen */}
+        {kette && !(quelle === "eigen" && eigenOffen) && (
+          <div className="abl-karte">
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 12 }}>
+              <div style={{ minWidth: 0 }}>
+                <p style={{ fontSize: 16, fontWeight: 700, color: C.tinte, lineHeight: 1.25 }}>Leite ab</p>
+                <p style={{ fontSize: 12.5, color: C.grau, lineHeight: 1.35 }}>
+                  {regelText}{bilanz.gesamt ? ` · ${bilanz.richtig} von ${bilanz.gesamt} richtig` : ""}
+                </p>
+              </div>
+              <button type="button" onClick={neueFunktion}
+                style={{ flexShrink: 0, height: 46, padding: "0 18px", borderRadius: 999, border: "none", cursor: "pointer", fontFamily: "inherit",
+                  fontSize: 15, fontWeight: 700, color: C.seeTief, background: C.flaggold, display: "inline-flex", alignItems: "center", gap: 8 }}>
+                <span aria-hidden="true" style={{ fontSize: 18, lineHeight: 1 }}>↻</span>{quelle === "eigen" ? "Funktion ändern" : "Neue Funktion"}
+              </button>
+            </div>
+            <div style={{ background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 16,
+              padding: "14px 18px", marginBottom: 14, overflowX: "auto" }}>
+              <span style={{ color: C.weiss, fontSize: 24, fontWeight: 700, whiteSpace: "nowrap", lineHeight: 1.9 }}>
+                <M t={`f(x) = ${alsTex(fBaum)}`} />
               </span>
             </div>
-          </div>
-          <div style={{ background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 14,
-            padding: "14px 16px", marginBottom: 14, overflowX: "auto" }}>
-            <span style={{ color: C.weiss, fontSize: 22, fontWeight: 700, whiteSpace: "nowrap", lineHeight: 1.9 }}>
-              <M t={`f(x) = ${alsTex(fBaum)}`} />
-            </span>
-          </div>
 
-          {zeilen.map((z, i) => (
-            <div key={i}>
-              <Zeile stufe={i + 1} aktiv={i === aktiv && !fertig} eintrag={z.status === "gezeigt" ? { ...z, text: "" } : z} />
-              {z.status === "gezeigt" && (
-                <p style={{ fontSize: 16, margin: "-4px 4px 12px", overflowX: "auto", whiteSpace: "nowrap" }}>
-                  <span style={{ fontSize: 12.5, color: C.grau, marginRight: 8 }}>Lösung:</span><M t={z.zeig} />
-                </p>
-              )}
-              {z.hinweis && (
-                <p style={{ fontSize: 13, color: C.signal, lineHeight: 1.6, margin: "-2px 4px 12px" }}>{z.hinweis}</p>
-              )}
-            </div>
-          ))}
-
-          {!fertig && (
-            <>
-              <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
-                <button onClick={pruefen}
-                  style={{ flex: 2, height: 50, borderRadius: 12, border: "none", cursor: "pointer", fontFamily: "inherit",
-                    fontSize: 18, fontWeight: 800, color: C.weiss, background: C.smaragd, letterSpacing: "0.04em",
-                    boxShadow: "0 4px 14px rgba(47,143,91,0.35)" }}>
-                  OK
-                </button>
-                {eintrag && eintrag.versuche > 0 && (
-                  <button onClick={loesungZeigen}
-                    style={{ flex: 1, height: 50, borderRadius: 12, border: `1px solid ${C.linie}`, cursor: "pointer",
-                      fontFamily: "inherit", fontSize: 13, fontWeight: 600, color: C.see, background: C.weiss }}>
-                    Lösung zeigen
-                  </button>
+            {zeilen.map((z, i) => (
+              <div key={i}>
+                <Zeile stufe={i + 1} aktiv={i === aktiv && !fertig} eintrag={z.status === "gezeigt" ? { ...z, text: "" } : z} />
+                {z.status === "gezeigt" && (
+                  <p style={{ fontSize: 17, margin: "-4px 4px 14px", overflowX: "auto", whiteSpace: "nowrap" }}>
+                    <span style={{ fontSize: 13, color: C.grau, marginRight: 8 }}>Lösung:</span><M t={z.zeig} />
+                  </p>
+                )}
+                {z.hinweis && (
+                  <p style={{ fontSize: 14, color: C.signal, lineHeight: 1.6, margin: "-2px 4px 14px" }}>{z.hinweis}</p>
                 )}
               </div>
-              {tippen ? (
-                <MatheFeld modus="formel" value={eintrag.text} onChange={(e) => setEintragText(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === "Enter") pruefen(); }}
-                  placeholder="z. B. 2x*cos(x) oder e^(2x)" autoCapitalize="off" autoCorrect="off" spellCheck="false"
-                  style={{ width: "100%", boxSizing: "border-box", height: 46, borderRadius: 12, border: `1.5px solid ${C.linie}`,
-                    padding: "0 12px", fontSize: 16, fontFamily: "ui-monospace, Menlo, monospace" }} />
-              ) : (
-                <Tastenfeld wert={eintrag.text} setWert={setEintragText} pos={pos} setPos={setPos} />
-              )}
-              <button onClick={() => setTippen(!tippen)}
-                style={{ background: "none", border: "none", color: C.see, fontSize: 13, fontFamily: "inherit",
-                  cursor: "pointer", marginTop: 10, padding: 0 }}>
-                {tippen ? "Tastenfeld benutzen" : "Lieber selbst tippen"}
-              </button>
-            </>
-          )}
+            ))}
 
-          {fertig && (
-            <div style={{ textAlign: "center", padding: "10px 0 4px" }}>
-              <p style={{ fontSize: 20, fontWeight: 700, color: C.smaragd, marginBottom: 4 }}>
-                {zeilen.every((z) => z.status === "richtig") ? "Alle drei Ableitungen richtig! 🎉" : "Geschafft — alle drei Ableitungen stehen."}
-              </p>
-              <p style={{ fontSize: 13.5, color: C.grau, marginBottom: 14 }}>Weiter mit einer neuen Funktion?</p>
-              <button onClick={() => (quelle === "zufall" ? neustart(zufallsFunktion()) : quelle === "typ" ? neueAufgabe() : neustart(fText))}
-                style={{ width: "100%", height: 50, borderRadius: 12, border: "none", cursor: "pointer", fontFamily: "inherit",
-                  fontSize: 16, fontWeight: 700, color: C.weiss, background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
-                {quelle === "eigen" ? "Nochmal von vorn" : "Neue Funktion"}
-              </button>
-            </div>
-          )}
-          {!fertig && <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={ableitHilfe(kette, aktiv)} /></div>}
-        </div>
-      )}
+            {!fertig && (
+              <>
+                <div style={{ display: "flex", gap: 10, marginBottom: 12 }}>
+                  <button onClick={pruefen}
+                    style={{ flex: 2, height: 56, borderRadius: 14, border: "none", cursor: "pointer", fontFamily: "inherit",
+                      fontSize: 20, fontWeight: 800, color: C.weiss, background: C.smaragd, letterSpacing: "0.04em",
+                      boxShadow: "0 4px 14px rgba(47,143,91,0.35)" }}>
+                    OK
+                  </button>
+                  {eintrag && eintrag.versuche > 0 && (
+                    <button onClick={loesungZeigen}
+                      style={{ flex: 1, height: 56, borderRadius: 14, border: `1.5px solid ${C.linie}`, cursor: "pointer",
+                        fontFamily: "inherit", fontSize: 15, fontWeight: 600, color: C.see, background: C.weiss }}>
+                      Lösung zeigen
+                    </button>
+                  )}
+                </div>
+                {tippen ? (
+                  <MatheFeld modus="formel" value={eintrag.text} onChange={(e) => setEintragText(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") pruefen(); }}
+                    placeholder="z. B. 2x*cos(x) oder e^(2x)" autoCapitalize="off" autoCorrect="off" spellCheck="false"
+                    style={{ width: "100%", boxSizing: "border-box", height: 54, borderRadius: 14, border: `1.5px solid ${C.linie}`,
+                      padding: "0 14px", fontSize: 17, fontFamily: "ui-monospace, Menlo, monospace" }} />
+                ) : (
+                  <Tastenfeld wert={eintrag.text} setWert={setEintragText} pos={pos} setPos={setPos} />
+                )}
+                <button onClick={() => setTippen(!tippen)}
+                  style={{ background: "none", border: "none", color: C.see, fontSize: 14.5, fontFamily: "inherit",
+                    cursor: "pointer", marginTop: 4, padding: "12px 0" }}>
+                  {tippen ? "Tastenfeld benutzen" : "Lieber selbst tippen"}
+                </button>
+              </>
+            )}
+
+            {fertig && (
+              <div style={{ textAlign: "center", padding: "10px 0 4px" }}>
+                <p style={{ fontSize: 20, fontWeight: 700, color: C.smaragd, marginBottom: 4 }}>
+                  {zeilen.every((z) => z.status === "richtig") ? "Alle drei Ableitungen richtig! 🎉" : "Geschafft — alle drei Ableitungen stehen."}
+                </p>
+                <p style={{ fontSize: 14, color: C.grau, marginBottom: 14 }}>Weiter mit einer neuen Funktion?</p>
+                <button onClick={() => (quelle === "zufall" ? neustart(zufallsFunktion()) : quelle === "typ" ? neueAufgabe() : neustart(fText))}
+                  style={{ width: "100%", height: 56, borderRadius: 14, border: "none", cursor: "pointer", fontFamily: "inherit",
+                    fontSize: 17, fontWeight: 700, color: C.weiss, background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+                  {quelle === "eigen" ? "Nochmal von vorn" : "Neue Funktion"}
+                </button>
+              </div>
+            )}
+            {!fertig && <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 6 }}><IchHaengeFest kontext={ableitHilfe(kette, aktiv)} /></div>}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

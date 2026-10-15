@@ -640,56 +640,117 @@ export const W = (t, f) => ({ t, f });
 /* x hoch 1 wird nie geschrieben: Exponent 1 → "x" */
 const px = (e) => (e === 1 ? "x" : `x^${e}`);
 const pxt = (e) => (e === 1 ? "x" : `x^{${e}}`);
+/* Polynom-Bausteine: Summe aus Gliedern [[k, e], …] (k ≠ 0, e = Exponent, absteigend).
+   Daraus entstehen Anzeige (TeX), Eingabetext und die Ableitung — nie x^1, nie 1x, nie "+ -". */
+const glTex = (k, e, erster) => {
+  const a = Math.abs(k);
+  const koef = a === 1 && e !== 0 ? "" : `${a}`;
+  const x = e === 0 ? "" : e === 1 ? "x" : `x^{${e}}`;
+  return `${k < 0 ? (erster ? "-" : " - ") : (erster ? "" : " + ")}${koef}${x}`;
+};
+const glTxt = (k, e, erster) => {
+  const a = Math.abs(k);
+  const koef = a === 1 && e !== 0 ? "" : `${a}`;
+  const x = e === 0 ? "" : e === 1 ? "x" : `x^${e}`;
+  return `${k < 0 ? "-" : (erster ? "" : "+")}${koef}${x}`;
+};
+const polyTex = (g) => g.map(([k, e], i) => glTex(k, e, i === 0)).join("");
+const polyTxt = (g) => g.map(([k, e], i) => glTxt(k, e, i === 0)).join("");
+const ableitG = (g) => g.filter(([, e]) => e > 0).map(([k, e]) => [k * e, e - 1]);
+/* Bruch mit Vorzeichen vor dem Bruchstrich: −3 über x² → -\frac{3}{x^{2}} */
+const bruchTex = (z, nenner) => (z < 0 ? `-\\frac{${-z}}{${nenner}}` : `\\frac{${z}}{${nenner}}`);
+/* Faktor vor einer Wurzel: ±1 wird nicht geschrieben */
+const vorWurzel = (k) => (k === 1 ? "" : k === -1 ? "-" : `${k}`);
+const vorWurzelTxt = (k) => (k === 1 ? "" : k === -1 ? "-" : `${k}*`);
+
 export const ABL_TYPEN = [
   {
     id: "polynom", name: "Polynome", regel: "Potenz-, Faktor- und Summenregel",
     erklaerung: "Gliedweise ableiten. Der Exponent wandert als Faktor nach vorn und sinkt um eins, das absolute Glied fällt weg.",
     mach: (st) => {
+      // Ein Polynom hat nur ganzzahlige Exponenten ≥ 0 — Wurzeln und Brüche stehen unter „Wurzeln und Brüche“.
       const a = ohneNull(2, 5), b = ohneNull(-6, 6), c = ohneNull(-9, 9);
       const potenzH = "Potenzregel: der Exponent wandert als Faktor nach vorn und sinkt um eins.";
-      if (st <= 1) { const n = ganz(2, 4); const erg = `${a * n}${pxt(n - 1)}`; return {
-        tex: `${a}x^{${n}}`, f: `${a}x^${n}`, loesung: `${a * n}${px(n - 1)}`, zeig: erg,
-        weg: FR.wegSumme([{ tex: `${a}x^{${n}}`, abl: `${a} \\cdot ${n} \\cdot ${pxt(n - 1)} = ${erg}`, h: potenzH }], erg),
-        fallen: [{ t: `${a * n}x^${n}`, h: "Der Exponent muss um eins sinken, nicht stehen bleiben." },
-                 { t: `${a}${px(n - 1)}`, h: "Der alte Exponent wandert als Faktor nach vorn — er fehlt bei dir." }] }; }
+      const linH = "Bei x hoch eins bleibt nur der Vorfaktor übrig.";
+      const konstH = "Eine Konstante ändert sich nicht — ihre Ableitung ist null.";
+      const hZu = ([, e]) => (e === 0 ? konstH : e === 1 ? linH : potenzH);
+      const weg = (g, g1) => FR.wegSumme(g.map(([k, e]) => ({ tex: glTex(k, e, true), abl: e === 0 ? "0" : glTex(k * e, e - 1, true), h: hZu([k, e]) })), polyTex(g1));
+      const aus = (g, fallen) => {
+        const g1 = ableitG(g);
+        return { tex: polyTex(g), f: polyTxt(g), loesung: polyTxt(g1), zeig: polyTex(g1), weg: weg(g, g1), fallen: fallen ? fallen(g1) : undefined };
+      };
+      const konstFalle = (k) => (g1) => [{ t: polyTxt([...g1, [k, 0]]), h: "Die Ableitung einer Konstanten ist null — das absolute Glied fällt weg." }];
+      if (st <= 1) { const n = ganz(2, 4);
+        return aus([[a, n]], () => [
+          { t: polyTxt([[a * n, n]]), h: "Der Exponent muss um eins sinken, nicht stehen bleiben." },
+          { t: polyTxt([[a, n - 1]]), h: "Der alte Exponent wandert als Faktor nach vorn — er fehlt bei dir." }]); }
       if (st === 2) { const n = ganz(3, 5), m = ganz(1, 2);
-        const erg = `${a * n}${pxt(n - 1)} ${vz(b * m)}${m > 1 ? `${pxt(m - 1)}` : ""}`; return {
-        tex: `${a}x^{${n}} ${vz(b)}x${m > 1 ? `^{${m}}` : ""}`, f: `${a}x^${n}+${b}${px(m)}`,
-        loesung: `${a * n}${px(n - 1)}${vzm(b * m)}${m > 1 ? `${px(m - 1)}` : ""}`, zeig: erg,
-        weg: FR.wegSumme([
-          { tex: `${a}x^{${n}}`, abl: `${a * n}${pxt(n - 1)}`, h: potenzH },
-          { tex: `${b}x${m > 1 ? `^{${m}}` : ""}`, abl: `${b * m}${m > 1 ? `${pxt(m - 1)}` : ""}`,
-            h: m > 1 ? potenzH : "Bei x hoch eins bleibt nur der Vorfaktor übrig." },
-        ], erg) }; }
+        return aus([[a, n], [b, m]]); }
       if (st === 3) { const n = ganz(3, 5), m = ganz(1, 2);
-        const erg = `${a * n}${pxt(n - 1)} ${vz(b * m)}${m > 1 ? `${pxt(m - 1)}` : ""}`; return {
-        tex: `${a}x^{${n}} ${vz(b)}x${m > 1 ? `^{${m}}` : ""} ${vz(c)}`, f: `${a}x^${n}+${b}${px(m)}+${c}`,
-        loesung: `${a * n}${px(n - 1)}${vzm(b * m)}${m > 1 ? `${px(m - 1)}` : ""}`, zeig: erg,
+        return aus([[a, n], [b, m], [c, 0]], konstFalle(c)); }
+      if (st === 4) {
+        // Vier Glieder: ein Polynom mit linearem und absolutem Glied
+        const n = ganz(4, 5), m = ganz(2, n - 1), d = ohneNull(-9, 9);
+        return aus([[a, n], [b, m], [c, 1], [d, 0]], konstFalle(d));
+      }
+      // Stufe 5: fünf Glieder, höhere Exponenten, gemischte Vorzeichen
+      const n = ganz(5, 6), m = ganz(3, 4), d = ohneNull(-9, 9), e5 = ohneNull(-9, 9);
+      return aus([[a, n], [b, m], [c, 2], [d, 1], [e5, 0]], (g1) => [
+        ...konstFalle(e5)(g1),
+        { t: polyTxt([[a, n - 1], [b, m - 1], [c, 1], [d, 0]]), h: "Der alte Exponent wandert als Faktor nach vorn — bei mindestens einem Glied fehlt er." }]);
+    },
+  },
+  {
+    id: "wurzel", name: "Wurzeln und Brüche", regel: "Potenzregel mit negativen und gebrochenen Exponenten",
+    erklaerung: "Schreib Wurzeln und Brüche zuerst als Potenz: 1 durch x ist x hoch minus eins, √x ist x hoch ein halb. Dann gilt die Potenzregel.",
+    mach: (st) => {
+      const vorz = () => (Math.random() < 0.5 ? 1 : -1);
+      const potH = "Schreib den Bruch erst als Potenz: 1 durch x ist x hoch minus eins. Dabei entsteht das Minuszeichen.";
+      const wurH = "Schreib die Wurzel erst als Potenz: √x ist x hoch ein halb. Dann greift die Potenzregel.";
+      const potenzH = "Potenzregel: der Exponent wandert als Faktor nach vorn und sinkt um eins.";
+      /* k·√x abgeleitet: k/(2√x), bei geradem k gekürzt */
+      const wAbl = (k) => (k % 2 === 0
+        ? { tex: bruchTex(k / 2, "\\sqrt{x}"), txt: `${k / 2}/sqrt(x)` }
+        : { tex: bruchTex(k, "2\\sqrt{x}"), txt: `${k}/(2*sqrt(x))` });
+      const plus = (tex) => (tex.startsWith("-") ? ` - ${tex.slice(1)}` : ` + ${tex}`);
+      const plusTxt = (txt) => (txt.startsWith("-") ? txt : `+${txt}`);
+      if (st <= 1) { const z = vorz() * ohneNull(1, 4); const erg = bruchTex(-z, "x^{2}"); return {
+        tex: bruchTex(z, "x"), f: `${z}/x`, loesung: `${-z}/x^2`, zeig: erg,
+        weg: FR.wegSumme([{ tex: bruchTex(z, "x"), abl: `${z} \\cdot (-1) \\cdot x^{-2} = ${erg}`, h: potH }], erg),
+        fallen: [{ t: `${z}/x^2`, h: "Beim Kehrwert entsteht ein Minuszeichen: aus x⁻¹ wird −x⁻²." }] }; }
+      if (st === 2) { const k = vorz() * ohneNull(1, 5); const w = wAbl(k); return {
+        tex: `${vorWurzel(k)}\\sqrt{x}`, f: `${vorWurzelTxt(k)}sqrt(x)`, loesung: w.txt, zeig: w.tex,
+        weg: FR.wegSumme([{ tex: `${vorWurzel(k)}\\sqrt{x}`, abl: `${k} \\cdot \\frac{1}{2}x^{-\\frac{1}{2}} = ${w.tex}`, h: wurH }], w.tex),
+        fallen: [{ t: `${k}/sqrt(x)`, h: "Der alte Exponent ½ wandert als Faktor nach vorn — er fehlt bei dir." }] }; }
+      if (st === 3) { const n = ganz(3, 5), b = ohneNull(-6, 6), a = ohneNull(2, 5);
+        const back = bruchTex(-b, "x^{2}"); const erg = `${polyTex([[a * n, n - 1]])}${plus(back)}`; return {
+        tex: `${polyTex([[a, n]])}${plus(bruchTex(b, "x"))}`, f: `${polyTxt([[a, n]])}${plusTxt(`${b}/x`)}`,
+        loesung: `${polyTxt([[a * n, n - 1]])}${plusTxt(`${-b}/x^2`)}`, zeig: erg,
         weg: FR.wegSumme([
-          { tex: `${a}x^{${n}}`, abl: `${a * n}${pxt(n - 1)}`, h: potenzH },
-          { tex: `${b}x${m > 1 ? `^{${m}}` : ""}`, abl: `${b * m}${m > 1 ? `${pxt(m - 1)}` : ""}`, h: potenzH },
-          { tex: `${c}`, abl: `0`, h: "Eine Konstante ändert sich nicht — ihre Ableitung ist null." },
+          { tex: polyTex([[a, n]]), abl: polyTex([[a * n, n - 1]]), h: potenzH },
+          { tex: bruchTex(b, "x"), abl: `${b} \\cdot (-1) \\cdot x^{-2} = ${back}`, h: potH },
         ], erg),
-        fallen: [{ t: `${a * n}${px(n - 1)}${vzm(b * m)}${m > 1 ? `${px(m - 1)}` : ""}${vzm(c)}`,
-                   h: "Die Ableitung einer Konstanten ist null — das absolute Glied fällt weg." }] }; }
-      if (st === 4) { const n = ganz(3, 5); const erg = `${a * n}${pxt(n - 1)} ${vz(-b)} \\cdot \\frac{1}{x^2}`; return {
-        tex: `${a}x^{${n}} ${vz(b)} \\cdot \\frac{1}{x}`, f: `${a}x^${n}+${b}/x`,
-        loesung: `${a * n}${px(n - 1)}-${b}/x^2`, zeig: erg,
+        fallen: [{ t: `${polyTxt([[a * n, n - 1]])}${plusTxt(`${b}/x^2`)}`, h: "Beim Kehrwert entsteht ein Minuszeichen: aus x⁻¹ wird −x⁻²." }] }; }
+      if (st === 4) { const n = ganz(3, 5), b = vorz() * ohneNull(1, 6), a = ohneNull(2, 5), w = wAbl(b);
+        const erg = `${polyTex([[a * n, n - 1]])}${plus(w.tex)}`; return {
+        tex: `${polyTex([[a, n]])}${b < 0 ? " - " : " + "}${vorWurzel(Math.abs(b)) }\\sqrt{x}`, f: `${polyTxt([[a, n]])}${plusTxt(`${vorWurzelTxt(b)}sqrt(x)`)}`,
+        loesung: `${polyTxt([[a * n, n - 1]])}${plusTxt(w.txt)}`, zeig: erg,
         weg: FR.wegSumme([
-          { tex: `${a}x^{${n}}`, abl: `${a * n}${pxt(n - 1)}`, h: potenzH },
-          { tex: `${b} \\cdot \\frac{1}{x}`, abl: `${b} \\cdot (-1) \\cdot x^{-2} = ${-b} \\cdot \\frac{1}{x^2}`,
-            h: "Schreib den Bruch erst als Potenz: 1 durch x ist x hoch minus eins. Dabei entsteht das Minuszeichen." },
+          { tex: polyTex([[a, n]]), abl: polyTex([[a * n, n - 1]]), h: potenzH },
+          { tex: `${vorWurzel(b)}\\sqrt{x}`, abl: `${b} \\cdot \\frac{1}{2}x^{-\\frac{1}{2}} = ${w.tex}`, h: wurH },
         ], erg),
-        fallen: [{ t: `${a * n}${px(n - 1)}+${b}/x^2`, h: "Beim Kehrwert entsteht ein Minuszeichen: aus x⁻¹ wird −x⁻²." }] }; }
-      const n = ganz(3, 5); const erg = `${a * n}${pxt(n - 1)} ${vz(b)} \\cdot \\frac{1}{2\\sqrt{x}}`; return {
-        tex: `${a}x^{${n}} ${vz(b)}\\sqrt{x}`, f: `${a}x^${n}+${b}*sqrt(x)`,
-        loesung: `${a * n}${px(n - 1)}${vzm(b)}/(2*sqrt(x))`, zeig: erg,
+        fallen: [{ t: `${polyTxt([[a * n, n - 1]])}${plusTxt(`${vorWurzelTxt(b)}sqrt(x)`)}`, h: "Die Wurzel muss erst als x^{1/2} geschrieben und dann abgeleitet werden." }] }; }
+      // Stufe 5: Bruch mit x² im Nenner plus Wurzel
+      const z = vorz() * ohneNull(1, 4), b5 = vorz() * ohneNull(1, 5), w = wAbl(b5);
+      const t1 = bruchTex(-2 * z, "x^{3}"), erg = `${t1}${plus(w.tex)}`;
+      return {
+        tex: `${bruchTex(z, "x^{2}")}${b5 < 0 ? " - " : " + "}${vorWurzel(Math.abs(b5))}\\sqrt{x}`, f: `${z}/x^2${plusTxt(`${vorWurzelTxt(b5)}sqrt(x)`)}`,
+        loesung: `${-2 * z}/x^3${plusTxt(w.txt)}`, zeig: erg,
         weg: FR.wegSumme([
-          { tex: `${a}x^{${n}}`, abl: `${a * n}${pxt(n - 1)}`, h: potenzH },
-          { tex: `${b}\\sqrt{x}`, abl: `${b} \\cdot \\frac{1}{2}x^{-\\frac{1}{2}} = ${b} \\cdot \\frac{1}{2\\sqrt{x}}`,
-            h: "Schreib die Wurzel erst als Potenz: √x ist x hoch ein halb. Dann greift die Potenzregel." },
+          { tex: bruchTex(z, "x^{2}"), abl: `${z} \\cdot (-2) \\cdot x^{-3} = ${t1}`, h: "Schreib den Bruch als Potenz: 1 durch x² ist x hoch minus zwei. Der Exponent −2 wandert als Faktor nach vorn." },
+          { tex: `${vorWurzel(b5)}\\sqrt{x}`, abl: `${b5} \\cdot \\frac{1}{2}x^{-\\frac{1}{2}} = ${w.tex}`, h: wurH },
         ], erg),
-        fallen: [{ t: `${a * n}${px(n - 1)}+${b}*sqrt(x)`, h: "Die Wurzel muss erst als x^{1/2} geschrieben und dann abgeleitet werden." }] };
+        fallen: [{ t: `${z}/x^3${plusTxt(w.txt)}`, h: "Der Exponent −2 wandert als Faktor nach vorn: aus x⁻² wird −2x⁻³ — der Faktor −2 fehlt." }] };
     },
   },
   {

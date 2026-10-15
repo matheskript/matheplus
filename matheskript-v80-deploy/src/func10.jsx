@@ -6,7 +6,7 @@ import { NAV, SCHULKLASSEN, kiKopf, kiAntwort } from "./base4.jsx";
 import { KIAufgaben, Kurse, Trainingsbereich, dekodieren, jsonLesen, rendern } from "./func1.jsx";
 import { Parabeln } from "./funcParabeln.jsx";
 import { Startseite, ToolMenue, istToolMenueSeite, werkzeugMerken } from "./func2.jsx";
-import { WerkzeugLeiste } from "./funcWerkzeuge.jsx";
+import { WerkzeugLeiste, KompaktKopf } from "./funcWerkzeuge.jsx";
 import { AbiKettenSeite } from "./funcAbiKetten.jsx";
 import { wo } from "./werkzeuge.js";
 import { hinweisVerwerfen } from "./uebergabe.js";
@@ -299,6 +299,9 @@ export function Mathilda() {
     </>);
   };
 
+  /* Trainingswerkzeuge mit eigener schlanker Kopfleiste (KompaktKopf): der große Seitenkopf entfällt */
+  const ohneKopf = ansicht === "ableitungstrainer";
+
   return (
     <div style={{ background: C.sand, color: C.tinte, fontFamily: "Montserrat, system-ui, sans-serif", minHeight: "100vh" }}>
       <AufklappStil />
@@ -343,6 +346,7 @@ export function Mathilda() {
       }`}</style>
 
       {/* Kopfleiste mit Menü */}
+      {!ohneKopf && (
       <div data-kopfleiste style={{ position: "sticky", top: 0, zIndex: 50, background: C.seeTief }}>
         <div className="mx-auto flex items-center justify-between kopf-zeile" style={{ maxWidth: 620, height: "var(--kopf-h, 56px)", paddingLeft: 18, paddingRight: 12 }}>
           <style>{`
@@ -488,6 +492,7 @@ export function Mathilda() {
           </div>
         )}
       </div>
+      )}
 
       {ansicht === "messung" ? (
         <>
@@ -1042,14 +1047,9 @@ export function Mathilda() {
         </>
       ) : ansicht === "ableitungstrainer" ? (
         <>
-          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 33, letterSpacing: "-0.03em", lineHeight: 1.05 }}>Ableitungstrainer</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
-              <SektionsMenue />
-            </div>
-            <Welle fill={C.sand} />
-          </div>
+          <KompaktKopf ansicht={ansicht} gehe={gehe} menueOffen={toolMenueOffen} onMenue={() => setToolMenueOffen(!toolMenueOffen)}
+            menue={<ToolMenue gehe={gehe} schliessen={() => setToolMenueOffen(false)} aktuell={ansicht} />}
+            testKnopf={<PruefungsLink ansicht={ansicht} gehe={gehe} pille />} />
           <Ableitungstrainer />
         </>
       ) : ansicht === "steckbrief" ? (

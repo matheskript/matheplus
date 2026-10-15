@@ -9,7 +9,7 @@
                         nach Stationen gegliedert
    Keine base-Datei darf diese Datei importieren.
    ============================================================ */
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { C } from "./base1.jsx";
 import { BEREICHE, ETIKETTEN, werkzeug, wo } from "./werkzeuge.js";
 import { FR } from "./funcRegistry.jsx";
@@ -156,6 +156,87 @@ export function WerkzeugLeiste({ ansicht, gehe }) {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+/* ---------- Schlanke Kopfleiste für Trainingswerkzeuge (Handy zuerst) ----------
+   Ersetzt auf diesen Seiten den großen Seitenkopf: eine einzige weiße Zeile mit
+   ‹ Zurück (zur Übersicht des Bereichs), der Stations-Auswahl (die Werkzeuge der
+   Station, „Weiter“ zur nächsten Station, Startseite) sowie Test und Menü.
+   Alles, was früher als Überschrift, Bereichszeile und Chip-Leiste Platz brauchte,
+   steckt in dieser Zeile bzw. im Aufklappfeld der Stations-Auswahl. */
+export function KompaktKopf({ ansicht, gehe, menueOffen, onMenue, menue, testKnopf }) {
+  const ort = wo(ansicht);
+  const [auf, setAuf] = useState(false);
+  const wurzel = useRef(null);
+  useEffect(() => { setAuf(false); }, [ansicht]);
+  useEffect(() => {
+    if (!auf) return undefined;
+    const taste = (e) => { if (e.key === "Escape") setAuf(false); };
+    const aussen = (e) => { if (wurzel.current && !wurzel.current.contains(e.target)) setAuf(false); };
+    window.addEventListener("keydown", taste);
+    document.addEventListener("pointerdown", aussen);
+    return () => { window.removeEventListener("keydown", taste); document.removeEventListener("pointerdown", aussen); };
+  }, [auf]);
+  if (!ort || !ort.station) return null;
+  const { bereich, station, werkzeug: wAktiv, sNr } = ort;
+  const naechste = bereich.stationen[sNr];
+  const weiter = naechste ? werkzeug(naechste.werkzeuge[0]) : null;
+  const rund = { height: 44, minWidth: 44, borderRadius: 999, border: `1.5px solid ${C.linie}`, background: C.weiss, color: C.see, cursor: "pointer",
+    fontFamily: "inherit", display: "inline-flex", alignItems: "center", justifyContent: "center", padding: 0, flexShrink: 0 };
+  const zeile = (aktiv) => ({ display: "flex", alignItems: "center", gap: 10, width: "100%", minHeight: 48, padding: "0 14px", border: "none", borderRadius: 12, textAlign: "left",
+    fontFamily: "inherit", fontSize: 15.5, fontWeight: aktiv ? 700 : 500, cursor: "pointer", color: aktiv ? C.seeTief : C.tinte, background: aktiv ? "rgba(237,187,0,0.16)" : "transparent" });
+  return (
+    <div data-kompakt-kopf style={{ position: "sticky", top: 0, zIndex: 50, background: C.weiss, borderBottom: `1px solid ${C.linie}` }}>
+      <div ref={wurzel} className="mx-auto" style={{ position: "relative", maxWidth: 620, height: 60, padding: "0 12px", display: "flex", alignItems: "center", gap: 8 }}>
+        <button type="button" onClick={() => gehe(bereich.uebersicht ? { ansicht: bereich.uebersicht } : { ansicht: "start" })} style={rund}
+          aria-label={`Zurück zu ${bereich.titel}`} title={`Zurück zu ${bereich.titel}`}>
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
+        </button>
+        <button type="button" onClick={() => setAuf(!auf)} aria-expanded={auf} aria-haspopup="listbox"
+          style={{ ...rund, flex: "1 1 auto", minWidth: 0, justifyContent: "space-between", gap: 8, padding: "0 16px", fontSize: 16.5, fontWeight: 700, color: C.seeTief,
+            borderColor: auf ? C.flaggold : C.linie, background: auf ? "rgba(237,187,0,0.12)" : C.weiss }}>
+          <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{wAktiv.kurz || wAktiv.name}</span>
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"
+            style={{ flexShrink: 0, transform: auf ? "rotate(180deg)" : "none", transition: "transform .15s" }}><path d="M6 9l6 6 6-6" /></svg>
+        </button>
+        {testKnopf}
+        <button type="button" onClick={onMenue} aria-haspopup="dialog" aria-expanded={menueOffen} aria-label={menueOffen ? "Menü schließen" : "Menü mit allen Bereichen"} title="Menü"
+          style={{ ...rund, borderColor: menueOffen ? C.flaggold : C.linie, background: menueOffen ? "rgba(237,187,0,0.12)" : C.weiss }}>
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
+            {menueOffen ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
+          </svg>
+        </button>
+        {menueOffen && menue}
+        {auf && (
+          <div role="listbox" aria-label={`${bereich.titel}: Station ${sNr}`}
+            style={{ position: "absolute", top: 58, left: 12, right: 12, zIndex: 51, background: C.weiss, borderRadius: 16, padding: 8,
+              boxShadow: "0 14px 40px rgba(8,23,59,0.28)", border: `1px solid ${C.linie}` }}>
+            <p style={{ margin: "6px 14px 6px", fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: C.grau }}>
+              {bereich.titel}{` · Station ${sNr} von ${bereich.stationen.length} · `}<span style={{ color: C.goldDunkel || "#8A6A00" }}>{station.titel}</span>
+            </p>
+            {station.werkzeuge.map((id) => {
+              const w = werkzeug(id);
+              const aktiv = w.id === wAktiv.id;
+              return (
+                <button key={id} type="button" role="option" aria-selected={aktiv} onClick={() => (aktiv ? setAuf(false) : gehe(w.ziel))} style={zeile(aktiv)}>
+                  <span style={{ flex: 1 }}>{w.name}</span>{aktiv && <span aria-hidden="true" style={{ color: C.flaggold, fontWeight: 800 }}>●</span>}
+                </button>
+              );
+            })}
+            {weiter && (
+              <button type="button" onClick={() => gehe(weiter.ziel)} style={{ ...zeile(false), color: C.see, fontWeight: 700, borderTop: `1px solid ${C.linie}`, borderRadius: 0, marginTop: 4 }}>
+                {`Weiter: ${naechste.titel}`}<span aria-hidden="true">›</span>
+              </button>
+            )}
+            <div style={{ borderTop: `1px solid ${C.linie}`, marginTop: 4, paddingTop: 4, display: "flex", gap: 4 }}>
+              <button type="button" onClick={() => gehe(bereich.uebersicht ? { ansicht: bereich.uebersicht } : { ansicht: "start" })} style={{ ...zeile(false), fontSize: 14, color: C.grau, flex: 1 }}>{`‹ ${bereich.titel}`}</button>
+              <button type="button" onClick={() => gehe({ ansicht: "start" })} style={{ ...zeile(false), fontSize: 14, color: C.grau, flex: 1 }}>Startseite</button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
