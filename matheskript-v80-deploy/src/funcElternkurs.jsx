@@ -2,10 +2,11 @@ import React, { useState, useEffect } from "react";
 import { C } from "./base1.jsx";
 
 /* ======================================================================
-   ELTERNKURS — sieben Module für Eltern: sechs der meistgesehenen
-   TED-Talks und eine deutsche Zusammenfassung von Carol Dwecks Buch
-   „Selbstbild“ (Modul 3).
-   Die Seite zeigt erst die sieben Module als Buttons, ein Klick öffnet
+   ELTERNKURS — acht Module für Eltern: sechs der meistgesehenen
+   TED-Talks, eine deutsche Zusammenfassung von Carol Dwecks Buch
+   „Selbstbild“ (Modul 3) und ein Vortrag zu Daniel Kahnemans Buch
+   „Schnelles Denken, langsames Denken“ (Modul 8).
+   Die Seite zeigt erst die acht Module als Buttons, ein Klick öffnet
    das Modul (Video + Infotext); mit Zurück/Weiter kann man durchklicken.
    Alle Video-IDs sind per YouTube-oEmbed geprüft (einbettbar).
    ====================================================================== */
@@ -53,10 +54,16 @@ export const ELTERNKURS = [
       "Julian Treasure zeigt sehr konkret, welche Sprechgewohnheiten dazu führen, dass Menschen abschalten, und welche Elemente eine Stimme und eine Botschaft hörenswert machen. Du bekommst ein klares Bild davon, wie stark Ton, Haltung und die Art zu sprechen darüber entscheiden, ob dein Kind dich wirklich hört.",
       "Besonders wertvoll ist der Hinweis auf Authentizität und den bewussten Einsatz von Stimme und Pausen. Das Video sensibilisiert dich dafür, dass gute Kommunikation keine Selbstverständlichkeit ist, sondern eine Fähigkeit, die man verbessern kann – und die gerade in den oft angespannten Mathe-Gesprächen den entscheidenden Unterschied macht.",
     ] },
+  { id: "kahneman", art: "buchvortrag", nr: 8, thema: "Schnell denken, langsam rechnen", sprecher: "Daniel Kahneman", titel: "Thinking, Fast and Slow (Talks at Google)", video: "CjVQJdIrDJ0",
+    text: [
+      "Aus diesem Vortrag kannst du lernen, warum Kinder in Mathe oft die erste Antwort geben, die ihnen einfällt – und warum diese Antwort so überzeugend wirkt, obwohl sie falsch ist.",
+      "Daniel Kahneman beschreibt in „Schnelles Denken, langsames Denken“ zwei Arten zu denken: ein schnelles, intuitives System, das mühelos und automatisch arbeitet, und ein langsames, bewusstes System, das Aufmerksamkeit und Anstrengung kostet. Ein Klassiker: Schläger und Ball kosten zusammen 1,10 €, der Schläger kostet 1 € mehr als der Ball. Fast jeder denkt sofort „10 Cent“. Erst wer langsam nachrechnet (2 · Ball + 1 € = 1,10 €), kommt auf 5 Cent.",
+      "Du nimmst mit, dass Flüchtigkeitsfehler selten Dummheit sind, sondern oft ein Zeichen dafür, dass das schnelle System übernommen hat. Dein Kind lernt dadurch, bei schwierigen Aufgaben bewusst abzubremsen, den Rechenweg aufzuschreiben und die eigene Intuition zu prüfen. Dasselbe gilt umgekehrt: Was durch viel Übung automatisch läuft, entlastet den Kopf und schafft Platz für das eigentliche Denken.",
+    ] },
 ];
 
 const SCHATTEN = "0 2px 16px rgba(15,26,51,0.07)";
-const kicker = (k) => `${k.art === "ted" ? "TED-Talk" : "Buchzusammenfassung"} · ${k.sprecher}`;
+const kicker = (k) => `${k.art === "ted" ? "TED-Talk" : k.art === "buchvortrag" ? "Buch · Vortrag des Autors" : "Buchzusammenfassung"} · ${k.sprecher}`;
 
 function Modul({ k }) {
   return (
@@ -96,9 +103,9 @@ export function ElternkursSeite() {
   if (offen === null) {
     return (
       <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
-        <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 12 }}>Sieben Module für Eltern</h2>
+        <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 12 }}>Acht Module für Eltern</h2>
         <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.8, marginBottom: 22 }}>
-          Sechs der meistgesehenen TED-Talks und eine Zusammenfassung des Buchs „Selbstbild“ – jeweils mit einem Text, was du daraus mitnimmst. Du kannst die Module der Reihe nach durchklicken.
+          Sechs der meistgesehenen TED-Talks und zwei Bücher, „Selbstbild“ von Carol Dweck und „Schnelles Denken, langsames Denken“ von Daniel Kahneman – jeweils mit einem Text, was du daraus mitnimmst. Du kannst die Module der Reihe nach durchklicken.
         </p>
         <div style={{ display: "grid", gap: 12 }}>
           {ELTERNKURS.map((k, i) => (

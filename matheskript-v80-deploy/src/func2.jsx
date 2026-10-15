@@ -1549,7 +1549,7 @@ export function Startseite({ gehe }) {
       <div style={{ marginTop: 12 }}>
         <PlotterKachel onClick={() => gehe({ ansicht: "elternkurs" })} label="Mathe-Mindset-Kurs öffnen" logo={<ElternkursLogoKlein />}
           titel="Mathe-Mindset-Kurs"
-          text="Sechs TED-Talks und ein Buch, die zeigen, wie Kinder wirklich lernen." />
+          text="6 TED-Talks und 2 Bücher, die inspirieren, wie Mathe auch funktionieren kann." />
       </div>
       <PlotterKachel portraet={<MathildaPortraet />} onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })} label="Mathilda AI öffnen" logo={<MathildaLogoKlein />} keinI18nTitel goldRand
         titel={<MathildaName dunkel />}
@@ -1567,7 +1567,7 @@ export function Startseite({ gehe }) {
       <div style={{ marginTop: 12 }}>
         <PlotterKachel onClick={() => gehe({ ansicht: "elternkurs" })} label="Mathe-Mindset-Kurs öffnen" logo={<ElternkursLogoKlein />}
           titel="Mathe-Mindset-Kurs"
-          text="Sechs TED-Talks und ein Buch, die zeigen, wie Kinder wirklich lernen." />
+          text="6 TED-Talks und 2 Bücher, die inspirieren, wie Mathe auch funktionieren kann." />
       </div>
       </>)}
       <PlotterKachel onClick={() => gehe({ ansicht: "headnumbers" })} label="Head & Numbers öffnen" logo={<HeadNumbersLogoKlein />} keinI18nTitel

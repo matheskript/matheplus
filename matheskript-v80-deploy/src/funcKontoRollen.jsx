@@ -428,7 +428,7 @@ export function ElternBereich({ profil, gehe, kinderRef }) {
       <div style={{ ...karte, padding: 18, marginBottom: 14, background: `linear-gradient(155deg, ${C.see} 0%, ${NAVY} 100%)`, color: C.weiss }}>
         <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", color: C.flaggold, marginBottom: 6 }}>FÜR ELTERN · KOSTENLOS</p>
         <p style={{ fontSize: 17, fontWeight: 700, marginBottom: 6 }}>Mathe-Mindset-Kurs</p>
-        <p style={{ fontSize: 14, color: "#C9D6EE", fontWeight: 300, lineHeight: 1.6, marginBottom: 12 }}>Sechs TED-Talks und ein Buch, die zeigen, wie Kinder wirklich lernen. Der Kernkurs für Eltern folgt.</p>
+        <p style={{ fontSize: 14, color: "#C9D6EE", fontWeight: 300, lineHeight: 1.6, marginBottom: 12 }}>6 TED-Talks und 2 Bücher, die inspirieren, wie Mathe auch funktionieren kann. Der Kernkurs für Eltern folgt.</p>
         <button type="button" onClick={() => gehe({ ansicht: "elternkurs" })} style={{ height: 44, padding: "0 22px", borderRadius: 999, border: "none", background: C.flaggold, color: NAVY, fontSize: 14.5, fontWeight: 800, fontFamily: "inherit", cursor: "pointer" }}>Kurs öffnen</button>
       </div>
     </>

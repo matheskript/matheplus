@@ -240,7 +240,7 @@ const CSS = `
 
 /* ---------------------------------------------------------------- Inhalte */
 const METHODEN = [
-  { logo: ElternkursLogoKlein, name: "Mathe-Mindset", text: "Der Satz „Ich bin kein Mathe-Typ“ ist der erste Mythos, der fällt. Sechs Vorträge und ein Buch zeigen, wie Lernen wirklich funktioniert.", ziel: { ansicht: "elternkurs" }, knopf: "Mindset-Kurs öffnen" },
+  { logo: ElternkursLogoKlein, name: "Mathe-Mindset", text: "Der Satz „Ich bin kein Mathe-Typ“ ist der erste Mythos, der fällt. Sechs Vorträge und zwei Bücher zeigen, wie Lernen wirklich funktioniert.", ziel: { ansicht: "elternkurs" }, knopf: "Mindset-Kurs öffnen" },
   { logo: PenPaperBlatt, name: "Pen & Paper", text: "Sauber aufschreiben, strukturiert rechnen, Fehler selbst finden. Wer klar schreibt, denkt klarer – und verschenkt keine Punkte mehr an Kleinigkeiten.", ziel: { ansicht: "penpaperkurs" }, knopf: "Pen & Paper öffnen" },
   { logo: HeadNumbersLogoKlein, name: "Head & Numbers", text: "Einmaleins, Quadrat- und Kubikzahlen, die sitzen. Sicheres Kopfrechnen macht jede Aufgabe schneller und den Kopf frei für das Wesentliche.", ziel: { ansicht: "headnumbers" }, knopf: "Kopfrechnen trainieren" },
   { logo: EbbinghausLogoKlein, name: "Ebbinghaus", text: "Wiederholen im richtigen Abstand. So ist das Thema vom letzten Jahr noch da, wenn es im Abi zurückkommt.", ziel: { ansicht: "ebbinghaus" }, knopf: "Wiederholen starten" },

@@ -126,7 +126,7 @@ export const NAV = [
     { name: "Modellieren", kurz: "Sachaufgaben in vier Schritten", ansicht: "modellieren" },
   ] },
   { id: "mindset", name: "Mathe-Mindset-Kurs", kurz: "Must-Know für Eltern und Lehrkräfte", eintraege: [
-    { name: "Mathe-Mindset-Kurs", kurz: "Sechs TED-Talks und ein Buch, die zeigen, wie Kinder wirklich lernen", ansicht: "elternkurs" },
+    { name: "Mathe-Mindset-Kurs", kurz: "6 TED-Talks und 2 Bücher, die inspirieren, wie Mathe auch funktionieren kann", ansicht: "elternkurs" },
     { name: "Nachhilfe-Kurs", kurz: "Sechs Module für Nachhilfelehrernen", ansicht: "nachhilfekurs" },
   ] },
   { id: "mathilda", name: "Mathilda AI", kurz: "Alles mit der Kamera", eintraege: [
