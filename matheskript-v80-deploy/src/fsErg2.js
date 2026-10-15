@@ -134,7 +134,7 @@ export const ERG_2 = {
     her: [{ t: "Mit dem Gauß-Verfahren", s: [
       "Die beiden Koordinatenformen bilden ein LGS mit zwei Gleichungen und drei Unbekannten. Es hat (bei nicht parallelen Ebenen) unendlich viele Lösungen.",
       "Setze eine Variable gleich $t$ und löse nach den anderen. Das Ergebnis ist eine Gerade in Parameterform.",
-      "Der Richtungsvektor dieser Geraden ist $\\vec{n}_1 \\times \\vec{n}_2$ – ein Kontrollrechnung.",
+      "Der Richtungsvektor dieser Geraden ist $\\vec{n}_1 \\times \\vec{n}_2$ – eine Kontrollrechnung.",
     ] }],
     nutzt: [["gauss", "LGS mit freier Variable"], ["lgs-loesbar", "unendlich viele Lösungen"]],
   },

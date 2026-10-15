@@ -74,7 +74,7 @@ export const FS_KOPF = [
         "Genau das ist der Trick: außen die Ziffern, in der Mitte ihre Summe.",
       ] },
     ],
-    bsp: ["$$78 \\cdot 11: \; 7 + 8 = 15 \;\\Rightarrow\; 7 + 1 = 8, \; 5, \; 8 \;\\Rightarrow\; 858"],
+    bsp: ["$$78 \\cdot 11: \\; 7 + 8 = 15 \\;\\Rightarrow\\; 7 + 1 = 8, \\; 5, \\; 8 \\;\\Rightarrow\\; 858"],
     falle: "Bei Ziffernsumme ab 10 den Übertrag nicht vergessen.",
     nutzt: [["distributiv", "mal 10 plus mal 1"], ["teil11", "gleiche Zahl 11 – andere Regel"]],
     wz: "kopf",
@@ -159,7 +159,7 @@ export const FS_KOPF = [
         "Ein Quadrat $100 \\times 100$. Die gesuchte Fläche $(100 - a)(100 - b)$ ist das Quadrat ohne zwei Randstreifen. Dabei wurde das Eck $a \\cdot b$ zweimal abgezogen – es kommt einmal zurück.",
       ] },
     ],
-    bsp: ["$$96 \\cdot 93: \; 96 - 7 = 89, \; 4 \\cdot 7 = 28 \;\\Rightarrow\; 8928"],
+    bsp: ["$$96 \\cdot 93: \\; 96 - 7 = 89, \\; 4 \\cdot 7 = 28 \\;\\Rightarrow\\; 8928"],
     falle: "Ist das Produkt der Abstände einstellig, vorne eine Null ergänzen: $98 \\cdot 99$: $97$ und $02$ ⇒ 9702.",
     nutzt: [["distributiv", "Klammern ausmultipliziert"], ["binom2", "ähnliche Struktur"]],
     wz: "kopf",
@@ -178,7 +178,7 @@ export const FS_KOPF = [
         "Also ist die Zahl genau dann durch 2, 5 oder 10 teilbar, wenn die Endziffer $e$ es ist.",
       ] },
       { t: "Probe an einem Beispiel", s: [
-        "$$3\\,475 = 347 \\cdot 10 + 5 \;\\Rightarrow\; \\text{durch 5 teilbar, nicht durch 2}",
+        "$$3\\,475 = 347 \\cdot 10 + 5 \\;\\Rightarrow\\; \\text{durch 5 teilbar, nicht durch 2}",
       ] },
     ],
     falle: "Für 4 reicht die Endziffer nicht: 14 ist gerade, aber nicht durch 4 teilbar.",
@@ -215,7 +215,7 @@ export const FS_KOPF = [
     her: [
       { t: "100 ist durch 4 teilbar", s: [
         "$100 = 4 \\cdot 25$, also ist jedes Vielfache von 100 durch 4 teilbar. Es zählt nur der Rest: die letzten zwei Ziffern.",
-        "$$7316 = 73 \\cdot 100 + 16 \;\\Rightarrow\; \\text{durch 4 teilbar, wenn 16 es ist}",
+        "$$7316 = 73 \\cdot 100 + 16 \\;\\Rightarrow\\; \\text{durch 4 teilbar, wenn 16 es ist}",
       ] },
       { t: "1000 ist durch 8 teilbar", s: [
         "$1000 = 8 \\cdot 125$ – für 8 entscheiden die letzten drei Ziffern: Zahl $= 1000q + r$ mit $r$ dreistellig.",
@@ -369,7 +369,7 @@ export const FS_LOGIK = [
       ] },
       { t: "Beschreibende Schreibweise", s: [
         "$\\{x \\mid \\ldots\\}$ liest man »Menge aller $x$, für die gilt …«. Die Bedingung nach dem Strich entscheidet über die Zugehörigkeit.",
-        "$$A = \\{ x \\in \\mathbb{N} \\mid x \\text{ gerade}, \; x < 7 \\} = \\{2; 4; 6\\}",
+        "$$A = \\{ x \\in \\mathbb{N} \\mid x \\text{ gerade}, \\; x < 7 \\} = \\{2; 4; 6\\}",
       ] },
     ],
     falle: "$2 \\in \\{2\\}$, aber $2 \\neq \\{2\\}$: Die Zahl ist nicht dasselbe wie die Menge, die sie enthält.",
@@ -457,7 +457,7 @@ export const FS_LOGIK = [
       ] },
       { t: "Intervalle als Mengen", s: [
         "Ein Intervall ist die Menge aller reellen Zahlen zwischen zwei Grenzen. Schnitt und Vereinigung funktionieren wie bei allen Mengen:",
-        "$$[1; 5] \\cap [3; 8] = [3; 5], \\quad [1; 2] \\cup\; ]2; 4] = [1; 4]",
+        "$$[1; 5] \\cap [3; 8] = [3; 5], \\quad [1; 2] \\cup\\; ]2; 4] = [1; 4]",
       ] },
       { t: "Wo sie gebraucht werden", s: [
         "Definitionsbereiche ($\\ln x$: $]0; \\infty[$), Lösungen von Ungleichungen ($x > -3$: $]-3; \\infty[$) und die Grenzen beim Integral $[a; b]$.",
@@ -514,7 +514,7 @@ export const FS_LOGIK = [
       ] },
       { t: "Äquivalenzumformung bei Gleichungen", s: [
         "Beim Umformen von Gleichungen sind nur Äquivalenzumformungen erlaubt – sonst kommen falsche Lösungen hinzu (Quadrieren!) oder gehen verloren (durch $x$ teilen).",
-        "$$x = 3 \;\\Rightarrow\; x^2 = 9",
+        "$$x = 3 \\;\\Rightarrow\\; x^2 = 9",
         "Die Rückrichtung stimmt nicht: Aus $x^2 = 9$ folgt auch $x = -3$. Quadrieren ist nur eine Richtung (⇒), keine Äquivalenz – deshalb Probe machen.",
       ] },
     ],
@@ -550,7 +550,7 @@ export const FS_LOGIK = [
     her: [
       { t: "Verneinen", s: [
         "»Nicht alle Schwäne sind weiß« heißt: »Es gibt einen Schwan, der nicht weiß ist.«",
-        "$$\\neg(\\forall x : A(x)) \;\\Leftrightarrow\; \\exists x : \\neg A(x)",
+        "$$\\neg(\\forall x : A(x)) \\;\\Leftrightarrow\\; \\exists x : \\neg A(x)",
         "Deshalb widerlegt ein einziges Gegenbeispiel eine Allaussage.",
       ] },
       { t: "Als verallgemeinerte De Morgan-Regel", s: [
@@ -596,9 +596,9 @@ export const FS_LOGIK = [
     her: [
       { t: "√2 ist kein Bruch", s: [
         "Angenommen, $\\sqrt{2} = \\frac{p}{q}$ mit vollständig gekürztem Bruch.",
-        "$$2 = \\frac{p^2}{q^2} \;\\Rightarrow\; p^2 = 2q^2",
+        "$$2 = \\frac{p^2}{q^2} \\;\\Rightarrow\\; p^2 = 2q^2",
         "Also ist $p^2$ gerade und damit $p$ gerade (Kontraposition), $p = 2k$:",
-        "$$4k^2 = 2q^2 \;\\Rightarrow\; q^2 = 2k^2",
+        "$$4k^2 = 2q^2 \\;\\Rightarrow\\; q^2 = 2k^2",
         "Also ist auch $q$ gerade. Dann ließe sich der Bruch durch 2 kürzen – Widerspruch zu »vollständig gekürzt«.",
         "Die Annahme war falsch: $\\sqrt{2}$ ist irrational.",
       ] },

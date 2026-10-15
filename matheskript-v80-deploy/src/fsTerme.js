@@ -162,7 +162,7 @@ export const FS_TERME = [
     bild: ["potenzKetten", { negativ: true }],
     her: [
       { t: "Das Muster fortsetzen", s: [
-        "$$2^3 = 8, \; 2^2 = 4, \; 2^1 = 2 || jeder Schritt nach rechts: mal 2, nach links: durch 2",
+        "$$2^3 = 8, \\; 2^2 = 4, \\; 2^1 = 2 || jeder Schritt nach rechts: mal 2, nach links: durch 2",
         "Konsequent weiter nach links: $2^0 = 1$, $2^{-1} = \\frac{1}{2}$, $2^{-2} = \\frac{1}{4}$.",
         "So bleibt das Muster ohne Bruch erhalten: Bei jedem Schritt wird durch 2 geteilt.",
       ] },
@@ -237,9 +237,9 @@ export const FS_TERME = [
     her: [
       { t: "Potenzgesetze in Logarithmen übersetzt", s: [
         "Schreibe $u = a^r$ und $v = a^s$, also $r = \\log_a u$ und $s = \\log_a v$.",
-        "$$u \\cdot v = a^r \\cdot a^s = a^{r+s} \;\\Rightarrow\; \\log_a(uv) = r + s = \\log_a u + \\log_a v",
+        "$$u \\cdot v = a^r \\cdot a^s = a^{r+s} \\;\\Rightarrow\\; \\log_a(uv) = r + s = \\log_a u + \\log_a v",
         "Genauso beim Quotienten:",
-        "$$\\frac{u}{v} = \\frac{a^r}{a^s} = a^{r-s} \;\\Rightarrow\; \\log_a \\frac{u}{v} = r - s = \\log_a u - \\log_a v",
+        "$$\\frac{u}{v} = \\frac{a^r}{a^s} = a^{r-s} \\;\\Rightarrow\\; \\log_a \\frac{u}{v} = r - s = \\log_a u - \\log_a v",
       ] },
       { t: "Zahlenprobe", s: [
         "$\\log_2 (4 \\cdot 8) = \\log_2 32 = 5 = 2 + 3 = \\log_2 4 + \\log_2 8$ ✓",
@@ -281,7 +281,7 @@ export const FS_TERME = [
       { t: "Gleichung logarithmieren", s: [
         "Setze $x = \\log_a b$. Nach der Definition heißt das $a^x = b$.",
         "Beide Seiten werden mit $\\ln$ logarithmiert, danach kommt der Exponent nach vorn:",
-        "$$\\ln(a^x) = \\ln b \;\\Rightarrow\; x \\ln a = \\ln b \;\\Rightarrow\; x = \\frac{\\ln b}{\\ln a}",
+        "$$\\ln(a^x) = \\ln b \\;\\Rightarrow\\; x \\ln a = \\ln b \\;\\Rightarrow\\; x = \\frac{\\ln b}{\\ln a}",
       ] },
       { t: "Allgemein für jede neue Basis c", s: [
         "Dieselbe Rechnung funktioniert mit jedem Logarithmus $\\log_c$:",
@@ -304,19 +304,19 @@ export const FS_TERME = [
     her: [
       { t: "Die Waage im Gleichgewicht", s: [
         "Eine Gleichung ist eine Waage im Gleichgewicht. Was man auf einer Seite tut, muss man auf der anderen genauso tun.",
-        "$$ax + b = 0 \\quad | -b \\quad\\Rightarrow\; ax = -b",
-        "$$ax = -b \\quad | : a \\quad\\Rightarrow\; x = -\\frac{b}{a} || für a ≠ 0",
+        "$$ax + b = 0 \\quad | -b \\quad\\Rightarrow\\; ax = -b",
+        "$$ax = -b \\quad | : a \\quad\\Rightarrow\\; x = -\\frac{b}{a} || für a ≠ 0",
         "Erlaubt: auf beiden Seiten dasselbe addieren, subtrahieren, mit derselben Zahl ≠ 0 multiplizieren oder dividieren.",
       ] },
       { t: "Die Probe bestätigt die Lösung", s: [
-        "$$a \\cdot \\left(-\\frac{b}{a}\\right) + b = -b + b = 0 \;✓",
+        "$$a \\cdot \\left(-\\frac{b}{a}\\right) + b = -b + b = 0 \\;✓",
         "Die Probe lohnt sich immer: Sie fängt Vorzeichenfehler.",
       ] },
       { t: "Die drei Fälle", s: [
         "Ist $a \\neq 0$, gibt es genau eine Lösung. Ist $a = 0$ und $b \\neq 0$, steht $b = 0$ da – ein Widerspruch, keine Lösung. Sind $a = 0$ und $b = 0$, steht $0 = 0$ da – jede Zahl ist Lösung.",
       ] },
     ],
-    bsp: ["$$3x + 6 = 0 \;\\Rightarrow\; 3x = -6 \;\\Rightarrow\; x = -2"],
+    bsp: ["$$3x + 6 = 0 \\;\\Rightarrow\\; 3x = -6 \\;\\Rightarrow\\; x = -2"],
     falle: "Nicht durch 0 teilen – und nicht durch einen Term, der 0 sein könnte (dabei gehen Lösungen verloren).",
     nutzt: [["bruch-div", "Division durch a"]],
     wz: "gleichungen",
@@ -328,7 +328,7 @@ export const FS_TERME = [
     bild: ["parabel", { form: "normal", nullstellen: true }],
     her: [
       { t: "Quadratische Ergänzung allgemein", s: [
-        "$$ax^2 + bx + c = 0 \;\\Leftrightarrow\; x^2 + \\frac{b}{a}x = -\\frac{c}{a} || durch a teilen",
+        "$$ax^2 + bx + c = 0 \\;\\Leftrightarrow\\; x^2 + \\frac{b}{a}x = -\\frac{c}{a} || durch a teilen",
         "$$x^2 + \\frac{b}{a}x + \\frac{b^2}{4a^2} = \\frac{b^2}{4a^2} - \\frac{c}{a} || \\left(\\frac{b}{2a}\\right)^2 auf beiden Seiten addieren",
         "$$\\left(x + \\frac{b}{2a}\\right)^2 = \\frac{b^2 - 4ac}{4a^2} || links: erste binomische Formel, rechts: gleicher Nenner",
         "$$x + \\frac{b}{2a} = \\pm\\frac{\\sqrt{b^2 - 4ac}}{2a} || Wurzel ziehen, beide Vorzeichen",
@@ -344,7 +344,7 @@ export const FS_TERME = [
         "Einsetzen: $2 \\cdot 4 - 6 - 2 = 0$ ✓ und $2 \\cdot \\frac{1}{4} + \\frac{3}{2} - 2 = 0$ ✓",
       ] },
     ],
-    bsp: ["$$2x^2 - 3x - 2 = 0: \\quad x = \\frac{3 \\pm \\sqrt{9 + 16}}{4} = \\frac{3 \\pm 5}{4} \;\\Rightarrow\; x_1 = 2, \; x_2 = -\\frac{1}{2}"],
+    bsp: ["$$2x^2 - 3x - 2 = 0: \\quad x = \\frac{3 \\pm \\sqrt{9 + 16}}{4} = \\frac{3 \\pm 5}{4} \\;\\Rightarrow\\; x_1 = 2, \\; x_2 = -\\frac{1}{2}"],
     falle: "$-b$ ist bei negativem $b$ positiv. Und der Bruchstrich gilt für $-b$ und die Wurzel gemeinsam.",
     nutzt: [["quadergaenzung", "allgemein durchgeführt"], ["binom1", "beim Ergänzen"], ["scheitelform", "alternative Herleitung"]],
     wz: "gleichungen",
@@ -356,7 +356,7 @@ export const FS_TERME = [
     bild: ["parabel", { form: "normal", nullstellen: true }],
     her: [
       { t: "Quadratische Ergänzung", s: [
-        "$$x^2 + px + q = 0 \;\\Leftrightarrow\; x^2 + px = -q",
+        "$$x^2 + px + q = 0 \\;\\Leftrightarrow\\; x^2 + px = -q",
         "$$x^2 + px + \\left(\\frac{p}{2}\\right)^2 = \\left(\\frac{p}{2}\\right)^2 - q || ergänzen",
         "$$\\left(x + \\frac{p}{2}\\right)^2 = \\left(\\frac{p}{2}\\right)^2 - q || erste binomische Formel",
         "$$x = -\\frac{p}{2} \\pm \\sqrt{\\left(\\frac{p}{2}\\right)^2 - q}",
@@ -421,7 +421,7 @@ export const FS_TERME = [
   },
   {
     id: "nullprodukt", g: "Gleichungen", n: "Satz vom Nullprodukt", st: "mittel",
-    f: "a \\cdot b = 0 \\quad\\Leftrightarrow\\quad a = 0 \; \\lor \; b = 0",
+    f: "a \\cdot b = 0 \\quad\\Leftrightarrow\\quad a = 0 \\; \\lor \\; b = 0",
     k: "erst ausklammern, dann jeden Faktor null setzen",
     bild: ["nullProdukt", {}],
     her: [
@@ -437,25 +437,25 @@ export const FS_TERME = [
         "Das Produkt zweier Funktionen $f(x) \\cdot g(x)$ ist null, wo $f$ oder $g$ null ist. Im Bild: Die Parabel geht genau durch die Nullstellen der beiden Geraden.",
       ] },
     ],
-    bsp: ["$$x^3 - 4x = x(x - 2)(x + 2) = 0 \;\\Rightarrow\; x \\in \\{-2; 0; 2\\}"],
+    bsp: ["$$x^3 - 4x = x(x - 2)(x + 2) = 0 \\;\\Rightarrow\\; x \\in \\{-2; 0; 2\\}"],
     falle: "$(x - 1)(x + 2) = 6$ ist kein Nullprodukt – erst ausmultiplizieren und auf $= 0$ bringen.",
     nutzt: [["distributiv", "Ausklammern ist Distributivgesetz rückwärts"]],
     wz: "gleichungen",
   },
   {
     id: "substitution", g: "Gleichungen", n: "Substitution", st: "ober",
-    f: "ax^4 + bx^2 + c = 0 \;\\Rightarrow\; az^2 + bz + c = 0 \\quad (z = x^2)",
+    f: "ax^4 + bx^2 + c = 0 \\;\\Rightarrow\\; az^2 + bz + c = 0 \\quad (z = x^2)",
     k: "biquadratisch · am Ende zurücksubstituieren",
     bild: ["substBild", {}],
     her: [
       { t: "Eine versteckte quadratische Gleichung", s: [
         "Mit $z = x^2$ ist $x^4 = (x^2)^2 = z^2$. Die Gleichung wird quadratisch in $z$:",
-        "$$ax^4 + bx^2 + c = 0 \;\\Rightarrow\; az^2 + bz + c = 0",
+        "$$ax^4 + bx^2 + c = 0 \\;\\Rightarrow\\; az^2 + bz + c = 0",
         "Sie lässt sich mit der pq- oder Mitternachtsformel lösen.",
         "Rücksubstitution: Aus jedem $z > 0$ entstehen $x = \\pm\\sqrt{z}$, aus $z = 0$ wird $x = 0$, aus $z < 0$ keine Lösung (ein Quadrat ist nie negativ).",
       ] },
       { t: "Ein Beispiel komplett", s: [
-        "$$x^4 - 5x^2 + 4 = 0 \;\\Rightarrow\; z^2 - 5z + 4 = 0 \;\\Rightarrow\; z = \\frac{5 \\pm 3}{2} \;\\Rightarrow\; z_1 = 4, \; z_2 = 1",
+        "$$x^4 - 5x^2 + 4 = 0 \\;\\Rightarrow\\; z^2 - 5z + 4 = 0 \\;\\Rightarrow\\; z = \\frac{5 \\pm 3}{2} \\;\\Rightarrow\\; z_1 = 4, \\; z_2 = 1",
         "$$x^2 = 4 \\Rightarrow x = \\pm 2, \\quad x^2 = 1 \\Rightarrow x = \\pm 1",
       ] },
       { t: "Dieselbe Idee bei Exponentialgleichungen", s: [
@@ -476,9 +476,9 @@ export const FS_TERME = [
     her: [
       { t: "Exponent herunterholen", s: [
         "Wende auf beide Seiten den Logarithmus an – eine Äquivalenzumformung, solange $b > 0$:",
-        "$$a^x = b \;\\Rightarrow\; \\ln(a^x) = \\ln b",
+        "$$a^x = b \\;\\Rightarrow\\; \\ln(a^x) = \\ln b",
         "Nach dem Logarithmengesetz kommt der Exponent nach vorn:",
-        "$$x \\ln a = \\ln b \;\\Rightarrow\; x = \\frac{\\ln b}{\\ln a}",
+        "$$x \\ln a = \\ln b \\;\\Rightarrow\\; x = \\frac{\\ln b}{\\ln a}",
       ] },
       { t: "Über die Definition", s: [
         "Die Gleichung $a^x = b$ besagt: $x$ ist der Exponent, mit dem man $a$ potenzieren muss, um $b$ zu erhalten. Das ist die Definition des Logarithmus:",
@@ -488,14 +488,14 @@ export const FS_TERME = [
         "Der Graph von $a^x$ steigt an. Die waagerechte Gerade $y = b$ schneidet ihn bei genau einer Stelle (für $b > 0$) – das ist die Lösung.",
       ] },
     ],
-    bsp: ["$$3 \\cdot 2^x = 24 \;\\Rightarrow\; 2^x = 8 \;\\Rightarrow\; x = 3", "$$e^{2x} = 5 \;\\Rightarrow\; 2x = \\ln 5 \;\\Rightarrow\; x = \\frac{\\ln 5}{2}"],
+    bsp: ["$$3 \\cdot 2^x = 24 \\;\\Rightarrow\\; 2^x = 8 \\;\\Rightarrow\\; x = 3", "$$e^{2x} = 5 \\;\\Rightarrow\\; 2x = \\ln 5 \\;\\Rightarrow\\; x = \\frac{\\ln 5}{2}"],
     falle: "Erst den Faktor vor der Potenz wegteilen, dann logarithmieren. Und $a^x = -3$ hat keine Lösung.",
     nutzt: [["logpot", "Exponent vor den Logarithmus"], ["basiswechsel", "dieselbe Rechnung"], ["logdef", "x = log_a b"]],
     wz: "gleichungen",
   },
   {
     id: "ungleichung", g: "Gleichungen", n: "Ungleichungen", st: "mittel",
-    f: "a < b \;\\Rightarrow\; -a > -b",
+    f: "a < b \\;\\Rightarrow\\; -a > -b",
     k: "Mal oder geteilt durch eine negative Zahl: Zeichen umdrehen",
     bild: ["ungleichungBild", {}],
     her: [
@@ -505,15 +505,15 @@ export const FS_TERME = [
       ] },
       { t: "Rechnerisch", s: [
         "$a < b$ heißt: $b - a > 0$. Mit $-1$ multipliziert:",
-        "$$(-a) - (-b) = b - a > 0 \;\\Rightarrow\; -a > -b",
+        "$$(-a) - (-b) = b - a > 0 \\;\\Rightarrow\\; -a > -b",
         "Allgemein für $c < 0$: aus $a < b$ folgt $ac > bc$, weil $bc - ac = (b - a) c$ negativ ist.",
       ] },
       { t: "Ein Beispiel Schritt für Schritt", s: [
-        "$$-2x < 6 \\quad | : (-2) \;\\Rightarrow\; x > -3 || Zeichen dreht sich",
+        "$$-2x < 6 \\quad | : (-2) \\;\\Rightarrow\\; x > -3 || Zeichen dreht sich",
         "Probe: $x = 0$ ist größer als $-3$ und $-2 \\cdot 0 = 0 < 6$ ✓. Dagegen $x = -5$: $-2 \\cdot (-5) = 10 > 6$ ✗.",
       ] },
     ],
-    bsp: ["$$-2x < 6 \;\\Rightarrow\; x > -3"],
+    bsp: ["$$-2x < 6 \\;\\Rightarrow\\; x > -3"],
     falle: "Auch beim Logarithmieren mit $\\ln q$ für $0 < q < 1$ ist $\\ln q < 0$ – dann dreht sich das Zeichen.",
     nutzt: [["lineargl", "dieselben Umformungen mit einer Ausnahme"], ["intervalle", "Lösungsmenge als Intervall"]],
     wz: "gleichungen",

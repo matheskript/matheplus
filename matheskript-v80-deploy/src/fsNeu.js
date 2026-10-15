@@ -54,7 +54,7 @@ export const NEU = [
         "Sei $S = 1 + q + q^2 + \\ldots + q^n$.",
         "Multipliziert man mit $q$, rutscht jeder Summand eine Potenz weiter: $qS = q + q^2 + \\ldots + q^n + q^{n+1}$.",
         "Zieht man beide Gleichungen ab, heben sich fast alle Terme auf:",
-        "$$qS - S = q^{n+1} - 1 \;\\Rightarrow\; S(q - 1) = q^{n+1} - 1 \;\\Rightarrow\; S = \\frac{q^{n+1} - 1}{q - 1}",
+        "$$qS - S = q^{n+1} - 1 \\;\\Rightarrow\\; S(q - 1) = q^{n+1} - 1 \\;\\Rightarrow\\; S = \\frac{q^{n+1} - 1}{q - 1}",
       ] },
       { t: "Mit der Faktorisierung von qⁿ⁺¹ − 1", s: [
         "Ausmultiplizieren zeigt die Probe: $(q - 1)(1 + q + \\ldots + q^n) = q^{n+1} - 1$.",
@@ -111,14 +111,14 @@ export const NEU = [
   },
   {
     bereich: "stochastik", id: "mindestens-n", g: "Binomialverteilung", n: "Mindestens n Versuche", st: "ober",
-    f: "1 - (1 - p)^n \\geq P \;\\Rightarrow\; n \\geq \\frac{\\ln(1 - P)}{\\ln(1 - p)}",
+    f: "1 - (1 - p)^n \\geq P \\;\\Rightarrow\\; n \\geq \\frac{\\ln(1 - P)}{\\ln(1 - p)}",
     k: "wie oft muss man es versuchen, um mit Sicherheit P mindestens einen Treffer zu haben?",
     bild: ["mindestensN", {}],
     her: [
       { t: "Ungleichung mit dem Logarithmus lösen", s: [
         "Gesucht ist das kleinste $n$ mit $1 - (1-p)^n \\geq P$. Umgestellt: $(1-p)^n \\leq 1 - P$.",
         "Beide Seiten logarithmieren. Weil $1 - p < 1$ ist, ist $\\ln(1-p) < 0$ – dabei dreht sich das Zeichen um:",
-        "$$n \\cdot \\ln(1-p) \\leq \\ln(1-P) \;\\Rightarrow\; n \\geq \\frac{\\ln(1-P)}{\\ln(1-p)}",
+        "$$n \\cdot \\ln(1-p) \\leq \\ln(1-P) \\;\\Rightarrow\\; n \\geq \\frac{\\ln(1-P)}{\\ln(1-p)}",
         "Zum Schluss aufrunden: $n$ muss eine ganze Zahl sein.",
       ] },
       { t: "Mit Ausprobieren", s: [
@@ -152,7 +152,7 @@ export const NEU = [
   },
   {
     bereich: "terme", id: "betrag-ungl", g: "Gleichungen", n: "Betrag und Abstand", st: "beide",
-    f: "|x - a| < b \;\\Leftrightarrow\; a - b < x < a + b",
+    f: "|x - a| < b \\;\\Leftrightarrow\\; a - b < x < a + b",
     k: "|x − a| ist der Abstand von x zu a · bei Gleichungen zwei Fälle",
     bild: ["betragFall", {}],
     her: [

@@ -91,7 +91,7 @@ export const FS_ANALYSIS = [
         "Gesucht ist eine Gerade $t(x) = mx + b$ durch den Berührpunkt $B(x_0 | f(x_0))$ mit derselben Steigung wie der Graph.",
         "$$m = f′(x_0) || Steigung = Ableitung",
         "Den Achsenabschnitt erzwingt der Punkt $B$:",
-        "$$f(x_0) = f′(x_0) \\cdot x_0 + b \;\\Rightarrow\; b = f(x_0) - f′(x_0) \\cdot x_0",
+        "$$f(x_0) = f′(x_0) \\cdot x_0 + b \\;\\Rightarrow\\; b = f(x_0) - f′(x_0) \\cdot x_0",
         "$$t(x) = f′(x_0) \\cdot x + f(x_0) - f′(x_0) \\cdot x_0 = f′(x_0)(x - x_0) + f(x_0) || ausklammern",
         "Probe: Für $x = x_0$ fällt die Klammer weg und es bleibt $t(x_0) = f(x_0)$.",
       ] },
@@ -126,7 +126,7 @@ export const FS_ANALYSIS = [
       { t: "Mit dem Skalarprodukt", s: [
         "Die Richtungsvektoren der beiden Geraden sind $\\vec{u} = (1 | m_1)$ und $\\vec{v} = (1 | m_2)$.",
         "Senkrecht zueinander heißt: Das Skalarprodukt ist null.",
-        "$$\\vec{u} \\cdot \\vec{v} = 1 + m_1 m_2 = 0 \;\\Rightarrow\; m_1 \\cdot m_2 = -1",
+        "$$\\vec{u} \\cdot \\vec{v} = 1 + m_1 m_2 = 0 \\;\\Rightarrow\\; m_1 \\cdot m_2 = -1",
         "Mit $m_1 = f′(x_0)$ folgt $m_n = -\\frac{1}{f′(x_0)}$. Die Probe $m \\cdot m_n = -1$ gelingt immer.",
       ] },
     ],
@@ -147,14 +147,14 @@ export const FS_ANALYSIS = [
         "An beiden Enden ist dieser Abstand null: $h(a) = 0$ und $h(b) = 0$.",
         "Eine stetige Funktion hat auf $[a ; b]$ einen größten und einen kleinsten Wert. Sind beide null, ist $h$ konstant null. Sonst liegt ein Extremwert im Innern bei einer Stelle $\\xi$.",
         "An einer Extremstelle ist die Ableitung null (Satz von Fermat):",
-        "$$h′(\\xi) = f′(\\xi) - m = 0 \;\\Rightarrow\; f′(\\xi) = \\frac{f(b) - f(a)}{b - a}",
+        "$$h′(\\xi) = f′(\\xi) - m = 0 \\;\\Rightarrow\\; f′(\\xi) = \\frac{f(b) - f(a)}{b - a}",
       ] },
       { t: "Die Autofahrt", s: [
         "Wer 150 km in 2 Stunden fährt, hat im Schnitt 75 km/h. Dann muss der Tacho mindestens einmal genau 75 km/h angezeigt haben.",
         "Durchschnittsgeschwindigkeit ist die Sekantensteigung im Weg-Zeit-Diagramm, die Tachoanzeige ist die Tangentensteigung. Der Mittelwertsatz sagt: Beide stimmen irgendwann überein.",
       ] },
     ],
-    bsp: ["$f(x) = x^2$ auf $[1 ; 3]$:", "$$\\frac{9 - 1}{3 - 1} = 4 = f′(\\xi) = 2\\xi \;\\Rightarrow\; \\xi = 2 || genau die Mitte"],
+    bsp: ["$f(x) = x^2$ auf $[1 ; 3]$:", "$$\\frac{9 - 1}{3 - 1} = 4 = f′(\\xi) = 2\\xi \\;\\Rightarrow\\; \\xi = 2 || genau die Mitte"],
     falle: "Der Satz sagt nur, dass es ein $\\xi$ gibt – nicht wo. Außerdem muss $f$ im ganzen Intervall differenzierbar sein: Bei $f(x) = |x|$ auf $[-1 ; 1]$ ist die Sekante waagerecht, aber nirgends ist die Tangente es (Knick bei 0).",
     nutzt: [["diffquot", "Sekantensteigung"], ["ableitung", "Tangentensteigung"], ["extrem", "Satz von Fermat im Beweis"]],
     wz: "kurvendiskussion",
@@ -259,7 +259,7 @@ export const FS_ANALYSIS = [
     her: [
       { t: "Über die Potenzregel", s: [
         "Die Wurzel ist eine Potenz mit dem Exponenten $\\frac{1}{2}$:",
-        "$$\\sqrt{x} = x^{\\frac{1}{2}} \;\\Rightarrow\; f′(x) = \\frac{1}{2} x^{-\\frac{1}{2}} || Potenzregel, Exponent sinkt um 1",
+        "$$\\sqrt{x} = x^{\\frac{1}{2}} \\;\\Rightarrow\\; f′(x) = \\frac{1}{2} x^{-\\frac{1}{2}} || Potenzregel, Exponent sinkt um 1",
         "$$f′(x) = \\frac{1}{2 x^{\\frac{1}{2}}} = \\frac{1}{2\\sqrt{x}} || negativer Exponent: Kehrwert",
       ] },
       { t: "Mit der h-Methode", s: [
@@ -385,7 +385,7 @@ export const FS_ANALYSIS = [
         "$$\\frac{\\frac{u(x+h)}{v(x+h)} - \\frac{u(x)}{v(x)}}{h} = \\frac{u(x+h)v(x) - u(x)v(x+h)}{h \\cdot v(x) v(x+h)} || Hauptnenner",
         "Im Zähler eine Nullergänzung: $u(x)v(x)$ abziehen und wieder addieren.",
         "$$u(x+h)v(x) - u(x)v(x+h) = \\left(u(x+h) - u(x)\\right) v(x) - u(x) \\left(v(x+h) - v(x)\\right)",
-        "$$\\frac{\\frac{u(x+h) - u(x)}{h} \\, v(x) - u(x) \\, \\frac{v(x+h) - v(x)}{h}}{v(x) v(x+h)} \;\\to\; \\frac{u′v - uv′}{v^2} || für h → 0 wird v(x+h) zu v(x)",
+        "$$\\frac{\\frac{u(x+h) - u(x)}{h} \\, v(x) - u(x) \\, \\frac{v(x+h) - v(x)}{h}}{v(x) v(x+h)} \\;\\to\\; \\frac{u′v - uv′}{v^2} || für h → 0 wird v(x+h) zu v(x)",
       ] },
     ],
     bsp: ["$$\\left(\\frac{x}{x+1}\\right)′ = \\frac{1 \\cdot (x+1) - x \\cdot 1}{(x+1)^2} = \\frac{1}{(x+1)^2}", "Sonderfall $u = 1$: $\\left(\\frac{1}{v}\\right)′ = \\frac{0 \\cdot v - 1 \\cdot v′}{v^2} = -\\frac{v′}{v^2}$, zum Beispiel $\\left(\\frac{1}{x}\\right)′ = -\\frac{1}{x^2}$."],
@@ -414,7 +414,7 @@ export const FS_ANALYSIS = [
       ] },
       { t: "Probe an einem Beispiel", s: [
         "$f(x) = (3x + 1)^2$ lässt sich auch ausmultiplizieren:",
-        "$$f(x) = 9x^2 + 6x + 1 \;\\Rightarrow\; f′(x) = 18x + 6",
+        "$$f(x) = 9x^2 + 6x + 1 \\;\\Rightarrow\\; f′(x) = 18x + 6",
         "Mit der Kettenregel (äußere Funktion $u(t) = t^2$, innere $v(x) = 3x + 1$):",
         "$$f′(x) = 2(3x + 1) \\cdot 3 = 18x + 6 || stimmt überein",
       ] },
@@ -460,7 +460,7 @@ export const FS_ANALYSIS = [
         "$$\\frac{a^{x+h} - a^x}{h} = a^x \\cdot \\frac{a^h - 1}{h} || Potenzgesetz",
         "Der zweite Faktor hängt nicht von $x$ ab – er ist die Steigung von $a^x$ an der Stelle 0. Die Ableitung ist also immer ein festes Vielfaches der Funktion selbst.",
         "Für $a = 2$ ist dieser Faktor etwa 0,69, für $a = 3$ etwa 1,10. Dazwischen liegt genau eine Basis mit Faktor 1 – diese Zahl heißt $e \\approx 2{,}718$.",
-        "$$\\lim_{h \\to 0} \\frac{e^h - 1}{h} = 1 \;\\Rightarrow\; (e^x)′ = e^x",
+        "$$\\lim_{h \\to 0} \\frac{e^h - 1}{h} = 1 \\;\\Rightarrow\\; (e^x)′ = e^x",
       ] },
       { t: "Mit der Potenzreihe", s: [
         "Die e-Funktion hat die Reihendarstellung",
@@ -487,7 +487,7 @@ export const FS_ANALYSIS = [
         "$$e^{\\ln x} = x || für x > 0",
         "Beide Seiten ableiten, links mit der Kettenregel:",
         "$$e^{\\ln x} \\cdot (\\ln x)′ = 1",
-        "$$x \\cdot (\\ln x)′ = 1 \;\\Rightarrow\; (\\ln x)′ = \\frac{1}{x}",
+        "$$x \\cdot (\\ln x)′ = 1 \\;\\Rightarrow\\; (\\ln x)′ = \\frac{1}{x}",
         "Im Bild: Spiegelt man den Graphen an $y = x$, wird jedes Steigungsdreieck gespiegelt – aus Steigung $m$ wird $\\frac{1}{m}$.",
       ] },
       { t: "Mit der h-Methode", s: [
@@ -572,7 +572,7 @@ export const FS_ANALYSIS = [
       { t: "Mit der h-Methode", s: [
         "$$\\frac{a^{x+h} - a^x}{h} = a^x \\cdot \\frac{a^h - 1}{h} || Potenzgesetz",
         "Der Faktor $\\frac{a^h - 1}{h}$ ist die Steigung bei $x = 0$. Mit $a^h = e^{h \\ln a}$ und $\\frac{e^t - 1}{t} \\to 1$ für $t \\to 0$:",
-        "$$\\frac{a^h - 1}{h} = \\ln a \\cdot \\frac{e^{h \\ln a} - 1}{h \\ln a} \;\\to\; \\ln a",
+        "$$\\frac{a^h - 1}{h} = \\ln a \\cdot \\frac{e^{h \\ln a} - 1}{h \\ln a} \\;\\to\\; \\ln a",
       ] },
     ],
     bsp: ["$$(2^x)′ = 2^x \\ln 2 \\approx 0{,}69 \\cdot 2^x"],
@@ -676,7 +676,7 @@ export const FS_ANALYSIS = [
         "Sei $x_0$ ein Hochpunkt und $f$ dort differenzierbar. Dann ist $f(x_0 + h) \\leq f(x_0)$ für alle kleinen $h$.",
         "Für $h > 0$ ist der Differenzenquotient $\\frac{f(x_0+h) - f(x_0)}{h} \\leq 0$ (Zähler ≤ 0, Nenner > 0). Im Grenzwert: $f′(x_0) \\leq 0$.",
         "Für $h < 0$ ist der Zähler ≤ 0 und der Nenner < 0, der Bruch also $\\geq 0$. Im Grenzwert: $f′(x_0) \\geq 0$.",
-        "$$f′(x_0) \\leq 0 \\quad \\text{und} \\quad f′(x_0) \\geq 0 \;\\Rightarrow\; f′(x_0) = 0 || bei einem Tiefpunkt entsprechend",
+        "$$f′(x_0) \\leq 0 \\quad \\text{und} \\quad f′(x_0) \\geq 0 \\;\\Rightarrow\\; f′(x_0) = 0 || bei einem Tiefpunkt entsprechend",
       ] },
       { t: "Hinreichend: Vorzeichenwechsel und f″", s: [
         "Die Bedingung $f′(x_0) = 0$ reicht nicht aus – auch bei einem Sattelpunkt ist $f′ = 0$.",
@@ -861,7 +861,7 @@ export const FS_ANALYSIS = [
         "Wie groß ist die Fläche unter $f(x) = x^2$ von 0 bis $a$? Teile in $n$ Streifen der Breite $\\frac{a}{n}$. Die rechten Randhöhen sind $\\left(\\frac{ka}{n}\\right)^2$.",
         "$$S_n = \\sum_{k=1}^{n} \\left(\\frac{ka}{n}\\right)^2 \\cdot \\frac{a}{n} = \\frac{a^3}{n^3} \\sum_{k=1}^{n} k^2",
         "Mit $\\sum_{k=1}^{n} k^2 = \\frac{n(n+1)(2n+1)}{6}$ (beweisbar durch Induktion):",
-        "$$S_n = \\frac{a^3}{6} \\cdot \\frac{2n^2 + 3n + 1}{n^2} = \\frac{a^3}{6}\\left(2 + \\frac{3}{n} + \\frac{1}{n^2}\\right) \;\\to\; \\frac{a^3}{3}",
+        "$$S_n = \\frac{a^3}{6} \\cdot \\frac{2n^2 + 3n + 1}{n^2} = \\frac{a^3}{6}\\left(2 + \\frac{3}{n} + \\frac{1}{n^2}\\right) \\;\\to\\; \\frac{a^3}{3}",
         "Die Fläche ist $\\frac{1}{3}a^3$ – genau der Wert der Stammfunktion $\\frac{1}{3}x^3$, ohne dass man sie vorher kannte.",
       ] },
     ],
@@ -872,15 +872,15 @@ export const FS_ANALYSIS = [
   },
   {
     id: "stamm-tabelle", g: "Integralrechnung", n: "Wichtige Stammfunktionen", st: "ober",
-    f: "\\int e^x dx = e^x, \; \\int \\frac{1}{x} dx = \\ln|x|, \; \\int \\sin x \\, dx = -\\cos x, \; \\int \\cos x \\, dx = \\sin x",
+    f: "\\int e^x dx = e^x, \\; \\int \\frac{1}{x} dx = \\ln|x|, \\; \\int \\sin x \\, dx = -\\cos x, \\; \\int \\cos x \\, dx = \\sin x",
     k: "jeweils + C · Probe immer durch Ableiten",
     bild: ["stammTafel", { start: "exp" }],
     her: [
       { t: "Die Ableitungstabelle rückwärts gelesen", s: [
         "Eine Tabelle von Stammfunktionen ist die Ableitungstabelle von rechts nach links gelesen. Jede Zeile lässt sich durch Ableiten prüfen – diese Probe funktioniert immer.",
-        "$$(e^x)′ = e^x \;\\Rightarrow\; \\int e^x \\, dx = e^x + C",
-        "$$(-\\cos x)′ = \\sin x \;\\Rightarrow\; \\int \\sin x \\, dx = -\\cos x + C",
-        "$$(\\sin x)′ = \\cos x \;\\Rightarrow\; \\int \\cos x \\, dx = \\sin x + C",
+        "$$(e^x)′ = e^x \\;\\Rightarrow\\; \\int e^x \\, dx = e^x + C",
+        "$$(-\\cos x)′ = \\sin x \\;\\Rightarrow\\; \\int \\sin x \\, dx = -\\cos x + C",
+        "$$(\\sin x)′ = \\cos x \\;\\Rightarrow\\; \\int \\cos x \\, dx = \\sin x + C",
         "Für $x < 0$: $(\\ln(-x))′ = \\frac{1}{-x} \\cdot (-1) = \\frac{1}{x}$. Deshalb der Betrag in $\\ln|x|$.",
       ] },
       { t: "Zyklus der Ableitungen", s: [
@@ -952,7 +952,7 @@ export const FS_ANALYSIS = [
       { t: "Die Flächenfunktion wächst mit der Rate f", s: [
         "Sei $A(x)$ die Fläche unter dem Graphen von $a$ bis $x$. Wächst $x$ um $h$, kommt ein schmaler Streifen hinzu.",
         "$$A(x+h) - A(x) \\approx f(x) \\cdot h || Streifen ≈ Rechteck",
-        "$$\\frac{A(x+h) - A(x)}{h} \\approx f(x) \;\\to\; A′(x) = f(x) || für h → 0 exakt",
+        "$$\\frac{A(x+h) - A(x)}{h} \\approx f(x) \\;\\to\\; A′(x) = f(x) || für h → 0 exakt",
         "$A$ ist also eine Stammfunktion von $f$. Jede andere Stammfunktion unterscheidet sich nur um eine Konstante: $A(x) = F(x) + C$.",
         "Wegen $A(a) = 0$ ist $C = -F(a)$. Bei $x = b$:",
         "$$\\int_a^b f(x) \\, dx = A(b) = F(b) - F(a)",
@@ -972,7 +972,7 @@ export const FS_ANALYSIS = [
   },
   {
     id: "integral-sym", g: "Integralrechnung", n: "Integral bei Symmetrie", st: "ober",
-    f: "\\int_{-a}^{a} f(x) \\, dx = 0 \;\; (f \\text{ ungerade}), \\qquad 2\\int_0^a f(x) \\, dx \;\; (f \\text{ gerade})",
+    f: "\\int_{-a}^{a} f(x) \\, dx = 0 \\;\\; (f \\text{ ungerade}), \\qquad 2\\int_0^a f(x) \\, dx \\;\\; (f \\text{ gerade})",
     k: "bei symmetrischen Grenzen spart die Symmetrie Arbeit",
     bild: ["integralSym", {}],
     her: { t: "Aufteilen und spiegeln", s: [
