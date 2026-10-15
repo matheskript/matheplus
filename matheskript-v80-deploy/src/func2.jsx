@@ -268,13 +268,13 @@ function DesktopSystem({ gehe }) {
         @media (hover:hover){.gold-kachel:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(0,77,152,0.34)}}`}</style>
       <StartAbschnittKopf kicker="Das System" titel="Erst sauber schreiben lernen. Dann trainieren, bis es sitzt." />
       <p style={START_TEXT}>
-        Die meisten Fehler in Klausuren entstehen nicht im Kopf, sondern auf dem Blatt: Zeilen rutschen ineinander, ein Vorzeichen geht unterwegs verloren, die Nebenrechnung landet mitten im Lösungsweg.
+        Die meisten Fehler in Klausuren entstehen nicht im Kopf, sondern auf dem Blatt.
       </p>
       <p style={START_TEXT}>
-        Pen & Paper ist der Kurs dazu. Du lernst, Mathematik so aufzuschreiben, dass dein Blatt das Denken entlastet: ein Schritt pro Zeile, Gleichheitszeichen untereinander, Nebenrechnungen in einer Box, das Ergebnis sauber abgeschlossen.
+        Pen & Paper ist der Kurs dazu: ein Schritt pro Zeile, Gleichheitszeichen untereinander, Nebenrechnungen in einer Box.
       </p>
       <p style={START_TEXT}>
-        Mathilda AI ist das Training dazu. Du fotografierst dein Blatt, Mathilda schreibt ab, was sie liest, prüft die Rechnung und zeigt dir die Stelle, an der dein Weg bricht – und was auf deinem Blatt den Fehler begünstigt hat. Statt einer fertigen Musterlösung bekommst du einen Hinweis, den du selbst umsetzt.
+        Mathilda AI ist das Training dazu: Du fotografierst dein Blatt, Mathilda prüft die Rechnung und zeigt dir die Stelle, an der dein Weg bricht.
       </p>
       <p style={{ ...START_TEXT, color: C.tinte, fontWeight: 500, marginBottom: 0 }}>
         So entsteht ein Kreislauf: lernen, schreiben, prüfen lassen, verbessern. Aus einer Regel wird eine Gewohnheit – und aus der Gewohnheit Sicherheit in der Klausur.
