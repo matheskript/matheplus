@@ -693,7 +693,7 @@ export function mHoehe(teile) {
 
 const M_RAND = new Set(["sub", "sup", "vec", "bar", "spalte", "sqrt"]);
 
-export function mZeichne(teile) {
+export function mZeichne(teile, imExponent = false) {
   return teile.map((t, i) => {
     if (typeof t === "string") {
       // Im Flex-Container gehen Leerzeichen am Rand eines Textstücks verloren –
@@ -710,14 +710,15 @@ export function mZeichne(teile) {
       const untenAus = Math.max(0, hz - hn).toFixed(2);
       return (
         <span key={i} style={{ display: "inline-flex", flexDirection: "column", alignItems: "center",
-          verticalAlign: "middle", margin: "0 0.22em", lineHeight: 1.16, textAlign: "center" }}>
+          verticalAlign: "middle", margin: "0 0.22em", lineHeight: 1.16, textAlign: "center",
+          ...(imExponent ? { fontSize: "0.667em" } : null) }}>
           <span style={{ padding: `${obenAus}em 0.3em 0.04em`, boxSizing: "border-box" }}>{mZeichne(t.z)}</span>
           <span style={{ borderTop: "1.1px solid currentColor", padding: `0.04em 0.3em ${untenAus}em`,
             width: "100%", boxSizing: "border-box" }}>{mZeichne(t.n)}</span>
         </span>
       );
     }
-    if (t.typ === "sup") return <sup key={i} style={{ fontSize: "0.7em", lineHeight: 0 }}>{mZeichne(t.a)}</sup>;
+    if (t.typ === "sup") return <sup key={i} style={{ fontSize: "0.7em", lineHeight: 0 }}>{mZeichne(t.a, true)}</sup>;
     if (t.typ === "sub") return <sub key={i} style={{ fontSize: "0.7em", lineHeight: 0 }}>{mZeichne(t.a)}</sub>;
     if (t.typ === "sqrt") return (
       <span key={i} style={{ verticalAlign: "middle", display: "inline-block" }}>
