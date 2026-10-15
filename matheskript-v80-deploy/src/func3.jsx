@@ -275,7 +275,7 @@ function PolyKopf({ koeff, zeilen }) {
 }
 
 /* Auswahl des Grades: „Polynom [dritten ▾] Grades“ – das Wort in der Box antippen, dann 1 bis 5 wählen */
-const GRAD_WORT = { de: ["", "ersten", "zweiten", "dritten", "vierten", "fünften"], en: ["", "1st", "2nd", "3rd", "4th", "5th"] };
+const GRAD_WORT = { de: ["", "1.", "2.", "3.", "4.", "5."], en: ["", "1st", "2nd", "3rd", "4th", "5th"] };
 function GradWahl({ grad, setGrad }) {
   const [offen, setOffen] = useState(false);
   const huelle = useRef(null);
@@ -291,14 +291,14 @@ function GradWahl({ grad, setGrad }) {
   }, [offen]);
   const waehlen = (n) => { setGrad(n); setOffen(false); };
   return (
-    <div style={{ marginBottom: 18, display: "flex", alignItems: "center", flexWrap: "wrap", gap: "6px 8px", fontSize: "clamp(17px, 4.6vw, 24px)", fontWeight: 800, color: C.tinte }}>
+    <div style={{ marginBottom: 18, display: "flex", alignItems: "center", flexWrap: "wrap", gap: "6px 8px", fontSize: "clamp(20px, 5.4vw, 28px)", fontWeight: 800, color: C.tinte }}>
       <span>{en ? "Polynomial of" : "Polynom"}</span>
       <span ref={huelle} style={{ position: "relative", display: "inline-block" }}>
         <button type="button" aria-haspopup="listbox" aria-expanded={offen}
           aria-label={zw(`Grad des Polynoms: ${grad}. Zum Ändern antippen`, `Degree of the polynomial: ${grad}. Tap to change`)}
           onClick={() => setOffen(!offen)}
           onKeyDown={(e) => { if (/^[1-5]$/.test(e.key)) waehlen(Number(e.key)); }}
-          style={{ position: "relative", minWidth: 92, height: 44, padding: "0 26px 0 12px", borderRadius: 12, border: `1.5px solid ${C.see}`, background: C.himmel,
+          style={{ position: "relative", minWidth: 62, height: 48, padding: "0 24px 0 12px", borderRadius: 12, border: `1.5px solid ${C.see}`, background: C.himmel,
             color: C.see, fontFamily: "inherit", fontSize: "inherit", fontWeight: 800, cursor: "pointer", touchAction: "manipulation" }}>
           {wort(grad)}
           <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true" style={{ position: "absolute", top: 6, right: 7 }}>
@@ -307,16 +307,16 @@ function GradWahl({ grad, setGrad }) {
         </button>
         {offen && (
           <ul role="listbox" aria-label={zw("Grad wählen", "Choose degree")}
-            style={{ position: "absolute", top: "calc(100% + 6px)", left: 0, zIndex: 40, margin: 0, padding: 6, listStyle: "none", minWidth: 150, borderRadius: 12,
-              background: C.weiss, border: `1.5px solid ${C.see}`, boxShadow: "0 8px 24px rgba(15,26,51,0.22)", fontSize: 16 }}>
+            style={{ position: "absolute", top: "calc(100% + 6px)", left: 0, zIndex: 40, margin: 0, padding: 6, listStyle: "none", minWidth: 84, borderRadius: 12,
+              background: C.weiss, border: `1.5px solid ${C.see}`, boxShadow: "0 8px 24px rgba(15,26,51,0.22)", fontSize: 20 }}>
             {[1, 2, 3, 4, 5].map((n) => {
               const aktiv = n === grad;
               return (
                 <li key={n} role="presentation">
                   <button type="button" role="option" aria-selected={aktiv} onClick={() => waehlen(n)}
-                    style={{ width: "100%", minHeight: 40, display: "flex", alignItems: "center", gap: 10, padding: "0 10px", borderRadius: 8, border: "none", cursor: "pointer",
-                      fontFamily: "inherit", fontSize: 16, fontWeight: aktiv ? 800 : 600, textAlign: "left", background: aktiv ? C.see : "transparent", color: aktiv ? C.weiss : C.tinte }}>
-                    <span style={{ width: 16, fontWeight: 800 }}>{n}</span><span>{wort(n)}</span>
+                    style={{ width: "100%", minHeight: 44, display: "flex", alignItems: "center", padding: "0 12px", borderRadius: 8, border: "none", cursor: "pointer",
+                      fontFamily: "inherit", fontSize: 20, fontWeight: aktiv ? 800 : 600, textAlign: "left", background: aktiv ? C.see : "transparent", color: aktiv ? C.weiss : C.tinte }}>
+                    <span>{wort(n)}</span>
                   </button>
                 </li>
               );
