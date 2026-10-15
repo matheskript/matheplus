@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { C } from "./base1.jsx";
 import { englisch } from "./i18n.js";
-import { suche, BEISPIELE } from "./suche.js";
+import { suche } from "./suche.js";
 
 /* ======================================================================
    SUCHFELD „Was möchtest du trainieren?“
@@ -182,45 +182,28 @@ export function SuchBox({ gehe }) {
   }, [abfrage]);
 
   return (
-    <div role="search" data-such-box style={{ background: C.weiss, borderRadius: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", margin: "6px 0 14px", overflow: "hidden",
+    <div role="search" data-such-box style={{ background: C.weiss, borderRadius: 16, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", margin: "6px 0 12px", overflow: "hidden",
       border: `1px solid ${auf ? "rgba(0,77,152,0.18)" : C.linie}` }}>
       <style>{CSS}</style>
-      <div style={{ padding: "16px 16px 14px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 13, marginBottom: 14 }}>
-          <span aria-hidden="true" style={{ flexShrink: 0, width: 42, height: 42, borderRadius: 13, display: "flex", alignItems: "center", justifyContent: "center",
-            background: "linear-gradient(165deg, #FFE7A0 0%, #F3C93A 40%, #C99A00 100%)", boxShadow: "0 4px 10px rgba(150,110,0,0.3), inset 0 1px 0 rgba(255,255,255,0.7)" }}>
-            <Lupe />
-          </span>
-          <div style={{ minWidth: 0 }}>
-            <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, letterSpacing: "-0.01em", lineHeight: 1.3, color: C.tinte }}>{L("Was möchtest du gerne trainieren?", "What would you like to practise?")}</h2>
-            <p style={{ margin: "2px 0 0", fontSize: 12.5, fontWeight: 300, lineHeight: 1.4, color: C.grau }}>{L("Oder wobei wünschst du dir gerade Hilfe?", "Or where could you use some help right now?")}</p>
-          </div>
-        </div>
-
+      <div style={{ padding: "12px 12px 12px" }}>
+        <h2 style={{ margin: "0 0 8px 2px", fontSize: 15, fontWeight: 700, letterSpacing: "-0.01em", lineHeight: 1.3, color: C.tinte, whiteSpace: "nowrap" }}>{L("Was möchtest du lernen?", "What would you like to learn?")}</h2>
         <form onSubmit={(ev) => { ev.preventDefault(); absenden(eingabe); }} className="such-eingabe"
-          style={{ display: "flex", alignItems: "center", gap: 4, background: C.sand, border: `1.5px solid ${C.linie}`, borderRadius: 14, padding: "4px 4px 4px 14px", transition: "border-color .15s ease, box-shadow .15s ease" }}>
+          style={{ display: "flex", alignItems: "center", gap: 4, background: C.sand, border: `1.5px solid ${C.linie}`, borderRadius: 12, padding: "2px 2px 2px 12px", transition: "border-color .15s ease, box-shadow .15s ease" }}>
           <input ref={feld} type="search" value={eingabe} onChange={(ev) => setEingabe(ev.target.value)}
             onKeyDown={(ev) => { if (ev.key === "Escape") leeren(); }}
             placeholder={L("z. B. Kettenregel, Brüche …", "e.g. chain rule, fractions …")}
-            aria-label={L("Was möchtest du trainieren oder wobei brauchst du Hilfe?", "What would you like to practise or what do you need help with?")}
+            aria-label={L("Was möchtest du lernen oder wobei brauchst du Hilfe?", "What would you like to learn or what do you need help with?")}
             enterKeyHint="search" autoComplete="off" autoCapitalize="off" spellCheck={false} data-kein-i18n
-            style={{ flex: 1, minWidth: 0, border: "none", outline: "none", background: "transparent", fontFamily: "inherit", fontSize: 16, fontWeight: 500, color: C.tinte, padding: "10px 0" }} />
+            style={{ flex: 1, minWidth: 0, border: "none", outline: "none", background: "transparent", fontFamily: "inherit", fontSize: 16, fontWeight: 500, color: C.tinte, padding: "8px 0" }} />
           {eingabe && (
             <button type="button" onClick={leeren} aria-label={L("Eingabe löschen", "Clear input")}
-              style={{ flexShrink: 0, width: 32, height: 32, borderRadius: 999, border: "none", background: "transparent", cursor: "pointer", color: C.grau, fontSize: 20, lineHeight: 1, fontFamily: "inherit" }}>×</button>
+              style={{ flexShrink: 0, width: 30, height: 30, borderRadius: 999, border: "none", background: "transparent", cursor: "pointer", color: C.grau, fontSize: 20, lineHeight: 1, fontFamily: "inherit" }}>×</button>
           )}
           <button type="submit" aria-label={L("Suchen", "Search")}
-            style={{ flexShrink: 0, width: 44, height: 40, borderRadius: 11, border: "none", cursor: "pointer", background: C.see, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Lupe groesse={19} farbe={C.weiss} />
+            style={{ flexShrink: 0, width: 40, height: 34, borderRadius: 10, border: "none", cursor: "pointer", background: C.see, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Lupe groesse={17} farbe={C.weiss} />
           </button>
         </form>
-
-        {!auf && (
-          <div style={{ marginTop: 12 }}>
-            <p style={{ margin: "0 0 8px", fontSize: 12.5, fontWeight: 300, color: C.grau }}>{L("Zum Beispiel:", "For example:")}</p>
-            <Chips optionen={BEISPIELE} onWaehle={(a) => absenden(a)} />
-          </div>
-        )}
       </div>
 
       <div className={`such-koerper${auf ? " auf" : ""}`} aria-hidden={!auf}>
