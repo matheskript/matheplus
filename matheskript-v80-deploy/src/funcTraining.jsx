@@ -30,6 +30,7 @@ import {
 import { AufklappZeichen } from "./aufklappen.jsx";
 import { bucheLauf, normiereEbb } from "./ebbinghaus.js";
 import { MatheFeld } from "./matheTastatur.jsx";
+import { buchen } from "./buchung.jsx";
 
 /* ---------- Speicher: im vorhandenen Lernstand (func6) ---------- */
 const aendere = (fn) => lernAendern((L) => { L.training = normiere(L.training); fn(L.training); });
@@ -297,6 +298,8 @@ export function Aufgabenlauf({ aufgaben, quelle, onEnde, endeText = "Fertig", on
       });
       /* Performance-Lab: dieselbe Beobachtung geht ins gemeinsame Fehlergedächtnis (Kanal „digital“) */
       digitalMelden(perfNutzerId(konto), a, r, z.eingabe);
+      /* Gesamtprotokoll (Kontobereich „Mein Training“, Aktivität) */
+      buchen({ richtig: !!r.ok, gruppe: THEMEN[a.thema] ? THEMEN[a.thema].name : a.thema, fehlerart: r.ok ? null : r.typ || "rechnen" });
     }
     if (r.ok) aendere((T) => fortschrittBuchen(T, a, true, hilfeEff, quelle));
     setz({ versuche, ok: r.ok, typ: r.ok ? z.typ : r.typ, text: r.ok ? "" : r.text, meldung: "", gebucht: true, erstOk: z.gebucht ? z.erstOk : r.ok, hilfeEnde: hilfeEff });
@@ -590,6 +593,8 @@ function Pruefung({ gehe }) {
         einzel: einzel.map((e) => ({ thema: e.a.thema, variante: e.a.variante, ok: e.ok, typ: e.typ, punkte: e.a.punkte })) });
       if (D.pruefungen.length > 40) D.pruefungen.splice(0, D.pruefungen.length - 40);
     });
+    /* Gesamtprotokoll (außerhalb von lernAendern, weil merken selbst den Lernstand ändert) */
+    for (const e of einzel) if (e.eing !== "") buchen({ richtig: e.ok, gruppe: THEMEN[e.a.thema] ? THEMEN[e.a.thema].name : e.a.thema, fehlerart: e.ok ? null : e.typ || "rechnen" });
     LAUF.ergebnis = { einzel, punkte, max, genutzt, grund };
     setPhase("ergebnis"); setBestaetigen(false);
     try { window.scrollTo(0, 0); } catch (e) { /* egal */ }

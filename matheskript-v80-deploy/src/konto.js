@@ -5,6 +5,7 @@
    der alles nur lokal im Browser speichert — so lässt sich die Oberfläche
    schon testen, bevor die Anmeldung eingerichtet ist.
    ====================================================================== */
+import { FR } from "./funcRegistry.jsx";
 import { useSyncExternalStore } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { einladungAusUrl, istGeschlecht } from "./rollenLogik.js";
@@ -27,6 +28,7 @@ const hoerer = new Set();
 const setzen = (teil) => { zustand = { ...zustand, ...teil }; hoerer.forEach((h) => h()); };
 /* Für den Lernstand-Abgleich (lernSync.js): Zustand lesen, Änderungen abonnieren, vor dem Abmelden noch sichern */
 export const kontoZustand = () => zustand;
+FR.kontoAngemeldet = () => !!zustand.nutzer;   // für aktivitaetMelden (func8.jsx): Tageswerte auch ohne Lernprofil
 export const kontoAbonnieren = (fn) => { hoerer.add(fn); return () => hoerer.delete(fn); };
 export const vorAbmelden = [];
 export function useKonto() {

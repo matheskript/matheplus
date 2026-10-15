@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { C } from "./base1.jsx";
 import { RollenWahl, EmailAnmeldung, HinweisLeiste, ElternEinladen, MeineKlassen, PlanKarte, ElternBereich, LehrBereich, RolleAendern, GeschlechtFrage } from "./funcKontoRollen.jsx";
 import { rolleName, istLehrend, istGeschlecht, KURSSTUFE, NOTEN_AB, datenVollstaendig } from "./rollenLogik.js";
+import { MeinTrainingKarte } from "./funcKontoTraining.jsx";
 import { DEMO, useKonto, gemerkteEinladung, anmelden, abmelden, profilAnlegen, profilSpeichern, empfehlungsLink, neuerCode, refPruefen, refFestlegen, istRefCode, REF_BASIS_ANZEIGE } from "./konto.js";
 
 /* ======================================================================
@@ -262,6 +263,15 @@ function NameKarte({ profil }) {
   );
 }
 
+/* ---------- Vorschau-Hinweis (nur ohne echte Anmeldung) ---------- */
+function VorschauHinweis({ style }) {
+  return (
+    <div style={{ background: "#FDF8EA", border: `1px solid ${C.goldWarm}66`, borderRadius: 12, padding: "10px 14px", fontSize: 12.5, color: "#6B5310", lineHeight: 1.5, ...style }}>
+      <b>Vorschau-Modus:</b> Die echte Anmeldung ist noch nicht verbunden. Alles, was du hier eingibst, bleibt nur in diesem Browser.
+    </div>
+  );
+}
+
 /* ---------- Angemeldet ---------- */
 function Profil({ nutzer, profil, geworben, gehe }) {
   const [form, setForm] = useState(() => ({ name: profil.name || "", schulform: profil.schulform || "", klasse: profil.klasse || "", noten: profil.noten || {} }));
@@ -319,16 +329,23 @@ function Profil({ nutzer, profil, geworben, gehe }) {
   return (
     <>
       {/* Kopf */}
-      <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 18 }}>
+      <style>{`.konto-kopf{display:flex;align-items:center;gap:16px 20px;margin-bottom:18px}
+.konto-kopf-hallo{flex:1 1 auto;min-width:0;display:flex;align-items:center;gap:14px}
+.konto-kopf-hinweis{flex:0 0 43%;max-width:43%}
+@media (max-width:560px){.konto-kopf{flex-wrap:wrap}.konto-kopf-hinweis{flex:1 1 100%;max-width:none}}`}</style>
+      <div className="konto-kopf">
+      <div className="konto-kopf-hallo">
         <span style={{ flexShrink: 0, width: 54, height: 54, borderRadius: 999, background: `linear-gradient(155deg, ${C.see} 0%, ${NAVY} 100%)`,
           color: C.flaggold, fontSize: 24, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" }}>
           {(profil.name || "?").slice(0, 1).toUpperCase()}
         </span>
         <span style={{ minWidth: 0 }}>
-          <span style={{ display: "block", fontSize: 22, fontWeight: 700, color: C.tinte, letterSpacing: "-0.02em" }}>Hallo, {profil.name.split(" ")[0]}!</span>
+          <span style={{ display: "block", fontSize: 22, fontWeight: 700, color: C.tinte, letterSpacing: "-0.02em", lineHeight: 1.2, overflowWrap: "anywhere" }}>Hallo, {profil.name.split(" ")[0]}!</span>
           <span style={{ display: "block", fontSize: 13, color: C.grau, fontWeight: 300, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{nutzer.email}</span>
           <span style={{ display: "inline-block", marginTop: 4, fontSize: 11.5, fontWeight: 700, color: C.see, background: C.himmel, borderRadius: 999, padding: "2px 10px" }}>{rolleName(rolle, profil.geschlecht)}</span>
         </span>
+      </div>
+      {DEMO && <div className="konto-kopf-hinweis"><VorschauHinweis /></div>}
       </div>
 
       {rolle === "schueler" && (
@@ -424,6 +441,7 @@ function Profil({ nutzer, profil, geworben, gehe }) {
         )}
       </div>
 
+      <MeinTrainingKarte gehe={gehe} />
       <GeschlechtFrage profil={profil} />
       {/* Meine Kurse */}
       <div style={{ ...karte, padding: 18, marginBottom: 14 }}>
@@ -504,12 +522,8 @@ function Profil({ nutzer, profil, geworben, gehe }) {
 export function KontoSeite({ gehe }) {
   const { geladen, nutzer, profil, geworben, fehler } = useKonto();
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
-      {DEMO && (
-        <div style={{ background: "#FDF8EA", border: `1px solid ${C.goldWarm}66`, borderRadius: 12, padding: "10px 14px", marginBottom: 16, fontSize: 13, color: "#6B5310", lineHeight: 1.55 }}>
-          <b>Vorschau-Modus:</b> Die echte Anmeldung ist noch nicht verbunden. Alles, was du hier eingibst, bleibt nur in diesem Browser.
-        </div>
-      )}
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 14 }}>
+      {DEMO && !(nutzer && profil) && <VorschauHinweis style={{ marginBottom: 16 }} />}
       {fehler && <p style={{ fontSize: 13.5, color: C.signal, marginBottom: 12 }}>{fehler}</p>}
       <HinweisLeiste />
       {!geladen ? (

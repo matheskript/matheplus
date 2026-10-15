@@ -319,6 +319,20 @@ export function Mathilda() {
       @keyframes pulsieren { 0%,100% { opacity: .55; } 50% { opacity: 1; } }
       .schweben { animation: schweben 5.5s ease-in-out infinite; }
       @keyframes schweben { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+      /* Desktop: Kopfleiste und alle Inhalte unter dem Berg-Banner laufen von der linken Textkante des Banners
+         (Bühne 760 px, Textrand 25 px) bis zum rechten Ende der Berggrafik. Darunter bleibt alles wie gehabt. */
+      @media (min-width: 840px) {
+        .mx-auto[style*="max-width: 620px"].px-6 { width: 783px !important; max-width: 783px !important; margin-left: calc(50% - 379px) !important; margin-right: 0 !important; }
+        .mx-auto[style*="max-width: 680px"].px-6 { width: 783px !important; max-width: 783px !important; margin-left: calc(50% - 379px) !important; margin-right: 0 !important; }
+        .mx-auto[style*="max-width: 620px"].px-5 { width: 775px !important; max-width: 775px !important; margin-left: calc(50% - 375px) !important; margin-right: 0 !important; }
+        .mx-auto.kopf-zeile { width: 735px !important; max-width: 735px !important; margin-left: calc(50% - 355px) !important; margin-right: 0 !important; padding-left: 0 !important; padding-right: 0 !important; }
+        .kopf-zeile .kopf-hamburger { margin-right: -8px; }
+        .seiten-menue { right: calc(50% - 380px) !important; }
+        /* Startseite: breite Kacheln und Einleitung laufen nicht mehr über die Textkante hinaus */
+        .mx-auto.px-6 [style*="calc(100% + 32px)"] { width: 100% !important; margin-left: 0 !important; margin-right: 0 !important; }
+        .mx-auto.px-6 [style*="margin: 0px -16px"] { margin-left: 0 !important; margin-right: 0 !important; }
+        .mx-auto.px-6 > section[style*="margin-left: -6px"] { margin-left: 0 !important; }
+      }
       @media print {
         .nichtdrucken { display: none !important; }
         .druckblatt { box-shadow: none !important; border-radius: 0 !important; padding: 0 !important; }
@@ -363,7 +377,7 @@ export function Mathilda() {
             {konto.profil ? (konto.profil.name || "?").slice(0, 1).toUpperCase() : "+"}
           </button>}
           {/* Menü-Button (drei Linien): Startseite, Sprache und die passwortgeschützten Entwürfe */}
-          <button type="button" onClick={() => setSeitenOffen(!seitenOffen)} aria-expanded={seitenOffen} data-kein-scroll aria-label="Menü" title="Menü"
+          <button type="button" className="kopf-hamburger" onClick={() => setSeitenOffen(!seitenOffen)} aria-expanded={seitenOffen} data-kein-scroll aria-label="Menü" title="Menü"
             style={{ background: "none", border: "none", cursor: "pointer", padding: 8, display: "flex", flexDirection: "column", gap: 5, flexShrink: 0 }}>
             {[0, 1, 2].map((i) => (
               <span key={i} style={{ display: "block", width: 22, height: 2, background: seitenOffen || istEntwurf(ansicht) || ansicht === LANDING ? C.flaggold : C.weiss, borderRadius: 2 }} />
@@ -375,7 +389,7 @@ export function Mathilda() {
         {seitenOffen && (
           <>
             <div onClick={() => setSeitenOffen(false)} style={{ position: "fixed", inset: 0, top: "var(--kopf-h, 56px)", zIndex: 1 }} aria-hidden="true" />
-            <div style={{ position: "absolute", right: "max(12px, calc(50% - 298px))", top: 60, zIndex: 2, width: "min(320px, calc(100vw - 24px))", background: C.weiss,
+            <div className="seiten-menue" style={{ position: "absolute", right: "max(12px, calc(50% - 298px))", top: 60, zIndex: 2, width: "min(320px, calc(100vw - 24px))", background: C.weiss,
               borderRadius: 14, boxShadow: "0 14px 40px rgba(8,23,59,0.32)", padding: 8, color: C.tinte }}>
               <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", color: C.grau, padding: "8px 12px 6px" }}>SEITE WECHSELN</div>
               {(() => {
@@ -1271,8 +1285,7 @@ export function Mathilda() {
           <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(26px, 7.6vw, 31px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Mein Konto</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
-              <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>Deine Kurse, deine Daten und dein Einladungslink.</p>
+              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 8 }} />
             </div>
             <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
           </div>

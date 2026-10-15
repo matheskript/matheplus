@@ -8500,7 +8500,44 @@
   "Pythagoras, Kreis, Körper, Einheitskreis": "Pythagoras, circle, solids, unit circle",
   "Logik": "Logic",
   "Interaktives Lernmodul mit Beweisen zum Ausprobieren": "Interactive learning module with proofs to try out",
-  "Trainer für Rechentricks, Teilbarkeit und Brüche": "Trainers for mental tricks, divisibility and fractions"
+  "Trainer für Rechentricks, Teilbarkeit und Brüche": "Trainers for mental tricks, divisibility and fractions",
+  "MEIN TRAINING": "MY TRAINING",
+  "ZEITLEISTE · 12 WOCHEN": "TIMELINE · 12 WEEKS",
+  "NACH BEREICH": "BY AREA",
+  "HÄUFIGSTE FEHLER · 30 TAGE": "MOST FREQUENT MISTAKES · 30 DAYS",
+  "VERLAUF": "HISTORY",
+  "Aufgaben · richtig": "exercises · correct",
+  "richtig / Aufgaben": "correct / exercises",
+  "Aktive Tage": "Active days",
+  "7 Tage:": "7 days:",
+  "Serie:": "Streak:",
+  "wenig": "less",
+  "viel": "more",
+  "richtig pro Woche": "correct per week",
+  "kein Training": "no training",
+  "richtig": "correct",
+  "Stärke": "Strength",
+  "Weniger anzeigen": "Show less",
+  "Mehr anzeigen": "Show more",
+  "Meine Fehler üben ▸": "Practise my mistakes ▸",
+  "Hier siehst du bald, wie oft du trainierst, wie viel du richtig hast und wo du dich verbesserst. Jede geprüfte Aufgabe in der App zählt.": "Soon you'll see here how often you train, how much you get right and where you're improving. Every checked exercise in the app counts.",
+  "Gezählt wird jede geprüfte Antwort in der App. Die Lernzeit wird aus den Abständen zwischen den Aufgaben geschätzt.": "Every checked answer in the app counts. Learning time is estimated from the gaps between exercises.",
+  "Rechenfehler": "Calculation error",
+  "Kurvendiskussion · Rechenweg": "Curve sketching · working",
+  "Graphen zuordnen": "Match graphs",
+  "Aufgaben üben": "Practise exercises",
+  "Sonstiges": "Other",
+  "Erklär deinen Schritt": "Explain your step",
+  "Head & Numbers": "Head & Numbers",
+  "Ebbinghaus": "Ebbinghaus",
+  "Falsche Ableitungsstufe": "Wrong derivative order",
+  "Konstanter Faktor daneben": "Constant factor wrong",
+  "Sonstige Abweichung": "Other deviation",
+  "im Vergleich zu den 7 Tagen davor": "compared with the 7 days before",
+  "Aktivität der letzten 12 Wochen": "Activity over the last 12 weeks",
+  "Anteil richtiger Antworten je Woche": "Share of correct answers per week",
+  "Woche:": "Week:",
+  "an": "on"
  },
  "muster": [
   [
@@ -10126,6 +10163,26 @@
   [
    "Phase {0}: {1}",
    "Phase {0}: {1}"
+  ],
+  [
+   "Alle {0} Bereiche",
+   "All {0} areas"
+  ],
+  [
+   "{0} Std. {1} Min.",
+   "{0} h {1} min"
+  ],
+  [
+   "{0} Std.",
+   "{0} h"
+  ],
+  [
+   "{0} Min.",
+   "{0} min"
+  ],
+  [
+   "{0},{1} Std.",
+   "{0}.{1} h"
   ]
  ]
 }
