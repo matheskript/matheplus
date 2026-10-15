@@ -348,6 +348,7 @@ export function Mathilda() {
           <style>{`
             :root{--kopf-h:56px}
             @media (min-width:421px){:root{--kopf-h:clamp(62px, calc(11.1vw + 26px), 90px)}.kopf-slogan{margin-top:6px !important}}
+            @media (min-width:840px){.kopf-slogan{margin-top:1px !important}}
             .logo-silber{background:linear-gradient(180deg,#FFFFFF 0%,${C.silberHell} 35%,${C.silber} 60%,${C.silberDunkel} 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
             .titel-kurz{display:none}
             @media (max-width:520px){.held{padding-top:18px !important;padding-bottom:4px !important}.held h1{font-size:25px !important;line-height:1.1 !important}.held h1+div{margin-top:12px !important;margin-bottom:13px !important}.held-welle{height:12px !important}}

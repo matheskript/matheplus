@@ -224,7 +224,7 @@ function StartAbschnittKopf({ kicker, titel }) {
 
 /* Kachel im goldenen Schnitt (Breite : Höhe = φ : 1). Innen dieselbe Teilung: links das Quadrat mit dem Text,
    rechts das kleinere goldene Rechteck mit der Grafik. Im Quadrat läuft leise der Viertelkreis der goldenen Spirale. */
-function GoldKachel({ schritt, titel, text, aktion, logo, onClick, label, goldRand }) {
+function GoldKachel({ schritt, titel, text, aktion, logo, onClick, label, goldRand, goldKnopf }) {
   return (
     <button type="button" onClick={onClick} aria-label={label} className="gold-kachel"
       style={{ position: "relative", display: "flex", width: "100%", aspectRatio: `${PHI} / 1`, padding: 0, overflow: "hidden", cursor: "pointer",
@@ -241,11 +241,19 @@ function GoldKachel({ schritt, titel, text, aktion, logo, onClick, label, goldRa
         <span aria-hidden="true" style={{ position: "relative", display: "block", width: 34, height: 2.5, borderRadius: 2, marginTop: 8,
           background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)` }} />
         <span style={{ position: "relative", display: "block", color: "#DCE5F4", fontSize: 13, fontWeight: 300, lineHeight: 1.5, marginTop: 10 }}>{text}</span>
-        <span style={{ position: "relative", marginTop: "auto", fontSize: 13, fontWeight: 700, color: C.flaggold }}>{aktion} →</span>
       </span>
-      <span aria-hidden="true" style={{ flex: "1 1 auto", position: "relative", display: "flex", alignItems: "center",
-        background: "rgba(255,255,255,0.04)", borderLeft: `1px solid ${C.silber}33` }}>
-        <span style={{ position: "absolute", inset: "8px 4px", display: "flex" }}>{logo}</span>
+      {/* Rechtes Feld: Grafik oben neben der Überschrift, darunter der Knopf */}
+      <span style={{ flex: "1 1 auto", minWidth: 0, position: "relative", display: "flex", flexDirection: "column", alignItems: "stretch",
+        padding: "14px 12px 16px", background: "rgba(255,255,255,0.04)", borderLeft: `1px solid ${C.silber}33` }}>
+        <span aria-hidden="true" style={{ flex: "1 1 auto", minHeight: 0, display: "flex" }}>{logo}</span>
+        <span className={goldKnopf ? "gold-kachel-knopf gold" : "gold-kachel-knopf"}
+          style={{ display: "block", marginTop: 12, padding: "9px 10px", borderRadius: 999, textAlign: "center", whiteSpace: "nowrap",
+            fontSize: 13, fontWeight: 700, letterSpacing: "0.01em",
+            ...(goldKnopf
+              ? { background: "linear-gradient(180deg, #F5CB2E 0%, #EDBB00 100%)", color: C.seeTief, boxShadow: "0 3px 10px rgba(237,187,0,0.35)" }
+              : { background: C.weiss, color: C.seeTief, boxShadow: "0 3px 10px rgba(8,23,59,0.25)" }) }}>
+          {aktion} →
+        </span>
       </span>
     </button>
   );
@@ -277,7 +285,7 @@ function DesktopSystem({ gehe }) {
           aktion="Kurs öffnen" label="Pen & Paper Kurs öffnen" onClick={() => gehe({ ansicht: "penpaperkurs" })} />
         <GoldKachel goldRand schritt="Schritt 2 · Trainieren" titel={<MathildaName dunkel />} logo={<MathildaLogoKlein />}
           text="Foto vom Blatt – Mathilda prüft deinen Weg und zeigt dir den nächsten Hebel."
-          aktion="Blatt prüfen lassen" label="Mathilda AI öffnen" onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })} />
+          goldKnopf aktion="Mit KI lernen" label="Mathilda AI öffnen – mit KI lernen" onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })} />
         {/* Verbindung zwischen den beiden Schritten */}
         <span aria-hidden="true" style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%, -50%)", zIndex: 2,
           width: 36, height: 36, borderRadius: 999, background: C.flaggold, color: C.seeTief, display: "flex", alignItems: "center", justifyContent: "center",
@@ -1380,6 +1388,18 @@ export function Startseite({ gehe }) {
     </div>
   );
 
+  /* Mathe entdecken: gleichwertiger Hauptbereich – mobil unter „Schulmathe-Training“, am Desktop darüber als „Mathematik entdecken“ */
+  const entdeckenBlock = (
+      <AufklappRahmen auf={entdAuf}>
+        <PlotterKachel breit halb={entdAuf} auf={entdAuf} onClick={() => { setEntdAuf(!entdAuf); setSchulAuf(false); setBereichAuf(null); setFormelAuf(false); }}
+          label={desktop ? (entdAuf ? "Mathematik entdecken zuklappen" : "Mathematik entdecken aufklappen") : (entdAuf ? "Mathe entdecken zuklappen" : "Mathe entdecken aufklappen")} logo={<EntdeckenLogoKlein />}
+          titel={desktop ? "Mathematik entdecken" : "Mathe entdecken"}
+          text={entdAuf ? "Herleiten, entdecken, Wettbewerbe." : "Muster erkennen, Formeln selbst herleiten – und Mathe-Wettbewerbe."}
+          extra={<PlusKnopf auf={entdAuf} klein={entdAuf} />} />
+        {entdAuf && <div style={{ margin: "0 -16px" }}><UnterMenue eintraege={ENTDECKEN_MENUE} gehe={gehe} /></div>}
+      </AufklappRahmen>
+  );
+
   return (
     <>
     {/* Banner ganz oben, bündig unter dem Header und über die volle Breite */}
@@ -1392,11 +1412,12 @@ export function Startseite({ gehe }) {
           und schnelle Kopfrechenrunden. Such dir einen Bereich aus und leg los.
         </p>
       </section>
-      <AppAnleitung />
+      {!desktop && <AppAnleitung />}
       {/* Oberbutton „Schulmathe-Training“: darunter direkt die Bereiche (Analysis, Vektoren, Stochastik,
           Gleichungen), Abi-Ketten und Formelsammlung. Aufgeklappt wird der Button halb so hoch.
           Alle Kacheln laufen auf voller Breite (breit); es ist immer nur ein Bereich offen. */}
-      <MeinTrainingKachelStart gehe={gehe} />
+      {!desktop && <MeinTrainingKachelStart gehe={gehe} />}
+      {desktop && entdeckenBlock}
       <AufklappRahmen auf={schulAuf}>
       <PlotterKachel breit halb={schulAuf} onClick={() => { setSchulAuf(!schulAuf); setEntdAuf(false); setBereichAuf(null); setFormelAuf(false); setEtikett(null); }} auf={schulAuf}
         label={desktop ? (schulAuf ? "Mittel- und Oberstufen-Mathematik zuklappen" : "Mittel- und Oberstufen-Mathematik aufklappen") : (schulAuf ? "Schulmathe-Training zuklappen" : "Schulmathe-Training aufklappen")}
@@ -1469,15 +1490,7 @@ export function Startseite({ gehe }) {
         </div>
       )}
       </AufklappRahmen>
-      {/* Mathe entdecken: gleichwertiger zweiter Hauptbereich direkt unter „Schulmathe-Training“, klappt wie dieser auf */}
-      <AufklappRahmen auf={entdAuf}>
-        <PlotterKachel breit halb={entdAuf} auf={entdAuf} onClick={() => { setEntdAuf(!entdAuf); setSchulAuf(false); setBereichAuf(null); setFormelAuf(false); }}
-          label={entdAuf ? "Mathe entdecken zuklappen" : "Mathe entdecken aufklappen"} logo={<EntdeckenLogoKlein />}
-          titel="Mathe entdecken"
-          text={entdAuf ? "Herleiten, entdecken, Wettbewerbe." : "Muster erkennen, Formeln selbst herleiten – und Mathe-Wettbewerbe."}
-          extra={<PlusKnopf auf={entdAuf} klein={entdAuf} />} />
-        {entdAuf && <div style={{ margin: "0 -16px" }}><UnterMenue eintraege={ENTDECKEN_MENUE} gehe={gehe} /></div>}
-      </AufklappRahmen>
+      {!desktop && entdeckenBlock}
       {ZEIGE_GESPERRTE && (<>
       <MatheCheckenKachel gesperrt onClick={() => gehe({ ansicht: "mathecheck" })} />
       <MasterclassKachel gesperrt onClick={() => gehe({ ansicht: "masterclass" })} />
@@ -1506,6 +1519,7 @@ export function Startseite({ gehe }) {
       </>)}
       {/* Desktop: Einleitung + Pen & Paper / Mathilda AI im goldenen Schnitt, dann Kurstext und Kurse */}
       {desktop && <DesktopSystem gehe={gehe} />}
+      {desktop && <div style={{ marginTop: 22 }}><MeinTrainingKachelStart gehe={gehe} /></div>}
       {desktop && <DesktopKurse gehe={gehe} />}
       {desktop && (<>
       {/* Mathe-Mindset-Kurs: zwischen Mathe-Training und Mathilda AI; flacher goldener Balken „(Auch für Eltern und Lehrer!)“ in der Ecke unten rechts, schließt mit der abgerundeten Kachelecke ab und reicht über die Trennlinie ins linke Feld */}
