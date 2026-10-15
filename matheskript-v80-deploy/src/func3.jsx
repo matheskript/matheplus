@@ -1,5 +1,6 @@
-import { tr } from "./i18n.js";
-import React, { useState, useRef } from "react";
+import { tr, englisch } from "./i18n.js";
+import React, { useState, useRef, useEffect } from "react";
+import { wBetrag, wGanz, wIstEins, wIstNull, wLies, wMul, wNegativ, wNum, wText, wTex, wZ } from "./wzahl.js";
 import { WeiterKnopf, WeiterMit } from "./funcWerkzeuge.jsx";
 import { polyEingabe } from "./uebergabe.js";
 import { API_URL, C, DEMO_VIDEO_ID, DIFFQ_TESTPAARE, FUNKTIONEN, HOCH, KOEFF_FARBEN, MMENGEN, MODUL_PDF_URL, MSYM, PARAM_WERTE, PRUEFSTELLEN, Regler, ganz, ganzNZ, zuf } from "./base1.jsx";
@@ -31,110 +32,313 @@ export function PolyKnopf({ farbe, onClick, label, children, breite = 34, hoehe 
   );
 }
 
-function PolyKopf({ koeff, zeileF, zeileF1, zeileF2, alleLeer }) {
-  const n = koeff.length;
-  // Schrift wird nur bei sechs Spalten verkleinert; bei weniger Spalten bleibt sie gleich, die Spalten werden breiter.
-  const fk = Math.min(1, 5.2 / n);
-  const gr = (min, vw, max) => `clamp(${(min * fk).toFixed(1)}px, ${(vw * fk).toFixed(2)}vw, ${(max * fk).toFixed(1)}px)`;
-  const knopfB = n <= 3 ? 52 : n === 4 ? 42 : 34;
-  const knopfH = n <= 3 ? 28 : 24;
-  const raster = { display: "grid", gridTemplateColumns: polyRaster(n), columnGap: 4, alignItems: "center" };
-  const label = (t, stil) => <span style={{ textAlign: "right", paddingRight: 6, whiteSpace: "nowrap", ...stil }}>{t}</span>;
-  const termZelle = (t, i, stil) => (
-    <span key={i} style={{ textAlign: "center", whiteSpace: "nowrap", ...stil }}>
-      {t && <><span>{t.vor}</span>{t.vor ? " " : ""}<span style={{ color: t.farbe }}>{t.text}</span></>}
+/* ---------- Gemeinsames Raster für Eingabe, allgemeine Form, f, f′ und f″ ----------
+   Spalten (alle Breiten in em der Schriftgröße F der f-Zeile):
+     Beschriftung | „=“ | je Term: halber Operatorabstand · Term · halber Operatorabstand
+   Jeder Operator (+ / −) liegt über zwei Randspalten und damit genau in der Mitte zwischen dem Term links und dem Term rechts;
+   weil alle Zeilen dieselben Spalten benutzen, stehen die „=“ und alle „+“ in jeder Zeile auf einer senkrechten Achse.
+   Die Schriftgröße F ist das 1,5-fache der früheren Größe, soweit die Breite reicht (Container-Einheiten), sonst so groß wie möglich. */
+const PK_L = 2.3, PK_E = 0.9, PK_H = 0.5, PK_T = 2.0;   // Beschriftung, „=“, halber Operatorabstand, Mindestbreite eines Terms
+
+/* Geschätzte Breite eines TeX-Koeffizienten in em (Ziffern, Brüche, Wurzeln) – damit die Spalten zur Breite der Terme passen */
+function texBreite(t) {
+  if (t.startsWith("\\frac{")) {
+    const arg = (von) => { let tief = 0, i = von; for (; i < t.length; i++) { if (t[i] === "{") tief++; else if (t[i] === "}" && --tief === 0) break; } return [t.slice(von + 1, i), i + 1]; };
+    const [z, i] = arg(5);
+    const [n] = arg(i);
+    return Math.max(texBreite(z), texBreite(n)) + 1.04;
+  }
+  let w = 0;
+  for (let i = 0; i < t.length; i++) {
+    if (t.startsWith("\\sqrt{", i)) { w += 0.85; i += 5; } else if (t[i] !== "{" && t[i] !== "}") w += 0.62;
+  }
+  return w;
+}
+const termBreite = (it) => (it.koef ? texBreite(it.koef) : 0) + (it.hatX ? 0.62 + (it.pot > 1 ? 0.5 : 0) + (it.wurzel ? 0.14 : 0) : 0) + (it.neg ? 0.8 : 0);
+const PK_CSS = `
+.pk-aussen{container-type:inline-size;min-width:0}
+.pk-ctrl,.pk-raster{--pk-f:clamp(10px,3.6vw,var(--pk-max));font-size:var(--pk-f);width:min(100%,calc(var(--pk-f) * var(--pk-w)));margin-left:auto;margin-right:auto;box-sizing:border-box}
+@supports (width:1cqw){.pk-ctrl,.pk-raster{--pk-f:min(var(--pk-max),calc(100cqw / var(--pk-em)))}}
+.pk-ctrl{padding-left:calc(var(--pk-f) * ${PK_L + PK_E});grid-template-columns:var(--pk-cols)}
+@container (max-width:520px){.pk-ctrl{width:100%;padding-left:0;grid-template-columns:var(--pk-cols-schmal)}}
+`;
+
+const zw = (de, en) => (englisch() ? en : de);
+
+/* − und + wirken auf die nächste ganze Zahl: 3 → 4, ½ → 1 (oder 0), √5 ≈ 2,24 → 3 (oder 2) */
+const PK_GRENZE = 100;
+function naechsteGanze(wert, r, nichtNull) {
+  const x = wNum(wert);
+  let ziel = wGanz(wert) ? x + r : r > 0 ? Math.ceil(x) : Math.floor(x);
+  if (nichtNull && ziel === 0) ziel = r > 0 ? 1 : -1;
+  ziel = Math.max(-PK_GRENZE, Math.min(PK_GRENZE, ziel)) + 0;
+  return wZ(ziel);
+}
+
+/* Ein Term in Teilen: Vorzeichen getrennt (neg), Koeffizient als TeX (leer bei 1 vor x), x und Hochzahl.
+   Die Hochzahl wird nicht von M gesetzt (dort würde sie bei Brüchen in der Mitte hängen), sondern als echte Hochzahl. */
+function termTex(w, pot) {
+  if (wIstNull(w)) return null;
+  const neg = wNegativ(w), b = wBetrag(w);
+  const hatX = pot > 0;
+  const koef = wIstEins(b) && hatX ? "" : wTex(b);
+  return { neg, koef, hatX, pot, wurzel: koef.includes("\\sqrt") && !koef.includes("\\frac") };
+}
+
+/* Inhalt einer Termzelle: [−] Koeffizient x Hochzahl – nie umbrechend */
+function TermInhalt({ it, minus }) {
+  return (
+    <span style={{ display: "inline-block", width: "max-content", whiteSpace: "nowrap" }}>
+      {minus && it.neg ? "−" : ""}
+      {it.koef && <M t={it.koef} />}
+      {it.hatX && <span style={{ marginLeft: it.wurzel ? "0.14em" : 0 }}>x{it.pot > 1 && <sup style={{ fontSize: "0.7em", lineHeight: 0 }}>{it.pot}</sup>}</span>}
     </span>
   );
-  const wertText = (w) => (w > 0 ? `+${w}` : String(w).replace("-", "−"));
+}
+
+/* f, f′ und f″ als Termlisten (je eine Spalte pro Koeffizient; Nullglieder bleiben leer) */
+function polyZeilen(kw, grad) {
+  const sp = [];
+  for (let pot = grad; pot >= 0; pot--) sp.push({ pot, w: kw[pot] });
+  return {
+    f: sp.map(({ pot, w }) => termTex(w, pot)),
+    f1: sp.map(({ pot, w }) => (pot >= 1 ? termTex(wMul(w, wZ(pot)), pot - 1) : null)),
+    f2: sp.map(({ pot, w }) => (pot >= 2 ? termTex(wMul(w, wZ(pot * (pot - 1))), pot - 2) : null)),
+  };
+}
+
+/* Koeffizient als „a = 2“: die Zahl antippen öffnet ein Feld (ganze Zahl, Bruch 1/2, Kommazahl 0,5, Wurzel √5, Minus) */
+function KoeffWert({ k, farbe, wert, setzen, nichtNull, ort }) {
+  const [offen, setOffen] = useState(false);
+  const [entwurf, setEntwurf] = useState("");
+  const [fehler, setFehler] = useState("");
+  const feld = useRef(null);
+
+  const oeffnen = () => { setEntwurf(wText(wert)); setFehler(""); setOffen(true); };
+  useEffect(() => {
+    if (!offen || !feld.current) return;
+    feld.current.focus();
+    try { feld.current.select(); } catch (e) { /* ohne Auswahl */ }
+  }, [offen]);
+
+  const pruefen = (t) => {
+    const z = wLies(t);
+    if (!z) return { fehler: zw("Das kann ich so nicht lesen – probiere 2, 1/2, 0,5 oder √5.", "I can't read that – try 2, 1/2, 0.5 or √5.") };
+    if (z.length > 1) return { fehler: zw("Bitte eine einzelne Zahl oder Wurzel, keine Summe.", "Please enter a single number or root, not a sum.") };
+    if (nichtNull && wIstNull(z)) return { fehler: zw(`${k} darf nicht 0 sein – sonst stimmt der Grad nicht mehr.`, `${k} must not be 0 – otherwise the degree changes.`) };
+    if (Math.abs(wNum(z)) > PK_GRENZE) return { fehler: zw(`Bitte einen Betrag bis ${PK_GRENZE} eingeben.`, `Please enter a value up to ${PK_GRENZE} in size.`) };
+    return { z };
+  };
+  const aendern = (e) => {
+    const t = e.target.value;
+    setEntwurf(t);
+    if (t.trim() === "") { setFehler(""); return; }
+    const r = pruefen(t);
+    if (r.z) { setFehler(""); setzen(r.z); } else setFehler(r.fehler);
+  };
+
+  const rand = ort === "links" ? { left: 0 } : ort === "rechts" ? { right: 0 } : { left: "50%", transform: "translateX(-50%)" };
   return (
-    <div style={{ minWidth: 0 }}>
-      {/* Knöpfe */}
-      <div style={{ ...raster, alignItems: "start", marginBottom: 8 }}>
-        <span />
-        {koeff.map((q) => {
-          const farbe = KOEFF_FARBEN[q.k];
-          // Höchste Potenz bei Grad 4 und 5: feste Wahl zwischen +xⁿ und −xⁿ, in den Zeilen der Plus-/Minus-Knöpfe.
-          if (q.auswahl) {
-            const knopf = (wert) => {
-              const o = q.auswahl.find((x) => x.wert === wert);
-              const aktiv = q.wert === wert;
-              return (
-                <button type="button" aria-pressed={aktiv} aria-label={`Höchste Potenz: ${o.text}`}
-                  onClick={() => q.setzen(wert)}
-                  style={{ width: `min(${knopfB + 8}px, 100%)`, height: 24, borderRadius: 7, border: `1.5px solid ${aktiv ? farbe : farbe + "66"}`,
-                    background: aktiv ? farbe : `${farbe}14`, color: aktiv ? C.weiss : farbe,
-                    fontSize: 13, fontWeight: 800, fontFamily: "inherit", cursor: "pointer", padding: 0, lineHeight: 1,
-                    display: "flex", alignItems: "center", justifyContent: "center", whiteSpace: "nowrap" }}>
-                  {o.text}
-                </button>
-              );
-            };
-            return (
-              <div key={q.k} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, minWidth: 0 }}>
-                <span style={{ fontSize: 13, fontWeight: 800, color: farbe }}>{q.k}</span>
-                <span style={{ fontSize: 15, fontWeight: 800, color: farbe, fontVariantNumeric: "tabular-nums", minHeight: 20 }}>{wertText(q.wert)}</span>
-                {knopf(1)}
-                {knopf(-1)}
-              </div>
-            );
-          }
-          return (
-            <div key={q.k} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, minWidth: 0 }}>
-              <span style={{ fontSize: 13, fontWeight: 800, color: farbe }}>{q.k}</span>
-              <span style={{ fontSize: 15, fontWeight: 800, color: farbe, fontVariantNumeric: "tabular-nums", minHeight: 20 }}>
-                {wertText(q.wert)}
-              </span>
-              <PolyKnopf farbe={farbe} breite={knopfB} hoehe={knopfH} label={`${q.k} erhöhen`} onClick={() => q.schritt(1)}>+</PolyKnopf>
-              <PolyKnopf farbe={farbe} breite={knopfB} hoehe={knopfH} label={`${q.k} verringern`} onClick={() => q.schritt(-1)}>−</PolyKnopf>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Allgemeine Form im grauen Kasten */}
-      <div style={{ ...raster, background: "#EEF1F5", border: `1px solid ${C.linie}`, borderRadius: 10, padding: "5px 0",
-        fontSize: gr(11, 3.2, 15), fontWeight: 800, color: C.tinte, marginBottom: 6 }}>
-        {label("f(x) =")}
-        {koeff.map((q, i) => (
-          <span key={q.k} style={{ textAlign: "center", whiteSpace: "nowrap" }}>
-            {i > 0 && "+ "}<span style={{ color: KOEFF_FARBEN[q.k] }}>{q.k}</span>{q.pot > 0 && <>·x{POLY_HOCH[q.pot]}</>}
-          </span>
-        ))}
-      </div>
-
-      {/* Eingesetzte Funktion und Ableitungen */}
-      <div style={{ ...raster, fontSize: gr(13, 4.1, 21), fontWeight: 800, color: C.tinte, fontVariantNumeric: "tabular-nums", padding: "3px 0" }}>
-        {label("f(x) =")}
-        {alleLeer ? <span style={{ gridColumn: "2 / -1", paddingLeft: 6 }}>0</span> : zeileF.map((t, i) => termZelle(t, i))}
-      </div>
-      {!alleLeer && (
-        <>
-          <div style={{ ...raster, fontSize: gr(11, 3.3, 14), fontWeight: 700, color: C.grau, padding: "2px 0" }}>
-            {label("f′(x) =")}
-            {zeileF1.map((t, i) => termZelle(t, i))}
-          </div>
-          <div style={{ ...raster, fontSize: gr(11, 3.3, 14), fontWeight: 700, color: C.grau, padding: "2px 0" }}>
-            {label("f″(x) =")}
-            {zeileF2.map((t, i) => termZelle(t, i))}
-          </div>
-        </>
+    <div style={{ position: "relative", width: "100%", display: "flex", justifyContent: "center", minWidth: 0 }}>
+      <button type="button" aria-label={zw(`${k} bearbeiten, aktuell ${wText(wert)}`, `Edit ${k}, currently ${wText(wert)}`)} aria-expanded={offen}
+        onClick={() => (offen ? setOffen(false) : oeffnen())}
+        style={{ maxWidth: "100%", minHeight: 34, display: "inline-flex", flexWrap: "wrap", alignItems: "center", justifyContent: "center", columnGap: 5,
+          padding: "2px 4px", borderRadius: 10, cursor: "pointer", fontFamily: "inherit", fontSize: 15, fontWeight: 800, color: farbe,
+          border: `1.5px solid ${offen ? farbe : `${farbe}55`}`, background: offen ? `${farbe}1F` : `${farbe}0D`, fontVariantNumeric: "tabular-nums", touchAction: "manipulation" }}>
+        <span>{k} =</span>
+        <span style={{ display: "inline-block", width: "max-content", flexShrink: 0, whiteSpace: "nowrap" }}><M t={wTex(wert)} /></span>
+      </button>
+      {offen && (
+        <div role="group" aria-label={zw(`${k} eingeben`, `Enter ${k}`)}
+          style={{ position: "absolute", top: "calc(100% + 6px)", zIndex: 30, width: 168, padding: 8, borderRadius: 12, background: C.weiss,
+            border: `1.5px solid ${farbe}`, boxShadow: "0 8px 24px rgba(15,26,51,0.22)", ...rand }}>
+          <label style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <span style={{ fontSize: 15, fontWeight: 800, color: farbe, whiteSpace: "nowrap" }}>{k} =</span>
+            <MatheFeld ref={feld} modus="wurzel" value={entwurf} onChange={aendern}
+              onBlur={() => setOffen(false)}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === "Escape") e.target.blur(); }}
+              aria-label={zw(`${k} Wert eingeben`, `${k} enter value`)} aria-invalid={fehler ? true : undefined}
+              style={{ flex: 1, minWidth: 0, width: "100%", height: 38, textAlign: "center", fontSize: 16, fontWeight: 800, color: farbe, fontFamily: "inherit",
+                padding: "0 4px", borderRadius: 9, outline: "none", border: `1.5px solid ${fehler ? C.signal : `${farbe}66`}`, background: fehler ? "#FCE8EE" : `${farbe}10` }} />
+          </label>
+          {fehler
+            ? <p role="alert" style={{ fontSize: 11.5, lineHeight: 1.35, color: C.signal, fontWeight: 600, margin: "6px 0 0" }}>{fehler}</p>
+            : <p style={{ fontSize: 11, lineHeight: 1.35, color: C.grau, fontWeight: 400, margin: "6px 0 0" }}>{zw("Ganze Zahl, Bruch (1/2), Kommazahl (0,5), Wurzel (√5), auch mit Minus.", "Whole number, fraction (1/2), decimal (0.5), root (√5), minus allowed.")}</p>}
+        </div>
       )}
     </div>
   );
 }
 
-/* Wertebereich je Koeffizient: höchste Potenz darf nie 0 sein (sonst stimmt der Grad nicht mehr). */
-const koeffMax = (pot, fuehrend) => (fuehrend ? (pot >= 4 ? 1 : pot === 3 ? 3 : 10) : pot >= 3 ? 3 : 10);
+function PolyKopf({ koeff, zeilen }) {
+  const n = koeff.length;
+  // 1,5 × frühere Maximalgröße (21 px; bei sechs Spalten mit dem Faktor 0,87)
+  const fmax = n >= 6 ? 27.3 : 31.5;
+  // Spaltenbreiten aus den längsten Termen jeder Spalte (f zählt voll, f′ und f″ im Verhältnis ihrer kleineren Schrift)
+  const faktor = [1, 0.667, 0.667];
+  const breiten = koeff.map((_, i) => Math.max(PK_T, ...[zeilen.f, zeilen.f1, zeilen.f2].map((z, r) => (z[i] ? (termBreite(z[i]) + 0.3) * faktor[r] : 0))));
+  const gesamt = PK_L + PK_E + breiten.reduce((sum, w) => sum + w + 2 * PK_H, 0);
+  const spaltenSpur = `${PK_L}em ${PK_E}em ` + breiten.map((w) => `${PK_H}em ${w.toFixed(2)}em ${PK_H}em`).join(" ");
+  const tCol = (i) => 4 + 3 * i;            // Termspalte (1-basiert)
+  const opCol = (i) => 2 + 3 * i;           // Operator zwischen Term i−1 und Term i: zwei Randspalten
+  const vars = {
+    "--pk-max": `${fmax}px`, "--pk-em": gesamt, "--pk-w": gesamt,
+    "--pk-cols": breiten.map((w) => `${(w + 2 * PK_H).toFixed(2)}em`).join(" "),
+    "--pk-cols-schmal": `repeat(${n}, minmax(0, 1fr))`,
+  };
+  const farbeVon = (i) => KOEFF_FARBEN[koeff[i].k];
+
+  /* Eine Zeile: Beschriftung, „=“ und die Terme; Operatoren in der Mitte zwischen den Termen */
+  const zeile = (reihe, label, schrift, items, gewicht, grau) => {
+    let gesehen = false;
+    const farbeText = grau ? C.grau : C.tinte;
+    const zellen = [
+      <span key="l" style={{ gridRow: reihe, gridColumn: 1, justifySelf: "end", alignSelf: "center", position: "relative", zIndex: 1, fontSize: schrift, fontWeight: gewicht, color: farbeText, whiteSpace: "nowrap", paddingRight: "0.1em" }}>{label}</span>,
+      <span key="e" style={{ gridRow: reihe, gridColumn: 2, justifySelf: "center", alignSelf: "center", position: "relative", zIndex: 1, fontSize: schrift, fontWeight: gewicht, color: farbeText }}>=</span>,
+    ];
+    items.forEach((it, i) => {
+      if (!it) return;
+      const sichtbar = gesehen;
+      gesehen = true;
+      if (sichtbar) {
+        zellen.push(
+          <span key={`o${i}`} style={{ gridRow: reihe, gridColumn: `${opCol(i)} / span 2`, justifySelf: "center", alignSelf: "center", position: "relative", zIndex: 1, fontSize: schrift, fontWeight: gewicht, color: farbeText }}>{it.neg ? "−" : "+"}</span>
+        );
+      }
+      zellen.push(
+        <span key={`t${i}`} style={{ gridRow: reihe, gridColumn: tCol(i), justifySelf: "center", alignSelf: "center", position: "relative", zIndex: 1, fontSize: schrift, fontWeight: gewicht, color: farbeVon(i), whiteSpace: "nowrap", width: "max-content" }}>
+          <TermInhalt it={it} minus={!sichtbar} />
+        </span>
+      );
+    });
+    return zellen;
+  };
+
+  /* Allgemeine Form: a·x⁵ + b·x⁴ + … im grauen Kasten */
+  const allgemein = koeff.map((qq) => ({ k: qq.k, pot: qq.pot }));
+  const zeileAllgemein = () => {
+    const schrift = "max(9px, 0.714em)";
+    const zellen = [
+      <span key="l" style={{ gridRow: 1, gridColumn: 1, justifySelf: "end", alignSelf: "center", position: "relative", zIndex: 1, fontSize: schrift, fontWeight: 800, color: C.tinte, whiteSpace: "nowrap", paddingRight: "0.1em" }}>f(x)</span>,
+      <span key="e" style={{ gridRow: 1, gridColumn: 2, justifySelf: "center", alignSelf: "center", position: "relative", zIndex: 1, fontSize: schrift, fontWeight: 800, color: C.tinte }}>=</span>,
+    ];
+    allgemein.forEach((a, i) => {
+      if (i > 0) zellen.push(<span key={`o${i}`} style={{ gridRow: 1, gridColumn: `${opCol(i)} / span 2`, justifySelf: "center", alignSelf: "center", position: "relative", zIndex: 1, fontSize: schrift, fontWeight: 800, color: C.tinte }}>+</span>);
+      zellen.push(
+        <span key={`t${i}`} style={{ gridRow: 1, gridColumn: tCol(i), justifySelf: "center", alignSelf: "center", position: "relative", zIndex: 1, fontSize: schrift, fontWeight: 800, color: C.tinte, whiteSpace: "nowrap" }}>
+          <span style={{ color: KOEFF_FARBEN[a.k] }}>{a.k}</span>{a.pot > 0 && <>·x{POLY_HOCH[a.pot]}</>}
+        </span>
+      );
+    });
+    return zellen;
+  };
+
+  return (
+    <div className="pk-aussen">
+      <style>{PK_CSS}</style>
+
+      {/* Eingabe: „a = Zahl“, darunter − und + nebeneinander */}
+      <div className="pk-ctrl" style={{ ...vars, display: "grid", alignItems: "start", rowGap: 6, marginBottom: 10 }}>
+        {koeff.map((qq, i) => {
+          const farbe = KOEFF_FARBEN[qq.k];
+          const ort = n === 1 ? "mitte" : i === 0 ? "links" : i === n - 1 ? "rechts" : "mitte";
+          const knopf = (r, text, label) => (
+            <button type="button" aria-label={label} onClick={() => qq.schritt(r)}
+              style={{ flex: 1, minWidth: 0, maxWidth: 56, height: 34, borderRadius: 9, border: `1.5px solid ${farbe}66`, background: `${farbe}14`, color: farbe,
+                fontSize: 18, fontWeight: 800, fontFamily: "inherit", cursor: "pointer", padding: 0, lineHeight: 1, touchAction: "manipulation",
+                display: "flex", alignItems: "center", justifyContent: "center" }}>{text}</button>
+          );
+          return (
+            <React.Fragment key={qq.k}>
+              <div style={{ gridRow: 1, gridColumn: i + 1, display: "flex", justifyContent: "center", minWidth: 0, padding: "0 2px" }}>
+                <KoeffWert k={qq.k} farbe={farbe} wert={qq.wert} setzen={qq.setzen} nichtNull={qq.nichtNull} ort={ort} />
+              </div>
+              <div style={{ gridRow: 2, gridColumn: i + 1, display: "flex", gap: 4, justifyContent: "center", minWidth: 0, padding: "0 2px" }}>
+                {knopf(-1, "−", `${qq.k} ${zw("verringern", "decrease")}`)}
+                {knopf(1, "+", `${qq.k} ${zw("erhöhen", "increase")}`)}
+              </div>
+            </React.Fragment>
+          );
+        })}
+      </div>
+
+      {/* Ein Raster für alle vier Zeilen */}
+      <div className="pk-raster" style={{ ...vars, display: "grid", gridTemplateColumns: spaltenSpur, alignItems: "center", rowGap: "0.2em", fontVariantNumeric: "tabular-nums" }}>
+        <div aria-hidden="true" style={{ gridRow: 1, gridColumn: "1 / -1", background: "#EEF1F5", border: `1px solid ${C.linie}`, borderRadius: 10, alignSelf: "stretch", margin: "-0.28em -0.4em" }} />
+        {zeileAllgemein()}
+        {zeile(2, "f(x)", "max(10px, 1em)", zeilen.f, 800, false)}
+        {zeile(3, "f′(x)", "max(9.5px, 0.667em)", zeilen.f1, 700, true)}
+        {zeile(4, "f″(x)", "max(9.5px, 0.667em)", zeilen.f2, 700, true)}
+      </div>
+    </div>
+  );
+}
+
+/* Auswahl des Grades: „Polynom [dritten ▾] Grades“ – das Wort in der Box antippen, dann 1 bis 5 wählen */
+const GRAD_WORT = { de: ["", "ersten", "zweiten", "dritten", "vierten", "fünften"], en: ["", "1st", "2nd", "3rd", "4th", "5th"] };
+function GradWahl({ grad, setGrad }) {
+  const [offen, setOffen] = useState(false);
+  const huelle = useRef(null);
+  const en = englisch();
+  const wort = (n) => (en ? GRAD_WORT.en : GRAD_WORT.de)[n];
+  useEffect(() => {
+    if (!offen) return undefined;
+    const aus = (e) => { if (huelle.current && !huelle.current.contains(e.target)) setOffen(false); };
+    const esc = (e) => { if (e.key === "Escape") setOffen(false); };
+    document.addEventListener("pointerdown", aus);
+    document.addEventListener("keydown", esc);
+    return () => { document.removeEventListener("pointerdown", aus); document.removeEventListener("keydown", esc); };
+  }, [offen]);
+  const waehlen = (n) => { setGrad(n); setOffen(false); };
+  return (
+    <div style={{ marginBottom: 18, display: "flex", alignItems: "center", flexWrap: "wrap", gap: "6px 8px", fontSize: "clamp(17px, 4.6vw, 24px)", fontWeight: 800, color: C.tinte }}>
+      <span>{en ? "Polynomial of" : "Polynom"}</span>
+      <span ref={huelle} style={{ position: "relative", display: "inline-block" }}>
+        <button type="button" aria-haspopup="listbox" aria-expanded={offen}
+          aria-label={zw(`Grad des Polynoms: ${grad}. Zum Ändern antippen`, `Degree of the polynomial: ${grad}. Tap to change`)}
+          onClick={() => setOffen(!offen)}
+          onKeyDown={(e) => { if (/^[1-5]$/.test(e.key)) waehlen(Number(e.key)); }}
+          style={{ position: "relative", minWidth: 92, height: 44, padding: "0 26px 0 12px", borderRadius: 12, border: `1.5px solid ${C.see}`, background: C.himmel,
+            color: C.see, fontFamily: "inherit", fontSize: "inherit", fontWeight: 800, cursor: "pointer", touchAction: "manipulation" }}>
+          {wort(grad)}
+          <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true" style={{ position: "absolute", top: 6, right: 7 }}>
+            <path d="M1.5 3 L5 7 L8.5 3" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+        {offen && (
+          <ul role="listbox" aria-label={zw("Grad wählen", "Choose degree")}
+            style={{ position: "absolute", top: "calc(100% + 6px)", left: 0, zIndex: 40, margin: 0, padding: 6, listStyle: "none", minWidth: 150, borderRadius: 12,
+              background: C.weiss, border: `1.5px solid ${C.see}`, boxShadow: "0 8px 24px rgba(15,26,51,0.22)", fontSize: 16 }}>
+            {[1, 2, 3, 4, 5].map((n) => {
+              const aktiv = n === grad;
+              return (
+                <li key={n} role="presentation">
+                  <button type="button" role="option" aria-selected={aktiv} onClick={() => waehlen(n)}
+                    style={{ width: "100%", minHeight: 40, display: "flex", alignItems: "center", gap: 10, padding: "0 10px", borderRadius: 8, border: "none", cursor: "pointer",
+                      fontFamily: "inherit", fontSize: 16, fontWeight: aktiv ? 800 : 600, textAlign: "left", background: aktiv ? C.see : "transparent", color: aktiv ? C.weiss : C.tinte }}>
+                    <span style={{ width: 16, fontWeight: 800 }}>{n}</span><span>{wort(n)}</span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </span>
+      <span>{en ? "degree" : "Grades"}</span>
+    </div>
+  );
+}
 
 export function Plotter() {
   const [grad, setGrad] = useState(3);
-  // Koeffizienten je Potenz; Werte oberhalb des gewählten Grades bleiben gespeichert, zählen aber nicht.
-  const [kk, setKk] = useState({ 5: 1, 4: 1, 3: 1, 2: -2, 1: -1, 0: 2 });
+  // Koeffizienten je Potenz als exakte Zahlen (Brüche, Wurzeln); Werte oberhalb des gewählten Grades bleiben gespeichert, zählen aber nicht.
+  const [kw, setKw] = useState({ 5: wZ(1), 4: wZ(1), 3: wZ(1), 2: wZ(-2), 1: wZ(-1), 0: wZ(2) });
   const [zoom, setZoom] = useState(1);
   const [offen, setOffen] = useState(false);
   const ergebnisRef = useRef(null);
 
-  const K6 = [5, 4, 3, 2, 1, 0].map((p) => (p <= grad ? kk[p] : 0));
+  const K6 = [5, 4, 3, 2, 1, 0].map((p) => (p <= grad ? wNum(kw[p]) : 0));
+  const ganzAlle = K6.every((v) => Number.isInteger(v));   // die ausführliche Rechnung gibt es nur für ganze Zahlen
   const { D1, D2 } = polyAbleitungen(K6);
   const f = (x) => horner(K6, x);
   const fs = (x) => horner(D1, x);
@@ -152,34 +356,20 @@ export function Plotter() {
 
   const waehleGrad = (n) => {
     setGrad(n);
-    setKk((alt) => {
-      const max = koeffMax(n, true);
-      let v = alt[n] === 0 ? 1 : alt[n];
-      v = Math.max(-max, Math.min(max, v));
-      return v === alt[n] ? alt : { ...alt, [n]: v };
-    });
+    setKw((alt) => (wIstNull(alt[n]) ? { ...alt, [n]: wZ(1) } : alt));   // die höchste Potenz darf nie 0 sein
   };
 
   const koeff = [];
   for (let pot = grad; pot >= 0; pot--) {
     const fuehrend = pot === grad;
-    const max = koeffMax(pot, fuehrend);
-    const q = {
-      k: "abcdef"[grad - pot], wert: kk[pot], pot, min: -max, max,
-      setzen: (v) => setKk((alt) => ({ ...alt, [pot]: v })),
-      schritt: (r) => setKk((alt) => {
-        let v = alt[pot] + r;
-        if (fuehrend && v === 0) v += r;   // die höchste Potenz überspringt die 0
-        v = Math.max(-max, Math.min(max, v));
-        return { ...alt, [pot]: v };
-      }),
-    };
-    if (fuehrend && pot >= 4) q.auswahl = [{ wert: 1, text: `+x${POLY_HOCH[pot]}` }, { wert: -1, text: `−x${POLY_HOCH[pot]}` }];
-    koeff.push(q);
+    koeff.push({
+      k: "abcdef"[grad - pot], wert: kw[pot], pot, nichtNull: fuehrend,
+      setzen: (w) => setKw((alt) => ({ ...alt, [pot]: w })),
+      schritt: (r) => setKw((alt) => ({ ...alt, [pot]: naechsteGanze(alt[pot], r, fuehrend) })),
+    });
   }
 
-  const { zeileF, zeileF1, zeileF2 } = polyReihen(K6);
-  const alleLeer = zeileF.every((t) => !t);
+  const zeilen = polyZeilen(kw, grad);
 
   // Benötigten Bildausschnitt bestimmen: alle markanten Punkte, Nullstellen und
   // der y-Achsenabschnitt müssen hineinpassen, mit Rand für die Tendenz gegen ±∞.
@@ -235,24 +425,10 @@ export function Plotter() {
   return (
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
       <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" }}>
-        {/* Grad wählen */}
-        <div style={{ marginBottom: 18 }}>
-          <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 8 }}>Grad des Polynoms</p>
-          <div role="group" aria-label="Grad des Polynoms" style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 8 }}>
-            {[1, 2, 3, 4, 5].map((n) => {
-              const aktiv = n === grad;
-              return (
-                <button key={n} type="button" aria-pressed={aktiv} onClick={() => waehleGrad(n)}
-                  style={{ height: 40, borderRadius: 10, border: `1.5px solid ${aktiv ? C.see : C.linie}`, background: aktiv ? C.see : C.weiss,
-                    color: aktiv ? C.weiss : C.see, fontSize: 16, fontWeight: 700, fontFamily: "inherit", cursor: "pointer", padding: 0 }}>
-                  {n}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        {/* Grad wählen: „Polynom [dritten ▾] Grades“ */}
+        <GradWahl grad={grad} setGrad={waehleGrad} />
 
-        <PolyKopf koeff={koeff} zeileF={zeileF} zeileF1={zeileF1} zeileF2={zeileF2} alleLeer={alleLeer} />
+        <PolyKopf koeff={koeff} zeilen={zeilen} />
 
         <div style={{ position: "relative", marginTop: 14 }}>
           <svg viewBox={`0 0 ${Sx} ${Sy}`} style={{ width: "100%", maxWidth: 360, display: "block", margin: "0 auto" }}>
@@ -344,7 +520,7 @@ export function Plotter() {
             ))}
 
             <Zeile marke={<circle cx="7" cy="7" r="4" fill={C.see} opacity="0.45" />}
-              titel="y-Achsenabschnitt" wert={`(0 | ${d})`} />
+              titel="y-Achsenabschnitt" wert={`(0 | ${wText(kw[0])})`} />
 
             <p style={{ fontSize: 13, color: C.grau, fontWeight: 300, lineHeight: 1.7, marginTop: 14 }}>
               {grad === 5 && "Fünfter Grad: f′ hat Grad 4, also höchstens vier Extremstellen — f″ hat Grad 3, also höchstens drei Wendestellen."}
@@ -356,17 +532,31 @@ export function Plotter() {
             </p>
           </div>
 
-          <KurvendiskussionAnzeige k={K6} />
-          <WeiterMit titel="Weiter mit dieser Funktion">
-            <WeiterKnopf ziel="ableitungstrainer" von="Kurvendiskussion" daten={{ text: polyEingabeText(K6) }}
-              zeile="f′, f″ und f‴ dieser Funktion selbst bilden und prüfen lassen" />
-            {grad >= 1 && (() => {
-              const g = ns.length >= 2 ? [ns[0], ns[1]] : [0, 1];
-              const t = (v) => String(Math.round(v * 1e4) / 1e4);
-              return <WeiterKnopf ziel="integrale" von="Kurvendiskussion" daten={{ f: polyEingabeText(K6), a: t(g[0]), b: t(g[1]) }}
-                zeile={ns.length >= 2 ? "Integral zwischen den ersten beiden Nullstellen – Stammfunktion selbst finden" : "Bestimmtes Integral von 0 bis 1 – Stammfunktion selbst finden"} />;
-            })()}
-          </WeiterMit>
+          {ganzAlle ? (
+            <>
+            <KurvendiskussionAnzeige k={K6} />
+            <WeiterMit titel="Weiter mit dieser Funktion">
+              <WeiterKnopf ziel="ableitungstrainer" von="Kurvendiskussion" daten={{ text: polyEingabeText(K6) }}
+                zeile="f′, f″ und f‴ dieser Funktion selbst bilden und prüfen lassen" />
+              {grad >= 1 && (() => {
+                const g = ns.length >= 2 ? [ns[0], ns[1]] : [0, 1];
+                const t = (v) => String(Math.round(v * 1e4) / 1e4);
+                return <WeiterKnopf ziel="integrale" von="Kurvendiskussion" daten={{ f: polyEingabeText(K6), a: t(g[0]), b: t(g[1]) }}
+                  zeile={ns.length >= 2 ? "Integral zwischen den ersten beiden Nullstellen – Stammfunktion selbst finden" : "Bestimmtes Integral von 0 bis 1 – Stammfunktion selbst finden"} />;
+              })()}
+            </WeiterMit>
+            </>
+          ) : (
+            <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", marginTop: 18 }}>
+              <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 8 }}>{zw("Ausführliche Rechnung", "Full working")}</p>
+              <p style={{ fontSize: 13.5, color: C.grau, fontWeight: 400, lineHeight: 1.65 }}>
+                {zw(
+                  "Den ausführlichen Rechenweg (Nullstellen, Polynomdivision, Extrem- und Wendepunkte Schritt für Schritt) und den PDF-Export gibt es zurzeit nur für ganze Zahlen als Koeffizienten. Oben stehen die markanten Punkte – sie sind aus dem Graphen berechnet und gerundet. Setze ganze Zahlen ein, um den vollständigen Rechenweg zu sehen.",
+                  "The full step-by-step working (roots, polynomial division, extrema and inflection points) and the PDF export are currently only available for whole-number coefficients. The key points above are computed from the graph and rounded. Use whole numbers to see the full working."
+                )}
+              </p>
+            </div>
+          )}
         </div>
       )}
     </div>
