@@ -22,6 +22,7 @@ import { entdeckenSyncStarten } from "./entdeckenSync.js";
 import { LernpfadSeite } from "./funcLernpfad.jsx";
 import { MathildaChatSeite } from "./funcMathildaChat.jsx";
 import { MathildaKopf, FotoStart, SoArbeitetMathilda } from "./funcMathildaSeite.jsx";
+import { BlattScanner } from "./funcBlattScanner.jsx";
 import { mathildaSystem } from "./mathildaKontext.js";
 import { Operatoren, Wiederholen } from "./func7.jsx";
 import { Messbericht, Modellieren, Probeabitur, Wochenbericht } from "./func8.jsx";
@@ -157,6 +158,9 @@ export function Mathilda() {
   const [klasseAktiv, setKlasseAktiv] = useState(8);
   const [kursStart, setKursStart] = useState(null);
   const [fotoErlaubt, setFotoErlaubt] = useState(() => !!einwilligungLesen());
+  const [scanOffen, setScanOffen] = useState(false);
+  const [scanNachEinwilligung, setScanNachEinwilligung] = useState(false);
+  const fotoBereichRef = useRef(null);
   const [trainZiel, setTrainZiel] = useState(null);
   const [genZiel, setGenZiel] = useState(null);
   const [gruppeOffen, setGruppeOffen] = useState(null);
@@ -1272,14 +1276,28 @@ export function Mathilda() {
       ) : (
       <>
 
-      <MathildaKopf modus={fotoModus} setModus={setFotoModus} />
+      <MathildaKopf modus={fotoModus} setModus={setFotoModus} onScan={() => {
+        setFotoModus("blatt");
+        if (!fotoErlaubt) {
+          setScanNachEinwilligung(true);
+          setTimeout(() => fotoBereichRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 60);
+        } else setScanOffen(true);
+      }} />
+      <BlattScanner offen={scanOffen} onSchliessen={() => setScanOffen(false)}
+        onFoto={(datei) => {
+          setScanOffen(false); setFotoModus("blatt"); dateiWaehlen(datei);
+          setTimeout(() => fotoBereichRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 120);
+        }}
+        onKameraApp={() => { setScanOffen(false); setTimeout(() => kameraRef.current?.click(), 50); }}
+        onGalerie={() => { setScanOffen(false); setTimeout(() => galerieRef.current?.click(), 50); }} />
+      <div ref={fotoBereichRef} style={{ scrollMarginTop: 70 }} />
 
-      {fotoModus === "chat" ? <MathildaChatSeite /> : !fotoErlaubt ? <Einwilligung onJa={() => setFotoErlaubt(true)} /> : fotoModus === "aufgabe" ? <FotoAufgaben /> : fotoModus === "weg" ? <WegVomBlatt /> : (
+      {fotoModus === "chat" ? <MathildaChatSeite /> : !fotoErlaubt ? <Einwilligung onJa={() => { setFotoErlaubt(true); if (scanNachEinwilligung) { setScanNachEinwilligung(false); setScanOffen(true); } }} /> : fotoModus === "aufgabe" ? <FotoAufgaben /> : fotoModus === "weg" ? <WegVomBlatt /> : (
       <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 26 }}>
 
         {!bild && !laden && (
           <div>
-            <FotoStart onKamera={() => kameraRef.current?.click()} onGalerie={() => galerieRef.current?.click()} />
+            <FotoStart onKamera={() => setScanOffen(true)} onGalerie={() => galerieRef.current?.click()} titel="Scan dein Blatt" />
 
             {videoQuelle && (
               <div className="mt-8" style={{ position: "relative", width: "100%", aspectRatio: "1 / 1", borderRadius: 20, overflow: "hidden", background: C.seeTief, boxShadow: "0 6px 26px rgba(15,26,51,0.16)" }}>

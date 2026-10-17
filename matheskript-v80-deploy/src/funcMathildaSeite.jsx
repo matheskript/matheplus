@@ -3,59 +3,43 @@
 import React from "react";
 import { C } from "./base1.jsx";
 import "@fontsource/caveat/600.css";
+import { HAIR, WHITE, FEAT, STRANDS, GLASSES } from "./mathildaPortraet.js";
 
 const GOLD = C.flaggold;
 const NACHT = C.seeTief;
 
-/* Mathilda als Scherenschnitt: Haar in Logo-Gold, Gesicht und Oberteil weiß,
-   Augen, Mund und Sonnenbrille als Ausschnitte in der Hintergrundfarbe. */
-export function MathildaBild({ groesse = 220, hintergrund = NACHT, style, className }) {
+/* Mathilda als Scherenschnitt, aus dem Foto abgeleitet (siehe mathildaPortraet.js):
+   Haar in Logo-Gold, Haut und Oberteil weiß, Schatten, Augen, Mund und Sonnenbrille
+   sind echte Aussparungen (Maske) – das Bild sitzt so auf jedem Hintergrund. */
+export function MathildaBild({ groesse = 220, style, className }) {
+  const id = "mm" + React.useId().replace(/[^a-zA-Z0-9]/g, "");
+  const punkte = [[140, 258], [133, 268], [137, 278], [128, 286], [124, 294], [144, 268]];
   return (
-    <svg viewBox="0 0 320 380" width={groesse} height={Math.round(groesse * 380 / 320)} className={className} style={style}
+    <svg viewBox="0 0 242 295" width={groesse} height={Math.round(groesse * 295 / 242)} className={className} style={style}
       aria-label="Mathilda" role="img">
-      <g>
-        <path fill={GOLD} d="M160 40 C 104 40, 72 84, 74 142 C 75 186, 62 232, 46 276 C 36 302, 40 326, 54 346 L 100 346 C 94 300, 104 258, 106 220 C 106 194, 102 166, 108 136 Z"/>
-        <path fill={GOLD} d="M160 40 C 216 40, 248 84, 246 142 C 245 186, 258 232, 274 276 C 284 302, 280 326, 266 346 L 220 346 C 226 300, 216 258, 214 220 C 214 194, 218 166, 212 136 Z"/>
-        <path fill="#FFFFFF" d="M136 246 L 184 246 L 188 276 C 228 284, 258 306, 266 346 L 54 346 C 62 306, 92 284, 132 276 Z"/>
-        <path fill={GOLD} d="M106 214 C 96 246, 90 290, 94 346 L 122 346 C 118 300, 118 262, 112 230 Z"/>
-        <g fill={GOLD}>
-          <circle cx="82" cy="330" r="3"/><circle cx="104" cy="318" r="3"/><circle cx="126" cy="334" r="3"/>
-          <circle cx="146" cy="316" r="3"/><circle cx="166" cy="332" r="3"/><circle cx="186" cy="316" r="3"/>
-          <circle cx="208" cy="334" r="3"/><circle cx="228" cy="320" r="3"/><circle cx="246" cy="336" r="3"/>
-          <circle cx="160" cy="296" r="3"/><circle cx="130" cy="298" r="3"/><circle cx="190" cy="298" r="3"/>
-        </g>
-        <path fill="#FFFFFF" d="M160 68 C 202 68, 220 102, 220 146 C 220 192, 202 230, 176 246 C 166 252, 154 252, 144 246 C 118 230, 100 192, 100 146 C 100 102, 118 68, 160 68 Z"/>
-        <path fill={GOLD} d="M160 36 C 110 36, 82 70, 88 122 C 98 102, 112 90, 134 88 C 146 86, 152 90, 150 96 C 164 86, 190 86, 210 100 C 222 106, 228 114, 232 122 C 238 70, 210 36, 160 36 Z"/>
-        <path fill={GOLD} d="M92 110 C 84 140, 90 180, 100 212 C 104 196, 104 162, 106 134 Z"/>
-        <path fill={GOLD} d="M228 110 C 236 140, 230 180, 220 212 C 216 196, 216 162, 214 134 Z"/>
-        <g fill={hintergrund}>
-          <path d="M126 54 C 136 44, 154 44, 160 50 C 166 44, 184 44, 194 54 C 192 56, 190 57, 188 57 C 182 50, 170 50, 165 56 C 162 60, 158 60, 155 56 C 150 50, 138 50, 132 57 C 130 57, 128 56, 126 54 Z"/>
-          <path d="M128 58 C 136 52, 150 52, 156 58 C 156 68, 150 76, 142 76 C 134 76, 128 68, 128 58 Z"/>
-          <path d="M192 58 C 184 52, 170 52, 164 58 C 164 68, 170 76, 178 76 C 186 76, 192 68, 192 58 Z"/>
-          <path d="M126 56 C 112 58, 104 70, 100 88 L 104 90 C 108 76, 116 66, 128 60 Z"/>
-          <path d="M194 56 C 208 58, 216 70, 220 88 L 216 90 C 212 76, 204 66, 192 60 Z"/>
-          <path d="M114 132 C 124 120, 142 120, 152 128 C 150 130, 148 131, 146 130 C 136 126, 126 128, 118 136 C 116 136, 114 134, 114 132 Z"/>
-          <path d="M206 132 C 196 120, 178 120, 168 128 C 170 130, 172 131, 174 130 C 184 126, 194 128, 202 136 C 204 136, 206 134, 206 132 Z"/>
-          <path d="M116 154 C 124 140, 144 140, 152 154 C 150 156, 148 156, 146 154 C 140 146, 128 146, 122 154 C 120 156, 118 156, 116 154 Z"/>
-          <path d="M204 154 C 196 140, 176 140, 168 154 C 170 156, 172 156, 174 154 C 180 146, 192 146, 198 154 C 200 156, 202 156, 204 154 Z"/>
-          <path d="M110 150 C 112 146, 114 146, 116 148 L 112 154 Z"/>
-          <path d="M210 150 C 208 146, 206 146, 204 148 L 208 154 Z"/>
-          <path d="M158 170 C 153 178, 150 186, 155 190 C 158 192, 162 192, 165 190 L 164 187 C 160 189, 156 188, 156 184 C 156 180, 159 176, 161 172 Z"/>
-          <path d="M128 204 C 138 200, 150 202, 160 204 C 170 202, 182 200, 192 204 C 188 220, 176 230, 160 230 C 144 230, 132 220, 128 204 Z"/>
-        </g>
-        <path fill="#FFFFFF" d="M135 208 C 144 207, 152 208, 160 208 C 168 208, 176 207, 185 208 C 181 214, 170 218, 160 218 C 150 218, 139 214, 135 208 Z"/>
-        <g fill="none" stroke={hintergrund} strokeWidth="2.2" strokeLinecap="round" opacity="0.9">
-          <path d="M84 150 C 82 200, 70 250, 60 300"/>
-          <path d="M96 128 C 96 190, 84 250, 76 320"/>
-          <path d="M236 150 C 238 200, 250 250, 260 300"/>
-          <path d="M224 128 C 224 190, 236 250, 244 320"/>
-          <path d="M112 258 C 108 290, 106 316, 108 344"/>
-          <path d="M118 60 C 112 70, 106 84, 104 100"/>
-          <path d="M202 60 C 208 70, 214 84, 216 100"/>
-        </g>
-        <circle cx="100" cy="196" r="10" fill="none" stroke={GOLD} strokeWidth="3.5"/>
-        <circle cx="220" cy="196" r="10" fill="none" stroke={GOLD} strokeWidth="3.5"/>
+      <defs>
+        <mask id={id} maskUnits="userSpaceOnUse" x="0" y="0" width="242" height="295">
+          <rect width="242" height="295" fill="#000" />
+          <path fill="#fff" d={HAIR} />
+          <path fill="#fff" fillRule="evenodd" d={WHITE} />
+          <path fill="#000" fillRule="evenodd" d={STRANDS} />
+          <path fill="#000" fillRule="evenodd" d={FEAT} />
+          <path fill="#000" d={GLASSES} />
+          <g fill="none" stroke="#000" strokeWidth="1.6" strokeLinecap="round">
+            <path d="M131 248 C 126 262, 118 280, 110 295" /><path d="M150 248 C 145 264, 138 282, 131 295" />
+          </g>
+          <g fill="#000">{punkte.map(([x, y], i) => <circle key={i} cx={x} cy={y} r="1.6" />)}</g>
+        </mask>
+      </defs>
+      <g mask={`url(#${id})`}>
+        <path fill={GOLD} d={HAIR} />
+        <path fill="#FFFFFF" fillRule="evenodd" d={WHITE} />
       </g>
+      <path fill="none" stroke={GOLD} strokeWidth="2" strokeLinejoin="round" d={GLASSES} />
+      <path fill="none" stroke="#FFFFFF" strokeOpacity=".5" strokeWidth="1.6" strokeLinecap="round" d="M84 14 C 100 10, 118 9, 132 11" />
+      <circle cx="33" cy="171" r="7" fill="none" stroke={GOLD} strokeWidth="2.2" />
+      <g fill={GOLD}><circle cx="36" cy="153" r="3" /><circle cx="33" cy="171" r="2.6" /></g>
+      <path d="M35 156 L 34 164" stroke={GOLD} strokeWidth="1.6" />
     </svg>
   );
 }
@@ -65,20 +49,16 @@ export function MathildaIcon({ groesse = 40, hintergrund = NACHT, style }) {
   return (
     <span style={{ display: "inline-flex", width: groesse, height: groesse, borderRadius: 999, background: hintergrund, overflow: "hidden",
       alignItems: "flex-end", justifyContent: "center", flex: "none", ...style }}>
-      <MathildaBild groesse={groesse * 0.82} hintergrund={hintergrund} style={{ display: "block", marginBottom: -groesse * 0.04 }} />
+      <MathildaBild groesse={groesse * 0.92} style={{ display: "block", marginBottom: -groesse * 0.06 }} />
     </span>
   );
 }
 
 export const MODI = [
-  { id: "blatt", name: "Blatt prüfen", kurz: "Dein Rechenweg, Zeile für Zeile",
-    sprech: "Zeig mir dein Blatt. Ich lese mit und sag dir genau, wo der Weg bricht." },
-  { id: "weg", name: "Weg prüfen", kurz: "Vom Papier in den Editor",
-    sprech: "Fotografiere deinen Rechenweg. Ich übertrage ihn in Zeilen und prüfe jede einzelne." },
-  { id: "aufgabe", name: "Aufgabe scannen", kurz: "Drei neue derselben Sorte",
-    sprech: "Zeig mir eine Aufgabe aus dem Buch. Ich erkenne den Typ und bau dir drei neue zum Üben." },
-  { id: "chat", name: "Mathilda fragen", kurz: "Sie fragt zurück, bevor sie verrät",
-    sprech: "Frag mich, was du willst. Ich kenne deinen Stand und frage zurück, bevor ich etwas verrate." },
+  { id: "blatt", name: "Blatt prüfen", kurz: "Dein Rechenweg, Zeile für Zeile" },
+  { id: "weg", name: "Weg prüfen", kurz: "Vom Papier in den Editor" },
+  { id: "aufgabe", name: "Aufgabe scannen", kurz: "Drei neue derselben Sorte" },
+  { id: "chat", name: "Mathilda fragen", kurz: "Sie fragt zurück, bevor sie verrät" },
 ];
 
 function ModusGlyph({ id, aktiv }) {
@@ -102,49 +82,61 @@ function ModusGlyph({ id, aktiv }) {
     </svg>);
 }
 
-/* Kopfbereich: Titel, Sprechblase, Porträt und die vier Modi als Kacheln */
-export function MathildaKopf({ modus, setModus }) {
-  const m = MODI.find((x) => x.id === modus) || MODI[0];
+/* Kopfbereich: Titel dicht am Header, Zweizeiler, goldener Scan-Knopf, rechts Mathilda; darunter die vier Modi */
+export function MathildaKopf({ modus, setModus, onScan }) {
   return (
     <div className="mathilda-kopf" style={{ background: `radial-gradient(120% 90% at 85% 10%, #163A7A 0%, ${C.see} 35%, ${NACHT} 85%)`, position: "relative", overflow: "hidden" }}>
       <style>{`
-        .mathilda-kopf .mk-innen { max-width: 760px; margin: 0 auto; padding: 36px 24px 8px; display: grid; grid-template-columns: 1fr auto; gap: 8px 18px; align-items: end; }
-        .mathilda-kopf .mk-portraet { position: relative; align-self: end; margin-bottom: -8px; animation: mk-auf 0.9s cubic-bezier(.2,.8,.2,1) both; }
-        .mathilda-kopf .mk-schein { position: absolute; inset: auto 0 0 0; height: 60%; background: radial-gradient(60% 70% at 50% 100%, rgba(237,187,0,0.28), transparent 70%); pointer-events: none; }
-        .mathilda-kopf .mk-blase { position: relative; background: #FFFFFF; color: ${NACHT}; border-radius: 4px 18px 18px 18px; padding: 14px 16px; font-size: 15px; line-height: 1.55; font-weight: 500; box-shadow: 0 8px 28px rgba(5,12,40,0.35); margin-top: 18px; animation: mk-auf 0.9s 0.15s cubic-bezier(.2,.8,.2,1) both; }
-        .mathilda-kopf .mk-blase::after { content: ""; position: absolute; right: 60px; top: -9px; width: 18px; height: 18px; background: #FFFFFF; clip-path: polygon(0 100%, 50% 0, 100% 100%); }
-        .mathilda-kopf .mk-modi { max-width: 760px; margin: 0 auto; padding: 18px 24px 26px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .mathilda-kopf .mk-innen { max-width: 760px; margin: 0 auto; padding: 14px 24px 0; display: grid; grid-template-columns: 1fr auto; gap: 0 18px; align-items: end; }
+        .mathilda-kopf .mk-text { padding-bottom: 22px; }
+        .mathilda-kopf .mk-portraet { position: relative; align-self: end; animation: mk-auf 0.9s cubic-bezier(.2,.8,.2,1) both; }
+        .mathilda-kopf .mk-portraet svg { display: block; width: 210px; height: auto; position: relative; }
+        .mathilda-kopf .mk-schein { position: absolute; inset: auto -10% 0 -10%; height: 70%; background: radial-gradient(60% 70% at 50% 100%, rgba(237,187,0,0.30), transparent 70%); pointer-events: none; }
+        .mathilda-kopf .mk-scan { margin-top: 18px; display: inline-flex; align-items: center; gap: 12px; padding: 0 22px 0 8px; height: 58px; border: none; border-radius: 999px; cursor: pointer; font-family: inherit;
+          color: ${NACHT}; font-size: 17px; font-weight: 800; letter-spacing: -0.01em; background: linear-gradient(135deg, #F8D23A 0%, ${GOLD} 55%, #D9A600 100%);
+          box-shadow: 0 10px 30px rgba(237,187,0,0.40), inset 0 1px 0 rgba(255,255,255,0.55); transition: transform .15s ease, box-shadow .15s ease; -webkit-tap-highlight-color: transparent; animation: mk-auf 0.9s 0.1s cubic-bezier(.2,.8,.2,1) both; }
+        .mathilda-kopf .mk-scan:hover { transform: translateY(-2px); box-shadow: 0 14px 36px rgba(237,187,0,0.5), inset 0 1px 0 rgba(255,255,255,0.55); }
+        .mathilda-kopf .mk-scan:active { transform: translateY(0); }
+        .mathilda-kopf .mk-scan .mk-kam { width: 42px; height: 42px; border-radius: 999px; background: ${NACHT}; display: flex; align-items: center; justify-content: center; flex: none; }
+        .mathilda-kopf .mk-modi { max-width: 760px; margin: 0 auto; padding: 18px 24px 26px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; border-top: 1px solid rgba(255,255,255,0.08); }
         .mathilda-kopf .mk-modus { text-align: left; border: 1.5px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.06); color: #DCE5F6; border-radius: 16px; padding: 12px 12px 11px; font-family: inherit; cursor: pointer; display: flex; flex-direction: column; gap: 8px; transition: transform .15s ease, background .15s ease, border-color .15s ease; -webkit-tap-highlight-color: transparent; }
         .mathilda-kopf .mk-modus:hover { transform: translateY(-2px); background: rgba(255,255,255,0.1); }
         .mathilda-kopf .mk-modus[data-aktiv="1"] { background: #FFFFFF; color: ${NACHT}; border-color: #FFFFFF; box-shadow: 0 10px 26px rgba(5,12,40,0.35), inset 0 -4px 0 ${GOLD}; }
         .mathilda-kopf .mk-modus b { display: block; font-size: 14px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.2; }
         .mathilda-kopf .mk-modus span { display: block; font-size: 12px; font-weight: 400; line-height: 1.4; opacity: .85; }
         @keyframes mk-auf { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-        .mathilda-kopf .mk-portraet svg { display: block; width: 196px; height: auto; position: relative; }
         @media (max-width: 560px) {
-          .mathilda-kopf .mk-innen { grid-template-columns: 1fr 132px; gap: 6px 10px; padding-top: 28px; }
-          .mathilda-kopf .mk-portraet svg { width: 132px; }
-          .mathilda-kopf .mk-blase { margin-top: 4px; }
-          .mathilda-kopf .mk-blase::after { right: 50px; }
+          .mathilda-kopf .mk-innen { grid-template-columns: 1fr 118px; gap: 0 8px; padding-top: 12px; }
+          .mathilda-kopf .mk-portraet svg { width: 132px; margin-right: -14px; }
+          .mathilda-kopf .mk-text { padding-bottom: 18px; }
+          .mathilda-kopf .mk-scan { height: 52px; font-size: 15.5px; padding-right: 16px; gap: 10px; }
+          .mathilda-kopf .mk-scan .mk-kam { width: 38px; height: 38px; }
           .mathilda-kopf .mk-modi { grid-template-columns: repeat(2, 1fr); padding-bottom: 22px; }
         }
-        @media (prefers-reduced-motion: reduce) { .mathilda-kopf .mk-portraet, .mathilda-kopf .mk-blase { animation: none; } }
+        @media (prefers-reduced-motion: reduce) { .mathilda-kopf .mk-portraet, .mathilda-kopf .mk-scan { animation: none; } }
       `}</style>
       <div className="mk-innen">
-        <div style={{ paddingBottom: 10 }}>
-          <p style={{ color: GOLD, fontSize: 12, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 12 }}>Deine Mathe-Begleiterin</p>
+        <div className="mk-text">
+          <p style={{ color: GOLD, fontSize: 12, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 8 }}>Deine Mathe-KI-Trainerin</p>
           <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 44, letterSpacing: "-0.03em", lineHeight: 0.98, margin: 0 }}>
             Mathilda<span style={{ color: GOLD }}>AI</span>
           </h1>
-          <p style={{ color: "#C9D6EE", fontSize: 15.5, fontWeight: 300, lineHeight: 1.6, marginTop: 14, maxWidth: 420 }}>
-            Sie liest dein Blatt, nicht nur dein Ergebnis. Und sie sagt dir immer nur den einen nächsten Schritt.
+          <p style={{ color: "#C9D6EE", fontSize: 15.5, fontWeight: 300, lineHeight: 1.55, marginTop: 12, maxWidth: 400 }}>
+            Sie liest dein Blatt, nicht nur dein Ergebnis – und zeigt dir den einen nächsten Schritt.
           </p>
+          <button type="button" className="mk-scan" onClick={onScan}>
+            <span className="mk-kam" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke={GOLD} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 8h3l2-3h6l2 3h3v11H4z" /><circle cx="12" cy="13" r="3.5" />
+              </svg>
+            </span>
+            Scan dein Blatt
+          </button>
         </div>
         <div className="mk-portraet">
           <div className="mk-schein" />
-          <MathildaBild groesse={196} hintergrund="#12305F" style={{ display: "block", position: "relative" }} />
+          <MathildaBild groesse={210} style={{ display: "block", position: "relative" }} />
         </div>
-        <div className="mk-blase" key={m.id} style={{ gridColumn: "1 / -1", marginTop: 10 }}>{m.sprech}</div>
       </div>
       <div className="mk-modi" role="tablist" aria-label="Was Mathilda tun soll">
         {MODI.map((x) => (
