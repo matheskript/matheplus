@@ -10481,7 +10481,7 @@
   "Baue einen Test auf, bestimme den Ablehnungsbereich und benenne den Fehler erster Art.": "Set up a test, determine the rejection region and name the type I error.",
   "Vereinfache fünf Terme im Werkzeug, mindestens zwei mit binomischer Formel.": "Simplify five terms in the tool, at least two with a binomial formula.",
   "Löse drei Gleichungen Schritt für Schritt und lass jeden Schritt prüfen.": "Solve three equations step by step and have each step checked.",
-  "Löse ein LGS mit drei Unbekannten und mache die Probe in allen drei Gleichungen.": "Solve a system with three unknowns and check in all three equations."
+  "Löse ein LGS mit drei Unbekannten und mache die Probe in allen drei Gleichungen.": "Solve a system with three unknowns and check in all three equations.",
   "Punkt und Steigungsdreieck": "Point and slope triangle",
   "Stimmt – das ist die Steigung m.": "Correct – that is the slope m.",
   "Das passt noch nicht zur Geraden durch P und Q. Prüfe Vorzeichen und Reihenfolge: y-Wert minus y-Wert, x-Wert minus x-Wert, beide mit demselben Punkt zuerst.": "That doesn't fit the line through P and Q yet. Check signs and order: y-value minus y-value, x-value minus x-value, both starting with the same point.",
@@ -12255,7 +12255,7 @@
   ],
   [
    "{0} Einheiten",
-   "{0} units"
+   "{0} units",
    "heißt: {0} nach rechts, {1} nach oben.",
    "means: {0} to the right, {1} up."
   ],
