@@ -657,7 +657,9 @@ function HKl({ f, fs }) {
   return f.n < 0 ? <span>(<HZahl f={f} fs={fs} />)</span> : <HZahl f={f} fs={fs} />;
 }
 
-function SchrittSchaubild({ a, dreieck }) {
+/* hilfspunkt: Q ist kein gegebener Punkt, sondern nur das Ende des Steigungsdreiecks (Punkt & Steigung);
+   dann stehen die Werte an Δx und Δy, weil m ohnehin gegeben ist */
+function SchrittSchaubild({ a, dreieck, hilfspunkt = false }) {
   const S = 300;
   /* Ausschnitt: Ursprung ± 1,5 und beide Punkte müssen immer sichtbar sein, dazu Rand;
      Achsen 1 : 1, Mitte des Ausschnitts = Mitte dieser Fläche (die Punkte liegen so zentral) */
@@ -696,7 +698,7 @@ function SchrittSchaubild({ a, dreieck }) {
   };
 
   return (
-    <svg viewBox={`0 0 ${S} ${S}`} role="img" aria-label="Die Punkte P und Q mit Steigungsdreieck"
+    <svg viewBox={`0 0 ${S} ${S}`} role="img" aria-label={hilfspunkt ? "Der Punkt P mit Steigungsdreieck" : "Die Punkte P und Q mit Steigungsdreieck"}
       style={{ width: "100%", maxWidth: 340, display: "block", margin: "0 auto", overflow: "visible" }}>
       <rect x="0" y="0" width={S} height={S} fill={C.weiss} rx="12" />
       {tx.map((i) => <line key={`gx${i}`} x1={px(i)} y1={0} x2={px(i)} y2={S} stroke={C.linie} strokeWidth="1" />)}
@@ -716,14 +718,19 @@ function SchrittSchaubild({ a, dreieck }) {
         <line x1={px(a.x1)} y1={py(a.y1)} x2={px(a.x2)} y2={py(a.y2)} stroke={C.see} strokeWidth="2" strokeDasharray="5 4" />
         <line x1={px(a.x1)} y1={py(a.y1)} x2={px(a.x2)} y2={py(a.y1)} stroke={C.gruen} strokeWidth="2.5" />
         <line x1={px(a.x2)} y1={py(a.y1)} x2={px(a.x2)} y2={py(a.y2)} stroke={C.signal} strokeWidth="2.5" />
-        <text x={(px(a.x1) + px(a.x2)) / 2} y={py(a.y1) + (qOben ? 16 : -7)} textAnchor="middle" fill={C.gruen} {...T} {...halo}>Δx</text>
-        <text x={px(a.x2) + (qRechts ? 9 : -9)} y={(py(a.y1) + py(a.y2)) / 2 + 4} textAnchor={qRechts ? "start" : "end"} fill={C.signal} {...T} {...halo}>Δy</text>
+        <text x={(px(a.x1) + px(a.x2)) / 2} y={py(a.y1) + (qOben ? 16 : -7)} textAnchor="middle" fill={C.gruen} {...T} {...halo}>
+          {hilfspunkt ? `Δx = ${minusZ(a.x2 - a.x1)}` : "Δx"}
+        </text>
+        <text x={px(a.x2) + (qRechts ? 9 : -9)} y={(py(a.y1) + py(a.y2)) / 2 + 4} textAnchor={qRechts ? "start" : "end"} fill={C.signal} {...T} {...halo}>
+          {hilfspunkt ? `Δy = ${minusZ(a.y2 - a.y1)}` : "Δy"}
+        </text>
+        {hilfspunkt && <circle cx={px(a.x2)} cy={py(a.y2)} r="4" fill={C.weiss} stroke={C.see} strokeWidth="2" />}
       </g>
 
       <circle cx={px(a.x1)} cy={py(a.y1)} r="5" fill={C.tinte} />
-      <circle cx={px(a.x2)} cy={py(a.y2)} r="5" fill={C.tinte} />
+      {!hilfspunkt && <circle cx={px(a.x2)} cy={py(a.y2)} r="5" fill={C.tinte} />}
       {punktLabel(a.x1, a.y1, "P", !qRechts, !qOben)}
-      {punktLabel(a.x2, a.y2, "Q", qRechts, qOben)}
+      {!hilfspunkt && punktLabel(a.x2, a.y2, "Q", qRechts, qOben)}
     </svg>
   );
 }
@@ -741,9 +748,13 @@ function HSchritt({ nr, titel, children }) {
 }
 
 function GeradenHilfe({ a }) {
+  /* Punkt & Steigung: m ist gegeben – das Steigungsdreieck geht von P aus (Δx = Nenner, Δy = Zähler),
+     der Schritt „m berechnen“ entfällt und c ist sofort frei */
+  const ps = a.typ === "punktsteigung";
+  const bild = ps ? { ...a, x2: a.x1 + a.m.d, y2: a.y1 + a.m.n } : a;
   const [dreieck, setDreieck] = useState(false);
   const [f, setF] = useState(["", "", "", ""]);
-  const [frei, setFrei] = useState(false);
+  const [frei, setFrei] = useState(ps);
   const [stufe, setStufe] = useState(1);
 
   React.useEffect(() => {
@@ -782,11 +793,17 @@ function GeradenHilfe({ a }) {
 
   return (
     <div style={{ background: C.weiss, borderRadius: 16, padding: 22, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", marginBottom: 18 }}>
-      <HSchritt nr={1} titel="Punkte und Steigungsdreieck">
-        <SchrittSchaubild a={a} dreieck={dreieck} />
+      <HSchritt nr={1} titel={ps ? "Punkt und Steigungsdreieck" : "Punkte und Steigungsdreieck"}>
+        <SchrittSchaubild a={bild} dreieck={dreieck} hilfspunkt={ps} />
+        {ps && (
+          <div style={{ fontSize: 15, color: C.grau, fontWeight: 400, marginTop: 12, lineHeight: 1.9 }}>
+            <span>m = </span><HZahl f={a.m} fs={15} />{" "}
+            <span>{`heißt: ${a.m.d} nach rechts, ${Math.abs(a.m.n)} nach ${a.m.n > 0 ? "oben" : "unten"}.`}</span>
+          </div>
+        )}
       </HSchritt>
 
-      <HSchritt nr={2} titel="Steigung m berechnen">
+      {!ps && <HSchritt nr={2} titel="Steigung m berechnen">
         <div style={zeileM}>
           <span style={{ fontWeight: 600 }}>m =</span>
           <span style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
@@ -816,9 +833,9 @@ function GeradenHilfe({ a }) {
             Trage die Koordinaten von P und Q selbst ein – oben die y-Werte, unten die x-Werte, jeweils in derselben Reihenfolge.
           </p>
         </details>
-      </HSchritt>
+      </HSchritt>}
 
-      <HSchritt nr={3} titel="y-Achsenabschnitt c berechnen">
+      <HSchritt nr={ps ? 2 : 3} titel="y-Achsenabschnitt c berechnen">
         {!frei ? (
           <p style={{ color: C.hellgrau, fontSize: 13, fontWeight: 300, lineHeight: 1.7 }}>Sobald m stimmt, geht es hier mit c weiter.</p>
         ) : (
@@ -979,7 +996,7 @@ export function KIAufgaben({ eingebettet }) {
             <p style={{ color: C.hellgrau, fontSize: 12, fontWeight: 300, marginTop: 12 }}>{quelle}</p>
           </div>
 
-          {a.typ === "zweipunkte" && <GeradenHilfe key={nr} a={a} />}
+          <GeradenHilfe key={nr} a={a} />
 
           <div style={{ background: C.weiss, borderRadius: 16, padding: 22, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" }}>
             <p style={{ fontSize: 13, color: C.grau, fontWeight: 300, marginBottom: 14 }}>Deine Lösung</p>
