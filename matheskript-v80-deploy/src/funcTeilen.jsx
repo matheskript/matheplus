@@ -63,9 +63,8 @@ export function TeilenKnopf({ ansicht, pfad }) {
   };
 
   return (
-    <div className="tl-fuss">
+    <>
       <style>{`
-        .tl-fuss{display:flex;flex-direction:column;align-items:center;padding:28px 24px 0;font-family:Montserrat,system-ui,sans-serif}
         .tl-knopf{display:inline-flex;align-items:center;gap:10px;min-height:48px;padding:0 22px;border-radius:999px;cursor:pointer;
           font-family:inherit;font-size:14.5px;font-weight:700;color:#fff;background:${C.see};border:1.5px solid ${C.see};
           box-shadow:0 4px 14px rgba(0,77,152,.22);transition:background .15s ease,color .15s ease}
@@ -82,10 +81,17 @@ export function TeilenKnopf({ ansicht, pfad }) {
         .tl-vorschau{margin:12px 2px 0;font-size:12.5px;line-height:1.5;color:${C.grau};white-space:pre-line;word-break:break-word}
         .tl-ok{margin:10px 2px 0;font-size:13px;font-weight:700;color:#168A44}
         .tl-fehler{margin:10px 2px 0;font-size:13px;font-weight:600;color:#B3261E}
+        /* Teilen- und Feedback-Knopf nebeneinander, gleich breit (Wrapper .fuss-paar.zwei in func10.jsx); das Panel steht darunter über die ganze Breite */
+        .fuss-paar.zwei{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;padding:28px 16px 4px;max-width:460px;margin:0 auto;box-sizing:border-box}
+        .fuss-paar.zwei .fb-fuss{display:contents}
+        .fuss-paar.zwei .tl-knopf,.fuss-paar.zwei .fb-knopf{flex:1 1 0;min-width:0;justify-content:center;gap:8px;padding:0 12px;font-size:14px;white-space:nowrap;box-sizing:border-box}
+        .fuss-paar.zwei .tl-knopf{order:1}
+        .fuss-paar.zwei .fb-knopf{order:2}
+        .fuss-paar.zwei .tl-panel{order:3;flex:0 0 100%;max-width:none;margin-top:2px}
       `}</style>
       <button type="button" className="tl-knopf" onClick={() => setOffen((o) => !o)} aria-expanded={offen} aria-label={L("Dieses Tool teilen", "Share this tool")}>
         <TeilenIcon />
-        <span>{L("Dieses Tool teilen", "Share this tool")}</span>
+        <span>{L("Tool teilen", "Share tool")}</span>
       </button>
       {offen && (
         <div className="tl-panel" role="group" aria-label={L("Tool teilen", "Share tool")}>
@@ -102,6 +108,6 @@ export function TeilenKnopf({ ansicht, pfad }) {
           <p className="tl-vorschau">{text}</p>
         </div>
       )}
-    </div>
+    </>
   );
 }

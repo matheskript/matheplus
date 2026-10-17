@@ -9,6 +9,7 @@ import { WerkzeugLeiste, KompaktKopf } from "./funcWerkzeuge.jsx";
 import { wo } from "./werkzeuge.js";
 import { pfadAufloesen, pfadFuer } from "./pfade.js";
 import { TeilenKnopf } from "./funcTeilen.jsx";
+import { teilenInfo } from "./teilen.js";
 import { hinweisVerwerfen } from "./uebergabe.js";
 import { FR } from "./funcRegistry.jsx";
 import { AufklappStil, AufklappZeichen, aufklappScrollStarten } from "./aufklappen.jsx";
@@ -1637,19 +1638,21 @@ export function Mathilda() {
       </>
       )}
       </React.Suspense>
-      {!istEntwurf(ansicht) && <TeilenKnopf ansicht={ansicht} pfad={pfadFuer(adressZustand) || "/"} />}
       {!istEntwurf(ansicht) && (
-        <FeedbackKnopf aktuell={{
-          ansicht,
-          ziel: ansicht === "training" ? trainZiel : ansicht === "ki" ? genZiel : undefined,
-          klasse: ansicht === "klasse" ? klasseAktiv : undefined,
-          kurs: ansicht === "kurse" ? kursStart || undefined : undefined,
-          bereich: ansicht === "formeln" ? formelBereich : undefined,
-          trainer: ansicht === "kopf" ? kopfTrainer || undefined : undefined,
-          land: ansicht === "landeswettbewerb" ? landWahl : undefined,
-          kompetenz: einheitId || undefined,
-          foto: ansicht === "analyse" ? fotoModus : undefined,
-        }} />
+        <div className={"fuss-paar" + (teilenInfo(ansicht) ? " zwei" : "")}>
+          <TeilenKnopf ansicht={ansicht} pfad={pfadFuer(adressZustand) || "/"} />
+          <FeedbackKnopf aktuell={{
+            ansicht,
+            ziel: ansicht === "training" ? trainZiel : ansicht === "ki" ? genZiel : undefined,
+            klasse: ansicht === "klasse" ? klasseAktiv : undefined,
+            kurs: ansicht === "kurse" ? kursStart || undefined : undefined,
+            bereich: ansicht === "formeln" ? formelBereich : undefined,
+            trainer: ansicht === "kopf" ? kopfTrainer || undefined : undefined,
+            land: ansicht === "landeswettbewerb" ? landWahl : undefined,
+            kompetenz: einheitId || undefined,
+            foto: ansicht === "analyse" ? fotoModus : undefined,
+          }} />
+        </div>
       )}
       {!istEntwurf(ansicht) && <Fusszeile gehe={gehe} />}
       <MatheTastaturHost />

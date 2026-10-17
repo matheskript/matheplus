@@ -60,6 +60,31 @@ with sync_playwright() as pw:
     href = page.get_attribute("a.tl-wa", "href")
     pruefe(urllib.parse.unquote(href).endswith("/kurvendiskussion/beliebig"), "Link folgt dem Umschalter nicht")
 
+    # 5. Teilen- und Feedback-Knopf stehen nebeneinander, gleich breit und gleich hoch (Handy und Desktop, auch mit offenem Panel)
+    for breite in (360, 390, 1280):
+        page.set_viewport_size({"width": breite, "height": 800})
+        for p in ["/ableitungstrainer", "/warmup" if False else "/5-minuten-mathe", "/abstaende"]:
+            page.goto("about:blank"); page.goto(BASE + p); page.wait_for_timeout(450)
+            for offen in (False, True):
+                if offen: page.click(".tl-knopf"); page.wait_for_timeout(150)
+                page.wait_for_timeout(250)
+                g = page.evaluate("""() => { const r = (q) => { const e = document.querySelector(q); if (!e) return null; const b = e.getBoundingClientRect(); return { x: b.x, y: b.y, width: b.width, height: b.height }; };
+                  return { t: r('.tl-knopf'), f: r('.fb-knopf'), p: r('.tl-panel') }; }""")
+                t, f = g["t"], g["f"]
+                pruefe(abs(t["width"] - f["width"]) <= 1, f"{p}@{breite}: Breiten {t['width']:.0f} vs {f['width']:.0f}")
+                pruefe(abs(t["height"] - f["height"]) <= 1 and abs(t["y"] - f["y"]) <= 1, f"{p}@{breite}: nicht auf einer Linie ({t['y']:.0f}/{t['height']:.0f} vs {f['y']:.0f}/{f['height']:.0f})")
+                pruefe(t["x"] + t["width"] <= f["x"] + 1, f"{p}@{breite}: Teilen steht nicht links vom Feedback")
+                pruefe(t["x"] >= 0 and f["x"] + f["width"] <= breite, f"{p}@{breite}: Knopf ragt aus dem Bildschirm")
+                if offen:
+                    pruefe(g["p"]["y"] >= t["y"] + t["height"] - 1, f"{p}@{breite}: Panel nicht unter den Knöpfen ({g['p']['y']:.0f} vs {t['y'] + t['height']:.0f})")
+                    pruefe(page.evaluate("document.documentElement.scrollWidth - innerWidth") <= 1, f"{p}@{breite}: Seitenüberbreite")
+        if breite == 360: page.screenshot(path="/tmp/claude-0/paar360.png")
+    # Ohne Teilen-Knopf bleibt der Feedback-Knopf wie vorher mittig
+    page.set_viewport_size({"width": 390, "height": 800})
+    page.goto("about:blank"); page.goto(BASE + "/"); page.wait_for_timeout(500)
+    f = page.locator(".fb-knopf").bounding_box()
+    pruefe(abs((f["x"] + f["width"] / 2) - 195) <= 2, "Feedback-Knopf auf der Startseite nicht mittig")
+
     pruefe(not konsole, f"Konsolenfehler: {konsole[:3]}")
     b.close()
 
