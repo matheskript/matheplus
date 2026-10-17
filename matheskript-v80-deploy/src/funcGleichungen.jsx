@@ -847,38 +847,4 @@ Steht keine Gleichung auf dem Foto, antworte {"aufgaben":[]}.`;
   );
 }
 
-/* Grafik für die Startseiten-Kachel: Heftzeilen mit Gleichheitszeichen untereinander und Randnotiz. */
-export function GleichungenLogoKlein() {
-  const W = 230, H = 190;
-  const T = { fontFamily: "Montserrat, system-ui, sans-serif", fontWeight: 700 };
-  const zeilen = [
-    { y: 54, l: "3x + 5", r: "20", op: "−5" },
-    { y: 94, l: "3x", r: "15", op: ":3" },
-    { y: 134, l: "x", r: "5", op: null },
-  ];
-  return (
-    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
-      {Array.from({ length: 9 }, (_, i) => <line key={`v${i}`} x1={i * 28} y1="0" x2={i * 28} y2={H} stroke="rgba(255,255,255,0.05)" />)}
-      {Array.from({ length: 7 }, (_, i) => <line key={`h${i}`} x1="0" y1={i * 28} x2={W} y2={i * 28} stroke="rgba(255,255,255,0.05)" />)}
-      {zeilen.map((z, i) => (
-        <g key={i} {...T} fontSize="21">
-          <text x="100" y={z.y} textAnchor="end" fill={i === 2 ? C.flaggold : C.weiss}>{z.l}</text>
-          <text x="112" y={z.y} textAnchor="middle" fill="rgba(255,255,255,0.55)" fontWeight="500">=</text>
-          <text x="124" y={z.y} fill={i === 2 ? C.flaggold : C.weiss}>{z.r}</text>
-          {z.op && <>
-            <line x1="165" y1={z.y - 17} x2="165" y2={z.y + 4} stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" />
-            <text x="174" y={z.y} fill={C.flaggold} fontSize="18">{z.op}</text>
-          </>}
-        </g>
-      ))}
-      <line x1="84" y1="143" x2="144" y2="143" stroke={C.flaggold} strokeWidth="2" />
-      <line x1="84" y1="148" x2="144" y2="148" stroke={C.flaggold} strokeWidth="2" />
-      {["+", "−", "·", ":"].map((k, i) => (
-        <g key={k} transform={`translate(${34 + i * 42} 160)`}>
-          <rect width="34" height="24" rx="7" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.25)" />
-          <text x="17" y="17.5" textAnchor="middle" fill={C.weiss} fontSize="15" {...T} fontWeight="600">{k}</text>
-        </g>
-      ))}
-    </svg>
-  );
-}
+export { GleichungenLogoKlein } from "./funcEntdeckenLogo.jsx";

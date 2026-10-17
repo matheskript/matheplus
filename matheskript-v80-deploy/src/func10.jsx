@@ -3,71 +3,80 @@ import React, { useState, useRef, useEffect } from "react";
 import { API_URL, C, REGELN, VIDEO_URL, blattPrompt } from "./base1.jsx";
 import { KOMP } from "./base3.jsx";
 import { NAV, SCHULKLASSEN, kiKopf, kiAntwort } from "./base4.jsx";
-import { KIAufgaben, Kurse, Trainingsbereich, dekodieren, jsonLesen, rendern } from "./func1.jsx";
-import { Parabeln } from "./funcParabeln.jsx";
+import { dekodieren, jsonLesen, rendern } from "./func1.jsx";
 import { Startseite, ToolMenue, istToolMenueSeite, werkzeugMerken } from "./func2.jsx";
 import { WerkzeugLeiste, KompaktKopf } from "./funcWerkzeuge.jsx";
-import { AbiKettenSeite } from "./funcAbiKetten.jsx";
 import { wo } from "./werkzeuge.js";
 import { hinweisVerwerfen } from "./uebergabe.js";
 import { FR } from "./funcRegistry.jsx";
 import { AufklappStil, AufklappZeichen, aufklappScrollStarten } from "./aufklappen.jsx";
-import { Plotter, Text, Zeile } from "./func3.jsx";
-import { FotoAufgaben, Klausur, Kurvendiskussion } from "./func4.jsx";
-import { DifferenzenquotientSeite, Fortschritt, GeneratorHub, Kopfrechnen, WegVomBlatt } from "./func5.jsx";
+import { Text, Zeile } from "./func3.jsx";
+import { Klausur, Kurvendiskussion } from "./func4.jsx";
+import { Fortschritt, Kopfrechnen } from "./func5.jsx";
 import { Einstufung, Lernlandkarte, Liniennetz, Profil, lernLaden, lernLeer, lernSnapshot, lernVomKonto, useLern } from "./func6.jsx";
 import { syncStarten } from "./lernSync.js";
 import { entdeckenSyncStarten } from "./entdeckenSync.js";
-import { MeinTrainingSeite } from "./funcMeinTraining.jsx";
 import { LernpfadSeite } from "./funcLernpfad.jsx";
-import { Begruenden, EinheitSpieler, Operatoren, Wiederholen } from "./func7.jsx";
-import { MeinPlan, Messbericht, Modellieren, Probeabitur, Wochenbericht } from "./func8.jsx";
-import { Auswertung, Einwilligung, KlasseAnsicht, KlausurVorbereitung, einwilligungLesen } from "./func9.jsx";
-import { AdvancedPlotter } from "./func12.jsx";
-import { Ableitungstrainer } from "./func13.jsx";
-import { AnalysisZentrum, KopfrechenZentrum } from "./func14.jsx";
-import { EbenenVisualizer, VektorenZentrum } from "./func16.jsx";
-import { EbeneVsEbene, KreuzproduktRechner } from "./func19.jsx";
-import { VektorGenerator } from "./func20.jsx";
-import { Integrale } from "./func25.jsx";
-import { Abstaende } from "./func24.jsx";
-import { GleichungenVerstehen } from "./funcGleichModi.jsx";
-import { Optimierungswerkstatt } from "./funcOptimierung.jsx";
-import { TrainingSeite, TrainingFortschritt, PruefungsLink } from "./funcTraining.jsx";
-import { Funktionsscharen } from "./funcScharen.jsx";
-import { ElternkursSeite } from "./funcElternkurs.jsx";
-import { NachhilfekursSeite } from "./funcNachhilfekurs.jsx";
-import { EntdeckenSeite } from "./funcEntdecken.jsx";
-import { WachstumLogarithmen } from "./funcWachstum.jsx";
-import { Hypothesentests } from "./funcHypothesentest.jsx";
-import { UrnenKombinatorik } from "./funcKombinatorik.jsx";
-import { ErwartungswertSpiele } from "./funcErwartung.jsx";
-import { TermeUndPotenzgesetze } from "./funcTerme.jsx";
-import { GeradenImRaum, WinkelSkalarprodukt } from "./funcGeraden.jsx";
-import { DreiPunkteEbene, ZweiPunkteGerade } from "./func23.jsx";
-import { Sinusfunktion } from "./func21.jsx";
-import { PotenzregelSeite } from "./func22.jsx";
-import { BernoulliBingo, StochastikZentrum } from "./func17.jsx";
-import { Vierfeldertafel } from "./func18.jsx";
-import { Gleichungsloeser } from "./funcGleichungen.jsx";
-import { LGSLoeser } from "./funcLGS.jsx";
-import { Steckbriefaufgaben } from "./funcSteckbrief.jsx";
-import { MasterclassSeite, MatheCheckenSeite } from "./funcMasterclass.jsx";
-import { Fusszeile, ImpressumSeite, AGBSeite, WiderrufSeite } from "./funcRecht.jsx";
-import { KontoSeite } from "./funcKonto.jsx";
+import { Operatoren, Wiederholen } from "./func7.jsx";
+import { Messbericht, Modellieren, Probeabitur, Wochenbericht } from "./func8.jsx";
+import { Auswertung, Einwilligung, einwilligungLesen } from "./func9.jsx";
+import { TrainingFortschritt, PruefungsLink } from "./funcTraining.jsx";
+import { Fusszeile } from "./funcRecht.jsx";
 import { FeedbackKnopf } from "./funcFeedback.jsx";
 import { MatheTastaturHost } from "./matheTastatur.jsx";
-import { ElternabendSeite } from "./funcElternabend.jsx";
-import { BundeswettbewerbSeite, LandeswettbewerbeSeite, LandeswettbewerbSeite, LAENDER } from "./funcWettbewerbe.jsx";
-import { ENTWUERFE, istEntwurf, EntwurfTor, EntwurfStart, EntwurfChecken, EntwurfPakete } from "./funcEntwuerfe.jsx";
-import { EntwurfVorher } from "./funcVorher.jsx";
-import { LANDING, Landingpage } from "./funcLandingpage.jsx";
-import { PenPaperKursSeite } from "./funcPenPaperKurs.jsx";
+import { LAENDER } from "./funcWettbewerbe.jsx";
+import { ENTWUERFE, istEntwurf, LANDING } from "./seitenKonstanten.js";
+const EntwurfTor = React.lazy(() => import("./funcEntwuerfe.jsx").then((m) => ({ default: m.EntwurfTor })));
+const Landingpage = React.lazy(() => import("./funcLandingpage.jsx").then((m) => ({ default: m.Landingpage })));
+import { Laden, SeitenKopf, WerkzeugSeite, istWzSeite } from "./funcWerkzeugSeite.jsx";
+/* Seiten werden erst beim Öffnen nachgeladen (je eigener Chunk) */
+const ElternkursSeite = React.lazy(() => import("./funcElternkurs.jsx").then((m) => ({ default: m.ElternkursSeite })));
+const NachhilfekursSeite = React.lazy(() => import("./funcNachhilfekurs.jsx").then((m) => ({ default: m.NachhilfekursSeite })));
+const EntdeckenSeite = React.lazy(() => import("./funcEntdecken.jsx").then((m) => ({ default: m.EntdeckenSeite })));
+const PenPaperKursSeite = React.lazy(() => import("./funcPenPaperKurs.jsx").then((m) => ({ default: m.PenPaperKursSeite })));
+const KontoSeite = React.lazy(() => import("./funcKonto.jsx").then((m) => ({ default: m.KontoSeite })));
+const ImpressumSeite = React.lazy(() => import("./funcRecht.jsx").then((m) => ({ default: m.ImpressumSeite })));
+const AGBSeite = React.lazy(() => import("./funcRecht.jsx").then((m) => ({ default: m.AGBSeite })));
+const WiderrufSeite = React.lazy(() => import("./funcRecht.jsx").then((m) => ({ default: m.WiderrufSeite })));
+const ElternabendSeite = React.lazy(() => import("./funcElternabend.jsx").then((m) => ({ default: m.ElternabendSeite })));
+const BundeswettbewerbSeite = React.lazy(() => import("./funcWettbewerbe.jsx").then((m) => ({ default: m.BundeswettbewerbSeite })));
+const LandeswettbewerbeSeite = React.lazy(() => import("./funcWettbewerbe.jsx").then((m) => ({ default: m.LandeswettbewerbeSeite })));
+const LandeswettbewerbSeite = React.lazy(() => import("./funcWettbewerbe.jsx").then((m) => ({ default: m.LandeswettbewerbSeite })));
+const MasterclassSeite = React.lazy(() => import("./funcMasterclass.jsx").then((m) => ({ default: m.MasterclassSeite })));
+const MatheCheckenSeite = React.lazy(() => import("./funcMasterclass.jsx").then((m) => ({ default: m.MatheCheckenSeite })));
+const EntwurfVorher = React.lazy(() => import("./funcVorher.jsx").then((m) => ({ default: m.EntwurfVorher })));
+const EntwurfWerkzeuge = React.lazy(() => import("./funcStartArchiv.jsx").then((m) => ({ default: m.EntwurfWerkzeuge })));
+const EbbinghausSeite = React.lazy(() => import("./funcEbbinghaus.jsx").then((m) => ({ default: m.EbbinghausSeite })));
+const AbiKettenSeite = React.lazy(() => import("./funcAbiKetten.jsx").then((m) => ({ default: m.AbiKettenSeite })));
+const MeinTrainingSeite = React.lazy(() => import("./funcMeinTraining.jsx").then((m) => ({ default: m.MeinTrainingSeite })));
+const Ableitungstrainer = React.lazy(() => import("./func13.jsx").then((m) => ({ default: m.Ableitungstrainer })));
+const AdvancedPlotter = React.lazy(() => import("./func12.jsx").then((m) => ({ default: m.AdvancedPlotter })));
+const LGSLoeser = React.lazy(() => import("./funcLGS.jsx").then((m) => ({ default: m.LGSLoeser })));
+const Gleichungsloeser = React.lazy(() => import("./funcGleichungen.jsx").then((m) => ({ default: m.Gleichungsloeser })));
+const PotenzregelSeite = React.lazy(() => import("./func22.jsx").then((m) => ({ default: m.PotenzregelSeite })));
+const AnalysisZentrum = React.lazy(() => import("./func14.jsx").then((m) => ({ default: m.AnalysisZentrum })));
+const KopfrechenZentrum = React.lazy(() => import("./func14.jsx").then((m) => ({ default: m.KopfrechenZentrum })));
+const Begruenden = React.lazy(() => import("./func7.jsx").then((m) => ({ default: m.Begruenden })));
+const EinheitSpieler = React.lazy(() => import("./func7.jsx").then((m) => ({ default: m.EinheitSpieler })));
+const MeinPlan = React.lazy(() => import("./func8.jsx").then((m) => ({ default: m.MeinPlan })));
+const KlasseAnsicht = React.lazy(() => import("./func9.jsx").then((m) => ({ default: m.KlasseAnsicht })));
+const KlausurVorbereitung = React.lazy(() => import("./func9.jsx").then((m) => ({ default: m.KlausurVorbereitung })));
+const TrainingSeite = React.lazy(() => import("./funcTraining.jsx").then((m) => ({ default: m.TrainingSeite })));
+const DifferenzenquotientSeite = React.lazy(() => import("./func5.jsx").then((m) => ({ default: m.DifferenzenquotientSeite })));
+const FotoAufgaben = React.lazy(() => import("./func4.jsx").then((m) => ({ default: m.FotoAufgaben })));
+const GeneratorHub = React.lazy(() => import("./func5.jsx").then((m) => ({ default: m.GeneratorHub })));
+const WegVomBlatt = React.lazy(() => import("./func5.jsx").then((m) => ({ default: m.WegVomBlatt })));
+const Trainingsbereich = React.lazy(() => import("./func1.jsx").then((m) => ({ default: m.Trainingsbereich })));
+const Kurse = React.lazy(() => import("./func1.jsx").then((m) => ({ default: m.Kurse })));
+const KIAufgaben = React.lazy(() => import("./func1.jsx").then((m) => ({ default: m.KIAufgaben })));
+const EntwurfStart = React.lazy(() => import("./funcEntwuerfe.jsx").then((m) => ({ default: m.EntwurfStart })));
+const EntwurfChecken = React.lazy(() => import("./funcEntwuerfe.jsx").then((m) => ({ default: m.EntwurfChecken })));
+const EntwurfPakete = React.lazy(() => import("./funcEntwuerfe.jsx").then((m) => ({ default: m.EntwurfPakete })));
+const Plotter = React.lazy(() => import("./func3.jsx").then((m) => ({ default: m.Plotter })));
 /* Head & Numbers wird erst beim Öffnen nachgeladen (eigener Chunk, nicht im Hauptbündel) */
 const FormelsammlungNeu = React.lazy(() => import("./funcFormelsammlung.jsx").then((m) => ({ default: m.FormelsammlungNeu })));
 const HeadNumbersSeite = React.lazy(() => import("./funcHeadNumbers.jsx").then((m) => ({ default: m.HeadNumbersSeite })));
-import { EBB_SLOGAN, EbbinghausSeite } from "./funcEbbinghaus.jsx";
-import { EntwurfWerkzeuge } from "./funcStartArchiv.jsx";
+import { EBB_SLOGAN } from "./funcEbbinghaus.jsx";
 import { useKonto, kontoStarten } from "./konto.js";
 import { englisch, spracheWechseln } from "./i18n.js";
 
@@ -501,6 +510,7 @@ export function Mathilda() {
       </div>
       )}
 
+      <React.Suspense fallback={<Laden />}>
       {ansicht === "messung" ? (
         <>
           <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
@@ -735,271 +745,51 @@ export function Mathilda() {
         </>
       ) : ansicht === "warmup" ? (
         <>
-          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(24px, 7vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>5 Minuten Mathe</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
+          <SeitenKopf titel="5 Minuten Mathe" groesse="clamp(24px, 7vw, 34px)">
               <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>Kurz üben, ohne Druck.</p>
-            </div>
-            <Welle fill={C.sand} />
-          </div>
+          </SeitenKopf>
           <TrainingSeite modus="warmup" gehe={gehe} />
         </>
       ) : ansicht === "fehlertraining" ? (
         <>
-          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(24px, 7vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Meine Fehler üben</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
+          <SeitenKopf titel="Meine Fehler üben" groesse="clamp(24px, 7vw, 34px)">
               <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>Nicht wie viele Fehler – welche.</p>
-            </div>
-            <Welle fill={C.sand} />
-          </div>
+          </SeitenKopf>
           <TrainingSeite modus="fehlertraining" gehe={gehe} />
         </>
       ) : ansicht === "abiketten" ? (
         <>
-          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(24px, 7vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Abi-Ketten</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
+          <SeitenKopf titel="Abi-Ketten" groesse="clamp(24px, 7vw, 34px)">
               <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>Eine Abi-Aufgabe, die durch mehrere Werkzeuge läuft – mit Punkten und Uhr.</p>
-            </div>
-            <Welle fill={C.sand} />
-          </div>
+          </SeitenKopf>
           <AbiKettenSeite />
         </>
       ) : ansicht === "pruefung" ? (
         <>
-          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(24px, 7vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Prüfungsmodus</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
+          <SeitenKopf titel="Prüfungsmodus" groesse="clamp(24px, 7vw, 34px)">
               <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>Wie in der Klausur: ohne Hilfen, mit Punkten.</p>
-            </div>
-            <Welle fill={C.sand} />
-          </div>
+          </SeitenKopf>
           <TrainingSeite modus="pruefung" gehe={gehe} />
         </>
       ) : ansicht === "klausurnach" ? (
         <>
-          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(24px, 7vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Klausur nachbereiten</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
+          <SeitenKopf titel="Klausur nachbereiten" groesse="clamp(24px, 7vw, 34px)">
               <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>Aus verlorenen Punkten einen Plan machen.</p>
-            </div>
-            <Welle fill={C.sand} />
-          </div>
+          </SeitenKopf>
           <TrainingSeite modus="klausurnach" gehe={gehe} />
         </>
       ) : ansicht === "kopf" ? (
         <>
-          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(26px, 8vw, 36px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Kopfrechnen</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
+          <SeitenKopf titel="Kopfrechnen" groesse="clamp(26px, 8vw, 36px)">
               <p style={{ color: C.goldText, fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
                 Head &amp; Numbers — damit der Kopf beim Rechnen für das Eigentliche frei bleibt.
               </p>
-            </div>
-            <Welle fill={C.sand} />
-          </div>
+          </SeitenKopf>
           <KopfrechenZentrum key={kopfTrainer || "liste"} start={kopfTrainer} gehe={gehe} />
         </>
-      ) : ansicht === "ebenen" ? (
-        <>
-          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(28px, 8vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Ebenen-Visualizer</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
-              <SektionsMenue />
-            </div>
-            <Welle fill={C.sand} />
-          </div>
-          <EbenenVisualizer />
-        </>
-      ) : ansicht === "ebenevsebene" ? (
-        <>
-          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(28px, 8vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Ebene vs. Ebene</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
-              <SektionsMenue />
-            </div>
-            <Welle fill={C.sand} />
-          </div>
-          <EbeneVsEbene />
-        </>
-      ) : ansicht === "kreuzprodukt" ? (
-        <>
-          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(28px, 8vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Kreuzprodukt</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
-              <SektionsMenue />
-            </div>
-            <Welle fill={C.sand} />
-          </div>
-          <KreuzproduktRechner />
-        </>
-      ) : ansicht === "vektorgenerator" ? (
-        <>
-          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(28px, 8vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Rechnen mit Vektoren</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
-              <SektionsMenue />
-            </div>
-            <Welle fill={C.sand} />
-          </div>
-          <VektorGenerator gehe={gehe} />
-        </>
-      ) : ansicht === "zweipunkte" ? (
-        <>
-          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(26px, 7.6vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Zwei Punkte – eine Gerade</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
-              <SektionsMenue />
-            </div>
-            <Welle fill={C.sand} />
-          </div>
-          <ZweiPunkteGerade />
-        </>
-      ) : ansicht === "dreipunkte" ? (
-        <>
-          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(26px, 7.6vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Drei Punkte – eine Ebene</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
-              <SektionsMenue />
-            </div>
-            <Welle fill={C.sand} />
-          </div>
-          <DreiPunkteEbene />
-        </>
-      ) : ansicht === "abstaende" ? (
-        <>
-          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(26px, 7.6vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Abstände</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
-              <SektionsMenue />
-            </div>
-            <Welle fill={C.sand} />
-          </div>
-          <Abstaende />
-        </>
-      ) : ansicht === "geraden" ? (
-        <>
-          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(26px, 7.6vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Geraden im Raum</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
-              <SektionsMenue />
-            </div>
-            <Welle fill={C.sand} />
-          </div>
-          <GeradenImRaum />
-        </>
-      ) : ansicht === "winkel" ? (
-        <>
-          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(26px, 7.6vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Winkel und Skalarprodukt</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
-              <SektionsMenue />
-            </div>
-            <Welle fill={C.sand} />
-          </div>
-          <WinkelSkalarprodukt />
-        </>
-      ) : ansicht === "vektoren" ? (
-        <>
-          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(28px, 8vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Vektoren</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
-              <SektionsMenue />
-            </div>
-            <Welle fill={C.sand} />
-          </div>
-          <VektorenZentrum gehe={gehe} />
-        </>
-      ) : ansicht === "bernoulli" ? (
-        <>
-          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(28px, 8vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Bernoulli-Kette</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
-              <SektionsMenue />
-            </div>
-            <Welle fill={C.sand} />
-          </div>
-          <BernoulliBingo />
-        </>
-      ) : ansicht === "vierfelder" ? (
-        <>
-          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(28px, 8vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Vier-Felder-Tafel</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
-              <SektionsMenue />
-            </div>
-            <Welle fill={C.sand} />
-          </div>
-          <Vierfeldertafel />
-        </>
-      ) : ansicht === "erwartungswert" ? (
-        <>
-          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(24px, 7vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Erwartungswert und faire Spiele</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
-              <SektionsMenue />
-            </div>
-            <Welle fill={C.sand} />
-          </div>
-          <ErwartungswertSpiele />
-        </>
-      ) : ansicht === "kombinatorik" ? (
-        <>
-          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(24px, 7vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Urnen und Kombinatorik</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
-              <SektionsMenue />
-            </div>
-            <Welle fill={C.sand} />
-          </div>
-          <UrnenKombinatorik />
-        </>
-      ) : ansicht === "hypothesentest" ? (
-        <>
-          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(24px, 7vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Hypothesentests</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
-              <SektionsMenue />
-            </div>
-            <Welle fill={C.sand} />
-          </div>
-          <Hypothesentests />
-        </>
-      ) : ansicht === "stochastik" ? (
-        <>
-          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(28px, 8vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Stochastik</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
-              <SektionsMenue />
-            </div>
-            <Welle fill={C.sand} />
-          </div>
-          <StochastikZentrum gehe={gehe} />
-        </>
-      ) : ansicht === "analysis" ? (
+      ) : istWzSeite(ansicht) ? (
+        <WerkzeugSeite ansicht={ansicht} gehe={gehe} menue={<SektionsMenue />} />
+                                                                                                ) : ansicht === "analysis" ? (
         <>
           <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
@@ -1011,19 +801,7 @@ export function Mathilda() {
           </div>
           <AnalysisZentrum gehe={gehe} />
         </>
-      ) : ansicht === "sinus" ? (
-        <>
-          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(28px, 8vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Sinusfunktion</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
-              <SektionsMenue />
-            </div>
-            <Welle fill={C.sand} />
-          </div>
-          <Sinusfunktion gehe={gehe} ansicht={ansicht} />
-        </>
-      ) : ansicht === "formeln" ? (
+            ) : ansicht === "formeln" ? (
         <>
           <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
@@ -1059,31 +837,7 @@ export function Mathilda() {
             testKnopf={<PruefungsLink ansicht={ansicht} gehe={gehe} pille />} />
           <Ableitungstrainer />
         </>
-      ) : ansicht === "steckbrief" ? (
-        <>
-          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(26px, 7.6vw, 33px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Steckbriefaufgaben</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
-              <SektionsMenue />
-            </div>
-            <Welle fill={C.sand} />
-          </div>
-          <Steckbriefaufgaben />
-        </>
-      ) : ansicht === "integrale" ? (
-        <>
-          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(26px, 7.6vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Integrale</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
-              <SektionsMenue />
-            </div>
-            <Welle fill={C.sand} />
-          </div>
-          <Integrale />
-        </>
-      ) : ansicht === "advplotter" ? (
+                  ) : ansicht === "advplotter" ? (
         <>
           <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
@@ -1152,94 +906,17 @@ export function Mathilda() {
           </div>
           <Gleichungsloeser />
         </>
-      ) : ansicht === "optimierung" ? (
+                  ) : ansicht === "geradengleichung" ? (
         <>
-          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(26px, 7.6vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Optimierungswerkstatt</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
+          <SeitenKopf titel="Geradengleichung" groesse="clamp(24px, 7vw, 34px)">
               <SektionsMenue />
-            </div>
-            <Welle fill={C.sand} />
-          </div>
-          <Optimierungswerkstatt />
-        </>
-      ) : ansicht === "wachstum" ? (
-        <>
-          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(24px, 7vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Wachstum und Logarithmen</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
-              <SektionsMenue />
-            </div>
-            <Welle fill={C.sand} />
-          </div>
-          <WachstumLogarithmen />
-        </>
-      ) : ansicht === "geradengleichung" ? (
-        <>
-          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(24px, 7vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Geradengleichung</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
-              <SektionsMenue />
-            </div>
-            <Welle fill={C.sand} />
-          </div>
+          </SeitenKopf>
           <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
             <h2 style={{ fontSize: 25, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 14 }}>Gerade durch zwei Punkte – oder durch Punkt und Steigung</h2>
             <KIAufgaben eingebettet />
           </div>
         </>
-      ) : ansicht === "parabeln" ? (
-        <>
-          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(24px, 7vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Parabeln</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
-              <SektionsMenue />
-            </div>
-            <Welle fill={C.sand} />
-          </div>
-          <Parabeln />
-        </>
-      ) : ansicht === "scharen" ? (
-        <>
-          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(24px, 7vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Funktionsscharen</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
-              <SektionsMenue />
-            </div>
-            <Welle fill={C.sand} />
-          </div>
-          <Funktionsscharen />
-        </>
-      ) : ansicht === "gleichverstehen" ? (
-        <>
-          <div className="kopfblock" style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(26px, 7.6vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Gleichungen lösen</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
-              <SektionsMenue />
-            </div>
-            <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
-          </div>
-          <GleichungenVerstehen />
-        </>
-      ) : ansicht === "terme" ? (
-        <>
-          <div className="kopfblock" style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(26px, 7.6vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Terme und Potenzgesetze</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
-              <SektionsMenue />
-            </div>
-            <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
-          </div>
-          <TermeUndPotenzgesetze />
-        </>
-      ) : ansicht === "bwm" ? (
+                              ) : ansicht === "bwm" ? (
         <>
           <div style={{ background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
             <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
@@ -1306,38 +983,23 @@ export function Mathilda() {
         </>
       ) : ansicht === "impressum" ? (
         <>
-          <div className="kopfblock" style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(26px, 7.6vw, 31px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Impressum</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
+          <SeitenKopf titel="Impressum" groesse="clamp(26px, 7.6vw, 31px)" rund>
               <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>Anbieterkennzeichnung nach § 5 DDG.</p>
-            </div>
-            <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
-          </div>
+          </SeitenKopf>
           <ImpressumSeite />
         </>
       ) : ansicht === "agb" ? (
         <>
-          <div className="kopfblock" style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(26px, 7.6vw, 31px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>AGB</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
+          <SeitenKopf titel="AGB" groesse="clamp(26px, 7.6vw, 31px)" rund>
               <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>Allgemeine Geschäftsbedingungen von Mythos Mathe.</p>
-            </div>
-            <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
-          </div>
+          </SeitenKopf>
           <AGBSeite />
         </>
       ) : ansicht === "widerruf" ? (
         <>
-          <div className="kopfblock" style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(26px, 7.6vw, 31px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Widerrufsbelehrung</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
+          <SeitenKopf titel="Widerrufsbelehrung" groesse="clamp(26px, 7.6vw, 31px)" rund>
               <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>Widerrufsrecht für Live-Unterricht, Dienstleistungen und digitale Inhalte.</p>
-            </div>
-            <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
-          </div>
+          </SeitenKopf>
           <WiderrufSeite />
         </>
       ) : ansicht === "mathecheck" ? (
@@ -1399,14 +1061,9 @@ export function Mathilda() {
         </>
       ) : ansicht === "meintraining" ? (
         <>
-          <div className="kopfblock" style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(26px, 7.6vw, 36px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Mein Training</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
+          <SeitenKopf titel="Mein Training" groesse="clamp(26px, 7.6vw, 36px)" rund>
               <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>Dein Tagesplan, dein Lernfortschritt und alle Übungsmodi.</p>
-            </div>
-            <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
-          </div>
+          </SeitenKopf>
           <MeinTrainingSeite gehe={gehe} />
         </>
       ) : ansicht === "ebbinghaus" ? (
@@ -1443,17 +1100,12 @@ export function Mathilda() {
         </>
       ) : ansicht === "lgs" ? (
         <>
-          <div className="kopfblock" style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(26px, 7.6vw, 31px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Gleichungssysteme</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
+          <SeitenKopf titel="Gleichungssysteme" groesse="clamp(26px, 7.6vw, 31px)" rund>
               <SektionsMenue />
               <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
                 Drei Unbekannte, drei Gleichungen — und du bestimmst jeden Schritt.
               </p>
-            </div>
-            <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
-          </div>
+          </SeitenKopf>
           <LGSLoeser />
         </>
       ) : ansicht === "entdecken" ? (
@@ -1902,6 +1554,7 @@ export function Mathilda() {
       )}
       </>
       )}
+      </React.Suspense>
       {!istEntwurf(ansicht) && (
         <FeedbackKnopf aktuell={{
           ansicht,
