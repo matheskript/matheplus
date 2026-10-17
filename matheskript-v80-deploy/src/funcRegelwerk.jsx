@@ -499,9 +499,6 @@ export function RegelWerkstatt({ regel: regelProp }) {
           Lösung zeigen
         </button>
       )}
-      <p style={{ fontSize: 12.5, color: C.grau, margin: "10px 4px 0" }}>
-        Aktiv: <b style={{ color: C.tinte }}>{aktiv === "f1" ? "f′(x)" : `${aktiv[0]}′(x)`}</b> – tippe auf ein anderes Feld, um dort zu schreiben.
-      </p>
       <Eingabe text={eingabeText} setText={setEingabeText} pos={eingabePos} setPos={setEingabePos} onEnter={pruefen} />
     </>
   ) : (
