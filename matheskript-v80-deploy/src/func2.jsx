@@ -17,7 +17,8 @@ import { KopfKacheln, KopfrechnenLogoKlein, TRAINER } from "./func14.jsx";
 import { HeadNumbersLogoKlein } from "./funcHeadNumbersLogo.jsx";
 import { EBB_SLOGAN, EbbinghausBadge, EbbinghausLogoKlein } from "./funcEbbinghaus.jsx";
 import { MeinTrainingBadge, MeinTrainingLogoKlein, meinTrainingText, useOffenHeute } from "./funcMeinTraining.jsx";
-import { DeinPlanBlock } from "./funcLernpfad.jsx";
+import { DeinPlanBlock, useLernpfad } from "./funcLernpfad.jsx";
+import { StartOnboarding, ZonenKopf } from "./funcOnboarding.jsx";
 import { AppAnleitung } from "./funcAnleitung.jsx";
 import { SuchBox } from "./funcSuche.jsx";
 import { VektorenLogoKlein } from "./func16.jsx";
@@ -1070,6 +1071,7 @@ function BereichsKopfLeiste({ rahmenRef, titel, onZu }) {
 }
 
 export function Startseite({ gehe }) {
+  const lernpfad = useLernpfad();
   const [wieder, setWieder] = useState(false);
   const [hinweis, setHinweis] = useState("");
   const [schulAuf, setSchulAuf] = useState(false);     // Dropdown „Schulmathe-Training“
@@ -1522,13 +1524,16 @@ export function Startseite({ gehe }) {
       </section>
       {/* Suchfeld „Was möchtest du trainieren?“: mobil über „So nutzt du die App“, am Desktop über „Mathematik entdecken“ */}
       {/* Dein Plan: Lernpfad mit Standortcheck und Wochenziel – vor dem Suchfeld und dem Werkzeugkasten */}
+      {!desktop && <ZonenKopf nr={1} titel="Heute" zeile="Dein nächster Schritt – sofort gefunden." />}
+      {!desktop && <StartOnboarding gehe={gehe} setzeStufe={stufeSetzen} planDa={!!lernpfad} />}
+      {!desktop && <WeitermachenZeile gehe={gehe} />}
       <DeinPlanBlock gehe={gehe} />
       <SuchBox gehe={gehe} />
-      {!desktop && <AppAnleitung />}
+      {!desktop && <div style={{ marginTop: 12 }}><MeinTrainingKachelStart gehe={gehe} /></div>}
+      {!desktop && <ZonenKopf nr={2} titel="Lernen" zeile="Alle Werkzeuge nach Bereich und Stufe." />}
       {/* Oberbutton „Schulmathe-Training“: darunter direkt die Bereiche (Analysis, Vektoren, Stochastik,
           Gleichungen), Abi-Ketten und Formelsammlung. Aufgeklappt wird der Button halb so hoch.
           Alle Kacheln laufen auf voller Breite (breit); es ist immer nur ein Bereich offen. */}
-      {!desktop && <MeinTrainingKachelStart gehe={gehe} />}
       {desktop && entdeckenBlock}
       <AufklappRahmen auf={schulAuf}>
       <PlotterKachel breit halb={schulAuf} onClick={() => { setSchulAuf(!schulAuf); setEntdAuf(false); setBereichAuf(null); setFormelAuf(false); setEtikett(null); }} auf={schulAuf}
@@ -1540,7 +1545,7 @@ export function Startseite({ gehe }) {
         extra={<PlusKnopf auf={schulAuf} klein={schulAuf} />} />
       {schulAuf && (
         <div data-aufklapp-inhalt style={{ margin: "0 0 4px" }}>
-          <WeitermachenZeile gehe={gehe} />
+          {desktop && <WeitermachenZeile gehe={gehe} />}
           <StufenSchalter wert={stufe} setze={stufeSetzen} />
           <div style={{ padding: "14px 2px 0" }}><EtikettFilter wert={etikett} setze={(e) => { setEtikett(e); setBereichAuf(null); setFormelAuf(false); }} /></div>
           {etikett ? (
@@ -1602,6 +1607,15 @@ export function Startseite({ gehe }) {
         </div>
       )}
       </AufklappRahmen>
+      {!desktop && (<>
+      <PlotterKachel onClick={() => gehe({ ansicht: "headnumbers" })} label="Head & Numbers öffnen" logo={<HeadNumbersLogoKlein />} keinI18nTitel
+        titel="Head & Numbers"
+        text="Einmaleins, Quadrat- und Kubikzahlen, schriftliches Rechnen und Brüche – bis alles sitzt." />
+      <PlotterKachel onClick={() => gehe({ ansicht: "ebbinghaus" })} label="Ebbinghaus öffnen" logo={<EbbinghausLogoKlein />} extra={<EbbinghausBadge />} keinI18nTitel
+        titel="Ebbinghaus"
+        text={EBB_SLOGAN} />
+      <ZonenKopf nr={3} titel="Entdecken" zeile="Herleiten, Kurse, Mathilda und Pen & Paper." />
+      </>)}
       {!desktop && entdeckenBlock}
       {ZEIGE_GESPERRTE && (<>
       <MatheCheckenKachel gesperrt onClick={() => gehe({ ansicht: "mathecheck" })} />
@@ -1635,17 +1649,20 @@ export function Startseite({ gehe }) {
           text="6 TED-Talks und 2 Bücher, die inspirieren, wie Mathe auch funktionieren kann." />
       </div>
       </>)}
+      {desktop && (<>
       <PlotterKachel onClick={() => gehe({ ansicht: "headnumbers" })} label="Head & Numbers öffnen" logo={<HeadNumbersLogoKlein />} keinI18nTitel
         titel="Head & Numbers"
         text="Einmaleins, Quadrat- und Kubikzahlen, schriftliches Rechnen und Brüche – bis alles sitzt." />
       <PlotterKachel onClick={() => gehe({ ansicht: "ebbinghaus" })} label="Ebbinghaus öffnen" logo={<EbbinghausLogoKlein />} extra={<EbbinghausBadge />} keinI18nTitel
         titel="Ebbinghaus"
         text={EBB_SLOGAN} />
+      </>)}
       <PlotterKachel gesperrt onClick={() => gehe({ ansicht: "kurse" })} label="Videokurse öffnen" logo={<SchulkurseLogoKlein />}
         titel="Videokurse"
         text="Analysis 1–5, Vektoren und Stochastik – mit Videolektionen und Checks." />
       {/* Ganz unten: Mathe Masterclass (3 Monate, gesperrt) */}
       <MasterclassKachel gesperrt name="Mathe Masterclass" monate="3 MONATE" onClick={() => gehe({ ansicht: "masterclass" })} />
+      {!desktop && <div style={{ marginTop: 18 }}><AppAnleitung /></div>}
 
     </div>
     </>
