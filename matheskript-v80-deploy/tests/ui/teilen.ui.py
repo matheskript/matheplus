@@ -47,7 +47,8 @@ with sync_playwright() as pw:
     href = page.get_attribute("a.tl-wa", "href")
     pruefe(href.startswith("https://wa.me/?text="), f"WhatsApp-Link: {href}")
     text = urllib.parse.unquote(href.split("text=", 1)[1])
-    pruefe("hier kannst du super Ableitungen trainieren" in text and text.endswith(BASE + "/ableitungstrainer"), f"WhatsApp-Text: {text!r}")
+    pruefe(text == f"Hey, schau dir mal dieses Tool auf mythosmathe.de an. Hier kannst du super Ableitungen trainieren:\n{BASE}/ableitungstrainer\n\n(aktuell Passwort: mathe)", f"WhatsApp-Text: {text!r}")
+    pruefe(page.locator(".tl-vorschau").count() == 0 and "Hey, schau dir" not in page.inner_text(".tl-panel"), "Der Nachrichtentext soll nicht unter den Knöpfen stehen")
     pruefe(page.get_attribute("a.tl-wa", "target") == "_blank" and "noopener" in page.get_attribute("a.tl-wa", "rel"), "WhatsApp-Link öffnet nicht sicher im neuen Tab")
     w = page.evaluate("document.documentElement.scrollWidth - innerWidth")
     pruefe(w <= 1, f"Seitenüberbreite {w}px")
@@ -58,7 +59,7 @@ with sync_playwright() as pw:
     pruefe(page.locator(".tl-panel").count() == 0, "Panel bleibt nach Seitenwechsel offen")
     page.click(".tl-knopf"); page.wait_for_timeout(200)
     href = page.get_attribute("a.tl-wa", "href")
-    pruefe(urllib.parse.unquote(href).endswith("/kurvendiskussion/beliebig"), "Link folgt dem Umschalter nicht")
+    pruefe("/kurvendiskussion/beliebig\n\n(aktuell Passwort: mathe)" in urllib.parse.unquote(href), "Link folgt dem Umschalter nicht")
 
     # 5. Teilen- und Feedback-Knopf stehen nebeneinander, gleich breit und gleich hoch (Handy und Desktop, auch mit offenem Panel)
     for breite in (360, 390, 1280):

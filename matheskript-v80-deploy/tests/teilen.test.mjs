@@ -31,11 +31,11 @@ test("Trainingsseiten haben einen Knopf, Startseite, Konto und Rechtliches nicht
 
 test("Nachricht: Beispieltext, Link enthalten, Englisch", () => {
   const i = teilenInfo("ableitungstrainer");
-  assert.equal(teilenText(i, "https://x.de/ableitungstrainer"), "Hey, schau dir mal dieses Tool an – hier kannst du super Ableitungen trainieren:\nhttps://x.de/ableitungstrainer");
-  assert.match(teilenText(i, "https://x.de/a", "en"), /^Hey, check out this tool – here you can easily practise derivatives:\nhttps:\/\/x\.de\/a$/);
+  assert.equal(teilenText(i, "https://x.de/ableitungstrainer"), "Hey, schau dir mal dieses Tool auf mythosmathe.de an. Hier kannst du super Ableitungen trainieren:\nhttps://x.de/ableitungstrainer\n\n(aktuell Passwort: mathe)");
+  assert.match(teilenText(i, "https://x.de/a", "en"), /^Hey, check out this tool on mythosmathe\.de\. Here you can easily practise derivatives:\nhttps:\/\/x\.de\/a\n\n\(current password: mathe\)$/);
   for (const [id, s] of Object.entries(TOOL_SAETZE)) {
     const t = teilenText({ id, ...s }, "https://x.de/l");
-    assert.ok(t.endsWith("https://x.de/l") && t.includes(s.de));
+    assert.ok(t.includes("\nhttps://x.de/l\n\n(aktuell Passwort: mathe)") && t.includes(s.de));
     assert.ok(!/\s{2,}|\.\.|:\s*:/.test(t.split("\n")[0]), `Satzzeichen/Leerzeichen in ${id}`);
   }
 });

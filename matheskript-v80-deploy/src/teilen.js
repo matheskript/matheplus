@@ -3,8 +3,10 @@
    Reine Daten und Textbausteine, keine React-Importe (Node-testbar).
 
    Die Nachricht lautet:
-     Hey, schau dir mal dieses Tool an – hier kannst du super <Satz>:
+     Hey, schau dir mal dieses Tool auf mythosmathe.de an. Hier kannst du super <Satz>:
      <Link>
+
+     (aktuell Passwort: mathe)
    Der <Satz> steht je Werkzeug in TOOL_SAETZE (de/en), für Trainings- und
    Lernseiten ohne Werkzeug-Eintrag in SEITEN_SAETZE.
 
@@ -83,12 +85,23 @@ export function teilenInfo(ansicht) {
   return s ? { id: ansicht, name: ansicht, ...s } : null;
 }
 
-/* Die Nachricht, die per WhatsApp rausgeht (sprache: "de" | "en") */
+/* Passwort der Seite (SEITEN_PASSWORT in Vercel, Standard „mathe“): steht nur in der WhatsApp-Nachricht, nicht im kopierten Link.
+   Wenn das Passwort geändert oder die Seite freigegeben wird (SEITEN_SCHUTZ=aus): hier anpassen bzw. auf "" setzen. */
+export const TEILEN_PASSWORT = "mathe";
+
+/* Die Nachricht, die per WhatsApp rausgeht (sprache: "de" | "en"):
+     Hey, schau dir mal dieses Tool auf mythosmathe.de an. Hier kannst du super <Satz>:
+     <Link>
+
+     (aktuell Passwort: mathe) */
 export function teilenText(info, link, sprache = "de") {
   if (!info) return link;
-  return sprache === "en"
-    ? `Hey, check out this tool – here you can easily ${info.en}:\n${link}`
-    : `Hey, schau dir mal dieses Tool an – hier kannst du super ${info.de}:\n${link}`;
+  const en = sprache === "en";
+  const kopf = en
+    ? `Hey, check out this tool on mythosmathe.de. Here you can easily ${info.en}:`
+    : `Hey, schau dir mal dieses Tool auf mythosmathe.de an. Hier kannst du super ${info.de}:`;
+  const pw = TEILEN_PASSWORT ? `\n\n${en ? "(current password" : "(aktuell Passwort"}: ${TEILEN_PASSWORT})` : "";
+  return `${kopf}\n${link}${pw}`;
 }
 
 export const whatsappUrl = (text) => `https://wa.me/?text=${encodeURIComponent(text)}`;

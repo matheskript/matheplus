@@ -78,7 +78,6 @@ export function TeilenKnopf({ ansicht, pfad }) {
         .tl-aktion:hover,.tl-aktion:focus-visible{background:#EEF3FA}
         .tl-wa{color:#fff;background:#1FA855;border-color:#1FA855}
         .tl-wa:hover,.tl-wa:focus-visible{background:#168A44;border-color:#168A44}
-        .tl-vorschau{margin:12px 2px 0;font-size:12.5px;line-height:1.5;color:${C.grau};white-space:pre-line;word-break:break-word}
         .tl-ok{margin:10px 2px 0;font-size:13px;font-weight:700;color:#168A44}
         .tl-fehler{margin:10px 2px 0;font-size:13px;font-weight:600;color:#B3261E}
         /* Teilen- und Feedback-Knopf nebeneinander, gleich breit (Wrapper .fuss-paar.zwei in func10.jsx); das Panel steht darunter über die ganze Breite */
@@ -105,7 +104,6 @@ export function TeilenKnopf({ ansicht, pfad }) {
           </div>
           {kopiert === true && <p className="tl-ok" role="status">{L("✓ Link kopiert", "✓ Link copied")}</p>}
           {kopiert === false && <p className="tl-fehler" role="status">{L("Kopieren hat nicht geklappt – markiere den Link unten und kopiere ihn von Hand.", "Copying did not work – select the link below and copy it by hand.")}</p>}
-          <p className="tl-vorschau">{text}</p>
         </div>
       )}
     </>
