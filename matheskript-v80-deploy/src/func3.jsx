@@ -1,5 +1,5 @@
 import { tr, englisch } from "./i18n.js";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useLayoutEffect } from "react";
 import { wBetrag, wGanz, wIstEins, wIstNull, wLies, wMul, wNegativ, wNum, wText, wTex, wZ } from "./wzahl.js";
 import { WeiterKnopf, WeiterMit } from "./funcWerkzeuge.jsx";
 import { polyEingabe } from "./uebergabe.js";
@@ -114,6 +114,32 @@ function KoeffWert({ k, farbe, wert, setzen, nichtNull, ort }) {
   const [fehler, setFehler] = useState("");
   const feld = useRef(null);
 
+  /* „a = 2“ steht immer in einer Zeile: die Schrift schrumpft (15 → min. 8 px), bis der Kasten in die Zelle passt */
+  const huelle = useRef(null);
+  const inhalt = useRef(null);
+  const [schrift, setSchrift] = useState(15);
+  const wertTex = wTex(wert);
+  useLayoutEffect(() => {
+    const h = huelle.current, i = inhalt.current;
+    if (!h || !i) return;
+    const knopf = i.parentElement;
+    const messen = () => {
+      const frei = h.clientWidth - 2 * 4 - 3;        // Zelle − Innenabstand − Rahmen
+      const zuletzt = knopf.style.fontSize;
+      knopf.style.fontSize = "15px";                 // immer bei Referenzgröße messen (kein Rückkopplungs-Kreis)
+      const breit = i.getBoundingClientRect().width;
+      knopf.style.fontSize = zuletzt;
+      if (frei <= 0 || breit <= 0) return;
+      const ziel = Math.max(6, Math.min(15, Math.floor((15 * frei / breit) * 10) / 10));
+      setSchrift((alt) => (Math.abs(ziel - alt) > 0.05 ? ziel : alt));
+    };
+    messen();
+    if (typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(messen);
+    ro.observe(h);
+    return () => ro.disconnect();
+  }, [wertTex, k]);
+
   const oeffnen = () => { setEntwurf(wText(wert)); setFehler(""); setOffen(true); };
   useEffect(() => {
     if (!offen || !feld.current) return;
@@ -139,14 +165,16 @@ function KoeffWert({ k, farbe, wert, setzen, nichtNull, ort }) {
 
   const rand = ort === "links" ? { left: 0 } : ort === "rechts" ? { right: 0 } : { left: "50%", transform: "translateX(-50%)" };
   return (
-    <div style={{ position: "relative", width: "100%", display: "flex", justifyContent: "center", minWidth: 0 }}>
+    <div ref={huelle} style={{ position: "relative", width: "100%", display: "flex", justifyContent: "center", minWidth: 0 }}>
       <button type="button" aria-label={zw(`${k} bearbeiten, aktuell ${wText(wert)}`, `Edit ${k}, currently ${wText(wert)}`)} aria-expanded={offen}
         onClick={() => (offen ? setOffen(false) : oeffnen())}
-        style={{ maxWidth: "100%", minHeight: 34, display: "inline-flex", flexWrap: "wrap", alignItems: "center", justifyContent: "center", columnGap: 5,
-          padding: "2px 4px", borderRadius: 10, cursor: "pointer", fontFamily: "inherit", fontSize: 15, fontWeight: 800, color: farbe,
+        style={{ minHeight: 34, display: "inline-flex", flexWrap: "nowrap", alignItems: "center", justifyContent: "center", whiteSpace: "nowrap", flexShrink: 0,
+          padding: "2px 4px", borderRadius: 10, cursor: "pointer", fontFamily: "inherit", fontSize: schrift, fontWeight: 800, color: farbe,
           border: `1.5px solid ${offen ? farbe : `${farbe}55`}`, background: offen ? `${farbe}1F` : `${farbe}0D`, fontVariantNumeric: "tabular-nums", touchAction: "manipulation" }}>
-        <span>{k} =</span>
-        <span style={{ display: "inline-block", width: "max-content", flexShrink: 0, whiteSpace: "nowrap" }}><M t={wTex(wert)} /></span>
+        <span ref={inhalt} style={{ display: "inline-flex", flexWrap: "nowrap", alignItems: "center", whiteSpace: "nowrap", columnGap: "0.33em" }}>
+          <span style={{ whiteSpace: "nowrap" }}>{k} =</span>
+          <span style={{ display: "inline-block", width: "max-content", flexShrink: 0, whiteSpace: "nowrap" }}><M t={wertTex} /></span>
+        </span>
       </button>
       {offen && (
         <div role="group" aria-label={zw(`${k} eingeben`, `Enter ${k}`)}
