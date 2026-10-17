@@ -52,6 +52,7 @@ const EbbinghausSeite = React.lazy(() => import("./funcEbbinghaus.jsx").then((m)
 const AbiKettenSeite = React.lazy(() => import("./funcAbiKetten.jsx").then((m) => ({ default: m.AbiKettenSeite })));
 const MeinTrainingSeite = React.lazy(() => import("./funcMeinTraining.jsx").then((m) => ({ default: m.MeinTrainingSeite })));
 const Ableitungstrainer = React.lazy(() => import("./func13.jsx").then((m) => ({ default: m.Ableitungstrainer })));
+const StammIntegral = React.lazy(() => import("./funcStammIntegral.jsx").then((m) => ({ default: m.StammIntegral })));
 const AdvancedPlotter = React.lazy(() => import("./func12.jsx").then((m) => ({ default: m.AdvancedPlotter })));
 const LGSLoeser = React.lazy(() => import("./funcLGS.jsx").then((m) => ({ default: m.LGSLoeser })));
 const Gleichungsloeser = React.lazy(() => import("./funcGleichungen.jsx").then((m) => ({ default: m.Gleichungsloeser })));
@@ -316,7 +317,7 @@ export function Mathilda() {
   };
 
   /* Trainingswerkzeuge mit eigener schlanker Kopfleiste (KompaktKopf): der große Seitenkopf entfällt */
-  const ohneKopf = ansicht === "ableitungstrainer";
+  const ohneKopf = ansicht === "ableitungstrainer" || ansicht === "stammintegral";
 
   return (
     <div style={{ background: C.sand, color: C.tinte, fontFamily: "Montserrat, system-ui, sans-serif", minHeight: "100vh" }}>
@@ -840,7 +841,14 @@ export function Mathilda() {
             testKnopf={<PruefungsLink ansicht={ansicht} gehe={gehe} pille />} />
           <Ableitungstrainer />
         </>
-                  ) : ansicht === "advplotter" ? (
+      ) : ansicht === "stammintegral" ? (
+        <>
+          <KompaktKopf ansicht={ansicht} gehe={gehe} menueOffen={toolMenueOffen} onMenue={() => setToolMenueOffen(!toolMenueOffen)}
+            menue={<ToolMenue gehe={gehe} schliessen={() => setToolMenueOffen(false)} aktuell={ansicht} />}
+            testKnopf={<PruefungsLink ansicht={ansicht} gehe={gehe} pille />} />
+          <StammIntegral />
+        </>
+      ) : ansicht === "advplotter" ? (
         <>
           <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>

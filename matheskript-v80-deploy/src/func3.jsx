@@ -652,6 +652,11 @@ export function mLies(s, i, ende) {
         raus();
         let a; [a, i] = mArg(s, i);
         teile.push({ typ: "feld", a });
+      } else if (name === "farbe") {
+        // \farbe{u}{…}: Teilterm farbig (u blau, v gold, w lila, t türkis, g grün, r rot)
+        raus();
+        let f, a; [f, i] = mRoh(s, i); [a, i] = mArg(s, i);
+        teile.push({ typ: "farbe", f, a });
       } else if (name === "mathbb") {
         let a; [a, i] = mRoh(s, i);
         text += MMENGEN[a] || a;
@@ -691,6 +696,7 @@ export function mHoehe(teile) {
 }
 
 
+const M_FARBEN = { u: C.see, v: C.gruen, w: C.lila, t: C.tuerkis, g: C.smaragd, r: C.signal };
 const M_RAND = new Set(["sub", "sup", "vec", "bar", "spalte", "sqrt"]);
 
 export function mZeichne(teile, imExponent = false) {
@@ -751,6 +757,7 @@ export function mZeichne(teile, imExponent = false) {
       </span>
     );
     if (t.typ === "grp") return <span key={i}>{mZeichne(t.a)}</span>;
+    if (t.typ === "farbe") return <span key={i} style={{ color: M_FARBEN[t.f] || t.f, display: "inline-flex", alignItems: "center" }}>{mZeichne(t.a, imExponent)}</span>;
     if (t.typ === "cursor") return (
       <span key={i} className="m-cursor" aria-hidden="true"
         style={{ display: "inline-block", width: "0.12em", height: "1.08em", background: C.gruen, borderRadius: 1.5,

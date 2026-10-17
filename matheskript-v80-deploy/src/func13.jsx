@@ -21,6 +21,7 @@ import {
 } from "./func12.jsx";
 import { IchHaengeFest, ableitRegeln, aussenTex, summanden } from "./funcHilfe.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
+import { RegelWerkstatt } from "./funcRegelwerk.jsx";
 
 /* Kontext für „Ich hänge fest“: Hinweise aus dem Term, der gerade abgeleitet wird */
 const NAME_F = ["f", "f′", "f″", "f‴"];
@@ -156,6 +157,7 @@ export function Ableitungstrainer() {
   const [pos, setPos] = useState(0);
   const [tippen, setTippen] = useState(false);
   const [bilanz, setBilanz] = useState({ richtig: 0, gesamt: 0 });
+  const [bereich, setBereich] = useState(mit ? "trainer" : "trainer");   // trainer | werkstatt
 
   const fBaum = useMemo(() => {
     const b = parse(fText);
@@ -236,6 +238,12 @@ export function Ableitungstrainer() {
         .abl-stufe{width:46px;height:46px;padding:0;border-radius:999px;font-family:inherit;font-size:16px;font-weight:700;cursor:pointer;border:1.5px solid ${C.linie};background:#fff;color:${C.see}}
         .abl-stufe[aria-pressed="true"]{background:${C.see};border-color:${C.see};color:#fff}
         .abl-karte{background:transparent}
+        .abl-bereich{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:4px;border-radius:18px;background:#EEF2F8;margin-bottom:14px}
+        .abl-bereich button{height:56px;border-radius:14px;border:none;font-family:inherit;cursor:pointer;background:transparent;color:${C.grau};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:0 8px}
+        .abl-bereich button span{font-size:15px;font-weight:700;line-height:1.2}
+        .abl-bereich button small{font-size:11.5px;font-weight:500;line-height:1.2;opacity:.8}
+        .abl-bereich button[aria-selected="true"]{background:linear-gradient(155deg,${C.see} 0%,${C.seeTief} 100%);color:#fff;box-shadow:0 4px 12px rgba(0,77,152,0.25)}
+        .abl-bereich button[aria-selected="true"] small{color:${C.goldText}}
         @media (min-width:601px){
           .abl-seite{background:transparent}
           .abl-chipwrap{margin:0 0 12px}
@@ -244,6 +252,16 @@ export function Ableitungstrainer() {
           .abl-karte{background:#fff;border-radius:16px;padding:18px;box-shadow:0 2px 16px rgba(15,26,51,0.07)}
         }`}</style>
       <div className="abl-innen">
+        {/* Bereich: Ableiten üben oder Regel-Werkstatt */}
+        <div className="abl-bereich" role="tablist" aria-label="Bereich">
+          {[["trainer", "Ableiten üben", "f′, f″, f‴ eingeben"], ["werkstatt", "Regel-Werkstatt", "Produkt, Quotient, Kette …"]].map(([id, name, unter]) => (
+            <button key={id} type="button" role="tab" aria-selected={bereich === id} onClick={() => setBereich(id)}>
+              <span>{name}</span><small>{unter}</small>
+            </button>
+          ))}
+        </div>
+        {bereich === "werkstatt" && <RegelWerkstatt />}
+        {bereich === "trainer" && <>
         {/* Funktionsart: direkt wählen, alles in einer Reihe */}
         <div className="abl-chipwrap">
           <div className="abl-chips" role="group" aria-label="Welche Funktionen möchtest du ableiten?">
@@ -370,6 +388,7 @@ export function Ableitungstrainer() {
             {!fertig && <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 6 }}><IchHaengeFest kontext={ableitHilfe(kette, aktiv)} /></div>}
           </div>
         )}
+        </>}
       </div>
     </div>
   );

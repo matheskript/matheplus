@@ -872,6 +872,7 @@ function MiniBild({ art }) {
     optimierung: <>{achsen}<path d="M12 44 C 30 40, 40 8, 60 8 S 92 40, 112 44" {...linie} /><circle cx="60" cy="8" r="3.2" fill={g} /><path d="M60 8 V46" stroke={g} strokeWidth="1.2" strokeDasharray="3 3" /></>,
     gleichverstehen: <>{txt(12, 24, "2x + 3 = 11", "#fff", 12)}{txt(12, 40, "x = 4", g, 13)}<path d="M84 44 C 92 30, 100 30, 108 14" {...linie} /></>,
     termkarte: <>{txt(14, 34, "a(b+c)", "#fff", 13)}{txt(14, 50, "= ab + ac", g, 11)}{txt(86, 20, "xⁿ", g, 15)}</>,
+    hauptsatz: <>{txt(60, 24, "∫ₐᵇ f(x) dx", "#fff", 13, "middle")}{txt(60, 44, "= F(b) − F(a)", g, 12, "middle")}</>,
     integral: <>{achsen}<path d="M30 46 L30 30 C 44 14, 60 10, 76 20 L76 46 Z" fill="rgba(237,187,0,0.35)" /><path d="M10 40 C 26 34, 34 22, 48 15 S 80 14, 112 30" {...linie} />{txt(84, 18, "∫", g, 15)}</>,
     erwartung: <>{txt(60, 24, "E(X) = 0", "#fff", 14, "middle")}{txt(60, 44, "fair", g, 12, "middle")}<path d="M44 47 H76" stroke={g} strokeWidth="1" /></>,
     urne: <><path d="M34 10 Q30 50 60 50 Q90 50 86 10" {...linie} fill="rgba(255,255,255,0.06)" /><circle cx="50" cy="40" r="5" fill={g} /><circle cx="62" cy="42" r="5" fill="#fff" /><circle cx="72" cy="36" r="5" fill={g} /><circle cx="57" cy="31" r="5" fill="#fff" /></>,
