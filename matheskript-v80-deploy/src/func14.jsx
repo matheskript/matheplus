@@ -14,6 +14,7 @@ import { englisch } from "./i18n.js";
 import { GesperrteKurse } from "./func1.jsx";
 import { Primfaktoren, merken } from "./func5.jsx";
 import { SchriftlichPlusMinus, SchriftlicheDivision } from "./funcSchriftlich.jsx";
+import { ErklaerAnimation } from "./funcErklaeranimation.jsx";
 
 const zufall = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
 const HOCH = { 2: "²", 3: "³" };
@@ -396,6 +397,7 @@ function QuadratKubik({ art }) {
       {art === "quadrat" && <div style={{ height: 12 }} />}
       <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: C.gruenDunkel, marginBottom: 8 }}>Üben</p>
       {(!ids || ids.length > 1) && <PotenzModi wert={modus} setWert={setModus} ids={ids} />}
+      {modus === "wurzel10k" && <ErklaerAnimation art="wurzel" style={{ marginTop: 4 }} />}
       <Schnellrechnen erzeugen={erzeugen} gruppe="Potenzen" bestSchluessel={`kr-best-pot-${modus}`} />
     </div>
   );

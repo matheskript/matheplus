@@ -7,6 +7,7 @@ import { TermTastatur } from "./func4.jsx";
 import { DiffqStufenknopf, merken } from "./func5.jsx";
 import { plotAbbildung, Achsen, Schieber } from "./func6.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
+import { ErklaerAnimation } from "./funcErklaeranimation.jsx";
 
 /* ---------- Themenseite Potenzregel ----------
    Aufbau nach dem Muster der Differenzenquotient-Seite:
@@ -397,6 +398,7 @@ export function PotenzregelSeite() {
         <Kasten titel="Produktregel">
           <Formeln zeilen={["(u \\cdot v)′ = u′ \\cdot v + u \\cdot v′"]} max={19} />
         </Kasten>
+        <ErklaerAnimation art="produkt" />
 
         <Schritt nr="3" titel="Vollständige Induktion" />
         <Text s="Behauptung: Für jede natürliche Zahl $n \geq 1$ gilt $(x^n)′ = n \cdot x^{n-1}$." style={{ ...FLIESS, color: C.tinte, fontWeight: 500 }} />

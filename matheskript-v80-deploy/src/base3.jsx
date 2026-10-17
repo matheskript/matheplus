@@ -452,6 +452,7 @@ export const EINHEITEN = {
     verstehen: [
       { t: "formel", titel: "Produktregel", zeilen: ["(u \\cdot v)′ = u′v + uv′"] },
       { t: "text", s: "Stell dir ein Rechteck mit den Seiten $u$ und $v$ vor. Wächst $u$ ein wenig, kommt ein Streifen $u′ \\cdot v$ dazu. Wächst $v$, ein Streifen $u \\cdot v′$. Die Ableitung ist die Summe beider Streifen." },
+      { t: "anim", art: "produkt" },
       { t: "formel", titel: "Quotientenregel", zeilen: ["\\left( \\frac{u}{v} \\right)′ = \\frac{u′v - uv′}{v^2}"] },
       { t: "merk", s: "Schreib $u$, $u′$, $v$ und $v′$ zuerst getrennt auf, bevor du einsetzt. Genau an dieser Stelle entstehen sonst die Fehler." },
     ],
@@ -466,6 +467,7 @@ export const EINHEITEN = {
     verstehen: [
       { t: "formel", titel: "Kettenregel", zeilen: ["f(x) = u(v(x)) \\quad\\Rightarrow\\quad f′(x) = u′(v(x)) \\cdot v′(x)"] },
       { t: "text", s: "Zerlege jede verkettete Funktion zuerst in eine äußere und eine innere. Bei $\\sin(3x)$ ist die äußere der Sinus, die innere $3x$." },
+      { t: "anim", art: "kette" },
       { t: "merk", s: "Die innere Ableitung ist der Faktor, der am häufigsten vergessen wird. Prüfe am Ende immer: Steht sie als Faktor vorn?" },
     ],
     visual: null,

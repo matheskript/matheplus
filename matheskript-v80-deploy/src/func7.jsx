@@ -10,6 +10,7 @@ import { Lernlandkarte, antwortPruefen, brueckeErgebnis, einheitVon, lernAendern
 import { EskalationsKarte, aktivitaetMelden, coachingAnfragen, eskalationSignale, variantenFestschreiben, variantenVorschlag } from "./func8.jsx";
 import { Mathilda } from "./func10.jsx";
 import { AufklappZeichen } from "./aufklappen.jsx";
+import { ErklaerAnimation } from "./funcErklaeranimation.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
 import { kontoZustand } from "./konto.js";
 import { anredeHinweis } from "./rollenLogik.js";
@@ -420,6 +421,7 @@ export function EinheitSpieler({ id, gehe }) {
           {id === "a-regeln" && <ErklaerVideo id={DEMO_VIDEO_ID} titel={k.titel} />}
           {e.verstehen.map((b, i) => {
             if (b.t === "formel") return <Formel key={i} titel={b.titel} zeilen={b.zeilen} />;
+            if (b.t === "anim") return <ErklaerAnimation key={i} art={b.art} />;
             if (b.t === "merk") return (
               <div key={i} style={{ borderLeft: `3px solid ${C.gruen}`, paddingLeft: 16, margin: "18px 0" }}>
                 <Text s={b.s} style={{ fontSize: 14.5, lineHeight: 1.85, margin: 0 }} />
