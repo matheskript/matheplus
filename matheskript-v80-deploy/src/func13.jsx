@@ -161,6 +161,7 @@ export function Ableitungstrainer() {
   // Kopfzeile: Stufe, Automatik/Training und Würfel steuern die Regel-Werkstatt von hier aus
   const [werkStufe, setWerkStufe] = useState(1);
   const [werkModus, setWerkModus] = useState("auto");
+  const [polyModus, setPolyModus] = useState("training");   // Polynome & Co.: Automatik = Ableitungen werden gezeigt, Training = selbst eintippen
   const [wurf, setWurf] = useState(0);
 
   const fBaum = useMemo(() => {
@@ -252,8 +253,6 @@ export function Ableitungstrainer() {
         .abl-stufe{flex:1;min-width:0;display:flex}
         .abl-stufe .wk-pop-knopf{flex:1;min-width:0;height:auto;min-height:42px;justify-content:space-between;padding:0 12px 0 14px;font-size:14.5px}
         .abl-stufe.aus{opacity:.4;pointer-events:none}
-        .abl-wuerfel.breit{flex:1;width:auto;gap:8px;font-family:inherit;font-size:14.5px;font-weight:700;color:${C.seeTief}}
-        .abl-wuerfel.breit>span:first-child{font-size:20px}
         .abl-wuerfel{width:46px;flex-shrink:0;padding:0;border-radius:999px;border:none;cursor:pointer;background:${C.flaggold};font-size:22px;line-height:1;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(15,26,51,0.14)}
         .abl-wahl{min-width:0;border-radius:18px;background:linear-gradient(155deg,${C.see} 0%,${C.seeTief} 100%);color:#fff;box-shadow:0 4px 12px rgba(0,77,152,0.25);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px;text-align:center}
         .abl-wahl>span{font-size:15.5px;font-weight:700;line-height:1.2}
@@ -272,34 +271,24 @@ export function Ableitungstrainer() {
         {/* Kopf: links Automatik/Training sowie Stufe und Würfel, rechts der große Knopf „Ableiten üben“ mit Auswahl (Polynome oder Regel) */}
         <div className="abl-kopf">
           <div className="abl-links">
-            {bereich === "werkstatt" && (
-              <div className="abl-seg" role="group" aria-label="Modus">
-                {[["auto", "Automatik"], ["training", "Training"]].map(([id, name]) => (
-                  <button key={id} type="button" aria-pressed={werkModus === id} onClick={() => setWerkModus(id)}>{name}</button>
-                ))}
-              </div>
-            )}
-            {bereich === "werkstatt" ? (
-              <div className="abl-reihe">
+            <div className="abl-seg" role="group" aria-label="Modus">
+              {[["auto", "Automatik"], ["training", "Training"]].map(([id, name]) => {
+                const aktuell = bereich === "werkstatt" ? werkModus : polyModus;
+                return <button key={id} type="button" aria-pressed={aktuell === id}
+                  onClick={() => (bereich === "werkstatt" ? setWerkModus(id) : setPolyModus(id))}>{name}</button>;
+              })}
+            </div>
+            <div className="abl-reihe">
+              {bereich === "werkstatt" ? (
                 <PopupWahl className="abl-stufe" wert={werkStufe} label="Stufe wählen" optionen={[1, 2, 3].map((st) => ({ id: st, name: `Stufe ${st}` }))}
                   kopf={(o) => (o ? o.name : "Stufe")} onWaehle={setWerkStufe} />
-                <button type="button" className="abl-wuerfel" onClick={() => setWurf((w) => w + 1)}
-                  aria-label="Neue Aufgabe würfeln" title="Neue Aufgabe"><span aria-hidden="true">🎲</span></button>
-              </div>
-            ) : (
-              <>
-                {/* Polynome: gleiche Höhe wie bei den Regeln – oben die Stufe, darunter der Würfel für eine neue Funktion */}
-                <div className="abl-reihe">
-                  <PopupWahl className={`abl-stufe${quelle === "typ" ? "" : " aus"}`} wert={stufeTyp} label="Stufe wählen" optionen={[1, 2, 3, 4, 5].map((st) => ({ id: st, name: `Stufe ${st}` }))}
-                    kopf={(o) => (o ? o.name : "Stufe")} onWaehle={(st) => { setStufeTyp(st); neueAufgabe(typ, st); }} />
-                </div>
-                <div className="abl-reihe">
-                  <button type="button" className="abl-wuerfel breit" onClick={neueFunktion} aria-label="Neue Funktion würfeln">
-                    <span aria-hidden="true">🎲</span><span>{quelle === "eigen" ? "Funktion ändern" : "Neue Funktion"}</span>
-                  </button>
-                </div>
-              </>
-            )}
+              ) : (
+                <PopupWahl className={`abl-stufe${quelle === "typ" ? "" : " aus"}`} wert={stufeTyp} label="Stufe wählen" optionen={[1, 2, 3, 4, 5].map((st) => ({ id: st, name: `Stufe ${st}` }))}
+                  kopf={(o) => (o ? o.name : "Stufe")} onWaehle={(st) => { setStufeTyp(st); neueAufgabe(typ, st); }} />
+              )}
+              <button type="button" className="abl-wuerfel" onClick={() => (bereich === "werkstatt" ? setWurf((w) => w + 1) : neueFunktion())}
+                aria-label="Neue Aufgabe würfeln" title="Neue Aufgabe"><span aria-hidden="true">🎲</span></button>
+            </div>
           </div>
           <div className="abl-wahl">
             <span>Ableiten üben</span>
@@ -362,7 +351,17 @@ export function Ableitungstrainer() {
               </span>
             </div>
 
-            {zeilen.map((z, i) => (
+            {polyModus === "auto" ? (
+              /* Automatik: die drei Ableitungen stehen sofort da, nichts zu tippen */
+              <div className="abl-auto" style={{ background: C.sand, borderRadius: 16, padding: "10px 16px 12px" }}>
+                {[1, 2, 3].map((i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, minHeight: 52, borderTop: i > 1 ? `1px solid ${C.linie}` : "none", overflowX: "auto", whiteSpace: "nowrap" }}>
+                    <span style={{ fontWeight: 700, fontSize: 16, color: C.tinte, flexShrink: 0, minWidth: 64 }}>f{["′", "″", "‴"][i - 1]}(x) =</span>
+                    <span style={{ fontSize: 20 }}><M t={alsTex(kette[i].baum)} /></span>
+                  </div>
+                ))}
+              </div>
+            ) : zeilen.map((z, i) => (
               <div key={i}>
                 <Zeile stufe={i + 1} aktiv={i === aktiv && !fertig} eintrag={z.status === "gezeigt" ? { ...z, text: "" } : z}
                   onKlick={i === aktiv && !fertig ? () => setOffen((o) => !o) : undefined} />
@@ -389,7 +388,7 @@ export function Ableitungstrainer() {
               </div>
             ))}
 
-            {fertig && (
+            {polyModus === "training" && fertig && (
               <div style={{ textAlign: "center", padding: "10px 0 4px" }}>
                 <p style={{ fontSize: 20, fontWeight: 700, color: C.smaragd, marginBottom: 4 }}>
                   {zeilen.every((z) => z.status === "richtig") ? "Alle drei Ableitungen richtig! 🎉" : "Geschafft — alle drei Ableitungen stehen."}
@@ -402,7 +401,7 @@ export function Ableitungstrainer() {
                 </button>
               </div>
             )}
-            {!fertig && <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 6 }}><IchHaengeFest kontext={ableitHilfe(kette, aktiv)} /></div>}
+            {polyModus === "training" && !fertig && <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 6 }}><IchHaengeFest kontext={ableitHilfe(kette, aktiv)} /></div>}
           </div>
         )}
         </>}
