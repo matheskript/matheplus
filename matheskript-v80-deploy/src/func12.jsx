@@ -26,7 +26,7 @@ import { MatheFeld } from "./matheTastatur.jsx";
 
 /* ---------- 1. Formel-Engine ---------- */
 
-import { MAX_LISTE, ableitung, alsTex, alsText, analysiere, biquadratischeKoeffizienten, div, endlich, fn, grenzeTxt, hatBox, hatX, kompiliere, liveTex, mitSchreibmarke, ohnePar, parse, rund, tokenisiere, vereinfache, wert } from "./formelEngine.js";
+import { MAX_LISTE, ableitung, alsTex, alsText, analysiere, biquadratischeKoeffizienten, div, endlich, fn, grenzeTxt, hatBox, hatX, kompiliere, liveTex, mitSchreibmarke, ohnePar, parse, rund, tiefZiffer, tokenisiere, vereinfache, wert, zahl } from "./formelEngine.js";
 export { ableitung, alsTex, alsText, analysiere, biquadratischeKoeffizienten, hatBox, hatX, kompiliere, liveTex, mitSchreibmarke, ohnePar, parse, tokenisiere, vereinfache, wert };
 
 export function LiveFormel({ text }) {
