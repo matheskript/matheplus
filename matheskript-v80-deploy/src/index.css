@@ -1,3 +1,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Werkzeugseiten (data-wz-voll, gesetzt in func10.jsx): kein grauer Rand.
+   Weißer Hintergrund, Inhalt ohne Seitenabstand, weiße Karten über die ganze Breite und direkt am blauen Kopf. */
+html[data-wz-voll] .app-wurzel { background: #fff !important; }
+html[data-wz-voll] .held-welle { display: none !important; }
+html[data-wz-voll] .kopfblock { margin-bottom: 0 !important; }
+html[data-wz-voll] .kopfblock > div:last-child:not(.held) { display: none !important; }
+html[data-wz-voll] .mx-auto.px-6.pb-16 { padding-left: 0 !important; padding-right: 0 !important; padding-top: 0 !important; }
+html[data-wz-voll] .mx-auto.px-6.pb-16 > [style*="rgb(255, 255, 255)"] { border-radius: 0 !important; box-shadow: none !important; }
+html[data-wz-voll] .mx-auto.px-6.pb-16 > [style*="rgb(255, 255, 255)"] + [style*="rgb(255, 255, 255)"] { border-top: 1px solid #E6EAF2; }
+html[data-wz-voll] .mx-auto.px-6.pb-16 > :not([style*="rgb(255, 255, 255)"]) { margin-left: 16px !important; margin-right: 16px !important; }
+html[data-wz-voll] .mx-auto.px-6.pb-16 > :first-child:not([style*="rgb(255, 255, 255)"]) { margin-top: 18px !important; }

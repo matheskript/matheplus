@@ -168,6 +168,12 @@ export function Mathilda() {
   const [toolMenueOffen, setToolMenueOffen] = useState(false);
   useEffect(() => { aufklappScrollStarten(); }, []);
   useEffect(() => { werkzeugMerken(ansicht); }, [ansicht]);   // für „Weitermachen“ auf der Startseite
+  // Werkzeugseiten: kein grauer Rand – weiße Fläche über die ganze Breite, direkt unter dem blauen Kopf (Regeln in index.css)
+  useEffect(() => {
+    const wz = !!(wo(ansicht) && wo(ansicht).werkzeug);
+    if (wz) document.documentElement.setAttribute("data-wz-voll", "1"); else document.documentElement.removeAttribute("data-wz-voll");
+    return () => document.documentElement.removeAttribute("data-wz-voll");
+  }, [ansicht]);
   // Adresszeile folgt der Seite: /elternabend, /ableitungstrainer, /klasse-10 … (Pfade: pfade.js).
   // Erster Lauf und Zurück/Vor-Taste ersetzen die Adresse, jede eigene Navigation legt einen Verlaufseintrag an.
   const adressErsterLauf = useRef(true);
@@ -375,7 +381,7 @@ export function Mathilda() {
   const ohneKopf = ansicht === "ableitungstrainer" || ansicht === "stammintegral";
 
   return (
-    <div style={{ background: C.sand, color: C.tinte, fontFamily: "Montserrat, system-ui, sans-serif", minHeight: "100vh" }}>
+    <div className="app-wurzel" style={{ background: C.sand, color: C.tinte, fontFamily: "Montserrat, system-ui, sans-serif", minHeight: "100vh" }}>
       <AufklappStil />
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Roboto+Condensed:wght@400;500&display=swap');
       .kachel { transition: transform .16s ease, box-shadow .16s ease; }
