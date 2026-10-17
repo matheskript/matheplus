@@ -1,4 +1,5 @@
 import { kdText } from "./kdEnglisch.js";
+import { MINDSET_EN } from "./i18n/mindsetEn.js";
 /* ======================================================================
    SPRACHE: Deutsch (Original) oder Englisch.
    Die App ist auf Deutsch geschrieben. Im englischen Modus wird das
@@ -45,6 +46,7 @@ function musterBauen(liste) {
 
 /* Ergänzungen, die im Wörterbuch fehlen */
 const ZUSATZ = {
+  ...MINDSET_EN,
   "Bald verfügbar": "Coming soon",
   "Foto vom Blatt – Mathilda prüft deinen Weg.": "Snap your worksheet – Mathilda checks your work.",
   "sichtbar": "visible",

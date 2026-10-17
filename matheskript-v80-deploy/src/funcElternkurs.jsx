@@ -11,59 +11,136 @@ import { C } from "./base1.jsx";
    Alle Video-IDs sind per YouTube-oEmbed geprüft (einbettbar).
    ====================================================================== */
 
+/* Drei Teile geben dem Kurs einen Bogen: erst das Denken, dann das Gefühl, dann das Gespräch. */
+export const TEILE = [
+  { nr: 1, titel: "Der Kopf", unter: "Wie Denken und Lernen wirklich funktionieren" },
+  { nr: 2, titel: "Das Gefühl", unter: "Was Lernen blockiert und was trägt" },
+  { nr: 3, titel: "Das Gespräch", unter: "Warum, Wirkung und Spielraum" },
+];
+
+const ROLLEN = {
+  dweck: {
+    eltern: "Lobe den Weg statt die Person. Sag „Du hast drangeblieben“ statt „Du bist schlau“, und nimm „noch nicht“ in euren Wortschatz auf: „Du kannst das noch nicht.“",
+    lehrkraft: "Gib Rückmeldungen zur Strategie („Welchen anderen Weg könntest du probieren?“) und lass eine Korrektur als zweiten Versuch zählen, nicht als Strafe.",
+    schueler: "Wenn du denkst „Ich bin kein Mathe-Typ“, ergänze: „… bis jetzt.“ Ein Fehler zeigt dir, wo dein Gehirn gerade wächst.",
+  },
+  kahneman: {
+    eltern: "Frag bei einem Fehler nicht „Wie kann man das nur falsch rechnen?“, sondern „Wo wolltest du zu schnell sein?“ Plant bei den Hausaufgaben eine feste Kontrollminute ein.",
+    lehrkraft: "Baue Aufgaben ein, bei denen die erste Idee falsch ist, und lass die Klasse erst schätzen, dann nachrechnen. So wird Abbremsen zur Methode.",
+    schueler: "Schreib bei jeder Aufgabe den Rechenweg auf und prüfe das Ergebnis mit einer Probe. Das schaltet dein langsames Denken ein.",
+  },
+  brown: {
+    eltern: "Sag selbst laut „Das weiß ich auch nicht – schauen wir gemeinsam nach.“ So lernt dein Kind, dass Nichtwissen zum Lernen gehört.",
+    lehrkraft: "Würdige gute Fragen sichtbar und bespreche Fehler anonym an der Tafel. Je sicherer die Klasse sich fühlt, desto mehr wird gefragt.",
+    schueler: "Eine Frage zu stellen ist keine Schwäche, meist hat die halbe Klasse sie auch. Trau dich diese Woche, eine Frage zu stellen.",
+  },
+  cuddy: {
+    eltern: "Vor einer Klausur nicht im letzten Moment abfragen, sondern zwei Minuten aufrecht stehen, tief atmen und ruhig losgehen. Eine kleine Hilfe, kein Wundermittel.",
+    lehrkraft: "Ein kurzer Moment Ruhe vor der Arbeit (aufrecht hinsetzen, durchatmen) nimmt Anspannung raus und erleichtert den Start.",
+    schueler: "Setz dich vor der Klausur aufrecht hin, Schultern zurück, zwei Minuten ruhig atmen. Das kostet nichts und hilft dir, klar in den Kopf zu kommen.",
+  },
+  urban: {
+    eltern: "Schimpft nicht über Aufschieben, sondern vereinbart eine feste Startzeit und ein Minimum von zehn Minuten. Der Anfang ist die Hürde.",
+    lehrkraft: "Teile große Aufgaben in Etappen mit Zwischenterminen. Wer nur eine Frist hat, wartet auf das Panik-Monster.",
+    schueler: "Starte mit nur zehn Minuten und leg das Handy in einen anderen Raum. Danach läuft es meist von selbst.",
+  },
+  sinek: {
+    eltern: "Fragt einmal ganz ohne Bewertung: „Wofür könntest du Mathe später brauchen?“ und hört zu. Ein eigener Grund trägt länger als jede Note.",
+    lehrkraft: "Beginne ein Thema mit dem Warum: Wo begegnet es uns, wofür wurde es erfunden? Dann fallen Was und Wie leichter.",
+    schueler: "Schreib auf, wofür du Mathe konkret willst (Abi-Note, Studium, Beruf, Neugier), und häng den Zettel über deinen Schreibtisch.",
+  },
+  treasure: {
+    eltern: "Sprecht über Mathe ohne Vorwurf, mit ruhiger Stimme und echtem Zuhören. Eine Pause nach drei Sätzen zeigt, dass ihr die Antwort wirklich wissen wollt.",
+    lehrkraft: "Erklärungen wirken mit Pausen, wechselnder Stimme und klarer Struktur. Nimm dich einmal auf und hör dir selbst zu.",
+    schueler: "Wenn du etwas erklärst, sprich langsam und mach Pausen. Wer anderen etwas erklären kann, versteht es selbst am besten.",
+  },
+  robinson: {
+    eltern: "Lasst euer Kind erklären, wie es auf ein Ergebnis gekommen ist, auch wenn der Weg anders ist als euer eigener. Der eigene Weg ist der Anfang von Verstehen.",
+    lehrkraft: "Plane Aufgaben mit mehr als einem Lösungsweg ein und lass Schüler ihren Weg vorstellen. Kreativität und Genauigkeit schließen sich nicht aus.",
+    schueler: "Löse eine Aufgabe einmal auf zwei Arten, zum Beispiel rechnen und zeichnen. Mathe hat oft mehr als einen Weg.",
+  },
+};
+
+/* „Gesehen“-Haken je Modul: nur lokal im Browser (jede Lese-/Schreibstelle ist abgesichert). */
+const GESEHEN_KEY = "mm-mindset-gesehen";
+function ladeGesehen() {
+  try {
+    const a = JSON.parse(localStorage.getItem(GESEHEN_KEY) || "[]");
+    return Array.isArray(a) ? a.filter((id) => ELTERNKURS.some((k) => k.id === id)) : [];
+  } catch (e) { return []; }
+}
+function speichereGesehen(a) { try { localStorage.setItem(GESEHEN_KEY, JSON.stringify(a)); } catch (e) { /* privat */ } }
+
 export const ELTERNKURS = [
-  { id: "sinek", art: "ted", nr: 1, thema: "Das Warum entdecken", sprecher: "Simon Sinek", titel: "How great leaders inspire action (Start with Why)", video: "qp0HIF3SfI4",
-    text: [
-      "Aus diesem Video kannst du lernen, warum so viele Kinder Mathe nur unter äußerem Druck lernen – und warum das auf Dauer nicht trägt.",
-      "Simon Sinek zeigt sehr klar, dass echte Motivation nicht beim „Was“ (Mathe-Aufgaben) oder „Wie“ (Lernmethoden) beginnt, sondern beim „Warum“. Du siehst, wie große Organisationen und Persönlichkeiten genau diesen Hebel nutzen, und kannst das direkt auf die Situation deines Kindes übertragen.",
-      "Du nimmst mit, wie wichtig es ist, gemeinsam mit deinem Kind nach einem persönlichen Sinn hinter dem Mathe-Lernen zu suchen – statt nur auf Noten, Abitur oder „Du musst das eben machen“ zu setzen. Das Video macht verständlich, warum ein starkes Warum die Bereitschaft verändert, auch schwierige Phasen durchzuhalten.",
-    ] },
-  { id: "robinson", art: "ted", nr: 2, thema: "Kreativität im Mathe-Lernen schützen", sprecher: "Sir Ken Robinson", titel: "Do schools kill creativity?", video: "iG9CE55wbtY",
-    text: [
-      "Aus diesem Video kannst du lernen, wie sehr das klassische Schulsystem die natürliche Kreativität und Neugier von Kindern untergräbt – und was das konkret für das Fach Mathematik bedeutet.",
-      "Sir Ken Robinson erklärt auf unterhaltsame und zugleich ernste Weise, warum Kinder mit der Zeit aufhören, Risiken einzugehen und eigene Wege zu denken. Du erkennst, wie schnell aus neugierigen Fragestellern vorsichtige „Ich will ja nichts Falsches sagen“-Kinder werden.",
-      "Besonders wertvoll ist der Blick darauf, dass Intelligenz vielfältig ist und Fehler eigentlich zum Lernen dazugehören. Das Video gibt dir eine klare Haltung: Mathe muss nicht nur aus Formeln und der einen richtigen Antwort bestehen. Es darf auch Raum für Ausprobieren, Umwege und eigene Denkwege geben – und genau das kannst du als Elternteil bewusst unterstützen.",
-    ] },
-  { id: "dweck", art: "buch", nr: 3, thema: "Das eigene Selbstbild verändern", sprecher: "Carol Dweck", titel: "Selbstbild: Wie unser Denken Erfolge oder Niederlagen bewirkt", video: "0g8uD-MY6V4",
+  { id: "dweck", teil: 1, art: "buch", nr: 1, thema: "Das eigene Selbstbild verändern", sprecher: "Carol Dweck", titel: "Selbstbild: Wie unser Denken Erfolge oder Niederlagen bewirkt", video: "0g8uD-MY6V4",
     text: [
       "Aus diesem Video kannst du lernen, warum nicht die Begabung allein entscheidet, ob ein Kind in Mathe vorankommt, sondern die Überzeugung, ob sich Fähigkeiten entwickeln lassen.",
       "Carol Dweck unterscheidet in ihrem Buch „Selbstbild“ zwei Denkweisen. Wer glaubt, Talent sei festgelegt, will vor allem klug dastehen, meidet Fehler und gibt schnell auf, wenn es schwierig wird. Wer glaubt, dass man durch Übung besser wird, sucht Herausforderungen und nutzt Fehler als Lernchance. Du erkennst, woher Sätze wie „Ich bin eben nicht der Mathe-Typ“ kommen.",
       "Du nimmst mit, wie du dein Kind im Alltag unterstützen kannst: Lob für Anstrengung und gute Strategien stärkt Kinder mehr als Lob für „Du bist so schlau“. So wird aus Mathe keine Frage von Talent, sondern von Entwicklung.",
     ] },
-  { id: "urban", art: "ted", nr: 4, thema: "Den Prokrastinations-Affen zähmen", sprecher: "Tim Urban", titel: "Inside the mind of a master procrastinator", video: "arj7oStGLkU",
-    text: [
-      "Aus diesem Video kannst du lernen, was im Kopf deines Kindes wirklich passiert, wenn es Mathe-Hausaufgaben oder die Klausurvorbereitung immer wieder aufschiebt.",
-      "Tim Urban macht mit viel Humor und Treffsicherheit sichtbar, dass Prokrastination selten reine Faulheit ist. Du lernst die inneren Figuren kennen – den Instant-Gratification-Monkey, der sofortige Ablenkung sucht, und den Panic-Monster, der erst kurz vor der Deadline auftaucht.",
-      "Das Video hilft dir, das Verhalten deines Kindes nicht mehr persönlich zu nehmen oder als mangelnden Willen zu interpretieren. Stattdessen bekommst du ein klares Bild davon, warum gute Vorsätze so oft scheitern und warum reine Willenskraft-Appelle meist wenig bringen. Dieses Verständnis allein verändert schon den Umgang mit Aufschieberitis spürbar.",
-    ] },
-  { id: "cuddy", art: "ted", nr: 5, thema: "Selbstvertrauen & Präsenz aufbauen", sprecher: "Amy Cuddy", titel: "Your body language may shape who you are", video: "Ks-_Mh1QhMc",
-    text: [
-      "Aus diesem Video kannst du lernen, wie stark Körperhaltung und innere Verfassung zusammenhängen – und warum das für Mathe-Klausuren und Prüfungssituationen so relevant ist.",
-      "Amy Cuddy zeigt, dass wir nicht nur durch unsere Haltung auf andere wirken, sondern dass die Haltung auch verändert, wie wir uns selbst fühlen. Du siehst, warum viele Jugendliche in stressigen Momenten unbewusst in eine „kleine“ Haltung gehen und dadurch noch unsicherer werden.",
-      "Das Video macht deutlich, dass Selbstvertrauen nicht nur eine Charaktereigenschaft ist, sondern etwas, das man über den Körper beeinflussen kann. Du nimmst die Erkenntnis mit, dass schon kleine Veränderungen in der Haltung vor einer Klausur oder einem schwierigen Gespräch einen spürbaren Unterschied machen können – für das Gefühl deines Kindes und für seine Leistungsfähigkeit.",
-    ] },
-  { id: "brown", art: "ted", nr: 6, thema: "Verletzlichkeit als Stärke", sprecher: "Brené Brown", titel: "The power of vulnerability", video: "iCvmsMzlF7o",
-    text: [
-      "Aus diesem Video kannst du lernen, warum so viele Kinder (und auch wir Erwachsenen) Schwierigkeiten und Unsicherheiten lieber verstecken – und was das langfristig kostet.",
-      "Brené Brown erklärt auf sehr menschliche Weise, dass Verletzlichkeit nicht Schwäche ist, sondern die Voraussetzung für Mut, Verbindung und echtes Lernen. Du erkennst, wie Scham und die Angst vor Bewertung dazu führen, dass Kinder aufhören, Fragen zu stellen oder zuzugeben, dass sie etwas nicht verstehen.",
-      "Das Video gibt dir eine klare Einladung: Eine Atmosphäre, in der Unsicherheit erlaubt ist, macht Kinder nicht weicher, sondern mutiger. Du siehst, warum es so wertvoll ist, wenn dein Kind „Ich verstehe das nicht“ oder „Ich habe Angst“ sagen darf – und wie sehr das die Bereitschaft verändert, sich anzustrengen und Hilfe anzunehmen.",
-    ] },
-  { id: "treasure", art: "ted", nr: 7, thema: "Klar und wirksam kommunizieren", sprecher: "Julian Treasure", titel: "How to speak so that people want to listen", video: "eIho2S0ZahI",
-    text: [
-      "Aus diesem Video kannst du lernen, warum viele Gespräche über Mathe (und Schule insgesamt) nicht wirklich ankommen – und was du als Elternteil anders machen kannst.",
-      "Julian Treasure zeigt sehr konkret, welche Sprechgewohnheiten dazu führen, dass Menschen abschalten, und welche Elemente eine Stimme und eine Botschaft hörenswert machen. Du bekommst ein klares Bild davon, wie stark Ton, Haltung und die Art zu sprechen darüber entscheiden, ob dein Kind dich wirklich hört.",
-      "Besonders wertvoll ist der Hinweis auf Authentizität und den bewussten Einsatz von Stimme und Pausen. Das Video sensibilisiert dich dafür, dass gute Kommunikation keine Selbstverständlichkeit ist, sondern eine Fähigkeit, die man verbessern kann – und die gerade in den oft angespannten Mathe-Gesprächen den entscheidenden Unterschied macht.",
-    ] },
-  { id: "kahneman", art: "buchvortrag", nr: 8, thema: "Schnell denken, langsam rechnen", sprecher: "Daniel Kahneman", titel: "Thinking, Fast and Slow (Talks at Google)", video: "CjVQJdIrDJ0",
+  { id: "kahneman", teil: 1, art: "buchvortrag", nr: 2, thema: "Schnell denken, langsam rechnen", sprecher: "Daniel Kahneman", titel: "Thinking, Fast and Slow (Talks at Google)", video: "CjVQJdIrDJ0",
     text: [
       "Aus diesem Vortrag kannst du lernen, warum Kinder in Mathe oft die erste Antwort geben, die ihnen einfällt – und warum diese Antwort so überzeugend wirkt, obwohl sie falsch ist.",
       "Daniel Kahneman beschreibt in „Schnelles Denken, langsames Denken“ zwei Arten zu denken: ein schnelles, intuitives System, das mühelos und automatisch arbeitet, und ein langsames, bewusstes System, das Aufmerksamkeit und Anstrengung kostet. Ein Klassiker: Schläger und Ball kosten zusammen 1,10 €, der Schläger kostet 1 € mehr als der Ball. Fast jeder denkt sofort „10 Cent“. Erst wer langsam nachrechnet (2 · Ball + 1 € = 1,10 €), kommt auf 5 Cent.",
       "Du nimmst mit, dass Flüchtigkeitsfehler selten Dummheit sind, sondern oft ein Zeichen dafür, dass das schnelle System übernommen hat. Dein Kind lernt dadurch, bei schwierigen Aufgaben bewusst abzubremsen, den Rechenweg aufzuschreiben und die eigene Intuition zu prüfen. Dasselbe gilt umgekehrt: Was durch viel Übung automatisch läuft, entlastet den Kopf und schafft Platz für das eigentliche Denken.",
     ] },
+  { id: "brown", teil: 2, art: "ted", nr: 3, thema: "Verletzlichkeit als Stärke", sprecher: "Brené Brown", titel: "The power of vulnerability", video: "iCvmsMzlF7o",
+    text: [
+      "Aus diesem Video kannst du lernen, warum so viele Kinder (und auch wir Erwachsenen) Schwierigkeiten und Unsicherheiten lieber verstecken – und was das langfristig kostet.",
+      "Brené Brown erklärt auf sehr menschliche Weise, dass Verletzlichkeit nicht Schwäche ist, sondern die Voraussetzung für Mut, Verbindung und echtes Lernen. Du erkennst, wie Scham und die Angst vor Bewertung dazu führen, dass Kinder aufhören, Fragen zu stellen oder zuzugeben, dass sie etwas nicht verstehen.",
+      "Das Video gibt dir eine klare Einladung: Eine Atmosphäre, in der Unsicherheit erlaubt ist, macht Kinder nicht weicher, sondern mutiger. Du siehst, warum es so wertvoll ist, wenn dein Kind „Ich verstehe das nicht“ oder „Ich habe Angst“ sagen darf – und wie sehr das die Bereitschaft verändert, sich anzustrengen und Hilfe anzunehmen.",
+    ] },
+  { id: "cuddy", teil: 2, art: "ted", nr: 4, thema: "Selbstvertrauen & Präsenz aufbauen", sprecher: "Amy Cuddy", titel: "Your body language may shape who you are", video: "Ks-_Mh1QhMc",
+    text: [
+      "Aus diesem Video kannst du lernen, wie stark Körperhaltung und innere Verfassung zusammenhängen – und warum das für Mathe-Klausuren und Prüfungssituationen so relevant ist.",
+      "Amy Cuddy zeigt, dass wir nicht nur durch unsere Haltung auf andere wirken, sondern dass die Haltung auch verändert, wie wir uns selbst fühlen. Du siehst, warum viele Jugendliche in stressigen Momenten unbewusst in eine „kleine“ Haltung gehen und dadurch noch unsicherer werden.",
+      "Das Video macht deutlich, dass Selbstvertrauen nicht nur eine Charaktereigenschaft ist, sondern etwas, das man über den Körper beeinflussen kann. Du nimmst die Erkenntnis mit, dass schon kleine Veränderungen in der Haltung vor einer Klausur oder einem schwierigen Gespräch einen spürbaren Unterschied machen können – für das Gefühl deines Kindes und für seine Leistungsfähigkeit.",
+    ] },
+  { id: "urban", teil: 2, art: "ted", nr: 5, thema: "Den Prokrastinations-Affen zähmen", sprecher: "Tim Urban", titel: "Inside the mind of a master procrastinator", video: "arj7oStGLkU",
+    text: [
+      "Aus diesem Video kannst du lernen, was im Kopf deines Kindes wirklich passiert, wenn es Mathe-Hausaufgaben oder die Klausurvorbereitung immer wieder aufschiebt.",
+      "Tim Urban macht mit viel Humor und Treffsicherheit sichtbar, dass Prokrastination selten reine Faulheit ist. Du lernst die inneren Figuren kennen – den Instant-Gratification-Monkey, der sofortige Ablenkung sucht, und den Panic-Monster, der erst kurz vor der Deadline auftaucht.",
+      "Das Video hilft dir, das Verhalten deines Kindes nicht mehr persönlich zu nehmen oder als mangelnden Willen zu interpretieren. Stattdessen bekommst du ein klares Bild davon, warum gute Vorsätze so oft scheitern und warum reine Willenskraft-Appelle meist wenig bringen. Dieses Verständnis allein verändert schon den Umgang mit Aufschieberitis spürbar.",
+    ] },
+  { id: "sinek", teil: 3, art: "ted", nr: 6, thema: "Das Warum entdecken", sprecher: "Simon Sinek", titel: "How great leaders inspire action (Start with Why)", video: "qp0HIF3SfI4",
+    text: [
+      "Aus diesem Video kannst du lernen, warum so viele Kinder Mathe nur unter äußerem Druck lernen – und warum das auf Dauer nicht trägt.",
+      "Simon Sinek zeigt sehr klar, dass echte Motivation nicht beim „Was“ (Mathe-Aufgaben) oder „Wie“ (Lernmethoden) beginnt, sondern beim „Warum“. Du siehst, wie große Organisationen und Persönlichkeiten genau diesen Hebel nutzen, und kannst das direkt auf die Situation deines Kindes übertragen.",
+      "Du nimmst mit, wie wichtig es ist, gemeinsam mit deinem Kind nach einem persönlichen Sinn hinter dem Mathe-Lernen zu suchen – statt nur auf Noten, Abitur oder „Du musst das eben machen“ zu setzen. Das Video macht verständlich, warum ein starkes Warum die Bereitschaft verändert, auch schwierige Phasen durchzuhalten.",
+    ] },
+  { id: "treasure", teil: 3, art: "ted", nr: 7, thema: "Klar und wirksam kommunizieren", sprecher: "Julian Treasure", titel: "How to speak so that people want to listen", video: "eIho2S0ZahI",
+    text: [
+      "Aus diesem Video kannst du lernen, warum viele Gespräche über Mathe (und Schule insgesamt) nicht wirklich ankommen – und was du als Elternteil anders machen kannst.",
+      "Julian Treasure zeigt sehr konkret, welche Sprechgewohnheiten dazu führen, dass Menschen abschalten, und welche Elemente eine Stimme und eine Botschaft hörenswert machen. Du bekommst ein klares Bild davon, wie stark Ton, Haltung und die Art zu sprechen darüber entscheiden, ob dein Kind dich wirklich hört.",
+      "Besonders wertvoll ist der Hinweis auf Authentizität und den bewussten Einsatz von Stimme und Pausen. Das Video sensibilisiert dich dafür, dass gute Kommunikation keine Selbstverständlichkeit ist, sondern eine Fähigkeit, die man verbessern kann – und die gerade in den oft angespannten Mathe-Gesprächen den entscheidenden Unterschied macht.",
+    ] },
+  { id: "robinson", teil: 3, art: "ted", nr: 8, thema: "Kreativität im Mathe-Lernen schützen", sprecher: "Sir Ken Robinson", titel: "Do schools kill creativity?", video: "iG9CE55wbtY",
+    text: [
+      "Aus diesem Video kannst du lernen, wie sehr das klassische Schulsystem die natürliche Kreativität und Neugier von Kindern untergräbt – und was das konkret für das Fach Mathematik bedeutet.",
+      "Sir Ken Robinson erklärt auf unterhaltsame und zugleich ernste Weise, warum Kinder mit der Zeit aufhören, Risiken einzugehen und eigene Wege zu denken. Du erkennst, wie schnell aus neugierigen Fragestellern vorsichtige „Ich will ja nichts Falsches sagen“-Kinder werden.",
+      "Besonders wertvoll ist der Blick darauf, dass Intelligenz vielfältig ist und Fehler eigentlich zum Lernen dazugehören. Das Video gibt dir eine klare Haltung: Mathe muss nicht nur aus Formeln und der einen richtigen Antwort bestehen. Es darf auch Raum für Ausprobieren, Umwege und eigene Denkwege geben – und genau das kannst du als Elternteil bewusst unterstützen.",
+    ] },
 ];
 
 const SCHATTEN = "0 2px 16px rgba(15,26,51,0.07)";
 const kicker = (k) => `${k.art === "ted" ? "TED-Talk" : k.art === "buchvortrag" ? "Buch · Vortrag des Autors" : "Buchzusammenfassung"} · ${k.sprecher}`;
+
+function Transfer({ k }) {
+  const r = ROLLEN[k.id];
+  if (!r) return null;
+  const zeilen = [["Als Elternteil", r.eltern], ["Als Lehrkraft", r.lehrkraft], ["Als Schüler", r.schueler]];
+  return (
+    <div style={{ marginTop: 28, background: C.weiss, borderRadius: 16, padding: "20px 20px 6px", boxShadow: SCHATTEN, borderLeft: `4px solid ${C.flaggold}` }}>
+      <p style={{ fontSize: 15.5, fontWeight: 700, color: C.tinte, marginBottom: 14, letterSpacing: "-0.01em" }}>Das nimmst du mit – je nach Rolle</p>
+      {zeilen.map(([label, text]) => (
+        <div key={label} style={{ marginBottom: 16 }}>
+          <p style={{ fontSize: 12, fontWeight: 700, color: C.see, letterSpacing: "0.04em", textTransform: "uppercase", marginBottom: 4 }}>{label}</p>
+          <p style={{ fontSize: 14.5, fontWeight: 400, color: C.tinte, lineHeight: 1.7, margin: 0 }}>{text}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 function Modul({ k }) {
   return (
@@ -87,12 +164,19 @@ function Modul({ k }) {
           <p key={i} style={{ color: i === 0 ? C.tinte : C.grau, fontSize: 15, fontWeight: i === 0 ? 500 : 300, lineHeight: 1.8, marginBottom: i < k.text.length - 1 ? 16 : 0 }}>{t}</p>
         ))}
       </div>
+      <Transfer k={k} />
     </div>
   );
 }
 
 export function ElternkursSeite() {
   const [offen, setOffen] = useState(null); // Index des geöffneten Moduls oder null = Übersicht
+  const [gesehen, setGesehen] = useState(ladeGesehen);
+  const umschalten = (id) => setGesehen((alt) => {
+    const neu = alt.includes(id) ? alt.filter((x) => x !== id) : [...alt, id];
+    speichereGesehen(neu);
+    return neu;
+  });
   useEffect(() => { window.scrollTo(0, 0); }, [offen]);
 
   const knopf = (aktiv) => ({
@@ -101,29 +185,49 @@ export function ElternkursSeite() {
   });
 
   if (offen === null) {
+    const anteil = gesehen.length / ELTERNKURS.length;
     return (
       <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
-        <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 12 }}>Acht Module für Eltern</h2>
+        <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 12 }}>Acht Module für Eltern, Lehrkräfte und Schüler</h2>
         <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.8, marginBottom: 22 }}>
-          Sechs der meistgesehenen TED-Talks und zwei Bücher, „Selbstbild“ von Carol Dweck und „Schnelles Denken, langsames Denken“ von Daniel Kahneman – jeweils mit einem Text, was du daraus mitnimmst. Du kannst die Module der Reihe nach durchklicken.
+          Sechs der meistgesehenen TED-Talks und zwei Bücher, „Selbstbild“ von Carol Dweck und „Schnelles Denken, langsames Denken“ von Daniel Kahneman – in drei Teilen: Der Kopf, das Gefühl, das Gespräch. Jedes Modul hat einen Text und eine Rollenbox, was du als Elternteil, Lehrkraft oder Schüler daraus mitnimmst.
         </p>
-        <div style={{ display: "grid", gap: 12 }}>
-          {ELTERNKURS.map((k, i) => (
-            <button key={k.id} onClick={() => setOffen(i)} aria-label={`Modul ${k.nr}: ${k.thema}`}
-              style={{ display: "flex", alignItems: "center", gap: 16, textAlign: "left", width: "100%", fontFamily: "inherit", cursor: "pointer",
-                background: C.weiss, border: "none", borderRadius: 16, padding: "16px 18px", boxShadow: SCHATTEN }}>
-              <span style={{ flexShrink: 0, width: 40, height: 40, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center",
-                background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)`, color: C.weiss, fontSize: 16, fontWeight: 700 }}>{k.nr}</span>
-              <span style={{ flex: 1, minWidth: 0 }}>
-                <span style={{ display: "block", fontSize: 12, fontWeight: 600, color: C.gruenDunkel, marginBottom: 2 }}>{kicker(k)}</span>
-                <span style={{ display: "block", fontSize: 15.5, fontWeight: 700, color: C.tinte, lineHeight: 1.3 }}>{k.thema}</span>
-              </span>
-              <svg width="9" height="15" viewBox="0 0 9 15" aria-hidden="true" style={{ flexShrink: 0 }}>
-                <path d="M1.5 1.5 L7.5 7.5 L1.5 13.5" fill="none" stroke={C.see} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
-          ))}
+
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 26 }}>
+          <div style={{ flex: 1, height: 8, borderRadius: 999, background: C.linie, overflow: "hidden" }} role="progressbar" aria-valuemin={0} aria-valuemax={ELTERNKURS.length} aria-valuenow={gesehen.length}>
+            <div style={{ width: `${anteil * 100}%`, height: "100%", borderRadius: 999, background: `linear-gradient(90deg, ${C.flaggold}, ${C.goldWarm})`, transition: "width .3s ease" }} />
+          </div>
+          <span style={{ fontSize: 13, fontWeight: 600, color: C.tinte, whiteSpace: "nowrap" }}>
+            <span>{`${gesehen.length} / ${ELTERNKURS.length}`}</span>{" "}<span style={{ fontWeight: 300, color: C.grau }}>gesehen</span>
+          </span>
         </div>
+
+        {TEILE.map((t) => (
+          <section key={t.nr} style={{ marginBottom: 30 }}>
+            <p style={{ fontSize: 12, fontWeight: 700, color: C.gruenDunkel, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 2 }}><span>Teil</span>{" "}<span>{t.nr}</span></p>
+            <h3 style={{ fontSize: 20, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.25, margin: 0 }}>{t.titel}</h3>
+            <p style={{ fontSize: 14, fontWeight: 300, color: C.grau, margin: "2px 0 14px" }}>{t.unter}</p>
+            <div style={{ display: "grid", gap: 12 }}>
+              {ELTERNKURS.map((k, i) => (k.teil !== t.nr ? null : (
+                <button key={k.id} onClick={() => setOffen(i)} aria-label={`Modul ${k.nr}: ${k.thema}`}
+                  style={{ display: "flex", alignItems: "center", gap: 16, textAlign: "left", width: "100%", fontFamily: "inherit", cursor: "pointer",
+                    background: C.weiss, border: "none", borderRadius: 16, padding: "16px 18px", boxShadow: SCHATTEN }}>
+                  <span style={{ flexShrink: 0, width: 40, height: 40, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center",
+                    background: gesehen.includes(k.id) ? C.smaragd : `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)`, color: C.weiss, fontSize: 16, fontWeight: 700 }}>
+                    {gesehen.includes(k.id) ? "✓" : k.nr}
+                  </span>
+                  <span style={{ flex: 1, minWidth: 0 }}>
+                    <span style={{ display: "block", fontSize: 12, fontWeight: 600, color: C.gruenDunkel, marginBottom: 2 }}>{kicker(k)}</span>
+                    <span style={{ display: "block", fontSize: 15.5, fontWeight: 700, color: C.tinte, lineHeight: 1.3 }}>{k.thema}</span>
+                  </span>
+                  <svg width="9" height="15" viewBox="0 0 9 15" aria-hidden="true" style={{ flexShrink: 0 }}>
+                    <path d="M1.5 1.5 L7.5 7.5 L1.5 13.5" fill="none" stroke={C.see} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
+              )))}
+            </div>
+          </section>
+        ))}
       </div>
     );
   }
@@ -141,14 +245,20 @@ export function ElternkursSeite() {
 
       <div role="tablist" aria-label="Module" style={{ display: "flex", gap: 8, marginBottom: 6 }}>
         {ELTERNKURS.map((x, i) => (
-          <button key={x.id} role="tab" aria-selected={i === offen} aria-label={`Modul ${x.nr}`} onClick={() => setOffen(i)}
+          <button key={x.id} role="tab" aria-selected={i === offen} aria-label={`Modul ${x.nr}${gesehen.includes(x.id) ? " ✓" : ""}`} onClick={() => setOffen(i)}
             style={{ flex: 1, height: 36, borderRadius: 10, fontFamily: "inherit", cursor: "pointer", fontSize: 14, fontWeight: 700,
-              border: i === offen ? "none" : `1.5px solid ${C.linie}`, background: i === offen ? C.see : C.weiss, color: i === offen ? C.weiss : C.grau }}>{x.nr}</button>
+              border: i === offen ? "none" : `1.5px solid ${C.linie}`, background: i === offen ? C.see : C.weiss, color: i === offen ? C.weiss : gesehen.includes(x.id) ? C.smaragd : C.grau }}>{gesehen.includes(x.id) ? `✓` : x.nr}</button>
         ))}
       </div>
       <p style={{ fontSize: 12.5, fontWeight: 300, color: C.grau, marginBottom: 22 }}>Modul {k.nr} von {ELTERNKURS.length}</p>
 
       <Modul k={k} />
+
+      <button onClick={() => umschalten(k.id)} aria-pressed={gesehen.includes(k.id)}
+        style={{ marginTop: 22, width: "100%", fontFamily: "inherit", cursor: "pointer", fontSize: 14.5, fontWeight: 600, padding: "13px 18px", borderRadius: 12,
+          border: gesehen.includes(k.id) ? "none" : `1.5px solid ${C.linie}`, background: gesehen.includes(k.id) ? C.smaragd : C.weiss, color: gesehen.includes(k.id) ? C.weiss : C.tinte }}>
+        {gesehen.includes(k.id) ? "✓ Gesehen" : "Als gesehen markieren"}
+      </button>
 
       <div style={{ display: "flex", gap: 12, marginTop: 28 }}>
         {zurueck !== null ? (
