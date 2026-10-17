@@ -429,8 +429,6 @@ export function RegelWerkstatt({ regel: regelProp }) {
     buchen({ richtig: ok, gruppe: `werkstatt-${art}`, stufe });
     if (ok) {
       setFeld(aktiv, { status: "richtig", hinweis: "" });
-      const naechst = reihenfolge.find((id) => id !== aktiv && !["richtig", "gezeigt"].includes(felder[id].status));
-      if (naechst) setAktiv(naechst);
     } else {
       let hinweis;
       if (aktiv === "f1") hinweis = diagnose(b, s, fehlerbilder(art, u, v));
@@ -442,12 +440,13 @@ export function RegelWerkstatt({ regel: regelProp }) {
       }
       setFeld(aktiv, { status: "falsch", hinweis, versuche: e.versuche + 1 });
     }
+    // Nach OK verschwindet die Eingabe; Antippen eines Feldes öffnet sie wieder.
+    setAktiv(null);
   };
   const loesungZeigen = () => {
     if (!ml || !aktiv) return;
     setFeld(aktiv, { status: "gezeigt", hinweis: "", zeig: tex(aktiv === "f1" ? ml.ergebnis : schoen(soll(aktiv))) });
-    const naechst = reihenfolge.find((id) => id !== aktiv && !["richtig", "gezeigt"].includes(felder[id].status));
-    if (naechst) setAktiv(naechst);
+    setAktiv(null);
   };
 
   // Tippen auf das aktive Feld schließt das Pop-up
@@ -510,7 +509,7 @@ export function RegelWerkstatt({ regel: regelProp }) {
       <p style={{ fontSize: 12.5, color: C.grau, margin: "0 4px" }}>
         Du bearbeitest <b style={{ color: FARBE[aktiv] || C.tinte }}>{LABEL(art, aktiv)}(x)</b> – tippe auf das andere Feld, um es zu ändern.
       </p>
-      <Eingabe text={eingabeText} setText={setEingabeText} pos={eingabePos} setPos={setEingabePos} platzhalter="z. B. x^2 oder sin(3x)" />
+      <Eingabe text={eingabeText} setText={setEingabeText} pos={eingabePos} setPos={setEingabePos} onEnter={() => setAktiv(null)} platzhalter="z. B. x^2 oder sin(3x)" />
     </>
   ));
   const popup = () => <div className="wk-popup" ref={popRef}>{eingabeInhalt()}</div>;
