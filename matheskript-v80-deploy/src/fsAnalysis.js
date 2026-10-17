@@ -732,7 +732,7 @@ export const FS_ANALYSIS = [
   },
   {
     id: "sattel", g: "Kurvendiskussion", n: "Sattelpunkt", st: "ober",
-    f: "f′(x_0) = 0 \\quad \\text{und} \\quad f″(x_0) = 0",
+    f: "{f′(x_0) = 0} \\, | \\, {f″(x_0) = 0} \\, | \\, {f‴(x_0) \\neq 0}",
     k: "Wendepunkt mit waagerechter Tangente · Vorzeichenwechsel prüfen",
     bild: ["kurvenTrio", { fokus: "sattel" }],
     her: { t: "Wendepunkt und waagerecht zugleich", s: [
