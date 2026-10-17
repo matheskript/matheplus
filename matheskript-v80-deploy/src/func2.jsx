@@ -179,7 +179,7 @@ function MeinTrainingKachelStart({ gehe, setzeStufe }) {
     <div style={{ width: "calc(100% + 32px)", margin: "12px -16px 0", border: `2px solid ${C.see}`, borderRadius: 18, overflow: "hidden",
       background: C.weiss, boxShadow: "0 6px 22px rgba(0,77,152,0.14)" }}>
       <PlotterKachel hell breit inRahmen onClick={() => gehe({ ansicht: "meintraining" })} label="Mein Training öffnen" logo={<MeinTrainingLogoKlein />}
-        extra={<MeinTrainingBadge offen={s.hatSkills ? s.offen : 0} />} titel="Mein Training" text={meinTrainingText(s)} />
+        extra={<MeinTrainingBadge offen={s.hatSkills ? s.offen : 0} />} titel="Dein Training startet hier." titelUmbruch text={meinTrainingText(s)} />
       <Quickfinder gehe={gehe} setzeStufe={setzeStufe} />
     </div>
   );
@@ -1485,6 +1485,9 @@ export function Startseite({ gehe }) {
     {/* Banner ganz oben, bündig unter dem Header und über die volle Breite */}
     <StartBanner />
     <div className="mx-auto px-6 pb-14" style={{ maxWidth: 620 }}>
+      {/* Ganz oben: Mein Training mit Schulart/Klasse, direkt darunter die Suche als Einzeiler */}
+      <div style={{ marginTop: 4 }}><MeinTrainingKachelStart gehe={gehe} setzeStufe={stufeSetzen} /></div>
+      <div style={{ margin: "12px -16px 0" }}><SuchBox gehe={gehe} einzeilig /></div>
       <section style={{ paddingTop: 12, paddingBottom: 6, marginLeft: -6 }}>
         <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.8, margin: 0 }}>
           Hier wird Oberstufenmathe <b style={{ color: C.tinte, fontWeight: 600 }}>sichtbar</b>: Graphen live plotten,
@@ -1492,19 +1495,13 @@ export function Startseite({ gehe }) {
           und schnelle Kopfrechenrunden. Such dir einen Bereich aus und leg los.
         </p>
       </section>
-      {/* Suchfeld „Was möchtest du trainieren?“: mobil über „So nutzt du die App“, am Desktop über „Mathematik entdecken“ */}
-      {/* Dein Plan: Lernpfad mit Standortcheck und Wochenziel – vor dem Suchfeld und dem Werkzeugkasten */}
       {!desktop && <ZonenKopf nr={1} titel="Heute" zeile="Dein nächster Schritt – sofort gefunden." />}
       {!desktop && <StartOnboarding gehe={gehe} setzeStufe={stufeSetzen} planDa={!!lernpfad} />}
       {!desktop && <WeitermachenZeile gehe={gehe} />}
-      <DeinPlanBlock gehe={gehe} />
-      <SuchBox gehe={gehe} />
-      {!desktop && <div style={{ marginTop: 12 }}><MeinTrainingKachelStart gehe={gehe} setzeStufe={stufeSetzen} /></div>}
       {!desktop && <ZonenKopf nr={2} titel="Lernen" zeile="Alle Werkzeuge nach Bereich und Stufe." />}
       {/* Oberbutton „Schulmathe-Training“: darunter direkt die Bereiche (Analysis, Vektoren, Stochastik,
           Gleichungen), Abi-Ketten und Formelsammlung. Aufgeklappt wird der Button halb so hoch.
           Alle Kacheln laufen auf voller Breite (breit); es ist immer nur ein Bereich offen. */}
-      {desktop && entdeckenBlock}
       <AufklappRahmen auf={schulAuf}>
       <PlotterKachel breit halb={schulAuf} onClick={() => { setSchulAuf(!schulAuf); setEntdAuf(false); setBereichAuf(null); setFormelAuf(false); setEtikett(null); }} auf={schulAuf}
         label={desktop ? (schulAuf ? "Mittel- und Oberstufen-Mathematik zuklappen" : "Mittel- und Oberstufen-Mathematik aufklappen") : (schulAuf ? "Schulmathe-Training zuklappen" : "Schulmathe-Training aufklappen")}
@@ -1582,6 +1579,7 @@ export function Startseite({ gehe }) {
         </div>
       )}
       </AufklappRahmen>
+      {desktop && entdeckenBlock}
       {!desktop && (<>
       <PlotterKachel onClick={() => gehe({ ansicht: "headnumbers" })} label="Head & Numbers öffnen" logo={<HeadNumbersLogoKlein />} keinI18nTitel
         titel="Head & Numbers"
@@ -1615,7 +1613,6 @@ export function Startseite({ gehe }) {
       </>)}
       {/* Desktop: Einleitung + Pen & Paper / Mathilda AI im goldenen Schnitt, dann Kurstext und Kurse */}
       {desktop && <DesktopSystem gehe={gehe} />}
-      {desktop && <div style={{ marginTop: 22 }}><MeinTrainingKachelStart gehe={gehe} setzeStufe={stufeSetzen} /></div>}
       {desktop && <DesktopKurse gehe={gehe} />}
       {desktop && (<>
       {/* Mathe-Mindset-Kurs: zwischen Mathe-Training und Mathilda AI */}
@@ -1638,6 +1635,8 @@ export function Startseite({ gehe }) {
         text="Analysis 1–5, Vektoren und Stochastik – mit Videolektionen und Checks." />
       {/* Ganz unten: Mathe Masterclass (3 Monate, gesperrt) */}
       <MasterclassKachel gesperrt name="Mathe Masterclass" monate="3 MONATE" onClick={() => gehe({ ansicht: "masterclass" })} />
+      {/* Ganz unten: Dein Plan mit Standortcheck („Wo stehst du wirklich?“) */}
+      <div style={{ marginTop: 22 }}><DeinPlanBlock gehe={gehe} /></div>
       {!desktop && <div style={{ marginTop: 18 }}><AppAnleitung /></div>}
 
     </div>

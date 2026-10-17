@@ -46,10 +46,10 @@ export function MeinTrainingBadge({ offen }) {
 
 export function meinTrainingText(s) {
   if (s.geladen && s.arbeit) return `${s.arbeit.art} ${tageText(s.arbeit.tage)}. ${s.fertig ? "Tagesplan geschafft." : s.offen > 0 ? `Heute ${s.offen === 1 ? "wartet 1 Übung" : `warten ${s.offen} Übungen`} auf dich.` : "Dein Tagesplan und dein Lernfortschritt."}`;
-  if (!s.geladen || !s.hatSkills) return "Dein Tagesplan, dein Lernfortschritt und alle Übungsmodi an einem Ort.";
+  if (!s.geladen || !s.hatSkills) return "Tagesplan, Fortschritt, Übungsmodi. Alles an einem Ort.";
   if (s.fertig) return "Tagesplan geschafft. Dein Lernfortschritt und alle Übungsmodi.";
   if (s.offen > 0) return `Heute ${s.offen === 1 ? "wartet 1 Übung" : `warten ${s.offen} Übungen`} auf dich – dein Tagesplan und dein Lernfortschritt.`;
-  return "Dein Tagesplan, dein Lernfortschritt und alle Übungsmodi an einem Ort.";
+  return "Tagesplan, Fortschritt, Übungsmodi. Alles an einem Ort.";
 }
 
 /* ---------- Erinnerung: tägliche Kalender-Erinnerung (.ics) ---------- */

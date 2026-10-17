@@ -33,7 +33,7 @@ function SchulartWahl({ wert, setze }) {
         const an = s.id === wert;
         return (
           <button key={s.id} type="button" aria-pressed={an} onClick={() => setze(s.id)} title={s.zeile} data-kein-i18n
-            style={{ ...knopfBasis, minHeight: 46, padding: "6px 4px", fontSize: 17, letterSpacing: "0.02em",
+            style={{ ...knopfBasis, minHeight: 38, padding: "4px 4px", fontSize: 15, letterSpacing: "0.02em", borderRadius: 10,
               border: `2px solid ${C.see}`, background: an ? C.see : C.weiss, color: an ? C.weiss : C.see,
               boxShadow: an ? "0 4px 12px rgba(0,77,152,0.28)" : "none" }}>
             {s.name}
@@ -48,15 +48,15 @@ function SchulartWahl({ wert, setze }) {
 function KlassenWahl({ schulart, wert, setze }) {
   const boxen = klassenBoxen(schulart);
   return (
-    <div role="group" aria-label="Klasse wählen" style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 8, marginTop: 10 }}>
+    <div role="group" aria-label="Klasse wählen" className="qf-klassen" style={{ display: "grid", gap: 6 }}>
       {boxen.map((b) => {
         const an = b.id === wert;
         const farbe = b.gold ? C.flaggold : C.see;
         return (
           <button key={b.id} type="button" aria-pressed={an} onClick={() => setze(b.id)} data-kein-i18n
             aria-label={`Klasse ${b.label}${b.gold ? " (Kursstufe)" : ""}`}
-            style={{ ...knopfBasis, minHeight: 48, padding: "6px 2px", fontSize: b.label.length > 2 ? 16 : 18,
-              border: `2.5px solid ${farbe}`, background: an ? farbe : C.weiss, color: an ? (b.gold ? C.seeTief : C.weiss) : (b.gold ? "#8A6A00" : C.see),
+            style={{ ...knopfBasis, minHeight: 40, padding: "4px 2px", fontSize: b.label.length > 2 ? 14.5 : 16, borderRadius: 10,
+              border: `2px solid ${farbe}`, background: an ? farbe : C.weiss, color: an ? (b.gold ? C.seeTief : C.weiss) : (b.gold ? "#8A6A00" : C.see),
               boxShadow: an ? `0 4px 12px ${b.gold ? "rgba(237,187,0,0.35)" : "rgba(0,77,152,0.28)"}` : "none" }}>
             {b.label}
           </button>
@@ -172,17 +172,22 @@ export function Quickfinder({ gehe, setzeStufe }) {
   };
   const s = schulartVon(q.schulart);
   return (
-    <div style={{ padding: "14px 16px 16px", borderTop: `1px solid ${C.linie}` }}>
-      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, marginBottom: 10 }}>
-        <p style={KICKER}>Dein Status quo</p>
-        <span style={{ fontSize: 12, color: C.grau, fontWeight: 500 }}>Schulart · Klasse · Thema</span>
+    <div style={{ padding: "12px 16px 14px", borderTop: `1px solid ${C.linie}` }}>
+      <style>{`.qf-klassen{grid-template-columns:repeat(4,minmax(0,1fr))}
+        @media (min-width:520px){.qf-klassen{grid-template-columns:repeat(8,minmax(0,1fr))}}`}</style>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, marginBottom: 6 }}>
+        <p style={KICKER}>Schulart</p>
+        {s && <span style={{ fontSize: 12, color: C.grau, fontWeight: 500, textAlign: "right" }}>{s.zeile}</span>}
       </div>
       <SchulartWahl wert={q.schulart} setze={schulartSetzen} />
-      {s && <p style={{ margin: "6px 2px 0", fontSize: 12, color: C.grau, lineHeight: 1.4 }}>{s.zeile}</p>}
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, margin: "12px 0 6px" }}>
+        <p style={KICKER}>Klasse</p>
+        <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#8A6A00" }}>Gold = Abi-Jahre</span>
+      </div>
       <KlassenWahl schulart={q.schulart} wert={q.klasse} setze={klasseSetzen} />
       {q.klasse
         ? <KapitelWahl key={q.schulart + q.klasse} schulart={q.schulart} klasse={q.klasse} wert={q.kapitel} setze={(id) => setze({ ...q, kapitel: id })} />
-        : <p style={{ margin: "12px 2px 0", fontSize: 13, color: C.grau, lineHeight: 1.5 }}>Tippe auf deine Klasse – dann zeige ich dir die Kapitel deines Buches.</p>}
+        : <p style={{ margin: "10px 2px 0", fontSize: 12.5, color: C.grau, lineHeight: 1.5 }}>Ein Tipp auf deine Klasse – und du siehst alle Kapitel deines Buchs.</p>}
       {q.klasse && q.kapitel && <Hilfen kapitelId={q.kapitel} gehe={gehe} />}
     </div>
   );

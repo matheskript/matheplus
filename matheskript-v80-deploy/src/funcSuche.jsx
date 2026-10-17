@@ -154,7 +154,7 @@ function Ergebnis({ erg, onWaehle, onAlle, gehe }) {
   );
 }
 
-export function SuchBox({ gehe }) {
+export function SuchBox({ gehe, einzeilig }) {
   const [eingabe, setEingabe] = useState("");
   const [abfrage, setAbfrage] = useState(null);       // { text, erzwingen } nach Enter
   const feld = useRef(null);
@@ -185,10 +185,10 @@ export function SuchBox({ gehe }) {
     <div role="search" data-such-box style={{ background: C.weiss, borderRadius: 16, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", margin: "6px 0 12px", overflow: "hidden",
       border: `1px solid ${auf ? "rgba(0,77,152,0.18)" : C.linie}` }}>
       <style>{CSS}</style>
-      <div style={{ padding: "12px 12px 12px" }}>
-        <h2 style={{ margin: "0 0 8px 2px", fontSize: 15, fontWeight: 700, letterSpacing: "-0.01em", lineHeight: 1.3, color: C.tinte, whiteSpace: "nowrap" }}>{L("Was möchtest du lernen?", "What would you like to learn?")}</h2>
+      <div style={einzeilig ? { padding: "10px 10px 10px 16px", display: "flex", flexWrap: "wrap", alignItems: "center", columnGap: 14, rowGap: 8 } : { padding: "12px 12px 12px" }}>
+        <h2 style={{ margin: einzeilig ? 0 : "0 0 8px 2px", flex: einzeilig ? "0 0 auto" : undefined, fontSize: 15, fontWeight: 700, letterSpacing: "-0.01em", lineHeight: 1.3, color: C.tinte, whiteSpace: "nowrap" }}>{L("Was möchtest du lernen?", "What would you like to learn?")}</h2>
         <form onSubmit={(ev) => { ev.preventDefault(); absenden(eingabe); }} className="such-eingabe"
-          style={{ display: "flex", alignItems: "center", gap: 4, background: C.sand, border: `1.5px solid ${C.linie}`, borderRadius: 12, padding: "2px 2px 2px 12px", transition: "border-color .15s ease, box-shadow .15s ease" }}>
+          style={{ ...(einzeilig ? { flex: "1 1 220px", minWidth: 0 } : {}), display: "flex", alignItems: "center", gap: 4, background: C.sand, border: `1.5px solid ${C.linie}`, borderRadius: 12, padding: "2px 2px 2px 12px", transition: "border-color .15s ease, box-shadow .15s ease" }}>
           <input ref={feld} type="search" value={eingabe} onChange={(ev) => setEingabe(ev.target.value)}
             onKeyDown={(ev) => { if (ev.key === "Escape") leeren(); }}
             placeholder={L("z. B. Kettenregel, Brüche …", "e.g. chain rule, fractions …")}
