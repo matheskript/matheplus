@@ -361,13 +361,14 @@ function Nebenrechnung({ teil, baum, farbe }) {
   );
 }
 
-export function RegelWerkstatt({ regel: regelProp }) {
+export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modusProp, wurf, ohneKopf = false }) {
   // Die Regel wählt das Menü in der Kopfleiste (Ableitenstrainer); allein genutzt, hält die Werkstatt sie selbst.
   const [regelIntern] = useState("produkt");
   const regel = regelProp || regelIntern;
-  const [stufe, setStufe] = useState(1);
-  const [modus, setModus] = useState("auto");
-  const [auf, setAuf] = useState(() => neueAufgabe(regel, 1));
+  // Stufe, Modus und Würfel kann der Ableitungstrainer in seiner Kopfzeile steuern (Props); allein genutzt, hält die Werkstatt sie selbst.
+  const [stufe, setStufe] = useState(stufeProp || 1);
+  const [modus, setModus] = useState(modusProp || "auto");
+  const [auf, setAuf] = useState(() => neueAufgabe(regel, stufeProp || 1));
   const [uText, setUText] = useState(auf.uText);
   const [vText, setVText] = useState(auf.vText);
   const [posUV, setPosUV] = useState({ u: auf.uText.length, v: auf.vText.length });
@@ -406,6 +407,20 @@ export function RegelWerkstatt({ regel: regelProp }) {
     setFelder({ u1: leer(), v1: leer(), f1: leer() });
     setAktiv(null);
   };
+  const erstesMal = useRef(true);
+  useEffect(() => {
+    if (erstesMal.current) return;
+    if (stufeProp && stufeProp !== stufe) waehleStufe(stufeProp);
+  }, [stufeProp]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (erstesMal.current) return;
+    if (modusProp && modusProp !== modus) waehleModus(modusProp);
+  }, [modusProp]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (erstesMal.current) return;
+    if (wurf !== undefined) starte();
+  }, [wurf]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { erstesMal.current = false; }, []);
   useEffect(() => {
     // Automatik: ändert der Schüler u oder v, wird die Aufgabe daraus
     if (modus === "auto" && gueltig) setAuf((a) => ({ ...a, u, v, uText, vText, f: baueF(art, u, v) }));
@@ -532,7 +547,7 @@ export function RegelWerkstatt({ regel: regelProp }) {
     <div ref={kopf}>
       <style>{WERK_CSS}</style>
       {/* Stufe als Pop-up, daneben Automatik | Training und der Würfel für ein neues Beispiel */}
-      <div className="wk-kopfzeile" style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
+      {!ohneKopf && <div className="wk-kopfzeile" style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
         <PopupWahl wert={stufe} label="Stufe wählen" optionen={[1, 2, 3].map((st) => ({ id: st, name: `Stufe ${st}` }))}
           kopf={(o) => (o ? o.name : "Stufe")} onWaehle={waehleStufe} />
         <ModusSchalter modus={modus} setModus={waehleModus} />
@@ -540,11 +555,9 @@ export function RegelWerkstatt({ regel: regelProp }) {
           aria-label={training ? "Neue Aufgabe würfeln" : "Neues Beispiel würfeln"} title={training ? "Neue Aufgabe" : "Neues Beispiel"}>
           <span aria-hidden="true">🎲</span>
         </button>
-      </div>
+      </div>}
 
       <div className="wk-karte">
-        {/* Produkt- und Kettenregel: kleine Erkläranimation, ganz oben aufklappbar */}
-        {(art === "produkt" || art === "kette") && <ErklaerAnimation key={art} art={art} kompakt />}
         {bilanz.gesamt > 0 && (
           <p style={{ fontSize: 12.5, color: C.grau, lineHeight: 1.35, margin: "0 2px 10px" }}>{bilanz.richtig} von {bilanz.gesamt} richtig</p>
         )}
@@ -666,6 +679,9 @@ export function RegelWerkstatt({ regel: regelProp }) {
             </div>
           ) : null
         )}
+
+        {/* Produkt- und Kettenregel: kleine Erkläranimation, aufklappbar, direkt über der Herleitung */}
+        {(art === "produkt" || art === "kette") && <div style={{ marginTop: 14 }}><ErklaerAnimation key={art} art={art} kompakt /></div>}
 
         <Herleitung titel={HER_TITEL[regel][0]} untertitel={HER_TITEL[regel][1]}>
           <HerleitungText regel={regel} />

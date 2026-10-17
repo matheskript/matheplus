@@ -158,6 +158,10 @@ export function Ableitungstrainer() {
   const [bilanz, setBilanz] = useState({ richtig: 0, gesamt: 0 });
   const [bereich, setBereich] = useState(mit ? "trainer" : "trainer");   // trainer | werkstatt
   const [werkRegel, setWerkRegel] = useState("produkt");
+  // Kopfzeile: Stufe, Automatik/Training und Würfel steuern die Regel-Werkstatt von hier aus
+  const [werkStufe, setWerkStufe] = useState(1);
+  const [werkModus, setWerkModus] = useState("auto");
+  const [wurf, setWurf] = useState(0);
 
   const fBaum = useMemo(() => {
     const b = parse(fText);
@@ -239,18 +243,24 @@ export function Ableitungstrainer() {
         .abl-chip{flex:0 0 auto;scroll-snap-align:start;height:46px;padding:0 18px;border-radius:999px;font-family:inherit;font-size:15.5px;font-weight:600;cursor:pointer;white-space:nowrap;border:1.5px solid ${C.linie};background:#fff;color:${C.see}}
         .abl-chip[aria-pressed="true"]{background:${C.see};border-color:${C.see};color:#fff}
         .abl-karte{background:transparent}
-        .abl-bereich{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:4px;border-radius:18px;background:#EEF2F8;margin-bottom:14px}
-        .abl-bereich [role="tab"]{min-height:56px;border-radius:14px;cursor:pointer;background:transparent;color:${C.grau};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:8px 8px;text-align:center;outline-offset:2px}
-        .abl-bereich [role="tab"]>span{font-size:15px;font-weight:700;line-height:1.2}
-        .abl-bereich [role="tab"] small{font-size:12.5px;font-weight:500;line-height:1.25;opacity:.85}
-        .abl-bereich [role="tab"] .abl-bsp{font-size:11.5px;white-space:nowrap;opacity:.7}
-        .abl-bereich [role="tab"][aria-selected="true"]{background:linear-gradient(155deg,${C.see} 0%,${C.seeTief} 100%);color:#fff;box-shadow:0 4px 12px rgba(0,77,152,0.25)}
-        .abl-bereich [role="tab"][aria-selected="true"] small{color:${C.goldText};opacity:1}
-        .abl-bereich [role="tab"][aria-selected="true"] .abl-bsp{color:#fff;opacity:.8}
+        .abl-kopf{display:grid;grid-template-columns:1.18fr 1fr;gap:8px;align-items:stretch;margin-bottom:14px}
+        .abl-links{display:flex;flex-direction:column;gap:8px;min-width:0}
+        .abl-reihe{display:flex;gap:8px;align-items:stretch;flex:1;min-height:42px}
+        .abl-seg{display:flex;padding:3px;border-radius:999px;background:#EEF2F8;gap:2px;flex:1;min-height:42px}
+        .abl-seg button{flex:1;min-width:0;border-radius:999px;border:none;font-family:inherit;font-size:13.5px;font-weight:700;cursor:pointer;background:transparent;color:${C.grau};white-space:nowrap;padding:0 6px}
+        .abl-seg button[aria-pressed="true"]{background:#fff;color:${C.see};box-shadow:0 1px 6px rgba(15,26,51,0.12)}
+        .abl-stufe{flex:1;min-width:0;display:flex}
+        .abl-stufe .wk-pop-knopf{flex:1;min-width:0;height:auto;min-height:42px;justify-content:space-between;padding:0 12px 0 14px;font-size:14.5px}
+        .abl-stufe.aus{opacity:.4;pointer-events:none}
+        .abl-wuerfel.breit{flex:1;width:auto;gap:8px;font-family:inherit;font-size:14.5px;font-weight:700;color:${C.seeTief}}
+        .abl-wuerfel.breit>span:first-child{font-size:20px}
+        .abl-wuerfel{width:46px;flex-shrink:0;padding:0;border-radius:999px;border:none;cursor:pointer;background:${C.flaggold};font-size:22px;line-height:1;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(15,26,51,0.14)}
+        .abl-wahl{min-width:0;border-radius:18px;background:linear-gradient(155deg,${C.see} 0%,${C.seeTief} 100%);color:#fff;box-shadow:0 4px 12px rgba(0,77,152,0.25);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px;text-align:center}
+        .abl-wahl>span{font-size:15.5px;font-weight:700;line-height:1.2}
         .abl-regelmenue{max-width:100%}
-        .abl-bereich .abl-regelknopf{height:32px;padding:0 6px 0 10px;gap:6px;border:none;background:transparent;color:inherit;font-size:12.5px;font-weight:600;max-width:100%}
-        .abl-bereich [role="tab"][aria-selected="true"] .abl-regelknopf{color:${C.goldText}}
-        .abl-bereich [role="tab"] .abl-regelknopf span{overflow:hidden;text-overflow:ellipsis}
+        .abl-wahl .abl-regelknopf{height:34px;padding:0 6px 0 10px;gap:6px;border:none;background:transparent;color:${C.goldText};font-size:13.5px;font-weight:600;max-width:100%}
+        .abl-wahl .abl-regelknopf span{overflow:hidden;text-overflow:ellipsis}
+        @media (max-width:380px){.abl-seg button{font-size:12.5px}.abl-wahl>span{font-size:14.5px}}
         @media (min-width:601px){
           .abl-seite{background:transparent}
           .abl-chipwrap{margin:0 0 12px}
@@ -259,23 +269,46 @@ export function Ableitungstrainer() {
           .abl-karte{background:#fff;border-radius:16px;padding:18px;box-shadow:0 2px 16px rgba(15,26,51,0.07)}
         }`}</style>
       <div className="abl-innen">
-        {/* Bereich: Ableiten üben oder Regel-Werkstatt */}
-        <div className="abl-bereich" role="tablist" aria-label="Bereich">
-          <div role="tab" tabIndex={0} aria-selected={bereich === "trainer"} onClick={() => setBereich("trainer")}
-            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setBereich("trainer"); } }}>
-            <span>Ableiten üben</span>
-            <small>Polynome</small>
-            <small className="abl-bsp">f(x) = 3x³ + 4x² − 6x + 5</small>
+        {/* Kopf: links Automatik/Training sowie Stufe und Würfel, rechts der große Knopf „Ableiten üben“ mit Auswahl (Polynome oder Regel) */}
+        <div className="abl-kopf">
+          <div className="abl-links">
+            {bereich === "werkstatt" && (
+              <div className="abl-seg" role="group" aria-label="Modus">
+                {[["auto", "Automatik"], ["training", "Training"]].map(([id, name]) => (
+                  <button key={id} type="button" aria-pressed={werkModus === id} onClick={() => setWerkModus(id)}>{name}</button>
+                ))}
+              </div>
+            )}
+            {bereich === "werkstatt" ? (
+              <div className="abl-reihe">
+                <PopupWahl className="abl-stufe" wert={werkStufe} label="Stufe wählen" optionen={[1, 2, 3].map((st) => ({ id: st, name: `Stufe ${st}` }))}
+                  kopf={(o) => (o ? o.name : "Stufe")} onWaehle={setWerkStufe} />
+                <button type="button" className="abl-wuerfel" onClick={() => setWurf((w) => w + 1)}
+                  aria-label="Neue Aufgabe würfeln" title="Neue Aufgabe"><span aria-hidden="true">🎲</span></button>
+              </div>
+            ) : (
+              <>
+                {/* Polynome: gleiche Höhe wie bei den Regeln – oben die Stufe, darunter der Würfel für eine neue Funktion */}
+                <div className="abl-reihe">
+                  <PopupWahl className={`abl-stufe${quelle === "typ" ? "" : " aus"}`} wert={stufeTyp} label="Stufe wählen" optionen={[1, 2, 3, 4, 5].map((st) => ({ id: st, name: `Stufe ${st}` }))}
+                    kopf={(o) => (o ? o.name : "Stufe")} onWaehle={(st) => { setStufeTyp(st); neueAufgabe(typ, st); }} />
+                </div>
+                <div className="abl-reihe">
+                  <button type="button" className="abl-wuerfel breit" onClick={neueFunktion} aria-label="Neue Funktion würfeln">
+                    <span aria-hidden="true">🎲</span><span>{quelle === "eigen" ? "Funktion ändern" : "Neue Funktion"}</span>
+                  </button>
+                </div>
+              </>
+            )}
           </div>
-          <div role="tab" tabIndex={0} aria-selected={bereich === "werkstatt"} onClick={() => setBereich("werkstatt")}
-            onKeyDown={(e) => { if (e.target === e.currentTarget && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); setBereich("werkstatt"); } }}>
-            <span>Regel-Werkstatt</span>
-            <PopupWahl className="abl-regelmenue" knopfClass="abl-regelknopf" rechts stopp wert={werkRegel} label="Regel wählen"
-              optionen={REGEL_CHIPS.map(([id, name]) => ({ id, name }))} onOeffne={() => setBereich("werkstatt")}
-              onWaehle={(id) => { setWerkRegel(id); setBereich("werkstatt"); }} />
+          <div className="abl-wahl">
+            <span>Ableiten üben</span>
+            <PopupWahl className="abl-regelmenue" knopfClass="abl-regelknopf" rechts wert={bereich === "trainer" ? "polynome" : werkRegel} label="Was möchtest du ableiten?"
+              optionen={[{ id: "polynome", name: "Polynome" }, ...REGEL_CHIPS.map(([id, name]) => ({ id, name }))]}
+              onWaehle={(id) => { if (id === "polynome") setBereich("trainer"); else { setWerkRegel(id); setBereich("werkstatt"); } }} />
           </div>
         </div>
-        {bereich === "werkstatt" && <RegelWerkstatt regel={werkRegel} />}
+        {bereich === "werkstatt" && <RegelWerkstatt regel={werkRegel} stufe={werkStufe} modus={werkModus} wurf={wurf} ohneKopf />}
         {bereich === "trainer" && <>
         {/* Funktionsart: direkt wählen, alles in einer Reihe */}
         <div className="abl-chipwrap">
@@ -285,13 +318,6 @@ export function Ableitungstrainer() {
             ))}
           </div>
         </div>
-
-        {quelle === "typ" && (
-          <div style={{ marginBottom: 12 }}>
-            <PopupWahl wert={stufeTyp} label="Stufe wählen" optionen={[1, 2, 3, 4, 5].map((st) => ({ id: st, name: `Stufe ${st}` }))}
-              kopf={(o) => (o ? o.name : "Stufe")} onWaehle={(st) => { setStufeTyp(st); neueAufgabe(typ, st); }} />
-          </div>
-        )}
 
         {quelle === "eigen" && eigenOffen && (
           <div className="abl-karte" style={{ marginBottom: 14 }}>
