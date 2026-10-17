@@ -551,8 +551,67 @@ function Zahlungsmarken() {
   );
 }
 
+/* ---------- Bonuscode ----------
+   Der Code wird als prefilled_promo_code an den Stripe-Zahlungslink gehängt.
+   Stripe prüft ihn (Gutschein + Promotion-Code im Stripe-Dashboard).
+   GRATIS_CODES: Codes, bei denen die Seite schon vorab „0 €“ zeigt. */
+const GRATIS_CODES = ["MATHE27"];
+const bonusNorm = (s) => String(s || "").trim().toUpperCase().replace(/\s+/g, "");
+export const bonusGratis = (code) => GRATIS_CODES.includes(bonusNorm(code));
+export function ticketHref(code) {
+  const c = bonusNorm(code);
+  if (!c) return ELTERNABEND.ticketLink;
+  const trenner = ELTERNABEND.ticketLink.includes("?") ? "&" : "?";
+  return `${ELTERNABEND.ticketLink}${trenner}prefilled_promo_code=${encodeURIComponent(c)}`;
+}
+const bonusHoerer = new Set();
+let bonusWert = (() => { try { return sessionStorage.getItem("mm-ea-bonus") || ""; } catch { return ""; } })();
+function bonusSetzen(v) {
+  bonusWert = v;
+  try { v ? sessionStorage.setItem("mm-ea-bonus", v) : sessionStorage.removeItem("mm-ea-bonus"); } catch { /* egal */ }
+  bonusHoerer.forEach((f) => f(v));
+}
+function useBonus() {
+  const [b, setB] = useState(bonusWert);
+  useEffect(() => { bonusHoerer.add(setB); return () => { bonusHoerer.delete(setB); }; }, []);
+  return b;
+}
+
+function BonusFeld() {
+  const bonus = useBonus();
+  const [offen, setOffen] = useState(!!bonus);
+  const [eingabe, setEingabe] = useState(bonus);
+  if (!offen) {
+    return (
+      <button type="button" onClick={() => setOffen(true)}
+        style={{ background: "none", border: 0, padding: "2px 0 10px", color: T.see, fontSize: 13, textDecoration: "underline", cursor: "pointer", fontFamily: "inherit" }}>
+        Bonuscode eingeben
+      </button>
+    );
+  }
+  const angewendet = bonusNorm(bonus) && bonusNorm(bonus) === bonusNorm(eingabe);
+  return (
+    <div style={{ marginBottom: 12 }}>
+      <form onSubmit={(e) => { e.preventDefault(); bonusSetzen(bonusNorm(eingabe)); }} style={{ display: "flex", gap: 8 }}>
+        <input value={eingabe} onChange={(e) => setEingabe(e.target.value)} placeholder="Bonuscode" aria-label="Bonuscode"
+          autoCapitalize="characters" autoComplete="off" spellCheck={false}
+          style={{ flex: 1, minWidth: 0, padding: "10px 12px", borderRadius: 10, border: `1.5px solid ${T.nacht}33`, fontSize: 15, fontFamily: "inherit", textTransform: "uppercase" }} />
+        <button type="submit" className="eab-knopf eab-rand-dunkel" style={{ padding: "10px 14px", flexShrink: 0 }}>Einlösen</button>
+      </form>
+      {angewendet && (
+        <p style={{ margin: "6px 0 0", fontSize: 13, color: bonusGratis(bonus) ? "#1E7A46" : T.see }}>
+          {bonusGratis(bonus) ? "✓ Bonuscode eingelöst – Ihr Ticket ist kostenlos." : "Der Code wird im nächsten Schritt bei Stripe geprüft."}
+          {" "}<button type="button" onClick={() => { bonusSetzen(""); setEingabe(""); }}
+            style={{ background: "none", border: 0, padding: 0, color: T.see, textDecoration: "underline", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>Entfernen</button>
+        </p>
+      )}
+    </div>
+  );
+}
+
 function Ticket({ id }) {
   const E = ELTERNABEND;
+  const bonus = useBonus();
   const tag = E.beginn.slice(8, 10);
   return (
     <aside className="eab-ticket" id={id} aria-label="Ticket Elternabend">
@@ -572,10 +631,13 @@ function Ticket({ id }) {
         <div className="eab-zeile"><ZeileSymbol art="plaetze" /><span><b>Maximal {E.plaetze} Plätze</b><span>Zwei Getränke, Snack und Kursmaterialien inklusive</span></span></div>
         <div className="eab-preis">
           <span className="eab-monat">PRO PERSON</span>
-          <span className="eab-preis-zahl">{E.preis} €</span>
+          {bonusGratis(bonus)
+            ? <span><s style={{ fontSize: 18, color: T.see, marginRight: 8 }}>{E.preis} €</s><span className="eab-preis-zahl">0 €</span></span>
+            : <span className="eab-preis-zahl">{E.preis} €</span>}
         </div>
-        <a className="eab-knopf eab-gold" href={E.ticketLink} rel="noopener" style={{ width: "100%" }}>
-          Platz sichern
+        <BonusFeld />
+        <a className="eab-knopf eab-gold" href={ticketHref(bonus)} rel="noopener" style={{ width: "100%" }}>
+          {bonusGratis(bonus) ? "Kostenlos Platz sichern" : "Platz sichern"}
           <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4l4 4-4 4" stroke={T.nachtTief} strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </a>
         <button type="button" className="eab-knopf eab-rand-dunkel" onClick={kalenderDatei} style={{ width: "100%", marginTop: 10 }}>
@@ -615,6 +677,7 @@ function Portrait() {
 }
 
 function Leiste() {
+  const bonus = useBonus();
   const [an, setAn] = useState(false);
   useEffect(() => {
     const pruefen = () => {
@@ -633,7 +696,7 @@ function Leiste() {
   return (
     <div className={`eab-leiste${an ? " an" : ""}`} aria-hidden={!an}>
       <span className="eab-leiste-text"><b>{E.datumKurz.replace("Sonntag", "So")}</b>{E.uhrzeit} · {E.ort}</span>
-      <a className="eab-knopf eab-gold" href={E.ticketLink} rel="noopener" tabIndex={an ? 0 : -1}>{E.preis} € · Platz sichern</a>
+      <a className="eab-knopf eab-gold" href={ticketHref(bonus)} rel="noopener" tabIndex={an ? 0 : -1}>{bonusGratis(bonus) ? "Kostenlos" : `${E.preis} €`} · Platz sichern</a>
     </div>
   );
 }
@@ -650,6 +713,7 @@ function DankeKarte() {
 /* ---------- Seite ---------- */
 export function ElternabendSeite({ gebucht }) {
   const E = ELTERNABEND;
+  const bonus = useBonus();
   return (
     <div className="eab">
       <style>{CSS_SEITE}</style>
@@ -669,7 +733,7 @@ export function ElternabendSeite({ gebucht }) {
                 und was Ihr Kind mit System und Freude erreichen kann.
               </p>
               <div className="eab-knopfreihe">
-                <a className="eab-knopf eab-gold" href={E.ticketLink} rel="noopener">Platz sichern – {E.preis} €</a>
+                <a className="eab-knopf eab-gold" href={ticketHref(bonus)} rel="noopener">Platz sichern – {bonusGratis(bonus) ? "kostenlos" : `${E.preis} €`}</a>
                 <a className="eab-knopf eab-rand" href="#eab-programm">Was Sie erwartet</a>
               </div>
               <Countdown />
@@ -815,7 +879,7 @@ export function ElternabendSeite({ gebucht }) {
           <h2 className="eab-h2">Ein Abend, der Mathe zu Hause leichter macht.</h2>
           <p className="eab-lead" style={{ marginLeft: "auto", marginRight: "auto" }}>Die Plätze im Café sind auf {E.plaetze} begrenzt. Sichern Sie sich Ihr Ticket – wir freuen uns auf Sie.</p>
           <div className="eab-knopfreihe">
-            <a className="eab-knopf eab-gold" href={E.ticketLink} rel="noopener">Platz sichern – {E.preis} €</a>
+            <a className="eab-knopf eab-gold" href={ticketHref(bonus)} rel="noopener">Platz sichern – {bonusGratis(bonus) ? "kostenlos" : `${E.preis} €`}</a>
             <button type="button" className="eab-knopf eab-rand" onClick={kalenderDatei}>In den Kalender</button>
           </div>
           <Zahlungsmarken />

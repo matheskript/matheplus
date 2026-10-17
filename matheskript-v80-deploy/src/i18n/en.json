@@ -1,5 +1,14 @@
 {
  "exakt": {
+  "Bonuscode eingeben": "Enter bonus code",
+  "Bonuscode": "Bonus code",
+  "Einlösen": "Redeem",
+  "Entfernen": "Remove",
+  "Kostenlos Platz sichern": "Book your free seat",
+  "Kostenlos": "Free",
+  "kostenlos": "free",
+  "✓ Bonuscode eingelöst – Ihr Ticket ist kostenlos.": "✓ Bonus code applied – your ticket is free.",
+  "Der Code wird im nächsten Schritt bei Stripe geprüft.": "The code will be checked by Stripe in the next step.",
   "äußere FKT": "outer fn",
   "äußere ABL": "outer der",
   "äußere Funktion": "outer function",
