@@ -125,12 +125,12 @@ export function MathildaKopf({ modus, setModus, onScan }) {
         .mathilda-kopf .mk-satz { color: #C9D6EE; font-size: 15.5px; font-weight: 300; line-height: 1.55; margin-top: 12px; max-width: 400px; }
         @keyframes mk-auf { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
         @media (max-width: 560px) {
-          .mathilda-kopf .mk-innen { grid-template-columns: 1fr 112px; gap: 0 12px; padding-top: 14px; align-items: center; }
-          .mathilda-kopf .mk-text { align-self: center; padding: 0 0 16px; }
-          .mathilda-kopf .mk-portraet { margin-right: 0; align-self: center; padding-bottom: 16px; }
-          .mathilda-kopf .mk-portraet svg { width: 112px; margin: 0; }
+          .mathilda-kopf .mk-innen { grid-template-columns: 1fr 34vw; gap: 0 12px; padding-top: 20px; align-items: stretch; }
+          .mathilda-kopf .mk-text { align-self: start; padding: 0 0 16px; }
+          .mathilda-kopf .mk-portraet { margin-right: 0; align-self: stretch; position: relative; }
+          .mathilda-kopf .mk-portraet svg { position: absolute; right: -14px; bottom: 16px; height: calc(100% - 16px); width: auto; max-width: none; margin: 0; }
           .mathilda-kopf .mk-schein { display: none; }
-          .mathilda-kopf .mk-ober { font-size: 10px; letter-spacing: .12em; margin-bottom: 5px; }
+          .mathilda-kopf .mk-ober { font-size: 10px; letter-spacing: .12em; margin-bottom: 8px; }
           .mathilda-kopf .mk-titel { font-size: 30px; }
           .mathilda-kopf .mk-satz { font-size: 13px; line-height: 1.5; margin-top: 8px; }
           .mathilda-kopf .mk-scan { margin-top: 16px; width: calc((100vw - 58px) / 2); justify-content: flex-start; height: 44px; font-size: 13.5px; padding: 0 12px 0 5px; gap: 8px; box-shadow: 0 6px 18px rgba(237,187,0,0.35), inset 0 1px 0 rgba(255,255,255,0.55); }
@@ -160,7 +160,7 @@ export function MathildaKopf({ modus, setModus, onScan }) {
         </div>
         <div className="mk-portraet">
           <div className="mk-schein" />
-          <MathildaBild groesse={196} style={{ display: "block", position: "relative" }} />
+          <MathildaBild groesse={196} style={{ display: "block" }} />
         </div>
       </div>
       <div className="mk-modi" role="tablist" aria-label="Was Mathilda tun soll">
