@@ -98,6 +98,9 @@ ${POP_CSS}
 .wk-feld .wk-inhalt{flex:1;font-size:18px;line-height:1.8;white-space:nowrap;min-width:0}
 .wk-pfeil{color:${C.hellgrau};font-size:16px;text-align:center}
 .wk-rechnung{background:${C.sand};border-radius:16px;padding:12px 14px;margin-top:14px}
+.wk-popup{margin-top:12px;animation:wkPopIn .22s ease-out}
+@keyframes wkPopIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.wk-popup{animation:none}}
 .wk-zeile{display:flex;align-items:center;gap:10px;font-size:18px;line-height:1.9;color:${C.tinte};overflow-x:auto;white-space:nowrap;padding:3px 0}
 .wk-zeile .wk-gleich{flex-shrink:0;font-weight:700;min-width:62px;text-align:right}
 .wk-zeile>span{flex:0 0 auto;flex-wrap:nowrap!important}
@@ -135,6 +138,18 @@ export function Feld({ label, labelFarbe, text, tex: fertigTex, aktiv, status, s
       {status === "gezeigt" && <span style={{ fontSize: 11.5, color: C.grau, fontWeight: 600 }}>Lösung</span>}
       {extra}
     </div>
+  );
+}
+
+/* Faktor mit kleiner Beschriftung darüber (u(x) über u, v(x) über v) */
+function FaktorSpalte({ label, children }) {
+  return (
+    <span style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", flex: "0 0 auto" }}>
+      <span style={{ fontSize: 12.5, fontWeight: 600, color: C.goldText, lineHeight: 1.2, minHeight: 15, whiteSpace: "nowrap" }}>
+        {label ? <M t={label} /> : "\u00A0"}
+      </span>
+      <span style={{ color: C.weiss, fontSize: 22, fontWeight: 700, whiteSpace: "nowrap", lineHeight: 1.6 }}>{children}</span>
+    </span>
   );
 }
 
@@ -333,11 +348,14 @@ export function RegelWerkstatt({ regel: regelProp }) {
   const [vText, setVText] = useState(auf.vText);
   const [posUV, setPosUV] = useState({ u: auf.uText.length, v: auf.vText.length });
   const [felder, setFelder] = useState({ u1: leer(), v1: leer(), f1: leer() });
-  const [aktiv, setAktiv] = useState("u");
+  const [aktiv, setAktiv] = useState(auf.regel === "produkt" ? null : "u");
   const [bilanz, setBilanz] = useState({ richtig: 0, gesamt: 0 });
   const kopf = useRef(null);
 
   const art = auf.regel;                         // wirksame Regel (bei Kombo: produkt oder kette)
+  // Produktregel: f(x) mit u(x)·v(x) oben, Regel unter den Bausteinen, Eingabe als Pop-up direkt unter dem angetippten Feld
+  const neu = art === "produkt";
+  const popRef = useRef(null);
   const R = REGELN[art];
   const mitU = art !== "reziprok";
 
@@ -351,7 +369,7 @@ export function RegelWerkstatt({ regel: regelProp }) {
     setAuf(a); setUText(a.uText); setVText(a.vText);
     setPosUV({ u: a.uText.length, v: a.vText.length });
     setFelder({ u1: leer(), v1: leer(), f1: leer() });
-    setAktiv(modus === "training" ? (a.regel === "reziprok" ? "v1" : "u1") : "u");
+    setAktiv(a.regel === "produkt" ? null : modus === "training" ? (a.regel === "reziprok" ? "v1" : "u1") : "u");
   };
   const letzteRegel = useRef(regel);
   useEffect(() => {
@@ -361,7 +379,7 @@ export function RegelWerkstatt({ regel: regelProp }) {
   const waehleModus = (m) => {
     setModus(m);
     setFelder({ u1: leer(), v1: leer(), f1: leer() });
-    setAktiv(m === "training" ? (art === "reziprok" ? "v1" : "u1") : "u");
+    setAktiv(art === "produkt" ? null : m === "training" ? (art === "reziprok" ? "v1" : "u1") : "u");
   };
   useEffect(() => {
     // Automatik: ändert der Schüler u oder v, wird die Aufgabe daraus
@@ -401,11 +419,19 @@ export function RegelWerkstatt({ regel: regelProp }) {
     }
   };
   const loesungZeigen = () => {
-    if (!ml) return;
+    if (!ml || !aktiv) return;
     setFeld(aktiv, { status: "gezeigt", hinweis: "", zeig: tex(aktiv === "f1" ? ml.ergebnis : schoen(soll(aktiv))) });
     const naechst = reihenfolge.find((id) => id !== aktiv && !["richtig", "gezeigt"].includes(felder[id].status));
     if (naechst) setAktiv(naechst);
   };
+
+  // Tippen auf das aktive Feld schließt das Pop-up (nur Produktregel)
+  const waehleFeld = (id) => setAktiv(neu && aktiv === id ? null : id);
+  useEffect(() => {
+    if (neu && aktiv && popRef.current && popRef.current.scrollIntoView) {
+      try { popRef.current.scrollIntoView({ block: "nearest", behavior: "smooth" }); } catch (e) { /* ältere Browser */ }
+    }
+  }, [aktiv, neu]);
 
   // Anzeige der Ableitungsfelder
   const ablTex = (id) => {
@@ -418,11 +444,11 @@ export function RegelWerkstatt({ regel: regelProp }) {
     const e = felder[id];
     if (!training) return <Feld label={`${teil}′(x) =`} labelFarbe={FARBE[teil]} tex={gueltig ? ablTex(id) : ""} still />;
     if (e.status === "gezeigt") return <Feld label={`${teil}′(x) =`} labelFarbe={FARBE[teil]} tex={e.zeig} status="gezeigt" still />;
-    return <Feld label={`${teil}′(x) =`} labelFarbe={FARBE[teil]} text={e.text} aktiv={aktiv === id} status={e.status} onClick={() => setAktiv(id)} />;
+    return <Feld label={`${teil}′(x) =`} labelFarbe={FARBE[teil]} text={e.text} aktiv={aktiv === id} status={e.status} onClick={() => waehleFeld(id)} />;
   };
   const uvFeld = (teil, text, setText) => (
     <Feld label={`${LABEL(art, teil)}(x) =`} labelFarbe={FARBE[teil]} text={text} aktiv={!training && aktiv === teil} still={training}
-      onClick={() => setAktiv(teil)} platzhalter="u eingeben …" />
+      onClick={() => waehleFeld(teil)} platzhalter="u eingeben …" />
   );
 
   const eingabeText = training ? (felder[aktiv] ? felder[aktiv].text : "") : aktiv === "u" ? uText : vText;
@@ -440,6 +466,38 @@ export function RegelWerkstatt({ regel: regelProp }) {
   const nebenU = mitU && gueltig && !["grund", "konst", "summe"].includes(regelFuer(u).art);
   const nebenV = gueltig && !["grund", "konst", "summe"].includes(regelFuer(v).art);
   const zeigeNeben = !training || fertig;
+
+  const eingabeInhalt = () => (training ? (
+    <>
+      <div style={{ display: "flex", gap: 10, marginTop: neu ? 0 : 14 }}>
+        <button type="button" onClick={pruefen}
+          style={{ flex: 2, height: 54, borderRadius: 14, border: "none", cursor: "pointer", fontFamily: "inherit",
+            fontSize: 19, fontWeight: 800, color: C.weiss, background: C.smaragd, letterSpacing: "0.04em", boxShadow: "0 4px 14px rgba(47,143,91,0.35)" }}>
+          OK
+        </button>
+        {felder[aktiv] && felder[aktiv].versuche > 0 && (
+          <button type="button" onClick={loesungZeigen}
+            style={{ flex: 1, height: 54, borderRadius: 14, border: `1.5px solid ${C.linie}`, cursor: "pointer", fontFamily: "inherit", fontSize: 14.5, fontWeight: 600, color: C.see, background: C.weiss }}>
+            Lösung zeigen
+          </button>
+        )}
+      </div>
+      <p style={{ fontSize: 12.5, color: C.grau, margin: "10px 4px 0" }}>
+        Aktiv: <b style={{ color: C.tinte }}>{aktiv === "f1" ? "f′(x)" : `${aktiv[0]}′(x)`}</b> – tippe auf ein anderes Feld, um dort zu schreiben.
+      </p>
+      <Eingabe text={eingabeText} setText={setEingabeText} pos={eingabePos} setPos={setEingabePos} onEnter={pruefen} />
+    </>
+  ) : (
+    <>
+      <p style={{ fontSize: 12.5, color: C.grau, margin: neu ? "0 4px" : "14px 4px 0" }}>
+        Du bearbeitest <b style={{ color: FARBE[aktiv] || C.tinte }}>{LABEL(art, aktiv)}(x)</b> – tippe auf das andere Feld, um es zu ändern.
+      </p>
+      <Eingabe text={eingabeText} setText={setEingabeText} pos={eingabePos} setPos={setEingabePos} platzhalter="z. B. x^2 oder sin(3x)" />
+    </>
+  ));
+  const popup = () => <div className="wk-popup" ref={popRef}>{eingabeInhalt()}</div>;
+  const gridPopup = neu && !!aktiv && ["u", "v", "u1", "v1"].includes(aktiv) && !(training && fertig);
+  const f1Popup = neu && training && !fertig && aktiv === "f1";
 
   return (
     <div ref={kopf}>
@@ -460,13 +518,31 @@ export function RegelWerkstatt({ regel: regelProp }) {
           <p style={{ fontSize: 12.5, color: C.grau, lineHeight: 1.35, margin: "0 2px 10px" }}>{bilanz.richtig} von {bilanz.gesamt} richtig</p>
         )}
 
-        {/* Die Regel */}
-        <div style={{ background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 16, padding: "12px 16px", marginBottom: 12, color: C.weiss }}>
-          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "4px 18px", overflowX: "auto" }}>
-            <span style={{ fontSize: 15, fontWeight: 600, color: C.goldText, whiteSpace: "nowrap", lineHeight: 1.9 }}><M t={R.fBild} /></span>
-            <span style={{ fontSize: 18, fontWeight: 700, whiteSpace: "nowrap", lineHeight: 1.9 }}><M t={R.formel} /></span>
+        {/* Produktregel: oben die Funktion als Produkt, kleine Beschriftung u(x) und v(x) über den Faktoren */}
+        {neu && (
+          <div style={{ background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 16, padding: "10px 16px 6px", marginBottom: 12, overflowX: "auto" }}>
+            {gueltig ? (
+              <div style={{ display: "flex", alignItems: "flex-end", gap: 12, whiteSpace: "nowrap" }}>
+                <FaktorSpalte><M t="f(x) =" /></FaktorSpalte>
+                <FaktorSpalte label="u(x)"><M t={fakTex(schoen(u))} /></FaktorSpalte>
+                <FaktorSpalte><span aria-hidden="true">·</span></FaktorSpalte>
+                <FaktorSpalte label="v(x)"><M t={fakTex(schoen(v))} /></FaktorSpalte>
+              </div>
+            ) : (
+              <span style={{ display: "block", fontSize: 14, fontWeight: 400, color: C.goldText, lineHeight: 1.9, paddingBottom: 4 }}>Gib u und v ein – f ergibt sich daraus.</span>
+            )}
           </div>
-        </div>
+        )}
+
+        {/* Die Regel */}
+        {!neu && (
+          <div style={{ background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 16, padding: "12px 16px", marginBottom: 12, color: C.weiss }}>
+            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "4px 18px", overflowX: "auto" }}>
+              <span style={{ fontSize: 15, fontWeight: 600, color: C.goldText, whiteSpace: "nowrap", lineHeight: 1.9 }}><M t={R.fBild} /></span>
+              <span style={{ fontSize: 18, fontWeight: 700, whiteSpace: "nowrap", lineHeight: 1.9 }}><M t={R.formel} /></span>
+            </div>
+          </div>
+        )}
 
         {/* Bausteine */}
         <p style={{ fontSize: 12.5, color: C.grau, margin: "0 2px 8px", lineHeight: 1.5 }}>{ROLLEN[art]}</p>
@@ -479,15 +555,46 @@ export function RegelWerkstatt({ regel: regelProp }) {
         {training && ["u1", "v1"].map((id) => felder[id].hinweis && (
           <p key={id} style={{ fontSize: 13.5, color: C.signal, lineHeight: 1.6, margin: "8px 4px 0" }}>{id[0]}′: {felder[id].hinweis}</p>
         ))}
+        {gridPopup && popup()}
+
+        {/* Produktregel: die Regel unter den Bausteinen, direkt darunter das f′-Feld (gleich breit) */}
+        {neu && (
+          <>
+            <div style={{ background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 16, padding: "12px 16px", margin: "14px 0 0", overflowX: "auto" }}>
+              <span style={{ color: C.weiss, fontSize: 18, fontWeight: 700, whiteSpace: "nowrap", lineHeight: 1.9 }}><M t={R.formel} /></span>
+            </div>
+            {gueltig && ml && (
+              (!training || fertig) ? (
+                <div className="wk-rechnung" style={{ marginTop: 10 }}>
+                  <div className="wk-zeile"><span className="wk-gleich">f′(x) =</span><M t={ml.einsetzen} /></div>
+                  <div className="wk-zeile"><span className="wk-gleich" style={{ color: C.hellgrau }}>=</span><M t={tex(ml.ergebnis)} /></div>
+                  {ml.ausgeklammert && (
+                    <div className="wk-zeile"><span className="wk-gleich" style={{ color: C.hellgrau }}>=</span><M t={tex(ml.ausgeklammert)} />
+                      <span style={{ fontSize: 12, color: C.grau, marginLeft: 6 }}>ausgeklammert</span></div>
+                  )}
+                </div>
+              ) : (
+                <div style={{ marginTop: 10 }}>
+                  {felder.f1.status === "gezeigt"
+                    ? <Feld label="f′(x) =" tex={felder.f1.zeig} status="gezeigt" still />
+                    : <Feld label="f′(x) =" text={felder.f1.text} aktiv={aktiv === "f1"} status={felder.f1.status} onClick={() => waehleFeld("f1")}
+                      platzhalter="Regel anwenden und eintippen …" />}
+                  {felder.f1.hinweis && <p style={{ fontSize: 13.5, color: C.signal, lineHeight: 1.6, margin: "8px 4px 0" }}>{felder.f1.hinweis}</p>}
+                  {f1Popup && popup()}
+                </div>
+              )
+            )}
+          </>
+        )}
 
         {/* f und die Rechnung */}
-        <div style={{ background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 16, padding: "12px 16px", margin: "14px 0 0", overflowX: "auto" }}>
+        {!neu && <div style={{ background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 16, padding: "12px 16px", margin: "14px 0 0", overflowX: "auto" }}>
           <span style={{ color: C.weiss, fontSize: 22, fontWeight: 700, whiteSpace: "nowrap", lineHeight: 1.9 }}>
             {gueltig ? <M t={`f(x) = ${fTex}`} /> : <span style={{ fontSize: 14, fontWeight: 400, color: C.goldText }}>Gib {mitU ? "u und v" : "v"} ein – f ergibt sich daraus.</span>}
           </span>
-        </div>
+        </div>}
 
-        {gueltig && ml && (
+        {!neu && gueltig && ml && (
           <div className="wk-rechnung">
             <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.1em", color: C.gruenDunkel, textTransform: "uppercase", marginBottom: 4 }}>
               {R.name} anwenden
@@ -528,33 +635,10 @@ export function RegelWerkstatt({ regel: regelProp }) {
               </button>
             </div>
           ) : (
-            <>
-              <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
-                <button type="button" onClick={pruefen}
-                  style={{ flex: 2, height: 54, borderRadius: 14, border: "none", cursor: "pointer", fontFamily: "inherit",
-                    fontSize: 19, fontWeight: 800, color: C.weiss, background: C.smaragd, letterSpacing: "0.04em", boxShadow: "0 4px 14px rgba(47,143,91,0.35)" }}>
-                  OK
-                </button>
-                {felder[aktiv] && felder[aktiv].versuche > 0 && (
-                  <button type="button" onClick={loesungZeigen}
-                    style={{ flex: 1, height: 54, borderRadius: 14, border: `1.5px solid ${C.linie}`, cursor: "pointer", fontFamily: "inherit", fontSize: 14.5, fontWeight: 600, color: C.see, background: C.weiss }}>
-                    Lösung zeigen
-                  </button>
-                )}
-              </div>
-              <p style={{ fontSize: 12.5, color: C.grau, margin: "10px 4px 0" }}>
-                Aktiv: <b style={{ color: C.tinte }}>{aktiv === "f1" ? "f′(x)" : `${aktiv[0]}′(x)`}</b> – tippe auf ein anderes Feld, um dort zu schreiben.
-              </p>
-              <Eingabe text={eingabeText} setText={setEingabeText} pos={eingabePos} setPos={setEingabePos} onEnter={pruefen} />
-            </>
+            neu ? null : <>{eingabeInhalt()}</>
           )
         ) : (
-          <>
-            <p style={{ fontSize: 12.5, color: C.grau, margin: "14px 4px 0" }}>
-              Du bearbeitest <b style={{ color: FARBE[aktiv] || C.tinte }}>{LABEL(art, aktiv)}(x)</b> – tippe auf das andere Feld, um es zu ändern.
-            </p>
-            <Eingabe text={eingabeText} setText={setEingabeText} pos={eingabePos} setPos={setEingabePos} platzhalter="z. B. x^2 oder sin(3x)" />
-          </>
+          neu ? null : <>{eingabeInhalt()}</>
         )}
 
         <Herleitung titel={HER_TITEL[regel][0]} untertitel={HER_TITEL[regel][1]}>
