@@ -19,6 +19,7 @@ import { EBB_SLOGAN, EbbinghausBadge, EbbinghausLogoKlein } from "./funcEbbingha
 import { MeinTrainingBadge, MeinTrainingLogoKlein, meinTrainingText, useOffenHeute } from "./funcMeinTraining.jsx";
 import { DeinPlanBlock, useLernpfad } from "./funcLernpfad.jsx";
 import { StartOnboarding, ZonenKopf } from "./funcOnboarding.jsx";
+import { Quickfinder } from "./funcQuickfinder.jsx";
 import { AppAnleitung } from "./funcAnleitung.jsx";
 import { SuchBox } from "./funcSuche.jsx";
 import { VektorenLogoKlein } from "./func16.jsx";
@@ -97,21 +98,25 @@ function AufklappRahmen({ auf, innen, rahmenRef, children }) {
   );
 }
 
-function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "Werkzeug", klein, halb, extra, gesperrt, logoHell, portraet, titelUmbruch, keinI18nTitel, auf, haupt, breit, goldRand, hell }) {
+function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "Werkzeug", klein, halb, extra, gesperrt, logoHell, portraet, titelUmbruch, keinI18nTitel, auf, haupt, breit, goldRand, hell, inRahmen }) {
   if (halb) klein = true;   // halbe Höhe: nur Titel und eine Textzeile
   const mehrereSaetze = saetze(text).length > 1;
   return (
     <button onClick={gesperrt ? undefined : onClick} disabled={gesperrt} aria-disabled={gesperrt || undefined} aria-expanded={auf} data-aufklapp-haupt={haupt ? "" : undefined}
       aria-label={gesperrt ? `${titel} – noch gesperrt` : label} title={gesperrt ? "Noch gesperrt" : undefined}
-      className={gesperrt ? "kachel-gesperrt" : "plotter-kachel"}
+      className={gesperrt ? "kachel-gesperrt" : inRahmen ? "plotter-kachel plotter-kachel-flach" : "plotter-kachel"}
       style={{ display: "flex", width: klein && !breit ? "100%" : "calc(100% + 32px)", marginLeft: klein && !breit ? 0 : -16, marginRight: klein && !breit ? 0 : -16,
         height: "auto", marginTop: klein && !breit ? 8 : 12, padding: 0, border: goldRand ? `4px solid ${C.flaggold}` : hell ? `2px solid ${C.see}` : "none", borderRadius: klein ? 14 : 18,
         overflow: "hidden", cursor: gesperrt ? "not-allowed" : "pointer", fontFamily: "inherit", textAlign: "left", position: "relative",
         background: gesperrt ? "linear-gradient(155deg, #B9C2CE 0%, #8C97A6 55%, #6E7989 100%)" : hell ? C.weiss : `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`,
-        boxShadow: hell ? "0 6px 22px rgba(0,77,152,0.14)" : gesperrt ? "0 4px 14px rgba(40,50,70,0.18), inset 0 0 0 1px rgba(255,255,255,0.45)" : `0 6px 22px rgba(0,77,152,0.24), inset 0 0 0 1px ${C.silber}40` }}>
+        boxShadow: hell ? "0 6px 22px rgba(0,77,152,0.14)" : gesperrt ? "0 4px 14px rgba(40,50,70,0.18), inset 0 0 0 1px rgba(255,255,255,0.45)" : `0 6px 22px rgba(0,77,152,0.24), inset 0 0 0 1px ${C.silber}40`,
+        // inRahmen: Kachel sitzt als Kopf in einem eigenen Rahmen (Mein Training mit Quickfinder) – ohne Rand, Abstand und Schatten
+        ...(inRahmen ? { width: "100%", marginLeft: 0, marginRight: 0, marginTop: 0, border: "none", borderRadius: 0, boxShadow: "none" } : {}) }}>
       <style>{`.plotter-kachel{transition:transform .15s ease, box-shadow .15s ease}
         .plotter-kachel:active{transform:scale(0.985)}
-        @media (hover:hover){.plotter-kachel:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,77,152,0.32)}}
+        @media (hover:hover){.plotter-kachel:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,77,152,0.32)}
+          .plotter-kachel-flach:hover{transform:none;box-shadow:none;background:${C.sand}}}
+        .plotter-kachel-flach:active{transform:none}
         .kachel-text{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
         .kachel-titel{background:linear-gradient(180deg,#FFFFFF 0%,${C.silberHell} 55%,${C.silber} 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
         .kachel-gesperrt .kachel-titel{background:none;color:#FFFFFF;text-shadow:0 1px 2px rgba(30,40,60,0.25)}`}</style>
@@ -164,12 +169,18 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
   );
 }
 
-/* Kachel „Mein Training“ ganz oben: gleich groß wie „Mathe-Training“, aber weißer Grund mit blauem Rand */
-function MeinTrainingKachelStart({ gehe }) {
+/* Kachel „Mein Training“: weißer Grund mit blauem Rand, doppelt so hoch wie die anderen Kacheln.
+   Oben die bisherige Kachel (öffnet Mein Training), darunter der Quickfinder: Schulart → Klasse → Thema im Buch
+   → alle Hilfen der App dazu (funcQuickfinder.jsx, Daten in schulbuch.js). */
+function MeinTrainingKachelStart({ gehe, setzeStufe }) {
   const s = useOffenHeute();
   return (
-    <PlotterKachel hell breit onClick={() => gehe({ ansicht: "meintraining" })} label="Mein Training öffnen" logo={<MeinTrainingLogoKlein />}
-      extra={<MeinTrainingBadge offen={s.hatSkills ? s.offen : 0} />} titel="Mein Training" text={meinTrainingText(s)} />
+    <div style={{ width: "calc(100% + 32px)", margin: "12px -16px 0", border: `2px solid ${C.see}`, borderRadius: 18, overflow: "hidden",
+      background: C.weiss, boxShadow: "0 6px 22px rgba(0,77,152,0.14)" }}>
+      <PlotterKachel hell breit inRahmen onClick={() => gehe({ ansicht: "meintraining" })} label="Mein Training öffnen" logo={<MeinTrainingLogoKlein />}
+        extra={<MeinTrainingBadge offen={s.hatSkills ? s.offen : 0} />} titel="Mein Training" text={meinTrainingText(s)} />
+      <Quickfinder gehe={gehe} setzeStufe={setzeStufe} />
+    </div>
   );
 }
 
@@ -1485,7 +1496,7 @@ export function Startseite({ gehe }) {
       {!desktop && <WeitermachenZeile gehe={gehe} />}
       <DeinPlanBlock gehe={gehe} />
       <SuchBox gehe={gehe} />
-      {!desktop && <div style={{ marginTop: 12 }}><MeinTrainingKachelStart gehe={gehe} /></div>}
+      {!desktop && <div style={{ marginTop: 12 }}><MeinTrainingKachelStart gehe={gehe} setzeStufe={stufeSetzen} /></div>}
       {!desktop && <ZonenKopf nr={2} titel="Lernen" zeile="Alle Werkzeuge nach Bereich und Stufe." />}
       {/* Oberbutton „Schulmathe-Training“: darunter direkt die Bereiche (Analysis, Vektoren, Stochastik,
           Gleichungen), Abi-Ketten und Formelsammlung. Aufgeklappt wird der Button halb so hoch.
@@ -1601,7 +1612,7 @@ export function Startseite({ gehe }) {
       </>)}
       {/* Desktop: Einleitung + Pen & Paper / Mathilda AI im goldenen Schnitt, dann Kurstext und Kurse */}
       {desktop && <DesktopSystem gehe={gehe} />}
-      {desktop && <div style={{ marginTop: 22 }}><MeinTrainingKachelStart gehe={gehe} /></div>}
+      {desktop && <div style={{ marginTop: 22 }}><MeinTrainingKachelStart gehe={gehe} setzeStufe={stufeSetzen} /></div>}
       {desktop && <DesktopKurse gehe={gehe} />}
       {desktop && (<>
       {/* Mathe-Mindset-Kurs: zwischen Mathe-Training und Mathilda AI */}
