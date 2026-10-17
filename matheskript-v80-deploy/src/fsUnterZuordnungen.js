@@ -84,7 +84,6 @@ export const FS_UNTER_ZUORDNUNGEN = [
     ],
     falle: "»Je mehr, desto weniger« reicht nicht: Bei $y = 10 - x$ wird $y$ auch kleiner, aber $1 \\cdot 9 \\neq 2 \\cdot 8$ – nicht antiproportional.",
     nutzt: [["zuordnung-tabelle", "Sonderfall einer Zuordnung"], ["rechteck", "x · y ist die Fläche eines Rechtecks"]],
-    wz: "kopf",
   },
   {
     id: "dreisatz", g: "Zuordnungen", n: "Dreisatz", st: "unter-mittel", kl: 7,
@@ -112,6 +111,5 @@ export const FS_UNTER_ZUORDNUNGEN = [
     ],
     falle: "Erst prüfen, ob die Zuordnung proportional ist! Wenn 1 Maler 10 Tage braucht, brauchen 2 Maler nicht 20 Tage, sondern 5 Tage – das ist antiproportional.",
     nutzt: [["proportional", "über die Einheit rechnen nutzt den konstanten Quotienten"], ["antiproportional", "umgekehrter Dreisatz nutzt das konstante Produkt"]],
-    wz: "kopf",
   },
 ];

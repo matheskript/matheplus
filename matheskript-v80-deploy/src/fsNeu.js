@@ -190,6 +190,6 @@ export const NEU = [
     ],
     bsp: ["$$47 \\cdot 9 = 470 - 47 = 423, \\quad 35 \\cdot 99 = 3500 - 35 = 3465"],
     nutzt: [["distributiv", "mal (10 − 1)"], ["teil39", "Quersumme als Probe"], ["nahe100", "ähnlicher Trick"]],
-    wz: "kopf",
+    wz: "kopf-mult",
   },
 ];

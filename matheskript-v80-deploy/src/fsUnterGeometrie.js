@@ -29,7 +29,6 @@ export const FS_UNTER_GEOMETRIE = [
     ],
     falle: "Zwei Geraden, die sich auf dem Blatt nicht schneiden, müssen nicht parallel sein – verlängert man sie, treffen sie sich vielleicht doch. Parallel heißt: überall gleicher Abstand.",
     nutzt: [["orthogeraden", "wird im Koordinatensystem zu m₁ · m₂ = −1"]],
-    wz: "geradengleichung",
   },
   {
     id: "koordinaten", g: "Grundbegriffe", n: "Koordinatensystem", st: "unter-mittel", kl: 5,
@@ -73,7 +72,6 @@ export const FS_UNTER_GEOMETRIE = [
     ],
     falle: "Nicht schräg messen! Die Verbindung von $P$ zu einem beliebigen Punkt der Geraden ist länger als der Abstand – gemessen wird nur entlang des Lotes (rechter Winkel).",
     nutzt: [["geraden-lage", "das Lot steht senkrecht auf der Geraden"], ["pythagoras", "zeigt, dass jede schräge Strecke länger ist"]],
-    wz: "abstaende",
   },
   {
     id: "kreis-begriffe", g: "Grundbegriffe", n: "Kreis: Radius und Durchmesser", st: "unter-mittel", kl: 5,
@@ -117,7 +115,6 @@ export const FS_UNTER_GEOMETRIE = [
     ],
     falle: "Beim Messen die falsche Skala des Geodreiecks ablesen: Ein spitzer Winkel kann nicht $150°$ sein. Vorher schätzen, ob spitz oder stumpf!",
     nutzt: [["geraden-lage", "der rechte Winkel ist das Senkrecht-Stehen"]],
-    wz: "winkel",
   },
   {
     id: "scheitelwinkel", g: "Winkel", n: "Scheitel- und Nebenwinkel", st: "unter-mittel", kl: 7,
@@ -141,7 +138,6 @@ export const FS_UNTER_GEOMETRIE = [
     ],
     falle: "Nebenwinkel sind nicht gleich groß, sondern ergänzen sich zu $180°$ – nur bei senkrechten Geraden sind alle vier Winkel gleich ($90°$).",
     nutzt: [["winkel-arten", "zwei Nebenwinkel bilden einen gestreckten Winkel (180°)"]],
-    wz: "winkel",
   },
   {
     id: "stufenwinkel", g: "Winkel", n: "Stufen- und Wechselwinkel", st: "unter-mittel", kl: 7,
@@ -169,7 +165,6 @@ export const FS_UNTER_GEOMETRIE = [
     ],
     falle: "Die Sätze gelten nur bei parallelen Geraden. Sind $g$ und $h$ nicht parallel, sind Stufen- und Wechselwinkel verschieden.",
     nutzt: [["scheitelwinkel", "Wechselwinkel = Scheitelwinkel des Stufenwinkels"], ["geraden-lage", "Voraussetzung: g ∥ h"]],
-    wz: "winkel",
   },
   {
     id: "winkelsumme-viereck", g: "Winkel", n: "Winkelsumme im Viereck", st: "unter-mittel", kl: 7,
@@ -197,7 +192,6 @@ export const FS_UNTER_GEOMETRIE = [
     ],
     falle: "Nicht $4 \\cdot 180°$ rechnen, weil das Viereck vier Ecken hat – es zerfällt nur in zwei Dreiecke, die Summe ist $360°$.",
     nutzt: [["winkelsumme", "jedes Teildreieck hat 180°"]],
-    wz: "winkel",
   },
   {
     id: "aussenwinkel", g: "Winkel", n: "Außenwinkelsatz", st: "unter-mittel", kl: 7,
@@ -222,7 +216,6 @@ export const FS_UNTER_GEOMETRIE = [
     ],
     falle: "Der Außenwinkel ist nicht gleich dem gegenüberliegenden Innenwinkel, sondern gleich der Summe der zwei nicht anliegenden Innenwinkel.",
     nutzt: [["winkelsumme", "α + β + γ = 180°"], ["scheitelwinkel", "Innen- und Außenwinkel sind Nebenwinkel"]],
-    wz: "winkel",
   },
 
   /* ---------------- Dreiecke und Konstruktion ---------------- */
@@ -245,7 +238,6 @@ export const FS_UNTER_GEOMETRIE = [
     ],
     falle: "Die Basiswinkel liegen an der Basis, also an der dritten (ungleichen) Seite – nicht an der Spitze zwischen den gleich langen Schenkeln.",
     nutzt: [["mittelsenkrechte", "die Spitze liegt auf der Mittelsenkrechten der Basis"], ["achsensymmetrie", "das Dreieck ist achsensymmetrisch"], ["winkelsumme", "Basiswinkel aus dem Spitzenwinkel"]],
-    wz: "winkel",
   },
   {
     id: "gleichseitig", g: "Dreiecke und Konstruktion", n: "Gleichseitiges Dreieck", st: "unter-mittel", kl: 7,

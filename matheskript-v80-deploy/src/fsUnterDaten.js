@@ -27,7 +27,6 @@ export const FS_UNTER_DATEN = [
     ],
     falle: "Ein einzelner Ausreißer verschiebt das Mittel stark: Bei 2, 3, 3, 4, 38 ist $\\overline{x} = 10$, obwohl fast alle Werte unter 5 liegen. Dann besser den Median angeben.",
     nutzt: [["bruch-def", "Teilen durch n verteilt gerecht"]],
-    wz: "kopf",
   },
   {
     id: "median", g: "Daten", n: "Median (Zentralwert)", st: "unter-mittel", kl: 6,
@@ -54,7 +53,6 @@ export const FS_UNTER_DATEN = [
     ],
     falle: "Vorher ordnen! Bei 7, 2, 9 ist der Median 7, nicht der »mittlere« Wert 2 der ungeordneten Liste.",
     nutzt: [["arith-mittel", "bei gerader Anzahl Mittel der beiden mittleren Werte"]],
-    wz: "kopf",
   },
   {
     id: "modus", g: "Daten", n: "Modus (häufigster Wert)", st: "unter-mittel", kl: 6,
@@ -80,7 +78,6 @@ export const FS_UNTER_DATEN = [
     ],
     falle: "Der Modus ist der Wert, nicht seine Häufigkeit: Bei den Schuhgrößen oben ist der Modus 39, nicht 3.",
     nutzt: [["relhaeuf", "Häufigkeiten zählen und vergleichen"], ["median", "neben Mittelwert und Median der dritte Lagewert"]],
-    wz: "kopf",
   },
   {
     id: "spannweite", g: "Daten", n: "Spannweite", st: "unter-mittel", kl: 6,
@@ -102,7 +99,6 @@ export const FS_UNTER_DATEN = [
     ],
     falle: "Die Spannweite hängt nur von den beiden Extremwerten ab. Ein einziger Ausreißer macht sie groß, auch wenn alle anderen Werte dicht beieinander liegen.",
     nutzt: [["arith-mittel", "ergänzt den Mittelwert um die Streuung"], ["median", "beide brauchen die geordnete Liste"]],
-    wz: "kopf",
   },
   {
     id: "kreisdiagramm", g: "Daten", n: "Kreisdiagramm", st: "unter-mittel", kl: 6,
@@ -126,6 +122,5 @@ export const FS_UNTER_DATEN = [
     ],
     falle: "Prozent nicht direkt als Grad nehmen: 25 % sind $90°$, nicht $25°$.",
     nutzt: [["relhaeuf", "Winkel ist relative Häufigkeit mal 360°"], ["prozent", "Anteile in Prozent umrechnen"], ["kreissektor", "jedes Kreisstück ist ein Kreissektor"]],
-    wz: "kopf",
   },
 ];

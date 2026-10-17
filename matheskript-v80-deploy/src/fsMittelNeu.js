@@ -233,7 +233,7 @@ const MITTEL_1 = [
       "Ist jede Raute ein Quadrat? Nein – eine Raute muss keine rechten Winkel haben.",
     ],
     falle: "Die Richtung zählt: Jedes Quadrat ist ein Rechteck, aber nicht jedes Rechteck ist ein Quadrat.",
-    nutzt: [["parallelogramm-ebene", "Flächenformel für alle Parallelogramme"], ["trapez", "das allgemeinste Viereck mit Parallelen"], ["teilmenge", "das Haus ist eine Kette von Teilmengen"]],
+    nutzt: [["parallelogramm-ebene", "Flächenformel für alle Parallelogramme"], ["trapez", "das allgemeinste Viereck mit Parallelen"], ["teilmenge", "das Haus ist eine Kette von Teilmengen"], ["winkelsumme-viereck", "in jedem Viereck des Hauses ergeben die Innenwinkel 360°"]],
   },
   {
     bereich: "geometrie", id: "drachen-raute", g: "Flächen", n: "Drachen und Raute", st: "mittel", kl: 8,

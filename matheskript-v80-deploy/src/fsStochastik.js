@@ -28,7 +28,6 @@ export const FS_STOCHASTIK = [
       "Die Schwankung schrumpft wie $\\frac{1}{\\sqrt{n}}$: Viermal so viele Versuche halbieren sie.",
     ] },
     nutzt: [["binom-ew", "μ und σ der Binomialverteilung"]],
-    wz: "bernoulli",
   },
   {
     id: "gegenereignis", g: "Wahrscheinlichkeiten", n: "Gegenereignis", st: "beide",

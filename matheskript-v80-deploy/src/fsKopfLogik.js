@@ -13,7 +13,7 @@ export const FS_KOPF = [
     ] },
     falle: "Nicht für Minus und Geteilt: $5 - 3 \\neq 3 - 5$.",
     nutzt: [["rechteck", "a · b Kästchen"]],
-    wz: "kopf",
+    wz: "kopf-mult",
   },
   {
     id: "assoziativ", g: "Rechengesetze", n: "Assoziativgesetz", st: "unter-mittel", kl: 5,
@@ -38,7 +38,7 @@ export const FS_KOPF = [
     bsp: ["$$4 \\cdot 17 \\cdot 25 = 17 \\cdot (4 \\cdot 25) = 1700"],
     falle: "Gilt nur für Plus und Mal. Bei Minus und Geteilt ändert die Klammer das Ergebnis: $(8 - 4) - 2 = 2$, aber $8 - (4 - 2) = 6$.",
     nutzt: [["kommutativ", "zusammen mit dem Vertauschen"]],
-    wz: "kopf",
+    wz: "kopf-mult",
   },
   {
     id: "distributiv", g: "Rechengesetze", n: "Distributivgesetz", st: "unter-mittel", kl: 5,
@@ -51,7 +51,7 @@ export const FS_KOPF = [
     ] },
     bsp: ["$$7 \\cdot 49 = 7 \\cdot (50 - 1) = 350 - 7 = 343"],
     nutzt: [["rechteck", "Rechteck in zwei Teile geschnitten"]],
-    wz: "kopf",
+    wz: "kopf-mult",
   },
 
   /* ---------------- Rechentricks ---------------- */
@@ -77,7 +77,7 @@ export const FS_KOPF = [
     bsp: ["$$78 \\cdot 11: \\; 7 + 8 = 15 \\;\\Rightarrow\\; 7 + 1 = 8, \\; 5, \\; 8 \\;\\Rightarrow\\; 858"],
     falle: "Bei Ziffernsumme ab 10 den Übertrag nicht vergessen.",
     nutzt: [["distributiv", "mal 10 plus mal 1"], ["teil11", "gleiche Zahl 11 – andere Regel"]],
-    wz: "kopf",
+    wz: "kopf-mult",
   },
   {
     id: "mal5", g: "Rechentricks", n: "Mal 5", st: "unter-mittel", kl: 5,
@@ -96,7 +96,7 @@ export const FS_KOPF = [
     ],
     bsp: ["$$68 \\cdot 5 = 680 : 2 = 340"],
     nutzt: [["assoziativ", "Faktoren umgruppiert"], ["bruch-mul", "5 = 10/2"]],
-    wz: "kopf",
+    wz: "kopf-mult",
   },
   {
     id: "mal25", g: "Rechentricks", n: "Mal 25", st: "unter-mittel", kl: 5,
@@ -114,7 +114,7 @@ export const FS_KOPF = [
     ],
     bsp: ["$$36 \\cdot 25 = 3600 : 4 = 900"],
     nutzt: [["mal5", "dieselbe Idee"], ["assoziativ", "Faktoren umgruppiert"]],
-    wz: "kopf",
+    wz: "kopf-mult",
   },
   {
     id: "quadrat5", g: "Rechentricks", n: "Quadrat mit Endziffer 5", st: "unter-mittel", kl: 5,
@@ -127,7 +127,7 @@ export const FS_KOPF = [
     ] },
     bsp: ["$$85^2: \\; 8 \\cdot 9 = 72 \\;\\Rightarrow\\; 7225"],
     nutzt: [["binom1", "(10a + 5)² ausmultipliziert"], ["distributiv", "100 ausgeklammert"]],
-    wz: "kopf",
+    wz: "kopf-potenzen",
   },
   {
     id: "mitte", g: "Rechentricks", n: "Um die Mitte herum", st: "unter-mittel", kl: 5,
@@ -140,7 +140,7 @@ export const FS_KOPF = [
     ] },
     bsp: ["$$38 \\cdot 42 = 40^2 - 2^2 = 1596"],
     nutzt: [["binom3", "direkt angewandt"]],
-    wz: "kopf",
+    wz: "kopf-mult",
   },
   {
     id: "nahe100", g: "Rechentricks", n: "Nahe an 100", st: "unter-mittel", kl: 5,
@@ -162,7 +162,7 @@ export const FS_KOPF = [
     bsp: ["$$96 \\cdot 93: \\; 96 - 7 = 89, \\; 4 \\cdot 7 = 28 \\;\\Rightarrow\\; 8928"],
     falle: "Ist das Produkt der Abstände einstellig, vorne eine Null ergänzen: $98 \\cdot 99$: $97$ und $02$ ⇒ 9702.",
     nutzt: [["distributiv", "Klammern ausmultipliziert"], ["binom2", "ähnliche Struktur"]],
-    wz: "kopf",
+    wz: "kopf-mult",
   },
 
   /* ---------------- Teilbarkeit ---------------- */
@@ -183,7 +183,7 @@ export const FS_KOPF = [
     ],
     falle: "Für 4 reicht die Endziffer nicht: 14 ist gerade, aber nicht durch 4 teilbar.",
     nutzt: [["distributiv", "10q ausgeklammert"], ["teiler", "10 = 2 · 5"]],
-    wz: "kopf",
+    wz: "kopf-prim",
   },
   {
     id: "teil39", g: "Teilbarkeit", n: "Durch 3 und 9", st: "unter-mittel", kl: 5,
@@ -205,7 +205,7 @@ export const FS_KOPF = [
     bsp: ["$4\\,572$: Quersumme 18 – durch 9, also auch durch 3 teilbar."],
     falle: "Gilt nur für 3 und 9, nicht für 6: Quersumme 12 heißt noch nicht durch 6 teilbar (z. B. 39).",
     nutzt: [["distributiv", "Zehnerpotenzen zerlegt"], ["teiler", "9 = 3 · 3"]],
-    wz: "kopf",
+    wz: "kopf-prim",
   },
   {
     id: "teil48", g: "Teilbarkeit", n: "Durch 4 und 8", st: "unter-mittel", kl: 6,
@@ -223,7 +223,7 @@ export const FS_KOPF = [
       ] },
     ],
     nutzt: [["teil2510", "dieselbe Idee eine Stelle weiter"], ["distributiv", "100 ausgeklammert"]],
-    wz: "kopf",
+    wz: "kopf-prim",
   },
   {
     id: "teil6", g: "Teilbarkeit", n: "Durch 6", st: "unter-mittel", kl: 5,
@@ -241,7 +241,7 @@ export const FS_KOPF = [
       ] },
     ],
     nutzt: [["teil2510", "Teil 1"], ["teil39", "Teil 2"], ["teiler", "Primfaktoren"]],
-    wz: "kopf",
+    wz: "kopf-prim",
   },
   {
     id: "teil11", g: "Teilbarkeit", n: "Durch 11", st: "unter-mittel", kl: 6,
@@ -261,7 +261,7 @@ export const FS_KOPF = [
     bsp: ["$918\\,082$: $2 - 8 + 0 - 8 + 1 - 9 = -22$ – durch 11 teilbar."],
     falle: "Es zählt nicht die gewöhnliche Quersumme: 29 hat Quersumme 11, ist aber nicht durch 11 teilbar.",
     nutzt: [["teil39", "dieselbe Idee mit Rest −1"], ["mal11", "Mal 11 und Teilbarkeit durch 11"]],
-    wz: "kopf",
+    wz: "kopf-prim",
   },
   {
     id: "teiler", g: "Teilbarkeit", n: "Primfaktorzerlegung", st: "unter-mittel", kl: 5,
@@ -274,7 +274,7 @@ export const FS_KOPF = [
       "ggT: kleinste gemeinsame Exponenten. kgV: größte Exponenten.",
     ] },
     nutzt: [["komb-mm", "Anzahl der Teiler über die Produktregel"]],
-    wz: "kopf",
+    wz: "kopf-prim",
   },
 
   /* ---------------- Bruchrechnen ---------------- */
@@ -288,7 +288,7 @@ export const FS_KOPF = [
     ] },
     falle: "Nur Faktoren kürzen, keine Summanden: $\\frac{x + 2}{2} \\neq x$.",
     nutzt: [],
-    wz: "kopf",
+    wz: "kopf-brueche",
   },
   {
     id: "bruch-add", g: "Bruchrechnen", n: "Addieren", st: "unter-mittel", kl: 6,
@@ -303,7 +303,7 @@ export const FS_KOPF = [
     bsp: ["$$\\frac{1}{4} + \\frac{1}{6} = \\frac{3}{12} + \\frac{2}{12} = \\frac{5}{12}"],
     falle: "$\\frac{1}{2} + \\frac{1}{3} \\neq \\frac{2}{5}$.",
     nutzt: [["bruch-kuerzen", "beide Brüche erweitern"]],
-    wz: "kopf",
+    wz: "kopf-brueche",
   },
   {
     id: "bruch-mul", g: "Bruchrechnen", n: "Multiplizieren", st: "unter-mittel", kl: 6,
@@ -314,7 +314,7 @@ export const FS_KOPF = [
       "$\\frac{2}{3}$ von $\\frac{4}{5}$: Ein Rechteck wird waagerecht in 5 und senkrecht in 3 Streifen geteilt. Von den $3 \\cdot 5 = 15$ Feldern liegen $2 \\cdot 4 = 8$ in beiden Anteilen.",
     ] },
     nutzt: [["rechteck", "Felder im Rechteck zählen"]],
-    wz: "kopf",
+    wz: "kopf-brueche",
   },
   {
     id: "bruch-div", g: "Bruchrechnen", n: "Dividieren", st: "unter-mittel", kl: 6,
@@ -337,7 +337,7 @@ export const FS_KOPF = [
     ],
     bsp: ["$$\\frac{3}{4} : \\frac{9}{8} = \\frac{3}{4} \\cdot \\frac{8}{9} = \\frac{2}{3}"],
     nutzt: [["bruch-mul", "Probe"], ["bruch-kuerzen", "auf gemeinsamen Nenner erweitern"]],
-    wz: "kopf",
+    wz: "kopf-brueche",
   },
   {
     id: "prozent", g: "Bruchrechnen", n: "Prozent", st: "unter-mittel", kl: 6,

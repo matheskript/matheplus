@@ -25,7 +25,6 @@ const ZAHLEN_1 = [
     ],
     falle: "Die Null nicht vergessen: »drei Tausend sieben« ist $3007$, nicht $37$ und nicht $307$.",
     nutzt: [["zehnerpotenzen", "die Stellenwerte sind die Zehnerpotenzen 1, 10, 100, 1000 …"]],
-    wz: "kopf",
   },
   {
     id: "runden", g: "Natürliche Zahlen", n: "Runden", st: "unter-mittel", kl: 5,
@@ -47,7 +46,6 @@ const ZAHLEN_1 = [
     ],
     falle: "Nicht schrittweise runden: $1449$ auf Hunderter ist $1400$. Wer erst auf Zehner ($1450$) und dann auf Hunderter rundet, landet falsch bei $1500$.",
     nutzt: [["stellenwert", "man muss die Rundungsstelle in der Stellenwerttafel finden"]],
-    wz: "kopf",
   },
   {
     id: "ueberschlag", g: "Natürliche Zahlen", n: "Überschlagsrechnung", st: "unter", kl: 5,
@@ -69,7 +67,7 @@ const ZAHLEN_1 = [
     ],
     falle: "Der Überschlag ersetzt nicht das genaue Rechnen – er ist nur die Probe. $400 \\cdot 50 = 20\\,000$ ist nicht das Ergebnis von $387 \\cdot 52$.",
     nutzt: [["runden", "jede Zahl wird zuerst gerundet"], ["kommutativ", "Faktoren geschickt zusammenfassen"]],
-    wz: "kopf",
+    wz: "kopf-mult",
   },
   {
     id: "rechenreihenfolge", g: "Natürliche Zahlen", n: "Punkt vor Strich", st: "unter-mittel", kl: 5,
@@ -93,7 +91,6 @@ const ZAHLEN_1 = [
     ],
     falle: "Geteilt-Ketten nicht von rechts rechnen: $24 : 4 : 2 = 6 : 2 = 3$, nicht $24 : 2 = 12$.",
     nutzt: [["distributiv", "mit dem Distributivgesetz löst man Klammern auf, ohne die Reihenfolge zu verletzen"], ["potenz-def", "Potenzen sind abgekürztes Malnehmen und kommen vor Punkt"]],
-    wz: "kopf",
   },
   {
     id: "potenz-def", g: "Natürliche Zahlen", n: "Potenz als Produkt", st: "unter-mittel", kl: 5,
@@ -114,7 +111,7 @@ const ZAHLEN_1 = [
     ],
     falle: "$2^3$ ist nicht $2 \\cdot 3 = 6$, sondern $2 \\cdot 2 \\cdot 2 = 8$.",
     nutzt: [["kommutativ", "die Reihenfolge der gleichen Faktoren spielt keine Rolle"]],
-    wz: "kopf",
+    wz: "kopf-potenzen",
   },
   {
     id: "quadratzahlen", g: "Natürliche Zahlen", n: "Quadratzahlen", st: "unter-mittel", kl: 5,
@@ -142,7 +139,7 @@ const ZAHLEN_1 = [
     ],
     falle: "$3^2$ ist $9$, nicht $6$ – Quadrieren heißt mit sich selbst malnehmen, nicht verdoppeln.",
     nutzt: [["potenz-def", "n² ist die Potenz mit Exponent 2"], ["rechteck", "n · n Kästchen bilden ein Quadrat"]],
-    wz: "kopf",
+    wz: "kopf-potenzen",
   },
   {
     id: "zehnerpotenzen", g: "Natürliche Zahlen", n: "Zehnerpotenzen", st: "unter-mittel", kl: 5,
@@ -163,7 +160,6 @@ const ZAHLEN_1 = [
     ],
     falle: "Eine Billion ist im Deutschen $10^{12}$. Das englische »billion« ist nur unsere Milliarde ($10^9$).",
     nutzt: [["potenz-def", "Zehnerpotenzen sind Potenzen mit Basis 10"], ["potenzgesetze", "beim Malnehmen werden die Exponenten addiert"]],
-    wz: "kopf",
   },
   {
     id: "primzahl", g: "Natürliche Zahlen", n: "Primzahlen", st: "unter", kl: 5,
@@ -191,7 +187,7 @@ const ZAHLEN_1 = [
     ],
     falle: "$1$ ist keine Primzahl (nur ein Teiler), und nicht jede ungerade Zahl ist prim: $9 = 3 \\cdot 3$, $51 = 3 \\cdot 17$.",
     nutzt: [["teil2510", "Vielfache von 2 und 5 erkennt man an der letzten Ziffer"], ["widerspruch", "Euklids Beweis ist ein Widerspruchsbeweis"]],
-    wz: "kopf",
+    wz: "kopf-prim",
   },
   {
     id: "primfaktor", g: "Natürliche Zahlen", n: "Primfaktoren finden (Faktorbaum)", st: "unter", kl: 5,
@@ -213,7 +209,7 @@ const ZAHLEN_1 = [
     ],
     falle: "Nicht bei einer zusammengesetzten Zahl aufhören: $72 = 8 \\cdot 9$ ist noch keine Primfaktorzerlegung – richtig ist $72 = 2^3 \\cdot 3^2$.",
     nutzt: [["primzahl", "die Bausteine sind Primzahlen"], ["teiler", "die Zerlegung ist eindeutig und liefert alle Teiler"]],
-    wz: "kopf",
+    wz: "kopf-prim",
   },
   {
     id: "ggt", g: "Natürliche Zahlen", n: "Größter gemeinsamer Teiler", st: "unter-mittel", kl: 5,
@@ -240,7 +236,7 @@ const ZAHLEN_1 = [
     ],
     falle: "Primfaktoren, die nur in einer Zahl vorkommen, gehören nicht in den ggT. Und: $\\text{ggT}(8, 15) = 1$ – die Zahlen heißen dann teilerfremd.",
     nutzt: [["primfaktor", "aus den Primfaktorzerlegungen liest man den ggT ab"], ["bruch-kuerzen", "mit dem ggT kürzt man vollständig in einem Schritt"]],
-    wz: "kopf",
+    wz: "kopf-prim",
   },
   {
     id: "kgv", g: "Natürliche Zahlen", n: "Kleinstes gemeinsames Vielfaches", st: "unter-mittel", kl: 5,
@@ -267,7 +263,7 @@ const ZAHLEN_1 = [
     ],
     falle: "Das Produkt ist zwar ein gemeinsames Vielfaches, aber oft nicht das kleinste: $12 \\cdot 18 = 216$, das kgV ist $36$.",
     nutzt: [["primfaktor", "aus den Primfaktorzerlegungen liest man das kgV ab"], ["bruch-add", "das kgV der Nenner ist der Hauptnenner"]],
-    wz: "kopf",
+    wz: "kopf-prim",
   },
   {
     id: "ggt-kgv", g: "Natürliche Zahlen", n: "ggT mal kgV", st: "unter", kl: 6,
@@ -288,7 +284,7 @@ const ZAHLEN_1 = [
     ],
     falle: "Die Regel gilt für zwei Zahlen. Für drei Zahlen ist $\\text{ggT} \\cdot \\text{kgV}$ im Allgemeinen nicht das Produkt aller drei: $\\text{ggT}(2, 2, 2) \\cdot \\text{kgV}(2, 2, 2) = 4 \\neq 8$.",
     nutzt: [["ggt", "kleinere Exponenten"], ["kgv", "größere Exponenten"], ["potenzgesetze", "beim Malnehmen addieren sich die Exponenten"]],
-    wz: "kopf",
+    wz: "kopf-prim",
   },
 
   /* ---------------- Brüche ---------------- */
@@ -312,7 +308,7 @@ const ZAHLEN_1 = [
     ],
     falle: "Die Teile müssen gleich groß sein. Eine Torte, die in ein großes und drei kleine Stücke geschnitten ist, liefert mit einem Stück nicht automatisch $\\frac{1}{4}$.",
     nutzt: [["zahlbereiche", "Brüche erweitern die natürlichen Zahlen zu den rationalen Zahlen"]],
-    wz: "kopf",
+    wz: "kopf-brueche",
   },
   {
     id: "bruch-erweitern", g: "Brüche", n: "Gleichnamig machen", st: "unter-mittel", kl: 6,
@@ -334,7 +330,7 @@ const ZAHLEN_1 = [
     ],
     falle: "Nur mit derselben Zahl oben und unten multiplizieren. $\\frac{3}{8} \\to \\frac{3}{24}$ (nur der Nenner geändert) macht den Bruch dreimal so klein.",
     nutzt: [["bruch-kuerzen", "Erweitern ist das Kürzen rückwärts"], ["kgv", "der Hauptnenner ist das kgV der Nenner"]],
-    wz: "kopf",
+    wz: "kopf-brueche",
   },
   {
     id: "gemischt", g: "Brüche", n: "Gemischte Zahlen", st: "unter", kl: 6,
@@ -355,7 +351,7 @@ const ZAHLEN_1 = [
     ],
     falle: "$2\\frac{3}{4}$ heißt $2 + \\frac{3}{4}$, nicht $2 \\cdot \\frac{3}{4}$. Und beim Malnehmen nicht Ganze und Brüche getrennt multiplizieren: $1\\frac{1}{2} \\cdot 2\\frac{2}{3} \\neq 2\\frac{2}{6}$.",
     nutzt: [["bruch-def", "ein Bruch mit Zähler größer als Nenner ist mehr als ein Ganzes"], ["bruch-add", "eine gemischte Zahl ist eine Summe"]],
-    wz: "kopf",
+    wz: "kopf-brueche",
   },
   {
     id: "bruch-vergleich", g: "Brüche", n: "Brüche vergleichen", st: "unter", kl: 6,
@@ -377,7 +373,7 @@ const ZAHLEN_1 = [
     ],
     falle: "Ein größerer Nenner macht den Bruch nicht größer: $\\frac{1}{8} < \\frac{1}{4}$, obwohl $8 > 4$.",
     nutzt: [["bruch-erweitern", "zum Vergleichen gleichnamig machen"], ["kgv", "der kleinste gemeinsame Nenner"]],
-    wz: "kopf",
+    wz: "kopf-brueche",
   },
   {
     id: "bruch-dezimal", g: "Brüche", n: "Bruch in Dezimalzahl umwandeln", st: "unter-mittel", kl: 6,
@@ -404,7 +400,7 @@ const ZAHLEN_1 = [
     ],
     falle: "$\\frac{1}{4}$ ist nicht $1{,}4$ und $\\frac{3}{8}$ nicht $0{,}38$ – der Bruchstrich ist kein Komma.",
     nutzt: [["bruch-erweitern", "Erweitern auf 10, 100, 1000"], ["dezimal-stellenwert", "die Stellen nach dem Komma sind Zehntel, Hundertstel, Tausendstel"]],
-    wz: "kopf",
+    wz: "kopf-division",
   },
   {
     id: "anteil-von", g: "Brüche", n: "Bruchteil einer Größe", st: "unter", kl: 6,
@@ -425,7 +421,7 @@ const ZAHLEN_1 = [
     ],
     falle: "Nicht Zähler und Nenner vertauschen: $\\frac{3}{4}$ von $20$ ist $20 : 4 \\cdot 3 = 15$, nicht $20 : 3 \\cdot 4 \\approx 26{,}7$ – ein Anteil kleiner als 1 muss weniger als das Ganze ergeben.",
     nutzt: [["bruch-mul", "ein Bruch mal eine Zahl"], ["prozent", "Prozent sind Bruchteile mit Nenner 100"]],
-    wz: "kopf",
+    wz: "kopf-brueche",
   },
   {
     id: "kehrwert", g: "Brüche", n: "Kehrwert eines Bruchs", st: "unter-mittel", kl: 6,
@@ -446,7 +442,7 @@ const ZAHLEN_1 = [
     ],
     falle: "Bei gemischten Zahlen erst umwandeln: Der Kehrwert von $2\\frac{1}{2}$ ist $\\frac{2}{5}$, nicht $2\\frac{2}{1}$.",
     nutzt: [["bruch-mul", "Bruch mal Kehrwert ergibt 1"], ["bruch-div", "Teilen heißt mit dem Kehrwert malnehmen"]],
-    wz: "kopf",
+    wz: "kopf-brueche",
   },
 
   /* ---------------- Dezimalzahlen ---------------- */
@@ -469,7 +465,6 @@ const ZAHLEN_1 = [
     ],
     falle: "Mehr Ziffern heißt nicht größer: $0{,}65 < 0{,}7$, obwohl $65 > 7$. Mit gleich vielen Nachkommastellen vergleichen.",
     nutzt: [["stellenwert", "dieselbe Tafel, nur nach rechts verlängert"], ["bruch-def", "Zehntel, Hundertstel und Tausendstel sind Brüche"]],
-    wz: "kopf",
   },
   {
     id: "komma-verschieben", g: "Dezimalzahlen", n: "Mal und geteilt durch 10, 100, 1000", st: "unter-mittel", kl: 6,
@@ -491,7 +486,6 @@ const ZAHLEN_1 = [
     ],
     falle: "Nicht einfach eine Null anhängen: $3{,}75 \\cdot 10$ ist $37{,}5$, nicht $3{,}750$ (das ist derselbe Wert wie $3{,}75$).",
     nutzt: [["dezimal-stellenwert", "jede Stelle ist zehnmal so viel wert wie die rechts daneben"], ["zehnerpotenzen", "die Anzahl der Nullen gibt die Anzahl der Stellen an"]],
-    wz: "kopf",
   },
   {
     id: "dezimal-mult", g: "Dezimalzahlen", n: "Dezimalzahlen multiplizieren", st: "unter", kl: 6,
@@ -512,7 +506,6 @@ const ZAHLEN_1 = [
     ],
     falle: "Das Komma nicht wie beim Addieren untereinander setzen. Und: Mal einer Zahl kleiner als 1 wird das Ergebnis kleiner – $0{,}3 \\cdot 0{,}25 = 0{,}075$ ist kleiner als beide Faktoren.",
     nutzt: [["bruch-mul", "Dezimalzahlen sind Brüche mit Zehnerpotenz im Nenner"], ["komma-verschieben", "die Zehnerpotenzen im Nenner verschieben das Komma"]],
-    wz: "kopf",
   },
   {
     id: "dezimal-div", g: "Dezimalzahlen", n: "Dezimalzahlen dividieren", st: "unter", kl: 6,
@@ -529,12 +522,12 @@ const ZAHLEN_1 = [
     ] },
     bsp: [
       "$$0{,}84 : 0{,}7 = 8{,}4 : 7 = 1{,}2 || beide Kommas eine Stelle nach rechts",
-      "Wie viele Flaschen zu $0{,}75\\,\\ell$ füllt man mit $6\\,\\ell$?",
+      "Wie viele Flaschen zu $0{,}75\\,\\text{l}$ füllt man mit $6\\,\\text{l}$?",
       "$$6 : 0{,}75 = 600 : 75 = 8",
     ],
     falle: "Das Komma bei beiden Zahlen um gleich viele Stellen verschieben. Und: Geteilt durch eine Zahl kleiner als 1 wird das Ergebnis größer – $6 : 0{,}75 = 8 > 6$.",
     nutzt: [["bruch-erweitern", "Dividend und Divisor werden mit derselben Zehnerpotenz erweitert"], ["komma-verschieben", "Erweitern mit 10, 100, 1000 verschiebt das Komma"]],
-    wz: "kopf",
+    wz: "kopf-division",
   },
   {
     id: "periodisch", g: "Dezimalzahlen", n: "Periodische Dezimalzahlen", st: "unter-mittel", kl: 6,
@@ -562,7 +555,7 @@ const ZAHLEN_1 = [
     ],
     falle: "$0{,}\\overline{3}$ ist nicht $0{,}3$ und auch nicht $0{,}33$ – die Dreien hören nie auf. Gerundet ist $\\frac{1}{3} \\approx 0{,}33$, aber nicht gleich.",
     nutzt: [["bruch-dezimal", "periodische Zahlen entstehen beim Umwandeln von Brüchen"], ["geomsumme", "in der Oberstufe beweist man 0,333… = 1/3 mit der geometrischen Reihe"]],
-    wz: "kopf",
+    wz: "kopf-division",
   },
   {
     id: "dezimal-runden", g: "Dezimalzahlen", n: "Dezimalzahlen runden", st: "unter", kl: 6,
@@ -583,7 +576,6 @@ const ZAHLEN_1 = [
     ],
     falle: "Gerundete Endnullen nicht weglassen: $3{,}97$ auf Zehntel ist $4{,}0$ – die Angabe $4$ wäre nur auf Ganze genau.",
     nutzt: [["runden", "gleiche Regel wie bei ganzen Zahlen"], ["dezimal-stellenwert", "Zehntel, Hundertstel, Tausendstel als Rundungsstellen"]],
-    wz: "kopf",
   },
 ];
 

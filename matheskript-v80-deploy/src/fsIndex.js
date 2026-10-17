@@ -57,8 +57,10 @@ export const FS_BEREICH_ALIAS = { trigonometrie: "geometrie" };
 const erg = (e) => {
   const z = FS_ERG[e.id];
   if (!z) return e;
-  const her = [...(Array.isArray(e.her) ? e.her : e.her ? [e.her] : []), ...(z.her || [])];
-  return { ...e, ...(z.bild ? { bild: z.bild } : {}), ...(z.wz && !e.wz ? { wz: z.wz } : {}), ...(z.syn ? { syn: [e.syn, z.syn].filter(Boolean).join(" ") } : {}), her, nutzt: [...(e.nutzt || []), ...(z.nutzt || [])],
+  const alsListe = (x) => (Array.isArray(x) ? x : x ? [x] : []);
+  const her = [...alsListe(e.her), ...alsListe(z.her)];
+  const nutzt = [...(e.nutzt || []), ...(z.nutzt || []).filter(([v]) => !(e.nutzt || []).some(([w]) => w === v))];
+  return { ...e, ...(z.bild ? { bild: z.bild } : {}), ...(z.wz && !e.wz ? { wz: z.wz } : {}), ...(z.syn ? { syn: [e.syn, z.syn].filter(Boolean).join(" ") } : {}), her, nutzt,
     bsp: [...(e.bsp || []), ...(z.bsp || [])], ...(z.falle ? { falle: e.falle ? e.falle : z.falle } : {}) };
 };
 const mit = (bereich, liste) => liste.map((e) => ({ bereich, ...erg(e) }));
@@ -109,6 +111,13 @@ export const bereichVon = (id) => FS_BEREICHE.find((b) => b.id === (FS_BEREICH_A
 export const FS_ZUSATZ_ZIELE = {
   entdecken: { name: "Mathe entdecken", zeile: "Interaktives Lernmodul mit Beweisen zum Ausprobieren", ziel: { ansicht: "entdecken" } },
   kopf: { name: "Kopfrechnen", zeile: "Trainer für Rechentricks, Teilbarkeit und Brüche", ziel: { ansicht: "kopf" } },
+  /* einzelne Kopfrechen-Trainer (Kennungen aus TRAINER in func14.jsx) */
+  "kopf-mult": { name: "Multiplizieren", zeile: "Kopfrechnen: vom Einmaleins bis zu vierstelligen Zahlen", ziel: { ansicht: "kopf", trainer: "multiplizieren" } },
+  "kopf-plusminus": { name: "Schriftlich Plus & Minus", zeile: "Kopfrechnen: untereinander rechnen mit Übertrag", ziel: { ansicht: "kopf", trainer: "plusminus" } },
+  "kopf-prim": { name: "Primfaktorzerlegung", zeile: "Kopfrechnen: Primzahlen erkennen und Zahlen zerlegen", ziel: { ansicht: "kopf", trainer: "primfaktoren" } },
+  "kopf-potenzen": { name: "Quadrate, Kuben & Wurzeln", zeile: "Kopfrechnen: Quadrat-, Kubikzahlen und Wurzeln abrufen", ziel: { ansicht: "kopf", trainer: "potenzen" } },
+  "kopf-division": { name: "Schriftlich Teilen", zeile: "Kopfrechnen: Schritt für Schritt teilen", ziel: { ansicht: "kopf", trainer: "division" } },
+  "kopf-brueche": { name: "Bruchrechnen", zeile: "Kopfrechnen: kürzen, plus, minus, mal, geteilt – mit Lösungsweg", ziel: { ansicht: "kopf", trainer: "bruchrechnen" } },
 };
 
 /* Suche über Name, Kurztext, Gruppe und Formel – Name zählt am meisten */
@@ -118,7 +127,8 @@ export function fsSuche(text) {
   const teile = s.split(/\s+/);
   const punkte = (e) => {
     const name = e.n.toLowerCase(), syn = (e.syn || "").toLowerCase(), rest = `${e.k} ${e.g} ${e.f}`.toLowerCase();
-    let p = 0;
+    /* Treffer genau auf die Kennung (z. B. »ggt«, »dreisatz«) zählt am meisten */
+    let p = e.id === s || e.id === teile.join("-") ? 10 : 0;
     for (const t of teile) {
       if (name.startsWith(t)) p += 6;
       else if (name.includes(t)) p += 4;
@@ -276,6 +286,83 @@ export const FS_FAEDEN = [
       ["widerspruch", "Für Aussagen über alle natürlichen Zahlen gibt es ein eigenes Verfahren."],
       ["induktion", "Das klassische Beispiel – das man auch ohne Induktion sieht."],
       ["gauss-summe", null],
+    ],
+  },
+  /* ---------- Fäden ab der Unterstufe ---------- */
+  {
+    id: "bruch-potenzregel", titel: "Vom Kürzen zur Kettenregel",
+    text: "Kürzen, Potenzen und Wurzeln gehören zusammen – deshalb leitet man 1/x und √x mit derselben Regel ab wie x².",
+    stationen: [
+      ["bruch-kuerzen", "Gleiche Faktoren in Zähler und Nenner heben sich weg – genau das passiert bei Potenzen mit gleicher Basis."],
+      ["potenz-def", "Zählt man die Faktoren, wird aus aᵐ · aⁿ einfach aᵐ⁺ⁿ und aus aᵐ : aⁿ einfach aᵐ⁻ⁿ."],
+      ["potenzgesetze", "Kürzt man mehr Faktoren weg, als oben stehen, entsteht ein negativer Exponent: 1/x = x⁻¹."],
+      ["potenzneg", "Die Wurzel ist die Potenz, die zweimal genommen den Exponenten 1 ergibt: √x = x^(1/2)."],
+      ["wurzelpot", "Als Potenzen geschrieben gelten für 1/x und √x dieselben Regeln wie für x²."],
+      ["abl-potenz", "Steckt in der Potenz eine innere Funktion, kommt die Kettenregel dazu."],
+      ["kettenregel", null],
+    ],
+  },
+  {
+    id: "prozent-e", titel: "Von Prozent zur Zahl e",
+    text: "Aus »20 % mehr« wird ein Faktor, aus dem Faktor eine Potenz, aus der Potenz eine Exponentialfunktion – und am Ende e.",
+    stationen: [
+      ["prozent", "Ein Prozentsatz ist ein Bruchteil von hundert – damit wird jeder Anteil berechenbar."],
+      ["prozent-grundgleichung", "Kommt der Prozentwert zum Grundwert dazu, reicht eine einzige Multiplikation mit 1 + p/100."],
+      ["wachstumsfaktor", "Jahr für Jahr derselbe Faktor: Aus dem Wachstumsfaktor wird der Zinseszins qⁿ."],
+      ["zins", "Mit der Zeit als Variable wird aus dem Zinseszins eine Exponentialfunktion."],
+      ["expfkt", "Unter allen Basen gibt es genau eine, deren Funktion ihre eigene Ableitung ist."],
+      ["abl-exp", "Mit e und der Wachstumskonstanten k beschreibt man jedes exponentielle Wachstum."],
+      ["wachstum-exp", null],
+    ],
+  },
+  {
+    id: "dreisatz-ableitung", titel: "Vom Dreisatz zur Ableitung",
+    text: "Der Preis pro Kilo, die Steigung einer Geraden und die Ableitung sind dieselbe Idee: Änderung pro Einheit.",
+    stationen: [
+      ["dreisatz", "Hinter jedem Dreisatz steht ein fester Wert pro Einheit – der Quotient y : x bleibt gleich."],
+      ["proportional", "Der Graph ist eine Ursprungsgerade; mit einem Achsenabschnitt wird daraus jede Gerade."],
+      ["geradengl", "Der Faktor m ist die Steigung – ablesbar am Steigungsdreieck."],
+      ["steigung", "Bei einer Kurve hängt die Steigung vom Ort ab: Zwei Punkte liefern nur eine mittlere Steigung."],
+      ["diffquot", "Rücken die beiden Punkte zusammen, wird daraus die Steigung in einem Punkt."],
+      ["ableitung", null],
+    ],
+  },
+  {
+    id: "kaestchen-integral", titel: "Vom Kästchenzählen zum Integral",
+    text: "Flächen messen heißt Einheitsquadrate zählen – erst bei Rechtecken, am Ende unter Kurven.",
+    stationen: [
+      ["rechteck", "Sind beide Seiten gleich lang, wird aus Länge mal Breite einfach a²."],
+      ["quadrat", "Krumme oder verwinkelte Figuren zerlegt man in Rechtecke und Quadrate."],
+      ["zusammengesetzt", "Ein Dreieck ist ein halbes Rechteck – ergänzen statt zählen."],
+      ["dreieck-flaeche", "Unter einer Kurve passen weder Dreiecke noch Rechtecke genau – also nimmt man viele schmale Rechtecke."],
+      ["riemann", "Werden die Rechtecke beliebig schmal, liefert der Hauptsatz die Fläche exakt."],
+      ["hauptsatz", null],
+    ],
+  },
+  {
+    id: "winkel", titel: "Winkel, Winkel, Winkel",
+    text: "Von zwei sich kreuzenden Geraden bis zum Satz des Thales – jeder Winkelsatz folgt aus dem vorigen.",
+    stationen: [
+      ["winkel-arten", "Zwei sich kreuzende Geraden erzeugen vier Winkel, von denen je zwei gleich groß sind."],
+      ["scheitelwinkel", "Schneidet eine Gerade zwei Parallelen, wiederholen sich die Winkel an beiden Kreuzungen."],
+      ["stufenwinkel", "Eine Parallele durch die Dreiecksspitze legt alle drei Winkel nebeneinander auf eine Gerade."],
+      ["winkelsumme", "Verlängert man eine Seite, ergänzt der Außenwinkel den Innenwinkel zu 180° – er ist so groß wie die beiden anderen zusammen."],
+      ["aussenwinkel", "Eine Diagonale zerlegt jedes Viereck in zwei Dreiecke: 2 · 180° = 360°."],
+      ["winkelsumme-viereck", "Ein Rechteck im Kreis hat Durchmesser als Diagonalen – deshalb ist jeder Winkel über einem Durchmesser ein rechter."],
+      ["thales", null],
+    ],
+  },
+  {
+    id: "wuerfel-normal", titel: "Vom Würfeln zur Glockenkurve",
+    text: "Strichliste, Laplace, Baumdiagramm, Bernoulli – und bei sehr vielen Versuchen die Normalverteilung.",
+    stationen: [
+      ["relhaeuf", "Bei vielen Würfen pendelt sich die relative Häufigkeit ein – bei gleich wahrscheinlichen Ergebnissen bei »günstig durch möglich«."],
+      ["laplace", "Mehrere Würfe nacheinander: Entlang der Pfade wird multipliziert."],
+      ["pfadregeln", "Zählt man nur Treffer und Nieten, fasst die Bernoulli-Formel alle Pfade mit k Treffern zusammen."],
+      ["bernoulli", "Der Schwerpunkt der Verteilung liegt bei μ = n · p, ihre Breite misst σ."],
+      ["binom-ew", "Rund um μ liegen feste Anteile in den σ-, 2σ- und 3σ-Umgebungen."],
+      ["sigmaregeln", "Für großes n wird das Histogramm zu einer glatten Glockenkurve."],
+      ["normalverteilung", null],
     ],
   },
 ];

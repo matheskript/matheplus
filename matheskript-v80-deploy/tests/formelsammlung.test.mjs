@@ -47,7 +47,7 @@ test("Kennungen sind eindeutig und Pflichtfelder vorhanden", () => {
     assert.ok(ST_WERTE.includes(e.st), e.id + ": Stufe " + e.st);
     assert.ok(FS_BEREICHE.some((b) => b.id === e.bereich), e.id + ": Bereich");
   }
-  assert.ok(FS_ALLE.length >= 170, "mindestens 170 Formeln, sind " + FS_ALLE.length);
+  assert.ok(FS_ALLE.length >= 340, "mindestens 340 Formeln, sind " + FS_ALLE.length);
 });
 
 test("jede Formel hat eine Herleitung oder Begründung", () => {
@@ -109,6 +109,10 @@ test("Mini-TeX ist lesbar", () => {
 
 test("Suche findet über Namen", () => {
   assert.equal(fsSuche("pythagoras")[0].id, "pythagoras");
+  assert.equal(fsSuche("ggT")[0].id, "ggt");
+  assert.equal(fsSuche("prozentrechnung")[0].id, "prozent-grundgleichung");
+  assert.ok(fsSuche("komma").some((e) => e.id === "komma-verschieben"));
+  assert.ok(fsSuche("dreisatz").some((e) => e.id === "dreisatz"));
   assert.equal(fsSuche("bayes")[0].id, "bayes");
   assert.ok(fsSuche("kettenregel").some((e) => e.id === "kettenregel"));
 });
@@ -153,4 +157,35 @@ test("Gruppen eines Bereichs stehen zusammen", () => {
   const folge = [];
   for (const e of FS_ALLE) { const k = e.bereich + "/" + e.g; if (folge[folge.length - 1] !== k) folge.push(k); }
   assert.equal(new Set(folge).size, folge.length, "zerrissene Gruppe");
+});
+
+test("jede Formel hat Beispiel und Falle", () => {
+  for (const e of FS_ALLE) {
+    assert.ok(Array.isArray(e.bsp) && e.bsp.length > 0, e.id + ": Beispiel fehlt");
+    assert.ok(typeof e.falle === "string" && e.falle.trim().length > 10, e.id + ": Falle fehlt");
+  }
+});
+
+test("Rote Fäden: mindestens 17, davon mindestens 4 ab der Unterstufe", () => {
+  assert.ok(FS_FAEDEN.length >= 17, "nur " + FS_FAEDEN.length + " Fäden");
+  const ab = FS_FAEDEN.filter((f) => f.stationen.some(([id]) => istUnterstufe(FS_NACH_ID[id])));
+  assert.ok(ab.length >= 4, "nur " + ab.length + " Fäden ab der Unterstufe");
+});
+
+test("Ergänzungen werden zusammengeführt, nicht überschrieben", async () => {
+  const { ergZusammen } = await import("../src/fsErgaenzungen.js");
+  const z = ergZusammen({ a: { her: { t: "A", s: ["1"] }, bsp: ["x"], nutzt: [["p", "1"]] } }, { a: { her: [{ t: "B", s: ["2"] }], bsp: ["y"], nutzt: [["p", "2"], ["q", "3"]], falle: "F" } });
+  assert.deepEqual(z.a.her.map((h) => h.t), ["A", "B"]);
+  assert.deepEqual(z.a.bsp, ["x", "y"]);
+  assert.deepEqual(z.a.nutzt.map(([id]) => id), ["p", "q"]);
+  assert.equal(z.a.falle, "F");
+});
+
+test("Unterstufen-Einträge verweisen nicht auf Oberstufen-Werkzeuge", () => {
+  const ober = new Set(Object.entries(WERKZEUGE).filter(([, w]) => w.stufe === "ober").map(([k]) => k));
+  for (const k of ["winkel", "abstaende", "vektorgenerator", "kreuzprodukt", "ebenen", "geraden", "ebenevsebene", "zweipunkte", "dreipunkte", "ableitungstrainer", "integrale", "kurvendiskussion", "hypothesentest", "bernoulli"]) ober.add(k);
+  for (const e of FS_ALLE) {
+    if (!e.wz || stufenVon(e)[0] !== "unter") continue;
+    assert.ok(!ober.has(e.wz), `${e.id}: Unterstufe verweist auf ${e.wz}`);
+  }
 });

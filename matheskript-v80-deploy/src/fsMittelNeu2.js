@@ -124,6 +124,7 @@ export const MITTEL_2 = [
     falle: "$\\sqrt{a^2} = a$ stimmt nur für $a \\ge 0$: $\\sqrt{(-4)^2} = 4$, nicht $-4$. Und $x^2 = 9$ hat zwei Lösungen $\\pm 3$, $\\sqrt{9}$ ist aber nur 3.",
     nutzt: [["quadratzahlen", "Wurzelziehen ist die Umkehrung des Quadrierens"], ["potenz-def", "a² = a · a"]],
     syn: "quadratwurzel wurzel ziehen radikand wurzel definition",
+    wz: "kopf-potenzen",
   },
   {
     bereich: "terme", id: "wurzelgesetze", g: "Potenzen und Wurzeln", n: "Wurzelgesetze", st: "mittel", kl: 9,
@@ -178,6 +179,7 @@ export const MITTEL_2 = [
     falle: "Die größte Quadratzahl nehmen: $\\sqrt{72} = 2\\sqrt{18}$ ist noch nicht fertig, denn $\\sqrt{18} = 3\\sqrt{2}$ – zusammen $6\\sqrt{2}$.",
     nutzt: [["wurzelgesetze", "√(a·b) = √a · √b"], ["quadratzahlen", "man sucht den größten Quadratfaktor"], ["primfaktor", "Paare gleicher Primfaktoren sind Quadratfaktoren"]],
     syn: "wurzel vereinfachen teilweise radizieren wurzel ziehen faktor",
+    wz: "kopf-potenzen",
   },
   {
     bereich: "terme", id: "wissenschaftlich", g: "Potenzen und Wurzeln", n: "Wissenschaftliche Schreibweise", st: "mittel", kl: 8,

@@ -30,7 +30,6 @@ export const ZAHLEN_2 = [
     ],
     falle: "Bei negativen Zahlen ist die »größere Ziffer« die kleinere Zahl: $-7 < -3$, obwohl $7 > 3$.",
     nutzt: [["zahlbereiche", "die ganzen Zahlen ℤ erweitern die natürlichen Zahlen ℕ um die negativen Zahlen"]],
-    wz: "kopf",
   },
   {
     id: "gegenzahl", g: "Rationale Zahlen", n: "Gegenzahl und Betrag", st: "unter-mittel", kl: 7,
@@ -58,7 +57,6 @@ export const ZAHLEN_2 = [
     ],
     falle: "$-a$ ist nicht automatisch negativ: Für $a = -4$ ist $-a = 4$.",
     nutzt: [["negative-zahlen", "Zahl und Gegenzahl liegen spiegelbildlich zur Null"], ["betrag-ungl", "der Betrag wird später allgemein zum Abstand |a − b| zweier Zahlen"]],
-    wz: "kopf",
   },
   {
     id: "vorzeichen-add", g: "Rationale Zahlen", n: "Addieren und Subtrahieren negativer Zahlen", st: "unter-mittel", kl: 7,
@@ -92,7 +90,6 @@ export const ZAHLEN_2 = [
     ],
     falle: "»Minus und Minus gibt Plus« gilt nur für zwei direkt aufeinanderfolgende Zeichen: $-4 - 9 = -13$, nicht $+13$.",
     nutzt: [["gegenzahl", "eine Zahl abziehen heißt ihre Gegenzahl addieren"], ["negative-zahlen", "Rechnen als Schritte auf dem Zahlenstrahl"]],
-    wz: "kopf",
   },
   {
     id: "vorzeichen-mult", g: "Rationale Zahlen", n: "Vorzeichenregeln beim Multiplizieren", st: "unter-mittel", kl: 7,
@@ -125,7 +122,6 @@ export const ZAHLEN_2 = [
     ],
     falle: "Die Regel gilt fürs Multiplizieren und Dividieren, nicht fürs Addieren: $(-3) + (-4) = -7$, nicht $+7$.",
     nutzt: [["distributiv", "der Beweis für Minus mal Minus beruht auf dem Distributivgesetz"], ["vorzeichen-add", "Gegenzahlen: a + (−a) = 0"]],
-    wz: "kopf",
   },
   {
     id: "minusklammer", g: "Rationale Zahlen", n: "Minusklammer auflösen", st: "unter-mittel", kl: 7,
@@ -182,7 +178,6 @@ export const ZAHLEN_2 = [
     ],
     falle: "Der Grundwert ist immer das Ganze, auf das sich die Prozente beziehen – nicht einfach die größere Zahl im Text. »20 % mehr als 50« hat den Grundwert 50.",
     nutzt: [["prozent", "Prozent als Bruch mit Nenner 100"], ["anteil-von", "p % von G ist ein Bruchteil von G"]],
-    wz: "kopf",
   },
   {
     id: "prozent-drei", g: "Prozent und Zins", n: "Die drei Grundaufgaben der Prozentrechnung", st: "unter-mittel", kl: 7,
@@ -211,7 +206,6 @@ export const ZAHLEN_2 = [
     ],
     falle: "Beim Grundwert wird durch den Prozentsatz geteilt, nicht mit ihm multipliziert: $30\\,\\% \\to 12$ ergibt $G = 40$, nicht $12 \\cdot 0{,}3 = 3{,}6$.",
     nutzt: [["prozent-grundgleichung", "alle drei Formeln sind Umstellungen der Grundgleichung"], ["dreisatz", "jede Grundaufgabe lässt sich auch mit dem Dreisatz lösen"]],
-    wz: "kopf",
   },
   {
     id: "wachstumsfaktor", g: "Prozent und Zins", n: "Vermehrter und verminderter Grundwert", st: "unter-mittel", kl: 7,
@@ -240,7 +234,6 @@ export const ZAHLEN_2 = [
     ],
     falle: "Prozente beziehen sich immer auf den aktuellen Grundwert: $-25\\,\\%$ und danach $+25\\,\\%$ ergibt $0{,}75 \\cdot 1{,}25 = 0{,}9375$, also insgesamt $-6{,}25\\,\\%$.",
     nutzt: [["prozent-grundgleichung", "der Zuwachs ist der Prozentwert W = G · p/100"], ["ausklammern", "G + G · p/100 = G · (1 + p/100)"]],
-    wz: "kopf",
   },
   {
     id: "prozentpunkte", g: "Prozent und Zins", n: "Prozent und Prozentpunkte", st: "unter-mittel", kl: 7,
@@ -265,7 +258,6 @@ export const ZAHLEN_2 = [
     ],
     falle: "Von $2\\,\\%$ auf $3\\,\\%$ ist kein Anstieg um $1\\,\\%$, sondern um $1$ Prozentpunkt bzw. um $50\\,\\%$.",
     nutzt: [["prozent-grundgleichung", "die relative Änderung ist ein Prozentsatz mit dem alten Wert als Grundwert"], ["prozent-drei", "p = W · 100 / G"]],
-    wz: "kopf",
   },
   {
     id: "promille", g: "Prozent und Zins", n: "Promille", st: "unter", kl: 7,
@@ -289,7 +281,6 @@ export const ZAHLEN_2 = [
     ],
     falle: "$5\\,‰$ sind nicht $5\\,\\%$, sondern $0{,}5\\,\\%$ – zehnmal weniger.",
     nutzt: [["prozent", "gleiches Prinzip, nur mit Nenner 1000"], ["prozent-grundgleichung", "W = G · p/1000"]],
-    wz: "kopf",
   },
   {
     id: "zins-einfach", g: "Prozent und Zins", n: "Jahreszins, Monats- und Tageszins", st: "unter-mittel", kl: 7,
@@ -314,7 +305,6 @@ export const ZAHLEN_2 = [
     ],
     falle: "Der Zinssatz gilt pro Jahr: $3\\,\\%$ für $5$ Monate sind nicht $3\\,\\%$ des Kapitals, sondern nur $\\frac{5}{12}$ davon.",
     nutzt: [["prozent-grundgleichung", "der Jahreszins ist der Prozentwert des Kapitals"], ["zins", "über mehrere Jahre mit Zinseszins wird daraus K₀ · (1 + p/100)ⁿ"]],
-    wz: "kopf",
   },
 
   /* ---------------- Größen und Einheiten (Klasse 5/6) ---------------- */
@@ -344,7 +334,6 @@ export const ZAHLEN_2 = [
     ],
     falle: "Zwischen m und km liegen nicht zwei Zehnerschritte, sondern drei: $1\\,\\text{km} = 1000\\,\\text{m}$. Und $3\\,\\text{m}\\;6\\,\\text{cm}$ sind $3{,}06\\,\\text{m}$, nicht $3{,}6\\,\\text{m}$.",
     nutzt: [["komma-verschieben", "Umrechnen mit 10, 100, 1000 verschiebt das Komma"], ["stellenwert", "Einheitentafel wie Stellenwerttafel"]],
-    wz: "kopf",
   },
   {
     id: "flaechen-einheiten", g: "Größen und Einheiten", n: "Flächeneinheiten", st: "unter-mittel", kl: 5,
@@ -372,7 +361,6 @@ export const ZAHLEN_2 = [
     ],
     falle: "$1\\,\\text{m}^2$ sind nicht $100\\,\\text{cm}^2$, sondern $10\\,000\\,\\text{cm}^2$ – bei Flächen ist jeder Schritt Faktor 100.",
     nutzt: [["laengen", "jede Seite des Quadrats wird mit 10 umgerechnet, die Fläche also mit 10 · 10"], ["rechteck", "Fläche = Länge mal Breite"]],
-    wz: "kopf",
   },
   {
     id: "volumen-einheiten", g: "Größen und Einheiten", n: "Volumeneinheiten", st: "unter-mittel", kl: 6,
@@ -400,7 +388,6 @@ export const ZAHLEN_2 = [
     ],
     falle: "$1\\,\\text{m}^3$ sind nicht $100\\,\\text{dm}^3$, sondern $1000\\,\\text{dm}^3$ – bei Volumen ist jeder Schritt Faktor 1000.",
     nutzt: [["flaechen-einheiten", "eine Dimension mehr: aus Faktor 100 wird Faktor 1000"], ["quader", "Volumen = Länge · Breite · Höhe"]],
-    wz: "kopf",
   },
   {
     id: "masse", g: "Größen und Einheiten", n: "Masseneinheiten", st: "unter", kl: 5,
@@ -423,7 +410,6 @@ export const ZAHLEN_2 = [
     ],
     falle: "$2\\,\\text{kg}\\;50\\,\\text{g}$ sind $2{,}050\\,\\text{kg}$, nicht $2{,}5\\,\\text{kg}$ – nach dem Komma braucht man drei Stellen.",
     nutzt: [["komma-verschieben", "mal oder geteilt durch 1000 verschiebt das Komma um drei Stellen"], ["laengen", "dieselben Vorsilben kilo und milli"]],
-    wz: "kopf",
   },
   {
     id: "zeit", g: "Größen und Einheiten", n: "Zeiteinheiten", st: "unter", kl: 5,
@@ -446,7 +432,6 @@ export const ZAHLEN_2 = [
     ],
     falle: "$1{,}5\\,\\text{h}$ sind $1\\,\\text{h}\\;30\\,\\text{min}$, nicht $1\\,\\text{h}\\;50\\,\\text{min}$ – Zeit hat keine Zehnerstufen.",
     nutzt: [["bruch-def", "0,5 h ist die halbe Stunde, 1/4 h sind 15 min"], ["laengen", "anders als bei Längen ist der Faktor nicht 10"]],
-    wz: "kopf",
   },
   {
     id: "massstab", g: "Größen und Einheiten", n: "Maßstab", st: "unter", kl: 6,
@@ -470,6 +455,5 @@ export const ZAHLEN_2 = [
     ],
     falle: "Erst in derselben Einheit rechnen, dann umwandeln: $4\\,\\text{cm} \\cdot 25\\,000 = 100\\,000\\,\\text{cm} = 1\\,\\text{km}$, nicht $100\\,000\\,\\text{m}$.",
     nutzt: [["laengen", "das Ergebnis wird in m oder km umgerechnet"], ["aehnlich", "Karte und Wirklichkeit sind ähnliche Figuren mit Streckfaktor"]],
-    wz: "kopf",
   },
 ];

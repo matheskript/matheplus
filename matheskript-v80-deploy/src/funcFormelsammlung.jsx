@@ -377,6 +377,7 @@ function FadenListe({ oeffneFaden }) {
       </p>
       {FS_FAEDEN.map((f) => {
         const bereiche = [...new Set(f.stationen.map(([id]) => FS_NACH_ID[id].bereich))];
+        const abUnter = f.stationen.some(([id]) => stufenVon(FS_NACH_ID[id]).includes("unter"));
         return (
           <button key={f.id} type="button" onClick={() => oeffneFaden(f.id)}
             style={{ ...karte, border: "none", textAlign: "left", fontFamily: "inherit", cursor: "pointer", padding: "15px 16px", color: C.tinte, display: "block", width: "100%" }}>
@@ -390,6 +391,7 @@ function FadenListe({ oeffneFaden }) {
                 ))}
               </span>
               <span style={{ fontSize: 11, fontWeight: 700, color: C.hellgrau }}>{f.stationen.length} Stationen</span>
+              {abUnter && <span style={{ marginLeft: "auto", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.03em", padding: "2px 8px", borderRadius: 999, background: STUFEN_FARBE.unter.grund, color: STUFEN_FARBE.unter.text, whiteSpace: "nowrap" }}>ab Klasse 5–7</span>}
             </span>
             <span style={{ display: "block", fontSize: 16, fontWeight: 700, marginTop: 8, lineHeight: 1.3 }}>{f.titel}</span>
             <span style={{ display: "block", fontSize: 13.5, color: C.grau, lineHeight: 1.55, marginTop: 4 }}>{f.text}</span>
@@ -591,7 +593,7 @@ export function FormelsammlungNeu({ bereich: start = "analysis", formel: startFo
       <style>{FS_CSS}</style>
       <div role="tablist" aria-label="Ansicht" className="fs-druck-weg" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 4, padding: 4, borderRadius: 14, background: C.himmel, marginBottom: 16 }}>
         {[["liste", "Nachschlagen"], ["spick", "Spickzettel"], ["faeden", "Rote Fäden"]].map(([m, t]) => (
-          <button key={m} type="button" role="tab" aria-selected={modus === m} onClick={() => { setModus(m); setFaden(null); }}
+          <button key={m} type="button" role="tab" aria-selected={modus === m} onClick={() => { setModus(m); setFaden(null); if (m === "spick") setSuche(""); }}
             style={{ minHeight: 40, borderRadius: 11, border: "none", fontFamily: "inherit", fontSize: 14, fontWeight: 700, cursor: "pointer",
               background: modus === m ? C.weiss : "transparent", color: modus === m ? C.see : C.grau, boxShadow: modus === m ? "0 1px 6px rgba(15,26,51,0.1)" : "none" }}>{t}</button>
         ))}
