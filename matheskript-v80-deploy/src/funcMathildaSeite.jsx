@@ -3,7 +3,7 @@
 import React from "react";
 import { C } from "./base1.jsx";
 import "@fontsource/caveat/600.css";
-import { HAIR, WHITE, FEAT, STRANDS, GLASSES } from "./mathildaPortraet.js";
+import { HAIR, WHITE, FEAT, STRANDS } from "./mathildaPortraet.js";
 
 const GOLD = C.flaggold;
 const NACHT = C.seeTief;
@@ -24,7 +24,6 @@ export function MathildaBild({ groesse = 220, style, className }) {
           <path fill="#fff" fillRule="evenodd" d={WHITE} />
           <path fill="#000" fillRule="evenodd" d={STRANDS} />
           <path fill="#000" fillRule="evenodd" d={FEAT} />
-          <path fill="#000" d={GLASSES} />
           <g fill="none" stroke="#000" strokeWidth="1.6" strokeLinecap="round">
             <path d="M131 248 C 126 262, 118 280, 110 295" /><path d="M150 248 C 145 264, 138 282, 131 295" />
           </g>
@@ -35,8 +34,19 @@ export function MathildaBild({ groesse = 220, style, className }) {
         <path fill={GOLD} d={HAIR} />
         <path fill="#FFFFFF" fillRule="evenodd" d={WHITE} />
       </g>
-      <path fill="none" stroke={GOLD} strokeWidth="2" strokeLinejoin="round" d={GLASSES} />
-      <path fill="none" stroke="#FFFFFF" strokeOpacity=".5" strokeWidth="1.6" strokeLinecap="round" d="M84 14 C 100 10, 118 9, 132 11" />
+      {/* Sonnenbrille auf der Nase, mit der Kopfneigung gedreht */}
+      <g transform="translate(0 3) rotate(8 128 137)">
+        <path d="M80 137 L 40 131" stroke={GOLD} strokeWidth="2.6" strokeLinecap="round" />
+        <path d="M176 137 L 186 133" stroke={GOLD} strokeWidth="2.6" strokeLinecap="round" />
+        {[103, 153].map((x) => (
+          <g key={x} transform={`translate(${x} 137) scale(1.08)`}>
+            <path d="M-22 -13 H 22 C 24.5 -13 25.5 -10.5 25 -8 L 22 5 C 20.5 11 16 15 10 15 H -10 C -16 15 -20.5 11 -22 5 L -25 -8 C -25.5 -10.5 -24.5 -13 -22 -13 Z"
+              fill={NACHT} stroke={GOLD} strokeWidth="2.6" strokeLinejoin="round" />
+            <path d="M-14 -7 L -5 -7 M-16 -1 L -12 -1" stroke="#FFFFFF" strokeOpacity=".75" strokeWidth="2" strokeLinecap="round" />
+          </g>
+        ))}
+        <path d="M125 128 C 127 124, 129 124, 131 128" fill="none" stroke={GOLD} strokeWidth="2.8" strokeLinecap="round" />
+      </g>
       <circle cx="33" cy="171" r="7" fill="none" stroke={GOLD} strokeWidth="2.2" />
       <g fill={GOLD}><circle cx="36" cy="153" r="3" /><circle cx="33" cy="171" r="2.6" /></g>
       <path d="M35 156 L 34 164" stroke={GOLD} strokeWidth="1.6" />
