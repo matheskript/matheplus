@@ -1,0 +1,94 @@
+/* ============================================================
+   TEILEN – „Dieses Tool teilen“ (Link kopieren / WhatsApp)
+   Reine Daten und Textbausteine, keine React-Importe (Node-testbar).
+
+   Die Nachricht lautet:
+     Hey, schau dir mal dieses Tool an – hier kannst du super <Satz>:
+     <Link>
+   Der <Satz> steht je Werkzeug in TOOL_SAETZE (de/en), für Trainings- und
+   Lernseiten ohne Werkzeug-Eintrag in SEITEN_SAETZE.
+
+   Neues Werkzeug in werkzeuge.js → hier einen Eintrag in TOOL_SAETZE ergänzen
+   (der Test tests/teilen.test.mjs schlägt sonst an).
+   ============================================================ */
+import { wo } from "./werkzeuge.js";
+
+/* Was man mit dem Werkzeug kann – Fortsetzung von „hier kannst du super …“ */
+export const TOOL_SAETZE = {
+  geradengleichung: { de: "Geradengleichungen aufstellen und üben", en: "set up and practise equations of lines" },
+  parabeln: { de: "Parabeln verstehen und rechnen", en: "understand and work with parabolas" },
+  sinus: { de: "Sinusfunktionen einstellen und verstehen", en: "tune and understand sine functions" },
+  wachstum: { de: "Wachstum und Logarithmen rechnen", en: "work with growth and logarithms" },
+  ableitungstrainer: { de: "Ableitungen trainieren", en: "practise derivatives" },
+  kurvendiskussion: { de: "Kurvendiskussionen durchrechnen – mit Graph und PDF", en: "work through curve sketching – with graph and PDF" },
+  scharen: { de: "Funktionsscharen erkunden", en: "explore families of functions" },
+  steckbrief: { de: "Steckbriefaufgaben lösen", en: "solve “find the function” problems" },
+  optimierung: { de: "Extremwertaufgaben lösen", en: "solve optimisation problems" },
+  stammintegral: { de: "Stammfunktionen und Integrale üben", en: "practise antiderivatives and integrals" },
+  integrale: { de: "Integrale und Flächen berechnen", en: "calculate integrals and areas" },
+  vektorgenerator: { de: "mit Vektoren rechnen", en: "calculate with vectors" },
+  kreuzprodukt: { de: "das Kreuzprodukt rechnen", en: "calculate the cross product" },
+  winkel: { de: "Winkel zwischen Vektoren berechnen", en: "calculate angles between vectors" },
+  zweipunkte: { de: "Geraden aus zwei Punkten aufstellen", en: "set up a line from two points" },
+  dreipunkte: { de: "Ebenen aus drei Punkten aufstellen", en: "set up a plane from three points" },
+  ebenen: { de: "Ebenen im Raum anschauen und drehen", en: "view and rotate planes in space" },
+  geraden: { de: "die Lage von Geraden im Raum bestimmen", en: "determine the position of lines in space" },
+  ebenevsebene: { de: "Schnittgeraden und Schnittwinkel von Ebenen berechnen", en: "calculate the intersection and angle of two planes" },
+  abstaende: { de: "Abstände im Raum berechnen", en: "calculate distances in space" },
+  kombinatorik: { de: "Kombinatorik und Urnenaufgaben üben", en: "practise combinatorics and urn problems" },
+  vierfelder: { de: "mit der Vier-Felder-Tafel rechnen", en: "work with the four-field table" },
+  erwartungswert: { de: "Erwartungswert und faire Spiele verstehen", en: "understand expected value and fair games" },
+  bernoulli: { de: "die Binomialverteilung ausprobieren", en: "play with the binomial distribution" },
+  hypothesentest: { de: "Hypothesentests üben", en: "practise hypothesis tests" },
+  strahlensaetze: { de: "Strahlensätze anwenden", en: "apply the intercept theorems" },
+  trigonometrie: { de: "Dreiecke mit Sinus und Kosinus berechnen", en: "solve triangles with sine and cosine" },
+  terme: { de: "Terme vereinfachen und umformen", en: "simplify and rearrange terms" },
+  gleichungen: { de: "Gleichungen lösen und verstehen", en: "solve and understand equations" },
+  lgs: { de: "Gleichungssysteme lösen", en: "solve systems of equations" },
+};
+
+/* Trainings- und Lernseiten, die kein Eintrag in werkzeuge.js sind (Schlüssel = Ansicht) */
+export const SEITEN_SAETZE = {
+  warmup: { de: "fünf Minuten Mathe am Tag trainieren", en: "train maths for five minutes a day" },
+  headnumbers: { de: "Kopfrechnen trainieren", en: "train mental arithmetic" },
+  kopf: { de: "Kopfrechnen trainieren", en: "train mental arithmetic" },
+  meintraining: { de: "jeden Tag gezielt Mathe trainieren", en: "train maths a little every day" },
+  fehlertraining: { de: "aus den eigenen Fehlern lernen", en: "learn from your own mistakes" },
+  ebbinghaus: { de: "Mathe so wiederholen, dass es hängen bleibt", en: "review maths so that it sticks" },
+  abiketten: { de: "Abi-Aufgaben Schritt für Schritt üben", en: "practise Abitur problems step by step" },
+  abisaetze: { de: "komplette Abi-Sätze üben", en: "practise complete Abitur papers" },
+  abitur: { de: "das Probeabitur mit Uhr üben", en: "practise a mock Abitur against the clock" },
+  pruefung: { de: "Prüfungsaufgaben ohne Hilfen üben", en: "practise exam problems without hints" },
+  begruenden: { de: "Begründen und Beweisen üben", en: "practise justifying and proving" },
+  modellieren: { de: "Sachaufgaben in vier Schritten lösen", en: "solve word problems in four steps" },
+  entdecken: { de: "Mathe selbst entdecken statt auswendig lernen", en: "discover maths yourself instead of memorising" },
+  formeln: { de: "Formeln nachschlagen und verstehen", en: "look up and understand formulas" },
+  training: { de: "Mathe-Aufgaben mit Rückmeldung üben", en: "practise maths problems with feedback" },
+  ki: { de: "Aufgaben automatisch erzeugen lassen", en: "generate practice problems automatically" },
+  lernpfad: { de: "mit einem persönlichen Lernplan lernen", en: "learn with a personal study plan" },
+  vorbereiten: { de: "sich auf die nächste Klausur vorbereiten", en: "prepare for the next exam" },
+  analyse: { de: "Rechenwege per Foto prüfen lassen", en: "get your working checked from a photo" },
+  diffq: { de: "den Differenzenquotienten verstehen", en: "understand the difference quotient" },
+  potenzregel: { de: "die Potenzregel verstehen und beweisen", en: "understand and prove the power rule" },
+};
+
+/* Infos zur Ansicht oder null, wenn die Seite kein Tool/Training ist (Startseite, Konto, Recht …) */
+export function teilenInfo(ansicht) {
+  const w = wo(ansicht);
+  if (w && w.werkzeug) {
+    const s = TOOL_SAETZE[w.werkzeug.id];
+    return s ? { id: w.werkzeug.id, name: w.werkzeug.name, ...s } : null;
+  }
+  const s = SEITEN_SAETZE[ansicht];
+  return s ? { id: ansicht, name: ansicht, ...s } : null;
+}
+
+/* Die Nachricht, die per WhatsApp rausgeht (sprache: "de" | "en") */
+export function teilenText(info, link, sprache = "de") {
+  if (!info) return link;
+  return sprache === "en"
+    ? `Hey, check out this tool – here you can easily ${info.en}:\n${link}`
+    : `Hey, schau dir mal dieses Tool an – hier kannst du super ${info.de}:\n${link}`;
+}
+
+export const whatsappUrl = (text) => `https://wa.me/?text=${encodeURIComponent(text)}`;

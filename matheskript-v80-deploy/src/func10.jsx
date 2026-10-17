@@ -8,6 +8,7 @@ import { Startseite, ToolMenue, istToolMenueSeite, werkzeugMerken } from "./func
 import { WerkzeugLeiste, KompaktKopf } from "./funcWerkzeuge.jsx";
 import { wo } from "./werkzeuge.js";
 import { pfadAufloesen, pfadFuer } from "./pfade.js";
+import { TeilenKnopf } from "./funcTeilen.jsx";
 import { hinweisVerwerfen } from "./uebergabe.js";
 import { FR } from "./funcRegistry.jsx";
 import { AufklappStil, AufklappZeichen, aufklappScrollStarten } from "./aufklappen.jsx";
@@ -178,13 +179,14 @@ export function Mathilda() {
   // Erster Lauf und Zurück/Vor-Taste ersetzen die Adresse, jede eigene Navigation legt einen Verlaufseintrag an.
   const adressErsterLauf = useRef(true);
   const adressAusVerlauf = useRef(0);   // Zeitpunkt der letzten Zurück/Vor-Taste
+  const adressZustand = {
+    ansicht, klasse: klasseAktiv, land: landWahl, trainer: kopfTrainer, seite: entdeckenStart, kurs: kursStart,
+    ziel: ansicht === "training" ? trainZiel : ansicht === "ki" ? genZiel : undefined,
+    foto: ansicht === "analyse" ? fotoModus : undefined,
+  };
   useEffect(() => {
     try {
-      const soll = pfadFuer({
-        ansicht, klasse: klasseAktiv, land: landWahl, trainer: kopfTrainer, seite: entdeckenStart, kurs: kursStart,
-        ziel: ansicht === "training" ? trainZiel : ansicht === "ki" ? genZiel : undefined,
-        foto: ansicht === "analyse" ? fotoModus : undefined,
-      }) || "/";
+      const soll = pfadFuer(adressZustand) || "/";
       const jetzt = window.location.pathname.replace(/\/+$/, "") || "/";
       const h = window.location.hash.slice(1);
       const altAnker = h === LANDING || istEntwurf(h);   // ältere #-Links ablösen; andere Anker (Anmelde-Rückkehr) bleiben
@@ -1635,6 +1637,7 @@ export function Mathilda() {
       </>
       )}
       </React.Suspense>
+      {!istEntwurf(ansicht) && <TeilenKnopf ansicht={ansicht} pfad={pfadFuer(adressZustand) || "/"} />}
       {!istEntwurf(ansicht) && (
         <FeedbackKnopf aktuell={{
           ansicht,
