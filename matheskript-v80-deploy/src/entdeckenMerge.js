@@ -22,7 +22,7 @@ export const PHASEN = 7;
 export const AXIOM_PHASEN = 10;
 /* Weitere Lernmodule (je ein Eintrag unter `module`): Kennung → Anzahl der Phasen.
    Das Potenzregel-Modul bleibt unter `potenz`, damit bestehende Konten unverändert weiterlaufen. */
-export const MODULE = { pythagoras: 6 };
+export const MODULE = { pythagoras: 6, binomisch: 4, grenzwert: 5 };
 export const TEILER_REGELN = 8;   // Teilbarkeit durch 2, 5, 3, 4, 6, 7, 8, 9 (Reihenfolge siehe teiler.js)
 
 const istObj = (x) => x !== null && typeof x === "object" && !Array.isArray(x);

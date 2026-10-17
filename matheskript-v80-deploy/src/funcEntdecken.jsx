@@ -8,6 +8,9 @@ import { PotenzModul } from "./funcEntdeckenPotenz.jsx";
 import { AxiomeModul } from "./funcEntdeckenAxiome.jsx";
 import { PYTHAGORAS_PHASEN_ANZAHL, PythagorasModul } from "./funcEntdeckenPythagoras.jsx";
 import { TeilerModul } from "./funcEntdeckenTeiler.jsx";
+import { BinomischModul } from "./funcEntdeckenBinomisch.jsx";
+import { GrenzwertModul } from "./funcEntdeckenGrenzwert.jsx";
+import { MODUL_PHASEN } from "./entdeckenSpeicher.js";
 import { TEILER_ANZAHL } from "./teiler.js";
 import { useEntdeckenSyncStatus } from "./entdeckenSync.js";
 import {
@@ -274,7 +277,12 @@ function Uebersicht({ stand, oeffne }) {
   const sY = statusModul("pythagoras");
   const phaseY = Math.min((modulStand("pythagoras").phase || 0) + 1, PYTHAGORAS_PHASEN_ANZAHL);
   const zuletzt = stand.zuletzt;
-  const ZIEL = { axiome: ["axiome", "Axiome"], potenz: ["praxis", "Pascalsches Dreieck"], pythagoras: ["pythagoras", "Satz des Pythagoras"], teiler: ["teiler", "Teilbarkeitsregeln"] };
+  const ZIEL = { axiome: ["axiome", "Axiome"], potenz: ["praxis", "Pascalsches Dreieck"], pythagoras: ["pythagoras", "Satz des Pythagoras"], teiler: ["teiler", "Teilbarkeitsregeln"],
+    binomisch: ["binomisch", "Binomische Formeln"], grenzwert: ["grenzwert", "Ableitung als Grenzwert"] };
+  const modulKarte = (nr, id, titel, text) => {
+    const st = statusModul(id), ph = Math.min((modulStand(id).phase || 0) + 1, MODUL_PHASEN[id]);
+    return <LernangebotKarte nr={nr} titel={titel} text={text} status={st} fortschritt={st === "arbeit" ? `Phase ${ph} von ${MODUL_PHASEN[id]}` : null} onClick={() => oeffne(id)} />;
+  };
   const [zuletztZiel, zuletztName] = (zuletzt && ZIEL[zuletzt.id]) || ["einstieg", "Mathe entdecken"];
   return (
     <>
@@ -303,6 +311,8 @@ function Uebersicht({ stand, oeffne }) {
             fortschritt={sY === "arbeit" ? `Phase ${phaseY} von ${PYTHAGORAS_PHASEN_ANZAHL}` : null} onClick={() => oeffne("pythagoras")} />
           <LernangebotKarte nr={5} titel="Teilbarkeitsregeln" text="Warum funktionieren sie? Leite alle Regeln von 2 bis 9 selbst her" status={sT}
             fortschritt={sT === "arbeit" ? `${nT} von ${TEILER_ANZAHL} Regeln` : null} onClick={() => oeffne("teiler")} />
+          {modulKarte(6, "binomisch", "Binomische Formeln", "Drei Formeln aus Quadraten und Rechtecken gebaut")}
+          {modulKarte(7, "grenzwert", "Ableitung als Grenzwert", "Von der Sekante zur Tangente: Wie aus h → 0 die Ableitung wird")}
         </div>
         {zuletzt && (
           <button type="button" onClick={() => oeffne(zuletztZiel)}
@@ -445,7 +455,7 @@ function Pythagoras({ zurueck, startModul }) {
   );
 }
 
-export const ENTDECKEN_SEITEN = ["uebersicht", "axiome", "einstieg", "praxis", "pythagoras", "teiler"];
+export const ENTDECKEN_SEITEN = ["uebersicht", "axiome", "einstieg", "praxis", "pythagoras", "teiler", "binomisch", "grenzwert"];
 export function EntdeckenSeite({ start }) {
   const stand = useStand();
   const [seite, setSeite] = useState(ENTDECKEN_SEITEN.includes(start) ? start : "uebersicht"); // uebersicht | einstieg | praxis | modul | pythagoras | modulP | teiler
@@ -455,6 +465,8 @@ export function EntdeckenSeite({ start }) {
   if (seite === "modul") return <PotenzModul onZurueck={() => setSeite("uebersicht")} />;
   if (seite === "modulP") return <PythagorasModul onZurueck={() => setSeite("uebersicht")} />;
   if (seite === "teiler") return <TeilerModul onZurueck={() => setSeite("uebersicht")} />;
+  if (seite === "binomisch") return <BinomischModul onZurueck={() => setSeite("uebersicht")} />;
+  if (seite === "grenzwert") return <GrenzwertModul onZurueck={() => setSeite("uebersicht")} />;
 
   return (
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>

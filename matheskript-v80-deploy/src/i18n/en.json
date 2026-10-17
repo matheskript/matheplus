@@ -244,7 +244,7 @@
   "Weil sie die Steigung der Sekante durch zwei Punkte beschreibt, nicht die Neigung in einem Punkt": "Because it describes the slope of the secant through two points, not the steepness at one point",
   "Weil man dafür die zweite Ableitung braucht": "Because you need the second derivative for that",
   "Die 4 ist die Steigung der Verbindungsgeraden zwischen (1|1) und (3|9). Sie mittelt über das ganze Intervall. Genau aus dieser Größe entsteht auf der nächsten Seite der Ableitungsbegriff, indem man den zweiten Punkt heranrücken lässt.": "The 4 is the slope of the line connecting (1|1) and (3|9). It averages over the whole interval. On the next page, exactly this quantity gives rise to the concept of the derivative, by letting the second point move closer.",
-  "Von der Sekante zur Tangente": "From Secant to Tangent",
+  "Von der Sekante zur Tangente": "From secant to tangent",
   "Baustein 02 · Der Ableitungsbegriff": "Building block 02 · The concept of the derivative",
   "Die zentrale Idee der Analysis in einem Satz: Man ersetzt die Steigung zwischen zwei Punkten durch die Steigung in einem Punkt, indem man den zweiten Punkt unendlich nah heranrücken lässt.": "The central idea of calculus in one sentence: replace the slope between two points with the slope at one point by letting the second point move infinitely close.",
   "Mittlere Änderungsrate auf [a; b]: (f(b) − f(a)) / (b − a) — Sekantensteigung": "Average rate of change on [a; b]: (f(b) − f(a)) / (b − a) — secant slope",
@@ -10566,7 +10566,11 @@
   "Die Bezahlung ist gerade nicht erreichbar.": "Payment is not available right now.",
   "aktiv": "active",
   "Zahlung offen": "payment pending",
-  "beendet": "ended"
+  "beendet": "ended",
+  "Drei Formeln aus Flächen gebaut": "Three formulas built from areas",
+  "Drei Formeln aus Quadraten und Rechtecken gebaut": "Three formulas built from squares and rectangles",
+  "Ableitung als Grenzwert": "The derivative as a limit",
+  "Von der Sekante zur Tangente: Wie aus h → 0 die Ableitung wird": "From secant to tangent: how h → 0 turns into the derivative"
  },
  "muster": [
   [
