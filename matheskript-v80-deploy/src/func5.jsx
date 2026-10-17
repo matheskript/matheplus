@@ -1,3 +1,4 @@
+import { FotoStart } from "./funcMathildaSeite.jsx";
 import React, { useState, useRef } from "react";
 import { FR } from "./funcRegistry.jsx";
 import { API_URL, C, DEMO_VIDEO_ID, DIFFQ_TESTPAARE, DIFFQ_VIDEO_ID, Regler, ganz } from "./base1.jsx";
@@ -1233,19 +1234,8 @@ Jede geschriebene Zeile kommt als eigener Eintrag in "zeilen", in Maschinenschre
       </p>
 
       {!bild && (
-        <div>
-          <button onClick={() => kameraRef.current?.click()} className="w-full px-6 py-7"
-            style={{ background: C.see, border: "none", borderRadius: 16, textAlign: "left", cursor: "pointer", color: C.weiss, fontFamily: "inherit" }}>
-            <span style={{ fontSize: 17, fontWeight: 600 }}>Rechenweg fotografieren</span>
-            <span className="block mt-2" style={{ fontSize: 13, fontWeight: 300, lineHeight: 1.6, opacity: 0.85 }}>
-              Ein Blatt, von oben, gutes Licht.
-            </span>
-          </button>
-          <button onClick={() => galerieRef.current?.click()} className="w-full px-6 py-7 mt-3"
-            style={{ background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 16, textAlign: "left", cursor: "pointer", color: C.tinte, fontFamily: "inherit" }}>
-            <span style={{ fontSize: 17, fontWeight: 600 }}>Aus der Galerie wählen</span>
-          </button>
-        </div>
+        <FotoStart onKamera={() => kameraRef.current?.click()} onGalerie={() => galerieRef.current?.click()}
+          titel="Rechenweg fotografieren" untertitel="Kamera geht direkt auf. Mathilda überträgt jede Zeile." />
       )}
 
       <input ref={kameraRef} type="file" accept="image/*" capture="environment" className="hidden"

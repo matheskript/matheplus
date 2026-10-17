@@ -1,3 +1,4 @@
+import { FotoStart } from "./funcMathildaSeite.jsx";
 import React, { useState, useRef } from "react";
 import { API_URL, C, ganz, zuf } from "./base1.jsx";
 import { ABL_TYPEN, GZ_FAMILIEN, PLATZ, TASTEN_FUNK, TASTEN_PARAM, TASTEN_ZAHL, W, ohneKlammer } from "./base2.jsx";
@@ -69,19 +70,8 @@ Die drei neuen Aufgaben sollen denselben Typ und dasselbe Niveau haben, aber and
       </p>
 
       {!bild && (
-        <div>
-          <button onClick={() => kameraRef.current?.click()} className="w-full px-6 py-7"
-            style={{ background: C.gruenDunkel, border: "none", borderRadius: 16, textAlign: "left", cursor: "pointer", color: C.weiss, fontFamily: "inherit" }}>
-            <span style={{ fontSize: 17, fontWeight: 600 }}>Aufgabe fotografieren</span>
-            <span className="block mt-2" style={{ fontSize: 13, fontWeight: 300, lineHeight: 1.6, opacity: 0.9 }}>
-              Eine einzelne Aufgabe, gut ausgeleuchtet.
-            </span>
-          </button>
-          <button onClick={() => galerieRef.current?.click()} className="w-full px-6 py-7 mt-3"
-            style={{ background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 16, textAlign: "left", cursor: "pointer", color: C.tinte, fontFamily: "inherit" }}>
-            <span style={{ fontSize: 17, fontWeight: 600 }}>Aus der Galerie wählen</span>
-          </button>
-        </div>
+        <FotoStart onKamera={() => kameraRef.current?.click()} onGalerie={() => galerieRef.current?.click()}
+          titel="Aufgabe fotografieren" untertitel="Kamera geht direkt auf. Buchseite oder Arbeitsblatt, von oben." />
       )}
 
       <input ref={kameraRef} type="file" accept="image/*" capture="environment" className="hidden"

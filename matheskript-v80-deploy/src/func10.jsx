@@ -21,6 +21,7 @@ import { syncStarten } from "./lernSync.js";
 import { entdeckenSyncStarten } from "./entdeckenSync.js";
 import { LernpfadSeite } from "./funcLernpfad.jsx";
 import { MathildaChatSeite } from "./funcMathildaChat.jsx";
+import { MathildaKopf, FotoStart, SoArbeitetMathilda } from "./funcMathildaSeite.jsx";
 import { mathildaSystem } from "./mathildaKontext.js";
 import { Operatoren, Wiederholen } from "./func7.jsx";
 import { Messbericht, Modellieren, Probeabitur, Wochenbericht } from "./func8.jsx";
@@ -267,12 +268,7 @@ export function Mathilda() {
   const [erg, setErg] = useState(null);
   const kameraRef = useRef(null);
   const galerieRef = useRef(null);
-  const videoRef = useRef(null);
-  const [videoQuelle, setVideoQuelle] = useState(VIDEO_URL);
-
-  const videoWaehlen = (file) => {
-    if (file) setVideoQuelle(URL.createObjectURL(file));
-  };
+  const videoQuelle = VIDEO_URL;
 
   const dateiWaehlen = async (file) => {
     if (!file) return;
@@ -1276,128 +1272,36 @@ export function Mathilda() {
       ) : (
       <>
 
-      {/* Meer */}
-      <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-        <div className="mx-auto px-6 pt-12 pb-4" style={{ maxWidth: 620 }}>
-          <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 40, letterSpacing: "-0.03em", lineHeight: 1 }}>Mathilda<span style={{ color: C.flaggold }}>AI</span></h1>
-          <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
-          <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
-            {fotoModus === "blatt"
-              ? "Fotografiere dein Blatt. Mathilda liest den Rechenweg und schaut sich an, wie du gearbeitet hast."
-              : fotoModus === "weg"
-                ? "Fotografiere deinen Rechenweg. Mathilda überträgt ihn in Zeilen und prüft ihn wie im Editor."
-                : fotoModus === "chat"
-                  ? "Frag Mathilda. Sie kennt deinen Lernstand, fragt zurück, bevor sie verrät, und rechnet mit den Werkzeugen der App nach."
-                  : "Fotografiere eine Aufgabe. Mathilda erkennt den Typ und erzeugt drei weitere derselben Sorte."}
-          </p>
-          <div role="note" style={{ marginTop: 16, display: "flex", alignItems: "flex-start", gap: 10, background: "rgba(237,187,0,0.14)",
-            border: `1.5px solid ${C.flaggold}`, borderRadius: 12, padding: "10px 12px" }}>
-            <span style={{ flex: "none", background: C.flaggold, color: C.seeTief, fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", padding: "3px 8px", borderRadius: 999, marginTop: 1 }}>DEMO</span>
-            <span style={{ color: "#E8EEFA", fontSize: 12.5, fontWeight: 400, lineHeight: 1.5 }}>Mathilda AI ist aktuell nur eine Demo und funktioniert noch nicht ganz.</span>
-          </div>
-        </div>
-        <Welle fill={C.sand} />
-      </div>
-
-      <div className="mx-auto px-6" style={{ maxWidth: 620, paddingTop: 30 }}>
-        <div className="flex gap-2 mb-6">
-          {[["blatt", "Blatt prüfen"], ["weg", "Weg prüfen"], ["aufgabe", "Aufgabe scannen"], ["chat", "Mathilda fragen"]].map(([id, n]) => (
-            <button key={id} onClick={() => setFotoModus(id)} className="px-3 py-2"
-              style={{ flex: 1, background: fotoModus === id ? C.see : C.weiss, color: fotoModus === id ? C.weiss : C.grau,
-                border: `1px solid ${fotoModus === id ? C.see : C.linie}`, borderRadius: 999, fontSize: 12.5, fontFamily: "inherit", cursor: "pointer" }}>
-              {n}
-            </button>
-          ))}
-        </div>
-      </div>
+      <MathildaKopf modus={fotoModus} setModus={setFotoModus} />
 
       {fotoModus === "chat" ? <MathildaChatSeite /> : !fotoErlaubt ? <Einwilligung onJa={() => setFotoErlaubt(true)} /> : fotoModus === "aufgabe" ? <FotoAufgaben /> : fotoModus === "weg" ? <WegVomBlatt /> : (
-      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620 }}>
-
-        {!bild && !laden && (
-          <section className="mb-10">
-            <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 8 }}>So funktioniert es</p>
-            <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
-              In dreißig Sekunden vom Blatt zur Rückmeldung
-            </h2>
-            <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 20 }}>
-              Du rechnest wie immer auf Papier. Mathilda übernimmt danach den Teil, den sonst niemand macht:
-              Sie schaut sich nicht nur an, ob das Ergebnis stimmt, sondern wie du dahin gekommen bist.
-            </p>
-
-            <div style={{ position: "relative", width: "100%", aspectRatio: "1 / 1", borderRadius: 20, overflow: "hidden", background: C.seeTief, boxShadow: "0 6px 26px rgba(15,26,51,0.16)" }}>
-              {videoQuelle ? (
-                <video src={videoQuelle} playsInline controls loop muted
-                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-              ) : (
-                <div className="flex flex-col items-center justify-center" style={{ width: "100%", height: "100%" }}>
-                  <div className="flex items-center justify-center" style={{ width: 66, height: 66, borderRadius: 999, background: C.gruenDunkel }}>
-                    <div style={{ width: 0, height: 0, borderTop: "12px solid transparent", borderBottom: "12px solid transparent", borderLeft: `19px solid ${C.seeTief}`, marginLeft: 6 }} />
-                  </div>
-                  <p className="px-8" style={{ color: "#C9D6EE", fontSize: 13, fontWeight: 300, marginTop: 18, textAlign: "center", lineHeight: 1.6 }}>
-                    Erklärvideo, quadratischer Ausschnitt aus der Bildmitte
-                  </p>
-                </div>
-              )}
-            </div>
-
-            <div className="flex items-center justify-between mt-3">
-              <p style={{ color: C.hellgrau, fontSize: 12, fontWeight: 300, lineHeight: 1.6 }}>
-                Blankopapier, schwarzer Stift, Kamera von oben.
-              </p>
-              <button onClick={() => videoRef.current?.click()}
-                style={{ background: "none", border: "none", color: C.see, fontSize: 12, fontFamily: "inherit", textDecoration: "underline", cursor: "pointer", padding: 0, whiteSpace: "nowrap" }}>
-                Testvideo laden
-              </button>
-            </div>
-            <input ref={videoRef} type="file" accept="video/*" className="hidden"
-              onChange={(e) => videoWaehlen(e.target.files?.[0])} />
-
-            <div className="mt-8">
-              {[
-                ["Blatt abfotografieren", "Ein Foto von oben genügt. Schief, dunkel oder im falschen Format ist kein Problem, das rechnet die App gerade."],
-                ["Mathilda liest mit", "Zeile für Zeile. Sie zeigt dir zuerst, was sie gelesen hat, und erst danach, wo der Weg bricht."],
-                ["Ein einziger nächster Schritt", "Keine Notenliste, keine zwölf Verbesserungsvorschläge. Genau eine Sache, die du beim nächsten Blatt anders machst."],
-              ].map(([titel, text], i) => (
-                <div key={i} className="flex mb-5">
-                  <span style={{ color: C.gruenDunkel, fontSize: 14, fontWeight: 700, width: 26, flexShrink: 0 }}>{i + 1}</span>
-                  <div>
-                    <p style={{ fontSize: 15, fontWeight: 600, marginBottom: 4 }}>{titel}</p>
-                    <p style={{ color: C.grau, fontSize: 14, fontWeight: 300, lineHeight: 1.65 }}>{text}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div style={{ height: 1, background: C.linie, margin: "26px 0" }} />
-          </section>
-        )}
+      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 26 }}>
 
         {!bild && !laden && (
           <div>
-            <button onClick={() => kameraRef.current?.click()} className="w-full px-6 py-7"
-              style={{ background: C.gruenDunkel, border: "none", borderRadius: 16, textAlign: "left", cursor: "pointer", color: C.weiss, fontFamily: "inherit", boxShadow: "0 4px 18px rgba(122,88,0,0.25)" }}>
-              <span style={{ fontSize: 18, fontWeight: 600 }}>Blatt fotografieren</span>
-              <span className="block mt-2" style={{ fontSize: 13, fontWeight: 300, lineHeight: 1.6, opacity: 0.9 }}>
-                Kamera öffnen und direkt abfotografieren.
-              </span>
-            </button>
+            <FotoStart onKamera={() => kameraRef.current?.click()} onGalerie={() => galerieRef.current?.click()} />
 
-            <button onClick={() => galerieRef.current?.click()} className="w-full px-6 py-7 mt-3"
-              style={{ background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 16, textAlign: "left", cursor: "pointer", color: C.tinte, fontFamily: "inherit" }}>
-              <span style={{ fontSize: 18, fontWeight: 600 }}>Foto aus der Galerie wählen</span>
-              <span className="block mt-2" style={{ color: C.grau, fontSize: 13, fontWeight: 300, lineHeight: 1.6 }}>
-                Jedes Format, auch HEIC vom iPhone.
-              </span>
-            </button>
+            {videoQuelle && (
+              <div className="mt-8" style={{ position: "relative", width: "100%", aspectRatio: "1 / 1", borderRadius: 20, overflow: "hidden", background: C.seeTief, boxShadow: "0 6px 26px rgba(15,26,51,0.16)" }}>
+                <video src={videoQuelle} playsInline controls loop muted style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+              </div>
+            )}
 
-            <p className="mt-6" style={{ color: C.grau, fontSize: 13, fontWeight: 300, lineHeight: 1.7 }}>
-              Weißes Blankopapier, schwarzer Stift, von oben aufgenommen, gutes Licht. Alles Weitere macht die App.
-            </p>
+            <section className="mt-12">
+              <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: C.see, marginBottom: 8 }}>So arbeitet Mathilda</p>
+              <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
+                In dreißig Sekunden vom Blatt zur Rückmeldung
+              </h2>
+              <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 22 }}>
+                Du rechnest wie immer auf Papier. Mathilda übernimmt danach den Teil, den sonst niemand macht:
+                Sie schaut sich nicht nur an, ob das Ergebnis stimmt, sondern wie du dahin gekommen bist.
+              </p>
+              <SoArbeitetMathilda />
+            </section>
 
             <div className="mt-12">
               <div style={{ height: 1, background: C.linie, marginBottom: 26 }} />
-              <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 10 }}>Warum das Blatt zählt</p>
+              <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: C.see, marginBottom: 10 }}>Warum das Blatt zählt</p>
               <p style={{ color: C.grau, fontSize: 14, fontWeight: 300, lineHeight: 1.75, marginBottom: 14 }}>
                 Die meisten Fehler in Klausuren entstehen nicht, weil jemand den Stoff nicht kann. Sie entstehen,
                 weil das Blatt das Denken zusätzlich belastet statt es zu entlasten: drei Schritte in einer Zeile,
@@ -1406,7 +1310,7 @@ export function Mathilda() {
               <p style={{ color: C.grau, fontSize: 14, fontWeight: 300, lineHeight: 1.75, marginBottom: 22 }}>
                 Genau diese Muster sieht Mathilda. Sie bewertet dein Blatt, niemals dich.
               </p>
-              <blockquote style={{ borderLeft: `3px solid ${C.gruenDunkel}`, paddingLeft: 16, margin: 0 }}>
+              <blockquote style={{ borderLeft: `3px solid ${C.flaggold}`, paddingLeft: 16, margin: 0 }}>
                 <p style={{ fontSize: 16, fontWeight: 500, lineHeight: 1.6, color: C.tinte }}>
                   Mathe ist kein Talenttest. Mathe ist eine Art zu denken, und diese Art zu denken kann man lernen.
                 </p>
