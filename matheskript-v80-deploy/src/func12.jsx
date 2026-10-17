@@ -1013,6 +1013,11 @@ export function baueAllgemeineDiskussion(baum, A) {
   const abschnitt = (titel) => { const s = { titel, zeilen: [] }; abschnitte.push(s); return s; };
   const z = (s, txt, fett, tex) => s.zeilen.push({ txt, fett: !!fett, tex });
   const zP = (s, txt, fett) => s.zeilen.push({ txt, prosa: true, fett: !!fett });
+  // Zeile mit Zahlenwerten: enthält ein Wert einen π-Bruch (z. B. π/2), wird die Zeile als Formel mit gestapeltem Bruch gesetzt
+  const zw = (s, fett, bau) => {
+    const t = bau((v) => wert(v)), x = bau((v) => wert(v, true));
+    if (t === x) z(s, t, fett); else s.zeilen.push({ txt: x, fett: !!fett, formel: true });
+  };
   const fenster = `[${wert(A.L)}; ${wert(A.R)}]`;
   const mitKappe = (liste, zeilenFn, s) => {
     liste.slice(0, MAX_LISTE).forEach(zeilenFn);
@@ -1094,7 +1099,7 @@ export function baueAllgemeineDiskussion(baum, A) {
   }
   if (!A.ns.length) zP(s4, `f hat im Untersuchungsbereich ${fenster} keine Nullstelle.`);
   else {
-    mitKappe(A.ns, (x, i) => z(s4, `x${tiefZiffer(i + 1)} ${Number.isInteger(rund(x)) || /π/.test(wert(x)) ? "=" : "≈"} ${wert(x)}`, bi && i === 0 ? true : false), s4);
+    mitKappe(A.ns, (x, i) => zw(s4, bi && i === 0 ? true : false, (w) => `x${tiefZiffer(i + 1)} ${Number.isInteger(rund(x)) || /π/.test(wert(x)) ? "=" : "≈"} ${w(x)}`), s4);
     if (!bi) zP(s4, "Numerisch bestimmt (Vorzeichenwechsel und Bisektion).");
   }
 
@@ -1115,8 +1120,8 @@ export function baueAllgemeineDiskussion(baum, A) {
       const kurz = p.art === "Hochpunkt" ? "H" : p.art === "Tiefpunkt" ? "T" : "S";
       zaehl[kurz] = (zaehl[kurz] || 0) + 1;
       const idx = anz[p.art] > 1 ? tiefZiffer(zaehl[kurz]) : "";
-      if (endlich(p.f2) && Math.abs(p.f2) > 1e-7) z(s6, `f″(${wert(p.x)}) ≈ ${wert(p.f2)} ${p.f2 < 0 ? "< 0 ⇒ Hochpunkt" : "> 0 ⇒ Tiefpunkt"}`);
-      z(s6, `${p.art} ${kurz}${idx}(${wert(p.x)} | ${wert(p.y)})`, true);
+      if (endlich(p.f2) && Math.abs(p.f2) > 1e-7) zw(s6, false, (w) => `f″(${w(p.x)}) ≈ ${w(p.f2)} ${p.f2 < 0 ? "< 0 ⇒ Hochpunkt" : "> 0 ⇒ Tiefpunkt"}`);
+      zw(s6, true, (w) => `${p.art} ${kurz}${idx}(${w(p.x)} | ${w(p.y)})`);
     }, s6);
   }
 
@@ -1132,7 +1137,7 @@ export function baueAllgemeineDiskussion(baum, A) {
   z(s8, "Notw. Bed.: f″(x) = 0 mit Vorzeichenwechsel", true);
   const wps = A.wende.filter((p) => p.art === "Wendepunkt");
   if (!wps.length) zP(s8, "f hat im Untersuchungsbereich keine Wendepunkte.");
-  else mitKappe(wps, (p, i) => z(s8, `Wendepunkt W${wps.length > 1 ? tiefZiffer(i + 1) : ""}(${wert(p.x)} | ${wert(p.y)})`, true), s8);
+  else mitKappe(wps, (p, i) => zw(s8, true, (w) => `Wendepunkt W${wps.length > 1 ? tiefZiffer(i + 1) : ""}(${w(p.x)} | ${w(p.y)})`), s8);
 
   // 9. Krümmung
   const s9 = abschnitt("9. Krümmungsverhalten");
@@ -1146,18 +1151,18 @@ export function baueAllgemeineDiskussion(baum, A) {
   const gruppe = (titel, liste) => {
     if (!liste.length) return;
     z(s10, `${titel}:`, true);
-    mitKappe(liste, (t) => z(s10, `   ${t}`), s10);
+    mitKappe(liste, (t) => zw(s10, false, (w) => `   ${t(w)}`), s10);
   };
-  gruppe("Nullstellen", A.ns.map((x, i) => `N${A.ns.length > 1 ? tiefZiffer(i + 1) : ""}(${wert(x)} | 0)`));
+  gruppe("Nullstellen", A.ns.map((x, i) => (w) => `N${A.ns.length > 1 ? tiefZiffer(i + 1) : ""}(${w(x)} | 0)`));
   const zaehl2 = {}, anz2 = {};
   A.ext.forEach((p) => { anz2[p.art] = (anz2[p.art] || 0) + 1; });
   gruppe("Extrempunkte", A.ext.map((p) => {
     const kurz = p.art === "Hochpunkt" ? "H" : p.art === "Tiefpunkt" ? "T" : "S";
     zaehl2[kurz] = (zaehl2[kurz] || 0) + 1;
-    return `${kurz}${anz2[p.art] > 1 ? tiefZiffer(zaehl2[kurz]) : ""}(${wert(p.x)} | ${wert(p.y)})${kurz === "S" ? "   (Sattelpunkt)" : ""}`;
+    return (w) => `${kurz}${anz2[p.art] > 1 ? tiefZiffer(zaehl2[kurz]) : ""}(${w(p.x)} | ${w(p.y)})${kurz === "S" ? "   (Sattelpunkt)" : ""}`;
   }));
-  gruppe("Wendepunkte", wps.map((p, i) => `W${wps.length > 1 ? tiefZiffer(i + 1) : ""}(${wert(p.x)} | ${wert(p.y)})`));
-  if (A.yAchse !== null) gruppe("y-Achsenabschnitt", [`Sᵧ(0 | ${wert(A.yAchse)})   da f(0) = ${wert(A.yAchse)}`]);
+  gruppe("Wendepunkte", wps.map((p, i) => (w) => `W${wps.length > 1 ? tiefZiffer(i + 1) : ""}(${w(p.x)} | ${w(p.y)})`));
+  if (A.yAchse !== null) gruppe("y-Achsenabschnitt", [(w) => `Sᵧ(0 | ${w(A.yAchse)})   da f(0) = ${w(A.yAchse)}`]);
   else { z(s10, "y-Achsenabschnitt:", true); z(s10, "   keiner, da f(0) nicht definiert ist"); }
 
   // 11. Nullstellenintegrale
@@ -1166,7 +1171,7 @@ export function baueAllgemeineDiskussion(baum, A) {
   else {
     zP(s11, "Numerisch berechnet (Simpson-Regel).");
     mitKappe(A.integrale, (iv, i) => {
-      z(s11, `I${tiefZiffer(i + 1)}:  Intervall [${wert(iv.x1)}; ${wert(iv.x2)}]`, true);
+      zw(s11, true, (w) => `I${tiefZiffer(i + 1)}:  Intervall [${w(iv.x1)}; ${w(iv.x2)}]`);
       z(s11, `I${tiefZiffer(i + 1)} = ∫ f(x) dx ≈ ${zahl(iv.wert).replace("-", "−")}`);
     }, s11);
   }
