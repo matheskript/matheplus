@@ -41,6 +41,11 @@ export function Fusszeile({ gehe }) {
   );
   return (
     <footer style={{ background: C.seeTief, marginTop: 24 }}>
+      {/* Logo-Verläufe hier mitliefern: Auf Seiten ohne Kopfleiste (Trainingstools) fehlen sie sonst und das Logo wird schwarz */}
+      <style>{`
+        .logo-silber{background:linear-gradient(180deg,#FFFFFF 0%,${C.silberHell} 35%,${C.silber} 60%,${C.silberDunkel} 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+        .logo-gold{background:linear-gradient(180deg,#FFE58A 0%,${C.flaggold} 45%,${C.goldWarm} 70%,#A67C00 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+      `}</style>
       <div className="mx-auto px-6" style={{ maxWidth: 620, padding: "26px 24px 30px" }}>
         <div style={{ display: "inline-flex", flexDirection: "column", alignItems: "center" }}>
           <p style={{ fontSize: "min(36px, 8.4vw)", fontWeight: 700, letterSpacing: "-0.02em", textTransform: "uppercase", lineHeight: 1 }}>
