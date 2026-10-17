@@ -21,6 +21,7 @@
                 (Umschalter oben auf der Seite, z. B. Polynome | Beliebige)
      etikett  – entdecken | rechnen | trainieren
      stufe    – mittel | ober | beide (Stufen-Schalter auf der Startseite)
+     unter    – true: erscheint auch in der Unterstufe (Kl. 5–7)
      Die Zeile muss auf dem Handy (360 px) in eine Zeile passen.
    ============================================================ */
 
@@ -89,10 +90,22 @@ export const WERKZEUGE = {
     zeichen: "H₀", bild: "hypothese", ziel: { ansicht: "hypothesentest" }, etikett: "trainieren", stufe: "ober" },
 
   /* ---------- Geometrie ---------- */
+  kongruenz: { name: "Kongruenzsätze", kurz: "Kongruenz", zeile: "SSS, SWS, WSW, SsW – eindeutig?", slogan: "Wann drei Stücke ein Dreieck festlegen – Konstruktionen und Begründen an Figuren.",
+    zeichen: "≅", bild: "kongruenz", ziel: { ansicht: "kongruenz" }, etikett: "entdecken", stufe: "mittel", unter: true },
+  thales: { name: "Satz des Thales", kurz: "Thales", zeile: "Rechter Winkel im Halbkreis", slogan: "Jeder Winkel im Halbkreis ist ein rechter – mit Beweis, Umkreis und Tangente.",
+    zeichen: "∟", bild: "thales", ziel: { ansicht: "thales" }, etikett: "entdecken", stufe: "mittel" },
+  pythagoras: { name: "Satz des Pythagoras", kurz: "Pythagoras", zeile: "a² + b² = c², auch im Raum", slogan: "Fehlende Seiten im rechtwinkligen Dreieck – Umkehrung, Sachaufgaben, Raumdiagonale.",
+    zeichen: "c²", bild: "pythagoras", ziel: { ansicht: "pythagoras" }, etikett: "trainieren", stufe: "mittel" },
   strahlensaetze: { name: "Strahlensätze", kurz: "Strahlen", zeile: "V- und X-Figur, Streckfaktor k", slogan: "Zwei Strahlen, zwei Parallelen – fehlende Längen über Verhältnisse.",
     zeichen: "k", bild: "strahlen", ziel: { ansicht: "strahlensaetze" }, etikett: "trainieren", stufe: "mittel" },
   trigonometrie: { name: "Trigonometrie am Dreieck", kurz: "Trigo", zeile: "sin, cos, tan, Sinus- und Kosinussatz", slogan: "Seiten und Winkel berechnen – rechtwinklig und allgemein.",
     zeichen: "sin", bild: "trig", ziel: { ansicht: "trigonometrie" }, etikett: "trainieren", stufe: "mittel" },
+
+  /* ---------- Bruchrechnen ---------- */
+  bruchrechnen: { name: "Brüche rechnen", kurz: "Brüche", zeile: "Kürzen, plus, minus, mal, geteilt", slogan: "Kürzen, erweitern und alle Grundrechenarten – mit Bruchstreifen und gezielter Fehlerrückmeldung.",
+    zeichen: "¾", bild: "bruch", ziel: { ansicht: "bruchrechnen" }, etikett: "trainieren", stufe: "mittel", unter: true },
+  bruchterme: { name: "Bruchterme und -gleichungen", kurz: "Bruchterme", zeile: "Definitionsmenge, kürzen, lösen", slogan: "x im Nenner: Definitionsmenge, Kürzen nur von Faktoren, Bruchgleichungen ohne Scheinlösung.",
+    zeichen: "1/x", bild: "bruchterm", ziel: { ansicht: "bruchterme" }, etikett: "trainieren", stufe: "mittel" },
 
   /* ---------- Gleichungen ---------- */
   terme: { name: "Terme und Potenzgesetze", kurz: "Terme", zeile: "Vereinfachen, ausklammern, kürzen", slogan: "Vereinfachen, Ausklammern, Binomische Formeln, Potenzen, Brüche.",
@@ -128,10 +141,17 @@ export const BEREICHE = [
       { id: "zufallsgroessen", titel: "Zufallsgrößen", zeile: "Erwartungswert und Binomialverteilung", werkzeuge: ["erwartungswert", "bernoulli"] },
       { id: "testen", titel: "Testen", zeile: "Hypothesen prüfen", werkzeuge: ["hypothesentest"] },
     ] },
-  { id: "geometrie", titel: "Geometrie", uebersicht: null, text: "Zwei Stationen: ähnliche Figuren, Dreiecke berechnen.",
+  { id: "geometrie", titel: "Geometrie", uebersicht: null, text: "Vier Stationen: Kongruenz, rechte Winkel, Ähnlichkeit, Dreiecke berechnen.",
     stationen: [
+      { id: "kongruenz", titel: "Kongruenz", zeile: "Wann ein Dreieck eindeutig ist", werkzeuge: ["kongruenz"] },
+      { id: "rechtwinklig", titel: "Rechte Winkel", zeile: "Thales und Pythagoras", werkzeuge: ["thales", "pythagoras"] },
       { id: "aehnlich", titel: "Ähnlichkeit", zeile: "Strahlensätze und Streckfaktor", werkzeuge: ["strahlensaetze"] },
       { id: "dreiecke", titel: "Dreiecke berechnen", zeile: "Sinus, Kosinus, Tangens", werkzeuge: ["trigonometrie"] },
+    ] },
+  { id: "bruchrechnen", titel: "Bruchrechnen", uebersicht: null, text: "Zwei Stationen: Brüche rechnen, Bruchterme und Bruchgleichungen.",
+    stationen: [
+      { id: "brueche", titel: "Brüche rechnen", zeile: "Kürzen, erweitern, Grundrechenarten", werkzeuge: ["bruchrechnen"] },
+      { id: "bruchterme", titel: "Bruchterme", zeile: "x im Nenner: kürzen und lösen", werkzeuge: ["bruchterme"] },
     ] },
   { id: "gleichungen", titel: "Gleichungen", uebersicht: null, text: "Zwei Stationen: Terme umformen, Gleichungen lösen.",
     video: { name: "Videokurs Gleichungen", zeile: "Umformen, Gleichungssysteme, Musterlösungen" },

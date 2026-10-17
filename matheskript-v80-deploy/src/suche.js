@@ -88,6 +88,11 @@ const ORT = (() => {
 
 /* Zusatzwörter je Werkzeug: so spricht man über das Thema (Werkzeugnamen allein reichen nicht) */
 const WZ_WOERTER = {
+  pythagoras: "pythagoras satz des pythagoras a²+b²=c² hypotenuse kathete katheten rechtwinkliges dreieck rechter winkel umkehrung raumdiagonale diagonale leiter",
+  thales: "thales satz des thales thaleskreis halbkreis rechter winkel durchmesser umkreis umkreismittelpunkt tangente berührradius",
+  kongruenz: "kongruenz kongruenzsätze kongruent deckungsgleich sss sws wsw sww ssw ssw dreieck konstruieren konstruktion eindeutig dreiecksungleichung",
+  bruchrechnen: "bruch brüche bruchrechnung bruchrechnen kürzen erweitern hauptnenner gleichnamig kehrwert zähler nenner gemischte zahl doppelbruch anteil ggt kgv",
+  bruchterme: "bruchterm bruchterme bruchgleichung bruchgleichungen definitionsmenge definitionsbereich nenner null kürzen hauptnenner scheinlösung",
   geradengleichung: "lineare funktion gerade steigung achsenabschnitt y-achsenabschnitt punkt-steigungs-form zwei punkte m n y=mx+b",
   strahlensaetze: "strahlensatz strahlensätze vierstreckensatz v-figur x-figur parallelen streckfaktor zentrische streckung ähnlichkeit ähnliche dreiecke schatten baumhöhe verhältnis",
   trigonometrie: "trigonometrie sinus kosinus cosinus tangens sin cos tan dreieck rechtwinklig gegenkathete ankathete hypotenuse sinussatz kosinussatz winkel berechnen",
@@ -355,7 +360,9 @@ const BREIT = [
   { woerter: ["mathe", "mathematik", "schule", "schulmathe", "alles", "training", "trainieren", "ueben", "uben", "lernen", "hilfe", "thema", "unterricht"],
     frage: ["Mathematik ist ein weites Feld. Was genau möchtest du trainieren oder verstehen?", "Maths is a big field. What exactly would you like to practise or understand?"],
     optionen: [
+      frageOpt("Bruchrechnen", "Fractions", "Bruchrechnen"),
       frageOpt("Terme und Gleichungen", "Terms and equations", "Terme umformen, Gleichungen"),
+      frageOpt("Geometrie: Dreiecke, Pythagoras, Thales", "Geometry: triangles, Pythagoras, Thales", "Geometrie"),
       frageOpt("Funktionen und Ableiten", "Functions and derivatives", "Ableitung"),
       frageOpt("Integrale und Flächen", "Integrals and areas", "Integrale"),
       frageOpt("Vektoren und Geometrie im Raum", "Vectors and 3D geometry", "Vektoren"),
@@ -374,7 +381,17 @@ const BREIT = [
       frageOpt("Wachstum und Logarithmen", "Growth and logarithms", "Wachstum, Logarithmus"),
       frageOpt("Funktionsscharen und Parameter", "Function families and parameters", "Funktionsscharen"),
     ] },
-  { woerter: ["vektoren", "geometrie", "raum", "analytische"],
+  { woerter: ["geometrie", "dreieck", "dreiecke"],
+    frage: ["Geometrie – welches Thema meinst du?", "Geometry – which topic do you mean?"],
+    optionen: [
+      frageOpt("Kongruenzsätze", "Congruence theorems", "Kongruenzsätze"),
+      frageOpt("Satz des Thales", "Thales' theorem", "Satz des Thales"),
+      frageOpt("Satz des Pythagoras", "Pythagoras' theorem", "Satz des Pythagoras"),
+      frageOpt("Strahlensätze und Ähnlichkeit", "Intercept theorems and similarity", "Strahlensätze"),
+      frageOpt("Sinus, Kosinus, Tangens im Dreieck", "Sine, cosine, tangent in triangles", "Trigonometrie"),
+      frageOpt("Vektoren und Geometrie im Raum", "Vectors and 3D geometry", "Rechnen mit Vektoren, Geraden im Raum, Ebene aus drei Punkten"),
+    ] },
+  { woerter: ["vektoren", "raum", "analytische"],
     frage: ["Vektoren und Geometrie – welcher Teil genau?", "Vectors and geometry – which part exactly?"],
     optionen: [
       frageOpt("Rechnen mit Vektoren", "Calculating with vectors", "Rechnen mit Vektoren Skalarprodukt"),

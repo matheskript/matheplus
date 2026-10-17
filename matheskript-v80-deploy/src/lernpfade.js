@@ -44,8 +44,12 @@ export const STATION_GENERATOREN = {
   "stochastik.zaehlen": [],
   "stochastik.zufallsgroessen": ["ber-genau"],
   "stochastik.testen": ["ber-grenze"],
+  "geometrie.kongruenz": [],
+  "geometrie.rechtwinklig": [],
   "geometrie.aehnlich": [],
   "geometrie.dreiecke": [],
+  "bruchrechnen.brueche": ["bru-add", "bru-div"],
+  "bruchrechnen.bruchterme": [],
   "gleichungen.terme": ["ter-binom", "bru-add", "bru-div"],
   "gleichungen.loesen": ["gl-linear", "gl-quadrat", "gl-ausklammern"],
 };
@@ -90,6 +94,11 @@ export const EINHEIT_TEXTE = {
   bernoulli: { worum: "Eine Bernoulli-Kette hat n gleiche Versuche mit Trefferwahrscheinlichkeit p. Die Binomialverteilung zählt die Treffer.", aufgabe: "Berechne P(X = k) und P(X ≥ k) für eine selbst gewählte Kette und vergleiche mit der Simulation." },
   hypothesentest: { worum: "Ein Test entscheidet gegen H₀, wenn das Ergebnis im Ablehnungsbereich liegt. Fehler erster und zweiter Art gehören dazu.", aufgabe: "Baue einen Test auf, bestimme den Ablehnungsbereich und benenne den Fehler erster Art." },
   terme: { worum: "Termumformungen sind Regeln, keine Tricks: ausmultiplizieren, ausklammern, binomische Formeln, Potenzgesetze.", aufgabe: "Vereinfache fünf Terme im Werkzeug, mindestens zwei mit binomischer Formel." },
+  kongruenz: { worum: "Drei Stücke legen ein Dreieck nur dann eindeutig fest, wenn ein Kongruenzsatz passt: SSS, SWS, WSW oder SsW. Bei SSW und WWW kann es mehrere oder gar keine Dreiecke geben.", aufgabe: "Entscheide bei drei Angaben, welcher Satz passt und wie viele Dreiecke es gibt, und begründe eine Kongruenz an einer Figur." },
+  thales: { worum: "Liegt C auf dem Kreis über dem Durchmesser AB, ist der Winkel bei C ein rechter. Umgekehrt ist die Hypotenuse immer Durchmesser des Umkreises.", aufgabe: "Berechne einen Winkel im Thaleskreis und führe den Beweis über die gleichschenkligen Dreiecke in Schritten." },
+  pythagoras: { worum: "Im rechtwinkligen Dreieck gilt a² + b² = c². Die Hypotenuse liegt dem rechten Winkel gegenüber; für eine Kathete wird subtrahiert.", aufgabe: "Berechne eine Hypotenuse, eine Kathete und eine Raumdiagonale und prüfe ein Dreieck mit der Umkehrung." },
+  bruchrechnen: { worum: "Plus und minus brauchen einen gemeinsamen Nenner, mal geht direkt, geteilt heißt mit dem Kehrwert malnehmen. Am Ende wird immer vollständig gekürzt.", aufgabe: "Löse je eine Aufgabe zum Addieren, Multiplizieren und Dividieren und kürze jedes Ergebnis vollständig." },
+  bruchterme: { worum: "Steht x im Nenner, gehört zu jedem Term eine Definitionsmenge. Gekürzt werden nur Faktoren, und jede Lösung einer Bruchgleichung wird mit D geprüft.", aufgabe: "Bestimme eine Definitionsmenge, kürze einen Bruchterm und löse eine Bruchgleichung mit Probe." },
   strahlensaetze: { worum: "Werden zwei Strahlen von zwei Parallelen geschnitten, stehen alle zugehörigen Strecken im selben Verhältnis k. Beim 2. Strahlensatz zählen nur Strecken ab S.", aufgabe: "Löse im Modus „Üben“ drei Aufgaben, darunter eine mit gegebenem Abschnitt AA′ und eine Sachaufgabe." },
   trigonometrie: { worum: "Im rechtwinkligen Dreieck verbinden sin, cos und tan einen Winkel mit zwei Seiten. Ohne rechten Winkel helfen Sinus- und Kosinussatz.", aufgabe: "Berechne zwei Seiten und einen Winkel im rechtwinkligen Dreieck und löse eine Kosinussatz-Aufgabe." },
   gleichungen: { worum: "Eine Gleichung lösen heißt, die Rechnung rückwärts zu gehen. Jede Umformung gilt auf beiden Seiten.", aufgabe: "Löse drei Gleichungen Schritt für Schritt und lass jeden Schritt prüfen." },
@@ -126,8 +135,9 @@ export const PFADE = {
   vektoren: { name: "Vektoren", zeile: "Rechnen, aufstellen, Lage und Abstand", bereiche: ["vektoren"], wochen: 4 },
   stochastik: { name: "Stochastik", zeile: "Zählen, Zufallsgrößen, testen", bereiche: ["stochastik"], wochen: 4 },
   gleichungen: { name: "Terme und Gleichungen", zeile: "Umformen und lösen – die Grundlage für alles", bereiche: ["gleichungen"], wochen: 2 },
-  geometrie: { name: "Geometrie", zeile: "Strahlensätze und Trigonometrie – Mittelstufe", bereiche: ["geometrie"], wochen: 2 },
-  abitur: { name: "Abi komplett", zeile: "Alle Bereiche in Abi-Reihenfolge", bereiche: ["gleichungen", "geometrie", "analysis", "vektoren", "stochastik"], wochen: 16 },
+  geometrie: { name: "Geometrie", zeile: "Kongruenz, Thales, Pythagoras, Strahlensätze, Trigonometrie – Mittelstufe", bereiche: ["geometrie"], wochen: 3 },
+  bruchrechnen: { name: "Bruchrechnen", zeile: "Brüche rechnen, Bruchterme und Bruchgleichungen", bereiche: ["bruchrechnen"], wochen: 2 },
+  abitur: { name: "Abi komplett", zeile: "Alle Bereiche in Abi-Reihenfolge", bereiche: ["bruchrechnen", "gleichungen", "geometrie", "analysis", "vektoren", "stochastik"], wochen: 16 },
 };
 export const PFAD_IDS = Object.keys(PFADE);
 

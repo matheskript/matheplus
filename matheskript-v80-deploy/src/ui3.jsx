@@ -15,6 +15,7 @@ import { buchen } from "./buchung.jsx";
 import { C } from "./base1.jsx";
 import { Auswahl, GrosserKnopf, KleinerLink, MS, Rueck, ZahlFeld, hinweis, zw } from "./ui2.jsx";
 import { qLies, qNum } from "./rechnen2.js";
+import { istGekuerzt } from "./bruchGen.js";
 import { AufklappZeichen } from "./aufklappen.jsx";
 
 /* ---------- Zahlen anzeigen ---------- */
@@ -47,6 +48,7 @@ const loesungBox = { background: C.sand, borderRadius: 14, padding: "10px 14px",
    st: { id, titel, frage, typ: "wahl" | "zahl",
          optionen, richtig            (wahl)
          wert, toleranz, text, einheit, wertText   (zahl)
+         gekuerzt: true – Bruch-Eingabe muss vollständig gekürzt sein (zahl)
          fehler: [{ wahl | wert, text }]  – typische Denkfehler mit gezielter Rückmeldung
          hinweise: [..], erklaerung }                                               */
 export function Schritt({ st, nr, aktiv, fertig, onFertig }) {
@@ -63,6 +65,11 @@ export function Schritt({ st, nr, aktiv, fertig, onFertig }) {
       v = liesZahl(eing);
       if (v === null) { setRueck({ art: "warn", text: zw("Bitte eine Zahl eingeben (Bruch wie 3/8 oder Dezimalzahl wie 0,375).", "Please enter a number (fraction like 3/8 or decimal like 0.375).") }); return; }
       r = Math.abs(v - st.wert) <= tol + 1e-12;
+      /* gekuerzt: true – der Wert stimmt, der Bruch ist aber noch nicht vollständig gekürzt (Regel A5) */
+      if (r && st.gekuerzt && !istGekuerzt(eing)) {
+        setRueck({ art: "warn", text: zw("Der Wert stimmt – aber der Bruch lässt sich noch kürzen. Kürze vollständig.", "The value is right – but the fraction can still be simplified. Reduce it fully.") });
+        return;
+      }
     }
     buchen({ richtig: r, gruppe: st.id });   // ins Fortschrittsprotokoll
     if (r) { setOk(true); setRueck(null); onFertig(); return; }

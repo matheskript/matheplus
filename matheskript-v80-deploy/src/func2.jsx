@@ -24,7 +24,7 @@ import { AppAnleitung } from "./funcAnleitung.jsx";
 import { SuchBox } from "./funcSuche.jsx";
 import { VektorenLogoKlein } from "./func16.jsx";
 import { StochastikLogoKlein } from "./func17.jsx";
-import { GeometrieLogoKlein, GleichungenLogoKlein } from "./funcEntdeckenLogo.jsx";
+import { BruchrechnenLogoKlein, GeometrieLogoKlein, GleichungenLogoKlein } from "./funcEntdeckenLogo.jsx";
 import { MedaillenschrankLogo, BwmLogo, KarteLogo } from "./funcWettbewerbe.jsx";
 import { MasterclassKachel, MatheCheckenKachel, MathCreatorKachel } from "./funcMasterclass.jsx";
 import { ElternabendKachel } from "./funcElternabend.jsx";
@@ -119,6 +119,7 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
           .plotter-kachel-flach:hover{transform:none;box-shadow:none;background:${C.sand}}}
         .plotter-kachel-flach:active{transform:none}
         .kachel-text{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+        @media ${DESKTOP_MQ}{.kachel-text-klein{height:2.8em !important;-webkit-line-clamp:2 !important}}
         .kachel-titel{background:linear-gradient(180deg,#FFFFFF 0%,${C.silberHell} 55%,${C.silber} 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
         .kachel-gesperrt .kachel-titel{background:none;color:#FFFFFF;text-shadow:0 1px 2px rgba(30,40,60,0.25)}`}</style>
       {/* Links (60 %): Titel und Erklärtext von oben */}
@@ -138,7 +139,7 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
             {text}
           </p>
         ) : (
-          <p className={mehrereSaetze ? undefined : "kachel-text"} style={{ color: gesperrt ? "rgba(255,255,255,0.92)" : hell ? C.grau : C.weiss, fontSize: 12.5, fontWeight: 300, lineHeight: 1.4, marginTop: 6, marginBottom: 0,
+          <p className={[mehrereSaetze ? null : "kachel-text", klein ? "kachel-text-klein" : null].filter(Boolean).join(" ") || undefined} style={{ color: gesperrt ? "rgba(255,255,255,0.92)" : hell ? C.grau : C.weiss, fontSize: 12.5, fontWeight: 300, lineHeight: 1.4, marginTop: 6, marginBottom: 0,
             WebkitLineClamp: 3, height: "4.2em", overflow: "hidden" }}>
             <SatzZeilen text={text} />
           </p>
@@ -636,9 +637,9 @@ const ZEIGE_GESPERRTE = false;
 
 /* Schulmathematik → Bereiche → Stationen → Werkzeuge. Die Daten stehen in werkzeuge.js (eine Liste für
    Startseite, Werkzeug-Menü, Kopfleiste und Übersichtsseiten); hier kommen nur die Logos dazu. */
-const BEREICH_LOGO = { analysis: <PlotterLogoKlein />, vektoren: <VektorenLogoKlein />, stochastik: <StochastikLogoKlein />, geometrie: <GeometrieLogoKlein />, gleichungen: <GleichungenLogoKlein /> };
+const BEREICH_LOGO = { analysis: <PlotterLogoKlein />, vektoren: <VektorenLogoKlein />, stochastik: <StochastikLogoKlein />, geometrie: <GeometrieLogoKlein />, bruchrechnen: <BruchrechnenLogoKlein />, gleichungen: <GleichungenLogoKlein /> };
 /* Liniennetz: jeder Bereich ist eine „Linie“ mit eigenem Strich, die Stationen sind ihre Halte */
-const LINIEN_MUSTER = { analysis: "4px solid", vektoren: "7px double", stochastik: "4px dashed", geometrie: "4px solid", gleichungen: "4px dotted" };
+const LINIEN_MUSTER = { analysis: "4px solid", vektoren: "7px double", stochastik: "4px dashed", geometrie: "4px solid", bruchrechnen: "4px dashed", gleichungen: "4px dotted" };
 
 const SCHUL_BEREICHE = BEREICHE.map((b) => ({
   id: b.id, titel: b.titel, text: b.text, logo: BEREICH_LOGO[b.id], video: b.video, linie: LINIEN_MUSTER[b.id],
@@ -877,6 +878,10 @@ function MiniBild({ art }) {
     axiome: <>{txt(60, 22, "a + b = b + a", "#fff", 12, "middle")}<path d="M30 32 H90" {...linie} strokeWidth="0.9" opacity="0.6" />{txt(60, 47, "∎", g, 13, "middle")}</>,
     pascal: <>{[[60, 14, "1"], [50, 27, "1"], [70, 27, "1"], [40, 40, "1"], [60, 40, "2"], [80, 40, "1"], [30, 53, "1"], [50, 53, "3"], [70, 53, "3"], [90, 53, "1"]].map(([x, y, z], i) => <React.Fragment key={i}>{txt(x, y, z, z === "1" ? w : g, 11, "middle")}</React.Fragment>)}</>,
     pythagoras: <><path d="M44 44 H80 V20 Z" {...linie} fill="rgba(255,255,255,0.06)" /><rect x="44" y="44" width="36" height="10" fill={g} opacity="0.35" /><rect x="80" y="20" width="12" height="24" fill={g} opacity="0.6" /><path d="M74 44 V38 H80" {...linie} strokeWidth="1" />{txt(28, 24, "a²+b²=c²", "#fff", 10)}</>,
+    thales: <><path d="M24 46 A36 36 0 0 1 96 46" {...linie} strokeDasharray="3 3" /><path d="M24 46 H96 L78 14.8 Z" {...linie} fill="rgba(255,255,255,0.06)" /><path d="M72.8 17.8 L75.8 23 L81 20" {...linie} stroke={g} strokeWidth="1.2" /><circle cx="60" cy="46" r="2" fill={g} />{txt(55, 55, "M", w, 8)}</>,
+    kongruenz: <><path d="M12 48 L44 48 L22 14 Z" {...linie} fill="rgba(255,255,255,0.06)" /><path d="M76 48 L108 48 L86 14 Z" {...linie} stroke={g} fill="rgba(237,187,0,0.12)" />{txt(60, 38, "≅", "#fff", 16, "middle")}</>,
+    bruch: <>{[[28, "3", "4"], [72, "1", "6"]].map(([x, z, n]) => <g key={x}>{txt(x, 22, z, "#fff", 13, "middle")}<path d={`M${x - 8} 27 H${x + 8}`} stroke="#fff" strokeWidth="1.3" />{txt(x, 41, n, "#fff", 13, "middle")}</g>)}{txt(50, 32, "+", w, 13, "middle")}{txt(92, 32, "=", g, 13, "middle")}{txt(108, 22, "11", g, 11, "middle")}<path d="M100 27 H116" stroke={g} strokeWidth="1.3" />{txt(108, 41, "12", g, 11, "middle")}</>,
+    bruchterm: <>{txt(36, 22, "x² − 4", "#fff", 12, "middle")}<path d="M16 27 H56" stroke="#fff" strokeWidth="1.3" />{txt(36, 41, "x − 2", "#fff", 12, "middle")}{txt(84, 33, "= x + 2", g, 12, "middle")}{txt(84, 50, "x ≠ 2", w, 9, "middle")}</>,
     teiler: <>{txt(60, 23, "3 | 123", "#fff", 14, "middle")}{txt(60, 44, "1 + 2 + 3 = 6", g, 11, "middle")}</>,
     medaille: <><path d="M50 6 L58 24 M70 6 L62 24" stroke={w} strokeWidth="2.4" strokeLinecap="round" /><circle cx="60" cy="34" r="14" fill={g} /><circle cx="60" cy="34" r="9" fill="none" stroke="rgba(14,30,74,0.45)" strokeWidth="1.2" />{txt(60, 38.5, "1", "#0E1E4A", 12, "middle")}</>,
     landkarte: <><path d="M52 6 L66 8 L70 16 L76 18 L74 28 L80 36 L72 44 L74 52 L58 52 L48 46 L44 36 L48 26 L44 18 Z" {...linie} fill="rgba(255,255,255,0.06)" /><circle cx="56" cy="44" r="3.4" fill={g} /></>,

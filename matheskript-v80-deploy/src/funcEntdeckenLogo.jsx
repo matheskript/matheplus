@@ -79,3 +79,37 @@ export function GeometrieLogoKlein() {
     </svg>
   );
 }
+
+/* Bereich Bruchrechnen: Bruchkreis mit drei Vierteln und eine Bruchrechnung */
+export function BruchrechnenLogoKlein() {
+  const W = 230, H = 190;
+  const T = { fontFamily: "Montserrat, system-ui, sans-serif", fontWeight: 700 };
+  const cx = 60, cy = 84, r = 46;
+  const stueck = (a0, a1) => {
+    const p = (a) => [cx + r * Math.cos((a - 90) * Math.PI / 180), cy + r * Math.sin((a - 90) * Math.PI / 180)];
+    const [x0, y0] = p(a0), [x1, y1] = p(a1);
+    return `M ${cx} ${cy} L ${x0} ${y0} A ${r} ${r} 0 0 1 ${x1} ${y1} Z`;
+  };
+  const bruch = (x, z, n, farbe, gr = 22) => (
+    <g {...T} fontSize={gr} fill={farbe} textAnchor="middle">
+      <text x={x} y={66}>{z}</text>
+      <line x1={x - 12} y1={74} x2={x + 12} y2={74} stroke={farbe} strokeWidth="2.4" />
+      <text x={x} y={99}>{n}</text>
+    </g>
+  );
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
+      {[0, 90, 180].map((a) => <path key={a} d={stueck(a, a + 90)} fill={C.flaggold} opacity={0.9} stroke={C.seeTief} strokeWidth="2" />)}
+      <path d={stueck(270, 360)} fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.55)" strokeWidth="2" />
+      {bruch(140, 1, 3, C.weiss)}
+      <text x="161" y="88" fill="rgba(255,255,255,0.6)" fontSize="20" {...T} textAnchor="middle">+</text>
+      {bruch(182, 1, 4, C.weiss)}
+      <text x="146" y="138" fill={C.flaggold} fontSize="20" {...T} textAnchor="middle">=</text>
+      <g {...T} fontSize="18" fill={C.flaggold} textAnchor="middle">
+        <text x="176" y="124">7</text>
+        <line x1="163" y1="131" x2="189" y2="131" stroke={C.flaggold} strokeWidth="2.2" />
+        <text x="176" y="151">12</text>
+      </g>
+    </svg>
+  );
+}

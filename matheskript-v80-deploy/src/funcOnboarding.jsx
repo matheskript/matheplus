@@ -44,7 +44,7 @@ function Chip({ an, onClick, children, breit }) {
 
 const ROLLEN = [["schueler", "Ich bin Schüler:in"], ["eltern", "Ich bin Elternteil"], ["lehrkraft", "Ich unterrichte"]];
 const ZIELE = [["klausur", "Bald steht eine Klausur an"], ["abi", "Ich bereite mich aufs Abi vor"], ["luecken", "Ich will Lücken schließen"], ["ueben", "Einfach üben"]];
-const THEMEN = [["gleichungen", "Terme und Gleichungen"], ["geometrie", "Geometrie"], ["analysis", "Analysis"], ["vektoren", "Vektoren"], ["stochastik", "Stochastik"]];
+const THEMEN = [["bruchrechnen", "Bruchrechnen"], ["gleichungen", "Terme und Gleichungen"], ["geometrie", "Geometrie"], ["analysis", "Analysis"], ["vektoren", "Vektoren"], ["stochastik", "Stochastik"]];
 
 function Fragen({ onFertig, onSpaeter }) {
   const [a, setA] = useState({});
