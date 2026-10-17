@@ -444,40 +444,98 @@ function SchulkurseLogoKlein() {
   );
 }
 
-/* Grafik für die „Mathe-Mindset-Kurs“-Kachel: Gehirn in Seitenansicht (Stirn links), ganz aus schlichten Blüten gelegt.
-   Bleibt oberhalb von y≈135 (unten liegt der goldene Balken). */
+/* Grafik für die „Mathe-Mindset-Kurs“-Kachel: leuchtendes Gehirn in Seitenansicht (Stirn links) –
+   goldene Neon-Kontur mit Glow, silberne Windungen, Kleinhirn und Hirnstamm, Synapsen-Punkte mit
+   Verbindungen und kleine Funken. Pulsiert sanft; bei „prefers-reduced-motion“ steht alles still.
+   Die Pfade sind fest (erzeugt aus einer bumpigen Ellipse), damit die Silhouette überall gleich aussieht. */
+const HIRN = {
+  kontur: "M 28.8 86.1 Q 22.1 76.8 29.3 67.7 Q 26.9 57.5 38.1 50.4 Q 40.0 39.9 54.2 35.9 Q 60.3 25.8 76.1 25.6 Q 86.2 16.5 101.6 20.4 Q 115.2 13.8 128.2 21.1 Q 143.9 18.1 153.1 27.4 Q 168.8 28.5 173.9 38.8 Q 187.6 43.5 188.5 54.1 Q 198.9 61.6 195.5 71.8 Q 201.8 81.2 194.2 90.1 Q 187.1 104.7 172.4 116.1 Q 155.1 126.2 132.3 130.5 Q 109.0 133.9 86.0 129.5 Q 63.9 124.1 47.7 113.4 Q 34.4 101.4 28.8 87.2 Z",
+  falten: [
+    "M 50 70 C 62 56, 80 62, 76 78 C 72 92, 56 96, 54 108",
+    "M 60 118 C 84 112, 100 98, 110 84 C 116 76, 120 68, 118 58",
+    "M 96 34 C 106 46, 96 58, 104 70",
+    "M 128 30 C 138 44, 126 58, 136 72 C 142 82, 136 92, 128 100",
+    "M 176 60 C 166 68, 164 84, 176 92 C 184 98, 178 110, 164 112",
+    "M 76 120 C 96 110, 120 114, 144 108",
+    "M 150 44 C 160 52, 158 66, 150 74",
+    "M 66 50 C 78 44, 86 52, 84 62",
+    "M 90 94 C 98 100, 94 108, 100 114",
+    "M 188 72 C 194 84, 188 96, 180 106",
+    "M 112 40 C 118 48, 112 56, 118 64",
+  ],
+  kleinhirn: "M 192.6 128.8 Q 189.8 135.0 181.5 139.1 Q 172.5 143.2 161.3 141.8 Q 150.4 140.5 143.9 135.2 Q 138.7 129.6 139.4 123.2 C 142 106, 186 104, 193 129 Z",
+  rillen: [
+    "M 150 122 C 147 130, 151 134, 147 139",
+    "M 160 122 C 157 130, 161 134, 157 139",
+    "M 170 122 C 167 130, 171 134, 167 139",
+    "M 180 122 C 177 130, 181 134, 177 139",
+  ],
+  stamm: "M 140 130 C 142 142, 138 150, 134 164",
+  // Synapsen [x, y, Farbe] und welche davon mit gestrichelten Linien verbunden sind
+  knoten: [[76, 78, "G"], [110, 84, "W"], [104, 70, "G"], [136, 72, "W"], [176, 92, "G"], [144, 108, "W"], [150, 74, "G"], [54, 108, "W"]],
+  kanten: [[0, 2], [2, 1], [1, 3], [3, 6], [6, 4], [4, 5], [5, 1], [7, 0]],
+  funken: [[20, 34, 5], [206, 24, 6], [216, 100, 4], [16, 116, 3.5]],
+};
 export function ElternkursLogoKlein() {
   const W = 230, H = 190;
-  const hell = "#9DB9E3";
-  // Blüten [x, y, Radius, Blütenfarbe, Mittelpunkt]: dicht gelegt, damit die Hirn-Silhouette (Kuppel, Schläfenlappen, Kleinhirn) lesbar bleibt
-  const G = C.flaggold, W_ = C.weiss, S = C.silberHell, B = hell;
-  const blueten = [
-    // Kleinhirn und Hirnstamm (hinten unten)
-    [176, 108, 14, B, C.weiss], [160, 116, 13, W_, G], [146, 126, 8.5, S, G], [142, 136, 7, G, C.seeTief],
-    // Schläfenlappen (unten Mitte)
-    [88, 116, 15, G, C.seeTief], [114, 118, 16, W_, G], [136, 110, 14, S, G],
-    // Stirn und Frontallappen (links)
-    [40, 78, 16, S, G], [52, 100, 15, W_, G], [78, 100, 16, B, C.weiss],
-    // mittlere Reihen
-    [66, 76, 18, W_, G], [96, 78, 18, G, C.seeTief], [126, 78, 18, B, C.weiss], [156, 82, 18, W_, G], [186, 82, 15, S, G],
-    [104, 100, 15, S, G], [134, 94, 15, G, C.seeTief], [164, 100, 15, S, G], [188, 98, 12, W_, G],
-    // obere Reihen (Kuppel)
-    [54, 56, 17, G, C.seeTief], [82, 52, 19, S, G], [112, 48, 19, W_, G], [142, 52, 19, G, C.seeTief], [170, 62, 18, B, C.weiss],
-    [96, 32, 15, W_, G], [124, 30, 16, B, C.weiss], [150, 36, 14, S, G],
-  ];
-  const blume = ([x, y, r, f, m], i) => (
-    <g key={i} transform={`translate(${x} ${y}) rotate(${(i * 23) % 60})`}>
-      {[0, 1, 2, 3, 4, 5].map((k) => <circle key={k} cx={Math.cos((k * Math.PI) / 3) * r * 0.56} cy={Math.sin((k * Math.PI) / 3) * r * 0.56} r={r * 0.46} fill={f} stroke={C.seeTief} strokeOpacity="0.28" strokeWidth="0.8" />)}
-      <circle r={r * 0.3} fill={m} />
-    </g>
+  const G = C.flaggold, GW = C.goldWarm, W_ = C.weiss, S = C.silberHell, N = C.seeTief;
+  const farbe = (k) => (k === "G" ? G : W_);
+  const koerper = [HIRN.kontur, HIRN.kleinhirn, HIRN.stamm];
+  const funke = ([x, y, r], i) => (
+    <path key={`f${i}`} className="mk-funke" style={{ animationDelay: `${i * 0.7}s` }} fill={W_}
+      d={`M ${x} ${y - r} Q ${x} ${y} ${x + r} ${y} Q ${x} ${y} ${x} ${y + r} Q ${x} ${y} ${x - r} ${y} Q ${x} ${y} ${x} ${y - r} Z`} />
   );
   return (
     <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
+      <defs>
+        <filter id="mkGlow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3" /></filter>
+        <filter id="mkGlowWeit" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="9" /></filter>
+        <radialGradient id="mkAura" cx="50%" cy="46%" r="52%">
+          <stop offset="0" stopColor={G} stopOpacity="0.45" /><stop offset="0.55" stopColor={G} stopOpacity="0.10" /><stop offset="1" stopColor={G} stopOpacity="0" />
+        </radialGradient>
+        <linearGradient id="mkSheen" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor={W_} /><stop offset="0.45" stopColor={G} /><stop offset="1" stopColor={GW} />
+        </linearGradient>
+        <style>{`.mk-puls{animation:mkPuls 3.2s ease-in-out infinite}
+          .mk-knoten{animation:mkKnoten 2.4s ease-in-out infinite}
+          .mk-funke{animation:mkFunke 2.8s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+          @keyframes mkPuls{0%,100%{opacity:.55}50%{opacity:1}}
+          @keyframes mkKnoten{0%,100%{opacity:.35;r:2.2}50%{opacity:1;r:3.4}}
+          @keyframes mkFunke{0%,100%{opacity:.25;transform:scale(.7) rotate(0deg)}50%{opacity:1;transform:scale(1.15) rotate(45deg)}}
+          @media (prefers-reduced-motion:reduce){.mk-puls,.mk-knoten,.mk-funke{animation:none}}`}</style>
+      </defs>
       {Array.from({ length: 9 }, (_, i) => <line key={`v${i}`} x1={i * 28} y1="0" x2={i * 28} y2={H} stroke="rgba(255,255,255,0.05)" />)}
       {Array.from({ length: 7 }, (_, i) => <line key={`h${i}`} x1="0" y1={i * 28} x2={W} y2={i * 28} stroke="rgba(255,255,255,0.05)" />)}
-      <g transform="translate(0 -4)">
-        {blueten.map(blume)}
+      {/* Aura und weiter Glow */}
+      <ellipse cx="116" cy="86" rx="108" ry="82" fill="url(#mkAura)" className="mk-puls" />
+      <g filter="url(#mkGlowWeit)" opacity="0.6" className="mk-puls" stroke={G} fill="none" strokeWidth="8" strokeLinecap="round">
+        {koerper.map((d, i) => <path key={i} d={d} />)}
       </g>
+      <g filter="url(#mkGlow)" opacity="0.9" stroke={G} fill="none" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round">
+        {[...koerper, ...HIRN.falten].map((d, i) => <path key={i} d={d} />)}
+      </g>
+      {/* Hirnstamm und Kleinhirn liegen hinter dem Großhirn */}
+      <path d={HIRN.stamm} stroke="url(#mkSheen)" strokeWidth="2.6" fill="none" strokeLinecap="round" />
+      <path d={HIRN.kleinhirn} fill={N} fillOpacity="0.7" stroke="url(#mkSheen)" strokeWidth="2.4" strokeLinejoin="round" />
+      <g stroke={S} fill="none" strokeWidth="1.6" strokeLinecap="round" opacity="0.9">
+        {HIRN.rillen.map((d, i) => <path key={i} d={d} />)}
+      </g>
+      {/* Großhirn: dunkle Füllung, goldene Kontur, silberne Windungen */}
+      <path d={HIRN.kontur} fill={N} fillOpacity="0.72" stroke="url(#mkSheen)" strokeWidth="2.6" strokeLinejoin="round" />
+      <g stroke={S} fill="none" strokeWidth="2" strokeLinecap="round" opacity="0.95">
+        {HIRN.falten.map((d, i) => <path key={i} d={d} />)}
+      </g>
+      {/* Synapsen */}
+      <g stroke={W_} strokeOpacity="0.32" strokeWidth="1" strokeDasharray="2 3">
+        {HIRN.kanten.map(([a, b], i) => <line key={i} x1={HIRN.knoten[a][0]} y1={HIRN.knoten[a][1]} x2={HIRN.knoten[b][0]} y2={HIRN.knoten[b][1]} />)}
+      </g>
+      {HIRN.knoten.map(([x, y, k], i) => (
+        <g key={`k${i}`}>
+          <circle cx={x} cy={y} r="7" fill={farbe(k)} opacity="0.35" filter="url(#mkGlow)" />
+          <circle cx={x} cy={y} r="2.8" fill={farbe(k)} className="mk-knoten" style={{ animationDelay: `${(i * 0.37) % 2.4}s` }} />
+        </g>
+      ))}
+      {HIRN.funken.map(funke)}
     </svg>
   );
 }
