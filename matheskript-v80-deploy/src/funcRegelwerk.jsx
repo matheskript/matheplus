@@ -11,6 +11,7 @@
    ============================================================ */
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { buchen } from "./buchung.jsx";
 import { C } from "./base1.jsx";
 import { Formel, M, Text } from "./func3.jsx";
@@ -116,6 +117,23 @@ ${POP_CSS}
 .wk-zeile .wk-gleich{flex-shrink:0;font-weight:700;min-width:62px;text-align:right}
 .wk-zeile>span{flex:0 0 auto;flex-wrap:nowrap!important}
 .wk-feld .wk-inhalt>span{flex-wrap:nowrap!important}
+.wk-voll{position:fixed;inset:0;z-index:2000;background:#fff;color:${C.tinte};font-family:Montserrat,system-ui,sans-serif;
+  display:flex;flex-direction:column;gap:8px;box-sizing:border-box;height:100vh;height:100dvh;overflow:hidden;overscroll-behavior:contain;touch-action:manipulation;
+  padding:calc(env(safe-area-inset-top,0px) + 10px) 12px calc(env(safe-area-inset-bottom,0px) + 10px);animation:wkPopIn .18s ease-out}
+@media (prefers-reduced-motion:reduce){.wk-voll{animation:none}}
+.wk-voll-oben{flex:0 0 auto;display:flex;flex-direction:column;gap:6px}
+.wk-voll .wk-grid{gap:6px 4px}
+.wk-voll .wk-grid.kette{align-items:center}
+.wk-voll .wk-feld{min-height:0;height:44px;padding:0 10px;gap:6px}
+.wk-voll .wk-feld.mit-kopf{flex-direction:row;align-items:center;padding:0 8px}
+.wk-voll .wk-feld .wk-kopf{display:none}
+.wk-voll .wk-feld .wk-zeile1,.wk-voll .wk-feld.gestapelt .wk-zeile1{flex-direction:row;align-items:center;flex-wrap:nowrap;gap:6px}
+.wk-voll .wk-feld .wk-label{font-size:14px}
+.wk-voll .wk-feld .wk-inhalt{font-size:17px;line-height:1.5}
+.wk-voll-hinweis{flex:0 0 auto;display:flex;align-items:center;gap:8px;min-height:0}
+.wk-voll-hinweis p{flex:1;min-width:0;margin:0 2px;font-size:12.5px;line-height:1.35;color:${C.signal};overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.wk-voll-hinweis button{flex-shrink:0;height:32px;padding:0 12px;border-radius:999px;border:1.5px solid ${C.linie};background:#fff;color:${C.see};font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer}
+.wk-voll-tasten{flex:1 1 0;min-height:0}
 .wk-her{border:1px solid ${C.linie};border-radius:16px;overflow:hidden;margin-top:12px;background:#fff}
 .wk-her>button{width:100%;display:flex;align-items:center;gap:12px;padding:12px 14px;border:none;background:#fff;cursor:pointer;font-family:inherit;text-align:left;color:${C.tinte}}
 .wk-her-koerper{display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s cubic-bezier(.2,.7,.3,1)}
@@ -186,8 +204,10 @@ export function EingabePopup({ children, style }) {
 }
 
 /* Tastenfeld oder Textfeld für das aktive Feld */
-export function Eingabe({ text, setText, pos, setPos, onEnter, platzhalter }) {
+export function Eingabe({ text, setText, pos, setPos, onEnter, platzhalter, voll }) {
   const [tippen, setTippen] = useState(false);
+  // Vollbild: nur das Tastenfeld, genau so hoch wie der freie Platz bis zum unteren Bildschirmrand
+  if (voll) return <Tastenfeld wert={text} setWert={setText} pos={pos} setPos={setPos} onOk={onEnter} fuellen />;
   return (
     <div style={{ marginTop: 12 }}>
       {tippen ? (
@@ -420,17 +440,37 @@ function ergebnisTeile(n) {
 
 /* Regel und Rechnung als zwei Boxen mit gemeinsamen Spalten (CSS-Subgrid). Der Platz bleibt am rechten Rand frei,
    damit die Abstände überall gleich eng bleiben. Die Ergebniszeilen setzen ihr „=“ in Spalte 2 und das Vorzeichen in die „+“-Spalte. */
-function AusrichtBlock({ kopf, unten, ergebnis, teile }) {
+/* Eingabezeile f′(x) = … im Vollbild: teilt sich die Spalten mit der Regel darüber, damit „f′(x) =“ genau unter „f′(x) =“ steht */
+function EingabeZeile({ box, n, ab = 3, schrift, hoehe, eingabe }) {
+  const { inhalt, status, onClick } = eingabe;
+  return (
+    <div role="button" tabIndex={0} aria-label="f′(x) – Eingabe schließen" onClick={onClick}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } }}
+      style={{ ...box, minHeight: hoehe, boxSizing: "border-box", background: C.weiss, cursor: "pointer", fontSize: schrift, lineHeight: 1.6, color: C.tinte,
+        border: `1.5px solid ${status === "falsch" ? C.signal : C.see}`, boxShadow: "0 4px 16px rgba(0,77,152,0.14)" }}>
+      <span style={{ ...ZELLE, gridColumn: 1, fontWeight: 700 }}><M t="f′(x)" /></span>
+      <span style={{ ...ZELLE, gridColumn: 2, padding: lueckeVon("="), fontWeight: 700 }}><M t="=" /></span>
+      <span style={{ gridColumn: `${ab} / ${n + 2}`, minWidth: 0, display: "flex", alignItems: "center", gap: 8 }}>
+        <span style={{ flex: 1, minWidth: 0, overflowX: "auto", whiteSpace: "nowrap", fontSize: schrift + 1 }}>{inhalt}</span>
+        {status === "falsch" && <span style={{ fontSize: 20, color: C.signal, fontWeight: 700 }}>✗</span>}
+      </span>
+    </div>
+  );
+}
+
+function AusrichtBlock({ kopf, unten, ergebnis, teile, kompakt, eingabe }) {
   const n = kopf.length;
-  const box = { gridColumn: `1 / ${n + 2}`, display: "grid", gridTemplateColumns: "subgrid", alignItems: "center", padding: "12px 10px", borderRadius: 16 };
+  const box = { gridColumn: `1 / ${n + 2}`, display: "grid", gridTemplateColumns: "subgrid", alignItems: "center", padding: kompakt ? "0 10px" : "12px 10px", borderRadius: 16,
+    ...(kompakt ? { border: "1.5px solid transparent", minHeight: 44, boxSizing: "border-box" } : null) };
   const plus = kopf.indexOf("+") + 1;                          // Spalte des „+“ (0 = keins)
   const geteilt = teile && plus > 0 && n === 9;
   const gleich = (hell) => <span style={{ ...ZELLE, gridColumn: 2, padding: lueckeVon("="), color: hell ? C.hellgrau : undefined, fontWeight: hell ? 400 : 700 }}><M t="=" /></span>;
   return (
-    <div style={{ display: "grid", gridTemplateColumns: `repeat(${n}, max-content) 1fr`, columnGap: 0, rowGap: 10, marginTop: 14, overflowX: "auto" }}>
-      <div style={{ ...box, background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, color: C.weiss, fontSize: 16, fontWeight: 700, lineHeight: 1.9 }}>
+    <div style={{ display: "grid", gridTemplateColumns: `repeat(${n}, max-content) 1fr`, columnGap: 0, rowGap: kompakt ? 6 : 10, marginTop: kompakt ? 0 : 14, overflowX: kompakt ? "hidden" : "auto" }}>
+      <div style={{ ...box, background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, color: C.weiss, fontSize: 16, fontWeight: 700, lineHeight: kompakt ? 1.6 : 1.9 }}>
         {kopf.map((t, i) => <span key={i} style={{ ...ZELLE, justifySelf: ausrichtung(kopf, i), padding: lueckeVon(t) }}><M t={t} /></span>)}
       </div>
+      {eingabe && <EingabeZeile box={box} n={n} schrift={16} hoehe={56} eingabe={eingabe} />}
       {unten && (
         <div className="wk-rechnung" style={{ ...box, margin: 0, fontSize: 16, color: C.tinte, lineHeight: 1.9, rowGap: 2 }}>
           {unten.map((t, i) => <span key={i} style={{ ...ZELLE, justifySelf: ausrichtung(kopf, i), padding: lueckeVon(t), fontWeight: i < 2 ? 700 : 400 }}><M t={t} /></span>)}
@@ -476,12 +516,13 @@ function bruchZellen(art, ml) {
   };
 }
 
-function BruchBlock({ cfg, unten, ergebnis }) {
+function BruchBlock({ cfg, unten, ergebnis, kompakt, eingabe }) {
   const { vorn, zaehler, nenner, untenZaehler, untenNenner } = cfg;
   const start = vorn.length + 1;
   const n = vorn.length + zaehler.length;
   const alle = [...vorn, ...zaehler];
-  const box = { gridColumn: `1 / ${n + 2}`, display: "grid", gridTemplateColumns: "subgrid", alignItems: "center", padding: "12px 10px", borderRadius: 16 };
+  const box = { gridColumn: `1 / ${n + 2}`, display: "grid", gridTemplateColumns: "subgrid", alignItems: "center", padding: kompakt ? "4px 10px" : "12px 10px", borderRadius: 16,
+    ...(kompakt ? { border: "1.5px solid transparent", boxSizing: "border-box" } : null) };
   const luecke = (t, i) => (i === 2 && vorn.length === 3 ? "0 6px 0 10px" : lueckeVon(t));
   const bruch = (z, nz, vorFarbe, fett) => (
     <>
@@ -492,10 +533,11 @@ function BruchBlock({ cfg, unten, ergebnis }) {
     </>
   );
   return (
-    <div style={{ display: "grid", gridTemplateColumns: `repeat(${n}, max-content) 1fr`, columnGap: 0, rowGap: 10, marginTop: 14, overflowX: "auto" }}>
-      <div style={{ ...box, background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, color: C.weiss, fontSize: 16, fontWeight: 700, lineHeight: 1.7, rowGap: 0 }}>
+    <div style={{ display: "grid", gridTemplateColumns: `repeat(${n}, max-content) 1fr`, columnGap: 0, rowGap: kompakt ? 6 : 10, marginTop: kompakt ? 0 : 14, overflowX: kompakt ? "hidden" : "auto" }}>
+      <div style={{ ...box, background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, color: C.weiss, fontSize: 16, fontWeight: 700, lineHeight: kompakt ? 1.45 : 1.7, rowGap: 0 }}>
         {bruch(zaehler, nenner, C.weiss, true)}
       </div>
+      {eingabe && <EingabeZeile box={{ ...box, padding: "0 10px" }} n={n} schrift={16} hoehe={56} eingabe={eingabe} />}
       {unten && untenZaehler && (
         <div className="wk-rechnung" style={{ ...box, margin: 0, fontSize: 16, color: C.tinte, lineHeight: 1.7, rowGap: 0 }}>
           {bruch(untenZaehler, untenNenner, C.tinte, false)}
@@ -699,6 +741,18 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
   const popup = () => <div className="wk-popup" ref={popRef}>{eingabeInhalt()}</div>;
   const gridPopup = !!aktiv && ["u", "v", "u1", "uv", "v1"].includes(aktiv) && !(training && fertig);
   const f1Popup = training && !fertig && aktiv === "f1";
+  // Handy: die Eingabe von f′(x) läuft als Vollbild – Bausteine und Regel oben, f′-Zeile, Tastenfeld bis zum OK, ohne Scrollen
+  const handy = useHandy();
+  const voll = f1Popup && handy && !!ml;
+  useEffect(() => {
+    if (!voll) return undefined;
+    const b = document.body, h = document.documentElement;
+    const alt = [b.style.overflow, h.style.overflow];
+    b.style.overflow = "hidden"; h.style.overflow = "hidden";
+    const taste = (e) => { if (e.key === "Escape") setAktiv(null); };
+    window.addEventListener("keydown", taste);
+    return () => { b.style.overflow = alt[0]; h.style.overflow = alt[1]; window.removeEventListener("keydown", taste); };
+  }, [voll]);
 
   const rechnungZeigen = !!(gueltig && ml && (!training || fertig));
   const eingabeZeigen = !!(gueltig && ml && training && !fertig);
@@ -712,8 +766,68 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
         : <Feld label="f′(x) =" text={felder.f1.text} aktiv={aktiv === "f1"} status={felder.f1.status} onClick={() => waehleFeld("f1")}
           platzhalter="Regel anwenden und eintippen …" />}
       {felder.f1.hinweis && <p style={{ fontSize: 13.5, color: C.signal, lineHeight: 1.6, margin: "8px 4px 0" }}>{felder.f1.hinweis}</p>}
-      {f1Popup && popup()}
+      {f1Popup && !voll && popup()}
     </div>
+  );
+
+  // Vollbild-Eingabe (nur Handy)
+  const vollEingabe = {
+    inhalt: felder.f1.text ? <LiveFormel text={felder.f1.text} />
+      : <span style={{ color: C.hellgrau, fontSize: 14, fontWeight: 300 }}>Regel anwenden und eintippen …</span>,
+    status: felder.f1.status, onClick: () => setAktiv(null),
+  };
+  const vollbild = voll && createPortal(
+    <div className="wk-voll" role="dialog" aria-modal="true" aria-label="f′(x) eingeben">
+      <style>{WERK_CSS}</style>
+      <div className="wk-voll-oben">
+        <div className={`wk-grid${kette ? " kette" : ""}`}>
+          {mitU && <>
+            {uvFeld("u", uText, setUText)}
+            <span className="wk-pfeil" aria-hidden="true">→</span>
+            {ablFeld("u1", "u")}
+            {kette && <><span className="wk-pfeil" aria-hidden="true">→</span>{ablFeld("uv", "u", undefined, "u′(v(x)) =")}</>}
+          </>}
+          {!kette && <>
+            {uvFeld("v", vText, setVText)}
+            <span className="wk-pfeil" aria-hidden="true">→</span>
+            {ablFeld("v1", "v")}
+          </>}
+        </div>
+        {kette && (
+          <div className="wk-grid">
+            {uvFeld("v", vText, setVText)}
+            <span className="wk-pfeil" aria-hidden="true">→</span>
+            {ablFeld("v1", "v")}
+          </div>
+        )}
+        {bruchRegel ? <BruchBlock cfg={bruchZellen(art, null)} unten={false} kompakt eingabe={vollEingabe} />
+          : ausricht ? <AusrichtBlock kopf={zellen.kopf} unten={null} kompakt eingabe={vollEingabe} />
+            : (
+              <>
+                <div style={{ background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 16, border: "1.5px solid transparent",
+                  padding: "0 16px", minHeight: 44, display: "flex", alignItems: "center", overflowX: "hidden", boxSizing: "border-box" }}>
+                  <span style={{ color: C.weiss, fontSize: 16, fontWeight: 700, whiteSpace: "nowrap", lineHeight: 1.6 }}><M t={R.formel} /></span>
+                </div>
+                <div role="button" tabIndex={0} aria-label="f′(x) – Eingabe schließen" onClick={vollEingabe.onClick}
+                  style={{ display: "flex", alignItems: "center", gap: 10, minHeight: 56, padding: "0 16px", borderRadius: 16, background: C.weiss, cursor: "pointer",
+                    border: `1.5px solid ${felder.f1.status === "falsch" ? C.signal : C.see}`, boxShadow: "0 4px 16px rgba(0,77,152,0.14)", boxSizing: "border-box" }}>
+                  <span style={{ fontSize: 16, fontWeight: 700, whiteSpace: "nowrap" }}><M t="f′(x) =" /></span>
+                  <span style={{ flex: 1, minWidth: 0, overflowX: "auto", whiteSpace: "nowrap", fontSize: 17 }}>{vollEingabe.inhalt}</span>
+                </div>
+              </>
+            )}
+      </div>
+      {(felder.f1.hinweis || felder.f1.versuche > 0) && (
+        <div className="wk-voll-hinweis">
+          <p>{felder.f1.hinweis}</p>
+          {felder.f1.versuche > 0 && <button type="button" onClick={loesungZeigen}>Lösung zeigen</button>}
+        </div>
+      )}
+      <div className="wk-voll-tasten">
+        <Eingabe voll text={eingabeText} setText={setEingabeText} pos={eingabePos} setPos={setEingabePos} onEnter={pruefen} />
+      </div>
+    </div>,
+    document.body,
   );
 
   return (
@@ -847,8 +961,24 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
           <HerleitungText regel={regel} />
         </Herleitung>
       </div>
+      {vollbild}
     </div>
   );
+}
+
+/* Handy-Breite (wie die übrigen Mobil-Regeln der Werkstatt: bis 600 px) */
+function useHandy() {
+  const abfrage = "(max-width: 600px)";
+  const [handy, setHandy] = useState(() => typeof window !== "undefined" && !!window.matchMedia && window.matchMedia(abfrage).matches);
+  useEffect(() => {
+    if (!window.matchMedia) return undefined;
+    const mq = window.matchMedia(abfrage);
+    const neu = () => setHandy(mq.matches);
+    neu();
+    if (mq.addEventListener) { mq.addEventListener("change", neu); return () => mq.removeEventListener("change", neu); }
+    mq.addListener(neu); return () => mq.removeListener(neu);
+  }, []);
+  return handy;
 }
 
 const felders = (felder, id) => (felder[id] ? felder[id].pos || 0 : 0);
