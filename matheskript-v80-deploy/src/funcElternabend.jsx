@@ -11,10 +11,10 @@ import "@fontsource/caveat/600.css";
    ====================================================================== */
 
 export const ELTERNABEND = {
-  datum: "Sonntag, 1. November 2026",
-  datumKurz: "Sonntag, 1. November",
+  datum: "Sonntag, 7. Februar 2027",
+  datumKurz: "Sonntag, 7. Februar",
   uhrzeit: "18:30 Uhr",
-  beginn: "2026-11-01T18:30:00+01:00",             // für Countdown und Kalenderdatei
+  beginn: "2027-02-07T18:30:00+01:00",             // für Countdown und Kalenderdatei
   dauerMinuten: 150,                               // nur für den Kalendereintrag (Ende ca.)
   plaetze: 40,
   ort: "Evelyn's Café",
@@ -22,7 +22,7 @@ export const ELTERNABEND = {
   plzOrt: "78465 Konstanz-Dingelsdorf",
   foto: "/elternabend/evelyns-cafe.jpg",
   karte: "https://www.google.com/maps/search/?api=1&query=Evelyn%27s%20Caf%C3%A9%20Thingoltstra%C3%9Fe%209%2078465%20Konstanz",
-  preis: 1,                                        // Euro pro Ticket
+  preis: 27,                                       // Euro pro Ticket
   inklusive: ["Kursmaterialien: Block, Heft und Stift", "Zwei Getränke", "Ein Snack"],
   // Stripe-Zahlungslink (Karte + PayPal). Aktuell aus dem Stripe-Testmodus –
   // für echte Zahlungen den Live-Link aus dem Stripe-Dashboard hier eintragen.
@@ -34,49 +34,88 @@ const GOLD = "#EDBB00";
 const GOLD_VERLAUF = "linear-gradient(180deg,#FFE58A 0%,#EDBB00 45%,#E2B53C 70%,#A67C00 100%)";
 const goldText = { background: GOLD_VERLAUF, WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" };
 
-/* Relief des Cafés in Dingelsdorf (Schablonen-Stil in Silbertönen) – Ersatz, solange kein Foto hinterlegt ist */
+/* Relief von Evelyn's Café in Dingelsdorf (Schablonen-Stil in Silbertönen): breites Ziegeldach mit
+   Fensterband, Fensterläden, Holztor mit Rundbogen, Fässer, Sonnenschirme und Tafel mit Kaffeetasse */
 export function CafeRelief({ dunkel }) {
   return (
     <svg viewBox="0 0 200 160" preserveAspectRatio="xMidYMax slice" style={{ width: "100%", height: "100%", display: "block",
       background: dunkel ? "linear-gradient(180deg,#2A2F38 0%,#14171C 100%)" : "transparent" }} aria-hidden="true">
 
+  {/* Bäume hinter dem Haus */}
+  <ellipse cx="24" cy="96" rx="22" ry="34" fill="#B9C2CE"/><ellipse cx="178" cy="92" rx="24" ry="36" fill="#B9C2CE"/>
   {/* Boden */}
   <path d="M 0 146 H 200 V 160 H 0 Z" fill="#8C97A6"/>
-  {/* Baum links */}
-  <path d="M 22 146 V 104" stroke="#5E6878" strokeWidth="4"/>
-  <ellipse cx="22" cy="92" rx="18" ry="22" fill="#8C97A6"/>
-  <path d="M 12 84 q 10 -10 20 0" stroke="#B9C2CE" strokeWidth="3" fill="none"/>
-  {/* Haus: Giebel, Schattenseite rechts */}
-  <path d="M 48 146 V 72 L 104 34 L 160 72 V 146 Z" fill="#F4F6F9"/>
-  <path d="M 104 34 L 160 72 V 146 H 136 V 80 Z" fill="#DCE2EA"/>
-  {/* Dach */}
-  <path d="M 40 76 L 104 30 L 168 76 L 160 80 L 104 40 L 48 80 Z" fill="#3E4756"/>
-  <path d="M 104 30 L 168 76 L 160 80 L 104 40 Z" fill="#5E6878"/>
-  {/* Fachwerk-Andeutung / Giebelfenster */}
-  <rect x="96" y="52" width="16" height="16" rx="2" fill="#5E6878"/>
-  <path d="M 104 52 V 68 M 96 60 H 112" stroke="#DCE2EA" strokeWidth="1.5"/>
-  {/* Obergeschoss-Fenster */}
-  <rect x="62" y="84" width="18" height="16" rx="2" fill="#5E6878"/><rect x="128" y="84" width="18" height="16" rx="2" fill="#5E6878"/>
-  <path d="M 71 84 V 100 M 137 84 V 100" stroke="#DCE2EA" strokeWidth="1.5"/>
-  {/* Markise gestreift */}
-  <path d="M 52 108 H 156 L 150 120 H 58 Z" fill="#3E4756"/>
-  <g fill="#B9C2CE">
-    <path d="M 62 108 h 8 l -2 12 h -8 z"/><path d="M 82 108 h 8 l -1 12 h -8 z"/><path d="M 102 108 h 8 v 12 h -8 z"/><path d="M 122 108 h 8 l 1 12 h -8 z"/><path d="M 142 108 h 8 l 2 12 h -8 z"/>
+  {/* Kamine und Ofenrohr */}
+  <rect x="59" y="30" width="3" height="20" fill="#5E6878"/>
+  <rect x="73" y="25" width="7" height="14" fill="#5E6878"/><rect x="72" y="24" width="9" height="2.5" fill="#3E4756"/>
+  <rect x="126" y="23" width="7" height="15" fill="#5E6878"/><rect x="125" y="22" width="9" height="2.5" fill="#3E4756"/>
+  {/* Breites Ziegeldach (Walmdach) */}
+  <path d="M 38 85 L 66 35 H 134 L 162 85 Z" fill="#5E6878"/>
+  <path d="M 134 35 L 162 85 H 146 Z" fill="#3E4756" opacity="0.45"/>
+  <path d="M 63.2 40 H 136.8 M 59.8 46 H 140.2 M 54.2 66 H 145.8 M 50.8 72 H 149.2 M 47.5 78 H 152.5" stroke="#8C97A6" strokeWidth="0.8"/>
+  <path d="M 36 84 H 164 V 87 H 36 Z" fill="#3E4756"/>
+  {/* Lange Gaube mit Fensterband */}
+  <path d="M 55 50 H 145 L 143 47 H 57 Z" fill="#3E4756"/>
+  <rect x="57" y="50" width="86" height="13" fill="#DCE2EA"/>
+  <g fill="#5E6878">
+    <rect x="60" y="52.5" width="6.4" height="7.5"/><rect x="68.2" y="52.5" width="6.4" height="7.5"/><rect x="76.4" y="52.5" width="6.4" height="7.5"/>
+    <rect x="84.6" y="52.5" width="6.4" height="7.5"/><rect x="92.8" y="52.5" width="6.4" height="7.5"/><rect x="101" y="52.5" width="6.4" height="7.5"/>
+    <rect x="109.2" y="52.5" width="6.4" height="7.5"/><rect x="117.4" y="52.5" width="6.4" height="7.5"/><rect x="125.6" y="52.5" width="6.4" height="7.5"/>
+    <rect x="133.8" y="52.5" width="6.4" height="7.5"/>
   </g>
-  <path d="M 58 120 q 5 5 10 0 q 5 5 10 0 q 5 5 10 0 q 5 5 10 0 q 5 5 10 0 q 5 5 10 0 q 5 5 10 0 q 5 5 10 0 q 5 5 12 0" fill="#3E4756"/>
-  {/* Erdgeschoss: Tür und großes Fenster */}
-  <rect x="66" y="126" width="18" height="20" rx="2" fill="#3E4756"/>
-  <rect x="98" y="126" width="44" height="16" rx="2" fill="#5E6878"/>
-  <path d="M 120 126 V 142" stroke="#DCE2EA" strokeWidth="1.5"/>
-  {/* Schild */}
-  <rect x="86" y="99" width="36" height="7" rx="2" fill="#F4F6F9" stroke="#5E6878" strokeWidth="1"/>
-  <text x="104" y="104.6" fontSize="5" textAnchor="middle" fill="#3E4756" fontFamily="Montserrat, system-ui, sans-serif" fontWeight="700">CAFÉ</text>
-  {/* Tisch mit Schirm rechts */}
-  <path d="M 176 146 V 118" stroke="#5E6878" strokeWidth="2"/>
-  <path d="M 162 120 Q 176 106 190 120 Z" fill="#5E6878"/>
-  <rect x="168" y="136" width="16" height="3" fill="#3E4756"/><path d="M 172 139 V 146 M 180 139 V 146" stroke="#3E4756" strokeWidth="2"/>
-  {/* Tasse mit Dampf */}
-  <path d="M 172 132 h 7 v 3 a 3.5 3.5 0 0 1 -7 0 z" fill="#F4F6F9"/>
+  <path d="M 57 63 H 143" stroke="#8C97A6" strokeWidth="1.2"/>
+  {/* Hausfassade */}
+  <rect x="44" y="87" width="112" height="59" fill="#F4F6F9"/>
+  <rect x="146" y="87" width="10" height="59" fill="#DCE2EA"/>
+  <path d="M 153 87 V 146" stroke="#8C97A6" strokeWidth="1.2"/>
+  {/* Obergeschoss: Fenster mit Fensterläden */}
+  <g fill="#5E6878">
+    <rect x="53" y="92" width="4.5" height="13"/><rect x="69.5" y="92" width="4.5" height="13"/>
+    <rect x="98" y="92" width="4.5" height="13"/><rect x="114.5" y="92" width="4.5" height="13"/>
+    <rect x="124" y="92" width="4.5" height="13"/><rect x="140.5" y="92" width="4.5" height="13"/>
+  </g>
+  <g fill="#8C97A6">
+    <rect x="58.5" y="92.5" width="10" height="12"/><rect x="103.5" y="92.5" width="10" height="12"/><rect x="129.5" y="92.5" width="10" height="12"/>
+  </g>
+  <path d="M 63.5 92.5 V 104.5 M 58.5 97.5 H 68.5 M 108.5 92.5 V 104.5 M 103.5 97.5 H 113.5 M 134.5 92.5 V 104.5 M 129.5 97.5 H 139.5" stroke="#F4F6F9" strokeWidth="1"/>
+  {/* Erdgeschoss: Fenster rechts mit Läden */}
+  <rect x="124" y="114" width="4.5" height="13" fill="#5E6878"/><rect x="140.5" y="114" width="4.5" height="13" fill="#5E6878"/>
+  <rect x="129.5" y="114.5" width="10" height="12" fill="#8C97A6"/>
+  <path d="M 134.5 114.5 V 126.5 M 129.5 119.5 H 139.5" stroke="#F4F6F9" strokeWidth="1"/>
+  {/* Holztor mit Rundbogen und Glastür */}
+  <path d="M 74 146 V 118 Q 87 106 100 118 V 146 Z" fill="#3E4756"/>
+  <path d="M 77 146 V 119 Q 87 110 97 119 V 146 Z" fill="#8C97A6"/>
+  <path d="M 87 112 V 146 M 77 123 H 97" stroke="#3E4756" strokeWidth="1.3"/>
+  <rect x="81" y="126" width="5" height="20" fill="#3E4756"/>
+  {/* Kleine Seitentür */}
+  <rect x="104" y="126" width="9" height="20" rx="1" fill="#5E6878"/>
+  {/* Weinfässer */}
+  <g fill="#B9C2CE" stroke="#5E6878" strokeWidth="0.9">
+    <path d="M 63 135 Q 61.8 140.5 63 146 H 71 Q 72.2 140.5 71 135 Z"/>
+    <path d="M 98.5 135 Q 97.3 140.5 98.5 146 H 106.5 Q 107.7 140.5 106.5 135 Z"/>
+  </g>
+  <path d="M 62.3 138.5 H 71.7 M 62.3 142.5 H 71.7 M 97.8 138.5 H 107.2 M 97.8 142.5 H 107.2" stroke="#5E6878" strokeWidth="0.8"/>
+  {/* Sonnenschirme */}
+  <path d="M 50 146 V 118" stroke="#5E6878" strokeWidth="1.6"/>
+  <path d="M 36 121 Q 50 109 64 121 Z" fill="#5E6878"/>
+  <path d="M 117 146 V 120" stroke="#5E6878" strokeWidth="1.6"/>
+  <path d="M 104 123 Q 117 112 130 123 Z" fill="#5E6878"/>
+  <path d="M 163 146 V 136" stroke="#5E6878" strokeWidth="1.4"/>
+  <path d="M 160 137 L 163 112 L 166 137 Z" fill="#B9C2CE" stroke="#8C97A6" strokeWidth="0.8"/>
+  {/* Lounge links */}
+  <rect x="30" y="134" width="16" height="8" rx="1.5" fill="#3E4756"/><rect x="30" y="129" width="16" height="6" rx="1.5" fill="#5E6878"/>
+  {/* Zaun rechts */}
+  <g stroke="#8C97A6" strokeWidth="1.3">
+    <path d="M 144 137 V 146 M 148 137 V 146 M 152 137 V 146 M 156 137 V 146 M 160 137 V 146 M 168 137 V 146 M 172 137 V 146 M 176 137 V 146 M 180 137 V 146 M 184 137 V 146 M 188 137 V 146 M 192 137 V 146 M 196 137 V 146"/>
+    <path d="M 142 140 H 200 M 142 144 H 200"/>
+  </g>
+  {/* Tafel mit Kaffeetasse */}
+  <path d="M 122 148 L 124 128 M 138 148 L 136 128" stroke="#5E6878" strokeWidth="1.4"/>
+  <rect x="122.5" y="127" width="15" height="19" rx="1.2" fill="#3E4756" stroke="#8C97A6" strokeWidth="0.9"/>
+  <path d="M 126.5 136 h 6 v 2.5 a 3 3 0 0 1 -6 0 z" fill="#F4F6F9"/>
+  <path d="M 132.5 136.8 h 1.2 a 1.3 1.3 0 0 1 0 2.6 h -1.2" stroke="#F4F6F9" strokeWidth="0.8" fill="none"/>
+  <path d="M 125 142.4 H 134" stroke="#F4F6F9" strokeWidth="0.9" strokeLinecap="round"/>
+  <path d="M 128.5 134.5 q -1 -1.4 0 -2.8 M 130.7 134.5 q -1 -1.4 0 -2.8" stroke="#F4F6F9" strokeWidth="0.7" fill="none" strokeLinecap="round"/>
 
     </svg>
   );
@@ -522,7 +561,7 @@ function Ticket({ id }) {
         <div className="eab-datum">
           <span className="eab-tag">{tag}</span>
           <span>
-            <span className="eab-monat" style={{ display: "block" }}>SONNTAG · NOVEMBER 2026</span>
+            <span className="eab-monat" style={{ display: "block" }}>SONNTAG · FEBRUAR 2027</span>
             <span className="eab-zeit" style={{ display: "block" }}>{E.uhrzeit}</span>
           </span>
         </div>
