@@ -19,7 +19,7 @@ import { AufklappZeichen } from "./aufklappen.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
 import { ErklaerAnimation } from "./funcErklaeranimation.jsx";
 import {
-  REGELN, baueF, diagnose, einsetzen as baumEinsetzen, fakTex, fehlerbilder, gleichwertig, lies, musterloesung, neueAufgabe, regelFuer, schoen, tex,
+  REGELN, baueF, diagnose, einsetzen as baumEinsetzen, fakTex, fehlerbilder, gleichwertig, lies, musterloesung, neueAufgabe, regelFuer, schoen, summanden, tex,
 } from "./regelwerkKern.js";
 
 /* ---------- gemeinsame Bausteine (auch für Stammfunktion & Integral) ---------- */
@@ -400,26 +400,54 @@ function ausrichtZellen(art, ml) {
   };
 }
 
-const ZELLE = { justifySelf: "center", padding: "0 3px", whiteSpace: "nowrap", textAlign: "center" };
+/* Pen & Paper: Nähe zeigt die Rangfolge. Um + und = steht viel Luft (Hauptebene), um ·  nur sehr wenig (Faktoren gehören zusammen). */
+const ZELLE = { justifySelf: "center", whiteSpace: "nowrap", textAlign: "center" };
+const lueckeVon = (t) => (t === "+" || t === "−" || t === "=" ? "0 10px" : t === "\\cdot" ? "0 3px" : "0");
+/* Faktoren hängen am Malpunkt: der Faktor davor schließt rechts an, der danach links (in beiden Zeilen gleich) */
+const ausrichtung = (kopf, i) => (kopf[i + 1] === "\\cdot" ? "end" : kopf[i - 1] === "\\cdot" ? "start" : "center");
 
-/* Regel und Rechnung als zwei Boxen mit gemeinsamen Spalten (CSS-Subgrid) */
-function AusrichtBlock({ kopf, unten, ergebnis }) {
+/* Ergebnis a ± b in zwei Teile zerlegen, damit das Vorzeichen unter dem + der Regel steht */
+function ergebnisTeile(n) {
+  try {
+    const l = summanden(n);
+    if (l.length !== 2) return null;
+    const z = l[1];
+    const negativ = z.k === "neg" || (z.k === "num" && z.v < 0);
+    const betrag = z.k === "neg" ? z.a : z.k === "num" && z.v < 0 ? { k: "num", v: -z.v } : z;
+    return { a: tex(l[0]), vz: negativ ? "−" : "+", b: tex(betrag) };
+  } catch (e) { return null; }
+}
+
+/* Regel und Rechnung als zwei Boxen mit gemeinsamen Spalten (CSS-Subgrid). Der Platz bleibt am rechten Rand frei,
+   damit die Abstände überall gleich eng bleiben. Die Ergebniszeilen setzen ihr „=“ in Spalte 2 und das Vorzeichen in die „+“-Spalte. */
+function AusrichtBlock({ kopf, unten, ergebnis, teile }) {
   const n = kopf.length;
-  const box = { gridColumn: "1 / -1", display: "grid", gridTemplateColumns: "subgrid", alignItems: "center", padding: "12px 12px", borderRadius: 16 };
+  const box = { gridColumn: `1 / ${n + 2}`, display: "grid", gridTemplateColumns: "subgrid", alignItems: "center", padding: "12px 10px", borderRadius: 16 };
+  const plus = kopf.indexOf("+") + 1;                          // Spalte des „+“ (0 = keins)
+  const geteilt = teile && plus > 0 && n === 9;
+  const gleich = (hell) => <span style={{ ...ZELLE, gridColumn: 2, padding: lueckeVon("="), color: hell ? C.hellgrau : undefined, fontWeight: hell ? 400 : 700 }}><M t="=" /></span>;
   return (
-    <div style={{ display: "grid", gridTemplateColumns: `repeat(${n}, auto)`, columnGap: 0, rowGap: 10, marginTop: 14, overflowX: "auto" }}>
-      <div style={{ ...box, background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, color: C.weiss, fontSize: 17, fontWeight: 700, lineHeight: 1.9 }}>
-        {kopf.map((t, i) => <span key={i} style={ZELLE}><M t={t} /></span>)}
+    <div style={{ display: "grid", gridTemplateColumns: `repeat(${n}, max-content) 1fr`, columnGap: 0, rowGap: 10, marginTop: 14, overflowX: "auto" }}>
+      <div style={{ ...box, background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, color: C.weiss, fontSize: 16, fontWeight: 700, lineHeight: 1.9 }}>
+        {kopf.map((t, i) => <span key={i} style={{ ...ZELLE, justifySelf: ausrichtung(kopf, i), padding: lueckeVon(t) }}><M t={t} /></span>)}
       </div>
       {unten && (
-        <div className="wk-rechnung" style={{ ...box, margin: 0, fontSize: 17, color: C.tinte, lineHeight: 1.9, rowGap: 2 }}>
-          {unten.map((t, i) => <span key={i} style={{ ...ZELLE, fontWeight: i < 2 ? 700 : 400 }}><M t={t} /></span>)}
-          {ergebnis && ergebnis.filter(Boolean).map((t, j) => (
+        <div className="wk-rechnung" style={{ ...box, margin: 0, fontSize: 16, color: C.tinte, lineHeight: 1.9, rowGap: 2 }}>
+          {unten.map((t, i) => <span key={i} style={{ ...ZELLE, justifySelf: ausrichtung(kopf, i), padding: lueckeVon(t), fontWeight: i < 2 ? 700 : 400 }}><M t={t} /></span>)}
+          {ergebnis && ergebnis.map((t, j) => t && (
             <React.Fragment key={`e${j}`}>
-              <span style={{ ...ZELLE, color: C.hellgrau }}><M t="=" /></span>
-              <span style={{ gridColumn: "3 / -1", whiteSpace: "nowrap", justifySelf: "start", padding: "0 3px" }}>
-                <M t={t} />{j === 1 && <span style={{ fontSize: 12, color: C.grau, marginLeft: 8 }}>ausgeklammert</span>}
-              </span>
+              {gleich(true)}
+              {j === 0 && geteilt ? (
+                <>
+                  <span style={{ gridColumn: "3 / 6", justifySelf: "end", whiteSpace: "nowrap" }}><M t={teile.a} /></span>
+                  <span style={{ ...ZELLE, gridColumn: plus, padding: lueckeVon("+") }}><M t={teile.vz} /></span>
+                  <span style={{ gridColumn: `${plus + 1} / ${n + 1}`, justifySelf: "start", whiteSpace: "nowrap" }}><M t={teile.b} /></span>
+                </>
+              ) : (
+                <span style={{ gridColumn: `3 / ${n + 1}`, whiteSpace: "nowrap", justifySelf: "start" }}>
+                  <M t={t} />{j === 1 && <span style={{ fontSize: 12, color: C.grau, marginLeft: 8 }}>ausgeklammert</span>}
+                </span>
+              )}
             </React.Fragment>
           ))}
         </div>
@@ -708,7 +736,8 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
         {ausricht ? (
           <>
             <AusrichtBlock kopf={zellen.kopf} unten={rechnungZeigen ? zellen.unten : null}
-              ergebnis={rechnungZeigen ? [tex(ml.ergebnis), ml.ausgeklammert ? tex(ml.ausgeklammert) : null] : null} />
+              ergebnis={rechnungZeigen ? [tex(ml.ergebnis), ml.ausgeklammert ? tex(ml.ausgeklammert) : null] : null}
+              teile={rechnungZeigen && art === "produkt" ? ergebnisTeile(ml.ergebnis) : null} />
             {eingabeZeigen && f1Block}
           </>
         ) : (
