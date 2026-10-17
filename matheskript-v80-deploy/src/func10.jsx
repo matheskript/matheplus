@@ -17,6 +17,8 @@ import { Einstufung, Lernlandkarte, Liniennetz, Profil, lernLaden, lernLeer, ler
 import { syncStarten } from "./lernSync.js";
 import { entdeckenSyncStarten } from "./entdeckenSync.js";
 import { LernpfadSeite } from "./funcLernpfad.jsx";
+import { MathildaChatSeite } from "./funcMathildaChat.jsx";
+import { mathildaSystem } from "./mathildaKontext.js";
 import { Operatoren, Wiederholen } from "./func7.jsx";
 import { Messbericht, Modellieren, Probeabitur, Wochenbericht } from "./func8.jsx";
 import { Auswertung, Einwilligung, einwilligungLesen } from "./func9.jsx";
@@ -248,6 +250,7 @@ export function Mathilda() {
         body: JSON.stringify({
           model: "claude-sonnet-5-5",
           max_tokens: 4000,
+          system: mathildaSystem({ L: lern, profil: konto.profil, blattanalysen: zaehler }),   // Gedächtnis: Klasse, Plan, Fehlertypen
           messages: [{
             role: "user",
             content: [
@@ -1205,7 +1208,9 @@ export function Mathilda() {
               ? "Fotografiere dein Blatt. Mathilda liest den Rechenweg und schaut sich an, wie du gearbeitet hast."
               : fotoModus === "weg"
                 ? "Fotografiere deinen Rechenweg. Mathilda überträgt ihn in Zeilen und prüft ihn wie im Editor."
-                : "Fotografiere eine Aufgabe. Mathilda erkennt den Typ und erzeugt drei weitere derselben Sorte."}
+                : fotoModus === "chat"
+                  ? "Frag Mathilda. Sie kennt deinen Lernstand, fragt zurück, bevor sie verrät, und rechnet mit den Werkzeugen der App nach."
+                  : "Fotografiere eine Aufgabe. Mathilda erkennt den Typ und erzeugt drei weitere derselben Sorte."}
           </p>
           <div role="note" style={{ marginTop: 16, display: "flex", alignItems: "flex-start", gap: 10, background: "rgba(237,187,0,0.14)",
             border: `1.5px solid ${C.flaggold}`, borderRadius: 12, padding: "10px 12px" }}>
@@ -1218,7 +1223,7 @@ export function Mathilda() {
 
       <div className="mx-auto px-6" style={{ maxWidth: 620, paddingTop: 30 }}>
         <div className="flex gap-2 mb-6">
-          {[["blatt", "Blatt prüfen"], ["weg", "Weg prüfen"], ["aufgabe", "Aufgabe scannen"]].map(([id, n]) => (
+          {[["blatt", "Blatt prüfen"], ["weg", "Weg prüfen"], ["aufgabe", "Aufgabe scannen"], ["chat", "Mathilda fragen"]].map(([id, n]) => (
             <button key={id} onClick={() => setFotoModus(id)} className="px-3 py-2"
               style={{ flex: 1, background: fotoModus === id ? C.see : C.weiss, color: fotoModus === id ? C.weiss : C.grau,
                 border: `1px solid ${fotoModus === id ? C.see : C.linie}`, borderRadius: 999, fontSize: 12.5, fontFamily: "inherit", cursor: "pointer" }}>
@@ -1228,7 +1233,7 @@ export function Mathilda() {
         </div>
       </div>
 
-      {!fotoErlaubt ? <Einwilligung onJa={() => setFotoErlaubt(true)} /> : fotoModus === "aufgabe" ? <FotoAufgaben /> : fotoModus === "weg" ? <WegVomBlatt /> : (
+      {fotoModus === "chat" ? <MathildaChatSeite /> : !fotoErlaubt ? <Einwilligung onJa={() => setFotoErlaubt(true)} /> : fotoModus === "aufgabe" ? <FotoAufgaben /> : fotoModus === "weg" ? <WegVomBlatt /> : (
       <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620 }}>
 
         {!bild && !laden && (

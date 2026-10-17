@@ -10490,7 +10490,31 @@
   ") eingesetzt:": ") substituted:",
   "m mal x ausgerechnet:": "m times x worked out:",
   "m · x vom y abgezogen – c steht allein:": "m · x subtracted from y – c stands alone:",
-  "Trage jetzt m und c unten in die Gleichung ein.": "Now enter m and c in the equation below."
+  "Trage jetzt m und c unten in die Gleichung ein.": "Now enter m and c in the equation below.",
+  "Woran hängst du gerade? Schreib mir, was du schon hast – oder sprich es ein.": "Where are you stuck? Tell me what you have so far – or say it out loud.",
+  "Frag Mathilda. Sie kennt deinen Lernstand, fragt zurück, bevor sie verrät, und rechnet mit den Werkzeugen der App nach.": "Ask Mathilda. She knows where you stand, asks back before she tells, and double-checks with the app’s tools.",
+  "Mathilda fragen": "Ask Mathilda",
+  "Mathilda kennt deinen Lernstand: Klasse, Plan, deine häufigsten Fehlertypen. Sie stellt zuerst eine Rückfrage, gibt dann einen Hinweis und verrät die Lösung nur, wenn du sie ausdrücklich willst. Rechnen lässt sie die App – Ableitungen, Nullstellen, Binomialverteilung.": "Mathilda knows where you stand: year, plan, your most frequent error types. She asks a question first, then gives a hint, and reveals the solution only if you explicitly ask for it. She lets the app do the calculating – derivatives, zeros, binomial distribution.",
+  "Einsprechen": "Speak",
+  "Aufnahme beenden": "Stop recording",
+  "Nachricht an Mathilda": "Message to Mathilda",
+  "Ich höre zu …": "I’m listening …",
+  "Mathilda verrät Ergebnisse nur auf Wunsch und rechnet mit den Werkzeugen der App nach.": "Mathilda reveals results only on request and double-checks with the app’s tools.",
+  "Mathilda denkt nach – und rechnet mit der App nach …": "Mathilda is thinking – and double-checking with the app …",
+  "Antwort vorlesen": "Read answer aloud",
+  "🔊 Vorlesen": "🔊 Read aloud",
+  "Neues Gespräch": "New conversation",
+  "MATHILDA FRAGEN": "ASK MATHILDA",
+  "Sie fragt zurück, bevor sie verrät": "She asks back before she tells",
+  "abgeleitet": "differentiated",
+  "vereinfacht": "simplified",
+  "Funktionswert berechnet": "function value calculated",
+  "Kurve untersucht": "curve analysed",
+  "Gleichung gelöst": "equation solved",
+  "Binomialverteilung berechnet": "binomial distribution calculated",
+  "Ablehnungsbereich bestimmt": "rejection region determined",
+  "Nicht angemeldet: Kontingent je Gerät ·": "Not signed in: quota per device ·",
+  "Pro: ohne Tagesgrenze ·": "Pro: no daily limit ·"
  },
  "muster": [
   [
@@ -12255,13 +12279,27 @@
   ],
   [
    "{0} Einheiten",
-   "{0} units",
+   "{0} units"
+  ],
+  [
    "heißt: {0} nach rechts, {1} nach oben.",
    "means: {0} to the right, {1} up."
   ],
   [
    "heißt: {0} nach rechts, {1} nach unten.",
    "means: {0} to the right, {1} down."
+  ],
+  [
+   "Heute {0} von {1} Anfragen ·",
+   "Today {0} of {1} requests ·"
+  ],
+  [
+   "⚙ Mit der App nachgerechnet: {0}",
+   "⚙ Double-checked with the app: {0}"
+  ],
+  [
+   "Dein Tageskontingent ist aufgebraucht ({0} Anfragen). Morgen geht es weiter – oder mit Pro ohne Grenze.",
+   "Your daily quota is used up ({0} requests). It continues tomorrow – or with Pro without a limit."
   ]
  ]
 }

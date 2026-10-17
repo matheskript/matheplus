@@ -232,6 +232,7 @@ function baueIndex() {
     ["Arbeitsblatt drucken", "Aufgabenblatt mit Lösungsteil", "arbeitsblatt drucken pdf aufgabenblatt lösungen übungsblatt", { ansicht: "ki", ziel: "blatt" }],
     ["Rechenweg schreiben", "Ganze Wege eintippen und prüfen lassen", "rechenweg schreiben eintippen prüfen lösungsweg schritte", { ansicht: "training", ziel: "weg" }],
     ["Graph-Zuordnung", "Welcher Graph ist f′?", "graph zuordnung ableitungsgraph f strich graphen erkennen", { ansicht: "training", ziel: "gz" }],
+    ["Mathilda fragen", "Tutorin mit Gedächtnis, rechnet mit der App nach", "mathilda fragen chat tutor hilfe erklären ki frage stellen ask tutor", { ansicht: "analyse", foto: "chat" }],
     ["Blatt prüfen", "Rechenweg und Schriftbild vom Foto", "foto blatt prüfen hausaufgabe kontrollieren korrigieren mathilda ki handschrift rechenweg schriftbild kamera", { ansicht: "analyse", foto: "blatt" }],
     ["Weg prüfen", "Handschrift in Zeilen übertragen", "foto weg prüfen handschrift rechenweg zeilen mathilda ki kamera", { ansicht: "analyse", foto: "weg" }],
     ["Aufgabe scannen", "Ähnliche Aufgaben dazu erzeugen", "foto aufgabe scannen ähnliche aufgaben mathilda ki kamera", { ansicht: "analyse", foto: "aufgabe" }],

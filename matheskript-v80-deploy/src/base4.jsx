@@ -56,9 +56,13 @@ export async function kiAntwort(res) {
   }
 }
 
-export const kiKopf = () => (API_URL === "/api/claude"
-  ? { "Content-Type": "application/json", "X-Geraet": FR.geraetKennung(), "X-Sprache": sprache() }
-  : { "Content-Type": "application/json" });
+export const kiKopf = () => {
+  if (API_URL !== "/api/claude") return { "Content-Type": "application/json" };
+  const kopf = { "Content-Type": "application/json", "X-Geraet": FR.geraetKennung(), "X-Sprache": sprache() };
+  const token = FR.zugangsToken ? FR.zugangsToken() : null;   // angemeldet: Kontingent je Konto statt je Gerät
+  if (token) kopf.Authorization = `Bearer ${token}`;
+  return kopf;
+};
 
 
 /* ======================================================================

@@ -24,6 +24,7 @@ import { FR } from "./funcRegistry.jsx";
 import { M, Text } from "./func3.jsx";
 import { alsTex, hatX } from "./func12.jsx";
 import { KopfrechenZentrum } from "./func14.jsx";
+import { MathildaChatModal } from "./funcMathildaChat.jsx";
 
 const blau = `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`;
 
@@ -352,6 +353,7 @@ function Panel({ kontext, onHilfe, schliessen }) {
   const [bereich, setBereich] = useState(null);
   const [ansicht, setAnsicht] = useState("hilfe");        // hilfe | regel | grundlage | loesung
   const [loesungSicher, setLoesungSicher] = useState(false);
+  const [mathilda, setMathilda] = useState(false);
   const [, neuZeichnen] = useState(0);
   const zuRef = useRef(null);
   const auf = AUFGEDECKT.get(schluessel) || {};
@@ -381,6 +383,11 @@ function Panel({ kontext, onHilfe, schliessen }) {
   const titel = ansicht === "regel" ? "Passende Regel" : ansicht === "grundlage" ? "Grundlage üben" : ansicht === "loesung" ? "Vollständige Lösung"
     : bereich ? HILFE_BEREICHE.find((x) => x.id === bereich).name : "Wobei hängst du fest?";
 
+  if (mathilda) {
+    const regeln = (kontext.regeln || []).map((r) => (typeof r === "string" ? r : r && r.name)).filter(Boolean);
+    const aufgabe = { text: kontext.aufgabe || null, regeln, loesung: typeof kontext.loesung === "string" ? kontext.loesung : null };
+    return <MathildaChatModal aufgabe={aufgabe} onHilfe={onHilfe} schliessen={schliessen} />;
+  }
   return (
     <div role="presentation" onClick={schliessen}
       style={{ position: "fixed", inset: 0, zIndex: 90, background: "rgba(10,20,45,0.5)", display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
@@ -442,7 +449,7 @@ function Panel({ kontext, onHilfe, schliessen }) {
                   </button>
                 ))}
               </div>
-              <Zusatzknoepfe kontext={kontext} setAnsicht={setAnsicht} />
+              <Zusatzknoepfe kontext={kontext} setAnsicht={setAnsicht} setMathilda={setMathilda} />
             </>
           )}
 
@@ -461,7 +468,7 @@ function Panel({ kontext, onHilfe, schliessen }) {
                 </button>
               ) : <p style={{ fontSize: 13, color: C.grau, lineHeight: 1.6 }}>Alle drei Hinweise sind aufgedeckt. Versuch es jetzt selbst{kontext.loesung ? " – die vollständige Lösung findest du unten" : ""}.</p>}
               {bereich === "verstehen" && <Begriffe text={kontext.aufgabe} />}
-              <Zusatzknoepfe kontext={kontext} setAnsicht={setAnsicht} />
+              <Zusatzknoepfe kontext={kontext} setAnsicht={setAnsicht} setMathilda={setMathilda} />
             </>
           )}
         </div>
@@ -470,9 +477,9 @@ function Panel({ kontext, onHilfe, schliessen }) {
   );
 }
 
-function Zusatzknoepfe({ kontext, setAnsicht }) {
+function Zusatzknoepfe({ kontext, setAnsicht, setMathilda }) {
   const k = (label, wohin, an = true) => an && (
-    <button type="button" onClick={() => setAnsicht(wohin)}
+    <button type="button" onClick={() => (wohin === "mathilda" ? setMathilda(true) : setAnsicht(wohin))}
       style={{ height: 40, padding: "0 14px", borderRadius: 999, border: `1px solid ${C.linie}`, background: C.weiss, color: C.see, fontSize: 13, fontWeight: 600, fontFamily: "inherit", cursor: "pointer", whiteSpace: "nowrap" }}>
       {label}
     </button>
@@ -482,6 +489,7 @@ function Zusatzknoepfe({ kontext, setAnsicht }) {
       {k("Passende Regel ansehen", "regel", !!(kontext.regeln && kontext.regeln.length))}
       {k(`Grundlage üben: ${kontext.grundlage ? kontext.grundlage.name : ""}`, "grundlage", !!kontext.grundlage)}
       {k("Vollständige Lösung", "loesung", !!kontext.loesung)}
+      {k("Mathilda fragen", "mathilda", !!setMathilda)}
     </div>
   );
 }

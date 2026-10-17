@@ -110,9 +110,14 @@ export function kontoStarten() {
     profilLaden(d?.nutzer || null);
     return;
   }
-  sb.auth.getSession().then(({ data }) => profilLaden(data.session?.user || null));
-  sb.auth.onAuthStateChange((_e, sitzung) => { profilLaden(sitzung?.user || null); });
+  sb.auth.getSession().then(({ data }) => { zugang = data.session?.access_token || null; profilLaden(data.session?.user || null); });
+  sb.auth.onAuthStateChange((_e, sitzung) => { zugang = sitzung?.access_token || null; profilLaden(sitzung?.user || null); });
 }
+
+/* Zugangstoken der angemeldeten Sitzung – geht als Authorization-Kopf an /api/claude (Kontingent je Konto) */
+let zugang = null;
+export const zugangsToken = () => zugang;
+FR.zugangsToken = zugangsToken;
 
 /* ---------- Aktionen ---------- */
 export async function anmelden(anbieter) {

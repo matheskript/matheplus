@@ -50,10 +50,9 @@ export function ebbBuchen(aufgaben, zs, quelle) {
   return aenderungen;
 }
 
-/* Zugang zu Mathilda AI: hängt an der Berechtigung im Konto. Solange diese nicht freigeschaltet ist
-   (wie beim gesperrten Bereich „Mathilda AI“), arbeitet der Erklärmodus mit festen, fachlich
-   geprüften Kriterien – ohne KI. */
-export const kiFreigegeben = (konto) => Boolean(konto && konto.profil && konto.profil.ki_frei === true);
+/* Zugang zu Mathilda AI: angemeldet = freigeschaltet, mit Tageskontingent je Konto (api/claude.js, supabase/ki.sql).
+   Ohne Anmeldung arbeitet der Erklärmodus mit festen, fachlich geprüften Kriterien – ohne KI. */
+export const kiFreigegeben = (konto) => Boolean(konto && konto.nutzer);
 
 /* ---------- kleine Bausteine ---------- */
 const Tx = ({ s }) => (
