@@ -19,7 +19,7 @@ import { AufklappZeichen } from "./aufklappen.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
 import { ErklaerAnimation } from "./funcErklaeranimation.jsx";
 import {
-  REGELN, baueF, diagnose, fakTex, fehlerbilder, gleichwertig, lies, musterloesung, neueAufgabe, regelFuer, schoen, tex,
+  REGELN, baueF, diagnose, einsetzen as baumEinsetzen, fakTex, fehlerbilder, gleichwertig, lies, musterloesung, neueAufgabe, regelFuer, schoen, tex,
 } from "./regelwerkKern.js";
 
 /* ---------- gemeinsame Bausteine (auch für Stammfunktion & Integral) ---------- */
@@ -97,7 +97,16 @@ ${POP_CSS}
 .wk-feld[data-still="true"]{cursor:default;background:#F7F8FB}
 .wk-feld .wk-label{font-size:15px;font-weight:700;color:${C.tinte};white-space:nowrap;flex-shrink:0}
 .wk-feld .wk-inhalt{flex:1;font-size:18px;line-height:1.8;white-space:nowrap;min-width:0}
-.wk-pfeil{color:${C.hellgrau};font-size:16px;text-align:center}
+.wk-pfeil{color:${C.hellgrau};font-size:16px;text-align:center;align-self:center}
+.wk-feld.mit-kopf{flex-direction:column;align-items:stretch;justify-content:center;gap:2px;padding:6px 10px 8px}
+.wk-feld .wk-kopf{font-size:11.5px;font-weight:600;color:${C.grau};line-height:1.25}
+.wk-feld .wk-zeile1{display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0}
+.wk-grid.kette{grid-template-columns:minmax(0,1fr) 14px minmax(0,1fr) 14px minmax(0,1fr);gap:8px 2px;align-items:stretch}
+.wk-grid.kette .wk-feld{padding:6px 8px 8px}
+.wk-grid.kette .wk-feld .wk-label{font-size:13.5px}
+.wk-grid.kette .wk-feld .wk-inhalt{font-size:16px;flex:1 1 auto}
+.wk-grid.kette .wk-feld .wk-kopf{font-size:11px}
+@media (min-width:601px){.wk-grid.kette .wk-feld .wk-inhalt{font-size:18px}.wk-grid.kette .wk-feld .wk-label{font-size:15px}.wk-grid.kette .wk-feld .wk-kopf{font-size:12px}}
 .wk-rechnung{background:${C.sand};border-radius:16px;padding:12px 14px;margin-top:14px}
 .wk-popup{margin-top:12px;animation:wkPopIn .22s ease-out}
 @keyframes wkPopIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
@@ -123,11 +132,9 @@ ${POP_CSS}
 export const FARBE = { u: C.see, v: C.gruen };
 
 /* Ein Eingabe-/Anzeigefeld: Label „u(x) =“, Formel, Status */
-export function Feld({ label, labelFarbe, text, tex: fertigTex, aktiv, status, still, platzhalter = "hier eingeben …", onClick, extra }) {
-  return (
-    <div className="wk-feld" data-aktiv={!!aktiv} data-status={status || undefined} data-still={!!still} onClick={still ? undefined : onClick}
-      role={still ? undefined : "button"} tabIndex={still ? undefined : 0} aria-pressed={still ? undefined : !!aktiv}
-      onKeyDown={(e) => { if (!still && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); onClick && onClick(); } }}>
+export function Feld({ label, labelFarbe, text, tex: fertigTex, aktiv, status, still, platzhalter = "hier eingeben …", onClick, extra, kopf }) {
+  const zeile = (
+    <>
       <span className="wk-label" style={labelFarbe ? { color: labelFarbe } : undefined}>{label}</span>
       <span className="wk-inhalt">
         {fertigTex !== undefined ? (fertigTex ? <M t={fertigTex} /> : <span style={{ color: C.hellgrau, fontSize: 14, fontWeight: 300 }}>…</span>)
@@ -138,6 +145,13 @@ export function Feld({ label, labelFarbe, text, tex: fertigTex, aktiv, status, s
       {status === "falsch" && <span style={{ fontSize: 22, color: C.signal, fontWeight: 700 }}>✗</span>}
       {status === "gezeigt" && <span style={{ fontSize: 11.5, color: C.grau, fontWeight: 600 }}>Lösung</span>}
       {extra}
+    </>
+  );
+  return (
+    <div className={`wk-feld${kopf ? " mit-kopf" : ""}`} data-aktiv={!!aktiv} data-status={status || undefined} data-still={!!still} onClick={still ? undefined : onClick}
+      role={still ? undefined : "button"} tabIndex={still ? undefined : 0} aria-pressed={still ? undefined : !!aktiv}
+      onKeyDown={(e) => { if (!still && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); onClick && onClick(); } }}>
+      {kopf ? <><span className="wk-kopf">{kopf}</span><div className="wk-zeile1">{zeile}</div></> : zeile}
     </div>
   );
 }
@@ -333,8 +347,11 @@ export const REGEL_CHIPS = [
   ["linkette", "Lineare Kettenregel"], ["kette", "Kettenregel"], ["kombo", "15-Punkte-Kombo"],
 ];
 const leer = () => ({ text: "", status: null, hinweis: "", versuche: 0, pos: 0 });
+const leereFelder = () => ({ u1: leer(), uv: leer(), v1: leer(), f1: leer() });
 
 const LABEL = (regel, teil) => teil;
+/* Kleine Beschriftung über f(x) im Kopf: die Form der Regel */
+const F_KOPF = { quotient: "u(x) : v(x)", reziprok: "1 : v(x)", kette: "u(v(x))", linkette: "u(mx + c)" };
 const ROLLEN = {
   kette: "u ist die äußere Funktion (in x geschrieben), v die innere: f(x) = u(v(x)).",
   linkette: "u ist die äußere Funktion, v = mx + c die innere Gerade: f(x) = u(mx + c).",
@@ -372,18 +389,19 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
   const [uText, setUText] = useState(auf.uText);
   const [vText, setVText] = useState(auf.vText);
   const [posUV, setPosUV] = useState({ u: auf.uText.length, v: auf.vText.length });
-  const [felder, setFelder] = useState({ u1: leer(), v1: leer(), f1: leer() });
+  const [felder, setFelder] = useState(leereFelder);
   const [aktiv, setAktiv] = useState(null);                // null = Eingabe zu; sie öffnet erst beim Antippen eines Feldes
   const [bilanz, setBilanz] = useState({ richtig: 0, gesamt: 0 });
   const kopf = useRef(null);
 
   const art = auf.regel;                         // wirksame Regel (bei Kombo: produkt oder kette)
-  // Produktregel: f(x) mit u(x)·v(x) oben, Regel unter den Bausteinen (neues Layout).
+  // Alle Regeln: f(x) oben, Regel unter den Bausteinen (Layout der Produktregel).
   // Bei allen Regeln öffnet die Eingabe als Pop-up direkt unter dem angetippten Feld.
-  const neu = art === "produkt";
   const popRef = useRef(null);
   const R = REGELN[art];
   const mitU = art !== "reziprok";
+  // Ketten: dritte Box u′(v(x)) neben u′(x), Beschriftungen äußere/innere Funktion und Ableitung
+  const kette = art === "kette" || art === "linkette";
 
   const u = useMemo(() => (mitU ? lies(uText) : null), [uText, mitU]);
   const v = useMemo(() => lies(vText), [vText]);
@@ -394,7 +412,7 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
     const a = neu || neueAufgabe(r, st);
     setAuf(a); setUText(a.uText); setVText(a.vText);
     setPosUV({ u: a.uText.length, v: a.vText.length });
-    setFelder({ u1: leer(), v1: leer(), f1: leer() });
+    setFelder(leereFelder());
     setAktiv(null);
   };
   const letzteRegel = useRef(regel);
@@ -404,7 +422,7 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
   const waehleStufe = (st) => { setStufe(st); starte(null, regel, st); };
   const waehleModus = (m) => {
     setModus(m);
-    setFelder({ u1: leer(), v1: leer(), f1: leer() });
+    setFelder(leereFelder());
     setAktiv(null);
   };
   const erstesMal = useRef(true);
@@ -428,11 +446,11 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
 
   const training = modus === "training";
   const setFeld = (id, patch) => setFelder((f) => ({ ...f, [id]: { ...f[id], ...patch } }));
-  const reihenfolge = ["u1", "v1", "f1"].filter((id) => id !== "u1" || mitU);
+  const reihenfolge = ["u1", "uv", "v1", "f1"].filter((id) => (id !== "u1" || mitU) && (id !== "uv" || kette));
   const offen = reihenfolge.filter((id) => !["richtig", "gezeigt"].includes(felder[id].status));
   const fertig = training && offen.length === 0 && gueltig;
 
-  const soll = (id) => (id === "u1" ? ableitung(u) : id === "v1" ? ableitung(v) : ml.soll);
+  const soll = (id) => (id === "u1" ? ableitung(u) : id === "v1" ? ableitung(v) : id === "uv" ? baumEinsetzen(ableitung(u), v) : ml.soll);
   // Rückmeldung für ein einzelnes Feld; liefert true/false (richtig) oder null (Term unvollständig)
   const pruefeFeld = (id) => {
     const e = felder[id];
@@ -446,7 +464,10 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
     } else {
       let hinweis;
       if (id === "f1") hinweis = diagnose(b, s, fehlerbilder(art, u, v));
-      else {
+      else if (id === "uv") {
+        hinweis = gleichwertig(b, ableitung(u)) ? "Das ist u′(x) – setze noch die innere Funktion v(x) für x ein."
+          : gleichwertig(b, baumEinsetzen(u, v)) ? "Das ist u(v(x)) – du musst u noch ableiten und dann v(x) einsetzen." : diagnose(b, s);
+      } else {
         const basis = id === "u1" ? u : v;
         hinweis = gleichwertig(b, basis) ? `Das ist ${id[0]} selbst – du hast noch nicht abgeleitet.` : diagnose(b, s);
         const r = regelFuer(basis);
@@ -492,16 +513,17 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
     if (!ml) return "";
     if (id === "u1") return tex(ml.u1);
     if (id === "v1") return tex(ml.v1);
+    if (id === "uv") return tex(ml.uv);
     return "";
   };
-  const ablFeld = (id, teil) => {
+  const ablFeld = (id, teil, kopf, label = `${teil}′(x) =`) => {
     const e = felder[id];
-    if (!training) return <Feld label={`${teil}′(x) =`} labelFarbe={FARBE[teil]} tex={gueltig ? ablTex(id) : ""} still />;
-    if (e.status === "gezeigt") return <Feld label={`${teil}′(x) =`} labelFarbe={FARBE[teil]} tex={e.zeig} status="gezeigt" still />;
-    return <Feld label={`${teil}′(x) =`} labelFarbe={FARBE[teil]} text={e.text} aktiv={aktiv === id} status={e.status} onClick={() => waehleFeld(id)} />;
+    if (!training) return <Feld kopf={kopf} label={label} labelFarbe={FARBE[teil]} tex={gueltig ? ablTex(id) : ""} still />;
+    if (e.status === "gezeigt") return <Feld kopf={kopf} label={label} labelFarbe={FARBE[teil]} tex={e.zeig} status="gezeigt" still />;
+    return <Feld kopf={kopf} label={label} labelFarbe={FARBE[teil]} text={e.text} aktiv={aktiv === id} status={e.status} onClick={() => waehleFeld(id)} />;
   };
-  const uvFeld = (teil, text, setText) => (
-    <Feld label={`${LABEL(art, teil)}(x) =`} labelFarbe={FARBE[teil]} text={text} aktiv={!training && aktiv === teil} still={training}
+  const uvFeld = (teil, text, setText, kopf) => (
+    <Feld kopf={kopf} label={`${LABEL(art, teil)}(x) =`} labelFarbe={FARBE[teil]} text={text} aktiv={!training && aktiv === teil} still={training}
       onClick={() => waehleFeld(teil)} platzhalter="u eingeben …" />
   );
 
@@ -540,7 +562,7 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
     </>
   ));
   const popup = () => <div className="wk-popup" ref={popRef}>{eingabeInhalt()}</div>;
-  const gridPopup = !!aktiv && ["u", "v", "u1", "v1"].includes(aktiv) && !(training && fertig);
+  const gridPopup = !!aktiv && ["u", "v", "u1", "uv", "v1"].includes(aktiv) && !(training && fertig);
   const f1Popup = training && !fertig && aktiv === "f1";
 
   return (
@@ -562,105 +584,70 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
           <p style={{ fontSize: 12.5, color: C.grau, lineHeight: 1.35, margin: "0 2px 10px" }}>{bilanz.richtig} von {bilanz.gesamt} richtig</p>
         )}
 
-        {/* Produktregel: oben die Funktion als Produkt, kleine Beschriftung u(x) und v(x) über den Faktoren */}
-        {neu && (
-          <div style={{ background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 16, padding: "10px 16px 6px", marginBottom: 12, overflowX: "auto" }}>
-            {gueltig ? (
-              <div style={{ display: "flex", alignItems: "flex-end", gap: 12, whiteSpace: "nowrap" }}>
-                <FaktorSpalte><M t="f(x) =" /></FaktorSpalte>
-                <FaktorSpalte label="u(x)"><M t={fakTex(schoen(u))} /></FaktorSpalte>
-                <FaktorSpalte><span aria-hidden="true">·</span></FaktorSpalte>
-                <FaktorSpalte label="v(x)"><M t={fakTex(schoen(v))} /></FaktorSpalte>
-              </div>
-            ) : (
-              <span style={{ display: "block", fontSize: 14, fontWeight: 400, color: C.goldText, lineHeight: 1.9, paddingBottom: 4 }}>Gib u und v ein – f ergibt sich daraus.</span>
-            )}
-          </div>
-        )}
+        {/* Oben: die Funktion f(x); Produktregel mit u(x) und v(x) über den Faktoren, sonst mit der Form der Regel als kleine Beschriftung */}
+        <div style={{ background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 16, padding: "10px 16px 6px", marginBottom: 12, overflowX: "auto" }}>
+          {gueltig ? (
+            <div style={{ display: "flex", alignItems: "flex-end", gap: 12, whiteSpace: "nowrap" }}>
+              <FaktorSpalte><M t="f(x) =" /></FaktorSpalte>
+              {art === "produkt" ? (
+                <>
+                  <FaktorSpalte label="u(x)"><M t={fakTex(schoen(u))} /></FaktorSpalte>
+                  <FaktorSpalte><span aria-hidden="true">·</span></FaktorSpalte>
+                  <FaktorSpalte label="v(x)"><M t={fakTex(schoen(v))} /></FaktorSpalte>
+                </>
+              ) : (
+                <FaktorSpalte label={F_KOPF[art]}><M t={fTex} /></FaktorSpalte>
+              )}
+            </div>
+          ) : (
+            <span style={{ display: "block", fontSize: 14, fontWeight: 400, color: C.goldText, lineHeight: 1.9, paddingBottom: 4 }}>Gib {mitU ? "u und v" : "v"} ein – f ergibt sich daraus.</span>
+          )}
+        </div>
 
-        {/* Die Regel: schmal in zwei Zeilen – oben f(x), darunter die Ableitungsregel */}
-        {!neu && (
-          <div style={{ background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 16, padding: "8px 16px", marginBottom: 12, color: C.weiss, overflowX: "auto" }}>
-            <div style={{ fontSize: 13, fontWeight: 600, color: C.goldText, whiteSpace: "nowrap", lineHeight: 1.6 }}><M t={R.fBild} /></div>
-            <div style={{ fontSize: 15.5, fontWeight: 700, whiteSpace: "nowrap", lineHeight: 1.6 }}><M t={R.formel} /></div>
-          </div>
-        )}
-
-        {/* Bausteine */}
+        {/* Bausteine; bei Ketten steht u′(v(x)) als dritte Box in der ersten Zeile */}
         <p style={{ fontSize: 12.5, color: C.grau, margin: "0 2px 8px", lineHeight: 1.5 }}>{ROLLEN[art]}</p>
-        <div className="wk-grid">
-          {mitU && <>{uvFeld("u", uText, setUText)}<span className="wk-pfeil" aria-hidden="true">→</span>{ablFeld("u1", "u")}</>}
+        <div className={`wk-grid${kette ? " kette" : ""}`}>
+          {mitU && <>
+            {uvFeld("u", uText, setUText, kette ? "äußere Funktion" : undefined)}
+            <span className="wk-pfeil" aria-hidden="true">→</span>
+            {ablFeld("u1", "u", kette ? "äußere Ableitung" : undefined)}
+            {kette && <><span className="wk-pfeil" aria-hidden="true">→</span>{ablFeld("uv", "u", "u′ an der Stelle v(x)", "u′(v(x)) =")}</>}
+          </>}
           {mitU && zeigeNeben && nebenU && <Nebenrechnung teil="u" baum={u} farbe={FARBE.u} />}
-          {uvFeld("v", vText, setVText)}<span className="wk-pfeil" aria-hidden="true">→</span>{ablFeld("v1", "v")}
+          {uvFeld("v", vText, setVText, kette ? "innere Funktion" : undefined)}
+          <span className="wk-pfeil" aria-hidden="true">→</span>
+          {ablFeld("v1", "v", kette ? "innere Ableitung" : undefined)}
           {zeigeNeben && nebenV && <Nebenrechnung teil="v" baum={v} farbe={FARBE.v} />}
         </div>
-        {training && ["u1", "v1"].map((id) => felder[id].hinweis && (
-          <p key={id} style={{ fontSize: 13.5, color: C.signal, lineHeight: 1.6, margin: "8px 4px 0" }}>{id[0]}′: {felder[id].hinweis}</p>
+        {training && ["u1", "uv", "v1"].map((id) => felder[id].hinweis && (
+          <p key={id} style={{ fontSize: 13.5, color: C.signal, lineHeight: 1.6, margin: "8px 4px 0" }}>{id === "uv" ? "u′(v(x))" : `${id[0]}′`}: {felder[id].hinweis}</p>
         ))}
         {gridPopup && popup()}
 
-        {/* Produktregel: die Regel unter den Bausteinen, direkt darunter das f′-Feld (gleich breit) */}
-        {neu && (
-          <>
-            <div style={{ background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 16, padding: "12px 16px", margin: "14px 0 0", overflowX: "auto" }}>
-              <span style={{ color: C.weiss, fontSize: 18, fontWeight: 700, whiteSpace: "nowrap", lineHeight: 1.9 }}><M t={R.formel} /></span>
+        {/* Die Regel unter den Bausteinen, direkt darunter das f′-Feld (gleich breit) */}
+        <div style={{ background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 16, padding: "12px 16px", margin: "14px 0 0", overflowX: "auto" }}>
+          <span style={{ color: C.weiss, fontSize: 18, fontWeight: 700, whiteSpace: "nowrap", lineHeight: 1.9 }}><M t={R.formel} /></span>
+        </div>
+        {gueltig && ml && (
+          (!training || fertig) ? (
+            <div className="wk-rechnung" style={{ marginTop: 10 }}>
+              <div className="wk-zeile"><span className="wk-gleich">f′(x) =</span><M t={ml.einsetzen} /></div>
+              <div className="wk-zeile"><span className="wk-gleich" style={{ color: C.hellgrau }}>=</span><M t={tex(ml.ergebnis)} /></div>
+              {ml.ausgeklammert && (
+                <div className="wk-zeile"><span className="wk-gleich" style={{ color: C.hellgrau }}>=</span><M t={tex(ml.ausgeklammert)} />
+                  <span style={{ fontSize: 12, color: C.grau, marginLeft: 6 }}>ausgeklammert</span></div>
+              )}
             </div>
-            {gueltig && ml && (
-              (!training || fertig) ? (
-                <div className="wk-rechnung" style={{ marginTop: 10 }}>
-                  <div className="wk-zeile"><span className="wk-gleich">f′(x) =</span><M t={ml.einsetzen} /></div>
-                  <div className="wk-zeile"><span className="wk-gleich" style={{ color: C.hellgrau }}>=</span><M t={tex(ml.ergebnis)} /></div>
-                  {ml.ausgeklammert && (
-                    <div className="wk-zeile"><span className="wk-gleich" style={{ color: C.hellgrau }}>=</span><M t={tex(ml.ausgeklammert)} />
-                      <span style={{ fontSize: 12, color: C.grau, marginLeft: 6 }}>ausgeklammert</span></div>
-                  )}
-                </div>
-              ) : (
-                <div style={{ marginTop: 10 }}>
-                  {felder.f1.status === "gezeigt"
-                    ? <Feld label="f′(x) =" tex={felder.f1.zeig} status="gezeigt" still />
-                    : <Feld label="f′(x) =" text={felder.f1.text} aktiv={aktiv === "f1"} status={felder.f1.status} onClick={() => waehleFeld("f1")}
-                      platzhalter="Regel anwenden und eintippen …" />}
-                  {felder.f1.hinweis && <p style={{ fontSize: 13.5, color: C.signal, lineHeight: 1.6, margin: "8px 4px 0" }}>{felder.f1.hinweis}</p>}
-                  {f1Popup && popup()}
-                </div>
-              )
-            )}
-          </>
-        )}
-
-        {/* f und die Rechnung */}
-        {!neu && <div style={{ background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 16, padding: "12px 16px", margin: "14px 0 0", overflowX: "auto" }}>
-          <span style={{ color: C.weiss, fontSize: 22, fontWeight: 700, whiteSpace: "nowrap", lineHeight: 1.9 }}>
-            {gueltig ? <M t={`f(x) = ${fTex}`} /> : <span style={{ fontSize: 14, fontWeight: 400, color: C.goldText }}>Gib {mitU ? "u und v" : "v"} ein – f ergibt sich daraus.</span>}
-          </span>
-        </div>}
-
-        {!neu && gueltig && ml && (
-          <div className="wk-rechnung">
-            <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.1em", color: C.gruenDunkel, textTransform: "uppercase", marginBottom: 4 }}>
-              {R.name} anwenden
-            </p>
-            {(!training || fertig) ? (
-              <>
-                <div className="wk-zeile"><span className="wk-gleich">f′(x) =</span><M t={ml.einsetzen} /></div>
-                <div className="wk-zeile"><span className="wk-gleich" style={{ color: C.hellgrau }}>=</span><M t={tex(ml.ergebnis)} /></div>
-                {ml.ausgeklammert && (
-                  <div className="wk-zeile"><span className="wk-gleich" style={{ color: C.hellgrau }}>=</span><M t={tex(ml.ausgeklammert)} />
-                    <span style={{ fontSize: 12, color: C.grau, marginLeft: 6 }}>ausgeklammert</span></div>
-                )}
-              </>
-            ) : (
-              <div style={{ marginTop: 6 }}>
-                {felder.f1.status === "gezeigt"
-                  ? <Feld label="f′(x) =" tex={felder.f1.zeig} status="gezeigt" still />
-                  : <Feld label="f′(x) =" text={felder.f1.text} aktiv={aktiv === "f1"} status={felder.f1.status} onClick={() => waehleFeld("f1")}
-                    platzhalter="Regel anwenden und eintippen …" />}
-                {felder.f1.hinweis && <p style={{ fontSize: 13.5, color: C.signal, lineHeight: 1.6, margin: "8px 4px 0" }}>{felder.f1.hinweis}</p>}
-                {f1Popup && popup()}
-              </div>
-            )}
-          </div>
+          ) : (
+            <div style={{ marginTop: 10 }}>
+              {felder.f1.status === "gezeigt"
+                ? <Feld label="f′(x) =" tex={felder.f1.zeig} status="gezeigt" still />
+                : <Feld label="f′(x) =" text={felder.f1.text} aktiv={aktiv === "f1"} status={felder.f1.status} onClick={() => waehleFeld("f1")}
+                  platzhalter="Regel anwenden und eintippen …" />}
+              {felder.f1.hinweis && <p style={{ fontSize: 13.5, color: C.signal, lineHeight: 1.6, margin: "8px 4px 0" }}>{felder.f1.hinweis}</p>}
+              {f1Popup && popup()}
+            </div>
+          )
         )}
 
         {/* Eingabe: öffnet als Pop-up unter dem angetippten Feld (siehe oben) */}

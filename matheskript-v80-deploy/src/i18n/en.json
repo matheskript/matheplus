@@ -1,5 +1,12 @@
 {
  "exakt": {
+  "äußere Funktion": "outer function",
+  "innere Funktion": "inner function",
+  "äußere Ableitung": "outer derivative",
+  "innere Ableitung": "inner derivative",
+  "u′ an der Stelle v(x)": "u′ at the point v(x)",
+  "Das ist u′(x) – setze noch die innere Funktion v(x) für x ein.": "That is u′(x) – now substitute the inner function v(x) for x.",
+  "Das ist u(v(x)) – du musst u noch ableiten und dann v(x) einsetzen.": "That is u(v(x)) – you still have to differentiate u and then substitute v(x).",
   "f enthält nur ungerade Exponenten (x^5, x^3 und x). Es gilt f(-x) = -f(x), daher ist f punktsymmetrisch zum Ursprung.": "f contains only odd exponents (x^5, x^3 and x). f(-x) = -f(x) holds, so f is point-symmetric about the origin.",
   "Mathetalent ist ein Mythos.": "Math talent is a myth.",
   "Gute Mathenoten sind weder Zufall noch Begabung. Sie entstehen aus einem System, das jeder lernen kann. Ich zeige Gymnasiasten von Klasse 8 bis zum Abitur, wie es funktioniert – und wie Mathe dabei wieder Spaß macht.": "Good math grades are neither luck nor talent. They come from a system that anyone can learn. I show secondary school students from grade 8 up to their final exams how it works – and how math becomes fun again along the way.",
