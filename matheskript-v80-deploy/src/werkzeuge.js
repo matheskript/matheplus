@@ -88,6 +88,12 @@ export const WERKZEUGE = {
   hypothesentest: { name: "Hypothesentests", kurz: "Tests", zeile: "H₀, Ablehnungsbereich, Fehlerarten", slogan: "H₀ aufstellen, Ablehnungsbereich finden, Fehler verstehen.",
     zeichen: "H₀", bild: "hypothese", ziel: { ansicht: "hypothesentest" }, etikett: "trainieren", stufe: "ober" },
 
+  /* ---------- Geometrie ---------- */
+  strahlensaetze: { name: "Strahlensätze", kurz: "Strahlen", zeile: "V- und X-Figur, Streckfaktor k", slogan: "Zwei Strahlen, zwei Parallelen – fehlende Längen über Verhältnisse.",
+    zeichen: "k", bild: "strahlen", ziel: { ansicht: "strahlensaetze" }, etikett: "trainieren", stufe: "mittel" },
+  trigonometrie: { name: "Trigonometrie am Dreieck", kurz: "Trigo", zeile: "sin, cos, tan, Sinus- und Kosinussatz", slogan: "Seiten und Winkel berechnen – rechtwinklig und allgemein.",
+    zeichen: "sin", bild: "trig", ziel: { ansicht: "trigonometrie" }, etikett: "trainieren", stufe: "mittel" },
+
   /* ---------- Gleichungen ---------- */
   terme: { name: "Terme und Potenzgesetze", kurz: "Terme", zeile: "Vereinfachen, ausklammern, kürzen", slogan: "Vereinfachen, Ausklammern, Binomische Formeln, Potenzen, Brüche.",
     zeichen: "xⁿ", bild: "termkarte", ziel: { ansicht: "terme" }, etikett: "trainieren", stufe: "mittel" },
@@ -121,6 +127,11 @@ export const BEREICHE = [
       { id: "zaehlen", titel: "Zählen und Bäume", zeile: "Urnen, Pfade, Vier-Felder-Tafel", werkzeuge: ["kombinatorik", "vierfelder"] },
       { id: "zufallsgroessen", titel: "Zufallsgrößen", zeile: "Erwartungswert und Binomialverteilung", werkzeuge: ["erwartungswert", "bernoulli"] },
       { id: "testen", titel: "Testen", zeile: "Hypothesen prüfen", werkzeuge: ["hypothesentest"] },
+    ] },
+  { id: "geometrie", titel: "Geometrie", uebersicht: null, text: "Zwei Stationen: ähnliche Figuren, Dreiecke berechnen.",
+    stationen: [
+      { id: "aehnlich", titel: "Ähnlichkeit", zeile: "Strahlensätze und Streckfaktor", werkzeuge: ["strahlensaetze"] },
+      { id: "dreiecke", titel: "Dreiecke berechnen", zeile: "Sinus, Kosinus, Tangens", werkzeuge: ["trigonometrie"] },
     ] },
   { id: "gleichungen", titel: "Gleichungen", uebersicht: null, text: "Zwei Stationen: Terme umformen, Gleichungen lösen.",
     video: { name: "Videokurs Gleichungen", zeile: "Umformen, Gleichungssysteme, Musterlösungen" },

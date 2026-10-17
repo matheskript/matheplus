@@ -61,3 +61,21 @@ export function GleichungenLogoKlein() {
     </svg>
   );
 }
+
+/* Grafik für die Geometrie-Kachel: V-Figur mit zwei Parallelen und ein rechtwinkliges Dreieck mit Winkel α */
+export function GeometrieLogoKlein() {
+  const W = 230, H = 190;
+  const T = { fontFamily: "Montserrat, system-ui, sans-serif", fontWeight: 700 };
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
+      <path d="M22 160 L206 40 M22 160 L210 150" stroke="rgba(255,255,255,0.55)" strokeWidth="3" strokeLinecap="round" fill="none" />
+      <path d="M92 114 L96 156" stroke={C.flaggold} strokeWidth="4" strokeLinecap="round" />
+      <path d="M160 70 L168 152" stroke={C.flaggold} strokeWidth="4" strokeLinecap="round" />
+      <circle cx="22" cy="160" r="6" fill={C.weiss} />
+      <text x="18" y="146" textAnchor="end" fill={C.weiss} fontSize="16" {...T}>S</text>
+      <path d="M150 20 L206 20 L206 58 Z" fill="rgba(255,255,255,0.1)" stroke={C.weiss} strokeWidth="2.5" strokeLinejoin="round" />
+      <path d="M198 20 L198 28 L206 28" fill="none" stroke={C.weiss} strokeWidth="1.8" />
+      <text x="40" y="60" fill={C.flaggold} fontSize="26" {...T}>sin α</text>
+    </svg>
+  );
+}

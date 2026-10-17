@@ -70,6 +70,9 @@ export const WZ_SEITEN = {
   parabeln: { titel: "Parabeln", groesse: "clamp(24px, 7vw, 34px)", Komp: lazy(() => import("./funcParabeln.jsx"), "Parabeln") },
   scharen: { titel: "Funktionsscharen", groesse: "clamp(24px, 7vw, 34px)", Komp: lazy(() => import("./funcScharen.jsx"), "Funktionsscharen") },
   gleichverstehen: { titel: "Gleichungen lösen", groesse: "clamp(26px, 7.6vw, 34px)", rund: true, Komp: lazy(() => import("./funcGleichModi.jsx"), "GleichungenVerstehen") },
+  /* Geometrie (Mittelstufe) */
+  strahlensaetze: { titel: "Strahlensätze", groesse: "clamp(26px, 7.6vw, 34px)", Komp: lazy(() => import("./funcStrahlensaetze.jsx"), "Strahlensaetze") },
+  trigonometrie: { titel: "Trigonometrie am Dreieck", groesse: "clamp(24px, 7vw, 34px)", Komp: lazy(() => import("./funcTrigonometrie.jsx"), "TrigonometrieDreieck") },
   terme: { titel: "Terme und Potenzgesetze", groesse: "clamp(26px, 7.6vw, 34px)", rund: true, Komp: lazy(() => import("./funcTerme.jsx"), "TermeUndPotenzgesetze") },
 };
 

@@ -22,7 +22,7 @@ import { AppAnleitung } from "./funcAnleitung.jsx";
 import { SuchBox } from "./funcSuche.jsx";
 import { VektorenLogoKlein } from "./func16.jsx";
 import { StochastikLogoKlein } from "./func17.jsx";
-import { GleichungenLogoKlein } from "./funcEntdeckenLogo.jsx";
+import { GeometrieLogoKlein, GleichungenLogoKlein } from "./funcEntdeckenLogo.jsx";
 import { MedaillenschrankLogo, BwmLogo, KarteLogo } from "./funcWettbewerbe.jsx";
 import { MasterclassKachel, MatheCheckenKachel, MathCreatorKachel } from "./funcMasterclass.jsx";
 import { ElternabendKachel } from "./funcElternabend.jsx";
@@ -652,9 +652,9 @@ const ZEIGE_GESPERRTE = false;
 
 /* Schulmathematik → Bereiche → Stationen → Werkzeuge. Die Daten stehen in werkzeuge.js (eine Liste für
    Startseite, Werkzeug-Menü, Kopfleiste und Übersichtsseiten); hier kommen nur die Logos dazu. */
-const BEREICH_LOGO = { analysis: <PlotterLogoKlein />, vektoren: <VektorenLogoKlein />, stochastik: <StochastikLogoKlein />, gleichungen: <GleichungenLogoKlein /> };
+const BEREICH_LOGO = { analysis: <PlotterLogoKlein />, vektoren: <VektorenLogoKlein />, stochastik: <StochastikLogoKlein />, geometrie: <GeometrieLogoKlein />, gleichungen: <GleichungenLogoKlein /> };
 /* Liniennetz: jeder Bereich ist eine „Linie“ mit eigenem Strich, die Stationen sind ihre Halte */
-const LINIEN_MUSTER = { analysis: "4px solid", vektoren: "7px double", stochastik: "4px dashed", gleichungen: "4px dotted" };
+const LINIEN_MUSTER = { analysis: "4px solid", vektoren: "7px double", stochastik: "4px dashed", geometrie: "4px solid", gleichungen: "4px dotted" };
 
 const SCHUL_BEREICHE = BEREICHE.map((b) => ({
   id: b.id, titel: b.titel, text: b.text, logo: BEREICH_LOGO[b.id], video: b.video, linie: LINIEN_MUSTER[b.id],
@@ -884,6 +884,7 @@ function MiniBild({ art }) {
     tafel: <><rect x="30" y="8" width="60" height="40" rx="4" {...linie} /><path d="M60 8 V48 M30 28 H90" {...linie} /><rect x="31" y="9" width="28" height="18" fill="rgba(237,187,0,0.35)" /></>,
     gleichung: <>{txt(60, 22, "3x + 5 = 20", "#fff", 13, "middle")}{txt(60, 42, "x = 5", g, 13, "middle")}<path d="M42 47 H78" stroke={g} strokeWidth="1" /></>,
     kopf: <>{txt(60, 23, "17 · 11", "#fff", 14, "middle")}{txt(60, 44, "= 187", g, 13, "middle")}</>,
+    strahlen: <><path d="M14 50 L108 8 M14 50 L110 44" {...linie} /><path d="M50 34 L50 46" stroke={g} strokeWidth="1.8" strokeLinecap="round" /><path d="M90 16 L90 45" stroke={g} strokeWidth="1.8" strokeLinecap="round" /><circle cx="14" cy="50" r="2.4" fill="#fff" />{txt(4, 44, "S", w, 9.5)}{txt(96, 30, "k", g, 12)}</>,
     trig: <><path d="M22 46 H94 V12 Z" {...linie} fill="rgba(255,255,255,0.06)" /><path d="M87 46 V39 H94" {...linie} strokeWidth="1" /><path d="M38 46 A16 16 0 0 0 36.5 39.2" stroke={g} strokeWidth="1.6" fill="none" />{txt(41, 43, "α", g, 10)}{txt(99, 32, "a", w, 10)}{txt(56, 25, "c", w, 10)}</>,
     terme: <>{txt(60, 23, "(a + b)²", "#fff", 14, "middle")}{txt(60, 43, "a² + 2ab + b²", g, 11, "middle")}</>,
     menge: <><circle cx="48" cy="28" r="18" {...linie} fill="rgba(255,255,255,0.06)" /><circle cx="72" cy="28" r="18" {...linie} fill="rgba(255,255,255,0.06)" /><path d="M60 14.6 A18 18 0 0 1 60 41.4 A18 18 0 0 1 60 14.6 Z" fill={g} opacity="0.8" />{txt(38, 32, "A", w, 10)}{txt(78, 32, "B", w, 10)}</>,
@@ -1532,8 +1533,8 @@ export function Startseite({ gehe }) {
         label={desktop ? (schulAuf ? "Mittel- und Oberstufen-Mathematik zuklappen" : "Mittel- und Oberstufen-Mathematik aufklappen") : (schulAuf ? "Schulmathe-Training zuklappen" : "Schulmathe-Training aufklappen")}
         logo={<SchulmatheLogoKlein />} titel={desktop ? "Mittel- und Oberstufen-Mathematik" : "Schulmathe-Training"}
         text={desktop
-          ? (schulAuf ? "Analysis, Vektoren, Stochastik und Gleichungen." : "Bis zum Abi: Analysis, Vektoren, Stochastik, Gleichungen.")
-          : (schulAuf ? "Mathematik der Mittel- und Oberstufe." : "Mittel- und Oberstufe bis zum Abi: Analysis, Vektoren, Stochastik, Gleichungen.")}
+          ? (schulAuf ? "Analysis, Vektoren, Stochastik, Geometrie und Gleichungen." : "Bis zum Abi: Analysis, Vektoren, Stochastik, Geometrie, Gleichungen.")
+          : (schulAuf ? "Mathematik der Mittel- und Oberstufe." : "Mittel- und Oberstufe bis zum Abi: Analysis, Vektoren, Stochastik, Geometrie, Gleichungen.")}
         extra={<PlusKnopf auf={schulAuf} klein={schulAuf} />} />
       {schulAuf && (
         <div data-aufklapp-inhalt style={{ margin: "0 0 4px" }}>

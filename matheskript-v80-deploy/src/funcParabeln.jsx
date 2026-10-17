@@ -19,6 +19,7 @@ import { M } from "./func3.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
 import { Auswahl, GrosserKnopf, Rueck, Stufe, hilfeKontext, hinweis, karte, kicker, zw } from "./ui2.jsx";
+import { ParabelSchnitt } from "./funcParabelSchnitt.jsx";
 import { Aufklapp, ModusLeiste, Seite, SchrittFolge, minusZ, zt } from "./ui3.jsx";
 import { dez, q, qAdd, qDiv, qGleich, qMul, qNeg, qNull, qNum, qSub, qTex, qText } from "./rechnen2.js";
 import {
@@ -869,13 +870,14 @@ export function Parabeln() {
   return (
     <Seite titel={zw("Quadratische Funktionen", "Quadratic functions")}
       text={zw("Alles über f(x) = ax² + bx + c: Scheitelpunkt, Scheitelform, Nullstellen und Brennpunkt. Jedes Schaubild hat gleich skalierte Achsen.", "Everything about f(x) = ax² + bx + c: vertex, vertex form, roots and focus. Every graph has equally scaled axes.")}>
-      <ModusLeiste modi={[["scheitel", zw("Scheitel\u00ADpunkt", "Vertex")], ["form", zw("Scheitel\u00ADform", "Vertex form")], ["null", zw("Null\u00ADstellen", "Roots")], ["brenn", zw("Brenn\u00ADpunkt", "Focus")]]}
+      <ModusLeiste modi={[["scheitel", zw("Scheitel\u00ADpunkt", "Vertex")], ["form", zw("Scheitel\u00ADform", "Vertex form")], ["null", zw("Null\u00ADstellen", "Roots")], ["brenn", zw("Brenn\u00ADpunkt", "Focus")], ["schnitt", zw("Schnitt\u00ADpunkte", "Inter\u00ADsections")]]}
         modus={modus} setModus={setModus} label={zw("Bereich der Parabeln", "Parabola topic")} />
       <div style={{ marginTop: 14 }}>
         {modus === "scheitel" && <ScheitelErkunden />}
         {modus === "form" && <ScheitelUebung />}
         {modus === "null" && <NullstellenSeite />}
         {modus === "brenn" && <BrennpunktSeite />}
+        {modus === "schnitt" && <ParabelSchnitt />}
       </div>
     </Seite>
   );

@@ -70,6 +70,7 @@ const SYN = {
   mental: ["kopfrechnen"], multiplication: ["einmaleins"], times: ["einmaleins"], squares: ["quadratzahlen"],
   divisibility: ["teilbarkeit"], prime: ["primzahlen"], pythagorean: ["pythagoras"],
   simplify: ["vereinfachen"], factor: ["faktorisieren", "ausklammern"], expand: ["ausmultiplizieren"], terms: ["terme"], powers: ["potenzen"],
+  intercept: ["strahlensatz"], tangent: ["tangens"], cosine: ["kosinus"], sine: ["sinus"], triangle: ["dreieck"],
   parabola: ["parabeln"], parabel: ["parabeln"], slope: ["steigung"], gradient: ["steigung"],
   mathematik: ["mathe"], maths: ["mathe"], math: ["mathe"], mathematics: ["mathe"],
   calculus: ["analysis"], functions: ["funktionen"], function: ["funktion"], formulas: ["formeln"], formula: ["formel"], geometry: ["geometrie"], algebra: ["algebra"],
@@ -88,6 +89,8 @@ const ORT = (() => {
 /* Zusatzwörter je Werkzeug: so spricht man über das Thema (Werkzeugnamen allein reichen nicht) */
 const WZ_WOERTER = {
   geradengleichung: "lineare funktion gerade steigung achsenabschnitt y-achsenabschnitt punkt-steigungs-form zwei punkte m n y=mx+b",
+  strahlensaetze: "strahlensatz strahlensätze vierstreckensatz v-figur x-figur parallelen streckfaktor zentrische streckung ähnlichkeit ähnliche dreiecke schatten baumhöhe verhältnis",
+  trigonometrie: "trigonometrie sinus kosinus cosinus tangens sin cos tan dreieck rechtwinklig gegenkathete ankathete hypotenuse sinussatz kosinussatz winkel berechnen",
   parabeln: "quadratische funktion scheitelpunkt scheitelform nullstellen brennpunkt normalparabel quadratische gleichung pq-formel mitternachtsformel abc-formel parabel",
   sinus: "sinus kosinus cosinus trigonometrie periode amplitude schwingung winkelfunktion bogenmaß sin cos",
   wachstum: "exponentielles wachstum zerfall halbwertszeit verdopplungszeit logarithmus log ln e-funktion exponentialfunktion zinsen prozent",
