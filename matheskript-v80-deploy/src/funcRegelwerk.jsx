@@ -379,6 +379,55 @@ function Nebenrechnung({ teil, baum, farbe }) {
   );
 }
 
+/* Zellen für Regel (oben) und Rechnung (unten): gleiche Spalten, damit u′ unter u′, v unter v, + unter + steht */
+function ausrichtZellen(art, ml) {
+  const F = (teil, n) => `\\farbe{${teil}}{${fakTex(n)}}`;
+  if (art === "produkt") {
+    return {
+      kopf: ["f′(x)", "=", "u′(x)", "\\cdot", "v(x)", "+", "u(x)", "\\cdot", "v′(x)"],
+      unten: ml ? ["f′(x)", "=", F("u", ml.u1), "\\cdot", F("v", ml.v), "+", F("u", ml.u), "\\cdot", F("v", ml.v1)] : null,
+    };
+  }
+  if (art === "linkette") {
+    return {
+      kopf: ["f′(x)", "=", "m", "\\cdot", "u′(mx + c)"],
+      unten: ml ? ["f′(x)", "=", F("v", ml.v1), "\\cdot", F("u", ml.uv)] : null,
+    };
+  }
+  return {
+    kopf: ["f′(x)", "=", "u′(v(x))", "\\cdot", "v′(x)"],
+    unten: ml ? ["f′(x)", "=", F("u", ml.uv), "\\cdot", F("v", ml.v1)] : null,
+  };
+}
+
+const ZELLE = { justifySelf: "center", padding: "0 3px", whiteSpace: "nowrap", textAlign: "center" };
+
+/* Regel und Rechnung als zwei Boxen mit gemeinsamen Spalten (CSS-Subgrid) */
+function AusrichtBlock({ kopf, unten, ergebnis }) {
+  const n = kopf.length;
+  const box = { gridColumn: "1 / -1", display: "grid", gridTemplateColumns: "subgrid", alignItems: "center", padding: "12px 12px", borderRadius: 16 };
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: `repeat(${n}, auto)`, columnGap: 0, rowGap: 10, marginTop: 14, overflowX: "auto" }}>
+      <div style={{ ...box, background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, color: C.weiss, fontSize: 17, fontWeight: 700, lineHeight: 1.9 }}>
+        {kopf.map((t, i) => <span key={i} style={ZELLE}><M t={t} /></span>)}
+      </div>
+      {unten && (
+        <div className="wk-rechnung" style={{ ...box, margin: 0, fontSize: 17, color: C.tinte, lineHeight: 1.9, rowGap: 2 }}>
+          {unten.map((t, i) => <span key={i} style={{ ...ZELLE, fontWeight: i < 2 ? 700 : 400 }}><M t={t} /></span>)}
+          {ergebnis && ergebnis.filter(Boolean).map((t, j) => (
+            <React.Fragment key={`e${j}`}>
+              <span style={{ ...ZELLE, color: C.hellgrau }}><M t="=" /></span>
+              <span style={{ gridColumn: "3 / -1", whiteSpace: "nowrap", justifySelf: "start", padding: "0 3px" }}>
+                <M t={t} />{j === 1 && <span style={{ fontSize: 12, color: C.grau, marginLeft: 8 }}>ausgeklammert</span>}
+              </span>
+            </React.Fragment>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modusProp, wurf, ohneKopf = false }) {
   // Die Regel wählt das Menü in der Kopfleiste (Ableitenstrainer); allein genutzt, hält die Werkstatt sie selbst.
   const [regelIntern] = useState("produkt");
@@ -566,6 +615,21 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
   const gridPopup = !!aktiv && ["u", "v", "u1", "uv", "v1"].includes(aktiv) && !(training && fertig);
   const f1Popup = training && !fertig && aktiv === "f1";
 
+  const rechnungZeigen = !!(gueltig && ml && (!training || fertig));
+  const eingabeZeigen = !!(gueltig && ml && training && !fertig);
+  const ausricht = art === "produkt" || kette;
+  const zellen = ausricht ? ausrichtZellen(art, ml) : null;
+  const f1Block = (
+    <div style={{ marginTop: 10 }}>
+      {felder.f1.status === "gezeigt"
+        ? <Feld label="f′(x) =" tex={felder.f1.zeig} status="gezeigt" still />
+        : <Feld label="f′(x) =" text={felder.f1.text} aktiv={aktiv === "f1"} status={felder.f1.status} onClick={() => waehleFeld("f1")}
+          platzhalter="Regel anwenden und eintippen …" />}
+      {felder.f1.hinweis && <p style={{ fontSize: 13.5, color: C.signal, lineHeight: 1.6, margin: "8px 4px 0" }}>{felder.f1.hinweis}</p>}
+      {f1Popup && popup()}
+    </div>
+  );
+
   return (
     <div ref={kopf}>
       <style>{WERK_CSS}</style>
@@ -639,30 +703,31 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
         ))}
         {gridPopup && popup()}
 
-        {/* Die Regel unter den Bausteinen, direkt darunter das f′-Feld (gleich breit) */}
-        <div style={{ background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 16, padding: "12px 16px", margin: "14px 0 0", overflowX: "auto" }}>
-          <span style={{ color: C.weiss, fontSize: 18, fontWeight: 700, whiteSpace: "nowrap", lineHeight: 1.9 }}><M t={R.formel} /></span>
-        </div>
-        {gueltig && ml && (
-          (!training || fertig) ? (
-            <div className="wk-rechnung" style={{ marginTop: 10 }}>
-              <div className="wk-zeile"><span className="wk-gleich">f′(x) =</span><M t={ml.einsetzen} /></div>
-              <div className="wk-zeile"><span className="wk-gleich" style={{ color: C.hellgrau }}>=</span><M t={tex(ml.ergebnis)} /></div>
-              {ml.ausgeklammert && (
-                <div className="wk-zeile"><span className="wk-gleich" style={{ color: C.hellgrau }}>=</span><M t={tex(ml.ausgeklammert)} />
-                  <span style={{ fontSize: 12, color: C.grau, marginLeft: 6 }}>ausgeklammert</span></div>
-              )}
+        {/* Die Regel unter den Bausteinen, darunter die Rechnung bzw. das f′-Feld. Produkt- und Kettenregeln: Regel und Rechnung
+            stehen spaltengenau untereinander (u′ unter u′, v unter v, + unter +). */}
+        {ausricht ? (
+          <>
+            <AusrichtBlock kopf={zellen.kopf} unten={rechnungZeigen ? zellen.unten : null}
+              ergebnis={rechnungZeigen ? [tex(ml.ergebnis), ml.ausgeklammert ? tex(ml.ausgeklammert) : null] : null} />
+            {eingabeZeigen && f1Block}
+          </>
+        ) : (
+          <>
+            <div style={{ background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 16, padding: "12px 16px", margin: "14px 0 0", overflowX: "auto" }}>
+              <span style={{ color: C.weiss, fontSize: 18, fontWeight: 700, whiteSpace: "nowrap", lineHeight: 1.9 }}><M t={R.formel} /></span>
             </div>
-          ) : (
-            <div style={{ marginTop: 10 }}>
-              {felder.f1.status === "gezeigt"
-                ? <Feld label="f′(x) =" tex={felder.f1.zeig} status="gezeigt" still />
-                : <Feld label="f′(x) =" text={felder.f1.text} aktiv={aktiv === "f1"} status={felder.f1.status} onClick={() => waehleFeld("f1")}
-                  platzhalter="Regel anwenden und eintippen …" />}
-              {felder.f1.hinweis && <p style={{ fontSize: 13.5, color: C.signal, lineHeight: 1.6, margin: "8px 4px 0" }}>{felder.f1.hinweis}</p>}
-              {f1Popup && popup()}
-            </div>
-          )
+            {rechnungZeigen && (
+              <div className="wk-rechnung" style={{ marginTop: 10 }}>
+                <div className="wk-zeile"><span className="wk-gleich">f′(x) =</span><M t={ml.einsetzen} /></div>
+                <div className="wk-zeile"><span className="wk-gleich" style={{ color: C.hellgrau }}>=</span><M t={tex(ml.ergebnis)} /></div>
+                {ml.ausgeklammert && (
+                  <div className="wk-zeile"><span className="wk-gleich" style={{ color: C.hellgrau }}>=</span><M t={tex(ml.ausgeklammert)} />
+                    <span style={{ fontSize: 12, color: C.grau, marginLeft: 6 }}>ausgeklammert</span></div>
+                )}
+              </div>
+            )}
+            {eingabeZeigen && f1Block}
+          </>
         )}
 
         {/* Eingabe: öffnet als Pop-up unter dem angetippten Feld (siehe oben) */}
