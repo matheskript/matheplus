@@ -63,6 +63,27 @@ export function EtikettFilter({ wert, setze }) {
   );
 }
 
+/* Kompakte Etikett-Knöpfe (Startseite, neben „Weitermachen“): ohne Überschrift und Hinweis, füllen die Breite.
+   Antippen filtert, nochmal antippen hebt den Filter auf. */
+export function EtikettKnoepfe({ wert, setze }) {
+  return (
+    <div role="group" aria-label="Werkzeuge nach Art filtern" style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 6 }}>
+      {Object.keys(ETIKETTEN).map((k) => {
+        const an = wert === k, f = ETIKETT_FARBE[k];
+        return (
+          <button key={k} type="button" aria-pressed={an} onClick={() => setze(an ? null : k)} title={ETIKETTEN[k].text}
+            style={{ minHeight: 34, padding: "0 4px", borderRadius: 999, cursor: "pointer", fontFamily: "inherit", fontSize: 11, fontWeight: 800,
+              letterSpacing: "0.04em", textTransform: "uppercase", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+              border: `1.5px solid ${an ? f.text : f.rand}`, background: an ? f.text : f.hg, color: an ? "#fff" : f.text,
+              transition: "background .15s ease, color .15s ease" }}>
+            {ETIKETTEN[k].name}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 /* Kleine Legende der drei Etiketten */
 export function EtikettLegende({ dunkel = false }) {
   return (

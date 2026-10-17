@@ -32,7 +32,7 @@ import { EntdeckenLogoKlein } from "./funcEntdeckenLogo.jsx";
 import { SatzZeilen, saetze } from "./baseSatz.jsx";
 import { AufklappZeichen } from "./aufklappen.jsx";
 import { BEREICHE, WERKZEUGE, ansichtenVon, istWerkzeugAnsicht, passtStufe, wo } from "./werkzeuge.js";
-import { EtikettPille, EtikettLegende, EtikettFilter } from "./funcWerkzeuge.jsx";
+import { EtikettPille, EtikettLegende, EtikettKnoepfe } from "./funcWerkzeuge.jsx";
 
 /* Große, ganz anklickbare Kachel für die Plotter auf der Startseite. */
 /* Polynomplotter-Grafik im Hochformat für die Kachel. */
@@ -967,12 +967,12 @@ function zuletztWerkzeug() {
   } catch { return null; }
 }
 
-function WeitermachenZeile({ gehe }) {
+function WeitermachenZeile({ gehe, neben = false }) {
   const z = zuletztWerkzeug();
   if (!z) return null;
   return (
     <button type="button" onClick={() => gehe({ ansicht: z.ansicht })} aria-label={`Weitermachen mit ${z.werkzeug.name}`}
-      style={{ width: "100%", marginTop: 12, display: "flex", alignItems: "center", gap: 12, padding: "11px 14px", borderRadius: 14, cursor: "pointer",
+      style={{ width: "100%", marginTop: neben ? 0 : 12, height: neben ? "100%" : undefined, display: "flex", alignItems: "center", gap: 12, padding: "11px 14px", borderRadius: 14, cursor: "pointer",
         fontFamily: "inherit", textAlign: "left", border: `1.5px solid ${C.flaggold}`, background: "#FFFBEA" }}>
       <span aria-hidden="true" style={{ flexShrink: 0, width: 36, height: 36, borderRadius: 999, background: C.flaggold, display: "flex", alignItems: "center", justifyContent: "center" }}>
         <svg width="13" height="15" viewBox="0 0 14 16"><path d="M2 1.5 L12.5 8 L2 14.5 Z" fill={C.seeTief} /></svg>
@@ -987,17 +987,36 @@ function WeitermachenZeile({ gehe }) {
   );
 }
 
-const STUFEN = [["mittel", "Mittelstufe"], ["ober", "Oberstufe"], ["alle", "Alle"]];
+const STUFEN = [["unter", "Unterstufe", "5–7"], ["mittel", "Mittelstufe", "8–10"], ["ober", "Oberstufe", "11–13"], ["alle", "Alle", "5–13"]];
+const STUFEN_KEYS = STUFEN.map((s) => s[0]);
 function StufenSchalter({ wert, setze }) {
   return (
-    <div role="group" aria-label="Schulstufe wählen" style={{ marginTop: 12, padding: 4, borderRadius: 14, background: "#EEF2F8",
-      display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 4 }}>
-      {STUFEN.map(([k, name]) => (
-        <button key={k} type="button" aria-pressed={wert === k} onClick={() => setze(k)}
-          style={{ minHeight: 40, borderRadius: 10, border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 13, fontWeight: 700,
+    <div role="group" aria-label="Schulstufe wählen" style={{ padding: 3, borderRadius: 13, background: "#EEF2F8",
+      display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 3 }}>
+      {STUFEN.map(([k, name, kl]) => (
+        <button key={k} type="button" aria-pressed={wert === k} onClick={() => setze(k)} aria-label={`${name}, Klasse ${kl}`}
+          style={{ minHeight: 40, padding: "3px 1px", borderRadius: 10, border: "none", cursor: "pointer", fontFamily: "inherit", lineHeight: 1.15,
             background: wert === k ? C.weiss : "transparent", color: wert === k ? C.seeTief : C.grau,
-            boxShadow: wert === k ? "0 2px 6px rgba(14,30,74,0.15)" : "none", transition: "background .15s ease" }}>{name}</button>
+            boxShadow: wert === k ? "0 2px 6px rgba(14,30,74,0.15)" : "none", transition: "background .15s ease" }}>
+          <span style={{ display: "block", fontSize: 11.5, fontWeight: 700, letterSpacing: "-0.01em", whiteSpace: "nowrap" }}>{name}</span>
+          <span style={{ display: "block", fontSize: 10, fontWeight: 600, opacity: 0.75 }}>{kl}</span>
+        </button>
       ))}
+    </div>
+  );
+}
+
+/* Kopf des aufgeklappten Bereichs: links „Weitermachen“ (nur Desktop), rechts Stufen und darunter die Etiketten –
+   alles auf einer Höhe, danach kommen direkt die Themen. Schmal (oder ohne Weitermachen): untereinander, volle Breite. */
+function SchulKopf({ gehe, mitWeiter, stufe, setzeStufe, etikett, setzeEtikett }) {
+  const weiter = mitWeiter && zuletztWerkzeug() ? <WeitermachenZeile gehe={gehe} neben /> : null;
+  return (
+    <div style={{ marginTop: 12, display: "flex", flexWrap: "wrap", alignItems: "stretch", gap: 10 }}>
+      {weiter && <div style={{ flex: "1 1 240px", minWidth: 0, display: "flex" }}>{weiter}</div>}
+      <div style={{ flex: "1 1 280px", minWidth: 0, display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 8 }}>
+        <StufenSchalter wert={stufe} setze={setzeStufe} />
+        <EtikettKnoepfe wert={etikett} setze={setzeEtikett} />
+      </div>
     </div>
   );
 }
@@ -1065,7 +1084,7 @@ export function Startseite({ gehe }) {
   const [bereichAuf, setBereichAuf] = useState(null);   // aufgeklappter Unterbereich (analysis, vektoren, …)
   const [kopfAuf, setKopfAuf] = useState(false);        // Dropdown „Kopfrechnen“
   const [formelAuf, setFormelAuf] = useState(false);    // Untermenü „Formelsammlung“
-  const [stufe, setStufe] = useState(() => { const w = lies(STUFE_SCHLUESSEL, "alle"); return ["mittel", "ober", "alle"].includes(w) ? w : "alle"; });
+  const [stufe, setStufe] = useState(() => { const w = lies(STUFE_SCHLUESSEL, "alle"); return STUFEN_KEYS.includes(w) ? w : "alle"; });
   const [etikett, setEtikett] = useState(null);         // Filter Entdecken | Rechnen | Trainieren
   const offenRahmen = useRef(null);                     // Rahmen des offenen Bereichs (für die mitlaufende Leiste)
   const stufeSetzen = (w) => { setStufe(w); setBereichAuf(null); try { localStorage.setItem(STUFE_SCHLUESSEL, w); } catch { /* egal */ } };
@@ -1519,17 +1538,14 @@ export function Startseite({ gehe }) {
           Alle Kacheln laufen auf voller Breite (breit); es ist immer nur ein Bereich offen. */}
       <AufklappRahmen auf={schulAuf}>
       <PlotterKachel breit halb={schulAuf} onClick={() => { setSchulAuf(!schulAuf); setEntdAuf(false); setBereichAuf(null); setFormelAuf(false); setEtikett(null); }} auf={schulAuf}
-        label={desktop ? (schulAuf ? "Mittel- und Oberstufen-Mathematik zuklappen" : "Mittel- und Oberstufen-Mathematik aufklappen") : (schulAuf ? "Schulmathe-Training zuklappen" : "Schulmathe-Training aufklappen")}
-        logo={<SchulmatheLogoKlein />} titel={desktop ? "Mittel- und Oberstufen-Mathematik" : "Schulmathe-Training"}
-        text={desktop
-          ? (schulAuf ? "Analysis, Vektoren, Stochastik, Geometrie und Gleichungen." : "Bis zum Abi: Analysis, Vektoren, Stochastik, Geometrie, Gleichungen.")
-          : (schulAuf ? "Mathematik der Mittel- und Oberstufe." : "Mittel- und Oberstufe bis zum Abi: Analysis, Vektoren, Stochastik, Geometrie, Gleichungen.")}
+        label={schulAuf ? "Schulmathematik zuklappen" : "Schulmathematik aufklappen"}
+        logo={<SchulmatheLogoKlein />} titel="Schulmathematik"
+        text={schulAuf ? "Analysis, Vektoren, Stochastik, Geometrie und Gleichungen." : "Unter-, Mittel- und Oberstufe bis zum Abi: Analysis, Vektoren, Stochastik, Geometrie, Gleichungen."}
         extra={<PlusKnopf auf={schulAuf} klein={schulAuf} />} />
       {schulAuf && (
         <div data-aufklapp-inhalt style={{ margin: "0 0 4px" }}>
-          {desktop && <WeitermachenZeile gehe={gehe} />}
-          <StufenSchalter wert={stufe} setze={stufeSetzen} />
-          <div style={{ padding: "14px 2px 0" }}><EtikettFilter wert={etikett} setze={(e) => { setEtikett(e); setBereichAuf(null); setFormelAuf(false); }} /></div>
+          <SchulKopf gehe={gehe} mitWeiter={desktop} stufe={stufe} setzeStufe={stufeSetzen}
+            etikett={etikett} setzeEtikett={(e) => { setEtikett(e); setBereichAuf(null); setFormelAuf(false); }} />
           {etikett ? (
             /* Filter aktiv: passende Werkzeuge direkt sichtbar, nach Bereich gruppiert */
             SCHUL_BEREICHE.map((b) => {

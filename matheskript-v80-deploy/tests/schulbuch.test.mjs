@@ -16,7 +16,7 @@ test("acht Klassenboxen je Schulart, die letzten beiden gold", () => {
   assert.deepEqual(klassenBoxen("g8").map((b) => b.label), ["5", "6", "7", "8", "9", "10", "11", "12"]);
   assert.deepEqual(klassenBoxen("g9").map((b) => b.label), ["5/6", "7", "8", "9", "10", "11", "12", "13"]);
   assert.deepEqual(klassenBoxen("gms").map((b) => b.label), klassenBoxen("g9").map((b) => b.label));
-  assert.equal(stufeAusKlassenBox(klassenBoxen("g9")[0]), "mittel");
+  assert.equal(stufeAusKlassenBox(klassenBoxen("g9")[0]), "unter");
   assert.equal(stufeAusKlassenBox(klassenBoxen("g9")[5]), "ober");
 });
 

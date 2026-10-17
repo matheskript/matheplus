@@ -96,9 +96,9 @@ export const WERKZEUGE = {
 
   /* ---------- Gleichungen ---------- */
   terme: { name: "Terme und Potenzgesetze", kurz: "Terme", zeile: "Vereinfachen, ausklammern, kürzen", slogan: "Vereinfachen, Ausklammern, Binomische Formeln, Potenzen, Brüche.",
-    zeichen: "xⁿ", bild: "termkarte", ziel: { ansicht: "terme" }, etikett: "trainieren", stufe: "mittel" },
+    zeichen: "xⁿ", bild: "termkarte", ziel: { ansicht: "terme" }, etikett: "trainieren", stufe: "mittel", unter: true },
   gleichungen: { name: "Gleichungen lösen", kurz: "Lösen", zeile: "Umformen und verstehen", slogan: "Äquivalenzumformungen eintippen – linear bis Logarithmus, mit Verstehen-Modi.",
-    zeichen: "x =", bild: "gleichung", ziel: { ansicht: "gleichungen" }, auch: ["gleichverstehen"], etikett: "trainieren", stufe: "beide",
+    zeichen: "x =", bild: "gleichung", ziel: { ansicht: "gleichungen" }, auch: ["gleichverstehen"], etikett: "trainieren", stufe: "beide", unter: true,
     modi: [{ ansicht: "gleichungen", name: "Lösen" }, { ansicht: "gleichverstehen", name: "Verstehen" }] },
   lgs: { name: "Gleichungssysteme", kurz: "LGS", zeile: "Mit drei Variablen", slogan: "LGS mit drei Unbekannten – Gauß-Verfahren und direkter Weg.",
     zeichen: "I II III", bild: "lgs", ziel: { ansicht: "lgs" }, etikett: "trainieren", stufe: "beide" },
@@ -143,8 +143,9 @@ export const BEREICHE = [
 
 /* ---------- Abfragen ---------- */
 
-/* Stufen-Schalter: passt ein Werkzeug zur gewählten Stufe? (wahl: alle | mittel | ober) */
-export const passtStufe = (w, wahl) => !wahl || wahl === "alle" || w.stufe === "beide" || w.stufe === wahl;
+/* Stufen-Schalter: passt ein Werkzeug zur gewählten Stufe? (wahl: alle | unter | mittel | ober)
+   Unterstufe (Kl. 5–7): nur Werkzeuge mit unter: true. „beide“ = Mittel- und Oberstufe. */
+export const passtStufe = (w, wahl) => !wahl || wahl === "alle" || (wahl === "unter" ? !!w.unter : w.stufe === "beide" || w.stufe === wahl);
 
 export const werkzeug = (id) => (WERKZEUGE[id] ? { id, ...WERKZEUGE[id] } : null);
 
