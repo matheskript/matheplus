@@ -106,6 +106,12 @@ export function Mathilda() {
       const u = new URL(window.location.href);
       if (u.searchParams.get("pro") === "danke") { try { sessionStorage.setItem("mm-pro-danke", "1"); } catch (e) { /* privat */ } }
       if (u.searchParams.has("konto") || u.searchParams.has("ticket") || u.searchParams.has("pro")) { u.searchParams.delete("konto"); u.searchParams.delete("ticket"); u.searchParams.delete("pro"); window.history.replaceState({}, "", u.pathname + u.search + u.hash); }
+      /* Sprung aus den öffentlichen Formelseiten: /?formel=<id> öffnet die Formel in der Formelsammlung */
+      const f = u.searchParams.get("formel");
+      if (f && /^[a-z0-9-]{1,60}$/.test(f)) {
+        u.searchParams.delete("formel"); window.history.replaceState({}, "", u.pathname + u.search + u.hash);
+        setTimeout(() => gehe({ ansicht: "formeln", formel: f }), 0);
+      }
     } catch (e) { /* ignorieren */ }
     try {   // nach dem Sprachwechsel dieselbe Seite wieder öffnen
       const z = JSON.parse(sessionStorage.getItem("mm-nach-sprachwechsel") || "null");

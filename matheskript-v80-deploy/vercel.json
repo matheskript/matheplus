@@ -1,13 +1,27 @@
 {
   "framework": "vite",
   "rewrites": [
-    { "source": "/((?!api/)[^.]*)", "destination": "/index.html" }
+    {
+      "source": "/formeln",
+      "destination": "/formeln/index.html"
+    },
+    {
+      "source": "/formeln/:id",
+      "destination": "/formeln/:id/index.html"
+    },
+    {
+      "source": "/((?!api/)[^.]*)",
+      "destination": "/index.html"
+    }
   ],
   "headers": [
     {
-      "source": "/(.*)",
+      "source": "/((?!formeln|sitemap\\.xml|robots\\.txt).*)",
       "headers": [
-        { "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive, nosnippet, noimageindex" }
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive, nosnippet, noimageindex"
+        }
       ]
     }
   ]

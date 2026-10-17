@@ -511,7 +511,7 @@ function Spickzettel({ titel, stufeText, liste, gruppeVon, oeffne }) {
    Hauptkomponente
    ====================================================================== */
 export function FormelsammlungNeu({ bereich: start = "analysis", formel: startFormel = null, zuHerleitung }) {
-  const startBereich = FS_BEREICH_ALIAS[start] || start;
+  const startBereich = startFormel && FS_NACH_ID[startFormel] ? FS_NACH_ID[startFormel].bereich : (FS_BEREICH_ALIAS[start] || start);
   const [modus, setModus] = useState("liste");              // liste | faeden
   const [bereich, setBereich] = useState(startBereich === "unterstufe" || FS_BEREICHE.some((b) => b.id === startBereich) ? startBereich : "analysis");
   const [suche, setSuche] = useState("");
