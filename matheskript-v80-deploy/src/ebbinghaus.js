@@ -69,6 +69,20 @@ export const SKILLS = [
   { id: "vektor-betrag", name: "Länge eines Vektors", gen: ["vek-betrag"], voraus: [] },
   { id: "vektor-ortho", name: "Orthogonale Vektoren", gen: ["vek-ortho"], voraus: ["vektor-betrag"] },
   { id: "gerade-ebene-winkel", name: "Winkel Gerade–Ebene", gen: ["vek-geradeebene"], voraus: ["vektor-ortho"] },
+  /* Grundlagen der Mittelstufe */
+  { id: "prozentwert", name: "Prozentwert berechnen", gen: ["pro-wert"], voraus: [] },
+  { id: "grundwert", name: "Grundwert nach Erhöhung", gen: ["pro-grund"], voraus: ["prozentwert"] },
+  { id: "steigung", name: "Steigung aus zwei Punkten", gen: ["fkt-steigung"], voraus: ["bruch-addieren"] },
+  { id: "scheitelpunkt", name: "Scheitelpunkt bestimmen", gen: ["fkt-scheitel"], voraus: ["binomische-formeln"] },
+  { id: "potenzgesetze", name: "Potenzgesetze", gen: ["pot-gesetz"], voraus: [] },
+  { id: "teilweise-wurzel", name: "Teilweise Wurzel ziehen", gen: ["pot-wurzel"], voraus: [] },
+  { id: "exponentialgleichung", name: "Exponentialgleichungen", gen: ["pot-log"], voraus: ["potenzgesetze"] },
+  { id: "pythagoras", name: "Satz des Pythagoras", gen: ["geo-pythagoras"], voraus: ["teilweise-wurzel"] },
+  { id: "trig-dreieck", name: "Sinus und Kosinus im Dreieck", gen: ["geo-trig"], voraus: ["pythagoras"] },
+  { id: "pfadregel", name: "Pfadregel ohne Zurücklegen", gen: ["wkt-pfad"], voraus: ["bruch-addieren"] },
+  { id: "lgs-einsetzen", name: "Gleichungssysteme lösen", gen: ["lgs-zwei"], voraus: ["gleichungen-umformen"] },
+  { id: "sinus-periode", name: "Periode der Sinusfunktion", gen: ["sin-periode"], voraus: [] },
+  { id: "wachstumsfaktor", name: "Exponentielles Wachstum", gen: ["wac-faktor"], voraus: ["prozentwert", "potenzgesetze"] },
 ];
 export const SKILL_IDS = SKILLS.map((s) => s.id);
 export const SKILL_INFO = Object.fromEntries(SKILLS.map((s) => [s.id, s]));

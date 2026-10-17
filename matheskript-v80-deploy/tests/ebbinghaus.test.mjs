@@ -17,7 +17,7 @@ const nicht = (E, id, jetzt, typ = null) => bucheErgebnis(E, [id], { ergebnis: "
 
 test("Definition: Skills, Generatoren und Voraussetzungen sind stimmig", () => {
   assert.deepEqual(validiereSkills(), []);
-  assert.equal(SKILLS.length, 17);
+  assert.equal(SKILLS.length, 30);
   for (const g of GENERATOREN) assert.ok(skillsVonGenerator(g.id).length >= 1, `Generator ${g.id} ohne Skill`);
 });
 test("Zuordnung: Übung → Skills (Hauptskill zuerst, weitere Tags)", () => {

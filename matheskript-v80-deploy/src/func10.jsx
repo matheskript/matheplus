@@ -20,6 +20,7 @@ import { Einstufung, Lernlandkarte, Liniennetz, Profil, lernLaden, lernLeer, ler
 import { syncStarten } from "./lernSync.js";
 import { entdeckenSyncStarten } from "./entdeckenSync.js";
 import { LernpfadSeite } from "./funcLernpfad.jsx";
+import { KapitelTrainingSeite } from "./funcKapitelTraining.jsx";
 import { MathildaChatSeite } from "./funcMathildaChat.jsx";
 import { MathildaKopf, FotoStart, SoArbeitetMathilda } from "./funcMathildaSeite.jsx";
 import { BlattScanner } from "./funcBlattScanner.jsx";
@@ -153,6 +154,7 @@ export function Mathilda() {
   const [landWahl, setLandWahl] = useState("bw");
   const [formelBereich, setFormelBereich] = useState("analysis");
   const [formelZiel, setFormelZiel] = useState(null);
+  const [trainierenZiel, setTrainierenZiel] = useState(null);   // „Eine Sache trainieren“: { kapitel, teil, schulart, klasse }
   const [kapitelZiel, setKapitelZiel] = useState(null);   // Formelauswahl zum Buchkapitel (Quickfinder)   // Deep-Link auf eine einzelne Formel   // Bereich der Formelsammlung          // Bundesland der Landeswettbewerb-Seite
   const [sprung, setSprung] = useState(null);
   const [fotoModus, setFotoModus] = useState("blatt");
@@ -243,6 +245,7 @@ export function Mathilda() {
     setEntdeckenStart(eintrag.ansicht === "entdecken" ? eintrag.seite || null : null);
     if (eintrag.land) setLandWahl(eintrag.land);
     if (eintrag.ansicht === "formeln") { setFormelBereich(eintrag.bereich || "analysis"); setFormelZiel(eintrag.formel || null); }
+    if (eintrag.ansicht === "trainieren") setTrainierenZiel(eintrag.kapitel ? { kapitel: eintrag.kapitel, teil: eintrag.teil || null, schulart: eintrag.schulart, klasse: eintrag.klasse, zeit: Date.now() } : null);
     if (eintrag.ansicht === "kapitelformeln") setKapitelZiel(eintrag.kapitel ? { kapitel: eintrag.kapitel, schulart: eintrag.schulart, klasse: eintrag.klasse, modus: eintrag.modus } : null);
     setMenuOffen(false); setGruppeOffen(null);
     window.scrollTo(0, 0);
@@ -1234,6 +1237,8 @@ export function Mathilda() {
           </div>
           <NachhilfekursSeite />
         </>
+      ) : ansicht === "trainieren" || ansicht === "trainingsplan" ? (
+        <KapitelTrainingSeite key={ansicht + (trainierenZiel ? `${trainierenZiel.kapitel}-${trainierenZiel.teil}-${trainierenZiel.zeit}` : "")} ansicht={ansicht} ziel={ansicht === "trainieren" ? trainierenZiel : null} gehe={gehe} />
       ) : ansicht === "kapitelformeln" ? (
         <React.Suspense fallback={<p role="status" style={{ color: C.grau, fontSize: 15, fontWeight: 300, padding: "24px", textAlign: "center" }}>{englisch() ? "Loading …" : "Wird geladen …"}</p>}>
           <KapitelFormelnSeite key={kapitelZiel ? kapitelZiel.kapitel + (kapitelZiel.modus || "") : "q"} ziel={kapitelZiel} gehe={gehe} />

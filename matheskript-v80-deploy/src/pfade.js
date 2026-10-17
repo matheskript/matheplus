@@ -51,6 +51,8 @@ export const SEITEN = [
   { pfad: "einstufung", ansicht: "einstufung" },
   { pfad: "profil", ansicht: "profil2" },
   { pfad: "lernpfad", ansicht: "lernpfad" },
+  { pfad: "trainieren", ansicht: "trainieren", alias: ["eine-sache-trainieren", "kapiteltraining"] },
+  { pfad: "trainingsplan", ansicht: "trainingsplan", alias: ["trainingsplan-erstellen"] },
 
   /* Lernen */
   { pfad: "arbeitsheft", ansicht: "training", ziel: "module", alias: ["module"] },

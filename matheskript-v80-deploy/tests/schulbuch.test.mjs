@@ -7,14 +7,15 @@ import { WERKZEUGE } from "../src/werkzeuge.js";
 const func10 = readFileSync(new URL("../src/func10.jsx", import.meta.url), "utf8");
 const hatAnsicht = (a) => func10.includes(`ansicht === "${a}"`) || func10.includes(`"${a}"`);
 
-test("acht Klassenboxen je Schulart, die letzten beiden gold", () => {
+test("acht Klassenboxen je Schulart plus Abi-Box, Kursstufe und Abi gold", () => {
   for (const s of SCHULARTEN) {
     const b = klassenBoxen(s.id);
-    assert.equal(b.length, 8, s.id);
-    assert.deepEqual(b.map((x) => x.gold), [false, false, false, false, false, false, true, true], s.id);
+    assert.equal(b.length, 9, s.id);
+    assert.deepEqual(b.map((x) => x.gold), [false, false, false, false, false, false, true, true, true], s.id);
+    assert.equal(b[8].id, "abi");
   }
-  assert.deepEqual(klassenBoxen("g8").map((b) => b.label), ["5", "6", "7", "8", "9", "10", "11", "12"]);
-  assert.deepEqual(klassenBoxen("g9").map((b) => b.label), ["5/6", "7", "8", "9", "10", "11", "12", "13"]);
+  assert.deepEqual(klassenBoxen("g8").map((b) => b.label), ["5", "6", "7", "8", "9", "10", "11", "12", "Abi"]);
+  assert.deepEqual(klassenBoxen("g9").map((b) => b.label), ["5/6", "7", "8", "9", "10", "11", "12", "13", "Abi"]);
   assert.deepEqual(klassenBoxen("gms").map((b) => b.label), klassenBoxen("g9").map((b) => b.label));
   assert.equal(stufeAusKlassenBox(klassenBoxen("g9")[0]), "unter");
   assert.equal(stufeAusKlassenBox(klassenBoxen("g9")[5]), "ober");

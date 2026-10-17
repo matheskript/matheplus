@@ -49,6 +49,15 @@ export const THEMEN = {
   integrale:  { name: "Integrale", gruppe: "Analysis", grund: false, tools: [{ ansicht: "stammintegral", name: "Stammfunktion & Integral" }, { ansicht: "integrale", name: "Integrale" }] },
   bernoulli:  { name: "Bernoulli-Ketten", gruppe: "Stochastik", grund: false, tools: [{ ansicht: "bernoulli", name: "Bernoulli-Kette" }] },
   vektoren:   { name: "Vektoren und Winkel", gruppe: "Vektoren", grund: false, tools: [{ ansicht: "winkel", name: "Winkel und Skalarprodukt" }, { ansicht: "vektorgenerator", name: "Rechnen mit Vektoren" }] },
+  /* Grundlagen der Mittelstufe (Basisübungen für Quickfinder und Trainingsplan) */
+  prozent:    { name: "Prozentrechnung", gruppe: "Grundlagen", grund: true, tools: [{ ansicht: "formeln", bereich: "unterstufe", name: "Formelsammlung · Unterstufe" }] },
+  funktionen: { name: "Geraden und Parabeln", gruppe: "Grundlagen", grund: true, tools: [{ ansicht: "geradengleichung", name: "Geradengleichung" }, { ansicht: "parabeln", name: "Parabeln" }] },
+  potenzen:   { name: "Potenzen, Wurzeln, Logarithmen", gruppe: "Grundlagen", grund: true, tools: [{ ansicht: "terme", name: "Terme und Potenzgesetze" }, { ansicht: "wachstum", name: "Wachstum und Logarithmen" }] },
+  lgs:        { name: "Lineare Gleichungssysteme", gruppe: "Grundlagen", grund: false, tools: [{ ansicht: "lgs", name: "Gleichungssysteme" }] },
+  geometrie:  { name: "Pythagoras und Trigonometrie", gruppe: "Geometrie", grund: false, tools: [{ ansicht: "trigonometrie", name: "Trigonometrie am Dreieck" }] },
+  sinus:      { name: "Sinusfunktion", gruppe: "Analysis", grund: false, tools: [{ ansicht: "sinus", name: "Sinusfunktion" }] },
+  wachstum:   { name: "Exponentielles Wachstum", gruppe: "Analysis", grund: false, tools: [{ ansicht: "wachstum", name: "Wachstum und Logarithmen" }] },
+  wkt:        { name: "Wahrscheinlichkeit und Baumdiagramme", gruppe: "Stochastik", grund: false, tools: [{ ansicht: "vierfelder", name: "Vier-Felder-Tafel" }, { ansicht: "kombinatorik", name: "Urnen und Kombinatorik" }] },
 };
 export const THEMA_IDS = Object.keys(THEMEN);
 
@@ -91,6 +100,34 @@ export const FEHLERTYPEN = {
   mittelterm:       { name: "Mittelterm der binomischen Formel", thema: "terme", kurz: "Beim Ausmultiplizieren von (x ± a)² fehlt der Mittelterm 2ax.",
                       tipp: "(x ± a)² ist nicht x² ± a². Schreib (x ± a)(x ± a) aus." },
 };
+Object.assign(FEHLERTYPEN, {
+  prozentbasis:     { name: "Prozent: falscher Bezug", thema: "prozent", kurz: "Prozent werden nicht durch 100 geteilt oder auf den falschen Grundwert bezogen.",
+                      tipp: "Frag immer zuerst: Was sind hier 100 %? Dann W = G · p/100." },
+  steigungsdreieck: { name: "Steigung vertauscht", thema: "funktionen", kurz: "Bei der Steigung werden x- und y-Unterschied vertauscht.",
+                      tipp: "m = (y₂ − y₁) : (x₂ − x₁) – nach oben durch nach rechts." },
+  scheitelvorzeichen:{ name: "Scheitelpunkt: Vorzeichen", thema: "funktionen", kurz: "Beim quadratischen Ergänzen oder bei −b/2 wird ein Vorzeichen verdreht.",
+                      tipp: "x-Koordinate des Scheitels: −b/2. Danach in f einsetzen und prüfen." },
+  potenzgesetz:     { name: "Potenzgesetze", thema: "potenzen", kurz: "Exponenten werden multipliziert statt addiert oder beim Teilen addiert.",
+                      tipp: "Gleiche Basis: mal → Exponenten plus, geteilt → Exponenten minus." },
+  teilwurzel:       { name: "Teilweise Wurzel ziehen", thema: "potenzen", kurz: "Vor die Wurzel kommt der Quadratfaktor statt seiner Wurzel.",
+                      tipp: "√(k²·m) = k·√m – aus der Quadratzahl die Wurzel ziehen." },
+  logdefinition:    { name: "Exponentialgleichung", thema: "potenzen", kurz: "Vorfaktor nicht zuerst abgeteilt oder Wert statt Exponent angegeben.",
+                      tipp: "Erst die Potenz allein stellen, dann logarithmieren: bˣ = y ⇔ x = log_b(y)." },
+  hypotenuse:       { name: "Pythagoras: welche Seite?", thema: "geometrie", kurz: "Die Hypotenuse wird falsch zugeordnet oder Seiten statt Quadrate addiert.",
+                      tipp: "Die Hypotenuse liegt dem rechten Winkel gegenüber: a² + b² = c²." },
+  sinkos:           { name: "Sinus, Kosinus, Tangens verwechselt", thema: "geometrie", kurz: "Die Winkelfunktion passt nicht zu den beteiligten Seiten.",
+                      tipp: "GAGA-HHAG: sin = G/H, cos = A/H, tan = G/A. Erst die Seiten von α aus benennen." },
+  pfadregel:        { name: "Pfadregel", thema: "wkt", kurz: "Entlang eines Pfades wird addiert statt multipliziert.",
+                      tipp: "Entlang eines Pfades multiplizieren, verschiedene Pfade addieren." },
+  zuruecklegen:     { name: "Ohne Zurücklegen", thema: "wkt", kurz: "Beim zweiten Zug wird mit der unveränderten Urne gerechnet.",
+                      tipp: "Ohne Zurücklegen: Nach dem ersten Zug fehlt eine Kugel – Zähler und Nenner anpassen." },
+  einsetzen:        { name: "LGS nicht zu Ende gelöst", thema: "lgs", kurz: "Nach dem Einsetzen wird die falsche Variable angegeben oder nicht zurückgerechnet.",
+                      tipp: "Ein LGS ist erst gelöst, wenn beide Variablen bestimmt sind. Am Ende Probe in beiden Gleichungen." },
+  periode:          { name: "Periode des Sinus", thema: "sinus", kurz: "Die Periode wird mit 2π·b statt 2π/b berechnet.",
+                      tipp: "f(x) = a·sin(bx): Periode p = 2π/b. Großes b heißt kurze Periode." },
+  wachstumsfaktor:  { name: "Linear statt exponentiell", thema: "wachstum", kurz: "Prozentuales Wachstum wird wie lineares Wachstum gerechnet.",
+                      tipp: "Jedes Jahr mit q = 1 + p/100 multiplizieren: B(n) = B₀ · qⁿ." },
+});
 export const FEHLER_IDS = Object.keys(FEHLERTYPEN);
 
 /* ---------- Gemeinsame Bausteine der Aufgaben ---------- */
@@ -513,6 +550,260 @@ reg({ id: "kur-nachweis", thema: "kurven", afb: 3, fuer: ["nachweis"], mach() {
     loesung: [`$f′(${h}) = 0$ und $f″(${h}) = ${-2 * w} < 0$`, "Hinreichendes Kriterium erfüllt: Hochpunkt."],
     erklaer: erklaerKurve("kriterium"),
   };
+} });
+
+/* ======================================================================
+   GRUNDLAGEN DER MITTELSTUFE – Basisübungen für „Eine Sache trainieren“
+   und den Trainingsplan (Warm-up, Basis-Check, Zwischenschritte).
+   Gleiches Format wie oben, Lösungen nach Regel A5.
+   ====================================================================== */
+
+/* ---------- Prozent ---------- */
+reg({ id: "pro-wert", thema: "prozent", afb: 1, fuer: ["prozentbasis"], mach() {
+  const p = wahl([5, 10, 12, 15, 20, 25, 30, 40, 60, 75]), G = wahl([40, 60, 80, 120, 160, 240, 300, 360, 480, 600]);
+  const W = rund((G * p) / 100, 2);
+  return bereinigen({
+    daten: { p, G },
+    text: `Ein Fahrrad kostet $${G}$ €. Es wird um ${p} % reduziert. Wie viel Euro beträgt der Rabatt?`,
+    typ: "zahl", wert: W, toleranz: 0.006, einheit: "€", eingabe: "Betrag in Euro",
+    fehler: [{ wert: G * p, typ: "prozentbasis", text: `„Prozent“ heißt „von Hundert“: ${p} % sind $\\frac{${p}}{100}$. Du hast nicht durch 100 geteilt.` },
+             { wert: rund(G / p, 2), typ: "prozentbasis", text: "Der Grundwert wird mit dem Prozentsatz multipliziert, nicht durch ihn geteilt." },
+             { wert: rund(G - W, 2), typ: "prozentbasis", text: "Das ist der neue Preis. Gefragt ist der Rabatt, also der Prozentwert selbst." }],
+    hinweise: ["Was ist hier der Grundwert, was der Prozentsatz, und was wird gesucht?", "Prozentwert: $W = G · \\frac{p}{100}$", `Rechne $${G} · ${dez(p / 100, 2)}$.`],
+    regeln: [{ name: "Prozentwert" }],
+    loesung: [`$W = ${G} · \\frac{${p}}{100} = ${dez(W, 2)}$`, `Der Rabatt beträgt $${dez(W, 2)}$ €.`],
+    erklaer: { frage: "Erkläre, wie du den Rabatt berechnet hast.", kriterien: [K("grund", "Grundwert und Prozentsatz benennen", ["grundwert", "prozentsatz", "von", "100"], "Von welchem Betrag werden die Prozente genommen?"), K("formel", "Mit p/100 multiplizieren", ["mal", "·", "\\*", "multipli", "/\\s*100", "durch 100", "0,\\d"], "Wie wird aus Prozent eine Zahl, mit der du rechnen kannst?")] },
+  });
+} });
+reg({ id: "pro-grund", thema: "prozent", afb: 2, fuer: ["prozentbasis"], mach() {
+  const p = wahl([10, 20, 25, 50]), G = wahl([40, 60, 80, 120, 160, 200, 240, 320]);
+  const q = 1 + p / 100, N = rund(G * q, 2);
+  return bereinigen({
+    daten: { p, G, N },
+    text: `Nach einer Preiserhöhung um ${p} % kostet ein Artikel $${dez(N, 2)}$ €. Wie viel hat er vorher gekostet?`,
+    typ: "zahl", wert: G, toleranz: 0.006, einheit: "€", eingabe: "Betrag in Euro",
+    fehler: [{ wert: rund(N * (1 - p / 100), 2), typ: "prozentbasis", text: `Die ${p} % beziehen sich auf den alten Preis, nicht auf den neuen. Darum darfst du nicht ${p} % vom neuen Preis abziehen.` },
+             { wert: rund(N - p, 2), typ: "prozentbasis", text: "Prozent sind keine Euro. Rechne mit dem Wachstumsfaktor." }],
+    hinweise: ["Welcher Preis ist hier der Grundwert, also 100 %?", `Neuer Preis = alter Preis · $${dez(q, 2)}$. Also: alter Preis = neuer Preis : $${dez(q, 2)}$.`, `Rechne $${dez(N, 2)} : ${dez(q, 2)}$.`],
+    regeln: [{ name: "Wachstumsfaktor" }, { name: "Grundwert" }],
+    loesung: [`$q = 1 + \\frac{${p}}{100} = ${dez(q, 2)}$`, `$G = ${dez(N, 2)} : ${dez(q, 2)} = ${G}$`, `Vorher kostete der Artikel $${G}$ €.`],
+    erklaer: { frage: "Erkläre, warum du nicht einfach die Prozent vom neuen Preis abziehst.", kriterien: [K("grund", "Der alte Preis ist der Grundwert", ["alt", "grundwert", "100\\s*%", "vorher"], "Auf welchen Preis beziehen sich die Prozent?"), K("teilen", "Durch den Wachstumsfaktor teilen", ["teil", "geteilt", ":", "/", "faktor", "1,\\d"], "Wie kommst du vom neuen zum alten Preis zurück?")] },
+  });
+} });
+
+/* ---------- Funktionen ---------- */
+reg({ id: "fkt-steigung", thema: "funktionen", afb: 1, fuer: ["steigungsdreieck", "vorzeichen"], mach() {
+  for (;;) {
+    const x1 = zz(-5, 4), dx = wahl([1, 2, 3, 4]), m = wahl([-3, -2, -1, 2, 3, 4, 0.5, -0.5, 1.5]);
+    const dy = m * dx;
+    if (!Number.isInteger(dy) || dy === 0 || Math.abs(dy) === Math.abs(dx)) continue;
+    const y1 = zz(-5, 5), x2 = x1 + dx, y2 = y1 + dy, quo = dx === 1 ? String(dy) : `\\frac{${dy}}{${dx}}`;
+    return bereinigen({
+      daten: { x1, y1, x2, y2 },
+      text: `Eine Gerade geht durch die Punkte $P(${x1} \\mid ${y1})$ und $Q(${x2} \\mid ${y2})$. Bestimme ihre Steigung $m$.`,
+      typ: "zahl", wert: m, toleranz: 1e-9, eingabe: "Zahl oder Bruch",
+      fehler: [{ wert: dx / dy, typ: "steigungsdreieck", text: "Zähler und Nenner sind vertauscht. Steigung heißt: Höhenunterschied durch Breitenunterschied, $m = \\frac{y_2 - y_1}{x_2 - x_1}$." },
+               { wert: -m, typ: "vorzeichen", text: "Achte auf die Reihenfolge: Oben und unten muss derselbe Punkt zuerst stehen." }],
+      hinweise: ["Wie viel geht es nach oben (oder unten), wenn du von P nach Q nach rechts gehst?", "$m = \\frac{y_2 - y_1}{x_2 - x_1}$", `Höhenunterschied $${y2} - ${klam(y1)}$, Breitenunterschied $${x2} - ${klam(x1)}$.`],
+      regeln: [{ name: "Steigung" }],
+      loesung: [`$m = \\frac{${y2} - ${klam(y1)}}{${x2} - ${klam(x1)}} = ${quo}${bruchTex(dy, dx) !== quo ? ` = ${bruchTex(dy, dx)}` : ""}$`],
+      erklaer: { frage: "Erkläre, wie du die Steigung bestimmt hast.", kriterien: [K("dy", "Höhenunterschied (y-Werte) nennen", ["y", "höhe", "senkrecht", "oben", "unten"], "Was ändert sich zwischen den y-Werten?"), K("quotient", "Durch den Breitenunterschied (x-Werte) teilen", ["durch", "geteilt", "/", "bruch", "x"], "Womit teilst du den Höhenunterschied?")] },
+    });
+  }
+} });
+reg({ id: "fkt-scheitel", thema: "funktionen", afb: 2, fuer: ["scheitelvorzeichen"], mach() {
+  for (;;) {
+    const h = zzOhne0(-5, 5), c = zz(-9, 12), b = -2 * h, ys = c - h * h;
+    if (ys === 0 || c === 0) continue;
+    return bereinigen({
+      daten: { b, c },
+      text: `Bestimme den Scheitelpunkt der Parabel $f(x) = x^2 ${tm(b, "x")} ${sgn(c)}$. Gib die $y$-Koordinate an.`,
+      typ: "zahl", wert: ys, toleranz: 1e-9,
+      fehler: [{ wert: c + h * h, typ: "scheitelvorzeichen", text: `Beim quadratischen Ergänzen wird $${h * h}$ addiert und gleich wieder abgezogen. Bei dir ist das Vorzeichen des Ausgleichs falsch.` },
+               { wert: h * h - b * h + c, typ: "scheitelvorzeichen", text: `Die $x$-Koordinate ist $-\\frac{b}{2} = ${h}$, nicht $${-h}$. Setze sie dann in $f$ ein.` }],
+      hinweise: ["Wie bekommst du aus der Normalform die Scheitelpunktform?", "Quadratisch ergänzen: $x^2 + bx = (x + \\frac{b}{2})^2 - (\\frac{b}{2})^2$", `Hier ist $\\frac{b}{2} = ${mi(-h)}$. Also $f(x) = (x ${sgn(-h)})^2 - ${h * h} ${sgn(c)}$.`],
+      regeln: [{ name: "Scheitelpunktform" }, { name: "Quadratische Ergänzung" }],
+      loesung: [`$f(x) = (x ${sgn(-h)})^2 - ${h * h} ${sgn(c)} = (x ${sgn(-h)})^2 ${sgn(ys)}$`, `$S(${h} \\mid ${ys})$`],
+      erklaer: { frage: "Erkläre, wie du den Scheitelpunkt gefunden hast.", kriterien: [K("ergaenzen", "Quadratisch ergänzen oder x = −b/2 nennen", ["ergänz", "scheitelpunktform", "b\\s*/\\s*2", "-\\s*b", "halbe"], "Wie findest du die x-Koordinate des Scheitels?"), K("einsetzen", "Die y-Koordinate durch Einsetzen oder Ablesen bestimmen", ["einsetz", "ablesen", "f\\(", "y"], "Woher kommt die y-Koordinate?")] },
+    });
+  }
+} });
+
+/* ---------- Potenzen, Wurzeln, Logarithmen ---------- */
+reg({ id: "pot-gesetz", thema: "potenzen", afb: 1, fuer: ["potenzgesetz"], mach() {
+  for (;;) {
+    const m = zz(2, 9), n = zz(2, 9), k = zz(2, 9), r = m + n - k;
+    if (r === 0 || r === 1 || m * n - k === r || m + n + k === r) continue;
+    return bereinigen({
+      daten: { m, n, k },
+      text: `Vereinfache $\\frac{x^{${m}} · x^{${n}}}{x^{${k}}} = x^{□}$. Welche Zahl gehört in das Kästchen?`,
+      typ: "zahl", wert: r, toleranz: 1e-9,
+      fehler: [{ wert: m * n - k, typ: "potenzgesetz", text: "Gleiche Basis, multiplizieren: Die Exponenten werden addiert, nicht multipliziert." },
+               { wert: m + n + k, typ: "potenzgesetz", text: "Beim Dividieren werden die Exponenten subtrahiert." }],
+      hinweise: ["Was passiert mit den Exponenten, wenn du Potenzen mit gleicher Basis multiplizierst oder dividierst?", "$x^a · x^b = x^{a+b}$ und $\\frac{x^a}{x^b} = x^{a-b}$", `Rechne $${m} + ${n} - ${k}$.`],
+      regeln: [{ name: "Potenzgesetze" }],
+      loesung: [`$\\frac{x^{${m}} · x^{${n}}}{x^{${k}}} = x^{${m} + ${n} - ${k}} = x^{${r}}$`],
+      erklaer: { frage: "Erkläre, welche Potenzgesetze du benutzt hast.", kriterien: [K("add", "Beim Multiplizieren Exponenten addieren", ["addier", "plus", "\\+", "zusammenzählen"], "Was passiert beim Multiplizieren mit den Exponenten?"), K("sub", "Beim Dividieren Exponenten subtrahieren", ["subtrahier", "minus", "abzieh", "-"], "Und beim Dividieren?")] },
+    });
+  }
+} });
+reg({ id: "pot-wurzel", thema: "potenzen", afb: 1, fuer: ["teilwurzel"], mach() {
+  const k = zz(2, 9), m = wahl([2, 3, 5, 6, 7]), r = k * k * m;
+  return bereinigen({
+    daten: { k, m },
+    text: `Ziehe teilweise die Wurzel: $\\sqrt{${r}} = □ · \\sqrt{${m}}$. Welche Zahl gehört in das Kästchen?`,
+    typ: "zahl", wert: k, toleranz: 1e-9,
+    fehler: [{ wert: k * k, typ: "teilwurzel", text: `Aus $${k * k}$ wird beim Wurzelziehen $${k}$: $\\sqrt{${k * k}} = ${k}$.` },
+             { wert: r / m, typ: "teilwurzel", text: `Vor die Wurzel kommt die Wurzel des Quadratfaktors, nicht der Faktor selbst.` }],
+    hinweise: [`Welche Quadratzahl steckt als Faktor in $${r}$?`, "$\\sqrt{a · b} = \\sqrt{a} · \\sqrt{b}$", `$${r} = ${k * k} · ${m}$`],
+    regeln: [{ name: "Wurzelgesetze" }],
+    loesung: [`$\\sqrt{${r}} = \\sqrt{${k * k} · ${m}} = ${k}\\sqrt{${m}}$`],
+    erklaer: { frage: "Erkläre, wie du die Wurzel zerlegt hast.", kriterien: [K("quadrat", "Eine Quadratzahl als Faktor abspalten", ["quadrat", "zerleg", "faktor", "\\d+\\s*[·*]"], "Welcher Faktor ist eine Quadratzahl?")] },
+  });
+} });
+reg({ id: "pot-log", thema: "potenzen", afb: 2, fuer: ["logdefinition"], mach() {
+  for (;;) {
+    const b = wahl([2, 3, 5]), k = zz(2, b === 5 ? 3 : b === 3 ? 4 : 6), a = wahl([2, 3, 4, 5]);
+    if (a === b) continue;
+    const bk = b ** k, c = a * bk;
+    return bereinigen({
+      daten: { a, b, k },
+      text: `Löse die Gleichung $${a} · ${b}^x = ${c}$.`,
+      typ: "zahl", wert: k, toleranz: 1e-6, eingabe: "Zahl",
+      fehler: [{ wert: Math.log(c) / Math.log(b), typ: "logdefinition", text: `Erst den Faktor ${a} wegteilen, dann logarithmieren: $${b}^x = ${bk}$.` },
+               { wert: bk, typ: "logdefinition", text: `$${bk}$ ist der Wert der Potenz. Gesucht ist der Exponent: Wie oft musst du $${b}$ mit sich selbst multiplizieren?` }],
+      hinweise: ["Was musst du zuerst tun, damit die Potenz allein steht?", `$${b}^x = y \\iff x = \\log_{${b}}(y)$`, `Teile durch ${a}: $${b}^x = ${bk}$.`],
+      regeln: [{ name: "Logarithmus" }],
+      loesung: [`$${b}^x = ${c} : ${a} = ${bk}$`, `$x = \\log_{${b}}(${bk}) = ${k}$`],
+      erklaer: { frage: "Erkläre, wie du die Gleichung gelöst hast.", kriterien: [K("teilen", "Zuerst durch den Vorfaktor teilen", ["teil", "geteilt", ":", "/", "vorfaktor"], "Was passiert mit dem Faktor vor der Potenz?"), K("log", "Logarithmieren bzw. Exponent ablesen", ["log", "exponent", "hoch", "mal\\s+mit\\s+sich"], "Wie findest du den Exponenten?")] },
+    });
+  }
+} });
+
+/* ---------- Geometrie ---------- */
+const TRIPEL = [[3, 4, 5], [5, 12, 13], [6, 8, 10], [8, 15, 17], [7, 24, 25], [9, 12, 15], [20, 21, 29], [12, 16, 20]];
+reg({ id: "geo-pythagoras", thema: "geometrie", afb: 1, fuer: ["hypotenuse"], mach() {
+  const [a, b, c] = wahl(TRIPEL), kathete = Math.random() < 0.5;
+  if (!kathete) return bereinigen({
+    daten: { a, b },
+    text: `Ein rechtwinkliges Dreieck hat die Katheten $a = ${a}$ cm und $b = ${b}$ cm. Wie lang ist die Hypotenuse $c$?`,
+    typ: "zahl", wert: c, toleranz: 0.01, einheit: "cm", eingabe: "Länge in cm",
+    fehler: [{ wert: a + b, typ: "hypotenuse", text: "Die Seiten werden nicht addiert, sondern ihre Quadrate: $c^2 = a^2 + b^2$." },
+             { wert: a * a + b * b, typ: "hypotenuse", text: "Das ist $c^2$. Zieh noch die Wurzel." }],
+    hinweise: ["Welche Seite liegt dem rechten Winkel gegenüber?", "Satz des Pythagoras: $a^2 + b^2 = c^2$", `Rechne $${a * a} + ${b * b}$ und ziehe die Wurzel.`],
+    regeln: [{ name: "Satz des Pythagoras" }],
+    loesung: [`$c^2 = ${a}^2 + ${b}^2 = ${a * a} + ${b * b} = ${c * c}$`, `$c = \\sqrt{${c * c}} = ${c}$ cm`],
+    erklaer: { frage: "Erkläre, wie du die Hypotenuse berechnet hast.", kriterien: [K("satz", "Den Satz des Pythagoras nennen", ["pythagoras", "a\\^?2\\s*\\+\\s*b", "a²", "quadrat"], "Welcher Satz verbindet die drei Seiten?"), K("wurzel", "Am Ende die Wurzel ziehen", ["wurzel", "√"], "Was musst du mit c² noch machen?")] },
+  });
+  return bereinigen({
+    daten: { a, c },
+    text: `In einem rechtwinkligen Dreieck ist die Hypotenuse $c = ${c}$ cm und eine Kathete $a = ${a}$ cm lang. Wie lang ist die andere Kathete $b$?`,
+    typ: "zahl", wert: b, toleranz: 0.01, einheit: "cm", eingabe: "Länge in cm",
+    fehler: [{ wert: Math.sqrt(c * c + a * a), typ: "hypotenuse", text: "Die Hypotenuse ist die längste Seite. Für eine Kathete gilt $b^2 = c^2 - a^2$, nicht $c^2 + a^2$." },
+             { wert: c - a, typ: "hypotenuse", text: "Nicht die Seiten subtrahieren, sondern ihre Quadrate." }],
+    hinweise: ["Welche der gegebenen Seiten ist die Hypotenuse?", "$a^2 + b^2 = c^2$, also $b^2 = c^2 - a^2$", `Rechne $${c * c} - ${a * a}$ und ziehe die Wurzel.`],
+    regeln: [{ name: "Satz des Pythagoras" }],
+    loesung: [`$b^2 = ${c}^2 - ${a}^2 = ${c * c} - ${a * a} = ${b * b}$`, `$b = \\sqrt{${b * b}} = ${b}$ cm`],
+    erklaer: { frage: "Erkläre, wie du die Kathete berechnet hast.", kriterien: [K("satz", "Nach b² umstellen: c² minus a²", ["minus", "-", "subtrah", "abzieh", "umstell"], "Wie stellst du a² + b² = c² nach b² um?"), K("wurzel", "Am Ende die Wurzel ziehen", ["wurzel", "√"], "Was musst du mit b² noch machen?")] },
+  });
+} });
+reg({ id: "geo-trig", thema: "geometrie", afb: 2, fuer: ["sinkos"], mach() {
+  for (;;) {
+    const al = wahl([25, 30, 35, 40, 50, 55, 65]), c = zz(5, 20), gegen = Math.random() < 0.5;
+    const r = (al * Math.PI) / 180;
+    const w = c * (gegen ? Math.sin(r) : Math.cos(r)), f = c * (gegen ? Math.cos(r) : Math.sin(r));
+    if (Math.abs(w - f) < 0.2 || Math.abs((w * 100) % 1 - 0.5) < 0.05) continue;
+    const fn = gegen ? "\\sin" : "\\cos";
+    return bereinigen({
+      daten: { al, c, gegen },
+      text: `Im Dreieck $ABC$ ist der Winkel bei $C$ ein rechter Winkel. Es gilt $α = ${al}°$ und $c = ${c}$ cm. Berechne die ${gegen ? "Gegenkathete $a$" : "Ankathete $b$"} von $α$ auf zwei Nachkommastellen.`,
+      typ: "zahl", wert: rund(w, 2), toleranz: 0.011, einheit: "cm", eingabe: "zwei Nachkommastellen", abstand: 0.05,
+      fehler: [{ wert: rund(f, 2), typ: "sinkos", text: gegen ? "Sinus gehört zur Gegenkathete: $\\sin α = \\frac{\\text{Gegenkathete}}{\\text{Hypotenuse}}$. Du hast den Kosinus genommen." : "Kosinus gehört zur Ankathete: $\\cos α = \\frac{\\text{Ankathete}}{\\text{Hypotenuse}}$. Du hast den Sinus genommen." },
+               { wert: rund(c * Math.tan(r), 2), typ: "sinkos", text: "Der Tangens verbindet die beiden Katheten. Hier ist die Hypotenuse gegeben, also brauchst du Sinus oder Kosinus." }],
+      hinweise: ["Welche Seite ist von α aus gesehen gegeben, welche gesucht: Hypotenuse, Gegenkathete oder Ankathete?", "$\\sin α = \\frac{\\text{Gegenkathete}}{\\text{Hypotenuse}}$, $\\cos α = \\frac{\\text{Ankathete}}{\\text{Hypotenuse}}$", `Rechne $${c} · ${fn}(${al}°)$ (Taschenrechner auf DEG).`],
+      regeln: [{ name: gegen ? "Sinus im rechtwinkligen Dreieck" : "Kosinus im rechtwinkligen Dreieck" }],
+      loesung: [`$${gegen ? "a" : "b"} = c · ${fn}(α) = ${c} · ${fn}(${al}°) ≈ ${dez(rund(w, 2), 2)}$ cm`],
+      erklaer: { frage: "Erkläre, warum du diese Winkelfunktion gewählt hast.", kriterien: [K("seiten", "Gegebene und gesuchte Seite benennen (Hypotenuse, An-/Gegenkathete)", ["hypotenuse", "gegenkathete", "ankathete"], "Welche Seiten sind von α aus gesehen beteiligt?"), K("funktion", "Die passende Funktion nennen", [gegen ? "sin" : "cos"], "Welche Winkelfunktion verbindet genau diese beiden Seiten?")] },
+    });
+  }
+} });
+
+/* ---------- Wahrscheinlichkeit ---------- */
+reg({ id: "wkt-pfad", thema: "wkt", afb: 1, fuer: ["pfadregel", "zuruecklegen"], mach() {
+  const r = zz(2, 5), b = zz(2, 6), n = r + b;
+  const z = r * (r - 1), nn = n * (n - 1);
+  const ende = bruchTex(z, nn) === `\\frac{${z}}{${nn}}` ? "" : ` = ${bruchTex(z, nn)}`;
+  return bereinigen({
+    daten: { r, b },
+    text: `In einer Urne liegen $${r}$ rote und $${b}$ blaue Kugeln. Du ziehst zweimal ohne Zurücklegen. Wie groß ist die Wahrscheinlichkeit, zwei rote Kugeln zu ziehen? Gib einen Bruch (z. B. 2/15) oder eine Dezimalzahl an.`,
+    typ: "zahl", wert: z / nn, toleranz: 6e-4, eingabe: "Bruch oder Dezimalzahl",
+    fehler: [{ wert: (r / n) ** 2, typ: "zuruecklegen", text: `Ohne Zurücklegen ändert sich die Urne: Beim zweiten Zug sind nur noch $${r - 1}$ rote von $${n - 1}$ Kugeln da.` },
+             { wert: r / n + (r - 1) / (n - 1), typ: "pfadregel", text: "Entlang eines Pfades werden die Wahrscheinlichkeiten multipliziert, nicht addiert." }],
+    hinweise: ["Zeichne das Baumdiagramm: Was ändert sich nach dem ersten Zug?", "Pfadregel: Entlang eines Pfades werden die Wahrscheinlichkeiten multipliziert.", `Erster Zug: $\\frac{${r}}{${n}}$, zweiter Zug: $\\frac{${r - 1}}{${n - 1}}$.`],
+    regeln: [{ name: "Pfadregeln" }],
+    loesung: [`$P(rr) = \\frac{${r}}{${n}} · \\frac{${r - 1}}{${n - 1}} = \\frac{${z}}{${nn}}${ende}$`],
+    erklaer: { frage: "Erkläre, wie du die Wahrscheinlichkeit berechnet hast.", kriterien: [K("mult", "Entlang des Pfades multiplizieren", ["multipli", "mal", "·", "\\*", "pfadregel", "produkt"], "Was machst du mit den Wahrscheinlichkeiten entlang eines Pfades?"), K("ohne", "Beim zweiten Zug eine Kugel weniger", ["weniger", "ohne zurück", "n\\s*-\\s*1", "nur noch", "eine kugel"], "Wie sieht die Urne beim zweiten Zug aus?")] },
+  });
+} });
+
+/* ---------- Lineare Gleichungssysteme ---------- */
+reg({ id: "lgs-zwei", thema: "lgs", afb: 2, fuer: ["einsetzen"], mach() {
+  for (;;) {
+    const x = zzOhne0(-5, 5), y = zzOhne0(-5, 5), b1 = wahl([-3, -2, 2, 3]), a2 = wahl([-3, -2, 2, 3, 4]), b2 = zzOhne0(-4, 4);
+    const c1 = x + b1 * y, c2 = a2 * x + b2 * y, k = b2 - a2 * b1, r = c2 - a2 * c1;
+    if (c1 === 0 || Math.abs(k) < 2 || x === y || Math.abs(y) === 1) continue;
+    return bereinigen({
+      daten: { x, y, b1, a2, b2 },
+      text: `Löse das Gleichungssystem. I: $x ${tm(b1, "y")} = ${c1}$, II: $${koef(a2)}x ${tm(b2, "y")} = ${c2}$. Gib $x$ an.`,
+      typ: "zahl", wert: x, toleranz: 1e-9,
+      fehler: [{ wert: y, typ: "einsetzen", text: `Das ist der Wert von $y$. Setze ihn noch in I ein, um $x$ zu erhalten.` },
+               { wert: c1 + b1 * y, typ: "vorzeichen", text: `Beim Umstellen von I wechselt $${tm(b1, "y")}$ auf die andere Seite das Vorzeichen.` }],
+      hinweise: ["Welche Gleichung lässt sich am leichtesten nach einer Variablen auflösen?", "Einsetzungsverfahren: I nach $x$ auflösen, in II einsetzen, $y$ bestimmen, zurück in I.", `Aus I: $x = ${c1} ${tm(-b1, "y")}$. Setze das in II ein.`],
+      regeln: [{ name: "Einsetzungsverfahren" }],
+      loesung: [`I: $x = ${c1} ${tm(-b1, "y")}$`, `In II: $${a2}(${c1} ${tm(-b1, "y")}) ${tm(b2, "y")} = ${c2}$`, `$${a2 * c1} ${tm(-a2 * b1 + b2, "y")} = ${c2}$`, `$${k}y = ${r}$`, `$y = ${y}$`, `$x = ${c1} - ${klam(b1)}·${klam(y)} = ${x}$`],
+      erklaer: { frage: "Erkläre dein Vorgehen.", kriterien: [K("aufloesen", "Eine Gleichung nach einer Variablen auflösen", ["auflös", "umstell", "x\\s*="], "Welche Gleichung hast du zuerst umgestellt?"), K("einsetzen", "In die andere Gleichung einsetzen", ["einsetz", "eingesetzt", "ersetz"], "Was machst du mit dem umgestellten Term?")] },
+    });
+  }
+} });
+
+/* ---------- Sinusfunktion ---------- */
+reg({ id: "sin-periode", thema: "sinus", afb: 1, fuer: ["periode"], mach() {
+  const b = wahl([2, 3, 4]), a = wahl([2, 3, -2, 4]);
+  const pi = (z, n) => (n === 1 ? (z === 1 ? "π" : `${z}π`) : `\\frac{${z === 1 ? "" : z}π}{${n}}`);
+  const per = (z, n) => { const g = ggT(z, n); return pi(z / g, n / g); };
+  const roh = [{ t: per(2, b), ok: true }, { t: per(2 * b, 1), f: "Die Periode wird kleiner, wenn $b$ größer wird: $p = \\frac{2π}{b}$, nicht $2π · b$." },
+    { t: "2π", f: "$2π$ ist die Periode von $\\sin(x)$. Der Faktor $b$ im Argument staucht den Graphen." },
+    { t: per(1, b), f: "Die Grundperiode des Sinus ist $2π$, nicht $π$: $p = \\frac{2π}{b}$." }];
+  const ord = mischen(roh);
+  return {
+    daten: { a, b },
+    text: `Welche Periode hat $f(x) = ${koef(a)}\\sin(${b}x)$?`, typ: "wahl", optionen: ord.map((o) => `$${o.t}$`), richtig: ord.findIndex((o) => o.ok),
+    fehler: ord.map((o, i) => (o.ok ? null : { wahl: i, typ: "periode", text: o.f })).filter(Boolean),
+    hinweise: ["Was bewirkt der Faktor vor dem $x$ im Argument, was der Faktor vor dem Sinus?", "Bei $f(x) = a\\sin(bx)$ ist die Periode $p = \\frac{2π}{b}$. Die Amplitude $|a|$ ändert die Periode nicht.", `Hier ist $b = ${b}$.`],
+    regeln: [{ name: "Periode" }],
+    loesung: [`$p = \\frac{2π}{${b}} = ${per(2, b)}$`, `Der Faktor $${a}$ ändert nur die Amplitude.`],
+    erklaer: { frage: "Erkläre, wie du die Periode bestimmt hast.", kriterien: [K("formel", "2π durch b teilen", ["2\\s*π\\s*/", "durch", "geteilt", "b"], "Welche Formel verbindet b und die Periode?"), K("amplitude", "Der Faktor vor dem Sinus ändert die Periode nicht", ["amplitude", "streck", "höhe", "ändert nicht", "egal"], "Spielt der Faktor vor dem Sinus eine Rolle?")] },
+  };
+} });
+
+/* ---------- Exponentielles Wachstum ---------- */
+reg({ id: "wac-faktor", thema: "wachstum", afb: 1, fuer: ["wachstumsfaktor"], mach() {
+  for (;;) {
+    const B = wahl([200, 500, 800, 1000, 1500, 2000]), p = wahl([2, 3, 4, 5, 8, 10]), n = zz(2, 6);
+    const q = 1 + p / 100, v = B * q ** n, lin = B * (1 + (n * p) / 100);
+    if (Math.abs(v - Math.round(v) - 0.5) < 0.06 || Math.abs(Math.round(v) - Math.round(lin)) < 2) continue;
+    return bereinigen({
+      daten: { B, p, n },
+      text: `Ein Guthaben von $${B}$ € wird jedes Jahr mit ${p} % verzinst (Zinseszins). Wie groß ist es nach $${n}$ Jahren? Runde auf ganze Euro.`,
+      typ: "zahl", wert: Math.round(v), toleranz: 0.6, einheit: "€", eingabe: "ganze Euro", abstand: 1.5,
+      fehler: [{ wert: Math.round(lin), typ: "wachstumsfaktor", text: `Das wäre lineares Wachstum: Jedes Jahr kommen ${p} % vom NEUEN Betrag dazu, also wird ${n}-mal mit $${dez(q, 2)}$ multipliziert.` },
+               { wert: Math.round(B * q * n), typ: "wachstumsfaktor", text: `Der Faktor $${dez(q, 2)}$ wird $${n}$-mal multipliziert, also hoch $${n}$, nicht mal $${n}$.` }],
+      hinweise: ["Mit welchem Faktor wird das Guthaben jedes Jahr multipliziert?", "Exponentielles Wachstum: $B(n) = B_0 · q^n$ mit $q = 1 + \\frac{p}{100}$", `Rechne $${B} · ${dez(q, 2)}^{${n}}$.`],
+      regeln: [{ name: "Exponentielles Wachstum" }, { name: "Wachstumsfaktor" }],
+      loesung: [`$q = 1 + \\frac{${p}}{100} = ${dez(q, 2)}$`, `$B(${n}) = ${B} · ${dez(q, 2)}^{${n}} ≈ ${Math.round(v)}$ €`],
+      erklaer: { frage: "Erkläre, wie du gerechnet hast.", kriterien: [K("faktor", "Den Wachstumsfaktor 1 + p/100 nennen", ["faktor", "1,\\d", "1\\.\\d", "q"], "Mit welcher Zahl wird jedes Jahr multipliziert?"), K("hoch", "Den Faktor n-mal multiplizieren (Potenz)", ["hoch", "\\^", "potenz", "mal multipli", "jedes jahr"], "Wie oft wird multipliziert?")] },
+    });
+  }
 } });
 
 /* ======================================================================
