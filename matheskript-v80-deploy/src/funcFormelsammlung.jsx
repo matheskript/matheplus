@@ -354,8 +354,8 @@ function FormelKarte({ e, onClick, zeigeBereich, gemerkt, verdeckt }) {
   return (
     <button type="button" onClick={() => (zu ? setOffen(true) : onClick())} data-formel={e.id} aria-label={zu ? `${e.n} – Formel aufdecken` : undefined}
       style={{ width: "100%", display: "block", textAlign: "left", fontFamily: "inherit", cursor: "pointer", border: "none", ...karte, padding: "14px 16px 12px", marginBottom: 9, color: C.tinte }}>
-      <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "6px 10px", flexWrap: "wrap" }}>
-        <span style={{ minWidth: 0, flex: "1 1 170px" }}>
+      <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexWrap: "nowrap" }}>
+        <span style={{ minWidth: 0, flex: "1 1 0", overflowWrap: "anywhere" }}>
           {zeigeBereich && <span style={{ display: "block", fontSize: 11, fontWeight: 600, color: C.hellgrau, marginBottom: 1 }}>{bereichVon(e.bereich).name}</span>}
           <span style={{ fontSize: 14.5, fontWeight: 700 }}>{gemerkt && <span aria-label="gemerkt" style={{ color: C.gruen, marginRight: 4 }}>★</span>}{e.n}</span>
         </span>
