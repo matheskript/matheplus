@@ -9,47 +9,49 @@ const GOLD = C.flaggold;
 const NACHT = C.seeTief;
 
 /* Mathilda als Scherenschnitt, aus dem Foto abgeleitet (siehe mathildaPortraet.js):
-   Haar in Logo-Gold, Haut und Oberteil weiß, Schatten, Augen, Mund und Sonnenbrille
-   sind echte Aussparungen (Maske) – das Bild sitzt so auf jedem Hintergrund. */
+   Haar in Logo-Gold, Haut und Oberteil weiß, Schatten als echte Aussparung (Maske),
+   dazu Sonnenbrille, Ohrring und ein leichtes Grinsen. Sitzt auf jedem Hintergrund. */
 export function MathildaBild({ groesse = 220, style, className }) {
   const id = "mm" + React.useId().replace(/[^a-zA-Z0-9]/g, "");
-  const punkte = [[140, 258], [133, 268], [137, 278], [128, 286], [124, 294], [144, 268]];
+  const glas = (cx, sx) => (
+    <g key={cx} transform={`translate(${cx} 191) scale(${sx * 0.86} 0.92)`}>
+      <path d="M-40 -27 C -20 -32, 16 -32, 38 -28 C 43 -27, 45 -23, 44.5 -18 L 41 7 C 38.5 22, 28 31, 13 31 H -9 C -26 31, -37 22, -40 7 L -44 -17 C -44.6 -23, -43 -26.4, -40 -27 Z"
+        fill={`url(#${id}g)`} stroke={GOLD} strokeWidth="4" strokeLinejoin="round" />
+      <path d="M-30 -17 L -10 -17 M-33 -8 L -24 -8" stroke="#FFFFFF" strokeOpacity=".7" strokeWidth="3.2" strokeLinecap="round" />
+      <path d="M15 13 L 28 0" stroke="#FFFFFF" strokeOpacity=".25" strokeWidth="3" strokeLinecap="round" />
+    </g>
+  );
   return (
-    <svg viewBox="0 0 242 295" width={groesse} height={Math.round(groesse * 295 / 242)} className={className} style={style}
+    <svg viewBox="0 0 320 440" width={groesse} height={Math.round(groesse * 440 / 320)} className={className} style={style}
       aria-label="Mathilda" role="img">
       <defs>
-        <mask id={id} maskUnits="userSpaceOnUse" x="0" y="0" width="242" height="295">
-          <rect width="242" height="295" fill="#000" />
+        <linearGradient id={id + "g"} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#0A1638" /><stop offset="0.65" stopColor="#13285A" /><stop offset="1" stopColor="#24427E" />
+        </linearGradient>
+        <mask id={id} maskUnits="userSpaceOnUse" x="0" y="0" width="320" height="440">
+          <rect width="320" height="440" fill="#000" />
           <path fill="#fff" d={HAIR} />
           <path fill="#fff" fillRule="evenodd" d={WHITE} />
           <path fill="#000" fillRule="evenodd" d={STRANDS} />
           <path fill="#000" fillRule="evenodd" d={FEAT} />
-          <g fill="none" stroke="#000" strokeWidth="1.6" strokeLinecap="round">
-            <path d="M131 248 C 126 262, 118 280, 110 295" /><path d="M150 248 C 145 264, 138 282, 131 295" />
-          </g>
-          <g fill="#000">{punkte.map(([x, y], i) => <circle key={i} cx={x} cy={y} r="1.6" />)}</g>
+          {/* leichtes Grinsen mit hochgezogenen Mundwinkeln */}
+          <path fill="#000" d="M132 279 C 137 278, 142 283, 149 286.5 C 164 293, 191 293, 206 286 C 213 282.5, 218 277.5, 224 276.5 C 222 283, 216 291, 207 295.5 C 190 302.5, 163 302.5, 147 295.5 C 139 292, 134.5 286, 132 279 Z" />
+          <path fill="none" stroke="#000" strokeWidth="2.6" strokeLinecap="round" d="M128 274 C 129 277, 131 280, 134 282 M228 271 C 227 274, 225 277, 222 279" />
+          <path fill="none" stroke="#000" strokeWidth="3" strokeLinecap="round" d="M164 309 C 172 312, 184 312, 192 309" />
         </mask>
       </defs>
       <g mask={`url(#${id})`}>
         <path fill={GOLD} d={HAIR} />
         <path fill="#FFFFFF" fillRule="evenodd" d={WHITE} />
       </g>
-      {/* Sonnenbrille auf der Nase, mit der Kopfneigung gedreht */}
-      <g transform="translate(0 3) rotate(8 128 137)">
-        <path d="M80 137 L 40 131" stroke={GOLD} strokeWidth="2.6" strokeLinecap="round" />
-        <path d="M176 137 L 186 133" stroke={GOLD} strokeWidth="2.6" strokeLinecap="round" />
-        {[103, 153].map((x) => (
-          <g key={x} transform={`translate(${x} 137) scale(1.08)`}>
-            <path d="M-22 -13 H 22 C 24.5 -13 25.5 -10.5 25 -8 L 22 5 C 20.5 11 16 15 10 15 H -10 C -16 15 -20.5 11 -22 5 L -25 -8 C -25.5 -10.5 -24.5 -13 -22 -13 Z"
-              fill={NACHT} stroke={GOLD} strokeWidth="2.6" strokeLinejoin="round" />
-            <path d="M-14 -7 L -5 -7 M-16 -1 L -12 -1" stroke="#FFFFFF" strokeOpacity=".75" strokeWidth="2" strokeLinecap="round" />
-          </g>
-        ))}
-        <path d="M125 128 C 127 124, 129 124, 131 128" fill="none" stroke={GOLD} strokeWidth="2.8" strokeLinecap="round" />
-      </g>
-      <circle cx="33" cy="171" r="7" fill="none" stroke={GOLD} strokeWidth="2.2" />
-      <g fill={GOLD}><circle cx="36" cy="153" r="3" /><circle cx="33" cy="171" r="2.6" /></g>
-      <path d="M35 156 L 34 164" stroke={GOLD} strokeWidth="1.6" />
+      {/* Sonnenbrille */}
+      <path d="M82 171 C 66 171, 48 175, 34 184" fill="none" stroke={GOLD} strokeWidth="4" strokeLinecap="round" />
+      <path d="M253 171 C 264 171, 272 173, 278 178" fill="none" stroke={GOLD} strokeWidth="4" strokeLinecap="round" />
+      {glas(119, 1)}{glas(216, -1)}
+      <path d="M157 169 C 162 162, 173 162, 178 169" fill="none" stroke={GOLD} strokeWidth="4.4" strokeLinecap="round" />
+      {/* Ohrring */}
+      <circle cx="67" cy="270" r="5" fill={GOLD} stroke="#12305F" strokeWidth="1.6" />
+      <path d="M75 284 C 86 290, 88 312, 78 322 C 68 316, 64 296, 75 284 Z" fill="#FFFFFF" stroke={GOLD} strokeWidth="3" />
     </svg>
   );
 }
@@ -99,8 +101,8 @@ export function MathildaKopf({ modus, setModus, onScan }) {
       <style>{`
         .mathilda-kopf .mk-innen { max-width: 760px; margin: 0 auto; padding: 14px 24px 0; display: grid; grid-template-columns: 1fr auto; gap: 0 18px; align-items: end; }
         .mathilda-kopf .mk-text { padding-bottom: 22px; }
-        .mathilda-kopf .mk-portraet { position: relative; align-self: end; animation: mk-auf 0.9s cubic-bezier(.2,.8,.2,1) both; }
-        .mathilda-kopf .mk-portraet svg { display: block; width: 210px; height: auto; position: relative; }
+        .mathilda-kopf .mk-portraet { position: relative; align-self: end; animation: mk-auf 0.9s cubic-bezier(.2,.8,.2,1) both; margin-right: calc((min(760px, 100vw) - 78px) / 12); }
+        .mathilda-kopf .mk-portraet svg { display: block; width: 196px; height: auto; position: relative; }
         .mathilda-kopf .mk-schein { position: absolute; inset: auto -10% 0 -10%; height: 70%; background: radial-gradient(60% 70% at 50% 100%, rgba(237,187,0,0.30), transparent 70%); pointer-events: none; }
         .mathilda-kopf .mk-scan { margin-top: 18px; display: inline-flex; align-items: center; gap: 12px; padding: 0 22px 0 8px; height: 58px; border: none; border-radius: 999px; cursor: pointer; font-family: inherit;
           color: ${NACHT}; font-size: 17px; font-weight: 800; letter-spacing: -0.01em; background: linear-gradient(135deg, #F8D23A 0%, ${GOLD} 55%, #D9A600 100%);
@@ -117,7 +119,8 @@ export function MathildaKopf({ modus, setModus, onScan }) {
         @keyframes mk-auf { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
         @media (max-width: 560px) {
           .mathilda-kopf .mk-innen { grid-template-columns: 1fr 118px; gap: 0 8px; padding-top: 12px; }
-          .mathilda-kopf .mk-portraet svg { width: 132px; margin-right: -14px; }
+          .mathilda-kopf .mk-portraet { margin-right: 0; }
+          .mathilda-kopf .mk-portraet svg { width: 124px; margin-right: -10px; }
           .mathilda-kopf .mk-text { padding-bottom: 18px; }
           .mathilda-kopf .mk-scan { height: 52px; font-size: 15.5px; padding-right: 16px; gap: 10px; }
           .mathilda-kopf .mk-scan .mk-kam { width: 38px; height: 38px; }
@@ -145,7 +148,7 @@ export function MathildaKopf({ modus, setModus, onScan }) {
         </div>
         <div className="mk-portraet">
           <div className="mk-schein" />
-          <MathildaBild groesse={210} style={{ display: "block", position: "relative" }} />
+          <MathildaBild groesse={196} style={{ display: "block", position: "relative" }} />
         </div>
       </div>
       <div className="mk-modi" role="tablist" aria-label="Was Mathilda tun soll">
