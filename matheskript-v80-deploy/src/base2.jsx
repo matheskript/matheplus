@@ -663,7 +663,16 @@ const bruchTex = (z, nenner) => (z < 0 ? `-\\frac{${-z}}{${nenner}}` : `\\frac{$
 const vorWurzel = (k) => (k === 1 ? "" : k === -1 ? "-" : `${k}`);
 const vorWurzelTxt = (k) => (k === 1 ? "" : k === -1 ? "-" : `${k}*`);
 
-export const ABL_TYPEN = [
+/* Neutrale Elemente weglassen: Koeffizient 1 vor x, e, Funktion oder Klammer
+   (1x → x, + 1x → + x, 1(…) → (…)). Gilt für Anzeige, Eingabetext, Lösung und Lösungsweg. */
+const ohneEins = (s) => s.replace(/(?<![\d.,^_A-Za-z\\])1(?=x|e\^|\(|\\(?:sin|cos|tan|ln|log|sqrt|frac|left))/g, "");
+const ohneEinsTief = (v) => (typeof v === "string" ? ohneEins(v)
+  : Array.isArray(v) ? v.map(ohneEinsTief)
+    : v && typeof v === "object" && Object.getPrototypeOf(v) === Object.prototype
+      ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, ohneEinsTief(x)]))
+      : v);
+
+const ABL_ROH = [
   {
     id: "polynom", name: "Polynome", regel: "Potenz-, Faktor- und Summenregel",
     erklaerung: "Gliedweise ableiten. Der Exponent wandert als Faktor nach vorn und sinkt um eins, das absolute Glied fällt weg.",
@@ -937,6 +946,8 @@ export const ABL_TYPEN = [
     },
   },
 ];
+
+export const ABL_TYPEN = ABL_ROH.map((t) => ({ ...t, mach: (st) => ohneEinsTief(t.mach(st)) }));
 
 /* --- Fehleranalyse: deterministisch, ohne Modell --- */
 

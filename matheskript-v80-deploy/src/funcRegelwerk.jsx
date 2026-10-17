@@ -23,7 +23,55 @@ import {
 
 /* ---------- gemeinsame Bausteine (auch für Stammfunktion & Integral) ---------- */
 
+export const POP_CSS = `
+.wk-pop{position:relative;display:inline-block}
+.wk-pop-knopf{height:44px;padding:0 14px 0 16px;border-radius:999px;border:1.5px solid ${C.linie};background:#fff;color:${C.see};font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+.wk-pop-knopf[aria-expanded="true"]{border-color:${C.see}}
+.wk-pop-knopf svg{flex-shrink:0;transition:transform .2s}
+.wk-pop-knopf[aria-expanded="true"] svg{transform:rotate(180deg)}
+.wk-pop-liste{position:absolute;z-index:40;top:calc(100% + 6px);left:0;min-width:100%;background:#fff;border:1px solid ${C.linie};border-radius:16px;box-shadow:0 12px 32px rgba(15,26,51,0.18);padding:6px;max-height:min(340px,60vh);overflow-y:auto}
+.wk-pop.rechts .wk-pop-liste{left:auto;right:0}
+.wk-pop-liste button{width:100%;display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:44px;padding:0 14px;border:none;border-radius:11px;background:transparent;font-family:inherit;font-size:15px;font-weight:600;color:${C.tinte};cursor:pointer;text-align:left;white-space:nowrap}
+.wk-pop-liste button[aria-selected="true"]{background:#EEF2F8;color:${C.see}}
+.wk-pop-liste button:hover{background:#F4F7FC}
+`;
+
+/* Pop-up-Auswahl: Knopf mit Pfeil, darunter klappt die Liste auf. Schließt bei Klick daneben und mit Esc. */
+export function PopupWahl({ wert, optionen, onWaehle, label, kopf, className = "", knopfClass = "", rechts = false, stopp = false, onOeffne }) {
+  const [auf, setAuf] = useState(false);
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!auf) return undefined;
+    const aussen = (e) => { if (ref.current && !ref.current.contains(e.target)) setAuf(false); };
+    const taste = (e) => { if (e.key === "Escape") setAuf(false); };
+    document.addEventListener("pointerdown", aussen);
+    document.addEventListener("keydown", taste);
+    return () => { document.removeEventListener("pointerdown", aussen); document.removeEventListener("keydown", taste); };
+  }, [auf]);
+  const aktuell = optionen.find((o) => o.id === wert);
+  return (
+    <div className={`wk-pop${rechts ? " rechts" : ""} ${className}`} ref={ref} onClick={stopp ? (e) => e.stopPropagation() : undefined}>
+      <button type="button" className={`wk-pop-knopf ${knopfClass}`} aria-haspopup="listbox" aria-expanded={auf} aria-label={label}
+        onClick={() => { if (onOeffne) onOeffne(); setAuf(!auf); }}>
+        <span>{kopf ? kopf(aktuell) : aktuell ? aktuell.name : ""}</span>
+        <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M2.5 5l4.5 4.5L11.5 5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+      </button>
+      {auf && (
+        <div className="wk-pop-liste" role="listbox" aria-label={label}>
+          {optionen.map((o) => (
+            <button key={o.id} type="button" role="option" aria-selected={o.id === wert}
+              onClick={() => { setAuf(false); onWaehle(o.id); }}>
+              <span>{o.name}</span>{o.id === wert && <span aria-hidden="true">✓</span>}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export const WERK_CSS = `
+${POP_CSS}
 .wk-chipwrap{position:relative;margin:0 -16px 10px}
 .wk-chips{display:flex;gap:8px;overflow-x:auto;padding:2px 16px 4px;scrollbar-width:none;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;scroll-padding-left:16px}
 .wk-chips::-webkit-scrollbar{display:none}
@@ -33,10 +81,12 @@ export const WERK_CSS = `
 .wk-chip.gold[aria-pressed="true"]{background:linear-gradient(155deg,${C.goldWarm},${C.flaggold});border-color:${C.flaggold};color:${C.seeTief}}
 .wk-stufe{width:44px;height:44px;padding:0;border-radius:999px;font-family:inherit;font-size:16px;font-weight:700;cursor:pointer;border:1.5px solid ${C.linie};background:#fff;color:${C.see}}
 .wk-stufe[aria-pressed="true"]{background:${C.see};border-color:${C.see};color:#fff}
+.wk-wuerfel{width:44px;height:44px;padding:0;border-radius:999px;border:none;cursor:pointer;background:${C.flaggold};font-size:22px;line-height:1;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(15,26,51,0.14);flex-shrink:0}
 .wk-seg{display:inline-flex;padding:3px;border-radius:999px;background:#EEF2F8;gap:2px}
 .wk-seg button{height:38px;padding:0 14px;border-radius:999px;border:none;font-family:inherit;font-size:13.5px;font-weight:700;cursor:pointer;background:transparent;color:${C.grau};white-space:nowrap}
 .wk-seg button[aria-pressed="true"]{background:#fff;color:${C.see};box-shadow:0 1px 6px rgba(15,26,51,0.12)}
 .wk-karte{background:transparent}
+@media (max-width:380px){.wk-kopfzeile{gap:6px!important}.wk-kopfzeile .wk-pop-knopf{padding:0 10px 0 12px;font-size:14px;gap:6px}.wk-kopfzeile .wk-seg button{padding:0 9px;font-size:13px}}
 .wk-grid{display:grid;grid-template-columns:minmax(0,1fr) 22px minmax(0,1fr);gap:8px 4px;align-items:center}
 .wk-feld{border:1.5px solid ${C.linie};border-radius:14px;padding:8px 12px;min-height:60px;background:#fff;display:flex;align-items:center;gap:8px;overflow-x:auto;cursor:pointer;transition:box-shadow .2s,border-color .2s}
 .wk-feld[data-aktiv="true"]{border-color:${C.see};box-shadow:0 4px 16px rgba(0,77,152,0.14)}
@@ -239,7 +289,7 @@ const HER_TITEL = {
 
 /* ---------- Werkstatt ---------- */
 
-const REGEL_CHIPS = [
+export const REGEL_CHIPS = [
   ["produkt", "Produktregel"], ["quotient", "Quotientenregel"], ["reziprok", "Reziprokenregel"],
   ["linkette", "Lineare Kettenregel"], ["kette", "Kettenregel"], ["kombo", "15-Punkte-Kombo"],
 ];
@@ -272,11 +322,13 @@ function Nebenrechnung({ teil, baum, farbe }) {
   );
 }
 
-export function RegelWerkstatt() {
-  const [regel, setRegel] = useState("produkt");
+export function RegelWerkstatt({ regel: regelProp }) {
+  // Die Regel wählt das Menü in der Kopfleiste (Ableitenstrainer); allein genutzt, hält die Werkstatt sie selbst.
+  const [regelIntern] = useState("produkt");
+  const regel = regelProp || regelIntern;
   const [stufe, setStufe] = useState(1);
   const [modus, setModus] = useState("auto");
-  const [auf, setAuf] = useState(() => neueAufgabe("produkt", 1));
+  const [auf, setAuf] = useState(() => neueAufgabe(regel, 1));
   const [uText, setUText] = useState(auf.uText);
   const [vText, setVText] = useState(auf.vText);
   const [posUV, setPosUV] = useState({ u: auf.uText.length, v: auf.vText.length });
@@ -301,7 +353,10 @@ export function RegelWerkstatt() {
     setFelder({ u1: leer(), v1: leer(), f1: leer() });
     setAktiv(modus === "training" ? (a.regel === "reziprok" ? "v1" : "u1") : "u");
   };
-  const waehleRegel = (r) => { setRegel(r); starte(null, r, stufe); };
+  const letzteRegel = useRef(regel);
+  useEffect(() => {
+    if (letzteRegel.current !== regel) { letzteRegel.current = regel; starte(null, regel, stufe); }
+  }, [regel]); // eslint-disable-line react-hooks/exhaustive-deps
   const waehleStufe = (st) => { setStufe(st); starte(null, regel, st); };
   const waehleModus = (m) => {
     setModus(m);
@@ -389,45 +444,21 @@ export function RegelWerkstatt() {
   return (
     <div ref={kopf}>
       <style>{WERK_CSS}</style>
-      {/* Regelwahl */}
-      <div className="wk-chipwrap">
-        <div className="wk-chips" role="group" aria-label="Welche Regel möchtest du trainieren?">
-          {REGEL_CHIPS.map(([id, name]) => (
-            <button key={id} type="button" className={`wk-chip${id === "kombo" ? " gold" : ""}`} aria-pressed={regel === id} onClick={() => waehleRegel(id)}>
-              {id === "kombo" ? "★ " : ""}{name}
-            </button>
-          ))}
-        </div>
-      </div>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 12, flexWrap: "wrap" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontSize: 14, fontWeight: 600, color: C.grau, marginRight: 2 }}>Stufe</span>
-          {[1, 2, 3].map((st) => (
-            <button key={st} type="button" className="wk-stufe" aria-pressed={stufe === st} onClick={() => waehleStufe(st)}>{st}</button>
-          ))}
-        </div>
+      {/* Stufe als Pop-up, daneben Automatik | Training und der Würfel für ein neues Beispiel */}
+      <div className="wk-kopfzeile" style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
+        <PopupWahl wert={stufe} label="Stufe wählen" optionen={[1, 2, 3].map((st) => ({ id: st, name: `Stufe ${st}` }))}
+          kopf={(o) => (o ? o.name : "Stufe")} onWaehle={waehleStufe} />
         <ModusSchalter modus={modus} setModus={waehleModus} />
+        <button type="button" onClick={() => starte()} className="wk-wuerfel"
+          aria-label={training ? "Neue Aufgabe würfeln" : "Neues Beispiel würfeln"} title={training ? "Neue Aufgabe" : "Neues Beispiel"}>
+          <span aria-hidden="true">🎲</span>
+        </button>
       </div>
 
       <div className="wk-karte">
-        {/* Kopf: Regel */}
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10, marginBottom: 12 }}>
-          <div style={{ minWidth: 0 }}>
-            <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.1em", color: C.gruenDunkel, textTransform: "uppercase" }}>Regel-Werkstatt</p>
-            <p style={{ fontSize: 17, fontWeight: 700, color: C.tinte, lineHeight: 1.25 }}>
-              {regel === "kombo" ? `15-Punkte-Kombo · ${R.name}` : R.name}
-            </p>
-            <p style={{ fontSize: 12.5, color: C.grau, lineHeight: 1.35 }}>
-              {training ? "Trainingsmodus: u′, v′ und f′ selbst eintippen" : "Automatikmodus: u und v frei wählen, die Rechnung entsteht live"}
-              {bilanz.gesamt ? ` · ${bilanz.richtig} von ${bilanz.gesamt} richtig` : ""}
-            </p>
-          </div>
-          <button type="button" onClick={() => starte()}
-            style={{ flexShrink: 0, height: 44, padding: "0 16px", borderRadius: 999, border: "none", cursor: "pointer", fontFamily: "inherit",
-              fontSize: 14.5, fontWeight: 700, color: C.seeTief, background: C.flaggold, display: "inline-flex", alignItems: "center", gap: 8 }}>
-            <span aria-hidden="true" style={{ fontSize: 18, lineHeight: 1 }}>↻</span>{training ? "Neue Aufgabe" : "Beispiel"}
-          </button>
-        </div>
+        {bilanz.gesamt > 0 && (
+          <p style={{ fontSize: 12.5, color: C.grau, lineHeight: 1.35, margin: "0 2px 10px" }}>{bilanz.richtig} von {bilanz.gesamt} richtig</p>
+        )}
 
         {/* Die Regel */}
         <div style={{ background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 16, padding: "12px 16px", marginBottom: 12, color: C.weiss }}>

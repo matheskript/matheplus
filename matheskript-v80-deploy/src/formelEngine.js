@@ -554,6 +554,10 @@ export function alsTex(n, aussen = 0, rechts = false) {
       return klam(`${alsTex(n.a, 1)} ${MINUS} ${rest}`, 1);
     }
     case "*": {
+      // Faktor 1 wird nicht geschrieben: 1·x → x, x·1 → x (nur vor Variable, Funktion, Potenz oder Klammer)
+      const FOLGT = ["x", "e", "pi", "par", "fn", "log", "^", "*"];
+      if (n.a.k === "num" && n.a.v === 1 && FOLGT.includes(n.b.k)) return alsTex(n.b, aussen, rechts);
+      if (n.b.k === "num" && n.b.v === 1 && FOLGT.includes(n.a.k)) return alsTex(n.a, aussen, rechts);
       const l = alsTex(n.a, 2), r = alsTex(n.b, 2, n.b.k !== "*");
       const punkt = /[0-9}]$/.test(l) && /^[0-9−-]/.test(r);
       return klam(`${l}${punkt ? " \\cdot " : " "}${r}`, 2);

@@ -21,7 +21,7 @@ import {
 } from "./func12.jsx";
 import { IchHaengeFest, ableitRegeln, aussenTex, summanden } from "./funcHilfe.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
-import { RegelWerkstatt } from "./funcRegelwerk.jsx";
+import { POP_CSS, PopupWahl, REGEL_CHIPS, RegelWerkstatt } from "./funcRegelwerk.jsx";
 
 /* Kontext für „Ich hänge fest“: Hinweise aus dem Term, der gerade abgeleitet wird */
 const NAME_F = ["f", "f′", "f″", "f‴"];
@@ -158,6 +158,7 @@ export function Ableitungstrainer() {
   const [tippen, setTippen] = useState(false);
   const [bilanz, setBilanz] = useState({ richtig: 0, gesamt: 0 });
   const [bereich, setBereich] = useState(mit ? "trainer" : "trainer");   // trainer | werkstatt
+  const [werkRegel, setWerkRegel] = useState("produkt");
 
   const fBaum = useMemo(() => {
     const b = parse(fText);
@@ -226,6 +227,7 @@ export function Ableitungstrainer() {
 
   return (
     <div className="abl-seite">
+      <style>{POP_CSS}</style>
       <style>{`
         .abl-seite{background:#fff;min-height:calc(100dvh - 61px)}
         .abl-innen{max-width:620px;margin:0 auto;padding:14px 16px 48px}
@@ -235,15 +237,19 @@ export function Ableitungstrainer() {
         .abl-chipwrap::after{content:"";position:absolute;right:0;top:0;bottom:4px;width:34px;pointer-events:none;background:linear-gradient(90deg,rgba(255,255,255,0),#fff)}
         .abl-chip{flex:0 0 auto;scroll-snap-align:start;height:46px;padding:0 18px;border-radius:999px;font-family:inherit;font-size:15.5px;font-weight:600;cursor:pointer;white-space:nowrap;border:1.5px solid ${C.linie};background:#fff;color:${C.see}}
         .abl-chip[aria-pressed="true"]{background:${C.see};border-color:${C.see};color:#fff}
-        .abl-stufe{width:46px;height:46px;padding:0;border-radius:999px;font-family:inherit;font-size:16px;font-weight:700;cursor:pointer;border:1.5px solid ${C.linie};background:#fff;color:${C.see}}
-        .abl-stufe[aria-pressed="true"]{background:${C.see};border-color:${C.see};color:#fff}
         .abl-karte{background:transparent}
         .abl-bereich{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:4px;border-radius:18px;background:#EEF2F8;margin-bottom:14px}
-        .abl-bereich button{height:56px;border-radius:14px;border:none;font-family:inherit;cursor:pointer;background:transparent;color:${C.grau};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:0 8px}
-        .abl-bereich button span{font-size:15px;font-weight:700;line-height:1.2}
-        .abl-bereich button small{font-size:11.5px;font-weight:500;line-height:1.2;opacity:.8}
-        .abl-bereich button[aria-selected="true"]{background:linear-gradient(155deg,${C.see} 0%,${C.seeTief} 100%);color:#fff;box-shadow:0 4px 12px rgba(0,77,152,0.25)}
-        .abl-bereich button[aria-selected="true"] small{color:${C.goldText}}
+        .abl-bereich [role="tab"]{min-height:56px;border-radius:14px;cursor:pointer;background:transparent;color:${C.grau};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:8px 8px;text-align:center;outline-offset:2px}
+        .abl-bereich [role="tab"]>span{font-size:15px;font-weight:700;line-height:1.2}
+        .abl-bereich [role="tab"] small{font-size:12.5px;font-weight:500;line-height:1.25;opacity:.85}
+        .abl-bereich [role="tab"] .abl-bsp{font-size:11.5px;white-space:nowrap;opacity:.7}
+        .abl-bereich [role="tab"][aria-selected="true"]{background:linear-gradient(155deg,${C.see} 0%,${C.seeTief} 100%);color:#fff;box-shadow:0 4px 12px rgba(0,77,152,0.25)}
+        .abl-bereich [role="tab"][aria-selected="true"] small{color:${C.goldText};opacity:1}
+        .abl-bereich [role="tab"][aria-selected="true"] .abl-bsp{color:#fff;opacity:.8}
+        .abl-regelmenue{max-width:100%}
+        .abl-bereich .abl-regelknopf{height:32px;padding:0 6px 0 10px;gap:6px;border:none;background:transparent;color:inherit;font-size:12.5px;font-weight:600;max-width:100%}
+        .abl-bereich [role="tab"][aria-selected="true"] .abl-regelknopf{color:${C.goldText}}
+        .abl-bereich [role="tab"] .abl-regelknopf span{overflow:hidden;text-overflow:ellipsis}
         @media (min-width:601px){
           .abl-seite{background:transparent}
           .abl-chipwrap{margin:0 0 12px}
@@ -254,13 +260,21 @@ export function Ableitungstrainer() {
       <div className="abl-innen">
         {/* Bereich: Ableiten üben oder Regel-Werkstatt */}
         <div className="abl-bereich" role="tablist" aria-label="Bereich">
-          {[["trainer", "Ableiten üben", "f′, f″, f‴ eingeben"], ["werkstatt", "Regel-Werkstatt", "Produkt, Quotient, Kette …"]].map(([id, name, unter]) => (
-            <button key={id} type="button" role="tab" aria-selected={bereich === id} onClick={() => setBereich(id)}>
-              <span>{name}</span><small>{unter}</small>
-            </button>
-          ))}
+          <div role="tab" tabIndex={0} aria-selected={bereich === "trainer"} onClick={() => setBereich("trainer")}
+            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setBereich("trainer"); } }}>
+            <span>Ableiten üben</span>
+            <small>Polynome</small>
+            <small className="abl-bsp">f(x) = 3x³ + 4x² − 6x + 5</small>
+          </div>
+          <div role="tab" tabIndex={0} aria-selected={bereich === "werkstatt"} onClick={() => setBereich("werkstatt")}
+            onKeyDown={(e) => { if (e.target === e.currentTarget && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); setBereich("werkstatt"); } }}>
+            <span>Regel-Werkstatt</span>
+            <PopupWahl className="abl-regelmenue" knopfClass="abl-regelknopf" rechts stopp wert={werkRegel} label="Regel wählen"
+              optionen={REGEL_CHIPS.map(([id, name]) => ({ id, name }))} onOeffne={() => setBereich("werkstatt")}
+              onWaehle={(id) => { setWerkRegel(id); setBereich("werkstatt"); }} />
+          </div>
         </div>
-        {bereich === "werkstatt" && <RegelWerkstatt />}
+        {bereich === "werkstatt" && <RegelWerkstatt regel={werkRegel} />}
         {bereich === "trainer" && <>
         {/* Funktionsart: direkt wählen, alles in einer Reihe */}
         <div className="abl-chipwrap">
@@ -272,12 +286,9 @@ export function Ableitungstrainer() {
         </div>
 
         {quelle === "typ" && (
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-            <span style={{ fontSize: 14, fontWeight: 600, color: C.grau, marginRight: 4 }}>Stufe</span>
-            {[1, 2, 3, 4, 5].map((st) => (
-              <button key={st} type="button" className="abl-stufe" aria-pressed={stufeTyp === st}
-                onClick={() => { setStufeTyp(st); neueAufgabe(typ, st); }}>{st}</button>
-            ))}
+          <div style={{ marginBottom: 12 }}>
+            <PopupWahl wert={stufeTyp} label="Stufe wählen" optionen={[1, 2, 3, 4, 5].map((st) => ({ id: st, name: `Stufe ${st}` }))}
+              kopf={(o) => (o ? o.name : "Stufe")} onWaehle={(st) => { setStufeTyp(st); neueAufgabe(typ, st); }} />
           </div>
         )}
 
