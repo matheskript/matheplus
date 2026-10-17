@@ -12,6 +12,13 @@ import { FS_GEOMETRIE } from "./fsGeometrie.js";
 import { FS_TERME } from "./fsTerme.js";
 import { FS_KOPF, FS_LOGIK } from "./fsKopfLogik.js";
 import { FS_ERG, FS_NEU } from "./fsErgaenzungen.js";
+import { FS_ZAHLEN } from "./fsZahlen.js";
+import { FS_UNTER_GEOMETRIE } from "./fsUnterGeometrie.js";
+import { FS_UNTER_TERME } from "./fsUnterTerme.js";
+import { FS_UNTER_DATEN } from "./fsUnterDaten.js";
+import { FS_UNTER_ZUORDNUNGEN } from "./fsUnterZuordnungen.js";
+import { FS_MITTEL_NEU } from "./fsMittelNeu.js";
+import { FS_OBER_NEU } from "./fsOberNeu.js";
 
 export const FS_BEREICHE = [
   { id: "analysis", name: "Analysis", zeile: "Ableiten, Integrieren, Kurvendiskussion", bild: "kurve" },
@@ -20,9 +27,28 @@ export const FS_BEREICHE = [
   { id: "stochastik", name: "Stochastik", zeile: "Bayes, Binomialverteilung, Tests", bild: "balken" },
   { id: "geometrie", name: "Geometrie und Trigonometrie", kurz: "Geometrie", zeile: "Pythagoras, Kreis, Körper, Einheitskreis", bild: "trig" },
   { id: "terme", name: "Terme und Gleichungen", kurz: "Terme", zeile: "Binomische Formeln, pq-Formel, Logarithmen", bild: "terme" },
+  { id: "zahlen", name: "Zahlen und Größen", kurz: "Zahlen", zeile: "Stellenwert, Brüche, Dezimalzahlen, Prozent, Einheiten", bild: "zahlenstrahl" },
   { id: "kopfrechnen", name: "Kopfrechnen", zeile: "Rechentricks, Teilbarkeit, Brüche", bild: "kopf" },
   { id: "logik", name: "Mengenlehre und Logik", kurz: "Logik", zeile: "Mengen, Junktoren, Beweisverfahren", bild: "menge" },
 ];
+
+/* ---------------------------------------------------------------------
+   STUFEN · st: "unter" | "unter-mittel" | "mittel" | "beide" | "ober" | "alle"
+   ("beide" = Mittel- und Oberstufe, bleibt aus Kompatibilität gültig)
+   kl: optional, Klasse der Einführung (BW-Bildungsplan Gymnasium)
+   --------------------------------------------------------------------- */
+export const STUFEN = ["unter", "mittel", "ober"];
+export const ST_WERTE = ["unter", "unter-mittel", "mittel", "beide", "ober", "alle"];
+const ST_ZU = { unter: ["unter"], "unter-mittel": ["unter", "mittel"], mittel: ["mittel"], beide: ["mittel", "ober"], ober: ["ober"], alle: ["unter", "mittel", "ober"] };
+export const stufenVon = (e) => ST_ZU[e && e.st] || ["mittel"];
+export const STUFEN_INFO = {
+  unter: { name: "Unterstufe", klassen: "Klasse 5–7", kurz: "5–7", von: 5, bis: 7 },
+  mittel: { name: "Mittelstufe", klassen: "Klasse 8–10", kurz: "8–10", von: 8, bis: 10 },
+  ober: { name: "Oberstufe", klassen: "Klasse 11–13", kurz: "11–13", von: 11, bis: 13 },
+};
+export const istUnterstufe = (e) => stufenVon(e).includes("unter");
+/* Virtueller Bereich: bündelt alle Unterstufen-Einträge aus den Themenbereichen */
+export const FS_UNTERSTUFE = { id: "unterstufe", name: "Unterstufe · Klasse 5–7", kurz: "Unterstufe 5–7", zeile: "Zahlen, Brüche, Dezimalzahlen, Prozent, Größen, Winkel, Terme, Daten" };
 
 /* Alte Kennungen von Bereichen (Deep-Links, gespeicherte Zustände) */
 export const FS_BEREICH_ALIAS = { trigonometrie: "geometrie" };
@@ -37,17 +63,30 @@ const erg = (e) => {
 };
 const mit = (bereich, liste) => liste.map((e) => ({ bereich, ...erg(e) }));
 
-export const FS_ALLE = [
+/* Unterstufen-Einträge stehen vor dem Bestand ihres Bereichs (Gruppenreihenfolge = Reihenfolge im Array) */
+const ROH = [
   ...mit("analysis", FS_ANALYSIS),
-  ...mit("funktionen", FS_FUNKTIONEN),
+  ...mit("funktionen", [...FS_UNTER_ZUORDNUNGEN, ...FS_FUNKTIONEN]),
   ...mit("vektoren", FS_VEKTOREN),
-  ...mit("stochastik", FS_STOCHASTIK),
-  ...mit("geometrie", FS_GEOMETRIE),
-  ...mit("terme", FS_TERME),
+  ...mit("stochastik", [...FS_UNTER_DATEN, ...FS_STOCHASTIK]),
+  ...mit("geometrie", [...FS_UNTER_GEOMETRIE, ...FS_GEOMETRIE]),
+  ...mit("terme", [...FS_UNTER_TERME, ...FS_TERME]),
+  ...mit("zahlen", FS_ZAHLEN),
   ...mit("kopfrechnen", FS_KOPF),
   ...mit("logik", FS_LOGIK),
   ...FS_NEU.map((e) => ({ ...erg(e) })),
+  ...[...FS_MITTEL_NEU, ...FS_OBER_NEU].map((e) => ({ ...erg(e) })),
 ];
+/* Einträge mit neuer Gruppe direkt hinter ihre Gruppe im selben Bereich sortieren (stabil) */
+export const FS_ALLE = (() => {
+  const reihe = [];
+  for (const e of ROH) if (!reihe.some((r) => r[0] === e.bereich && r[1] === e.g)) reihe.push([e.bereich, e.g]);
+  const rang = (e) => reihe.findIndex((r) => r[0] === e.bereich && r[1] === e.g);
+  return ROH.map((e, i) => [e, i]).sort((a, b) => {
+    const ba = FS_BEREICHE.findIndex((x) => x.id === a[0].bereich), bb = FS_BEREICHE.findIndex((x) => x.id === b[0].bereich);
+    return ba - bb || rang(a[0]) - rang(b[0]) || a[1] - b[1];
+  }).map(([e]) => e);
+})();
 
 export const FS_NACH_ID = Object.fromEntries(FS_ALLE.map((e) => [e.id, e]));
 
@@ -78,11 +117,12 @@ export function fsSuche(text) {
   if (!s) return [];
   const teile = s.split(/\s+/);
   const punkte = (e) => {
-    const name = e.n.toLowerCase(), rest = `${e.k} ${e.g} ${e.f}`.toLowerCase();
+    const name = e.n.toLowerCase(), syn = (e.syn || "").toLowerCase(), rest = `${e.k} ${e.g} ${e.f}`.toLowerCase();
     let p = 0;
     for (const t of teile) {
       if (name.startsWith(t)) p += 6;
       else if (name.includes(t)) p += 4;
+      else if (syn.split(/\s+/).some((w) => w.startsWith(t))) p += 4;
       else if (rest.includes(t)) p += 1;
       else return 0;
     }

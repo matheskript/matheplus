@@ -265,6 +265,8 @@ function baueIndex() {
     liste.push(e("formel", f.n, f.k || "", `${f.g || ""} ${bereichName[f.bereich] || ""} formel formelsammlung nachschlagen`,
       { ansicht: "formeln", bereich: f.bereich, formel: f.id }, "Formelsammlung", { id: `formel:${f.id}`, ort: bereichName[f.bereich] || null }));
   }
+  liste.push(e("formel", "Formelsammlung · Unterstufe", "Alle Formeln für Klasse 5 bis 7", "unterstufe klasse 5 6 7 fünfte sechste siebte formelsammlung grundlagen",
+    { ansicht: "formeln", bereich: "unterstufe" }, "Formelsammlung", { id: "formel:unterstufe" }));
   liste.push(e("formel", "Formelsammlung", "Alle Regeln zum Nachschlagen", "formelsammlung formeln regeln nachschlagen merkhilfe",
     { ansicht: "formeln" }, "Formelsammlung", { id: "formel:alle" }));
 

@@ -3,7 +3,7 @@
 export const FS_KOPF = [
   /* ---------------- Rechengesetze ---------------- */
   {
-    id: "kommutativ", g: "Rechengesetze", n: "Kommutativgesetz", st: "mittel",
+    id: "kommutativ", g: "Rechengesetze", n: "Kommutativgesetz", st: "unter-mittel", kl: 5,
     f: "a + b = b + a, \\quad a \\cdot b = b \\cdot a",
     k: "Reihenfolge so wählen, dass es leichter wird",
     bild: ["flaechen", { art: "drehen" }],
@@ -16,7 +16,7 @@ export const FS_KOPF = [
     wz: "kopf",
   },
   {
-    id: "assoziativ", g: "Rechengesetze", n: "Assoziativgesetz", st: "mittel",
+    id: "assoziativ", g: "Rechengesetze", n: "Assoziativgesetz", st: "unter-mittel", kl: 5,
     f: "(a + b) + c = a + (b + c)",
     k: "z. B. 37 + 48 + 52 = 37 + 100",
     bild: ["assoziativBild", {}],
@@ -41,7 +41,7 @@ export const FS_KOPF = [
     wz: "kopf",
   },
   {
-    id: "distributiv", g: "Rechengesetze", n: "Distributivgesetz", st: "mittel",
+    id: "distributiv", g: "Rechengesetze", n: "Distributivgesetz", st: "unter-mittel", kl: 5,
     f: "a \\cdot (b + c) = a \\cdot b + a \\cdot c",
     k: "z. B. 7 · 49 = 7 · 50 − 7 = 343",
     bild: ["flaechen", { art: "distributiv" }],
@@ -56,7 +56,7 @@ export const FS_KOPF = [
 
   /* ---------------- Rechentricks ---------------- */
   {
-    id: "mal11", g: "Rechentricks", n: "Mal 11", st: "mittel",
+    id: "mal11", g: "Rechentricks", n: "Mal 11", st: "unter-mittel", kl: 5,
     f: "43 \\cdot 11 = 4 \\, (4+3) \\, 3 = 473",
     k: "Ziffernsumme in die Mitte · bei Übertrag vorne +1",
     bild: ["mal11Bild", {}],
@@ -80,7 +80,7 @@ export const FS_KOPF = [
     wz: "kopf",
   },
   {
-    id: "mal5", g: "Rechentricks", n: "Mal 5", st: "mittel",
+    id: "mal5", g: "Rechentricks", n: "Mal 5", st: "unter-mittel", kl: 5,
     f: "a \\cdot 5 = \\frac{a \\cdot 10}{2}",
     k: "z. B. 68 · 5 = 680 : 2 = 340",
     bild: ["malZehnHalb", { f: 5 }],
@@ -99,7 +99,7 @@ export const FS_KOPF = [
     wz: "kopf",
   },
   {
-    id: "mal25", g: "Rechentricks", n: "Mal 25", st: "mittel",
+    id: "mal25", g: "Rechentricks", n: "Mal 25", st: "unter-mittel", kl: 5,
     f: "a \\cdot 25 = \\frac{a \\cdot 100}{4}",
     k: "z. B. 36 · 25 = 3600 : 4 = 900",
     bild: ["malZehnHalb", { f: 25 }],
@@ -117,7 +117,7 @@ export const FS_KOPF = [
     wz: "kopf",
   },
   {
-    id: "quadrat5", g: "Rechentricks", n: "Quadrat mit Endziffer 5", st: "mittel",
+    id: "quadrat5", g: "Rechentricks", n: "Quadrat mit Endziffer 5", st: "unter-mittel", kl: 5,
     f: "(10a + 5)^2 = a(a+1) \\cdot 100 + 25",
     k: "z. B. 65² : 6 · 7 = 42, dahinter 25 → 4225",
     bild: ["binomQuadrat", { modus: "fuenf" }],
@@ -130,7 +130,7 @@ export const FS_KOPF = [
     wz: "kopf",
   },
   {
-    id: "mitte", g: "Rechentricks", n: "Um die Mitte herum", st: "mittel",
+    id: "mitte", g: "Rechentricks", n: "Um die Mitte herum", st: "unter-mittel", kl: 5,
     f: "49 \\cdot 51 = 50^2 - 1^2 = 2499",
     k: "dritte binomische Formel im Kopf",
     bild: ["binomQuadrat", { modus: "drei" }],
@@ -143,7 +143,7 @@ export const FS_KOPF = [
     wz: "kopf",
   },
   {
-    id: "nahe100", g: "Rechentricks", n: "Nahe an 100", st: "mittel",
+    id: "nahe100", g: "Rechentricks", n: "Nahe an 100", st: "unter-mittel", kl: 5,
     f: "98 \\cdot 97 = (98 - 3) \\cdot 100 + 2 \\cdot 3 = 9506",
     k: "Abstände zu 100 multiplizieren und anhängen",
     bild: ["nahe100Bild", {}],
@@ -167,7 +167,7 @@ export const FS_KOPF = [
 
   /* ---------------- Teilbarkeit ---------------- */
   {
-    id: "teil2510", g: "Teilbarkeit", n: "Durch 2, 5, 10", st: "mittel",
+    id: "teil2510", g: "Teilbarkeit", n: "Durch 2, 5, 10", st: "unter-mittel", kl: 5,
     f: "\\text{Endziffer prüfen}",
     k: "2: gerade · 5: 0 oder 5 · 10: 0",
     bild: ["teilCheck", { regel: "2510" }],
@@ -186,7 +186,7 @@ export const FS_KOPF = [
     wz: "kopf",
   },
   {
-    id: "teil39", g: "Teilbarkeit", n: "Durch 3 und 9", st: "mittel",
+    id: "teil39", g: "Teilbarkeit", n: "Durch 3 und 9", st: "unter-mittel", kl: 5,
     f: "\\text{Quersumme durch 3 bzw. 9 teilbar}",
     k: "z. B. 4572: Quersumme 18 → durch 3 und 9 teilbar",
     bild: ["teilCheck", { regel: "39" }],
@@ -208,7 +208,7 @@ export const FS_KOPF = [
     wz: "kopf",
   },
   {
-    id: "teil48", g: "Teilbarkeit", n: "Durch 4 und 8", st: "mittel",
+    id: "teil48", g: "Teilbarkeit", n: "Durch 4 und 8", st: "unter-mittel", kl: 6,
     f: "\\text{letzte 2 bzw. 3 Ziffern}",
     k: "z. B. 7316: 16 ist durch 4 teilbar",
     bild: ["teilCheck", { regel: "48" }],
@@ -226,7 +226,7 @@ export const FS_KOPF = [
     wz: "kopf",
   },
   {
-    id: "teil6", g: "Teilbarkeit", n: "Durch 6", st: "mittel",
+    id: "teil6", g: "Teilbarkeit", n: "Durch 6", st: "unter-mittel", kl: 5,
     f: "\\text{durch 2 und durch 3}",
     k: "beide Regeln müssen gelten",
     bild: ["teilCheck", { regel: "6" }],
@@ -244,7 +244,7 @@ export const FS_KOPF = [
     wz: "kopf",
   },
   {
-    id: "teil11", g: "Teilbarkeit", n: "Durch 11", st: "mittel",
+    id: "teil11", g: "Teilbarkeit", n: "Durch 11", st: "unter-mittel", kl: 6,
     f: "\\text{alternierende Quersumme durch 11 teilbar}",
     k: "Ziffern abwechselnd addieren und subtrahieren, von rechts",
     bild: ["teilCheck", { regel: "11" }],
@@ -264,7 +264,7 @@ export const FS_KOPF = [
     wz: "kopf",
   },
   {
-    id: "teiler", g: "Teilbarkeit", n: "Primfaktorzerlegung", st: "mittel",
+    id: "teiler", g: "Teilbarkeit", n: "Primfaktorzerlegung", st: "unter-mittel", kl: 5,
     f: "360 = 2^3 \\cdot 3^2 \\cdot 5",
     k: "jede natürliche Zahl > 1 ist eindeutig ein Produkt von Primzahlen",
     bild: ["primbaum", {}],
@@ -279,7 +279,7 @@ export const FS_KOPF = [
 
   /* ---------------- Bruchrechnen ---------------- */
   {
-    id: "bruch-kuerzen", g: "Bruchrechnen", n: "Kürzen und Erweitern", st: "mittel",
+    id: "bruch-kuerzen", g: "Bruchrechnen", n: "Kürzen und Erweitern", st: "unter-mittel", kl: 6,
     f: "\\frac{a}{b} = \\frac{a \\cdot k}{b \\cdot k}",
     k: "Zähler und Nenner mit derselben Zahl ≠ 0 multiplizieren oder teilen",
     bild: ["bruchStreifen", { modus: "kuerzen" }],
@@ -291,7 +291,7 @@ export const FS_KOPF = [
     wz: "kopf",
   },
   {
-    id: "bruch-add", g: "Bruchrechnen", n: "Addieren", st: "mittel",
+    id: "bruch-add", g: "Bruchrechnen", n: "Addieren", st: "unter-mittel", kl: 6,
     f: "\\frac{a}{b} + \\frac{c}{d} = \\frac{ad + bc}{bd}",
     k: "erst auf einen gemeinsamen Nenner bringen",
     bild: ["bruchStreifen", { modus: "addieren" }],
@@ -306,7 +306,7 @@ export const FS_KOPF = [
     wz: "kopf",
   },
   {
-    id: "bruch-mul", g: "Bruchrechnen", n: "Multiplizieren", st: "mittel",
+    id: "bruch-mul", g: "Bruchrechnen", n: "Multiplizieren", st: "unter-mittel", kl: 6,
     f: "\\frac{a}{b} \\cdot \\frac{c}{d} = \\frac{a \\cdot c}{b \\cdot d}",
     k: "vorher kürzen spart Arbeit",
     bild: ["bruchStreifen", { modus: "mal" }],
@@ -317,7 +317,7 @@ export const FS_KOPF = [
     wz: "kopf",
   },
   {
-    id: "bruch-div", g: "Bruchrechnen", n: "Dividieren", st: "mittel",
+    id: "bruch-div", g: "Bruchrechnen", n: "Dividieren", st: "unter-mittel", kl: 6,
     f: "\\frac{a}{b} : \\frac{c}{d} = \\frac{a}{b} \\cdot \\frac{d}{c}",
     k: "mit dem Kehrwert multiplizieren",
     bild: ["bruchDiv", {}],
@@ -340,7 +340,7 @@ export const FS_KOPF = [
     wz: "kopf",
   },
   {
-    id: "prozent", g: "Bruchrechnen", n: "Prozent", st: "mittel",
+    id: "prozent", g: "Bruchrechnen", n: "Prozent", st: "unter-mittel", kl: 6,
     f: "W = G \\cdot \\frac{p}{100}",
     k: "Prozentwert = Grundwert mal Prozentsatz",
     bild: ["bruchStreifen", { modus: "prozent" }],

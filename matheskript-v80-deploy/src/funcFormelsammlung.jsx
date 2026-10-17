@@ -11,7 +11,7 @@ import { C } from "./base1.jsx";
 import { M, Text } from "./func3.jsx";
 import { FR } from "./funcRegistry.jsx";
 import { WERKZEUGE } from "./werkzeuge.js";
-import { FS_ALLE, FS_BEREICHE, FS_BEREICH_ALIAS, FS_DARAUF, FS_FAEDEN, FS_NACH_ID, FS_ZUSATZ_ZIELE, bereichVon, fsSuche, herleitungen } from "./fsIndex.js";
+import { FS_ALLE, FS_BEREICHE, FS_BEREICH_ALIAS, FS_DARAUF, FS_FAEDEN, FS_NACH_ID, FS_UNTERSTUFE, FS_ZUSATZ_ZIELE, STUFEN, STUFEN_INFO, bereichVon, fsSuche, herleitungen, istUnterstufe, stufenVon } from "./fsIndex.js";
 import { BILDER_1 } from "./funcFsBilder1.jsx";
 import { BILDER_2 } from "./funcFsBilder2.jsx";
 import { BILDER_3 } from "./funcFsBilder3.jsx";
@@ -27,9 +27,36 @@ const MERK = "matheplus-formeln-gemerkt";
 const STUFE = "matheplus-stufe";
 const lesen = (k, d) => { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } };
 const schreiben = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* privat */ } };
-const stufeLesen = () => { try { const v = localStorage.getItem(STUFE); return v === "mittel" || v === "ober" ? v : "alle"; } catch (e) { return "alle"; } };
-const passt = (e, st) => st === "alle" || e.st === "beide" || e.st === st;
-const STUFEN_NAME = { mittel: "Mittelstufe", ober: "Oberstufe", beide: "Mittel- und Oberstufe" };
+const stufeLesen = () => { try { const v = localStorage.getItem(STUFE); return STUFEN.includes(v) ? v : "alle"; } catch (e) { return "alle"; } };
+const passt = (e, st) => st === "alle" || stufenVon(e).includes(st);
+
+/* Stufenfarben: Lila nur für Unterstufen-Markierungen, nicht für Flächen */
+export const STUFEN_FARBE = {
+  unter: { text: "#5B4BA6", grund: "#ECE8FA", rand: "#CFC6F0" },
+  mittel: { text: C.see, grund: C.himmel, rand: "#C5D5EE" },
+  ober: { text: C.gruenDunkel, grund: "#FFF6DA", rand: "#EBD58F" },
+};
+
+/* Stufenmarken einer Formel: eine Marke je Stufe, bei Unterstufe/kl zusätzlich die Klasse */
+function StufenMarken({ e, lang }) {
+  const st = stufenVon(e);
+  return (
+    <>
+      {st.map((x) => {
+        const f = STUFEN_FARBE[x], info = STUFEN_INFO[x];
+        const klasse = e.kl && e.kl >= info.von && e.kl <= info.bis ? e.kl : null;
+        return (
+          <span key={x} title={`${info.name} · ${info.klassen}`} aria-label={`${info.name}${klasse ? `, eingeführt in Klasse ${klasse}` : ""}`}
+            style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: lang ? 10.5 : 10, fontWeight: 700, letterSpacing: "0.03em", padding: lang ? "3px 8px" : "2px 7px", borderRadius: 999, background: f.grund, color: f.text, whiteSpace: "nowrap" }}>
+            {lang ? info.name : info.kurz}{klasse ? <span style={{ fontWeight: 600, opacity: 0.85 }}>{lang ? ` · Klasse ${klasse}` : ` · Kl. ${klasse}`}</span> : null}
+          </span>
+        );
+      })}
+    </>
+  );
+}
+
+const FS_CSS = `@media (max-width: 400px) { .fs-stufe-lang { display: none; } .fs-beweise { display: none; } }`;
 
 const kicker = { fontSize: 11.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: C.gruenDunkel, margin: "0 0 10px" };
 const karte = { background: C.weiss, borderRadius: 18, boxShadow: "0 2px 14px rgba(15,26,51,0.07)" };
@@ -247,7 +274,7 @@ function Detail({ e, zurueck, oeffne, zuFaden, zuHerleitung, gemerkt, merken, na
         <div style={{ fontSize: 21, lineHeight: 2, color: C.tinte, overflowX: "auto", overflowY: "hidden" }}><M t={e.f} /></div>
         <p style={{ margin: "8px 0 0", fontSize: 14, color: C.grau, lineHeight: 1.6 }}>{e.k}</p>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 12 }}>
-          <Marke>{STUFEN_NAME[e.st]}</Marke>
+          <StufenMarken e={e} lang />
           {herleitungen(e).length > 0 && <Marke farbe={C.gruenDunkel} grund="#FFF6DA">{herleitungen(e).length > 1 ? `${herleitungen(e).length} Beweise` : "Herleitung"}</Marke>}
           {Bild && <Marke farbe="#2F8F5B" grund="#E3F3E9">interaktives Bild</Marke>}
         </div>
@@ -319,7 +346,8 @@ function FormelKarte({ e, onClick, zeigeBereich, gemerkt }) {
           <span style={{ fontSize: 14.5, fontWeight: 700 }}>{gemerkt && <span aria-label="gemerkt" style={{ color: C.gruen, marginRight: 4 }}>★</span>}{e.n}</span>
         </span>
         <span style={{ display: "inline-flex", alignItems: "center", gap: 6, flexShrink: 0, color: C.see }}>
-          {anzahl > 1 && <span style={{ fontSize: 10.5, fontWeight: 700, color: C.gruenDunkel, background: "#FFF6DA", borderRadius: 999, padding: "2px 7px" }}>{anzahl} Beweise</span>}
+          <span className="fs-stufen" style={{ display: "inline-flex", gap: 4 }}><StufenMarken e={e} /></span>
+          {anzahl > 1 && <span className="fs-beweise" style={{ fontSize: 10.5, fontWeight: 700, color: C.gruenDunkel, background: "#FFF6DA", borderRadius: 999, padding: "2px 7px" }}>{anzahl} Beweise</span>}
           {e.bild && <span style={{ fontSize: 10.5, fontWeight: 700, color: "#2F8F5B", background: "#E3F3E9", borderRadius: 999, padding: "2px 7px" }}>Bild</span>}
           <Pfeilchen />
         </span>
@@ -409,7 +437,7 @@ function FadenDetail({ f, zurueck, oeffne }) {
 export function FormelsammlungNeu({ bereich: start = "analysis", formel: startFormel = null, zuHerleitung }) {
   const startBereich = FS_BEREICH_ALIAS[start] || start;
   const [modus, setModus] = useState("liste");              // liste | faeden
-  const [bereich, setBereich] = useState(FS_BEREICHE.some((b) => b.id === startBereich) ? startBereich : "analysis");
+  const [bereich, setBereich] = useState(startBereich === "unterstufe" || FS_BEREICHE.some((b) => b.id === startBereich) ? startBereich : "analysis");
   const [suche, setSuche] = useState("");
   const [stufe, setStufe] = useState(stufeLesen);
   const [detail, setDetail] = useState(startFormel && FS_NACH_ID[startFormel] ? startFormel : null);
@@ -462,12 +490,13 @@ export function FormelsammlungNeu({ bereich: start = "analysis", formel: startFo
     const s = suche.trim();
     if (s) return fsSuche(s).filter((e) => passt(e, stufe));
     if (bereich === "gemerkt") return FS_ALLE.filter((e) => gemerkt.includes(e.id));
+    if (bereich === "unterstufe") return FS_ALLE.filter(istUnterstufe);
     return FS_ALLE.filter((e) => e.bereich === bereich && passt(e, stufe));
   }, [suche, bereich, stufe, gemerkt]);
 
   const e = detail ? FS_NACH_ID[detail] : null;
   if (e) {
-    const geschw = FS_ALLE.filter((x) => x.bereich === e.bereich);
+    const geschw = bereich === "unterstufe" && !suche.trim() && istUnterstufe(e) ? FS_ALLE.filter(istUnterstufe) : FS_ALLE.filter((x) => x.bereich === e.bereich);
     const i = geschw.findIndex((x) => x.id === e.id);
     return (
       <div ref={obenRef} className="mx-auto px-6 pb-16" style={{ maxWidth: 680, paddingTop: 22 }}>
@@ -480,11 +509,16 @@ export function FormelsammlungNeu({ bereich: start = "analysis", formel: startFo
   const gesamt = FS_ALLE.length;
   const beweise = FS_ALLE.reduce((s, x) => s + herleitungen(x).length, 0);
   const bilder = FS_ALLE.filter((x) => x.bild).length;
-  const bInfo = bereich === "gemerkt" ? { name: "Gemerkt", zeile: "Deine gemerkten Formeln" } : bereichVon(bereich);
-  const gruppen = suche.trim() ? null : [...new Set(treffer.map((x) => x.g))];
+  const unterAnsicht = bereich === "unterstufe";
+  const bInfo = bereich === "gemerkt" ? { name: "Gemerkt", zeile: "Deine gemerkten Formeln" } : unterAnsicht ? FS_UNTERSTUFE : bereichVon(bereich);
+  /* In der Unterstufen-Ansicht nach Bereich und Gruppe gliedern, sonst nach Gruppe */
+  const gruppeVon = (x) => (unterAnsicht ? `${bereichVon(x.bereich).kurz || bereichVon(x.bereich).name} · ${x.g}` : x.g);
+  const gruppen = suche.trim() ? null : [...new Set(treffer.map(gruppeVon))];
+  const uf = STUFEN_FARBE.unter;
 
   return (
     <div ref={obenRef} className="mx-auto px-6 pb-16" style={{ maxWidth: 680, paddingTop: 22 }}>
+      <style>{FS_CSS}</style>
       <div role="tablist" aria-label="Ansicht" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4, padding: 4, borderRadius: 14, background: C.himmel, marginBottom: 16 }}>
         {[["liste", "Nachschlagen"], ["faeden", "Rote Fäden"]].map(([m, t]) => (
           <button key={m} type="button" role="tab" aria-selected={modus === m} onClick={() => { setModus(m); setFaden(null); }}
@@ -508,22 +542,36 @@ export function FormelsammlungNeu({ bereich: start = "analysis", formel: startFo
 
           {!suche.trim() && (
             <div style={{ display: "flex", gap: 7, overflowX: "auto", padding: "2px 0 8px", margin: "0 -24px", paddingLeft: 24, paddingRight: 24, scrollbarWidth: "none" }}>
+              <button type="button" onClick={() => setBereich("unterstufe")} aria-pressed={unterAnsicht} aria-label="Unterstufe, Klasse 5 bis 7"
+                style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 999, fontSize: 13, fontWeight: 700, fontFamily: "inherit", cursor: "pointer", whiteSpace: "nowrap",
+                  border: `1px solid ${unterAnsicht ? uf.text : uf.rand}`, background: unterAnsicht ? uf.text : uf.grund, color: unterAnsicht ? C.weiss : uf.text, transition: "background 0.15s, color 0.15s" }}>
+                Unterstufe<span style={{ fontSize: 11, fontWeight: 700, padding: "1px 6px", borderRadius: 999, background: unterAnsicht ? "rgba(255,255,255,0.2)" : C.weiss }}>5–7</span>
+              </button>
+              <span aria-hidden="true" style={{ flexShrink: 0, width: 1, alignSelf: "stretch", margin: "4px 2px", background: C.linie }} />
               {FS_BEREICHE.map((b) => <Chip key={b.id} an={bereich === b.id} onClick={() => setBereich(b.id)}>{b.kurz || b.name}</Chip>)}
               {gemerkt.length > 0 && <Chip an={bereich === "gemerkt"} onClick={() => setBereich("gemerkt")}>★ Gemerkt ({gemerkt.length})</Chip>}
             </div>
           )}
 
-          <div style={{ display: "flex", alignItems: "center", gap: 6, margin: "4px 0 16px", flexWrap: "wrap" }}>
-            <span style={{ fontSize: 12, fontWeight: 600, color: C.hellgrau, marginRight: 2 }}>Stufe</span>
-            {[["alle", "Alle"], ["mittel", "Mittelstufe"], ["ober", "Oberstufe"]].map(([s, t]) => (
-              <button key={s} type="button" aria-pressed={stufe === s} onClick={() => stufeSetzen(s)}
-                style={{ padding: "4px 10px", borderRadius: 999, fontSize: 12, fontWeight: 700, fontFamily: "inherit", cursor: "pointer",
-                  border: `1px solid ${stufe === s ? C.gruen : C.linie}`, background: stufe === s ? "#FFF6DA" : C.weiss, color: stufe === s ? C.gruenDunkel : C.grau }}>{t}</button>
-            ))}
-          </div>
+          {!unterAnsicht && (
+            <div style={{ display: "flex", alignItems: "center", gap: 6, margin: "4px 0 16px", flexWrap: "wrap" }}>
+              <span style={{ fontSize: 12, fontWeight: 600, color: C.hellgrau, marginRight: 2 }}>Stufe</span>
+              {["alle", ...STUFEN].map((s) => {
+                const an = stufe === s, f = s === "alle" ? { text: C.tinte, grund: C.sand, rand: C.hellgrau } : STUFEN_FARBE[s];
+                const info = STUFEN_INFO[s];
+                return (
+                  <button key={s} type="button" aria-pressed={an} onClick={() => stufeSetzen(s)} aria-label={info ? `${info.name}, ${info.klassen}` : "Alle Stufen"}
+                    style={{ display: "inline-flex", alignItems: "baseline", gap: 5, padding: "4px 10px", borderRadius: 999, fontSize: 12, fontWeight: 700, fontFamily: "inherit", cursor: "pointer",
+                      border: `1px solid ${an ? f.text : C.linie}`, background: an ? f.grund : C.weiss, color: an ? f.text : C.grau }}>
+                    {info ? <><span className="fs-stufe-lang">{info.name}</span><span style={{ fontWeight: 600, opacity: 0.8 }}>{info.kurz}</span></> : "Alle"}
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
           {!suche.trim() && (
-            <div style={{ borderRadius: 18, padding: "16px 18px", marginBottom: 22, background: `linear-gradient(150deg, ${C.seeTief} 0%, ${C.see} 100%)`, color: C.weiss }}>
+            <div style={{ borderRadius: 18, padding: "16px 18px", marginBottom: 22, marginTop: unterAnsicht ? 6 : 0, background: unterAnsicht ? "linear-gradient(150deg, #2E2466 0%, #5B4BA6 100%)" : `linear-gradient(150deg, ${C.seeTief} 0%, ${C.see} 100%)`, color: C.weiss }}>
               <p style={{ margin: 0, fontSize: 19, fontWeight: 700, letterSpacing: "-0.01em" }}>{bInfo.name}</p>
               <p style={{ margin: "4px 0 0", fontSize: 13.5, color: "#C9D6EE", lineHeight: 1.5 }}>{bInfo.zeile}</p>
               <p style={{ margin: "10px 0 0", fontSize: 12, fontWeight: 600, color: C.flaggold }}>
@@ -536,12 +584,19 @@ export function FormelsammlungNeu({ bereich: start = "analysis", formel: startFo
             <p style={{ color: C.grau, fontSize: 15, lineHeight: 1.7 }}>{bereich === "gemerkt" ? "Noch nichts gemerkt. Tippe in einer Formel auf »Merken«." : "Dazu ist nichts hinterlegt. Versuch einen kürzeren Suchbegriff."}</p>
           )}
 
-          {gruppen ? gruppen.map((g) => (
-            <div key={g} style={{ marginBottom: 22 }}>
-              <p style={{ ...kicker, margin: "0 2px 10px" }}>{g}</p>
-              {treffer.filter((x) => x.g === g).map((x) => <FormelKarte key={x.id} e={x} onClick={() => oeffne(x.id)} gemerkt={gemerkt.includes(x.id)} />)}
-            </div>
-          )) : (
+          {gruppen ? gruppen.map((g) => {
+            const liste = treffer.filter((x) => gruppeVon(x) === g);
+            const nurUnter = !unterAnsicht && liste.every(istUnterstufe);
+            return (
+              <div key={g} id={`fs-gruppe-${g}`} style={{ marginBottom: 22, scrollMarginTop: 90 }}>
+                <p style={{ ...kicker, margin: "0 2px 10px", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", color: unterAnsicht ? uf.text : kicker.color }}>
+                  {g}
+                  {nurUnter && <span style={{ fontSize: 10, letterSpacing: "0.04em", textTransform: "none", padding: "2px 8px", borderRadius: 999, background: uf.grund, color: uf.text }}>Unterstufe 5–7</span>}
+                </p>
+                {liste.map((x) => <FormelKarte key={x.id} e={x} onClick={() => oeffne(x.id)} gemerkt={gemerkt.includes(x.id)} />)}
+              </div>
+            );
+          }) : (
             <div>
               <p style={{ ...kicker, margin: "0 2px 10px" }}>{treffer.length} Treffer</p>
               {treffer.map((x) => <FormelKarte key={x.id} e={x} onClick={() => oeffne(x.id)} zeigeBereich gemerkt={gemerkt.includes(x.id)} />)}

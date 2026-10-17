@@ -3,7 +3,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { FS_ALLE, FS_NACH_ID, FS_FAEDEN, FS_BEREICHE, FS_ZUSATZ_ZIELE, herleitungen, fsSuche } from "../src/fsIndex.js";
+import { FS_ALLE, FS_NACH_ID, FS_FAEDEN, FS_BEREICHE, FS_ZUSATZ_ZIELE, ST_WERTE, STUFEN_INFO, herleitungen, fsSuche, stufenVon, istUnterstufe } from "../src/fsIndex.js";
 import { WERKZEUGE } from "../src/werkzeuge.js";
 
 const src = (p) => fs.readFileSync(new URL("../src/" + p, import.meta.url), "utf8");
@@ -44,7 +44,7 @@ test("Kennungen sind eindeutig und Pflichtfelder vorhanden", () => {
     assert.ok(!ids.has(e.id), "doppelte id " + e.id);
     ids.add(e.id);
     for (const k of ["id", "g", "n", "f", "k", "st", "bereich"]) assert.ok(e[k], `${e.id}: Feld ${k} fehlt`);
-    assert.ok(["mittel", "ober", "beide"].includes(e.st), e.id + ": Stufe");
+    assert.ok(ST_WERTE.includes(e.st), e.id + ": Stufe " + e.st);
     assert.ok(FS_BEREICHE.some((b) => b.id === e.bereich), e.id + ": Bereich");
   }
   assert.ok(FS_ALLE.length >= 170, "mindestens 170 Formeln, sind " + FS_ALLE.length);
@@ -124,4 +124,33 @@ test("Qualitätsregel: jede Formel hat Bild, ≥ 3 Beweisschritte, mehrere Bewei
     assert.ok(hs.length >= 2 || schritte >= 4, `${e.id}: nur ein kurzer Beweis`);
     assert.ok((e.nutzt || []).length + (rueck[e.id] || []).length >= 2, `${e.id}: weniger als 2 Verknüpfungen`);
   }
+});
+
+test("Klasse (kl) passt zur Stufe", () => {
+  for (const e of FS_ALLE) {
+    if (e.kl === undefined) continue;
+    assert.ok(Number.isInteger(e.kl) && e.kl >= 5 && e.kl <= 13, e.id + ": kl " + e.kl);
+    const unterste = STUFEN_INFO[stufenVon(e)[0]];
+    assert.ok(e.kl >= unterste.von && e.kl <= unterste.bis, `${e.id}: kl ${e.kl} passt nicht zu ${e.st}`);
+  }
+});
+
+test("Suchwörter (syn) sind klein geschrieben", () => {
+  for (const e of FS_ALLE) {
+    if (e.syn === undefined) continue;
+    assert.equal(typeof e.syn, "string", e.id);
+    assert.equal(e.syn, e.syn.toLowerCase(), e.id + ": syn nicht klein");
+  }
+});
+
+test("Bereich Zahlen existiert, Unterstufe ist nur virtuell", () => {
+  assert.ok(FS_BEREICHE.some((b) => b.id === "zahlen"));
+  assert.ok(!FS_BEREICHE.some((b) => b.id === "unterstufe"));
+  assert.ok(FS_ALLE.filter(istUnterstufe).length >= 20);
+});
+
+test("Gruppen eines Bereichs stehen zusammen", () => {
+  const folge = [];
+  for (const e of FS_ALLE) { const k = e.bereich + "/" + e.g; if (folge[folge.length - 1] !== k) folge.push(k); }
+  assert.equal(new Set(folge).size, folge.length, "zerrissene Gruppe");
 });

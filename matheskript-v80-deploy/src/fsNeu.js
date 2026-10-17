@@ -174,7 +174,7 @@ export const NEU = [
     nutzt: [["ungleichung", "Zeichen beim Umformen"], ["intervalle", "Ergebnis ist ein Intervall"], ["abstand-punkte", "Abstand zweier Zahlen"]],
   },
   {
-    bereich: "kopfrechnen", id: "mal9", g: "Rechentricks", n: "Mal 9 und Mal 99", st: "mittel",
+    bereich: "kopfrechnen", id: "mal9", g: "Rechentricks", n: "Mal 9 und Mal 99", st: "unter-mittel", kl: 5,
     f: "a \\cdot 9 = a \\cdot 10 - a, \\quad a \\cdot 99 = a \\cdot 100 - a",
     k: "z. B. 47 · 9 = 470 − 47 = 423",
     bild: ["malNahe", {}],

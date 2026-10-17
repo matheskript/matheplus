@@ -3,7 +3,7 @@
 export const FS_GEOMETRIE = [
   /* ---------------- Flächen ---------------- */
   {
-    id: "rechteck", g: "Flächen", n: "Rechteck und Quadrat", st: "mittel",
+    id: "rechteck", g: "Flächen", n: "Rechteck und Quadrat", st: "unter-mittel", kl: 5,
     f: "A = a \\cdot b, \\quad A_{\\text{Quadrat}} = a^2",
     k: "Grundlage aller Flächenformeln",
     bild: ["flaechen", { art: "rechteck" }],
@@ -94,7 +94,7 @@ export const FS_GEOMETRIE = [
 
   /* ---------------- Körper ---------------- */
   {
-    id: "quader", g: "Körper", n: "Quader und Würfel", st: "mittel",
+    id: "quader", g: "Körper", n: "Quader und Würfel", st: "unter-mittel", kl: 6,
     f: "V = a \\cdot b \\cdot c, \\quad O = 2(ab + ac + bc)",
     k: "Würfel: V = a³, O = 6a²",
     bild: ["koerper", { art: "quader" }],
@@ -168,7 +168,7 @@ export const FS_GEOMETRIE = [
 
   /* ---------------- Ähnlichkeit und Winkel ---------------- */
   {
-    id: "winkelsumme", g: "Ähnlichkeit und Winkel", n: "Winkelsumme", st: "mittel",
+    id: "winkelsumme", g: "Ähnlichkeit und Winkel", n: "Winkelsumme", st: "unter-mittel", kl: 7,
     f: "\\alpha + \\beta + \\gamma = 180°",
     k: "in jedem ebenen Dreieck",
     bild: ["dreieckAllg", { modus: "winkelsumme" }],

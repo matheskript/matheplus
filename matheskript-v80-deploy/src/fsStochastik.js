@@ -3,7 +3,7 @@
 export const FS_STOCHASTIK = [
   /* ---------------- Wahrscheinlichkeiten ---------------- */
   {
-    id: "laplace", g: "Wahrscheinlichkeiten", n: "Laplace-Wahrscheinlichkeit", st: "beide",
+    id: "laplace", g: "Wahrscheinlichkeiten", n: "Laplace-Wahrscheinlichkeit", st: "alle", kl: 7,
     f: "P(A) = \\frac{|A|}{|\\Omega|}",
     k: "günstige durch mögliche Ergebnisse · nur bei gleich wahrscheinlichen Ergebnissen",
     bild: ["laplace", {}],
@@ -18,7 +18,7 @@ export const FS_STOCHASTIK = [
     wz: "kombinatorik",
   },
   {
-    id: "relhaeuf", g: "Wahrscheinlichkeiten", n: "Relative Häufigkeit", st: "beide",
+    id: "relhaeuf", g: "Wahrscheinlichkeiten", n: "Relative Häufigkeit", st: "alle", kl: 5,
     f: "h_n(A) = \\frac{\\text{Anzahl der Treffer}}{n} \\;\\to\\; P(A)",
     k: "stabilisiert sich bei vielen Versuchen (Gesetz der großen Zahlen)",
     bild: ["binomial", { modus: "lln" }],

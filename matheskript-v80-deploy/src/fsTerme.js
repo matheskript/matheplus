@@ -297,7 +297,7 @@ export const FS_TERME = [
 
   /* ---------------- Gleichungen ---------------- */
   {
-    id: "lineargl", g: "Gleichungen", n: "Lineare Gleichung", st: "mittel",
+    id: "lineargl", g: "Gleichungen", n: "Lineare Gleichung", st: "unter-mittel", kl: 7,
     f: "ax + b = 0 \\quad\\Rightarrow\\quad x = -\\frac{b}{a}",
     k: "Äquivalenzumformungen auf beiden Seiten",
     bild: ["waage", {}],
