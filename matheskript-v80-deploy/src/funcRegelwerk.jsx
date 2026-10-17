@@ -19,7 +19,7 @@ import { AufklappZeichen } from "./aufklappen.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
 import { ErklaerAnimation } from "./funcErklaeranimation.jsx";
 import {
-  REGELN, baueF, diagnose, einsetzen as baumEinsetzen, fakTex, fehlerbilder, gleichwertig, lies, musterloesung, neueAufgabe, regelFuer, schoen, summanden, tex,
+  REGELN, baueF, basisTex, diagnose, einsetzen as baumEinsetzen, fakTex, fehlerbilder, gleichwertig, lies, musterloesung, neueAufgabe, regelFuer, schoen, summanden, tex,
 } from "./regelwerkKern.js";
 
 /* ---------- gemeinsame Bausteine (auch für Stammfunktion & Integral) ---------- */
@@ -456,6 +456,63 @@ function AusrichtBlock({ kopf, unten, ergebnis, teile }) {
   );
 }
 
+/* Quotienten- und Reziprokenregel: Bruch mit Hauptbruchstrich auf Höhe von „f′(x) =“, Zähler und Nenner spaltengenau wie in der Rechnung */
+function bruchZellen(art, ml) {
+  const F = (teil, n) => `\\farbe{${teil}}{${fakTex(n)}}`;
+  const nenner = (m) => `\\farbe{v}{${basisTex(m.v)}}^{2}`;
+  if (art === "quotient") {
+    return {
+      vorn: ["f′(x)", "="],
+      zaehler: ["u′(x)", "\\cdot", "v(x)", "−", "u(x)", "\\cdot", "v′(x)"], nenner: "(v(x))^{2}",
+      untenZaehler: ml ? [F("u", ml.u1), "\\cdot", F("v", ml.v), "−", F("u", ml.u), "\\cdot", F("v", ml.v1)] : null,
+      untenNenner: ml ? nenner(ml) : null,
+    };
+  }
+  return {
+    vorn: ["f′(x)", "=", "−"],
+    zaehler: ["v′(x)"], nenner: "(v(x))^{2}",
+    untenZaehler: ml ? [F("v", ml.v1)] : null,
+    untenNenner: ml ? nenner(ml) : null,
+  };
+}
+
+function BruchBlock({ cfg, unten, ergebnis }) {
+  const { vorn, zaehler, nenner, untenZaehler, untenNenner } = cfg;
+  const start = vorn.length + 1;
+  const n = vorn.length + zaehler.length;
+  const alle = [...vorn, ...zaehler];
+  const box = { gridColumn: `1 / ${n + 2}`, display: "grid", gridTemplateColumns: "subgrid", alignItems: "center", padding: "12px 10px", borderRadius: 16 };
+  const luecke = (t, i) => (i === 2 && vorn.length === 3 ? "0 6px 0 10px" : lueckeVon(t));
+  const bruch = (z, nz, vorFarbe, fett) => (
+    <>
+      {vorn.map((t, i) => <span key={`v${i}`} style={{ ...ZELLE, gridRow: "1 / 4", alignSelf: "center", padding: luecke(t, i), fontWeight: i < 2 ? 700 : fett ? 700 : 400 }}><M t={t} /></span>)}
+      {z.map((t, i) => <span key={`z${i}`} style={{ ...ZELLE, gridRow: 1, justifySelf: ausrichtung(zaehler, i), padding: lueckeVon(t) }}><M t={t} /></span>)}
+      <span aria-hidden="true" style={{ gridRow: 2, gridColumn: `${start} / ${n + 1}`, height: 2, margin: "3px 6px", background: vorFarbe, borderRadius: 1 }} />
+      <span style={{ gridRow: 3, gridColumn: `${start} / ${n + 1}`, justifySelf: "center", whiteSpace: "nowrap" }}><M t={nz} /></span>
+    </>
+  );
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: `repeat(${n}, max-content) 1fr`, columnGap: 0, rowGap: 10, marginTop: 14, overflowX: "auto" }}>
+      <div style={{ ...box, background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, color: C.weiss, fontSize: 16, fontWeight: 700, lineHeight: 1.7, rowGap: 0 }}>
+        {bruch(zaehler, nenner, C.weiss, true)}
+      </div>
+      {unten && untenZaehler && (
+        <div className="wk-rechnung" style={{ ...box, margin: 0, fontSize: 16, color: C.tinte, lineHeight: 1.7, rowGap: 0 }}>
+          {bruch(untenZaehler, untenNenner, C.tinte, false)}
+          {ergebnis && ergebnis.map((t, j) => t && (
+            <React.Fragment key={`e${j}`}>
+              <span style={{ ...ZELLE, gridRow: 4 + j, gridColumn: 2, alignSelf: "center", padding: lueckeVon("="), color: C.hellgrau }}><M t="=" /></span>
+              <span style={{ gridRow: 4 + j, gridColumn: `3 / ${n + 1}`, whiteSpace: "nowrap", justifySelf: "start", alignSelf: "center", paddingTop: 8 }}>
+                <M t={t} />{j === 1 && <span style={{ fontSize: 12, color: C.grau, marginLeft: 8 }}>ausgeklammert</span>}
+              </span>
+            </React.Fragment>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modusProp, wurf, ohneKopf = false }) {
   // Die Regel wählt das Menü in der Kopfleiste (Ableitenstrainer); allein genutzt, hält die Werkstatt sie selbst.
   const [regelIntern] = useState("produkt");
@@ -647,6 +704,7 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
   const eingabeZeigen = !!(gueltig && ml && training && !fertig);
   const ausricht = art === "produkt" || kette;
   const zellen = ausricht ? ausrichtZellen(art, ml) : null;
+  const bruchRegel = art === "quotient" || art === "reziprok";
   const f1Block = (
     <div style={{ marginTop: 10 }}>
       {felder.f1.status === "gezeigt"
@@ -733,7 +791,13 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
 
         {/* Die Regel unter den Bausteinen, darunter die Rechnung bzw. das f′-Feld. Produkt- und Kettenregeln: Regel und Rechnung
             stehen spaltengenau untereinander (u′ unter u′, v unter v, + unter +). */}
-        {ausricht ? (
+        {bruchRegel ? (
+          <>
+            <BruchBlock cfg={bruchZellen(art, rechnungZeigen ? ml : null)} unten={rechnungZeigen}
+              ergebnis={rechnungZeigen ? [tex(ml.ergebnis), ml.ausgeklammert ? tex(ml.ausgeklammert) : null] : null} />
+            {eingabeZeigen && f1Block}
+          </>
+        ) : ausricht ? (
           <>
             <AusrichtBlock kopf={zellen.kopf} unten={rechnungZeigen ? zellen.unten : null}
               ergebnis={rechnungZeigen ? [tex(ml.ergebnis), ml.ausgeklammert ? tex(ml.ausgeklammert) : null] : null}
