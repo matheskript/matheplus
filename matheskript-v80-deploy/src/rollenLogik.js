@@ -143,6 +143,9 @@ export const TOKEN = /^[a-f0-9]{8,64}$/;
 export function elternNachricht(name, link) {
   return `Hallo! Ich lerne Mathe mit Mythos Mathe. Über diesen Link kannst du dir ein kostenloses Elternkonto anlegen und siehst dann, wie ich vorankomme${name ? " (" + name + ")" : ""}: ${link}`;
 }
+export function freundeNachricht(name, link) {
+  return `Hey! Ich lerne Mathe mit Mythos Mathe${name ? " (" + name + ")" : ""} – Mathe verstehen mit System. Schau es dir an, über meinen Link geht's los: ${link}`;
+}
 export function klassenNachricht(klasse, link, code) {
   return `Hallo! Hier ist unsere Mathe-Klasse ${klasse} bei Mythos Mathe. Tritt über diesen Link bei: ${link} (oder gib den Code ${code} im Konto ein).`;
 }

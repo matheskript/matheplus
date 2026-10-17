@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { C } from "./base1.jsx";
-import { RollenWahl, EmailAnmeldung, HinweisLeiste, ElternEinladen, MeineKlassen, PlanKarte, ElternBereich, LehrBereich, RolleAendern, GeschlechtFrage } from "./funcKontoRollen.jsx";
-import { rolleName, istLehrend, istGeschlecht, KURSSTUFE, NOTEN_AB, datenVollstaendig } from "./rollenLogik.js";
+import { RollenWahl, EmailAnmeldung, HinweisLeiste, ElternEinladen, MeineKlassen, PlanKarte, ElternBereich, LehrBereich, RolleAendern, GeschlechtFrage, WhatsAppIcon } from "./funcKontoRollen.jsx";
+import { rolleName, istLehrend, istGeschlecht, KURSSTUFE, NOTEN_AB, datenVollstaendig, elternLink, elternNachricht, freundeNachricht, whatsappLink } from "./rollenLogik.js";
 import { MeinTrainingKarte } from "./funcKontoTraining.jsx";
 import { AppKarte, DatenKarte, WochenmailKarte } from "./funcKontoDaten.jsx";
-import { DEMO, useKonto, gemerkteEinladung, anmelden, abmelden, profilAnlegen, profilSpeichern, empfehlungsLink, neuerCode, refPruefen, refFestlegen, istRefCode, REF_BASIS_ANZEIGE } from "./konto.js";
+import { DEMO, useKonto, gemerkteEinladung, anmelden, abmelden, profilAnlegen, profilSpeichern, empfehlungsLink, REF_BASIS, REF_BASIS_ANZEIGE } from "./konto.js";
 
 /* ======================================================================
    KONTOBEREICH (ansicht "konto")
@@ -133,114 +133,7 @@ function NotenVerlauf({ punkte }) {
   );
 }
 
-/* ---------- Empfehlungslink aussuchen (einmalig) ---------- */
 const anzeigeGl = (c) => String(c);
-
-function RefErsteller({ startCode }) {
-  const [modus, setModus] = useState("vorschlag");            // "vorschlag" | "wunsch"
-  const [vorschlag, setVorschlag] = useState(() => (istRefCode(startCode) ? startCode : neuerCode()));
-  const [wunsch, setWunsch] = useState("");
-  const [pruef, setPruef] = useState({ gueltig: true, frei: true, laeuft: false });
-  const [bestaetigen, setBestaetigen] = useState(false);
-  const [fehler, setFehler] = useState("");
-  const [laeuft, setLaeuft] = useState(false);
-  const code = modus === "vorschlag" ? vorschlag : wunsch;
-
-  useEffect(() => {
-    setBestaetigen(false); setFehler("");
-    if (!code) { setPruef({ gueltig: false, frei: false, laeuft: false }); return; }
-    if (!istRefCode(code)) { setPruef({ gueltig: false, frei: false, laeuft: false }); return; }
-    let aktiv = true;
-    setPruef((p) => ({ ...p, laeuft: true }));
-    const t = setTimeout(async () => {
-      const r = await refPruefen(code);
-      if (aktiv) setPruef({ ...r, laeuft: false });
-    }, 300);
-    return () => { aktiv = false; clearTimeout(t); };
-  }, [code]);
-
-  const wuerfeln = () => setVorschlag(neuerCode());
-  const tippe = (z) => setWunsch((w) => (w.length >= 6 || (w === "" && z === "0") ? w : w + z));
-  const festlegen = async () => {
-    setLaeuft(true); setFehler("");
-    try { await refFestlegen(code); } catch (e) { setFehler(e.message); setBestaetigen(false); }
-    setLaeuft(false);
-  };
-
-  const ok = pruef.gueltig && pruef.frei && !pruef.laeuft;
-  const status = !code ? "Tippe deine sechsstellige Wunschzahl ein."
-    : !pruef.gueltig ? `Noch ${6 - code.length} ${6 - code.length === 1 ? "Ziffer" : "Ziffern"}.`
-    : pruef.laeuft ? "Prüfe …" : pruef.frei ? "Noch frei ✓" : "Schon vergeben – nimm eine andere.";
-  const pille = (an) => ({ flex: 1, height: 38, borderRadius: 999, border: "none", fontFamily: "inherit", fontSize: 13.5, fontWeight: an ? 700 : 500, cursor: "pointer",
-    background: an ? C.weiss : "transparent", color: an ? NAVY : "#C9D6EE" });
-  const taste = { height: 44, borderRadius: 11, border: "1px solid rgba(255,255,255,0.22)", background: "rgba(255,255,255,0.08)", color: C.weiss,
-    fontSize: 18, fontWeight: 600, fontFamily: "inherit", cursor: "pointer", padding: 0 };
-
-  return (
-    <>
-      <p style={{ fontSize: 14.5, color: "#C9D6EE", fontWeight: 300, lineHeight: 1.6, marginBottom: 12 }}>
-        Such dir deinen persönlichen Einladungslink aus: eine sechsstellige Zahl, die nur dir gehört – zufällig oder deine Wunschzahl. Einmal festgelegt, bleibt sie für immer deine.
-      </p>
-      <div className="flex" style={{ background: "rgba(255,255,255,0.1)", borderRadius: 999, padding: 3, marginBottom: 12 }}>
-        <button type="button" onClick={() => setModus("vorschlag")} style={pille(modus === "vorschlag")}>Zufallszahl</button>
-        <button type="button" onClick={() => setModus("wunsch")} style={pille(modus === "wunsch")}>Wunschzahl</button>
-      </div>
-
-      <div style={{ background: "rgba(255,255,255,0.1)", border: `1.5px solid ${code && ok ? C.flaggold : "rgba(255,255,255,0.22)"}`, borderRadius: 14, padding: "14px 14px 12px", textAlign: "center" }}>
-        <p style={{ fontSize: 12.5, color: "#8FA3C8", marginBottom: 2 }}>{REF_BASIS_ANZEIGE}/</p>
-        <p style={{ fontSize: "clamp(30px, 9vw, 38px)", fontWeight: 800, color: C.flaggold, letterSpacing: "0.12em", fontVariantNumeric: "tabular-nums", minHeight: 40, wordBreak: "break-all" }}>
-          {modus === "wunsch"
-            ? (code + "______".slice(code.length)).split("").map((z, i) => <span key={i} style={{ color: z === "_" ? "rgba(255,255,255,0.25)" : C.flaggold }}>{z}</span>)
-            : code}
-        </p>
-        <p style={{ fontSize: 12.5, marginTop: 2, color: !code ? "#8FA3C8" : ok ? "#7FE0A8" : pruef.laeuft ? "#C9D6EE" : "#FF9DA8" }}>{status}</p>
-      </div>
-
-      {modus === "vorschlag" ? (
-        <button type="button" onClick={wuerfeln}
-          style={{ marginTop: 10, width: "100%", height: 46, borderRadius: 999, border: "1px solid rgba(255,255,255,0.4)", background: "transparent", color: C.weiss,
-            fontSize: 15, fontWeight: 600, fontFamily: "inherit", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="3" width="18" height="18" rx="4" /><circle cx="8" cy="8" r="1.4" fill="currentColor" /><circle cx="16" cy="16" r="1.4" fill="currentColor" /><circle cx="12" cy="12" r="1.4" fill="currentColor" /></svg>
-          Neue Zufallszahl
-        </button>
-      ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 6, marginTop: 10 }}>
-          {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((t) => (
-            <button key={t} type="button" onClick={() => tippe(t)} style={taste}>{t}</button>
-          ))}
-          <button type="button" aria-label="Zahl leeren" onClick={() => setWunsch("")} style={{ ...taste, fontSize: 14, color: "#C9D6EE" }}>C</button>
-          <button type="button" onClick={() => tippe("0")} style={taste}>0</button>
-          <button type="button" aria-label="Zeichen löschen" onClick={() => setWunsch((w) => w.slice(0, -1))} style={{ ...taste, fontSize: 16 }}>⌫</button>
-        </div>
-      )}
-
-      {fehler && <p style={{ fontSize: 13, color: "#FF9DA8", marginTop: 10 }}>{fehler}</p>}
-      {!bestaetigen ? (
-        <button type="button" onClick={() => setBestaetigen(true)} disabled={!ok}
-          style={{ marginTop: 12, width: "100%", height: 48, borderRadius: 999, border: "none", background: ok ? C.flaggold : "rgba(255,255,255,0.18)",
-            color: ok ? NAVY : "rgba(255,255,255,0.5)", fontSize: 15.5, fontWeight: 800, fontFamily: "inherit", cursor: ok ? "pointer" : "default" }}>
-          Diesen Link festlegen
-        </button>
-      ) : (
-        <div style={{ marginTop: 12, background: "rgba(255,255,255,0.1)", borderRadius: 14, padding: 14 }}>
-          <p style={{ fontSize: 14, lineHeight: 1.55, color: C.weiss, marginBottom: 10 }}>
-            <b>{REF_BASIS_ANZEIGE}/{anzeigeGl(code)}</b> wird für immer dein Einladungslink. Du kannst ihn danach nicht mehr ändern.
-          </p>
-          <div className="flex" style={{ gap: 8 }}>
-            <button type="button" onClick={festlegen} disabled={laeuft}
-              style={{ flex: 1, height: 44, borderRadius: 999, border: "none", background: C.flaggold, color: NAVY, fontSize: 15, fontWeight: 800, fontFamily: "inherit", cursor: "pointer" }}>
-              {laeuft ? "Einen Moment …" : "Ja, festlegen"}
-            </button>
-            <button type="button" onClick={() => setBestaetigen(false)}
-              style={{ flex: 1, height: 44, borderRadius: 999, border: "1px solid rgba(255,255,255,0.4)", background: "transparent", color: C.weiss, fontSize: 15, fontFamily: "inherit", cursor: "pointer" }}>
-              Abbrechen
-            </button>
-          </div>
-        </div>
-      )}
-    </>
-  );
-}
 
 /* ---------- Name ändern (Eltern, Lehrkräfte) ---------- */
 function NameKarte({ profil }) {
@@ -313,9 +206,6 @@ function Profil({ nutzer, profil, geworben, gehe }) {
   const link = empfehlungsLink(profil.ref_code);
   const kopieren = async () => {
     try { await navigator.clipboard.writeText(link); setKopiert(true); setTimeout(() => setKopiert(false), 1800); } catch (e) { /* manuell markieren */ }
-  };
-  const teilen = async () => {
-    try { await navigator.share({ title: "Mythos Mathe", text: "Schau dir Mythos Mathe an – Mathe verstehen mit System:", url: link }); } catch (e) { /* abgebrochen */ }
   };
 
   const verlauf = [];
@@ -463,34 +353,32 @@ function Profil({ nutzer, profil, geworben, gehe }) {
           <ElternEinladen profil={profil} />
           <MeineKlassen rolle={rolle} />
           <PlanKarte profil={profil} />
-      {/* Freunde einladen */}
+      {/* Freunde einladen: persönlicher Link mit automatischer 6-stelliger Zahl, Einladung per WhatsApp */}
       <div style={{ ...karte, padding: 18, marginBottom: 14, background: `linear-gradient(155deg, ${C.see} 0%, ${NAVY} 100%)`, color: C.weiss }}>
         <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", color: C.flaggold, marginBottom: 6 }}>FREUNDE EINLADEN</p>
-        {!profil.ref_fest ? <RefErsteller startCode={profil.ref_code} /> : (
-        <>
         <p style={{ fontSize: 14.5, color: "#C9D6EE", fontWeight: 300, lineHeight: 1.6, marginBottom: 12 }}>
-          Teile deinen persönlichen Link. Wer sich darüber anmeldet, wird automatisch dir zugeordnet.
+          Das ist dein persönlicher Link. Wer sich darüber anmeldet, wird automatisch dir zugeordnet.
         </p>
         <div style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: 12, padding: "10px 12px" }}>
           <span style={{ flex: 1, minWidth: 0, fontSize: 14, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", userSelect: "all" }}>{REF_BASIS_ANZEIGE}/<span style={{ color: C.flaggold }}>{anzeigeGl(profil.ref_code)}</span></span>
-        </div>
-        <div className="flex flex-wrap items-center" style={{ gap: 8, marginTop: 10 }}>
           <button type="button" onClick={kopieren}
-            style={{ height: 42, padding: "0 18px", borderRadius: 999, border: "none", background: C.flaggold, color: NAVY, fontSize: 14.5, fontWeight: 700, fontFamily: "inherit", cursor: "pointer" }}>
-            {kopiert ? "Kopiert ✓" : "Link kopieren"}
+            style={{ height: 34, padding: "0 14px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.4)", background: "transparent", color: C.weiss, fontSize: 13.5, fontWeight: 600, fontFamily: "inherit", cursor: "pointer", flexShrink: 0 }}>
+            {kopiert ? "Kopiert ✓" : "Kopieren"}
           </button>
-          {typeof navigator !== "undefined" && navigator.share && (
-            <button type="button" onClick={teilen}
-              style={{ height: 42, padding: "0 18px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.4)", background: "transparent", color: C.weiss, fontSize: 14.5, fontWeight: 600, fontFamily: "inherit", cursor: "pointer" }}>
-              Teilen
-            </button>
-          )}
-          <span style={{ marginLeft: "auto", fontSize: 13.5, color: "#C9D6EE" }}>
-            <b style={{ color: C.flaggold, fontSize: 18 }}>{geworben}</b> {geworben === 1 ? "Person" : "Personen"} eingeladen
-          </span>
         </div>
-        </>
-        )}
+        <div style={{ display: "grid", gap: 10, marginTop: 12 }}>
+          <a href={whatsappLink(elternNachricht((profil.name || "").split(" ")[0], elternLink(REF_BASIS, profil.ref_code, profil.eltern_token)))} target="_blank" rel="noopener noreferrer"
+            style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, height: 50, borderRadius: 999, background: `linear-gradient(150deg, #FFE9A0 0%, ${C.flaggold} 55%, #C99A14 100%)`, color: NAVY, fontSize: 15.5, fontWeight: 700, textDecoration: "none" }}>
+            <WhatsAppIcon /> Meine Eltern einladen
+          </a>
+          <a href={whatsappLink(freundeNachricht((profil.name || "").split(" ")[0], link))} target="_blank" rel="noopener noreferrer"
+            style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, height: 50, borderRadius: 999, background: "#25D366", color: "#0B3D1E", fontSize: 15.5, fontWeight: 700, textDecoration: "none" }}>
+            <WhatsAppIcon /> Freunde einladen
+          </a>
+        </div>
+        <p style={{ fontSize: 13.5, color: "#C9D6EE", marginTop: 12, textAlign: "center" }}>
+          <b style={{ color: C.flaggold, fontSize: 18 }}>{geworben}</b> {geworben === 1 ? "Person" : "Personen"} eingeladen
+        </p>
         {profil.geworben_von && <p style={{ fontSize: 12.5, color: "#8FA3C8", marginTop: 10 }}>Du bist selbst über eine Einladung zu Mythos Mathe gekommen.</p>}
       </div>
 

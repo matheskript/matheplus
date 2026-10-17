@@ -12516,5 +12516,10 @@
    "Teil A {0} / 30 · Teil B {1} / 30 · {2} %",
    "Part A {0} / 30 · Part B {1} / 30 · {2} %"
   ]
- ]
+ ],
+  "Das ist dein persönlicher Link. Wer sich darüber anmeldet, wird automatisch dir zugeordnet.": "This is your personal link. Anyone who signs up through it is automatically linked to you.",
+  "Kopieren": "Copy",
+  "Kopiert ✓": "Copied ✓",
+  "Meine Eltern einladen": "Invite my parents",
+  "Freunde einladen": "Invite friends"
 }
