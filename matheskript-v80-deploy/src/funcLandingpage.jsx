@@ -16,7 +16,7 @@ import { GleichungenLogoKlein } from "./funcGleichungen.jsx";
 import { HeadNumbersLogoKlein } from "./funcHeadNumbersLogo.jsx";
 
 /* ======================================================================
-   LANDINGPAGE  (Adresse: #landingpage) – offen erreichbar, ohne Passwort.
+   LANDINGPAGE  (Adresse: /landingpage, ältere Links #landingpage funktionieren weiter) – offen erreichbar, ohne Passwort.
 
    Dramaturgie: Blockbuster-StorySkript (Alexander Christiani). Der Schüler ist der Held,
    Basti ist der Mentor. Fünf Schritte, jeder mit drei Unterpunkten:

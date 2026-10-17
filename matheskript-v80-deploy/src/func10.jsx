@@ -7,6 +7,7 @@ import { dekodieren, jsonLesen, rendern } from "./func1.jsx";
 import { Startseite, ToolMenue, istToolMenueSeite, werkzeugMerken } from "./func2.jsx";
 import { WerkzeugLeiste, KompaktKopf } from "./funcWerkzeuge.jsx";
 import { wo } from "./werkzeuge.js";
+import { pfadAufloesen, pfadFuer } from "./pfade.js";
 import { hinweisVerwerfen } from "./uebergabe.js";
 import { FR } from "./funcRegistry.jsx";
 import { AufklappStil, AufklappZeichen, aufklappScrollStarten } from "./aufklappen.jsx";
@@ -96,7 +97,9 @@ export function Mathilda() {
       if (q.has("konto") || q.has("pro")) return "konto";
       if (q.get("ticket") === "danke") return "elternabend";
       const h = window.location.hash.slice(1);
-      return h === LANDING || ENTWUERFE.some((e) => e.ansicht === h) ? h : "start";
+      if (h === LANDING || ENTWUERFE.some((e) => e.ansicht === h)) return h;   // ältere Links mit #landingpage / #entwurf-…
+      const pz = pfadAufloesen(window.location.pathname);   // Direct Links wie /elternabend (pfade.js)
+      return pz ? pz.ansicht : "start";
     } catch (e) { return "start"; }
   });
   // Rückkehr von Stripe nach erfolgreicher Ticketbuchung
@@ -121,6 +124,10 @@ export function Mathilda() {
         u.searchParams.delete("formel"); window.history.replaceState({}, "", u.pathname + u.search + u.hash);
         setTimeout(() => gehe({ ansicht: "formeln", formel: f }), 0);
       }
+    } catch (e) { /* ignorieren */ }
+    try {   // Direct Link: Unterziel (Werkzeug-Modus, Klasse, Trainer …) aus dem Pfad übernehmen
+      const pz = pfadAufloesen(window.location.pathname);
+      if (pz && pz.ansicht !== "start") gehe(pz);
     } catch (e) { /* ignorieren */ }
     try {   // nach dem Sprachwechsel dieselbe Seite wieder öffnen
       const z = JSON.parse(sessionStorage.getItem("mm-nach-sprachwechsel") || "null");
@@ -161,15 +168,47 @@ export function Mathilda() {
   const [toolMenueOffen, setToolMenueOffen] = useState(false);
   useEffect(() => { aufklappScrollStarten(); }, []);
   useEffect(() => { werkzeugMerken(ansicht); }, [ansicht]);   // für „Weitermachen“ auf der Startseite
-  // Webseiten-Entwürfe bekommen einen Anker in der Adresse (#entwurf-…), damit man sie direkt aufrufen kann
+  // Adresszeile folgt der Seite: /elternabend, /ableitungstrainer, /klasse-10 … (Pfade: pfade.js).
+  // Erster Lauf und Zurück/Vor-Taste ersetzen die Adresse, jede eigene Navigation legt einen Verlaufseintrag an.
+  const adressErsterLauf = useRef(true);
+  const adressAusVerlauf = useRef(0);   // Zeitpunkt der letzten Zurück/Vor-Taste
   useEffect(() => {
     try {
+      const soll = pfadFuer({
+        ansicht, klasse: klasseAktiv, land: landWahl, trainer: kopfTrainer, seite: entdeckenStart, kurs: kursStart,
+        ziel: ansicht === "training" ? trainZiel : ansicht === "ki" ? genZiel : undefined,
+        foto: ansicht === "analyse" ? fotoModus : undefined,
+      }) || "/";
+      const jetzt = window.location.pathname.replace(/\/+$/, "") || "/";
       const h = window.location.hash.slice(1);
-      const hatAnker = istEntwurf(ansicht) || ansicht === LANDING;
-      if (hatAnker && h !== ansicht) window.history.replaceState({}, "", window.location.pathname + window.location.search + "#" + ansicht);
-      else if (!hatAnker && (istEntwurf(h) || h === LANDING)) window.history.replaceState({}, "", window.location.pathname + window.location.search);
+      const altAnker = h === LANDING || istEntwurf(h);   // ältere #-Links ablösen; andere Anker (Anmelde-Rückkehr) bleiben
+      const rest = window.location.search + (altAnker ? "" : window.location.hash);
+      const erster = adressErsterLauf.current;
+      const ausVerlauf = Date.now() - adressAusVerlauf.current < 1000;
+      adressErsterLauf.current = false;
+      if (erster) {
+        /* Beim Start gilt die Adresse: Unterziele (Klasse, Modus …) setzt gehe() gleich danach.
+           Nur Kurzformen (Alias) werden auf den schönen Pfad umgeschrieben. */
+        const pz = pfadAufloesen(window.location.pathname);
+        if (pz && pz.ansicht === ansicht && !altAnker) {
+          const kan = pfadFuer(pz);
+          if (kan && kan !== jetzt) window.history.replaceState({}, "", kan + rest);
+          return;
+        }
+      }
+      if (jetzt === soll && !altAnker) return;
+      if (erster || ausVerlauf) window.history.replaceState({}, "", soll + rest);
+      else window.history.pushState({}, "", soll + rest);
     } catch (e) { /* ignorieren */ }
-  }, [ansicht]);
+  }, [ansicht, trainZiel, genZiel, fotoModus, klasseAktiv, kopfTrainer, entdeckenStart, kursStart, landWahl]);
+  // Zurück/Vor-Taste des Browsers
+  useEffect(() => {
+    const f = () => {
+      try { adressAusVerlauf.current = Date.now(); FR.gehe(pfadAufloesen(window.location.pathname) || { ansicht: "start" }); } catch (e) { /* ignorieren */ }
+    };
+    window.addEventListener("popstate", f);
+    return () => window.removeEventListener("popstate", f);
+  }, []);
   const gehe = (eintrag) => {
     if (!eintrag.uebergabe) hinweisVerwerfen();
     setAnsicht(eintrag.ansicht);
