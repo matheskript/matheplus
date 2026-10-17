@@ -3,7 +3,7 @@ import { C } from "./base1.jsx";
 import { RollenWahl, EmailAnmeldung, HinweisLeiste, ElternEinladen, MeineKlassen, PlanKarte, ElternBereich, LehrBereich, RolleAendern, GeschlechtFrage } from "./funcKontoRollen.jsx";
 import { rolleName, istLehrend, istGeschlecht, KURSSTUFE, NOTEN_AB, datenVollstaendig } from "./rollenLogik.js";
 import { MeinTrainingKarte } from "./funcKontoTraining.jsx";
-import { DatenKarte, WochenmailKarte } from "./funcKontoDaten.jsx";
+import { AppKarte, DatenKarte, WochenmailKarte } from "./funcKontoDaten.jsx";
 import { DEMO, useKonto, gemerkteEinladung, anmelden, abmelden, profilAnlegen, profilSpeichern, empfehlungsLink, neuerCode, refPruefen, refFestlegen, istRefCode, REF_BASIS_ANZEIGE } from "./konto.js";
 
 /* ======================================================================
@@ -522,6 +522,7 @@ function Profil({ nutzer, profil, geworben, gehe }) {
           <span aria-hidden="true" style={{ fontSize: 22, color: "#8A6A00" }}>›</span>
         </button>
       )}
+      <AppKarte />
       <DatenKarte gehe={gehe} />
       <RolleAendern profil={profil} />
       <button type="button" onClick={abmelden}

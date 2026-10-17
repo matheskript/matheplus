@@ -109,6 +109,13 @@ export function Mathilda() {
       if (u.searchParams.get("pro") === "danke") { try { sessionStorage.setItem("mm-pro-danke", "1"); } catch (e) { /* privat */ } }
       if (u.searchParams.has("konto") || u.searchParams.has("ticket") || u.searchParams.has("pro")) { u.searchParams.delete("konto"); u.searchParams.delete("ticket"); u.searchParams.delete("pro"); window.history.replaceState({}, "", u.pathname + u.search + u.hash); }
       /* Sprung aus den öffentlichen Formelseiten: /?formel=<id> öffnet die Formel in der Formelsammlung */
+      /* App-Verknüpfungen und Push: /?ansicht=<name> öffnet eine Ansicht; ?quelle=app stammt aus dem Startbildschirm */
+      const a = u.searchParams.get("ansicht");
+      if (u.searchParams.has("quelle") || a) {
+        u.searchParams.delete("quelle"); u.searchParams.delete("ansicht"); window.history.replaceState({}, "", u.pathname + u.search + u.hash);
+        const erlaubt = ["meintraining", "formeln", "lernpfad", "challenge", "konto", "kopf", "entdecken", "headnumbers", "ebbinghaus", "fehlertraining", "warmup"];
+        if (a && (erlaubt.includes(a) || istWzSeite(a) || wo(a))) setTimeout(() => gehe({ ansicht: a }), 0);
+      }
       const f = u.searchParams.get("formel");
       if (f && /^[a-z0-9-]{1,60}$/.test(f)) {
         u.searchParams.delete("formel"); window.history.replaceState({}, "", u.pathname + u.search + u.hash);

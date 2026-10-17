@@ -6,6 +6,7 @@ import React, { useEffect, useState } from "react";
 import { C } from "./base1.jsx";
 import { abmelden } from "./konto.js";
 import { kontoExport, kontoLoeschen, wochenmailSetzen, wochenmailStand } from "./kontoRollen.js";
+import { installHoeren, installieren, istInstalliert, istIOS, kannInstallieren, pushAusschalten, pushEinschalten, pushStand } from "./push.js";
 
 const karte = { background: C.weiss, borderRadius: 18, boxShadow: "0 3px 18px rgba(15,26,51,0.07)", padding: 18, marginBottom: 14 };
 const kicker = { fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", color: C.hellgrau, marginBottom: 10 };
@@ -115,6 +116,50 @@ export function WochenmailKarte() {
       </div>
       {d.zuletzt && <p style={{ fontSize: 12.5, color: C.hellgrau, margin: "8px 0 0" }}>Zuletzt verschickt: {new Date(d.zuletzt).toLocaleDateString("de-DE")}</p>}
       {fehler && <p role="alert" style={{ fontSize: 13, color: C.signal, marginTop: 8 }}>{fehler}</p>}
+    </div>
+  );
+}
+
+/* ---------- App installieren und Erinnerungen ---------- */
+export function AppKarte() {
+  const [, setTick] = useState(0);
+  const [push, setPush] = useState(null);
+  const [meldung, setMeldung] = useState("");
+  const [laeuft, setLaeuft] = useState(false);
+  useEffect(() => installHoeren(() => setTick((t) => t + 1)), []);
+  useEffect(() => { pushStand().then(setPush).catch(() => setPush({ moeglich: false })); }, []);
+  const installiert = istInstalliert();
+  const schalten = async () => {
+    setMeldung(""); setLaeuft(true);
+    try {
+      if (push && push.an) { await pushAusschalten(); setPush({ ...push, an: false }); }
+      else { await pushEinschalten(); setPush({ ...push, an: true }); setMeldung("Erinnerung ist an. Sie kommt nur an Tagen, an denen du noch nicht geübt hast."); }
+    } catch (e) { setMeldung(e.message); }
+    setLaeuft(false);
+  };
+  return (
+    <div style={karte}>
+      <p style={kicker}>APP UND ERINNERUNG</p>
+      {!installiert && (
+        <div style={{ marginBottom: 14 }}>
+          <p style={text}>Mythos Mathe lässt sich wie eine App auf den Startbildschirm legen – mit eigenem Symbol, ohne Browserleiste und auch offline.</p>
+          {kannInstallieren() ? <button type="button" onClick={installieren} style={{ ...knopf(C.see, true), marginTop: 10 }}>Auf den Startbildschirm</button>
+            : istIOS() ? <p style={{ ...text, marginTop: 8, color: C.tinte }}>iPhone/iPad: in Safari auf <b>Teilen</b> tippen, dann <b>Zum Home-Bildschirm</b>.</p>
+              : <p style={{ ...text, marginTop: 8, fontSize: 13 }}>Im Browser-Menü: „App installieren“ bzw. „Zum Startbildschirm hinzufügen“.</p>}
+        </div>
+      )}
+      {push && push.moeglich ? (
+        <div style={{ display: "flex", gap: 14, alignItems: "center", borderTop: installiert ? "none" : `1px solid ${C.linie}`, paddingTop: installiert ? 0 : 14 }}>
+          <p style={{ ...text, flex: 1 }}>Tägliche Erinnerung am Nachmittag – nur, wenn du an dem Tag noch nicht geübt hast.</p>
+          <button type="button" role="switch" aria-checked={!!push.an} aria-label="Push-Erinnerung" onClick={schalten} disabled={laeuft}
+            style={{ flexShrink: 0, width: 54, height: 32, borderRadius: 999, border: "none", padding: 3, cursor: "pointer", background: push.an ? C.smaragd : C.hellgrau, transition: "background .15s" }}>
+            <span style={{ display: "block", width: 26, height: 26, borderRadius: 999, background: C.weiss, transform: `translateX(${push.an ? 22 : 0}px)`, transition: "transform .15s" }} />
+          </button>
+        </div>
+      ) : push && istIOS() && !installiert ? (
+        <p style={{ ...text, fontSize: 13 }}>Erinnerungen gibt es auf dem iPhone, sobald die App auf dem Home-Bildschirm liegt.</p>
+      ) : null}
+      {meldung && <p role="status" style={{ fontSize: 13, color: C.grau, marginTop: 8, lineHeight: 1.5 }}>{meldung}</p>}
     </div>
   );
 }

@@ -1,0 +1,23 @@
+{
+  "name": "Mythos Mathe",
+  "short_name": "Mythos Mathe",
+  "description": "Mathe verstehen und trainieren – von der Mittelstufe bis zum Abitur.",
+  "lang": "de",
+  "start_url": "/?quelle=app",
+  "scope": "/",
+  "id": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F8FAFD",
+  "theme_color": "#0E1E4A",
+  "categories": ["education"],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Mein Training", "url": "/?ansicht=meintraining", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Formelsammlung", "url": "/?ansicht=formeln", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

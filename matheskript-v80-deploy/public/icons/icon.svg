@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+<defs>
+ <linearGradient id="h" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#14306B"/><stop offset="1" stop-color="#08173B"/></linearGradient>
+ <linearGradient id="b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="0.45" stop-color="#E3E8EF"/><stop offset="1" stop-color="#8E97A6"/></linearGradient>
+ <linearGradient id="g" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#E2B53C"/><stop offset="1" stop-color="#FFE58A"/></linearGradient>
+</defs>
+<rect width="512" height="512" fill="url(#h)"/>
+<polygon points="56.0,420.0 256.0,96.0 456.0,420.0" fill="url(#b)"/>
+<polygon points="256.0,96.0 456.0,420.0 330.0,420.0 262.0,250.0" fill="#0B1E4A" opacity="0.18"/>
+<polyline points="150.0,420.0 300.0,372.0 196.0,318.0 296.0,262.0 222.0,206.0 272.0,160.0 256.0,96.0" fill="none" stroke="url(#g)" stroke-width="22.0" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="256.0" cy="96.0" r="20.0" fill="#FFE58A"/>
+</svg>
