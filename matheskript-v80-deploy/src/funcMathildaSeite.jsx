@@ -3,7 +3,7 @@
 import React from "react";
 import { C } from "./base1.jsx";
 import "@fontsource/caveat/600.css";
-import { HAIR, WHITE, FEAT, STRANDS } from "./mathildaPortraet.js";
+import { WHITE, FEAT, HAAR_HINTEN, HAAR_LINKS, HAAR_RECHTS, HAAR_LINIEN } from "./mathildaPortraet.js";
 
 const GOLD = C.flaggold;
 const NACHT = C.seeTief;
@@ -30,9 +30,8 @@ export function MathildaBild({ groesse = 220, style, className }) {
         </linearGradient>
         <mask id={id} maskUnits="userSpaceOnUse" x="0" y="0" width="320" height="440">
           <rect width="320" height="440" fill="#000" />
-          <path fill="#fff" d={HAIR} />
+          <path fill="#fff" d={HAAR_HINTEN} />
           <path fill="#fff" fillRule="evenodd" d={WHITE} />
-          <path fill="#000" fillRule="evenodd" d={STRANDS} />
           <path fill="#000" fillRule="evenodd" d={FEAT} />
           {/* leichtes Grinsen mit hochgezogenen Mundwinkeln */}
           <path fill="#000" d="M132 279 C 137 278, 142 283, 149 286.5 C 164 293, 191 293, 206 286 C 213 282.5, 218 277.5, 224 276.5 C 222 283, 216 291, 207 295.5 C 190 302.5, 163 302.5, 147 295.5 C 139 292, 134.5 286, 132 279 Z" />
@@ -41,17 +40,24 @@ export function MathildaBild({ groesse = 220, style, className }) {
         </mask>
       </defs>
       <g mask={`url(#${id})`}>
-        <path fill={GOLD} d={HAIR} />
+        <path fill={GOLD} d={HAAR_HINTEN} />
         <path fill="#FFFFFF" fillRule="evenodd" d={WHITE} />
       </g>
+      {/* Stirn zum Mittelscheitel, Haar als zwei glatte Vorhänge, wenige feine Linien */}
+      <path fill="#FFFFFF" d="M119 114 C 135 98, 152 86, 166 79 C 180 86, 199 98, 219 114 Z" />
+      <path fill={GOLD} d={HAAR_LINKS} />
+      <path fill={GOLD} d={HAAR_RECHTS} />
+      <clipPath id={id + "h"}><path d={HAAR_LINKS} /><path d={HAAR_RECHTS} /></clipPath>
+      <path fill="none" stroke="#12305F" strokeWidth="2" strokeLinecap="round" clipPath={`url(#${id}h)`} d={HAAR_LINIEN} />
+      <path fill="none" stroke="#12305F" strokeWidth="2.2" strokeLinecap="round" d="M166 16 C 166 34, 166 54, 166 76" />
       {/* Sonnenbrille */}
       <path d="M82 171 C 66 171, 48 175, 34 184" fill="none" stroke={GOLD} strokeWidth="4" strokeLinecap="round" />
       <path d="M253 171 C 264 171, 272 173, 278 178" fill="none" stroke={GOLD} strokeWidth="4" strokeLinecap="round" />
       {glas(119, 1)}{glas(216, -1)}
       <path d="M157 169 C 162 162, 173 162, 178 169" fill="none" stroke={GOLD} strokeWidth="4.4" strokeLinecap="round" />
       {/* Ohrring */}
-      <circle cx="67" cy="270" r="5" fill={GOLD} stroke="#12305F" strokeWidth="1.6" />
-      <path d="M75 284 C 86 290, 88 312, 78 322 C 68 316, 64 296, 75 284 Z" fill="#FFFFFF" stroke={GOLD} strokeWidth="3" />
+      <circle cx="94" cy="262" r="5" fill={GOLD} stroke="#12305F" strokeWidth="1.6" />
+      <path d="M99 273 C 110 279, 112 301, 102 311 C 92 305, 88 285, 99 273 Z" fill="#FFFFFF" stroke="#12305F" strokeWidth="2" />
     </svg>
   );
 }
