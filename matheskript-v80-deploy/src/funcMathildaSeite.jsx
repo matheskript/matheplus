@@ -44,20 +44,18 @@ export function MathildaBild({ groesse = 220, style, className }) {
         <path fill="#FFFFFF" fillRule="evenodd" d={WHITE} />
       </g>
       {/* Stirn zum Mittelscheitel, Haar als zwei glatte Vorhänge, wenige feine Linien */}
-      <path fill="#FFFFFF" d="M119 114 C 135 98, 152 86, 166 79 C 180 86, 199 98, 219 114 Z" />
-      <path fill={GOLD} d={HAAR_LINKS} />
+            <path fill={GOLD} d={HAAR_LINKS} />
       <path fill={GOLD} d={HAAR_RECHTS} />
-      <clipPath id={id + "h"}><path d={HAAR_LINKS} /><path d={HAAR_RECHTS} /></clipPath>
+      <clipPath id={id + "h"}><path d={HAAR_HINTEN} /></clipPath>
       <path fill="none" stroke="#12305F" strokeWidth="2" strokeLinecap="round" clipPath={`url(#${id}h)`} d={HAAR_LINIEN} />
-      <path fill="none" stroke="#12305F" strokeWidth="2.2" strokeLinecap="round" d="M166 16 C 166 34, 166 54, 166 76" />
       {/* Sonnenbrille */}
       <path d="M82 171 C 66 171, 48 175, 34 184" fill="none" stroke={GOLD} strokeWidth="4" strokeLinecap="round" />
       <path d="M253 171 C 264 171, 272 173, 278 178" fill="none" stroke={GOLD} strokeWidth="4" strokeLinecap="round" />
       {glas(119, 1)}{glas(216, -1)}
       <path d="M157 169 C 162 162, 173 162, 178 169" fill="none" stroke={GOLD} strokeWidth="4.4" strokeLinecap="round" />
       {/* Ohrring */}
-      <circle cx="94" cy="262" r="5" fill={GOLD} stroke="#12305F" strokeWidth="1.6" />
-      <path d="M99 273 C 110 279, 112 301, 102 311 C 92 305, 88 285, 99 273 Z" fill="#FFFFFF" stroke="#12305F" strokeWidth="2" />
+      <circle cx="62" cy="268" r="5" fill={GOLD} stroke="#12305F" strokeWidth="1.6" />
+      <path d="M70 280 C 82 286, 86 308, 76 320 C 65 313, 61 292, 70 280 Z" fill="#FFFFFF" stroke="#12305F" strokeWidth="2" />
     </svg>
   );
 }
@@ -106,11 +104,11 @@ export function MathildaKopf({ modus, setModus, onScan }) {
     <div className="mathilda-kopf" style={{ background: `radial-gradient(120% 90% at 85% 10%, #163A7A 0%, ${C.see} 35%, ${NACHT} 85%)`, position: "relative", overflow: "hidden" }}>
       <style>{`
         .mathilda-kopf .mk-innen { max-width: 760px; margin: 0 auto; padding: 14px 24px 0; display: grid; grid-template-columns: 1fr auto; gap: 0 18px; align-items: end; }
-        .mathilda-kopf .mk-text { padding-bottom: 22px; }
+        .mathilda-kopf .mk-text { align-self: start; padding-top: 4px; padding-bottom: 22px; }
         .mathilda-kopf .mk-portraet { position: relative; align-self: end; animation: mk-auf 0.9s cubic-bezier(.2,.8,.2,1) both; margin-right: calc((min(760px, 100vw) - 78px) / 12); }
         .mathilda-kopf .mk-portraet svg { display: block; width: 196px; height: auto; position: relative; }
         .mathilda-kopf .mk-schein { position: absolute; inset: auto -10% 0 -10%; height: 70%; background: radial-gradient(60% 70% at 50% 100%, rgba(237,187,0,0.30), transparent 70%); pointer-events: none; }
-        .mathilda-kopf .mk-scan { margin-top: 18px; display: inline-flex; align-items: center; gap: 12px; padding: 0 22px 0 8px; height: 58px; border: none; border-radius: 999px; cursor: pointer; font-family: inherit;
+        .mathilda-kopf .mk-scan { margin-top: 30px; display: inline-flex; align-items: center; gap: 12px; padding: 0 22px 0 8px; height: 58px; border: none; border-radius: 999px; cursor: pointer; font-family: inherit;
           color: ${NACHT}; font-size: 17px; font-weight: 800; letter-spacing: -0.01em; background: linear-gradient(135deg, #F8D23A 0%, ${GOLD} 55%, #D9A600 100%);
           box-shadow: 0 10px 30px rgba(237,187,0,0.40), inset 0 1px 0 rgba(255,255,255,0.55); transition: transform .15s ease, box-shadow .15s ease; -webkit-tap-highlight-color: transparent; animation: mk-auf 0.9s 0.1s cubic-bezier(.2,.8,.2,1) both; }
         .mathilda-kopf .mk-scan:hover { transform: translateY(-2px); box-shadow: 0 14px 36px rgba(237,187,0,0.5), inset 0 1px 0 rgba(255,255,255,0.55); }
@@ -124,10 +122,11 @@ export function MathildaKopf({ modus, setModus, onScan }) {
         .mathilda-kopf .mk-modus span { display: block; font-size: 12px; font-weight: 400; line-height: 1.4; opacity: .85; }
         @keyframes mk-auf { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
         @media (max-width: 560px) {
-          .mathilda-kopf .mk-innen { grid-template-columns: 1fr 118px; gap: 0 8px; padding-top: 12px; }
+          .mathilda-kopf .mk-innen { grid-template-columns: 1fr 118px; gap: 0 8px; padding-top: 6px; }
           .mathilda-kopf .mk-portraet { margin-right: 0; }
           .mathilda-kopf .mk-portraet svg { width: 124px; margin-right: -10px; }
-          .mathilda-kopf .mk-text { padding-bottom: 18px; }
+          .mathilda-kopf .mk-text { padding-top: 0; padding-bottom: 18px; }
+          .mathilda-kopf .mk-scan { margin-top: 24px; }
           .mathilda-kopf .mk-scan { height: 52px; font-size: 15.5px; padding-right: 16px; gap: 10px; }
           .mathilda-kopf .mk-scan .mk-kam { width: 38px; height: 38px; }
           .mathilda-kopf .mk-modi { grid-template-columns: repeat(2, 1fr); padding-bottom: 22px; }
