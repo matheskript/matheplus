@@ -185,7 +185,7 @@ function PlanAnsicht({ gehe }) {
       <Rahmen>
         <Zurueck onClick={() => gehe({ ansicht: "start" })} />
         <div style={karte}>
-          <p style={{ fontSize: 14.5, color: C.tinte, lineHeight: 1.6 }}>Lege deinen Plan auf der Startseite an: „Trainingsplan erstellen“, dann Klasse und Thema wählen.</p>
+          <p style={{ fontSize: 14.5, color: C.tinte, lineHeight: 1.6 }}>Lege deinen Plan auf der Startseite an: „Trainingsplan“, dann Klasse und Thema wählen.</p>
           <GrosserKnopf onClick={() => (modusVormerken("plan"), gehe({ ansicht: "start" }))}>Plan erstellen</GrosserKnopf>
         </div>
       </Rahmen>

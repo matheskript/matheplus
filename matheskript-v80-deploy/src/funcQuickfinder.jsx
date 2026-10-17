@@ -1,6 +1,6 @@
 /* ======================================================================
    QUICKFINDER – Status quo in der Kachel „Mein Training“ auf der Startseite
-   Schulart (G8 · G9 · GMS) → Klasse (acht Boxen, Kursstufe gold) →
+   Schulart (Balken G8 · G9 · GS9) → Klasse (neun Boxen, Abi-Stufen gold) →
    Kapitel im Buch → Liste aller Hilfen der App zu diesem Kapitel.
    Daten: schulbuch.js. Auswahl bleibt im Browser (matheplus-quickfinder).
    ====================================================================== */
@@ -34,22 +34,27 @@ function modusLesen() { try { const v = JSON.parse(localStorage.getItem(SCHLUESS
 const KICKER = { fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", color: C.gruenDunkel, margin: 0 };
 const knopfBasis = { fontFamily: "inherit", cursor: "pointer", borderRadius: 12, fontWeight: 700, lineHeight: 1.15, transition: "background .12s ease, color .12s ease, box-shadow .12s ease" };
 
-/* Panel rechts oben, schmal: 3 Spalten × 4 Zeilen.
-   Zeile 1 (goldener Grund, dunkelblaue Tasten): Schulsystem G8 · G9 · GS9.
-   Zeilen 2–4 (dunkelblauer Grund, goldene Tasten): Klassen, als letzte Taste „Abi“.
-   Gewählt = weiß. Die Klassen sind gedämpft, bis ein Schulsystem gewählt ist. */
-const TASTE = { ...knopfBasis, minHeight: 32, padding: "2px", fontSize: 13.5, borderRadius: 8, letterSpacing: "0.02em" };
-const AN = { background: C.weiss, color: C.seeTief, borderColor: C.weiss, boxShadow: "0 0 0 2px rgba(255,255,255,0.35), 0 3px 8px rgba(8,23,59,0.3)" };
+/* Rechte Spalte, schmal: oben ein eigener Balken für das Schulsystem (auf Höhe der Überschrift),
+   darunter, getrennt davon, die 3 × 3 Klassen-Boxen. Beide ohne Goldrand, Linien statt Abständen.
+   Schulsystem: blauer Grund, weiße Schrift, weiße Trennstriche; gewählt = weiß mit blauer Schrift.
+   Klassen: weiße Boxen, die drei Abi-Stufen (Kursstufe + Abi) mit goldenem Grund, alle Linien blau;
+   gewählt = blau mit weißer Schrift. Die Klassen sind gedämpft, bis ein Schulsystem gewählt ist.
+   HOEHE ist zugleich die Höhe der Modus-Knöpfe links – deren Unterkante schließt mit den Klassen ab. */
+const HOEHE = 40;
+const LINIE = 1.5;
+const TASTE = { ...knopfBasis, height: HOEHE, padding: "0 2px", fontSize: 14, borderRadius: 0, border: "none", letterSpacing: "0.02em", display: "flex", alignItems: "center", justifyContent: "center" };
 
 function SchulartWahl({ wert, setze }) {
   return (
-    <div role="group" aria-label="Schulsystem wählen" style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 5,
-      padding: 6, background: "linear-gradient(180deg, #F5CB2E 0%, #EDBB00 100%)" }}>
-      {SCHULARTEN.map((s) => {
+    <div role="group" aria-label="Schulsystem wählen" className="qf-schulart"
+      style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", borderRadius: 10, overflow: "hidden", background: C.see,
+        border: `${LINIE}px solid ${C.see}`, boxShadow: "0 4px 12px rgba(0,77,152,0.22)" }}>
+      {SCHULARTEN.map((s, i) => {
         const an = s.id === wert;
         return (
-          <button key={s.id} type="button" aria-pressed={an} onClick={() => setze(s.id)} title={s.zeile} data-kein-i18n className="qf-taste"
-            style={{ ...TASTE, border: `2px solid ${C.seeTief}`, background: C.seeTief, color: C.weiss, ...(an ? { ...AN, borderColor: C.seeTief, boxShadow: "0 3px 8px rgba(8,23,59,0.3)" } : {}) }}>
+          <button key={s.id} type="button" aria-pressed={an} onClick={() => setze(s.id)} title={s.zeile} data-kein-i18n className="qf-sa"
+            style={{ ...TASTE, height: HOEHE - 2 * LINIE, fontSize: 14.5, fontWeight: 800, borderLeft: i ? `2px solid ${C.weiss}` : "none",
+              background: an ? C.weiss : "transparent", color: an ? C.see : C.weiss }}>
             {s.name}
           </button>
         );
@@ -63,15 +68,15 @@ function KlassenWahl({ schulart, wert, setze }) {
   const aus = !schulart;
   return (
     <div role="group" aria-label={aus ? "Klasse wählen – zuerst Schulsystem wählen" : "Klasse wählen"}
-      style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 5, padding: 6, background: C.seeTief }}>
+      style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: LINIE, background: C.see, border: `${LINIE}px solid ${C.see}`,
+        borderRadius: 10, overflow: "hidden", opacity: aus ? 0.4 : 1, transition: "opacity .15s ease" }}>
       {boxen.map((b) => {
         const an = !aus && b.id === wert;
         return (
-          <button key={b.id} type="button" aria-pressed={an} disabled={aus} onClick={() => setze(b.id)} data-kein-i18n className={aus ? undefined : "qf-taste"}
-            aria-label={b.abi ? "Abi-Training" : `Klasse ${b.label}`} title={b.abi ? "Spezielles Abi-Training" : undefined}
-            style={{ ...TASTE, cursor: aus ? "not-allowed" : "pointer", border: `2px solid ${C.flaggold}`,
-              background: "linear-gradient(180deg, #F5CB2E 0%, #EDBB00 100%)", color: C.seeTief, opacity: aus ? 0.32 : 1,
-              ...(an ? AN : {}) }}>
+          <button key={b.id} type="button" aria-pressed={an} disabled={aus} onClick={() => setze(b.id)} data-kein-i18n className={aus ? undefined : "qf-kl"}
+            aria-label={b.abi ? "Abi-Training" : `Klasse ${b.label}`} title={aus ? "Zuerst G8, G9 oder GS9 wählen" : b.abi ? "Spezielles Abi-Training" : undefined}
+            style={{ ...TASTE, cursor: aus ? "not-allowed" : "pointer",
+              background: an ? C.see : b.gold ? "linear-gradient(180deg, #F5CB2E 0%, #EDBB00 100%)" : C.weiss, color: an ? C.weiss : C.seeTief }}>
             {b.label}
           </button>
         );
@@ -226,27 +231,28 @@ function Hilfen({ kapitelId, wz, gehe, schulart, klasse }) {
   );
 }
 
-/* ---------- Die beiden Modus-Knöpfe (statt „Mein Training öffnen“) ---------- */
+/* ---------- Die beiden Modus-Knöpfe: einzeilig, so hoch wie eine Klassen-Box ---------- */
 const MODI = [
-  { id: "sache", name: "Eine Sache trainieren", zeile: "Ein Thema gezielt üben" },
-  { id: "plan", name: "Trainingsplan erstellen", zeile: "Mit Basis, Warm-up und Wiederholung" },
+  { id: "sache", name: "Eine Sache üben" },
+  { id: "plan", name: "Trainingsplan", stern: true },
 ];
+const Stern = ({ farbe }) => (
+  <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
+    <path d="M12 2.6l2.9 5.9 6.5.95-4.7 4.6 1.1 6.45L12 17.45 6.2 20.5l1.1-6.45-4.7-4.6 6.5-.95z" fill={farbe} />
+  </svg>
+);
 function ModusWahl({ wert, setze }) {
   return (
-    <div role="group" aria-label="Wie willst du trainieren?" className="qf-modi" style={{ display: "grid", gap: 6, marginTop: 12 }}>
+    <div role="group" aria-label="Wie willst du trainieren?" className="qf-modi" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
       {MODI.map((m) => {
         const an = m.id === wert;
         return (
           <button key={m.id} type="button" aria-pressed={an} onClick={() => setze(m.id)} className="qf-taste"
-            style={{ ...knopfBasis, display: "flex", alignItems: "center", gap: 9, textAlign: "left", minHeight: 46, padding: "7px 11px", borderRadius: 12,
-              border: `2px solid ${an ? C.see : C.linie}`, background: an ? C.see : C.weiss, color: an ? C.weiss : C.see,
-              boxShadow: an ? "0 4px 12px rgba(0,77,152,0.25)" : "none" }}>
-            <span aria-hidden="true" style={{ flexShrink: 0, width: 16, height: 16, borderRadius: 999, border: `2px solid ${an ? C.flaggold : C.linie}`, background: an ? C.flaggold : "transparent",
-              boxShadow: an ? `inset 0 0 0 3px ${C.see}` : "none" }} />
-            <span style={{ minWidth: 0 }}>
-              <span style={{ display: "block", fontSize: 14, fontWeight: 800, lineHeight: 1.2 }}>{m.name}</span>
-              <span style={{ display: "block", fontSize: 11.5, fontWeight: 500, opacity: 0.8, marginTop: 1, lineHeight: 1.25 }}>{m.zeile}</span>
-            </span>
+            style={{ ...knopfBasis, height: HOEHE, display: "flex", alignItems: "center", justifyContent: "center", gap: 7, padding: "0 10px", borderRadius: 10,
+              border: `${LINIE}px solid ${C.see}`, background: an ? C.see : C.weiss, color: an ? C.weiss : C.see, fontSize: 14, fontWeight: 800,
+              whiteSpace: "nowrap", minWidth: 0, boxShadow: an ? "0 4px 12px rgba(0,77,152,0.25)" : "none" }}>
+            <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{m.name}</span>
+            {m.stern && <Stern farbe={C.flaggold} />}
           </button>
         );
       })}
@@ -355,8 +361,10 @@ function PlanKarte({ q, gehe, aktiv }) {
 }
 
 /* setzeStufe: stellt den Stufen-Schalter der Startseite (Mittel-/Oberstufe) mit ein.
-   links: Überschrift der Kachel „Mein Training“; darunter Text und die beiden Modus-Knöpfe. unten: kleiner Link zu „Mein Training“.
-   Rechts sitzt das dunkelblaue Auswahl-Panel. */
+   links: Überschrift der Kachel; darunter der Text. unten: kleiner Link zu „Mein Training“ (unter dem Kopf).
+   Ab 600 px zwei Spalten (Raster-Bereiche): rechts oben der Schulsystem-Balken auf Höhe der Überschrift,
+   darunter die Klassen; links unten die Modus-Knöpfe, deren Unterkante mit den Klassen abschließt.
+   Darunter einspaltig: Überschrift, Text, Schulsystem, Klassen, Modus-Knöpfe. */
 export function Quickfinder({ gehe, setzeStufe, links, unten }) {
   const [q, setQ] = useState(() => lesen() || { schulart: null, klasse: null, kapitel: null, teil: null, modus: modusLesen() });
   const aktiv = useAktiverPlan();
@@ -376,29 +384,30 @@ export function Quickfinder({ gehe, setzeStufe, links, unten }) {
   const u = q.teil ? unterthema(q.teil) : null;
   return (
     <>
-      <style>{`.qf-kopf{display:grid;grid-template-columns:1fr;gap:14px;padding:16px}
-        .qf-panel{width:100%;max-width:300px;justify-self:end}
-        @media (min-width:440px){.qf-kopf{grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:stretch}.qf-panel{width:min(250px,48vw)}}
-        @media (min-width:840px){.qf-kopf{padding:18px 18px 18px 20px;gap:24px}.qf-panel{width:270px}}
-        @media (min-width:600px){.qf-modi{grid-template-columns:1fr 1fr}}
-        @media (hover:hover){.qf-taste:hover{transform:translateY(-1px)}.qf-balken:hover{border-color:${C.see} !important}}
+      <style>{`.qf-kopf{display:grid;grid-template-columns:minmax(0,1fr);grid-template-areas:"kopf" "schul" "klass" "modi";row-gap:10px;padding:16px 16px 6px}
+        .qf-kopf>.qf-a-kopf{grid-area:kopf;margin-bottom:4px}.qf-kopf>.qf-a-schul{grid-area:schul}.qf-kopf>.qf-a-klass{grid-area:klass}.qf-kopf>.qf-a-modi{grid-area:modi;margin-top:4px}
+        @media (min-width:600px){.qf-kopf{grid-template-columns:minmax(0,1fr) 250px;grid-template-rows:auto 1fr auto;grid-template-areas:"kopf schul" "kopf klass" "modi klass";column-gap:22px;row-gap:12px}
+          .qf-kopf>.qf-a-kopf{margin-bottom:0}.qf-kopf>.qf-a-klass,.qf-kopf>.qf-a-modi{align-self:end;margin-top:0}}
+        @media (min-width:840px){.qf-kopf{grid-template-columns:minmax(0,1fr) 270px;padding:18px 18px 6px 20px;column-gap:28px}}
+        @media (hover:hover){.qf-taste:hover{transform:translateY(-1px)}.qf-balken:hover{border-color:${C.see} !important}
+          .qf-sa[aria-pressed="false"]:hover{background:rgba(255,255,255,0.14) !important}
+          .qf-kl[aria-pressed="false"]:hover{filter:brightness(0.95)}}
+        .qf-unten{padding:0 16px}@media (min-width:840px){.qf-unten{padding:0 18px 0 20px}}
         .qf-taste{transition:transform .12s ease, background .12s ease, color .12s ease}`}</style>
       <div className="qf-kopf">
-        <div style={{ minWidth: 0, display: "flex", flexDirection: "column" }}>
+        <div className="qf-a-kopf" style={{ minWidth: 0 }}>
           {links}
           <p style={{ margin: "10px 0 0", fontSize: 13.5, fontWeight: 300, lineHeight: 1.55, color: C.grau }}>
             {plan
               ? "Wähle Klasse und Thema. Ich baue dir einen Plan: Warm-up, Basis-Check, Zwischenschritte, dein Thema und Wiederholungen nach Ebbinghaus."
               : "Wähle dein Schulsystem und deine Klasse, dann das Kapitel – oder mit dem Pfeil genau das Unterthema, das du üben willst."}
           </p>
-          <ModusWahl wert={q.modus} setze={(m) => setze({ ...q, modus: m })} />
-          {unten}
         </div>
-        <div className="qf-panel" style={{ border: `2px solid ${C.seeTief}`, borderRadius: 12, overflow: "hidden", boxShadow: "0 5px 16px rgba(0,40,100,0.22)", alignSelf: "start" }}>
-          <SchulartWahl wert={q.schulart} setze={schulartSetzen} />
-          <KlassenWahl schulart={q.schulart} wert={q.klasse} setze={klasseSetzen} />
-        </div>
+        <div className="qf-a-schul"><SchulartWahl wert={q.schulart} setze={schulartSetzen} /></div>
+        <div className="qf-a-klass"><KlassenWahl schulart={q.schulart} wert={q.klasse} setze={klasseSetzen} /></div>
+        <div className="qf-a-modi"><ModusWahl wert={q.modus} setze={(m) => setze({ ...q, modus: m })} /></div>
       </div>
+      {unten && <div className="qf-unten" style={{ display: "flex" }}>{unten}</div>}
       {(q.schulart && q.klasse) || (plan && aktiv) ? (
         <div style={{ padding: "0 16px 16px" }}>
           {plan && aktiv && <AktiverPlan v={aktiv} gehe={gehe} />}

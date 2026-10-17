@@ -33,10 +33,10 @@ with sync_playwright() as p:
             sw = page.evaluate("document.documentElement.scrollWidth")
             pruefe(sw <= breite, f"{breite}: Überbreite bei {wo}: {sw}")
 
-        sache = page.get_by_role("button", name="Eine Sache trainieren")
-        plan = page.get_by_role("button", name="Trainingsplan erstellen")
+        sache = page.get_by_role("button", name="Eine Sache üben", exact=True)
+        plan = page.get_by_role("button", name="Trainingsplan", exact=True)
         pruefe(sache.count() == 1 and plan.count() == 1, f"{breite}: Modus-Knöpfe fehlen")
-        pruefe(sache.get_attribute("aria-pressed") == "true", f"{breite}: „Eine Sache trainieren“ nicht vorgewählt")
+        pruefe(sache.get_attribute("aria-pressed") == "true", f"{breite}: „Eine Sache üben“ nicht vorgewählt")
         pruefe(page.get_by_role("button", name="Mein Training öffnen").count() == 0, f"{breite}: alter Knopf noch da")
         sache.scroll_into_view_if_needed()
         page.get_by_role("button", name="G9").first.click(); page.wait_for_timeout(150)
@@ -69,8 +69,8 @@ with sync_playwright() as p:
 
         # zurück, Plan-Modus
         page.go_back(); page.wait_for_timeout(700)
-        page.get_by_role("button", name="Trainingsplan erstellen").click(); page.wait_for_timeout(300)
-        pruefe(page.get_by_role("button", name="Trainingsplan erstellen").get_attribute("aria-pressed") == "true", f"{breite}: Plan-Modus nicht aktiv")
+        page.get_by_role("button", name="Trainingsplan", exact=True).click(); page.wait_for_timeout(300)
+        pruefe(page.get_by_role("button", name="Trainingsplan", exact=True).get_attribute("aria-pressed") == "true", f"{breite}: Plan-Modus nicht aktiv")
         speichern = page.get_by_role("button", name="Plan speichern und starten ›")
         pruefe(speichern.count() == 1, f"{breite}: Planvorschau fehlt")
         for wort in ("Warm-up", "Basis-Check", "Kerntraining", "Wiederholen"):

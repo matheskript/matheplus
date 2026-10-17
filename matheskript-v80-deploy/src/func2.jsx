@@ -170,8 +170,8 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
   );
 }
 
-/* Kachel „Dein Training startet hier.“: weißer Grund mit blauem Rand. Zwei Modus-Knöpfe – „Eine Sache trainieren“ (Standard)
-   und „Trainingsplan erstellen“ –, rechts Schulart und Klasse, darunter Kapitel mit aufklappbaren Unterthemen
+/* Kachel „Dein Training startet hier.“: weißer Grund mit blauem Rand. Zwei Modus-Knöpfe – „Eine Sache üben“ (Standard)
+   und „Trainingsplan“ –, rechts Schulsystem-Balken und Klassen, darunter Kapitel mit aufklappbaren Unterthemen
    (funcQuickfinder.jsx; Daten in schulbuch.js, unterthemen.js; Plan in trainingsplan.js). */
 function MeinTrainingKachelStart({ gehe, setzeStufe }) {
   const s = useOffenHeute();
@@ -185,7 +185,7 @@ function MeinTrainingKachelStart({ gehe, setzeStufe }) {
   // Statt „Mein Training öffnen“ stehen jetzt die beiden Modus-Knöpfe im Quickfinder; Mein Training bleibt als kleiner Link erreichbar
   const unten = (
     <button type="button" onClick={() => gehe({ ansicht: "meintraining" })}
-      style={{ marginTop: 10, alignSelf: "flex-start", display: "inline-flex", alignItems: "center", gap: 6, padding: "4px 0", border: "none", background: "none", cursor: "pointer",
+      style={{ marginTop: 4, alignSelf: "flex-start", display: "inline-flex", alignItems: "center", gap: 6, padding: "4px 0", border: "none", background: "none", cursor: "pointer",
         fontFamily: "inherit", fontSize: 12.5, fontWeight: 700, color: C.grau }}>
       Mein Training
       {offen > 0 && <span aria-label={`${offen} Übungen heute offen`} style={{ minWidth: 20, height: 20, padding: "0 6px", borderRadius: 999, background: C.flaggold, color: C.seeTief, fontSize: 11.5, fontWeight: 800, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{offen}</span>}
