@@ -34,6 +34,7 @@ import { MatheTastaturHost } from "./matheTastatur.jsx";
 import { LAENDER } from "./funcWettbewerbe.jsx";
 import { ENTWUERFE, istEntwurf, LANDING } from "./seitenKonstanten.js";
 const EntwurfTor = React.lazy(() => import("./funcEntwuerfe.jsx").then((m) => ({ default: m.EntwurfTor })));
+const KapitelFormelnSeite = React.lazy(() => import("./funcKapitelFormeln.jsx").then((m) => ({ default: m.KapitelFormelnSeite })));
 const ChallengeSeite = React.lazy(() => import("./funcChallenge.jsx").then((m) => ({ default: m.ChallengeSeite })));
 const Landingpage = React.lazy(() => import("./funcLandingpage.jsx").then((m) => ({ default: m.Landingpage })));
 import { Laden, SeitenKopf, WerkzeugSeite, istWzSeite } from "./funcWerkzeugSeite.jsx";
@@ -151,7 +152,8 @@ export function Mathilda() {
   const [entdeckenStart, setEntdeckenStart] = useState(null);   // direkt geöffnetes Lernangebot in „Mathe entdecken“
   const [landWahl, setLandWahl] = useState("bw");
   const [formelBereich, setFormelBereich] = useState("analysis");
-  const [formelZiel, setFormelZiel] = useState(null);   // Deep-Link auf eine einzelne Formel   // Bereich der Formelsammlung          // Bundesland der Landeswettbewerb-Seite
+  const [formelZiel, setFormelZiel] = useState(null);
+  const [kapitelZiel, setKapitelZiel] = useState(null);   // Formelauswahl zum Buchkapitel (Quickfinder)   // Deep-Link auf eine einzelne Formel   // Bereich der Formelsammlung          // Bundesland der Landeswettbewerb-Seite
   const [sprung, setSprung] = useState(null);
   const [fotoModus, setFotoModus] = useState("blatt");
   const [terminStart, setTerminStart] = useState(null);
@@ -241,6 +243,7 @@ export function Mathilda() {
     setEntdeckenStart(eintrag.ansicht === "entdecken" ? eintrag.seite || null : null);
     if (eintrag.land) setLandWahl(eintrag.land);
     if (eintrag.ansicht === "formeln") { setFormelBereich(eintrag.bereich || "analysis"); setFormelZiel(eintrag.formel || null); }
+    if (eintrag.ansicht === "kapitelformeln") setKapitelZiel(eintrag.kapitel ? { kapitel: eintrag.kapitel, schulart: eintrag.schulart, klasse: eintrag.klasse, modus: eintrag.modus } : null);
     setMenuOffen(false); setGruppeOffen(null);
     window.scrollTo(0, 0);
   };
@@ -1231,6 +1234,10 @@ export function Mathilda() {
           </div>
           <NachhilfekursSeite />
         </>
+      ) : ansicht === "kapitelformeln" ? (
+        <React.Suspense fallback={<p role="status" style={{ color: C.grau, fontSize: 15, fontWeight: 300, padding: "24px", textAlign: "center" }}>{englisch() ? "Loading …" : "Wird geladen …"}</p>}>
+          <KapitelFormelnSeite key={kapitelZiel ? kapitelZiel.kapitel + (kapitelZiel.modus || "") : "q"} ziel={kapitelZiel} gehe={gehe} />
+        </React.Suspense>
       ) : ansicht === "diffq" ? (
         <>
           <div className="kopfblock" style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>

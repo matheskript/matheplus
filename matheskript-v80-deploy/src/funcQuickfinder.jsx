@@ -7,6 +7,7 @@
 import React, { useState } from "react";
 import { C } from "./base1.jsx";
 import { SCHULARTEN, SCHULART_STANDARD, THEMEN, hilfenFuer, kapitelFuer, klassenBoxen, roemisch, schulart as schulartVon, stufeAusKlassenBox } from "./schulbuch.js";
+import { kapitelAuswahl } from "./kapitelFormeln.js";
 
 const SCHLUESSEL = "matheplus-quickfinder";
 function lesen() {
@@ -120,9 +121,24 @@ function KapitelWahl({ schulart, klasse, wert, setze }) {
 
 const ETIKETT_NAME = { entdecken: "Entdecken", rechnen: "Rechnen", trainieren: "Trainieren" };
 
+/* Alle Formelsammlungs-Bereiche eines Kapitels werden zu EINER Zeile: der Formelauswahl genau
+   zu diesem Kapitel (Vorwissen aus den Vorjahren + Kapitelformeln, PDF, Testklausur). */
+function mitFormelauswahl(liste, kapitelId, schulart, klasse) {
+  const a = kapitelAuswahl(kapitelId, schulart);
+  if (!a) return liste;
+  const n = [...a.vorwissen, ...a.kern].reduce((s, x) => s + x.ids.length, 0);
+  const zeile = { art: "seite", id: "kapitelformeln", name: "Formelsammlung zum Kapitel",
+    zeile: `${n} Formeln · mit Vorwissen, PDF und Testklausur`,
+    ziel: { ansicht: "kapitelformeln", kapitel: kapitelId, schulart, klasse } };
+  const i = liste.findIndex((h) => h.ziel && h.ziel.ansicht === "formeln");
+  const ohne = liste.filter((h) => !(h.ziel && h.ziel.ansicht === "formeln"));
+  const pos = i < 0 ? ohne.length : liste.slice(0, i).filter((h) => !(h.ziel && h.ziel.ansicht === "formeln")).length;
+  return [...ohne.slice(0, pos), zeile, ...ohne.slice(pos)];
+}
+
 /* Alle Hilfen der App zu einem Kapitel */
-function Hilfen({ kapitelId, gehe }) {
-  const liste = hilfenFuer(kapitelId);
+function Hilfen({ kapitelId, gehe, schulart, klasse }) {
+  const liste = mitFormelauswahl(hilfenFuer(kapitelId), kapitelId, schulart, klasse);
   const t = THEMEN[kapitelId];
   if (!t) return null;
   const werkzeuge = liste.filter((h) => h.art === "werkzeug");
@@ -195,7 +211,7 @@ export function Quickfinder({ gehe, setzeStufe, links }) {
       {q.schulart && q.klasse && (
         <div style={{ padding: "0 16px 16px" }}>
           <KapitelWahl key={q.schulart + q.klasse} schulart={q.schulart} klasse={q.klasse} wert={q.kapitel} setze={(id) => setze({ ...q, kapitel: id })} />
-          {q.kapitel && <Hilfen kapitelId={q.kapitel} gehe={gehe} />}
+          {q.kapitel && <Hilfen kapitelId={q.kapitel} gehe={gehe} schulart={q.schulart} klasse={q.klasse} />}
         </div>
       )}
     </>
