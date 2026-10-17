@@ -91,7 +91,7 @@ export function Mathilda() {
   const [ansicht, setAnsicht] = useState(() => {
     try {
       const q = new URLSearchParams(window.location.search);
-      if (q.has("konto")) return "konto";
+      if (q.has("konto") || q.has("pro")) return "konto";
       if (q.get("ticket") === "danke") return "elternabend";
       const h = window.location.hash.slice(1);
       return h === LANDING || ENTWUERFE.some((e) => e.ansicht === h) ? h : "start";
@@ -104,7 +104,8 @@ export function Mathilda() {
     kontoStarten();
     try {
       const u = new URL(window.location.href);
-      if (u.searchParams.has("konto") || u.searchParams.has("ticket")) { u.searchParams.delete("konto"); u.searchParams.delete("ticket"); window.history.replaceState({}, "", u.pathname + u.search + u.hash); }
+      if (u.searchParams.get("pro") === "danke") { try { sessionStorage.setItem("mm-pro-danke", "1"); } catch (e) { /* privat */ } }
+      if (u.searchParams.has("konto") || u.searchParams.has("ticket") || u.searchParams.has("pro")) { u.searchParams.delete("konto"); u.searchParams.delete("ticket"); u.searchParams.delete("pro"); window.history.replaceState({}, "", u.pathname + u.search + u.hash); }
     } catch (e) { /* ignorieren */ }
     try {   // nach dem Sprachwechsel dieselbe Seite wieder öffnen
       const z = JSON.parse(sessionStorage.getItem("mm-nach-sprachwechsel") || "null");

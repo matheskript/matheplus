@@ -4,8 +4,7 @@ import { DEMO, useKonto, anmeldenEmail, empfehlungsLink, REF_BASIS, gemerkteEinl
 import {
   meineBeziehungen, meineKinder, klassenUebersicht, schuelerDetail, elternVerbinden, verbindungLoesen, elternTokenErneuern,
   klasseAnlegen, klasseVorschau, klasseBeitreten, klasseVerlassen, klasseSchuelerEntfernen, klasseLoeschen, klasseCodeNeu,
-  rolleWechseln, volljaehrigErklaeren, demoElternHinzufuegen,
-} from "./kontoRollen.js";
+  rolleWechseln, volljaehrigErklaeren, demoElternHinzufuegen, ANGEBOTE_ANZEIGE, PRO_ENTHAELT, aboVerwalten, meineAbos, proBuchen } from "./kontoRollen.js";
 import {
   ROLLEN, GESCHLECHTER, istGeschlecht, rolleName, istLehrend, ampelSortiert, ampelZaehlung, wochenUebersicht, zuletztText, entdeckenText,
   elternLink, klassenLink, elternNachricht, klassenNachricht, whatsappLink, einladungAusUrl, KLASSENCODE, SCHULFORM_NAME, maxStufe, klassenLabel,
@@ -260,42 +259,118 @@ export function PlanKarte({ profil, kinder = [] }) {
   const pro = profil.plan === "pro" && (!profil.pro_bis || new Date(profil.pro_bis) > new Date());
   const [fehler, setFehler] = useState("");
   const [bestaetigen, setBestaetigen] = useState(false);
+  const [laeuft, setLaeuft] = useState(false);
+  const [abos, setAbos] = useState([]);
+  const [angebot, setAngebot] = useState("pro_jahr");
+  const [ziele, setZiele] = useState([]);
   const volljaehrig = !!profil.volljaehrig_erklaert_am;
+  const [gebucht] = useState(() => { try { const g = sessionStorage.getItem("mm-pro-danke") === "1"; sessionStorage.removeItem("mm-pro-danke"); return g; } catch (e) { return false; } });
+  useEffect(() => { let lebt = true; meineAbos().then((a) => lebt && setAbos(a)); return () => { lebt = false; }; }, [profil.id, profil.plan]);
+  // Voreinstellung: der Schüler selbst bzw. das einzige nicht-Pro-Kind
+  const offeneKinder = kinder.filter((k) => !(k.plan === "pro" || k.plan === true));
+  useEffect(() => {
+    if (rolle === "schueler") setZiele([profil.id]);
+    else if (offeneKinder.length === 1) setZiele([offeneKinder[0].id]);
+  }, [rolle, profil.id, offeneKinder.map((k) => k.id).join(",")]);
   const erklaeren = async () => { try { await volljaehrigErklaeren(); setBestaetigen(false); } catch (e) { setFehler(e.message); } };
   const badge = (an) => ({ display: "inline-block", padding: "3px 12px", borderRadius: 999, fontSize: 12.5, fontWeight: 700, background: an ? C.flaggold : C.sand, color: an ? NAVY : C.grau });
+  const istPro = (k) => k.plan === "pro" || k.plan === true;
+  const buchen = async (ang, z) => {
+    setFehler(""); setLaeuft(true);
+    try { await proBuchen(ang, z); } catch (e) { setFehler(e.message); setLaeuft(false); }
+  };
+  const portal = async () => { setFehler(""); try { await aboVerwalten(); } catch (e) { setFehler(e.message); } };
+  const a = ANGEBOTE_ANZEIGE.find((x) => x.id === angebot) || ANGEBOTE_ANZEIGE[0];
+
+  const Angebote = ({ zielListe }) => (
+    <div>
+      <div style={{ display: "grid", gap: 8, gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", marginTop: 10 }}>
+        {ANGEBOTE_ANZEIGE.map((x) => (
+          <button key={x.id} type="button" aria-pressed={angebot === x.id} onClick={() => { setAngebot(x.id); setZiele((z) => z.slice(0, x.maxZiele)); }}
+            style={{ textAlign: "left", padding: "12px 14px", borderRadius: 14, border: `2px solid ${angebot === x.id ? C.flaggold : C.linie}`, background: angebot === x.id ? "#FFF8DD" : C.weiss, cursor: "pointer", fontFamily: "inherit", position: "relative" }}>
+            {x.empfohlen && <span style={{ position: "absolute", top: -9, right: 10, fontSize: 10.5, fontWeight: 800, letterSpacing: "0.06em", background: C.flaggold, color: NAVY, padding: "2px 8px", borderRadius: 999 }}>BELIEBT</span>}
+            <span style={{ display: "block", fontSize: 15, fontWeight: 800, color: C.tinte }}>{x.name}</span>
+            <span style={{ display: "block", fontSize: 14, fontWeight: 700, color: C.see, marginTop: 2 }}>{x.preis}</span>
+            <span style={{ display: "block", fontSize: 12, color: C.grau, marginTop: 2 }}>{x.zeile}</span>
+          </button>
+        ))}
+      </div>
+      <ul style={{ margin: "12px 0 0", paddingLeft: 18, fontSize: 13.5, color: C.tinte, lineHeight: 1.7 }}>{PRO_ENTHAELT.map((t) => <li key={t}>{t}</li>)}</ul>
+      {zielListe && zielListe.length > 1 && (
+        <div style={{ marginTop: 12 }}>
+          <p style={{ fontSize: 13, fontWeight: 700, color: C.tinte, marginBottom: 6 }}>{a.maxZiele > 1 ? `Für welche Kinder? (bis zu ${a.maxZiele})` : "Für welches Kind?"}</p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {zielListe.map((k) => {
+              const an = ziele.includes(k.id);
+              return (
+                <button key={k.id} type="button" aria-pressed={an} disabled={istPro(k)} onClick={() => setZiele((z) => (an ? z.filter((x) => x !== k.id) : a.maxZiele === 1 ? [k.id] : [...z, k.id].slice(0, a.maxZiele)))}
+                  style={{ ...knopfRand, height: 38, opacity: istPro(k) ? 0.5 : 1, border: `1.5px solid ${an ? C.see : C.linie}`, background: an ? C.himmel : C.weiss }}>
+                  {k.name}{istPro(k) ? " · Pro" : ""}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+      <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", marginTop: 14 }}>
+        <button type="button" disabled={laeuft || !ziele.length} onClick={() => buchen(angebot, ziele)} style={{ ...knopfVoll(!laeuft && ziele.length > 0), background: laeuft || !ziele.length ? C.hellgrau : C.smaragd }}>
+          {laeuft ? "Weiter zu Stripe …" : `${a.name} buchen – ${a.preis}`}
+        </button>
+        <span style={{ fontSize: 12, color: C.hellgrau }}>Bezahlung über Stripe, jederzeit kündbar.</span>
+      </div>
+    </div>
+  );
+
+  const AboListe = () => (abos.length ? (
+    <div style={{ marginTop: 12, paddingTop: 10, borderTop: `1px solid ${C.linie}` }}>
+      {abos.map((ab) => (
+        <p key={ab.abo_id} style={{ fontSize: 13.5, color: C.tinte, lineHeight: 1.6 }}>
+          <b>{ab.plan === "familie" ? "Familie" : "Pro"}</b> · {ab.status === "active" || ab.status === "trialing" ? "aktiv" : ab.status === "past_due" ? "Zahlung offen" : "beendet"}
+          {ab.laeuft_bis ? ` · bis ${new Date(ab.laeuft_bis).toLocaleDateString("de-DE")}` : ""}{ab.ziele && ab.ziele.length ? ` · ${ab.ziele.map((z) => z.name).join(", ")}` : ""}
+        </p>
+      ))}
+      <button type="button" onClick={portal} style={{ ...knopfRand, height: 38, marginTop: 6 }}>Abo verwalten (Rechnungen, Kündigung)</button>
+    </div>
+  ) : null);
+
   return (
     <div style={{ ...karte, padding: 18, marginBottom: 14 }}>
       <Kicker>MEIN PLAN</Kicker>
+      {gebucht && <p role="status" style={{ background: "#E6F6EF", color: "#0F7A4D", borderRadius: 12, padding: "9px 12px", fontSize: 13.5, fontWeight: 600, marginBottom: 12 }}>Danke! Die Freischaltung kommt in wenigen Sekunden – lade die Seite gleich neu, falls das Abzeichen noch Free zeigt.</p>}
       {rolle === "eltern" ? (
         <>
-          <p style={{ ...text, marginBottom: 12 }}>Als Elternteil nutzt du Mythos Mathe kostenlos: Du siehst die Wochenübersicht deiner Kinder und hast Zugriff auf den Mathe-Mindset-Kurs. Pro schaltest du für jedes Kind einzeln frei.</p>
-          {kinder.length === 0 ? <p style={{ fontSize: 13.5, color: C.grau }}>Sobald ein Kind verbunden ist, erscheint es hier.</p> : kinder.map((k) => (
-            <div key={k.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderTop: `1px solid ${C.linie}` }}>
-              <span style={{ flex: 1, fontSize: 14.5, fontWeight: 600, color: C.tinte }}>{k.name}</span>
-              <span style={badge(k.plan)}>{k.plan ? "Pro" : "Free"}</span>
-              {!k.plan && <button type="button" disabled style={{ ...knopfRand, height: 36, color: C.hellgrau, cursor: "default" }}>Pro – bald</button>}
-            </div>
-          ))}
+          <p style={{ ...text, marginBottom: 12 }}>Als Elternteil nutzt du Mythos Mathe kostenlos: Du siehst die Wochenübersicht deiner Kinder und hast Zugriff auf den Mathe-Mindset-Kurs. Pro schaltest du für deine Kinder frei.</p>
+          {kinder.length === 0 ? <p style={{ fontSize: 13.5, color: C.grau }}>Sobald ein Kind verbunden ist, kannst du hier Pro buchen.</p> : (<>
+            {kinder.map((k) => (
+              <div key={k.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderTop: `1px solid ${C.linie}` }}>
+                <span style={{ flex: 1, fontSize: 14.5, fontWeight: 600, color: C.tinte }}>{k.name}</span>
+                <span style={badge(istPro(k))}>{istPro(k) ? "Pro" : "Free"}</span>
+              </div>
+            ))}
+            {offeneKinder.length > 0 && <Angebote zielListe={offeneKinder} />}
+          </>)}
+          <AboListe />
         </>
       ) : rolle === "schueler" ? (
         <>
           <p style={{ marginBottom: 10 }}><span style={badge(pro)}>{pro ? "Pro" : "Free"}</span>{pro && profil.pro_bis && <span style={{ fontSize: 13, color: C.grau, marginLeft: 10 }}>bis {new Date(profil.pro_bis).toLocaleDateString("de-DE")}</span>}</p>
           <p style={{ ...text, marginBottom: 10 }}>
-            {pro ? "Dein Pro-Zugang ist aktiv." : "Du lernst im kostenlosen Plan. Pro schalten deine Eltern für dich frei – sie bezahlen und verwalten es in ihrem Konto. Die Bezahlung ist noch nicht freigeschaltet."}
+            {pro ? "Dein Pro-Zugang ist aktiv." : volljaehrig ? "Du lernst im kostenlosen Plan. Du hast erklärt, volljährig zu sein, und kannst Pro selbst buchen." : "Du lernst im kostenlosen Plan. Pro schalten deine Eltern für dich frei – sie bezahlen und verwalten es in ihrem Konto (Eltern-Link oben)."}
           </p>
           {!pro && !volljaehrig && !bestaetigen && (
             <button type="button" onClick={() => setBestaetigen(true)} style={linkKnopf}>Ich bin 18 oder älter</button>
           )}
           {!pro && bestaetigen && (
             <div style={{ background: C.sand, borderRadius: 12, padding: 12 }}>
-              <p style={{ fontSize: 13.5, color: C.tinte, lineHeight: 1.55, marginBottom: 8 }}>Mit Klick erklärst du, dass du mindestens 18 Jahre alt bist. Dann kannst du Pro später selbst buchen. Wir können einen Altersnachweis verlangen.</p>
+              <p style={{ fontSize: 13.5, color: C.tinte, lineHeight: 1.55, marginBottom: 8 }}>Mit Klick erklärst du, dass du mindestens 18 Jahre alt bist. Dann kannst du Pro selbst buchen. Wir können einen Altersnachweis verlangen.</p>
               <div style={{ display: "flex", gap: 8 }}>
                 <button type="button" onClick={erklaeren} style={{ ...knopfVoll(), height: 40 }}>Ja, ich bin volljährig</button>
                 <button type="button" onClick={() => setBestaetigen(false)} style={{ ...knopfRand, height: 40 }}>Abbrechen</button>
               </div>
             </div>
           )}
-          {volljaehrig && !pro && <p style={{ fontSize: 13.5, color: C.smaragd }}>Du hast erklärt, volljährig zu sein – du kannst Pro später selbst buchen.</p>}
+          {volljaehrig && !pro && <Angebote zielListe={null} />}
+          <AboListe />
         </>
       ) : (
         <>

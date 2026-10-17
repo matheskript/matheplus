@@ -169,3 +169,36 @@ export async function volljaehrigErklaeren() {
   await profilNeuLaden();
   return ok;
 }
+
+/* ---------- Pro buchen (Stripe über api/stripe/*) ---------- */
+export const ANGEBOTE_ANZEIGE = [
+  { id: "pro_monat", name: "Pro", preis: "9,90 € / Monat", zeile: "monatlich kündbar", plan: "pro", maxZiele: 1 },
+  { id: "pro_jahr", name: "Pro Jahr", preis: "79 € / Jahr", zeile: "zwei Monate geschenkt", plan: "pro", maxZiele: 1, empfohlen: true },
+  { id: "familie_monat", name: "Familie", preis: "14,90 € / Monat", zeile: "bis zu drei Kinder", plan: "familie", maxZiele: 3 },
+];
+export const PRO_ENTHAELT = ["Lernpfad mit Standortcheck und Wochenplan", "Prüfungsmodus und Abi-Ketten", "Meine Fehler üben und Wiederholung im richtigen Moment", "Mathilda ohne Tagesgrenze, Blattanalyse", "Alle Geräte, ein Lernstand"];
+
+async function stripeAufruf(pfad, body) {
+  const { zugangsToken } = await import("./konto.js");
+  const token = zugangsToken();
+  if (!token) throw new Error("Bitte zuerst anmelden.");
+  const r = await fetch(pfad, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify(body || {}) });
+  let d = null;
+  try { d = await r.json(); } catch (e) { /* keine Antwort */ }
+  if (!r.ok || !d || !d.url) throw new Error((d && d.error && d.error.message) || "Die Bezahlung ist gerade nicht erreichbar.");
+  return d.url;
+}
+/* Öffnet Stripe Checkout; ziele = Konto-IDs (Kinder oder das eigene Konto) */
+export async function proBuchen(angebot, ziele) {
+  if (DEMO) throw new Error("Im Vorschau-Modus ist keine Bezahlung möglich.");
+  const url = await stripeAufruf("/api/stripe/checkout", { angebot, ziele });
+  window.location.assign(url);
+}
+export async function aboVerwalten() {
+  if (DEMO) throw new Error("Im Vorschau-Modus gibt es kein Kundenportal.");
+  window.location.assign(await stripeAufruf("/api/stripe/portal"));
+}
+export async function meineAbos() {
+  if (DEMO) return [];
+  try { return (await rpc("meine_abos")) || []; } catch (e) { return []; }
+}

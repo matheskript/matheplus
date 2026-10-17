@@ -10535,7 +10535,38 @@
   "Werden zwei Strahlen von zwei Parallelen geschnitten, stehen alle zugehörigen Strecken im selben Verhältnis k. Beim 2. Strahlensatz zählen nur Strecken ab S.": "If two rays are cut by two parallel lines, all corresponding segments have the same ratio k. In the 2nd theorem only segments starting at S count.",
   "Löse im Modus „Üben“ drei Aufgaben, darunter eine mit gegebenem Abschnitt AA′ und eine Sachaufgabe.": "Solve three exercises in “Practise” mode, including one with the piece AA′ given and one word problem.",
   "Im rechtwinkligen Dreieck verbinden sin, cos und tan einen Winkel mit zwei Seiten. Ohne rechten Winkel helfen Sinus- und Kosinussatz.": "In a right triangle, sin, cos and tan link an angle to two sides. Without a right angle, the laws of sines and cosines help.",
-  "Berechne zwei Seiten und einen Winkel im rechtwinkligen Dreieck und löse eine Kosinussatz-Aufgabe.": "Find two sides and an angle in a right triangle and solve one law-of-cosines exercise."
+  "Berechne zwei Seiten und einen Winkel im rechtwinkligen Dreieck und löse eine Kosinussatz-Aufgabe.": "Find two sides and an angle in a right triangle and solve one law-of-cosines exercise.",
+  "Pro Jahr": "Pro Year",
+  "9,90 € / Monat": "€9.90 / month",
+  "79 € / Jahr": "€79 / year",
+  "14,90 € / Monat": "€14.90 / month",
+  "monatlich kündbar": "cancel monthly",
+  "zwei Monate geschenkt": "two months free",
+  "bis zu drei Kinder": "up to three children",
+  "BELIEBT": "POPULAR",
+  "Familie": "Family",
+  "Lernpfad mit Standortcheck und Wochenplan": "Learning path with placement check and weekly plan",
+  "Prüfungsmodus und Abi-Ketten": "Exam mode and Abitur chains",
+  "Meine Fehler üben und Wiederholung im richtigen Moment": "Practise my mistakes and review at the right moment",
+  "Mathilda ohne Tagesgrenze, Blattanalyse": "Mathilda without a daily limit, worksheet analysis",
+  "Alle Geräte, ein Lernstand": "All devices, one learning record",
+  "Für welches Kind?": "For which child?",
+  "Bezahlung über Stripe, jederzeit kündbar.": "Payment via Stripe, cancel any time.",
+  "Weiter zu Stripe …": "Continuing to Stripe …",
+  "Abo verwalten (Rechnungen, Kündigung)": "Manage subscription (invoices, cancellation)",
+  "Danke! Die Freischaltung kommt in wenigen Sekunden – lade die Seite gleich neu, falls das Abzeichen noch Free zeigt.": "Thank you! Activation takes a few seconds – reload the page shortly if the badge still says Free.",
+  "Als Elternteil nutzt du Mythos Mathe kostenlos: Du siehst die Wochenübersicht deiner Kinder und hast Zugriff auf den Mathe-Mindset-Kurs. Pro schaltest du für deine Kinder frei.": "As a parent you use Mythos Mathe for free: you see your children’s weekly overview and have access to the Maths Mindset course. You activate Pro for your children.",
+  "Sobald ein Kind verbunden ist, kannst du hier Pro buchen.": "As soon as a child is connected you can book Pro here.",
+  "Du lernst im kostenlosen Plan. Du hast erklärt, volljährig zu sein, und kannst Pro selbst buchen.": "You are on the free plan. You have declared that you are of age and can book Pro yourself.",
+  "Du lernst im kostenlosen Plan. Pro schalten deine Eltern für dich frei – sie bezahlen und verwalten es in ihrem Konto (Eltern-Link oben).": "You are on the free plan. Your parents activate Pro for you – they pay and manage it in their account (parent link above).",
+  "Mit Klick erklärst du, dass du mindestens 18 Jahre alt bist. Dann kannst du Pro selbst buchen. Wir können einen Altersnachweis verlangen.": "By clicking you declare that you are at least 18 years old. Then you can book Pro yourself. We may ask for proof of age.",
+  "Im Vorschau-Modus ist keine Bezahlung möglich.": "No payment is possible in preview mode.",
+  "Im Vorschau-Modus gibt es kein Kundenportal.": "There is no customer portal in preview mode.",
+  "Bitte zuerst anmelden.": "Please sign in first.",
+  "Die Bezahlung ist gerade nicht erreichbar.": "Payment is not available right now.",
+  "aktiv": "active",
+  "Zahlung offen": "payment pending",
+  "beendet": "ended"
  },
  "muster": [
   [
@@ -12321,6 +12352,14 @@
   [
    "Dein Tageskontingent ist aufgebraucht ({0} Anfragen). Morgen geht es weiter – oder mit Pro ohne Grenze.",
    "Your daily quota is used up ({0} requests). It continues tomorrow – or with Pro without a limit."
+  ],
+  [
+   "Für welche Kinder? (bis zu {0})",
+   "For which children? (up to {0})"
+  ],
+  [
+   "{0} buchen – {1}",
+   "Book {0} – {1}"
   ]
  ]
 }

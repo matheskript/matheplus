@@ -74,6 +74,8 @@ const html = (inhalt, status = 200) => new Response(inhalt, {
 
 export default async function middleware(request) {
   if ((process.env.SEITEN_SCHUTZ || "").toLowerCase() === "aus") return next();
+  // Stripe ruft den Webhook ohne Cookie auf; die Signatur prüft die Funktion selbst
+  if (new URL(request.url).pathname === "/api/stripe/webhook") return next();
   const url = new URL(request.url);
   const soll = await hash(passwort());
 
