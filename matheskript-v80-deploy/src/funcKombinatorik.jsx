@@ -20,9 +20,12 @@ import { binomKoeff } from "./func17.jsx";
 import { Auswahl, GrosserKnopf, Rueck, ZahlFeld, hilfeKontext, hinweis, karte, kicker, zw } from "./ui2.jsx";
 import { ggT, wahl, zz } from "./rechnen2.js";
 import { Aufklapp, Marke, ModusLeiste, Seite, SchrittFolge, liesZahl, zt } from "./ui3.jsx";
+import { MS, SvgZahl, bruchS } from "./mathText.jsx";
 
 let zaehler = 0;
 const fr = (z, n) => { if (z === 0) return "0"; const g = ggT(z, n); return n / g === 1 ? String(z / g) : `${z / g}/${n / g}`; };
+/* Anzeige-Fassung: gekürzter Bruch als $…$-Formel (echter Bruch, Ausgabe über MS); fr() bleibt Klartext für Eingabefelder */
+const frS = (z, n) => { if (z === 0) return "0"; const g = ggT(z, n); return bruchS(z / g, n / g); };
 const fak = (n) => { let r = 1; for (let i = 2; i <= n; i++) r *= i; return r; };
 const variation = (n, k) => { let r = 1; for (let i = 0; i < k; i++) r *= n - i; return r; };
 const tausend = (v) => String(v).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -99,7 +102,7 @@ function Versuche() {
   const wechsel = (z) => { setZurueck(z); neu(z); };
   const { r, b, n } = au, mit = au.zurueck;
   const p1 = r / n, p2 = mit ? r / n : (r - 1) / (n - 1), pBeide = p1 * p2;
-  const t1 = fr(r, n), t2 = mit ? fr(r, n) : fr(r - 1, n - 1), tB = mit ? fr(r * r, n * n) : fr(r * (r - 1), n * (n - 1));
+  const t1 = frS(r, n), t2 = mit ? frS(r, n) : frS(r - 1, n - 1), tB = mit ? frS(r * r, n * n) : frS(r * (r - 1), n * (n - 1));
   const ziehen = () => {
     if (inhalt.gezogen.length >= 2) return;
     const nr = inhalt.r + inhalt.b, k = Math.random() < inhalt.r / nr ? "r" : "b";
@@ -121,14 +124,14 @@ function Versuche() {
     { id: "laplace", titel: zw("Gleichwahrscheinlichkeit prüfen", "Check equal likelihood"), typ: "wahl",
       frage: zw(`In der Urne liegen ${r} rote und ${b} blaue Kugeln. Warum ist P(rot) beim ersten Zug ${t1}?`, `The urn holds ${r} red and ${b} blue balls. Why is P(red) on the first draw ${t1}?`),
       optionen: [["a", zw("Jede einzelne Kugel wird mit gleicher Wahrscheinlichkeit gezogen; rot sind die günstigen Kugeln.", "Each single ball is equally likely to be drawn; the red ones are the favourable balls.")],
-        ["b", zw("Rot und Blau sind zwei Ergebnisse, also je 1/2.", "Red and blue are two outcomes, so 1/2 each.")], ["c", zw("Weil rote Kugeln schwerer sind.", "Because red balls are heavier.")]], richtig: "a",
+        ["b", zw("Rot und Blau sind zwei Ergebnisse, also je $\\frac{1}{2}$.", "Red and blue are two outcomes, so $\\frac{1}{2}$ each.")], ["c", zw("Weil rote Kugeln schwerer sind.", "Because red balls are heavier.")]], richtig: "a",
       fehler: [{ wahl: "b", text: zw("„Rot“ und „Blau“ sind nicht gleich wahrscheinlich, wenn verschieden viele Kugeln jeder Farbe in der Urne liegen. Laplace gilt nur für gleich wahrscheinliche Ergebnisse – hier für die einzelnen Kugeln.", "“Red” and “blue” are not equally likely if there are different numbers of each colour. Laplace only applies to equally likely outcomes – here the single balls.") }],
       hinweise: [zw("Nummeriere die Kugeln in Gedanken.", "Number the balls in your mind.")],
       erklaerung: zw(`Jede der ${n} Kugeln ist gleich wahrscheinlich. ${r} davon sind rot: P(rot) = ${t1}.`, `Each of the ${n} balls is equally likely. ${r} of them are red: P(red) = ${t1}.`) },
     { id: "p1", titel: zw("Erster Zug", "First draw"), typ: "zahl", text: zw("P(1. rot) =", "P(1st red) ="), wert: p1, toleranz: 0.0005, wertText: t1,
       frage: zw("Wie groß ist die Wahrscheinlichkeit, beim ersten Zug eine rote Kugel zu ziehen?", "What is the probability of drawing a red ball first?"),
       fehler: [{ wert: r / b, text: zw("Rot durch Blau ist ein Verhältnis, keine Wahrscheinlichkeit. Teile durch die Gesamtzahl aller Kugeln.", "Red divided by blue is a ratio, not a probability. Divide by the total number of balls.") }],
-      hinweise: [zw("günstige durch mögliche Kugeln", "favourable divided by possible balls")], erklaerung: `P(1. ${zw("rot", "red")}) = ${r}/${n}${t1 !== `${r}/${n}` ? ` = ${t1}` : ""}.` },
+      hinweise: [zw("günstige durch mögliche Kugeln", "favourable divided by possible balls")], erklaerung: `P(1. ${zw("rot", "red")}) = ${bruchS(r, n)}${ggT(r, n) > 1 ? ` = ${t1}` : ""}.` },
     { id: "p2", titel: zw("Zweiter Zug", "Second draw"), typ: "zahl", text: zw("P(2. rot | 1. rot) =", "P(2nd red | 1st red) ="), wert: p2, toleranz: 0.0005, wertText: t2,
       frage: mit ? zw("Die erste Kugel war rot und wird zurückgelegt. Wie wahrscheinlich ist dann beim zweiten Zug rot?", "The first ball was red and is put back. How likely is red on the second draw?")
         : zw("Die erste Kugel war rot und wird nicht zurückgelegt. Wie wahrscheinlich ist dann beim zweiten Zug rot?", "The first ball was red and is not put back. How likely is red on the second draw?"),
@@ -162,7 +165,7 @@ function Versuche() {
       <Urne rot={inhalt.r} blau={inhalt.b} gezogen={inhalt.gezogen} />
       <p style={{ fontSize: 13.5, color: C.tinte, margin: "6px 0" }}>
         {inhalt.gezogen.length < 2
-          ? <>{zw("Nächster Zug:", "Next draw:")} P({zw("rot", "red")}) = <b>{fr(inhalt.r, nr)}</b>{nr !== n || inhalt.gezogen.length ? zw(` (in der Urne: ${inhalt.r} rot, ${inhalt.b} blau)`, ` (in the urn: ${inhalt.r} red, ${inhalt.b} blue)`) : ""}</>
+          ? <>{zw("Nächster Zug:", "Next draw:")} P({zw("rot", "red")}) = <b><MS s={frS(inhalt.r, nr)} /></b>{nr !== n || inhalt.gezogen.length ? zw(` (in der Urne: ${inhalt.r} rot, ${inhalt.b} blau)`, ` (in the urn: ${inhalt.r} red, ${inhalt.b} blue)`) : ""}</>
           : zw("Beide Züge gemacht.", "Both draws done.")}
       </p>
       <div style={{ display: "flex", gap: 8 }}>
@@ -172,7 +175,7 @@ function Versuche() {
       <SchrittFolge schritte={schritte} stand={stand} setStand={setStand} fertigText={zw("Fertig: Wahrscheinlichkeiten pro Zug, Pfadregel und passendes Modell.", "Done: probability per draw, product rule and suitable model.")} />
       {stand >= 4 && (
         <div style={{ background: C.sand, borderRadius: 14, padding: "10px 14px", marginTop: 12 }}>
-          <p style={{ fontSize: 14, color: C.tinte, margin: "0 0 4px" }}><Marke art="exakt" /> P({zw("rot, rot", "red, red")}) = {tB} ≈ {zt(pBeide, 4)}</p>
+          <p style={{ fontSize: 14, color: C.tinte, margin: "0 0 4px" }}><Marke art="exakt" /> P({zw("rot, rot", "red, red")}) = <MS s={tB} /> ≈ {zt(pBeide, 4)}</p>
           {sim && <p style={{ fontSize: 14, color: C.tinte, margin: 0 }}><Marke art="sim" /> {zw(`${sim.t} von ${sim.n} Versuchen: relative Häufigkeit`, `${sim.t} of ${sim.n} trials: relative frequency`)} {zt(sim.t / sim.n, 4)}</p>}
           <GrosserKnopf ghost onClick={simulieren}>{zw("1000-mal zwei Kugeln ziehen", "Draw two balls 1000 times")}</GrosserKnopf>
         </div>
@@ -263,10 +266,10 @@ function Zaehlen() {
         erklaerung: zw("Weil zufällig gewählt wird, ist jede der gezählten Möglichkeiten gleich wahrscheinlich – Laplace ist erlaubt.", "Because the choice is random, every counted possibility is equally likely – Laplace is allowed.") });
       s.push({ id: "g", titel: zw("Günstige Fälle", "Favourable cases"), typ: "zahl", text: zw("günstig =", "favourable ="), wert: au.e.guenstig, wertText: tausend(au.e.guenstig), breite: 120,
         frage: zw("Wie viele der Möglichkeiten sind günstig?", "How many of the possibilities are favourable?"), hinweise: [au.e.gText], erklaerung: au.e.gText + "." });
-      s.push({ id: "p", titel: zw("Wahrscheinlichkeit", "Probability"), typ: "zahl", text: "P =", wert: p, toleranz: 0.0005, wertText: `${fr(au.e.guenstig, au.anzahl)} = ${zt(p, 4)}`,
+      s.push({ id: "p", titel: zw("Wahrscheinlichkeit", "Probability"), typ: "zahl", text: "P =", wert: p, toleranz: 0.0005, wertText: `${frS(au.e.guenstig, au.anzahl)} = ${zt(p, 4)}`,
         frage: zw("Berechne jetzt die Wahrscheinlichkeit.", "Now compute the probability."),
         fehler: [{ wert: au.e.guenstig, text: zw("Das ist die Anzahl günstiger Fälle – noch durch alle Fälle teilen.", "That is the number of favourable cases – divide by all cases.") }],
-        hinweise: [zw("P = günstige Fälle / mögliche Fälle", "P = favourable / possible cases")], erklaerung: `P = ${tausend(au.e.guenstig)} / ${tausend(au.anzahl)} = ${fr(au.e.guenstig, au.anzahl)} ≈ ${zt(p, 4)}.` });
+        hinweise: [zw("$P = \\frac{\\text{günstige Fälle}}{\\text{mögliche Fälle}}$", "$P = \\frac{\\text{favourable cases}}{\\text{possible cases}}$")], erklaerung: `$P = \\frac{${tausend(au.e.guenstig)}}{${tausend(au.anzahl)}}$ = ${frS(au.e.guenstig, au.anzahl)} ≈ ${zt(p, 4)}.` });
     }
     return s;
   }, [au]);
@@ -311,8 +314,8 @@ function Baum({ werte, ok, pfade }) {
         return (
           <g key={k}>
             <line x1={von[0] + 8} y1={von[1]} x2={nach[0] - 10} y2={nach[1]} stroke={f} strokeWidth="1.6" />
-            <rect x={mx - 24} y={my - 11} width="48" height="20" rx="6" fill="#fff" stroke={f} strokeWidth="1" />
-            <text x={mx} y={my + 4} fontSize="11.5" fontWeight="700" textAnchor="middle" fill={f}>{lbl(k)}</text>
+            <rect x={mx - 24} y={my - 13} width="48" height="26" rx="6" fill="#fff" stroke={f} strokeWidth="1" />
+            <SvgZahl x={mx} y={my + 4} size={11.5} anchor="middle" fill={f} t={lbl(k)} />
           </g>
         );
       })}
@@ -320,7 +323,7 @@ function Baum({ werte, ok, pfade }) {
       {["r", "b", "rr", "rb", "br", "bb"].map((k) => (
         <g key={`n${k}`}>
           <circle cx={pos[k][0]} cy={pos[k][1]} r="9" fill={k.endsWith("r") ? ROT : BLAU} />
-          {k.length === 2 && pfade && <text x={pos[k][0] + 14} y={pos[k][1] + 4} fontSize="11" fill={C.tinte} fontWeight="700">{pfade[k]}</text>}
+          {k.length === 2 && pfade && <SvgZahl x={pos[k][0] + 14} y={pos[k][1] + 4} size={11} anchor="start" fill={C.tinte} t={pfade[k]} />}
         </g>
       ))}
     </svg>
@@ -360,19 +363,20 @@ function BaumAufbauen() {
     ].filter(Boolean).join(" ") });
   };
   const pp = (k) => au.w[k[0]][0] * au.w[k][0] / (au.w[k[0]][1] * au.w[k][1]);
-  const ppT = (k) => fr(au.w[k[0]][0] * au.w[k][0], au.w[k[0]][1] * au.w[k][1]);
+  const ppT = (k) => fr(au.w[k[0]][0] * au.w[k][0], au.w[k[0]][1] * au.w[k][1]);   // Klartext (SVG-Beschriftung)
+  const ppS = (k) => frS(au.w[k[0]][0] * au.w[k][0], au.w[k[0]][1] * au.w[k][1]);   // $…$-Formel (Fließtext)
   const pEine = pp("rb") + pp("br");
   const nenner = au.w.r[1] * au.w.rr[1];
   const schritte = useMemo(() => [
-    { id: "pfad", titel: zw("Pfadregel", "Product rule"), typ: "zahl", text: zw("P(rot, blau) =", "P(red, blue) ="), wert: pp("rb"), toleranz: 0.0005, wertText: ppT("rb"),
+    { id: "pfad", titel: zw("Pfadregel", "Product rule"), typ: "zahl", text: zw("P(rot, blau) =", "P(red, blue) ="), wert: pp("rb"), toleranz: 0.0005, wertText: ppS("rb"),
       frage: zw("Wie wahrscheinlich ist erst rot, dann blau?", "How likely is red first, then blue?"),
       fehler: [{ wert: wert("r") + wert("rb"), text: zw("Entlang eines Pfades wird multipliziert.", "Multiply along a path.") }],
-      hinweise: [zw("Zweig „rot“ mal Zweig „blau nach rot“.", "Branch “red” times branch “blue after red”.")], erklaerung: `${fr(...au.w.r)} · ${fr(...au.w.rb)} = ${ppT("rb")}.` },
-    { id: "summe", titel: zw("Summenregel", "Sum rule"), typ: "zahl", text: zw("P(genau eine rote) =", "P(exactly one red) ="), wert: pEine, toleranz: 0.0005, wertText: `${fr(Math.round(pEine * nenner), nenner)} ≈ ${zt(pEine, 4)}`,
+      hinweise: [zw("Zweig „rot“ mal Zweig „blau nach rot“.", "Branch “red” times branch “blue after red”.")], erklaerung: `${frS(...au.w.r)} · ${frS(...au.w.rb)} = ${ppS("rb")}.` },
+    { id: "summe", titel: zw("Summenregel", "Sum rule"), typ: "zahl", text: zw("P(genau eine rote) =", "P(exactly one red) ="), wert: pEine, toleranz: 0.0005, wertText: `${frS(Math.round(pEine * nenner), nenner)} ≈ ${zt(pEine, 4)}`,
       frage: zw("Wie wahrscheinlich ist genau eine rote Kugel?", "How likely is exactly one red ball?"),
       fehler: [{ wert: pp("rb"), text: zw("Auch der Pfad „blau, rot“ gehört dazu.", "The path “blue, red” belongs to it as well.") }],
       hinweise: [zw("Zwei Pfade gehören dazu: (rot, blau) und (blau, rot). Addiere sie.", "Two paths belong to it: (red, blue) and (blue, red). Add them.")],
-      erklaerung: `${ppT("rb")} + ${ppT("br")} = ${fr(Math.round(pEine * nenner), nenner)} ≈ ${zt(pEine, 4)}.` },
+      erklaerung: `${ppS("rb")} + ${ppS("br")} = ${frS(Math.round(pEine * nenner), nenner)} ≈ ${zt(pEine, 4)}.` },
   ], [au]);
   const feld = (k, t) => (
     <label key={k} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, padding: "4px 0", fontSize: 13.5, color: C.tinte }}>
@@ -406,7 +410,7 @@ function BaumAufbauen() {
         <details style={{ marginTop: 6 }}>
           <summary style={{ fontSize: 13, color: C.see, fontWeight: 600, cursor: "pointer", padding: "6px 0" }}>{zw("Lösung der Zweige zeigen", "Show the branch solution")}</summary>
           <p style={{ fontSize: 13.5, color: C.tinte, lineHeight: 1.6 }}>
-            {ZWEIGE.map(([k]) => `${k}: ${fr(...au.w[k])}`).join(" · ")}
+            <MS s={ZWEIGE.map(([k]) => `${k}: ${frS(...au.w[k])}`).join(" · ")} />
           </p>
           <GrosserKnopf ghost onClick={() => { const e = {}; ZWEIGE.forEach(([k]) => { e[k] = fr(...au.w[k]); }); setEing(e); setOk(Object.fromEntries(ZWEIGE.map(([k]) => [k, true]))); setMeld(null); }}>{zw("Lösung eintragen", "Fill in the solution")}</GrosserKnopf>
         </details>

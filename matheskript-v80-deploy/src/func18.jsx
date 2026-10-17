@@ -12,6 +12,7 @@
 import React, { useMemo, useState } from "react";
 import { tr } from "./i18n.js";
 import { C } from "./base1.jsx";
+import { M } from "./func3.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
 import { WeiterKnopf, WeiterMit } from "./funcWerkzeuge.jsx";
 import { uebergabeErledigt, uebergabeLesen } from "./uebergabe.js";
@@ -28,7 +29,7 @@ function vierfelderHilfe(ereignisName, bedingungName, sym) {
       ],
       ansatz: [
         "Welches Feld der Tafel gehört zu „beides tritt ein“, welche Randsumme zur Bedingung?",
-        `P(${sym.e} | ${sym.b}) = P(${sym.e} ∩ ${sym.b}) / P(${sym.b}). Mit absoluten Häufigkeiten: Anzahl im Feld geteilt durch die Randsumme.`,
+        `$P(${sym.e} | ${sym.b}) = \\frac{P(${sym.e} \\cap ${sym.b})}{P(${sym.b})}$. Mit absoluten Häufigkeiten: Anzahl im Feld geteilt durch die Randsumme.`,
         "Teile den Wert im Schnittfeld durch die Randsumme der Bedingung.",
       ],
       regel: [
@@ -51,7 +52,8 @@ function vierfelderHilfe(ereignisName, bedingungName, sym) {
 const pr = (v, st = 1) => `${(v * 100).toFixed(st).replace(".", ",")} %`;
 const dz = (v, st = 3) => v.toFixed(st).replace(".", ",");
 const ggT = (a, b) => (b ? ggT(b, a % b) : Math.abs(a));
-const bruch = (z, n) => { if (!n) return "–"; const g = ggT(z, n) || 1; return n / g === 1 ? `${z / g}` : `${z / g}/${n / g}`; };
+/* gekürzter Bruch als Formel (\\frac), ganze Zahlen ohne Bruchstrich */
+const bruch = (z, n) => { if (!n) return "–"; const g = ggT(z, n) || 1; return n / g === 1 ? `${z / g}` : `\\frac{${z / g}}{${n / g}}`; };
 
 const VORLAGEN = [
   { id: "test", name: "Medizinischer Test", a: "krank", an: "gesund", b: "Test positiv", bn: "Test negativ",
@@ -361,12 +363,12 @@ export function Vierfeldertafel() {
             Wie wahrscheinlich ist <b style={{ color: C.tinte }}>{name(ereignis)}</b>, wenn man schon weiß: <b style={{ color: C.tinte }}>{name(bedingung)}</b>?
           </p>
           <p style={{ fontSize: 15.5, fontWeight: 700, color: C.tinte, marginTop: 8, overflowX: "auto", whiteSpace: "nowrap", fontVariantNumeric: "tabular-nums" }}>
-            P<sub>{sym(bedingung)}</sub>({sym(ereignis)}) = P({sym(ereignis)} ∩ {sym(bedingung)}) / P({sym(bedingung)})
+            <M t={`P_{${sym(bedingung)}}(${sym(ereignis)}) = \\frac{P(${sym(ereignis)} \\cap ${sym(bedingung)})}{P(${sym(bedingung)})}`} />
           </p>
           <p style={{ fontSize: 15, color: C.grau, marginTop: 4, overflowX: "auto", whiteSpace: "nowrap", fontVariantNumeric: "tabular-nums" }}>
-            {modus === "abs"
-              ? `= ${absWert(s.key)} / ${absWert(bedingung)} = ${bruch(absWert(s.key), absWert(bedingung))}`
-              : `= ${dz(pSchnitt)} / ${dz(pBed)}`}
+            <M t={modus === "abs"
+              ? `= \\frac{${absWert(s.key)}}{${absWert(bedingung)}}${ggT(absWert(s.key), absWert(bedingung)) > 1 ? ` = ${bruch(absWert(s.key), absWert(bedingung))}` : ""}`
+              : `= \\frac{${dz(pSchnitt)}}{${dz(pBed)}}`} />
           </p>
           <p style={{ fontSize: 26, fontWeight: 800, color: C.see, marginTop: 4 }}>{Number.isFinite(ergebnis) ? `≈ ${pr(ergebnis)}` : "nicht definiert (Bedingung hat Wahrscheinlichkeit 0)"}</p>
           <p style={{ fontSize: 12.5, color: C.hellgrau, marginTop: 6, lineHeight: 1.5 }}>

@@ -10,6 +10,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { WeiterKnopf, WeiterMit, ZentrumListe } from "./funcWerkzeuge.jsx";
+import { MS } from "./mathText.jsx";
 import { uebergabeErledigt, uebergabeLesen } from "./uebergabe.js";
 import { C } from "./base1.jsx";
 import { GesperrteKurse } from "./func1.jsx";
@@ -76,9 +77,12 @@ const P_WERTE = [0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.
 const VORLAGEN = [
   { name: "🪙 Münze", p: 1 / 2, text: "Kopf" },
   { name: "🎲 Sechs würfeln", p: 1 / 6, text: "Sechs" },
-  { name: "🎯 Treffer 1/3", p: 1 / 3, text: "Treffer" },
+  { name: "🎯 Treffer $\\frac{1}{3}$", p: 1 / 3, text: "Treffer" },
   { name: "🃏 Herz ziehen", p: 1 / 4, text: "Herz" },
 ];
+
+/* p-Text („1/6“) für Fließtext: ein Bruch wird als $…$-Formel gesetzt (Anzeige mit MS) */
+const pS = (t) => { const m = /^(\d+)\/(\d+)$/.exec(t); return m ? `$\\frac{${m[1]}}{${m[2]}}$` : t; };
 
 /* ---------- Kopf: X ~ B(n; p) mit k, groß und farbig, + / − darunter ---------- */
 
@@ -477,7 +481,7 @@ export function BernoulliBingo() {
             <button key={v.name} onClick={() => { setP(v.p); setBruch(alsBruch(v.p)); setTrefferName(v.text); }}
               style={{ flexShrink: 0, padding: "6px 11px", borderRadius: 999, border: `1px solid ${Math.abs(p - v.p) < 1e-9 ? FARBEN.p : C.linie}`,
                 background: Math.abs(p - v.p) < 1e-9 ? `${FARBEN.p}12` : C.weiss, color: C.tinte, fontSize: 12.5,
-                fontFamily: "inherit", cursor: "pointer", whiteSpace: "nowrap" }}>{v.name}</button>
+                fontFamily: "inherit", cursor: "pointer", whiteSpace: "nowrap" }}><MS s={v.name} /></button>
           ))}
         </div>
 
@@ -578,9 +582,9 @@ export function BernoulliBingo() {
       </div>
 
       {n >= 5 && p > 0 && p < 1 && (
-        <WeiterMit titel={`Weiter mit B(${n}; ${pT})`}>
+        <WeiterMit titel={`Weiter mit B(${n}; ${pS(pT)})`}>
           <WeiterKnopf ziel="hypothesentest" von="Bernoulli-Kette" daten={{ n, p }}
-            zeile={`Ablehnungsbereich für H₀: p ≤ ${pT} bei n = ${n} und α = 5 % finden`} />
+            zeile={`Ablehnungsbereich für H₀: p ≤ ${pS(pT)} bei n = ${n} und α = 5 % finden`} />
         </WeiterMit>
       )}
 

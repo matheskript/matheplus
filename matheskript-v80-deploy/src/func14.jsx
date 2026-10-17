@@ -9,6 +9,8 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { ZentrumListe } from "./funcWerkzeuge.jsx";
+import { MS } from "./mathText.jsx";
+const bT = (z, n) => (n === 1 ? `${z}` : `$\\frac{${z}}{${n}}$`);
 import { C } from "./base1.jsx";
 import { englisch } from "./i18n.js";
 import { GesperrteKurse } from "./func1.jsx";
@@ -454,19 +456,19 @@ export function bruchAufgabe(modus, stufe) {
     const hn = kgV(a.n, b.n);
     const za = a.z * (hn / a.n), zb = b.z * (hn / b.n);
     const loes = kuerze(minus ? za - zb : za + zb, hn);
-    const erw = a.n === b.n ? "Gleiche Nenner: nur die Zähler verrechnen." : `Hauptnenner ${hn}: ${za}/${hn} ${minus ? "−" : "+"} ${zb}/${hn}.`;
+    const erw = a.n === b.n ? "Gleiche Nenner: nur die Zähler verrechnen." : `Hauptnenner ${hn}: $\\frac{${za}}{${hn}} ${minus ? "−" : "+"} \\frac{${zb}}{${hn}}$.`;
     const erg = (minus ? za - zb : za + zb);
-    const kz = ggT(erg, hn) > 1 ? ` = ${erg}/${hn}, gekürzt ${loes.n === 1 ? loes.z : `${loes.z}/${loes.n}`}.` : ` = ${erg}/${hn}.`;
+    const kz = ggT(erg, hn) > 1 ? ` = $\\frac{${erg}}{${hn}}$, gekürzt ${bT(loes.z, loes.n)}.` : ` = $\\frac{${erg}}{${hn}}$.`;
     return { a, b, op: minus ? "−" : "+", loes, weg: erw + kz };
   }
   if (m === "mal") {
     const loes = kuerze(a.z * b.z, a.n * b.n);
-    const roh = `${a.z * b.z}/${a.n * b.n}`, lt = loes.n === 1 ? `${loes.z}` : `${loes.z}/${loes.n}`;
+    const roh = bT(a.z * b.z, a.n * b.n), lt = bT(loes.z, loes.n);
     return { a, b, op: "·", loes, weg: `Zähler mal Zähler, Nenner mal Nenner: ${roh}${roh === lt ? "" : ` → gekürzt ${lt}. Tipp: vorher über Kreuz kürzen`}.` };
   }
   const loes = kuerze(a.z * b.n, a.n * b.z);
-  const roh = `${a.z * b.n}/${a.n * b.z}`, lt = loes.n === 1 ? `${loes.z}` : `${loes.z}/${loes.n}`;
-  return { a, b, op: ":", loes, weg: `Mit dem Kehrwert multiplizieren: ${a.z}/${a.n} · ${b.n}/${b.z} = ${roh}${roh === lt ? "" : ` → gekürzt ${lt}`}.` };
+  const roh = bT(a.z * b.n, a.n * b.z), lt = bT(loes.z, loes.n);
+  return { a, b, op: ":", loes, weg: `Mit dem Kehrwert multiplizieren: $\\frac{${a.z}}{${a.n}} \\cdot \\frac{${b.n}}{${b.z}}$ = ${roh}${roh === lt ? "" : ` → gekürzt ${lt}`}.` };
 }
 
 /* Gesetzter Bruch */
@@ -562,7 +564,7 @@ function BruchRunde({ modus, stufe }) {
     try { merken({ gruppe: "Bruchrechnen", richtig: ok, sekunden, fehlerart: ok ? null : "rechnen" }); } catch { /* optional */ }
     setRueck(ok ? "richtig" : "falsch");
     if (ok) { setRichtig((r) => r + 1); setSerie((s) => s + 1); timer.current = setTimeout(() => weiter(true), 650); }
-    else { setSerie(0); setFehler((l) => [...l, { ...auf, eingabe: n === "" || n === "1" ? z : `${z}/${n}` }]); }
+    else { setSerie(0); setFehler((l) => [...l, { ...auf, eingabe: n === "" || n === "1" ? z : `$\\frac{${z}}{${n}}$` }]); }
   };
 
   const ziffer = (d) => {
@@ -590,7 +592,7 @@ function BruchRunde({ modus, stufe }) {
   });
 
   const karte = { background: C.weiss, borderRadius: 18, padding: 18, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" };
-  const bText = (b) => (b.n === 1 ? `${b.z}` : `${b.z}/${b.n}`);
+  const bText = (b) => bT(b.z, b.n);
 
   if (fertig) {
     const quote = Math.round((fertig.richtig / BRUCH_RUNDE) * 100);
@@ -612,8 +614,8 @@ function BruchRunde({ modus, stufe }) {
             <p style={{ fontSize: 12.5, fontWeight: 700, color: C.grau, marginBottom: 6 }}>Nochmal anschauen</p>
             {fehler.map((f, i) => (
               <p key={i} style={{ fontSize: 14.5, color: C.tinte, marginBottom: 4, lineHeight: 1.5 }}>
-                {f.op ? `${bText(f.a)} ${f.op} ${bText(f.b)}` : `${bText(f.a)} kürzen`} = <b>{bText(f.loes)}</b>
-                <span style={{ color: C.signal, fontSize: 13, marginLeft: 6 }}>(du: {f.eingabe})</span>
+                <MS s={f.op ? `${bText(f.a)} ${f.op} ${bText(f.b)}` : `${bText(f.a)} kürzen`} /> = <b><MS s={bText(f.loes)} /></b>
+                <span style={{ color: C.signal, fontSize: 13, marginLeft: 6 }}>(du: <MS s={f.eingabe} />)</span>
               </p>
             ))}
           </div>
@@ -681,7 +683,7 @@ function BruchRunde({ modus, stufe }) {
       <div style={{ minHeight: 20, margin: "6px 2px 12px" }}>
         {rueck === "kuerzen" && <p style={{ fontSize: 13.5, color: C.gruenDunkel, fontWeight: 600 }}>Der Wert stimmt — aber noch nicht vollständig gekürzt.</p>}
         {rueck === "null" && <p style={{ fontSize: 13.5, color: C.signal, fontWeight: 600 }}>Der Nenner darf nicht 0 sein.</p>}
-        {rueck === "falsch" && <p style={{ fontSize: 13.5, color: C.tinte, lineHeight: 1.55 }}><b>So geht’s:</b> {auf.weg}</p>}
+        {rueck === "falsch" && <p style={{ fontSize: 13.5, color: C.tinte, lineHeight: 1.55 }}><b>So geht’s:</b> <MS s={auf.weg} /></p>}
         {!rueck && <p style={{ fontSize: 12, color: C.hellgrau, textAlign: "center" }}>
           {best ? `Bestwert: ${best.richtig}/${BRUCH_RUNDE} in ${String(best.sek).replace(".", ",")} s · ` : ""}Ergebnis vollständig gekürzt eingeben. Ganze Zahl: Nenner leer lassen.
         </p>}

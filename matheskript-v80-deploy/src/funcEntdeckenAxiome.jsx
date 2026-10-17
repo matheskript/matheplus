@@ -75,7 +75,7 @@ function Rechenweg({ zeilen, mitNummer = false }) {
             {mitNummer && <span style={{ fontSize: 12, fontWeight: 700, color: C.grau, marginRight: 8 }}>{i + 1}</span>}
             <Segs seg={z.seg} />
           </div>
-          <div style={{ fontSize: 12.5, fontWeight: 400, color: C.grau, lineHeight: 1.5 }}>{z.grund}</div>
+          <div style={{ fontSize: 12.5, fontWeight: 400, color: C.grau, lineHeight: 1.5 }}><T s={z.grund} /></div>
         </div>
       ))}
     </div>
@@ -270,7 +270,7 @@ function VerkleidungsLabor() {
       </div>
       <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, margin: "0 0 2px" }}>Und so benutzt du sie, ohne etwas zu verändern:</p>
       <Rechenweg zeilen={[
-        { seg: ["\\frac{a}{b}=\\frac{a}{b}\\cdot", { t: `\\frac{${n}}{${n}}`, k: "eins" }, `=\\frac{${n}a}{${n}b}`], grund: `Mit 1 multiplizieren: ${n}/${n} = 1 – das ist Erweitern (neutrales Element M3)` },
+        { seg: ["\\frac{a}{b}=\\frac{a}{b}\\cdot", { t: `\\frac{${n}}{${n}}`, k: "eins" }, `=\\frac{${n}a}{${n}b}`], grund: `Mit 1 multiplizieren: $\\frac{${n}}{${n}} = 1$ – das ist Erweitern (neutrales Element M3)` },
         { seg: ["x=x+", { t: `(${n}-${n})`, k: "null" }, `=(x+${n})-${n}`], grund: `0 addieren: ${n} − ${n} = 0 – das ist Ergänzen (neutrales Element A3)` },
       ]} />
     </BildKarte>
@@ -299,12 +299,12 @@ function BeispielKuerzen() {
       <Rechenweg zeilen={bsp.zeilen} />
       {bsp.ausnahme && (
         <p style={{ fontSize: 13, color: C.grau, lineHeight: 1.6, margin: "8px 0 0" }}>
-          Voraussetzung: <b style={{ color: C.tinte }}>{bsp.ausnahme}</b>. Für x = 0 gäbe es kein Inverses, also auch kein x/x = 1 – Beweis 2 erklärt, warum.
+          Voraussetzung: <b style={{ color: C.tinte }}>{bsp.ausnahme}</b>. <T s="Für x = 0 gäbe es kein Inverses, also auch kein $\frac{x}{x} = 1$ – Beweis 2 erklärt, warum." />
         </p>
       )}
       <Aufklapp titel="Genauer hingeschaut: Warum zerfällt der Bruch so?">
         <p style={{ margin: "0 0 4px", color: C.grau, fontSize: 13.5 }}>
-          Der Schritt „2a/2b = 2/2 · a/b“ ist selbst aus den Axiomen ableitbar (für a, b ≠ 0):
+          <T s="Der Schritt $\frac{2a}{2b} = \frac{2}{2} \cdot \frac{a}{b}$ ist selbst aus den Axiomen ableitbar (für a, b ≠ 0):" />
         </p>
         <Rechenweg zeilen={BEWEIS_KUERZEN.zeilen} />
       </Aufklapp>
@@ -545,7 +545,7 @@ function bauePhasen(z) {
       titel: "Die Multiplikation – dieselben vier Gesetze", kurz: "Mal",
       intro: "Jetzt die zweite Rechenart: das Mal. Das Überraschende: Für die Multiplikation legen wir dieselben vier Regeln fest – nur mit anderen Rollen. Aus dem neutralen Element $0$ wird die $1$, aus $a+(-a)=0$ wird $a\\cdot\\frac{1}{a}=1$. Eine Ausnahme gibt es: Zu $0$ gibt es kein Inverses. Warum, beweist du in Beweis 2.",
       bild: <><GesetzTafel art="mal" /><Vergleich /></>,
-      fertig: "Plus und Mal haben denselben Bauplan: Assoziativ, Kommutativ, ein neutrales Element (0 bzw. 1) und inverse Elemente (−a bzw. 1/a). Noch wissen die beiden Rechenarten nichts voneinander.",
+      fertig: "Plus und Mal haben denselben Bauplan: Assoziativ, Kommutativ, ein neutrales Element (0 bzw. 1) und inverse Elemente ($−a$ bzw. $\frac{1}{a}$). Noch wissen die beiden Rechenarten nichts voneinander.",
       schritte: [
         { id: "x3a", titel: "Das neutrale Element", typ: "wahl", frage: "Welche Zahl ist das neutrale Element der Multiplikation?", richtig: "r",
           optionen: [o("r", "1"), o("f", "0"), o("g", "Es gibt keine")],
@@ -556,7 +556,7 @@ function bauePhasen(z) {
           fehler: [{ wahl: "f", text: "Das ist das Kommutativgesetz: die Faktoren werden vertauscht." }, { wahl: "g", text: "Das ist das Distributivgesetz – es verbindet Plus und Mal." }],
           erklaerung: "Beim Assoziativgesetz wandern nur die Klammern. Darum darf man a · b · c ohne Klammern schreiben." },
         { id: "x3c", titel: "Wo steht a ≠ 0?", typ: "wahl", frage: "In welchem der vier Multiplikations-Gesetze taucht die Bedingung a ≠ 0 auf?", richtig: "r",
-          optionen: [o("r", "Im inversen Element: 1/a gibt es nur für a ≠ 0"), o("f", "Im Kommutativgesetz"), o("g", "Im neutralen Element")],
+          optionen: [o("r", "Im inversen Element: $\frac{1}{a}$ gibt es nur für a ≠ 0"), o("f", "Im Kommutativgesetz"), o("g", "Im neutralen Element")],
           fehler: [{ wahl: "f", text: "Vertauschen darfst du auch mit der 0: 0 · b = b · 0." }, { wahl: "g", text: "a · 1 = a gilt für jede Zahl, auch für 0." }],
           erklaerung: "Nur das inverse Element hat diese Ausnahme. In Beweis 2 siehst du, dass es keine andere Wahl gibt." },
       ],
@@ -596,20 +596,20 @@ function bauePhasen(z) {
         { id: "x5a", titel: "Verkleidete 1", typ: "wahl", frage: "Welcher dieser Ausdrücke ist eine verkleidete 1?", richtig: "r", optionen: optEins,
           fehler: [
             { wahl: "f0", text: `${n1} − ${n1} ist eine verkleidete 0, keine 1. Die gehört zur Addition. Multiplizierst du damit, wird alles zu 0.` },
-            { wahl: "f1", text: `${n1}/${n1 + 1} ist kleiner als 1. Eine verkleidete 1 hat im Zähler und Nenner denselben Wert.` },
-            { wahl: "f2", text: `${n1 + 1}/${n1} ist größer als 1. Eine verkleidete 1 hat im Zähler und Nenner denselben Wert.` },
+            { wahl: "f1", text: `$\\frac{${n1}}{${n1 + 1}}$ ist kleiner als 1. Eine verkleidete 1 hat im Zähler und Nenner denselben Wert.` },
+            { wahl: "f2", text: `$\\frac{${n1 + 1}}{${n1}}$ ist größer als 1. Eine verkleidete 1 hat im Zähler und Nenner denselben Wert.` },
           ],
           erklaerung: <T s={"$\\frac{" + n1 + "}{" + n1 + "} = " + n1 + "\\cdot\\frac{1}{" + n1 + "} = 1$ nach dem inversen Element der Multiplikation."} /> },
         { id: "x5b", titel: "Verkleidete 0", typ: "wahl", frage: "Welcher dieser Ausdrücke ist eine verkleidete 0?", richtig: "r", optionen: optNull,
           fehler: [
-            { wahl: "f1", text: `${n2}/${n2} ist eine verkleidete 1. Addierst du sie, ändert sich der Wert: a + 1 ≠ a.` },
+            { wahl: "f1", text: `$\\frac{${n2}}{${n2}}$ ist eine verkleidete 1. Addierst du sie, ändert sich der Wert: a + 1 ≠ a.` },
             { wahl: "f2", text: `${n2} − 1 = ${n2 - 1}, das ist nicht 0.` },
             { wahl: "f3", text: `${n2} + ${n2} = ${2 * n2}, das ist nicht 0. Das Inverse von ${n2} ist −${n2}, nicht ${n2}.` },
           ],
           erklaerung: <T s={"$" + n2 + " - " + n2 + " = " + n2 + " + (-" + n2 + ") = 0$ nach dem inversen Element der Addition."} /> },
         { id: "x5c", titel: "Erweitern", typ: "wahl", frage: <T s="Du willst $\frac{1}{3}+\frac{1}{4}$ auf einen gemeinsamen Nenner bringen. Womit multiplizierst du $\frac{1}{3}$, ohne den Wert zu ändern?" />, richtig: "r",
           optionen: [o("r", "$\\frac{4}{4}$"), o("f", "$4$"), o("g", "$\\frac{4}{3}$")],
-          fehler: [{ wahl: "f", text: "Mit 4 multipliziert ändert sich der Wert: 1/3 · 4 = 4/3. Du darfst nur mit etwas multiplizieren, das 1 ist: 4/4." }, { wahl: "g", text: "4/3 ist größer als 1. Eine verkleidete 1 hat Zähler und Nenner gleich." }],
+          fehler: [{ wahl: "f", text: "Mit 4 multipliziert ändert sich der Wert: $\frac{1}{3} \cdot 4 = \frac{4}{3}$. Du darfst nur mit etwas multiplizieren, das 1 ist: $\frac{4}{4}$." }, { wahl: "g", text: "$\frac{4}{3}$ ist größer als 1. Eine verkleidete 1 hat Zähler und Nenner gleich." }],
           erklaerung: <T s="$\frac{1}{3}\cdot\frac{4}{4} = \frac{4}{12}$. Weil $\frac{4}{4} = 1$, ist der Wert gleich geblieben – nur das Aussehen hat sich geändert." /> },
         { id: "x5d", titel: "Warum 16 − 16?", typ: "wahl", frage: <T s="Bei $x^2 - 8x$ addierst du $16 - 16$. Warum ändert das den Wert nicht?" />, richtig: "r",
           optionen: [o("r", "Weil 16 − 16 = 0 ist und 0 das neutrale Element der Addition ist"), o("f", "Weil 16 eine Quadratzahl ist"), o("g", "Weil man auf beiden Seiten dasselbe macht")],
@@ -625,7 +625,7 @@ function bauePhasen(z) {
           erklaerung: <T s={"$q = (" + b5 + "/2)^2 = " + (b5 / 2) + "^2 = " + q5 + "$. Damit: $x^2 + " + b5 + "x + " + q5 + " - " + q5 + " = (x+" + (b5 / 2) + ")^2 - " + q5 + "$."} /> },
         { id: "x5f", titel: "Wer darf wohin?", typ: "wahl", frage: "Was darfst du an einem Term verändern, ohne seinen Wert zu ändern?", richtig: "r",
           optionen: [o("r", "Mit einer 1 multiplizieren und eine 0 addieren – in jeder Verkleidung"), o("f", "Mit einer 0 multiplizieren und eine 1 addieren"), o("g", "Mit irgendeiner Zahl multiplizieren")],
-          fehler: [{ wahl: "f", text: "Genau verkehrt herum: 0 · a = 0 löscht den Term, und a + 1 ist nicht a." }, { wahl: "g", text: "Mit 2 multipliziert verdoppelt sich der Wert. Nur die 1 (auch als 5/5 oder (x+1)/(x+1)) ändert nichts." }],
+          fehler: [{ wahl: "f", text: "Genau verkehrt herum: 0 · a = 0 löscht den Term, und a + 1 ist nicht a." }, { wahl: "g", text: "Mit 2 multipliziert verdoppelt sich der Wert. Nur die 1 (auch als $\frac{5}{5}$ oder $\frac{x+1}{x+1}$) ändert nichts." }],
           erklaerung: "Die 1 hineinmultiplizieren, die 0 hineinaddieren. Das sind die beiden einzigen kreativen Eingriffe, alles andere ist Umsortieren." },
       ],
     },
@@ -634,7 +634,7 @@ function bauePhasen(z) {
       titel: "Inverse Elemente: Es gibt nur zwei Rechenarten", kurz: "Inverse",
       intro: "Jetzt zu den inversen Elementen. $-7$ ist keine Zahl, die vom Himmel fällt, sondern die Zahl, die zu $7$ addiert das neutrale Element $0$ ergibt: $7+(-7)=0$. Genauso ist $\\frac{1}{7}$ die Zahl, die mit $7$ multipliziert das neutrale Element $1$ ergibt: $7\\cdot\\frac{1}{7}=1$. Daraus folgt ein Perspektivwechsel: Wir ziehen nie $7$ ab – wir **addieren das Inverse** von $7$. Und wir teilen nie durch $7$ – wir **multiplizieren mit dem Inversen**. Es gibt also nur zwei Grundrechenarten, jede mit ihrer Rückwärtsrechnung.",
       bild: <><InversenLabor /><Umschreiber /></>,
-      fertig: "Es gibt nur zwei Grundrechenarten: Addition und Multiplikation. Subtraktion und Division sind ihre Rückwärtsrechnungen – eigentlich dieselbe Rechenart mit dem inversen Element. Das Minuszeichen vor einer Zahl bedeutet „das Inverse der Addition“, der Bruch 1/a „das Inverse der Multiplikation“.",
+      fertig: "Es gibt nur zwei Grundrechenarten: Addition und Multiplikation. Subtraktion und Division sind ihre Rückwärtsrechnungen – eigentlich dieselbe Rechenart mit dem inversen Element. Das Minuszeichen vor einer Zahl bedeutet „das Inverse der Addition“, der Bruch $\frac{1}{a}$ „das Inverse der Multiplikation“.",
       schritte: [
         { id: "x6a", titel: "Was ist −7?", typ: "wahl", frage: <T s="Was bedeutet $-7$ genau?" />, richtig: "r",
           optionen: [o("r", "Die Zahl, die zu 7 addiert 0 ergibt"), o("f", "Eine Zahl, die kleiner als 0 ist"), o("g", "Das Ergebnis von 0 − 7")],
@@ -653,7 +653,7 @@ function bauePhasen(z) {
           erklaerung: <T s="$5 - 8$ ist nur eine Kurzschreibweise für $5 + (-8)$. Du addierst das Inverse von 8." /> },
         { id: "x6d", titel: "Geteilt als Mal", typ: "wahl", frage: <T s="Wie schreibst du $12 : 4$ als Multiplikation?" />, richtig: "r",
           optionen: [o("r", "$12\\cdot\\frac{1}{4}$"), o("f", "$12\\cdot(-4)$"), o("g", "$12\\cdot 4$")],
-          fehler: [{ wahl: "f", text: "−4 ist das Inverse der Addition. Hier brauchst du das Inverse der Multiplikation: 1/4." }, { wahl: "g", text: "12 · 4 = 48. Durch 4 teilen heißt: mit dem Inversen 1/4 multiplizieren." }],
+          fehler: [{ wahl: "f", text: "−4 ist das Inverse der Addition. Hier brauchst du das Inverse der Multiplikation: $\frac{1}{4}$." }, { wahl: "g", text: "12 · 4 = 48. Durch 4 teilen heißt: mit dem Inversen $\frac{1}{4}$ multiplizieren." }],
           erklaerung: <T s="$12 : 4$ ist nur eine Kurzschreibweise für $12\cdot\frac{1}{4}$." /> },
         { id: "x6e", titel: "Ist Minus assoziativ?", typ: "wahl", frage: <T s="Ist $(8-3)-2$ dasselbe wie $8-(3-2)$?" />, richtig: "r",
           optionen: [o("r", "Nein: links 3, rechts 7"), o("f", "Ja, beide ergeben 3"), o("g", "Ja, beide ergeben 7")],
@@ -901,7 +901,7 @@ export function AxiomeModul({ onZurueck }) {
             <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: C.flaggold, margin: "0 0 6px" }}>Modul abgeschlossen</p>
             <p style={{ fontSize: 17, fontWeight: 700, margin: "0 0 6px", lineHeight: 1.3 }}>Du hast Mathematik aus den Axiomen hergeleitet.</p>
             <p style={{ fontSize: 14, fontWeight: 300, lineHeight: 1.65, margin: "0 0 6px", color: "#C9D6EE" }}>
-              Aus zwei Rechenarten, ihren neutralen und inversen Elementen und dem Distributivgesetz hast du bewiesen: a · 0 = 0, dass es kein 1/0 gibt und alle drei binomischen Formeln. Und du weißt jetzt, warum Kürzen, Erweitern und die quadratische Ergänzung funktionieren: Hinter allem steckt eine 1 oder eine 0.
+              <T s="Aus zwei Rechenarten, ihren neutralen und inversen Elementen und dem Distributivgesetz hast du bewiesen: a · 0 = 0, dass es kein $\frac{1}{0}$ gibt und alle drei binomischen Formeln. Und du weißt jetzt, warum Kürzen, Erweitern und die quadratische Ergänzung funktionieren: Hinter allem steckt eine 1 oder eine 0." />
             </p>
             <GrosserKnopf gold onClick={onZurueck}>Zurück zu Mathe entdecken</GrosserKnopf>
           </div>

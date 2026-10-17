@@ -151,7 +151,9 @@ export function kdInhalt(inhalt) {
   const zeile = (zl) => {
     if (!zl) return zl;
     if (zl.pd) return { ...zl, anfang: zeile(zl.anfang), mitte: zl.mitte.map(zeile), ende: zl.ende.map(zeile) };
-    return { ...zl, txt: zl.formel || zl.tex ? zl.txt : kdText(zl.txt), notiz: zl.notiz ? kdText(zl.notiz) : zl.notiz };
+    // Formelzeilen bleiben unverändert, nur die Wörter in \text{…} werden übersetzt
+    const formelEn = (t) => t.replace(/\\text\{([^}]*)\}/g, (_, w) => `\\text{${kdText(w)}}`);
+    return { ...zl, txt: zl.formel ? formelEn(zl.txt) : zl.tex ? zl.txt : kdText(zl.txt), notiz: zl.notiz ? kdText(zl.notiz) : zl.notiz };
   };
   return { ...inhalt, abschnitte: inhalt.abschnitte.map((sek) => ({ ...sek, titel: kdText(sek.titel), zeilen: sek.zeilen.map(zeile) })) };
 }

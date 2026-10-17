@@ -1081,8 +1081,8 @@ export function opBaum(op) {
       const inhalt = brauchtKlammer(op.arg) ? { t: "klammer", c: sumBaum(op.arg) } : sumBaum(op.arg);
       return reihe(txt(op.art === "mul" ? "·" : ":"), inhalt);
     }
-    case "log": return op.b === "e" ? txt("ln") : rgleich(op.b, R(10)) ? txt("lg") : { t: "tief", b: txt("log"), i: txt(rs(op.b)) };
-    case "exp": return { t: "hoch", b: txt(op.b === "e" ? "e" : rs(op.b)), e: txt("( )") };
+    case "log": return op.b === "e" ? txt("ln") : rgleich(op.b, R(10)) ? txt("lg") : { t: "tief", b: txt("log"), i: bruchBaum(op.b) };
+    case "exp": return { t: "hoch", b: op.b === "e" ? txt("e") : bruchBaum(op.b), e: txt("( )") };
     case "wurzel": return txt("√ ±");
     case "mitternacht": return txt("Mitternachts\u00ADformel");
     case "ausmult": return txt("ausmultiplizieren");

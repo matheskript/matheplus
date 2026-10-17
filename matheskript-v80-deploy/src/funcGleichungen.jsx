@@ -130,7 +130,7 @@ function ersterStart(art, stufe) {
 const Randnotiz = ({ op, detail }) => {
   if (!op) return <span />;
   let inhalt;
-  if (op.art === "exp") inhalt = <>{op.b === "e" ? "e" : G.bruchText(op.b)}<sup className="gl-hoch">( )</sup></>;
+  if (op.art === "exp") inhalt = <>{op.b === "e" ? "e" : <Baum n={G.bruchBaum(op.b)} />}<sup className="gl-hoch">( )</sup></>;
   else inhalt = <Baum n={G.opBaum(op)} />;
   if (op.art === "subst" && detail && detail.ziel) inhalt = <><i className="gl-x">z</i> = <Baum n={G.sumBaum(detail.ziel)} /></>;
   if (op.art === "hauptnenner" && detail && detail.hn) inhalt = <Baum n={G.opBaum({ art: "mul", arg: detail.hn })} />;

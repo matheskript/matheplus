@@ -13,7 +13,7 @@
 import React, { useMemo, useState } from "react";
 import { C } from "./base1.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
-import { GrosserKnopf, Rueck, hilfeKontext, hinweis, karte, kicker, zw } from "./ui2.jsx";
+import { GrosserKnopf, MS, Rueck, hilfeKontext, hinweis, karte, kicker, zw } from "./ui2.jsx";
 import { ggT, wahl } from "./rechnen2.js";
 import { Aufklapp, Balken, Marke, ModusLeiste, Seite, SchrittFolge, Verlauf, euro, minusZ, ziehe, zt } from "./ui3.jsx";
 
@@ -32,7 +32,8 @@ const SPIELE = [
 ];
 
 const bruch = (c, N) => { const g = ggT(c, N); return { z: c / g, n: N / g }; };
-const bText = ({ z, n }) => (n === 1 ? String(z) : `${z}/${n}`);
+/* Bruch für Fließtext: als $\\frac{z}{n}$-Formel, Anzeige über MS (echter, gestapelter Bruch) */
+const bText = ({ z, n }) => (n === 1 ? String(z) : `$\\frac{${z}}{${n}}$`);
 
 /* Spiel mit Auszahlungen: erstes Ergebnis Hauptgewinn, zweites kleiner Gewinn, drittes nichts.
    fairBar: Einsatz so wählbar, dass der faire Einsatz ein Vielfaches von 0,50 € ist. */
@@ -69,7 +70,7 @@ function Tabelle({ sp, zeigeP3, netto, einsatz }) {
         {sp.namen.map((n, i) => (
           <tr key={n}>
             <td style={{ ...zelle, fontWeight: 700 }}>{n}</td>
-            <td style={{ ...zelle, textAlign: "center" }}>{i === 2 && !zeigeP3 ? "?" : bText(sp.brueche[i])}</td>
+            <td style={{ ...zelle, textAlign: "center" }}>{i === 2 && !zeigeP3 ? "?" : <MS s={bText(sp.brueche[i])} />}</td>
             <td style={{ ...zelle, textAlign: "right" }}>{euro(sp.aus[i])}</td>
             <td style={{ ...zelle, textAlign: "right", fontWeight: 700, color: netto[i] ? (sp.aus[i] - e < 0 ? C.gruenDunkel : "#0F7A4D") : C.hellgrau }}>{netto[i] ? euro(sp.aus[i] - e) : "?"}</td>
           </tr>
@@ -310,7 +311,7 @@ function Langfristig() {
                   <tbody>{sp.namen.map((nm, i) => (
                     <tr key={nm}><td style={{ padding: "6px", borderBottom: `1px solid ${C.linie}` }}>{nm}</td>
                       <td style={{ padding: "6px", borderBottom: `1px solid ${C.linie}` }}>{zt(anzahl[i] / n, 3)}</td>
-                      <td style={{ padding: "6px", borderBottom: `1px solid ${C.linie}` }}>{bText(sp.brueche[i])} ≈ {zt(sp.p[i], 3)}</td></tr>
+                      <td style={{ padding: "6px", borderBottom: `1px solid ${C.linie}` }}><MS s={bText(sp.brueche[i])} /> ≈ {zt(sp.p[i], 3)}</td></tr>
                   ))}</tbody>
                 </table>
               </div>
@@ -343,7 +344,7 @@ export function ErwartungswertSpiele() {
         <p style={{ margin: "0 0 6px" }}>{zw("Eine Zufallsgröße X ordnet jedem Ergebnis eine Zahl zu, hier den Nettogewinn = Auszahlung − Einsatz.", "A random variable X assigns a number to each outcome, here the net gain = payout − stake.")}</p>
         <p style={{ margin: "0 0 6px" }}><b>E(X) = x₁ · p₁ + x₂ · p₂ + … + xₙ · pₙ</b> {zw("– jeder Wert wird mit seiner Wahrscheinlichkeit gewichtet.", "– each value is weighted with its probability.")}</p>
         <p style={{ margin: "0 0 6px" }}>{zw("Fair ist ein Spiel, wenn der erwartete Nettogewinn genau 0 ist.", "A game is fair if the expected net gain is exactly 0.")}</p>
-        <p style={{ margin: 0 }}>{zw("Beispiel: Würfel, Einsatz 1 €, bei einer Sechs 6 € Auszahlung. Nettogewinne 5 € (p = 1/6) und −1 € (p = 5/6): E(X) = 5 · 1/6 − 1 · 5/6 = 0 – fair.", "Example: die, stake €1, payout €6 for a six. Net gains €5 (p = 1/6) and −€1 (p = 5/6): E(X) = 5 · 1/6 − 1 · 5/6 = 0 – fair.")}</p>
+        <p style={{ margin: 0 }}><MS s={zw("Beispiel: Würfel, Einsatz 1 €, bei einer Sechs 6 € Auszahlung. Nettogewinne 5 € ($p = \\frac{1}{6}$) und −1 € ($p = \\frac{5}{6}$): $E(X) = 5 \\cdot \\frac{1}{6} − 1 \\cdot \\frac{5}{6} = 0$ – fair.", "Example: die, stake €1, payout €6 for a six. Net gains €5 ($p = \\frac{1}{6}$) and −€1 ($p = \\frac{5}{6}$): $E(X) = 5 \\cdot \\frac{1}{6} − 1 \\cdot \\frac{5}{6} = 0$ – fair.")} /></p>
       </Aufklapp>
       <div style={{ display: modus === "verteilung" ? "block" : "none" }}><Gewinnverteilung /></div>
       <div style={{ display: modus === "fair" ? "block" : "none" }}><FairerEinsatz /></div>

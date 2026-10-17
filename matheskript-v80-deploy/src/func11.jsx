@@ -76,6 +76,9 @@ function latexZuText(t) {
       if (t[i] === "[") { const j = t.indexOf("]", i); wurzelIndex = hochZiffer(t.slice(i + 1, j)); i = j + 1; }   // \sqrt[4]{…}
       const r = latexZuText(gruppe());
       aus += wurzelIndex + (einfach(r) ? `√${r}` : `√(${r})`);
+    } else if (t.startsWith("\\text", i) && t[i + 5] === "{") {
+      i += 5;
+      aus += gruppe();
     } else if (t.startsWith("\\pm", i)) { i += 3; aus += "±"; }
     else if (t.startsWith("\\cdot", i)) { i += 5; aus += "·"; }
     else if (t.startsWith("\\Rightarrow", i)) { i += 11; aus += "⇒"; }
@@ -339,6 +342,97 @@ function rechenZeile(doc, s, txt, { fett, farbe, mono, notiz }) {
   s.zustand.y += h;
 }
 
+/* Zerlegt eine LaTeX-Zeile an ihren Brüchen der obersten Ebene:
+   [{ text }, { zaehler, nenner }, { text } …]. Brüche im Zähler oder Nenner
+   bleiben dort als Klartext stehen. */
+function formelTeile(t) {
+  const teile = [];
+  let rest = 0, i = 0;
+  const gruppe = () => {
+    if (t[i] !== "{") { const z = t[i]; i++; return z; }
+    let tiefe = 0; const start = i + 1;
+    for (; i < t.length; i++) {
+      if (t[i] === "{") tiefe++;
+      else if (t[i] === "}") { tiefe--; if (tiefe === 0) { i++; return t.slice(start, i - 1); } }
+    }
+    return t.slice(start);
+  };
+  while (i < t.length) {
+    if (t.startsWith("\\frac", i)) {
+      if (i > rest) teile.push({ text: t.slice(rest, i) });
+      i += 5;
+      const z = gruppe(), n = gruppe();
+      teile.push({ zaehler: z, nenner: n });
+      rest = i;
+    } else i++;
+  }
+  if (rest < t.length) teile.push({ text: t.slice(rest) });
+  return teile;
+}
+
+/* Eine Formelzeile mit echten, gestapelten Brüchen (Zähler, Bruchstrich, Nenner). */
+function formelZeile(doc, s, latex, { fett, farbe }) {
+  const teile = formelTeile(latex);
+  if (!teile.some((p) => p.zaehler !== undefined)) return rechenZeile(doc, s, latexZuText(latex), { fett, farbe });
+  const BR = 0.88;                       // Schriftgröße von Zähler und Nenner relativ zur Zeile
+  const luecke = (gr) => gr * 0.3528 * 0.22;
+  let gr = 8.2 * SK;
+  doc.setFont("Sans", fett ? "bold" : "normal");
+  const vorbereitet = teile.map((p) => {
+    if (p.zaehler === undefined) {
+      const roh = latexZuText(p.text);
+      return { text: roh, vorn: /^\s/.test(p.text), hinten: /\s$/.test(p.text) };
+    }
+    return { zaehler: latexZuText(p.zaehler), nenner: latexZuText(p.nenner) };
+  });
+  const breite = () => {
+    doc.setFontSize(gr);
+    const leer = doc.getTextWidth(" ");
+    return vorbereitet.reduce((sum, p) => {
+      if (p.text !== undefined) return sum + doc.getTextWidth(p.text) + (p.vorn ? leer : 0) + (p.hinten ? leer : 0);
+      doc.setFontSize(gr * BR);
+      const w = Math.max(doc.getTextWidth(p.zaehler), doc.getTextWidth(p.nenner));
+      doc.setFontSize(gr);
+      return sum + w + 2 * luecke(gr) + 1;
+    }, 0);
+  };
+  while (breite() > SPALTE_B - 2 && gr > 4) gr -= 0.2;
+  const em = gr * 0.3528, emB = em * BR;
+  const achse = 0.28 * em;                                  // Höhe des Bruchstrichs über der Grundlinie
+  const hZaehler = achse + 0.22 * emB + 0.78 * emB;         // Oberkante des Zählers über der Grundlinie
+  const hNenner = -achse + 0.85 * emB + 0.2 * emB;          // Unterkante des Nenners unter der Grundlinie
+  const hNormal = gr * 0.46 * ZA;
+  const h = Math.max(hNormal, hZaehler + Math.max(hNenner, 0) + 1.2 * SK);
+  s.platz(h);
+  setzeText(doc, farbe);
+  const grundlinie = s.zustand.y + (h - (hZaehler + Math.max(hNenner, 0))) / 2 + hZaehler;
+  let x = s.x();
+  doc.setFont("Sans", fett ? "bold" : "normal");
+  doc.setFontSize(gr);
+  const leer = doc.getTextWidth(" ");
+  vorbereitet.forEach((p) => {
+    if (p.text !== undefined) {
+      if (p.vorn) x += leer;
+      doc.setFontSize(gr);
+      doc.text(p.text, x, grundlinie);
+      x += doc.getTextWidth(p.text) + (p.hinten ? leer : 0);
+    } else {
+      doc.setFontSize(gr * BR);
+      const wz = doc.getTextWidth(p.zaehler), wn = doc.getTextWidth(p.nenner);
+      const w = Math.max(wz, wn);
+      const l = luecke(gr) + 0.5;
+      doc.text(p.zaehler, x + l + (w - wz) / 2, grundlinie - achse - 0.22 * emB);
+      doc.text(p.nenner, x + l + (w - wn) / 2, grundlinie - achse + 0.85 * emB);
+      setzeStrich(doc, farbe);
+      doc.setLineWidth(0.18 * SK + 0.06);
+      doc.line(x + l * 0.6, grundlinie - achse, x + l * 1.4 + w, grundlinie - achse);
+      x += w + 2 * l;
+      doc.setFontSize(gr);
+    }
+  });
+  s.zustand.y += h;
+}
+
 function prosaZeile(doc, s, txt, { fett, farbe }) {
   doc.setFont("Sans", fett ? "bold" : "normal");
   doc.setFontSize(8 * SK);
@@ -354,7 +448,7 @@ function prosaZeile(doc, s, txt, { fett, farbe }) {
 
 function zeileSetzen(doc, s, zl, mono = false) {
   const farbe = zl.fett ? C.tinte : C.grau;
-  if (zl.formel) rechenZeile(doc, s, latexZuText(zl.txt), { fett: zl.fett, farbe });
+  if (zl.formel) formelZeile(doc, s, zl.txt, { fett: zl.fett, farbe });
   else if (zl.prosa) prosaZeile(doc, s, pdfText(zl.txt), { fett: zl.fett, farbe });
   else if (mono) rechenZeile(doc, s, pdfText(zl.txt), { fett: zl.fett, farbe, mono: true, notiz: zl.notiz });
   else {

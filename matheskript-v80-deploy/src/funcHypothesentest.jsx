@@ -16,13 +16,14 @@ import { useStateGebucht } from "./buchung.jsx";
 import { uebergabeErledigt, uebergabeLesen } from "./uebergabe.js";
 import { C } from "./base1.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
-import { GrosserKnopf, Rueck, Stufe, hilfeKontext, hinweis, karte, kicker, zw } from "./ui2.jsx";
+import { GrosserKnopf, MS, Rueck, Stufe, hilfeKontext, hinweis, karte, kicker, zw } from "./ui2.jsx";
 import { wahl } from "./rechnen2.js";
 import { Aufklapp, Balken, Marke, ModusLeiste, Seite, SchrittFolge, zf, zt } from "./ui3.jsx";
 import { binomTabelle, fehler1, fehler2, imBereich, kritisch, kumuliert, pAb, pAblehnung, pBis, simuliereTests } from "./hypo.js";
 
 let zaehler = 0;
-const pT = (p) => (Math.abs(p - 1 / 6) < 1e-12 ? "1/6" : zt(p, 3));
+/* p als Text mit $…$-Formel: 1/6 steht als echter Bruch (Anzeige mit MS), nie als „1/6“ */
+const pT = (p) => (Math.abs(p - 1 / 6) < 1e-12 ? "$\\frac{1}{6}$" : zt(p, 3));
 const prz = (a) => `${zt(a * 100, 1)} %`;
 
 /* ---------- Sachkontexte ---------- */
@@ -185,10 +186,10 @@ function TestAufbauen() {
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
         <p style={kicker}>{zw("Test aufbauen", "Set up a test")}</p>
       </div>
-      <p style={{ ...hinweis, color: C.tinte, marginBottom: 4 }}>{au.text(n)} {zw(`Signifikanzniveau α = ${prz(alpha)}.`, `Significance level α = ${prz(alpha)}.`)}</p>
+      <p style={{ ...hinweis, color: C.tinte, marginBottom: 4 }}><MS s={au.text(n)} /> {zw(`Signifikanzniveau α = ${prz(alpha)}.`, `Significance level α = ${prz(alpha)}.`)}</p>
       {stand >= 3 && (
         <div style={{ margin: "8px 0" }}>
-          <p style={{ fontSize: 12.5, fontWeight: 700, color: C.grau, margin: "0 0 4px" }}><Marke art="exakt" /> {zw(`Verteilung unter H₀: B(${n}; ${pT(p0)})`, `Distribution under H₀: B(${n}; ${pT(p0)})`)}</p>
+          <p style={{ fontSize: 12.5, fontWeight: 700, color: C.grau, margin: "0 0 4px" }}><Marke art="exakt" /> <MS s={zw(`Verteilung unter H₀: B(${n}; ${pT(p0)})`, `Distribution under H₀: B(${n}; ${pT(p0)})`)} /></p>
           <Balken werte={werte} markiert={zeigeA ? (k) => (imBereich(k, r, au.r) ? C.gruen : null) : null} hoehe={170}
             linien={zeigeA ? [{ x: au.k, farbe: "#B58A00", text: `X = ${au.k}`, rechts: au.r === "links" }] : []} />
         </div>
@@ -238,9 +239,9 @@ function Ablehnungsbereich({ start: mitStart = null }) {
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
         <p style={kicker}>{zw("Ablehnungsbereich", "Rejection region")}</p>
       </div>
-      <p style={{ ...hinweis, color: C.tinte, marginBottom: 4 }}>{au.text(n)}</p>
+      <p style={{ ...hinweis, color: C.tinte, marginBottom: 4 }}><MS s={au.text(n)} /></p>
       <p style={{ fontSize: 14, color: C.tinte, margin: "0 0 8px", lineHeight: 1.6 }}>
-        <b>{H0(au)}</b>, α = {prz(alpha)}. {zw("Verschiebe die Grenze, bis der Ablehnungsbereich so groß wie möglich ist, ohne dass P(X ∈ A) unter H₀ größer als α wird.", "Move the limit until the rejection region is as large as possible without P(X ∈ A) under H₀ exceeding α.")}
+        <b><MS s={H0(au)} /></b>, α = {prz(alpha)}. {zw("Verschiebe die Grenze, bis der Ablehnungsbereich so groß wie möglich ist, ohne dass P(X ∈ A) unter H₀ größer als α wird.", "Move the limit until the rejection region is as large as possible without P(X ∈ A) under H₀ exceeding α.")}
       </p>
       <Balken werte={werte} hoehe={180} markiert={(k) => (imBereich(k, wahlG, au.r) ? (ok ? C.gruen : C.signal) : null)} legende={`B(${n}; ${pT(p0)})`} />
       <div style={{ display: "flex", gap: 18, flexWrap: "wrap", margin: "10px 0" }}>
@@ -307,8 +308,8 @@ function FehlerVerstehen() {
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
         <p style={kicker}>{zw("Fehler verstehen", "Understand errors")}</p>
       </div>
-      <p style={{ ...hinweis, color: C.tinte, marginBottom: 4 }}>{au.text(n)}</p>
-      <p style={{ fontSize: 14, color: C.tinte, margin: "0 0 8px", lineHeight: 1.6 }}><b>{H0(au)}</b>, α = {prz(au.alpha)}, <b>{bereichText(r, au.r, n)}</b></p>
+      <p style={{ ...hinweis, color: C.tinte, marginBottom: 4 }}><MS s={au.text(n)} /></p>
+      <p style={{ fontSize: 14, color: C.tinte, margin: "0 0 8px", lineHeight: 1.6 }}><b><MS s={H0(au)} /></b>, α = {prz(au.alpha)}, <b>{bereichText(r, au.r, n)}</b></p>
       <SchrittFolge schritte={schritte} stand={stand} setStand={setStand} fertigText={zw("Beide Fehlerarten berechnet und gedeutet.", "Both error types computed and interpreted.")} />
       <div style={{ background: C.sand, borderRadius: 14, padding: "12px 14px", marginTop: 14 }}>
         <p style={{ fontSize: 14, fontWeight: 700, color: C.tinte, margin: "0 0 6px" }}>{zw("Ausprobieren: Was, wenn in Wahrheit p gilt?", "Try it: what if the true value is p?")}</p>
