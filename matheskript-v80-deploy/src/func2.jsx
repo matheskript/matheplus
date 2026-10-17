@@ -1587,6 +1587,11 @@ export function Startseite({ gehe }) {
             titel="Abi-Ketten"
             text="Eine Abi-Aufgabe, die durch mehrere Werkzeuge läuft – mit Punkten und Uhr." />
           )}
+          {(!etikett || etikett === "trainieren") && (
+          <PlotterKachel klein breit onClick={() => gehe({ ansicht: "abisaetze" })} label="Abi-Sätze öffnen" logo={<ZeichenLogo zeichen="A|B" />}
+            titel="Abi-Sätze"
+            text="Zehn komplette Aufgabensätze im Abi-Format – Teil A ohne Hilfsmittel, Teil B mit WTR." />
+          )}
           {!etikett && (
           <AufklappRahmen auf={formelAuf} innen>
             <PlotterKachel klein breit onClick={() => { setFormelAuf(!formelAuf); setBereichAuf(null); }} auf={formelAuf} label={formelAuf ? "Formelsammlung zuklappen" : "Formelsammlung aufklappen"} logo={<FormelLogoKlein />}

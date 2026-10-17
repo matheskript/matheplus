@@ -252,6 +252,7 @@ function baueIndex() {
     ["Prüfungsmodus", "Ohne Hilfen, mit Punkten", "prüfung prüfungsmodus ohne hilfen punkte timer klausur simulieren", { ansicht: "pruefung" }],
     ["Klausur nachbereiten", "Verlorene Punkte auswerten", "klausur nachbereiten nachbesprechen verlorene punkte auswerten fehler analysieren", { ansicht: "klausurnach" }],
     ["Probeabitur", "Teil A und B mit Uhr und Notenpunkten", "abitur abi probeabitur teil a teil b notenpunkte hilfsmittelfrei prüfung", { ansicht: "abitur" }],
+    ["Abi-Sätze", "Zehn komplette Aufgabensätze im Abi-Format", "abi abitur aufgabensatz aufgabensätze prüfung pflichtteil wahlteil teil a teil b hilfsmittelfrei wtr verrechnungspunkte baden-württemberg bw original generalprobe probeabitur", { ansicht: "abisaetze" }],
     ["Abi-Ketten", "Eine Abi-Aufgabe durch mehrere Werkzeuge", "abi abitur ketten aufgabe punkte analysis geometrie stochastik prüfung", { ansicht: "abiketten" }],
     ["Operatoren", "Was „bestimmen“, „zeigen“, „begründen“ verlangen", "operatoren bestimmen zeigen begründen berechnen untersuchen nachweisen angeben beschreiben anforderungsbereich", { ansicht: "operatoren" }],
     ["Begründen und Beweisen", "Freie Antworten am Bewertungsraster", "begründen beweisen beweis argumentieren bewertungsraster freie antwort", { ansicht: "begruenden" }],

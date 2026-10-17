@@ -50,6 +50,7 @@ const EntwurfVorher = React.lazy(() => import("./funcVorher.jsx").then((m) => ({
 const EntwurfWerkzeuge = React.lazy(() => import("./funcStartArchiv.jsx").then((m) => ({ default: m.EntwurfWerkzeuge })));
 const EbbinghausSeite = React.lazy(() => import("./funcEbbinghaus.jsx").then((m) => ({ default: m.EbbinghausSeite })));
 const AbiKettenSeite = React.lazy(() => import("./funcAbiKetten.jsx").then((m) => ({ default: m.AbiKettenSeite })));
+const AbiSaetzeSeite = React.lazy(() => import("./funcAbiSaetze.jsx").then((m) => ({ default: m.AbiSaetzeSeite })));
 const MeinTrainingSeite = React.lazy(() => import("./funcMeinTraining.jsx").then((m) => ({ default: m.MeinTrainingSeite })));
 const Ableitungstrainer = React.lazy(() => import("./func13.jsx").then((m) => ({ default: m.Ableitungstrainer })));
 const StammIntegral = React.lazy(() => import("./funcStammIntegral.jsx").then((m) => ({ default: m.StammIntegral })));
@@ -774,6 +775,18 @@ export function Mathilda() {
               <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>Eine Abi-Aufgabe, die durch mehrere Werkzeuge läuft – mit Punkten und Uhr.</p>
           </SeitenKopf>
           <AbiKettenSeite />
+        </>
+      ) : ansicht === "abisaetze" ? (
+        <>
+          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
+            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(24px, 7vw, 34px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Abi-Sätze</h1>
+              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
+              <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>Zehn komplette Aufgabensätze im Stil des Abiturs: Teil A ohne Hilfsmittel, Teil B mit WTR – mit Verrechnungspunkten.</p>
+            </div>
+            <Welle fill={C.sand} />
+          </div>
+          <AbiSaetzeSeite />
         </>
       ) : ansicht === "pruefung" ? (
         <>

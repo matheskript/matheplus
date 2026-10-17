@@ -269,7 +269,7 @@ function Wochenplan({ P, gehe, oeffnen }) {
           <p style={{ fontSize: 14, lineHeight: 1.6, marginTop: 6, opacity: 0.92 }}>Jetzt zählt die Prüfungsform: ohne Hilfen, mit Uhr.</p>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10 }}>
             <GrosserKnopf gold onClick={() => gehe({ ansicht: "pruefung" })}>Prüfungsmodus</GrosserKnopf>
-            <GrosserKnopf ghost onClick={() => gehe({ ansicht: "abiketten" })}>Abi-Ketten</GrosserKnopf>
+            <GrosserKnopf ghost onClick={() => gehe({ ansicht: "abisaetze" })}>Abi-Sätze</GrosserKnopf>
           </div>
         </div>
       )}

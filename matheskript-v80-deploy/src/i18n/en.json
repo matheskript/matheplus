@@ -10597,7 +10597,29 @@
   "Eltern-Wochenmail mit dem Konto Ihres Kindes": "Weekly parent email from your child's account",
   "Klassen-Challenge": "Class challenge",
   "Klasse anlegen, Code teilen, Wochenpunkte sammeln": "Create a class, share the code, collect weekly points",
-  "Alle Formeln mit Herleitung – für den Unterricht": "All formulas with derivations – for teaching"
+  "Alle Formeln mit Herleitung – für den Unterricht": "All formulas with derivations – for teaching",
+  "Abi-Sätze": "Abitur sets",
+  "Zehn komplette Aufgabensätze im Stil des Abiturs: Teil A ohne Hilfsmittel, Teil B mit WTR – mit Verrechnungspunkten.": "Ten complete exam sets in the style of the Abitur: part A without aids, part B with calculator – with credit points.",
+  "Zehn komplette Aufgabensätze im Abi-Format – Teil A ohne Hilfsmittel, Teil B mit WTR.": "Ten complete exam sets in Abitur format – part A without aids, part B with calculator.",
+  "Abi-Sätze öffnen": "Open Abitur sets",
+  "So läuft es": "How it works",
+  "‹ Alle Abi-Sätze": "‹ All Abitur sets",
+  "Teil A": "Part A",
+  "Teil B": "Part B",
+  "ohne Hilfsmittel": "without aids",
+  "mit WTR und Formelsammlung": "with calculator and formula book",
+  "Weiter zu Teil B": "Continue to part B",
+  "Lösung zeigen (0 VP)": "Show solution (0 VP)",
+  "Punkte eintragen": "Enter points",
+  "Ich habe meine Begründung geschrieben – Lösung vergleichen": "I have written my reasoning – compare with the solution",
+  "Hake ehrlich ab, was auf deinem Blatt steht:": "Tick honestly what is on your sheet:",
+  "Diesen Satz noch einmal": "This set again",
+  "angefangen": "started",
+  "60 VP · Teil A und B": "60 VP · parts A and B",
+  "Keine Note – die vergibt dein Bundesland. Was hier fehlte, taucht in „Meine Fehler üben“ und im Tagesplan wieder auf.": "No grade – your state awards that. What was missing here shows up again in “Practise my mistakes” and in the daily plan.",
+  "Schreibweise wie im Plotter: x^2, 3x, e^(2x), sqrt(x), ln(x). Geprüft wird der Wert, nicht die Form.": "Notation as in the plotter: x^2, 3x, e^(2x), sqrt(x), ln(x). The value is checked, not the form.",
+  "Ohne Taschenrechner und Formelsammlung, wie im Abitur. Alle Ergebnisse gehen sauber auf; Brüche sind erlaubt (z. B. 4/3). Rechne auf Papier, tippe nur das Ergebnis ein.": "Without calculator and formula book, as in the Abitur. All results work out cleanly; fractions are allowed (e.g. 4/3). Calculate on paper, type in the result only.",
+  "Mit WTR und Formelsammlung. Runde so, wie es die Aufgabe verlangt. Rechne auf Papier, tippe nur das Ergebnis ein.": "With calculator and formula book. Round as the task requires. Calculate on paper, type in the result only."
  },
  "muster": [
   [
@@ -12391,6 +12413,26 @@
   [
    "{0} buchen – {1}",
    "Book {0} – {1}"
+  ],
+  [
+   "Abi-Satz {0} öffnen",
+   "Open Abitur set {0}"
+  ],
+  [
+   "Abi-Satz {0}",
+   "Abitur set {0}"
+  ],
+  [
+   "Abi-Satz {0} · im Stil Baden-Württemberg",
+   "Abitur set {0} · in the style of Baden-Württemberg"
+  ],
+  [
+   "{0} VP",
+   "{0} VP"
+  ],
+  [
+   "Teil A {0} / 30 · Teil B {1} / 30 · {2} %",
+   "Part A {0} / 30 · Part B {1} / 30 · {2} %"
   ]
  ]
 }
