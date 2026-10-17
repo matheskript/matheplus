@@ -7,6 +7,7 @@
 import { next } from "@vercel/functions";
 
 const COOKIE = "mm_zugang";
+const COOKIE_WILLKOMMEN = "mm_willkommen";   // kurzes Cookie: die App zeigt danach 7 Sekunden die Willkommensseite (src/funcWillkommen.jsx)
 const PFAD_LOGIN = "/__zugang";
 
 const passwort = () => (process.env.SEITEN_PASSWORT || "mathe");
@@ -58,7 +59,7 @@ function seite(ziel, fehler) {
   <p class="logo"><span class="silber">mythos</span><span class="gold">mathe</span><span class="silber">.de</span></p>
   <p class="slogan">System <b>+</b> Freude <b>=</b> Erfolg</p>
   <form method="post" action="${PFAD_LOGIN}">
-    <p class="info">Diese Seite ist noch nicht öffentlich. Bitte gib das Passwort ein.</p>
+    <p class="info">Du betrittst die Testversion von mythosmathe.de.</p>
     <input type="password" name="passwort" placeholder="Passwort" autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false" autofocus required>
     <input type="hidden" name="ziel" value="${sicher(ziel)}">
     <button type="submit">Eintreten</button>
@@ -98,14 +99,11 @@ export default async function middleware(request) {
     } catch (e) { /* leer lassen */ }
     if (!ziel.startsWith("/") || ziel.startsWith("//")) ziel = "/";
     if (eingabe.trim().toLowerCase() === passwort().toLowerCase()) {
-      return new Response(null, {
-        status: 303,
-        headers: {
-          location: ziel,
-          "set-cookie": `${COOKIE}=${soll}; Path=/; Max-Age=${60 * 60 * 24 * 30}; HttpOnly; Secure; SameSite=Lax`,
-          "cache-control": "no-store",
-        },
-      });
+      const kopf = new Headers({ location: ziel, "cache-control": "no-store" });
+      kopf.append("set-cookie", `${COOKIE}=${soll}; Path=/; Max-Age=${60 * 60 * 24 * 30}; HttpOnly; Secure; SameSite=Lax`);
+      // Nur 2 Minuten gültig und für die Seite lesbar (kein HttpOnly): die App löscht es sofort nach dem Lesen
+      kopf.append("set-cookie", `${COOKIE_WILLKOMMEN}=1; Path=/; Max-Age=120; Secure; SameSite=Lax`);
+      return new Response(null, { status: 303, headers: kopf });
     }
     return html(seite(ziel, true), 401);
   }

@@ -8,6 +8,7 @@ Alles ist im Code fertig und bleibt aus, bis die Schritte unten erledigt sind.
 2. `wochenmail.sql` – Eltern-Wochenmail
 3. `challenge.sql` – Klassen-Challenge
 4. `push.sql` – Push-Abos der App
+5. `feedback-text.sql` – Feedback per Text (neben der Sprachnachricht); ohne dieses Skript meldet die App beim Senden eines Textes „hat nicht geklappt“
 
 Vorher müssen `schema.sql`, `rollen.sql`, `lernstand.sql`, `entdecken.sql`, `ki.sql`, `perf-lab.sql` und `stripe.sql` laufen (sind schon eingerichtet).
 
