@@ -16,7 +16,7 @@ import { WERKZEUGE } from "./werkzeuge.js";
 export const SCHULARTEN = [
   { id: "g8", name: "G8", zeile: "Gymnasium, Abitur nach Klasse 12", kursstufe: [11, 12] },
   { id: "g9", name: "G9", zeile: "Gymnasium, Abitur nach Klasse 13", kursstufe: [12, 13] },
-  { id: "gms", name: "GMS", zeile: "Gemeinschaftsschule, Abitur nach Klasse 13", kursstufe: [12, 13] },
+  { id: "gms", name: "GS9", zeile: "Gemeinschaftsschule, Abitur nach Klasse 13", kursstufe: [12, 13] },
 ];
 export const SCHULART_STANDARD = "g9";
 
@@ -25,7 +25,9 @@ export const SCHULART_STANDARD = "g9";
 export function klassenBoxen(schulart) {
   const s = SCHULARTEN.find((x) => x.id === schulart) || SCHULARTEN[1];
   const klassen = schulart === "g8" ? [[5], [6], [7], [8], [9], [10], [11], [12]] : [[5, 6], [7], [8], [9], [10], [11], [12], [13]];
-  return klassen.map((ks) => ({ id: ks.join("-"), label: ks.join("/"), klassen: ks, gold: ks.some((k) => s.kursstufe.includes(k)) }));
+  const boxen = klassen.map((ks) => ({ id: ks.join("-"), label: ks.join("/"), klassen: ks, gold: ks.some((k) => s.kursstufe.includes(k)) }));
+  // Nach dem letzten Jahrgang: eigene Box „Abi“ (alle Abi-Themen der Kursstufe, Abiturvorbereitung zuerst)
+  return [...boxen, { id: "abi", label: "Abi", klassen: [s.kursstufe[1]], gold: true, abi: true }];
 }
 export const schulart = (id) => SCHULARTEN.find((x) => x.id === id) || null;
 export const stufeAusKlassenBox = (box) => (!box ? "alle" : box.klassen[0] <= 10 ? "mittel" : "ober");
@@ -128,6 +130,7 @@ const G8 = {
   10: ["ganzrat", "diff1", "ablregeln", "sinfkt", "kugel", "zufallsgr"],
   11: ["ksDiff", "ksExp", "ksInt", "ksFkt", "ksWkt"],
   12: ["ksLgs", "ksGeraden", "ksAbstand", "ksTest", "ksNormal", "ksAbi"],
+  abi: ["ksAbi", "ksDiff", "ksExp", "ksInt", "ksFkt", "ksLgs", "ksGeraden", "ksAbstand", "ksWkt", "ksTest", "ksNormal"],
 };
 const G9 = {
   "5-6": ["natzahlen", "rechnen", "groessen", "figuren", "flaechen", "ganze", "brueche", "bruchrechnen", "dezimal", "winkelkreis", "koerper", "daten"],
@@ -138,6 +141,7 @@ const G9 = {
   11: ["ganzrat", "diff1", "ablregeln", "ksDiff", "vek1", "ksWkt"],
   12: ["ksExp", "ksInt", "ksFkt", "ksLgs", "ksGeraden"],
   13: ["ksAbstand", "ksTest", "ksNormal", "ksAbi"],
+  abi: ["ksAbi", "ksDiff", "ksExp", "ksInt", "ksFkt", "ksLgs", "ksGeraden", "ksAbstand", "ksWkt", "ksTest", "ksNormal"],
 };
 export const PLAN = { g8: G8, g9: G9, gms: G9 };
 

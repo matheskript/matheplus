@@ -25,17 +25,19 @@ export function quickfinderLesen() { return lesen(); }
 const KICKER = { fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", color: C.gruenDunkel, margin: 0 };
 const knopfBasis = { fontFamily: "inherit", cursor: "pointer", borderRadius: 12, fontWeight: 700, lineHeight: 1.15, transition: "background .12s ease, color .12s ease, box-shadow .12s ease" };
 
-/* Schulart: drei gleich breite Tasten */
+/* Panel rechts oben: dunkelblauer Rahmen, darin Schulsystem (3 Tasten) und Klasse (3 × 3).
+   Gewählt = gold. Die Klassen sind grau, bis ein Schulsystem gewählt ist. */
+const GOLD_AN = { background: "linear-gradient(180deg, #F5CB2E 0%, #EDBB00 100%)", color: C.seeTief, borderColor: C.flaggold, boxShadow: "0 3px 10px rgba(237,187,0,0.35)" };
+
 function SchulartWahl({ wert, setze }) {
   return (
-    <div role="group" aria-label="Schulart wählen" style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8 }}>
+    <div role="group" aria-label="Schulsystem wählen" style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 7 }}>
       {SCHULARTEN.map((s) => {
         const an = s.id === wert;
         return (
-          <button key={s.id} type="button" aria-pressed={an} onClick={() => setze(s.id)} title={s.zeile} data-kein-i18n
-            style={{ ...knopfBasis, minHeight: 38, padding: "4px 4px", fontSize: 15, letterSpacing: "0.02em", borderRadius: 10,
-              border: `2px solid ${C.see}`, background: an ? C.see : C.weiss, color: an ? C.weiss : C.see,
-              boxShadow: an ? "0 4px 12px rgba(0,77,152,0.28)" : "none" }}>
+          <button key={s.id} type="button" aria-pressed={an} onClick={() => setze(s.id)} title={s.zeile} data-kein-i18n className="qf-taste"
+            style={{ ...knopfBasis, minHeight: 40, padding: "4px", fontSize: 15.5, letterSpacing: "0.03em", borderRadius: 10,
+              border: "2px solid rgba(255,255,255,0.55)", background: "rgba(255,255,255,0.06)", color: C.weiss, ...(an ? GOLD_AN : {}) }}>
             {s.name}
           </button>
         );
@@ -44,20 +46,22 @@ function SchulartWahl({ wert, setze }) {
   );
 }
 
-/* Klasse: acht Boxen in zwei Zeilen, weißer Grund; Rand blau, Kursstufe gold */
 function KlassenWahl({ schulart, wert, setze }) {
-  const boxen = klassenBoxen(schulart);
+  const boxen = klassenBoxen(schulart || SCHULART_STANDARD);
+  const aus = !schulart;
   return (
-    <div role="group" aria-label="Klasse wählen" className="qf-klassen" style={{ display: "grid", gap: 6 }}>
+    <div role="group" aria-label={aus ? "Klasse wählen – zuerst Schulsystem wählen" : "Klasse wählen"}
+      style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 7 }}>
       {boxen.map((b) => {
-        const an = b.id === wert;
-        const farbe = b.gold ? C.flaggold : C.see;
+        const an = !aus && b.id === wert;
         return (
-          <button key={b.id} type="button" aria-pressed={an} onClick={() => setze(b.id)} data-kein-i18n
-            aria-label={`Klasse ${b.label}${b.gold ? " (Kursstufe)" : ""}`}
-            style={{ ...knopfBasis, minHeight: 40, padding: "4px 2px", fontSize: b.label.length > 2 ? 14.5 : 16, borderRadius: 10,
-              border: `2px solid ${farbe}`, background: an ? farbe : C.weiss, color: an ? (b.gold ? C.seeTief : C.weiss) : (b.gold ? "#8A6A00" : C.see),
-              boxShadow: an ? `0 4px 12px ${b.gold ? "rgba(237,187,0,0.35)" : "rgba(0,77,152,0.28)"}` : "none" }}>
+          <button key={b.id} type="button" aria-pressed={an} disabled={aus} onClick={() => setze(b.id)} data-kein-i18n className={aus ? undefined : "qf-taste"}
+            aria-label={b.abi ? "Abi" : `Klasse ${b.label}`}
+            style={{ ...knopfBasis, minHeight: 40, padding: "4px 2px", fontSize: 15.5, borderRadius: 10, cursor: aus ? "not-allowed" : "pointer",
+              ...(aus
+                ? { border: "2px solid rgba(255,255,255,0.14)", background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.32)" }
+                : { border: "2px solid rgba(255,255,255,0.55)", background: "rgba(255,255,255,0.06)", color: b.abi ? "#F5CB2E" : C.weiss, letterSpacing: b.abi ? "0.04em" : undefined }),
+              ...(an ? GOLD_AN : {}) }}>
             {b.label}
           </button>
         );
@@ -79,10 +83,10 @@ function KapitelWahl({ schulart, klasse, wert, setze }) {
           border: `2px solid ${gewaehlt ? C.see : C.linie}`, background: gewaehlt && !auf ? C.himmel : C.weiss, color: C.tinte }}>
         <span style={{ flex: 1, minWidth: 0 }}>
           <span style={{ display: "block", fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: C.grau }}>
-            Thema im Buch · Klasse {klassenBoxen(schulart).find((b) => b.id === klasse)?.label} {s?.name}
+            {klasse === "abi" ? <>Abi-Themen · {s?.name}</> : <>Thema im Buch · Klasse {klassenBoxen(schulart).find((b) => b.id === klasse)?.label} {s?.name}</>}
           </span>
           <span style={{ display: "block", fontSize: 15, fontWeight: 700, color: gewaehlt ? C.tinte : C.see, marginTop: 2, lineHeight: 1.25 }}>
-            {gewaehlt ? <><span data-kein-i18n>{roemisch(gewaehlt.nr)} · </span>{gewaehlt.titel}</> : "Wo seid ihr gerade? Kapitel wählen"}
+            {gewaehlt ? <><span data-kein-i18n>{roemisch(gewaehlt.nr)} · </span>{gewaehlt.titel}</> : (klasse === "abi" ? "Welches Abi-Thema willst du angehen?" : "In welchem Kapitel seid ihr gerade?")}
           </span>
         </span>
         <svg aria-hidden="true" width="18" height="18" viewBox="0 0 18 18" style={{ flexShrink: 0, transform: auf ? "rotate(180deg)" : "none", transition: "transform .18s ease" }}>
@@ -155,13 +159,14 @@ function Hilfen({ kapitelId, gehe }) {
   );
 }
 
-/* setzeStufe: stellt den Stufen-Schalter der Startseite (Mittel-/Oberstufe) mit ein */
-export function Quickfinder({ gehe, setzeStufe }) {
-  const [q, setQ] = useState(() => lesen() || { schulart: SCHULART_STANDARD, klasse: null, kapitel: null });
+/* setzeStufe: stellt den Stufen-Schalter der Startseite (Mittel-/Oberstufe) mit ein.
+   links: Inhalt der linken Spalte (Text der Kachel „Mein Training“); rechts sitzt das dunkelblaue Auswahl-Panel. */
+export function Quickfinder({ gehe, setzeStufe, links }) {
+  const [q, setQ] = useState(() => lesen() || { schulart: null, klasse: null, kapitel: null });
   const setze = (neu) => { setQ(neu); schreiben(neu); };
   const schulartSetzen = (id) => {
     if (id === q.schulart) return;
-    // Die Klasse bleibt, wenn es sie in der neuen Schulart gibt (z. B. 8); sonst neu wählen
+    // Die Klasse bleibt, wenn es sie im neuen Schulsystem gibt (z. B. 8 oder Abi); sonst neu wählen
     const bleibt = klassenBoxen(id).some((b) => b.id === q.klasse) ? q.klasse : null;
     setze({ schulart: id, klasse: bleibt, kapitel: null });
   };
@@ -171,24 +176,28 @@ export function Quickfinder({ gehe, setzeStufe }) {
     if (box && setzeStufe) setzeStufe(stufeAusKlassenBox(box));
   };
   const s = schulartVon(q.schulart);
+  const hinweis = !s ? "Wähle zuerst dein Schulsystem." : !q.klasse ? s.zeile + " · jetzt deine Klasse." : s.zeile;
   return (
-    <div style={{ padding: "12px 16px 14px", borderTop: `1px solid ${C.linie}` }}>
-      <style>{`.qf-klassen{grid-template-columns:repeat(4,minmax(0,1fr))}
-        @media (min-width:520px){.qf-klassen{grid-template-columns:repeat(8,minmax(0,1fr))}}`}</style>
-      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, marginBottom: 6 }}>
-        <p style={KICKER}>Schulart</p>
-        {s && <span style={{ fontSize: 12, color: C.grau, fontWeight: 500, textAlign: "right" }}>{s.zeile}</span>}
+    <>
+      <style>{`.qf-kopf{display:grid;grid-template-columns:1fr;gap:14px;padding:16px}
+        @media (min-width:600px){.qf-kopf{grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:20px;padding:18px 18px 18px 20px;align-items:stretch}}
+        @media (hover:hover){.qf-taste:hover{border-color:${C.flaggold} !important}}`}</style>
+      <div className="qf-kopf">
+        <div style={{ minWidth: 0, display: "flex", flexDirection: "column" }}>{links}</div>
+        <div style={{ background: `linear-gradient(160deg, ${C.see} 0%, ${C.seeTief} 100%)`, border: `2px solid ${C.seeTief}`, borderRadius: 14, padding: 12,
+          boxShadow: "0 6px 18px rgba(0,40,100,0.22)", display: "flex", flexDirection: "column", gap: 10 }}>
+          <SchulartWahl wert={q.schulart} setze={schulartSetzen} />
+          <div aria-hidden="true" style={{ height: 1, background: "rgba(255,255,255,0.16)" }} />
+          <KlassenWahl schulart={q.schulart} wert={q.klasse} setze={klasseSetzen} />
+          <p style={{ margin: "0 2px", fontSize: 11.5, color: "#C9D6EE", lineHeight: 1.4 }}>{hinweis}</p>
+        </div>
       </div>
-      <SchulartWahl wert={q.schulart} setze={schulartSetzen} />
-      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, margin: "12px 0 6px" }}>
-        <p style={KICKER}>Klasse</p>
-        <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#8A6A00" }}>Gold = Abi-Jahre</span>
-      </div>
-      <KlassenWahl schulart={q.schulart} wert={q.klasse} setze={klasseSetzen} />
-      {q.klasse
-        ? <KapitelWahl key={q.schulart + q.klasse} schulart={q.schulart} klasse={q.klasse} wert={q.kapitel} setze={(id) => setze({ ...q, kapitel: id })} />
-        : <p style={{ margin: "10px 2px 0", fontSize: 12.5, color: C.grau, lineHeight: 1.5 }}>Ein Tipp auf deine Klasse – und du siehst alle Kapitel deines Buchs.</p>}
-      {q.klasse && q.kapitel && <Hilfen kapitelId={q.kapitel} gehe={gehe} />}
-    </div>
+      {q.schulart && q.klasse && (
+        <div style={{ padding: "0 16px 16px" }}>
+          <KapitelWahl key={q.schulart + q.klasse} schulart={q.schulart} klasse={q.klasse} wert={q.kapitel} setze={(id) => setze({ ...q, kapitel: id })} />
+          {q.kapitel && <Hilfen kapitelId={q.kapitel} gehe={gehe} />}
+        </div>
+      )}
+    </>
   );
 }

@@ -16,7 +16,7 @@ import { Mathilda } from "./func10.jsx";
 import { KopfKacheln, KopfrechnenLogoKlein, TRAINER } from "./func14.jsx";
 import { HeadNumbersLogoKlein } from "./funcHeadNumbersLogo.jsx";
 import { EBB_SLOGAN, EbbinghausBadge, EbbinghausLogoKlein } from "./funcEbbinghaus.jsx";
-import { MeinTrainingBadge, MeinTrainingLogoKlein, meinTrainingText, useOffenHeute } from "./funcMeinTraining.jsx";
+import { meinTrainingText, useOffenHeute } from "./funcMeinTraining.jsx";
 import { DeinPlanBlock, useLernpfad } from "./funcLernpfad.jsx";
 import { StartOnboarding, ZonenKopf } from "./funcOnboarding.jsx";
 import { Quickfinder } from "./funcQuickfinder.jsx";
@@ -175,12 +175,27 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
    → alle Hilfen der App dazu (funcQuickfinder.jsx, Daten in schulbuch.js). */
 function MeinTrainingKachelStart({ gehe, setzeStufe }) {
   const s = useOffenHeute();
+  const offen = s.hatSkills ? s.offen : 0;
+  const links = (
+    <>
+      <h2 style={{ margin: 0, fontSize: "clamp(20px, 5.4vw, 25px)", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.12, color: C.see }}>Dein Training startet hier.</h2>
+      <span aria-hidden="true" style={{ display: "block", width: 40, height: 3, borderRadius: 2, marginTop: 9, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)` }} />
+      <p style={{ margin: "10px 0 0", fontSize: 14, fontWeight: 300, lineHeight: 1.55, color: C.grau }}>{meinTrainingText(s)}</p>
+      <p style={{ margin: "8px 0 0", fontSize: 13, fontWeight: 500, lineHeight: 1.55, color: C.tinte }}>Schulsystem und Klasse wählen – dann zeige ich dir, wo ihr im Buch steht und was dir dabei hilft.</p>
+      <span aria-hidden="true" style={{ flex: "1 0 14px" }} />
+      <button type="button" onClick={() => gehe({ ansicht: "meintraining" })}
+        style={{ alignSelf: "flex-start", display: "inline-flex", alignItems: "center", gap: 8, padding: "9px 16px", borderRadius: 999, border: "none", cursor: "pointer",
+          fontFamily: "inherit", fontSize: 13.5, fontWeight: 700, color: C.weiss, background: C.see, boxShadow: "0 3px 10px rgba(0,77,152,0.25)" }}>
+        Mein Training öffnen
+        {offen > 0 && <span aria-label={`${offen} Übungen heute offen`} style={{ minWidth: 22, height: 22, padding: "0 6px", borderRadius: 999, background: C.flaggold, color: C.seeTief, fontSize: 12, fontWeight: 800, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{offen}</span>}
+        <span aria-hidden="true">→</span>
+      </button>
+    </>
+  );
   return (
     <div style={{ width: "calc(100% + 32px)", margin: "12px -16px 0", border: `2px solid ${C.see}`, borderRadius: 18, overflow: "hidden",
       background: C.weiss, boxShadow: "0 6px 22px rgba(0,77,152,0.14)" }}>
-      <PlotterKachel hell breit inRahmen onClick={() => gehe({ ansicht: "meintraining" })} label="Mein Training öffnen" logo={<MeinTrainingLogoKlein />}
-        extra={<MeinTrainingBadge offen={s.hatSkills ? s.offen : 0} />} titel="Dein Training startet hier." titelUmbruch text={meinTrainingText(s)} />
-      <Quickfinder gehe={gehe} setzeStufe={setzeStufe} />
+      <Quickfinder gehe={gehe} setzeStufe={setzeStufe} links={links} />
     </div>
   );
 }
@@ -1487,7 +1502,7 @@ export function Startseite({ gehe }) {
     <div className="mx-auto px-6 pb-14" style={{ maxWidth: 620 }}>
       {/* Ganz oben: Mein Training mit Schulart/Klasse, direkt darunter die Suche als Einzeiler */}
       <div style={{ marginTop: 4 }}><MeinTrainingKachelStart gehe={gehe} setzeStufe={stufeSetzen} /></div>
-      <div style={{ margin: "12px -16px 0" }}><SuchBox gehe={gehe} einzeilig /></div>
+      <div style={{ width: "calc(100% + 32px)", margin: "12px -16px 0" }}><SuchBox gehe={gehe} einzeilig /></div>
       <section style={{ paddingTop: 12, paddingBottom: 6, marginLeft: -6 }}>
         <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.8, margin: 0 }}>
           Hier wird Oberstufenmathe <b style={{ color: C.tinte, fontWeight: 600 }}>sichtbar</b>: Graphen live plotten,
