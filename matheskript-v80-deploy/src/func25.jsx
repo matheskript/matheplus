@@ -21,6 +21,7 @@ import { STELLEN, vergleich } from "./func13.jsx";
 import { IchHaengeFest, summanden } from "./funcHilfe.jsx";
 import { Anfangsbedingung, BestandAenderungsrate, FlaecheBilanz, ZwischenZweiGraphen } from "./funcIntegraleNeu.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
+import { ErklaerAnimation } from "./funcErklaeranimation.jsx";
 
 const endlich = (y) => typeof y === "number" && isFinite(y);
 const zz = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
@@ -681,6 +682,11 @@ export function Integrale() {
   return (
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 18 }}>
       <ModusAuswahl modus={modus} onWahl={waehle} />
+
+      {/* Stammfunktion bilden und bestimmtes Integral: kleine Erkläranimation, aufklappbar */}
+      {(modus === "stamm" || modus === "bestimmt") && (
+        <ErklaerAnimation key={modus} art={modus === "stamm" ? "stamm" : "integral"} kompakt style={{ marginTop: 14 }} />
+      )}
 
       {modus === "speziell" && (
         <div style={{ ...karte, marginTop: 16, padding: "14px 16px" }}>

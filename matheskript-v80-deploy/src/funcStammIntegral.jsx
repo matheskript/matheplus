@@ -15,6 +15,7 @@ import { C } from "./base1.jsx";
 import { Formel, M, Text } from "./func3.jsx";
 import { LiveFormel, hatX } from "./func12.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
+import { ErklaerAnimation } from "./funcErklaeranimation.jsx";
 import { uebergabeErledigt, uebergabeLesen } from "./uebergabe.js";
 import { IntZ } from "./ui2.jsx";
 import { Eingabe, FARBE, Feld, Herleitung, Merke, ModusSchalter, WERK_CSS } from "./funcRegelwerk.jsx";
@@ -526,6 +527,7 @@ export function StammIntegral() {
             <button key={id} type="button" role="tab" aria-selected={teil === id} onClick={() => setTeil(id)}><span>{name}</span><small>{unter}</small></button>
           ))}
         </div>
+        <ErklaerAnimation key={teil} art={teil === "stamm" ? "stamm" : "integral"} kompakt />
         <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}><ModusSchalter modus={modus} setModus={setModus} /></div>
         <div style={{ display: teil === "stamm" ? "block" : "none" }}><StammTeil modus={modus} /></div>
         <div style={{ display: teil === "integral" ? "block" : "none" }}><IntegralTeil modus={modus} start={start} /></div>

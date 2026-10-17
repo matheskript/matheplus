@@ -9,7 +9,9 @@ import { C } from "./base1.jsx";
      · Beschriftung wechselt mit dem Schritt
      · bei „Bewegung reduzieren“ startet nichts von allein
    Szenen: "produkt" (Produktregel am Rechteck), "kette" (Kettenregel als
-   Verstärkerkette), "wurzel" (Wurzel aus vierstelligen Quadratzahlen).
+   Verstärkerkette), "stamm" (Stammfunktion: Ableiten rückwärts), "integral"
+   (bestimmtes Integral: Streifen und Hauptsatz), "wurzel" (Wurzel aus
+   vierstelligen Quadratzahlen).
    ====================================================================== */
 
 /* ---------- Zeit-Hilfen ---------- */
@@ -386,10 +388,200 @@ function Player({ szene }) {
   );
 }
 
+/* ======================================================================
+   SZENE 4 · Stammfunktion: Ableiten rückwärts
+   Beispiel f(x) = x²  →  F(x) = x³/3 + C, Kurvenschar mit gleicher Steigung
+   ====================================================================== */
+const STAMM_SCHRITTE = [
+  { von: 0, text: "Ableiten fragt: Wie lautet F′, wenn F gegeben ist? Die Stammfunktion dreht die Frage um: Gegeben ist f, gesucht ist eine Funktion F, deren Ableitung f ist. Als Beispiel nehmen wir f(x) = x²." },
+  { von: 4.2, text: "Beim Ableiten von x³ kommt der Exponent 3 nach vorn, und der Exponent sinkt um 1: (x³)′ = 3x². Rückwärts müssen wir also den Exponenten um 1 erhöhen: Aus x² wird x³." },
+  { von: 8.6, text: "Ableiten von x³ liefert aber 3x², und wir wollen nur x². Der Faktor 3 ist zu viel, deshalb teilen wir durch den neuen Exponenten: F(x) = x³/3. Probe: (x³/3)′ = 3x²/3 = x²." },
+  { von: 14.4, text: "Eine Konstante verschwindet beim Ableiten. x³/3, x³/3 + 1 und x³/3 − 1 haben alle dieselbe Ableitung x²: überall dieselbe Steigung, nur die Kurve ist nach oben oder unten verschoben. Darum gehört ein + C dazu." },
+  { von: 20.4, text: "Ergebnis: Eine Stammfunktion von x² ist x³/3 + C. Allgemein gilt: Exponent um 1 erhöhen, durch den neuen Exponenten teilen, + C dranhängen." },
+];
+
+const hoch = (e) => <tspan dy="-7" fontSize="0.68em">{e}</tspan>;
+
+function stammZeichne(t) {
+  const aus = 1 - lauf(t, 14.6, 15.4);                 // Rechenkarte blendet aus, Graph kommt
+  const box = lauf(t, 0.3, 1.4) * aus;
+  const pf1 = lauf(t, 1.6, 2.4) * aus, pf2 = lauf(t, 2.4, 3.4) * aus;
+  const vw = lauf(t, 4.6, 6.2) * aus, rw = lauf(t, 6.4, 8.2) * aus;
+  const dv = lauf(t, 9, 10.2) * aus, fx = lauf(t, 10.6, 12) * aus, pr = lauf(t, 12.6, 13.8) * aus;
+
+  const gr = lauf(t, 15.2, 16.2);
+  const reveal = lauf(t, 15.6, 17.4);
+  const shift = lauf(t, 17.8, 19.4);
+  const tang = lauf(t, 19.6, 20.4);
+  const erg = lauf(t, 20.8, 22), allg = lauf(t, 22.6, 24.4);
+
+  const sx = (x) => 190 + 70 * x, sy = (y) => 186 - 36 * y;
+  const FF = (x) => (x * x * x) / 3;
+  const pfad = (c, p) => {
+    const xe = -1.2 + 3.0 * p;
+    let d = "";
+    for (let x = -1.2; x <= xe + 1e-9; x += 0.05) d += `${d ? "L" : "M"}${sx(x).toFixed(1)} ${sy(FF(x) + c).toFixed(1)}`;
+    return d;
+  };
+  const scharen = [1, 2, -1];
+  return (
+    <g>
+      {/* Karte: F ← f */}
+      <g opacity={box}>
+        <rect x="18" y="16" width="118" height="46" rx="12" fill={C.weiss} stroke={C.gold} strokeWidth="1.8" />
+        <T x="77" y="46" textAnchor="middle" fontSize="19" fontWeight="800" fill={C.gold}>F(x) = ?</T>
+        <rect x="224" y="16" width="118" height="46" rx="12" fill={C.himmel} stroke={C.see} strokeWidth="1.8" />
+        <T x="283" y="46" textAnchor="middle" fontSize="19" fontWeight="800" fill={C.seeTief}>f(x) = x{hoch("2")}</T>
+      </g>
+      <g opacity={pf1}>
+        <path d="M142 32 H214 M208 26 L216 32 L208 38" stroke={C.hellgrau} strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+        <T x="179" y="23" textAnchor="middle" fontSize="12" fontWeight="600" fill={C.grau}>ableiten</T>
+      </g>
+      <g opacity={pf2}>
+        <path d="M218 50 H146 M152 44 L144 50 L152 56" stroke={C.gold} strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+        <T x="181" y="72" textAnchor="middle" fontSize="12" fontWeight="700" fill={C.gold}>rückwärts</T>
+      </g>
+
+      {/* vorwärts: x³ → 3x² */}
+      <g opacity={vw}>
+        <T x="18" y="106" fontSize="11" fontWeight="700" fill={C.hellgrau} letterSpacing="0.08em">VORWÄRTS · ABLEITEN</T>
+        <T x="18" y="136" fontSize="25" fontWeight="800" fill={C.see}>x{hoch("3")}<tspan dy="7" fill={C.hellgrau}>{"  →  "}</tspan>3x{hoch("2")}</T>
+        <T x="196" y="128" fontSize="12.5" fontWeight="500" fill={C.grau}>Exponent 3 nach vorn,</T>
+        <T x="196" y="146" fontSize="12.5" fontWeight="500" fill={C.grau}>Exponent um 1 kleiner</T>
+      </g>
+      {/* rückwärts: x² → x³ */}
+      <g opacity={rw}>
+        <T x="18" y="180" fontSize="11" fontWeight="700" fill={C.gold} letterSpacing="0.08em">RÜCKWÄRTS · STAMMFUNKTION</T>
+        <T x="18" y="210" fontSize="25" fontWeight="800" fill={C.gold}>x{hoch("2")}<tspan dy="7" fill={C.hellgrau}>{"  →  "}</tspan>x{hoch("3")}</T>
+        <T x="196" y="210" fontSize="12.5" fontWeight="600" fill={C.grau}>Exponent um 1 größer</T>
+      </g>
+      {/* durch den neuen Exponenten teilen */}
+      <T x="180" y="244" textAnchor="middle" fontSize="13.5" fontWeight="500" fill={C.tinte} opacity={dv}>Aber (x{hoch("3")}<tspan dy="7">)′ = 3x</tspan>{hoch("2")}<tspan dy="7"> – der Faktor 3 ist zu viel.</tspan></T>
+      <T x="180" y="277" textAnchor="middle" fontSize="25" fontWeight="800" fill={C.see} opacity={fx}>F(x) = x{hoch("3")}<tspan dy="7"> / 3</tspan></T>
+      <T x="180" y="304" textAnchor="middle" fontSize="14" fontWeight="700" fill={C.gruen} opacity={pr}>Probe: (x{hoch("3")}<tspan dy="7">/3)′ = x</tspan>{hoch("2")}<tspan dy="7"> ✓</tspan></T>
+
+      {/* Graph: Kurvenschar F(x) = x³/3 + C */}
+      <g opacity={gr}>
+        <line x1="30" y1={sy(0)} x2="342" y2={sy(0)} stroke={C.hellgrau} strokeWidth="1.2" opacity="0.7" />
+        <line x1={sx(0)} y1="30" x2={sx(0)} y2="252" stroke={C.hellgrau} strokeWidth="1.2" opacity="0.7" />
+        <T x="336" y={sy(0) - 6} textAnchor="end" fontSize="12" fontWeight="600" fill={C.hellgrau}>x</T>
+        {scharen.map((c) => (
+          shift > 0.001 && <path key={c} d={pfad(c * shift, 1)} fill="none" stroke={C.see} strokeWidth="2.2" strokeLinecap="round" opacity={0.55 * shift} />
+        ))}
+        <path d={pfad(0, reveal)} fill="none" stroke={C.see} strokeWidth="3" strokeLinecap="round" />
+        {[0, ...scharen].map((c) => {
+          const o = c === 0 ? reveal : shift;
+          return <T key={c} x={sx(1.8) + 8} y={sy(FF(1.8) + c * (c === 0 ? 1 : shift)) + 4} fontSize="12" fontWeight="700" fill={c === 0 ? C.seeTief : C.see} opacity={o > 0.95 ? 1 : 0}>C = {c}</T>;
+        })}
+        {[0, ...scharen].map((c) => {
+          const cc = c * (c === 0 ? 1 : shift), y0 = FF(1) + cc;
+          return (
+            <g key={c} opacity={tang * (c === 0 ? 1 : shift)}>
+              <line x1={sx(0.55)} y1={sy(y0 - 0.45)} x2={sx(1.45)} y2={sy(y0 + 0.45)} stroke={C.flaggold} strokeWidth="3.4" strokeLinecap="round" />
+              <circle cx={sx(1)} cy={sy(y0)} r="3.6" fill={C.gold} />
+            </g>
+          );
+        })}
+        <T x="18" y="44" fontSize="13" fontWeight="700" fill={C.tinte} opacity={tang}>Bei x = 1 hat jede Kurve</T>
+        <T x="18" y="62" fontSize="13" fontWeight="700" fill={C.gold} opacity={tang}>dieselbe Steigung f(1) = 1</T>
+      </g>
+
+      {/* Ergebnis */}
+      <T x="180" y="290" textAnchor="middle" fontSize="21" fontWeight="800" fill={C.tinte} opacity={erg}>∫ x{hoch("2")}<tspan dy="7"> dx = </tspan><tspan dy="0" fill={C.see}>x</tspan>{hoch("3")}<tspan dy="7" fill={C.see}>/3 + C</tspan></T>
+      <T x="180" y="314" textAnchor="middle" fontSize="13" fontWeight="600" fill={C.grau} opacity={allg}>Allgemein: x{hoch("n")}<tspan dy="7"> → x</tspan>{hoch("n+1")}<tspan dy="7"> / (n + 1) + C</tspan></T>
+    </g>
+  );
+}
+
+/* ======================================================================
+   SZENE 5 · Bestimmtes Integral: Streifen und Hauptsatz
+   f(x) = x² von a = 1 bis b = 3,  F(x) = x³/3,  ∫ = 9 − 1/3 = 26/3
+   ====================================================================== */
+const INT_A = 1, INT_B = 3;
+const intF = (x) => x * x;
+const riemann = (n) => { const h = (INT_B - INT_A) / n; let s = 0; for (let i = 0; i < n; i++) s += intF(INT_A + i * h) * h; return s; };
+const komma = (z) => z.toFixed(2).replace(".", ",");
+const STUFEN = [4, 8, 16, 50];
+const INTEGRAL_SCHRITTE = [
+  { von: 0, text: "Gesucht ist die Fläche unter dem Graphen von f(x) = x² zwischen den Grenzen a = 1 und b = 3. Genau das ist das bestimmte Integral von 1 bis 3." },
+  { von: 4.5, text: `Erste Näherung: Wir zerlegen die Fläche in 4 Streifen. Jeder Streifen ist ein Rechteck, die Höhe liest du am linken Rand ab. Alle Rechtecke zusammen haben die Fläche ${komma(riemann(4))}, etwas zu wenig.` },
+  { von: 9.2, text: `Mit mehr Streifen wird die Näherung besser: 8 Streifen ergeben ${komma(riemann(8))}, 16 Streifen ${komma(riemann(16))} und 50 Streifen ${komma(riemann(50))}. Die Werte laufen auf eine feste Zahl zu.` },
+  { von: 16, text: "Das geht auch ganz ohne Streifen: Der Hauptsatz sagt, die Fläche ist F(b) − F(a), wobei F eine Stammfunktion von f ist. Für f(x) = x² ist F(x) = x³/3. Wir setzen die obere und die untere Grenze ein." },
+  { von: 21, text: "F(3) = 9 und F(1) = 1/3. Die Fläche ist also 9 − 1/3 = 26/3 ≈ 8,67. Genau diese Zahl haben die Streifen immer besser getroffen." },
+];
+
+function integralZeichne(t) {
+  const sx = (x) => 30 + 100 * (x - 0.5), sy = (y) => 230 - 18 * y;
+  const reveal = lauf(t, 0.2, 2);
+  const region = lauf(t, 2.2, 3.6);
+  const marke = lauf(t, 2.6, 3.8);
+  const betont = lauf(t, 21, 22.2);
+  const kurve = (von, bis) => {
+    let d = "";
+    for (let x = von; x <= bis + 1e-9; x += 0.05) d += `${d ? "L" : "M"}${sx(x).toFixed(1)} ${sy(intF(x)).toFixed(1)}`;
+    return d;
+  };
+  const flaeche = (() => {
+    let d = `M${sx(INT_A)} ${sy(0)}`;
+    for (let x = INT_A; x <= INT_B + 1e-9; x += 0.05) d += `L${sx(x).toFixed(1)} ${sy(intF(x)).toFixed(1)}`;
+    return `${d}L${sx(INT_B)} ${sy(0)}Z`;
+  })();
+  const fenster = [[4.8, 9.6], [9.6, 11.6], [11.6, 13.6], [13.6, 16.4]].map(([a, b]) => lauf(t, a, a + 0.9) * (1 - lauf(t, b, b + 0.9)));
+  const g0 = lauf(t, 4.8, 6.6);
+  const rechtecke = (n, grow) => {
+    const h = (INT_B - INT_A) / n, breite = 100 * h;
+    return Array.from({ length: n }, (_, i) => {
+      const x0 = INT_A + i * h, hoehe = 18 * intF(x0) * grow;
+      return <rect key={i} x={sx(x0)} y={230 - hoehe} width={Math.max(0.6, breite - (n > 20 ? 0.4 : 1.6))} height={hoehe} fill={C.flaggold} stroke={C.gold} strokeWidth={n > 20 ? 0.3 : 0.9} opacity="0.85" />;
+    });
+  };
+  const hs1 = lauf(t, 16.8, 18.2), hs2 = lauf(t, 18.6, 20), hs3 = lauf(t, 21.4, 22.8);
+  return (
+    <g>
+      {/* Achse, Fläche, Kurve */}
+      <line x1="18" y1="230" x2="344" y2="230" stroke={C.hellgrau} strokeWidth="1.3" opacity="0.8" />
+      <path d={flaeche} fill={C.himmel} opacity={0.45 * region + 0.3 * betont} />
+      {STUFEN.map((n, k) => fenster[k] > 0.001 && <g key={n} opacity={fenster[k]}>{rechtecke(n, k === 0 ? g0 : 1)}</g>)}
+      <path d={kurve(0.5, 0.5 + 2.8 * reveal)} fill="none" stroke={C.see} strokeWidth="3" strokeLinecap="round" />
+      <T x="22" y="46" fontSize="14" fontWeight="800" fill={C.seeTief} opacity={reveal > 0.9 ? 1 : 0}>f(x) = x{hoch("2")}</T>
+
+      {/* Grenzen a und b */}
+      <g opacity={marke}>
+        <line x1={sx(INT_A)} y1="230" x2={sx(INT_A)} y2={sy(intF(INT_A))} stroke={C.gold} strokeWidth="2" strokeDasharray="4 3" />
+        <line x1={sx(INT_B)} y1="230" x2={sx(INT_B)} y2={sy(intF(INT_B))} stroke={C.gold} strokeWidth="2" strokeDasharray="4 3" />
+        <T x={sx(INT_A)} y="248" textAnchor="middle" fontSize="13" fontWeight="800" fill={C.gold}>a = 1</T>
+        <T x={sx(INT_B)} y="248" textAnchor="middle" fontSize="13" fontWeight="800" fill={C.gold}>b = 3</T>
+      </g>
+
+      {/* Streifen-Anzeige */}
+      {STUFEN.map((n, k) => (
+        <g key={n} opacity={fenster[k]}>
+          <T x="180" y="278" textAnchor="middle" fontSize="19" fontWeight="800" fill={C.tinte}>{n} Streifen ≈ <tspan fill={C.gold}>{komma(riemann(n))}</tspan></T>
+          {k === 0 && <T x="180" y="300" textAnchor="middle" fontSize="13" fontWeight="500" fill={C.grau}>etwas zu wenig – oben fehlen Stückchen</T>}
+          {k === 3 && <T x="180" y="300" textAnchor="middle" fontSize="13" fontWeight="500" fill={C.grau}>immer näher an einer festen Zahl</T>}
+        </g>
+      ))}
+
+      {/* Hauptsatz */}
+      <g opacity={hs1}>
+        <T x="26" y="278" fontSize="32" fontWeight="300" fill={C.tinte}>∫</T>
+        <T x="43" y="262" fontSize="11" fontWeight="700" fill={C.gold}>3</T>
+        <T x="41" y="288" fontSize="11" fontWeight="700" fill={C.gold}>1</T>
+        <T x="58" y="276" fontSize="18" fontWeight="700" fill={C.tinte}>x{hoch("2")}<tspan dy="7"> dx</tspan></T>
+        <T x="118" y="276" fontSize="18" fontWeight="800" fill={C.tinte}>= <tspan fill={C.see}>F(3)</tspan> − <tspan fill={C.gold}>F(1)</tspan></T>
+      </g>
+      <T x="26" y="310" fontSize="14" fontWeight="600" fill={C.grau} opacity={hs2}>mit F(x) = x{hoch("3")}<tspan dy="7"> / 3</tspan></T>
+      <T x="26" y="338" fontSize="20" fontWeight="800" fill={C.tinte} opacity={hs3}>= <tspan fill={C.see}>9</tspan> − <tspan fill={C.gold}>1/3</tspan> = 26/3 ≈ 8,67</T>
+    </g>
+  );
+}
+
 /* ---------- Szenen-Auswahl ---------- */
 const INFO = {
   produkt: { titel: "Produktregel am Rechteck", unter: "Warum beim Ableiten zwei Streifen entstehen" },
   kette: { titel: "Kettenregel als Verstärkerkette", unter: "Warum die innere Ableitung nie fehlen darf" },
+  stamm: { titel: "Stammfunktion: Ableiten rückwärts", unter: "Warum durch den neuen Exponenten geteilt wird – und warum + C" },
+  integral: { titel: "Fläche unter der Kurve und der Hauptsatz", unter: "Vom Streifen-Zählen zu F(b) − F(a)" },
   wurzel: { titel: "Wurzel aus vierstelligen Zahlen", unter: "Der Drei-Schritt-Trick für √10\u00A0000" },
 };
 
@@ -421,11 +613,19 @@ function WurzelSzene() {
     </div>
   );
 }
-const SZENEN = { produkt: ProduktSzene, kette: KetteSzene, wurzel: WurzelSzene };
+function StammSzene() {
+  return <Player szene={{ dauer: 26, hoehe: 326, schritte: STAMM_SCHRITTE, zeichne: stammZeichne,
+    beschreibung: "Animation: Ableiten rückwärts. Aus x² wird x³, geteilt durch 3, also x³/3. Eine Konstante C verschiebt die Kurve, die Steigung bleibt gleich." }} />;
+}
+function IntegralSzene() {
+  return <Player szene={{ dauer: 25, hoehe: 350, schritte: INTEGRAL_SCHRITTE, zeichne: integralZeichne,
+    beschreibung: "Animation: Die Fläche unter x² zwischen 1 und 3 wird mit 4, 8, 16 und 50 Streifen genähert. Der Hauptsatz liefert den genauen Wert F(3) − F(1) = 26/3." }} />;
+}
+const SZENEN = { produkt: ProduktSzene, kette: KetteSzene, stamm: StammSzene, integral: IntegralSzene, wurzel: WurzelSzene };
 
 /* ======================================================================
    AUFKLAPP-KARTE
-   art: "produkt" | "kette" | "wurzel"
+   art: "produkt" | "kette" | "stamm" | "integral" | "wurzel"
    ====================================================================== */
 export function ErklaerAnimation({ art, style, kompakt = false }) {
   const [offen, setOffen] = useState(false);
