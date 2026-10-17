@@ -59,6 +59,7 @@ import { MatheTastaturHost } from "./matheTastatur.jsx";
 import { ElternabendSeite } from "./funcElternabend.jsx";
 import { BundeswettbewerbSeite, LandeswettbewerbeSeite, LandeswettbewerbSeite, LAENDER } from "./funcWettbewerbe.jsx";
 import { ENTWUERFE, istEntwurf, EntwurfTor, EntwurfStart, EntwurfChecken, EntwurfPakete } from "./funcEntwuerfe.jsx";
+import { EntwurfVorher } from "./funcVorher.jsx";
 import { LANDING, Landingpage } from "./funcLandingpage.jsx";
 import { PenPaperKursSeite } from "./funcPenPaperKurs.jsx";
 /* Head & Numbers wird erst beim Öffnen nachgeladen (eigener Chunk, nicht im Hauptbündel) */
@@ -1101,6 +1102,8 @@ export function Mathilda() {
         <EntwurfTor gehe={gehe}><EntwurfChecken gehe={gehe} /></EntwurfTor>
       ) : ansicht === "entwurf-pakete" ? (
         <EntwurfTor gehe={gehe}><EntwurfPakete gehe={gehe} /></EntwurfTor>
+      ) : ansicht === "entwurf-vorher" ? (
+        <EntwurfTor gehe={gehe}><EntwurfVorher /></EntwurfTor>
       ) : ansicht === "entwurf-werkzeuge" ? (
         <EntwurfTor gehe={gehe}><EntwurfWerkzeuge gehe={gehe} /></EntwurfTor>
       ) : ansicht === "kurse" ? (

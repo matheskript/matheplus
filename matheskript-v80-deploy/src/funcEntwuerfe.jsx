@@ -12,6 +12,7 @@ import { AufklappZeichen } from "./aufklappen.jsx";
      entwurf-start    – neue Startseite „Weniger Mathe-Stress“
      entwurf-checken  – Kursseite „Mathe-Checken“ (2 Monate)
      entwurf-pakete   – Tool-Pakete „Dein Training“ (Kostenlos/Plus/Maximum)
+     entwurf-vorher   – eingefrorene Kopie der App vom 17.10.2026 (funcVorher.jsx)
      entwurf-werkzeuge – Archiv: alte Startseite (Stand 3.10.) + Verzeichnis aller Werkzeuge (funcStartArchiv.jsx)
    Die bestehende App bleibt unverändert; umgeschaltet wird über den
    Seiten-Knopf in der Kopfleiste (func10.jsx).
@@ -22,6 +23,7 @@ export const ENTWUERFE = [
   { ansicht: "entwurf-checken", name: "Mathe-Checken", kurz: "Kursseite – 2-Monats-Konzept" },
   { ansicht: "entwurf-pakete", name: "Tool-Pakete", kurz: "Kostenlos, Plus & Maximum" },
   { ansicht: "entwurf-werkzeuge", name: "Alle Werkzeuge", kurz: "Alte Startseite mit allen Rechentools" },
+  { ansicht: "entwurf-vorher", name: "Vorher: Stand 17.10.", kurz: "Website vor der Max-Version – Desktop & Mobil" },
 ];
 export const istEntwurf = (a) => typeof a === "string" && a.startsWith("entwurf-");
 
