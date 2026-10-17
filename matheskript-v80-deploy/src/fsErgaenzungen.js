@@ -7,6 +7,8 @@ import { ERG_2 } from "./fsErg2.js";
 import { ERG_3 } from "./fsErg3.js";
 import { ERG_4 } from "./fsErg4.js";
 import { ERG_5 } from "./fsErg5.js";
+import { ERG_6 } from "./fsErg6.js";
+import { ERG_7 } from "./fsErg7.js";
 
 export const FS_ERG = {
   ...ERG_1,
@@ -14,6 +16,8 @@ export const FS_ERG = {
   ...ERG_3,
   ...ERG_4,
   ...ERG_5,
+  ...ERG_6,
+  ...ERG_7,
 };
 
 import { NEU } from "./fsNeu.js";

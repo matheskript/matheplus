@@ -20,8 +20,10 @@ import { BILDER_5 } from "./funcFsBilder5.jsx";
 import { BILDER_6 } from "./funcFsBilder6.jsx";
 import { BILDER_7 } from "./funcFsBilder7.jsx";
 import { BILDER_8 } from "./funcFsBilder8.jsx";
+import { BILDER_9 } from "./funcFsBilder9.jsx";
+import { BILDER_10 } from "./funcFsBilder10.jsx";
 
-const BILDER = { ...BILDER_1, ...BILDER_2, ...BILDER_3, ...BILDER_4, ...BILDER_5, ...BILDER_6, ...BILDER_7, ...BILDER_8 };
+const BILDER = { ...BILDER_1, ...BILDER_2, ...BILDER_3, ...BILDER_4, ...BILDER_5, ...BILDER_6, ...BILDER_7, ...BILDER_8, ...BILDER_9, ...BILDER_10 };
 
 const MERK = "matheplus-formeln-gemerkt";
 const STUFE = "matheplus-stufe";
@@ -335,10 +337,13 @@ function Detail({ e, zurueck, oeffne, zuFaden, zuHerleitung, gemerkt, merken, na
 }
 
 /* ---------- Karte in der Liste ---------- */
-function FormelKarte({ e, onClick, zeigeBereich, gemerkt }) {
+function FormelKarte({ e, onClick, zeigeBereich, gemerkt, verdeckt }) {
   const anzahl = herleitungen(e).length;
+  const [offen, setOffen] = useState(false);
+  useEffect(() => { setOffen(false); }, [verdeckt]);
+  const zu = verdeckt && !offen;
   return (
-    <button type="button" onClick={onClick} data-formel={e.id}
+    <button type="button" onClick={() => (zu ? setOffen(true) : onClick())} data-formel={e.id} aria-label={zu ? `${e.n} – Formel aufdecken` : undefined}
       style={{ width: "100%", display: "block", textAlign: "left", fontFamily: "inherit", cursor: "pointer", border: "none", ...karte, padding: "14px 16px 12px", marginBottom: 9, color: C.tinte }}>
       <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
         <span style={{ minWidth: 0 }}>
@@ -352,7 +357,13 @@ function FormelKarte({ e, onClick, zeigeBereich, gemerkt }) {
           <Pfeilchen />
         </span>
       </span>
-      <span style={{ display: "block", fontSize: 16.5, lineHeight: 2, color: C.tinte, overflowX: "auto", overflowY: "hidden", marginTop: 4 }}><M t={e.f} /></span>
+      {zu ? (
+        <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 6, minHeight: 40, borderRadius: 10, border: `1.5px dashed ${C.linie}`, background: C.sand, color: C.hellgrau, fontSize: 13, fontWeight: 600 }}>
+          Weißt du die Formel? Tippen zum Aufdecken
+        </span>
+      ) : (
+        <span style={{ display: "block", fontSize: 16.5, lineHeight: 2, color: C.tinte, overflowX: "auto", overflowY: "hidden", marginTop: 4 }}><M t={e.f} /></span>
+      )}
     </button>
   );
 }
@@ -432,6 +443,60 @@ function FadenDetail({ f, zurueck, oeffne }) {
 }
 
 /* ======================================================================
+   Spickzettel: kompakt Name + Formel, zweispaltig ab 600 px, druckbar
+   ====================================================================== */
+const SPICK_CSS = `
+.fs-spick-raster { display: grid; grid-template-columns: 1fr; gap: 0 22px; }
+@media (min-width: 600px) { .fs-spick-raster { grid-template-columns: 1fr 1fr; } }
+.fs-spick-zeile { break-inside: avoid; page-break-inside: avoid; }
+@media print {
+  @page { size: A4; margin: 12mm; }
+  body * { visibility: hidden !important; }
+  .fs-druck, .fs-druck * { visibility: visible !important; }
+  .fs-druck { position: absolute !important; left: 0; top: 0; width: 100% !important; padding: 0 !important; box-shadow: none !important; }
+  .fs-druck .fs-spick-raster { grid-template-columns: 1fr 1fr !important; }
+  .fs-druck-weg { display: none !important; }
+}`;
+
+function Spickzettel({ titel, stufeText, liste, gruppeVon, oeffne }) {
+  const gruppen = [...new Set(liste.map(gruppeVon))];
+  return (
+    <div>
+      <style>{SPICK_CSS}</style>
+      <div className="fs-druck-weg" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, margin: "0 0 12px", flexWrap: "wrap" }}>
+        <p style={{ margin: 0, fontSize: 13, color: C.grau, lineHeight: 1.5 }}>Alle Formeln auf einen Blick. Tippe eine Formel an, um sie zu öffnen.</p>
+        <button type="button" onClick={() => window.print()}
+          style={{ display: "inline-flex", alignItems: "center", gap: 7, height: 40, padding: "0 16px", borderRadius: 999, border: "none", background: C.see, color: C.weiss, fontFamily: "inherit", fontSize: 13.5, fontWeight: 700, cursor: "pointer" }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V3h12v6M6 18H4a1 1 0 0 1-1-1v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6a1 1 0 0 1-1 1h-2M6 14h12v7H6z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /></svg>
+          Als PDF sichern
+        </button>
+      </div>
+      <div className="fs-druck" style={{ ...karte, padding: "18px 18px 10px" }}>
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, borderBottom: `2px solid ${C.see}`, paddingBottom: 8, marginBottom: 6, flexWrap: "wrap" }}>
+          <p style={{ margin: 0, fontSize: 17, fontWeight: 700, color: C.tinte, letterSpacing: "-0.01em" }}>Formelsammlung · {titel}</p>
+          <p style={{ margin: 0, fontSize: 11, fontWeight: 600, color: C.hellgrau }}>Mythos Mathe · {stufeText}</p>
+        </div>
+        {gruppen.map((g) => (
+          <section key={g} style={{ marginTop: 12 }}>
+            <p className="fs-spick-zeile" style={{ margin: "0 0 4px", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.09em", textTransform: "uppercase", color: C.gruenDunkel }}>{g}</p>
+            <div className="fs-spick-raster">
+              {liste.filter((x) => gruppeVon(x) === g).map((x) => (
+                <button key={x.id} type="button" className="fs-spick-zeile" onClick={() => oeffne(x.id)}
+                  style={{ display: "block", width: "100%", textAlign: "left", background: "none", border: "none", borderTop: `1px solid ${C.linie}`, padding: "6px 0 4px", fontFamily: "inherit", cursor: "pointer", color: C.tinte, minWidth: 0 }}>
+                  <span style={{ display: "block", fontSize: 11.5, fontWeight: 700, color: C.grau }}>{x.n}</span>
+                  <span style={{ display: "block", fontSize: 14, lineHeight: 1.9, overflowX: "auto", overflowY: "hidden" }}><M t={x.f} /></span>
+                </button>
+              ))}
+            </div>
+          </section>
+        ))}
+        <p style={{ margin: "14px 0 4px", fontSize: 10, color: C.hellgrau, textAlign: "right" }}>mythosmathe.de · {liste.length} Formeln</p>
+      </div>
+    </div>
+  );
+}
+
+/* ======================================================================
    Hauptkomponente
    ====================================================================== */
 export function FormelsammlungNeu({ bereich: start = "analysis", formel: startFormel = null, zuHerleitung }) {
@@ -444,6 +509,8 @@ export function FormelsammlungNeu({ bereich: start = "analysis", formel: startFo
   const [faden, setFaden] = useState(null);
   const [verlauf, setVerlauf] = useState([]);              // Rückweg: [{detail, faden, modus}]
   const [gemerkt, setGemerkt] = useState(() => lesen(MERK, []));
+  const [verdecken, setVerdecken] = useState(false);       // Abdeck-Modus (nur Gemerkt)
+  const [mischung, setMischung] = useState(null);          // gemischte Reihenfolge der gemerkten Formeln
   const obenRef = useRef(null);
   const listenScroll = useRef(0);
 
@@ -489,10 +556,13 @@ export function FormelsammlungNeu({ bereich: start = "analysis", formel: startFo
   const treffer = useMemo(() => {
     const s = suche.trim();
     if (s) return fsSuche(s).filter((e) => passt(e, stufe));
-    if (bereich === "gemerkt") return FS_ALLE.filter((e) => gemerkt.includes(e.id));
+    if (bereich === "gemerkt") {
+      const g = FS_ALLE.filter((e) => gemerkt.includes(e.id));
+      return mischung ? mischung.map((id) => g.find((e) => e.id === id)).filter(Boolean) : g;
+    }
     if (bereich === "unterstufe") return FS_ALLE.filter(istUnterstufe);
     return FS_ALLE.filter((e) => e.bereich === bereich && passt(e, stufe));
-  }, [suche, bereich, stufe, gemerkt]);
+  }, [suche, bereich, stufe, gemerkt, mischung]);
 
   const e = detail ? FS_NACH_ID[detail] : null;
   if (e) {
@@ -519,8 +589,8 @@ export function FormelsammlungNeu({ bereich: start = "analysis", formel: startFo
   return (
     <div ref={obenRef} className="mx-auto px-6 pb-16" style={{ maxWidth: 680, paddingTop: 22 }}>
       <style>{FS_CSS}</style>
-      <div role="tablist" aria-label="Ansicht" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4, padding: 4, borderRadius: 14, background: C.himmel, marginBottom: 16 }}>
-        {[["liste", "Nachschlagen"], ["faeden", "Rote Fäden"]].map(([m, t]) => (
+      <div role="tablist" aria-label="Ansicht" className="fs-druck-weg" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 4, padding: 4, borderRadius: 14, background: C.himmel, marginBottom: 16 }}>
+        {[["liste", "Nachschlagen"], ["spick", "Spickzettel"], ["faeden", "Rote Fäden"]].map(([m, t]) => (
           <button key={m} type="button" role="tab" aria-selected={modus === m} onClick={() => { setModus(m); setFaden(null); }}
             style={{ minHeight: 40, borderRadius: 11, border: "none", fontFamily: "inherit", fontSize: 14, fontWeight: 700, cursor: "pointer",
               background: modus === m ? C.weiss : "transparent", color: modus === m ? C.see : C.grau, boxShadow: modus === m ? "0 1px 6px rgba(15,26,51,0.1)" : "none" }}>{t}</button>
@@ -532,13 +602,13 @@ export function FormelsammlungNeu({ bereich: start = "analysis", formel: startFo
           : <FadenListe oeffneFaden={(id) => { setFaden(id); setTimeout(nachOben, 0); }} />
       ) : (
         <>
-          <div style={{ position: "relative", marginBottom: 12 }}>
+          {modus !== "spick" && <div style={{ position: "relative", marginBottom: 12 }}>
             <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)" }}>
               <circle cx="11" cy="11" r="7" fill="none" stroke={C.hellgrau} strokeWidth="2.2" /><path d="M16.5 16.5 L21 21" stroke={C.hellgrau} strokeWidth="2.2" strokeLinecap="round" />
             </svg>
             <input value={suche} onChange={(ev) => setSuche(ev.target.value)} placeholder={`${gesamt} Formeln durchsuchen …`} aria-label="Formeln durchsuchen"
               style={{ width: "100%", padding: "13px 16px 13px 42px", fontSize: 15.5, fontFamily: "inherit", border: `1px solid ${C.linie}`, borderRadius: 14, outline: "none", background: C.weiss, color: C.tinte, boxSizing: "border-box" }} />
-          </div>
+          </div>}
 
           {!suche.trim() && (
             <div style={{ display: "flex", gap: 7, overflowX: "auto", padding: "2px 0 8px", margin: "0 -24px", paddingLeft: 24, paddingRight: 24, scrollbarWidth: "none" }}>
@@ -570,21 +640,72 @@ export function FormelsammlungNeu({ bereich: start = "analysis", formel: startFo
             </div>
           )}
 
-          {!suche.trim() && (
-            <div style={{ borderRadius: 18, padding: "16px 18px", marginBottom: 22, marginTop: unterAnsicht ? 6 : 0, background: unterAnsicht ? "linear-gradient(150deg, #2E2466 0%, #5B4BA6 100%)" : `linear-gradient(150deg, ${C.seeTief} 0%, ${C.see} 100%)`, color: C.weiss }}>
+          {modus === "spick" && (
+            <Spickzettel titel={bInfo.name} oeffne={oeffne} gruppeVon={gruppeVon}
+              stufeText={unterAnsicht ? "Klasse 5–7" : stufe === "alle" ? "alle Stufen" : `${STUFEN_INFO[stufe].name} · ${STUFEN_INFO[stufe].klassen}`}
+              liste={treffer} />
+          )}
+
+          {modus !== "spick" && !suche.trim() && (
+            <div style={{ borderRadius: 18, padding: "16px 18px", marginBottom: 14, marginTop: unterAnsicht ? 6 : 0, background: unterAnsicht ? "linear-gradient(150deg, #2E2466 0%, #5B4BA6 100%)" : `linear-gradient(150deg, ${C.seeTief} 0%, ${C.see} 100%)`, color: C.weiss }}>
               <p style={{ margin: 0, fontSize: 19, fontWeight: 700, letterSpacing: "-0.01em" }}>{bInfo.name}</p>
               <p style={{ margin: "4px 0 0", fontSize: 13.5, color: "#C9D6EE", lineHeight: 1.5 }}>{bInfo.zeile}</p>
               <p style={{ margin: "10px 0 0", fontSize: 12, fontWeight: 600, color: C.flaggold }}>
                 {treffer.length} Formeln · {treffer.reduce((s, x) => s + herleitungen(x).length, 0)} Herleitungen · {treffer.filter((x) => x.bild).length} interaktive Bilder
               </p>
+              {!unterAnsicht && treffer.length > 0 && (
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 10 }} aria-label="Verteilung nach Stufen">
+                  {STUFEN.map((st) => {
+                    const n = treffer.filter((x) => stufenVon(x).includes(st)).length;
+                    if (!n) return null;
+                    return (
+                      <span key={st} style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, fontWeight: 700, padding: "3px 9px", borderRadius: 999, background: "rgba(255,255,255,0.12)", color: C.weiss }}>
+                        <span aria-hidden="true" style={{ width: 7, height: 7, borderRadius: 999, background: st === "unter" ? "#B9AEF0" : st === "mittel" ? "#9EC2F0" : C.flaggold }} />
+                        {n} in {STUFEN_INFO[st].name}
+                      </span>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           )}
 
-          {treffer.length === 0 && (
+          {modus !== "spick" && !suche.trim() && gruppen && gruppen.length >= 4 && treffer.length > 25 && (
+            <nav aria-label="Zu einer Gruppe springen" style={{ display: "flex", gap: 6, overflowX: "auto", margin: "0 -24px 18px", padding: "2px 24px 4px", scrollbarWidth: "none" }}>
+              {gruppen.map((g) => (
+                <button key={g} type="button" onClick={() => { const el = document.getElementById(`fs-gruppe-${g}`); if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 90, behavior: "smooth" }); }}
+                  style={{ flexShrink: 0, padding: "5px 11px", borderRadius: 999, border: `1px solid ${C.linie}`, background: C.weiss, color: unterAnsicht ? uf.text : C.see, fontFamily: "inherit", fontSize: 12, fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap" }}>
+                  {g}
+                </button>
+              ))}
+            </nav>
+          )}
+
+          {modus !== "spick" && bereich === "gemerkt" && !suche.trim() && treffer.length > 0 && (
+            <div style={{ display: "flex", gap: 8, margin: "0 0 16px", flexWrap: "wrap" }}>
+              <button type="button" aria-pressed={verdecken} onClick={() => setVerdecken((v) => !v)}
+                style={{ display: "inline-flex", alignItems: "center", gap: 7, minHeight: 38, padding: "0 14px", borderRadius: 999, fontFamily: "inherit", fontSize: 13, fontWeight: 700, cursor: "pointer",
+                  border: `1.5px solid ${verdecken ? C.see : C.linie}`, background: verdecken ? C.see : C.weiss, color: verdecken ? C.weiss : C.see }}>
+                <span aria-hidden="true">{verdecken ? "◉" : "○"}</span> Formeln verdecken
+              </button>
+              <button type="button" onClick={() => { const ids = treffer.map((x) => x.id); for (let i = ids.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [ids[i], ids[j]] = [ids[j], ids[i]]; } setMischung(ids); setVerdecken(true); }}
+                style={{ display: "inline-flex", alignItems: "center", gap: 7, minHeight: 38, padding: "0 14px", borderRadius: 999, fontFamily: "inherit", fontSize: 13, fontWeight: 700, cursor: "pointer", border: `1.5px solid ${C.linie}`, background: C.weiss, color: C.see }}>
+                ⤮ Mischen und abfragen
+              </button>
+              {mischung && (
+                <button type="button" onClick={() => setMischung(null)}
+                  style={{ minHeight: 38, padding: "0 12px", borderRadius: 999, fontFamily: "inherit", fontSize: 12.5, fontWeight: 600, cursor: "pointer", border: "none", background: "transparent", color: C.grau }}>
+                  Reihenfolge zurücksetzen
+                </button>
+              )}
+            </div>
+          )}
+
+          {modus !== "spick" && treffer.length === 0 && (
             <p style={{ color: C.grau, fontSize: 15, lineHeight: 1.7 }}>{bereich === "gemerkt" ? "Noch nichts gemerkt. Tippe in einer Formel auf »Merken«." : "Dazu ist nichts hinterlegt. Versuch einen kürzeren Suchbegriff."}</p>
           )}
 
-          {gruppen ? gruppen.map((g) => {
+          {modus === "spick" ? null : gruppen ? gruppen.map((g) => {
             const liste = treffer.filter((x) => gruppeVon(x) === g);
             const nurUnter = !unterAnsicht && liste.every(istUnterstufe);
             return (
@@ -593,7 +714,7 @@ export function FormelsammlungNeu({ bereich: start = "analysis", formel: startFo
                   {g}
                   {nurUnter && <span style={{ fontSize: 10, letterSpacing: "0.04em", textTransform: "none", padding: "2px 8px", borderRadius: 999, background: uf.grund, color: uf.text }}>Unterstufe 5–7</span>}
                 </p>
-                {liste.map((x) => <FormelKarte key={x.id} e={x} onClick={() => oeffne(x.id)} gemerkt={gemerkt.includes(x.id)} />)}
+                {liste.map((x) => <FormelKarte key={x.id} e={x} onClick={() => oeffne(x.id)} gemerkt={gemerkt.includes(x.id)} verdeckt={bereich === "gemerkt" && verdecken} />)}
               </div>
             );
           }) : (
@@ -603,9 +724,16 @@ export function FormelsammlungNeu({ bereich: start = "analysis", formel: startFo
             </div>
           )}
 
-          <p style={{ marginTop: 26, fontSize: 12.5, color: C.hellgrau, lineHeight: 1.6, textAlign: "center" }}>
-            Insgesamt {gesamt} Formeln mit {beweise} Herleitungen und {bilder} interaktiven Bildern.
-          </p>
+          <div className="fs-druck-weg" style={{ marginTop: 26, textAlign: "center" }}>
+            <button type="button" onClick={() => { const pool = FS_ALLE.filter((x) => passt(x, unterAnsicht ? "unter" : stufe)); const x = pool[Math.floor(Math.random() * pool.length)]; if (x) oeffne(x.id); }}
+              style={{ display: "inline-flex", alignItems: "center", gap: 7, minHeight: 40, padding: "0 16px", borderRadius: 999, border: `1px solid ${C.linie}`, background: C.weiss, color: C.see, fontFamily: "inherit", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="4" fill="none" stroke="currentColor" strokeWidth="2" /><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" /><circle cx="15.5" cy="15.5" r="1.5" fill="currentColor" /><circle cx="12" cy="12" r="1.5" fill="currentColor" /></svg>
+              Zufällige Formel
+            </button>
+            <p style={{ margin: "12px 0 0", fontSize: 12.5, color: C.hellgrau, lineHeight: 1.6 }}>
+              Insgesamt {gesamt} Formeln mit {beweise} Herleitungen und {bilder} interaktiven Bildern.
+            </p>
+          </div>
         </>
       )}
     </div>

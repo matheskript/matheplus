@@ -954,7 +954,7 @@ export const MSYM = {
   log: "log", cup: "∪", cap: "∩", subseteq: "⊆", subset: "⊂", setminus: "\\", emptyset: "∅", notin: "∉",
   land: "∧", lor: "∨", wedge: "∧", vee: "∨", neg: "¬", forall: "∀", exists: "∃", mid: "|", perp: "⊥",
   alpha: "α", beta: "β", gamma: "γ", sigma: "σ", mu: "μ", Omega: "Ω", circ: "°", int: "∫",
-  varphi: "φ", phi: "φ", theta: "θ", vartheta: "θ", delta: "δ", lambda: "λ",
+  varphi: "φ", phi: "φ", Phi: "Φ", theta: "θ", vartheta: "θ", delta: "δ", lambda: "λ",
   /* Formelsammlung */
   xi: "ξ", sum: "∑", prod: "∏", cdots: "⋯", equiv: "≡", parallel: "∥", angle: "∠", ast: "∗",
   max: "max", min: "min", lg: "lg", Leftarrow: "⇐", rho: "ρ", omega: "ω", tau: "τ", epsilon: "ε", kappa: "κ", supseteq: "⊇", supset: "⊃",

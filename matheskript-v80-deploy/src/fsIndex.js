@@ -58,7 +58,7 @@ const erg = (e) => {
   const z = FS_ERG[e.id];
   if (!z) return e;
   const her = [...(Array.isArray(e.her) ? e.her : e.her ? [e.her] : []), ...(z.her || [])];
-  return { ...e, ...(z.bild ? { bild: z.bild } : {}), her, nutzt: [...(e.nutzt || []), ...(z.nutzt || [])],
+  return { ...e, ...(z.bild ? { bild: z.bild } : {}), ...(z.wz && !e.wz ? { wz: z.wz } : {}), ...(z.syn ? { syn: [e.syn, z.syn].filter(Boolean).join(" ") } : {}), her, nutzt: [...(e.nutzt || []), ...(z.nutzt || [])],
     bsp: [...(e.bsp || []), ...(z.bsp || [])], ...(z.falle ? { falle: e.falle ? e.falle : z.falle } : {}) };
 };
 const mit = (bereich, liste) => liste.map((e) => ({ bereich, ...erg(e) }));
