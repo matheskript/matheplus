@@ -2025,24 +2025,6 @@ export function stammfunktionText(terms) {
   return teile.length ? teile.join("") : "0";
 }
 
-/* Wie stammfunktionText, aber als LaTeX mit echten gestapelten Brüchen (\frac{n}{d}). */
-export function stammfunktionTex(terms) {
-  let erster = true;
-  const teile = [];
-  terms.forEach(({ coef, potenz }) => {
-    if (coef.n === 0) return;
-    const negativ = coef.n < 0;
-    const betrag = { n: Math.abs(coef.n), d: coef.d };
-    const vor = erster ? (negativ ? "-" : "") : negativ ? " - " : " + ";
-    erster = false;
-    const eins = betrag.n === 1 && betrag.d === 1 && potenz > 0;
-    const zahlTeil = eins ? "" : betrag.d === 1 ? String(betrag.n) : `\\frac{${betrag.n}}{${betrag.d}}`;
-    const potTeil = potenz > 1 ? `x^{${potenz}}` : potenz === 1 ? "x" : "";
-    teile.push(`${vor}${zahlTeil}${potTeil}`);
-  });
-  return teile.length ? teile.join("") : "0";
-}
-
 /* Perfekte Potenz: liefert r mit r^k = n (n ≥ 0 ganz), sonst null. */
 function ganzWurzel(n, k = 2) {
   const r = Math.round(Math.pow(n, 1 / k));
