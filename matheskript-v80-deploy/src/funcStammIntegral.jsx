@@ -18,7 +18,7 @@ import { MatheFeld } from "./matheTastatur.jsx";
 import { ErklaerAnimation } from "./funcErklaeranimation.jsx";
 import { uebergabeErledigt, uebergabeLesen } from "./uebergabe.js";
 import { IntZ } from "./ui2.jsx";
-import { Eingabe, FARBE, Feld, Herleitung, Merke, ModusSchalter, WERK_CSS } from "./funcRegelwerk.jsx";
+import { Eingabe, EingabePopup, FARBE, Feld, Herleitung, Merke, ModusSchalter, WERK_CSS } from "./funcRegelwerk.jsx";
 import {
   STAMM_ARTEN, auswerter, bisAufKonstante, dez, grenzeLesen, hauptsatz, lies, neueIntegralAufgabe, neueStammAufgabe, probe, schoen, stammfunktion, tex, zahlTex,
 } from "./regelwerkKern.js";
@@ -136,9 +136,10 @@ function StammTeil({ modus }) {
   const [fText, setFText] = useState(() => neueStammAufgabe("potenz", 1).text);
   const [posF, setPosF] = useState(fText.length);
   const [F, setF] = useState(leer());
-  const [aktiv, setAktiv] = useState("f");           // f | F
+  const [aktiv, setAktiv] = useState(null);          // null | f | F – Eingabe öffnet erst beim Antippen
   const [bilanz, setBilanz] = useState({ richtig: 0, gesamt: 0 });
   const training = modus === "training";
+  const waehle = (id) => setAktiv((a) => (a === id ? null : id));
 
   const f = useMemo(() => lies(fText), [fText]);
   const st = useMemo(() => (f ? stammfunktion(f) : null), [f]);
@@ -146,9 +147,9 @@ function StammTeil({ modus }) {
 
   const starte = (a = art, s = stufe) => {
     const t = neueStammAufgabe(a, s).text;
-    setFText(t); setPosF(t.length); setF(leer()); setAktiv(training ? "F" : "f");
+    setFText(t); setPosF(t.length); setF(leer()); setAktiv(null);
   };
-  useEffect(() => { setF(leer()); setAktiv(training ? "F" : "f"); }, [training]);
+  useEffect(() => { setF(leer()); setAktiv(null); }, [training]);
   const fertig = training && ["richtig", "gezeigt"].includes(F.status);
 
   const pruefen = () => {
@@ -221,14 +222,24 @@ function StammTeil({ modus }) {
         </div>
 
         <div className="wk-grid">
-          <Feld label="f(x) =" labelFarbe={FARBE.u} text={fText} aktiv={!training && aktiv === "f"} still={training} onClick={() => setAktiv("f")} platzhalter="f eingeben …" />
+          <Feld label="f(x) =" labelFarbe={FARBE.u} text={fText} aktiv={!training && aktiv === "f"} still={training} onClick={() => waehle("f")} platzhalter="f eingeben …" />
           <span className="wk-pfeil" aria-hidden="true">→</span>
           {!training ? <Feld label="F(x) =" labelFarbe={FARBE.v} tex={gueltig ? `${tex(st.F)} + C` : (f && !st ? "" : "")} still
             extra={f && !st ? <span style={{ fontSize: 12, color: C.signal }}>keine Regel</span> : null} />
             : F.status === "gezeigt" ? <Feld label="F(x) =" labelFarbe={FARBE.v} tex={`${F.zeig} + C`} status="gezeigt" still />
-              : <Feld label="F(x) =" labelFarbe={FARBE.v} text={F.text ? `${F.text}` : ""} aktiv={aktiv === "F"} status={F.status} onClick={() => setAktiv("F")}
+              : <Feld label="F(x) =" labelFarbe={FARBE.v} text={F.text ? `${F.text}` : ""} aktiv={aktiv === "F"} status={F.status} onClick={() => waehle("F")}
                 platzhalter="F eingeben …" extra={F.text ? <span style={{ fontSize: 15, color: C.grau, whiteSpace: "nowrap" }}>+ C</span> : null} />}
         </div>
+        {aktiv && !fertig && (
+          <EingabePopup>
+            {training && F.versuche > 0 && (
+              <button type="button" onClick={loesung}
+                style={{ width: "100%", height: 46, marginBottom: 10, borderRadius: 14, border: `1.5px solid ${C.linie}`, cursor: "pointer", fontFamily: "inherit", fontSize: 14.5, fontWeight: 600, color: C.see, background: C.weiss }}>Lösung zeigen</button>
+            )}
+            <Eingabe text={eingabeText} setText={setText} pos={eingabePos} setPos={setPos} onEnter={training ? pruefen : () => setAktiv(null)}
+              platzhalter={training ? "z. B. x^3/3 oder -cos(2x)/2" : "z. B. 3x^2 oder e^(2x)"} />
+          </EingabePopup>
+        )}
         {F.hinweis && <p style={{ fontSize: 13.5, color: F.status === "richtig" ? C.smaragd : C.signal, lineHeight: 1.6, margin: "8px 4px 0" }}>{F.hinweis}</p>}
         {f && !st && !training && <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, margin: "8px 4px 0" }}>Für diese Funktion kennt die Werkstatt keine Stammfunktionsregel (Schulstoff: Potenzen, sin, cos, eˣ, 1/x, lineare Substitution).</p>}
 
@@ -250,30 +261,14 @@ function StammTeil({ modus }) {
           </div>
         )}
 
-        {training ? (
-          fertig ? (
-            <div style={{ textAlign: "center", padding: "16px 0 4px" }}>
-              <p style={{ fontSize: 19, fontWeight: 700, color: C.smaragd, marginBottom: 4 }}>{F.status === "richtig" ? "Richtig! 🎉" : "Die Lösung steht oben."}</p>
-              <button type="button" onClick={() => starte()}
-                style={{ width: "100%", height: 54, marginTop: 10, borderRadius: 14, border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 17, fontWeight: 700, color: C.weiss, background: blau }}>
-                Neue Aufgabe
-              </button>
-            </div>
-          ) : (
-            <>
-              <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
-                <button type="button" onClick={pruefen}
-                  style={{ flex: 2, height: 54, borderRadius: 14, border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 19, fontWeight: 800, color: C.weiss, background: C.smaragd, letterSpacing: "0.04em", boxShadow: "0 4px 14px rgba(47,143,91,0.35)" }}>OK</button>
-                {F.versuche > 0 && (
-                  <button type="button" onClick={loesung}
-                    style={{ flex: 1, height: 54, borderRadius: 14, border: `1.5px solid ${C.linie}`, cursor: "pointer", fontFamily: "inherit", fontSize: 14.5, fontWeight: 600, color: C.see, background: C.weiss }}>Lösung zeigen</button>
-                )}
-              </div>
-              <Eingabe text={eingabeText} setText={setText} pos={eingabePos} setPos={setPos} onEnter={pruefen} platzhalter="z. B. x^3/3 oder -cos(2x)/2" />
-            </>
-          )
-        ) : (
-          <Eingabe text={eingabeText} setText={setText} pos={eingabePos} setPos={setPos} platzhalter="z. B. 3x^2 oder e^(2x)" />
+        {training && fertig && (
+          <div style={{ textAlign: "center", padding: "16px 0 4px" }}>
+            <p style={{ fontSize: 19, fontWeight: 700, color: C.smaragd, marginBottom: 4 }}>{F.status === "richtig" ? "Richtig! 🎉" : "Die Lösung steht oben."}</p>
+            <button type="button" onClick={() => starte()}
+              style={{ width: "100%", height: 54, marginTop: 10, borderRadius: 14, border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 17, fontWeight: 700, color: C.weiss, background: blau }}>
+              Neue Aufgabe
+            </button>
+          </div>
         )}
 
         <Herleitung titel="Warum „+ C“ – und warum es beim Integral egal ist" untertitel="Stammfunktion, Konstante, Probe">
@@ -311,7 +306,7 @@ function IntegralTeil({ modus, start }) {
   const [F, setF] = useState(leer());
   const [wertText, setWertText] = useState("");
   const [wertStatus, setWertStatus] = useState({ status: null, hinweis: "", versuche: 0 });
-  const [aktiv, setAktiv] = useState("f");           // f | F
+  const [aktiv, setAktiv] = useState(null);          // null | f | F – Eingabe öffnet erst beim Antippen
   const [bilanz, setBilanz] = useState({ richtig: 0, gesamt: 0 });
   const training = modus === "training";
 
@@ -324,9 +319,9 @@ function IntegralTeil({ modus, start }) {
   const starte = (s = stufe) => {
     const n = neueIntegralAufgabe(s);
     setFText(n.fText); setPosF(n.fText.length); setAText(n.aText); setBText(n.bText);
-    setF(leer()); setWertText(""); setWertStatus({ status: null, hinweis: "", versuche: 0 }); setAktiv(training ? "F" : "f");
+    setF(leer()); setWertText(""); setWertStatus({ status: null, hinweis: "", versuche: 0 }); setAktiv(null);
   };
-  useEffect(() => { setF(leer()); setWertText(""); setWertStatus({ status: null, hinweis: "", versuche: 0 }); setAktiv(training ? "F" : "f"); }, [training]);
+  useEffect(() => { setF(leer()); setWertText(""); setWertStatus({ status: null, hinweis: "", versuche: 0 }); setAktiv(null); }, [training]);
   useEffect(() => { if (!training) { setF(leer()); setWertText(""); setWertStatus({ status: null, hinweis: "", versuche: 0 }); } }, [fText, aText, bText]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const FFertig = ["richtig", "gezeigt"].includes(F.status);
@@ -400,13 +395,18 @@ function IntegralTeil({ modus, start }) {
 
         {/* Aufgabe: f, a, b */}
         <div style={{ marginTop: 14 }}>
-          <Feld label="f(x) =" labelFarbe={FARBE.u} text={fText} aktiv={!training && aktiv === "f"} still={training} onClick={() => setAktiv("f")} platzhalter="f eingeben …" />
+          <Feld label="f(x) =" labelFarbe={FARBE.u} text={fText} aktiv={!training && aktiv === "f"} still={training} onClick={() => setAktiv((a) => (a === "f" ? null : "f"))} platzhalter="f eingeben …" />
           <div style={{ display: "flex", alignItems: "center", gap: 14, margin: "10px 2px 0", flexWrap: "wrap" }}>
             <span style={{ fontSize: 13.5, color: C.grau, fontWeight: 600 }}>Grenzen</span>
             {training ? (
               <span style={{ fontSize: 16, fontWeight: 700, color: C.tinte }}>a = <M t={aTex} />, b = <M t={bTex} /></span>
             ) : (<><Grenze label="a =" wert={aText} setWert={setAText} /><Grenze label="b =" wert={bText} setWert={setBText} /></>)}
           </div>
+          {!training && aktiv === "f" && (
+            <EingabePopup>
+              <Eingabe text={fText} setText={setFText} pos={posF} setPos={setPosF} onEnter={() => setAktiv(null)} platzhalter="z. B. 3x^2 oder sin(x)" />
+            </EingabePopup>
+          )}
         </div>
 
         {/* Die Aufgabe als Formel + Bild */}
@@ -432,7 +432,14 @@ function IntegralTeil({ modus, start }) {
                 </p>
               </>
             ) : F.status === "gezeigt" ? <Feld label="F(x) =" labelFarbe={FARBE.v} tex={F.zeig} status="gezeigt" still />
-              : <Feld label="F(x) =" labelFarbe={FARBE.v} text={F.text} aktiv={aktiv === "F" && !FFertig} status={F.status} still={FFertig} onClick={() => setAktiv("F")} platzhalter="Stammfunktion eingeben …" />}
+              : <Feld label="F(x) =" labelFarbe={FARBE.v} text={F.text} aktiv={aktiv === "F" && !FFertig} status={F.status} still={FFertig} onClick={() => setAktiv((a) => (a === "F" ? null : "F"))} platzhalter="Stammfunktion eingeben …" />}
+            {training && aktiv === "F" && !FFertig && (
+              <EingabePopup>
+                {F.versuche > 0 && <button type="button" onClick={loesungF}
+                  style={{ width: "100%", height: 46, marginBottom: 10, borderRadius: 14, border: `1.5px solid ${C.linie}`, cursor: "pointer", fontFamily: "inherit", fontSize: 14.5, fontWeight: 600, color: C.see, background: C.weiss }}>Lösung zeigen</button>}
+                <Eingabe text={F.text} setText={(t) => setF((e) => ({ ...e, text: t, status: null, hinweis: "" }))} pos={F.pos} setPos={(p) => setF((e) => ({ ...e, pos: p }))} onEnter={pruefenF} platzhalter="z. B. x^3 oder -cos(x)" />
+              </EingabePopup>
+            )}
             {F.hinweis && <p style={{ fontSize: 13.5, color: C.signal, lineHeight: 1.6, margin: "8px 4px 0" }}>{F.hinweis}</p>}
           </div>
         )}
@@ -474,27 +481,12 @@ function IntegralTeil({ modus, start }) {
           </div>
         )}
 
-        {/* Eingabe */}
-        {training ? (
-          fertig ? (
-            <div style={{ textAlign: "center", padding: "16px 0 4px" }}>
-              <p style={{ fontSize: 19, fontWeight: 700, color: C.smaragd, marginBottom: 4 }}>{F.status === "richtig" && wertStatus.status === "richtig" ? "Alles richtig! 🎉" : "Geschafft – die Rechnung steht."}</p>
-              <button type="button" onClick={() => starte()}
-                style={{ width: "100%", height: 54, marginTop: 10, borderRadius: 14, border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 17, fontWeight: 700, color: C.weiss, background: blau }}>Neue Aufgabe</button>
-            </div>
-          ) : !FFertig && gueltig ? (
-            <>
-              <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
-                <button type="button" onClick={pruefenF}
-                  style={{ flex: 2, height: 54, borderRadius: 14, border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 19, fontWeight: 800, color: C.weiss, background: C.smaragd, letterSpacing: "0.04em", boxShadow: "0 4px 14px rgba(47,143,91,0.35)" }}>OK</button>
-                {F.versuche > 0 && <button type="button" onClick={loesungF}
-                  style={{ flex: 1, height: 54, borderRadius: 14, border: `1.5px solid ${C.linie}`, cursor: "pointer", fontFamily: "inherit", fontSize: 14.5, fontWeight: 600, color: C.see, background: C.weiss }}>Lösung zeigen</button>}
-              </div>
-              <Eingabe text={F.text} setText={(t) => setF((e) => ({ ...e, text: t, status: null, hinweis: "" }))} pos={F.pos} setPos={(p) => setF((e) => ({ ...e, pos: p }))} onEnter={pruefenF} platzhalter="z. B. x^3 oder -cos(x)" />
-            </>
-          ) : null
-        ) : (
-          <Eingabe text={fText} setText={setFText} pos={posF} setPos={setPosF} platzhalter="z. B. 3x^2 oder sin(x)" />
+        {training && fertig && (
+          <div style={{ textAlign: "center", padding: "16px 0 4px" }}>
+            <p style={{ fontSize: 19, fontWeight: 700, color: C.smaragd, marginBottom: 4 }}>{F.status === "richtig" && wertStatus.status === "richtig" ? "Alles richtig! 🎉" : "Geschafft – die Rechnung steht."}</p>
+            <button type="button" onClick={() => starte()}
+              style={{ width: "100%", height: 54, marginTop: 10, borderRadius: 14, border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 17, fontWeight: 700, color: C.weiss, background: blau }}>Neue Aufgabe</button>
+          </div>
         )}
       </div>
     </>

@@ -294,7 +294,7 @@ export function hinterFertigemExponenten(t, p) {
   return p;
 }
 
-export function Tastenfeld({ wert: text, setWert, pos, setPos, kompakt }) {
+export function Tastenfeld({ wert: text, setWert, pos, setPos, kompakt, onOk }) {
   const TH = kompakt ? 34 : 46, TG = kompakt ? 5 : 6;
   const [vonX, setVonX] = useState(true);
   const setzen = (t, p) => { setWert(t); setPos(Math.max(0, Math.min(p, t.length))); };
@@ -324,6 +324,7 @@ export function Tastenfeld({ wert: text, setWert, pos, setPos, kompakt }) {
     if (t.aktion === "links") return setPos(Math.max(0, pos - 1));
     if (t.aktion === "rechts") return setPos(Math.min(text.length, pos + 1));
     if (t.aktion === "zurueck") return zurueck();
+    if (t.aktion === "ok") return onOk && onOk();
     einfuegen(vonX && t.ex ? t.ex : t.e);
   };
   const stil = (art) => {
@@ -331,6 +332,7 @@ export function Tastenfeld({ wert: text, setWert, pos, setPos, kompakt }) {
     if (art === "op") return { bg: C.gruen, fg: C.weiss, rand: C.gruen };
     if (art === "var") return { bg: "#FFF4CC", fg: C.seeTief, rand: "#F0DC8A" };
     if (art === "nav") return { bg: C.seeTief, fg: C.flaggold, rand: C.seeTief };
+    if (art === "ok") return { bg: C.smaragd, fg: C.weiss, rand: C.smaragd };
     return { bg: C.weiss, fg: C.tinte, rand: C.linie };
   };
   const Taste = ({ t, span }) => {
@@ -340,7 +342,8 @@ export function Tastenfeld({ wert: text, setWert, pos, setPos, kompakt }) {
       <button onClick={() => klick(t)} aria-label={t.titel || z} className="adv-taste"
         style={{ gridColumn: span ? `span ${span}` : undefined, height: TH, background: s.bg, color: s.fg,
           border: `1px solid ${s.rand}`, borderRadius: 12, fontSize: z.length > 6 ? "clamp(10px, 2.9vw, 12px)" : z.length > 5 ? "clamp(11px, 3.2vw, 12.5px)" : z.length > 3 ? 13.5 : 17, whiteSpace: "nowrap", overflow: "hidden", minWidth: 0,
-          fontWeight: t.art === "op" || t.art === "nav" ? 700 : 600, fontFamily: "inherit", cursor: "pointer",
+          fontWeight: t.art === "op" || t.art === "nav" || t.art === "ok" ? 700 : 600, fontFamily: "inherit", cursor: "pointer",
+          letterSpacing: t.art === "ok" ? "0.04em" : undefined,
           padding: 0, display: "flex", alignItems: "center", justifyContent: "center",
           fontStyle: t.art === "var" && t.z === "x" ? "italic" : "normal", boxShadow: "0 1px 0 rgba(15,26,51,0.06)" }}>
         {z}
@@ -376,8 +379,18 @@ export function Tastenfeld({ wert: text, setWert, pos, setPos, kompakt }) {
         {TASTEN.map((t, i) => <Taste key={i} t={t} span={t.span} />)}
         <Taste t={{ z: "←", art: "nav", aktion: "links", titel: "Schreibmarke nach links" }} />
         <Taste t={{ z: "→", art: "nav", aktion: "rechts", titel: "Schreibmarke nach rechts" }} />
-        <Taste t={{ z: "⌫", art: "nav", aktion: "zurueck", titel: "Löschen" }} span={2} />
-        <Taste t={{ z: "Clear", art: "nav", aktion: "leer", titel: "Clear – alles löschen" }} span={2} />
+        {onOk ? (
+          <>
+            <Taste t={{ z: "⌫", art: "nav", aktion: "zurueck", titel: "Löschen" }} />
+            <Taste t={{ z: "Clear", art: "nav", aktion: "leer", titel: "Clear – alles löschen" }} />
+            <Taste t={{ z: "OK", art: "ok", aktion: "ok", titel: "OK – Eingabe prüfen" }} span={2} />
+          </>
+        ) : (
+          <>
+            <Taste t={{ z: "⌫", art: "nav", aktion: "zurueck", titel: "Löschen" }} span={2} />
+            <Taste t={{ z: "Clear", art: "nav", aktion: "leer", titel: "Clear – alles löschen" }} span={2} />
+          </>
+        )}
       </div>
     </div>
   );

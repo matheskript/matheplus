@@ -21,6 +21,7 @@ import { STELLEN, vergleich } from "./func13.jsx";
 import { IchHaengeFest, summanden } from "./funcHilfe.jsx";
 import { Anfangsbedingung, BestandAenderungsrate, FlaecheBilanz, ZwischenZweiGraphen } from "./funcIntegraleNeu.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
+import { Eingabe, EingabePopup } from "./funcRegelwerk.jsx";
 import { ErklaerAnimation } from "./funcErklaeranimation.jsx";
 
 const endlich = (y) => typeof y === "number" && isFinite(y);
@@ -327,7 +328,7 @@ function StammTrainer({ art }) {
   const [fText, setFText] = useState(() => ERZEUGER[art]());
   const [eingabe, setEingabe] = useState("");
   const [pos, setPos] = useState(0);
-  const [tippen, setTippen] = useState(false);
+  const [offen, setOffen] = useState(false);            // Eingabe-Pop-up öffnet erst beim Antippen von F(x)
   const [status, setStatus] = useStateGebucht(null);       // null | richtig | falsch | gezeigt
   const [hinweis, setHinweis] = useState("");
   const [versuche, setVersuche] = useState(0);
@@ -335,7 +336,7 @@ function StammTrainer({ art }) {
   const fBaum = useMemo(() => lese(fText), [fText]);
   const mitLn = /\/\s*x|1\/x/.test(fText);
 
-  const neu = () => { setFText(ERZEUGER[art]()); setEingabe(""); setPos(0); setStatus(null); setHinweis(""); setVersuche(0); };
+  const neu = () => { setFText(ERZEUGER[art]()); setEingabe(""); setPos(0); setStatus(null); setHinweis(""); setVersuche(0); setOffen(false); };
   const pruefen = () => {
     const F = lese(eingabe);
     if (!F) { setStatus("falsch"); setHinweis("Der Term ist noch nicht vollständig – fülle alle Platzhalter ▯ und schließe die Klammern. Das „+ C“ musst du nicht eingeben."); return; }
@@ -357,8 +358,9 @@ function StammTrainer({ art }) {
         <span style={{ color: C.weiss, fontSize: 21, fontWeight: 700, whiteSpace: "nowrap", lineHeight: 1.7 }}>{fBaum && <M t={`f(x) = ${tx(fBaum)}`} />}</span>
       </div>
 
-      <div style={{ border: `2px solid ${rand}`, borderRadius: 14, padding: "6px 14px", marginBottom: 8, display: "flex", alignItems: "center", gap: 8, overflowX: "auto",
-        background: status === "richtig" ? "#EEF8F2" : C.weiss }}>
+      <div onClick={status === "richtig" ? undefined : () => setOffen((o) => !o)}
+        style={{ border: `2px solid ${rand}`, borderRadius: 14, padding: "6px 14px", marginBottom: 8, display: "flex", alignItems: "center", gap: 8, overflowX: "auto",
+        cursor: status === "richtig" ? "default" : "pointer", background: status === "richtig" ? "#EEF8F2" : C.weiss }}>
         <span style={{ fontSize: 18, fontWeight: 700, color: C.tinte, whiteSpace: "nowrap" }}>F(x) =</span>
         <span style={{ fontSize: 19, lineHeight: 1.7, whiteSpace: "nowrap" }}>
           {eingabe ? (eingabeBaum ? <M t={tx(eingabeBaum)} /> : <span style={{ color: C.signal, fontSize: 15 }}>{eingabe}</span>)
@@ -368,6 +370,17 @@ function StammTrainer({ art }) {
         {status === "richtig" && <span style={{ marginLeft: "auto", fontSize: 22, color: C.smaragd, fontWeight: 700 }}>✓</span>}
         {status === "falsch" && <span style={{ marginLeft: "auto", fontSize: 22, color: C.signal, fontWeight: 700 }}>✗</span>}
       </div>
+      {offen && status !== "richtig" && (
+        <EingabePopup style={{ marginTop: 0, marginBottom: 10 }}>
+          {versuche > 0 && (
+            <button type="button" onClick={() => setStatus("gezeigt")}
+              style={{ width: "100%", height: 44, marginBottom: 10, borderRadius: 12, border: `1px solid ${C.linie}`, cursor: "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 600, color: C.see, background: C.weiss }}>
+              Regeln zeigen
+            </button>
+          )}
+          <Eingabe text={eingabe} setText={(t) => { setEingabe(t); setStatus(null); setHinweis(""); }} pos={pos} setPos={setPos} onEnter={pruefen} platzhalter="z. B. x^3 - cos(x)" />
+        </EingabePopup>
+      )}
       {hinweis && <p role="status" style={{ fontSize: 13.5, color: C.signal, lineHeight: 1.6, margin: "0 4px 10px" }}>{hinweis}</p>}
       {status === "gezeigt" && (
         <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, margin: "0 4px 12px" }}>Prüfe dein F, indem du es ableitest – bei einer richtigen Stammfunktion kommt genau f heraus. Typische Regeln:
@@ -387,29 +400,8 @@ function StammTrainer({ art }) {
         </>
       ) : (
         <>
-          <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
-            <button type="button" onClick={pruefen}
-              style={{ flex: 2, height: 44, borderRadius: 12, border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 18, fontWeight: 800,
-                color: C.weiss, background: C.smaragd, letterSpacing: "0.04em", boxShadow: "0 4px 14px rgba(47,143,91,0.35)" }}>OK</button>
-            {versuche > 0 && (
-              <button type="button" onClick={() => setStatus("gezeigt")}
-                style={{ flex: 1, height: 44, borderRadius: 12, border: `1px solid ${C.linie}`, cursor: "pointer", fontFamily: "inherit", fontSize: 13, fontWeight: 600, color: C.see, background: C.weiss }}>
-                Regeln zeigen
-              </button>
-            )}
-          </div>
-          {tippen ? (
-            <MatheFeld modus="formel" value={eingabe} onChange={(e) => { setEingabe(e.target.value); setStatus(null); setHinweis(""); }} onKeyDown={(e) => { if (e.key === "Enter") pruefen(); }}
-              placeholder="z. B. x^3 - cos(x)" aria-label="Stammfunktion F(x)" autoCapitalize="off" autoCorrect="off" spellCheck="false"
-              style={{ width: "100%", boxSizing: "border-box", height: 46, borderRadius: 12, border: `1.5px solid ${C.linie}`, padding: "0 12px", fontSize: 16, fontFamily: "ui-monospace, Menlo, monospace" }} />
-          ) : (
-            <Tastenfeld kompakt wert={eingabe} setWert={(t) => { setEingabe(t); setStatus(null); setHinweis(""); }} pos={pos} setPos={setPos} />
-          )}
           <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginTop: 8 }}>
-            <button type="button" onClick={() => setTippen(!tippen)}
-              style={{ background: "none", border: "none", color: C.see, fontSize: 13, fontFamily: "inherit", cursor: "pointer", padding: 0 }}>
-              {tippen ? "Tastenfeld benutzen" : "Lieber selbst tippen"}
-            </button>
+            <span />
             <button type="button" onClick={neu}
               style={{ background: "none", border: "none", color: C.see, fontSize: 13, fontFamily: "inherit", cursor: "pointer", padding: 0 }}>Neue Aufgabe</button>
           </div>
@@ -483,12 +475,11 @@ const grenzeLesen = (t) => {
 
 function BestimmtesIntegral({ zeigeHauptsatz, start }) {
   const [felder, setFelder] = useState(() => (start ? { f: start.f, F: "", a: start.a, b: start.b } : { f: "", F: "", a: "", b: "" }));
-  const [aktiv, setAktiv] = useState(() => (start ? "F" : "f"));
+  const [aktiv, setAktiv] = useState(null);             // null = Eingabe zu; öffnet beim Antippen eines Feldes
   const [pos, setPos] = useState(0);
-  const [tippen, setTippen] = useState(false);
   const [erg, setErg] = useState(null);
   const setze = (k, t) => { setFelder((x) => ({ ...x, [k]: t })); setErg(null); };
-  const beispiel = () => { setFelder({ f: "3x^2", F: "x^3", a: "2", b: "3" }); setErg(null); setAktiv("f"); setPos(4); };
+  const beispiel = () => { setFelder({ f: "3x^2", F: "x^3", a: "2", b: "3" }); setErg(null); setAktiv(null); setPos(4); };
 
   const rechnen = () => {
     const f = lese(felder.f), F = lese(felder.F), a = grenzeLesen(felder.a), b = grenzeLesen(felder.b);
@@ -523,12 +514,11 @@ function BestimmtesIntegral({ zeigeHauptsatz, start }) {
     setErg({ f, F, a, b, Fa, Fb, I: Fb - Fa });
   };
 
-  const aktivText = felder[aktiv] ?? "";
   const feld = (k, label) => {
     const an = aktiv === k;
     const baum = felder[k] ? parse(ohneC(felder[k])) : null;
     return (
-      <button type="button" onClick={() => { setAktiv(k); setPos((felder[k] || "").length); }} aria-pressed={an}
+      <button type="button" onClick={() => { setAktiv(aktiv === k ? null : k); setPos((felder[k] || "").length); }} aria-pressed={an}
         style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", minHeight: 50, padding: "8px 12px", marginBottom: 8, borderRadius: 12, cursor: "pointer",
           fontFamily: "inherit", textAlign: "left", overflowX: "auto", border: `1.5px solid ${an ? C.see : C.linie}`, background: an ? C.sand : C.weiss, color: C.tinte }}>
         <span style={{ fontSize: 16, fontWeight: 700, whiteSpace: "nowrap", minWidth: 58 }}>{label}</span>
@@ -538,6 +528,14 @@ function BestimmtesIntegral({ zeigeHauptsatz, start }) {
       </button>
     );
   };
+
+  const popupFuer = (k) => aktiv === k && (
+    <EingabePopup style={{ marginTop: 0, marginBottom: 10 }}>
+      <Eingabe text={felder[k] ?? ""} setText={(t) => setze(k, t)} pos={pos} setPos={setPos}
+        onEnter={() => { setAktiv(null); if (felder.f && felder.F && felder.a && felder.b) rechnen(); }}
+        platzhalter={k === "f" ? "z. B. 3x^2" : k === "F" ? "z. B. x^3" : "z. B. 2 oder pi"} />
+    </EingabePopup>
+  );
 
   const zeile = (inhalt, i) => (
     <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 19, lineHeight: 2, whiteSpace: "nowrap", color: C.tinte }}>{inhalt}</div>
@@ -578,22 +576,15 @@ function BestimmtesIntegral({ zeigeHauptsatz, start }) {
         Gib f, eine Stammfunktion F und die Grenzen ein. Die App prüft F′ = f auf dem Intervall und rechnet zeilenweise.
       </p>
       {feld("f", "f(x) =")}
+      {popupFuer("f")}
       {feld("F", "F(x) =")}
+      {popupFuer("F")}
       <div style={{ display: "flex", gap: 8 }}>
         <div style={{ flex: 1 }}>{feld("a", "a =")}</div>
         <div style={{ flex: 1 }}>{feld("b", "b =")}</div>
       </div>
-      {tippen ? (
-        <MatheFeld modus="formel" value={aktivText} onChange={(e) => setze(aktiv, e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") rechnen(); }}
-          aria-label={`Eingabe für ${aktiv}`} autoCapitalize="off" autoCorrect="off" spellCheck="false"
-          style={{ width: "100%", boxSizing: "border-box", height: 46, borderRadius: 12, border: `1.5px solid ${C.linie}`, padding: "0 12px", fontSize: 16, fontFamily: "ui-monospace, Menlo, monospace", marginTop: 4 }} />
-      ) : (
-        <Tastenfeld wert={aktivText} setWert={(t) => setze(aktiv, t)} pos={pos} setPos={setPos} />
-      )}
-      <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginTop: 10 }}>
-        <button type="button" onClick={() => setTippen(!tippen)} style={{ background: "none", border: "none", color: C.see, fontSize: 13, fontFamily: "inherit", cursor: "pointer", padding: 0 }}>
-          {tippen ? "Tastenfeld benutzen" : "Lieber selbst tippen"}
-        </button>
+      {(aktiv === "a" || aktiv === "b") && popupFuer(aktiv)}
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 10 }}>
         <button type="button" onClick={beispiel} style={{ background: "none", border: "none", color: C.see, fontSize: 13, fontFamily: "inherit", cursor: "pointer", padding: 0 }}>
           Beispiel laden: ∫₂³ 3x² dx
         </button>

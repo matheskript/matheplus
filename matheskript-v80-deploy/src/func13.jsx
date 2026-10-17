@@ -20,8 +20,7 @@ import {
   LiveFormel, Tastenfeld, ableitung, alsTex, hatBox, kompiliere, ohnePar, parse, zufallsFunktion,
 } from "./func12.jsx";
 import { IchHaengeFest, ableitRegeln, aussenTex, summanden } from "./funcHilfe.jsx";
-import { MatheFeld } from "./matheTastatur.jsx";
-import { POP_CSS, PopupWahl, REGEL_CHIPS, RegelWerkstatt } from "./funcRegelwerk.jsx";
+import { Eingabe, EingabePopup, POP_CSS, PopupWahl, REGEL_CHIPS, RegelWerkstatt } from "./funcRegelwerk.jsx";
 
 /* Kontext für „Ich hänge fest“: Hinweise aus dem Term, der gerade abgeleitet wird */
 const NAME_F = ["f", "f′", "f″", "f‴"];
@@ -155,7 +154,7 @@ export function Ableitungstrainer() {
   const [zeilen, setZeilen] = useState([leer()]);
   const [aktiv, setAktiv] = useState(0);
   const [pos, setPos] = useState(0);
-  const [tippen, setTippen] = useState(false);
+  const [offen, setOffen] = useState(false);          // Eingabe-Pop-up: öffnet erst beim Antippen des Feldes
   const [bilanz, setBilanz] = useState({ richtig: 0, gesamt: 0 });
   const [bereich, setBereich] = useState(mit ? "trainer" : "trainer");   // trainer | werkstatt
   const [werkRegel, setWerkRegel] = useState("produkt");
@@ -172,7 +171,7 @@ export function Ableitungstrainer() {
     return l.map((b) => ({ baum: b, fn: kompiliere(b) }));
   }, [fBaum]);
 
-  const neustart = (text) => { setFText(text); setZeilen([leer()]); setAktiv(0); setPos(0); };
+  const neustart = (text) => { setFText(text); setZeilen([leer()]); setAktiv(0); setPos(0); setOffen(false); };
   const neueAufgabe = (t = typ, st = stufeTyp) => neustart(t.mach(st).f);
 
   const eintrag = zeilen[aktiv];
@@ -206,6 +205,8 @@ export function Ableitungstrainer() {
     if (stufe < 3) { neu.push(leer()); setAktiv(aktiv + 1); setPos(0); }
     setZeilen(neu);
   };
+
+  const uebernehmen = () => { const b = parse(eigenText); if (b && !hatBox(b)) { neustart(eigenText); setEigenOffen(false); } };
 
   const fertig = zeilen.length === 3 && ["richtig", "gezeigt"].includes(zeilen[2].status);
 
@@ -303,8 +304,8 @@ export function Ableitungstrainer() {
                   : <span style={{ color: C.hellgrau, fontSize: 15 }}>…</span>}
               </span>
             </div>
-            <Tastenfeld wert={eigenText} setWert={setEigenText} pos={eigenPos} setPos={setEigenPos} />
-            <button onClick={() => { const b = parse(eigenText); if (b && !hatBox(b)) { neustart(eigenText); setEigenOffen(false); } }}
+            <Tastenfeld wert={eigenText} setWert={setEigenText} pos={eigenPos} setPos={setEigenPos} onOk={uebernehmen} />
+            <button onClick={uebernehmen}
               style={{ width: "100%", height: 56, marginTop: 12, borderRadius: 14, border: "none", cursor: "pointer",
                 fontFamily: "inherit", fontSize: 17, fontWeight: 700, color: C.seeTief, background: C.flaggold }}>
               Übernehmen
@@ -337,7 +338,20 @@ export function Ableitungstrainer() {
 
             {zeilen.map((z, i) => (
               <div key={i}>
-                <Zeile stufe={i + 1} aktiv={i === aktiv && !fertig} eintrag={z.status === "gezeigt" ? { ...z, text: "" } : z} />
+                <Zeile stufe={i + 1} aktiv={i === aktiv && !fertig} eintrag={z.status === "gezeigt" ? { ...z, text: "" } : z}
+                  onKlick={i === aktiv && !fertig ? () => setOffen((o) => !o) : undefined} />
+                {i === aktiv && !fertig && offen && (
+                  <EingabePopup style={{ marginTop: -4, marginBottom: 14 }}>
+                    {eintrag && eintrag.versuche > 0 && (
+                      <button onClick={loesungZeigen}
+                        style={{ width: "100%", height: 46, marginBottom: 10, borderRadius: 14, border: `1.5px solid ${C.linie}`, cursor: "pointer",
+                          fontFamily: "inherit", fontSize: 14.5, fontWeight: 600, color: C.see, background: C.weiss }}>
+                        Lösung zeigen
+                      </button>
+                    )}
+                    <Eingabe text={eintrag.text} setText={setEintragText} pos={pos} setPos={setPos} onEnter={pruefen} platzhalter="z. B. 2x*cos(x) oder e^(2x)" />
+                  </EingabePopup>
+                )}
                 {z.status === "gezeigt" && (
                   <p style={{ fontSize: 17, margin: "-4px 4px 14px", overflowX: "auto", whiteSpace: "nowrap" }}>
                     <span style={{ fontSize: 13, color: C.grau, marginRight: 8 }}>Lösung:</span><M t={z.zeig} />
@@ -348,40 +362,6 @@ export function Ableitungstrainer() {
                 )}
               </div>
             ))}
-
-            {!fertig && (
-              <>
-                <div style={{ display: "flex", gap: 10, marginBottom: 12 }}>
-                  <button onClick={pruefen}
-                    style={{ flex: 2, height: 56, borderRadius: 14, border: "none", cursor: "pointer", fontFamily: "inherit",
-                      fontSize: 20, fontWeight: 800, color: C.weiss, background: C.smaragd, letterSpacing: "0.04em",
-                      boxShadow: "0 4px 14px rgba(47,143,91,0.35)" }}>
-                    OK
-                  </button>
-                  {eintrag && eintrag.versuche > 0 && (
-                    <button onClick={loesungZeigen}
-                      style={{ flex: 1, height: 56, borderRadius: 14, border: `1.5px solid ${C.linie}`, cursor: "pointer",
-                        fontFamily: "inherit", fontSize: 15, fontWeight: 600, color: C.see, background: C.weiss }}>
-                      Lösung zeigen
-                    </button>
-                  )}
-                </div>
-                {tippen ? (
-                  <MatheFeld modus="formel" value={eintrag.text} onChange={(e) => setEintragText(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === "Enter") pruefen(); }}
-                    placeholder="z. B. 2x*cos(x) oder e^(2x)" autoCapitalize="off" autoCorrect="off" spellCheck="false"
-                    style={{ width: "100%", boxSizing: "border-box", height: 54, borderRadius: 14, border: `1.5px solid ${C.linie}`,
-                      padding: "0 14px", fontSize: 17, fontFamily: "ui-monospace, Menlo, monospace" }} />
-                ) : (
-                  <Tastenfeld wert={eintrag.text} setWert={setEintragText} pos={pos} setPos={setPos} />
-                )}
-                <button onClick={() => setTippen(!tippen)}
-                  style={{ background: "none", border: "none", color: C.see, fontSize: 14.5, fontFamily: "inherit",
-                    cursor: "pointer", marginTop: 4, padding: "12px 0" }}>
-                  {tippen ? "Tastenfeld benutzen" : "Lieber selbst tippen"}
-                </button>
-              </>
-            )}
 
             {fertig && (
               <div style={{ textAlign: "center", padding: "10px 0 4px" }}>
