@@ -120,26 +120,33 @@ export function MathildaKopf({ modus, setModus, onScan }) {
         .mathilda-kopf .mk-modus[data-aktiv="1"] { background: #FFFFFF; color: ${NACHT}; border-color: #FFFFFF; box-shadow: 0 10px 26px rgba(5,12,40,0.35), inset 0 -4px 0 ${GOLD}; }
         .mathilda-kopf .mk-modus b { display: block; font-size: 14px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.2; }
         .mathilda-kopf .mk-modus span { display: block; font-size: 12px; font-weight: 400; line-height: 1.4; opacity: .85; }
+        .mathilda-kopf .mk-ober { color: ${GOLD}; font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; margin-bottom: 8px; }
+        .mathilda-kopf .mk-titel { font-weight: 700; font-size: 44px; letter-spacing: -0.03em; line-height: .98; margin: 0; }
+        .mathilda-kopf .mk-satz { color: #C9D6EE; font-size: 15.5px; font-weight: 300; line-height: 1.55; margin-top: 12px; max-width: 400px; }
         @keyframes mk-auf { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
         @media (max-width: 560px) {
-          .mathilda-kopf .mk-innen { grid-template-columns: 1fr 118px; gap: 0 8px; padding-top: 6px; }
-          .mathilda-kopf .mk-portraet { margin-right: 0; }
-          .mathilda-kopf .mk-portraet svg { width: 124px; margin-right: -10px; }
-          .mathilda-kopf .mk-text { padding-top: 0; padding-bottom: 18px; }
-          .mathilda-kopf .mk-scan { margin-top: 24px; }
-          .mathilda-kopf .mk-scan { height: 52px; font-size: 15.5px; padding-right: 16px; gap: 10px; }
-          .mathilda-kopf .mk-scan .mk-kam { width: 38px; height: 38px; }
-          .mathilda-kopf .mk-modi { grid-template-columns: repeat(2, 1fr); padding-bottom: 22px; }
+          .mathilda-kopf .mk-innen { grid-template-columns: 1fr 112px; gap: 0 12px; padding-top: 14px; align-items: center; }
+          .mathilda-kopf .mk-text { align-self: center; padding: 0 0 16px; }
+          .mathilda-kopf .mk-portraet { margin-right: 0; align-self: center; padding-bottom: 16px; }
+          .mathilda-kopf .mk-portraet svg { width: 112px; margin: 0; }
+          .mathilda-kopf .mk-schein { display: none; }
+          .mathilda-kopf .mk-ober { font-size: 10px; letter-spacing: .12em; margin-bottom: 5px; }
+          .mathilda-kopf .mk-titel { font-size: 30px; }
+          .mathilda-kopf .mk-satz { font-size: 13px; line-height: 1.5; margin-top: 8px; }
+          .mathilda-kopf .mk-scan { margin-top: 16px; width: calc((100vw - 58px) / 2); justify-content: flex-start; height: 44px; font-size: 13.5px; padding: 0 12px 0 5px; gap: 8px; box-shadow: 0 6px 18px rgba(237,187,0,0.35), inset 0 1px 0 rgba(255,255,255,0.55); }
+          .mathilda-kopf .mk-scan .mk-kam { width: 34px; height: 34px; }
+          .mathilda-kopf .mk-scan .mk-kam svg { width: 18px; height: 18px; }
+          .mathilda-kopf .mk-modi { grid-template-columns: repeat(2, 1fr); padding-top: 16px; padding-bottom: 22px; }
         }
         @media (prefers-reduced-motion: reduce) { .mathilda-kopf .mk-portraet, .mathilda-kopf .mk-scan { animation: none; } }
       `}</style>
       <div className="mk-innen">
         <div className="mk-text">
-          <p style={{ color: GOLD, fontSize: 12, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 8 }}>Deine Mathe-KI-Trainerin</p>
-          <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 44, letterSpacing: "-0.03em", lineHeight: 0.98, margin: 0 }}>
+          <p className="mk-ober">Deine Mathe-KI-Trainerin</p>
+          <h1 className="titel-silber mk-titel">
             Mathilda<span style={{ color: GOLD }}>AI</span>
           </h1>
-          <p style={{ color: "#C9D6EE", fontSize: 15.5, fontWeight: 300, lineHeight: 1.55, marginTop: 12, maxWidth: 400 }}>
+          <p className="mk-satz">
             Sie liest dein Blatt, nicht nur dein Ergebnis – und zeigt dir den einen nächsten Schritt.
           </p>
           <button type="button" className="mk-scan" onClick={onScan}>
