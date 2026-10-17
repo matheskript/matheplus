@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { C } from "./base1.jsx";
+import { sb } from "./konto.js";
 import { SatzZeilen } from "./baseSatz.jsx";
 import "@fontsource/caveat/600.css";
 
@@ -27,6 +28,8 @@ export const ELTERNABEND = {
   // Stripe-Zahlungslink (Karte + PayPal). Aktuell aus dem Stripe-Testmodus –
   // für echte Zahlungen den Live-Link aus dem Stripe-Dashboard hier eintragen.
   ticketLink: "https://book.stripe.com/test_7sY7sM3Ju3W28K46hLgbm01",
+  // Übergangsphase ohne Stripe: false = Anmeldung nur mit Bonuscode (siehe Bonuscode & Anmeldung).
+  zahlungAktiv: false,
 };
 
 const SCHWARZ = "radial-gradient(130% 150% at 90% 10%, #2A2210 0%, #0E0C08 50%, #050404 100%)";
@@ -305,6 +308,9 @@ const CSS_SEITE = `
 .eab-zeit { font-size: 30px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; color: ${T.nacht}; margin-top: 2px; }
 .eab-perfo { position: relative; height: 0; border-top: 2px dashed rgba(14,30,74,0.18); margin: 0 18px; }
 .eab-ticket-unten { padding: 18px 22px 22px; }
+#eab-ticket-oben { scroll-margin-top: 96px; }
+#eab-ticket-oben > .eab-ticket { min-width: 0; }
+.eab-ticket input, .eab-ticket select { min-width: 0; }
 .eab-zeile { display: flex; gap: 12px; align-items: flex-start; padding: 7px 0; font-size: 14.5px; line-height: 1.45; }
 .eab-zeile b { display: block; font-weight: 700; }
 .eab-zeile span span { color: ${T.still}; }
@@ -441,7 +447,9 @@ const SAETZE = [
 const FRAGEN = [
   ["Darf ich mein Kind mitbringen?", "Gern. Viele Fragen klären sich am besten gemeinsam. Das Ticket gilt pro Person, buchen Sie also für Ihr Kind einfach ein Ticket mit."],
   ["Für welche Klassen ist der Abend gedacht?", "Für Eltern von Kindern an Gymnasium oder Gemeinschaftsschule, von Klasse 8 bis zur Kursstufe."],
-  ["Wie bezahle ich?", "Sicher über Stripe, mit Kreditkarte oder PayPal. Mehrere Tickets buchen Sie in einem Schritt, die Bestätigung kommt per E-Mail."],
+  ELTERNABEND.zahlungAktiv
+    ? ["Wie bezahle ich?", "Sicher über Stripe, mit Kreditkarte oder PayPal. Mehrere Tickets buchen Sie in einem Schritt, die Bestätigung kommt per E-Mail."]
+    : ["Wie melde ich mich an?", "Die Online-Buchung startet in Kürze. Mit einem Bonuscode melden Sie sich schon jetzt im Ticket an: Code einlösen, Name und E-Mail eintragen, fertig. Bis zu vier Personen in einem Schritt."],
   ["Was ist im Ticket enthalten?", "Zwei Getränke, ein Snack und die Kursmaterialien: Block, Heft und Stift. Die Materialien nehmen Sie mit nach Hause."],
 ];
 
@@ -551,60 +559,147 @@ function Zahlungsmarken() {
   );
 }
 
-/* ---------- Bonuscode ----------
-   Der Code wird als prefilled_promo_code an den Stripe-Zahlungslink gehängt.
-   Stripe prüft ihn (Gutschein + Promotion-Code im Stripe-Dashboard).
-   GRATIS_CODES: Codes, bei denen die Seite schon vorab „0 €“ zeigt. */
+/* ---------- Bonuscode & Anmeldung ----------
+   Übergangsphase (zahlungAktiv: false): Online-Zahlung ist aus. Mit einem gültigen Bonuscode
+   melden sich Eltern direkt an. Gespeichert wird über die Supabase-Funktion elternabend_anmelden
+   (supabase/elternabend.sql) – sie prüft Code und freie Plätze selbst.
+   Sobald Stripe läuft: zahlungAktiv: true, dann geht der Code als prefilled_promo_code an Stripe. */
 const GRATIS_CODES = ["MATHE27"];
 const bonusNorm = (s) => String(s || "").trim().toUpperCase().replace(/\s+/g, "");
 export const bonusGratis = (code) => GRATIS_CODES.includes(bonusNorm(code));
 export function ticketHref(code) {
+  if (!ELTERNABEND.zahlungAktiv) return "#eab-ticket-oben";
   const c = bonusNorm(code);
   if (!c) return ELTERNABEND.ticketLink;
   const trenner = ELTERNABEND.ticketLink.includes("?") ? "&" : "?";
   return `${ELTERNABEND.ticketLink}${trenner}prefilled_promo_code=${encodeURIComponent(c)}`;
 }
-const bonusHoerer = new Set();
-let bonusWert = (() => { try { return sessionStorage.getItem("mm-ea-bonus") || ""; } catch { return ""; } })();
-function bonusSetzen(v) {
-  bonusWert = v;
-  try { v ? sessionStorage.setItem("mm-ea-bonus", v) : sessionStorage.removeItem("mm-ea-bonus"); } catch { /* egal */ }
-  bonusHoerer.forEach((f) => f(v));
+function zumTicket(e) {
+  if (ELTERNABEND.zahlungAktiv) return;
+  e.preventDefault();
+  const ziel = document.getElementById("eab-ticket-oben");
+  if (ziel) window.scrollTo({ top: ziel.getBoundingClientRect().top + window.scrollY - 96, behavior: "smooth" });
+  setTimeout(() => { const f = ziel && ziel.querySelector("input"); if (f) f.focus({ preventScroll: true }); }, 450);
 }
-function useBonus() {
-  const [b, setB] = useState(bonusWert);
-  useEffect(() => { bonusHoerer.add(setB); return () => { bonusHoerer.delete(setB); }; }, []);
-  return b;
+const knopfText = (code, mitPreis) => {
+  if (bonusGratis(code)) return mitPreis ? "Platz sichern – kostenlos" : "Kostenlos";
+  if (!ELTERNABEND.zahlungAktiv) return mitPreis ? "Platz sichern" : "Anmelden";
+  return mitPreis ? `Platz sichern – ${ELTERNABEND.preis} €` : `${ELTERNABEND.preis} €`;
+};
+
+/* kleiner geteilter Speicher (sessionStorage), damit alle Knöpfe denselben Stand zeigen */
+function speicher(schluessel) {
+  const hoerer = new Set();
+  let wert = (() => { try { return sessionStorage.getItem(schluessel) || ""; } catch { return ""; } })();
+  const setzen = (v) => {
+    wert = v;
+    try { v ? sessionStorage.setItem(schluessel, v) : sessionStorage.removeItem(schluessel); } catch { /* egal */ }
+    hoerer.forEach((f) => f(v));
+  };
+  const use = () => {
+    const [w, setW] = useState(wert);
+    useEffect(() => { hoerer.add(setW); return () => { hoerer.delete(setW); }; }, []);
+    return w;
+  };
+  return { setzen, use };
 }
+const BONUS = speicher("mm-ea-bonus");
+const ANGEMELDET = speicher("mm-ea-angemeldet");
+const bonusSetzen = BONUS.setzen;
+const useBonus = BONUS.use;
+
+const feldStil = { width: "100%", boxSizing: "border-box", padding: "11px 12px", borderRadius: 10, border: `1.5px solid ${T.nacht}33`, fontSize: 15, fontFamily: "inherit", background: "#fff", color: T.nacht };
+const linkKnopf = { background: "none", border: 0, padding: 0, color: T.see, textDecoration: "underline", fontSize: 13, cursor: "pointer", fontFamily: "inherit" };
 
 function BonusFeld() {
   const bonus = useBonus();
-  const [offen, setOffen] = useState(!!bonus);
+  const [offen, setOffen] = useState(!!bonus || !ELTERNABEND.zahlungAktiv);
   const [eingabe, setEingabe] = useState(bonus);
+  const [falsch, setFalsch] = useState(false);
   if (!offen) {
-    return (
-      <button type="button" onClick={() => setOffen(true)}
-        style={{ background: "none", border: 0, padding: "2px 0 10px", color: T.see, fontSize: 13, textDecoration: "underline", cursor: "pointer", fontFamily: "inherit" }}>
-        Bonuscode eingeben
-      </button>
-    );
+    return <button type="button" onClick={() => setOffen(true)} style={{ ...linkKnopf, padding: "2px 0 10px" }}>Bonuscode eingeben</button>;
   }
+  const einloesen = (e) => {
+    e.preventDefault();
+    const c = bonusNorm(eingabe);
+    // In der Übergangsphase gilt nur ein gültiger Code; mit Stripe prüft Stripe jeden Code selbst.
+    if (!ELTERNABEND.zahlungAktiv && !bonusGratis(c)) { setFalsch(!!c); bonusSetzen(""); return; }
+    setFalsch(false); bonusSetzen(c);
+  };
   const angewendet = bonusNorm(bonus) && bonusNorm(bonus) === bonusNorm(eingabe);
   return (
     <div style={{ marginBottom: 12 }}>
-      <form onSubmit={(e) => { e.preventDefault(); bonusSetzen(bonusNorm(eingabe)); }} style={{ display: "flex", gap: 8 }}>
-        <input value={eingabe} onChange={(e) => setEingabe(e.target.value)} placeholder="Bonuscode" aria-label="Bonuscode"
-          autoCapitalize="characters" autoComplete="off" spellCheck={false}
-          style={{ flex: 1, minWidth: 0, padding: "10px 12px", borderRadius: 10, border: `1.5px solid ${T.nacht}33`, fontSize: 15, fontFamily: "inherit", textTransform: "uppercase" }} />
-        <button type="submit" className="eab-knopf eab-rand-dunkel" style={{ padding: "10px 14px", flexShrink: 0 }}>Einlösen</button>
+      <form onSubmit={einloesen} style={{ display: "flex", gap: 8 }}>
+        <input value={eingabe} onChange={(e) => { setEingabe(e.target.value); setFalsch(false); }} placeholder="Bonuscode" aria-label="Bonuscode" size={1}
+          autoCapitalize="characters" autoComplete="off" spellCheck={false} style={{ ...feldStil, flex: 1, minWidth: 0, width: "auto", textTransform: "uppercase" }} />
+        <button type="submit" className="eab-knopf eab-rand-dunkel" style={{ padding: "10px 14px", flexShrink: 0, minHeight: 0 }}>Einlösen</button>
       </form>
+      {falsch && <p role="alert" style={{ margin: "6px 0 0", fontSize: 13, color: T.rot }}>Dieser Code ist leider nicht gültig.</p>}
       {angewendet && (
         <p style={{ margin: "6px 0 0", fontSize: 13, color: bonusGratis(bonus) ? "#1E7A46" : T.see }}>
           {bonusGratis(bonus) ? "✓ Bonuscode eingelöst – Ihr Ticket ist kostenlos." : "Der Code wird im nächsten Schritt bei Stripe geprüft."}
-          {" "}<button type="button" onClick={() => { bonusSetzen(""); setEingabe(""); }}
-            style={{ background: "none", border: 0, padding: 0, color: T.see, textDecoration: "underline", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>Entfernen</button>
+          {" "}<button type="button" onClick={() => { bonusSetzen(""); setEingabe(""); }} style={linkKnopf}>Entfernen</button>
         </p>
       )}
+    </div>
+  );
+}
+
+const FEHLER_TEXT = {
+  code: "Dieser Bonuscode ist nicht gültig.",
+  voll: "Leider sind nicht mehr genug Plätze frei.",
+  daten: "Bitte Name und eine gültige E-Mail-Adresse angeben.",
+};
+
+function AnmeldeFormular({ bonus }) {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [personen, setPersonen] = useState("1");
+  const [telefon, setTelefon] = useState("");
+  const [laeuft, setLaeuft] = useState(false);
+  const [fehler, setFehler] = useState("");
+  const senden = async (e) => {
+    e.preventDefault();
+    if (!name.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) { setFehler(FEHLER_TEXT.daten); return; }
+    if (!sb) { setFehler("Die Anmeldung ist gerade nicht erreichbar. Bitte versuchen Sie es später noch einmal."); return; }
+    setLaeuft(true); setFehler("");
+    const { error } = await sb.rpc("elternabend_anmelden", {
+      p_name: name.trim(), p_email: email.trim(), p_personen: Number(personen), p_telefon: telefon.trim() || null, p_code: bonusNorm(bonus),
+    });
+    setLaeuft(false);
+    if (error) {
+      const m = String(error.message || "");
+      const art = Object.keys(FEHLER_TEXT).find((k) => m.includes(`ea_${k}`));
+      setFehler(art ? FEHLER_TEXT[art] : "Die Anmeldung hat nicht geklappt. Bitte versuchen Sie es später noch einmal.");
+      return;
+    }
+    ANGEMELDET.setzen(JSON.stringify({ name: name.trim(), personen: Number(personen) }));
+  };
+  return (
+    <form onSubmit={senden} style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 8, marginBottom: 10 }} noValidate>
+      <input style={feldStil} value={name} onChange={(e) => setName(e.target.value)} placeholder="Ihr Name" aria-label="Ihr Name" size={1} autoComplete="name" />
+      <input style={feldStil} type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="E-Mail" aria-label="E-Mail" size={1} autoComplete="email" />
+      <div style={{ display: "flex", gap: 8 }}>
+        <select style={{ ...feldStil, width: "auto", flex: "0 0 auto" }} value={personen} onChange={(e) => setPersonen(e.target.value)} aria-label="Personen">
+          {[1, 2, 3, 4].map((n) => <option key={n} value={n}>{n} {n === 1 ? "Person" : "Personen"}</option>)}
+        </select>
+        <input style={{ ...feldStil, flex: 1, minWidth: 0, width: "auto" }} type="tel" value={telefon} onChange={(e) => setTelefon(e.target.value)} placeholder="Telefon (optional)" aria-label="Telefon (optional)" size={1} autoComplete="tel" />
+      </div>
+      {fehler && <p role="alert" style={{ margin: 0, fontSize: 13, color: T.rot }}>{fehler}</p>}
+      <button type="submit" className="eab-knopf eab-gold" disabled={laeuft} style={{ width: "100%", marginTop: 2 }}>
+        {laeuft ? "Wird gesendet …" : "Kostenlos anmelden"}
+      </button>
+    </form>
+  );
+}
+
+function AngemeldetHinweis({ daten }) {
+  let d = {};
+  try { d = JSON.parse(daten) || {}; } catch { /* egal */ }
+  return (
+    <div role="status" style={{ borderRadius: 14, padding: "12px 14px", marginBottom: 10, background: "#E6F6EF", border: "1px solid #9BD9B8", color: "#0F5C3A" }}>
+      <p style={{ margin: 0, fontWeight: 800, fontSize: 15.5 }}>✓ Sie sind angemeldet{d.personen > 1 ? ` (${d.personen} Personen)` : ""}.</p>
+      <p style={{ margin: "4px 0 0", fontSize: 13.5, lineHeight: 1.5 }}>Wir freuen uns auf Sie am {ELTERNABEND.datum} um {ELTERNABEND.uhrzeit} in {ELTERNABEND.ort}. Tragen Sie sich den Termin am besten gleich ein.</p>
     </div>
   );
 }
@@ -612,7 +707,9 @@ function BonusFeld() {
 function Ticket({ id }) {
   const E = ELTERNABEND;
   const bonus = useBonus();
+  const angemeldet = ANGEMELDET.use();
   const tag = E.beginn.slice(8, 10);
+  const gratis = bonusGratis(bonus);
   return (
     <aside className="eab-ticket" id={id} aria-label="Ticket Elternabend">
       <div className="eab-ticket-oben">
@@ -631,15 +728,26 @@ function Ticket({ id }) {
         <div className="eab-zeile"><ZeileSymbol art="plaetze" /><span><b>Maximal {E.plaetze} Plätze</b><span>Zwei Getränke, Snack und Kursmaterialien inklusive</span></span></div>
         <div className="eab-preis">
           <span className="eab-monat">PRO PERSON</span>
-          {bonusGratis(bonus)
+          {gratis
             ? <span><s style={{ fontSize: 18, color: T.see, marginRight: 8 }}>{E.preis} €</s><span className="eab-preis-zahl">0 €</span></span>
             : <span className="eab-preis-zahl">{E.preis} €</span>}
         </div>
-        <BonusFeld />
-        <a className="eab-knopf eab-gold" href={ticketHref(bonus)} rel="noopener" style={{ width: "100%" }}>
-          {bonusGratis(bonus) ? "Kostenlos Platz sichern" : "Platz sichern"}
-          <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4l4 4-4 4" stroke={T.nachtTief} strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
-        </a>
+        {angemeldet ? <AngemeldetHinweis daten={angemeldet} /> : (
+          <>
+            {!E.zahlungAktiv && !gratis && (
+              <p style={{ margin: "0 0 10px", fontSize: 13.5, lineHeight: 1.5, color: T.nacht }}>
+                Die Online-Buchung startet in Kürze. <b>Mit Bonuscode</b> können Sie sich schon jetzt anmelden.
+              </p>
+            )}
+            <BonusFeld />
+            {E.zahlungAktiv ? (
+              <a className="eab-knopf eab-gold" href={ticketHref(bonus)} rel="noopener" style={{ width: "100%" }}>
+                {gratis ? "Kostenlos Platz sichern" : "Platz sichern"}
+                <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4l4 4-4 4" stroke={T.nachtTief} strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
+              </a>
+            ) : gratis && <AnmeldeFormular bonus={bonus} />}
+          </>
+        )}
         <button type="button" className="eab-knopf eab-rand-dunkel" onClick={kalenderDatei} style={{ width: "100%", marginTop: 10 }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={T.nacht} strokeWidth="2" strokeLinecap="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5" /><path d="M3.5 10h17M8 3v4M16 3v4" /></svg>
           In den Kalender
@@ -696,7 +804,7 @@ function Leiste() {
   return (
     <div className={`eab-leiste${an ? " an" : ""}`} aria-hidden={!an}>
       <span className="eab-leiste-text"><b>{E.datumKurz.replace("Sonntag", "So")}</b>{E.uhrzeit} · {E.ort}</span>
-      <a className="eab-knopf eab-gold" href={ticketHref(bonus)} rel="noopener" tabIndex={an ? 0 : -1}>{bonusGratis(bonus) ? "Kostenlos" : `${E.preis} €`} · Platz sichern</a>
+      <a className="eab-knopf eab-gold" href={ticketHref(bonus)} onClick={zumTicket} rel="noopener" tabIndex={an ? 0 : -1}>{E.zahlungAktiv || bonusGratis(bonus) ? `${knopfText(bonus, false)} · Platz sichern` : "Platz sichern"}</a>
     </div>
   );
 }
@@ -733,7 +841,7 @@ export function ElternabendSeite({ gebucht }) {
                 und was Ihr Kind mit System und Freude erreichen kann.
               </p>
               <div className="eab-knopfreihe">
-                <a className="eab-knopf eab-gold" href={ticketHref(bonus)} rel="noopener">Platz sichern – {bonusGratis(bonus) ? "kostenlos" : `${E.preis} €`}</a>
+                <a className="eab-knopf eab-gold" href={ticketHref(bonus)} onClick={zumTicket} rel="noopener">{knopfText(bonus, true)}</a>
                 <a className="eab-knopf eab-rand" href="#eab-programm">Was Sie erwartet</a>
               </div>
               <Countdown />
@@ -879,11 +987,15 @@ export function ElternabendSeite({ gebucht }) {
           <h2 className="eab-h2">Ein Abend, der Mathe zu Hause leichter macht.</h2>
           <p className="eab-lead" style={{ marginLeft: "auto", marginRight: "auto" }}>Die Plätze im Café sind auf {E.plaetze} begrenzt. Sichern Sie sich Ihr Ticket – wir freuen uns auf Sie.</p>
           <div className="eab-knopfreihe">
-            <a className="eab-knopf eab-gold" href={ticketHref(bonus)} rel="noopener">Platz sichern – {bonusGratis(bonus) ? "kostenlos" : `${E.preis} €`}</a>
+            <a className="eab-knopf eab-gold" href={ticketHref(bonus)} onClick={zumTicket} rel="noopener">{knopfText(bonus, true)}</a>
             <button type="button" className="eab-knopf eab-rand" onClick={kalenderDatei}>In den Kalender</button>
           </div>
-          <Zahlungsmarken />
-          <p style={{ marginTop: 12, fontSize: 13, color: T.blauText }}>Sichere Zahlung über Stripe. Die Bestätigung kommt per E-Mail.</p>
+          {E.zahlungAktiv ? (
+            <>
+              <Zahlungsmarken />
+              <p style={{ marginTop: 12, fontSize: 13, color: T.blauText }}>Sichere Zahlung über Stripe. Die Bestätigung kommt per E-Mail.</p>
+            </>
+          ) : <p style={{ marginTop: 12, fontSize: 13, color: T.blauText }}>Die Online-Buchung startet in Kürze. Mit Bonuscode können Sie sich schon jetzt im Ticket oben anmelden.</p>}
         </div>
       </section>
 
