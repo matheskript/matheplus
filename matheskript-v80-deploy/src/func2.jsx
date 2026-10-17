@@ -1578,11 +1578,12 @@ export function Startseite({ gehe }) {
       <ZonenKopf nr={3} titel="Entdecken" zeile="Herleiten, Kurse, Mathilda und Pen & Paper." />
       </>)}
       {!desktop && entdeckenBlock}
+      {/* Elternabend: immer sichtbar und offen */}
+      <ElternabendKachel onClick={() => gehe({ ansicht: "elternabend" })} />
       {ZEIGE_GESPERRTE && (<>
       <MatheCheckenKachel gesperrt onClick={() => gehe({ ansicht: "mathecheck" })} />
       <MasterclassKachel gesperrt onClick={() => gehe({ ansicht: "masterclass" })} />
       <MathCreatorKachel />
-      <ElternabendKachel gesperrt onClick={() => gehe({ ansicht: "elternabend" })} />
       </>)}
       {!desktop && (<>
       {/* Mathe-Mindset-Kurs: zwischen Mathe-Training und Mathilda AI */}

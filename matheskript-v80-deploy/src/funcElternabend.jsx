@@ -145,7 +145,7 @@ export function ElternabendKachel({ onClick, gesperrt }) {
         </h2>
         <span aria-hidden="true" style={{ display: "block", width: 44, height: 3, borderRadius: 2, marginTop: 6, background: NAVY }} />
         <p style={{ fontSize: 13, fontWeight: 700, lineHeight: 1.35, marginTop: 6, marginBottom: 0 }}>
-          {ELTERNABEND.ort} <span style={{ fontWeight: 400, color: "#3B4763" }}>· Dingelsdorf</span>
+          {ELTERNABEND.uhrzeit} <span style={{ fontWeight: 400, color: "#3B4763" }}>· {ELTERNABEND.ort}</span>
         </p>
         <p style={{ fontSize: 12.5, fontWeight: 500, lineHeight: 1.4, marginTop: 4, marginBottom: 0, color: "#1B2A4F" }}>
           <SatzZeilen text="Die Infoveranstaltung mit Entertainment-Charakter und Aha-Momenten." />
