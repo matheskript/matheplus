@@ -70,8 +70,9 @@ function PlotterLogoKlein() {
 
 /* Weißer Rahmen hinter einem aufgeklappten Menü (inkl. der aufgeklappten Kachel selbst).
    Das jeweils innerste offene Menü wird hervorgehoben: Es bleibt weiß, und alles andere auf der Seite
-   wird per Schatten (0 0 0 200vmax) abgedunkelt. „Innerstes“ = ein offener Rahmen ohne weiteren offenen
-   Rahmen darin (CSS :has). Ohne :has-Unterstützung bleibt es bei den weißen Rahmen ohne Abdunklung.
+   wird per Schatten (0 0 0 200vmax) abgedunkelt – nur auf dem Handy (unter 840 px); am Desktop keine Abdunklung.
+   „Innerstes“ = ein offener Rahmen ohne weiteren offenen Rahmen darin (CSS :has). Ohne :has-Unterstützung
+   bleibt es bei den weißen Rahmen ohne Abdunklung.
    Der Wrapper bleibt immer im DOM (kein Remount beim Umschalten); zugeklappt ist er unsichtbar.
    Geometrie: Der Rahmen reicht 24 px (= Seitenrand px-6) nach links und rechts, also auf dem Handy bis an
    den Bildschirmrand. Die breiten Kacheln ragen 16 px über die Inhaltsbreite → überall 8 px Abstand zum
@@ -82,8 +83,8 @@ const AUFKLAPP_ABSTAND = 8;   // Abstand Kachel ↔ Rahmen, oben, unten, links u
 const AUFKLAPP_CSS = `.aufklapp-rahmen{transition:box-shadow .25s ease}
   .aufklapp-rahmen[data-aufklapp-rahmen]{box-shadow:0 6px 18px rgba(20,28,45,0.14)}
   [data-aufklapp-innen]>:last-child,[data-aufklapp-innen]>:last-child>[data-aufklapp-inhalt]:last-child{margin-bottom:0 !important}
-  .aufklapp-rahmen[data-aufklapp-rahmen]:not(:has([data-aufklapp-rahmen])){position:relative;z-index:5;
-    box-shadow:0 0 0 200vmax rgba(8,16,40,0.62)}`;
+  @media (max-width: 839.98px){.aufklapp-rahmen[data-aufklapp-rahmen]:not(:has([data-aufklapp-rahmen])){position:relative;z-index:5;
+    box-shadow:0 0 0 200vmax rgba(8,16,40,0.62)}}`;
 function AufklappRahmen({ auf, innen, rahmenRef, children }) {
   return (
     <div ref={rahmenRef} className="aufklapp-rahmen" data-aufklapp-rahmen={auf ? "" : undefined}
@@ -929,7 +930,9 @@ function UnterMenue({ eintraege, gehe, tiefe = 0, linie }) {
 }
 
 /* ---------- Schulmathe-Training: Bausteine ---------- */
-const STUFE_SCHLUESSEL = "matheplus-stufe";
+/* Eigener Schlüssel (nicht "matheplus-stufe"): den benutzt die Formelsammlung mit anderen Werten (unter/mittel/ober).
+   Vorher setzte „Mittelstufe“ in der Formelsammlung die Startseite still auf Mittelstufe → nur Station „Kennen“ sichtbar. */
+const STUFE_SCHLUESSEL = "matheplus-start-stufe";
 const ZULETZT_SCHLUESSEL = "matheplus-zuletzt-werkzeug";
 const lies = (k, d) => { try { return localStorage.getItem(k) ?? d; } catch { return d; } };
 
