@@ -101,6 +101,7 @@ ${POP_CSS}
 .wk-feld.mit-kopf{flex-direction:column;align-items:stretch;justify-content:center;gap:2px;padding:6px 10px 8px}
 .wk-feld .wk-kopf{font-size:11.5px;font-weight:600;color:${C.grau};line-height:1.25}
 .wk-feld .wk-zeile1{display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0}
+.wk-feld.gestapelt .wk-zeile1{flex-direction:column;align-items:flex-start;gap:0;flex-wrap:nowrap}
 .wk-grid.kette{grid-template-columns:minmax(0,1fr) 14px minmax(0,1fr) 14px minmax(0,1fr);gap:8px 2px;align-items:stretch}
 .wk-grid.kette .wk-feld{padding:6px 8px 8px}
 .wk-grid.kette .wk-feld .wk-label{font-size:13.5px}
@@ -132,7 +133,7 @@ ${POP_CSS}
 export const FARBE = { u: C.see, v: C.gruen };
 
 /* Ein Eingabe-/Anzeigefeld: Label „u(x) =“, Formel, Status */
-export function Feld({ label, labelFarbe, text, tex: fertigTex, aktiv, status, still, platzhalter = "hier eingeben …", onClick, extra, kopf }) {
+export function Feld({ label, labelFarbe, text, tex: fertigTex, aktiv, status, still, platzhalter = "hier eingeben …", onClick, extra, kopf, gestapelt }) {
   const zeile = (
     <>
       <span className="wk-label" style={labelFarbe ? { color: labelFarbe } : undefined}>{label}</span>
@@ -148,7 +149,7 @@ export function Feld({ label, labelFarbe, text, tex: fertigTex, aktiv, status, s
     </>
   );
   return (
-    <div className={`wk-feld${kopf ? " mit-kopf" : ""}`} data-aktiv={!!aktiv} data-status={status || undefined} data-still={!!still} onClick={still ? undefined : onClick}
+    <div className={`wk-feld${kopf ? " mit-kopf" : ""}${gestapelt ? " gestapelt" : ""}`} data-aktiv={!!aktiv} data-status={status || undefined} data-still={!!still} onClick={still ? undefined : onClick}
       role={still ? undefined : "button"} tabIndex={still ? undefined : 0} aria-pressed={still ? undefined : !!aktiv}
       onKeyDown={(e) => { if (!still && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); onClick && onClick(); } }}>
       {kopf ? <><span className="wk-kopf">{kopf}</span><div className="wk-zeile1">{zeile}</div></> : zeile}
@@ -516,11 +517,11 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
     if (id === "uv") return tex(ml.uv);
     return "";
   };
-  const ablFeld = (id, teil, kopf, label = `${teil}′(x) =`) => {
+  const ablFeld = (id, teil, kopf, label = `${teil}′(x) =`, gestapelt = false) => {
     const e = felder[id];
-    if (!training) return <Feld kopf={kopf} label={label} labelFarbe={FARBE[teil]} tex={gueltig ? ablTex(id) : ""} still />;
-    if (e.status === "gezeigt") return <Feld kopf={kopf} label={label} labelFarbe={FARBE[teil]} tex={e.zeig} status="gezeigt" still />;
-    return <Feld kopf={kopf} label={label} labelFarbe={FARBE[teil]} text={e.text} aktiv={aktiv === id} status={e.status} onClick={() => waehleFeld(id)} />;
+    if (!training) return <Feld kopf={kopf} gestapelt={gestapelt} label={label} labelFarbe={FARBE[teil]} tex={gueltig ? ablTex(id) : ""} still />;
+    if (e.status === "gezeigt") return <Feld kopf={kopf} gestapelt={gestapelt} label={label} labelFarbe={FARBE[teil]} tex={e.zeig} status="gezeigt" still />;
+    return <Feld kopf={kopf} gestapelt={gestapelt} label={label} labelFarbe={FARBE[teil]} text={e.text} aktiv={aktiv === id} status={e.status} onClick={() => waehleFeld(id)} />;
   };
   const uvFeld = (teil, text, setText, kopf) => (
     <Feld kopf={kopf} label={`${LABEL(art, teil)}(x) =`} labelFarbe={FARBE[teil]} text={text} aktiv={!training && aktiv === teil} still={training}
@@ -606,19 +607,33 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
 
         {/* Bausteine; bei Ketten steht u′(v(x)) als dritte Box in der ersten Zeile */}
         <p style={{ fontSize: 12.5, color: C.grau, margin: "0 2px 8px", lineHeight: 1.5 }}>{ROLLEN[art]}</p>
+        {/* Ketten: erste Zeile mit drei Boxen, die zweite Zeile (innere Funktion/Ableitung) über die volle Breite */}
         <div className={`wk-grid${kette ? " kette" : ""}`}>
           {mitU && <>
-            {uvFeld("u", uText, setUText, kette ? "äußere Funktion" : undefined)}
+            {uvFeld("u", uText, setUText, kette ? "äußere FKT" : undefined)}
             <span className="wk-pfeil" aria-hidden="true">→</span>
-            {ablFeld("u1", "u", kette ? "äußere Ableitung" : undefined)}
-            {kette && <><span className="wk-pfeil" aria-hidden="true">→</span>{ablFeld("uv", "u", "u′ an der Stelle v(x)", "u′(v(x)) =")}</>}
+            {ablFeld("u1", "u", kette ? "äußere ABL" : undefined)}
+            {kette && <><span className="wk-pfeil" aria-hidden="true">→</span>{ablFeld("uv", "u", "u′ an der Stelle v(x)", "u′(v(x)) =", true)}</>}
           </>}
-          {mitU && zeigeNeben && nebenU && <Nebenrechnung teil="u" baum={u} farbe={FARBE.u} />}
-          {uvFeld("v", vText, setVText, kette ? "innere Funktion" : undefined)}
-          <span className="wk-pfeil" aria-hidden="true">→</span>
-          {ablFeld("v1", "v", kette ? "innere Ableitung" : undefined)}
-          {zeigeNeben && nebenV && <Nebenrechnung teil="v" baum={v} farbe={FARBE.v} />}
+          {!kette && mitU && zeigeNeben && nebenU && <Nebenrechnung teil="u" baum={u} farbe={FARBE.u} />}
+          {!kette && <>
+            {uvFeld("v", vText, setVText)}
+            <span className="wk-pfeil" aria-hidden="true">→</span>
+            {ablFeld("v1", "v")}
+            {zeigeNeben && nebenV && <Nebenrechnung teil="v" baum={v} farbe={FARBE.v} />}
+          </>}
         </div>
+        {kette && (
+          <>
+            {zeigeNeben && nebenU && <div className="wk-grid" style={{ marginTop: 8 }}><Nebenrechnung teil="u" baum={u} farbe={FARBE.u} /></div>}
+            <div className="wk-grid" style={{ marginTop: 8 }}>
+              {uvFeld("v", vText, setVText, "innere Funktion")}
+              <span className="wk-pfeil" aria-hidden="true">→</span>
+              {ablFeld("v1", "v", "innere Ableitung")}
+              {zeigeNeben && nebenV && <Nebenrechnung teil="v" baum={v} farbe={FARBE.v} />}
+            </div>
+          </>
+        )}
         {training && ["u1", "uv", "v1"].map((id) => felder[id].hinweis && (
           <p key={id} style={{ fontSize: 13.5, color: C.signal, lineHeight: 1.6, margin: "8px 4px 0" }}>{id === "uv" ? "u′(v(x))" : `${id[0]}′`}: {felder[id].hinweis}</p>
         ))}

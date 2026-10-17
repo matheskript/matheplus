@@ -1,5 +1,7 @@
 {
  "exakt": {
+  "äußere FKT": "outer fn",
+  "äußere ABL": "outer der",
   "äußere Funktion": "outer function",
   "innere Funktion": "inner function",
   "äußere Ableitung": "outer derivative",
