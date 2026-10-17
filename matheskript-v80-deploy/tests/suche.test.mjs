@@ -11,6 +11,10 @@ const erste = (r) => r.gruppen?.[0]?.id;
 /* alle Ansichten, die func10.jsx kennt – ein Ziel darf nirgends ins Leere laufen */
 const quelle = readFileSync(new URL("../src/func10.jsx", import.meta.url), "utf8");
 const ANSICHTEN = new Set([...quelle.matchAll(/ansicht === "([a-z0-9-]+)"/g)].map((m) => m[1]));
+/* Werkzeugseiten stehen seit dem Refactor als Tabelle in funcWerkzeugSeite.jsx */
+const wzQuelle = readFileSync(new URL("../src/funcWerkzeugSeite.jsx", import.meta.url), "utf8");
+const wzTabelle = wzQuelle.slice(wzQuelle.indexOf("export const WZ_SEITEN"));
+for (const m of wzTabelle.matchAll(/^  ([a-z0-9]+): \{ titel:/gm)) ANSICHTEN.add(m[1]);
 
 test("Index: eindeutige Kennungen, gültige Ziele, Formel-Sprünge zeigen auf echte Formeln", () => {
   const ids = new Set();

@@ -42,7 +42,7 @@ import { HeadNumbersLogoKlein } from "./funcHeadNumbersLogo.jsx";
    Fakten nur aus vorhandenen Quellen – keine erfundenen Zahlen, Zitate oder Bewertungen.
    ====================================================================== */
 
-export const LANDING = "landingpage";
+export { LANDING } from "./seitenKonstanten.js";
 
 const F = {
   nacht: "#0E1E4A", nachtTief: "#091535", see: "#004D98", seeHell: "#5B8FD1",

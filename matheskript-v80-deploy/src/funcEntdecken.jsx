@@ -466,27 +466,4 @@ export function EntdeckenSeite({ start }) {
   );
 }
 
-/* Logo für die Startkachel: Lupe über einem Pascalschen Dreieck, daneben die Potenzregel-Idee */
-export function EntdeckenLogoKlein() {
-  const W = 230, H = 190;
-  const reihen = [[1], [1, 1], [1, 2, 1], [1, 3, 3, 1]];
-  return (
-    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
-      {reihen.map((r, i) => r.map((z, j) => {
-        const x = 115 + (j - (r.length - 1) / 2) * 34, y = 32 + i * 28;
-        const markiert = i === 3 && (j === 1 || j === 2);
-        return (
-          <g key={`${i}-${j}`}>
-            <circle cx={x} cy={y} r="13" fill={markiert ? C.flaggold : "rgba(255,255,255,0.1)"} stroke={markiert ? C.flaggold : "rgba(255,255,255,0.35)"} strokeWidth="1.5" />
-            <text x={x} y={y + 4.5} textAnchor="middle" fontSize="13" fontWeight="700" fontFamily="Montserrat, system-ui, sans-serif" fill={markiert ? C.seeTief : C.weiss}>{z}</text>
-          </g>
-        );
-      }))}
-      <g transform="translate(146 126)">
-        <circle cx="22" cy="22" r="17" fill="rgba(255,255,255,0.08)" stroke={C.flaggold} strokeWidth="4" />
-        <line x1="34" y1="34" x2="52" y2="52" stroke={C.flaggold} strokeWidth="6" strokeLinecap="round" />
-      </g>
-      <text x="34" y="170" fontSize="20" fontWeight="700" fontFamily="Montserrat, system-ui, sans-serif" fill={C.weiss} opacity="0.85">xⁿ</text>
-    </svg>
-  );
-}
+export { EntdeckenLogoKlein } from "./funcEntdeckenLogo.jsx";

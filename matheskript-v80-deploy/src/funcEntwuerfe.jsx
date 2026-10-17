@@ -18,14 +18,8 @@ import { AufklappZeichen } from "./aufklappen.jsx";
    Seiten-Knopf in der Kopfleiste (func10.jsx).
    ====================================================================== */
 
-export const ENTWUERFE = [
-  { ansicht: "entwurf-start", name: "Neue Startseite", kurz: "Weniger Mathe-Stress – Einstieg & Überblick" },
-  { ansicht: "entwurf-checken", name: "Mathe-Checken", kurz: "Kursseite – 2-Monats-Konzept" },
-  { ansicht: "entwurf-pakete", name: "Tool-Pakete", kurz: "Kostenlos, Plus & Maximum" },
-  { ansicht: "entwurf-werkzeuge", name: "Alle Werkzeuge", kurz: "Alte Startseite mit allen Rechentools" },
-  { ansicht: "entwurf-vorher", name: "Vorher: Stand 17.10.", kurz: "Website vor der Max-Version – Desktop & Mobil" },
-];
-export const istEntwurf = (a) => typeof a === "string" && a.startsWith("entwurf-");
+export { ENTWUERFE, istEntwurf } from "./seitenKonstanten.js";
+import { istEntwurf } from "./seitenKonstanten.js";
 
 /* ---------------------------------------------------------------- Passwort-Sperre
    Die Entwurfsseiten sind intern: Zugang nur mit Passwort (klein geschrieben).
