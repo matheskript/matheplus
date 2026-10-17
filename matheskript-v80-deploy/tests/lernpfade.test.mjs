@@ -60,7 +60,7 @@ test("Termin: Einheiten pro Woche steigen, bis der Plan passt", () => {
   const unmoeglich = terminPruefen(27, 3, jetzt + 8 * TAG_MS, jetzt);
   assert.equal(unmoeglich.passt, false); assert.equal(unmoeglich.proWoche, 7);
   const P = planErzeugen({ pfad: "analysis", ziel: "klausur", termin: jetzt + 15 * TAG_MS, proWoche: 2, jetzt });
-  assert.equal(P.proWoche, 5);
+  assert.equal(P.proWoche, Math.ceil(pfadEinheiten("analysis").length / 2));   // 15 Tage → 2 Wochen
   assert.throws(() => planErzeugen({ pfad: "gibtsnicht" }));
 });
 
