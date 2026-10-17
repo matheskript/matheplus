@@ -526,7 +526,7 @@ export function Plotter() {
       </div>
 
       {/* Erst auf Knopfdruck kommt die ganze Kurvendiskussion */}
-      <button type="button" aria-expanded={offen} onClick={diskussionUmschalten}
+      <button type="button" className="kd-knopf" aria-expanded={offen} onClick={diskussionUmschalten}
         style={{ marginTop: 18, width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
           padding: "15px 18px", border: "none", borderRadius: 14, cursor: "pointer", fontFamily: "inherit", fontSize: 15.5, fontWeight: 700,
           color: C.weiss, background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, boxShadow: "0 6px 20px rgba(0,77,152,0.25)" }}>
