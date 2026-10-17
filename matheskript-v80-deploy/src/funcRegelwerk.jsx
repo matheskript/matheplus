@@ -418,28 +418,43 @@ export function RegelWerkstatt({ regel: regelProp }) {
   const fertig = training && offen.length === 0 && gueltig;
 
   const soll = (id) => (id === "u1" ? ableitung(u) : id === "v1" ? ableitung(v) : ml.soll);
-  const pruefen = () => {
-    if (!training || !ml || !felder[aktiv]) return;
-    const e = felder[aktiv];
+  // Rückmeldung für ein einzelnes Feld; liefert true/false (richtig) oder null (Term unvollständig)
+  const pruefeFeld = (id) => {
+    const e = felder[id];
     const b = lies(e.text);
-    if (!b) { setFeld(aktiv, { status: "falsch", hinweis: "Der Term ist noch nicht vollständig – fülle alle Platzhalter ▯ und schließe die Klammern." }); return; }
-    const s = soll(aktiv);
+    if (!b) return null;
+    const s = soll(id);
     const ok = gleichwertig(b, s);
-    setBilanz((bz) => ({ richtig: bz.richtig + (ok ? 1 : 0), gesamt: bz.gesamt + 1 }));
     buchen({ richtig: ok, gruppe: `werkstatt-${art}`, stufe });
     if (ok) {
-      setFeld(aktiv, { status: "richtig", hinweis: "" });
+      setFeld(id, { status: "richtig", hinweis: "" });
     } else {
       let hinweis;
-      if (aktiv === "f1") hinweis = diagnose(b, s, fehlerbilder(art, u, v));
+      if (id === "f1") hinweis = diagnose(b, s, fehlerbilder(art, u, v));
       else {
-        const basis = aktiv === "u1" ? u : v;
-        hinweis = gleichwertig(b, basis) ? `Das ist ${aktiv[0]} selbst – du hast noch nicht abgeleitet.` : diagnose(b, s);
+        const basis = id === "u1" ? u : v;
+        hinweis = gleichwertig(b, basis) ? `Das ist ${id[0]} selbst – du hast noch nicht abgeleitet.` : diagnose(b, s);
         const r = regelFuer(basis);
-        if (!["grund", "konst", "summe"].includes(r.art) && !gleichwertig(b, basis)) hinweis += ` Tipp: ${aktiv[0]} braucht selbst die ${REGELN[r.art].name}.`;
+        if (!["grund", "konst", "summe"].includes(r.art) && !gleichwertig(b, basis)) hinweis += ` Tipp: ${id[0]} braucht selbst die ${REGELN[r.art].name}.`;
       }
-      setFeld(aktiv, { status: "falsch", hinweis, versuche: e.versuche + 1 });
+      setFeld(id, { status: "falsch", hinweis, versuche: e.versuche + 1 });
     }
+    return ok;
+  };
+  const UNVOLLSTAENDIG = "Der Term ist noch nicht vollständig – fülle alle Platzhalter ▯ und schließe die Klammern.";
+  const pruefen = () => {
+    if (!training || !ml || !felder[aktiv]) return;
+    // Das aktive Feld ist unvollständig: Eingabe bleibt offen, nichts wird gewertet
+    if (!lies(felder[aktiv].text)) { setFeld(aktiv, { status: "falsch", hinweis: UNVOLLSTAENDIG }); return; }
+    // OK bewertet das aktive Feld und alle anderen beschriebenen, noch ungeprüften Felder
+    const ids = reihenfolge.filter((id) => id === aktiv || (felder[id].status === null && felder[id].text.trim() !== ""));
+    let richtig = 0, gesamt = 0;
+    ids.forEach((id) => {
+      const r = pruefeFeld(id);
+      if (r === null) setFeld(id, { status: "falsch", hinweis: UNVOLLSTAENDIG });
+      else { gesamt += 1; if (r) richtig += 1; }
+    });
+    setBilanz((bz) => ({ richtig: bz.richtig + richtig, gesamt: bz.gesamt + gesamt }));
     // Nach OK verschwindet die Eingabe; Antippen eines Feldes öffnet sie wieder.
     setAktiv(null);
   };
