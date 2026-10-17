@@ -3,14 +3,14 @@
 import React from "react";
 import { C } from "./base1.jsx";
 import "@fontsource/caveat/600.css";
-import { WHITE, FEAT, HAAR_HINTEN, HAAR_LINKS, HAAR_RECHTS, HAAR_LINIEN } from "./mathildaPortraet.js";
+import { HAAR, HAUT, FEAT, HAAR_LINIEN } from "./mathildaPortraet.js";
 
 const GOLD = C.flaggold;
 const NACHT = C.seeTief;
 
 /* Mathilda als Scherenschnitt, aus dem Foto abgeleitet (siehe mathildaPortraet.js):
-   Haar in Logo-Gold, Haut und Oberteil weiß, Schatten als echte Aussparung (Maske),
-   dazu Sonnenbrille, Ohrring und ein leichtes Grinsen. Sitzt auf jedem Hintergrund. */
+   Haar in Logo-Gold, Haut weiß, Schatten als echte Aussparung (Maske), dazu Sonnenbrille,
+   Ohrring und ein leichtes Grinsen. Sitzt auf jedem Hintergrund. */
 export function MathildaBild({ groesse = 220, style, className }) {
   const id = "mm" + React.useId().replace(/[^a-zA-Z0-9]/g, "");
   const glas = (cx, sx) => (
@@ -30,23 +30,23 @@ export function MathildaBild({ groesse = 220, style, className }) {
         </linearGradient>
         <mask id={id} maskUnits="userSpaceOnUse" x="0" y="0" width="320" height="440">
           <rect width="320" height="440" fill="#000" />
-          <path fill="#fff" d={HAAR_HINTEN} />
-          <path fill="#fff" fillRule="evenodd" d={WHITE} />
+          <path fill="#fff" fillRule="evenodd" d={HAAR} />
+          <path fill="#fff" fillRule="evenodd" d={HAUT} />
           <path fill="#000" fillRule="evenodd" d={FEAT} />
-          {/* leichtes Grinsen mit hochgezogenen Mundwinkeln */}
+          {/* leichtes Grinsen */}
           <path fill="#000" d="M132 279 C 137 278, 142 283, 149 286.5 C 164 293, 191 293, 206 286 C 213 282.5, 218 277.5, 224 276.5 C 222 283, 216 291, 207 295.5 C 190 302.5, 163 302.5, 147 295.5 C 139 292, 134.5 286, 132 279 Z" />
           <path fill="none" stroke="#000" strokeWidth="2.6" strokeLinecap="round" d="M128 274 C 129 277, 131 280, 134 282 M228 271 C 227 274, 225 277, 222 279" />
           <path fill="none" stroke="#000" strokeWidth="3" strokeLinecap="round" d="M164 309 C 172 312, 184 312, 192 309" />
+          {/* Kieferschatten und Halsschatten wie auf dem Foto */}
+          <path fill="#000" d="M86 296 C 92 318, 108 338, 130 350 C 146 358, 160 361, 172 360 C 196 358, 222 346, 242 327 C 250 319, 255 309, 258 298 C 254 318, 238 340, 214 352 C 196 360, 182 363, 170 363 C 154 362, 134 356, 120 346 C 104 334, 92 316, 86 296 Z" />
+          <path fill="#000" d="M138 366 C 154 376, 186 376, 206 364 C 198 382, 178 390, 170 390 C 158 388, 145 380, 138 366 Z" />
         </mask>
+        <clipPath id={id + "h"}><path clipRule="evenodd" d={HAAR} /></clipPath>
       </defs>
       <g mask={`url(#${id})`}>
-        <path fill={GOLD} d={HAAR_HINTEN} />
-        <path fill="#FFFFFF" fillRule="evenodd" d={WHITE} />
+        <path fill={GOLD} fillRule="evenodd" d={HAAR} />
+        <path fill="#FFFFFF" fillRule="evenodd" d={HAUT} />
       </g>
-      {/* Stirn zum Mittelscheitel, Haar als zwei glatte Vorhänge, wenige feine Linien */}
-            <path fill={GOLD} d={HAAR_LINKS} />
-      <path fill={GOLD} d={HAAR_RECHTS} />
-      <clipPath id={id + "h"}><path d={HAAR_HINTEN} /></clipPath>
       <path fill="none" stroke="#12305F" strokeWidth="2" strokeLinecap="round" clipPath={`url(#${id}h)`} d={HAAR_LINIEN} />
       {/* Sonnenbrille */}
       <path d="M82 171 C 66 171, 48 175, 34 184" fill="none" stroke={GOLD} strokeWidth="4" strokeLinecap="round" />
@@ -128,7 +128,7 @@ export function MathildaKopf({ modus, setModus, onScan }) {
           .mathilda-kopf .mk-innen { grid-template-columns: 1fr 34vw; gap: 0 12px; padding-top: 20px; align-items: stretch; }
           .mathilda-kopf .mk-text { align-self: start; padding: 0 0 16px; }
           .mathilda-kopf .mk-portraet { margin-right: 0; align-self: stretch; position: relative; }
-          .mathilda-kopf .mk-portraet svg { position: absolute; right: -14px; bottom: 16px; height: calc(100% - 16px); width: auto; max-width: none; margin: 0; }
+          .mathilda-kopf .mk-portraet svg { position: absolute; left: calc(50% + 6px); right: auto; translate: -50% 0; bottom: 16px; height: calc(100% - 16px); width: auto; max-width: none; margin: 0; }
           .mathilda-kopf .mk-schein { display: none; }
           .mathilda-kopf .mk-ober { font-size: 10px; letter-spacing: .12em; margin-bottom: 8px; }
           .mathilda-kopf .mk-titel { font-size: 30px; }
