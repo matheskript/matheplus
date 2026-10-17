@@ -52,6 +52,73 @@ const striche = (t) => t.replace(/''/g, "″").replace(/'/g, "′");
 const pdfText = (t) => striche(schoenText(t));
 
 /* Wandelt die LaTeX-Zeilen (Mitternachtsformel) in gut lesbaren Klartext. */
+/* ---------- Wurzeln im PDF ----------
+   latexZuText markiert \sqrt{…} mit W_AUF … W_ZU. wBreite/wText zeichnen daraus ein echtes
+   Wurzelzeichen: Anstrich, Abstrich, Aufstrich und Überstrich als EIN Linienzug, der Überstrich
+   läuft aus der Spitze des Aufstrichs in derselben Höhe über den ganzen Radikanden. */
+const W_AUF = "\uE000", W_ZU = "\uE001";
+const W_HAKEN = 0.56, W_LUFT = 0.08, W_RECHTS = 0.06;     // in em
+
+function wTeile(t) {
+  const teile = [];
+  let i = 0, rest = 0;
+  while (i < t.length) {
+    if (t[i] === W_AUF) {
+      if (i > rest) teile.push({ text: t.slice(rest, i) });
+      let tiefe = 0, j = i;
+      for (; j < t.length; j++) {
+        if (t[j] === W_AUF) tiefe++;
+        else if (t[j] === W_ZU) { tiefe--; if (tiefe === 0) break; }
+      }
+      teile.push({ wurzel: t.slice(i + 1, j) });
+      i = rest = j + 1;
+    } else i++;
+  }
+  if (rest < t.length) teile.push({ text: t.slice(rest) });
+  return teile;
+}
+const wTiefe = (t) => wTeile(t).reduce((m, p) => (p.wurzel !== undefined ? Math.max(m, 1 + wTiefe(p.wurzel)) : m), 0);
+const hatHoch = (t) => /[⁰¹²³⁴⁵⁶⁷⁸⁹⁻ⁿ]/.test(t);
+
+/* Breite in mm bei der aktuell eingestellten Schriftgröße */
+function wBreite(doc, t) {
+  const em = doc.getFontSize() * 0.3528;
+  return wTeile(t).reduce((sum, p) => sum + (p.text !== undefined
+    ? doc.getTextWidth(p.text)
+    : (W_HAKEN + W_LUFT + W_RECHTS) * em + wBreite(doc, p.wurzel)), 0);
+}
+
+/* Zeichnet t ab (x | y = Grundlinie); Farbe für Striche = Textfarbe */
+function wText(doc, t, x, y, strichFarbe) {
+  const em = doc.getFontSize() * 0.3528;
+  let xx = x;
+  wTeile(t).forEach((p) => {
+    if (p.text !== undefined) { doc.text(p.text, xx, y); xx += doc.getTextWidth(p.text); return; }
+    const innen = wBreite(doc, p.wurzel);
+    const oben = y - em * ((hatHoch(p.wurzel) ? 0.98 : 0.86) + 0.16 * wTiefe(p.wurzel));
+    const unten = y + 0.09 * em;
+    const sw = Math.max(0.16, em * 0.055);
+    const ax = xx + 0.03 * em, ay = y - 0.30 * em;
+    const bx = xx + 0.14 * em, by = y - 0.37 * em;
+    const cx = xx + 0.29 * em;
+    const dx = xx + W_HAKEN * em;
+    const ex = xx + (W_HAKEN + W_LUFT) * em + innen + W_RECHTS * em;
+    if (strichFarbe) doc.setDrawColor(...strichFarbe);
+    doc.setLineJoin("round");
+    doc.setLineCap("butt");
+    doc.setLineWidth(sw);
+    // EIN Linienzug: Anstrich → Abstrich → Aufstrich → Überstrich
+    doc.lines([[bx - ax, by - ay], [cx - bx, unten - by], [dx - cx, oben - unten], [ex - dx, 0]], ax, ay, [1, 1], "S", false);
+    doc.setLineCap("round");
+    doc.setLineWidth(sw * 1.7);
+    doc.line(bx, by, cx, unten);
+    doc.setLineCap("butt");
+    wText(doc, p.wurzel, xx + (W_HAKEN + W_LUFT) * em, y, strichFarbe);
+    xx = ex;
+  });
+  return xx;
+}
+
 function latexZuText(t) {
   let i = 0;
   const gruppe = () => {
@@ -63,7 +130,7 @@ function latexZuText(t) {
     }
     return t.slice(start);
   };
-  const einfach = (s) => /^-?[\w.,√·²³⁴⁵⁶⁷⁸⁹⁰¹]+$/.test(s);
+  const einfach = (s) => /^-?[\w.,√·²³⁴⁵⁶⁷⁸⁹⁰¹\uE000\uE001]+$/.test(s);
   let aus = "";
   while (i < t.length) {
     if (t.startsWith("\\frac", i)) {
@@ -75,7 +142,7 @@ function latexZuText(t) {
       let wurzelIndex = "";
       if (t[i] === "[") { const j = t.indexOf("]", i); wurzelIndex = hochZiffer(t.slice(i + 1, j)); i = j + 1; }   // \sqrt[4]{…}
       const r = latexZuText(gruppe());
-      aus += wurzelIndex + (einfach(r) ? `√${r}` : `√(${r})`);
+      aus += wurzelIndex + W_AUF + r + W_ZU;      // wird von wText als echte Wurzel mit Überstrich gezeichnet
     } else if (t.startsWith("\\text", i) && t[i + 5] === "{") {
       i += 5;
       aus += gruppe();
@@ -325,15 +392,15 @@ function rechenZeile(doc, s, txt, { fett, farbe, mono, notiz }) {
   doc.setFontSize(gr);
   // Randbemerkung (z. B. „(nächster Term)“) steht mit deutlichem Abstand rechts daneben
   const ABSTAND = 12;
-  const breite = () => doc.getTextWidth(txt) + (notiz ? ABSTAND + doc.getTextWidth(notiz) * 0.9 : 0);
+  const breite = () => wBreite(doc, txt) + (notiz ? ABSTAND + doc.getTextWidth(notiz) * 0.9 : 0);
   while (breite() > SPALTE_B - 2 && gr > 4) { gr -= 0.2; doc.setFontSize(gr); }
   const basis = gr * 0.46, h = basis * ZA;
   s.platz(h);
   setzeText(doc, farbe);
   const yText = s.zustand.y + (h - basis) / 2 + basis * 0.78;
-  doc.text(txt, s.x(), yText);
+  wText(doc, txt, s.x(), yText, rgb(farbe || C.tinte));
   if (notiz) {
-    const xn = s.x() + doc.getTextWidth(txt) + ABSTAND;
+    const xn = s.x() + wBreite(doc, txt) + ABSTAND;
     doc.setFont("Sans", "normal");
     doc.setFontSize(gr * 0.9);
     setzeText(doc, C.hellgrau);
@@ -389,9 +456,9 @@ function formelZeile(doc, s, latex, { fett, farbe }) {
     doc.setFontSize(gr);
     const leer = doc.getTextWidth(" ");
     return vorbereitet.reduce((sum, p) => {
-      if (p.text !== undefined) return sum + doc.getTextWidth(p.text) + (p.vorn ? leer : 0) + (p.hinten ? leer : 0);
+      if (p.text !== undefined) return sum + wBreite(doc, p.text) + (p.vorn ? leer : 0) + (p.hinten ? leer : 0);
       doc.setFontSize(gr * BR);
-      const w = Math.max(doc.getTextWidth(p.zaehler), doc.getTextWidth(p.nenner));
+      const w = Math.max(wBreite(doc, p.zaehler), wBreite(doc, p.nenner));
       doc.setFontSize(gr);
       return sum + w + 2 * luecke(gr) + 1;
     }, 0);
@@ -399,8 +466,11 @@ function formelZeile(doc, s, latex, { fett, farbe }) {
   while (breite() > SPALTE_B - 2 && gr > 4) gr -= 0.2;
   const em = gr * 0.3528, emB = em * BR;
   const achse = 0.28 * em;                                  // Höhe des Bruchstrichs über der Grundlinie
-  const hZaehler = achse + 0.22 * emB + 0.78 * emB;         // Oberkante des Zählers über der Grundlinie
-  const hNenner = -achse + 0.85 * emB + 0.2 * emB;          // Unterkante des Nenners unter der Grundlinie
+  // Steht eine Wurzel im Zähler oder Nenner, braucht ihr Überstrich Platz: Zähler etwas höher, Nenner etwas tiefer.
+  const zW = vorbereitet.some((p) => p.zaehler !== undefined && p.zaehler.includes(W_AUF)) ? 0.18 * emB : 0;
+  const nW = vorbereitet.some((p) => p.nenner !== undefined && p.nenner.includes(W_AUF)) ? 0.26 * emB : 0;
+  const hZaehler = achse + 0.22 * emB + 0.78 * emB + zW;    // Oberkante des Zählers über der Grundlinie
+  const hNenner = -achse + 0.85 * emB + 0.2 * emB + nW;     // Unterkante des Nenners unter der Grundlinie
   const hNormal = gr * 0.46 * ZA;
   const h = Math.max(hNormal, hZaehler + Math.max(hNenner, 0) + 1.2 * SK);
   s.platz(h);
@@ -414,15 +484,15 @@ function formelZeile(doc, s, latex, { fett, farbe }) {
     if (p.text !== undefined) {
       if (p.vorn) x += leer;
       doc.setFontSize(gr);
-      doc.text(p.text, x, grundlinie);
-      x += doc.getTextWidth(p.text) + (p.hinten ? leer : 0);
+      wText(doc, p.text, x, grundlinie, rgb(farbe));
+      x += wBreite(doc, p.text) + (p.hinten ? leer : 0);
     } else {
       doc.setFontSize(gr * BR);
-      const wz = doc.getTextWidth(p.zaehler), wn = doc.getTextWidth(p.nenner);
+      const wz = wBreite(doc, p.zaehler), wn = wBreite(doc, p.nenner);
       const w = Math.max(wz, wn);
       const l = luecke(gr) + 0.5;
-      doc.text(p.zaehler, x + l + (w - wz) / 2, grundlinie - achse - 0.22 * emB);
-      doc.text(p.nenner, x + l + (w - wn) / 2, grundlinie - achse + 0.85 * emB);
+      wText(doc, p.zaehler, x + l + (w - wz) / 2, grundlinie - achse - 0.22 * emB, rgb(farbe));
+      wText(doc, p.nenner, x + l + (w - wn) / 2, grundlinie - achse + 0.85 * emB + nW, rgb(farbe));
       setzeStrich(doc, farbe);
       doc.setLineWidth(0.18 * SK + 0.06);
       doc.line(x + l * 0.6, grundlinie - achse, x + l * 1.4 + w, grundlinie - achse);

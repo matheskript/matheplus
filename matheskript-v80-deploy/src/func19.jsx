@@ -8,6 +8,7 @@
    ============================================================ */
 
 import React, { useRef, useState } from "react";
+import { WurzelZeichen } from "./wurzelZeichen.jsx";
 import { uebergabeErledigt, uebergabeLesen } from "./uebergabe.js";
 import { C } from "./base1.jsx";
 import { DrehKnoepfe, FARBE_ACHSE, GRUND_AUS, GrundebenenGitter, GrundebenenSchalter, ebenenPolygon, ebenenText, kamera } from "./func16.jsx";
@@ -52,10 +53,7 @@ export function Bruch({ oben, unten, gross }) {
 
 export function Wurzel({ children }) {
   return (
-    <span style={{ display: "inline-flex", alignItems: "stretch", whiteSpace: "nowrap" }}>
-      <span style={{ fontWeight: 400, transform: "scaleY(1.15)", marginRight: 1 }}>√</span>
-      <span style={{ borderTop: "1.4px solid currentColor", paddingTop: 1, paddingLeft: 1 }}>{children}</span>
-    </span>
+    <WurzelZeichen>{children}</WurzelZeichen>
   );
 }
 

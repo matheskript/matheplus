@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { uebergabeErledigt, uebergabeLesen } from "./uebergabe.js";
+import { WurzelZeichen } from "./wurzelZeichen.jsx";
 import { C } from "./base1.jsx";
 import { merken } from "./func5.jsx";
 import { API_URL } from "./base1.jsx";
@@ -74,9 +75,6 @@ const GL_CSS = `
 .gl-unten{padding:.1em .22em 0}
 .gl-hoch{font-size:.64em;position:relative;top:-.62em;vertical-align:baseline;line-height:0;margin-left:.04em}
 .gl-tief{font-size:.64em;position:relative;top:.28em;vertical-align:baseline;line-height:0}
-.gl-wurzel{display:inline-flex;align-items:flex-end;white-space:nowrap}
-.gl-wz{font-size:1.04em;line-height:1;margin-right:.02em}
-.gl-rad{border-top:1.5px solid currentColor;padding:.04em .1em 0;line-height:1.15}
 .gl-x{font-style:italic;font-weight:600;padding-right:.05em}
 .gl-taste{transition:transform .08s ease, background .12s ease}
 .gl-taste:active{transform:scale(.94)}
@@ -96,7 +94,7 @@ export function Baum({ n }) {
     case "reihe": return <>{n.c.map((c, i) => <Baum key={i} n={c} />)}</>;
     case "klammer": return <>(<Baum n={n.c} />)</>;
     case "tief": return <><Baum n={n.b} /><sub className="gl-tief"><Baum n={n.i} /></sub></>;
-    case "wurzel": return <span className="gl-wurzel"><span className="gl-wz">√</span><span className="gl-rad"><Baum n={n.c} /></span></span>;
+    case "wurzel": return <WurzelZeichen><Baum n={n.c} /></WurzelZeichen>;
     case "bruch": return <span className="gl-bruch"><span className="gl-oben"><Baum n={n.o} /></span><span className="gl-unten"><Baum n={n.u} /></span></span>;
     case "hoch": return <><Baum n={n.b} /><sup className="gl-hoch"><Baum n={n.e} /></sup></>;
     default: return null;
@@ -162,10 +160,10 @@ const MitternachtsKasten = ({ d }) => {
       </div>
       <div style={zeile}>
         <span><i className="gl-x">{d.var || "x"}</i><sub className="gl-tief">1,2</sub> =</span>
-        <span className="gl-bruch"><span className="gl-oben">−b ± <span className="gl-wurzel"><span className="gl-wz">√</span><span className="gl-rad">b² − 4ac</span></span></span><span className="gl-unten">2a</span></span>
+        <span className="gl-bruch"><span className="gl-oben">−b ± <WurzelZeichen>b² − 4ac</WurzelZeichen></span><span className="gl-unten">2a</span></span>
         <span>=</span>
         <span className="gl-bruch">
-          <span className="gl-oben"><Zahl r={neg(b)} /> ± <span className="gl-wurzel"><span className="gl-wz">√</span><span className="gl-rad"><Zahl r={b} klammer />² − 4·<Zahl r={a} klammer />·<Zahl r={c} klammer /></span></span></span>
+          <span className="gl-oben"><Zahl r={neg(b)} /> ± <WurzelZeichen><Zahl r={b} klammer />² − 4·<Zahl r={a} klammer />·<Zahl r={c} klammer /></WurzelZeichen></span>
           <span className="gl-unten">2·<Zahl r={a} klammer /></span>
         </span>
       </div>

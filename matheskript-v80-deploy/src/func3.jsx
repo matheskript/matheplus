@@ -1,5 +1,6 @@
 import { tr, englisch } from "./i18n.js";
 import React, { useState, useRef, useEffect, useLayoutEffect } from "react";
+import { WurzelZeichen } from "./wurzelZeichen.jsx";
 import { wBetrag, wGanz, wIstEins, wIstNull, wLies, wMul, wNegativ, wNum, wText, wTex, wZ } from "./wzahl.js";
 import { WeiterKnopf, WeiterMit } from "./funcWerkzeuge.jsx";
 import { polyEingabe } from "./uebergabe.js";
@@ -755,10 +756,7 @@ export function mZeichne(teile, imExponent = false) {
     if (t.typ === "sup") return <sup key={i} style={{ fontSize: "0.7em", lineHeight: 0 }}>{mZeichne(t.a, true)}</sup>;
     if (t.typ === "sub") return <sub key={i} style={{ fontSize: "0.7em", lineHeight: 0 }}>{mZeichne(t.a)}</sub>;
     if (t.typ === "sqrt") return (
-      <span key={i} style={{ verticalAlign: "middle", display: "inline-block" }}>
-        {t.n && <sup style={{ fontSize: "0.58em", lineHeight: 0, marginRight: "-0.18em", position: "relative", top: "-0.15em" }}>{t.n}</sup>}
-        √<span style={{ borderTop: "1.1px solid currentColor", padding: "0.08em 0.12em 0" }}>{mZeichne(t.a)}</span>
-      </span>
+      <WurzelZeichen key={i} index={t.n ? mZeichne(mLies(t.n, 0, null)[0]) : null}>{mZeichne(t.a)}</WurzelZeichen>
     );
     if (t.typ === "vec") return (
       <span key={i} style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", verticalAlign: "middle", lineHeight: 1 }}>

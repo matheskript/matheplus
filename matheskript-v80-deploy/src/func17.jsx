@@ -503,11 +503,11 @@ export function BernoulliBingo() {
           {formel.map((z, i) => <Zeile key={i} stark={i === formel.length - 1}>{z}</Zeile>)}
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8, marginTop: 10 }}>
-          {[["Erwartungs\u00ADwert", "μ = n · p", dez(n * p, 2)], ["Standardabw.", "σ = √(n·p·(1−p))", dez(Math.sqrt(n * p * q), 2)], ["Tipp", "k", `${k}`]].map(([t, f, w]) => (
+          {[["Erwartungs\u00ADwert", "μ = n · p", dez(n * p, 2)], ["Standardabw.", "$σ = \\sqrt{n \\cdot p \\cdot (1 − p)}$", dez(Math.sqrt(n * p * q), 2)], ["Tipp", "k", `${k}`]].map(([t, f, w]) => (
             <div key={t} style={{ background: C.himmel, borderRadius: 12, padding: "8px 10px" }}>
               <p style={{ fontSize: 11, color: C.grau, fontWeight: 600 }}>{t}</p>
               <p style={{ fontSize: 18, fontWeight: 800, color: C.see }}>{w}</p>
-              <p style={{ fontSize: 10.5, color: C.hellgrau }}>{f}</p>
+              <p style={{ fontSize: 10.5, color: C.hellgrau }}><MS s={f} /></p>
             </div>
           ))}
         </div>
