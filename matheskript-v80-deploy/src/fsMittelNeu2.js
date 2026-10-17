@@ -21,7 +21,7 @@ export const MITTEL_2 = [
       "$$M\\left(\\frac{1 + 7}{2} \\,|\\, \\frac{2 + (-4)}{2}\\right) = M(4 | -1)",
       "Probe: Von $A$ nach $M$ geht es 3 nach rechts und 3 nach unten – von $M$ nach $B$ genauso.",
     ],
-    falle: "Plus, nicht Minus: $\\frac{x_2 - x_1}{2}$ ist die halbe Breite der Strecke, nicht die Koordinate der Mitte. Bei $A(4 | 0)$, $B(10 | 0)$ ist die Mitte $5 + ... $ nein: $\\frac{4 + 10}{2} = 7$, nicht $\\frac{10 - 4}{2} = 3$.",
+    falle: "Plus, nicht Minus: $\\frac{x_2 - x_1}{2}$ ist die halbe Breite der Strecke, nicht die Koordinate der Mitte. Bei $A(4 | 0)$, $B(10 | 0)$ ist die Mitte $\\frac{4 + 10}{2} = 7$, nicht $\\frac{10 - 4}{2} = 3$.",
     nutzt: [["arith-mittel", "jede Koordinate der Mitte ist das arithmetische Mittel der Endpunkt-Koordinaten"], ["koordinaten", "Punkte werden über ihre Koordinaten beschrieben"]],
     wz: "geradengleichung",
     syn: "mitte strecke halbieren mittelpunkt koordinaten",
@@ -184,7 +184,7 @@ export const MITTEL_2 = [
   {
     bereich: "terme", id: "wissenschaftlich", g: "Potenzen und Wurzeln", n: "Wissenschaftliche Schreibweise", st: "mittel", kl: 8,
     f: "a \\cdot 10^n \\quad \\text{mit } 1 \\le a < 10, \\; n \\in \\mathbb{Z}",
-    k: "384 000 = 3,84 · 10⁵ · 0,0007 = 7 · 10⁻⁴ · so schreibt der Taschenrechner sehr große und sehr kleine Zahlen",
+    k: "384 000 = 3,84 · 10⁵ und 0,0007 = 7 · 10⁻⁴ · so schreibt der Taschenrechner sehr große und sehr kleine Zahlen",
     bild: ["stellenwertTafel", { komma: true }],
     her: { t: "Komma verschieben, Zehnerpotenz ausgleichen", s: [
       "Ziel: genau eine Ziffer ungleich 0 vor dem Komma. Dazu verschiebt man das Komma.",

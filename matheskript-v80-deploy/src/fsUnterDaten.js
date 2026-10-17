@@ -57,7 +57,7 @@ export const FS_UNTER_DATEN = [
   {
     id: "modus", g: "Daten", n: "Modus (häufigster Wert)", st: "unter-mittel", kl: 6,
     f: "\\text{Modus} = \\text{Wert mit der größten Häufigkeit}",
-    k: "Der Wert, der am öftesten vorkommt · auch für Kategorien wie Lieblingsfarben",
+    k: "Der Wert, der am häufigsten vorkommt · auch für Kategorien wie Lieblingsfarben",
     syn: "modus modalwert häufigster wert am häufigsten",
     bild: ["saeulen", { zeige: "modus" }],
     her: [

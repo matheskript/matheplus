@@ -230,7 +230,7 @@ export const ERG_6 = {
     ],
     falle: "Nicht mit der Potenzfunktion verwechseln: In $2^x$ steht die Variable im Exponenten, in $x^2$ in der Basis. Für $x = 10$: $2^{10} = 1024$, aber $10^2 = 100$.",
     syn: "exponentiell wachstumsfaktor",
-    nutzt: [["wachstumsfaktor", "der Faktor a ist der vermehrte Grundwert aus der Prozentrechnung"]],
+    nutzt: [["wachstumsfaktor", "der Faktor a ist der Wachstumsfaktor 1 + p/100 aus der Prozentrechnung"]],
   },
   zins: {
     syn: "zinseszins sparen kapital",
@@ -284,7 +284,7 @@ export const ERG_6 = {
       "Mittelpunkt $M(4 | 1 | 2)$.",
     ],
     falle: "Addieren und halbieren, nicht subtrahieren: $\\frac{1}{2}(\\vec{b} - \\vec{a})$ ist der halbe Verbindungsvektor, nicht der Ortsvektor des Mittelpunkts.",
-    nutzt: [["mittelpunkt-2d", "dieselbe Formel in der Ebene – mit einer Koordinate mehr"]],
+    nutzt: [["mittelpunkt-2d", "dieselbe Formel in der Ebene – im Raum kommt nur eine Koordinate dazu"]],
   },
   einheitsvektor: {
     bsp: [

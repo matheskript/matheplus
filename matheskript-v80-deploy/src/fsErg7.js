@@ -526,7 +526,7 @@ export const ERG_7 = {
       "$$1452: \\text{ gerade, Quersumme } 12 \\;\\Rightarrow\\; \\text{durch 6 teilbar}",
       "$$1454: \\text{ gerade, Quersumme } 14 \\;\\Rightarrow\\; \\text{nicht durch 6 teilbar}",
     ],
-    falle: "Beide Bedingungen müssen gelten: 21 ist durch 3, aber nicht durch 2 teilbar – also nicht durch 6. Der Trick klappt nur, weil 2 und 3 keinen gemeinsamen Teiler haben: Aus »durch 2 und durch 4« folgt nicht »durch 8« (Beispiel 4).",
+    falle: "Beide Bedingungen müssen gelten: 21 ist durch 3, aber nicht durch 2 teilbar – also nicht durch 6. Der Trick klappt nur, weil 2 und 3 keinen gemeinsamen Teiler außer 1 haben: Aus »durch 2 und durch 4« folgt nicht »durch 8« (Beispiel 4).",
     syn: "teilbar sechs",
   },
   teil11: {

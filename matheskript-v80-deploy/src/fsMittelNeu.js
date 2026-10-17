@@ -27,7 +27,7 @@ const MITTEL_1 = [
     ],
     bsp: [
       "$\\overline{ZA} = 3\\,\\text{cm}$, $\\overline{ZA′} = 7{,}5\\,\\text{cm}$, $\\overline{ZB} = 4\\,\\text{cm}$. Gesucht $\\overline{ZB′}$:",
-      "$$\\frac{3}{7{,}5} = \\frac{4}{x} \;\\Rightarrow\; x = \\frac{4 \\cdot 7{,}5}{3} = 10",
+      "$$\\frac{3}{7{,}5} = \\frac{4}{x} \\;\\Rightarrow\\; x = \\frac{4 \\cdot 7{,}5}{3} = 10",
       "Also $\\overline{ZB′} = 10\\,\\text{cm}$.",
     ],
     falle: "Der Satz gilt nur, wenn die beiden Geraden wirklich parallel sind – und alle Strecken müssen vom Zentrum $Z$ aus gemessen werden, nicht von $A$ nach $A′$ (dafür braucht man eine eigene Umformung).",
@@ -44,12 +44,12 @@ const MITTEL_1 = [
       "$ABDA′$ ist ein Parallelogramm, also ist $\\overline{A′D} = \\overline{AB}$.",
       "Von $B′$ aus laufen zwei Strahlen: durch $B$ nach $Z$ und durch $D$ nach $A′$. Die Strecken $BD$ und $ZA′$ sind parallel. Der 1. Strahlensatz mit Zentrum $B′$:",
       "$$\\frac{\\overline{B′D}}{\\overline{B′A′}} = \\frac{\\overline{B′B}}{\\overline{B′Z}} || 1. Strahlensatz, Zentrum B′",
-      "$$\\frac{\\overline{A′B′} - \\overline{A′D}}{\\overline{A′B′}} = \\frac{\\overline{ZB′} - \\overline{ZB}}{\\overline{ZB′}} \;\\Rightarrow\; \\frac{\\overline{A′D}}{\\overline{A′B′}} = \\frac{\\overline{ZB}}{\\overline{ZB′}} || beide Seiten von 1 abziehen",
+      "$$\\frac{\\overline{A′B′} - \\overline{A′D}}{\\overline{A′B′}} = \\frac{\\overline{ZB′} - \\overline{ZB}}{\\overline{ZB′}} \\;\\Rightarrow\\; \\frac{\\overline{A′D}}{\\overline{A′B′}} = \\frac{\\overline{ZB}}{\\overline{ZB′}} || beide Seiten von 1 abziehen",
       "$$\\frac{\\overline{AB}}{\\overline{A′B′}} = \\frac{\\overline{ZB}}{\\overline{ZB′}} = \\frac{\\overline{ZA}}{\\overline{ZA′}} || A′D = AB, dann 1. Strahlensatz",
     ] },
     bsp: [
       "Ein 1,8 m großer Mensch wirft einen 2,4 m langen Schatten, ein Baum einen 16 m langen Schatten. Die Sonnenstrahlen sind parallel:",
-      "$$\\frac{h}{1{,}8} = \\frac{16}{2{,}4} \;\\Rightarrow\; h = 1{,}8 \\cdot \\frac{16}{2{,}4} = 12",
+      "$$\\frac{h}{1{,}8} = \\frac{16}{2{,}4} \\;\\Rightarrow\\; h = 1{,}8 \\cdot \\frac{16}{2{,}4} = 12",
       "Der Baum ist 12 m hoch.",
     ],
     falle: "Beim 2. Strahlensatz müssen die Strahlenabschnitte ab dem Zentrum gemessen werden: $\\frac{\\overline{AB}}{\\overline{A′B′}} = \\frac{\\overline{ZA}}{\\overline{AA′}}$ ist falsch.",
@@ -104,7 +104,7 @@ const MITTEL_1 = [
     ],
     bsp: [
       "Hypotenuse $c = 10$, Abschnitt $p = 3{,}6$. Gesucht Kathete $a$:",
-      "$$a^2 = 10 \\cdot 3{,}6 = 36 \;\\Rightarrow\; a = 6",
+      "$$a^2 = 10 \\cdot 3{,}6 = 36 \\;\\Rightarrow\\; a = 6",
       "Mit $q = 6{,}4$ ergibt sich ebenso $b^2 = 64$, also $b = 8$ – und tatsächlich $6^2 + 8^2 = 10^2$.",
     ],
     falle: "$p$ gehört zur Kathete $a$, an der er anliegt, nicht zur gegenüberliegenden: $a^2 = c \\cdot q$ ist falsch.",
@@ -112,7 +112,7 @@ const MITTEL_1 = [
   },
   {
     bereich: "geometrie", id: "pythagoras-umkehr", g: "Rechtwinkliges Dreieck", n: "Umkehrung des Satzes von Pythagoras", st: "mittel", kl: 9,
-    f: "a^2 + b^2 = c^2 \;\\Rightarrow\; \\gamma = 90°",
+    f: "a^2 + b^2 = c^2 \\;\\Rightarrow\\; \\gamma = 90°",
     k: "mit drei Längen prüfen, ob ein Dreieck rechtwinklig ist",
     syn: "umkehrung pythagoras rechter winkel prüfen pythagoreisches tripel seil",
     bild: ["pythagoras", {}],
@@ -147,8 +147,8 @@ const MITTEL_1 = [
     ] },
     bsp: [
       "Passt ein 1,10 m langer Stab in eine Kiste mit $80\\,\\text{cm} \\times 50\\,\\text{cm} \\times 60\\,\\text{cm}$?",
-      "$$d = \\sqrt{80^2 + 50^2 + 60^2} = \\sqrt{10\\,500} \\approx 102{,}5\\,\\text{cm}",
-      "Nein – auch schräg passen nur gut 1,02 m hinein.",
+      "$$d = \\sqrt{80^2 + 50^2 + 60^2} = \\sqrt{12\\,500} \\approx 111{,}8\\,\\text{cm}",
+      "Ja – schräg entlang der Raumdiagonale passt er knapp hinein, denn 110 cm < 111,8 cm.",
     ],
     falle: "Die Raumdiagonale ist nicht $\\sqrt{a^2 + b^2} + c$: Man muss die Quadrate addieren und erst am Ende die Wurzel ziehen.",
     nutzt: [["pythagoras", "zweimal angewandt"], ["quader", "Kanten a, b, c"], ["betrag", "dieselbe Rechnung: Länge eines Vektors"]],

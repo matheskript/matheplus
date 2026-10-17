@@ -11,7 +11,7 @@ export const FS_UNTER_TERME = [
     bild: ["waage", {}],
     her: [
       { t: "Warum Buchstaben statt Zahlen?", s: [
-        "Ein Kinoticket kostet 5 € Eintritt pro Person plus 3 € für Popcorn. Für 2, 3, 4 Personen rechnet man immer gleich.",
+        "Ein Kinobesuch kostet 5 € Eintritt pro Person, dazu einmal 3 € für eine große Tüte Popcorn. Für 2, 3, 4 Personen rechnet man immer gleich.",
         "Statt jedes Mal neu zu rechnen, schreibt man einen Platzhalter $x$ für die Anzahl der Personen:",
         "$$T(x) = 5x + 3 || 5x heißt 5 · x",
         "Setzt man für $x$ eine Zahl ein, erhält man den Wert des Terms: $T(4) = 5 \\cdot 4 + 3 = 23$.",

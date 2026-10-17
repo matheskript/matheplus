@@ -56,7 +56,7 @@ export const ZAHLEN_2 = [
       "$-8$ und $8$ haben denselben Betrag $8$.",
     ],
     falle: "$-a$ ist nicht automatisch negativ: Für $a = -4$ ist $-a = 4$.",
-    nutzt: [["negative-zahlen", "Zahl und Gegenzahl liegen spiegelbildlich zur Null"], ["betrag-ungl", "der Betrag wird später allgemein zum Abstand |a − b| zweier Zahlen"]],
+    nutzt: [["negative-zahlen", "Zahl und Gegenzahl liegen spiegelbildlich zur Null"]],
   },
   {
     id: "vorzeichen-add", g: "Rationale Zahlen", n: "Addieren und Subtrahieren negativer Zahlen", st: "unter-mittel", kl: 7,
@@ -294,7 +294,7 @@ export const ZAHLEN_2 = [
         "$$Z_{\\text{Jahr}} = K \\cdot \\frac{p}{100} || Grundwert K, Prozentsatz p %",
         "Liegt das Geld nur $m$ Monate auf dem Konto, gibt es nur $\\frac{m}{12}$ der Jahreszinsen:",
         "$$Z = K \\cdot \\frac{p}{100} \\cdot \\frac{m}{12}",
-        "Bei Tagen rechnen Banken in Deutschland meist mit $30$ Tagen pro Monat, also $360$ Tagen pro Jahr:",
+        "Bei Tagen rechnet man in der Schule mit $30$ Tagen pro Monat, also $360$ Tagen pro Jahr (deutsche Zinsmethode):",
         "$$Z = K \\cdot \\frac{p}{100} \\cdot \\frac{t}{360}",
       ] },
     ],
@@ -454,6 +454,6 @@ export const ZAHLEN_2 = [
       "Ein $12\\,\\text{km}$ langer Weg ist auf derselben Karte $1\\,200\\,000\\,\\text{cm} : 50\\,000 = 24\\,\\text{cm}$ lang.",
     ],
     falle: "Erst in derselben Einheit rechnen, dann umwandeln: $4\\,\\text{cm} \\cdot 25\\,000 = 100\\,000\\,\\text{cm} = 1\\,\\text{km}$, nicht $100\\,000\\,\\text{m}$.",
-    nutzt: [["laengen", "das Ergebnis wird in m oder km umgerechnet"], ["aehnlich", "Karte und Wirklichkeit sind ähnliche Figuren mit Streckfaktor"]],
+    nutzt: [["laengen", "das Ergebnis wird in m oder km umgerechnet"]],
   },
 ];

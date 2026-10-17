@@ -58,6 +58,14 @@ function StufenMarken({ e, lang }) {
   );
 }
 
+/* Unterstufen-Ansicht: so geordnet, wie man in Klasse 5 anfängt – Zahlen zuerst, Zuordnungen und Daten am Ende */
+const UNTER_FOLGE = ["zahlen", "kopfrechnen", "geometrie", "terme", "funktionen", "stochastik"];
+const FS_UNTER_LISTE = FS_ALLE.filter(istUnterstufe)
+  .map((e, i) => [e, i]).sort(([a, i], [b, j]) => {
+    const x = UNTER_FOLGE.indexOf(a.bereich), y = UNTER_FOLGE.indexOf(b.bereich);
+    return (x < 0 ? 99 : x) - (y < 0 ? 99 : y) || i - j;
+  }).map(([e]) => e);
+
 const FS_CSS = `@media (max-width: 400px) { .fs-stufe-lang { display: none; } .fs-beweise { display: none; } }`;
 
 const kicker = { fontSize: 11.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: C.gruenDunkel, margin: "0 0 10px" };
@@ -176,7 +184,8 @@ function VerweisZeile({ id, wie, oeffne, richtung }) {
 
 function Zusammenhaenge({ e, oeffne, zuFaden }) {
   const auf = (e.nutzt || []).filter(([id]) => FS_NACH_ID[id]);
-  const fuer = (FS_DARAUF[e.id] || []).filter(([id]) => FS_NACH_ID[id]);
+  /* Was schon unter »Baut auf« steht, nicht noch einmal unter »Wird gebraucht für« zeigen */
+  const fuer = (FS_DARAUF[e.id] || []).filter(([id]) => FS_NACH_ID[id] && !auf.some(([a]) => a === id));
   const faeden = FS_FAEDEN.filter((f) => f.stationen.some(([id]) => id === e.id));
   if (!auf.length && !fuer.length && !faeden.length) return null;
   return (
@@ -345,12 +354,12 @@ function FormelKarte({ e, onClick, zeigeBereich, gemerkt, verdeckt }) {
   return (
     <button type="button" onClick={() => (zu ? setOffen(true) : onClick())} data-formel={e.id} aria-label={zu ? `${e.n} – Formel aufdecken` : undefined}
       style={{ width: "100%", display: "block", textAlign: "left", fontFamily: "inherit", cursor: "pointer", border: "none", ...karte, padding: "14px 16px 12px", marginBottom: 9, color: C.tinte }}>
-      <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
-        <span style={{ minWidth: 0 }}>
+      <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "6px 10px", flexWrap: "wrap" }}>
+        <span style={{ minWidth: 0, flex: "1 1 170px" }}>
           {zeigeBereich && <span style={{ display: "block", fontSize: 11, fontWeight: 600, color: C.hellgrau, marginBottom: 1 }}>{bereichVon(e.bereich).name}</span>}
           <span style={{ fontSize: 14.5, fontWeight: 700 }}>{gemerkt && <span aria-label="gemerkt" style={{ color: C.gruen, marginRight: 4 }}>★</span>}{e.n}</span>
         </span>
-        <span style={{ display: "inline-flex", alignItems: "center", gap: 6, flexShrink: 0, color: C.see }}>
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 6, flexShrink: 0, marginLeft: "auto", color: C.see }}>
           <span className="fs-stufen" style={{ display: "inline-flex", gap: 4 }}><StufenMarken e={e} /></span>
           {anzahl > 1 && <span className="fs-beweise" style={{ fontSize: 10.5, fontWeight: 700, color: C.gruenDunkel, background: "#FFF6DA", borderRadius: 999, padding: "2px 7px" }}>{anzahl} Beweise</span>}
           {e.bild && <span style={{ fontSize: 10.5, fontWeight: 700, color: "#2F8F5B", background: "#E3F3E9", borderRadius: 999, padding: "2px 7px" }}>Bild</span>}
@@ -562,13 +571,13 @@ export function FormelsammlungNeu({ bereich: start = "analysis", formel: startFo
       const g = FS_ALLE.filter((e) => gemerkt.includes(e.id));
       return mischung ? mischung.map((id) => g.find((e) => e.id === id)).filter(Boolean) : g;
     }
-    if (bereich === "unterstufe") return FS_ALLE.filter(istUnterstufe);
+    if (bereich === "unterstufe") return FS_UNTER_LISTE;
     return FS_ALLE.filter((e) => e.bereich === bereich && passt(e, stufe));
   }, [suche, bereich, stufe, gemerkt, mischung]);
 
   const e = detail ? FS_NACH_ID[detail] : null;
   if (e) {
-    const geschw = bereich === "unterstufe" && !suche.trim() && istUnterstufe(e) ? FS_ALLE.filter(istUnterstufe) : FS_ALLE.filter((x) => x.bereich === e.bereich);
+    const geschw = bereich === "unterstufe" && !suche.trim() && istUnterstufe(e) ? FS_UNTER_LISTE : FS_ALLE.filter((x) => x.bereich === e.bereich);
     const i = geschw.findIndex((x) => x.id === e.id);
     return (
       <div ref={obenRef} className="mx-auto px-6 pb-16" style={{ maxWidth: 680, paddingTop: 22 }}>

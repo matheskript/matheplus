@@ -13,7 +13,7 @@ export const FS_UNTER_GEOMETRIE = [
     her: [
       { t: "Was heißt parallel?", s: [
         "Zwei Geraden $g$ und $h$ heißen parallel, wenn sie überall denselben Abstand haben. Dann schneiden sie sich nie – wie die beiden Schienen eines Gleises.",
-        "Mit dem Geodreieck prüft man das so: Die Mittellinie liegt auf $g$, dann muss $h$ genau auf einer der parallelen Hilfslinien liegen.",
+        "Mit dem Geodreieck prüft man das so: Die lange Kante liegt auf $g$, dann muss $h$ genau auf einer der parallelen Hilfslinien liegen.",
         "Man schreibt $g \\parallel h$.",
       ] },
       { t: "Was heißt senkrecht?", s: [
@@ -28,7 +28,7 @@ export const FS_UNTER_GEOMETRIE = [
       "$$\\Rightarrow\\; g \\parallel h",
     ],
     falle: "Zwei Geraden, die sich auf dem Blatt nicht schneiden, müssen nicht parallel sein – verlängert man sie, treffen sie sich vielleicht doch. Parallel heißt: überall gleicher Abstand.",
-    nutzt: [["orthogeraden", "wird im Koordinatensystem zu m₁ · m₂ = −1"]],
+    nutzt: [],
   },
   {
     id: "koordinaten", g: "Grundbegriffe", n: "Koordinatensystem", st: "unter-mittel", kl: 5,
@@ -363,7 +363,7 @@ export const FS_UNTER_GEOMETRIE = [
       "Ist außerdem $a = 6\\,\\text{cm}$, so folgt $h_a = 2A : a = 24 : 6 = 4\\,\\text{cm}$.",
     ],
     falle: "Die Höhe ist nicht die Seite! Nur im rechtwinkligen Dreieck ist eine Kathete zugleich Höhe auf der anderen Kathete.",
-    nutzt: [["abstand-2d", "die Höhe ist der Abstand der Ecke zur Seite"], ["dreieck-flaeche", "Fläche = ½ · Grundseite · Höhe"]],
+    nutzt: [["abstand-2d", "die Höhe ist der Abstand der Ecke zur Seite"]],
   },
 
   /* ---------------- Symmetrie ---------------- */
@@ -385,7 +385,7 @@ export const FS_UNTER_GEOMETRIE = [
       "Ein Rechteck hat 2 Symmetrieachsen, ein Quadrat 4, ein Kreis unendlich viele.",
     ],
     falle: "Bei schräger Achse den Bildpunkt einfach waagerecht rüberschieben. Gespiegelt wird immer senkrecht zur Achse!",
-    nutzt: [["geraden-lage", "PP′ steht senkrecht auf der Achse"], ["symmetrie", "achsensymmetrische Graphen: Spiegelung an der y-Achse"]],
+    nutzt: [["geraden-lage", "PP′ steht senkrecht auf der Achse"]],
   },
   {
     id: "punktsymmetrie", g: "Symmetrie", n: "Punktspiegelung", st: "unter", kl: 6,
@@ -396,7 +396,7 @@ export const FS_UNTER_GEOMETRIE = [
     her: { t: "Eine halbe Drehung", s: [
       "Verbinde $P$ mit dem Zentrum $Z$ und verlängere um dieselbe Länge: Der Endpunkt ist $P′$. Also ist $Z$ der Mittelpunkt von $PP′$.",
       "Dasselbe erreicht man, wenn man die Figur um $Z$ um $180°$ dreht.",
-      "Längen, Winkel und der Umlaufsinn bleiben erhalten. Jede Gerade wird auf eine parallele Gerade abgebildet.",
+      "Längen, Winkel und der Umlaufsinn bleiben erhalten. Jede Gerade wird auf eine parallele Gerade abgebildet (eine Gerade durch $Z$ auf sich selbst).",
       "Eine Figur heißt punktsymmetrisch, wenn sie bei einer Halbdrehung um einen Punkt auf sich selbst fällt – etwa ein Parallelogramm um den Diagonalenschnittpunkt.",
     ] },
     bsp: [
@@ -404,7 +404,7 @@ export const FS_UNTER_GEOMETRIE = [
       "Spiegelung an $Z(1 \\,|\\, 1)$: $P(3 \\,|\\, 2) \\mapsto P′(1 - 2 \\,|\\, 1 - 1) = P′(-1 \\,|\\, 0)$.",
     ],
     falle: "Punktspiegelung ist nicht Spiegelung an zwei Achsen »irgendwie«: Nur zwei Spiegelungen an zueinander senkrechten Achsen durch $Z$ ergeben zusammen die Punktspiegelung an $Z$.",
-    nutzt: [["achsensymmetrie", "zwei Achsenspiegelungen an senkrechten Achsen ergeben eine Punktspiegelung"], ["symmetrie", "punktsymmetrische Graphen: Spiegelung am Ursprung"]],
+    nutzt: [["achsensymmetrie", "zwei Achsenspiegelungen an senkrechten Achsen ergeben eine Punktspiegelung"]],
   },
 
   /* ---------------- Umfang, Fläche, Oberfläche ---------------- */

@@ -189,3 +189,15 @@ test("Unterstufen-Einträge verweisen nicht auf Oberstufen-Werkzeuge", () => {
     assert.ok(!ober.has(e.wz), `${e.id}: Unterstufe verweist auf ${e.wz}`);
   }
 });
+
+test("Mini-TeX im Quelltext: keine einfachen Backslashes in Strings", () => {
+  /* "\;" oder "\frac" mit nur einem Backslash werden im JS-String zu ";" bzw. Seitenvorschub + "rac" */
+  const dateien = fs.readdirSync(new URL("../src/", import.meta.url)).filter((d) => /^fs.*\.js$/.test(d) && d !== "fsIndex.js");
+  for (const d of dateien) {
+    src(d).split("\n").forEach((zeile, i) => {
+      if (/^\s*(\/\/|\/\*|\*)/.test(zeile)) return;
+      const m = zeile.match(/(?<!\\)\\(?![\\"'nu])[A-Za-z,;: !{}]/);
+      assert.ok(!m, `${d}:${i + 1}: einfacher Backslash »${m && m[0]}« – im String muss es »\\\\« heißen`);
+    });
+  }
+});

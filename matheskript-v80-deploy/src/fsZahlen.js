@@ -63,7 +63,7 @@ const ZAHLEN_1 = [
     bsp: [
       "$$4\\,890 + 3\\,120 + 1\\,950 \\approx 5\\,000 + 3\\,000 + 2\\,000 = 10\\,000",
       "Genau: $9\\,960$. Der Überschlag passt.",
-      "$$7\\,812 : 38 \\approx 8\\,000 : 40 = 200 || genau: 205,6 …",
+      "$$7\\,812 : 38 \\approx 8\\,000 : 40 = 200 || genau: 205,578…",
     ],
     falle: "Der Überschlag ersetzt nicht das genaue Rechnen – er ist nur die Probe. $400 \\cdot 50 = 20\\,000$ ist nicht das Ergebnis von $387 \\cdot 52$.",
     nutzt: [["runden", "jede Zahl wird zuerst gerundet"], ["kommutativ", "Faktoren geschickt zusammenfassen"]],
@@ -122,7 +122,7 @@ const ZAHLEN_1 = [
     her: [
       { t: "Zahlen als Quadrate aus Kästchen", s: [
         "Eine Quadratzahl ist die Anzahl der Kästchen in einem Quadrat: $n$ Reihen mit je $n$ Kästchen, also $n \\cdot n = n^2$.",
-        "$$1 \\cdot 1 = 1, \; 2 \\cdot 2 = 4, \; 3 \\cdot 3 = 9, \; 4 \\cdot 4 = 16",
+        "$$1 \\cdot 1 = 1, \\; 2 \\cdot 2 = 4, \\; 3 \\cdot 3 = 9, \\; 4 \\cdot 4 = 16",
         "Vom Quadrat mit Seite $n$ zum Quadrat mit Seite $n + 1$ legt man einen Winkel aus $n + n + 1$ Kästchen an:",
         "$$(n + 1)^2 = n^2 + 2n + 1 || z. B. 25 + 11 = 36",
       ] },
@@ -133,8 +133,8 @@ const ZAHLEN_1 = [
       ] },
     ],
     bsp: [
-      "$$11^2 = 121, \; 12^2 = 144, \; 13^2 = 169, \; 14^2 = 196, \; 15^2 = 225",
-      "$$16^2 = 256, \; 17^2 = 289, \; 18^2 = 324, \; 19^2 = 361, \; 20^2 = 400",
+      "$$11^2 = 121, \\; 12^2 = 144, \\; 13^2 = 169, \\; 14^2 = 196, \\; 15^2 = 225",
+      "$$16^2 = 256, \\; 17^2 = 289, \\; 18^2 = 324, \\; 19^2 = 361, \\; 20^2 = 400",
       "Mit dem Trick $(n + 1)^2 = n^2 + 2n + 1$: $21^2 = 400 + 40 + 1 = 441$.",
     ],
     falle: "$3^2$ ist $9$, nicht $6$ – Quadrieren heißt mit sich selbst malnehmen, nicht verdoppeln.",
@@ -143,7 +143,7 @@ const ZAHLEN_1 = [
   },
   {
     id: "zehnerpotenzen", g: "Natürliche Zahlen", n: "Zehnerpotenzen", st: "unter-mittel", kl: 5,
-    f: "10^1 = 10, \; 10^2 = 100, \; 10^3 = 1000, \; 10^6 = 1\\,000\\,000",
+    f: "10^1 = 10, \\; 10^2 = 100, \\; 10^3 = 1000, \\; 10^6 = 1\\,000\\,000",
     k: "Der Exponent zählt die Nullen · Tausend, Million, Milliarde, Billion",
     syn: "zehnerpotenz nullen million milliarde billion große zahlen tausend",
     bild: ["stellenwertTafel", { komma: false }],
@@ -203,8 +203,8 @@ const ZAHLEN_1 = [
       "Egal, wie man zerlegt (z. B. erst $84 = 4 \\cdot 21$): Am Ende kommen immer dieselben Primfaktoren heraus.",
     ] },
     bsp: [
-      "$$360 : 2 = 180, \; 180 : 2 = 90, \; 90 : 2 = 45 || dreimal 2",
-      "$$45 : 3 = 15, \; 15 : 3 = 5 || zweimal 3, Rest 5",
+      "$$360 : 2 = 180, \\; 180 : 2 = 90, \\; 90 : 2 = 45 || dreimal 2",
+      "$$45 : 3 = 15, \\; 15 : 3 = 5 || zweimal 3, Rest 5",
       "$$360 = 2^3 \\cdot 3^2 \\cdot 5",
     ],
     falle: "Nicht bei einer zusammengesetzten Zahl aufhören: $72 = 8 \\cdot 9$ ist noch keine Primfaktorzerlegung – richtig ist $72 = 2^3 \\cdot 3^2$.",
@@ -235,7 +235,7 @@ const ZAHLEN_1 = [
       "Damit kürzt man in einem Schritt: $\\frac{48}{180} = \\frac{4}{15}$.",
     ],
     falle: "Primfaktoren, die nur in einer Zahl vorkommen, gehören nicht in den ggT. Und: $\\text{ggT}(8, 15) = 1$ – die Zahlen heißen dann teilerfremd.",
-    nutzt: [["primfaktor", "aus den Primfaktorzerlegungen liest man den ggT ab"], ["bruch-kuerzen", "mit dem ggT kürzt man vollständig in einem Schritt"]],
+    nutzt: [["primfaktor", "aus den Primfaktorzerlegungen liest man den ggT ab"]],
     wz: "kopf-prim",
   },
   {
@@ -258,11 +258,11 @@ const ZAHLEN_1 = [
     ],
     bsp: [
       "Zwei Busse fahren um 8:00 Uhr ab, einer alle $12$ Minuten, der andere alle $18$ Minuten. Wann fahren sie wieder gleichzeitig?",
-      "$$12 = 2^2 \\cdot 3, \; 18 = 2 \\cdot 3^2 \;\\Rightarrow\; \\text{kgV} = 2^2 \\cdot 3^2 = 36",
+      "$$12 = 2^2 \\cdot 3, \\; 18 = 2 \\cdot 3^2 \\;\\Rightarrow\\; \\text{kgV} = 2^2 \\cdot 3^2 = 36",
       "Nach $36$ Minuten, also um 8:36 Uhr.",
     ],
     falle: "Das Produkt ist zwar ein gemeinsames Vielfaches, aber oft nicht das kleinste: $12 \\cdot 18 = 216$, das kgV ist $36$.",
-    nutzt: [["primfaktor", "aus den Primfaktorzerlegungen liest man das kgV ab"], ["bruch-add", "das kgV der Nenner ist der Hauptnenner"]],
+    nutzt: [["primfaktor", "aus den Primfaktorzerlegungen liest man das kgV ab"]],
     wz: "kopf-prim",
   },
   {
@@ -307,12 +307,12 @@ const ZAHLEN_1 = [
       "Die Jungen machen den Rest aus: $1 - \\frac{3}{7} = \\frac{4}{7}$.",
     ],
     falle: "Die Teile müssen gleich groß sein. Eine Torte, die in ein großes und drei kleine Stücke geschnitten ist, liefert mit einem Stück nicht automatisch $\\frac{1}{4}$.",
-    nutzt: [["zahlbereiche", "Brüche erweitern die natürlichen Zahlen zu den rationalen Zahlen"]],
+    nutzt: [["zahlbereiche", "Brüche erweitern die natürlichen Zahlen zu den Bruchzahlen – mit den negativen Zahlen werden daraus die rationalen Zahlen"]],
     wz: "kopf-brueche",
   },
   {
     id: "bruch-erweitern", g: "Brüche", n: "Gleichnamig machen", st: "unter-mittel", kl: 6,
-    f: "\\frac{5}{6}, \\frac{3}{8} \;\\to\; \\frac{20}{24}, \\frac{9}{24} \\quad (\\text{Hauptnenner } \\text{kgV}(6, 8) = 24)",
+    f: "\\frac{5}{6}, \\frac{3}{8} \\;\\to\\; \\frac{20}{24}, \\frac{9}{24} \\quad (\\text{Hauptnenner } \\text{kgV}(6, 8) = 24)",
     k: "Beide Brüche so erweitern, dass sie denselben Nenner haben – am besten den Hauptnenner",
     syn: "gleichnamig hauptnenner erweitern gemeinsamer nenner",
     bild: ["bruchStreifen", { modus: "addieren" }],
@@ -355,7 +355,7 @@ const ZAHLEN_1 = [
   },
   {
     id: "bruch-vergleich", g: "Brüche", n: "Brüche vergleichen", st: "unter", kl: 6,
-    f: "\\frac{a}{b} < \\frac{c}{d} \;\\Leftrightarrow\; a \\cdot d < c \\cdot b \\quad (b, d > 0)",
+    f: "\\frac{a}{b} < \\frac{c}{d} \\;\\Leftrightarrow\\; a \\cdot d < c \\cdot b \\quad (b, d > 0)",
     k: "Gleichnamig machen und Zähler vergleichen – oder über Kreuz multiplizieren",
     syn: "brüche vergleichen größer kleiner ordnen über kreuz",
     bild: ["bruchKreis", { modus: "vergleich" }],
@@ -441,7 +441,7 @@ const ZAHLEN_1 = [
       "$$\\frac{3}{4} : \\frac{1}{2} = \\frac{3}{4} \\cdot \\frac{2}{1} = \\frac{3}{2} || in 3/4 passt 1/2 anderthalbmal",
     ],
     falle: "Bei gemischten Zahlen erst umwandeln: Der Kehrwert von $2\\frac{1}{2}$ ist $\\frac{2}{5}$, nicht $2\\frac{2}{1}$.",
-    nutzt: [["bruch-mul", "Bruch mal Kehrwert ergibt 1"], ["bruch-div", "Teilen heißt mit dem Kehrwert malnehmen"]],
+    nutzt: [["bruch-mul", "Bruch mal Kehrwert ergibt 1"]],
     wz: "kopf-brueche",
   },
 
@@ -543,8 +543,8 @@ const ZAHLEN_1 = [
         "Der Strich über den Ziffern heißt: Dieser Block wiederholt sich unendlich oft.",
       ] },
       { t: "Periode zurück in einen Bruch", s: [
-        "$$x = 0{,}\\overline{45} \;\\Rightarrow\; 100x = 45{,}\\overline{45} || mal 10 hoch Periodenlänge",
-        "$$100x - x = 45 \;\\Rightarrow\; 99x = 45 \;\\Rightarrow\; x = \\frac{45}{99} = \\frac{5}{11} || die Perioden heben sich weg",
+        "$$x = 0{,}\\overline{45} \\;\\Rightarrow\\; 100x = 45{,}\\overline{45} || mal 10 hoch Periodenlänge",
+        "$$100x - x = 45 \\;\\Rightarrow\\; 99x = 45 \\;\\Rightarrow\\; x = \\frac{45}{99} = \\frac{5}{11} || die Perioden heben sich weg",
         "Merkregel: Eine reine Periode mit $n$ Ziffern ist »Periode durch $n$ Neunen«: $0{,}\\overline{3} = \\frac{3}{9} = \\frac{1}{3}$.",
       ] },
     ],

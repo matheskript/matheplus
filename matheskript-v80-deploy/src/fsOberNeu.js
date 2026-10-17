@@ -74,7 +74,7 @@ export const FS_OBER_NEU = [
     bsp: [
       "Abfüllmaschine: $\\mu = 500\\,\\text{g}$, $\\sigma = 4\\,\\text{g}$.",
       "Mit etwa 95,4 % wiegt eine Packung zwischen 492 g und 508 g.",
-      "Weniger als 488 g (unter $\\mu - 3\\sigma$) kommt nur in etwa 0,15 % der Fälle vor.",
+      "Weniger als 488 g (unter $\\mu - 3\\sigma$) kommt nur in etwa 0,13 % der Fälle vor.",
     ],
     falle: "Die Prozente gelten für das ganze Intervall um $\\mu$, nicht für eine Seite: Über $\\mu + \\sigma$ liegen nur etwa $\\frac{1 - 0{,}683}{2} \\approx 15{,}9\\,\\%$.",
     nutzt: [["normal-standard", "Standardisieren"], ["sigmaregeln", "dieselben Anteile bei der Binomialverteilung"]],
@@ -143,7 +143,7 @@ export const FS_OBER_NEU = [
         "Bei einer stückweise definierten Funktion prüft man an der Nahtstelle zweierlei:",
         "Stetig: Beide Teile haben dort denselben Funktionswert (keine Lücke, kein Sprung).",
         "Differenzierbar: Zusätzlich haben beide Teile dort dieselbe Ableitung (kein Knick).",
-        "Differenzierbar folgt stetig – umgekehrt nicht.",
+        "Aus differenzierbar folgt stetig – umgekehrt nicht.",
       ] },
     ],
     bsp: [
