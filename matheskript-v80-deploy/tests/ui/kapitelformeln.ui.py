@@ -76,8 +76,9 @@ with sync_playwright() as p:
             sw = page.evaluate("document.documentElement.scrollWidth")
             pruefe(sw <= breite, f"{breite}: Überbreite bei {wo}: {sw}")
 
-        page.get_by_text("Dein Status quo").first.scroll_into_view_if_needed()
-        page.get_by_role("button", name="Klasse 12 (Kursstufe)").click(); page.wait_for_timeout(250)
+        g9 = page.get_by_role("group", name="Schulsystem wählen").get_by_role("button", name="G9")
+        g9.scroll_into_view_if_needed(); g9.click(); page.wait_for_timeout(200)
+        page.get_by_role("button", name="Klasse 12", exact=True).click(); page.wait_for_timeout(250)
         page.get_by_role("option", name="Funktionen und ihre Graphen").first.click(); page.wait_for_timeout(300)
         zeile = page.get_by_role("button", name="Formelsammlung zum Kapitel")
         pruefe(zeile.count() == 1, f"{breite}: Zeile Formelsammlung zum Kapitel fehlt")
