@@ -81,6 +81,8 @@ export default async function middleware(request) {
   }
   // Stripe ruft den Webhook ohne Cookie auf; die Signatur prüft die Funktion selbst
   if (new URL(request.url).pathname === "/api/stripe/webhook") return next();
+  // Vercel Cron (prüft CRON_SECRET selbst) und der Abmelde-Link aus der Eltern-Wochenmail
+  if (["/api/cron/wochenmail", "/api/wochenmail-abmelden"].includes(new URL(request.url).pathname)) return next();
   const url = new URL(request.url);
   const soll = await hash(passwort());
 

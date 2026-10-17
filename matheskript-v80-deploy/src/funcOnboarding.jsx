@@ -121,7 +121,7 @@ function FuerDich({ o, gehe, neu, planDa }) {
     <Zeile titel="Konto verbinden" unter="Eltern-Wochenmail mit dem Konto Ihres Kindes" onClick={() => gehe({ ansicht: "konto" })} />
   </>);
   else if (o.rolle === "lehrkraft") inhalt = (<>
-    <Zeile titel="Klassen-Challenge" unter="Klasse anlegen, Code teilen, Wochenpunkte sammeln" onClick={() => gehe({ ansicht: "konto" })} gold />
+    <Zeile titel="Klassen-Challenge" unter="Klasse anlegen, Code teilen, Wochenpunkte sammeln" onClick={() => gehe({ ansicht: "challenge" })} gold />
     <Zeile titel="Formelsammlung" unter="Alle Formeln mit Herleitung – für den Unterricht" onClick={() => gehe({ ansicht: "formeln", bereich: "analysis" })} />
   </>);
   else {

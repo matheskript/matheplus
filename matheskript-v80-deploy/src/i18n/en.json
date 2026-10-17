@@ -10619,7 +10619,25 @@
   "Keine Note – die vergibt dein Bundesland. Was hier fehlte, taucht in „Meine Fehler üben“ und im Tagesplan wieder auf.": "No grade – your state awards that. What was missing here shows up again in “Practise my mistakes” and in the daily plan.",
   "Schreibweise wie im Plotter: x^2, 3x, e^(2x), sqrt(x), ln(x). Geprüft wird der Wert, nicht die Form.": "Notation as in the plotter: x^2, 3x, e^(2x), sqrt(x), ln(x). The value is checked, not the form.",
   "Ohne Taschenrechner und Formelsammlung, wie im Abitur. Alle Ergebnisse gehen sauber auf; Brüche sind erlaubt (z. B. 4/3). Rechne auf Papier, tippe nur das Ergebnis ein.": "Without calculator and formula book, as in the Abitur. All results work out cleanly; fractions are allowed (e.g. 4/3). Calculate on paper, type in the result only.",
-  "Mit WTR und Formelsammlung. Runde so, wie es die Aufgabe verlangt. Rechne auf Papier, tippe nur das Ergebnis ein.": "With calculator and formula book. Round as the task requires. Calculate on paper, type in the result only."
+  "Mit WTR und Formelsammlung. Runde so, wie es die Aufgabe verlangt. Rechne auf Papier, tippe nur das Ergebnis ein.": "With calculator and formula book. Round as the task requires. Calculate on paper, type in the result only.",
+  "DEINE DATEN": "YOUR DATA",
+  "Daten exportieren": "Export data",
+  "Konto löschen …": "Delete account …",
+  "Konto endgültig löschen": "Delete account permanently",
+  "Auch die Daten auf diesem Gerät löschen": "Also delete the data on this device",
+  "Endgültig löschen": "Delete permanently",
+  "WOCHENMAIL": "WEEKLY EMAIL",
+  "Jeden Sonntag eine kurze Mail: an wie vielen Tagen geübt wurde, Lernzeit und gelöste Aufgaben – keine Noten.": "Every Sunday a short email: on how many days your child practised, learning time and solved exercises – no grades.",
+  "Gemeinsam statt gegeneinander": "Together, not against each other",
+  "Punkte für die ganze Klasse – jede Woche neu.": "Points for the whole class – new every week.",
+  "So erscheinst du": "How you appear",
+  "Für die anderen ausblenden": "Hide from the others",
+  "Klasse beitreten": "Join a class",
+  "Beitreten": "Join",
+  "Spielregeln": "Rules",
+  "Klassencode": "Class code",
+  "Punkte für deine Klasse sammeln": "Collect points for your class",
+  "Für eine Klasse starten und die Wochenrangliste sehen": "Start it for a class and see the weekly ranking"
  },
  "muster": [
   [

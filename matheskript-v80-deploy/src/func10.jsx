@@ -29,6 +29,7 @@ import { MatheTastaturHost } from "./matheTastatur.jsx";
 import { LAENDER } from "./funcWettbewerbe.jsx";
 import { ENTWUERFE, istEntwurf, LANDING } from "./seitenKonstanten.js";
 const EntwurfTor = React.lazy(() => import("./funcEntwuerfe.jsx").then((m) => ({ default: m.EntwurfTor })));
+const ChallengeSeite = React.lazy(() => import("./funcChallenge.jsx").then((m) => ({ default: m.ChallengeSeite })));
 const Landingpage = React.lazy(() => import("./funcLandingpage.jsx").then((m) => ({ default: m.Landingpage })));
 import { Laden, SeitenKopf, WerkzeugSeite, istWzSeite } from "./funcWerkzeugSeite.jsx";
 /* Seiten werden erst beim Öffnen nachgeladen (je eigener Chunk) */
@@ -1000,6 +1001,13 @@ export function Mathilda() {
             <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
           </div>
           <ElternabendSeite gebucht={ticketGebucht} />
+        </>
+      ) : ansicht === "challenge" ? (
+        <>
+          <SeitenKopf titel="Klassen-Challenge" groesse="clamp(26px, 7.6vw, 31px)" rund>
+            <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>Punkte für die ganze Klasse – jede Woche neu.</p>
+          </SeitenKopf>
+          <ChallengeSeite gehe={gehe} />
         </>
       ) : ansicht === "konto" ? (
         <>

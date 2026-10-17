@@ -202,3 +202,53 @@ export async function meineAbos() {
   if (DEMO) return [];
   try { return (await rpc("meine_abos")) || []; } catch (e) { return []; }
 }
+
+/* ======================================================================
+   Konto löschen / Daten exportieren (supabase/konto.sql)
+   ====================================================================== */
+export async function kontoExport() {
+  if (DEMO) {
+    const daten = {};
+    try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (/^(mm-|matheplus|matheskript)/.test(k)) daten[k] = localStorage.getItem(k); } } catch (e) { /* privat */ }
+    return { format: "mythosmathe-export-1", erstellt: new Date().toISOString(), vorschau: true, geraet: daten };
+  }
+  return rpc("konto_export");
+}
+export async function kontoLoeschen(bestaetigung) {
+  if (DEMO) return { status: "geloescht" };
+  return rpc("konto_loeschen", { bestaetigung });
+}
+
+/* ---------- Eltern-Wochenmail (supabase/wochenmail.sql) ---------- */
+export async function wochenmailStand() {
+  if (DEMO) return { an: lies("mm-demo-wochenmail") !== false, zuletzt: null };
+  return rpc("wochenmail_stand");
+}
+export async function wochenmailSetzen(an) {
+  if (DEMO) { schreib("mm-demo-wochenmail", an); return { status: "ok", an }; }
+  return rpc("wochenmail_setzen", { einschalten: an });
+}
+
+/* ---------- Klassen-Challenge (supabase/challenge.sql) ---------- */
+const DEMO_CHALLENGE = () => ({
+  status: "ok", klasse: "8a (Beispiel)", an: true, lehrkraft: (kontoZustand().profil || {}).rolle !== "schueler",
+  woche_von: null, woche_bis: null, gesamt: 263,
+  liste: [["Mo", 61], ["Lena", 54], ["Kaan", 47], ["Alex", 38, true], ["Ella", 33], ["Finn", 19], ["Noah", 11]].map(([name, punkte, ich]) => ({ name, punkte, ich: !!ich })),
+  sieger_vorwoche: { name: "Lena", punkte: 72 }, mein_spitzname: null, ich_sichtbar: true, beispiel: true,
+});
+export async function challengeKlassen() {
+  if (DEMO) return [{ id: "demo-klasse", name: "8a (Beispiel)", stufe: 8, code: "BSP8A2", an: true, lehrkraft: (kontoZustand().profil || {}).rolle !== "schueler", mitglieder: 7, beispiel: true }];
+  return rpc("challenge_klassen");
+}
+export async function challengeRangliste(id) {
+  if (DEMO) return DEMO_CHALLENGE();
+  return rpc("challenge_rangliste", { k_id: id });
+}
+export async function challengeSchalten(id, an) {
+  if (DEMO) return { status: "ok", an };
+  return rpc("challenge_schalten", { k_id: id, an });
+}
+export async function challengeProfil(id, name, sichtbar) {
+  if (DEMO) return { status: "ok" };
+  return rpc("challenge_profil", { k_id: id, name, sichtbar });
+}

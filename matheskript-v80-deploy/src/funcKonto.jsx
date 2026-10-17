@@ -3,6 +3,7 @@ import { C } from "./base1.jsx";
 import { RollenWahl, EmailAnmeldung, HinweisLeiste, ElternEinladen, MeineKlassen, PlanKarte, ElternBereich, LehrBereich, RolleAendern, GeschlechtFrage } from "./funcKontoRollen.jsx";
 import { rolleName, istLehrend, istGeschlecht, KURSSTUFE, NOTEN_AB, datenVollstaendig } from "./rollenLogik.js";
 import { MeinTrainingKarte } from "./funcKontoTraining.jsx";
+import { DatenKarte, WochenmailKarte } from "./funcKontoDaten.jsx";
 import { DEMO, useKonto, gemerkteEinladung, anmelden, abmelden, profilAnlegen, profilSpeichern, empfehlungsLink, neuerCode, refPruefen, refFestlegen, istRefCode, REF_BASIS_ANZEIGE } from "./konto.js";
 
 /* ======================================================================
@@ -498,6 +499,7 @@ function Profil({ nutzer, profil, geworben, gehe }) {
       {rolle === "eltern" && (
         <>
           <ElternBereich profil={profil} gehe={gehe} kinderRef={setKinder} />
+          <WochenmailKarte />
           <PlanKarte profil={profil} kinder={kinder} />
           <NameKarte profil={profil} />
         </>
@@ -510,6 +512,17 @@ function Profil({ nutzer, profil, geworben, gehe }) {
         </>
       )}
 
+      {rolle !== "eltern" && (
+        <button type="button" onClick={() => gehe({ ansicht: "challenge" })}
+          style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", marginBottom: 14, borderRadius: 18, border: `1.5px solid ${C.flaggold}`, background: "#FFFBEA", cursor: "pointer", fontFamily: "inherit", textAlign: "left" }}>
+          <span style={{ flex: 1 }}>
+            <span style={{ display: "block", fontSize: 15.5, fontWeight: 700, color: C.tinte }}>Klassen-Challenge</span>
+            <span style={{ display: "block", fontSize: 13, color: C.grau, marginTop: 2 }}>{istLehrend(rolle) ? "Für eine Klasse starten und die Wochenrangliste sehen" : "Punkte für deine Klasse sammeln"}</span>
+          </span>
+          <span aria-hidden="true" style={{ fontSize: 22, color: "#8A6A00" }}>›</span>
+        </button>
+      )}
+      <DatenKarte gehe={gehe} />
       <RolleAendern profil={profil} />
       <button type="button" onClick={abmelden}
         style={{ background: "none", border: `1px solid ${C.linie}`, borderRadius: 999, padding: "10px 20px", color: C.grau, fontSize: 14, fontFamily: "inherit", cursor: "pointer" }}>
