@@ -16,7 +16,7 @@ import { Mathilda } from "./func10.jsx";
 import { KopfKacheln, KopfrechnenLogoKlein, TRAINER } from "./func14.jsx";
 import { HeadNumbersLogoKlein } from "./funcHeadNumbersLogo.jsx";
 import { EBB_SLOGAN, EbbinghausBadge, EbbinghausLogoKlein } from "./funcEbbinghaus.jsx";
-import { meinTrainingText, useOffenHeute } from "./funcMeinTraining.jsx";
+import { useOffenHeute } from "./funcMeinTraining.jsx";
 import { DeinPlanBlock, useLernpfad } from "./funcLernpfad.jsx";
 import { StartOnboarding, ZonenKopf } from "./funcOnboarding.jsx";
 import { Quickfinder } from "./funcQuickfinder.jsx";
@@ -178,16 +178,16 @@ function MeinTrainingKachelStart({ gehe, setzeStufe }) {
   const offen = s.hatSkills ? s.offen : 0;
   const links = (
     <>
-      <h2 style={{ margin: 0, fontSize: "clamp(20px, 5.4vw, 25px)", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.12, color: C.see }}>Dein Training startet hier.</h2>
+      <h2 style={{ margin: 0, fontSize: "clamp(19px, 5.2vw, 25px)", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.12, color: C.see }}>Dein Training startet hier.</h2>
       <span aria-hidden="true" style={{ display: "block", width: 40, height: 3, borderRadius: 2, marginTop: 9, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)` }} />
-      <p style={{ margin: "10px 0 0", fontSize: 14, fontWeight: 300, lineHeight: 1.55, color: C.grau }}>{meinTrainingText(s)}</p>
-      <p style={{ margin: "8px 0 0", fontSize: 13, fontWeight: 500, lineHeight: 1.55, color: C.tinte }}>Schulsystem und Klasse wählen – dann zeige ich dir, wo ihr im Buch steht und was dir dabei hilft.</p>
-      <span aria-hidden="true" style={{ flex: "1 0 14px" }} />
+      <p style={{ margin: "10px 0 0", fontSize: 13.5, fontWeight: 300, lineHeight: 1.55, color: C.grau }}>
+        Wähle dein Schulsystem und dann deine Klasse – oder gleich das Abi-Training. Dann zeige ich dir das Kapitel, in dem ihr gerade steckt, und alles, was dir dabei hilft.
+      </p>
       <button type="button" onClick={() => gehe({ ansicht: "meintraining" })}
-        style={{ alignSelf: "flex-start", display: "inline-flex", alignItems: "center", gap: 8, padding: "9px 16px", borderRadius: 999, border: "none", cursor: "pointer",
-          fontFamily: "inherit", fontSize: 13.5, fontWeight: 700, color: C.weiss, background: C.see, boxShadow: "0 3px 10px rgba(0,77,152,0.25)" }}>
+        style={{ marginTop: 10, alignSelf: "flex-start", display: "inline-flex", alignItems: "center", gap: 6, padding: 0, border: "none", background: "none", cursor: "pointer",
+          fontFamily: "inherit", fontSize: 13, fontWeight: 700, color: C.see }}>
         Mein Training öffnen
-        {offen > 0 && <span aria-label={`${offen} Übungen heute offen`} style={{ minWidth: 22, height: 22, padding: "0 6px", borderRadius: 999, background: C.flaggold, color: C.seeTief, fontSize: 12, fontWeight: 800, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{offen}</span>}
+        {offen > 0 && <span aria-label={`${offen} Übungen heute offen`} style={{ minWidth: 20, height: 20, padding: "0 6px", borderRadius: 999, background: C.flaggold, color: C.seeTief, fontSize: 11.5, fontWeight: 800, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{offen}</span>}
         <span aria-hidden="true">→</span>
       </button>
     </>

@@ -26,19 +26,22 @@ export function quickfinderLesen() { return lesen(); }
 const KICKER = { fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", color: C.gruenDunkel, margin: 0 };
 const knopfBasis = { fontFamily: "inherit", cursor: "pointer", borderRadius: 12, fontWeight: 700, lineHeight: 1.15, transition: "background .12s ease, color .12s ease, box-shadow .12s ease" };
 
-/* Panel rechts oben: dunkelblauer Rahmen, darin Schulsystem (3 Tasten) und Klasse (3 × 3).
-   Gewählt = gold. Die Klassen sind grau, bis ein Schulsystem gewählt ist. */
-const GOLD_AN = { background: "linear-gradient(180deg, #F5CB2E 0%, #EDBB00 100%)", color: C.seeTief, borderColor: C.flaggold, boxShadow: "0 3px 10px rgba(237,187,0,0.35)" };
+/* Panel rechts oben, schmal: 3 Spalten × 4 Zeilen.
+   Zeile 1 (goldener Grund, dunkelblaue Tasten): Schulsystem G8 · G9 · GS9.
+   Zeilen 2–4 (dunkelblauer Grund, goldene Tasten): Klassen, als letzte Taste „Abi“.
+   Gewählt = weiß. Die Klassen sind gedämpft, bis ein Schulsystem gewählt ist. */
+const TASTE = { ...knopfBasis, minHeight: 32, padding: "2px", fontSize: 13.5, borderRadius: 8, letterSpacing: "0.02em" };
+const AN = { background: C.weiss, color: C.seeTief, borderColor: C.weiss, boxShadow: "0 0 0 2px rgba(255,255,255,0.35), 0 3px 8px rgba(8,23,59,0.3)" };
 
 function SchulartWahl({ wert, setze }) {
   return (
-    <div role="group" aria-label="Schulsystem wählen" style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 7 }}>
+    <div role="group" aria-label="Schulsystem wählen" style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 5,
+      padding: 6, background: "linear-gradient(180deg, #F5CB2E 0%, #EDBB00 100%)" }}>
       {SCHULARTEN.map((s) => {
         const an = s.id === wert;
         return (
           <button key={s.id} type="button" aria-pressed={an} onClick={() => setze(s.id)} title={s.zeile} data-kein-i18n className="qf-taste"
-            style={{ ...knopfBasis, minHeight: 40, padding: "4px", fontSize: 15.5, letterSpacing: "0.03em", borderRadius: 10,
-              border: "2px solid rgba(255,255,255,0.55)", background: "rgba(255,255,255,0.06)", color: C.weiss, ...(an ? GOLD_AN : {}) }}>
+            style={{ ...TASTE, border: `2px solid ${C.seeTief}`, background: C.seeTief, color: C.weiss, ...(an ? { ...AN, borderColor: C.seeTief, boxShadow: "0 3px 8px rgba(8,23,59,0.3)" } : {}) }}>
             {s.name}
           </button>
         );
@@ -52,17 +55,15 @@ function KlassenWahl({ schulart, wert, setze }) {
   const aus = !schulart;
   return (
     <div role="group" aria-label={aus ? "Klasse wählen – zuerst Schulsystem wählen" : "Klasse wählen"}
-      style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 7 }}>
+      style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 5, padding: 6, background: C.seeTief }}>
       {boxen.map((b) => {
         const an = !aus && b.id === wert;
         return (
           <button key={b.id} type="button" aria-pressed={an} disabled={aus} onClick={() => setze(b.id)} data-kein-i18n className={aus ? undefined : "qf-taste"}
-            aria-label={b.abi ? "Abi" : `Klasse ${b.label}`}
-            style={{ ...knopfBasis, minHeight: 40, padding: "4px 2px", fontSize: 15.5, borderRadius: 10, cursor: aus ? "not-allowed" : "pointer",
-              ...(aus
-                ? { border: "2px solid rgba(255,255,255,0.14)", background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.32)" }
-                : { border: "2px solid rgba(255,255,255,0.55)", background: "rgba(255,255,255,0.06)", color: b.abi ? "#F5CB2E" : C.weiss, letterSpacing: b.abi ? "0.04em" : undefined }),
-              ...(an ? GOLD_AN : {}) }}>
+            aria-label={b.abi ? "Abi-Training" : `Klasse ${b.label}`} title={b.abi ? "Spezielles Abi-Training" : undefined}
+            style={{ ...TASTE, cursor: aus ? "not-allowed" : "pointer", border: `2px solid ${C.flaggold}`,
+              background: "linear-gradient(180deg, #F5CB2E 0%, #EDBB00 100%)", color: C.seeTief, opacity: aus ? 0.32 : 1,
+              ...(an ? AN : {}) }}>
             {b.label}
           </button>
         );
@@ -192,20 +193,19 @@ export function Quickfinder({ gehe, setzeStufe, links }) {
     if (box && setzeStufe) setzeStufe(stufeAusKlassenBox(box));
   };
   const s = schulartVon(q.schulart);
-  const hinweis = !s ? "Wähle zuerst dein Schulsystem." : !q.klasse ? s.zeile + " · jetzt deine Klasse." : s.zeile;
   return (
     <>
       <style>{`.qf-kopf{display:grid;grid-template-columns:1fr;gap:14px;padding:16px}
-        @media (min-width:600px){.qf-kopf{grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:20px;padding:18px 18px 18px 20px;align-items:stretch}}
-        @media (hover:hover){.qf-taste:hover{border-color:${C.flaggold} !important}}`}</style>
+        .qf-panel{width:100%;max-width:300px;justify-self:end}
+        @media (min-width:440px){.qf-kopf{grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:stretch}.qf-panel{width:min(250px,48vw)}}
+        @media (min-width:840px){.qf-kopf{padding:18px 18px 18px 20px;gap:24px}.qf-panel{width:270px}}
+        @media (hover:hover){.qf-taste:hover{transform:translateY(-1px)}}
+        .qf-taste{transition:transform .12s ease, background .12s ease, color .12s ease}`}</style>
       <div className="qf-kopf">
         <div style={{ minWidth: 0, display: "flex", flexDirection: "column" }}>{links}</div>
-        <div style={{ background: `linear-gradient(160deg, ${C.see} 0%, ${C.seeTief} 100%)`, border: `2px solid ${C.seeTief}`, borderRadius: 14, padding: 12,
-          boxShadow: "0 6px 18px rgba(0,40,100,0.22)", display: "flex", flexDirection: "column", gap: 10 }}>
+        <div className="qf-panel" style={{ border: `2px solid ${C.seeTief}`, borderRadius: 12, overflow: "hidden", boxShadow: "0 5px 16px rgba(0,40,100,0.22)", alignSelf: "start" }}>
           <SchulartWahl wert={q.schulart} setze={schulartSetzen} />
-          <div aria-hidden="true" style={{ height: 1, background: "rgba(255,255,255,0.16)" }} />
           <KlassenWahl schulart={q.schulart} wert={q.klasse} setze={klasseSetzen} />
-          <p style={{ margin: "0 2px", fontSize: 11.5, color: "#C9D6EE", lineHeight: 1.4 }}>{hinweis}</p>
         </div>
       </div>
       {q.schulart && q.klasse && (
