@@ -10341,7 +10341,146 @@
   "Pen & Paper ist der Kurs dazu: ein Schritt pro Zeile, Gleichheitszeichen untereinander.": "Pen & Paper is the course for this: one step per line, equals signs aligned.",
   "Wurzeln und Brüche": "Roots and fractions",
   "Potenzregel mit negativen und gebrochenen Exponenten": "Power rule with negative and fractional exponents",
-  "Weiter: Bestimmen": "Next: Determine"
+  "Weiter: Bestimmen": "Next: Determine",
+  "Dein Plan": "Your plan",
+  "Dein Plan ·": "Your plan ·",
+  "Fünfzehn Minuten Standortcheck, danach sagt dir die App jede Woche, was dran ist. Statt zu suchen.": "A fifteen-minute placement check, then the app tells you each week what is next. No more searching.",
+  "Standortcheck starten": "Start placement check",
+  "Standortcheck": "Placement check",
+  "Standortcheck starten (ca. 15 Minuten)": "Start placement check (about 15 minutes)",
+  "Ohne Check starten": "Start without the check",
+  "Einheit starten": "Start unit",
+  "Wochenplan": "Weekly plan",
+  "Zum Wochenplan": "To the weekly plan",
+  "← Wochenplan": "← Weekly plan",
+  "← Startseite": "← Home",
+  "← Abbrechen": "← Cancel",
+  "Standortcheck, Wochenplan, eine Einheit nach der anderen – entdecken, rechnen, trainieren.": "Placement check, weekly plan, one unit after another – explore, calculate, practise.",
+  "Drei Angaben, dann ein kurzer Standortcheck. Danach weiß die App, was diese Woche dran ist – und du musst nicht mehr suchen.": "Three choices, then a short placement check. After that the app knows what is on this week – and you no longer have to search.",
+  "1 · Welcher Bereich?": "1 · Which area?",
+  "2 · Wofür?": "2 · What for?",
+  "3 · Wie viele Einheiten pro Woche?": "3 · How many units per week?",
+  "Eine Einheit dauert rund 20 Minuten: kurz verstehen, im Werkzeug rechnen, fünf Aufgaben trainieren.": "A unit takes about 20 minutes: understand briefly, calculate in the tool, practise five tasks.",
+  "Für dieses Ziel braucht der Plan einen Termin.": "This goal needs a date.",
+  "Termin": "Date",
+  "Einheiten": "units",
+  "pro Woche": "per week",
+  "Einheiten pro Woche": "Units per week",
+  "Abi komplett": "Complete Abitur",
+  "Funktionen kennen, untersuchen, bestimmen, integrieren": "Know, analyse, determine and integrate functions",
+  "Rechnen, aufstellen, Lage und Abstand": "Calculate, set up, position and distance",
+  "Zählen, Zufallsgrößen, testen": "Count, random variables, test",
+  "Umformen und lösen – die Grundlage für alles": "Rearrange and solve – the basis for everything",
+  "Alle vier Bereiche in Abi-Reihenfolge": "All four areas in Abitur order",
+  "Klausur oder Klassenarbeit": "Exam or class test",
+  "Ein Termin, rückwärts geplant": "One date, planned backwards",
+  "Abitur": "Abitur",
+  "Alle Bereiche bis zur Prüfung": "All areas up to the exam",
+  "Einfach besser werden": "Simply get better",
+  "Ohne Termin, im eigenen Tempo": "No date, at your own pace",
+  "Dein Standort": "Where you stand",
+  "So sehen die Stationen nach dem Check aus. Grün heißt: dort reicht eine kurze Einheit. Alles andere bekommt den vollen Rhythmus.": "This is how the stations look after the check. Green means a short unit is enough there. Everything else gets the full rhythm.",
+  "nicht geprüft – wird im Werkzeug trainiert": "not checked – practised in the tool",
+  "Weiter zum Ergebnis": "Continue to the result",
+  "sicher": "secure",
+  "teilweise": "partly",
+  "offen": "open",
+  "nicht geprüft": "not checked",
+  "diese Woche": "this week",
+  "Woche": "week",
+  "insgesamt": "in total",
+  "Starten ›": "Start ›",
+  "Alle Einheiten geschafft.": "All units done.",
+  "Wochenziel erreicht – alles Weitere ist Bonus.": "Weekly goal reached – anything more is a bonus.",
+  "Nichts mehr offen. Zeit für den Prüfungsmodus.": "Nothing left open. Time for exam mode.",
+  "Grün: alle Einheiten der Station fertig oder im Check sicher. Gelb und Rot aus dem Standortcheck.": "Green: all units of the station done or secure in the check. Yellow and red from the placement check.",
+  "Pfad geschafft.": "Path completed.",
+  "Pfad geschafft": "Path completed",
+  "Jetzt zählt die Prüfungsform: ohne Hilfen, mit Uhr.": "Now the exam format counts: no help, with a clock.",
+  "Weiter mit Prüfungsmodus und Abi-Ketten.": "Continue with exam mode and Abitur chains.",
+  "Plan anpassen": "Adjust plan",
+  "Einstellungen schließen": "Close settings",
+  "Angelegt am": "Created on",
+  "Neu einrichten": "Set up again",
+  "Plan löschen und neu einrichten? Dein Fortschritt in den Werkzeugen bleibt erhalten.": "Delete the plan and set it up again? Your progress in the tools is kept.",
+  "Heute fällig: 1 Wiederholung": "Due today: 1 review",
+  "Fünf Minuten, bevor es vergessen ist – dein Tagesplan in „Mein Training“.": "Five minutes before it is forgotten – your daily plan in “My training”.",
+  "Schritte der Einheit": "Steps of the unit",
+  "Zwei Minuten ausprobieren: Regler bewegen, Zahlen ändern, Graph beobachten. Dann zurück zur Einheit.": "Two minutes of trying out: move sliders, change numbers, watch the graph. Then back to the unit.",
+  "Verstanden – weiter zum Rechnen": "Got it – on to calculating",
+  "Deine Aufgabe im Werkzeug": "Your task in the tool",
+  "Auf Papier mitschreiben, Blankopapier und schwarzer Stift. Im Werkzeug steht oben „zurück“ zur Einheit.": "Write along on paper, blank paper and a black pen. In the tool, “back” at the top returns to the unit.",
+  "Erledigt – weiter zum Trainieren": "Done – on to practising",
+  "Trainieren im Werkzeug": "Practise in the tool",
+  "Für dieses Thema prüft das Werkzeug selbst: Löse dort drei Aufgaben hintereinander, ohne Lösung anzusehen.": "For this topic the tool checks itself: solve three tasks there in a row without looking at the solution.",
+  "Drei Aufgaben geschafft": "Three tasks done",
+  "Fünf Aufgaben": "Five tasks",
+  "Jetzt du allein. „Ich hänge fest“ bleibt erlaubt, zählt aber ehrlich mit.": "Now on your own. “I’m stuck” is still allowed, but it counts honestly.",
+  "Einheit abschließen": "Finish unit",
+  "Einheit abgeschlossen": "Unit completed",
+  "Im Werkzeug trainiert. Der Haken sitzt.": "Practised in the tool. The tick is in place.",
+  "Nächste Einheit starten": "Start next unit",
+  "· rund 20 Minuten": "· about 20 minutes",
+  "· Station": "· station",
+  "· Woche": "· week",
+  "morgen": "tomorrow",
+  "Lernpfad": "Learning path",
+  "Grundaufgabe": "Basic task",
+  "Deine Antwort": "Your answer",
+  "Jede Gerade ist durch Steigung und y-Achsenabschnitt festgelegt. Aus zwei Punkten oder aus Punkt und Steigung baust du die Gleichung y = m·x + c.": "Every straight line is fixed by its slope and y-intercept. From two points or from a point and the slope you build the equation y = m·x + c.",
+  "Scheitelform, Normalform und faktorisierte Form beschreiben dieselbe Parabel. Jede Form zeigt dir etwas anderes: Scheitel, y-Achsenabschnitt oder Nullstellen.": "Vertex form, standard form and factorised form describe the same parabola. Each form shows you something different: vertex, y-intercept or zeros.",
+  "Die vier Parameter a, b, c und d strecken, stauchen und verschieben die Sinuskurve. Die Periode hängt nur von b ab.": "The four parameters a, b, c and d stretch, compress and shift the sine curve. The period depends on b alone.",
+  "Exponentielles Wachstum heißt: in gleichen Zeitschritten derselbe Faktor. Der Logarithmus löst nach der Zeit auf.": "Exponential growth means: the same factor in equal time steps. The logarithm solves for the time.",
+  "Ableiten ist Handwerk mit wenigen Regeln: Potenz-, Faktor-, Summen-, Produkt- und Kettenregel. Sicherheit kommt aus Wiederholung.": "Differentiating is craft with a few rules: power, factor, sum, product and chain rule. Confidence comes from repetition.",
+  "Nullstellen, Extrema und Wendepunkte folgen alle aus f, f′ und f″. Die Kurvendiskussion ist eine feste Reihenfolge, keine Zauberei.": "Zeros, extrema and inflection points all follow from f, f′ and f″. Curve sketching is a fixed sequence, not magic.",
+  "Ein Parameter in der Funktion erzeugt eine ganze Familie von Graphen. Besondere Punkte wandern auf einer Ortskurve.": "A parameter in the function creates a whole family of graphs. Special points move along a locus curve.",
+  "Aus Eigenschaften (Hochpunkt, Wendepunkt, Nullstelle) entsteht ein Gleichungssystem für die Koeffizienten. Jede Eigenschaft ist eine Gleichung.": "From properties (maximum, inflection point, zero) you get a system of equations for the coefficients. Each property is one equation.",
+  "Eine Optimierungsaufgabe hat immer dieselbe Struktur: Zielfunktion, Nebenbedingung, Ableitung null setzen, Randwerte prüfen.": "An optimisation task always has the same structure: objective function, constraint, set the derivative to zero, check the boundary values.",
+  "Das Integral misst orientierte Flächen. Stammfunktion bilden, Grenzen einsetzen, Vorzeichen beachten.": "The integral measures oriented areas. Find the antiderivative, insert the limits, mind the sign.",
+  "Vektoren werden komponentenweise addiert und mit Zahlen gestreckt. Das Skalarprodukt verbindet Länge und Winkel.": "Vectors are added component by component and stretched by numbers. The dot product connects length and angle.",
+  "Das Kreuzprodukt liefert einen Vektor, der auf beiden Ausgangsvektoren senkrecht steht. Es ist der Schlüssel zum Normalenvektor.": "The cross product gives a vector perpendicular to both input vectors. It is the key to the normal vector.",
+  "cos φ = a·b / (|a|·|b|). Alles andere folgt daraus, auch Orthogonalität.": "cos φ = a·b / (|a|·|b|). Everything else follows from that, including orthogonality.",
+  "Eine Gerade im Raum braucht einen Stützvektor und einen Richtungsvektor. Beide liest du aus zwei Punkten ab.": "A line in space needs a position vector and a direction vector. You read both from two points.",
+  "Drei Punkte legen eine Ebene fest: Parameterform, Normalenform, Koordinatenform. Jede Form hat ihren Zweck.": "Three points fix a plane: parametric form, normal form, coordinate form. Each form has its purpose.",
+  "Die Koordinatenform a·x + b·y + c·z = d zeigt den Normalenvektor direkt. Drehe die Ebene und sieh, was die Zahlen tun.": "The coordinate form a·x + b·y + c·z = d shows the normal vector directly. Rotate the plane and see what the numbers do.",
+  "Zwei Geraden im Raum sind identisch, parallel, schneidend oder windschief. Die Entscheidung läuft über Richtungsvektoren und ein Gleichungssystem.": "Two lines in space are identical, parallel, intersecting or skew. The decision runs through direction vectors and a system of equations.",
+  "Zwei Ebenen schneiden sich in einer Geraden oder sind parallel. Der Schnittwinkel kommt aus den Normalenvektoren.": "Two planes intersect in a line or are parallel. The angle between them comes from the normal vectors.",
+  "Abstand heißt immer: kürzeste Verbindung. Lotfußpunkt oder Hessesche Normalenform, je nach Kombination.": "Distance always means: shortest connection. Foot of the perpendicular or Hesse normal form, depending on the combination.",
+  "Zählen heißt entscheiden: mit oder ohne Zurücklegen, mit oder ohne Reihenfolge. Das Baumdiagramm zeigt alle Pfade.": "Counting means deciding: with or without replacement, with or without order. The tree diagram shows every path.",
+  "Die Vier-Felder-Tafel ordnet zwei Merkmale; bedingte Wahrscheinlichkeiten liest du zeilen- oder spaltenweise ab.": "The two-way table arranges two attributes; you read conditional probabilities row by row or column by column.",
+  "Der Erwartungswert ist der langfristige Durchschnitt. Ein Spiel ist fair, wenn der erwartete Gewinn null ist.": "The expected value is the long-run average. A game is fair if the expected gain is zero.",
+  "Eine Bernoulli-Kette hat n gleiche Versuche mit Trefferwahrscheinlichkeit p. Die Binomialverteilung zählt die Treffer.": "A Bernoulli chain has n identical trials with success probability p. The binomial distribution counts the successes.",
+  "Ein Test entscheidet gegen H₀, wenn das Ergebnis im Ablehnungsbereich liegt. Fehler erster und zweiter Art gehören dazu.": "A test decides against H₀ when the result lies in the rejection region. Type I and type II errors are part of it.",
+  "Termumformungen sind Regeln, keine Tricks: ausmultiplizieren, ausklammern, binomische Formeln, Potenzgesetze.": "Rearranging terms follows rules, not tricks: expand, factor out, binomial formulas, power laws.",
+  "Eine Gleichung lösen heißt, die Rechnung rückwärts zu gehen. Jede Umformung gilt auf beiden Seiten.": "Solving an equation means running the calculation backwards. Every step applies to both sides.",
+  "Ein Gleichungssystem löst man durch Eliminieren: Gauß-Verfahren oder Einsetzen. Drei Unbekannte, drei Gleichungen.": "You solve a system of equations by elimination: Gaussian method or substitution. Three unknowns, three equations.",
+  "Stelle die Gerade durch zwei selbst gewählte Punkte auf und prüfe die Steigung mit dem Steigungsdreieck.": "Set up the line through two points of your choice and check the slope with the slope triangle.",
+  "Verschiebe den Scheitel mit den Reglern und beobachte, wie sich die Nullstellen bewegen. Lies dann aus der Scheitelform die Nullstellen ab.": "Move the vertex with the sliders and watch how the zeros move. Then read the zeros off the vertex form.",
+  "Stelle eine Sinuskurve mit Periode π und Amplitude 2 ein. Prüfe anschließend den Zielgraph in „Zusätzlich üben“.": "Set a sine curve with period π and amplitude 2. Then check the target graph in “Extra practice”.",
+  "Bestimme aus zwei Messwerten das Modell und berechne die Verdopplungszeit.": "Determine the model from two measured values and calculate the doubling time.",
+  "Leite drei Funktionen des Trainers ab, mindestens eine mit Kettenregel, und lass jede prüfen.": "Differentiate three functions in the trainer, at least one with the chain rule, and have each one checked.",
+  "Gib ein Polynom dritten Grades ein und vergleiche die berechneten Extrempunkte mit dem Graphen.": "Enter a cubic polynomial and compare the calculated extrema with the graph.",
+  "Bewege den Parameter und beobachte den Tiefpunkt. Berechne dann seine Koordinaten in Abhängigkeit vom Parameter.": "Move the parameter and watch the minimum. Then calculate its coordinates depending on the parameter.",
+  "Löse eine Steckbriefaufgabe des Werkzeugs vollständig bis zur Funktionsgleichung.": "Solve one of the tool’s profile tasks completely, up to the function equation.",
+  "Bearbeite die Schachtel-Aufgabe im Werkzeug und notiere Zielfunktion und Nebenbedingung auf Papier.": "Work through the box task in the tool and write the objective function and the constraint on paper.",
+  "Berechne die Fläche zwischen einem Polynom und der x-Achse zwischen zwei Nullstellen.": "Calculate the area between a polynomial and the x-axis between two zeros.",
+  "Lass dir drei Beispiele erzeugen und rechne jedes auf Papier nach, bevor du den Rechenweg aufklappst.": "Generate three examples and recalculate each on paper before opening the worked solution.",
+  "Berechne das Kreuzprodukt zweier Vektoren und prüfe mit dem Skalarprodukt, dass das Ergebnis senkrecht steht.": "Calculate the cross product of two vectors and check with the dot product that the result is perpendicular.",
+  "Bestimme den Winkel zwischen zwei Vektoren und finde einen dritten, der auf einem davon senkrecht steht.": "Determine the angle between two vectors and find a third one perpendicular to one of them.",
+  "Stelle die Gerade durch zwei Punkte auf und führe eine Punktprobe mit einem dritten Punkt durch.": "Set up the line through two points and do a point test with a third point.",
+  "Stelle eine Ebene aus drei Punkten in Koordinatenform auf und prüfe alle drei Punkte.": "Set up a plane from three points in coordinate form and check all three points.",
+  "Finde die Spurpunkte einer Ebene auf den drei Achsen und zeichne die Ebene auf Papier.": "Find the intercepts of a plane on the three axes and draw the plane on paper.",
+  "Untersuche zwei Geraden auf ihre Lage und berechne gegebenenfalls den Schnittpunkt.": "Examine two lines for their relative position and calculate the intersection point if there is one.",
+  "Berechne Schnittgerade und Schnittwinkel zweier Ebenen.": "Calculate the line of intersection and the angle between two planes.",
+  "Bestimme den Abstand eines Punktes von einer Ebene auf zwei Wegen.": "Determine the distance of a point from a plane in two ways.",
+  "Führe ein Urnenexperiment durch und zähle die Möglichkeiten mit der passenden Methode.": "Run an urn experiment and count the possibilities with the appropriate method.",
+  "Fülle eine Tafel aus drei gegebenen Werten und berechne eine bedingte Wahrscheinlichkeit.": "Fill in a table from three given values and calculate a conditional probability.",
+  "Bestimme den fairen Einsatz eines Spiels und prüfe ihn mit der Simulation.": "Determine the fair stake of a game and check it with the simulation.",
+  "Berechne P(X = k) und P(X ≥ k) für eine selbst gewählte Kette und vergleiche mit der Simulation.": "Calculate P(X = k) and P(X ≥ k) for a chain of your choice and compare with the simulation.",
+  "Baue einen Test auf, bestimme den Ablehnungsbereich und benenne den Fehler erster Art.": "Set up a test, determine the rejection region and name the type I error.",
+  "Vereinfache fünf Terme im Werkzeug, mindestens zwei mit binomischer Formel.": "Simplify five terms in the tool, at least two with a binomial formula.",
+  "Löse drei Gleichungen Schritt für Schritt und lass jeden Schritt prüfen.": "Solve three equations step by step and have each step checked.",
+  "Löse ein LGS mit drei Unbekannten und mache die Probe in allen drei Gleichungen.": "Solve a system with three unknowns and check in all three equations."
  },
  "muster": [
   [
@@ -11991,6 +12130,122 @@
   [
    "{0} Formeln durchsuchen …",
    "Search {0} formulas …"
+  ],
+  [
+   "{0} von {1} Einheiten",
+   "{0} of {1} units"
+  ],
+  [
+   "{0} Einheiten in {1} Wochen.",
+   "{0} units in {1} weeks."
+  ],
+  [
+   "{0} Einheiten in {1} Woche.",
+   "{0} units in {1} week."
+  ],
+  [
+   "{0} Einheiten in {1} Wochen – bis zum Termin braucht es {2} pro Woche.",
+   "{0} units in {1} weeks – to make the date it takes {2} per week."
+  ],
+  [
+   "{0} Einheiten in {1} Woche – bis zum Termin braucht es {2} pro Woche.",
+   "{0} units in {1} week – to make the date it takes {2} per week."
+  ],
+  [
+   "Bis zum Termin bleiben {0} Wochen. Das reicht nicht für alle {1} Einheiten; der Plan zeigt die wichtigsten zuerst.",
+   "{0} weeks remain until the date. That is not enough for all {1} units; the plan shows the most important ones first."
+  ],
+  [
+   "Bis zum Termin bleiben {0} Woche. Das reicht nicht für alle {1} Einheiten; der Plan zeigt die wichtigsten zuerst.",
+   "{0} week remains until the date. That is not enough for all {1} units; the plan shows the most important ones first."
+  ],
+  [
+   "{0} pro Woche",
+   "{0} per week"
+  ],
+  [
+   "{0} Aufgaben quer durch {1}. Was du nicht weißt, lässt du offen – Raten verfälscht nur den Plan. Hilfen und Lösungen zählen hier nicht als „gekonnt“.",
+   "{0} tasks across {1}. What you don’t know, leave open – guessing only distorts the plan. Hints and solutions do not count as “mastered” here."
+  ],
+  [
+   "Dein Plan: {0} Einheiten, {1} pro Woche, {2} Wochen.",
+   "Your plan: {0} units, {1} per week, {2} weeks."
+  ],
+  [
+   "{0} von {1} ohne Hilfe · {2}",
+   "{0} of {1} without help · {2}"
+  ],
+  [
+   "Station {0} · {1}",
+   "Station {0} · {1}"
+  ],
+  [
+   "Station {0} von {1} ·",
+   "Station {0} of {1} ·"
+  ],
+  [
+   "Woche {0} von {1}",
+   "Week {0} of {1}"
+  ],
+  [
+   "Noch {0} Einheiten bis zum Wochenziel.",
+   "{0} more units to the weekly goal."
+  ],
+  [
+   "Noch {0} Einheit bis zum Wochenziel.",
+   "{0} more unit to the weekly goal."
+  ],
+  [
+   "{0} von {1} insgesamt",
+   "{0} of {1} in total"
+  ],
+  [
+   "· in {0} Tagen",
+   "· in {0} days"
+  ],
+  [
+   "· Termin {0}",
+   "· date {0}"
+  ],
+  [
+   "· {0} % richtig",
+   "· {0} % correct"
+  ],
+  [
+   "Heute fällig: {0} Wiederholungen",
+   "Due today: {0} reviews"
+  ],
+  [
+   "Heute fällig: {0}",
+   "Due today: {0}"
+  ],
+  [
+   "{0} % ohne Hilfe – das sitzt. Die Wiederholung kommt über „Mein Training“ zum richtigen Zeitpunkt.",
+   "{0} % without help – that is solid. The review comes via “My training” at the right time."
+  ],
+  [
+   "{0} % ohne Hilfe – gute Basis. Die Fehlertypen landen in „Meine Fehler üben“.",
+   "{0} % without help – a good basis. The error types go to “Practise my mistakes”."
+  ],
+  [
+   "{0} % ohne Hilfe – noch wackelig. Kein Problem: Die Einheit ist abgehakt, das Thema kommt im Tagesplan früher wieder.",
+   "{0} % without help – still shaky. No problem: the unit is ticked off, the topic returns earlier in the daily plan."
+  ],
+  [
+   "Angelegt am {0}.",
+   "Created on {0}."
+  ],
+  [
+   "Angelegt am {0} · Termin {1}.",
+   "Created on {0} · date {1}."
+  ],
+  [
+   "· im Rückstand, kein Drama: eine Einheit mehr diese Woche.",
+   "· behind schedule, no drama: one more unit this week."
+  ],
+  [
+   "{0} Einheiten",
+   "{0} units"
   ]
  ]
 }

@@ -29,6 +29,8 @@ export function uebergabeZurueck(ansicht) {
   return hinweis && hinweis.ansicht === ansicht && hinweis.zurueck ? hinweis.zurueck : null;
 }
 export function hinweisVerwerfen() { hinweis = null; }
+/* Nur der Rückweg, ohne Daten (z. B. Lernpfad → Werkzeug → zurück zur Einheit) */
+export function rueckwegSetzen(ansicht, von, zurueck) { hinweis = { ansicht, von: von || null, zurueck, zeit: Date.now() }; }
 
 /* Polynom als Eingabetext für Kurvendiskussion und Ableitungstrainer, ohne „1·“, „+ −“ und Nullglieder:
    [[c, p], …] → z. B. „x^3-6*x^2+9*x-2“ (Regel A5: nichts bleibt unvereinfacht stehen) */

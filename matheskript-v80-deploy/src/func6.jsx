@@ -308,14 +308,14 @@ export function lernBenachrichtigen() { LERN.hoerer.forEach((h) => h()); }
 export function lernSnapshot() {
   return { profil: LERN.profil, stand: LERN.stand, einstufung: LERN.einstufung, aktivitaet: LERN.aktivitaet,
     plan: LERN.plan, verlauf: LERN.verlauf, testFehl: LERN.testFehl, letzteAktivitaet: LERN.letzteAktivitaet,
-    messungen: LERN.messungen, experimente: LERN.experimente, noten: LERN.noten, pseudonym: LERN.pseudonym, termine: LERN.termine, training: LERN.training || null, protokoll: PROTOKOLL.slice(-500),
+    messungen: LERN.messungen, experimente: LERN.experimente, noten: LERN.noten, pseudonym: LERN.pseudonym, termine: LERN.termine, training: LERN.training || null, pfad: LERN.pfad || null, protokoll: PROTOKOLL.slice(-500),
     _zeit: LERN.zeit || 0 };
 }
 
 /* Leerer Stand (z. B. nach dem Abmelden auf einem geteilten Gerät) */
 export function lernLeer() {
   return { profil: null, stand: {}, einstufung: null, aktivitaet: {}, plan: null, verlauf: [], testFehl: {}, letzteAktivitaet: 0,
-    messungen: {}, experimente: {}, noten: [], pseudonym: null, termine: [], training: null, protokoll: [], _zeit: 0 };
+    messungen: {}, experimente: {}, noten: [], pseudonym: null, termine: [], training: null, pfad: null, protokoll: [], _zeit: 0 };
 }
 
 /* Setzt einen gespeicherten Stand ein (Laden, Abgleich mit dem Konto). Ändert den Änderungsstempel nicht. */
@@ -324,7 +324,7 @@ export function lernAnwenden(d) {
   LERN.profil = d.profil || null; LERN.stand = d.stand || {}; LERN.einstufung = d.einstufung || null;
   LERN.aktivitaet = d.aktivitaet || {}; LERN.plan = d.plan || null; LERN.verlauf = d.verlauf || [];
   LERN.testFehl = d.testFehl || {}; LERN.letzteAktivitaet = d.letzteAktivitaet || 0;
-  LERN.messungen = d.messungen || {}; LERN.experimente = d.experimente || {}; LERN.noten = d.noten || []; LERN.pseudonym = d.pseudonym || null; LERN.termine = d.termine || []; LERN.training = d.training || null;
+  LERN.messungen = d.messungen || {}; LERN.experimente = d.experimente || {}; LERN.noten = d.noten || []; LERN.pseudonym = d.pseudonym || null; LERN.termine = d.termine || []; LERN.training = d.training || null; LERN.pfad = d.pfad || null;
   LERN.zeit = d._zeit || 0;
   PROTOKOLL.splice(0, PROTOKOLL.length, ...(d.protokoll || []));
 }

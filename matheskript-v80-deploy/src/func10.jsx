@@ -19,6 +19,7 @@ import { Einstufung, Lernlandkarte, Liniennetz, Profil, lernLaden, lernLeer, ler
 import { syncStarten } from "./lernSync.js";
 import { entdeckenSyncStarten } from "./entdeckenSync.js";
 import { MeinTrainingSeite } from "./funcMeinTraining.jsx";
+import { LernpfadSeite } from "./funcLernpfad.jsx";
 import { Begruenden, EinheitSpieler, Operatoren, Wiederholen } from "./func7.jsx";
 import { MeinPlan, Messbericht, Modellieren, Probeabitur, Wochenbericht } from "./func8.jsx";
 import { Auswertung, Einwilligung, KlasseAnsicht, KlausurVorbereitung, einwilligungLesen } from "./func9.jsx";
@@ -122,6 +123,7 @@ export function Mathilda() {
   const [genZiel, setGenZiel] = useState(null);
   const [gruppeOffen, setGruppeOffen] = useState(null);
   const [einheitId, setEinheitId] = useState(null);
+  const [pfadStart, setPfadStart] = useState(null);   // Lernpfad: direkt in eine Einheit springen
 
   React.useEffect(() => { lernLaden().then(() => syncStarten({ lesen: lernSnapshot, anwenden: lernVomKonto, leer: lernLeer })); }, []);
   React.useEffect(() => { entdeckenSyncStarten(); }, []);
@@ -148,6 +150,7 @@ export function Mathilda() {
     if (eintrag.ansicht === "ki") setGenZiel(eintrag.ziel ?? null);
     if (eintrag.foto) setFotoModus(eintrag.foto);
     if (eintrag.kompetenz) setEinheitId(eintrag.kompetenz);
+    if (eintrag.ansicht === "lernpfad") setPfadStart(eintrag.einheit ? { einheit: eintrag.einheit, zeit: Date.now() } : null);
     if (eintrag.ansicht === "vorbereiten") setTerminStart(eintrag.termin || null);
     if (eintrag.ansicht === "klasse") setKlasseAktiv(eintrag.klasse);
     setKursStart(eintrag.ansicht === "kurse" ? eintrag.kurs || null : null);
@@ -1381,6 +1384,18 @@ export function Mathilda() {
             <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
           </div>
           <PenPaperKursSeite gehe={gehe} />
+        </>
+      ) : ansicht === "lernpfad" ? (
+        <>
+          <div className="kopfblock" style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
+            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(26px, 7.6vw, 36px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Dein Plan</h1>
+              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
+              <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>Standortcheck, Wochenplan, eine Einheit nach der anderen – entdecken, rechnen, trainieren.</p>
+            </div>
+            <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
+          </div>
+          <LernpfadSeite key={pfadStart ? `${pfadStart.einheit}-${pfadStart.zeit}` : "plan"} gehe={gehe} start={pfadStart} />
         </>
       ) : ansicht === "meintraining" ? (
         <>

@@ -17,6 +17,7 @@ import { KopfKacheln, KopfrechnenLogoKlein, TRAINER } from "./func14.jsx";
 import { HeadNumbersLogoKlein } from "./funcHeadNumbersLogo.jsx";
 import { EBB_SLOGAN, EbbinghausBadge, EbbinghausLogoKlein } from "./funcEbbinghaus.jsx";
 import { MeinTrainingBadge, MeinTrainingLogoKlein, meinTrainingText, useOffenHeute } from "./funcMeinTraining.jsx";
+import { DeinPlanBlock } from "./funcLernpfad.jsx";
 import { AppAnleitung } from "./funcAnleitung.jsx";
 import { SuchBox } from "./funcSuche.jsx";
 import { VektorenLogoKlein } from "./func16.jsx";
@@ -1458,6 +1459,8 @@ export function Startseite({ gehe }) {
         </p>
       </section>
       {/* Suchfeld „Was möchtest du trainieren?“: mobil über „So nutzt du die App“, am Desktop über „Mathematik entdecken“ */}
+      {/* Dein Plan: Lernpfad mit Standortcheck und Wochenziel – vor dem Suchfeld und dem Werkzeugkasten */}
+      <DeinPlanBlock gehe={gehe} />
       <SuchBox gehe={gehe} />
       {!desktop && <AppAnleitung />}
       {/* Oberbutton „Schulmathe-Training“: darunter direkt die Bereiche (Analysis, Vektoren, Stochastik,

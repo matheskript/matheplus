@@ -222,6 +222,7 @@ function baueIndex() {
 
   /* Üben und Training */
   const ueben = [
+    ["Dein Plan", "Standortcheck und Wochenplan", "plan lernplan lernpfad wochenplan standortcheck einstufung wo stehe ich woche einheiten ziel klausur abitur termin path", { ansicht: "lernpfad" }],
     ["5 Minuten Mathe", "Fünf kurze Aufgaben", "5 minuten mathe kurz üben täglich aufwärmen warmup schnell", { ansicht: "warmup" }],
     ["Meine Fehler üben", "Gezielt ähnliche Aufgaben", "fehler flüchtigkeitsfehler vorzeichenfehler fehlertypen üben schwächen", { ansicht: "fehlertraining" }],
     ["Mein Training", "Tagesplan, Lernfortschritt und Übungsmodi", "training tagesplan fortschritt übungsmodi lernstand", { ansicht: "meintraining" }],
