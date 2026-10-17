@@ -427,12 +427,34 @@ const SZENEN = { produkt: ProduktSzene, kette: KetteSzene, wurzel: WurzelSzene }
    AUFKLAPP-KARTE
    art: "produkt" | "kette" | "wurzel"
    ====================================================================== */
-export function ErklaerAnimation({ art, style }) {
+export function ErklaerAnimation({ art, style, kompakt = false }) {
   const [offen, setOffen] = useState(false);
   const id = useId();
   const info = INFO[art];
   const Szene = SZENEN[art];
   if (!info || !Szene) return null;
+  /* Kompakt: nur ein kleiner Knopf; die Szene klappt darunter als Karte auf */
+  if (kompakt) return (
+    <div style={{ margin: "0 0 12px", ...style }}>
+      <button type="button" aria-expanded={offen} aria-controls={id} onClick={() => setOffen((o) => !o)}
+        style={{ display: "inline-flex", alignItems: "center", gap: 8, height: 40, padding: "0 12px 0 6px", borderRadius: 999, cursor: "pointer", fontFamily: "inherit",
+          fontSize: 13.5, fontWeight: 700, color: C.see, background: C.weiss, border: `1.5px solid ${offen ? C.see : C.linie}`, whiteSpace: "nowrap" }}>
+        <span aria-hidden="true" style={{ width: 28, height: 28, borderRadius: 999, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center",
+          background: "radial-gradient(130% 150% at 90% 10%, #2A2210 0%, #0E0C08 55%, #050404 100%)", border: `1px solid ${C.flaggold}` }}>
+          <svg width="11" height="11" viewBox="0 0 18 18"><path d="M5 2.5v13l11-6.5z" fill={C.flaggold} /></svg>
+        </span>
+        <span>Erkläranimation</span>
+        <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"
+          style={{ transform: offen ? "rotate(180deg)" : "none", transition: "transform .2s ease" }}><path d="M6 9l6 6 6-6" /></svg>
+      </button>
+      {offen && (
+        <div id={id} data-aufklapp-inhalt="" style={{ marginTop: 10, background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 16, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", padding: "14px 16px 18px" }}>
+          <div style={{ fontSize: 15.5, fontWeight: 700, color: C.tinte, lineHeight: 1.3, marginBottom: 8 }}>{info.titel}</div>
+          <Szene />
+        </div>
+      )}
+    </div>
+  );
   return (
     <div style={{ background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 16, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", margin: "20px 0 24px", overflow: "hidden", ...style }}>
       <button type="button" aria-expanded={offen} aria-controls={id} onClick={() => setOffen((o) => !o)} className="erk-knopf"

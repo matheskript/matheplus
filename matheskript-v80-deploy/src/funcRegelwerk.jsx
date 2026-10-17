@@ -17,6 +17,7 @@ import { Formel, M, Text } from "./func3.jsx";
 import { LiveFormel, Tastenfeld, ableitung, hatX } from "./func12.jsx";
 import { AufklappZeichen } from "./aufklappen.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
+import { ErklaerAnimation } from "./funcErklaeranimation.jsx";
 import {
   REGELN, baueF, diagnose, fakTex, fehlerbilder, gleichwertig, lies, musterloesung, neueAufgabe, regelFuer, schoen, tex,
 } from "./regelwerkKern.js";
@@ -514,6 +515,8 @@ export function RegelWerkstatt({ regel: regelProp }) {
       </div>
 
       <div className="wk-karte">
+        {/* Produkt- und Kettenregel: kleine Erkläranimation, ganz oben aufklappbar */}
+        {(art === "produkt" || art === "kette") && <ErklaerAnimation key={art} art={art} kompakt />}
         {bilanz.gesamt > 0 && (
           <p style={{ fontSize: 12.5, color: C.grau, lineHeight: 1.35, margin: "0 2px 10px" }}>{bilanz.richtig} von {bilanz.gesamt} richtig</p>
         )}
