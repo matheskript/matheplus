@@ -1899,9 +1899,28 @@ export function polynomdivisionSchritte(fRoh, r) {
 }
 
 /* Wie polyTextPdf, aber für eine Stammfunktion: Koeffizienten dürfen echte
-   Brüche sein (z. B. e/5 bei x^5). Ein Bruch-Koeffizient steht dafür in
-   Klammern, ein ganzzahliger wie gewohnt ohne. terms: [{coef: {n,d}, potenz}]. */
+   Brüche sein (z. B. e/5 bei x^5). terms: [{coef: {n,d}, potenz}].
+   Ein Bruch-Koeffizient wird immer als echter, gestapelter Bruch gesetzt
+   (\frac{3}{4}x^{4}), nie als Chat-Schreibweise „(3/4)x^4“. */
 
+export function stammfunktionTex(terms) {
+  let erster = true;
+  const teile = [];
+  terms.forEach(({ coef, potenz }) => {
+    if (coef.n === 0) return;
+    const negativ = coef.n < 0;
+    const betrag = { n: Math.abs(coef.n), d: coef.d };
+    const vor = erster ? (negativ ? "-" : "") : negativ ? " - " : " + ";
+    erster = false;
+    const eins = betrag.n === 1 && betrag.d === 1 && potenz > 0;
+    const zahlTeil = eins ? "" : betrag.d === 1 ? String(betrag.n) : `\\frac{${betrag.n}}{${betrag.d}}`;
+    const potTeil = potenz > 1 ? `x^{${potenz}}` : potenz === 1 ? "x" : "";
+    teile.push(`${vor}${zahlTeil}${potTeil}`);
+  });
+  return teile.length ? teile.join("") : "0";
+}
+
+/* Reine Textfassung (ASCII) — nur noch für Stellen, an denen keine Formel gesetzt werden kann. */
 export function stammfunktionText(terms) {
   let erster = true;
   const teile = [];
@@ -1985,7 +2004,7 @@ function loeseQuadratMNF(A, B, Cc, v, gleichung, schritte) {
   if (Math.abs(disk) <= 1e-9) {
     const w0 = bruch(-B, 2 * A);
     schritte.push({ txt: `${v}_{1,2} = \\frac{${potBasis(negB)} \\pm 0}{${zweiA}}`, formel: true });
-    schritte.push({ txt: `doppelte Lösung ${v} = ${bruchText(w0)}`, fett: true });
+    schritte.push({ txt: `\\text{doppelte Lösung } ${v} = ${bruchLatex(w0)}`, fett: true, formel: true });
     return { art: "doppelt", werte: [{ v: w0.n / w0.d, b: w0, text: `${v} = ${bruchText(w0)} (doppelt)` }] };
   }
   schritte.push({ txt: `D = ${disk} < 0  =>  keine reelle Lösung.`, fett: true });
@@ -2038,7 +2057,8 @@ function loeseBiquadratisch(f, schritte, loesungen) {
       const zusatz = q.art === "doppelt" ? " (doppelt)" : "";
       loesungen.push({ x: -xv, text: `x = -${xText}${zusatz}` }, { x: xv, text: `x = ${xText}${zusatz}` });
     } else {
-      schritte.push({ txt: `${znText} = ${w.b ? bruchText(w.b) : zahlCa(w.v)} < 0  =>  keine reelle Lösung für x (ein Quadrat ist nie negativ).`, prosa: true });
+      schritte.push({ txt: `${zn} = ${zTex} < 0`, formel: true });
+      schritte.push({ txt: `${znText} ist negativ, also keine reelle Lösung für x (ein Quadrat ist nie negativ).`, prosa: true });
     }
   });
   if (positiv === 0) schritte.push({ txt: "Beide z-Werte sind negativ: Die Gleichung hat keine reelle Lösung.", prosa: true });
@@ -2107,8 +2127,8 @@ export function loeseGanzrational(koeffsRoh) {
     // schon vollständig gelöst (Substitution)
   } else if (restGrad === 1) {
     const br = bruch(-f[1], f[0]);
-    schritte.push(`Lineare Gleichung: ${polyTextPdf(f)} = 0  =>  x = ${bruchText(br)}`);
-    loesungen.push({ x: br.n / br.d, text: `x = ${bruchText(br)}` });
+    schritte.push({ txt: `\\text{Lineare Gleichung: } ${polyTextPdf(f)} = 0 \\quad\\Rightarrow\\quad x = ${bruchLatex(br)}`, formel: true });
+    loesungen.push({ x: br.n / br.d, text: `x = ${bruchText(br)}`});
   } else if (restGrad === 2) {
     const qr = loeseQuadratMNF(f[0], f[1], f[2], "x", polyTextPdf(f), schritte);
     qr.werte.forEach((w) => loesungen.push({ x: w.v, text: w.text }));
@@ -2359,11 +2379,11 @@ export function baueKurvendiskussionInhaltK(k) {
     zP(s11, "Es gibt weniger als zwei Nullstellen — dadurch lässt sich kein Intervall zwischen Nullstellen bilden.");
   } else {
     const Fp = bruch(p5, 6), Fe = bruch(e, 5), Fa = bruch(a, 4), Fb = bruch(b, 3), Fc = bruch(c, 2), Fd = bruch(d, 1);
-    const stammText = stammfunktionText([
+    const stammTex = stammfunktionTex([
       { coef: Fp, potenz: 6 }, { coef: Fe, potenz: 5 }, { coef: Fa, potenz: 4 }, { coef: Fb, potenz: 3 },
       { coef: Fc, potenz: 2 }, { coef: Fd, potenz: 1 },
     ]);
-    z(s11, `Stammfunktion: F(x) = ${stammText}`, true);
+    z(s11, `\\text{Stammfunktion: } F(x) = ${stammTex}`, true, true);
     const Fx = (x) => (p5 / 6) * x ** 6 + (e / 5) * x ** 5 + (a / 4) * x ** 4 + (b / 3) * x ** 3 + (c / 2) * x ** 2 + d * x;
     const stellenSortiert = nsErg.loesungen.map((l) => l.x).sort((p, q) => p - q);
     for (let i = 0; i < stellenSortiert.length - 1; i++) {

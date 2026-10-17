@@ -14,16 +14,18 @@ import { uebergabeErledigt, uebergabeLesen } from "./uebergabe.js";
 import { WeiterKnopf, WeiterMit, ZentrumListe } from "./funcWerkzeuge.jsx";
 import { C } from "./base1.jsx";
 import { GesperrteKurse } from "./func1.jsx";
+import { M } from "./func3.jsx";
 
 /* ---------- Zahlen und Brüche ---------- */
 
 const ggT = (a, b) => (b ? ggT(b, a % b) : Math.abs(a));
+/* gekürzter Bruch als Formel: echter Bruch (\\frac), nie „3/2“ */
 function bruch(z, n) {
   if (n === 0) return null;
   const g = ggT(z, n) || 1;
   let a = z / g, b = n / g;
   if (b < 0) { a = -a; b = -b; }
-  return b === 1 ? `${a}`.replace("-", "−") : `${a < 0 ? "−" : ""}${Math.abs(a)}/${b}`;
+  return b === 1 ? `${a}`.replace("-", "−") : `${a < 0 ? "−" : ""}\\frac{${Math.abs(a)}}{${b}}`;
 }
 const dez = (v) => (Math.round(v * 100) / 100).toString().replace(".", ",").replace("-", "−");
 
@@ -352,12 +354,12 @@ function Eigenschaften({ a, b, c, d }) {
   });
   zeilen.push(["Spurpunkte", sp]);
   if (a && b && c && d) {
-    zeilen.push(["Achsenabschnittsform", `x₁/${bruch(d, a)} + x₂/${bruch(d, b)} + x₃/${bruch(d, c)} = 1`.replace(/\/(−[^ ]+)/g, "/($1)")]);
+    zeilen.push(["Achsenabschnittsform", `\\frac{x₁}{${bruch(d, a)}} + \\frac{x₂}{${bruch(d, b)}} + \\frac{x₃}{${bruch(d, c)}} = 1`]);
   }
   const abst = Math.abs(d) / nLen;
   const q = a * a + b * b + c * c;
-  const wurzel = Number.isInteger(Math.sqrt(q)) ? `${Math.sqrt(q)}` : `√${q}`;
-  zeilen.push(["Abstand zum Ursprung", `|d| / |n| = ${Math.abs(d)} / ${wurzel} ≈ ${dez(abst)}`]);
+  const wurzel = Number.isInteger(Math.sqrt(q)) ? `${Math.sqrt(q)}` : `\\sqrt{${q}}`;
+  zeilen.push(["Abstand zum Ursprung", `\\frac{|d|}{|n|} = \\frac{${Math.abs(d)}}{${wurzel}} ≈ ${dez(abst)}`]);
   const winkel = (Math.acos(Math.abs(c) / nLen) * 180) / Math.PI;
   zeilen.push(["Winkel zur x₁x₂-Ebene", `≈ ${dez(winkel)}°`]);
 
@@ -379,7 +381,7 @@ function Eigenschaften({ a, b, c, d }) {
         <div key={t} style={{ display: "flex", flexWrap: "wrap", gap: "2px 10px", padding: "9px 0", borderBottom: `1px solid ${C.linie}` }}>
           <span style={{ fontSize: 12.5, fontWeight: 600, color: C.grau, minWidth: 150 }}>{t}</span>
           <span style={{ fontSize: 14.5, fontWeight: 600, color: C.tinte, fontVariantNumeric: "tabular-nums" }}>
-            {Array.isArray(w) ? w.map((z) => <span key={z} style={{ display: "block" }}>{z}</span>) : w}
+            {Array.isArray(w) ? w.map((z) => <span key={z} style={{ display: "block" }}><M t={z} /></span>) : <M t={w} />}
           </span>
         </div>
       ))}

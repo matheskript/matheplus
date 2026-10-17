@@ -24,6 +24,31 @@ const komma = (v, s = 2) => {
 const zahl = (v) => String(runde(v, 6)).replace(".", ",").replace("-", "−");
 const vz = (v, erstes = false) => (v < 0 ? (erstes ? "−" : " − ") : erstes ? "" : " + ");
 
+/* Brüche werden immer als echte Brüche gesetzt: Texte der Ketten dürfen $…$-Formeln
+   enthalten (Anzeige mit MText), darin steht \\frac{Zähler}{Nenner}, nie „3/4“. */
+const bruchTex = (n, d = 1) => {
+  const g = ggT(n, d) || 1;
+  n /= g; d /= g;
+  if (d < 0) { n = -n; d = -d; }
+  return d === 1 ? String(n).replace("-", "−") : `${n < 0 ? "−" : ""}\\frac{${Math.abs(n)}}{${d}}`;
+};
+/* Polynom mit exakten Bruch-Koeffizienten als LaTeX: [[zähler, nenner, potenz], …] → „\\frac{1}{4}x^{4} − 3x²“ */
+export function bruchPolyTex(terme) {
+  let s = "";
+  terme.forEach(([n, d, p]) => {
+    const g = ggT(n, d) || 1;
+    let zn = n / g, zd = d / g;
+    if (zd < 0) { zn = -zn; zd = -zd; }
+    if (zn === 0) return;
+    const betrag = Math.abs(zn);
+    const eins = betrag === 1 && zd === 1 && p > 0;
+    const koef = eins ? "" : zd === 1 ? String(betrag) : `\\frac{${betrag}}{${zd}}`;
+    const x = p === 0 ? "" : p === 1 ? "x" : `x^{${p}}`;
+    s += (zn < 0 ? (s ? " − " : "−") : s ? " + " : "") + koef + x;
+  });
+  return s || "0";
+}
+
 /* Polynom in Klartext: [[c, p], …] → „2x³ − 3x² + 1“ (ohne 1·, ohne + −) */
 export function polyKlartext(paare) {
   const hoch = { 2: "²", 3: "³", 4: "⁴" };
@@ -82,7 +107,7 @@ export function analysisKette(zufall = Math.random) {
         { id: "d", titel: "Integral", punkte: 2,
           frage: `Berechne ∫ f(x) dx von x = ${zahl(Math.min(u, v))} bis x = ${zahl(Math.max(u, v))} (auf zwei Nachkommastellen).`,
           felder: [{ name: "I", wert: I, toleranz: 0.0051 }],
-          loesung: `F(x) = ${polyKlartext([[a / 4, 4], [b / 3, 3], [c / 2, 2], [d, 1]].map(([q, p]) => [runde(q, 4), p]))}; F(${zahl(v)}) − F(${zahl(u)}) = ${komma(I)}.`,
+          loesung: `$F(x) = ${bruchPolyTex([[a, 4, 4], [b, 3, 3], [c, 2, 2], [d, 1, 1]])}$; F(${zahl(v)}) − F(${zahl(u)}) = ${komma(I)}.`,
           werkzeug: werkzeugF },
       ],
     };
@@ -142,17 +167,17 @@ export function geometrieKette(zufall = Math.random) {
         { id: "b", titel: "Höhe der Pyramide", punkte: 3,
           frage: "Berechne die Höhe h der Pyramide, also den Abstand von S zur Ebene E (auf zwei Nachkommastellen).",
           felder: [{ name: "h", wert: h, toleranz: 0.0051 }],
-          loesung: `Hessesche Normalform mit n = (${nN.map(zahl).join(" | ")}): h = |n · S − ${k[3] < 0 ? `(${zahl(k[3])})` : zahl(k[3])}| / |n| = |${zahl(skalar(nN, S))} − ${k[3] < 0 ? `(${zahl(k[3])})` : zahl(k[3])}| / √${zahl(skalar(nN, nN))} = ${zahl(Math.abs(skalar(nN, S) - k[3]))} / √${zahl(skalar(nN, nN))} ≈ ${komma(h)}.`,
+          loesung: `Hessesche Normalform mit n = (${nN.map(zahl).join(" | ")}): $h = \\frac{|n \\cdot S − ${k[3] < 0 ? `(${zahl(k[3])})` : zahl(k[3])}|}{|n|} = \\frac{|${zahl(skalar(nN, S))} − ${k[3] < 0 ? `(${zahl(k[3])})` : zahl(k[3])}|}{\\sqrt{${zahl(skalar(nN, nN))}}} = \\frac{${zahl(Math.abs(skalar(nN, S) - k[3]))}}{\\sqrt{${zahl(skalar(nN, nN))}}} ≈ ${komma(h)}$.`,
           werkzeug: { ziel: "abstaende", daten: { ebene: k, punkt: S }, titel: "Abstand im Werkzeug nachrechnen" } },
         { id: "c", titel: "Grundfläche", punkte: 2,
           frage: "Berechne den Flächeninhalt G des Dreiecks ABC (auf zwei Nachkommastellen).",
           felder: [{ name: "G", wert: G, toleranz: 0.0051 }],
-          loesung: `G = ½ · |AB × AC| = ½ · √${zahl(skalar(nv, nv))} ≈ ${komma(G)}.`,
+          loesung: `$G = \\frac{1}{2} \\cdot |\\vec{AB} \\times \\vec{AC}| = \\frac{1}{2} \\cdot \\sqrt{${zahl(skalar(nv, nv))}} ≈ ${komma(G)}$.`,
           werkzeug: { ziel: "kreuzprodukt", daten: null, titel: "Kreuzprodukt-Werkzeug öffnen" } },
         { id: "d", titel: "Volumen", punkte: 2,
           frage: "Berechne das Volumen V der Pyramide (auf zwei Nachkommastellen).",
           felder: [{ name: "V", wert: V, toleranz: 0.0051 }],
-          loesung: `V = ⅓ · G · h ≈ ⅓ · ${komma(G)} · ${komma(h)} ≈ ${komma(V)} (exakt: |(AB × AC) · AS| / 6 = ${zahl(spat)}/6).`,
+          loesung: `$V = \\frac{1}{3} \\cdot G \\cdot h ≈ \\frac{1}{3} \\cdot ${komma(G)} \\cdot ${komma(h)} ≈ ${komma(V)}$ (exakt: $\\frac{|(\\vec{AB} \\times \\vec{AC}) \\cdot \\vec{AS}|}{6} = \\frac{${zahl(spat)}}{6}${ggT(spat, 6) > 1 ? ` = ${bruchTex(spat, 6)}` : ""}$).`,
           werkzeug: null },
       ],
     };
@@ -187,9 +212,10 @@ export function rechteGrenze(n, p, alpha) {
 const STOCH_KONTEXTE = [
   { p0: 0.1, p1: 0.2, ns: [30, 40], text: (n) => `Ein Hersteller gibt an, höchstens 10 % seiner Bauteile seien defekt. Ein Kunde prüft ${n} zufällig ausgewählte Bauteile. X ist die Anzahl defekter Bauteile.`, h0: "p ≤ 0,1", treffer: "defekte Bauteile" },
   { p0: 0.6, p1: 0.75, ns: [30, 40], text: (n) => `Ein bewährtes Medikament heilt 60 % der Erkrankten. Ein neues Medikament wird an ${n} Patienten getestet. X ist die Anzahl der Geheilten.`, h0: "p ≤ 0,6", treffer: "Geheilte" },
-  { p0: 1 / 6, p1: 0.25, ns: [30, 36], text: (n) => `Ein Würfel steht im Verdacht, zu oft eine Sechs zu zeigen. Er wird ${n}-mal geworfen. X ist die Anzahl der Sechsen.`, h0: "p ≤ 1/6", treffer: "Sechsen" },
+  { p0: 1 / 6, p1: 0.25, ns: [30, 36], text: (n) => `Ein Würfel steht im Verdacht, zu oft eine Sechs zu zeigen. Er wird ${n}-mal geworfen. X ist die Anzahl der Sechsen.`, h0: "$p \\le \\frac{1}{6}$", treffer: "Sechsen" },
 ];
-const pText = (p) => (Math.abs(p - 1 / 6) < 1e-12 ? "1/6" : zahl(p));
+/* p als LaTeX (mit echtem Bruch, wenn p = 1/6) */
+const pTex = (p) => (Math.abs(p - 1 / 6) < 1e-12 ? "\\frac{1}{6}" : zahl(p));
 
 export function stochastikKette(zufall = Math.random) {
   const kx = STOCH_KONTEXTE[Math.floor(zufall() * STOCH_KONTEXTE.length)];
@@ -199,30 +225,30 @@ export function stochastikKette(zufall = Math.random) {
   const pa = binomialP(n, p, k1), pb = binomialAb(n, p, k2);
   const g = rechteGrenze(n, p, alpha);
   const beta = binomialBis(n, kx.p1, g - 1);
-  const werkzeugB = { ziel: "bernoulli", daten: { n, p }, titel: `B(${n}; ${pText(p)}) in der Bernoulli-Kette ansehen` };
+  const werkzeugB = { ziel: "bernoulli", daten: { n, p }, titel: "Mit diesen Werten in der Bernoulli-Kette ansehen" };
   return {
     id: "stochastik", titel: "Stochastik: vom Modell zum Test", minuten: 25,
     einleitung: `${kx.text(n)} Nimm an, dass X binomialverteilt ist.`,
     n, p, teile: [
       { id: "a", titel: "Einzelwahrscheinlichkeit", punkte: 2,
-        frage: `Berechne unter der Annahme p = ${pText(p)} die Wahrscheinlichkeit P(X = ${k1}) (auf vier Nachkommastellen).`,
+        frage: `Berechne unter der Annahme $p = ${pTex(p)}$ die Wahrscheinlichkeit $P(X = ${k1})$ (auf vier Nachkommastellen).`,
         felder: [{ name: "P", wert: pa, toleranz: 0.00051 }],
-        loesung: `X ∼ B(${n}; ${pText(p)}): P(X = ${k1}) = (${n} über ${k1}) · ${pText(p)}^${k1} · (1 − ${pText(p)})^${n - k1} ≈ ${komma(pa, 4)}.`,
+        loesung: `$X ∼ B(${n}; ${pTex(p)})$: $P(X = ${k1}) = \\binom{${n}}{${k1}} \\cdot (${pTex(p)})^{${k1}} \\cdot (1 − ${pTex(p)})^{${n - k1}} ≈ ${komma(pa, 4)}$.`,
         werkzeug: werkzeugB },
       { id: "b", titel: "Mindestens", punkte: 2,
-        frage: `Berechne P(X ≥ ${k2}) für p = ${pText(p)} (auf vier Nachkommastellen).`,
+        frage: `Berechne $P(X \\ge ${k2})$ für $p = ${pTex(p)}$ (auf vier Nachkommastellen).`,
         felder: [{ name: "P", wert: pb, toleranz: 0.00051 }],
         loesung: `P(X ≥ ${k2}) = 1 − P(X ≤ ${k2 - 1}) ≈ ${komma(pb, 4)}.`,
         werkzeug: werkzeugB },
       { id: "c", titel: "Hypothesentest", punkte: 3,
-        frage: `Getestet wird H₀: ${kx.h0} gegen H₁: p > ${pText(p)} auf dem Niveau α = 5 %. Der Ablehnungsbereich ist A = {g; …; ${n}}. Bestimme g.`,
+        frage: `Getestet wird H₀: ${kx.h0} gegen H₁: $p > ${pTex(p)}$ auf dem Niveau α = 5 %. Der Ablehnungsbereich ist A = {g; …; ${n}}. Bestimme g.`,
         felder: [{ name: "g", wert: g, toleranz: 1e-9 }],
         loesung: `Gesucht ist das kleinste g mit P(X ≥ g) ≤ 0,05: P(X ≥ ${g}) ≈ ${komma(binomialAb(n, p, g), 4)} ≤ 0,05, aber P(X ≥ ${g - 1}) ≈ ${komma(binomialAb(n, p, g - 1), 4)} > 0,05. Also A = {${g}; …; ${n}}.`,
         werkzeug: { ziel: "hypothesentest", daten: { n, p }, titel: "Ablehnungsbereich im Werkzeug verschieben" } },
       { id: "d", titel: "Fehler 2. Art", punkte: 3,
-        frage: `In Wahrheit sei p = ${pText(kx.p1)}. Berechne die Wahrscheinlichkeit, dass H₀ trotzdem nicht verworfen wird (auf vier Nachkommastellen).`,
+        frage: `In Wahrheit sei $p = ${pTex(kx.p1)}$. Berechne die Wahrscheinlichkeit, dass H₀ trotzdem nicht verworfen wird (auf vier Nachkommastellen).`,
         felder: [{ name: "β", wert: beta, toleranz: 0.00051 }],
-        loesung: `β = P(X ≤ ${g - 1}) mit p = ${pText(kx.p1)} ≈ ${komma(beta, 4)}.`,
+        loesung: `β = P(X ≤ ${g - 1}) mit $p = ${pTex(kx.p1)}$ ≈ ${komma(beta, 4)}.`,
         werkzeug: { ziel: "hypothesentest", daten: { n, p }, titel: "Fehler im Werkzeug verstehen" } },
     ],
   };

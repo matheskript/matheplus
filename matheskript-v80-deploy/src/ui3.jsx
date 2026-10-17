@@ -13,7 +13,7 @@
 import React, { useId, useState } from "react";
 import { buchen } from "./buchung.jsx";
 import { C } from "./base1.jsx";
-import { Auswahl, GrosserKnopf, KleinerLink, Rueck, ZahlFeld, hinweis, zw } from "./ui2.jsx";
+import { Auswahl, GrosserKnopf, KleinerLink, MS, Rueck, ZahlFeld, hinweis, zw } from "./ui2.jsx";
 import { qLies, qNum } from "./rechnen2.js";
 import { AufklappZeichen } from "./aufklappen.jsx";
 
@@ -86,20 +86,20 @@ export function Schritt({ st, nr, aktiv, fertig, onFertig }) {
       <div>
         {kopf}
         <p style={{ fontSize: 14, color: C.tinte, margin: "0 0 0 26px", lineHeight: 1.55 }}>
-          {st.typ === "zahl" ? <>{st.text} <b>{st.wertText ?? zt(st.wert)}</b> {st.einheit}</> : <b>{wahlText}</b>}
+          {st.typ === "zahl" ? <><MS s={st.text} /> <b><MS s={st.wertText ?? zt(st.wert)} /></b> {st.einheit}</> : <b><MS s={wahlText} /></b>}
         </p>
-        {st.erklaerung && <p style={{ fontSize: 12.5, color: C.grau, margin: "2px 0 0 26px", lineHeight: 1.55 }}>{st.erklaerung}</p>}
+        {st.erklaerung && <p style={{ fontSize: 12.5, color: C.grau, margin: "2px 0 0 26px", lineHeight: 1.55 }}><MS s={st.erklaerung} /></p>}
       </div>
     );
   }
   return (
     <div>
       {kopf}
-      <p style={{ fontSize: 14.5, color: C.tinte, lineHeight: 1.6, margin: "0 0 8px" }}>{st.frage}</p>
+      <p style={{ fontSize: 14.5, color: C.tinte, lineHeight: 1.6, margin: "0 0 8px" }}><MS s={st.frage} /></p>
       {st.typ === "wahl" && <Auswahl optionen={st.optionen} wert={eing} setWert={(v) => { setEing(v); setRueck(null); }} label={st.titel} />}
       {st.typ === "zahl" && (
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-          {st.text && <span style={{ fontSize: 16, fontWeight: 700, color: C.tinte }}>{st.text}</span>}
+          {st.text && <span style={{ fontSize: 16, fontWeight: 700, color: C.tinte }}><MS s={st.text} /></span>}
           <ZahlFeld wert={eing} setWert={(v) => { setEing(v); setRueck(null); }} label={st.titel} onEnter={pruefen} breite={st.breite || 104} />
           {st.einheit && <span style={{ fontSize: 15, color: C.grau }}>{st.einheit}</span>}
         </div>
@@ -111,7 +111,7 @@ export function Schritt({ st, nr, aktiv, fertig, onFertig }) {
         ? <KleinerLink onClick={() => setZeigen(true)}>{zw("Lösung dieses Schritts zeigen", "Show the solution of this step")}</KleinerLink>
         : (
           <div style={loesungBox}>
-            <p style={{ margin: 0 }}>{st.erklaerung}</p>
+            <p style={{ margin: 0 }}><MS s={st.erklaerung} /></p>
             <div style={{ marginTop: 8 }}><GrosserKnopf ghost onClick={() => { setOk(true); onFertig(); }}>{zw("Weiter zum nächsten Schritt", "Continue to the next step")}</GrosserKnopf></div>
           </div>
         )}
@@ -302,7 +302,10 @@ export function Balken({ werte, werte2, markiert, linien = [], hoehe = 200, yMax
           </g>
         );
       })}
-      {legende && <text x={W - R - 4} y={T + 10} fontSize="10.5" fontWeight="700" textAnchor="end" fill={C.grau}>{legende}</text>}
+      {legende && (legende.includes("$")
+        // enthält die Legende einen Bruch ($\frac{…}{…}$), wird sie als Formel gesetzt statt als SVG-Text
+        ? <foreignObject x={W - R - 260} y={T - 8} width={256} height={34}><div style={{ display: "flex", justifyContent: "flex-end", alignItems: "flex-start", fontSize: 10.5, fontWeight: 700, color: C.grau, lineHeight: 1.2, whiteSpace: "nowrap" }}><MS s={legende} /></div></foreignObject>
+        : <text x={W - R - 4} y={T + 10} fontSize="10.5" fontWeight="700" textAnchor="end" fill={C.grau}>{legende}</text>)}
     </svg>
   );
 }

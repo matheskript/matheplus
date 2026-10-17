@@ -14,6 +14,7 @@ import { C } from "./base1.jsx";
 import { merken } from "./func5.jsx";
 import { KETTEN, pruefeTeil } from "./abiKetten.js";
 import { WeiterKnopf } from "./funcWerkzeuge.jsx";
+import { MText } from "./perfUi.jsx";
 
 /* Laufende Ketten: bleiben erhalten, solange die App offen ist (auch beim Ausflug in ein Werkzeug) */
 const LAUF = {};
@@ -50,7 +51,7 @@ function Teilaufgabe({ teil, nr, eingaben, ergebnis, setEingabe, pruefen, zeigen
         <p style={{ fontSize: 16, fontWeight: 700, color: C.tinte, margin: 0 }}>{nr}) {teil.titel}</p>
         <span style={{ fontSize: 13, fontWeight: 600, color: C.grau, whiteSpace: "nowrap" }}>{fertig ? `${ergebnis.punkte} / ` : ""}{teil.punkte} P.</span>
       </div>
-      <p style={{ fontSize: 14.5, color: C.tinte, lineHeight: 1.6, margin: "8px 0 12px" }}>{teil.frage}</p>
+      <p style={{ fontSize: 14.5, color: C.tinte, lineHeight: 1.6, margin: "8px 0 12px" }}><MText s={teil.frage} /></p>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
         {teil.felder.map((f, i) => {
           const ok = fertig ? ergebnis.richtig[i] : null;
@@ -73,7 +74,7 @@ function Teilaufgabe({ teil, nr, eingaben, ergebnis, setEingabe, pruefen, zeigen
       ) : (
         <div style={{ marginTop: 14 }}>
           <div style={{ background: C.sand, borderRadius: 12, padding: "10px 12px", fontSize: 14, color: C.tinte, lineHeight: 1.6 }}>
-            <b>{ergebnis.gezeigt ? "Lösung: " : ergebnis.punkte === teil.punkte ? "Richtig. " : "Lösung: "}</b>{teil.loesung}
+            <b>{ergebnis.gezeigt ? "Lösung: " : ergebnis.punkte === teil.punkte ? "Richtig. " : "Lösung: "}</b><MText s={teil.loesung} />
           </div>
           {teil.werkzeug && (
             <div style={{ marginTop: 10 }}>
@@ -112,7 +113,7 @@ function KetteSeite({ id, zurueck }) {
       <button type="button" onClick={zurueck} style={{ background: "none", border: "none", padding: 0, cursor: "pointer", fontFamily: "inherit", fontSize: 14, color: C.see, fontWeight: 600, marginBottom: 12 }}>‹ Alle Abi-Ketten</button>
       <div style={{ ...karte, background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, color: C.weiss }}>
         <p style={{ ...kicker, color: C.flaggold }}>{kette.titel}</p>
-        <p style={{ fontSize: 15, lineHeight: 1.65, margin: "0 0 12px", color: "#E6EDF8" }}>{kette.einleitung}</p>
+        <p style={{ fontSize: 15, lineHeight: 1.65, margin: "0 0 12px", color: "#E6EDF8" }}><MText s={kette.einleitung} /></p>
         <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap", fontSize: 14, background: "rgba(255,255,255,0.94)", borderRadius: 10, padding: "8px 12px", color: C.tinte }}>
           <span>Zeit <Uhr start={lauf.start} ende={lauf.ende} minuten={kette.minuten} /></span>
           <span>Punkte <b>{erreicht}</b> / {gesamt}</span>

@@ -3,7 +3,7 @@ import { API_URL, C, DEMO, GRENZE, KAUF_LINKS, KURSE, MODULE, M_AUSWAHL, ganz, v
 import { MODUL_KATALOG } from "./base2.jsx";
 import { aktiv } from "./base3.jsx";
 import { kiKopf, kiAntwort } from "./base4.jsx";
-import { LernModul, RechenwegEditor } from "./func3.jsx";
+import { LernModul, M, RechenwegEditor } from "./func3.jsx";
 import { GraphZuordnung, Klausur, Kurvendiskussion } from "./func4.jsx";
 import { intervall } from "./func8.jsx";
 import { VideokursPlayer, VideokursVorschau, naechsteLektion, videoAnzahl } from "./func15.jsx";
@@ -525,7 +525,7 @@ export function bruchText(f) {
 
 export function bruchLatex(f) {
   if (f.d === 1) return String(f.n);
-  return `\\frac{${f.n}}{${f.d}}`;
+  return `${f.n < 0 ? "-" : ""}\\frac{${Math.abs(f.n)}}{${f.d}}`;
 }
 
 
@@ -972,7 +972,7 @@ export function KIAufgaben({ eingebettet }) {
               </p>
             ) : (
               <p style={{ fontSize: 18, lineHeight: 1.6 }}>
-                Eine Gerade hat die Steigung <span style={{ fontWeight: 600 }}>m = {bruchText(a.m)}</span> und geht durch<br />
+                Eine Gerade hat die Steigung <span style={{ fontWeight: 600 }}><M t={`m = ${bruchLatex(a.m)}`} /></span> und geht durch<br />
                 <span style={{ fontWeight: 600 }}>P({a.x1} | {a.y1})</span>. Bestimme ihre Gleichung.
               </p>
             )}
@@ -1009,7 +1009,7 @@ export function KIAufgaben({ eingebettet }) {
                 </p>
                 <p style={{ fontSize: 14, color: C.grau, fontWeight: 300, lineHeight: 1.7 }}>
                   {mOk && bOk
-                    ? `y = ${bruchText(a.m)} · x ${a.b.n < 0 ? "−" : "+"} ${bruchText({ n: Math.abs(a.b.n), d: a.b.d })}`
+                    ? <M t={`y = ${bruchLatex(a.m)} \\cdot x ${a.b.n < 0 ? "−" : "+"} ${bruchLatex({ n: Math.abs(a.b.n), d: a.b.d })}`} />
                     : "Vergleiche im Schaubild, wo deine Gerade von der gesuchten abweicht. Verschobene Lage bedeutet falsches c, andere Neigung bedeutet falsches m."}
                 </p>
               </div>

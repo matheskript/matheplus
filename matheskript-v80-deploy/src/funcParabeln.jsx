@@ -18,7 +18,7 @@ import { C, KOEFF_FARBEN } from "./base1.jsx";
 import { M } from "./func3.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
-import { Auswahl, GrosserKnopf, Rueck, Stufe, hilfeKontext, hinweis, karte, kicker, zw } from "./ui2.jsx";
+import { Auswahl, GrosserKnopf, MS, Rueck, Stufe, hilfeKontext, hinweis, karte, kicker, zw } from "./ui2.jsx";
 import { Aufklapp, ModusLeiste, Seite, SchrittFolge, minusZ, zt } from "./ui3.jsx";
 import { dez, q, qAdd, qDiv, qGleich, qMul, qNeg, qNull, qNum, qSub, qTex, qText } from "./rechnen2.js";
 import {
@@ -41,14 +41,16 @@ const betrag = (x) => (neg(x) ? qNeg(x) : x);
 const kl = (x) => (neg(x) ? `(${qTex(x)})` : qTex(x));                 // negative Zahlen in Klammern
 const vz = (x) => (neg(x) ? "−" : "+");
 const pre = (a) => (qGleich(a, q(1)) ? "" : qGleich(a, q(-1)) ? "−" : qTex(a));
-const qt = (x) => minusZ(qText(x));
+/* Zahl für Fließtext: ein Bruch wird als $\\frac{z}{n}$ gesetzt (Anzeige mit MS), ganze Zahlen bleiben Text */
+const qt = (x) => (x.n === 1 ? minusZ(qText(x)) : `$${qTex(x)}$`);
+const qtp = (x) => minusZ(qText(x));   // Klartext, nur für Beschriftungen in Grafiken
 const sup2 = "²";
 /* Scheitelform als reiner Text (für Auswahlknöpfe) */
 function scheitelText(a, d, e) {
-  const A = qGleich(a, q(1)) ? "" : qGleich(a, q(-1)) ? "−" : qNum(a) % 1 === 0 ? String(qNum(a)).replace("-", "−") : `(${qText(a)})`;
-  const klam = qNull(d) ? "x" : `(x ${neg(d) ? "+" : "−"} ${qText(betrag(d))})`;
-  const rest = qNull(e) ? "" : ` ${neg(e) ? "−" : "+"} ${qText(betrag(e))}`;
-  return `${A}${klam}${sup2}${rest}`;
+  const A = qGleich(a, q(1)) ? "" : qGleich(a, q(-1)) ? "−" : qNum(a) % 1 === 0 ? String(qNum(a)).replace("-", "−") : `(${qTex(a)})`;
+  const klam = qNull(d) ? "x" : `(x ${neg(d) ? "+" : "−"} ${qTex(betrag(d))})`;
+  const rest = qNull(e) ? "" : ` ${neg(e) ? "−" : "+"} ${qTex(betrag(e))}`;
+  return `$${A}${klam}^{2}${rest}$`;
 }
 const fehlerListe = (korrekt, liste) => {
   const gesehen = [];
@@ -154,7 +156,7 @@ const Rechenschritt = ({ nr, titel, children }) => (
     {children}
   </div>
 );
-const Text = ({ children }) => <p style={{ fontSize: 14, lineHeight: 1.65, color: C.tinte, margin: "4px 0" }}>{children}</p>;
+const Text = ({ children }) => <p style={{ fontSize: 14, lineHeight: 1.65, color: C.tinte, margin: "4px 0" }}>{React.Children.map(children, (c) => (typeof c === "string" ? <MS s={c} /> : c))}</p>;
 
 /* ============================================================
    1  Scheitelpunkt
@@ -435,7 +437,7 @@ function hilfeForm(aufg, richtung) {
     ],
     ansatz: richtung === "nf" ? [
       zw("Welche Formel liefert d direkt aus a und b?", "Which formula gives d directly from a and b?"),
-      "d = −b / (2a).",
+      "$d = −\\frac{b}{2a}$.",
       zw("Setze danach d in f ein: e = f(d).", "Then insert d into f: e = f(d)."),
     ] : [
       zw("Wie lautet (x − d)² ausmultipliziert?", "What is (x − d)² expanded?"),
@@ -494,21 +496,21 @@ function formSchritte(aufg, richtung) {
   const mitFalsch = eindeutig.length >= 3 ? eindeutig : [["ok", plain], ["vz", scheitelText(a, falschD, e)], ["a2", scheitelText(qNeg(a), d, e)]];
   return [
     { id: `${id}d`, typ: "zahl", titel: zw("x-Koordinate des Scheitels", "x-coordinate of the vertex"), text: "d =", wert: D, wertText: qt(d),
-      frage: zw("Berechne d = −b / (2a).", "Calculate d = −b / (2a)."),
+      frage: zw("Berechne $d = −\\frac{b}{2a}$.", "Calculate $d = −\\frac{b}{2a}$."),
       fehler: fehlerListe(D, [
-        { wert: -D, text: zw("Vorzeichen: d = −b/(2a) – vor dem Bruch steht ein Minus.", "Sign: d = −b/(2a) – there is a minus in front of the fraction.") },
-        { wert: -B / A, text: zw("Im Nenner fehlt die 2: d = −b/(2a).", "The 2 in the denominator is missing: d = −b/(2a).") },
-        { wert: -B / 2, text: zw("Du musst auch durch a teilen: d = −b/(2a).", "You also have to divide by a: d = −b/(2a).") },
+        { wert: -D, text: zw("Vorzeichen: $d = −\\frac{b}{2a}$ – vor dem Bruch steht ein Minus.", "Sign: $d = −\\frac{b}{2a}$ – there is a minus in front of the fraction.") },
+        { wert: -B / A, text: zw("Im Nenner fehlt die 2: $d = −\\frac{b}{2a}$.", "The 2 in the denominator is missing: $d = −\\frac{b}{2a}$.") },
+        { wert: -B / 2, text: zw("Du musst auch durch a teilen: $d = −\\frac{b}{2a}$.", "You also have to divide by a: $d = −\\frac{b}{2a}$.") },
       ]),
-      hinweise: [zw("Lies a und b aus f(x) = ax² + bx + c ab.", "Read a and b from f(x) = ax² + bx + c."), "d = −b / (2a).", `d = −${kl(p.b)} / (2 · ${kl(a)})`],
-      erklaerung: `d = −b/(2a) = ${qt(d)}` },
+      hinweise: [zw("Lies a und b aus f(x) = ax² + bx + c ab.", "Read a and b from f(x) = ax² + bx + c."), "$d = −\\frac{b}{2a}$.", `$d = −\\frac{${kl(p.b)}}{2 \\cdot ${kl(a)}}$`],
+      erklaerung: `$d = −\\frac{b}{2a} = ${qTex(d)}$` },
     { id: `${id}e`, typ: "zahl", titel: zw("y-Koordinate des Scheitels", "y-coordinate of the vertex"), text: "e =", wert: E, wertText: qt(e),
       frage: zw("Setze d in die Funktion ein: e = f(d).", "Insert d into the function: e = f(d)."),
       fehler: fehlerListe(E, [
         { wert: Cc, text: zw("c ist der y-Achsenabschnitt (bei x = 0), nicht der Scheitel. Setze d ein.", "c is the y-intercept (at x = 0), not the vertex. Insert d.") },
         { wert: A * D * D + B * (-D) + Cc, text: zw("Beim Einsetzen von d ist das Vorzeichen verrutscht – setze genau d ein, nicht −d.", "A sign slipped while inserting d – insert exactly d, not −d.") },
       ]),
-      hinweise: [zw("Rechne f(d) = a·d² + b·d + c mit deinem d aus.", "Calculate f(d) = a·d² + b·d + c with your d."), zw("Achte auf Klammern bei negativem d.", "Use brackets for a negative d."), `f(${qt(d)}) = ${kl(a)}·${kl(d)}² + ${kl(p.b)}·${kl(d)} + ${kl(p.c)}`],
+      hinweise: [zw("Rechne f(d) = a·d² + b·d + c mit deinem d aus.", "Calculate f(d) = a·d² + b·d + c with your d."), zw("Achte auf Klammern bei negativem d.", "Use brackets for a negative d."), `$f(${qTex(d)}) = ${kl(a)} \\cdot ${kl(d)}^{2} + ${kl(p.b)} \\cdot ${kl(d)} + ${kl(p.c)}$`],
       erklaerung: `e = f(d) = ${qt(e)}` },
     { id: `${id}f`, typ: "wahl", titel: zw("Scheitelform", "Vertex form"), optionen: mischen(mitFalsch), richtig: "ok",
       frage: zw("Welche Scheitelform gehört zu f?", "Which vertex form belongs to f?"),
@@ -546,13 +548,13 @@ function ScheitelUebung() {
           : zw("Multipliziere die Scheitelform aus und gib b und c der Normalform ax² + bx + c ein.", "Expand the vertex form and enter b and c of the normal form ax² + bx + c.")}</Text>
         <div style={{ background: C.sand, borderRadius: 12, padding: "6px 12px", margin: "8px 0" }}><Formel gross t={gegeben} /></div>
         <SchrittFolge key={`${aufg.id}-${richtung}`} schritte={schritte} stand={stand} setStand={setStand}
-          fertigText={<>{zw("Geschafft: ", "Done: ")}<M t={`f(x) = ${normalTex(p)} = ${scheitelTex(a, d, e)}`} />{" · "}<b>S({qt(d)} | {qt(e)})</b></>} />
+          fertigText={<>{zw("Geschafft: ", "Done: ")}<M t={`f(x) = ${normalTex(p)} = ${scheitelTex(a, d, e)}`} />{" · "}<b><MS s={`S(${qt(d)} | ${qt(e)})`} /></b></>} />
         <GrosserKnopf gold onClick={() => neu()}>{zw("Neue Aufgabe", "New exercise")}</GrosserKnopf>
         <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfeForm(aufg, richtung)} /></div>
       </div>
       <div style={{ ...karte, marginTop: 12 }}>
         <ParabelBild kurven={[{ f: fVon(p), farbe: C.see }]} senkrechte={vertexSichtbar ? [{ x: qNum(d) }] : []}
-          punkte={vertexSichtbar ? [{ x: qNum(d), y: qNum(e), farbe: C.flaggold, name: `S(${qt(d)}|${qt(e)})` }] : []}
+          punkte={vertexSichtbar ? [{ x: qNum(d), y: qNum(e), farbe: C.flaggold, name: `S(${qtp(d)}|${qtp(e)})` }] : []}
           legende={vertexSichtbar ? [[C.see, "f"], [C.flaggold, zw("Scheitelpunkt", "vertex"), false, true]] : [[C.see, "f"]]} />
         {!vertexSichtbar && <Text>{zw("Der Scheitelpunkt erscheint, sobald du d und e gefunden hast.", "The vertex appears as soon as you have found d and e.")}</Text>}
       </div>
@@ -589,12 +591,12 @@ function nullSchritte(aufg) {
     if (!qGleich(p.a, q(1))) {
       s.push({ id: `${id}p`, typ: "zahl", titel: zw("Gleichung normieren: p", "Normalise: p"), text: "p =", wert: qNum(P), wertText: qt(P),
         frage: zw("Teile die Gleichung durch a, damit sie die Form x² + px + q = 0 hat. Wie groß ist p?", "Divide the equation by a so it has the form x² + px + q = 0. What is p?"),
-        fehler: fehlerListe(qNum(P), [{ wert: B, text: zw("Auch b muss durch a geteilt werden: p = b/a.", "b must be divided by a as well: p = b/a.") }]),
-        hinweise: [zw("Teile jeden Summanden der Gleichung ax² + bx + c = 0 durch a.", "Divide every term of ax² + bx + c = 0 by a."), "p = b / a", `p = ${qt(p.b)} / ${kl(p.a)}`], erklaerung: `p = b/a = ${qt(P)}` });
+        fehler: fehlerListe(qNum(P), [{ wert: B, text: zw("Auch b muss durch a geteilt werden: $p = \\frac{b}{a}$.", "b must be divided by a as well: $p = \\frac{b}{a}$.") }]),
+        hinweise: [zw("Teile jeden Summanden der Gleichung ax² + bx + c = 0 durch a.", "Divide every term of ax² + bx + c = 0 by a."), "$p = \\frac{b}{a}$", `$p = \\frac{${qTex(p.b)}}{${qTex(p.a)}}$`], erklaerung: `$p = \\frac{b}{a} = ${qTex(P)}$` });
       s.push({ id: `${id}q`, typ: "zahl", titel: zw("Gleichung normieren: q", "Normalise: q"), text: "q =", wert: qNum(Q), wertText: qt(Q),
         frage: zw("Und q?", "And q?"),
-        fehler: fehlerListe(qNum(Q), [{ wert: Cc, text: zw("Auch c muss durch a geteilt werden: q = c/a.", "c must be divided by a as well: q = c/a.") }]),
-        hinweise: [zw("Wie bei p: durch a teilen.", "As with p: divide by a."), "q = c / a", `q = ${qt(p.c)} / ${kl(p.a)}`], erklaerung: `q = c/a = ${qt(Q)}` });
+        fehler: fehlerListe(qNum(Q), [{ wert: Cc, text: zw("Auch c muss durch a geteilt werden: $q = \\frac{c}{a}$.", "c must be divided by a as well: $q = \\frac{c}{a}$.") }]),
+        hinweise: [zw("Wie bei p: durch a teilen.", "As with p: divide by a."), "$q = \\frac{c}{a}$", `$q = \\frac{${qTex(p.c)}}{${qTex(p.a)}}$`], erklaerung: `$q = \\frac{c}{a} = ${qTex(Q)}$` });
     }
     s.push({ id: `${id}sum`, typ: "zahl", titel: zw("Summe der Nullstellen", "Sum of the roots"), text: "x₁ + x₂ =", wert: -qNum(P), wertText: qt(qNeg(P)),
       frage: zw("Nach Vieta gilt x₁ + x₂ = −p. Wie groß ist die Summe?", "By Vieta, x₁ + x₂ = −p. What is the sum?"),
@@ -625,7 +627,7 @@ function nullSchritte(aufg) {
       { wert: B * B - 2 * A * Cc, text: zw("Es heißt 4ac, nicht 2ac.", "It is 4ac, not 2ac.") },
     ]),
     hinweise: [zw("Lies a, b und c mit Vorzeichen ab.", "Read a, b and c with their signs."), zw("Setze in D = b² − 4·a·c ein, negative Zahlen in Klammern.", "Insert into D = b² − 4·a·c, negative numbers in brackets."), `D = ${kl(p.b)}² − 4 · ${kl(p.a)} · ${kl(p.c)}`],
-    erklaerung: `D = ${kl(p.b)}² − 4·${kl(p.a)}·${kl(p.c)} = ${qt(p.D)}` });
+    erklaerung: `$D = ${kl(p.b)}^{2} − 4 \\cdot ${kl(p.a)} \\cdot ${kl(p.c)} = ${qTex(p.D)}$` });
   s.push({ id: `${id}Z`, typ: "wahl", titel: zw("Anzahl der Nullstellen", "Number of roots"), richtig: art,
     optionen: [["zwei", zw("Zwei Nullstellen (D > 0)", "Two roots (D > 0)")], ["eine", zw("Genau eine (D = 0)", "Exactly one (D = 0)")], ["keine", zw("Keine (D < 0)", "None (D < 0)")]],
     frage: zw("Was sagt D über die Nullstellen?", "What does D tell you about the roots?"),
@@ -637,18 +639,18 @@ function nullSchritte(aufg) {
   if (art === "eine") {
     const x0 = n.xs[0];
     s.push({ id: `${id}x0`, typ: "zahl", titel: zw("Doppelte Nullstelle", "Double root"), text: "x₀ =", wert: x0, toleranz: tol(x0), wertText: wz(x0, 0),
-      frage: zw("Für D = 0 fällt die Wurzel weg: x₀ = −b/(2a).", "For D = 0 the root disappears: x₀ = −b/(2a)."),
+      frage: zw("Für D = 0 fällt die Wurzel weg: $x_0 = −\\frac{b}{2a}$.", "For D = 0 the root disappears: $x_0 = −\\frac{b}{2a}$."),
       fehler: fehlerListe(x0, [{ wert: -x0, text: zw("Vorzeichen: im Zähler steht −b.", "Sign: the numerator is −b.") }]),
-      hinweise: [zw("Setze D = 0 in die Mitternachtsformel ein.", "Insert D = 0 into the quadratic formula."), "x₀ = −b / (2a)", `x₀ = −${kl(p.b)} / (2 · ${kl(p.a)})`], erklaerung: `x₀ = −b/(2a) = ${wz(x0, 0)}` });
+      hinweise: [zw("Setze D = 0 in die Mitternachtsformel ein.", "Insert D = 0 into the quadratic formula."), "$x_0 = −\\frac{b}{2a}$", `$x_0 = −\\frac{${kl(p.b)}}{2 \\cdot ${kl(p.a)}}$`], erklaerung: `$x_0 = −\\frac{b}{2a}$ = ${wz(x0, 0)}` });
   } else if (art === "zwei") {
     [0, 1].forEach((i) => {
       const x = n.xs[i], andere = n.xs[1 - i];
       s.push({ id: `${id}x${i}`, typ: "zahl", titel: zw(i === 0 ? "Kleinere Nullstelle" : "Größere Nullstelle", i === 0 ? "Smaller root" : "Larger root"), text: `x${i === 0 ? "₁" : "₂"} =`,
         wert: x, toleranz: n.exakt ? tol(x) : 0.011, wertText: wz(x, i), rundung: n.exakt ? (Number.isInteger(x) ? null : zw("Bruch oder Dezimalzahl mit drei Stellen.", "Fraction or decimal with three places.")) : zw("Auf zwei Nachkommastellen runden.", "Round to two decimal places."),
-        frage: zw("Setze in x = (−b ± √D) / (2a) ein: Die beiden Vorzeichen vor der Wurzel liefern die beiden Nullstellen.", "Insert into x = (−b ± √D) / (2a): the two signs in front of the root give the two roots."),
+        frage: zw("Setze in $x = \\frac{−b \\pm \\sqrt{D}}{2a}$ ein: Die beiden Vorzeichen vor der Wurzel liefern die beiden Nullstellen.", "Insert into $x = \\frac{−b \\pm \\sqrt{D}}{2a}$: the two signs in front of the root give the two roots."),
         fehler: fehlerListe(x, [{ wert: -x, text: zw("Vorzeichen: im Zähler steht −b.", "Sign: the numerator is −b.") }, { wert: andere, text: zw("Das ist die andere Lösung – hier ist die andere Größe gefragt.", "That is the other solution – the other one is asked here.") },
           { wert: (-B + (i === 0 ? -1 : 1) * Math.sqrt(D)) / A, text: zw("Im Nenner steht 2a, nicht nur a.", "The denominator is 2a, not just a.") }]),
-        hinweise: [zw("Die Mitternachtsformel steht unten unter „Kurz erklärt“.", "The quadratic formula is shown below under “In short”."), zw("Wurzel aus D, dann −b ± Wurzel, dann durch 2a.", "Square root of D, then −b ± root, then divide by 2a."), `x = (${qt(qNeg(p.b))} ± √${qt(p.D)}) / ${qt(qMul(q(2), p.a))}`],
+        hinweise: [zw("Die Mitternachtsformel steht unten unter „Kurz erklärt“.", "The quadratic formula is shown below under “In short”."), zw("Wurzel aus D, dann −b ± Wurzel, dann durch 2a.", "Square root of D, then −b ± root, then divide by 2a."), `$x = \\frac{${qTex(qNeg(p.b))} ± \\sqrt{${qTex(p.D)}}}{${qTex(qMul(q(2), p.a))}}$`],
         erklaerung: `x${i === 0 ? "₁" : "₂"} = ${wz(x, i)}` });
     });
   }
@@ -664,7 +666,7 @@ function hilfeNull(aufg) {
       zw("Eine Parabel hat zwei, eine oder keine Nullstelle.", "A parabola has two, one or no roots."), zw("Das Schaubild zeigt dir, ob deine Anzahl plausibel ist.", "The graph shows whether your number is plausible.")],
     ansatz: aufg.verf === "vieta"
       ? [zw("Teile erst durch a, damit vorn x² steht.", "First divide by a so that x² stands alone."), "x₁ + x₂ = −p,  x₁ · x₂ = q.", zw("Suche ganze Zahlen mit diesem Produkt und dieser Summe.", "Find integers with this product and this sum.")]
-      : [zw("Berechne zuerst D = b² − 4ac.", "First calculate D = b² − 4ac."), "x = (−b ± √D) / (2a).", zw("D < 0 heißt: keine Nullstelle.", "D < 0 means: no root.")],
+      : [zw("Berechne zuerst D = b² − 4ac.", "First calculate D = b² − 4ac."), "$x = \\frac{−b \\pm \\sqrt{D}}{2a}$.", zw("D < 0 heißt: keine Nullstelle.", "D < 0 means: no root.")],
     pruefen: [zw("Setze deine Nullstelle in f ein: Es muss 0 herauskommen.", "Insert your root into f: you must get 0."), zw("Liegt sie im Schaubild auf der x-Achse?", "Does it lie on the x-axis in the graph?"), zw("Die Nullstellen liegen symmetrisch zum Scheitel.", "The roots lie symmetrically to the vertex.")],
     regeln: [], grundlage: null, loesung: null,
   });
@@ -718,7 +720,7 @@ function NullstellenSeite() {
           : zw("Die Mitternachtsformel funktioniert immer – D verrät vorher, wie viele Nullstellen es gibt.", "The quadratic formula always works – D tells you beforehand how many roots there are.")}</Text>
         <div style={{ background: C.sand, borderRadius: 12, padding: "6px 12px", margin: "8px 0" }}>
           <Formel gross t={`f(x) = ${normalTex(p)}`} />
-          <div style={{ fontSize: 13, color: C.grau }}>a = {qt(p.a)}, b = {qt(p.b)}, c = {qt(p.c)}</div>
+          <div style={{ fontSize: 13, color: C.grau }}><MS s={`a = ${qt(p.a)}, b = ${qt(p.b)}, c = ${qt(p.c)}`} /></div>
         </div>
         <SchrittFolge key={aufg.id} schritte={schritte} stand={stand} setStand={setStand} fertigText={probe} />
         {fertig && (
@@ -804,14 +806,14 @@ function BrennpunktSeite() {
             { von: [u, yP], nach: [u, FENSTER - 0.2], farbe: C.goldWarm, pfeil: true, breite: 2.8 },
           ]}
           punkte={[
-            { x: d, y: Fy, farbe: C.gruen, name: `F(${qt(b.F.x)}|${qt(b.F.y)})`, unten: false, links: u > d },
+            { x: d, y: Fy, farbe: C.gruen, name: `F(${qtp(b.F.x)}|${qtp(b.F.y)})`, unten: false, links: u > d },
             { x: u, y: yP, farbe: C.flaggold, name: "P", links: u < d, unten: true },
           ]}
           legende={[[C.see, "f"], [C.gruen, zw("Strahl F → P", "ray F → P")], [C.goldWarm, zw("gespiegelter Strahl", "reflected ray")], [C.see, zw("Tangente", "tangent"), true], [C.grau, zw("Normale", "normal"), true], [C.signal, zw("Leitlinie", "directrix"), true], [C.hellgrau, zw("Symmetrieachse", "axis"), true]]} />
       </div>
 
       <Rechenschritt nr="1" titel={zw("Brennpunkt und Leitlinie", "Focus and directrix")}>
-        <Text>{zw("Für f(x) = a(x − d)² + e liegt der Brennpunkt senkrecht über dem Scheitel, im Abstand p = 1/(4a):", "For f(x) = a(x − d)² + e the focus lies directly above the vertex at distance p = 1/(4a):")}</Text>
+        <Text>{zw("Für f(x) = a(x − d)² + e liegt der Brennpunkt senkrecht über dem Scheitel, im Abstand $p = \\frac{1}{4a}$:", "For f(x) = a(x − d)² + e the focus lies directly above the vertex at distance $p = \\frac{1}{4a}$:")}</Text>
         <Formel gross t="F\left(d \,|\, e + \frac{1}{4a}\right)" />
         <Formel t={`p = \\frac{1}{4a} = \\frac{1}{4 \\cdot ${kl(a)}} = ${qTex(b.p)}`} />
         <Formel t={`F(${qTex(b.F.x)} \\,|\\, ${kl(q(e))} + ${qTex(b.p)}) = F(${qTex(b.F.x)} \\,|\\, ${qTex(b.F.y)})`} />
@@ -820,7 +822,7 @@ function BrennpunktSeite() {
 
       <Rechenschritt nr="2" titel={zw("Der Punkt P auf der Parabel", "The point P on the parabola")}>
         <Formel t={`f(${qTex(q(u))}) = ${kl(a)} \\cdot (${qTex(q(u))} − ${kl(q(d))})^2 + ${kl(q(e))} = ${qTex(b.P.y)}`} />
-        <Text>→ <b>P({minusZ(u)} | {qt(b.P.y)})</b></Text>
+        <Text>→ <b><MS s={`P(${minusZ(u)} | ${qt(b.P.y)})`} /></b></Text>
       </Rechenschritt>
 
       <Rechenschritt nr="3" titel={zw("Tangente und Normale – hier kommt die Ableitung", "Tangent and normal – here the derivative comes in")}>
@@ -845,8 +847,8 @@ function BrennpunktSeite() {
       </Rechenschritt>
 
       <Rechenschritt nr="6" titel={zw("Ergebnis: Der Strahl läuft senkrecht nach oben", "Result: the ray runs straight upwards")}>
-        <Rueck art="gut">{zw("Die x-Komponente von r ist 0: Der gespiegelte Strahl ist senkrecht und damit parallel zur Symmetrieachse x = ", "The x-component of r is 0: the reflected ray is vertical and therefore parallel to the axis x = ")}{qt(q(d))}{zw(". Die y-Komponente ist positiv: Er läuft nach oben.", ". The y-component is positive: it runs upwards.")}</Rueck>
-        <Text>{zw("Bonus: Die Länge bleibt beim Spiegeln gleich – |r| = |w| =", "Bonus: reflecting keeps the length – |r| = |w| =")} <b>{qt(b.laenge)}</b> {zw("= Abstand von P zur Leitlinie.", "= distance of P from the directrix.")}</Text>
+        <Rueck art="gut">{zw("Die x-Komponente von r ist 0: Der gespiegelte Strahl ist senkrecht und damit parallel zur Symmetrieachse x = ", "The x-component of r is 0: the reflected ray is vertical and therefore parallel to the axis x = ")}<MS s={qt(q(d))} />{zw(". Die y-Komponente ist positiv: Er läuft nach oben.", ". The y-component is positive: it runs upwards.")}</Rueck>
+        <Text>{zw("Bonus: Die Länge bleibt beim Spiegeln gleich – |r| = |w| =", "Bonus: reflecting keeps the length – |r| = |w| =")} <b><MS s={qt(b.laenge)} /></b> {zw("= Abstand von P zur Leitlinie.", "= distance of P from the directrix.")}</Text>
         <Aufklapp titel={zw("Gilt das für jeden Punkt? Beweis mit s = u − d", "Does it hold for every point? Proof with s = u − d")}>
           <Formel t="P(d + s \,|\, e + as^2),\quad F\left(d \,|\, e + \frac{1}{4a}\right)" />
           <Formel t="\vec{w} = \left(−s \,|\, \frac{1}{4a} − as^2\right),\quad \vec{n} = (−2as \,|\, 1)" />

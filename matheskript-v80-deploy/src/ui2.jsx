@@ -7,6 +7,8 @@ import React, { useId } from "react";
 import { C } from "./base1.jsx";
 import { englisch } from "./i18n.js";
 import { M } from "./func3.jsx";
+import { MS } from "./mathText.jsx";
+export { MS };
 import { pNum, qTex } from "./rechnen2.js";
 import { MatheFeld } from "./matheTastatur.jsx";
 
@@ -52,7 +54,7 @@ export function Auswahl({ optionen, wert, setWert, label, status }) {
           <button key={id} type="button" aria-pressed={an} onClick={() => setWert(id)}
             style={{ minHeight: 44, padding: "8px 14px", borderRadius: 999, fontFamily: "inherit", cursor: "pointer", fontSize: 14, fontWeight: 700,
               border: `1.5px solid ${an ? farbe : C.linie}`, background: an ? farbe : C.weiss, color: an ? C.weiss : C.see }}>
-            {text}
+            <MS s={text} />
           </button>
         );
       })}
@@ -84,7 +86,7 @@ export function Rueck({ art, children }) {
   const f = { gut: ["#E6F6EF", "#0F7A4D"], schlecht: ["#FCE8EE", C.gruenDunkel], info: [C.himmel, C.see], warn: ["#FFF4D6", "#7A5A00"] }[art || "info"];
   return (
     <div role={art === "schlecht" || art === "warn" ? "alert" : "status"}
-      style={{ background: f[0], color: f[1], borderRadius: 12, padding: "9px 12px", fontSize: 13.5, lineHeight: 1.55, fontWeight: 500, marginTop: 8 }}>{children}</div>
+      style={{ background: f[0], color: f[1], borderRadius: 12, padding: "9px 12px", fontSize: 13.5, lineHeight: 1.55, fontWeight: 500, marginTop: 8 }}>{typeof children === "string" ? <MS s={children} /> : children}</div>
   );
 }
 

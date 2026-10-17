@@ -13,6 +13,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { C } from "./base1.jsx";
 import { BEREICHE, ETIKETTEN, werkzeug, wo } from "./werkzeuge.js";
 import { FR } from "./funcRegistry.jsx";
+import { MS } from "./mathText.jsx";
 import { uebergabeHinweis, uebergabeSetzen, uebergabeZurueck } from "./uebergabe.js";
 
 /* ---------- Etikett ---------- */
@@ -301,8 +302,8 @@ export function WeiterKnopf({ ziel, daten, von, titel, zeile, zurueck = null }) 
       <span aria-hidden="true" style={{ flexShrink: 0, width: 30, height: 30, borderRadius: 999, background: C.see, color: C.flaggold, fontSize: 16, fontWeight: 800,
         display: "inline-flex", alignItems: "center", justifyContent: "center" }}>↪</span>
       <span style={{ minWidth: 0, flex: 1 }}>
-        <span style={{ display: "block", fontSize: 14.5, fontWeight: 700, lineHeight: 1.25 }}>{name}</span>
-        {zeile && <span style={{ display: "block", fontSize: 12.5, fontWeight: 400, color: C.grau, lineHeight: 1.35, marginTop: 2 }}>{zeile}</span>}
+        <span style={{ display: "block", fontSize: 14.5, fontWeight: 700, lineHeight: 1.25 }}><MS s={name} /></span>
+        {zeile && <span style={{ display: "block", fontSize: 12.5, fontWeight: 400, color: C.grau, lineHeight: 1.35, marginTop: 2 }}><MS s={zeile} /></span>}
       </span>
       <span aria-hidden="true" style={{ flexShrink: 0, fontSize: 18, fontWeight: 700 }}>›</span>
     </button>
@@ -315,7 +316,7 @@ export function WeiterMit({ children, titel = "Weiter mit diesem Ergebnis" }) {
   if (!kinder.length) return null;
   return (
     <div data-weiter-mit style={{ marginTop: 18 }}>
-      <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: C.grau, margin: "0 2px 8px" }}>{titel}</p>
+      <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: C.grau, margin: "0 2px 8px" }}><MS s={titel} /></p>
       <div style={{ display: "grid", gap: 8 }}>{kinder}</div>
     </div>
   );
