@@ -1063,6 +1063,19 @@ export function Startseite({ gehe }) {
       window.scrollTo({ top: r.getBoundingClientRect().top + window.scrollY - (kopf ? kopf.offsetHeight : 0) - 12 });
     });
   };
+  /* Formelsammlung aufgeklappt: Der große Formelsammlung-Knopf steht genau oben (direkt unter der Kopfleiste),
+     damit das Untermenü nicht nach oben wegspringt. */
+  const formelRahmen = useRef(null);
+  useEffect(() => {
+    if (!formelAuf) return undefined;
+    const id = requestAnimationFrame(() => {
+      const r = formelRahmen.current;
+      if (!r) return;
+      const kopf = document.querySelector("[data-kopfleiste]");
+      window.scrollTo({ top: Math.max(0, r.getBoundingClientRect().top + window.scrollY - (kopf ? kopf.offsetHeight : 0) - 8), behavior: "auto" });
+    });
+    return () => cancelAnimationFrame(id);
+  }, [formelAuf]);
   /* Außen tippen schließt: Ein Tipp auf die abgedunkelte Fläche (kein Knopf, kein Link) klappt das innerste offene Menü zu. */
   useEffect(() => {
     if (!schulAuf && !entdAuf) return undefined;
@@ -1563,7 +1576,7 @@ export function Startseite({ gehe }) {
             text="Zehn komplette Aufgabensätze im Abi-Format – Teil A ohne Hilfsmittel, Teil B mit WTR." />
           )}
           {!etikett && (
-          <AufklappRahmen auf={formelAuf} innen>
+          <AufklappRahmen auf={formelAuf} innen rahmenRef={formelRahmen}>
             <PlotterKachel klein breit onClick={() => { setFormelAuf(!formelAuf); setBereichAuf(null); }} auf={formelAuf} label={formelAuf ? "Formelsammlung zuklappen" : "Formelsammlung aufklappen"} logo={<FormelLogoKlein />}
               titel="Formelsammlung"
               text="Alle wichtigen Formeln der Oberstufe – sauber sortiert zum Nachschlagen."
