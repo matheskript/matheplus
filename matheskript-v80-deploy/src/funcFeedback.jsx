@@ -1,12 +1,15 @@
 /* ======================================================================
-   FEEDBACK PER SPRACHNACHRICHT
-   Schwebender Knopf am rechten Bildschirmrand (position: fixed – wandert beim
-   Scrollen mit nach unten, auf jeder Seite vorhanden). Ein Tipp öffnet ein
-   kleines Fenster: aufnehmen, anhören, senden. Die Seite, auf der das
-   Feedback gegeben wird, hängt automatisch an der Nachricht.
+   FEEDBACK PER TEXT ODER SPRACHNACHRICHT
+   Knopf unten auf jeder Seite. Ein Tipp öffnet die Auswahl „Text senden“ oder
+   „Voice senden“. Text: kleines Fenster in der oberen Bildschirmhälfte (die
+   Handy-Tastatur verdeckt es nicht). Voice: aufnehmen, anhören, senden. Die Seite,
+   auf der das Feedback gegeben wird, hängt automatisch an der Nachricht.
+   Die Willkommensseite (funcWillkommen.jsx) kann die Auswahl über das Ereignis
+   FEEDBACK_OEFFNEN öffnen.
 
    Ablage: Supabase (privater Speicher „feedback“ + Tabelle public.feedback,
-   siehe supabase/schema.sql). Lesen kann nur der Betreiber im Dashboard.
+   siehe supabase/schema.sql; für Texte zusätzlich supabase/feedback-text.sql).
+   Lesen kann nur der Betreiber im Dashboard.
    Ohne Supabase-Zugang (Demo-Modus) wird nichts gesendet.
    ====================================================================== */
 import React, { useState, useRef, useEffect } from "react";
@@ -15,9 +18,12 @@ import { C } from "./base1.jsx";
 import { NAV } from "./base4.jsx";
 import { sb } from "./konto.js";
 import { sprache } from "./i18n.js";
+import { FEEDBACK_OEFFNEN } from "./willkommen.js";
 
 const MAX_SEKUNDEN = 120;
 const MIN_SEKUNDEN = 2;
+const MAX_ZEICHEN = 2000;   // Text-Feedback: so viel erlaubt auch die Datenbank
+const MIN_ZEICHEN = 3;
 const BUCKET = "feedback";
 
 /* ---------- Welche Seite ist gerade offen? ---------- */
@@ -54,7 +60,23 @@ function MikroIcon({ groesse = 20, farbe = "currentColor" }) {
   );
 }
 
-/* ---------- Der Knopf mit dem Aufnahmefenster ---------- */
+export function SprechblaseIcon({ groesse = 20, farbe = "currentColor" }) {
+  return (
+    <svg width={groesse} height={groesse} viewBox="0 0 24 24" fill="none" stroke={farbe} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.2A8 8 0 1 1 21 12z" />
+    </svg>
+  );
+}
+
+function TextIcon({ groesse = 20, farbe = "currentColor" }) {
+  return (
+    <svg width={groesse} height={groesse} viewBox="0 0 24 24" fill="none" stroke={farbe} strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+      <path d="M4 7h16M4 12h16M4 17h10" />
+    </svg>
+  );
+}
+
+/* ---------- Der Knopf mit Auswahl, Text-Fenster und Aufnahmefenster ---------- */
 export function FeedbackKnopf({ aktuell }) {
   const [offen, setOffen] = useState(false);
   const [phase, setPhase] = useState("ruhe");       // ruhe | aufnahme | fertig | sendet | gesendet
@@ -63,6 +85,12 @@ export function FeedbackKnopf({ aktuell }) {
   const [meldung, setMeldung] = useState("");
   const [seite, setSeite] = useState({ name: "", ueberschrift: "" });
   const [audioUrl, setAudioUrl] = useState(null);
+  const [menue, setMenue] = useState(false);               // Auswahl Text / Voice
+  const [textOffen, setTextOffen] = useState(false);
+  const [text, setText] = useState("");
+  const [textPhase, setTextPhase] = useState("ruhe");      // ruhe | sendet | gesendet
+  const [textZustimmung, setTextZustimmung] = useState(false);
+  const [textMeldung, setTextMeldung] = useState("");
 
   const rec = useRef(null);
   const strom = useRef(null);
@@ -88,6 +116,54 @@ export function FeedbackKnopf({ aktuell }) {
   };
   const oeffnen = () => { setSeite(seitenInfo(aktuell)); setOffen(true); };
   const schliessen = () => { zuruecksetzen(); setOffen(false); };
+
+  /* Auswahl „Text senden“ / „Voice senden“ und das Text-Fenster */
+  const aktuellRef = useRef(aktuell);
+  aktuellRef.current = aktuell;
+  const menueAuf = () => { setSeite(seitenInfo(aktuellRef.current)); setMenue(true); };
+  const sprachePanel = () => { setMenue(false); oeffnen(); };
+  const textStarten = () => { setMenue(false); setTextMeldung(""); setTextPhase("ruhe"); setTextOffen(true); };
+  const textSchliessen = () => { setTextOffen(false); setText(""); setTextZustimmung(false); setTextMeldung(""); setTextPhase("ruhe"); };
+
+  /* Die Willkommensseite öffnet die Auswahl über ein Ereignis */
+  useEffect(() => {
+    const auf = () => menueAuf();
+    window.addEventListener(FEEDBACK_OEFFNEN, auf);
+    return () => window.removeEventListener(FEEDBACK_OEFFNEN, auf);
+  }, []);
+
+  useEffect(() => {
+    if (!menue && !textOffen) return;
+    const taste = (e) => { if (e.key === "Escape") { if (textOffen) textSchliessen(); else setMenue(false); } };
+    window.addEventListener("keydown", taste);
+    return () => window.removeEventListener("keydown", taste);
+  }, [menue, textOffen]);
+
+  const textSenden = async () => {
+    const t = text.trim();
+    if (t.length < MIN_ZEICHEN) { setTextMeldung("Schreib bitte ein paar Worte, dann kannst du senden."); return; }
+    if (!textZustimmung) { setTextMeldung("Bitte setze zuerst den Haken bei der Einwilligung."); return; }
+    if (!sb) { setTextMeldung("Senden ist in dieser Vorschau noch nicht eingerichtet (Demo-Modus)."); return; }
+    setTextMeldung(""); setTextPhase("sendet");
+    try {
+      const { ziel, klasse, kurs, bereich, trainer, land, kompetenz, foto } = aktuell;
+      const eintrag = await sb.from("feedback").insert({
+        seite: seite.name,
+        ansicht: aktuell.ansicht,
+        ueberschrift: seite.ueberschrift || null,
+        details: JSON.parse(JSON.stringify({ ziel, klasse, kurs, bereich, trainer, land, kompetenz, foto })),
+        nachricht: t.slice(0, MAX_ZEICHEN),
+        sprache: sprache(),
+        viewport: `${window.innerWidth}x${window.innerHeight}`,
+        geraet: String(navigator.userAgent || "").slice(0, 200),
+      });
+      if (eintrag.error) throw eintrag.error;
+      setText(""); setTextPhase("gesendet");
+    } catch (e) {
+      setTextPhase("ruhe");
+      setTextMeldung("Das Senden hat nicht geklappt. Bitte versuche es gleich noch einmal.");
+    }
+  };
 
   useEffect(() => {
     if (!offen) return;
@@ -185,8 +261,8 @@ export function FeedbackKnopf({ aktuell }) {
   /* Feedback-Knopf unten auf jeder Seite (inline, über der Fußzeile); das Aufnahme-Fenster bleibt ein schwebendes Panel. */
   return (<>
     <div className="fb-fuss">
-      <button type="button" className="fb-knopf" onClick={oeffnen} aria-label="Feedback per Sprachnachricht geben" aria-expanded={offen}>
-        <MikroIcon groesse={18} farbe={C.flaggold} />
+      <button type="button" className="fb-knopf" onClick={menueAuf} aria-label="Feedback geben, per Text oder Sprachnachricht" aria-haspopup="dialog" aria-expanded={offen || menue || textOffen}>
+        <SprechblaseIcon groesse={18} farbe={C.flaggold} />
         <span>Feedback geben</span>
       </button>
     </div>
@@ -203,7 +279,19 @@ export function FeedbackKnopf({ aktuell }) {
         @keyframes fbPuls{0%,100%{box-shadow:0 0 0 0 rgba(185,138,0,.5)}50%{box-shadow:0 0 0 10px rgba(185,138,0,0)}}
         .fb-rec{animation:fbPuls 1.4s ease-in-out infinite}
         @media (prefers-reduced-motion:reduce){.fb-rec{animation:none}}
-        @media print{.fb-fuss,.fb-panel{display:none}}
+        .fb-scrim{position:fixed;inset:0;z-index:1000;background:rgba(8,23,59,.35)}
+        .fb-menue,.fb-text{position:fixed;z-index:1001;background:${C.sand};border-radius:16px;box-shadow:0 18px 48px rgba(8,23,59,.4);
+          padding:16px;font-family:Montserrat,system-ui,sans-serif;color:${C.tinte}}
+        .fb-menue{right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));width:min(340px,calc(100vw - 24px))}
+        .fb-text{top:calc(env(safe-area-inset-top,0px) + 12px);left:50%;transform:translateX(-50%);width:min(420px,calc(100vw - 24px));
+          max-height:calc(50vh - 12px);max-height:calc(50dvh - 12px);overflow-y:auto}
+        .fb-wahl{display:flex;align-items:center;gap:12px;width:100%;min-height:56px;padding:8px 12px;border-radius:12px;cursor:pointer;text-align:left;
+          font-family:inherit;color:${C.tinte};background:${C.weiss};border:1px solid ${C.linie}}
+        .fb-wahl:hover,.fb-wahl:focus-visible{border-color:${C.see}}
+        .fb-wahl b{display:block;font-size:14px;font-weight:700;color:${C.see}}
+        .fb-wahl small{display:block;font-size:12px;font-weight:500;line-height:1.4;color:${C.grau}}
+        .fb-wahl-ico{flex:0 0 auto;display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:${C.see}}
+        @media print{.fb-fuss,.fb-panel,.fb-scrim,.fb-menue,.fb-text{display:none}}
       `}</style>
 
       {offen && (
@@ -280,6 +368,79 @@ export function FeedbackKnopf({ aktuell }) {
             </>
           )}
         </div>
+      )}
+
+      {menue && (
+        <>
+          <div className="fb-scrim" aria-hidden="true" onClick={() => setMenue(false)} />
+          <div role="dialog" aria-label="Feedback geben" className="fb-menue">
+            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10 }}>
+              <div style={{ fontSize: 16, fontWeight: 700, color: C.see, lineHeight: 1.25 }}>Wie möchtest du Feedback geben?</div>
+              <button type="button" onClick={() => setMenue(false)} aria-label="Schließen"
+                style={{ ...gross, flex: "0 0 auto", cursor: "pointer", background: "none", border: "none", fontSize: 22, lineHeight: 1, color: C.see, padding: "2px 6px", minHeight: 36 }}>×</button>
+            </div>
+            <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 8 }}>
+              <button type="button" className="fb-wahl" onClick={textStarten}>
+                <span className="fb-wahl-ico"><TextIcon groesse={18} farbe={C.flaggold} /></span>
+                <span><b>Text senden</b><small>Schreib uns, was dir gefällt und was dir fehlt.</small></span>
+              </button>
+              <button type="button" className="fb-wahl" onClick={sprachePanel}>
+                <span className="fb-wahl-ico"><MikroIcon groesse={18} farbe={C.flaggold} /></span>
+                <span><b>Voice senden</b><small>Sprich einfach drauflos.</small></span>
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {textOffen && (
+        <>
+          <div className="fb-scrim" aria-hidden="true" />
+          <form role="dialog" aria-label="Feedback per Text" className="fb-text" noValidate
+            onSubmit={(e) => { e.preventDefault(); textSenden(); }}>
+            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10 }}>
+              <div style={{ fontSize: 16, fontWeight: 700, color: C.see, lineHeight: 1.25 }}>Dein Feedback</div>
+              <button type="button" onClick={textSchliessen} aria-label="Schließen"
+                style={{ ...gross, flex: "0 0 auto", cursor: "pointer", background: "none", border: "none", fontSize: 22, lineHeight: 1, color: C.see, padding: "2px 6px", minHeight: 36 }}>×</button>
+            </div>
+
+            {textPhase === "gesendet" ? (
+              <div style={{ marginTop: 14, textAlign: "center" }}>
+                <div style={{ fontSize: 15, fontWeight: 700, color: C.see }}>Danke dir!</div>
+                <div style={{ fontSize: 13, color: C.grau, lineHeight: 1.5, marginTop: 4 }}>Dein Text ist angekommen.</div>
+                <div style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 14, flexWrap: "wrap" }}>
+                  <button type="button" onClick={() => { setTextPhase("ruhe"); setTextZustimmung(false); }} style={knopfStil(true)}>Noch ein Text</button>
+                  <button type="button" onClick={textSchliessen} style={knopfStil(false)}>Fertig</button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div style={{ marginTop: 8, fontSize: 12, lineHeight: 1.45 }}>
+                  <span style={{ color: C.grau, fontWeight: 600 }}>Gehört zu:</span>{" "}
+                  <b data-kein-i18n style={{ color: C.tinte, fontWeight: 700 }}>{seite.name}</b>
+                </div>
+                <textarea autoFocus value={text} onChange={(e) => setText(e.target.value)} maxLength={MAX_ZEICHEN}
+                  disabled={textPhase === "sendet"} aria-label="Dein Feedback als Text" placeholder="Was gefällt dir? Was fehlt dir noch?"
+                  style={{ ...gross, display: "block", boxSizing: "border-box", width: "100%", height: 84, marginTop: 10, resize: "none", padding: 10, borderRadius: 10,
+                    border: `1px solid ${C.linie}`, background: C.weiss, color: C.tinte, fontSize: 16, lineHeight: 1.45 }} />
+                <label style={{ display: "flex", alignItems: "flex-start", gap: 9, marginTop: 10, fontSize: 12, lineHeight: 1.5, color: C.tinte, cursor: "pointer" }}>
+                  <input type="checkbox" checked={textZustimmung} onChange={(e) => setTextZustimmung(e.target.checked)} disabled={textPhase === "sendet"}
+                    style={{ marginTop: 2, width: 18, height: 18, flex: "0 0 auto", accentColor: C.see }} />
+                  <span>Ich bin einverstanden, dass mein Text gespeichert und von Mythos Mathe gelesen wird, um die App zu verbessern.</span>
+                </label>
+                <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
+                  <button type="submit" disabled={textPhase === "sendet"} style={{ ...knopfStil(false), flex: "1 1 auto", opacity: textPhase === "sendet" ? 0.6 : 1 }}>
+                    {textPhase === "sendet" ? "Wird gesendet …" : "Senden"}
+                  </button>
+                  <button type="button" onClick={textSchliessen} disabled={textPhase === "sendet"} style={knopfStil(true)}>Abbrechen</button>
+                </div>
+                {textMeldung && (
+                  <div role="alert" style={{ marginTop: 10, fontSize: 12.5, lineHeight: 1.5, color: C.gruen, fontWeight: 600 }}>{textMeldung}</div>
+                )}
+              </>
+            )}
+          </form>
+        </>
       )}
     </>,
     document.body
