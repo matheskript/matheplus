@@ -579,7 +579,7 @@ function integralZeichne(t) {
 }
 
 /* Für weitere Szenen in anderen Dateien (Kopfrechnen: funcKopfVideo.jsx) */
-export { Player, lauf, T };
+export { lauf, T };
 
 /* ---------- Szenen-Auswahl ---------- */
 const INFO = {
