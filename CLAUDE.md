@@ -15,5 +15,8 @@ Wurzelhaken und Überstrich sind ein einziger Linienzug auf exakt derselben Höh
 ## TeX in JSX-Attributen
 Nie `menge="\\mathbb{N}"` – in JSX-Attributen wird nichts entwertet, es erscheint „\mathbbN“. Immer `menge={"\\mathbb{N}"}` (der Test prüft das).
 
+## Sprünge: nur über den Sprung-Schalter
+Die Seite scrollt nie „von selbst“, außer über `springe("schlüssel", () => …)` aus `src/sprung.js`. Jeder Schlüssel steht dort mit an/aus und Beschreibung; Aufklapp-Menüs laufen über `data-sprung` bzw. `aufklappen@<ansicht>`. Stand 18.10.: Auswahl-Sprünge nur in Startseite → Schulmathematik an. Wächter: `tests/sprung.test.mjs`, Browser: `tests/ui/sprung.ui.py`.
+
 ## Sonst
 Regel A5 (nichts unvereinfacht), generisches Maskulinum, Farben aus `C` in `base1.jsx`, `base*.jsx` importiert nie aus `func*.jsx`. Gesamtstand: Projekt-Dokument `claude/matheplus-stand.md`.
