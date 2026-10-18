@@ -371,9 +371,10 @@ function MythenMenue() {
   );
 }
 
-function DesktopKurse({ gehe }) {
+/* Abschnitt „Mythen“ mit den 7 Mathe-Mythen – auf der Startseite zwischen Masterclass und „Wo stehst du wirklich?“ */
+function MythenAbschnitt() {
   return (
-    <section style={{ marginTop: 48, marginBottom: 6 }}>
+    <section style={{ marginTop: 40, marginBottom: 6 }}>
       <StartAbschnittKopf kicker="Mythen" titel="Mathetalent ist ein Mythos. Ein System kann man lernen." />
       <p style={START_TEXT}>
         Hinter guten Mathenoten steckt kein besonderes Gehirn, sondern eine Arbeitsweise. Die Kurse bauen sie Schritt für Schritt auf: wie du denkst, wie du rechnest, wie du schreibst und wie du Gelerntes behältst.
@@ -382,11 +383,17 @@ function DesktopKurse({ gehe }) {
         Jeder Kurs ist für sich nutzbar. Zusammen ergeben sie das System, mit dem Mythos Mathe Gymnasiasten von Klasse 8 bis zum Abitur begleitet.
       </p>
       <MythenMenue />
+    </section>
+  );
+}
 
-      <div style={{ marginTop: 56 }}>
+function DesktopKurse({ gehe }) {
+  return (
+    <section style={{ marginTop: 48, marginBottom: 6 }}>
+      <div>
         <StartAbschnittKopf kicker="Kurse" titel="Jeder Kurs ein Baustein, zusammen ein System" />
         <p style={{ ...START_TEXT, marginBottom: 24 }}>
-          Hinter allen sieben Mythen steckt dieselbe Lücke: Es fehlt nicht an Begabung, sondern an einer Arbeitsweise. Die Kurse unten schließen sie Stück für Stück. Der Mathe-Mindset-Kurs räumt das Denken auf, Kopfrechnen macht Zahlen schnell und sicher, und Ebbinghaus sorgt dafür, dass Gelerntes im richtigen Abstand wiederkommt und bleibt. Die Videokurse und die Masterclass führen dich danach Schritt für Schritt durch den Stoff bis zum Abitur.
+          Hinter den sieben Mathe-Mythen steckt dieselbe Lücke: Es fehlt nicht an Begabung, sondern an einer Arbeitsweise. Die Kurse unten schließen sie Stück für Stück. Der Mathe-Mindset-Kurs räumt das Denken auf, Kopfrechnen macht Zahlen schnell und sicher, und Ebbinghaus sorgt dafür, dass Gelerntes im richtigen Abstand wiederkommt und bleibt. Die Videokurse und die Masterclass führen dich danach Schritt für Schritt durch den Stoff bis zum Abitur.
         </p>
       </div>
     </section>
@@ -1658,6 +1665,8 @@ export function Startseite({ gehe }) {
         text="Analysis 1–5, Vektoren und Stochastik – mit Videolektionen und Checks." />
       {/* Ganz unten: Mathe Masterclass (3 Monate, gesperrt) */}
       <MasterclassKachel gesperrt name="Mathe Masterclass" monate="3 MONATE" onClick={() => gehe({ ansicht: "masterclass" })} />
+      {/* Die 7 Mathe-Mythen: zwischen Masterclass und „Wo stehst du wirklich?“ */}
+      <MythenAbschnitt />
       {/* Ganz unten: Dein Plan mit Standortcheck („Wo stehst du wirklich?“) */}
       <div style={{ marginTop: 22 }}><DeinPlanBlock gehe={gehe} /></div>
       {!desktop && <div style={{ marginTop: 18 }}><AppAnleitung /></div>}
