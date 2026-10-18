@@ -7,25 +7,29 @@ import { WERKZEUGE } from "../src/werkzeuge.js";
 const func10 = readFileSync(new URL("../src/func10.jsx", import.meta.url), "utf8");
 const hatAnsicht = (a) => func10.includes(`ansicht === "${a}"`) || func10.includes(`"${a}"`);
 
-test("acht Klassenboxen je Schulart plus Abi-Box, Kursstufe und Abi gold", () => {
-  for (const s of SCHULARTEN) {
-    const b = klassenBoxen(s.id);
-    assert.equal(b.length, 9, s.id);
-    assert.deepEqual(b.map((x) => x.gold), [false, false, false, false, false, false, true, true, true], s.id);
-    assert.equal(b[8].id, "abi");
-  }
-  assert.deepEqual(klassenBoxen("g8").map((b) => b.label), ["5", "6", "7", "8", "9", "10", "11", "12", "Abi"]);
-  assert.deepEqual(klassenBoxen("g9").map((b) => b.label), ["5/6", "7", "8", "9", "10", "11", "12", "13", "Abi"]);
+test("Klassenboxen: immer 5/6 als eine Box, keine Abi-Box, die beiden Abi-Jahrgänge gold", () => {
+  assert.deepEqual(klassenBoxen("g8").map((b) => b.label), ["5/6", "7", "8", "9", "10", "11", "12"]);
+  assert.deepEqual(klassenBoxen("g9").map((b) => b.label), ["5/6", "7", "8", "9", "10", "11", "12", "13"]);
   assert.deepEqual(klassenBoxen("gms").map((b) => b.label), klassenBoxen("g9").map((b) => b.label));
+  assert.deepEqual(klassenBoxen("g8").filter((b) => b.gold).map((b) => b.label), ["11", "12"]);
+  assert.deepEqual(klassenBoxen("g9").filter((b) => b.gold).map((b) => b.label), ["12", "13"]);
+  for (const s of SCHULARTEN) assert.ok(!klassenBoxen(s.id).some((b) => b.id === "abi"), s.id);
   assert.equal(stufeAusKlassenBox(klassenBoxen("g9")[0]), "unter");
   assert.equal(stufeAusKlassenBox(klassenBoxen("g9")[5]), "ober");
 });
 
-test("jede Klassenbox hat 5 bis 12 Kapitel, alle Themen existieren", () => {
+test("Abiturvorbereitung steht im letzten Jahrgang jeder Schulart", () => {
+  for (const s of SCHULARTEN) {
+    const b = klassenBoxen(s.id);
+    assert.ok(kapitelFuer(s.id, b[b.length - 1].id).some((k) => k.id === "ksAbi"), s.id);
+  }
+});
+
+test("jede Klassenbox hat 4 bis 14 Kapitel, alle Themen existieren", () => {
   for (const s of SCHULARTEN) {
     for (const b of klassenBoxen(s.id)) {
       const ks = kapitelFuer(s.id, b.id);
-      assert.ok(ks.length >= 4 && ks.length <= 12, `${s.id} ${b.id}: ${ks.length} Kapitel`);
+      assert.ok(ks.length >= 4 && ks.length <= 14, `${s.id} ${b.id}: ${ks.length} Kapitel`);
       for (const k of ks) assert.ok(THEMEN[k.id], `${s.id} ${b.id}: Thema ${k.id} fehlt`);
       assert.equal(new Set(ks.map((k) => k.id)).size, ks.length, `${s.id} ${b.id}: doppeltes Kapitel`);
     }

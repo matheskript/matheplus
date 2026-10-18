@@ -171,8 +171,8 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
   );
 }
 
-/* Kachel „Dein Training startet hier.“: weißer Grund mit blauem Rand. Zwei Modus-Knöpfe – „Eine Sache üben“ (Standard)
-   und „Trainingsplan“ –, rechts Schulsystem-Balken und Klassen, darunter Kapitel mit aufklappbaren Unterthemen
+/* Kachel „Dein Training startet hier.“: weißer Grund mit blauem Rand. Rechts Schulsystem-Balken und Klassen (2 × 4),
+   darunter das Kapitel-Menü: jedes Kapitel klappt auf und zeigt seine Trainings-Werkzeuge
    (funcQuickfinder.jsx; Daten in schulbuch.js, unterthemen.js; Plan in trainingsplan.js). */
 function MeinTrainingKachelStart({ gehe, setzeStufe }) {
   const s = useOffenHeute();

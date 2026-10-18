@@ -185,7 +185,7 @@ function PlanAnsicht({ gehe }) {
       <Rahmen>
         <Zurueck onClick={() => gehe({ ansicht: "start" })} />
         <div style={karte}>
-          <p style={{ fontSize: 14.5, color: C.tinte, lineHeight: 1.6 }}>Lege deinen Plan auf der Startseite an: „Trainingsplan“, dann Klasse und Thema wählen.</p>
+          <p style={{ fontSize: 14.5, color: C.tinte, lineHeight: 1.6 }}>Wähle auf der Startseite Schulsystem und Klasse, öffne dein Kapitel und tippe auf „Trainingsplan zu diesem Kapitel“.</p>
           <GrosserKnopf onClick={() => (modusVormerken("plan"), gehe({ ansicht: "start" }))}>Plan erstellen</GrosserKnopf>
         </div>
       </Rahmen>
@@ -293,7 +293,7 @@ export function KapitelTrainingSeite({ ansicht, ziel, gehe }) {
     if (z && KAPITEL[z.kapitel]) return <SacheTraining key={`${z.kapitel}-${z.teil || ""}`} ziel={{ ...z, teil: z.teil && unterthema(z.teil) ? z.teil : null }} gehe={gehe} />;
     return (
       <>
-        <Kopf titel="Eine Sache trainieren" unter="Wähle auf der Startseite Klasse und Thema – dann geht es los." />
+        <Kopf titel="Eine Sache trainieren" unter="Wähle auf der Startseite Klasse und Kapitel – dann geht es los." />
         <Rahmen>
           <div style={karte}><GrosserKnopf onClick={() => (modusVormerken("sache"), gehe({ ansicht: "start" }))}>Zur Auswahl</GrosserKnopf></div>
         </Rahmen>

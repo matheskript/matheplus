@@ -1,14 +1,14 @@
 /* ======================================================================
-   QUICKFINDER – Status quo in der Kachel „Mein Training“ auf der Startseite
-   Schulart (Balken G8 · G9 · GS9) → Klasse (neun Boxen, Abi-Stufen gold) →
-   Kapitel im Buch → Liste aller Hilfen der App zu diesem Kapitel.
+   QUICKFINDER – Kachel „Dein Training startet hier.“ auf der Startseite
+   Schulsystem (blauer Balken G8 · G9 · GS9) → Klasse (2 × 4 Boxen, die beiden
+   Abi-Jahrgänge gold) → Menü mit den Kapiteln des Buchs; jedes Kapitel klappt
+   auf und zeigt alle Trainings-Werkzeuge der App dazu.
    Daten: schulbuch.js. Auswahl bleibt im Browser (matheplus-quickfinder).
    ====================================================================== */
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { C } from "./base1.jsx";
 import { SCHULARTEN, SCHULART_STANDARD, THEMEN, hilfenFuer, kapitelFuer, klassenBoxen, roemisch, schulart as schulartVon, stufeAusKlassenBox } from "./schulbuch.js";
 import { kapitelAuswahl } from "./kapitelFormeln.js";
-import { WERKZEUGE } from "./werkzeuge.js";
 import { englisch } from "./i18n.js";
 import { unterthema, unterthemen } from "./unterthemen.js";
 import { PHASEN, auswahlNachKapitel, planErstellen, planStand, planTage, tagName, vorbereitungFuer } from "./trainingsplan.js";
@@ -37,27 +37,24 @@ function auswahlOhneSchulart() { try { return auswahlLesen(JSON.parse(localStora
 const KICKER = { fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", color: C.gruenDunkel, margin: 0 };
 const knopfBasis = { fontFamily: "inherit", cursor: "pointer", borderRadius: 12, fontWeight: 700, lineHeight: 1.15, transition: "background .12s ease, color .12s ease, box-shadow .12s ease" };
 
-/* Rechte Spalte, schmal: oben ein eigener Balken für das Schulsystem (auf Höhe der Überschrift),
-   darunter, getrennt davon, die 3 × 3 Klassen-Boxen. Beide ohne Goldrand, Linien statt Abständen.
-   Schulsystem: blauer Grund, weiße Schrift, weiße Trennstriche; gewählt = weiß mit blauer Schrift.
-   Klassen: weiße Boxen, die drei Abi-Stufen (Kursstufe + Abi) mit goldenem Grund, alle Linien blau;
-   gewählt = blau mit weißer Schrift. Die Klassen sind gedämpft, bis ein Schulsystem gewählt ist.
-   HOEHE ist zugleich die Höhe der Modus-Knöpfe links – deren Unterkante schließt mit den Klassen ab. */
+/* Rechte Spalte: oben der blaue Balken fürs Schulsystem (auf Höhe der Überschrift), darunter die Klassen.
+   Auswahl wird nie als ganze Fläche eingefärbt, sondern durch ein kleineres Rechteck mit runden Ecken
+   um das Gewählte: im Balken weiß, bei den Klassen blau. Keine Trennlinien. */
 const HOEHE = 40;
-const LINIE = 1.5;
-const TASTE = { ...knopfBasis, height: HOEHE, padding: "0 2px", fontSize: 14, borderRadius: 0, border: "none", letterSpacing: "0.02em", display: "flex", alignItems: "center", justifyContent: "center" };
+const TASTE = { ...knopfBasis, height: HOEHE, padding: "0 2px", fontSize: 14.5, fontWeight: 800, borderRadius: 8, letterSpacing: "0.02em",
+  display: "flex", alignItems: "center", justifyContent: "center", minWidth: 0 };
 
 function SchulartWahl({ wert, setze }) {
   return (
-    <div role="group" aria-label="Schulsystem wählen" className="qf-schulart"
-      style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", borderRadius: 10, overflow: "hidden", background: C.see,
-        border: `${LINIE}px solid ${C.see}`, boxShadow: "0 4px 12px rgba(0,77,152,0.22)" }}>
-      {SCHULARTEN.map((s, i) => {
+    <div role="group" aria-label="Schulsystem wählen"
+      style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 4, padding: 4, borderRadius: 12, background: C.see,
+        boxShadow: "0 4px 12px rgba(0,77,152,0.22)" }}>
+      {SCHULARTEN.map((s) => {
         const an = s.id === wert;
         return (
           <button key={s.id} type="button" aria-pressed={an} onClick={() => setze(s.id)} title={s.zeile} data-kein-i18n className="qf-sa"
-            style={{ ...TASTE, height: HOEHE - 2 * LINIE, fontSize: 14.5, fontWeight: 800, borderLeft: i ? `2px solid ${C.weiss}` : "none",
-              background: an ? C.weiss : "transparent", color: an ? C.see : C.weiss }}>
+            style={{ ...TASTE, height: HOEHE - 8, color: C.weiss, border: `2px solid ${an ? C.weiss : "transparent"}`,
+              background: an ? "rgba(255,255,255,0.14)" : "transparent" }}>
             {s.name}
           </button>
         );
@@ -66,20 +63,25 @@ function SchulartWahl({ wert, setze }) {
   );
 }
 
+/* 2 Zeilen × 4 Spalten. G8: 5/6 … 12 und ein freies Feld; G9 und GS9: 5/6 … 13.
+   Weißer Grund, die beiden Abi-Jahrgänge gold; gewählt = blauer Rahmen. Gedämpft, bis ein Schulsystem gewählt ist. */
 function KlassenWahl({ schulart, wert, setze }) {
   const boxen = klassenBoxen(schulart || SCHULART_STANDARD);
   const aus = !schulart;
+  const felder = [...boxen, ...Array(Math.max(0, 8 - boxen.length)).fill(null)];
   return (
     <div role="group" aria-label={aus ? "Klasse wählen – zuerst Schulsystem wählen" : "Klasse wählen"}
-      style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: LINIE, background: C.see, border: `${LINIE}px solid ${C.see}`,
-        borderRadius: 10, overflow: "hidden", opacity: aus ? 0.4 : 1, transition: "opacity .15s ease" }}>
-      {boxen.map((b) => {
+      style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 4, padding: 4, borderRadius: 12, background: C.weiss,
+        boxShadow: "0 3px 12px rgba(0,40,100,0.12)", opacity: aus ? 0.42 : 1, transition: "opacity .15s ease" }}>
+      {felder.map((b, i) => {
+        if (!b) return <span key={`leer${i}`} aria-hidden="true" />;
         const an = !aus && b.id === wert;
         return (
           <button key={b.id} type="button" aria-pressed={an} disabled={aus} onClick={() => setze(b.id)} data-kein-i18n className={aus ? undefined : "qf-kl"}
-            aria-label={b.abi ? "Abi-Training" : `Klasse ${b.label}`} title={aus ? "Zuerst G8, G9 oder GS9 wählen" : b.abi ? "Spezielles Abi-Training" : undefined}
-            style={{ ...TASTE, cursor: aus ? "not-allowed" : "pointer",
-              background: an ? C.see : b.gold ? "linear-gradient(180deg, #F5CB2E 0%, #EDBB00 100%)" : C.weiss, color: an ? C.weiss : C.seeTief }}>
+            aria-label={`Klasse ${b.label}`} title={aus ? "Zuerst G8, G9 oder GS9 wählen" : b.gold ? "Kursstufe – Abi-Jahrgang" : undefined}
+            style={{ ...TASTE, cursor: aus ? "not-allowed" : "pointer", color: C.seeTief, border: `2px solid ${an ? C.see : "transparent"}`,
+              background: b.gold ? "linear-gradient(180deg, #F5CB2E 0%, #EDBB00 100%)" : C.weiss,
+              boxShadow: an ? "0 2px 8px rgba(0,77,152,0.25)" : "none" }}>
             {b.label}
           </button>
         );
@@ -88,95 +90,11 @@ function KlassenWahl({ schulart, wert, setze }) {
   );
 }
 
-/* Kapitel im Buch: ein Feld, das zur Liste aufklappt. Jedes Kapitel hat rechts einen Pfeil:
-   Er klappt die Unterthemen als schmale Balken direkt darunter auf – der Rest der Liste bleibt sichtbar. */
 const Pfeil = ({ auf, farbe = C.see, gross = 18 }) => (
   <svg aria-hidden="true" width={gross} height={gross} viewBox="0 0 18 18" style={{ flexShrink: 0, transform: auf ? "rotate(180deg)" : "none", transition: "transform .18s ease" }}>
     <path d="M4 7 L9 12 L14 7" fill="none" stroke={farbe} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
-function KapitelWahl({ schulart, klasse, wert, teil, setze }) {
-  const [auf, setAuf] = useState(!wert);
-  const [offen, setOffen] = useState(() => (teil ? wert : null));   // Kapitel, dessen Unterthemen aufgeklappt sind
-  const kapitel = kapitelFuer(schulart, klasse);
-  const gewaehlt = kapitel.find((k) => k.id === wert) || null;
-  const gewTeil = teil ? unterthema(teil) : null;
-  const s = schulartVon(schulart);
-  const waehle = (kId, tId) => { setze(kId, tId); setAuf(false); };
-  return (
-    <div style={{ marginTop: 14 }}>
-      <button type="button" onClick={() => { setAuf(!auf); if (!auf) setOffen(wert && teil ? wert : offen); }} aria-expanded={auf}
-        style={{ ...knopfBasis, width: "100%", display: "flex", alignItems: "center", gap: 10, textAlign: "left", minHeight: 50, padding: "8px 12px 8px 14px",
-          border: `2px solid ${gewaehlt ? C.see : C.linie}`, background: gewaehlt && !auf ? C.himmel : C.weiss, color: C.tinte }}>
-        <span style={{ flex: 1, minWidth: 0 }}>
-          <span style={{ display: "block", fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: C.grau }}>
-            {klasse === "abi" ? <>Abi-Themen · {s?.name}</> : <>Thema im Buch · Klasse {klassenBoxen(schulart).find((b) => b.id === klasse)?.label} {s?.name}</>}
-          </span>
-          <span style={{ display: "block", fontSize: 15, fontWeight: 700, color: gewaehlt ? C.tinte : C.see, marginTop: 2, lineHeight: 1.25 }}>
-            {gewaehlt ? <><span data-kein-i18n>{roemisch(gewaehlt.nr)} · </span>{gewaehlt.titel}</> : (klasse === "abi" ? "Welches Abi-Thema willst du angehen?" : "In welchem Kapitel seid ihr gerade?")}
-          </span>
-          {gewaehlt && (
-            <span style={{ display: "block", fontSize: 13, fontWeight: 600, color: C.see, marginTop: 3, lineHeight: 1.3 }}>
-              {gewTeil ? <>› {gewTeil.titel}</> : <span style={{ color: C.grau, fontWeight: 500 }}>Ganzes Kapitel</span>}
-            </span>
-          )}
-        </span>
-        <Pfeil auf={auf} />
-      </button>
-      {auf && (
-        <div className="auftauchen" role="list" aria-label="Kapitel im Buch" style={{ marginTop: 6, display: "grid", gap: 5 }}>
-          {kapitel.map((k) => {
-            const an = k.id === wert && !teil;
-            const teileAuf = offen === k.id;
-            const teile = unterthemen(k.id);
-            return (
-              <div key={k.id} role="listitem" style={{ borderRadius: 11, border: `1.5px solid ${k.id === wert ? C.see : C.linie}`, background: an ? C.himmel : C.weiss, overflow: "hidden" }}>
-                <div style={{ display: "flex", alignItems: "stretch" }}>
-                  <button type="button" onClick={() => waehle(k.id, null)} aria-pressed={an}
-                    style={{ ...knopfBasis, flex: 1, minWidth: 0, display: "flex", alignItems: "center", gap: 10, textAlign: "left", minHeight: 44, padding: "7px 6px 7px 10px",
-                      border: "none", borderRadius: 0, background: "transparent", color: C.tinte, fontWeight: 600 }}>
-                    <span data-kein-i18n style={{ flexShrink: 0, width: 34, textAlign: "center", fontSize: 12.5, fontWeight: 800, color: k.id === wert ? C.see : C.grau, letterSpacing: "0.04em" }}>{roemisch(k.nr)}</span>
-                    <span style={{ flex: 1, minWidth: 0 }}>
-                      <span style={{ display: "block", fontSize: 14.5, lineHeight: 1.25 }}>{k.titel}</span>
-                      <span style={{ display: "block", fontSize: 12, fontWeight: 400, color: C.grau, marginTop: 1, lineHeight: 1.3 }}>{k.zeile}</span>
-                    </span>
-                  </button>
-                  {teile.length > 0 && (
-                    <button type="button" onClick={() => setOffen(teileAuf ? null : k.id)} aria-expanded={teileAuf}
-                      aria-label={`${englisch() ? (teileAuf ? "Hide subtopics" : "Show subtopics") : teileAuf ? "Unterthemen zuklappen" : "Unterthemen zeigen"}: ${k.titel}`} title={teileAuf ? "Zuklappen" : "Unterthemen"}
-                      style={{ ...knopfBasis, flexShrink: 0, width: 46, display: "flex", alignItems: "center", justifyContent: "center", border: "none", borderLeft: `1px solid ${C.linie}`,
-                        borderRadius: 0, background: teileAuf ? C.himmel : "transparent" }}>
-                      <Pfeil auf={teileAuf} gross={16} />
-                    </button>
-                  )}
-                </div>
-                {teileAuf && (
-                  <div className="auftauchen" style={{ display: "grid", gap: 4, padding: "2px 8px 8px 44px", background: teileAuf ? "#F6F9FE" : "transparent", borderTop: `1px solid ${C.linie}` }}>
-                    {teile.map((u) => {
-                      const uan = u.id === teil;
-                      return (
-                        <button key={u.id} type="button" onClick={() => waehle(k.id, u.id)} aria-pressed={uan} className="qf-balken"
-                          style={{ ...knopfBasis, display: "flex", alignItems: "center", gap: 8, width: "100%", textAlign: "left", minHeight: 34, padding: "5px 10px",
-                            marginTop: 4, borderRadius: 8, fontSize: 13.5, fontWeight: uan ? 700 : 500,
-                            border: `1px solid ${uan ? C.see : C.linie}`, background: uan ? C.see : C.weiss, color: uan ? C.weiss : C.tinte }}>
-                          <span style={{ flex: 1, minWidth: 0, lineHeight: 1.25 }}>{u.titel}</span>
-                          {u.gen.length > 0 && <span aria-label="mit Übungen" title="Mit Übungsaufgaben" style={{ flexShrink: 0, width: 7, height: 7, borderRadius: 999, background: uan ? C.flaggold : C.flaggold }} />}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-          <p style={{ margin: "4px 2px 0", fontSize: 11.5, color: C.hellgrau, lineHeight: 1.5 }}>
-            Reihenfolge wie im Lambacher Schweizer (Baden-Württemberg); je nach Schule kann sie abweichen. Pfeil rechts: Unterthemen, goldener Punkt: mit Übungsaufgaben.
-          </p>
-        </div>
-      )}
-    </div>
-  );
-}
 
 /* ---------- Trainingsplan: Themen zum Anhaken ----------
    Kapitel antippen klappt die Unterthemen auf; das Kästchen links hakt das ganze Kapitel an oder ab
@@ -320,93 +238,91 @@ function mitFormelauswahl(liste, kapitelId, schulart, klasse) {
   return [...ohne.slice(0, pos), zeile, ...ohne.slice(pos)];
 }
 
-/* Alle Hilfen der App zu einem Kapitel */
-function Hilfen({ kapitelId, wz, gehe, schulart, klasse }) {
-  let liste = mitFormelauswahl(hilfenFuer(kapitelId), kapitelId, schulart, klasse);
-  // Werkzeug des gewählten Unterthemas zuerst
-  const w = wz && WERKZEUGE[wz];
-  if (w) liste = [{ art: "werkzeug", id: wz, name: w.name, zeile: w.zeile, ziel: w.ziel, etikett: w.etikett }, ...liste.filter((h) => h.id !== wz)];
-  const t = THEMEN[kapitelId];
-  if (!t) return null;
-  const werkzeuge = liste.filter((h) => h.art === "werkzeug");
-  const seiten = liste.filter((h) => h.art === "seite");
-  const Zeile = ({ h, gold }) => (
-    <button type="button" onClick={() => gehe(h.ziel)}
-      style={{ ...knopfBasis, width: "100%", display: "flex", alignItems: "center", gap: 10, textAlign: "left", minHeight: 48, padding: "8px 10px 8px 12px",
-        borderRadius: 12, border: `1.5px solid ${gold ? C.flaggold : C.linie}`, background: gold ? "#FFFBEA" : C.weiss, fontWeight: 600 }}>
+/* Trainings-Werkzeuge eines Kapitels: zuerst „5 Aufgaben zum Kapitel“ (falls es Trainer-Aufgaben gibt)
+   und „Trainingsplan zu diesem Kapitel“, dann alle Werkzeuge und Seiten aus schulbuch.js;
+   die Formelsammlungs-Bereiche als eine Zeile. */
+export function werkzeugeZumKapitel(kapitelId, schulart, klasse) {
+  const liste = mitFormelauswahl(hilfenFuer(kapitelId), kapitelId, schulart, klasse);
+  const training = sacheGeneratoren(kapitelId, null).length
+    ? [{ art: "training", id: "trainieren", name: "5 Aufgaben zum Kapitel", zeile: "Mit Hinweisen, Lösungsweg und Rückmeldung zu deinem Fehler",
+        ziel: { ansicht: "trainieren", kapitel: kapitelId, teil: null, schulart, klasse } }]
+    : [];
+  if (unterthemen(kapitelId).length)
+    training.push({ art: "plan", id: "trainingsplan", name: "Trainingsplan zu diesem Kapitel", zeile: "Themen anhaken, Warm-up, Basis-Check und Wiederholungen nach Ebbinghaus", stern: true });
+  return [...training, ...liste.filter((h) => h.art === "werkzeug"), ...liste.filter((h) => h.art === "seite")];
+}
+
+const Stern = () => (
+  <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
+    <path d="M12 2.6l2.9 5.9 6.5.95-4.7 4.6 1.1 6.45L12 17.45 6.2 20.5l1.1-6.45-4.7-4.6 6.5-.95z" fill={C.flaggold} />
+  </svg>
+);
+
+function WerkzeugZeile({ h, gold, waehle }) {
+  return (
+    <button type="button" onClick={() => waehle(h)} className="qf-balken"
+      style={{ ...knopfBasis, width: "100%", display: "flex", alignItems: "center", gap: 10, textAlign: "left", minHeight: 46, padding: "7px 10px 7px 12px",
+        borderRadius: 10, border: `1.5px solid ${gold ? C.flaggold : C.linie}`, background: gold ? "#FFFBEA" : C.weiss, fontWeight: 600 }}>
       <span style={{ flex: 1, minWidth: 0 }}>
-        <span style={{ display: "block", fontSize: 14.5, color: C.tinte, lineHeight: 1.25 }}>{h.name}</span>
+        <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 14.5, color: C.tinte, lineHeight: 1.25 }}>{h.name}{h.stern && <Stern />}</span>
         <span style={{ display: "block", fontSize: 12, fontWeight: 400, color: C.grau, marginTop: 1, lineHeight: 1.3 }}>{h.zeile}</span>
       </span>
       {h.etikett && <span style={{ flexShrink: 0, fontSize: 10.5, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: C.see, padding: "3px 7px", borderRadius: 999, background: C.himmel }}>{ETIKETT_NAME[h.etikett]}</span>}
       <span aria-hidden="true" style={{ flexShrink: 0, fontSize: 20, color: gold ? "#8A6A00" : C.see }}>›</span>
     </button>
   );
-  return (
-    <div className="auftauchen" style={{ marginTop: 14 }}>
-      <p style={{ ...KICKER, marginBottom: 8 }}>Dafür hilft dir in der App</p>
-      {werkzeuge.length > 0 && (
-        <div style={{ display: "grid", gap: 6 }}>
-          {werkzeuge.map((h, i) => <Zeile key={h.id} h={h} gold={i === 0} />)}
-        </div>
-      )}
-      {seiten.length > 0 && (
-        <div style={{ display: "grid", gap: 6, marginTop: werkzeuge.length ? 10 : 0 }}>
-          {seiten.map((h, i) => <Zeile key={h.id} h={h} gold={!werkzeuge.length && i === 0} />)}
-        </div>
-      )}
-    </div>
-  );
 }
 
-/* ---------- Die beiden Modus-Knöpfe: einzeilig, so hoch wie eine Klassen-Box ---------- */
-const MODI = [
-  { id: "sache", name: "Eine Sache üben" },
-  { id: "plan", name: "Trainingsplan", stern: true },
-];
-const Stern = ({ farbe }) => (
-  <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
-    <path d="M12 2.6l2.9 5.9 6.5.95-4.7 4.6 1.1 6.45L12 17.45 6.2 20.5l1.1-6.45-4.7-4.6 6.5-.95z" fill={farbe} />
-  </svg>
-);
-function ModusWahl({ wert, setze }) {
+/* Menü: alle Kapitel der gewählten Klasse untereinander; ein Kapitel klappt auf und zeigt seine Werkzeuge.
+   Immer nur ein Kapitel offen; das offene Kapitel bleibt gespeichert. */
+function KapitelMenue({ schulart, klasse, offen, setOffen, gehe, planOeffnen }) {
+  const kapitel = kapitelFuer(schulart, klasse);
+  const s = schulartVon(schulart);
+  const box = klassenBoxen(schulart).find((b) => b.id === klasse);
+  const refs = useRef({});
+  useEffect(() => {
+    if (!offen) return;
+    const el = refs.current[offen];
+    if (!el) return;
+    requestAnimationFrame(() => { const r = el.getBoundingClientRect(); if (r.top < 0) el.scrollIntoView({ block: "start", behavior: "smooth" }); });
+  }, [offen]);
   return (
-    <div role="group" aria-label="Wie willst du trainieren?" className="qf-modi" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-      {MODI.map((m) => {
-        const an = m.id === wert;
-        return (
-          <button key={m.id} type="button" aria-pressed={an} onClick={() => setze(m.id)} className="qf-taste"
-            style={{ ...knopfBasis, height: HOEHE, display: "flex", alignItems: "center", justifyContent: "center", gap: 7, padding: "0 10px", borderRadius: 10,
-              border: `${LINIE}px solid ${C.see}`, background: an ? C.see : C.weiss, color: an ? C.weiss : C.see, fontSize: 14, fontWeight: 800,
-              whiteSpace: "nowrap", minWidth: 0, boxShadow: an ? "0 4px 12px rgba(0,77,152,0.25)" : "none" }}>
-            <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{m.name}</span>
-            {m.stern && <Stern farbe={C.flaggold} />}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-/* ---------- Eine Sache trainieren ---------- */
-function SacheKarte({ q, gehe }) {
-  const k = THEMEN[q.kapitel];
-  const u = q.teil ? unterthema(q.teil) : null;
-  const ids = sacheGeneratoren(q.kapitel, q.teil);
-  const titel = u ? u.titel : k.titel;
-  return (
-    <div className="auftauchen" style={{ marginTop: 12, borderRadius: 14, padding: "14px 14px 12px", background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)`, color: C.weiss }}>
-      <p style={{ ...KICKER, color: C.flaggold }}>Eine Sache trainieren</p>
-      <p style={{ fontSize: 17, fontWeight: 700, marginTop: 6, lineHeight: 1.25 }}>{titel}</p>
-      <p style={{ fontSize: 12.5, color: "#C9D6EE", marginTop: 3, lineHeight: 1.45 }}>
-        {ids.length ? `${ids.length} Aufgaben mit Hinweisen, Lösungsweg und Rückmeldung zu deinem Fehler` : "Noch keine Trainer-Aufgaben – unten üben die passenden Werkzeuge genau das."}
+    <div className="auftauchen" style={{ marginTop: 6 }}>
+      <p style={{ ...KICKER, color: C.grau, marginBottom: 8 }}>
+        Kapitel im Buch · Klasse <span data-kein-i18n>{box ? box.label : ""} · {s ? s.name : ""}</span>
       </p>
-      {ids.length > 0 && (
-        <button type="button" onClick={() => gehe({ ansicht: "trainieren", kapitel: q.kapitel, teil: q.teil, schulart: q.schulart, klasse: q.klasse })}
-          style={{ ...knopfBasis, width: "100%", minHeight: 46, marginTop: 12, border: "none", background: C.flaggold, color: C.seeTief, fontSize: 15, fontWeight: 800, boxShadow: "0 4px 14px rgba(237,187,0,0.3)" }}>
-          Jetzt trainieren ›
-        </button>
-      )}
+      <div role="list" aria-label="Kapitel im Buch" style={{ display: "grid", gap: 6 }}>
+        {kapitel.map((k) => {
+          const auf = offen === k.id;
+          const werkzeuge = auf ? werkzeugeZumKapitel(k.id, schulart, klasse) : [];
+          return (
+            <div key={k.id} role="listitem" ref={(el) => { refs.current[k.id] = el; }}
+              style={{ borderRadius: 12, border: `1.5px solid ${auf ? C.see : C.linie}`, background: C.weiss, overflow: "hidden",
+                boxShadow: auf ? "0 4px 14px rgba(0,77,152,0.12)" : "none", scrollMarginTop: 12 }}>
+              <button type="button" onClick={() => setOffen(auf ? null : k.id)} aria-expanded={auf}
+                style={{ ...knopfBasis, width: "100%", display: "flex", alignItems: "center", gap: 10, textAlign: "left", minHeight: 52, padding: "8px 14px 8px 8px",
+                  border: "none", borderRadius: 0, background: auf ? C.himmel : "transparent", color: C.tinte }}>
+                <span data-kein-i18n style={{ flexShrink: 0, width: 36, textAlign: "center", fontSize: 12.5, fontWeight: 800, color: auf ? C.see : C.grau, letterSpacing: "0.04em" }}>{roemisch(k.nr)}</span>
+                <span style={{ flex: 1, minWidth: 0 }}>
+                  <span style={{ display: "block", fontSize: 15, fontWeight: 700, lineHeight: 1.25, color: auf ? C.see : C.tinte }}>{k.titel}</span>
+                  <span style={{ display: "block", fontSize: 12, fontWeight: 400, color: C.grau, marginTop: 2, lineHeight: 1.3 }}>{k.zeile}</span>
+                </span>
+                <Pfeil auf={auf} />
+              </button>
+              {auf && (
+                <div className="auftauchen" style={{ display: "grid", gap: 6, padding: "10px 10px 12px", borderTop: `1px solid ${C.linie}`, background: "#F6F9FE" }}>
+                  <p style={{ ...KICKER, fontSize: 10.5, margin: "0 2px 2px" }}>Trainings-Werkzeuge zu diesem Kapitel</p>
+                  {werkzeuge.map((h, i) => <WerkzeugZeile key={h.art + h.id} h={h} gold={i === 0}
+                    waehle={(x) => (x.art === "plan" ? planOeffnen(k.id) : gehe(x.ziel))} />)}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <p style={{ margin: "8px 2px 0", fontSize: 11.5, color: C.hellgrau, lineHeight: 1.5 }}>
+        Reihenfolge wie im Lambacher Schweizer (Baden-Württemberg); je nach Schule kann sie abweichen.
+      </p>
     </div>
   );
 }
@@ -533,70 +449,79 @@ function PlanKarte({ q, auswahl, gehe, aktiv }) {
   );
 }
 
-/* setzeStufe: stellt den Stufen-Schalter der Startseite (Mittel-/Oberstufe) mit ein.
-   links: Überschrift der Kachel; darunter der Text. unten: kleiner Link zu „Mein Training“ (unter dem Kopf).
-   Ab 600 px zwei Spalten (Raster-Bereiche): rechts oben der Schulsystem-Balken auf Höhe der Überschrift,
-   darunter die Klassen; links unten die Modus-Knöpfe, deren Unterkante mit den Klassen abschließt.
-   Darunter einspaltig: Überschrift, Text, Schulsystem, Klassen, Modus-Knöpfe. */
+/* setzeStufe: stellt den Stufen-Schalter der Startseite (Unter-/Mittel-/Oberstufe) mit ein.
+   links: Überschrift der Kachel. unten: kleiner Link zu „Mein Training“.
+   Ab 600 px zwei Spalten: rechts oben der Schulsystem-Balken auf Höhe der Überschrift, darunter die Klassen.
+   Darunter einspaltig: Überschrift, Text, Schulsystem, Klassen.
+   Nach der Klassenwahl öffnet sich das Kapitel-Menü. „Trainingsplan zu diesem Kapitel“ wechselt in den
+   Plan-Modus (Themen zum Anhaken, das Kapitel ist schon angehakt) – „‹ Zurück zu den Kapiteln“ führt zurück. */
 export function Quickfinder({ gehe, setzeStufe, links, unten }) {
   const [q, setQ] = useState(() => lesen() || { schulart: null, klasse: null, kapitel: null, teil: null, modus: modusLesen(), auswahl: auswahlOhneSchulart() });
   const aktiv = useAktiverPlan();
+  const menueRef = useRef(null);
   const setze = (neu) => { setQ(neu); schreiben(neu); };
   const schulartSetzen = (id) => {
     if (id === q.schulart) return;
-    // Die Klasse bleibt, wenn es sie im neuen Schulsystem gibt (z. B. 8 oder Abi); sonst neu wählen
+    // Die Klasse bleibt, wenn es sie im neuen Schulsystem gibt (z. B. 8 oder 12); sonst neu wählen
     const bleibt = klassenBoxen(id).some((b) => b.id === q.klasse) ? q.klasse : null;
     setze({ ...q, schulart: id, klasse: bleibt, kapitel: null, teil: null });
   };
   const klasseSetzen = (id) => {
+    if (id === q.klasse) return;
     setze({ ...q, klasse: id, kapitel: null, teil: null });
     const box = klassenBoxen(q.schulart).find((b) => b.id === id);
     if (box && setzeStufe) setzeStufe(stufeAusKlassenBox(box));
   };
   const plan = q.modus === "plan";
-  const u = q.teil ? unterthema(q.teil) : null;
   const auswahl = q.auswahl || [];
-  // Wechsel zu „Trainingsplan“: Ist noch nichts angehakt, wird das gerade gewählte Kapitel bzw. Unterthema übernommen
-  const modusSetzen = (m) => {
-    const vorbelegt = m === "plan" && !auswahl.length && q.kapitel ? (q.teil ? [q.teil] : unterthemen(q.kapitel).map((x) => x.id)) : auswahl;
-    setze({ ...q, modus: m, auswahl: vorbelegt });
+  const nachOben = () => requestAnimationFrame(() => { const el = menueRef.current; if (el && el.getBoundingClientRect().top < 0) el.scrollIntoView({ block: "start", behavior: "smooth" }); });
+  // „Trainingsplan zu diesem Kapitel“: alle Unterthemen des Kapitels anhaken (bisher Angehaktes bleibt)
+  const planOeffnen = (kId) => {
+    const ids = unterthemen(kId).map((x) => x.id);
+    setze({ ...q, modus: "plan", auswahl: [...auswahl, ...ids.filter((id) => !auswahl.includes(id))] });
+    nachOben();
   };
+  const zurueck = () => { setze({ ...q, modus: "sache" }); nachOben(); };
   return (
     <>
-      <style>{`.qf-kopf{display:grid;grid-template-columns:minmax(0,1fr);grid-template-areas:"kopf" "schul" "klass" "modi";row-gap:10px;padding:16px 16px 6px}
-        .qf-kopf>.qf-a-kopf{grid-area:kopf;margin-bottom:4px}.qf-kopf>.qf-a-schul{grid-area:schul}.qf-kopf>.qf-a-klass{grid-area:klass}.qf-kopf>.qf-a-modi{grid-area:modi;margin-top:4px}
-        @media (min-width:600px){.qf-kopf{grid-template-columns:minmax(0,1fr) 250px;grid-template-rows:auto 1fr auto;grid-template-areas:"kopf schul" "kopf klass" "modi klass";column-gap:22px;row-gap:12px}
-          .qf-kopf>.qf-a-kopf{margin-bottom:0}.qf-kopf>.qf-a-klass,.qf-kopf>.qf-a-modi{align-self:end;margin-top:0}}
-        @media (min-width:840px){.qf-kopf{grid-template-columns:minmax(0,1fr) 270px;padding:18px 18px 6px 20px;column-gap:28px}}
-        @media (hover:hover){.qf-taste:hover{transform:translateY(-1px)}.qf-balken:hover{border-color:${C.see} !important}
-          .qf-sa[aria-pressed="false"]:hover{background:rgba(255,255,255,0.14) !important}
-          .qf-kl[aria-pressed="false"]:hover{filter:brightness(0.95)}}
-        .qf-unten{padding:0 16px}@media (min-width:840px){.qf-unten{padding:0 18px 0 20px}}
-        .qf-taste{transition:transform .12s ease, background .12s ease, color .12s ease}`}</style>
+      <style>{`.qf-kopf{display:grid;grid-template-columns:minmax(0,1fr);grid-template-areas:"kopf" "schul" "klass";row-gap:10px;padding:16px 16px 6px}
+        .qf-kopf>.qf-a-kopf{grid-area:kopf;margin-bottom:4px}.qf-kopf>.qf-a-schul{grid-area:schul}.qf-kopf>.qf-a-klass{grid-area:klass}
+        @media (min-width:600px){.qf-kopf{grid-template-columns:minmax(0,1fr) 280px;grid-template-rows:auto 1fr;grid-template-areas:"kopf schul" "kopf klass";column-gap:22px;row-gap:10px}
+          .qf-kopf>.qf-a-kopf{margin-bottom:0}.qf-kopf>.qf-a-klass{align-self:start}}
+        @media (min-width:840px){.qf-kopf{grid-template-columns:minmax(0,1fr) 300px;padding:18px 18px 6px 20px;column-gap:28px}}
+        .qf-unten{padding:0 16px}.qf-menue{padding:0 16px 16px;scroll-margin-top:12px}
+        @media (min-width:840px){.qf-unten{padding:0 18px 0 20px}.qf-menue{padding:0 18px 18px 20px}}
+        @media (hover:hover){.qf-balken:hover{border-color:${C.see} !important}
+          .qf-sa[aria-pressed="false"]:hover{background:rgba(255,255,255,0.1) !important}
+          .qf-kl[aria-pressed="false"]:hover{border-color:${C.see}55 !important}}`}</style>
       <div className="qf-kopf">
         <div className="qf-a-kopf" style={{ minWidth: 0 }}>
           {links}
           <p style={{ margin: "10px 0 0", fontSize: 13.5, fontWeight: 300, lineHeight: 1.55, color: C.grau }}>
             {plan
-              ? "Wähle deine Klasse und hake an, was in den Plan soll – ganze Kapitel, einzelne Unterthemen, auch mehrere Kapitel. Ich ergänze Warm-up, Basis-Check und Wiederholungen nach Ebbinghaus."
-              : "Wähle dein Schulsystem und deine Klasse, dann das Kapitel – oder mit dem Pfeil genau das Unterthema, das du üben willst."}
+              ? "Hake an, was in deinen Plan soll – ganze Kapitel, einzelne Unterthemen, auch mehrere Kapitel. Ich ergänze Warm-up, Basis-Check und Wiederholungen nach Ebbinghaus."
+              : "Wähle dein Schulsystem und deine Klasse. Dann siehst du alle Kapitel aus deinem Buch – und zu jedem Kapitel die Werkzeuge, mit denen du es trainierst."}
           </p>
         </div>
         <div className="qf-a-schul"><SchulartWahl wert={q.schulart} setze={schulartSetzen} /></div>
         <div className="qf-a-klass"><KlassenWahl schulart={q.schulart} wert={q.klasse} setze={klasseSetzen} /></div>
-        <div className="qf-a-modi"><ModusWahl wert={q.modus} setze={modusSetzen} /></div>
       </div>
       {unten && <div className="qf-unten" style={{ display: "flex" }}>{unten}</div>}
-      {(q.schulart && q.klasse) || (plan && aktiv) ? (
-        <div style={{ padding: "0 16px 16px" }}>
-          {plan && aktiv && <AktiverPlan v={aktiv} gehe={gehe} />}
-          {q.schulart && q.klasse && (
+      {(q.schulart && q.klasse) || aktiv ? (
+        <div className="qf-menue" ref={menueRef}>
+          {aktiv && <AktiverPlan v={aktiv} gehe={gehe} />}
+          {q.schulart && q.klasse && !plan && (
+            <KapitelMenue key={q.schulart + q.klasse} schulart={q.schulart} klasse={q.klasse} offen={q.kapitel} gehe={gehe} planOeffnen={planOeffnen}
+              setOffen={(id) => setze({ ...q, kapitel: id, teil: null })} />
+          )}
+          {q.schulart && q.klasse && plan && (
             <>
-              {!plan && <KapitelWahl key={q.schulart + q.klasse} schulart={q.schulart} klasse={q.klasse} wert={q.kapitel} teil={q.teil} setze={(id, teil) => setze({ ...q, kapitel: id, teil })} />}
-              {plan && <PlanAuswahl key={q.schulart + q.klasse} schulart={q.schulart} klasse={q.klasse} auswahl={auswahl} setzeAuswahl={(a) => setze({ ...q, auswahl: a })} />}
-              {q.kapitel && !plan && <SacheKarte q={q} gehe={gehe} />}
-              {plan && auswahl.length > 0 && <PlanKarte q={q} auswahl={auswahl} gehe={gehe} aktiv={aktiv} />}
-              {q.kapitel && !plan && <Hilfen kapitelId={q.kapitel} wz={u && u.wz} gehe={gehe} schulart={q.schulart} klasse={q.klasse} />}
+              <button type="button" onClick={zurueck}
+                style={{ ...knopfBasis, display: "inline-flex", alignItems: "center", gap: 6, marginTop: 12, padding: "4px 0", border: "none", background: "none", fontSize: 13, color: C.see }}>
+                <span aria-hidden="true">‹</span> Zurück zu den Kapiteln
+              </button>
+              <PlanAuswahl key={q.schulart + q.klasse} schulart={q.schulart} klasse={q.klasse} auswahl={auswahl} setzeAuswahl={(a) => setze({ ...q, auswahl: a })} />
+              {auswahl.length > 0 && <PlanKarte q={q} auswahl={auswahl} gehe={gehe} aktiv={aktiv} />}
             </>
           )}
         </div>

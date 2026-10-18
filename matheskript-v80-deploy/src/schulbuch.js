@@ -20,14 +20,12 @@ export const SCHULARTEN = [
 ];
 export const SCHULART_STANDARD = "g9";
 
-/* Acht Klassenboxen je Schulart. G8: 5 … 12 (11 und 12 = Kursstufe, gold).
-   G9 und GMS: 5/6 als eine Box, dann 7 … 13 (12 und 13 gold). */
+/* Klassenboxen je Schulart, immer mit 5/6 als einer Box. G8: 5/6 … 12 (sieben Boxen, 11 und 12 = Kursstufe, gold).
+   G9 und GMS: 5/6 … 13 (acht Boxen, 12 und 13 gold). Eine eigene Abi-Box gibt es nicht mehr. */
 export function klassenBoxen(schulart) {
   const s = SCHULARTEN.find((x) => x.id === schulart) || SCHULARTEN[1];
-  const klassen = schulart === "g8" ? [[5], [6], [7], [8], [9], [10], [11], [12]] : [[5, 6], [7], [8], [9], [10], [11], [12], [13]];
-  const boxen = klassen.map((ks) => ({ id: ks.join("-"), label: ks.join("/"), klassen: ks, gold: ks.some((k) => s.kursstufe.includes(k)) }));
-  // Nach dem letzten Jahrgang: eigene Box „Abi“ (alle Abi-Themen der Kursstufe, Abiturvorbereitung zuerst)
-  return [...boxen, { id: "abi", label: "Abi", klassen: [s.kursstufe[1]], gold: true, abi: true }];
+  const klassen = schulart === "g8" ? [[5, 6], [7], [8], [9], [10], [11], [12]] : [[5, 6], [7], [8], [9], [10], [11], [12], [13]];
+  return klassen.map((ks) => ({ id: ks.join("-"), label: ks.join("/"), klassen: ks, gold: ks.some((k) => s.kursstufe.includes(k)) }));
 }
 export const schulart = (id) => SCHULARTEN.find((x) => x.id === id) || null;
 export const stufeAusKlassenBox = (box) => (!box ? "alle" : box.klassen[0] <= 7 ? "unter" : box.klassen[0] <= 10 ? "mittel" : "ober");
@@ -122,15 +120,13 @@ export const THEMEN = {
 
 /* ---------- Welche Kapitel in welcher Klasse ---------- */
 const G8 = {
-  5: ["natzahlen", "rechnen", "groessen", "figuren", "flaechen", "ganze", "brueche", "daten"],
-  6: ["bruchrechnen", "dezimal", "rational", "winkelkreis", "koerper", "teilbarkeit", "daten"],
+  "5-6": ["natzahlen", "rechnen", "groessen", "figuren", "flaechen", "ganze", "brueche", "bruchrechnen", "dezimal", "rational", "winkelkreis", "koerper", "teilbarkeit", "daten"],
   7: ["prozent", "zuordnungen", "linfkt", "termegl", "dreiecke", "wkt1"],
   8: ["binom", "wurzeln", "bruchterme", "quad", "lgs2", "kreis", "prismen"],
   9: ["potenzen", "strahlen", "pythagoras", "potfkt", "explog", "trig", "wkt2"],
   10: ["ganzrat", "diff1", "ablregeln", "sinfkt", "kugel", "zufallsgr"],
   11: ["ksDiff", "ksExp", "ksInt", "ksFkt", "ksWkt"],
   12: ["ksLgs", "ksGeraden", "ksAbstand", "ksTest", "ksNormal", "ksAbi"],
-  abi: ["ksAbi", "ksDiff", "ksExp", "ksInt", "ksFkt", "ksLgs", "ksGeraden", "ksAbstand", "ksWkt", "ksTest", "ksNormal"],
 };
 const G9 = {
   "5-6": ["natzahlen", "rechnen", "groessen", "figuren", "flaechen", "ganze", "brueche", "bruchrechnen", "dezimal", "winkelkreis", "koerper", "daten"],
@@ -141,7 +137,6 @@ const G9 = {
   11: ["ganzrat", "diff1", "ablregeln", "ksDiff", "vek1", "ksWkt"],
   12: ["ksExp", "ksInt", "ksFkt", "ksLgs", "ksGeraden"],
   13: ["ksAbstand", "ksTest", "ksNormal", "ksAbi"],
-  abi: ["ksAbi", "ksDiff", "ksExp", "ksInt", "ksFkt", "ksLgs", "ksGeraden", "ksAbstand", "ksWkt", "ksTest", "ksNormal"],
 };
 export const PLAN = { g8: G8, g9: G9, gms: G9 };
 

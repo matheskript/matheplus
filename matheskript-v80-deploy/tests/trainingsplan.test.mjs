@@ -60,7 +60,8 @@ test("Plan ohne Termin: Reihenfolge der Phasen, Ebbinghaus-Abstände nach dem Ke
     const box = Object.entries(PLAN[schulart]).find(([b, ids]) => b !== "abi" && ids.includes(k));
     const kl = box ? Number(box[0].split("-")[0]) : 13;
     if (kl >= 7) assert.ok(p.einheiten[0].gen.length >= 1, `${k}: Warm-up ohne Aufgaben`);
-    if (kl <= 5) assert.equal(p.einheiten[0].gen.length, 0, `${k}: Warm-up zu schwer für Klasse ${kl}`);
+    // G8 fasst die Bände 5 und 6 in der Box 5/6 zusammen: Kapitel aus Band 6 haben dort echtes Vorwissen
+    if (kl <= 5 && schulart !== "g8") assert.equal(p.einheiten[0].gen.length, 0, `${k}: Warm-up zu schwer für Klasse ${kl}`);
   }
 });
 
