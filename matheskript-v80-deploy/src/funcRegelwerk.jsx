@@ -124,7 +124,10 @@ ${POP_CSS}
 .wk-voll-oben{flex:0 0 auto;display:flex;flex-direction:column;gap:6px}
 .wk-voll .wk-grid{gap:6px 4px}
 .wk-voll .wk-grid.kette{align-items:center}
-.wk-voll .wk-feld{min-height:0;height:44px;padding:0 10px;gap:6px}
+.wk-voll-f{display:flex;align-items:center;gap:8px;height:38px;padding:0 12px;border-radius:12px;background:${C.sand};overflow-x:auto;white-space:nowrap;box-sizing:border-box}
+.wk-voll-f-label{flex:0 0 auto;font-size:15px;font-weight:700;color:${C.see}}
+.wk-voll-f-term{flex:0 0 auto;font-size:17px;font-weight:700;color:${C.tinte}}
+.wk-voll .wk-feld{min-height:0;height:38px;padding:0 10px;gap:6px}
 .wk-voll .wk-feld.mit-kopf{flex-direction:row;align-items:center;padding:0 8px}
 .wk-voll .wk-feld .wk-kopf{display:none}
 .wk-voll .wk-feld .wk-zeile1,.wk-voll .wk-feld.gestapelt .wk-zeile1{flex-direction:row;align-items:center;flex-wrap:nowrap;gap:6px}
@@ -461,7 +464,7 @@ function EingabeZeile({ box, n, ab = 3, schrift, hoehe, eingabe }) {
 function AusrichtBlock({ kopf, unten, ergebnis, teile, kompakt, eingabe }) {
   const n = kopf.length;
   const box = { gridColumn: `1 / ${n + 2}`, display: "grid", gridTemplateColumns: "subgrid", alignItems: "center", padding: kompakt ? "0 10px" : "12px 10px", borderRadius: 16,
-    ...(kompakt ? { border: "1.5px solid transparent", minHeight: 44, boxSizing: "border-box" } : null) };
+    ...(kompakt ? { border: "1.5px solid transparent", minHeight: 38, boxSizing: "border-box" } : null) };
   const plus = kopf.indexOf("+") + 1;                          // Spalte des „+“ (0 = keins)
   const geteilt = teile && plus > 0 && n === 9;
   const gleich = (hell) => <span style={{ ...ZELLE, gridColumn: 2, padding: lueckeVon("="), color: hell ? C.hellgrau : undefined, fontWeight: hell ? 400 : 700 }}><M t="=" /></span>;
@@ -780,6 +783,12 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
     <div className="wk-voll" role="dialog" aria-modal="true" aria-label="f′(x) eingeben">
       <style>{WERK_CSS}</style>
       <div className="wk-voll-oben">
+        <div className="wk-voll-f" aria-label="Funktion f(x)">
+          <span className="wk-voll-f-label"><M t="f(x) =" /></span>
+          <span className="wk-voll-f-term">
+            <M t={art === "produkt" ? `${fakTex(schoen(u))} \\cdot ${fakTex(schoen(v))}` : fTex} />
+          </span>
+        </div>
         <div className={`wk-grid${kette ? " kette" : ""}`}>
           {mitU && <>
             {uvFeld("u", uText, setUText)}
@@ -805,11 +814,11 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
             : (
               <>
                 <div style={{ background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 16, border: "1.5px solid transparent",
-                  padding: "0 16px", minHeight: 44, display: "flex", alignItems: "center", overflowX: "hidden", boxSizing: "border-box" }}>
+                  padding: "0 16px", minHeight: 38, display: "flex", alignItems: "center", overflowX: "hidden", boxSizing: "border-box" }}>
                   <span style={{ color: C.weiss, fontSize: 16, fontWeight: 700, whiteSpace: "nowrap", lineHeight: 1.6 }}><M t={R.formel} /></span>
                 </div>
                 <div role="button" tabIndex={0} aria-label="f′(x) – Eingabe schließen" onClick={vollEingabe.onClick}
-                  style={{ display: "flex", alignItems: "center", gap: 10, minHeight: 56, padding: "0 16px", borderRadius: 16, background: C.weiss, cursor: "pointer",
+                  style={{ display: "flex", alignItems: "center", gap: 10, minHeight: 46, padding: "0 16px", borderRadius: 16, background: C.weiss, cursor: "pointer",
                     border: `1.5px solid ${felder.f1.status === "falsch" ? C.signal : C.see}`, boxShadow: "0 4px 16px rgba(0,77,152,0.14)", boxSizing: "border-box" }}>
                   <span style={{ fontSize: 16, fontWeight: 700, whiteSpace: "nowrap" }}><M t="f′(x) =" /></span>
                   <span style={{ flex: 1, minWidth: 0, overflowX: "auto", whiteSpace: "nowrap", fontSize: 17 }}>{vollEingabe.inhalt}</span>
