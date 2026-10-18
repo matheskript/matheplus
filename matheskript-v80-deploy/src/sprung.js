@@ -95,6 +95,7 @@ export const SPRUENGE = {
   "ansicht-schalter":        { an: true,  art: "seite", wo: "Startseite unten: Testknopf „Ansicht: Erstbesuch/Wiederkehrer“; Entwürfe nach Passwort" },
 
   /* ---------------- Sprungmarken ---------------- */
+  "diffkurs-aufgabentool":   { an: true,  art: "anker", wo: "Kurs Differentialrechnung → Aufgaben: „Neue Aufgaben dieses Typs üben“ an einer Buchaufgabe führt zum Aufgabentool darunter" },
   "anker":                   { an: true,  art: "anker", wo: "Inhaltsverzeichnisse und Sprungknöpfe: Landingpage, Elternabend „Platz sichern“, Ebbinghaus-Navi, Pen & Paper, Formelsammlung-Gruppen, Entwürfe, Startseite-Archiv, Text-Mathilda-Stellen, Kapiteltraining „nächste Einheit“" },
 
   /* ---------------- Im Blick halten ---------------- */

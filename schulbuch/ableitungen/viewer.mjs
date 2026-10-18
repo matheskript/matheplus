@@ -12,6 +12,7 @@ fs.rmSync(OUT, { recursive: true, force: true });
 fs.mkdirSync(OUT, { recursive: true });
 fs.cpSync(path.join(DIST, "fonts"), path.join(OUT, "fonts"), { recursive: true });
 fs.copyFileSync(path.join(DIST, "katex.css"), path.join(OUT, "katex.css"));
+fs.cpSync(path.join(DIST, "kurs"), path.join(OUT, "kurs"), { recursive: true });   // Aufgaben, Kästen, Lösungen je Seite (Kurs in der App)
 fs.copyFileSync(path.join(DIST, "Ableitungen.pdf"), path.join(OUT, "Ableitungen.pdf"));
 
 // Sprungziele aus den „In der App“-Kästen

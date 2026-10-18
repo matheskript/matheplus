@@ -19,3 +19,8 @@ Lösungen stehen in `loesungen.html`; `python3 loesungen-verteilen.py` verteilt 
 Seitenzahlen der Kursmodule (src/funcDiffKurs.jsx) und der Schulbuchseite (src/funcSchulbuch.jsx)
 bei Änderungen an der Seitenaufteilung aus `dist/verzeichnis.json` nachziehen.
 App-Seite: `src/funcSchulbuch.jsx`, Pfad `/schulbuch/ableitungen`.
+
+`node build.mjs` schreibt außerdem `dist/kurs/<seite>.json` (alle Aufgaben, Merke-/Achtung-/Vertiefungskästen
+und die Lösungen je Seite). `viewer.mjs` kopiert den Ordner mit; der Kurs in der App (`src/funcDiffKursUeben.jsx`)
+lädt daraus „Aufgaben“ und „Sätze und Definitionen“. Neue Aufgabe im Buch → in `src/diffAufgaben.js`
+(`BUCH_TYPEN`) einem Aufgabentyp zuordnen, damit es „Neue Aufgabe vom selben Typ“ gibt.

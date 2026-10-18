@@ -3,8 +3,10 @@
    Ein Modul je Kapitel des Schulbuchs „Ableitungen“:
      1. das Kapitel zum Lesen (Lesefunktion des Buchs, nur die Seiten
         dieses Kapitels: /buecher/ableitungen/index.html?von=…&bis=…)
-     2. darunter alle Trainingswerkzeuge zu diesem Kapitel – sie öffnen
-        sich als Pop-up-Fenster im Modul, man verlässt den Kurs nicht.
+     2. darunter „Trainieren“ mit drei Reitern (funcDiffKursUeben.jsx):
+        Werkzeuge (öffnen sich als Pop-up-Fenster im Modul), Aufgaben (alle
+        Buchaufgaben zum Aufklappen + Aufgabentool mit neuen Aufgaben vom selben
+        Typ) und Sätze und Definitionen (Merke-/Achtung-Kästen des Kapitels).
    Farben: Babyblau, Schwarz, Weiß und sehr dunkles Gold (C.babyblau …).
    Fortschritt (gelesen/geübt) liegt im localStorage dieses Geräts.
    ============================================================ */
@@ -16,6 +18,10 @@ import { lazyLaden, ChunkGrenze } from "./chunkSchutz.jsx";
 import { WZ_SEITEN, Laden } from "./funcWerkzeugSeite.jsx";
 import { springe } from "./sprung.js";
 import { WerkzeugKarte, KartenStil } from "./funcDiffKursKarten.jsx";
+import { KURS_MODULE, KAPITEL } from "./diffKursDaten.js";
+import { KursTraining } from "./funcDiffKursUeben.jsx";
+
+export { KURS_MODULE, KAPITEL };
 
 const BUCH = "/buecher/ableitungen/index.html";
 const K = { baby: C.babyblau, hell: C.babyblauHell, tief: C.babyblauTief, schwarz: C.nachtschwarz, gold: C.golddunkel, weiss: C.weiss };
@@ -68,53 +74,6 @@ export const KURS_WERKZEUGE = {
   heftSekante: heft("b02", "Arbeitsheft: Sekante und Tangente", "Baustein 02 mit Herleitung und Aufgaben"),
   heftRegeln: heft("ableitung", "Arbeitsheft: Ableitungsregeln", "Baustein 03 – das Handwerk"),
 };
-
-/* Ein Modul je Kapitel des Buchs. von/bis = Buchseiten (aus dist/verzeichnis.json des Buchs) */
-export const KURS_MODULE = [
-  { id: "geraden", kap: "I", nr: "1", titel: "Geraden und Steigung", frage: "Wie misst man, wie steil eine Gerade ist?", von: 3, bis: 5,
-    werkzeuge: ["geradenBasics", "funktionen"] },
-  { id: "geradengl", kap: "I", nr: "2", titel: "Geradengleichungen ermitteln", frage: "Was muss man wissen, um eine Gerade eindeutig festzulegen?", von: 6, bis: 7,
-    werkzeuge: ["geraden", "geradenPQ"] },
-  { id: "rate", kap: "I", nr: "3", titel: "Mittlere Änderungsrate", frage: "Wie schnell ändert sich etwas – im Durchschnitt?", von: 8, bis: 9,
-    werkzeuge: ["diffq", "geradenPQ", "funktionen"] },
-  { id: "t1", kap: "I", nr: "", titel: "Training I", frage: "Geraden und Änderungsraten – prüfe dich, bevor es mit der Ableitung losgeht.", von: 10, bis: 10,
-    werkzeuge: ["geradenPQ", "geraden", "diffq"] },
-  { id: "tangentenproblem", kap: "II", nr: "4", titel: "Das Tangentenproblem", frage: "Welche Gerade schmiegt sich in einem Punkt an eine Kurve an?", von: 11, bis: 13,
-    werkzeuge: ["zoomfilm", "geraden", "grenzwert"] },
-  { id: "diffquot", kap: "II", nr: "5", titel: "Der Differenzenquotient", frage: "Wie nähert man die unbekannte Tangentensteigung mit Sekanten an?", von: 14, bis: 15,
-    werkzeuge: ["diffq", "zoomfilm", "heftSekante"] },
-  { id: "sekante", kap: "II", nr: "6", titel: "Von der Sekante zur Tangente", frage: "Wie steil ist ein Graph in einem einzigen Punkt?", von: 16, bis: 17,
-    werkzeuge: ["diffq", "grenzwert", "heftSekante"] },
-  { id: "stelle", kap: "II", nr: "7", titel: "Die Ableitung an einer Stelle", frage: "Was verrät die Zahl f′(x₀) – und auf welchen Wegen bekommt man sie?", von: 18, bis: 19,
-    werkzeuge: ["ableitungstrainer", "graphzuordnung", "diffq", "plotter"] },
-  { id: "ableitungsfunktion", kap: "II", nr: "8", titel: "Die Ableitungsfunktion", frage: "Kann man die Steigung an allen Stellen auf einmal berechnen?", von: 20, bis: 21,
-    werkzeuge: ["graphzuordnung", "grenzwert", "ableitungstrainer", "plotter"] },
-  { id: "t2", kap: "II", nr: "", titel: "Training II", frage: "Alles klar? Prüfe dich, bevor es mit den Regeln weitergeht.", von: 22, bis: 22,
-    werkzeuge: ["graphzuordnung", "diffq", "ableitungstrainer"] },
-  { id: "faktor", kap: "III", nr: "9", titel: "Faktorregel", frage: "Was passiert mit der Steigung, wenn man einen Graphen streckt?", von: 23, bis: 25,
-    werkzeuge: ["ableitungstrainer", "heftRegeln", "terme"] },
-  { id: "summe", kap: "III", nr: "10", titel: "Summenregel", frage: "Darf man eine Summe Stück für Stück ableiten?", von: 26, bis: 27,
-    werkzeuge: ["ableitungstrainer", "parabeln", "heftRegeln", "plotter"] },
-  { id: "produkt", kap: "III", nr: "11", titel: "Produktregel", frage: "Wie leitet man ein Produkt ab?", von: 28, bis: 29,
-    werkzeuge: ["ableitungstrainer", "heftRegeln", "terme"] },
-  { id: "potenz", kap: "III", nr: "12", titel: "Potenzregel", frage: "Gibt es ein Muster hinter x², x³, x⁴, …?", von: 30, bis: 31,
-    werkzeuge: ["potenzregel", "pascal", "ableitungstrainer", "heftRegeln"] },
-  { id: "quotient", kap: "III", nr: "13", titel: "Quotientenregel", frage: "Wie leitet man einen Bruch ab, in dessen Nenner x steht?", von: 32, bis: 33,
-    werkzeuge: ["ableitungstrainer", "bruchterme", "advplotter"] },
-  { id: "kette", kap: "III", nr: "14", titel: "Kettenregel", frage: "Wie leitet man eine Funktion ab, in der eine andere steckt?", von: 34, bis: 35,
-    werkzeuge: ["ableitungstrainer", "funktionen", "advplotter"] },
-  { id: "spezielle", kap: "III", nr: "15", titel: "Sinus, Kosinus, eˣ und ln x", frage: "Gibt es Funktionen, die ihre eigene Ableitung sind?", von: 36, bis: 37,
-    werkzeuge: ["ableitungstrainer", "trigonometrie", "sinus", "wachstum"] },
-  { id: "t3", kap: "III", nr: "", titel: "Training III", frage: "Alle Regeln gemischt – so wie in der Klausur.", von: 38, bis: 38,
-    werkzeuge: ["ableitungstrainer", "rechenweg", "advplotter"] },
-  { id: "tangente", kap: "IV", nr: "16", titel: "Tangente und Normale", frage: "Wie lautet die Gleichung der Geraden, die einen Graphen berührt?", von: 39, bis: 41,
-    werkzeuge: ["geraden", "plotter", "ableitungstrainer"] },
-  { id: "vermischt", kap: "IV", nr: "17", titel: "Vermischte Übungen und Rückblick", frage: "Alles zusammen – bis zum Abiturniveau.", von: 42, bis: 43,
-    werkzeuge: ["plotter", "steckbrief", "scharen", "optimierung"] },
-  { id: "loes", kap: "L", nr: "", titel: "Lösungen", frage: "Alle Lösungen zum Nachschlagen und Vergleichen.", von: 44, bis: 48, werkzeuge: [] },
-];
-
-export const KAPITEL = { I: "Geraden und Änderungsraten", II: "Die Ableitung", III: "Ableitungsregeln", IV: "Anwenden und Üben", L: "Anhang" };
 
 /* ---------- Fortschritt ---------- */
 const SPEICHER = "mm_diffkurs";
@@ -187,7 +146,7 @@ function Uebersicht({ stand, oeffnen }) {
 
       <p style={{ color: C.grau, fontSize: 15, lineHeight: 1.75, fontWeight: 300, margin: "0 4px 18px" }}>
         Jedes Modul ist ein Kapitel aus unserem Schulbuch: Du liest es direkt hier und trainierst darunter mit den passenden Werkzeugen.
-        Ein Modul gilt als geschafft, wenn du bis zur letzten Seite gelesen und mindestens ein Werkzeug benutzt hast.
+        Ein Modul gilt als geschafft, wenn du bis zur letzten Seite gelesen und mindestens ein Werkzeug benutzt oder eine Aufgabe gelöst hast.
       </p>
 
       {kapitel.map((k) => (
@@ -208,7 +167,7 @@ function Uebersicht({ stand, oeffnen }) {
                   <span style={{ flex: 1, minWidth: 0 }}>
                     <span style={{ display: "block", fontWeight: 700, fontSize: 15.5, color: K.schwarz }}>{m.titel}</span>
                     <span style={{ display: "block", fontSize: 12.5, color: C.grau, marginTop: 2 }}>
-                      {m.bis - m.von + 1} {m.bis === m.von ? "Seite" : "Seiten"} lesen{m.werkzeuge.length ? ` · ${m.werkzeuge.length} Trainingswerkzeuge` : ""}
+                      {m.bis - m.von + 1} {m.bis === m.von ? "Seite" : "Seiten"} lesen{m.werkzeuge.length ? ` · Aufgaben, Sätze, ${m.werkzeuge.length} Werkzeuge` : ""}
                     </span>
                   </span>
                   <Haken an={ok} />
@@ -394,21 +353,17 @@ function Modul({ modul, stand, setStand, oeffnen, zurUebersicht, gehe }) {
           style={{ display: "block", width: "100%", height: "100%", border: 0 }} />
       </div>
 
-      {modul.werkzeuge.length > 0 && (
-        <div style={{ margin: "30px 0 0" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-            <span style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.12em", color: K.weiss, background: K.schwarz, padding: "5px 10px", borderRadius: 7 }}>2 · TRAINIEREN</span>
-            <span style={{ marginLeft: "auto", display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12.5, color: C.grau }}><Haken an={!!stand.geuebt[modul.id]} />geübt</span>
-          </div>
-          <h3 style={{ fontSize: 20, fontWeight: 700, color: K.schwarz, margin: "8px 0 4px" }}>Werkzeuge zu diesem Kapitel</h3>
-          <p style={{ fontSize: 14, color: C.grau, margin: "0 0 14px", lineHeight: 1.6 }}>Tippe auf ein Werkzeug – es öffnet sich als Fenster direkt hier im Modul.</p>
-          <KartenStil />
-          <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 16 }}>
-            {modul.werkzeuge.map((id) => (
-              <WerkzeugKarte key={id} id={id} t={KURS_WERKZEUGE[id]} an={offen === id} oeffnen={werkzeugOeffnen} schliessen={() => setOffen(null)} Zeichen={Zeichen} />
-            ))}
-          </div>
-        </div>
+      {modul.kap !== "L" && (
+        <KursTraining modul={modul} geuebt={!!stand.geuebt[modul.id]} onGeuebt={() => merken("geuebt")} werkzeuge={(
+          <>
+            <KartenStil />
+            <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 16 }}>
+              {modul.werkzeuge.map((id) => (
+                <WerkzeugKarte key={id} id={id} t={KURS_WERKZEUGE[id]} an={offen === id} oeffnen={werkzeugOeffnen} schliessen={() => setOffen(null)} Zeichen={Zeichen} />
+              ))}
+            </div>
+          </>
+        )} />
       )}
 
       {w && (

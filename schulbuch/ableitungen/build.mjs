@@ -240,3 +240,71 @@ fs.writeFileSync(path.join(DIST, "buch.html"), html);
 fs.writeFileSync(path.join(DIST, "seiten.json"), JSON.stringify(seiten.map((s) => ({ nr: s.nr, datei: s.datei, ...s.meta })), null, 1));
 fs.writeFileSync(path.join(DIST, "verzeichnis.json"), JSON.stringify(VERZ, null, 1));
 console.log(`${seiten.length} Seiten gebaut.`);
+
+// ---------- Inhalte für den Kurs in der App (dist/kurs/<seite>.json) ----------
+// Je Seite: alle Aufgaben (gerendertes HTML), die Kästen Merke/Achtung/Für Interessierte/Rückblick
+// und die Lösungen zu jeder Aufgabe aus loesungen.html. Die App (src/funcDiffKursUeben.jsx) zeigt
+// sie im Kursmodul unter „Aufgaben“ bzw. „Sätze und Definitionen“.
+function bloecke(html, klasse) {
+  // alle <div class="klasse …">…</div> mit richtig gezählten verschachtelten divs
+  const out = [];
+  const re = new RegExp(`<div class="${klasse}[ "]`, "g");
+  let m;
+  while ((m = re.exec(html))) {
+    let i = m.index, tiefe = 0;
+    const tag = /<\/?div\b[^>]*>/g;
+    tag.lastIndex = i;
+    let t;
+    while ((t = tag.exec(html))) {
+      if (t[0][1] === "/") tiefe--; else tiefe++;
+      if (tiefe === 0) { out.push(html.slice(i, tag.lastIndex)); re.lastIndex = tag.lastIndex; break; }
+    }
+  }
+  return out;
+}
+const textOhneTags = (h) => h.replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
+const kursLoes = {};
+{
+  let l = verweise(fs.readFileSync(path.join(ROOT, "loesungen.html"), "utf8"), "loesungen.html");
+  l = mathe(l);
+  for (const abschnitt of l.split(/(?=<h3>)/)) {
+    const s = /\(Seite (\d+)\)<\/h3>/.exec(abschnitt);
+    if (!s) continue;
+    const nr = +s[1];
+    kursLoes[nr] = kursLoes[nr] || {};
+    for (const p of abschnitt.split(/(?=<p><span class="an">)/).slice(1)) {
+      const a = /^<p><span class="an">([^<]+)<\/span>\s*/.exec(p);
+      const ende = p.indexOf("</p>");
+      kursLoes[nr][a[1].trim()] = p.slice(a[0].length, ende).trim();
+    }
+  }
+}
+const kurs = { seiten: {} };
+for (const s of seiten) {
+  const haupt = s.haupt;
+  const aufgaben = bloecke(haupt, "auf").map((h) => {
+    const nr = /<span class="z[^"]*">([^<]+)<\/span>/.exec(h)[1].trim();
+    const stufe = (/<span class="stufe">([^<]*)<\/span>/.exec(h) || [])[1] || "";
+    const offen = /class="z offen"/.test(h);
+    const text = h.replace(/^<div class="auf">\s*<div class="anr">[\s\S]*?<\/div>\s*<div class="text">/, "").replace(/<\/div>\s*<\/div>\s*$/, "");
+    const erstes = /<p[^>]*>([\s\S]*?)<\/p>/.exec(text);
+    return { nr, stufe: (stufe.match(/●/g) || []).length, offen, html: text.trim(), kopf: erstes ? erstes[1].trim() : "", loesung: (kursLoes[s.nr] || {})[nr] || "" };
+  });
+  const kaesten = [];
+  for (const art of ["merke", "achtung", "vertiefung", "rueckblick"]) {
+    for (const h of bloecke(haupt, `kasten ${art}`)) {
+      const etikett = textOhneTags((/<div class="etikett">([\s\S]*?)<\/div>/.exec(h) || [])[1] || "");
+      const inhalt = h.replace(/^<div class="kasten [^"]*"[^>]*>\s*(<div class="etikett">[\s\S]*?<\/div>)?/, "").replace(/<\/div>\s*$/, "").trim();
+      kaesten.push({ art, etikett, html: inhalt, pos: haupt.indexOf(h) });
+    }
+  }
+  kaesten.sort((a, b) => a.pos - b.pos).forEach((k) => delete k.pos);
+  if (aufgaben.length || kaesten.length) kurs.seiten[s.nr] = { titel: s.meta.ukap || "", aufgaben, kaesten };
+}
+fs.rmSync(path.join(DIST, "kurs"), { recursive: true, force: true });
+fs.mkdirSync(path.join(DIST, "kurs"), { recursive: true });
+for (const [nr, inhalt] of Object.entries(kurs.seiten)) fs.writeFileSync(path.join(DIST, "kurs", `${nr}.json`), JSON.stringify(inhalt));
+fs.writeFileSync(path.join(DIST, "kurs", "seiten.json"), JSON.stringify(Object.keys(kurs.seiten).map(Number)));   // welche Seiten Inhalte haben
+const nA = Object.values(kurs.seiten).reduce((n, s) => n + s.aufgaben.length, 0);
+const nL = Object.values(kurs.seiten).reduce((n, s) => n + s.aufgaben.filter((a) => a.loesung).length, 0);
+console.log(`Kurs-Inhalte: ${nA} Aufgaben (${nL} mit Lösung), ${Object.values(kurs.seiten).reduce((n, s) => n + s.kaesten.length, 0)} Kästen.`);
