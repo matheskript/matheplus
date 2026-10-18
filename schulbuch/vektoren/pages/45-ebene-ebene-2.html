@@ -1,0 +1,72 @@
+<!-- kap: V -->
+<div class="zwei-bild" style="grid-template-columns:repeat(4,1fr);gap:2mm;margin-bottom:1mm">
+  <div><raum>{"b": 31, "h": 27, "keineAchsen": true, "rand": 5, "flaeche": [{"pkte": [[0, -1.5, 0], [0, 1.5, 0], [2.4, 1.5, 0], [2.4, -1.5, 0]], "c": "smaragd", "o": 0.15, "w": 0.9}, {"pkte": [[0, 0, -1.2], [0, 0, 1.4], [2.4, 0, 1.4], [2.4, 0, -1.2]], "c": "see", "o": 0.15, "w": 0.9}, {"pkte": [[1.2, -1.5, -1.2], [1.2, 1.5, -1.2], [1.2, 1.5, 1.4], [1.2, -1.5, 1.4]], "c": "goldDunkel", "o": 0.13, "w": 0.9}], "strecke": [{"p": [0, 0, 0], "q": [2.4, 0, 0], "c": "grau", "w": 1.8, "d": "3 2"}], "punkt": [{"p": [1.2, 0, 0], "t": "S", "pos": "ur", "c": "grana"}]}</raum>
+    <p class="bildunterschrift">genau ein Punkt</p></div>
+  <div><raum>{"b": 31, "h": 27, "keineAchsen": true, "rand": 5, "flaeche": [{"pkte": [[0, -1.5, 0], [0, 1.5, 0], [2.4, 1.5, 0], [2.4, -1.5, 0]], "c": "smaragd", "o": 0.15, "w": 0.9}, {"pkte": [[0, -0.9, 1.35], [0, 0.9, -1.35], [2.4, 0.9, -1.35], [2.4, -0.9, 1.35]], "c": "see", "o": 0.15, "w": 0.9}, {"pkte": [[0, -0.45, -1.35], [0, 0.45, 1.35], [2.4, 0.45, 1.35], [2.4, -0.45, -1.35]], "c": "goldDunkel", "o": 0.13, "w": 0.9}], "strecke": [{"p": [0, 0, 0], "q": [2.4, 0, 0], "c": "grana", "w": 1.8}]}</raum>
+    <p class="bildunterschrift">eine Gerade</p></div>
+  <div><raum>{"b": 31, "h": 27, "keineAchsen": true, "rand": 5, "flaeche": [{"pkte": [[0, -1.53, 0.0], [0, 1.53, 0.0], [2.4, 1.53, 0.0], [2.4, -1.53, 0.0]], "c": "smaragd", "o": 0.15, "w": 0.9}, {"pkte": [[0, -1.125, -0.55], [0, 0.225, 2.75], [2.4, 0.225, 2.75], [2.4, -1.125, -0.55]], "c": "see", "o": 0.15, "w": 0.9}, {"pkte": [[0, -0.225, 2.75], [0, 1.125, -0.55], [2.4, 1.125, -0.55], [2.4, -0.225, 2.75]], "c": "goldDunkel", "o": 0.13, "w": 0.9}], "strecke": [{"p": [0, -0.9, 0], "q": [2.4, -0.9, 0], "c": "grana", "w": 1.8}, {"p": [0, 0.9, 0], "q": [2.4, 0.9, 0], "c": "grana", "w": 1.8}, {"p": [0, 0, 2.2], "q": [2.4, 0, 2.2], "c": "grana", "w": 1.8}]}</raum>
+    <p class="bildunterschrift">kein Punkt („Prisma“)</p></div>
+  <div><raum>{"b": 31, "h": 27, "keineAchsen": true, "rand": 5, "flaeche": [{"pkte": [[0, -1.5, 0], [0, 1.5, 0], [2.4, 1.5, 0], [2.4, -1.5, 0]], "c": "smaragd", "o": 0.15, "w": 0.9}, {"pkte": [[0, -1.5, 1.3], [0, 1.5, 1.3], [2.4, 1.5, 1.3], [2.4, -1.5, 1.3]], "c": "smaragd", "o": 0.15, "w": 0.9}, {"pkte": [[0, -0.3, -0.6], [0, 0.33, 1.9], [2.4, 0.33, 1.9], [2.4, -0.3, -0.6]], "c": "goldDunkel", "o": 0.13, "w": 0.9}], "strecke": [{"p": [0, -0.149, 0], "q": [2.4, -0.149, 0], "c": "grana", "w": 1.8}, {"p": [0, 0.18, 1.3], "q": [2.4, 0.18, 1.3], "c": "grana", "w": 1.8}]}</raum>
+    <p class="bildunterschrift">kein Punkt (parallel)</p></div>
+</div>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Drei Ebenen</div>
+  <p style="text-align:left;margin:0">Gemeinsame Punkte dreier Ebenen = Lösungen des LGS aus ihren Koordinatengleichungen. Gauß liefert<br><b>genau eine Lösung</b> → ein gemeinsamer <b>Schnittpunkt</b>,<br><b>einen Parameter</b> → eine gemeinsame <b>Schnittgerade</b> (Ebenenbüschel),<br><b>keine Lösung</b> → kein gemeinsamer Punkt: zwei Ebenen parallel oder paarweise Schnitt in drei parallelen Geraden (<b>Prisma</b>).</p>
+</div>
+
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 2 · Ein Schnittpunkt – das LGS aus dem Auftakt</div>
+  <p style="text-align:left">$E_1\colon x_1 + x_2 + x_3 = 6$, $\;E_2\colon x_1 - x_2 + x_3 = 2$, $\;E_3\colon 2x_1 + x_2 - x_3 = 1$.</p>
+  <div class="schritte" style="margin:1mm 0 0">
+    <span class="sl">(I) − (II)</span><span>$2x_2 = 4$, &nbsp;also $x_2 = 2$</span>
+    <span class="sl">(I) + (III)</span><span>$3x_1 + 2x_2 = 7$, &nbsp;also $x_1 = 1$; &nbsp;aus (I): $x_3 = 3$</span>
+    <span class="sl">Ergebnis</span><span>Die drei Ebenen schneiden sich im Punkt $S(1 \mid 2 \mid 3)$.</span>
+  </div>
+</div>
+
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 3 · Gerade oder Prisma?</div>
+  <p style="text-align:left">Ersetze $E_3$ durch $F\colon 2x_1 + 2x_3 = c$. Addiert man (I) und (II), entsteht $2x_1 + 2x_3 = 8$. Für $c = 8$ ist (III) überflüssig: Es bleiben 2 Gleichungen, die Lösung ist die <b>Gerade</b> $x_2 = 2$, $x_1 = 4 - t$, $x_3 = t$. Für $c = 5$ folgt der Widerspruch $8 = 5$: <b>kein</b> gemeinsamer Punkt. Da keine zwei Normalenvektoren kollinear sind, ist das der <b>Prisma-Fall</b>.</p>
+</div>
+
+<div class="aufgaben-kopf"><span>Aufgaben</span></div>
+
+<div class="auf"><div class="anr"><span class="z">1</span><span class="stufe">●○○</span></div><div class="text">
+  <p>Untersuche die Lage der Ebenen. Bestimme gegebenenfalls die Schnittgerade.</p>
+  <div class="teil lang" style="--sp:3"><div><i>a)</i>$2x_1 - x_2 + 3x_3 = 4$<br>$-4x_1 + 2x_2 - 6x_3 = 1$</div><div><i>b)</i>$x_1 + 2x_2 - x_3 = 3$<br>$2x_1 + x_2 + x_3 = 3$</div><div><i>c)</i>$x_1 + x_2 + x_3 = 2$<br>$3x_1 + 3x_2 + 3x_3 = 6$</div></div>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">2</span><span class="stufe">●○○</span></div><div class="text">
+  <p>Schnittgerade von $E\colon x_1 + x_2 - x_3 = 1$ und $F\colon 2x_1 - x_2 + x_3 = 5$?</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">3</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Bestimme den gemeinsamen Punkt von $x_1 + x_2 + x_3 = 4$, $\;2x_1 - x_2 + x_3 = 8$ und $x_1 + 3x_2 - 2x_3 = -7$.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">4</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Gegeben sind $x_1 + x_2 - x_3 = 1$, $\;2x_1 - x_2 + x_3 = 2$ und $3x_1 = c$. Untersuche die Lage für $c = 3$ und für $c = 4$. Beschreibe beide Fälle geometrisch.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">5</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Für welche $a$ und $b$ haben $x_1 + x_2 + x_3 = 3$, $\;x_1 - x_2 + 2x_3 = 1$ und $2x_1 + a x_3 = b$ <b>a)</b> genau einen, <b>b)</b> keinen, <b>c)</b> unendlich viele gemeinsame Punkte?</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">6</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Gib drei verschiedene Ebenen an, deren gemeinsame Punkte genau die $x_3$-Achse bilden.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z offen">7</span><span class="stufe">●●●</span></div><div class="text">
+  <p>Zeige: Jede Ebene $(x_1 + x_2 + x_3 - 4) + k\,(x_1 - x_2 + 3x_3 - 2) = 0$ enthält die Schnittgerade aus Beispiel 1. Für welches $k$ geht sie durch $O$?</p>
+</div></div>
+<!--rand-->
+<div class="notiz"><span class="t">Der rote Faden</span>Kapitel I: Gauß-Verfahren, Seite {{S:gauss-1}}.<br>Lösungsmengen: keine, eine, unendlich viele – Seite {{S:loesungsmengen-1}}.<br>Hier bekommt jede Lösungsmenge ein Raumbild.</div>
+
+<div class="notiz gold"><span class="t">Prisma erkennen</span>LGS ohne Lösung, aber keine zwei Normalenvektoren kollinear → Prisma.<br>Zwei kollinear → mindestens zwei Ebenen parallel.</div>
+
+<div class="notiz"><span class="t">Zu Aufgabe 5</span>Bilde $\text{(I)} + \text{(II)}$. Vergleiche das Ergebnis mit der dritten Gleichung.</div>
+
+<div class="notiz"><span class="t">Zu Aufgabe 7</span>Ein Punkt der Schnittgeraden macht <b>beide</b> Klammern zu null.</div>
+
+<div class="notiz mathilda"><span class="t">In der App</span>Im Werkzeug <b>Ebene vs. Ebene</b> siehst du zwei oder drei Ebenen im Raum. Unter <b>Gleichungssysteme</b> löst du dasselbe LGS Schritt für Schritt mit Gauß.</div>
