@@ -265,19 +265,25 @@ function Modul({ modul, stand, setStand, oeffnen, zurUebersicht, gehe }) {
   const w = offen ? KURS_WERKZEUGE[offen] : null;
 
   return (
-    <div className="mx-auto px-4 pb-16" style={{ maxWidth: 1180 }}>
+    <div className="dk-seite">
+      <style>{`.dk-seite{width:100%;max-width:620px;margin:0 auto;padding:0 20px 64px 18px;box-sizing:border-box}
+        @media (min-width:840px){.dk-seite{width:735px;max-width:735px;margin-left:calc(50% - 355px);margin-right:0;padding:0 0 64px}}`}</style>
       <div>
-        <button type="button" onClick={zurUebersicht}
-          style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 12px 8px 8px", marginBottom: 14, borderRadius: 10, border: `1px solid ${C.linie}`, background: K.weiss,
-            color: K.schwarz, fontFamily: "inherit", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
-          <span aria-hidden="true">←</span> Alle Module
-        </button>
-        <p style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: "0.14em", color: K.gold, margin: "0 0 4px" }}>
-          {modul.kap === "L" ? "ANHANG" : `KAPITEL ${modul.kap} · MODUL ${i + 1} VON ${KURS_MODULE.length}`}
-        </p>
-        <h2 style={{ fontSize: "clamp(23px, 6.4vw, 30px)", fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1.15, color: K.schwarz, margin: 0 }}>
-          {modul.nr ? `${modul.nr} ` : ""}{modul.titel}
-        </h2>
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginTop: 2 }}>
+          <div style={{ minWidth: 0 }}>
+            <p style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: "0.14em", color: K.gold, margin: "0 0 4px" }}>
+              {modul.kap === "L" ? "ANHANG" : `KAPITEL ${modul.kap} · MODUL ${i + 1} VON ${KURS_MODULE.length}`}
+            </p>
+            <h2 style={{ fontSize: "clamp(23px, 6.4vw, 30px)", fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1.15, color: K.schwarz, margin: 0 }}>
+              {modul.nr ? `${modul.nr} ` : ""}{modul.titel}
+            </h2>
+          </div>
+          <button type="button" onClick={zurUebersicht}
+            style={{ flex: "none", display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 12px 8px 8px", borderRadius: 10, border: `1px solid ${C.linie}`, background: K.weiss,
+              color: K.schwarz, fontFamily: "inherit", fontWeight: 600, fontSize: 13, cursor: "pointer", whiteSpace: "nowrap" }}>
+            <span aria-hidden="true">←</span> Alle Module
+          </button>
+        </div>
         <div style={{ display: "flex", alignItems: "center", gap: "8px 14px", flexWrap: "wrap", margin: "8px 0 14px" }}>
           <p style={{ flex: "1 1 240px", minWidth: 0, fontSize: 15.5, fontStyle: "italic", color: "#2B3A4F", margin: 0 }}>{modul.frage}</p>
           {seitenZahl > 1 && (
@@ -296,7 +302,7 @@ function Modul({ modul, stand, setStand, oeffnen, zurUebersicht, gehe }) {
       </div>
 
       {modul.werkzeuge.length > 0 && (
-        <div style={{ maxWidth: 760, margin: "30px auto 0" }}>
+        <div style={{ margin: "30px 0 0" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
             <span style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.12em", color: K.weiss, background: K.schwarz, padding: "5px 10px", borderRadius: 7 }}>2 · TRAINIEREN</span>
             <span style={{ marginLeft: "auto", display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12.5, color: C.grau }}><Haken an={!!stand.geuebt[modul.id]} />geübt</span>
@@ -350,7 +356,7 @@ function Modul({ modul, stand, setStand, oeffnen, zurUebersicht, gehe }) {
         )}
       </div>
 
-      <div style={{ maxWidth: 760, margin: "30px auto 0", display: "flex", gap: 10, flexWrap: "wrap" }}>
+      <div style={{ margin: "30px 0 0", display: "flex", gap: 10, flexWrap: "wrap" }}>
         {voriges && (
           <button type="button" onClick={() => oeffnen(voriges.id)}
             style={{ flex: "1 1 200px", padding: "14px 16px", borderRadius: 14, border: `1px solid ${C.linie}`, background: K.weiss, color: K.schwarz, fontFamily: "inherit", fontWeight: 600, fontSize: 14, cursor: "pointer", textAlign: "left" }}>
