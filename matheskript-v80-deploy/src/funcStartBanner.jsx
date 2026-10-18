@@ -2,7 +2,7 @@ import React from "react";
 
 /* Banner ganz oben auf der Startseite, bündig unter dem Header, über die volle Breite.
    Hell: weißer Hintergrund, Text in Blau, Akzente in Gold. Rechts ein reduzierter Berg
-   als SVG, nur in Blau und Gold (Sonne, Weg zum Gipfel). Alle Größen skalieren mit der
+   als SVG, nur in Blau und Gold (Weg zum Gipfel). Alle Größen skalieren mit der
    Bühnenbreite (cqw); die Bühne ist maximal 760 px breit und sitzt mittig. */
 
 const PUNKTE = [
@@ -54,29 +54,13 @@ function Haken() {
   );
 }
 
-/* Reduzierter Berg: Gipfel mit Sonne, goldener Serpentinenweg, zwei Hügel im Hintergrund,
+/* Reduzierter Berg: goldener Serpentinenweg, zwei Hügel im Hintergrund,
    zwei leichte Wolken. Nur Blau- und Goldtöne auf Weiß. */
-const WEG = "M150 366 C 170 340, 330 338, 322 312 S 182 290, 190 266 S 316 250, 308 228 S 208 212, 214 192 S 296 180, 290 164 S 228 152, 236 140 S 270 130, 264 118";
+const WEG = "M150 366 C 170 340, 330 338, 322 312 S 182 290, 190 266 S 316 250, 308 228 S 208 212, 214 192 S 296 180, 290 164 S 228 152, 236 140 S 268 142, 264 132";
 
 function Berg() {
-  const SX = 262, SY = 72;
-  const strahlen = [];
-  for (let i = 0; i < 16; i++) {
-    const w = (i * 22.5 * Math.PI) / 180;
-    const r1 = 38, r2 = i % 2 ? 48 : 58;
-    strahlen.push(
-      <line key={i} x1={SX + r1 * Math.cos(w)} y1={SY + r1 * Math.sin(w)}
-        x2={SX + r2 * Math.cos(w)} y2={SY + r2 * Math.sin(w)}
-        stroke={GOLD} strokeWidth={i % 2 ? 3 : 4} strokeLinecap="round" />
-    );
-  }
   return (
     <svg className="sb-berg" viewBox="0 0 400 366" aria-hidden="true" focusable="false">
-      {/* Sonne, zur Hälfte hinter dem Gipfel */}
-      <g>{strahlen}</g>
-      <circle cx={SX} cy={SY} r="30" fill={GOLD_HELL} />
-      <circle cx={SX} cy={SY} r="30" fill="none" stroke={GOLD} strokeWidth="3" />
-
       {/* Wolken */}
       <g fill="none" stroke={BLAU_HELL} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
         <path d="M140 150c-10 0-16-7-14-15 2-10 14-13 21-8 3-9 17-11 23-3 9-3 18 3 16 12 0 9-7 14-14 14H140z" />
@@ -99,9 +83,6 @@ function Berg() {
       {/* Weg zum Gipfel */}
       <path d={WEG} fill="none" stroke={GOLD} strokeWidth="9" strokeLinecap="round" strokeLinejoin="round" />
       <path d={WEG} fill="none" stroke={GOLD_HELL} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
-      {/* Fahne am Gipfel */}
-      <line x1="264" y1="118" x2="264" y2="88" stroke={BLAU_TIEF} strokeWidth="3" strokeLinecap="round" />
-      <path d="M264 88 L288 97 L264 106 Z" fill={GOLD} />
     </svg>
   );
 }
