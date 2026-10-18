@@ -174,16 +174,44 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
    darunter das Kapitel-Menü: jedes Kapitel klappt auf und zeigt seine Trainings-Werkzeuge
    (funcQuickfinder.jsx; Daten in schulbuch.js, unterthemen.js; Plan in trainingsplan.js). */
 function MeinTrainingKachelStart({ gehe, setzeStufe }) {
-  const links = (
+  // Standardmäßig zugeklappt: nur Überschrift + Pfeil rechts. Antippen (Kopfzeile oder Pfeil) klappt den Quickfinder auf.
+  // Offen bleibt die Kachel nur innerhalb derselben Sitzung (Rückweg aus einem Werkzeug); beim nächsten Besuch ist sie wieder zu.
+  const [auf, setAuf] = useState(() => { try { return sessionStorage.getItem("matheplus-training-auf") === "1"; } catch { return false; } });
+  const umschalten = () => setAuf((a) => {
+    try { sessionStorage.setItem("matheplus-training-auf", a ? "0" : "1"); } catch { /* egal */ }
+    return !a;
+  });
+  const titel = (
     <>
       <h2 style={{ margin: 0, fontSize: "clamp(19px, 5.2vw, 25px)", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.12, color: C.see }}>Dein Training startet hier.</h2>
       <span aria-hidden="true" style={{ display: "block", width: 40, height: 3, borderRadius: 2, marginTop: 9, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)` }} />
     </>
   );
+  const pfeil = (
+    <button type="button" onClick={(e) => { e.stopPropagation(); umschalten(); }} aria-expanded={auf}
+      aria-label={auf ? "Dein Training zuklappen" : "Dein Training aufklappen"} className="mt-pfeil"
+      style={{ position: "absolute", top: 14, right: 14, zIndex: 1, width: 34, height: 34, borderRadius: 999, border: "none", padding: 0, cursor: "pointer",
+        display: "flex", alignItems: "center", justifyContent: "center", background: auf ? C.see : "#EEF2F8", transition: "background .2s ease" }}>
+      <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"
+        style={{ display: "block", transform: auf ? "rotate(180deg)" : "rotate(0deg)", transition: "transform .22s ease" }}>
+        <path d="M3.5 6 L8 10.5 L12.5 6" stroke={auf ? C.weiss : C.see} strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </button>
+  );
   return (
-    <div style={{ width: "calc(100% + 32px)", margin: "12px -16px 0", border: `2px solid ${C.see}`, borderRadius: 18, overflow: "hidden",
+    <div className={auf ? "mt-start mt-auf" : "mt-start"} style={{ position: "relative", width: "calc(100% + 32px)", margin: "12px -16px 0", border: `2px solid ${C.see}`, borderRadius: 18, overflow: "hidden",
       background: C.weiss, boxShadow: "0 6px 22px rgba(0,77,152,0.14)" }}>
-      <Quickfinder gehe={gehe} setzeStufe={setzeStufe} links={links} />
+      <style>{`.mt-auf .qf-kopf{padding-right:58px}
+        @media (min-width:600px){.mt-auf .qf-kopf{padding-right:60px}}
+        @media (hover:hover){.mt-start .mt-pfeil:hover{filter:brightness(0.96)}.mt-start .mt-zu:hover{background:#F7F9FC}}`}</style>
+      {pfeil}
+      {auf ? (
+        <Quickfinder gehe={gehe} setzeStufe={setzeStufe} links={titel} />
+      ) : (
+        <div className="mt-zu" onClick={umschalten} style={{ padding: "16px 60px 14px 16px", cursor: "pointer", transition: "background .15s ease" }}>
+          {titel}
+        </div>
+      )}
     </div>
   );
 }
@@ -1611,6 +1639,10 @@ export function Startseite({ gehe }) {
       </AufklappRahmen>
       {desktop && entdeckenBlock}
       {!desktop && (<>
+      {/* Mathilda AI: zwischen Schulmathematik und Kopfrechnen */}
+      <PlotterKachel portraet={<MathildaPortraet />} onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })} label="Mathilda AI öffnen" logo={<MathildaLogoKlein />} keinI18nTitel goldRand
+        titel={<MathildaName dunkel />}
+        text="Foto vom Blatt – Mathilda prüft deinen Weg." />
       <PlotterKachel onClick={() => gehe({ ansicht: "headnumbers" })} label="Kopfrechnen öffnen" logo={<HeadNumbersLogoKlein />}
         titel="Kopfrechnen"
         text="Einmaleins, Quadrat- und Kubikzahlen, schriftliches Rechnen und Brüche – bis alles sitzt." />
@@ -1628,15 +1660,12 @@ export function Startseite({ gehe }) {
       <MathCreatorKachel />
       </>)}
       {!desktop && (<>
-      {/* Mathe-Mindset-Kurs: zwischen Mathe-Training und Mathilda AI */}
+      {/* Mathe-Mindset-Kurs */}
       <div style={{ marginTop: 12 }}>
         <PlotterKachel onClick={() => gehe({ ansicht: "elternkurs" })} label="Mathe-Mindset-Kurs öffnen" logo={<ElternkursLogoKlein />}
           titel="Mathe-Mindset-Kurs"
           text="6 TED-Talks und 2 Bücher, die inspirieren, wie Mathe auch funktionieren kann." />
       </div>
-      <PlotterKachel portraet={<MathildaPortraet />} onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })} label="Mathilda AI öffnen" logo={<MathildaLogoKlein />} keinI18nTitel goldRand
-        titel={<MathildaName dunkel />}
-        text="Foto vom Blatt – Mathilda prüft deinen Weg." />
       <PlotterKachel onClick={() => gehe({ ansicht: "penpaperkurs" })} label="Pen & Paper Kurs öffnen" logo={<PenPaperBlatt />}
         titel="Pen & Paper"
         text="Klar aufschreiben, strukturiert arbeiten, sicher mit Fehlern umgehen." />

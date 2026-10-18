@@ -34,6 +34,7 @@ with sync_playwright() as p:
             pruefe(sw <= breite, f"{breite}: Überbreite bei {wo}: {sw}")
 
         page.get_by_role("heading", name="Dein Training startet hier.").scroll_into_view_if_needed()
+        if page.get_by_role("button", name="Dein Training aufklappen").count(): page.get_by_role("button", name="Dein Training aufklappen").click(); page.wait_for_timeout(200)
         pruefe(page.get_by_role("button", name="Eine Sache üben", exact=True).count() == 0, f"{breite}: Modus-Knopf noch da")
         page.get_by_role("button", name="G9").first.click(); page.wait_for_timeout(150)
         page.get_by_role("button", name="Klasse 10", exact=True).click(); page.wait_for_timeout(300)
