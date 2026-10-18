@@ -1,5 +1,16 @@
 {
  "exakt": {
+  "Geraden, Ebenen, Abstände": "Lines, planes, distances",
+  "Zählen, Zufall, Testen": "Counting, chance, testing",
+  "Eine Abi-Aufgabe durch mehrere Werkzeuge": "An Abitur problem through several tools",
+  "Zehn komplette Sätze im Abi-Format": "Ten complete sets in Abitur format",
+  "Alle wichtigen Formeln zum Nachschlagen": "All the key formulas for quick reference",
+  "Funktionen, Kurven, Integrale": "Functions, curves, integrals",
+  "Figuren, Winkel, Körper": "Shapes, angles, solids",
+  "Brüche und Bruchterme": "Fractions and fraction terms",
+  "Umformen und Lösen": "Rearranging and solving",
+  "Zahlen, Rechnen, Größen": "Numbers, calculating, units",
+  "Daten auswerten, Zufall": "Analyse data, chance",
   "Dieser Code ist leider nicht gültig.": "Sorry, this code is not valid.",
   "Dieser Bonuscode ist nicht gültig.": "This bonus code is not valid.",
   "Leider sind nicht mehr genug Plätze frei.": "Sorry, there are not enough seats left.",
