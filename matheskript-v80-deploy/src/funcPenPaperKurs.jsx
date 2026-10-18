@@ -1,1102 +1,651 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useRef, useState, useSyncExternalStore } from "react";
 import { C } from "./base1.jsx";
-import { M, Text } from "./func3.jsx";
-import { Knopf } from "./func1.jsx";
 import { MathildaName } from "./mathildaName.jsx";
-import { englisch } from "./i18n.js";
-import { baueExtra } from "./funcPenPaperExtra.js";
-import { HeftVergleich, MathildaBeispiel } from "./funcPenPaperHeft.jsx";
-import { MatheFeld } from "./matheTastatur.jsx";
-
 import { springe } from "./sprung.js";
+import { LEKTION_IDS, TAG_IDS, lektionFertig, lektionSetzen, lektionenFertig, naechsteLektion, penpaperHoeren, penpaperStand, penpaperZuruecksetzen, tagAn, tagSetzen, tageFertig, zuletztSetzen } from "./penpaperSpeicher.js";
+import { usePenpaperSyncStatus } from "./penpaperSync.js";
+import { Blatt, GOLD, GOLDHELL, HWurzel, Haken, Kasten, LABEL, NAVY, Nebenbox, ResteFinder, T, Term, Tok, UebungRahmen, Wahl, ZaunMarkierer, Zeile, karte, useUebung } from "./funcPenPaperUebungen.jsx";
+
 /* ======================================================================
-   PEN-&-PAPER-KURS
-   Seite „penpaperkurs“: das Kurskonzept „Pen & Paper – MythosMathe“ für
-   Mittelstufe (Kurs A) und Oberstufe / Abitur (Kurs B), je 9 Einheiten
-   über 8 Wochen.
-
+   PEN-&-PAPER-KURS (Ansicht „penpaperkurs“)
+   Ein Kurs, neun Lektionen, ein Prinzip: Nähe = Priorität.
    Aufbau der Seite
-     1. Grundidee und Überblick, Kurswahl
-     2. Vier Werkzeuge (antippbar) + Termhaus-Labor zum Ausprobieren
-     3. Vier Lernstufen als Treppe: READ · WRITE · CREATE · DELIVER
-     4. Kurs A / Kurs B: neun Einheiten mit Beispiel
-     5. Aufbau jeder Einheit (7 Schritte)
-     6. Erfolg messen: Selbstcheck für Arbeitsweise und Mathematik
-     7. Rolle von Mathilda
-     8. Leitprinzip
-
-   Alle Texte sind zweisprachig (L = Deutsch | Englisch). Die Rechenbeispiele
-   sind eigene Beispiele zum Konzept und lassen sich unten in EINHEITEN_A / _B
-   leicht austauschen.
+     1. Kernthese, das Grundmodell (Super-Operator · Gartenzäune · Häuser), dein Stand
+     2. Neun Lektionen in fünf Stufen (Sehen → Abschreiben → Umschreiben → Selbst rechnen → Automatisieren),
+        jede mit Erklärung, Beispiel richtig/falsch, Übung in der App und Aufgabe aufs Blatt
+     3. Mathildas tägliches Blatt-Training (Foto → ein Hebel → Neuschrieb), 7-Tage-Plan
+   Fortschritt: penpaperSpeicher.js (Gerät) + penpaperSync.js (Konto).
+   Die Inhalte entsprechen dem Arbeitsheft „Pen & Paper“ (Matheskript Band 2).
    ====================================================================== */
 
-const L = (de, en) => (englisch() ? en : de);
-
-const NAVY = "#0B1E4A";
-const GOLD = C.flaggold;
-const SILBER = "#8E97A6";
-const LABEL = "#626D8A";   // kleine Beschriftungen: mind. 4,5 : 1 auf Weiß, Sand und Blatt-Raster
-const GOLDFLAECHE = "linear-gradient(150deg, #FFE9A0 0%, #F4CE4A 28%, #EDBB00 55%, #D9A520 78%, #B58612 100%)";
-const karte = { background: C.weiss, borderRadius: 18, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" };
-
 const Kicker = ({ children }) => <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 8 }}>{children}</p>;
-const H2 = ({ children }) => <h2 style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 12 }}>{children}</h2>;
-const Absatz = ({ children, style }) => <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.8, marginBottom: 16, ...style }}>{children}</p>;
+const H2 = ({ children }) => <h2 style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 12, color: C.tinte }}>{children}</h2>;
+const H3 = ({ children, style }) => <h3 style={{ fontSize: 17, fontWeight: 700, color: NAVY, margin: "18px 0 8px", lineHeight: 1.3, ...style }}>{children}</h3>;
+const Absatz = ({ children, style }) => <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.8, marginBottom: 14, ...style }}>{children}</p>;
 const Trenner = () => <div style={{ height: 1, background: C.linie, margin: "34px 0 28px" }} />;
+const Et = ({ children, farbe }) => <p style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", color: farbe || C.see, marginBottom: 6 }}>{children}</p>;
 
-/* ---------------------------------------------------------------- Inhalte */
-
-function baue() {
-  const werkzeuge = [
-    { id: "klar", name: L("Klarschrift", "Clear writing"), kurz: L("Eindeutig statt schön", "Unambiguous, not pretty"),
-      text: L("Zahlen, Buchstaben, Variablen und Symbole werden eindeutig und gut lesbar geschrieben. Exponenten stehen unmittelbar rechts oben an ihrer Basis. Ziel ist nicht Schönheit, sondern Eindeutigkeit.",
-        "Numbers, letters, variables and symbols are written clearly and legibly. Exponents sit directly at the top right of their base. The goal is not beauty but unambiguity.") },
-    { id: "haus", name: L("Termhäuser", "Term houses"), kurz: L("Jeder Summand ein Haus", "Every summand is a house"),
-      text: L("Jeder Summand wird als eigene strukturelle Einheit behandelt. In 3x² − 2x + 5 sind 3x², 2x und 5 drei getrennte Termhäuser.",
-        "Every summand is treated as a structural unit of its own. In 3x² − 2x + 5, the terms 3x², 2x and 5 are three separate term houses.") },
-    { id: "op", name: "Final Operators", kurz: L("Die Zeichen zwischen den Häusern", "The signs between the houses"),
-      text: L("Die Plus- und Minuszeichen zwischen den Summanden werden bewusst als Verbindungselemente behandelt. Nicht jedes Plus oder Minus innerhalb einer Klammer oder eines Zählers erfüllt dieselbe Funktion.",
-        "The plus and minus signs between the summands are treated deliberately as connecting elements. Not every plus or minus inside a bracket or a numerator has the same function.") },
-    { id: "abstand", name: L("Klarheitsabstand", "Clarity spacing"), kurz: L("Abstand zeigt Struktur", "Space shows structure"),
-      text: L("Bewusst gesetzte Abstände machen sichtbar, wo ein Termhaus endet und der nächste beginnt. Bei mehrzeiligen Rechnungen können Rechenzeichen und Gleichheitszeichen sinnvoll untereinander ausgerichtet werden.",
-        "Deliberately placed gaps show where one term house ends and the next begins. In multi-line calculations, operators and equals signs can be lined up neatly one below the other.") },
-  ];
-
-  const stufen = [
-    { k: "READ", name: L("Lesen", "Read"), text: L("Musterlösungen untersuchen und verstehen, warum jeder Rechenschritt funktioniert.", "Examine worked solutions and understand why every step works.") },
-    { k: "WRITE", name: L("Schreiben", "Write"), text: L("Vorgegebene Muster auf vergleichbare Aufgaben übertragen und die Hilfestellungen schrittweise reduzieren.", "Transfer given patterns to similar tasks and reduce the support step by step.") },
-    { k: "CREATE", name: L("Entwickeln", "Create"), text: L("Eigene Lösungswege auf blankem Papier aufbauen und mathematische Zusammenhänge selbstständig darstellen.", "Build your own solution paths on blank paper and present mathematical connections independently.") },
-    { k: "DELIVER", name: L("Vermitteln", "Deliver"), text: L("Den eigenen Denkweg erklären und prüfen, ob ein anderer Mensch ihn nachvollziehen kann.", "Explain your own line of thought and check whether another person can follow it.") },
-  ];
-
-  const aufbau = [
-    { t: L("Ziel setzen", "Set the goal"), s: L("Welche mathematische Fähigkeit und welches Pen-&-Paper-Werkzeug werden trainiert?", "Which mathematical skill and which Pen & Paper tool are being trained?") },
-    { t: "READ", s: L("Eine gute Musterlösung lesen und ihre Struktur untersuchen.", "Read a good worked solution and examine its structure."), stufe: 0 },
-    { t: "WRITE", s: L("Eine vergleichbare Aufgabe mit Hilfestellung bearbeiten.", "Work on a similar task with support."), stufe: 1 },
-    { t: "CREATE", s: L("Eine neue Aufgabe möglichst selbstständig lösen.", "Solve a new task as independently as possible."), stufe: 2 },
-    { t: "DELIVER", s: L("Den Denkweg einem Partner oder dem Coach erklären.", "Explain your line of thought to a partner or the coach."), stufe: 3 },
-    { t: L("Selbstkontrolle", "Self-check"), s: L("Mathematische Richtigkeit und Darstellungsqualität prüfen.", "Check mathematical correctness and quality of presentation.") },
-    { t: "Transfer", s: L("Eine leicht veränderte Aufgabe ohne unmittelbare Anleitung lösen.", "Solve a slightly changed task without direct guidance.") },
-  ];
-
-  /* Rechenbeispiele: Zeilen { l, o, r, k } = links | Zeichen | rechts | Kommentar,
-     { t } = freie Formelzeile, { tx } = Hinweistext. Formelsyntax wie überall in der App. */
-  const einheitenA = [
-    { w: 1, titel: L("Neustart: Das Blatt wird zum Denkraum", "A fresh start: the page becomes your thinking space"),
-      text: L("Du steigst über einfache Wertetabellen ein und lernst, deinen Platz auf dem Papier selbst einzuteilen. Außerdem übst du, strukturierte von unstrukturierten Lösungen zu unterscheiden.",
-        "You start with simple tables of values and learn to divide up the space on your page yourself. You also practise telling structured solutions from unstructured ones."),
-      fokus: [L("Blatt einteilen", "Dividing the page"), L("Struktur erkennen", "Spotting structure")],
-      bsp: { zeilen: [{ t: "f(x) = 2x + 1" }], extra: { typ: "wertetabelle" } } },
-    { w: 1, titel: L("Die Geradengleichung als Termhaus", "The straight-line equation as a term house"),
-      text: L("Du arbeitest mit y = mx + b und untersuchst Steigung und y-Achsenabschnitt. Termhäuser, Final Operators und Klarheitsabstände werden eingeführt.",
-        "You work with y = mx + b and examine slope and y-intercept. Term houses, final operators and clarity spacing are introduced."),
-      fokus: [L("Termhäuser", "Term houses"), "Final Operators", L("Klarheitsabstand", "Clarity spacing")],
-      bsp: { extra: { typ: "haeuser", prefix: "y =", term: "2x + 1" },
-        zeilen: [{ t: "\\text{Steigung}\\quad m = 2" }, { t: "\\text{y-Achsenabschnitt}\\quad b = 1" }].map((z) => englisch()
-          ? { t: z.t.replace("Steigung", "Slope").replace("y-Achsenabschnitt", "y-intercept") } : z) } },
-    { w: 2, titel: L("Umformen, Einsetzen und Kontrollieren", "Rearranging, substituting and checking"),
-      text: L("Du berechnest Funktionswerte, bestimmst Geraden aus gegebenen Punkten und prüfst Ergebnisse durch Einsetzen. Pro Zeile steht eine Umformung, die Gleichheitszeichen bilden eine nachvollziehbare Kette.",
-        "You calculate function values, find lines through given points and check results by substituting. One rearrangement per line, and the equals signs form a traceable chain."),
-      fokus: [L("Eine Umformung pro Zeile", "One step per line"), L("Selbstkontrolle", "Self-check")],
-      bsp: { zeilen: [
-        { tx: L("Gerade durch P(1 | 3) und Q(3 | 7)", "Line through P(1 | 3) and Q(3 | 7)") },
-        { l: "m", r: "\\frac{7 − 3}{3 − 1}" }, { r: "\\frac{4}{2}" }, { r: "2" },
-        { l: "b", r: "3 − 2 \\cdot 1" }, { r: "1" },
-        { t: "y = 2x + 1" },
-        { l: "f(3)", r: "2 \\cdot 3 + 1", k: L("Probe", "Check") }, { r: "7 \\quad ✓" },
-      ] } },
-    { w: 3, titel: L("Parabeln: Potenzen und Termstruktur", "Parabolas: powers and term structure"),
-      text: L("Du arbeitest mit f(x) = ax² + bx + c. Exponenten schreibst du eindeutig, Summanden trennst du als Termhäuser und Vorzeichen kontrollierst du.",
-        "You work with f(x) = ax² + bx + c. You write exponents unambiguously, separate summands as term houses and check the signs."),
-      fokus: [L("Klarschrift", "Clear writing"), L("Termhäuser", "Term houses"), L("Vorzeichen prüfen", "Checking signs")],
-      bsp: { extra: { typ: "haeuser", prefix: "f(x) =", term: "x^2 − 4x + 3" }, zeilen: [{ t: "a = 1, \\quad b = −4, \\quad c = 3" }] } },
-    { w: 4, titel: L("Scheitelpunkt und besondere Punkte", "Vertex and special points"),
-      text: L("Scheitelpunkt, Symmetrieachse, Nullstellen und y-Achsenabschnitt – passend zu deinem Vorwissen. Deine Rechenergebnisse gleichst du mit dem Graphen ab.",
-        "Vertex, axis of symmetry, zeros and y-intercept – matched to your prior knowledge. You compare your results with the graph."),
-      fokus: [L("Abgleich mit dem Graphen", "Comparing with the graph"), L("Selbstkontrolle", "Self-check")],
-      bsp: { zeilen: [
-        { l: "f(x)", r: "x^2 − 4x + 3" }, { r: "(x − 2)^2 − 1" },
-        { t: "S(2\\,|\\,−1)" },
-        { t: "x_1 = 1, \\quad x_2 = 3" },
-        { l: "f(0)", r: "3", k: L("y-Achsenabschnitt", "y-intercept") },
-      ] } },
-    { w: 5, titel: L("Von der Steigung zur Ableitung", "From slope to derivative"),
-      text: L("Mittlere Steigung, Sekante, Tangente und Differenzenquotient. Brüche, Zähler und Nenner strukturierst du klar; geometrische und algebraische Darstellung werden verbunden.",
-        "Average slope, secant, tangent and difference quotient. You structure fractions, numerators and denominators clearly; the geometric and algebraic views are connected."),
-      fokus: [L("Zähler und Nenner", "Numerator and denominator"), L("Klarheitsabstand", "Clarity spacing")],
-      bsp: { zeilen: [
-        { tx: "f(x) = x²" },
-        { l: "\\frac{f(x+h) − f(x)}{h}", r: "\\frac{(x+h)^2 − x^2}{h}" },
-        { r: "\\frac{2xh + h^2}{h}" }, { r: "2x + h" },
-        { l: "h \\to 0", o: "⇒", r: "f′(x) = 2x" },
-      ] } },
-    { w: 6, titel: L("Ableiten und Final Operators", "Differentiating and final operators"),
-      text: L("Einfache Potenz- und Summenregeln. Jeder Summand wird einzeln bearbeitet und kontrolliert.",
-        "Simple power and sum rules. Every summand is handled and checked separately."),
-      fokus: [L("Termhäuser", "Term houses"), "Final Operators"],
-      bsp: { extra: { typ: "haeuser", prefix: "f(x) =", term: "3x^2 − 2x + 5" },
-        zeilen: [{ t: "(3x^2)′ = 6x, \\quad (2x)′ = 2, \\quad (5)′ = 0" }, { l: "f′(x)", r: "6x − 2" }] } },
-    { w: 7, titel: L("Die Ableitung mit dem Graphen verbinden", "Connecting the derivative with the graph"),
-      text: L("Du verknüpfst Funktion, Steigung und Ableitung und untersuchst, was eine Nullstelle der Ableitung über die Tangente aussagt.",
-        "You link function, slope and derivative and examine what a zero of the derivative says about the tangent."),
-      fokus: [L("Graph und Ableitung verbinden", "Linking graph and derivative")],
-      bsp: { zeilen: [
-        { l: "f(x)", r: "x^2 − 4x + 3" }, { l: "f′(x)", r: "2x − 4" },
-        { l: "f′(x) = 0", o: "⇒", r: "x = 2" },
-        { tx: L("Waagerechte Tangente genau im Scheitelpunkt S(2 | −1).", "Horizontal tangent exactly at the vertex S(2 | −1).") },
-      ] } },
-    { w: 8, titel: L("Abschluss: Eine Funktion selbstständig untersuchen", "Finale: investigate a function on your own"),
-      text: L("Du untersuchst selbstständig eine einfache quadratische Funktion mit Graph, Scheitelpunkt, gegebenenfalls Nullstellen und Ableitung. Danach prüfst du deine Lösung und erklärst deinen Denkweg.",
-        "You independently investigate a simple quadratic function with graph, vertex, zeros if applicable and derivative. Then you check your solution and explain your line of thought."),
-      fokus: [L("Selbstkontrolle", "Self-check"), "DELIVER"],
-      bsp: { titel: L("Deine Aufgabe", "Your task"), zeilen: [
-        { t: "f(x) = x^2 − 6x + 5" },
-        { tx: L("Graph · Scheitelpunkt · Nullstellen · Ableitung – dann deinen Denkweg erklären.", "Graph · vertex · zeros · derivative – then explain your line of thought.") },
-      ] } },
-  ];
-
-  const einheitenB = [
-    { w: 1, titel: L("Ableitungen: Die Rechenroutine aufbauen", "Derivatives: building the routine"),
-      text: L("Du trainierst Potenz- und Summenregel an Polynomen. Die Summanden leitest du einzeln ab; Exponenten und Vorzeichen kontrollierst du.",
-        "You train the power and sum rules on polynomials. You differentiate the summands one by one and check exponents and signs."),
-      fokus: [L("Termhäuser", "Term houses"), L("Klarschrift", "Clear writing")],
-      bsp: { extra: { typ: "haeuser", prefix: "g(x) =", term: "2x^3 − 5x^2 + 4x − 1" }, zeilen: [{ l: "g′(x)", r: "6x^2 − 10x + 4" }] } },
-    { w: 1, titel: L("Höhere Ableitungen und Selbstkontrolle", "Higher derivatives and self-checking"),
-      text: L("f′, f″ und f‴ stellst du systematisch dar. Die Ableitungskette ordnest du übersichtlich an und prüfst sie auf Vorzeichen- und Potenzfehler.",
-        "You present f′, f″ and f‴ systematically. You arrange the chain of derivatives clearly and check it for sign and power errors."),
-      fokus: [L("Klarheitsabstand", "Clarity spacing"), L("Selbstkontrolle", "Self-check")],
-      bsp: { zeilen: [
-        { l: "f(x)", r: "x^3 − 3x^2" }, { l: "f′(x)", r: "3x^2 − 6x" }, { l: "f″(x)", r: "6x − 6" }, { l: "f‴(x)", r: "6" },
-      ] } },
-    { w: 2, titel: L("Definitionsbereich, Symmetrie und Nullstellen", "Domain, symmetry and zeros"),
-      text: L("Du untersuchst Definitionsbereich und Symmetrie und berechnest die Nullstellen. Gleichungen, Faktorisierung und Rückprüfung hältst du sauber getrennt.",
-        "You examine domain and symmetry and calculate the zeros. You keep equations, factorisation and back-checking neatly apart."),
-      fokus: [L("Rechnung und Probe trennen", "Separating work and check"), L("Faktorisieren", "Factorising")],
-      bsp: { zeilen: [
-        { t: "D = \\mathbb{R}" },
-        { l: "f(−x)", r: "−x^3 − 3x^2" },
-        { tx: L("Weder f(x) noch −f(x): keine einfache Symmetrie.", "Neither f(x) nor −f(x): no simple symmetry.") },
-        { l: "f(x)", r: "x^2(x − 3)" },
-        { l: "f(x) = 0", o: "⇒", r: "x_1 = 0 \\; (\\text{" + L("doppelt", "double") + "})" },
-        { r: "x_2 = 3" },
-      ] } },
-    { w: 3, titel: L("Extrempunkte: Von f′ zu den Punkten", "Extreme points: from f′ to the points"),
-      text: L("Kandidaten bestimmst du über f′(x) = 0, berechnest die Funktionswerte und unterscheidest zwischen Extremstelle und Extrempunkt.",
-        "You find candidates via f′(x) = 0, calculate the function values and distinguish between an extreme point's x-value and the extreme point itself."),
-      fokus: [L("Stelle ≠ Punkt", "x-value ≠ point"), L("Rückprüfung", "Back-checking")],
-      bsp: { zeilen: [
-        { l: "f′(x)", r: "3x^2 − 6x" }, { r: "3x(x − 2)" },
-        { l: "f′(x) = 0", o: "⇒", r: "x_1 = 0, \\; x_2 = 2" },
-        { l: "f(0)", r: "0" }, { l: "f(2)", r: "−4" },
-        { t: "\\text{" + L("Kandidaten", "Candidates") + ":} \\quad (0\\,|\\,0), \\; (2\\,|\\,−4)" },
-      ] } },
-    { w: 4, titel: L("Extrempunkte klassifizieren und Monotonie untersuchen", "Classifying extreme points and examining monotonicity"),
-      text: L("Mit der zweiten Ableitung und dem Vorzeichenwechsel von f′ klassifizierst du Extrempunkte. Monotonieintervalle begründest du mit übersichtlichen Vorzeichentabellen.",
-        "You classify extreme points using the second derivative and the sign change of f′. You justify monotonicity intervals with clear sign tables."),
-      fokus: [L("Vorzeichentabelle", "Sign table"), L("Begründen", "Justifying")],
-      bsp: { zeilen: [
-        { l: "f″(0)", r: "−6", k: L("Hochpunkt", "maximum") },
-        { l: "f″(2)", r: "6", k: L("Tiefpunkt", "minimum") },
-      ], extra: { typ: "vorzeichen" } } },
-    { w: 5, titel: L("Wendepunkte und Krümmung", "Inflection points and curvature"),
-      text: L("Wendestellenkandidaten bestimmst du über f″(x) = 0 und prüfst sie anschließend angemessen, zum Beispiel auf einen Vorzeichenwechsel. Krümmungsverhalten und Wendepunkte dokumentierst du nachvollziehbar.",
-        "You find inflection candidates via f″(x) = 0 and then check them appropriately, for example for a sign change. You document curvature and inflection points in a traceable way."),
-      fokus: [L("Nachvollziehbar dokumentieren", "Documenting traceably"), L("Prüfen", "Checking")],
-      bsp: { zeilen: [
-        { l: "f″(x)", r: "6x − 6" },
-        { l: "f″(x) = 0", o: "⇒", r: "x = 1" },
-        { l: "f‴(1)", r: "6 \\neq 0", k: L("Wendestelle", "inflection") },
-        { l: "f(1)", r: "−2" },
-        { t: "W(1\\,|\\,−2)" },
-        { tx: L("Rechtskurve links von x = 1, Linkskurve rechts davon.", "Right-hand curve left of x = 1, left-hand curve to its right.") },
-      ] } },
-    { w: 6, titel: L("Verhalten im Unendlichen und Gesamtverlauf", "End behaviour and overall shape"),
-      text: L("Du untersuchst das Verhalten für x → ∞ und x → −∞ anhand des dominierenden Terms. Nullstellen, Extrempunkte, Wendepunkte, Monotonie und Krümmung verbindest du zu einem Gesamtbild.",
-        "You examine the behaviour for x → ∞ and x → −∞ using the dominant term. You combine zeros, extreme points, inflection points, monotonicity and curvature into one overall picture."),
-      fokus: [L("Dominierender Term", "Dominant term"), L("Gesamtbild", "Overall picture")],
-      bsp: { zeilen: [
-        { tx: L("Dominierender Term: x³", "Dominant term: x³") },
-        { l: "x \\to \\infty", o: "⇒", r: "f(x) \\to \\infty" },
-        { l: "x \\to −\\infty", o: "⇒", r: "f(x) \\to −\\infty" },
-      ] } },
-    { w: 7, titel: L("Die vollständige Kurvendiskussion zusammensetzen", "Putting the complete curve sketch together"),
-      text: L("Eine vollständige Untersuchung mit Definitionsbereich, Symmetrie, Nullstellen, Extrempunkten, Monotonie, Wendepunkt, Krümmung, Verhalten im Unendlichen und Graphenskizze.",
-        "A complete investigation with domain, symmetry, zeros, extreme points, monotonicity, inflection point, curvature, end behaviour and a sketch of the graph."),
-      fokus: [L("Reihenfolge", "Order of steps"), L("Alles zusammen", "Everything together")],
-      bsp: { titel: L("Protokoll zu f(x) = x³ − 3x²", "Report for f(x) = x³ − 3x²"), extra: { typ: "protokoll" }, zeilen: [] } },
-    { w: 8, titel: L("Abiturmodus: Selbstständig untersuchen und liefern", "Abitur mode: investigate independently and deliver"),
-      text: L("Eine neue Funktion untersuchst du unter realistischen Zeitbedingungen. Je nach Lernstand kommen Tangenten, Schnittpunkte, Parameter oder weitere abiturrelevante Fragestellungen hinzu. Am Ende steht eine vollständige, verständliche Lösung.",
-        "You investigate a new function under realistic time conditions. Depending on your level, tangents, intersection points, parameters or further Abitur-relevant questions are added. In the end you hand in a complete, understandable solution."),
-      fokus: ["DELIVER", L("Zeit einteilen", "Managing time")],
-      bsp: { titel: L("Deine Aufgabe", "Your task"), zeilen: [
-        { t: "f(x) = x^3 − 6x^2 + 9x" },
-        { tx: L("Vollständig untersuchen – mit Zeitlimit und Graphenskizze.", "Investigate completely – with a time limit and a sketch of the graph.") },
-      ] } },
-  ];
-
-  const protokoll = [
-    [L("Definitionsbereich", "Domain"), "D = \\mathbb{R}"],
-    [L("Symmetrie", "Symmetry"), L("keine einfache Symmetrie", "no simple symmetry")],
-    [L("Nullstellen", "Zeros"), "x_1 = 0 \\; (" + L("doppelt", "double") + "), \\; x_2 = 3"],
-    [L("Extrempunkte", "Extreme points"), "H(0\\,|\\,0), \\; T(2\\,|\\,−4)"],
-    [L("Monotonie", "Monotonicity"), L("steigend für x < 0 und x > 2, fallend dazwischen", "increasing for x < 0 and x > 2, decreasing in between")],
-    [L("Wendepunkt", "Inflection point"), "W(1\\,|\\,−2)"],
-    [L("Krümmung", "Curvature"), L("rechts für x < 1, links für x > 1", "right for x < 1, left for x > 1")],
-    [L("Unendlichkeit", "End behaviour"), "x \\to \\pm\\infty \\; ⇒ \\; f(x) \\to \\pm\\infty"],
-    [L("Graphenskizze", "Sketch"), L("mit allen markanten Punkten", "with all key points")],
-  ];
-
-  const arbeitsweise = [
-    L("Lesbarkeit und eindeutige Notation", "Legibility and unambiguous notation"),
-    L("klare Termhäuser, Final Operators und Klarheitsabstände", "clear term houses, final operators and clarity spacing"),
-    L("nachvollziehbare Umformungsschritte", "traceable steps of rearrangement"),
-    L("erkennbare Selbstkontrolle", "visible self-checking"),
-    L("Fähigkeit, den eigenen Denkweg zu erklären", "ability to explain your own line of thought"),
-  ];
-  const mathematik = [
-    L("korrekte Regeln und Rechnungen", "correct rules and calculations"),
-    L("vollständige Untersuchung der geforderten Eigenschaften", "complete investigation of the required properties"),
-    L("schlüssige Begründungen", "convincing justifications"),
-    L("plausible und miteinander konsistente Ergebnisse", "plausible results that are consistent with each other"),
-  ];
-  const mathildaFelder = [
-    L("Mathematische Richtigkeit und Umformungen", "Mathematical correctness and rearrangements"),
-    L("Vorzeichen- und Potenzfehler", "Sign and power errors"),
-    L("Lesbarkeit und Notation", "Legibility and notation"),
-    L("Termstruktur und Abstände", "Term structure and spacing"),
-    L("Fehlende Zwischenschritte", "Missing intermediate steps"),
-    L("Möglichkeiten zur Selbstkontrolle", "Ways to check yourself"),
-  ];
-
-  const extra = baueExtra(L);
-  einheitenA.forEach((e, i) => Object.assign(e, extra.A[i]));
-  einheitenB.forEach((e, i) => Object.assign(e, extra.B[i]));
-
-  return { werkzeuge, stufen, aufbau, einheitenA, einheitenB, protokoll, arbeitsweise, mathematik, mathildaFelder };
+function useStand() {
+  return useSyncExternalStore(penpaperHoeren, () => penpaperStand()._zeit, () => 0);
 }
 
-/* Tab-Leisten per Tastatur: Pfeile, Pos1, Ende (nur der gewählte Tab ist per Tab erreichbar) */
-function tabTaste(e, n, aktuell, setze) {
-  const k = e.key;
-  let i = aktuell;
-  if (k === "ArrowRight" || k === "ArrowDown") i = (aktuell + 1) % n;
-  else if (k === "ArrowLeft" || k === "ArrowUp") i = (aktuell - 1 + n) % n;
-  else if (k === "Home") i = 0;
-  else if (k === "End") i = n - 1;
-  else return;
-  e.preventDefault();
-  setze(i);
-  const tabs = e.currentTarget.querySelectorAll('[role="tab"]');
-  if (tabs[i]) tabs[i].focus();
-}
+/* ---------------------------------------------------------------- Richtig / falsch */
 
-/* ---------------------------------------------------------------- Termhäuser */
-
-/* Zerlegt einen Term auf oberster Ebene an + und − (Klammern bleiben zusammen).
-   Ergebnis: [{ op: null | "+" | "−", text }] — op ist das Zeichen VOR dem Haus. */
-function zerlege(eingabe) {
-  const t = String(eingabe).replace(/\s+/g, "").replace(/-/g, "−").replace(/\*/g, "·");
-  const aus = [];
-  let tiefe = 0, cur = "", op = null;
-  for (let i = 0; i < t.length; i++) {
-    const ch = t[i];
-    if (ch === "(") tiefe++;
-    if (ch === ")") tiefe = Math.max(0, tiefe - 1);
-    if ((ch === "+" || ch === "−") && tiefe === 0) {
-      if (cur === "") { cur = ch === "−" ? "−" : ""; continue; }          // Vorzeichen am Anfang
-      if (cur.endsWith("^")) { cur += ch; continue; }                      // x^−2
-      aus.push({ op, text: cur });
-      op = ch; cur = "";
-    } else cur += ch;
-  }
-  if (cur !== "") aus.push({ op, text: cur });
-  return aus;
-}
-
-/* ^2 → hochgestellt; Klammerinhalt bekommt Luft um + und − */
-function Hoch({ s }) {
-  const schoen = String(s).replace(/([^\s(^])([+−])/g, "$1 $2 ");
-  return String(schoen).split(/(\^−?\d+)/).map((t, i) => (/^\^/.test(t)
-    ? <sup key={i} style={{ fontSize: "0.62em", lineHeight: 0, position: "relative", top: "-0.5em", marginLeft: 1 }}>{t.slice(1)}</sup>
-    : <React.Fragment key={i}>{t}</React.Fragment>));
-}
-
-function Haus({ children }) {
+function Paar({ falsch, richtig, falschText, richtigText, falschTitel = "So nicht", richtigTitel = "So" }) {
   return (
-    <span style={{ display: "inline-flex", flexDirection: "column", alignItems: "stretch" }}>
-      <svg viewBox="0 0 40 12" preserveAspectRatio="none" style={{ width: "100%", height: 11, display: "block" }} aria-hidden="true">
-        <path d="M0.8 11.2 L20 1.6 L39.2 11.2 Z" fill="rgba(237,187,0,0.2)" stroke={NAVY} strokeWidth="1.6" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
-      </svg>
-      <span style={{ border: `1.6px solid ${NAVY}`, borderTop: "none", borderRadius: "0 0 9px 9px", padding: "5px 11px 6px", background: "#fff",
-        whiteSpace: "nowrap", fontWeight: 600, color: NAVY, textAlign: "center" }}>{children}</span>
-    </span>
-  );
-}
-
-function Verbinder({ z, final }) {
-  return (
-    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 28, height: 28, borderRadius: 999, marginBottom: 4, flexShrink: 0,
-      fontWeight: 800, fontSize: 18, lineHeight: 1, background: final ? GOLD : "transparent", color: final ? NAVY : C.grau,
-      boxShadow: final ? "0 2px 8px rgba(181,134,18,0.38)" : "none", transition: "background .25s, box-shadow .25s" }}>{z}</span>
-  );
-}
-
-/* stufe 0: Term als Zeile · 1: Termhäuser · 2: Termhäuser + markierte Final Operators */
-function Haeuser({ prefix, teile, stufe = 2, gross }) {
-  const fs = gross ? 25 : 21;
-  return (
-    <div style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-end", gap: "6px 2px", fontSize: fs, color: C.tinte, minHeight: 50 }}>
-      {prefix && <span style={{ fontWeight: 600, marginRight: 8, marginBottom: 6, whiteSpace: "nowrap" }}>{prefix}</span>}
-      {stufe === 0 ? (
-        <span style={{ fontWeight: 600, color: NAVY, marginBottom: 6 }}>
-          {teile.map((x, i) => <React.Fragment key={i}>{x.op ? ` ${x.op} ` : ""}<Hoch s={x.text} /></React.Fragment>)}
-        </span>
-      ) : teile.map((x, i) => (
-        <React.Fragment key={i}>
-          {x.op && <Verbinder z={x.op} final={stufe === 2} />}
-          <Haus><Hoch s={x.text} /></Haus>
-        </React.Fragment>
-      ))}
-    </div>
-  );
-}
-
-/* ---------------------------------------------------------------- Bausteine der Seite */
-
-const Blatt = ({ children, style }) => (
-  <div style={{ background: "#fff", borderRadius: 14, border: `1px solid ${C.linie}`, padding: "14px 16px",
-    backgroundImage: "linear-gradient(rgba(0,77,152,0.055) 1px, transparent 1px), linear-gradient(90deg, rgba(0,77,152,0.055) 1px, transparent 1px)",
-    backgroundSize: "22px 22px", ...style }}>{children}</div>
-);
-
-const Marke = ({ ok, children }) => (
-  <p style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 11.5, fontWeight: 700, letterSpacing: "0.04em", marginBottom: 8,
-    color: ok ? C.gruenDunkel : C.signal }}>
-    <span aria-hidden="true" style={{ width: 16, height: 16, borderRadius: 999, background: ok ? GOLD : "transparent", border: ok ? "none" : `1.6px solid ${C.signal}`,
-      color: ok ? NAVY : C.signal, fontSize: 10, fontWeight: 800, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{ok ? "✓" : "!"}</span>
-    {children}
-  </p>
-);
-
-function Rechnung({ zeilen }) {
-  if (!zeilen.length) return null;
-  return (
-    <div style={{ display: "grid", gridTemplateColumns: "auto auto minmax(0,1fr) auto", columnGap: 10, rowGap: 7, alignItems: "center", fontSize: 17, color: C.tinte, overflowX: "auto", paddingBottom: 2 }}>
-      {zeilen.map((z, i) => (z.t !== undefined ? (
-        <div key={i} style={{ gridColumn: "1 / -1" }}><M t={z.t} /></div>
-      ) : z.tx !== undefined ? (
-        <div key={i} style={{ gridColumn: "1 / -1", fontSize: 13.5, color: C.grau, fontWeight: 300, lineHeight: 1.5 }}>{z.tx}</div>
-      ) : (
-        <React.Fragment key={i}>
-          <div style={{ justifySelf: "end" }}>{z.l ? <M t={z.l} /> : null}</div>
-          <div style={{ color: C.grau }}>{z.o === "" ? null : <M t={z.o || "="} />}</div>
-          <div><M t={z.r} /></div>
-          <div style={{ fontSize: 12.5, color: C.gruenDunkel, fontWeight: 600, whiteSpace: "nowrap" }}>{z.k || ""}</div>
-        </React.Fragment>
-      )))}
-    </div>
-  );
-}
-
-const zelle = { padding: "7px 6px", textAlign: "center", fontSize: 14.5, borderBottom: `1px solid ${C.linie}`, borderRight: `1px solid ${C.linie}` };
-
-function Wertetabelle() {
-  const xs = [-2, -1, 0, 1, 2];
-  return (
-    <div style={{ overflowX: "auto", marginTop: 12 }}>
-      <div style={{ display: "inline-grid", gridTemplateColumns: `auto repeat(${xs.length}, minmax(34px, 1fr))`, border: `1.5px solid ${NAVY}`, borderRadius: 10, overflow: "hidden", background: "#fff" }}>
-        <span style={{ ...zelle, background: NAVY, color: GOLD, fontWeight: 700, padding: "7px 12px" }}>x</span>
-        {xs.map((x) => <span key={x} style={{ ...zelle, background: "#EEF3FA", fontWeight: 600 }}>{x < 0 ? `−${-x}` : x}</span>)}
-        <span style={{ ...zelle, background: NAVY, color: GOLD, fontWeight: 700, padding: "7px 12px", borderBottom: "none" }}>f(x)</span>
-        {xs.map((x) => { const y = 2 * x + 1; return <span key={x} style={{ ...zelle, borderBottom: "none", fontWeight: 600, color: NAVY }}>{y < 0 ? `−${-y}` : y}</span>; })}
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))", gap: 8, margin: "12px 0" }}>
+      <div style={{ borderRadius: 12, border: `1px solid ${C.linie}`, padding: "10px 12px", background: "#fff" }}>
+        <Et farbe={C.signal}>{falschTitel}</Et>
+        <div style={{ overflowX: "auto", paddingBottom: 2 }}>{falsch}</div>
+        {falschText && <p style={{ fontSize: 12.5, color: C.grau, lineHeight: 1.5, marginTop: 6 }}>{falschText}</p>}
+      </div>
+      <div style={{ borderRadius: 12, border: "1px solid #F0D77A", padding: "10px 12px", background: GOLDHELL }}>
+        <Et farbe={C.gruenDunkel}>{richtigTitel}</Et>
+        <div style={{ overflowX: "auto", paddingBottom: 2 }}>{richtig}</div>
+        {richtigText && <p style={{ fontSize: 12.5, color: C.grau, lineHeight: 1.5, marginTop: 6 }}>{richtigText}</p>}
       </div>
     </div>
   );
 }
-
-function Vorzeichentabelle() {
-  const kopf = ["x < 0", "0 < x < 2", "x > 2"];
-  const vz = ["+", "−", "+"];
-  const pf = [L("steigend", "rising"), L("fallend", "falling"), L("steigend", "rising")];
-  const pfeil = ["↗", "↘", "↗"];
+const Strich = ({ children }) => (
+  <span style={{ position: "relative", display: "inline-block", fontSize: 17, color: C.tinte, fontWeight: 500 }}>
+    {children}<span aria-hidden="true" style={{ position: "absolute", left: "-2%", right: "-2%", top: "52%", height: 2, background: C.signal, transform: "rotate(-6deg)" }} />
+  </span>
+);
+const Nr = ({ n }) => <span aria-hidden="true" style={{ flexShrink: 0, width: 22, height: 22, borderRadius: 999, background: C.see, color: "#fff", fontSize: 11, fontWeight: 800, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{n}</span>;
+function Regeln({ liste }) {
   return (
-    <div style={{ overflowX: "auto", marginTop: 12 }}>
-      <div style={{ display: "grid", gridTemplateColumns: "auto repeat(3, minmax(0, 1fr))", border: `1.5px solid ${NAVY}`, borderRadius: 10, overflow: "hidden", background: "#fff", minWidth: 300 }}>
-        <span style={{ ...zelle, background: NAVY }} />
-        {kopf.map((k) => <span key={k} style={{ ...zelle, background: NAVY, color: GOLD, fontWeight: 700 }}>{k}</span>)}
-        <span style={{ ...zelle, background: "#EEF3FA", fontWeight: 700, padding: "9px 12px" }}>f′(x)</span>
-        {vz.map((v, i) => <span key={i} style={{ ...zelle, fontWeight: 800, fontSize: 19, color: v === "+" ? C.gruenDunkel : C.signal }}>{v}</span>)}
-        <span style={{ ...zelle, background: "#EEF3FA", fontWeight: 700, padding: "9px 12px", borderBottom: "none" }}>f(x)</span>
-        {pf.map((p, i) => (
-          <span key={i} style={{ ...zelle, borderBottom: "none", fontSize: 13, lineHeight: 1.3 }}>
-            <span style={{ display: "block", fontSize: 20, fontWeight: 700, color: NAVY }}>{pfeil[i]}</span>{p}
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function Protokoll({ zeilen }) {
-  return (
-    <div style={{ borderRadius: 12, border: `1px solid ${C.linie}`, overflow: "hidden", background: "#fff" }}>
-      {zeilen.map(([k, v], i) => (
-        <div key={i} style={{ display: "grid", gridTemplateColumns: "minmax(98px, 34%) minmax(0, 1fr)", gap: 10, padding: "8px 12px", alignItems: "center",
-          background: i % 2 ? "#F7F9FD" : "#fff", borderBottom: i < zeilen.length - 1 ? `1px solid ${C.linie}` : "none" }}>
-          <span style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.04em", color: LABEL, textTransform: "uppercase" }}>{k}</span>
-          <span style={{ fontSize: 15, color: C.tinte, lineHeight: 1.45 }}>{/[\\^_=|]/.test(v) ? <M t={v} /> : v}</span>
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))", gap: 8, marginBottom: 12 }}>
+      {liste.map(([t, s], i) => (
+        <div key={t} style={{ borderRadius: 12, border: `1px solid ${C.linie}`, padding: "10px 12px", display: "flex", gap: 10 }}>
+          <Nr n={i + 1} /><span><b style={{ fontSize: 14, color: NAVY }}>{t}</b><span style={{ display: "block", fontSize: 13, color: C.grau, lineHeight: 1.5 }}>{s}</span></span>
         </div>
       ))}
     </div>
   );
 }
 
-/* ---------------------------------------------------------------- Vier Werkzeuge */
+/* ---------------------------------------------------------------- Karo / Blanko */
 
-function WerkzeugBild({ id }) {
-  if (id === "klar") return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 10 }}>
-      <Blatt>
-        <Marke ok>{L("EINDEUTIG", "UNAMBIGUOUS")}</Marke>
-        <p style={{ fontSize: 30, fontWeight: 700, color: NAVY, lineHeight: 1.1 }}>x<sup style={{ fontSize: "0.6em", position: "relative", top: "-0.1em", lineHeight: 0 }}>2</sup> + 3x</p>
-        <p style={{ fontSize: 12.5, color: C.grau, fontWeight: 300, lineHeight: 1.5, marginTop: 8 }}>{L("Der Exponent sitzt direkt rechts oben an seiner Basis.", "The exponent sits right at the top right of its base.")}</p>
-      </Blatt>
-      <Blatt>
-        <Marke>{L("MISSVERSTÄNDLICH", "AMBIGUOUS")}</Marke>
-        <p style={{ fontSize: 30, fontWeight: 700, color: NAVY, lineHeight: 1.1 }}>x <span style={{ marginLeft: 6 }}>2</span> + 3x</p>
-        <p style={{ fontSize: 12.5, color: C.grau, fontWeight: 300, lineHeight: 1.5, marginTop: 8 }}>{L("x · 2 oder x²? Das Blatt gibt keine Antwort.", "x · 2 or x²? The page gives no answer.")}</p>
-      </Blatt>
-    </div>
-  );
-  if (id === "haus") return (
-    <Blatt>
-      <Haeuser prefix="f(x) =" teile={zerlege("3x^2 − 2x + 5")} stufe={1} />
-      <p style={{ fontSize: 13, color: C.grau, fontWeight: 300, lineHeight: 1.55, marginTop: 10 }}>
-        {L("Drei Summanden, drei Häuser: 3x², 2x und 5. Jedes Haus wird für sich behandelt und kontrolliert.", "Three summands, three houses: 3x², 2x and 5. Each house is handled and checked on its own.")}
-      </p>
-    </Blatt>
-  );
-  if (id === "op") return (
-    <Blatt>
-      <Haeuser prefix="f(x) =" teile={zerlege("(x − 2)^2 + 4")} stufe={2} />
-      <div style={{ display: "grid", gap: 7, marginTop: 10, fontSize: 13, color: C.grau, fontWeight: 300, lineHeight: 1.5 }}>
-        <span style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <span aria-hidden="true" style={{ width: 16, height: 16, borderRadius: 999, background: GOLD, flexShrink: 0 }} />
-          <span><b style={{ fontWeight: 700, color: NAVY }}>Final Operator:</b> {L("das + zwischen den beiden Häusern.", "the + between the two houses.")}</span>
-        </span>
-        <span style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <span aria-hidden="true" style={{ width: 16, height: 16, borderRadius: 999, border: `1.6px solid ${C.hellgrau}`, flexShrink: 0 }} />
-          <span>{L("Das − in der Klammer bleibt im Haus. Es verbindet keine Häuser.", "The − inside the bracket stays within its house. It does not connect houses.")}</span>
-        </span>
-      </div>
-    </Blatt>
-  );
-  const kette = [["2x + 1", "7", "| − 1"], ["2x", "6", "| : 2"], ["x", "3", ""]];
+function KaroBlanko({ frage }) {
+  const [karo, setKaro] = useState(true);
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))", gap: 10 }}>
-      <Blatt>
-        <Marke>{L("ZUSAMMENGEQUETSCHT", "SQUEEZED TOGETHER")}</Marke>
-        <p style={{ fontSize: 24, fontWeight: 700, color: NAVY, letterSpacing: "-0.05em" }}>3x²−2x+5</p>
-        <Marke ok>{L("MIT KLARHEITSABSTAND", "WITH CLARITY SPACING")}</Marke>
-        <p style={{ fontSize: 24, fontWeight: 700, color: NAVY, wordSpacing: "0.32em" }}>3x² − 2x + 5</p>
-      </Blatt>
-      <Blatt>
-        <Marke ok>{L("GLEICHHEITSZEICHEN UNTEREINANDER", "EQUALS SIGNS LINED UP")}</Marke>
-        <div style={{ display: "grid", gridTemplateColumns: "auto auto auto 1fr", columnGap: 8, rowGap: 5, fontSize: 19, fontWeight: 600, color: NAVY, alignItems: "baseline" }}>
-          {kette.map(([l, r, k], i) => (
-            <React.Fragment key={i}>
-              <span style={{ justifySelf: "end" }}>{l}</span><span style={{ color: C.grau }}>=</span>
-              <span style={{ borderBottom: i === kette.length - 1 ? `3px double ${GOLD}` : "none", justifySelf: "start" }}>{r}</span>
-              <span style={{ fontSize: 13, color: C.gruenDunkel, fontWeight: 600 }}>{k}</span>
-            </React.Fragment>
-          ))}
-        </div>
-      </Blatt>
-    </div>
-  );
-}
-
-function Werkzeuge({ daten }) {
-  const [id, setId] = useState("klar");
-  const w = daten.werkzeuge.find((x) => x.id === id);
-  return (
-    <>
-      <div role="tablist" aria-label={L("Die vier Werkzeuge", "The four tools")} style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8 }}
-        onKeyDown={(e) => tabTaste(e, daten.werkzeuge.length, daten.werkzeuge.findIndex((x) => x.id === id), (i) => setId(daten.werkzeuge[i].id))}>
-        {daten.werkzeuge.map((x, i) => (
-          <button key={x.id} type="button" role="tab" aria-selected={id === x.id} tabIndex={id === x.id ? 0 : -1} onClick={() => setId(x.id)}
-            style={{ textAlign: "left", padding: "12px 13px", borderRadius: 14, cursor: "pointer", fontFamily: "inherit",
-              border: `1.5px solid ${id === x.id ? NAVY : C.linie}`, background: id === x.id ? NAVY : C.weiss, boxShadow: id === x.id ? "0 6px 18px rgba(11,30,74,0.22)" : "none",
-              transition: "background .2s, border-color .2s" }}>
-            <span style={{ display: "block", fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: id === x.id ? GOLD : LABEL }}>{`0${i + 1}`}</span>
-            <span style={{ display: "block", fontSize: 15, fontWeight: 700, color: id === x.id ? "#fff" : NAVY, marginTop: 2, lineHeight: 1.2 }}>{x.name}</span>
-            <span style={{ display: "block", fontSize: 11.5, fontWeight: 400, color: id === x.id ? "#C9D6EE" : C.grau, marginTop: 3, lineHeight: 1.35 }}>{x.kurz}</span>
-          </button>
+    <div style={{ ...karte, padding: 14 }}>
+      <div role="group" aria-label="Papier" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4, background: "#EEF3FA", borderRadius: 12, padding: 4, marginBottom: 12 }}>
+        {[["Auf Karo", true], ["Auf Blanko", false]].map(([n, k]) => (
+          <button key={n} type="button" aria-pressed={karo === k} onClick={() => setKaro(k)}
+            style={{ padding: "9px 4px", borderRadius: 9, border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 13, fontWeight: 700, background: karo === k ? NAVY : "transparent", color: karo === k ? GOLD : C.grau }}>{n}</button>
         ))}
       </div>
-      <div key={id} className="pp-neu" style={{ ...karte, padding: 18, marginTop: 10 }}>
-        <p style={{ fontSize: 14.5, color: C.tinte, lineHeight: 1.7, marginBottom: 14 }}>{w.text}</p>
-        <WerkzeugBild id={id} />
-      </div>
-      <div style={{ ...karte, padding: "14px 16px", marginTop: 10, display: "flex", gap: 12, alignItems: "flex-start", borderLeft: `4px solid ${GOLD}` }}>
-        <span aria-hidden="true" style={{ flexShrink: 0, width: 34, height: 34, borderRadius: 11, background: GOLDFLAECHE, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke={NAVY} strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
-        </span>
-        <span>
-          <span style={{ display: "block", fontSize: 15, fontWeight: 700, color: NAVY }}>{L("Dazu: systematische Selbstkontrolle", "Plus: systematic self-checking")}</span>
-          <span style={{ display: "block", fontSize: 13.5, color: C.grau, fontWeight: 300, lineHeight: 1.6, marginTop: 3 }}>
-            {L("Du lernst, Vorzeichenfehler, falsche Umformungen, Potenzfehler und unklare Rechenschritte selbst zu erkennen. Die mathematischen Regeln bleiben unverändert – die Methode macht ihre Anwendung sichtbarer.",
-              "You learn to spot sign errors, wrong rearrangements, power errors and unclear steps yourself. The mathematical rules stay exactly the same – the method just makes how you apply them more visible.")}
-          </span>
-        </span>
-      </div>
-    </>
-  );
-}
-
-/* ---------------------------------------------------------------- Termhaus-Labor */
-
-function Labor() {
-  const beispiele = ["3x^2 − 2x + 5", "x^3 − 3x^2 + 2x", "−x^2 + 4", "(x − 2)^2 + 4", "2x + 1"];
-  const [eingabe, setEingabe] = useState(beispiele[0]);
-  const [stufe, setStufe] = useState(1);
-  const hatGleich = eingabe.includes("=");
-  const kopf = hatGleich ? eingabe.slice(0, eingabe.indexOf("=")).trim() : "";
-  const rechts = hatGleich ? eingabe.slice(eingabe.indexOf("=") + 1) : eingabe;
-  const teile = useMemo(() => zerlege(rechts), [rechts]);
-  const klammerHinweis = teile.some((x) => /\([^)]*[+−]/.test(x.text));
-  const stufenName = [L("Term", "Term"), L("Termhäuser", "Term houses"), "+ Final Operators"];
-  return (
-    <div style={{ ...karte, padding: 18 }}>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>
-        {beispiele.map((b) => (
-          <button key={b} type="button" onClick={() => setEingabe(b)}
-            style={{ padding: "6px 11px", borderRadius: 999, fontFamily: "inherit", fontSize: 13, fontWeight: 600, cursor: "pointer",
-              border: `1.5px solid ${eingabe === b ? NAVY : C.linie}`, background: eingabe === b ? NAVY : "#fff", color: eingabe === b ? GOLD : NAVY }}>
-            <Hoch s={b} />
-          </button>
-        ))}
-      </div>
-      <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: LABEL, letterSpacing: "0.04em", marginBottom: 5 }}>{L("ODER EIGENEN TERM EINGEBEN", "OR TYPE YOUR OWN TERM")}</label>
-      <MatheFeld modus="formel" value={eingabe} onChange={(e) => setEingabe(e.target.value)} spellCheck={false} autoComplete="off"
-        placeholder="x^2 − 4x + 3" aria-label={L("Term eingeben", "Enter a term")}
-        style={{ width: "100%", boxSizing: "border-box", padding: "11px 13px", borderRadius: 11, border: `1.5px solid ${C.linie}`, fontFamily: "inherit", fontSize: 16, color: C.tinte, background: "#FAFBFE", outline: "none" }} />
-      <p style={{ fontSize: 11.5, color: LABEL, margin: "5px 0 14px" }}>{L("Potenzen mit ^ schreiben, zum Beispiel x^2.", "Write powers with ^, for example x^2.")}</p>
-
-      <div role="group" aria-label={L("Ansicht", "View")} style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 4, background: "#EEF3FA", borderRadius: 12, padding: 4, marginBottom: 12 }}>
-        {stufenName.map((n, i) => (
-          <button key={n} type="button" aria-pressed={stufe === i} onClick={() => setStufe(i)}
-            style={{ padding: "9px 4px", borderRadius: 9, border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 12.5, fontWeight: 700,
-              background: stufe === i ? NAVY : "transparent", color: stufe === i ? GOLD : C.grau, transition: "background .2s" }}>{n}</button>
-        ))}
-      </div>
-
-      <Blatt style={{ minHeight: 96, display: "flex", alignItems: "center" }}>
-        {teile.length ? (
-          <div style={{ width: "100%" }}><Haeuser prefix={kopf || null} teile={teile} stufe={stufe} gross /></div>
-        ) : (
-          <p style={{ fontSize: 14, color: C.grau }}>{L("Gib oben einen Term ein, zum Beispiel 3x^2 − 2x + 5.", "Type a term above, for example 3x^2 − 2x + 5.")}</p>
-        )}
-      </Blatt>
-      {teile.length > 0 && (
-        <p aria-live="polite" style={{ fontSize: 14, color: C.tinte, marginTop: 12, lineHeight: 1.6 }}>
-          <b style={{ color: NAVY }}>{teile.length} {teile.length === 1 ? L("Termhaus", "term house") : L("Termhäuser", "term houses")}</b>
-          {" · "}
-          <b style={{ color: NAVY }}>{teile.length - 1} Final {teile.length - 1 === 1 ? "Operator" : "Operators"}</b>
-        </p>
-      )}
-      {klammerHinweis && (
-        <p style={{ fontSize: 13, color: C.grau, fontWeight: 300, lineHeight: 1.6, marginTop: 6 }}>
-          {L("Plus und Minus innerhalb einer Klammer bleiben im Termhaus. Nur die Zeichen zwischen den Häusern sind Final Operators.", "Plus and minus signs inside a bracket stay within the term house. Only the signs between the houses are final operators.")}
-        </p>
-      )}
-    </div>
-  );
-}
-
-/* ---------------------------------------------------------------- Lernstufen-Treppe */
-
-function Treppe({ daten }) {
-  const [i, setI] = useState(0);
-  const S = daten.stufen[i];
-  const B = 80, G = 6, H0 = 150;
-  return (
-    <>
-      <div style={{ ...karte, padding: "16px 12px 12px" }}>
-        <svg viewBox="0 0 346 168" style={{ width: "100%", display: "block" }} role="group" aria-label={L("Vier Lernstufen", "Four learning stages")}>
-          <defs>
-            <linearGradient id="ppGold" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stopColor="#FFE9A0" /><stop offset="0.45" stopColor="#EDBB00" /><stop offset="1" stopColor="#B58612" />
-            </linearGradient>
-          </defs>
-          <line x1="2" y1={H0 + 6} x2="344" y2={H0 + 6} stroke={C.linie} strokeWidth="2" />
-          {daten.stufen.map((s, k) => {
-            const h = 38 + k * 32, x = 2 + k * (B + G), y = H0 - h, an = k === i;
-            return (
-              <g key={s.k} role="button" tabIndex={0} aria-label={`${s.k} – ${s.name}`} aria-pressed={an} style={{ cursor: "pointer", outline: "none" }}
-                onClick={() => setI(k)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setI(k); } }}>
-                <rect x={x} y={y + 6} width={B} height={h} rx="10" fill={an ? "url(#ppGold)" : NAVY} opacity={an ? 1 : 0.14 + k * 0.17} style={{ transition: "opacity .25s" }} />
-                <text x={x + B / 2} y={y + 6 + 24} textAnchor="middle" fontFamily="Montserrat, system-ui, sans-serif" fontSize="12.5" fontWeight="800" letterSpacing="0.04em"
-                  fill={an ? NAVY : "#fff"}>{s.k}</text>
-                <text x={x + B / 2} y={y + 6 + 40} textAnchor="middle" fontFamily="Montserrat, system-ui, sans-serif" fontSize="9.5" fontWeight="500"
-                  fill={an ? NAVY : "#C9D6EE"}>{s.name}</text>
-              </g>
-            );
-          })}
-        </svg>
-        <div aria-hidden="true" style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6, fontSize: 11, fontWeight: 600, color: LABEL }}>
-          <span>{L("viel Hilfe", "lots of support")}</span>
-          <span style={{ flex: 1, height: 2, borderRadius: 2, background: `linear-gradient(90deg, ${C.linie}, ${GOLD})` }} />
-          <span>{L("eigene Leistung", "your own work")}</span>
-        </div>
-      </div>
-      <div key={i} className="pp-neu" style={{ ...karte, padding: 18, marginTop: 10, borderTop: `4px solid ${GOLD}` }}>
-        <p style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.1em", color: LABEL }}>{L("STUFE", "STAGE")} {i + 1}</p>
-        <p style={{ fontSize: 22, fontWeight: 700, color: NAVY, marginBottom: 6 }}>{S.k} <span style={{ fontWeight: 400, color: C.grau }}>· {S.name}</span></p>
-        <p style={{ fontSize: 14.5, color: C.tinte, lineHeight: 1.7 }}>{S.text}</p>
-      </div>
-    </>
-  );
-}
-
-/* ---------------------------------------------------------------- Kurse */
-
-function Kurse({ daten, kurs, setKurs, einheit, setEinheit, anker }) {
-  const liste = kurs === "A" ? daten.einheitenA : daten.einheitenB;
-  const E = liste[einheit];
-  const phasen = kurs === "A"
-    ? [[3, L("Gerade", "Line")], [2, L("Parabel", "Parabola")], [4, L("Ableitung", "Derivative")]]
-    : [[2, L("Ableiten", "Differentiating")], [4, L("Eigenschaften", "Properties")], [3, L("Gesamtbild", "Big picture")]];
-  const wahl = [
-    { id: "A", kicker: L("KURS A", "COURSE A"), name: L("Mittelstufe", "Lower & middle school"), weg: L("Geradengleichungen → Parabeln → Ableitung", "Straight lines → parabolas → derivative") },
-    { id: "B", kicker: L("KURS B", "COURSE B"), name: L("Oberstufe / Abitur", "Upper school / Abitur"), weg: L("Ableitung → markante Punkte → vollständige Kurvendiskussion", "Derivative → key points → complete curve sketch") },
-  ];
-  const ziel = kurs === "A"
-    ? L("Du beginnst mit Geradengleichungen, entwickelst ein Gefühl für Termstrukturen und gelangst über Parabeln zur Ableitung. Die Ableitung bildet den Abschluss des Kurses.",
-      "You begin with straight-line equations, develop a feel for term structure and reach the derivative via parabolas. The derivative is the finale of the course.")
-    : L("Du beginnst mit dem Ableiten und erarbeitest dir daraus die vollständige Kurvendiskussion – von den ersten Ableitungsregeln bis zu den markanten Punkten und dem Gesamtverlauf einer Funktion.",
-      "You start with differentiating and build up to the complete curve sketch – from the first rules of differentiation to the key points and the overall shape of a function.");
-  const waehle = (k) => { setKurs(k); setEinheit(0); };
-  const bsp = E.bsp;
-  const ex = bsp.extra;
-
-  return (
-    <div ref={anker} style={{ scrollMarginTop: 70 }}>
-      <div role="tablist" aria-label={L("Kurs wählen", "Choose a course")} style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8 }}
-        onKeyDown={(e) => tabTaste(e, wahl.length, wahl.findIndex((w) => w.id === kurs), (i) => waehle(wahl[i].id))}>
-        {wahl.map((w) => (
-          <button key={w.id} type="button" role="tab" aria-selected={kurs === w.id} tabIndex={kurs === w.id ? 0 : -1} onClick={() => waehle(w.id)}
-            style={{ textAlign: "left", padding: "14px 13px", borderRadius: 16, cursor: "pointer", fontFamily: "inherit", position: "relative", overflow: "hidden",
-              border: `1.5px solid ${kurs === w.id ? NAVY : C.linie}`, background: kurs === w.id ? `linear-gradient(160deg, ${NAVY}, #17306B)` : C.weiss,
-              boxShadow: kurs === w.id ? "0 8px 22px rgba(11,30,74,0.26)" : "none", transition: "all .2s" }}>
-            <span style={{ display: "block", fontSize: 11, fontWeight: 800, letterSpacing: "0.1em", color: kurs === w.id ? GOLD : LABEL }}>{w.kicker}</span>
-            <span style={{ display: "block", fontSize: 17, fontWeight: 700, color: kurs === w.id ? "#fff" : NAVY, margin: "3px 0 6px", lineHeight: 1.2 }}>{w.name}</span>
-            <span style={{ display: "block", fontSize: 11.5, fontWeight: 400, lineHeight: 1.4, color: kurs === w.id ? "#C9D6EE" : C.grau }}>{w.weg}</span>
-          </button>
-        ))}
-      </div>
-
-      <p style={{ fontSize: 14.5, color: C.grau, fontWeight: 300, lineHeight: 1.75, margin: "16px 0 6px" }}>{ziel}</p>
-      {kurs === "A" && <p style={{ fontSize: 12.5, color: LABEL, lineHeight: 1.5, marginBottom: 6 }}>{L("Woche 1 enthält zwei Einheiten, danach folgt jeweils eine Einheit pro Woche.", "Week 1 has two units; after that there is one unit per week.")}</p>}
-      {kurs === "B" && <p style={{ fontSize: 12.5, color: LABEL, lineHeight: 1.5, marginBottom: 6 }}>{L("Auch hier gibt es in Woche 1 zwei Einheiten, danach eine pro Woche.", "Here too, week 1 has two units; after that there is one per week.")}</p>}
-
-      <p style={{ fontSize: 13, fontWeight: 600, color: C.see, margin: "14px 0 10px" }}>{L("Einheit für Einheit – tippe eine Einheit an", "Unit by unit – tap a unit")}</p>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(9, minmax(0, 1fr))", gap: 4 }}>
-        {liste.map((x, i) => (
-          <button key={i} type="button" aria-pressed={einheit === i} aria-label={`${L("Einheit", "Unit")} ${i + 1}, ${L("Woche", "week")} ${x.w}`} onClick={() => setEinheit(i)}
-            style={{ height: 54, borderRadius: 11, cursor: "pointer", fontFamily: "inherit", padding: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1,
-              border: `1.5px solid ${einheit === i ? NAVY : C.linie}`, background: einheit === i ? NAVY : C.weiss, color: einheit === i ? GOLD : C.tinte, transition: "background .2s" }}>
-            <span style={{ fontSize: 17, fontWeight: 800, lineHeight: 1 }}>{i + 1}</span>
-            <span style={{ fontSize: 9, fontWeight: 600, opacity: 0.7 }}>{L("W", "W")}{x.w}</span>
-          </button>
-        ))}
-      </div>
-      <div aria-hidden="true" style={{ display: "grid", gridTemplateColumns: "repeat(9, minmax(0, 1fr))", gap: 4, marginTop: 6 }}>
-        {phasen.map(([n, name], i) => (
-          <span key={name} style={{ gridColumn: `span ${n}`, textAlign: "center", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.03em", padding: "5px 2px", borderRadius: 8,
-            background: ["#E8EFF9", "#FBF1CC", "#DCE5F5"][i], color: NAVY, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</span>
-        ))}
-      </div>
-
-      <div key={`${kurs}${einheit}`} className="pp-neu" style={{ ...karte, padding: 18, marginTop: 12 }}>
-        <p style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.1em", color: LABEL }}>{L("WOCHE", "WEEK")} {E.w} · {L("EINHEIT", "UNIT")} {String(einheit + 1).padStart(2, "0")}</p>
-        <p style={{ fontSize: 21, fontWeight: 700, color: NAVY, lineHeight: 1.25, margin: "3px 0 10px" }}>{E.titel}</p>
-        <p style={{ fontSize: 14.5, color: C.tinte, lineHeight: 1.7 }}>{E.text}</p>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, margin: "12px 0 14px" }}>
-          <span style={{ fontSize: 11.5, fontWeight: 700, color: LABEL, letterSpacing: "0.04em", alignSelf: "center", marginRight: 2 }}>{L("TRAINIERT", "TRAINS")}</span>
-          {E.fokus.map((f) => (
-            <span key={f} style={{ fontSize: 12, fontWeight: 600, color: NAVY, background: "#EEF3FA", borderRadius: 999, padding: "4px 10px" }}>{f}</span>
-          ))}
-        </div>
-        <Blatt style={{ padding: "14px 14px 16px" }}>
-          <p style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: "0.1em", color: C.gruenDunkel, marginBottom: 10 }}>{(bsp.titel || L("Beispiel", "Example")).toUpperCase()}</p>
-          {ex && ex.typ === "haeuser" && <div style={{ marginBottom: 12 }}><Haeuser prefix={ex.prefix} teile={zerlege(ex.term)} stufe={2} /></div>}
-          <Rechnung zeilen={bsp.zeilen} />
-          {ex && ex.typ === "wertetabelle" && <Wertetabelle />}
-          {ex && ex.typ === "vorzeichen" && <Vorzeichentabelle />}
-          {ex && ex.typ === "protokoll" && <Protokoll zeilen={daten.protokoll} />}
+      {karo ? (
+        <Blatt karo minHoehe={150}>
+          <Zeile>x²−4x+4=0</Zeile>
+          <Zeile>(x−2)²=0</Zeile>
+          <Zeile>x−2=0  x=2</Zeile>
+          <Zeile>f'(x)=2x−4=0→x=2</Zeile>
         </Blatt>
-        <Fehlerbox f={E.fehler} />
-        <Transfer t={E.transfer} />
-        <div style={{ display: "flex", justifyContent: "space-between", gap: 8, marginTop: 14 }}>
-          <button type="button" disabled={einheit === 0} onClick={() => setEinheit(einheit - 1)}
-            style={{ padding: "9px 14px", borderRadius: 999, border: `1.5px solid ${C.linie}`, background: "#fff", color: einheit === 0 ? C.hellgrau : NAVY, fontFamily: "inherit", fontSize: 13, fontWeight: 600, cursor: einheit === 0 ? "default" : "pointer" }}>
-            ← {L("Vorige", "Previous")}
+      ) : (
+        <Blatt minHoehe={150} style={{ paddingTop: 50 }}>
+          <Nebenbox>(x − 2)² = x² − 4x + 4 ✓</Nebenbox>
+          <Zeile>x² − 4x + 4 = 0</Zeile>
+          <Zeile einr>(x − 2)² = 0</Zeile>
+          <Zeile einr>x − 2 = 0</Zeile>
+          <Zeile einr><Kasten>x = 2</Kasten></Zeile>
+        </Blatt>
+      )}
+      <p style={{ fontSize: 13, color: C.grau, lineHeight: 1.6, marginTop: 10 }}>
+        {karo ? "Jedes Zeichen sucht sich ein Kästchen. Zäune und Häuser sehen gleich aus, zwei Schritte stehen in einer Zeile, die Schrift kippt." : "Dieselbe Rechnung: Luft an den Zäunen, ein Schritt pro Zeile, Nebenrechnung rechts in der Box, Ergebnis im Kasten."}
+      </p>
+      {frage && <p style={{ fontSize: 14.5, fontWeight: 700, color: NAVY, marginTop: 8 }}>{frage}</p>}
+    </div>
+  );
+}
+
+/* ---------------------------------------------------------------- Grundmodell */
+
+function Grundmodell() {
+  const [zeige, setZeige] = useState("alles");
+  const teile = T("f(x) | = | ax^2 | + | bx | + | c");
+  const legende = [
+    ["super", "=", "Super-Operator", "Das Gleichheitszeichen steht über allem. Links und rechts davon steht dasselbe, nur anders geschrieben.", C.see, "#fff"],
+    ["zaun", "+ −", "Gartenzäune", "Die Final Operatoren: jedes Plus und Minus auf der obersten Ebene. Sie trennen die Grundstücke.", GOLD, NAVY],
+    ["haus", "ax²", "Häuser", "Die Terme zwischen den Zäunen. Im Haus wird zuerst gerechnet – dort steht alles eng.", GOLDHELL, NAVY],
+  ];
+  return (
+    <div style={{ ...karte, padding: "20px 16px 16px" }}>
+      <div style={{ display: "flex", justifyContent: "center", padding: "6px 0 14px", overflowX: "auto" }}>
+        <Term teile={teile} modus="markiert" groesse={27} />
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 6 }}>
+        {legende.map(([id, z, n, t, bg, fg]) => (
+          <button key={id} type="button" aria-pressed={zeige === id} onClick={() => setZeige(zeige === id ? "alles" : id)}
+            style={{ textAlign: "left", padding: "10px 9px", borderRadius: 12, border: `1.5px solid ${zeige === id ? NAVY : C.linie}`, background: zeige === id ? "#F3F6FB" : "#fff", cursor: "pointer", fontFamily: "inherit" }}>
+            <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", minWidth: 30, height: 26, padding: "0 6px", borderRadius: 7, background: bg, color: fg, fontWeight: 800, fontSize: 14, border: id === "haus" ? "1.4px dashed #C7A200" : "none" }}>{z}</span>
+            <span style={{ display: "block", fontSize: 12.5, fontWeight: 700, color: NAVY, marginTop: 6, lineHeight: 1.2 }}>{n}</span>
           </button>
-          <button type="button" disabled={einheit === liste.length - 1} onClick={() => setEinheit(einheit + 1)}
-            style={{ padding: "9px 14px", borderRadius: 999, border: "none", background: einheit === liste.length - 1 ? C.linie : NAVY, color: einheit === liste.length - 1 ? C.hellgrau : GOLD, fontFamily: "inherit", fontSize: 13, fontWeight: 700, cursor: einheit === liste.length - 1 ? "default" : "pointer" }}>
-            {L("Nächste", "Next")} →
-          </button>
+        ))}
+      </div>
+      <p aria-live="polite" style={{ fontSize: 14, color: C.tinte, lineHeight: 1.65, marginTop: 12, minHeight: 44 }}>
+        {zeige === "alles" ? <>Drei Ebenen, eine Zeile. Tippe eine Ebene an. Wer die Struktur <b>sieht</b>, muss „Punkt vor Strich“ nicht mehr wissen.</> : legende.find((l) => l[0] === zeige)[3]}
+      </p>
+    </div>
+  );
+}
+
+/* ---------------------------------------------------------------- Bausteine der Lektionen */
+
+const STUFEN = [
+  ["Sehen", "Struktur erkennen, noch nichts rechnen"],
+  ["Abschreiben", "fertige Zeilen sauber neu schreiben"],
+  ["Umschreiben", "schlechte Blätter in Pen & Paper bringen"],
+  ["Selbst rechnen", "eigene Aufgabe, Foto, ein Hebel"],
+  ["Automatisieren", "täglich 15 Minuten, bis es von selbst geht"],
+];
+
+function AufsBlatt({ children }) {
+  return (
+    <div style={{ marginTop: 16, padding: "12px 14px", borderRadius: 12, background: "#F3F6FB", border: "1px solid #C7D4EA" }}>
+      <Et>Aufs Blatt · 5 Minuten</Et>
+      <div style={{ fontSize: 14, color: C.tinte, lineHeight: 1.7 }}>{children}</div>
+    </div>
+  );
+}
+
+function Abstandsleiter() {
+  const z = [
+    ["0 · Zeile", "Das Gleichheitszeichen", T("a | = | b"), "am meisten Luft"],
+    ["1 · Zäune", "Plus und Minus auf der obersten Ebene", T("ax^2 | + | bx"), "deutlich"],
+    ["2 · Garten", "Plus und Minus in Klammer, Wurzel, Bruch, Exponent", T("sin(x | (+) | 1)"), "wenig"],
+    ["3 · Haus", "Faktoren, Hochzahlen, Vorzahlen", T("2ax^2"), "kein Abstand"],
+  ];
+  return (
+    <div style={{ borderRadius: 12, border: `1px solid ${C.linie}`, overflow: "hidden", margin: "12px 0" }}>
+      {z.map(([e, w, t, a], i) => (
+        <div key={e} style={{ display: "grid", gridTemplateColumns: "68px minmax(0,1fr) auto", gap: 8, alignItems: "center", padding: "8px 10px", borderBottom: i < 3 ? `1px solid ${C.linie}` : "none", background: i % 2 ? "#F7F9FD" : "#fff" }}>
+          <span style={{ fontSize: 12, fontWeight: 800, color: C.see }}>{e}</span>
+          <span style={{ fontSize: 12.5, color: C.grau, lineHeight: 1.4 }}>{w}</span>
+          <span style={{ textAlign: "right" }}><Term teile={t} modus="schoen" groesse={17} /><span style={{ display: "block", fontSize: 10.5, color: LABEL, fontWeight: 600 }}>{a}</span></span>
         </div>
+      ))}
+    </div>
+  );
+}
+
+/* Beispiellösung mit sechs antippbaren Markierungen */
+function GanzeLoesung() {
+  const [m, setM] = useState(null);
+  const marken = [
+    ["A", "Aufgabe benannt", "Jeder Teil beginnt mit einem Wort: Nullstellen, Scheitel. So weißt du morgen noch, was du wolltest."],
+    ["B", "Zäune mit Luft, Häuser eng", "x² − 2x − 3: drei Blöcke, zwei Zäune. Die Hochzahl sitzt am x."],
+    ["C", "Ein Schritt pro Zeile", "Gleichheitszeichen untereinander. Die p-q-Formel wird nicht im Kopf gemacht."],
+    ["D", "Nebenrechnung rechts", "1 + 3 = 4 und die Wurzel aus 4 stören den Hauptweg nicht."],
+    ["E", "Nichts bleibt stehen", "Aus 1 ± Wurzel aus 4 wird 1 ± 2, dann 3 und −1."],
+    ["F", "Ergebnisse im Kasten", "Vollständig und eindeutig. S(1 | −4) mit senkrechtem Strich."],
+  ];
+  const Pin = ({ k }) => (
+    <button type="button" onClick={() => setM(m === k ? null : k)} aria-pressed={m === k} aria-label={`Markierung ${marken[k][0]}: ${marken[k][1]}`}
+      style={{ fontFamily: "Montserrat, system-ui, sans-serif", width: 20, height: 20, borderRadius: 999, border: "none", cursor: "pointer", fontSize: 10.5, fontWeight: 800, verticalAlign: "middle", marginRight: 6, padding: 0,
+        background: m === k ? GOLD : NAVY, color: m === k ? NAVY : "#fff", boxShadow: m === k ? "0 0 0 3px rgba(237,187,0,0.35)" : "none" }}>{marken[k][0]}</button>
+  );
+  return (
+    <div style={{ ...karte, padding: 14 }}>
+      <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.55, marginBottom: 10 }}>Aufgabe: Bestimme Nullstellen und Scheitelpunkt von <Term teile={T("f(x) | = | x^2 | − | 2x | − | 3")} modus="schoen" groesse={15} />. Tippe die Markierungen an.</p>
+      <Blatt minHoehe={0} groesse={19} style={{ paddingTop: 12, display: "flex", flexWrap: "wrap", gap: "6px 14px", alignItems: "flex-start" }}>
+        <div style={{ flex: "1 1 220px", minWidth: 0, overflowX: "auto" }}>
+          <Zeile><Pin k={0} />Nullstellen: f(x) = 0</Zeile>
+          <Zeile einr><Pin k={1} />x² − 2x − 3 = 0</Zeile>
+          <Zeile einr><Pin k={2} />x₁,₂ = 1 ± <HWurzel text="1 + 3" /></Zeile>
+          <Zeile einr style={{ paddingLeft: 92 }}><Pin k={4} />= 1 ± 2</Zeile>
+          <Zeile einr><Pin k={5} /><Kasten>x₁ = 3</Kasten>&nbsp;&nbsp;<Kasten>x₂ = −1</Kasten></Zeile>
+          <Zeile style={{ marginTop: 8 }}><Pin k={0} />Scheitel:</Zeile>
+          <Zeile einr><Pin k={1} />f(x) = (x − 1)² − 1 − 3</Zeile>
+          <Zeile einr style={{ paddingLeft: 70 }}><Pin k={4} />= (x − 1)² − 4</Zeile>
+          <Zeile einr><Pin k={5} /><Kasten>S(1 | −4)</Kasten></Zeile>
+        </div>
+        <Nebenbox fest><Pin k={3} />1 + 3 = 4<br /><HWurzel text="4" /> = 2</Nebenbox>
+      </Blatt>
+      <div aria-live="polite" style={{ marginTop: 10, padding: "10px 12px", borderRadius: 10, background: m === null ? "#F3F6FB" : GOLDHELL, minHeight: 58 }}>
+        {m === null ? <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.55 }}>Sechs Markierungen, sechs Regeln. Tippe eine an.</p>
+          : <><p style={{ fontSize: 13.5, fontWeight: 700, color: NAVY }}>{marken[m][0]} · {marken[m][1]}</p><p style={{ fontSize: 13.5, color: C.tinte, lineHeight: 1.55 }}>{marken[m][2]}</p></>}
       </div>
     </div>
   );
 }
 
-/* ---------------------------------------------------------------- Fehler und Transfer */
+/* ---------------------------------------------------------------- Inhalt der neun Lektionen */
 
-function Fehlerbox({ f }) {
-  if (!f) return null;
+const Z = (s, g = 17) => <Term teile={T(s)} modus="schoen" groesse={g} />;
+const Zn = (s) => <Term teile={T(s)} modus="neutral" groesse={16} nowrap />;
+const mark = (teile, k) => teile.map((b, i) => (i === k ? { ...b, mark: true } : b));
+const MathildaKnopf = ({ gehe, hell, children }) => (
+  <button type="button" onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })}
+    style={{ marginTop: 12, width: "100%", padding: "13px 16px", borderRadius: 999, cursor: "pointer", fontFamily: "inherit", fontSize: 15, fontWeight: 700,
+      border: hell ? `1.5px solid ${NAVY}` : "none", background: hell ? "#fff" : NAVY, color: hell ? NAVY : GOLD, boxShadow: hell ? "none" : "0 6px 18px rgba(11,30,74,0.22)" }}>
+    {children}
+  </button>
+);
+
+function Lektion1() {
+  const geloest = useUebung("gesetze");
   return (
-    <div style={{ marginTop: 12, borderRadius: 14, border: `1px solid ${C.linie}`, background: "#fff", overflow: "hidden" }}>
-      <div style={{ padding: "13px 14px 12px", borderBottom: `1px dashed ${C.linie}` }}>
-        <Marke>{L("TYPISCHER FEHLER", "TYPICAL MISTAKE")}</Marke>
-        <Rechnung zeilen={f.falsch} />
+    <>
+      <Absatz>Dein Kopf kann nur wenige Dinge gleichzeitig festhalten. Bei einer Rechnung sind es schnell zu viele: die Aufgabe, der Plan, das Zwischenergebnis, das Vorzeichen. Das Blatt ist der Ort, an den du alles auslagerst, was dein Kopf nicht gleichzeitig tragen muss – aber nur, wenn du es <b>sofort wieder lesen</b> kannst.</Absatz>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 8, marginBottom: 14 }}>
+        {[["Gesetz 1", "Dein Blatt muss dein Denken entlasten – nicht zusätzlich belasten."], ["Gesetz 2", "Jeder wichtige Schritt muss für dein späteres Ich rekonstruierbar sein."]].map(([t, s]) => (
+          <div key={t} style={{ background: NAVY, color: "#fff", borderRadius: 14, padding: "12px 14px" }}>
+            <Et farbe={GOLD}>{t}</Et><p style={{ fontSize: 14.5, fontWeight: 600, lineHeight: 1.5 }}>{s}</p>
+          </div>
+        ))}
       </div>
-      <div style={{ padding: "13px 14px 14px" }}>
-        <Marke ok>{L("SO GEHT’S", "DO IT LIKE THIS")}</Marke>
-        <Rechnung zeilen={f.richtig} />
-        <p style={{ fontSize: 13.5, color: C.grau, fontWeight: 300, lineHeight: 1.65, marginTop: 10 }}>{f.warum}</p>
-      </div>
-    </div>
+      <H3>Dieselbe Rechnung, zweimal</H3>
+      <KaroBlanko />
+      <UebungRahmen nr={1} titel="Die zwei Gesetze" geloest={geloest}>
+        <Wahl id="gesetze" items={[
+          { frage: "Woran erkennst du, dass ein Blatt Gesetz 2 erfüllt?", optionen: ["Das Ergebnis ist richtig", "Du kannst morgen jeden Schritt nachvollziehen, ohne dich zu erinnern", "Die Lösung passt auf eine halbe Seite"], richtig: 1,
+            erklaerung: "Rekonstruierbar heißt: Dein späteres Ich kann jeden Schritt lesen, ohne dass du daneben stehst.", falsch: "Ein richtiges Ergebnis zeigt noch nicht, ob der Weg lesbar ist." },
+          { frage: "Was gehört aufs Blatt?", optionen: ["Nur das Ergebnis", "Jeder Schritt, den dein Kopf sonst festhalten müsste", "Jede Kleinigkeit, auch 2 · 3 in einer eigenen Zeile"], richtig: 1,
+            erklaerung: "Das Blatt trägt, was der Kopf nicht gleichzeitig tragen kann. 2 · 3 darf im Kopf passieren – das Zwischenergebnis nicht.", falsch: "Zu wenig belastet den Kopf, zu viel belastet das Blatt. Was liegt dazwischen?" },
+          { frage: "Ein Blatt ist voll, aber nicht mehr lesbar. Welches Gesetz ist verletzt?", optionen: ["Gesetz 1 – das Blatt belastet, statt zu entlasten", "Keines – Hauptsache, es steht alles da", "Gesetz 2 ist erfüllt, weil nichts fehlt"], richtig: 0,
+            erklaerung: "Ein unlesbares Blatt verlangt vom Kopf, alles noch einmal zu entschlüsseln. Es belastet.", falsch: "Lies die beiden Gesetze noch einmal: Vollständig ist nicht dasselbe wie lesbar." },
+        ]} />
+      </UebungRahmen>
+      <AufsBlatt>Nimm eine Lösung von dir, die mindestens eine Woche alt ist. Decke die Aufgabe ab und lies nur deine Rechnung. Kannst du sagen, was die Aufgabe war, jeden Schritt erklären und das Ergebnis finden? Schreib in einem Satz auf, was du nicht mehr lesen konntest.</AufsBlatt>
+    </>
   );
 }
 
-function Transfer({ t }) {
-  const [auf, setAuf] = useState(false);
-  if (!t) return null;
+function Lektion2() {
+  const geloest = useUebung("zaeune");
   return (
-    <div style={{ ...karte, marginTop: 12, padding: "14px 16px", borderLeft: `4px solid ${GOLD}`, boxShadow: "0 1px 10px rgba(15,26,51,0.06)" }}>
-      <p style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: "0.1em", color: C.gruenDunkel, marginBottom: 6 }}>{L("TRANSFER – DEINE AUFGABE", "TRANSFER – YOUR TASK")}</p>
-      <Text s={t.aufgabe} style={{ fontSize: 14.5, color: C.tinte, lineHeight: 1.75 }} />
-      <button type="button" aria-expanded={auf} onClick={() => setAuf(!auf)}
-        style={{ marginTop: 10, padding: "8px 14px", borderRadius: 999, border: `1.5px solid ${NAVY}`, background: auf ? NAVY : "#fff", color: auf ? GOLD : NAVY,
-          fontFamily: "inherit", fontSize: 13, fontWeight: 700, cursor: "pointer", transition: "background .2s" }}>
-        {auf ? L("Lösung verbergen", "Hide solution") : L("Erst selbst lösen – dann Lösung zeigen", "Solve it yourself first – then show solution")}
+    <>
+      <Absatz>Jede Zeile auf deinem Blatt hat eine Struktur: Das Gleichheitszeichen ist der <b>Super-Operator</b>. Plus und Minus auf der obersten Ebene sind <b>Gartenzäune</b> (Final Operatoren). Dazwischen stehen die <b>Häuser</b> (Terme). Im Haus wird zuerst gerechnet, am Zaun zuletzt.</Absatz>
+      <div style={{ padding: 14, background: GOLDHELL, borderRadius: 14, border: "1px solid #F0D77A", marginBottom: 12 }}>
+        <Et farbe={C.gruenDunkel}>Das Prinzip</Et>
+        <p style={{ fontSize: 22, fontWeight: 800, color: NAVY, marginBottom: 6 }}>Nähe = Priorität</p>
+        <p style={{ fontSize: 14, color: C.tinte, lineHeight: 1.65 }}>Was näher beieinandersteht, wird früher verrechnet. Im Haus {Z("ax^2", 16)} gilt: zuerst das x², dann mal a. Erst danach kommt der Zaun. Darum steht im Haus alles eng, und um den Zaun herum ist Luft. Dein Abstand <b>zeigt</b> die Rechenreihenfolge.</p>
+      </div>
+      <H3>Wann ist ein Plus kein Zaun?</H3>
+      <Absatz>Ein Zaun steht <b>außerhalb</b> jeder Klammer, jedes Bruchs, jeder Wurzel und jedes Exponenten. Das Plus in {Z("sin(x | (+) | 1)")} gehört ins Haus – ein Zaun im Garten, nicht an der Straße. {Z("2x(x | (+) | 1) | + | 5")} hat also <b>zwei</b> Häuser und <b>einen</b> Zaun.</Absatz>
+      <UebungRahmen nr={2} titel="Sehen, bevor du rechnest" geloest={geloest}>
+        <ZaunMarkierer id="zaeune" aufgabe="Tippe alle Gartenzäune an – jedes Plus und Minus auf der obersten Ebene. Dann prüfen." items={[
+          { teile: T("3x^2 | − | 5x | + | 2"), hinweis: "Drei Häuser, zwei Zäune. Die Zahl der Zäune ist immer um eins kleiner als die Zahl der Häuser.", fehler: "Zähle die Häuser: 3x², 5x und 2. Dazwischen stehen die Zäune." },
+          { teile: T("2ab | + | c"), hinweis: "2ab ist ein Haus, auch wenn drei Faktoren drinstehen.", fehler: "Faktoren trennen keine Häuser. Nur Plus und Minus auf der obersten Ebene." },
+          { teile: T("4 | − | 3y | + | y^2"), hinweis: "Auch eine Zahl allein ist ein Haus.", fehler: "Die 4 am Anfang ist ein eigenes Haus. Welche Zeichen trennen die drei Häuser?" },
+          { teile: T("2x(x | (+) | 1) | + | 5"), hinweis: "Das Plus in der Klammer bleibt im Haus. Nur das Plus vor der 5 ist ein Zaun.", fehler: "Ein Plus in einer Klammer ist kein Zaun – es steht im Garten." },
+          { teile: T("(x | (−) | 2)^2 | + | 4x"), hinweis: "Zwei Häuser: (x − 2)² und 4x. Das Minus in der Klammer gehört zum ersten Haus.", fehler: "Was steht außerhalb der Klammer? Nur das ist ein Zaun." },
+          { teile: T("x | − | (x | (+) | 3)(x | (−) | 1)"), hinweis: "Das Produkt der beiden Klammern ist ein einziges Haus. Nur das erste Minus ist ein Zaun.", fehler: "Zwei Klammern, die multipliziert werden, sind zusammen ein Haus." },
+          { teile: T("{x+1}/{2} | − | 3x"), hinweis: "Der Bruch ist ein Haus mit zwei Stockwerken; das Plus im Zähler ist kein Zaun.", fehler: "Der Bruch ist ein Haus. Welches Zeichen steht außerhalb?" },
+        ]} />
+      </UebungRahmen>
+      <AufsBlatt>Schreib fünf Terme aus deinem Mathebuch ab. Kreise jedes Haus ein und zeichne an jeden Zaun einen senkrechten Strich. Noch nichts rechnen.</AufsBlatt>
+    </>
+  );
+}
+
+function Lektion3() {
+  const geloest = useUebung("zaun-garten");
+  const ZG = ["Gartenzaun", "Im Garten"];
+  const frage = (s, k, zusatz) => <span style={{ display: "inline-flex", alignItems: "center", flexWrap: "wrap", gap: 8 }}><Term teile={mark(T(s), k)} modus="neutral" groesse={22} />{zusatz && <span style={{ fontSize: 13.5, color: C.grau }}>{zusatz}</span>}</span>;
+  return (
+    <>
+      <Absatz>Der Abstand um ein Rechenzeichen hängt davon ab, wie tief es in der Zeile steckt: je weiter innen, desto enger. Je kürzer der Term, desto enger.</Absatz>
+      <Abstandsleiter />
+      <Paar falschTitel="Alles gleich weit" richtigTitel="Außen weit, innen eng"
+        falsch={<Strich><Tok s="y = 2 sin ( x + 1 ) − 3" /></Strich>} falschText="Man sieht nicht, dass x + 1 zusammen in den Sinus geht."
+        richtig={Z("y | = | 2sin(x | (+) | 1) | − | 3")} richtigText="Zwei Häuser, ein Zaun. Das Plus im Sinus bleibt im Garten." />
+      <Paar falschTitel="Alles gleich eng" richtigTitel="Jedes Haus als Block"
+        falsch={<Strich><Tok s="x^2−4x+4=0" /></Strich>} falschText="Drei Häuser kleben aneinander. Fehler beim Ausklammern sind vorprogrammiert."
+        richtig={Z("x^2 | − | 4x | + | 4 | = | 0")} richtigText="Man sieht sofort: Hier steckt (x − 2)² drin." />
+      <UebungRahmen nr={3} titel="Zaun oder Garten?" geloest={geloest}>
+        <Wahl id="zaun-garten" spalten={2} aufgabe="Das markierte Zeichen: Gartenzaun (Final Operator) oder im Garten (innen)?" items={[
+          { frage: frage("3x | + | 7", 1), optionen: ZG, richtig: 0, erklaerung: "Oberste Ebene, außerhalb von allem – ein Zaun.", falsch: "Steht das Plus in einer Klammer, einem Bruch, einer Wurzel oder einem Exponenten?" },
+          { frage: frage("(x | (+) | 2)^2", 1), optionen: ZG, richtig: 1, erklaerung: "In der Klammer: im Garten. Die ganze Klammer hoch zwei ist ein Haus.", falsch: "Schau auf die Klammer." },
+          { frage: frage("e^x | + | e^{−x}", 1), optionen: ZG, richtig: 0, erklaerung: "Zwei Häuser e^x und e^−x, dazwischen der Zaun.", falsch: "Das Plus steht zwischen zwei Potenzen, nicht in einem Exponenten." },
+          { frage: frage("{1}/{x+1} | − | 2", 0, "– das Plus im Nenner"), optionen: ZG, richtig: 1, erklaerung: "Unter dem Bruchstrich: im Garten. Der Zaun in dieser Zeile ist das Minus.", falsch: "Der Bruch ist ein Haus mit zwei Stockwerken." },
+          { frage: frage("2x | + | (x | (−) | 1)", 1), optionen: ZG, richtig: 0, erklaerung: "Das Plus steht außerhalb der Klammer – ein Zaun. Das Minus in der Klammer ist im Garten.", falsch: "Welches Zeichen steht außerhalb der Klammer?" },
+          { frage: frage("x^2 | − | 2x | + | 1", 1), optionen: ZG, richtig: 0, erklaerung: "Zaun. Die Zeile hat drei Häuser und zwei Zäune.", falsch: "Oberste Ebene?" },
+          { frage: frage("sin(x | (+) | 1)", 1), optionen: ZG, richtig: 1, erklaerung: "Im Garten: Das Plus gehört zum Sinus-Haus und wird eng geschrieben.", falsch: "Was steht um das Plus herum?" },
+          { frage: frage("{x+1}/{2} | + | 3", 1), optionen: ZG, richtig: 0, erklaerung: "Das Plus zwischen Bruch und 3 ist ein Zaun. Das Plus im Zähler wäre im Garten.", falsch: "Markiert ist das Plus zwischen Bruch und 3 – nicht das im Zähler." },
+        ]} />
+      </UebungRahmen>
+      <AufsBlatt>Schreib ab, mit Luft nur an den Zäunen: &nbsp;{Z("4x^3 | − | 2x^2 | + | x | − | 7")}&nbsp;&nbsp;&nbsp; {Z("2cos(2x | (−) | 1) | + | x^2")}&nbsp;&nbsp;&nbsp; {Z("√(x + 3) | − | e^{x+1}")}</AufsBlatt>
+    </>
+  );
+}
+
+function Lektion4() {
+  const geloest = useUebung("malzeichen");
+  return (
+    <>
+      <Absatz>Ein Haus ist ein Block. Alles darin gehört zusammen und wird zuerst verrechnet. Dein Schreiben muss das zeigen: eng, aufrecht, lesbar.</Absatz>
+      <Regeln liste={[["Eng", "2ax statt 2 · a · x. Faktoren stehen ohne Lücke."], ["Druckbuchstaben", "Keine Schreibschrift, nicht schräg. Getrennt, aber nah."], ["Hochzahl am Buchstaben", "Klein, oben, direkt am x – nicht in der Luft."], ["Malzeichen nur gegen Missverständnisse", "a · sin x, 2 · 3. Nie zwischen Buchstaben."]]} />
+      <div style={{ borderRadius: 12, border: `1px solid ${C.linie}`, overflow: "hidden" }}>
+        {[["2 · a · x", "2ax", "Drei Malzeichen zerreißen das Haus in drei Teile."], ["x 2 + 1", "x^2 + 1", "Eine Hochzahl in der Luft liest man als eigene Zahl."], ["asinx", "a · sin x", "Ohne Malzeichen sieht es aus wie ein Wort."], ["23", "2 · 3", "Zahl mal Zahl braucht den Punkt – und wird in der nächsten Zeile zu 6."], ["1x + 0", "x", "1 · x ist x, + 0 ist nichts. Solche Reste bleiben nie stehen."]].map(([f, r, w], i) => (
+          <div key={f} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1.6fr", gap: 8, alignItems: "center", padding: "8px 10px", borderBottom: i < 4 ? `1px solid ${C.linie}` : "none", fontSize: 17, color: C.tinte }}>
+            <Strich><Tok s={f} /></Strich><span style={{ fontWeight: 600 }}><Tok s={r} /></span><span style={{ fontSize: 12, color: C.grau, lineHeight: 1.45 }}>{w}</span>
+          </div>
+        ))}
+      </div>
+      <UebungRahmen nr={4} titel="Malzeichen – ja oder nein?" geloest={geloest}>
+        <Wahl id="malzeichen" spalten={3} aufgabe="Wie gehört das Produkt ins Haus? Den Punkt nur, wo er nötig ist." items={[
+          { frage: "3 mal a mal b", optionen: [Zn("3 · a · b"), Zn("3ab"), Zn("3 a b")], richtig: 1, erklaerung: "Zwischen Buchstaben kein Punkt, keine Lücke: ein Block.", falsch: "Zwischen Buchstaben braucht es weder Punkt noch Lücke." },
+          { frage: "x mal cos x", optionen: [Zn("xcos x"), Zn("x · cos x"), Zn("x cos x")], richtig: 1, erklaerung: "Vor einer Funktion hebt der Punkt das Produkt hervor – sonst liest man ein Wort.", falsch: "„xcos“ sieht aus wie ein Wort. Was hilft dagegen?" },
+          { frage: "5 mal 7", optionen: [Zn("57"), Zn("5 · 7"), Zn("5  7")], richtig: 1, erklaerung: "Zahl mal Zahl braucht den Punkt – und in der nächsten Zeile steht 35.", falsch: "Ohne Punkt wird aus 5 mal 7 die Zahl 57." },
+          { frage: "a mal e hoch x", optionen: [Zn("ae^x"), Zn("a · e^x"), Zn("a  e^x")], richtig: 1, erklaerung: "„ae“ liest sich wie ein Wort. Der Punkt macht das Produkt sichtbar.", falsch: "Sieht das Ergebnis wie ein Wort aus?" },
+          { frage: "4 mal x mal x", optionen: [Zn("4xx"), Zn("4 · x · x"), Zn("4x^2")], richtig: 2, erklaerung: "x mal x ist x². Nichts bleibt unvereinfacht – auch im Haus.", falsch: "Lässt sich das noch kürzer schreiben?" },
+          { frage: "2 mal (x − 1)", optionen: [Zn("2 · (x | (−) | 1)"), Zn("2(x | (−) | 1)"), Zn("2 (x | (−) | 1)")], richtig: 1, erklaerung: "Zahl vor Klammer: eng, ohne Punkt. Die Klammer macht das Produkt schon eindeutig.", falsch: "Braucht die Klammer wirklich einen Punkt davor?" },
+        ]} />
+      </UebungRahmen>
+      <AufsBlatt>Schreib ab – Druckbuchstaben, Hochzahl am x, Luft nur an den Zäunen: &nbsp;{Z("f(x) | = | 3ax^2 | − | 2bx | + | c")}&nbsp;&nbsp;&nbsp; {Z("g(x) | = | x · e^{2x} | + | 4")}&nbsp;&nbsp;&nbsp; {Z("h(t) | = | 5t^3 | − | t · sin t")}</AufsBlatt>
+    </>
+  );
+}
+
+function Lektion5() {
+  const geloest = useUebung("brueche");
+  return (
+    <>
+      <Absatz>Ein Bruch ist ein Haus mit zwei Stockwerken. Sein Hauptbruchstrich liegt auf der Höhe der Zäune: in einer Linie mit dem Minus, dem Querstrich des Plus und der Mitte des Gleichheitszeichens.</Absatz>
+      <div style={{ ...karte, padding: "18px 14px 12px", position: "relative", textAlign: "center", marginBottom: 12 }}>
+        <div style={{ position: "relative", display: "inline-block" }}>
+          <div aria-hidden="true" style={{ position: "absolute", left: -14, right: -14, top: "50%", borderTop: `1.2px dashed ${C.signal}` }} />
+          <Term teile={T("y | = | {x+1}/{2} | − | {3}/{x^2} | + | 4")} modus="schoen" groesse={24} nowrap />
+        </div>
+        <p style={{ fontSize: 12.5, color: C.grau, marginTop: 10 }}>Die gestrichelte Linie ist die Zaunhöhe. Gleichheitszeichen, beide Bruchstriche, Minus und Plus liegen darauf.</p>
+      </div>
+      <Absatz>Im Zähler und im Nenner gelten dieselben Regeln – mit kleineren Abständen. Das Plus in {Z("{x+1}/{2}")} über dem Strich ist ein Plus im Garten. Deshalb liest sich {Z("{x+1}/{2}")} ganz anders als {Z("x | + | {1}/{2}")}. <b>Der Bruchstrich ist deine Klammer.</b></Absatz>
+      <Paar falschTitel="Schrägstrich in der Zeile" richtigTitel="Gestapelt, Strich auf Zaunhöhe"
+        falsch={<Strich><Tok s="m = 9−1/4−2 = 4" /></Strich>} falschText="Was gehört zum Bruch? Wörtlich gelesen ergäbe das 9 − 0,25 − 2 = 6,75."
+        richtig={Z("m | = | {9−1}/{4−2} | = | {8}/{2} | = | 4")} richtigText="Oben und unten sind eindeutig. Und die Zeile rechnet sich bis zur 4 durch." />
+      <UebungRahmen nr={5} titel="Lies den Bruch" geloest={geloest}>
+        <Wahl id="brueche" spalten={3} aufgabe="Setze x = 3 ein. Welchen Wert hat der Ausdruck – so, wie er dasteht?" items={[
+          { frage: Z("{x+1}/{2}", 24), optionen: ["2", "3,5", "4"], richtig: 0, erklaerung: "Der Bruchstrich klammert: (3 + 1) : 2 = 2.", falsch: "Der Strich liegt unter dem ganzen x + 1." },
+          { frage: Z("x | + | {1}/{2}", 24), optionen: ["2", "3,5", "4"], richtig: 1, erklaerung: "Jetzt ist nur die 1 über dem Strich: 3 + 0,5 = 3,5.", falsch: "Was steht über dem Bruchstrich – nur die 1 oder x + 1?" },
+          { frage: Z("{9−1}/{4−2}", 24), optionen: ["4", "6,75", "2"], richtig: 0, erklaerung: "Oben 8, unten 2 – der Bruch klammert beides: 4.", falsch: "Rechne zuerst Zähler und Nenner getrennt aus." },
+          { frage: <span style={{ fontSize: 22, fontWeight: 500 }}><Tok s="9 − 1/4 − 2" /></span>, optionen: ["4", "6,75", "2"], richtig: 1, erklaerung: "Ohne gestapelten Bruch gilt Punkt vor Strich: Nur 1/4 ist ein Bruch. 9 − 0,25 − 2 = 6,75. Deshalb nie der Schrägstrich in der Zeile.", falsch: "Hier ist nur 1/4 ein Bruch – der Rest steht in der Zeile." },
+          { frage: Z("{x^2−1}/{x+1}", 24), optionen: ["2", "8", "4"], richtig: 0, erklaerung: "Oben 9 − 1 = 8, unten 3 + 1 = 4, der Bruch ist 2. Allgemein: (x − 1)(x + 1) geteilt durch (x + 1) ist x − 1.", falsch: "Zähler und Nenner getrennt ausrechnen, dann teilen." },
+        ]} />
+      </UebungRahmen>
+      <AufsBlatt>Schreib mit echten, gestapelten Brüchen ab – Strich auf Zaunhöhe, oben und unten enger: &nbsp;{Z("{2x−3}/{5} | + | x")}&nbsp;&nbsp;&nbsp; {Z("{x^2−1}/{x+1} | − | 2")}&nbsp;&nbsp;&nbsp; {Z("f'(x) | = | {1}/{2√(x)} | + | {3}/{x^2}")}. Dann rechne {Z("( | {3}/{4} | (+) | {1}/{2} | ) · 2")} aus – ein Schritt pro Zeile, jeder Bruch gestapelt.</AufsBlatt>
+    </>
+  );
+}
+
+function Lektion6() {
+  const geloest = useUebung("reste");
+  const G = ({ children }) => <span style={{ color: C.see, fontWeight: 700 }}>{children}</span>;
+  return (
+    <>
+      <Absatz>Die Zeile ist die Struktur im Kleinen, der Zeilenverlauf die Struktur im Großen. Wer vertikal ordnet, kann jeden Schritt einzeln prüfen – und findet den Fehler in Sekunden.</Absatz>
+      <Regeln liste={[["Ein Schritt pro Zeile", "Jede neue Zeile ist genau eine Umformung. Gleichheitszeichen stehen untereinander."], ["„=“ verbindet nur Gleiches", "Es ist kein Pfeil für „und dann“."], ["Nichts bleibt unvereinfacht stehen", "2 · 3 wird zu 6, 1x zu x, + 0 verschwindet, − − wird zu +. In derselben oder in der nächsten Zeile."], ["Nebenrechnung in die Box, Ergebnis in den Kasten", "Rechts der Kasten für Zwischenwerte und Proben. Unten das Ergebnis: einmal, vollständig vereinfacht, eingerahmt."]]} />
+      <Paar falschTitel="Die Kette" richtigTitel="Der Verlauf"
+        falsch={<Strich><Tok s="2 · 3 = 6 + 1 = 7" /></Strich>} falschText="Die Zeile behauptet 6 = 6 + 1. Das ist falsch, auch wenn hinten 7 steht."
+        richtig={<div style={{ display: "grid", gridTemplateColumns: "auto auto auto", columnGap: 10, rowGap: 4, fontSize: 17, color: C.tinte, fontWeight: 500, justifyContent: "start", alignItems: "center" }}>
+          <span>f(3)</span><G>=</G><span>2 · 3 + 1</span>
+          <span /><G>=</G><span>6 + 1</span>
+          <span /><G>=</G><span>7</span>
+        </div>} richtigText="Jede Zeile ist wahr. Jede Zeile lässt sich einzeln prüfen." />
+      <UebungRahmen nr={6} titel="Reste finden" geloest={geloest}>
+        <ResteFinder id="reste" aufgabe="In jeder Zeile steht etwas, das so nicht stehen bleiben darf. Tippe es an – und sag dann, wie es heißen muss." items={[
+          { teile: T("1x | = | 5"), rest: 0, optionen: [Zn("x"), Zn("1 · x"), Zn("x^1")], richtig: 0, erklaerung: "1 · x ist x. Die 1 bleibt nie stehen." },
+          { teile: [{ t: "y" }, { sup: "=" }, { t: "3 · 1 · t" }], rest: 2, optionen: [Zn("3t"), Zn("3 · t"), Zn("3 · 1t")], richtig: 0, erklaerung: "· 1 verschwindet, und zwischen Zahl und Buchstabe braucht es keinen Punkt: 3t." },
+          { teile: T("f'(x) | = | 2x^1"), rest: 2, optionen: [Zn("2x"), Zn("2x^1"), Zn("2 · x")], richtig: 0, erklaerung: "Hoch 1 schreibt man nie. 2x." },
+          { teile: [{ t: "x" }, { sup: "=" }, { t: "4 − (−3)" }], rest: 2, optionen: [Zn("7"), Zn("4 + 3"), Zn("1")], richtig: 0, erklaerung: "Minus Minus wird Plus, und 4 + 3 wird in derselben Zeile zu 7." },
+          { teile: [{ t: "g'(x)" }, { sup: "=" }, { t: "6x" }, { op: "+", zaun: true }, { t: "2 · 3" }], rest: 4, optionen: [Zn("6"), Zn("2 · 3"), Zn("23")], richtig: 0, erklaerung: "2 · 3 ist 6. Ein Produkt aus Zahlen bleibt nie stehen." },
+          { teile: [{ t: "f(x)" }, { sup: "=" }, { t: "x^2" }, { op: "+", zaun: true }, { t: "0x" }, { op: "−", zaun: true }, { t: "4" }], rest: 4, optionen: ["weglassen", Zn("0"), Zn("x")], richtig: 0, erklaerung: "0x ist 0, und + 0 ist nichts: f(x) = x² − 4." },
+        ]} />
+      </UebungRahmen>
+      <AufsBlatt>Diese Rechnung ist richtig und trotzdem unlesbar: <Blatt karo minHoehe={0} groesse={19} style={{ display: "inline-block", padding: "4px 10px", margin: "6px 0", verticalAlign: "middle" }}>g(2)=3·2²−4·2=3·4=12−8=4</Blatt> Schreib sie als Verlauf neu: ein Schritt pro Zeile, Gleichheitszeichen untereinander, Ergebnis im Kasten.</AufsBlatt>
+    </>
+  );
+}
+
+function Lektion7() {
+  const geloest = useUebung("setup");
+  return (
+    <>
+      <Absatz>Die wichtigste Regel von allen steht nicht in deiner Schrift, sondern unter ihr: <b>Blankopapier statt Karo.</b> Kästchen zwingen dich, Zeichen hineinzuquetschen. Auf Blanko entscheidest du über den Abstand – und der Abstand ist deine Grammatik.</Absatz>
+      <KaroBlanko frage="Woraus kannst du besser lesen, was du gerade gemacht hast?" />
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: 6, marginTop: 12 }}>
+        {[["Blanko", "Kein Karo, keine Linien. Du setzt die Abstände selbst. Wer schief schreibt, lernt es in einer Woche gerade."], ["Schwarzer Stift", "Höchster Kontrast. Kein Radierer – Fehler streichst du sichtbar durch. Empfehlung: Stabilo Point Ball."], ["Blattaufteilung", "Links zwei Drittel: der Hauptweg. Rechts ein Drittel: die Box. Unten: das Ergebnis im Kasten."]].map(([t, s]) => (
+          <div key={t} style={{ borderRadius: 12, background: "#F3F6FB", border: "1px solid #C7D4EA", padding: "10px 10px" }}><Et>{t}</Et><p style={{ fontSize: 12.5, color: C.tinte, lineHeight: 1.5 }}>{s}</p></div>
+        ))}
+      </div>
+      <UebungRahmen nr={7} titel="Dein Setup" geloest={geloest}>
+        <Wahl id="setup" items={[
+          { frage: "Warum Blankopapier?", optionen: ["Weil es ordentlicher aussieht", "Weil du die Abstände selbst setzt – und der Abstand deine Grammatik ist", "Weil Karopapier schwerer zu fotografieren ist"], richtig: 1, erklaerung: "Auf Karo bestimmt das Kästchen den Abstand. Auf Blanko bestimmst du ihn – und damit, was zusammengehört.", falsch: "Es geht nicht ums Aussehen. Was bestimmt auf Karo den Abstand?" },
+          { frage: "Welcher Stift?", optionen: ["Blauer Kugelschreiber", "Bleistift mit Radierer", "Schwarzer Stift, ohne Radierer"], richtig: 2, erklaerung: "Schwarz hat den stärksten Kontrast. Ohne Radierer streichst du Fehler sichtbar durch – so bleibt dein Weg morgen nachvollziehbar.", falsch: "Was hat den höchsten Kontrast – und lässt Fehler sichtbar?" },
+          { frage: "Wohin mit der Nebenrechnung?", optionen: ["In die Hauptzeile, wo sie gebraucht wird", "Rechts in die Box", "Auf einen Schmierzettel, den du danach wegwirfst"], richtig: 1, erklaerung: "Rechts in die Box. Der Hauptweg bleibt frei, und die Nebenrechnung ist trotzdem morgen noch da.", falsch: "Der Hauptweg soll frei bleiben – aber nichts darf verloren gehen." },
+        ]} />
+      </UebungRahmen>
+      <AufsBlatt>Übertrage die Karo-Rechnung von oben auf ein Blankoblatt: Hauptweg links, Nebenrechnung rechts in der Box, Ergebnis im Kasten. Schreib darunter in einem Satz, woran du jetzt besser lesen kannst, was du gemacht hast.</AufsBlatt>
+    </>
+  );
+}
+
+function Lektion8({ gehe }) {
+  return (
+    <>
+      <Absatz>Alle Regeln auf einem Blatt. Erst schaust du dir an, wie eine ganze Lösung nach Pen & Paper aussieht – dann rechnest du dieselbe Art von Aufgabe selbst, fotografierst dein Blatt und holst dir von <MathildaName /> genau einen Hebel.</Absatz>
+      <GanzeLoesung />
+      <div style={{ ...karte, padding: "16px 16px 18px", marginTop: 18, borderLeft: `4px solid ${GOLD}` }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+          <span style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: "0.12em", color: C.gruenDunkel }}>ÜBUNG 8</span><span style={{ fontSize: 13, fontWeight: 600, color: C.grau }}>Jetzt du</span>
+        </div>
+        <p style={{ fontSize: 15, color: C.tinte, lineHeight: 1.65 }}>Bestimme Nullstellen und Scheitelpunkt von</p>
+        <div style={{ margin: "8px 0 10px" }}><Term teile={T("g(x) | = | x^2 | + | 4x | − | 5")} modus="schoen" groesse={24} /></div>
+        <p style={{ fontSize: 14, color: C.grau, lineHeight: 1.6 }}>Blanko, schwarzer Stift, Blatt aufgeteilt. Aufgabe benennen, ein Schritt pro Zeile, Nebenrechnung rechts, Ergebnisse im Kasten. Dann Foto.</p>
+        <MathildaKnopf gehe={gehe}>Blatt fotografieren – <MathildaName dunkel /> prüft</MathildaKnopf>
+        <p style={{ fontSize: 12.5, color: LABEL, lineHeight: 1.5, marginTop: 8 }}>Mathilda schreibt ab, nennt zuerst Gelungenes und dann höchstens zwei Stellen, an denen dir Platz gefehlt hat. Du schreibst die Stelle selbst neu.</p>
+      </div>
+      <AufsBlatt>Nach dem Foto: Schreib die eine Stelle neu, die Mathilda genannt hat. Nicht das ganze Blatt – nur diese Stelle. Danach hake die Lektion unten ab.</AufsBlatt>
+    </>
+  );
+}
+
+function Lektion9({ gehe }) {
+  useStand();
+  const [check, setCheck] = useState(() => new Set());
+  const punkte = ["Blanko und schwarz", "Jede Aufgabe hat einen Namen und einen klaren Anfang", "Luft an den Zäunen, kein Abstand im Haus", "Ein Schritt pro Zeile, Brüche gestapelt", "„=“ verbindet nur Gleiches, steht untereinander", "Nebenrechnung in der Box, Hauptweg bleibt frei", "Nichts Unvereinfachtes bleibt stehen", "Ergebnis im Kasten – und morgen noch lesbar"];
+  const tage = ["Lektion 1 und 2: eine alte Lösung lesen, Häuser und Zäune markieren.", "Eine alte Lösung auf Blanko sauber neu schreiben. Nur Abstände, keine neue Mathematik.", "Lektion 5: Brüche stapeln, Bruchstrich auf Zaunhöhe.", "Lektion 6: eine Kette zum Verlauf machen, Reste finden.", "Eine Hausaufgabe komplett nach Pen & Paper. Blatt aufteilen, Ergebnis im Kasten.", "15 Minuten an einer schweren Aufgabe ohne Musterlösung. Steckst du fest: Was weiß ich sicher? Was ist das kleinste Teilproblem?", "Rekonstruktionstest mit der Lösung von Tag 5. Dann der Check."];
+  const n = tageFertig();
+  return (
+    <>
+      <Absatz>Bevor du eine Lösung abgibst oder Mathilda schickst, gehst du acht Punkte durch. Nicht länger als eine Minute. Und dann: sieben Tage lang 15 Minuten, bis das Layout keine Entscheidung mehr ist.</Absatz>
+      <div style={{ ...karte, padding: 14 }}>
+        <Et>Der Pen-&-Paper-Check</Et>
+        <Haken punkte={punkte} an={(k) => check.has(k)} schalte={(k, a) => { const s = new Set(check); a ? s.add(k) : s.delete(k); setCheck(s); }} />
+        <p style={{ fontSize: 12.5, color: LABEL, marginTop: 8 }}>{check.size} von 8 – für dieses eine Blatt. Beim nächsten Blatt von vorn.</p>
+      </div>
+      <div style={{ ...karte, padding: 14, marginTop: 12 }}>
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8 }}>
+          <Et>Deine 7 Tage</Et><span style={{ fontSize: 12.5, fontWeight: 700, color: n === 7 ? C.smaragd : C.grau }}>{n} / 7</span>
+        </div>
+        <Haken punkte={tage.map((t, k) => <><b style={{ color: NAVY }}>Tag {k + 1}</b> · {t}</>)} an={(k) => tagAn(TAG_IDS[k])} schalte={(k, a) => tagSetzen(TAG_IDS[k], a)} />
+        {n === 7 && <p style={{ marginTop: 10, fontSize: 14, fontWeight: 600, color: C.smaragd }}>Sieben Tage durch. Ab jetzt zählt nur noch eines: Kannst du deine Lösung morgen noch lesen?</p>}
+      </div>
+      <AufsBlatt>Jeden Tag ein Blatt, ein Foto, ein Hebel. Die Tage hakst du hier ab – sie bleiben gespeichert, auch wenn du die Lektion schon abgehakt hast.</AufsBlatt>
+      <MathildaKnopf gehe={gehe} hell>Heutiges Blatt an <MathildaName /> schicken</MathildaKnopf>
+    </>
+  );
+}
+
+const LEKTIONEN = [
+  { id: "l0", stufe: 0, titel: "Dein Blatt ist dein zweites Gehirn", kurz: "Zwei Gesetze, Karo gegen Blanko, der Rekonstruktionstest", K: Lektion1 },
+  { id: "l1", stufe: 0, titel: "Häuser und Gartenzäune", kurz: "Super-Operator, Final Operatoren, Terme – und das Prinzip Nähe = Priorität", K: Lektion2 },
+  { id: "l2", stufe: 0, titel: "Außen weit, innen eng", kurz: "Die Abstandsstufen: Zeile, Zäune, Garten, Haus", K: Lektion3 },
+  { id: "l3", stufe: 1, titel: "Im Haus steht alles eng", kurz: "Druckbuchstaben, Hochzahl am x, Malzeichen nur gegen Missverständnisse", K: Lektion4 },
+  { id: "l4", stufe: 1, titel: "Der Bruchstrich auf Zaunhöhe", kurz: "Brüche sind Häuser mit zwei Stockwerken – der Strich ist deine Klammer", K: Lektion5 },
+  { id: "l5", stufe: 1, titel: "Ein Schritt pro Zeile", kurz: "Kette oder Verlauf, Nebenrechnung in die Box, Ergebnis im Kasten", K: Lektion6 },
+  { id: "l6", stufe: 2, titel: "Blanko, schwarz, aufgeteilt", kurz: "Das Setup: Papier, Stift, Blattaufteilung – und ein Blatt umschreiben", K: Lektion7 },
+  { id: "l7", stufe: 3, titel: "Eine ganze Lösung", kurz: "Alle Regeln auf einem Blatt, dann du: Foto an Mathilda, ein Hebel, Neuschrieb", K: Lektion8 },
+  { id: "l8", stufe: 4, titel: "Der Check und deine 7 Tage", kurz: "Acht Punkte vor jeder Abgabe, sieben Tage Training, das tägliche Ritual", K: Lektion9 },
+];
+
+function LektionKarte({ l, nr, offen, oeffne, gehe }) {
+  useStand();
+  const fertig = lektionFertig(l.id);
+  const ref = useRef(null);
+  const [name, kurzStufe] = STUFEN[l.stufe];
+  const Inhalt = l.K;
+  return (
+    <div ref={ref} id={"pp-" + l.id} style={{ ...karte, scrollMarginTop: 70, overflow: "hidden", border: offen ? `1.5px solid ${NAVY}` : "1.5px solid transparent", transition: "border-color .2s" }}>
+      <button type="button" onClick={() => oeffne(offen ? null : l.id)} aria-expanded={offen} data-aufklapp-haupt=""
+        style={{ width: "100%", textAlign: "left", display: "flex", gap: 12, alignItems: "center", padding: "14px 14px", border: "none", background: "transparent", cursor: "pointer", fontFamily: "inherit" }}>
+        <span aria-hidden="true" style={{ flexShrink: 0, width: 38, height: 38, borderRadius: 12, display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 800,
+          background: fertig ? C.smaragd : offen ? NAVY : "#EEF3FA", color: fertig ? "#fff" : offen ? GOLD : NAVY }}>{fertig ? "✓" : nr}</span>
+        <span style={{ flex: 1, minWidth: 0 }}>
+          <span style={{ display: "block", fontSize: 11, fontWeight: 800, letterSpacing: "0.1em", color: LABEL }}>STUFE {l.stufe} · {name.toUpperCase()}</span>
+          <span style={{ display: "block", fontSize: 16, fontWeight: 700, color: NAVY, lineHeight: 1.25, marginTop: 2 }}>{l.titel}</span>
+          {!offen && <span style={{ display: "block", fontSize: 12.5, color: C.grau, lineHeight: 1.4, marginTop: 3 }}>{l.kurz}</span>}
+        </span>
+        <svg width="18" height="18" viewBox="0 0 16 16" aria-hidden="true" style={{ flexShrink: 0, transform: offen ? "rotate(180deg)" : "none", transition: "transform .2s" }}><path d="M3 6l5 5 5-5" stroke={NAVY} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
       </button>
-      {auf && (
-        <div className="pp-neu" style={{ marginTop: 10 }}>
-          <Blatt style={{ padding: "12px 14px 14px" }}><Rechnung zeilen={t.loesung} /></Blatt>
+      {offen && (
+        <div data-aufklapp-inhalt className="pp-neu" style={{ padding: "2px 14px 18px", borderTop: `1px solid ${C.linie}` }}>
+          <p style={{ fontSize: 12.5, color: LABEL, lineHeight: 1.5, margin: "12px 0 10px" }}>Stufe {l.stufe} · {name}: {kurzStufe}.</p>
+          <Inhalt gehe={gehe} />
+          <div style={{ display: "flex", gap: 8, marginTop: 18, flexWrap: "wrap", alignItems: "center" }}>
+            <button type="button" onClick={() => lektionSetzen(l.id, !fertig)} aria-pressed={fertig}
+              style={{ padding: "11px 18px", borderRadius: 999, border: `1.5px solid ${fertig ? C.smaragd : NAVY}`, cursor: "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 700, background: fertig ? C.smaragd : NAVY, color: fertig ? "#fff" : GOLD }}>
+              {fertig ? "✓ Lektion erledigt" : "Lektion abhaken"}
+            </button>
+            {nr < LEKTIONEN.length && <button type="button" onClick={() => oeffne(LEKTIONEN[nr].id)} style={{ padding: "11px 16px", borderRadius: 999, border: `1.5px solid ${C.linie}`, cursor: "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 600, background: "#fff", color: NAVY }}>Nächste Lektion →</button>}
+          </div>
         </div>
       )}
     </div>
   );
 }
 
-/* ---------------------------------------------------------------- Einheitenaufbau */
+/* ---------------------------------------------------------------- Speicher-Hinweis */
 
-function Aufbau({ daten }) {
+const SPEICHER_TEXT = {
+  lokal: ["Dein Fortschritt ist auf diesem Gerät gespeichert.", C.hellgrau],
+  aus: ["Dein Fortschritt ist auf diesem Gerät gespeichert. Mit einem Konto ist er auf allen Geräten da.", C.hellgrau],
+  verbinde: ["Verbinde mit deinem Konto …", C.grau],
+  ausstehend: ["Wird in deinem Konto gesichert …", C.grau],
+  ok: ["Im Konto gesichert – auf allen deinen Geräten verfügbar.", "#0F7A4D"],
+  "nicht-eingerichtet": ["Konto-Speicher noch nicht eingerichtet – dein Fortschritt bleibt vorerst auf diesem Gerät.", C.grau],
+  fehler: ["Sichern im Konto hat nicht geklappt. Dein Fortschritt bleibt auf diesem Gerät, bei der nächsten Änderung versuchen wir es erneut.", "#B3261E"],
+};
+function SpeicherHinweis() {
+  const st = usePenpaperSyncStatus();
+  const [text, farbe] = SPEICHER_TEXT[st.status] || SPEICHER_TEXT.lokal;
   return (
-    <div style={{ ...karte, padding: "10px 16px" }}>
-      {daten.aufbau.map((a, i) => {
-        const stufe = a.stufe !== undefined;
-        return (
-          <div key={a.t} style={{ display: "flex", gap: 14, padding: "12px 0", borderBottom: i < daten.aufbau.length - 1 ? `1px solid ${C.linie}` : "none", alignItems: "flex-start" }}>
-            <span aria-hidden="true" style={{ position: "relative", flexShrink: 0, width: 34, height: 34, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: 14, fontWeight: 800, background: stufe ? NAVY : "#EEF3FA", color: stufe ? GOLD : NAVY }}>{i + 1}</span>
-            <span style={{ minWidth: 0 }}>
-              <span style={{ display: "block", fontSize: 15, fontWeight: 700, color: NAVY, letterSpacing: stufe ? "0.03em" : 0 }}>{a.t}</span>
-              <span style={{ display: "block", fontSize: 13.5, color: C.grau, fontWeight: 300, lineHeight: 1.6, marginTop: 2 }}>{a.s}</span>
-            </span>
-          </div>
-        );
-      })}
-    </div>
+    <p role="status" style={{ display: "flex", gap: 8, alignItems: "flex-start", fontSize: 12.5, color: C.grau, lineHeight: 1.55, margin: "10px 2px 0" }}>
+      <span aria-hidden="true" style={{ flexShrink: 0, width: 8, height: 8, borderRadius: 999, background: farbe, marginTop: 6 }} /><span>{text}</span>
+    </p>
   );
 }
 
-/* ---------------------------------------------------------------- Erfolg messen */
-
-function Ring({ anteil, gross }) {
-  const r = 17, u = 2 * Math.PI * r;
-  return (
-    <svg viewBox="0 0 44 44" width={gross ? 52 : 44} height={gross ? 52 : 44} aria-hidden="true">
-      <circle cx="22" cy="22" r={r} fill="none" stroke={C.linie} strokeWidth="5" />
-      <circle cx="22" cy="22" r={r} fill="none" stroke={GOLD} strokeWidth="5" strokeLinecap="round" strokeDasharray={u} strokeDashoffset={u * (1 - anteil)}
-        transform="rotate(-90 22 22)" style={{ transition: "stroke-dashoffset .35s ease" }} />
-    </svg>
-  );
-}
-
-function Checkliste({ titel, punkte, vorne, an, schalte }) {
-  const n = punkte.filter((_, i) => an.has(`${vorne}${i}`)).length;
-  return (
-    <div style={{ ...karte, padding: 16 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-        <Ring anteil={n / punkte.length} />
-        <span style={{ flex: 1 }}>
-          <span style={{ display: "block", fontSize: 16, fontWeight: 700, color: NAVY }}>{titel}</span>
-          <span style={{ display: "block", fontSize: 12.5, color: C.grau }}>{n} {L("von", "of")} {punkte.length}</span>
-        </span>
-      </div>
-      {punkte.map((p, i) => {
-        const id = `${vorne}${i}`, on = an.has(id);
-        return (
-          <button key={id} type="button" role="checkbox" aria-checked={on} onClick={() => schalte(id)}
-            style={{ display: "flex", gap: 11, alignItems: "flex-start", width: "100%", textAlign: "left", padding: "9px 0", background: "none", border: "none", borderTop: `1px solid ${C.linie}`, cursor: "pointer", fontFamily: "inherit" }}>
-            <span aria-hidden="true" style={{ flexShrink: 0, width: 22, height: 22, borderRadius: 7, marginTop: 1, display: "flex", alignItems: "center", justifyContent: "center",
-              border: `1.8px solid ${on ? GOLD : LABEL}`, background: on ? GOLD : "#fff", transition: "all .15s" }}>
-              {on && <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke={NAVY} strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>}
-            </span>
-            <span style={{ fontSize: 14, color: C.tinte, lineHeight: 1.5 }}>{p}</span>
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-function Erfolg({ daten }) {
-  const [an, setAn] = useState(() => new Set());
-  const schalte = (id) => setAn((alt) => { const neu = new Set(alt); if (neu.has(id)) neu.delete(id); else neu.add(id); return neu; });
-  const schritte = [
-    [L("Kursbeginn", "Start of the course"), L("Eine Vergleichsaufgabe lösen.", "Solve a comparison task.")],
-    [L("Kursende", "End of the course"), L("Eine vergleichbare Aufgabe noch einmal lösen.", "Solve a similar task again.")],
-    [L("Auswertung", "Evaluation"), L("Mathematik und Arbeitsweise getrennt betrachten.", "Look at maths and way of working separately.")],
-  ];
-  return (
-    <>
-      <div style={{ ...karte, padding: "14px 16px", marginBottom: 12 }}>
-        {schritte.map(([t, s], i) => (
-          <div key={t} style={{ display: "flex", gap: 12, alignItems: "flex-start", padding: "8px 0", borderBottom: i < schritte.length - 1 ? `1px dashed ${C.linie}` : "none" }}>
-            <span aria-hidden="true" style={{ flexShrink: 0, width: 26, height: 26, borderRadius: 999, background: i === 2 ? GOLDFLAECHE : NAVY, color: i === 2 ? NAVY : GOLD, fontSize: 12.5, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" }}>{i + 1}</span>
-            <span style={{ fontSize: 14, color: C.tinte, lineHeight: 1.55 }}><b style={{ color: NAVY }}>{t}:</b> {s}</span>
-          </div>
-        ))}
-        <p style={{ fontSize: 13, color: C.grau, fontWeight: 300, lineHeight: 1.6, marginTop: 8 }}>
-          {L("So zeigt sich, ob sich die fachliche Leistung, die Arbeitsweise oder beides verbessert hat.", "That shows whether your subject performance, your way of working or both have improved.")}
-        </p>
-      </div>
-      <p style={{ fontSize: 13, fontWeight: 600, color: C.see, margin: "18px 0 10px" }}>{L("Prüfe dein letztes Blatt – tippe an, was zutrifft", "Check your latest page – tap what applies")}</p>
-      <div style={{ display: "grid", gap: 10 }}>
-        <Checkliste titel={L("Arbeitsweise", "Way of working")} punkte={daten.arbeitsweise} vorne="a" an={an} schalte={schalte} />
-        <Checkliste titel={L("Mathematik", "Mathematics")} punkte={daten.mathematik} vorne="m" an={an} schalte={schalte} />
-      </div>
-      <p style={{ fontSize: 12.5, color: LABEL, lineHeight: 1.6, marginTop: 10 }}>
-        {L("Beides wird getrennt bewertet: Eine richtige Lösung kann schlecht dokumentiert sein – und ein sauberer Weg kann einen Rechenfehler enthalten.", "The two are rated separately: a correct solution can be poorly documented – and a clean working can still contain a slip in the calculation.")}
-      </p>
-    </>
-  );
-}
-
-/* ---------------------------------------------------------------- Hauptseite */
+/* ---------------------------------------------------------------- Seite */
 
 export function PenPaperKursSeite({ gehe }) {
-  const daten = useMemo(baue, []);
-  const [kurs, setKurs] = useState("A");
-  const [einheit, setEinheit] = useState(0);
-  const anker = useRef(null);
-  const springe = (id) => {
-    try {
-      const el = document.getElementById("pp-" + id);
-      const ruhig = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      if (el) springe("anker", () => el.scrollIntoView({ behavior: ruhig ? "auto" : "smooth", block: "start" }));
-    } catch (e) { /* ignorieren */ }
-  };
-  const sprung = [["vergleich", L("Vorher / Nachher", "Before / after")], ["werkzeuge", L("Werkzeuge", "Tools")], ["lernstufen", L("Lernstufen", "Stages")], ["kurse", L("Die Kurse", "The courses")],
-    ["ablauf", L("Ablauf", "Routine")], ["erfolg", L("Erfolg messen", "Progress")], ["mathilda", "Mathilda"]];
-  const zuKurs = (k) => {
-    setKurs(k); setEinheit(0);
-    setTimeout(() => { try { anker.current && springe("penpaper-kurs", () => anker.current.scrollIntoView({ behavior: "smooth", block: "start" })); } catch (e) { /* ignorieren */ } }, 30);
+  useStand();
+  const [offen, setOffenRoh] = useState(null);
+  const fertig = lektionenFertig();
+  const naechste = naechsteLektion();
+  const oeffne = (id) => {
+    setOffenRoh(id);
+    if (!id) return;
+    zuletztSetzen(id);
+    setTimeout(() => {
+      try {
+        const el = document.getElementById("pp-" + id);
+        const ruhig = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        if (el) springe("penpaper-lektion", () => el.scrollIntoView({ behavior: ruhig ? "auto" : "smooth", block: "start" }));
+      } catch (e) { /* ignorieren */ }
+    }, 30);
   };
 
   return (
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
-      <style>{`.pp-neu{animation:ppNeu .35s cubic-bezier(.2,.7,.3,1) both}@keyframes ppNeu{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+      <style>{`.pp-neu{animation:ppNeu .3s cubic-bezier(.2,.7,.3,1) both}@keyframes ppNeu{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
         @media (prefers-reduced-motion:reduce){.pp-neu{animation:none}}`}</style>
 
-      {/* Grundidee */}
-      <H2>{L("Dein Denkweg, sichtbar gemacht", "Your thinking, made visible")}</H2>
-      <Absatz>
-        {L("Pen & Paper ist ein trainierbares System, mit dem du mathematische Gedanken sichtbar, verständlich und kontrollierbar machst. Es geht nicht um Schönschrift, sondern um eine bessere Arbeitsweise, die mathematisches Denken unterstützt.",
-          "Pen & Paper is a trainable system that makes your mathematical thinking visible, understandable and controllable. It is not about neat handwriting but about a better way of working that supports mathematical thinking.")}
-      </Absatz>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8, margin: "4px 0 14px" }}>
-        {[[L("2 Kurse", "2 courses"), L("Mittelstufe und Oberstufe", "Middle and upper school"), SILBER],
-          [L("9 Einheiten", "9 units"), L("in jedem Kurs", "in each course"), C.see],
-          [L("8 Wochen", "8 weeks"), L("Woche 1 mit zwei Einheiten", "Week 1 has two units"), GOLD]].map(([t, s, f]) => (
-          <div key={t} style={{ ...karte, padding: "14px 12px", borderTop: `4px solid ${f}` }}>
-            <p style={{ fontSize: 15.5, fontWeight: 700, color: NAVY, marginBottom: 4 }}>{t}</p>
-            <p style={{ fontSize: 12.5, color: C.grau, fontWeight: 300, lineHeight: 1.45 }}>{s}</p>
+      <H2>Dein Blatt denkt mit</H2>
+      <Absatz>Dieser Kurs bringt dir keine neue Mathematik bei. Er bringt dir bei, wie du Mathematik <b>aufschreibst</b> – so, dass dein Blatt dir die Arbeit abnimmt, statt sie dir schwerer zu machen. Wer so schreibt, macht weniger Fehler, findet Fehler schneller und versteht am nächsten Tag noch, was er gemacht hat.</Absatz>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8, margin: "4px 0 16px" }}>
+        {[["9 Lektionen", "ein Prinzip", C.silberDunkel], ["5 Stufen", "vom Sehen zum Automatisieren", C.see], ["15 Minuten", "am Tag, sieben Tage", GOLD]].map(([t, s, f]) => (
+          <div key={t} style={{ ...karte, padding: "12px 10px", borderTop: `4px solid ${f}` }}>
+            <p style={{ fontSize: 15, fontWeight: 700, color: NAVY, marginBottom: 3 }}>{t}</p>
+            <p style={{ fontSize: 12, color: C.grau, lineHeight: 1.4 }}>{s}</p>
           </div>
         ))}
       </div>
-      <Absatz style={{ marginBottom: 10 }}>
-        {L("Beide Kurse verbinden die Pen-&-Paper-Methode direkt mit mathematischen Inhalten. Sie unterscheiden sich im fachlichen Weg:", "Both courses link the Pen & Paper method directly with mathematical content. They differ in the subject path:")}
-      </Absatz>
-      <div style={{ display: "grid", gap: 8 }}>
-        {[["A", L("Mittelstufe", "Middle school"), L("von Geradengleichungen über Parabeln bis zur Ableitung", "from straight-line equations via parabolas to the derivative")],
-          ["B", L("Oberstufe / Abitur", "Upper school / Abitur"), L("von der Ableitung bis zur vollständigen Kurvendiskussion", "from the derivative to the complete curve sketch")]].map(([k, n, w]) => (
-          <button key={k} type="button" onClick={() => zuKurs(k)}
-            style={{ ...karte, display: "flex", alignItems: "center", gap: 14, padding: "14px 16px", border: "none", cursor: "pointer", fontFamily: "inherit", textAlign: "left", width: "100%" }}>
-            <span aria-hidden="true" style={{ flexShrink: 0, width: 44, height: 44, borderRadius: 14, background: k === "A" ? NAVY : GOLDFLAECHE, color: k === "A" ? GOLD : NAVY, fontSize: 20, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" }}>{k}</span>
-            <span style={{ flex: 1, minWidth: 0 }}>
-              <span style={{ display: "block", fontSize: 16, fontWeight: 700, color: NAVY }}>{n}</span>
-              <span style={{ display: "block", fontSize: 13, color: C.grau, fontWeight: 300, lineHeight: 1.45 }}>{w}</span>
-            </span>
-            <svg width="18" height="18" viewBox="0 0 16 16" aria-hidden="true" style={{ flexShrink: 0 }}><path d="M3 8h9M8.5 4l4 4-4 4" stroke={NAVY} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
+
+      <Kicker>Das Grundmodell</Kicker>
+      <H2>Häuser, Gartenzäune, ein Super-Operator</H2>
+      <Grundmodell />
+      <div style={{ marginTop: 10, padding: "14px 16px", borderRadius: 14, background: GOLDHELL, border: "1px solid #F0D77A" }}>
+        <Et farbe={C.gruenDunkel}>Die eine Regel hinter allen Regeln</Et>
+        <p style={{ fontSize: 24, fontWeight: 800, color: NAVY, letterSpacing: "-0.01em", marginBottom: 4 }}>Nähe = Priorität</p>
+        <p style={{ fontSize: 14, color: C.tinte, lineHeight: 1.65 }}>Was auf dem Blatt näher beieinandersteht, wird früher verrechnet. Alles andere in diesem Kurs folgt daraus.</p>
+      </div>
+
+      <Trenner />
+
+      <div style={{ ...karte, padding: "16px 16px 14px", background: NAVY, color: "#fff" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
+          <Et farbe={GOLD}>Dein Stand</Et>
+          <span style={{ fontSize: 13, fontWeight: 700, color: C.goldText }}>{fertig} von {LEKTIONEN.length} Lektionen</span>
+        </div>
+        <div aria-hidden="true" style={{ display: "flex", gap: 4, margin: "6px 0 12px" }}>
+          {LEKTION_IDS.map((id) => <span key={id} style={{ flex: 1, height: 6, borderRadius: 3, background: lektionFertig(id) ? GOLD : "rgba(255,255,255,0.18)" }} />)}
+        </div>
+        {naechste ? (
+          <button type="button" onClick={() => oeffne(naechste)} style={{ width: "100%", padding: "12px 16px", borderRadius: 999, border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 15, fontWeight: 700, background: GOLD, color: NAVY }}>
+            {fertig === 0 ? "Mit Lektion 1 beginnen" : `Weiter mit Lektion ${LEKTION_IDS.indexOf(naechste) + 1}`}
           </button>
+        ) : (
+          <p style={{ fontSize: 14.5, lineHeight: 1.6, color: C.goldText }}>Alle neun Lektionen erledigt. Ab jetzt: jeden Tag ein Blatt an Mathilda – und der Check vor jeder Abgabe.</p>
+        )}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 8, flexWrap: "wrap", gap: 6 }}>
+          <span style={{ fontSize: 12, color: C.goldText }}>{tageFertig()} / 7 Tage abgehakt</span>
+          {fertig > 0 && <button type="button" onClick={() => { if (window.confirm("Kursfortschritt wirklich von vorn beginnen?")) { penpaperZuruecksetzen(); setOffenRoh(null); } }} style={{ fontSize: 12, color: C.goldText, background: "transparent", border: "none", cursor: "pointer", fontFamily: "inherit", textDecoration: "underline", padding: 0 }}>Von vorn beginnen</button>}
+        </div>
+      </div>
+      <SpeicherHinweis />
+
+      <Trenner />
+
+      <Kicker>Der Weg</Kicker>
+      <H2>Neun Lektionen in fünf Stufen</H2>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>
+        {STUFEN.map(([n, s], i) => (
+          <span key={n} title={s} style={{ fontSize: 12, fontWeight: 700, color: NAVY, padding: "6px 10px", borderRadius: 999, background: "#EEF3FA" }}>{i} · {n}</span>
         ))}
       </div>
-
-      <nav aria-label={L("Auf dieser Seite", "On this page")} style={{ marginTop: 22 }}>
-        <p style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: "0.1em", color: LABEL, marginBottom: 8 }}>{L("AUF DIESER SEITE", "ON THIS PAGE")}</p>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-          {sprung.map(([id, t]) => (
-            <button key={id} type="button" onClick={() => springe(id)}
-              style={{ padding: "7px 13px", borderRadius: 999, border: `1.5px solid ${C.linie}`, background: "#fff", color: NAVY, fontFamily: "inherit", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>{t}</button>
-          ))}
-        </div>
-      </nav>
-
-      <Trenner />
-
-      {/* Vorher / Nachher */}
-      <div id="pp-vergleich" style={{ scrollMarginTop: 70 }} />
-      <Kicker>{L("Der Unterschied", "The difference")}</Kicker>
-      <H2>{L("Dieselbe Aufgabe, zwei Blätter", "The same task, two pages")}</H2>
-      <Absatz>{L("Die Mathematik ist identisch. Was sich ändert, ist das Blatt – und damit, wie gut du deinen eigenen Gedanken folgen kannst. Schalte um und tippe die Markierungen an.",
-        "The maths is identical. What changes is the page – and with it, how well you can follow your own thinking. Switch between the two and tap the markers.")}</Absatz>
-      <HeftVergleich />
-
-      <Trenner />
-
-      {/* Werkzeuge */}
-      <div id="pp-werkzeuge" style={{ scrollMarginTop: 70 }} />
-      <Kicker>{L("Das Handwerkszeug", "The toolkit")}</Kicker>
-      <H2>{L("Vier Werkzeuge für ein klares Blatt", "Four tools for a clear page")}</H2>
-      <Absatz>{L("Alles, was du in den Kursen trainierst, beruht auf vier Werkzeugen. Tippe eines an und sieh dir an, wie es auf dem Blatt aussieht.", "Everything you train in the courses rests on four tools. Tap one and see what it looks like on the page.")}</Absatz>
-      <Werkzeuge daten={daten} />
-
-      <p style={{ fontSize: 13, fontWeight: 600, color: C.see, margin: "26px 0 10px" }}>{L("Zum Ausprobieren: das Termhaus-Labor", "Try it yourself: the term-house lab")}</p>
-      <Labor />
-
-      <Trenner />
-
-      {/* Lernstufen */}
-      <div id="pp-lernstufen" style={{ scrollMarginTop: 70 }} />
-      <Kicker>{L("Der Weg in jeder Einheit", "The path in every unit")}</Kicker>
-      <H2>{L("Vier Lernstufen: Vom Lesen zum Vermitteln", "Four stages: from reading to delivering")}</H2>
-      <Absatz>{L("Die Hilfestellung nimmt von Stufe zu Stufe ab, dein eigener Anteil wächst. Tippe eine Stufe an.", "The support decreases from stage to stage while your own share grows. Tap a stage.")}</Absatz>
-      <Treppe daten={daten} />
-
-      <Trenner />
-
-      {/* Kurse */}
-      <div id="pp-kurse" style={{ scrollMarginTop: 70 }} />
-      <Kicker>{L("Die zwei Kurse", "The two courses")}</Kicker>
-      <H2>{L("Neun Einheiten in acht Wochen", "Nine units in eight weeks")}</H2>
-      <Kurse daten={daten} kurs={kurs} setKurs={setKurs} einheit={einheit} setEinheit={setEinheit} anker={anker} />
-      <p style={{ fontSize: 12.5, color: LABEL, lineHeight: 1.6, marginTop: 12 }}>
-        {L("Die Rechenbeispiele zeigen, wie die Aufgaben von Anfang an so gestaltet sind, dass sie zugleich die Arbeitsweise trainieren.", "The worked examples show how the tasks are designed from the start to train your way of working at the same time.")}
-      </p>
-
-      <Trenner />
-
-      {/* Aufbau jeder Einheit */}
-      <div id="pp-ablauf" style={{ scrollMarginTop: 70 }} />
-      <Kicker>{L("Der Ablauf", "The routine")}</Kicker>
-      <H2>{L("So ist jede Einheit aufgebaut", "How every unit is structured")}</H2>
-      <Absatz>{L("Jede Einheit folgt derselben didaktischen Struktur – so weißt du immer, was als Nächstes kommt.", "Every unit follows the same teaching structure – so you always know what comes next.")}</Absatz>
-      <Aufbau daten={daten} />
-
-      <Trenner />
-
-      {/* Erfolg messen */}
-      <div id="pp-erfolg" style={{ scrollMarginTop: 70 }} />
-      <Kicker>{L("Fortschritt sehen", "Seeing progress")}</Kicker>
-      <H2>{L("Erfolg messen – Mathematik und Arbeitsweise getrennt", "Measuring success – maths and working method separately")}</H2>
-      <Erfolg daten={daten} />
-
-      <Trenner />
-
-      {/* Mathilda */}
-      <div id="pp-mathilda" style={{ scrollMarginTop: 70 }} />
-      <Kicker>{L("Dein Feedback-Partner", "Your feedback partner")}</Kicker>
-      <H2>{L("Mathilda schaut auf dein Blatt", "Mathilda looks at your page")}</H2>
-      <div style={{ borderRadius: 20, padding: "20px 18px 18px", background: `linear-gradient(165deg, ${C.seeTief} 0%, ${C.see} 100%)`, color: "#fff", boxShadow: "0 10px 30px rgba(0,77,152,0.24)" }}>
-        <p style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em", marginBottom: 8 }}><MathildaName dunkel /></p>
-        <p style={{ fontSize: 14.5, fontWeight: 300, lineHeight: 1.7, color: "#E3EBF8", marginBottom: 14 }}>
-          {L("Mach ein Foto von deiner handschriftlichen Lösung. Mathilda gibt dir Rückmeldung zu:", "Take a photo of your handwritten solution. Mathilda gives you feedback on:")}
-        </p>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginBottom: 14 }}>
-          {daten.mathildaFelder.map((f) => (
-            <span key={f} style={{ fontSize: 12.5, fontWeight: 500, color: "#fff", background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: 999, padding: "6px 12px" }}>{f}</span>
-          ))}
-        </div>
-        <p style={{ fontSize: 14, fontWeight: 300, lineHeight: 1.7, color: "#E3EBF8", marginBottom: 6 }}>
-          {L("Mathilda gibt nicht einfach die Lösung aus. Sie unterstützt dich dabei, deinen eigenen Denkweg zu überprüfen und zu verbessern.", "Mathilda does not just hand you the solution. She helps you check and improve your own line of thought.")}
-        </p>
-        <p style={{ fontSize: 13, fontWeight: 300, lineHeight: 1.65, color: "#C9D6EE", marginBottom: 16 }}>
-          {L("Wo die automatische Auswertung unsicher ist, sagt sie das offen.", "Where the automatic analysis is uncertain, she tells you so openly.")}
-        </p>
-        <button type="button" onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })}
-          style={{ padding: "12px 20px", borderRadius: 999, border: "none", background: GOLDFLAECHE, color: NAVY, fontFamily: "inherit", fontSize: 14.5, fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 16px rgba(181,134,18,0.4)" }}>
-          {L("Foto vom Blatt prüfen lassen", "Have your page checked")} →
-        </button>
+      <div style={{ display: "grid", gap: 8 }}>
+        {LEKTIONEN.map((l, i) => <LektionKarte key={l.id} l={l} nr={i + 1} offen={offen === l.id} oeffne={oeffne} gehe={gehe} />)}
       </div>
-      <div style={{ marginTop: 14 }}><MathildaBeispiel /></div>
 
       <Trenner />
 
-      {/* Leitprinzip */}
-      <Kicker>{L("Das Leitprinzip", "The guiding principle")}</Kicker>
-      <H2>{L("Dieselben Werkzeuge, unterschiedliche Inhalte", "The same tools, different content")}</H2>
-      <div style={{ display: "grid", gap: 8, marginBottom: 14 }}>
-        {[[L("Mittelstufe", "Middle school"), [L("Geradengleichungen", "Straight lines"), L("Parabeln", "Parabolas"), L("Ableitung", "Derivative")], NAVY],
-          [L("Oberstufe", "Upper school"), [L("Ableitung", "Derivative"), L("Markante Punkte & Eigenschaften", "Key points & properties"), L("Vollständige Kurvendiskussion", "Complete curve sketch")], SILBER]].map(([n, w, f]) => (
-          <div key={n} style={{ ...karte, padding: "12px 14px", borderLeft: `4px solid ${f}` }}>
-            <p style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", color: LABEL, marginBottom: 6 }}>{n.toUpperCase()}</p>
-            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "4px 8px", fontSize: 13.5, fontWeight: 600, color: NAVY }}>
-              {w.map((x, i) => (<React.Fragment key={x}>{i > 0 && <span aria-hidden="true" style={{ color: GOLD, fontWeight: 800 }}>→</span>}<span>{x}</span></React.Fragment>))}
+      <Kicker>Jeden Tag</Kicker>
+      <H2>Mathildas Blatt-Training</H2>
+      <Absatz>Ein Blatt, ein Hebel, ein Neuschrieb. <MathildaName /> prüft nicht nur die Mathematik, sondern dein Blatt nach genau den Regeln dieses Kurses.</Absatz>
+      <div style={{ ...karte, padding: 16, background: NAVY, color: "#fff" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 10 }}>
+          {[["Foto", "Du fotografierst dein Blatt. Mathilda schreibt ab und fragt nach, wo sie unsicher ist."], ["Ein Hebel", "Erst, was gelungen ist. Dann höchstens zwei Stellen, an denen dir Platz gefehlt hat – und wo genau dort der Fehler sitzt."], ["Neuschrieb", "Du schreibst die Stelle selbst neu. Keine Musterlösung. Nächstes Foto."]].map(([t, s], i) => (
+            <div key={t}>
+              <span aria-hidden="true" style={{ display: "inline-flex", width: 24, height: 24, borderRadius: 999, background: GOLD, color: NAVY, fontSize: 12, fontWeight: 800, alignItems: "center", justifyContent: "center", marginBottom: 6 }}>{i + 1}</span>
+              <p style={{ fontSize: 14, fontWeight: 700, marginBottom: 3 }}>{t}</p>
+              <p style={{ fontSize: 12.5, color: C.goldText, lineHeight: 1.5 }}>{s}</p>
             </div>
-          </div>
-        ))}
-      </div>
-      <Absatz>
-        {L("Die Methode wird nicht nachträglich auf gewöhnliche Aufgabenblätter gesetzt. Stattdessen sind die Aufgaben von Anfang an so gestaltet, dass sie zugleich die Arbeitsweise trainieren.",
-          "The method is not bolted on to ordinary worksheets afterwards. Instead, the tasks are designed from the start so that they train your way of working at the same time.")}
-      </Absatz>
-      <div style={{ borderRadius: 20, padding: "26px 20px 22px", textAlign: "center", background: `radial-gradient(120% 120% at 85% 0%, #17306B 0%, ${NAVY} 55%, #08173B 100%)`, boxShadow: "0 10px 30px rgba(11,30,74,0.28)" }}>
-        <p style={{ fontSize: "clamp(22px, 6.4vw, 28px)", fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1.2, color: GOLD, marginBottom: 14 }}>
-          „{L("System + Freude = Erfolg.", "System + joy = success.")}“
-        </p>
-        <span aria-hidden="true" style={{ display: "block", width: 44, height: 3, borderRadius: 2, background: GOLD, margin: "0 auto 14px" }} />
-        <p style={{ fontSize: 14.5, fontWeight: 300, lineHeight: 1.75, color: "#DCE5F5" }}>
-          {L("Schreibe nicht nur, um ein Ergebnis zu erhalten. Schreibe so, dass du deinen Denkweg erkennen, verstehen, kontrollieren und daraus lernen kannst.",
-            "Don't write just to get a result. Write in a way that lets you see, understand and check your line of thought – and learn from it.")}
-        </p>
-      </div>
-
-      <div style={{ ...karte, padding: "16px 18px", marginTop: 24 }}>
-        <p style={{ fontSize: 15.5, fontWeight: 700, color: NAVY, marginBottom: 6 }}>{L("Dazu passend: Kopfrechnen", "A good match: Mental Math")}</p>
-        <p style={{ fontSize: 14, color: C.grau, fontWeight: 300, lineHeight: 1.65, marginBottom: 12 }}>
-          {L("Pen & Paper trainiert die saubere schriftliche Darstellung deiner Lösungswege. Kopfrechnen trainiert den sicheren Abruf von Zahlen im Kopf – Einmaleins, Quadratzahlen und Kubikzahlen.",
-            "Pen & Paper trains the clean written presentation of your solution paths. Mental Math trains secure recall of numbers in your head – times tables, square numbers and cube numbers.")}
-        </p>
-        <button type="button" onClick={() => gehe({ ansicht: "headnumbers" })}
-          style={{ padding: "12px 20px", borderRadius: 999, border: `1.5px solid ${C.linie}`, background: "#fff", color: NAVY, fontFamily: "inherit", fontSize: 15, fontWeight: 600, cursor: "pointer" }}>
-          {L("Zu Kopfrechnen", "To Mental Math")}
+          ))}
+        </div>
+        <p style={{ fontSize: 13, color: C.goldText, lineHeight: 1.6, margin: "14px 0 0" }}>Mathilda sagt nie „deine Schrift ist schlecht“. Sie sagt: „Hier fehlt dir Platz.“ Denn genau dort entstehen die Fehler.</p>
+        <button type="button" onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })} style={{ marginTop: 12, width: "100%", padding: "12px 16px", borderRadius: 999, border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 15, fontWeight: 700, background: GOLD, color: NAVY }}>
+          Blatt fotografieren
         </button>
       </div>
 
-      <div style={{ display: "grid", gap: 10, marginTop: 16 }}>
-        <Knopf breit onClick={() => gehe({ ansicht: "kurse", kurs: "penpaper" })}>{L("Zum Pen-&-Paper-Videokurs", "To the Pen & Paper video course")}</Knopf>
-        <button type="button" onClick={() => gehe({ ansicht: "start" })}
-          style={{ padding: "13px 20px", borderRadius: 999, border: `1.5px solid ${C.linie}`, background: "#fff", color: NAVY, fontFamily: "inherit", fontSize: 15, fontWeight: 600, cursor: "pointer" }}>
-          {L("Zurück zur Startseite", "Back to the home page")}
-        </button>
-      </div>
+      <p style={{ fontFamily: "'Patrick Hand', 'Segoe Print', sans-serif", fontSize: 24, lineHeight: 1.3, color: C.see, textAlign: "center", margin: "36px 0 0" }}>
+        Das Ziel ist nicht, weniger denken zu müssen.<br />Das Ziel ist, besser denken zu können.
+      </p>
+      <p style={{ fontSize: 12.5, color: LABEL, textAlign: "center", marginTop: 8 }}>Matheskript · Band 2 · Pen & Paper</p>
     </div>
   );
 }

@@ -61,7 +61,7 @@ export const SPRUENGE = {
   "headnumbers-modus":       { an: false, art: "auswahl", wo: "Head & Numbers: Modus-Leiste Entdecken/Rechnen/Training" },
   "textaufgaben-thema":      { an: false, art: "auswahl", wo: "Textaufgaben: Thema wählen → zur Aufgabe" },
   "textmathilda-ergebnis":   { an: false, art: "auswahl", wo: "Textaufgaben → Mathilda: Übersetzung fertig → nach oben" },
-  "penpaper-kurs":           { an: false, art: "auswahl", wo: "Pen & Paper: Kurs A/B/C wählen → zur Kurskarte" },
+  "penpaper-lektion":        { an: false, art: "auswahl", wo: "Pen & Paper: Lektion öffnen („Weiter mit Lektion n“, „Nächste Lektion“) → zur Lektionskarte" },
   "abisaetze-reiter":        { an: false, art: "auswahl", wo: "Abi-Sätze: Reiter Teil A / Teil B" },
   "quickfinder-menue":       { an: false, art: "auswahl", wo: "Startseite → „Dein Training startet hier.“: Plan öffnen/zurück holt das Menü nach oben" },
   "suche-ergebnis":          { an: false, art: "auswahl", wo: "Suche „Was möchtest du lernen?“: Antwort ins Bild" },
