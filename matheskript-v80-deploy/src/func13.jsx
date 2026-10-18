@@ -160,7 +160,7 @@ export function Ableitungstrainer() {
   const [werkRegel, setWerkRegel] = useState("produkt");
   // Kopfzeile: Stufe, Automatik/Training und Würfel steuern die Regel-Werkstatt von hier aus
   const [werkStufe, setWerkStufe] = useState(1);
-  const [werkModus, setWerkModus] = useState("auto");
+  const [werkModus, setWerkModus] = useState("training");   // Standard: Training (selbst eintippen), Automatik zeigt die Musterlösung
   const [polyModus, setPolyModus] = useState("training");   // Polynome & Co.: Automatik = Ableitungen werden gezeigt, Training = selbst eintippen
   const [wurf, setWurf] = useState(0);
 
@@ -175,6 +175,16 @@ export function Ableitungstrainer() {
     for (let i = 1; i <= 3; i++) l.push(ableitung(l[i - 1]));
     return l.map((b) => ({ baum: b, fn: kompiliere(b) }));
   }, [fBaum]);
+
+  // Auswahlfelder (Modus, Stufe, Würfel, Funktionsart) lassen die Seitenposition, wie sie ist; nur ein Regelwechsel springt nach oben.
+  const festhalten = (fn) => {
+    const y = window.scrollY;
+    fn();
+    const zurueck = () => window.scrollTo(0, y);
+    requestAnimationFrame(() => { zurueck(); requestAnimationFrame(zurueck); });
+    setTimeout(zurueck, 80);
+  };
+  const nachOben = () => { window.scrollTo(0, 0); requestAnimationFrame(() => window.scrollTo(0, 0)); };
 
   const neustart = (text) => { setFText(text); setZeilen([leer()]); setAktiv(0); setPos(0); setOffen(false); };
   const neueAufgabe = (t = typ, st = stufeTyp) => neustart(t.mach(st).f);
@@ -236,6 +246,7 @@ export function Ableitungstrainer() {
       <style>{POP_CSS}</style>
       <style>{`
         .abl-seite{background:#fff;min-height:calc(100dvh - 61px)}
+        .abl-seite,.abl-seite *{overflow-anchor:none}
         .abl-innen{max-width:620px;margin:0 auto;padding:14px 16px 48px}
         .abl-chipwrap{position:relative;margin:0 -16px 10px}
         .abl-chips{display:flex;gap:8px;overflow-x:auto;padding:2px 16px 4px;scrollbar-width:none;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;scroll-padding-left:16px}
@@ -275,18 +286,18 @@ export function Ableitungstrainer() {
               {[["auto", "Automatik"], ["training", "Training"]].map(([id, name]) => {
                 const aktuell = bereich === "werkstatt" ? werkModus : polyModus;
                 return <button key={id} type="button" aria-pressed={aktuell === id}
-                  onClick={() => (bereich === "werkstatt" ? setWerkModus(id) : setPolyModus(id))}>{name}</button>;
+                  onClick={() => festhalten(() => (bereich === "werkstatt" ? setWerkModus(id) : setPolyModus(id)))}>{name}</button>;
               })}
             </div>
             <div className="abl-reihe">
               {bereich === "werkstatt" ? (
                 <PopupWahl className="abl-stufe" wert={werkStufe} label="Stufe wählen" optionen={[1, 2, 3].map((st) => ({ id: st, name: `Stufe ${st}` }))}
-                  kopf={(o) => (o ? o.name : "Stufe")} onWaehle={setWerkStufe} />
+                  kopf={(o) => (o ? o.name : "Stufe")} onWaehle={(st) => festhalten(() => setWerkStufe(st))} />
               ) : (
                 <PopupWahl className={`abl-stufe${quelle === "typ" ? "" : " aus"}`} wert={stufeTyp} label="Stufe wählen" optionen={[1, 2, 3, 4, 5].map((st) => ({ id: st, name: `Stufe ${st}` }))}
-                  kopf={(o) => (o ? o.name : "Stufe")} onWaehle={(st) => { setStufeTyp(st); neueAufgabe(typ, st); }} />
+                  kopf={(o) => (o ? o.name : "Stufe")} onWaehle={(st) => festhalten(() => { setStufeTyp(st); neueAufgabe(typ, st); })} />
               )}
-              <button type="button" className="abl-wuerfel" onClick={() => (bereich === "werkstatt" ? setWurf((w) => w + 1) : neueFunktion())}
+              <button type="button" className="abl-wuerfel" onClick={() => festhalten(() => (bereich === "werkstatt" ? setWurf((w) => w + 1) : neueFunktion()))}
                 aria-label="Neue Aufgabe würfeln" title="Neue Aufgabe"><span aria-hidden="true">🎲</span></button>
             </div>
           </div>
@@ -294,7 +305,7 @@ export function Ableitungstrainer() {
             <span>Ableiten üben</span>
             <PopupWahl className="abl-regelmenue" knopfClass="abl-regelknopf" rechts wert={bereich === "trainer" ? "polynome" : werkRegel} label="Was möchtest du ableiten?"
               optionen={[{ id: "polynome", name: "Polynome" }, ...REGEL_CHIPS.map(([id, name]) => ({ id, name }))]}
-              onWaehle={(id) => { if (id === "polynome") setBereich("trainer"); else { setWerkRegel(id); setBereich("werkstatt"); } }} />
+              onWaehle={(id) => { if (id === "polynome") setBereich("trainer"); else { setWerkRegel(id); setBereich("werkstatt"); } nachOben(); }} />
           </div>
         </div>
         {bereich === "werkstatt" && <RegelWerkstatt regel={werkRegel} stufe={werkStufe} modus={werkModus} wurf={wurf} ohneKopf />}
@@ -303,7 +314,7 @@ export function Ableitungstrainer() {
         <div className="abl-chipwrap">
           <div className="abl-chips" role="group" aria-label="Welche Funktionen möchtest du ableiten?">
             {arten.map((a) => (
-              <button key={a.id} type="button" className="abl-chip" aria-pressed={a.an} onClick={a.los}>{a.name}</button>
+              <button key={a.id} type="button" className="abl-chip" aria-pressed={a.an} onClick={() => festhalten(a.los)}>{a.name}</button>
             ))}
           </div>
         </div>
