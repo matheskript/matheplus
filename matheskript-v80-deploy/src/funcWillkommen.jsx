@@ -1,11 +1,11 @@
 /* ======================================================================
    WILLKOMMEN NACH DEM PASSWORT
    Direkt nach dem Passwort (middleware.js setzt dafür das kurze Cookie
-   „mm_willkommen“) liegt 7 Sekunden lang diese Seite über der App:
-   der Text schreibt sich in 6 Sekunden, ein goldener Balken füllt sich in
-   7 Sekunden, unten blinkt der Feedback-Knopf. Danach blendet sie sich aus
-   und die App darunter ist schon geladen. Ein Tipp auf den Knopf beendet
-   die Seite sofort und öffnet die Feedback-Auswahl.
+   „mm_willkommen“) liegt 9 Sekunden lang diese Seite über der App:
+   der Text schreibt sich schlicht in 6 Sekunden (ohne Cursor und ohne
+   weitere Effekte), danach steht alles 3 Sekunden ruhig. Dann blendet sie
+   sich aus und die App darunter ist schon geladen. Ein Tipp auf den Knopf
+   beendet die Seite sofort und öffnet die Feedback-Auswahl.
    Die Zeiten stehen in willkommen.js.
    ====================================================================== */
 import React, { useEffect, useRef, useState } from "react";
@@ -43,23 +43,14 @@ const CSS = `
   .mw-fett{font-weight:700;color:#fff}
   .mw-goldwort{font-weight:800;color:${C.flaggold}}
   .mw-wort{display:inline-block;white-space:nowrap}
-  .mw-balken{height:12px;border-radius:999px;background:rgba(255,255,255,.16);overflow:hidden}
-  .mw-fuell{height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,#EDBB00,#FFE58A);animation:mwFuell ${GESAMT_MS}ms linear forwards}
-  @keyframes mwFuell{from{width:0}to{width:100%}}
   .mw-hinweis{display:flex;flex-direction:column;align-items:center;gap:4px;padding-top:12px}
   .mw-hinweis p{margin:0;max-width:260px;text-align:center;font-size:13px;font-weight:600;line-height:1.45;color:${C.goldText}}
-  .mw-pfeil{animation:mwWippe 1.6s ease-in-out infinite}
-  @keyframes mwWippe{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
   .mw-knopf{display:inline-flex;align-items:center;gap:10px;min-height:48px;padding:0 22px;border-radius:999px;cursor:pointer;
     font-family:inherit;font-size:14.5px;font-weight:700;color:${C.see};background:${C.weiss};border:1.5px solid ${C.see};
-    animation:mwBlink 1.5s ease-in-out infinite}
-  @keyframes mwBlink{
-    0%,100%{box-shadow:0 0 0 0 rgba(237,187,0,.75),0 4px 14px rgba(0,0,0,.25)}
-    50%{box-shadow:0 0 0 14px rgba(237,187,0,0),0 4px 14px rgba(0,0,0,.25)}}
+    box-shadow:0 0 0 4px rgba(237,187,0,.5),0 4px 14px rgba(0,0,0,.25)}
   .mw-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
   @media (prefers-reduced-motion:reduce){
-    .mw-pfeil{animation:none}
-    .mw-knopf{animation:none;box-shadow:0 0 0 4px rgba(237,187,0,.5)}
+    .mw-wrap{transition:none}
   }
   @media print{.mw-wrap{display:none}}
 `;
@@ -71,7 +62,7 @@ export default function WillkommenOverlay() {
   const [anzahl, setAnzahl] = useState(0);
   const overflowAlt = useRef(null);
 
-  /* Zeitablauf: schreiben, nach 7 s ausblenden, nach weiteren 0,5 s entfernen */
+  /* Zeitablauf: 6 s schreiben, 3 s ruhig stehen, dann ausblenden, nach weiteren 0,5 s entfernen */
   useEffect(() => {
     if (phase === "weg") return undefined;
     try { document.cookie = `${COOKIE_WILLKOMMEN}=; Path=/; Max-Age=0; SameSite=Lax`; } catch (e) { /* egal */ }
@@ -122,7 +113,7 @@ export default function WillkommenOverlay() {
     const buchstaben = [...stueck].map((z) => {
       const index = nr++;
       return (
-        <span key={index} style={{ opacity: index < anzahl ? 1 : 0, boxShadow: index === anzahl - 1 && anzahl < ANZAHL ? `2px 0 0 0 ${C.flaggold}` : "none" }}>{z}</span>
+        <span key={index} style={{ opacity: index < anzahl ? 1 : 0 }}>{z}</span>
       );
     });
     return <span key={`${schluessel}-${i}`} className="mw-wort">{buchstaben}</span>;
@@ -150,12 +141,11 @@ export default function WillkommenOverlay() {
           })}
         </div>
         <span className="mw-sr">{VORLESETEXT}</span>
-        <div className="mw-balken" aria-hidden="true"><div className="mw-fuell" /></div>
       </div>
 
       <div className="mw-hinweis">
         <p>Diesen Button findest du unten auf jeder Seite.</p>
-        <svg className="mw-pfeil" width="40" height="34" viewBox="0 0 40 34" fill="none" stroke={C.flaggold} strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <svg width="40" height="34" viewBox="0 0 40 34" fill="none" stroke={C.flaggold} strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="M20 3 V28" />
           <path d="M9 18 L20 29 L31 18" />
         </svg>

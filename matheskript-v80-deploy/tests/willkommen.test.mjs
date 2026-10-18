@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
-  COOKIE_WILLKOMMEN, SCHREIB_MS, GESAMT_MS, FEEDBACK_OEFFNEN,
+  COOKIE_WILLKOMMEN, SCHREIB_MS, HALTEN_MS, GESAMT_MS, FEEDBACK_OEFFNEN,
   geschriebeneZeichen, zaehleZeichen, willkommenCookieGesetzt,
 } from "../src/willkommen.js";
 
@@ -10,10 +10,11 @@ const quelle = (d) => readFileSync(new URL(`../${d}`, import.meta.url), "utf8");
 
 /* ---------- Zeiten und Rechenhilfen ---------- */
 
-test("Der Text ist nach 6 Sekunden fertig, der Balken nach 7 Sekunden", () => {
+test("Der Text ist nach 6 Sekunden fertig, danach 3 Sekunden Ruhe, Ende nach 9 Sekunden", () => {
   assert.equal(SCHREIB_MS, 6000);
-  assert.equal(GESAMT_MS, 7000);
-  assert.ok(SCHREIB_MS < GESAMT_MS);
+  assert.equal(HALTEN_MS, 3000);
+  assert.equal(GESAMT_MS, 9000);
+  assert.equal(GESAMT_MS - SCHREIB_MS, HALTEN_MS);
 });
 
 test("geschriebeneZeichen: 0 am Anfang, alles nach 6 Sekunden, nie mehr als alles", () => {
@@ -29,7 +30,7 @@ test("geschriebeneZeichen: 0 am Anfang, alles nach 6 Sekunden, nie mehr als alle
 
 test("geschriebeneZeichen wächst gleichmäßig und fällt nie", () => {
   let letzte = 0;
-  for (let ms = 0; ms <= 7000; ms += 16) {
+  for (let ms = 0; ms <= GESAMT_MS; ms += 16) {
     const k = geschriebeneZeichen(ms, 233);
     assert.ok(k >= letzte, `${ms} ms: ${k} < ${letzte}`);
     letzte = k;
@@ -136,6 +137,14 @@ test("Willkommensseite nutzt die gemeinsamen Zeiten und den Text aus dem Auftrag
   ]) assert.ok(q.includes(satz), `Satz fehlt: ${satz}`);
   assert.ok(!/entsteh|Werden/i.test(q), "Der Hinweis auf das Entstehen soll wegfallen");
   assert.match(q, /prefers-reduced-motion/);
+});
+
+test("Willkommensseite ohne Effekte: kein Cursor, kein Balken, kein Blinken oder Wippen", () => {
+  const q = quelle("src/funcWillkommen.jsx");
+  assert.ok(!/animation\s*:/.test(q), "keine CSS-Animation mehr");
+  assert.ok(!/@keyframes/.test(q), "keine Keyframes mehr");
+  assert.ok(!/mw-balken|mw-fuell/.test(q), "kein Fortschrittsbalken");
+  assert.ok(!/boxShadow:\s*index/.test(q), "kein goldener Cursor am letzten Zeichen");
 });
 
 test("Feedback-Knopf: Auswahl Text/Voice, Text-Fenster oben, Ereignis von der Willkommensseite", () => {

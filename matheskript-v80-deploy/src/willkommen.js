@@ -6,7 +6,8 @@
 
 export const COOKIE_WILLKOMMEN = "mm_willkommen";
 export const SCHREIB_MS = 6000;   // der Text ist nach 6 Sekunden komplett geschrieben
-export const GESAMT_MS = 7000;    // der Goldbalken ist nach 7 Sekunden voll, dann geht es in die App
+export const HALTEN_MS = 3000;    // danach steht die Seite 3 Sekunden ruhig, ganz ohne Bewegung
+export const GESAMT_MS = SCHREIB_MS + HALTEN_MS;   // nach 9 Sekunden geht es in die App
 export const FEEDBACK_OEFFNEN = "mm-feedback-oeffnen";   // Ereignis: Feedback-Auswahl öffnen
 
 /** Wie viele von n Zeichen sind nach `vergangen` Millisekunden geschrieben? */
