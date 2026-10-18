@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { einfuegen, loeschen, zahlenTasten, zeigeAutomatisch, FORMEL_HAUPT, FORMEL_FUNKTION, ERLAUBT, MODI, istModus } from "../src/matheTastaturLogik.js";
+import { einfuegen, loeschen, zahlenTasten, zeigeAutomatisch, FORMEL_HAUPT, FORMEL_FUNKTION, TRIG_TASTEN, ERLAUBT, MODI, istModus } from "../src/matheTastaturLogik.js";
+import { trigAuswerten } from "../src/trigMittel.js";
 
 test("einfügen an der Schreibmarke und Ersetzen einer Auswahl", () => {
   assert.deepEqual(einfuegen("12", 1, 1, "5"), { wert: "152", pos: 2 });
@@ -43,7 +44,7 @@ test("Zahlenblock je Modus", () => {
 });
 test("Anzeige: Handy alle Modi, Maus nur Formeln", () => {
   for (const m of MODI) assert.equal(zeigeAutomatisch(m, true), true);
-  for (const m of MODI) assert.equal(zeigeAutomatisch(m, false), m === "formel");
+  for (const m of MODI) assert.equal(zeigeAutomatisch(m, false), m === "formel" || m === "trig");
   assert.equal(zeigeAutomatisch("text", true), false);
   assert.ok(istModus("formel") && !istModus("irgendwas"));
 });
@@ -64,4 +65,22 @@ test("Formeltasten fügen nur Wörter ein, die der Term-Parser kennt; Tasten-IDs
   }
   const alle = [...FORMEL_HAUPT, ...FORMEL_FUNKTION].map((k) => k.text);
   for (const w of ["sin()", "f(x)", "^2", "^()", "sqrt()", "pi"]) assert.ok(alle.includes(w), w);
+});
+
+test("Trig-Rechner: 30 Tasten, eindeutige IDs, alles Eingefügte versteht der Rechner", () => {
+  assert.equal(TRIG_TASTEN.length, 30);
+  const ids = TRIG_TASTEN.map((k) => k.id);
+  assert.equal(new Set(ids).size, ids.length);
+  for (const k of ["sin", "cos", "tan", "asin", "acos", "atan", "pi", "grad", "wurzel", "quad", "ok", "weg"]) assert.ok(ids.includes(k), k);
+  assert.ok(!ids.includes("ln") && !ids.includes("ehoch"), "kein ln, kein e^x");
+  /* jede Funktionstaste mit einer Zahl in der Klammer ergibt einen gültigen Term */
+  for (const k of TRIG_TASTEN) {
+    if (k.aktion || k.dez) continue;
+    const ein = einfuegen("", 0, 0, k.text, k.zurueck || 0);
+    const mitZahl = k.zurueck ? einfuegen(ein.wert, ein.pos, ein.pos, "0,5").wert : /^[0-9π]$/.test(k.text) ? k.text : `2${k.text}${/[+−·÷^]/.test(k.text) ? "3" : ""}`;
+    const t = k.text === "(" ? "(2)" : k.text === ")" ? "2" : mitZahl;
+    assert.ok(trigAuswerten(t).wert !== undefined, `${k.id}: ${t}`);
+  }
+  assert.deepEqual(loeschen("2·sin⁻¹()", 8, 8), { wert: "2·", pos: 2 });
+  assert.deepEqual(loeschen("√()", 2, 2), { wert: "", pos: 0 });
 });

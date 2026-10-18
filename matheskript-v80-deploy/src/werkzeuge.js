@@ -116,7 +116,7 @@ export const WERKZEUGE = {
     zeichen: "V", bild: "koerper", ziel: { ansicht: "koerper" }, etikett: "trainieren", stufe: "mittel" },
   strahlensaetze: { name: "Strahlensätze", kurz: "Strahlen", zeile: "V- und X-Figur, Streckfaktor k", slogan: "Zwei Strahlen, zwei Parallelen – fehlende Längen über Verhältnisse.",
     zeichen: "k", bild: "strahlen", ziel: { ansicht: "strahlensaetze" }, etikett: "trainieren", stufe: "mittel" },
-  trigonometrie: { name: "Trigonometrie am Dreieck", kurz: "Trigo", zeile: "sin, cos, tan, Sinus- und Kosinussatz", slogan: "Seiten und Winkel berechnen – rechtwinklig und allgemein.",
+  trigonometrie: { name: "Trigonometrie", kurz: "Trigo", zeile: "Einheitskreis, Bogenmaß, sin, cos, tan, Sinus- und Kosinussatz", slogan: "Vom Einheitskreis bis zum Kosinussatz – verstehen, dann rechnen.",
     zeichen: "sin", bild: "trig", ziel: { ansicht: "trigonometrie" }, etikett: "trainieren", stufe: "mittel" },
 
   /* ---------- Bruchrechnen ---------- */

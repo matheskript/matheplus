@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useId } from "react";
 import { C } from "./base1.jsx";
+import { zw } from "./ui2.jsx";
 
 /* ======================================================================
    ERKLÄRANIMATION
@@ -307,7 +308,8 @@ function wurzelZeichne(t, I) {
 const spielKnopf = { width: 46, height: 46, borderRadius: 999, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
   background: C.seeTief, boxShadow: "0 3px 10px rgba(14,30,74,0.25)" };
 
-function Player({ szene }) {
+/* Auch für andere Werkzeuge nutzbar (z. B. Trigonometrie): szene = { dauer, hoehe, schritte: [{ von, text }], zeichne(t), beschreibung } */
+export function Player({ szene }) {
   const { dauer, schritte, hoehe, zeichne, beschreibung } = szene;
   const leise = typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const [t, setT] = useState(0);
@@ -354,13 +356,13 @@ function Player({ szene }) {
         </svg>
       </div>
 
-      <input type="range" min={0} max={dauer} step={0.01} value={t} aria-label="Zeitleiste der Animation"
+      <input type="range" min={0} max={dauer} step={0.01} value={t} aria-label={zw("Zeitleiste der Animation", "Animation timeline")}
         onChange={(e) => { setSpielt(false); setzen(parseFloat(e.target.value)); }}
         style={{ width: "100%", accentColor: C.see, margin: "12px 0 6px", cursor: "pointer" }} />
 
       <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 12 }}>
         <button type="button" className="erk-knopf" onClick={umschalten} style={spielKnopf}
-          aria-label={spielt ? "Pause" : amEnde ? "Noch einmal abspielen" : "Abspielen"}>
+          aria-label={spielt ? zw("Pause", "Pause") : amEnde ? zw("Noch einmal abspielen", "Play again") : zw("Abspielen", "Play")}>
           {spielt ? (
             <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><rect x="3" y="2.5" width="4" height="13" rx="1.2" fill={C.flaggold} /><rect x="11" y="2.5" width="4" height="13" rx="1.2" fill={C.flaggold} /></svg>
           ) : amEnde ? (
@@ -369,9 +371,9 @@ function Player({ szene }) {
             <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M4.5 2.5v13l11-6.5z" fill={C.flaggold} /></svg>
           )}
         </button>
-        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }} role="group" aria-label="Schritte">
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }} role="group" aria-label={zw("Schritte", "Steps")}>
           {schritte.map((s, i) => (
-            <button key={i} type="button" className="erk-pille" onClick={() => zuSchritt(i)} aria-label={`Schritt ${i + 1} abspielen`} aria-current={i === idx ? "step" : undefined}
+            <button key={i} type="button" className="erk-pille" onClick={() => zuSchritt(i)} aria-label={zw(`Schritt ${i + 1} abspielen`, `Play step ${i + 1}`)} aria-current={i === idx ? "step" : undefined}
               style={{ width: 38, height: 38, borderRadius: 999, fontFamily: "inherit", fontSize: 14, fontWeight: 700, cursor: "pointer",
                 border: `1.5px solid ${i === idx ? C.see : C.linie}`, background: i === idx ? C.see : C.weiss, color: i === idx ? C.weiss : C.see }}>
               {i + 1}
@@ -381,7 +383,7 @@ function Player({ szene }) {
       </div>
 
       <div key={idx} className="erk-ein" aria-live="polite" style={{ borderLeft: `3px solid ${C.gruen}`, paddingLeft: 14 }}>
-        <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: C.gruenDunkel, marginBottom: 4 }}>Schritt {idx + 1} von {schritte.length}</p>
+        <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: C.gruenDunkel, marginBottom: 4 }}>{zw(`Schritt ${idx + 1} von ${schritte.length}`, `Step ${idx + 1} of ${schritte.length}`)}</p>
         <p style={{ fontSize: 14.5, fontWeight: 400, lineHeight: 1.75, color: C.tinte, margin: 0 }}>{schritte[idx].text}</p>
       </div>
     </div>

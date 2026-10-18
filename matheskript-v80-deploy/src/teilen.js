@@ -66,7 +66,7 @@ export const TOOL_SAETZE = {
   bruchrechnen: { de: "mit Brüchen rechnen", en: "calculate with fractions" },
   bruchterme: { de: "Bruchterme und Bruchgleichungen lösen", en: "work with fraction terms and equations" },
   strahlensaetze: { de: "Strahlensätze anwenden", en: "apply the intercept theorems" },
-  trigonometrie: { de: "Dreiecke mit Sinus und Kosinus berechnen", en: "solve triangles with sine and cosine" },
+  trigonometrie: { de: "Trigonometrie vom Einheitskreis bis zum Kosinussatz verstehen", en: "understand trigonometry from the unit circle to the law of cosines" },
   terme: { de: "Terme vereinfachen und umformen", en: "simplify and rearrange terms" },
   gleichungen: { de: "Gleichungen lösen und verstehen", en: "solve and understand equations" },
   lgs: { de: "Gleichungssysteme lösen", en: "solve systems of equations" },

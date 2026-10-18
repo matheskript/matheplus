@@ -11,8 +11,10 @@
      bruch    wie zahl, zusätzlich Bruchstrich /
      wurzel   wie bruch, zusätzlich Wurzelzeichen √ (für exakte Zahlen wie 1/2, 0,5, √5, −√7)
      datum    Ziffern, Punkt, Minus, Schrägstrich
-     formel   alles: Variablen, Funktionen, Potenzen, Klammern, f(x) …                 */
-export const MODI = ["ganz", "ganzvz", "zahl", "bruch", "wurzel", "datum", "formel"];
+     formel   alles: Variablen, Funktionen, Potenzen, Klammern, f(x) …
+     trig     Taschenrechner der Trigonometrie: Ziffern, Rechenzeichen, sin, cos, tan,
+              sin⁻¹, cos⁻¹, tan⁻¹, π, °, √, x² (kein eˣ, kein ln) – ausgewertet von trigMittel.js */
+export const MODI = ["ganz", "ganzvz", "zahl", "bruch", "wurzel", "datum", "formel", "trig"];
 export const istModus = (m) => MODI.includes(m);
 
 /* Tastenart: { id, anz (Beschriftung), text (einzufügen), zurueck (Schreibmarke so viele Zeichen zurück), label (Vorlese-Text) } */
@@ -45,6 +47,16 @@ export const FORMEL_FUNKTION = [
   { id: "fx", anz: "f(x)", text: "f(x)", label: "f von x" }, { id: "fs", anz: "f′(x)", text: "f'(x)", label: "f Strich von x" }, { id: "gx", anz: "g(x)", text: "g(x)", label: "g von x" },
   { id: "gleich", anz: "=", text: "=", label: "Gleichheitszeichen" }, { id: "komma", anz: ",", text: ",", label: "Komma" }, { id: "ok", anz: "OK", aktion: "ok", label: "Fertig" },
 ];
+/* Trig-Rechner: eine Ebene, 6 Spalten × 5 Reihen. Umkehrfunktionen stehen so im Feld, wie sie im Heft stehen: sin⁻¹( … ) */
+export const TRIG_TASTEN = [
+  { id: "sin", anz: "sin", text: "sin()", zurueck: 1, label: "Sinus" }, { id: "cos", anz: "cos", text: "cos()", zurueck: 1, label: "Kosinus" }, { id: "tan", anz: "tan", text: "tan()", zurueck: 1, label: "Tangens" },
+  { id: "asin", anz: "sin⁻¹", text: "sin⁻¹()", zurueck: 1, label: "Arkussinus" }, { id: "acos", anz: "cos⁻¹", text: "cos⁻¹()", zurueck: 1, label: "Arkuskosinus" }, { id: "atan", anz: "tan⁻¹", text: "tan⁻¹()", zurueck: 1, label: "Arkustangens" },
+  Z("7"), Z("8"), Z("9"), { id: "klauf", anz: "(", text: "(", label: "Klammer auf" }, { id: "klzu", anz: ")", text: ")", label: "Klammer zu" }, { id: "weg", anz: "⌫", aktion: "weg", label: "Löschen" },
+  Z("4"), Z("5"), Z("6"), { id: "mal", anz: "·", text: "·", label: "Mal" }, { id: "durch", anz: "÷", text: "÷", label: "Geteilt" }, { id: "quad", anz: "x²", text: "²", label: "hoch 2" },
+  Z("1"), Z("2"), Z("3"), { id: "plus", anz: "+", text: "+", label: "Plus" }, { id: "minus", anz: "−", text: "−", label: "Minus" }, { id: "wurzel", anz: "√", text: "√()", zurueck: 1, label: "Wurzel" },
+  Z("0"), { id: "dez", anz: ",", text: ",", label: "Komma", dez: true }, { id: "pi", anz: "π", text: "π", label: "Pi" }, { id: "grad", anz: "°", text: "°", label: "Grad" }, { id: "hoch", anz: "^", text: "^", label: "Hoch" }, { id: "ok", anz: "OK", aktion: "ok", label: "Fertig" },
+];
+
 /* Parameter und Variablen für die Ebene „abc“: Vollständiges Alphabet, damit nichts unmöglich bleibt. */
 export const BUCHSTABEN_DE = [["q", "w", "e", "r", "t", "z", "u", "i", "o", "p"], ["a", "s", "d", "f", "g", "h", "j", "k", "l"], ["y", "x", "c", "v", "b", "n", "m"]];
 export const BUCHSTABEN_EN = [["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"], ["a", "s", "d", "f", "g", "h", "j", "k", "l"], ["z", "x", "c", "v", "b", "n", "m"]];
@@ -77,7 +89,7 @@ export function loeschen(wert, von, bis) {
   if (a !== b) return { wert: wert.slice(0, a) + wert.slice(b), pos: a };
   if (a === 0) return { wert, pos: 0 };
   /* Eine leere Funktionsklammer „sin()“ wird als Ganzes entfernt, wenn die Schreibmarke zwischen den Klammern steht. */
-  const m = /(sin|cos|tan|ln|log|sqrt|e\^|\^|f|g|f'|1\/)\($/.exec(wert.slice(0, a));
+  const m = /(sin⁻¹|cos⁻¹|tan⁻¹|sin|cos|tan|ln|log|sqrt|e\^|\^|f|g|f'|1\/|√)\($/.exec(wert.slice(0, a));
   if (m && wert[a] === ")") return { wert: wert.slice(0, a - m[0].length) + wert.slice(a + 1), pos: a - m[0].length };
   /* Ein Zeichen links der Schreibmarke (Surrogatpaare werden nicht zerrissen) */
   const cp = wert.codePointAt(a - 1) >= 0xdc00 && wert.codePointAt(a - 1) <= 0xdfff ? 2 : 1;
@@ -85,4 +97,5 @@ export function loeschen(wert, von, bis) {
 }
 
 /* Zeigt die Tastatur in diesem Modus auf diesem Gerät automatisch? Auf Geräten mit Maus nur für Formeln. */
-export const zeigeAutomatisch = (modus, grobZeiger) => (grobZeiger ? istModus(modus) : modus === "formel");
+/* Der Trig-Rechner zeigt sein Tastenfeld auch mit Maus: sin⁻¹ oder π tippt man auf der Computertastatur nicht. */
+export const zeigeAutomatisch = (modus, grobZeiger) => (grobZeiger ? istModus(modus) : modus === "formel" || modus === "trig");

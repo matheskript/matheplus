@@ -74,7 +74,7 @@ test("Angehakte Unterthemen: genau diese im Kerntraining, nicht gewählte bleibe
   assert.ok(!p.einheiten.some((e) => e.teil === "trig.1" || e.teil === "trig.3"), "weggelassene Unterthemen tauchen wieder auf");
   // Kurzform { kapitel } = ganzes Kapitel
   const ganz = planErstellen({ kapitel: "trig", heute: HEUTE });
-  assert.equal(ganz.einheiten.find((e) => e.phase === "kern").teile.length, 5);
+  assert.equal(ganz.einheiten.find((e) => e.phase === "kern").teile.length, 6);   // Trigonometrie: 6 Unterthemen (inkl. Einheitskreis und Tangens)
 });
 
 test("Mehrere Kapitel: je Kapitel ein Kerntraining in Buchreihenfolge, Wiederholungen nach dem letzten", () => {
@@ -118,7 +118,7 @@ test("Mehrere Kapitel mit Termin: alles vor der Arbeit, notfalls mehrere Kapitel
 });
 
 test("Auswahl nach Kapiteln: Buchreihenfolge, ganz/teilweise, ungültige Ids ignoriert", () => {
-  const g = auswahlNachKapitel(["explog.1", "trig.1", "trig.2", "trig.3", "trig.4", "trig.5", "gibtsnicht.1", "trig.1"], "g9");
+  const g = auswahlNachKapitel(["explog.1", "trig.1", "trig.2", "trig.3", "trig.4", "trig.5", "trig.6", "gibtsnicht.1", "trig.1"], "g9");
   assert.deepEqual(g.map((x) => x.kapitel), ["trig", "explog"]);
   assert.equal(g[0].ganz, true);
   assert.equal(g[1].ganz, false);

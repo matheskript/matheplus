@@ -2,8 +2,9 @@ import React, { forwardRef, useEffect, useRef, useState, useSyncExternalStore } 
 import { C } from "./base1.jsx";
 import { englisch } from "./i18n.js";
 import {
-  BUCHSTABEN_DE, BUCHSTABEN_EN, FORMEL_FUNKTION, FORMEL_HAUPT, Z, einfuegen, loeschen, zahlenTasten, zeigeAutomatisch,
+  BUCHSTABEN_DE, BUCHSTABEN_EN, FORMEL_FUNKTION, FORMEL_HAUPT, TRIG_TASTEN, Z, einfuegen, loeschen, zahlenTasten, zeigeAutomatisch,
 } from "./matheTastaturLogik.js";
+import { setzeWinkelModus, winkelAbo, winkelModus } from "./winkelModus.js";
 
 /* ======================================================================
    Mathe-Tastatur
@@ -85,15 +86,15 @@ export const MatheFeld = forwardRef(function MatheFeld({ modus = "formel", input
 const EN_LABEL = { "Löschen": "Delete", "Fertig": "Done", "Minus": "Minus", "Plus": "Plus", "Mal": "Times", "Geteilt": "Divided by", "Hoch": "Power", "Komma": "Comma", "Punkt": "Point",
   "Bruchstrich": "Fraction bar", "Schrägstrich": "Slash", "Klammer auf": "Open bracket", "Klammer zu": "Close bracket", "Pi": "Pi", "hoch 2": "squared", "hoch 3": "cubed", "Wurzel": "Square root",
   "Sinus": "Sine", "Kosinus": "Cosine", "Tangens": "Tangent", "natürlicher Logarithmus": "Natural logarithm", "Logarithmus": "Logarithm", "e hoch": "e to the power", "hoch n": "to the power of n",
-  "Kehrwert": "Reciprocal", "Eulersche Zahl": "Euler's number", "f von x": "f of x", "f Strich von x": "f prime of x", "g von x": "g of x", "Gleichheitszeichen": "Equals sign" };
+  "Kehrwert": "Reciprocal", "Arkussinus": "Inverse sine", "Arkuskosinus": "Inverse cosine", "Arkustangens": "Inverse tangent", "Grad": "Degrees", "Eulersche Zahl": "Euler's number", "f von x": "f of x", "f Strich von x": "f prime of x", "g von x": "g of x", "Gleichheitszeichen": "Equals sign" };
 const beschriftung = (t) => { const l = t.label || t.anz; return englisch() ? EN_LABEL[l] || l : l; };
 
 /* ---------------------------------------------------------------- das Tastenfeld */
 const taste = (ton) => ({
   minHeight: 46, borderRadius: 12, fontFamily: "inherit", fontSize: 19, fontWeight: 600, cursor: "pointer", padding: 0, touchAction: "manipulation", userSelect: "none", WebkitUserSelect: "none",
-  border: `1px solid ${ton === "ok" ? C.smaragd : ton === "nav" ? C.seeTief : C.linie}`,
-  background: ton === "ok" ? C.smaragd : ton === "nav" ? C.seeTief : ton === "hell" ? C.himmel : C.weiss,
-  color: ton === "ok" ? C.weiss : ton === "nav" ? C.flaggold : C.tinte,
+  border: `1px solid ${ton === "ok" ? C.smaragd : ton === "nav" ? C.seeTief : ton === "trig" ? `${C.see}55` : C.linie}`,
+  background: ton === "ok" ? C.smaragd : ton === "nav" ? C.seeTief : ton === "hell" ? C.himmel : ton === "trig" ? "#E3EBF7" : C.weiss,
+  color: ton === "ok" ? C.weiss : ton === "nav" ? C.flaggold : ton === "trig" ? C.see : C.tinte,
   boxShadow: "0 1px 0 rgba(15,26,51,0.08)",
 });
 
@@ -108,6 +109,7 @@ function sichtbarMachen(el, hoehe) {
 
 export function MatheTastaturHost() {
   const a = useSyncExternalStore(abonnieren, lesen, () => null);
+  const wm = useSyncExternalStore(winkelAbo, winkelModus, () => "deg");
   const [ebene, setEbene] = useState("haupt");   // haupt | funk | abc
   const [gross, setGross] = useState(false);
   const blatt = useRef(null);
@@ -177,13 +179,20 @@ export function MatheTastaturHost() {
     );
   };
 
-  const zahlModus = a.modus !== "formel";
+  const trig = a.modus === "trig";
+  const zahlModus = a.modus !== "formel" && !trig;
   const ok = { id: "ok", anz: "OK", aktion: "ok", label: "Fertig" };
   const weg = { id: "weg", anz: "⌫", aktion: "weg", label: "Löschen" };
   const reihen = en ? BUCHSTABEN_EN : BUCHSTABEN_DE;
 
   let inhalt;
-  if (zahlModus) {
+  if (trig) {
+    inhalt = (
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 5 }}>
+        {TRIG_TASTEN.map((t, i) => <Taste key={t.id} t={t} ton={i < 6 ? "trig" : /^[0-9]$/.test(t.anz) ? "weiss" : "hell"} stil={t.anz.length > 3 ? { fontSize: 15 } : t.anz.length > 1 && t.aktion !== "ok" ? { fontSize: 16 } : undefined} />)}
+      </div>
+    );
+  } else if (zahlModus) {
     const zt = zahlenTasten(a.modus, dez);
     inhalt = (
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6 }}>
@@ -233,7 +242,18 @@ export function MatheTastaturHost() {
       <style>{"[data-mathe-tastatur] button:active{filter:brightness(0.93);transform:scale(0.97)}"}</style>
       <div style={{ maxWidth: 560, margin: "0 auto" }}>
         <div style={{ display: "flex", gap: 6, marginBottom: 8, alignItems: "center" }}>
-          {zahlModus ? <span style={{ flex: 1, fontSize: 12.5, fontWeight: 600, color: C.grau, paddingLeft: 6 }}>{en ? "Enter a number" : "Zahl eingeben"}</span>
+          {trig ? (
+            <>
+              <span style={{ flex: 1, fontSize: 12.5, fontWeight: 600, color: C.grau, paddingLeft: 6 }}>{en ? "Trig calculator" : "Trig-Rechner"}</span>
+              <div role="group" aria-label={en ? "Angle mode" : "Winkelmodus"} style={{ display: "flex", borderRadius: 999, border: `1px solid ${C.linie}`, overflow: "hidden", background: C.weiss }}>
+                {[["deg", "DEG"], ["rad", "RAD"]].map(([m, t]) => (
+                  <button key={m} type="button" aria-pressed={wm === m} onMouseDown={(e) => e.preventDefault()} onClick={() => setzeWinkelModus(m)}
+                    style={{ minWidth: 50, minHeight: 34, border: "none", fontFamily: "inherit", fontSize: 13, fontWeight: 800, cursor: "pointer", letterSpacing: "0.04em",
+                      background: wm === m ? (m === "rad" ? C.gruen : C.see) : "transparent", color: wm === m ? C.weiss : C.grau }}>{t}</button>
+                ))}
+              </div>
+            </>
+          ) : zahlModus ? <span style={{ flex: 1, fontSize: 12.5, fontWeight: 600, color: C.grau, paddingLeft: 6 }}>{en ? "Enter a number" : "Zahl eingeben"}</span>
             : [tab("haupt", "123"), tab("funk", "f(x)"), tab("abc", "abc")]}
           <button type="button" aria-label={en ? "Close keypad" : "Tastatur schließen"} onMouseDown={(e) => e.preventDefault()} onClick={schliessen}
             style={{ width: 44, minHeight: 34, borderRadius: 999, border: `1px solid ${C.linie}`, background: C.weiss, color: C.grau, fontSize: 16, fontFamily: "inherit", cursor: "pointer" }}>⌄</button>

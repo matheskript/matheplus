@@ -51,6 +51,8 @@ const loesungBox = { background: C.sand, borderRadius: 14, padding: "10px 14px",
          optionen, richtig            (wahl)
          wert, toleranz, text, einheit, wertText   (zahl)
          gekuerzt: true – Bruch-Eingabe muss vollständig gekürzt sein (zahl)
+         feld, lies – eigenes Eingabefeld (Komponente mit wert, setWert, label, onEnter) und eigenes
+                      Lesen (Text → { wert } oder { warn }), z. B. der Trig-Rechner (zahl)
          fehler: [{ wahl | wert, text }]  – typische Denkfehler mit gezielter Rückmeldung
          hinweise: [..], erklaerung }                                               */
 export function Schritt({ st, nr, aktiv, fertig, onFertig }) {
@@ -63,7 +65,12 @@ export function Schritt({ st, nr, aktiv, fertig, onFertig }) {
   const pruefen = () => {
     let r, v = null;
     if (st.typ === "wahl") r = eing === st.richtig;
-    else {
+    else if (st.lies) {
+      const l = st.lies(eing);
+      if (l.warn) { setRueck({ art: "warn", text: l.warn }); return; }
+      v = l.wert;
+      r = Math.abs(v - st.wert) <= tol + 1e-12;
+    } else {
       v = liesZahl(eing);
       if (v === null) { setRueck({ art: "warn", text: zw("Bitte eine Zahl eingeben (Bruch wie 3/8 oder Dezimalzahl wie 0,375).", "Please enter a number (fraction like 3/8 or decimal like 0.375).") }); return; }
       r = Math.abs(v - st.wert) <= tol + 1e-12;
@@ -79,7 +86,8 @@ export function Schritt({ st, nr, aktiv, fertig, onFertig }) {
     const typisch = (st.fehler || []).find((f) => (st.typ === "wahl" ? f.wahl === eing : Math.abs(v - f.wert) <= (f.toleranz ?? tol) + 1e-12));
     const h = st.hinweise?.[Math.min(n - 1, (st.hinweise?.length || 1) - 1)];
     if (typisch) { setRueck({ art: "schlecht", text: `${zw("Denkfehler:", "Mistake:")} ${typisch.text}` }); return; }
-    setRueck({ art: "schlecht", text: `${zw("Noch nicht.", "Not yet.")} ${h ? `${zw("Hinweis", "Hint")} ${Math.min(n, st.hinweise.length)}/${st.hinweise.length}: ${h}` : ""}` });
+    /* Hinweise dürfen auch Formeln (JSX) sein – dann nicht in einen Text-String stecken */
+    setRueck({ art: "schlecht", text: <>{zw("Noch nicht.", "Not yet.")} {h ? <>{zw("Hinweis", "Hint")} {Math.min(n, st.hinweise.length)}/{st.hinweise.length}: <MS s={h} /></> : null}</> });
   };
   const zusammen = fertig || ok;
   const kopf = (
@@ -106,11 +114,18 @@ export function Schritt({ st, nr, aktiv, fertig, onFertig }) {
       {kopf}
       <p style={{ fontSize: 14.5, color: C.tinte, lineHeight: 1.6, margin: "0 0 8px" }}><MS s={st.frage} /></p>
       {st.typ === "wahl" && <Auswahl optionen={st.optionen} wert={eing} setWert={(v) => { setEing(v); setRueck(null); }} label={st.titel} />}
-      {st.typ === "zahl" && (
+      {st.typ === "zahl" && !st.feld && (
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
           {st.text && <span style={{ fontSize: 16, fontWeight: 700, color: C.tinte }}><MS s={st.text} /></span>}
           <ZahlFeld wert={eing} setWert={(v) => { setEing(v); setRueck(null); }} label={st.titel} onEnter={pruefen} breite={st.breite || 104} />
           {st.einheit && <span style={{ fontSize: 15, color: C.grau }}>{st.einheit}</span>}
+        </div>
+      )}
+      {st.typ === "zahl" && st.feld && (
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 8, flexWrap: "wrap" }}>
+          {st.text && <span style={{ fontSize: 16, fontWeight: 700, color: C.tinte, lineHeight: "44px", whiteSpace: "nowrap" }}><MS s={st.text} /></span>}
+          <st.feld wert={eing} setWert={(v) => { setEing(v); setRueck(null); }} label={st.titel} onEnter={pruefen} />
+          {st.einheit && <span style={{ fontSize: 15, color: C.grau, lineHeight: "44px" }}>{st.einheit}</span>}
         </div>
       )}
       {st.typ === "zahl" && st.rundung && <p style={{ fontSize: 12.5, color: C.hellgrau, margin: "6px 0 0" }}>{st.rundung}</p>}

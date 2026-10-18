@@ -113,7 +113,7 @@ const WZ_WOERTER = {
   bruchterme: "bruchterm bruchterme bruchgleichung bruchgleichungen definitionsmenge definitionsbereich nenner null kürzen hauptnenner scheinlösung",
   geradengleichung: "lineare funktion gerade steigung achsenabschnitt y-achsenabschnitt punkt-steigungs-form zwei punkte m n y=mx+b",
   strahlensaetze: "strahlensatz strahlensätze vierstreckensatz v-figur x-figur parallelen streckfaktor zentrische streckung ähnlichkeit ähnliche dreiecke schatten baumhöhe verhältnis",
-  trigonometrie: "trigonometrie sinus kosinus cosinus tangens sin cos tan dreieck rechtwinklig gegenkathete ankathete hypotenuse sinussatz kosinussatz winkel berechnen",
+  trigonometrie: "trigonometrie sinus kosinus cosinus tangens sin cos tan dreieck rechtwinklig gegenkathete ankathete hypotenuse sinussatz kosinussatz winkel berechnen einheitskreis bogenmaß bogenmass gradmaß radiant steigungswinkel höhenwinkel arcsin arkussinus",
   parabeln: "quadratische funktion scheitelpunkt scheitelform nullstellen brennpunkt normalparabel quadratische gleichung pq-formel mitternachtsformel abc-formel parabel",
   sinus: "sinus kosinus cosinus trigonometrie periode amplitude schwingung winkelfunktion bogenmaß sin cos",
   wachstum: "exponentielles wachstum zerfall halbwertszeit verdopplungszeit logarithmus log ln e-funktion exponentialfunktion zinsen prozent",
