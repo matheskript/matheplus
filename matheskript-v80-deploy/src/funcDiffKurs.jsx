@@ -210,6 +210,7 @@ function Uebersicht({ stand, oeffnen }) {
 /* ---------- Modul ---------- */
 function Modul({ modul, stand, setStand, oeffnen, zurUebersicht, gehe }) {
   const [offen, setOffen] = React.useState(null);
+  const [seite, setSeite] = React.useState(modul.von);
   const rahmen = React.useRef(null);
   const werkzeugBereich = React.useRef(null);
   const i = KURS_MODULE.indexOf(modul);
@@ -232,7 +233,10 @@ function Modul({ modul, stand, setStand, oeffnen, zurUebersicht, gehe }) {
   React.useEffect(() => {
     const hoeren = (e) => {
       if (e.origin !== window.location.origin || !e.data) return;
-      if (e.data.typ === "mm-schulbuch-seite" && e.data.von === modul.von && e.data.ende) merken("gelesen");
+      if (e.data.typ === "mm-schulbuch-seite" && e.data.von === modul.von) {
+        setSeite(e.data.seite);
+        if (e.data.ende) merken("gelesen");
+      }
       if (e.data.typ === "mm-gehe" && e.data.ziel) {
         const passend = modul.werkzeuge.find((id) => KURS_WERKZEUGE[id].ansicht === e.data.ziel.ansicht);
         if (passend) werkzeugOeffnen(passend); else gehe(e.data.ziel);
@@ -242,14 +246,27 @@ function Modul({ modul, stand, setStand, oeffnen, zurUebersicht, gehe }) {
     return () => window.removeEventListener("message", hoeren);
   });
 
-  const hoehe = seitenZahl === 1
-    ? "min(86vh, 900px, calc((100vw - 34px) * 1.414 + 60px))"
-    : "min(86vh, 900px, calc((100vw - 34px) * 1.414 + 104px))";
+  const blaettern = (d) => {
+    const neu = Math.max(modul.von, Math.min(modul.bis, seite + d));
+    if (neu === seite) return;
+    setSeite(neu);
+    const f = rahmen.current && rahmen.current.contentWindow;
+    if (f) f.postMessage({ typ: "mm-schulbuch-zeige", seite: neu, richtung: d }, window.location.origin);
+  };
+  const nr = seite - modul.von + 1;
+  const pfeil = (richtung, aus) => (
+    <button type="button" onClick={() => blaettern(richtung)} disabled={aus} className="dk-pfeil"
+      aria-label={richtung < 0 ? "Vorherige Buchseite" : "Nächste Buchseite"}
+      style={{ width: 40, height: 40, borderRadius: 12, border: `1px solid ${aus ? C.linie : K.schwarz}`, background: aus ? K.weiss : K.schwarz, color: aus ? C.grau : K.weiss,
+        opacity: aus ? 0.45 : 1, cursor: aus ? "default" : "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", padding: 0 }}>
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d={richtung < 0 ? "M15 5l-7 7 7 7" : "M9 5l7 7-7 7"} stroke="currentColor" strokeWidth="2.4" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
+    </button>
+  );
   const w = offen ? KURS_WERKZEUGE[offen] : null;
 
   return (
     <div className="mx-auto px-4 pb-16" style={{ maxWidth: 1180 }}>
-      <div style={{ maxWidth: 760, margin: "0 auto" }}>
+      <div>
         <button type="button" onClick={zurUebersicht}
           style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 12px 8px 8px", marginBottom: 14, borderRadius: 10, border: `1px solid ${C.linie}`, background: K.weiss,
             color: K.schwarz, fontFamily: "inherit", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
@@ -261,18 +278,21 @@ function Modul({ modul, stand, setStand, oeffnen, zurUebersicht, gehe }) {
         <h2 style={{ fontSize: "clamp(23px, 6.4vw, 30px)", fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1.15, color: K.schwarz, margin: 0 }}>
           {modul.nr ? `${modul.nr} ` : ""}{modul.titel}
         </h2>
-        <p style={{ fontSize: 15.5, fontStyle: "italic", color: "#2B3A4F", margin: "8px 0 18px" }}>{modul.frage}</p>
-
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-          <span style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.12em", color: K.schwarz, background: K.baby, padding: "5px 10px", borderRadius: 7 }}>1 · LESEN</span>
-          <span style={{ fontSize: 13, color: C.grau }}>Buchseite {modul.von}{modul.bis > modul.von ? `–${modul.bis}` : ""}</span>
-          <span style={{ marginLeft: "auto", display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12.5, color: C.grau }}><Haken an={!!stand.gelesen[modul.id]} />gelesen</span>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px 14px", flexWrap: "wrap", margin: "8px 0 14px" }}>
+          <p style={{ flex: "1 1 240px", minWidth: 0, fontSize: 15.5, fontStyle: "italic", color: "#2B3A4F", margin: 0 }}>{modul.frage}</p>
+          {seitenZahl > 1 && (
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 10, flex: "none" }} role="group" aria-label="Buchseiten blättern">
+              {pfeil(-1, nr <= 1)}
+              <span aria-live="polite" style={{ fontSize: 13.5, fontWeight: 700, color: K.schwarz, minWidth: 74, textAlign: "center", whiteSpace: "nowrap" }}>Seite {nr} von {seitenZahl}</span>
+              {pfeil(1, nr >= seitenZahl)}
+            </div>
+          )}
         </div>
       </div>
 
-      <div style={{ borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 22px rgba(11,12,16,0.12)", background: "#E4E9F2", border: `1px solid ${K.baby}` }}>
-        <iframe key={modul.id} ref={rahmen} title={`Kapitel ${modul.titel} lesen`} src={`${BUCH}?von=${modul.von}&bis=${modul.bis}`}
-          style={{ display: "block", width: "100%", height: hoehe, minHeight: 380, border: 0 }} />
+      <div style={{ background: "#fff", aspectRatio: "794 / 1123", width: "100%" }}>
+        <iframe key={modul.id} ref={rahmen} title={`Kapitel ${modul.titel} lesen`} src={`${BUCH}?von=${modul.von}&bis=${modul.bis}&voll=1`}
+          style={{ display: "block", width: "100%", height: "100%", border: 0 }} />
       </div>
 
       {modul.werkzeuge.length > 0 && (

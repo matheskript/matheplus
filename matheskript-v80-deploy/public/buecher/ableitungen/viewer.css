@@ -59,3 +59,11 @@ body.offen #schleier { opacity: 1; pointer-events: auto; }
 body.ausschnitt #knInhalt, body.ausschnitt #knPdf, body.ausschnitt #inhalt, body.ausschnitt #schleier { display: none !important; }
 body.ausschnitt #leiste::after { left: 50%; margin-left: -22px; }
 body.ohnefuss #fuss { display: none; } body.ohnefuss #buehne { bottom: 0; }
+
+/* Vollmodus (Kursseite): keine Leiste, kein Grau, keine Ränder – die Seite füllt die Breite, die App blättert */
+body.voll { background: #fff; overflow: hidden; }
+body.voll #leiste, body.voll #fuss { display: none !important; }
+body.voll #buehne { top: 0; bottom: 0; overflow: hidden; }
+body.voll #aufschlag { padding: 0; min-height: 0; }
+body.voll .blatt { box-shadow: none; border-radius: 0; }
+body.voll #aufschlag.rein { animation-duration: 0.22s; }

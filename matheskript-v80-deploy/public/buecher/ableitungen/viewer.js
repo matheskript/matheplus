@@ -8,6 +8,9 @@
   const BIS = Math.max(VON, Math.min(N, parseInt(par.get("bis"), 10) || N));
   const AUSSCHNITT = VON > 1 || BIS < N;
   if (AUSSCHNITT) document.body.classList.add("ausschnitt");
+  /* Vollmodus für die Kursseite: ?voll=1 zeigt nur die Seite, randlos, auf ganzer Breite; Blättern steuert die App */
+  const VOLL = par.get("voll") === "1";
+  if (VOLL) document.body.classList.add("voll", "ohnefuss");
   const buehne = document.getElementById("buehne");
   const aufschlag = document.getElementById("aufschlag");
   const regler = document.getElementById("regler");
@@ -35,6 +38,7 @@
   function ausmessen() {
     const W = buehne.clientWidth, H = buehne.clientHeight;
     const sD = Math.min((W - 48) / (2 * PW), (H - 40) / PH);
+    if (VOLL) { doppel = false; return W / PW; }
     doppel = lupe === 0 && W >= 900 && sD >= 0.42;
     if (doppel) return sD;
     const basis = W < 700 ? (W - 16) / PW : Math.min((W - 32) / PW, (H - 40) / PH);
@@ -139,7 +143,7 @@
   /* Befehle der App (Kapitel öffnen) */
   window.addEventListener("message", (e) => {
     if (e.origin !== location.origin || !e.data || e.data.typ !== "mm-schulbuch-zeige") return;
-    zeigen(+e.data.seite || 1, 1);
+    zeigen(+e.data.seite || 1, +e.data.richtung || 1);
   });
 
   let t = null;
