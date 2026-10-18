@@ -1,13 +1,9 @@
 <!-- kap: VI -->
 <div class="kasten beispiel" style="margin-top:0">
   <div class="etikett">Beispiel 1 · Abstand paralleler Geraden</div>
-  <p style="text-align:left">Zeige, dass $g\colon \vec{x} = \left(\begin{smallmatrix} 2 \\ -1 \\ 0 \end{smallmatrix}\right) + t \cdot \left(\begin{smallmatrix} 1 \\ 2 \\ 2 \end{smallmatrix}\right)$ und $h\colon \vec{x} = \left(\begin{smallmatrix} 6 \\ 1 \\ 5 \end{smallmatrix}\right) + s \cdot \left(\begin{smallmatrix} 1 \\ 2 \\ 2 \end{smallmatrix}\right)$ parallel sind. Berechne $d(g, h)$.</p>
+  <p style="text-align:left">Berechne den Abstand von $g\colon \vec{x} = \left(\begin{smallmatrix} 2 \\ -1 \\ 0 \end{smallmatrix}\right) + t \cdot \left(\begin{smallmatrix} 1 \\ 2 \\ 2 \end{smallmatrix}\right)$ und $h\colon \vec{x} = \left(\begin{smallmatrix} 6 \\ 1 \\ 5 \end{smallmatrix}\right) + s \cdot \left(\begin{smallmatrix} 1 \\ 2 \\ 2 \end{smallmatrix}\right)$.</p>
   <div class="loesung"><span class="loesung-kopf">Lösung</span>
-  <p style="text-align:left">Gleiche Richtung und $Q(6 \mid 1 \mid 5) \notin g$ (aus $x_1$: $t = 4$, dann $x_2 = 7 \neq 1$). Gesucht: $d(Q, g)$.</p>
-  <div class="schritte" style="margin:1mm 0 0">
-    <span class="sl">Ansatz</span><span>$\overrightarrow{QX_t} = \left(\begin{smallmatrix} t - 4 \\ 2t - 2 \\ 2t - 5 \end{smallmatrix}\right)$, &nbsp;$\overrightarrow{QX_t} \cdot \vec{u} = t - 4 + 4t - 4 + 4t - 10 = 9t - 18 = 0 \;\Leftrightarrow\; t = 2$</span>
-    <span class="sl">Ergebnis</span><span>$F(4 \mid 3 \mid 4)$, &nbsp;$d(g, h) = |\overrightarrow{QF}| = \left|\left(\begin{smallmatrix} -2 \\ 2 \\ -1 \end{smallmatrix}\right)\right| = 3$</span>
-  </div></div>
+  <p style="text-align:left">Gleiche Richtung und $Q(6 \mid 1 \mid 5) \notin g$ (aus $x_1$: $t = 4$, dann $x_2 = 7 \neq 1$): echt parallel. Mit $\overrightarrow{QX_t} = \left(\begin{smallmatrix} t - 4 \\ 2t - 2 \\ 2t - 5 \end{smallmatrix}\right)$ ist $\overrightarrow{QX_t} \cdot \vec{u} = 9t - 18 = 0$, also $t = 2$, $F(4 \mid 3 \mid 4)$ und $d(g, h) = |\overrightarrow{QF}| = \left|\left(\begin{smallmatrix} -2 \\ 2 \\ -1 \end{smallmatrix}\right)\right| = 3$.</p></div>
 </div>
 
 <div class="kasten merke">

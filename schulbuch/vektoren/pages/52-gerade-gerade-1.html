@@ -1,0 +1,58 @@
+<!-- kap: VI | uk: Abstand windschiefer Geraden -->
+<div class="ukap-titel"><span class="nr">{{K:gerade-gerade-1}}</span><h2>Abstand windschiefer Geraden</h2></div>
+<p class="leitfrage">Wie nah kommen sich zwei Geraden, die sich nicht schneiden?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <div class="zwei-bild" style="gap:5mm">
+    <div>
+      <p style="text-align:left">Zwei Flugzeuge fliegen auf geraden Bahnen, die sich weder schneiden noch parallel sind – sie sind <b>windschief</b> (Seite {{S:lage-geraden-1}}). Die Flugsicherung will wissen, wie nah sich die Bahnen kommen.</p>
+      <p style="text-align:left"><b>a)</b> Die kürzeste Verbindungsstrecke $\overline{FG}$ steht auf <b>beiden</b> Geraden senkrecht. Begründe anschaulich.<br><b>b)</b> Mit welchem Werkzeug findest du einen Vektor, der zu $\vec{u}$ und $\vec{v}$ orthogonal ist?</p>
+    </div>
+    <raum>{"b":46,"h":40,"keineAchsen":true,"rand":10,
+      "flaeche":[{"pkte":[[2.5,-1.5,0],[2.5,3.5,0],[-2.5,3.5,0],[-2.5,-1.5,0]],"c":"grau","o":0.1,"rand":false}],
+      "gerade":[{"p":[0,1,0],"u":[1,1,0],"von":-2.2,"bis":2.2,"c":"lila","w":1.8,"t":"g","pos":"ur"},{"p":[0,1,2.4],"u":[1,-1,0],"von":-2.2,"bis":2.2,"c":"see","w":1.8,"t":"h","pos":"ur"}],
+      "strecke":[{"p":[0,1,0],"q":[0,1,2.4],"c":"grana","w":1.8,"t":"d","pos":"r"}],
+      "punkt":[{"p":[0,1,0],"t":"F","pos":"ul","c":"lila"},{"p":[0,1,2.4],"t":"G","pos":"ol","c":"see"}]}</raum>
+  </div>
+</div>
+
+<p>Die kürzeste Verbindung zweier windschiefer Geraden $g\colon \vec{x} = \vec{p} + r \cdot \vec{u}$ und $h\colon \vec{x} = \vec{q} + s \cdot \vec{v}$ heißt <b>gemeinsames Lot</b>. Es steht auf beiden Richtungen senkrecht, hat also die Richtung $\vec{n} = \vec{u} \times \vec{v}$.</p>
+
+<h3>Herleitung über eine Hilfsebene</h3>
+<div class="zwei-bild" style="grid-template-columns:1fr auto">
+  <div>
+    <p>Wir legen durch $g$ eine Ebene $E$, die <b>parallel zu $h$</b> ist: Sie enthält $\vec{p}$ und wird von $\vec{u}$ und $\vec{v}$ aufgespannt. Ihr Normalenvektor ist $\vec{n} = \vec{u} \times \vec{v}$, ihre Normalenform $\,(\vec{x} - \vec{p}) \cdot \vec{n} = 0$.</p>
+    <p>Weil $h$ parallel zu $E$ ist, hat jeder Punkt von $h$ denselben Abstand zu $E$ – genau der gesuchte Abstand der Geraden. Mit der HNF für den Punkt $Q$ von $h$:</p>
+  </div>
+  <raum>{"b":46,"h":34,"keineAchsen":true,"rand":10,
+    "flaeche":[{"pkte":[[2.5,-1.5,0],[2.5,3.5,0],[-2.5,3.5,0],[-2.5,-1.5,0]],"c":"lila","o":0.16,"t":"E","tp":[2,-0.9,0]}],
+    "gerade":[{"p":[0,1,0],"u":[1,1,0],"von":-2.2,"bis":2.2,"c":"lila","w":1.8,"t":"g","pos":"ur"},{"p":[0,1,2],"u":[1,-1,0],"von":-2.2,"bis":2.2,"c":"see","w":1.8,"t":"h","pos":"ur"},
+      {"p":[0,1,0],"u":[1,-1,0],"von":-2.2,"bis":2.2,"c":"see","w":1,"d":"3 2"}],
+    "strecke":[{"p":[0,1,0],"q":[0,1,2],"c":"grana","w":1.8,"t":"d","pos":"r"}]}</raum>
+</div>
+$$d(g, h) = \frac{|(\vec{q} - \vec{p}) \cdot \vec{n}|}{|\vec{n}|} \qquad \text{mit } \vec{n} = \vec{u} \times \vec{v}.$$
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Abstand windschiefer Geraden</div>
+  <p style="text-align:left">Für windschiefe Geraden $g\colon \vec{x} = \vec{p} + r \cdot \vec{u}$ und $h\colon \vec{x} = \vec{q} + s \cdot \vec{v}$ gilt</p>
+  $$d(g, h) = \frac{|(\vec{q} - \vec{p}) \cdot (\vec{u} \times \vec{v})|}{|\vec{u} \times \vec{v}|}.$$
+  <p style="text-align:left">Die <b>Lotfußpunkte</b> $F \in g$ und $G \in h$ erfüllen $\overrightarrow{FG} \cdot \vec{u} = 0$ und $\overrightarrow{FG} \cdot \vec{v} = 0$.</p>
+</div>
+
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 1 · Abstand mit der Formel</div>
+  <p style="text-align:left">$g\colon \vec{x} = \left(\begin{smallmatrix} 1 \\ 0 \\ 1 \end{smallmatrix}\right) + r \cdot \left(\begin{smallmatrix} 2 \\ 2 \\ 1 \end{smallmatrix}\right)$, &nbsp;$h\colon \vec{x} = \left(\begin{smallmatrix} 5 \\ -4 \\ 4 \end{smallmatrix}\right) + s \cdot \left(\begin{smallmatrix} 0 \\ 1 \\ 1 \end{smallmatrix}\right)$ sind windschief. Berechne $d(g, h)$.</p>
+  <div class="loesung"><span class="loesung-kopf">Lösung</span>
+  <p style="text-align:left">$\vec{n} = \left(\begin{smallmatrix} 2 \\ 2 \\ 1 \end{smallmatrix}\right) \times \left(\begin{smallmatrix} 0 \\ 1 \\ 1 \end{smallmatrix}\right) = \left(\begin{smallmatrix} 1 \\ -2 \\ 2 \end{smallmatrix}\right)$, $\;|\vec{n}| = 3$, &nbsp;$\vec{q} - \vec{p} = \left(\begin{smallmatrix} 4 \\ -4 \\ 3 \end{smallmatrix}\right)$, &nbsp;$d = \dfrac{|4 + 8 + 6|}{3} = \dfrac{18}{3} = 6$.</p></div>
+</div>
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: zwei Flugbahnen</li><li>Gemeinsames Lot</li><li>Herleitung über Hilfsebene</li><li>Merke</li><li>Beispiele 1 und 2</li><li>Aufgaben 1–4</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 5 und 6</p></div>
+
+<div class="notiz"><span class="t">Wortspeicher</span><b>Windschief:</b> nicht parallel und ohne Schnittpunkt – geht nur im Raum.<br><b>Gemeinsames Lot:</b> Strecke, die beide Geraden senkrecht trifft.</div>
+
+<div class="notiz gold"><span class="t">Erinnerung</span>$\vec{u} \times \vec{v}$ steht senkrecht auf $\vec{u}$ und auf $\vec{v}$ (Seite {{S:kreuz-1}}). Probe hier: $2 - 4 + 2 = 0$ und $0 - 2 + 2 = 0$ ✓</div>
+
+<div class="notiz"><span class="t">Der rote Faden</span>Wieder dieselbe Idee: Ein Abstand ist die Länge eines Lots. Die Formel ist nichts anderes als die HNF für die Hilfsebene $E$.</div>

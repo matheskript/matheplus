@@ -1,0 +1,55 @@
+<!-- kap: III | uk: Lage zweier Geraden -->
+<div class="ukap-titel"><span class="nr">{{K:lage-geraden-1}}</span><h2>Lage zweier Geraden</h2></div>
+<p class="leitfrage">Schneiden sich zwei Geraden im Raum – und wenn nicht, warum nicht?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <div class="zwei-bild" style="gap:5mm">
+    <div>
+      <p style="text-align:left">Im Würfel rechts sind vier Kanten und zwei Raumdiagonalen hervorgehoben.</p>
+      <p style="text-align:left"><b>a)</b> Welche der Linien $AB$, $HG$, $BC$, $AE$ verlaufen parallel?<br><b>b)</b> Die Raumdiagonalen $AG$ und $BH$: Haben sie einen gemeinsamen Punkt?<br><b>c)</b> $AE$ und $BC$ sind nicht parallel. Schneiden sie sich? Halte zwei Stifte so wie die Kanten.</p>
+    </div>
+    <raum>{"b":44,"h":40,"achsen":[5,5,5],"neg":[0,0,0],"keineAchsen":true,"rand":14,
+      "quader":[{"von":[0,0,0],"bis":[4,4,4],"c":"grau","w":0.8}],
+      "strecke":[{"p":[4,0,0],"q":[4,4,0],"c":"see","w":2},{"p":[0,0,4],"q":[0,4,4],"c":"see","w":2},
+        {"p":[4,0,0],"q":[4,0,4],"c":"grana","w":2},{"p":[4,4,0],"q":[0,4,0],"c":"grana","w":2},
+        {"p":[4,0,0],"q":[0,4,4],"c":"goldDunkel","w":1.3,"d":"4 2.5"},{"p":[4,4,0],"q":[0,0,4],"c":"goldDunkel","w":1.3,"d":"4 2.5"}],
+      "punkt":[{"p":[4,0,0],"t":"A","pos":"l","r":2.2},{"p":[4,4,0],"t":"B","pos":"r","r":2.2},{"p":[0,4,0],"t":"C","pos":"r","r":2.2},{"p":[0,0,0],"t":"D","pos":"ol","r":2.2},
+        {"p":[4,0,4],"t":"E","pos":"l","r":2.2},{"p":[4,4,4],"t":"F","pos":"r","r":2.2},{"p":[0,4,4],"t":"G","pos":"or","r":2.2},{"p":[0,0,4],"t":"H","pos":"ol","r":2.2}]}</raum>
+  </div>
+</div>
+
+<p>In der Ebene (Kapitel {{KAP:auftakt-lgs}}) schneiden sich zwei Geraden, sind parallel oder identisch. Im Würfel gibt es einen vierten Fall: $AE$ zeigt senkrecht nach oben, $BC$ läuft waagrecht am Boden. Sie sind <b>nicht parallel</b> und haben trotzdem <b>keinen gemeinsamen Punkt</b>. Solche Geraden heißen <b>windschief</b>. Rechnerisch prüft man zwei Dinge nacheinander:</p>
+
+<div class="schritte">
+  <span class="sl"><b>①</b> Richtungsvektoren</span><span>Ist $\vec{v} = k \cdot \vec{u}$? Dann sind die Geraden parallel oder identisch – eine <b>Punktprobe</b> entscheidet.</span>
+  <span class="sl"><b>②</b> gleichsetzen</span><span>Sonst: $\vec{p} + t \cdot \vec{u} = \vec{q} + s \cdot \vec{v}$ – drei Gleichungen, zwei Unbekannte $t$ und $s$.</span>
+  <span class="sl"><b>③</b> LGS auswerten</span><span>Aus zwei Zeilen $t$ und $s$ bestimmen, mit der dritten Zeile prüfen.</span>
+</div>
+
+<p>Zwei Gleichungen mit zwei Unbekannten haben meist genau eine Lösung. Die dritte ist eine <b>zusätzliche Bedingung</b> – das LGS ist <b>überbestimmt</b>. Passt sie, schneiden sich die Geraden; passt sie nicht, sind sie windschief.</p>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Lage zweier Geraden im Raum</div>
+  <p style="text-align:left">Für $g\colon \vec{x} = \vec{p} + t \cdot \vec{u}$ und $h\colon \vec{x} = \vec{q} + s \cdot \vec{v}$ gibt es vier Fälle. Den Schnittpunkt liefert $t$ eingesetzt in $g$.</p>
+  <table class="wt voll eng" style="margin:0.5mm 0 1mm">
+    <tr><th class="l"></th><th class="l">$\vec{u}$, $\vec{v}$ kollinear</th><th class="l">$\vec{u}$, $\vec{v}$ nicht kollinear</th></tr>
+    <tr><td class="l"><b>gemeinsame Punkte</b></td><td class="l"><b>identisch</b> (unendlich viele)</td><td class="l"><b>schneidend</b> (Schnittpunkt $S$)</td></tr>
+    <tr><td class="l"><b>kein gem. Punkt</b></td><td class="l"><b>echt parallel</b></td><td class="l"><b>windschief</b></td></tr>
+  </table>
+  </div>
+
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 1 · Der Einstieg nachgerechnet</div>
+  <p style="text-align:left">Kantenlänge 4, $D$ im Ursprung: $\;AE\colon \vec{x} = \begin{pmatrix} 4 \\ 0 \\ 0 \end{pmatrix} + t \cdot \begin{pmatrix} 0 \\ 0 \\ 4 \end{pmatrix}$, &nbsp;$BC\colon \vec{x} = \begin{pmatrix} 4 \\ 4 \\ 0 \end{pmatrix} + s \cdot \begin{pmatrix} -4 \\ 0 \\ 0 \end{pmatrix}$. Die Richtungen sind nicht kollinear. Gleichsetzen liefert in der zweiten Zeile $0 = 4$ – ein Widerspruch, egal wie $t$ und $s$ gewählt werden. Die Kanten sind <b>windschief</b>.</p>
+</div>
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: Kanten im Würfel</li><li>Vergleich mit der Ebene</li><li>Drei Prüfschritte</li><li>Merke: vier Fälle</li><li>Beispiele 1–4</li><li>Entscheidungsschema</li><li>Aufgaben 1–5</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 6 und 7</p></div>
+
+<div class="notiz"><span class="t">Wortspeicher</span><b>kollinear:</b> Vektoren sind Vielfache voneinander (Kapitel {{KAP:auftakt-vektoren}}).<br><b>windschief:</b> nicht parallel, kein gemeinsamer Punkt – gibt es nur im Raum.<br><b>überbestimmt:</b> mehr Gleichungen als Unbekannte.</div>
+
+<div class="notiz gold"><span class="t">Zwei Parameter!</span>Für $h$ immer einen <b>anderen</b> Buchstaben nehmen als für $g$. Mit $t$ in beiden Gleichungen würdest du verlangen, dass beide Punkte „zur selben Zeit“ zusammentreffen – das ist eine andere Frage.</div>
+
+<div class="notiz"><span class="t">Zum Einstieg</span>Nur $AB$ und $HG$ sind parallel. Die Raumdiagonalen treffen sich in der Würfelmitte $M$.</div>
