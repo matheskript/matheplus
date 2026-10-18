@@ -5,7 +5,7 @@
    auf und zeigt alle Trainings-Werkzeuge der App dazu.
    Daten: schulbuch.js. Auswahl bleibt im Browser (matheplus-quickfinder).
    ====================================================================== */
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { C } from "./base1.jsx";
 import { SCHULARTEN, SCHULART_STANDARD, THEMEN, hilfenFuer, kapitelFuer, klassenBoxen, roemisch, schulart as schulartVon, stufeAusKlassenBox } from "./schulbuch.js";
 import { kapitelAuswahl } from "./kapitelFormeln.js";
@@ -134,10 +134,34 @@ function Haekchen({ zustand, hell = false }) {
     </span>
   );
 }
+/* Ruhiger Bildschirm beim Auf- und Zuklappen der Kapitel („Dein Training startet hier.“):
+   Die angetippte Kapitelzeile bleibt exakt an ihrer Stelle im Fenster, auch wenn darüber ein anderes Kapitel
+   zuklappt. Die Seite scrollt nie von selbst zum Kapitel (die globale Regel aus aufklappen.jsx wird über
+   data-kein-scroll an den Listen abgeschaltet). Vor dem Umschalten merke(id) aufrufen, refs an die Kapitelzeilen hängen. */
+function useRuhigAufklappen(offen) {
+  const refs = useRef({});
+  const anker = useRef(null);
+  const merke = (id) => {
+    const el = refs.current[id];
+    anker.current = el ? { id, top: el.getBoundingClientRect().top } : null;
+  };
+  useLayoutEffect(() => {
+    const a = anker.current;
+    anker.current = null;
+    if (!a) return;
+    const el = refs.current[a.id];
+    if (!el) return;
+    const diff = el.getBoundingClientRect().top - a.top;
+    if (Math.abs(diff) > 0.5) window.scrollTo({ top: window.scrollY + diff, behavior: "instant" });
+  }, [offen]);
+  return { refs, merke };
+}
+
 function PlanAuswahl({ schulart, klasse, auswahl, setzeAuswahl }) {
   const [auf, setAuf] = useState(true);
   const kapitel = kapitelFuer(schulart, klasse);
   const [offen, setOffen] = useState(() => { const k = kapitel.find((x) => unterthemen(x.id).some((u) => auswahl.includes(u.id))); return k ? k.id : null; });
+  const { refs, merke } = useRuhigAufklappen(offen);
   const s = schulartVon(schulart);
   const zustand = (kId) => { const alle = unterthemen(kId), n = alle.filter((u) => auswahl.includes(u.id)).length; return n === 0 ? false : n === alle.length ? true : "mixed"; };
   const kapitelUmschalten = (kId) => {
@@ -165,21 +189,21 @@ function PlanAuswahl({ schulart, klasse, auswahl, setzeAuswahl }) {
         <Pfeil auf={auf} />
       </button>
       {auf && (
-        <div className="auftauchen" role="list" aria-label="Themen für den Trainingsplan" style={{ marginTop: 6, display: "grid", gap: 5 }}>
+        <div className="auftauchen" role="list" aria-label="Themen für den Trainingsplan" data-kein-scroll style={{ marginTop: 6, display: "grid", gap: 5, overflowAnchor: "none" }}>
           {kapitel.map((k) => {
             const z = zustand(k.id);
             const teileAuf = offen === k.id;
             const teile = unterthemen(k.id);
             const n = teile.filter((u) => auswahl.includes(u.id)).length;
             return (
-              <div key={k.id} role="listitem" style={{ borderRadius: 11, border: `1.5px solid ${z ? C.see : C.linie}`, background: z === true ? C.himmel : C.weiss, overflow: "hidden" }}>
+              <div key={k.id} role="listitem" ref={(el) => { refs.current[k.id] = el; }} style={{ borderRadius: 11, border: `1.5px solid ${z ? C.see : C.linie}`, background: z === true ? C.himmel : C.weiss, overflow: "hidden" }}>
                 <div style={{ display: "flex", alignItems: "stretch" }}>
                   <button type="button" role="checkbox" aria-checked={z} onClick={() => kapitelUmschalten(k.id)}
                     aria-label={`${z === true ? "Ganzes Kapitel abwählen" : "Ganzes Kapitel anhaken"}: ${k.titel}`}
                     style={{ ...knopfBasis, flexShrink: 0, width: 46, display: "flex", alignItems: "center", justifyContent: "center", border: "none", borderRight: `1px solid ${C.linie}`, borderRadius: 0, background: "transparent" }}>
                     <Haekchen zustand={z} />
                   </button>
-                  <button type="button" onClick={() => setOffen(teileAuf ? null : k.id)} aria-expanded={teileAuf}
+                  <button type="button" onClick={() => { merke(k.id); setOffen(teileAuf ? null : k.id); }} aria-expanded={teileAuf}
                     style={{ ...knopfBasis, flex: 1, minWidth: 0, display: "flex", alignItems: "center", gap: 8, textAlign: "left", minHeight: 48, padding: "7px 10px 7px 8px",
                       border: "none", borderRadius: 0, background: "transparent", color: C.tinte, fontWeight: 600 }}>
                     <span data-kein-i18n style={{ flexShrink: 0, width: 28, textAlign: "center", fontSize: 12.5, fontWeight: 800, color: z ? C.see : C.grau, letterSpacing: "0.04em" }}>{roemisch(k.nr)}</span>
@@ -302,15 +326,10 @@ function KapitelMenue({ schulart, klasse, offen, setOffen, gehe, planOeffnen }) 
   const kapitel = kapitelFuer(schulart, klasse);
   const s = schulartVon(schulart);
   const box = klassenBoxen(schulart).find((b) => b.id === klasse);
-  const refs = useRef({});
-  useEffect(() => {
-    if (!offen) return;
-    const el = refs.current[offen];
-    if (!el) return;
-    requestAnimationFrame(() => { const r = el.getBoundingClientRect(); if (r.top < 0) el.scrollIntoView({ block: "start", behavior: "smooth" }); });
-  }, [offen]);
+  const { refs, merke } = useRuhigAufklappen(offen);
+  const umschalten = (id) => { merke(id); setOffen(offen === id ? null : id); };
   return (
-    <div className="auftauchen" style={{ marginTop: 6 }}>
+    <div className="auftauchen" data-kein-scroll style={{ marginTop: 6, overflowAnchor: "none" }}>
       <p style={{ ...KICKER, color: C.grau, marginBottom: 8 }}>
         Themen der Klasse <span data-kein-i18n>{box ? box.label : ""} · {s ? s.name : ""}</span>
       </p>
@@ -322,7 +341,7 @@ function KapitelMenue({ schulart, klasse, offen, setOffen, gehe, planOeffnen }) 
             <div key={k.id} role="listitem" ref={(el) => { refs.current[k.id] = el; }}
               style={{ borderRadius: 12, border: `1.5px solid ${auf ? C.see : C.linie}`, background: C.weiss, overflow: "hidden",
                 boxShadow: auf ? "0 4px 14px rgba(0,77,152,0.12)" : "none", scrollMarginTop: 12 }}>
-              <button type="button" onClick={() => setOffen(auf ? null : k.id)} aria-expanded={auf}
+              <button type="button" onClick={() => umschalten(k.id)} aria-expanded={auf}
                 style={{ ...knopfBasis, width: "100%", display: "flex", alignItems: "center", gap: 10, textAlign: "left", minHeight: 52, padding: "8px 14px 8px 8px",
                   border: "none", borderRadius: 0, background: auf ? C.himmel : "transparent", color: C.tinte }}>
                 <span data-kein-i18n style={{ flexShrink: 0, width: 36, textAlign: "center", fontSize: 12.5, fontWeight: 800, color: auf ? C.see : C.grau, letterSpacing: "0.04em" }}>{roemisch(k.nr)}</span>
