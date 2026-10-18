@@ -59,6 +59,9 @@ const ElternabendSeite = lazyLaden(() => import("./funcElternabend.jsx").then((m
 const SpendenSeite = lazyLaden(() => import("./funcSpendenSeite.jsx").then((m) => ({ default: m.SpendenSeite })));
 const DiffKursSeite = lazyLaden(() => import("./funcDiffKurs.jsx").then((m) => ({ default: m.DiffKursSeite })));
 const VekKursSeite = lazyLaden(() => import("./funcVekKurs.jsx").then((m) => ({ default: m.VekKursSeite })));
+/* Mathe Abi Masterclass: Kursbereich für Teilnehmer und Zugang über den persönlichen Link */
+const MasterclassKursSeite = lazyLaden(() => import("./funcMasterclassKurs.jsx").then((m) => ({ default: m.MasterclassKursSeite })));
+const MasterclassZugangSeite = lazyLaden(() => import("./funcMasterclassKurs.jsx").then((m) => ({ default: m.MasterclassZugangSeite })));
 const SchulbuchSeite = lazyLaden(() => import("./funcSchulbuch.jsx").then((m) => ({ default: m.SchulbuchSeite })));
 const KlausurBriefkasten = lazyLaden(() => import("./funcKlausurBriefkasten.jsx").then((m) => ({ default: m.KlausurBriefkasten })));
 const BundeswettbewerbSeite = lazyLaden(() => import("./funcWettbewerbe.jsx").then((m) => ({ default: m.BundeswettbewerbSeite })));
@@ -106,6 +109,7 @@ const HeadNumbersSeite = lazyLaden(() => import("./funcHeadNumbers.jsx").then((m
 const GleichungenSeite = lazyLaden(() => import("./funcGleichKurs.jsx").then((m) => ({ default: m.GleichungenSeite })));
 import { EBB_SLOGAN } from "./funcEbbinghaus.jsx";
 import { useKonto, kontoStarten } from "./konto.js";
+import { linkAusUrlMerken as masterclassLinkMerken, autoEinloesen as masterclassAutoEinloesen } from "./masterclassZugang.js";
 import { englisch, spracheWechseln } from "./i18n.js";
 
 import { springe } from "./sprung.js";
@@ -115,6 +119,7 @@ const ZEIGE_MENUE = false;
 export function Mathilda() {
   const [ansicht, setAnsicht] = useState(() => {
     try {
+      masterclassLinkMerken();   // /masterclass/zugang?z=… → Code merken, aus der Adresse nehmen
       const q = new URLSearchParams(window.location.search);
       if (q.has("konto") || q.has("pro")) return "konto";
       if (q.get("ticket") === "danke") return "elternabend";
@@ -127,6 +132,8 @@ export function Mathilda() {
   // Rückkehr von Stripe nach erfolgreicher Ticketbuchung
   const [ticketGebucht] = useState(() => { try { return new URLSearchParams(window.location.search).get("ticket") === "danke"; } catch (e) { return false; } });
   const konto = useKonto();
+  // Masterclass: gemerkten Teilnehmer-Code nach der Anmeldung automatisch mit dem Konto verbinden
+  useEffect(() => { if (konto.nutzer && konto.profil) masterclassAutoEinloesen(konto); }, [konto.nutzer, konto.profil]);
   useEffect(() => {
     kontoStarten();
     try {
@@ -1015,6 +1022,14 @@ export function Mathilda() {
       ) : ansicht === "vekkurs" ? (
         <React.Suspense fallback={<p role="status" style={{ color: C.grau, fontSize: 15, fontWeight: 300, padding: "24px", textAlign: "center" }}>{englisch() ? "Loading …" : "Wird geladen …"}</p>}>
           <VekKursSeite gehe={gehe} />
+        </React.Suspense>
+      ) : ansicht === "mckurs" ? (
+        <React.Suspense fallback={<p role="status" style={{ color: C.grau, fontSize: 15, fontWeight: 300, padding: "24px", textAlign: "center" }}>{englisch() ? "Loading …" : "Wird geladen …"}</p>}>
+          <MasterclassKursSeite gehe={gehe} />
+        </React.Suspense>
+      ) : ansicht === "mczugang" ? (
+        <React.Suspense fallback={<p role="status" style={{ color: C.grau, fontSize: 15, fontWeight: 300, padding: "24px", textAlign: "center" }}>{englisch() ? "Loading …" : "Wird geladen …"}</p>}>
+          <MasterclassZugangSeite gehe={gehe} />
         </React.Suspense>
       ) : ansicht === "schulbuch" ? (
         <>

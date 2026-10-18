@@ -15,6 +15,8 @@ Alles ist im Code fertig und bleibt aus, bis die Schritte unten erledigt sind.
 
 Vorher müssen `schema.sql`, `rollen.sql`, `lernstand.sql`, `entdecken.sql`, `ki.sql`, `perf-lab.sql` und `stripe.sql` laufen (sind schon eingerichtet).
 
+8. `masterclass.sql` – persönliche Zugangslinks der Mathe Abi Masterclass (nach `rollen.sql` und `ki.sql`). Neue Links: `select * from public.masterclass_links_anlegen(20, 'Masterclass 2026/27', '2027-07-31');`. Damit die Links an der Passwortseite vorbeikommen, braucht Vercel `SUPABASE_URL` und `SUPABASE_ANON_KEY` (oder die `VITE_…`-Varianten) – ohne sie prüft die Seite nur die Prüfzeichen.
+
 ## 2. Umgebungsvariablen in Vercel (Project → Settings → Environment Variables)
 
 | Variable | Wofür | Woher |

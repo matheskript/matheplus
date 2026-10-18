@@ -78,6 +78,8 @@ export const SEITEN = [
 
   /* Üben */
   { pfad: "masterclass", ansicht: "masterclass", alias: ["mathe-abi-masterclass"] },
+  { pfad: "masterclass/kurs", ansicht: "mckurs", alias: ["masterclass-kurs", "masterclass/kursbereich"] },
+  { pfad: "masterclass/zugang", ansicht: "mczugang", alias: ["masterclass-zugang"] },
   { pfad: "aufgabengenerator", ansicht: "ki", ziel: null, alias: ["generator"] },
   { pfad: "arbeitsblatt", ansicht: "ki", ziel: "blatt", alias: ["arbeitsblatt-drucken"] },
   { pfad: "rechenweg", ansicht: "training", ziel: "weg" },

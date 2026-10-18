@@ -76,6 +76,7 @@ export const SPRUENGE = {
   "gleichkurs-runde":        { an: true,  art: "seite", wo: "Gleichungen lernen: Runde starten/beenden" },
   "videokurs-lektion":       { an: true,  art: "seite", wo: "Videokurse: andere Lektion" },
   "diffkurs-modul":          { an: true,  art: "seite", wo: "Kurs Differentialrechnung: Modul öffnen, „Nächstes Modul“, zurück zur Modulübersicht" },
+  "masterclass-modul":       { an: true,  art: "seite", wo: "Masterclass-Kursbereich: Lektion öffnen, „Nächste Lektion“, zurück zur Übersicht, Code eingelöst" },
   "vekkurs-modul":           { an: true,  art: "seite", wo: "Kurs Vektoren, Geraden und Ebenen: Modul öffnen, „Nächstes Modul“, zurück zur Modulübersicht" },
   "kopfmodi-thema":          { an: true,  art: "seite", wo: "Kopfrechnen → Entdecken: Thema aus der Liste öffnen, „Weiter: …“" },
   "headnumbers-ansicht":     { an: true,  art: "seite", wo: "Head & Numbers: Bereich/Trainer öffnen und zurück" },

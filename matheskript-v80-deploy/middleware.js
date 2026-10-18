@@ -16,6 +16,41 @@ const COOKIE_GAST = "mm_gast";   // für die App lesbar: Besucher ohne Passwort,
 const OEFFENTLICH = ["/impressum", "/datenschutz", "/agb", "/widerruf", "/einwilligung"];
 const istOeffentlich = (p) => OEFFENTLICH.includes(p.replace(/\/$/, "")) || p.startsWith("/assets/");
 
+
+/* ---------- Masterclass-Zugangslinks (/masterclass/zugang?z=MC…) ----------
+   Teilnehmer kommen mit ihrem persönlichen Link ohne Seitenpasswort hinein. Prüfzeichen wie in
+   src/masterclassToken.js; ist Supabase eingerichtet, fragt die Middleware zusätzlich die Datenbank
+   (masterclass_link_pruefen: angelegt, nicht gesperrt, nicht abgelaufen). */
+const MC_ALPHABET = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
+const MC_SALZ = "mythosmathe-masterclass-v1";
+export async function mcPruefzeichen(koerper) {
+  const h = new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`${MC_SALZ}:${koerper}`)));
+  const v = (h[0] << 2) | (h[1] >> 6);
+  return MC_ALPHABET[v >> 5] + MC_ALPHABET[v & 31];
+}
+export async function mcTokenEcht(roh) {
+  const t = String(roh || "").toUpperCase().replace(/[^0-9A-Z]/g, "").replace(/O/g, "0").replace(/[IL]/g, "1").replace(/U/g, "V");
+  if (!new RegExp(`^MC[${MC_ALPHABET}]{10}$`).test(t)) return null;
+  return (await mcPruefzeichen(t.slice(2, 10))) === t.slice(10) ? t : null;
+}
+async function mcDatenbankSagtJa(token) {
+  const basis = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+  const schluessel = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
+  if (!basis || !schluessel) return true;   // Vorschau ohne Datenbank: Prüfzeichen genügen
+  try {
+    const r = await fetch(`${basis.replace(/\/$/, "")}/rest/v1/rpc/masterclass_link_pruefen`, {
+      method: "POST",
+      headers: { apikey: schluessel, authorization: `Bearer ${schluessel}`, "content-type": "application/json" },
+      body: JSON.stringify({ p_token: token }),
+    });
+    if (r.status === 404) return true;      // masterclass.sql noch nicht ausgeführt
+    if (!r.ok) return false;
+    const d = await r.json();
+    // „vergeben“ heißt: schon eingelöst – der Besitzer selbst darf weiter hinein (er ist hier noch nicht angemeldet)
+    return !!(d && (d.gueltig || d.grund === "vergeben"));
+  } catch (e) { return false; }
+}
+
 const passwort = () => (process.env.SEITEN_PASSWORT || "mathe");
 
 async function hash(text) {
@@ -117,6 +152,17 @@ export default async function middleware(request) {
 
   // Schon freigeschaltet?
   if (cookieLesen(request, COOKIE) === soll) return next();
+
+  // Persönlicher Masterclass-Link: gilt als Eintrittskarte für die ganze Testseite (wie das Passwort)
+  if (url.pathname.replace(/\/$/, "").toLowerCase() === "/masterclass/zugang") {
+    const token = await mcTokenEcht(url.searchParams.get("z"));
+    if (token && await mcDatenbankSagtJa(token)) {
+      const kopf = new Headers({ location: url.pathname + url.search, "cache-control": "no-store" });
+      kopf.append("set-cookie", `${COOKIE}=${soll}; Path=/; Max-Age=${60 * 60 * 24 * 180}; HttpOnly; Secure; SameSite=Lax`);
+      kopf.append("set-cookie", `${COOKIE_GAST}=; Path=/; Max-Age=0; Secure; SameSite=Lax`);
+      return new Response(null, { status: 303, headers: kopf });
+    }
+  }
 
   // Rechtsseiten, Einwilligung und die dafür nötigen Programmdateien: ohne Passwort, als Gast markiert
   if (istOeffentlich(url.pathname)) {

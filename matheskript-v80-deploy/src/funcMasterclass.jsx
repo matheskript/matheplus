@@ -65,7 +65,7 @@ const kachelProps = (gesperrt, onClick, label, klasse) => (gesperrt
   ? { role: "button", "aria-disabled": "true", "aria-label": `${label} – noch gesperrt`, title: "Noch gesperrt", className: `${klasse} kachel-zu` }
   : { type: "button", onClick, "aria-label": label, className: klasse });
 
-export function MasterclassKachel({ onClick, gesperrt, name = "Mathe Abi Masterclass", monate = "6 MONATE" }) {
+export function MasterclassKachel({ onClick, gesperrt, name = "Mathe Abi Masterclass", monate = "6 MONATE", knopf = "Programm ansehen" }) {
   const Tag = gesperrt ? "div" : "button";
   return (
     <Tag {...kachelProps(gesperrt, onClick, name, "mc-kachel")}
@@ -92,7 +92,7 @@ export function MasterclassKachel({ onClick, gesperrt, name = "Mathe Abi Masterc
         </p>
         {gesperrt ? null : (
         <span style={{ marginTop: "auto", paddingTop: 6, fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
-          Programm ansehen
+          {knopf}
           <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4l4 4-4 4" stroke={NAVY} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </span>
         )}

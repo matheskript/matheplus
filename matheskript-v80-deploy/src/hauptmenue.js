@@ -85,6 +85,7 @@ export function klassenInhalt(k) {
 
 /* ---------- Meine Kurse ---------- */
 export const KURSE = [
+  { id: "mckurs", name: "Mathe Abi Masterclass", zeile: "Kursbereich für Teilnehmer: Videos, Aufträge, Mathilda", ziel: { ansicht: "mckurs" } },
   { id: "diffkurs", name: "Differentialrechnung", zeile: "Schulbuch lesen und direkt trainieren", ziel: { ansicht: "diffkurs" } },
   { id: "vekkurs", name: "Vektoren, Geraden und Ebenen", zeile: "Heftkapitel lesen und trainieren", ziel: { ansicht: "vekkurs" } },
   { id: "penpaper", name: "Pen & Paper", zeile: "Sauber aufschreiben in neun Lektionen", ziel: { ansicht: "penpaperkurs" } },
@@ -93,7 +94,6 @@ export const KURSE = [
   { id: "textaufgaben", name: "Textaufgaben übersetzen", zeile: "Aus dem Text die Gleichung machen", ziel: { ansicht: "textaufgaben" } },
 ];
 export const BALD_KURSE = [
-  { id: "masterclass", name: "Mathe Abi Masterclass", zeile: "Sechs Monate bis zum Abi", bald: true },
   { id: "mathecheck", name: "Mathe checken", zeile: "Zwei Monate, ein System", bald: true },
   { id: "geometrie", name: "Kurs Geometrie", zeile: "Mittelstufe vom Winkel bis zum Körper", bald: true },
 ];

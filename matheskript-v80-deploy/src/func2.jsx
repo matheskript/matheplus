@@ -1856,8 +1856,8 @@ export function Startseite({ gehe }) {
       <DiffKursKachel onClick={() => gehe({ ansicht: "diffkurs" })} />
       {/* Kurs Vektoren, Geraden und Ebenen: direkt darunter, in Dunkelblau */}
       <VekKursKachel onClick={() => gehe({ ansicht: "vekkurs" })} />
-      {/* Ganz unten: Mathe Masterclass (3 Monate, gesperrt) */}
-      <MasterclassKachel gesperrt name="Mathe Masterclass" monate="3 MONATE" onClick={() => gehe({ ansicht: "masterclass" })} />
+      {/* Mathe Masterclass: Kursbereich für Teilnehmer (ohne Zugang zeigt er das Code-Feld) */}
+      <MasterclassKachel name="Mathe Masterclass" monate="3 MONATE" knopf="Zum Kursbereich" onClick={() => gehe({ ansicht: "mckurs" })} />
       {/* Die 7 Mathe-Mythen: zwischen Masterclass und „Wo stehst du wirklich?“ */}
       <MythenAbschnitt />
       {/* Ganz unten: Dein Plan mit Standortcheck („Wo stehst du wirklich?“) */}
