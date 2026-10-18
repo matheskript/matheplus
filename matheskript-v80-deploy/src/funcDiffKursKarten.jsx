@@ -471,9 +471,12 @@ const CSS = `
   .dkk-text{margin:2px 0}
 }
 @media (max-width:560px){
-  .dkk{grid-template-columns:minmax(0,1fr) 112px;padding:14px;column-gap:12px}
+  .dkk{grid-template-columns:minmax(0,1fr) 142px;grid-template-rows:auto 1fr auto;grid-template-areas:"kopf bild" "text bild" "text knopf";padding:14px;column-gap:12px;row-gap:10px}
   .dkk-zeichen{display:none}
-  .dkk-knopf{width:100%;justify-content:space-between}
+  .dkk-text{align-self:start;margin:0;font-size:13px}
+  .dkk-knopf-feld{align-self:end}
+  .dkk-knopf{width:100%;justify-content:space-between;gap:6px;padding:5px 5px 5px 13px;font-size:12.5px;box-sizing:border-box;white-space:nowrap}
+  .dkk-knopf .dkk-pfeil{width:28px;height:28px;flex:none}
 }
 @media (prefers-reduced-motion:reduce){.dkk,.dkk-knopf,.dkk-pfeil{transition:none !important}}
 `;
