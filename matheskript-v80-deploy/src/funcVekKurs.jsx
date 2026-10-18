@@ -25,8 +25,8 @@ import { springe } from "./sprung.js";
 import { WerkzeugKarte, KartenStil } from "./funcVekKursKarten.jsx";
 
 const BUCH = "/buecher/vektoren/index.html";
-/* Solange das Heft geschrieben wird: Platzhalter statt Lesefunktion */
-export const BUCH_BEREIT = false;
+/* Das Heft ist fertig: die Lesefunktion ersetzt den Platzhalter */
+export const BUCH_BEREIT = true;
 
 /* Rollen wie im Differentialrechnungskurs: baby = Akzent auf Dunkel bzw. helle Fläche, hell = Nebel,
    tief = Linie/Fortschritt, schwarz = Nacht, gold = Akzentschrift auf Hell, leucht = Gold auf Dunkel */
