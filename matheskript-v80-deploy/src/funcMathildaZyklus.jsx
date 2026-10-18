@@ -1,6 +1,7 @@
 /* Mathilda AI – der Lern-Zyklus unter dem Kopf: geschwungener Pfad in fünf Schritten.
-   1 Mathe mit Pen & Paper → 2 „Scan dein Blatt“ (kleines Abbild des Knopfs im Kopf, klickbar)
-   → 3 MathildaAI arbeitet → 4 Feedback → 5 Erkenntnis; von 4 zurück zu 1.
+   1 Mathe mit Pen & Paper → 2 „Scan dein Blatt“ → 3 MathildaAI arbeitet → 4 Feedback → 5 Erkenntnis; von 4 zurück zu 1.
+   Schritt 2: am Desktop ein kleines Abbild des Knopfs im Kopf; auf dem Handy (≤ 560 px) der echte große Scan-Knopf
+   (der Knopf im Kopf entfällt dort): links groß und pulsierend, mit blinkenden Pfeilen darauf; MAI rechts, Text darunter.
    Der Pfad wird aus den echten Positionen der Knoten berechnet, damit er auf jedem Bildschirm sitzt. */
 import React, { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { C } from "./base1.jsx";
@@ -70,9 +71,31 @@ function AhaBild() {
   );
 }
 
-function Beschriftung({ titel, text, links }) {
+/* Kamera im dunklen Kreis des großen Scan-Knopfs (Handy) */
+function KameraGross() {
   return (
-    <span className={`mz-text${links ? " mz-text-l" : ""}`}>
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke={GOLD} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M4 8h3l2-3h6l2 3h3v11H4z" /><circle cx="12" cy="13" r="3.5" />
+    </svg>
+  );
+}
+
+/* Zwei blinkende Pfeile, die von oben auf den Scan-Knopf zeigen */
+function HinweisPfeile() {
+  return (
+    <span className="mz-hinweis" aria-hidden="true">
+      {[0, 1].map((i) => (
+        <svg key={i} viewBox="0 0 28 14" width="28" height="14" fill="none" stroke={GOLD} strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M3 3l11 8 11-8" />
+        </svg>
+      ))}
+    </span>
+  );
+}
+
+function Beschriftung({ titel, text, links, refT }) {
+  return (
+    <span ref={refT} className={`mz-text${links ? " mz-text-l" : ""}`}>
       <b>{mitMathildaAI(titel, true)}</b>
       <span>{text}</span>
     </span>
@@ -81,28 +104,44 @@ function Beschriftung({ titel, text, links }) {
 
 export function MathildaZyklus({ scanRef, modus, setModus, weitere }) {
   const zRef = useRef(null);
-  const r1 = useRef(null), r2 = useRef(null), r3 = useRef(null), r4 = useRef(null), r5 = useRef(null);
+  const r1 = useRef(null), r2 = useRef(null), r3 = useRef(null), r3t = useRef(null), r4 = useRef(null), r5 = useRef(null);
   const [geo, setGeo] = useState(null);
+
+  /* Handy-Variante (≤ 560 px): großer Scan-Knopf statt Mini-Abbild */
+  const MOBIL = "(max-width: 560px)";
+  const [mobil, setMobil] = useState(() => typeof window !== "undefined" && !!window.matchMedia && window.matchMedia(MOBIL).matches);
+  useLayoutEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return undefined;
+    const mq = window.matchMedia(MOBIL);
+    const auf = () => setMobil(mq.matches);
+    auf();
+    if (mq.addEventListener) mq.addEventListener("change", auf); else mq.addListener(auf);
+    return () => { if (mq.removeEventListener) mq.removeEventListener("change", auf); else mq.removeListener(auf); };
+  }, []);
 
   const rechne = useCallback(() => {
     const z = zRef.current;
     const wurzel = z && z.closest(".mathilda-kopf");
     if (!wurzel || !r1.current || !r2.current || !r3.current || !r4.current || !r5.current) return;
     const k1 = lage(r1.current, wurzel), k2 = lage(r2.current, wurzel), k3 = lage(r3.current, wurzel), k4 = lage(r4.current, wurzel), k5 = lage(r5.current, wurzel);
+    const t3 = r3t.current ? lage(r3t.current, wurzel) : null;
     const f = (n) => Math.round(n * 10) / 10;
 
-    /* A: 1 → 2 (kurz nach oben) */
-    const ax = k1.mx, ay = k1.y - 6, ex = k2.mx, ey = k2.y + k2.h + 9;
+    /* A: 1 → 2 (nach oben; unter dem breiten Handy-Knopf möglichst senkrecht) */
+    const ax = k1.mx, ay = k1.y - 6, ex = Math.min(Math.max(k1.mx, k2.x + 20), k2.x + k2.w - 20), ey = k2.y + k2.h + 9;
     const am = (ay + ey) / 2;
     const A = `M${f(ax)} ${f(ay)} C${f(ax)} ${f(am)} ${f(ex)} ${f(am)} ${f(ex)} ${f(ey)}`;
-    /* B: 2 → 3 (nach rechts, Welle) */
+    /* B: 2 → 3 (nach rechts, Welle; liegen beide auf einer Höhe, bekommt sie eine sanfte Schwingung) */
     const bsx = k2.x + k2.w + 9, bsy = k2.my, bex = k3.x - 9, bey = k3.my;
     const bd = Math.max(24, (bex - bsx) * 0.5);
-    const B = `M${f(bsx)} ${f(bsy)} C${f(bsx + bd)} ${f(bsy)} ${f(bex - bd)} ${f(bey)} ${f(bex)} ${f(bey)}`;
-    /* C: 3 → 4 (Schwung nach unten) */
-    const csx = k3.mx, csy = k3.y + k3.h + 6, cex = k4.mx, cey = k4.y - 9;
+    const bw = Math.abs(bey - bsy) < 10 ? 13 : 0;
+    const B = `M${f(bsx)} ${f(bsy)} C${f(bsx + bd)} ${f(bsy - bw)} ${f(bex - bd)} ${f(bey + bw)} ${f(bex)} ${f(bey)}`;
+    /* C: 3 → 4 (Schwung nach unten). Steht der Text unter dem Kreis (Handy), startet der Pfad unter dem Text. */
+    const textUnten = !!t3 && t3.y > k3.y + k3.h - 4;
+    const csx = textUnten ? t3.mx : k3.mx, csy = (textUnten ? t3.y + t3.h : k3.y + k3.h) + 6, cex = k4.mx, cey = k4.y - 9;
     const cd = (cey - csy) * 0.4;
-    const Cc = `M${f(csx)} ${f(csy)} C${f(csx + 30)} ${f(csy + cd)} ${f(cex - 30)} ${f(cey - cd)} ${f(cex)} ${f(cey)}`;
+    const bog = textUnten ? 0 : 30;
+    const Cc = `M${f(csx)} ${f(csy)} C${f(csx + bog)} ${f(csy + cd)} ${f(cex - bog)} ${f(cey - cd)} ${f(cex)} ${f(cey)}`;
     /* D: 4 → 5 (nach rechts) */
     const dsx = k4.x + k4.w + 7, dsy = k4.my, dex = k5.x - 9, dey = k5.my;
     const dd = (dex - dsx) * 0.4;
@@ -126,7 +165,7 @@ export function MathildaZyklus({ scanRef, modus, setModus, weitere }) {
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(rechne).catch(() => {});
     const t = setTimeout(rechne, 400);
     return () => { if (ro) ro.disconnect(); window.removeEventListener("resize", rechne); window.removeEventListener("load", rechne); clearTimeout(t); };
-  }, [rechne]);
+  }, [rechne, mobil]);
 
   return (
     <>
@@ -170,6 +209,27 @@ export function MathildaZyklus({ scanRef, modus, setModus, weitere }) {
         .mz-scanmini { transition: transform .2s ease; }
         button.mz-zwei-k:hover .mz-scanmini, button.mz-zwei-k:focus-visible .mz-scanmini { transform: translateY(-2px); }
         .mz-scanmini .mz-nr { top: -9px; left: -9px; }
+        /* Handy: der große Scan-Knopf (Schritt 2) – pulsiert, blinkende Pfeile zeigen von oben darauf */
+        .mz-zwei-g { grid-column: 1 / span 2; grid-row: 1; align-self: start; align-items: flex-start; padding-left: 8px; }
+        .mz-zwei-g .mz-feld { height: 88px; justify-content: flex-start; }
+        button.mz-zwei-g:focus-visible { outline-offset: 2px; border-radius: 999px; }
+        .mz-scan-gross { gap: 10px; height: 60px; padding: 0 20px 0 7px; border-radius: 999px; color: ${NACHT}; text-align: left;
+          background: linear-gradient(135deg, #F8D23A 0%, ${GOLD} 55%, #D9A600 100%);
+          box-shadow: 0 8px 24px rgba(237,187,0,0.42), 0 0 0 0 rgba(237,187,0,0.6), inset 0 1px 0 rgba(255,255,255,0.55);
+          animation: mz-puls 1.7s ease-in-out infinite; transition: filter .15s ease; }
+        button.mz-zwei-g:hover .mz-scan-gross { filter: brightness(1.06); }
+        button.mz-zwei-g:active .mz-scan-gross { transform: scale(0.97); animation: none; }
+        .mz-sg-kam { width: 44px; height: 44px; border-radius: 999px; background: ${NACHT}; display: flex; align-items: center; justify-content: center; flex: none; }
+        .mz-sg-text { font-size: 16px; font-weight: 800; letter-spacing: -0.01em; line-height: 1.12; white-space: nowrap; }
+        .mz-scan-gross .mz-nr { top: -10px; left: -6px; width: 26px; height: 26px; font-size: 14px; background: ${NACHT}; color: ${GOLD}; border: 2px solid ${GOLD}; box-sizing: border-box; }
+        .mz-hinweis { position: absolute; left: 50%; bottom: calc(100% + 2px); transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; pointer-events: none; }
+        .mz-hinweis svg { display: block; margin-top: -4px; opacity: 0.2; animation: mz-chev 1.3s ease-in-out infinite; }
+        .mz-hinweis svg:nth-child(2) { animation-delay: .24s; }
+        @keyframes mz-puls {
+          0%, 100% { transform: scale(1); box-shadow: 0 8px 24px rgba(237,187,0,0.42), 0 0 0 0 rgba(237,187,0,0.6), inset 0 1px 0 rgba(255,255,255,0.55); }
+          50% { transform: scale(1.045); box-shadow: 0 10px 32px rgba(237,187,0,0.7), 0 0 0 13px rgba(237,187,0,0), inset 0 1px 0 rgba(255,255,255,0.55); }
+        }
+        @keyframes mz-chev { 0%, 100% { opacity: 0.18; transform: translateY(-3px); } 50% { opacity: 1; transform: translateY(3px); } }
         .mz-mehr { position: relative; z-index: 2; margin-top: 22px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; }
         .mz-mehr-l { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #9FB2D6; margin-right: 4px; }
         .mz-chip { font-family: inherit; cursor: pointer; font-size: 12.5px; font-weight: 600; color: #DCE5F6; background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.18); border-radius: 999px; padding: 7px 13px; transition: background .15s ease, transform .15s ease; -webkit-tap-highlight-color: transparent; }
@@ -184,7 +244,10 @@ export function MathildaZyklus({ scanRef, modus, setModus, weitere }) {
           .mz-papier svg { width: 80px; height: 80px; }
           .mz-eins .mz-text b { font-size: 12px; letter-spacing: -0.02em; }
           .mz-eins .mz-text span { font-size: 11px; }
-          .mz-drei { padding-left: calc(25% - 33px); }
+          .mz-raster { row-gap: 34px; }
+          /* MAI ganz nach rechts (Spalte 3, mittig über Schritt 5), Text darunter; links bleibt Platz für den großen Scan-Knopf */
+          .mz-drei { grid-column: 3; grid-row: 1; flex-direction: column; align-items: center; justify-content: flex-start; padding-left: 0; text-align: center; left: 6px; }
+          .mz-drei .mz-text, .mz-drei .mz-text-l { margin: 4px 0 0; text-align: center; max-width: 112px; }
           .mz-eins { left: -8px; }
           .mz-fuenf { left: 6px; }
         }
@@ -202,7 +265,7 @@ export function MathildaZyklus({ scanRef, modus, setModus, weitere }) {
           .mz-text-l { margin-left: 18px; }
           .mz-papier svg { width: 100px; height: 100px; }
         }
-        @media (prefers-reduced-motion: reduce) { .mz-pfad, .mz-mai-ring, .mz-knoten { animation: none; } }
+        @media (prefers-reduced-motion: reduce) { .mz-pfad, .mz-mai-ring, .mz-knoten, .mz-scan-gross, .mz-hinweis svg { animation: none; } .mz-hinweis svg { opacity: 0.9; } }
       `}</style>
 
       <div className="mz" ref={zRef} role="group" aria-label="So lernst du mit Mathilda: ein Kreislauf in fünf Schritten">
@@ -214,12 +277,25 @@ export function MathildaZyklus({ scanRef, modus, setModus, weitere }) {
             <Beschriftung titel="Mathe mit Pen &amp; Paper" text="Weißes Blatt, schwarzer Stift" />
           </button>
 
-          <button type="button" className="mz-knoten mz-zwei-k" onClick={() => scanRef.current && scanRef.current.click()} style={{ animationDelay: "0.12s" }}>
-            <Beschriftung titel="Scan dein Blatt" text="Foto vom Rechenweg" />
-            <span className="mz-feld mz-feld-zwei">
-              <span className="mz-form mz-scanmini" ref={r2}><ScanMini /><span className="mz-nr">2</span></span>
-            </span>
-          </button>
+          {mobil ? (
+            <button type="button" className="mz-knoten mz-zwei-g" aria-label="Scan dein Blatt" onClick={() => scanRef.current && scanRef.current.click()} style={{ animationDelay: "0.12s" }}>
+              <span className="mz-feld">
+                <span className="mz-form mz-scan-gross" ref={r2}>
+                  <HinweisPfeile />
+                  <span className="mz-sg-kam"><KameraGross /></span>
+                  <span className="mz-sg-text">Scan dein<br /> Blatt</span>
+                  <span className="mz-nr">2</span>
+                </span>
+              </span>
+            </button>
+          ) : (
+            <button type="button" className="mz-knoten mz-zwei-k" onClick={() => scanRef.current && scanRef.current.click()} style={{ animationDelay: "0.12s" }}>
+              <Beschriftung titel="Scan dein Blatt" text="Foto vom Rechenweg" />
+              <span className="mz-feld mz-feld-zwei">
+                <span className="mz-form mz-scanmini" ref={r2}><ScanMini /><span className="mz-nr">2</span></span>
+              </span>
+            </button>
+          )}
 
           <div className="mz-knoten mz-drei" style={{ animationDelay: "0.2s" }}>
             <span className="mz-feld" style={{ height: 88 }}>
@@ -229,7 +305,7 @@ export function MathildaZyklus({ scanRef, modus, setModus, weitere }) {
                 <span className="mz-nr">3</span>
               </span>
             </span>
-            <Beschriftung titel="MathildaAI arbeitet" text="Sie liest dein Blatt Zeile für Zeile" links />
+            <Beschriftung titel="MathildaAI arbeitet" text="Sie liest dein Blatt Zeile für Zeile" links refT={r3t} />
           </div>
 
           <div className="mz-knoten mz-vier" style={{ animationDelay: "0.35s" }}>

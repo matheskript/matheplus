@@ -89,7 +89,8 @@ function KameraGlyph({ groesse = 18 }) {
   );
 }
 
-/* Kopfbereich: Titel dicht am Header, Zweizeiler, goldener Scan-Knopf, rechts Mathilda; darunter der Lern-Zyklus
+/* Kopfbereich: Titel dicht am Header, Zweizeiler, goldener Scan-Knopf (am Desktop oben rechts; auf dem Handy
+   steht er als Schritt 2 im Kreislauf, der Knopf hier bleibt dort verborgen als Ziel für scanRef); darunter der Lern-Zyklus
    und die zwei Boxen „Textaufgabe“ und „Klausurbox“ im goldenen Schnitt (Breite : Höhe = 1,618 : 1). */
 export function MathildaKopf({ modus, setModus, onScan, onText, onBriefkasten, onTextKamera, onBriefkastenKamera }) {
   const scanRef = useRef(null);
@@ -130,13 +131,15 @@ export function MathildaKopf({ modus, setModus, onScan, onText, onBriefkasten, o
         .mathilda-kopf .mk-satz { color: #C9D6EE; font-size: 18.6px; font-weight: 300; line-height: 1.5; margin-top: 14px; white-space: nowrap; }
         @keyframes mk-auf { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
         @media (max-width: 560px) {
-          .mathilda-kopf .mk-innen { grid-template-columns: minmax(0, 1fr) auto; gap: 0 10px; padding-top: 20px; align-items: start; }
+          /* Handy: der Scan-Knopf sitzt im Kreislauf darunter (Schritt 2), der Kopf hat die volle Breite.
+             Der Untertitel läuft in genau zwei Zeilen; die Schrift skaliert mit der Bildschirmbreite (4vw),
+             damit die längere Zeile auch auf schmalen Geräten nicht umbricht. */
+          .mathilda-kopf .mk-innen { grid-template-columns: minmax(0, 1fr); gap: 0; padding-top: 20px; align-items: start; }
           .mathilda-kopf .mk-text { padding: 0 0 4px; }
-          .mathilda-kopf .mk-scanplatz { padding-top: 26px; }
+          .mathilda-kopf .mk-scanplatz { display: none; }
           .mathilda-kopf .mk-ober { font-size: 11px; letter-spacing: .1em; margin-bottom: 8px; white-space: nowrap; }
           .mathilda-kopf .mk-titel { font-size: 36px; }
-          .mathilda-kopf .mk-satz { font-size: 15.6px; line-height: 1.45; margin-top: 8px; white-space: normal; }
-          .mathilda-kopf .mk-satz br { display: none; }
+          .mathilda-kopf .mk-satz { font-size: min(15.6px, 4vw); line-height: 1.45; margin-top: 8px; white-space: nowrap; }
           .mathilda-kopf .mk-umbruch { display: inline; }
           .mathilda-kopf .mk-scan { margin-top: 0; width: auto; max-width: 100%; text-align: left; line-height: 1.1; justify-content: flex-start; height: 46px; font-size: 13px; white-space: nowrap; padding: 0 14px 0 5px; gap: 7px; box-shadow: 0 6px 18px rgba(237,187,0,0.35), inset 0 1px 0 rgba(255,255,255,0.55); }
           .mathilda-kopf .mk-scan .mk-kam { width: 36px; height: 36px; }
