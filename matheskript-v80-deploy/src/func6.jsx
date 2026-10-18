@@ -10,6 +10,7 @@ import { TermTastatur } from "./func4.jsx";
 import { syncErsetzen, syncMelden } from "./lernSync.js";
 import { MatheFeld } from "./matheTastatur.jsx";
 
+import { springe } from "./sprung.js";
 export function LoesungsWeg({ titelTex, aufgabeText, typ, auf, onSchliessen }) {
   const [zeilen, setZeilen] = useState(["", ""]);
   const [aktiv, setAktiv] = useState(0);
@@ -929,7 +930,7 @@ export function Lernlandkarte({ gehe }) {
 
   const waehlen = (id) => {
     setAuswahl(id);
-    setTimeout(() => detailRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 60);
+    setTimeout(() => springe("kompetenz-detail", () => detailRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })), 60);
   };
 
   const zaehler = AKTIVE.reduce((z, k) => { const s = statusVon(stand, k.id); z[s] = (z[s] || 0) + 1; return z; }, {});

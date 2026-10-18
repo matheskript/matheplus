@@ -32,6 +32,7 @@ import { bucheLauf, normiereEbb } from "./ebbinghaus.js";
 import { MatheFeld } from "./matheTastatur.jsx";
 import { buchen } from "./buchung.jsx";
 
+import { springe } from "./sprung.js";
 /* ---------- Speicher: im vorhandenen Lernstand (func6) ---------- */
 const aendere = (fn) => lernAendern((L) => { L.training = normiere(L.training); fn(L.training); });
 export const useTraining = () => normiere(useLern().training);
@@ -292,7 +293,7 @@ export function Aufgabenlauf({ aufgaben, quelle, onEnde, endeText = "Fertig", on
   const kopf = useRef(null);
   const setz = (teil) => setZs((alt) => alt.map((x, k) => (k === i ? { ...x, ...teil } : x)));
 
-  useEffect(() => { try { kopf.current && kopf.current.scrollIntoView({ block: "start" }); } catch (e) { /* egal */ } }, [i]);
+  useEffect(() => { try { kopf.current && springe("training-lauf", () => kopf.current.scrollIntoView({ block: "start" })); } catch (e) { /* egal */ } }, [i]);
 
   const pruefen = () => {
     const r = pruefeAntwort(a, z.eingabe);
@@ -497,7 +498,7 @@ function Fehlertraining({ gehe }) {
       auf.push(a);
     }
     setTyp(id); setLauf(auf); setRunde((r) => r + 1);
-    try { window.scrollTo(0, 0); } catch (e) { /* egal */ }
+    try { springe("training-lauf", () => window.scrollTo(0, 0)); } catch (e) { /* egal */ }
   };
   useEffect(() => {
     try { const z = sessionStorage.getItem("mm-fehler-ziel"); if (z && FEHLERTYPEN[z]) { sessionStorage.removeItem("mm-fehler-ziel"); ueben(z); } } catch (e) { /* egal */ }
@@ -577,7 +578,7 @@ function Pruefung({ gehe }) {
     const start = Date.now();
     LAUF = { aufgaben, antworten: {}, start, dauerMin: dauer, mitZeit: dauer > 0, endeTs: dauer > 0 ? start + dauer * 60000 : null, schw, themen: [...themen], ergebnis: null };
     setAktuell(0); setPhase("lauf"); setBestaetigen(false);
-    try { window.scrollTo(0, 0); } catch (e) { /* egal */ }
+    try { springe("training-lauf", () => window.scrollTo(0, 0)); } catch (e) { /* egal */ }
   };
 
   const abgeben = (grund) => {
@@ -606,7 +607,7 @@ function Pruefung({ gehe }) {
     for (const e of einzel) if (e.eing !== "") buchen({ richtig: e.ok, gruppe: THEMEN[e.a.thema] ? THEMEN[e.a.thema].name : e.a.thema, fehlerart: e.ok ? null : e.typ || "rechnen" });
     LAUF.ergebnis = { einzel, punkte, max, genutzt, grund };
     setPhase("ergebnis"); setBestaetigen(false);
-    try { window.scrollTo(0, 0); } catch (e) { /* egal */ }
+    try { springe("training-lauf", () => window.scrollTo(0, 0)); } catch (e) { /* egal */ }
   };
 
   /* Uhr: läuft nur im Zeitmodus; bei Ablauf wird abgegeben – alle Eingaben bleiben erhalten */
@@ -810,13 +811,13 @@ function Klausur({ gehe }) {
     const eintrag = { id: bearbeite || Math.random().toString(36).slice(2, 10), zeit: Date.now(), titel: titel.trim(), datum: dat.trim(), aufgaben };
     aendere((D) => { const k = D.klausuren.findIndex((x) => x.id === eintrag.id); if (k >= 0) D.klausuren[k] = eintrag; else D.klausuren.push(eintrag); });
     setGezeigt(eintrag.id); setBearbeite(null); setZeilen([leereZeile()]); setTitel(""); setDat("");
-    try { window.scrollTo(0, 0); } catch (e) { /* egal */ }
+    try { springe("training-lauf", () => window.scrollTo(0, 0)); } catch (e) { /* egal */ }
   };
   const bearbeiten = (k) => {
     setBearbeite(k.id); setTitel(k.titel || ""); setDat(k.datum || "");
     setZeilen(k.aufgaben.map((a) => ({ id: a.id, name: a.name, thema: a.thema, max: String(a.max).replace(".", ","), erreicht: String(a.erreicht).replace(".", ","), ursache: a.ursache || "rechnung" })));
     setGezeigt(null);
-    try { window.scrollTo(0, 0); } catch (e) { /* egal */ }
+    try { springe("training-lauf", () => window.scrollTo(0, 0)); } catch (e) { /* egal */ }
   };
   const k = gezeigt ? T.klausuren.find((x) => x.id === gezeigt) : null;
   const feld = { height: 44, boxSizing: "border-box", padding: "0 10px", fontSize: 15, fontFamily: "inherit", border: `1.5px solid ${C.linie}`, borderRadius: 11, outline: "none", background: C.weiss, color: C.tinte, minWidth: 0 };

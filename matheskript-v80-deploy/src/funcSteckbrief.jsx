@@ -11,6 +11,7 @@ const EN = englisch();
 const zw = (de, en) => (EN ? en : de);
 import { NeueZeile } from "./funcLGS.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
+import { springe } from "./sprung.js";
 const LGS_ZEILE_CSS = ".lgs-blink{animation:sbBlink 1s step-end infinite}";
 
 /* ======================================================================
@@ -553,7 +554,7 @@ const Knopf = ({ onClick, children, leise }) => (
 function Schritt({ nr, titel, fertig, scrollen, children }) {
   const ref = useRef(null);
   useEffect(() => {
-    if (scrollen && ref.current) { try { ref.current.scrollIntoView({ behavior: "smooth", block: "start" }); } catch (e) { /* egal */ } }
+    if (scrollen && ref.current) { try { springe("steckbrief-schritt", () => ref.current.scrollIntoView({ behavior: "smooth", block: "start" })); } catch (e) { /* egal */ } }
   }, []);
   return (
     <div ref={ref} className="sb-neu" style={{ ...karte, padding: "18px 20px 20px", marginTop: 16, scrollMarginTop: 72 }}>
@@ -1428,7 +1429,7 @@ export function Steckbriefaufgaben() {
     setAuf(aufgabeErzeugen(m, s)); setNr((k) => k + 1);
     setAnsatz(null); setBedZeilen(null); setAusmult(false); setLoesen(false); setErgebnis(null);
     startZeit.current = Date.now();
-    try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch (e) { /* egal */ }
+    try { springe("steckbrief-neu", () => window.scrollTo({ top: 0, behavior: "smooth" })); } catch (e) { /* egal */ }
   };
   const modusWaehlen = (m) => { const s = m === "poly" ? 3 : "exp"; setModus(m); setSub(s); neu(m, s); };
   const subWaehlen = (s) => { setSub(s); neu(modus, s); };

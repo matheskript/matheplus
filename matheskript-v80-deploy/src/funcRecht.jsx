@@ -3,6 +3,7 @@ import { C } from "./base1.jsx";
 import { MedienEinstellungen } from "./funcExtern.jsx";
 import { einwilligungLesen, einwilligungSetzen } from "./func9.jsx";
 
+import { springe } from "./sprung.js";
 /* ======================================================================
    RECHTLICHES: Fußzeile, Impressum, AGB, Widerrufsbelehrungen.
    Texte nach dem Entwurf „Impressum und Vertragsbedingungen“ (Stand 1.10.2026);
@@ -44,7 +45,7 @@ const Stand = () => <p style={{ fontSize: 12.5, color: C.hellgrau, marginBottom:
 /* ---------- Fußzeile (auf jeder Ansicht) ---------- */
 export function Fusszeile({ gehe }) {
   const link = (ansicht, text) => (
-    <button type="button" onClick={() => { gehe({ ansicht }); window.scrollTo(0, 0); }}
+    <button type="button" onClick={() => { gehe({ ansicht }); springe("seitenwechsel", () => window.scrollTo(0, 0)); }}
       style={{ background: "none", border: "none", padding: "4px 0", color: "#C9D6EE", fontSize: 13.5, fontFamily: "inherit", cursor: "pointer" }}>
       {text}
     </button>
@@ -351,7 +352,7 @@ function DeineEinstellungen({ gehe }) {
       <MedienEinstellungen />
       <H3>Konto</H3>
       <P style={{ marginBottom: 6 }}>Datenexport, Konto löschen und Eltern-Zustimmung findest du in deinem Konto.</P>
-      {gehe && <button type="button" onClick={() => { gehe({ ansicht: "konto" }); window.scrollTo(0, 0); }}
+      {gehe && <button type="button" onClick={() => { gehe({ ansicht: "konto" }); springe("seitenwechsel", () => window.scrollTo(0, 0)); }}
         style={{ background: "none", border: "none", padding: 0, color: C.see, textDecoration: "underline", fontFamily: "inherit", fontSize: 14, cursor: "pointer" }}>Zum Konto</button>}
     </div>
   );

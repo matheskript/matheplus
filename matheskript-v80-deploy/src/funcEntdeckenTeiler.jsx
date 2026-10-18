@@ -1,9 +1,10 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { C } from "./base1.jsx";
 import { GrosserKnopf, KleinerLink, Rueck, karte } from "./ui2.jsx";
 import { Aufklapp, ModusLeiste, SchrittFolge } from "./ui3.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
 import { merken } from "./func5.jsx";
+import { springe } from "./sprung.js";
 import {
   ENDZIFFERN, STUFEN, TEILER_ANZAHL, TEILER_REIHE, TEILER_SCHRITTE, auswerten, endzerlegung, erklaerung, hilfsFaktor, naechsterTeiler,
   neunerZerlegung, rundeErzeugen, siebenerKette, ziffern, minus,
@@ -575,7 +576,7 @@ function Quiz() {
     setRunde(rundeErzeugen(z.t, Number(st)));
     setMarkiert(new Set());
     setErgebnis(null);
-    window.scrollTo({ top: 0 });
+    springe("teiler-weiter", () => window.scrollTo({ top: 0 }));
   };
   const starten = (liste) => {
     const l = liste.slice().sort((a, b) => a - b);
@@ -699,13 +700,15 @@ function Quiz() {
 /* ---------- Das Modul ---------- */
 export function TeilerModul({ onZurueck }) {
   const [stand, setStandLok] = useState(() => entdeckenStand().teiler.stand.slice());
-  const [tab, setTab] = useState("start");           // "start" | 0–7 | "quiz"
+  const [tab, setTabRoh] = useState("start");           // "start" | 0–7 | "quiz"
   const [bestaetige, setBestaetige] = useState(false);
   const gesamt = TEILER_SCHRITTE.reduce((s, n, k) => s + Math.min(stand[k], n), 0);
   const summe = TEILER_SCHRITTE.reduce((s, n) => s + n, 0);
   const fertigAnzahl = TEILER_SCHRITTE.filter((n, k) => stand[k] >= n).length;
 
-  useEffect(() => { window.scrollTo(0, 0); }, [tab]);
+  const tabQuelle = useRef("teiler-reiter");   // Sprung-Schalter: Reiter oben oder Weiter/Zurück/Übersicht
+  const setTab = (t, q = "teiler-reiter") => { tabQuelle.current = q; setTabRoh(t); };
+  useEffect(() => { springe(tabQuelle.current, () => window.scrollTo(0, 0)); }, [tab]);
 
   const setterFuer = (k) => (f) => {
     const neu = typeof f === "function" ? f(stand[k]) : f;
@@ -748,7 +751,7 @@ export function TeilerModul({ onZurueck }) {
         {tab === "start" && <Start fertigAnzahl={fertigAnzahl} oeffne={setTab} />}
         {typeof tab === "number" && (
           <RegelSeite t={TEILER_REIHE[tab]} index={tab} stand={stand[tab]} setStand={setterFuer(tab)}
-            onUebersicht={() => setTab("start")} onZurueck={() => setTab(tab - 1)} onWeiter={() => setTab(tab === TEILER_ANZAHL - 1 ? "quiz" : tab + 1)} />
+            onUebersicht={() => setTab("start", "teiler-weiter")} onZurueck={() => setTab(tab - 1, "teiler-weiter")} onWeiter={() => setTab(tab === TEILER_ANZAHL - 1 ? "quiz" : tab + 1, "teiler-weiter")} />
         )}
         {tab === "quiz" && <Quiz />}
       </div>
@@ -762,7 +765,7 @@ export function TeilerModul({ onZurueck }) {
                 Dein Fortschritt in diesem Modul wird gelöscht.
                 <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
                   <div style={{ flex: 1 }}><GrosserKnopf ghost onClick={() => setBestaetige(false)}>Abbrechen</GrosserKnopf></div>
-                  <div style={{ flex: 1 }}><GrosserKnopf onClick={() => { teilerZuruecksetzen(); setStandLok(Array(TEILER_ANZAHL).fill(0)); setTab("start"); setBestaetige(false); window.scrollTo(0, 0); }}>Ja, neu beginnen</GrosserKnopf></div>
+                  <div style={{ flex: 1 }}><GrosserKnopf onClick={() => { teilerZuruecksetzen(); setStandLok(Array(TEILER_ANZAHL).fill(0)); setTab("start", "teiler-weiter"); setBestaetige(false); springe("teiler-weiter", () => window.scrollTo(0, 0)); }}>Ja, neu beginnen</GrosserKnopf></div>
                 </div>
               </Rueck>
             )}

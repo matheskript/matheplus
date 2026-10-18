@@ -15,6 +15,7 @@ import { EbbinghausLogoKlein } from "./funcEbbinghaus.jsx";
 import { GleichungenLogoKlein } from "./funcGleichungen.jsx";
 import { HeadNumbersLogoKlein } from "./funcHeadNumbersLogo.jsx";
 
+import { springe } from "./sprung.js";
 /* ======================================================================
    LANDINGPAGE  (Adresse: /landingpage, ältere Links #landingpage funktionieren weiter) – offen erreichbar, ohne Passwort.
 
@@ -548,7 +549,7 @@ export function Landingpage({ gehe }) {
     return () => io.disconnect();
   }, []);
 
-  const scrollen = (id) => { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); };
+  const scrollen = (id) => { const el = document.getElementById(id); if (el) springe("anker", () => el.scrollIntoView({ behavior: "smooth", block: "start" })); };
   const kontaktDa = !!(COACHING.termin || COACHING.mail);
   const gespraech = () => {
     if (COACHING.termin) { window.open(COACHING.termin, "_blank", "noopener"); return; }

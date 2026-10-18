@@ -16,6 +16,7 @@ import { EtikettPille } from "./funcWerkzeuge.jsx";
 import { rueckwegSetzen } from "./uebergabe.js";
 import { werkzeug, wo } from "./werkzeuge.js";
 import { GrosserKnopf, Rueck, hinweis, karte, kicker } from "./ui2.jsx";
+import { springe } from "./sprung.js";
 import {
   AMPEL, PFADE, PFAD_IDS, PRO_WOCHE, SCHRITTE, SCHRITT_NAMEN, ZIELE, ZIEL_IDS, TAG_MS,
   checkAufgaben, checkAuswerten, einheit, einheitAufgaben, einheitStand, naechsteEinheit, normierePfad, pfadStationen,
@@ -313,7 +314,7 @@ function EinheitAnsicht({ e, P, gehe, zurueck }) {
   const [lauf, setLauf] = useState(null);
   const [ergebnis, setErgebnis] = useState(null);
   const setzen = (s, extra) => pfadAendern((Q) => schrittSetzen(Q, e.id, s, extra));
-  const weiter = (s) => { const n = SCHRITTE[SCHRITTE.indexOf(s) + 1]; setSchritt(n || "fertig"); window.scrollTo(0, 0); };
+  const weiter = (s) => { const n = SCHRITTE[SCHRITTE.indexOf(s) + 1]; setSchritt(n || "fertig"); springe("lernpfad", () => window.scrollTo(0, 0)); };
   const oeffneWerkzeug = (ziel, von) => { rueckwegSetzen(ziel.ansicht, von, { ansicht: "lernpfad", einheit: e.id }); gehe({ ...ziel, uebergabe: true }); };
   const entd = useMemo(() => entdeckenZiel(e), [e]);
   const naechste = naechsteEinheit(P);
@@ -428,12 +429,12 @@ export function LernpfadSeite({ gehe, start = null }) {
   useEffect(() => { if (!P && modus === "plan") setModus("einrichten"); }, [P, modus]);
 
   if (!P || modus === "einrichten") {
-    if (modus === "check" && einst) return <Standortcheck einst={einst} onAbbruch={() => setModus("einrichten")} onFertig={(check) => { pfadSetzen(planErzeugen({ ...einst, check })); setModus("plan"); window.scrollTo(0, 0); }} />;
-    return <Einrichtung gehe={gehe} vorher={einst} onCheck={(e) => { setEinst(e); setModus("check"); window.scrollTo(0, 0); }} onOhneCheck={(e) => { pfadSetzen(planErzeugen(e)); setModus("plan"); window.scrollTo(0, 0); }} />;
+    if (modus === "check" && einst) return <Standortcheck einst={einst} onAbbruch={() => setModus("einrichten")} onFertig={(check) => { pfadSetzen(planErzeugen({ ...einst, check })); setModus("plan"); springe("lernpfad", () => window.scrollTo(0, 0)); }} />;
+    return <Einrichtung gehe={gehe} vorher={einst} onCheck={(e) => { setEinst(e); setModus("check"); springe("lernpfad", () => window.scrollTo(0, 0)); }} onOhneCheck={(e) => { pfadSetzen(planErzeugen(e)); setModus("plan"); springe("lernpfad", () => window.scrollTo(0, 0)); }} />;
   }
   const e = modus === "einheit" && einheitId ? einheit(einheitId) : null;
-  if (e && P.reihenfolge.includes(e.id)) return <EinheitAnsicht key={e.id} e={e} P={P} gehe={gehe} zurueck={() => { setModus("plan"); window.scrollTo(0, 0); }} />;
-  return <Wochenplan P={P} gehe={gehe} oeffnen={(id) => { setEinheitId(id); setModus("einheit"); window.scrollTo(0, 0); }} />;
+  if (e && P.reihenfolge.includes(e.id)) return <EinheitAnsicht key={e.id} e={e} P={P} gehe={gehe} zurueck={() => { setModus("plan"); springe("lernpfad", () => window.scrollTo(0, 0)); }} />;
+  return <Wochenplan P={P} gehe={gehe} oeffnen={(id) => { setEinheitId(id); setModus("einheit"); springe("lernpfad", () => window.scrollTo(0, 0)); }} />;
 }
 
 /* ======================================================================

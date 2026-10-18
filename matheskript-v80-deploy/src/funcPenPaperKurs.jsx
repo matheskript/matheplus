@@ -8,6 +8,7 @@ import { baueExtra } from "./funcPenPaperExtra.js";
 import { HeftVergleich, MathildaBeispiel } from "./funcPenPaperHeft.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
 
+import { springe } from "./sprung.js";
 /* ======================================================================
    PEN-&-PAPER-KURS
    Seite „penpaperkurs“: das Kurskonzept „Pen & Paper – MythosMathe“ für
@@ -899,14 +900,14 @@ export function PenPaperKursSeite({ gehe }) {
     try {
       const el = document.getElementById("pp-" + id);
       const ruhig = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      if (el) el.scrollIntoView({ behavior: ruhig ? "auto" : "smooth", block: "start" });
+      if (el) springe("anker", () => el.scrollIntoView({ behavior: ruhig ? "auto" : "smooth", block: "start" }));
     } catch (e) { /* ignorieren */ }
   };
   const sprung = [["vergleich", L("Vorher / Nachher", "Before / after")], ["werkzeuge", L("Werkzeuge", "Tools")], ["lernstufen", L("Lernstufen", "Stages")], ["kurse", L("Die Kurse", "The courses")],
     ["ablauf", L("Ablauf", "Routine")], ["erfolg", L("Erfolg messen", "Progress")], ["mathilda", "Mathilda"]];
   const zuKurs = (k) => {
     setKurs(k); setEinheit(0);
-    setTimeout(() => { try { anker.current && anker.current.scrollIntoView({ behavior: "smooth", block: "start" }); } catch (e) { /* ignorieren */ } }, 30);
+    setTimeout(() => { try { anker.current && springe("penpaper-kurs", () => anker.current.scrollIntoView({ behavior: "smooth", block: "start" })); } catch (e) { /* ignorieren */ } }, 30);
   };
 
   return (

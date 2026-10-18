@@ -20,6 +20,7 @@ import { DEMO, sb, useKonto } from "./konto.js";
 import { hilfenFuer, THEMEN } from "./schulbuch.js";
 import { englisch } from "./i18n.js";
 import { GrosserKnopf, Rueck, karte, kicker, zw } from "./ui2.jsx";
+import { springe } from "./sprung.js";
 import {
   ANALYSE_REGELN, ART_NAME, BUNDESLAENDER, FREIGABE, HILFSMITTEL_NAME, MAX_BYTES_GESAMT, MAX_SEITEN, PERSON_NAME, SCHULARTEN_BK,
   analyseLesen, analysePrompt, angabenFehler, freigabeKomplett, kapitelZurKlasse, klassenFuer, meldungBauen, schulartBk,
@@ -508,7 +509,7 @@ export function KlausurBriefkasten({ gehe }) {
   const freigabeOk = freigabeKomplett(f);
   useEffect(() => { meineLaden(angemeldet).then(setListe).catch(() => {}); }, [angemeldet]);
   useEffect(() => { if (a.bundesland || a.schulart) lsSchreiben(ANGABEN, { bundesland: a.bundesland, schulart: a.schulart, klasse: a.klasse, schule: a.schule }); }, [a.bundesland, a.schulart, a.klasse, a.schule]);
-  const hoch = () => requestAnimationFrame(() => oben.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
+  const hoch = () => requestAnimationFrame(() => springe("klausurbriefkasten", () => oben.current?.scrollIntoView({ behavior: "smooth", block: "start" })));
 
   const analysieren = async () => {
     if (!angabenOk || !freigabeOk || !bilder.length) return;

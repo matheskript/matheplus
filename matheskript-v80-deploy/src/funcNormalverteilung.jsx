@@ -18,6 +18,7 @@ import { GrosserKnopf, MS, hilfeKontext, karte, kicker, zw } from "./ui2.jsx";
 import { Merke, Regler, UebenRahmen, WertZeile, ZweiModi, misch, ws, zs } from "./geoUi.jsx";
 import { zt } from "./ui3.jsx";
 import { NormalAnimation } from "./funcNormalAnimation.jsx";
+import { springe } from "./sprung.js";
 import {
   KONTEXTE, NV_ARTEN, Phi, SIGMA_REGELN, TOL_P, TOL_Z, binomNaeherung, binomSigma, dichte, dz, maxHoehe, nvAufgabe, phi, quantil, vert, zwischen,
 } from "./normal.js";
@@ -270,8 +271,8 @@ function Entdecken({ gehe }) {
   const s = STATIONEN[st];
   const weiter = (
     <div style={{ display: "flex", gap: 10, marginTop: 16 }}>
-      {st > 0 && <div style={{ flex: "0 0 36%" }}><GrosserKnopf ghost onClick={() => { setSt(st - 1); window.scrollTo(0, 0); }}>← {STATIONEN[st - 1].zeichen}</GrosserKnopf></div>}
-      {st < 4 && <div style={{ flex: 1 }}><GrosserKnopf onClick={() => { setSt(st + 1); window.scrollTo(0, 0); }}>{zw("Weiter:", "Next:")} {STATIONEN[st + 1].titel()} →</GrosserKnopf></div>}
+      {st > 0 && <div style={{ flex: "0 0 36%" }}><GrosserKnopf ghost onClick={() => { setSt(st - 1); springe("entdecken-phasen", () => window.scrollTo(0, 0)); }}>← {STATIONEN[st - 1].zeichen}</GrosserKnopf></div>}
+      {st < 4 && <div style={{ flex: 1 }}><GrosserKnopf onClick={() => { setSt(st + 1); springe("entdecken-phasen", () => window.scrollTo(0, 0)); }}>{zw("Weiter:", "Next:")} {STATIONEN[st + 1].titel()} →</GrosserKnopf></div>}
     </div>
   );
   return (

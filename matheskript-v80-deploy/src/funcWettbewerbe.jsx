@@ -3,6 +3,7 @@ import { C } from "./base1.jsx";
 import { englisch } from "./i18n.js";
 import { KARTE_VIEWBOX, LAENDER_PFADE } from "./deutschlandKarte.js";
 
+import { springe } from "./sprung.js";
 /* ======================================================================
    MATHE-WETTBEWERBE — Bundeswettbewerb Mathematik und die Wettbewerbe
    der 16 Bundesländer. Alle Termine und Links: Stand Oktober 2026.
@@ -343,7 +344,7 @@ function Deutschlandkarte({ onWahl }) {
 
 /* ---------- Seite: Landeswettbewerbe (Karte + Liste) ---------- */
 export function LandeswettbewerbeSeite({ gehe }) {
-  const wahl = (id) => { gehe({ ansicht: "landeswettbewerb", land: id }); window.scrollTo(0, 0); };
+  const wahl = (id) => { gehe({ ansicht: "landeswettbewerb", land: id }); springe("seitenwechsel", () => window.scrollTo(0, 0)); };
   const ids = Object.keys(LAENDER).sort((a, b) => landName(a).localeCompare(landName(b), "de"));
   return (
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
@@ -378,7 +379,7 @@ export function LandeswettbewerbSeite({ land, gehe }) {
   const linksAktuell = [...(d.aktuell.links || []), ...(d.extraLinks || [])];
   return (
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
-      <button onClick={() => { gehe({ ansicht: "landeswettbewerbe" }); window.scrollTo(0, 0); }}
+      <button onClick={() => { gehe({ ansicht: "landeswettbewerbe" }); springe("seitenwechsel", () => window.scrollTo(0, 0)); }}
         style={{ background: "none", border: "none", color: C.see, fontSize: 13, fontFamily: "inherit", cursor: "pointer", padding: 0, marginBottom: 16 }}>
         ← {L("Alle Bundesländer", "All states")}
       </button>

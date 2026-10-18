@@ -13,6 +13,7 @@ import { GrosserKnopf, KleinerLink, Rueck, karte } from "./ui2.jsx";
 import { SchrittFolge } from "./ui3.jsx";
 import { MODUL_PHASEN, modulFertigSetzen, modulPhaseSetzen, modulStand, modulStandSetzen, modulZuruecksetzen } from "./entdeckenSpeicher.js";
 
+import { springe } from "./sprung.js";
 /* Text mit eingebetteten Formeln zwischen $…$ */
 export const T = ({ s }) => <>{String(s).split("$").map((x, i) => (i % 2 ? <M key={i} t={x} /> : <span key={i}>{x}</span>))}</>;
 export const Aufforderung = ({ children }) => <p style={{ fontSize: 13, fontWeight: 600, color: C.see, margin: "0 0 10px" }}>{children}</p>;
@@ -49,7 +50,7 @@ export function EntdeckenModul({ id, titel, untertitel, phasen, abschlussTitel, 
   const [bestaetige, setBestaetige] = useState(false);
   const aktuell = Math.min(phase, Math.max(ersteOffene, 0));
 
-  useEffect(() => { window.scrollTo(0, 0); }, [aktuell]);
+  useEffect(() => { springe("entdecken-phasen", () => window.scrollTo(0, 0)); }, [aktuell]);
   useEffect(() => { if (alleFertig && !modulStand(id).fertig) modulFertigSetzen(id, true); }, [alleFertig, id]);
 
   const gehePhase = (k) => { setPhase(k); modulPhaseSetzen(id, k); setBestaetige(false); };
@@ -130,7 +131,7 @@ export function EntdeckenModul({ id, titel, untertitel, phasen, abschlussTitel, 
                   Dein Fortschritt in diesem Modul wird gelöscht.
                   <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
                     <div style={{ flex: 1 }}><GrosserKnopf ghost onClick={() => setBestaetige(false)}>Abbrechen</GrosserKnopf></div>
-                    <div style={{ flex: 1 }}><GrosserKnopf onClick={() => { modulZuruecksetzen(id); setStandLok(Array(N).fill(0)); setPhase(0); setBestaetige(false); window.scrollTo(0, 0); }}>Ja, neu beginnen</GrosserKnopf></div>
+                    <div style={{ flex: 1 }}><GrosserKnopf onClick={() => { modulZuruecksetzen(id); setStandLok(Array(N).fill(0)); setPhase(0); setBestaetige(false); springe("entdecken-phasen", () => window.scrollTo(0, 0)); }}>Ja, neu beginnen</GrosserKnopf></div>
                   </div>
                 </Rueck>
               )}

@@ -21,6 +21,7 @@ import { hilfeKontext, zw } from "./ui2.jsx";
 import { POP_CSS, PopupWahl } from "./funcRegelwerk.jsx";
 import { BrennpunktSeite, NullstellenSeite, ScheitelErkunden } from "./funcParabeln.jsx";
 import { ParabelSchnitt } from "./funcParabelSchnitt.jsx";
+import { fokus, springe } from "./sprung.js";
 import {
   THEMEN, TYPEN, loesungText, neueAufgabe, pruefeTeil, reglerKurve, reglerTex, themaName, typName,
 } from "./parabelTrainer.js";
@@ -108,7 +109,7 @@ function TrainerBild({ kurven = [], punkte = [], verdeckt = false, mini = false,
 /* ---------- Eingaben ---------- */
 function ZahlZeile({ teil, werte, setWerte, onEnter, aus, status }) {
   const ref0 = useRef(null);
-  useEffect(() => { if (!aus && ref0.current && window.matchMedia && window.matchMedia("(pointer: fine)").matches) ref0.current.focus(); }, [teil, aus]);
+  useEffect(() => { if (!aus && ref0.current && window.matchMedia && window.matchMedia("(pointer: fine)").matches) fokus(ref0.current, "parabel-fokus"); }, [teil, aus]);
   const feld = (f, i) => (
     <label key={i} className="pt-feld" data-status={status || undefined}>
       {f.name && <span className="pt-feldname"><M t={f.name} /> =</span>}
@@ -266,7 +267,7 @@ function Training({ thema, typ, stufe, wurf }) {
   useEffect(() => {
     if (!fertig) return;
     try { if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); } catch (e) { /* egal */ }
-    requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
+    requestAnimationFrame(() => springe("parabel-geloest", () => window.scrollTo({ top: 0, behavior: "smooth" })));
   }, [fertig]);
   /* Für automatische Prüfungen (wie window.__mmGehe): die aktuelle Aufgabe */
   useEffect(() => { try { window.__ptAufgabe = { aufg, nr }; } catch (e) { /* egal */ } }, [aufg, nr]);
@@ -399,10 +400,10 @@ export function ParabelTrainer() {
 
   const festhalten = (fn) => {
     const y = window.scrollY; fn();
-    const z = () => window.scrollTo(0, y);
+    const z = () => window.scrollTo(0, y);   // sprung-frei: hält die Position fest
     requestAnimationFrame(() => { z(); requestAnimationFrame(z); });
   };
-  const themaWahl = (id) => { setThema(id); setTyp("mix"); window.scrollTo(0, 0); };
+  const themaWahl = (id) => { setThema(id); setTyp("mix"); springe("parabel-thema", () => window.scrollTo(0, 0)); };
   const optionen = THEMEN.map((t) => ({ id: t.id, name: t.kern ? themaName(t) : `${themaName(t)} · ${zw("Extra", "Extra")}` }));
 
   return (

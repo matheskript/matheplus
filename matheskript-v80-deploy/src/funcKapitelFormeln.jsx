@@ -20,6 +20,7 @@ import { kapitelFuer, klassenBoxen, roemisch, schulart as schulartVon } from "./
 import { quickfinderLesen } from "./funcQuickfinder.jsx";
 import { dateiName, pdfAusBloecken } from "./pdfBloecke.js";
 
+import { springe } from "./sprung.js";
 const GOLD_VERLAUF = `linear-gradient(135deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`;
 const KICKER = { fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", color: C.gruenDunkel, margin: 0 };
 const KARTE = { background: C.weiss, borderRadius: 16, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" };
@@ -624,7 +625,7 @@ function OnlineKlausur({ k, info, kapitelId, zurWahl, onPdf, pdfLaeuft }) {
     return () => clearInterval(id);
   }, [phase, ende]);
 
-  const start = () => { setEnde(Date.now() + k.dauer * 60000); setRest(k.dauer * 60); setPhase("laeuft"); window.scrollTo({ top: 0, behavior: "smooth" }); };
+  const start = () => { setEnde(Date.now() + k.dauer * 60000); setRest(k.dauer * 60); setPhase("laeuft"); springe("kapitelformeln-ansicht", () => window.scrollTo({ top: 0, behavior: "smooth" })); };
   const neu = () => { setAntworten({}); setPunkte({}); setRest(k.dauer * 60); setPhase("bereit"); };
   const setAntwort = (key, v) => setAntworten((alt) => ({ ...alt, [key]: v }));
   const setPunkt = (key, v) => setPunkte((alt) => { const n = { ...alt }; if (v === null) delete n[key]; else n[key] = v; return n; });
@@ -724,7 +725,7 @@ function Testklausur({ info, zurueck }) {
       const text = (daten.content || []).map((x) => (x.type === "text" ? x.text : "")).join("");
       const k = { ...normalisieren(jsonLesen(text)), dauer, niveau, erstellt: Date.now() };
       setKlausur(k); sichern(info.kapitelId, k);
-      setTimeout(() => { const el = obenRef.current; if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 80, behavior: "smooth" }); }, 50);
+      setTimeout(() => { const el = obenRef.current; if (el) springe("kapitelformeln-klausur", () => window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 80, behavior: "smooth" })); }, 50);
     } catch (e) {
       setFehler(e && e.message ? e.message : "Mathilda ist gerade nicht erreichbar. Bitte gleich noch einmal versuchen.");
     }
@@ -832,7 +833,7 @@ function Testklausur({ info, zurueck }) {
 export function KapitelFormelnSeite({ ziel, gehe }) {
   const info = useMemo(() => kapitelInfo(ziel), [ziel]);
   const [modus, setModus] = useState(ziel && ziel.modus === "klausur" ? "klausur" : "formeln");
-  useEffect(() => { window.scrollTo(0, 0); }, [modus]);
+  useEffect(() => { springe("kapitelformeln-ansicht", () => window.scrollTo(0, 0)); }, [modus]);
   if (!info) {
     return (
       <div className="mx-auto px-6" style={{ maxWidth: 620, padding: "60px 24px" }}>

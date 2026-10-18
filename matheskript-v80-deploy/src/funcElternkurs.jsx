@@ -2,6 +2,7 @@ import { ExternSchutz } from "./funcExtern.jsx";
 import React, { useState, useEffect } from "react";
 import { C } from "./base1.jsx";
 
+import { springe } from "./sprung.js";
 /* ======================================================================
    ELTERNKURS — acht Module für Eltern: sechs der meistgesehenen
    TED-Talks, eine deutsche Zusammenfassung von Carol Dwecks Buch
@@ -178,7 +179,7 @@ export function ElternkursSeite() {
     speichereGesehen(neu);
     return neu;
   });
-  useEffect(() => { window.scrollTo(0, 0); }, [offen]);
+  useEffect(() => { springe("kurse", () => window.scrollTo(0, 0)); }, [offen]);
 
   const knopf = (aktiv) => ({
     fontFamily: "inherit", cursor: "pointer", fontSize: 14.5, fontWeight: 600, padding: "13px 18px", borderRadius: 12,

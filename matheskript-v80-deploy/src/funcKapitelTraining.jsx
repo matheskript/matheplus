@@ -17,6 +17,7 @@ import { unterthema, unterthemen, kapitelGeneratoren } from "./unterthemen.js";
 import { GENERATOREN, neueAufgabe } from "./trainingDaten.js";
 import { PHASEN, einheitAufgabenIds, planStand, planTage, tagName, tagText } from "./trainingsplan.js";
 
+import { springe } from "./sprung.js";
 /* ---------- Speicher ---------- */
 const SCHLUESSEL = "matheplus-trainingsplan";
 const EREIGNIS = "mm-trainingsplan";
@@ -135,7 +136,7 @@ function SacheTraining({ ziel, gehe }) {
   const [runde, setRunde] = useState(0);
   const [lauf, setLauf] = useState(() => (ids.length ? erzeugen(ids) : null));
   const [ende, setEnde] = useState(null);
-  const neu = () => { setLauf(erzeugen(ids)); setEnde(null); setRunde((r) => r + 1); window.scrollTo(0, 0); };
+  const neu = () => { setLauf(erzeugen(ids)); setEnde(null); setRunde((r) => r + 1); springe("kapiteltraining", () => window.scrollTo(0, 0)); };
   const titel = u ? u.titel : k.titel;
   const geschwister = unterthemen(ziel.kapitel);
   return (
@@ -156,7 +157,7 @@ function SacheTraining({ ziel, gehe }) {
             <Hilfsziele gehe={gehe} ziele={hilfsZiele(ziel)} />
           </Auswertung>
         ) : (
-          <Aufgabenlauf key={runde} aufgaben={lauf} quelle="kapitel" endeText="Zur Auswertung" onWeiter={(a, z) => ebbBuchen([a], [z], "kapitel")} onEnde={(zs) => { setEnde(zs); window.scrollTo(0, 0); }} />
+          <Aufgabenlauf key={runde} aufgaben={lauf} quelle="kapitel" endeText="Zur Auswertung" onWeiter={(a, z) => ebbBuchen([a], [z], "kapitel")} onEnde={(zs) => { setEnde(zs); springe("kapiteltraining", () => window.scrollTo(0, 0)); }} />
         )}
       </Rahmen>
     </>
@@ -193,7 +194,7 @@ function PlanAnsicht({ gehe }) {
   );
   const { plan, erledigt } = v;
   const stand = planStand(plan, erledigt, heute);
-  const starten = (e) => { setLaeuft({ e, aufgaben: erzeugen(einheitAufgabenIds(e)) }); setEnde(null); window.scrollTo(0, 0); };
+  const starten = (e) => { setLaeuft({ e, aufgaben: erzeugen(einheitAufgabenIds(e)) }); setEnde(null); springe("kapiteltraining", () => window.scrollTo(0, 0)); };
   const titel = plan.teil ? plan.titel : plan.einheiten.filter((e) => e.phase === "kern").length > 1 ? "Dein Trainingsplan" : plan.kapitelTitel;
   const unter = plan.termin ? `Bis zur Klassenarbeit am ${tagName(plan.termin, heute) === "morgen" ? "morgen" : plan.termin.split("-").reverse().join(".")} – Schritt für Schritt.` : "Warm-up, Basis-Check, Zwischenschritte, Kerntraining und Wiederholungen nach Ebbinghaus.";
   if (laeuft) return (
@@ -202,7 +203,7 @@ function PlanAnsicht({ gehe }) {
       <Rahmen>
         <Zurueck onClick={() => setLaeuft(null)}>‹ Zurück zum Plan</Zurueck>
         <Aufgabenlauf aufgaben={laeuft.aufgaben} quelle="trainingsplan" endeText="Einheit abschließen" onWeiter={(a, z) => ebbBuchen([a], [z], "trainingsplan")}
-          onEnde={(zs) => { erledigtSetzen(laeuft.e.id, { zeit: Date.now(), richtig: zs.filter((z) => z.ok === true).length, n: zs.length }); setEnde({ e: laeuft.e, zs }); setLaeuft(null); window.scrollTo(0, 0); }} />
+          onEnde={(zs) => { erledigtSetzen(laeuft.e.id, { zeit: Date.now(), richtig: zs.filter((z) => z.ok === true).length, n: zs.length }); setEnde({ e: laeuft.e, zs }); setLaeuft(null); springe("kapiteltraining", () => window.scrollTo(0, 0)); }} />
       </Rahmen>
     </>
   );
@@ -230,7 +231,7 @@ function PlanAnsicht({ gehe }) {
             <div style={{ width: `${Math.round(anteil * 100)}%`, height: "100%", background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)` }} />
           </div>
           {stand.naechste && (
-            <GrosserKnopf gold onClick={() => (stand.naechste.gen.length ? starten(stand.naechste) : document.getElementById(`einheit-${stand.naechste.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" }))}>
+            <GrosserKnopf gold onClick={() => (stand.naechste.gen.length ? starten(stand.naechste) : springe("anker", () => document.getElementById(`einheit-${stand.naechste.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" })))}>
               {stand.faellig ? `Jetzt: ${stand.naechste.titel}` : `Als Nächstes (${tagName(stand.naechste.datum, heute, englisch())}): ${stand.naechste.titel}`}
             </GrosserKnopf>
           )}

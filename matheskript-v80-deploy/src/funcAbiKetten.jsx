@@ -16,6 +16,7 @@ import { KETTEN, pruefeTeil } from "./abiKetten.js";
 import { WeiterKnopf } from "./funcWerkzeuge.jsx";
 import { MText } from "./perfUi.jsx";
 
+import { springe } from "./sprung.js";
 /* Laufende Ketten: bleiben erhalten, solange die App offen ist (auch beim Ausflug in ein Werkzeug) */
 const LAUF = {};
 let AKTIV = null;
@@ -144,7 +145,7 @@ function KetteSeite({ id, zurueck }) {
 
 export function AbiKettenSeite() {
   const [id, setId] = useState(AKTIV);
-  const waehle = (x) => { AKTIV = x; setId(x); try { window.scrollTo(0, 0); } catch (e) { /* egal */ } };
+  const waehle = (x) => { AKTIV = x; setId(x); try { springe("abiketten", () => window.scrollTo(0, 0)); } catch (e) { /* egal */ } };
   if (id) return <KetteSeite key={id} id={id} zurueck={() => waehle(null)} />;
   return (
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 26 }}>

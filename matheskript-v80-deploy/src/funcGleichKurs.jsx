@@ -12,6 +12,7 @@ import {
 } from "./funcGleichKursBasis.jsx";
 import { GleichungsFilm } from "./funcGleichKursFilm.jsx";
 
+import { springe } from "./sprung.js";
 /* ======================================================================
    GLEICHUNGEN – eigener Bereich nach dem Vorbild „Kopfrechnen“
      Verstehen  Rechnen vs. Gleichung, Motion-Film über alle Schwierigkeits-
@@ -168,7 +169,7 @@ function Rechnen({ stufe, setStufe, G }) {
     setGebucht(true);
     gleichAendern((g) => { g.schritte += 1; buche(g, a.stufe, true, { hilfe: 1 }); });   // geführt gelöst: zählt, aber als „mit Hilfe“
     try { merken({ gruppe: gruppeName(a.stufe), richtig: fehlerZahl === 0 }); } catch (e) { /* optional */ }
-    setTimeout(() => { try { fertigRef.current && fertigRef.current.scrollIntoView({ block: "nearest", behavior: "smooth" }); } catch (e) { /* egal */ } }, 120);
+    setTimeout(() => { try { fertigRef.current && springe("gleichkurs-fertig", () => fertigRef.current.scrollIntoView({ block: "nearest", behavior: "smooth" })); } catch (e) { /* egal */ } }, 120);
   }, [fertig]);
 
   const idx = STUFEN.indexOf(stufe);
@@ -503,11 +504,11 @@ export function GleichungenSeite({ gehe, start = null, onSeite = null }) {
   const [reiter, setReiter] = useState(anfang);
   const [stufe, setStufe] = useState("s1");
   const [runde, setRunde] = useState(null);           // { aufgaben, cfg, titel, nr }
-  const oben = () => { try { window.scrollTo(0, 0); } catch (e) { /* egal */ } };
-  const wechsle = (r) => { setReiter(r); setRunde(null); oben(); if (onSeite) onSeite(r); };
+  const oben = (id = "gleichkurs-runde") => springe(id, () => window.scrollTo(0, 0));
+  const wechsle = (r, id = "gleichkurs-reiter") => { setReiter(r); setRunde(null); oben(id); if (onSeite) onSeite(r); };
   /* Direktlink innerhalb der App (/gleichungen-lernen/rechnen …) wechselt den Reiter */
   useEffect(() => { if (start && start !== reiter) { setReiter(start); setRunde(null); } }, [start]);
-  const zuRechnen = (s) => { setStufe(s); wechsle("rechnen"); };
+  const zuRechnen = (s) => { setStufe(s); wechsle("rechnen", "gleichkurs-runde"); };
 
   const starte = (cfg) => {
     const aufgaben = baueRunde(G, cfg);

@@ -14,6 +14,7 @@ import { C } from "./base1.jsx";
 import { DrehKnoepfe, FARBE_ACHSE, GRUND_AUS, GrundebenenGitter, GrundebenenSchalter, ebenenPolygon, kamera } from "./func16.jsx";
 import { Bruch, Einzeilig, SpaltenVektor, VecName, Wurzel, ggT, kreuz, minus, skalar, strahlImWuerfel } from "./func19.jsx";
 
+import { springe } from "./sprung.js";
 export const FA = C.see, FB = C.gruen, FE = "#8A6D00", FS = C.smaragd;
 
 /* ---------- Zufall ---------- */
@@ -539,7 +540,7 @@ export function VektorGenerator({ gehe }) {
   const neu = () => { setAufgabe(neueAufgabe(art)); setZaehler((z) => z + 1); };
   // Auswahl unten bei „Weitere Beispiele“: danach zur Rechnung hochscrollen
   const karteRef = useRef(null);
-  const wechsleUnten = (id) => { wechsle(id); requestAnimationFrame(() => karteRef.current && karteRef.current.scrollIntoView({ behavior: "smooth", block: "start" })); };
+  const wechsleUnten = (id) => { wechsle(id); requestAnimationFrame(() => karteRef.current && springe("bruch-beispiele", () => karteRef.current.scrollIntoView({ behavior: "smooth", block: "start" }))); };
   const karte = { background: C.weiss, borderRadius: 16, padding: 18, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" };
   const info = ARTEN.find((x) => x.id === art);
   const titel = art === "addsub" ? (aufgabe.op === "+" ? "Vektoraddition" : "Vektorsubtraktion") : info.titel || info.name;

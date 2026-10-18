@@ -22,6 +22,7 @@ import {
 import { IchHaengeFest, ableitRegeln, aussenTex, summanden } from "./funcHilfe.jsx";
 import { Eingabe, EingabePopup, POP_CSS, PopupWahl, REGEL_CHIPS, RegelWerkstatt } from "./funcRegelwerk.jsx";
 
+import { springe } from "./sprung.js";
 /* Kontext für „Ich hänge fest“: Hinweise aus dem Term, der gerade abgeleitet wird */
 const NAME_F = ["f", "f′", "f″", "f‴"];
 function ableitHilfe(kette, aktiv) {
@@ -181,11 +182,11 @@ export function Ableitungstrainer() {
   const festhalten = (fn) => {
     const y = window.scrollY;
     fn();
-    const zurueck = () => window.scrollTo(0, y);
+    const zurueck = () => window.scrollTo(0, y);   // sprung-frei: hält die Position fest
     requestAnimationFrame(() => { zurueck(); requestAnimationFrame(zurueck); });
     setTimeout(zurueck, 80);
   };
-  const nachOben = () => { window.scrollTo(0, 0); requestAnimationFrame(() => window.scrollTo(0, 0)); };
+  const nachOben = () => { springe("ableitung-regel", () => window.scrollTo(0, 0)); requestAnimationFrame(() => springe("ableitung-regel", () => window.scrollTo(0, 0))); };
 
   const neustart = (text) => { setFText(text); setZeilen([leer()]); setAktiv(0); setPos(0); setOffen(false); };
   const neueAufgabe = (t = typ, st = stufeTyp) => neustart(t.mach(st).f);

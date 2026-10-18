@@ -19,6 +19,7 @@ import { SchriftlichPlusMinus, SchriftlicheDivision } from "./funcSchriftlich.js
 import { ErklaerAnimation } from "./funcErklaeranimation.jsx";
 import { wegPrimzahl } from "./kopfWeg.js";
 
+import { springe } from "./sprung.js";
 const zufall = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
 const HOCH = { 2: "²", 3: "³" };
 
@@ -965,7 +966,7 @@ export function KopfrechenZentrum({ start = null, gehe = null, eingebettet = fal
             </span>
           </button>
         )}
-        <KopfKacheln onWaehle={(id) => { setOffen(id); window.scrollTo(0, 0); }} />
+        <KopfKacheln onWaehle={(id) => { setOffen(id); springe("kurse", () => window.scrollTo(0, 0)); }} />
       </div>
     );
   }

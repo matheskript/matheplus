@@ -8,6 +8,7 @@ import { abmelden } from "./konto.js";
 import { kontoExport, kontoLoeschen, wochenmailSetzen, wochenmailStand } from "./kontoRollen.js";
 import { installHoeren, installieren, istInstalliert, istIOS, kannInstallieren, pushAusschalten, pushEinschalten, pushStand } from "./push.js";
 
+import { springe } from "./sprung.js";
 const karte = { background: C.weiss, borderRadius: 18, boxShadow: "0 3px 18px rgba(15,26,51,0.07)", padding: 18, marginBottom: 14 };
 const kicker = { fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", color: C.hellgrau, marginBottom: 10 };
 const text = { fontSize: 14, color: C.grau, fontWeight: 300, lineHeight: 1.65, margin: 0 };
@@ -60,7 +61,7 @@ export function DatenKarte({ gehe }) {
       <p style={kicker}>DEINE DATEN</p>
       <p style={text}>Alles, was in deinem Konto gespeichert ist – Profil, Lernstand, Fortschritt, Verbindungen, Abos und Eltern-Zustimmungen – als Datei zum Herunterladen.
         {gehe && <> Was wir speichern und warum, steht in der{" "}
-          <button type="button" onClick={() => { gehe({ ansicht: "datenschutz" }); window.scrollTo(0, 0); }} style={{ background: "none", border: "none", padding: 0, color: C.see, textDecoration: "underline", fontFamily: "inherit", fontSize: "inherit", cursor: "pointer" }}>Datenschutzerklärung</button>.</>}
+          <button type="button" onClick={() => { gehe({ ansicht: "datenschutz" }); springe("seitenwechsel", () => window.scrollTo(0, 0)); }} style={{ background: "none", border: "none", padding: 0, color: C.see, textDecoration: "underline", fontFamily: "inherit", fontSize: "inherit", cursor: "pointer" }}>Datenschutzerklärung</button>.</>}
       </p>
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 12, alignItems: "center" }}>
         <button type="button" onClick={herunterladen} disabled={export_ === "laden"} style={knopf(C.see, true)}>{export_ === "laden" ? "Wird erstellt …" : "Daten exportieren"}</button>

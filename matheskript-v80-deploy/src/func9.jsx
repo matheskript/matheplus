@@ -9,6 +9,7 @@ import { aktivitaetMelden, auswerten, gepaart, intervall, messExport, tagVon, we
 import { FR } from "./funcRegistry.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
 
+import { springe } from "./sprung.js";
 export function Auswertung() {
   const [exporte, setExporte] = useState([]);
   const [text, setText] = useState("");
@@ -334,7 +335,7 @@ export function TerminProbe({ termin, minuten, onFertig, onAbbruch }) {
     if (oks.length - nOk) aktivitaetMelden({ ok: false, anzahl: oks.length - nOk });
     lernAendern((L) => { L.termine = (L.termine || []).map((t) => (t.id === termin.id ? { ...t, probe: { am: Date.now(), erg } } : t)); });
     setErgebnis({ oks, erg });
-    window.scrollTo(0, 0);
+    springe("klausurtermin", () => window.scrollTo(0, 0));
   };
 
   React.useEffect(() => {
@@ -668,7 +669,7 @@ export function KlausurVorbereitung({ gehe, start }) {
   if (modus === "neu") return huelle(<TerminFormular onFertig={(id) => setModus(id)} onAbbruch={() => setModus("liste")} />);
   if (termin && probe) return huelle(
     <TerminProbe termin={termin} minuten={terminPlan(L, termin).probeMin || 30} onFertig={() => setProbe(false)} onAbbruch={() => setProbe(false)} />);
-  if (termin) return huelle(<TerminAnsicht t={termin} gehe={gehe} zurueck={() => setModus("liste")} probeStarten={() => { setProbe(true); window.scrollTo(0, 0); }} />);
+  if (termin) return huelle(<TerminAnsicht t={termin} gehe={gehe} zurueck={() => setModus("liste")} probeStarten={() => { setProbe(true); springe("klausurtermin", () => window.scrollTo(0, 0)); }} />);
 
   const kommend = aktiveTermine(L);
   const vorbei = (L.termine || []).filter((t) => tageBis(t.datum) < 1).sort((a, b) => b.datum.localeCompare(a.datum)).slice(0, 5);

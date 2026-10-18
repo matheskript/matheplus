@@ -10,6 +10,7 @@ import { aktiveTermine, terminPlan } from "./func9.jsx";
 import { FR } from "./funcRegistry.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
 
+import { springe } from "./sprung.js";
 export function Probeabitur() {
   const [abi, setAbi] = useState(null);
   const [teil, setTeil] = useState("start");
@@ -28,8 +29,8 @@ export function Probeabitur() {
     if ((teil === "A" || teil === "B") && rest <= 0) { if (teil === "A") zuB(); else abgeben(); }
   }, [rest]);
 
-  const starten = () => { setAbi(probeabiturErzeugen()); setAntA({}); setAntB({}); setErgebnis(null); setTeil("A"); setRest(ABI_ZEIT.A); window.scrollTo(0, 0); };
-  const zuB = () => { setTeil("B"); setRest(ABI_ZEIT.B); window.scrollTo(0, 0); };
+  const starten = () => { setAbi(probeabiturErzeugen()); setAntA({}); setAntB({}); setErgebnis(null); setTeil("A"); setRest(ABI_ZEIT.A); springe("probeabitur", () => window.scrollTo(0, 0)); };
+  const zuB = () => { setTeil("B"); setRest(ABI_ZEIT.B); springe("probeabitur", () => window.scrollTo(0, 0)); };
 
   const abgeben = () => {
     const posten = [];
@@ -47,7 +48,7 @@ export function Probeabitur() {
     setErgebnis({ posten, max, erreicht, prozent, np: notenpunkte(prozent),
       a: { e: summe((p) => p.teil === "A" && p.ok), m: summe((p) => p.teil === "A") },
       b: { e: summe((p) => p.teil === "B" && p.ok), m: summe((p) => p.teil === "B") }, proKomp });
-    setTeil("ende"); window.scrollTo(0, 0);
+    setTeil("ende"); springe("probeabitur", () => window.scrollTo(0, 0));
   };
 
   const uhr = `${Math.floor(Math.max(rest, 0) / 60)}:${String(Math.max(rest, 0) % 60).padStart(2, "0")}`;

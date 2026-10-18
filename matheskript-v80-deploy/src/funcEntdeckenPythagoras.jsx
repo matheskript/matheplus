@@ -7,6 +7,7 @@ import { Aufforderung, BildKarte, T, Zaehler } from "./funcEntdeckenPotenz.jsx";
 import { MODUL_PHASEN, modulFertigSetzen, modulPhaseSetzen, modulStand, modulStandSetzen, modulZuruecksetzen } from "./entdeckenSpeicher.js";
 import { beweisZwei, dreieckBeiT, quadrateUeber, schraegesQuadrat, umlegePlan, zufallsTripel } from "./pythagoras.js";
 
+import { springe } from "./sprung.js";
 /* ======================================================================
    ENTDECKE DEN SATZ DES PYTHAGORAS – VOM RECHTECK ZUM BEWEIS
    Sechsphasiges, interaktives Lernmodul (Teil von „Mathe entdecken“):
@@ -508,7 +509,7 @@ export function PythagorasModul({ onZurueck }) {
   const [bestaetige, setBestaetige] = useState(false);
   const aktuell = Math.min(phase, Math.max(ersteOffene, 0));
 
-  useEffect(() => { window.scrollTo(0, 0); }, [aktuell]);
+  useEffect(() => { springe("entdecken-phasen", () => window.scrollTo(0, 0)); }, [aktuell]);
   useEffect(() => { if (alleFertig && !modulStand(ID).fertig) modulFertigSetzen(ID, true); }, [alleFertig]);
 
   const gehePhase = (k) => { setPhase(k); modulPhaseSetzen(ID, k); setBestaetige(false); };
@@ -605,7 +606,7 @@ export function PythagorasModul({ onZurueck }) {
                   Dein Fortschritt in diesem Modul wird gelöscht.
                   <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
                     <div style={{ flex: 1 }}><GrosserKnopf ghost onClick={() => setBestaetige(false)}>Abbrechen</GrosserKnopf></div>
-                    <div style={{ flex: 1 }}><GrosserKnopf onClick={() => { modulZuruecksetzen(ID); setStandLok(Array(N).fill(0)); setPhase(0); setBestaetige(false); window.scrollTo(0, 0); }}>Ja, neu beginnen</GrosserKnopf></div>
+                    <div style={{ flex: 1 }}><GrosserKnopf onClick={() => { modulZuruecksetzen(ID); setStandLok(Array(N).fill(0)); setPhase(0); setBestaetige(false); springe("entdecken-phasen", () => window.scrollTo(0, 0)); }}>Ja, neu beginnen</GrosserKnopf></div>
                   </div>
                 </Rueck>
               )}

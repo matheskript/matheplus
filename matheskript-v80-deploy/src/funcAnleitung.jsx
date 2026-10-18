@@ -108,7 +108,7 @@ export function AppAnleitung() {
   const geheZu = (i) => {
     const el = band.current; if (!el) return;
     const z = Math.max(0, Math.min(FOLIEN.length - 1, i));
-    el.scrollTo({ left: z * el.clientWidth, behavior: "smooth" });
+    el.scrollTo({ left: z * el.clientWidth, behavior: "smooth" });   // sprung-frei: waagerechte Bildleiste, Seite bleibt
     setAkt(z);
   };
   const beimScrollen = () => {

@@ -28,6 +28,7 @@ import { MatheFeld } from "./matheTastatur.jsx";
 
 import { MAX_LISTE, ableitung, alsTex, alsText, analysiere, biquadratischeKoeffizienten, div, endlich, fn, grenzeTxt, hatBox, hatX, kompiliere, liveTex, liveTexPos, mitSchreibmarke, ohnePar, parse, rund, tiefZiffer, tokenisiere, vereinfache, wert, zahl } from "./formelEngine.js";
 import { naechsterPlatz, stelleAusKlick, stelleLinks, stelleRechts } from "./formelCursor.js";
+import { springe } from "./sprung.js";
 export { ableitung, alsTex, alsText, analysiere, biquadratischeKoeffizienten, hatBox, hatX, kompiliere, liveTex, mitSchreibmarke, ohnePar, parse, tokenisiere, vereinfache, wert };
 
 export function LiveFormel({ text, pos, setPos, hinweis }) {
@@ -58,7 +59,7 @@ export function EingabeFormel({ text, pos, setPos, hinweis, style }) {
   // Die Marke bleibt im Blick, auch in einer langen Formel in einem seitlich scrollbaren Feld
   useEffect(() => {
     const el = wurzel.current && wurzel.current.querySelector(".m-cursor, .m-boxaktiv");
-    try { if (el && el.scrollIntoView) el.scrollIntoView({ block: "nearest", inline: "nearest" }); } catch (e) { /* ältere Browser */ }
+    try { if (el && el.scrollIntoView) springe("formel-cursor", () => el.scrollIntoView({ block: "nearest", inline: "nearest" })); } catch (e) { /* ältere Browser */ }
   }, [text, p]);
   const klick = (e) => {
     e.stopPropagation();          // das Antippen der Formel setzt die Marke; es klappt das Feld nicht zu

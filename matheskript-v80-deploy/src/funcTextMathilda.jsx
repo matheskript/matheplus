@@ -25,6 +25,7 @@ import { mathildaSystem } from "./mathildaKontext.js";
 import { englisch } from "./i18n.js";
 import { GrosserKnopf, MS, Rueck, karte, kicker, zw } from "./ui2.jsx";
 import { pruefeEingabe, lies } from "./bedingungen.js";
+import { springe } from "./sprung.js";
 import {
   BEISPIEL_TEXT, BEISPIEL_TEXT_EN, UEBERSETZEN_REGELN, ZAEHLER_SCHLUESSEL, chatKontext, funktionsnamen, markierungen, nichtGefunden,
   uebersetzenPrompt, uebersetzungLesen, werkzeugFuerThema,
@@ -266,7 +267,7 @@ function Ergebnis({ e, zeigen, setZeigen, quelleFoto, onKorrektur, onNeu, gehe, 
   const funktionen = useMemo(() => funktionsnamen(e), [e]);
   const w = werkzeugFuerThema(e.thema);
   const fertig = Object.keys(gesehen).length;
-  const springe = (k) => { const el = document.getElementById(`tm-stelle-${k}`); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); };
+  const springe = (k) => { const el = document.getElementById(`tm-stelle-${k}`); if (el) springe("anker", () => el.scrollIntoView({ behavior: "smooth", block: "start" })); };
   return (
     <div data-tm-ergebnis>
       <div style={{ ...karte, marginTop: 14 }}>
@@ -383,7 +384,7 @@ export function TextMathilda({ gehe, zuTraining }) {
       setErg(e);
       lsSchreiben(ZAEHLER_SCHLUESSEL, zaehler + 1);
       lsSchreiben(LETZTE, { e, zeit: Date.now() }); setLetzte({ e, zeit: Date.now() });
-      requestAnimationFrame(() => oben.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
+      requestAnimationFrame(() => springe("textmathilda-ergebnis", () => oben.current?.scrollIntoView({ behavior: "smooth", block: "start" })));
     } catch (e) {
       setFehler(e.message || zw("Mathilda ist gerade nicht erreichbar.", "Mathilda is not reachable right now."));
     } finally { setLaeuft(false); }

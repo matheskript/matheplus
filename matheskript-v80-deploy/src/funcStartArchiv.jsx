@@ -19,6 +19,7 @@ import { MasterclassKachel, MatheCheckenKachel, MathCreatorKachel } from "./func
 import { ElternabendKachel } from "./funcElternabend.jsx";
 import { NAV } from "./base4.jsx";
 
+import { springe } from "./sprung.js";
 /* Große, ganz anklickbare Kachel für die Plotter auf der Startseite. */
 /* Polynomplotter-Grafik im Hochformat für die Kachel. */
 function PlotterLogoKlein() {
@@ -669,7 +670,7 @@ export function StartseiteArchiv({ gehe }) {
           <span key={t} style={{ fontSize: 12.5, color: C.hellgrau }}>{t}</span>
         ))}
       </div>
-      <button onClick={() => { setWieder(!wieder); setHinweis(""); window.scrollTo(0, 0); }} className="mt-5"
+      <button onClick={() => { setWieder(!wieder); setHinweis(""); springe("ansicht-schalter", () => window.scrollTo(0, 0)); }} className="mt-5"
         style={{ background: "none", border: `1px solid ${C.linie}`, borderRadius: 999, padding: "7px 14px",
           color: C.hellgrau, fontSize: 12, fontFamily: "inherit", cursor: "pointer" }}>
         {wieder ? "Ansicht: Wiederkehrer" : "Ansicht: Erstbesuch"}
@@ -808,7 +809,7 @@ export function EntwurfWerkzeuge({ gehe }) {
       <div className="mx-auto px-6" style={{ maxWidth: 620, paddingTop: 14 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 14px", borderRadius: 10, background: "rgba(237,187,0,0.16)", color: C.tinte, fontSize: 12.5, lineHeight: 1.45 }}>
           <span style={{ flex: 1 }}><b>Archiv:</b> die alte Startseite mit allen Werkzeugen. Die aktuelle Hauptseite bleibt unverändert.</span>
-          <a href="#alle-werkzeuge" onClick={(e) => { e.preventDefault(); const z = document.getElementById("alle-werkzeuge"); if (z) z.scrollIntoView({ behavior: "smooth", block: "start" }); }}
+          <a href="#alle-werkzeuge" onClick={(e) => { e.preventDefault(); const z = document.getElementById("alle-werkzeuge"); if (z) springe("anker", () => z.scrollIntoView({ behavior: "smooth", block: "start" })); }}
             style={{ color: C.see, fontWeight: 700, whiteSpace: "nowrap", textDecoration: "underline" }}>Alle Werkzeuge ↓</a>
         </div>
       </div>

@@ -14,6 +14,7 @@ import { IchHaengeFest } from "./funcHilfe.jsx";
 import { hilfeKontext } from "./ui2.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
 
+import { springe } from "./sprung.js";
 export function useYouTubeApi() {
   const [bereit, setBereit] = useState(() => typeof window !== "undefined" && !!(window.YT && window.YT.Player));
   React.useEffect(() => {
@@ -1288,7 +1289,7 @@ export function Kurse({ gehe, startKurs = null }) {
     const k = KURSE.find((x) => x.id === offen);
     return (
       <VideokursPlayer kursId={k.id} kursTitel={k.titel} start={video} gehe={gehe}
-        onZurueck={() => { setVideo(null); window.scrollTo(0, 0); }} />
+        onZurueck={() => { setVideo(null); springe("kurse", () => window.scrollTo(0, 0)); }} />
     );
   }
 
@@ -1313,7 +1314,7 @@ export function Kurse({ gehe, startKurs = null }) {
           ))}
         </div>
 
-        <VideokursVorschau kursId={k.id} onStart={(i) => { setVideo(i); window.scrollTo(0, 0); }} />
+        <VideokursVorschau kursId={k.id} onStart={(i) => { setVideo(i); springe("kurse", () => window.scrollTo(0, 0)); }} />
 
         {k.text.map((t, i) => (
           <p key={i} style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.75, marginBottom: 14 }}>{t}</p>
@@ -1383,7 +1384,7 @@ export function Kurse({ gehe, startKurs = null }) {
           const n = videoAnzahl(k.id);
           return `${k.stufe.replace("Klasse ", "Kl. ").replace(" – ", "–")}${n > 0 ? ` · ${n} Videos` : ""} · ${k.preis} €`;
         };
-        const oeffne = (id) => { setOffen(id); setHinweis(false); window.scrollTo(0, 0); };
+        const oeffne = (id) => { setOffen(id); setHinweis(false); springe("kurse", () => window.scrollTo(0, 0)); };
         const analysis = KURSE.filter((k) => k.id.startsWith("analysis"));
         const videosAnalysis = analysis.reduce((s0, k) => s0 + videoAnzahl(k.id), 0);
         const ausgabe = [];
@@ -1414,7 +1415,7 @@ export function Kurse({ gehe, startKurs = null }) {
                     <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: C.grau, margin: "10px 0 6px 2px" }}>Themen</p>
                     {ANALYSIS_THEMEN.map((t) => kachel({
                       key: t.ansicht, klein: true, titel: t.titel, unter: t.unter, info: t.info, grafik: t.grafik,
-                      label: `Thema ${t.titel} öffnen`, onClick: () => { gehe({ ansicht: t.ansicht }); window.scrollTo(0, 0); },
+                      label: `Thema ${t.titel} öffnen`, onClick: () => { gehe({ ansicht: t.ansicht }); springe("kurse", () => window.scrollTo(0, 0)); },
                     }))}
                   </div>
                 )}

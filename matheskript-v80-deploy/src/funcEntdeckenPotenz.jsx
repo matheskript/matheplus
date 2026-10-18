@@ -5,6 +5,7 @@ import { GrosserKnopf, KleinerLink, Rueck, karte } from "./ui2.jsx";
 import { Aufklapp, FunktionsBild, SchrittFolge, zt } from "./ui3.jsx";
 import { PHASEN_ANZAHL, entdeckenStand, potenzFertigSetzen, potenzPhaseSetzen, potenzStandSetzen, potenzZuruecksetzen } from "./entdeckenSpeicher.js";
 
+import { springe } from "./sprung.js";
 /* ======================================================================
    ENTDECKE DIE POTENZREGEL – VOM PASCALSCHEN DREIECK ZUR ABLEITUNG
    Siebenphasiges, interaktives Lernmodul (Teil von „Mathe entdecken“):
@@ -475,7 +476,7 @@ export function PotenzModul({ onZurueck }) {
   const [bestaetige, setBestaetige] = useState(false);
   const aktuell = Math.min(phase, Math.max(ersteOffene, 0));
 
-  useEffect(() => { window.scrollTo(0, 0); }, [aktuell]);
+  useEffect(() => { springe("entdecken-phasen", () => window.scrollTo(0, 0)); }, [aktuell]);
   useEffect(() => { if (alleFertig) potenzFertigSetzen(true); }, [alleFertig]);
 
   const gehePhase = (k) => { setPhase(k); potenzPhaseSetzen(k); setBestaetige(false); };
@@ -579,7 +580,7 @@ export function PotenzModul({ onZurueck }) {
                   Dein Fortschritt in diesem Modul wird gelöscht.
                   <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
                     <div style={{ flex: 1 }}><GrosserKnopf ghost onClick={() => setBestaetige(false)}>Abbrechen</GrosserKnopf></div>
-                    <div style={{ flex: 1 }}><GrosserKnopf onClick={() => { potenzZuruecksetzen(); setStandLok(Array(PHASEN_ANZAHL).fill(0)); setPhase(0); setBestaetige(false); window.scrollTo(0, 0); }}>Ja, neu beginnen</GrosserKnopf></div>
+                    <div style={{ flex: 1 }}><GrosserKnopf onClick={() => { potenzZuruecksetzen(); setStandLok(Array(PHASEN_ANZAHL).fill(0)); setPhase(0); setBestaetige(false); springe("entdecken-phasen", () => window.scrollTo(0, 0)); }}>Ja, neu beginnen</GrosserKnopf></div>
                   </div>
                 </Rueck>
               )}

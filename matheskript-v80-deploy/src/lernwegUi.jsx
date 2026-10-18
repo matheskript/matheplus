@@ -20,6 +20,7 @@ import { Seite, liesZahl } from "./ui3.jsx";
 import { UebenRahmen, ws, zs } from "./geoUi.jsx";
 import { enthaelt, zText } from "./mengenRechnen.js";
 
+import { springe } from "./sprung.js";
 const SCHRIFT = "Montserrat, system-ui, sans-serif";
 /* Zweisprachiges Paar [de, en] → Text der aktuellen Sprache; Strings bleiben */
 export const L = (p) => (Array.isArray(p) ? zw(p[0], p[1]) : p);
@@ -122,10 +123,11 @@ export function LernwegSeite({ titel, text, kapitel, speicher }) {
   });
   const oben = useRef(null);
   const erstes = useRef(true);
-  const setKap = (k) => { setKapRoh(k); try { localStorage.setItem(speicher, k); } catch (e) { /* ohne Speicher */ } };
+  const quelle = useRef("lernweg-kapitel");   // Sprung-Schalter: Leiste oben oder „Weiter“-Knopf unten
+  const setKap = (k, q = "lernweg-kapitel") => { quelle.current = q; setKapRoh(k); try { localStorage.setItem(speicher, k); } catch (e) { /* ohne Speicher */ } };
   useEffect(() => {
     if (erstes.current) { erstes.current = false; return; }
-    try { oben.current?.scrollIntoView({ behavior: "smooth", block: "start" }); } catch (e) { /* egal */ }
+    springe(quelle.current, () => oben.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
   }, [kap]);
   const idx = Math.max(0, kapitel.findIndex(([id]) => id === kap));
   const Inhalt = kapitel[idx][2];
@@ -149,7 +151,7 @@ export function LernwegSeite({ titel, text, kapitel, speicher }) {
       </nav>
       <div key={kap}><Inhalt nr={idx + 1} von={kapitel.length} /></div>
       {naechstes && (
-        <button type="button" onClick={() => setKap(naechstes[0])} data-weiter-kapitel
+        <button type="button" onClick={() => setKap(naechstes[0], "lernweg-weiter")} data-weiter-kapitel
           style={{ width: "100%", marginTop: 26, minHeight: 56, borderRadius: 16, border: "none", cursor: "pointer", fontFamily: "inherit", textAlign: "left", padding: "12px 18px",
             background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)`, color: C.weiss, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
           <span>

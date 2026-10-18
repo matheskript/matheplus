@@ -100,6 +100,7 @@ import { EBB_SLOGAN } from "./funcEbbinghaus.jsx";
 import { useKonto, kontoStarten } from "./konto.js";
 import { englisch, spracheWechseln } from "./i18n.js";
 
+import { springe } from "./sprung.js";
 // Menü-Button im Header: vorübergehend aus (true = wieder einblenden)
 const ZEIGE_MENUE = false;
 const ZEIGE_PROFIL = true;
@@ -267,7 +268,7 @@ export function Mathilda() {
     if (eintrag.ansicht === "trainieren") setTrainierenZiel(eintrag.kapitel ? { kapitel: eintrag.kapitel, teil: eintrag.teil || null, schulart: eintrag.schulart, klasse: eintrag.klasse, zeit: Date.now() } : null);
     if (eintrag.ansicht === "kapitelformeln") setKapitelZiel(eintrag.kapitel ? { kapitel: eintrag.kapitel, schulart: eintrag.schulart, klasse: eintrag.klasse, modus: eintrag.modus } : null);
     setMenuOffen(false); setGruppeOffen(null);
-    window.scrollTo(0, 0);
+    springe("seitenwechsel", () => window.scrollTo(0, 0));
   };
   FR.gehe = gehe;   // für „Weiter mit …“-Knöpfe in den Werkzeugen (uebergabe.js)
   FR.ansicht = () => ansicht;   // für buchung.jsx: Bereich einer Buchung
@@ -476,7 +477,7 @@ export function Mathilda() {
             .logo-gold{background:linear-gradient(180deg,#FFE58A 0%,${C.flaggold} 45%,${C.goldWarm} 70%,#A67C00 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
           `}</style>
           <button type="button" data-kein-i18n aria-label={englisch() ? "Home" : "Zur Startseite"} title={englisch() ? "Home" : "Zur Startseite"}
-            onClick={() => { setAnsicht("start"); setMenuOffen(false); setGruppeOffen(null); setSeitenOffen(false); window.scrollTo(0, 0); }}
+            onClick={() => { setAnsicht("start"); setMenuOffen(false); setGruppeOffen(null); setSeitenOffen(false); springe("seitenwechsel", () => window.scrollTo(0, 0)); }}
             style={{ background: "none", border: "none", padding: 0, margin: 0, cursor: "pointer", fontFamily: "inherit", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", minWidth: 0 }}>
             <span style={{ color: C.weiss, fontSize: "clamp(21px, 7vw, 40px)", fontWeight: 700, letterSpacing: "-0.02em", textTransform: "uppercase", whiteSpace: "nowrap", lineHeight: 1 }}>
               <span className="logo-silber">mythos</span><span className="logo-gold">mathe</span><span className="logo-silber">.de</span>
@@ -487,7 +488,7 @@ export function Mathilda() {
           </button>
           <div className="flex items-center" style={{ gap: "clamp(4px, 1.4vw, 6px)" }}>
           {/* Profil-/Login-Button */}
-          {ZEIGE_PROFIL && <button onClick={() => { gehe({ ansicht: "konto" }); setSeitenOffen(false); window.scrollTo(0, 0); }} aria-label={konto.profil ? "Mein Konto" : "Anmelden"} title={konto.profil ? "Mein Konto" : "Anmelden"}
+          {ZEIGE_PROFIL && <button onClick={() => { gehe({ ansicht: "konto" }); setSeitenOffen(false); springe("seitenwechsel", () => window.scrollTo(0, 0)); }} aria-label={konto.profil ? "Mein Konto" : "Anmelden"} title={konto.profil ? "Mein Konto" : "Anmelden"}
             style={{ width: "clamp(28px, 8.6vw, 34px)", height: "clamp(28px, 8.6vw, 34px)", flexShrink: 0, borderRadius: 999, border: `1.5px solid ${konto.profil ? C.flaggold : "rgba(255,255,255,0.45)"}`,
               background: konto.profil ? "rgba(237,187,0,0.16)" : "transparent", color: konto.profil ? C.flaggold : C.weiss, fontSize: konto.profil ? 14 : 20, fontWeight: 700,
               fontFamily: "inherit", cursor: "pointer", padding: 0, lineHeight: 1 }}>
@@ -561,7 +562,7 @@ export function Mathilda() {
         {menuOffen && (
           <div style={{ background: C.seeTief, maxHeight: "72vh", overflowY: "auto" }}>
             <div className="mx-auto px-6 py-2" style={{ maxWidth: 620 }}>
-              <button onClick={() => { setAnsicht("start"); setMenuOffen(false); setGruppeOffen(null); window.scrollTo(0, 0); }}
+              <button onClick={() => { setAnsicht("start"); setMenuOffen(false); setGruppeOffen(null); springe("seitenwechsel", () => window.scrollTo(0, 0)); }}
                 className="w-full py-3" style={{ background: "none", border: "none", borderBottom: `1px solid rgba(255,255,255,0.12)`, textAlign: "left", cursor: "pointer", fontFamily: "inherit" }}>
                 <span style={{ color: ansicht === "start" ? C.flaggold : C.weiss, fontSize: 15.5, fontWeight: 600 }}>Start</span>
               </button>
@@ -639,7 +640,7 @@ export function Mathilda() {
             <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <div className="flex gap-2 mb-4" style={{ overflowX: "auto" }}>
                 {SCHULKLASSEN.map((k) => (
-                  <button key={k} onClick={() => { setKlasseAktiv(k); window.scrollTo(0, 0); }}
+                  <button key={k} onClick={() => { setKlasseAktiv(k); springe("seitenwechsel", () => window.scrollTo(0, 0)); }}
                     style={{ flexShrink: 0, width: 38, height: 38, borderRadius: 999, fontFamily: "inherit", cursor: "pointer",
                       border: `1.5px solid ${k === klasseAktiv ? C.gruen : "rgba(255,255,255,0.35)"}`,
                       background: k === klasseAktiv ? "rgba(185,138,0,0.18)" : "transparent", color: C.weiss, fontSize: 14, fontWeight: 600 }}>
@@ -1345,13 +1346,13 @@ export function Mathilda() {
         setFotoModus("blatt");
         if (!fotoErlaubt) {
           setScanNachEinwilligung(true);
-          setTimeout(() => fotoBereichRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 60);
+          setTimeout(() => springe("mathilda-foto", () => fotoBereichRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })), 60);
         } else setScanOffen(true);
       }} />
       <BlattScanner offen={scanOffen} onSchliessen={() => setScanOffen(false)}
         onFoto={(datei) => {
           setScanOffen(false); setFotoModus("blatt"); dateiWaehlen(datei);
-          setTimeout(() => fotoBereichRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 120);
+          setTimeout(() => springe("mathilda-foto", () => fotoBereichRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })), 120);
         }}
         onKameraApp={() => { setScanOffen(false); setTimeout(() => kameraRef.current?.click(), 50); }}
         onGalerie={() => { setScanOffen(false); setTimeout(() => galerieRef.current?.click(), 50); }} />

@@ -4,6 +4,7 @@ import { sb } from "./konto.js";
 import { SatzZeilen } from "./baseSatz.jsx";
 import "@fontsource/caveat/600.css";
 
+import { springe } from "./sprung.js";
 /* ======================================================================
    ELTERNABEND — Schwarz-Gold-Kachel für die Startseite und Infoseite.
    Foto: Datei public/elternabend/evelyns-cafe.jpg (wird als
@@ -578,7 +579,7 @@ function zumTicket(e) {
   if (ELTERNABEND.zahlungAktiv) return;
   e.preventDefault();
   const ziel = document.getElementById("eab-ticket-oben");
-  if (ziel) window.scrollTo({ top: ziel.getBoundingClientRect().top + window.scrollY - 96, behavior: "smooth" });
+  if (ziel) springe("anker", () => window.scrollTo({ top: ziel.getBoundingClientRect().top + window.scrollY - 96, behavior: "smooth" }));
   setTimeout(() => { const f = ziel && ziel.querySelector("input"); if (f) f.focus({ preventScroll: true }); }, 450);
 }
 const knopfText = (code, mitPreis) => {

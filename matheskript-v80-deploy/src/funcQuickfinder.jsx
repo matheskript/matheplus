@@ -14,6 +14,7 @@ import { unterthema, unterthemen } from "./unterthemen.js";
 import { PHASEN, auswahlNachKapitel, planErstellen, planStand, planTage, tagName, vorbereitungFuer } from "./trainingsplan.js";
 import { PhasenPille, heuteText, planSpeichern, sacheGeneratoren, useAktiverPlan } from "./funcKapitelTraining.jsx";
 
+import { springe } from "./sprung.js";
 const SCHLUESSEL = "matheplus-quickfinder";
 function lesen() {
   try {
@@ -152,7 +153,7 @@ function useRuhigAufklappen(offen) {
     const el = refs.current[a.id];
     if (!el) return;
     const diff = el.getBoundingClientRect().top - a.top;
-    if (Math.abs(diff) > 0.5) window.scrollTo({ top: window.scrollY + diff, behavior: "instant" });
+    if (Math.abs(diff) > 0.5) window.scrollTo({ top: window.scrollY + diff, behavior: "instant" });   // sprung-frei: hält die Position fest
   }, [offen]);
   return { refs, merke };
 }
@@ -520,7 +521,7 @@ export function Quickfinder({ gehe, setzeStufe, links }) {
   };
   const plan = q.modus === "plan";
   const auswahl = q.auswahl || [];
-  const nachOben = () => requestAnimationFrame(() => { const el = menueRef.current; if (el && el.getBoundingClientRect().top < 0) el.scrollIntoView({ block: "start", behavior: "smooth" }); });
+  const nachOben = () => requestAnimationFrame(() => { const el = menueRef.current; if (el && el.getBoundingClientRect().top < 0) springe("quickfinder-menue", () => el.scrollIntoView({ block: "start", behavior: "smooth" })); });
   // „Trainingsplan zu diesem Kapitel“: alle Unterthemen des Kapitels anhaken (bisher Angehaktes bleibt)
   const planOeffnen = (kId) => {
     const ids = unterthemen(kId).map((x) => x.id);

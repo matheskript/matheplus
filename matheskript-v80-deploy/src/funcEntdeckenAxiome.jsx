@@ -4,6 +4,7 @@ import { FR } from "./funcRegistry.jsx";
 import { M } from "./func3.jsx";
 import { GrosserKnopf, KleinerLink, Rueck, karte } from "./ui2.jsx";
 import { Aufklapp, ModusLeiste, SchrittFolge } from "./ui3.jsx";
+import { springe } from "./sprung.js";
 import {
   AXIOM_PHASEN_ANZAHL, axiomeFertigSetzen, axiomePhaseSetzen, axiomeStandSetzen, axiomeZuruecksetzen, entdeckenStand,
 } from "./entdeckenSpeicher.js";
@@ -824,7 +825,7 @@ export function AxiomeModul({ onZurueck }) {
   const [bestaetige, setBestaetige] = useState(false);
   const aktuell = Math.min(phase, Math.max(ersteOffene, 0));
 
-  useEffect(() => { window.scrollTo(0, 0); }, [aktuell]);
+  useEffect(() => { springe("entdecken-phasen", () => window.scrollTo(0, 0)); }, [aktuell]);
   useEffect(() => { if (alleFertig) axiomeFertigSetzen(true); }, [alleFertig]);
 
   const gehePhase = (k) => { setPhase(k); axiomePhaseSetzen(k); setBestaetige(false); };
@@ -919,7 +920,7 @@ export function AxiomeModul({ onZurueck }) {
                   Dein Fortschritt in diesem Modul wird gelöscht.
                   <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
                     <div style={{ flex: 1 }}><GrosserKnopf ghost onClick={() => setBestaetige(false)}>Abbrechen</GrosserKnopf></div>
-                    <div style={{ flex: 1 }}><GrosserKnopf onClick={() => { axiomeZuruecksetzen(); setStandLok(Array(anzahl).fill(0)); setPhase(0); setBestaetige(false); window.scrollTo(0, 0); }}>Ja, neu beginnen</GrosserKnopf></div>
+                    <div style={{ flex: 1 }}><GrosserKnopf onClick={() => { axiomeZuruecksetzen(); setStandLok(Array(anzahl).fill(0)); setPhase(0); setBestaetige(false); springe("entdecken-phasen", () => window.scrollTo(0, 0)); }}>Ja, neu beginnen</GrosserKnopf></div>
                   </div>
                 </Rueck>
               )}

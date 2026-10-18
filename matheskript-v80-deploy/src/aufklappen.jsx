@@ -1,11 +1,15 @@
 import React from "react";
 import { C } from "./base1.jsx";
+import { FR } from "./funcRegistry.jsx";
+import { sprungAn } from "./sprung.js";
 
 /* ======================================================================
    Gemeinsame Regeln für alle aufklappbaren Menüs
    1. Zugeklappt zeigt das Zeichen „+“, aufgeklappt an derselben Stelle „−“.
    2. Beim Aufklappen wird der Titel des Menüs nach oben gescrollt – bei einem
-      Untermenü der Titel des übergeordneten Menüs.
+      Untermenü der Titel des übergeordneten Menüs. ABER nur, wo der Sprung-Schalter
+      (sprung.js) an ist: Schlüssel = data-sprung am Menü oder einem umgebenden
+      Element, sonst "aufklappen@<ansicht>". Stand 18.10.: nur „start-schulmathe“ an.
    Markierung im Code:  aria-expanded am Kopf-Knopf (bzw. <details>/<summary>)
                         data-aufklapp-inhalt am Container, der beim Aufklappen erscheint
    ====================================================================== */
@@ -66,14 +70,24 @@ function scrolleZu(ziel) {
   const behavior = leise ? "auto" : "smooth";
   const box = ziel.closest("[data-scroll-box]");
   if (box) {
-    box.scrollTo({ top: Math.max(0, box.scrollTop + ziel.getBoundingClientRect().top - box.getBoundingClientRect().top - 6), behavior });
+    box.scrollTo({ top: Math.max(0, box.scrollTop + ziel.getBoundingClientRect().top - box.getBoundingClientRect().top - 6), behavior });   // sprung-frei: nachOben prüft den Schalter
     return;
   }
-  window.scrollTo({ top: Math.max(0, ziel.getBoundingClientRect().top + window.scrollY - kopfHoehe()), behavior });
+  window.scrollTo({ top: Math.max(0, ziel.getBoundingClientRect().top + window.scrollY - kopfHoehe()), behavior });   // sprung-frei: nachOben prüft den Schalter
+}
+
+/* Schlüssel für den Sprung-Schalter: data-sprung (nächstes Element) oder aufklappen@<ansicht> */
+export function aufklappSchluessel(kopf) {
+  const mit = kopf && kopf.closest ? kopf.closest("[data-sprung]") : null;
+  if (mit) return mit.getAttribute("data-sprung");
+  let ansicht = "";
+  try { ansicht = (FR.ansicht && FR.ansicht()) || ""; } catch (e) { /* egal */ }
+  return `aufklappen@${ansicht || "*"}`;
 }
 
 function nachOben(kopf) {
   if (!kopf || !kopf.isConnected || kopf.closest("[data-kein-scroll]")) return;
+  if (!sprungAn(aufklappSchluessel(kopf))) return;
   const ziel = titelZiel(kopf);
   scrolleZu(ziel);
   /* Nachkorrektur: Bereiche mit Animation wachsen noch, der erste Scroll kann zu kurz geraten sein */

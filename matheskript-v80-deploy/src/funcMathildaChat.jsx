@@ -19,6 +19,7 @@ import { useKonto } from "./konto.js";
 import { mathildaSystem } from "./mathildaKontext.js";
 import { aktivitaetMelden } from "./func8.jsx";
 
+import { springe } from "./sprung.js";
 const ANALYSE_ZAEHLER = "matheplus-blattanalysen";
 const blattanalysen = () => { try { return parseInt(localStorage.getItem(ANALYSE_ZAEHLER) || "0", 10) || 0; } catch (e) { return 0; } };
 
@@ -160,7 +161,7 @@ export function MathildaChatModal({ aufgabe, schliessen, onHilfe }) {
   const chat = useMathildaChat({ aufgabe });
   const endeRef = useRef(null);
   const zuRef = useRef(null);
-  useEffect(() => { endeRef.current?.scrollIntoView({ behavior: "smooth" }); }, [chat.verlauf.length, chat.laedt]);
+  useEffect(() => { springe("chat", () => endeRef.current?.scrollIntoView({ behavior: "smooth" })); }, [chat.verlauf.length, chat.laedt]);
   useEffect(() => {
     const vorher = document.body.style.overflow; document.body.style.overflow = "hidden"; zuRef.current?.focus();
     const taste = (e) => { if (e.key === "Escape") schliessen(); };
@@ -189,7 +190,7 @@ export function MathildaChatModal({ aufgabe, schliessen, onHilfe }) {
 export function MathildaChatSeite() {
   const chat = useMathildaChat();
   const endeRef = useRef(null);
-  useEffect(() => { endeRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }); }, [chat.verlauf.length, chat.laedt]);
+  useEffect(() => { springe("chat", () => endeRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" })); }, [chat.verlauf.length, chat.laedt]);
   return (
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620 }}>
       <div style={{ background: C.weiss, borderRadius: 16, padding: 18, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", marginBottom: 14 }}>

@@ -3,6 +3,7 @@ import { C } from "./base1.jsx";
 import { englisch } from "./i18n.js";
 import { suche } from "./suche.js";
 
+import { springe } from "./sprung.js";
 /* ======================================================================
    SUCHFELD „Was möchtest du trainieren?“
    Mobil über „So nutzt du die App“, am Desktop über „Mathematik entdecken“
@@ -176,7 +177,7 @@ export function SuchBox({ gehe, einzeilig }) {
   useEffect(() => {
     if (!abfrage || !ergebnisRef.current) return;
     const id = setTimeout(() => {
-      try { ergebnisRef.current.scrollIntoView({ block: "nearest", behavior: "smooth" }); } catch (e) { /* alte Browser */ }
+      try { springe("suche-ergebnis", () => ergebnisRef.current.scrollIntoView({ block: "nearest", behavior: "smooth" })); } catch (e) { /* alte Browser */ }
     }, 120);
     return () => clearTimeout(id);
   }, [abfrage]);

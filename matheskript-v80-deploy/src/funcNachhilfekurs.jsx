@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { C } from "./base1.jsx";
 
+import { springe } from "./sprung.js";
 /* ======================================================================
    NACHHILFE-KURS — sechs Module für Nachhilfelehrernen (ENTWURF zur Durchsicht durch Basti).
    Aufbau je Modul: Kernidee · So gehst du vor · Typischer Fehler · Probier es in der nächsten Stunde · Mit Mythos Mathe.
@@ -125,7 +126,7 @@ function Modul({ k, erledigt, umschalten }) {
 export function NachhilfekursSeite() {
   const [offen, setOffen] = useState(null);
   const [fertig, setFertig] = useState(lesen);
-  useEffect(() => { window.scrollTo(0, 0); }, [offen]);
+  useEffect(() => { springe("kurse", () => window.scrollTo(0, 0)); }, [offen]);
   const umschalten = (id) => setFertig((f) => { const n = { ...f, [id]: !f[id] }; sichern(n); return n; });
   const anzahl = NACHHILFEKURS.filter((k) => fertig[k.id]).length;
   const knopf = (aktiv) => ({ fontFamily: "inherit", cursor: "pointer", fontSize: 14.5, fontWeight: 600, padding: "13px 18px", borderRadius: 12,

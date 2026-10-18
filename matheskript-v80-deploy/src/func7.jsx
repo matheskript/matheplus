@@ -15,6 +15,7 @@ import { MatheFeld } from "./matheTastatur.jsx";
 import { kontoZustand } from "./konto.js";
 import { anredeHinweis } from "./rollenLogik.js";
 
+import { springe } from "./sprung.js";
 export function MathildaTutor({ kompetenz, aufgabe, eingabe, onSchliessen }) {
   const L = useLern();
   const [verlauf, setVerlauf] = useState([
@@ -73,7 +74,7 @@ Antworte auf Deutsch, ohne Vorrede.`;
       setVerlauf([...neu, { rolle: "mathilda", text: "Ich bin gerade nicht erreichbar. Versuch es gleich noch einmal." }]);
     } finally {
       setLaedt(false);
-      setTimeout(() => endeRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
+      setTimeout(() => springe("chat", () => endeRef.current?.scrollIntoView({ behavior: "smooth" })), 50);
     }
   };
 
@@ -236,7 +237,7 @@ export function EinheitSpieler({ id, gehe }) {
   const idee = LEITIDEEN.find((i) => i.id === k.idee);
   const st = L.stand[id] || {};
   const phaseIdx = phasen.indexOf(phase);
-  const weiter = () => { const n = phasen[phaseIdx + 1]; if (n) { setPhase(n); window.scrollTo(0, 0); } };
+  const weiter = () => { const n = phasen[phaseIdx + 1]; if (n) { setPhase(n); springe("erklaerung-schritte", () => window.scrollTo(0, 0)); } };
 
   // --- Beispiele ---
   const bsp = beispiele[bspNr];

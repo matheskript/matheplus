@@ -29,6 +29,7 @@ import { Aufklapp, Seite, zt } from "./ui3.jsx";
 import { Merke, Pille, Regler, UebenRahmen, WertZeile, misch, tolRund, ws, zs } from "./geoUi.jsx";
 import { TrigFeld, TrigRechnerKarte, WinkelSchalter, trigLies } from "./funcTrigRechner.jsx";
 import { COS, HYP, SIN, TAN, TrigFilm } from "./funcTrigAnimationen.jsx";
+import { springe } from "./sprung.js";
 import {
   BM_ARTEN, EK_ARTEN, SACHEN, TAN_ARTEN, acosG, asinG, atanG, bmAufgabe, cosG, ekAufgabe, piBruch, piTex,
   quadrant, sachAufgabe, sinG, tanAufgabe, tanG, verhaeltnisAufgabe,
@@ -1164,10 +1165,11 @@ export function TrigonometrieDreieck() {
   });
   const oben = useRef(null);
   const erstes = useRef(true);
-  const setKap = (k) => { setKapRoh(k); try { localStorage.setItem(SPEICHER, k); } catch (e) { /* ohne Speicher */ } };
+  const quelle = useRef("trigo-kapitel");   // Sprung-Schalter: Leiste oben oder „Weiter“-Knopf unten
+  const setKap = (k, q = "trigo-kapitel") => { quelle.current = q; setKapRoh(k); try { localStorage.setItem(SPEICHER, k); } catch (e) { /* ohne Speicher */ } };
   useEffect(() => {
     if (erstes.current) { erstes.current = false; return; }
-    try { oben.current?.scrollIntoView({ behavior: "smooth", block: "start" }); } catch (e) { /* egal */ }
+    springe(quelle.current, () => oben.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
   }, [kap]);
   const idx = KAPITEL.findIndex(([id]) => id === kap);
   const Inhalt = KAPITEL[idx][2];
@@ -1184,7 +1186,7 @@ export function TrigonometrieDreieck() {
       </div>
       <div key={kap}><Inhalt /></div>
       {naechstes && (
-        <button type="button" onClick={() => setKap(naechstes[0])}
+        <button type="button" onClick={() => setKap(naechstes[0], "lernweg-weiter")}
           style={{ width: "100%", marginTop: 26, minHeight: 56, borderRadius: 16, border: "none", cursor: "pointer", fontFamily: "inherit", textAlign: "left", padding: "12px 18px",
             background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)`, color: C.weiss, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
           <span>

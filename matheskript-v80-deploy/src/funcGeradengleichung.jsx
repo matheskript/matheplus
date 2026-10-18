@@ -22,6 +22,7 @@ import { M } from "./func3.jsx";
 import { buchen } from "./buchung.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
 import { hilfeKontext, zw } from "./ui2.jsx";
+import { springe } from "./sprung.js";
 import {
   GRENZE, PHI, achsenWeg, achsenabschnitt, bWert, bewerte, bruch, bruchTex, dreieck, dreieckPm,
   einrasten, fehlerFaelleC, fehlerFaelleM, fenster, geradePQ, gleichungTex, gleichungText,
@@ -76,7 +77,7 @@ function usePad() {
   const [frisch, setFrisch] = useState(false);
   const oeffnen = (def, start, istFrisch, el) => {
     setOffen(def); setText(start); setFrisch(istFrisch);
-    if (el) setTimeout(() => { try { el.scrollIntoView({ block: "nearest", behavior: "smooth" }); } catch (e) { /* ältere Browser */ } }, 40);
+    if (el) setTimeout(() => { try { springe("geraden-pad", () => el.scrollIntoView({ block: "nearest", behavior: "smooth" })); } catch (e) { /* ältere Browser */ } }, 40);
   };
   const schliessen = () => setOffen(null);
   const taste = (k) => {

@@ -15,6 +15,7 @@ import { termAlsTex } from "./func4.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
 import { MitWurzeln, WurzelZeichen } from "./wurzelZeichen.jsx";
 
+import { fokus, springe } from "./sprung.js";
 /* Kopf des Polynomplotters im Stil der Sinusfunktion: ein gemeinsames Raster mit einer Spalte je Koeffizient.
    Oben die Plus/Minus-Knöpfe, darunter die allgemeine Form im grauen Kasten, dann die
    eingesetzte Funktion und ihre Ableitungen — jeder Knopf steht genau über seinem Koeffizienten.
@@ -144,7 +145,7 @@ function KoeffWert({ k, farbe, wert, setzen, nichtNull, ort }) {
   const oeffnen = () => { setEntwurf(wText(wert)); setFehler(""); setOffen(true); };
   useEffect(() => {
     if (!offen || !feld.current) return;
-    feld.current.focus();
+    fokus(feld.current, "kurvendiskussion-feld");
     try { feld.current.select(); } catch (e) { /* ohne Auswahl */ }
   }, [offen]);
 
@@ -448,7 +449,7 @@ export function Plotter() {
   const diskussionUmschalten = () => {
     const neu = !offen;
     setOffen(neu);
-    if (neu) setTimeout(() => { try { ergebnisRef.current && ergebnisRef.current.scrollIntoView({ behavior: "smooth", block: "start" }); } catch (err) { /* egal */ } }, 80);
+    if (neu) setTimeout(() => { try { ergebnisRef.current && springe("kurvendiskussion-ergebnis", () => ergebnisRef.current.scrollIntoView({ behavior: "smooth", block: "start" })); } catch (err) { /* egal */ } }, 80);
   };
 
   return (

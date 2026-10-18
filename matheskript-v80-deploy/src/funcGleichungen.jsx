@@ -9,6 +9,7 @@ import * as G from "./gleichungen/engine.js";
 import { IchHaengeFest } from "./funcHilfe.jsx";
 import { WurzelZeichen } from "./wurzelZeichen.jsx";
 
+import { springe } from "./sprung.js";
 /* Kontext für „Ich hänge fest“ – nutzt den vorhandenen Tipp-Mechanismus der Engine */
 const METHODE = {
   linear: "Bring alle x-Terme auf eine Seite und alle Zahlen auf die andere. Teile zum Schluss durch den Faktor vor x.",
@@ -414,7 +415,7 @@ Steht keine Gleichung auf dem Foto, antworte {"aufgaben":[]}.`;
     setEigenText(a.text);
     if (a.lesbar) eigeneUebernehmen(a.text, i);
     else setEigenFehler("Diese Aufgabe konnte ich nicht sicher lesen — korrigiere sie mit dem Tastenfeld und tippe auf „Los“.");
-    if (heftRef.current) heftRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (heftRef.current) springe("gleichungen-foto", () => heftRef.current.scrollIntoView({ behavior: "smooth", block: "center" }));
   };
   const naechsteFoto = fotoListe.findIndex((a, i) => a.lesbar && !a.erledigt && i !== fotoAktiv);
 

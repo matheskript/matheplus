@@ -151,8 +151,13 @@ export function Reiter({ wert, onWahl, optionen }) {
 export function StufenChips({ wert, onWahl, stufen, info, status }) {
   const ref = useRef(null);
   useEffect(() => {
+    /* Nur die Chip-Leiste waagerecht verschieben, die Seite selbst bleibt stehen */
     const el = ref.current && ref.current.querySelector("[aria-pressed='true']");
-    if (el && el.scrollIntoView) try { el.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" }); } catch (e) { /* egal */ }
+    const box = ref.current;
+    if (el && box && box.scrollWidth > box.clientWidth) {
+      const ziel = box.scrollLeft + el.getBoundingClientRect().left - box.getBoundingClientRect().left - (box.clientWidth - el.offsetWidth) / 2;
+      try { box.scrollTo({ left: Math.max(0, ziel), behavior: "smooth" }); } catch (e) { box.scrollLeft = Math.max(0, ziel); }   // sprung-frei: nur waagerecht in der Leiste
+    }
   }, [wert]);
   return (
     <div ref={ref} style={{ display: "flex", gap: 8, overflowX: "auto", WebkitOverflowScrolling: "touch", padding: "2px 2px 8px", margin: "0 -2px 8px" }}>

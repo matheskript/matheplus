@@ -14,6 +14,7 @@ import { GrenzwertModul } from "./funcEntdeckenGrenzwert.jsx";
 import { MODUL_PHASEN } from "./entdeckenSpeicher.js";
 import { TEILER_ANZAHL } from "./teiler.js";
 import { useEntdeckenSyncStatus } from "./entdeckenSync.js";
+import { springe } from "./sprung.js";
 import {
   AXIOM_PHASEN_ANZAHL, PHASEN_ANZAHL, REFLEX_IDS, einstiegFortschritt, entdeckenHoeren, entdeckenStand, modulStand, reflexionBeantwortet, reflexionSetzen, statusAxiome, statusEinstieg, statusModul, statusPotenz, statusTeiler, teilerFertigAnzahl, videoGesehen, videoSetzen,
 } from "./entdeckenSpeicher.js";
@@ -486,7 +487,7 @@ export const ENTDECKEN_SEITEN = ["uebersicht", "axiome", "einstieg", "praxis", "
 export function EntdeckenSeite({ start }) {
   const stand = useStand();
   const [seite, setSeite] = useState(ENTDECKEN_SEITEN.includes(start) ? start : "uebersicht"); // uebersicht | einstieg | praxis | modul | pythagoras | modulP | teiler
-  useEffect(() => { window.scrollTo(0, 0); }, [seite]);
+  useEffect(() => { springe("entdecken-phasen", () => window.scrollTo(0, 0)); }, [seite]);
 
   if (seite === "axiome") return <AxiomeModul onZurueck={() => setSeite("uebersicht")} />;
   if (seite === "modul") return <PotenzModul onZurueck={() => setSeite("uebersicht")} />;

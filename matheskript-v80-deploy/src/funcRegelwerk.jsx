@@ -19,6 +19,7 @@ import { LiveFormel, Tastenfeld, ableitung, hatX } from "./func12.jsx";
 import { AufklappZeichen } from "./aufklappen.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
 import { ErklaerAnimation } from "./funcErklaeranimation.jsx";
+import { springe } from "./sprung.js";
 import {
   REGELN, baueF, basisTex, diagnose, einsetzen as baumEinsetzen, fakTex, fehlerbilder, gleichwertig, lies, musterloesung, neueAufgabe, regelFuer, schoen, summanden, tex,
 } from "./regelwerkKern.js";
@@ -197,7 +198,7 @@ function FaktorSpalte({ label, children }) {
 export function EingabePopup({ children, style }) {
   const ref = useRef(null);
   useEffect(() => {
-    try { if (ref.current && ref.current.scrollIntoView) ref.current.scrollIntoView({ block: "nearest", behavior: "smooth" }); } catch (e) { /* ältere Browser */ }
+    try { if (ref.current && ref.current.scrollIntoView) springe("regelwerk-popup", () => ref.current.scrollIntoView({ block: "nearest", behavior: "smooth" })); } catch (e) { /* ältere Browser */ }
   }, []);
   return (
     <div className="wk-popup" ref={ref} style={style}>
@@ -694,7 +695,7 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
   };
   useEffect(() => {
     if (aktiv && popRef.current && popRef.current.scrollIntoView) {
-      try { popRef.current.scrollIntoView({ block: "nearest", behavior: "smooth" }); } catch (e) { /* ältere Browser */ }
+      try { springe("regelwerk-feld", () => popRef.current.scrollIntoView({ block: "nearest", behavior: "smooth" })); } catch (e) { /* ältere Browser */ }
     }
   }, [aktiv]);
 

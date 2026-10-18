@@ -35,6 +35,7 @@ import { AufklappZeichen } from "./aufklappen.jsx";
 import { BEREICHE, WERKZEUGE, ansichtenVon, istWerkzeugAnsicht, passtStufe, wo } from "./werkzeuge.js";
 import { EtikettPille, EtikettLegende, EtikettKnoepfe } from "./funcWerkzeuge.jsx";
 
+import { springe } from "./sprung.js";
 /* Große, ganz anklickbare Kachel für die Plotter auf der Startseite. */
 /* Polynomplotter-Grafik im Hochformat für die Kachel. */
 function PlotterLogoKlein() {
@@ -86,9 +87,9 @@ const AUFKLAPP_CSS = `.aufklapp-rahmen{transition:box-shadow .25s ease}
   [data-aufklapp-innen]>:last-child,[data-aufklapp-innen]>:last-child>[data-aufklapp-inhalt]:last-child{margin-bottom:0 !important}
   @media (max-width: 839.98px){.aufklapp-rahmen[data-aufklapp-rahmen]:not(:has([data-aufklapp-rahmen])){position:relative;z-index:5;
     box-shadow:0 0 0 200vmax rgba(8,16,40,0.62)}}`;
-function AufklappRahmen({ auf, innen, rahmenRef, children }) {
+function AufklappRahmen({ auf, innen, rahmenRef, sprung, children }) {
   return (
-    <div ref={rahmenRef} className="aufklapp-rahmen" data-aufklapp-rahmen={auf ? "" : undefined}
+    <div ref={rahmenRef} className="aufklapp-rahmen" data-aufklapp-rahmen={auf ? "" : undefined} data-sprung={sprung}
       style={auf ? {
         margin: `${innen ? 8 : 14}px -${AUFKLAPP_RAND}px 0`, padding: `0 ${AUFKLAPP_RAND}px ${AUFKLAPP_ABSTAND}px`,
         display: "flow-root",   // verhindert, dass der Kachel-Abstand oben/unten aus dem Rahmen „herausrutscht“
@@ -843,7 +844,7 @@ export function ToolMenue({ gehe, schliessen, aktuell }) {
       <div onClick={schliessen} aria-hidden="true" style={{ position: "fixed", inset: 0, zIndex: 44 }} />
       <style>{`.tool-menue-panel{position:absolute;top:56px;right:24px;width:60vw;min-width:220px;max-width:340px;max-height:calc(100dvh - 130px);overflow-y:auto}
         @media (min-width:768px){.tool-menue-panel{top:84px;width:clamp(300px, 33.333vw, 420px);max-width:none}}`}</style>
-      <div role="dialog" aria-label="Menü" data-scroll-box className="tool-menue-panel"
+      <div role="dialog" aria-label="Menü" data-scroll-box data-sprung="menue-alle-bereiche" className="tool-menue-panel"
         style={{ zIndex: 45, background: C.sand, borderRadius: 14, boxShadow: "0 14px 40px rgba(8,23,59,0.35)", border: `1px solid ${C.linie}`, padding: "2px 8px 8px", fontFamily: "Montserrat, system-ui, sans-serif" }}>
         {baum.map((k) => zeile(k, "", 0))}
       </div>
@@ -1205,7 +1206,7 @@ export function Startseite({ gehe }) {
     requestAnimationFrame(() => {
       if (!r) return;
       const kopf = document.querySelector("[data-kopfleiste]");
-      window.scrollTo({ top: r.getBoundingClientRect().top + window.scrollY - (kopf ? kopf.offsetHeight : 0) - 12 });
+      springe("start-schulmathe", () => window.scrollTo({ top: r.getBoundingClientRect().top + window.scrollY - (kopf ? kopf.offsetHeight : 0) - 12 }));
     });
   };
   /* Außen tippen schließt: Ein Tipp auf die abgedunkelte Fläche (kein Knopf, kein Link) klappt das innerste offene Menü zu. */
@@ -1605,7 +1606,7 @@ export function Startseite({ gehe }) {
           <span key={t} style={{ fontSize: 12.5, color: C.hellgrau }}>{t}</span>
         ))}
       </div>
-      <button onClick={() => { setWieder(!wieder); setHinweis(""); window.scrollTo(0, 0); }} className="mt-5"
+      <button onClick={() => { setWieder(!wieder); setHinweis(""); springe("ansicht-schalter", () => window.scrollTo(0, 0)); }} className="mt-5"
         style={{ background: "none", border: `1px solid ${C.linie}`, borderRadius: 999, padding: "7px 14px",
           color: C.hellgrau, fontSize: 12, fontFamily: "inherit", cursor: "pointer" }}>
         {wieder ? "Ansicht: Wiederkehrer" : "Ansicht: Erstbesuch"}
@@ -1647,7 +1648,7 @@ export function Startseite({ gehe }) {
       {/* Oberbutton „Schulmathe-Training“: darunter direkt die Bereiche (Analysis, Vektoren, Stochastik,
           Gleichungen), Abi-Ketten und Formelsammlung. Aufgeklappt wird der Button halb so hoch.
           Alle Kacheln laufen auf voller Breite (breit); es ist immer nur ein Bereich offen. */}
-      <AufklappRahmen auf={schulAuf}>
+      <AufklappRahmen auf={schulAuf} sprung="start-schulmathe">
       <PlotterKachel breit halb={schulAuf} onClick={() => { setSchulAuf(!schulAuf); setEntdAuf(false); setBereichAuf(null); setFormelAuf(false); setEtikett(null); }} auf={schulAuf}
         label={schulAuf ? "Schulmathematik zuklappen" : "Schulmathematik aufklappen"}
         logo={<SchulmatheLogoKlein />} titel="Schulmathematik"

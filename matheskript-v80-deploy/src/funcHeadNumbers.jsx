@@ -10,6 +10,7 @@ import { Runde } from "./funcHeadNumbersRunde.jsx";
 import { Memory, Zuordnung } from "./funcHeadNumbersSpiele.jsx";
 import { MusterCheck, Verstehen } from "./funcHeadNumbersVerstehen.jsx";
 
+import { springe } from "./sprung.js";
 /* ======================================================================
    HEAD & NUMBERS
    Kopfrechnen als eigene Grundfertigkeit: Einmaleins bis 100, Quadratzahlen
@@ -213,7 +214,7 @@ function StartSeite({ onWaehle, onStart, gehe }) {
         </Aufklapp>
       </section>
 
-      <ModusLeiste label={L("Kopfrechnen", "Mental arithmetic")} modi={[["entdecken", L("Entdecken", "Explore")], ["rechnen", L("Rechnen", "Calculate")], ["training", L("Training", "Training")]]} modus={modus} setModus={(m) => { setModus(m); try { window.scrollTo(0, 0); } catch (e) { /* egal */ } }} />
+      <ModusLeiste label={L("Kopfrechnen", "Mental arithmetic")} modi={[["entdecken", L("Entdecken", "Explore")], ["rechnen", L("Rechnen", "Calculate")], ["training", L("Training", "Training")]]} modus={modus} setModus={(m) => { setModus(m); try { springe("headnumbers-modus", () => window.scrollTo(0, 0)); } catch (e) { /* egal */ } }} />
       <div style={{ height: 16 }} />
 
       {modus === "entdecken" && <KopfEntdecken thema={thema} setThema={setThema} onRechnen={(id) => { setRechenThema(id); setModus("rechnen"); }} onTraining={(id) => gehe && gehe({ ansicht: "kopf", trainer: id })} />}
@@ -308,7 +309,7 @@ export function HeadNumbersSeite({ gehe, start = null, unten = null }) {
   const K = useKopf();
   const [ansicht, setAnsicht] = useState(start && modulInfo(start) ? { typ: "bereich", modul: start } : { typ: "start" });
   const [zaehler, setZaehler] = useState(0);
-  const oben = () => { try { window.scrollTo(0, 0); } catch (e) { /* egal */ } };
+  const oben = () => { try { springe("headnumbers-ansicht", () => window.scrollTo(0, 0)); } catch (e) { /* egal */ } };
   const zu = (a) => { setAnsicht(a); oben(); };
   const bereich = (m) => zu({ typ: "bereich", modul: m });
   const en = englisch();

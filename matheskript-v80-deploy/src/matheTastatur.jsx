@@ -6,6 +6,7 @@ import {
 } from "./matheTastaturLogik.js";
 import { setzeWinkelModus, winkelAbo, winkelModus } from "./winkelModus.js";
 
+import { springe } from "./sprung.js";
 /* ======================================================================
    Mathe-Tastatur
    Überall, wo Zahlen oder Formeln eingegeben werden, öffnet sich auf dem Handy nicht die normale
@@ -102,8 +103,8 @@ function sichtbarMachen(el, hoehe) {
   try {
     const r = el.getBoundingClientRect();
     const frei = window.innerHeight - hoehe - 14;
-    if (r.bottom > frei) window.scrollBy({ top: r.bottom - frei + 6, behavior: "smooth" });
-    else if (r.top < 64) window.scrollBy({ top: r.top - 84, behavior: "smooth" });
+    if (r.bottom > frei) springe("tastatur", () => window.scrollBy({ top: r.bottom - frei + 6, behavior: "smooth" }));
+    else if (r.top < 64) springe("tastatur", () => window.scrollBy({ top: r.top - 84, behavior: "smooth" }));
   } catch (e) { /* ohne Scrollen */ }
 }
 

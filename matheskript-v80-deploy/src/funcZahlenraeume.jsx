@@ -18,6 +18,7 @@ import { Aufklapp } from "./ui3.jsx";
 import { Merke, Pille, UebenRahmen, ZweiModi, misch, ws, zs } from "./geoUi.jsx";
 import { RAUM_FARBE, ZahlraumAnimation } from "./funcZahlenraumAnimation.jsx";
 import { q, qNum, qTex } from "./rechnen2.js";
+import { springe } from "./sprung.js";
 import {
   ABGESCHLOSSEN, NAMEN, OPS, RAEUME, ZEICHEN, ZR_ARTEN, ergebnisRaum, kleinsterRaum, naeherungenWurzel2, rechne, stufe, wurzelVon, zrAufgabe, zufallAus,
 } from "./zahlraum.js";
@@ -215,8 +216,8 @@ function Entdecken({ gehe }) {
   const st = STATIONEN[s];
   const weiter = (
     <div style={{ display: "flex", gap: 10, marginTop: 16 }}>
-      {s > 0 && <div style={{ flex: "0 0 36%" }}><GrosserKnopf ghost onClick={() => { setS(s - 1); window.scrollTo(0, 0); }}>← {s === 4 ? "ℝ" : ZEICHEN[RAEUME[s - 1]]}</GrosserKnopf></div>}
-      {s < 4 && <div style={{ flex: 1 }}><GrosserKnopf onClick={() => { setS(s + 1); window.scrollTo(0, 0); }}>{zw("Weiter zu", "On to")} {s === 3 ? zw("Überblick", "overview") : ZEICHEN[RAEUME[s + 1]]} →</GrosserKnopf></div>}
+      {s > 0 && <div style={{ flex: "0 0 36%" }}><GrosserKnopf ghost onClick={() => { setS(s - 1); springe("entdecken-phasen", () => window.scrollTo(0, 0)); }}>← {s === 4 ? "ℝ" : ZEICHEN[RAEUME[s - 1]]}</GrosserKnopf></div>}
+      {s < 4 && <div style={{ flex: 1 }}><GrosserKnopf onClick={() => { setS(s + 1); springe("entdecken-phasen", () => window.scrollTo(0, 0)); }}>{zw("Weiter zu", "On to")} {s === 3 ? zw("Überblick", "overview") : ZEICHEN[RAEUME[s + 1]]} →</GrosserKnopf></div>}
     </div>
   );
   return (

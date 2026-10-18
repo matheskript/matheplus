@@ -21,6 +21,7 @@ import { AufklappZeichen } from "./aufklappen.jsx";
 export { ENTWUERFE, istEntwurf } from "./seitenKonstanten.js";
 import { istEntwurf, istFrei, entsperren } from "./seitenKonstanten.js";
 
+import { springe } from "./sprung.js";
 /* ---------------------------------------------------------------- Passwort-Sperre
    Die Entwurfsseiten sind intern: Zugang nur mit Passwort (klein geschrieben).
    Im Code steht nur der SHA-256-Wert, nicht das Passwort selbst. Einmal
@@ -34,7 +35,7 @@ export function EntwurfTor({ children, gehe }) {
   const pruefen = async (e) => {
     e.preventDefault();
     const ok = await entsperren(pw);
-    if (ok) { setFrei(true); window.scrollTo(0, 0); }
+    if (ok) { setFrei(true); springe("ansicht-schalter", () => window.scrollTo(0, 0)); }
     else { setFehler(true); setPw(""); }
   };
   return (
@@ -542,7 +543,7 @@ export function EntwurfStart({ gehe }) {
    ENTWURF 2 · MATHE-CHECKEN
    ====================================================================== */
 export function EntwurfChecken({ gehe }) {
-  const zuReise = () => { const el = document.getElementById("ew-reise"); if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 64, behavior: "smooth" }); };
+  const zuReise = () => { const el = document.getElementById("ew-reise"); if (el) springe("anker", () => window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 64, behavior: "smooth" })); };
   return (
     <div className="ew-seite">
       <style>{STIL}</style>
@@ -740,7 +741,7 @@ export function EntwurfPakete({ gehe }) {
     setWahl(id); setBestellt(false);
     if (id === "kostenlos") return;
     const el = document.getElementById("ew-auswahl");
-    if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 64, behavior: "smooth" });
+    if (el) springe("anker", () => window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 64, behavior: "smooth" }));
   };
   return (
     <div className="ew-seite">

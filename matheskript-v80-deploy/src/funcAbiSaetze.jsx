@@ -12,6 +12,7 @@ import { C } from "./base1.jsx";
 import { merken } from "./func5.jsx";
 import { ANZAHL_SAETZE, BUNDESLAND, abiSatz, feldLoesung, pruefeAbiTeil } from "./abiSaetze.js";
 
+import { springe } from "./sprung.js";
 const LAUF = {};   // nr → laufender Satz (bleibt, solange die App offen ist)
 const STAND_SCHLUESSEL = "matheplus-abisaetze";
 const standLesen = () => { try { return JSON.parse(localStorage.getItem(STAND_SCHLUESSEL) || "{}"); } catch (e) { return {}; } };
@@ -128,7 +129,7 @@ function SatzSeite({ nr, zurueck }) {
     }
     aktualisieren();
   };
-  const wechseln = (id) => { lauf.teil = id; if (!lauf.startTeil[id]) lauf.startTeil[id] = Date.now(); aktualisieren(); window.scrollTo(0, 0); };
+  const wechseln = (id, sprung = "abisaetze-reiter") => { lauf.teil = id; if (!lauf.startTeil[id]) lauf.startTeil[id] = Date.now(); aktualisieren(); springe(sprung, () => window.scrollTo(0, 0)); };
 
   return (
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 22 }}>
@@ -168,7 +169,7 @@ function SatzSeite({ nr, zurueck }) {
       ))}
 
       {fertigTeil(teil) && !alleFertig && teil.id === "A" && (
-        <button type="button" onClick={() => wechseln("B")} style={{ width: "100%", marginTop: 16, height: 48, borderRadius: 999, border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 16, fontWeight: 800, background: C.flaggold, color: C.seeTief }}>Weiter zu Teil B</button>
+        <button type="button" onClick={() => wechseln("B", "abisaetze-weiter")} style={{ width: "100%", marginTop: 16, height: 48, borderRadius: 999, border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 16, fontWeight: 800, background: C.flaggold, color: C.seeTief }}>Weiter zu Teil B</button>
       )}
       {alleFertig && (
         <section style={{ ...karte, marginTop: 16, textAlign: "center" }}>

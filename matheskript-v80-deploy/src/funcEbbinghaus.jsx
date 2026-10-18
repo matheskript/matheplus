@@ -26,6 +26,7 @@ import { aktiveTermine } from "./func9.jsx";
 import { LERN } from "./base3.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
 
+import { springe } from "./sprung.js";
 export const EBB_VIDEO_ID = "otTSq-5PNsE";
 export const EBB_SLOGAN = "Beende Vergess kennenlernen und lerne wirklich Mathe. Mit einem klaren System.";
 
@@ -858,7 +859,7 @@ export function EbbinghausSeite({ gehe }) {
   const { E, T, geladen } = useEbb();
   const [laeuft, setLaeuft] = useState(null);
   const refs = { lernstand: useRef(null), prinzip: useRef(null), video: useRef(null), stufen: useRef(null), plan: useRef(null), heute: useRef(null), skills: useRef(null) };
-  const hin = (k) => { try { refs[k].current && refs[k].current.scrollIntoView({ behavior: "smooth", block: "start" }); } catch (e) { /* egal */ } };
+  const hin = (k) => { try { refs[k].current && springe("anker", () => refs[k].current.scrollIntoView({ behavior: "smooth", block: "start" })); } catch (e) { /* egal */ } };
   const jetzt = useJetzt();
   const faellig = heuteAuswahl(E, { jetzt }).faellig;
   const startSkill = (id) => {

@@ -23,6 +23,7 @@ import { BILDER_8 } from "./funcFsBilder8.jsx";
 import { BILDER_9 } from "./funcFsBilder9.jsx";
 import { BILDER_10 } from "./funcFsBilder10.jsx";
 
+import { springe } from "./sprung.js";
 const BILDER = { ...BILDER_1, ...BILDER_2, ...BILDER_3, ...BILDER_4, ...BILDER_5, ...BILDER_6, ...BILDER_7, ...BILDER_8, ...BILDER_9, ...BILDER_10 };
 
 const MERK = "matheplus-formeln-gemerkt";
@@ -529,7 +530,7 @@ export function FormelsammlungNeu({ bereich: start = "analysis", formel: startFo
     const el = obenRef.current;
     if (!el) return;
     const y = el.getBoundingClientRect().top + window.scrollY - 90;
-    window.scrollTo({ top: Math.max(0, y), behavior: "auto" });
+    springe("formelsammlung-detail", () => window.scrollTo({ top: Math.max(0, y), behavior: "auto" }));
   };
 
   const oeffne = (id, ersetzen = false) => {
@@ -551,7 +552,7 @@ export function FormelsammlungNeu({ bereich: start = "analysis", formel: startFo
     if (letzter) { setDetail(letzter.detail); setFaden(letzter.faden); setModus(letzter.modus); }
     else { setDetail(null); setFaden(null); }
     setTimeout(() => {
-      if (!letzter || (!letzter.detail && !letzter.faden)) window.scrollTo({ top: listenScroll.current, behavior: "auto" });
+      if (!letzter || (!letzter.detail && !letzter.faden)) springe("formelsammlung-detail", () => window.scrollTo({ top: listenScroll.current, behavior: "auto" }));
       else nachOben();
     }, 0);
   };
@@ -684,7 +685,7 @@ export function FormelsammlungNeu({ bereich: start = "analysis", formel: startFo
           {modus !== "spick" && !suche.trim() && gruppen && gruppen.length >= 4 && treffer.length > 25 && (
             <nav aria-label="Zu einer Gruppe springen" style={{ display: "flex", gap: 6, overflowX: "auto", margin: "0 -24px 18px", padding: "2px 24px 4px", scrollbarWidth: "none" }}>
               {gruppen.map((g) => (
-                <button key={g} type="button" onClick={() => { const el = document.getElementById(`fs-gruppe-${g}`); if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 90, behavior: "smooth" }); }}
+                <button key={g} type="button" onClick={() => { const el = document.getElementById(`fs-gruppe-${g}`); if (el) springe("anker", () => window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 90, behavior: "smooth" })); }}
                   style={{ flexShrink: 0, padding: "5px 11px", borderRadius: 999, border: `1px solid ${C.linie}`, background: C.weiss, color: unterAnsicht ? uf.text : C.see, fontFamily: "inherit", fontSize: 12, fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap" }}>
                   {g}
                 </button>

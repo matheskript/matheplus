@@ -6,6 +6,7 @@ import { KopfVideo, KOPF_VIDEO } from "./funcKopfVideo.jsx";
 import { KOPF_ERKLAERUNG, KOPF_REIHENFOLGE } from "./kopfErklaerung.js";
 import { RECHNEN_THEMEN } from "./kopfWeg.js";
 
+import { springe } from "./sprung.js";
 /* Bruchmarkup {Zähler|Nenner} → gestapelter Bruch im Fließtext */
 export function MitBruch({ text }) {
   const teile = String(text).split(/(\{[^|{}]+\|[^|{}]+\})/g);
@@ -38,7 +39,7 @@ export function KopfEntdecken({ thema, setThema, onRechnen, onTraining }) {
         </p>
         <div style={{ display: "grid", gap: 8 }}>
           {KOPF_REIHENFOLGE.map((id) => (
-            <button key={id} type="button" onClick={() => { setThema(id); try { window.scrollTo(0, 0); } catch (e) { /* egal */ } }} aria-label={`${THEMA_NAME[id]} entdecken`}
+            <button key={id} type="button" onClick={() => { setThema(id); try { springe("kopfmodi-thema", () => window.scrollTo(0, 0)); } catch (e) { /* egal */ } }} aria-label={`${THEMA_NAME[id]} entdecken`}
               style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", textAlign: "left", fontFamily: "inherit", cursor: "pointer", color: C.tinte, ...karte, border: `1px solid ${C.linie}` }}>
               <span aria-hidden="true" style={{ flexShrink: 0, minWidth: 54, height: 44, padding: "0 6px", borderRadius: 12, background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, color: C.flaggold, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 800, whiteSpace: "nowrap" }}>{THEMA_ZEICHEN[id]}</span>
               <span style={{ flex: 1, minWidth: 0 }}>
@@ -101,7 +102,7 @@ export function KopfEntdecken({ thema, setThema, onRechnen, onTraining }) {
       <div style={{ display: "grid", gap: 10 }}>
         <Knopf onClick={() => onRechnen(thema)}>Selbst eingeben und vorrechnen lassen</Knopf>
         <Knopf haupt={false} onClick={() => onTraining(thema)}>Trainieren</Knopf>
-        {weiter && <Knopf haupt={false} onClick={() => { setThema(weiter); try { window.scrollTo(0, 0); } catch (err) { /* egal */ } }}>Weiter: {THEMA_NAME[weiter]}</Knopf>}
+        {weiter && <Knopf haupt={false} onClick={() => { setThema(weiter); try { springe("kopfmodi-thema", () => window.scrollTo(0, 0)); } catch (err) { /* egal */ } }}>Weiter: {THEMA_NAME[weiter]}</Knopf>}
       </div>
     </div>
   );

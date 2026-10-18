@@ -20,6 +20,7 @@ import { Aufklapp } from "./ui3.jsx";
 import { MathildaIcon } from "./funcMathildaSeite.jsx";
 import { TextMathilda } from "./funcTextMathilda.jsx";
 import { alsTex, pruefeEingabe } from "./bedingungen.js";
+import { springe } from "./sprung.js";
 import {
   KLASSEN_STUFEN, STUFEN, THEMEN, WB_GRUPPEN, alleZiele, anzahlBedingungen, beispielSteckbrief, klasseText, neueTextaufgabe,
   pruefeAuswahl, schnelltasten, stellenOptionen, themaName, themaZeile, themenFuer, woerterbuch,
@@ -620,7 +621,7 @@ function Training({ gehe, zuMathilda }) {
   useEffect(() => { schreiben({ klasse, thema, stufe }); }, [klasse, thema, stufe]);
   useEffect(() => { if (!themen.some((x) => x.id === thema)) { const n = themen[0].id; setThema(n); neu(n); } }, [klasse]);
   const anker = useRef(null);
-  const waehleThema = (id) => { setThema(id); neu(id); requestAnimationFrame(() => anker.current?.scrollIntoView({ behavior: "smooth", block: "start" })); };
+  const waehleThema = (id) => { setThema(id); neu(id); requestAnimationFrame(() => springe("textaufgaben-thema", () => anker.current?.scrollIntoView({ behavior: "smooth", block: "start" }))); };
   return (
     <div>
       <div style={{ ...karte, marginTop: 16 }}>
@@ -683,7 +684,7 @@ export function Textaufgaben({ gehe, seite, setSeite }) {
   useEffect(() => { if (REITER.includes(seite) && seite !== modus) setModusIntern(seite); }, [seite]);
   const setModus = (m) => { setModusIntern(m); if (setSeite) setSeite(m); };
   const oben = useRef(null);
-  const wechsel = (m) => { setModus(m); requestAnimationFrame(() => oben.current?.scrollIntoView({ behavior: "smooth", block: "start" })); };
+  const wechsel = (m) => { setModus(m); requestAnimationFrame(() => springe("textaufgaben-wechsel", () => oben.current?.scrollIntoView({ behavior: "smooth", block: "start" }))); };
   const R = [["verstehen", zw("Verstehen", "Understand")], ["training", zw("Training", "Training")], ["mathilda", zw("Mathilda", "Mathilda")]];
   return (
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 680, paddingTop: 22 }}>

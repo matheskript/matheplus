@@ -14,6 +14,7 @@ import React, { useEffect, useState } from "react";
 import { C } from "./base1.jsx";
 import { BUNNY_LIBRARY, VIDEOKURSE } from "./base5.jsx";
 
+import { springe } from "./sprung.js";
 const schluessel = (kursId) => `mm-videokurs-${kursId}`;
 
 function ladeErledigt(kursId) {
@@ -185,7 +186,7 @@ export function VideokursPlayer({ kursId, kursTitel, start = 0, onZurueck, gehe 
   const vk = VIDEOKURSE[kursId];
   const [i, setI] = useState(start);
   const [erledigt, setErledigt] = useState(() => ladeErledigt(kursId));
-  useEffect(() => { window.scrollTo(0, 0); }, [i]);
+  useEffect(() => { springe("videokurs-lektion", () => window.scrollTo(0, 0)); }, [i]);
   if (!vk) return null;
   const l = vk.lektionen[i];
   const n = vk.lektionen.length;
