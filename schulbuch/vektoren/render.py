@@ -23,6 +23,10 @@ with sync_playwright() as p:
         const d = el.scrollHeight - el.clientHeight;
         if (d > 3) out.probleme.push(el.className + ' +' + d + 'px');
         for (const l of el.querySelectorAll('.loes')) if (l.scrollWidth > l.clientWidth + 2) out.probleme.push('loes: dritte Spalte +' + (l.scrollWidth - l.clientWidth));
+        for (const pp of el.querySelectorAll('.loes p, .loes h3, .loes h4')) for (const k of pp.querySelectorAll('.katex')) {
+          const r = k.getBoundingClientRect(), q = pp.getBoundingClientRect();
+          if (r.right > q.right + 3) out.probleme.push('loes breit: ' + (pp.textContent || '').slice(0, 30));
+        }
         // Breitenüberlauf
         for (const k of el.querySelectorAll('.katex-display, .katex, .teil > div, svg, table')) {
           if (k.scrollWidth > el.clientWidth + 2 || k.getBoundingClientRect().right > el.getBoundingClientRect().right + 2)

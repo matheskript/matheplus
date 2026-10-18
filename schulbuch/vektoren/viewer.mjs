@@ -19,7 +19,7 @@ const ZIELE = [
   ["Rechnen mit Vektoren", "vektorgenerator"], ["Zwei Punkte", "zweipunkte"], ["Drei Punkte", "dreipunkte"],
   ["Ebenen-Visualizer", "ebenen"], ["Geraden im Raum", "geraden"], ["Ebene vs. Ebene", "ebenevsebene"],
   ["Abstände", "abstaende"], ["Kreuzprodukt", "kreuzprodukt"], ["Winkel und Skalarprodukt", "winkel"],
-  ["Gleichungssysteme", "lgs"], ["Werkzeug Geraden", "geradengleichung"], ["Abi-Ketten", "abiketten"],
+  ["Gleichungssysteme", "lgs"], ["Werkzeug Geraden", "geradengleichung"], ["Werkzeug  Geraden", "geradengleichung"], ["Abi-Ketten", "abiketten"],
   ["Formelsammlung", "formeln"], ["Meine Fehler üben", "fehlertraining"], ["Mathilda", { ansicht: "analyse", foto: "blatt" }],
 ];
 let html = fs.readFileSync(path.join(DIST, "buch.html"), "utf8");

@@ -4,7 +4,7 @@ import re, os, subprocess, glob, pathlib
 from playwright.sync_api import sync_playwright
 ROOT = pathlib.Path(__file__).parent
 P = ROOT / "pages"
-START = 61
+START = 62
 for f in glob.glob(str(P / "*-loesungen-*.html")): os.remove(f)
 secs = [s for s in re.split(r'(?=<h3>)', (ROOT / "loesungen.html").read_text()) if s.strip()]
 def seite(k, body):
