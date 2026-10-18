@@ -26,6 +26,18 @@ test("Konto-Menü: Pro werden oder Mein Plan, rollenabhängige Einträge", () =>
   assert.ok(kontoEintraege({ rolle: "lehrkraft" }).some((e) => e.id === "klassen"));
 });
 
+test("☰-Menü: 5–6 einzeilige Punkte, Abmelden nur mit Konto, Anmelden nur ohne", () => {
+  for (const rolle of ["schueler", "eltern", "lehrkraft", "nachhilfe"]) {
+    const l = kontoEintraege({ rolle });
+    assert.ok(l.length >= 5 && l.length <= 6, rolle + ": " + l.length);
+    assert.equal(l[l.length - 1].id, "abmelden");
+    assert.ok(l.every((e) => !e.zeile), "keine zweite Zeile");
+  }
+  const gast = kontoEintraege(null, false);
+  assert.equal(gast[0].id, "anmelden");
+  assert.ok(!gast.some((e) => e.id === "abmelden"));
+});
+
 test("Klasse: Profil vor Quickfinder, Beschriftung", () => {
   assert.deepEqual(klasseErmitteln({ schulform: "G9", klasse: 10 }, null), { schulart: "g9", box: "10" });
   assert.deepEqual(klasseErmitteln({ schulform: "G8", klasse: 6 }, null), { schulart: "g8", box: "5-6" });
@@ -46,7 +58,7 @@ test("Klassen-Inhalt: Kapitel mit Trainieren-Ziel, Abi nur in Oberstufe", () => 
 
 test("Jedes Menü-Ziel hat eine Seite mit Pfad", () => {
   const ansichten = new Set(SEITEN.map((s) => s.ansicht));
-  const ziele = [...KI_MENUE, ...TRAINING, ...KURSE, ...mathematikEintraege("alle"), ...kontoEintraege({ rolle: "eltern" })].map((e) => e.ziel.ansicht);
+  const ziele = [...KI_MENUE, ...TRAINING, ...KURSE, ...mathematikEintraege("alle"), ...kontoEintraege({ rolle: "eltern" }), ...kontoEintraege({ rolle: "schueler" }), ...kontoEintraege(null, false)].filter((e) => e.ziel).map((e) => e.ziel.ansicht);
   for (const a of ziele) assert.ok(ansichten.has(a), "kein Pfad für " + a);
   assert.equal(LEISTE.length, 5);
 });

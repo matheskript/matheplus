@@ -503,8 +503,8 @@ export function Mathilda() {
             </span>
           </button>
           <div className="flex items-center" style={{ gap: 6, marginLeft: 10, flexShrink: 0 }}>
-          {/* Konto-Chip (bzw. Anmelden) und Abmelden – das alte Kopfmenü ist als „Arbeitsmenü“ in der Fußzeile */}
-          <KontoBereich gehe={gehe} offen={hmOffen} setOffen={setHmOffen} />
+          {/* Menü-Knopf ☰ (Konto, Pro, Abmelden …) – das alte Kopfmenü ist als „Arbeitsmenü“ in der Fußzeile */}
+          <KontoBereich offen={hmOffen} setOffen={setHmOffen} />
           </div>
         </div>
         {/* Hauptmenü: Mathilda · Meine Kurse · Klasse · Mein Training · Mathematik · Suche */}

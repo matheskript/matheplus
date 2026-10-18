@@ -2,7 +2,7 @@
    HAUPTMENÜ (Kopfleiste) – reine Daten und Logik, ohne React.
    Getestet in tests/hauptmenue.test.mjs. Oberfläche: funcHauptmenue.jsx.
 
-   Aufbau oben: Konto-Chip (bzw. „Anmelden“) + Abmelden, darunter die Leiste
+   Aufbau oben: ☰-Menü oben rechts (Konto, Pro, Abmelden …), darunter die Leiste
    Mathilda · Meine Kurse · Klasse ▾ · Mein Training · Mathematik · Suche.
    Das frühere Kopfmenü (Startseite, Landingpage, Sprache, Entwürfe) ist als
    „Arbeitsmenü“ in die Fußzeile gewandert (funcArbeitsmenue.jsx).
@@ -26,17 +26,35 @@ export function kontoArt(profil) {
   return "Trainings-Account";
 }
 
-/* Einträge im Aufklapper unter dem Konto-Chip – je nach Rolle */
-export function kontoEintraege(profil) {
+/* Einträge im Menü hinter dem ☰-Knopf oben rechts – einzeilig, je nach Rolle.
+   Ohne Konto beginnt die Liste mit „Anmelden“; mit Konto steht „Abmelden“ am Ende (aktion statt ziel). */
+export function kontoEintraege(profil, angemeldet = true) {
+  const pro = istPro(profil);
+  const proEintrag = pro
+    ? { id: "plan", name: "Mein Plan · Pro", ziel: { ansicht: "konto" } }
+    : { id: "pro", name: "Pro werden", ziel: { ansicht: "konto" }, gold: true };
+  if (!angemeldet) {
+    return [
+      { id: "anmelden", name: "Anmelden", ziel: { ansicht: "konto" } },
+      { id: "fortschritt", name: "Mein Fortschritt", ziel: { ansicht: "profil" } },
+      proEintrag,
+      { id: "datenschutz", name: "Datenschutz", ziel: { ansicht: "datenschutz" } },
+      { id: "impressum", name: "Impressum", ziel: { ansicht: "impressum" } },
+    ];
+  }
   const rolle = (profil && profil.rolle) || "schueler";
-  const liste = [{ id: "konto", name: "Mein Konto", zeile: "Name, Daten, Einstellungen", ziel: { ansicht: "konto" } }];
-  if (rolle === "eltern") liste.push({ id: "kinder", name: "Meine Kinder", zeile: "Wochenübersicht und Zustimmung je Kind", ziel: { ansicht: "konto" } });
-  if (rolle === "lehrkraft") liste.push({ id: "klassen", name: "Meine Klassen", zeile: "Ampel, Klassencode, Schüler", ziel: { ansicht: "konto" } });
-  if (rolle === "nachhilfe") liste.push({ id: "schueler", name: "Meine Schüler", zeile: "Übersicht deiner Nachhilfeschüler", ziel: { ansicht: "konto" } });
-  if (rolle === "schueler") liste.push({ id: "fortschritt", name: "Mein Fortschritt", zeile: "Kompetenzen und Lernstand", ziel: { ansicht: "profil" } });
-  liste.push(istPro(profil)
-    ? { id: "plan", name: "Mein Plan · Pro", zeile: "Abo verwalten", ziel: { ansicht: "konto" } }
-    : { id: "pro", name: "Pro werden", zeile: "Alles freischalten – Mathilda ohne Tagesgrenze", ziel: { ansicht: "konto" }, gold: true });
+  const liste = [{ id: "konto", name: "Mein Konto", ziel: { ansicht: "konto" } }];
+  if (rolle === "eltern") liste.push({ id: "kinder", name: "Meine Kinder", ziel: { ansicht: "konto" } });
+  if (rolle === "lehrkraft") liste.push({ id: "klassen", name: "Meine Klassen", ziel: { ansicht: "konto" } });
+  if (rolle === "nachhilfe") liste.push({ id: "schueler", name: "Meine Schüler", ziel: { ansicht: "konto" } });
+  if (rolle === "schueler") {
+    liste.push({ id: "fortschritt", name: "Mein Fortschritt", ziel: { ansicht: "profil" } });
+    liste.push({ id: "bericht", name: "Wochenbericht", ziel: { ansicht: "bericht" } });
+  }
+  liste.push(proEintrag);
+  liste.push({ id: "datenschutz", name: "Datenschutz", ziel: { ansicht: "datenschutz" } });
+  if (rolle !== "schueler") liste.push({ id: "impressum", name: "Impressum", ziel: { ansicht: "impressum" } });
+  liste.push({ id: "abmelden", name: "Abmelden", aktion: "abmelden" });
   return liste;
 }
 

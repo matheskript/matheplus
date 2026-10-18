@@ -1,8 +1,8 @@
 /* ======================================================================
    HAUPTMENÜ in der Kopfleiste (Oberfläche). Daten und Logik: hauptmenue.js.
 
-   Zeile 1 (neben dem Logo): Konto-Chip mit Account-Art und „Pro werden“ bzw. „Pro“,
-   daneben „Abmelden“ (mit Bestätigung). Ohne Konto: „Anmelden“.
+   Zeile 1 (neben dem Logo): ein normaler Menü-Knopf ☰. Sein Fenster (⅔ der Breite,
+   rechts) hat 5–6 einzeilige Punkte: Konto, Pro, Datenschutz … und „Abmelden“ (mit Bestätigung).
    Zeile 2: Mathilda · Meine Kurse · Klasse 10 (G9) ▾ · Mein Training · Mathematik · Suche.
    Jeder Punkt klappt ein Fenster auf; ein Klick daneben oder Esc schließt es.
    ====================================================================== */
@@ -12,7 +12,7 @@ import { useKonto, abmelden } from "./konto.js";
 import { SuchBox } from "./funcSuche.jsx";
 import { SCHULARTEN, klassenBoxen } from "./schulbuch.js";
 import {
-  LEISTE, KI_MENUE, TRAINING, KURSE, BALD_KURSE, istPro, kontoArt, kontoEintraege, klasseErmitteln, klasseLabel,
+  LEISTE, KI_MENUE, TRAINING, KURSE, BALD_KURSE, kontoEintraege, klasseErmitteln, klasseLabel,
   klassenInhalt, mathematikEintraege, aktiverPunkt,
 } from "./hauptmenue.js";
 
@@ -40,14 +40,12 @@ const CSS = `
 .hm-eintrag:hover{background:${C.himmel}}
 .hm-eintrag[aria-current="page"]{background:rgba(237,187,0,0.14)}
 .hm-kicker{font-size:10.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:${C.grau};padding:10px 11px 4px;margin:0}
-.hm-chip{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 10px 0 3px;border-radius:999px;border:1.5px solid rgba(237,187,0,0.7);
-  background:rgba(237,187,0,0.12);color:#fff;font-family:inherit;cursor:pointer;max-width:240px}
-.hm-chip-text{display:flex;flex-direction:column;align-items:flex-start;line-height:1.1;min-width:0}
-@media (max-width:519px){.hm-chip-text{display:none}.hm-chip{padding:0 3px}}
-.hm-rund{height:36px;min-width:36px;border-radius:999px;border:1.5px solid rgba(255,255,255,0.45);background:transparent;color:#fff;font-family:inherit;cursor:pointer;
-  display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 10px;font-size:13px;font-weight:700}
-.hm-rund:hover{background:rgba(255,255,255,0.1)}
-@media (max-width:519px){.hm-abmelden-text{display:none}.hm-abmelden{padding:0}}
+.hm-menueknopf{width:40px;height:40px;border-radius:999px;border:1.5px solid rgba(255,255,255,0.45);background:transparent;color:#fff;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;padding:0;position:relative}
+.hm-menueknopf:hover,.hm-menueknopf[aria-expanded="true"]{background:rgba(255,255,255,0.12);border-color:${C.flaggold}}
+.hm-fenster.hm-menue{left:auto;right:12px;width:min(66.667vw,320px);padding:6px}
+@media (min-width:700px){.hm-fenster.hm-menue{left:auto;right:12px;width:300px}}
+.hm-menue .hm-eintrag{padding:12px 13px;font-size:15px;font-weight:700}
 `;
 
 /* ---------- kleine Bausteine ---------- */
@@ -61,15 +59,20 @@ function Pfeil({ auf, farbe = "currentColor" }) {
 function Bald() {
   return <span style={{ flexShrink: 0, fontSize: 10, fontWeight: 800, letterSpacing: "0.08em", padding: "3px 7px", borderRadius: 999, background: C.himmel, color: C.grau }}>BALD</span>;
 }
-function Eintrag({ e, gehe, aktuell }) {
+function Eintrag({ e, gehe, aktuell, aktion }) {
   const an = aktuell && e.ziel && e.ziel.ansicht === aktuell.ansicht && (!e.ziel.foto || e.ziel.foto === aktuell.foto) && (!e.ziel.seite || e.ziel.seite === aktuell.seite);
   return (
-    <button type="button" className="hm-eintrag" onClick={() => !e.bald && gehe(e.ziel)} aria-disabled={e.bald || undefined} aria-current={an ? "page" : undefined}
+    <button type="button" className="hm-eintrag" onClick={() => { if (e.bald) return; if (e.aktion) aktion && aktion(e.aktion); else gehe(e.ziel); }} aria-disabled={e.bald || undefined} aria-current={an ? "page" : undefined}
       style={e.bald ? { cursor: "default", opacity: 0.62 } : e.gold ? { background: "linear-gradient(165deg,#FFE7A0 0%,#F3C93A 55%,#E2B53C 100%)", marginTop: 4 } : undefined}>
       <span style={{ flex: 1, minWidth: 0 }}>
         <span style={{ display: "block", fontSize: 14, fontWeight: 700, lineHeight: 1.25, color: e.gold ? C.seeTief : C.tinte }}>{e.name}</span>
         {e.zeile && <span style={{ display: "block", fontSize: 12, fontWeight: 500, lineHeight: 1.3, color: e.gold ? "rgba(14,30,74,0.78)" : C.grau, marginTop: 1 }}>{e.zeile}</span>}
       </span>
+      {e.aktion === "abmelden" && (
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke={C.grau} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ flexShrink: 0 }}>
+          <path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3" /><path d="M10 17l-5-5 5-5" /><path d="M5 12h11" />
+        </svg>
+      )}
       {e.bald && <Bald />}
     </button>
   );
@@ -163,49 +166,16 @@ function AbmeldenFrage({ ja, nein, laeuft }) {
   );
 }
 
-/* ---------- Konto-Chip + Abmelden (Zeile 1) ---------- */
-export function KontoBereich({ gehe, offen, setOffen }) {
-  const konto = useKonto();
-  const [frage, setFrage] = useState(false);
-  const [laeuft, setLaeuft] = useState(false);
-  const p = konto.profil;
-  if (!konto.nutzer) {
-    return (
-      <button type="button" className="hm-rund" onClick={() => gehe({ ansicht: "konto" })} data-hm-anmelden
-        style={{ borderColor: C.flaggold, color: C.flaggold }}>Anmelden</button>
-    );
-  }
-  const name = (p && p.name) || (konto.nutzer.email || "").split("@")[0] || "Mein Konto";
-  const pro = istPro(p);
-  const raus = async () => {
-    setLaeuft(true);
-    try { await abmelden(); } catch (e) { /* trotzdem schließen */ }
-    setLaeuft(false); setFrage(false); setOffen(null);
-    gehe({ ansicht: "start" });
-  };
+/* ---------- Menü-Knopf ☰ (Zeile 1) – das Fenster rendert HauptMenue ---------- */
+export function KontoBereich({ offen, setOffen }) {
+  const auf = offen === "konto";
   return (
-    <>
-      <button type="button" className="hm-chip" onClick={() => setOffen(offen === "konto" ? null : "konto")} aria-expanded={offen === "konto"} data-kein-scroll data-hm-chip
-        aria-label={`${name}, ${kontoArt(p)}${pro ? ", Pro" : ""}`}>
-        <span style={{ width: 28, height: 28, borderRadius: 999, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center",
-          background: `linear-gradient(165deg, #FFE58A 0%, ${C.flaggold} 55%, ${C.goldWarm} 100%)`, color: C.seeTief, fontSize: 13.5, fontWeight: 800 }} data-kein-i18n>
-          {name.slice(0, 1).toUpperCase()}
-        </span>
-        <span className="hm-chip-text">
-          <span style={{ fontSize: 13, fontWeight: 700, maxWidth: 150, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} data-kein-i18n>{name}</span>
-          <span style={{ fontSize: 10.5, fontWeight: 600, color: "#C9D6EE", whiteSpace: "nowrap" }}>
-            {kontoArt(p)}{" · "}<span style={{ color: C.flaggold, fontWeight: 800 }}>{pro ? "Pro" : "Pro werden"}</span>
-          </span>
-        </span>
-      </button>
-      <button type="button" className="hm-rund hm-abmelden" onClick={() => { setOffen(null); setFrage(true); }} aria-label="Abmelden" title="Abmelden" data-hm-abmelden>
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3" /><path d="M10 17l-5-5 5-5" /><path d="M5 12h11" />
-        </svg>
-        <span className="hm-abmelden-text">Abmelden</span>
-      </button>
-      {frage && <AbmeldenFrage ja={raus} nein={() => setFrage(false)} laeuft={laeuft} />}
-    </>
+    <button type="button" className="hm-menueknopf" onClick={() => setOffen(auf ? null : "konto")} aria-expanded={auf} aria-haspopup="true"
+      aria-label="Menü" title="Menü" data-kein-scroll data-hm-menue>
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+        {auf ? <><path d="M6 6l12 12" /><path d="M18 6L6 18" /></> : <><path d="M4 7h16" /><path d="M4 12h16" /><path d="M4 17h16" /></>}
+      </svg>
+    </button>
   );
 }
 
@@ -214,6 +184,8 @@ export function HauptMenue({ gehe, ansicht, foto, seite, offen, setOffen }) {
   const konto = useKonto();
   const [qf, setQf] = useState(qfLesen);
   const [waehlen, setWaehlen] = useState(false);
+  const [frage, setFrage] = useState(false);
+  const [laeuft, setLaeuft] = useState(false);
   const leisteRef = useRef(null);
   const [x, setX] = useState(12);
   const ausProfil = !!(konto.profil && konto.profil.schulform && konto.profil.klasse);
@@ -241,11 +213,18 @@ export function HauptMenue({ gehe, ansicht, foto, seite, offen, setOffen }) {
     setOffen(id);
   };
   const geh = (ziel) => { setOffen(null); gehe(ziel); };
+  const aktion = (was) => { if (was === "abmelden") { setOffen(null); setFrage(true); } };
+  const raus = async () => {
+    setLaeuft(true);
+    try { await abmelden(); } catch (e) { /* trotzdem schließen */ }
+    setLaeuft(false); setFrage(false); setOffen(null);
+    gehe({ ansicht: "start" });
+  };
   const aktuell = { ansicht, foto, seite };
   const klasseSetzen = (schulart, box) => { qfSchreiben({ schulart, klasse: box }); setQf(qfLesen()); setWaehlen(false); };
 
   const inhalt = () => {
-    if (offen === "konto") return <>{kontoEintraege(konto.profil).map((e) => <Eintrag key={e.id} e={e} gehe={geh} aktuell={aktuell} />)}</>;
+    if (offen === "konto") return <>{kontoEintraege(konto.profil, !!konto.nutzer).map((e) => <Eintrag key={e.id} e={e} gehe={geh} aktuell={aktuell} aktion={aktion} />)}</>;
     if (offen === "mathilda") return <><Kicker normal>Mathilda AI</Kicker>{KI_MENUE.map((e) => <Eintrag key={e.id} e={e} gehe={geh} aktuell={aktuell} />)}</>;
     if (offen === "kurse") return (
       <>
@@ -298,12 +277,13 @@ export function HauptMenue({ gehe, ansicht, foto, seite, offen, setOffen }) {
       {offen && (
         <>
           <div onClick={() => setOffen(null)} aria-hidden="true" style={{ position: "fixed", inset: 0, zIndex: 2 }} />
-          <div role="dialog" aria-label="Menü" data-sprung="hauptmenue" data-scroll-box className={"hm-fenster" + (offen === "suche" ? " hm-breit" : "")}
-            style={{ "--hm-x": `${offen === "konto" ? Math.max(12, (leisteRef.current ? leisteRef.current.getBoundingClientRect().width : 400) - 400) : x}px` }}>
+          <div role="dialog" aria-label="Menü" data-sprung="hauptmenue" data-scroll-box className={"hm-fenster" + (offen === "suche" ? " hm-breit" : "") + (offen === "konto" ? " hm-menue" : "")}
+            style={{ "--hm-x": `${x}px` }}>
             {inhalt()}
           </div>
         </>
       )}
+      {frage && <AbmeldenFrage ja={raus} nein={() => setFrage(false)} laeuft={laeuft} />}
     </div>
   );
 }
