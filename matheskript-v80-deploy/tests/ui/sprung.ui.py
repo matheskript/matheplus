@@ -46,14 +46,14 @@ with sync_playwright() as p:
             weiter.click(); page.wait_for_timeout(1200)
             pruefe(y() < unten - 100, f"{breite}: „Weiter mit Kapitel“ bleibt unten ({unten} → {y()})")
 
-        # 3) Startseite: Schulmathematik → Analysis springt (gewollt)
+        # 3) Startseite: Schulmathematik → Funktionen und Kurven springt (gewollt)
         page.goto(BASE); page.wait_for_timeout(1200)
         page.get_by_role("button", name="Schulmathematik aufklappen").click(); page.wait_for_timeout(900)
-        knopf = page.get_by_role("button", name="Analysis aufklappen")
+        knopf = page.get_by_role("button", name="Funktionen und Kurven aufklappen")
         knopf.scroll_into_view_if_needed(); page.evaluate("window.scrollBy(0, -250)"); page.wait_for_timeout(300)
         knopf.click(force=True); page.wait_for_timeout(1200)
         kopf = 0   # Header ist nicht mehr fixiert: Menü landet oben am Bildrand (plus kleiner Puffer)
-        oben = page.get_by_role("button", name="Analysis zuklappen").first.evaluate("e => e.getBoundingClientRect().top")
+        oben = page.get_by_role("button", name="Funktionen und Kurven zuklappen").first.evaluate("e => e.getBoundingClientRect().top")
         pruefe(abs(oben - kopf) < 40, f"{breite}: Startseite Analysis nicht nach oben geholt (top {oben}, Kopf {kopf})")
 
         # 4) Aufklapp-Menü in einem Werkzeug springt nicht (beliebiges aria-expanded auf der Ungleichungen-Seite oder Polynomplotter)

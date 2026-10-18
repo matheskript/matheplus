@@ -1,5 +1,18 @@
 {
  "exakt": {
+  "Funktionen und Kurven": "Functions and curves",
+  "Vektoren, Geraden und Ebenen": "Vectors, lines and planes",
+  "Wahrscheinlichkeitsrechnung": "Probability",
+  "Geraden und Parabeln": "Lines and parabolas",
+  "Formelsammlung und Werkzeuge": "Formula collection and tools",
+  "Funktionen, Vektoren, Wahrscheinlichkeit, Geometrie und Werkzeuge.": "Functions, vectors, probability, geometry and tools.",
+  "Unter-, Mittel- und Oberstufe bis zum Abi: Funktionen, Vektoren, Wahrscheinlichkeitsrechnung, Geometrie, Werkzeuge.": "From year 5 to the Abitur: functions, vectors, probability, geometry, tools.",
+  "Geraden, Ebenen, Abstände, Gleichungssysteme": "Lines, planes, distances, systems of equations",
+  "Formeln, Gleichungen, Textaufgaben": "Formulas, equations, word problems",
+  "Abi-Ketten, Abi-Sätze, Probeabitur": "Abitur chains, Abitur sets, mock Abitur",
+  "Abi-Ketten, Abi-Sätze und Probeabitur.": "Abitur chains, Abitur sets and mock Abitur.",
+  "Mit drei Unbekannten": "With three unknowns",
+  "Lösen mit Gauß, auch mit drei Unbekannten": "Solving with Gauss, also with three unknowns",
   "Geraden, Ebenen, Abstände": "Lines, planes, distances",
   "Mathe mit Pen & Paper": "Math with pen & paper",
   "Mathe mit Pen and Paper": "Math with pen and paper",

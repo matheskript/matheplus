@@ -16,7 +16,7 @@ export function onboardingLesen() {
   try { const v = JSON.parse(localStorage.getItem(SCHLUESSEL) || "null"); return v && typeof v === "object" ? v : null; } catch { return null; }
 }
 function onboardingSchreiben(v) { try { localStorage.setItem(SCHLUESSEL, JSON.stringify({ ...v, zeit: Date.now() })); } catch { /* privat */ } }
-export const stufeAusKlasse = (k) => (!k ? "alle" : k <= 7 ? "unter" : k <= 10 ? "mittel" : "ober");
+export const stufeAusKlasse = (k) => (!k ? "alle" : k <= 6 ? "unter" : k <= 10 ? "mittel" : "ober");
 
 const karte = { background: C.weiss, borderRadius: 18, boxShadow: "0 3px 18px rgba(15,26,51,0.08)", padding: "20px 18px" };
 const kicker = { fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", color: C.gruenDunkel, margin: "0 0 8px" };

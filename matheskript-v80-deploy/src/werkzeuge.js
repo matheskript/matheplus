@@ -21,7 +21,7 @@
                 (Umschalter oben auf der Seite, z. B. Polynome | Beliebige)
      etikett  – entdecken | rechnen | trainieren
      stufe    – mittel | ober | beide (Stufen-Schalter auf der Startseite)
-     unter    – true: erscheint auch in der Unterstufe (Kl. 5–7); reine Unterstufen-Werkzeuge haben stufe "unter"
+     unter    – true: erscheint auch in der Unterstufe (Kl. 5–6); reine Unterstufen-Werkzeuge haben stufe "unter"
      Die Zeile muss auf dem Handy (360 px) in eine Zeile passen.
    ============================================================ */
 
@@ -117,9 +117,9 @@ export const WERKZEUGE = {
   winkelsaetze: { name: "Winkel und Winkelsummen", kurz: "Winkel", zeile: "Parallelen, Dreieck, n-Eck", slogan: "Scheitel-, Stufen- und Wechselwinkel, Winkelsumme im Dreieck und im n-Eck.",
     zeichen: "∠", bild: "parallelwinkel", ziel: { ansicht: "winkelsaetze" }, etikett: "entdecken", stufe: "mittel", unter: true },
   konstruktion: { name: "Besondere Linien im Dreieck", kurz: "Linien", zeile: "Umkreis, Inkreis, Schwerpunkt", slogan: "Mittelsenkrechte, Winkelhalbierende, Höhe, Seitenhalbierende – und ihre Schnittpunkte.",
-    zeichen: "⊙", bild: "konstruktion", ziel: { ansicht: "konstruktion" }, etikett: "entdecken", stufe: "mittel", unter: true },
+    zeichen: "⊙", bild: "konstruktion", ziel: { ansicht: "konstruktion" }, etikett: "entdecken", stufe: "mittel" },
   kongruenz: { name: "Kongruenzsätze", kurz: "Kongruenz", zeile: "SSS, SWS, WSW, SsW – eindeutig?", slogan: "Wann drei Stücke ein Dreieck festlegen – Konstruktionen und Begründen an Figuren.",
-    zeichen: "≅", bild: "kongruenz", ziel: { ansicht: "kongruenz" }, etikett: "entdecken", stufe: "mittel", unter: true },
+    zeichen: "≅", bild: "kongruenz", ziel: { ansicht: "kongruenz" }, etikett: "entdecken", stufe: "mittel" },
   thales: { name: "Satz des Thales", kurz: "Thales", zeile: "Rechter Winkel im Halbkreis", slogan: "Jeder Winkel im Halbkreis ist ein rechter – mit Beweis, Umkreis und Tangente.",
     zeichen: "∟", bild: "thales", ziel: { ansicht: "thales" }, etikett: "entdecken", stufe: "mittel" },
   pythagoras: { name: "Satz des Pythagoras", kurz: "Pythagoras", zeile: "a² + b² = c², auch im Raum", slogan: "Fehlende Seiten im rechtwinkligen Dreieck – Umkehrung, Sachaufgaben, Raumdiagonale.",
@@ -139,13 +139,13 @@ export const WERKZEUGE = {
   dezimal: { name: "Dezimalzahlen", kurz: "Dezimal", zeile: "Umwandeln, runden, Komma", slogan: "Bruch und Dezimalzahl umwandeln, runden, mit Komma multiplizieren und dividieren.",
     zeichen: "0,5", bild: "dezimal", ziel: { ansicht: "dezimal" }, etikett: "trainieren", stufe: "unter", unter: true },
   bruchrechnen: { name: "Brüche rechnen", kurz: "Brüche", zeile: "Kürzen, plus, minus, mal, geteilt", slogan: "Kürzen, erweitern und alle Grundrechenarten – mit Bruchstreifen und gezielter Fehlerrückmeldung.",
-    zeichen: "¾", bild: "bruch", ziel: { ansicht: "bruchrechnen" }, etikett: "trainieren", stufe: "mittel", unter: true },
+    zeichen: "¾", bild: "bruch", ziel: { ansicht: "bruchrechnen" }, etikett: "trainieren", stufe: "unter", unter: true },
   bruchterme: { name: "Bruchterme und -gleichungen", kurz: "Bruchterme", zeile: "Definitionsmenge, kürzen, lösen", slogan: "x im Nenner: Definitionsmenge, Kürzen nur von Faktoren, Bruchgleichungen ohne Scheinlösung.",
     zeichen: "1/x", bild: "bruchterm", ziel: { ansicht: "bruchterme" }, etikett: "trainieren", stufe: "mittel" },
 
   /* ---------- Gleichungen ---------- */
   terme: { name: "Terme und Potenzgesetze", kurz: "Terme", zeile: "Vereinfachen, ausklammern, kürzen", slogan: "Vereinfachen, Ausklammern, Binomische Formeln, Potenzen, Brüche.",
-    zeichen: "xⁿ", bild: "termkarte", ziel: { ansicht: "terme" }, etikett: "trainieren", stufe: "mittel", unter: true },
+    zeichen: "xⁿ", bild: "termkarte", ziel: { ansicht: "terme" }, etikett: "trainieren", stufe: "mittel" },
   gleichungen: { name: "Gleichungen lösen", kurz: "Lösen", zeile: "Umformen und verstehen", slogan: "Äquivalenzumformungen eintippen – linear bis Logarithmus, mit Verstehen-Modi.",
     zeichen: "x =", bild: "gleichung", ziel: { ansicht: "gleichungen" }, auch: ["gleichverstehen"], etikett: "trainieren", stufe: "beide", unter: true,
     modi: [{ ansicht: "gleichungen", name: "Lösen" }, { ansicht: "gleichverstehen", name: "Verstehen" }] },
@@ -168,9 +168,9 @@ export const WERKZEUGE = {
 
   /* ---------- Zuordnungen und Prozent ---------- */
   zuordnungen: { name: "Zuordnungen und Dreisatz", kurz: "Dreisatz", zeile: "Proportional, antiproportional", slogan: "Zuordnungen an Tabelle und Graph erkennen und mit dem Dreisatz rechnen.",
-    zeichen: "y ~ x", bild: "zuordnungen", ziel: { ansicht: "zuordnungen" }, etikett: "trainieren", stufe: "mittel", unter: true },
+    zeichen: "y ~ x", bild: "zuordnungen", ziel: { ansicht: "zuordnungen" }, etikett: "trainieren", stufe: "unter", unter: true },
   prozent: { name: "Prozent- und Zinsrechnung", kurz: "Prozent", zeile: "Grundwert, Rabatt, Zinsen", slogan: "Prozentstreifen, Grundwert, Prozentwert, Rabatt, Mehrwertsteuer und Zinsen.",
-    zeichen: "%", bild: "prozent", ziel: { ansicht: "prozent" }, etikett: "trainieren", stufe: "mittel", unter: true },
+    zeichen: "%", bild: "prozent", ziel: { ansicht: "prozent" }, etikett: "trainieren", stufe: "unter", unter: true },
 
   /* ---------- Daten und Zufall (Unterstufe) ---------- */
   diagramme: { name: "Daten und Diagramme", kurz: "Diagramme", zeile: "Mittelwert, Median, Diagramme", slogan: "Säulen- und Kreisdiagramme, relative Häufigkeit, Mittelwert, Median, Spannweite.",
@@ -179,9 +179,9 @@ export const WERKZEUGE = {
     zeichen: "P", bild: "zufall", ziel: { ansicht: "zufall" }, etikett: "entdecken", stufe: "unter", unter: true },
 };
 
-/* Bereiche → Stationen (in Abi-Reihenfolge) → Werkzeuge.
-   „zeige“ = zusätzlich in der Startseiten-Liste/im Menü aufgeführt, gehört aber zu einer anderen Station
-   (Kopfleiste, „Weiter“ und wo() bleiben bei der Heimat-Station). */
+/* Bereiche → Stationen (in Abi-Reihenfolge) → Werkzeuge. Das ist die Struktur für Kopfleiste, „Weiter“,
+   wo(), Lernpfad und Übersichtsseiten. Wie die Startseite sie gruppiert und benennt, steht weiter unten
+   in START_BLOECKE. */
 export const BEREICHE = [
   { id: "fundament", titel: "Fundament", uebersicht: null, text: "Drei Stationen: Axiome und Rechenregeln, die Zahlenräume von ℕ bis ℝ, Mengen und Logik.", fundament: true,
     stationen: [
@@ -193,22 +193,22 @@ export const BEREICHE = [
     stationen: [
       { id: "uebersetzen", titel: "Übersetzen", zeile: "Text → Gleichungen und Bedingungen", werkzeuge: ["textaufgaben"] },
     ] },
-  { id: "analysis", titel: "Analysis", uebersicht: "analysis", text: "Vier Stationen: Funktionen kennen, untersuchen, bestimmen, integrieren.",
+  { id: "analysis", titel: "Funktionen und Kurven", uebersicht: "analysis", text: "Vier Stationen: Funktionen kennen, untersuchen, bestimmen, integrieren.",
     video: { name: "Videokurse Analysis", zeile: "Analysis 1–5 mit Videolektionen und Checks" },
     stationen: [
-      { id: "kennen", titel: "Kennen", zeile: "Die wichtigsten Funktionsklassen", werkzeuge: ["funktionen", "sinus", "wachstum"], zeige: ["geradengleichung", "parabeln"] },
+      { id: "kennen", titel: "Kennen", zeile: "Die wichtigsten Funktionsklassen", werkzeuge: ["funktionen", "sinus", "wachstum"] },
       { id: "untersuchen", titel: "Untersuchen", zeile: "Ableiten und Kurven diskutieren", werkzeuge: ["ableitungstrainer", "kurvendiskussion", "scharen"] },
-      { id: "bestimmen", titel: "Bestimmen", zeile: "Funktionen aufstellen und anwenden", werkzeuge: ["steckbrief", "optimierung"], zeige: ["textaufgaben"] },
+      { id: "bestimmen", titel: "Bestimmen", zeile: "Funktionen aufstellen und anwenden", werkzeuge: ["steckbrief", "optimierung"] },
       { id: "integrieren", titel: "Integrieren", zeile: "Stammfunktionen, Flächen, Bestand", werkzeuge: ["stammintegral", "integrale"] },
     ] },
-  { id: "vektoren", titel: "Vektoren", uebersicht: "vektoren", text: "Drei Stationen: rechnen, Geraden und Ebenen aufstellen, Lage und Abstand.",
+  { id: "vektoren", titel: "Vektoren, Geraden und Ebenen", uebersicht: "vektoren", text: "Drei Stationen: rechnen, Geraden und Ebenen aufstellen, Lage und Abstand.",
     video: { name: "Videokurs Vektoren", zeile: "Fünf Lektionen mit Kurz-Checks" },
     stationen: [
       { id: "rechnen", titel: "Rechnen", zeile: "Vektoren, Kreuz- und Skalarprodukt", werkzeuge: ["vektorgenerator", "kreuzprodukt", "winkel"] },
       { id: "aufstellen", titel: "Aufstellen", zeile: "Geraden und Ebenen aus Punkten", werkzeuge: ["zweipunkte", "dreipunkte", "ebenen"] },
       { id: "lage", titel: "Lage und Abstand", zeile: "Schneiden, parallel, windschief, Abstände", werkzeuge: ["geraden", "ebenevsebene", "abstaende"] },
     ] },
-  { id: "stochastik", titel: "Stochastik", uebersicht: "stochastik", text: "Vier Stationen: zählen, Zufallsgrößen, testen, Normalverteilung.",
+  { id: "stochastik", titel: "Wahrscheinlichkeitsrechnung", uebersicht: "stochastik", text: "Vier Stationen: zählen, Zufallsgrößen, testen, Normalverteilung.",
     video: { name: "Videokurs Stochastik", zeile: "Vom Baumdiagramm zum Hypothesentest" },
     stationen: [
       { id: "zaehlen", titel: "Zählen und Bäume", zeile: "Urnen, Pfade, Vier-Felder-Tafel", werkzeuge: ["kombinatorik", "vierfelder"] },
@@ -257,10 +257,71 @@ export const BEREICHE = [
     ] },
 ];
 
+/* ---------- Anordnung der Schulmathematik-Liste (Startseite und Menü) ----------
+   Nur Anzeige: Welche Stationen stehen unter welcher Überschrift, in welcher Reihenfolge, für welche Stufe.
+   BEREICHE oben bleibt die Struktur für Kopfleiste, Lernpfad und Übersichtsseiten.
+   Eine Station steht als „bereich.station“ oder als Objekt { ref, titel, zeile, werkzeuge, nur } – mit
+   eigenen Feldern, wenn sie hier anders heißt oder anders zusammengesetzt ist.
+   nur: Stufen-Schalter-Werte (unter | mittel | ober | alle), bei denen Block bzw. Station erscheint.
+   titelStufe: andere Überschrift in einer Stufe (Mittelstufe: „Geraden und Parabeln“).
+   Abi-Vorbereitung und die Formelsammlung im Werkzeugkasten sind keine Werkzeuge und stehen in func2.jsx. */
+export const START_BLOECKE = [
+  { id: "fundament", quelle: "fundament", fundament: true, stationen: ["fundament.axiome", "fundament.zahlenraeume", "fundament.mengenlogik"] },
+  { id: "analysis", quelle: "analysis", titelStufe: { mittel: "Geraden und Parabeln" },
+    stationen: ["gleichungen.gerade", "gleichungen.parabel", "analysis.kennen", "analysis.untersuchen", "analysis.bestimmen", "analysis.integrieren"] },
+  { id: "vektoren", quelle: "vektoren", nur: ["ober", "alle"],
+    stationen: ["vektoren.rechnen", "vektoren.aufstellen", "vektoren.lage",
+      { id: "lgs", titel: "Gleichungssysteme", zeile: "Lösen mit Gauß, auch mit drei Unbekannten", werkzeuge: ["lgs"] }] },
+  { id: "stochastik", quelle: "stochastik", stationen: ["stochastik.zaehlen", "stochastik.zufallsgroessen", "stochastik.testen", "stochastik.normal"] },
+  { id: "geometrie", quelle: "geometrie", stationen: ["geometrie.figuren", "geometrie.dreieck", "geometrie.rechtwinklig", "geometrie.aehnlich", "geometrie.dreiecke", "geometrie.kreiskoerper"] },
+  { id: "bruchrechnen", quelle: "bruchrechnen", stationen: ["bruchrechnen.brueche"] },
+  { id: "zahlen", quelle: "zahlen", stationen: ["zahlen.zahlen", "zahlen.rechnen", "zahlen.groessen"] },
+  { id: "prozent", quelle: "prozent", stationen: ["prozent.zuordnung", "prozent.prozent"] },
+  { id: "daten", quelle: "daten", stationen: ["daten.daten", "daten.zufall"] },
+  { id: "werkzeuge", titel: "Formelsammlung und Werkzeuge", text: "Formeln nachschlagen, Gleichungen lösen, Textaufgaben übersetzen.", kiste: true,
+    stationen: [
+      "gleichungen.terme",
+      { ref: "gleichungen.loesen", zeile: "Umformen und verstehen", werkzeuge: ["gleichungen"] },
+      { id: "gleichungssysteme", titel: "Gleichungssysteme", zeile: "Mit drei Unbekannten", werkzeuge: ["lgs"], nur: ["mittel"] },
+      "gleichungen.ungleichungen",
+      "bruchrechnen.bruchterme",
+      { ref: "textaufgaben.uebersetzen", titel: "Textaufgaben", zeile: "Text → Bedingungen, mit Mathilda" },
+    ] },
+];
+
+function stationAus(eintrag) {
+  const e = typeof eintrag === "string" ? { ref: eintrag } : eintrag;
+  let basis = {};
+  if (e.ref) {
+    const [bId, sId] = e.ref.split(".");
+    const st = BEREICHE.find((b) => b.id === bId)?.stationen.find((x) => x.id === sId);
+    if (!st) throw new Error(`START_BLOECKE: Station ${e.ref} gibt es nicht`);
+    basis = { id: e.ref, titel: st.titel, zeile: st.zeile, werkzeuge: st.werkzeuge };
+  }
+  const { ref, ...rest } = e;
+  return { ...basis, ...rest, werkzeuge: [...(rest.werkzeuge || basis.werkzeuge)] };
+}
+
+/* Die Blöcke der Schulmathematik-Liste für einen Stufen-Schalter-Wert (Stationen und Werkzeuge noch ungefiltert nach passtStufe) */
+export function startBloecke(stufe = "alle") {
+  return START_BLOECKE.filter((b) => !b.nur || b.nur.includes(stufe)).map((b) => {
+    const q = b.quelle ? BEREICHE.find((x) => x.id === b.quelle) : null;
+    return {
+      id: b.id,
+      titel: (b.titelStufe && b.titelStufe[stufe]) || b.titel || q.titel,
+      text: b.text || (q && q.text) || "",
+      video: q ? q.video : undefined,
+      fundament: !!b.fundament,
+      kiste: !!b.kiste,
+      stationen: b.stationen.map(stationAus).filter((st) => !st.nur || st.nur.includes(stufe)),
+    };
+  });
+}
+
 /* ---------- Abfragen ---------- */
 
 /* Stufen-Schalter: passt ein Werkzeug zur gewählten Stufe? (wahl: alle | unter | mittel | ober)
-   Unterstufe (Kl. 5–7): nur Werkzeuge mit unter: true. „beide“ = Mittel- und Oberstufe. */
+   Unterstufe (Kl. 5–6): nur Werkzeuge mit unter: true. Mittelstufe (Kl. 7–10), Oberstufe (Kl. 11–13). „beide“ = Mittel- und Oberstufe. */
 export const passtStufe = (w, wahl) => !wahl || wahl === "alle" || (wahl === "unter" ? !!w.unter : w.stufe === "beide" || w.stufe === wahl);
 
 export const werkzeug = (id) => (WERKZEUGE[id] ? { id, ...WERKZEUGE[id] } : null);

@@ -76,7 +76,7 @@ with sync_playwright() as p:
                 page.get_by_role("button", name="Schulmathematik aufklappen").first.click(); page.wait_for_timeout(300)
                 page.locator("button[aria-label^='Mittelstufe,']").first.click(); page.wait_for_timeout(300)
                 pruefe(page.get_by_role("button", name="Zahlen und Größen aufklappen").count() == 0, f"{breite}: Zahlen und Größen in der Mittelstufe sichtbar")
-                pruefe(page.get_by_role("button", name="Zuordnungen und Prozent aufklappen").count() == 1, f"{breite}: Zuordnungen und Prozent fehlt in der Mittelstufe")
+                pruefe(page.get_by_role("button", name="Zuordnungen und Prozent aufklappen").count() == 0, f"{breite}: Zuordnungen und Prozent stehen in der Mittelstufe")
             pruefe(not konsole, f"{sprache}/{breite}: Konsolenfehler {konsole[:3]}")
             ctx.close()
     b.close()

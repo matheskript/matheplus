@@ -101,24 +101,23 @@ with sync_playwright() as p:
                 if breite == 390 and sprache == "de":
                     page.screenshot(path=f"{AUS}/{pfad}-ueben.png", full_page=True)
                 print(wo, "ok,", len(kn), "Aufgabentypen")
-            # Startseite: Mittelstufe → Geometrie und Bruchrechnen
+            # Startseite: Mittelstufe → Geometrie und Werkzeugkasten (Bruchterme); Brüche und Dezimalzahlen gehören in die Unterstufe
             if sprache == "de":
                 page.goto(BASE); page.wait_for_timeout(900)
                 page.get_by_role("button", name="Schulmathematik aufklappen").first.click(); page.wait_for_timeout(300)
                 page.locator("button[aria-label^='Mittelstufe,']").first.click(); page.wait_for_timeout(300)
                 hoehen = [k.bounding_box()["height"] for k in page.locator("button[data-aufklapp-haupt]").all() if k.is_visible()]
                 print(breite, "Box-Höhen", hoehen)
-                pruefe(page.get_by_role("button", name="Brüche und Dezimalzahlen aufklappen").count() == 1, f"{breite}: Bereich Bruchrechnen fehlt in der Mittelstufe")
+                pruefe(page.get_by_role("button", name="Brüche und Dezimalzahlen aufklappen").count() == 0, f"{breite}: Brüche und Dezimalzahlen stehen in der Mittelstufe")
                 page.get_by_role("button", name="Geometrie aufklappen").first.click(); page.wait_for_timeout(400)
-                for t in ["Winkel und Winkelsummen", "Kongruenzsätze", "Besondere Linien im Dreieck", "Satz des Thales", "Satz des Pythagoras", "Kathetensatz und Höhensatz", "Strahlensätze", "Trigonometrie am Dreieck", "Kreis und Kreisteile", "Körper: Volumen und Oberfläche"]:
+                for t in ["Winkel und Winkelsummen", "Kongruenzsätze", "Besondere Linien im Dreieck", "Satz des Thales", "Satz des Pythagoras", "Kathetensatz und Höhensatz", "Strahlensätze", "Trigonometrie", "Kreis und Kreisteile", "Körper: Volumen und Oberfläche"]:
                     pruefe(page.locator(f"button:has-text('{t}')").count() > 0, f"{breite}: {t} fehlt unter Geometrie")
                 page.screenshot(path=f"{AUS}/start-geometrie-{breite}.png", full_page=False)
                 page.get_by_role("button", name="Geometrie zuklappen").first.click(); page.wait_for_timeout(300)
-                page.get_by_role("button", name="Brüche und Dezimalzahlen aufklappen").first.click(); page.wait_for_timeout(400)
-                for t in ["Brüche rechnen", "Bruchterme und -gleichungen"]:
-                    pruefe(page.locator(f"button:has-text('{t}')").count() > 0, f"{breite}: {t} fehlt unter Bruchrechnen")
-                page.locator(f"button:has-text('Brüche rechnen')").last.click(); page.wait_for_timeout(800)
-                pruefe("/bruchrechnen" in page.url, f"{breite}: Sprung ins Werkzeug Brüche rechnen ({page.url})")
+                page.get_by_role("button", name="Formelsammlung und Werkzeuge aufklappen").first.click(); page.wait_for_timeout(400)
+                pruefe(page.locator("button:has-text('Bruchterme und -gleichungen')").count() > 0, f"{breite}: Bruchterme fehlen im Werkzeugkasten")
+                page.locator("button:has-text('Bruchterme und -gleichungen')").last.click(); page.wait_for_timeout(800)
+                pruefe("/bruchterme" in page.url, f"{breite}: Sprung ins Werkzeug Bruchterme ({page.url})")
             pruefe(not konsole, f"{sprache}/{breite}: Konsolenfehler {konsole[:3]}")
             ctx.close()
     b.close()

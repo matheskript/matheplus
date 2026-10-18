@@ -34,7 +34,7 @@ import { istFrei, entsperren, EVENT_FREI } from "./seitenKonstanten.js";
 import { EntdeckenLogoKlein } from "./funcEntdeckenLogo.jsx";
 import { SatzZeilen, saetze } from "./baseSatz.jsx";
 import { AufklappZeichen } from "./aufklappen.jsx";
-import { BEREICHE, WERKZEUGE, ansichtenVon, istWerkzeugAnsicht, passtStufe, wo } from "./werkzeuge.js";
+import { WERKZEUGE, ansichtenVon, istWerkzeugAnsicht, passtStufe, startBloecke, wo } from "./werkzeuge.js";
 import { EtikettPille, EtikettLegende, EtikettKnoepfe } from "./funcWerkzeuge.jsx";
 
 import { springe } from "./sprung.js";
@@ -717,25 +717,40 @@ const ZEIGE_GESPERRTE = false;
 
 /* Schulmathematik → Bereiche → Stationen → Werkzeuge. Die Daten stehen in werkzeuge.js (eine Liste für
    Startseite, Werkzeug-Menü, Kopfleiste und Übersichtsseiten); hier kommen nur die Logos dazu. */
-const BEREICH_LOGO = { fundament: <ZeichenLogo zeichen="a+0" />, textaufgaben: <ZeichenLogo zeichen="T→f" />, analysis: <PlotterLogoKlein />, vektoren: <VektorenLogoKlein />, stochastik: <StochastikLogoKlein />, geometrie: <GeometrieLogoKlein />, bruchrechnen: <BruchrechnenLogoKlein />, zahlen: <ZahlenLogoKlein />, prozent: <ProzentLogoKlein />, daten: <DatenLogoKlein />, gleichungen: <GleichungenLogoKlein /> };
+const BEREICH_LOGO = { fundament: <ZeichenLogo zeichen="a+0" />, analysis: <PlotterLogoKlein />, vektoren: <VektorenLogoKlein />, stochastik: <StochastikLogoKlein />, geometrie: <GeometrieLogoKlein />, bruchrechnen: <BruchrechnenLogoKlein />, zahlen: <ZahlenLogoKlein />, prozent: <ProzentLogoKlein />, daten: <DatenLogoKlein />, werkzeuge: <FormelLogoKlein />, abitur: <ZeichenLogo zeichen="Abi" /> };
 /* Liniennetz: jeder Bereich ist eine „Linie“ mit eigenem Strich, die Stationen sind ihre Halte */
-const LINIEN_MUSTER = { fundament: "4px solid", textaufgaben: "4px dashed", analysis: "4px solid", vektoren: "7px double", stochastik: "4px dashed", geometrie: "4px solid", bruchrechnen: "4px dashed", gleichungen: "4px dotted", zahlen: "4px solid", prozent: "7px double", daten: "4px dashed" };
+const LINIEN_MUSTER = { fundament: "4px solid", analysis: "4px solid", vektoren: "7px double", stochastik: "4px dashed", geometrie: "4px solid", bruchrechnen: "4px dashed", zahlen: "4px solid", prozent: "7px double", daten: "4px dashed", werkzeuge: "4px dotted" };
 
 /* Kurztexte für die Bereichs-Kacheln: genau eine Zeile (ohne Stationsnamen) */
-const BEREICH_KURZ = { fundament: "Axiome und Zahlenräume – für alle", textaufgaben: "Text → Bedingungen, mit Mathilda", analysis: "Funktionen, Kurven, Integrale", vektoren: "Geraden, Ebenen, Abstände", stochastik: "Zählen, Zufall, Testen",
-  geometrie: "Figuren, Winkel, Körper", bruchrechnen: "Brüche und Bruchterme", gleichungen: "Umformen und Lösen",
-  zahlen: "Zahlen, Rechnen, Größen", prozent: "Zuordnungen und Prozent", daten: "Daten auswerten, Zufall" };
+const BEREICH_KURZ = { fundament: "Axiome und Zahlenräume – für alle", analysis: "Funktionen, Kurven, Integrale", vektoren: "Geraden, Ebenen, Abstände, Gleichungssysteme", stochastik: "Zählen, Zufall, Testen",
+  geometrie: "Figuren, Winkel, Körper", bruchrechnen: "Brüche und Dezimalzahlen",
+  zahlen: "Zahlen, Rechnen, Größen", prozent: "Zuordnungen und Prozent", daten: "Daten auswerten, Zufall",
+  werkzeuge: "Formeln, Gleichungen, Textaufgaben", abitur: "Abi-Ketten, Abi-Sätze, Probeabitur" };
 
-const SCHUL_BEREICHE = BEREICHE.map((b) => ({
-  id: b.id, titel: b.titel, text: b.text, logo: BEREICH_LOGO[b.id], video: b.video, linie: LINIEN_MUSTER[b.id], fundament: !!b.fundament,
-  stationen: b.stationen.map((st) => ({ ...st, werkzeuge: [...st.werkzeuge, ...(st.zeige || [])].map((id) => ({ id, ...WERKZEUGE[id] })) })),
-}));
+/* Abi-Vorbereitung: gehört nur zur Oberstufe (und „Alle“) und besteht aus Seiten, nicht aus Werkzeugen des Registers */
+const ABI_MENUE = [
+  { name: "Abi-Ketten", zeile: "Eine Abi-Aufgabe durch mehrere Werkzeuge", bild: "abikette", ziel: { ansicht: "abiketten" }, etikett: "trainieren" },
+  { name: "Abi-Sätze", zeile: "Zehn komplette Sätze im Abi-Format", bild: "abisatz", ziel: { ansicht: "abisaetze" }, etikett: "trainieren" },
+  { name: "Probeabitur", zeile: "Teil A und B mit Uhr und Notenpunkten", bild: "probeabi", ziel: { ansicht: "abitur" }, etikett: "trainieren" },
+];
+const ABI_BLOCK = { id: "abitur", titel: "Abi-Vorbereitung", text: "Abi-Ketten, Abi-Sätze und Probeabitur.", gold: true, eintraege: ABI_MENUE };
+
+/* Die Blöcke der Schulmathematik-Liste für eine Stufe: Anordnung aus werkzeuge.js (START_BLOECKE), dazu Logos.
+   Ganz unten, nach „Formelsammlung und Werkzeuge“, steht in der Oberstufe die goldene Abi-Vorbereitung. */
+function schulBereiche(stufe) {
+  const liste = startBloecke(stufe).map((b) => ({
+    id: b.id, titel: b.titel, text: b.text, logo: BEREICH_LOGO[b.id], video: b.video, linie: LINIEN_MUSTER[b.id], gold: b.fundament, kiste: b.kiste,
+    stationen: b.stationen.map((st) => ({ ...st, werkzeuge: st.werkzeuge.map((id) => ({ id, ...WERKZEUGE[id] })) })),
+  }));
+  if (stufe === "ober" || stufe === "alle") liste.push({ ...ABI_BLOCK, logo: BEREICH_LOGO.abitur });
+  return liste;
+}
 
 /* Flache Liste fürs Untermenü – je Station eine Kopfzeile, darunter ihre Werkzeuge –
    gefiltert nach Stufe (alle | mittel | ober) und Etikett (null = alle). Leere Stationen fallen weg. */
-function bereichsEintraege(b, stufe, etikett) {
+function bereichsEintraege(b, stufe, etikett, ab = 0) {
   const liste = [];
-  let nr = 0;
+  let nr = ab;
   for (const st of b.stationen) {
     const ws = st.werkzeuge.filter((w) => passtStufe(w, stufe) && (!etikett || w.etikett === etikett));
     if (!ws.length) continue;
@@ -744,6 +759,15 @@ function bereichsEintraege(b, stufe, etikett) {
     for (const w of ws) liste.push({ name: w.name, zeile: w.zeile, bild: w.bild, ziel: w.ziel, etikett: w.etikett });
   }
   return liste;
+}
+
+/* Einträge eines Blocks: Abi-Vorbereitung = feste Liste; „Formelsammlung und Werkzeuge“ beginnt mit der Formelsammlung
+   (nur ohne Etikett-Filter), danach kommen die Werkzeug-Stationen; alle anderen Blöcke = ihre Stationen. */
+function blockEintraege(b, stufe, etikett) {
+  if (b.eintraege) return etikett ? b.eintraege.filter((e) => e.etikett === etikett) : b.eintraege;
+  if (!b.kiste || etikett) return bereichsEintraege(b, stufe, etikett);
+  const formel = [{ kopf: true, name: "werkzeuge-formelsammlung", nr: 1, titel: "Formelsammlung", zeile: "Alle wichtigen Formeln zum Nachschlagen" }, ...FORMEL_MENUE];
+  return [...formel, ...bereichsEintraege(b, stufe, etikett, 1)];
 }
 
 /* Mathe entdecken → Lernangebote und Wettbewerbe (aufklappbar wie Schulmathe-Training).
@@ -790,8 +814,7 @@ function toolKnoten(t) {
 const WERKZEUG_ANSICHTEN = Object.fromEntries(Object.values(WERKZEUGE).map((w) => [w.ziel.ansicht, ansichtenVon(w)]));
 function menueBaum() {
   return [
-    ...SCHUL_BEREICHE.map((b) => ({ id: b.id, titel: b.titel, kinder: bereichsEintraege(b, "alle", null).map(toolKnoten) })),
-    { id: "formel", titel: "Formelsammlung", kinder: FORMEL_MENUE.map((f) => ({ titel: f.name, ziel: f.ziel })) },
+    ...schulBereiche("alle").map((b) => ({ id: b.id, titel: b.titel, kinder: blockEintraege(b, "alle", null).map(toolKnoten) })),
   ];
 }
 
@@ -994,6 +1017,9 @@ function MiniBild({ art }) {
     medaille: <><path d="M50 6 L58 24 M70 6 L62 24" stroke={w} strokeWidth="2.4" strokeLinecap="round" /><circle cx="60" cy="34" r="14" fill={g} /><circle cx="60" cy="34" r="9" fill="none" stroke="rgba(14,30,74,0.45)" strokeWidth="1.2" />{txt(60, 38.5, "1", "#0E1E4A", 12, "middle")}</>,
     landkarte: <><path d="M52 6 L66 8 L70 16 L76 18 L74 28 L80 36 L72 44 L74 52 L58 52 L48 46 L44 36 L48 26 L44 18 Z" {...linie} fill="rgba(255,255,255,0.06)" /><circle cx="56" cy="44" r="3.4" fill={g} /></>,
     lupe: <><circle cx="54" cy="25" r="14" {...linie} strokeWidth="2" /><path d="M64 35 L78 49" stroke={g} strokeWidth="3.2" strokeLinecap="round" />{txt(54, 29.5, "?", g, 12, "middle")}</>,
+    abikette: <>{txt(60, 26, "a → d", "#fff", 16, "middle")}{txt(60, 44, "Aufgabe in Etappen", g, 10, "middle")}</>,
+    abisatz: <>{txt(60, 26, "A | B", "#fff", 16, "middle")}{txt(60, 44, "60 VP · ohne Note", g, 10, "middle")}</>,
+    probeabi: <><circle cx="60" cy="28" r="17" {...linie} /><path d="M60 28 V16 M60 28 L69 33" stroke={g} strokeWidth="1.8" fill="none" strokeLinecap="round" /><circle cx="60" cy="28" r="2" fill="#fff" /></>,
     lgs: <><path d="M20 8 C 14 8, 16 28, 11 28 C 16 28, 14 48, 20 48" {...linie} stroke={g} />{txt(26, 18, "x + y + z = 6", w, 10.5)}{txt(26, 32, "2x − y + z = 3", w, 10.5)}{txt(26, 46, "x + 2y − z = 2", w, 10.5)}</>,
   };
   return <svg viewBox="0 0 120 56" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" aria-hidden="true">{m[art]}</svg>;
@@ -1100,7 +1126,7 @@ function WeitermachenZeile({ gehe, neben = false }) {
   );
 }
 
-const STUFEN = [["unter", "Unterstufe", "5–7"], ["mittel", "Mittelstufe", "8–10"], ["ober", "Oberstufe", "11–13"], ["alle", "Alle", "5–13"]];
+const STUFEN = [["unter", "Unterstufe", "5–6"], ["mittel", "Mittelstufe", "7–10"], ["ober", "Oberstufe", "11–13"], ["alle", "Alle", "5–13"]];
 const STUFEN_KEYS = STUFEN.map((s) => s[0]);
 function StufenSchalter({ wert, setze }) {
   return (
@@ -1197,7 +1223,6 @@ export function Startseite({ gehe }) {
   const desktop = useDesktop();
   const [bereichAuf, setBereichAuf] = useState(null);   // aufgeklappter Unterbereich (analysis, vektoren, …)
   const [kopfAuf, setKopfAuf] = useState(false);        // Dropdown „Kopfrechnen“
-  const [formelAuf, setFormelAuf] = useState(false);    // Untermenü „Formelsammlung“
   const [stufe, setStufe] = useState(() => { const w = lies(STUFE_SCHLUESSEL, "alle"); return STUFEN_KEYS.includes(w) ? w : "alle"; });
   const [etikett, setEtikett] = useState(null);         // Filter Entdecken | Rechnen | Trainieren
   const offenRahmen = useRef(null);                     // Rahmen des offenen Bereichs (für die mitlaufende Leiste)
@@ -1221,11 +1246,11 @@ export function Startseite({ gehe }) {
       try { aktiv = document.querySelector("[data-aufklapp-rahmen]:not(:has([data-aufklapp-rahmen]))"); } catch { return; }
       if (!aktiv || aktiv.contains(t)) return;
       if (entdAuf) setEntdAuf(false);
-      else if (bereichAuf || formelAuf) { setBereichAuf(null); setFormelAuf(false); } else setSchulAuf(false);
+      else if (bereichAuf) setBereichAuf(null); else setSchulAuf(false);
     };
     document.addEventListener("click", klick);
     return () => document.removeEventListener("click", klick);
-  }, [schulAuf, entdAuf, bereichAuf, formelAuf]);
+  }, [schulAuf, entdAuf, bereichAuf]);
 
   /* --- Motive --- */
 
@@ -1618,7 +1643,7 @@ export function Startseite({ gehe }) {
   /* Mathe entdecken: gleichwertiger Hauptbereich – mobil unter „Schulmathe-Training“, am Desktop darüber als „Mathematik entdecken“ */
   const entdeckenBlock = (
       <AufklappRahmen auf={entdAuf}>
-        <PlotterKachel breit halb={entdAuf} auf={entdAuf} onClick={() => { setEntdAuf(!entdAuf); setSchulAuf(false); setBereichAuf(null); setFormelAuf(false); }}
+        <PlotterKachel breit halb={entdAuf} auf={entdAuf} onClick={() => { setEntdAuf(!entdAuf); setSchulAuf(false); setBereichAuf(null); }}
           label={desktop ? (entdAuf ? "Mathematik entdecken zuklappen" : "Mathematik entdecken aufklappen") : (entdAuf ? "Mathe entdecken zuklappen" : "Mathe entdecken aufklappen")} logo={<EntdeckenLogoKlein />}
           titel={desktop ? "Mathematik entdecken" : "Mathe entdecken"}
           text={entdAuf ? "Herleiten, entdecken, Wettbewerbe." : "Muster erkennen, Formeln selbst herleiten – und Mathe-Wettbewerbe."}
@@ -1646,23 +1671,23 @@ export function Startseite({ gehe }) {
       {!desktop && <StartOnboarding gehe={gehe} setzeStufe={stufeSetzen} planDa={!!lernpfad} />}
       {!desktop && <WeitermachenZeile gehe={gehe} />}
       {!desktop && <ZonenKopf nr={2} titel="Lernen" zeile="Alle Werkzeuge nach Bereich und Stufe." />}
-      {/* Oberbutton „Schulmathe-Training“: darunter direkt die Bereiche (Analysis, Vektoren, Stochastik,
-          Gleichungen), Abi-Ketten und Formelsammlung. Aufgeklappt wird der Button halb so hoch.
+      {/* Oberbutton „Schulmathe-Training“: darunter direkt die Bereiche (Funktionen und Kurven, Vektoren,
+          Wahrscheinlichkeitsrechnung …), Formelsammlung und Werkzeuge, in der Oberstufe Abi-Vorbereitung. Aufgeklappt wird der Button halb so hoch.
           Alle Kacheln laufen auf voller Breite (breit); es ist immer nur ein Bereich offen. */}
       <AufklappRahmen auf={schulAuf} sprung="start-schulmathe">
-      <PlotterKachel breit halb={schulAuf} onClick={() => { setSchulAuf(!schulAuf); setEntdAuf(false); setBereichAuf(null); setFormelAuf(false); setEtikett(null); }} auf={schulAuf}
+      <PlotterKachel breit halb={schulAuf} onClick={() => { setSchulAuf(!schulAuf); setEntdAuf(false); setBereichAuf(null); setEtikett(null); }} auf={schulAuf}
         label={schulAuf ? "Schulmathematik zuklappen" : "Schulmathematik aufklappen"}
         logo={<SchulmatheLogoKlein />} titel="Schulmathematik"
-        text={schulAuf ? "Analysis, Vektoren, Stochastik, Geometrie und Gleichungen." : "Unter-, Mittel- und Oberstufe bis zum Abi: Analysis, Vektoren, Stochastik, Geometrie, Gleichungen."}
+        text={schulAuf ? "Funktionen, Vektoren, Wahrscheinlichkeit, Geometrie und Werkzeuge." : "Unter-, Mittel- und Oberstufe bis zum Abi: Funktionen, Vektoren, Wahrscheinlichkeitsrechnung, Geometrie, Werkzeuge."}
         extra={<PlusKnopf auf={schulAuf} klein={schulAuf} />} />
       {schulAuf && (
         <div data-aufklapp-inhalt style={{ margin: "0 0 4px" }}>
           <SchulKopf gehe={gehe} mitWeiter={desktop} stufe={stufe} setzeStufe={stufeSetzen}
-            etikett={etikett} setzeEtikett={(e) => { setEtikett(e); setBereichAuf(null); setFormelAuf(false); }} />
+            etikett={etikett} setzeEtikett={(e) => { setEtikett(e); setBereichAuf(null); }} />
           {etikett ? (
             /* Filter aktiv: passende Werkzeuge direkt sichtbar, nach Bereich gruppiert */
-            SCHUL_BEREICHE.map((b) => {
-              const ws = bereichsEintraege(b, stufe, etikett).filter((e) => !e.kopf);
+            schulBereiche(stufe).map((b) => {
+              const ws = blockEintraege(b, stufe, etikett).filter((e) => !e.kopf);
               if (!ws.length) return null;
               return (
                 <div key={b.id} style={{ marginTop: 14 }}>
@@ -1674,16 +1699,16 @@ export function Startseite({ gehe }) {
                 </div>
               );
             })
-          ) : SCHUL_BEREICHE.map((b) => {
-            const eintraege = bereichsEintraege(b, stufe, null);
-            if (!eintraege.length) return null;   // z. B. Vektoren in der Mittelstufe
+          ) : schulBereiche(stufe).map((b) => {
+            const eintraege = blockEintraege(b, stufe, null);
+            if (!eintraege.length || (!b.eintraege && !b.kiste && !eintraege.some((e) => !e.kopf))) return null;   // z. B. Vektoren in der Mittelstufe
             const offen = bereichAuf === b.id;
             const koepfe = eintraege.filter((e) => e.kopf);
             const ZAHL = ["", "Eine Station", "Zwei Stationen", "Drei Stationen", "Vier Stationen", "Fünf Stationen", "Sechs Stationen"];
-            const text = stufe === "alle" ? (BEREICH_KURZ[b.id] || b.text) : ZAHL[koepfe.length] || `${koepfe.length} Stationen`;
+            const text = (b.eintraege || b.kiste || stufe === "alle") ? (BEREICH_KURZ[b.id] || b.text) : ZAHL[koepfe.length] || `${koepfe.length} Stationen`;
             return (
               <AufklappRahmen key={b.id} auf={offen} innen rahmenRef={offen ? offenRahmen : undefined}>
-                <PlotterKachel kompakt breit haupt goldRand={b.fundament} onClick={() => { setBereichAuf(offen ? null : b.id); setFormelAuf(false); }}
+                <PlotterKachel kompakt breit haupt goldRand={b.gold} onClick={() => { setBereichAuf(offen ? null : b.id); }}
                   auf={offen} label={offen ? `${b.titel} zuklappen` : `${b.titel} aufklappen`}
                   logo={b.logo} titel={b.titel} text={text}
                   extra={<AufklappPfeil auf={offen} />} />
@@ -1693,25 +1718,6 @@ export function Startseite({ gehe }) {
               </AufklappRahmen>
             );
           })}
-          {(!etikett || etikett === "trainieren") && (
-          <PlotterKachel kompakt breit onClick={() => gehe({ ansicht: "abiketten" })} label="Abi-Ketten öffnen" logo={<ZeichenLogo zeichen="a→d" />}
-            titel="Abi-Ketten"
-            text="Eine Abi-Aufgabe durch mehrere Werkzeuge" />
-          )}
-          {(!etikett || etikett === "trainieren") && (
-          <PlotterKachel kompakt breit onClick={() => gehe({ ansicht: "abisaetze" })} label="Abi-Sätze öffnen" logo={<ZeichenLogo zeichen="A|B" />}
-            titel="Abi-Sätze"
-            text="Zehn komplette Sätze im Abi-Format" />
-          )}
-          {!etikett && (
-          <AufklappRahmen auf={formelAuf} innen>
-            <PlotterKachel kompakt breit haupt onClick={() => { setFormelAuf(!formelAuf); setBereichAuf(null); }} auf={formelAuf} label={formelAuf ? "Formelsammlung zuklappen" : "Formelsammlung aufklappen"} logo={<FormelLogoKlein />}
-              titel="Formelsammlung"
-              text="Alle wichtigen Formeln zum Nachschlagen"
-              extra={<AufklappPfeil auf={formelAuf} />} />
-            {formelAuf && <div style={{ margin: "0 -16px" }}><UnterMenue eintraege={FORMEL_MENUE} gehe={gehe} /></div>}
-          </AufklappRahmen>
-          )}
           {ZEIGE_GESPERRTE && (<>
           <PlotterKachel halb breit gesperrt logo={<ZeichenLogo zeichen="≔" />}
             titel="Definitionen"

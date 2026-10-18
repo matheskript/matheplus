@@ -28,7 +28,7 @@ export function klassenBoxen(schulart) {
   return klassen.map((ks) => ({ id: ks.join("-"), label: ks.join("/"), klassen: ks, gold: ks.some((k) => s.kursstufe.includes(k)) }));
 }
 export const schulart = (id) => SCHULARTEN.find((x) => x.id === id) || null;
-export const stufeAusKlassenBox = (box) => (!box ? "alle" : box.klassen[0] <= 7 ? "unter" : box.klassen[0] <= 10 ? "mittel" : "ober");
+export const stufeAusKlassenBox = (box) => (!box ? "alle" : box.klassen[0] <= 6 ? "unter" : box.klassen[0] <= 10 ? "mittel" : "ober");
 
 /* ---------- Hilfen: Werkzeuge der App und weitere Seiten ---------- */
 const w = (id) => ({ art: "werkzeug", id });
