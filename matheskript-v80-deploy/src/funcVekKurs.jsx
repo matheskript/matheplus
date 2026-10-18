@@ -115,11 +115,10 @@ export const KURS_MODULE = [
     werkzeuge: ["abstaende", "vektorgenerator"] },
   { id: "t6", kap: "VI", nr: "", titel: "Training VI", frage: "Abstände, Winkel, Spiegelungen – prüfe dich.", von: 58, bis: 58,
     werkzeuge: ["abstaende", "winkel"] },
-  { id: "abitur", kap: "A", nr: "", titel: "Abitur-Training", frage: "Alles zusammen – auf Abiturniveau.", von: 59, bis: 59,
+  { id: "abitur", kap: "A", nr: "", titel: "Abitur-Training", frage: "Alles zusammen – auf Abiturniveau.", von: 59, bis: 60,
     werkzeuge: ["abstaende", "ebenevsebene", "geraden"] },
-  { id: "rueckblick", kap: "A", nr: "", titel: "Rückblick · Alles auf einen Blick", frage: "Alle Formen, Verfahren und Formeln auf einer Seite.", von: 60, bis: 60, werkzeuge: [] },
-  /* bis wird beim Einfügen aus dem fertigen Buch übernommen */
-  { id: "loes", kap: "L", nr: "", titel: "Lösungen", frage: "Alle Lösungen zum Nachschlagen und Vergleichen.", von: 61, bis: 61, werkzeuge: [] },
+  { id: "rueckblick", kap: "A", nr: "", titel: "Rückblick · Alles auf einen Blick", frage: "Alle Formen, Verfahren und Formeln auf einer Seite.", von: 61, bis: 61, werkzeuge: [] },
+  { id: "loes", kap: "L", nr: "", titel: "Lösungen", frage: "Alle Lösungen zum Nachschlagen und Vergleichen.", von: 62, bis: 68, werkzeuge: [] },
 ];
 
 export const KAPITEL = { I: "Geraden und Gleichungssysteme", II: "Vektoren im Raum", III: "Geraden im Raum", IV: "Skalarprodukt und Kreuzprodukt", V: "Ebenen", VI: "Abstände, Winkel, Spiegelungen", A: "Abitur", L: "Anhang" };
