@@ -254,21 +254,22 @@ function SchrittIcon({ art }) {
 }
 
 /* Die Karte, die zum Foto führt: Illustration, drei Bedingungen, großer Knopf */
-export function FotoStart({ onKamera, onGalerie, titel = "Blatt fotografieren", untertitel = "Kamera geht direkt auf. Ein Foto von oben genügt." }) {
+export function FotoStart({ onKamera, onGalerie, titel = "Blatt fotografieren", untertitel = "Kamera geht direkt auf.", blankoWarum = false }) {
+  /* Karo, Linien und jeder Stift sind beim Foto erlaubt. Den Tipp zu Blankopapier und schwarzem Stift gibt Mathilda erst in der Antwort. */
   const schritte = [
-    ["papier", "Weißes Blankopapier", "Kein Karo, keine Linien"],
-    ["stift", "Schwarzer Stift", "Kein Blau, kein Bleistift"],
     ["handy", "Handy flach über dem Blatt", "Nicht schräg, nicht von der Seite"],
     ["licht", "Gutes Licht", "Fenster oder Lampe, kein Schatten"],
   ];
   return (
     <section style={{ background: C.weiss, borderRadius: 24, boxShadow: "0 10px 40px rgba(15,26,51,0.10)", overflow: "hidden" }}>
       <style>{`
-        .fs-knopf { position: relative; width: 100%; display: flex; align-items: center; gap: 16px; padding: 20px 22px; border: none; border-radius: 18px; text-align: left; cursor: pointer; font-family: inherit;
+        .fs-knopf { position: relative; width: 100%; display: flex; align-items: center; gap: 14px; padding: 12px 20px 12px 12px; border: none; border-radius: 18px; text-align: left; cursor: pointer; font-family: inherit;
           color: ${NACHT}; background: linear-gradient(135deg, #F6CB2E 0%, ${GOLD} 55%, #D9A600 100%); box-shadow: 0 10px 28px rgba(237,187,0,0.38), inset 0 1px 0 rgba(255,255,255,0.5); transition: transform .15s ease, box-shadow .15s ease; -webkit-tap-highlight-color: transparent; }
         .fs-knopf:hover { transform: translateY(-2px); box-shadow: 0 14px 34px rgba(237,187,0,0.45), inset 0 1px 0 rgba(255,255,255,0.5); }
         .fs-knopf:active { transform: translateY(0); }
-        .fs-knopf .fs-pfeil { margin-left: auto; width: 40px; height: 40px; border-radius: 999px; background: ${NACHT}; color: ${GOLD}; display: flex; align-items: center; justify-content: center; flex: none; }
+        .fs-knopf .fs-kam { width: 64px; height: 64px; border-radius: 18px; background: ${NACHT}; display: flex; align-items: center; justify-content: center; flex: none; box-shadow: 0 4px 12px rgba(14,30,74,0.28); }
+        .fs-knopf .fs-titel { display: block; font-size: 20px; font-weight: 800; letter-spacing: -0.015em; line-height: 1.15; white-space: nowrap; }
+        .fs-knopf .fs-unter { display: block; font-size: 12.5px; font-weight: 500; line-height: 1.4; margin-top: 3px; opacity: 0.85; }
         .fs-schritte { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px 16px; }
         @media (max-width: 420px) { .fs-schritte { grid-template-columns: 1fr; } }
       `}</style>
@@ -287,25 +288,183 @@ export function FotoStart({ onKamera, onGalerie, titel = "Blatt fotografieren", 
           ))}
         </div>
         <button type="button" className="fs-knopf" onClick={onKamera} style={{ marginTop: 22 }}>
-          <span style={{ width: 48, height: 48, borderRadius: 14, background: "rgba(14,30,74,0.12)", display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
-            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke={NACHT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <span className="fs-kam" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="38" height="38" fill="none" stroke={GOLD} strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
               <path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>
             </svg>
           </span>
-          <span>
-            <span style={{ display: "block", fontSize: 18, fontWeight: 800, letterSpacing: "-0.01em", lineHeight: 1.15 }}>{titel}</span>
-            <span style={{ display: "block", fontSize: 13, fontWeight: 500, lineHeight: 1.45, marginTop: 3, opacity: 0.85 }}>{untertitel}</span>
-          </span>
-          <span className="fs-pfeil" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          <span style={{ minWidth: 0 }}>
+            <span className="fs-titel">{titel}</span>
+            <span className="fs-unter">{untertitel}</span>
           </span>
         </button>
         <button type="button" onClick={onGalerie}
           style={{ width: "100%", marginTop: 10, minHeight: 46, background: "transparent", border: `1.5px solid ${C.linie}`, borderRadius: 14, color: C.see, fontSize: 14, fontWeight: 600, fontFamily: "inherit", cursor: "pointer" }}>
           Foto aus der Galerie wählen
         </button>
+        {blankoWarum && <BlankoWarum />}
       </div>
     </section>
+  );
+}
+
+/* Kleiner Input unter dem Scan-Knopf: warum Blankopapier und schwarzer Stift besser zum Arbeiten sind (Konzept Pen & Paper),
+   dazu ein Motion-Film in drei Szenen (Karo + blauer Stift → Blanko + schwarzer Stift → Mathilda liest sicher).
+   Rein CSS: ein Zyklus von 16 s, jede Szene blendet über denselben Zeitplan ein und aus. Bei „weniger Bewegung“ steht das Schlussbild. */
+const BW_BLAU = "#2E4FA8";
+export function BlankoWarum() {
+  return (
+    <section aria-labelledby="bw-titel" style={{ marginTop: 28, paddingTop: 24, borderTop: `1px solid ${C.linie}` }}>
+      <style>{`
+        .bw-film { position: relative; border-radius: 18px; overflow: hidden; background: linear-gradient(160deg, ${NACHT} 0%, #163A7A 100%); padding: 14px 14px 12px; box-shadow: 0 8px 26px rgba(14,30,74,0.22); }
+        .bw-buehne { position: relative; height: 196px; }
+        .bw-chip { opacity: 0; position: absolute; left: 0; top: 0; z-index: 3; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: ${GOLD}; }
+        .bw-blatt { position: absolute; left: 0; right: 0; top: 22px; bottom: 0; border-radius: 10px; overflow: hidden; opacity: 0; box-shadow: 0 10px 24px rgba(3,10,30,0.4); }
+        .bw-karo { background-color: #F7FAFF; background-image: linear-gradient(#B9C9E4 1px, transparent 1px), linear-gradient(90deg, #B9C9E4 1px, transparent 1px); background-size: 24px 24px; background-position: 6px 4px; }
+        .bw-blanko { background: #FFFFFF; }
+        .bw-hand { z-index: 1; position: absolute; left: 18px; font-family: Caveat, 'Bradley Hand', cursive; font-weight: 600; white-space: nowrap; line-height: 1; }
+        .bw-karo .bw-hand { color: ${BW_BLAU}; font-size: 30px; letter-spacing: 1.5px; }
+        .bw-blanko .bw-hand { color: #0B0F1A; font-size: 31px; }
+        .bw-z1 { top: 34px; } .bw-z2 { top: 108px; }
+        .bw-bruch { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; }
+        .bw-bruch i { display: block; width: 100%; height: 2px; border-radius: 1px; background: currentColor; margin: 3px 0 2px; }
+        .bw-karo .bw-bruch i { background: ${BW_BLAU}; height: 1.6px; }
+        .bw-luft { display: inline-block; width: 22px; }
+        .bw-eng { letter-spacing: -0.5px; }
+        .bw-op { position: relative; display: inline-block; }
+        .bw-op::before { content: ""; position: absolute; left: -9px; right: -9px; top: -5px; bottom: -3px; border-radius: 999px; background: rgba(237,187,0,.30); box-shadow: 0 0 0 1.5px rgba(237,187,0,.9); opacity: 0; z-index: -1; }
+        .bw-scan { position: absolute; top: 0; bottom: 0; width: 3px; left: 0; z-index: 2; background: linear-gradient(${GOLD}, ${GOLD}); box-shadow: 0 0 14px 4px rgba(237,187,0,.55); opacity: 0; }
+        .bw-mark { position: absolute; z-index: 2; width: 22px; height: 22px; border-radius: 999px; display: flex; align-items: center; justify-content: center; font-family: inherit; font-size: 13px; font-weight: 800; opacity: 0; }
+        .bw-frage { background: #FFB020; color: #3A2500; box-shadow: 0 0 0 3px rgba(255,176,32,.28); }
+        .bw-haken { background: #1F9D55; color: #fff; box-shadow: 0 0 0 3px rgba(31,157,85,.25); }
+        .bw-unter { position: relative; height: 70px; margin-top: 12px; }
+        .bw-unter p { position: absolute; inset: 0; margin: 0; color: #DCE5F6; font-size: 13.5px; font-weight: 400; line-height: 1.5; opacity: 0; }
+        .bw-unter b { color: #fff; font-weight: 700; }
+        .bw-punkte { display: flex; gap: 6px; justify-content: center; margin-top: 2px; }
+        .bw-punkte i { width: 22px; height: 3px; border-radius: 2px; background: rgba(255,255,255,.2); position: relative; overflow: hidden; }
+        .bw-punkte i::after { content: ""; position: absolute; inset: 0; background: ${GOLD}; transform: scaleX(0); transform-origin: left; }
+
+        /* Zeitplan (16 s): A Karo 0–6 s · B Blanko 6–11 s · C Mathilda liest 11–16 s */
+        .bw-film.laeuft .bw-A { animation: bwA 16s infinite both; }
+        .bw-film.laeuft .bw-B { animation: bwB 16s infinite both; }
+        .bw-film.laeuft .bw-schreib1 { animation: bwS1 16s infinite both; }
+        .bw-film.laeuft .bw-schreib2 { animation: bwS2 16s infinite both; }
+        .bw-film.laeuft .bw-schreibB1 { animation: bwSB1 16s infinite both; }
+        .bw-film.laeuft .bw-schreibB2 { animation: bwSB2 16s infinite both; }
+        .bw-film.laeuft .bw-op::before { animation: bwPille 16s infinite both; }
+        .bw-film.laeuft .bw-scanA { animation: bwScanA 16s infinite both; }
+        .bw-film.laeuft .bw-scanB { animation: bwScanB 16s infinite both; }
+        .bw-film.laeuft .bw-frage { animation: bwFrage 16s infinite both; }
+        .bw-film.laeuft .bw-haken { animation: bwHaken 16s infinite both; }
+        .bw-film.laeuft .bw-c1 { animation: bwCap1 16s infinite both; }
+        .bw-film.laeuft .bw-c2 { animation: bwCap2 16s infinite both; }
+        .bw-film.laeuft .bw-c3 { animation: bwCap3 16s infinite both; }
+        .bw-film.laeuft .bw-punkte i:nth-child(1)::after { animation: bwP1 16s infinite both; }
+        .bw-film.laeuft .bw-punkte i:nth-child(2)::after { animation: bwP2 16s infinite both; }
+        .bw-film.laeuft .bw-punkte i:nth-child(3)::after { animation: bwP3 16s infinite both; }
+        @keyframes bwA { 0% { opacity: 0; transform: translateY(8px); } 3%, 36% { opacity: 1; transform: none; } 39%, 100% { opacity: 0; transform: translateY(-6px); } }
+        @keyframes bwB { 0%, 37% { opacity: 0; transform: translateY(8px); } 41%, 96% { opacity: 1; transform: none; } 99%, 100% { opacity: 0; transform: translateY(-6px); } }
+                @keyframes bwS1 { 0%, 4% { clip-path: inset(-20px 100% -20px -10px); } 14% { clip-path: inset(-20px -20px -20px -10px); } 100% { clip-path: inset(-20px -20px -20px -10px); } }
+        @keyframes bwS2 { 0%, 14% { clip-path: inset(-20px 100% -20px -10px); } 24% { clip-path: inset(-20px -20px -20px -10px); } 100% { clip-path: inset(-20px -20px -20px -10px); } }
+        @keyframes bwSB1 { 0%, 42% { clip-path: inset(-20px 100% -20px -10px); } 50% { clip-path: inset(-20px -20px -20px -10px); } 100% { clip-path: inset(-20px -20px -20px -10px); } }
+        @keyframes bwSB2 { 0%, 50% { clip-path: inset(-20px 100% -20px -10px); } 58% { clip-path: inset(-20px -20px -20px -10px); } 100% { clip-path: inset(-20px -20px -20px -10px); } }
+        @keyframes bwPille { 0%, 58% { opacity: 0; transform: scale(.6); } 62%, 100% { opacity: 1; transform: none; } }
+        @keyframes bwScanA { 0%, 26% { opacity: 0; left: 0; } 27% { opacity: 1; left: 0; } 33% { opacity: 1; left: calc(100% - 3px); } 34%, 100% { opacity: 0; left: calc(100% - 3px); } }
+        @keyframes bwScanB { 0%, 72% { opacity: 0; left: 0; } 73% { opacity: 1; left: 0; } 80% { opacity: 1; left: calc(100% - 3px); } 81%, 100% { opacity: 0; left: calc(100% - 3px); } }
+        @keyframes bwFrage { 0%, 30% { opacity: 0; transform: scale(.3); } 33%, 100% { opacity: 1; transform: scale(1); } }
+        @keyframes bwHaken { 0%, 77% { opacity: 0; transform: scale(.3); } 81%, 100% { opacity: 1; transform: scale(1); } }
+        @keyframes bwCap1 { 0%, 3% { opacity: 0; } 6%, 35% { opacity: 1; } 38%, 100% { opacity: 0; } }
+        @keyframes bwCap2 { 0%, 40% { opacity: 0; } 43%, 67% { opacity: 1; } 70%, 100% { opacity: 0; } }
+        @keyframes bwCap3 { 0%, 72% { opacity: 0; } 75%, 96% { opacity: 1; } 99%, 100% { opacity: 0; } }
+        @keyframes bwP1 { 0% { transform: scaleX(0); } 37% { transform: scaleX(1); } 38%, 100% { transform: scaleX(0); } }
+        @keyframes bwP2 { 0%, 38% { transform: scaleX(0); } 69% { transform: scaleX(1); } 70%, 100% { transform: scaleX(0); } }
+        @keyframes bwP3 { 0%, 70% { transform: scaleX(0); } 98% { transform: scaleX(1); } 100% { transform: scaleX(0); } }
+
+        /* Weniger Bewegung: Schlussbild (Blanko, schwarzer Stift, sicher gelesen) steht still */
+        .bw-film:not(.laeuft) .bw-B, .bw-film:not(.laeuft) .bw-c3 { opacity: 1; }
+        .bw-film:not(.laeuft) .bw-op::before, .bw-film:not(.laeuft) .bw-haken, .bw-film:not(.laeuft) .bw-chip.bw-B { opacity: 1; }
+        .bw-karten { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 18px; }
+        @media (min-width: 520px) { .bw-karten { grid-template-columns: 1fr 1fr; } }
+        .bw-karte { border-radius: 16px; background: ${C.himmel}; padding: 16px 16px 15px; }
+        .bw-karte h3 { margin: 10px 0 6px; font-size: 15.5px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.3; color: ${C.tinte}; }
+        .bw-karte p { margin: 0; font-size: 13.5px; font-weight: 300; line-height: 1.6; color: ${C.grau}; }
+        .bw-karte p b { font-weight: 600; color: ${C.tinte}; }
+      `}</style>
+      <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: C.see, marginBottom: 8 }}>Tipp für dein nächstes Blatt</p>
+      <h2 id="bw-titel" style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.25, marginBottom: 8, color: C.tinte }}>
+        Warum Blankopapier und schwarzer Stift besser für dich sind
+      </h2>
+      <p style={{ color: C.grau, fontSize: 14.5, fontWeight: 300, lineHeight: 1.65, marginBottom: 16 }}>
+        Dein Blatt ist der Arbeitsplatz deines Denkens. Je klarer es aussieht, desto leichter siehst du selbst, wo dein Weg bricht.
+      </p>
+      <BlankoFilm />
+      <div className="bw-karten">
+        <div className="bw-karte">
+          <span aria-hidden="true" style={{ width: 34, height: 34, borderRadius: 11, background: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke={C.see} strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M5 3h10l4 4v14H5z" /><path d="M15 3v4h4" /></svg>
+          </span>
+          <h3>Blankopapier: du bestimmst den Abstand</h3>
+          <p>Karo steckt jedes Zeichen in dieselbe Box. Beim Rechnen soll aber <b>Nähe zeigen, was zusammengehört</b>: eng im Term, Luft um Plus und Minus. Dazu ein Schritt pro Zeile, Gleichheitszeichen untereinander.</p>
+        </div>
+        <div className="bw-karte">
+          <span aria-hidden="true" style={{ width: 34, height: 34, borderRadius: 11, background: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke={C.see} strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M4 20l4-1 11-11-3-3L5 16z" /><path d="M13 7l3 3" /></svg>
+          </span>
+          <h3>Schwarzer Stift: klar und ehrlich</h3>
+          <p>Schwarz hat den stärksten Kontrast, auch im Foto. Ohne Radierer streichst du Fehler <b>sichtbar durch</b>, statt sie wegzuwischen. So kannst du deinen Weg morgen noch nachvollziehen.</p>
+        </div>
+      </div>
+      <p style={{ color: C.grau, fontSize: 13.5, fontWeight: 300, lineHeight: 1.65, marginTop: 14 }}>
+        Du musst nichts umstellen: Mathilda liest auch Karo und jeden Stift. Probier Blanko und Schwarz einfach beim nächsten Blatt aus.
+      </p>
+    </section>
+  );
+}
+
+/* Der Film selbst: Bühne mit drei Szenen, Untertitel und Fortschrittsbalken */
+function BlankoFilm() {
+  const [laeuft, setLaeuft] = React.useState(true);
+  React.useEffect(() => {
+    let mq; try { mq = window.matchMedia("(prefers-reduced-motion: reduce)"); } catch { return undefined; }
+    const f = () => setLaeuft(!mq.matches);
+    f();
+    mq.addEventListener ? mq.addEventListener("change", f) : mq.addListener(f);
+    return () => (mq.removeEventListener ? mq.removeEventListener("change", f) : mq.removeListener(f));
+  }, []);
+  return (
+    <div className={laeuft ? "bw-film laeuft" : "bw-film"} role="img"
+      aria-label="Kurzfilm: Dieselbe Rechnung auf Karopapier mit blauem Stift und auf Blankopapier mit schwarzem Stift. Auf Karo kreuzen Linien die Zeichen, auf Blanko bekommen Plus und Minus Platz und Mathilda liest jede Zeile sicher.">
+      <div className="bw-buehne" aria-hidden="true">
+        {/* Szene A: Karo, blauer Stift */}
+        <span className="bw-chip bw-A">Karo · blauer Stift</span>
+        <div className="bw-blatt bw-karo bw-A">
+          <div className="bw-hand bw-z1 bw-schreib1">3x² − 4x + 2</div>
+          <div className="bw-hand bw-z2 bw-schreib2" style={{ top: 100 }}>
+            <span className="bw-bruch"><span>x² − 4</span><i /><span>x − 2</span></span>
+          </div>
+          <span className="bw-scan bw-scanA" />
+          <span className="bw-mark bw-frage" style={{ left: 106, top: 121 }}>?</span>
+          <span className="bw-mark bw-frage" style={{ left: 63, top: 22 }}>?</span>
+        </div>
+        {/* Szene B und C: Blanko, schwarzer Stift – danach liest Mathilda sicher */}
+        <span className="bw-chip bw-B">Blanko · schwarzer Stift</span>
+        <div className="bw-blatt bw-blanko bw-B">
+          <div className="bw-hand bw-z1 bw-schreibB1"><span className="bw-eng">3x²</span><span className="bw-luft" /><span className="bw-op">−</span><span className="bw-luft" /><span className="bw-eng">4x</span><span className="bw-luft" /><span className="bw-op">+</span><span className="bw-luft" />2</div>
+          <div className="bw-hand bw-z2 bw-schreibB2" style={{ top: 100 }}>
+            <span className="bw-bruch" style={{ padding: "0 6px" }}><span>x²<span className="bw-luft" style={{ width: 16 }} />−<span className="bw-luft" style={{ width: 16 }} />4</span><i /><span>x<span className="bw-luft" style={{ width: 16 }} />−<span className="bw-luft" style={{ width: 16 }} />2</span></span>
+          </div>
+          <span className="bw-scan bw-scanB" />
+          <span className="bw-mark bw-haken" style={{ right: 14, top: 38 }}>✓</span>
+          <span className="bw-mark bw-haken" style={{ right: 14, top: 122 }}>✓</span>
+        </div>
+      </div>
+      <div className="bw-unter" aria-hidden="true">
+        <p className="bw-c1"><b>Karo:</b> Linien laufen durch deine Zeichen, jedes bekommt gleich viel Platz. Strich oder Karo?</p>
+        <p className="bw-c2"><b>Blanko:</b> Plus und Minus bekommen Platz, was zusammengehört, steht eng. So zeigt dein Blatt, wie du rechnest.</p>
+        <p className="bw-c3"><b>Schwarz auf Weiß:</b> kräftiger Kontrast. So liest Mathilda jede Zeile sicher und kann dir genauer helfen.</p>
+      </div>
+      <div className="bw-punkte" aria-hidden="true"><i /><i /><i /></div>
+    </div>
   );
 }
 

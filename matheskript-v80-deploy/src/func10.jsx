@@ -1324,7 +1324,7 @@ export function Mathilda() {
 
         {!bild && !laden && (
           <div>
-            <FotoStart onKamera={() => setScanOffen(true)} onGalerie={() => galerieRef.current?.click()} titel="Scan dein Blatt" />
+            <FotoStart onKamera={() => setScanOffen(true)} onGalerie={() => galerieRef.current?.click()} titel="Scan dein Blatt" blankoWarum />
 
             {videoQuelle && (
               <div className="mt-8" style={{ position: "relative", width: "100%", aspectRatio: "1 / 1", borderRadius: 20, overflow: "hidden", background: C.seeTief, boxShadow: "0 6px 26px rgba(15,26,51,0.16)" }}>
