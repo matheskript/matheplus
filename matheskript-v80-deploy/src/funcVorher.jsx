@@ -18,7 +18,7 @@ import React, { useEffect, useRef, useState } from "react";
    bereit: false → Knopf zeigt „in Arbeit“ und ist nicht klickbar. */
 export const BUECHER = [
   { id: "ableitungen", titel: "Differentialrechnung", zeile: "Band 1 · Ableitungen", lesen: "/buecher/ableitungen/index.html", pdf: "/buecher/ableitungen/Ableitungen.pdf", bereit: true },
-  { id: "vektoren", titel: "Vektoren, Geraden und Ebenen", zeile: "3D-Geometrie", lesen: "/buecher/vektoren/index.html", pdf: "/buecher/vektoren/Vektoren.pdf", bereit: false },
+  { id: "vektoren", titel: "Vektoren, Geraden und Ebenen", zeile: "Band 2 · Analytische Geometrie", lesen: "/buecher/vektoren/index.html", pdf: "/buecher/vektoren/Vektoren.pdf", bereit: true },
 ];
 
 function BuchKnopf({ b }) {

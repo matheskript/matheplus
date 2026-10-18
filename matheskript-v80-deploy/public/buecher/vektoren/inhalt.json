@@ -1,0 +1,207 @@
+[
+ {
+  "titel": "Titel",
+  "seite": 1,
+  "kap": "0"
+ },
+ {
+  "titel": "Inhalt",
+  "seite": 2,
+  "kap": "0"
+ },
+ {
+  "titel": "Kapitel I · Auftakt",
+  "seite": 3,
+  "kap": "I"
+ },
+ {
+  "titel": "1 Zwei Geraden in der Ebene",
+  "seite": 4,
+  "kap": "I"
+ },
+ {
+  "titel": "2 Das Gauß-Verfahren",
+  "seite": 6,
+  "kap": "I"
+ },
+ {
+  "titel": "3 Keine, eine oder unendlich viele Lösungen",
+  "seite": 8,
+  "kap": "I"
+ },
+ {
+  "titel": "Alles klar? Training I",
+  "seite": 10,
+  "kap": "I"
+ },
+ {
+  "titel": "Kapitel II · Auftakt",
+  "seite": 11,
+  "kap": "II"
+ },
+ {
+  "titel": "4 Punkte im Raum",
+  "seite": 12,
+  "kap": "II"
+ },
+ {
+  "titel": "5 Vektoren",
+  "seite": 14,
+  "kap": "II"
+ },
+ {
+  "titel": "6 Rechnen mit Vektoren",
+  "seite": 16,
+  "kap": "II"
+ },
+ {
+  "titel": "7 Kollinear, komplanar, linear abhängig",
+  "seite": 18,
+  "kap": "II"
+ },
+ {
+  "titel": "Alles klar? Training II",
+  "seite": 20,
+  "kap": "II"
+ },
+ {
+  "titel": "Kapitel III · Auftakt",
+  "seite": 21,
+  "kap": "III"
+ },
+ {
+  "titel": "8 Geraden in Parameterform",
+  "seite": 22,
+  "kap": "III"
+ },
+ {
+  "titel": "9 Lage zweier Geraden",
+  "seite": 24,
+  "kap": "III"
+ },
+ {
+  "titel": "Alles klar? Training III",
+  "seite": 26,
+  "kap": "III"
+ },
+ {
+  "titel": "Kapitel IV · Auftakt",
+  "seite": 27,
+  "kap": "IV"
+ },
+ {
+  "titel": "10 Skalarprodukt und Orthogonalität",
+  "seite": 28,
+  "kap": "IV"
+ },
+ {
+  "titel": "11 Winkel zwischen Vektoren",
+  "seite": 30,
+  "kap": "IV"
+ },
+ {
+  "titel": "12 Das Kreuzprodukt",
+  "seite": 32,
+  "kap": "IV"
+ },
+ {
+  "titel": "Alles klar? Training IV",
+  "seite": 34,
+  "kap": "IV"
+ },
+ {
+  "titel": "Kapitel V · Auftakt",
+  "seite": 35,
+  "kap": "V"
+ },
+ {
+  "titel": "13 Ebenen in Parameterform",
+  "seite": 36,
+  "kap": "V"
+ },
+ {
+  "titel": "14 Normalenform und Koordinatenform",
+  "seite": 38,
+  "kap": "V"
+ },
+ {
+  "titel": "15 Umwandeln, Spurpunkte, Zeichnen",
+  "seite": 40,
+  "kap": "V"
+ },
+ {
+  "titel": "16 Gerade und Ebene",
+  "seite": 42,
+  "kap": "V"
+ },
+ {
+  "titel": "17 Zwei und drei Ebenen",
+  "seite": 44,
+  "kap": "V"
+ },
+ {
+  "titel": "Alles klar? Training V",
+  "seite": 46,
+  "kap": "V"
+ },
+ {
+  "titel": "Kapitel VI · Auftakt",
+  "seite": 47,
+  "kap": "VI"
+ },
+ {
+  "titel": "18 Abstand Punkt–Ebene",
+  "seite": 48,
+  "kap": "VI"
+ },
+ {
+  "titel": "19 Abstand Punkt–Gerade",
+  "seite": 50,
+  "kap": "VI"
+ },
+ {
+  "titel": "20 Abstand windschiefer Geraden",
+  "seite": 52,
+  "kap": "VI"
+ },
+ {
+  "titel": "21 Schnittwinkel",
+  "seite": 54,
+  "kap": "VI"
+ },
+ {
+  "titel": "22 Spiegelungen",
+  "seite": 56,
+  "kap": "VI"
+ },
+ {
+  "titel": "Alles klar? Training VI",
+  "seite": 58,
+  "kap": "VI"
+ },
+ {
+  "titel": "Abitur-Training",
+  "seite": 59,
+  "kap": "L"
+ },
+ {
+  "titel": "Rückblick",
+  "seite": 61,
+  "kap": "L"
+ },
+ {
+  "titel": "Lösungen",
+  "seite": 62,
+  "kap": "L"
+ },
+ {
+  "titel": "Stichwortverzeichnis",
+  "seite": 69,
+  "kap": "L"
+ },
+ {
+  "titel": "Rückseite",
+  "seite": 70,
+  "kap": "0"
+ }
+]
