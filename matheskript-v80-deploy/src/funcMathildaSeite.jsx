@@ -3,59 +3,59 @@
 import React from "react";
 import { C } from "./base1.jsx";
 import "@fontsource/caveat/600.css";
-import { HAAR, HAUT, FEAT, HAAR_LINIEN } from "./mathildaPortraet.js";
 
 const GOLD = C.flaggold;
 const NACHT = C.seeTief;
 
-/* Mathilda als Scherenschnitt, aus dem Foto abgeleitet (siehe mathildaPortraet.js):
-   Haar in Logo-Gold, Haut weiß, Schatten als echte Aussparung (Maske), dazu Sonnenbrille,
-   Ohrring und ein leichtes Grinsen. Sitzt auf jedem Hintergrund. */
+/* Mathilda als flache Vektorillustration (nach Fotovorlage gezeichnet, Einverständnis der
+   abgebildeten Person einholen): langes glattes Haar in Logo-Gold, Haut weiß, Züge in Nachtblau,
+   dazu Sonnenbrille mit Goldrahmen, Creolen-Ohrring und ein sanftes Lächeln. Sitzt auf jedem Hintergrund. */
 export function MathildaBild({ groesse = 220, style, className }) {
-  const id = "mm" + React.useId().replace(/[^a-zA-Z0-9]/g, "");
-  const glas = (cx, sx) => (
-    <g key={cx} transform={`translate(${cx} 191) scale(${sx * 0.86} 0.92)`}>
-      <path d="M-40 -27 C -20 -32, 16 -32, 38 -28 C 43 -27, 45 -23, 44.5 -18 L 41 7 C 38.5 22, 28 31, 13 31 H -9 C -26 31, -37 22, -40 7 L -44 -17 C -44.6 -23, -43 -26.4, -40 -27 Z"
-        fill={`url(#${id}g)`} stroke={GOLD} strokeWidth="4" strokeLinejoin="round" />
-      <path d="M-30 -17 L -10 -17 M-33 -8 L -24 -8" stroke="#FFFFFF" strokeOpacity=".7" strokeWidth="3.2" strokeLinecap="round" />
-      <path d="M15 13 L 28 0" stroke="#FFFFFF" strokeOpacity=".25" strokeWidth="3" strokeLinecap="round" />
-    </g>
-  );
   return (
     <svg viewBox="0 0 320 440" width={groesse} height={Math.round(groesse * 440 / 320)} className={className} style={style}
       aria-label="Mathilda" role="img">
-      <defs>
-        <linearGradient id={id + "g"} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#0A1638" /><stop offset="0.65" stopColor="#13285A" /><stop offset="1" stopColor="#24427E" />
-        </linearGradient>
-        <mask id={id} maskUnits="userSpaceOnUse" x="0" y="0" width="320" height="440">
-          <rect width="320" height="440" fill="#000" />
-          <path fill="#fff" fillRule="evenodd" d={HAAR} />
-          <path fill="#fff" fillRule="evenodd" d={HAUT} />
-          <path fill="#000" fillRule="evenodd" d={FEAT} />
-          {/* leichtes Grinsen */}
-          <path fill="#000" d="M132 279 C 137 278, 142 283, 149 286.5 C 164 293, 191 293, 206 286 C 213 282.5, 218 277.5, 224 276.5 C 222 283, 216 291, 207 295.5 C 190 302.5, 163 302.5, 147 295.5 C 139 292, 134.5 286, 132 279 Z" />
-          <path fill="none" stroke="#000" strokeWidth="2.6" strokeLinecap="round" d="M128 274 C 129 277, 131 280, 134 282 M228 271 C 227 274, 225 277, 222 279" />
-          <path fill="none" stroke="#000" strokeWidth="3" strokeLinecap="round" d="M164 309 C 172 312, 184 312, 192 309" />
-          {/* Kieferschatten und Halsschatten wie auf dem Foto */}
-          <path fill="#000" d="M86 296 C 92 318, 108 338, 130 350 C 146 358, 160 361, 172 360 C 196 358, 222 346, 242 327 C 250 319, 255 309, 258 298 C 254 318, 238 340, 214 352 C 196 360, 182 363, 170 363 C 154 362, 134 356, 120 346 C 104 334, 92 316, 86 296 Z" />
-          <path fill="#000" d="M138 366 C 154 376, 186 376, 206 364 C 198 382, 178 390, 170 390 C 158 388, 145 380, 138 366 Z" />
-        </mask>
-        <clipPath id={id + "h"}><path clipRule="evenodd" d={HAAR} /></clipPath>
-      </defs>
-      <g mask={`url(#${id})`}>
-        <path fill={GOLD} fillRule="evenodd" d={HAAR} />
-        <path fill="#FFFFFF" fillRule="evenodd" d={HAUT} />
-      </g>
-      <path fill="none" stroke="#12305F" strokeWidth="2" strokeLinecap="round" clipPath={`url(#${id}h)`} d={HAAR_LINIEN} />
-      {/* Sonnenbrille */}
-      <path d="M82 171 C 66 171, 48 175, 34 184" fill="none" stroke={GOLD} strokeWidth="4" strokeLinecap="round" />
-      <path d="M253 171 C 264 171, 272 173, 278 178" fill="none" stroke={GOLD} strokeWidth="4" strokeLinecap="round" />
-      {glas(119, 1)}{glas(216, -1)}
-      <path d="M157 169 C 162 162, 173 162, 178 169" fill="none" stroke={GOLD} strokeWidth="4.4" strokeLinecap="round" />
-      {/* Ohrring */}
-      <circle cx="62" cy="268" r="5" fill={GOLD} stroke="#12305F" strokeWidth="1.6" />
-      <path d="M70 280 C 82 286, 86 308, 76 320 C 65 313, 61 292, 70 280 Z" fill="#FFFFFF" stroke="#12305F" strokeWidth="2" />
+  {/* Haar hinten */}
+  <path fill={GOLD} d="M165 88 C 238 88, 276 138, 279 198 C 282 268, 280 350, 284 440 L 40 440 C 44 350, 42 268, 45 198 C 48 138, 92 88, 165 88 Z"/>
+  {/* Schultern + Oberteil (hinter dem Haar, Schultern ragen seitlich heraus) */}
+  <path fill="#FFFFFF" d="M14 440 C 20 398, 52 366, 96 346 C 112 336, 134 332, 146 326 L 146 300 L 184 300 L 184 326 C 196 332, 218 336, 242 342 C 278 366, 310 398, 316 440 Z"/>
+  <path fill={NACHT} d="M70 440 L 74 412 C 110 398, 220 398, 256 412 L 260 440 Z"/>
+  <path fill="none" stroke={NACHT} strokeWidth="3" strokeLinecap="round" d="M98 404 L 92 378 M232 404 L 238 378"/>
+  {/* Hals */}
+  <path fill="#FFFFFF" d="M142 272 L 188 272 L 188 334 C 176 342, 154 342, 142 334 Z"/>
+  <path fill={NACHT} fillOpacity=".12" d="M142 272 L 188 272 C 186 294, 176 306, 165 308 C 154 306, 144 294, 142 272 Z"/>
+  {/* Ohr */}
+  <path fill="#FFFFFF" d="M104 212 C 96 210, 90 220, 92 236 C 94 250, 100 258, 108 258 Z"/>
+  {/* Gesicht */}
+  <path fill="#FFFFFF" d="M165 104 C 226 104, 240 158, 236 206 C 232 256, 204 296, 165 296 C 126 296, 98 256, 94 206 C 90 158, 104 104, 165 104 Z"/>
+  {/* Haar vorn (mit Öffnung für Gesicht, Hals, Dekolleté) */}
+  <path fill={GOLD} fillRule="evenodd" d="M165 88 C 238 88, 276 138, 279 198 C 282 268, 280 350, 284 440 L 40 440 C 44 350, 42 268, 45 198 C 48 138, 92 88, 165 88 Z
+    M148 114 C 128 114, 112 134, 106 164 C 100 200, 96 236, 100 266 C 104 300, 100 360, 86 440 L 244 440 C 230 360, 226 300, 230 266 C 234 236, 230 200, 224 164 C 218 132, 198 110, 174 110 C 164 109, 156 111, 148 114 Z"/>
+  {/* Scheitel und Strähnen */}
+  <path fill="none" stroke="#C99D00" strokeWidth="2.2" strokeLinecap="round" strokeOpacity=".9" d="M148 114 C 151 106, 155 99, 160 92
+    M134 120 C 114 142, 98 184, 90 232 C 84 290, 78 360, 64 432
+    M114 140 C 104 170, 92 230, 88 290
+    M180 110 C 210 118, 236 150, 248 200 C 258 260, 258 350, 270 432
+    M200 118 C 226 136, 242 180, 248 232
+    M70 330 C 66 370, 60 410, 52 436
+    M262 330 C 266 370, 270 410, 276 436"/>
+  {/* Augenbrauen */}
+  <path fill="none" stroke={NACHT} strokeWidth="3" strokeLinecap="round" d="M112 158 C 122 150, 144 149, 156 154 M176 154 C 188 149, 210 150, 220 158"/>
+  {/* Sonnenbrille */}
+  <g>
+    <path d="M104 172 C 126 166, 150 167, 160 172 L 156 206 C 152 220, 140 227, 127 227 C 114 227, 104 220, 102 206 Z" fill={NACHT} stroke={GOLD} strokeWidth="4" strokeLinejoin="round"/>
+    <path d="M172 172 C 182 167, 206 166, 228 172 L 230 206 C 228 220, 218 227, 205 227 C 192 227, 180 220, 176 206 Z" fill={NACHT} stroke={GOLD} strokeWidth="4" strokeLinejoin="round"/>
+    <path d="M160 177 C 164 171, 168 171, 172 177" fill="none" stroke={GOLD} strokeWidth="4" strokeLinecap="round"/>
+    <path d="M104 175 C 96 175, 90 177, 84 182 M228 175 C 236 175, 242 177, 248 182" fill="none" stroke={GOLD} strokeWidth="4" strokeLinecap="round"/>
+    <path d="M114 183 L 132 181 M112 191 L 121 190 M186 183 L 204 181 M184 191 L 193 190" stroke="#FFFFFF" strokeOpacity=".7" strokeWidth="2.8" strokeLinecap="round"/>
+  </g>
+  {/* Nase */}
+  <path fill="none" stroke={NACHT} strokeWidth="2.6" strokeLinecap="round" d="M163 222 C 160 231, 160 238, 167 239 C 172 239, 174 235, 172 231"/>
+  {/* Mund */}
+  <path fill="none" stroke={NACHT} strokeWidth="3.2" strokeLinecap="round" d="M142 258 C 152 268, 178 268, 190 257"/>
+  <path fill="none" stroke={NACHT} strokeOpacity=".5" strokeWidth="1.8" strokeLinecap="round" d="M149 257 C 158 253, 172 253, 184 256"/>
+  {/* Ohrring */}
+  <circle cx="102" cy="264" r="8" fill="none" stroke={NACHT} strokeWidth="5.5"/>
+  <circle cx="102" cy="264" r="8" fill="none" stroke={GOLD} strokeWidth="2.8"/>
     </svg>
   );
 }
@@ -120,11 +120,11 @@ export function MathildaKopf({ modus, setModus, onScan, onText, onBriefkasten })
     <div className="mathilda-kopf" style={{ background: `radial-gradient(120% 90% at 85% 10%, #163A7A 0%, ${C.see} 35%, ${NACHT} 85%)`, position: "relative", overflow: "hidden" }}>
       <style>{`
         .mathilda-kopf .mk-innen { max-width: 760px; margin: 0 auto; padding: 14px 24px 0; display: grid; grid-template-columns: 1fr auto; gap: 0 18px; align-items: end; }
-        .mathilda-kopf .mk-text { align-self: start; padding-top: 4px; padding-bottom: 22px; }
+        .mathilda-kopf .mk-text { align-self: end; padding-top: 26px; padding-bottom: 0; }
         .mathilda-kopf .mk-portraet { position: relative; align-self: end; animation: mk-auf 0.9s cubic-bezier(.2,.8,.2,1) both; margin-right: calc((min(760px, 100vw) - 78px) / 12); }
         .mathilda-kopf .mk-portraet svg { display: block; width: 196px; height: auto; position: relative; }
         .mathilda-kopf .mk-schein { position: absolute; inset: auto -10% 0 -10%; height: 70%; background: radial-gradient(60% 70% at 50% 100%, rgba(237,187,0,0.30), transparent 70%); pointer-events: none; }
-        .mathilda-kopf .mk-scan { margin-top: 30px; display: inline-flex; align-items: center; gap: 12px; padding: 0 22px 0 8px; height: 58px; border: none; border-radius: 999px; cursor: pointer; font-family: inherit;
+        .mathilda-kopf .mk-scan { margin-top: 26px; vertical-align: bottom; display: inline-flex; align-items: center; gap: 12px; padding: 0 22px 0 8px; height: 58px; border: none; border-radius: 999px; cursor: pointer; font-family: inherit;
           color: ${NACHT}; font-size: 17px; font-weight: 800; letter-spacing: -0.01em; background: linear-gradient(135deg, #F8D23A 0%, ${GOLD} 55%, #D9A600 100%);
           box-shadow: 0 10px 30px rgba(237,187,0,0.40), inset 0 1px 0 rgba(255,255,255,0.55); transition: transform .15s ease, box-shadow .15s ease; -webkit-tap-highlight-color: transparent; animation: mk-auf 0.9s 0.1s cubic-bezier(.2,.8,.2,1) both; }
         .mathilda-kopf .mk-scan:hover { transform: translateY(-2px); box-shadow: 0 14px 36px rgba(237,187,0,0.5), inset 0 1px 0 rgba(255,255,255,0.55); }
@@ -152,20 +152,21 @@ export function MathildaKopf({ modus, setModus, onScan, onText, onBriefkasten })
         .mathilda-kopf .mk-bk b { display: block; font-size: 16px; font-weight: 700; letter-spacing: -0.01em; margin-top: 1px; }
         .mathilda-kopf .mk-bk .mk-bk-z { display: block; font-size: 12.5px; font-weight: 300; color: #C9D6EE; line-height: 1.45; margin-top: 2px; }
         .mathilda-kopf .mk-bk .mk-bk-schloss { display: inline-flex; align-items: center; gap: 5px; margin-top: 6px; font-size: 11px; font-weight: 600; color: #E6EDF8; background: rgba(255,255,255,0.08); border-radius: 999px; padding: 3px 9px; }
-        .mathilda-kopf .mk-ober { color: ${GOLD}; font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; margin-bottom: 8px; }
-        .mathilda-kopf .mk-titel { font-weight: 700; font-size: 44px; letter-spacing: -0.03em; line-height: .98; margin: 0; }
-        .mathilda-kopf .mk-satz { color: #C9D6EE; font-size: 15.5px; font-weight: 300; line-height: 1.55; margin-top: 12px; max-width: 400px; }
+        .mathilda-kopf .mk-ober { color: ${GOLD}; font-size: 14.4px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; margin-bottom: 8px; }
+        .mathilda-kopf .mk-titel { font-weight: 700; font-size: 53px; letter-spacing: -0.03em; line-height: .98; margin: 0; }
+        .mathilda-kopf .mk-satz { color: #C9D6EE; font-size: 18.6px; font-weight: 300; line-height: 1.5; margin-top: 14px; white-space: nowrap; }
         @keyframes mk-auf { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
         @media (max-width: 560px) {
           .mathilda-kopf .mk-innen { grid-template-columns: 1fr 34vw; gap: 0 12px; padding-top: 20px; align-items: stretch; }
-          .mathilda-kopf .mk-text { align-self: start; padding: 0 0 16px; }
+          .mathilda-kopf .mk-text { align-self: end; padding: 0; }
           .mathilda-kopf .mk-portraet { margin-right: 0; align-self: stretch; position: relative; }
           .mathilda-kopf .mk-portraet svg { position: absolute; left: calc(50% + 6px); right: auto; translate: -50% 0; bottom: 16px; height: calc(100% - 16px); width: auto; max-width: none; margin: 0; }
           .mathilda-kopf .mk-schein { display: none; }
-          .mathilda-kopf .mk-ober { font-size: 10px; letter-spacing: .12em; margin-bottom: 8px; }
-          .mathilda-kopf .mk-titel { font-size: 30px; }
-          .mathilda-kopf .mk-satz { font-size: 13px; line-height: 1.5; margin-top: 8px; }
-          .mathilda-kopf .mk-scan { margin-top: 16px; width: calc((100vw - 58px) / 2); justify-content: flex-start; height: 44px; font-size: 13.5px; padding: 0 12px 0 5px; gap: 8px; box-shadow: 0 6px 18px rgba(237,187,0,0.35), inset 0 1px 0 rgba(255,255,255,0.55); }
+          .mathilda-kopf .mk-ober { font-size: 11px; letter-spacing: .1em; margin-bottom: 8px; white-space: nowrap; }
+          .mathilda-kopf .mk-titel { font-size: 36px; }
+          .mathilda-kopf .mk-satz { font-size: 15.6px; line-height: 1.45; margin-top: 8px; white-space: normal; }
+          .mathilda-kopf .mk-satz br { display: none; }
+          .mathilda-kopf .mk-scan { margin-top: 16px; width: auto; max-width: 100%; white-space: nowrap; justify-content: flex-start; height: 44px; font-size: 13.5px; padding: 0 12px 0 5px; gap: 8px; box-shadow: 0 6px 18px rgba(237,187,0,0.35), inset 0 1px 0 rgba(255,255,255,0.55); }
           .mathilda-kopf .mk-scan .mk-kam { width: 34px; height: 34px; }
           .mathilda-kopf .mk-scan .mk-kam svg { width: 18px; height: 18px; }
           .mathilda-kopf .mk-modi { grid-template-columns: repeat(2, 1fr); padding-top: 16px; padding-bottom: 22px; }
@@ -179,7 +180,8 @@ export function MathildaKopf({ modus, setModus, onScan, onText, onBriefkasten })
             Mathilda<span style={{ color: GOLD }}>AI</span>
           </h1>
           <p className="mk-satz">
-            Sie liest dein Blatt, nicht nur dein Ergebnis – und zeigt dir den einen nächsten Schritt.
+            Sie liest dein Blatt, nicht nur dein Ergebnis –<br />
+            {" "}und zeigt dir den einen nächsten Schritt.
           </p>
           <button type="button" className="mk-scan" onClick={onScan}>
             <span className="mk-kam" aria-hidden="true">
