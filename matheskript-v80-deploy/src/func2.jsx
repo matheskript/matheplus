@@ -28,6 +28,7 @@ import { BruchrechnenLogoKlein, DatenLogoKlein, GeometrieLogoKlein, GleichungenL
 import { MedaillenschrankLogo, BwmLogo, KarteLogo } from "./funcWettbewerbe.jsx";
 import { MasterclassKachel, MatheCheckenKachel, MathCreatorKachel } from "./funcMasterclass.jsx";
 import { ElternabendKachel } from "./funcElternabend.jsx";
+import { SpendenBereich } from "./funcSpendenBereich.jsx";
 import { istFrei, entsperren, EVENT_FREI } from "./seitenKonstanten.js";
 import { EntdeckenLogoKlein } from "./funcEntdeckenLogo.jsx";
 import { SatzZeilen, saetze } from "./baseSatz.jsx";
@@ -1790,6 +1791,8 @@ export function Startseite({ gehe }) {
       {/* Ganz unten: Dein Plan mit Standortcheck („Wo stehst du wirklich?“) */}
       <div style={{ marginTop: 22 }}><DeinPlanBlock gehe={gehe} /></div>
       {!desktop && <div style={{ marginTop: 18 }}><AppAnleitung /></div>}
+      {/* Ganz unten: Donate für die KI-Kosten (Seite /spenden) */}
+      <SpendenBereich gehe={gehe} />
 
     </div>
     </>
