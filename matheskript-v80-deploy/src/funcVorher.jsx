@@ -14,6 +14,45 @@ import React, { useEffect, useRef, useState } from "react";
    und unten in STAENDE eintragen.
    ====================================================================== */
 
+/* Eigene Schulbücher – ganz oben auf dieser Seite zum Öffnen.
+   bereit: false → Knopf zeigt „in Arbeit“ und ist nicht klickbar. */
+export const BUECHER = [
+  { id: "ableitungen", titel: "Differentialrechnung", zeile: "Band 1 · Ableitungen", lesen: "/buecher/ableitungen/index.html", pdf: "/buecher/ableitungen/Ableitungen.pdf", bereit: true },
+  { id: "vektoren", titel: "Vektoren, Geraden und Ebenen", zeile: "3D-Geometrie", lesen: "/buecher/vektoren/index.html", pdf: "/buecher/vektoren/Vektoren.pdf", bereit: false },
+];
+
+function BuchKnopf({ b }) {
+  const basis = { display: "flex", alignItems: "center", gap: 14, padding: "16px 20px", borderRadius: 14, textDecoration: "none", fontFamily: "inherit", minWidth: 0 };
+  const symbol = (
+    <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ flexShrink: 0 }}>
+      <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z" /><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5" />
+    </svg>
+  );
+  if (!b.bereit) {
+    return (
+      <div aria-disabled="true" style={{ ...basis, border: "1.5px dashed rgba(255,255,255,0.3)", color: BLAU_TXT, cursor: "default" }}>
+        {symbol}
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontSize: 16, fontWeight: 800, color: "#fff" }}>{b.titel}</div>
+          <div style={{ fontSize: 13, marginTop: 2 }}>{b.zeile} · in Arbeit</div>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 6, minWidth: 0 }}>
+      <a href={b.lesen} target="_blank" rel="noopener" data-buch={b.id} style={{ ...basis, background: GOLD, color: N }}>
+        {symbol}
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontSize: 16, fontWeight: 800 }}>{b.titel}</div>
+          <div style={{ fontSize: 13, fontWeight: 600, marginTop: 2 }}>{b.zeile} · ganzes Buch öffnen ↗</div>
+        </div>
+      </a>
+      <a href={b.pdf} target="_blank" rel="noopener" style={{ color: BLAU_TXT, fontSize: 13, fontWeight: 600, paddingLeft: 4 }}>PDF öffnen ↗</a>
+    </div>
+  );
+}
+
 export const STAENDE = [
   { id: "2026-10-17", titel: "17. Oktober 2026", notiz: "Stand vor der Max-Version", pfad: "/archiv/2026-10-17/index.html" },
 ];
@@ -81,6 +120,11 @@ export function EntwurfVorher() {
     <div style={{ minHeight: "calc(100vh - var(--kopf-h, 56px))", background: `radial-gradient(120% 70% at 80% 0%, #17306B 0%, ${N} 45%, ${N2} 100%)`,
       color: "#fff", fontFamily: "Montserrat, system-ui, sans-serif", padding: "28px 16px 40px" }}>
       <div style={{ maxWidth: 1320, margin: "0 auto" }}>
+        <div style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.16em", color: GOLD }}>SCHULBÜCHER</div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 14, margin: "12px 0 36px" }}>
+          {BUECHER.map((b) => <BuchKnopf key={b.id} b={b} />)}
+        </div>
+
         <div style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.16em", color: GOLD }}>ARCHIV · VORHER</div>
         <h1 style={{ fontSize: "clamp(24px, 5vw, 34px)", fontWeight: 800, letterSpacing: "-0.02em", margin: "8px 0 6px" }}>So sah die Website aus</h1>
         <p style={{ fontSize: 15, lineHeight: 1.55, color: BLAU_TXT, margin: 0, maxWidth: 640 }}>
