@@ -96,12 +96,11 @@ export function MathildaKopf({ modus, setModus, onScan, onText, onBriefkasten, o
   return (
     <div className="mathilda-kopf" style={{ background: `radial-gradient(120% 90% at 85% 10%, #163A7A 0%, ${C.see} 35%, ${NACHT} 85%)`, position: "relative", overflow: "hidden" }}>
       <style>{`
-        .mathilda-kopf .mk-innen { max-width: 760px; margin: 0 auto; padding: 14px 24px 0; display: grid; grid-template-columns: 1fr auto; gap: 0 18px; align-items: end; }
-        .mathilda-kopf .mk-text { align-self: end; padding-top: 26px; padding-bottom: 0; }
-        .mathilda-kopf .mk-portraet { position: relative; align-self: end; animation: mk-auf 0.9s cubic-bezier(.2,.8,.2,1) both; margin-right: calc((min(760px, 100vw) - 78px) / 12); }
-        .mathilda-kopf .mk-portraet svg { display: block; width: 196px; height: auto; position: relative; }
-        .mathilda-kopf .mk-schein { position: absolute; inset: auto -10% 0 -10%; height: 70%; background: radial-gradient(60% 70% at 50% 100%, rgba(237,187,0,0.30), transparent 70%); pointer-events: none; }
-        .mathilda-kopf .mk-scan { margin-top: 26px; vertical-align: bottom; display: inline-flex; align-items: center; gap: 12px; padding: 0 22px 0 8px; height: 58px; border: none; border-radius: 999px; cursor: pointer; font-family: inherit;
+        .mathilda-kopf .mk-innen { max-width: 760px; margin: 0 auto; padding: 14px 24px 0; display: grid; grid-template-columns: 1fr auto; gap: 0 18px; align-items: start; }
+        .mathilda-kopf .mk-text { padding-top: 26px; padding-bottom: 6px; }
+        .mathilda-kopf .mk-umbruch { display: none; }
+        .mathilda-kopf .mk-scanplatz { padding-top: 52px; display: flex; justify-content: flex-end; }
+        .mathilda-kopf .mk-scan { margin-top: 0; vertical-align: bottom; display: inline-flex; align-items: center; gap: 12px; padding: 0 22px 0 8px; height: 58px; border: none; border-radius: 999px; cursor: pointer; font-family: inherit;
           color: ${NACHT}; font-size: 17px; font-weight: 800; letter-spacing: -0.01em; background: linear-gradient(135deg, #F8D23A 0%, ${GOLD} 55%, #D9A600 100%);
           box-shadow: 0 10px 30px rgba(237,187,0,0.40), inset 0 1px 0 rgba(255,255,255,0.55); transition: transform .15s ease, box-shadow .15s ease; -webkit-tap-highlight-color: transparent; animation: mk-auf 0.9s 0.1s cubic-bezier(.2,.8,.2,1) both; }
         .mathilda-kopf .mk-scan:hover { transform: translateY(-2px); box-shadow: 0 14px 36px rgba(237,187,0,0.5), inset 0 1px 0 rgba(255,255,255,0.55); }
@@ -131,24 +130,23 @@ export function MathildaKopf({ modus, setModus, onScan, onText, onBriefkasten, o
         .mathilda-kopf .mk-satz { color: #C9D6EE; font-size: 18.6px; font-weight: 300; line-height: 1.5; margin-top: 14px; white-space: nowrap; }
         @keyframes mk-auf { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
         @media (max-width: 560px) {
-          .mathilda-kopf .mk-innen { grid-template-columns: 1fr 34vw; gap: 0 12px; padding-top: 20px; align-items: stretch; }
-          .mathilda-kopf .mk-text { align-self: end; padding: 0; }
-          .mathilda-kopf .mk-portraet { margin-right: 0; align-self: stretch; position: relative; }
-          .mathilda-kopf .mk-portraet svg { position: absolute; left: calc(50% + 6px); right: auto; translate: -50% 0; bottom: 16px; height: calc(100% - 16px); width: auto; max-width: none; margin: 0; }
-          .mathilda-kopf .mk-schein { display: none; }
+          .mathilda-kopf .mk-innen { grid-template-columns: minmax(0, 1fr) auto; gap: 0 10px; padding-top: 20px; align-items: start; }
+          .mathilda-kopf .mk-text { padding: 0 0 4px; }
+          .mathilda-kopf .mk-scanplatz { padding-top: 26px; }
           .mathilda-kopf .mk-ober { font-size: 11px; letter-spacing: .1em; margin-bottom: 8px; white-space: nowrap; }
           .mathilda-kopf .mk-titel { font-size: 36px; }
           .mathilda-kopf .mk-satz { font-size: 15.6px; line-height: 1.45; margin-top: 8px; white-space: normal; }
           .mathilda-kopf .mk-satz br { display: none; }
-          .mathilda-kopf .mk-scan { margin-top: 16px; width: auto; max-width: 100%; white-space: nowrap; justify-content: flex-start; height: 44px; font-size: 13.5px; padding: 0 12px 0 5px; gap: 8px; box-shadow: 0 6px 18px rgba(237,187,0,0.35), inset 0 1px 0 rgba(255,255,255,0.55); }
-          .mathilda-kopf .mk-scan .mk-kam { width: 34px; height: 34px; }
+          .mathilda-kopf .mk-umbruch { display: inline; }
+          .mathilda-kopf .mk-scan { margin-top: 0; width: auto; max-width: 100%; text-align: left; line-height: 1.1; justify-content: flex-start; height: 46px; font-size: 13px; white-space: nowrap; padding: 0 14px 0 5px; gap: 7px; box-shadow: 0 6px 18px rgba(237,187,0,0.35), inset 0 1px 0 rgba(255,255,255,0.55); }
+          .mathilda-kopf .mk-scan .mk-kam { width: 36px; height: 36px; }
           .mathilda-kopf .mk-scan .mk-kam svg { width: 18px; height: 18px; }
           .mathilda-kopf .mk-karten { grid-template-columns: 1fr; padding-bottom: 22px; }
           .mathilda-kopf .mk-karte-marke { margin-left: 8px; font-size: 13px; }
           .mathilda-kopf .mk-karte-schloss { font-size: 10px; line-height: 1.2; padding: 4px 9px; gap: 4px; flex: 0 1 auto; white-space: normal; max-width: 112px; border-radius: 12px; }
           .mathilda-kopf .mk-karte-schloss svg { display: none; }
         }
-        @media (prefers-reduced-motion: reduce) { .mathilda-kopf .mk-portraet, .mathilda-kopf .mk-scan { animation: none; } }
+        @media (prefers-reduced-motion: reduce) { .mathilda-kopf .mk-scan { animation: none; } }
       `}</style>
       <div className="mk-innen">
         <div className="mk-text">
@@ -160,18 +158,16 @@ export function MathildaKopf({ modus, setModus, onScan, onText, onBriefkasten, o
             Sie liest dein Blatt, nicht nur dein Ergebnis –<br />
             {" "}und zeigt dir den einen nächsten Schritt.
           </p>
+        </div>
+        <div className="mk-scanplatz">
           <button type="button" className="mk-scan" onClick={onScan} ref={scanRef}>
             <span className="mk-kam" aria-hidden="true">
               <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke={GOLD} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M4 8h3l2-3h6l2 3h3v11H4z" /><circle cx="12" cy="13" r="3.5" />
               </svg>
             </span>
-            Scan dein Blatt
+            Scan dein<br className="mk-umbruch" /> Blatt
           </button>
-        </div>
-        <div className="mk-portraet">
-          <div className="mk-schein" />
-          <MathildaBild groesse={196} style={{ display: "block" }} />
         </div>
       </div>
       <MathildaZyklus scanRef={scanRef} modus={modus} setModus={setModus} weitere={MODI.filter((x) => x.id !== "blatt")} />

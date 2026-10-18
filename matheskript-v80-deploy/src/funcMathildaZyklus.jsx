@@ -1,7 +1,7 @@
 /* Mathilda AI – der Lern-Zyklus unter dem Kopf: geschwungener Pfad in fünf Schritten.
-   1 Mathe mit Pen and Paper → 2 „Scan dein Blatt“ (der Knopf im Kopf, bleibt an seinem Platz)
+   1 Mathe mit Pen & Paper → 2 „Scan dein Blatt“ (kleines Abbild des Knopfs im Kopf, klickbar)
    → 3 MathildaAI arbeitet → 4 Feedback → 5 Erkenntnis; von 4 zurück zu 1.
-   Der Pfad wird aus den echten Positionen berechnet (Knopf und Knoten), damit er auf jedem Bildschirm sitzt. */
+   Der Pfad wird aus den echten Positionen der Knoten berechnet, damit er auf jedem Bildschirm sitzt. */
 import React, { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { C } from "./base1.jsx";
 import { mitMathildaAI } from "./mathildaName.jsx";
@@ -42,6 +42,22 @@ function PenPaperBild() {
   );
 }
 
+/* Kleines Abbild des goldenen Scan-Knopfs aus dem Kopf: goldene Pille, dunkler Kreis mit Kamera */
+function ScanMini() {
+  return (
+    <svg viewBox="0 0 76 46" width="76" height="46" aria-hidden="true" style={{ display: "block", overflow: "visible" }}>
+      <defs><linearGradient id="mz-scan-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#F8D23A" /><stop offset="0.55" stopColor={GOLD} /><stop offset="1" stopColor="#D9A600" /></linearGradient></defs>
+      <rect x="1" y="1" width="74" height="44" rx="22" fill="url(#mz-scan-gold)" />
+      <rect x="1.5" y="1.5" width="73" height="43" rx="21.5" fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth="1" />
+      <circle cx="23" cy="23" r="16" fill={NACHT} />
+      <g transform="translate(13 13) scale(0.833)" fill="none" stroke={GOLD} strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M4 8h3l2-3h6l2 3h3v11H4z" /><circle cx="12" cy="13" r="3.5" />
+      </g>
+      <path d="M46 23h20M46 17h14M46 29h17" stroke={NACHT} strokeWidth="3.2" strokeLinecap="round" opacity="0.85" />
+    </svg>
+  );
+}
+
 function FeedbackBild() {
   return (
     <svg viewBox="0 0 34 34" width="34" height="34" fill="none" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -72,25 +88,23 @@ function Beschriftung({ titel, text, links }) {
 
 export function MathildaZyklus({ scanRef, modus, setModus, weitere }) {
   const zRef = useRef(null);
-  const r1 = useRef(null), r3 = useRef(null), r4 = useRef(null), r5 = useRef(null);
+  const r1 = useRef(null), r2 = useRef(null), r3 = useRef(null), r4 = useRef(null), r5 = useRef(null);
   const [geo, setGeo] = useState(null);
 
   const rechne = useCallback(() => {
-    const scan = scanRef.current, z = zRef.current;
+    const z = zRef.current;
     const wurzel = z && z.closest(".mathilda-kopf");
-    if (!scan || !wurzel || !r1.current || !r3.current || !r4.current || !r5.current) return;
-    const kam = scan.querySelector(".mk-kam") || scan;
-    const b = lage(kam, wurzel), s = lage(scan, wurzel);
-    const k1 = lage(r1.current, wurzel), k3 = lage(r3.current, wurzel), k4 = lage(r4.current, wurzel), k5 = lage(r5.current, wurzel);
-    const J = { x: b.mx, y: s.y + s.h + 30 };
+    if (!wurzel || !r1.current || !r2.current || !r3.current || !r4.current || !r5.current) return;
+    const k1 = lage(r1.current, wurzel), k2 = lage(r2.current, wurzel), k3 = lage(r3.current, wurzel), k4 = lage(r4.current, wurzel), k5 = lage(r5.current, wurzel);
     const f = (n) => Math.round(n * 10) / 10;
 
-    /* A: 1 → 2 (hoch zum Knopf) */
-    const ax = k1.mx, ay = k1.y - 6;
-    const A = `M${f(ax)} ${f(ay)} C${f(ax)} ${f(ay - 44)} ${f(J.x)} ${f(J.y + 14 + 44)} ${f(J.x)} ${f(J.y + 15)}`;
-    /* B: 2 → 3 (nach rechts, Welle nach unten) */
-    const bsx = J.x + 15, bsy = J.y, bex = k3.x - 9, bey = k3.my;
-    const bd = Math.max(40, (bex - bsx) * 0.5);
+    /* A: 1 → 2 (kurz nach oben) */
+    const ax = k1.mx, ay = k1.y - 6, ex = k2.mx, ey = k2.y + k2.h + 9;
+    const am = (ay + ey) / 2;
+    const A = `M${f(ax)} ${f(ay)} C${f(ax)} ${f(am)} ${f(ex)} ${f(am)} ${f(ex)} ${f(ey)}`;
+    /* B: 2 → 3 (nach rechts, Welle) */
+    const bsx = k2.x + k2.w + 9, bsy = k2.my, bex = k3.x - 9, bey = k3.my;
+    const bd = Math.max(24, (bex - bsx) * 0.5);
     const B = `M${f(bsx)} ${f(bsy)} C${f(bsx + bd)} ${f(bsy)} ${f(bex - bd)} ${f(bey)} ${f(bex)} ${f(bey)}`;
     /* C: 3 → 4 (Schwung nach unten) */
     const csx = k3.mx, csy = k3.y + k3.h + 6, cex = k4.mx, cey = k4.y - 9;
@@ -105,9 +119,9 @@ export function MathildaZyklus({ scanRef, modus, setModus, weitere }) {
     const ed = (esx - eex) * 0.4;
     const E = `M${f(esx)} ${f(esy)} C${f(esx - ed)} ${f(esy + 17)} ${f(eex + ed)} ${f(eey - 17)} ${f(eex)} ${f(eey)}`;
 
-    const neu = { w: wurzel.offsetWidth, h: wurzel.offsetHeight, J, stumpf: [f(b.mx), f(s.y + s.h), f(J.x), f(J.y - 13)], pfade: [A, B, Cc, D, E] };
-    setGeo((alt) => (alt && alt.w === neu.w && alt.h === neu.h && alt.pfade.join("|") === neu.pfade.join("|") && alt.J.x === J.x && alt.J.y === J.y ? alt : neu));
-  }, [scanRef]);
+    const neu = { w: wurzel.offsetWidth, h: wurzel.offsetHeight, pfade: [A, B, Cc, D, E] };
+    setGeo((alt) => (alt && alt.w === neu.w && alt.h === neu.h && alt.pfade.join("|") === neu.pfade.join("|") ? alt : neu));
+  }, []);
 
   useLayoutEffect(() => {
     rechne();
@@ -140,6 +154,8 @@ export function MathildaZyklus({ scanRef, modus, setModus, weitere }) {
         .mz-mai-t { font-weight: 800; font-size: 22px; letter-spacing: -0.03em; line-height: 1; }
         .mz-mai-ring { position: absolute; inset: -9px; border-radius: 999px; border: 2px dashed rgba(237,187,0,0.7); animation: mz-dreh 14s linear infinite; }
         .mz-text { display: block; margin-top: 4px; max-width: 118px; }
+        .mz-eins .mz-text { max-width: none; }
+        .mz-eins .mz-text b { white-space: nowrap; }
         .mz-text b { display: block; font-size: 13px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.22; }
         .mz-text > span { display: block; font-size: 11.5px; font-weight: 300; line-height: 1.38; color: #C9D6EE; margin-top: 3px; }
         .mz-text-l { text-align: left; margin: 0 0 0 14px; max-width: none; }
@@ -155,8 +171,12 @@ export function MathildaZyklus({ scanRef, modus, setModus, weitere }) {
         .mz-pfad { fill: none; stroke: ${GOLD}; stroke-width: 3.2; stroke-linecap: round; stroke-dasharray: 0.1 9; animation: mz-fluss 1.6s linear infinite; }
         .mz-pfad-zurueck { stroke: rgba(255,255,255,0.78); stroke-dasharray: 0.1 8; animation-direction: normal; }
         .mz-pfad-zurueck.mz-spur { stroke: rgba(255,255,255,0.12); }
-        .mz-stumpf { stroke: ${GOLD}; stroke-width: 2.4; stroke-linecap: round; stroke-dasharray: 0.1 6; fill: none; }
-        .mz-zwei { position: absolute; z-index: 2; width: 26px; height: 26px; border-radius: 999px; background: ${GOLD}; color: ${NACHT}; font-size: 13.5px; font-weight: 800; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 4px rgba(237,187,0,0.2), 0 4px 12px rgba(5,12,40,0.5); }
+                .mz-zwei-k { grid-column: 1; grid-row: 1; flex-direction: column; justify-content: flex-end; align-self: end; }
+        .mz-zwei-k .mz-text { margin: 0 0 6px; }
+        .mz-feld-zwei { height: 62px; }
+        .mz-scanmini { transition: transform .2s ease; }
+        button.mz-zwei-k:hover .mz-scanmini, button.mz-zwei-k:focus-visible .mz-scanmini { transform: translateY(-2px); }
+        .mz-scanmini .mz-nr { top: -9px; left: -9px; }
         .mz-mehr { position: relative; z-index: 2; margin-top: 22px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; }
         .mz-mehr-l { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #9FB2D6; margin-right: 4px; }
         .mz-chip { font-family: inherit; cursor: pointer; font-size: 12.5px; font-weight: 600; color: #DCE5F6; background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.18); border-radius: 999px; padding: 7px 13px; transition: background .15s ease, transform .15s ease; -webkit-tap-highlight-color: transparent; }
@@ -169,6 +189,8 @@ export function MathildaZyklus({ scanRef, modus, setModus, weitere }) {
           .mz { padding-left: 10px; padding-right: 10px; }
           .mz-kreis { width: 66px; height: 66px; }
           .mz-papier svg { width: 80px; height: 80px; }
+          .mz-eins .mz-text b { font-size: 12px; letter-spacing: -0.02em; }
+          .mz-eins .mz-text span { font-size: 11px; }
           .mz-drei { padding-left: calc(25% - 33px); }
           .mz-eins { left: -8px; }
           .mz-fuenf { left: 6px; }
@@ -196,7 +218,14 @@ export function MathildaZyklus({ scanRef, modus, setModus, weitere }) {
             <span className="mz-feld">
               <span className="mz-form mz-papier" ref={r1}><PenPaperBild /><span className="mz-nr">1</span></span>
             </span>
-            <Beschriftung titel="Mathe mit Pen and Paper" text="Weißes Blatt, schwarzer Stift" />
+            <Beschriftung titel="Mathe mit Pen &amp; Paper" text="Weißes Blatt, schwarzer Stift" />
+          </button>
+
+          <button type="button" className="mz-knoten mz-zwei-k" onClick={() => scanRef.current && scanRef.current.click()} style={{ animationDelay: "0.12s" }}>
+            <Beschriftung titel="Scan dein Blatt" text="Foto vom Rechenweg" />
+            <span className="mz-feld mz-feld-zwei">
+              <span className="mz-form mz-scanmini" ref={r2}><ScanMini /><span className="mz-nr">2</span></span>
+            </span>
           </button>
 
           <div className="mz-knoten mz-drei" style={{ animationDelay: "0.2s" }}>
@@ -252,9 +281,7 @@ export function MathildaZyklus({ scanRef, modus, setModus, weitere }) {
                 <path d={d} className={i === 4 ? "mz-pfad mz-pfad-zurueck" : "mz-pfad"} markerEnd={i === 4 ? "url(#mz-pfeil-w)" : "url(#mz-pfeil)"} />
               </g>
             ))}
-            <line className="mz-stumpf" x1={geo.stumpf[0]} y1={geo.stumpf[1]} x2={geo.stumpf[2]} y2={geo.stumpf[3]} />
           </svg>
-          <span className="mz-zwei" style={{ left: geo.J.x - 13, top: geo.J.y - 13 }} aria-hidden="true">2</span>
         </>
       )}
     </>
