@@ -62,3 +62,23 @@ test("jedes Werkzeug kommt in mindestens einem Kapitel vor", () => {
 test("römische Ziffern", () => {
   assert.equal(roemisch(1), "I"); assert.equal(roemisch(4), "IV"); assert.equal(roemisch(12), "XII");
 });
+
+/* Empfohlene Kurse unter „Dein Training startet hier.“ */
+import { KURS_EMPFEHLUNG, kurseFuer } from "../src/schulbuch.js";
+import { WERKZEUGE as WZ_TEST } from "../src/werkzeuge.js";
+import { unterthemen as unterthemenTest } from "../src/unterthemen.js";
+test("Kurs-Empfehlungen: Kapitel existieren, höchstens 3, Klasse 12 G9 bekommt Differential- und Vektorkurs", () => {
+  for (const k of KURS_EMPFEHLUNG) for (const id of k.kapitel) assert.ok(THEMEN[id], `${k.id}: Kapitel ${id}`);
+  for (const s of SCHULARTEN) for (const b of klassenBoxen(s.id)) {
+    const r = kurseFuer(s.id, b.id);
+    assert.ok(r.length <= 3, `${s.id}/${b.id}`);
+    for (const k of r) assert.ok(k.passt.length > 0 && k.ziel && k.ziel.ansicht);
+  }
+  const ids = kurseFuer("g9", "12").map((k) => k.id);
+  assert.ok(ids.includes("diffkurs") && ids.includes("vekkurs"), ids.join());
+  assert.equal(kurseFuer("g9", "12")[0].id === "diffkurs" || kurseFuer("g9", "12")[0].id === "vekkurs", true);
+});
+test("Handy-Menü: jedes Unterthema mit Generator oder Werkzeug hat ein gültiges Ziel", () => {
+  for (const s of SCHULARTEN) for (const b of klassenBoxen(s.id)) for (const k of kapitelFuer(s.id, b.id))
+    for (const u of unterthemenTest(k.id)) if (!u.gen.length && u.wz) assert.ok(WZ_TEST[u.wz] && WZ_TEST[u.wz].ziel, `${u.id}: ${u.wz}`);
+});

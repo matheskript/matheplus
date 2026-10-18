@@ -166,3 +166,26 @@ export function hilfenFuer(themaId) {
 
 /* Römische Ziffer fürs Kapitel (I … XII) */
 export const roemisch = (n) => ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"][n] || String(n);
+
+/* ---------- Empfohlene Kurse zur gewählten Klasse ----------
+   Ein Kurs wird empfohlen, wenn Kapitel der Klasse zu ihm passen. Je mehr Kapitel, desto weiter vorn (höchstens 3).
+   Gesperrte Programme (Masterclass, Mathe checken, Videokurse) tauchen hier nicht auf. */
+export const KURS_EMPFEHLUNG = [
+  { id: "diffkurs", name: "Kurs Differentialrechnung", zeile: "Jedes Buchkapitel lesen und direkt darunter trainieren", ziel: { ansicht: "diffkurs" },
+    kapitel: ["diff1", "ablregeln", "ksDiff", "ksExp", "ganzrat"] },
+  { id: "vekkurs", name: "Kurs Vektoren, Geraden und Ebenen", zeile: "Jedes Heftkapitel lesen und direkt darunter trainieren", ziel: { ansicht: "vekkurs" },
+    kapitel: ["vek1", "ksLgs", "ksGeraden", "ksAbstand"] },
+  { id: "gleichkurs", name: "Gleichungen", zeile: "Eine Zahl finden, über die du etwas weißt – verstehen, rechnen, trainieren", ziel: { ansicht: "gleichkurs" },
+    kapitel: ["termegl", "binom", "lgs2", "quad", "bruchterme", "wurzeln", "potenzen", "explog", "linfkt"] },
+  { id: "headnumbers", name: "Kopfrechnen", zeile: "Einmaleins, Quadrat- und Kubikzahlen – mit Lernpfad und Wiederholung", ziel: { ansicht: "headnumbers" },
+    kapitel: ["natzahlen", "rechnen", "ganze", "brueche", "bruchrechnen", "dezimal", "rational", "teilbarkeit", "prozent", "wurzeln"] },
+];
+export function kurseFuer(schulartId, boxId, max = 3) {
+  const kap = kapitelFuer(schulartId, boxId);
+  return KURS_EMPFEHLUNG
+    .map((k, i) => ({ ...k, i, passt: kap.filter((c) => k.kapitel.includes(c.id)).map((c) => c.titel) }))
+    .filter((k) => k.passt.length > 0)
+    .sort((a, b) => b.passt.length - a.passt.length || a.i - b.i)
+    .slice(0, max)
+    .map(({ id, name, zeile, ziel, passt }) => ({ id, name, zeile, ziel, passt }));
+}

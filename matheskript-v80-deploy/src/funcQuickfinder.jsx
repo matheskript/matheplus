@@ -7,7 +7,8 @@
    ====================================================================== */
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { C } from "./base1.jsx";
-import { SCHULARTEN, SCHULART_STANDARD, THEMEN, hilfenFuer, kapitelFuer, klassenBoxen, roemisch, schulart as schulartVon, stufeAusKlassenBox } from "./schulbuch.js";
+import { SCHULARTEN, SCHULART_STANDARD, THEMEN, hilfenFuer, kapitelFuer, klassenBoxen, kurseFuer, roemisch, schulart as schulartVon, stufeAusKlassenBox } from "./schulbuch.js";
+import { WERKZEUGE } from "./werkzeuge.js";
 import { kapitelAuswahl } from "./kapitelFormeln.js";
 import { englisch } from "./i18n.js";
 import { unterthema, unterthemen } from "./unterthemen.js";
@@ -119,6 +120,21 @@ const Pfeil = ({ auf, farbe = C.see, gross = 18 }) => (
     <path d="M4 7 L9 12 L14 7" fill="none" stroke={farbe} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
+
+/* Handy und Tablet (unter 840 px, wie die Startseite): hier gibt es keinen Trainingsplan zum Anhaken,
+   sondern das einfache Menü – Kapitel aufklappen, Unterthema oder Werkzeug antippen, unten Kurs-Empfehlungen. */
+const HANDY_MQ = "(max-width: 839.98px)";
+function useHandy() {
+  const [h, setH] = useState(() => { try { return window.matchMedia(HANDY_MQ).matches; } catch { return false; } });
+  useEffect(() => {
+    let mq; try { mq = window.matchMedia(HANDY_MQ); } catch { return undefined; }
+    const f = () => setH(mq.matches);
+    f();
+    mq.addEventListener ? mq.addEventListener("change", f) : mq.addListener(f);
+    return () => (mq.removeEventListener ? mq.removeEventListener("change", f) : mq.removeListener(f));
+  }, []);
+  return h;
+}
 
 /* ---------- Trainingsplan: Themen zum Anhaken ----------
    Kapitel antippen klappt die Unterthemen auf; das Kästchen links hakt das ganze Kapitel an oder ab
@@ -289,13 +305,13 @@ function mitFormelauswahl(liste, kapitelId, schulart, klasse) {
 /* Trainings-Werkzeuge eines Kapitels: zuerst „5 Aufgaben zum Kapitel“ (falls es Trainer-Aufgaben gibt)
    und „Trainingsplan zu diesem Kapitel“, dann alle Werkzeuge und Seiten aus schulbuch.js;
    die Formelsammlungs-Bereiche als eine Zeile. */
-export function werkzeugeZumKapitel(kapitelId, schulart, klasse) {
+export function werkzeugeZumKapitel(kapitelId, schulart, klasse, mitPlan = true) {
   const liste = mitFormelauswahl(hilfenFuer(kapitelId), kapitelId, schulart, klasse);
   const training = sacheGeneratoren(kapitelId, null).length
     ? [{ art: "training", id: "trainieren", name: "5 Aufgaben zum Kapitel", zeile: "Mit Hinweisen, Lösungsweg und Rückmeldung zu deinem Fehler",
         ziel: { ansicht: "trainieren", kapitel: kapitelId, teil: null, schulart, klasse } }]
     : [];
-  if (unterthemen(kapitelId).length)
+  if (mitPlan && unterthemen(kapitelId).length)
     training.push({ art: "plan", id: "trainingsplan", name: "Trainingsplan zu diesem Kapitel", zeile: "Themen anhaken, Warm-up, Basis-Check und Wiederholungen nach Ebbinghaus", stern: true });
   return [...training, ...liste.filter((h) => h.art === "werkzeug"), ...liste.filter((h) => h.art === "seite")];
 }
@@ -321,9 +337,35 @@ function WerkzeugZeile({ h, gold, waehle }) {
   );
 }
 
+/* Unterthema antippen: Übungsaufgaben, sonst das beste Werkzeug dazu; ohne beides bleibt die Zeile ausgegraut. */
+function unterthemaOeffnen(u, kapitelId, schulart, klasse, gehe) {
+  if (u.gen.length) return gehe({ ansicht: "trainieren", kapitel: kapitelId, teil: u.id, schulart, klasse });
+  const wz = u.wz && WERKZEUGE[u.wz];
+  if (wz) return gehe(wz.ziel);
+  return undefined;
+}
+function UnterthemaZeile({ u, waehle }) {
+  const wz = u.wz && WERKZEUGE[u.wz];
+  const geht = u.gen.length > 0 || !!wz;
+  return (
+    <button type="button" onClick={waehle} disabled={!geht} className={geht ? "qf-balken" : undefined}
+      style={{ ...knopfBasis, width: "100%", display: "flex", alignItems: "center", gap: 10, textAlign: "left", minHeight: 44, padding: "6px 10px 6px 12px",
+        borderRadius: 10, border: `1.5px solid ${C.linie}`, background: C.weiss, fontWeight: 600, cursor: geht ? "pointer" : "default", opacity: geht ? 1 : 0.55 }}>
+      <span style={{ flex: 1, minWidth: 0 }}>
+        <span style={{ display: "block", fontSize: 14, color: C.tinte, lineHeight: 1.25 }}>{u.titel}</span>
+        <span style={{ display: "block", fontSize: 11.5, fontWeight: 400, color: C.grau, marginTop: 1, lineHeight: 1.3 }}>
+          {u.gen.length ? "Mit Übungsaufgaben" : wz ? wz.name : "Aufgaben kommen noch"}
+        </span>
+      </span>
+      {u.gen.length > 0 && <span aria-hidden="true" style={{ flexShrink: 0, width: 7, height: 7, borderRadius: 999, background: C.flaggold }} />}
+      {geht && <span aria-hidden="true" style={{ flexShrink: 0, fontSize: 20, color: C.see }}>›</span>}
+    </button>
+  );
+}
+
 /* Menü: alle Kapitel der gewählten Klasse untereinander; ein Kapitel klappt auf und zeigt seine Werkzeuge.
    Immer nur ein Kapitel offen; das offene Kapitel bleibt gespeichert. */
-function KapitelMenue({ schulart, klasse, offen, setOffen, gehe, planOeffnen }) {
+function KapitelMenue({ schulart, klasse, offen, setOffen, gehe, planOeffnen, handy = false }) {
   const kapitel = kapitelFuer(schulart, klasse);
   const s = schulartVon(schulart);
   const box = klassenBoxen(schulart).find((b) => b.id === klasse);
@@ -337,7 +379,8 @@ function KapitelMenue({ schulart, klasse, offen, setOffen, gehe, planOeffnen }) 
       <div role="list" aria-label="Themen der Klasse" style={{ display: "grid", gap: 6 }}>
         {kapitel.map((k) => {
           const auf = offen === k.id;
-          const werkzeuge = auf ? werkzeugeZumKapitel(k.id, schulart, klasse) : [];
+          const werkzeuge = auf ? werkzeugeZumKapitel(k.id, schulart, klasse, !handy) : [];
+          const teile = auf && handy ? unterthemen(k.id) : [];
           return (
             <div key={k.id} role="listitem" ref={(el) => { refs.current[k.id] = el; }}
               style={{ borderRadius: 12, border: `1.5px solid ${auf ? C.see : C.linie}`, background: C.weiss, overflow: "hidden",
@@ -354,7 +397,13 @@ function KapitelMenue({ schulart, klasse, offen, setOffen, gehe, planOeffnen }) 
               </button>
               {auf && (
                 <div className="auftauchen" style={{ display: "grid", gap: 6, padding: "10px 10px 12px", borderTop: `1px solid ${C.linie}`, background: "#F6F9FE" }}>
-                  <p style={{ ...KICKER, fontSize: 10.5, margin: "0 2px 2px" }}>Trainings-Werkzeuge zu diesem Kapitel</p>
+                  {teile.length > 0 && (
+                    <>
+                      <p style={{ ...KICKER, fontSize: 10.5, margin: "0 2px 2px" }}>Unterthemen – antippen und üben</p>
+                      {teile.map((u) => <UnterthemaZeile key={u.id} u={u} waehle={() => unterthemaOeffnen(u, k.id, schulart, klasse, gehe)} />)}
+                    </>
+                  )}
+                  <p style={{ ...KICKER, fontSize: 10.5, margin: `${teile.length > 0 ? 8 : 0}px 2px 2px` }}>Trainings-Werkzeuge zu diesem Kapitel</p>
                   {werkzeuge.map((h, i) => <WerkzeugZeile key={h.art + h.id} h={h} gold={i === 0}
                     waehle={(x) => (x.art === "plan" ? planOeffnen(k.id) : gehe(x.ziel))} />)}
                 </div>
@@ -366,6 +415,33 @@ function KapitelMenue({ schulart, klasse, offen, setOffen, gehe, planOeffnen }) 
       <p style={{ margin: "8px 2px 0", fontSize: 11.5, color: C.hellgrau, lineHeight: 1.5 }}>
         Reihenfolge wie im Lambacher Schweizer (Baden-Württemberg); je nach Schule kann sie abweichen.
       </p>
+    </div>
+  );
+}
+
+/* Unter dem Menü, sobald Schulsystem und Klasse gewählt sind: Kurse, die zu den Kapiteln der Klasse passen */
+function EmpfohleneKurse({ schulart, klasse, gehe }) {
+  const kurse = useMemo(() => kurseFuer(schulart, klasse), [schulart, klasse]);
+  if (!kurse.length) return null;
+  return (
+    <div style={{ marginTop: 16 }}>
+      <p style={{ ...KICKER, color: C.grau, marginBottom: 8 }}>Empfohlene Kurse für dich</p>
+      <div style={{ display: "grid", gap: 6 }}>
+        {kurse.map((k) => (
+          <button key={k.id} type="button" onClick={() => gehe(k.ziel)} className="qf-balken" data-kurs-empfehlung={k.id}
+            style={{ ...knopfBasis, width: "100%", display: "flex", alignItems: "center", gap: 10, textAlign: "left", minHeight: 56, padding: "9px 10px 9px 14px",
+              borderRadius: 12, border: `1.5px solid ${C.flaggold}`, background: "#FFFBEA", color: C.tinte }}>
+            <span style={{ flex: 1, minWidth: 0 }}>
+              <span style={{ display: "block", fontSize: 15, fontWeight: 700, lineHeight: 1.25 }}>{k.name}</span>
+              <span style={{ display: "block", fontSize: 12, fontWeight: 400, color: C.grau, marginTop: 2, lineHeight: 1.3 }}>{k.zeile}</span>
+              <span style={{ display: "block", fontSize: 11.5, fontWeight: 600, color: "#8A6A00", marginTop: 3, lineHeight: 1.3 }}>
+                <span>Passt zu</span> <span data-kein-i18n>{k.passt.slice(0, 2).join(" · ")}{k.passt.length > 2 ? " …" : ""}</span>
+              </span>
+            </span>
+            <span aria-hidden="true" style={{ flexShrink: 0, fontSize: 20, color: "#8A6A00" }}>›</span>
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
@@ -519,7 +595,8 @@ export function Quickfinder({ gehe, setzeStufe, links }) {
     const box = klassenBoxen(q.schulart).find((b) => b.id === id);
     if (box && setzeStufe) setzeStufe(stufeAusKlassenBox(box));
   };
-  const plan = q.modus === "plan";
+  const handy = useHandy();
+  const plan = q.modus === "plan" && !handy;   // am Handy nie der Anhak-Plan, auch nicht aus altem Speicher
   const auswahl = q.auswahl || [];
   const nachOben = () => requestAnimationFrame(() => { const el = menueRef.current; if (el && el.getBoundingClientRect().top < 0) springe("quickfinder-menue", () => el.scrollIntoView({ block: "start", behavior: "smooth" })); });
   // „Trainingsplan zu diesem Kapitel“: alle Unterthemen des Kapitels anhaken (bisher Angehaktes bleibt)
@@ -566,9 +643,10 @@ export function Quickfinder({ gehe, setzeStufe, links }) {
         <div className="qf-menue" ref={menueRef}>
           {aktiv && <AktiverPlan v={aktiv} gehe={gehe} />}
           {q.schulart && q.klasse && !plan && (
-            <KapitelMenue key={q.schulart + q.klasse} schulart={q.schulart} klasse={q.klasse} offen={q.kapitel} gehe={gehe} planOeffnen={planOeffnen}
+            <KapitelMenue key={q.schulart + q.klasse} schulart={q.schulart} klasse={q.klasse} offen={q.kapitel} gehe={gehe} planOeffnen={planOeffnen} handy={handy}
               setOffen={(id) => setze({ ...q, kapitel: id, teil: null })} />
           )}
+          {q.schulart && q.klasse && !plan && <EmpfohleneKurse schulart={q.schulart} klasse={q.klasse} gehe={gehe} />}
           {q.schulart && q.klasse && plan && (
             <>
               <button type="button" onClick={zurueck}
