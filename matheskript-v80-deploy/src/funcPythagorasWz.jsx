@@ -18,7 +18,7 @@ import { IchHaengeFest } from "./funcHilfe.jsx";
 import { GrosserKnopf, KleinerLink, hilfeKontext, hinweis, karte, kicker, zw } from "./ui2.jsx";
 import { Aufklapp, ModusLeiste, Seite, SchrittFolge, zt } from "./ui3.jsx";
 import { GRAD, PYTH_ARTEN, pythAufgabe } from "./geoMittel.js";
-import { Merke, Regler, WertZeile, Zeichenblatt, add, mal, mitte, sub } from "./geoUi.jsx";
+import { Merke, Regler, WertZeile, Zeichenblatt, add, mal, mitte, sub, EntdeckenZweispaltig } from "./geoUi.jsx";
 
 let zaehler = 0;
 const z2 = (v) => zt(v, 2);
@@ -50,13 +50,21 @@ function Entdecken() {
   return (
     <>
       <div style={{ ...karte, marginTop: 16 }}>
+        <EntdeckenZweispaltig
+          steuerung={<>
         <p style={kicker}>{zw("Dreieck einstellen", "Set up the triangle")}</p>
         <div style={{ display: "grid", gap: 10 }}>
           <Regler name="a" wert={a} setWert={setA} min={1} max={6} schritt={0.5} farbe="#8A6A00" />
           <Regler name="b" wert={b} setWert={setB} min={1} max={6} schritt={0.5} farbe={FB} />
           <Regler name="γ" wert={g} setWert={setG} min={50} max={130} schritt={1} farbe={C.gruen} format={(v) => `${zt(v, 0)}°`} />
         </div>
-        <div style={{ marginTop: 12, background: C.sand, borderRadius: 14, padding: 6 }}>
+          <div style={{ marginTop: 12 }} />
+        <p style={kicker}>{zw("Vergleich der Flächen", "Comparing the areas")}</p>
+        <WertZeile links={<M t="a² + b²" />} rechts={z2(summe)} />
+        <WertZeile links={<M t="c²" />} rechts={z2(c2)} farbe="#0B5E43" />
+          </>}
+          bild={
+        <div style={{ background: C.sand, borderRadius: 14, padding: 6 }}>
           <Zeichenblatt punkte={[...qa, ...qb, ...qc]} hoehe={300} rand={14}
             label={zw("Dreieck mit Quadraten über allen drei Seiten", "Triangle with squares on all three sides")}
             kinder={(zz) => (
@@ -75,11 +83,8 @@ function Entdecken() {
               </>
             )} />
         </div>
-      </div>
-      <div style={{ ...karte, marginTop: 12 }}>
-        <p style={kicker}>{zw("Vergleich der Flächen", "Comparing the areas")}</p>
-        <WertZeile links={<M t="a² + b²" />} rechts={z2(summe)} />
-        <WertZeile links={<M t="c²" />} rechts={z2(c2)} farbe="#0B5E43" />
+          }
+          unten={<>
         <div style={{ textAlign: "center", fontSize: 26, fontWeight: 800, color: recht ? C.smaragd : C.gruen, margin: "10px 0 2px" }}>
           <M t={`a² + b² ${zeichen === "<" ? ">" : zeichen === ">" ? "<" : "="} c²`} />
         </div>
@@ -96,6 +101,8 @@ function Entdecken() {
             {zw("Warum gilt das? Beweis selbst herleiten in Mathe entdecken ›", "Why is that true? Derive the proof yourself in Discover maths ›")}
           </KleinerLink>
         </div>
+          </>}
+        />
       </div>
     </>
   );

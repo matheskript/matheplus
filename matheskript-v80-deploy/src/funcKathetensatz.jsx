@@ -16,7 +16,7 @@ import { M } from "./func3.jsx";
 import { Auswahl, hilfeKontext, karte, kicker, zw } from "./ui2.jsx";
 import { Aufklapp, ModusLeiste, Seite, zt } from "./ui3.jsx";
 import { KATH_ARTEN, kathAufgabe } from "./geoMittel2.js";
-import { Merke, Regler, UebenRahmen, WertZeile, Zeichenblatt, tolRund } from "./geoUi.jsx";
+import { EntdeckenZweispaltig, Merke, Regler, UebenRahmen, WertZeile, Zeichenblatt, tolRund } from "./geoUi.jsx";
 
 let zaehler = 0;
 const z2 = (v) => zt(v, 2);
@@ -42,13 +42,19 @@ function Entdecken() {
   const pts = kath ? [...qa, ...rechteckP, A] : [...qh, ...rechteckPQ, A, B];
   return (
     <div style={{ ...karte, marginTop: 16 }}>
+      <EntdeckenZweispaltig
+        steuerung={<>
       <p style={kicker}>{zw("Satz wählen", "Choose a theorem")}</p>
       <Auswahl optionen={[["kathete", zw("Kathetensatz", "Leg theorem")], ["hoehe", zw("Höhensatz", "Altitude theorem")]]} wert={satz} setWert={setSatz} label={zw("Satz", "Theorem")} />
       <div style={{ display: "grid", gap: 8, marginTop: 12 }}>
         <Regler name="c" wert={c} setWert={setC} min={4} max={8} schritt={0.5} />
         <Regler name={zw("Fußpunkt", "Foot")} wert={t} setWert={setT} min={0.15} max={0.85} schritt={0.01} farbe={C.gruen} format={(v) => `p = ${zt(c * v, 2)}`} breiteName={66} />
       </div>
-      <div style={{ marginTop: 12, background: C.sand, borderRadius: 14, padding: 6 }}>
+      <WertZeile links="a, b, c" rechts={`${z2(a)} | ${z2(b)} | ${z2(c)}`} />
+      <WertZeile links="p, q, h" rechts={`${z2(p)} | ${z2(q)} | ${z2(h)}`} />
+        </>}
+        bild={
+      <div style={{ background: C.sand, borderRadius: 14, padding: 6 }}>
         <Zeichenblatt punkte={pts} hoehe={300} rand={14} label={zw("Rechtwinkliges Dreieck mit flächengleichem Quadrat und Rechteck", "Right triangle with a square and a rectangle of equal area")}
           kinder={(zz) => (
             <>
@@ -66,8 +72,8 @@ function Entdecken() {
             </>
           )} />
       </div>
-      <WertZeile links="a, b, c" rechts={`${z2(a)} | ${z2(b)} | ${z2(c)}`} />
-      <WertZeile links="p, q, h" rechts={`${z2(p)} | ${z2(q)} | ${z2(h)}`} />
+        }
+        unten={
       <Merke farbe={kath ? C.flaggold : C.see}>
         {kath
           ? zw("Kathetensatz: Das Quadrat über der Kathete a ist so groß wie das Rechteck aus der Hypotenuse c und dem anliegenden Abschnitt p: a² = c · p (ebenso b² = c · q). Addiert man beide, entsteht a² + b² = c · (p + q) = c² – Pythagoras.",
@@ -75,6 +81,8 @@ function Entdecken() {
           : zw("Höhensatz: Das Quadrat über der Höhe h ist so groß wie das Rechteck aus den beiden Hypotenusenabschnitten: h² = p · q.",
             "Altitude theorem: the square on the altitude h has the same area as the rectangle from the two hypotenuse segments: h² = p · q.")}
       </Merke>
+        }
+      />
     </div>
   );
 }

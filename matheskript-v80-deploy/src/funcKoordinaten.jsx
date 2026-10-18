@@ -11,7 +11,7 @@ import React, { useState } from "react";
 import { C } from "./base1.jsx";
 import { Auswahl, hilfeKontext, karte, kicker, zw } from "./ui2.jsx";
 import { KOORD_ARTEN, koordAufgabe } from "./unterGen.js";
-import { Merke, Regler, UebenRahmen, WertZeile, ZweiModi, zs } from "./geoUi.jsx";
+import { Merke, Regler, UebenRahmen, WertZeile, ZweiModi, zs, EntdeckenZweispaltig } from "./geoUi.jsx";
 
 let zaehler = 0;
 const mz = (v) => String(v).replace("-", "−");
@@ -52,18 +52,26 @@ function Entdecken() {
   const B = art === "x" ? [x, -y] : art === "y" ? [-x, y] : [-x, -y];
   return (
     <div style={{ ...karte, marginTop: 16 }}>
+      <EntdeckenZweispaltig
+        steuerung={<>
       <p style={kicker}>{zw("Punkt spiegeln", "Reflect a point")}</p>
       <div style={{ display: "grid", gap: 8 }}>
         <Regler name="x" wert={x} setWert={setX} min={-5} max={5} schritt={1} format={mz} />
         <Regler name="y" wert={y} setWert={setY} min={-5} max={5} schritt={1} format={mz} farbe={C.gruen} />
       </div>
       <div style={{ marginTop: 10 }}><Auswahl optionen={[["x", zw("an der x-Achse", "in the x-axis")], ["y", zw("an der y-Achse", "in the y-axis")], ["o", zw("am Ursprung", "in the origin")]]} wert={art} setWert={setArt} label={zw("Spiegelung", "Reflection")} /></div>
-      <div style={{ marginTop: 12, background: C.sand, borderRadius: 14, padding: 8 }}>
-        <Gitter achse={art === "o" ? null : art} linien={[[[x, y], B, C.gruen]]} punkte={[{ P: [x, y], name: "P" }, { P: B, name: "P′", farbe: "#8A6A00" }, ...(art === "o" ? [{ P: [0, 0], farbe: C.gruen }] : [])]} />
-      </div>
       <WertZeile links="P" rechts={pt([x, y])} />
       <WertZeile links="P′" rechts={pt(B)} farbe="#8A6A00" />
+        </>}
+        bild={
+      <div style={{ background: C.sand, borderRadius: 14, padding: 8 }}>
+        <Gitter achse={art === "o" ? null : art} linien={[[[x, y], B, C.gruen]]} punkte={[{ P: [x, y], name: "P" }, { P: B, name: "P′", farbe: "#8A6A00" }, ...(art === "o" ? [{ P: [0, 0], farbe: C.gruen }] : [])]} />
+      </div>
+        }
+        unten={<>
       <Merke>{{ x: zw("An der x-Achse: x bleibt, y wechselt das Vorzeichen.", "In the x-axis: x stays, y changes sign."), y: zw("An der y-Achse: y bleibt, x wechselt das Vorzeichen.", "In the y-axis: y stays, x changes sign."), o: zw("Am Ursprung: beide Koordinaten wechseln das Vorzeichen. O ist die Mitte von PP′.", "In the origin: both coordinates change sign. O is the midpoint of PP′.") }[art]}</Merke>
+        </>}
+      />
     </div>
   );
 }

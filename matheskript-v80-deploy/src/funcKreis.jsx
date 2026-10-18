@@ -14,7 +14,7 @@ import { M } from "./func3.jsx";
 import { hilfeKontext, karte, kicker, zw } from "./ui2.jsx";
 import { Aufklapp, ModusLeiste, Seite, zt } from "./ui3.jsx";
 import { KREIS_ARTEN, kreisAufgabe } from "./geoMittel2.js";
-import { Merke, Regler, UebenRahmen, WertZeile, tolRund } from "./geoUi.jsx";
+import { Merke, Regler, UebenRahmen, WertZeile, tolRund, EntdeckenZweispaltig } from "./geoUi.jsx";
 import { GeoAnimation } from "./funcGeoAnimationen.jsx";
 
 let zaehler = 0;
@@ -52,14 +52,14 @@ function Entdecken() {
     <>
       <GeoAnimation art="kreis" offen />
       <div style={{ ...karte, marginTop: 16 }}>
+        <EntdeckenZweispaltig
+          steuerung={<>
         <p style={kicker}>{zw("Kreis einstellen", "Set up the circle")}</p>
         <div style={{ display: "grid", gap: 8 }}>
           <Regler name="r" wert={r} setWert={setR} min={1} max={8} schritt={0.5} />
           <Regler name="α" wert={alpha} setWert={setAlpha} min={0} max={360} schritt={5} farbe={C.gruen} format={(v) => `${zt(v, 0)}°`} />
         </div>
-        <div style={{ marginTop: 12, background: C.sand, borderRadius: 14, padding: 6 }}><KreisBild r={3} alpha={alpha} beschr={{ r: `r = ${z2(r)}` }} /></div>
-      </div>
-      <div style={{ ...karte, marginTop: 12 }}>
+          <div style={{ marginTop: 12 }} />
         <p style={kicker}>{zw("Werte", "Values")}</p>
         <WertZeile links={zw("Durchmesser d = 2r", "Diameter d = 2r")} rechts={z2(2 * r)} />
         <WertZeile links={zw("Umfang u = 2πr", "Circumference u = 2πr")} rechts={z2(u)} />
@@ -67,8 +67,15 @@ function Entdecken() {
         <WertZeile links={zw("Anteil α : 360°", "Share α : 360°")} rechts={`${zt(anteil * 100, 1)} %`} farbe={C.gruen} />
         <WertZeile links={zw("Bogen b = u · α : 360°", "Arc b = u · α : 360°")} rechts={z2(u * anteil)} farbe={C.gruen} />
         <WertZeile links={zw("Sektorfläche = A · α : 360°", "Sector area = A · α : 360°")} rechts={z2(A * anteil)} farbe="#8A6A00" />
+          </>}
+          bild={
+        <div style={{ background: C.sand, borderRadius: 14, padding: 6 }}><KreisBild r={3} alpha={alpha} beschr={{ r: `r = ${z2(r)}` }} /></div>
+          }
+          unten={<>
         <Merke>{zw(`Jeder Kreis ist eine Vergrößerung jedes anderen. Darum ist Umfang : Durchmesser immer dieselbe Zahl: π ≈ 3,14159. Bogen und Sektor sind einfach der Anteil α : 360° vom Ganzen – hier ${zt(anteil * 100, 1)} %.`,
           `Every circle is an enlargement of every other. So circumference : diameter is always the same number: π ≈ 3.14159. Arc and sector are just the share α : 360° of the whole – here ${zt(anteil * 100, 1)} %.`)}</Merke>
+          </>}
+        />
       </div>
     </>
   );

@@ -9,7 +9,7 @@
    Keine base-Datei darf diese Datei importieren.
    ====================================================================== */
 
-import React, { useMemo, useState } from "react";
+import React, { createContext, useContext, useMemo, useState } from "react";
 import { C } from "./base1.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
 import { GrosserKnopf, MS, hinweis, karte, kicker, zw } from "./ui2.jsx";
@@ -18,6 +18,8 @@ import { Aufklapp, ModusLeiste, Seite, SchrittFolge, zt } from "./ui3.jsx";
 export const SCHRIFT = "Montserrat, system-ui, sans-serif";
 
 /* ---------- Regler ---------- */
+/* In der schmalen Steuerspalte (EntdeckenZweispaltig) wird der Regler zweizeilig. */
+export const KompaktCtx = createContext(false);
 export function Regler({ name, wert, setWert, min, max, schritt, farbe = C.see, format = (v) => zt(v, 1), breiteName = 44 }) {
   const setze = (v) => setWert(Math.round(Math.max(min, Math.min(max, v)) * 1000) / 1000);
   const knopf = (d, z) => {
@@ -28,6 +30,30 @@ export function Regler({ name, wert, setWert, min, max, schritt, farbe = C.see, 
           fontFamily: "inherit", cursor: "pointer", padding: 0, lineHeight: 1, touchAction: "manipulation", opacity: aus ? 0.35 : 1 }}>{z}</button>
     );
   };
+  const kompakt = useContext(KompaktCtx);
+  if (kompakt) {
+    const k2 = (d, z) => {
+      const aus = (d < 0 && wert <= min + 1e-9) || (d > 0 && wert >= max - 1e-9);
+      return (
+        <button type="button" aria-label={`${name} ${d > 0 ? "+" : "−"}`} onClick={() => setze(wert + d * schritt)} disabled={aus}
+          style={{ width: 32, height: 28, borderRadius: 8, border: `1.5px solid ${farbe}66`, background: `${farbe}14`, color: farbe, fontSize: 17, fontWeight: 800,
+            fontFamily: "inherit", cursor: "pointer", padding: 0, lineHeight: 1, touchAction: "manipulation", opacity: aus ? 0.35 : 1, flex: "none" }}>{z}</button>
+      );
+    };
+    return (
+      <div style={{ display: "grid", gap: 4 }}>
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8 }}>
+          <span style={{ fontSize: 14, fontWeight: 800, color: farbe }}>{name}</span>
+          <span style={{ fontSize: 15, fontWeight: 800, color: C.tinte, fontVariantNumeric: "tabular-nums" }}>{format(wert)}</span>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <input type="range" min={min} max={max} step={schritt} value={wert} onChange={(e) => setze(Number(e.target.value))} aria-label={name}
+            style={{ flex: 1, minWidth: 0, accentColor: farbe }} />
+          {k2(-1, "−")}{k2(1, "+")}
+        </div>
+      </div>
+    );
+  }
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
       <span style={{ fontSize: 14, fontWeight: 800, color: farbe, minWidth: breiteName }}>{name}</span>
@@ -139,6 +165,39 @@ export function Zeichenblatt({ punkte, breite = 340, hoehe = 240, rand = 34, lab
     <svg viewBox={`0 0 ${breite} ${hoehe}`} style={{ width: "100%", height: "auto", display: "block" }} role="img" aria-label={label}>
       {kinder(z)}
     </svg>
+  );
+}
+
+/* ---------- Zweispalten-Entdecken (nur Desktop ab 900 px) ----------
+   steuerung: Satzwahl, Regler, Kennzahlen (linkes Drittel)
+   bild:      Grafik (rechts daneben, auf bildMax px begrenzt)
+   unten:     Merksatz u. Ä. über die volle Breite
+   Unter 900 px bleibt alles untereinander wie bisher. */
+const ZWEI_MQ = "(min-width: 900px)";
+export function useZweiSpalten() {
+  const [d, setD] = useState(() => { try { return window.matchMedia(ZWEI_MQ).matches; } catch { return false; } });
+  React.useEffect(() => {
+    let mq; try { mq = window.matchMedia(ZWEI_MQ); } catch { return undefined; }
+    const f = () => setD(mq.matches);
+    f();
+    mq.addEventListener ? mq.addEventListener("change", f) : mq.addListener(f);
+    return () => (mq.removeEventListener ? mq.removeEventListener("change", f) : mq.removeListener(f));
+  }, []);
+  return d;
+}
+export function EntdeckenZweispaltig({ steuerung, bild, unten, bildMax = 460 }) {
+  const zwei = useZweiSpalten();
+  if (!zwei) {
+    return (<>{steuerung}<div style={{ marginTop: 12 }}>{bild}</div>{unten}</>);
+  }
+  return (
+    <>
+      <div style={{ display: "grid", gridTemplateColumns: "minmax(260px, 1fr) minmax(0, 2fr)", gap: 22, alignItems: "start" }}>
+        <KompaktCtx.Provider value={true}><div style={{ minWidth: 0 }}>{steuerung}</div></KompaktCtx.Provider>
+        <div style={{ minWidth: 0, maxWidth: bildMax, width: "100%", justifySelf: "center" }}>{bild}</div>
+      </div>
+      {unten}
+    </>
   );
 }
 

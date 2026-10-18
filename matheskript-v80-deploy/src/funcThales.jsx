@@ -16,7 +16,7 @@ import { IchHaengeFest } from "./funcHilfe.jsx";
 import { Auswahl, GrosserKnopf, hilfeKontext, hinweis, karte, kicker, zw } from "./ui2.jsx";
 import { Aufklapp, ModusLeiste, Seite, SchrittFolge, zt } from "./ui3.jsx";
 import { THALES_ARTEN, thalesAufgabe, winkelBeiC } from "./geoMittel.js";
-import { Merke, Regler, WertZeile, Zeichenblatt, polar, winkelAn } from "./geoUi.jsx";
+import { Merke, Regler, WertZeile, Zeichenblatt, polar, winkelAn, EntdeckenZweispaltig } from "./geoUi.jsx";
 
 let zaehler = 0;
 const z2 = (v) => zt(v, 2);
@@ -36,6 +36,8 @@ function Entdecken() {
   return (
     <>
       <div style={{ ...karte, marginTop: 16 }}>
+        <EntdeckenZweispaltig
+          steuerung={<>
         <p style={kicker}>{zw("Punkt C bewegen", "Move point C")}</p>
         <div style={{ display: "grid", gap: 10 }}>
           <Regler name={zw("Lage", "Position")} wert={t} setWert={setT} min={12} max={168} schritt={1} format={(v) => `${zt(v, 0)}°`} breiteName={58} />
@@ -44,7 +46,14 @@ function Entdecken() {
         <div style={{ marginTop: 10 }}>
           <Auswahl optionen={[["ohne", zw("Nur Winkel", "Angles only")], ["mit", zw("Beweisidee zeigen", "Show the proof idea")]]} wert={beweis ? "mit" : "ohne"} setWert={(v) => setBeweis(v === "mit")} label={zw("Ansicht", "View")} />
         </div>
-        <div style={{ marginTop: 12, background: C.sand, borderRadius: 14, padding: 6 }}>
+          <div style={{ marginTop: 12 }} />
+        <p style={kicker}>{zw("Winkel im Dreieck", "Angles in the triangle")}</p>
+        <WertZeile links="α" rechts={g0(alpha)} farbe="#8A6A00" />
+        <WertZeile links="β" rechts={g0(beta)} farbe="#0B5E43" />
+        <WertZeile links={zw("γ (bei C)", "γ (at C)")} rechts={g0(gamma)} farbe={C.gruen} />
+          </>}
+          bild={
+        <div style={{ background: C.sand, borderRadius: 14, padding: 6 }}>
           <Zeichenblatt punkte={[[-r, -r], [r, r], [0, 1.6 * r]]} hoehe={beweis ? 290 : 270} rand={18}
             label={zw("Thaleskreis über AB mit Punkt C", "Thales circle over AB with point C")}
             kinder={(zz) => (
@@ -70,12 +79,8 @@ function Entdecken() {
               </>
             )} />
         </div>
-      </div>
-      <div style={{ ...karte, marginTop: 12 }}>
-        <p style={kicker}>{zw("Winkel im Dreieck", "Angles in the triangle")}</p>
-        <WertZeile links="α" rechts={g0(alpha)} farbe="#8A6A00" />
-        <WertZeile links="β" rechts={g0(beta)} farbe="#0B5E43" />
-        <WertZeile links={zw("γ (bei C)", "γ (at C)")} rechts={g0(gamma)} farbe={C.gruen} />
+          }
+          unten={<>
         {beweis && auf ? (
           <Merke farbe={C.see}>
             <b>{zw("Beweisidee:", "Proof idea:")}</b>{" "}
@@ -91,6 +96,8 @@ function Entdecken() {
                 : zw("C liegt außerhalb des Kreises: Der Winkel bei C ist kleiner als 90° (spitz). Nur auf dem Kreis ist er genau 90° – das ist die Umkehrung.", "C lies outside the circle: the angle at C is less than 90° (acute). Only on the circle is it exactly 90° – that is the converse.")}
           </Merke>
         )}
+          </>}
+        />
       </div>
     </>
   );

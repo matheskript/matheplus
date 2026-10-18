@@ -17,7 +17,7 @@ import { M } from "./func3.jsx";
 import { Auswahl, hilfeKontext, karte, kicker, zw } from "./ui2.jsx";
 import { Aufklapp, ModusLeiste, Seite, zt } from "./ui3.jsx";
 import { KONSTR_ARTEN, hoehenschnitt, inkreismitte, konstrAufgabe, schwerpunkt, umkreismitte } from "./geoMittel2.js";
-import { Merke, Regler, UebenRahmen, Zeichenblatt, add, einheit, laenge, mal, mitte, sub, winkelAn } from "./geoUi.jsx";
+import { Merke, Regler, UebenRahmen, Zeichenblatt, add, einheit, laenge, mal, mitte, sub, winkelAn, EntdeckenZweispaltig } from "./geoUi.jsx";
 
 let zaehler = 0;
 const z2 = (v) => zt(v, 2);
@@ -100,6 +100,8 @@ function Entdecken() {
   return (
     <>
       <div style={{ ...karte, marginTop: 16 }}>
+        <EntdeckenZweispaltig
+          steuerung={<>
         <p style={kicker}>{zw("Linien wählen", "Choose the lines")}</p>
         <Auswahl optionen={Object.keys(ART).map((k) => [k, ART[k].name])} wert={art} setWert={setArt} label={zw("Linienart", "Kind of line")} />
         <div style={{ display: "grid", gap: 8, marginTop: 12 }}>
@@ -109,16 +111,20 @@ function Entdecken() {
         <div style={{ marginTop: 10 }}>
           <Auswahl optionen={[["aus", zw("Ohne Euler-Gerade", "Without Euler line")], ["an", zw("Euler-Gerade zeigen", "Show Euler line")]]} wert={euler ? "an" : "aus"} setWert={(v) => setEuler(v === "an")} label={zw("Euler-Gerade", "Euler line")} />
         </div>
-        <div style={{ marginTop: 12, background: C.sand, borderRadius: 14, padding: 6 }}>
+        <p style={{ fontSize: 13, color: C.grau, margin: "8px 2px 0" }}>{zw(`Das Dreieck ist gerade ${typ} (größter Winkel ${zt(groesst, 1)}°).`, `The triangle is currently ${typ} (largest angle ${zt(groesst, 1)}°).`)}</p>
+          </>}
+          bild={
+        <div style={{ background: C.sand, borderRadius: 14, padding: 6 }}>
           <DreieckLinien A={A} B={B} Cp={Cp} art={art} euler={euler} />
         </div>
-        <p style={{ fontSize: 13, color: C.grau, margin: "8px 2px 0" }}>{zw(`Das Dreieck ist gerade ${typ} (größter Winkel ${zt(groesst, 1)}°).`, `The triangle is currently ${typ} (largest angle ${zt(groesst, 1)}°).`)}</p>
-      </div>
-      <div style={{ ...karte, marginTop: 12 }}>
+          }
+          unten={<>
         <p style={kicker}>{ART[art].punkt}</p>
         <Merke farbe={ART[art].farbe}>{ART[art].text}</Merke>
         {art === "mittelsenkrechte" && <Merke>{zw("Spitzwinklig: U liegt innen. Rechtwinklig: U ist die Mitte der Hypotenuse (Thales). Stumpfwinklig: U liegt außen. Zieh C und schau zu.", "Acute: U lies inside. Right-angled: U is the midpoint of the hypotenuse (Thales). Obtuse: U lies outside. Drag C and watch.")}</Merke>}
         {euler && <Merke farbe={C.granaHell}>{zw("Euler-Gerade: U, S und H liegen immer auf einer Geraden, und S teilt die Strecke UH im Verhältnis 1 : 2.", "Euler line: U, S and H always lie on one line, and S divides UH in the ratio 1 : 2.")}</Merke>}
+          </>}
+        />
       </div>
     </>
   );

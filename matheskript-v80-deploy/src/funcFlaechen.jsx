@@ -13,7 +13,7 @@ import { M } from "./func3.jsx";
 import { Auswahl, hilfeKontext, karte, kicker, zw } from "./ui2.jsx";
 import { zt } from "./ui3.jsx";
 import { FLAECHE_ARTEN, flaecheAufgabe } from "./unterGen.js";
-import { Merke, Regler, UebenRahmen, WertZeile, Zeichenblatt, ZweiModi, ws, zs } from "./geoUi.jsx";
+import { Merke, Regler, UebenRahmen, WertZeile, Zeichenblatt, ZweiModi, ws, zs, EntdeckenZweispaltig } from "./geoUi.jsx";
 
 let zaehler = 0;
 const z = (v) => zt(v, 2);
@@ -76,6 +76,8 @@ function Entdecken() {
   const n = { rechteck: ["a", "b"], dreieck: ["g", "h"], parallelogramm: ["g", "h"], trapez: ["a", "h"], drachen: ["e", "f"] }[art];
   return (
     <div style={{ ...karte, marginTop: 16 }}>
+      <EntdeckenZweispaltig
+        steuerung={<>
       <p style={kicker}>{zw("Figur wählen", "Choose a figure")}</p>
       <Auswahl optionen={[["rechteck", zw("Rechteck", "Rectangle")], ["dreieck", zw("Dreieck", "Triangle")], ["parallelogramm", zw("Parallelogramm", "Parallelogram")], ["trapez", zw("Trapez", "Trapezoid")], ["drachen", zw("Drachen", "Kite")]]} wert={art} setWert={setArt} label={zw("Figur", "Figure")} />
       <div style={{ display: "grid", gap: 8, marginTop: 12 }}>
@@ -83,11 +85,17 @@ function Entdecken() {
         <Regler name={n[1]} wert={h} setWert={setH} min={1} max={8} schritt={0.5} farbe={C.gruen} />
         {art === "trapez" && <Regler name="c" wert={c} setWert={setC} min={0.5} max={9} schritt={0.5} farbe={G} />}
       </div>
-      <div style={{ marginTop: 12, background: C.sand, borderRadius: 14, padding: 6 }}>
+      <WertZeile links={<M t={F} />} rechts={z(A)} farbe={C.gruen} />
+        </>}
+        bild={
+      <div style={{ background: C.sand, borderRadius: 14, padding: 6 }}>
         <Figur art={art} m={m} idee hoehe={220} beschr={{ a: "a", b: "b", g: "g", h: "h", c: "c", e: "e", f: "f", s: null }} />
       </div>
-      <WertZeile links={<M t={F} />} rechts={z(A)} farbe={C.gruen} />
+        }
+        unten={<>
       <Merke>{IDEE[art]}</Merke>
+        </>}
+      />
     </div>
   );
 }
