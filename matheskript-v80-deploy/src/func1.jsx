@@ -1,3 +1,4 @@
+import { ExternSchutz } from "./funcExtern.jsx";
 import React, { useState, useRef } from "react";
 import { API_URL, C, DEMO, GRENZE, KAUF_LINKS, KURSE, MODULE, M_AUSWAHL, ganz, videoZeit } from "./base1.jsx";
 import { MODUL_KATALOG } from "./base2.jsx";
@@ -31,7 +32,13 @@ export function useYouTubeApi() {
 }
 
 
-export function ErklaerVideo({ id, titel }) {
+/* Erst nach Freigabe (Zwei-Klick-Lösung, funcExtern.jsx) wird die YouTube-Schnittstelle überhaupt geladen. */
+export function ErklaerVideo(props) {
+  if (!props.id) return null;
+  return <ExternSchutz dienst="youtube" ohneRahmen><ErklaerVideoSpieler {...props} /></ExternSchutz>;
+}
+
+function ErklaerVideoSpieler({ id, titel }) {
   const bereit = useYouTubeApi();
   const [domId] = useState(() => `yt-${Math.random().toString(36).slice(2)}`);
   const spielerRef = useRef(null);
@@ -44,6 +51,7 @@ export function ErklaerVideo({ id, titel }) {
     if (!bereit || !id) return;
     let aktiv = true;
     spielerRef.current = new window.YT.Player(domId, {
+      host: "https://www.youtube-nocookie.com",
       videoId: id,
       playerVars: { controls: 0, modestbranding: 1, rel: 0, fs: 0, iv_load_policy: 3, cc_load_policy: 0, disablekb: 1, playsinline: 1 },
       events: {
@@ -184,8 +192,8 @@ export async function dekodieren(file, melden) {
   // Stufe 3: HEIC/HEIF nachträglich umwandeln
   try {
     melden("HEIC wird umgewandelt…");
-    await scriptLaden("https://cdnjs.cloudflare.com/ajax/libs/heic2any/0.0.4/heic2any.min.js");
-    const out = await window.heic2any({ blob: file, toType: "image/jpeg", quality: 0.92 });
+    const heic2any = (await import("heic2any")).default;   // lokal gebündelt, kein Fremd-CDN
+    const out = await heic2any({ blob: file, toType: "image/jpeg", quality: 0.92 });
     const jpg = Array.isArray(out) ? out[0] : out;
     try {
       const bm = await createImageBitmap(jpg);

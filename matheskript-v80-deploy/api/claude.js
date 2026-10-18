@@ -84,9 +84,20 @@ export default async function handler(req, res) {
     return fehler(res, 400, "Die Anfrage ist unvollständig (keine Nachrichten).");
   }
 
+  /* Einwilligung: Ohne die bestätigte Information über die Übermittlung an Anthropic geht nichts raus.
+     Die App setzt den Kopf erst, nachdem im Einwilligungsfenster zugestimmt wurde (src/kiEinwilligung.js). */
+  if (String(req.headers["x-ki-einwilligung"] || "") !== "1") {
+    return fehler(res, 428, "Bevor Mathilda antwortet, brauchen wir einmal deine Zustimmung. Bitte bestätige sie im Fenster und versuch es dann noch einmal.",
+      { grund: "ki_einwilligung" });
+  }
+
   /* Kontingent: erst das Konto, sonst Gerät/IP */
   const konto = await kontingent(req);
   if (konto && konto.ungueltig) return fehler(res, 401, "Die Anmeldung ist abgelaufen. Bitte neu anmelden.");
+  if (konto && konto.erlaubt === false && konto.grund === "eltern_einwilligung") {
+    return fehler(res, 403, "Für Mathilda fehlt noch die Zustimmung deiner Eltern (bei unter 16) oder deine Altersangabe. Beides findest du in deinem Konto.",
+      { grund: "eltern_einwilligung" });
+  }
   if (konto && konto.erlaubt === false) {
     return fehler(res, 429, `Dein Tageskontingent ist aufgebraucht (${konto.limit} Anfragen). Morgen geht es weiter – oder mit Pro ohne Grenze.`,
       { kontingent: { anzahl: konto.anzahl, limit: konto.limit, plan: konto.plan } });

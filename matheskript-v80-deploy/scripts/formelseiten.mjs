@@ -11,7 +11,7 @@
    Sitemap und robots.txt ohne Passwort ausgeliefert und indexierbar.
    ====================================================================== */
 import { build } from "vite";
-import { mkdirSync, writeFileSync, readFileSync, rmSync } from "node:fs";
+import { mkdirSync, writeFileSync, readFileSync, rmSync, copyFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -34,8 +34,7 @@ const rahmen = (s) => `<!doctype html>
 <link rel="canonical" href="${BASIS}${s.url}">
 <meta property="og:type" content="article"><meta property="og:title" content="${esc(s.titel)}"><meta property="og:description" content="${esc(s.beschreibung)}"><meta property="og:url" content="${BASIS}${s.url}">
 <meta name="theme-color" content="${C.seeTief}">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="/formeln/schrift.css" rel="stylesheet">
 ${s.id ? `<script type="application/ld+json">${JSON.stringify({ "@context": "https://schema.org", "@type": "LearningResource", name: s.titel.split(" – ")[0], description: s.beschreibung,
     educationalLevel: "Sekundarstufe", inLanguage: "de", learningResourceType: "Formel mit Herleitung", isPartOf: { "@type": "WebSite", name: "Mythos Mathe", url: BASIS },
     about: s.bereich, url: `${BASIS}${s.url}` }).replace(/</g, "\\u003c")}</script>` : ""}
@@ -56,9 +55,17 @@ svg{max-width:100%;height:auto}
 <body>
 <header class="kopf"><a href="/" aria-label="Zur Startseite von mythosmathe.de"><span class="s">mythos</span><span class="g">mathe</span><span class="s">.de</span></a></header>
 <main>${s.html}</main>
-<footer><a href="/formeln/">Alle Formeln</a> · <a href="/">mythosmathe.de</a> · Mathe-Coaching und Lern-App für Gymnasiasten</footer>
+<footer><a href="/formeln/">Alle Formeln</a> · <a href="/">mythosmathe.de</a> · Mathe-Coaching und Lern-App für Gymnasiasten<br><a href="/impressum">Impressum</a> · <a href="/datenschutz">Datenschutz</a></footer>
 </body></html>
 `;
+
+/* Montserrat lokal ausliefern (keine Verbindung zu Google Fonts) */
+const SCHRIFT_DIR = resolve(DIST, "formeln", "schrift");
+mkdirSync(SCHRIFT_DIR, { recursive: true });
+const GEWICHTE = [300, 400, 500, 600, 700, 800];
+for (const w of GEWICHTE) copyFileSync(resolve(wurzel, "node_modules/@fontsource/montserrat/files", `montserrat-latin-${w}-normal.woff2`), resolve(SCHRIFT_DIR, `montserrat-${w}.woff2`));
+writeFileSync(resolve(DIST, "formeln", "schrift.css"), GEWICHTE.map((w) =>
+  `@font-face{font-family:Montserrat;font-style:normal;font-weight:${w};font-display:swap;src:url(/formeln/schrift/montserrat-${w}.woff2) format("woff2")}`).join("\n"));
 
 const alle = seiten();
 for (const s of alle) {

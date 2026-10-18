@@ -58,7 +58,10 @@ export function DatenKarte({ gehe }) {
   return (
     <div style={karte}>
       <p style={kicker}>DEINE DATEN</p>
-      <p style={text}>Alles, was in deinem Konto gespeichert ist – Profil, Lernstand, Fortschritt, Verbindungen und Abos – als Datei zum Herunterladen.</p>
+      <p style={text}>Alles, was in deinem Konto gespeichert ist – Profil, Lernstand, Fortschritt, Verbindungen, Abos und Eltern-Zustimmungen – als Datei zum Herunterladen.
+        {gehe && <> Was wir speichern und warum, steht in der{" "}
+          <button type="button" onClick={() => { gehe({ ansicht: "datenschutz" }); window.scrollTo(0, 0); }} style={{ background: "none", border: "none", padding: 0, color: C.see, textDecoration: "underline", fontFamily: "inherit", fontSize: "inherit", cursor: "pointer" }}>Datenschutzerklärung</button>.</>}
+      </p>
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 12, alignItems: "center" }}>
         <button type="button" onClick={herunterladen} disabled={export_ === "laden"} style={knopf(C.see, true)}>{export_ === "laden" ? "Wird erstellt …" : "Daten exportieren"}</button>
         {export_ === "ok" && <span role="status" style={{ fontSize: 13, color: C.smaragd }}>Datei heruntergeladen.</span>}

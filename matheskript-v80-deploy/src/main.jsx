@@ -1,5 +1,14 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
+/* Schriften liegen auf unserem eigenen Server (keine Verbindung zu Google Fonts, DSGVO) */
+import "@fontsource/montserrat/300.css";
+import "@fontsource/montserrat/400.css";
+import "@fontsource/montserrat/500.css";
+import "@fontsource/montserrat/600.css";
+import "@fontsource/montserrat/700.css";
+import "@fontsource/montserrat/800.css";
+import "@fontsource/roboto-condensed/400.css";
+import "@fontsource/roboto-condensed/500.css";
 import "./index.css";
 import App from "./App.jsx";
 import { spracheStarten } from "./i18n.js";

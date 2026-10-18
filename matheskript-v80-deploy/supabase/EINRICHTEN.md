@@ -9,6 +9,7 @@ Alles ist im Code fertig und bleibt aus, bis die Schritte unten erledigt sind.
 3. `challenge.sql` – Klassen-Challenge
 4. `push.sql` – Push-Abos der App
 5. `feedback-text.sql` – Feedback per Text (neben der Sprachnachricht); ohne dieses Skript meldet die App beim Senden eines Textes „hat nicht geklappt“
+6. `einwilligung.sql` – Altersangabe und Eltern-Einwilligung unter 16 (danach `ki.sql` und `konto.sql` noch einmal ausführen, damit Mathilda-Kontingent und Datenexport die Einwilligung kennen). Achtung: Danach müssen bestehende Schüler-Konten einmal ihr Alter angeben, sonst bleibt ihr Lernstand auf dem Gerät.
 
 Vorher müssen `schema.sql`, `rollen.sql`, `lernstand.sql`, `entdecken.sql`, `ki.sql`, `perf-lab.sql` und `stripe.sql` laufen (sind schon eingerichtet).
 

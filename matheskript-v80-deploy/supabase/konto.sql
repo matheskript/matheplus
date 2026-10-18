@@ -57,6 +57,7 @@ begin
       'runden', public.konto_tabelle('perf_runden', 'nutzer_id', uid),
       'badges', public.konto_tabelle('perf_badges', 'nutzer_id', uid)),
     'abos', public.konto_tabelle('abos', 'zahler_id', uid),
+    'eltern_einwilligungen', public.konto_tabelle('eltern_einwilligungen', 'kind_id', uid),
     'feedback', public.konto_tabelle('feedback', 'nutzer', uid),
     'wochenmail', public.konto_tabelle('wochenmail', 'eltern_id', uid),
     'verbindungen', case when to_regprocedure('public.meine_beziehungen()') is not null then public.meine_beziehungen() else null end,

@@ -4,6 +4,8 @@ import { RollenWahl, EmailAnmeldung, HinweisLeiste, ElternEinladen, MeineKlassen
 import { rolleName, istLehrend, istGeschlecht, KURSSTUFE, NOTEN_AB, datenVollstaendig, elternLink, elternNachricht, freundeNachricht, whatsappLink } from "./rollenLogik.js";
 import { MeinTrainingKarte } from "./funcKontoTraining.jsx";
 import { AppKarte, DatenKarte, WochenmailKarte } from "./funcKontoDaten.jsx";
+import { AlterWahl, AlterFrage, ElternZustimmungKarte, KinderEinwilligungKarte } from "./funcEinwilligung.jsx";
+import { darfImKonto } from "./einwilligungLogik.js";
 import { DEMO, useKonto, gemerkteEinladung, anmelden, abmelden, profilAnlegen, profilSpeichern, empfehlungsLink, REF_BASIS, REF_BASIS_ANZEIGE } from "./konto.js";
 
 /* ======================================================================
@@ -68,6 +70,9 @@ function Anmelden({ gehe }) {
       <p style={{ fontSize: 12, color: C.hellgrau, lineHeight: 1.6, marginTop: 14 }}>
         Mit der Anmeldung akzeptierst du unsere{" "}
         <button type="button" onClick={() => gehe({ ansicht: "agb" })} style={{ background: "none", border: "none", padding: 0, color: C.see, textDecoration: "underline", fontFamily: "inherit", fontSize: 12, cursor: "pointer" }}>AGB</button>.
+        Wie wir mit deinen Daten umgehen, steht in der{" "}
+        <button type="button" onClick={() => gehe({ ansicht: "datenschutz" })} style={{ background: "none", border: "none", padding: 0, color: C.see, textDecoration: "underline", fontFamily: "inherit", fontSize: 12, cursor: "pointer" }}>Datenschutzerklärung</button>.
+        Bist du unter 16, fragen wir nach dem Anlegen deine Eltern um Zustimmung.
       </p>
     </div>
   );
@@ -79,14 +84,16 @@ function Willkommen({ nutzer }) {
   const einl = gemerkteEinladung();
   const [rolle, setRolle] = useState(() => (einl && einl.als === "eltern" ? "eltern" : einl && einl.klasse ? "schueler" : ""));
   const [geschlecht, setGeschlecht] = useState("");
+  const [unter16, setUnter16] = useState(null);
   const [fehler, setFehler] = useState("");
   const [laeuft, setLaeuft] = useState(false);
-  const bereit = !!rolle && (rolle !== "schueler" || istGeschlecht(geschlecht));
+  const bereit = !!rolle && (rolle !== "schueler" || (istGeschlecht(geschlecht) && typeof unter16 === "boolean"));
   const anlegen = async () => {
     if (!rolle) { setFehler("Bitte wähle aus, wer du bist."); return; }
     if (rolle === "schueler" && !istGeschlecht(geschlecht)) { setFehler("Bitte wähle Schüler oder Schülerin."); return; }
+    if (rolle === "schueler" && typeof unter16 !== "boolean") { setFehler("Bitte gib an, ob du schon 16 bist."); return; }
     setLaeuft(true); setFehler("");
-    try { await profilAnlegen(name, rolle, geschlecht || null); } catch (e) { setFehler(e.message); }
+    try { await profilAnlegen(name, rolle, geschlecht || null, rolle === "schueler" ? unter16 : null); } catch (e) { setFehler(e.message); }
     setLaeuft(false);
   };
   return (
@@ -96,6 +103,13 @@ function Willkommen({ nutzer }) {
       {einl && einl.token && <p style={{ fontSize: 13.5, color: "#1B5E3A", background: "#E9F7EF", borderRadius: 10, padding: "8px 12px", marginBottom: 14 }}>Du wurdest von deinem Kind eingeladen – nach dem Anlegen bist du automatisch verbunden.</p>}
       <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 6 }}>Ich bin …</p>
       <div style={{ marginBottom: 16 }}><RollenWahl wert={rolle} geschlecht={geschlecht} onWahl={(r, g) => { setRolle(r); setGeschlecht(g || ""); setFehler(""); }} /></div>
+      {rolle === "schueler" && (
+        <div style={{ marginBottom: 16 }}>
+          <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 6 }}>Wie alt bist du?</p>
+          <AlterWahl wert={unter16} onWahl={(v) => { setUnter16(v); setFehler(""); }} />
+          {unter16 === true && <p style={{ fontSize: 12.5, color: C.grau, lineHeight: 1.6, marginTop: 8 }}>Kein Problem! Nach dem Anlegen schickst du deinen Eltern einen Link. Sobald sie zustimmen, speichert dein Konto deinen Lernstand. Bis dahin bleibt alles auf diesem Gerät.</p>}
+        </div>
+      )}
       <label htmlFor="konto-name" style={{ fontSize: 13, fontWeight: 600, color: C.see }}>Dein Name</label>
       <input id="konto-name" value={name} onChange={(e) => setName(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") anlegen(); }}
         autoComplete="name" maxLength={80}
@@ -195,7 +209,7 @@ function Profil({ nutzer, profil, geworben, gehe }) {
       return sf ? (kl >= sf.kursstufe ? hj : !hj) : true;   // Kursstufe nur Halbjahre, davor nur Jahresnoten
     }));
     try {
-      await profilSpeichern({ name: form.name.trim(), schulform: form.schulform || null, klasse: klasse, noten });
+      await profilSpeichern(darfImKonto(profil) ? { name: form.name.trim(), schulform: form.schulform || null, klasse: klasse, noten } : { name: form.name.trim() });
       setStatus({ ok: true, text: "Gespeichert." });
       if (datenVollstaendig({ ...profil, name: form.name.trim(), schulform: form.schulform, klasse, noten })) setOffen(false);
     } catch (e) { setStatus({ ok: false, text: e.message }); }
@@ -241,6 +255,8 @@ function Profil({ nutzer, profil, geworben, gehe }) {
 
       {rolle === "schueler" && (
         <>
+      <AlterFrage profil={profil} />
+      <ElternZustimmungKarte profil={profil} />
       {/* Meine Daten */}
       <div style={{ ...karte, marginBottom: 14, overflow: "hidden" }}>
         <button type="button" onClick={() => setOffen(!offen)} aria-expanded={offen} aria-controls="meine-daten-inhalt"
@@ -255,6 +271,11 @@ function Profil({ nutzer, profil, geworben, gehe }) {
         <label style={{ fontSize: 13, fontWeight: 600, color: C.see }}>Name <span style={{ color: C.gruen }}>*</span></label>
         <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} maxLength={80} style={{ ...feld, marginTop: 6, marginBottom: 16 }} />
 
+        {!darfImKonto(profil) ? (
+          <p style={{ fontSize: 13.5, color: "#6B5310", background: "#FDF8EA", borderRadius: 10, padding: "10px 12px", lineHeight: 1.6, marginBottom: 6 }}>
+            Schulform, Klasse und Noten kannst du eintragen, sobald {profil.unter16 == null ? "du oben dein Alter angegeben hast" : "deine Eltern zugestimmt haben"}.
+          </p>
+        ) : (<>
         <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 6 }}>Schulform</p>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 8, marginBottom: 16 }}>
           {SCHULFORMEN.map((s) => (
@@ -321,6 +342,7 @@ function Profil({ nutzer, profil, geworben, gehe }) {
             <NotenVerlauf punkte={verlauf} />
           </>
         )}
+        </>)}
 
         <div className="flex items-center flex-wrap" style={{ gap: 12, marginTop: 16 }}>
           <button type="button" onClick={speichern} disabled={!form.name.trim()}
@@ -387,6 +409,7 @@ function Profil({ nutzer, profil, geworben, gehe }) {
       {rolle === "eltern" && (
         <>
           <ElternBereich profil={profil} gehe={gehe} kinderRef={setKinder} />
+          <KinderEinwilligungKarte />
           <WochenmailKarte />
           <PlanKarte profil={profil} kinder={kinder} />
           <NameKarte profil={profil} />

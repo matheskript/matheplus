@@ -2,7 +2,7 @@ import { navWerkzeuge } from "./werkzeuge.js";
 import { sprache } from "./i18n.js";
 import React, { useState, useRef } from "react";
 import { API_URL, C } from "./base1.jsx";
-import { EINHEITEN, TAG_MS, WOCHENTAGE, tagSchluessel, wochentagIdx } from "./base3.jsx";
+import { EINHEITEN, RAM_SPEICHER, TAG_MS, WOCHENTAGE, tagSchluessel, wochentagIdx } from "./base3.jsx";
 import { FR } from "./funcRegistry.jsx";
 
 export const mittel = (a) => (a.length ? a.reduce((s, x) => s + x, 0) / a.length : NaN);
@@ -56,9 +56,17 @@ export async function kiAntwort(res) {
   }
 }
 
+/* Liegt die Einwilligung für Mathilda (Übermittlung an Anthropic) auf diesem Gerät vor? */
+export function kiEinwilligungDa() {
+  try { if (window.localStorage.getItem(EINWILLIGUNG_SCHLUESSEL)) return true; } catch (e) { /* privat */ }
+  return !!RAM_SPEICHER[EINWILLIGUNG_SCHLUESSEL];
+}
+
 export const kiKopf = () => {
   if (API_URL !== "/api/claude") return { "Content-Type": "application/json" };
   const kopf = { "Content-Type": "application/json", "X-Geraet": FR.geraetKennung(), "X-Sprache": sprache() };
+  if (kiEinwilligungDa()) kopf["X-KI-Einwilligung"] = "1";
+  else { try { window.dispatchEvent(new CustomEvent("mm-ki-einwilligung")); } catch (e) { /* kein Browser */ } }
   const token = FR.zugangsToken ? FR.zugangsToken() : null;   // angemeldet: Kontingent je Konto statt je Gerät
   if (token) kopf.Authorization = `Bearer ${token}`;
   return kopf;

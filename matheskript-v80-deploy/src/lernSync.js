@@ -17,6 +17,7 @@
    entdeckenSync.js nutzt sie für „Mathe entdecken“.
    Keine base-Datei darf diese Datei importieren.
    ====================================================================== */
+import { darfImKonto } from "./einwilligungLogik.js";
 import { useSyncExternalStore } from "react";
 import { mergeLernstand } from "./lernMerge.js";
 
@@ -116,8 +117,9 @@ export async function syncStarten(api) {
   try { speicher = window.localStorage; } catch (e) { /* privat */ }
   S = erzeugeSync({ client: DEMO ? null : sb, speicher, ...api });
   const pruefe = () => {
-    const n = kontoZustand().nutzer;
-    const id = n && !n.demo ? n.id : null;
+    const { nutzer: n, profil } = kontoZustand();
+    // Unter 16 ohne Eltern-Einwilligung (oder ohne Altersangabe) bleibt alles nur auf dem Gerät (supabase/einwilligung.sql)
+    const id = n && !n.demo && profil && darfImKonto(profil) ? n.id : null;
     if (id && id !== S.zustand().nutzerId) S.anmelden(id);
     else if (!id && S.zustand().nutzerId) S.abgemeldet();
   };

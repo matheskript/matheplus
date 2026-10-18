@@ -27,7 +27,7 @@ const MIN_ZEICHEN = 3;
 const BUCKET = "feedback";
 
 /* ---------- Welche Seite ist gerade offen? ---------- */
-const ANSICHT_NAMEN = { start: "Startseite", konto: "Konto", elternabend: "Elternabend", formeln: "Formelsammlung", impressum: "Impressum", agb: "AGB", widerruf: "Widerruf" };
+const ANSICHT_NAMEN = { start: "Startseite", konto: "Konto", elternabend: "Elternabend", formeln: "Formelsammlung", impressum: "Impressum", datenschutz: "Datenschutz", einwilligung: "Eltern-Einwilligung", agb: "AGB", widerruf: "Widerruf" };
 
 export function seitenInfo(a) {
   const alle = NAV.flatMap((g) => g.eintraege.map((e) => ({ g, e })));
@@ -352,7 +352,7 @@ export function FeedbackKnopf({ aktuell }) {
                   <label style={{ display: "flex", alignItems: "flex-start", gap: 9, marginTop: 14, fontSize: 12, lineHeight: 1.5, color: C.tinte, cursor: "pointer" }}>
                     <input type="checkbox" checked={zustimmung} onChange={(e) => setZustimmung(e.target.checked)} disabled={phase === "sendet"}
                       style={{ marginTop: 2, width: 18, height: 18, flex: "0 0 auto", accentColor: C.see }} />
-                    <span>Ich bin einverstanden, dass meine Sprachnachricht gespeichert und von Mythos Mathe angehört wird, um die App zu verbessern.</span>
+                    <span>Ich bin einverstanden, dass meine Sprachnachricht gespeichert und von Mythos Mathe angehört wird, um die App zu verbessern. Löschung spätestens nach zwölf Monaten, Details in der <a href="/datenschutz" target="_blank" rel="noopener noreferrer" style={{ color: "inherit" }}>Datenschutzerklärung</a>.</span>
                   </label>
                   <div style={{ display: "flex", gap: 8, marginTop: 14, flexWrap: "wrap" }}>
                     <button type="button" onClick={senden} disabled={phase === "sendet"}
@@ -426,7 +426,7 @@ export function FeedbackKnopf({ aktuell }) {
                 <label style={{ display: "flex", alignItems: "flex-start", gap: 9, marginTop: 10, fontSize: 12, lineHeight: 1.5, color: C.tinte, cursor: "pointer" }}>
                   <input type="checkbox" checked={textZustimmung} onChange={(e) => setTextZustimmung(e.target.checked)} disabled={textPhase === "sendet"}
                     style={{ marginTop: 2, width: 18, height: 18, flex: "0 0 auto", accentColor: C.see }} />
-                  <span>Ich bin einverstanden, dass mein Text gespeichert und von Mythos Mathe gelesen wird, um die App zu verbessern.</span>
+                  <span>Ich bin einverstanden, dass mein Text gespeichert und von Mythos Mathe gelesen wird, um die App zu verbessern. Löschung spätestens nach zwölf Monaten, Details in der <a href="/datenschutz" target="_blank" rel="noopener noreferrer" style={{ color: "inherit" }}>Datenschutzerklärung</a>.</span>
                 </label>
                 <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
                   <button type="submit" disabled={textPhase === "sendet"} style={{ ...knopfStil(false), flex: "1 1 auto", opacity: textPhase === "sendet" ? 0.6 : 1 }}>

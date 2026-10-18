@@ -1,3 +1,4 @@
+import { ExternSchutz } from "./funcExtern.jsx";
 import React, { useState, useEffect } from "react";
 import { C } from "./base1.jsx";
 
@@ -150,11 +151,11 @@ function Modul({ k }) {
 
       <div style={{ borderRadius: 16, overflow: "hidden", background: "#000", boxShadow: "0 3px 18px rgba(15,26,51,0.1)" }}>
         <div style={{ position: "relative", width: "100%", paddingTop: "56.25%" }}>
-          <iframe key={k.video} src={`https://www.youtube-nocookie.com/embed/${k.video}?rel=0&modestbranding=1&playsinline=1`}
+          <ExternSchutz dienst="youtube"><iframe key={k.video} src={`https://www.youtube-nocookie.com/embed/${k.video}?rel=0&modestbranding=1&playsinline=1`}
             title={`${k.titel} – ${k.sprecher}`} loading="lazy" allowFullScreen
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             referrerPolicy="strict-origin-when-cross-origin"
-            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: 0 }} />
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: 0 }} /></ExternSchutz>
         </div>
       </div>
       <p style={{ fontSize: 12.5, fontWeight: 300, color: C.grau, margin: "8px 2px 0" }}>{k.sprecher} – {k.titel}</p>

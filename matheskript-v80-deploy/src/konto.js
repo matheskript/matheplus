@@ -9,6 +9,7 @@ import { FR } from "./funcRegistry.jsx";
 import { useSyncExternalStore } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { einladungAusUrl, istGeschlecht } from "./rollenLogik.js";
+import { einwilligungsFehler } from "./einwilligungLogik.js";
 
 const URL_ = import.meta.env.VITE_SUPABASE_URL;
 const KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -92,6 +93,10 @@ async function profilLaden(nutzer) {
   }
   const { data, error } = await sb.from("profile").select("*").eq("id", nutzer.id).maybeSingle();
   if (error) { setzen({ geladen: true, nutzer, fehler: "Dein Profil konnte nicht geladen werden." }); return; }
+  if (data && (data.rolle || "schueler") === "schueler" && data.unter16 === true) {
+    const e = await sb.rpc("meine_einwilligung");   // fehlt einwilligung.sql noch: bleibt leer = nichts freigegeben
+    data.einwilligung = !e.error && e.data ? e.data : null;
+  }
   let geworben = 0;
   if (data) {
     const r = await sb.rpc("anzahl_geworben");
@@ -199,16 +204,17 @@ export async function refFestlegen(code) {
 }
 
 /* Legt das Profil beim ersten Mal an (Name, Rolle, bei Schüler das Geschlecht) und verknüpft Werber und – bei Eltern – das einladende Kind. */
-export async function profilAnlegen(name, rolle = "schueler", geschlecht = null) {
+export async function profilAnlegen(name, rolle = "schueler", geschlecht = null, unter16 = null) {
   const n = name.trim();
   if (!n) throw new Error("Bitte gib deinen Namen ein.");
   if (!["schueler", "eltern", "lehrkraft", "nachhilfe"].includes(rolle)) throw new Error("Bitte wähle aus, wer du bist.");
   if (rolle === "schueler" && !istGeschlecht(geschlecht)) throw new Error("Bitte wähle Schüler oder Schülerin.");
+  if (rolle === "schueler" && typeof unter16 !== "boolean") throw new Error("Bitte gib an, ob du schon 16 bist.");
   const g = rolle === "schueler" ? geschlecht : null;
   const einl = gemerkteEinladung();
   const tokenFuerEltern = rolle === "eltern" && einl && einl.token ? einl.token : null;
   if (DEMO) {
-    const profil = { id: "demo", name: n, rolle, geschlecht: g, plan: "free", schulform: null, klasse: null, noten: {}, ref_code: neuerCode(), ref_fest: false,
+    const profil = { id: "demo", name: n, rolle, geschlecht: g, plan: "free", unter16: rolle === "schueler" ? unter16 : null, einwilligung: null, schulform: null, klasse: null, noten: {}, ref_code: neuerCode(), ref_fest: false,
       eltern_token: Array.from({ length: 16 }, () => "0123456789abcdef"[Math.floor(Math.random() * 16)]).join(""),
       geworben_von: gemerkterRef() ? "demo-werber" : null };
     schreib(DEMO_SPEICHER, { nutzer: zustand.nutzer, profil });
@@ -219,6 +225,7 @@ export async function profilAnlegen(name, rolle = "schueler", geschlecht = null)
   }
   const { error } = await sb.from("profile").insert({ id: zustand.nutzer.id, name: n, rolle, ...(g ? { geschlecht: g } : {}) });
   if (error) throw new Error("Das Profil konnte nicht angelegt werden.");
+  if (rolle === "schueler") await sb.rpc("alter_angeben", { ist_unter16: unter16 });
   const ref = gemerkterRef();
   if (ref) { await sb.rpc("werber_setzen", { code: ref }); schreib(REF_SPEICHER, null); }
   let hinweis = "";
@@ -238,12 +245,43 @@ export async function profilSpeichern(aenderung) {
   if ("name" in erlaubt && !String(erlaubt.name).trim()) throw new Error("Der Name darf nicht leer sein.");
   if ("geschlecht" in erlaubt && !istGeschlecht(erlaubt.geschlecht)) throw new Error("Bitte wähle Schüler oder Schülerin.");
   if (DEMO) {
+    const p0 = zustand.profil || {};
+    if ((p0.rolle || "schueler") === "schueler" && ["schulform", "klasse", "noten"].some((k) => k in erlaubt)
+        && !(p0.unter16 === false || (p0.unter16 && p0.einwilligung && p0.einwilligung.konto))) throw new Error(einwilligungsFehler("eltern_einwilligung_fehlt"));
     const profil = { ...zustand.profil, ...erlaubt };
     schreib(DEMO_SPEICHER, { nutzer: zustand.nutzer, profil });
     setzen({ profil });
     return;
   }
   const { error } = await sb.from("profile").update(erlaubt).eq("id", zustand.nutzer.id);
-  if (error) throw new Error("Speichern hat nicht geklappt. Bitte versuch es noch einmal.");
+  if (error) throw new Error(einwilligungsFehler(error) || "Speichern hat nicht geklappt. Bitte versuch es noch einmal.");
   setzen({ profil: { ...zustand.profil, ...erlaubt } });
+}
+
+/* ---------- Altersangabe und Eltern-Einwilligung (supabase/einwilligung.sql) ---------- */
+export async function alterAngeben(unter16) {
+  if (DEMO) {
+    const d = lies(DEMO_SPEICHER) || {};
+    const profil = { ...zustand.profil, unter16, alter_angegeben_am: new Date().toISOString() };
+    schreib(DEMO_SPEICHER, { ...d, nutzer: zustand.nutzer, profil });
+    setzen({ profil });
+    return;
+  }
+  const { error } = await sb.rpc("alter_angeben", { ist_unter16: unter16 });
+  if (error) throw new Error("Das hat nicht geklappt. Ist supabase/einwilligung.sql schon ausgeführt?");
+  await profilLaden(zustand.nutzer);
+}
+
+/* Nur Vorschau-Modus: Einwilligung im lokalen Demo-Profil ablegen (die Seite /einwilligung nutzt das) */
+export function demoEinwilligungSetzen(token, einwilligung) {
+  const d = lies(DEMO_SPEICHER);
+  if (!d || !d.profil || d.profil.eltern_token !== token) return false;
+  d.profil = { ...d.profil, einwilligung };
+  schreib(DEMO_SPEICHER, d);
+  if (zustand.profil && zustand.profil.eltern_token === token) setzen({ profil: d.profil });
+  return true;
+}
+export function demoProfilZuToken(token) {
+  const d = lies(DEMO_SPEICHER);
+  return d && d.profil && d.profil.eltern_token === token ? d.profil : null;
 }

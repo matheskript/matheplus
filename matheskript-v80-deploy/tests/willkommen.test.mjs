@@ -71,7 +71,8 @@ test("Richtiges Passwort: weiter zur App, Zugangs-Cookie und kurzes Willkommens-
   assert.equal(res.status, 303);
   assert.equal(res.headers.get("location"), "/training");
   const cookies = res.headers.getSetCookie();
-  assert.equal(cookies.length, 2);
+  assert.equal(cookies.length, 3);
+  assert.ok(cookies.some((c) => /^mm_gast=;.*Max-Age=0/.test(c)), "Gast-Markierung wird nach dem Login gelöscht");
   const zugang = cookies.find((c) => c.startsWith("mm_zugang="));
   const willkommen = cookies.find((c) => c.startsWith(`${COOKIE_WILLKOMMEN}=1`));
   assert.ok(zugang && /HttpOnly/.test(zugang) && /Secure/.test(zugang), "Zugangs-Cookie bleibt HttpOnly und Secure");
@@ -84,7 +85,7 @@ test("Richtiges Passwort: weiter zur App, Zugangs-Cookie und kurzes Willkommens-
 test("Groß-/Kleinschreibung beim Passwort ist egal wie bisher", async () => {
   const res = await login("  MATHE ");
   assert.equal(res.status, 303);
-  assert.equal(res.headers.getSetCookie().length, 2);
+  assert.equal(res.headers.getSetCookie().length, 3);
 });
 
 test("Falsches Passwort: Fehlerseite, keine Cookies, kein Willkommen", async () => {
@@ -154,4 +155,17 @@ test("Text-Feedback: Datenbank-Skript passt zum Code", () => {
   assert.match(sql, /grant insert \(nachricht\)/);
   assert.match(sql, /char_length\(nachricht\) between 1 and 2000/);
   assert.match(quelle("supabase/EINRICHTEN.md"), /feedback-text\.sql/);
+});
+
+test("Rechtsseiten und Eltern-Einwilligung sind ohne Passwort erreichbar, der Rest nicht", async () => {
+  for (const p of ["/impressum", "/datenschutz", "/agb", "/widerruf", "/einwilligung?k=abcdef0123456789", "/assets/index-abc.js"]) {
+    const res = await anfrage(`https://mythosmathe.de${p}`);
+    assert.notEqual(res.status, 401, `${p} muss offen sein`);
+  }
+  const gast = await anfrage("https://mythosmathe.de/datenschutz");
+  assert.ok(gast.headers.getSetCookie().some((c) => c.startsWith("mm_gast=1") && !/HttpOnly/.test(c)), "Gast-Markierung für die App lesbar");
+  for (const p of ["/", "/training", "/konto", "/einwilligungen", "/api/claude"]) {
+    const res = await anfrage(`https://mythosmathe.de${p}`);
+    assert.equal(res.status, 401, `${p} bleibt geschützt`);
+  }
 });

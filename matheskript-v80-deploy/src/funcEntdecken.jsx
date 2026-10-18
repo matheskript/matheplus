@@ -1,3 +1,4 @@
+import { ExternSchutz } from "./funcExtern.jsx";
 import React, { useEffect, useState } from "react";
 import { C } from "./base1.jsx";
 import { FR } from "./funcRegistry.jsx";
@@ -83,11 +84,11 @@ function VideoRahmen({ v, gross }) {
     <div>
       <div style={{ borderRadius: gross ? 16 : 14, overflow: "hidden", background: "#000", boxShadow: gross ? "0 3px 18px rgba(15,26,51,0.1)" : "0 2px 12px rgba(15,26,51,0.08)" }}>
         <div style={{ position: "relative", width: "100%", paddingTop: "56.25%" }}>
-          <iframe src={`https://www.youtube-nocookie.com/embed/${v.video}?rel=0&modestbranding=1&playsinline=1`}
+          <ExternSchutz dienst="youtube"><iframe src={`https://www.youtube-nocookie.com/embed/${v.video}?rel=0&modestbranding=1&playsinline=1`}
             title={`${v.titel} – ${v.quelle}`} loading="lazy" allowFullScreen
             allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             referrerPolicy="strict-origin-when-cross-origin"
-            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: 0 }} />
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: 0 }} /></ExternSchutz>
         </div>
       </div>
       <p style={{ fontSize: 12.5, fontWeight: 300, color: C.grau, margin: "8px 2px 0", lineHeight: 1.5 }}>

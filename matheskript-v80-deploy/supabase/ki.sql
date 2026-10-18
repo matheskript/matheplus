@@ -40,6 +40,12 @@ begin
   if uid is null then
     raise exception 'nicht_angemeldet';
   end if;
+  -- Schüler unter 16 brauchen die Eltern-Einwilligung für Mathilda (supabase/einwilligung.sql)
+  if to_regprocedure('public.einwilligung_ok(uuid, text)') is not null then
+    if not public.einwilligung_ok(uid, 'ki') then
+      return jsonb_build_object('erlaubt', false, 'grund', 'eltern_einwilligung');
+    end if;
+  end if;
   p := coalesce(public.plan_aktiv(uid), 'free');
   lim := case when p = 'pro' then null else greatest(0, coalesce(frei_pro_tag, 30)) end;
   select anzahl into n from ki_nutzung where nutzer_id = uid and tag = heute;

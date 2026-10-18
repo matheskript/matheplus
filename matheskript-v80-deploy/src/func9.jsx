@@ -733,19 +733,20 @@ export function einwilligungSetzen(v) {
 }
 
 
-export function Einwilligung({ onJa }) {
+export function Einwilligung({ onJa, onNein, imFenster }) {
   const [alter, setAlter] = useState(null);
   const [eltern, setEltern] = useState(false);
   const ok = alter === "16" || (alter === "u16" && eltern);
   const punkte = [
-    ["Was mit dem Foto passiert", "Es wird auf deinem Gerät verkleinert und dann zur Auswertung an den KI-Dienst Claude von Anthropic geschickt. Auch Fragen an Mathilda gehen an diesen Dienst."],
-    ["Was gespeichert wird", "In Matheskript wird das Foto nicht gespeichert. Das Ergebnis bleibt nur auf diesem Gerät."],
-    ["Was nicht aufs Foto gehört", "Nur das Rechenblatt: kein Name, kein Gesicht, keine Klassenliste im Bild."],
+    ["Was an Mathilda geht", "Deine Fragen, deine Rechenwege und – wenn du eines machst – das Foto deines Blatts (vorher auf deinem Gerät verkleinert). Damit Mathilda passend hilft, außerdem dein Vorname, deine Klasse und ein kurzer Auszug aus deinem Lernstand, etwa zuletzt geübte Themen und typische Fehler."],
+    ["Wer das verarbeitet", "Der KI-Dienst Claude der Firma Anthropic (USA). Anthropic nutzt diese Daten nicht zum Trainieren seiner Modelle. Die Übermittlung ist über die EU-Standardvertragsklauseln abgesichert."],
+    ["Was gespeichert wird", "Bei Mythos Mathe werden Fotos nicht gespeichert. Das Ergebnis bleibt auf diesem Gerät. Im Konto zählen wir nur, wie viele Anfragen du heute gestellt hast."],
+    ["Was nicht hineingehört", "Nur Mathe: kein Name, kein Gesicht, keine Klassenliste, keine Adresse – weder im Foto noch im Text."],
   ];
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620 }}>
-      <div style={{ background: C.weiss, borderRadius: 18, padding: 22, boxShadow: "0 3px 18px rgba(15,26,51,0.08)", marginBottom: 14 }}>
-        <p style={{ fontSize: 19, fontWeight: 700, letterSpacing: "-0.01em", marginBottom: 14 }}>Bevor du das erste Foto machst</p>
+    <div className={imFenster ? "" : "mx-auto px-6 pb-16"} style={{ maxWidth: 620 }}>
+      <div style={{ background: C.weiss, borderRadius: 18, padding: 22, boxShadow: imFenster ? "none" : "0 3px 18px rgba(15,26,51,0.08)", marginBottom: 14 }}>
+        <p style={{ fontSize: 19, fontWeight: 700, letterSpacing: "-0.01em", marginBottom: 14 }}>Bevor Mathilda dir hilft</p>
         {punkte.map(([t, s], i) => (
           <div key={i} style={{ paddingBottom: 12, marginBottom: 12, borderBottom: i < punkte.length - 1 ? `1px solid ${C.linie}` : "none" }}>
             <p style={{ fontSize: 14.5, fontWeight: 600, marginBottom: 3 }}>{t}</p>
@@ -755,28 +756,59 @@ export function Einwilligung({ onJa }) {
         <p style={{ fontSize: 13, color: C.grau, fontWeight: 300, marginTop: 6, marginBottom: 8 }}>Wie alt bist du?</p>
         <div className="flex flex-wrap" style={{ gap: 8, marginBottom: 12 }}>
           {[["16", "16 oder älter"], ["u16", "Jünger als 16"]].map(([id, n]) => (
-            <button key={id} onClick={() => setAlter(id)} className="px-4 py-2"
+            <button key={id} type="button" onClick={() => { setAlter(id); setEltern(false); }} className="px-4 py-2"
               style={{ borderRadius: 999, border: `1px solid ${alter === id ? C.see : C.linie}`, background: alter === id ? C.see : C.weiss,
                 color: alter === id ? C.weiss : C.grau, fontSize: 14, fontFamily: "inherit", cursor: "pointer" }}>{n}</button>
           ))}
         </div>
         {alter === "u16" && (
-          <button onClick={() => setEltern(!eltern)}
-            style={{ display: "flex", gap: 10, alignItems: "flex-start", textAlign: "left", background: "none", border: "none", padding: 0, cursor: "pointer", fontFamily: "inherit", marginBottom: 6 }}>
-            <span style={{ width: 20, height: 20, borderRadius: 6, flexShrink: 0, border: `2px solid ${eltern ? C.see : C.linie}`, background: eltern ? C.see : C.weiss,
-              color: C.weiss, fontSize: 12, display: "flex", alignItems: "center", justifyContent: "center", marginTop: 1 }}>{eltern ? "✓" : ""}</span>
-            <span style={{ fontSize: 14, color: C.tinte, lineHeight: 1.6 }}>Meine Eltern wissen Bescheid und sind einverstanden.</span>
-          </button>
+          <div style={{ background: "#FDF8EA", border: `1px solid ${C.goldWarm}66`, borderRadius: 12, padding: "12px 14px", marginBottom: 6 }}>
+            <p style={{ fontSize: 13.5, color: "#6B5310", lineHeight: 1.6, marginBottom: 10 }}>
+              Unter 16 muss ein Elternteil zustimmen. Gib das Gerät bitte kurz deiner Mutter oder deinem Vater.
+            </p>
+            <button type="button" onClick={() => setEltern(!eltern)}
+              style={{ display: "flex", gap: 10, alignItems: "flex-start", textAlign: "left", background: "none", border: "none", padding: 0, cursor: "pointer", fontFamily: "inherit" }}>
+              <span style={{ width: 20, height: 20, borderRadius: 6, flexShrink: 0, border: `2px solid ${eltern ? C.see : C.linie}`, background: eltern ? C.see : C.weiss,
+                color: C.weiss, fontSize: 12, display: "flex", alignItems: "center", justifyContent: "center", marginTop: 1 }}>{eltern ? "✓" : ""}</span>
+              <span style={{ fontSize: 14, color: C.tinte, lineHeight: 1.6 }}>Ich bin Elternteil bzw. sorgeberechtigt und willige ein, dass mein Kind Mathilda wie oben beschrieben nutzt.</span>
+            </button>
+          </div>
         )}
       </div>
-      <button disabled={!ok} onClick={() => { einwilligungSetzen({ am: Date.now(), unter16: alter === "u16" }); onJa(); }}
-        style={{ height: 50, padding: "0 26px", background: ok ? C.gruenDunkel : C.hellgrau, color: C.weiss, border: "none", borderRadius: 999,
-          fontSize: 16, fontWeight: 600, fontFamily: "inherit", cursor: ok ? "pointer" : "default" }}>
-        Einverstanden
-      </button>
+      <div className="flex flex-wrap items-center" style={{ gap: 12 }}>
+        <button type="button" disabled={!ok} onClick={() => { einwilligungSetzen({ am: Date.now(), unter16: alter === "u16", fassung: "2026-10-18" }); onJa(); }}
+          style={{ height: 50, padding: "0 26px", background: ok ? C.gruenDunkel : C.hellgrau, color: C.weiss, border: "none", borderRadius: 999,
+            fontSize: 16, fontWeight: 600, fontFamily: "inherit", cursor: ok ? "pointer" : "default" }}>
+          Einverstanden
+        </button>
+        {onNein && <button type="button" onClick={onNein} style={{ background: "none", border: "none", color: C.grau, fontSize: 14.5, fontFamily: "inherit", cursor: "pointer", textDecoration: "underline" }}>Jetzt nicht</button>}
+      </div>
       <p style={{ fontSize: 12.5, color: C.hellgrau, fontWeight: 300, lineHeight: 1.7, marginTop: 12 }}>
-        Du kannst die Einwilligung jederzeit im Profil zurückziehen. Alles ohne Foto funktioniert auch ohne sie.
+        Freiwillig und jederzeit widerrufbar, ganz unten in der Datenschutzerklärung unter „Deine Einstellungen“. Alles ohne Mathilda funktioniert auch ohne Zustimmung. Mehr in der{" "}
+        <button type="button" onClick={() => { if (onNein) onNein(); FR.gehe && FR.gehe({ ansicht: "datenschutz" }); }}
+          style={{ background: "none", border: "none", padding: 0, color: C.see, textDecoration: "underline", fontFamily: "inherit", fontSize: 12.5, cursor: "pointer" }}>Datenschutzerklärung</button>.
       </p>
+    </div>
+  );
+}
+
+/* Fenster, das sich öffnet, sobald irgendwo in der App eine KI-Anfrage ohne Einwilligung startet (base4.jsx → kiKopf). */
+export function KiEinwilligungFenster() {
+  const [offen, setOffen] = useState(false);
+  React.useEffect(() => {
+    const auf = () => setOffen(true);
+    window.addEventListener("mm-ki-einwilligung", auf);
+    return () => window.removeEventListener("mm-ki-einwilligung", auf);
+  }, []);
+  if (!offen) return null;
+  return (
+    <div role="dialog" aria-modal="true" aria-label="Einwilligung für Mathilda"
+      style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(14,30,74,0.55)", display: "flex", alignItems: "flex-end", justifyContent: "center" }}
+      onClick={(e) => { if (e.target === e.currentTarget) setOffen(false); }}>
+      <div style={{ background: C.weiss, width: "100%", maxWidth: 620, maxHeight: "92vh", overflowY: "auto", borderRadius: "20px 20px 0 0", padding: "8px 4px 22px" }}>
+        <Einwilligung imFenster onJa={() => { setOffen(false); try { window.dispatchEvent(new CustomEvent("mm-ki-einwilligung-erteilt")); } catch (e) { /* egal */ } }} onNein={() => setOffen(false)} />
+        <p style={{ fontSize: 13, color: C.grau, padding: "0 22px" }}>Nach der Zustimmung tippst du einfach noch einmal auf den Knopf, den du gerade gedrückt hast.</p>
+      </div>
     </div>
   );
 }
@@ -788,7 +820,7 @@ export function FotoEinwilligungVerwalten() {
   return (
     <div style={{ marginTop: 22 }}>
       <p style={{ fontSize: 13, color: C.grau, fontWeight: 300, lineHeight: 1.7 }}>
-        Einwilligung für Fotos erteilt am {new Date(e.am).toLocaleDateString("de-DE")}.
+        Einwilligung für Mathilda (Fragen und Fotos) erteilt am {new Date(e.am).toLocaleDateString("de-DE")}.
       </p>
       <button onClick={() => { einwilligungSetzen(null); setE(null); }} className="mt-1"
         style={{ background: "none", border: "none", color: C.signal, fontSize: 13, fontFamily: "inherit", cursor: "pointer", padding: 0, textDecoration: "underline" }}>

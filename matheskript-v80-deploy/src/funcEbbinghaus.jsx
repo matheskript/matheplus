@@ -8,6 +8,7 @@
    vorhandenen Lernstand unter training.ebbinghaus (wie bei Head & Numbers: training.kopf).
    Keine base-Datei darf diese Datei importieren.
    ============================================================ */
+import { ExternSchutz } from "./funcExtern.jsx";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { C } from "./base1.jsx";
 import { M, Text } from "./func3.jsx";
@@ -161,9 +162,9 @@ function VideoBox() {
     <div style={{ borderRadius: 16, overflow: "hidden", boxShadow: "0 2px 16px rgba(15,26,51,0.12)", background: C.seeTief }}>
       <div style={{ position: "relative", width: "100%", paddingBottom: "56.25%", height: 0 }}>
         {an ? (
-          <iframe title="Warum wir vergessen – und wie du dagegen trainierst" src={`https://www.youtube-nocookie.com/embed/${EBB_VIDEO_ID}?autoplay=1&rel=0&modestbranding=1&playsinline=1`}
+          <ExternSchutz dienst="youtube"><iframe title="Warum wir vergessen – und wie du dagegen trainierst" src={`https://www.youtube-nocookie.com/embed/${EBB_VIDEO_ID}?autoplay=1&rel=0&modestbranding=1&playsinline=1`}
             loading="lazy" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowFullScreen referrerPolicy="strict-origin-when-cross-origin"
-            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: 0 }} />
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: 0 }} /></ExternSchutz>
         ) : (
           <button type="button" onClick={() => setAn(true)} aria-label="Video abspielen"
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: "none", cursor: "pointer", fontFamily: "inherit", color: C.weiss, padding: 16,

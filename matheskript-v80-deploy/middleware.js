@@ -9,6 +9,12 @@ import { next } from "@vercel/functions";
 const COOKIE = "mm_zugang";
 const COOKIE_WILLKOMMEN = "mm_willkommen";   // kurzes Cookie: die App zeigt danach 7 Sekunden die Willkommensseite (src/funcWillkommen.jsx)
 const PFAD_LOGIN = "/__zugang";
+const COOKIE_GAST = "mm_gast";   // für die App lesbar: Besucher ohne Passwort, der nur die Rechtsseiten sehen darf
+
+/* Rechtsseiten und die Eltern-Einwilligung müssen immer erreichbar sein – auch während der Testphase.
+   Die App (src/func10.jsx → gehe) schickt Gäste beim Weiterklicken über eine echte Seitenanfrage zurück zur Passwortseite. */
+const OEFFENTLICH = ["/impressum", "/datenschutz", "/agb", "/widerruf", "/einwilligung"];
+const istOeffentlich = (p) => OEFFENTLICH.includes(p.replace(/\/$/, "")) || p.startsWith("/assets/");
 
 const passwort = () => (process.env.SEITEN_PASSWORT || "mathe");
 
@@ -103,6 +109,7 @@ export default async function middleware(request) {
       kopf.append("set-cookie", `${COOKIE}=${soll}; Path=/; Max-Age=${60 * 60 * 24 * 30}; HttpOnly; Secure; SameSite=Lax`);
       // Nur 2 Minuten gültig und für die Seite lesbar (kein HttpOnly): die App löscht es sofort nach dem Lesen
       kopf.append("set-cookie", `${COOKIE_WILLKOMMEN}=1; Path=/; Max-Age=120; Secure; SameSite=Lax`);
+      kopf.append("set-cookie", `${COOKIE_GAST}=; Path=/; Max-Age=0; Secure; SameSite=Lax`);
       return new Response(null, { status: 303, headers: kopf });
     }
     return html(seite(ziel, true), 401);
@@ -110,6 +117,12 @@ export default async function middleware(request) {
 
   // Schon freigeschaltet?
   if (cookieLesen(request, COOKIE) === soll) return next();
+
+  // Rechtsseiten, Einwilligung und die dafür nötigen Programmdateien: ohne Passwort, als Gast markiert
+  if (istOeffentlich(url.pathname)) {
+    if (url.pathname.startsWith("/assets/")) return next();
+    return next({ headers: { "set-cookie": `${COOKIE_GAST}=1; Path=/; Max-Age=3600; Secure; SameSite=Lax`, "x-robots-tag": "noindex" } });
+  }
 
   // API-Aufrufe ohne Zugang: knapp ablehnen
   if (url.pathname.startsWith("/api/")) {

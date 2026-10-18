@@ -8,6 +8,7 @@
    gesichert und danach der lokale Stand geleert. Ohne die Tabelle läuft alles lokal weiter.
    Keine base-Datei darf diese Datei importieren.
    ====================================================================== */
+import { darfImKonto } from "./einwilligungLogik.js";
 import { useSyncExternalStore } from "react";
 import { erzeugeSync } from "./lernSync.js";
 import { mergeEntdecken } from "./entdeckenMerge.js";
@@ -32,8 +33,9 @@ export async function entdeckenSyncStarten() {
   S = erzeugeSync({ client: DEMO ? null : sb, speicher, ...entdeckenSyncOptionen });
   entdeckenSyncHaken({ melden: () => S.melden(), ersetzen: () => S.ersetzen() });
   const pruefe = () => {
-    const n = kontoZustand().nutzer;
-    const id = n && !n.demo ? n.id : null;
+    const { nutzer: n, profil } = kontoZustand();
+    // Unter 16 ohne Eltern-Einwilligung (oder ohne Altersangabe) bleibt alles nur auf dem Gerät (supabase/einwilligung.sql)
+    const id = n && !n.demo && profil && darfImKonto(profil) ? n.id : null;
     if (id && id !== S.zustand().nutzerId) S.anmelden(id);
     else if (!id && S.zustand().nutzerId) S.abgemeldet();
   };

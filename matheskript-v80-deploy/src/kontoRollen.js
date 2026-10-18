@@ -2,7 +2,8 @@
    kontoRollen.js – Aufrufe der Datenbankfunktionen aus supabase/rollen.sql (Eltern ↔ Kind, Klassen, Plan).
    Ohne Supabase-Schlüssel (DEMO) läuft alles lokal mit Beispieldaten, damit sich die Oberfläche testen lässt.
    ====================================================================== */
-import { sb, DEMO, kontoZustand, profilNeuLaden } from "./konto.js";
+import { sb, DEMO, kontoZustand, profilNeuLaden, demoEinwilligungSetzen, demoProfilZuToken } from "./konto.js";
+import { einwilligungsFehler } from "./einwilligungLogik.js";
 import { tagKey } from "./rollenLogik.js";
 
 const lies = (k) => { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } };
@@ -11,7 +12,7 @@ const FEHLER = "Das hat nicht geklappt. Bitte versuch es noch einmal.";
 
 async function rpc(name, args) {
   const { data, error } = await sb.rpc(name, args);
-  if (error) throw new Error(FEHLER);
+  if (error) throw new Error(einwilligungsFehler(error) || FEHLER);
   return data;
 }
 
@@ -251,4 +252,53 @@ export async function challengeSchalten(id, an) {
 export async function challengeProfil(id, name, sichtbar) {
   if (DEMO) return { status: "ok" };
   return rpc("challenge_profil", { k_id: id, name, sichtbar });
+}
+
+/* ======================================================================
+   Eltern-Einwilligung unter 16 (supabase/einwilligung.sql)
+   ====================================================================== */
+const MAIL_FEHLER = { ew_name: "Bitte gib deinen vollständigen Namen ein.", ew_mail: "Bitte gib eine gültige E-Mail-Adresse ein." };
+async function rpcEw(name, args) {
+  const { data, error } = await sb.rpc(name, args);
+  if (error) {
+    const t = String(error.message || "");
+    const k = Object.keys(MAIL_FEHLER).find((x) => t.includes(x));
+    throw new Error(k ? MAIL_FEHLER[k] : FEHLER);
+  }
+  return data;
+}
+
+/* Seite /einwilligung (Eltern, ohne Konto möglich) */
+export async function einwilligungInfo(token) {
+  if (DEMO) {
+    const p = demoProfilZuToken(token);
+    if (!p) return { status: "ungueltig" };
+    const e = p.einwilligung || {};
+    return { status: "ok", vorname: (p.name || "").split(" ")[0], unter16: p.unter16, erteilt: !!e.konto, erteilt_am: e.erteilt_am || null, von: e.von || null,
+      konto: !!e.konto, ki: !!e.ki, klassen: !!e.klassen };
+  }
+  return rpcEw("einwilligung_info", { token });
+}
+export async function einwilligungErteilen(token, { name, email, ki, klassen }) {
+  if (DEMO) {
+    const ok = demoEinwilligungSetzen(token, { konto: true, ki: !!ki, klassen: !!klassen, erteilt_am: new Date().toISOString(), von: name });
+    return { status: ok ? "ok" : "ungueltig" };
+  }
+  return rpcEw("einwilligung_erteilen", { token, e_name: name, e_mail: email, mit_ki: !!ki, mit_klassen: !!klassen });
+}
+export async function einwilligungWiderrufen(token) {
+  if (DEMO) return { status: demoEinwilligungSetzen(token, null) ? "ok" : "ungueltig" };
+  return rpcEw("einwilligung_widerrufen", { token });
+}
+
+/* Elternkonto: verbundene Kinder unter 16 */
+export async function einwilligungKinder() {
+  if (DEMO) return [];
+  return (await rpcEw("einwilligung_kinder")) || [];
+}
+export async function einwilligungAlsEltern(kind, ki, klassen) {
+  return rpcEw("einwilligung_als_eltern", { kid: kind, mit_ki: !!ki, mit_klassen: !!klassen });
+}
+export async function einwilligungWiderrufenAlsEltern(kind) {
+  return rpcEw("einwilligung_widerrufen_als_eltern", { kid: kind });
 }

@@ -28,7 +28,7 @@ import { BlattScanner } from "./funcBlattScanner.jsx";
 import { mathildaSystem } from "./mathildaKontext.js";
 import { Operatoren, Wiederholen } from "./func7.jsx";
 import { Messbericht, Modellieren, Probeabitur, Wochenbericht } from "./func8.jsx";
-import { Auswertung, Einwilligung, einwilligungLesen } from "./func9.jsx";
+import { Auswertung, Einwilligung, KiEinwilligungFenster, einwilligungLesen } from "./func9.jsx";
 import { TrainingFortschritt, PruefungsLink } from "./funcTraining.jsx";
 import { Fusszeile } from "./funcRecht.jsx";
 import { FeedbackKnopf } from "./funcFeedback.jsx";
@@ -49,6 +49,8 @@ const KontoSeite = lazyLaden(() => import("./funcKonto.jsx").then((m) => ({ defa
 const ImpressumSeite = lazyLaden(() => import("./funcRecht.jsx").then((m) => ({ default: m.ImpressumSeite })));
 const AGBSeite = lazyLaden(() => import("./funcRecht.jsx").then((m) => ({ default: m.AGBSeite })));
 const WiderrufSeite = lazyLaden(() => import("./funcRecht.jsx").then((m) => ({ default: m.WiderrufSeite })));
+const DatenschutzSeite = lazyLaden(() => import("./funcRecht.jsx").then((m) => ({ default: m.DatenschutzSeite })));
+const EinwilligungSeite = lazyLaden(() => import("./funcEinwilligung.jsx").then((m) => ({ default: m.EinwilligungSeite })));
 const ElternabendSeite = lazyLaden(() => import("./funcElternabend.jsx").then((m) => ({ default: m.ElternabendSeite })));
 const BundeswettbewerbSeite = lazyLaden(() => import("./funcWettbewerbe.jsx").then((m) => ({ default: m.BundeswettbewerbSeite })));
 const LandeswettbewerbeSeite = lazyLaden(() => import("./funcWettbewerbe.jsx").then((m) => ({ default: m.LandeswettbewerbeSeite })));
@@ -163,6 +165,7 @@ export function Mathilda() {
   const [klasseAktiv, setKlasseAktiv] = useState(8);
   const [kursStart, setKursStart] = useState(null);
   const [fotoErlaubt, setFotoErlaubt] = useState(() => !!einwilligungLesen());
+  React.useEffect(() => { const ja = () => setFotoErlaubt(true); window.addEventListener("mm-ki-einwilligung-erteilt", ja); return () => window.removeEventListener("mm-ki-einwilligung-erteilt", ja); }, []);
   const [scanOffen, setScanOffen] = useState(false);
   const [scanNachEinwilligung, setScanNachEinwilligung] = useState(false);
   const fotoBereichRef = useRef(null);
@@ -229,6 +232,12 @@ export function Mathilda() {
     return () => window.removeEventListener("popstate", f);
   }, []);
   const gehe = (eintrag) => {
+    // Gast ohne Passwort (nur Rechtsseiten freigegeben, middleware.js): alles andere über eine echte Seitenanfrage
+    if (!["impressum", "datenschutz", "agb", "widerruf", "einwilligung"].includes(eintrag.ansicht)
+        && typeof document !== "undefined" && /(?:^|;\s*)mm_gast=1/.test(document.cookie)) {
+      window.location.assign("/");
+      return;
+    }
     if (!eintrag.uebergabe) hinweisVerwerfen();
     setAnsicht(eintrag.ansicht);
     setSeitenOffen(false); setToolMenueOffen(false);
@@ -393,7 +402,7 @@ export function Mathilda() {
   return (
     <div className="app-wurzel" style={{ background: C.sand, color: C.tinte, fontFamily: "Montserrat, system-ui, sans-serif", minHeight: "100vh" }}>
       <AufklappStil />
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Roboto+Condensed:wght@400;500&display=swap');
+      <style>{`/* Schriften: lokal über @fontsource (main.jsx) */
       .kachel { transition: transform .16s ease, box-shadow .16s ease; }
       .held { position: relative; }
       .held:has(.tool-menue-knopf) h1 { padding-right: 46px; }
@@ -1068,6 +1077,20 @@ export function Mathilda() {
           </SeitenKopf>
           <ImpressumSeite />
         </>
+      ) : ansicht === "datenschutz" ? (
+        <>
+          <SeitenKopf titel="Datenschutz" groesse="clamp(26px, 7.6vw, 31px)" rund>
+              <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>Welche Daten wir verarbeiten, warum, wie lange – und welche Rechte du hast.</p>
+          </SeitenKopf>
+          <DatenschutzSeite gehe={gehe} />
+        </>
+      ) : ansicht === "einwilligung" ? (
+        <>
+          <SeitenKopf titel="Zustimmung der Eltern" groesse="clamp(26px, 7.6vw, 31px)" rund>
+              <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>Für Schüler unter 16 Jahren.</p>
+          </SeitenKopf>
+          <EinwilligungSeite />
+        </>
       ) : ansicht === "agb" ? (
         <>
           <SeitenKopf titel="AGB" groesse="clamp(26px, 7.6vw, 31px)" rund>
@@ -1299,7 +1322,7 @@ export function Mathilda() {
         onGalerie={() => { setScanOffen(false); setTimeout(() => galerieRef.current?.click(), 50); }} />
       <div ref={fotoBereichRef} style={{ scrollMarginTop: 70 }} />
 
-      {fotoModus === "chat" ? <MathildaChatSeite /> : !fotoErlaubt ? <Einwilligung onJa={() => { setFotoErlaubt(true); if (scanNachEinwilligung) { setScanNachEinwilligung(false); setScanOffen(true); } }} /> : fotoModus === "aufgabe" ? <FotoAufgaben /> : fotoModus === "weg" ? <WegVomBlatt /> : (
+      {!fotoErlaubt ? <Einwilligung onJa={() => { setFotoErlaubt(true); if (scanNachEinwilligung) { setScanNachEinwilligung(false); setScanOffen(true); } }} /> : fotoModus === "chat" ? <MathildaChatSeite /> : fotoModus === "aufgabe" ? <FotoAufgaben /> : fotoModus === "weg" ? <WegVomBlatt /> : (
       <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 26 }}>
 
         {!bild && !laden && (
@@ -1585,6 +1608,7 @@ export function Mathilda() {
         </div>
       )}
       {!istEntwurf(ansicht) && <Fusszeile gehe={gehe} />}
+      <KiEinwilligungFenster />
       <MatheTastaturHost />
     </div>
   );

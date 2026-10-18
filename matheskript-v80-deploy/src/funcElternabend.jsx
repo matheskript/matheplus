@@ -689,6 +689,9 @@ function AnmeldeFormular({ bonus }) {
       <button type="submit" className="eab-knopf eab-gold" disabled={laeuft} style={{ width: "100%", marginTop: 2 }}>
         {laeuft ? "Wird gesendet …" : "Kostenlos anmelden"}
       </button>
+      <p style={{ margin: 0, fontSize: 12, lineHeight: 1.5, opacity: 0.75 }}>
+        Wir nutzen deine Angaben nur für diese Veranstaltung und löschen sie drei Monate danach. Mehr in der <a href="/datenschutz" target="_blank" rel="noopener noreferrer" style={{ color: "inherit" }}>Datenschutzerklärung</a>.
+      </p>
     </form>
   );
 }

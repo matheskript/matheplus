@@ -127,6 +127,8 @@ export const SEITEN = [
   /* Konto und Recht */
   { pfad: "konto", ansicht: "konto", alias: ["login", "anmelden"] },
   { pfad: "impressum", ansicht: "impressum" },
+  { pfad: "datenschutz", ansicht: "datenschutz", alias: ["datenschutzerklaerung", "privacy"] },
+  { pfad: "einwilligung", ansicht: "einwilligung", alias: ["zustimmung"] },
   { pfad: "agb", ansicht: "agb" },
   { pfad: "widerruf", ansicht: "widerruf" },
 

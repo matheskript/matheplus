@@ -9,6 +9,7 @@
    Keine base-Datei darf diese Datei importieren.
    ============================================================ */
 
+import { ExternSchutz } from "./funcExtern.jsx";
 import React, { useEffect, useState } from "react";
 import { C } from "./base1.jsx";
 import { BUNNY_LIBRARY, VIDEOKURSE } from "./base5.jsx";
@@ -221,17 +222,17 @@ export function VideokursPlayer({ kursId, kursTitel, start = 0, onZurueck, gehe 
       <div style={{ position: "relative", width: "100%", aspectRatio: "16 / 9", borderRadius: 18, overflow: "hidden",
         background: C.seeTief, boxShadow: "0 8px 28px rgba(14,30,74,0.25)", marginBottom: 20 }}>
         {l.bunny ? (
-          <iframe key={l.bunny} title={l.titel}
+          <ExternSchutz dienst="bunny"><iframe key={l.bunny} title={l.titel}
             src={`https://iframe.mediadelivery.net/embed/${BUNNY_LIBRARY}/${l.bunny}?autoplay=false&preload=true&responsive=true`}
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: 0 }}
             allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture"
-            allowFullScreen />
+            allowFullScreen /></ExternSchutz>
         ) : (
-          <iframe key={l.youtube} title={l.titel}
+          <ExternSchutz dienst="youtube"><iframe key={l.youtube} title={l.titel}
             src={`https://www.youtube-nocookie.com/embed/${l.youtube}?rel=0&modestbranding=1&playsinline=1`}
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: 0 }}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowFullScreen />
+            allowFullScreen /></ExternSchutz>
         )}
       </div>
 

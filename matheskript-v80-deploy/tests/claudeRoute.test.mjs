@@ -12,7 +12,7 @@ function res() {
   const r = { code: 200, body: null, status(c) { r.code = c; return r; }, json(b) { r.body = b; return r; } };
   return r;
 }
-const req = (body, headers = {}) => ({ method: "POST", body, headers });
+const req = (body, headers = {}) => ({ method: "POST", body, headers: { "x-ki-einwilligung": "1", ...headers } });
 
 /* Anthropic-Nachbildung: erst Werkzeugaufruf, dann Antwort mit dem Ergebnis; Supabase: Zähler je Token */
 let anthropicAufrufe = [];
@@ -22,6 +22,7 @@ globalThis.fetch = async (url, init) => {
   if (String(url).includes("supabase")) {
     const t = init.headers.authorization.replace("Bearer ", "");
     if (t === "kaputt") return { status: 401, ok: false, json: async () => ({}) };
+    if (t === "kind-ohne-eltern") return { status: 200, ok: true, json: async () => ({ erlaubt: false, grund: "eltern_einwilligung" }) };
     zaehler[t] = (zaehler[t] || 0) + 1;
     const lim = t === "pro" ? null : b.frei_pro_tag;
     const erlaubt = lim === null || zaehler[t] <= lim;
@@ -76,4 +77,22 @@ test("Ohne Anmeldung: Gerätegrenze pro Stunde", async () => {
   let letzter = null;
   for (let i = 0; i < 41; i++) { letzter = res(); await handler(req({ messages: [{ role: "user", content: "Hallo" }] }, { "x-geraet": "handy-x" }), letzter); }
   assert.equal(letzter.code, 429);
+});
+
+test("Ohne Einwilligungs-Kopf geht nichts an Anthropic (428)", async () => {
+  anthropicAufrufe = [];
+  const r = res();
+  await handler({ method: "POST", body: { messages: [{ role: "user", content: "Hallo" }] }, headers: {} }, r);
+  assert.equal(r.code, 428);
+  assert.equal(r.body.error.grund, "ki_einwilligung");
+  assert.equal(anthropicAufrufe.length, 0);
+});
+
+test("Konto unter 16 ohne Eltern-Zustimmung: 403, nichts an Anthropic", async () => {
+  anthropicAufrufe = [];
+  const r = res();
+  await handler(req({ messages: [{ role: "user", content: "Hallo" }] }, { authorization: "Bearer kind-ohne-eltern" }), r);
+  assert.equal(r.code, 403);
+  assert.equal(r.body.error.grund, "eltern_einwilligung");
+  assert.equal(anthropicAufrufe.length, 0);
 });
