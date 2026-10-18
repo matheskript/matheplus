@@ -33,6 +33,7 @@ import { MatheFeld } from "./matheTastatur.jsx";
 import { buchen } from "./buchung.jsx";
 
 import { springe } from "./sprung.js";
+import { MathildaModusKnopf } from "./funcMathildaModus.jsx";
 /* ---------- Speicher: im vorhandenen Lernstand (func6) ---------- */
 const aendere = (fn) => lernAendern((L) => { L.training = normiere(L.training); fn(L.training); });
 export const useTraining = () => normiere(useLern().training);
@@ -386,6 +387,9 @@ export function Aufgabenlauf({ aufgaben, quelle, onEnde, endeText = "Fertig", on
           {z.ok !== true && <div style={{ flex: "1 1 160px" }}><GrosserKnopf onClick={pruefen} disabled={String(z.eingabe).trim() === ""}>Prüfen</GrosserKnopf></div>}
           {(z.ok === true || z.versuche > 0) && <div style={{ flex: "1 1 160px" }}><GrosserKnopf gold={z.ok === true} ghost={z.ok !== true} onClick={weiter}>{i + 1 < aufgaben.length ? "Weiter" : "Auswertung"}</GrosserKnopf></div>}
         </div>
+        {z.ok !== true && (
+          <MathildaModusKnopf key={`mm-${a.id}`} a={a} aehnliche={a.variante ? () => neueAufgabe(a.variante) : null} onErgebnis={(x) => setz({ eingabe: x, meldung: "" })} />
+        )}
         {z.ok !== true && (
           <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}>
             <IchHaengeFest kontext={kontextFuer(a)} onHilfe={(b, n) => setz({ hilfe: Math.max(zs[i].hilfe, b === "loesung" ? 4 : Math.max(1, n || 1)) })} />
