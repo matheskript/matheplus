@@ -1,0 +1,55 @@
+<!-- kap: IV | uk: Skalarprodukt und Orthogonalität -->
+<div class="ukap-titel"><span class="nr">{{K:skalar-1}}</span><h2>Skalarprodukt und Orthogonalität</h2></div>
+<p class="leitfrage">Wie erkennt man an den Koordinaten, dass zwei Vektoren senkrecht stehen?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <div class="zwei-bild" style="gap:5mm">
+    <div>
+      <p style="text-align:left">Die Vektoren $\vec{a} = \begin{pmatrix} 2 \\ 4 \\ 0 \end{pmatrix}$ und $\vec{b} = \begin{pmatrix} -2 \\ 1 \\ 3 \end{pmatrix}$ spannen vom Ursprung aus ein Dreieck auf. Seine dritte Seite ist $\vec{a} - \vec{b}$.</p>
+      <p style="text-align:left"><b>a)</b> Berechne $|\vec{a}|^2$, $|\vec{b}|^2$ und $|\vec{a} - \vec{b}|^2$.<br><b>b)</b> Gilt der Satz des Pythagoras? Was folgt daraus für den Winkel bei $O$?<br><b>c)</b> Wiederhole a) und b) mit $b_1 = 1$, $b_2 = 2$, $b_3 = 3$.</p>
+    </div>
+    <raum>{"b":44,"h":40,"achsen":[2.2,4.6,3.4],"neg":[0.4,0.4,0.4],"rand":20,"zahlen":false,
+      "vektor":[{"v":[2,4,0],"t":"a","pos":"u","c":"see"},{"v":[-2,1,3],"t":"b","pos":"ol","c":"grana"}],
+      "strecke":[{"p":[-2,1,3],"q":[2,4,0],"c":"goldDunkel","w":1.6,"t":"a − b","pos":"r","vek":true}],
+      "winkel":[{"s":[0,0,0],"a":[2,4,0],"b":[-2,1,3],"r":13,"t":"?"}],
+      "punkt":[{"p":[0,0,0],"t":"O","pos":"l","r":2.4}]}</raum>
+  </div>
+</div>
+
+<p>Winkel kann man im Raum nicht messen, <b>Längen</b> aber aus Koordinaten berechnen. Pythagoras verbindet beides: Das Dreieck mit den Seiten $\vec{a}$, $\vec{b}$ und $\vec{a} - \vec{b}$ hat genau dann bei $O$ einen rechten Winkel, wenn</p>
+$$|\vec{a} - \vec{b}|^2 = |\vec{a}|^2 + |\vec{b}|^2 .$$
+
+<h3>Herleitung</h3>
+<p>Wir rechnen die linke Seite in Koordinaten aus. Jede Klammer ist eine binomische Formel:</p>
+<div class="schritte">
+  <span class="sl"><b>①</b> Betrag quadrieren</span><span>$|\vec{a} - \vec{b}|^2 = (a_1 - b_1)^2 + (a_2 - b_2)^2 + (a_3 - b_3)^2$</span>
+  <span class="sl"><b>②</b> ausmultiplizieren</span><span>$= a_1^2 - 2a_1b_1 + b_1^2 + a_2^2 - 2a_2b_2 + b_2^2 + a_3^2 - 2a_3b_3 + b_3^2$</span>
+  <span class="sl"><b>③</b> sortieren</span><span>$= \underbrace{a_1^2 + a_2^2 + a_3^2}_{|\vec{a}|^2} + \underbrace{b_1^2 + b_2^2 + b_3^2}_{|\vec{b}|^2} - 2\,(a_1b_1 + a_2b_2 + a_3b_3)$</span>
+</div>
+<p>Pythagoras gilt also genau dann, wenn der letzte Summand wegfällt, das heißt wenn $a_1b_1 + a_2b_2 + a_3b_3 = 0$ ist. Diese Summe der Produkte „passender“ Koordinaten bekommt einen eigenen Namen.</p>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Skalarprodukt und Orthogonalität</div>
+  <p style="text-align:left">Für $\vec{a}$ mit den Koordinaten $a_1, a_2, a_3$ und $\vec{b}$ mit $b_1, b_2, b_3$ heißt die <b>Zahl</b></p>
+  $$\vec{a} \cdot \vec{b} = a_1b_1 + a_2b_2 + a_3b_3$$
+  <p style="text-align:left"><b>Skalarprodukt</b> von $\vec{a}$ und $\vec{b}$. Zwei Vektoren $\vec{a}, \vec{b} \neq \vec{0}$ sind <b>orthogonal</b> (senkrecht zueinander), kurz $\vec{a} \perp \vec{b}$, genau dann, wenn</p>
+  $$\vec{a} \cdot \vec{b} = 0 .$$
+</div>
+
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 1 · Orthogonal oder nicht?</div>
+  <div class="zwei" style="gap:4mm"><p style="text-align:left;margin:0">$\begin{pmatrix} 1 \\ -2 \\ 3 \end{pmatrix} \cdot \begin{pmatrix} 4 \\ 5 \\ 2 \end{pmatrix} = 4 - 10 + 6 = 0$<br>→ orthogonal</p><p style="text-align:left;margin:0">$\begin{pmatrix} 2 \\ 1 \\ -1 \end{pmatrix} \cdot \begin{pmatrix} 3 \\ -1 \\ 4 \end{pmatrix} = 6 - 1 - 4 = 1$<br>→ nicht orthogonal</p></div>
+</div>
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: Pythagoras im Raum</li><li>Herleitung in Koordinaten</li><li>Merke: Skalarprodukt</li><li>Beispiele 1–3</li><li>Rechenregeln</li><li>Aufgaben 1–5</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 6 und 7</p></div>
+
+<div class="notiz"><span class="t">Wortspeicher</span><b>Skalar:</b> eine reine Zahl, im Gegensatz zum Vektor.<br><b>orthogonal</b> (griech. „rechtwinklig“) heißt dasselbe wie senkrecht.</div>
+
+<div class="notiz gold"><span class="t">Achtung, Punkt!</span>Der Punkt in $\vec{a} \cdot \vec{b}$ ist kein gewöhnliches Mal: Zwei Vektoren gehen hinein, heraus kommt <b>eine Zahl</b>.</div>
+
+<div class="notiz"><span class="t">Erinnerung</span>Betrag (Kapitel {{K:vektoren-1}}):<br>$|\vec{a}| = \sqrt{a_1^2 + a_2^2 + a_3^2}$</div>
+
+<div class="notiz"><span class="t">Zu c)</span>Hier ist $|\vec{a} - \vec{b}|^2$ kleiner als $|\vec{a}|^2 + |\vec{b}|^2$. Was das für den Winkel heißt, klärt Kapitel {{K:winkel-1}}.</div>

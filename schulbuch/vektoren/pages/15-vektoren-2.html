@@ -1,0 +1,69 @@
+<!-- kap: II -->
+<h3 style="margin-top:0;margin-bottom:1mm">Gegenvektor, Nullvektor, Betrag</h3>
+<div class="zwei-bild" style="grid-template-columns:1fr auto">
+  <div>
+    <p>Fliegt die Drohne von $B$ zurück nach $A$, kehren sich alle Einträge um: $\overrightarrow{BA} = -\overrightarrow{AB}$ heißt <b>Gegenvektor</b>. Wer stehen bleibt, verschiebt um den <b>Nullvektor</b> $\vec{o}$.</p>
+    <p>Die <b>Länge</b> eines Pfeils liefert der doppelte Pythagoras (Seite {{S:raum-2}}): Der Pfeil ist Raumdiagonale eines Quaders mit den Kanten $v_1$, $v_2$, $v_3$.</p>
+  </div>
+  <raum>{"b":44,"h":30,"keineAchsen":true,"rand":18,
+    "quader":[{"von":[0,0,0],"bis":[2,5,2],"c":"grau","w":0.7}],
+    "vektor":[{"p":[0,0,0],"q":[2,5,2],"c":"grana","w":2}],
+    "text":[{"p":[1,0,0],"t":"v₁","pos":"l","c":"goldDunkel"},{"p":[2,2.5,0],"t":"v₂","pos":"u","c":"goldDunkel"},{"p":[2,5,1],"t":"v₃","pos":"r","c":"goldDunkel"},{"p":[1,2.5,1.4],"t":"v","pos":"o","c":"grana","vek":true}]}</raum>
+</div>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Betrag, Gegenvektor, Nullvektor</div>
+  $$|\vec{v}| = \left|\begin{pmatrix} v_1 \\ v_2 \\ v_3 \end{pmatrix}\right| = \sqrt{v_1^2 + v_2^2 + v_3^2} \qquad -\vec{v} = \begin{pmatrix} -v_1 \\ -v_2 \\ -v_3 \end{pmatrix} \qquad \vec{o} = \begin{pmatrix} 0 \\ 0 \\ 0 \end{pmatrix}$$
+  <p style="text-align:left">Der <b>Betrag</b> $|\vec{v}|$ ist die Länge der Pfeile von $\vec{v}$; es gilt $\overline{AB} = |\overrightarrow{AB}|$. Ist $|\vec{v}| = 1$, heißt $\vec{v}$ <b>Einheitsvektor</b>.</p>
+</div>
+
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 2 · Parallelogramm-Test</div>
+  <p style="text-align:left">Ist $ABCD$ mit $A(1 \mid 0 \mid 2)$, $B(4 \mid 2 \mid 3)$, $C(5 \mid 5 \mid 1)$, $D(2 \mid 3 \mid 0)$ ein Parallelogramm? Sogar eine Raute?</p>
+  <div class="loesung"><span class="loesung-kopf">Lösung</span>
+  $$\overrightarrow{AB} = \begin{pmatrix} 3 \\ 2 \\ 1 \end{pmatrix} = \overrightarrow{DC}, \qquad \overrightarrow{AD} = \begin{pmatrix} 1 \\ 3 \\ -2 \end{pmatrix}, \qquad |\overrightarrow{AB}| = \sqrt{14} = |\overrightarrow{AD}|$$
+  <p style="text-align:left">Also ein Parallelogramm – mit gleich langen Nachbarseiten sogar eine <b>Raute</b>.</p></div>
+</div>
+
+<div class="aufgaben-kopf"><span>Aufgaben</span></div>
+
+<div class="auf"><div class="anr"><span class="z">1</span><span class="stufe">●○○</span></div><div class="text">
+  <p>Bestimme $\overrightarrow{AB}$ und $\overrightarrow{BA}$.</p>
+  <div class="teil" style="--sp:2;gap:0.6mm 4mm"><div><i>a)</i>$A(1 \mid 2 \mid 3)$, $B(4 \mid 0 \mid 5)$</div><div><i>b)</i>$A(-2 \mid 1 \mid 0)$, $B(3 \mid -1 \mid 4)$</div></div>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">2</span><span class="stufe">●○○</span></div><div class="text">
+  <p>Berechne den Betrag.</p>
+  <div class="teil" style="--sp:6"><div><i>a)</i>$\begin{pmatrix} 2 \\ -1 \\ 2 \end{pmatrix}$</div><div><i>b)</i>$\begin{pmatrix} -6 \\ 2 \\ 3 \end{pmatrix}$</div><div><i>c)</i>$\begin{pmatrix} 4 \\ 0 \\ -3 \end{pmatrix}$</div><div><i>d)</i>$\begin{pmatrix} 1 \\ 1 \\ 1 \end{pmatrix}$</div><div><i>e)</i>$\begin{pmatrix} 12 \\ -4 \\ 3 \end{pmatrix}$</div><div><i>f)</i>$\begin{pmatrix} 2 \\ 2 \\ 4 \end{pmatrix}$</div></div>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">3</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Prüfe, ob $ABCD$ ein Parallelogramm ist.</p>
+  <div class="teil lang" style="--sp:1;gap:0.6mm 4mm"><div><i>a)</i>$A(1 \mid 2 \mid 0)$, $B(3 \mid 5 \mid 1)$, $C(2 \mid 7 \mid 4)$, $D(0 \mid 4 \mid 3)$</div><div><i>b)</i>$A(2 \mid 0 \mid 1)$, $B(5 \mid 1 \mid 3)$, $C(6 \mid 4 \mid 2)$, $D(3 \mid 2 \mid 0)$</div></div>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">4</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Zeige: Das Dreieck mit $A(1 \mid 1 \mid 1)$, $B(3 \mid 3 \mid 2)$, $C(-1 \mid 2 \mid 3)$ ist gleichschenklig und rechtwinklig.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">5</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Finde den Fehler: <b>Mia</b> rechnet für $A(2 \mid 5 \mid -1)$, $B(4 \mid 1 \mid 3)$: $\;\overrightarrow{AB} = \begin{pmatrix} 2 - 4 \\ 5 - 1 \\ -1 - 3 \end{pmatrix} = \begin{pmatrix} -2 \\ 4 \\ -4 \end{pmatrix}$, $\;|\overrightarrow{AB}| = -2 + 4 - 4 = -2$.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">6</span><span class="stufe">●●●</span></div><div class="text">
+  <p>Für welche Zahlen $t$ hat der Vektor mit den Einträgen $2t$, $t$, $-2t$ den Betrag 6?</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z offen">7</span><span class="stufe">●●●</span></div><div class="text">
+  <p>Begründe: $|\vec{v}| = 0$ gilt nur für $\vec{v} = \vec{o}$. Kann ein Betrag negativ sein?</p>
+</div></div>
+<!--rand-->
+<div class="notiz"><span class="t">Kurz gesagt</span>Spitze minus Fuß gibt den Vektor, Wurzel aus der Quadratsumme seine Länge.</div>
+
+<div class="notiz gold"><span class="t">Achtung Reihenfolge</span>Im Parallelogramm $ABCD$ gilt $\overrightarrow{AB} = \overrightarrow{DC}$, nicht $\overrightarrow{CD}$: Die Pfeile müssen in dieselbe Richtung zeigen.</div>
+
+<div class="notiz"><span class="t">Zu Aufgabe 4</span>Umkehrung des Pythagoras: Gilt $a^2 + b^2 = c^2$, so hat das Dreieck einen rechten Winkel.</div>
+
+<div class="notiz"><span class="t">Zu Aufgabe 5</span>Zwei Fehler! Prüfe die Reihenfolge und wie man einen Betrag berechnet.</div>
+
+<div class="notiz mathilda"><span class="t">In der App</span>Im Werkzeug <b>Rechnen mit Vektoren</b> übst du Verbindungsvektoren und Beträge mit immer neuen Zahlen – mit Rechenweg zum Vergleichen.</div>

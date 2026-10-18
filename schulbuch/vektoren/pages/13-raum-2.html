@@ -1,0 +1,71 @@
+<!-- kap: II -->
+<p style="margin-top:0">Je zwei Achsen spannen eine <b>Koordinatenebene</b> auf. Im „Boden“, der $x_1x_2$-Ebene, gilt $x_3 = 0$; entsprechend $x_2 = 0$ in der $x_1x_3$-Ebene und $x_1 = 0$ in der $x_2x_3$-Ebene. Auf einer <b>Achse</b> sind sogar zwei Koordinaten null.</p>
+
+<h3>Abstand zweier Punkte</h3>
+<div class="zwei-bild" style="grid-template-columns:1fr auto">
+  <div>
+    <p>Wie lang ist die <b>Raumdiagonale</b> $\overline{OF}$ des Quaders mit $F(2 \mid 6 \mid 3)$?</p>
+    <p>Im Boden ist das Dreieck $OAB$ rechtwinklig: $\overline{OB}^{\,2} = 2^2 + 6^2 = 40$. Auch das Dreieck $OBF$ ist rechtwinklig, denn die Kante $\overline{BF}$ steht senkrecht auf dem Boden:</p>
+    $$\overline{OF}^{\,2} = \overline{OB}^{\,2} + 3^2 = 2^2 + 6^2 + 3^2 = 49, \quad \overline{OF} = 7.$$
+    <p>Für zwei beliebige Punkte ersetzt man die Kanten durch die Koordinatenunterschiede – der <b>doppelte Pythagoras</b>.</p>
+  </div>
+  <raum>{"b":46,"h":40,"keineAchsen":true,"rand":22,
+    "flaeche":[{"pkte":[[0,0,0],[2,6,0],[2,6,3]],"c":"gold","o":0.25,"rand":false}],
+    "quader":[{"von":[0,0,0],"bis":[2,6,3],"c":"grau","w":0.8}],
+    "strecke":[{"p":[0,0,0],"q":[2,6,0],"c":"goldDunkel","w":1.4,"d":"4 2"},{"p":[0,0,0],"q":[2,6,3],"c":"grana","w":2}],
+    "punkt":[{"p":[0,0,0],"t":"O","pos":"l","r":2.4},{"p":[2,0,0],"t":"A","pos":"l","r":2.4},{"p":[2,6,0],"t":"B","pos":"r","r":2.4},{"p":[2,6,3],"t":"F","pos":"r","r":2.4,"c":"grana"}],
+    "text":[{"p":[1,0,0],"t":"2","pos":"r","c":"grau","k":"kl"},{"p":[2,3,0],"t":"6","pos":"u","c":"grau","k":"kl"},{"p":[2,6,1.5],"t":"3","pos":"r","c":"grau","k":"kl"},{"p":[1,3,1.5],"t":"7","pos":"o","c":"grana"}]}</raum>
+</div>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Abstand zweier Punkte</div>
+  <p style="text-align:left">Für $P(p_1 \mid p_2 \mid p_3)$ und $Q(q_1 \mid q_2 \mid q_3)$ gilt</p>
+  $$\overline{PQ} = \sqrt{(q_1 - p_1)^2 + (q_2 - p_2)^2 + (q_3 - p_3)^2}.$$
+</div>
+
+<div class="kasten vertiefung">
+  <div class="etikett">★ Für Interessierte · Ein Schrägbild kann lügen</div>
+  <p style="text-align:left">Im Schrägbild landet $(a \mid b \mid c)$ an der Blattstelle $\big(b - \frac{a}{2} \mid c - \frac{a}{2}\big)$. Für $P(3 \mid 4 \mid 2)$ und $R(1 \mid 3 \mid 1)$ ist das beide Male $(2{,}5 \mid 0{,}5)$. Allgemein sehen alle Punkte gleich aus, deren Koordinaten sich um ein Vielfaches von $(2 \mid 1 \mid 1)$ unterscheiden: Drei Dimensionen auf zwei abzubilden kostet eine Information. Erst der Koordinatenweg macht das Bild eindeutig.</p>
+</div>
+
+<div class="aufgaben-kopf"><span>Aufgaben</span></div>
+
+<div class="auf"><div class="anr"><span class="z">1</span><span class="stufe">●○○</span></div><div class="text">
+  <p>Zeichne ein Schrägbild und trage die Punkte mit Koordinatenweg ein.</p>
+  <div class="teil" style="--sp:4"><div><i>a)</i>$A(2 \mid 3 \mid 1)$</div><div><i>b)</i>$B(4 \mid 0 \mid 2)$</div><div><i>c)</i>$C(0 \mid -2 \mid 3)$</div><div><i>d)</i>$D(-2 \mid 1 \mid -1)$</div></div>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">2</span><span class="stufe">●○○</span></div><div class="text">
+  <p>Gib an, auf welcher Achse oder in welcher Koordinatenebene der Punkt liegt: &nbsp;$P(0 \mid 4 \mid 0)$, $Q(3 \mid 0 \mid -2)$, $S(2 \mid -1 \mid 0)$, $T(0 \mid -3 \mid 5)$, $U(0 \mid 0 \mid 7)$.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">3</span><span class="stufe">●○○</span></div><div class="text">
+  <p>Berechne den Abstand der Punkte $P$ und $Q$.</p>
+  <div class="teil" style="--sp:2"><div><i>a)</i>$P(1 \mid 2 \mid 3)$, $Q(3 \mid 5 \mid 9)$</div><div><i>b)</i>$P(-1 \mid 0 \mid 4)$, $Q(3 \mid -4 \mid 2)$</div><div><i>c)</i>$P(5 \mid 1 \mid -2)$, $Q(-3 \mid 5 \mid -1)$</div><div><i>d)</i>$P(1 \mid 1 \mid 1)$, $Q(2 \mid 3 \mid 4)$</div></div>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">4</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Ein Quader hat die Ecken $O$, $A(4 \mid 0 \mid 0)$ und $C(0 \mid 5 \mid 0)$ im Boden und ist 3 hoch. Gib alle acht Ecken an und berechne die Länge der Raumdiagonale.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">5</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Zeige, dass das Dreieck mit $A(1 \mid 0 \mid 2)$, $B(3 \mid 2 \mid 3)$, $C(-1 \mid 2 \mid 3)$ gleichschenklig ist.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">6</span><span class="stufe">●●●</span></div><div class="text">
+  <p>Für welche Zahlen $a$ hat $P(a \mid 4 \mid 2)$ vom Punkt $Q(1 \mid 0 \mid 0)$ den Abstand 6?</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z offen">7</span><span class="stufe">●●●</span></div><div class="text">
+  <p>Gib zwei Punkte an, die im Schrägbild genauso aussehen wie $Q(2 \mid -1 \mid 3)$. Begründe mit der Vertiefung oben.</p>
+</div></div>
+<!--rand-->
+<div class="notiz"><span class="t">Kurz gesagt</span>Abstand = Wurzel aus der Summe der quadrierten Koordinatenunterschiede.</div>
+
+<div class="notiz gold"><span class="t">Vorzeichen</span>Beim Quadrieren ist die Reihenfolge egal: $(3 - 5)^2 = (5 - 3)^2 = 4$.</div>
+
+<div class="notiz"><span class="t">Besondere Lagen</span>Zähle die Nullen:<br>zwei Nullen → Achse, z. B. $(0 \mid 5 \mid 0)$ auf der $x_2$-Achse<br>eine Null → Koordinatenebene, z. B. $(3 \mid 0 \mid 2)$ in der $x_1x_3$-Ebene</div>
+
+<div class="notiz"><span class="t">Zu Aufgabe 6</span>Setze in die Abstandsformel ein und löse die quadratische Gleichung.</div>
+
+<div class="notiz mathilda"><span class="t">In der App</span>Im Werkzeug <b>Rechnen mit Vektoren</b> drehst du das Koordinatensystem mit dem Finger – so siehst du, wo ein Punkt wirklich liegt.</div>

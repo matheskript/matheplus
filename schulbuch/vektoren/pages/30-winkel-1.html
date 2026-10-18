@@ -1,0 +1,61 @@
+<!-- kap: IV | uk: Winkel zwischen Vektoren -->
+<div class="ukap-titel"><span class="nr">{{K:winkel-1}}</span><h2>Winkel zwischen Vektoren</h2></div>
+<p class="leitfrage">Was verrät das Skalarprodukt, wenn es nicht null ist?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <div class="zwei-bild" style="gap:5mm">
+    <div>
+      <p style="text-align:left">Alle drei Vektoren $\vec{b}$ im Bild liegen in der $x_1x_2$-Ebene. Gezeichnet ist die Ebene von oben.</p>
+      <p style="text-align:left"><b>a)</b> Berechne $\vec{a} \cdot \vec{b}_1$, $\vec{a} \cdot \vec{b}_2$ und $\vec{a} \cdot \vec{b}_3$ mit $\vec{a} = \begin{pmatrix} 2 \\ 0 \\ 0 \end{pmatrix}$, $\vec{b}_1 = \begin{pmatrix} 2 \\ 2 \\ 0 \end{pmatrix}$, $\vec{b}_2 = \begin{pmatrix} 0 \\ 3 \\ 0 \end{pmatrix}$, $\vec{b}_3 = \begin{pmatrix} -1 \\ 1 \\ 0 \end{pmatrix}$.<br><b>b)</b> Lies die Winkel zu $\vec{a}$ ab. Welcher Zusammenhang mit dem Vorzeichen fällt dir auf?</p>
+    </div>
+    <graph>{"b":40,"h":40,"x":[-1.6,3.4],"y":[-0.8,4.2],"gitter":1,"tx":1,"ty":1,"xl":"x₁","yl":"x₂",
+      "strecke":[{"p":[0,0],"q":[2,0],"c":"see","w":2.8,"pfeil":true},{"p":[0,0],"q":[2,2],"c":"grana","w":1.8,"pfeil":true},{"p":[0,0],"q":[0,3],"c":"goldDunkel","w":1.8,"pfeil":true},{"p":[0,0],"q":[-1,1],"c":"smaragd","w":1.8,"pfeil":true}],
+      "text":[{"x":1.5,"y":0,"t":"a","pos":"o","c":"see"},{"x":2,"y":2,"t":"b₁","pos":"r","c":"grana"},{"x":0,"y":3,"t":"b₂","pos":"r","c":"goldDunkel"},{"x":-1,"y":1,"t":"b₃","pos":"o","c":"smaragd"}]}</graph>
+  </div>
+</div>
+
+<p>Das Skalarprodukt ist null bei $90°$, positiv bei spitzen und negativ bei stumpfen Winkeln. Den genauen Zusammenhang liefert der <b>Kosinussatz</b> – die Verallgemeinerung von Pythagoras auf beliebige Dreiecke.</p>
+
+<div class="zwei-bild" style="grid-template-columns:1fr auto">
+  <div>
+    <h3 style="margin-top:0">Herleitung</h3>
+    <p>Im Dreieck mit den Seiten $\vec{a}$, $\vec{b}$ und $\vec{a} - \vec{b}$ sei $\alpha$ der Winkel zwischen $\vec{a}$ und $\vec{b}$. Der Kosinussatz sagt:</p>
+    $$|\vec{a} - \vec{b}|^2 = |\vec{a}|^2 + |\vec{b}|^2 - 2\,|\vec{a}|\,|\vec{b}| \cos\alpha$$
+    <p>Auf Seite {{S:skalar-1}} haben wir dieselbe linke Seite in Koordinaten ausgerechnet:</p>
+    $$|\vec{a} - \vec{b}|^2 = |\vec{a}|^2 + |\vec{b}|^2 - 2\,\vec{a} \cdot \vec{b}$$
+  </div>
+  <raum>{"b":42,"h":38,"keineAchsen":true,
+    "vektor":[{"v":[0,4,0],"t":"a","pos":"u","c":"see"},{"v":[0,1.4,2.6],"t":"b","pos":"ol","c":"grana"}],
+    "strecke":[{"p":[0,1.4,2.6],"q":[0,4,0],"c":"goldDunkel","w":1.5,"t":"a − b","pos":"or","vek":true}],
+    "winkel":[{"s":[0,0,0],"a":[0,4,0],"b":[0,1.4,2.6],"r":16,"t":"α"}],
+    "punkt":[{"p":[0,0,0],"r":2.4}]}</raum>
+</div>
+<p>Beide rechten Seiten sind gleich. Also ist $|\vec{a}|\,|\vec{b}| \cos\alpha = \vec{a} \cdot \vec{b}$. Teilt man durch die Längen, erhält man den Kosinus des Winkels – aus lauter Koordinaten.</p>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Winkel zwischen zwei Vektoren</div>
+  <p style="text-align:left">Für den Winkel $\alpha$ zwischen zwei Vektoren $\vec{a}, \vec{b} \neq \vec{0}$ mit $0° \le \alpha \le 180°$ gilt</p>
+  $$\cos\alpha = \frac{\vec{a} \cdot \vec{b}}{|\vec{a}| \cdot |\vec{b}|} \qquad\text{und damit}\qquad \vec{a} \cdot \vec{b} = |\vec{a}| \cdot |\vec{b}| \cdot \cos\alpha .$$
+  <p style="text-align:left">$\vec{a} \cdot \vec{b} > 0$: $\alpha$ spitz &nbsp;·&nbsp; $\vec{a} \cdot \vec{b} = 0$: $\alpha = 90°$ &nbsp;·&nbsp; $\vec{a} \cdot \vec{b} < 0$: $\alpha$ stumpf</p>
+</div>
+
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 1 · Winkel berechnen</div>
+  <p style="text-align:left">Winkel zwischen $\vec{a} = \begin{pmatrix} 2 \\ 1 \\ 2 \end{pmatrix}$ und $\vec{b} = \begin{pmatrix} 1 \\ -1 \\ 4 \end{pmatrix}$:</p>
+  <div class="schritte" style="margin:1mm 0 0">
+    <span class="sl">Skalarprodukt</span><span>$\vec{a} \cdot \vec{b} = 2 - 1 + 8 = 9$</span>
+    <span class="sl">Längen</span><span>$|\vec{a}| = \sqrt{9} = 3$, &nbsp; $|\vec{b}| = \sqrt{18} = 3\sqrt{2}$</span>
+    <span class="sl">Kosinus</span><span>$\cos\alpha = \dfrac{9}{3 \cdot 3\sqrt{2}} = \dfrac{\sqrt{2}}{2} \;\Rightarrow\; \alpha = 45°$</span>
+  </div>
+</div>
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: Vorzeichen deuten</li><li>Herleitung mit dem Kosinussatz</li><li>Merke: Winkelformel</li><li>Beispiele 1–3</li><li>Aufgaben 1–5</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 6 und 7</p></div>
+
+<div class="notiz"><span class="t">Erinnerung</span><b>Kosinussatz:</b><br>$c^2 = a^2 + b^2 - 2ab\cos\gamma$<br>Für $\gamma = 90°$ ist $\cos\gamma = 0$ – übrig bleibt Pythagoras.</div>
+
+<div class="notiz gold"><span class="t">Taschenrechner</span>Auf <b>DEG</b> (Grad) stellen. Den Winkel liefert $\cos^{-1}$, oft als <b>SHIFT cos</b>. Winkel auf eine Nachkommastelle runden.</div>
+
+<div class="notiz"><span class="t">Warum 0° bis 180°?</span>Zwischen zwei Vektoren nimmt man immer den kleineren Winkel. Dafür liefert $\cos^{-1}$ genau einen Wert.</div>

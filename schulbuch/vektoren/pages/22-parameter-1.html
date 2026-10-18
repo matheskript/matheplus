@@ -1,0 +1,53 @@
+<!-- kap: III | uk: Geraden in Parameterform -->
+<div class="ukap-titel"><span class="nr">{{K:parameter-1}}</span><h2>Geraden in Parameterform</h2></div>
+<p class="leitfrage">Wie beschreibt man eine Gerade, wenn $y = mx + c$ nicht mehr reicht?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <div class="zwei-bild" style="gap:5mm">
+    <div>
+      <p style="text-align:left">Ein Mähroboter startet im Punkt $(0 \mid 1)$ und fährt jede Sekunde den Schritt „1 nach rechts, 2 nach oben“.</p>
+      <p style="text-align:left"><b>a)</b> Wo ist er nach 1, 2 und 3 Sekunden? Wo war er vor einer Sekunde?<br><b>b)</b> Seine Punkte liegen auf einer Geraden. Gib ihre Gleichung an.<br><b>c)</b> Ein zweiter Roboter startet in $(2 \mid 0)$ und fährt jede Sekunde 1 nach oben. Gibt es für seine Bahn eine Gleichung $y = mx + c$?</p>
+    </div>
+    <graph>{"b":44,"h":40,"x":[-1.4,3.6],"y":[-1.6,5.4],"gitter":1,"tx":1,"ty":1,
+      "fn":[{"f":"2*x+1","c":"see","w":1.6,"d":"4 3","von":-1.2,"bis":2.2}],
+      "gerade":[{"p":[2,0],"q":[2,1],"c":"grana","w":1.6,"d":"4 3"}],
+      "strecke":[{"p":[0,1],"q":[1,1],"c":"goldDunkel","w":1.2},{"p":[1,1],"q":[1,3],"c":"goldDunkel","w":1.2},{"p":[2,0],"q":[2,1],"c":"grana","w":2,"pfeil":true}],
+      "punkt":[{"x":0,"y":1,"c":"see","r":3},{"x":1,"y":3,"c":"see","r":2.6},{"x":2,"y":5,"c":"see","r":2.6},{"x":2,"y":0,"c":"grana","r":3}],
+      "text":[{"x":0.5,"y":1,"t":"1","pos":"u","c":"goldDunkel"},{"x":1,"y":2,"t":"2","pos":"r","c":"goldDunkel"}]}</graph>
+  </div>
+</div>
+
+<p>Die Gleichung $y = 2x + 1$ lässt sich genau so lesen wie die Fahrt des Roboters: <b>Starte bei $(0 \mid 1)$ und gehe $x$-mal den Schritt $(1 \mid 2)$.</b> Für jede Gerade $y = mx + c$ gilt dasselbe – man startet auf der $y$-Achse bei $(0 \mid c)$, und ein Schritt nach rechts bringt $m$ nach oben. Mit Vektoren aus Kapitel {{KAP:auftakt-vektoren}} aufgeschrieben:</p>
+$$\begin{pmatrix} x \\ y \end{pmatrix} = \begin{pmatrix} x \\ mx + c \end{pmatrix} = \begin{pmatrix} 0 \\ c \end{pmatrix} + x \cdot \begin{pmatrix} 1 \\ m \end{pmatrix}$$
+<p>Ein fester <b>Stützvektor</b> plus ein Vielfaches eines <b>Richtungsvektors</b>. Die Zahl $x$ spielt dabei zwei Rollen: Sie ist Koordinate und zählt zugleich die Schritte. Gibt man dem Zähler einen eigenen Namen, den <b>Parameter</b> $t$, so wird die Form frei: Start und Schritt dürfen beliebig sein. Der zweite Roboter fährt auf</p>
+$$\vec{x} = \begin{pmatrix} 2 \\ 0 \end{pmatrix} + t \cdot \begin{pmatrix} 0 \\ 1 \end{pmatrix} \quad\text{also}\quad x = 2.$$
+<p>Diese senkrechte Gerade hat <b>keine</b> Form $y = mx + c$, aber eine Parameterform. Und nichts an der Idee hängt an zwei Koordinaten: Im Raum hängt man einfach eine dritte Zeile an.</p>
+
+<table class="wt voll eng" style="margin:0 0 3mm">
+  <tr><th class="l"></th><th class="l">in der Ebene: $y = mx + c$</th><th class="l">Parameterform (Ebene und Raum)</th></tr>
+  <tr><td class="l"><b>Start</b></td><td class="l">$(0 \mid c)$ auf der $y$-Achse</td><td class="l">beliebiger Punkt $P$, Stützvektor $\vec{p} = \overrightarrow{OP}$</td></tr>
+  <tr><td class="l"><b>Schritt</b></td><td class="l">$(1 \mid m)$, immer 1 nach rechts</td><td class="l">beliebiger Vektor $\vec{u} \neq \vec{0}$</td></tr>
+  <tr><td class="l"><b>Zähler</b></td><td class="l">$x$ (zugleich Koordinate)</td><td class="l">Parameter $t \in \mathbb{R}$</td></tr>
+  <tr><td class="l"><b>senkrecht?</b></td><td class="l">nicht möglich</td><td class="l">kein Problem, jede Richtung geht</td></tr>
+</table>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Parameterform einer Geraden</div>
+  <p style="text-align:left">Jede Gerade $g$ im Raum lässt sich schreiben als</p>
+  $$g\colon \vec{x} = \vec{p} + t \cdot \vec{u}, \quad t \in \mathbb{R}.$$
+  <p style="text-align:left">$\vec{p}$ ist der Ortsvektor eines Punktes $P$ auf $g$ (<b>Stützvektor</b>), $\vec{u} \neq \vec{0}$ gibt die Richtung an (<b>Richtungsvektor</b>), $t$ heißt <b>Parameter</b>. Jeder Wert von $t$ liefert genau einen Punkt der Geraden.</p>
+</div>
+
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: Mähroboter</li><li>$y = mx + c$ neu lesen</li><li>Parameter $t$, senkrechte Gerade</li><li>Vergleich Ebene ↔ Raum</li><li>Merke: Parameterform</li><li>Beispiele 1–3</li><li>Aufgaben 1–5</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 6 und 7</p></div>
+
+<div class="notiz"><span class="t">Wortspeicher</span><b>Parameter:</b> eine Zahl, die man frei wählen darf – hier der Schrittzähler.<br><b>Stützvektor:</b> „hier stützt sich die Gerade ab“.<br><b>Richtungsvektor:</b> der Schritt.</div>
+
+<div class="notiz gold"><span class="t">Warum nicht $y = mx + c$?</span>Im Raum hat ein Punkt drei Koordinaten. Eine einzige Gleichung zwischen $x_1$, $x_2$, $x_3$ beschreibt dort eine <b>Ebene</b> (Kapitel {{KAP:auftakt-ebenen}}), keine Gerade.</div>
+
+<div class="notiz"><span class="t">Zum Einstieg c)</span>Für $x = 2$ müsste der Roboter „0 nach rechts“ gehen. Dann wäre $\Delta x = 0$ – und eine Steigung $m = \frac{\Delta y}{\Delta x}$ gibt es nicht.</div>
+
+<div class="notiz"><span class="t">Aus Kapitel {{KAP:auftakt-vektoren}}</span>Der Ortsvektor $\overrightarrow{OP}$ hat dieselben Einträge wie der Punkt $P$. Ein Vektor $t \cdot \vec{u}$ zeigt in dieselbe Richtung ($t > 0$) oder in die Gegenrichtung ($t < 0$).</div>

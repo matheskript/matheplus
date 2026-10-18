@@ -1,0 +1,55 @@
+<!-- kap: II | uk: Vektoren -->
+<div class="ukap-titel"><span class="nr">{{K:vektoren-1}}</span><h2>Vektoren</h2></div>
+<p class="leitfrage">Wie beschreibt man eine Verschiebung im Raum mit drei Zahlen?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <div class="zwei-bild" style="gap:5mm">
+    <div>
+      <p style="text-align:left">Drei Drohnen einer Lichtshow starten in $A$, $B$, $C$ und fliegen auf Kommando alle gleich: „2 nach vorn, 3 nach rechts, 2 nach oben.“</p>
+      <p style="text-align:left"><b>a)</b> Wo landet die Drohne, die in $A(0 \mid 1 \mid 1)$ startet?<br><b>b)</b> Was haben die drei Pfeile im Bild gemeinsam?<br><b>c)</b> Reicht „2, 3, 2“, um jede der Bewegungen zu beschreiben?</p>
+    </div>
+    <raum>{"b":46,"h":40,"achsen":[3,6,4],"neg":[0.3,0.3,0.3],"zahlen":false,"rand":20,
+      "vektor":[{"p":[0,1,1],"v":[2,3,2],"c":"grana","w":1.8},{"p":[0,3,0],"v":[2,3,2],"c":"grana","w":1.8},{"p":[2,0,2],"v":[2,3,2],"c":"grana","w":1.8}],
+      "punkt":[{"p":[0,1,1],"t":"A","pos":"l","r":2.4},{"p":[0,3,0],"t":"B","pos":"u","r":2.4},{"p":[2,0,2],"t":"C","pos":"l","r":2.4}]}</raum>
+  </div>
+</div>
+
+<p>Die drei Pfeile sind gleich lang, parallel und zeigen in dieselbe Richtung. Sie beschreiben <b>dieselbe Verschiebung</b>, nur an verschiedenen Stellen. In der Mathematik fasst man alle diese Pfeile zu einem Objekt zusammen, dem <b>Vektor</b>. Jeder Pfeil ist ein <b>Repräsentant</b> davon.</p>
+
+<p>Ein Vektor ist durch die drei Verschiebungen in Achsenrichtung festgelegt. Man schreibt sie in eine Spalte:</p>
+$$\vec{v} = \begin{pmatrix} 2 \\ 3 \\ 2 \end{pmatrix} \quad \text{heißt: } 2 \text{ in } x_1\text{-Richtung},\ 3 \text{ in } x_2\text{-Richtung},\ 2 \text{ in } x_3\text{-Richtung.}$$
+
+<p>Wird ein Punkt $A$ durch $\vec{v}$ auf $B$ verschoben, nennt man den Vektor $\overrightarrow{AB}$. Seine Einträge sind die Koordinatenunterschiede von $B$ und $A$. Der <b>Ortsvektor</b> $\vec{p} = \overrightarrow{OP}$ führt vom Ursprung zu $P$ und hat die Koordinaten von $P$ als Einträge.</p>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Vektor und Verbindungsvektor</div>
+  <p style="text-align:left">Ein <b>Vektor</b> ist eine Verschiebung im Raum. Alle Pfeile, die gleich lang, parallel und gleich gerichtet sind, stellen denselben Vektor dar. Für $A(a_1 \mid a_2 \mid a_3)$ und $B(b_1 \mid b_2 \mid b_3)$ ist der <b>Verbindungsvektor</b></p>
+  $$\overrightarrow{AB} = \begin{pmatrix} b_1 - a_1 \\ b_2 - a_2 \\ b_3 - a_3 \end{pmatrix} = \vec{b} - \vec{a} \qquad \text{(„Spitze minus Fuß“).}$$
+</div>
+
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 1 · Verbindungsvektor</div>
+  <div class="zwei-bild" style="gap:5mm">
+    <div>
+      <p style="text-align:left">Bestimme $\overrightarrow{AB}$ für $A(1 \mid -1 \mid 3)$ und $B(3 \mid 4 \mid 1)$. Wohin verschiebt $\overrightarrow{AB}$ den Punkt $C(0 \mid 2 \mid 2)$?</p>
+      <div class="loesung"><span class="loesung-kopf">Lösung</span>
+      <p style="text-align:left">$\overrightarrow{AB} = \begin{pmatrix} 3 - 1 \\ 4 - (-1) \\ 1 - 3 \end{pmatrix} = \begin{pmatrix} 2 \\ 5 \\ -2 \end{pmatrix}$ &nbsp; $C' = (0 + 2 \mid 2 + 5 \mid 2 - 2) = (2 \mid 7 \mid 0)$</p></div>
+    </div>
+    <raum>{"b":46,"h":32,"keineAchsen":true,"rand":16,
+      "strecke":[{"p":[1,-1,3],"q":[3,-1,3],"c":"goldDunkel","w":1.2,"d":"3 2","t":"2","pos":"l"},{"p":[3,-1,3],"q":[3,4,3],"c":"goldDunkel","w":1.2,"d":"3 2"},{"p":[3,4,3],"q":[3,4,1],"c":"goldDunkel","w":1.2,"d":"3 2","t":"−2","pos":"l"}],
+      "vektor":[{"p":[1,-1,3],"q":[3,4,1],"c":"grana","w":2}],
+      "text":[{"p":[3,2.6,3],"t":"5","pos":"o","c":"goldDunkel"}],
+      "punkt":[{"p":[1,-1,3],"t":"A","pos":"ol","r":2.4},{"p":[3,4,1],"t":"B","pos":"ur","r":2.4}]}</raum>
+  </div>
+</div>
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: Lichtshow</li><li>Pfeile und Vektor</li><li>Spaltenschreibweise</li><li>Merke: Verbindungsvektor</li><li>Beispiele 1 und 2</li><li>Betrag eines Vektors</li><li>Aufgaben 1–5</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 6 und 7</p></div>
+
+<div class="notiz"><span class="t">Wortspeicher</span><b>Vektor</b> (lat. <i>vehere</i>: fahren): „Träger“ einer Verschiebung.<br><b>Repräsentant:</b> ein einzelner Pfeil des Vektors.<br><b>Ortsvektor</b> $\overrightarrow{OP}$: Pfeil vom Ursprung zu $P$.</div>
+
+<div class="notiz gold"><span class="t">Punkt oder Vektor?</span>Punkte schreibt man in eine Zeile mit Strichen: $P(2 \mid 3 \mid 2)$.<br>Vektoren in eine Spalte, mit Pfeil darüber.</div>
+
+<div class="notiz"><span class="t">Aus der Ebene</span>In 2D hat ein Vektor zwei Einträge, z. B. $\begin{pmatrix} 3 \\ 2 \end{pmatrix}$: 3 nach rechts, 2 nach oben – wie das Steigungsdreieck einer Geraden.</div>

@@ -1,0 +1,59 @@
+<!-- kap: II | uk: Punkte im Raum -->
+<div class="ukap-titel"><span class="nr">{{K:raum-1}}</span><h2>Punkte im Raum</h2></div>
+<p class="leitfrage">Wie gibt man die Lage eines Punktes im Raum eindeutig an?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <div class="zwei-bild" style="gap:5mm">
+    <div>
+      <p style="text-align:left">In einer Zimmerecke treffen sich zwei Wände und der Boden. Eine Fliege sitzt irgendwo im Raum. Du willst am Telefon sagen, wo sie ist.</p>
+      <p style="text-align:left"><b>a)</b> Wie viele Zahlen brauchst du mindestens? Warum reichen zwei nicht?<br><b>b)</b> Beschreibe einen „Weg“ von der Ecke zur Fliege, der nur parallel zu den Kanten verläuft.<br><b>c)</b> Wo sitzt eine Fliege, deren dritte Zahl 0 ist?</p>
+    </div>
+    <raum>{"b":44,"h":36,"achsen":[3,4,3],"neg":[0,0,0],"zahlen":false,"rand":16,
+      "flaeche":[{"pkte":[[0,0,0],[3,0,0],[3,4,0],[0,4,0]],"c":"gold","o":0.14,"rand":false},{"pkte":[[0,0,0],[0,4,0],[0,4,3],[0,0,3]],"c":"see","o":0.07,"rand":false},{"pkte":[[0,0,0],[3,0,0],[3,0,3],[0,0,3]],"c":"see","o":0.04,"rand":false}],
+      "punkt":[{"p":[2,3,2],"t":"Fliege","pos":"or","c":"grana","lot":true}],
+      "text":[{"p":[0,0,0],"t":"Ecke","pos":"ol","c":"grau","k":"kl"}]}</raum>
+  </div>
+</div>
+
+<p>Auf dem Blatt genügen zwei Achsen. Im Raum kommt eine dritte dazu, die auf den beiden anderen senkrecht steht. Die Achsen heißen $x_1$-, $x_2$- und $x_3$-Achse und schneiden sich im <b>Ursprung</b> $O$. Ein Punkt hat dann drei Koordinaten: $P(p_1 \mid p_2 \mid p_3)$.</p>
+
+<div class="zwei-bild" style="grid-template-columns:1fr auto">
+  <div>
+    <p>Auf Papier zeichnet man das <b>Schrägbild</b>: Die $x_2$-Achse zeigt nach rechts, die $x_3$-Achse nach oben – wie gewohnt. Die $x_1$-Achse zeigt „auf dich zu“. Auf dem Blatt läuft sie schräg nach links unten, im Winkel von 45° zu den anderen.</p>
+    <p>Weil Strecken in die Tiefe kürzer wirken, zeichnet man eine Einheit auf der $x_1$-Achse nur $\frac{1}{2}\sqrt{2} \approx 0{,}71$-mal so lang: Bei 1 cm pro Einheit ist das genau <b>eine Kästchendiagonale</b>.</p>
+  </div>
+  <raum>{"b":50,"h":38,"achsen":[3.6,4.6,3.4],"neg":[0.5,0.5,0.5],"zahlen":true,"alleZahlen":true,"rand":14,
+    "text":[{"p":[0,0,0],"t":"O","pos":"ol","c":"seeTief"}]}</raum>
+</div>
+
+<p>Einen Punkt trägt man über den <b>Koordinatenweg</b> ein: vom Ursprung $p_1$ Einheiten entlang der $x_1$-Achse, dann $p_2$ parallel zur $x_2$-Achse, zuletzt $p_3$ nach oben (bei negativen Werten jeweils in die Gegenrichtung).</p>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Räumliches Koordinatensystem</div>
+  <p style="text-align:left">Drei paarweise senkrechte Achsen $x_1$, $x_2$, $x_3$ mit dem Ursprung $O(0 \mid 0 \mid 0)$ bilden ein <b>räumliches Koordinatensystem</b>. Jeder Punkt hat genau ein Koordinatentripel $P(p_1 \mid p_2 \mid p_3)$.</p>
+  <p style="text-align:left">Im Schrägbild: $x_2$ nach rechts, $x_3$ nach oben, $x_1$ schräg unter 45° nach vorn, Einheit dort auf $\frac{1}{2}\sqrt{2}$ verkürzt.</p>
+</div>
+
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 1 · Punkt eintragen</div>
+  <div class="zwei-bild" style="gap:5mm">
+    <div>
+      <p style="text-align:left">Trage $P(3 \mid 4 \mid 2)$ und $Q(2 \mid -1 \mid 3)$ in ein Schrägbild ein.</p>
+      <div class="loesung"><span class="loesung-kopf">Lösung</span>
+      <p style="text-align:left">$P$: 3 Kästchendiagonalen nach vorn, 4 Einheiten nach rechts, 2 nach oben.<br>$Q$: 2 nach vorn, 1 nach <b>links</b>, 3 nach oben.</p></div>
+    </div>
+    <raum>{"b":50,"h":38,"achsen":[3.6,4.6,3.4],"neg":[0.5,1.6,0.4],"zahlen":true,"alleZahlen":true,"rand":16,
+      "punkt":[{"p":[3,4,2],"t":"P","pos":"or","c":"grana","lot":true},{"p":[2,-1,3],"t":"Q","pos":"ol","c":"see","lot":true}]}</raum>
+  </div>
+</div>
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: Fliege im Zimmer</li><li>Dritte Achse, Schrägbild</li><li>Koordinatenweg</li><li>Merke: Koordinatensystem</li><li>Beispiel 1</li><li>Abstand zweier Punkte</li><li>Aufgaben 1–5</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 6 und 7</p></div>
+
+<div class="notiz"><span class="t">Wortspeicher</span><b>Tripel:</b> drei Zahlen in fester Reihenfolge.<br><b>Ursprung</b> $O$: Schnittpunkt der Achsen.<br><b>Schrägbild:</b> ebene Zeichnung eines räumlichen Körpers.</div>
+
+<div class="notiz gold"><span class="t">Rechte Hand</span>Daumen = $x_1$, Zeigefinger = $x_2$, Mittelfinger = $x_3$. So liegen die Achsen in jedem Buch und jeder App gleich („Rechtssystem“).</div>
+
+<div class="notiz"><span class="t">Im Heft</span>Eine $x_1$-Einheit = eine Kästchendiagonale, eine $x_2$- oder $x_3$-Einheit = zwei Kästchen (1 cm).</div>

@@ -1,0 +1,56 @@
+<!-- kap: V | typ: auftakt -->
+<div class="auftakt-kopf">
+  <div class="knr">Kapitel V</div>
+  <h1>Ebenen</h1>
+  <p>Eine Gerade hat eine Richtung, eine Tischplatte oder ein Sonnensegel haben <b style="color:#FFE9A0">zwei</b>. Du beschreibst Ebenen mit zwei Spannvektoren oder mit einem Vektor, der senkrecht auf ihnen steht – und jede Lagefrage wird wieder ein lineares Gleichungssystem.</p>
+  <div class="goldlinie"></div>
+</div>
+<div class="auftakt-inhalt">
+  <div class="zwei-bild" style="grid-template-columns:auto 1fr;gap:6mm">
+    <raum>{"b":74,"h":48,"achsen":[7,7,5],"neg":[0.5,0.5,0.5],
+      "flaeche":[{"pkte":[[6,0,2],[0,6,2],[0,0,4]],"c":"smaragd","o":0.22,"w":1.4,"t":"E","tp":[2.4,2.6,2.75]}],
+      "strecke":[{"p":[6,0,0],"q":[6,0,2],"c":"grau","w":1.6},{"p":[0,6,0],"q":[0,6,2],"c":"grau","w":1.6},
+        {"p":[-1,-2,7],"q":[1,2,3],"c":"goldDunkel","w":1.8,"pfeil":true},{"p":[1,2,3],"q":[1.6,3.2,1.8],"c":"goldDunkel","w":1.3,"d":"3 2"}],
+      "punkt":[{"p":[6,0,2],"t":"A","pos":"l","c":"seeTief"},{"p":[0,6,2],"t":"B","pos":"r","c":"seeTief"},{"p":[0,0,4],"t":"C","pos":"or","c":"seeTief"},
+        {"p":[1,2,3],"t":"D","pos":"or","c":"grana"},{"p":[-1,-2,7],"t":"L","pos":"l","c":"goldDunkel"}]}</raum>
+    <div>
+      <h3 style="margin-top:0">Die Frage des Kapitels</h3>
+      <p style="text-align:left">Ein Sonnensegel wird an drei Punkten aufgespannt: an zwei Masten in $A(6 \mid 0 \mid 2)$ und $B(0 \mid 6 \mid 2)$ und an der Hauswand in $C(0 \mid 0 \mid 4)$. Welche Fläche beschreibt das Segel? Und wo trifft ein Lichtstrahl, der von $L(-1 \mid -2 \mid 7)$ aus in Richtung $\vec{u} = \left(\begin{smallmatrix} 1 \\ 2 \\ -2 \end{smallmatrix}\right)$ fällt, auf das Segel?</p>
+      <p style="text-align:left">Drei Punkte legen eine <b>Ebene</b> fest. In Kapitel {{K:gerade-ebene-1}} findest du den Punkt $D$ mit einer einzigen Gleichung.</p>
+    </div>
+  </div>
+
+  <h3>Das kannst du schon – kurzer Check</h3>
+  <table class="check-tab">
+    <tr style="font-size:7.6pt;color:#5B6478;text-transform:uppercase;letter-spacing:0.06em"><td><b style="color:#5B6478">Vorwissen</b></td><td><b style="color:#5B6478">Mini-Check</b></td><td style="white-space:nowrap">sicher · geht so · nein</td></tr>
+    <tr><td>Parameterform einer Geraden</td><td>Gerade durch $A(1 \mid 2 \mid 0)$ und $B(3 \mid 1 \mid 4)$</td><td><span class="kreis"></span><span class="kreis"></span><span class="kreis"></span></td></tr>
+    <tr><td>Skalarprodukt, Orthogonalität</td><td>Ist $\begin{pmatrix} 2 \\ -1 \\ 3 \end{pmatrix} \perp \begin{pmatrix} 1 \\ 5 \\ 1 \end{pmatrix}$?</td><td><span class="kreis"></span><span class="kreis"></span><span class="kreis"></span></td></tr>
+    <tr><td>Kreuzprodukt</td><td>$\begin{pmatrix} 1 \\ 0 \\ 2 \end{pmatrix} \times \begin{pmatrix} 0 \\ 1 \\ 1 \end{pmatrix} = \,?$</td><td><span class="kreis"></span><span class="kreis"></span><span class="kreis"></span></td></tr>
+    <tr><td>LGS mit drei Unbekannten</td><td>$x_1 + x_2 + x_3 = 6$; $\,x_1 - x_2 + x_3 = 2$; $\,2x_1 + x_2 - x_3 = 1$</td><td><span class="kreis"></span><span class="kreis"></span><span class="kreis"></span></td></tr>
+  </table>
+  <p class="klein mild" style="margin-top:1.5mm;text-align:left">Lösungen auf Seite {{S:loesungen-1}}. Wo du unsicher bist: Seite {{S:parameter-1}}, {{S:skalar-1}}, {{S:kreuz-1}} und {{S:gauss-1}}.</p>
+
+  <div class="lernziele" style="margin-top:2.5mm">
+    <div>
+      <h3 style="margin-top:0">Das lernst du in diesem Kapitel</h3>
+      <ul>
+        <li>Ebenen in Parameterform aufstellen</li>
+        <li>Normalen- und Koordinatenform nutzen</li>
+        <li>Formen umwandeln und Ebenen zeichnen</li>
+        <li>Lagen von Geraden und Ebenen untersuchen</li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="margin-top:0">Unterkapitel</h3>
+      <ol class="ukap-liste eng" style="margin:0">
+        <li><span class="n">{{K:ebene-param-1}}</span>Ebenen in Parameterform<span class="s">{{S:ebene-param-1}}</span></li>
+        <li><span class="n">{{K:normalenform-1}}</span>Normalenform und Koordinatenform<span class="s">{{S:normalenform-1}}</span></li>
+        <li><span class="n">{{K:spurpunkte-1}}</span>Umwandeln, Spurpunkte, Zeichnen<span class="s">{{S:spurpunkte-1}}</span></li>
+        <li><span class="n">{{K:gerade-ebene-1}}</span>Gerade und Ebene<span class="s">{{S:gerade-ebene-1}}</span></li>
+        <li><span class="n">{{K:ebene-ebene-1}}</span>Zwei und drei Ebenen<span class="s">{{S:ebene-ebene-1}}</span></li>
+        <li><span class="n"></span>Alles klar? Training V<span class="s">{{S:training-ebenen}}</span></li>
+      </ol>
+    </div>
+  </div>
+</div>
+<div style="position:absolute;right:20mm;top:16mm;font-size:76pt;font-weight:800;color:rgba(255,255,255,0.10);line-height:1">E</div>

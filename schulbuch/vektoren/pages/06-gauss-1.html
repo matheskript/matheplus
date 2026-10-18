@@ -1,0 +1,51 @@
+<!-- kap: I | uk: Das Gauß-Verfahren -->
+<div class="ukap-titel"><span class="nr">{{K:gauss-1}}</span><h2>Das Gauß-Verfahren</h2></div>
+<p class="leitfrage">Wie löst man ein Gleichungssystem mit drei Unbekannten zuverlässig?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <p style="text-align:left">Im Strandbad zahlt Familie A (1 Erwachsener, 1 Kind, 1 Senior) 25 €, Familie B (2 Erwachsene, 1 Kind, 2 Senioren) 42 € und Familie C (1 Erwachsener, 2 Kinder, 3 Senioren) 43 €.<br><b>a)</b> Stelle drei Gleichungen für die Preise $x_1$, $x_2$, $x_3$ (Erwachsener, Kind, Senior) auf.<br><b>b)</b> Versuche, die Preise zu finden. Warum hilft Gleichsetzen hier kaum?</p>
+</div>
+
+<h3>Drei Wege für zwei Gleichungen</h3>
+<p>Für das LGS $\;\text{(I)}\; 2x + 3y = 12$, $\;\text{(II)}\; x - y = 1\;$ kennst du drei Verfahren. Alle haben dasselbe Ziel: eine Unbekannte <b>verschwinden</b> zu lassen.</p>
+<table class="wt voll eng" style="margin:0 0 2.4mm">
+  <tr><th class="l">Verfahren</th><th class="l">Idee</th><th class="l">am Beispiel</th></tr>
+  <tr><td class="l"><b>Einsetzen</b></td><td class="l">auflösen, in die andere einsetzen</td><td class="l">$x = y + 1$ in (I): $\;5y + 2 = 12$, $\;y = 2$</td></tr>
+  <tr><td class="l"><b>Gleichsetzen</b></td><td class="l">beide nach $y$ auflösen</td><td class="l">$-\frac{2}{3}x + 4 = x - 1$, $\;x = 3$</td></tr>
+  <tr><td class="l"><b>Addieren</b></td><td class="l">Vielfache addieren, bis eine Variable wegfällt</td><td class="l">$\text{(I)} + 3 \cdot \text{(II)}$: $\;5x = 15$, $\;x = 3$</td></tr>
+</table>
+<p>Ergebnis jedes Mal: $x = 3$, $y = 2$. Bei drei Unbekannten werden Einsetzen und Gleichsetzen unübersichtlich. Das <b>Additionsverfahren</b> lässt sich dagegen stur nach Plan wiederholen – die Idee von Carl Friedrich Gauß.</p>
+
+<h3>Der Plan: Stufenform</h3>
+<p>Mit (I) entfernt man $x_1$ aus (II) und (III), danach mit der neuen (II) auch $x_2$ aus (III). Übrig bleibt eine <b>Stufenform</b>:</p>
+<div class="zwei" style="align-items:center;margin-bottom:2.4mm">
+  <div>$$\begin{array}{rrcrcrcr} \text{(I)} & a_1 x_1 & + & b_1 x_2 & + & c_1 x_3 & = & d_1 \\ \text{(IIa)} & & & b_2 x_2 & + & c_2 x_3 & = & d_2 \\ \text{(IIIb)} & & & & & c_3 x_3 & = & d_3 \end{array}$$</div>
+  <p style="margin:0">Jetzt löst man von unten nach oben: (IIIb) liefert $x_3$, Einsetzen in (IIa) liefert $x_2$, dann (I) liefert $x_1$. Das heißt <b>Rückwärtseinsetzen</b>.</p>
+</div>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Gauß-Verfahren</div>
+  <p style="text-align:left">Die Lösungen bleiben gleich, wenn man Gleichungen <b>vertauscht</b>, mit einer Zahl $\neq 0$ <b>multipliziert</b> oder ein Vielfaches einer Gleichung zu einer anderen <b>addiert</b>. &nbsp;① Mit (I) $x_1$ aus (II) und (III) entfernen. &nbsp;② Mit (IIa) $x_2$ aus (IIIa) entfernen. &nbsp;③ Stufenform rückwärts lösen. &nbsp;Jede Umformung notieren, z. B. $\text{II} - 2 \cdot \text{I}$.</p>
+</div>
+
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 1 · Drei Gleichungen, drei Unbekannte</div>
+  <div class="zwei" style="grid-template-columns:auto 1fr;gap:4mm;align-items:center">
+    <div>$\begin{array}{rrcrcrcr} \text{(I)} & x_1 & + & 2x_2 & - & x_3 & = & 2 \\ \text{(II)} & 2x_1 & + & x_2 & + & x_3 & = & 7 \\ \text{(III)} & -x_1 & + & x_2 & + & 2x_3 & = & 7 \end{array}$</div>
+    <div>$\begin{array}{rrl} \text{(IIa)} & -3x_2 + 3x_3 = 3 & \;\color{#8C6A00}{\text{II} - 2 \cdot \text{I}} \\ \text{(IIIa)} & 3x_2 + x_3 = 9 & \;\color{#8C6A00}{\text{III} + \text{I}} \\ \text{(IIIb)} & 4x_3 = 12 & \;\color{#8C6A00}{\text{IIIa} + \text{IIa}} \end{array}$</div>
+  </div>
+  <p style="text-align:left;margin-top:1.6mm"><b>Rückwärts:</b> $x_3 = 3$; &nbsp;$-3x_2 + 9 = 3 \Rightarrow x_2 = 2$; &nbsp;$x_1 + 4 - 3 = 2 \Rightarrow x_1 = 1$. &nbsp;Lösung: $(1 \mid 2 \mid 3)$.</p>
+</div>
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: Strandbad</li><li>Drei Verfahren wiederholen</li><li>Idee der Stufenform</li><li>Merke: Gauß-Verfahren</li><li>Beispiele 1 und 2</li><li>Aufgaben 1–5</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 6 und 7</p></div>
+
+<div class="notiz"><span class="t">Wortspeicher</span><b>Unbekannte:</b> die gesuchten Zahlen $x_1, x_2, x_3$.<br><b>Koeffizient:</b> die Zahl vor einer Unbekannten.<br><b>Stufenform</b> (auch Dreiecksform): nach unten fallen Variablen weg.</div>
+
+<div class="notiz gold"><span class="t">Ordnung ist alles</span>Schreibe die Variablen immer in derselben Reihenfolge untereinander. Fehlt eine, denk dir eine 0 davor.</div>
+
+<div class="notiz"><span class="t">Carl Friedrich Gauß</span>(1777–1855), Mathematiker aus Braunschweig. Er nutzte das Verfahren, um Bahnen von Himmelskörpern zu berechnen.</div>
+
+<div class="notiz gold"><span class="t">Probe</span>Setze $(1 \mid 2 \mid 3)$ in <b>alle drei</b> Startgleichungen ein:<br>$1 + 4 - 3 = 2$ ✓</div>

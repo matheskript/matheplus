@@ -1,0 +1,56 @@
+<!-- kap: VI | uk: Abstand Punkt–Ebene -->
+<div class="ukap-titel"><span class="nr">{{K:hnf-1}}</span><h2>Abstand Punkt–Ebene</h2></div>
+<p class="leitfrage">Wie weit ist ein Punkt von einer Ebene entfernt?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <p style="text-align:left">Eine Drohne steht im Punkt $P(5 \mid -1 \mid 6)$ über einer schrägen Dachfläche in der Ebene $E\colon 2x_1 - x_2 + 2x_3 = 5$ (Einheit 1 m).<br><b>a)</b> Warum fliegt die Drohne auf dem kürzesten Weg zum Dach senkrecht zu $E$? <b>b)</b> Welcher Vektor gibt diese Richtung an? <b>c)</b> Stelle die Gerade auf, auf der sie fliegt.</p>
+</div>
+
+<div class="zwei-bild" style="grid-template-columns:1fr auto">
+  <div>
+    <p>Jeder andere Weg von $P$ zu einem Punkt $Q$ der Ebene ist länger: Im rechtwinkligen Dreieck $PFQ$ ist $\overline{PQ}$ die Hypotenuse. Der kürzeste Weg ist also das <b>Lot</b> von $P$ auf $E$. Es hat die Richtung des Normalenvektors. Die <b>Lotgerade</b> durch $P$ ist</p>
+    $$l\colon \vec{x} = \begin{pmatrix} 5 \\ -1 \\ 6 \end{pmatrix} + t \cdot \begin{pmatrix} 2 \\ -1 \\ 2 \end{pmatrix}.$$
+  </div>
+  <raum>{"b":44,"h":36,"keineAchsen":true,"rand":12,
+    "flaeche":[{"pkte":[[3,-1.5,0],[3,4,0],[-1.5,4,0],[-1.5,-1.5,0]],"c":"lila","o":0.18,"t":"E","tp":[2.4,-0.6,0]}],
+    "strecke":[{"p":[1,1,2.8],"q":[1,1,0],"c":"grana","w":1.8,"t":"d","pos":"l"},{"p":[1,1,2.8],"q":[1.2,3.2,0],"c":"grau","w":1,"d":"3 2"},{"p":[1,1,0],"q":[1.2,3.2,0],"c":"grau","w":1,"d":"3 2"},
+      {"p":[1,0.6,0],"q":[1,0.6,0.4],"c":"seeTief","w":0.8},{"p":[1,0.6,0.4],"q":[1,1,0.4],"c":"seeTief","w":0.8}],
+    "vektor":[{"p":[-0.6,-0.6,0],"v":[0,0,1.4],"c":"lila","w":1.6,"t":"n","pos":"l"}],
+    "punkt":[{"p":[1,1,2.8],"t":"P","pos":"or","c":"grana"},{"p":[1,1,0],"t":"F","pos":"ul","c":"seeTief"},{"p":[1.2,3.2,0],"t":"Q","pos":"r","c":"grau"}]}</raum>
+</div>
+
+<p>Wir schneiden $l$ mit $E$, indem wir $x_1 = 5 + 2t$, $x_2 = -1 - t$, $x_3 = 6 + 2t$ in $E$ einsetzen:</p>
+<div class="schritte">
+  <span class="sl"><b>①</b> einsetzen, lösen</span><span>$2(5 + 2t) - (-1 - t) + 2(6 + 2t) = 5 \;\Leftrightarrow\; 23 + 9t = 5 \;\Leftrightarrow\; t = -2$</span>
+  <span class="sl"><b>②</b> Lotfußpunkt</span><span>$t = -2$ in $l$: &nbsp;$F(5 - 4 \mid -1 + 2 \mid 6 - 4) = F(1 \mid 1 \mid 2)$</span>
+  <span class="sl"><b>③</b> Abstand</span><span>$d = |\overrightarrow{PF}| = \left|\begin{pmatrix} -4 \\ 2 \\ -4 \end{pmatrix}\right| = \sqrt{36} = 6$, &nbsp;also 6 m</span>
+</div>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Lotfußpunktverfahren</div>
+  <p style="text-align:left">Der <b>Abstand</b> $d(P, E)$ ist die Länge des Lots von $P$ auf $E$:<br>① Lotgerade $l\colon \vec{x} = \vec{p} + t \cdot \vec{n}$ aufstellen &nbsp;② $l \cap E$ liefert den <b>Lotfußpunkt</b> $F$ &nbsp;③ $d(P, E) = |\overrightarrow{PF}|$</p>
+</div>
+
+<h3>Von der Rechnung zur Formel</h3>
+<p>Allgemein sei $E\colon \vec{n} \cdot \vec{x} = d$, also $n_1x_1 + n_2x_2 + n_3x_3 = d$. Einsetzen der Lotgeraden liefert $\vec{n} \cdot (\vec{p} + t\,\vec{n}) = d$, also $t = \frac{d - \vec{n} \cdot \vec{p}}{|\vec{n}|^2}$. Wegen $\overrightarrow{PF} = t \cdot \vec{n}$ folgt</p>
+$$|\overrightarrow{PF}| = |t| \cdot |\vec{n}| = \frac{|\vec{n} \cdot \vec{p} - d|}{|\vec{n}|^2} \cdot |\vec{n}| = \frac{|n_1p_1 + n_2p_2 + n_3p_3 - d|}{|\vec{n}|}.$$
+<p>Für den Abstand allein braucht man den Lotfußpunkt also gar nicht.</p>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Hessesche Normalform (HNF)</div>
+  <p style="text-align:left">Bringt man alles auf eine Seite und teilt durch $|\vec{n}|$, entsteht die <b>Hessesche Normalform</b> von $E$. Setzt man $P$ in ihre linke Seite ein, liefert der Betrag den Abstand:</p>
+  $$E\colon \frac{n_1x_1 + n_2x_2 + n_3x_3 - d}{|\vec{n}|} = 0 \qquad\quad d(P, E) = \frac{|n_1p_1 + n_2p_2 + n_3p_3 - d|}{|\vec{n}|}$$
+</div>
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: Drohne über dem Dach</li><li>Lotgerade und Lotfußpunkt</li><li>Merke: Lotfußpunkt&shy;verfahren</li><li>Herleitung der HNF</li><li>Beispiele, Aufgaben 1–5</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 6 und 7</p></div>
+
+<div class="notiz"><span class="t">Wortspeicher</span><b>Lot:</b> Strecke, die senkrecht auf der Ebene steht.<br><b>Lotfußpunkt</b> $F$: wo das Lot die Ebene trifft.<br><b>Normaleneinheits&shy;vektor</b> $\vec{n}_0 = \frac{1}{|\vec{n}|}\,\vec{n}$: Normalenvektor der Länge 1. Die HNF ist die Normalenform mit $\vec{n}_0$.</div>
+
+<div class="notiz gold"><span class="t">Erinnerung</span>Aus $E\colon 2x_1 - x_2 + 2x_3 = 5$ liest du $\vec{n}$ direkt ab: die Vorfaktoren $2$, $-1$, $2$ (Seite {{S:normalenform-1}}).</div>
+
+<div class="notiz"><span class="t">Schöne Beträge</span>$\left|\left(\begin{smallmatrix} 1 \\ 2 \\ 2 \end{smallmatrix}\right)\right| = 3$, &nbsp;$\left|\left(\begin{smallmatrix} 2 \\ -1 \\ 2 \end{smallmatrix}\right)\right| = 3$, &nbsp;$\left|\left(\begin{smallmatrix} 2 \\ 3 \\ 6 \end{smallmatrix}\right)\right| = 7$ – mit diesen Normalenvektoren gehen Abstände glatt auf.</div>
+
+<div class="notiz"><span class="t">Der rote Faden</span>Schon in der Ebene ist der kürzeste Weg zu einer Geraden das Lot – jetzt steht es senkrecht auf einer Ebene.</div>

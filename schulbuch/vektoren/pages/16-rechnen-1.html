@@ -1,0 +1,55 @@
+<!-- kap: II | uk: Rechnen mit Vektoren -->
+<div class="ukap-titel"><span class="nr">{{K:rechnen-1}}</span><h2>Rechnen mit Vektoren</h2></div>
+<p class="leitfrage">Was bedeutet es, Vektoren zu addieren oder zu vervielfachen?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <div class="zwei-bild" style="gap:5mm">
+    <div>
+      <p style="text-align:left">Eine Drohne startet in $P(1 \mid 1 \mid 0)$. Sie fliegt erst um $\vec{a} = \begin{pmatrix} 1 \\ 3 \\ 0 \end{pmatrix}$, dann um $\vec{b} = \begin{pmatrix} 0 \\ 1 \\ 3 \end{pmatrix}$.</p>
+      <p style="text-align:left"><b>a)</b> Wo kommt sie an? Durch welchen <b>einen</b> Vektor hätte sie direkt fliegen können?<br><b>b)</b> Ändert sich das Ziel, wenn sie erst $\vec{b}$, dann $\vec{a}$ fliegt?<br><b>c)</b> Wohin kommt sie, wenn sie dreimal hintereinander $\vec{a}$ fliegt?</p>
+    </div>
+    <raum>{"b":44,"h":36,"keineAchsen":true,"rand":14,
+      "vektor":[{"p":[1,1,0],"v":[1,3,0],"c":"see","w":1.8,"t":"a","pos":"u"},{"p":[2,4,0],"v":[0,1,3],"c":"goldDunkel","w":1.8,"t":"b","pos":"r"},{"p":[1,1,0],"v":[1,4,3],"c":"grana","w":1.8,"d":"5 3"}],
+      "punkt":[{"p":[1,1,0],"t":"P","pos":"l","r":2.4}],
+      "text":[{"p":[1,1.5,1.8],"t":"?","pos":"ol","c":"grana","k":"fl"}]}</raum>
+  </div>
+</div>
+
+<p>Zwei Verschiebungen nacheinander ergeben wieder eine Verschiebung. Dabei addieren sich die Bewegungen in jeder Achsenrichtung einzeln: $1 + 0$ nach vorn, $3 + 1$ nach rechts, $0 + 3$ nach oben. Man setzt die Pfeile also <b>hintereinander</b> – Fuß des zweiten an die Spitze des ersten.</p>
+
+<div class="zwei-bild" style="grid-template-columns:1fr auto">
+  <div>
+    <p>Hängt man die Pfeile in der anderen Reihenfolge an, landet man am selben Ziel. Die beiden Wege bilden ein <b>Parallelogramm</b>, dessen Diagonale $\vec{a} + \vec{b}$ ist. Deshalb gilt $\vec{a} + \vec{b} = \vec{b} + \vec{a}$.</p>
+    <p>Für die <b>Differenz</b> $\vec{a} - \vec{b}$ addiert man den Gegenvektor: $\vec{a} - \vec{b} = \vec{a} + (-\vec{b})$. Im Parallelogramm ist das die andere Diagonale, von der Spitze von $\vec{b}$ zur Spitze von $\vec{a}$.</p>
+  </div>
+  <raum>{"b":50,"h":40,"keineAchsen":true,"rand":16,
+    "flaeche":[{"pkte":[[0,0,0],[1,3,0],[1,4,3],[0,1,3]],"c":"see","o":0.08,"rand":false}],
+    "vektor":[{"p":[0,0,0],"v":[1,3,0],"c":"see","w":1.8,"t":"a","pos":"u"},{"p":[0,0,0],"v":[0,1,3],"c":"goldDunkel","w":1.8,"t":"b","pos":"l"},{"p":[1,3,0],"v":[0,1,3],"c":"goldDunkel","w":1.1,"d":"3 2","t":"b","pos":"r"},{"p":[0,1,3],"v":[1,3,0],"c":"see","w":1.1,"d":"3 2","t":"a","pos":"o"},{"p":[0,0,0],"v":[1,4,3],"c":"grana","w":2},{"p":[0,1,3],"q":[1,3,0],"c":"smaragd","w":1.6}],
+    "text":[{"p":[0.75,3,2.25],"t":"a + b","pos":"ur","c":"grana","k":"fl"},{"p":[0.2,1.4,2.4],"t":"a − b","pos":"r","c":"smaragd","k":"fl"}]}</raum>
+</div>
+
+<p>$\vec{a} + \vec{a} + \vec{a} = 3\vec{a}$ zeigt in dieselbe Richtung und ist dreimal so lang. Allgemein streckt $r \cdot \vec{a}$ den Pfeil um den Faktor $|r|$; für $r < 0$ kehrt sich die Richtung um.</p>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Addition, Subtraktion, Vervielfachen</div>
+  $$\begin{pmatrix} a_1 \\ a_2 \\ a_3 \end{pmatrix} \pm \begin{pmatrix} b_1 \\ b_2 \\ b_3 \end{pmatrix} = \begin{pmatrix} a_1 \pm b_1 \\ a_2 \pm b_2 \\ a_3 \pm b_3 \end{pmatrix} \qquad r \cdot \begin{pmatrix} a_1 \\ a_2 \\ a_3 \end{pmatrix} = \begin{pmatrix} r a_1 \\ r a_2 \\ r a_3 \end{pmatrix}$$
+  <p style="text-align:left">Man rechnet <b>eintragsweise</b>. Es gelten die vertrauten Gesetze: $\vec{a} + \vec{b} = \vec{b} + \vec{a}$, $(\vec{a} + \vec{b}) + \vec{c} = \vec{a} + (\vec{b} + \vec{c})$, $r(\vec{a} + \vec{b}) = r\vec{a} + r\vec{b}$, $(r + s)\vec{a} = r\vec{a} + s\vec{a}$.</p>
+</div>
+
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 1 · Rechnen mit Spaltenvektoren</div>
+  <p style="text-align:left">Berechne für $\vec{a} = \begin{pmatrix} 1 \\ -2 \\ 3 \end{pmatrix}$ und $\vec{b} = \begin{pmatrix} 4 \\ 0 \\ -1 \end{pmatrix}$ die Vektoren $\vec{a} + \vec{b}$, $\vec{a} - \vec{b}$ und $2\vec{a} - \vec{b}$.</p>
+  <div class="loesung"><span class="loesung-kopf">Lösung</span>
+  $$\vec{a} + \vec{b} = \begin{pmatrix} 5 \\ -2 \\ 2 \end{pmatrix} \qquad \vec{a} - \vec{b} = \begin{pmatrix} -3 \\ -2 \\ 4 \end{pmatrix} \qquad 2\vec{a} - \vec{b} = \begin{pmatrix} 2 - 4 \\ -4 - 0 \\ 6 + 1 \end{pmatrix} = \begin{pmatrix} -2 \\ -4 \\ 7 \end{pmatrix}$$</div>
+</div>
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: zwei Flüge</li><li>Hintereinander&shy;ausführen</li><li>Parallelogramm, Differenz</li><li>Vervielfachen</li><li>Merke, Beispiel 1</li><li>Mittelpunkt, Schwerpunkt</li><li>Aufgaben 1–5</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 6 und 7</p></div>
+
+<div class="notiz"><span class="t">Wortspeicher</span><b>Summe</b> $\vec{a} + \vec{b}$: erst $\vec{a}$, dann $\vec{b}$.<br><b>Vielfaches</b> $r \cdot \vec{a}$: gestreckter Pfeil.<br>Die Zahl $r$ heißt auch <b>Skalar</b>.</div>
+
+<div class="notiz gold"><span class="t">Hintereinander</span>$\overrightarrow{AB} + \overrightarrow{BC} = \overrightarrow{AC}$<br>Der „innere“ Punkt $B$ fällt heraus – wie bei einer Umsteigeverbindung.</div>
+
+<div class="notiz"><span class="t">Gegenrichtung</span>$-1 \cdot \vec{a} = -\vec{a}$ ist genau der Gegenvektor von Seite {{S:vektoren-2}}.</div>

@@ -1,0 +1,66 @@
+<!-- kap: I | uk: Zwei Geraden in der Ebene -->
+<div class="ukap-titel"><span class="nr">{{K:zwei-geraden-1}}</span><h2>Zwei Geraden in der Ebene</h2></div>
+<p class="leitfrage">Wann haben zwei Geraden einen gemeinsamen Punkt – und wie findet man ihn?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <div class="zwei-bild" style="gap:5mm">
+    <div>
+      <p style="text-align:left">Zwei Fahrradverleihe am Bodensee: <b>Verleih A</b> nimmt 5 € Grundgebühr und 2 € pro Stunde, <b>Verleih B</b> 9 € Grundgebühr und 1 € pro Stunde.</p>
+      <p style="text-align:left"><b>a)</b> Was kosten 2 Stunden und was 6 Stunden bei A, was bei B?<br><b>b)</b> Stelle für beide Verleihe den Preis $y$ (in €) nach $x$ Stunden als Gleichung auf.<br><b>c)</b> Wann sind beide gleich teuer? Lies ab und rechne nach.</p>
+    </div>
+    <graph>{"b":46,"h":38,"x":[-0.7,8.6],"y":[-3,21],"gitter":[1,2],"tx":2,"ty":4,"xl":"x","yl":"y",
+      "fn":[{"f":"2*x+5","c":"see","w":2,"von":0,"label":"A","lx":6.6,"ly":19.6},{"f":"x+9","c":"grana","w":2,"von":0,"label":"B","lx":7.6,"ly":14.4}]}</graph>
+  </div>
+</div>
+
+<p>Jede nicht senkrechte Gerade hat eine Gleichung $y = mx + c$ mit der <b>Steigung</b> $m$ und dem <b>$y$-Achsenabschnitt</b> $c$. Im Einstieg ist $g_A\colon y = 2x + 5$ und $g_B\colon y = x + 9$.</p>
+
+<h3>Der gemeinsame Punkt</h3>
+<p>Ein Punkt $S(x \mid y)$ liegt auf beiden Geraden, wenn seine Koordinaten <b>beide</b> Gleichungen erfüllen. Beide Geraden haben dort denselben $y$-Wert – also setzt man die rechten Seiten gleich:</p>
+<div class="schritte">
+  <span class="sl"><b>①</b> gleichsetzen</span><span>$2x + 5 = x + 9$</span>
+  <span class="sl"><b>②</b> nach $x$ lösen</span><span>$x = 4$</span>
+  <span class="sl"><b>③</b> $y$ in einer Gleichung berechnen</span><span>$y = 2 \cdot 4 + 5 = 13$, &nbsp;Probe: $4 + 9 = 13$ ✓</span>
+</div>
+<p>Nach 4 Stunden kosten beide Verleihe 13 €; der Schnittpunkt ist $S(4 \mid 13)$. Schritt ② klappt aber nur, wenn sich $x$ nicht weghebt – also wenn die Steigungen verschieden sind. Sonst bleibt beim Gleichsetzen eine Aussage ohne $x$ übrig – wahr oder falsch. Das ergibt drei Fälle:</p>
+
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:3.5mm;margin-bottom:3.2mm">
+  <div class="karte">
+    <div class="etikett" style="background:var(--kap);color:#fff">① $m_1 \neq m_2$</div>
+    <graph>{"b":36,"h":17,"x":[-1.6,3.2],"y":[-0.6,3.2],"gitter":1,"keineZahlen":true,
+      "fn":[{"f":"x+1","c":"see","w":1.8},{"f":"-0.5*x+2.5","c":"grana","w":1.8}],"punkt":[{"x":1,"y":2,"c":"goldTief","r":3}]}</graph>
+    <p><b>Schnittpunkt</b><br>genau ein $x$</p>
+  </div>
+  <div class="karte">
+    <div class="etikett" style="background:var(--kap);color:#fff">② $m_1 = m_2$, $c_1 \neq c_2$</div>
+    <graph>{"b":36,"h":17,"x":[-1.6,3.2],"y":[-0.6,3.2],"gitter":1,"keineZahlen":true,
+      "fn":[{"f":"0.6*x+0.4","c":"see","w":1.8},{"f":"0.6*x+1.8","c":"grana","w":1.8}]}</graph>
+    <p><b>parallel</b><br>Widerspruch, z. B. $5 = 9$</p>
+  </div>
+  <div class="karte">
+    <div class="etikett" style="background:var(--kap);color:#fff">③ $m_1 = m_2$, $c_1 = c_2$</div>
+    <graph>{"b":36,"h":17,"x":[-1.6,3.2],"y":[-0.6,3.2],"gitter":1,"keineZahlen":true,
+      "fn":[{"f":"0.6*x+1","c":"see","w":3.4},{"f":"0.6*x+1","c":"grana","w":1.4,"d":"4 3"}]}</graph>
+    <p><b>identisch</b><br>wahr, z. B. $9 = 9$</p>
+  </div>
+</div>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Lage zweier Geraden</div>
+  <p style="text-align:left">Für $g_1\colon y = m_1 x + c_1$ und $g_2\colon y = m_2 x + c_2$ gilt:</p>
+  <p style="text-align:left;margin:0">$m_1 \neq m_2$: genau ein <b>Schnittpunkt</b> – man findet ihn durch <b>Gleichsetzen</b>.<br>$m_1 = m_2$ und $c_1 \neq c_2$: <b>parallel</b>, kein gemeinsamer Punkt.<br>$m_1 = m_2$ und $c_1 = c_2$: <b>identisch</b>, unendlich viele gemeinsame Punkte.</p>
+</div>
+
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: Fahrradverleih</li><li>Wiederholung $y = mx + c$</li><li>Gleichsetzen herleiten</li><li>Drei Fälle, Merke</li><li>Gleichungssystem, Form $ax + by = c$</li><li>Beispiel 1, Vertiefung</li><li>Aufgaben 1–6</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 7 und 8</p></div>
+
+<div class="notiz"><span class="t">Wortspeicher</span><b>Schnittpunkt:</b> Punkt, der auf beiden Geraden liegt.<br><b>Parallel:</b> gleiche Richtung, kein gemeinsamer Punkt.<br><b>Identisch:</b> dieselbe Gerade, nur evtl. anders aufgeschrieben.</div>
+
+<div class="notiz gold"><span class="t">Immer mit Probe</span>Setze den gefundenen Punkt in die <b>andere</b> Gleichung ein. Stimmt sie, ist $S$ richtig.</div>
+
+<div class="notiz"><span class="t">Erinnerung</span>Steigung aus zwei Punkten:<br>$m = \dfrac{y_2 - y_1}{x_2 - x_1}$</div>
+
+<div class="notiz"><span class="t">Im Einstieg</span>Bis 4 Stunden ist A billiger, danach B.</div>

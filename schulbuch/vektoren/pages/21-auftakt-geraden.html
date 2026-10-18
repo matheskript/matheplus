@@ -1,0 +1,54 @@
+<!-- kap: III | typ: auftakt -->
+<div class="auftakt-kopf">
+  <div class="knr">Kapitel III</div>
+  <h1>Geraden im Raum</h1>
+  <p>In der Ebene beschreibt $y = mx + c$ jede schräge Gerade. Im Raum fehlt dafür eine Gleichung – aber die Idee dahinter trägt weiter: <b style="color:#FFE9A0">Starte in einem Punkt und gehe immer denselben Schritt.</b> Daraus wird die Parameterform, mit der du Geraden im Raum aufstellst, Punkte prüfst und Schnittpunkte berechnest.</p>
+  <div class="goldlinie" style="background:#fff"></div>
+</div>
+<div class="auftakt-inhalt">
+  <div class="zwei-bild" style="grid-template-columns:auto 1fr;gap:6mm">
+    <raum>{"b":70,"h":54,"achsen":[6.5,6.5,5],"neg":[0.3,0.3,0.3],"zahlen":false,"rand":16,
+      "flaeche":[{"pkte":[[0,0,0],[6,0,0],[6,6,0],[0,6,0]],"c":"grau","o":0.08,"rand":false}],
+      "strecke":[{"p":[6,0,0],"q":[0,6,0],"c":"grau","w":1,"d":"3 2.5"},{"p":[0,0,0],"q":[4.6,4.6,0],"c":"grau","w":1,"d":"3 2.5"},
+        {"p":[3,3,0],"q":[3,3,4],"c":"goldDunkel","w":1,"d":"2 2"}],
+      "gerade":[{"p":[6,0,3],"u":[-2,2,0],"von":0,"bis":3,"c":"see","w":2.6,"t":"Flug 1","lt":3,"pos":"r"},
+        {"p":[0,0,1],"u":[1,1,1],"von":0,"bis":4.6,"c":"grana","w":2.6,"t":"Flug 2","lt":4.6,"pos":"or"}],
+      "punkt":[{"p":[3,3,3],"c":"see","r":2.6},{"p":[3,3,4],"c":"grana","r":2.6},{"p":[3,3,0],"c":"grau","r":2}]}</raum>
+    <div>
+      <h3 style="margin-top:0">Die Frage des Kapitels</h3>
+      <p style="text-align:left">Zwei Flugzeuge fliegen geradlinig: Flug 1 in 3 km Höhe waagrecht, Flug 2 steigt gleichmäßig (1 Einheit = 1 km). Vom Boden aus gesehen kreuzen sich ihre Bahnen. Aber <b>stoßen sie zusammen</b> – oder fliegen sie in verschiedenen Höhen <b>aneinander vorbei</b>?</p>
+      <p style="text-align:left">Im Bild kreuzen sich die Schatten der Bahnen am Boden. Genau über dieser Stelle liegen die Bahnen selbst aber 1 km übereinander. Solche Geraden gibt es nur im Raum: Sie sind weder parallel, noch schneiden sie sich. Sie heißen <b>windschief</b>.</p>
+    </div>
+  </div>
+
+  <h3>Das kannst du schon – kurzer Check</h3>
+  <table class="check-tab">
+    <tr style="font-size:7.6pt;color:#5B6478;text-transform:uppercase;letter-spacing:0.06em"><td><b style="color:#5B6478">Vorwissen</b></td><td><b style="color:#5B6478">Mini-Check</b></td><td style="white-space:nowrap">sicher · geht so · nein</td></tr>
+    <tr><td>Geradengleichung aus zwei Punkten</td><td>$A(1 \mid 3)$, $B(3 \mid 7)$: $\;y = \,?$</td><td><span class="kreis"></span><span class="kreis"></span><span class="kreis"></span></td></tr>
+    <tr><td>Verbindungsvektor berechnen</td><td>$A(1 \mid 0 \mid 2)$, $B(4 \mid -1 \mid 5)$: $\;\overrightarrow{AB} = \,?$</td><td><span class="kreis"></span><span class="kreis"></span><span class="kreis"></span></td></tr>
+    <tr><td>Vielfache von Vektoren erkennen</td><td>$\begin{pmatrix} -6 \\ 3 \\ -9 \end{pmatrix} = k \cdot \begin{pmatrix} 2 \\ -1 \\ 3 \end{pmatrix}$: $\;k = \,?$</td><td><span class="kreis"></span><span class="kreis"></span><span class="kreis"></span></td></tr>
+    <tr><td>LGS mit zwei Unbekannten lösen</td><td>$2t + s = 7$, $\;t - s = 2$: $\;t = \,?$, $s = \,?$</td><td><span class="kreis"></span><span class="kreis"></span><span class="kreis"></span></td></tr>
+  </table>
+  <p class="klein mild" style="margin-top:1.5mm;text-align:left">Lösungen auf Seite {{S:loesungen-1}}. Wo du „unsicher“ angekreuzt hast: Kapitel {{KAP:auftakt-lgs}} und {{KAP:auftakt-vektoren}} wiederholen oder in der App unter <b>Gleichungen</b> nachüben.</p>
+
+  <div class="lernziele" style="margin-top:4mm">
+    <div>
+      <h3 style="margin-top:0">Das lernst du in diesem Kapitel</h3>
+      <ul>
+        <li>$y = mx + c$ als „Startpunkt plus Vielfaches eines Schritts“ lesen</li>
+        <li>Geraden im Raum in Parameterform aufstellen, auch aus zwei Punkten</li>
+        <li>prüfen, ob ein Punkt auf einer Geraden oder Strecke liegt</li>
+        <li>die Lage zweier Geraden bestimmen und Schnittpunkte berechnen</li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="margin-top:0">Unterkapitel</h3>
+      <ol class="ukap-liste" style="margin:0">
+        <li><span class="n">{{K:parameter-1}}</span>Geraden in Parameterform<span class="s">{{S:parameter-1}}</span></li>
+        <li><span class="n">{{K:lage-geraden-1}}</span>Lage zweier Geraden<span class="s">{{S:lage-geraden-1}}</span></li>
+        <li><span class="n"></span>Alles klar? Training III<span class="s">{{S:training-geraden}}</span></li>
+      </ol>
+    </div>
+  </div>
+</div>
+<div style="position:absolute;right:20mm;top:12mm;font-size:76pt;font-weight:800;font-style:italic;color:rgba(255,255,255,0.10);line-height:1">g</div>

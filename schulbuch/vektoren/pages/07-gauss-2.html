@@ -1,0 +1,65 @@
+<!-- kap: I -->
+<div class="kasten beispiel" style="margin-top:0">
+  <div class="etikett">Beispiel 2 · Die Eintrittspreise aus dem Einstieg</div>
+  <div class="zwei" style="grid-template-columns:auto 1fr;gap:5mm;align-items:center">
+    <div>$\begin{array}{rrl} \text{(I)} & x_1 + x_2 + x_3 = 25 & \\ \text{(II)} & 2x_1 + x_2 + 2x_3 = 42 & \\ \text{(III)} & x_1 + 2x_2 + 3x_3 = 43 & \\ \text{(IIa)} & -x_2 = -8 & \;\color{#8C6A00}{\text{II} - 2 \cdot \text{I}} \\ \text{(IIIa)} & x_2 + 2x_3 = 18 & \;\color{#8C6A00}{\text{III} - \text{I}} \end{array}$</div>
+    <p style="text-align:left;margin:0">In (IIa) fällt auch $x_3$ weg: Nach Vertauschen von (IIa) und (IIIa) steht die Stufenform schon da. <b>Rückwärts:</b> $x_2 = 8$; aus (IIIa): $2x_3 = 10$, $x_3 = 5$; aus (I): $x_1 = 25 - 8 - 5 = 12$.<br><b>Antwort:</b> Erwachsene zahlen 12 €, Kinder 8 €, Senioren 5 €.</p>
+  </div>
+</div>
+
+<div class="kasten vertiefung">
+  <div class="etikett">★ Für Interessierte · Kurzschrift mit Matrizen</div>
+  <p style="text-align:left">Da sich bei jedem Schritt nur die Zahlen ändern, notiert man oft nur die <b>Koeffizienten</b> in einer <b>Matrix</b>; der Strich trennt die rechte Seite ab. Am Ende stehen unter der Diagonale nur Nullen – die Stufenform. So rechnen auch Taschenrechner. Beispiel 1:</p>
+  $$\left(\begin{array}{rrr|r} 1 & 2 & -1 & 2 \\ 2 & 1 & 1 & 7 \\ -1 & 1 & 2 & 7 \end{array}\right) \;\longrightarrow\; \left(\begin{array}{rrr|r} 1 & 2 & -1 & 2 \\ 0 & -3 & 3 & 3 \\ 0 & 3 & 1 & 9 \end{array}\right) \;\longrightarrow\; \left(\begin{array}{rrr|r} 1 & 2 & -1 & 2 \\ 0 & -3 & 3 & 3 \\ 0 & 0 & 4 & 12 \end{array}\right)$$
+</div>
+
+<div class="kasten" style="background:#FFF7D9;border-left:1.4mm solid #EDBB00;border-radius:0 2.5mm 2.5mm 0">
+  <div class="etikett" style="background:#0E1E4A;color:#EDBB00">Ausblick · Eine Gleichung, drei Unbekannte</div>
+  <p style="text-align:left;margin:0">$ax + by = c$ beschreibt eine Gerade in der Ebene. Eine Gleichung wie $2x_1 + x_2 + 3x_3 = 6$ mit <b>drei</b> Unbekannten beschreibt eine <b>Ebene im Raum</b>. Ein LGS mit drei Unbekannten fragt also nach den gemeinsamen Punkten dreier Ebenen (Seite {{S:loesungsmengen-2}}, Kapitel V).</p>
+</div>
+
+<div class="aufgaben-kopf"><span>Aufgaben</span></div>
+
+<div class="auf"><div class="anr"><span class="z">1</span><span class="stufe">●○○</span></div><div class="text">
+  <div class="zwei-bild" style="grid-template-columns:auto 1fr;gap:5mm;align-items:center"><p style="margin:0">Löse mit dem Additionsverfahren.</p><div class="teil" style="--sp:3;margin:0"><div><i>a)</i>$\begin{array}{l} x + y = 10 \\ x - y = 4 \end{array}$</div><div><i>b)</i>$\begin{array}{l} 3x + 2y = 16 \\ x - 2y = 0 \end{array}$</div><div><i>c)</i>$\begin{array}{l} 2x - 3y = 1 \\ 4x + y = 9 \end{array}$</div></div></div>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">2</span><span class="stufe">●○○</span></div><div class="text">
+  <p>Das LGS hat schon Stufenform. Löse es durch Rückwärtseinsetzen.</p>
+  <div class="teil" style="--sp:2"><div><i>a)</i>$\begin{array}{rcl} x_1 + 2x_2 - x_3 &=& 3 \\ x_2 + 2x_3 &=& 7 \\ 3x_3 &=& 9 \end{array}$</div><div><i>b)</i>$\begin{array}{rcl} 2x_1 + x_2 + x_3 &=& 2 \\ -x_2 + 4x_3 &=& 11 \\ -2x_3 &=& -6 \end{array}$</div></div>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">3</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Löse mit dem Gauß-Verfahren. Notiere jede Umformung.</p>
+  <div class="teil" style="--sp:3"><div><i>a)</i>$\begin{array}{l} x_1 + x_2 + x_3 = 6 \\ x_1 + 2x_2 + 3x_3 = 14 \\ x_1 + 4x_2 + 9x_3 = 36 \end{array}$</div><div><i>b)</i>$\begin{array}{l} x_1 - x_2 + 2x_3 = 5 \\ 2x_1 + x_2 - x_3 = 1 \\ 3x_1 - 2x_2 + x_3 = 2 \end{array}$</div><div><i>c)</i>$\begin{array}{l} 2x_1 + x_2 - x_3 = 3 \\ x_1 - x_2 + x_3 = 3 \\ 3x_1 + 2x_2 + 2x_3 = 4 \end{array}$</div></div>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">4</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Finde den Fehler: <b>Tom</b> bildet aus $\text{(I)}\; x_1 + x_2 + x_3 = 4$ und $\text{(II)}\; 2x_1 + 3x_2 - x_3 = 9$ mit $\text{II} - 2 \cdot \text{I}$ die Gleichung $x_2 + x_3 = 1$.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">5</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Die Parabel $f(x) = ax^2 + bx + c$ geht durch $A(-1 \mid 6)$, $B(1 \mid 2)$ und $C(2 \mid 3)$. Stelle ein LGS für $a$, $b$, $c$ auf und bestimme $f(x)$.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">6</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Am Kiosk kosten 2 Eis, 1 Kaffee und 1 Brezel zusammen 9,50 €; 1 Eis und 2 Kaffee 7 €; 3 Eis, 1 Kaffee und 2 Brezeln 14,50 €. Was kostet jedes einzeln?</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">7</span><span class="stufe">●●●</span></div><div class="text">
+  <p>Drei Zahlen haben die Summe 8. Das Doppelte der ersten ist um 1 größer als die zweite, die dritte um 1 größer als die erste. Bestimme die Zahlen.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z offen">8</span><span class="stufe">●●●</span></div><div class="text">
+  <p>Bestimme $a$, $b$, $c$ so, dass $P(1 \mid 1 \mid 1)$, $Q(3 \mid 0 \mid 0)$ und $R(0 \mid 0 \mid 2)$ die Gleichung $ax_1 + bx_2 + cx_3 = 6$ erfüllen. Was beschreibt sie?</p>
+</div></div>
+<!--rand-->
+<div class="notiz"><span class="t">Fahrplan</span>① Zeilen beschriften: (I), (II), (III)<br>② $x_1$ unten entfernen<br>③ $x_2$ ganz unten entfernen<br>④ rückwärts einsetzen<br>⑤ Probe in allen drei</div>
+
+<div class="notiz gold"><span class="t">Geschickt wählen</span>Steht in einer Gleichung $x_1$ mit Koeffizient 1, nimm sie als (I). Dann kommst du ohne Brüche aus.</div>
+
+<div class="notiz"><span class="t">Zu Aufgabe 4</span>Klammer setzen:<br>$-x_3 - 2 \cdot (+x_3)$<br>$= \,?$</div>
+
+<div class="notiz"><span class="t">Zu Aufgabe 5</span>Jeder Punkt liefert eine Gleichung, z. B. $A$:<br>$a \cdot (-1)^2 + b \cdot (-1) + c = 6$</div>
+
+<div class="notiz mathilda"><span class="t">In der App</span>Im Werkzeug <b>Gleichungssysteme</b> führst du das Gauß-Verfahren Schritt für Schritt aus und bekommst nach jeder Umformung eine Rückmeldung.</div>

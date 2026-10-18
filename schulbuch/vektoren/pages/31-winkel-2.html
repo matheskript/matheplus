@@ -1,0 +1,67 @@
+<!-- kap: IV -->
+<div class="kasten beispiel" style="margin-top:0">
+  <div class="etikett">Beispiel 2 · Innenwinkel eines Dreiecks</div>
+  <p style="text-align:left">Berechne die Innenwinkel des Dreiecks $A(1 \mid 0 \mid 1)$, $B(1 \mid 1 \mid 3)$, $C(3 \mid 3 \mid 3)$.</p>
+  <div class="loesung"><span class="loesung-kopf">Lösung</span>
+  <p style="text-align:left">Beide Vektoren beginnen in der Ecke. Man braucht $\overrightarrow{AB} = \begin{pmatrix} 0 \\ 1 \\ 2 \end{pmatrix}$, $\overrightarrow{AC} = \begin{pmatrix} 2 \\ 3 \\ 2 \end{pmatrix}$, $\overrightarrow{BC} = \begin{pmatrix} 2 \\ 2 \\ 0 \end{pmatrix}$ und ihre Gegenvektoren.</p>
+  <table class="wt voll eng" style="margin:0.5mm 0 1.5mm">
+    <tr><th class="l">Ecke</th><th>Skalarprodukt</th><th>Längen</th><th>Winkel</th></tr>
+    <tr><td class="l">$A$</td><td>$\overrightarrow{AB} \cdot \overrightarrow{AC} = 0 + 3 + 4 = 7$</td><td>$\sqrt{5}$, $\sqrt{17}$</td><td>$\alpha \approx 40{,}6°$</td></tr>
+    <tr><td class="l">$B$</td><td>$\overrightarrow{BA} \cdot \overrightarrow{BC} = 0 - 2 + 0 = -2$</td><td>$\sqrt{5}$, $2\sqrt{2}$</td><td>$\beta \approx 108{,}4°$</td></tr>
+    <tr><td class="l">$C$</td><td>$\overrightarrow{CA} \cdot \overrightarrow{CB} = 4 + 6 + 0 = 10$</td><td>$\sqrt{17}$, $2\sqrt{2}$</td><td>$\gamma \approx 31{,}0°$</td></tr>
+  </table>
+  <p style="text-align:left">Bei $B$ ist das Skalarprodukt negativ: Der Winkel ist <b>stumpf</b>. Probe: $40{,}6° + 108{,}4° + 31{,}0° = 180°$ ✓</p></div>
+</div>
+
+<div class="kasten vertiefung">
+  <div class="etikett">★ Für Interessierte · Die Projektion – der Schatten eines Vektors</div>
+  <p style="text-align:left">Fällt Licht senkrecht auf $\vec{a}$, wirft $\vec{b}$ einen Schatten auf die Gerade von $\vec{a}$. Seine Länge ist $|\vec{b}| \cos\alpha = \dfrac{\vec{a} \cdot \vec{b}}{|\vec{a}|}$. Der Schatten als Vektor ist $\vec{b}_a = \dfrac{\vec{a} \cdot \vec{b}}{|\vec{a}|^2} \cdot \vec{a}$. In Beispiel 1 ist $\vec{b}_a = \frac{9}{9} \cdot \vec{a} = \vec{a}$; der Rest $\vec{b} - \vec{a}$ steht senkrecht auf $\vec{a}$. So zerlegt man jeden Vektor in einen Anteil längs $\vec{a}$ und einen senkrecht dazu.</p>
+</div>
+
+<div class="aufgaben-kopf"><span>Aufgaben</span></div>
+
+<div class="auf"><div class="anr"><span class="z">1</span><span class="stufe">●○○</span></div><div class="text">
+  <p>Berechne den Winkel zwischen den Vektoren (auf eine Nachkommastelle).</p>
+  <div class="teil" style="--sp:3"><div><i>a)</i>$\begin{pmatrix} 1 \\ 0 \\ 0 \end{pmatrix}, \begin{pmatrix} 1 \\ 1 \\ 0 \end{pmatrix}$</div><div><i>b)</i>$\begin{pmatrix} 2 \\ 2 \\ 1 \end{pmatrix}, \begin{pmatrix} 0 \\ 3 \\ 4 \end{pmatrix}$</div><div><i>c)</i>$\begin{pmatrix} 1 \\ 2 \\ 2 \end{pmatrix}, \begin{pmatrix} 2 \\ -1 \\ 2 \end{pmatrix}$</div><div><i>d)</i>$\begin{pmatrix} 3 \\ 0 \\ 4 \end{pmatrix}, \begin{pmatrix} -4 \\ 0 \\ 3 \end{pmatrix}$</div><div><i>e)</i>$\begin{pmatrix} 1 \\ -2 \\ 2 \end{pmatrix}, \begin{pmatrix} -2 \\ 1 \\ -2 \end{pmatrix}$</div><div><i>f)</i>$\begin{pmatrix} 2 \\ -1 \\ 3 \end{pmatrix}, \begin{pmatrix} 1 \\ 4 \\ -1 \end{pmatrix}$</div></div>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">2</span><span class="stufe">●○○</span></div><div class="text">
+  <p>Spitz, recht oder stumpf? Entscheide nur mit dem Skalarprodukt.</p>
+  <div class="teil" style="--sp:3"><div><i>a)</i>$\begin{pmatrix} 4 \\ 0 \\ -3 \end{pmatrix}, \begin{pmatrix} 1 \\ 2 \\ 2 \end{pmatrix}$</div><div><i>b)</i>$\begin{pmatrix} 1 \\ 1 \\ 1 \end{pmatrix}, \begin{pmatrix} 1 \\ 0 \\ 0 \end{pmatrix}$</div><div><i>c)</i>$\begin{pmatrix} 2 \\ -1 \\ 3 \end{pmatrix}, \begin{pmatrix} 1 \\ 5 \\ 1 \end{pmatrix}$</div></div>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">3</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Berechne alle Innenwinkel des Dreiecks $A(1 \mid 4 \mid 0)$, $B(1 \mid 2 \mid 3)$, $C(0 \mid 4 \mid 2)$ und prüfe mit der Winkelsumme.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">4</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Würfel aus Aufgabe 6, Seite {{S:skalar-2}}: Berechne die Winkel zwischen $\overrightarrow{OG}$ und $\overrightarrow{OB}$ sowie zwischen $\overrightarrow{OG}$ und $\overrightarrow{OF}$.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">5</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Beantworte die Frage von Seite {{S:auftakt-produkte}}: Wie groß ist der Winkel zwischen den Dachkanten $\overrightarrow{SA}$ und $\overrightarrow{SC}$? Wie groß ist der Winkel zwischen $\overrightarrow{SA}$ und $\overrightarrow{SB}$?</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">6</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Finde den Fehler: <b>Lea</b> soll im Dreieck $A(0 \mid 0 \mid 0)$, $B(1 \mid 0 \mid 1)$, $C(1 \mid 0 \mid 4)$ den Winkel bei $B$ berechnen. Sie nimmt $\overrightarrow{AB}$ und $\overrightarrow{BC}$ und erhält $45°$.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">7</span><span class="stufe">●●●</span></div><div class="text">
+  <p>Für welche Werte von $t$ schließen $\begin{pmatrix} 1 \\ 0 \\ 0 \end{pmatrix}$ und $\begin{pmatrix} 1 \\ 1 \\ t \end{pmatrix}$ einen Winkel von $60°$ ein?</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z offen">8</span><span class="stufe">●●●</span></div><div class="text">
+  <p>Begründe mit der Winkelformel: $|\vec{a} \cdot \vec{b}| \le |\vec{a}| \cdot |\vec{b}|$. Wann gilt das Gleichheitszeichen?</p>
+</div></div>
+<!--rand-->
+<div class="notiz"><span class="t">Fahrplan</span>① Vektoren ab der Ecke<br>② Skalarprodukt<br>③ beide Längen<br>④ $\cos\alpha$ bilden<br>⑤ $\cos^{-1}$</div>
+
+<div class="notiz gold"><span class="t">Achtung, Ecke!</span>Wer bei $B$ mit $\overrightarrow{AB}$ und $\overrightarrow{BC}$ rechnet, dreht einen Pfeil um und erhält den <b>Nebenwinkel</b> $180° - \beta \approx 71{,}6°$.</div>
+
+<div class="notiz"><span class="t">Vorzeichen zuerst</span>Ein negatives Skalarprodukt bedeutet: Der Winkel ist größer als $90°$. Das ist kein Rechenfehler.</div>
+
+<div class="notiz"><span class="t">Zu Aufgabe 5</span>$86{,}6°$ sieht im Schrägbild fast wie $90°$ aus – ein Geodreieck hätte hier gelogen.</div>
+
+<div class="notiz"><span class="t">Zu Aufgabe 8</span>Wie groß kann $|\cos\alpha|$ höchstens sein?</div>
+
+<div class="notiz mathilda"><span class="t">In der App</span>Im Werkzeug <b>Winkel und Skalarprodukt</b> gibst du zwei Vektoren ein und siehst Skalarprodukt, Längen und Winkel Schritt für Schritt.</div>

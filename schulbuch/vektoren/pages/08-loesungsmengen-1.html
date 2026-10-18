@@ -1,0 +1,52 @@
+<!-- kap: I | uk: Keine, eine oder unendlich viele Lösungen -->
+<div class="ukap-titel"><span class="nr">{{K:loesungsmengen-1}}</span><h2>Keine, eine oder unendlich viele Lösungen</h2></div>
+<p class="leitfrage">Woran erkennt man beim Rechnen, wie viele Lösungen ein LGS hat?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <p style="text-align:left">Löse die drei Gleichungssysteme mit dem Additionsverfahren ($\text{II} - 2 \cdot \text{I}$ bzw. $\text{II} - \text{I}$).</p>
+  <div class="teil" style="--sp:3;margin:1mm 0 1.4mm"><div><i>A</i>$\begin{array}{rl} \text{(I)} & x + y = 3 \\ \text{(II)} & x - y = 1 \end{array}$</div><div><i>B</i>$\begin{array}{rl} \text{(I)} & x + y = 3 \\ \text{(II)} & 2x + 2y = 7 \end{array}$</div><div><i>C</i>$\begin{array}{rl} \text{(I)} & x + y = 3 \\ \text{(II)} & 2x + 2y = 6 \end{array}$</div></div>
+  <p style="text-align:left"><b>a)</b> Was bleibt in B und C nach der Umformung übrig? <b>b)</b> Zeichne jeweils beide Geraden. Was bedeutet dein Ergebnis aus a) im Bild?</p>
+</div>
+
+<p>Bei A entsteht $-2y = -2$, also $y = 1$, $x = 2$. Bei B und C fallen dagegen <b>beide</b> Variablen auf einmal weg. Bei B bleibt $0 = 1$ – eine falsche Aussage, die für <b>kein</b> Zahlenpaar stimmt. Die Geraden sind parallel. Bei C bleibt $0 = 0$ – eine Aussage, die für <b>jedes</b> Zahlenpaar stimmt. Gleichung (II) war nur das Doppelte von (I), die Geraden sind identisch.</p>
+
+<h3>Dasselbe bei drei Unbekannten</h3>
+<p>Auch beim Gauß-Verfahren kann in der letzten Zeile die Variable $x_3$ wegfallen. Zwei Systeme, die sich nur in einer Zahl unterscheiden:</p>
+<div class="zwei" style="margin-bottom:2.6mm">
+  <div class="karte">
+    <div class="etikett" style="background:var(--kap);color:#fff">System 1</div>
+    <p style="margin:0">$\begin{array}{rl} \text{(I)} & x_1 + x_2 + x_3 = 2 \\ \text{(II)} & x_1 + 2x_2 + 3x_3 = 5 \\ \text{(III)} & 2x_1 + 3x_2 + 4x_3 = \mathbf{12} \end{array}$</p>
+    <p>$\text{II} - \text{I}$: $\;x_2 + 2x_3 = 3$<br>$\text{III} - 2 \cdot \text{I}$: $\;x_2 + 2x_3 = 8$<br>$\text{IIIa} - \text{IIa}$: $\;\mathbf{0 = 5}$ &nbsp;<span class="mild">falsch</span></p>
+    <p><b>Keine Lösung:</b> $L = \{\,\}$</p>
+  </div>
+  <div class="karte">
+    <div class="etikett" style="background:var(--kap);color:#fff">System 2</div>
+    <p style="margin:0">$\begin{array}{rl} \text{(I)} & x_1 + x_2 + x_3 = 2 \\ \text{(II)} & x_1 + 2x_2 + 3x_3 = 5 \\ \text{(III)} & 2x_1 + 3x_2 + 4x_3 = \mathbf{7} \end{array}$</p>
+    <p>$\text{II} - \text{I}$: $\;x_2 + 2x_3 = 3$<br>$\text{III} - 2 \cdot \text{I}$: $\;x_2 + 2x_3 = 3$<br>$\text{IIIa} - \text{IIa}$: $\;\mathbf{0 = 0}$ &nbsp;<span class="mild">immer wahr</span></p>
+    <p><b>Unendlich viele Lösungen</b> – nur zwei Gleichungen bleiben übrig.</p>
+  </div>
+</div>
+
+<p>Bei System 2 schränkt die Nullzeile nichts mehr ein. Für $x_3$ darf man <b>jede</b> Zahl $t$ wählen; daraus folgen $x_2$ und $x_1$:</p>
+<div class="schritte">
+  <span class="sl"><b>①</b> $x_3$ frei wählen</span><span>$x_3 = t$ &nbsp;<span class="mild">($t \in \mathbb{R}$ heißt <b>Parameter</b>)</span></span>
+  <span class="sl"><b>②</b> aus (IIa)</span><span>$x_2 + 2t = 3 \;\Rightarrow\; x_2 = 3 - 2t$</span>
+  <span class="sl"><b>③</b> aus (I)</span><span>$x_1 + (3 - 2t) + t = 2 \;\Rightarrow\; x_1 = -1 + t$</span>
+  <span class="sl"><b>④</b> Lösungsmenge</span><span>$L = \{\,(-1 + t \mid 3 - 2t \mid t) \mid t \in \mathbb{R}\,\}$</span>
+</div>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Stufenform deuten</div>
+  <p style="text-align:left;margin:0">Entsteht eine Zeile $0 = d$ mit $d \neq 0$ (<b>Widerspruch</b>), hat das LGS <b>keine Lösung</b>.<br>Entsteht eine <b>Nullzeile</b> $0 = 0$ und sonst kein Widerspruch, hat es <b>unendlich viele Lösungen</b>: Eine Variable wird zum Parameter $t$, die anderen drückt man durch $t$ aus.<br>Sonst gibt es <b>genau eine Lösung</b>.</p>
+</div>
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: drei Systeme</li><li>Widerspruch und Nullzeile</li><li>Parameter einführen</li><li>Merke</li><li>Lösungsmenge als Gerade</li><li>Geometrische Deutung</li><li>Aufgaben 1–5</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 6 und 7</p></div>
+
+<div class="notiz"><span class="t">Wortspeicher</span><b>Lösungsmenge</b> $L$: alle Lösungen.<br><b>Leere Menge</b> $\{\,\}$: keine Lösung.<br><b>Parameter:</b> frei wählbare Zahl, meist $t$, $r$ oder $s$.</div>
+
+<div class="notiz gold"><span class="t">Achtung</span>$0 = 0$ heißt <b>nicht</b> $x_3 = 0$! Die Zeile sagt über $x_3$ gar nichts – genau deshalb ist $x_3$ frei.</div>
+
+<div class="notiz"><span class="t">Probe mit $t = 1$</span>$(0 \mid 1 \mid 1)$:<br>(I) $0 + 1 + 1 = 2$ ✓<br>(II) $0 + 2 + 3 = 5$ ✓<br>(III) $0 + 3 + 4 = 7$ ✓</div>

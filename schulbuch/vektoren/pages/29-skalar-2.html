@@ -1,0 +1,74 @@
+<!-- kap: IV -->
+<div class="zwei" style="gap:4mm">
+  <div class="kasten beispiel" style="margin:0">
+    <div class="etikett">Beispiel 2 · Orthogonalen Vektor finden</div>
+    <p style="text-align:left">Finde $\vec{n} \neq \vec{0}$ mit $\vec{n} \perp \vec{a}$ für $\vec{a} = \begin{pmatrix} 2 \\ -1 \\ 3 \end{pmatrix}$.</p>
+    <div class="loesung"><span class="loesung-kopf">Lösung</span>
+    <p style="text-align:left">Eine Koordinate null setzen, die anderen <b>tauschen</b>, ein <b>Vorzeichen</b> ändern: $\vec{n} = \begin{pmatrix} 1 \\ 2 \\ 0 \end{pmatrix}$, denn $2 - 2 + 0 = 0$.</p></div>
+  </div>
+  <div class="kasten beispiel" style="margin:0">
+    <div class="etikett">Beispiel 3 · Rechter Winkel im Dreieck?</div>
+    <p style="text-align:left">Hat das Dreieck $A(3 \mid 1 \mid 3)$, $B(0 \mid 1 \mid -1)$, $C(0 \mid -1 \mid -1)$ bei $B$ einen rechten Winkel?</p>
+    <div class="loesung"><span class="loesung-kopf">Lösung</span>
+    <p style="text-align:left">$\overrightarrow{BA} \cdot \overrightarrow{BC} = \begin{pmatrix} 3 \\ 0 \\ 4 \end{pmatrix} \cdot \begin{pmatrix} 0 \\ -2 \\ 0 \end{pmatrix} = 0$. Ja, bei $B$ ist ein rechter Winkel.</p></div>
+  </div>
+</div>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Rechenregeln</div>
+  <div class="zwei" style="gap:4mm">
+    <p style="text-align:left;margin:0">$\vec{a} \cdot \vec{b} = \vec{b} \cdot \vec{a}$<br>$\vec{a} \cdot (\vec{b} + \vec{c}) = \vec{a} \cdot \vec{b} + \vec{a} \cdot \vec{c}$<br>$(r \cdot \vec{a}) \cdot \vec{b} = r \cdot (\vec{a} \cdot \vec{b})$ &nbsp;für $r \in \mathbb{R}$</p>
+    <p style="text-align:left;margin:0">Besonders wichtig:<br>$\vec{a} \cdot \vec{a} = a_1^2 + a_2^2 + a_3^2 = |\vec{a}|^2$, &nbsp;also<br>$|\vec{a}| = \sqrt{\vec{a} \cdot \vec{a}}$.</p>
+  </div>
+</div>
+
+<div class="kasten vertiefung">
+  <div class="etikett">★ Für Interessierte · Senkrechte Geraden in der Ebene</div>
+  <p style="text-align:left">In der Ebene ist $\vec{a} \cdot \vec{b} = a_1b_1 + a_2b_2$. Zu $\binom{a}{b}$ ist also stets $\binom{-b}{a}$ orthogonal: $a \cdot (-b) + b \cdot a = 0$. Die Gerade $y = mx + c$ hat den Richtungsvektor $\binom{1}{m}$ (Seite {{S:parameter-1}}). Zwei Geraden sind also senkrecht, wenn $\binom{1}{m_1} \cdot \binom{1}{m_2} = 1 + m_1 m_2 = 0$ ist – das ist die bekannte Regel $m_1 \cdot m_2 = -1$.</p>
+</div>
+
+<div class="aufgaben-kopf"><span>Aufgaben</span></div>
+
+<div class="auf"><div class="anr"><span class="z">1</span><span class="stufe">●○○</span></div><div class="text">
+  <p>Berechne das Skalarprodukt.</p>
+  <div class="teil" style="--sp:4"><div><i>a)</i>$\begin{pmatrix} 2 \\ 1 \\ 3 \end{pmatrix} \cdot \begin{pmatrix} 1 \\ 4 \\ -2 \end{pmatrix}$</div><div><i>b)</i>$\begin{pmatrix} 4 \\ -3 \\ 1 \end{pmatrix} \cdot \begin{pmatrix} 2 \\ 2 \\ -2 \end{pmatrix}$</div><div><i>c)</i>$\begin{pmatrix} 3 \\ -1 \\ 2 \end{pmatrix} \cdot \begin{pmatrix} 3 \\ -1 \\ 2 \end{pmatrix}$</div><div><i>d)</i>$\begin{pmatrix} 2 \\ -4 \\ 6 \end{pmatrix} \cdot \begin{pmatrix} -1 \\ 2 \\ -3 \end{pmatrix}$</div></div>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">2</span><span class="stufe">●○○</span></div><div class="text">
+  <p>Welche Paare sind orthogonal? $\;\vec{u} = \begin{pmatrix} 1 \\ 2 \\ -1 \end{pmatrix}$, $\vec{v} = \begin{pmatrix} 3 \\ -1 \\ 1 \end{pmatrix}$, $\vec{w} = \begin{pmatrix} 1 \\ 1 \\ 3 \end{pmatrix}$, $\vec{z} = \begin{pmatrix} 2 \\ -1 \\ 0 \end{pmatrix}$</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">3</span><span class="stufe">●○○</span></div><div class="text">
+  <p>Bestimme $t$ so, dass die Vektoren orthogonal sind.</p>
+  <div class="teil" style="--sp:3"><div><i>a)</i>$\begin{pmatrix} 2 \\ t \\ -1 \end{pmatrix}, \begin{pmatrix} 3 \\ 1 \\ 4 \end{pmatrix}$</div><div><i>b)</i>$\begin{pmatrix} t \\ 4 \\ 1 \end{pmatrix}, \begin{pmatrix} t \\ -2 \\ -1 \end{pmatrix}$</div><div><i>c)</i>$\begin{pmatrix} 2t \\ 1 \\ 3 \end{pmatrix}, \begin{pmatrix} 1 \\ t \\ -1 \end{pmatrix}$</div></div>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">4</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Gib drei Vektoren an, die zu $\vec{w}$ aus Aufgabe 2 orthogonal sind und von denen keine zwei parallel sind.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">5</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Prüfe, ob das Dreieck einen rechten Winkel hat, und gib ggf. die Ecke an. &nbsp;<b>a)</b> $A(1 \mid 2 \mid 1)$, $B(3 \mid 3 \mid 3)$, $C(4 \mid 3 \mid 2)$ &nbsp;<b>b)</b> $P(1 \mid 0 \mid 0)$, $Q(0 \mid 2 \mid 0)$, $R(0 \mid 0 \mid 3)$</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">6</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Im Würfel mit den Ecken $O(0 \mid 0 \mid 0)$ und $G(4 \mid 4 \mid 4)$ ist die Raumdiagonale $\overrightarrow{OG}$ orthogonal zur Flächendiagonale von $B(4 \mid 0 \mid 0)$ nach $D(0 \mid 4 \mid 0)$, aber nicht zu der von $O$ nach $F(4 \mid 4 \mid 0)$. Zeige das.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">7</span><span class="stufe">●●●</span></div><div class="text">
+  <p>Bestimme mit dem Skalarprodukt die Gerade $h$ durch $P(2 \mid 3)$, die senkrecht zu $g\colon y = \frac{2}{3}x + 1$ ist.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z offen">8</span><span class="stufe">●●●</span></div><div class="text">
+  <p>Zeige mit den Rechenregeln: $(\vec{a} + \vec{b}) \cdot (\vec{a} - \vec{b}) = |\vec{a}|^2 - |\vec{b}|^2$. Folgere: In einer <b>Raute</b> (alle Seiten gleich lang) stehen die Diagonalen senkrecht aufeinander.</p>
+</div></div>
+<!--rand-->
+<div class="notiz"><span class="t">Kurz gesagt</span>Skalarprodukt null ⇔ rechter Winkel.<br>Gilt in der Ebene und im Raum.</div>
+
+<div class="notiz gold"><span class="t">Ecke prüfen</span>Für den Winkel bei $B$ müssen <b>beide</b> Vektoren in $B$ beginnen: $\overrightarrow{BA}$ und $\overrightarrow{BC}$.</div>
+
+<div class="notiz"><span class="t">Zu Aufgabe 3 b)</span>Hier entsteht eine quadratische Gleichung – es gibt zwei Lösungen.</div>
+
+<div class="notiz"><span class="t">Zu Aufgabe 8</span>Die Diagonalen einer Raute mit den Seiten $\vec{a}$ und $\vec{b}$ sind $\vec{a} + \vec{b}$ und $\vec{a} - \vec{b}$.</div>
+
+<div class="notiz mathilda"><span class="t">In der App</span>Im Werkzeug <b>Winkel und Skalarprodukt</b> drehst du zwei Vektoren im Raum und siehst, wie das Skalarprodukt bei $90°$ genau null wird.</div>

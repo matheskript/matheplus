@@ -1,0 +1,55 @@
+<!-- kap: IV | typ: auftakt -->
+<div class="auftakt-kopf">
+  <div class="knr">Kapitel IV</div>
+  <h1>Skalarprodukt und Kreuzprodukt</h1>
+  <p>Mit Vektoren kannst du Punkte verbinden, Längen messen und Geraden beschreiben. Jetzt lernst du, zwei Vektoren auf neue Art zu <b style="color:#EDBB00">multiplizieren</b>. Das eine Produkt ist eine Zahl und verrät Winkel. Das andere ist ein Vektor, der auf beiden senkrecht steht.</p>
+  <div class="goldlinie"></div>
+</div>
+<div class="auftakt-inhalt">
+  <div class="zwei-bild" style="grid-template-columns:auto 1fr;gap:6mm">
+    <raum>{"b":70,"h":52,"achsen":[4.7,5,3.8],"neg":[0.4,0.4,0.4],"zahlen":false,
+      "flaeche":[{"pkte":[[4,0,0],[4,4,0],[2,2,3]],"c":"see","o":0.13,"rand":false},{"pkte":[[4,4,0],[0,4,0],[2,2,3]],"c":"see","o":0.07,"rand":false}],
+      "strecke":[{"p":[0,0,0],"q":[4,0,0],"c":"seeTief","d":"3 2.5","w":1.1},{"p":[0,0,0],"q":[0,4,0],"c":"seeTief","d":"3 2.5","w":1.1},{"p":[0,0,0],"q":[2,2,3],"c":"seeTief","d":"3 2.5","w":1.1},
+        {"p":[4,0,0],"q":[4,4,0],"c":"seeTief","w":1.5},{"p":[4,4,0],"q":[0,4,0],"c":"seeTief","w":1.5},{"p":[4,4,0],"q":[2,2,3],"c":"seeTief","w":1.5},
+        {"p":[4,0,0],"q":[2,2,3],"c":"grana","w":2.2},{"p":[0,4,0],"q":[2,2,3],"c":"grana","w":2.2}],
+      "winkel":[{"s":[2,2,3],"a":[4,0,0],"b":[0,4,0],"r":16,"t":"?","c":"goldDunkel"}],
+      "punkt":[{"p":[4,0,0],"t":"A","pos":"ol"},{"p":[4,4,0],"t":"B","pos":"ur"},{"p":[0,4,0],"t":"C","pos":"or"},{"p":[0,0,0],"t":"D","pos":"ol"},{"p":[2,2,3],"t":"S","pos":"or","c":"grana"}]}</raum>
+    <div>
+      <h3 style="margin-top:0">Die Frage des Kapitels</h3>
+      <p style="text-align:left">Ein Zeltdach ist eine Pyramide mit Grundfläche $A(4 \mid 0 \mid 0)$, $B(4 \mid 4 \mid 0)$, $C(0 \mid 4 \mid 0)$, $D(0 \mid 0 \mid 0)$ und Spitze $S(2 \mid 2 \mid 3)$, Einheit 1 m. Stehen die beiden roten Dachkanten $AS$ und $CS$ senkrecht aufeinander? Das Schrägbild hilft nicht: Es verzerrt Winkel.</p>
+      <p style="text-align:left">Ein Geodreieck auch nicht. Gesucht ist eine <b>Rechnung</b> mit Koordinaten: Stehen zwei Kanten senkrecht? Wie groß ist der Winkel zwischen ihnen? Und wie groß ist eine Dachfläche?</p>
+    </div>
+  </div>
+
+  <h3>Das kannst du schon – kurzer Check</h3>
+  <table class="check-tab">
+    <tr style="font-size:7.6pt;color:#5B6478;text-transform:uppercase;letter-spacing:0.06em"><td><b style="color:#5B6478">Vorwissen</b></td><td><b style="color:#5B6478">Mini-Check</b></td><td style="white-space:nowrap">sicher · geht so · nein</td></tr>
+    <tr><td>Satz des Pythagoras</td><td>Katheten 5 und 12: Hypotenuse $= \,?$</td><td><span class="kreis"></span><span class="kreis"></span><span class="kreis"></span></td></tr>
+    <tr><td>Kosinussatz</td><td>$a = 3$, $b = 5$, $\gamma = 60°$: $\;c = \,?$</td><td><span class="kreis"></span><span class="kreis"></span><span class="kreis"></span></td></tr>
+    <tr><td>Betrag eines Vektors (Kapitel {{K:vektoren-1}})</td><td>$P(1 \mid 2 \mid 0)$, $Q(3 \mid 1 \mid 2)$: $\;|\overrightarrow{PQ}| = \,?$</td><td><span class="kreis"></span><span class="kreis"></span><span class="kreis"></span></td></tr>
+    <tr><td>Winkel mit $\cos^{-1}$ (Taschenrechner)</td><td>$\cos\alpha = 0{,}25$: $\;\alpha \approx \,?$</td><td><span class="kreis"></span><span class="kreis"></span><span class="kreis"></span></td></tr>
+  </table>
+  <p class="klein mild" style="margin-top:1.5mm;text-align:left">Lösungen auf Seite {{S:loesungen-1}}. Wo du „unsicher“ angekreuzt hast: kurz in der App unter <b>Rechnen mit Vektoren</b> nachüben.</p>
+
+  <div class="lernziele" style="margin-top:4mm">
+    <div>
+      <h3 style="margin-top:0">Das lernst du in diesem Kapitel</h3>
+      <ul>
+        <li>das Skalarprodukt aus dem Satz des Pythagoras herleiten</li>
+        <li>mit $\vec{a} \cdot \vec{b}$ rechte Winkel prüfen und Winkel berechnen</li>
+        <li>mit dem Kreuzprodukt einen Vektor finden, der zu zwei Vektoren orthogonal ist</li>
+        <li>Flächen von Dreiecken und Volumen von Spat und Pyramide berechnen</li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="margin-top:0">Unterkapitel</h3>
+      <ol class="ukap-liste" style="margin:0">
+        <li><span class="n">{{K:skalar-1}}</span>Skalarprodukt und Orthogonalität<span class="s">{{S:skalar-1}}</span></li>
+        <li><span class="n">{{K:winkel-1}}</span>Winkel zwischen Vektoren<span class="s">{{S:winkel-1}}</span></li>
+        <li><span class="n">{{K:kreuz-1}}</span>Das Kreuzprodukt<span class="s">{{S:kreuz-1}}</span></li>
+        <li><span class="n"></span>Alles klar? Training IV<span class="s">{{S:training-produkte}}</span></li>
+      </ol>
+    </div>
+  </div>
+</div>
+<div style="position:absolute;right:22mm;top:18mm;font-size:96pt;font-weight:800;color:rgba(255,255,255,0.09);line-height:1">⊥</div>
