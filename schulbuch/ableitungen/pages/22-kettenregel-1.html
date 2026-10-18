@@ -1,0 +1,59 @@
+<!-- kap: II | ukap: 9 Kettenregel -->
+<div class="ukap-titel"><span class="nr">9</span><h2>Kettenregel</h2></div>
+<p class="leitfrage">Wie leitet man eine Funktion ab, in der eine andere Funktion steckt?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <p style="text-align:left">Gegeben ist $f(x) = (3x + 1)^2$.<br><b>a)</b> Multipliziere aus und leite ab. <b>b)</b> Zeige, dass sich das Ergebnis als $2 \cdot (3x + 1) \cdot 3$ schreiben lässt. Woher könnten die Faktoren 2 und 3 kommen? <b>c)</b> Würdest du $(3x + 1)^{10}$ auch ausmultiplizieren?</p>
+</div>
+
+<p>In $f(x) = (3x + 1)^2$ sind zwei Funktionen <b>hintereinandergeschaltet</b>: Zuerst wird $x$ in die <b>innere Funktion</b> $v(x) = 3x + 1$ gesteckt, das Ergebnis $z$ dann in die <b>äußere Funktion</b> $u(z) = z^2$. Man schreibt $f(x) = u(v(x))$ und nennt $f$ eine <b>Verkettung</b>.</p>
+
+<h3>Die Idee: Änderungsraten multiplizieren sich</h3>
+<div class="zwei-bild" style="grid-template-columns:auto 1fr;gap:5mm">
+  <svg viewBox="0 0 70 30" width="66mm" height="28mm" xmlns="http://www.w3.org/2000/svg" style="font-family:Montserrat,sans-serif">
+    <defs><marker id="pk9" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,1 L10,5 L0,9 z" fill="#0E1E4A"/></marker></defs>
+    <circle cx="6" cy="13" r="5" fill="#E3ECF7" stroke="#004D98" stroke-width="0.5"/><text x="6" y="14.4" text-anchor="middle" font-size="4" font-style="italic" fill="#004D98" font-weight="700">x</text>
+    <rect x="17" y="7" width="13" height="12" rx="2" fill="#A50044"/><text x="23.5" y="14.6" text-anchor="middle" font-size="4" font-style="italic" fill="#fff" font-weight="700">v</text>
+    <circle cx="38" cy="13" r="5" fill="#F6DCE6" stroke="#A50044" stroke-width="0.5"/><text x="38" y="14.4" text-anchor="middle" font-size="4" font-style="italic" fill="#A50044" font-weight="700">z</text>
+    <rect x="49" y="7" width="13" height="12" rx="2" fill="#0E1E4A"/><text x="55.5" y="14.6" text-anchor="middle" font-size="4" font-style="italic" fill="#EDBB00" font-weight="700">u</text>
+    <g stroke="#0E1E4A" stroke-width="0.5" marker-end="url(#pk9)"><line x1="11" y1="13" x2="16.4" y2="13"/><line x1="30" y1="13" x2="32.4" y2="13"/><line x1="43" y1="13" x2="48.4" y2="13"/><line x1="62" y1="13" x2="69" y2="13"/></g>
+    <text x="23.5" y="25" text-anchor="middle" font-size="3.1" fill="#A50044" font-weight="700">· v′(x)</text>
+    <text x="55.5" y="25" text-anchor="middle" font-size="3.1" fill="#0E1E4A" font-weight="700">· u′(z)</text>
+    <text x="23.5" y="4.2" text-anchor="middle" font-size="2.6" fill="#5B6478">innen</text>
+    <text x="55.5" y="4.2" text-anchor="middle" font-size="2.6" fill="#5B6478">außen</text>
+  </svg>
+  <div>
+    <p>Ändert sich $x$ ein wenig, so ändert sich $z = v(x)$ ungefähr um das $v'(x)$-Fache. Diese Änderung von $z$ ändert $u(z)$ wiederum um das $u'(z)$-Fache. Insgesamt ändert sich $f(x)$ also um das $u'(z) \cdot v'(x)$-Fache – wie bei zwei Zahnrädern, deren Übersetzungen sich multiplizieren.</p>
+  </div>
+</div>
+
+<h3>Herleitung</h3>
+<p>Es seien $u$ und $v$ differenzierbar. Wir setzen $k = v(x + h) - v(x)$ und nehmen zunächst $k \neq 0$ an.</p>
+<div class="schritte">
+  <span class="sl"><b>①</b> Differenzenquotient</span><span>$\dfrac{u(v(x + h)) - u(v(x))}{h}$</span>
+  <span class="sl"><b>②</b> mit $k$ erweitern</span><span>$= \dfrac{u(v(x) + k) - u(v(x))}{k} \cdot \dfrac{v(x + h) - v(x)}{h}$</span>
+  <span class="sl"><b>③</b> Grenzwert $h \to 0$</span><span>$\longrightarrow\; u'(v(x)) \cdot v'(x)$</span>
+</div>
+<p>Für $h \to 0$ geht auch $k \to 0$, weil $v$ stetig ist (Seite 17). Der erste Bruch ist deshalb ein Differenzenquotient von $u$ an der Stelle $v(x)$, der zweite einer von $v$ an der Stelle $x$.</p>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Kettenregel</div>
+  <p style="text-align:left">Sind $u$ und $v$ differenzierbar, dann gilt:</p>
+  $$f(x) = u\big(v(x)\big) \quad\Rightarrow\quad f'(x) = u'\big(v(x)\big) \cdot v'(x)$$
+  <p style="text-align:left"><b>„Äußere Ableitung mal innere Ableitung.“</b> Bei der äußeren Ableitung bleibt die innere Funktion unverändert stehen.</p>
+</div>
+<div class="kasten beispiel">
+  <div class="etikett">Kontrolle am Einstieg</div>
+  <p style="text-align:left">$f(x) = (3x + 1)^2$: außen $u(z) = z^2$, $u'(z) = 2z$; innen $v(x) = 3x + 1$, $v'(x) = 3$.<br>$f'(x) = 2(3x + 1) \cdot 3 = 6(3x + 1) = 18x + 6$ – dasselbe Ergebnis wie nach dem Ausmultiplizieren. ✓</p>
+</div>
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: $(3x + 1)^2$</li><li>Innere und äußere Funktion</li><li>Idee: Raten multiplizieren</li><li>Herleitung</li><li>Merke: Kettenregel</li><li>Beispiele, Aufgaben 1–5</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 6 und 7</p></div>
+
+<div class="notiz"><span class="t">Innen oder außen?</span>Frage dich: Was würde der Taschenrechner <b>zuerst</b> ausrechnen? Das ist die innere Funktion.</div>
+
+<div class="notiz gold"><span class="t">Leibniz</span>Mit $z = v(x)$ und $y = u(z)$ sieht die Kettenregel aus wie Bruchrechnen:<br>$\dfrac{\mathrm{d}y}{\mathrm{d}x} = \dfrac{\mathrm{d}y}{\mathrm{d}z} \cdot \dfrac{\mathrm{d}z}{\mathrm{d}x}$</div>
+
+<div class="notiz"><span class="t">Und wenn $k = 0$ ist?</span>Diese Lücke schließt die Vertiefung auf der nächsten Seite.</div>

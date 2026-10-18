@@ -1,0 +1,55 @@
+<!-- kap: II | ukap: 8 Quotientenregel -->
+<div class="ukap-titel"><span class="nr">8</span><h2>Quotientenregel</h2></div>
+<p class="leitfrage">Wie leitet man einen Bruch ab, in dessen Nenner $x$ steht?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <div class="zwei-bild" style="gap:5mm">
+    <div>
+      <p style="text-align:left">Mit der h-Methode hast du für $f(x) = \frac{1}{x}$ schon $f'(x) = -\frac{1}{x^2}$ gefunden (Training T7, Seite 10).</p>
+      <p style="text-align:left"><b>a)</b> Schreibe $\frac{1}{x}$ als Potenz $x^{-1}$ und wende die Potenzregel einfach einmal an. Was erhältst du?<br><b>b)</b> Ist das Zufall? Wie könnte man einen Bruch $\frac{u(x)}{v(x)}$ ableiten?</p>
+    </div>
+    <graph>{"b":42,"h":36,"x":[-0.3,4.2],"y":[-0.3,3.6],"gitter":1,"ty":1,
+      "fn":[{"f":"1/x","c":"see","w":2,"von":0.25,"label":"1/x","lx":2.9,"ly":0.65}],
+      "gerade":[{"f":"1/x","tan":1,"c":"gold","w":1.4,"von":0.1,"bis":2.1}],
+      "punkt":[{"x":1,"y":1,"c":"grana","t":"m = −1","pos":"or"}]}</graph>
+  </div>
+</div>
+
+<p>Die Potenzregel liefert $(x^{-1})' = -1 \cdot x^{-2} = -\frac{1}{x^2}$ – das richtige Ergebnis. Um zu verstehen, warum, und um beliebige Brüche ableiten zu können, leiten wir eine eigene Regel her. Wir brauchen dafür nur die Produktregel.</p>
+
+<h3>Herleitung</h3>
+<p>Es sei $q(x) = \frac{u(x)}{v(x)}$ mit $v(x) \neq 0$. Wir setzen voraus, dass $u$, $v$ und $q$ differenzierbar sind.</p>
+<div class="schritte">
+  <span class="sl"><b>①</b> als Produkt schreiben</span><span>$u(x) = q(x) \cdot v(x)$</span>
+  <span class="sl"><b>②</b> Produktregel</span><span>$u'(x) = q'(x) \cdot v(x) + q(x) \cdot v'(x)$</span>
+  <span class="sl"><b>③</b> nach $q'(x)$ auflösen</span><span>$q'(x) = \dfrac{u'(x) - q(x) \cdot v'(x)}{v(x)}$</span>
+  <span class="sl"><b>④</b> $q = \frac{u}{v}$ einsetzen, erweitern</span><span>$q'(x) = \dfrac{u'(x) - \frac{u(x)}{v(x)} \cdot v'(x)}{v(x)} = \dfrac{u'(x) \cdot v(x) - u(x) \cdot v'(x)}{\big(v(x)\big)^2}$</span>
+</div>
+<p>Im letzten Schritt wurden Zähler und Nenner mit $v(x)$ multipliziert, um den Doppelbruch aufzulösen.</p>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Quotientenregel</div>
+  <p style="text-align:left">Sind $u$ und $v$ differenzierbar und ist $v(x) \neq 0$, dann gilt:</p>
+  $$f(x) = \frac{u(x)}{v(x)} \quad\Rightarrow\quad f'(x) = \frac{u'(x) \cdot v(x) - u(x) \cdot v'(x)}{\big(v(x)\big)^2}$$
+  <p style="text-align:left">Merkspruch: <b>„NAZ minus ZAN durch N-Quadrat“</b> – Nenner mal Ableitung des Zählers minus Zähler mal Ableitung des Nenners, geteilt durch den Nenner im Quadrat.</p>
+</div>
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 1 · Quotientenregel anwenden</div>
+  <p style="text-align:left">Leite $f(x) = \dfrac{x^2 + 1}{x - 2}$ ab. &nbsp;<span class="mild">($u = x^2 + 1$, $u' = 2x$, $v = x - 2$, $v' = 1$)</span></p>
+  <div class="schritte" style="margin:1mm 0 0">
+    <span class="sl">Quotientenregel</span><span>$f'(x) = \dfrac{2x \cdot (x - 2) - (x^2 + 1) \cdot 1}{(x - 2)^2}$</span>
+    <span class="sl">Zähler ausmultiplizieren</span><span>$= \dfrac{2x^2 - 4x - x^2 - 1}{(x - 2)^2} = \dfrac{x^2 - 4x - 1}{(x - 2)^2}$</span>
+  </div>
+</div>
+
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: $\frac{1}{x}$ als Potenz</li><li>Herleitung aus der Produktregel</li><li>Merke: Quotientenregel</li><li>Beispiele</li><li>Aufgaben 1–6</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 7 und 8</p></div>
+
+<div class="notiz"><span class="t">Erinnerung</span>$x^{-n} = \dfrac{1}{x^n}$<br><br>$\dfrac{a - \frac{b}{c}}{c} = \dfrac{ac - b}{c^2}$</div>
+
+<div class="notiz gold"><span class="t">Reihenfolge</span>Im Zähler steht ein Minus – die Reihenfolge ist also wichtig. Bei der Produktregel ist sie egal.</div>
+
+<div class="notiz"><span class="t">Woher wissen wir, dass $q$ differenzierbar ist?</span>Das zeigt die Vertiefung auf der nächsten Seite.</div>

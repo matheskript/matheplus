@@ -1,0 +1,69 @@
+<!-- kap: II | ukap: 6 Produktregel -->
+<div class="kasten vertiefung" style="margin-top:0">
+  <div class="etikett">★ Für Interessierte · Warum geht $v(x + h)$ gegen $v(x)$?</div>
+  <p style="text-align:left">Für $h \neq 0$ gilt $v(x + h) - v(x) = h \cdot \dfrac{v(x + h) - v(x)}{h}$. Für $h \to 0$ geht der erste Faktor gegen 0, der zweite gegen $v'(x)$ – das Produkt also gegen $0 \cdot v'(x) = 0$. Damit geht $v(x + h)$ gegen $v(x)$. Mit anderen Worten: <b>Eine differenzierbare Funktion ist stetig</b> – ihr Graph hat keine Sprünge.</p>
+</div>
+
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 1 · Bekanntes bestätigen</div>
+  <p style="text-align:left">Leite $f(x) = x^2 \cdot x$ mit der Produktregel ab. &nbsp;<span class="mild">($u = x^2$, $u' = 2x$, $v = x$, $v' = 1$)</span></p>
+  <div class="loesung"><span class="loesung-kopf">Lösung</span>
+  <p style="text-align:left">$f'(x) = 2x \cdot x + x^2 \cdot 1 = 2x^2 + x^2 = 3x^2$ – genau das Ergebnis der h-Methode von Seite 9.</p></div>
+</div>
+
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 2 · Mit Probe</div>
+  <p style="text-align:left">Leite $f(x) = (2x + 1)(x^2 - 3)$ ab.</p>
+  <div class="loesung"><span class="loesung-kopf">Lösung</span>
+  <p style="text-align:left">$u(x) = 2x + 1$, $u'(x) = 2$; &nbsp; $v(x) = x^2 - 3$, $v'(x) = 2x$</p>
+  <div class="schritte" style="margin:1mm 0">
+    <span class="sl">Produktregel</span><span>$f'(x) = 2 \cdot (x^2 - 3) + (2x + 1) \cdot 2x$</span>
+    <span class="sl">ausmultiplizieren</span><span>$= 2x^2 - 6 + 4x^2 + 2x$</span>
+    <span class="sl">zusammenfassen</span><span>$= 6x^2 + 2x - 6$</span>
+  </div>
+  <p style="text-align:left"><b>Probe:</b> $f(x) = 2x^3 + x^2 - 6x - 3$, also $f'(x) = 6x^2 + 2x - 6$ ✓</p></div>
+</div>
+
+<div class="kasten achtung">
+  <div class="etikett">Achtung</div>
+  <p style="text-align:left">$(u \cdot v)' \neq u' \cdot v'$. Merkspruch: <b>„Ableitung des Ersten mal das Zweite plus das Erste mal Ableitung des Zweiten.“</b> Ist einer der Faktoren eine Zahl, reicht die Faktorregel.</p>
+</div>
+
+<div class="aufgaben-kopf"><span>Aufgaben</span></div>
+
+<div class="auf"><div class="anr"><span class="z">1</span><span class="stufe">●○○</span></div><div class="text">
+  <p>Leite mit der Produktregel ab. Kontrolliere durch Ausmultiplizieren.</p>
+  <div class="teil" style="--sp:4"><div><i>a)</i>$x(x + 3)$</div><div><i>b)</i>$(x + 1)(x - 1)$</div><div><i>c)</i>$(2x - 5)(x + 4)$</div><div><i>d)</i>$x^2 \cdot x^2$</div></div>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">2</span><span class="stufe">●○○</span></div><div class="text">
+  <p>Schreibe $x^4 = x^3 \cdot x$ und leite mit der Produktregel ab. Nutze $(x^3)' = 3x^2$.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">3</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Finde den Fehler: <b>Jonas</b> rechnet $f(x) = x^2(x + 5) \Rightarrow f'(x) = 2x \cdot 1 = 2x$. Wie lautet die richtige Ableitung?</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">4</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Leite $f(x) = (x^2 + 1)(x^2 - 1)$ mit der Produktregel ab und vereinfache so weit wie möglich. Was fällt dir auf?</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">5</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Ein Café erhöht wöchentlich den Preis eines Getränks: $p(t) = 2 + 0{,}1t$ (in €). Der Absatz sinkt: $m(t) = 300 - 10t$ (Stück pro Woche). Bestimme für den Umsatz $U(t) = p(t) \cdot m(t)$ die Ableitung $U'(t)$. Ab wann sinkt der Umsatz?</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">6</span><span class="stufe">●●●</span></div><div class="text">
+  <p>Zeige: $(u \cdot v \cdot w)' = u'vw + uv'w + uvw'$. <span class="mild">Tipp: Fasse $u \cdot v$ zu einem Faktor zusammen.</span></p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z offen">7</span><span class="stufe">●●●</span></div><div class="text">
+  <p>Zeige mit der Produktregel: $\big(f(x)^2\big)' = 2 \cdot f(x) \cdot f'(x)$. Kontrolliere mit $f(x) = 3x + 1$.</p>
+</div></div>
+<!--rand-->
+<div class="notiz"><span class="t">Ordnung hilft</span>Schreibe vor jeder Produktregel vier Dinge auf:<br>$u$, $u'$, $v$, $v'$.<br>Dann einsetzen.</div>
+
+<div class="notiz gold"><span class="t">Wann ausmultiplizieren?</span>Bei kurzen Termen geht Ausmultiplizieren oft schneller. Die Produktregel brauchst du spätestens, wenn ein Faktor wie $\sin x$ oder $e^x$ auftaucht.</div>
+
+<div class="notiz"><span class="t">Zu Aufgabe 7</span>Dieses Ergebnis ist ein Sonderfall der Kettenregel aus Kapitel 9.</div>
+
+<div class="notiz mathilda"><span class="t">Mathilda fragen</span>„Warum fällt das Eckstück weg?“ – Mathilda erklärt dir die Rechteck-Idee mit deinen eigenen Zahlen.</div>

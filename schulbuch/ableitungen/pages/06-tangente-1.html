@@ -1,0 +1,59 @@
+<!-- kap: I | ukap: 2 Von der Sekante zur Tangente -->
+<div class="ukap-titel"><span class="nr">2</span><h2>Von der Sekante zur Tangente</h2></div>
+<p class="leitfrage">Wie steil ist ein Graph in einem einzigen Punkt?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <p style="text-align:left">Wie schnell ist der Stein aus Kapitel 1 <b>genau</b> nach 2 Sekunden? Berechne die Durchschnittsgeschwindigkeit $\frac{s(2 + h) - s(2)}{h}$ für immer kleinere Zeitspannen $h$ und ergänze die Tabelle im Heft.</p>
+  <table class="wt" style="margin:1mm 0 0"><tr><th>$h$ in s</th><td>1</td><td>0,1</td><td>0,01</td><td>0,001</td><td>−0,01</td></tr><tr><th>$\bar v$ in m/s</th><td>25</td><td>20,5</td><td></td><td></td><td></td></tr></table>
+</div>
+
+<p>Die Werte rücken immer näher an <b>20</b> heran. Warum, zeigt eine Rechnung, die für <b>jedes</b> $h \neq 0$ gilt:</p>
+$$\frac{s(2 + h) - s(2)}{h} = \frac{5(4 + 4h + h^2) - 20}{h} = \frac{20h + 5h^2}{h} = 20 + 5h$$
+<p>Lässt man $h$ gegen null gehen, so geht $20 + 5h$ gegen 20. Man schreibt dafür</p>
+$$\lim_{h \to 0} \,(20 + 5h) = 20$$
+<p>und liest: „Der <b>Grenzwert</b> (Limes) von $20 + 5h$ für $h$ gegen null ist 20.“ Der Stein hat nach 2 Sekunden also die <b>momentane Geschwindigkeit</b> 20 m/s.</p>
+
+<h3>Was passiert dabei im Schaubild?</h3>
+<div class="zwei-bild">
+  <div>
+    <p>Jeder Differenzenquotient ist die Steigung einer Sekante durch $P$ und $Q$. Rückt $Q$ immer näher an $P$ heran, so dreht sich die Sekante und nähert sich einer Grenzgeraden: der <b>Tangente</b> in $P$.</p>
+    <p>Die Tangente berührt den Graphen in $P$ und hat dort dieselbe Richtung wie der Graph. Ihre Steigung ist die Steigung des Graphen im Punkt $P$.</p>
+  </div>
+  <div>
+    <graph>{"b":60,"h":46,"x":[-0.4,4.1],"y":[-0.4,4.6],"gitter":1,
+      "fn":[{"f":"0.25*x*x+1","c":"see","w":2.2}],
+      "gerade":[
+        {"f":"0.25*x*x+1","sek":[1,3.6],"c":"#C9A0B5","w":1.2},
+        {"f":"0.25*x*x+1","sek":[1,2.8],"c":"#B86F93","w":1.2},
+        {"f":"0.25*x*x+1","sek":[1,2],"c":"#A8406F","w":1.2},
+        {"f":"0.25*x*x+1","tan":1,"c":"gold","w":2.2}],
+      "punkt":[
+        {"x":3.6,"f":"0.25*x*x+1","c":"#C9A0B5","r":2.6},{"x":2.8,"f":"0.25*x*x+1","c":"#B86F93","r":2.6},{"x":2,"f":"0.25*x*x+1","c":"#A8406F","r":2.6,"t":"Q","pos":"ol"},
+        {"x":1,"f":"0.25*x*x+1","c":"grana","t":"P","pos":"ul"}],
+      "text":[{"x":3.3,"y":2.25,"t":"Tangente","c":"goldDunkel","pos":"r","an":"middle"}]}</graph>
+    <div class="bildunterschrift">Die Sekanten drehen sich in die Tangente.</div>
+  </div>
+</div>
+
+<div class="kasten merke">
+  <div class="etikett">Merke</div>
+  <p style="text-align:left">Existiert der Grenzwert</p>
+  $$f'(x_0) = \lim_{h \to 0} \frac{f(x_0 + h) - f(x_0)}{h},$$
+  <p style="text-align:left">so heißt $f$ an der Stelle $x_0$ <b>differenzierbar</b> und $f'(x_0)$ (gelesen: „f Strich von $x_0$“) die <b>Ableitung</b> von $f$ an der Stelle $x_0$.<br>Geometrisch ist $f'(x_0)$ die <b>Steigung der Tangente</b> im Punkt $P(x_0 \mid f(x_0))$. Im Sachzusammenhang ist $f'(x_0)$ die <b>momentane Änderungsrate</b>.</p>
+</div>
+<div class="kasten achtung">
+  <div class="etikett">Achtung</div>
+  <p style="text-align:left">Setzt man $h = 0$ zu früh ein, entsteht $\frac{0}{0}$ – keine Zahl. Erst vereinfachen, bis $h$ <b>nicht mehr im Nenner</b> steht, dann $h \to 0$.</p>
+</div>
+
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: Tabelle</li><li>Rechnung für alle $h$</li><li>Sekanten werden zur Tangente</li><li>Merke: Ableitung</li><li>Beispiel h-Methode</li><li>Aufgaben 1–5</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 6 und 7</p></div>
+
+<div class="notiz"><span class="t">Erinnerung</span>Binomische Formel:<br>$(a + b)^2 = a^2 + 2ab + b^2$</div>
+
+<div class="notiz"><span class="t">Warum $h \neq 0$?</span>Für $h = 0$ steht im Nenner null – der Differenzenquotient ist dort nicht definiert. Deshalb fragt man nur, welchem Wert er sich <b>nähert</b>.</div>
+
+<div class="notiz gold"><span class="t">Geschichte</span>Isaac Newton und Gottfried Wilhelm Leibniz entwickelten diese Idee unabhängig voneinander um 1670. Newton brauchte sie für die Physik der Bewegung.</div>

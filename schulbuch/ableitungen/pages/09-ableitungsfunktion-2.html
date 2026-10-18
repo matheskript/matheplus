@@ -1,0 +1,80 @@
+<!-- kap: I | ukap: 3 Die Ableitungsfunktion -->
+<div class="kasten merke" style="margin-top:0">
+  <div class="etikett">Merke · Grundbausteine</div>
+  <div class="regelzeile">
+    <div>$f(x) = c$<br>$f'(x) = 0$</div>
+    <div>$f(x) = x$<br>$f'(x) = 1$</div>
+    <div>$f(x) = x^2$<br>$f'(x) = 2x$</div>
+  </div>
+</div>
+
+<h3>Graphisches Ableiten</h3>
+<div class="zwei-bild" style="grid-template-columns:1fr auto">
+  <div>
+    <p>Auch ohne Funktionsterm kann man den Graphen von $f'$ skizzieren. Man geht den Graphen von $f$ von links nach rechts ab und überträgt an jeder Stelle die Tangentensteigung als <b>$y$-Wert</b> in ein zweites Koordinatensystem darunter.</p>
+    <p>Am Beispiel rechts liest man ab:</p>
+    <ul>
+      <li>$f$ steigt $\;\Rightarrow\;$ $f'$ liegt <b>oberhalb</b> der $x$-Achse.</li>
+      <li>$f$ fällt $\;\Rightarrow\;$ $f'$ liegt <b>unterhalb</b> der $x$-Achse.</li>
+      <li>$f$ hat eine waagrechte Tangente (Hoch- oder Tiefpunkt) $\;\Rightarrow\;$ $f'$ hat dort eine <b>Nullstelle</b>.</li>
+      <li>Wo $f$ am steilsten fällt, hat $f'$ seinen kleinsten Wert.</li>
+    </ul>
+  </div>
+  <div>
+    <graph>{"b":52,"h":31,"x":[-2.3,2.4],"y":[-1.5,1.8],"gitter":1,"ty":1,"yl":"f",
+      "fn":[{"f":"x**3/3-x","c":"see","w":2}],
+      "gerade":[{"f":"x**3/3-x","tan":-1,"c":"gold","w":1.3,"von":-1.8,"bis":-0.2},{"f":"x**3/3-x","tan":0,"c":"gold","w":1.3,"von":-0.6,"bis":0.6},{"f":"x**3/3-x","tan":1,"c":"gold","w":1.3,"von":0.2,"bis":1.8}],
+      "punkt":[{"x":-1,"f":"x**3/3-x","c":"see","r":2.6},{"x":0,"f":"x**3/3-x","c":"see","r":2.6},{"x":1,"f":"x**3/3-x","c":"see","r":2.6}]}</graph>
+    <div style="height:2mm"></div>
+    <graph>{"b":52,"h":31,"x":[-2.3,2.4],"y":[-1.5,3.3],"gitter":1,"ty":1,"yl":"f′",
+      "fn":[{"f":"x*x-1","c":"grana","w":2}],
+      "strecke":[{"p":[-1,-1.5],"q":[-1,3.3],"c":"grau","d":"3 3","w":0.8},{"p":[1,-1.5],"q":[1,3.3],"c":"grau","d":"3 3","w":0.8}],
+      "punkt":[{"x":-1,"y":0,"c":"grana","r":2.8},{"x":0,"y":-1,"c":"grana","r":2.8},{"x":1,"y":0,"c":"grana","r":2.8}]}</graph>
+    <div class="bildunterschrift">oben $f$, unten $f'$</div>
+  </div>
+</div>
+
+<div class="kasten vertiefung">
+  <div class="etikett">★ Für Interessierte · Die Schreibweise von Leibniz</div>
+  <p style="text-align:left">Leibniz schrieb die Ableitung als Bruch: $\dfrac{\mathrm{d}y}{\mathrm{d}x}$ oder $\dfrac{\mathrm{d}f}{\mathrm{d}x}$, gelesen „d $y$ nach d $x$“. Die Schreibweise erinnert an den Differenzenquotienten $\frac{\Delta y}{\Delta x}$: Aus den Differenzen $\Delta$ werden „unendlich kleine“ Änderungen $\mathrm{d}$. Physiker schreiben so z. B. $v = \frac{\mathrm{d}s}{\mathrm{d}t}$.</p>
+</div>
+
+<div class="aufgaben-kopf"><span>Aufgaben</span></div>
+
+<div class="auf"><div class="anr"><span class="z">1</span><span class="stufe">●○○</span></div><div class="text">
+  <p>Gib $f'(x)$ an und berechne $f'(4)$.</p>
+  <div class="teil" style="--sp:4"><div><i>a)</i>$f(x) = 12$</div><div><i>b)</i>$f(x) = -2{,}5$</div><div><i>c)</i>$f(x) = x$</div><div><i>d)</i>$f(x) = x^2$</div></div>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">2</span><span class="stufe">●○○</span></div><div class="text">
+  <p>In welchem Punkt hat die Normalparabel $f(x) = x^2$ die Steigung $-3$?</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">3</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Bestimme die Ableitungsfunktion mit der h-Methode.</p>
+  <div class="teil" style="--sp:2"><div><i>a)</i>$f(x) = x^3$</div><div><i>b)</i>$f(x) = x^2 + 3x$</div></div>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">4</span><span class="stufe">●●○</span></div><div class="text">
+  <div class="zwei-bild" style="gap:4mm">
+    <p>Übertrage den Graphen von $f$ ins Heft und skizziere darunter den Graphen von $f'$. Markiere zuerst die Stellen mit waagrechter Tangente.</p>
+    <graph>{"b":40,"h":21,"x":[-1.4,3.4],"y":[-0.6,1.8],"gitter":1,"ty":1,
+      "fn":[{"f":"x**3/3-x*x+1","c":"see","w":2}]}</graph>
+  </div>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">5</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Wahr oder falsch? Begründe. <b>a)</b> Gilt $f'(x) > 0$ für alle $x$, so steigt der Graph von $f$ überall. <b>b)</b> Haben zwei Funktionen dieselbe Ableitung, so sind sie gleich.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z offen">6</span><span class="stufe">●●●</span></div><div class="text">
+  <p>Zeige mit der h-Methode: Für $f(x) = \sqrt{x}$ gilt $f'(x) = \dfrac{1}{2\sqrt{x}}$ für $x > 0$. <span class="mild">Tipp: Erweitere den Differenzenquotienten mit $\sqrt{x + h} + \sqrt{x}$.</span></p>
+</div></div>
+<!--rand-->
+<div class="notiz"><span class="t">Ableiten am Graphen</span>Hoch- oder Tiefpunkt von $f$<br>$\Rightarrow$ Nullstelle von $f'$<br><br>steigend $\Rightarrow$ $f' > 0$<br>fallend $\Rightarrow$ $f' < 0$</div>
+
+<div class="notiz"><span class="t">Zu Aufgabe 3 a)</span>$(x + h)^3 =$<br>$x^3 + 3x^2h + 3xh^2 + h^3$</div>
+
+<div class="notiz gold"><span class="t">Ausblick</span>In Aufgabe 3 wirst du merken: Die h-Methode wird schnell mühsam. Im nächsten Kapitel leiten wir deshalb <b>Regeln</b> her, die die Arbeit abnehmen.</div>
+
+<div class="notiz mathilda"><span class="t">In der App</span>Im <b>Ableitungstrainer</b> übst du graphisches Ableiten: $f$ ist gegeben, du zeichnest $f'$ – und siehst sofort, wie gut du lagst.</div>

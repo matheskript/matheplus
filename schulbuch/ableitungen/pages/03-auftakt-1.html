@@ -1,0 +1,62 @@
+<!-- kap: I | typ: auftakt -->
+<div class="auftakt-kopf">
+  <div class="knr">Kapitel I</div>
+  <h1>Die Ableitung</h1>
+  <p>Bei einer Geraden ist die Steigung überall gleich. Eine Kurve dagegen wird mal steiler, mal flacher, mal geht es bergab. In diesem Kapitel lernst du, die Steigung an <b style="color:#EDBB00">jeder einzelnen Stelle</b> exakt zu bestimmen – mit einer einzigen Idee: Wir lassen eine Sekante zur Tangente werden.</p>
+  <div class="goldlinie"></div>
+</div>
+<div class="auftakt-inhalt">
+  <div class="zwei-bild" style="grid-template-columns: auto 1fr; gap: 6mm">
+    <graph>{"b":94,"h":56,"x":[-0.4,6.4],"y":[-0.5,6.2],"gitter":1,"tx":1,"ty":1,
+      "fn":[{"f":"0.25*x**3-2.25*x**2+5.25*x+0.5","c":"see","w":2.4,"von":-0.2,"bis":6.15}],
+      "gerade":[
+        {"f":"0.25*x**3-2.25*x**2+5.25*x+0.5","tan":0.5,"c":"gold","w":1.8,"von":-0.2,"bis":1.4},
+        {"f":"0.25*x**3-2.25*x**2+5.25*x+0.5","tan":1.5858,"c":"gold","w":1.8,"von":0.7,"bis":2.5},
+        {"f":"0.25*x**3-2.25*x**2+5.25*x+0.5","tan":3,"c":"gold","w":1.8,"von":2.3,"bis":3.7},
+        {"f":"0.25*x**3-2.25*x**2+5.25*x+0.5","tan":5.6,"c":"gold","w":1.8,"von":5.05,"bis":6.1}],
+      "punkt":[
+        {"x":0.5,"f":"0.25*x**3-2.25*x**2+5.25*x+0.5","c":"grana","t":"steil bergauf","pos":"r"},
+        {"x":1.5858,"f":"0.25*x**3-2.25*x**2+5.25*x+0.5","c":"grana","t":"ganz flach","pos":"o"},
+        {"x":3,"f":"0.25*x**3-2.25*x**2+5.25*x+0.5","c":"grana","t":"bergab","pos":"r"},
+        {"x":5.6,"f":"0.25*x**3-2.25*x**2+5.25*x+0.5","c":"grana","t":"sehr steil","pos":"l"}]}</graph>
+    <div>
+      <h3 style="margin-top:0">Die Frage des Kapitels</h3>
+      <p style="text-align:left">Wie steil ist der Graph genau im Punkt mit $x = 3$? Eine Antwort wie „ziemlich steil bergab“ reicht in der Mathematik nicht. Wir wollen eine <b>Zahl</b> – und eine Methode, die bei jeder Funktion funktioniert.</p>
+      <p style="text-align:left">Die goldenen Geraden berühren den Graphen nur in einem Punkt und zeigen dort seine Richtung an. Ihre Steigung nennen wir später die <b>Ableitung</b>.</p>
+    </div>
+  </div>
+
+  <h3>Das kannst du schon – kurzer Check</h3>
+  <table class="check-tab">
+    <tr style="font-size:7.6pt;color:#5B6478;text-transform:uppercase;letter-spacing:0.06em"><td><b style="color:#5B6478">Vorwissen</b></td><td><b style="color:#5B6478">Mini-Check</b></td><td style="white-space:nowrap">sicher · geht so · nein</td></tr>
+    <tr><td>Steigung einer Geraden durch zwei Punkte</td><td>$A(1 \mid 2)$, $B(4 \mid 8)$: $m = \,?$</td><td><span class="kreis"></span><span class="kreis"></span><span class="kreis"></span></td></tr>
+    <tr><td>Geradengleichung aufstellen</td><td>durch $P(2 \mid 1)$ mit $m = 3$</td><td><span class="kreis"></span><span class="kreis"></span><span class="kreis"></span></td></tr>
+    <tr><td>Term für $f(a + h)$ bilden</td><td>$f(x) = x^2$: $f(2 + h) = \,?$</td><td><span class="kreis"></span><span class="kreis"></span><span class="kreis"></span></td></tr>
+    <tr><td>Ausklammern und Kürzen</td><td>$\dfrac{6h + h^2}{h} = \,?$ für $h \neq 0$</td><td><span class="kreis"></span><span class="kreis"></span><span class="kreis"></span></td></tr>
+    <tr><td>Binomische Formeln</td><td>$(x + h)^2 = \,?$</td><td><span class="kreis"></span><span class="kreis"></span><span class="kreis"></span></td></tr>
+  </table>
+  <p class="klein mild" style="margin-top:1.5mm;text-align:left">Lösungen auf Seite 32. Wo du „unsicher“ angekreuzt hast: kurz in der App unter <b>Fundament</b> und <b>Gleichungen</b> nachüben.</p>
+
+  <div class="lernziele" style="margin-top:4mm">
+    <div>
+      <h3 style="margin-top:0">Das lernst du in diesem Kapitel</h3>
+      <ul>
+        <li>die mittlere Änderungsrate berechnen und als Sekantensteigung deuten</li>
+        <li>mit der h-Methode die Steigung an einer Stelle bestimmen</li>
+        <li>verstehen, was die Ableitung $f'(x_0)$ bedeutet</li>
+        <li>die Ableitung von $f(x) = c$, $f(x) = x$ und $f(x) = x^2$ selbst herleiten</li>
+        <li>Graphen von Ableitungsfunktionen skizzieren</li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="margin-top:0">Unterkapitel</h3>
+      <ol class="ukap-liste" style="margin:0">
+        <li><span class="n">1</span>Mittlere Änderungsrate<span class="s">4</span></li>
+        <li><span class="n">2</span>Von der Sekante zur Tangente<span class="s">6</span></li>
+        <li><span class="n">3</span>Die Ableitungsfunktion<span class="s">8</span></li>
+        <li><span class="n"></span>Alles klar? Training I<span class="s">10</span></li>
+      </ol>
+    </div>
+  </div>
+</div>
+<div style="position:absolute;right:22mm;top:24mm;font-size:90pt;font-weight:800;color:rgba(255,255,255,0.08);line-height:1">f′</div>
