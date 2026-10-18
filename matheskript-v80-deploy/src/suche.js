@@ -274,6 +274,7 @@ function baueIndex() {
     ["Blatt prüfen", "Rechenweg und Schriftbild vom Foto", "foto blatt prüfen hausaufgabe kontrollieren korrigieren mathilda ki handschrift rechenweg schriftbild kamera", { ansicht: "analyse", foto: "blatt" }],
     ["Weg prüfen", "Handschrift in Zeilen übertragen", "foto weg prüfen handschrift rechenweg zeilen mathilda ki kamera", { ansicht: "analyse", foto: "weg" }],
     ["Aufgabe scannen", "Ähnliche Aufgaben dazu erzeugen", "foto aufgabe scannen ähnliche aufgaben mathilda ki kamera", { ansicht: "analyse", foto: "aufgabe" }],
+    ["Klausurbriefkasten", "Zurückgegebene Klassenarbeit einwerfen – für bessere Testklausuren", "klausurbriefkasten briefkasten klausur einwerfen klassenarbeit einschicken hochladen klausuren sammeln testklausur probeklausur mathilda foto test mailbox", { ansicht: "klausurbriefkasten" }],
   ];
   for (const [t, z, s, ziel] of ueben) liste.push(e("uebung", t, z, s, ziel, "Trainieren", { id: `ueben:${t}` }));
 

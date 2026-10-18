@@ -119,6 +119,7 @@ export const SEITEN = [
   { pfad: "mathilda", ansicht: "analyse", foto: "blatt", alias: ["blatt-pruefen", "mathilda-ai"] },
   { pfad: "mathilda/weg", ansicht: "analyse", foto: "weg", alias: ["weg-pruefen"] },
   { pfad: "mathilda/aufgabe", ansicht: "analyse", foto: "aufgabe", alias: ["aufgabe-scannen"] },
+  { pfad: "klausurbriefkasten", ansicht: "klausurbriefkasten", alias: ["mathilda/klausurbriefkasten", "briefkasten", "klausur-einwerfen"] },
 
   /* Programme und Kurse */
   { pfad: "mathe-checken", ansicht: "mathecheck", alias: ["mathecheck"] },

@@ -52,6 +52,7 @@ const WiderrufSeite = lazyLaden(() => import("./funcRecht.jsx").then((m) => ({ d
 const DatenschutzSeite = lazyLaden(() => import("./funcRecht.jsx").then((m) => ({ default: m.DatenschutzSeite })));
 const EinwilligungSeite = lazyLaden(() => import("./funcEinwilligung.jsx").then((m) => ({ default: m.EinwilligungSeite })));
 const ElternabendSeite = lazyLaden(() => import("./funcElternabend.jsx").then((m) => ({ default: m.ElternabendSeite })));
+const KlausurBriefkasten = lazyLaden(() => import("./funcKlausurBriefkasten.jsx").then((m) => ({ default: m.KlausurBriefkasten })));
 const BundeswettbewerbSeite = lazyLaden(() => import("./funcWettbewerbe.jsx").then((m) => ({ default: m.BundeswettbewerbSeite })));
 const LandeswettbewerbeSeite = lazyLaden(() => import("./funcWettbewerbe.jsx").then((m) => ({ default: m.LandeswettbewerbeSeite })));
 const LandeswettbewerbSeite = lazyLaden(() => import("./funcWettbewerbe.jsx").then((m) => ({ default: m.LandeswettbewerbSeite })));
@@ -1061,6 +1062,12 @@ export function Mathilda() {
           </div>
           <LandeswettbewerbSeite land={landWahl} gehe={gehe} />
         </>
+      ) : ansicht === "klausurbriefkasten" ? (
+        <div className="mx-auto px-4 pb-16" style={{ maxWidth: 620 }}>
+          <React.Suspense fallback={<p role="status" style={{ color: C.grau, fontSize: 15, fontWeight: 300, padding: "24px", textAlign: "center" }}>{englisch() ? "Loading …" : "Wird geladen …"}</p>}>
+            <KlausurBriefkasten gehe={gehe} />
+          </React.Suspense>
+        </div>
       ) : ansicht === "elternabend" ? (
         <EntwurfTor gehe={gehe}><ElternabendSeite gebucht={ticketGebucht} /></EntwurfTor>
       ) : ansicht === "challenge" ? (
@@ -1334,7 +1341,7 @@ export function Mathilda() {
       ) : (
       <>
 
-      <MathildaKopf modus={fotoModus} setModus={setFotoModus} onText={() => gehe({ ansicht: "textaufgaben", seite: "mathilda" })} onScan={() => {
+      <MathildaKopf modus={fotoModus} setModus={setFotoModus} onText={() => gehe({ ansicht: "textaufgaben", seite: "mathilda" })} onBriefkasten={() => gehe({ ansicht: "klausurbriefkasten" })} onScan={() => {
         setFotoModus("blatt");
         if (!fotoErlaubt) {
           setScanNachEinwilligung(true);
