@@ -14,7 +14,7 @@
    Keine base-Datei darf diese Datei importieren.
    ============================================================ */
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { uebergabeErledigt, uebergabeLesen } from "./uebergabe.js";
 import { WeiterKnopf, WeiterMit } from "./funcWerkzeuge.jsx";
 import { C } from "./base1.jsx";
@@ -299,6 +299,21 @@ export function Tastenfeld({ wert: text, setWert, pos, setPos, kompakt, onOk, fu
   // Alle acht Tastenreihen sind dann gleich hoch: Rahmen (3 Reihen + Innenabstand 6 + Rand 1,5) und Grundtasten (5 Reihen).
   const TH = kompakt ? 34 : 46, TG = kompakt ? 5 : 6;
   const [vonX, setVonX] = useState(true);
+  // Desktop-Anordnung: ist das Tastenfeld mindestens BREIT_AB px breit (und nicht im Handy-Vollbild), steht es zweispaltig –
+  // links Funktionen, rechts Zahlen. Gemessen wird das Tastenfeld selbst, nicht der Bildschirm.
+  const BREIT_AB = 500;
+  const wurzel = useRef(null);
+  const [breit, setBreit] = useState(false);
+  useLayoutEffect(() => {
+    const el = wurzel.current;
+    if (!el || fuellen || kompakt) { setBreit(false); return undefined; }
+    const messen = () => setBreit(el.getBoundingClientRect().width >= BREIT_AB);
+    messen();
+    if (typeof ResizeObserver === "undefined") return undefined;
+    const ro = new ResizeObserver(messen);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [fuellen, kompakt, breit]); // breit: das gemessene Element wechselt mit der Anordnung, der Beobachter hängt sich neu an
   const setzen = (t, p) => { setWert(t); setPos(Math.max(0, Math.min(p, t.length))); };
   const einfuegen = (s) => {
     let t = text, p = pos;
@@ -337,12 +352,12 @@ export function Tastenfeld({ wert: text, setWert, pos, setPos, kompakt, onOk, fu
     if (art === "ok") return { bg: C.smaragd, fg: C.weiss, rand: C.smaragd };
     return { bg: C.weiss, fg: C.tinte, rand: C.linie };
   };
-  const Taste = ({ t, span }) => {
+  const Taste = ({ t, span, auto }) => {
     const s = stil(t.art);
     const z = vonX && t.zx ? t.zx : t.z;
     return (
       <button onClick={() => klick(t)} aria-label={t.titel || z} className="adv-taste"
-        style={{ gridColumn: span ? `span ${span}` : undefined, height: fuellen ? "auto" : TH, background: s.bg, color: s.fg,
+        style={{ gridColumn: span ? `span ${span}` : undefined, height: fuellen || auto ? "auto" : TH, background: s.bg, color: s.fg,
           border: `1px solid ${s.rand}`, borderRadius: 12, fontSize: z.length > 6 ? "clamp(10px, 2.9vw, 12px)" : z.length > 5 ? "clamp(11px, 3.2vw, 12.5px)" : z.length > 3 ? 13.5 : 17, whiteSpace: "nowrap", overflow: "hidden", minWidth: 0,
           fontWeight: t.art === "op" || t.art === "nav" || t.art === "ok" ? 700 : 600, fontFamily: "inherit", cursor: "pointer",
           letterSpacing: t.art === "ok" ? "0.04em" : undefined,
@@ -352,8 +367,73 @@ export function Tastenfeld({ wert: text, setWert, pos, setPos, kompakt, onOk, fu
       </button>
     );
   };
+  /* Desktop: links die Funktionsbox (Umschalter f(x) | f(…) oben, 4 × 3 Funktionstasten) mit ←, →, ⌫, Clear, OK darunter;
+     rechts Zahlenblock (letzte Reihe: 0 , x + − × ÷) und darunter die übrigen Tasten. */
+  if (breit) {
+    const zahl = (z, e) => ({ z, e });
+    const reihen = [["7", "8", "9"], ["4", "5", "6"], ["1", "2", "3"]];
+    const letzte = [
+      zahl("0", "0"), zahl(",", ","), { z: "x", e: "x", art: "var" },
+      { z: "+", e: "+", art: "op" }, { z: "−", e: "-", art: "op" }, { z: "×", e: "*", art: "op" }, { z: "÷", e: "/", art: "op" },
+    ];
+    const uebrige = [
+      { z: "▯/▯", e: `(${PLATZ})/(${PLATZ})`, art: "op", titel: "Bruch" }, { z: "▯ⁿ", e: `^(${PLATZ})`, art: "op", titel: "hoch" },
+      { z: "(", e: "(", art: "op" }, { z: ")", e: ")", art: "op" },
+      { z: "e", e: "e", art: "var" }, { z: "π", e: "pi", art: "var" },
+      { z: "▯ →", e: null, art: "nav", aktion: "platz", titel: "nächster Platzhalter" },
+    ];
+    return (
+      <div ref={wurzel} style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)", columnGap: 12, alignItems: "stretch" }}>
+        <style>{`.adv-taste{transition:transform .08s ease, filter .12s ease}
+          .adv-taste:active{transform:scale(0.93);filter:brightness(0.93)}`}</style>
+        <div style={{ display: "flex", flexDirection: "column", gap: TG, minWidth: 0 }}>
+          <div style={{ padding: 6, borderRadius: 16, background: "#F1F5FB", border: "1.5px solid rgba(0,77,152,0.28)", display: "flex", flexDirection: "column", gap: TG }}>
+            <div role="group" aria-label="Funktionstasten einfügen als" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: TG }}>
+              {[[true, "f(x)", "Funktion direkt mit x einfügen, z. B. sin x"], [false, "f(…)", "Klammer öffnen zum Verketten, z. B. sin(x²)"]].map(([wert, name, titel]) => {
+                const an = vonX === wert;
+                return (
+                  <button key={name} type="button" onClick={() => setVonX(wert)} aria-pressed={an} title={titel}
+                    style={{ height: TH, borderRadius: 12, fontFamily: "inherit", cursor: "pointer", padding: "0 4px", display: "flex", alignItems: "center", justifyContent: "center",
+                      border: an ? "none" : "1px solid #C7D8EF", fontSize: 16, fontWeight: 800, whiteSpace: "nowrap",
+                      color: an ? C.flaggold : C.see,
+                      background: an ? `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)` : C.weiss,
+                      boxShadow: an ? "0 4px 12px rgba(0,77,152,0.3)" : "none" }}>
+                    {name}
+                  </button>
+                );
+              })}
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gridTemplateRows: `repeat(3, ${TH}px)`, gap: TG }}>
+              {FN_TASTEN.map((t, i) => <Taste key={i} t={t} />)}
+            </div>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", gap: TG, flex: 1, minHeight: TH }}>
+            <Taste auto t={{ z: "←", art: "nav", aktion: "links", titel: "Schreibmarke nach links" }} />
+            <Taste auto t={{ z: "→", art: "nav", aktion: "rechts", titel: "Schreibmarke nach rechts" }} />
+            {onOk ? (
+              <>
+                <Taste auto t={{ z: "⌫", art: "nav", aktion: "zurueck", titel: "Löschen" }} />
+                <Taste auto t={{ z: "Clear", art: "nav", aktion: "leer", titel: "Clear – alles löschen" }} span={2} />
+                <Taste auto t={{ z: "OK", art: "ok", aktion: "ok", titel: "OK – Eingabe prüfen" }} span={2} />
+              </>
+            ) : (
+              <>
+                <Taste auto t={{ z: "⌫", art: "nav", aktion: "zurueck", titel: "Löschen" }} span={2} />
+                <Taste auto t={{ z: "Clear", art: "nav", aktion: "leer", titel: "Clear – alles löschen" }} span={3} />
+              </>
+            )}
+          </div>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(21, minmax(0, 1fr))", gridTemplateRows: `repeat(5, minmax(${TH}px, 1fr))`, gap: TG, minWidth: 0 }}>
+          {reihen.flat().map((z) => <Taste auto key={z} t={{ z, e: z }} span={7} />)}
+          {letzte.map((t, i) => <Taste auto key={"l" + i} t={t} span={3} />)}
+          {uebrige.map((t, i) => <Taste auto key={"u" + i} t={t} span={3} />)}
+        </div>
+      </div>
+    );
+  }
   return (
-    <div style={fuellen ? { height: "100%", minHeight: 0, display: "grid", rowGap: 8,
+    <div ref={wurzel} style={fuellen ? { height: "100%", minHeight: 0, display: "grid", rowGap: 8,
       gridTemplateRows: `calc((100% - ${6 * TG + 15 + 8}px) * 3 / 8 + ${2 * TG + 15}px) minmax(0, 1fr)` } : undefined}>
       <style>{`.adv-taste{transition:transform .08s ease, filter .12s ease}
         .adv-taste:active{transform:scale(0.93);filter:brightness(0.93)}`}</style>
