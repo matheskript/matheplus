@@ -146,7 +146,7 @@ ${POP_CSS}
   .wk-chipwrap{margin:0 0 12px}
   .wk-chipwrap::after{display:none}
   .wk-chips{flex-wrap:wrap;overflow:visible;padding:0}
-  .wk-karte{background:#fff;border-radius:16px;padding:18px;box-shadow:0 2px 16px rgba(15,26,51,0.07)}
+  .wk-karte{background:#fff;border-radius:16px;padding:9px 18px 18px;box-shadow:0 2px 16px rgba(15,26,51,0.07)}
   .wk-feld .wk-inhalt{font-size:20px}
   .wk-zeile{font-size:20px}
 }`;
@@ -381,7 +381,7 @@ const ROLLEN = {
   linkette: "u ist die äußere Funktion, v = mx + c die innere Gerade: f(x) = u(mx + c).",
   quotient: "u ist der Zähler, v der Nenner.",
   reziprok: "v ist der Nenner; der Zähler ist 1.",
-  produkt: "u und v sind die beiden Faktoren.",
+  produkt: "",
 };
 
 /* Nebenrechnung für einen Baustein, der selbst eine Regel braucht */
@@ -879,7 +879,7 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
         </div>
 
         {/* Bausteine; bei Ketten steht u′(v(x)) als dritte Box in der ersten Zeile */}
-        <p style={{ fontSize: 12.5, color: C.grau, margin: "0 2px 8px", lineHeight: 1.5 }}>{ROLLEN[art]}</p>
+        {ROLLEN[art] && <p style={{ fontSize: 12.5, color: C.grau, margin: "0 2px 8px", lineHeight: 1.5 }}>{ROLLEN[art]}</p>}
         {/* Ketten: erste Zeile mit drei Boxen, die zweite Zeile (innere Funktion/Ableitung) über die volle Breite */}
         <div className={`wk-grid${kette ? " kette" : ""}`}>
           {mitU && <>

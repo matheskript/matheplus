@@ -280,7 +280,7 @@ export function Ableitungstrainer() {
         }`}</style>
       <div className="abl-innen">
         {/* Kopf: links Automatik/Training sowie Stufe und Würfel, rechts der große Knopf „Ableiten üben“ mit Auswahl (Polynome oder Regel) */}
-        <div className="abl-kopf">
+        <div className="abl-kopf" style={bereich === "werkstatt" ? { marginBottom: 7 } : undefined}>
           <div className="abl-links">
             <div className="abl-seg" role="group" aria-label="Modus">
               {[["auto", "Automatik"], ["training", "Training"]].map(([id, name]) => {

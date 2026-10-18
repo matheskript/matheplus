@@ -368,13 +368,15 @@ export function Tastenfeld({ wert: text, setWert, pos, setPos, kompakt, onOk, fu
     );
   };
   /* Desktop: links die Funktionsbox (Umschalter f(x) | f(…) oben, 4 × 3 Funktionstasten) mit ←, →, ⌫, Clear, OK darunter;
-     rechts Zahlenblock (letzte Reihe: 0 , x + − × ÷) und darunter die übrigen Tasten. */
+     rechts Zahlenblock in vier Spalten (7 8 9 + / 4 5 6 − / 1 2 3 × / 0 , x ÷) und darunter die übrigen Tasten. */
   if (breit) {
     const zahl = (z, e) => ({ z, e });
-    const reihen = [["7", "8", "9"], ["4", "5", "6"], ["1", "2", "3"]];
-    const letzte = [
-      zahl("0", "0"), zahl(",", ","), { z: "x", e: "x", art: "var" },
-      { z: "+", e: "+", art: "op" }, { z: "−", e: "-", art: "op" }, { z: "×", e: "*", art: "op" }, { z: "÷", e: "/", art: "op" },
+    // vier Spalten: 7 8 9 + / 4 5 6 − / 1 2 3 × / 0 , x ÷
+    const zahlenblock = [
+      zahl("7", "7"), zahl("8", "8"), zahl("9", "9"), { z: "+", e: "+", art: "op" },
+      zahl("4", "4"), zahl("5", "5"), zahl("6", "6"), { z: "−", e: "-", art: "op" },
+      zahl("1", "1"), zahl("2", "2"), zahl("3", "3"), { z: "×", e: "*", art: "op" },
+      zahl("0", "0"), zahl(",", ","), { z: "x", e: "x", art: "var" }, { z: "÷", e: "/", art: "op" },
     ];
     const uebrige = [
       { z: "▯/▯", e: `(${PLATZ})/(${PLATZ})`, art: "op", titel: "Bruch" }, { z: "▯ⁿ", e: `^(${PLATZ})`, art: "op", titel: "hoch" },
@@ -424,10 +426,9 @@ export function Tastenfeld({ wert: text, setWert, pos, setPos, kompakt, onOk, fu
             )}
           </div>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(21, minmax(0, 1fr))", gridTemplateRows: `repeat(5, minmax(${TH}px, 1fr))`, gap: TG, minWidth: 0 }}>
-          {reihen.flat().map((z) => <Taste auto key={z} t={{ z, e: z }} span={7} />)}
-          {letzte.map((t, i) => <Taste auto key={"l" + i} t={t} span={3} />)}
-          {uebrige.map((t, i) => <Taste auto key={"u" + i} t={t} span={3} />)}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(28, minmax(0, 1fr))", gridTemplateRows: `repeat(5, minmax(${TH}px, 1fr))`, gap: TG, minWidth: 0 }}>
+          {zahlenblock.map((t, i) => <Taste auto key={"z" + i} t={t} span={7} />)}
+          {uebrige.map((t, i) => <Taste auto key={"u" + i} t={t} span={4} />)}
         </div>
       </div>
     );
