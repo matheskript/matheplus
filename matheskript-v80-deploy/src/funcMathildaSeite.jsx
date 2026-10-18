@@ -1,7 +1,8 @@
 /* Mathilda AI – Kopfbereich, Modus-Wahl und illustrierte Foto-Anleitung.
    Reine Darstellung: die Foto-Logik (Kamera, Galerie, Analyse) bleibt in func10.jsx. */
-import React from "react";
+import React, { useRef } from "react";
 import { C } from "./base1.jsx";
+import { MathildaZyklus } from "./funcMathildaZyklus.jsx";
 import "@fontsource/caveat/600.css";
 
 const GOLD = C.flaggold;
@@ -49,27 +50,6 @@ export const MODI = [
   { id: "chat", name: "Mathilda fragen", kurz: "Sie fragt zurück, bevor sie verrät" },
 ];
 
-function ModusGlyph({ id, aktiv }) {
-  const f = aktiv ? GOLD : "#8FA3CC";
-  const s = { width: 26, height: 26, flex: "none" };
-  if (id === "blatt") return (
-    <svg viewBox="0 0 26 26" style={s} fill="none" stroke={f} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M6 3h10l4 4v16H6z"/><path d="M16 3v4h4"/><path d="M9 12h8M9 16h6"/><path d="M9 20l2 2 4-4"/>
-    </svg>);
-  if (id === "weg") return (
-    <svg viewBox="0 0 26 26" style={s} fill="none" stroke={f} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M4 7h8M4 13h8M4 19h8"/><path d="M15 13h7"/><path d="M19 9l3 4-3 4"/>
-    </svg>);
-  if (id === "aufgabe") return (
-    <svg viewBox="0 0 26 26" style={s} fill="none" stroke={f} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M4 9V5h4M18 5h4v4M22 17v4h-4M8 21H4v-4"/><path d="M9 13h8"/><path d="M13 9v8"/>
-    </svg>);
-  return (
-    <svg viewBox="0 0 26 26" style={s} fill="none" stroke={f} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M4 6h18v11H11l-5 4v-4H4z"/><path d="M9 11.5h.01M13 11.5h.01M17 11.5h.01"/>
-    </svg>);
-}
-
 /* Briefkasten mit Brief – Symbol der Box „Klausurbriefkasten“ */
 function BriefkastenMini() {
   return (
@@ -88,6 +68,7 @@ function BriefkastenMini() {
 
 /* Kopfbereich: Titel dicht am Header, Zweizeiler, goldener Scan-Knopf, rechts Mathilda; darunter die vier Modi */
 export function MathildaKopf({ modus, setModus, onScan, onText, onBriefkasten }) {
+  const scanRef = useRef(null);
   return (
     <div className="mathilda-kopf" style={{ background: `radial-gradient(120% 90% at 85% 10%, #163A7A 0%, ${C.see} 35%, ${NACHT} 85%)`, position: "relative", overflow: "hidden" }}>
       <style>{`
@@ -102,12 +83,6 @@ export function MathildaKopf({ modus, setModus, onScan, onText, onBriefkasten })
         .mathilda-kopf .mk-scan:hover { transform: translateY(-2px); box-shadow: 0 14px 36px rgba(237,187,0,0.5), inset 0 1px 0 rgba(255,255,255,0.55); }
         .mathilda-kopf .mk-scan:active { transform: translateY(0); }
         .mathilda-kopf .mk-scan .mk-kam { width: 42px; height: 42px; border-radius: 999px; background: ${NACHT}; display: flex; align-items: center; justify-content: center; flex: none; }
-        .mathilda-kopf .mk-modi { max-width: 760px; margin: 0 auto; padding: 18px 24px 26px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; border-top: 1px solid rgba(255,255,255,0.08); }
-        .mathilda-kopf .mk-modus { text-align: left; border: 1.5px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.06); color: #DCE5F6; border-radius: 16px; padding: 12px 12px 11px; font-family: inherit; cursor: pointer; display: flex; flex-direction: column; gap: 8px; transition: transform .15s ease, background .15s ease, border-color .15s ease; -webkit-tap-highlight-color: transparent; }
-        .mathilda-kopf .mk-modus:hover { transform: translateY(-2px); background: rgba(255,255,255,0.1); }
-        .mathilda-kopf .mk-modus[data-aktiv="1"] { background: #FFFFFF; color: ${NACHT}; border-color: #FFFFFF; box-shadow: 0 10px 26px rgba(5,12,40,0.35), inset 0 -4px 0 ${GOLD}; }
-        .mathilda-kopf .mk-modus b { display: block; font-size: 14px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.2; }
-        .mathilda-kopf .mk-modus span { display: block; font-size: 12px; font-weight: 400; line-height: 1.4; opacity: .85; }
         .mathilda-kopf .mk-duo { max-width: 760px; margin: 0 auto; padding: 0 24px 26px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: stretch; }
         .mathilda-kopf .mk-karte { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; text-align: left; cursor: pointer; font-family: inherit; color: #FFFFFF; border-radius: 16px; padding: 14px 14px 12px; min-width: 0;
           transition: transform .15s ease, border-color .15s ease, background .15s ease; -webkit-tap-highlight-color: transparent; }
@@ -139,7 +114,6 @@ export function MathildaKopf({ modus, setModus, onScan, onText, onBriefkasten })
           .mathilda-kopf .mk-scan { margin-top: 16px; width: auto; max-width: 100%; white-space: nowrap; justify-content: flex-start; height: 44px; font-size: 13.5px; padding: 0 12px 0 5px; gap: 8px; box-shadow: 0 6px 18px rgba(237,187,0,0.35), inset 0 1px 0 rgba(255,255,255,0.55); }
           .mathilda-kopf .mk-scan .mk-kam { width: 34px; height: 34px; }
           .mathilda-kopf .mk-scan .mk-kam svg { width: 18px; height: 18px; }
-          .mathilda-kopf .mk-modi { grid-template-columns: repeat(2, 1fr); padding-top: 16px; padding-bottom: 22px; }
         }
         @media (prefers-reduced-motion: reduce) { .mathilda-kopf .mk-portraet, .mathilda-kopf .mk-scan { animation: none; } }
       `}</style>
@@ -153,7 +127,7 @@ export function MathildaKopf({ modus, setModus, onScan, onText, onBriefkasten })
             Sie liest dein Blatt, nicht nur dein Ergebnis –<br />
             {" "}und zeigt dir den einen nächsten Schritt.
           </p>
-          <button type="button" className="mk-scan" onClick={onScan}>
+          <button type="button" className="mk-scan" onClick={onScan} ref={scanRef}>
             <span className="mk-kam" aria-hidden="true">
               <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke={GOLD} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M4 8h3l2-3h6l2 3h3v11H4z" /><circle cx="12" cy="13" r="3.5" />
@@ -167,15 +141,7 @@ export function MathildaKopf({ modus, setModus, onScan, onText, onBriefkasten })
           <MathildaBild groesse={196} style={{ display: "block" }} />
         </div>
       </div>
-      <div className="mk-modi" role="tablist" aria-label="Was Mathilda tun soll">
-        {MODI.map((x) => (
-          <button key={x.id} type="button" role="tab" aria-selected={modus === x.id} data-aktiv={modus === x.id ? "1" : "0"}
-            className="mk-modus" onClick={() => setModus(x.id)}>
-            <ModusGlyph id={x.id} aktiv={modus === x.id} />
-            <div><b>{x.name}</b><span>{x.kurz}</span></div>
-          </button>
-        ))}
-      </div>
+      <MathildaZyklus scanRef={scanRef} modus={modus} setModus={setModus} weitere={MODI.filter((x) => x.id !== "blatt")} />
       {(onText || onBriefkasten) && (
         <div className="mk-duo">
           {onText && (
