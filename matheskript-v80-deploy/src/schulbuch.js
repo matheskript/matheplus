@@ -43,6 +43,7 @@ const FS_ANA = z("Formelsammlung · Analysis", "Ableiten, Integrieren, Kurvendis
 const FS_VEK = z("Formelsammlung · Vektoren", "Skalarprodukt, Ebenen, Abstände", { ansicht: "formeln", bereich: "vektoren" });
 const FS_STO = z("Formelsammlung · Stochastik", "Bayes, Binomialverteilung, Tests", { ansicht: "formeln", bereich: "stochastik" });
 const FS_KOPF = z("Formelsammlung · Kopfrechnen", "Rechentricks, Teilbarkeit, Brüche", { ansicht: "formeln", bereich: "kopfrechnen" });
+const E_AXIOME = z("Axiome – Lernmodul", "Zehn Phasen bis zu den ersten Beweisen", { ansicht: "entdecken", seite: "axiome" });
 const E_TEILER = z("Teilbarkeitsregeln entdecken", "Alle Regeln von 2 bis 9 selbst herleiten", { ansicht: "entdecken", seite: "teiler" });
 const E_PYTH = z("Satz des Pythagoras entdecken", "Entdecke, warum a² + b² = c² gilt", { ansicht: "entdecken", seite: "pythagoras" });
 const E_BINOM = z("Binomische Formeln entdecken", "Drei Formeln aus Flächen gebaut", { ansicht: "entdecken", seite: "binomisch" });
@@ -61,15 +62,15 @@ const OPERATOREN = z("Operatoren", "Was „bestimmen“, „zeigen“, „begrü
 export const THEMEN = {
   /* Unterstufe */
   natzahlen: { titel: "Natürliche Zahlen", zeile: "Stellenwert, Zahlenstrahl, runden, Teilbarkeit", hilfen: [w("stellenwert"), w("primzahlen"), HEAD, E_TEILER, FS_KOPF, FS_UNTER] },
-  rechnen: { titel: "Rechnen mit natürlichen Zahlen", zeile: "Schriftlich rechnen, Rechengesetze, Rechenvorteile", hilfen: [w("rechengesetze"), HEAD, WARMUP, FS_KOPF, FS_UNTER] },
+  rechnen: { titel: "Rechnen mit natürlichen Zahlen", zeile: "Schriftlich rechnen, Rechengesetze, Rechenvorteile", hilfen: [w("rechengesetze"), w("axiome"), HEAD, WARMUP, FS_KOPF, FS_UNTER] },
   groessen: { titel: "Größen und Messen", zeile: "Länge, Gewicht, Zeit, Geld, Maßstab", hilfen: [w("groessen"), FS_UNTER, WARMUP] },
   figuren: { titel: "Geometrische Figuren und Symmetrie", zeile: "Punkt, Strecke, Gerade, Koordinatensystem, Spiegeln", hilfen: [w("koordinaten"), FS_UNTER, FS_GEO] },
   flaechen: { titel: "Umfang und Flächeninhalt", zeile: "Rechteck, Quadrat, zusammengesetzte Figuren", hilfen: [w("flaechen"), FS_UNTER, FS_GEO, WARMUP] },
-  ganze: { titel: "Ganze Zahlen", zeile: "Negative Zahlen, Zahlengerade, Rechnen mit Vorzeichen", hilfen: [w("ganzezahlen"), WARMUP, HEAD, FS_UNTER] },
+  ganze: { titel: "Ganze Zahlen", zeile: "Negative Zahlen, Zahlengerade, Rechnen mit Vorzeichen", hilfen: [w("ganzezahlen"), w("zahlenraeume"), WARMUP, HEAD, FS_UNTER] },
   brueche: { titel: "Brüche und Anteile", zeile: "Bruchteile, kürzen, erweitern, vergleichen", hilfen: [w("bruchrechnen"), HEAD, WARMUP, FS_KOPF, FS_UNTER] },
   bruchrechnen: { titel: "Rechnen mit Brüchen", zeile: "Addieren, subtrahieren, multiplizieren, dividieren", hilfen: [w("bruchrechnen"), HEAD, WARMUP, FS_KOPF, FS_UNTER] },
   dezimal: { titel: "Dezimalzahlen", zeile: "Umwandeln, runden, schriftlich rechnen", hilfen: [w("dezimal"), HEAD, WARMUP, FS_UNTER] },
-  rational: { titel: "Rationale Zahlen", zeile: "Negative Brüche und Dezimalzahlen, alle vier Rechenarten", hilfen: [w("ganzezahlen"), w("bruchrechnen"), w("dezimal"), WARMUP, HEAD, FS_UNTER] },
+  rational: { titel: "Rationale Zahlen", zeile: "Negative Brüche und Dezimalzahlen, alle vier Rechenarten", hilfen: [w("ganzezahlen"), w("zahlenraeume"), w("bruchrechnen"), w("dezimal"), w("axiome"), WARMUP, HEAD, FS_UNTER] },
   winkelkreis: { titel: "Winkel und Kreis", zeile: "Winkel messen und zeichnen, Winkelarten, Kreisfiguren", hilfen: [w("winkelsaetze"), FS_UNTER, FS_GEO] },
   koerper: { titel: "Quader und Würfel", zeile: "Netze, Oberfläche, Rauminhalt", hilfen: [w("quader"), FS_UNTER, FS_GEO] },
   daten: { titel: "Daten und Diagramme", zeile: "Häufigkeiten, Mittelwert, Säulen- und Kreisdiagramm", hilfen: [w("diagramme"), FS_UNTER, WARMUP] },
@@ -79,11 +80,11 @@ export const THEMEN = {
   prozent: { titel: "Prozent- und Zinsrechnung", zeile: "Grundwert, Prozentsatz, Prozentwert, Zinsen", hilfen: [w("prozent"), WARMUP, HEAD, FS_UNTER] },
   zuordnungen: { titel: "Zuordnungen und Dreisatz", zeile: "Proportional, antiproportional, Graphen lesen", hilfen: [w("zuordnungen"), w("geradengleichung"), FS_UNTER, WARMUP] },
   linfkt: { titel: "Lineare Funktionen", zeile: "Steigung, y-Achsenabschnitt, Geradengleichung", hilfen: [w("geradengleichung"), w("gleichungen"), FS_FKT] },
-  termegl: { titel: "Terme und lineare Gleichungen", zeile: "Terme aufstellen, vereinfachen, Gleichungen umformen", hilfen: [w("bruchterme"), w("terme"), w("gleichungen"), FS_TERME] },
+  termegl: { titel: "Terme und lineare Gleichungen", zeile: "Terme aufstellen, vereinfachen, Gleichungen umformen", hilfen: [w("bruchterme"), w("terme"), w("gleichungen"), w("axiome"), E_AXIOME, FS_TERME] },
   dreiecke: { titel: "Winkel, Dreiecke und Kongruenz", zeile: "Winkelsätze, Dreiecke konstruieren, besondere Linien", hilfen: [w("winkelsaetze"), w("kongruenz"), w("konstruktion"), w("thales"), w("flaechen"), FS_GEO, FS_UNTER] },
   wkt1: { titel: "Zufall und Wahrscheinlichkeit", zeile: "Laplace-Experimente, Baumdiagramme, Pfadregeln", hilfen: [w("zufall"), w("kombinatorik"), w("vierfelder"), FS_STO] },
-  binom: { titel: "Terme mit Klammern und binomische Formeln", zeile: "Ausmultiplizieren, ausklammern, faktorisieren", hilfen: [w("terme"), E_BINOM, FS_TERME] },
-  wurzeln: { titel: "Quadratwurzeln und reelle Zahlen", zeile: "Wurzeln ziehen, teilweise Wurzeln, irrationale Zahlen", hilfen: [w("terme"), w("gleichungen"), HEAD, FS_TERME] },
+  binom: { titel: "Terme mit Klammern und binomische Formeln", zeile: "Ausmultiplizieren, ausklammern, faktorisieren", hilfen: [w("terme"), E_BINOM, w("axiome"), FS_TERME] },
+  wurzeln: { titel: "Quadratwurzeln und reelle Zahlen", zeile: "Wurzeln ziehen, teilweise Wurzeln, irrationale Zahlen", hilfen: [w("zahlenraeume"), w("terme"), w("gleichungen"), HEAD, FS_TERME] },
   bruchterme: { titel: "Bruchterme und Bruchgleichungen", zeile: "Kürzen, Hauptnenner, Definitionsmenge", hilfen: [w("terme"), w("gleichungen"), FS_TERME] },
   quad: { titel: "Quadratische Funktionen und Gleichungen", zeile: "Parabeln, Scheitelform, pq-Formel", hilfen: [w("parabeln"), w("gleichungen"), FS_FKT, FS_TERME] },
   lgs2: { titel: "Lineare Gleichungssysteme", zeile: "Zwei Gleichungen, zwei Variablen: Einsetzen, Gleichsetzen, Addieren", hilfen: [w("lgs"), w("gleichungen"), w("geradengleichung")] },

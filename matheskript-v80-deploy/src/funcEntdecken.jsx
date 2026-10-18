@@ -235,6 +235,17 @@ function WettbewerbKarte({ logo, titel, text, onClick }) {
   );
 }
 
+/* Kleiner Sprung aus dem Fundament-Block in die Werkzeuge (Üben, Aufbaukurs) */
+function FundamentLink({ titel, zeile, onClick }) {
+  return (
+    <button type="button" onClick={onClick}
+      style={{ textAlign: "left", fontFamily: "inherit", cursor: "pointer", border: `1.5px solid ${C.linie}`, background: C.sand, borderRadius: 12, padding: "10px 12px", minHeight: 64 }}>
+      <span style={{ display: "block", fontSize: 13.5, fontWeight: 700, color: C.see, lineHeight: 1.3 }}>{titel} →</span>
+      <span style={{ display: "block", fontSize: 12, fontWeight: 400, color: C.grau, lineHeight: 1.4, marginTop: 2 }}>{zeile}</span>
+    </button>
+  );
+}
+
 function ZurueckKnopf({ onClick }) {
   return (
     <button type="button" onClick={onClick}
@@ -299,11 +310,23 @@ function Uebersicht({ stand, oeffne }) {
         </p>
       </div>
 
+      <div style={{ marginTop: 28 }} data-fundament>
+        <p style={kickerStil}>Das Fundament – fang hier an</p>
+        <div style={{ borderRadius: 18, padding: 4, background: `linear-gradient(135deg, ${C.flaggold}, ${C.goldWarm})` }}>
+          <div style={{ borderRadius: 15, background: C.weiss, padding: "4px 0 10px" }}>
+            <LernangebotKarte nr={1} titel="Axiome" text="Das Fundament der Mathematik – und deine ersten Beweise" status={sA}
+              fortschritt={sA === "arbeit" ? `Phase ${phaseA} von ${AXIOM_PHASEN_ANZAHL}` : null} onClick={() => oeffne("axiome")} />
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, padding: "2px 12px 0" }}>
+              <FundamentLink titel="Axiome üben" zeile="Gesetze erkennen, Schritte begründen, Inverse finden" onClick={() => FR.gehe && FR.gehe({ ansicht: "axiome" })} />
+              <FundamentLink titel="Zahlenräume: ℕ, ℤ, ℚ, ℝ" zeile="Warum es negative Zahlen, Brüche und Wurzeln gibt" onClick={() => FR.gehe && FR.gehe({ ansicht: "zahlenraeume" })} />
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div style={{ marginTop: 28 }}>
-        <p style={kickerStil}>Deine Lernangebote</p>
+        <p style={kickerStil}>Weitere Lernangebote</p>
         <div style={{ display: "grid", gap: 12 }}>
-          <LernangebotKarte nr={1} titel="Axiome" text="Das Fundament der Mathematik – und deine ersten Beweise" status={sA}
-            fortschritt={sA === "arbeit" ? `Phase ${phaseA} von ${AXIOM_PHASEN_ANZAHL}` : null} onClick={() => oeffne("axiome")} />
           <LernangebotKarte nr={2} titel="Mathe entdecken" text="Wie entsteht mathematisches Denken?" status={sE}
             fortschritt={sE === "arbeit" ? `Video ${videoGesehen("haupt") ? "✓" : "–"} · ${nE} von ${REFLEX_IDS.length} Fragen` : null} onClick={() => oeffne("einstieg")} />
           <LernangebotKarte nr={3} titel="Pascalsches Dreieck" text="Entdecke die Potenzregel" status={sP}

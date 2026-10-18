@@ -88,6 +88,8 @@ const ORT = (() => {
 
 /* Zusatzwörter je Werkzeug: so spricht man über das Thema (Werkzeugnamen allein reichen nicht) */
 const WZ_WOERTER = {
+  axiome: "axiome axiom rechenregeln rechengesetze fundament grundlagen kommutativgesetz assoziativgesetz distributivgesetz neutrales element inverses element gegenzahl kehrwert ausklammern ausmultiplizieren verkleidete eins null spielregeln",
+  zahlenraeume: "zahlenräume zahlenraum zahlbereiche zahlbereich zahlenmengen natürliche zahlen ganze zahlen rationale zahlen reelle zahlen irrationale zahlen irrational wurzel 2 √2 abgeschlossen abgeschlossenheit widerspruchsbeweis ℕ ℤ ℚ ℝ zahlbereichserweiterung",
   prozent: "prozent prozentrechnung grundwert prozentwert prozentsatz rabatt mehrwertsteuer mwst zinsen zinseszins zinsrechnung skonto prozentstreifen",
   zuordnungen: "zuordnung zuordnungen proportional antiproportional dreisatz quotientengleich produktgleich proportionalität",
   flaechen: "fläche flächeninhalt umfang rechteck quadrat dreieck parallelogramm trapez drachen raute zusammengesetzte figur",

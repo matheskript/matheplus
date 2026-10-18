@@ -32,6 +32,11 @@ export const ETIKETTEN = {
 };
 
 export const WERKZEUGE = {
+  /* ---------- Fundament (für alle Stufen) ---------- */
+  axiome: { name: "Axiome und Rechenregeln", kurz: "Axiome", zeile: "Neun Spielregeln für Plus und Mal", slogan: "Das Fundament: Kommutativ-, Assoziativ- und Distributivgesetz, neutrale und inverse Elemente – erkennen, begründen, trainieren.",
+    zeichen: "a+0", bild: "axiome", ziel: { ansicht: "axiome" }, etikett: "trainieren", stufe: "beide", unter: true },
+  zahlenraeume: { name: "Zahlenräume: von ℕ bis ℝ", kurz: "Zahlenräume", zeile: "Natürlich, ganz, rational, reell", slogan: "Warum es negative Zahlen, Brüche und Wurzeln gibt: ℕ → ℤ → ℚ → ℝ mit Erkläranimationen und Widerspruchsbeweis.",
+    zeichen: "ℕℝ", bild: "zahlenraeume", ziel: { ansicht: "zahlenraeume" }, etikett: "entdecken", stufe: "beide", unter: true },
   /* ---------- Analysis ---------- */
   /* ---------- Geraden (Mittelstufe, Beispielkapitel: Basics, P & Q, P & m) ---------- */
   geradengleichung: { name: "Geraden", kurz: "Geraden", zeile: "Basics, P & Q, P & m", slogan: "Was eine Gerade ist und wie du y = m·x + c aus zwei Punkten oder aus Punkt und Steigung findest.",
@@ -166,6 +171,11 @@ export const WERKZEUGE = {
    „zeige“ = zusätzlich in der Startseiten-Liste/im Menü aufgeführt, gehört aber zu einer anderen Station
    (Kopfleiste, „Weiter“ und wo() bleiben bei der Heimat-Station). */
 export const BEREICHE = [
+  { id: "fundament", titel: "Fundament", uebersicht: null, text: "Zwei Stationen: Axiome und Rechenregeln, dann die Zahlenräume von ℕ bis ℝ.", fundament: true,
+    stationen: [
+      { id: "axiome", titel: "Axiome und Rechenregeln", zeile: "Die Spielregeln jeder Rechnung", werkzeuge: ["axiome"] },
+      { id: "zahlenraeume", titel: "Zahlenräume", zeile: "Von ℕ über ℤ und ℚ bis ℝ", werkzeuge: ["zahlenraeume"] },
+    ] },
   { id: "analysis", titel: "Analysis", uebersicht: "analysis", text: "Vier Stationen: Funktionen kennen, untersuchen, bestimmen, integrieren.",
     video: { name: "Videokurse Analysis", zeile: "Analysis 1–5 mit Videolektionen und Checks" },
     stationen: [

@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { C } from "./base1.jsx";
+import { FR } from "./funcRegistry.jsx";
 import { M } from "./func3.jsx";
 import { GrosserKnopf, KleinerLink, Rueck, karte } from "./ui2.jsx";
 import { Aufklapp, ModusLeiste, SchrittFolge } from "./ui3.jsx";
@@ -903,7 +904,9 @@ export function AxiomeModul({ onZurueck }) {
             <p style={{ fontSize: 14, fontWeight: 300, lineHeight: 1.65, margin: "0 0 6px", color: "#C9D6EE" }}>
               <T s="Aus zwei Rechenarten, ihren neutralen und inversen Elementen und dem Distributivgesetz hast du bewiesen: a · 0 = 0, dass es kein $\frac{1}{0}$ gibt und alle drei binomischen Formeln. Und du weißt jetzt, warum Kürzen, Erweitern und die quadratische Ergänzung funktionieren: Hinter allem steckt eine 1 oder eine 0." />
             </p>
-            <GrosserKnopf gold onClick={onZurueck}>Zurück zu Mathe entdecken</GrosserKnopf>
+            <GrosserKnopf gold onClick={() => FR.gehe && FR.gehe({ ansicht: "axiome" })}>Jetzt üben: Axiome und Rechenregeln</GrosserKnopf>
+            <GrosserKnopf ghost onClick={() => FR.gehe && FR.gehe({ ansicht: "zahlenraeume" })}>Aufbaukurs: Zahlenräume von ℕ bis ℝ →</GrosserKnopf>
+            <div style={{ textAlign: "center", marginTop: 8 }}><button type="button" onClick={onZurueck} style={{ fontFamily: "inherit", cursor: "pointer", background: "none", border: "none", color: "#C9D6EE", fontSize: 13.5, fontWeight: 600, padding: "8px 4px" }}>Zurück zu Mathe entdecken</button></div>
           </div>
         )}
 

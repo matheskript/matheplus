@@ -70,6 +70,9 @@ export const WZ_SEITEN = {
   wachstum: { titel: "Wachstum und Logarithmen", groesse: "clamp(24px, 7vw, 34px)", Komp: lazy(() => import("./funcWachstum.jsx"), "WachstumLogarithmen") },
   scharen: { titel: "Funktionsscharen", groesse: "clamp(24px, 7vw, 34px)", Komp: lazy(() => import("./funcScharen.jsx"), "Funktionsscharen") },
   gleichverstehen: { titel: "Gleichungen lösen", groesse: "clamp(26px, 7.6vw, 34px)", rund: true, Komp: lazy(() => import("./funcGleichModi.jsx"), "GleichungenVerstehen") },
+  /* Fundament */
+  axiome: { titel: "Axiome und Rechenregeln", groesse: "clamp(24px, 7vw, 34px)", Komp: lazy(() => import("./funcAxiomeWz.jsx"), "AxiomeRechenregeln") },
+  zahlenraeume: { titel: "Zahlenräume", groesse: "clamp(26px, 7.6vw, 34px)", Komp: lazy(() => import("./funcZahlenraeume.jsx"), "Zahlenraeume") },
   /* Unterstufe */
   prozent: { titel: "Prozent- und Zinsrechnung", groesse: "clamp(24px, 7vw, 34px)", Komp: lazy(() => import("./funcProzent.jsx"), "Prozentrechnung") },
   zuordnungen: { titel: "Zuordnungen und Dreisatz", groesse: "clamp(24px, 7vw, 34px)", Komp: lazy(() => import("./funcZuordnungen.jsx"), "Zuordnungen") },

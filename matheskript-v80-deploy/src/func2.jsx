@@ -660,17 +660,17 @@ const ZEIGE_GESPERRTE = false;
 
 /* Schulmathematik → Bereiche → Stationen → Werkzeuge. Die Daten stehen in werkzeuge.js (eine Liste für
    Startseite, Werkzeug-Menü, Kopfleiste und Übersichtsseiten); hier kommen nur die Logos dazu. */
-const BEREICH_LOGO = { analysis: <PlotterLogoKlein />, vektoren: <VektorenLogoKlein />, stochastik: <StochastikLogoKlein />, geometrie: <GeometrieLogoKlein />, bruchrechnen: <BruchrechnenLogoKlein />, zahlen: <ZahlenLogoKlein />, prozent: <ProzentLogoKlein />, daten: <DatenLogoKlein />, gleichungen: <GleichungenLogoKlein /> };
+const BEREICH_LOGO = { fundament: <ZeichenLogo zeichen="a+0" />, analysis: <PlotterLogoKlein />, vektoren: <VektorenLogoKlein />, stochastik: <StochastikLogoKlein />, geometrie: <GeometrieLogoKlein />, bruchrechnen: <BruchrechnenLogoKlein />, zahlen: <ZahlenLogoKlein />, prozent: <ProzentLogoKlein />, daten: <DatenLogoKlein />, gleichungen: <GleichungenLogoKlein /> };
 /* Liniennetz: jeder Bereich ist eine „Linie“ mit eigenem Strich, die Stationen sind ihre Halte */
-const LINIEN_MUSTER = { analysis: "4px solid", vektoren: "7px double", stochastik: "4px dashed", geometrie: "4px solid", bruchrechnen: "4px dashed", gleichungen: "4px dotted", zahlen: "4px solid", prozent: "7px double", daten: "4px dashed" };
+const LINIEN_MUSTER = { fundament: "4px solid", analysis: "4px solid", vektoren: "7px double", stochastik: "4px dashed", geometrie: "4px solid", bruchrechnen: "4px dashed", gleichungen: "4px dotted", zahlen: "4px solid", prozent: "7px double", daten: "4px dashed" };
 
 /* Kurztexte für die Bereichs-Kacheln: genau eine Zeile (ohne Stationsnamen) */
-const BEREICH_KURZ = { analysis: "Funktionen, Kurven, Integrale", vektoren: "Geraden, Ebenen, Abstände", stochastik: "Zählen, Zufall, Testen",
+const BEREICH_KURZ = { fundament: "Axiome und Zahlenräume – für alle", analysis: "Funktionen, Kurven, Integrale", vektoren: "Geraden, Ebenen, Abstände", stochastik: "Zählen, Zufall, Testen",
   geometrie: "Figuren, Winkel, Körper", bruchrechnen: "Brüche und Bruchterme", gleichungen: "Umformen und Lösen",
   zahlen: "Zahlen, Rechnen, Größen", prozent: "Zuordnungen und Prozent", daten: "Daten auswerten, Zufall" };
 
 const SCHUL_BEREICHE = BEREICHE.map((b) => ({
-  id: b.id, titel: b.titel, text: b.text, logo: BEREICH_LOGO[b.id], video: b.video, linie: LINIEN_MUSTER[b.id],
+  id: b.id, titel: b.titel, text: b.text, logo: BEREICH_LOGO[b.id], video: b.video, linie: LINIEN_MUSTER[b.id], fundament: !!b.fundament,
   stationen: b.stationen.map((st) => ({ ...st, werkzeuge: [...st.werkzeuge, ...(st.zeige || [])].map((id) => ({ id, ...WERKZEUGE[id] })) })),
 }));
 
@@ -904,6 +904,7 @@ function MiniBild({ art }) {
     terme: <>{txt(60, 23, "(a + b)²", "#fff", 14, "middle")}{txt(60, 43, "a² + 2ab + b²", g, 11, "middle")}</>,
     menge: <><circle cx="48" cy="28" r="18" {...linie} fill="rgba(255,255,255,0.06)" /><circle cx="72" cy="28" r="18" {...linie} fill="rgba(255,255,255,0.06)" /><path d="M60 14.6 A18 18 0 0 1 60 41.4 A18 18 0 0 1 60 14.6 Z" fill={g} opacity="0.8" />{txt(38, 32, "A", w, 10)}{txt(78, 32, "B", w, 10)}</>,
     axiome: <>{txt(60, 22, "a + b = b + a", "#fff", 12, "middle")}<path d="M30 32 H90" {...linie} strokeWidth="0.9" opacity="0.6" />{txt(60, 47, "∎", g, 13, "middle")}</>,
+    zahlenraeume: <>{[["R", 60, 30, 50, 22], ["Q", 52, 32, 36, 16], ["Z", 44, 34, 23, 11], ["N", 37, 35, 11, 6]].map(([k, cx, cy, rx, ry]) => <ellipse key={k} cx={cx} cy={cy} rx={rx} ry={ry} fill="none" stroke={k === "R" ? g : w} strokeWidth="1.1" opacity={k === "N" ? 1 : 0.75} />)}{txt(37, 38.5, "ℕ", "#fff", 8, "middle")}{txt(58, 30, "ℤ", "#fff", 8.5, "middle")}{txt(80, 30, "ℚ", "#fff", 9, "middle")}{txt(101, 30, "ℝ", g, 10, "middle")}</>,
     pascal: <>{[[60, 14, "1"], [50, 27, "1"], [70, 27, "1"], [40, 40, "1"], [60, 40, "2"], [80, 40, "1"], [30, 53, "1"], [50, 53, "3"], [70, 53, "3"], [90, 53, "1"]].map(([x, y, z], i) => <React.Fragment key={i}>{txt(x, y, z, z === "1" ? w : g, 11, "middle")}</React.Fragment>)}</>,
     pythagoras: <><path d="M44 44 H80 V20 Z" {...linie} fill="rgba(255,255,255,0.06)" /><rect x="44" y="44" width="36" height="10" fill={g} opacity="0.35" /><rect x="80" y="20" width="12" height="24" fill={g} opacity="0.6" /><path d="M74 44 V38 H80" {...linie} strokeWidth="1" />{txt(28, 24, "a²+b²=c²", "#fff", 10)}</>,
     prozent: <><rect x="14" y="20" width="92" height="16" rx="3" {...linie} /><rect x="14" y="20" width="23" height="16" rx="3" fill={g} opacity="0.75" />{txt(25, 50, "25 %", g, 10, "middle")}{txt(60, 14, "G = 100 %", "#fff", 9.5, "middle")}</>,
@@ -1621,7 +1622,7 @@ export function Startseite({ gehe }) {
             const text = stufe === "alle" ? (BEREICH_KURZ[b.id] || b.text) : ZAHL[koepfe.length] || `${koepfe.length} Stationen`;
             return (
               <AufklappRahmen key={b.id} auf={offen} innen rahmenRef={offen ? offenRahmen : undefined}>
-                <PlotterKachel kompakt breit haupt onClick={() => { setBereichAuf(offen ? null : b.id); setFormelAuf(false); }}
+                <PlotterKachel kompakt breit haupt goldRand={b.fundament} onClick={() => { setBereichAuf(offen ? null : b.id); setFormelAuf(false); }}
                   auf={offen} label={offen ? `${b.titel} zuklappen` : `${b.titel} aufklappen`}
                   logo={b.logo} titel={b.titel} text={text}
                   extra={<AufklappPfeil auf={offen} />} />

@@ -34,6 +34,8 @@ export const ZIEL_IDS = Object.keys(ZIELE);
    Schlüssel: "<bereich>.<station>". Stationen ohne Eintrag haben keine Rechen-
    generatoren; dort läuft das Trainieren im Werkzeug selbst (Etikett „trainieren“). */
 export const STATION_GENERATOREN = {
+  "fundament.axiome": [],
+  "fundament.zahlenraeume": [],
   "analysis.kennen": ["gl-quadrat"],
   "analysis.untersuchen": ["abl-potenz", "abl-kette", "abl-exp", "kur-wende", "kur-nachweis"],
   "analysis.bestimmen": ["kur-nachweis", "kur-wende"],
@@ -79,6 +81,8 @@ export const EINHEIT_GENERATOREN = {
    worum: zwei Sätze für den Einstieg · formel: Sprung in die Formelsammlung (id aus fsIndex)
    entdecken: zusätzliche Ansicht zum Ausprobieren (Werkzeug mit Etikett „entdecken“ oder Modul) */
 export const EINHEIT_TEXTE = {
+  axiome: { worum: "Alle Rechnungen beruhen auf neun Spielregeln für Plus und Mal: Kommutativ-, Assoziativ- und Distributivgesetz, neutrale Elemente 0 und 1, inverse Elemente −a und 1/a. Minus und Geteilt sind nur Plus und Mal mit dem Inversen.", aufgabe: "Benenne bei drei Umformungen das Axiom, das sie erlaubt, und löse x + 3 = 7 so, dass jeder Schritt ein Axiom ist." },
+  zahlenraeume: { worum: "ℕ ist abgeschlossen bezüglich + und ·. Die Subtraktion führt zu ℤ, die Division zu ℚ = {p/q | p ∈ ℤ, q ∈ ℕ}, die Gleichung x² = 2 zu ℝ. Es gilt ℕ ⊂ ℤ ⊂ ℚ ⊂ ℝ.", aufgabe: "Ordne fünf Zahlen ihrem kleinsten Zahlenraum zu und führe den Beweis, dass √2 irrational ist, in eigenen Worten." },
   geradengleichung: { worum: "Jede Gerade ist durch Steigung und y-Achsenabschnitt festgelegt. Aus zwei Punkten oder aus Punkt und Steigung baust du die Gleichung y = m·x + c.", aufgabe: "Stelle die Gerade durch zwei selbst gewählte Punkte auf und prüfe die Steigung mit dem Steigungsdreieck." },
   parabeln: { worum: "Scheitelform, Normalform und faktorisierte Form beschreiben dieselbe Parabel. Jede Form zeigt dir etwas anderes: Scheitel, y-Achsenabschnitt oder Nullstellen.", aufgabe: "Verschiebe den Scheitel mit den Reglern und beobachte, wie sich die Nullstellen bewegen. Lies dann aus der Scheitelform die Nullstellen ab." },
   sinus: { worum: "Die vier Parameter a, b, c und d strecken, stauchen und verschieben die Sinuskurve. Die Periode hängt nur von b ab.", aufgabe: "Stelle eine Sinuskurve mit Periode π und Amplitude 2 ein. Prüfe anschließend den Zielgraph in „Zusätzlich üben“." },
@@ -163,11 +167,11 @@ export const PFADE = {
   analysis: { name: "Analysis", zeile: "Funktionen kennen, untersuchen, bestimmen, integrieren", bereiche: ["analysis"], wochen: 8 },
   vektoren: { name: "Vektoren", zeile: "Rechnen, aufstellen, Lage und Abstand", bereiche: ["vektoren"], wochen: 4 },
   stochastik: { name: "Stochastik", zeile: "Zählen, Zufallsgrößen, testen", bereiche: ["stochastik"], wochen: 4 },
-  gleichungen: { name: "Terme und Gleichungen", zeile: "Umformen und lösen – die Grundlage für alles", bereiche: ["gleichungen"], wochen: 2 },
+  gleichungen: { name: "Terme und Gleichungen", zeile: "Fundament, umformen und lösen – die Grundlage für alles", bereiche: ["fundament", "gleichungen"], wochen: 3 },
   geometrie: { name: "Geometrie", zeile: "Winkel, Dreiecke, Pythagoras, Ähnlichkeit, Kreis und Körper – Mittelstufe", bereiche: ["geometrie"], wochen: 5 },
   bruchrechnen: { name: "Brüche und Dezimalzahlen", zeile: "Brüche, Dezimalzahlen, Bruchterme und Bruchgleichungen", bereiche: ["bruchrechnen"], wochen: 3 },
   grundlagen: { name: "Grundlagen Klasse 5–7", zeile: "Zahlen, Größen, Prozent, Daten und Zufall", bereiche: ["zahlen", "prozent", "daten"], wochen: 6 },
-  abitur: { name: "Abi komplett", zeile: "Alle Bereiche in Abi-Reihenfolge", bereiche: ["bruchrechnen", "gleichungen", "geometrie", "analysis", "vektoren", "stochastik"], wochen: 16 },
+  abitur: { name: "Abi komplett", zeile: "Alle Bereiche in Abi-Reihenfolge", bereiche: ["fundament", "bruchrechnen", "gleichungen", "geometrie", "analysis", "vektoren", "stochastik"], wochen: 16 },
 };
 export const PFAD_IDS = Object.keys(PFADE);
 

@@ -52,6 +52,8 @@ export const TOOL_SAETZE = {
   diagramme: { de: "Daten und Diagramme auswerten", en: "analyse data and charts" },
   primzahlen: { de: "Primzahlen, ggT und kgV finden", en: "find primes, gcd and lcm" },
   rechengesetze: { de: "Rechengesetze geschickt nutzen", en: "use the laws of arithmetic cleverly" },
+  axiome: { de: "die Axiome und Rechenregeln verstehen", en: "understand the axioms and rules of arithmetic" },
+  zahlenraeume: { de: "die Zahlenräume von ℕ bis ℝ verstehen", en: "understand the number spaces from ℕ to ℝ" },
   koordinaten: { de: "Koordinaten und Symmetrie üben", en: "practise coordinates and symmetry" },
   zufall: { de: "Wahrscheinlichkeiten berechnen", en: "calculate probabilities" },
   stellenwert: { de: "große Zahlen lesen und runden", en: "read and round large numbers" },
