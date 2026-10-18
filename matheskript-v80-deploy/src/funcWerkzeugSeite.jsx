@@ -62,6 +62,7 @@ export const WZ_SEITEN = {
   erwartungswert: { titel: "Erwartungswert und faire Spiele", groesse: "clamp(24px, 7vw, 34px)", Komp: lazy(() => import("./funcErwartung.jsx"), "ErwartungswertSpiele") },
   kombinatorik: { titel: "Urnen und Kombinatorik", groesse: "clamp(24px, 7vw, 34px)", Komp: lazy(() => import("./funcKombinatorik.jsx"), "UrnenKombinatorik") },
   hypothesentest: { titel: "Hypothesentests", groesse: "clamp(24px, 7vw, 34px)", Komp: lazy(() => import("./funcHypothesentest.jsx"), "Hypothesentests") },
+  normalverteilung: { titel: "Normalverteilung", groesse: "clamp(26px, 7.6vw, 34px)", Komp: lazy(() => import("./funcNormalverteilung.jsx"), "Normalverteilung") },
   stochastik: { titel: "Stochastik", groesse: "clamp(28px, 8vw, 34px)", Komp: lazy(() => import("./func17.jsx"), "StochastikZentrum") },
   sinus: { titel: "Sinusfunktion", groesse: "clamp(28px, 8vw, 34px)", Komp: lazy(() => import("./func21.jsx"), "Sinusfunktion") },
   steckbrief: { titel: "Steckbriefaufgaben", groesse: "clamp(26px, 7.6vw, 33px)", Komp: lazy(() => import("./funcSteckbrief.jsx"), "Steckbriefaufgaben") },

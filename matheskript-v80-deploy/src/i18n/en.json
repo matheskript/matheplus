@@ -11207,7 +11207,17 @@
   "Weitere Lernangebote": "More learning offers",
   "Axiome üben": "Practise the axioms",
   "Gesetze erkennen, Schritte begründen, Inverse finden": "Spot laws, justify steps, find inverses",
-  "Fundament, umformen und lösen – die Grundlage für alles": "Foundation, rearranging and solving – the basis of everything"
+  "Fundament, umformen und lösen – die Grundlage für alles": "Foundation, rearranging and solving – the basis of everything",
+  "Normal": "Normal",
+  "Glockenkurve, Φ, Sigma-Regeln": "Bell curve, Φ, sigma rules",
+  "Von der Binomialverteilung zur Glocke: μ und σ, Wahrscheinlichkeit als Fläche, Sigma-Regeln, rückwärts rechnen.": "From the binomial distribution to the bell: μ and σ, probability as area, sigma rules, working backwards.",
+  "Vier Stationen: zählen, Zufallsgrößen, testen, Normalverteilung.": "Four stations: counting, random variables, testing, normal distribution.",
+  "Stetige Zufallsgrößen und die Glocke": "Continuous random variables and the bell",
+  "Stetige Zufallsgrößen": "Continuous random variables",
+  "Gaußsche Glockenkurve": "Gaussian bell curve",
+  "Wert zu einer Wahrscheinlichkeit": "Value for a probability",
+  "Binomialverteilung annähern": "Approximating the binomial distribution",
+  "Winkel, Kongruenz, Strahlensätze": "Angles, congruence, intercept theorems"
  },
  "muster": [
   [

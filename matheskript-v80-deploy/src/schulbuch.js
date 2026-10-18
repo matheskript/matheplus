@@ -115,7 +115,7 @@ export const THEMEN = {
   ksAbstand: { titel: "Abstände und Winkel", zeile: "HNF, Abstand Punkt–Gerade, windschiefe Geraden, Schnittwinkel", hilfen: [w("abstaende"), w("winkel"), w("kreuzprodukt"), FS_VEK] },
   ksWkt: { titel: "Grundlagen der Wahrscheinlichkeitsrechnung", zeile: "Kombinatorik, bedingte Wahrscheinlichkeit, Bernoulli, Binomialverteilung", hilfen: [w("kombinatorik"), w("vierfelder"), w("erwartungswert"), w("bernoulli"), FS_STO] },
   ksTest: { titel: "Testen mit der Binomialverteilung", zeile: "Ein- und zweiseitiger Hypothesentest, Fehler 1. und 2. Art", hilfen: [w("hypothesentest"), w("bernoulli"), FS_STO] },
-  ksNormal: { titel: "Normalverteilung", zeile: "Glockenfunktion, Sigma-Regeln, stetige Zufallsgrößen", hilfen: [w("bernoulli"), FS_STO] },
+  ksNormal: { titel: "Normalverteilung", zeile: "Glockenfunktion, Sigma-Regeln, stetige Zufallsgrößen", hilfen: [w("normalverteilung"), w("bernoulli"), w("hypothesentest"), FS_STO] },
   ksAbi: { titel: "Abiturvorbereitung", zeile: "Ganze Aufgaben im Abi-Format, Operatoren, Prüfungsmodus", hilfen: [ABIKETTEN, ABISAETZE, PROBEABI, OPERATOREN, PRUEFUNG] },
 };
 

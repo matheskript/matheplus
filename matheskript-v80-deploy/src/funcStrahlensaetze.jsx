@@ -18,6 +18,7 @@ import { IchHaengeFest } from "./funcHilfe.jsx";
 import { Auswahl, GrosserKnopf, hilfeKontext, hinweis, karte, kicker, zw } from "./ui2.jsx";
 import { wahl } from "./rechnen2.js";
 import { Aufklapp, ModusLeiste, Seite, SchrittFolge, zt } from "./ui3.jsx";
+import { GeoAnimation } from "./funcGeoAnimationen.jsx";
 
 let zaehler = 0;
 const STRICH = "′";
@@ -150,6 +151,7 @@ function Entdecken() {
   const ob = (s) => `\\overline{${s}}`;
   return (
     <>
+      <GeoAnimation art="strahlen" offen />
       <div style={{ ...karte, marginTop: 16 }}>
         <p style={kicker}>{zw("Figur einstellen", "Set up the figure")}</p>
         <Auswahl optionen={[["v", zw("V-Figur", "V figure")], ["x", zw("X-Figur", "X figure")]]} wert={x ? "x" : "v"} setWert={(v) => setX(v === "x")} label={zw("Art der Figur", "Type of figure")} />

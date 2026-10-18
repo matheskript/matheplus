@@ -15,6 +15,7 @@ import { hilfeKontext, karte, kicker, zw } from "./ui2.jsx";
 import { Aufklapp, ModusLeiste, Seite, zt } from "./ui3.jsx";
 import { KREIS_ARTEN, kreisAufgabe } from "./geoMittel2.js";
 import { Merke, Regler, UebenRahmen, WertZeile, tolRund } from "./geoUi.jsx";
+import { GeoAnimation } from "./funcGeoAnimationen.jsx";
 
 let zaehler = 0;
 const z2 = (v) => zt(v, 2);
@@ -49,6 +50,7 @@ function Entdecken() {
   const u = 2 * PI * r, A = PI * r * r, anteil = alpha / 360;
   return (
     <>
+      <GeoAnimation art="kreis" offen />
       <div style={{ ...karte, marginTop: 16 }}>
         <p style={kicker}>{zw("Kreis einstellen", "Set up the circle")}</p>
         <div style={{ display: "grid", gap: 8 }}>

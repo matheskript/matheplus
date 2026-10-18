@@ -83,6 +83,21 @@ export const SKILLS = [
   { id: "lgs-einsetzen", name: "Gleichungssysteme lösen", gen: ["lgs-zwei"], voraus: ["gleichungen-umformen"] },
   { id: "sinus-periode", name: "Periode der Sinusfunktion", gen: ["sin-periode"], voraus: [] },
   { id: "wachstumsfaktor", name: "Exponentielles Wachstum", gen: ["wac-faktor"], voraus: ["prozentwert", "potenzgesetze"] },
+  /* Geometrie der Mittelstufe */
+  { id: "quader", name: "Volumen und Oberfläche des Quaders", gen: ["geo-quader"], voraus: [] },
+  { id: "winkelsumme", name: "Winkelsummen", gen: ["geo-winkel"], voraus: [] },
+  { id: "kongruenzsaetze", name: "Kongruenzsätze", gen: ["geo-kongruenz"], voraus: ["winkelsumme"] },
+  { id: "strahlensaetze", name: "Strahlensätze", gen: ["geo-strahlen"], voraus: ["bruch-addieren"] },
+  { id: "kreis", name: "Kreisumfang und Kreisfläche", gen: ["geo-kreis"], voraus: [] },
+  { id: "kreisteile", name: "Kreisbogen und Kreisausschnitt", gen: ["geo-sektor"], voraus: ["kreis"] },
+  { id: "prisma-zylinder", name: "Prisma und Zylinder", gen: ["geo-prisma"], voraus: ["kreis", "quader"] },
+  { id: "pyramide-kegel", name: "Pyramide und Kegel", gen: ["geo-pyramide"], voraus: ["prisma-zylinder"] },
+  { id: "kugel", name: "Kugel", gen: ["geo-kugel"], voraus: ["kreis"] },
+  /* Normalverteilung */
+  { id: "normal-standard", name: "Normalverteilung: P(X ≤ x)", gen: ["nv-kleiner"], voraus: [] },
+  { id: "normal-intervall", name: "Normalverteilung: Intervalle und Sigma-Regeln", gen: ["nv-zwischen"], voraus: ["normal-standard"] },
+  { id: "normal-quantil", name: "Normalverteilung rückwärts", gen: ["nv-quantil"], voraus: ["normal-standard"] },
+  { id: "normal-binom", name: "Binomialverteilung annähern", gen: ["nv-binom"], voraus: ["normal-standard", "bernoulli-genau"] },
 ];
 export const SKILL_IDS = SKILLS.map((s) => s.id);
 export const SKILL_INFO = Object.fromEntries(SKILLS.map((s) => [s.id, s]));

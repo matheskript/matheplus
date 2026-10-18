@@ -22,6 +22,7 @@ import {
 } from "./rechnen2.js";
 import { neueFlaechenAufgabe } from "./aufgaben2.js";
 import { binomTabelle, kumuliert, pAb, pBis } from "./hypo.js";
+import { KONTEXTE as NV_KONTEXTE, Phi, SIGMA_REGELN, TOL_P as NV_TOL_P, nvAufgabe, vert } from "./normal.js";
 
 /* ---------- Anzeige ---------- */
 const mi = (s) => String(s).replace(/-/g, "−");
@@ -58,6 +59,9 @@ export const THEMEN = {
   sinus:      { name: "Sinusfunktion", gruppe: "Analysis", grund: false, tools: [{ ansicht: "sinus", name: "Sinusfunktion" }] },
   wachstum:   { name: "Exponentielles Wachstum", gruppe: "Analysis", grund: false, tools: [{ ansicht: "wachstum", name: "Wachstum und Logarithmen" }] },
   wkt:        { name: "Wahrscheinlichkeit und Baumdiagramme", gruppe: "Stochastik", grund: false, tools: [{ ansicht: "vierfelder", name: "Vier-Felder-Tafel" }, { ansicht: "kombinatorik", name: "Urnen und Kombinatorik" }] },
+  kreiskoerper: { name: "Kreis und Körper", gruppe: "Geometrie", grund: false, tools: [{ ansicht: "kreis", name: "Kreis und Kreisteile" }, { ansicht: "koerper", name: "Körper" }, { ansicht: "quader", name: "Quader und Würfel" }] },
+  dreieckgeo: { name: "Winkel, Kongruenz, Strahlensätze", gruppe: "Geometrie", grund: false, tools: [{ ansicht: "winkelsaetze", name: "Winkel und Winkelsummen" }, { ansicht: "kongruenz", name: "Kongruenzsätze" }, { ansicht: "strahlensaetze", name: "Strahlensätze" }] },
+  normal:     { name: "Normalverteilung", gruppe: "Stochastik", grund: false, tools: [{ ansicht: "normalverteilung", name: "Normalverteilung" }] },
 };
 export const THEMA_IDS = Object.keys(THEMEN);
 
@@ -127,6 +131,36 @@ Object.assign(FEHLERTYPEN, {
                       tipp: "f(x) = a·sin(bx): Periode p = 2π/b. Großes b heißt kurze Periode." },
   wachstumsfaktor:  { name: "Linear statt exponentiell", thema: "wachstum", kurz: "Prozentuales Wachstum wird wie lineares Wachstum gerechnet.",
                       tipp: "Jedes Jahr mit q = 1 + p/100 multiplizieren: B(n) = B₀ · qⁿ." },
+  durchmesser:      { name: "Radius und Durchmesser", thema: "kreiskoerper", kurz: "Mit dem Durchmesser statt mit dem Radius gerechnet.",
+                      tipp: "Die Kreisformeln brauchen r. Ist der Durchmesser gegeben: r = d : 2." },
+  kreisformel:      { name: "Umfang und Fläche verwechselt", thema: "kreiskoerper", kurz: "Umfangs- und Flächenformel des Kreises werden verwechselt.",
+                      tipp: "Umfang u = 2πr ist eine Länge (r einfach), Fläche A = πr² (r im Quadrat)." },
+  kreisanteil:      { name: "Anteil am Vollkreis", thema: "kreiskoerper", kurz: "Bogen oder Kreisausschnitt nicht mit α : 360° berechnet.",
+                      tipp: "Ein Vollkreis hat 360°: Bogen b = 2πr · α : 360°, Ausschnitt A = πr² · α : 360°." },
+  oberflaeche:      { name: "Oberfläche unvollständig", thema: "kreiskoerper", kurz: "Bei der Oberfläche fehlen Flächen, oder Volumen und Oberfläche werden verwechselt.",
+                      tipp: "Zähle alle Flächen des Netzes: Quader 2(ab + ac + bc), Zylinder 2πr² + 2πrh." },
+  grundflaeche:     { name: "Grundfläche des Prismas", thema: "kreiskoerper", kurz: "Die Grundfläche wird falsch berechnet oder nicht mit der Höhe multipliziert.",
+                      tipp: "Prisma: V = G · h. Dreieck als Grundfläche: G = ½ · g · h_g." },
+  drittel:          { name: "Faktor ⅓ bei Spitzkörpern", thema: "kreiskoerper", kurz: "Bei Pyramide oder Kegel fehlt der Faktor 1/3.",
+                      tipp: "Spitze Körper: V = ⅓ · G · h – drei Pyramiden füllen ein Prisma mit gleicher Grundfläche und Höhe." },
+  kugelformel:      { name: "Kugelformeln", thema: "kreiskoerper", kurz: "Volumen- und Oberflächenformel der Kugel werden verwechselt.",
+                      tipp: "V = 4/3 · πr³ (Rauminhalt, r hoch 3), O = 4πr² (Fläche, r hoch 2)." },
+  winkelsumme:      { name: "Winkelsumme", thema: "dreieckgeo", kurz: "Mit der falschen Winkelsumme gerechnet.",
+                      tipp: "Dreieck 180°, Viereck 360°, n-Eck (n − 2) · 180°." },
+  kongruenzsatz:    { name: "Kongruenzsatz erkennen", thema: "dreieckgeo", kurz: "Die Lage des gegebenen Winkels (eingeschlossen oder gegenüber) wird nicht beachtet.",
+                      tipp: "SWS: Winkel zwischen den Seiten. WSW: Seite zwischen den Winkeln. SsW: Winkel gegenüber der größeren Seite." },
+  strahlverhaeltnis:{ name: "Strahlensatz: falsches Verhältnis", thema: "dreieckgeo", kurz: "Teilstrecke statt Strecke vom Zentrum benutzt oder Verhältnis umgedreht.",
+                      tipp: "Beim 2. Strahlensatz immer vom Zentrum S aus messen: A′B′ : AB = SA′ : SA." },
+  standardisieren:  { name: "Standardisieren", thema: "normal", kurz: "Der z-Wert wird falsch gebildet (Vorzeichen, σ² statt σ, μ vergessen).",
+                      tipp: "z = (x − μ) : σ – der Abstand zu μ in Vielfachen von σ. Rückwärts: x = μ + z · σ." },
+  gegenwkt:         { name: "Fläche links oder rechts?", thema: "normal", kurz: "Φ(z) für „mindestens“ benutzt oder 1 − Φ(z) für „höchstens“.",
+                      tipp: "Φ ist immer die Fläche links: P(X ≤ x) = Φ(z), P(X ≥ x) = 1 − Φ(z)." },
+  intervall:        { name: "Wahrscheinlichkeit für ein Intervall", thema: "normal", kurz: "Flächen addiert statt subtrahiert oder die Fläche außerhalb berechnet.",
+                      tipp: "P(a ≤ X ≤ b) = Φ(z_b) − Φ(z_a)." },
+  sigmaregel:       { name: "Sigma-Regeln", thema: "normal", kurz: "Die σ-Umgebung wird falsch erkannt.",
+                      tipp: "μ ± σ: 68,3 %, μ ± 2σ: 95,4 %, μ ± 3σ: 99,7 %." },
+  stetigkeit:       { name: "Stetigkeitskorrektur", thema: "normal", kurz: "Bei der Näherung der Binomialverteilung fehlt ± 0,5.",
+                      tipp: "P(X ≤ k) ≈ Φ((k + 0,5 − μ) : σ) – die ganze Säule über k zählt mit." },
 });
 export const FEHLER_IDS = Object.keys(FEHLERTYPEN);
 
@@ -804,6 +838,360 @@ reg({ id: "wac-faktor", thema: "wachstum", afb: 1, fuer: ["wachstumsfaktor"], ma
       erklaer: { frage: "Erkläre, wie du gerechnet hast.", kriterien: [K("faktor", "Den Wachstumsfaktor 1 + p/100 nennen", ["faktor", "1,\\d", "1\\.\\d", "q"], "Mit welcher Zahl wird jedes Jahr multipliziert?"), K("hoch", "Den Faktor n-mal multiplizieren (Potenz)", ["hoch", "\\^", "potenz", "mal multipli", "jedes jahr"], "Wie oft wird multipliziert?")] },
     });
   }
+} });
+
+/* ======================================================================
+   Geometrie der Mittelstufe: Kreis, Körper, Winkel, Kongruenz, Strahlensätze
+   (Rechnungen wie in geoMittel/geoMittel2; Ergebnisse auf zwei Nachkommastellen)
+   ====================================================================== */
+const PI = Math.PI;
+const d2 = (v) => dez(v, 2);
+reg({ id: "geo-kreis", thema: "kreiskoerper", afb: 1, fuer: ["durchmesser", "kreisformel"], mach() {
+  if (Math.random() < 0.5) {
+    const d = wahl([4, 6, 8, 10, 12, 14, 16, 18, 20]), r = d / 2, A = rund(PI * r * r, 2);
+    return bereinigen({
+      daten: { art: "flaeche", d },
+      text: `Ein runder Tisch hat den Durchmesser $d = ${d}$ dm. Wie groß ist die Tischfläche? Runde auf zwei Nachkommastellen.`,
+      typ: "zahl", wert: A, toleranz: 0.011, einheit: "dm²", eingabe: "Fläche in dm²", abstand: 0.05,
+      fehler: [{ wert: rund(PI * d * d, 2), typ: "durchmesser", text: `Die Formel $A = πr^2$ braucht den Radius. Mit $d$ statt $r$ wird die Fläche viermal zu groß: $r = ${d} : 2 = ${r}$.` },
+               { wert: rund(2 * PI * r, 2), typ: "kreisformel", text: "Das ist der Umfang $u = 2πr$. Für die Fläche wird $r$ quadriert: $A = πr^2$." },
+               { wert: rund(PI * d, 2), typ: "kreisformel", text: "$π · d$ ist der Umfang, nicht die Fläche." }],
+      hinweise: ["Ist der Radius oder der Durchmesser gegeben? Welche Größe braucht die Flächenformel?", "Kreisfläche: $A = π · r^2$ mit $r = \\frac{d}{2}$", `Rechne $r = ${r}$ und dann $π · ${r}^2$.`],
+      regeln: [{ name: "Kreisfläche" }],
+      loesung: [`$r = ${d} : 2 = ${r}$ dm`, `$A = π · ${r}^2 ≈ ${d2(A)}$ dm²`],
+      erklaer: { frage: "Erkläre, wie du die Fläche berechnet hast.", kriterien: [K("radius", "Zuerst den Radius bestimmen (Durchmesser halbieren)", ["radius", "halb", "durch 2", ": 2", "/\\s*2", "r\\s*="], "Welche Größe braucht die Formel, und wie bekommst du sie aus d?"), K("formel", "A = πr² nennen", ["π", "pi", "r²", "r\\^2", "quadrat"], "Welche Formel gehört zur Kreisfläche?")] },
+    });
+  }
+  const r = wahl([2, 3, 4, 5, 6, 7, 8, 9, 12, 15]), u = rund(2 * PI * r, 2);
+  return bereinigen({
+    daten: { art: "umfang", r },
+    text: `Ein kreisrundes Beet hat den Radius $r = ${r}$ m. Wie lang ist der Zaun um das Beet? Runde auf zwei Nachkommastellen.`,
+    typ: "zahl", wert: u, toleranz: 0.011, einheit: "m", eingabe: "Länge in m", abstand: 0.05,
+    fehler: [{ wert: rund(PI * r * r, 2), typ: "kreisformel", text: "Das ist die Fläche $πr^2$. Der Zaun ist der Umfang: $u = 2πr$." },
+             { wert: rund(PI * r, 2), typ: "durchmesser", text: "$π · r$ ist nur der halbe Umfang. Es gilt $u = π · d = 2πr$." }],
+    hinweise: ["Ist eine Länge oder eine Fläche gesucht?", "Kreisumfang: $u = 2 · π · r$", `Rechne $2 · π · ${r}$.`],
+    regeln: [{ name: "Kreisumfang" }],
+    loesung: [`$u = 2 · π · ${r} ≈ ${d2(u)}$ m`],
+    erklaer: { frage: "Erkläre, welche Formel du gewählt hast und warum.", kriterien: [K("umfang", "Den Umfang als gesuchte Größe nennen", ["umfang", "länge", "rand", "zaun"], "Ist eine Länge oder eine Fläche gesucht?"), K("formel", "u = 2πr nennen", ["2\\s*[·*]?\\s*π", "2pi", "π\\s*[·*]?\\s*d", "2 mal"], "Welche Formel gehört zum Umfang?")] },
+  });
+} });
+reg({ id: "geo-sektor", thema: "kreiskoerper", afb: 2, fuer: ["kreisanteil"], mach() {
+  const r = wahl([3, 4, 5, 6, 8, 10, 12]), al = wahl([30, 45, 60, 72, 120, 135, 150, 210, 240, 270]);
+  const bogen = Math.random() < 0.5;
+  const voll = bogen ? 2 * PI * r : PI * r * r, w = rund((voll * al) / 360, 2);
+  return bereinigen({
+    daten: { r, al, bogen },
+    text: `Ein Kreis hat den Radius $r = ${r}$ cm. Berechne ${bogen ? "die Länge des Kreisbogens" : "den Flächeninhalt des Kreisausschnitts"} zum Mittelpunktswinkel $α = ${al}°$. Runde auf zwei Nachkommastellen.`,
+    typ: "zahl", wert: w, toleranz: 0.011, einheit: bogen ? "cm" : "cm²", eingabe: bogen ? "Länge in cm" : "Fläche in cm²", abstand: 0.05,
+    fehler: [{ wert: rund((voll * al) / 180, 2), typ: "kreisanteil", text: "Ein Vollkreis hat 360°, nicht 180°. Der Anteil ist $\\frac{α}{360°}$." },
+             { wert: rund(voll, 2), typ: "kreisanteil", text: `Das ist der ganze Kreis. Gesucht ist nur der Anteil $\\frac{${al}°}{360°}$ davon.` },
+             { wert: rund(((bogen ? PI * r * r : 2 * PI * r) * al) / 360, 2), typ: "kreisformel", text: bogen ? "Du hast den Anteil der Fläche berechnet. Der Bogen ist ein Teil des Umfangs $2πr$." : "Du hast den Anteil des Umfangs berechnet. Der Ausschnitt ist ein Teil der Fläche $πr^2$." }],
+    hinweise: ["Welcher Anteil des ganzen Kreises ist gemeint?", bogen ? "$b = 2πr · \\frac{α}{360°}$" : "$A_S = πr^2 · \\frac{α}{360°}$", `Der Anteil ist $\\frac{${al}}{360}$. Berechne erst ${bogen ? "den Umfang" : "die Kreisfläche"}.`],
+    regeln: [{ name: bogen ? "Kreisbogen" : "Kreisausschnitt" }],
+    loesung: [bogen ? `$u = 2π · ${r} ≈ ${d2(voll)}$ cm` : `$A = π · ${r}^2 ≈ ${d2(voll)}$ cm²`, `${bogen ? "$b" : "$A_S"} = ${d2(voll)} · \\frac{${al}}{360} ≈ ${d2(w)}$ ${bogen ? "cm" : "cm²"}`],
+    erklaer: { frage: "Erkläre, wie du den Kreisteil berechnet hast.", kriterien: [K("ganz", "Zuerst den ganzen Kreis (Umfang bzw. Fläche) nennen", ["umfang", "fläche", "ganz", "vollkreis", "2πr", "πr"], "Wovon ist der Kreisteil ein Anteil?"), K("anteil", "Den Anteil α : 360° nennen", ["360", "anteil", "bruchteil"], "Welcher Bruchteil des Vollkreises ist es?")] },
+  });
+} });
+reg({ id: "geo-quader", thema: "kreiskoerper", afb: 1, fuer: ["oberflaeche"], mach() {
+  for (;;) {
+    const a = zz(2, 9), b = zz(2, 9), c = zz(2, 9);
+    if (a === b && b === c) continue;
+    const ober = Math.random() < 0.5;
+    const O = 2 * (a * b + a * c + b * c), V = a * b * c;
+    if (!ober) return bereinigen({
+      daten: { a, b, c, ober },
+      text: `Ein Quader ist $${a}$ cm lang, $${b}$ cm breit und $${c}$ cm hoch. Wie groß ist sein Volumen?`,
+      typ: "zahl", wert: V, toleranz: 1e-9, einheit: "cm³", eingabe: "Volumen in cm³",
+      fehler: [{ wert: O, typ: "oberflaeche", text: "Das ist die Oberfläche. Das Volumen ist Länge · Breite · Höhe." },
+               { wert: a + b + c, typ: "oberflaeche", text: "Die Kanten werden für das Volumen multipliziert, nicht addiert." }],
+      hinweise: ["Wie viele Einheitswürfel passen hinein?", "$V = a · b · c$", `Rechne $${a} · ${b} · ${c}$.`],
+      regeln: [{ name: "Volumen des Quaders" }],
+      loesung: [`$V = ${a} · ${b} · ${c} = ${V}$ cm³`],
+      erklaer: { frage: "Erkläre, wie du das Volumen bestimmt hast.", kriterien: [K("mal", "Alle drei Kanten multiplizieren", ["mal", "·", "\\*", "multipli", "produkt"], "Wie hängen die drei Kantenlängen mit dem Volumen zusammen?")] },
+    });
+    return bereinigen({
+      daten: { a, b, c, ober },
+      text: `Ein Quader ist $${a}$ cm lang, $${b}$ cm breit und $${c}$ cm hoch. Wie groß ist seine Oberfläche?`,
+      typ: "zahl", wert: O, toleranz: 1e-9, einheit: "cm²", eingabe: "Fläche in cm²",
+      fehler: [{ wert: O / 2, typ: "oberflaeche", text: "Jede Fläche kommt zweimal vor (gegenüberliegende Seiten): $O = 2 · (ab + ac + bc)$." },
+               { wert: V, typ: "oberflaeche", text: "Das ist das Volumen. Für die Oberfläche addierst du die Flächen des Netzes." }],
+      hinweise: ["Aus welchen Rechtecken besteht das Netz des Quaders?", "$O = 2 · (a · b + a · c + b · c)$", `Rechne $2 · (${a * b} + ${a * c} + ${b * c})$.`],
+      regeln: [{ name: "Oberfläche des Quaders" }],
+      loesung: [`$O = 2 · (${a * b} + ${a * c} + ${b * c}) = 2 · ${O / 2} = ${O}$ cm²`],
+      erklaer: { frage: "Erkläre, wie du die Oberfläche bestimmt hast.", kriterien: [K("flaechen", "Die Rechtecke des Netzes nennen", ["rechteck", "fläche", "netz", "seiten"], "Aus welchen Flächen besteht die Oberfläche?"), K("doppelt", "Jede Fläche zweimal zählen", ["2", "zwei", "doppelt", "gegenüber"], "Wie oft kommt jedes Rechteck vor?")] },
+    });
+  }
+} });
+reg({ id: "geo-prisma", thema: "kreiskoerper", afb: 2, fuer: ["durchmesser", "oberflaeche", "grundflaeche"], mach() {
+  const v = wahl(["zylV", "zylO", "dreiV"]);
+  if (v === "zylV") {
+    const d = wahl([4, 6, 8, 10, 12]), h = zz(3, 15), r = d / 2, V = rund(PI * r * r * h, 2);
+    return bereinigen({
+      daten: { v, d, h },
+      text: `Eine zylinderförmige Dose hat den Durchmesser $d = ${d}$ cm und die Höhe $h = ${h}$ cm. Wie groß ist ihr Volumen? Runde auf zwei Nachkommastellen.`,
+      typ: "zahl", wert: V, toleranz: 0.011, einheit: "cm³", eingabe: "Volumen in cm³", abstand: 0.05,
+      fehler: [{ wert: rund(PI * d * d * h, 2), typ: "durchmesser", text: `Die Grundfläche $πr^2$ braucht den Radius $r = ${r}$ cm, nicht den Durchmesser.` },
+               { wert: rund(2 * PI * r * h, 2), typ: "oberflaeche", text: "Das ist die Mantelfläche $2πrh$. Das Volumen ist Grundfläche mal Höhe: $V = πr^2 h$." }],
+      hinweise: ["Wie sieht die Grundfläche aus, und welche Größe braucht ihre Formel?", "Prisma und Zylinder: $V = G · h$, beim Zylinder $G = πr^2$", `$r = ${r}$, also $V = π · ${r}^2 · ${h}$.`],
+      regeln: [{ name: "Volumen des Zylinders" }],
+      loesung: [`$r = ${d} : 2 = ${r}$ cm`, `$V = π · ${r}^2 · ${h} ≈ ${d2(V)}$ cm³`],
+      erklaer: { frage: "Erkläre, wie du das Volumen berechnet hast.", kriterien: [K("grund", "Grundfläche mal Höhe nennen", ["grundfläche", "g\\s*[·*]\\s*h", "mal höhe", "mal h"], "Wie berechnet man das Volumen jedes Prismas?"), K("radius", "Den Radius aus dem Durchmesser bestimmen", ["radius", "halb", "durch 2", ": 2", "r\\s*="], "Welche Größe braucht die Kreisfläche?")] },
+    });
+  }
+  if (v === "zylO") {
+    const r = zz(2, 8), h = zz(3, 15), O = rund(2 * PI * r * r + 2 * PI * r * h, 2);
+    return bereinigen({
+      daten: { v, r, h },
+      text: `Ein Zylinder hat den Radius $r = ${r}$ cm und die Höhe $h = ${h}$ cm. Berechne seine Oberfläche. Runde auf zwei Nachkommastellen.`,
+      typ: "zahl", wert: O, toleranz: 0.011, einheit: "cm²", eingabe: "Fläche in cm²", abstand: 0.05,
+      fehler: [{ wert: rund(PI * r * r + 2 * PI * r * h, 2), typ: "oberflaeche", text: "Ein Zylinder hat zwei Kreisflächen – Boden und Deckel." },
+               { wert: rund(2 * PI * r * h, 2), typ: "oberflaeche", text: "Das ist nur der Mantel. Boden und Deckel fehlen noch." },
+               { wert: rund(PI * r * r * h, 2), typ: "oberflaeche", text: "Das ist das Volumen, keine Fläche." }],
+      hinweise: ["Aus welchen Flächen besteht das Netz eines Zylinders?", "$O = 2 · πr^2 + 2πr · h$ (zwei Kreise und ein Rechteck als Mantel)", `Rechne $2 · π · ${r}^2 + 2 · π · ${r} · ${h}$.`],
+      regeln: [{ name: "Oberfläche des Zylinders" }],
+      loesung: [`$O = 2π · ${r}^2 + 2π · ${r} · ${h} ≈ ${d2(O)}$ cm²`],
+      erklaer: { frage: "Erkläre, aus welchen Teilen die Oberfläche besteht.", kriterien: [K("kreise", "Zwei Kreisflächen nennen", ["zwei kreis", "2 kreis", "boden", "deckel", "2\\s*[·*]?\\s*π\\s*r²", "2πr²"], "Welche Flächen schließen den Zylinder oben und unten ab?"), K("mantel", "Den Mantel als Rechteck 2πr · h nennen", ["mantel", "rechteck", "2πrh", "2\\s*π\\s*r\\s*h"], "Wie sieht der abgerollte Mantel aus?")] },
+    });
+  }
+  const g = zz(3, 10), hg = zz(2, 9), h = zz(4, 15), G = (g * hg) / 2, V = G * h;
+  return bereinigen({
+    daten: { v, g, hg, h },
+    text: `Die Grundfläche eines Prismas ist ein Dreieck mit der Grundseite $g = ${g}$ cm und der Höhe $h_g = ${hg}$ cm. Das Prisma ist $h = ${h}$ cm hoch. Berechne das Volumen.`,
+    typ: "zahl", wert: V, toleranz: 1e-6, einheit: "cm³", eingabe: "Volumen in cm³",
+    fehler: [{ wert: g * hg * h, typ: "grundflaeche", text: "Die Dreiecksfläche ist $\\frac{1}{2} · g · h_g$ – der Faktor $\\frac{1}{2}$ fehlt." },
+             { wert: G, typ: "grundflaeche", text: "Das ist erst die Grundfläche. Multipliziere noch mit der Körperhöhe." }],
+    hinweise: ["Wie groß ist die Grundfläche, und wie kommst du von ihr zum Volumen?", "$V = G · h$ mit $G = \\frac{1}{2} · g · h_g$", `$G = \\frac{1}{2} · ${g} · ${hg} = ${dez(G, 2)}$ cm²`],
+    regeln: [{ name: "Volumen des Prismas" }],
+    loesung: [`$G = \\frac{1}{2} · ${g} · ${hg} = ${dez(G, 2)}$ cm²`, `$V = ${dez(G, 2)} · ${h} = ${dez(V, 2)}$ cm³`],
+    erklaer: { frage: "Erkläre, wie du das Volumen berechnet hast.", kriterien: [K("grund", "Grundfläche mal Höhe nennen", ["grundfläche", "g\\s*[·*]\\s*h", "mal höhe", "mal h"], "Wie berechnet man das Volumen jedes Prismas?"), K("dreieck", "Die Dreiecksfläche mit dem Faktor ½ berechnen", ["1/2", "½", "halb", "durch 2", ": 2"], "Wie berechnet man die Fläche eines Dreiecks?")] },
+  });
+} });
+reg({ id: "geo-pyramide", thema: "kreiskoerper", afb: 2, fuer: ["drittel", "durchmesser"], mach() {
+  if (Math.random() < 0.5) {
+    const a = zz(2, 12), h = zz(3, 15), V = (a * a * h) / 3;
+    return bereinigen({
+      daten: { art: "pyramide", a, h },
+      text: `Eine quadratische Pyramide hat die Grundkante $a = ${a}$ cm und die Höhe $h = ${h}$ cm. Berechne ihr Volumen. Runde auf zwei Nachkommastellen.`,
+      typ: "zahl", wert: rund(V, 2), toleranz: 0.011, einheit: "cm³", eingabe: "Volumen in cm³", abstand: 0.05,
+      fehler: [{ wert: a * a * h, typ: "drittel", text: "Das ist das Volumen des Quaders mit gleicher Grundfläche und Höhe. Eine Pyramide füllt nur ein Drittel davon: $V = \\frac{1}{3} · G · h$." },
+               { wert: rund((a * a * h) / 2, 2), typ: "drittel", text: "Bei Spitzkörpern ist der Faktor $\\frac{1}{3}$, nicht $\\frac{1}{2}$." }],
+      hinweise: ["Wie viel Platz nimmt eine Pyramide im Vergleich zum Prisma mit gleicher Grundfläche und Höhe ein?", "$V = \\frac{1}{3} · G · h$ mit $G = a^2$", `Rechne $\\frac{1}{3} · ${a * a} · ${h}$.`],
+      regeln: [{ name: "Volumen der Pyramide" }],
+      loesung: [`$G = ${a}^2 = ${a * a}$ cm²`, `$V = \\frac{1}{3} · ${a * a} · ${h} ≈ ${d2(V)}$ cm³`],
+      erklaer: { frage: "Erkläre die Formel für das Pyramidenvolumen.", kriterien: [K("drittel", "Den Faktor 1/3 nennen", ["1/3", "⅓", "drittel", ": 3", "durch 3"], "Welcher Faktor steht vor G · h?"), K("grund", "Grundfläche a² nennen", ["a²", "a\\^2", "grundfläche", "quadrat"], "Wie groß ist die quadratische Grundfläche?")] },
+    });
+  }
+  const r = zz(2, 9), h = zz(3, 15), V = (PI * r * r * h) / 3;
+  return bereinigen({
+    daten: { art: "kegel", r, h },
+    text: `Ein Kegel hat den Radius $r = ${r}$ cm und die Höhe $h = ${h}$ cm. Berechne sein Volumen. Runde auf zwei Nachkommastellen.`,
+    typ: "zahl", wert: rund(V, 2), toleranz: 0.011, einheit: "cm³", eingabe: "Volumen in cm³", abstand: 0.05,
+    fehler: [{ wert: rund(PI * r * r * h, 2), typ: "drittel", text: "Das ist das Volumen des Zylinders. Der Kegel füllt nur ein Drittel davon." },
+             { wert: rund((PI * 4 * r * r * h) / 3, 2), typ: "durchmesser", text: "In die Formel gehört der Radius, nicht der Durchmesser." }],
+    hinweise: ["Mit welchem Körper kannst du den Kegel vergleichen?", "$V = \\frac{1}{3} · πr^2 · h$", `Rechne $\\frac{1}{3} · π · ${r}^2 · ${h}$.`],
+    regeln: [{ name: "Volumen des Kegels" }],
+    loesung: [`$V = \\frac{1}{3} · π · ${r}^2 · ${h} ≈ ${d2(V)}$ cm³`],
+    erklaer: { frage: "Erkläre die Formel für das Kegelvolumen.", kriterien: [K("drittel", "Den Faktor 1/3 nennen", ["1/3", "⅓", "drittel", ": 3", "durch 3"], "Welcher Faktor steht vor G · h?"), K("kreis", "Die Kreisfläche πr² als Grundfläche nennen", ["πr", "π\\s*[·*]?\\s*r", "kreis", "grundfläche"], "Wie groß ist die Grundfläche?")] },
+  });
+} });
+reg({ id: "geo-kugel", thema: "kreiskoerper", afb: 2, fuer: ["kugelformel"], mach() {
+  const r = zz(2, 12), vol = Math.random() < 0.5;
+  const V = (4 / 3) * PI * r ** 3, O = 4 * PI * r * r;
+  if (vol) return bereinigen({
+    daten: { r, vol },
+    text: `Eine Kugel hat den Radius $r = ${r}$ cm. Berechne ihr Volumen. Runde auf zwei Nachkommastellen.`,
+    typ: "zahl", wert: rund(V, 2), toleranz: 0.011, einheit: "cm³", eingabe: "Volumen in cm³", abstand: 0.05,
+    fehler: [{ wert: rund(O, 2), typ: "kugelformel", text: "Das ist die Oberfläche $4πr^2$. Fürs Volumen steht $r$ hoch 3: $V = \\frac{4}{3}πr^3$." },
+             { wert: rund((4 / 3) * PI * r * r, 2), typ: "kugelformel", text: "Ein Volumen hat die Einheit cm³ – deshalb $r^3$, nicht $r^2$." },
+             { wert: rund(PI * r ** 3, 2), typ: "kugelformel", text: "Der Faktor $\\frac{4}{3}$ fehlt." }],
+    hinweise: ["Ein Rauminhalt hat drei Dimensionen. Welche Potenz von r gehört dazu?", "$V = \\frac{4}{3} · π · r^3$", `Rechne $\\frac{4}{3} · π · ${r}^3 = \\frac{4}{3} · π · ${r ** 3}$.`],
+    regeln: [{ name: "Volumen der Kugel" }],
+    loesung: [`$V = \\frac{4}{3} · π · ${r}^3 ≈ ${d2(V)}$ cm³`],
+    erklaer: { frage: "Erkläre, warum in der Volumenformel r³ steht.", kriterien: [K("hoch3", "r hoch 3 nennen", ["r³", "r\\^3", "hoch 3", "hoch drei", "kubik"], "Welche Potenz von r gehört zum Volumen?"), K("faktor", "Den Faktor 4/3 π nennen", ["4/3", "4 drittel", "vier drittel"], "Welcher Faktor steht davor?")] },
+  });
+  return bereinigen({
+    daten: { r, vol },
+    text: `Eine Kugel hat den Radius $r = ${r}$ cm. Berechne ihre Oberfläche. Runde auf zwei Nachkommastellen.`,
+    typ: "zahl", wert: rund(O, 2), toleranz: 0.011, einheit: "cm²", eingabe: "Fläche in cm²", abstand: 0.05,
+    fehler: [{ wert: rund(V, 2), typ: "kugelformel", text: "Das ist das Volumen. Die Oberfläche ist eine Fläche: $O = 4πr^2$." },
+             { wert: rund(PI * r * r, 2), typ: "kugelformel", text: "$πr^2$ ist nur ein Großkreis. Die Kugeloberfläche ist viermal so groß." }],
+    hinweise: ["Eine Fläche hat zwei Dimensionen. Welche Potenz von r gehört dazu?", "$O = 4 · π · r^2$", `Rechne $4 · π · ${r * r}$.`],
+    regeln: [{ name: "Oberfläche der Kugel" }],
+    loesung: [`$O = 4 · π · ${r}^2 ≈ ${d2(O)}$ cm²`],
+    erklaer: { frage: "Erkläre die Formel für die Kugeloberfläche.", kriterien: [K("hoch2", "r² nennen", ["r²", "r\\^2", "quadrat", "hoch 2"], "Welche Potenz von r gehört zur Fläche?"), K("vier", "Den Faktor 4π nennen", ["4π", "4\\s*[·*]?\\s*π", "vier", "4 kreis"], "Wie viele Großkreise passen auf die Kugel?")] },
+  });
+} });
+reg({ id: "geo-winkel", thema: "dreieckgeo", afb: 1, fuer: ["winkelsumme"], mach() {
+  if (Math.random() < 0.5) {
+    for (;;) {
+      const al = zz(20, 110), be = zz(15, 120), ga = 180 - al - be;
+      if (ga < 10) continue;
+      return bereinigen({
+        daten: { art: "dreieck", al, be },
+        text: `In einem Dreieck ist $α = ${al}°$ und $β = ${be}°$. Wie groß ist $γ$?`,
+        typ: "zahl", wert: ga, toleranz: 1e-9, einheit: "°", eingabe: "Winkel in Grad",
+        fehler: [{ wert: 360 - al - be, typ: "winkelsumme", text: "Die Winkelsumme im Dreieck ist 180°, nicht 360° (das gilt im Viereck)." },
+                 { wert: al + be, typ: "winkelsumme", text: "Du hast α und β addiert. γ ist das, was zu 180° noch fehlt." }],
+        hinweise: ["Was weißt du über die Summe der drei Innenwinkel?", "$α + β + γ = 180°$", `Rechne $180° - ${al}° - ${be}°$.`],
+        regeln: [{ name: "Winkelsumme im Dreieck" }],
+        loesung: [`$γ = 180° - ${al}° - ${be}° = ${ga}°$`],
+        erklaer: { frage: "Erkläre, wie du γ bestimmt hast.", kriterien: [K("summe", "Die Winkelsumme 180° nennen", ["180", "winkelsumme", "summe"], "Wie groß sind die drei Winkel zusammen?")] },
+      });
+    }
+  }
+  const n = wahl([5, 6, 8, 9, 10, 12]), S = (n - 2) * 180, w = S / n;
+  return bereinigen({
+    daten: { art: "neck", n },
+    text: `Wie groß ist jeder Innenwinkel in einem regelmäßigen ${n}-Eck?`,
+    typ: "zahl", wert: w, toleranz: 1e-9, einheit: "°", eingabe: "Winkel in Grad",
+    fehler: [{ wert: 180, typ: "winkelsumme", text: "Ein n-Eck lässt sich in n − 2 Dreiecke zerlegen. Seine Winkelsumme ist (n − 2) · 180°, verteilt auf n Winkel." },
+             { wert: S, typ: "winkelsumme", text: `Das ist die Winkelsumme aller ${n} Winkel. Teile noch durch ${n}.` },
+             { wert: 360 / n, typ: "winkelsumme", text: "360° : n ist der Mittelpunktswinkel, nicht der Innenwinkel." }],
+    hinweise: ["In wie viele Dreiecke kannst du das Vieleck von einer Ecke aus zerlegen?", "Winkelsumme im n-Eck: $(n - 2) · 180°$", `$(${n} - 2) · 180° = ${S}°$, verteilt auf ${n} gleiche Winkel.`],
+    regeln: [{ name: "Winkelsumme im n-Eck" }],
+    loesung: [`$S = (${n} - 2) · 180° = ${S}°$`, `$${S}° : ${n} = ${dez(w, 2)}°$`],
+    erklaer: { frage: "Erkläre, wie du den Innenwinkel bestimmt hast.", kriterien: [K("summe", "Winkelsumme (n − 2) · 180° nennen", ["n\\s*-\\s*2", "dreiecke", "\\(n−2\\)", "winkelsumme"], "Wie groß ist die Winkelsumme im n-Eck?"), K("teilen", "Durch die Anzahl der Ecken teilen", ["teil", "durch", ":", "/", "gleich"], "Wie verteilt sich die Summe auf die Winkel?")] },
+  });
+} });
+reg({ id: "geo-kongruenz", thema: "dreieckgeo", afb: 1, fuer: ["kongruenzsatz"], mach() {
+  const OPT = ["SSS", "SWS", "WSW", "SsW", "nicht eindeutig"];
+  const fall = wahl(["sss", "sws", "wsw", "ssw", "sswKlein", "www"]);
+  let text, richtig, f = {};
+  if (fall === "sss") { const [a, b, c] = mischen([4, 5, 7]); text = `$a = ${a}$ cm, $b = ${b}$ cm, $c = ${c}$ cm`; richtig = 0; }
+  if (fall === "sws") { const al = wahl([40, 55, 70]); text = `$b = 5$ cm, $c = 7$ cm, $α = ${al}°$`; richtig = 1; f = { 3: "α liegt zwischen den Seiten b und c (eingeschlossen) – das ist SWS." }; }
+  if (fall === "wsw") { const al = wahl([35, 50]), be = wahl([60, 70]); text = `$c = 6$ cm, $α = ${al}°$, $β = ${be}°$`; richtig = 2; f = { 1: "Gegeben sind zwei Winkel und die Seite dazwischen – das ist WSW, nicht SWS." }; }
+  if (fall === "ssw") { const al = wahl([40, 55, 65]); text = `$a = 7$ cm, $b = 5$ cm, $α = ${al}°$`; richtig = 3; f = { 1: "α liegt nicht zwischen a und b, sondern gegenüber von a." }; }
+  if (fall === "sswKlein") { const al = wahl([30, 35, 40]); text = `$a = 4$ cm, $b = 6$ cm, $α = ${al}°$`; richtig = 4; f = { 3: "α liegt gegenüber der kleineren Seite a. Dann kann es zwei verschiedene Dreiecke geben – SsW verlangt den Winkel gegenüber der größeren Seite." }; }
+  if (fall === "www") { const al = wahl([40, 50, 60]), be = wahl([60, 70]); text = `$α = ${al}°$, $β = ${be}°$, $γ = ${180 - al - be}°$`; richtig = 4; f = { 2: "Drei Winkel legen nur die Form fest, nicht die Größe – ähnliche Dreiecke unterschiedlicher Größe passen alle." }; }
+  const fehler = OPT.map((_, i) => (i === richtig ? null : { wahl: i, typ: "kongruenzsatz", text: f[i] || "Prüfe, welche Stücke gegeben sind und wo der Winkel liegt: zwischen den Seiten oder gegenüber?" })).filter(Boolean);
+  return {
+    daten: { fall },
+    text: `Von einem Dreieck sind gegeben: ${text}. Nach welchem Kongruenzsatz ist das Dreieck eindeutig bestimmt?`, typ: "wahl", optionen: OPT, richtig, fehler,
+    hinweise: ["Wie viele Seiten und wie viele Winkel sind gegeben?", "SWS: Winkel zwischen den beiden Seiten. WSW: Seite zwischen den beiden Winkeln. SsW: Winkel gegenüber der größeren Seite.", "Mach eine Skizze und markiere die gegebenen Stücke."],
+    regeln: [{ name: "Kongruenzsätze" }],
+    loesung: [`${OPT[richtig] === "nicht eindeutig" ? "Das Dreieck ist nicht eindeutig bestimmt." : `Kongruenzsatz ${OPT[richtig]}.`}`],
+    erklaer: { frage: "Begründe deine Wahl.", kriterien: [K("lage", "Die Lage des Winkels (eingeschlossen, gegenüber) nennen", ["zwischen", "eingeschlossen", "gegenüber", "anliegend", "größer", "kleiner"], "Wo liegt der Winkel im Verhältnis zu den Seiten?")] },
+  };
+} });
+reg({ id: "geo-strahlen", thema: "dreieckgeo", afb: 2, fuer: ["strahlverhaeltnis"], mach() {
+  for (;;) {
+    const a = zz(2, 8), d = zz(1, 8), zweiter = Math.random() < 0.5;
+    if (zweiter) {
+      const p = zz(2, 12), w = (p * (a + d)) / a;
+      if (Math.abs(w * 2 - Math.round(w * 2)) > 1e-9) continue;
+      return bereinigen({
+        daten: { a, d, p, zweiter },
+        text: `Zwei Strahlen gehen vom Zentrum $S$ aus und werden von zwei Parallelen geschnitten. Es gilt $\\overline{SA} = ${a}$ cm, $\\overline{AA'} = ${d}$ cm und $\\overline{AB} = ${p}$ cm. Berechne $\\overline{A'B'}$.`,
+        typ: "zahl", wert: w, toleranz: 1e-6, einheit: "cm", eingabe: "Länge in cm",
+        fehler: [{ wert: (p * d) / a, typ: "strahlverhaeltnis", text: `Beim 2. Strahlensatz wird vom Zentrum aus gemessen: $\\overline{SA'} = ${a} + ${d} = ${a + d}$ cm, nicht nur die Teilstrecke $\\overline{AA'}$.` },
+                 { wert: (p * a) / (a + d), typ: "strahlverhaeltnis", text: "Das Verhältnis ist umgedreht: Die äußere Parallele ist länger als die innere." }],
+        hinweise: ["Welche Strecken vom Zentrum aus gehören zu den beiden Parallelen?", "2. Strahlensatz: $\\frac{\\overline{A'B'}}{\\overline{AB}} = \\frac{\\overline{SA'}}{\\overline{SA}}$", `$\\overline{SA'} = ${a + d}$ cm. Rechne $${p} · \\frac{${a + d}}{${a}}$.`],
+        regeln: [{ name: "Zweiter Strahlensatz" }],
+        loesung: [`$\\overline{SA'} = ${a} + ${d} = ${a + d}$ cm`, `$\\overline{A'B'} = ${p} · \\frac{${a + d}}{${a}} = ${dez(w, 2)}$ cm`],
+        erklaer: { frage: "Erkläre, welches Verhältnis du benutzt hast.", kriterien: [K("zentrum", "Vom Zentrum S aus messen (ganze Strecke SA′)", ["zentrum", "von s", "sa'", "sa′", "ganze"], "Von welchem Punkt aus werden die Strecken beim 2. Strahlensatz gemessen?"), K("verh", "Parallelenabschnitte und Strahlabschnitte ins Verhältnis setzen", ["verhältnis", "parallel", "gleich", "bruch", ":"], "Welche Verhältnisse sind gleich?")] },
+      });
+    }
+    const b = zz(2, 12), w = (b * d) / a;
+    if (Math.abs(w * 2 - Math.round(w * 2)) > 1e-9 || w === b) continue;
+    return bereinigen({
+      daten: { a, d, b, zweiter },
+      text: `Zwei Strahlen gehen vom Zentrum $S$ aus und werden von zwei Parallelen geschnitten. Es gilt $\\overline{SA} = ${a}$ cm, $\\overline{AA'} = ${d}$ cm und $\\overline{SB} = ${b}$ cm. Berechne $\\overline{BB'}$.`,
+      typ: "zahl", wert: w, toleranz: 1e-6, einheit: "cm", eingabe: "Länge in cm",
+      fehler: [{ wert: (b * (a + d)) / a, typ: "strahlverhaeltnis", text: "Das ist $\\overline{SB'}$, die ganze Strecke vom Zentrum. Gesucht ist nur das Stück $\\overline{BB'}$." },
+               { wert: (b * a) / d, typ: "strahlverhaeltnis", text: "Das Verhältnis ist umgedreht: $\\frac{\\overline{BB'}}{\\overline{SB}} = \\frac{\\overline{AA'}}{\\overline{SA}}$." }],
+      hinweise: ["Welche Abschnitte auf den beiden Strahlen entsprechen sich?", "1. Strahlensatz: $\\frac{\\overline{BB'}}{\\overline{SB}} = \\frac{\\overline{AA'}}{\\overline{SA}}$", `Rechne $${b} · \\frac{${d}}{${a}}$.`],
+      regeln: [{ name: "Erster Strahlensatz" }],
+      loesung: [`$\\overline{BB'} = ${b} · \\frac{${d}}{${a}} = ${dez(w, 2)}$ cm`],
+      erklaer: { frage: "Erkläre, welches Verhältnis du benutzt hast.", kriterien: [K("verh", "Entsprechende Abschnitte auf beiden Strahlen ins Verhältnis setzen", ["verhältnis", "entsprech", "gleich", "bruch", ":"], "Welche Verhältnisse sind gleich?")] },
+    });
+  }
+} });
+
+/* ======================================================================
+   Normalverteilung (Rechnungen in normal.js)
+   ====================================================================== */
+const p4 = (v) => dez(v, 4);
+const kz2 = (v) => dez(Math.round(v * 100) / 100, 2);
+reg({ id: "nv-kleiner", thema: "normal", afb: 2, fuer: ["standardisieren", "gegenwkt"], mach() {
+  const art = Math.random() < 0.5 ? "kleiner" : "groesser";
+  const a = nvAufgabe(art);
+  const k = NV_KONTEXTE.find((x) => x.id === a.kontext), e = typeof k.einheit === "string" ? k.einheit : k.einheit.de;
+  const zR = Math.round(a.zWert * 100) / 100;
+  const links = vert(a.x, a.mu, a.s), w = art === "kleiner" ? links : 1 - links;
+  return bereinigen({
+    daten: { art, mu: a.mu, s: a.s, x: a.x },
+    text: `${k.de(a.mu, a.s)} Mit welcher Wahrscheinlichkeit ist der Wert für ${k.wasDe} ${art === "kleiner" ? "höchstens" : "mindestens"} $${dez(a.x)}$ ${e}? Runde auf vier Nachkommastellen.`,
+    typ: "zahl", wert: w, toleranz: NV_TOL_P, eingabe: "Wahrscheinlichkeit, z. B. 0,1234", abstand: 0.01,
+    fehler: [{ wert: 1 - w, typ: "gegenwkt", text: art === "kleiner" ? "Das ist die Fläche rechts. „Höchstens“ heißt: Fläche links, also $\\Phi(z)$." : "Das ist die Fläche links. „Mindestens“ heißt: Fläche rechts, also $1 - \\Phi(z)$." },
+             { wert: art === "kleiner" ? Phi((a.x - a.mu) / (a.s * a.s)) : 1 - Phi((a.x - a.mu) / (a.s * a.s)), typ: "standardisieren", text: "Beim Standardisieren wird durch σ geteilt, nicht durch σ²." }],
+    hinweise: ["Skizziere die Glocke: Welche Fläche ist gesucht – links oder rechts von x?", `$z = \\frac{x - μ}{σ}$, dann $P(X \\le x) = \\Phi(z)$${art === "kleiner" ? "" : " und $P(X \\ge x) = 1 - \\Phi(z)$"}`, `$z = \\frac{${dez(a.x)} - ${dez(a.mu)}}{${dez(a.s)}} ≈ ${kz2(zR)}$`],
+    regeln: [{ name: "Normalverteilung" }, { name: "Standardisieren" }],
+    loesung: [`$z = \\frac{${dez(a.x)} - ${dez(a.mu)}}{${dez(a.s)}} ≈ ${kz2(zR)}$`, art === "kleiner" ? `$P(X \\le ${dez(a.x)}) = \\Phi(${kz2(zR)}) ≈ ${p4(w)}$` : `$P(X \\ge ${dez(a.x)}) = 1 - \\Phi(${kz2(zR)}) ≈ ${p4(w)}$`],
+    erklaer: { frage: "Erkläre deinen Rechenweg.", kriterien: [K("z", "Standardisieren: z = (x − μ) : σ", ["standardis", "z\\s*=", "minus μ", "durch σ", "x\\s*-\\s*μ"], "Wie machst du aus x einen z-Wert?"), K("seite", art === "kleiner" ? "Φ(z) als Fläche links nennen" : "1 − Φ(z) als Fläche rechts nennen", art === "kleiner" ? ["links", "φ", "phi", "höchstens"] : ["1\\s*-", "1 minus", "gegen", "rechts"], "Welche Seite der Glocke ist gefragt?")] },
+  });
+} });
+reg({ id: "nv-zwischen", thema: "normal", afb: 2, fuer: ["intervall", "sigmaregel"], mach() {
+  if (Math.random() < 0.35) {
+    const a = nvAufgabe("sigma");
+    const k = NV_KONTEXTE.find((x) => x.id === a.kontext), e = typeof k.einheit === "string" ? k.einheit : k.einheit.de;
+    const ks = a.k === 1 ? "" : a.k;
+    return bereinigen({
+      daten: { art: "sigma", k: a.k, mu: a.mu, s: a.s },
+      text: `${k.de(a.mu, a.s)} Wie groß ist $P(${dez(a.unten)} \\le X \\le ${dez(a.oben)})$ ungefähr? Gib die Wahrscheinlichkeit als Dezimalzahl an (z. B. 0,5).`,
+      typ: "zahl", wert: a.wert, toleranz: 0.004, eingabe: "Wahrscheinlichkeit", abstand: 0.01,
+      fehler: [{ wert: SIGMA_REGELN[a.k === 1 ? 1 : 0].p, typ: "sigmaregel", text: `Das Intervall reicht ${a.k === 1 ? "eine" : a.k === 2 ? "zwei" : "drei"} Standardabweichung${a.k === 1 ? "" : "en"} um μ. Prüfe: ${dez(a.unten)} = μ − ${ks}σ.` },
+               { wert: 1 - a.wert, typ: "sigmaregel", text: "Das ist der Anteil außerhalb des Intervalls." }],
+      hinweise: ["Wie viele σ liegen die Grenzen von μ entfernt?", "σ-Regeln: 68,3 % · 95,4 % · 99,7 %", `$${dez(a.unten)} = ${dez(a.mu)} - ${a.k === 1 ? "" : `${a.k} · `}${dez(a.s)}$ – das ist die ${a.k}σ-Umgebung.`],
+      regeln: [{ name: "Sigma-Regeln" }],
+      loesung: [`$[${dez(a.unten)}; ${dez(a.oben)}] = [μ - ${ks}σ; μ + ${ks}σ]$`, `$P ≈ ${p4(a.wert)}$`],
+      erklaer: { frage: "Erkläre, wie du ohne Rechnung auf das Ergebnis kommst.", kriterien: [K("sigma", "Die Grenzen als μ ± kσ erkennen", ["σ", "sigma", "standardabweichung", "μ\\s*[±+-]"], "Wie liegen die Grenzen zu μ?")] },
+    });
+  }
+  const a = nvAufgabe("zwischen");
+  const k = NV_KONTEXTE.find((x) => x.id === a.kontext), e = typeof k.einheit === "string" ? k.einheit : k.einheit.de;
+  return bereinigen({
+    daten: { art: "zwischen", mu: a.mu, s: a.s, a: a.a, b: a.b },
+    text: `${k.de(a.mu, a.s)} Mit welcher Wahrscheinlichkeit liegt der Wert für ${k.wasDe} zwischen $${dez(a.a)}$ und $${dez(a.b)}$ ${e}? Runde auf vier Nachkommastellen.`,
+    typ: "zahl", wert: a.wert, toleranz: NV_TOL_P, eingabe: "Wahrscheinlichkeit", abstand: 0.01,
+    fehler: [{ wert: a.Pb + a.Pa, typ: "intervall", text: "Die Flächen werden subtrahiert: $\\Phi(z_b) - \\Phi(z_a)$." },
+             { wert: 1 - a.wert, typ: "intervall", text: "Das ist die Fläche außerhalb des Intervalls." },
+             { wert: a.Pb, typ: "intervall", text: "Das ist die ganze Fläche links von b. Zieh die Fläche links von a ab." }],
+    hinweise: ["Welche Fläche ist gesucht? Skizziere sie.", "$P(a \\le X \\le b) = \\Phi(z_b) - \\Phi(z_a)$", `$z_a ≈ ${kz2(a.za)}$, $z_b ≈ ${kz2(a.zb)}$`],
+    regeln: [{ name: "Normalverteilung" }],
+    loesung: [`$z_a = \\frac{${dez(a.a)} - ${dez(a.mu)}}{${dez(a.s)}} ≈ ${kz2(a.za)}$, $z_b = \\frac{${dez(a.b)} - ${dez(a.mu)}}{${dez(a.s)}} ≈ ${kz2(a.zb)}$`, `$P ≈ ${p4(a.Pb)} - ${p4(a.Pa)} ≈ ${p4(a.wert)}$`],
+    erklaer: { frage: "Erkläre, wie du die Wahrscheinlichkeit für das Intervall berechnet hast.", kriterien: [K("diff", "Große Fläche minus kleine Fläche", ["minus", "-", "differenz", "subtrah", "abzieh"], "Wie kommst du von zwei Flächen links zur Fläche dazwischen?")] },
+  });
+} });
+reg({ id: "nv-quantil", thema: "normal", afb: 3, fuer: ["standardisieren"], mach() {
+  const a = nvAufgabe("quantil");
+  const k = NV_KONTEXTE.find((x) => x.id === a.kontext), e = typeof k.einheit === "string" ? k.einheit : k.einheit.de;
+  const zR = Math.round(a.zp * 100) / 100, tol = Math.max(0.011, 0.012 * a.s);
+  return bereinigen({
+    daten: { mu: a.mu, s: a.s, p: a.p },
+    text: `${k.de(a.mu, a.s)} Bestimme den Wert $x$, für den $P(X \\le x) = ${dez(a.p)}$ gilt. Runde auf zwei Nachkommastellen.`,
+    typ: "zahl", wert: a.wert, toleranz: tol, einheit: e, eingabe: "Wert", abstand: 4 * tol,
+    fehler: [{ wert: a.mu - a.zp * a.s, typ: "standardisieren", text: `Vorzeichen prüfen: Für $p ${a.p > 0.5 ? ">" : "<"} 0{,}5$ liegt x ${a.p > 0.5 ? "über" : "unter"} μ. Es gilt $x = μ + z · σ$.` },
+             { wert: a.zp * a.s, typ: "standardisieren", text: "μ fehlt: $z · σ$ ist nur der Abstand zu μ." }],
+    hinweise: ["Gesucht ist ein Wert, keine Wahrscheinlichkeit. Rechne rückwärts.", "Erst $z$ mit $\\Phi(z) = p$ (invNorm), dann $x = μ + z · σ$", `$z ≈ ${kz2(zR)}$`],
+    regeln: [{ name: "Quantil der Normalverteilung" }],
+    loesung: [`$z ≈ ${kz2(zR)}$`, `$x = ${dez(a.mu)} + (${kz2(zR)}) · ${dez(a.s)} ≈ ${dez(Math.round(a.wert * 100) / 100, 2)}$ ${e}`],
+    erklaer: { frage: "Erkläre, wie du rückwärts gerechnet hast.", kriterien: [K("inv", "z über die Umkehrung von Φ bestimmen", ["invnorm", "umkehr", "rückwärts", "tabelle", "φ", "phi"], "Wie findest du z zu einer gegebenen Wahrscheinlichkeit?"), K("zurueck", "x = μ + z · σ nennen", ["μ\\s*\\+", "mal σ", "·\\s*σ", "z\\s*[·*]\\s*σ", "plus"], "Wie kommst du von z zurück zu x?")] },
+  });
+} });
+reg({ id: "nv-binom", thema: "normal", afb: 3, fuer: ["stetigkeit", "standardisieren"], mach() {
+  const a = nvAufgabe("binom");
+  const sR = Math.round(a.sB * 100) / 100;
+  return bereinigen({
+    daten: { n: a.n, p: a.p, k: a.k },
+    text: `$X$ ist binomialverteilt mit $n = ${a.n}$ und $p = ${dez(a.p)}$. Berechne $P(X \\le ${a.k})$ näherungsweise mit der Normalverteilung (mit Stetigkeitskorrektur). Runde auf vier Nachkommastellen.`,
+    typ: "zahl", wert: a.wert, toleranz: NV_TOL_P, eingabe: "Wahrscheinlichkeit", abstand: 0.008,
+    fehler: [{ wert: a.ohneKorrektur, typ: "stetigkeit", text: "Ohne Stetigkeitskorrektur fehlt die halbe Säule über k. Rechne mit $k + 0{,}5$." },
+             { wert: Phi((a.k + 0.5 - a.muB) / (a.sB * a.sB)), typ: "standardisieren", text: "Geteilt wird durch σ, nicht durch die Varianz $σ^2 = n · p · (1 - p)$." }],
+    hinweise: ["Welche Normalverteilung passt zu B(n; p)?", "$μ = n · p$, $σ = \\sqrt{n · p · (1 - p)}$, $P(X \\le k) ≈ \\Phi\\left(\\frac{k + 0{,}5 - μ}{σ}\\right)$", `$μ = ${dez(a.muB)}$, $σ ≈ ${dez(sR, 2)}$`],
+    regeln: [{ name: "Näherung der Binomialverteilung" }],
+    loesung: [`$μ = ${a.n} · ${dez(a.p)} = ${dez(a.muB)}$`, `$σ = \\sqrt{${a.n} · ${dez(a.p)} · ${dez(1 - a.p)}} ≈ ${dez(sR, 2)}$`, `$P(X \\le ${a.k}) ≈ \\Phi\\left(\\frac{${dez(a.k + 0.5)} - ${dez(a.muB)}}{${dez(sR, 2)}}\\right) ≈ ${p4(a.wert)}$`],
+    erklaer: { frage: "Erkläre die Stetigkeitskorrektur.", kriterien: [K("halb", "k + 0,5 nennen", ["0,5", "0\\.5", "halb", "säule", "balken"], "Warum rechnest du mit k + 0,5?"), K("laplace", "μ = np und σ = √(np(1 − p)) nennen", ["n\\s*[·*]?\\s*p", "wurzel", "√", "laplace", "σ"], "Welche Parameter hat die Normalverteilung?")] },
+  });
 } });
 
 /* ======================================================================

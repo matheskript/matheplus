@@ -96,6 +96,8 @@ export const WERKZEUGE = {
     zeichen: "B", bild: "balken", ziel: { ansicht: "bernoulli" }, etikett: "entdecken", stufe: "ober" },
   hypothesentest: { name: "Hypothesentests", kurz: "Tests", zeile: "H₀, Ablehnungsbereich, Fehlerarten", slogan: "H₀ aufstellen, Ablehnungsbereich finden, Fehler verstehen.",
     zeichen: "H₀", bild: "hypothese", ziel: { ansicht: "hypothesentest" }, etikett: "trainieren", stufe: "ober" },
+  normalverteilung: { name: "Normalverteilung", kurz: "Normal", zeile: "Glockenkurve, Φ, Sigma-Regeln", slogan: "Von der Binomialverteilung zur Glocke: μ und σ, Wahrscheinlichkeit als Fläche, Sigma-Regeln, rückwärts rechnen.",
+    zeichen: "φ", bild: "normal", ziel: { ansicht: "normalverteilung" }, etikett: "entdecken", stufe: "ober" },
 
   /* ---------- Geometrie ---------- */
   koordinaten: { name: "Koordinatensystem und Symmetrie", kurz: "Koordinaten", zeile: "Punkte, Spiegeln, Symmetrieachsen", slogan: "Punkte ablesen und eintragen, an Achsen und Punkten spiegeln, Symmetrie erkennen.",
@@ -191,12 +193,13 @@ export const BEREICHE = [
       { id: "aufstellen", titel: "Aufstellen", zeile: "Geraden und Ebenen aus Punkten", werkzeuge: ["zweipunkte", "dreipunkte", "ebenen"] },
       { id: "lage", titel: "Lage und Abstand", zeile: "Schneiden, parallel, windschief, Abstände", werkzeuge: ["geraden", "ebenevsebene", "abstaende"] },
     ] },
-  { id: "stochastik", titel: "Stochastik", uebersicht: "stochastik", text: "Drei Stationen: zählen, Zufallsgrößen, testen.",
+  { id: "stochastik", titel: "Stochastik", uebersicht: "stochastik", text: "Vier Stationen: zählen, Zufallsgrößen, testen, Normalverteilung.",
     video: { name: "Videokurs Stochastik", zeile: "Vom Baumdiagramm zum Hypothesentest" },
     stationen: [
       { id: "zaehlen", titel: "Zählen und Bäume", zeile: "Urnen, Pfade, Vier-Felder-Tafel", werkzeuge: ["kombinatorik", "vierfelder"] },
       { id: "zufallsgroessen", titel: "Zufallsgrößen", zeile: "Erwartungswert und Binomialverteilung", werkzeuge: ["erwartungswert", "bernoulli"] },
       { id: "testen", titel: "Testen", zeile: "Hypothesen prüfen", werkzeuge: ["hypothesentest"] },
+      { id: "normal", titel: "Normalverteilung", zeile: "Stetige Zufallsgrößen und die Glocke", werkzeuge: ["normalverteilung"] },
     ] },
   { id: "geometrie", titel: "Geometrie", uebersicht: null, text: "Sechs Stationen: Figuren und Flächen, Winkel und Dreiecke, rechte Winkel, Ähnlichkeit, Dreiecke berechnen, Kreis und Körper.",
     stationen: [

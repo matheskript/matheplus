@@ -18,6 +18,7 @@ import { Auswahl, GrosserKnopf, hilfeKontext, hinweis, karte, kicker, zw } from 
 import { Aufklapp, ModusLeiste, Seite, SchrittFolge, zt } from "./ui3.jsx";
 import { GRAD, KONG_FIGUREN, kongruenzAufgabe, ssw, sssMoeglich } from "./geoMittel.js";
 import { Merke, Regler, Zeichenblatt, add, mitte, polar } from "./geoUi.jsx";
+import { GeoAnimation } from "./funcGeoAnimationen.jsx";
 
 let zaehler = 0;
 const z1 = (v) => zt(v, 1);
@@ -227,6 +228,7 @@ function Entdecken() {
   };
   return (
     <>
+      <GeoAnimation art="kongruenz" offen />
       <div style={{ ...karte, marginTop: 16 }}>
         <p style={kicker}>{zw("Was ist gegeben?", "What is given?")}</p>
         <Auswahl optionen={FAELLE} wert={fall} setWert={setFall} label={zw("Fall wählen", "Choose a case")} />

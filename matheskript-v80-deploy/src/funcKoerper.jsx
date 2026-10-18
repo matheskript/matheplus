@@ -16,6 +16,7 @@ import { Auswahl, hilfeKontext, karte, kicker, zw } from "./ui2.jsx";
 import { Aufklapp, ModusLeiste, Seite, zt } from "./ui3.jsx";
 import { KOERPER_ARTEN, koerper, koerperAufgabe } from "./geoMittel2.js";
 import { Merke, Regler, UebenRahmen, WertZeile, Zeichenblatt, tolRund } from "./geoUi.jsx";
+import { GeoAnimation } from "./funcGeoAnimationen.jsx";
 
 let zaehler = 0;
 const z2 = (v) => zt(v, 2);
@@ -115,6 +116,7 @@ function Entdecken() {
   const w = koerper[k](m);
   return (
     <>
+      <GeoAnimation art="koerper" offen />
       <div style={{ ...karte, marginTop: 16 }}>
         <p style={kicker}>{zw("Körper wählen", "Choose a solid")}</p>
         <Auswahl optionen={Object.keys(NAMEN).map((id) => [id, NAMEN[id]])} wert={k} setWert={setK} label={zw("Körper", "Solid")} />

@@ -42,6 +42,7 @@ export const TOOL_SAETZE = {
   erwartungswert: { de: "Erwartungswert und faire Spiele verstehen", en: "understand expected value and fair games" },
   bernoulli: { de: "die Binomialverteilung ausprobieren", en: "play with the binomial distribution" },
   hypothesentest: { de: "Hypothesentests üben", en: "practise hypothesis tests" },
+  normalverteilung: { de: "die Normalverteilung verstehen", en: "understand the normal distribution" },
   prozent: { de: "Prozent- und Zinsrechnung üben", en: "practise percentages and interest" },
   zuordnungen: { de: "Zuordnungen und den Dreisatz üben", en: "practise proportions and the rule of three" },
   flaechen: { de: "Umfang und Flächeninhalt berechnen", en: "calculate perimeter and area" },
