@@ -43,6 +43,8 @@ export const SEITEN = [
   { pfad: "landingpage", ansicht: "landingpage", alias: ["start-neu"] },
   { pfad: "spenden", ansicht: "spenden", alias: ["donate", "unterstuetzen"] },
   { pfad: "elternabend", ansicht: "elternabend", alias: ["eltern-abend", "infoabend"] },
+  { pfad: "lehrkraefte", ansicht: "lehrkraefte", alias: ["lehrer", "fuer-lehrkraefte", "fuer-lehrer", "lehrerinnen"] },
+  { pfad: "lehrkraefte/arbeitsblatt", ansicht: "lehrerblatt", alias: ["arbeitsblatt-generator", "lehrer-arbeitsblatt", "lehrer/arbeitsblatt", "arbeitsblaetter"] },
 
   /* Mein Weg */
   { pfad: "lernlandkarte", ansicht: "karte", alias: ["karte", "landkarte"] },

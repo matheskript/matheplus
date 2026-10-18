@@ -64,6 +64,9 @@ const MasterclassKursSeite = lazyLaden(() => import("./funcMasterclassKurs.jsx")
 const MasterclassZugangSeite = lazyLaden(() => import("./funcMasterclassKurs.jsx").then((m) => ({ default: m.MasterclassZugangSeite })));
 const SchulbuchSeite = lazyLaden(() => import("./funcSchulbuch.jsx").then((m) => ({ default: m.SchulbuchSeite })));
 const KlausurBriefkasten = lazyLaden(() => import("./funcKlausurBriefkasten.jsx").then((m) => ({ default: m.KlausurBriefkasten })));
+/* Lehrer-Arbeitsblatt-Generator und Lehrkräfte-Seite: eigener Chunk */
+const ArbeitsblattSeite = lazyLaden(() => import("./funcArbeitsblatt.jsx").then((m) => ({ default: m.ArbeitsblattSeite })));
+const LehrkraefteSeite = lazyLaden(() => import("./funcLehrkraefte.jsx").then((m) => ({ default: m.LehrkraefteSeite })));
 const BundeswettbewerbSeite = lazyLaden(() => import("./funcWettbewerbe.jsx").then((m) => ({ default: m.BundeswettbewerbSeite })));
 const LandeswettbewerbeSeite = lazyLaden(() => import("./funcWettbewerbe.jsx").then((m) => ({ default: m.LandeswettbewerbeSeite })));
 const LandeswettbewerbSeite = lazyLaden(() => import("./funcWettbewerbe.jsx").then((m) => ({ default: m.LandeswettbewerbSeite })));
@@ -156,7 +159,17 @@ export function Mathilda() {
     } catch (e) { /* ignorieren */ }
     try {   // Direct Link: Unterziel (Werkzeug-Modus, Klasse, Trainer …) aus dem Pfad übernehmen
       const pz = pfadAufloesen(window.location.pathname);
-      if (pz && pz.ansicht !== "start") gehe(pz);
+      if (pz && pz.ansicht === "trainieren") {
+        /* QR-Code vom Arbeitsblatt: /trainieren?kapitel=quad&teil=quad.4&schulart=g9&box=9 (nicht ?klasse=, das ist der Klassenbeitritt) */
+        const u = new URL(window.location.href), k = u.searchParams.get("kapitel");
+        if (k && /^[a-zA-Z0-9]{2,20}$/.test(k)) {
+          const teil = u.searchParams.get("teil"), art = u.searchParams.get("schulart"), kl = u.searchParams.get("box");
+          ["kapitel", "teil", "schulart", "box"].forEach((x) => u.searchParams.delete(x));
+          window.history.replaceState({}, "", u.pathname + u.search + u.hash);
+          gehe({ ...pz, kapitel: k, teil: teil && /^[a-zA-Z0-9]{2,20}\.\d{1,2}$/.test(teil) ? teil : null,
+            schulart: ["g8", "g9", "gms"].includes(art) ? art : undefined, klasse: kl && /^[0-9-]{1,5}$/.test(kl) ? kl : undefined });
+        } else gehe(pz);
+      } else if (pz && pz.ansicht !== "start") gehe(pz);
     } catch (e) { /* ignorieren */ }
     try {   // nach dem Sprachwechsel dieselbe Seite wieder öffnen
       const z = JSON.parse(sessionStorage.getItem("mm-nach-sprachwechsel") || "null");
@@ -257,7 +270,7 @@ export function Mathilda() {
   }, []);
   const gehe = (eintrag) => {
     // Gast ohne Passwort (nur Rechtsseiten freigegeben, middleware.js): alles andere über eine echte Seitenanfrage
-    if (!["impressum", "datenschutz", "agb", "widerruf", "einwilligung"].includes(eintrag.ansicht)
+    if (!["impressum", "datenschutz", "agb", "widerruf", "einwilligung", "lehrkraefte", "lehrerblatt"].includes(eintrag.ansicht)
         && typeof document !== "undefined" && /(?:^|;\s*)mm_gast=1/.test(document.cookie)) {
       window.location.assign("/");
       return;
@@ -1046,6 +1059,14 @@ export function Mathilda() {
             <KlausurBriefkasten gehe={gehe} />
           </React.Suspense>
         </div>
+      ) : ansicht === "lehrerblatt" ? (
+        <React.Suspense fallback={<p role="status" style={{ color: C.grau, fontSize: 15, fontWeight: 300, padding: "24px", textAlign: "center" }}>{englisch() ? "Loading …" : "Wird geladen …"}</p>}>
+          <ArbeitsblattSeite gehe={gehe} />
+        </React.Suspense>
+      ) : ansicht === "lehrkraefte" ? (
+        <React.Suspense fallback={<p role="status" style={{ color: C.grau, fontSize: 15, fontWeight: 300, padding: "24px", textAlign: "center" }}>{englisch() ? "Loading …" : "Wird geladen …"}</p>}>
+          <LehrkraefteSeite gehe={gehe} />
+        </React.Suspense>
       ) : ansicht === "spenden" ? (
         <React.Suspense fallback={<p role="status" style={{ color: C.grau, fontSize: 15, fontWeight: 300, padding: "24px", textAlign: "center" }}>{englisch() ? "Loading …" : "Wird geladen …"}</p>}>
           <SpendenSeite gehe={gehe} />

@@ -10,6 +10,7 @@ import * as AK from "../src/abiKetten.js";
 import * as A2 from "../src/aufgaben2.js";
 import * as TX from "../src/textaufgaben.js";
 import { alsTex } from "../src/bedingungen.js";
+import * as AB from "../src/arbeitsblatt.js";
 
 /* Textaufgaben: nur was angezeigt wird (Lösungen, Begründungen, LGS-Zeilen) – Denkfehler sind absichtlich falsch */
 const textAnzeige = (a) => ({
@@ -70,6 +71,7 @@ const QUELLEN = [
   ["abiKetten/analysis", () => AK.analysisKette()], ["abiKetten/geometrie", () => AK.geometrieKette()], ["abiKetten/stochastik", () => AK.stochastikKette()],
   ["aufgaben2/flaeche", A2.neueFlaechenAufgabe], ["aufgaben2/zweiGraphen", A2.neueZweiGraphen], ["aufgaben2/bestand", A2.neuerBestand],
   ...TX.THEMA_IDS.map((t) => [`textaufgaben/${t}`, () => textAnzeige(TX.neueTextaufgabe(t))]),
+  ...AB.ALLE_QUELLEN.map((q) => [`arbeitsblatt/${q}`, () => AB.aufgabeAus(q)]),
   ["aufgaben2/umgekehrt", A2.neuUmgekehrt], ["aufgaben2/anfangswert", A2.neuerAnfangswert], ["aufgaben2/punktprobe", A2.neuePunktprobe],
 ];
 

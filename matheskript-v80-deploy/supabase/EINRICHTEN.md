@@ -12,6 +12,7 @@ Alles ist im Code fertig und bleibt aus, bis die Schritte unten erledigt sind.
 6. `einwilligung.sql` – Altersangabe und Eltern-Einwilligung unter 16 (danach `ki.sql` und `konto.sql` noch einmal ausführen, damit Mathilda-Kontingent und Datenexport die Einwilligung kennen). Achtung: Danach müssen bestehende Schüler-Konten einmal ihr Alter angeben, sonst bleibt ihr Lernstand auf dem Gerät.
 
 7. `penpaper.sql` – Fortschritt im Pen-&-Paper-Kurs (Lektionen, Übungen, 7-Tage-Plan) im Konto; ohne das Skript bleibt der Kursfortschritt auf dem Gerät
+8. `arbeitsblatt.sql` – gespeicherte Blätter des Lehrer-Arbeitsblatt-Generators (danach `konto.sql` noch einmal, damit der Datenexport sie enthält); ohne das Skript funktioniert der Generator, nur „Blatt speichern“ meldet einen Fehler
 
 Vorher müssen `schema.sql`, `rollen.sql`, `lernstand.sql`, `entdecken.sql`, `ki.sql`, `perf-lab.sql` und `stripe.sql` laufen (sind schon eingerichtet).
 

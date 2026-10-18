@@ -271,6 +271,8 @@ function baueIndex() {
     ["Ebbinghaus", "Skills im richtigen Moment wiederholen", "wiederholen vergessen vergessenskurve behalten wiederholung gedächtnis ebbinghaus", { ansicht: "ebbinghaus" }],
     ["Aufgabengenerator", "Geraden, Ableitungen, Kurvendiskussion", "aufgaben generator übungsaufgaben zufällig arbeitsblatt geraden ableitungen kurvendiskussion", { ansicht: "ki", ziel: null }],
     ["Arbeitsblatt drucken", "Aufgabenblatt mit Lösungsteil", "arbeitsblatt drucken pdf aufgabenblatt lösungen übungsblatt", { ansicht: "ki", ziel: "blatt" }],
+    ["Arbeitsblatt-Generator für Lehrkräfte", "Kapitel wählen, PDF mit Lösungsblatt – kostenlos", "lehrer lehrerin lehrkraft lehrkräfte arbeitsblatt generator arbeitsblätter erstellen klasse unterricht pdf lösungsblatt gruppe a b übungsblatt vertretungsstunde worksheet teacher", { ansicht: "lehrerblatt" }],
+    ["Für Lehrkräfte", "Was Mythos Mathe für deinen Unterricht tut", "lehrer lehrkraft lehrkräfte schule unterricht klasse klassencode für lehrer teacher", { ansicht: "lehrkraefte" }],
     ["Rechenweg schreiben", "Ganze Wege eintippen und prüfen lassen", "rechenweg schreiben eintippen prüfen lösungsweg schritte", { ansicht: "training", ziel: "weg" }],
     ["Graph-Zuordnung", "Welcher Graph ist f′?", "graph zuordnung ableitungsgraph f strich graphen erkennen", { ansicht: "training", ziel: "gz" }],
     ["Mathilda fragen", "Tutorin mit Gedächtnis, rechnet mit der App nach", "mathilda fragen chat tutor hilfe erklären ki frage stellen ask tutor", { ansicht: "analyse", foto: "chat" }],

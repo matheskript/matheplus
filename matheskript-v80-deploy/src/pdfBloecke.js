@@ -9,16 +9,19 @@
    - kopf: Block, der auf jeder Folgeseite oben wiederholt wird (optional).
    - neueSeite: Blöcke mit data-pdf-neue-seite beginnen immer oben auf einer Seite.
    - halteMitNaechstem: Blöcke mit data-pdf-mit-naechstem (Überschriften) stehen nie allein unten.
+   - qr (optional): { bild (PNG-Data-URL), text } – kleiner QR-Code rechts in der Fußzeile jeder Seite
+     (Arbeitsblatt-Generator); die Fußzeile wird dafür höher.
    ====================================================================== */
 
-const SEITE_B = 210, SEITE_H = 297, RAND = 12, FUSS = 10;
+const SEITE_B = 210, SEITE_H = 297, RAND = 12;
 
 async function bild(hti, el, fontEmbedCSS) {
   const canvas = await hti.toCanvas(el, { pixelRatio: 2.4, backgroundColor: "#FFFFFF", cacheBust: false, fontEmbedCSS });
   return { daten: canvas.toDataURL("image/jpeg", 0.93), w: canvas.width, h: canvas.height };
 }
 
-export async function pdfAusBloecken({ bloecke, kopf = null, fuss = "mythosmathe.de", dateiname = "mythosmathe.pdf" }) {
+export async function pdfAusBloecken({ bloecke, kopf = null, fuss = "mythosmathe.de", dateiname = "mythosmathe.pdf", qr = null, alsBlob = false }) {
+  const FUSS = qr ? 20 : 10;
   const [{ jsPDF }, hti] = await Promise.all([import("jspdf"), import("html-to-image")]);
   /* Formeln (inline-flex mit Umbruch) im Bild nie umbrechen: Die Kopie übernimmt feste Breiten,
      schon ein halbes Pixel Unterschied würde sonst eine Hochzahl in die nächste Zeile schieben. */
@@ -65,9 +68,19 @@ export async function pdfAusBloecken({ bloecke, kopf = null, fuss = "mythosmathe
     doc.setDrawColor(227, 232, 242); doc.setLineWidth(0.25);
     doc.line(RAND, SEITE_H - FUSS - 1, SEITE_B - RAND, SEITE_H - FUSS - 1);
     doc.setFont("helvetica", "normal"); doc.setFontSize(7.5); doc.setTextColor(163, 172, 194);
-    doc.text(fuss, RAND, SEITE_H - FUSS + 3);
-    doc.text(`${s} / ${seiten}`, SEITE_B - RAND, SEITE_H - FUSS + 3, { align: "right" });
+    if (qr) {
+      const q = 14, xq = SEITE_B - RAND - q, yq = SEITE_H - FUSS + 2;
+      doc.addImage(qr.bild, "PNG", xq, yq, q, q);
+      doc.text(fuss, RAND, yq + 4);
+      doc.text(`Seite ${s} von ${seiten}`, RAND, yq + 8.5);
+      if (qr.text) { doc.setTextColor(14, 30, 74); doc.text(qr.text, xq - 3, yq + 4, { align: "right" }); }
+      if (qr.zeile) { doc.setTextColor(163, 172, 194); doc.text(qr.zeile, xq - 3, yq + 8.5, { align: "right" }); }
+    } else {
+      doc.text(fuss, RAND, SEITE_H - FUSS + 3);
+      doc.text(`${s} / ${seiten}`, SEITE_B - RAND, SEITE_H - FUSS + 3, { align: "right" });
+    }
   }
+  if (alsBlob) return doc.output("blob");
   doc.save(dateiname);
 }
 

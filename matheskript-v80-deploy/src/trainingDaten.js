@@ -38,6 +38,10 @@ const ggT = (a, b) => (b ? ggT(b, a % b) : Math.abs(a));
 const bruchTex = (z, n) => { const g = ggT(z, n) || 1; z /= g; n /= g; if (n < 0) { z = -z; n = -n; } return n === 1 ? String(z) : `${z < 0 ? "-" : ""}\\frac{${Math.abs(z)}}{${n}}`; };
 const bruchTxt = (z, n) => { const g = ggT(z, n) || 1; z /= g; n /= g; if (n < 0) { z = -z; n = -n; } return n === 1 ? mi(z) : `${mi(z)}/${n}`; };
 const qTexS = (a) => bruchTex(a.z, a.n);
+/* „= gekürzt“ nur anhängen, wenn sich der Bruch wirklich kürzen lässt */
+const gekuerzt = (z, n) => (ggT(z, n) === 1 && n !== 1 ? "" : ` = ${bruchTex(z, n)}`);
+/* Glieder einer Summe; leere (Koeffizient 0) fallen weg, ohne doppelte Leerzeichen */
+const glieder = (...t) => t.filter(Boolean).join(" ");
 const qTxt = (a) => bruchTxt(a.z, a.n);
 
 /* ---------- Themen ---------- */
@@ -311,7 +315,7 @@ reg({ id: "bru-add", thema: "brueche", afb: 1, fuer: ["bruchaddition"], mach() {
     fehler: [{ wert: (a + c) / (b + d), typ: "bruchaddition", text: "Zähler und Nenner dürfen nicht einzeln addiert werden. Erst auf den gemeinsamen Nenner erweitern, dann nur die Zähler addieren." }],
     hinweise: ["Was müssen zwei Brüche gemeinsam haben, bevor du sie addieren kannst?", "Erweitere auf einen gemeinsamen Nenner, z. B. $b·d$. Dann addierst du nur die Zähler.", `Erweitere zu $\\frac{${a * d}}{${n}} + \\frac{${c * b}}{${n}}$ und addiere die Zähler.`],
     regeln: [REGEL_BRUCH_ADD], grundlage: GRUND_BRUCH,
-    loesung: [`$\\frac{${a * d}}{${n}} + \\frac{${c * b}}{${n}} = \\frac{${z}}{${n}} = ${bruchTex(z, n)}$`],
+    loesung: [`$\\frac{${a * d}}{${n}} + \\frac{${c * b}}{${n}} = \\frac{${z}}{${n}}${gekuerzt(z, n)}$`],
     erklaer: erklaerBruch("add"),
   });
 } });
@@ -325,7 +329,7 @@ reg({ id: "bru-div", thema: "brueche", afb: 2, fuer: ["bruchdivision"], mach() {
     fehler: [{ wert: (a * c) / (b * d), typ: "bruchdivision", text: "Beim Teilen durch einen Bruch wird mit dem Kehrwert multipliziert: $\\frac{c}{d}$ wird zu $\\frac{d}{c}$." }],
     hinweise: ["Was bedeutet es, durch einen Bruch zu teilen? Denk an $1 : \\frac{1}{2}$.", "Durch einen Bruch teilen heißt: mit dem Kehrwert malnehmen.", `Rechne $\\frac{${a}}{${b}} · \\frac{${d}}{${c}}$ und kürze, wenn möglich.`],
     regeln: [REGEL_BRUCH_DIV], grundlage: GRUND_BRUCH,
-    loesung: [`$\\frac{${a}}{${b}} : \\frac{${c}}{${d}} = \\frac{${a}}{${b}} · \\frac{${d}}{${c}} = \\frac{${z}}{${n}} = ${bruchTex(z, n)}$`],
+    loesung: [`$\\frac{${a}}{${b}} : \\frac{${c}}{${d}} = \\frac{${a}}{${b}} · \\frac{${d}}{${c}} = \\frac{${z}}{${n}}${gekuerzt(z, n)}$`],
     erklaer: erklaerBruch("div"),
   });
 } });
@@ -529,12 +533,12 @@ reg({ id: "kur-wende", thema: "kurven", afb: 2, fuer: ["ableitungsstufe"], mach(
     const xw = (r1 + r2) / 2;
     return bereinigen({
     daten: { b, c, xw },
-      text: `Gegeben ist $f(x) = x^3 ${tm(b, "x^2")} ${tm(c, "x")}$. Bestimme die $x$-Koordinate des Wendepunkts.`, typ: "zahl", wert: xw, toleranz: 1e-9, abstand: 1e-6,
+      text: `Gegeben ist $f(x) = ${glieder("x^3", tm(b, "x^2"), tm(c, "x"))}$. Bestimme die $x$-Koordinate des Wendepunkts.`, typ: "zahl", wert: xw, toleranz: 1e-9, abstand: 1e-6,
       fehler: [{ wert: r1, typ: "ableitungsstufe", text: "Du hast $f′(x) = 0$ gelöst – das liefert Kandidaten für Extremstellen. Für Wendestellen löst du $f″(x) = 0$." },
                { wert: r2, typ: "ableitungsstufe", text: "Du hast $f′(x) = 0$ gelöst – das liefert Kandidaten für Extremstellen. Für Wendestellen löst du $f″(x) = 0$." }],
-      hinweise: ["Wendestelle oder Extremstelle? Welche Ableitung musst du dafür gleich null setzen?", "Notwendig für eine Wendestelle: $f″(x) = 0$. Hinreichend: $f″$ wechselt dort das Vorzeichen (oder $f‴(x) ≠ 0$).", `Berechne $f″(x) = 6x ${sgn(2 * b)}$ und setze sie gleich 0.`],
+      hinweise: ["Wendestelle oder Extremstelle? Welche Ableitung musst du dafür gleich null setzen?", "Notwendig für eine Wendestelle: $f″(x) = 0$. Hinreichend: $f″$ wechselt dort das Vorzeichen (oder $f‴(x) ≠ 0$).", `Berechne $f″(x) = ${glieder("6x", tm(2 * b, ""))}$ und setze sie gleich 0.`],
       regeln: [{ name: "Wendepunkt" }],
-      loesung: [`$f′(x) = 3x^2 ${tm(2 * b, "x")} ${sgn(c)}$`, `$f″(x) = 6x ${sgn(2 * b)}$`, `$f″(x) = 0 \\Rightarrow x = ${mi(xw)}$; $f‴ = 6 ≠ 0$ – also Wendestelle.`],
+      loesung: [`$f′(x) = ${glieder("3x^2", tm(2 * b, "x"), tm(c, ""))}$`, `$f″(x) = ${glieder("6x", tm(2 * b, ""))}$`, `$f″(x) = 0 \\Rightarrow x = ${mi(xw)}$; $f‴ = 6 ≠ 0$ – also Wendestelle.`],
       erklaer: erklaerKurve("wende"),
     });
   }

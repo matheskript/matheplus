@@ -94,7 +94,7 @@ export const KONTEXTE = [
   { id: "groesse", mu: [174, 176, 178], s: [6, 7, 8], schritt: 1, einheit: "cm",
     de: (m, s) => `Die Körpergröße X (in cm) von 16-jährigen Jungen ist annähernd normalverteilt mit $\\mu = ${dz(m)}$ und $\\sigma = ${dz(s)}$.`,
     en: (m, s) => `The height X (in cm) of 16-year-old boys is approximately normally distributed with $\\mu = ${dz(m)}$ and $\\sigma = ${dz(s)}$.`,
-    wasDe: "ein zufällig ausgewählter Junge", wasEn: "a randomly chosen boy", groesserDe: "größer als", groesserEn: "taller than", kleinerDe: "höchstens", kleinerEn: "at most" },
+    wasDe: "einen zufällig ausgewählten Jungen", wasEn: "a randomly chosen boy", groesserDe: "größer als", groesserEn: "taller than", kleinerDe: "höchstens", kleinerEn: "at most" },
   { id: "flasche", mu: [500, 750, 1000], s: [3, 4, 5], schritt: 1, einheit: "ml",
     de: (m, s) => `Eine Anlage füllt Saftflaschen ab. Die Füllmenge X (in ml) ist normalverteilt mit $\\mu = ${dz(m)}$ und $\\sigma = ${dz(s)}$.`,
     en: (m, s) => `A machine fills juice bottles. The filling amount X (in ml) is normally distributed with $\\mu = ${dz(m)}$ and $\\sigma = ${dz(s)}$.`,
@@ -106,15 +106,15 @@ export const KONTEXTE = [
   { id: "punkte", mu: [55, 60, 65], s: [10, 12, 15], schritt: 1, einheit: zwDe("Punkte", "points"),
     de: (m, s) => `Die Punktzahl X in einem landesweiten Test ist annähernd normalverteilt mit $\\mu = ${dz(m)}$ und $\\sigma = ${dz(s)}$.`,
     en: (m, s) => `The score X in a nationwide test is approximately normally distributed with $\\mu = ${dz(m)}$ and $\\sigma = ${dz(s)}$.`,
-    wasDe: "ein zufällig ausgewählter Teilnehmer", wasEn: "a randomly chosen participant", groesserDe: "mehr als", groesserEn: "more than", kleinerDe: "höchstens", kleinerEn: "at most" },
+    wasDe: "einen zufällig ausgewählten Teilnehmer", wasEn: "a randomly chosen participant", groesserDe: "mehr als", groesserEn: "more than", kleinerDe: "höchstens", kleinerEn: "at most" },
   { id: "akku", mu: [800, 1000, 1200], s: [50, 80, 100], schritt: 10, einheit: "h",
     de: (m, s) => `Die Lebensdauer X (in Stunden) eines Akkutyps ist normalverteilt mit $\\mu = ${dz(m)}$ und $\\sigma = ${dz(s)}$.`,
     en: (m, s) => `The lifetime X (in hours) of a battery type is normally distributed with $\\mu = ${dz(m)}$ and $\\sigma = ${dz(s)}$.`,
-    wasDe: "ein zufällig ausgewählter Akku", wasEn: "a randomly chosen battery", groesserDe: "länger als", groesserEn: "longer than", kleinerDe: "höchstens", kleinerEn: "at most" },
+    wasDe: "einen zufällig ausgewählten Akku", wasEn: "a randomly chosen battery", groesserDe: "länger als", groesserEn: "longer than", kleinerDe: "höchstens", kleinerEn: "at most" },
   { id: "apfel", mu: [170, 180, 190], s: [12, 15, 20], schritt: 1, einheit: "g",
     de: (m, s) => `Die Masse X (in g) von Äpfeln einer Sorte ist normalverteilt mit $\\mu = ${dz(m)}$ und $\\sigma = ${dz(s)}$.`,
     en: (m, s) => `The mass X (in g) of apples of one variety is normally distributed with $\\mu = ${dz(m)}$ and $\\sigma = ${dz(s)}$.`,
-    wasDe: "ein zufällig ausgewählter Apfel", wasEn: "a randomly chosen apple", groesserDe: "schwerer als", groesserEn: "heavier than", kleinerDe: "höchstens", kleinerEn: "at most" },
+    wasDe: "einen zufällig ausgewählten Apfel", wasEn: "a randomly chosen apple", groesserDe: "schwerer als", groesserEn: "heavier than", kleinerDe: "höchstens", kleinerEn: "at most" },
 ];
 function zwDe(de, en) { return { de, en }; }
 /* Zahl mit Dezimalkomma (für TeX/Text) */

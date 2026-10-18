@@ -11,9 +11,12 @@ const COOKIE_WILLKOMMEN = "mm_willkommen";   // kurzes Cookie: die App zeigt dan
 const PFAD_LOGIN = "/__zugang";
 const COOKIE_GAST = "mm_gast";   // für die App lesbar: Besucher ohne Passwort, der nur die Rechtsseiten sehen darf
 
-/* Rechtsseiten und die Eltern-Einwilligung müssen immer erreichbar sein – auch während der Testphase.
+/* Rechtsseiten, die Eltern-Einwilligung und die Lehrkräfte-Seiten müssen immer erreichbar sein – auch während der Testphase.
    Die App (src/func10.jsx → gehe) schickt Gäste beim Weiterklicken über eine echte Seitenanfrage zurück zur Passwortseite. */
-const OEFFENTLICH = ["/impressum", "/datenschutz", "/agb", "/widerruf", "/einwilligung"];
+const OEFFENTLICH = ["/impressum", "/datenschutz", "/agb", "/widerruf", "/einwilligung",
+  /* Lehrkräfte: Arbeitsblatt-Generator und Infoseite – kostenlos und ohne Konto, also auch ohne Passwort (pfade.js) */
+  "/lehrkraefte", "/lehrkraefte/arbeitsblatt", "/lehrer", "/fuer-lehrkraefte", "/fuer-lehrer", "/lehrerinnen",
+  "/arbeitsblatt-generator", "/lehrer-arbeitsblatt", "/lehrer/arbeitsblatt", "/arbeitsblaetter"];
 const istOeffentlich = (p) => OEFFENTLICH.includes(p.replace(/\/$/, "")) || p.startsWith("/assets/");
 
 

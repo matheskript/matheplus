@@ -73,6 +73,7 @@ export function Fusszeile({ gehe, arbeitsmenue }) {
           {link("agb", "AGB")}
           {arbeitsmenue && arbeitsmenue({ background: "none", border: "none", padding: "4px 0", color: C.flaggold, fontSize: 13.5, fontWeight: 600, fontFamily: "inherit", cursor: "pointer" })}
           {link("widerruf", "Widerrufsbelehrung")}
+          {link("lehrkraefte", "Für Lehrkräfte")}
         </nav>
         <p style={{ fontSize: 12.5, color: "#8FA3C8", marginTop: 12 }}>© 2026 Mythos Mathe · Alle Rechte vorbehalten.</p>
       </div>

@@ -57,7 +57,8 @@ export function refAusUrlMerken() {
     if (code) schreib(REF_SPEICHER, { code, zeit: Date.now() });
     if (code || hatEinl) {
       ["ref", "als", "e", "klasse"].forEach((k) => u.searchParams.delete(k));
-      window.history.replaceState({}, "", "/" + (u.search ? u.search : "") + u.hash);
+      /* Ref-Code als Pfad (/482913) → Startseite; sonst bleibt die Seite (z. B. /trainieren?…&ref=… vom Arbeitsblatt) */
+      window.history.replaceState({}, "", (istRefCode(pfad) ? "/" : u.pathname) + (u.search ? u.search : "") + u.hash);
     }
   } catch (e) { /* ignorieren */ }
 }

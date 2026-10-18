@@ -60,6 +60,7 @@ begin
     'eltern_einwilligungen', public.konto_tabelle('eltern_einwilligungen', 'kind_id', uid),
     'feedback', public.konto_tabelle('feedback', 'nutzer', uid),
     'klausurbriefkasten', public.konto_tabelle('klausur_meldungen', 'nutzer', uid),
+    'arbeitsblaetter', public.konto_tabelle('arbeitsblaetter', 'nutzer_id', uid),
     'wochenmail', public.konto_tabelle('wochenmail', 'eltern_id', uid),
     'verbindungen', case when to_regprocedure('public.meine_beziehungen()') is not null then public.meine_beziehungen() else null end,
     'eigene_klassen', public.konto_tabelle('klassen', 'lehrkraft_id', uid),

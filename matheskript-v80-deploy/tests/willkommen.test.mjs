@@ -167,13 +167,13 @@ test("Text-Feedback: Datenbank-Skript passt zum Code", () => {
 });
 
 test("Rechtsseiten und Eltern-Einwilligung sind ohne Passwort erreichbar, der Rest nicht", async () => {
-  for (const p of ["/impressum", "/datenschutz", "/agb", "/widerruf", "/einwilligung?k=abcdef0123456789", "/assets/index-abc.js"]) {
+  for (const p of ["/impressum", "/datenschutz", "/agb", "/widerruf", "/einwilligung?k=abcdef0123456789", "/assets/index-abc.js", "/lehrkraefte", "/lehrkraefte/arbeitsblatt", "/arbeitsblatt-generator"]) {
     const res = await anfrage(`https://mythosmathe.de${p}`);
     assert.notEqual(res.status, 401, `${p} muss offen sein`);
   }
   const gast = await anfrage("https://mythosmathe.de/datenschutz");
   assert.ok(gast.headers.getSetCookie().some((c) => c.startsWith("mm_gast=1") && !/HttpOnly/.test(c)), "Gast-Markierung für die App lesbar");
-  for (const p of ["/", "/training", "/konto", "/einwilligungen", "/api/claude"]) {
+  for (const p of ["/", "/training", "/konto", "/einwilligungen", "/api/claude", "/lehrkraefte/konto", "/arbeitsblatt"]) {
     const res = await anfrage(`https://mythosmathe.de${p}`);
     assert.equal(res.status, 401, `${p} bleibt geschützt`);
   }

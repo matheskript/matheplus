@@ -47,13 +47,15 @@ export function kontoEintraege(profil, angemeldet = true) {
   if (rolle === "eltern") liste.push({ id: "kinder", name: "Meine Kinder", ziel: { ansicht: "konto" } });
   if (rolle === "lehrkraft") liste.push({ id: "klassen", name: "Meine Klassen", ziel: { ansicht: "konto" } });
   if (rolle === "nachhilfe") liste.push({ id: "schueler", name: "Meine Schüler", ziel: { ansicht: "konto" } });
+  if (rolle === "lehrkraft" || rolle === "nachhilfe") liste.push({ id: "arbeitsblatt", name: "Arbeitsblatt-Generator", ziel: { ansicht: "lehrerblatt" } });
   if (rolle === "schueler") {
     liste.push({ id: "fortschritt", name: "Mein Fortschritt", ziel: { ansicht: "profil" } });
     liste.push({ id: "bericht", name: "Wochenbericht", ziel: { ansicht: "bericht" } });
   }
   liste.push(proEintrag);
   liste.push({ id: "datenschutz", name: "Datenschutz", ziel: { ansicht: "datenschutz" } });
-  if (rolle !== "schueler") liste.push({ id: "impressum", name: "Impressum", ziel: { ansicht: "impressum" } });
+  /* Lehrkräfte haben statt des Impressums (steht in der Fußzeile) den Arbeitsblatt-Generator – höchstens 6 Punkte */
+  if (rolle === "eltern") liste.push({ id: "impressum", name: "Impressum", ziel: { ansicht: "impressum" } });
   liste.push({ id: "abmelden", name: "Abmelden", aktion: "abmelden" });
   return liste;
 }
