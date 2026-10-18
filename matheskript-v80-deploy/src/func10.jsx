@@ -277,6 +277,7 @@ export function Mathilda() {
     setMenuOffen(false); setGruppeOffen(null);
     springe("seitenwechsel", () => window.scrollTo(0, 0));
   };
+  FR.toolMenue = ToolMenue;   // Menü im Vollbild der Regel-Eingabe (funcRegelwerk.jsx)
   FR.gehe = gehe;   // für „Weiter mit …“-Knöpfe in den Werkzeugen (uebergabe.js)
   FR.ansicht = () => ansicht;   // für buchung.jsx: Bereich einer Buchung
   try { window.__mmGehe = gehe; } catch (e) { /* nur für automatische Tests (Übersetzungs- und Layoutprüfung) */ }

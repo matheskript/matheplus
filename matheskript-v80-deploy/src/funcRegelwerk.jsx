@@ -20,6 +20,7 @@ import { AufklappZeichen } from "./aufklappen.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
 import { ErklaerAnimation } from "./funcErklaeranimation.jsx";
 import { springe } from "./sprung.js";
+import { FR } from "./funcRegistry.jsx";
 import {
   REGELN, baueF, basisTex, diagnose, einsetzen as baumEinsetzen, fakTex, fehlerbilder, gleichwertig, lies, musterloesung, neueAufgabe, regelFuer, schoen, summanden, tex,
 } from "./regelwerkKern.js";
@@ -125,9 +126,13 @@ ${POP_CSS}
 .wk-voll-oben{flex:0 0 auto;display:flex;flex-direction:column;gap:6px}
 .wk-voll .wk-grid{gap:6px 4px}
 .wk-voll .wk-grid.kette{align-items:center}
-.wk-voll-f{display:flex;align-items:center;gap:8px;height:38px;padding:0 12px;border-radius:12px;background:${C.sand};overflow-x:auto;white-space:nowrap;box-sizing:border-box}
-.wk-voll-f-label{flex:0 0 auto;font-size:15px;font-weight:700;color:${C.see}}
-.wk-voll-f-term{flex:0 0 auto;font-size:17px;font-weight:700;color:${C.tinte}}
+.wk-voll-kopf{position:relative;display:flex;align-items:center;gap:8px}
+.wk-voll-f{flex:1 1 auto;min-width:0;display:flex;align-items:center;gap:8px;height:40px;padding:0 14px;border-radius:14px;background:linear-gradient(155deg,${C.see} 0%,${C.seeTief} 100%);overflow-x:auto;white-space:nowrap;box-sizing:border-box}
+.wk-voll-f-label{flex:0 0 auto;font-size:15px;font-weight:700;color:${C.weiss}}
+.wk-voll-f-term{flex:0 0 auto;font-size:17px;font-weight:700;color:${C.weiss}}
+.wk-voll-rund{flex:0 0 auto;width:40px;height:40px;border-radius:999px;border:1.5px solid ${C.linie};background:#fff;color:${C.see};cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;font-family:inherit}
+.wk-voll .tool-menue-panel{top:46px;right:0;width:80vw;max-width:340px}
+.wk-voll-rund[aria-expanded="true"]{border-color:${C.flaggold};background:rgba(237,187,0,0.12)}
 .wk-voll .wk-feld{min-height:0;height:38px;padding:0 10px;gap:6px}
 .wk-voll .wk-feld.mit-kopf{flex-direction:row;align-items:center;padding:0 8px}
 .wk-voll .wk-feld .wk-kopf{display:none}
@@ -759,6 +764,9 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
   // Handy: die Eingabe von f′(x) läuft als Vollbild – Bausteine und Regel oben, f′-Zeile, Tastenfeld bis zum OK, ohne Scrollen
   const handy = useHandy();
   const voll = f1Popup && handy && !!ml;
+  // Menü im Vollbild (derselbe Menübaum wie in der Kopfleiste)
+  const [vollMenue, setVollMenue] = useState(false);
+  useEffect(() => { if (!voll) setVollMenue(false); }, [voll]);
   useEffect(() => {
     if (!voll) return undefined;
     const b = document.body, h = document.documentElement;
@@ -795,11 +803,26 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
     <div className="wk-voll" role="dialog" aria-modal="true" aria-label="f′(x) eingeben">
       <style>{WERK_CSS}</style>
       <div className="wk-voll-oben">
-        <div className="wk-voll-f" aria-label="Funktion f(x)">
-          <span className="wk-voll-f-label"><M t="f(x) =" /></span>
-          <span className="wk-voll-f-term">
-            <M t={art === "produkt" ? `${fakTex(schoen(u))} \\cdot ${fakTex(schoen(v))}` : fTex} />
-          </span>
+        <div className="wk-voll-kopf">
+          <div className="wk-voll-f" aria-label="Funktion f(x)">
+            <span className="wk-voll-f-label"><M t="f(x) =" /></span>
+            <span className="wk-voll-f-term">
+              <M t={art === "produkt" ? `${fakTex(schoen(u))} \\cdot ${fakTex(schoen(v))}` : fTex} />
+            </span>
+          </div>
+          <button type="button" className="wk-voll-rund" onClick={() => { setVollMenue(false); setAktiv(null); }} aria-label="Zurück" title="Zurück">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
+          </button>
+          <button type="button" className="wk-voll-rund" onClick={() => setVollMenue(!vollMenue)} aria-haspopup="dialog" aria-expanded={vollMenue}
+            aria-label={vollMenue ? "Menü schließen" : "Menü mit allen Bereichen"} title="Menü">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
+              {vollMenue ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
+            </svg>
+          </button>
+          {vollMenue && FR.toolMenue && (() => {
+            const Menue = FR.toolMenue;
+            return <Menue gehe={(z) => { setVollMenue(false); setAktiv(null); if (FR.gehe) FR.gehe(z); }} schliessen={() => setVollMenue(false)} aktuell="ableitungstrainer" />;
+          })()}
         </div>
         <div className={`wk-grid${kette ? " kette" : ""}`}>
           {mitU && <>

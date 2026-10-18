@@ -210,7 +210,7 @@ export function KompaktKopf({ ansicht, gehe, menueOffen, onMenue, menue, testKno
   const zeile = (aktiv) => ({ display: "flex", alignItems: "center", gap: 10, width: "100%", minHeight: 48, padding: "0 14px", border: "none", borderRadius: 12, textAlign: "left",
     fontFamily: "inherit", fontSize: 15.5, fontWeight: aktiv ? 700 : 500, cursor: "pointer", color: aktiv ? C.seeTief : C.tinte, background: aktiv ? "rgba(237,187,0,0.16)" : "transparent" });
   return (
-    <div data-kompakt-kopf style={{ position: "relative", zIndex: 50, background: C.weiss, borderBottom: `1px solid ${C.linie}` }}>
+    <div data-kompakt-kopf style={{ position: "sticky", top: 0, zIndex: 50, background: C.weiss, borderBottom: `1px solid ${C.linie}` }}>
       <div ref={wurzel} className="mx-auto" style={{ position: "relative", maxWidth: 620, height: 60, padding: "0 12px", display: "flex", alignItems: "center", gap: 8 }}>
         <button type="button" onClick={() => gehe(bereich.uebersicht ? { ansicht: bereich.uebersicht } : { ansicht: "start" })} style={rund}
           aria-label={`Zurück zu ${bereich.titel}`} title={`Zurück zu ${bereich.titel}`}>
