@@ -50,7 +50,7 @@ function Kopf() {
       <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
         <MathildaIcon groesse={64} hintergrund="rgba(255,255,255,0.08)" />
         <div style={{ minWidth: 0 }}>
-          <p style={{ margin: 0, fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: GOLD }}>Mathilda<span style={{ color: C.weiss }}>AI</span> · {zw("Übersetzerin", "Translator")}</p>
+          <p style={{ margin: 0, fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: C.weiss }}>Mathilda<span style={{ color: GOLD }}>AI</span> · {zw("Übersetzerin", "Translator")}</p>
           <p style={{ margin: "4px 0 0", fontSize: 20, fontWeight: 700, lineHeight: 1.2, letterSpacing: "-0.01em" }}>{zw("Foto rein – Bedingungen raus.", "Photo in – conditions out.")}</p>
         </div>
       </div>

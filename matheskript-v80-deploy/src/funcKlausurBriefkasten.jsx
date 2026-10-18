@@ -92,7 +92,7 @@ function Kopf() {
           <span style={{ position: "absolute", right: -6, bottom: -4, border: `2px solid ${NACHT}`, borderRadius: 999 }}><MathildaIcon groesse={30} /></span>
         </div>
         <div style={{ minWidth: 0 }}>
-          <p style={{ margin: 0, fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: GOLD }}>Mathilda<span style={{ color: C.weiss }}>AI</span></p>
+          <p style={{ margin: 0, fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: C.weiss }}>Mathilda<span style={{ color: GOLD }}>AI</span></p>
           <p style={{ margin: "3px 0 0", fontSize: 24, fontWeight: 700, lineHeight: 1.12, letterSpacing: "-0.02em" }}>{zw("Klausurbriefkasten", "Test mailbox")}</p>
         </div>
       </div>

@@ -52,6 +52,7 @@ const WiderrufSeite = lazyLaden(() => import("./funcRecht.jsx").then((m) => ({ d
 const DatenschutzSeite = lazyLaden(() => import("./funcRecht.jsx").then((m) => ({ default: m.DatenschutzSeite })));
 const EinwilligungSeite = lazyLaden(() => import("./funcEinwilligung.jsx").then((m) => ({ default: m.EinwilligungSeite })));
 const ElternabendSeite = lazyLaden(() => import("./funcElternabend.jsx").then((m) => ({ default: m.ElternabendSeite })));
+const SpendenSeite = lazyLaden(() => import("./funcSpendenSeite.jsx").then((m) => ({ default: m.SpendenSeite })));
 const KlausurBriefkasten = lazyLaden(() => import("./funcKlausurBriefkasten.jsx").then((m) => ({ default: m.KlausurBriefkasten })));
 const BundeswettbewerbSeite = lazyLaden(() => import("./funcWettbewerbe.jsx").then((m) => ({ default: m.BundeswettbewerbSeite })));
 const LandeswettbewerbeSeite = lazyLaden(() => import("./funcWettbewerbe.jsx").then((m) => ({ default: m.LandeswettbewerbeSeite })));
@@ -1069,6 +1070,10 @@ export function Mathilda() {
             <KlausurBriefkasten gehe={gehe} />
           </React.Suspense>
         </div>
+      ) : ansicht === "spenden" ? (
+        <React.Suspense fallback={<p role="status" style={{ color: C.grau, fontSize: 15, fontWeight: 300, padding: "24px", textAlign: "center" }}>{englisch() ? "Loading …" : "Wird geladen …"}</p>}>
+          <SpendenSeite gehe={gehe} />
+        </React.Suspense>
       ) : ansicht === "elternabend" ? (
         <EntwurfTor gehe={gehe}><ElternabendSeite gebucht={ticketGebucht} /></EntwurfTor>
       ) : ansicht === "challenge" ? (

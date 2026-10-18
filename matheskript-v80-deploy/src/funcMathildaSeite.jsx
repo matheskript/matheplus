@@ -150,7 +150,7 @@ export function MathildaKopf({ modus, setModus, onScan, onText, onBriefkasten })
           border: 1.5px solid rgba(255,255,255,0.16); background: linear-gradient(135deg, rgba(10,22,54,0.85), rgba(29,71,144,0.55)); box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
           transition: transform .15s ease, border-color .15s ease; -webkit-tap-highlight-color: transparent; }
         .mathilda-kopf .mk-bk button:hover { transform: translateY(-2px); border-color: rgba(237,187,0,0.6); }
-        .mathilda-kopf .mk-bk .mk-bk-ober { display: block; font-size: 10.5px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: ${GOLD}; }
+        .mathilda-kopf .mk-bk .mk-bk-ober { display: block; font-size: 10.5px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #FFFFFF; }
         .mathilda-kopf .mk-bk b { display: block; font-size: 16px; font-weight: 700; letter-spacing: -0.01em; margin-top: 1px; }
         .mathilda-kopf .mk-bk .mk-bk-z { display: block; font-size: 12.5px; font-weight: 300; color: #C9D6EE; line-height: 1.45; margin-top: 2px; }
         .mathilda-kopf .mk-bk .mk-bk-schloss { display: inline-flex; align-items: center; gap: 5px; margin-top: 6px; font-size: 11px; font-weight: 600; color: #E6EDF8; background: rgba(255,255,255,0.08); border-radius: 999px; padding: 3px 9px; }
@@ -222,7 +222,7 @@ export function MathildaKopf({ modus, setModus, onScan, onText, onBriefkasten })
           <button type="button" onClick={onBriefkasten} data-mathilda-briefkasten>
             <BriefkastenMini />
             <span style={{ flex: 1, minWidth: 0 }}>
-              <span className="mk-bk-ober">Mathilda<span style={{ color: "#FFFFFF" }}>AI</span></span>
+              <span className="mk-bk-ober">Mathilda<span style={{ color: GOLD }}>AI</span></span>
               <b>Klausurbriefkasten</b>
               <span className="mk-bk-z">Wirf deine zurückgegebene Klassenarbeit ein – Mathilda lernt daraus, bessere Testklausuren für deine Klasse zu bauen.</span>
               <span className="mk-bk-schloss"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke={GOLD} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>Foto wird nicht gespeichert</span>

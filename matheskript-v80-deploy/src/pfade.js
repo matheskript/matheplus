@@ -41,6 +41,7 @@ const WZ_MODUS_SLUG = {
 export const SEITEN = [
   { pfad: "", ansicht: "start" },
   { pfad: "landingpage", ansicht: "landingpage", alias: ["start-neu"] },
+  { pfad: "spenden", ansicht: "spenden", alias: ["donate", "unterstuetzen"] },
   { pfad: "elternabend", ansicht: "elternabend", alias: ["eltern-abend", "infoabend"] },
 
   /* Mein Weg */

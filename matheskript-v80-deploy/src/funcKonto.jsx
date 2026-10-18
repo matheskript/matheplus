@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { C } from "./base1.jsx";
+import { SpendenTeaser } from "./funcSpenden.jsx";
 import { RollenWahl, EmailAnmeldung, HinweisLeiste, ElternEinladen, MeineKlassen, PlanKarte, ElternBereich, LehrBereich, RolleAendern, GeschlechtFrage, WhatsAppIcon } from "./funcKontoRollen.jsx";
 import { rolleName, istLehrend, istGeschlecht, KURSSTUFE, NOTEN_AB, datenVollstaendig, elternLink, elternNachricht, freundeNachricht, whatsappLink } from "./rollenLogik.js";
 import { MeinTrainingKarte } from "./funcKontoTraining.jsx";
@@ -412,6 +413,7 @@ function Profil({ nutzer, profil, geworben, gehe }) {
           <KinderEinwilligungKarte />
           <WochenmailKarte />
           <PlanKarte profil={profil} kinder={kinder} />
+          <SpendenTeaser gehe={gehe} />
           <NameKarte profil={profil} />
         </>
       )}
