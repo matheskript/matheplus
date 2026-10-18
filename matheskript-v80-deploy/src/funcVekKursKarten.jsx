@@ -84,9 +84,12 @@ const CSS = `
   .vkk-text{margin:2px 0}
 }
 @media (max-width:560px){
-  .vkk{grid-template-columns:minmax(0,1fr) 112px;padding:14px;column-gap:12px}
+  .vkk{grid-template-columns:minmax(0,1fr) 142px;grid-template-rows:auto 1fr auto;grid-template-areas:"kopf bild" "text bild" "text knopf";padding:14px;column-gap:12px;row-gap:10px}
   .vkk-zeichen{display:none}
-  .vkk-knopf{width:100%;justify-content:space-between}
+  .vkk-text{align-self:start;margin:0;font-size:13px}
+  .vkk-knopf-feld{align-self:end}
+  .vkk-knopf{width:100%;justify-content:space-between;gap:6px;padding:5px 5px 5px 13px;font-size:12.5px;box-sizing:border-box;white-space:nowrap}
+  .vkk-knopf .vkk-pfeil{width:28px;height:28px;flex:none}
 }
 @media (prefers-reduced-motion:reduce){.vkk,.vkk-knopf,.vkk-pfeil{transition:none !important}}
 `;

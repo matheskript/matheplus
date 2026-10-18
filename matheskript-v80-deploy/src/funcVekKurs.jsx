@@ -389,30 +389,33 @@ function Modul({ modul, stand, setStand, oeffnen, zurUebersicht, gehe }) {
         @media (min-width:840px){.vk-seite{width:735px;max-width:735px;margin-left:calc(50% - 355px);margin-right:0;padding:0 0 64px}}`}</style>
       <div>
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginTop: 2 }}>
-          <div style={{ minWidth: 0 }}>
-            <p style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: "0.14em", color: K.gold, margin: "0 0 4px" }}>
-              {modul.kap === "L" || modul.kap === "A" ? KAPITEL[modul.kap].toUpperCase() : `KAPITEL ${modul.kap} · MODUL ${i + 1} VON ${KURS_MODULE.length}`}
-            </p>
-            <h2 style={{ fontSize: "clamp(23px, 6.4vw, 30px)", fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1.15, color: K.schwarz, margin: 0 }}>
-              {modul.nr ? `${modul.nr} ` : ""}{modul.titel}
-            </h2>
-          </div>
-          <div style={{ flex: "none", display: "flex", flexWrap: "wrap", justifyContent: "flex-end", gap: 8 }}>
+          <p style={{ minWidth: 0, fontSize: 11.5, fontWeight: 800, letterSpacing: "0.14em", lineHeight: 1.5, color: K.gold, margin: "2px 0 0" }}>
+            {modul.kap === "L" || modul.kap === "A" ? KAPITEL[modul.kap].toUpperCase() : (
+              <>
+                <span style={{ display: "block", whiteSpace: "nowrap" }}>KAPITEL {modul.kap}</span>
+                <span style={{ display: "block", whiteSpace: "nowrap" }}>MODUL {i + 1} VON {KURS_MODULE.length}</span>
+              </>
+            )}
+          </p>
+          <div style={{ flex: "none", display: "flex", flexDirection: "column", alignItems: "stretch", gap: 8 }}>
+            <button type="button" onClick={zurUebersicht}
+              style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "8px 12px 8px 8px", borderRadius: 10, border: `1px solid ${C.linie}`, background: K.weiss,
+                color: K.schwarz, fontFamily: "inherit", fontWeight: 600, fontSize: 13, cursor: "pointer", whiteSpace: "nowrap" }}>
+              <span aria-hidden="true">←</span> Alle Module
+            </button>
             {BUCH_BEREIT && seitenZahl > 1 && (
               <button type="button" onClick={umschalten} aria-pressed={zwei}
-                style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "8px 12px", borderRadius: 10, border: `1px solid ${zwei ? K.gold : C.linie}`, background: zwei ? K.hell : K.weiss,
+                style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 7, padding: "8px 12px", borderRadius: 10, border: `1px solid ${zwei ? K.gold : C.linie}`, background: zwei ? K.hell : K.weiss,
                   color: K.schwarz, fontFamily: "inherit", fontWeight: 600, fontSize: 13, cursor: "pointer", whiteSpace: "nowrap" }}>
                 <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><rect x="3" y="4" width="8" height="16" rx="1.5" fill="none" stroke="currentColor" strokeWidth="2" /><rect x="13" y="4" width="8" height="16" rx="1.5" fill="none" stroke="currentColor" strokeWidth="2" /></svg>
                 {zwei ? "Eine Seite" : "Zwei Seiten"}
               </button>
             )}
-            <button type="button" onClick={zurUebersicht}
-              style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 12px 8px 8px", borderRadius: 10, border: `1px solid ${C.linie}`, background: K.weiss,
-                color: K.schwarz, fontFamily: "inherit", fontWeight: 600, fontSize: 13, cursor: "pointer", whiteSpace: "nowrap" }}>
-              <span aria-hidden="true">←</span> Alle Module
-            </button>
           </div>
         </div>
+        <h2 style={{ width: "100%", fontSize: "clamp(23px, 6.4vw, 30px)", fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1.15, color: K.schwarz, margin: "10px 0 0" }}>
+          {modul.nr ? `${modul.nr} ` : ""}{modul.titel}
+        </h2>
         <div style={{ display: "flex", alignItems: "center", gap: "8px 14px", flexWrap: "wrap", margin: "8px 0 14px" }}>
           <p style={{ flex: "1 1 240px", minWidth: 0, fontSize: 15.5, fontStyle: "italic", color: "#2B3A4F", margin: 0 }}>{modul.frage}</p>
           {BUCH_BEREIT && seitenZahl > 1 && (
