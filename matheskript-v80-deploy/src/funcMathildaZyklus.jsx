@@ -16,7 +16,7 @@ function lage(el, wurzel) {
   return { x, y, w: el.offsetWidth, h: el.offsetHeight, mx: x + el.offsetWidth / 2, my: y + el.offsetHeight / 2 };
 }
 
-/* Weißes Blatt, Handschrift, schlanker schwarzer Kugelschreiber mit Metallspitze */
+/* Weißes Blatt, Handschrift, Original-Kugelschreiber (Foto, matt, freigestellt: public/grafiken/pen-matt.png) */
 function PenPaperBild() {
   return (
     <svg viewBox="0 0 100 100" width="88" height="88" aria-hidden="true" style={{ display: "block", overflow: "visible" }}>
@@ -29,14 +29,7 @@ function PenPaperBild() {
         <rect x="11" y="47" width="42" height="21" rx="4" fill="none" stroke="#1B2A55" strokeWidth="1.4" />
       </g>
       <g transform="translate(50 76) rotate(-50)">
-        <polygon points="0,0 11,-2.7 11,2.7" fill="#C3CBDA" />
-        <circle cx="0.6" cy="0" r="1.3" fill="#6B7487" />
-        <rect x="11" y="-3.3" width="7" height="6.6" fill="#D8DEEC" />
-        <rect x="18" y="-3.2" width="16" height="6.4" fill="#2A2D36" />
-        <rect x="34" y="-3.2" width="30" height="6.4" rx="3.2" fill="#14161B" />
-        <rect x="38" y="-2.3" width="22" height="1" rx="0.5" fill="rgba(255,255,255,0.28)" />
-        <rect x="44" y="-5" width="22" height="2" rx="1" fill="#AEB6C6" />
-        <rect x="60" y="-3.2" width="9" height="6.4" rx="3.2" fill="#14161B" />
+        <image href="/grafiken/pen-matt.png" x="-0.5" y="-3.4" width="70" height="6.5" preserveAspectRatio="xMinYMid meet" />
       </g>
     </svg>
   );
