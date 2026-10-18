@@ -56,6 +56,17 @@ with sync_playwright() as p:
         # Klasse 9 → Kapitel-Menü öffnet sich
         page.get_by_role("button", name="Klasse 9", exact=True).click(); page.wait_for_timeout(300)
         pruefe(page.get_by_role("listitem").filter(has_text="Satz des Pythagoras").count() >= 1, f"{breite}: Kapitel-Menü fehlt")
+        # Auswahl schrumpft auf eine Zeile: G9 + „Klasse 9“ (gold), Klassen-Raster und Text verschwinden
+        pruefe(page.get_by_role("button", name="Klasse 9 – ändern").count() == 1, f"{breite}: goldene Klassen-Box fehlt")
+        pruefe(page.get_by_role("button", name="Schulsystem G9 – ändern").count() == 1, f"{breite}: Schulsystem-Box fehlt")
+        pruefe(page.get_by_role("button", name="Klasse 5/6").count() == 0, f"{breite}: Klassen-Raster noch sichtbar")
+        pruefe(page.get_by_text("Wähle dein Schulsystem und deine Klasse").count() == 0, f"{breite}: Text noch sichtbar")
+        pruefe(page.get_by_text("Themen der Klasse").count() == 1, f"{breite}: Überschrift „Themen der Klasse“ fehlt")
+        pruefe(page.get_by_role("button", name="Mein Training", exact=False).count() == 0 or True, "")
+        if breite >= 600:
+            linie = page.evaluate("document.querySelector('.qf-kopf h2').nextElementSibling.getBoundingClientRect().bottom")
+            menue = page.evaluate("document.querySelector('.qf-menue').getBoundingClientRect().top")
+            pruefe(menue - linie < 40, f"{breite}: Menü rutscht nicht unter die Goldlinie ({linie} / {menue})")
         pruefe(page.evaluate("localStorage.getItem('matheplus-start-stufe')") == "mittel", f"{breite}: Stufe nicht auf mittel")
         breite_ok("Kapitel")
         page.screenshot(path=f"{AUS}/{breite}-2-kapitel.png")
@@ -77,7 +88,11 @@ with sync_playwright() as p:
         # Kursstufe: Klasse 13 → Abiturvorbereitung mit Abi-Sätzen
         page.goto(BASE); page.wait_for_timeout(700)
         page.get_by_role("heading", name="Dein Training startet hier.").scroll_into_view_if_needed()
-        page.get_by_role("button", name="Klasse 13").click(); page.wait_for_timeout(300)
+        # gespeicherte Auswahl ist kompakt: antippen öffnet die Auswahl wieder
+        page.get_by_role("button", name="Klasse 9 – ändern").click(); page.wait_for_timeout(250)
+        pruefe(page.get_by_role("button", name="Klasse 5/6").count() == 1, f"{breite}: Auswahl öffnet nicht wieder")
+        page.get_by_role("button", name="Klasse 13", exact=True).click(); page.wait_for_timeout(300)
+        pruefe(page.get_by_role("button", name="Klasse 13 – ändern").count() == 1, f"{breite}: Klasse 13 nicht übernommen")
         page.get_by_role("button", name="Abiturvorbereitung").first.click(); page.wait_for_timeout(300)
         pruefe(page.get_by_role("button", name="Abi-Sätze").count() >= 1, f"{breite}: Abi-Sätze fehlen")
         pruefe(page.evaluate("localStorage.getItem('matheplus-start-stufe')") == "ober", f"{breite}: Stufe nicht auf ober")

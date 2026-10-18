@@ -90,6 +90,29 @@ function KlassenWahl({ schulart, wert, setze }) {
   );
 }
 
+/* Nach der Wahl von Schulsystem und Klasse: alles in einer Zeile im blauen Balken –
+   vorne das Schulsystem (weißer Rahmen), daneben die Klasse als goldene Box über zwei Breiten.
+   Antippen öffnet die Auswahl wieder. */
+function GewaehltLeiste({ schulart, klasse, oeffnen }) {
+  const s = schulartVon(schulart);
+  const box = klassenBoxen(schulart).find((b) => b.id === klasse);
+  return (
+    <div role="group" aria-label="Deine Auswahl"
+      style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 4, padding: 4, borderRadius: 12, background: C.see,
+        boxShadow: "0 4px 12px rgba(0,77,152,0.22)" }}>
+      <button type="button" onClick={oeffnen} data-kein-i18n className="qf-sa" aria-label={`Schulsystem ${s ? s.name : ""} – ändern`} title="Schulsystem ändern"
+        style={{ ...TASTE, height: HOEHE - 8, color: C.weiss, border: `2px solid ${C.weiss}`, background: "rgba(255,255,255,0.14)" }}>
+        {s ? s.name : ""}
+      </button>
+      <button type="button" onClick={oeffnen} className="qf-gold" aria-label={`Klasse ${box ? box.label : ""} – ändern`} title="Klasse ändern"
+        style={{ ...TASTE, gridColumn: "span 2", height: HOEHE - 8, gap: 5, color: C.seeTief, border: "none",
+          background: "linear-gradient(180deg, #F5CB2E 0%, #EDBB00 100%)" }}>
+        Klasse <span data-kein-i18n>{box ? box.label : ""}</span>
+      </button>
+    </div>
+  );
+}
+
 const Pfeil = ({ auf, farbe = C.see, gross = 18 }) => (
   <svg aria-hidden="true" width={gross} height={gross} viewBox="0 0 18 18" style={{ flexShrink: 0, transform: auf ? "rotate(180deg)" : "none", transition: "transform .18s ease" }}>
     <path d="M4 7 L9 12 L14 7" fill="none" stroke={farbe} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
@@ -289,9 +312,9 @@ function KapitelMenue({ schulart, klasse, offen, setOffen, gehe, planOeffnen }) 
   return (
     <div className="auftauchen" style={{ marginTop: 6 }}>
       <p style={{ ...KICKER, color: C.grau, marginBottom: 8 }}>
-        Kapitel im Buch · Klasse <span data-kein-i18n>{box ? box.label : ""} · {s ? s.name : ""}</span>
+        Themen der Klasse <span data-kein-i18n>{box ? box.label : ""} · {s ? s.name : ""}</span>
       </p>
-      <div role="list" aria-label="Kapitel im Buch" style={{ display: "grid", gap: 6 }}>
+      <div role="list" aria-label="Themen der Klasse" style={{ display: "grid", gap: 6 }}>
         {kapitel.map((k) => {
           const auf = offen === k.id;
           const werkzeuge = auf ? werkzeugeZumKapitel(k.id, schulart, klasse) : [];
@@ -455,8 +478,11 @@ function PlanKarte({ q, auswahl, gehe, aktiv }) {
    Darunter einspaltig: Überschrift, Text, Schulsystem, Klassen.
    Nach der Klassenwahl öffnet sich das Kapitel-Menü. „Trainingsplan zu diesem Kapitel“ wechselt in den
    Plan-Modus (Themen zum Anhaken, das Kapitel ist schon angehakt) – „‹ Zurück zu den Kapiteln“ führt zurück. */
-export function Quickfinder({ gehe, setzeStufe, links, unten }) {
+export function Quickfinder({ gehe, setzeStufe, links }) {
   const [q, setQ] = useState(() => lesen() || { schulart: null, klasse: null, kapitel: null, teil: null, modus: modusLesen(), auswahl: auswahlOhneSchulart() });
+  // waehlen: Auswahl von Schulsystem und Klasse ist offen. Ist beides gewählt, schrumpft sie auf eine Zeile.
+  const [waehlen, setWaehlen] = useState(false);
+  const fertig = !!(q.schulart && q.klasse) && !waehlen;
   const aktiv = useAktiverPlan();
   const menueRef = useRef(null);
   const setze = (neu) => { setQ(neu); schreiben(neu); };
@@ -467,6 +493,7 @@ export function Quickfinder({ gehe, setzeStufe, links, unten }) {
     setze({ ...q, schulart: id, klasse: bleibt, kapitel: null, teil: null });
   };
   const klasseSetzen = (id) => {
+    setWaehlen(false);
     if (id === q.klasse) return;
     setze({ ...q, klasse: id, kapitel: null, teil: null });
     const box = klassenBoxen(q.schulart).find((b) => b.id === id);
@@ -493,20 +520,28 @@ export function Quickfinder({ gehe, setzeStufe, links, unten }) {
         @media (min-width:840px){.qf-unten{padding:0 18px 0 20px}.qf-menue{padding:0 18px 18px 20px}}
         @media (hover:hover){.qf-balken:hover{border-color:${C.see} !important}
           .qf-sa[aria-pressed="false"]:hover{background:rgba(255,255,255,0.1) !important}
-          .qf-kl[aria-pressed="false"]:hover{border-color:${C.see}55 !important}}`}</style>
-      <div className="qf-kopf">
+          .qf-kl[aria-pressed="false"]:hover{border-color:${C.see}55 !important}
+          .qf-gold:hover{filter:brightness(1.04)}}
+        .qf-kopf.qf-fertig{grid-template-areas:"kopf" "schul";padding-bottom:12px}
+        @media (min-width:600px){.qf-kopf.qf-fertig{grid-template-rows:auto;grid-template-areas:"kopf schul";align-items:start}}`}</style>
+      <div className={fertig ? "qf-kopf qf-fertig" : "qf-kopf"}>
         <div className="qf-a-kopf" style={{ minWidth: 0 }}>
           {links}
-          <p style={{ margin: "10px 0 0", fontSize: 13.5, fontWeight: 300, lineHeight: 1.55, color: C.grau }}>
+          {!fertig && <p style={{ margin: "10px 0 0", fontSize: 13.5, fontWeight: 300, lineHeight: 1.55, color: C.grau }}>
             {plan
               ? "Hake an, was in deinen Plan soll – ganze Kapitel, einzelne Unterthemen, auch mehrere Kapitel. Ich ergänze Warm-up, Basis-Check und Wiederholungen nach Ebbinghaus."
               : "Wähle dein Schulsystem und deine Klasse. Dann siehst du alle Kapitel aus deinem Buch – und zu jedem Kapitel die Werkzeuge, mit denen du es trainierst."}
-          </p>
+          </p>}
         </div>
-        <div className="qf-a-schul"><SchulartWahl wert={q.schulart} setze={schulartSetzen} /></div>
-        <div className="qf-a-klass"><KlassenWahl schulart={q.schulart} wert={q.klasse} setze={klasseSetzen} /></div>
+        {fertig ? (
+          <div className="qf-a-schul"><GewaehltLeiste schulart={q.schulart} klasse={q.klasse} oeffnen={() => setWaehlen(true)} /></div>
+        ) : (
+          <>
+            <div className="qf-a-schul"><SchulartWahl wert={q.schulart} setze={schulartSetzen} /></div>
+            <div className="qf-a-klass"><KlassenWahl schulart={q.schulart} wert={q.klasse} setze={klasseSetzen} /></div>
+          </>
+        )}
       </div>
-      {unten && <div className="qf-unten" style={{ display: "flex" }}>{unten}</div>}
       {(q.schulart && q.klasse) || aktiv ? (
         <div className="qf-menue" ref={menueRef}>
           {aktiv && <AktiverPlan v={aktiv} gehe={gehe} />}

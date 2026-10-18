@@ -16,7 +16,6 @@ import { Mathilda } from "./func10.jsx";
 import { KopfKacheln, KopfrechnenLogoKlein, TRAINER } from "./func14.jsx";
 import { HeadNumbersLogoKlein } from "./funcHeadNumbersLogo.jsx";
 import { EBB_SLOGAN, EbbinghausBadge, EbbinghausLogoKlein } from "./funcEbbinghaus.jsx";
-import { useOffenHeute } from "./funcMeinTraining.jsx";
 import { DeinPlanBlock, useLernpfad } from "./funcLernpfad.jsx";
 import { StartOnboarding, ZonenKopf } from "./funcOnboarding.jsx";
 import { Quickfinder } from "./funcQuickfinder.jsx";
@@ -175,28 +174,16 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
    darunter das Kapitel-Menü: jedes Kapitel klappt auf und zeigt seine Trainings-Werkzeuge
    (funcQuickfinder.jsx; Daten in schulbuch.js, unterthemen.js; Plan in trainingsplan.js). */
 function MeinTrainingKachelStart({ gehe, setzeStufe }) {
-  const s = useOffenHeute();
-  const offen = s.hatSkills ? s.offen : 0;
   const links = (
     <>
       <h2 style={{ margin: 0, fontSize: "clamp(19px, 5.2vw, 25px)", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.12, color: C.see }}>Dein Training startet hier.</h2>
       <span aria-hidden="true" style={{ display: "block", width: 40, height: 3, borderRadius: 2, marginTop: 9, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)` }} />
     </>
   );
-  // Statt „Mein Training öffnen“ stehen jetzt die beiden Modus-Knöpfe im Quickfinder; Mein Training bleibt als kleiner Link erreichbar
-  const unten = (
-    <button type="button" onClick={() => gehe({ ansicht: "meintraining" })}
-      style={{ marginTop: 4, alignSelf: "flex-start", display: "inline-flex", alignItems: "center", gap: 6, padding: "4px 0", border: "none", background: "none", cursor: "pointer",
-        fontFamily: "inherit", fontSize: 12.5, fontWeight: 700, color: C.grau }}>
-      Mein Training
-      {offen > 0 && <span aria-label={`${offen} Übungen heute offen`} style={{ minWidth: 20, height: 20, padding: "0 6px", borderRadius: 999, background: C.flaggold, color: C.seeTief, fontSize: 11.5, fontWeight: 800, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{offen}</span>}
-      <span aria-hidden="true">›</span>
-    </button>
-  );
   return (
     <div style={{ width: "calc(100% + 32px)", margin: "12px -16px 0", border: `2px solid ${C.see}`, borderRadius: 18, overflow: "hidden",
       background: C.weiss, boxShadow: "0 6px 22px rgba(0,77,152,0.14)" }}>
-      <Quickfinder gehe={gehe} setzeStufe={setzeStufe} links={links} unten={unten} />
+      <Quickfinder gehe={gehe} setzeStufe={setzeStufe} links={links} />
     </div>
   );
 }
