@@ -464,7 +464,7 @@ export function Mathilda() {
             :root{--kopf-h:56px}
             @media (min-width:421px){:root{--kopf-h:clamp(62px, calc(11.1vw + 26px), 90px)}.kopf-slogan{margin-top:6px !important}}
             @media (min-width:840px){.kopf-slogan{margin-top:1px !important}}
-            .logo-silber{background:linear-gradient(180deg,#FFFFFF 0%,${C.silberHell} 35%,${C.silber} 60%,${C.silberDunkel} 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+            .logo-silber{color:#FFFFFF}
             .titel-kurz{display:none}
             @media (max-width:520px){.held{padding-top:18px !important;padding-bottom:4px !important}.held h1{font-size:25px !important;line-height:1.1 !important}.held h1+div{margin-top:12px !important;margin-bottom:13px !important}.held-welle{height:12px !important}}
             .kopfblock{margin-bottom:-16px}
@@ -486,7 +486,7 @@ export function Mathilda() {
             <span style={{ color: C.weiss, fontSize: "clamp(21px, 7vw, 40px)", fontWeight: 700, letterSpacing: "-0.02em", textTransform: "uppercase", whiteSpace: "nowrap", lineHeight: 1 }}>
               <span className="logo-silber">mythos</span><span className="logo-gold">mathe</span><span className="logo-silber">.de</span>
             </span>
-            <span className="kopf-slogan" style={{ fontSize: "clamp(12.25px, 4.083vw, 23.33px)", fontWeight: 600, marginTop: 0, letterSpacing: "0.03em", color: "#C9D6EE", whiteSpace: "nowrap", lineHeight: 1 }}>
+            <span className="kopf-slogan" style={{ fontSize: "clamp(12.25px, 4.083vw, 23.33px)", fontWeight: 600, marginTop: 0, letterSpacing: "0.03em", color: "#FFFFFF", whiteSpace: "nowrap", lineHeight: 1 }}>
               System <span style={{ color: C.flaggold }}>+</span> Freude <span style={{ color: C.flaggold }}>=</span> Erfolg
             </span>
           </button>
