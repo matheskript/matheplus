@@ -35,8 +35,7 @@ import { Fusszeile } from "./funcRecht.jsx";
 import { FeedbackKnopf } from "./funcFeedback.jsx";
 import { MatheTastaturHost } from "./matheTastatur.jsx";
 import { LAENDER } from "./funcWettbewerbe.jsx";
-import { ENTWUERFE, istEntwurf, LANDING, istFrei, istMathildaZiel } from "./seitenKonstanten.js";
-import { SperreDialog } from "./funcSperreDialog.jsx";
+import { ENTWUERFE, istEntwurf, LANDING } from "./seitenKonstanten.js";
 const EntwurfTor = lazyLaden(() => import("./funcEntwuerfe.jsx").then((m) => ({ default: m.EntwurfTor })));
 const KapitelFormelnSeite = lazyLaden(() => import("./funcKapitelFormeln.jsx").then((m) => ({ default: m.KapitelFormelnSeite })));
 const ChallengeSeite = lazyLaden(() => import("./funcChallenge.jsx").then((m) => ({ default: m.ChallengeSeite })));
@@ -145,12 +144,12 @@ export function Mathilda() {
     } catch (e) { /* ignorieren */ }
     try {   // Direct Link: Unterziel (Werkzeug-Modus, Klasse, Trainer …) aus dem Pfad übernehmen
       const pz = pfadAufloesen(window.location.pathname);
-      if (pz && pz.ansicht !== "start") gehe({ ...pz, ausAdresse: true });
+      if (pz && pz.ansicht !== "start") gehe(pz);
     } catch (e) { /* ignorieren */ }
     try {   // nach dem Sprachwechsel dieselbe Seite wieder öffnen
       const z = JSON.parse(sessionStorage.getItem("mm-nach-sprachwechsel") || "null");
       sessionStorage.removeItem("mm-nach-sprachwechsel");
-      if (z && z.ansicht && z.ansicht !== "start") gehe({ ...z, ausAdresse: true });
+      if (z && z.ansicht && z.ansicht !== "start") gehe(z);
     } catch (e) { /* ignorieren */ }
   }, []);
   const sprachKnopf = () => {
@@ -191,7 +190,6 @@ export function Mathilda() {
   const lern = useLern();
 
   const [seitenOffen, setSeitenOffen] = useState(false);
-  const [sperreZiel, setSperreZiel] = useState(null);   // Mathilda-Ziel, das auf das Passwort „skript“ wartet
   const [toolMenueOffen, setToolMenueOffen] = useState(false);
   useEffect(() => { aufklappScrollStarten(); }, []);
   useEffect(() => { werkzeugMerken(ansicht); }, [ansicht]);   // für „Weitermachen“ auf der Startseite
@@ -238,7 +236,7 @@ export function Mathilda() {
   // Zurück/Vor-Taste des Browsers
   useEffect(() => {
     const f = () => {
-      try { adressAusVerlauf.current = Date.now(); FR.gehe({ ...(pfadAufloesen(window.location.pathname) || { ansicht: "start" }), ausAdresse: true }); } catch (e) { /* ignorieren */ }
+      try { adressAusVerlauf.current = Date.now(); FR.gehe(pfadAufloesen(window.location.pathname) || { ansicht: "start" }); } catch (e) { /* ignorieren */ }
     };
     window.addEventListener("popstate", f);
     return () => window.removeEventListener("popstate", f);
@@ -248,11 +246,6 @@ export function Mathilda() {
     if (!["impressum", "datenschutz", "agb", "widerruf", "einwilligung"].includes(eintrag.ansicht)
         && typeof document !== "undefined" && /(?:^|;\s*)mm_gast=1/.test(document.cookie)) {
       window.location.assign("/");
-      return;
-    }
-    // Mathilda AI: per Klick nur mit Passwort „skript“; Direktlink (Adresse, Zurück/Vor-Taste) bleibt offen
-    if (!eintrag.ausAdresse && istMathildaZiel(eintrag) && !istFrei()) {
-      setSperreZiel(eintrag); setSeitenOffen(false); setToolMenueOffen(false); setMenuOffen(false);
       return;
     }
     if (!eintrag.uebergabe) hinweisVerwerfen();
@@ -1663,10 +1656,6 @@ export function Mathilda() {
       )}
       {!istEntwurf(ansicht) && <Fusszeile gehe={gehe} />}
       <KiEinwilligungFenster />
-      {sperreZiel && (
-        <SperreDialog titel="Mathilda AI" onZu={() => setSperreZiel(null)}
-          onFrei={() => { const z = sperreZiel; setSperreZiel(null); if (z) gehe(z); }} />
-      )}
       <MatheTastaturHost />
     </div>
   );
