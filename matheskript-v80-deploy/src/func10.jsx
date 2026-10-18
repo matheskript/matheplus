@@ -54,6 +54,7 @@ const DatenschutzSeite = lazyLaden(() => import("./funcRecht.jsx").then((m) => (
 const EinwilligungSeite = lazyLaden(() => import("./funcEinwilligung.jsx").then((m) => ({ default: m.EinwilligungSeite })));
 const ElternabendSeite = lazyLaden(() => import("./funcElternabend.jsx").then((m) => ({ default: m.ElternabendSeite })));
 const SpendenSeite = lazyLaden(() => import("./funcSpendenSeite.jsx").then((m) => ({ default: m.SpendenSeite })));
+const SchulbuchSeite = lazyLaden(() => import("./funcSchulbuch.jsx").then((m) => ({ default: m.SchulbuchSeite })));
 const KlausurBriefkasten = lazyLaden(() => import("./funcKlausurBriefkasten.jsx").then((m) => ({ default: m.KlausurBriefkasten })));
 const BundeswettbewerbSeite = lazyLaden(() => import("./funcWettbewerbe.jsx").then((m) => ({ default: m.BundeswettbewerbSeite })));
 const LandeswettbewerbeSeite = lazyLaden(() => import("./funcWettbewerbe.jsx").then((m) => ({ default: m.LandeswettbewerbeSeite })));
@@ -1064,6 +1065,15 @@ export function Mathilda() {
             <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
           </div>
           <LandeswettbewerbSeite land={landWahl} gehe={gehe} />
+        </>
+      ) : ansicht === "schulbuch" ? (
+        <>
+          <SeitenKopf titel="Schulbuch: Ableitungen" groesse="clamp(26px, 7.6vw, 34px)" rund>
+            <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>Vom Differenzenquotienten bis zur Kettenregel – 36 Seiten zum Blättern.</p>
+          </SeitenKopf>
+          <React.Suspense fallback={<p role="status" style={{ color: C.grau, fontSize: 15, fontWeight: 300, padding: "24px", textAlign: "center" }}>{englisch() ? "Loading …" : "Wird geladen …"}</p>}>
+            <SchulbuchSeite gehe={gehe} />
+          </React.Suspense>
         </>
       ) : ansicht === "klausurbriefkasten" ? (
         <div className="mx-auto px-4 pb-16" style={{ maxWidth: 620 }}>

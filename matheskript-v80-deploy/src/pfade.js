@@ -70,6 +70,7 @@ export const SEITEN = [
   { pfad: "differenzenquotient", ansicht: "diffq" },
   { pfad: "formeln-zum-kapitel", ansicht: "kapitelformeln", alias: ["kapitel-formeln", "testklausur"] },
   { pfad: "potenzregel", ansicht: "potenzregel" },
+  { pfad: "schulbuch/ableitungen", ansicht: "schulbuch", alias: ["schulbuch", "buch-ableitungen"] },
   { pfad: "formelsammlung", ansicht: "formeln", alias: ["formeln-app"] },
   { pfad: "operatoren", ansicht: "operatoren" },
 

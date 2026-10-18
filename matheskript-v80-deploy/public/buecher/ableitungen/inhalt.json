@@ -1,0 +1,117 @@
+[
+ {
+  "titel": "Titel",
+  "seite": 1,
+  "kap": "0"
+ },
+ {
+  "titel": "Inhalt",
+  "seite": 2,
+  "kap": "0"
+ },
+ {
+  "titel": "Kapitel I · Auftakt",
+  "seite": 3,
+  "kap": "I"
+ },
+ {
+  "titel": "1 Mittlere Änderungsrate",
+  "seite": 4,
+  "kap": "I"
+ },
+ {
+  "titel": "2 Von der Sekante zur Tangente",
+  "seite": 6,
+  "kap": "I"
+ },
+ {
+  "titel": "3 Die Ableitungsfunktion",
+  "seite": 8,
+  "kap": "I"
+ },
+ {
+  "titel": "Alles klar? Training I",
+  "seite": 10,
+  "kap": "I"
+ },
+ {
+  "titel": "Kapitel II · Auftakt",
+  "seite": 11,
+  "kap": "II"
+ },
+ {
+  "titel": "4 Faktorregel",
+  "seite": 12,
+  "kap": "II"
+ },
+ {
+  "titel": "5 Summenregel",
+  "seite": 14,
+  "kap": "II"
+ },
+ {
+  "titel": "6 Produktregel",
+  "seite": 16,
+  "kap": "II"
+ },
+ {
+  "titel": "7 Potenzregel",
+  "seite": 18,
+  "kap": "II"
+ },
+ {
+  "titel": "8 Quotientenregel",
+  "seite": 20,
+  "kap": "II"
+ },
+ {
+  "titel": "9 Kettenregel",
+  "seite": 22,
+  "kap": "II"
+ },
+ {
+  "titel": "10 Sinus, Kosinus, eˣ und ln x",
+  "seite": 24,
+  "kap": "II"
+ },
+ {
+  "titel": "Alles klar? Training II",
+  "seite": 26,
+  "kap": "II"
+ },
+ {
+  "titel": "Kapitel III · Auftakt",
+  "seite": 27,
+  "kap": "III"
+ },
+ {
+  "titel": "11 Tangente und Normale",
+  "seite": 28,
+  "kap": "III"
+ },
+ {
+  "titel": "12 Vermischte Übungen",
+  "seite": 30,
+  "kap": "III"
+ },
+ {
+  "titel": "Rückblick",
+  "seite": 31,
+  "kap": "III"
+ },
+ {
+  "titel": "Lösungen",
+  "seite": 32,
+  "kap": "L"
+ },
+ {
+  "titel": "Stichwortverzeichnis",
+  "seite": 35,
+  "kap": "L"
+ },
+ {
+  "titel": "Rückseite",
+  "seite": 36,
+  "kap": "0"
+ }
+]
