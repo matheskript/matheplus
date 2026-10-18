@@ -28,11 +28,8 @@ def pruefe(bed, text):
         print("FEHLT:", text)
 
 def klick(loc):
-    """Klick; verdeckt die feste Kopfleiste das Element, wird direkt im DOM geklickt."""
-    try:
-        loc.click(timeout=2500)
-    except Exception:
-        loc.evaluate("el => el.click()")
+    """Klick direkt im DOM – die feste Kopfleiste verdeckt sonst Knöpfe beim Scrollen."""
+    loc.evaluate("el => el.click()")
 
 def breit_ok(page, breite, wo):
     sw = page.evaluate("document.documentElement.scrollWidth")
