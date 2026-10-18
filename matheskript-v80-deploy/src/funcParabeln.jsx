@@ -317,7 +317,7 @@ function zufallKoeff() {
 
 const imRahmen = (z) => Math.abs(wNum(z)) <= WZ_GRENZE;
 
-function ScheitelErkunden() {
+export function ScheitelErkunden() {
   const [eingabe, setEingabe] = useState("koeff");            // "koeff" = ax² + bx + c, "scheitel" = a(x − xₛ)² + yₛ
   const [a, setA] = useState(wZ(1));
   const [b, setB] = useState(wZ(-4));
@@ -527,7 +527,7 @@ function formSchritte(aufg, richtung) {
   ];
 }
 
-function ScheitelUebung() {
+export function ScheitelUebung() {
   const [richtung, setRichtung] = useState("nf");
   const [aufg, setAufg] = useState(() => neueFormAufgabe("nf"));
   const [stand, setStand] = useState(0);
@@ -686,7 +686,7 @@ function nullGleichungText(p) {
   return teile.map((z, i) => (i === 0 ? (z.neg ? "-" : "") + z.t : ` ${z.neg ? "-" : "+"} ${z.t}`)).join("") + " = 0";
 }
 
-function NullstellenSeite() {
+export function NullstellenSeite() {
   const [verf, setVerf] = useState("mitternacht");
   const [aufg, setAufg] = useState(() => neueNullAufgabe("mitternacht"));
   const [stand, setStand] = useState(0);
@@ -763,7 +763,7 @@ function NullstellenSeite() {
 const A_BRENN = [["1/4", "¼"], ["1/2", "½"], ["1", "1"], ["2", "2"]];
 const vTex = (v) => `(${qTex(v.x)} \\,|\\, ${qTex(v.y)})`;
 
-function BrennpunktSeite() {
+export function BrennpunktSeite() {
   const [aId, setAId] = useState("1/2");
   const [d, setD] = useState(-1);
   const [e, setE] = useState(-2);

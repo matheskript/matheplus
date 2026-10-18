@@ -65,6 +65,7 @@ const AbiSaetzeSeite = lazyLaden(() => import("./funcAbiSaetze.jsx").then((m) =>
 const MeinTrainingSeite = lazyLaden(() => import("./funcMeinTraining.jsx").then((m) => ({ default: m.MeinTrainingSeite })));
 const Geradengleichung = lazyLaden(() => import("./funcGeradengleichung.jsx").then((m) => ({ default: m.Geradengleichung })));
 const Ableitungstrainer = lazyLaden(() => import("./func13.jsx").then((m) => ({ default: m.Ableitungstrainer })));
+const ParabelTrainer = lazyLaden(() => import("./funcParabelTrainer.jsx").then((m) => ({ default: m.ParabelTrainer })));
 const StammIntegral = lazyLaden(() => import("./funcStammIntegral.jsx").then((m) => ({ default: m.StammIntegral })));
 const AdvancedPlotter = lazyLaden(() => import("./func12.jsx").then((m) => ({ default: m.AdvancedPlotter })));
 const LGSLoeser = lazyLaden(() => import("./funcLGS.jsx").then((m) => ({ default: m.LGSLoeser })));
@@ -398,7 +399,7 @@ export function Mathilda() {
   };
 
   /* Trainingswerkzeuge mit eigener schlanker Kopfleiste (KompaktKopf): der große Seitenkopf entfällt */
-  const ohneKopf = ansicht === "ableitungstrainer" || ansicht === "geradengleichung" || ansicht === "stammintegral";
+  const ohneKopf = ansicht === "ableitungstrainer" || ansicht === "geradengleichung" || ansicht === "parabeln" || ansicht === "stammintegral";
 
   return (
     <div className="app-wurzel" style={{ background: C.sand, color: C.tinte, fontFamily: "Montserrat, system-ui, sans-serif", minHeight: "100vh" }}>
@@ -925,6 +926,13 @@ export function Mathilda() {
             menue={<ToolMenue gehe={gehe} schliessen={() => setToolMenueOffen(false)} aktuell={ansicht} />}
             testKnopf={<PruefungsLink ansicht={ansicht} gehe={gehe} pille />} />
           <Ableitungstrainer />
+        </>
+      ) : ansicht === "parabeln" ? (
+        <>
+          <KompaktKopf ansicht={ansicht} gehe={gehe} menueOffen={toolMenueOffen} onMenue={() => setToolMenueOffen(!toolMenueOffen)}
+            menue={<ToolMenue gehe={gehe} schliessen={() => setToolMenueOffen(false)} aktuell={ansicht} />}
+            testKnopf={<PruefungsLink ansicht={ansicht} gehe={gehe} pille />} />
+          <ParabelTrainer />
         </>
       ) : ansicht === "stammintegral" ? (
         <>

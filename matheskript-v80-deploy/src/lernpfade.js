@@ -62,6 +62,7 @@ export const STATION_GENERATOREN = {
   "gleichungen.terme": ["ter-binom", "bru-add", "bru-div"],
   "gleichungen.loesen": ["gl-linear", "gl-quadrat", "gl-ausklammern"],
   "gleichungen.gerade": [],
+  "gleichungen.parabel": ["gl-quadrat", "fkt-scheitel"],
 };
 
 /* Trainieren je Einheit: welche Generatoren passen zum Werkzeug? Fehlt der Eintrag, gelten die
