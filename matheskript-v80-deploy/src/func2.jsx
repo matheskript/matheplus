@@ -103,7 +103,7 @@ function AufklappRahmen({ auf, innen, rahmenRef, sprung, children }) {
   );
 }
 
-function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "Werkzeug", klein, halb, kompakt, extra, gesperrt, logoHell, portraet, titelUmbruch, keinI18nTitel, auf, haupt, breit, goldRand, hell, inRahmen }) {
+function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "Werkzeug", klein, halb, kompakt, extra, gesperrt, logoHell, portraet, titelUmbruch, keinI18nTitel, auf, haupt, breit, goldRand, hell, inRahmen, zweizeilig }) {
   if (halb || kompakt) klein = true;   // kompakt: Titel + genau eine Textzeile, schmale Grafik   // halbe Höhe: nur Titel und eine Textzeile
   const mehrereSaetze = saetze(text).length > 1;
   return (
@@ -124,10 +124,12 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
         .plotter-kachel-flach:active{transform:none}
         .kachel-text{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
         @media ${DESKTOP_MQ}{.kachel-text-klein{height:2.8em !important;-webkit-line-clamp:2 !important}}
+        .bereich-lang{display:none}
+        @media ${DESKTOP_MQ}{.bereich-kurz{display:none}.bereich-lang{display:inline}.kachel-zwei{font-size:13px !important}}
         .kachel-titel{background:linear-gradient(180deg,#FFFFFF 0%,${C.silberHell} 55%,${C.silber} 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
         .kachel-gesperrt .kachel-titel{background:none;color:#FFFFFF;text-shadow:0 1px 2px rgba(30,40,60,0.25)}`}</style>
       {/* Links (60 %): Titel und Erklärtext von oben */}
-      <div style={{ flex: klein ? "1 1 68%" : "1 1 60%", minWidth: 0, padding: halb ? "8px 8px 8px 14px" : kompakt ? "9px 8px 9px 14px" : klein ? "14px 8px 14px 14px" : "14px 10px 14px 16px", display: "flex", flexDirection: "column", justifyContent: halb ? "center" : undefined }}>
+      <div style={{ flex: klein ? "1 1 68%" : "1 1 60%", minWidth: 0, padding: halb ? "8px 8px 8px 14px" : kompakt ? (zweizeilig ? "11px 8px 11px 14px" : "9px 8px 9px 14px") : klein ? "14px 8px 14px 14px" : "14px 10px 14px 16px", display: "flex", flexDirection: "column", justifyContent: halb ? "center" : undefined }}>
         <h2 className="kachel-titel" data-kein-i18n={keinI18nTitel || undefined} style={{ fontSize: halb || kompakt ? "clamp(14px, 3.8vw, 18px)" : "clamp(15px, 4.1vw, 22px)", fontWeight: 700, letterSpacing: "-0.03em",
           lineHeight: 1.1, margin: 0, whiteSpace: titelUmbruch ? "normal" : "nowrap", ...(hell ? { background: "none", WebkitBackgroundClip: "initial", backgroundClip: "initial", color: C.see } : {}), ...(titelUmbruch ? {} : portraet
             // Titel darf über das Porträt hinauslaufen (das Porträt beginnt erst darunter)
@@ -138,8 +140,11 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
         {!halb && <span aria-hidden="true" style={{ display: "block", width: kompakt ? 28 : 34, height: 2.5, borderRadius: 2, marginTop: kompakt ? 4 : 6,
           background: gesperrt ? "rgba(255,255,255,0.7)" : `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)` }} />}
         {halb || kompakt ? (
-          <p style={{ color: gesperrt ? "rgba(255,255,255,0.92)" : C.weiss, fontSize: 12, fontWeight: 300, lineHeight: 1.35, marginTop: kompakt ? 4 : 3, marginBottom: 0,
-            whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+          <p className={zweizeilig ? "kachel-zwei" : undefined} style={{ color: gesperrt ? "rgba(255,255,255,0.92)" : C.weiss, fontSize: 12, fontWeight: 300, lineHeight: 1.35, marginTop: kompakt ? 4 : 3, marginBottom: 0,
+            ...(zweizeilig
+              // zwei Zeilen: Zusammenfassung des Bereichs, feste Höhe, damit alle Kacheln gleich hoch sind
+              ? { display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", height: "2.7em", textWrap: "pretty" }
+              : { whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }) }}>
             {text}
           </p>
         ) : (
@@ -155,7 +160,7 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
         </div>
       )}
       {/* Rechts (40 %): nur die Grafik */}
-      <div style={{ flex: kompakt ? "0 0 24%" : klein ? "0 0 32%" : "0 0 40%", position: "relative", background: hell ? C.himmel : "rgba(255,255,255,0.04)",
+      <div style={{ flex: kompakt ? (zweizeilig ? "0 0 26%" : "0 0 24%") : klein ? "0 0 32%" : "0 0 40%", position: "relative", background: hell ? C.himmel : "rgba(255,255,255,0.04)",
         borderLeft: `1px solid ${hell ? `${C.see}33` : gesperrt ? "rgba(255,255,255,0.35)" : `${C.silber}33`}`, display: "flex" }}>
         <div style={{ position: "absolute", inset: 0, display: "flex", ...(gesperrt && !logoHell ? { filter: "grayscale(1) brightness(1.15)", opacity: 0.35 } : {}) }}>{logo}</div>
         {extra}
@@ -717,15 +722,72 @@ const ZEIGE_GESPERRTE = false;
 
 /* Schulmathematik → Bereiche → Stationen → Werkzeuge. Die Daten stehen in werkzeuge.js (eine Liste für
    Startseite, Werkzeug-Menü, Kopfleiste und Übersichtsseiten); hier kommen nur die Logos dazu. */
-const BEREICH_LOGO = { fundament: <ZeichenLogo zeichen="a+0" />, analysis: <PlotterLogoKlein />, vektoren: <VektorenLogoKlein />, stochastik: <StochastikLogoKlein />, geometrie: <GeometrieLogoKlein />, bruchrechnen: <BruchrechnenLogoKlein />, zahlen: <ZahlenLogoKlein />, prozent: <ProzentLogoKlein />, daten: <DatenLogoKlein />, werkzeuge: <FormelLogoKlein />, abitur: <ZeichenLogo zeichen="Abi" /> };
+const BEREICH_LOGO = { fundament: <ZeichenLogo zeichen="a+0" platz />, analysis: <PlotterLogoKlein />, vektoren: <VektorenLogoKlein />, stochastik: <StochastikLogoKlein />, geometrie: <GeometrieLogoKlein />, bruchrechnen: <BruchrechnenLogoKlein />, zahlen: <ZahlenLogoKlein />, prozent: <ProzentLogoKlein />, daten: <DatenLogoKlein />, werkzeuge: <FormelLogoKlein />, abitur: <ZeichenLogo zeichen="Abi" platz /> };
 /* Liniennetz: jeder Bereich ist eine „Linie“ mit eigenem Strich, die Stationen sind ihre Halte */
 const LINIEN_MUSTER = { fundament: "4px solid", analysis: "4px solid", vektoren: "7px double", stochastik: "4px dashed", geometrie: "4px solid", bruchrechnen: "4px dashed", zahlen: "4px solid", prozent: "7px double", daten: "4px dashed", werkzeuge: "4px dotted" };
 
-/* Kurztexte für die Bereichs-Kacheln: genau eine Zeile (ohne Stationsnamen) */
-const BEREICH_KURZ = { fundament: "Axiome und Zahlenräume – für alle", analysis: "Funktionen, Kurven, Integrale", vektoren: "Geraden, Ebenen, Abstände, Gleichungssysteme", stochastik: "Zählen, Zufall, Testen",
-  geometrie: "Figuren, Winkel, Körper", bruchrechnen: "Brüche und Dezimalzahlen",
-  zahlen: "Zahlen, Rechnen, Größen", prozent: "Zuordnungen und Prozent", daten: "Daten auswerten, Zufall",
-  werkzeuge: "Formeln, Gleichungen, Textaufgaben", abitur: "Abi-Ketten, Abi-Sätze, Probeabitur" };
+/* Zusammenfassung für die Bereichs-Kacheln der Schulmathematik: was im Bereich vorkommt, in zwei Zeilen.
+   Je Eintrag [kurz, lang]: kurz fürs Handy (passt bei 360 px in zwei Zeilen, etwa 50 Zeichen),
+   lang für den Desktop (ab 840 px, etwa 140 Zeichen).
+   Je Stufe eigener Text (u = Unterstufe, m = Mittelstufe, o = Oberstufe, a = Alle); fehlt eine Stufe, gilt „a“. */
+const BEREICH_INHALT = {
+  fundament: {
+    a: ["Rechengesetze, Zahlenräume ℕ bis ℝ, Mengen und Logik",
+      "Axiome und Rechengesetze als Spielregeln jeder Rechnung, die Zahlenräume von ℕ über ℤ und ℚ bis ℝ, Mengen und Logik als Sprache der Mathematik"] },
+  analysis: {
+    m: ["Geraden, Parabeln, Funktionsklassen, Sinus, Wachstum",
+      "Geraden und Parabeln von Normalform bis Scheitelform, Funktionsklassen im Überblick, Sinusfunktion, exponentielles Wachstum und Logarithmen"],
+    o: ["Ableiten, Kurvendiskussion, Steckbrief, Integrale",
+      "Funktionsklassen, Ableiten mit allen Regeln, Kurvendiskussion und Scharen, Steckbriefaufgaben, Optimierung, Integrale"],
+    a: ["Geraden, Parabeln, Ableiten, Kurven, Integrale",
+      "Geraden und Parabeln, Funktionsklassen, Ableiten, Kurvendiskussion und Scharen, Steckbriefaufgaben, Optimierung, Stammfunktionen und Integrale"] },
+  vektoren: {
+    a: ["Skalar- und Kreuzprodukt, Geraden, Ebenen, Abstände",
+      "Rechnen mit Vektoren, Skalar- und Kreuzprodukt, Geraden und Ebenen aufstellen, Lage, Winkel, Abstände, Gleichungssysteme"] },
+  stochastik: {
+    m: ["Kombinatorik, Vier-Felder-Tafel, Erwartungswert",
+      "Urnen und Kombinatorik, Baumdiagramm und Pfadregeln, Vier-Felder-Tafel und bedingte Wahrscheinlichkeit, Erwartungswert und faire Spiele"],
+    a: ["Bäume, Binomialverteilung, Tests, Normalverteilung",
+      "Kombinatorik, Bäume und Vier-Felder-Tafel, Erwartungswert und faire Spiele, Bernoulli-Kette und Binomialverteilung, Hypothesentests, Normalverteilung"] },
+  geometrie: {
+    u: ["Koordinaten, Symmetrie, Flächen, Quader, Winkel",
+      "Koordinatensystem und Symmetrie, Umfang und Flächeninhalt von Rechteck bis Trapez, Quader und Würfel mit Netzen, Winkel und Winkelsummen"],
+    m: ["Kongruenz, Pythagoras, Trigonometrie, Kreis, Körper",
+      "Winkelsätze, Kongruenz und besondere Linien im Dreieck, Thales, Pythagoras, Höhen- und Kathetensatz, Strahlensätze, Trigonometrie, Kreis und Körper"],
+    a: ["Flächen, Winkel, Pythagoras, Trigonometrie, Körper",
+      "Flächen und Quader, Winkel, Kongruenz und besondere Linien, Thales und Pythagoras, Strahlensätze, Trigonometrie, Kreis und Körper"] },
+  bruchrechnen: {
+    a: ["Kürzen, Rechnen mit Brüchen, Dezimalzahlen und Komma",
+      "Brüche kürzen und erweitern, die vier Grundrechenarten mit Brüchen, Dezimalzahlen, Komma verschieben, abbrechend oder periodisch"] },
+  zahlen: {
+    a: ["Stellenwert, ganze Zahlen, Primzahlen, Größen",
+      "Stellenwert und Runden, ganze und rationale Zahlen, Primzahlen, ggT und kgV, Rechengesetze und Rechenvorteile, Größen und Einheiten umrechnen"] },
+  prozent: {
+    a: ["Dreisatz, Prozent, Rabatt, Zinsen und Zinseszins",
+      "Proportionale und antiproportionale Zuordnungen, Dreisatz, Prozentwert, Grundwert und Prozentsatz, Rabatt und Mehrwertsteuer, Zinsen und Zinseszins"] },
+  daten: {
+    a: ["Diagramme, Mittelwert und Median, Wahrscheinlichkeit",
+      "Umfragen auswerten, Säulen- und Kreisdiagramme, Mittelwert, Median und Spannweite, Würfel und Urnen, Gegenereignis und Pfadregel"] },
+  werkzeuge: {
+    u: ["Formelsammlung, Gleichungen lösen, Textaufgaben",
+      "Die Formelsammlung zum Nachschlagen, Gleichungen Schritt für Schritt lösen, Textaufgaben in Gleichungen übersetzen – auch per Foto mit Mathilda"],
+    m: ["Formeln, Terme, Gleichungen, Bruchterme, Textaufgaben",
+      "Formelsammlung, Terme und Potenzgesetze, Gleichungen und Gleichungssysteme, Ungleichungen, Bruchterme, Textaufgaben"],
+    o: ["Formeln, Gleichungen, Ungleichungen, Textaufgaben",
+      "Die Formelsammlung zum Nachschlagen, Gleichungen lösen, Ungleichungen und Beträge, Textaufgaben übersetzen – auch per Foto mit Mathilda"],
+    a: ["Formeln, Terme, Gleichungen, Bruchterme, Textaufgaben",
+      "Formelsammlung, Terme und Potenzgesetze, Gleichungen, Ungleichungen und Beträge, Bruchterme, Textaufgaben übersetzen"] },
+  abitur: {
+    a: ["Abi-Ketten, zehn Abi-Sätze, Probeabitur mit Uhr",
+      "Abi-Ketten: eine Aufgabe durch mehrere Werkzeuge, zehn komplette Abi-Sätze mit Teil A und B, Probeabitur mit Uhr und Notenpunkten"] },
+};
+const STUFE_KUERZEL = { unter: "u", mittel: "m", ober: "o", alle: "a" };
+function bereichInhalt(id, stufe) {
+  const t = BEREICH_INHALT[id];
+  const [kurz, lang] = t ? (t[STUFE_KUERZEL[stufe] || "a"] || t.a) : [];
+  if (!kurz) return null;
+  return <><span className="bereich-kurz">{kurz}</span><span className="bereich-lang">{lang}</span></>;
+}
 
 /* Abi-Vorbereitung: gehört nur zur Oberstufe (und „Alle“) und besteht aus Seiten, nicht aus Werkzeugen des Registers */
 const ABI_MENUE = [
@@ -926,9 +988,10 @@ function PlusKnopf({ auf, klein }) {
 }
 
 /* Grafik für die kleinen Trainer-Kacheln: großes goldenes Zeichen (z. B. 12², ¾) */
-function ZeichenLogo({ zeichen }) {
+function ZeichenLogo({ zeichen, platz }) {
+  // platz: Zeichen nach links oben rücken, damit der große Plus-Knopf unten rechts es nicht verdeckt
   return (
-    <span style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center",
+    <span style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", boxSizing: "border-box", ...(platz ? { padding: "0 32px 28px 0" } : {}),
       color: C.flaggold, fontWeight: 800, fontSize: zeichen.length > 4 ? "clamp(17px, 4.6vw, 24px)" : "clamp(24px, 6.5vw, 32px)", letterSpacing: "-0.01em" }}>
       {zeichen}
     </span>
@@ -936,8 +999,8 @@ function ZeichenLogo({ zeichen }) {
 }
 
 /* Goldener Plus-/Minus-Knopf unten rechts in der Grafik eines aufklappbaren Bereichs */
-function AufklappPfeil({ auf, klein }) {
-  return <AufklappZeichen art="gold" auf={auf} groesse={klein ? 26 : 30} abstand={8} />;
+function AufklappPfeil({ auf, klein, gross }) {
+  return <AufklappZeichen art="gold" auf={auf} groesse={gross ? 38 : klein ? 26 : 30} abstand={gross ? 10 : 8} />;
 }
 
 /* Kleine, dünn gezeichnete Motive für die Werkzeug-Knöpfe (viewBox 120 × 56) */
@@ -1703,15 +1766,13 @@ export function Startseite({ gehe }) {
             const eintraege = blockEintraege(b, stufe, null);
             if (!eintraege.length || (!b.eintraege && !b.kiste && !eintraege.some((e) => !e.kopf))) return null;   // z. B. Vektoren in der Mittelstufe
             const offen = bereichAuf === b.id;
-            const koepfe = eintraege.filter((e) => e.kopf);
-            const ZAHL = ["", "Eine Station", "Zwei Stationen", "Drei Stationen", "Vier Stationen", "Fünf Stationen", "Sechs Stationen"];
-            const text = (b.eintraege || b.kiste || stufe === "alle") ? (BEREICH_KURZ[b.id] || b.text) : ZAHL[koepfe.length] || `${koepfe.length} Stationen`;
+            const text = bereichInhalt(b.id, stufe) || b.text;
             return (
               <AufklappRahmen key={b.id} auf={offen} innen rahmenRef={offen ? offenRahmen : undefined}>
-                <PlotterKachel kompakt breit haupt goldRand={b.gold} onClick={() => { setBereichAuf(offen ? null : b.id); }}
+                <PlotterKachel kompakt zweizeilig breit haupt goldRand={b.gold} onClick={() => { setBereichAuf(offen ? null : b.id); }}
                   auf={offen} label={offen ? `${b.titel} zuklappen` : `${b.titel} aufklappen`}
                   logo={b.logo} titel={b.titel} text={text}
-                  extra={<AufklappPfeil auf={offen} />} />
+                  extra={<AufklappPfeil auf={offen} gross />} />
                 {offen && <BereichsKopfLeiste rahmenRef={offenRahmen} titel={b.titel} onZu={bereichZuUndZeigen} />}
                 {offen && <div style={{ margin: "0 -16px" }}><UnterMenue eintraege={eintraege} gehe={gehe} linie={b.linie} /></div>}
                 {ZEIGE_GESPERRTE && offen && b.video && <VideokursGesperrt name={b.video.name} zeile={b.video.zeile} />}
