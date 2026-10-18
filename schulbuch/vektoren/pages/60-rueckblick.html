@@ -1,0 +1,34 @@
+<!-- kap: L | ukap: Rückblick -->
+<div class="ukap-titel"><h2>Rückblick · Alles auf einen Blick</h2></div>
+<p class="leitfrage">Eine Seite zum Wiederholen vor jeder Klausur.</p>
+
+<table class="wt voll rb" style="margin-top:0">
+  <tr><th class="l">Thema</th><th class="l">Formel / Vorgehen</th><th class="l">Beispiel</th><th>S.</th></tr>
+  <tr><td class="l"><b>Gerade (2D)</b></td><td class="l">$y = mx + c$ &nbsp;bzw.&nbsp; $ax + by = c$</td><td class="l">$y = 2x + 1 \iff 2x - y = -1$</td><td>{{S:zwei-geraden-1}}</td></tr>
+  <tr><td class="l"><b>Gauß-Verfahren</b></td><td class="l">Stufenform, rückwärts einsetzen</td><td class="l">Zeile $0 = 5$: keine Lösung</td><td>{{S:gauss-1}}</td></tr>
+  <tr><td class="l"><b>Verbindungsvektor</b></td><td class="l">$\overrightarrow{AB} = \vec{b} - \vec{a}$ („Spitze minus Fuß“)</td><td class="l">$A(1 \mid 2 \mid 0)$, $B(3 \mid 1 \mid 4)$: $\left(\begin{smallmatrix} 2 \\ -1 \\ 4 \end{smallmatrix}\right)$</td><td>{{S:vektoren-1}}</td></tr>
+  <tr><td class="l"><b>Betrag</b></td><td class="l">$|\vec{a}| = \sqrt{a_1^2 + a_2^2 + a_3^2}$</td><td class="l">$\Big|\left(\begin{smallmatrix} 1 \\ 2 \\ 2 \end{smallmatrix}\right)\Big| = 3$</td><td>{{S:vektoren-1}}</td></tr>
+  <tr><td class="l"><b>Mittelpunkt</b></td><td class="l">$\vec{m} = \frac{1}{2}(\vec{a} + \vec{b})$</td><td class="l">$M(2 \mid 1{,}5 \mid 2)$</td><td>{{S:rechnen-1}}</td></tr>
+  <tr><td class="l"><b>Gerade (Raum)</b></td><td class="l">$g\colon \vec{x} = \vec{p} + t \cdot \vec{u}$ &nbsp;(wie $y = c + x \cdot m$)</td><td class="l">durch $A$, $B$: $\vec{u} = \overrightarrow{AB}$</td><td>{{S:parameter-1}}</td></tr>
+  <tr><td class="l"><b>Lage Gerade–Gerade</b></td><td class="l">$\vec{u}, \vec{v}$ kollinear? sonst LGS $\vec{p} + t\vec{u} = \vec{q} + s\vec{v}$</td><td class="l">LGS ohne Lösung: windschief</td><td>{{S:lage-geraden-1}}</td></tr>
+  <tr><td class="l"><b>Skalarprodukt</b></td><td class="l">$\vec{a} \cdot \vec{b} = a_1b_1 + a_2b_2 + a_3b_3$; &nbsp;$= 0 \iff \vec{a} \perp \vec{b}$</td><td class="l">$\left(\begin{smallmatrix} 1 \\ 2 \\ 3 \end{smallmatrix}\right) \cdot \left(\begin{smallmatrix} 3 \\ 0 \\ -1 \end{smallmatrix}\right) = 0$</td><td>{{S:skalar-1}}</td></tr>
+  <tr><td class="l"><b>Winkel</b></td><td class="l">$\cos\alpha = \dfrac{\vec{a} \cdot \vec{b}}{|\vec{a}| \cdot |\vec{b}|}$</td><td class="l">$\cos\alpha = 0{,}5$: $\alpha = 60°$</td><td>{{S:winkel-1}}</td></tr>
+  <tr><td class="l"><b>Kreuzprodukt</b></td><td class="l">$\vec{a} \times \vec{b} = \left(\begin{smallmatrix} a_2b_3 - a_3b_2 \\ a_3b_1 - a_1b_3 \\ a_1b_2 - a_2b_1 \end{smallmatrix}\right)$ &nbsp;$\perp \vec{a}, \vec{b}$</td><td class="l">$A_\triangle = \frac{1}{2}\,|\overrightarrow{AB} \times \overrightarrow{AC}|$</td><td>{{S:kreuz-1}}</td></tr>
+  <tr><td class="l"><b>Ebene</b></td><td class="l">$E\colon \vec{x} = \vec{p} + r \cdot \vec{u} + s \cdot \vec{v}$</td><td class="l">drei Punkte, zwei Spannvektoren</td><td>{{S:ebene-param-1}}</td></tr>
+  <tr><td class="l"><b>Normalen-/Koordinatenform</b></td><td class="l">$(\vec{x} - \vec{p}) \cdot \vec{n} = 0 \;\Rightarrow\; n_1x_1 + n_2x_2 + n_3x_3 = d$</td><td class="l">$\vec{n} = \vec{u} \times \vec{v}$</td><td>{{S:normalenform-1}}</td></tr>
+  <tr><td class="l"><b>Spurpunkte</b></td><td class="l">zwei Koordinaten 0 setzen</td><td class="l">$2x_1 + x_2 + x_3 = 4$: $S_1(2 \mid 0 \mid 0)$</td><td>{{S:spurpunkte-1}}</td></tr>
+  <tr><td class="l"><b>Gerade–Ebene</b></td><td class="l">Gerade in Koordinatenform einsetzen</td><td class="l">eine / keine / alle Lösungen</td><td>{{S:gerade-ebene-1}}</td></tr>
+  <tr><td class="l"><b>Ebene–Ebene</b></td><td class="l">$\vec{n}_1, \vec{n}_2$ kollinear? sonst Schnittgerade per LGS</td><td class="l">drei Ebenen: LGS $3 \times 3$</td><td>{{S:ebene-ebene-1}}</td></tr>
+  <tr><td class="l"><b>Abstand Punkt–Ebene</b></td><td class="l">$d = \dfrac{|n_1p_1 + n_2p_2 + n_3p_3 - d|}{|\vec{n}|}$ &nbsp;(HNF)</td><td class="l">$\vec{n} = \left(\begin{smallmatrix} 1 \\ 2 \\ 2 \end{smallmatrix}\right)$: durch 3 teilen</td><td>{{S:hnf-1}}</td></tr>
+  <tr><td class="l"><b>Abstand Punkt–Gerade</b></td><td class="l">Lotfußpunkt $F$ mit $\overrightarrow{PF} \cdot \vec{u} = 0$</td><td class="l">$d = |\overrightarrow{PF}|$</td><td>{{S:punkt-gerade-1}}</td></tr>
+  <tr><td class="l"><b>windschiefe Geraden</b></td><td class="l">$\vec{n} = \vec{u} \times \vec{v}$, &nbsp;$d = \dfrac{|(\vec{q} - \vec{p}) \cdot \vec{n}|}{|\vec{n}|}$</td><td class="l">Flugbahnen</td><td>{{S:gerade-gerade-1}}</td></tr>
+  <tr><td class="l"><b>Schnittwinkel</b></td><td class="l">$g, h$ und $E, F$: $\cos\alpha = \dfrac{|\vec{u} \cdot \vec{v}|}{|\vec{u}||\vec{v}|}$; &nbsp;$g, E$: $\sin\alpha = \dfrac{|\vec{u} \cdot \vec{n}|}{|\vec{u}||\vec{n}|}$</td><td class="l">immer $0° \le \alpha \le 90°$</td><td>{{S:schnittwinkel-1}}</td></tr>
+  <tr><td class="l"><b>Spiegeln</b></td><td class="l">Lotfußpunkt $F$, dann $\vec{p}\,' = \vec{p} + 2 \cdot \overrightarrow{PF}$</td><td class="l">an Punkt: $\vec{p}\,' = 2\vec{m} - \vec{p}$</td><td>{{S:spiegeln-1}}</td></tr>
+</table>
+
+<div class="kasten rueckblick" style="margin-top:2mm">
+  <div class="etikett">Der rote Faden</div>
+  <p style="text-align:left;margin:0"><b>Eine Struktur:</b> Startpunkt + Vielfaches einer Richtung – von $y = c + x \cdot m$ über $\vec{x} = \vec{p} + t\vec{u}$ bis zur Ebene mit zwei Richtungen. <b>Eine Methode:</b> Jede Lagefrage ist ein Gleichungssystem mit keiner, einer oder unendlich vielen Lösungen. <b>Ein Werkzeug:</b> Der Normalenvektor – Skalarprodukt null heißt senkrecht.</p>
+</div>
+
+<div class="kasten achtung" style="margin-top:0"><div class="etikett">Vor der Klausur</div><p style="text-align:left;margin:0">Tabelle abdecken, alle Formeln aufschreiben, zu jeder Zeile ein eigenes Beispiel rechnen. Winkel und Abstände erst ganz am Ende runden – und jeden Normalenvektor mit zwei Skalarprodukten kontrollieren.</p></div>

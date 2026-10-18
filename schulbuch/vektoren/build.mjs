@@ -1,0 +1,377 @@
+// Baut das Schulbuch "Vektoren, Geraden und Ebenen" aus pages/*.html zu dist/buch.html
+// Seitendatei: erste Zeile <!-- kap: I | ukap: 1 Mittlere Änderungsrate | typ: normal -->
+// Inhalt: Hauptspalte, optional nach <!--rand--> die Randspalte.
+// Mathe: $...$ inline, $$...$$ abgesetzt (KaTeX, serverseitig).
+// Grafik: <graph>{ JSON }</graph>
+import fs from "node:fs";
+import path from "node:path";
+import katex from "katex";
+
+const ROOT = path.dirname(new URL(import.meta.url).pathname);
+const PAGES = path.join(ROOT, "pages");
+// Probe-Modus für paralleles Arbeiten: DIST=dist-xy NUR="^(1[1-9]|20)-" node build.mjs
+// baut nur die passenden Seiten in einen eigenen Ordner; unbekannte Verweise werden dort zu „??“.
+const DIST = path.join(ROOT, process.env.DIST || "dist");
+const NUR = process.env.NUR ? new RegExp(process.env.NUR) : null;
+fs.mkdirSync(path.join(DIST, "fonts"), { recursive: true });
+
+// ---------- Schriften kopieren ----------
+const mont = path.join(ROOT, "node_modules/@fontsource/montserrat/files");
+for (const w of [400, 500, 600, 700, 800]) for (const s of ["normal", "italic"]) {
+  const f = `montserrat-latin-${w}-${s}.woff2`;
+  fs.copyFileSync(path.join(mont, f), path.join(DIST, "fonts", f));
+  const fe = `montserrat-latin-ext-${w}-${s}.woff2`;
+  if (fs.existsSync(path.join(mont, fe))) fs.copyFileSync(path.join(mont, fe), path.join(DIST, "fonts", fe));
+}
+const kfonts = path.join(ROOT, "node_modules/katex/dist/fonts");
+fs.mkdirSync(path.join(DIST, "fonts/katex"), { recursive: true });
+for (const f of fs.readdirSync(kfonts)) if (f.endsWith(".woff2")) fs.copyFileSync(path.join(kfonts, f), path.join(DIST, "fonts/katex", f));
+let kcss = fs.readFileSync(path.join(ROOT, "node_modules/katex/dist/katex.min.css"), "utf8")
+  .replace(/url\(fonts\//g, "url(fonts/katex/")
+  .replace(/,url\([^)]*\.woff\) format\("woff"\)/g, "").replace(/,url\([^)]*\.ttf\) format\("truetype"\)/g, "");
+fs.writeFileSync(path.join(DIST, "katex.css"), kcss);
+
+// ---------- Farben ----------
+export const FARBE = {
+  see: "#004D98", seeTief: "#0E1E4A", grana: "#A50044", granaHell: "#D4145A",
+  gold: "#EDBB00", goldDunkel: "#B88A00", goldTief: "#8C6A00", grau: "#8A93A6", hell: "#E8EEF7",
+  smaragd: "#1F7A4D", lila: "#6A3F94",
+};
+const KAPFARBE = { "I": FARBE.goldTief, "II": FARBE.see, "III": FARBE.grana, "IV": FARBE.seeTief, "V": FARBE.smaragd, "VI": FARBE.lila, "L": FARBE.seeTief, "0": FARBE.seeTief };
+
+// ---------- Mathe ----------
+const ent = (t) => t.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+function mathe(src) {
+  // erst abgesetzt, dann inline; \$ als echtes Dollarzeichen
+  src = src.replace(/\\\$/g, "\u0000DOLLAR\u0000");
+  src = src.replace(/\$\$([\s\S]+?)\$\$/g, (_, t) => {
+    try { return `<div class="formel">${katex.renderToString(ent(t.trim()), { displayMode: true, throwOnError: true, strict: false })}</div>`; }
+    catch (e) { throw new Error("KaTeX (display): " + t + "\n" + e.message); }
+  });
+  src = src.replace(/\$([^$]+?)\$/g, (_, t) => {
+    try { return katex.renderToString(ent(t.trim()), { displayMode: false, throwOnError: true, strict: false }); }
+    catch (e) { throw new Error("KaTeX (inline): " + t + "\n" + e.message); }
+  });
+  return src.replace(/\u0000DOLLAR\u0000/g, "$");
+}
+
+// ---------- Grafik ----------
+// spec: { b: Breite mm, h: Höhe mm, x:[a,b], y:[c,d], fn:[{f:"x*x", c:"see", w:1.6, d:"" , von, bis, label, lx, ly}],
+//   gerade:[{p:[x,y], q:[x,y], c, w, d}] (bis Rand verlängert), strecke:[{p,q,c,w,d,pfeil}],
+//   punkt:[{x,y,c,t,pos:"o|u|l|r|ol|or|ul|ur", leer}], text:[{x,y,t,c,pos,g}], achsen:true, gitter:1, tx:1, ty:1, xl:"x", yl:"y",
+//   flaeche:[{f, von, bis, c}], keineZahlen }
+const fnCache = new Map();
+function F(src) {
+  if (!fnCache.has(src)) {
+    const body = src.replace(/\bsin\b/g, "Math.sin").replace(/\bcos\b/g, "Math.cos").replace(/\btan\b/g, "Math.tan")
+      .replace(/\bexp\b/g, "Math.exp").replace(/\bln\b/g, "Math.log").replace(/\bsqrt\b/g, "Math.sqrt").replace(/\bPI\b/g, "Math.PI").replace(/\babs\b/g, "Math.abs");
+    fnCache.set(src, new Function("x", `return (${body});`));
+  }
+  return fnCache.get(src);
+}
+const farbe = (c) => FARBE[c] || c || FARBE.see;
+const fmt = (v) => {
+  const r = Math.round(v * 1000) / 1000;
+  return (r < 0 ? "−" : "") + String(Math.abs(r)).replace(".", ",");
+};
+function graph(spec) {
+  const B = spec.b ?? 70, H = spec.h ?? 50; // mm
+  const S = 4; // px pro mm im viewBox
+  const W = B * S, Hh = H * S;
+  const [x0, x1] = spec.x, [y0, y1] = spec.y;
+  const pad = 2;
+  const X = (x) => pad + (x - x0) / (x1 - x0) * (W - 2 * pad);
+  const Y = (y) => Hh - pad - (y - y0) / (y1 - y0) * (Hh - 2 * pad);
+  const out = [];
+  out.push(`<svg class="graph" viewBox="0 0 ${W} ${Hh}" width="${B}mm" height="${H}mm" xmlns="http://www.w3.org/2000/svg">`);
+  out.push(`<defs><clipPath id="c${++graph.n}"><rect x="0" y="0" width="${W}" height="${Hh}"/></clipPath>
+    <marker id="pf${graph.n}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,1 L10,5 L0,9 z" fill="${FARBE.seeTief}"/></marker>
+    <marker id="pk${graph.n}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,1 L10,5 L0,9 z" fill="currentColor"/></marker></defs>`);
+  const id = graph.n;
+  // Gitter
+  const g = spec.gitter ?? 1;
+  if (g) {
+    const [gx, gy] = Array.isArray(g) ? g : [g, g];
+    const gl = [];
+    for (let x = Math.ceil(x0 / gx) * gx; x <= x1 + 1e-9; x += gx) gl.push(`M${X(x).toFixed(1)},0V${Hh}`);
+    for (let y = Math.ceil(y0 / gy) * gy; y <= y1 + 1e-9; y += gy) gl.push(`M0,${Y(y).toFixed(1)}H${W}`);
+    out.push(`<path d="${gl.join("")}" stroke="#D5DDEB" stroke-width="0.7" fill="none"/>`);
+  }
+  // Flächen
+  for (const fl of spec.flaeche ?? []) {
+    const f = F(fl.f), pts = [];
+    const n = 120;
+    for (let i = 0; i <= n; i++) { const x = fl.von + (fl.bis - fl.von) * i / n; pts.push(`${X(x).toFixed(1)},${Y(f(x)).toFixed(1)}`); }
+    out.push(`<polygon clip-path="url(#c${id})" points="${X(fl.von).toFixed(1)},${Y(0).toFixed(1)} ${pts.join(" ")} ${X(fl.bis).toFixed(1)},${Y(0).toFixed(1)}" fill="${farbe(fl.c)}" opacity="${fl.o ?? 0.15}"/>`);
+  }
+  // Achsen
+  if (spec.achsen !== false) {
+    const ax = [];
+    if (y0 <= 0 && y1 >= 0) ax.push(`<line x1="0" y1="${Y(0)}" x2="${W - 1}" y2="${Y(0)}" stroke="${FARBE.seeTief}" stroke-width="1.3" marker-end="url(#pf${id})"/>`);
+    if (x0 <= 0 && x1 >= 0) ax.push(`<line x1="${X(0)}" y1="${Hh}" x2="${X(0)}" y2="1" stroke="${FARBE.seeTief}" stroke-width="1.3" marker-end="url(#pf${id})"/>`);
+    out.push(ax.join(""));
+    const tx = spec.tx ?? 1, ty = spec.ty ?? 1;
+    const t = [];
+    if (!spec.keineZahlen) {
+      if (y0 <= 0 && y1 >= 0) for (let x = Math.ceil(x0 / tx) * tx; x <= x1 - tx * 0.4; x += tx) {
+        if (Math.abs(x) < 1e-9) continue;
+        t.push(`<line x1="${X(x)}" y1="${Y(0) - 3}" x2="${X(x)}" y2="${Y(0) + 3}" stroke="${FARBE.seeTief}" stroke-width="1"/>`);
+        t.push(`<text x="${X(x)}" y="${Y(0) + 14}" class="tz" text-anchor="middle">${fmt(x)}</text>`);
+      }
+      if (x0 <= 0 && x1 >= 0) for (let y = Math.ceil(y0 / ty) * ty; y <= y1 - ty * 0.4; y += ty) {
+        if (Math.abs(y) < 1e-9) continue;
+        t.push(`<line x1="${X(0) - 3}" y1="${Y(y)}" x2="${X(0) + 3}" y2="${Y(y)}" stroke="${FARBE.seeTief}" stroke-width="1"/>`);
+        t.push(`<text x="${X(0) - 6}" y="${Y(y) + 4}" class="tz" text-anchor="end">${fmt(y)}</text>`);
+      }
+    }
+    if (y0 <= 0 && y1 >= 0) t.push(`<text x="${W - 4}" y="${Y(0) - 7}" class="al" text-anchor="end">${spec.xl ?? "x"}</text>`);
+    if (x0 <= 0 && x1 >= 0) t.push(`<text x="${X(0) + 7}" y="13" class="al">${spec.yl ?? "y"}</text>`);
+    out.push(t.join(""));
+  }
+  // Funktionen
+  for (const fn of spec.fn ?? []) {
+    const f = F(fn.f), a = fn.von ?? x0, b = fn.bis ?? x1, n = 400;
+    let d = "", pen = false;
+    for (let i = 0; i <= n; i++) {
+      const x = a + (b - a) * i / n, y = f(x);
+      if (!isFinite(y) || y > y1 + (y1 - y0) * 3 || y < y0 - (y1 - y0) * 3) { pen = false; continue; }
+      d += (pen ? "L" : "M") + X(x).toFixed(1) + "," + Y(y).toFixed(1); pen = true;
+    }
+    out.push(`<path clip-path="url(#c${id})" d="${d}" stroke="${farbe(fn.c)}" stroke-width="${fn.w ?? 2}" fill="none" ${fn.d ? `stroke-dasharray="${fn.d}"` : ""} stroke-linejoin="round" stroke-linecap="round"/>`);
+    if (fn.label) out.push(`<text x="${X(fn.lx)}" y="${Y(fn.ly)}" class="fl" fill="${farbe(fn.c)}">${fn.label}</text>`);
+  }
+  // Geraden (durch zwei Punkte, bis zum Rand)
+  for (const ge of spec.gerade ?? []) {
+    if (ge.f && ge.sek) { const f = F(ge.f); ge.p = [ge.sek[0], f(ge.sek[0])]; ge.q = [ge.sek[1], f(ge.sek[1])]; }
+    if (ge.f && ge.tan !== undefined) { const f = F(ge.f), x = ge.tan, e = 1e-6; const m = (f(x + e) - f(x - e)) / (2 * e); ge.p = [x, f(x)]; ge.q = [x + 1, f(x) + m]; }
+    let [px, py] = ge.p, [qx, qy] = ge.q;
+    let a, b;
+    if (Math.abs(qx - px) < 1e-12) { a = [px, y0 - 10]; b = [px, y1 + 10]; }
+    else { const m = (qy - py) / (qx - px); const xa = ge.von ?? x0 - 1, xb = ge.bis ?? x1 + 1; a = [xa, py + m * (xa - px)]; b = [xb, py + m * (xb - px)]; }
+    out.push(`<line clip-path="url(#c${id})" x1="${X(a[0])}" y1="${Y(a[1])}" x2="${X(b[0])}" y2="${Y(b[1])}" stroke="${farbe(ge.c)}" stroke-width="${ge.w ?? 1.5}" ${ge.d ? `stroke-dasharray="${ge.d}"` : ""} opacity="${ge.o ?? 1}"/>`);
+  }
+  // Strecken
+  for (const s of spec.strecke ?? []) {
+    out.push(`<line x1="${X(s.p[0])}" y1="${Y(s.p[1])}" x2="${X(s.q[0])}" y2="${Y(s.q[1])}" stroke="${farbe(s.c)}" style="color:${farbe(s.c)}" stroke-width="${s.w ?? 1.3}" ${s.d ? `stroke-dasharray="${s.d}"` : ""} ${s.pfeil ? `marker-end="url(#pk${id})"` : ""} ${s.pfeil === 2 ? `marker-start="url(#pk${id})"` : ""}/>`);
+  }
+  // Punkte
+  const OFF = { o: [0, -9, "middle"], u: [0, 17, "middle"], l: [-8, 4, "end"], r: [8, 4, "start"], ol: [-6, -7, "end"], or: [6, -7, "start"], ul: [-6, 15, "end"], ur: [6, 15, "start"] };
+  for (const p of spec.punkt ?? []) {
+    if (p.f) p.y = F(p.f)(p.x);
+    const c = farbe(p.c ?? "seeTief");
+    out.push(`<circle cx="${X(p.x)}" cy="${Y(p.y)}" r="${p.r ?? 3.2}" fill="${p.leer ? "#fff" : c}" stroke="${c}" stroke-width="1.4"/>`);
+    if (p.t) { const [dx, dy, an] = OFF[p.pos ?? "or"]; out.push(`<text x="${X(p.x) + dx}" y="${Y(p.y) + dy}" text-anchor="${an}" class="pl" fill="${c}">${p.t}</text>`); }
+  }
+  for (const t of spec.text ?? []) {
+    const [dx, dy, an] = OFF[t.pos ?? "r"] ?? [0, 0, "middle"];
+    out.push(`<text x="${X(t.x) + dx}" y="${Y(t.y) + dy}" text-anchor="${t.an ?? an}" class="${t.k ?? "pl"}" fill="${farbe(t.c ?? "seeTief")}">${t.t}</text>`);
+  }
+  out.push(`</svg>`);
+  return out.join("\n");
+}
+graph.n = 0;
+
+
+// ---------- Raumbild (Schrägbild) ----------
+// <raum>{ JSON }</raum>  Koordinaten [x1, x2, x3]. Projektion wie im Heft:
+// x2 nach rechts, x3 nach oben, x1 schräg nach vorn-unten (Verkürzung k = 0,5 je Richtung, also ½·√2).
+// spec: { b, h (mm), achsen:[a1,a2,a3] (positive Länge, Standard [4,4,4]), neg:[n1,n2,n3] (Standard 0.6),
+//   zahlen:true (Einheiten an den Achsen), tx:1, namen:["x₁","x₂","x₃"], keineAchsen,
+//   punkt:[{p,t,pos,c,r,lot}]  lot:true zeichnet die Koordinatenwege gestrichelt,
+//   strecke:[{p,q,c,w,d,pfeil,t,pos,vek}]  (vek:true → Pfeil über der Beschriftung),
+//   vektor:[{p (Start, Standard 0), v (Vektor) | q (Ende), c, w, t, pos, vek}],
+//   gerade:[{p,u,von,bis,c,w,d,t,lt,pos}]  Punkt p + t·u für t in [von,bis],
+//   flaeche:[{pkte:[[..],..], c, o, rand, d}]  Polygon (z. B. Ebenenstück, Spurdreieck),
+//   quader:[{von,bis,c,w,d}], text:[{p,t,c,pos,vek,k}], winkel:[{s,a,b,r,c}] Winkelbogen am Scheitel s zu den Punkten a,b }
+function raum(spec) {
+  const S = 4, B = spec.b ?? 60, H = spec.h ?? 50, W = B * S, Hh = H * S;
+  const k = spec.k ?? 0.5;
+  const proj = ([a, b, c]) => [b - k * a, c - k * a];
+  const AF = farbe(spec.achsenFarbe ?? "seeTief");
+  const A = spec.achsen ?? [4, 4, 4], N = spec.neg ?? [0.6, 0.6, 0.6];
+  const pts = [];
+  const sammle = (p) => { if (p) pts.push(proj(p)); };
+  if (!spec.keineAchsen) for (let i = 0; i < 3; i++) { const e = [0, 0, 0], f = [0, 0, 0]; e[i] = A[i] + 0.35; f[i] = -N[i]; sammle(e); sammle(f); }
+  for (const p of spec.punkt ?? []) sammle(p.p);
+  for (const s of spec.strecke ?? []) { sammle(s.p); sammle(s.q); }
+  for (const v of spec.vektor ?? []) { const p0 = v.p ?? [0, 0, 0]; sammle(p0); sammle(v.q ?? p0.map((x, i) => x + v.v[i])); }
+  for (const g of spec.gerade ?? []) for (const t of [g.von ?? -1, g.bis ?? 1]) sammle(g.p.map((x, i) => x + t * g.u[i]));
+  for (const f of spec.flaeche ?? []) f.pkte.forEach(sammle);
+  for (const q of spec.quader ?? []) { sammle(q.von); sammle(q.bis); }
+  for (const t of spec.text ?? []) sammle(t.p);
+  let [u0, v0, u1, v1] = [Infinity, Infinity, -Infinity, -Infinity];
+  for (const [u, v] of pts) { u0 = Math.min(u0, u); u1 = Math.max(u1, u); v0 = Math.min(v0, v); v1 = Math.max(v1, v); }
+  const pad = spec.rand ?? 14;
+  const sk = Math.min((W - 2 * pad) / (u1 - u0 || 1), (Hh - 2 * pad) / (v1 - v0 || 1));
+  const ou = (W - sk * (u1 - u0)) / 2, ov = (Hh - sk * (v1 - v0)) / 2;
+  const P = (p) => { const [u, v] = proj(p); return [ou + (u - u0) * sk, Hh - ov - (v - v0) * sk]; };
+  const id = ++graph.n;
+  const out = [`<svg class="graph raum" viewBox="0 0 ${W} ${Hh}" width="${B}mm" height="${H}mm" xmlns="http://www.w3.org/2000/svg">`,
+    `<defs><marker id="pf${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,1 L10,5 L0,9 z" fill="${AF}"/></marker>
+     <marker id="pk${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse"><path d="M0,1 L10,5 L0,9 z" fill="context-stroke"/></marker></defs>`];
+  const linie = (p, q, c, w, d, pf, extra = "") => {
+    const [x1, y1] = P(p), [x2, y2] = P(q);
+    return `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${farbe(c)}" stroke-width="${w ?? 1.4}" ${d ? `stroke-dasharray="${d}"` : ""} ${pf ? `marker-end="url(#pk${id})"` : ""} stroke-linecap="round" ${extra}/>`;
+  };
+  const OFF = { o: [0, -9, "middle"], u: [0, 17, "middle"], l: [-8, 4, "end"], r: [8, 4, "start"], ol: [-6, -7, "end"], or: [6, -7, "start"], ul: [-6, 15, "end"], ur: [6, 15, "start"], m: [0, 4, "middle"] };
+  const label = (p, t, c, pos, vek, kl = "pl") => {
+    const [x, y] = P(p), [dx, dy, an] = OFF[pos ?? "or"];
+    let s = `<text x="${(x + dx).toFixed(1)}" y="${(y + dy).toFixed(1)}" text-anchor="${an}" class="${kl}" fill="${farbe(c)}">${t}</text>`;
+    if (vek) { // kleiner Pfeil über dem ersten Zeichen
+      const bw = 7.5, xs = an === "start" ? x + dx : an === "end" ? x + dx - bw : x + dx - bw / 2, ys = y + dy - 11.5;
+      s += `<path d="M${xs.toFixed(1)},${ys.toFixed(1)}h${bw}m-2.4,-2.1l2.4,2.1l-2.4,2.1" stroke="${farbe(c)}" stroke-width="1" fill="none"/>`;
+    }
+    return s;
+  };
+  // Flächen zuerst
+  for (const f of spec.flaeche ?? []) {
+    const pp = f.pkte.map((q) => P(q).map((v) => v.toFixed(1)).join(",")).join(" ");
+    out.push(`<polygon points="${pp}" fill="${farbe(f.c)}" opacity="${f.o ?? 0.16}"/>`);
+    if (f.rand !== false) out.push(`<polygon points="${pp}" fill="none" stroke="${farbe(f.c)}" stroke-width="${f.w ?? 1}" ${f.d ? `stroke-dasharray="${f.d}"` : ""} opacity="0.85"/>`);
+    if (f.t) out.push(label(f.tp ?? f.pkte[0], f.t, f.c, f.pos ?? "m", false, "fl"));
+  }
+  // Achsen
+  if (!spec.keineAchsen) {
+    const namen = spec.namen ?? ["x₁", "x₂", "x₃"], tx = spec.tx ?? 1;
+    for (let i = 0; i < 3; i++) {
+      const e = [0, 0, 0], f = [0, 0, 0]; e[i] = A[i] + 0.35; f[i] = -N[i];
+      const [x1, y1] = P(f), [x2, y2] = P(e);
+      out.push(`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${AF}" stroke-width="1.2" marker-end="url(#pf${id})"/>`);
+      const lp = [0, 0, 0]; lp[i] = A[i] + 0.35;
+      out.push(label(lp, namen[i], spec.achsenFarbe ?? "seeTief", ["l", "ur", "r"][i], false, "al"));
+      if (spec.zahlen !== false) for (let z = tx; z <= A[i] + 1e-9; z += tx) {
+        const q = [0, 0, 0]; q[i] = z; const [x, y] = P(q);
+        const tick = i === 1 ? `M${x.toFixed(1)},${(y - 3).toFixed(1)}v6` : `M${(x - 3).toFixed(1)},${y.toFixed(1)}h6`;
+        out.push(`<path d="${tick}" stroke="${AF}" stroke-width="1"/>`);
+        if (spec.zahlen === true || (spec.zahlen ?? 1) && (z === A[i] || spec.alleZahlen)) {
+          const [dx, dy, an] = i === 0 ? [-6, 4, "end"] : i === 1 ? [0, 13, "middle"] : [-6, 4, "end"];
+          out.push(`<text x="${(x + dx).toFixed(1)}" y="${(y + dy).toFixed(1)}" text-anchor="${an}" class="tz">${fmt(z)}</text>`);
+        }
+      }
+    }
+  }
+  for (const q of spec.quader ?? []) {
+    const [a, b] = [q.von, q.bis];
+    const ecke = (i, j, l) => [[a[0], b[0]][i], [a[1], b[1]][j], [a[2], b[2]][l]];
+    const kanten = [];
+    for (const i of [0, 1]) for (const j of [0, 1]) { kanten.push([ecke(0, i, j), ecke(1, i, j)]); kanten.push([ecke(i, 0, j), ecke(i, 1, j)]); kanten.push([ecke(i, j, 0), ecke(i, j, 1)]); }
+    const hinten = [a[0], a[1], a[2]].join();
+    for (const [p1, p2] of kanten) {
+      const versteckt = q.versteckt !== false && (p1.join() === hinten || p2.join() === hinten);
+      out.push(linie(p1, p2, q.c ?? "see", q.w ?? 1.2, versteckt ? "3 2.5" : q.d));
+    }
+  }
+  for (const g of spec.gerade ?? []) {
+    const a = g.von ?? -1, b = g.bis ?? 1;
+    const p = g.p.map((x, i) => x + a * g.u[i]), q = g.p.map((x, i) => x + b * g.u[i]);
+    out.push(linie(p, q, g.c ?? "see", g.w ?? 1.8, g.d));
+    if (g.t) out.push(label(g.p.map((x, i) => x + (g.lt ?? b) * g.u[i]), g.t, g.c ?? "see", g.pos ?? "or", false, "fl"));
+  }
+  for (const s of spec.strecke ?? []) {
+    out.push(linie(s.p, s.q, s.c ?? "seeTief", s.w ?? 1.3, s.d, s.pfeil));
+    if (s.t) out.push(label(s.p.map((x, i) => (x + s.q[i]) / 2), s.t, s.c ?? "seeTief", s.pos ?? "o", s.vek));
+  }
+  for (const v of spec.vektor ?? []) {
+    const p0 = v.p ?? [0, 0, 0], q = v.q ?? p0.map((x, i) => x + v.v[i]);
+    out.push(linie(p0, q, v.c ?? "grana", v.w ?? 2, v.d, true));
+    if (v.t) out.push(label(p0.map((x, i) => (x + q[i]) / 2), v.t, v.c ?? "grana", v.pos ?? "o", v.vek !== false));
+  }
+  for (const w of spec.winkel ?? []) {
+    const [sx, sy] = P(w.s), [ax, ay] = P(w.a), [bx, by] = P(w.b), r = w.r ?? 14;
+    const wa = Math.atan2(ay - sy, ax - sx), wb = Math.atan2(by - sy, bx - sx);
+    let d = wb - wa; while (d > Math.PI) d -= 2 * Math.PI; while (d < -Math.PI) d += 2 * Math.PI;
+    const x1 = sx + r * Math.cos(wa), y1 = sy + r * Math.sin(wa), x2 = sx + r * Math.cos(wb), y2 = sy + r * Math.sin(wb);
+    out.push(`<path d="M${x1.toFixed(1)},${y1.toFixed(1)} A${r},${r} 0 0 ${d > 0 ? 1 : 0} ${x2.toFixed(1)},${y2.toFixed(1)}" stroke="${farbe(w.c ?? "goldDunkel")}" stroke-width="1.4" fill="none"/>`);
+    if (w.t) { const m = wa + d / 2; out.push(`<text x="${(sx + (r + 8) * Math.cos(m)).toFixed(1)}" y="${(sy + (r + 8) * Math.sin(m) + 4).toFixed(1)}" text-anchor="middle" class="pl" fill="${farbe(w.c ?? "goldDunkel")}">${w.t}</text>`); }
+  }
+  for (const p of spec.punkt ?? []) {
+    if (p.lot) {
+      const [a, b, c] = p.p;
+      out.push(linie([a, 0, 0], [a, b, 0], "grau", 0.9, "2.5 2"), linie([0, b, 0], [a, b, 0], "grau", 0.9, "2.5 2"), linie([a, b, 0], [a, b, c], "grau", 0.9, "2.5 2"));
+    }
+    const [x, y] = P(p.p), c = farbe(p.c ?? "seeTief");
+    out.push(`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${p.r ?? 3}" fill="${p.leer ? "#fff" : c}" stroke="${c}" stroke-width="1.3"/>`);
+    if (p.t) out.push(label(p.p, p.t, p.c ?? "seeTief", p.pos ?? "or"));
+  }
+  for (const t of spec.text ?? []) out.push(label(t.p, t.t, t.c ?? "seeTief", t.pos ?? "m", t.vek, t.k ?? "pl"));
+  out.push("</svg>");
+  return out.join("\n");
+}
+
+// ---------- Seiten ----------
+// Meta je Seite: kap, typ, uk (Titel eines neuen, nummerierten Unterkapitels) oder ukap (Titel ohne Nummer).
+// Seiten ohne uk/ukap gehören zum laufenden Unterkapitel. Nummern zählen automatisch.
+// Verweise im Text: {{S:stamm}} = Seitenzahl, {{K:stamm}} = Nummer des Unterkapitels, das auf dieser Seite beginnt,
+// {{T:stamm}} = sein Titel, {{KAP:stamm}} = Kapitel (I, II …). stamm = Dateiname ohne Nummer und .html.
+const files = fs.readdirSync(PAGES).filter((f) => f.endsWith(".html") && (!NUR || NUR.test(f))).sort();
+const stammVon = (f) => f.replace(/^\d+-/, "").replace(/\.html$/, "");
+const roh = files.map((f) => {
+  const raw = fs.readFileSync(path.join(PAGES, f), "utf8");
+  const m = raw.match(/^<!--([\s\S]*?)-->/);
+  const meta = {};
+  if (m) for (const teil of m[1].split("|")) { const [k, ...v] = teil.split(":"); if (k.trim()) meta[k.trim()] = v.join(":").trim(); }
+  return { f, stamm: stammVon(f), meta, body: raw.slice(m ? m[0].length : 0) };
+});
+export const VERZ = {};
+{
+  let einheit = 0, laufend = "";
+  roh.forEach((r, i) => {
+    r.nr = NUR ? parseInt(r.f, 10) : i + 1; // im Probe-Modus zählt die Dateinummer (richtige linke/rechte Seite)
+    if (r.meta.uk) { einheit++; laufend = `${einheit} ${r.meta.uk}`; r.ukNr = einheit; }
+    else if (r.meta.ukap) laufend = r.meta.ukap;
+    else if (r.meta.typ === "auftakt" || r.meta.typ === "frei") laufend = "";
+    r.meta.ukap = laufend;
+    VERZ[r.stamm] = { seite: r.nr, nr: r.ukNr, titel: r.meta.uk || r.meta.ukap, kap: r.meta.kap };
+  });
+}
+function verweise(text, f) {
+  return text.replace(/\{\{(S|K|T|KAP):([a-z0-9-]+)\}\}/g, (_, art, st) => {
+    const v = VERZ[st];
+    if (!v) { if (NUR) return "??"; throw new Error(`${f}: unbekannter Verweis ${art}:${st}`); }
+    const w = art === "S" ? v.seite : art === "K" ? v.nr : art === "T" ? v.titel : v.kap;
+    if (w === undefined) throw new Error(`${f}: Verweis ${art}:${st} ohne Wert`);
+    return String(w);
+  });
+}
+const seiten = [];
+for (const r of roh) {
+  const f = r.f, meta = r.meta;
+  let body = verweise(r.body, f);
+  body = body.replace(/<graph>([\s\S]*?)<\/graph>/g, (_, j) => {
+    let spec; try { spec = JSON.parse(j); } catch (e) { throw new Error(`Graph-JSON in ${f}: ${e.message}\n${j}`); }
+    return graph(spec);
+  });
+  body = body.replace(/<raum>([\s\S]*?)<\/raum>/g, (_, j) => {
+    let spec; try { spec = JSON.parse(j); } catch (e) { throw new Error(`Raum-JSON in ${f}: ${e.message}\n${j}`); }
+    return raum(spec);
+  });
+  try { body = mathe(body); } catch (e) { throw new Error(`${f}: ${e.message}`); }
+  const [haupt, rand] = body.split("<!--rand-->");
+  seiten.push({ datei: f, nr: r.nr, meta, haupt, rand: rand ?? "" });
+}
+
+const KAPNAME = { I: "Geraden und Gleichungssysteme", II: "Vektoren im Raum", III: "Geraden im Raum", IV: "Skalarprodukt und Kreuzprodukt", V: "Ebenen", VI: "Abstände, Winkel, Spiegelungen", L: "Anhang", "0": "" };
+function seite(s) {
+  const typ = s.meta.typ || "normal";
+  const kap = s.meta.kap || "0";
+  const seiteLR = s.nr % 2 === 1 ? "rechts" : "links";
+  const col = KAPFARBE[kap] || FARBE.see;
+  if (typ === "frei") return `<section class="page frei ${seiteLR} kap-${kap}" style="--kap:${col}" data-nr="${s.nr}" data-datei="${s.datei}">${s.haupt}</section>`;
+  const kopf = typ === "auftakt" ? "" : `<header class="kopf"><span class="kopf-kap"><b>${kap === "L" || kap === "0" ? "" : "Kapitel " + kap}</b>${KAPNAME[kap] ?? ""}</span><span class="kopf-ukap">${s.meta.ukap ?? ""}</span></header>`;
+  return `<section class="page ${typ} ${seiteLR} kap-${kap}" style="--kap:${col}" data-nr="${s.nr}" data-datei="${s.datei}">
+  <div class="kapband"></div>
+  ${kopf}
+  <div class="koerper ${s.rand.trim() ? "" : "ohne-rand"}"><div class="haupt">${s.haupt}</div>${s.rand.trim() ? `<aside class="rand">${s.rand}</aside>` : ""}</div>
+  <footer class="fuss"><span class="snr">${s.nr}</span><span class="marke">Mythos Mathe · Vektoren, Geraden und Ebenen</span></footer>
+</section>`;
+}
+
+const css = fs.readFileSync(path.join(ROOT, "buch.css"), "utf8");
+const html = `<!doctype html><html lang="de"><head><meta charset="utf-8"><title>Vektoren, Geraden und Ebenen – Mythos Mathe</title>
+<link rel="stylesheet" href="katex.css"><style>${css}</style></head><body>
+${seiten.map(seite).join("\n")}
+</body></html>`;
+fs.writeFileSync(path.join(DIST, "buch.html"), html);
+fs.writeFileSync(path.join(DIST, "seiten.json"), JSON.stringify(seiten.map((s) => ({ nr: s.nr, datei: s.datei, ...s.meta })), null, 1));
+fs.writeFileSync(path.join(DIST, "verzeichnis.json"), JSON.stringify(VERZ, null, 1));
+console.log(`${seiten.length} Seiten gebaut.`);

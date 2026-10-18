@@ -1,0 +1,217 @@
+/* ============ Schriften ============ */
+@font-face { font-family: "Montserrat"; font-weight: 400; font-style: normal; src: url(fonts/montserrat-latin-400-normal.woff2) format("woff2"); }
+@font-face { font-family: "Montserrat"; font-weight: 400; font-style: italic; src: url(fonts/montserrat-latin-400-italic.woff2) format("woff2"); }
+@font-face { font-family: "Montserrat"; font-weight: 500; font-style: normal; src: url(fonts/montserrat-latin-500-normal.woff2) format("woff2"); }
+@font-face { font-family: "Montserrat"; font-weight: 600; font-style: normal; src: url(fonts/montserrat-latin-600-normal.woff2) format("woff2"); }
+@font-face { font-family: "Montserrat"; font-weight: 600; font-style: italic; src: url(fonts/montserrat-latin-600-italic.woff2) format("woff2"); }
+@font-face { font-family: "Montserrat"; font-weight: 700; font-style: normal; src: url(fonts/montserrat-latin-700-normal.woff2) format("woff2"); }
+@font-face { font-family: "Montserrat"; font-weight: 800; font-style: normal; src: url(fonts/montserrat-latin-800-normal.woff2) format("woff2"); }
+@font-face { font-family: "Montserrat"; font-weight: 400; font-style: normal; src: url(fonts/montserrat-latin-ext-400-normal.woff2) format("woff2"); unicode-range: U+0100-024F, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+
+:root {
+  --see: #004D98; --seeTief: #0E1E4A; --grana: #A50044; --granaHell: #D4145A;
+  --gold: #EDBB00; --goldDunkel: #B88A00; --goldHell: #FFF7D9;
+  --text: #1B2235; --mild: #5B6478; --linie: #D5DDEB; --papier: #ffffff;
+  --kap: var(--see);
+}
+@page { size: A4; margin: 0; }
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body { font-family: "Montserrat", sans-serif; color: var(--text); font-size: 9.1pt; line-height: 1.46; background: #8C95A8; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-feature-settings: "lnum" 1; }
+.katex { font-size: 1.07em; }
+.nw { white-space: nowrap; }
+.katex-display { margin: 0.35em 0; }
+
+/* ============ Seite ============ */
+.page { width: 210mm; height: 297mm; background: var(--papier); position: relative; overflow: hidden; margin: 0 auto 8mm; page-break-after: always; break-after: page; }
+@media print { body { background: none; } .page { margin: 0; } }
+
+.kapband { position: absolute; top: 0; width: 7mm; height: 100%; background: var(--kap); }
+.rechts .kapband { right: 0; }
+.links .kapband { left: 0; }
+.kapband::after { content: ""; position: absolute; left: 0; right: 0; top: 24mm; height: 14mm; background: var(--gold); }
+
+.kopf { position: absolute; top: 9mm; height: 9mm; display: flex; align-items: flex-end; justify-content: space-between; border-bottom: 0.4mm solid var(--kap); padding-bottom: 1.4mm; font-size: 7.6pt; letter-spacing: 0.04em; color: var(--mild); text-transform: uppercase; }
+.rechts .kopf { left: 18mm; right: 15mm; }
+.links .kopf { left: 15mm; right: 18mm; flex-direction: row-reverse; }
+.kopf-kap b { color: var(--kap); font-weight: 700; margin-right: 2.5mm; }
+.kopf-ukap { color: var(--seeTief); font-weight: 700; text-transform: none; letter-spacing: 0; font-size: 9pt; }
+
+.koerper { position: absolute; top: 24mm; bottom: 17mm; display: flex; gap: 6mm; }
+.rechts .koerper { left: 18mm; right: 15mm; }
+.links .koerper { left: 15mm; right: 18mm; flex-direction: row-reverse; }
+.haupt { flex: 1 1 auto; min-width: 0; overflow: hidden; }
+.rand { flex: 0 0 38mm; font-size: 7.8pt; line-height: 1.45; color: var(--mild); overflow: hidden; }
+.koerper.ohne-rand .haupt { flex: 1; }
+
+.fuss { position: absolute; bottom: 8mm; display: flex; align-items: center; gap: 4mm; font-size: 7.4pt; color: var(--mild); letter-spacing: 0.06em; text-transform: uppercase; }
+.rechts .fuss { right: 15mm; flex-direction: row-reverse; }
+.links .fuss { left: 15mm; }
+.snr { display: inline-flex; align-items: center; justify-content: center; min-width: 8mm; height: 8mm; border-radius: 4mm; background: var(--kap); color: #fff; font-weight: 700; font-size: 9pt; letter-spacing: 0; }
+
+/* ============ Typografie ============ */
+h1, h2, h3, h4 { margin: 0; font-weight: 800; color: var(--seeTief); line-height: 1.15; }
+.ukap-titel { display: flex; align-items: baseline; gap: 3.5mm; margin: 0 0 3.5mm; }
+.ukap-titel .nr { font-size: 26pt; font-weight: 800; color: var(--kap); line-height: 1; }
+.ukap-titel h2 { font-size: 17pt; letter-spacing: -0.01em; }
+.leitfrage { font-size: 10.5pt; font-weight: 500; font-style: italic; color: var(--kap); margin: -1.5mm 0 4mm; }
+h3 { font-size: 11pt; margin: 4.5mm 0 1.8mm; color: var(--kap); }
+h3.zw { color: var(--seeTief); font-size: 10.5pt; }
+p { margin: 0 0 2.2mm; hyphens: auto; text-align: left; }
+.haupt p { text-align: left; }
+ul, ol { margin: 0 0 2.2mm; padding-left: 5mm; }
+li { margin: 0 0 0.8mm; }
+b, strong { font-weight: 700; color: var(--seeTief); }
+em { font-style: italic; }
+.mild { color: var(--mild); }
+.klein { font-size: 8.4pt; }
+.formel { margin: 1.6mm 0 2.2mm; }
+.zwei { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; align-items: start; }
+.zwei-bild { display: grid; grid-template-columns: 1fr auto; gap: 5mm; align-items: start; }
+.bild-links { display: grid; grid-template-columns: auto 1fr; gap: 5mm; align-items: start; }
+.mitte { text-align: center; }
+.bildunterschrift { font-size: 7.6pt; color: var(--mild); text-align: center; margin-top: 0.5mm; }
+
+/* Grafik */
+svg.graph { display: block; font-family: "Montserrat", sans-serif; }
+svg.graph .tz { font-size: 9px; fill: var(--mild); }
+svg.graph .al { font-size: 11px; font-style: italic; fill: var(--seeTief); font-weight: 600; }
+svg.graph .pl { font-size: 10.5px; font-weight: 600; }
+svg.graph .fl { font-size: 11px; font-weight: 700; font-style: italic; }
+svg.graph .kl { font-size: 9px; font-weight: 500; }
+
+/* ============ Kästen ============ */
+.kasten { border-radius: 2.5mm; padding: 3mm 4mm; margin: 0 0 3.2mm; position: relative; break-inside: avoid; }
+.kasten > :last-child { margin-bottom: 0; }
+.etikett { display: inline-block; font-size: 7.2pt; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.7mm 2.4mm; border-radius: 1.2mm; margin-bottom: 1.6mm; }
+
+.einstieg { background: var(--goldHell); border-left: 1.4mm solid var(--gold); border-radius: 0 2.5mm 2.5mm 0; }
+.einstieg .etikett { background: var(--gold); color: var(--seeTief); }
+
+.merke { background: color-mix(in srgb, var(--kap) 7%, white); border: 0.45mm solid var(--kap); }
+.merke .etikett { background: var(--kap); color: #fff; }
+.merke .formel .katex { font-size: 1.22em; }
+
+.beispiel { border-top: 0.45mm solid var(--kap); padding: 2.4mm 0 0; border-radius: 0; margin-top: 1mm; }
+.beispiel .etikett { background: none; color: var(--kap); padding: 0; margin: 0 0 1mm; }
+.loesung { padding-left: 4mm; border-left: 0.5mm solid var(--linie); margin-top: 1mm; }
+.loesung-kopf { font-weight: 700; color: var(--mild); font-size: 8.2pt; text-transform: uppercase; letter-spacing: 0.06em; }
+
+.vertiefung { border: 0.4mm dashed var(--seeTief); background: #F6F8FC; }
+.vertiefung .etikett { background: var(--seeTief); color: var(--gold); }
+
+.achtung { background: color-mix(in srgb, var(--grana) 6%, white); border-left: 1.4mm solid var(--grana); border-radius: 0 2.5mm 2.5mm 0; }
+.achtung .etikett { background: var(--grana); color: #fff; }
+
+.rueckblick { background: var(--seeTief); color: #fff; }
+.rueckblick b, .rueckblick strong, .rueckblick h3 { color: var(--gold); }
+.rueckblick .etikett { background: var(--gold); color: var(--seeTief); }
+
+/* ============ Aufgaben ============ */
+.aufgaben-kopf { display: flex; align-items: center; gap: 3mm; margin: 4mm 0 2.6mm; }
+.aufgaben-kopf span { font-weight: 800; font-size: 10pt; letter-spacing: 0.12em; text-transform: uppercase; color: #fff; background: var(--kap); padding: 1mm 3mm; border-radius: 1.2mm; }
+.aufgaben-kopf::after { content: ""; flex: 1; height: 0.45mm; background: var(--kap); opacity: 0.35; }
+.auf { display: grid; grid-template-columns: 8mm 1fr; gap: 0 2mm; margin: 0 0 2.6mm; break-inside: avoid; }
+.auf > .anr { display: flex; flex-direction: column; align-items: center; gap: 0.6mm; }
+.anr .z { display: inline-flex; min-width: 6.4mm; height: 6.4mm; padding: 0 1mm; border-radius: 3.2mm; background: var(--kap); color: #fff; font-weight: 800; font-size: 8.6pt; align-items: center; justify-content: center; }
+.anr .z.offen { background: #fff; color: var(--kap); border: 0.45mm solid var(--kap); }
+.stufe { font-size: 6.6pt; letter-spacing: 0.2mm; color: var(--kap); line-height: 1; }
+.auf .text > p:last-child { margin-bottom: 0; }
+.teil { display: grid; grid-template-columns: repeat(var(--sp, 3), 1fr); gap: 1.2mm 4mm; margin: 0.8mm 0 0; }
+.teil > div { white-space: nowrap; }
+.teil > div > i { font-style: normal; font-weight: 700; color: var(--kap); margin-right: 1.2mm; }
+.teil.lang > div { white-space: normal; }
+
+/* Rand */
+.rand .notiz { margin: 0 0 4mm; padding-top: 1.6mm; border-top: 0.35mm solid var(--linie); }
+.rand .notiz .t { display: block; font-weight: 800; font-size: 7pt; letter-spacing: 0.1em; text-transform: uppercase; color: var(--kap); margin-bottom: 0.8mm; }
+.rand .notiz.gold .t { color: var(--goldDunkel); }
+.rand .notiz.mathilda { background: var(--seeTief); color: #E3E9F5; border-radius: 2mm; padding: 2.4mm 2.6mm; border: none; }
+.rand .notiz.mathilda .t { color: var(--gold); }
+.rand .notiz.mathilda b { color: #fff; }
+.rand .stunde { background: color-mix(in srgb, var(--kap) 8%, white); border-radius: 2mm; padding: 2.2mm 2.6mm; margin-bottom: 4mm; border: none; color: var(--seeTief); }
+.rand .stunde .t { color: var(--kap); }
+.rand .stunde ol { padding-left: 3.6mm; margin: 0; }
+.rand .stunde li { margin: 0 0 0.4mm; }
+.rand .katex { font-size: 1.04em; }
+
+.legende { display: flex; gap: 4mm; font-size: 7.6pt; color: var(--mild); }
+
+/* ============ Auftakt ============ */
+.auftakt .koerper { top: 0; bottom: 17mm; left: 0 !important; right: 0 !important; }
+.auftakt .haupt { height: 100%; }
+.auftakt-kopf { background: var(--kap); color: #fff; padding: 22mm 22mm 10mm 22mm; position: relative; }
+.auftakt-kopf .knr { font-size: 11pt; font-weight: 700; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); }
+.auftakt-kopf h1 { color: #fff; font-size: 38pt; letter-spacing: -0.02em; margin: 3mm 0 4mm; }
+.auftakt-kopf p { color: #E6ECF7; font-size: 11pt; max-width: 140mm; text-align: left; }
+.auftakt-kopf .goldlinie { position: absolute; left: 22mm; bottom: 0; width: 30mm; height: 1.6mm; background: var(--gold); }
+.auftakt-inhalt { padding: 10mm 22mm 0; }
+.auftakt .kapband { display: none; }
+.lernziele { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
+.lernziele ul { list-style: none; padding: 0; }
+.lernziele ul li { padding-left: 6mm; position: relative; margin-bottom: 1.6mm; }
+.lernziele ul li::before { content: ""; position: absolute; left: 0; top: 1.6mm; width: 2.6mm; height: 2.6mm; border-radius: 0.6mm; background: var(--gold); }
+.check-tab { width: 100%; border-collapse: collapse; font-size: 9pt; }
+.check-tab td { padding: 1.1mm 2mm; border-bottom: 0.3mm solid var(--linie); vertical-align: middle; }
+.check-tab td:last-child { width: 30mm; text-align: right; color: var(--mild); font-size: 8pt; }
+.check-tab .kreis { display: inline-block; width: 3.4mm; height: 3.4mm; border: 0.35mm solid var(--mild); border-radius: 50%; margin-left: 1.4mm; vertical-align: middle; }
+.ukap-liste { counter-reset: u; list-style: none; padding: 0; }
+.ukap-liste li { display: flex; align-items: baseline; gap: 3mm; padding: 1.25mm 0; border-bottom: 0.3mm solid var(--linie); font-weight: 600; color: var(--seeTief); }
+.ukap-liste li .n { color: var(--kap); font-weight: 800; width: 7mm; }
+.ukap-liste li .s { margin-left: auto; color: var(--mild); font-weight: 500; }
+
+/* Tabellen */
+table.wt { border-collapse: collapse; font-size: 8.8pt; margin: 1mm 0 3mm; }
+table.wt th, table.wt td { border: 0.3mm solid var(--linie); padding: 1.2mm 2.4mm; text-align: center; }
+table.wt th { background: color-mix(in srgb, var(--kap) 10%, white); color: var(--seeTief); font-weight: 700; }
+table.wt td.l, table.wt th.l { text-align: left; }
+table.voll { width: 100%; }
+
+/* Lösungen */
+.loes { columns: 2; column-gap: 7mm; column-fill: auto; height: 256mm; font-size: 8.4pt; line-height: 1.42; }
+.loes .lk { margin: 0 0 2.2mm; }
+.loes h4 { font-size: 8.6pt; color: var(--kap); margin: 0 0 1mm; break-after: avoid; }
+.loes h3 { font-size: 9.6pt; margin: 0 0 1.6mm; padding: 1.2mm 0 1mm; color: var(--seeTief); border-bottom: 0.35mm solid var(--linie); break-after: avoid; }
+.loes h3 + .lk, .loes h3 + p { break-before: avoid; }
+.loes .katex { font-size: 1.08em; }
+.loes p { margin: 0 0 1mm; text-align: left !important; break-inside: avoid; }
+.loes .an { font-weight: 800; color: var(--kap); }
+
+/* Rechenschritte */
+.schritte { display: grid; grid-template-columns: max-content 1fr; gap: 1.6mm 4mm; align-items: center; margin: 1.6mm 0 2.2mm; }
+.schritte .sl { font-size: 8pt; color: var(--mild); font-weight: 600; }
+.schritte .sl b { color: var(--kap); }
+.schritte .katex { font-size: 1.1em; }
+.karte { background: #F3F6FB; margin: 0; padding: 2.6mm 3mm; border-radius: 2.5mm; }
+.karte .katex { font-size: 0.98em; }
+.karte p { text-align: left; margin: 1.2mm 0 0; }
+.regelzeile { display: grid; grid-template-columns: repeat(3, 1fr); text-align: center; }
+.regelzeile > div { line-height: 1.9; border-left: 0.3mm solid color-mix(in srgb, var(--kap) 30%, white); }
+.regelzeile > div:first-child { border-left: none; }
+.regelzeile .katex { font-size: 1.22em; }
+.haupt > :last-child, .rand > :last-child { margin-bottom: 0 !important; }
+.etikett .katex { text-transform: none; letter-spacing: 0; font-size: 1.2em; }
+.haupt .katex, .rand .katex { white-space: nowrap; }
+.rand .notiz .t .katex { text-transform: none; }
+table.wt.eng th, table.wt.eng td { padding: 0.6mm 2.2mm; }
+table.rb td, table.rb th { padding: 1mm 2mm; font-size: 8.4pt; }
+table.rb .katex { font-size: 1.04em; }
+.register { columns: 4; column-gap: 6mm; font-size: 8.6pt; line-height: 1.5; }
+.register h4 { color: var(--kap); font-size: 10pt; margin: 1.6mm 0 0.6mm; break-after: avoid; }
+.register h4:first-child { margin-top: 0; }
+.register p { margin: 0; display: flex; justify-content: space-between; gap: 2mm; break-inside: avoid; }
+.register p span { color: var(--mild); }
+.kap-I .kapband::after { background: var(--seeTief); }
+.auftakt.kap-I .auftakt-kopf .knr { color: #FFE9A0; }
+.film { display: flex; align-items: center; justify-content: space-between; gap: 1mm; margin: 2mm 0 1mm; }
+.film .bild { position: relative; border: 0.4mm solid var(--seeTief); border-radius: 1.6mm; overflow: hidden; background: #fff; }
+.film .bild svg { display: block; }
+.film .zoom { position: absolute; left: 1.4mm; top: 1.2mm; font-size: 7pt; font-weight: 800; color: #fff; background: var(--seeTief); padding: 0.3mm 1.4mm; border-radius: 1mm; }
+.film .pfeil { color: var(--grana); font-weight: 800; font-size: 11pt; }
+.ukap-liste.eng li { padding: 0.9mm 0; font-size: 8.8pt; }
+
+/* ============ Band Vektoren ============ */
+.kap-V .kapband::after, .kap-VI .kapband::after { background: var(--gold); }
+svg.graph.raum .fl { font-size: 11px; }
+.vek3 { display: inline-block; }
+.kap-farbe { color: var(--kap); }
