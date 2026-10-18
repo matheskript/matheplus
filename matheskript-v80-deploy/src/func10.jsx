@@ -460,7 +460,7 @@ export function Mathilda() {
 
       {/* Kopfleiste mit Menü */}
       {!ohneKopf && (
-      <div data-kopfleiste style={{ position: "relative", zIndex: 50, background: C.seeTief }}>
+      <div data-kopfleiste style={{ position: "relative", zIndex: 50, background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
         <div className="mx-auto flex items-center justify-between kopf-zeile" style={{ maxWidth: 620, height: "var(--kopf-h, 56px)", paddingLeft: 18, paddingRight: 12 }}>
           <style>{`
             :root{--kopf-h:56px}
