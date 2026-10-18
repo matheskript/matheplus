@@ -71,6 +71,11 @@ export const WZ_SEITEN = {
   scharen: { titel: "Funktionsscharen", groesse: "clamp(24px, 7vw, 34px)", Komp: lazy(() => import("./funcScharen.jsx"), "Funktionsscharen") },
   gleichverstehen: { titel: "Gleichungen lösen", groesse: "clamp(26px, 7.6vw, 34px)", rund: true, Komp: lazy(() => import("./funcGleichModi.jsx"), "GleichungenVerstehen") },
   /* Geometrie (Mittelstufe) */
+  winkelsaetze: { titel: "Winkel und Winkelsummen", groesse: "clamp(24px, 7vw, 34px)", Komp: lazy(() => import("./funcWinkelsaetze.jsx"), "Winkelsaetze") },
+  konstruktion: { titel: "Besondere Linien im Dreieck", groesse: "clamp(24px, 7vw, 34px)", Komp: lazy(() => import("./funcKonstruktion.jsx"), "Konstruktionen") },
+  kathetensatz: { titel: "Kathetensatz und Höhensatz", groesse: "clamp(24px, 7vw, 34px)", Komp: lazy(() => import("./funcKathetensatz.jsx"), "Kathetensatz") },
+  kreis: { titel: "Kreis und Kreisteile", groesse: "clamp(26px, 7.6vw, 34px)", Komp: lazy(() => import("./funcKreis.jsx"), "KreisUndKreisteile") },
+  koerper: { titel: "Körper", groesse: "clamp(26px, 7.6vw, 34px)", Komp: lazy(() => import("./funcKoerper.jsx"), "KoerperVolumen") },
   kongruenz: { titel: "Kongruenzsätze", groesse: "clamp(26px, 7.6vw, 34px)", Komp: lazy(() => import("./funcKongruenz.jsx"), "Kongruenzsaetze") },
   thales: { titel: "Satz des Thales", groesse: "clamp(26px, 7.6vw, 34px)", Komp: lazy(() => import("./funcThales.jsx"), "SatzDesThales") },
   pythagoras: { titel: "Satz des Pythagoras", groesse: "clamp(24px, 7vw, 34px)", Komp: lazy(() => import("./funcPythagorasWz.jsx"), "SatzDesPythagoras") },

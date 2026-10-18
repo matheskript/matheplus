@@ -19,7 +19,9 @@ def pruefe(bed, text):
         print("FEHLT:", text)
 
 WERKZEUGE = [("kongruenz", "Kongruenzsätze"), ("thales", "Satz des Thales"), ("pythagoras", "Satz des Pythagoras"),
-             ("bruchrechnen", "Brüche rechnen"), ("bruchterme", "Bruchterme und Bruchgleichungen")]
+             ("bruchrechnen", "Brüche rechnen"), ("bruchterme", "Bruchterme und Bruchgleichungen"),
+             ("winkelsaetze", "Winkel an Geraden und Winkelsummen"), ("konstruktion", "Besondere Linien im Dreieck"),
+             ("kathetensatz", "Kathetensatz und Höhensatz"), ("kreis", "Kreis und Kreisteile"), ("koerper", "Körper: Volumen und Oberfläche")]
 
 def schritte_durch(page, wo):
     """Alle Schritte einer Aufgabe über die Lösungsanzeige abschließen."""
@@ -67,6 +69,16 @@ with sync_playwright() as p:
                             page.get_by_role("button", name=t).first.click(); page.wait_for_timeout(80)
                     for r in page.locator("input[type=range]:visible").all()[:4]:
                         r.focus(); page.keyboard.press("End"); page.keyboard.press("Home")
+                if pfad in ("winkelsaetze", "konstruktion", "kathetensatz", "koerper"):
+                    for i in range(8):
+                        wahl = page.locator("[role=group] button[aria-pressed]:visible")
+                        if i >= wahl.count():
+                            break
+                        wahl.nth(i).click(); page.wait_for_timeout(80)
+                        for r in page.locator("input[type=range]:visible").all()[:3]:
+                            r.focus(); page.keyboard.press("End"); page.keyboard.press("Home")
+                        sw = page.evaluate("document.documentElement.scrollWidth")
+                        pruefe(sw <= breite, f"{wo}: Überbreite Entdecken-Auswahl {i}: {sw}")
                 if pfad == "thales":
                     k = page.get_by_role("button", name="Beweisidee zeigen")
                     if k.count(): k.first.click(); page.wait_for_timeout(80)
@@ -98,7 +110,7 @@ with sync_playwright() as p:
                 print(breite, "Box-Höhen", hoehen)
                 pruefe(page.get_by_role("button", name="Bruchrechnen aufklappen").count() == 1, f"{breite}: Bereich Bruchrechnen fehlt in der Mittelstufe")
                 page.get_by_role("button", name="Geometrie aufklappen").first.click(); page.wait_for_timeout(400)
-                for t in ["Kongruenzsätze", "Satz des Thales", "Satz des Pythagoras", "Strahlensätze", "Trigonometrie am Dreieck"]:
+                for t in ["Winkel und Winkelsummen", "Kongruenzsätze", "Besondere Linien im Dreieck", "Satz des Thales", "Satz des Pythagoras", "Kathetensatz und Höhensatz", "Strahlensätze", "Trigonometrie am Dreieck", "Kreis und Kreisteile", "Körper: Volumen und Oberfläche"]:
                     pruefe(page.locator(f"button:has-text('{t}')").count() > 0, f"{breite}: {t} fehlt unter Geometrie")
                 page.screenshot(path=f"{AUS}/start-geometrie-{breite}.png", full_page=False)
                 page.get_by_role("button", name="Geometrie zuklappen").first.click(); page.wait_for_timeout(300)

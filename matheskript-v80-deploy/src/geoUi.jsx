@@ -9,9 +9,11 @@
    Keine base-Datei darf diese Datei importieren.
    ====================================================================== */
 
-import React from "react";
+import React, { useMemo, useState } from "react";
 import { C } from "./base1.jsx";
-import { zt } from "./ui3.jsx";
+import { IchHaengeFest } from "./funcHilfe.jsx";
+import { GrosserKnopf, hinweis, karte, kicker, zw } from "./ui2.jsx";
+import { SchrittFolge, zt } from "./ui3.jsx";
 
 export const SCHRIFT = "Montserrat, system-ui, sans-serif";
 
@@ -158,3 +160,42 @@ export function Merke({ children, farbe = C.see }) {
     </div>
   );
 }
+
+/* ---------- Übungsrahmen ----------
+   Aufgabentyp-Auswahl (Gemischt + alle Typen), Aufgabentext, Skizze, Schritte, „Neue Aufgabe“, „Ich hänge fest“.
+   titel: { art: [de, en] }, arten: Liste der Typen, neue(art | null) → Aufgabe mit id,
+   schritte(au), text(au), skizze(au) → JSX oder null, hilfe(au) → hilfeKontext */
+export function UebenRahmen({ titel, arten, neue, schritte, text, skizze, hilfe, fertig }) {
+  const [art, setArt] = useState("mix");
+  const [au, setAu] = useState(() => neue(null));
+  const [stand, setStand] = useState(0);
+  const neu = (a = art) => { setAu(neue(a === "mix" ? null : a)); setStand(0); };
+  const st = useMemo(() => schritte(au), [au]);
+  const liste = [["mix", zw("Gemischt", "Mixed")], ...arten.map((a) => [a, zw(titel[a][0], titel[a][1])])];
+  const sk = skizze ? skizze(au) : null;
+  return (
+    <>
+      <div style={{ ...karte, marginTop: 16 }}>
+        <p style={kicker}>{zw("Aufgabentyp", "Exercise type")}</p>
+        <div data-aufgabentyp style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+          {liste.map(([id, t]) => (
+            <button key={id} type="button" aria-pressed={art === id} onClick={() => { setArt(id); neu(id); }}
+              style={{ padding: "6px 11px", borderRadius: 999, fontFamily: "inherit", fontSize: 12.5, fontWeight: 700, cursor: "pointer",
+                border: `1.5px solid ${art === id ? C.see : C.linie}`, background: art === id ? C.see : C.weiss, color: art === id ? C.weiss : C.see }}>{t}</button>
+          ))}
+        </div>
+      </div>
+      <div style={{ ...karte, marginTop: 12 }} key={au.id}>
+        <p style={kicker}>{zw(titel[au.art][0], titel[au.art][1])}</p>
+        <div style={{ ...hinweis, color: C.tinte, fontSize: 15, marginBottom: 8 }}>{text(au)}</div>
+        {sk && <div style={{ background: C.sand, borderRadius: 14, padding: 6 }}>{sk}</div>}
+        <SchrittFolge schritte={st} stand={stand} setStand={setStand} fertigText={fertig || zw("Richtig gelöst.", "Solved.")} />
+        <GrosserKnopf ghost onClick={() => neu()}>{zw("Neue Aufgabe", "New exercise")}</GrosserKnopf>
+        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfe(au)} /></div>
+      </div>
+    </>
+  );
+}
+
+/* Toleranz für gerundete Ergebnisse (π, Wurzeln): 2 Nachkommastellen oder 0,2 % */
+export const tolRund = (w) => Math.max(0.011, Math.abs(w) * 0.002);

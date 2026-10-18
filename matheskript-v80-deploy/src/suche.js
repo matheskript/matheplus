@@ -88,6 +88,11 @@ const ORT = (() => {
 
 /* Zusatzwörter je Werkzeug: so spricht man über das Thema (Werkzeugnamen allein reichen nicht) */
 const WZ_WOERTER = {
+  winkelsaetze: "winkel scheitelwinkel nebenwinkel stufenwinkel wechselwinkel nachbarwinkel parallelen winkelsumme innenwinkel außenwinkel aussenwinkel n-eck vieleck gleichschenklig basiswinkel",
+  konstruktion: "konstruktion konstruieren mittelsenkrechte winkelhalbierende höhe höhen seitenhalbierende schwerpunkt umkreis inkreis umkreismittelpunkt inkreismittelpunkt höhenschnittpunkt euler-gerade zirkel",
+  kathetensatz: "kathetensatz höhensatz satzgruppe des pythagoras hypotenusenabschnitt hypotenusenabschnitte p q höhe",
+  kreis: "kreis kreisumfang kreisfläche umfang fläche radius durchmesser pi π kreisbogen bogen kreisausschnitt sektor kreisring",
+  koerper: "körper koerper volumen oberfläche oberflaeche zylinder kegel pyramide kugel prisma mantel mantellinie schrägbild rauminhalt",
   pythagoras: "pythagoras satz des pythagoras a²+b²=c² hypotenuse kathete katheten rechtwinkliges dreieck rechter winkel umkehrung raumdiagonale diagonale leiter",
   thales: "thales satz des thales thaleskreis halbkreis rechter winkel durchmesser umkreis umkreismittelpunkt tangente berührradius",
   kongruenz: "kongruenz kongruenzsätze kongruent deckungsgleich sss sws wsw sww ssw ssw dreieck konstruieren konstruktion eindeutig dreiecksungleichung",
@@ -387,7 +392,12 @@ const BREIT = [
       frageOpt("Kongruenzsätze", "Congruence theorems", "Kongruenzsätze"),
       frageOpt("Satz des Thales", "Thales' theorem", "Satz des Thales"),
       frageOpt("Satz des Pythagoras", "Pythagoras' theorem", "Satz des Pythagoras"),
+      frageOpt("Winkel an Parallelen und Winkelsummen", "Angles at parallels and angle sums", "Winkelsumme Stufenwinkel"),
+      frageOpt("Umkreis, Inkreis, Schwerpunkt", "Circumcircle, incircle, centroid", "Mittelsenkrechte Winkelhalbierende Schwerpunkt"),
+      frageOpt("Kathetensatz und Höhensatz", "Leg and altitude theorems", "Kathetensatz Höhensatz"),
       frageOpt("Strahlensätze und Ähnlichkeit", "Intercept theorems and similarity", "Strahlensätze"),
+      frageOpt("Kreis: Umfang, Fläche, Sektor", "Circle: circumference, area, sector", "Kreisumfang Kreisfläche Kreisausschnitt"),
+      frageOpt("Körper: Volumen und Oberfläche", "Solids: volume and surface", "Volumen Zylinder Kegel Kugel"),
       frageOpt("Sinus, Kosinus, Tangens im Dreieck", "Sine, cosine, tangent in triangles", "Trigonometrie"),
       frageOpt("Vektoren und Geometrie im Raum", "Vectors and 3D geometry", "Rechnen mit Vektoren, Geraden im Raum, Ebene aus drei Punkten"),
     ] },
