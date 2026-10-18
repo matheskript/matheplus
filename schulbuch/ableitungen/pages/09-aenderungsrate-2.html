@@ -1,0 +1,65 @@
+<!--kap: I  -->
+<div class="kasten beispiel" style="margin-top:0">
+  <div class="etikett">Beispiel 2 · Änderungsrate im Sachzusammenhang</div>
+  <p style="text-align:left">An einem Frühlingstag wird die Temperatur gemessen. Wie schnell ändert sie sich im Mittel?</p>
+  <table class="wt" style="margin-bottom:1.5mm"><tr><th>Uhrzeit</th><td>6 Uhr</td><td>10 Uhr</td><td>14 Uhr</td><td>18 Uhr</td></tr><tr><th>Temperatur</th><td>8 °C</td><td>14 °C</td><td>21 °C</td><td>17 °C</td></tr></table>
+  <div class="loesung"><span class="loesung-kopf">Lösung</span>
+  <p style="text-align:left">Von 6 bis 14 Uhr: $\dfrac{21 - 8}{14 - 6} = \dfrac{13}{8} \approx 1{,}6$ – die Temperatur steigt im Mittel um etwa 1,6 °C pro Stunde.<br>Von 14 bis 18 Uhr: $\dfrac{17 - 21}{18 - 14} = -1$ – sie fällt im Mittel um 1 °C pro Stunde. Ein <b>negatives Vorzeichen</b> bedeutet Abnahme.</p></div>
+</div>
+
+<h3>Die h-Schreibweise</h3>
+<div class="zwei-bild">
+  <div>
+    <p>Oft interessiert uns, was in der Nähe <b>einer festen Stelle</b> $x_0$ passiert. Dann wählt man das Intervall $[x_0;\, x_0 + h]$ mit einer kleinen Zahl $h \neq 0$. Der Differenzenquotient lautet dann</p>
+    $$\frac{f(x_0 + h) - f(x_0)}{h}.$$
+    <p>Die Zahl $h$ ist die Breite des Intervalls. Sie darf auch negativ sein – dann liegt der zweite Punkt links von $x_0$.</p>
+  </div>
+  <div>
+    <graph>{"b":50,"h":44,"x":[-0.3,3.2],"y":[-0.5,5.5],"gitter":0,"keineZahlen":true,
+      "fn":[{"f":"0.45*x*x+0.6","c":"see","w":2}],
+      "gerade":[{"f":"0.45*x*x+0.6","sek":[1,2.5],"c":"grana","w":1.4}],
+      "strecke":[{"p":[1,0],"q":[1,1.05],"c":"grau","d":"3 3","w":1},{"p":[2.5,0],"q":[2.5,3.4125],"c":"grau","d":"3 3","w":1},{"p":[1,-0.25],"q":[2.5,-0.25],"c":"gold","w":1.4,"pfeil":2}],
+      "punkt":[{"x":1,"f":"0.45*x*x+0.6","t":"P","pos":"ol","c":"grana"},{"x":2.5,"f":"0.45*x*x+0.6","t":"Q","pos":"l","c":"grana"}],
+      "text":[{"x":1.75,"y":-0.05,"t":"h","pos":"o","c":"goldDunkel","k":"fl"},{"x":1,"y":0,"t":"x₀","pos":"ul","c":"seeTief"},{"x":2.5,"y":0,"t":"x₀ + h","pos":"ur","c":"seeTief"}]}</graph>
+  </div>
+</div>
+
+<div class="aufgaben-kopf"><span>Aufgaben</span></div>
+
+<div class="auf"><div class="anr"><span class="z">1</span><span class="stufe">●○○</span></div><div class="text">
+  <p>Berechne die mittlere Änderungsrate von $f$ im angegebenen Intervall.</p>
+  <div class="teil" style="--sp:3"><div><i>a)</i>$f(x) = x^2$; $[0;\,2]$</div><div><i>b)</i>$f(x) = x^2$; $[-3;\,-1]$</div><div><i>c)</i>$f(x) = x^3$; $[1;\,2]$</div><div><i>d)</i>$f(x) = \frac{1}{x}$; $[1;\,4]$</div><div><i>e)</i>$f(x) = \sqrt{x}$; $[4;\,9]$</div><div><i>f)</i>$f(x) = 2x + 5$; $[-1;\,7]$</div></div>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">2</span><span class="stufe">●○○</span></div><div class="text">
+  <p>Bestimme die Gleichung der Sekante an den Graphen von $f(x) = x^2$ durch die Punkte mit $x = -1$ und $x = 2$.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">3</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Der Stein aus dem Einstieg fällt nach $s(t) = 5t^2$. Berechne seine Durchschnittsgeschwindigkeit in den Intervallen $[2;\,3]$, $[2;\,2{,}5]$ und $[2;\,2{,}1]$. Welche Geschwindigkeit vermutest du genau im Zeitpunkt <span class="nw">$t = 2$?</span></p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">4</span><span class="stufe">●●○</span></div><div class="text">
+  <p>In eine Badewanne läuft Wasser. Nach 0, 2, 4, 6 und 8 Minuten sind 0, 30, 70, 90 und 95 Liter in der Wanne.</p>
+  <p><b>a)</b> Berechne die mittlere Zuflussrate in den ersten und in den letzten vier Minuten. <b>b)</b> In welchem Zwei-Minuten-Abschnitt fließt im Mittel am meisten Wasser zu?</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">5</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Gegeben ist $f(x) = x^2$ und $x_0 = 1$. <b>a)</b> Berechne $\frac{f(1 + h) - f(1)}{h}$ für $h = 1$, $h = 0{,}5$ und $h = 0{,}1$. <b>b)</b> Zeige, dass sich der Term für jedes $h \neq 0$ zu $2 + h$ vereinfachen lässt.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">6</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Wahr oder falsch? „Ist die mittlere Änderungsrate in $[a;\,b]$ null, dann ist $f$ dort konstant.“ Begründe.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z offen">7</span><span class="stufe">●●●</span></div><div class="text">
+  <p>Zeige: Für $f(x) = x^2$ ist die mittlere Änderungsrate in $[a;\,b]$ immer $a + b$. Was ergibt sich, wenn $b$ immer näher an $a$ heranrückt?</p>
+</div></div>
+<!--rand-->
+<div class="notiz"><span class="t">Wortspeicher</span><b>Sekante</b> (lat. secare = schneiden): Gerade durch zwei Punkte eines Graphen.<br><br><b>Intervall</b> $[a;\,b]$: alle Zahlen von $a$ bis $b$.</div>
+
+<div class="notiz gold"><span class="t">Achtung Reihenfolge</span>Oben und unten muss dieselbe Reihenfolge stehen:<br>$\dfrac{f(b) - f(a)}{b - a}$, nicht $\dfrac{f(b) - f(a)}{a - b}$.</div>
+
+<div class="notiz"><span class="t">Zu Aufgabe 1 d)</span>Doppelbrüche löst du auf, indem du mit dem Kehrwert des Nenners multiplizierst.</div>
+
+<div class="notiz mathilda"><span class="t">In der App</span>Im Werkzeug <b>Differenzenquotient</b> ziehst du $Q$ selbst an $P$ heran und siehst, wie sich die Sekantensteigung ändert.</div>

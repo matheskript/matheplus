@@ -15,17 +15,17 @@
   "kap": "I"
  },
  {
-  "titel": "1 Mittlere Änderungsrate",
+  "titel": "1 Geraden und Steigung",
   "seite": 4,
   "kap": "I"
  },
  {
-  "titel": "2 Von der Sekante zur Tangente",
+  "titel": "2 Geradengleichungen ermitteln",
   "seite": 6,
   "kap": "I"
  },
  {
-  "titel": "3 Die Ableitungsfunktion",
+  "titel": "3 Mittlere Änderungsrate",
   "seite": 8,
   "kap": "I"
  },
@@ -40,78 +40,113 @@
   "kap": "II"
  },
  {
-  "titel": "4 Faktorregel",
+  "titel": "4 Das Tangentenproblem",
   "seite": 12,
   "kap": "II"
  },
  {
-  "titel": "5 Summenregel",
+  "titel": "5 Der Differenzenquotient",
   "seite": 14,
   "kap": "II"
  },
  {
-  "titel": "6 Produktregel",
+  "titel": "6 Von der Sekante zur Tangente",
   "seite": 16,
   "kap": "II"
  },
  {
-  "titel": "7 Potenzregel",
+  "titel": "7 Die Ableitung an einer Stelle",
   "seite": 18,
   "kap": "II"
  },
  {
-  "titel": "8 Quotientenregel",
+  "titel": "8 Die Ableitungsfunktion",
   "seite": 20,
   "kap": "II"
  },
  {
-  "titel": "9 Kettenregel",
+  "titel": "Alles klar? Training II",
   "seite": 22,
   "kap": "II"
  },
  {
-  "titel": "10 Sinus, Kosinus, eˣ und ln x",
-  "seite": 24,
-  "kap": "II"
- },
- {
-  "titel": "Alles klar? Training II",
-  "seite": 26,
-  "kap": "II"
- },
- {
   "titel": "Kapitel III · Auftakt",
-  "seite": 27,
+  "seite": 23,
   "kap": "III"
  },
  {
-  "titel": "11 Tangente und Normale",
+  "titel": "9 Faktorregel",
+  "seite": 24,
+  "kap": "III"
+ },
+ {
+  "titel": "10 Summenregel",
+  "seite": 26,
+  "kap": "III"
+ },
+ {
+  "titel": "11 Produktregel",
   "seite": 28,
   "kap": "III"
  },
  {
-  "titel": "12 Vermischte Übungen",
+  "titel": "12 Potenzregel",
   "seite": 30,
   "kap": "III"
  },
  {
-  "titel": "Rückblick",
-  "seite": 31,
+  "titel": "13 Quotientenregel",
+  "seite": 32,
   "kap": "III"
  },
  {
+  "titel": "14 Kettenregel",
+  "seite": 34,
+  "kap": "III"
+ },
+ {
+  "titel": "15 Sinus, Kosinus, eˣ und ln x",
+  "seite": 36,
+  "kap": "III"
+ },
+ {
+  "titel": "Alles klar? Training III",
+  "seite": 38,
+  "kap": "III"
+ },
+ {
+  "titel": "Kapitel IV · Auftakt",
+  "seite": 39,
+  "kap": "IV"
+ },
+ {
+  "titel": "16 Tangente und Normale",
+  "seite": 40,
+  "kap": "IV"
+ },
+ {
+  "titel": "17 Vermischte Übungen",
+  "seite": 42,
+  "kap": "IV"
+ },
+ {
+  "titel": "Rückblick",
+  "seite": 43,
+  "kap": "IV"
+ },
+ {
   "titel": "Lösungen",
-  "seite": 32,
+  "seite": 44,
   "kap": "L"
  },
  {
   "titel": "Stichwortverzeichnis",
-  "seite": 35,
+  "seite": 49,
   "kap": "L"
  },
  {
   "titel": "Rückseite",
-  "seite": 36,
+  "seite": 50,
   "kap": "0"
  }
 ]

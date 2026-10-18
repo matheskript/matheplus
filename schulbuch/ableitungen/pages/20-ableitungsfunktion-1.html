@@ -1,0 +1,64 @@
+<!--kap: II | uk: Die Ableitungsfunktion -->
+<div class="ukap-titel"><span class="nr">{{K:ableitungsfunktion-1}}</span><h2>Die Ableitungsfunktion</h2></div>
+<p class="leitfrage">Kann man die Steigung an allen Stellen auf einmal berechnen?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <p style="text-align:left">Für $f(x) = x^2$ kennst du schon einige Steigungen. Ergänze die Tabelle mit der h-Methode oder durch geschicktes Vermuten. Findest du eine Regel, mit der man $f'(x)$ sofort angeben kann?</p>
+  <table class="wt" style="margin:1mm 0 0"><tr><th>$x$</th><td>−2</td><td>−1</td><td>0</td><td>1</td><td>2</td><td>3</td></tr><tr><th>$f'(x)$</th><td>−4</td><td></td><td></td><td>2</td><td></td><td>6</td></tr></table>
+</div>
+
+<p>Statt die h-Methode für jede Stelle neu durchzurechnen, rechnet man <b>einmal mit einer allgemeinen Stelle</b> $x$. Das Ergebnis ist ein Term in $x$, in den man danach jede Stelle einsetzen kann.</p>
+
+<div class="kasten merke">
+  <div class="etikett">Merke</div>
+  <p style="text-align:left">Ordnet man jeder Stelle $x$, an der $f$ differenzierbar ist, die Steigung $f'(x)$ zu, so erhält man eine neue Funktion $f'$ mit</p>
+  $$f'(x) = \lim_{h \to 0} \frac{f(x + h) - f(x)}{h}.$$
+  <p style="text-align:left">Sie heißt <b>Ableitungsfunktion</b> von $f$, kurz <b>Ableitung</b>. Das Bestimmen von $f'$ nennt man <b>Ableiten</b> oder <b>Differenzieren</b>.</p>
+</div>
+
+<h3>Die drei Grundbausteine – selbst hergeleitet</h3>
+<p>Mit der h-Methode leiten wir jetzt die drei einfachsten Funktionen ab. Alle späteren Regeln bauen auf diesen drei Ergebnissen auf.</p>
+
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:3.5mm">
+  <div class="karte">
+    <div class="etikett" style="background:var(--kap);color:#fff">① Konstante</div>
+    <p style="margin:0 0 1.4mm"><b>$f(x) = c$</b></p>
+    <graph>{"b":36,"h":20,"x":[-1.6,2.6],"y":[-0.5,2.6],"gitter":1,"keineZahlen":true,
+      "fn":[{"f":"1.5","c":"see","w":2}],"punkt":[{"x":1,"y":1.5,"c":"gold","r":3}]}</graph>
+    <p>Jeder Differenzenquotient ist null:</p>
+    <p>$\dfrac{f(x + h) - f(x)}{h}$</p>
+    <p>$= \dfrac{c - c}{h} = \dfrac{0}{h} = 0$</p>
+    <p>Also gilt $f'(x) = 0$. Eine waagrechte Gerade hat überall die Steigung 0.</p>
+  </div>
+  <div class="karte">
+    <div class="etikett" style="background:var(--kap);color:#fff">② Identität</div>
+    <p style="margin:0 0 1.4mm"><b>$f(x) = x$</b></p>
+    <graph>{"b":36,"h":20,"x":[-1.6,2.6],"y":[-0.9,2.2],"gitter":1,"keineZahlen":true,
+      "fn":[{"f":"x","c":"see","w":2}],"strecke":[{"p":[0.5,0.5],"q":[1.5,0.5],"c":"gold","w":1.4},{"p":[1.5,0.5],"q":[1.5,1.5],"c":"gold","w":1.4}],"text":[{"x":1.5,"y":1,"t":"1","pos":"r","c":"goldDunkel"}]}</graph>
+    <p>Zähler und Nenner sind gleich:</p>
+    <p>$\dfrac{f(x + h) - f(x)}{h}$</p>
+    <p>$= \dfrac{x + h - x}{h} = \dfrac{h}{h} = 1$</p>
+    <p>Also gilt $f'(x) = 1$. Die Winkelhalbierende hat überall die Steigung 1.</p>
+  </div>
+  <div class="karte">
+    <div class="etikett" style="background:var(--kap);color:#fff">③ Quadrat</div>
+    <p style="margin:0 0 1.4mm"><b>$f(x) = x^2$</b></p>
+    <graph>{"b":36,"h":20,"x":[-1.8,2.2],"y":[-0.6,2.6],"gitter":1,"keineZahlen":true,
+      "fn":[{"f":"x*x","c":"see","w":2}],"gerade":[{"f":"x*x","tan":-0.8,"c":"gold","w":1.3,"von":-1.8,"bis":0.2},{"f":"x*x","tan":1,"c":"gold","w":1.3,"von":0.2,"bis":2}]}</graph>
+    <p>Binomische Formel, dann kürzen:</p>
+    <p>$\dfrac{(x + h)^2 - x^2}{h} = \dfrac{2xh + h^2}{h}$</p>
+    <p>$= 2x + h \;\xrightarrow{\;h \to 0\;}\; 2x$</p>
+    <p>Also gilt $f'(x) = 2x$. Die Steigung wächst gleichmäßig mit $x$.</p>
+  </div>
+</div>
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: Tabelle und Vermutung</li><li>Merke: Ableitungsfunktion</li><li>Drei Herleitungen</li><li>Graphisch ableiten</li><li>Aufgaben 1–5</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 6 und 7</p></div>
+
+<div class="notiz"><span class="t">Feiner Unterschied</span>$f'(3)$ ist eine <b>Zahl</b>: die Steigung an der Stelle 3.<br>$f'$ ist eine <b>Funktion</b>: sie liefert die Steigung an jeder Stelle.</div>
+
+<div class="notiz"><span class="t">Zu ③</span>$(x + h)^2 - x^2$<br>$= x^2 + 2xh + h^2 - x^2$<br>$= 2xh + h^2$</div>
+
+<div class="notiz gold"><span class="t">Kontrolle</span>Mit $f'(x) = 2x$ erhältst du sofort $f'(3) = 6$ – genau wie im Beispiel auf Seite {{S:tangente-2}}.</div>

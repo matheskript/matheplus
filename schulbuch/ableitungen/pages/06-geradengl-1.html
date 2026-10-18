@@ -1,0 +1,59 @@
+<!-- kap: I | uk: Geradengleichungen ermitteln -->
+<div class="ukap-titel"><span class="nr">{{K:geradengl-1}}</span><h2>Geradengleichungen ermitteln</h2></div>
+<p class="leitfrage">Was muss man wissen, um eine Gerade eindeutig festzulegen?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <div class="zwei-bild" style="gap:5mm">
+    <div>
+      <p style="text-align:left">Durch den Punkt $P(2 \mid 1)$ sind einige Geraden gezeichnet.</p>
+      <p style="text-align:left"><b>a)</b> Wie viele Geraden gibt es insgesamt durch $P$?<br><b>b)</b> Welche Zusatzinformation würde genau <b>eine</b> davon auswählen? Finde zwei verschiedene Möglichkeiten.</p>
+    </div>
+    <graph>{"b":40,"h":32,"x":[-0.4,4.4],"y":[-1.4,3.4],"gitter":1,"tx":1,"ty":1,
+      "gerade":[{"p":[2,1],"q":[3,4],"c":"#9DB2D9","w":1.3},{"p":[2,1],"q":[3,2],"c":"#9DB2D9","w":1.3},{"p":[2,1],"q":[3,1],"c":"#9DB2D9","w":1.3},{"p":[2,1],"q":[3,0.5],"c":"#9DB2D9","w":1.3},{"p":[2,1],"q":[3,-1],"c":"#9DB2D9","w":1.3},{"p":[2,1],"q":[3,1.5],"c":"#9DB2D9","w":1.3}],
+      "punkt":[{"x":2,"y":1,"c":"grana","t":"P","pos":"ul"}]}</graph>
+  </div>
+</div>
+
+<p>Durch einen Punkt gehen unendlich viele Geraden – ein ganzes <b>Geradenbüschel</b>. Eine bestimmte Gerade liegt erst fest, wenn man zusätzlich ihre <b>Steigung</b> oder einen <b>zweiten Punkt</b> kennt.</p>
+
+<h3>Fall 1: Punkt und Steigung</h3>
+<p>Die Gerade soll durch $P(x_0 \mid y_0)$ gehen und die Steigung $m$ haben. Für jeden weiteren Punkt $(x \mid y)$ der Geraden bilden $P$ und $(x \mid y)$ ein Steigungsdreieck:</p>
+<div class="schritte">
+  <span class="sl"><b>①</b> Steigung mit $P$</span><span>$\dfrac{y - y_0}{x - x_0} = m$</span>
+  <span class="sl"><b>②</b> mal $(x - x_0)$</span><span>$y - y_0 = m \cdot (x - x_0)$</span>
+  <span class="sl"><b>③</b> nach $y$ auflösen</span><span>$y = m \cdot (x - x_0) + y_0$</span>
+</div>
+
+<h3>Fall 2: Zwei Punkte</h3>
+<p>Kennt man zwei Punkte $P$ und $Q$, berechnet man zuerst die Steigung $m = \frac{y_Q - y_P}{x_Q - x_P}$. Dann ist man wieder bei Fall 1.</p>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Geradengleichung</div>
+  <p style="text-align:left">Die Gerade durch $P(x_0 \mid y_0)$ mit der Steigung $m$ hat die Gleichung</p>
+  $$y = m \cdot (x - x_0) + y_0 \qquad \text{(Punkt-Steigungs-Form).}$$
+  <p style="text-align:left">Durch zwei Punkte mit verschiedenen $x$-Werten geht genau eine Gerade: erst $m$ berechnen, dann die Punkt-Steigungs-Form benutzen.</p>
+</div>
+
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 1 · Punkt und Steigung</div>
+  <p style="text-align:left">Gerade durch $P(2 \mid 1)$ mit $m = 3$: &nbsp;$y = 3(x - 2) + 1 = 3x - 6 + 1 = 3x - 5$. &nbsp;<span class="mild">Probe: $3 \cdot 2 - 5 = 1$ ✓</span></p>
+</div>
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 2 · Zwei Punkte</div>
+  <p style="text-align:left">Gerade durch $A(-1 \mid 4)$ und $B(3 \mid -4)$.</p>
+  <div class="loesung"><span class="loesung-kopf">Lösung</span>
+  <div class="schritte" style="margin:1mm 0 0">
+    <span class="sl">Steigung</span><span>$m = \dfrac{-4 - 4}{3 - (-1)} = \dfrac{-8}{4} = -2$</span>
+    <span class="sl">Punkt-Steigungs-Form mit $A$</span><span>$y = -2(x + 1) + 4 = -2x + 2$</span>
+    <span class="sl">Probe mit $B$</span><span>$-2 \cdot 3 + 2 = -4$ ✓</span>
+  </div></div>
+</div>
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: Geradenbüschel</li><li>Fall 1 herleiten</li><li>Fall 2: zwei Punkte</li><li>Merke</li><li>Beispiele 1–3</li><li>Aufgaben 1–5</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 6 und 7</p></div>
+
+<div class="notiz"><span class="t">Alternative</span>Mit $y = mx + b$: $m$ einsetzen, dann $P$ einsetzen und nach $b$ auflösen:<br>$1 = 3 \cdot 2 + b$<br>$b = -5$</div>
+
+<div class="notiz gold"><span class="t">Merkhilfe</span>Eine Gerade braucht <b>zwei Angaben</b>:<br>Punkt + Steigung<br>oder Punkt + Punkt.</div>

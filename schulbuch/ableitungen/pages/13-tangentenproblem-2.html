@@ -1,0 +1,53 @@
+<!-- kap: II -->
+<h3 style="margin-top:0">Das Zoom-Experiment: Jede glatte Kurve wird zur Geraden</h3>
+<p>Wir vergrößern den Graphen von $f(x) = \frac{1}{2}x^2$ immer weiter um den Punkt $P(1 \mid 0{,}5)$ herum. Jedes Bild zeigt den rot markierten Ausschnitt des vorigen Bildes, viermal vergrößert. Die gestrichelte goldene Gerade ist die Tangente.</p>
+<div class="film"><div class="bild"><graph>{"b": 34, "h": 34, "x": [-1.0, 3.0], "y": [-1.5, 2.5], "gitter": 1.0, "achsen": false, "fn": [{"f": "0.5*x*x", "c": "see", "w": 2.4}], "gerade": [{"f": "0.5*x*x", "tan": 1, "c": "gold", "w": 1.6, "d": "5 3"}], "punkt": [{"x": 1, "y": 0.5, "c": "grana", "r": 3}], "strecke": [{"p": [0.5, 0.0], "q": [1.5, 0.0], "c": "grana", "w": 1}, {"p": [1.5, 0.0], "q": [1.5, 1.0], "c": "grana", "w": 1}, {"p": [1.5, 1.0], "q": [0.5, 1.0], "c": "grana", "w": 1}, {"p": [0.5, 1.0], "q": [0.5, 0.0], "c": "grana", "w": 1}]}</graph><span class="zoom">1×</span></div><span class="pfeil">→</span><div class="bild"><graph>{"b": 34, "h": 34, "x": [0.5, 1.5], "y": [0.0, 1.0], "gitter": 0.25, "achsen": false, "fn": [{"f": "0.5*x*x", "c": "see", "w": 2.4}], "gerade": [{"f": "0.5*x*x", "tan": 1, "c": "gold", "w": 1.6, "d": "5 3"}], "punkt": [{"x": 1, "y": 0.5, "c": "grana", "r": 3}], "strecke": [{"p": [0.875, 0.375], "q": [1.125, 0.375], "c": "grana", "w": 1}, {"p": [1.125, 0.375], "q": [1.125, 0.625], "c": "grana", "w": 1}, {"p": [1.125, 0.625], "q": [0.875, 0.625], "c": "grana", "w": 1}, {"p": [0.875, 0.625], "q": [0.875, 0.375], "c": "grana", "w": 1}]}</graph><span class="zoom">4×</span></div><span class="pfeil">→</span><div class="bild"><graph>{"b": 34, "h": 34, "x": [0.875, 1.125], "y": [0.375, 0.625], "gitter": 0.0625, "achsen": false, "fn": [{"f": "0.5*x*x", "c": "see", "w": 2.4}], "gerade": [{"f": "0.5*x*x", "tan": 1, "c": "gold", "w": 1.6, "d": "5 3"}], "punkt": [{"x": 1, "y": 0.5, "c": "grana", "r": 3}], "strecke": [{"p": [0.96875, 0.46875], "q": [1.03125, 0.46875], "c": "grana", "w": 1}, {"p": [1.03125, 0.46875], "q": [1.03125, 0.53125], "c": "grana", "w": 1}, {"p": [1.03125, 0.53125], "q": [0.96875, 0.53125], "c": "grana", "w": 1}, {"p": [0.96875, 0.53125], "q": [0.96875, 0.46875], "c": "grana", "w": 1}]}</graph><span class="zoom">16×</span></div><span class="pfeil">→</span><div class="bild"><graph>{"b": 34, "h": 34, "x": [0.96875, 1.03125], "y": [0.46875, 0.53125], "gitter": 0.015625, "achsen": false, "fn": [{"f": "0.5*x*x", "c": "see", "w": 2.4}], "gerade": [{"f": "0.5*x*x", "tan": 1, "c": "gold", "w": 1.6, "d": "5 3"}], "punkt": [{"x": 1, "y": 0.5, "c": "grana", "r": 3}]}</graph><span class="zoom">64×</span></div></div>
+<p class="bildunterschrift" style="margin-bottom:2.5mm">Von links nach rechts jeweils viermal näher an $P$ heran: Die Krümmung verschwindet, der Graph und die Tangente fallen zusammen.</p>
+<p>Bei 64-facher Vergrößerung ist vom Bogen nichts mehr zu sehen: Der Graph sieht aus wie eine Gerade, und zwar genau wie die Tangente. Das gilt für jede Kurve ohne Knick. Man sagt: Der Graph ist <b>lokal linear</b>.</p>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Tangente</div>
+  <p style="text-align:left">Vergrößert man einen glatten Graphen immer stärker um einen Punkt $P$, so sieht er dort immer mehr aus wie eine Gerade. Diese Gerade heißt <b>Tangente</b> in $P$. Ihre Steigung nennt man die <b>Steigung des Graphen</b> im Punkt $P$.</p>
+  <p style="text-align:left">Das <b>Tangentenproblem</b>: Wie berechnet man diese Steigung, obwohl man nur den Punkt $P$ kennt? Die Antwort liefern die nächsten Kapitel.</p>
+</div>
+
+<div class="aufgaben-kopf"><span>Aufgaben</span></div>
+
+<div class="auf"><div class="anr"><span class="z">1</span><span class="stufe">●○○</span></div><div class="text">
+  <div class="zwei-bild" style="gap:4mm">
+    <p>Übertrage den Graphen ins Heft. Zeichne in $A$, $B$ und $C$ mit dem Lineal die Tangenten und schätze ihre Steigungen mit einem Steigungsdreieck.</p>
+    <graph>{"b":44,"h":30,"x":[-0.4,4.4],"y":[-0.4,2.9],"gitter":1,"tx":1,"ty":1,
+      "fn":[{"f":"0.25*x*x*x-1.5*x*x+2.25*x+1","c":"see","w":2}],
+      "punkt":[{"x":0.5,"f":"0.25*x*x*x-1.5*x*x+2.25*x+1","c":"grana","t":"A","pos":"ul"},{"x":2,"f":"0.25*x*x*x-1.5*x*x+2.25*x+1","c":"grana","t":"B","pos":"or"},{"x":3.6,"f":"0.25*x*x*x-1.5*x*x+2.25*x+1","c":"grana","t":"C","pos":"l"}]}</graph>
+  </div>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">2</span><span class="stufe">●○○</span></div><div class="text">
+  <p>Erkläre in eigenen Worten, warum man die Tangente in einem Punkt $P$ nicht einfach mit der Punkt-Steigungs-Form aufstellen kann.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">3</span><span class="stufe">●●○</span></div><div class="text">
+  <p>An welcher Stelle hat der Graph von $f(x) = \frac{1}{2}x^2$ eine waagrechte Tangente? Begründe ohne Rechnung.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">4</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Wahr oder falsch? Begründe mit einer Skizze. <b>a)</b> Eine Tangente hat mit dem Graphen immer genau einen gemeinsamen Punkt. <b>b)</b> Jede Gerade ist ihre eigene Tangente. <b>c)</b> Eine Gerade mit nur einem gemeinsamen Punkt ist immer eine Tangente.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">5</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Ein Hammerwerfer lässt den Hammer los, als dieser im Punkt $P$ seiner Kreisbahn ist. Skizziere die Flugrichtung. Warum fliegt der Hammer nicht nach außen weg?</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">6</span><span class="stufe">●●●</span></div><div class="text">
+  <p>Zoome in der App an die Stelle 0 des Graphen von $\sin x$. Welche Gerade erkennst du? Was bedeutet das für die Steigung von $\sin x$ an der Stelle 0?</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z offen">7</span><span class="stufe">●●●</span></div><div class="text">
+  <p>Beim Graphen von $f(x) = |x|$ hilft das Zoomen an der Stelle 0 nicht. Was sieht man bei jeder Vergrößerung? Was folgt daraus für die Tangente?</p>
+</div></div>
+<!--rand-->
+<div class="notiz"><span class="t">Alltag</span>Die Erde ist eine Kugel – trotzdem sieht ein Sportplatz eben aus. Aus der Nähe betrachtet ist jede glatte Fläche „fast gerade“.</div>
+
+<div class="notiz gold"><span class="t">Zu Aufgabe 1</span>Lege das Lineal so an, dass der Graph in der Nähe des Punktes auf beiden Seiten gleich dicht am Lineal liegt.</div>
+
+<div class="notiz mathilda"><span class="t">Zoom-Film</span>Im Kurs Differentialrechnung zeigt der <b>Zoom-Film</b> das Experiment als Animation – an Parabel, Sinus und kubischer Kurve, bis zur 1000-fachen Vergrößerung.</div>

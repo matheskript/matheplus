@@ -31,9 +31,9 @@ fs.writeFileSync(path.join(DIST, "katex.css"), kcss);
 // ---------- Farben ----------
 export const FARBE = {
   see: "#004D98", seeTief: "#0E1E4A", grana: "#A50044", granaHell: "#D4145A",
-  gold: "#EDBB00", goldDunkel: "#B88A00", grau: "#8A93A6", hell: "#E8EEF7",
+  gold: "#EDBB00", goldDunkel: "#B88A00", goldTief: "#8C6A00", grau: "#8A93A6", hell: "#E8EEF7",
 };
-const KAPFARBE = { "I": FARBE.see, "II": FARBE.grana, "III": FARBE.seeTief, "L": FARBE.seeTief, "0": FARBE.seeTief };
+const KAPFARBE = { "I": FARBE.goldTief, "II": FARBE.see, "III": FARBE.grana, "IV": FARBE.seeTief, "L": FARBE.seeTief, "0": FARBE.seeTief };
 
 // ---------- Mathe ----------
 const ent = (t) => t.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
@@ -168,26 +168,54 @@ function graph(spec) {
 graph.n = 0;
 
 // ---------- Seiten ----------
+// Meta je Seite: kap, typ, uk (Titel eines neuen, nummerierten Unterkapitels) oder ukap (Titel ohne Nummer).
+// Seiten ohne uk/ukap gehören zum laufenden Unterkapitel. Nummern zählen automatisch.
+// Verweise im Text: {{S:stamm}} = Seitenzahl, {{K:stamm}} = Nummer des Unterkapitels, das auf dieser Seite beginnt,
+// {{T:stamm}} = sein Titel, {{KAP:stamm}} = Kapitel (I, II …). stamm = Dateiname ohne Nummer und .html.
 const files = fs.readdirSync(PAGES).filter((f) => f.endsWith(".html")).sort();
-const seiten = [];
-let nr = 0;
-for (const f of files) {
+const stammVon = (f) => f.replace(/^\d+-/, "").replace(/\.html$/, "");
+const roh = files.map((f) => {
   const raw = fs.readFileSync(path.join(PAGES, f), "utf8");
   const m = raw.match(/^<!--([\s\S]*?)-->/);
   const meta = {};
   if (m) for (const teil of m[1].split("|")) { const [k, ...v] = teil.split(":"); if (k.trim()) meta[k.trim()] = v.join(":").trim(); }
-  let body = raw.slice(m ? m[0].length : 0);
+  return { f, stamm: stammVon(f), meta, body: raw.slice(m ? m[0].length : 0) };
+});
+export const VERZ = {};
+{
+  let einheit = 0, laufend = "";
+  roh.forEach((r, i) => {
+    r.nr = i + 1;
+    if (r.meta.uk) { einheit++; laufend = `${einheit} ${r.meta.uk}`; r.ukNr = einheit; }
+    else if (r.meta.ukap) laufend = r.meta.ukap;
+    else if (r.meta.typ === "auftakt" || r.meta.typ === "frei") laufend = "";
+    r.meta.ukap = laufend;
+    VERZ[r.stamm] = { seite: r.nr, nr: r.ukNr, titel: r.meta.uk || r.meta.ukap, kap: r.meta.kap };
+  });
+}
+function verweise(text, f) {
+  return text.replace(/\{\{(S|K|T|KAP):([a-z0-9-]+)\}\}/g, (_, art, st) => {
+    const v = VERZ[st];
+    if (!v) throw new Error(`${f}: unbekannter Verweis ${art}:${st}`);
+    const w = art === "S" ? v.seite : art === "K" ? v.nr : art === "T" ? v.titel : v.kap;
+    if (w === undefined) throw new Error(`${f}: Verweis ${art}:${st} ohne Wert`);
+    return String(w);
+  });
+}
+const seiten = [];
+for (const r of roh) {
+  const f = r.f, meta = r.meta;
+  let body = verweise(r.body, f);
   body = body.replace(/<graph>([\s\S]*?)<\/graph>/g, (_, j) => {
     let spec; try { spec = JSON.parse(j); } catch (e) { throw new Error(`Graph-JSON in ${f}: ${e.message}\n${j}`); }
     return graph(spec);
   });
   try { body = mathe(body); } catch (e) { throw new Error(`${f}: ${e.message}`); }
   const [haupt, rand] = body.split("<!--rand-->");
-  nr++;
-  seiten.push({ datei: f, nr, meta, haupt, rand: rand ?? "" });
+  seiten.push({ datei: f, nr: r.nr, meta, haupt, rand: rand ?? "" });
 }
 
-const KAPNAME = { I: "Die Ableitung", II: "Ableitungsregeln", III: "Anwenden und Üben", L: "Anhang", "0": "" };
+const KAPNAME = { I: "Geraden und Änderungsraten", II: "Die Ableitung", III: "Ableitungsregeln", IV: "Anwenden und Üben", L: "Anhang", "0": "" };
 function seite(s) {
   const typ = s.meta.typ || "normal";
   const kap = s.meta.kap || "0";
@@ -210,4 +238,5 @@ ${seiten.map(seite).join("\n")}
 </body></html>`;
 fs.writeFileSync(path.join(DIST, "buch.html"), html);
 fs.writeFileSync(path.join(DIST, "seiten.json"), JSON.stringify(seiten.map((s) => ({ nr: s.nr, datei: s.datei, ...s.meta })), null, 1));
+fs.writeFileSync(path.join(DIST, "verzeichnis.json"), JSON.stringify(VERZ, null, 1));
 console.log(`${seiten.length} Seiten gebaut.`);

@@ -1074,7 +1074,7 @@ export function Mathilda() {
       ) : ansicht === "schulbuch" ? (
         <>
           <SeitenKopf titel="Schulbuch: Ableitungen" groesse="clamp(26px, 7.6vw, 34px)" rund>
-            <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>Vom Differenzenquotienten bis zur Kettenregel – 36 Seiten zum Blättern.</p>
+            <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>Von der Geraden bis zur Kettenregel – 50 Seiten zum Blättern.</p>
           </SeitenKopf>
           <React.Suspense fallback={<p role="status" style={{ color: C.grau, fontSize: 15, fontWeight: 300, padding: "24px", textAlign: "center" }}>{englisch() ? "Loading …" : "Wird geladen …"}</p>}>
             <SchulbuchSeite gehe={gehe} />

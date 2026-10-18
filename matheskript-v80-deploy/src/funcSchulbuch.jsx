@@ -11,33 +11,42 @@ import { C } from "./base1.jsx";
 
 /* Kapitelfarbe II aus dem gedruckten Buch (Grana) – damit Karten und Buchseiten gleich aussehen */
 const BUCH_GRANA = "#A50044";
+const BUCH_GOLD = "#8C6A00";
 
 export const BUCH_ABLEITUNGEN = {
   pfad: "/buecher/ableitungen/index.html",
   pdf: "/buecher/ableitungen/Ableitungen.pdf",
-  seiten: 36,
+  seiten: 50,
   kapitel: [
-    { nr: "I", titel: "Die Ableitung", farbe: C.see, einheiten: [
-      { nr: "1", titel: "Mittlere Änderungsrate", seite: 4 },
-      { nr: "2", titel: "Von der Sekante zur Tangente", seite: 6 },
-      { nr: "3", titel: "Die Ableitungsfunktion", seite: 8 },
+    { nr: "I", titel: "Geraden und Änderungsraten", farbe: BUCH_GOLD, einheiten: [
+      { nr: "1", titel: "Geraden und Steigung", seite: 4 },
+      { nr: "2", titel: "Geradengleichungen ermitteln", seite: 6 },
+      { nr: "3", titel: "Mittlere Änderungsrate", seite: 8 },
       { nr: "", titel: "Training I", seite: 10 },
     ] },
-    { nr: "II", titel: "Ableitungsregeln", farbe: BUCH_GRANA, einheiten: [
-      { nr: "4", titel: "Faktorregel", seite: 12 },
-      { nr: "5", titel: "Summenregel", seite: 14 },
-      { nr: "6", titel: "Produktregel", seite: 16 },
-      { nr: "7", titel: "Potenzregel", seite: 18 },
-      { nr: "8", titel: "Quotientenregel", seite: 20 },
-      { nr: "9", titel: "Kettenregel", seite: 22 },
-      { nr: "10", titel: "sin, cos, eˣ und ln x", seite: 24 },
-      { nr: "", titel: "Training II", seite: 26 },
+    { nr: "II", titel: "Die Ableitung", farbe: C.see, einheiten: [
+      { nr: "4", titel: "Das Tangentenproblem", seite: 12 },
+      { nr: "5", titel: "Der Differenzenquotient", seite: 14 },
+      { nr: "6", titel: "Von der Sekante zur Tangente", seite: 16 },
+      { nr: "7", titel: "Die Ableitung an einer Stelle", seite: 18 },
+      { nr: "8", titel: "Die Ableitungsfunktion", seite: 20 },
+      { nr: "", titel: "Training II", seite: 22 },
     ] },
-    { nr: "III", titel: "Anwenden und Üben", farbe: C.seeTief, einheiten: [
-      { nr: "11", titel: "Tangente und Normale", seite: 28 },
-      { nr: "12", titel: "Vermischte Übungen", seite: 30 },
-      { nr: "", titel: "Rückblick", seite: 31 },
-      { nr: "", titel: "Lösungen", seite: 32 },
+    { nr: "III", titel: "Ableitungsregeln", farbe: BUCH_GRANA, einheiten: [
+      { nr: "9", titel: "Faktorregel", seite: 24 },
+      { nr: "10", titel: "Summenregel", seite: 26 },
+      { nr: "11", titel: "Produktregel", seite: 28 },
+      { nr: "12", titel: "Potenzregel", seite: 30 },
+      { nr: "13", titel: "Quotientenregel", seite: 32 },
+      { nr: "14", titel: "Kettenregel", seite: 34 },
+      { nr: "15", titel: "sin, cos, eˣ und ln x", seite: 36 },
+      { nr: "", titel: "Training III", seite: 38 },
+    ] },
+    { nr: "IV", titel: "Anwenden und Üben", farbe: C.seeTief, einheiten: [
+      { nr: "16", titel: "Tangente und Normale", seite: 40 },
+      { nr: "17", titel: "Vermischte Übungen", seite: 42 },
+      { nr: "", titel: "Rückblick", seite: 43 },
+      { nr: "", titel: "Lösungen", seite: 44 },
     ] },
   ],
 };

@@ -5,7 +5,7 @@ import React from "react";
 import { C } from "./base1.jsx";
 
 /* module = Zahl der Module in KURS_MODULE (funcDiffKurs.jsx) */
-export function DiffKursKachel({ onClick, module = 15 }) {
+export function DiffKursKachel({ onClick, module = 21 }) {
   return (
     <button type="button" onClick={onClick} className="dk-kachel" aria-label="Kurs Differentialrechnung öffnen"
       style={{ display: "flex", width: "calc(100% + 32px)", marginLeft: -16, marginRight: -16, marginTop: 12, padding: 0, border: "none", borderRadius: 18, overflow: "hidden",

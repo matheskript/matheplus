@@ -1,0 +1,61 @@
+<!-- kap: II -->
+<div style="margin-top:0" class="kasten beispiel">
+  <div class="etikett">Beispiel 3 · Ein Bruch</div>
+  <p style="text-align:left">$f(x) = \frac{1}{x}$, $x_0 = 1$: &nbsp;$\dfrac{\frac{1}{1 + h} - 1}{h} = \dfrac{\frac{1 - (1 + h)}{1 + h}}{h} = \dfrac{-h}{(1 + h)\,h} = -\dfrac{1}{1 + h}$. &nbsp;Für $h = 0{,}01$: $\approx -0{,}990$.</p>
+</div>
+
+<div class="kasten" style="background:#F3F6FB">
+  <div class="etikett" style="background:var(--kap);color:#fff">Werkstatt · Drei Schreibweisen, eine Idee</div>
+  <table class="wt voll" style="margin:0.5mm 0 0">
+    <tr><th class="l">Schreibweise</th><th class="l">gelesen</th><th class="l">gut, wenn …</th></tr>
+    <tr><td class="l">$\dfrac{\Delta y}{\Delta x}$</td><td class="l">Höhe durch Breite</td><td class="l">man am Graphen abliest</td></tr>
+    <tr><td class="l">$\dfrac{f(b) - f(a)}{b - a}$</td><td class="l">Rate im Intervall $[a;\,b]$</td><td class="l">ein festes Intervall gegeben ist</td></tr>
+    <tr><td class="l">$\dfrac{f(x_0 + h) - f(x_0)}{h}$</td><td class="l">Rate bei $x_0$ mit Schritt $h$</td><td class="l">man $h$ klein werden lassen will</td></tr>
+  </table>
+</div>
+
+<div class="kasten vertiefung">
+  <div class="etikett">★ Für Interessierte · Der symmetrische Differenzenquotient</div>
+  <p style="text-align:left">Legt man $Q$ rechts und einen zweiten Hilfspunkt links von $P$, erhält man $\dfrac{f(x_0 + h) - f(x_0 - h)}{2h}$. Er nähert die Tangentensteigung meist viel besser. Für $f(x) = x^2$ ergibt er sogar für <b>jedes</b> $h$ genau $2x_0$. Taschenrechner benutzen ihn, wenn sie eine Steigung „numerisch“ berechnen.</p>
+</div>
+
+<div class="aufgaben-kopf"><span>Aufgaben</span></div>
+
+<div class="auf"><div class="anr"><span class="z">1</span><span class="stufe">●○○</span></div><div class="text">
+  <p>Stelle den Differenzenquotienten als Term in $h$ auf und vereinfache ihn so weit wie möglich.</p>
+  <div class="teil" style="--sp:3"><div><i>a)</i>$f(x) = x^2$; $x_0 = 3$</div><div><i>b)</i>$f(x) = x^2$; $x_0 = -2$</div><div><i>c)</i>$f(x) = 4x - 1$; $x_0 = 5$</div><div><i>d)</i>$f(x) = 2x^2$; $x_0 = 1$</div><div><i>e)</i>$f(x) = x^2 + x$; $x_0 = 0$</div><div><i>f)</i>$f(x) = x^3$; $x_0 = 1$</div></div>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">2</span><span class="stufe">●○○</span></div><div class="text">
+  <p>Berechne für $f(x) = x^2$ und $x_0 = 3$ den Differenzenquotienten für $h = 1$, $h = 0{,}1$, $h = -0{,}1$ und $h = 0{,}001$. Welchem Wert nähern sich die Ergebnisse?</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">3</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Finde den Fehler: <b>Lukas</b> schreibt für $f(x) = x^2$, $x_0 = 2$: $\;\dfrac{(2 + h)^2 - 4}{h} = \dfrac{4 + h^2 - 4}{h} = h$.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">4</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Erkläre, warum der Differenzenquotient von $f(x) = 4x - 1$ in Aufgabe 1 c) überhaupt nicht von $h$ abhängt.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">5</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Ein Ball rollt eine Rampe hinab: $s(t) = 2t^2$ (in m, $t$ in s). Stelle den Differenzenquotienten an der Stelle $t_0 = 3$ auf. Berechne die mittlere Geschwindigkeit für $h = 0{,}5$ und $h = 0{,}1$.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">6</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Stelle den Differenzenquotienten von $f(x) = \frac{1}{x}$ an der Stelle $x_0 = 2$ auf und vereinfache ihn.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">7</span><span class="stufe">●●●</span></div><div class="text">
+  <p>Zeige: Für $f(x) = x^2$ ist der Differenzenquotient an einer beliebigen Stelle $x_0$ gleich $2x_0 + h$.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z offen">8</span><span class="stufe">●●●</span></div><div class="text">
+  <p>Berechne den symmetrischen Differenzenquotienten von $f(x) = x^3$ an der Stelle $x_0 = 2$. Vergleiche mit Beispiel 2: Welcher liegt für $h = 0{,}1$ näher an 12?</p>
+</div></div>
+<!--rand-->
+<div class="notiz"><span class="t">Fahrplan</span>① $f(x_0 + h)$ bilden<br>② $f(x_0)$ abziehen<br>③ Zähler vereinfachen<br>④ $h$ kürzen</div>
+
+<div class="notiz gold"><span class="t">Zu Aufgabe 3</span>Binomische Formel:<br>$(a + b)^2 = a^2 + 2ab + b^2$<br>Das mittlere Glied wird gern vergessen.</div>
+
+<div class="notiz mathilda"><span class="t">In der App</span>Im Werkzeug <b>Differenzenquotient</b> ziehst du $Q$ selbst an $P$ heran und beobachtest, wie sich die Sekante dreht.</div>

@@ -1,0 +1,56 @@
+<!-- kap: II | uk: Der Differenzenquotient -->
+<div class="ukap-titel"><span class="nr">{{K:diffquot-1}}</span><h2>Der Differenzenquotient</h2></div>
+<p class="leitfrage">Wie nähert man die unbekannte Tangentensteigung mit Sekanten an?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <p style="text-align:left">Für die Tangente an $f(x) = x^2$ im Punkt $P(1 \mid 1)$ fehlt uns ein zweiter Punkt. Also nehmen wir einen Hilfspunkt $Q$ auf dem Graphen – möglichst nahe bei $P$. Die Sekante durch $P$ und $Q$ können wir berechnen. Ergänze die Tabelle im Heft:</p>
+  <table class="wt" style="margin:1mm 0 0"><tr><th>$x$-Wert von $Q$</th><td>2</td><td>1,5</td><td>1,1</td><td>1,01</td><td>0,9</td></tr><tr><th>Steigung der Sekante $PQ$</th><td>3</td><td>2,5</td><td></td><td></td><td></td></tr></table>
+</div>
+
+<p>Je näher $Q$ an $P$ rückt, desto besser passt sich die Sekante der Tangente an. Damit wir nicht für jeden Punkt neu rechnen müssen, beschreiben wir $Q$ durch seinen <b>Abstand</b> $h$ von $P$: Hat $P$ die $x$-Koordinate $x_0$, so liegt $Q$ bei $x_0 + h$.</p>
+
+<div class="zwei-bild">
+  <div>
+    <p>Die Sekantensteigung ist dann wie in Kapitel {{K:aenderungsrate-1}} „Höhe durch Breite“ des Steigungsdreiecks:</p>
+    $$\frac{\Delta y}{\Delta x} = \frac{f(x_0 + h) - f(x_0)}{(x_0 + h) - x_0} = \frac{f(x_0 + h) - f(x_0)}{h}$$
+    <p>Dieser Term hängt nur noch von $h$ ab. Für jedes $h \neq 0$ liefert er die Steigung einer Sekante. Wird $h$ klein, nähert er sich der gesuchten Tangentensteigung.</p>
+  </div>
+  <graph>{"b":52,"h":46,"x":[-0.3,2.6],"y":[-0.3,4.4],"gitter":1,"tx":1,"ty":1,
+    "fn":[{"f":"x*x","c":"see","w":2.2,"von":-0.3,"bis":2.15}],
+    "gerade":[{"f":"x*x","sek":[1,1.8],"c":"grana","w":1.5},{"f":"x*x","tan":1,"c":"gold","w":1.4,"d":"5 3"}],
+    "strecke":[{"p":[1,1],"q":[1.8,1],"c":"goldDunkel","w":1.3},{"p":[1.8,1],"q":[1.8,3.24],"c":"goldDunkel","w":1.3}],
+    "punkt":[{"x":1,"y":1,"c":"seeTief","t":"P","pos":"ol"},{"x":1.8,"y":3.24,"c":"grana","t":"Q","pos":"l"}],
+    "text":[{"x":1.4,"y":1,"t":"h","pos":"u","c":"goldDunkel","k":"fl"},{"x":1.8,"y":2.1,"t":"Δy","pos":"r","c":"goldDunkel"}]}</graph>
+</div>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Differenzenquotient</div>
+  <p style="text-align:left">Für eine Funktion $f$, eine Stelle $x_0$ und eine Zahl $h \neq 0$ heißt</p>
+  $$\frac{f(x_0 + h) - f(x_0)}{h}$$
+  <p style="text-align:left"><b>Differenzenquotient</b> von $f$ an der Stelle $x_0$. Er ist die Steigung der Sekante durch $P(x_0 \mid f(x_0))$ und $Q(x_0 + h \mid f(x_0 + h))$. Für $h > 0$ liegt $Q$ rechts von $P$, für $h < 0$ links.</p>
+</div>
+
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 1 · Differenzenquotient als Term in h</div>
+  <p style="text-align:left">$f(x) = x^2$, $x_0 = 1$: &nbsp;$\dfrac{(1 + h)^2 - 1}{h} = \dfrac{1 + 2h + h^2 - 1}{h} = \dfrac{2h + h^2}{h} = 2 + h$ &nbsp;für $h \neq 0$.<br>Damit ist die ganze Tabelle auf einen Schlag gelöst: $h = 0{,}1$ liefert $2{,}1$, $h = -0{,}1$ liefert $1{,}9$. Alle Werte liegen nahe bei 2.</p>
+</div>
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 2 · Eine kubische Funktion</div>
+  <p style="text-align:left">$f(x) = x^3$, $x_0 = 2$. Mit $(2 + h)^3 = 8 + 12h + 6h^2 + h^3$:</p>
+  <div class="schritte" style="margin:1mm 0 0">
+    <span class="sl">einsetzen</span><span>$\dfrac{(2 + h)^3 - 8}{h} = \dfrac{12h + 6h^2 + h^3}{h}$</span>
+    <span class="sl">$h$ kürzen</span><span>$= 12 + 6h + h^2$</span>
+    <span class="sl">Werte</span><span>$h = 0{,}1$: $\;12{,}61$ &nbsp;&nbsp; $h = 0{,}01$: $\;12{,}0601$</span>
+  </div>
+</div>
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: Hilfspunkt $Q$</li><li>$Q$ mit Abstand $h$ beschreiben</li><li>Merke: Differenzen&shy;quotient</li><li>Beispiele 1–3</li><li>Aufgaben 1–5</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 6 und 7</p></div>
+
+<div class="notiz"><span class="t">Aus Kapitel {{K:aenderungsrate-1}}</span>Der Differenzenquotient ist die mittlere Änderungsrate im Intervall $[x_0;\,x_0 + h]$ – nur anders aufgeschrieben.</div>
+
+<div class="notiz gold"><span class="t">Name</span>Oben steht eine <b>Differenz</b> von $y$-Werten, unten eine Differenz von $x$-Werten. Ein Bruch heißt <b>Quotient</b>.</div>
+
+<div class="notiz"><span class="t">Wichtig</span>$h = 0$ ist verboten: Dann wäre $Q = P$ und im Nenner stünde null.</div>

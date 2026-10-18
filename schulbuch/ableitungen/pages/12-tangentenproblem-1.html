@@ -1,0 +1,45 @@
+<!-- kap: II | uk: Das Tangentenproblem -->
+<div class="ukap-titel"><span class="nr">{{K:tangentenproblem-1}}</span><h2>Das Tangentenproblem</h2></div>
+<p class="leitfrage">Welche Gerade schmiegt sich in einem Punkt an eine Kurve an?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <div class="zwei-bild" style="gap:5mm">
+    <div>
+      <p style="text-align:left">Zeichne die Parabel $f(x) = \frac{1}{2}x^2$ ins Heft und markiere $P(1 \mid 0{,}5)$. Lege ein Lineal so an, dass es die Parabel in $P$ nur <b>berührt</b> und sich ihr dort so gut wie möglich anschmiegt.</p>
+      <p style="text-align:left"><b>a)</b> Zeichne diese Gerade und schätze ihre Steigung.<br><b>b)</b> Vergleiche mit deinem Nachbarn. Warum seid ihr euch nicht ganz einig?</p>
+    </div>
+    <graph>{"b":44,"h":38,"x":[-1.6,3.1],"y":[-0.9,3.1],"gitter":1,"tx":1,"ty":1,
+      "fn":[{"f":"0.5*x*x","c":"see","w":2}],
+      "gerade":[{"p":[1,0.5],"q":[2,2.5],"c":"#B9C6E0","w":1.2},{"p":[1,0.5],"q":[2,0.8],"c":"#B9C6E0","w":1.2},{"p":[1,0.5],"q":[2,1.5],"c":"gold","w":1.8},{"p":[1,0.5],"q":[2,1.1],"c":"#B9C6E0","w":1.2}],
+      "punkt":[{"x":1,"y":0.5,"c":"grana","t":"P","pos":"ol"}]}</graph>
+  </div>
+</div>
+
+<h3>Warum ist das ein Problem?</h3>
+<p>Aus Kapitel {{K:geradengl-1}} weißt du: Eine Gerade liegt fest, wenn man <b>zwei Punkte</b> kennt oder <b>einen Punkt und die Steigung</b>. Bei der Tangente kennen wir aber nur den Berührpunkt $P$. Ein zweiter Punkt fehlt – die Tangente soll den Graphen ja gerade nicht noch einmal treffen. Und die Steigung ist genau die Zahl, die wir suchen.</p>
+<p>Durch $P$ gehen unendlich viele Geraden. Mit Augenmaß können wir die Tangente nur <b>ungefähr</b> zeichnen. Wir brauchen eine Methode, die sie <b>exakt</b> liefert.</p>
+
+<h3>Wozu brauchen wir die Tangente?</h3>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:3mm">
+  <div class="karte"><div class="etikett" style="background:var(--kap);color:#fff">Steigung</div><p style="margin:0">Eine Kurve hat überall eine andere Steigung. Die Steigung der Tangente in $P$ ist <b>die</b> Steigung der Kurve an dieser Stelle.</p></div>
+  <div class="karte"><div class="etikett" style="background:var(--kap);color:#fff">Momentan</div><p style="margin:0">Beschreibt die Kurve einen Weg, ist ihre Steigung die Geschwindigkeit – nicht im Durchschnitt, sondern <b>genau jetzt</b>, wie auf dem Tacho.</p></div>
+  <div class="karte"><div class="etikett" style="background:var(--kap);color:#fff">Richtung</div><p style="margin:0">Funken einer Schleifscheibe fliegen <b>tangential</b> weg. Ein Auto, das in der Kurve von der Straße rutscht, fährt entlang der Tangente weiter.</p></div>
+</div>
+
+<div class="kasten achtung" style="margin-top:3.2mm">
+  <div class="etikett">Achtung</div>
+  <p style="text-align:left">„Nur einen gemeinsamen Punkt haben“ reicht nicht als Erklärung: Die senkrechte Gerade $x = 1$ trifft die Parabel auch nur in $P$ – sie ist aber keine Tangente. Eine Tangente muss die <b>Richtung</b> der Kurve in $P$ haben.</p>
+</div>
+<div class="kasten vertiefung">
+  <div class="etikett">★ Für Interessierte · Ein Problem mit Geschichte</div>
+  <p style="text-align:left">Wie man an eine beliebige Kurve die Tangente legt, beschäftigte im 17. Jahrhundert die besten Mathematiker Europas – Pierre de Fermat, René Descartes, Isaac Newton. Gottfried Wilhelm Leibniz veröffentlichte 1684 eine allgemeine Methode: die <i>Nova methodus pro maximis et minimis</i>. Mit ihr begann die Differentialrechnung, die du in diesem Kapitel kennenlernst.</p>
+</div>
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: Lineal anlegen</li><li>Das Problem: nur ein Punkt</li><li>Wozu die Tangente?</li><li>Zoom-Experiment</li><li>Merke: lokal gerade</li><li>Aufgaben 1–5</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 6 und 7</p></div>
+
+<div class="notiz"><span class="t">Wortspeicher</span><b>Tangente</b> (lat. tangere = berühren): Gerade, die eine Kurve in einem Punkt berührt.</div>
+
+<div class="notiz gold"><span class="t">Beim Kreis</span>Am Kreis ist es einfach: Die Tangente steht senkrecht auf dem Radius. Bei anderen Kurven gibt es keinen Mittelpunkt – deshalb brauchen wir eine neue Idee.</div>

@@ -11,5 +11,11 @@ Bauen:
     rm -rf ../../matheskript-v80-deploy/public/buecher/ableitungen
     cp -r dist/viewer ../../matheskript-v80-deploy/public/buecher/ableitungen
 
-`loes-rest.html` ist bereits auf die Lösungsseiten 33/34 verteilt (nur Archiv).
+Querverweise nie als feste Zahl schreiben, sondern als Token:
+`{{S:stamm}}` Seitenzahl, `{{K:stamm}}` Nummer des Unterkapitels, `{{T:stamm}}` Titel (stamm = Dateiname ohne Nummer).
+Neues Unterkapitel: Seite mit `uk: Titel` in der Meta-Zeile beginnen – die Nummerierung zählt automatisch.
+
+Lösungen stehen in `loesungen.html`; `python3 loesungen-verteilen.py` verteilt sie auf die Seiten 44 ff.
+Seitenzahlen der Kursmodule (src/funcDiffKurs.jsx) und der Schulbuchseite (src/funcSchulbuch.jsx)
+bei Änderungen an der Seitenaufteilung aus `dist/verzeichnis.json` nachziehen.
 App-Seite: `src/funcSchulbuch.jsx`, Pfad `/schulbuch/ableitungen`.

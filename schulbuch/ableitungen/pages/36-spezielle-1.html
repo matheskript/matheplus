@@ -1,0 +1,62 @@
+<!--kap: III | uk: Sinus, Kosinus, eˣ und ln x -->
+<div class="ukap-titel"><span class="nr">{{K:spezielle-1}}</span><h2>Sinus, Kosinus, $e^x$ und $\ln x$</h2></div>
+<p class="leitfrage">Gibt es Funktionen, die ihre eigene Ableitung sind?</p>
+
+<h3 style="margin-top:0">Die Ableitung der Sinusfunktion</h3>
+<div class="zwei-bild" style="gap:5mm">
+  <div>
+    <div class="kasten einstieg" style="margin-bottom:2.5mm">
+      <div class="etikett">Einstieg</div>
+      <p style="text-align:left">Leite den Graphen von $\sin x$ graphisch ab: Bestimme die Tangentensteigungen an den Stellen $0$, $\frac{\pi}{2}$, $\pi$, $\frac{3\pi}{2}$ und $2\pi$ und übertrage sie nach unten. Welchen Graphen erkennst du?</p>
+    </div>
+    <p>Die Punkte liegen auf dem Graphen von $\cos x$. Entscheidend ist die Steigung an der Stelle 0. Sie ist der Grenzwert von $\frac{\sin h}{h}$ – und der ist <b>genau 1</b>, wenn man im <b>Bogenmaß</b> rechnet:</p>
+    <table class="wt"><tr><th>$h$</th><td>0,1</td><td>0,01</td><td>0,001</td></tr><tr><th>$\frac{\sin h}{h}$</th><td>0,99833</td><td>0,99998</td><td>0,9999998</td></tr></table>
+  </div>
+  <div>
+    <graph>{"b":58,"h":27,"x":[-0.4,6.9],"y":[-1.5,1.6],"gitter":[1.5708,1],"tx":10,"ty":1,"yl":"sin",
+      "fn":[{"f":"sin(x)","c":"see","w":2}],
+      "gerade":[{"f":"sin(x)","tan":0,"c":"gold","w":1.2,"von":-0.4,"bis":0.9},{"f":"sin(x)","tan":1.5708,"c":"gold","w":1.2,"von":0.9,"bis":2.3},{"f":"sin(x)","tan":3.1416,"c":"gold","w":1.2,"von":2.5,"bis":3.8},{"f":"sin(x)","tan":4.7124,"c":"gold","w":1.2,"von":4,"bis":5.4},{"f":"sin(x)","tan":6.2832,"c":"gold","w":1.2,"von":5.6,"bis":6.9}],
+      "text":[{"x":1.5708,"y":-1.5,"t":"π/2","pos":"o","k":"tz"},{"x":3.1416,"y":-1.5,"t":"π","pos":"o","k":"tz"},{"x":4.7124,"y":-1.5,"t":"3π/2","pos":"o","k":"tz"},{"x":6.2832,"y":-1.5,"t":"2π","pos":"o","k":"tz"}]}</graph>
+    <div style="height:1.5mm"></div>
+    <graph>{"b":58,"h":27,"x":[-0.4,6.9],"y":[-1.5,1.6],"gitter":[1.5708,1],"tx":10,"ty":1,"yl":"sin′",
+      "fn":[{"f":"cos(x)","c":"grana","w":2,"d":"5 3"}],
+      "punkt":[{"x":0,"y":1,"c":"grana","r":2.8},{"x":1.5708,"y":0,"c":"grana","r":2.8},{"x":3.1416,"y":-1,"c":"grana","r":2.8},{"x":4.7124,"y":0,"c":"grana","r":2.8},{"x":6.2832,"y":1,"c":"grana","r":2.8}]}</graph>
+    <div class="bildunterschrift">oben $\sin x$, unten die abgelesenen Steigungen</div>
+  </div>
+</div>
+
+<h3>Die Kosinusfunktion – mit der Kettenregel</h3>
+<p>Der Graph von $\cos x$ ist der um $\frac{\pi}{2}$ nach links verschobene Sinusgraph: $\cos x = \sin\!\big(x + \frac{\pi}{2}\big)$. Mit der Kettenregel (innere Ableitung 1) folgt</p>
+$$\cos'(x) = \cos\!\left(x + \tfrac{\pi}{2}\right) \cdot 1 = -\sin x.$$
+
+<div class="kasten vertiefung">
+  <div class="etikett">★ Für Interessierte · Der exakte Beweis für den Sinus</div>
+  <p style="text-align:left">Mit dem Additionstheorem $\sin(x + h) = \sin x \cos h + \cos x \sin h$ wird der Differenzenquotient zu</p>
+  $$\frac{\sin(x + h) - \sin x}{h} = \sin x \cdot \frac{\cos h - 1}{h} + \cos x \cdot \frac{\sin h}{h} \;\longrightarrow\; \sin x \cdot 0 + \cos x \cdot 1.$$
+  <p style="text-align:left">Am Einheitskreis zeigt man $\sin h \le h \le \tan h$ für $0 < h < \frac{\pi}{2}$; daraus folgt $\frac{\sin h}{h} \to 1$. Und $\frac{\cos h - 1}{h} = -\frac{\sin^2 h}{h\,(\cos h + 1)} \to 0$.</p>
+</div>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Sinus und Kosinus</div>
+  <div class="regelzeile" style="grid-template-columns:1fr 1fr"><div>$f(x) = \sin x \;\Rightarrow\; f'(x) = \cos x$</div><div>$f(x) = \cos x \;\Rightarrow\; f'(x) = -\sin x$</div></div>
+  <p style="text-align:left;margin-top:1.5mm">Dabei wird $x$ im <b>Bogenmaß</b> gemessen. Im Gradmaß wären die Regeln falsch.</p>
+</div>
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel · Mit den bekannten Regeln kombinieren</div>
+  <div class="teil" style="--sp:2;gap:1.5mm 6mm">
+    <div><i>a)</i>$(3\sin x - \cos x)' = 3\cos x + \sin x$</div>
+    <div><i>b)</i>$\big(\sin(2x)\big)' = \cos(2x) \cdot 2 = 2\cos(2x)$</div>
+    <div><i>c)</i>$(x \cdot \cos x)' = \cos x - x \sin x$</div>
+    <div><i>d)</i>$\big(\sin^2 x\big)' = 2 \sin x \cos x$</div>
+  </div>
+</div>
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf (Doppelstunde)</span>
+<ol><li>Sinus graphisch ableiten</li><li>Steigung bei 0</li><li>Kosinus mit der Kettenregel</li><li>$e^x$: die besondere Basis</li><li>$\ln x$ mit der Kettenregel</li><li>Aufgaben 1–4</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 5 und 6</p></div>
+
+<div class="notiz"><span class="t">Erinnerung</span>Bogenmaß: $180° \;\widehat{=}\; \pi$<br>$\cos x = \sin\!\left(x + \tfrac{\pi}{2}\right)$<br>$\sin^2 h + \cos^2 h = 1$</div>
+
+<div class="notiz gold"><span class="t">Kreislauf</span>$\sin \;\to\; \cos \;\to\; -\sin$<br>$\;\to\; -\cos \;\to\; \sin$<br>Nach vier Ableitungen ist man wieder am Anfang.</div>
+
+<div class="notiz mathilda"><span class="t">In der App</span>Im Werkzeug <b>Trigonometrie</b>, Kapitel Einheitskreis, siehst du, wie die Sinuskurve aus dem Kreis entsteht.</div>

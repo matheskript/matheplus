@@ -16,6 +16,7 @@ fs.copyFileSync(path.join(DIST, "Ableitungen.pdf"), path.join(OUT, "Ableitungen.
 
 // Sprungziele aus den „In der App“-Kästen
 const ZIELE = [
+  ["Zoom-Film", "diffkurs"], ["Werkzeug Geraden", "geradengleichung"], ["Werkzeug  Geraden", "geradengleichung"],
   ["Differenzenquotient", "diffq"], ["Ableitungstrainer", "ableitungstrainer"], ["Polynomplotter", "plotter"],
   ["Advanced Plotter", "advplotter"], ["Kurvendiskussion", "plotter"], ["Trigonometrie", "trigonometrie"],
   ["Wachstum und Logarithmen", "wachstum"], ["Abi-Ketten", "abiketten"], ["Formelsammlung", "formeln"],

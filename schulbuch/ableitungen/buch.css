@@ -201,3 +201,11 @@ table.rb .katex { font-size: 1.04em; }
 .register h4:first-child { margin-top: 0; }
 .register p { margin: 0; display: flex; justify-content: space-between; gap: 2mm; break-inside: avoid; }
 .register p span { color: var(--mild); }
+.kap-I .kapband::after { background: var(--seeTief); }
+.auftakt.kap-I .auftakt-kopf .knr { color: #FFE9A0; }
+.film { display: flex; align-items: center; justify-content: space-between; gap: 1mm; margin: 2mm 0 1mm; }
+.film .bild { position: relative; border: 0.4mm solid var(--seeTief); border-radius: 1.6mm; overflow: hidden; background: #fff; }
+.film .bild svg { display: block; }
+.film .zoom { position: absolute; left: 1.4mm; top: 1.2mm; font-size: 7pt; font-weight: 800; color: #fff; background: var(--seeTief); padding: 0.3mm 1.4mm; border-radius: 1mm; }
+.film .pfeil { color: var(--grana); font-weight: 800; font-size: 11pt; }
+.ukap-liste.eng li { padding: 0.9mm 0; font-size: 8.8pt; }

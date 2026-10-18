@@ -1,0 +1,70 @@
+<!--kap: IV  -->
+<div class="kasten beispiel" style="margin-top:0">
+  <div class="etikett">Beispiel 2 · Berührpunkt zu einer vorgegebenen Steigung</div>
+  <p style="text-align:left">In welchem Punkt ist die Tangente an $f(x) = x^2$ parallel zur Geraden $y = 4x + 1$?</p>
+  <div class="loesung"><span class="loesung-kopf">Lösung</span>
+  <p style="text-align:left">Parallel heißt gleiche Steigung: $f'(x) = 2x = 4$, also $x = 2$ und $P(2 \mid 4)$. Tangente: $t(x) = 4(x - 2) + 4 = 4x - 4$.</p></div>
+</div>
+
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 3 · Tangente durch einen Punkt außerhalb des Graphen</div>
+  <div class="zwei-bild" style="gap:5mm">
+    <div>
+      <p style="text-align:left">Welche Tangenten an $f(x) = x^2$ gehen durch $Q(1 \mid -3)$?</p>
+      <div class="loesung"><span class="loesung-kopf">Lösung</span>
+      <p style="text-align:left">Der Berührpunkt ist unbekannt: $B(a \mid a^2)$. Die Tangente in $B$ lautet $t(x) = 2a(x - a) + a^2 = 2ax - a^2$.<br>$Q$ einsetzen: $-3 = 2a - a^2$, also $a^2 - 2a - 3 = 0$ mit den Lösungen $a = 3$ und $a = -1$.<br>Tangenten: $t_1(x) = 6x - 9$ und $t_2(x) = -2x - 1$.</p></div>
+    </div>
+    <graph>{"b":44,"h":44,"x":[-2.5,4],"y":[-4,2.5],"gitter":1,"tx":1,"ty":1,"keineZahlen":true,
+      "fn":[{"f":"x*x","c":"see","w":2}],
+      "gerade":[{"p":[1,-3],"q":[3,9],"c":"gold","w":1.4},{"p":[1,-3],"q":[-1,1],"c":"gold","w":1.4}],
+      "punkt":[{"x":1,"y":-3,"c":"grana","t":"Q","pos":"r"},{"x":-1,"y":1,"c":"seeTief","r":2.6}]}</graph>
+  </div>
+</div>
+
+<div class="kasten achtung">
+  <div class="etikett">Achtung</div>
+  <p style="text-align:left">„Berühren“ heißt nicht „nur einen gemeinsamen Punkt haben“. Die Tangente an $f(x) = x^3$ in $P(1 \mid 1)$ lautet $t(x) = 3x - 2$ – und sie <b>schneidet</b> den Graphen noch einmal im Punkt $(-2 \mid -8)$. Entscheidend ist nur: In $P$ haben Graph und Gerade dieselbe Steigung.</p>
+</div>
+
+<div class="aufgaben-kopf"><span>Aufgaben</span></div>
+
+<div class="auf"><div class="anr"><span class="z">1</span><span class="stufe">●○○</span></div><div class="text">
+  <p>Bestimme die Gleichung der Tangente an den Graphen von $f$ an der Stelle $x_0$.</p>
+  <div class="teil" style="--sp:3;gap:2mm 4mm"><div><i>a)</i>$f(x) = x^2$; $x_0 = -1$</div><div><i>b)</i>$f(x) = x^3$; $x_0 = 1$</div><div><i>c)</i>$f(x) = \frac{1}{x}$; $x_0 = 2$</div><div><i>d)</i>$f(x) = e^x$; $x_0 = 0$</div><div><i>e)</i>$f(x) = \sin x$; $x_0 = 0$</div><div><i>f)</i>$f(x) = \sqrt{x}$; $x_0 = 4$</div></div>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">2</span><span class="stufe">●○○</span></div><div class="text">
+  <p>Bestimme die Gleichung der Normalen an den Graphen von $f(x) = x^2$ im Punkt $P(1 \mid 1)$.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">3</span><span class="stufe">●●○</span></div><div class="text">
+  <p>In welchen Punkten hat der Graph von $f(x) = x^3$ eine Tangente, die parallel zur Geraden $y = 12x$ ist? Gib die Tangentengleichungen an.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">4</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Bestimme die Tangente an $f(x) = x^2 - 4x + 5$ im Punkt $P(3 \mid 2)$. Sie bildet mit den Koordinatenachsen ein Dreieck. Berechne seinen Flächeninhalt.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">5</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Zeige, dass die Gerade $y = -x + 2$ den Graphen von $f(x) = \frac{1}{x}$ im Punkt $P(1 \mid 1)$ berührt.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">6</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Zeige: Die Tangente an den Graphen von $e^x$ im Punkt $P(a \mid e^a)$ schneidet die $x$-Achse immer an der Stelle $a - 1$.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">7</span><span class="stufe">●●●</span></div><div class="text">
+  <p>Welche Tangenten an die Normalparabel gehen durch den Punkt $Q(0 \mid -1)$? Bestimme die Berührpunkte und Gleichungen.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z offen">8</span><span class="stufe">●●●</span></div><div class="text">
+  <p>Der Graph von $f(x) = \sqrt{1 - x^2}$ ist ein Halbkreis. Zeige: Jede Normale an diesen Halbkreis geht durch den Ursprung. Warum ist das geometrisch klar?</p>
+</div></div>
+<!--rand-->
+<div class="notiz"><span class="t">Drei Typen</span><b>Stelle gegeben:</b> einsetzen, fertig.<br><b>Steigung gegeben:</b> $f'(x) = m$ lösen.<br><b>Punkt außerhalb:</b> Berührpunkt als $(a \mid f(a))$ ansetzen.</div>
+
+<div class="notiz gold"><span class="t">Probe</span>Setze den Punkt in deine Tangentengleichung ein. Stimmt die Gleichung nicht, ist ein Rechenfehler drin.</div>
+
+<div class="notiz"><span class="t">Zu Aufgabe 4</span>Schnittpunkt mit der $x$-Achse: $t(x) = 0$<br>mit der $y$-Achse: $t(0)$</div>
+
+<div class="notiz mathilda"><span class="t">In der App</span>In der <b>Kurvendiskussion</b> tippst du auf einen Punkt des Graphen und lässt Tangente und Normale einblenden.</div>

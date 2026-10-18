@@ -1,0 +1,60 @@
+<!-- kap: I | uk: Geraden und Steigung -->
+<div class="ukap-titel"><span class="nr">{{K:geraden-1}}</span><h2>Geraden und Steigung</h2></div>
+<p class="leitfrage">Wie misst man, wie steil eine Gerade ist?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <div class="zwei-bild" style="gap:5mm">
+    <div>
+      <p style="text-align:left">Auf Verkehrsschildern steht „12 % Steigung“. Auf einer Rollstuhlrampe darf es nach DIN-Norm höchstens 6 % bergauf gehen.</p>
+      <p style="text-align:left"><b>a)</b> Was bedeutet „12 %“? Wie viele Meter steigt die Straße auf 100 m waagrechter Strecke?<br><b>b)</b> Welche der Geraden im Bild ist am steilsten, welche fällt?<br><b>c)</b> Woran erkennst du das, ohne zu messen?</p>
+    </div>
+    <graph>{"b":44,"h":40,"x":[-0.5,4.2],"y":[-0.5,3.8],"gitter":1,"ty":1,
+      "fn":[{"f":"2*x-1","c":"see","w":2,"von":0.4,"bis":2.3,"label":"g₁","lx":2.0,"ly":3.5},{"f":"0.5*x+0.5","c":"grana","w":2,"label":"g₂","lx":3.6,"ly":2.75},{"f":"-x+3.5","c":"goldDunkel","w":2,"label":"g₃","lx":3.35,"ly":0.65}]}</graph>
+  </div>
+</div>
+
+<p>Eine Gerade ist überall gleich steil. Um das zu messen, geht man auf ihr ein Stück nach rechts und schaut, wie weit es dabei nach oben oder unten geht. Das entstehende rechtwinklige Dreieck heißt <b>Steigungsdreieck</b>.</p>
+
+<div class="zwei-bild" style="grid-template-columns:1fr auto">
+  <div>
+    <p>Bei der Geraden rechts geht es um 3 nach rechts und dabei um 2 nach oben. Ihre Steigung ist</p>
+    $$m = \frac{\text{Höhe}}{\text{Breite}} = \frac{\Delta y}{\Delta x} = \frac{2}{3}.$$
+    <p>Wählt man ein größeres oder kleineres Dreieck, ändert sich am Verhältnis nichts: Alle Steigungsdreiecke einer Geraden sind <b>ähnlich</b>. Deshalb hat jede Gerade genau eine Steigung.</p>
+  </div>
+  <graph>{"b":52,"h":40,"x":[-0.5,6.4],"y":[-0.4,4.9],"gitter":1,"tx":1,"ty":1,
+    "fn":[{"f":"2*x/3+0.3","c":"see","w":2}],
+    "strecke":[{"p":[0.5,0.6333],"q":[3.5,0.6333],"c":"goldDunkel","w":1.6},{"p":[3.5,0.6333],"q":[3.5,2.6333],"c":"goldDunkel","w":1.6},
+      {"p":[3.5,2.6333],"q":[5,2.6333],"c":"grana","w":1.3,"d":"3 2"},{"p":[5,2.6333],"q":[5,3.6333],"c":"grana","w":1.3,"d":"3 2"}],
+    "text":[{"x":2,"y":0.63,"t":"Δx = 3","pos":"u","c":"goldDunkel"},{"x":3.5,"y":1.63,"t":"Δy = 2","pos":"r","c":"goldDunkel"},{"x":5,"y":3.13,"t":"1","pos":"r","c":"grana"},{"x":4.25,"y":2.63,"t":"1,5","pos":"u","c":"grana"}]}</graph>
+</div>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Steigung</div>
+  <p style="text-align:left">Liegen $P(x_1 \mid y_1)$ und $Q(x_2 \mid y_2)$ mit $x_1 \neq x_2$ auf einer Geraden, so ist ihre <b>Steigung</b></p>
+  $$m = \frac{\Delta y}{\Delta x} = \frac{y_2 - y_1}{x_2 - x_1}.$$
+  <p style="text-align:left">$m$ gibt an, um wie viel sich $y$ ändert, wenn $x$ um 1 wächst. Eine Gerade mit der Gleichung $y = mx + b$ hat die Steigung $m$ und schneidet die $y$-Achse bei $b$ (<b>$y$-Achsenabschnitt</b>).</p>
+</div>
+
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 1 · Steigung am Graphen ablesen</div>
+  <div class="zwei-bild" style="gap:5mm">
+    <div>
+      <p style="text-align:left">Lies die Steigungen der drei Geraden ab und gib ihre Gleichungen an.</p>
+      <div class="loesung"><span class="loesung-kopf">Lösung</span>
+      <p style="text-align:left">$g_1$: 1 nach rechts, 2 nach oben, $b = -1$: $\;y = 2x - 1$.<br>$g_2$: 2 nach rechts, 1 nach unten, $b = 3$: $\;y = -\frac{1}{2}x + 3$.<br>$g_3$: waagrecht, $m = 0$: $\;y = 1$.</p></div>
+    </div>
+    <graph>{"b":46,"h":40,"x":[-1.4,4.4],"y":[-1.6,3.6],"gitter":1,"tx":1,"ty":1,
+      "fn":[{"f":"2*x-1","c":"see","w":2,"label":"g₁","lx":2.05,"ly":3.2},{"f":"-0.5*x+3","c":"grana","w":2,"label":"g₂","lx":-1.25,"ly":2.75},{"f":"1","c":"goldDunkel","w":2,"label":"g₃","lx":3.6,"ly":1.25}]}</graph>
+  </div>
+</div>
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: Verkehrsschild</li><li>Steigungsdreieck</li><li>Merke: Steigung</li><li>Beispiele 1 und 2</li><li>Prozent und Winkel</li><li>Aufgaben 1–5</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 6 und 7</p></div>
+
+<div class="notiz"><span class="t">Wortspeicher</span><b>$\Delta$</b> (Delta): „Differenz“, also Unterschied.<br><b>Ähnliche Dreiecke</b> haben gleiche Winkel – ihre Seiten stehen im gleichen Verhältnis.</div>
+
+<div class="notiz gold"><span class="t">Reihenfolge</span>Ob du $P$ oder $Q$ als ersten Punkt nimmst, ist egal – nur oben und unten muss dieselbe Reihenfolge stehen.</div>
+
+<div class="notiz"><span class="t">Erinnerung</span>Lineare Funktion:<br>$f(x) = mx + b$<br>Ihr Graph ist eine Gerade.</div>

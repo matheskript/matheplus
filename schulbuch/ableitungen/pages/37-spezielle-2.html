@@ -1,0 +1,69 @@
+<!--kap: III  -->
+<h3 style="margin-top:0">Exponentialfunktionen und die Zahl $e$</h3>
+<div class="zwei-bild" style="gap:5mm">
+  <div>
+    <p>Für $f(x) = a^x$ (mit $a > 0$) liefert die h-Methode dank $a^{x + h} = a^x \cdot a^h$:</p>
+    $$\frac{a^{x + h} - a^x}{h} = a^x \cdot \frac{a^h - 1}{h}$$
+    <p>Der zweite Faktor hängt nicht von $x$ ab; sein Grenzwert ist die Steigung bei 0. Also: <b>Die Ableitung von $a^x$ ist ein festes Vielfaches von $a^x$ selbst.</b></p>
+  </div>
+  <div>
+    <table class="wt eng" style="margin:0"><tr><th>$a$</th><th>$\frac{a^h - 1}{h}$ für $h = 0{,}0001$</th></tr><tr><td>2</td><td>0,6932</td></tr><tr><td>2,5</td><td>0,9163</td></tr><tr><td>2,7</td><td>0,9933</td></tr><tr><td>2,72</td><td>1,0007</td></tr><tr><td>3</td><td>1,0987</td></tr></table>
+  </div>
+</div>
+<p>Zwischen 2,7 und 2,72 liegt eine Basis, für die der Faktor <b>genau 1</b> ist. Diese Zahl heißt <b>Eulersche Zahl</b> $e = 2{,}71828\ldots$ Für sie gilt $(e^x)' = e^x \cdot 1 = e^x$: Die Funktion $e^x$ ist ihre eigene Ableitung.</p>
+
+<h3>Der natürliche Logarithmus – mit der Kettenregel</h3>
+<p>$\ln x$ ist die Umkehrfunktion von $e^x$, also gilt $e^{\ln x} = x$ für $x > 0$. Wir leiten beide Seiten ab, links mit der Kettenregel (außen $e^z$, innen $\ln x$):</p>
+$$e^{\ln x} \cdot (\ln x)' = 1 \quad\Rightarrow\quad x \cdot (\ln x)' = 1 \quad\Rightarrow\quad (\ln x)' = \frac{1}{x}$$
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Die vier besonderen Ableitungen</div>
+  <table class="wt voll" style="margin:0;font-size:9.4pt"><tr><th>$f(x)$</th><td>$\sin x$</td><td>$\cos x$</td><td>$e^x$</td><td>$\ln x \;\; (x > 0)$</td></tr><tr><th>$f'(x)$</th><td>$\cos x$</td><td>$-\sin x$</td><td>$e^x$</td><td>$\dfrac{1}{x}$</td></tr></table>
+  <p style="text-align:left;margin-top:1.5mm">Mit der Kettenregel folgt besonders oft: $\big(e^{kx}\big)' = k \cdot e^{kx}$.</p>
+</div>
+
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel · Alle Regeln zusammen</div>
+  <div class="teil lang" style="--sp:2;gap:1.5mm 6mm">
+    <div><i>a)</i>$\big(e^{-2x}\big)' = -2e^{-2x}$</div>
+    <div><i>b)</i>$(x \cdot e^x)' = e^x + x e^x = (1 + x)\,e^x$</div>
+    <div><i>c)</i>$\big(\ln(x^2 + 1)\big)' = \dfrac{2x}{x^2 + 1}$</div>
+    <div><i>d)</i>$\big(e^{\sin x}\big)' = \cos x \cdot e^{\sin x}$</div>
+  </div>
+</div>
+
+<div class="aufgaben-kopf"><span>Aufgaben</span></div>
+
+<div class="auf"><div class="anr"><span class="z">1</span><span class="stufe">●○○</span></div><div class="text">
+  <p>Leite ab.</p>
+  <div class="teil" style="--sp:4"><div><i>a)</i>$3\sin x$</div><div><i>b)</i>$\sin x + \cos x$</div><div><i>c)</i>$2e^x - x^2$</div><div><i>d)</i>$5\ln x$</div><div><i>e)</i>$e^{3x}$</div><div><i>f)</i>$\cos(2x)$</div><div><i>g)</i>$\sin(x^2)$</div><div><i>h)</i>$\ln(2x)$</div></div>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">2</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Leite mit Produkt- oder Quotientenregel ab.</p>
+  <div class="teil" style="--sp:4"><div><i>a)</i>$x \sin x$</div><div><i>b)</i>$x^2 e^x$</div><div><i>c)</i>$\dfrac{e^x}{x}$</div><div><i>d)</i>$\tan x = \dfrac{\sin x}{\cos x}$</div></div>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">3</span><span class="stufe">●●○</span></div><div class="text">
+  <p>An welchen Stellen im Intervall $[0;\,2\pi]$ hat der Graph von $\sin x$ die Steigung $\frac{1}{2}$?</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">4</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Bakterien vermehren sich nach $N(t) = 500 \cdot e^{0{,}2t}$ ($t$ in h). Berechne $N'(0)$ und zeige $N'(t) = 0{,}2 \cdot N(t)$. Deute.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">5</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Zeige, dass der Graph von $f(x) = e^{-x^2}$ an der Stelle 0 eine waagrechte Tangente hat.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z offen">6</span><span class="stufe">●●●</span></div><div class="text">
+  <p>Schreibe $a^x = e^{x \ln a}$ und zeige mit der Kettenregel: $(a^x)' = \ln a \cdot a^x$. Vergleiche mit der Tabelle oben ($\ln 2 \approx 0{,}6931$).</p>
+</div></div>
+<!--rand-->
+<div class="notiz"><span class="t">Leonhard Euler</span>Der Schweizer Mathematiker (1707–1783) führte den Buchstaben $e$ für diese Zahl ein. Sie ist – wie $\pi$ – irrational.</div>
+
+<div class="notiz gold"><span class="t">Achtung</span>$(e^x)' = e^x$, aber $(2^x)' \neq 2^x$ und $(x^e)' = e \cdot x^{e - 1}$. Prüfe immer: Steht $x$ im Exponenten oder in der Basis?</div>
+
+<div class="notiz"><span class="t">Zu Aufgabe 2 d)</span>$\sin^2 x + \cos^2 x = 1$</div>
+
+<div class="notiz mathilda"><span class="t">In der App</span>Das Werkzeug <b>Wachstum und Logarithmen</b> zeigt, warum $e^x$ beim Wachstum überall auftaucht.</div>

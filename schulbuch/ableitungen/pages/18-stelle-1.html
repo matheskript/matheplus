@@ -1,0 +1,50 @@
+<!-- kap: II | uk: Die Ableitung an einer Stelle -->
+<div class="ukap-titel"><span class="nr">{{K:stelle-1}}</span><h2>Die Ableitung an einer Stelle</h2></div>
+<p class="leitfrage">Was verrät die Zahl $f'(x_0)$ – und auf welchen Wegen bekommt man sie?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <div class="zwei-bild" style="gap:5mm">
+    <div>
+      <p style="text-align:left">In den Punkten $A$ bis $E$ sind die Tangenten an den Graphen von $f$ gezeichnet.</p>
+      <p style="text-align:left"><b>a)</b> Ordne die Punkte nach der Steigung, beginnend mit der kleinsten.<br><b>b)</b> In welchen Punkten gilt $f'(x_0) = 0$, in welchen $f'(x_0) < 0$?<br><b>c)</b> Wo ist $f$ am steilsten?</p>
+    </div>
+    <graph>{"b": 50, "h": 36, "x": [-0.4, 5.4], "y": [-1.75, 2.85], "gitter": 1, "tx": 1, "ty": 1, "fn": [{"f": "0.25*x*x*x-1.875*x*x+3*x+1", "c": "see", "w": 2}], "gerade": [{"f": "0.25*x*x*x-1.875*x*x+3*x+1", "tan": 0.3, "c": "gold", "w": 1.2, "von": -0.2, "bis": 0.8}, {"f": "0.25*x*x*x-1.875*x*x+3*x+1", "tan": 1, "c": "gold", "w": 1.2, "von": 0.45, "bis": 1.55}, {"f": "0.25*x*x*x-1.875*x*x+3*x+1", "tan": 2.5, "c": "gold", "w": 1.2, "von": 2.05, "bis": 2.95}, {"f": "0.25*x*x*x-1.875*x*x+3*x+1", "tan": 4, "c": "gold", "w": 1.2, "von": 3.5, "bis": 4.5}, {"f": "0.25*x*x*x-1.875*x*x+3*x+1", "tan": 4.9, "c": "gold", "w": 1.2, "von": 4.55, "bis": 5.25}], "punkt": [{"x": 0.3, "f": "0.25*x*x*x-1.875*x*x+3*x+1", "c": "grana", "t": "A", "pos": "ol"}, {"x": 1, "f": "0.25*x*x*x-1.875*x*x+3*x+1", "c": "grana", "t": "B", "pos": "o"}, {"x": 2.5, "f": "0.25*x*x*x-1.875*x*x+3*x+1", "c": "grana", "t": "C", "pos": "or"}, {"x": 4, "f": "0.25*x*x*x-1.875*x*x+3*x+1", "c": "grana", "t": "D", "pos": "ur"}, {"x": 4.9, "f": "0.25*x*x*x-1.875*x*x+3*x+1", "c": "grana", "t": "E", "pos": "ol"}]}</graph>
+  </div>
+</div>
+
+<p>In Kapitel {{K:tangente-1}} haben wir die Ableitung an einer Stelle als Grenzwert definiert: $f'(x_0) = \lim\limits_{h \to 0} \frac{f(x_0 + h) - f(x_0)}{h}$. Diese eine Zahl beschreibt das Verhalten des Graphen in der Nähe von $x_0$. Es gibt vier Wege, sie zu bestimmen.</p>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:3mm;margin-bottom:3.2mm">
+  <div class="karte"><div class="etikett" style="background:var(--kap);color:#fff">① Graphisch</div><p style="margin:0">Tangente in $P$ zeichnen, mit einem Steigungsdreieck ablesen. Schnell, aber nur ungefähr.</p></div>
+  <div class="karte"><div class="etikett" style="background:var(--kap);color:#fff">② Numerisch</div><p style="margin:0">Differenzenquotient für sehr kleine $h$ ausrechnen, etwa $h = 0{,}001$. Genau genug für die Praxis.</p></div>
+  <div class="karte"><div class="etikett" style="background:var(--kap);color:#fff">③ Exakt</div><p style="margin:0">h-Methode: Differenzenquotient vereinfachen, $h$ kürzen, dann $h \to 0$. Liefert den genauen Wert.</p></div>
+  <div class="karte"><div class="etikett" style="background:var(--kap);color:#fff">④ Im Sachzusammenhang</div><p style="margin:0">Momentane Änderungsrate mit Einheit, z. B. „Der Wasserstand sinkt gerade um 3 cm pro Stunde.“</p></div>
+</div>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Was $f'(x_0)$ verrät</div>
+  <div class="zwei" style="gap:5mm">
+    <p style="text-align:left;margin:0">$f'(x_0) > 0$: Graph <b>steigt</b> bei $x_0$<br>$f'(x_0) < 0$: Graph <b>fällt</b> bei $x_0$<br>$f'(x_0) = 0$: <b>waagrechte</b> Tangente</p>
+    <p style="text-align:left;margin:0">Je größer $|f'(x_0)|$, desto <b>steiler</b> der Graph.<br>Einheit von $f'(x_0)$: Einheit von $y$ <b>pro</b> Einheit von $x$.</p>
+  </div>
+</div>
+
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 1 · Graphisch ablesen</div>
+  <div class="zwei-bild" style="gap:5mm">
+    <p style="text-align:left">$f(x) = -\frac{1}{2}x^2 + 3x$, Stelle $x_0 = 1$. Die Tangente geht 1 nach rechts und 2 nach oben, also $f'(1) \approx 2$. <span class="mild">Exakt mit den Regeln aus Kapitel {{K:summenregel-1}}: $f'(1) = -1 + 3 = 2$ ✓</span></p>
+    <graph>{"b":40,"h":26,"x":[-0.3,4.3],"y":[-0.3,4.9],"gitter":1,"keineZahlen":true,
+      "fn":[{"f":"-0.5*x*x+3*x","c":"see","w":2}],"gerade":[{"f":"-0.5*x*x+3*x","tan":1,"c":"gold","w":1.4,"von":0,"bis":2.6}],
+      "strecke":[{"p":[1,2.5],"q":[2,2.5],"c":"goldDunkel","w":1.3},{"p":[2,2.5],"q":[2,4.5],"c":"goldDunkel","w":1.3}],
+      "punkt":[{"x":1,"y":2.5,"c":"grana"}]}</graph>
+  </div>
+</div>
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: Punkte ordnen</li><li>Vier Wege zu $f'(x_0)$</li><li>Merke: Bedeutung</li><li>Beispiele 1–3</li><li>Wann gibt es keine Ableitung?</li><li>Aufgaben 1–5</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 6 und 7</p></div>
+
+<div class="notiz"><span class="t">Feiner Unterschied</span>$f(x_0)$: <b>wie hoch</b> der Graph bei $x_0$ ist.<br>$f'(x_0)$: <b>wie steil</b> er dort ist.<br>Beide haben nichts miteinander zu tun: Ein Punkt kann hoch liegen und waagrecht sein.</div>
+
+<div class="notiz gold"><span class="t">Taschenrechner</span>Viele Rechner haben eine Taste $\frac{d}{dx}$. Sie rechnet numerisch mit dem symmetrischen Differenzenquotienten (Seite {{S:diffquot-2}}).</div>
