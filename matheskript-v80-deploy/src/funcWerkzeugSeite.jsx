@@ -11,6 +11,7 @@
    Ein neues Werkzeug braucht nur: Eintrag in werkzeuge.js + Zeile hier.
    ============================================================ */
 import React from "react";
+import { lazyLaden, ChunkGrenze } from "./chunkSchutz.jsx";
 import { C } from "./base1.jsx";
 import { englisch } from "./i18n.js";
 
@@ -42,7 +43,7 @@ export function Laden({ rand = "24px" }) {
   return <p role="status" style={{ color: C.grau, fontSize: 15, fontWeight: 300, padding: rand, textAlign: "center" }}>{englisch() ? "Loading …" : "Wird geladen …"}</p>;
 }
 
-const lazy = (lader, name) => React.lazy(() => lader().then((m) => ({ default: m[name] })));
+const lazy = (lader, name) => lazyLaden(() => lader().then((m) => ({ default: m[name] })));
 
 /* Ansicht → { titel, groesse, rund, Komp } */
 export const WZ_SEITEN = {
@@ -97,9 +98,11 @@ export function WerkzeugSeite({ ansicht, gehe, menue }) {
   return (
     <>
       <SeitenKopf titel={s.titel} groesse={s.groesse} rund={s.rund}>{menue}</SeitenKopf>
-      <React.Suspense fallback={<Laden />}>
-        <Komp gehe={gehe} ansicht={ansicht} />
-      </React.Suspense>
+      <ChunkGrenze key={ansicht}>
+        <React.Suspense fallback={<Laden />}>
+          <Komp gehe={gehe} ansicht={ansicht} />
+        </React.Suspense>
+      </ChunkGrenze>
     </>
   );
 }

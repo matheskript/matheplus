@@ -1,4 +1,5 @@
 import { mitMathildaAI } from "./mathildaName.jsx";
+import { lazyLaden, ChunkGrenze } from "./chunkSchutz.jsx";
 import React, { useState, useRef, useEffect } from "react";
 import { API_URL, C, REGELN, VIDEO_URL, blattPrompt } from "./base1.jsx";
 import { KOMP } from "./base3.jsx";
@@ -34,60 +35,60 @@ import { FeedbackKnopf } from "./funcFeedback.jsx";
 import { MatheTastaturHost } from "./matheTastatur.jsx";
 import { LAENDER } from "./funcWettbewerbe.jsx";
 import { ENTWUERFE, istEntwurf, LANDING } from "./seitenKonstanten.js";
-const EntwurfTor = React.lazy(() => import("./funcEntwuerfe.jsx").then((m) => ({ default: m.EntwurfTor })));
-const KapitelFormelnSeite = React.lazy(() => import("./funcKapitelFormeln.jsx").then((m) => ({ default: m.KapitelFormelnSeite })));
-const ChallengeSeite = React.lazy(() => import("./funcChallenge.jsx").then((m) => ({ default: m.ChallengeSeite })));
-const Landingpage = React.lazy(() => import("./funcLandingpage.jsx").then((m) => ({ default: m.Landingpage })));
+const EntwurfTor = lazyLaden(() => import("./funcEntwuerfe.jsx").then((m) => ({ default: m.EntwurfTor })));
+const KapitelFormelnSeite = lazyLaden(() => import("./funcKapitelFormeln.jsx").then((m) => ({ default: m.KapitelFormelnSeite })));
+const ChallengeSeite = lazyLaden(() => import("./funcChallenge.jsx").then((m) => ({ default: m.ChallengeSeite })));
+const Landingpage = lazyLaden(() => import("./funcLandingpage.jsx").then((m) => ({ default: m.Landingpage })));
 import { Laden, SeitenKopf, WerkzeugSeite, istWzSeite } from "./funcWerkzeugSeite.jsx";
 /* Seiten werden erst beim Öffnen nachgeladen (je eigener Chunk) */
-const ElternkursSeite = React.lazy(() => import("./funcElternkurs.jsx").then((m) => ({ default: m.ElternkursSeite })));
-const NachhilfekursSeite = React.lazy(() => import("./funcNachhilfekurs.jsx").then((m) => ({ default: m.NachhilfekursSeite })));
-const EntdeckenSeite = React.lazy(() => import("./funcEntdecken.jsx").then((m) => ({ default: m.EntdeckenSeite })));
-const PenPaperKursSeite = React.lazy(() => import("./funcPenPaperKurs.jsx").then((m) => ({ default: m.PenPaperKursSeite })));
-const KontoSeite = React.lazy(() => import("./funcKonto.jsx").then((m) => ({ default: m.KontoSeite })));
-const ImpressumSeite = React.lazy(() => import("./funcRecht.jsx").then((m) => ({ default: m.ImpressumSeite })));
-const AGBSeite = React.lazy(() => import("./funcRecht.jsx").then((m) => ({ default: m.AGBSeite })));
-const WiderrufSeite = React.lazy(() => import("./funcRecht.jsx").then((m) => ({ default: m.WiderrufSeite })));
-const ElternabendSeite = React.lazy(() => import("./funcElternabend.jsx").then((m) => ({ default: m.ElternabendSeite })));
-const BundeswettbewerbSeite = React.lazy(() => import("./funcWettbewerbe.jsx").then((m) => ({ default: m.BundeswettbewerbSeite })));
-const LandeswettbewerbeSeite = React.lazy(() => import("./funcWettbewerbe.jsx").then((m) => ({ default: m.LandeswettbewerbeSeite })));
-const LandeswettbewerbSeite = React.lazy(() => import("./funcWettbewerbe.jsx").then((m) => ({ default: m.LandeswettbewerbSeite })));
-const MasterclassSeite = React.lazy(() => import("./funcMasterclass.jsx").then((m) => ({ default: m.MasterclassSeite })));
-const MatheCheckenSeite = React.lazy(() => import("./funcMasterclass.jsx").then((m) => ({ default: m.MatheCheckenSeite })));
-const EntwurfVorher = React.lazy(() => import("./funcVorher.jsx").then((m) => ({ default: m.EntwurfVorher })));
-const EntwurfWerkzeuge = React.lazy(() => import("./funcStartArchiv.jsx").then((m) => ({ default: m.EntwurfWerkzeuge })));
-const EbbinghausSeite = React.lazy(() => import("./funcEbbinghaus.jsx").then((m) => ({ default: m.EbbinghausSeite })));
-const AbiKettenSeite = React.lazy(() => import("./funcAbiKetten.jsx").then((m) => ({ default: m.AbiKettenSeite })));
-const AbiSaetzeSeite = React.lazy(() => import("./funcAbiSaetze.jsx").then((m) => ({ default: m.AbiSaetzeSeite })));
-const MeinTrainingSeite = React.lazy(() => import("./funcMeinTraining.jsx").then((m) => ({ default: m.MeinTrainingSeite })));
-const Ableitungstrainer = React.lazy(() => import("./func13.jsx").then((m) => ({ default: m.Ableitungstrainer })));
-const StammIntegral = React.lazy(() => import("./funcStammIntegral.jsx").then((m) => ({ default: m.StammIntegral })));
-const AdvancedPlotter = React.lazy(() => import("./func12.jsx").then((m) => ({ default: m.AdvancedPlotter })));
-const LGSLoeser = React.lazy(() => import("./funcLGS.jsx").then((m) => ({ default: m.LGSLoeser })));
-const Gleichungsloeser = React.lazy(() => import("./funcGleichungen.jsx").then((m) => ({ default: m.Gleichungsloeser })));
-const PotenzregelSeite = React.lazy(() => import("./func22.jsx").then((m) => ({ default: m.PotenzregelSeite })));
-const AnalysisZentrum = React.lazy(() => import("./func14.jsx").then((m) => ({ default: m.AnalysisZentrum })));
-const KopfrechenZentrum = React.lazy(() => import("./func14.jsx").then((m) => ({ default: m.KopfrechenZentrum })));
-const Begruenden = React.lazy(() => import("./func7.jsx").then((m) => ({ default: m.Begruenden })));
-const EinheitSpieler = React.lazy(() => import("./func7.jsx").then((m) => ({ default: m.EinheitSpieler })));
-const MeinPlan = React.lazy(() => import("./func8.jsx").then((m) => ({ default: m.MeinPlan })));
-const KlasseAnsicht = React.lazy(() => import("./func9.jsx").then((m) => ({ default: m.KlasseAnsicht })));
-const KlausurVorbereitung = React.lazy(() => import("./func9.jsx").then((m) => ({ default: m.KlausurVorbereitung })));
-const TrainingSeite = React.lazy(() => import("./funcTraining.jsx").then((m) => ({ default: m.TrainingSeite })));
-const DifferenzenquotientSeite = React.lazy(() => import("./func5.jsx").then((m) => ({ default: m.DifferenzenquotientSeite })));
-const FotoAufgaben = React.lazy(() => import("./func4.jsx").then((m) => ({ default: m.FotoAufgaben })));
-const GeneratorHub = React.lazy(() => import("./func5.jsx").then((m) => ({ default: m.GeneratorHub })));
-const WegVomBlatt = React.lazy(() => import("./func5.jsx").then((m) => ({ default: m.WegVomBlatt })));
-const Trainingsbereich = React.lazy(() => import("./func1.jsx").then((m) => ({ default: m.Trainingsbereich })));
-const Kurse = React.lazy(() => import("./func1.jsx").then((m) => ({ default: m.Kurse })));
-const KIAufgaben = React.lazy(() => import("./func1.jsx").then((m) => ({ default: m.KIAufgaben })));
-const EntwurfStart = React.lazy(() => import("./funcEntwuerfe.jsx").then((m) => ({ default: m.EntwurfStart })));
-const EntwurfChecken = React.lazy(() => import("./funcEntwuerfe.jsx").then((m) => ({ default: m.EntwurfChecken })));
-const EntwurfPakete = React.lazy(() => import("./funcEntwuerfe.jsx").then((m) => ({ default: m.EntwurfPakete })));
-const Plotter = React.lazy(() => import("./func3.jsx").then((m) => ({ default: m.Plotter })));
+const ElternkursSeite = lazyLaden(() => import("./funcElternkurs.jsx").then((m) => ({ default: m.ElternkursSeite })));
+const NachhilfekursSeite = lazyLaden(() => import("./funcNachhilfekurs.jsx").then((m) => ({ default: m.NachhilfekursSeite })));
+const EntdeckenSeite = lazyLaden(() => import("./funcEntdecken.jsx").then((m) => ({ default: m.EntdeckenSeite })));
+const PenPaperKursSeite = lazyLaden(() => import("./funcPenPaperKurs.jsx").then((m) => ({ default: m.PenPaperKursSeite })));
+const KontoSeite = lazyLaden(() => import("./funcKonto.jsx").then((m) => ({ default: m.KontoSeite })));
+const ImpressumSeite = lazyLaden(() => import("./funcRecht.jsx").then((m) => ({ default: m.ImpressumSeite })));
+const AGBSeite = lazyLaden(() => import("./funcRecht.jsx").then((m) => ({ default: m.AGBSeite })));
+const WiderrufSeite = lazyLaden(() => import("./funcRecht.jsx").then((m) => ({ default: m.WiderrufSeite })));
+const ElternabendSeite = lazyLaden(() => import("./funcElternabend.jsx").then((m) => ({ default: m.ElternabendSeite })));
+const BundeswettbewerbSeite = lazyLaden(() => import("./funcWettbewerbe.jsx").then((m) => ({ default: m.BundeswettbewerbSeite })));
+const LandeswettbewerbeSeite = lazyLaden(() => import("./funcWettbewerbe.jsx").then((m) => ({ default: m.LandeswettbewerbeSeite })));
+const LandeswettbewerbSeite = lazyLaden(() => import("./funcWettbewerbe.jsx").then((m) => ({ default: m.LandeswettbewerbSeite })));
+const MasterclassSeite = lazyLaden(() => import("./funcMasterclass.jsx").then((m) => ({ default: m.MasterclassSeite })));
+const MatheCheckenSeite = lazyLaden(() => import("./funcMasterclass.jsx").then((m) => ({ default: m.MatheCheckenSeite })));
+const EntwurfVorher = lazyLaden(() => import("./funcVorher.jsx").then((m) => ({ default: m.EntwurfVorher })));
+const EntwurfWerkzeuge = lazyLaden(() => import("./funcStartArchiv.jsx").then((m) => ({ default: m.EntwurfWerkzeuge })));
+const EbbinghausSeite = lazyLaden(() => import("./funcEbbinghaus.jsx").then((m) => ({ default: m.EbbinghausSeite })));
+const AbiKettenSeite = lazyLaden(() => import("./funcAbiKetten.jsx").then((m) => ({ default: m.AbiKettenSeite })));
+const AbiSaetzeSeite = lazyLaden(() => import("./funcAbiSaetze.jsx").then((m) => ({ default: m.AbiSaetzeSeite })));
+const MeinTrainingSeite = lazyLaden(() => import("./funcMeinTraining.jsx").then((m) => ({ default: m.MeinTrainingSeite })));
+const Ableitungstrainer = lazyLaden(() => import("./func13.jsx").then((m) => ({ default: m.Ableitungstrainer })));
+const StammIntegral = lazyLaden(() => import("./funcStammIntegral.jsx").then((m) => ({ default: m.StammIntegral })));
+const AdvancedPlotter = lazyLaden(() => import("./func12.jsx").then((m) => ({ default: m.AdvancedPlotter })));
+const LGSLoeser = lazyLaden(() => import("./funcLGS.jsx").then((m) => ({ default: m.LGSLoeser })));
+const Gleichungsloeser = lazyLaden(() => import("./funcGleichungen.jsx").then((m) => ({ default: m.Gleichungsloeser })));
+const PotenzregelSeite = lazyLaden(() => import("./func22.jsx").then((m) => ({ default: m.PotenzregelSeite })));
+const AnalysisZentrum = lazyLaden(() => import("./func14.jsx").then((m) => ({ default: m.AnalysisZentrum })));
+const KopfrechenZentrum = lazyLaden(() => import("./func14.jsx").then((m) => ({ default: m.KopfrechenZentrum })));
+const Begruenden = lazyLaden(() => import("./func7.jsx").then((m) => ({ default: m.Begruenden })));
+const EinheitSpieler = lazyLaden(() => import("./func7.jsx").then((m) => ({ default: m.EinheitSpieler })));
+const MeinPlan = lazyLaden(() => import("./func8.jsx").then((m) => ({ default: m.MeinPlan })));
+const KlasseAnsicht = lazyLaden(() => import("./func9.jsx").then((m) => ({ default: m.KlasseAnsicht })));
+const KlausurVorbereitung = lazyLaden(() => import("./func9.jsx").then((m) => ({ default: m.KlausurVorbereitung })));
+const TrainingSeite = lazyLaden(() => import("./funcTraining.jsx").then((m) => ({ default: m.TrainingSeite })));
+const DifferenzenquotientSeite = lazyLaden(() => import("./func5.jsx").then((m) => ({ default: m.DifferenzenquotientSeite })));
+const FotoAufgaben = lazyLaden(() => import("./func4.jsx").then((m) => ({ default: m.FotoAufgaben })));
+const GeneratorHub = lazyLaden(() => import("./func5.jsx").then((m) => ({ default: m.GeneratorHub })));
+const WegVomBlatt = lazyLaden(() => import("./func5.jsx").then((m) => ({ default: m.WegVomBlatt })));
+const Trainingsbereich = lazyLaden(() => import("./func1.jsx").then((m) => ({ default: m.Trainingsbereich })));
+const Kurse = lazyLaden(() => import("./func1.jsx").then((m) => ({ default: m.Kurse })));
+const KIAufgaben = lazyLaden(() => import("./func1.jsx").then((m) => ({ default: m.KIAufgaben })));
+const EntwurfStart = lazyLaden(() => import("./funcEntwuerfe.jsx").then((m) => ({ default: m.EntwurfStart })));
+const EntwurfChecken = lazyLaden(() => import("./funcEntwuerfe.jsx").then((m) => ({ default: m.EntwurfChecken })));
+const EntwurfPakete = lazyLaden(() => import("./funcEntwuerfe.jsx").then((m) => ({ default: m.EntwurfPakete })));
+const Plotter = lazyLaden(() => import("./func3.jsx").then((m) => ({ default: m.Plotter })));
 /* Head & Numbers wird erst beim Öffnen nachgeladen (eigener Chunk, nicht im Hauptbündel) */
-const FormelsammlungNeu = React.lazy(() => import("./funcFormelsammlung.jsx").then((m) => ({ default: m.FormelsammlungNeu })));
-const HeadNumbersSeite = React.lazy(() => import("./funcHeadNumbers.jsx").then((m) => ({ default: m.HeadNumbersSeite })));
+const FormelsammlungNeu = lazyLaden(() => import("./funcFormelsammlung.jsx").then((m) => ({ default: m.FormelsammlungNeu })));
+const HeadNumbersSeite = lazyLaden(() => import("./funcHeadNumbers.jsx").then((m) => ({ default: m.HeadNumbersSeite })));
 import { EBB_SLOGAN } from "./funcEbbinghaus.jsx";
 import { useKonto, kontoStarten } from "./konto.js";
 import { englisch, spracheWechseln } from "./i18n.js";
@@ -584,6 +585,7 @@ export function Mathilda() {
       </div>
       )}
 
+      <ChunkGrenze key={ansicht}>
       <React.Suspense fallback={<Laden />}>
       {ansicht === "messung" ? (
         <>
@@ -1565,6 +1567,7 @@ export function Mathilda() {
       </>
       )}
       </React.Suspense>
+      </ChunkGrenze>
       {!istEntwurf(ansicht) && (
         <div className={"fuss-paar" + (teilenInfo(ansicht) ? " zwei" : "")}>
           <TeilenKnopf ansicht={ansicht} pfad={pfadFuer(adressZustand) || "/"} />
