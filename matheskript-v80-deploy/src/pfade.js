@@ -71,6 +71,7 @@ export const SEITEN = [
   { pfad: "formeln-zum-kapitel", ansicht: "kapitelformeln", alias: ["kapitel-formeln", "testklausur"] },
   { pfad: "potenzregel", ansicht: "potenzregel" },
   { pfad: "differentialrechnung", ansicht: "diffkurs", alias: ["differenzialrechnung", "kurs-differentialrechnung", "diffkurs"] },
+  { pfad: "vektoren-geraden-ebenen", ansicht: "vekkurs", alias: ["kurs-vektoren", "kurs-vektoren-geraden-ebenen", "vekkurs"] },
   { pfad: "schulbuch/ableitungen", ansicht: "schulbuch", alias: ["schulbuch", "buch-ableitungen"] },
   { pfad: "formelsammlung", ansicht: "formeln", alias: ["formeln-app"] },
   { pfad: "operatoren", ansicht: "operatoren" },

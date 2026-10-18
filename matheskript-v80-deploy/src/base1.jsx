@@ -53,6 +53,13 @@ export const C = {
   babyblauTief: "#7FC2EC",
   nachtschwarz: "#0B0C10",
   golddunkel: "#5A4300",
+  /* Kurs Vektoren, Geraden und Ebenen: cooles Lila (Nacht → Tief → Leuchtend → Hell → Nebel) mit warmem Gold */
+  violettNacht: "#160A33",
+  violettTief: "#3D1A9E",
+  violett: "#7C4DFF",
+  violettHell: "#C7B3FF",
+  violettNebel: "#F3EEFF",
+  violettGold: "#F2C14E",
 };
 
 

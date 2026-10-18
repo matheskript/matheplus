@@ -56,6 +56,7 @@ const EinwilligungSeite = lazyLaden(() => import("./funcEinwilligung.jsx").then(
 const ElternabendSeite = lazyLaden(() => import("./funcElternabend.jsx").then((m) => ({ default: m.ElternabendSeite })));
 const SpendenSeite = lazyLaden(() => import("./funcSpendenSeite.jsx").then((m) => ({ default: m.SpendenSeite })));
 const DiffKursSeite = lazyLaden(() => import("./funcDiffKurs.jsx").then((m) => ({ default: m.DiffKursSeite })));
+const VekKursSeite = lazyLaden(() => import("./funcVekKurs.jsx").then((m) => ({ default: m.VekKursSeite })));
 const SchulbuchSeite = lazyLaden(() => import("./funcSchulbuch.jsx").then((m) => ({ default: m.SchulbuchSeite })));
 const KlausurBriefkasten = lazyLaden(() => import("./funcKlausurBriefkasten.jsx").then((m) => ({ default: m.KlausurBriefkasten })));
 const BundeswettbewerbSeite = lazyLaden(() => import("./funcWettbewerbe.jsx").then((m) => ({ default: m.BundeswettbewerbSeite })));
@@ -1072,6 +1073,10 @@ export function Mathilda() {
       ) : ansicht === "diffkurs" ? (
         <React.Suspense fallback={<p role="status" style={{ color: C.grau, fontSize: 15, fontWeight: 300, padding: "24px", textAlign: "center" }}>{englisch() ? "Loading …" : "Wird geladen …"}</p>}>
           <DiffKursSeite gehe={gehe} />
+        </React.Suspense>
+      ) : ansicht === "vekkurs" ? (
+        <React.Suspense fallback={<p role="status" style={{ color: C.grau, fontSize: 15, fontWeight: 300, padding: "24px", textAlign: "center" }}>{englisch() ? "Loading …" : "Wird geladen …"}</p>}>
+          <VekKursSeite gehe={gehe} />
         </React.Suspense>
       ) : ansicht === "schulbuch" ? (
         <>

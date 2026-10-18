@@ -51,6 +51,7 @@ const E_GRENZ = z("Ableitung als Grenzwert", "Von der Sekante zur Tangente", { a
 const E_PASCAL = z("Pascalsches Dreieck", "Vom Zahlenmuster zur Potenzregel", { ansicht: "entdecken", seite: "praxis" });
 const DIFFQ = z("Differenzenquotient", "Vom Tangentenproblem zur Ableitung", { ansicht: "diffq" });
 const KURS_DIFF = z("Kurs Differentialrechnung", "Jedes Buchkapitel lesen und direkt darunter trainieren", { ansicht: "diffkurs" });
+const KURS_VEK = z("Kurs Vektoren, Geraden und Ebenen", "Jedes Heftkapitel lesen und direkt darunter trainieren", { ansicht: "vekkurs" });
 const BUCH_ABL = z("Schulbuch: Ableitungen", "50 Seiten zum Blättern – jede Regel hergeleitet", { ansicht: "schulbuch" });
 const POTREGEL = z("Potenzregel", "Beweis mit Produktregel und vollständiger Induktion", { ansicht: "potenzregel" });
 const ABIKETTEN = z("Abi-Ketten", "Eine Abi-Aufgabe durch mehrere Werkzeuge", { ansicht: "abiketten" });
@@ -105,16 +106,16 @@ export const THEMEN = {
   ablregeln: { titel: "Ableitungsregeln", zeile: "Potenz-, Faktor- und Summenregel, Tangente", hilfen: [w("ableitungstrainer"), KURS_DIFF, BUCH_ABL, POTREGEL, E_PASCAL, FS_ANA] },
   kugel: { titel: "Kugel, Kegel und Pyramide", zeile: "Oberfläche und Volumen der Körper", hilfen: [w("koerper"), FS_GEO, w("optimierung")] },
   zufallsgr: { titel: "Zufallsgrößen und Erwartungswert", zeile: "Wahrscheinlichkeitsverteilung, faire Spiele", hilfen: [w("erwartungswert"), w("bernoulli"), FS_STO] },
-  vek1: { titel: "Vektoren und Geraden im Raum", zeile: "Koordinaten im Raum, Vektoren addieren, Geradengleichung", hilfen: [w("vektorgenerator"), w("zweipunkte"), FS_VEK] },
+  vek1: { titel: "Vektoren und Geraden im Raum", zeile: "Koordinaten im Raum, Vektoren addieren, Geradengleichung", hilfen: [w("vektorgenerator"), w("zweipunkte"), KURS_VEK, FS_VEK] },
 
   /* Kursstufe (Kapitel I–X wie im Lambacher Schweizer Kursstufe) */
   ksDiff: { titel: "Grundlagen der Differenzialrechnung", zeile: "Ketten- und Produktregel, Monotonie, Extrem- und Wendepunkte, Tangente", hilfen: [w("ableitungstrainer"), KURS_DIFF, BUCH_ABL, w("kurvendiskussion"), w("optimierung"), POTREGEL, FS_ANA] },
   ksExp: { titel: "Exponential- und Logarithmusfunktionen", zeile: "e-Funktion, ln, Umkehrfunktion, Wachstum", hilfen: [w("wachstum"), w("funktionen"), w("kurvendiskussion"), w("gleichungen"), FS_FKT] },
   ksInt: { titel: "Integralrechnung", zeile: "Stammfunktion, Hauptsatz, Flächen, Rotationskörper", hilfen: [w("stammintegral"), w("integrale"), FS_ANA] },
   ksFkt: { titel: "Funktionen und ihre Graphen", zeile: "Transformationen, Asymptoten, trigonometrische Funktionen, Scharen", hilfen: [w("funktionen"), w("scharen"), w("kurvendiskussion"), w("sinus"), FS_FKT] },
-  ksLgs: { titel: "Lineare Gleichungssysteme", zeile: "Gauß-Verfahren, Lösungsmengen, Funktionen bestimmen", hilfen: [w("lgs"), w("steckbrief"), FS_TERME] },
-  ksGeraden: { titel: "Geraden und Ebenen", zeile: "Vektoren, Parameter- und Koordinatenform, Lagebeziehungen", hilfen: [w("vektorgenerator"), w("zweipunkte"), w("dreipunkte"), w("ebenen"), w("geraden"), w("ebenevsebene"), w("kreuzprodukt"), FS_VEK] },
-  ksAbstand: { titel: "Abstände und Winkel", zeile: "HNF, Abstand Punkt–Gerade, windschiefe Geraden, Schnittwinkel", hilfen: [w("abstaende"), w("winkel"), w("kreuzprodukt"), FS_VEK] },
+  ksLgs: { titel: "Lineare Gleichungssysteme", zeile: "Gauß-Verfahren, Lösungsmengen, Funktionen bestimmen", hilfen: [w("lgs"), w("steckbrief"), KURS_VEK, FS_TERME] },
+  ksGeraden: { titel: "Geraden und Ebenen", zeile: "Vektoren, Parameter- und Koordinatenform, Lagebeziehungen", hilfen: [w("vektorgenerator"), w("zweipunkte"), w("dreipunkte"), w("ebenen"), w("geraden"), w("ebenevsebene"), w("kreuzprodukt"), KURS_VEK, FS_VEK] },
+  ksAbstand: { titel: "Abstände und Winkel", zeile: "HNF, Abstand Punkt–Gerade, windschiefe Geraden, Schnittwinkel", hilfen: [w("abstaende"), w("winkel"), w("kreuzprodukt"), KURS_VEK, FS_VEK] },
   ksWkt: { titel: "Grundlagen der Wahrscheinlichkeitsrechnung", zeile: "Kombinatorik, bedingte Wahrscheinlichkeit, Bernoulli, Binomialverteilung", hilfen: [w("textaufgaben"), w("kombinatorik"), w("vierfelder"), w("erwartungswert"), w("bernoulli"), FS_STO] },
   ksTest: { titel: "Testen mit der Binomialverteilung", zeile: "Ein- und zweiseitiger Hypothesentest, Fehler 1. und 2. Art", hilfen: [w("hypothesentest"), w("bernoulli"), FS_STO] },
   ksNormal: { titel: "Normalverteilung", zeile: "Glockenfunktion, Sigma-Regeln, stetige Zufallsgrößen", hilfen: [w("normalverteilung"), w("bernoulli"), w("hypothesentest"), FS_STO] },
