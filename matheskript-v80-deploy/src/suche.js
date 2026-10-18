@@ -89,6 +89,7 @@ const ORT = (() => {
 
 /* Zusatzwörter je Werkzeug: so spricht man über das Thema (Werkzeugnamen allein reichen nicht) */
 const WZ_WOERTER = {
+  textaufgaben: "textaufgaben textaufgabe sachaufgaben sachaufgabe textaufgaben übersetzen übersetzen aufstellen gleichung aufstellen text in gleichung bedingungen bedingung steckbrief steckbriefaufgaben rekonstruktion funktion bestimmen aus bedingungen signalwörter mindestens höchstens zahlenrätsel rechenwörter word problems mathilda foto textaufgabe fotografieren ansatz",
   axiome: "axiome axiom rechenregeln rechengesetze fundament grundlagen kommutativgesetz assoziativgesetz distributivgesetz neutrales element inverses element gegenzahl kehrwert ausklammern ausmultiplizieren verkleidete eins null spielregeln",
   zahlenraeume: "zahlenräume zahlenraum zahlbereiche zahlbereich zahlenmengen natürliche zahlen ganze zahlen rationale zahlen reelle zahlen irrationale zahlen irrational wurzel 2 √2 abgeschlossen abgeschlossenheit widerspruchsbeweis ℕ ℤ ℚ ℝ zahlbereichserweiterung",
   mengenlogik: "mengen menge mengenlehre element teilmenge schnittmenge vereinigungsmenge differenzmenge komplement venn mengenbild leere menge intervall intervalle intervallschreibweise lösungsmenge aussage aussagen logik wahrheitstafel wahrheitswert und oder nicht implikation folgerung äquivalenz umkehrung kontraposition gegenbeispiel notwendig hinreichend quantor für alle es gibt verneinung beweis beweisen de morgan sets logic",

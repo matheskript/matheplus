@@ -35,6 +35,7 @@ export const ZIEL_IDS = Object.keys(ZIELE);
    generatoren; dort läuft das Trainieren im Werkzeug selbst (Etikett „trainieren“). */
 export const STATION_GENERATOREN = {
   "fundament.axiome": [],
+  "textaufgaben.uebersetzen": [],
   "fundament.zahlenraeume": [],
   "fundament.mengenlogik": [],
   "analysis.kennen": ["gl-quadrat"],
@@ -90,6 +91,7 @@ export const EINHEIT_GENERATOREN = {
    worum: zwei Sätze für den Einstieg · formel: Sprung in die Formelsammlung (id aus fsIndex)
    entdecken: zusätzliche Ansicht zum Ausprobieren (Werkzeug mit Etikett „entdecken“ oder Modul) */
 export const EINHEIT_TEXTE = {
+  textaufgaben: { worum: "Eine Textaufgabe ist eine verschlüsselte Gleichung: Jede Information im Text wird zu einer Bedingung – „Hochpunkt H(6|4)“ heißt f(6) = 4 und f′(6) = 0. Erst übersetzen, dann zählen (so viele Bedingungen wie Unbekannte), dann rechnen.", aufgabe: "Übersetze drei Aufgaben deiner Stufe im Training – zuerst mit Auswahl, dann getippt. Fotografiere danach eine Textaufgabe aus deinem Buch und vergleiche deine Übersetzung mit Mathildas." },
   axiome: { worum: "Alle Rechnungen beruhen auf neun Spielregeln für Plus und Mal: Kommutativ-, Assoziativ- und Distributivgesetz, neutrale Elemente 0 und 1, inverse Elemente −a und 1/a. Minus und Geteilt sind nur Plus und Mal mit dem Inversen.", aufgabe: "Benenne bei drei Umformungen das Axiom, das sie erlaubt, und löse x + 3 = 7 so, dass jeder Schritt ein Axiom ist." },
   zahlenraeume: { worum: "ℕ ist abgeschlossen bezüglich + und ·. Die Subtraktion führt zu ℤ, die Division zu ℚ = {p/q | p ∈ ℤ, q ∈ ℕ}, die Gleichung x² = 2 zu ℝ. Es gilt ℕ ⊂ ℤ ⊂ ℚ ⊂ ℝ.", aufgabe: "Ordne fünf Zahlen ihrem kleinsten Zahlenraum zu und führe den Beweis, dass √2 irrational ist, in eigenen Worten." },
   mengenlogik: { worum: "Mengen werden aufgezählt oder beschrieben und mit ∩, ∪ und \\ verknüpft. Intervalle sind die Lösungsmengen auf der Zahlengeraden. Aussagen verbindet man mit ∧, ∨, ¬ und ⇒; eine Allaussage widerlegt ein einziges Gegenbeispiel.", aufgabe: "Bestimme Schnitt und Vereinigung zweier Intervalle und widerlege eine falsche Folgerung mit einem Gegenbeispiel." },
@@ -180,11 +182,11 @@ export const PFADE = {
   analysis: { name: "Analysis", zeile: "Funktionen kennen, untersuchen, bestimmen, integrieren", bereiche: ["analysis"], wochen: 8 },
   vektoren: { name: "Vektoren", zeile: "Rechnen, aufstellen, Lage und Abstand", bereiche: ["vektoren"], wochen: 4 },
   stochastik: { name: "Stochastik", zeile: "Zählen, Zufallsgrößen, testen", bereiche: ["stochastik"], wochen: 4 },
-  gleichungen: { name: "Terme und Gleichungen", zeile: "Fundament, umformen und lösen – die Grundlage für alles", bereiche: ["fundament", "gleichungen"], wochen: 3 },
+  gleichungen: { name: "Terme und Gleichungen", zeile: "Fundament, umformen und lösen – die Grundlage für alles", bereiche: ["fundament", "gleichungen", "textaufgaben"], wochen: 3 },
   geometrie: { name: "Geometrie", zeile: "Winkel, Dreiecke, Pythagoras, Ähnlichkeit, Kreis und Körper – Mittelstufe", bereiche: ["geometrie"], wochen: 5 },
   bruchrechnen: { name: "Brüche und Dezimalzahlen", zeile: "Brüche, Dezimalzahlen, Bruchterme und Bruchgleichungen", bereiche: ["bruchrechnen"], wochen: 3 },
   grundlagen: { name: "Grundlagen Klasse 5–7", zeile: "Zahlen, Größen, Prozent, Daten und Zufall", bereiche: ["zahlen", "prozent", "daten"], wochen: 6 },
-  abitur: { name: "Abi komplett", zeile: "Alle Bereiche in Abi-Reihenfolge", bereiche: ["fundament", "bruchrechnen", "gleichungen", "geometrie", "analysis", "vektoren", "stochastik"], wochen: 16 },
+  abitur: { name: "Abi komplett", zeile: "Alle Bereiche in Abi-Reihenfolge", bereiche: ["fundament", "bruchrechnen", "gleichungen", "textaufgaben", "geometrie", "analysis", "vektoren", "stochastik"], wochen: 16 },
 };
 export const PFAD_IDS = Object.keys(PFADE);
 

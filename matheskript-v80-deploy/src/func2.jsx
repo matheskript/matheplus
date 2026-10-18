@@ -660,12 +660,12 @@ const ZEIGE_GESPERRTE = false;
 
 /* Schulmathematik → Bereiche → Stationen → Werkzeuge. Die Daten stehen in werkzeuge.js (eine Liste für
    Startseite, Werkzeug-Menü, Kopfleiste und Übersichtsseiten); hier kommen nur die Logos dazu. */
-const BEREICH_LOGO = { fundament: <ZeichenLogo zeichen="a+0" />, analysis: <PlotterLogoKlein />, vektoren: <VektorenLogoKlein />, stochastik: <StochastikLogoKlein />, geometrie: <GeometrieLogoKlein />, bruchrechnen: <BruchrechnenLogoKlein />, zahlen: <ZahlenLogoKlein />, prozent: <ProzentLogoKlein />, daten: <DatenLogoKlein />, gleichungen: <GleichungenLogoKlein /> };
+const BEREICH_LOGO = { fundament: <ZeichenLogo zeichen="a+0" />, textaufgaben: <ZeichenLogo zeichen="T→f" />, analysis: <PlotterLogoKlein />, vektoren: <VektorenLogoKlein />, stochastik: <StochastikLogoKlein />, geometrie: <GeometrieLogoKlein />, bruchrechnen: <BruchrechnenLogoKlein />, zahlen: <ZahlenLogoKlein />, prozent: <ProzentLogoKlein />, daten: <DatenLogoKlein />, gleichungen: <GleichungenLogoKlein /> };
 /* Liniennetz: jeder Bereich ist eine „Linie“ mit eigenem Strich, die Stationen sind ihre Halte */
-const LINIEN_MUSTER = { fundament: "4px solid", analysis: "4px solid", vektoren: "7px double", stochastik: "4px dashed", geometrie: "4px solid", bruchrechnen: "4px dashed", gleichungen: "4px dotted", zahlen: "4px solid", prozent: "7px double", daten: "4px dashed" };
+const LINIEN_MUSTER = { fundament: "4px solid", textaufgaben: "4px dashed", analysis: "4px solid", vektoren: "7px double", stochastik: "4px dashed", geometrie: "4px solid", bruchrechnen: "4px dashed", gleichungen: "4px dotted", zahlen: "4px solid", prozent: "7px double", daten: "4px dashed" };
 
 /* Kurztexte für die Bereichs-Kacheln: genau eine Zeile (ohne Stationsnamen) */
-const BEREICH_KURZ = { fundament: "Axiome und Zahlenräume – für alle", analysis: "Funktionen, Kurven, Integrale", vektoren: "Geraden, Ebenen, Abstände", stochastik: "Zählen, Zufall, Testen",
+const BEREICH_KURZ = { fundament: "Axiome und Zahlenräume – für alle", textaufgaben: "Text → Bedingungen, mit Mathilda", analysis: "Funktionen, Kurven, Integrale", vektoren: "Geraden, Ebenen, Abstände", stochastik: "Zählen, Zufall, Testen",
   geometrie: "Figuren, Winkel, Körper", bruchrechnen: "Brüche und Bruchterme", gleichungen: "Umformen und Lösen",
   zahlen: "Zahlen, Rechnen, Größen", prozent: "Zuordnungen und Prozent", daten: "Daten auswerten, Zufall" };
 
@@ -906,6 +906,7 @@ function MiniBild({ art }) {
     menge: <><circle cx="48" cy="28" r="18" {...linie} fill="rgba(255,255,255,0.06)" /><circle cx="72" cy="28" r="18" {...linie} fill="rgba(255,255,255,0.06)" /><path d="M60 14.6 A18 18 0 0 1 60 41.4 A18 18 0 0 1 60 14.6 Z" fill={g} opacity="0.8" />{txt(38, 32, "A", w, 10)}{txt(78, 32, "B", w, 10)}</>,
     ungleichung: <><path d="M10 40 H110" {...linie} /><path d="M28 40 H110" stroke={g} strokeWidth="4" opacity="0.85" /><circle cx="28" cy="40" r="3.6" fill="none" stroke={g} strokeWidth="1.8" />{[28, 52, 76, 100].map((x) => <path key={x} d={`M${x} 37 V43`} {...linie} />)}{txt(60, 22, "2x − 1 > 3", "#fff", 12.5, "middle")}</>,
     funktionen: <>{achsen}<path d="M20 46 L104 8" {...linie} strokeWidth="0.8" strokeDasharray="3 3" opacity="0.6" /><path d="M20 46 Q 42 44 58 10" {...linie} /><path d="M20 46 Q 54 42 104 24" {...linie} stroke={g} />{txt(92, 18, "f⁻¹", g, 11, "middle")}</>,
+    textaufgaben: <><rect x="14" y="12" width="44" height="34" rx="4" {...linie} fill="rgba(255,255,255,0.06)" /><path d="M20 21 H50 M20 28 H44 M20 35 H48" stroke={w} strokeWidth="1.4" strokeLinecap="round" opacity="0.7" /><path d="M26 28 H40" stroke={g} strokeWidth="3" strokeLinecap="round" opacity="0.8" /><path d="M62 29 H72 M68 25 L72 29 L68 33" {...linie} />{txt(92, 25, "f′(6)", "#fff", 10, "middle")}{txt(92, 39, "= 0", g, 10, "middle")}</>,
     axiome: <>{txt(60, 22, "a + b = b + a", "#fff", 12, "middle")}<path d="M30 32 H90" {...linie} strokeWidth="0.9" opacity="0.6" />{txt(60, 47, "∎", g, 13, "middle")}</>,
     zahlenraeume: <>{[["R", 60, 30, 50, 22], ["Q", 52, 32, 36, 16], ["Z", 44, 34, 23, 11], ["N", 37, 35, 11, 6]].map(([k, cx, cy, rx, ry]) => <ellipse key={k} cx={cx} cy={cy} rx={rx} ry={ry} fill="none" stroke={k === "R" ? g : w} strokeWidth="1.1" opacity={k === "N" ? 1 : 0.75} />)}{txt(37, 38.5, "ℕ", "#fff", 8, "middle")}{txt(58, 30, "ℤ", "#fff", 8.5, "middle")}{txt(80, 30, "ℚ", "#fff", 9, "middle")}{txt(101, 30, "ℝ", g, 10, "middle")}</>,
     pascal: <>{[[60, 14, "1"], [50, 27, "1"], [70, 27, "1"], [40, 40, "1"], [60, 40, "2"], [80, 40, "1"], [30, 53, "1"], [50, 53, "3"], [70, 53, "3"], [90, 53, "1"]].map(([x, y, z], i) => <React.Fragment key={i}>{txt(x, y, z, z === "1" ? w : g, 11, "middle")}</React.Fragment>)}</>,

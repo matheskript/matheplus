@@ -42,6 +42,9 @@ export const WERKZEUGE = {
   /* ---------- Funktionen: Grundlagen (Analysis · Kennen) ---------- */
   funktionen: { name: "Funktionen: Grundlagen", kurz: "Funktionen", zeile: "Potenz, Wurzel, Umkehrung, Verkettung", slogan: "Funktionsbegriff, Potenz- und Wurzelfunktionen, Umkehrfunktion, Verkettung – und Definitions- und Wertebereich als eigenes Training.",
     zeichen: "f⁻¹", bild: "funktionen", ziel: { ansicht: "funktionen" }, etikett: "trainieren", stufe: "beide" },
+  /* ---------- Textaufgaben (alle Stufen) ---------- */
+  textaufgaben: { name: "Textaufgaben übersetzen", kurz: "Textaufgaben", zeile: "Text → Bedingungen, Klasse 5 bis Abi", slogan: "Erst übersetzen, dann rechnen: Jede Information im Text wird zur Bedingung – vom Zahlenrätsel bis zur Steckbriefaufgabe. Mit Mathilda für jedes Foto.",
+    zeichen: "T→f", bild: "textaufgaben", ziel: { ansicht: "textaufgaben" }, etikett: "trainieren", stufe: "beide", unter: true },
   /* ---------- Analysis ---------- */
   /* ---------- Geraden (Mittelstufe, Beispielkapitel: Basics, P & Q, P & m) ---------- */
   geradengleichung: { name: "Geraden", kurz: "Geraden", zeile: "Basics, P & Q, P & m", slogan: "Was eine Gerade ist und wie du y = m·x + c aus zwei Punkten oder aus Punkt und Steigung findest.",
@@ -186,12 +189,16 @@ export const BEREICHE = [
       { id: "zahlenraeume", titel: "Zahlenräume", zeile: "Von ℕ über ℤ und ℚ bis ℝ", werkzeuge: ["zahlenraeume"] },
       { id: "mengenlogik", titel: "Mengen und Logik", zeile: "Die Sprache der Mathematik", werkzeuge: ["mengenlogik"] },
     ] },
+  { id: "textaufgaben", titel: "Textaufgaben", uebersicht: null, text: "Eine Station: Textaufgaben in Bedingungen übersetzen – mit Mathilda für jedes Foto.",
+    stationen: [
+      { id: "uebersetzen", titel: "Übersetzen", zeile: "Text → Gleichungen und Bedingungen", werkzeuge: ["textaufgaben"] },
+    ] },
   { id: "analysis", titel: "Analysis", uebersicht: "analysis", text: "Vier Stationen: Funktionen kennen, untersuchen, bestimmen, integrieren.",
     video: { name: "Videokurse Analysis", zeile: "Analysis 1–5 mit Videolektionen und Checks" },
     stationen: [
       { id: "kennen", titel: "Kennen", zeile: "Die wichtigsten Funktionsklassen", werkzeuge: ["funktionen", "sinus", "wachstum"], zeige: ["geradengleichung", "parabeln"] },
       { id: "untersuchen", titel: "Untersuchen", zeile: "Ableiten und Kurven diskutieren", werkzeuge: ["ableitungstrainer", "kurvendiskussion", "scharen"] },
-      { id: "bestimmen", titel: "Bestimmen", zeile: "Funktionen aufstellen und anwenden", werkzeuge: ["steckbrief", "optimierung"] },
+      { id: "bestimmen", titel: "Bestimmen", zeile: "Funktionen aufstellen und anwenden", werkzeuge: ["steckbrief", "optimierung"], zeige: ["textaufgaben"] },
       { id: "integrieren", titel: "Integrieren", zeile: "Stammfunktionen, Flächen, Bestand", werkzeuge: ["stammintegral", "integrale"] },
     ] },
   { id: "vektoren", titel: "Vektoren", uebersicht: "vektoren", text: "Drei Stationen: rechnen, Geraden und Ebenen aufstellen, Lage und Abstand.",

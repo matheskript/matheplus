@@ -99,7 +99,7 @@ function ModusGlyph({ id, aktiv }) {
 }
 
 /* Kopfbereich: Titel dicht am Header, Zweizeiler, goldener Scan-Knopf, rechts Mathilda; darunter die vier Modi */
-export function MathildaKopf({ modus, setModus, onScan }) {
+export function MathildaKopf({ modus, setModus, onScan, onText }) {
   return (
     <div className="mathilda-kopf" style={{ background: `radial-gradient(120% 90% at 85% 10%, #163A7A 0%, ${C.see} 35%, ${NACHT} 85%)`, position: "relative", overflow: "hidden" }}>
       <style>{`
@@ -120,6 +120,13 @@ export function MathildaKopf({ modus, setModus, onScan }) {
         .mathilda-kopf .mk-modus[data-aktiv="1"] { background: #FFFFFF; color: ${NACHT}; border-color: #FFFFFF; box-shadow: 0 10px 26px rgba(5,12,40,0.35), inset 0 -4px 0 ${GOLD}; }
         .mathilda-kopf .mk-modus b { display: block; font-size: 14px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.2; }
         .mathilda-kopf .mk-modus span { display: block; font-size: 12px; font-weight: 400; line-height: 1.4; opacity: .85; }
+        .mathilda-kopf .mk-text-kachel { max-width: 760px; margin: 0 auto; padding: 0 24px 24px; }
+        .mathilda-kopf .mk-text-kachel button { width: 100%; display: flex; align-items: center; gap: 12px; text-align: left; cursor: pointer; font-family: inherit; color: #FFFFFF; border-radius: 16px; padding: 12px 14px;
+          border: 1.5px solid rgba(237,187,0,0.55); background: linear-gradient(135deg, rgba(237,187,0,0.16), rgba(255,255,255,0.04)); transition: transform .15s ease, background .15s ease; -webkit-tap-highlight-color: transparent; }
+        .mathilda-kopf .mk-text-kachel button:hover { transform: translateY(-2px); background: linear-gradient(135deg, rgba(237,187,0,0.24), rgba(255,255,255,0.06)); }
+        .mathilda-kopf .mk-text-kachel b { display: block; font-size: 14.5px; font-weight: 700; }
+        .mathilda-kopf .mk-text-kachel span.mk-tk-z { display: block; font-size: 12.5px; font-weight: 300; color: #C9D6EE; line-height: 1.4; }
+        .mathilda-kopf .mk-text-kachel .mk-tk-neu { font-size: 10px; font-weight: 800; letter-spacing: .12em; color: ${NACHT}; background: ${GOLD}; border-radius: 999px; padding: 3px 8px; flex: none; }
         .mathilda-kopf .mk-ober { color: ${GOLD}; font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; margin-bottom: 8px; }
         .mathilda-kopf .mk-titel { font-weight: 700; font-size: 44px; letter-spacing: -0.03em; line-height: .98; margin: 0; }
         .mathilda-kopf .mk-satz { color: #C9D6EE; font-size: 15.5px; font-weight: 300; line-height: 1.55; margin-top: 12px; max-width: 400px; }
@@ -172,6 +179,15 @@ export function MathildaKopf({ modus, setModus, onScan }) {
           </button>
         ))}
       </div>
+      {onText && (
+        <div className="mk-text-kachel">
+          <button type="button" onClick={onText} data-mathilda-textaufgabe>
+            <span className="mk-tk-neu">NEU</span>
+            <span style={{ flex: 1, minWidth: 0 }}><b>Textaufgabe übersetzen</b><span className="mk-tk-z">Foto rein – Bedingungen raus. Jede Stelle mit Begründung.</span></span>
+            <span aria-hidden="true" style={{ color: GOLD, fontSize: 20, fontWeight: 700 }}>→</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 }

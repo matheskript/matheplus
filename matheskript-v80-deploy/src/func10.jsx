@@ -157,6 +157,7 @@ export function Mathilda() {
   };
   const [kopfTrainer, setKopfTrainer] = useState(null);   // direkt geöffneter Kopfrechen-Trainer
   const [gkSeite, setGkSeite] = useState(null);             // direkt geöffneter Reiter im Bereich Gleichungen
+  const [wzSeite, setWzSeite] = useState(null);             // Reiter eines Werkzeugs mit Unterpfaden (Textaufgaben: verstehen | training | mathilda)
   const [hnModul, setHnModul] = useState(null);             // direkt geöffneter Bereich von Head & Numbers
   const [entdeckenStart, setEntdeckenStart] = useState(null);   // direkt geöffnetes Lernangebot in „Mathe entdecken“
   const [landWahl, setLandWahl] = useState("bw");
@@ -199,7 +200,7 @@ export function Mathilda() {
   const adressErsterLauf = useRef(true);
   const adressAusVerlauf = useRef(0);   // Zeitpunkt der letzten Zurück/Vor-Taste
   const adressZustand = {
-    ansicht, klasse: klasseAktiv, land: landWahl, trainer: kopfTrainer, seite: ansicht === "gleichkurs" ? gkSeite : entdeckenStart, kurs: kursStart,
+    ansicht, klasse: klasseAktiv, land: landWahl, trainer: kopfTrainer, seite: ansicht === "gleichkurs" ? gkSeite : ansicht === "textaufgaben" ? wzSeite : entdeckenStart, kurs: kursStart,
     ziel: ansicht === "training" ? trainZiel : ansicht === "ki" ? genZiel : undefined,
     foto: ansicht === "analyse" ? fotoModus : undefined,
   };
@@ -227,7 +228,7 @@ export function Mathilda() {
       if (erster || ausVerlauf) window.history.replaceState({}, "", soll + rest);
       else window.history.pushState({}, "", soll + rest);
     } catch (e) { /* ignorieren */ }
-  }, [ansicht, trainZiel, genZiel, fotoModus, klasseAktiv, kopfTrainer, entdeckenStart, kursStart, landWahl]);
+  }, [ansicht, trainZiel, genZiel, fotoModus, klasseAktiv, kopfTrainer, entdeckenStart, kursStart, landWahl, wzSeite]);
   // Zurück/Vor-Taste des Browsers
   useEffect(() => {
     const f = () => {
@@ -257,6 +258,7 @@ export function Mathilda() {
     setKopfTrainer(eintrag.ansicht === "kopf" ? eintrag.trainer || null : null);
     setHnModul(eintrag.ansicht === "headnumbers" ? eintrag.modul || null : null);
     setGkSeite(eintrag.ansicht === "gleichkurs" ? eintrag.seite || null : null);
+    setWzSeite(eintrag.ansicht === "textaufgaben" ? eintrag.seite || null : null);
     setEntdeckenStart(eintrag.ansicht === "entdecken" ? eintrag.seite || null : null);
     setEntdeckenStart(eintrag.ansicht === "entdecken" ? eintrag.seite || null : null);
     if (eintrag.land) setLandWahl(eintrag.land);
@@ -882,7 +884,7 @@ export function Mathilda() {
           <TrainingSeite modus="klausurnach" gehe={gehe} />
         </>
       ) : istWzSeite(ansicht) ? (
-        <WerkzeugSeite ansicht={ansicht} gehe={gehe} menue={<SektionsMenue />} />
+        <WerkzeugSeite ansicht={ansicht} gehe={gehe} menue={<SektionsMenue />} seite={ansicht === "textaufgaben" ? wzSeite : null} setSeite={setWzSeite} />
                                                                                                 ) : ansicht === "analysis" ? (
         <>
           <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
@@ -1332,7 +1334,7 @@ export function Mathilda() {
       ) : (
       <>
 
-      <MathildaKopf modus={fotoModus} setModus={setFotoModus} onScan={() => {
+      <MathildaKopf modus={fotoModus} setModus={setFotoModus} onText={() => gehe({ ansicht: "textaufgaben", seite: "mathilda" })} onScan={() => {
         setFotoModus("blatt");
         if (!fotoErlaubt) {
           setScanNachEinwilligung(true);

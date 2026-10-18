@@ -11230,7 +11230,20 @@
   "Linear, quadratisch, mit Betrag": "Linear, quadratic, with absolute value",
   "Lösungsmengen von Ungleichungen finden, Betragsgleichungen und -ungleichungen lösen, quadratische Ungleichungen an der Parabel ablesen.": "Find solution sets of inequalities, solve absolute value equations and inequalities, read quadratic inequalities off the parabola.",
   "Lösungsmengen als Intervalle": "Solution sets as intervals",
-  "Fünf Stationen: Terme umformen, Gleichungen lösen, Ungleichungen und Beträge, Geraden, Parabeln.": "Five stations: rearranging terms, solving equations, inequalities and absolute values, lines, parabolas."
+  "Fünf Stationen: Terme umformen, Gleichungen lösen, Ungleichungen und Beträge, Geraden, Parabeln.": "Five stations: rearranging terms, solving equations, inequalities and absolute values, lines, parabolas.",
+  "Textaufgaben übersetzen": "Translating word problems",
+  "Textaufgaben": "Word problems",
+  "Text → Bedingungen, Klasse 5 bis Abi": "Text → conditions, Year 5 to Abitur",
+  "Erst übersetzen, dann rechnen: Jede Information im Text wird zur Bedingung – vom Zahlenrätsel bis zur Steckbriefaufgabe. Mit Mathilda für jedes Foto.": "Translate first, calculate second: every piece of information becomes a condition – from number puzzles to reconstruction tasks. With Mathilda for any photo.",
+  "Eine Station: Textaufgaben in Bedingungen übersetzen – mit Mathilda für jedes Foto.": "One station: translate word problems into conditions – with Mathilda for any photo.",
+  "Übersetzen": "Translate",
+  "Text → Gleichungen und Bedingungen": "Text → equations and conditions",
+  "Text → Bedingungen, mit Mathilda": "Text → conditions, with Mathilda",
+  "Textaufgaben zuklappen": "Collapse Word problems",
+  "Textaufgaben aufklappen": "Expand Word problems",
+  "Textaufgabe übersetzen": "Translate a word problem",
+  "Foto rein – Bedingungen raus. Jede Stelle mit Begründung.": "Photo in – conditions out. Every phrase with a reason.",
+  "Textaufgaben in Bedingungen übersetzen": "translate word problems into conditions"
  },
  "muster": [
   [

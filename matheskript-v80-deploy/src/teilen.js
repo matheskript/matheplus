@@ -53,6 +53,7 @@ export const TOOL_SAETZE = {
   diagramme: { de: "Daten und Diagramme auswerten", en: "analyse data and charts" },
   primzahlen: { de: "Primzahlen, ggT und kgV finden", en: "find primes, gcd and lcm" },
   rechengesetze: { de: "Rechengesetze geschickt nutzen", en: "use the laws of arithmetic cleverly" },
+  textaufgaben: { de: "Textaufgaben in Bedingungen übersetzen", en: "translate word problems into conditions" },
   axiome: { de: "die Axiome und Rechenregeln verstehen", en: "understand the axioms and rules of arithmetic" },
   zahlenraeume: { de: "die Zahlenräume von ℕ bis ℝ verstehen", en: "understand the number spaces from ℕ to ℝ" },
   mengenlogik: { de: "Mengen und Logik verstehen", en: "understand sets and logic" },

@@ -8,6 +8,15 @@ import * as GG from "../src/gleichgen.js";
 import * as TG from "../src/termgen.js";
 import * as AK from "../src/abiKetten.js";
 import * as A2 from "../src/aufgaben2.js";
+import * as TX from "../src/textaufgaben.js";
+import { alsTex } from "../src/bedingungen.js";
+
+/* Textaufgaben: nur was angezeigt wird (Lösungen, Begründungen, LGS-Zeilen) – Denkfehler sind absichtlich falsch */
+const textAnzeige = (a) => ({
+  loesung: a.stellen.flatMap((s) => (s.zielTex || s.ziel.map((z) => alsTex(z.c)))),
+  warum: a.stellen.map((s) => s.warum), ansatz: a.ansatz ? [a.ansatz.zeile, a.ansatz.warum] : [],
+  lgs: (a.einsetzen || []).map((z) => z.gl),
+});
 
 /* Muster, die am Ende einer Zeile/eines Ausdrucks auf Unvereinfachtes hinweisen */
 const N = String.raw`\d+(?:[.,]\d+)?`;
@@ -60,6 +69,7 @@ const QUELLEN = [
   ["termgen/potenz", TG.neuPotenz], ["termgen/bruch", TG.neuBruch],
   ["abiKetten/analysis", () => AK.analysisKette()], ["abiKetten/geometrie", () => AK.geometrieKette()], ["abiKetten/stochastik", () => AK.stochastikKette()],
   ["aufgaben2/flaeche", A2.neueFlaechenAufgabe], ["aufgaben2/zweiGraphen", A2.neueZweiGraphen], ["aufgaben2/bestand", A2.neuerBestand],
+  ...TX.THEMA_IDS.map((t) => [`textaufgaben/${t}`, () => textAnzeige(TX.neueTextaufgabe(t))]),
   ["aufgaben2/umgekehrt", A2.neuUmgekehrt], ["aufgaben2/anfangswert", A2.neuerAnfangswert], ["aufgaben2/punktprobe", A2.neuePunktprobe],
 ];
 
