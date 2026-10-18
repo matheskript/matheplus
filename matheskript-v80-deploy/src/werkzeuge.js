@@ -33,8 +33,10 @@ export const ETIKETTEN = {
 
 export const WERKZEUGE = {
   /* ---------- Analysis ---------- */
-  geradengleichung: { name: "Geradengleichung", kurz: "Geraden", zeile: "Aus zwei Punkten oder mit Steigung", slogan: "y = m·x + c aus zwei Punkten oder aus Punkt und Steigung.",
+  /* ---------- Geraden (Mittelstufe, Beispielkapitel: Basics, P & Q, P & m) ---------- */
+  geradengleichung: { name: "Geraden", kurz: "Geraden", zeile: "Basics, P & Q, P & m", slogan: "Was eine Gerade ist und wie du y = m·x + c aus zwei Punkten oder aus Punkt und Steigung findest.",
     zeichen: "mx+c", bild: "gerade", ziel: { ansicht: "geradengleichung" }, etikett: "trainieren", stufe: "mittel" },
+
   parabeln: { name: "Parabeln", kurz: "Parabeln", zeile: "Scheitel, Nullstellen, Brennpunkt", slogan: "Scheitelpunkt, Scheitelform, Nullstellen und Brennpunkt.",
     zeichen: "ax²", bild: "parabel", ziel: { ansicht: "parabeln" }, etikett: "entdecken", stufe: "mittel" },
   sinus: { name: "Sinusfunktion", kurz: "Sinus", zeile: "f(x) = a · sin(b · (x − c)) + d", slogan: "a, b, c und d finden, bis der Graph passt.",
@@ -164,7 +166,7 @@ export const BEREICHE = [
   { id: "analysis", titel: "Analysis", uebersicht: "analysis", text: "Vier Stationen: Funktionen kennen, untersuchen, bestimmen, integrieren.",
     video: { name: "Videokurse Analysis", zeile: "Analysis 1–5 mit Videolektionen und Checks" },
     stationen: [
-      { id: "kennen", titel: "Kennen", zeile: "Die wichtigsten Funktionsklassen", werkzeuge: ["geradengleichung", "parabeln", "sinus", "wachstum"] },
+      { id: "kennen", titel: "Kennen", zeile: "Die wichtigsten Funktionsklassen", werkzeuge: ["parabeln", "sinus", "wachstum"] },
       { id: "untersuchen", titel: "Untersuchen", zeile: "Ableiten und Kurven diskutieren", werkzeuge: ["ableitungstrainer", "kurvendiskussion", "scharen"] },
       { id: "bestimmen", titel: "Bestimmen", zeile: "Funktionen aufstellen und anwenden", werkzeuge: ["steckbrief", "optimierung"] },
       { id: "integrieren", titel: "Integrieren", zeile: "Stammfunktionen, Flächen, Bestand", werkzeuge: ["stammintegral", "integrale"] },
@@ -197,11 +199,12 @@ export const BEREICHE = [
       { id: "brueche", titel: "Brüche und Dezimalzahlen", zeile: "Kürzen, Grundrechenarten, Komma", werkzeuge: ["bruchrechnen", "dezimal"] },
       { id: "bruchterme", titel: "Bruchterme", zeile: "x im Nenner: kürzen und lösen", werkzeuge: ["bruchterme"] },
     ] },
-  { id: "gleichungen", titel: "Gleichungen", uebersicht: null, text: "Zwei Stationen: Terme umformen, Gleichungen lösen.",
+  { id: "gleichungen", titel: "Gleichungen", uebersicht: null, text: "Drei Stationen: Terme umformen, Gleichungen lösen, Geraden.",
     video: { name: "Videokurs Gleichungen", zeile: "Umformen, Gleichungssysteme, Musterlösungen" },
     stationen: [
       { id: "terme", titel: "Terme umformen", zeile: "Vereinfachen, ausklammern, Potenzen", werkzeuge: ["terme"] },
       { id: "loesen", titel: "Gleichungen lösen", zeile: "Einzelne Gleichungen und Systeme", werkzeuge: ["gleichungen", "lgs"] },
+      { id: "gerade", titel: "Geraden", zeile: "Basics, P & Q, P & m", werkzeuge: ["geradengleichung"] },
     ] },
   { id: "zahlen", titel: "Zahlen und Größen", uebersicht: null, text: "Drei Stationen: Zahlen, Rechnen, Größen.",
     stationen: [

@@ -63,6 +63,7 @@ const EbbinghausSeite = lazyLaden(() => import("./funcEbbinghaus.jsx").then((m) 
 const AbiKettenSeite = lazyLaden(() => import("./funcAbiKetten.jsx").then((m) => ({ default: m.AbiKettenSeite })));
 const AbiSaetzeSeite = lazyLaden(() => import("./funcAbiSaetze.jsx").then((m) => ({ default: m.AbiSaetzeSeite })));
 const MeinTrainingSeite = lazyLaden(() => import("./funcMeinTraining.jsx").then((m) => ({ default: m.MeinTrainingSeite })));
+const Geradengleichung = lazyLaden(() => import("./funcGeradengleichung.jsx").then((m) => ({ default: m.Geradengleichung })));
 const Ableitungstrainer = lazyLaden(() => import("./func13.jsx").then((m) => ({ default: m.Ableitungstrainer })));
 const StammIntegral = lazyLaden(() => import("./funcStammIntegral.jsx").then((m) => ({ default: m.StammIntegral })));
 const AdvancedPlotter = lazyLaden(() => import("./func12.jsx").then((m) => ({ default: m.AdvancedPlotter })));
@@ -397,7 +398,7 @@ export function Mathilda() {
   };
 
   /* Trainingswerkzeuge mit eigener schlanker Kopfleiste (KompaktKopf): der große Seitenkopf entfällt */
-  const ohneKopf = ansicht === "ableitungstrainer" || ansicht === "stammintegral";
+  const ohneKopf = ansicht === "ableitungstrainer" || ansicht === "geradengleichung" || ansicht === "stammintegral";
 
   return (
     <div className="app-wurzel" style={{ background: C.sand, color: C.tinte, fontFamily: "Montserrat, system-ui, sans-serif", minHeight: "100vh" }}>
@@ -1003,13 +1004,9 @@ export function Mathilda() {
         </>
                   ) : ansicht === "geradengleichung" ? (
         <>
-          <SeitenKopf titel="Geradengleichung" groesse="clamp(24px, 7vw, 34px)">
-              <SektionsMenue />
-          </SeitenKopf>
-          <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
-            <h2 style={{ fontSize: 25, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 14 }}>Gerade durch zwei Punkte – oder durch Punkt und Steigung</h2>
-            <KIAufgaben eingebettet />
-          </div>
+          <KompaktKopf ansicht={ansicht} gehe={gehe} menueOffen={toolMenueOffen} onMenue={() => setToolMenueOffen(!toolMenueOffen)}
+            menue={<ToolMenue gehe={gehe} schliessen={() => setToolMenueOffen(false)} aktuell={ansicht} />} />
+          <Geradengleichung />
         </>
                               ) : ansicht === "bwm" ? (
         <>
