@@ -33,6 +33,8 @@ import { Messbericht, Modellieren, Probeabitur, Wochenbericht } from "./func8.js
 import { Auswertung, Einwilligung, KiEinwilligungFenster, einwilligungLesen } from "./func9.jsx";
 import { TrainingFortschritt, PruefungsLink } from "./funcTraining.jsx";
 import { Fusszeile } from "./funcRecht.jsx";
+import { HauptMenue, KontoBereich } from "./funcHauptmenue.jsx";
+import { Arbeitsmenue } from "./funcArbeitsmenue.jsx";
 import { FeedbackKnopf } from "./funcFeedback.jsx";
 import { MatheTastaturHost } from "./matheTastatur.jsx";
 import { LAENDER } from "./funcWettbewerbe.jsx";
@@ -109,7 +111,6 @@ import { englisch, spracheWechseln } from "./i18n.js";
 import { springe } from "./sprung.js";
 // Menü-Button im Header: vorübergehend aus (true = wieder einblenden)
 const ZEIGE_MENUE = false;
-const ZEIGE_PROFIL = true;
 
 export function Mathilda() {
   const [ansicht, setAnsicht] = useState(() => {
@@ -196,6 +197,7 @@ export function Mathilda() {
 
   const [seitenOffen, setSeitenOffen] = useState(false);
   const [toolMenueOffen, setToolMenueOffen] = useState(false);
+  const [hmOffen, setHmOffen] = useState(null);   // Hauptmenü oben: welches Fenster ist offen
   useEffect(() => { aufklappScrollStarten(); }, []);
   useEffect(() => { werkzeugMerken(ansicht); }, [ansicht]);   // für „Weitermachen“ auf der Startseite
   // Werkzeugseiten: kein grauer Rand – weiße Fläche über die ganze Breite, direkt unter dem blauen Kopf (Regeln in index.css)
@@ -255,7 +257,7 @@ export function Mathilda() {
     }
     if (!eintrag.uebergabe) hinweisVerwerfen();
     setAnsicht(eintrag.ansicht);
-    setSeitenOffen(false); setToolMenueOffen(false);
+    setSeitenOffen(false); setToolMenueOffen(false); setHmOffen(null);
     if (eintrag.ansicht === "training") setTrainZiel(eintrag.ziel ?? null);
     if (eintrag.ansicht === "ki") setGenZiel(eintrag.ziel ?? null);
     if (eintrag.foto) setFotoModus(eintrag.foto);
@@ -447,7 +449,6 @@ export function Mathilda() {
         .mx-auto[style*="max-width: 680px"].px-6 { width: 783px !important; max-width: 783px !important; margin-left: calc(50% - 379px) !important; margin-right: 0 !important; }
         .mx-auto[style*="max-width: 620px"].px-5 { width: 775px !important; max-width: 775px !important; margin-left: calc(50% - 375px) !important; margin-right: 0 !important; }
         .mx-auto.kopf-zeile { width: 735px !important; max-width: 735px !important; margin-left: calc(50% - 355px) !important; margin-right: 0 !important; padding-left: 0 !important; padding-right: 0 !important; }
-        .kopf-zeile .kopf-hamburger { margin-right: -8px; }
         .seiten-menue { right: calc(50% - 380px) !important; }
         /* Startseite: breite Kacheln und Einleitung laufen nicht mehr über die Textkante hinaus */
         .mx-auto.px-6 [style*="calc(100% + 32px)"] { width: 100% !important; margin-left: 0 !important; margin-right: 0 !important; }
@@ -494,79 +495,15 @@ export function Mathilda() {
               System <span style={{ color: C.flaggold }}>+</span> Freude <span style={{ color: C.flaggold }}>=</span> Erfolg
             </span>
           </button>
-          <div className="flex items-center" style={{ gap: "clamp(4px, 1.4vw, 6px)" }}>
-          {/* Profil-/Login-Button */}
-          {ZEIGE_PROFIL && <button onClick={() => { gehe({ ansicht: "konto" }); setSeitenOffen(false); springe("seitenwechsel", () => window.scrollTo(0, 0)); }} aria-label={konto.profil ? "Mein Konto" : "Anmelden"} title={konto.profil ? "Mein Konto" : "Anmelden"}
-            style={{ width: "clamp(28px, 8.6vw, 34px)", height: "clamp(28px, 8.6vw, 34px)", flexShrink: 0, borderRadius: 999, border: `1.5px solid ${konto.profil ? C.flaggold : "rgba(255,255,255,0.45)"}`,
-              background: konto.profil ? "rgba(237,187,0,0.16)" : "transparent", color: konto.profil ? C.flaggold : C.weiss, fontSize: konto.profil ? 14 : 20, fontWeight: 700,
-              fontFamily: "inherit", cursor: "pointer", padding: 0, lineHeight: 1 }}>
-            {konto.profil ? (konto.profil.name || "?").slice(0, 1).toUpperCase() : "+"}
-          </button>}
-          {/* Menü-Button (drei Linien): Startseite, Sprache und die passwortgeschützten Entwürfe */}
-          <button type="button" className="kopf-hamburger" onClick={() => setSeitenOffen(!seitenOffen)} aria-expanded={seitenOffen} data-kein-scroll aria-label="Menü" title="Menü"
-            style={{ background: "none", border: "none", cursor: "pointer", padding: 8, display: "flex", flexDirection: "column", gap: 5, flexShrink: 0 }}>
-            {[0, 1, 2].map((i) => (
-              <span key={i} style={{ display: "block", width: 22, height: 2, background: seitenOffen || istEntwurf(ansicht) || ansicht === LANDING ? C.flaggold : C.weiss, borderRadius: 2 }} />
-            ))}
-          </button>
+          <div className="flex items-center" style={{ gap: 6, marginLeft: 10, flexShrink: 0 }}>
+          {/* Konto-Chip (bzw. Anmelden) und Abmelden – das alte Kopfmenü ist als „Arbeitsmenü“ in der Fußzeile */}
+          <KontoBereich gehe={gehe} offen={hmOffen} setOffen={setHmOffen} />
           </div>
         </div>
-
-        {seitenOffen && (
-          <>
-            <div onClick={() => setSeitenOffen(false)} style={{ position: "fixed", inset: 0, top: "var(--kopf-h, 56px)", zIndex: 1 }} aria-hidden="true" />
-            <div className="seiten-menue" style={{ position: "absolute", right: "max(12px, calc(50% - 298px))", top: 60, zIndex: 2, width: "min(320px, calc(100vw - 24px))", background: C.weiss,
-              borderRadius: 14, boxShadow: "0 14px 40px rgba(8,23,59,0.32)", padding: 8, color: C.tinte }}>
-              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", color: C.grau, padding: "8px 12px 6px" }}>SEITE WECHSELN</div>
-              {(() => {
-                const zeile = { width: "100%", display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", borderRadius: 10, border: "none", cursor: "pointer", fontFamily: "inherit", textAlign: "left", color: C.tinte };
-                const kreis = (an) => ({ width: 28, height: 28, borderRadius: 999, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12.5, fontWeight: 700, background: an ? C.flaggold : C.himmel, color: an ? C.seeTief : C.grau });
-                const landAn = ansicht === LANDING;
-                const startAn = !istEntwurf(ansicht) && !landAn;
-                return (
-                  <>
-                    <button type="button" onClick={() => gehe({ ansicht: "start" })} aria-current={startAn ? "page" : undefined}
-                      style={{ ...zeile, background: startAn ? "rgba(237,187,0,0.14)" : "transparent" }}>
-                      <span style={kreis(startAn)}>A</span>
-                      <span style={{ flex: 1 }}>
-                        <span style={{ display: "block", fontSize: 14.5, fontWeight: 700 }}>Startseite</span>
-                      </span>
-                    </button>
-                    {/* Landingpage: offen, ohne Passwort – steht direkt unter der Startseite */}
-                    <button type="button" onClick={() => gehe({ ansicht: LANDING })} aria-current={landAn ? "page" : undefined}
-                      style={{ ...zeile, background: landAn ? "rgba(237,187,0,0.14)" : "transparent" }}>
-                      <span style={kreis(landAn)}>B</span>
-                      <span style={{ flex: 1 }}>
-                        <span style={{ display: "block", fontSize: 14.5, fontWeight: 700 }}>Landingpage</span>
-                      </span>
-                    </button>
-                    <button type="button" onClick={() => { setSeitenOffen(false); sprachKnopf(); }} data-kein-i18n style={{ ...zeile, background: "transparent" }}>
-                      <span style={kreis(false)}>{englisch() ? "DE" : "EN"}</span>
-                      <span style={{ flex: 1 }}>
-                        <span style={{ display: "block", fontSize: 14.5, fontWeight: 700 }}>{englisch() ? "Auf Deutsch wechseln" : "Switch to English"}</span>
-                      </span>
-                    </button>
-                    {ENTWUERFE.map((e, i) => {
-                      const an = ansicht === e.ansicht;
-                      return (
-                        <button key={e.ansicht} type="button" onClick={() => gehe({ ansicht: e.ansicht })} aria-current={an ? "page" : undefined}
-                          style={{ ...zeile, width: "calc(100% - 16px)", marginLeft: 16, marginTop: i === 0 ? 6 : 4, background: an ? "rgba(237,187,0,0.18)" : "#EEF1F6" }}>
-                          <span style={kreis(an)}>{i + 1}</span>
-                          <span style={{ flex: 1 }}>
-                            <span style={{ display: "block", fontSize: 14.5, fontWeight: 700 }}>{e.name}</span>
-                          </span>
-                          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke={C.grau} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-label="Passwortgeschützt" role="img" style={{ flexShrink: 0 }}>
-                            <rect x="5" y="11" width="14" height="9.5" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" />
-                          </svg>
-                        </button>
-                      );
-                    })}
-                  </>
-                );
-              })()}
-            </div>
-          </>
-        )}
+        {/* Hauptmenü: Mathilda · Meine Kurse · Klasse · Mein Training · Mathematik · Suche */}
+        <div className="mx-auto kopf-zeile" style={{ maxWidth: 620, paddingLeft: 12, paddingRight: 12 }}>
+          <HauptMenue gehe={gehe} ansicht={ansicht} foto={fotoModus} seite={wzSeite} offen={hmOffen} setOffen={setHmOffen} />
+        </div>
         {menuOffen && (
           <div style={{ background: C.seeTief, maxHeight: "72vh", overflowY: "auto" }}>
             <div className="mx-auto px-6 py-2" style={{ maxWidth: 620 }}>
@@ -1677,7 +1614,7 @@ export function Mathilda() {
           }} />
         </div>
       )}
-      {!istEntwurf(ansicht) && <Fusszeile gehe={gehe} />}
+      {!istEntwurf(ansicht) && <Fusszeile gehe={gehe} arbeitsmenue={(stil) => <Arbeitsmenue gehe={gehe} ansicht={ansicht} sprachKnopf={sprachKnopf} stil={stil} />} />}
       <KiEinwilligungFenster />
       <MatheTastaturHost />
     </div>

@@ -36,6 +36,7 @@ export const SPRUENGE = {
   "start-schulmathe":        { an: true,  art: "auswahl", wo: "Startseite → Schulmathematik (Mathe-Training): Schulmathematik, Analysis/Vektoren/Stochastik/Geometrie/Gleichungen, Stationen, Formelsammlung, „Bereich zu“-Leiste" },
   "aufklappen@*":            { an: false, art: "auswahl", wo: "Alle übrigen Aufklapp-Menüs (+/−, Pfeil, <details>) in jedem Werkzeug und auf jeder Seite – Standard für aufklappen@<ansicht>" },
   "aufklappen@start":        { an: false, art: "auswahl", wo: "Startseite außerhalb von Schulmathematik: Mathe entdecken, Kopfrechnen, Mein Training, Mythen, Quickfinder-Listen" },
+  "hauptmenue":              { an: false, art: "auswahl", wo: "Hauptmenü oben (Mathilda, Meine Kurse, Klasse, Mein Training, Mathematik, Suche, Konto): Fenster und Kapitel aufklappen" },
   "menue-alle-bereiche":     { an: false, art: "auswahl", wo: "Pop-up-Menü „Menü mit allen Bereichen“ (☰ in der Werkzeug-Kopfleiste): Untermenüs scrollen im Fenster nach oben" },
 
   /* ---------------- Auswahl innerhalb von Werkzeugen ---------------- */
