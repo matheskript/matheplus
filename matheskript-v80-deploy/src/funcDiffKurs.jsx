@@ -240,7 +240,15 @@ function Modul({ modul, stand, setStand, oeffnen, zurUebersicht, gehe }) {
   const [offen, setOffen] = React.useState(null);
   const [seite, setSeite] = React.useState(modul.von);
   const [zwei, setZwei] = React.useState(() => { try { return modul.bis > modul.von && localStorage.getItem("matheplus-buch-zwei") === "1"; } catch (e) { return false; } });
-  const zweiStart = React.useRef(zwei);
+  const [handy, setHandy] = React.useState(() => typeof window !== "undefined" && window.matchMedia("(max-width: 839px)").matches);
+  React.useEffect(() => {
+    const m = window.matchMedia("(max-width: 839px)");
+    const f = () => setHandy(m.matches);
+    m.addEventListener("change", f);
+    return () => m.removeEventListener("change", f);
+  }, []);
+  const zweiEff = zwei && !handy;
+  const zweiStart = React.useRef(zweiEff);
   const rahmen = React.useRef(null);
   const i = KURS_MODULE.indexOf(modul);
   const naechstes = KURS_MODULE[i + 1], voriges = KURS_MODULE[i - 1];
@@ -276,7 +284,11 @@ function Modul({ modul, stand, setStand, oeffnen, zurUebersicht, gehe }) {
     return () => window.removeEventListener("message", hoeren);
   });
 
-  const hoechste = zwei ? modul.bis - 1 : modul.bis;
+  React.useEffect(() => {
+    const f = rahmen.current && rahmen.current.contentWindow;
+    if (f) f.postMessage({ typ: "mm-schulbuch-modus", zwei: zweiEff }, window.location.origin);
+  }, [zweiEff]);
+  const hoechste = zweiEff ? modul.bis - 1 : modul.bis;
   const umschalten = () => {
     const z = !zwei;
     setZwei(z);
@@ -293,7 +305,7 @@ function Modul({ modul, stand, setStand, oeffnen, zurUebersicht, gehe }) {
     if (f) f.postMessage({ typ: "mm-schulbuch-zeige", seite: neu, richtung: d }, window.location.origin);
   };
   const nr = seite - modul.von + 1;
-  const anzeige = zwei
+  const anzeige = zweiEff
     ? (seitenZahl === 2 ? "Seite 1 und 2" : `Seite ${nr} und ${nr + 1} von ${seitenZahl}`)
     : `Seite ${nr} von ${seitenZahl}`;
   const pfeil = (richtung, aus) => (
@@ -308,7 +320,9 @@ function Modul({ modul, stand, setStand, oeffnen, zurUebersicht, gehe }) {
 
   return (
     <div className="dk-seite">
-      <style>{`.dk-seite{width:100%;max-width:620px;margin:0 auto;padding:0 20px 64px 18px;box-sizing:border-box}
+      <style>{`.dk-nav-unten{display:none}
+        @media (max-width:839px){.dk-nav-unten{display:flex}.dk-nav-oben,.dk-zwei{display:none !important}}
+        .dk-seite{width:100%;max-width:620px;margin:0 auto;padding:0 20px 64px 18px;box-sizing:border-box}
         @media (min-width:840px){.dk-seite{width:735px;max-width:735px;margin-left:calc(50% - 355px);margin-right:0;padding:0 0 64px}}`}</style>
       <div>
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginTop: 2 }}>
@@ -327,7 +341,7 @@ function Modul({ modul, stand, setStand, oeffnen, zurUebersicht, gehe }) {
               <span aria-hidden="true">←</span> Alle Module
             </button>
             {seitenZahl > 1 && (
-              <button type="button" onClick={umschalten} aria-pressed={zwei}
+              <button type="button" onClick={umschalten} aria-pressed={zwei} className="dk-zwei"
                 style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 7, padding: "8px 12px", borderRadius: 10, border: `1px solid ${zwei ? K.gold : C.linie}`, background: zwei ? K.hell : K.weiss,
                   color: K.schwarz, fontFamily: "inherit", fontWeight: 600, fontSize: 13, cursor: "pointer", whiteSpace: "nowrap" }}>
                 <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><rect x="3" y="4" width="8" height="16" rx="1.5" fill="none" stroke="currentColor" strokeWidth="2" /><rect x="13" y="4" width="8" height="16" rx="1.5" fill="none" stroke="currentColor" strokeWidth="2" /></svg>
@@ -342,7 +356,7 @@ function Modul({ modul, stand, setStand, oeffnen, zurUebersicht, gehe }) {
         <div style={{ display: "flex", alignItems: "center", gap: "8px 14px", flexWrap: "wrap", margin: "8px 0 14px" }}>
           <p style={{ flex: "1 1 240px", minWidth: 0, fontSize: 15.5, fontStyle: "italic", color: "#2B3A4F", margin: 0 }}>{modul.frage}</p>
           {seitenZahl > 1 && (
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 10, flex: "none" }} role="group" aria-label="Buchseiten blättern">
+            <div className="dk-nav-oben" style={{ display: "inline-flex", alignItems: "center", gap: 10, flex: "none" }} role="group" aria-label="Buchseiten blättern">
               {pfeil(-1, nr <= 1)}
               <span aria-live="polite" style={{ fontSize: 13.5, fontWeight: 700, color: K.schwarz, minWidth: 74, textAlign: "center", whiteSpace: "nowrap" }}>{anzeige}</span>
               {pfeil(1, seite >= hoechste)}
@@ -351,10 +365,20 @@ function Modul({ modul, stand, setStand, oeffnen, zurUebersicht, gehe }) {
         </div>
       </div>
 
-      <div style={{ background: "#fff", aspectRatio: zwei ? "1588 / 1123" : "794 / 1123", width: "100%" }}>
+      <div style={{ background: "#fff", aspectRatio: zweiEff ? "1588 / 1123" : "794 / 1123", width: "100%" }}>
         <iframe key={modul.id} ref={rahmen} title={`Kapitel ${modul.titel} lesen`} src={`${BUCH}?von=${modul.von}&bis=${modul.bis}&voll=${zweiStart.current ? 2 : 1}`}
           style={{ display: "block", width: "100%", height: "100%", border: 0 }} />
       </div>
+
+      {seitenZahl > 1 && (
+        <div className="dk-nav-unten" style={{ justifyContent: "flex-end", margin: "12px 0 0" }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 10 }} role="group" aria-label="Buchseiten blättern">
+            {pfeil(-1, nr <= 1)}
+            <span aria-live="polite" style={{ fontSize: 13.5, fontWeight: 700, color: K.schwarz, minWidth: 74, textAlign: "center", whiteSpace: "nowrap" }}>{anzeige}</span>
+            {pfeil(1, seite >= hoechste)}
+          </div>
+        </div>
+      )}
 
       {modul.kap !== "L" && (
         <KursTraining modul={modul} geuebt={!!stand.geuebt[modul.id]} onGeuebt={() => merken("geuebt")} werkzeuge={(
