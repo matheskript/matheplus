@@ -1,0 +1,48 @@
+<!-- kap: V | uk: Zwei und drei Ebenen -->
+<div class="ukap-titel"><span class="nr">{{K:ebene-ebene-1}}</span><h2>Zwei und drei Ebenen</h2></div>
+<p class="leitfrage">Wo schneiden sich Ebenen – und was hat das mit Gleichungssystemen zu tun?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <p style="text-align:left">Schlag ein Buch auf und stelle es auf den Tisch. Die Seiten sind Ebenenstücke.<br><b>a)</b> Was haben zwei aufgeschlagene Seiten gemeinsam? Was hat eine Seite mit der Tischplatte gemeinsam?<br><b>b)</b> Können zwei Ebenen im Raum genau einen gemeinsamen Punkt haben?<br><b>c)</b> Die Ebenen $x_1 + x_2 + x_3 = 4$ und $x_1 - x_2 + 3x_3 = 2$ bilden ein LGS. Wie viele Gleichungen, wie viele Unbekannte? Was erwartest du für die Lösungsmenge?</p>
+</div>
+
+<p>Zuerst helfen die Normalenvektoren. Sind $\vec{n}_1$ und $\vec{n}_2$ <b>kollinear</b>, stehen beide Ebenen senkrecht auf derselben Richtung: Sie sind parallel – oder sogar <b>identisch</b>, was eine Punktprobe zeigt.</p>
+<p>Sind die Normalenvektoren nicht kollinear, schneiden sich die Ebenen in einer <b>Schnittgeraden</b>. Ihre Punkte erfüllen beide Gleichungen: ein LGS mit 2 Gleichungen und 3 Unbekannten. Eine Unbekannte bleibt frei – sie wird zum Parameter der Geraden.</p>
+
+<div class="zwei-bild" style="grid-template-columns:1fr auto;gap:5mm">
+  <div class="kasten merke" style="margin:0">
+    <div class="etikett">Merke · Lage zweier Ebenen</div>
+    <p style="text-align:left;margin:0"><b>$\vec{n}_1$, $\vec{n}_2$ kollinear:</b> Die Ebenen sind <b>parallel</b> – oder <b>identisch</b>, wenn eine Gleichung ein Vielfaches der anderen ist.<br><b>$\vec{n}_1$, $\vec{n}_2$ nicht kollinear:</b> Die Ebenen schneiden sich in einer <b>Schnittgeraden</b>. Man findet sie, indem man das LGS aus beiden Gleichungen löst und eine Variable als Parameter $t$ setzt.</p>
+  </div>
+  <raum>{"b":46,"h":40,"keineAchsen":true,"rand":8,
+    "flaeche":[{"pkte":[[2,-0.5,0],[2,4,0],[-2,4,0],[-2,-0.5,0]],"c":"smaragd","o":0.16,"t":"E₁","tp":[1.6,3.4,0]},
+      {"pkte":[[1.4,-0.5,-1.4],[1.4,4,-1.4],[-1.4,4,1.4],[-1.4,-0.5,1.4]],"c":"see","o":0.14,"t":"E₂","tp":[-1.1,3.5,1.1]}],
+    "gerade":[{"p":[0,-0.5,0],"u":[0,1,0],"von":-0.6,"bis":5.1,"c":"grana","w":2.2,"t":"g","pos":"or"}]}</raum>
+</div>
+
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 1 · Schnittgerade</div>
+  <p style="text-align:left">Bestimme die Schnittgerade von $E_1\colon x_1 + x_2 + x_3 = 4$ und $E_2\colon x_1 - x_2 + 3x_3 = 2$.</p>
+  <div class="loesung"><span class="loesung-kopf">Lösung</span>
+  <div class="schritte" style="margin:1mm 0">
+    <span class="sl">nicht kollinear</span><span>$\vec{n}_1 = \left(\begin{smallmatrix} 1 \\ 1 \\ 1 \end{smallmatrix}\right)$, $\vec{n}_2 = \left(\begin{smallmatrix} 1 \\ -1 \\ 3 \end{smallmatrix}\right)$: kein Vielfaches – die Ebenen schneiden sich.</span>
+    <span class="sl">(I) + (II)</span><span>$2x_1 + 4x_3 = 6$; &nbsp;mit $x_3 = t$: &nbsp;$x_1 = 3 - 2t$</span>
+    <span class="sl">in (I)</span><span>$x_2 = 4 - x_1 - x_3 = 4 - (3 - 2t) - t = 1 + t$</span>
+    <span class="sl">Schnittgerade</span><span>$g\colon \vec{x} = \begin{pmatrix} 3 \\ 1 \\ 0 \end{pmatrix} + t \cdot \begin{pmatrix} -2 \\ 1 \\ 1 \end{pmatrix}$</span>
+    <span class="sl">Probe</span><span>$\vec{n}_1 \times \vec{n}_2 = \left(\begin{smallmatrix} 4 \\ -2 \\ -2 \end{smallmatrix}\right) = -2 \left(\begin{smallmatrix} -2 \\ 1 \\ 1 \end{smallmatrix}\right)$ ✓</span>
+  </div></div>
+</div>
+
+<h3>Drei Ebenen – das LGS mit drei Unbekannten</h3>
+<p>Kommt eine dritte Ebene dazu, müssen gemeinsame Punkte <b>drei</b> Gleichungen erfüllen: ein LGS mit 3 Gleichungen und 3 Unbekannten – genau das System, das du in Kapitel I mit dem Gauß-Verfahren gelöst hast (Seite {{S:gauss-1}}). Jetzt bekommt jede Lösungsmenge ein Bild.</p>
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: aufgeschlagenes Buch</li><li>Zwei Ebenen: Normalenvektoren</li><li>Merke, Beispiel 1</li><li>Drei Ebenen = LGS 3 × 3</li><li>Beispiele 2 und 3</li><li>Aufgaben 1–5</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 6 und 7</p></div>
+
+<div class="notiz"><span class="t">Parallel oder identisch?</span>$2x_1 - x_2 + 2x_3 = 4$ und $-4x_1 + 2x_2 - 4x_3 = -8$: zweite Gleichung $= (-2) \cdot$ erste → <b>identisch</b>.<br>Mit $= 6$ rechts: Normalenvektoren kollinear, Gleichungen nicht → <b>echt parallel</b>.</div>
+
+<div class="notiz gold"><span class="t">Richtungsvektor prüfen</span>Die Schnittgerade liegt in beiden Ebenen, steht also senkrecht auf $\vec{n}_1$ <b>und</b> $\vec{n}_2$. Darum ist $\vec{n}_1 \times \vec{n}_2$ ein Richtungsvektor.</div>
+
+<div class="notiz"><span class="t">Kein Schnittpunkt</span>Zwei Ebenen haben nie genau einen gemeinsamen Punkt: Zwei Gleichungen reichen nicht, um drei Unbekannte festzulegen.</div>

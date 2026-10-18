@@ -1,0 +1,57 @@
+<!-- kap: V | uk: Normalenform und Koordinatenform -->
+<div class="ukap-titel"><span class="nr">{{K:normalenform-1}}</span><h2>Normalenform und Koordinatenform</h2></div>
+<p class="leitfrage">Kann man eine Ebene mit einem einzigen Vektor beschreiben?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <p style="text-align:left">Stelle einen Bleistift senkrecht auf deinen Tisch. Lege einen zweiten Stift flach auf die Tischplatte – in irgendeine Richtung.<br><b>a)</b> Welchen Winkel bilden die beiden Stifte? Hängt das von der Richtung des liegenden Stifts ab?<br><b>b)</b> Wie viele Richtungen gibt es auf dem Tisch, wie viele senkrecht dazu?<br><b>c)</b> Welche Rechnung aus Kapitel {{K:skalar-1}} prüft, ob zwei Vektoren senkrecht aufeinander stehen?</p>
+</div>
+
+<p>Eine Ebene hat unendlich viele Richtungen, aber bis auf die Länge nur <b>eine</b> Richtung, die auf allen senkrecht steht. Ein Vektor $\vec{n} \neq \vec{0}$ mit dieser Richtung heißt <b>Normalenvektor</b> der Ebene.</p>
+
+<div class="zwei-bild" style="grid-template-columns:1fr auto">
+  <div>
+    <p>Ist $P$ ein Punkt der Ebene, so gilt für jeden anderen Punkt $X$: $X$ liegt genau dann in $E$, wenn der Verbindungsvektor $\overrightarrow{PX} = \vec{x} - \vec{p}$ in der Ebene verläuft – also senkrecht auf $\vec{n}$ steht. Mit dem Skalarprodukt (Seite {{S:skalar-1}}) heißt das</p>
+    $$(\vec{x} - \vec{p}) \cdot \vec{n} = 0.$$
+    <p>Das gilt für <b>jeden</b> Punkt $X$ der Ebene, auch für $X'$. Ausgerechnet entsteht eine Gleichung ganz ohne Parameter.</p>
+  </div>
+  <raum>{"b":56,"h":42,"keineAchsen":true,
+    "flaeche":[{"pkte":[[2,-0.6,0],[2,4.4,0],[-2,4.4,0],[-2,-0.6,0]],"c":"smaragd","o":0.16,"t":"E","tp":[-1.6,3.9,0]}],
+    "vektor":[{"p":[0,1.8,0],"v":[0,0,2.2],"c":"grana","t":"n","pos":"r"},
+      {"p":[0,1.8,0],"q":[0,4,0],"c":"seeTief","w":1.6,"t":"x − p","pos":"o","vek":false},
+      {"p":[0,1.8,0],"q":[1.1,0.7,0],"c":"seeTief","w":1.2,"d":"3 2"}],
+    "winkel":[{"s":[0,1.8,0],"a":[0,1.8,1],"b":[0,3,0],"r":11,"c":"goldDunkel"},{"s":[0,1.8,0],"a":[0,1.8,1],"b":[1.1,0.7,0],"r":8,"c":"goldDunkel"}],
+    "punkt":[{"p":[0,1.8,0],"t":"P","pos":"ul"},{"p":[0,4,0],"t":"X","pos":"r","c":"smaragd"},{"p":[1.1,0.7,0],"t":"X′","pos":"ur","c":"smaragd"}]}</raum>
+</div>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Normalenform und Koordinatenform</div>
+  <p style="text-align:left">Ist $P$ ein Punkt der Ebene $E$ und $\vec{n}$ ein Normalenvektor, so gilt</p>
+  $$E\colon (\vec{x} - \vec{p}) \cdot \vec{n} = 0 \qquad\text{(Normalenform)}.$$
+  <p style="text-align:left">Ausmultipliziert ergibt sich mit $d = \vec{p} \cdot \vec{n}$ die <b>Koordinatenform</b></p>
+  $$E\colon n_1 x_1 + n_2 x_2 + n_3 x_3 = d.$$
+  <p style="text-align:left">Umgekehrt: Die Koeffizienten vor $x_1$, $x_2$, $x_3$ bilden einen Normalenvektor.</p>
+</div>
+
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 1 · Von der Normalenform zur Koordinatenform</div>
+  <p style="text-align:left">$E$ geht durch $P(1 \mid 2 \mid 3)$ und hat den Normalenvektor $\vec{n} = \begin{pmatrix} 2 \\ -1 \\ 4 \end{pmatrix}$. Liegen $Q(4 \mid 0 \mid 1)$ und $R(3 \mid 1 \mid 2)$ in $E$?</p>
+  <div class="loesung"><span class="loesung-kopf">Lösung</span>
+  <div class="schritte" style="margin:1mm 0">
+    <span class="sl">Normalenform</span><span>$E\colon \left[\vec{x} - \begin{pmatrix} 1 \\ 2 \\ 3 \end{pmatrix}\right] \cdot \begin{pmatrix} 2 \\ -1 \\ 4 \end{pmatrix} = 0$</span>
+    <span class="sl">ausmultiplizieren</span><span>$2(x_1 - 1) - (x_2 - 2) + 4(x_3 - 3) = 0 \;\Leftrightarrow\; 2x_1 - x_2 + 4x_3 = 12$</span>
+    <span class="sl">Punktprobe</span><span>$Q$: $8 - 0 + 4 = 12$ ✓ &nbsp;&nbsp; $R$: $6 - 1 + 8 = 13 \neq 12$ – $R$ liegt nicht in $E$.</span>
+  </div></div>
+</div>
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: Bleistift auf dem Tisch</li><li>Normalenvektor</li><li>Herleitung: $\overrightarrow{PX} \perp \vec{n}$</li><li>Merke</li><li>Beispiele 1 und 2</li><li>Aufgaben 1–5</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 6 und 7</p></div>
+
+<div class="notiz"><span class="t">Wortspeicher</span><b>Normale</b> (lat. <i>norma</i>, Winkelmaß): eine Senkrechte.<br><b>Normalenvektor</b>: steht senkrecht auf allen Vektoren der Ebene.</div>
+
+<div class="notiz gold"><span class="t">Abkürzung</span>$d$ bekommst du ohne Ausmultiplizieren: Setze $P$ links ein.<br>$d = 2 \cdot 1 - 2 + 4 \cdot 3 = 12$</div>
+
+<div class="notiz"><span class="t">Punktprobe</span>In der Koordinatenform ist die Punktprobe ein Einzeiler: einsetzen, vergleichen. Kein LGS wie bei der Parameterform.</div>
+
+<div class="notiz"><span class="t">Erinnerung</span>$\vec{a} \perp \vec{b} \;\Leftrightarrow\; \vec{a} \cdot \vec{b} = 0$<br>(Seite {{S:skalar-1}})</div>

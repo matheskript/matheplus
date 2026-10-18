@@ -19,33 +19,37 @@
   </div>
 </div>
 
-<p>In der Ebene (Kapitel {{KAP:auftakt-lgs}}) schneiden sich zwei Geraden, sind parallel oder identisch. Im Würfel gibt es einen vierten Fall: $AE$ zeigt senkrecht nach oben, $BC$ läuft waagrecht am Boden. Sie sind <b>nicht parallel</b> und haben trotzdem <b>keinen gemeinsamen Punkt</b>. Solche Geraden heißen <b>windschief</b>. Rechnerisch prüft man zwei Dinge nacheinander:</p>
-
-<div class="schritte">
-  <span class="sl"><b>①</b> Richtungsvektoren</span><span>Ist $\vec{v} = k \cdot \vec{u}$? Dann sind die Geraden parallel oder identisch – eine <b>Punktprobe</b> entscheidet.</span>
-  <span class="sl"><b>②</b> gleichsetzen</span><span>Sonst: $\vec{p} + t \cdot \vec{u} = \vec{q} + s \cdot \vec{v}$ – drei Gleichungen, zwei Unbekannte $t$ und $s$.</span>
-  <span class="sl"><b>③</b> LGS auswerten</span><span>Aus zwei Zeilen $t$ und $s$ bestimmen, mit der dritten Zeile prüfen.</span>
-</div>
+<p>In der Ebene (Kapitel {{KAP:auftakt-lgs}}) schneiden sich zwei Geraden, sind parallel oder identisch. Im Würfel gibt es einen vierten Fall: $AE$ zeigt senkrecht nach oben, $BC$ läuft waagrecht am Boden. Sie sind <b>nicht parallel</b> und haben trotzdem <b>keinen gemeinsamen Punkt</b>. Solche Geraden heißen <b>windschief</b>.</p>
 
 <p>Zwei Gleichungen mit zwei Unbekannten haben meist genau eine Lösung. Die dritte ist eine <b>zusätzliche Bedingung</b> – das LGS ist <b>überbestimmt</b>. Passt sie, schneiden sich die Geraden; passt sie nicht, sind sie windschief.</p>
 
 <div class="kasten merke">
   <div class="etikett">Merke · Lage zweier Geraden im Raum</div>
-  <p style="text-align:left">Für $g\colon \vec{x} = \vec{p} + t \cdot \vec{u}$ und $h\colon \vec{x} = \vec{q} + s \cdot \vec{v}$ gibt es vier Fälle. Den Schnittpunkt liefert $t$ eingesetzt in $g$.</p>
+  <p style="text-align:left">Für $g\colon \vec{x} = \vec{p} + t \cdot \vec{u}$ und $h\colon \vec{x} = \vec{q} + s \cdot \vec{v}$ gibt es vier Fälle. So entscheidest du:</p>
   <table class="wt voll eng" style="margin:0.5mm 0 1mm">
-    <tr><th class="l"></th><th class="l">$\vec{u}$, $\vec{v}$ kollinear</th><th class="l">$\vec{u}$, $\vec{v}$ nicht kollinear</th></tr>
-    <tr><td class="l"><b>gemeinsame Punkte</b></td><td class="l"><b>identisch</b> (unendlich viele)</td><td class="l"><b>schneidend</b> (Schnittpunkt $S$)</td></tr>
-    <tr><td class="l"><b>kein gem. Punkt</b></td><td class="l"><b>echt parallel</b></td><td class="l"><b>windschief</b></td></tr>
+    <tr><th class="l">Frage</th><th class="l">ja</th><th class="l">nein</th></tr>
+    <tr><td class="l"><b>①</b> Ist $\vec{v} = k \cdot \vec{u}$ (kollinear)?</td><td class="l">→ ②</td><td class="l">→ ③</td></tr>
+    <tr><td class="l"><b>②</b> Punktprobe: Liegt $Q$ auf $g$?</td><td class="l"><b>identisch</b></td><td class="l"><b>echt parallel</b></td></tr>
+    <tr><td class="l"><b>③</b> Ist $\vec{p} + t \cdot \vec{u} = \vec{q} + s \cdot \vec{v}$ lösbar?</td><td class="l"><b>schneidend</b></td><td class="l"><b>windschief</b></td></tr>
   </table>
-  </div>
+  <p style="text-align:left">In ③ löst man zwei Zeilen nach $t$ und $s$ und prüft mit der dritten. Den <b>Schnittpunkt</b> liefert $t$ eingesetzt in $g$.</p>
+</div>
 
 <div class="kasten beispiel">
   <div class="etikett">Beispiel 1 · Der Einstieg nachgerechnet</div>
-  <p style="text-align:left">Kantenlänge 4, $D$ im Ursprung: $\;AE\colon \vec{x} = \begin{pmatrix} 4 \\ 0 \\ 0 \end{pmatrix} + t \cdot \begin{pmatrix} 0 \\ 0 \\ 4 \end{pmatrix}$, &nbsp;$BC\colon \vec{x} = \begin{pmatrix} 4 \\ 4 \\ 0 \end{pmatrix} + s \cdot \begin{pmatrix} -4 \\ 0 \\ 0 \end{pmatrix}$. Die Richtungen sind nicht kollinear. Gleichsetzen liefert in der zweiten Zeile $0 = 4$ – ein Widerspruch, egal wie $t$ und $s$ gewählt werden. Die Kanten sind <b>windschief</b>.</p>
+  <div class="zwei-bild" style="grid-template-columns:1fr auto;gap:5mm">
+    <p style="text-align:left;margin:0">Kantenlänge 4, $D$ im Ursprung. Die Richtungen von $AE$ und $BC$ sind nicht kollinear. Gleichsetzen liefert in der zweiten Zeile $0 = 4$ – ein Widerspruch, egal wie man $t$ und $s$ wählt. Die Kanten sind <b>windschief</b>.</p>
+    <p style="margin:0">$\begin{aligned} AE\colon \vec{x} &= \begin{pmatrix} 4 \\ 0 \\ 0 \end{pmatrix} + t \cdot \begin{pmatrix} 0 \\ 0 \\ 4 \end{pmatrix} \\[2.4mm] BC\colon \vec{x} &= \begin{pmatrix} 4 \\ 4 \\ 0 \end{pmatrix} + s \cdot \begin{pmatrix} -4 \\ 0 \\ 0 \end{pmatrix} \end{aligned}$</p>
+  </div>
+</div>
+
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 2 · Parallel oder identisch?</div>
+  <p style="text-align:left">$g\colon \vec{x} = \begin{pmatrix} 1 \\ 2 \\ 3 \end{pmatrix} + t \cdot \begin{pmatrix} 2 \\ -1 \\ 1 \end{pmatrix}$ und $h\colon \vec{x} = \begin{pmatrix} 5 \\ 0 \\ 5 \end{pmatrix} + s \cdot \begin{pmatrix} -2 \\ 1 \\ -1 \end{pmatrix}$: Wegen $\vec{v} = -1 \cdot \vec{u}$ sind sie parallel oder identisch. Punktprobe mit $Q(5 \mid 0 \mid 5)$ in $g$: $1 + 2t = 5$, $2 - t = 0$, $3 + t = 5$ liefert dreimal $t = 2$ – <b>identisch</b>. &nbsp;Mit dem Stützpunkt $(0 \mid 1 \mid 0)$ statt $Q$ ergäbe die erste Zeile $t = -\frac{1}{2}$, die zweite $t = 1$ – dann wären $g$ und $h$ <b>echt parallel</b>.</p>
 </div>
 <!--rand-->
 <div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
-<ol><li>Einstieg: Kanten im Würfel</li><li>Vergleich mit der Ebene</li><li>Drei Prüfschritte</li><li>Merke: vier Fälle</li><li>Beispiele 1–4</li><li>Entscheidungsschema</li><li>Aufgaben 1–5</li></ol>
+<ol><li>Einstieg: Kanten im Würfel</li><li>Vergleich mit der Ebene</li><li>Merke: Entscheidungs&shy;schema</li><li>Beispiele 1–3</li><li>Aufgaben 1–5</li></ol>
 <p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 6 und 7</p></div>
 
 <div class="notiz"><span class="t">Wortspeicher</span><b>kollinear:</b> Vektoren sind Vielfache voneinander (Kapitel {{KAP:auftakt-vektoren}}).<br><b>windschief:</b> nicht parallel, kein gemeinsamer Punkt – gibt es nur im Raum.<br><b>überbestimmt:</b> mehr Gleichungen als Unbekannte.</div>

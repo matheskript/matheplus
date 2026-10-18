@@ -1,0 +1,68 @@
+<!-- kap: VI -->
+<div class="kasten beispiel" style="margin-top:0">
+  <div class="etikett">Beispiel 1 · Licht auf ein Solarmodul</div>
+  <p style="text-align:left">Ein Solarmodul liegt in der Dachebene $E\colon 3x_1 + 4x_3 = 12$. Sonnenlicht fällt in Richtung $\vec{u} = \left(\begin{smallmatrix} -1 \\ -2 \\ -2 \end{smallmatrix}\right)$ ein. <b>a)</b> Unter welchem Winkel trifft das Licht auf das Modul? <b>b)</b> Wie steil ist das Dach gegenüber dem waagrechten Boden?</p>
+  <div class="loesung"><span class="loesung-kopf">Lösung</span>
+  <p style="text-align:left"><b>a)</b> Gerade–Ebene: $\;\sin \alpha = \dfrac{|{-3} - 8|}{3 \cdot 5} = \dfrac{11}{15}$, &nbsp;$\alpha \approx 47{,}2°$.<br><b>b)</b> Ebene–Ebene mit dem Boden ($\vec{n}_2 = \left(\begin{smallmatrix} 0 \\ 0 \\ 1 \end{smallmatrix}\right)$): $\;\cos \alpha = \dfrac{|4|}{5 \cdot 1} = \dfrac{4}{5}$, &nbsp;$\alpha \approx 36{,}9°$.</p></div>
+</div>
+
+<div class="kasten" style="background:#F3F6FB">
+  <div class="etikett" style="background:var(--kap);color:#fff">Übersicht · Die drei Fälle</div>
+  <table class="wt voll eng" style="margin:0.5mm 0 0">
+    <tr><th class="l">Fall</th><th class="l">Vektoren</th><th class="l">Formel</th><th class="l">$\alpha = 0°$</th><th class="l">$\alpha = 90°$</th></tr>
+    <tr><td class="l">Gerade–Gerade</td><td class="l">$\vec{u}$, $\vec{v}$</td><td class="l">$\cos \alpha = \frac{|\vec{u} \cdot \vec{v}|}{|\vec{u}| \cdot |\vec{v}|}$</td><td class="l">parallel</td><td class="l">$\vec{u} \cdot \vec{v} = 0$</td></tr>
+    <tr><td class="l">Ebene–Ebene</td><td class="l">$\vec{n}_1$, $\vec{n}_2$</td><td class="l">$\cos \alpha = \frac{|\vec{n}_1 \cdot \vec{n}_2|}{|\vec{n}_1| \cdot |\vec{n}_2|}$</td><td class="l">parallel</td><td class="l">$\vec{n}_1 \cdot \vec{n}_2 = 0$</td></tr>
+    <tr><td class="l">Gerade–Ebene</td><td class="l">$\vec{u}$, $\vec{n}$</td><td class="l">$\sin \alpha = \frac{|\vec{u} \cdot \vec{n}|}{|\vec{u}| \cdot |\vec{n}|}$</td><td class="l">$\vec{u} \cdot \vec{n} = 0$</td><td class="l">$\vec{u} \parallel \vec{n}$</td></tr>
+  </table>
+</div>
+
+<div class="kasten achtung">
+  <div class="etikett">Achtung</div>
+  <p style="text-align:left">Bei Gerade–Ebene <b>nicht</b> den Kosinus nehmen: Er liefert den Winkel zu $\vec{n}$, also $90° - \alpha$. Ohne Betrag kann ein Winkel über $90°$ entstehen – das ist der Nebenwinkel.</p>
+</div>
+
+<div class="aufgaben-kopf"><span>Aufgaben</span></div>
+
+<div class="auf"><div class="anr"><span class="z">1</span><span class="stufe">●○○</span></div><div class="text">
+  <p>Schnittwinkel zweier Geraden mit den Richtungsvektoren $\vec{u}$ und $\vec{v}$?</p>
+  <div class="teil" style="--sp:4"><div><i>a)</i>$\left(\begin{smallmatrix} 1 \\ 2 \\ 2 \end{smallmatrix}\right)$, $\left(\begin{smallmatrix} 2 \\ -2 \\ 1 \end{smallmatrix}\right)$</div><div><i>b)</i>$\left(\begin{smallmatrix} 1 \\ 0 \\ 0 \end{smallmatrix}\right)$, $\left(\begin{smallmatrix} 1 \\ 1 \\ 0 \end{smallmatrix}\right)$</div><div><i>c)</i>$\left(\begin{smallmatrix} 2 \\ 1 \\ 2 \end{smallmatrix}\right)$, $\left(\begin{smallmatrix} -1 \\ -2 \\ -2 \end{smallmatrix}\right)$</div><div><i>d)</i>$\left(\begin{smallmatrix} 1 \\ -2 \\ 2 \end{smallmatrix}\right)$, $\left(\begin{smallmatrix} 4 \\ 0 \\ -3 \end{smallmatrix}\right)$</div></div>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">2</span><span class="stufe">●○○</span></div><div class="text">
+  <p>Berechne den Schnittwinkel der Geraden mit Richtung $\vec{u}$ und der Ebene $E$.</p>
+  <div class="teil" style="--sp:3"><div><i>a)</i>$\left(\begin{smallmatrix} 2 \\ 2 \\ 1 \end{smallmatrix}\right)$, $\;2x_1 + 3x_2 + 6x_3 = 5$</div><div><i>b)</i>$\left(\begin{smallmatrix} 1 \\ 1 \\ 1 \end{smallmatrix}\right)$, $\;x_1x_2$-Ebene</div><div><i>c)</i>$\left(\begin{smallmatrix} 1 \\ 1 \\ 0 \end{smallmatrix}\right)$, $\;x_1 + 2x_2 + 2x_3 = 0$</div></div>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">3</span><span class="stufe">●○○</span></div><div class="text">
+  <p>Berechne den Schnittwinkel der Ebenen. &nbsp;<b>a)</b> $2x_1 - x_2 + 2x_3 = 1$ und $x_1 + 2x_2 + 2x_3 = 4$ &nbsp;<b>b)</b> $x_1 + 2x_2 + 2x_3 = 4$ und die $x_1x_2$-Ebene &nbsp;<b>c)</b> $2x_1 + 3x_2 + 6x_3 = 12$ und $x_1 + 2x_2 + 2x_3 = 0$</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">4</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Finde den Fehler: <b>Lea</b> berechnet den Winkel zwischen $g$ mit $\vec{u} = \left(\begin{smallmatrix} 2 \\ -1 \\ 2 \end{smallmatrix}\right)$ und $E\colon x_1 + 2x_2 + 2x_3 = 4$ mit $\cos \alpha = \frac{4}{9}$ und erhält $63{,}6°$.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">5</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Eine Pyramide hat die quadratische Grundfläche $O(0 \mid 0 \mid 0)$, $A(6 \mid 0 \mid 0)$, $B(6 \mid 6 \mid 0)$, $C(0 \mid 6 \mid 0)$ und die Spitze $S(3 \mid 3 \mid 4)$. Berechne den Neigungswinkel der Seitenfläche $ABS$ und der Kante $AS$ gegen die Grundfläche.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">6</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Im Einheitswürfel: Unter welchem Winkel schneidet eine Raumdiagonale die Bodenfläche, eine Kante und eine andere Raumdiagonale?</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">7</span><span class="stufe">●●●</span></div><div class="text">
+  <p>Für welches $a > 0$ schneidet $g\colon \vec{x} = t \cdot \left(\begin{smallmatrix} 1 \\ 1 \\ a \end{smallmatrix}\right)$ die $x_1x_2$-Ebene unter $60°$?</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z offen">8</span><span class="stufe">●●●</span></div><div class="text">
+  <p>Begründe, dass zwei Ebenen sich unter demselben Winkel schneiden wie ihre Normalenvektoren. <span class="mild">Tipp: Schneide mit einer Ebene senkrecht zur Schnittgeraden und betrachte das entstehende Viereck.</span></p>
+</div></div>
+<!--rand-->
+<div class="notiz"><span class="t">Fahrplan</span>① Passende Vektoren wählen ($\vec{u}$ oder $\vec{n}$)<br>② Skalarprodukt, Betrag<br>③ durch beide Längen teilen<br>④ $\cos^{-1}$ oder $\sin^{-1}$</div>
+
+<div class="notiz gold"><span class="t">Zu Aufgabe 1 c)</span>Ohne Betrag käme ein stumpfer Winkel heraus. Gegenläufige Richtungsvektoren ändern am Schnittwinkel nichts.</div>
+
+<div class="notiz"><span class="t">Zu Aufgabe 5</span>Die Seitenfläche $ABS$ liegt in einer Ebene. Ihr Normalenvektor: $\overrightarrow{AB} \times \overrightarrow{AS}$.</div>
+
+<div class="notiz gold"><span class="t">Zu Aufgabe 6</span>Würfel mit $O$ und $G(1 \mid 1 \mid 1)$: Raumdiagonalen haben Richtungen wie $\left(\begin{smallmatrix} 1 \\ 1 \\ 1 \end{smallmatrix}\right)$ und $\left(\begin{smallmatrix} -1 \\ 1 \\ 1 \end{smallmatrix}\right)$.</div>
+
+<div class="notiz mathilda"><span class="t">In der App</span>Im Werkzeug <b>Ebene vs. Ebene</b> drehst du zwei Ebenen gegeneinander und liest den Schnittwinkel über die Normalenvektoren ab.</div>

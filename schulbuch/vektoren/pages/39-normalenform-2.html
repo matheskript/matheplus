@@ -1,0 +1,71 @@
+<!-- kap: V -->
+<div class="kasten beispiel" style="margin-top:0">
+  <div class="etikett">Beispiel 2 · Normalenvektor mit dem Kreuzprodukt</div>
+  <p style="text-align:left">Bestimme eine Koordinatenform der Ebene $E\colon \vec{x} = \begin{pmatrix} 1 \\ 0 \\ 2 \end{pmatrix} + r \cdot \begin{pmatrix} 2 \\ 1 \\ -1 \end{pmatrix} + s \cdot \begin{pmatrix} -1 \\ 2 \\ 2 \end{pmatrix}$ von Seite {{S:ebene-param-1}}.</p>
+  <div class="loesung"><span class="loesung-kopf">Lösung</span>
+  <div class="schritte" style="margin:1mm 0">
+    <span class="sl">$\vec{n} = \vec{u} \times \vec{v}$</span><span>$\vec{n} = \begin{pmatrix} 1 \cdot 2 - (-1) \cdot 2 \\ (-1) \cdot (-1) - 2 \cdot 2 \\ 2 \cdot 2 - 1 \cdot (-1) \end{pmatrix} = \begin{pmatrix} 4 \\ -3 \\ 5 \end{pmatrix}$</span>
+    <span class="sl">$d$ mit $P$</span><span>$d = 4 \cdot 1 - 3 \cdot 0 + 5 \cdot 2 = 14$, &nbsp;also $\;E\colon 4x_1 - 3x_2 + 5x_3 = 14$</span>
+    <span class="sl">Probe</span><span>$B(3 \mid 1 \mid 1)$: $12 - 3 + 5 = 14$ ✓ &nbsp;&nbsp; $C(0 \mid 2 \mid 4)$: $0 - 6 + 20 = 14$ ✓</span>
+  </div></div>
+</div>
+
+<div class="kasten" style="background:#FFF7D9;border-left:1.4mm solid #EDBB00;border-radius:0 2.5mm 2.5mm 0">
+  <div class="etikett" style="background:#EDBB00;color:#0E1E4A">Der rote Faden · Dieselbe Gleichung, eine Dimension mehr</div>
+  <div class="zwei-bild" style="gap:4mm">
+    <p style="text-align:left;margin:0">In Kapitel I (Seite {{S:zwei-geraden-1}}) war $x + 2y = 4$ eine <b>Gerade</b>. Ihr Normalenvektor ist $\binom{1}{2}$ – aus demselben Grund wie im Kasten rechts. Im Raum beschreibt dieselbe Gleichungsform $n_1 x_1 + n_2 x_2 + n_3 x_3 = d$ eine <b>Ebene</b>: Eine lineare Gleichung nimmt dem Raum genau eine Dimension weg.</p>
+    <graph>{"b":40,"h":32,"x":[-0.6,4.6],"y":[-0.6,3.6],"gitter":1,"tx":1,"ty":1,
+      "fn":[{"f":"2-x/2","c":"goldTief","w":2,"label":"g","lx":0.3,"ly":2.25}],
+      "strecke":[{"p":[2,1],"q":[2.8,2.6],"c":"grana","w":1.8,"pfeil":true}],
+      "punkt":[{"x":2,"y":1,"c":"seeTief","r":2.4}],
+      "text":[{"x":2.8,"y":2.6,"t":"n","pos":"r","c":"grana","k":"fl"}]}</graph>
+  </div>
+</div>
+
+<div class="aufgaben-kopf"><span>Aufgaben</span></div>
+
+<div class="auf"><div class="anr"><span class="z">1</span><span class="stufe">●○○</span></div><div class="text">
+  <p>Gib eine Normalenform und eine Koordinatenform der Ebene durch $P$ mit dem Normalenvektor $\vec{n}$ an.</p>
+  <div class="teil" style="--sp:2"><div><i>a)</i>$P(1 \mid 0 \mid 2)$, $\vec{n} = \left(\begin{smallmatrix} 3 \\ 1 \\ -1 \end{smallmatrix}\right)$</div><div><i>b)</i>$P(2 \mid -1 \mid 4)$, $\vec{n} = \left(\begin{smallmatrix} 1 \\ 2 \\ 2 \end{smallmatrix}\right)$</div><div><i>c)</i>$P(0 \mid 3 \mid -2)$, $\vec{n} = \left(\begin{smallmatrix} 0 \\ 0 \\ 1 \end{smallmatrix}\right)$</div><div><i>d)</i>$P(5 \mid 1 \mid 1)$, $\vec{n} = \left(\begin{smallmatrix} -2 \\ 4 \\ 1 \end{smallmatrix}\right)$</div></div>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">2</span><span class="stufe">●○○</span></div><div class="text">
+  <p>Gib einen Normalenvektor und einen Punkt an. &nbsp;<b>a)</b> $3x_1 - x_2 + 2x_3 = 6$ &nbsp;<b>b)</b> $x_1 + x_3 = 4$ &nbsp;<b>c)</b> $x_2 = -3$</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">3</span><span class="stufe">●○○</span></div><div class="text">
+  <p>Welche Punkte liegen in $E\colon 2x_1 - x_2 + 4x_3 = 12$? &nbsp;$A(6 \mid 0 \mid 0)$, $B(0 \mid -4 \mid 2)$, $C(1 \mid 1 \mid 3)$, $D(2 \mid 4 \mid 3)$</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">4</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Bestimme eine Koordinatenform der Ebene durch $A$, $B$, $C$ mit dem Kreuzprodukt.</p>
+  <div class="teil" style="--sp:2"><div><i>a)</i>$A(1 \mid 0 \mid 0)$, $B(0 \mid 2 \mid 0)$, $C(0 \mid 0 \mid 3)$</div><div><i>b)</i>$A(1 \mid 2 \mid 0)$, $B(3 \mid 2 \mid 1)$, $C(0 \mid 4 \mid 2)$</div><div><i>c)</i>$A(2 \mid 1 \mid 1)$, $B(3 \mid 3 \mid 0)$, $C(1 \mid 0 \mid 4)$</div></div>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">5</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Finde den Fehler: <b>Lea</b> liest aus $E\colon 4x_1 - 2x_2 + x_3 = 8$ den Normalenvektor $\left(\begin{smallmatrix} 4 \\ -2 \\ 8 \end{smallmatrix}\right)$ ab.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">6</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Gib die Ebene parallel zu $E\colon 2x_1 - x_2 + 4x_3 = 12$ durch $Q(1 \mid 1 \mid 1)$ an.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">7</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Gegeben sind $A(1 \mid 1 \mid 1)$ und $B(3 \mid -1 \mid 5)$. Die Ebene $M$ steht senkrecht auf $\overrightarrow{AB}$ und geht durch den Mittelpunkt der Strecke $AB$. Bestimme $M$ in Koordinatenform.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z offen">8</span><span class="stufe">●●●</span></div><div class="text">
+  <p>Zeige: Ein Punkt $X$ ist von $A$ und $B$ aus Aufgabe 7 genau dann gleich weit entfernt, wenn er in $M$ liegt. <span class="mild">Tipp: $|\overrightarrow{AX}|^2 = |\overrightarrow{BX}|^2$ ausrechnen.</span></p>
+</div></div>
+<!--rand-->
+<div class="notiz"><span class="t">Kreuzprodukt</span>$\vec{u} \times \vec{v}$ steht senkrecht auf $\vec{u}$ und $\vec{v}$ (Seite {{S:kreuz-1}}) – also auf der ganzen Ebene.</div>
+
+<div class="notiz gold"><span class="t">Schöne Zahlen</span>Kürze $\vec{n}$, wenn möglich: Statt $\left(\begin{smallmatrix} 6 \\ -3 \\ 9 \end{smallmatrix}\right)$ rechnet es sich mit $\left(\begin{smallmatrix} 2 \\ -1 \\ 3 \end{smallmatrix}\right)$ leichter. Die Ebene bleibt dieselbe.</div>
+
+<div class="notiz"><span class="t">Warum senkrecht?</span>Liegen $X$ und $Y$ in $E\colon \vec{n} \cdot \vec{x} = d$, so ist $\vec{n} \cdot \vec{x} = d$ und $\vec{n} \cdot \vec{y} = d$. Subtrahieren:<br>$\vec{n} \cdot (\vec{y} - \vec{x}) = 0$.<br>Jede Richtung in $E$ steht also senkrecht auf $\vec{n}$.</div>
+
+<div class="notiz"><span class="t">Zu Aufgabe 2 b)</span>$x_1 + x_3 = 4$ heißt $1x_1 + 0x_2 + 1x_3 = 4$. Fehlende Variablen haben den Koeffizienten 0.</div>
+
+<div class="notiz"><span class="t">Zu Aufgabe 6</span>Parallele Ebenen haben denselben Normalenvektor – nur $d$ ändert sich.</div>
+
+<div class="notiz mathilda"><span class="t">In der App</span>Im Werkzeug <b>Kreuzprodukt</b> gibst du zwei Spannvektoren ein und siehst, wie $\vec{n}$ senkrecht aus der Ebene herausragt.</div>

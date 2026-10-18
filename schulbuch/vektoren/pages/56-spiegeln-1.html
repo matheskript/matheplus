@@ -1,0 +1,53 @@
+<!-- kap: VI | uk: Spiegelungen -->
+<div class="ukap-titel"><span class="nr">{{K:spiegeln-1}}</span><h2>Spiegelungen</h2></div>
+<p class="leitfrage">Wo liegt das Spiegelbild eines Punktes?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <p style="text-align:left">Du stehst 2 m vor einem großen Spiegel. Dein Spiegelbild scheint hinter dem Spiegel zu stehen.<br><b>a)</b> Wie weit ist dein Spiegelbild vom Spiegel und von dir entfernt?<br><b>b)</b> Auf welcher Linie liegen du und dein Spiegelbild? Wie steht sie zum Spiegel?<br><b>c)</b> Welcher Punkt liegt genau in der Mitte zwischen dir und deinem Spiegelbild?</p>
+</div>
+
+<p>Bei jeder Spiegelung gilt dasselbe Prinzip: Ein Punkt $P$ und sein Bild $P'$ liegen symmetrisch zu einem <b>Spiegelzentrum</b> – einem Punkt $M$, dem Lotfußpunkt auf der Spiegelebene oder dem Lotfußpunkt auf der Spiegelachse. Dieser Punkt ist der <b>Mittelpunkt</b> der Strecke $\overline{PP'}$. Aus $\vec{m} = \frac{1}{2}(\vec{p} + \vec{p}\,')$ folgt</p>
+$$\vec{p}\,' = 2\vec{m} - \vec{p} \qquad \text{oder gleichwertig} \qquad \vec{p}\,' = \vec{p} + 2 \cdot \overrightarrow{PM}.$$
+
+<div class="zwei-bild" style="grid-template-columns:1fr auto">
+  <div>
+    <h3 style="margin-top:0">Punkt an Punkt</h3>
+    <p>Hier ist das Zentrum $M$ direkt gegeben. $P(1 \mid -2 \mid 3)$ an $M(2 \mid 1 \mid 0)$ gespiegelt: $\;\vec{p}\,' = 2 \cdot \left(\begin{smallmatrix} 2 \\ 1 \\ 0 \end{smallmatrix}\right) - \left(\begin{smallmatrix} 1 \\ -2 \\ 3 \end{smallmatrix}\right) = \left(\begin{smallmatrix} 3 \\ 4 \\ -3 \end{smallmatrix}\right)$, also $P'(3 \mid 4 \mid -3)$.</p>
+    <h3>Punkt an Ebene</h3>
+    <p>Das Zentrum ist der <b>Lotfußpunkt</b> $F$ von $P$ auf $E$ (Seite {{S:hnf-1}}). Man geht von $P$ zweimal den Weg $\overrightarrow{PF}$.</p>
+  </div>
+  <raum>{"b":42,"h":50,"keineAchsen":true,"rand":10,
+    "flaeche":[{"pkte":[[2.5,-1.6,0],[2.5,2.8,0],[-2.5,2.8,0],[-2.5,-1.6,0]],"c":"lila","o":0.16,"t":"E","tp":[1.6,-0.7,0]}],
+    "strecke":[{"p":[0,0.6,2.8],"q":[0,0.6,0],"c":"grana","w":1.8},{"p":[0,0.6,0],"q":[0,0.6,-2.8],"c":"grana","w":1.4,"d":"3 2"},
+      {"p":[0,0.25,0],"q":[0,0.25,0.35],"c":"seeTief","w":0.8},{"p":[0,0.25,0.35],"q":[0,0.6,0.35],"c":"seeTief","w":0.8}],
+    "text":[{"p":[0,0.6,1.4],"t":"d","pos":"r","c":"grana"},{"p":[0,0.6,-1.4],"t":"d","pos":"r","c":"grana"}],
+    "punkt":[{"p":[0,0.6,2.8],"t":"P","pos":"or","c":"grana"},{"p":[0,0.6,0],"t":"F","pos":"ur","c":"seeTief"},{"p":[0,0.6,-2.8],"t":"P′","pos":"or","c":"grana","leer":true}]}</raum>
+</div>
+
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 1 · Punkt an Ebene</div>
+  <p style="text-align:left">Spiegle $P(5 \mid -1 \mid 6)$ an $E\colon 2x_1 - x_2 + 2x_3 = 5$.</p>
+  <div class="loesung"><span class="loesung-kopf">Lösung</span>
+  <p style="text-align:left">Lotfußpunkt wie auf Seite {{S:hnf-1}}: $t = -2$, $F(1 \mid 1 \mid 2)$, $\overrightarrow{PF} = \left(\begin{smallmatrix} -4 \\ 2 \\ -4 \end{smallmatrix}\right)$.<br>$\vec{p}\,' = \vec{p} + 2 \cdot \overrightarrow{PF} = \left(\begin{smallmatrix} 5 \\ -1 \\ 6 \end{smallmatrix}\right) + \left(\begin{smallmatrix} -8 \\ 4 \\ -8 \end{smallmatrix}\right) = \left(\begin{smallmatrix} -3 \\ 3 \\ -2 \end{smallmatrix}\right)$, &nbsp;also $P'(-3 \mid 3 \mid -2)$. &nbsp;<b>Kurz:</b> In der Lotgeraden $\vec{p} + t\,\vec{n}$ einfach $2t = -4$ einsetzen.</p></div>
+</div>
+
+<h3>Punkt an Gerade</h3>
+<p>Zentrum ist der Lotfußpunkt auf der Geraden (Seite {{S:punkt-gerade-1}}). Für $P(4 \mid 3 \mid 2)$ und $g\colon \vec{x} = \left(\begin{smallmatrix} 1 \\ 0 \\ 2 \end{smallmatrix}\right) + t \cdot \left(\begin{smallmatrix} 2 \\ 1 \\ -2 \end{smallmatrix}\right)$ war $F(3 \mid 1 \mid 0)$, also $\;\vec{p}\,' = 2\vec{f} - \vec{p} = \left(\begin{smallmatrix} 6 - 4 \\ 2 - 3 \\ 0 - 2 \end{smallmatrix}\right)$, $\;P'(2 \mid -1 \mid -2)$.</p>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Spiegeln eines Punktes</div>
+  <p style="text-align:left">Bestimme das <b>Spiegelzentrum</b> $M$ – bei einem Punkt $M$ selbst, bei einer Ebene oder Geraden den Lotfußpunkt $F$. Dann ist</p>
+  $$\vec{p}\,' = 2\vec{m} - \vec{p} = \vec{p} + 2 \cdot \overrightarrow{PM}.$$
+  <p style="text-align:left">Bei der Spiegelung an einer Ebene genügt: $P' = $ Punkt der Lotgeraden mit dem <b>doppelten</b> Parameter des Lotfußpunkts.</p>
+</div>
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: Spiegelbild</li><li>Prinzip: Zentrum = Mittelpunkt</li><li>Punkt an Punkt</li><li>Punkt an Ebene, an Gerade</li><li>Merke</li><li>Beispiele, Aufgaben 1–4</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 5 und 6</p></div>
+
+<div class="notiz"><span class="t">Erinnerung</span>Mittelpunkt einer Strecke:<br>$\vec{m} = \frac{1}{2}(\vec{a} + \vec{b})$<br>(Seite {{S:rechnen-1}})</div>
+
+<div class="notiz gold"><span class="t">Probe</span>Der Mittelpunkt von $P$ und $P'$ muss das Zentrum sein:<br>$\frac{1}{2}\left(\left(\begin{smallmatrix} 5 \\ -1 \\ 6 \end{smallmatrix}\right) + \left(\begin{smallmatrix} -3 \\ 3 \\ -2 \end{smallmatrix}\right)\right) = \left(\begin{smallmatrix} 1 \\ 1 \\ 2 \end{smallmatrix}\right)$ ✓</div>
+
+<div class="notiz"><span class="t">Abstand bleibt</span>$P$ und $P'$ haben denselben Abstand zur Spiegelebene, liegen aber auf verschiedenen Seiten. Die HNF liefert $+6$ und $-6$.</div>

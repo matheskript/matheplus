@@ -1,0 +1,56 @@
+<!-- kap: V | uk: Gerade und Ebene -->
+<div class="ukap-titel"><span class="nr">{{K:gerade-ebene-1}}</span><h2>Gerade und Ebene</h2></div>
+<p class="leitfrage">Wie können Gerade und Ebene zueinander liegen – und wo stößt die Gerade durch?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <p style="text-align:left">Halte einen Stift über ein Blatt Papier, das flach auf dem Tisch liegt. Der Stift ist eine Gerade, das Blatt ein Stück einer Ebene.<br><b>a)</b> Wie kannst du den Stift halten, damit er das Blatt (verlängert gedacht) in genau einem Punkt trifft?<br><b>b)</b> Wie muss er liegen, damit er das Blatt nie trifft? Und wann hat er unendlich viele Punkte mit ihm gemeinsam?<br><b>c)</b> Vergleiche mit der Lage zweier Geraden in der Ebene (Seite {{S:zwei-geraden-1}}). Was fehlt hier?</p>
+</div>
+
+<p>Liegt die Ebene in Koordinatenform vor, ist die Rechnung besonders kurz. Ein Punkt der Geraden $g\colon \vec{x} = \vec{p} + t \cdot \vec{u}$ hat die Koordinaten $x_1 = p_1 + t u_1$, $x_2 = p_2 + t u_2$, $x_3 = p_3 + t u_3$. Setzt man sie in $E\colon n_1 x_1 + n_2 x_2 + n_3 x_3 = d$ ein, entsteht eine <b>lineare Gleichung für $t$</b> – und eine solche Gleichung hat entweder genau eine, keine oder unendlich viele Lösungen (Seite {{S:loesungsmengen-1}}).</p>
+
+<div class="zwei-bild" style="grid-template-columns:repeat(3,1fr);gap:4mm">
+  <div><raum>{"b":40,"h":30,"keineAchsen":true,"rand":10,
+    "flaeche":[{"pkte":[[2,-1,0],[2,3,0],[-2,3,0],[-2,-1,0]],"c":"smaragd","o":0.16,"t":"E","tp":[1.5,-0.5,0],"pos":"r"}],
+    "gerade":[{"p":[0,1,0],"u":[0.2,0.4,1],"von":0,"bis":1.5,"c":"grana","t":"g","pos":"r"},{"p":[0,1,0],"u":[0.2,0.4,1],"von":-0.9,"bis":0,"c":"grana","d":"3 2"}],
+    "punkt":[{"p":[0,1,0],"t":"D","pos":"l","c":"grana"}]}</raum>
+    <p class="bildunterschrift">eine Lösung: <b>schneiden</b></p></div>
+  <div><raum>{"b":40,"h":30,"keineAchsen":true,"rand":10,
+    "flaeche":[{"pkte":[[2,-1,0],[2,3,0],[-2,3,0],[-2,-1,0]],"c":"smaragd","o":0.16,"t":"E","tp":[1.5,-0.5,0],"pos":"r"}],
+    "gerade":[{"p":[0,1,1.6],"u":[0,1,0],"von":-1.6,"bis":1.6,"c":"grana","t":"g","pos":"or"}],
+    "strecke":[{"p":[0,-0.6,0],"q":[0,-0.6,1.6],"c":"grau","d":"2 2","w":0.9},{"p":[0,2.6,0],"q":[0,2.6,1.6],"c":"grau","d":"2 2","w":0.9}]}</raum>
+    <p class="bildunterschrift">keine Lösung: <b>echt parallel</b></p></div>
+  <div><raum>{"b":40,"h":30,"keineAchsen":true,"rand":10,
+    "flaeche":[{"pkte":[[2,-1,0],[2,3,0],[-2,3,0],[-2,-1,0]],"c":"smaragd","o":0.16,"t":"E","tp":[1.5,-0.5,0],"pos":"r"}],
+    "gerade":[{"p":[0,1,0],"u":[0.5,1,0],"von":-2,"bis":2,"c":"grana","t":"g","pos":"o"}]}</raum>
+    <p class="bildunterschrift">alle $t$ lösen: <b>$g$ liegt in $E$</b></p></div>
+</div>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Lage von Gerade und Ebene</div>
+  <p style="text-align:left">Setze die Koordinaten von $g\colon \vec{x} = \vec{p} + t \cdot \vec{u}$ in die Koordinatenform von $E$ ein. Die entstehende Gleichung in $t$ hat</p>
+  <p style="text-align:left;margin:0"><b>genau eine Lösung</b> $t_0$ → $g$ schneidet $E$ im <b>Durchstoßpunkt</b> $D$ mit $\vec{d} = \vec{p} + t_0 \cdot \vec{u}$,<br><b>keine Lösung</b> (z. B. $0 = 5$) → $g$ ist <b>echt parallel</b> zu $E$,<br><b>unendlich viele Lösungen</b> ($0 = 0$) → $g$ <b>liegt in</b> $E$.</p>
+</div>
+
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 1 · Durchstoßpunkt</div>
+  <p style="text-align:left">$E\colon 3x_1 + 2x_2 + 4x_3 = 12$ und $g\colon \vec{x} = \begin{pmatrix} 0 \\ 1 \\ 3 \end{pmatrix} + t \cdot \begin{pmatrix} 1 \\ 0 \\ -1 \end{pmatrix}$. Untersuche die Lage.</p>
+  <div class="loesung"><span class="loesung-kopf">Lösung</span>
+  <div class="schritte" style="margin:1mm 0">
+    <span class="sl">einsetzen</span><span>$3 \cdot t + 2 \cdot 1 + 4 \cdot (3 - t) = 12$</span>
+    <span class="sl">vereinfachen</span><span>$14 - t = 12 \;\Leftrightarrow\; t = 2$ &nbsp;– genau eine Lösung</span>
+    <span class="sl">Durchstoßpunkt</span><span>$\vec{d} = \begin{pmatrix} 0 \\ 1 \\ 3 \end{pmatrix} + 2 \cdot \begin{pmatrix} 1 \\ 0 \\ -1 \end{pmatrix}$, &nbsp;$D(2 \mid 1 \mid 1)$. &nbsp;Probe: $6 + 2 + 4 = 12$ ✓</span>
+  </div></div>
+</div>
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: Stift und Blatt</li><li>Einsetzen in die Koordinatenform</li><li>Merke: drei Fälle</li><li>Beispiele 1 und 2</li><li>Schnelltest mit $\vec{u} \cdot \vec{n}$</li><li>Aufgaben 1–5</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 6 und 7</p></div>
+
+<div class="notiz"><span class="t">Wortspeicher</span><b>Durchstoßpunkt</b> (auch Schnittpunkt): der einzige gemeinsame Punkt von Gerade und Ebene.</div>
+
+<div class="notiz gold"><span class="t">Keine Windschiefe</span>Zwei Raumgeraden können windschief sein. Eine Gerade und eine Ebene nicht: Ist $g$ nicht parallel zu $E$, trifft sie $E$ immer.</div>
+
+<div class="notiz"><span class="t">Der rote Faden</span>Keine / eine / unendlich viele Lösungen – dieselben drei Fälle wie bei zwei Geraden in Kapitel I.</div>
+
+<div class="notiz"><span class="t">Parameterform?</span>Liegt $E$ in Parameterform vor, wird $g = E$ ein LGS mit 3 Gleichungen und 3 Unbekannten $r$, $s$, $t$. Einfacher: erst in Koordinatenform umwandeln.</div>

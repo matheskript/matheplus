@@ -1,0 +1,53 @@
+<!-- kap: VI | uk: Schnittwinkel -->
+<div class="ukap-titel"><span class="nr">{{K:schnittwinkel-1}}</span><h2>Schnittwinkel</h2></div>
+<p class="leitfrage">Unter welchem Winkel schneiden sich Geraden und Ebenen?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <p style="text-align:left">Ein Solarmodul liefert am meisten Strom, wenn das Sonnenlicht senkrecht auftrifft. Der Lichtstrahl ist eine Gerade, das Modul ein Stück einer Ebene.<br><b>a)</b> Zwei Geraden schneiden sich unter zwei Winkeln $\alpha$ und $180° - \alpha$. Welchen nennt man sinnvollerweise „den“ Schnittwinkel?<br><b>b)</b> Wie misst man den Winkel zwischen einer Geraden und einer Ebene? Mit welcher Geraden in der Ebene sollte man vergleichen?</p>
+</div>
+
+<p>Den Winkel zwischen zwei Vektoren kennst du schon: $\cos \varphi = \frac{\vec{a} \cdot \vec{b}}{|\vec{a}| \cdot |\vec{b}|}$ mit $0° \leq \varphi \leq 180°$ (Seite {{S:winkel-1}}). Ein <b>Schnittwinkel</b> ist dagegen immer der <b>kleinere</b> der beiden Winkel, also höchstens $90°$. Ob ein Richtungsvektor „nach vorn“ oder „nach hinten“ zeigt, darf keine Rolle spielen.</p>
+
+<h3>Gerade–Gerade und Ebene–Ebene</h3>
+<p>Für $\varphi > 90°$ ist $\cos \varphi < 0$, und $180° - \varphi$ hat den Kosinus $-\cos \varphi$. Nimmt man den <b>Betrag</b> des Skalarprodukts, erhält man direkt den Winkel zwischen $0°$ und $90°$. Für $\vec{u} = \left(\begin{smallmatrix} 1 \\ 2 \\ 2 \end{smallmatrix}\right)$ und $\vec{v} = \left(\begin{smallmatrix} 2 \\ -1 \\ 2 \end{smallmatrix}\right)$: $\;\cos \alpha = \frac{|2 - 2 + 4|}{3 \cdot 3} = \frac{4}{9}$, also $\alpha \approx 63{,}6°$.</p>
+<p>Zwei Ebenen schneiden sich unter demselben Winkel wie ihre <b>Normalenvektoren</b>: Dreht man eine Ebene um die Schnittgerade, dreht sich ihr Normalenvektor um denselben Winkel mit. Man rechnet also mit $\vec{n}_1$ und $\vec{n}_2$ dieselbe Formel.</p>
+
+<h3>Gerade–Ebene: Warum der Sinus?</h3>
+<div class="zwei-bild" style="grid-template-columns:1fr auto">
+  <div>
+    <p>Der Winkel zwischen $g$ und $E$ wird mit der <b>Projektion</b> $g'$ von $g$ in die Ebene gemessen: Das ist der kleinste Winkel zwischen $g$ und einer Geraden in $E$.</p>
+    <p>Die Richtung von $g'$ kennen wir nicht – wohl aber den Normalenvektor. Der Winkel $\beta$ zwischen $\vec{u}$ und $\vec{n}$ ergänzt $\alpha$ zu $90°$: $\;\alpha = 90° - \beta$. Wegen $\cos(90° - \alpha) = \sin \alpha$ wird aus $\cos \beta$ genau $\sin \alpha$:</p>
+    $$\sin \alpha = \cos \beta = \frac{|\vec{u} \cdot \vec{n}|}{|\vec{u}| \cdot |\vec{n}|}$$
+  </div>
+  <raum>{"b":52,"h":46,"keineAchsen":true,"rand":10,
+    "flaeche":[{"pkte":[[2.5,-2.4,0],[2.5,3.4,0],[-2.5,3.4,0],[-2.5,-2.4,0]],"c":"lila","o":0.15,"t":"E","tp":[2,-1.8,0]}],
+    "gerade":[{"p":[0,0,0],"u":[0,1,1],"von":-1.6,"bis":2.4,"c":"grana","w":1.8,"t":"g","pos":"r"},{"p":[0,0,0],"u":[0,1,0],"von":-1.6,"bis":3,"c":"grana","w":1,"d":"3 2","t":"g′","pos":"ur"}],
+    "vektor":[{"p":[0,0,0],"v":[0,0,2.6],"c":"lila","w":1.6,"t":"n","pos":"l"}],
+    "winkel":[{"s":[0,0,0],"a":[0,1,1],"b":[0,1,0],"r":20,"t":"α","c":"goldDunkel"},{"s":[0,0,0],"a":[0,0,1],"b":[0,1,1],"r":26,"t":"β","c":"see"}],
+    "punkt":[{"p":[0,0,0],"t":"S","pos":"ul","c":"seeTief"}]}</raum>
+</div>
+
+<p>Mit den Zahlen von oben, jetzt $\vec{n} = \left(\begin{smallmatrix} 1 \\ 2 \\ 2 \end{smallmatrix}\right)$ als Normalenvektor einer Ebene: $\;\sin \alpha = \frac{4}{9}$, also $\alpha \approx 26{,}4°$ – genau $90° - 63{,}6°$.</p>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Schnittwinkel</div>
+  <p style="text-align:left">Der Schnittwinkel $\alpha$ liegt immer zwischen $0°$ und $90°$.</p>
+  <div class="regelzeile" style="margin-top:1mm">
+    <div><b>Gerade–Gerade</b><br>$\cos \alpha = \dfrac{|\vec{u} \cdot \vec{v}|}{|\vec{u}| \cdot |\vec{v}|}$</div>
+    <div><b>Ebene–Ebene</b><br>$\cos \alpha = \dfrac{|\vec{n}_1 \cdot \vec{n}_2|}{|\vec{n}_1| \cdot |\vec{n}_2|}$</div>
+    <div><b>Gerade–Ebene</b><br>$\sin \alpha = \dfrac{|\vec{u} \cdot \vec{n}|}{|\vec{u}| \cdot |\vec{n}|}$</div>
+  </div>
+</div>
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: Solarmodul</li><li>Schnittwinkel ≤ 90°: Betrag</li><li>Ebene–Ebene über Normalen</li><li>Gerade–Ebene: Sinus</li><li>Merke</li><li>Aufgaben 1–4</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 5 und 6</p></div>
+
+<div class="notiz"><span class="t">Wortspeicher</span><b>Schnittwinkel:</b> der kleinere der beiden Winkel, $0° \leq \alpha \leq 90°$.<br><b>Projektion</b> $g'$: der „Schatten“ von $g$ in $E$ bei Licht senkrecht von oben.</div>
+
+<div class="notiz gold"><span class="t">Merkhilfe</span>Zwei „gleiche“ Objekte (Gerade–Gerade, Ebene–Ebene): <b>Kosinus</b>.<br>Gemischt (Gerade–Ebene): <b>Sinus</b> – weil man mit dem Normalenvektor „um die Ecke“ misst.</div>
+
+<div class="notiz"><span class="t">Taschenrechner</span>Auf <b>Grad</b> (DEG) stellen. Ergebnis mit $\cos^{-1}$ bzw. $\sin^{-1}$ auf eine Nachkommastelle runden.</div>
+
+<div class="notiz"><span class="t">Sonderfälle</span>$\vec{u} \cdot \vec{n} = 0$: $\alpha = 0°$, $g$ ist parallel zu $E$ (oder liegt darin).<br>$\vec{u} \parallel \vec{n}$: $\alpha = 90°$, $g$ steht senkrecht auf $E$.</div>

@@ -18,30 +18,42 @@
   </div>
 </div>
 
-<p>Die Gleichung $y = 2x + 1$ lässt sich genau so lesen wie die Fahrt des Roboters: <b>Starte bei $(0 \mid 1)$ und gehe $x$-mal den Schritt $(1 \mid 2)$.</b> Für jede Gerade $y = mx + c$ gilt dasselbe – man startet auf der $y$-Achse bei $(0 \mid c)$, und ein Schritt nach rechts bringt $m$ nach oben. Mit Vektoren aus Kapitel {{KAP:auftakt-vektoren}} aufgeschrieben:</p>
+<p>Die Gleichung $y = 2x + 1$ lässt sich genau so lesen wie die Fahrt des Roboters: <b>Starte bei $(0 \mid 1)$ und gehe $x$-mal den Schritt $(1 \mid 2)$.</b> Allgemein startet $y = mx + c$ bei $(0 \mid c)$; jeder Schritt nach rechts bringt $m$ nach oben:</p>
 $$\begin{pmatrix} x \\ y \end{pmatrix} = \begin{pmatrix} x \\ mx + c \end{pmatrix} = \begin{pmatrix} 0 \\ c \end{pmatrix} + x \cdot \begin{pmatrix} 1 \\ m \end{pmatrix}$$
-<p>Ein fester <b>Stützvektor</b> plus ein Vielfaches eines <b>Richtungsvektors</b>. Die Zahl $x$ spielt dabei zwei Rollen: Sie ist Koordinate und zählt zugleich die Schritte. Gibt man dem Zähler einen eigenen Namen, den <b>Parameter</b> $t$, so wird die Form frei: Start und Schritt dürfen beliebig sein. Der zweite Roboter fährt auf</p>
+<p>Fester <b>Stützvektor</b> plus Vielfaches eines <b>Richtungsvektors</b>; $x$ zählt die Schritte und ist zugleich Koordinate. Gibt man dem Zähler einen eigenen Namen, den <b>Parameter</b> $t$, so dürfen Start und Schritt beliebig sein. Der zweite Roboter fährt auf</p>
 $$\vec{x} = \begin{pmatrix} 2 \\ -1 \end{pmatrix} + t \cdot \begin{pmatrix} 0 \\ 1 \end{pmatrix} \quad\text{also}\quad x = 2.$$
-<p>Diese senkrechte Gerade hat <b>keine</b> Form $y = mx + c$, aber eine Parameterform. Und nichts an der Idee hängt an zwei Koordinaten: Im Raum hängt man einfach eine dritte Zeile an.</p>
+<p>Diese senkrechte Gerade hat <b>keine</b> Form $y = mx + c$, aber eine Parameterform. Und im Raum hängt man einfach eine dritte Zeile an.</p>
 
 <table class="wt voll eng" style="margin:0 0 3mm">
   <tr><th class="l"></th><th class="l">in der Ebene: $y = mx + c$</th><th class="l">Parameterform (Ebene und Raum)</th></tr>
-  <tr><td class="l"><b>Start</b></td><td class="l">$(0 \mid c)$ auf der $y$-Achse</td><td class="l">beliebiger Punkt $P$, Stützvektor $\vec{p} = \overrightarrow{OP}$</td></tr>
-  <tr><td class="l"><b>Schritt</b></td><td class="l">$(1 \mid m)$, immer 1 nach rechts</td><td class="l">beliebiger Vektor $\vec{u} \neq \vec{0}$</td></tr>
-  <tr><td class="l"><b>Zähler</b></td><td class="l">$x$ (zugleich Koordinate)</td><td class="l">Parameter $t \in \mathbb{R}$</td></tr>
+  <tr><td class="l"><b>Start</b></td><td class="l">$(0 \mid c)$ auf der $y$-Achse</td><td class="l">beliebiger Punkt $P$, $\vec{p} = \overrightarrow{OP}$</td></tr>
+  <tr><td class="l"><b>Schritt</b></td><td class="l">$(1 \mid m)$, $x$-mal</td><td class="l">beliebiger Vektor $\vec{u} \neq \vec{0}$, $t$-mal</td></tr>
   <tr><td class="l"><b>senkrecht?</b></td><td class="l">nicht möglich</td><td class="l">kein Problem, jede Richtung geht</td></tr>
 </table>
 
 <div class="kasten merke">
   <div class="etikett">Merke · Parameterform einer Geraden</div>
-  <p style="text-align:left">Jede Gerade $g$ im Raum lässt sich schreiben als</p>
-  $$g\colon \vec{x} = \vec{p} + t \cdot \vec{u}, \quad t \in \mathbb{R}.$$
-  <p style="text-align:left">$\vec{p}$ ist der Ortsvektor eines Punktes $P$ auf $g$ (<b>Stützvektor</b>), $\vec{u} \neq \vec{0}$ gibt die Richtung an (<b>Richtungsvektor</b>), $t$ heißt <b>Parameter</b>. Jeder Wert von $t$ liefert genau einen Punkt der Geraden.</p>
+  <div class="zwei-bild" style="gap:4mm">
+    <div>
+      <p style="text-align:left">Jede Gerade $g$ im Raum lässt sich schreiben als</p>
+      $$g\colon \vec{x} = \vec{p} + t \cdot \vec{u}, \quad t \in \mathbb{R}.$$
+      <p style="text-align:left;margin:0">$\vec{p} = \overrightarrow{OP}$ mit $P$ auf $g$: <b>Stützvektor</b>; $\;\vec{u} \neq \vec{0}$: <b>Richtungsvektor</b>; $\;t$: <b>Parameter</b>. Jedes $t$ liefert genau einen Punkt von $g$.</p>
+    </div>
+    <raum>{"b":44,"h":32,"achsen":[3,6,4],"neg":[0.3,0.3,0.3],"zahlen":false,"rand":10,
+      "gerade":[{"p":[2,3,0],"u":[1,2,2],"von":-0.8,"bis":1.2,"c":"see","w":1.8,"t":"g","lt":1.6,"pos":"r"}],
+      "strecke":[{"p":[0,0,0],"q":[2,3,0],"c":"goldDunkel","w":1.3,"pfeil":true,"t":"p","pos":"ul","vek":true}],
+      "vektor":[{"p":[2,3,0],"v":[1,2,2],"c":"grana","t":"u","pos":"ol"}],
+      "punkt":[{"p":[2,3,0],"t":"P","pos":"r","c":"seeTief","r":2.4}]}</raum>
+  </div>
 </div>
 
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 1 · Punkte einer Geraden</div>
+  <p style="text-align:left">$g\colon \vec{x} = \begin{pmatrix} 2 \\ 3 \\ 0 \end{pmatrix} + t \cdot \begin{pmatrix} 1 \\ 2 \\ 2 \end{pmatrix}$ (Bild). Für $t = 1$, $2$, $-1$ erhält man $(3 \mid 5 \mid 2)$, $(4 \mid 7 \mid 4)$ und $(1 \mid 1 \mid -2)$: Jeder Schritt führt um $\vec{u}$ weiter, $t = -1$ geht zurück.</p>
+</div>
 <!--rand-->
 <div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
-<ol><li>Einstieg: Mähroboter</li><li>$y = mx + c$ neu lesen</li><li>Parameter $t$, senkrechte Gerade</li><li>Vergleich Ebene ↔ Raum</li><li>Merke: Parameterform</li><li>Beispiele 1–3</li><li>Aufgaben 1–5</li></ol>
+<ol><li>Einstieg: Mähroboter</li><li>$y = mx + c$ neu lesen</li><li>Parameter $t$, senkrechte Gerade</li><li>Vergleich Ebene ↔ Raum</li><li>Merke: Parameterform</li><li>Beispiele 1 und 2</li><li>Aufgaben 1–5</li></ol>
 <p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 6 und 7</p></div>
 
 <div class="notiz"><span class="t">Wortspeicher</span><b>Parameter:</b> eine Zahl, die man frei wählen darf – hier der Schrittzähler.<br><b>Stützvektor:</b> „hier stützt sich die Gerade ab“.<br><b>Richtungsvektor:</b> der Schritt.</div>

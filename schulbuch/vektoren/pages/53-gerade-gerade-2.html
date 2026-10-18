@@ -1,0 +1,68 @@
+<!-- kap: VI -->
+<div class="kasten beispiel" style="margin-top:0">
+  <div class="etikett">Beispiel 2 · Zwei Flugbahnen</div>
+  <p style="text-align:left">Flugzeug A fliegt auf $g\colon \vec{x} = r \cdot \left(\begin{smallmatrix} 2 \\ 1 \\ 2 \end{smallmatrix}\right)$, Flugzeug B auf $h\colon \vec{x} = \left(\begin{smallmatrix} 1 \\ 8 \\ 4 \end{smallmatrix}\right) + s \cdot \left(\begin{smallmatrix} 2 \\ -2 \\ -1 \end{smallmatrix}\right)$ (in km). Wie nah kommen sich die Bahnen, und wo?</p>
+  <div class="loesung"><span class="loesung-kopf">Lösung</span>
+  <p style="text-align:left"><b>Abstand:</b> $\vec{n} = \vec{u} \times \vec{v} = \left(\begin{smallmatrix} 3 \\ 6 \\ -6 \end{smallmatrix}\right)$, $|\vec{n}| = 9$; &nbsp;$d = \frac{|(\vec{q} - \vec{p}) \cdot \vec{n}|}{9} = \frac{|3 + 48 - 24|}{9} = 3$. Die Bahnen kommen sich bis auf 3 km nahe.</p>
+  <p style="text-align:left"><b>Lotfußpunkte:</b> Mit $F_r \in g$, $G_s \in h$ ist $\overrightarrow{F_rG_s} = \left(\begin{smallmatrix} 1 + 2s - 2r \\ 8 - 2s - r \\ 4 - s - 2r \end{smallmatrix}\right)$ – orthogonal zu beiden Richtungen:</p>
+  <div class="schritte" style="margin:1mm 0 0">
+    <span class="sl">(I) $\;\cdot\,\vec{u} = 0$</span><span>$2(1 + 2s - 2r) + (8 - 2s - r) + 2(4 - s - 2r) = 18 - 9r = 0 \;\Rightarrow\; r = 2$</span>
+    <span class="sl">(II) $\;\cdot\,\vec{v} = 0$</span><span>$2(1 + 2s - 2r) - 2(8 - 2s - r) - (4 - s - 2r) = 9s - 18 = 0 \;\Rightarrow\; s = 2$</span>
+    <span class="sl">Ergebnis</span><span>$F(4 \mid 2 \mid 4)$, $\;G(5 \mid 4 \mid 2)$, $\;|\overrightarrow{FG}| = \left|\left(\begin{smallmatrix} 1 \\ 2 \\ -2 \end{smallmatrix}\right)\right| = 3$ ✓</span>
+  </div></div>
+</div>
+
+<div class="kasten" style="background:#F3F6FB">
+  <div class="etikett" style="background:var(--kap);color:#fff">Übersicht · Abstand zweier Geraden</div>
+  <table class="wt voll eng" style="margin:0.5mm 0 0">
+    <tr><th class="l">Lage</th><th class="l">erkennbar an</th><th class="l">Abstand</th></tr>
+    <tr><td class="l">schneidend, identisch</td><td class="l">LGS $g = h$ lösbar</td><td class="l">$d = 0$</td></tr>
+    <tr><td class="l">echt parallel</td><td class="l">$\vec{u} \parallel \vec{v}$, $Q \notin g$</td><td class="l">$d(Q, g)$, Seite {{S:punkt-gerade-1}}</td></tr>
+    <tr><td class="l">windschief</td><td class="l">LGS unlösbar, $\vec{u} \not\parallel \vec{v}$</td><td class="l">Formel von Seite {{S:gerade-gerade-1}}</td></tr>
+  </table>
+</div>
+
+<div class="aufgaben-kopf"><span>Aufgaben</span></div>
+
+<div class="auf"><div class="anr"><span class="z">1</span><span class="stufe">●○○</span></div><div class="text">
+  <p>Die Geraden $g$ und $h$ sind windschief. Berechne ihren Abstand.</p>
+  <div class="teil" style="--sp:2"><div><i>a)</i>$g\colon \vec{x} = r \cdot \left(\begin{smallmatrix} 1 \\ 0 \\ 1 \end{smallmatrix}\right)$, $\;h\colon \vec{x} = \left(\begin{smallmatrix} 1 \\ -1 \\ -3 \end{smallmatrix}\right) + s \cdot \left(\begin{smallmatrix} 2 \\ 2 \\ 1 \end{smallmatrix}\right)$</div><div><i>b)</i>$g$: $x_1$-Achse, $\;h\colon \vec{x} = \left(\begin{smallmatrix} 1 \\ 3 \\ 4 \end{smallmatrix}\right) + s \cdot \left(\begin{smallmatrix} 0 \\ 4 \\ -3 \end{smallmatrix}\right)$</div><div style="grid-column:1/3"><i>c)</i>$g\colon \vec{x} = \left(\begin{smallmatrix} 2 \\ 1 \\ 0 \end{smallmatrix}\right) + r \cdot \left(\begin{smallmatrix} 1 \\ 0 \\ 1 \end{smallmatrix}\right)$, $\;h\colon \vec{x} = \left(\begin{smallmatrix} 1 \\ 1 \\ 2 \end{smallmatrix}\right) + s \cdot \left(\begin{smallmatrix} -1 \\ 2 \\ 0 \end{smallmatrix}\right)$</div></div>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">2</span><span class="stufe">●○○</span></div><div class="text">
+  <p>Bestimme die Lage von $g\colon \vec{x} = \left(\begin{smallmatrix} 1 \\ 0 \\ 1 \end{smallmatrix}\right) + r \cdot \left(\begin{smallmatrix} 2 \\ 2 \\ 1 \end{smallmatrix}\right)$ und $h$ sowie ihren Abstand. &nbsp;<b>a)</b> $h\colon \vec{x} = \left(\begin{smallmatrix} 3 \\ 4 \\ 1 \end{smallmatrix}\right) + s \cdot \left(\begin{smallmatrix} -4 \\ -4 \\ -2 \end{smallmatrix}\right)$ &nbsp;<b>b)</b> $h\colon \vec{x} = \left(\begin{smallmatrix} 5 \\ -4 \\ -5 \end{smallmatrix}\right) + s \cdot \left(\begin{smallmatrix} 0 \\ 1 \\ 1 \end{smallmatrix}\right)$</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">3</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Bestimme in Aufgabe 1 a) die Lotfußpunkte $F$ und $G$ des gemeinsamen Lots und kontrolliere $|\overrightarrow{FG}|$.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">4</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Flugzeug A fliegt auf $\vec{x} = \left(\begin{smallmatrix} 0 \\ 0 \\ 9 \end{smallmatrix}\right) + r \cdot \left(\begin{smallmatrix} 4 \\ 3 \\ 0 \end{smallmatrix}\right)$, Flugzeug B auf $\vec{x} = \left(\begin{smallmatrix} 10 \\ 0 \\ 7 \end{smallmatrix}\right) + s \cdot \left(\begin{smallmatrix} 3 \\ -4 \\ 0 \end{smallmatrix}\right)$ (in km). Begründe ohne Rechnung, dass der Abstand 2 km ist. Über welchem Bodenpunkt kreuzen sich die Bahnen?</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">5</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Ein Würfel hat die Ecken $O(0 \mid 0 \mid 0)$ und $G(4 \mid 4 \mid 4)$. Berechne den Abstand der Raumdiagonalen $OG$ von der Kante durch $B(4 \mid 0 \mid 0)$ und $C(4 \mid 4 \mid 0)$. Wo liegen die Lotfußpunkte?</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">6</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Gegeben sind $g$ aus Beispiel 1 und $h_a\colon \vec{x} = \left(\begin{smallmatrix} 5 \\ -4 \\ a \end{smallmatrix}\right) + s \cdot \left(\begin{smallmatrix} 0 \\ 1 \\ 1 \end{smallmatrix}\right)$. Für welches $a$ schneiden sich $g$ und $h_a$? Für welche $a$ ist der Abstand 6?</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">7</span><span class="stufe">●●●</span></div><div class="text">
+  <p>Was liefert die Formel für zwei sich schneidende Geraden? Warum versagt sie bei parallelen Geraden?</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z offen">8</span><span class="stufe">●●●</span></div><div class="text">
+  <p>Zeige: Steht $\overrightarrow{FG}$ auf $\vec{u}$ und $\vec{v}$ senkrecht, so gilt $|\overrightarrow{XY}| \geq |\overrightarrow{FG}|$ für alle $X \in g$, $Y \in h$. <span class="mild">Tipp: $\overrightarrow{XY} = \overrightarrow{XF} + \overrightarrow{FG} + \overrightarrow{GY}$.</span></p>
+</div></div>
+<!--rand-->
+<div class="notiz"><span class="t">Fahrplan</span>① Lage prüfen<br>② $\vec{n} = \vec{u} \times \vec{v}$<br>③ $\vec{q} - \vec{p}$ bilden<br>④ Formel: Betrag des Skalarprodukts durch $|\vec{n}|$</div>
+
+<div class="notiz gold"><span class="t">Glück im Beispiel 2</span>Weil hier $\vec{u} \perp \vec{v}$ ist, enthält jede Gleichung nur eine Unbekannte. Sonst entsteht ein echtes LGS mit zwei Unbekannten.</div>
+
+<div class="notiz"><span class="t">Zu Aufgabe 4</span>Beide Bahnen verlaufen waagrecht – in welcher Höhe?</div>
+
+<div class="notiz gold"><span class="t">Zu Aufgabe 8</span>$\overrightarrow{XF} + \overrightarrow{GY}$ ist eine Kombination aus $\vec{u}$ und $\vec{v}$ – und steht damit senkrecht auf $\overrightarrow{FG}$. Pythagoras!</div>
+
+<div class="notiz mathilda"><span class="t">In der App</span>Im Werkzeug <b>Geraden im Raum</b> drehst du zwei windschiefe Geraden und siehst das gemeinsame Lot mit seinen Fußpunkten.</div>

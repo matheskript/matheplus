@@ -1,0 +1,77 @@
+<!-- kap: VI -->
+<div class="kasten beispiel" style="margin-top:0">
+  <div class="etikett">Beispiel 2 · Gerade an Ebene</div>
+  <p style="text-align:left">Spiegle $g\colon \vec{x} = \left(\begin{smallmatrix} 2 \\ 4 \\ 6 \end{smallmatrix}\right) + t \cdot \left(\begin{smallmatrix} 0 \\ -2 \\ -1 \end{smallmatrix}\right)$ an $E\colon x_1 + 2x_2 + 2x_3 = 4$. <span class="mild">Idee: Der Durchstoßpunkt $S$ bleibt fest, dazu spiegelt man einen zweiten Punkt.</span></p>
+  <div class="loesung"><span class="loesung-kopf">Lösung</span>
+  <div class="schritte" style="margin:1mm 0 0">
+    <span class="sl"><b>①</b> Durchstoßpunkt</span><span>$2 + 2(4 - 2t) + 2(6 - t) = 4 \;\Leftrightarrow\; 22 - 6t = 4 \;\Leftrightarrow\; t = 3$: &nbsp;$S(2 \mid -2 \mid 3)$</span>
+    <span class="sl"><b>②</b> $A(2 \mid 4 \mid 6)$ spiegeln</span><span>Lotgerade $\vec{a} + k\,\vec{n}$ in $E$: $\;22 + 9k = 4$, $k = -2$, &nbsp;$F(0 \mid 0 \mid 2)$; &nbsp;$2k = -4$: $\;A'(-2 \mid -4 \mid -2)$</span>
+    <span class="sl"><b>③</b> Bildgerade</span><span>$g'\colon \vec{x} = \left(\begin{smallmatrix} 2 \\ -2 \\ 3 \end{smallmatrix}\right) + s \cdot \left(\begin{smallmatrix} 4 \\ 2 \\ 5 \end{smallmatrix}\right)$ &nbsp;mit $\overrightarrow{A'S} = \left(\begin{smallmatrix} 4 \\ 2 \\ 5 \end{smallmatrix}\right)$</span>
+  </div></div>
+</div>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Gerade und Ebene spiegeln</div>
+  <p style="text-align:left;margin:0"><b>Gerade an Ebene:</b> Durchstoßpunkt $S$ und Bild $A'$ eines weiteren Punktes; ist $g \parallel E$, nur den Stützpunkt spiegeln – die Richtung bleibt.<br><b>Ebene an Punkt $M$:</b> Normalenvektor bleibt, einen Punkt von $E$ an $M$ spiegeln. &nbsp;<span class="mild">Beispiel: $E\colon 2x_1 - x_2 + 2x_3 = 1$ an $M(1 \mid 2 \mid 3)$; $Q(0 \mid -1 \mid 0) \in E$ wird $Q'(2 \mid 5 \mid 6)$, also $E'\colon 2x_1 - x_2 + 2x_3 = 11$.</span></p>
+</div>
+
+<div class="kasten vertiefung">
+  <div class="etikett">★ Für Interessierte · Lichtstrahl und kürzester Weg</div>
+  <div class="zwei-bild" style="grid-template-columns:1fr auto;gap:4mm">
+    <div>
+      <p style="text-align:left;margin:0">Licht soll von $A(2 \mid -1 \mid 5)$ über den Spiegel $E\colon x_1 + 2x_2 + 2x_3 = 4$ nach $B(6 \mid 7 \mid 1)$ – auf dem <b>kürzesten Weg</b>. Für $X \in E$ ist $|XB| = |XB'|$, also wird $|AX| + |XB|$ am kleinsten, wenn $X$ auf $\overline{AB'}$ liegt. Mit $B'(2 \mid -1 \mid -7)$ trifft $\overline{AB'}$ die Ebene in $R(2 \mid -1 \mid 2)$; Weg $3 + 9 = 12 = |AB'|$. Beide Strahlen bilden mit $E$ den Winkel $\sin \alpha = \frac{2}{3}$: Einfallswinkel = Ausfallswinkel.</p>
+    </div>
+    <svg viewBox="0 0 110 86" width="34mm" height="27mm" xmlns="http://www.w3.org/2000/svg" style="font-family:Montserrat,sans-serif">
+      <line x1="2" y1="44" x2="108" y2="44" stroke="#6A3F94" stroke-width="2"/>
+      <text x="100" y="54" font-size="8" fill="#6A3F94" font-weight="700" font-style="italic">E</text>
+      <line x1="18" y1="32" x2="37.5" y2="44" stroke="#A50044" stroke-width="1.8"/>
+      <line x1="37.5" y1="44" x2="96" y2="8" stroke="#A50044" stroke-width="1.8"/>
+      <line x1="37.5" y1="44" x2="96" y2="80" stroke="#A50044" stroke-width="1.1" stroke-dasharray="3 2"/>
+      <line x1="96" y1="8" x2="96" y2="80" stroke="#8A93A6" stroke-width="0.9" stroke-dasharray="2 2"/>
+      <circle cx="18" cy="32" r="2.6" fill="#0E1E4A"/><text x="8" y="29" font-size="8.5" font-weight="700" fill="#0E1E4A">A</text>
+      <circle cx="96" cy="8" r="2.6" fill="#0E1E4A"/><text x="100" y="11" font-size="8.5" font-weight="700" fill="#0E1E4A">B</text>
+      <circle cx="96" cy="80" r="2.6" fill="#fff" stroke="#0E1E4A" stroke-width="1.2"/><text x="100" y="83" font-size="8.5" font-weight="700" fill="#0E1E4A">B′</text>
+      <circle cx="37.5" cy="44" r="2.6" fill="#A50044"/><text x="45" y="55" font-size="8.5" font-weight="700" fill="#A50044">R</text>
+    </svg>
+  </div>
+</div>
+
+<div class="aufgaben-kopf"><span>Aufgaben</span></div>
+
+<div class="auf"><div class="anr"><span class="z">1</span><span class="stufe">●○○</span></div><div class="text">
+  <p>Spiegle $P$ an $M$. &nbsp;<b>a)</b> $P(3 \mid -1 \mid 2)$, $M(1 \mid 1 \mid 1)$ &nbsp;<b>b)</b> $P(0 \mid 4 \mid -2)$, $M(2 \mid 0 \mid 3)$ &nbsp;<b>c)</b> $P(5 \mid 2 \mid -3)$, $M = O$</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">2</span><span class="stufe">●○○</span></div><div class="text">
+  <p>Spiegle $P$ an $E$. &nbsp;<b>a)</b> $P(4 \mid 4 \mid 5)$, $E\colon x_1 + 2x_2 + 2x_3 = 4$ &nbsp;<b>b)</b> $P(1 \mid 2 \mid 3)$, $E$: $x_1x_2$-Ebene &nbsp;<b>c)</b> $P(3 \mid 1 \mid 2)$, $E\colon 2x_1 - x_2 + 2x_3 = 0$</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">3</span><span class="stufe">●○○</span></div><div class="text">
+  <p>Spiegle $P(3 \mid 3 \mid 0)$ an der Geraden $g\colon \vec{x} = t \cdot \left(\begin{smallmatrix} 1 \\ 2 \\ 2 \end{smallmatrix}\right)$.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">4</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Spiegle die Gerade an $E\colon x_1 + 2x_2 + 2x_3 = 4$. &nbsp;<b>a)</b> $g\colon \vec{x} = \left(\begin{smallmatrix} 4 \\ 4 \\ 5 \end{smallmatrix}\right) + t \cdot \left(\begin{smallmatrix} -2 \\ -2 \\ 0 \end{smallmatrix}\right)$ &nbsp;<b>b)</b> $h\colon \vec{x} = \left(\begin{smallmatrix} 5 \\ 1 \\ 3 \end{smallmatrix}\right) + t \cdot \left(\begin{smallmatrix} 2 \\ -1 \\ 0 \end{smallmatrix}\right)$</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">5</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Ein Laser in $A(3 \mid 2 \mid 3)$ soll über einen Spiegel in $E\colon x_1 + 2x_2 + 2x_3 = 4$ den Sensor $B(4 \mid 4 \mid 5)$ treffen. Wo trifft er den Spiegel? Wie lang ist sein Weg?</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">6</span><span class="stufe">●●●</span></div><div class="text">
+  <p>An welcher Ebene wird $P(1 \mid 2 \mid 3)$ auf $Q(5 \mid -2 \mid 7)$ gespiegelt? Gib sie in Koordinatenform an.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z offen">7</span><span class="stufe">●●●</span></div><div class="text">
+  <p>Ein Punkt wird erst an $E_1\colon x_3 = 0$, dann an $E_2\colon x_3 = 3$ gespiegelt. Zeige, dass insgesamt eine Verschiebung entsteht. Um welchen Vektor? Verallgemeinere für zwei parallele Ebenen mit Abstand $d$.</p>
+</div></div>
+<!--rand-->
+<div class="notiz"><span class="t">Fahrplan</span>① Spiegelzentrum bestimmen (Punkt, Lotfußpunkt)<br>② $\vec{p}\,' = 2\vec{m} - \vec{p}$<br>③ Probe: Mittelpunkt</div>
+
+<div class="notiz gold"><span class="t">Zu Aufgabe 4 b)</span>Prüfe zuerst $\vec{u} \cdot \vec{n}$. Ist es null, gibt es keinen Durchstoßpunkt.</div>
+
+<div class="notiz"><span class="t">Zu Aufgabe 5</span>Liegen $A$ und $B$ auf <b>derselben</b> Seite von $E$? Vorzeichen in der HNF vergleichen. Dann $B$ spiegeln.</div>
+
+<div class="notiz gold"><span class="t">Zu Aufgabe 6</span>Die Spiegelebene geht durch den Mittelpunkt von $\overline{PQ}$ und hat $\overrightarrow{PQ}$ als Normalenvektor.</div>
+
+<div class="notiz mathilda"><span class="t">In der App</span>Im Werkzeug <b>Abstände</b> lässt du dir zum Lotfußpunkt auch den Spiegelpunkt anzeigen – mit dem doppelten Lotvektor.</div>
