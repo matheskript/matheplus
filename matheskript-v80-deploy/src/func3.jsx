@@ -680,6 +680,17 @@ export function mLies(s, i, ende) {
         raus();
         let a; [a, i] = mArg(s, i);
         teile.push({ typ: "feld", a });
+      } else if (name === "pos" || name === "gpos") {
+        // \pos{von,bis}{…}: Stück der Eingabe-Anzeige mit seiner Stelle im Text (Klick setzt die Schreibmarke dorthin);
+        // \gpos{ende}{…}: Gruppe (Exponent, Wurzel), hinter der ein Klick weiter rechts „hinter die Klammer“ führt
+        raus();
+        let r, a; [r, i] = mRoh(s, i); [a, i] = mArg(s, i);
+        teile.push({ typ: name, r, a });
+      } else if (name === "boxA") {
+        // markierter Platzhalter: hier schreibt man gerade
+        raus();
+        teile.push({ typ: "boxa" });
+        while (s[i] === " ") i++;
       } else if (name === "farbe") {
         // \farbe{u}{…}: Teilterm farbig (u blau, v gold, w lila, t türkis, g grün, r rot)
         raus();
@@ -790,6 +801,16 @@ export function mZeichne(teile, imExponent = false) {
       <span key={i} className="m-cursor" aria-hidden="true"
         style={{ display: "inline-block", width: "0.12em", height: "1.08em", background: C.gruen, borderRadius: 1.5,
           margin: "0 0.05em", verticalAlign: "middle" }} />
+    );
+    if (t.typ === "pos") {
+      const [von, bis] = String(t.r).split(",");
+      return <span key={i} data-s={von} data-e={bis} style={{ whiteSpace: "pre", display: "inline-flex", alignItems: "center" }}>{mZeichne(t.a, imExponent)}</span>;
+    }
+    if (t.typ === "gpos") return <span key={i} data-ge={t.r} style={{ display: "inline-flex", alignItems: "center" }}>{mZeichne(t.a, imExponent)}</span>;
+    if (t.typ === "boxa") return (
+      <span key={i} className="m-boxaktiv" role="img" aria-label="Hier schreibst du"
+        style={{ display: "inline-block", width: "0.62em", height: "1.04em", margin: "0 0.06em", verticalAlign: "middle", borderRadius: 3,
+          border: `2px solid ${C.gruen}`, background: "rgba(165,0,68,0.10)", boxSizing: "border-box" }} />
     );
     if (t.typ === "feld") return (
       <span key={i} style={{ background: "#E4E9F1", borderRadius: 5, padding: "0.04em 0.16em", margin: "0 0.03em",

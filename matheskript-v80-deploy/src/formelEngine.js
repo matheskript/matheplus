@@ -55,37 +55,40 @@ export function mitSchreibmarke(text, pos) {
   return mitMarke.slice(0, auf + 1) + FELD_AUF + mitMarke.slice(auf + 1, e) + FELD_ZU + mitMarke.slice(e);
 }
 
+/* Jedes Zeichen trägt seine Stelle im Eingabetext (s = Anfang, e = Ende, ausschließlich):
+   daraus entsteht die Schreibmarke in der Anzeige, und Klicks werden wieder Stellen im Text. */
 export function tokenisiere(s) {
   const t = [];
   let i = 0;
+  const push = (tok, von, bis) => { tok.s = von; tok.e = bis; t.push(tok); };
   while (i < s.length) {
     const ch = s[i];
-    if (ch === PLATZ) { t.push({ k: "box" }); i++; continue; }
+    if (ch === PLATZ) { push({ k: "box" }, i, i + 1); i++; continue; }
     // Nur für die Anzeige: Schreibmarke ‸ und das Feld ⟦…⟧, in dem sie steht
-    if (ch === CURSOR) { t.push({ k: "cur" }); i++; continue; }
-    if (ch === FELD_AUF || ch === FELD_ZU) { t.push({ k: ch }); i++; continue; }
+    if (ch === CURSOR) { push({ k: "cur" }, i, i + 1); i++; continue; }
+    if (ch === FELD_AUF || ch === FELD_ZU) { push({ k: ch }, i, i + 1); i++; continue; }
     if (/\s/.test(ch)) { i++; continue; }
     if (/[0-9.,]/.test(ch)) {
       let j = i;
       while (j < s.length && /[0-9.,]/.test(s[j])) j++;
       const roh = s.slice(i, j).replace(",", ".");
       if (!/^\d*\.?\d+$|^\d+\.$/.test(roh)) return null;
-      t.push({ k: "num", v: parseFloat(roh), roh: s.slice(i, j).replace(".", ",") });
+      push({ k: "num", v: parseFloat(roh), roh: s.slice(i, j).replace(".", ",") }, i, j);
       i = j; continue;
     }
     if (/[a-zA-Zπ]/.test(ch)) {
       const rest = s.slice(i).toLowerCase();
       const fn = FUNKTIONEN.find((n) => rest.startsWith(n));
-      if (fn) { t.push({ k: "fn", n: fn }); i += fn.length; continue; }
-      if (rest.startsWith("pi")) { t.push({ k: "pi" }); i += 2; continue; }
-      if (ch === "π") { t.push({ k: "pi" }); i++; continue; }
-      if (ch === "x" || ch === "X") { t.push({ k: "x" }); i++; continue; }
-      if (ch === "e") { t.push({ k: "e" }); i++; continue; }
+      if (fn) { push({ k: "fn", n: fn }, i, i + fn.length); i += fn.length; continue; }
+      if (rest.startsWith("pi")) { push({ k: "pi" }, i, i + 2); i += 2; continue; }
+      if (ch === "π") { push({ k: "pi" }, i, i + 1); i++; continue; }
+      if (ch === "x" || ch === "X") { push({ k: "x" }, i, i + 1); i++; continue; }
+      if (ch === "e") { push({ k: "e" }, i, i + 1); i++; continue; }
       return null;
     }
     if ("+-−*·×/:^()[]".includes(ch)) {
       const map = { "−": "-", "·": "*", "×": "*", ":": "/" };
-      t.push({ k: map[ch] || ch }); i++; continue;
+      push({ k: map[ch] || ch }, i, i + 1); i++; continue;
     }
     return null;
   }
@@ -100,13 +103,17 @@ export function parse(text) {
   let p = 0;
   const schau = () => t[p];
   const nimm = (k) => (t[p] && t[p].k === k ? (p++, true) : false);
+  const nimmT = (k) => (t[p] && t[p].k === k ? t[p++] : null);
+  // Stelle im Text je Knoten: nicht aufzählbar, damit Vergleiche per JSON und Kopien per Spread unberührt bleiben.
+  const mit = (n, o) => { Object.defineProperty(n, "_p", { value: o, enumerable: false, writable: true }); return n; };
+  const S = (n) => n._p.s, E = (n) => n._p.e;
 
   function summe() {
     let n = produkt(); if (!n) return null;
     while (schau() && (schau().k === "+" || schau().k === "-")) {
-      const op = schau().k; p++;
+      const op = schau(); p++;
       const r = produkt(); if (!r) return null;
-      n = { k: op, a: n, b: r };
+      n = mit({ k: op.k, a: n, b: r }, { s: S(n), e: E(r), os: op.s, oe: op.e });
     }
     return n;
   }
@@ -117,39 +124,58 @@ export function parse(text) {
       if (s && (s.k === "*" || s.k === "/")) {
         p++;
         const r = vorz(); if (!r) return null;
-        n = { k: s.k, a: n, b: r };
+        n = mit({ k: s.k, a: n, b: r }, { s: S(n), e: E(r), os: s.s, oe: s.e });
       } else if (s && ["num", "x", "e", "pi", "box", "fn", "(", "cur", FELD_AUF].includes(s.k)) {
         const r = potenz(); if (!r) return null;
-        n = { k: "*", a: n, b: r, still: true };
+        n = mit({ k: "*", a: n, b: r, still: true }, { s: S(n), e: E(r) });
       } else return n;
     }
   }
   function vorz() {
-    if (nimm("-")) { const n = vorz(); return n ? { k: "neg", a: n } : null; }
+    const minus = nimmT("-");
+    if (minus) { const n = vorz(); return n ? mit({ k: "neg", a: n }, { s: minus.s, e: E(n), os: minus.s, oe: minus.e }) : null; }
     if (nimm("+")) return vorz();
     return potenz();
   }
   function potenz() {
     const b = atom(); if (!b) return null;
-    if (nimm("^")) { const e = vorz(); return e ? { k: "^", a: b, b: e } : null; }
+    const hoch = nimmT("^");
+    if (hoch) { const e = vorz(); return e ? mit({ k: "^", a: b, b: e }, { s: S(b), e: E(e), os: hoch.s, oe: hoch.e }) : null; }
     return b;
   }
   function atom() {
     const s = schau(); if (!s) return null;
-    if (s.k === "num") { p++; return { k: "num", v: s.v }; }
-    if (s.k === "x" || s.k === "e" || s.k === "pi" || s.k === "box" || s.k === "cur") { p++; return { k: s.k }; }
+    if (s.k === "num") { p++; return mit({ k: "num", v: s.v }, { s: s.s, e: s.e, roh: s.roh }); }
+    if (s.k === "x" || s.k === "e" || s.k === "pi" || s.k === "box" || s.k === "cur") { p++; return mit({ k: s.k }, { s: s.s, e: s.e }); }
     if (s.k === FELD_AUF) { p++; const n = summe(); if (!n || !nimm(FELD_ZU)) return null; return { k: "feld", a: n }; }
-    if (s.k === "(") { p++; const n = summe(); if (!n || !nimm(")")) return null; return { k: "par", a: n }; }
+    if (s.k === "(") {
+      p++;
+      const n = summe(); const zu = n ? nimmT(")") : null;
+      if (!n || !zu) return null;
+      return mit({ k: "par", a: n }, { s: s.s, e: zu.e, g0: s.s, g1: zu.s });
+    }
     if (s.k === "fn") {
       p++;
-      let basis = null;
-      if (s.n === "log" && nimm("[")) { basis = summe(); if (!basis || !nimm("]")) return null; }
+      let basis = null, bg = null;
+      if (s.n === "log" && t[p] && t[p].k === "[") {
+        const auf = t[p++];
+        basis = summe();
+        const zu = basis ? nimmT("]") : null;
+        if (!basis || !zu) return null;
+        bg = { b0: auf.s, b1: zu.s, be: zu.e };
+      }
       // Argument: in Klammern, oder ein einzelnes Atom (sin x)
-      let arg;
-      if (nimm("(")) { arg = summe(); if (!arg || !nimm(")")) return null; }
-      else { arg = potenz(); if (!arg) return null; }
-      if (s.n === "log") return { k: "log", b: basis || { k: "num", v: 10 }, a: arg, zehn: !basis };
-      return { k: "fn", n: s.n, a: arg };
+      let arg, kl = null, ende;
+      if (t[p] && t[p].k === "(") {
+        const auf = t[p++];
+        arg = summe();
+        const zu = arg ? nimmT(")") : null;
+        if (!arg || !zu) return null;
+        kl = { g0: auf.s, g1: zu.s }; ende = zu.e;
+      } else { arg = potenz(); if (!arg) return null; ende = E(arg); }
+      const o = { s: s.s, e: ende, ns: s.s, ne: s.e, ...bg, ...kl };
+      if (s.n === "log") return mit({ k: "log", b: basis || { k: "num", v: 10 }, a: arg, zehn: !basis }, o);
+      return mit({ k: "fn", n: s.n, a: arg }, o);
     }
     return null;
   }
@@ -527,31 +553,87 @@ function vorzeichenWeg(n) {
   return [false, n];
 }
 
+/* ---- Positionsmodus (nur innerhalb von alsTexPos gesetzt) ----------------------------
+   Die Anzeige im Eingabefeld zeigt, wo man gerade schreibt: die Schreibmarke an der echten Stelle,
+   den Platzhalter ▯, auf dem sie steht, als markiertes Kästchen, und die Klammer, in der man steckt,
+   als graues Feld. Jedes sichtbare Stück trägt seine Stelle im Text (\\pos{von,bis}{…}), damit ein
+   Klick in die Formel wieder zu einer Stelle im Text wird. */
+let PX = null;
+const px = (n) => (PX && n && n._p) || null;
+const marke = (q) => {
+  if (!PX || !PX.cursor || PX.gesetzt || PX.p !== q) return "";
+  PX.gesetzt = true;
+  return "\\cursor ";
+};
+/* Anklickbares Stück Text zwischen den Stellen von und bis; nurVor: die Marke nie dahinter setzen (öffnende Klammer) */
+const blatt = (von, bis, tex, nurVor = false) => {
+  if (!PX) return tex;
+  if (PX.stellen) { PX.stellen.add(von); if (!nurVor) PX.stellen.add(bis); }
+  const vor = marke(von);
+  return `${vor}\\pos{${von},${bis}}{${tex}}${vor || nurVor ? "" : marke(bis)}`;
+};
+const opb = (n, txt) => { const o = px(n); return o && o.os !== undefined ? blatt(o.os, o.oe, txt) : txt; };
+const feldWenn = (g0, tex) => (PX && g0 !== undefined && PX.auf === g0 ? `\\feld{${tex}}` : tex);
+/* Teilterm ohne äußere Klammern (Bruchteil, Exponent, Wurzelinhalt …); aussen: die Marke hinter der
+   weggelassenen Klammer setzt der Aufrufer außerhalb (Exponent, Wurzel) */
+const gr = (m, aussen = false, ge) => {
+  if (!PX) return alsTex(ohneAussenPar(m), 0);
+  const o = px(m);
+  let k = m, auf = false;
+  while (k && k.k === "par") { const q = px(k); if (q && q.g0 === PX.auf) auf = true; k = k.a; }
+  const vor = o ? marke(o.s) : "";
+  let tex = alsTex(k, 0);
+  if (auf) tex = `\\feld{${tex}}`;
+  if (o && PX.stellen) { PX.stellen.add(o.s); PX.stellen.add(o.e); }
+  // Klick rechts neben die Gruppe (Exponent, Wurzel, Index) soll hinter der Klammer landen: Stelle ge
+  if (aussen && o) tex = `\\gpos{${ge === undefined ? o.e : ge}}{${tex}}`;
+  return `${vor}${tex}${o && !aussen ? marke(o.e) : ""}`;
+};
+
 export function alsTex(n, aussen = 0, rechts = false) {
   if (!n) return "";
   const klam = (s, r) => (r < aussen || (rechts && r === aussen && aussen <= 2) ? `(${s})` : s);
+  const L = (tex) => { const o = px(n); return o ? blatt(o.s, o.e, tex) : tex; };
   switch (n.k) {
-    case "num": return n.v < 0 ? klam(`${MINUS}${zahlTex(-n.v)}`, 2) : zahlTex(n.v);
-    case "x": return "x";
-    case "e": return "e";
-    case "pi": return "π";
-    case "box": return "▯";
+    case "num": {
+      if (n.v < 0) return klam(`${MINUS}${zahlTex(-n.v)}`, 2);
+      const o = px(n), t = zahlTex(n.v);
+      if (!o) return t;
+      // Zahl, die so im Text steht: jede Ziffer einzeln anklickbar, die Marke kann zwischen Ziffern stehen
+      if (o.roh !== undefined && t.replace(/\{,\}/g, ",") === o.roh) {
+        return [...o.roh].map((c, i) => blatt(o.s + i, o.s + i + 1, c === "," ? "{,}" : c)).join("");
+      }
+      return blatt(o.s, o.e, t);
+    }
+    case "x": return L("x");
+    case "e": return L("e");
+    case "pi": return L("π");
+    case "box": {
+      const o = px(n);
+      if (!o) return "▯";
+      if (PX.aktivBox && PX.p === o.s) { PX.gesetzt = true; return `\\pos{${o.s},${o.e}}{\\boxA }`; }
+      return blatt(o.s, o.e, "▯");
+    }
     case "cur": return "\\cursor ";
     case "feld": return `\\feld{${alsTex(ohneAussenPar(n.a), 0)}}`;
-    case "par": return `(${alsTex(n.a, 0)})`;
-    case "neg": return klam(`${MINUS}${alsTex(n.a, 2)}`, 2);
+    case "par": {
+      const o = px(n);
+      if (!o) return `(${alsTex(n.a, 0)})`;
+      return `${blatt(o.g0, o.g0 + 1, "(", true)}${feldWenn(o.g0, alsTex(n.a, 0))}${blatt(o.g1, o.g1 + 1, ")")}`;
+    }
+    case "neg": return klam(`${opb(n, MINUS)}${alsTex(n.a, 2)}`, 2);
     case "+": {
       // a + (−b) wird als a − b geschrieben, nie als „+ −“
       const [neg, b] = vorzeichenWeg(n.b);
-      if (!neg) return klam(`${alsTex(n.a, 1)} + ${alsTex(n.b, 1, true)}`, 1);
+      if (!neg) return klam(`${alsTex(n.a, 1)}${opb(n, " + ")}${alsTex(n.b, 1, true)}`, 1);
       const rest = vorzeichenWeg(b)[0] ? `(${alsTex(b, 0)})` : alsTex(b, 1, true);
-      return klam(`${alsTex(n.a, 1)} ${MINUS} ${rest}`, 1);
+      return klam(`${alsTex(n.a, 1)}${opb(n, ` ${MINUS} `)}${rest}`, 1);
     }
     case "-": {
       // a − (−b): die Klammer bleibt, damit nie „− −“ dasteht
       const neg = vorzeichenWeg(n.b)[0];
       const rest = neg ? `(${alsTex(n.b, 0)})` : alsTex(n.b, 1, true);
-      return klam(`${alsTex(n.a, 1)} ${MINUS} ${rest}`, 1);
+      return klam(`${alsTex(n.a, 1)}${opb(n, ` ${MINUS} `)}${rest}`, 1);
     }
     case "*": {
       // Faktor 1 wird nicht geschrieben: 1·x → x, x·1 → x (nur vor Variable, Funktion, Potenz oder Klammer)
@@ -559,26 +641,83 @@ export function alsTex(n, aussen = 0, rechts = false) {
       if (n.a.k === "num" && n.a.v === 1 && FOLGT.includes(n.b.k)) return alsTex(n.b, aussen, rechts);
       if (n.b.k === "num" && n.b.v === 1 && FOLGT.includes(n.a.k)) return alsTex(n.a, aussen, rechts);
       const l = alsTex(n.a, 2), r = alsTex(n.b, 2, n.b.k !== "*");
-      const punkt = /[0-9}]$/.test(l) && /^[0-9−-]/.test(r);
-      return klam(`${l}${punkt ? " \\cdot " : " "}${r}`, 2);
+      let lt = l, rt = r;
+      if (PX) { const alt = PX; PX = null; lt = alsTex(n.a, 2); rt = alsTex(n.b, 2, n.b.k !== "*"); PX = alt; }
+      const punkt = /[0-9}]$/.test(lt) && /^[0-9−-]/.test(rt);
+      return klam(`${l}${opb(n, punkt ? " \\cdot " : " ")}${r}`, 2);
     }
-    case "/": return klam(`\\frac{${alsTex(ohneAussenPar(n.a), 0)}}{${alsTex(ohneAussenPar(n.b), 0)}}`, 3);
+    case "/": return klam(`\\frac{${gr(n.a)}}{${gr(n.b)}}`, 3);
     case "^": {
       const basis = n.a.k === "fn" || n.a.k === "log" ? `(${alsTex(n.a, 0)})` : alsTex(n.a, 5);
-      return klam(`${basis}^{${alsTex(ohneAussenPar(n.b), 0)}}`, 4);
+      const o = px(n);
+      return `${klam(`${basis}^{${gr(n.b, true)}}`, 4)}${o ? marke(o.e) : ""}`;
     }
     case "fn": {
-      const arg = alsTex(ohneAussenPar(n.a), 0);
-      if (n.n === "sqrt") return `\\sqrt{${arg}}`;
-      return `\\${n.n}(${arg})`;
+      const o = px(n);
+      if (!o) {
+        const arg = alsTex(ohneAussenPar(n.a), 0);
+        if (n.n === "sqrt") return `\\sqrt{${arg}}`;
+        return `\\${n.n}(${arg})`;
+      }
+      const innen = feldWenn(o.g0, gr(n.a, n.n === "sqrt", o.e));
+      if (n.n === "sqrt") return `${marke(o.s)}\\sqrt{${innen}}${marke(o.e)}`;
+      const auf = o.g0 !== undefined ? blatt(o.g0, o.g0 + 1, "(", true) : "(";
+      const zu = o.g0 !== undefined ? blatt(o.g1, o.g1 + 1, ")") : ")";
+      return `${blatt(o.ns, o.ne, `\\${n.n}`)}${auf}${innen}${zu}`;
     }
     case "log": {
-      const arg = alsTex(ohneAussenPar(n.a), 0);
-      if (n.zehn) return `\\log(${arg})`;
-      return `\\log_{${alsTex(ohneAussenPar(n.b), 0)}}(${arg})`;
+      const o = px(n);
+      if (!o) {
+        const arg = alsTex(ohneAussenPar(n.a), 0);
+        if (n.zehn) return `\\log(${arg})`;
+        return `\\log_{${alsTex(ohneAussenPar(n.b), 0)}}(${arg})`;
+      }
+      const innen = feldWenn(o.g0, gr(n.a));
+      const auf = o.g0 !== undefined ? blatt(o.g0, o.g0 + 1, "(", true) : "(";
+      const zu = o.g0 !== undefined ? blatt(o.g1, o.g1 + 1, ")") : ")";
+      const name = blatt(o.ns, o.ne, "\\log");
+      if (n.zehn) return `${name}${auf}${innen}${zu}`;
+      return `${name}_{${feldWenn(o.b0, gr(n.b, true, o.be))}}${auf}${innen}${zu}`;
     }
     default: return "";
   }
+}
+
+/* Anzeige mit Schreibmarke an der Stelle pos des Eingabetexts roh (n = geparster, ggf. ergänzter Baum).
+   Durchlauf 1 sammelt die Stellen, die sichtbar sind; liegt pos auf einer unsichtbaren Stelle (etwa
+   zwischen „sin“ und „(“), rückt die Marke zur nächsten sichtbaren. Durchlauf 2 zeichnet.
+   Steht die Marke auf einem Platzhalter ▯, ist er selbst das Zeichen „hier schreibst du“ (markiertes
+   Kästchen) – dann gibt es keinen zusätzlichen Strich. */
+export function alsTexPos(n, pos, roh = "") {
+  if (!n) return "";
+  const alt = PX;
+  try {
+    const p0 = Math.max(0, Math.min(pos, roh.length));
+    PX = { p: -1, cursor: false, auf: -1, stellen: new Set(), aktivBox: false, gesetzt: false };
+    alsTex(n);
+    const mgl = [...PX.stellen].filter((q) => q <= roh.length);
+    let p = p0;
+    if (mgl.length && !mgl.includes(p0)) {
+      p = mgl.reduce((best, q) => (Math.abs(q - p0) < Math.abs(best - p0) || (Math.abs(q - p0) === Math.abs(best - p0) && q > best) ? q : best), mgl[0]);
+    }
+    const aktivBox = boxBei(n, p);
+    PX = { p, cursor: !aktivBox, auf: innersteKlammer(roh, p0), stellen: null, aktivBox, gesetzt: false };
+    let tex = alsTex(n);
+    if (PX.cursor && !PX.gesetzt) tex += "\\cursor ";
+    return tex;
+  } finally { PX = alt; }
+}
+const boxBei = (n, p) => !!n && ((n.k === "box" && !!n._p && n._p.s === p) || boxBei(n.a, p) || boxBei(n.b, p));
+
+/* Stelle der innersten offenen Klammer „(“ oder „[“, die die Schreibmarke umschließt (sonst −1) */
+export function innersteKlammer(text, pos) {
+  const stapel = [];
+  const bis = Math.max(0, Math.min(pos, text.length));
+  for (let i = 0; i < bis; i++) {
+    if (text[i] === "(" || text[i] === "[") stapel.push(i);
+    else if ((text[i] === ")" || text[i] === "]") && stapel.length) stapel.pop();
+  }
+  return stapel.length ? stapel[stapel.length - 1] : -1;
 }
 const ohneAussenPar = (n) => (n && n.k === "par" ? ohneAussenPar(n.a) : n);
 
@@ -586,11 +725,11 @@ const ohneAussenPar = (n) => (n && n.k === "par" ? ohneAussenPar(n.a) : n);
    sofort als gesetzte Formel, nicht als Rohtext. Dafür wird er nur zur Anzeige ergänzt:
    ein fehlender Operand wird zum Platzhalter ▯, offene Klammern werden geschlossen.
    Gibt null zurück, wenn der Text Zeichen enthält, die keine Formel ergeben. */
-export function liveTex(text) {
+export function liveBaum(text) {
   const roh = String(text || "");
   if (!roh.trim()) return null;
   const direkt = parse(roh);
-  if (direkt) return alsTex(direkt);
+  if (direkt) return direkt;
   const WILL_OPERAND = new Set(["+", "-", "*", "/", "^", "(", "[", "fn", "]"]);
   let rand = [roh];
   const gesehen = new Set(rand);
@@ -612,7 +751,7 @@ export function liveTex(text) {
         if (gesehen.has(c)) continue;
         gesehen.add(c);
         const b = parse(c);
-        if (b) return alsTex(b);
+        if (b) return b;
         neu.push(c);
       }
     }
@@ -620,6 +759,16 @@ export function liveTex(text) {
     rand = neu.slice(0, 24);
   }
   return null;
+}
+export function liveTex(text) {
+  const b = liveBaum(text);
+  return b ? alsTex(b) : null;
+}
+/* Wie liveTex, mit Schreibmarke an der Stelle pos (und markiertem Platzhalter, grauer Klammer, Klick-Stellen) */
+export function liveTexPos(text, pos) {
+  const roh = String(text || "");
+  const b = liveBaum(roh);
+  return b ? alsTexPos(b, pos, roh) : null;
 }
 
 /* Formel-Anzeige für Eingabezeilen: immer im gleichen Schriftbild wie die Aufgabe oben.

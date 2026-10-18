@@ -26,12 +26,64 @@ import { MatheFeld } from "./matheTastatur.jsx";
 
 /* ---------- 1. Formel-Engine ---------- */
 
-import { MAX_LISTE, ableitung, alsTex, alsText, analysiere, biquadratischeKoeffizienten, div, endlich, fn, grenzeTxt, hatBox, hatX, kompiliere, liveTex, mitSchreibmarke, ohnePar, parse, rund, tiefZiffer, tokenisiere, vereinfache, wert, zahl } from "./formelEngine.js";
+import { MAX_LISTE, ableitung, alsTex, alsText, analysiere, biquadratischeKoeffizienten, div, endlich, fn, grenzeTxt, hatBox, hatX, kompiliere, liveTex, liveTexPos, mitSchreibmarke, ohnePar, parse, rund, tiefZiffer, tokenisiere, vereinfache, wert, zahl } from "./formelEngine.js";
+import { naechsterPlatz, stelleAusKlick, stelleLinks, stelleRechts } from "./formelCursor.js";
 export { ableitung, alsTex, alsText, analysiere, biquadratischeKoeffizienten, hatBox, hatX, kompiliere, liveTex, mitSchreibmarke, ohnePar, parse, tokenisiere, vereinfache, wert };
 
-export function LiveFormel({ text }) {
+export function LiveFormel({ text, pos, setPos, hinweis }) {
+  // Mit pos und setPos ist es die Anzeige des Feldes, in das gerade geschrieben wird (siehe EingabeFormel)
+  if (setPos) return <EingabeFormel text={text} pos={pos} setPos={setPos} hinweis={hinweis} />;
   const tex = liveTex(text);
   return tex ? <M t={tex} /> : <span style={{ whiteSpace: "pre" }}>{text}</span>;
+}
+
+/* Formel-Anzeige des Feldes, in das gerade geschrieben wird:
+   · die Schreibmarke steht dort, wo getippt wird (nicht vorn und nicht am Ende)
+   · steht sie auf einem Platzhalter ▯, ist der als markiertes Kästchen zu sehen
+   · die Klammer, in der man steckt, ist grau hinterlegt
+   · ein Klick irgendwo in die Formel setzt die Schreibmarke dorthin; rechts neben einen Exponenten oder eine
+     Wurzel geklickt, geht es dahinter weiter (+, ×, Potenz …).
+   Ohne setPos bleibt es eine reine Anzeige. */
+const MARKE_CSS = `@keyframes mBlink{0%,55%{opacity:1}56%,100%{opacity:0}}
+.m-cursor{animation:mBlink 1.05s infinite}
+@keyframes mBoxPuls{0%,55%{background:rgba(165,0,68,.16)}56%,100%{background:rgba(165,0,68,.04)}}
+.m-boxaktiv{animation:mBoxPuls 1.05s infinite}
+@media (prefers-reduced-motion: reduce){.m-cursor,.m-boxaktiv{animation:none}}`;
+
+export function EingabeFormel({ text, pos, setPos, hinweis, style }) {
+  const wurzel = useRef(null);
+  const len = text.length;
+  const p = Math.max(0, Math.min(pos == null ? len : pos, len));
+  const tex = useMemo(() => liveTexPos(text, p), [text, p]);
+  // Die Marke bleibt im Blick, auch in einer langen Formel in einem seitlich scrollbaren Feld
+  useEffect(() => {
+    const el = wurzel.current && wurzel.current.querySelector(".m-cursor, .m-boxaktiv");
+    try { if (el && el.scrollIntoView) el.scrollIntoView({ block: "nearest", inline: "nearest" }); } catch (e) { /* ältere Browser */ }
+  }, [text, p]);
+  const klick = (e) => {
+    e.stopPropagation();          // das Antippen der Formel setzt die Marke; es klappt das Feld nicht zu
+    const w = wurzel.current;
+    if (!w) return;
+    const blaetter = [...w.querySelectorAll("[data-s]")].map((el) => {
+      const r = el.getBoundingClientRect();
+      const gruppen = [];
+      for (let a = el.parentElement; a && a !== w; a = a.parentElement) {
+        if (a.hasAttribute("data-ge")) gruppen.push({ ge: Number(a.getAttribute("data-ge")), r: a.getBoundingClientRect().right });
+      }
+      return { s: Number(el.getAttribute("data-s")), e: Number(el.getAttribute("data-e")), l: r.left, r: r.right, t: r.top, b: r.bottom, gruppen };
+    });
+    setPos(stelleAusKlick(e.clientX, e.clientY, blaetter, len));
+  };
+  const inhalt = !len
+    ? <><span className="m-cursor" aria-hidden="true" style={{ display: "inline-block", width: "0.12em", height: "1.08em", background: C.gruen, borderRadius: 1.5, margin: "0 0.05em", verticalAlign: "middle" }} />{hinweis}</>
+    : tex ? <M t={tex} />
+      : <span style={{ whiteSpace: "pre" }}>{text.slice(0, p)}<span className="m-cursor" aria-hidden="true" style={{ color: C.gruen }}>|</span>{text.slice(p)}</span>;
+  return (
+    <span ref={wurzel} onClick={klick} data-eingabe-formel="" style={{ cursor: "text", display: "inline-block", minWidth: 28, ...style }}>
+      <style>{MARKE_CSS}</style>
+      {inhalt}
+    </span>
+  );
 }
 
 export function baueAllgemeineDiskussion(baum, A) {
@@ -235,7 +287,7 @@ const TASTEN = [
   { z: "−", e: "-", art: "op" }, { z: "▯ⁿ", e: `^(${PLATZ})`, art: "op", titel: "hoch" }, { z: "π", e: "pi", art: "var" },
 
   { z: "0", e: "0" }, { z: ",", e: "," }, { z: "x", e: "x", art: "var" },
-  { z: "+", e: "+", art: "op" }, { z: "▯ →", e: null, art: "nav", aktion: "platz", titel: "nächster Platzhalter", span: 2 },
+  { z: "+", e: "+", art: "op" }, { z: "▯ →", e: null, art: "nav", aktion: "platz", titel: "Nächster Platzhalter – danach aus der Klammer heraus", span: 2 },
 ];
 
 const LOESCH_EINHEITEN = ["sqrt(", "sin(", "cos(", "tan(", "log[", "log(", "ln(", "pi", "e^("];
@@ -317,6 +369,7 @@ export function Tastenfeld({ wert: text, setWert, pos, setPos, kompakt, onOk, fu
   const setzen = (t, p) => { setWert(t); setPos(Math.max(0, Math.min(p, t.length))); };
   const einfuegen = (s) => {
     let t = text, p = pos;
+    if (s === ")" && t[p] === ")") { setPos(p + 1); return; }   // schließende Klammer: steht schon eine, nur darüber hinweg (wie beim Taschenrechner)
     if ((s === "+" || s === "-") && t[p] === ")") p = hinterFertigemExponenten(t, p);
     if (t[p] === PLATZ) t = t.slice(0, p) + s + t.slice(p + 1);
     else t = t.slice(0, p) + s + t.slice(p);
@@ -330,16 +383,11 @@ export function Tastenfeld({ wert: text, setWert, pos, setPos, kompakt, onOk, fu
     const n = einheit ? einheit.length : 1;
     setzen(text.slice(0, pos - n) + text.slice(pos), pos - n);
   };
-  const naechsterPlatz = () => {
-    const ab = text.indexOf(PLATZ, pos + 1);
-    const idx = ab >= 0 ? ab : text.indexOf(PLATZ);
-    setPos(idx >= 0 ? idx : text.length);
-  };
   const klick = (t) => {
-    if (t.aktion === "platz") return naechsterPlatz();
+    if (t.aktion === "platz") return setPos(naechsterPlatz(text, pos));
     if (t.aktion === "leer") return setzen("", 0);
-    if (t.aktion === "links") return setPos(Math.max(0, pos - 1));
-    if (t.aktion === "rechts") return setPos(Math.min(text.length, pos + 1));
+    if (t.aktion === "links") return setPos(stelleLinks(text, pos));
+    if (t.aktion === "rechts") return setPos(stelleRechts(text, pos));
     if (t.aktion === "zurueck") return zurueck();
     if (t.aktion === "ok") return onOk && onOk();
     einfuegen(vonX && t.ex ? t.ex : t.e);
@@ -382,7 +430,7 @@ export function Tastenfeld({ wert: text, setWert, pos, setPos, kompakt, onOk, fu
       { z: "▯/▯", e: `(${PLATZ})/(${PLATZ})`, art: "op", titel: "Bruch" }, { z: "▯ⁿ", e: `^(${PLATZ})`, art: "op", titel: "hoch" },
       { z: "(", e: "(", art: "op" }, { z: ")", e: ")", art: "op" },
       { z: "e", e: "e", art: "var" }, { z: "π", e: "pi", art: "var" },
-      { z: "▯ →", e: null, art: "nav", aktion: "platz", titel: "nächster Platzhalter" },
+      { z: "▯ →", e: null, art: "nav", aktion: "platz", titel: "Nächster Platzhalter – danach aus der Klammer heraus" },
     ];
     return (
       <div ref={wurzel} style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)", columnGap: 12, alignItems: "stretch" }}>
@@ -486,21 +534,23 @@ function Eingabe({ text, setText }) {
   const [tippen, setTippen] = useState(false);
   const [offen, setOffen] = useState(true);
   const baum = useMemo(() => parse(text), [text]);
-  const anzeige = useMemo(() => (tippen || !offen ? null : parse(mitSchreibmarke(text, pos))), [text, pos, tippen, offen]);
   // Auch ein unvollständiger Term wird beim Tippen als Formel gesetzt (nie als Rohtext)
-  const tex = useMemo(() => (anzeige ? alsTex(anzeige) : null) || (offen && !tippen ? liveTex(mitSchreibmarke(text, pos)) : null) || liveTex(text),
-    [anzeige, text, pos, tippen, offen]);
+  const tex = useMemo(() => liveTex(text), [text]);
+  const marke = offen && !tippen;   // Schreibmarke zeigen und per Klick setzen, solange das Tastenfeld offen ist
   const unfertig = baum && hatBox(baum);
 
   return (
     <div>
-      <style>{`@keyframes mBlink{0%,55%{opacity:1}56%,100%{opacity:0}} .m-cursor{animation:mBlink 1.05s infinite}
-        @media (prefers-reduced-motion: reduce){.m-cursor{animation:none}}`}</style>
       {/* Anzeige */}
       <div style={{ background: C.weiss, border: `1.5px solid ${tex || !text ? C.linie : C.signal}`, borderRadius: 14,
         padding: "12px 14px", minHeight: 64, overflowX: "auto", display: "flex", alignItems: "center", gap: 8 }}>
         <span style={{ fontSize: 20, fontWeight: 700, color: C.tinte, whiteSpace: "nowrap" }}>f(x) =</span>
-        {text ? (
+        {marke ? (
+          <span style={{ fontSize: 21, lineHeight: 1.9 }}>
+            <EingabeFormel text={text} pos={pos} setPos={setPos}
+              hinweis={<span style={{ fontSize: 15, color: C.hellgrau, fontWeight: 300, marginLeft: 6 }}>Tippe eine Funktion ein …</span>} />
+          </span>
+        ) : text ? (
           tex ? <span style={{ fontSize: 21, lineHeight: 1.9 }}><M t={tex} /></span>
             : <span style={{ fontSize: 21, lineHeight: 1.9, whiteSpace: "pre" }}>{text}</span>
         ) : (

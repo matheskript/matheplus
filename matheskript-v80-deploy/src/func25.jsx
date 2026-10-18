@@ -16,7 +16,7 @@ import { buchen, useStateGebucht } from "./buchung.jsx";
 import { uebergabeErledigt, uebergabeLesen } from "./uebergabe.js";
 import { C } from "./base1.jsx";
 import { M } from "./func3.jsx";
-import { Tastenfeld, ableitung, alsTex, analysiere, hatBox, kompiliere, ohnePar, parse, wert } from "./func12.jsx";
+import { LiveFormel, Tastenfeld, ableitung, alsTex, analysiere, hatBox, kompiliere, ohnePar, parse, wert } from "./func12.jsx";
 import { STELLEN, vergleich } from "./func13.jsx";
 import { IchHaengeFest, summanden } from "./funcHilfe.jsx";
 import { Anfangsbedingung, BestandAenderungsrate, FlaecheBilanz, ZwischenZweiGraphen } from "./funcIntegraleNeu.jsx";
@@ -358,13 +358,14 @@ function StammTrainer({ art }) {
         <span style={{ color: C.weiss, fontSize: 21, fontWeight: 700, whiteSpace: "nowrap", lineHeight: 1.7 }}>{fBaum && <M t={`f(x) = ${tx(fBaum)}`} />}</span>
       </div>
 
-      <div onClick={status === "richtig" ? undefined : () => setOffen((o) => !o)}
+      <div onClick={status === "richtig" ? undefined : () => { if (!offen) setPos(eingabe.length); setOffen((o) => !o); }}
         style={{ border: `2px solid ${rand}`, borderRadius: 14, padding: "6px 14px", marginBottom: 8, display: "flex", alignItems: "center", gap: 8, overflowX: "auto",
         cursor: status === "richtig" ? "default" : "pointer", background: status === "richtig" ? "#EEF8F2" : C.weiss }}>
         <span style={{ fontSize: 18, fontWeight: 700, color: C.tinte, whiteSpace: "nowrap" }}>F(x) =</span>
         <span style={{ fontSize: 19, lineHeight: 1.7, whiteSpace: "nowrap" }}>
-          {eingabe ? (eingabeBaum ? <M t={tx(eingabeBaum)} /> : <span style={{ color: C.signal, fontSize: 15 }}>{eingabe}</span>)
-            : <span style={{ color: C.hellgrau, fontSize: 14, fontWeight: 300 }}>hier eingeben …</span>}
+          {offen && status !== "richtig" ? <LiveFormel text={eingabe || ""} pos={pos} setPos={setPos} hinweis={<span style={{ color: C.hellgrau, fontSize: 14, fontWeight: 300 }}>hier eingeben …</span>} />
+            : eingabe ? (eingabeBaum ? <M t={tx(eingabeBaum)} /> : <span style={{ color: C.signal, fontSize: 15 }}>{eingabe}</span>)
+              : <span style={{ color: C.hellgrau, fontSize: 14, fontWeight: 300 }}>hier eingeben …</span>}
         </span>
         <span style={{ fontSize: 19, fontWeight: 700, color: C.goldWarm, whiteSpace: "nowrap" }} title="Die Konstante C ergänzt die App automatisch">+ C</span>
         {status === "richtig" && <span style={{ marginLeft: "auto", fontSize: 22, color: C.smaragd, fontWeight: 700 }}>✓</span>}
@@ -523,7 +524,8 @@ function BestimmtesIntegral({ zeigeHauptsatz, start }) {
           fontFamily: "inherit", textAlign: "left", overflowX: "auto", border: `1.5px solid ${an ? C.see : C.linie}`, background: an ? C.sand : C.weiss, color: C.tinte }}>
         <span style={{ fontSize: 16, fontWeight: 700, whiteSpace: "nowrap", minWidth: 58 }}>{label}</span>
         <span style={{ fontSize: 18, whiteSpace: "nowrap" }}>
-          {felder[k] ? (baum ? <M t={tx(baum)} /> : <span style={{ color: C.signal, fontSize: 15 }}>{felder[k]}</span>) : <span style={{ color: C.hellgrau, fontSize: 14, fontWeight: 300 }}>{an ? "eingeben …" : ""}</span>}
+          {an ? <LiveFormel text={felder[k] || ""} pos={pos} setPos={setPos} hinweis={<span style={{ color: C.hellgrau, fontSize: 14, fontWeight: 300 }}>eingeben …</span>} />
+            : felder[k] ? (baum ? <M t={tx(baum)} /> : <span style={{ color: C.signal, fontSize: 15 }}>{felder[k]}</span>) : null}
         </span>
       </button>
     );

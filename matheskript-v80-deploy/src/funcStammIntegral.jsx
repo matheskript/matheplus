@@ -139,7 +139,11 @@ function StammTeil({ modus }) {
   const [aktiv, setAktiv] = useState(null);          // null | f | F – Eingabe öffnet erst beim Antippen
   const [bilanz, setBilanz] = useState({ richtig: 0, gesamt: 0 });
   const training = modus === "training";
-  const waehle = (id) => setAktiv((a) => (a === id ? null : id));
+  const waehle = (id) => {
+    // Beim Öffnen steht die Schreibmarke am Ende des Terms (nicht vorn)
+    if (aktiv !== id) { if (id === "f") setPosF(fText.length); else setF((e) => ({ ...e, pos: e.text.length })); }
+    setAktiv((a) => (a === id ? null : id));
+  };
 
   const f = useMemo(() => lies(fText), [fText]);
   const st = useMemo(() => (f ? stammfunktion(f) : null), [f]);
@@ -222,12 +226,14 @@ function StammTeil({ modus }) {
         </div>
 
         <div className="wk-grid">
-          <Feld label="f(x) =" labelFarbe={FARBE.u} text={fText} aktiv={!training && aktiv === "f"} still={training} onClick={() => waehle("f")} platzhalter="f eingeben …" />
+          <Feld label="f(x) =" labelFarbe={FARBE.u} text={fText} aktiv={!training && aktiv === "f"} still={training} onClick={() => waehle("f")} platzhalter="f eingeben …"
+            pos={posF} setPos={setPosF} />
           <span className="wk-pfeil" aria-hidden="true">→</span>
           {!training ? <Feld label="F(x) =" labelFarbe={FARBE.v} tex={gueltig ? `${tex(st.F)} + C` : (f && !st ? "" : "")} still
             extra={f && !st ? <span style={{ fontSize: 12, color: C.signal }}>keine Regel</span> : null} />
             : F.status === "gezeigt" ? <Feld label="F(x) =" labelFarbe={FARBE.v} tex={`${F.zeig} + C`} status="gezeigt" still />
               : <Feld label="F(x) =" labelFarbe={FARBE.v} text={F.text ? `${F.text}` : ""} aktiv={aktiv === "F"} status={F.status} onClick={() => waehle("F")}
+                pos={F.pos} setPos={(q) => setF((e) => ({ ...e, pos: q }))}
                 platzhalter="F eingeben …" extra={F.text ? <span style={{ fontSize: 15, color: C.grau, whiteSpace: "nowrap" }}>+ C</span> : null} />}
         </div>
         {aktiv && !fertig && (
@@ -395,7 +401,8 @@ function IntegralTeil({ modus, start }) {
 
         {/* Aufgabe: f, a, b */}
         <div style={{ marginTop: 14 }}>
-          <Feld label="f(x) =" labelFarbe={FARBE.u} text={fText} aktiv={!training && aktiv === "f"} still={training} onClick={() => setAktiv((a) => (a === "f" ? null : "f"))} platzhalter="f eingeben …" />
+          <Feld label="f(x) =" labelFarbe={FARBE.u} text={fText} aktiv={!training && aktiv === "f"} still={training} onClick={() => { if (aktiv !== "f") setPosF(fText.length); setAktiv((a) => (a === "f" ? null : "f")); }} platzhalter="f eingeben …"
+            pos={posF} setPos={setPosF} />
           <div style={{ display: "flex", alignItems: "center", gap: 14, margin: "10px 2px 0", flexWrap: "wrap" }}>
             <span style={{ fontSize: 13.5, color: C.grau, fontWeight: 600 }}>Grenzen</span>
             {training ? (
@@ -432,7 +439,8 @@ function IntegralTeil({ modus, start }) {
                 </p>
               </>
             ) : F.status === "gezeigt" ? <Feld label="F(x) =" labelFarbe={FARBE.v} tex={F.zeig} status="gezeigt" still />
-              : <Feld label="F(x) =" labelFarbe={FARBE.v} text={F.text} aktiv={aktiv === "F" && !FFertig} status={F.status} still={FFertig} onClick={() => setAktiv((a) => (a === "F" ? null : "F"))} platzhalter="Stammfunktion eingeben …" />}
+              : <Feld label="F(x) =" labelFarbe={FARBE.v} text={F.text} aktiv={aktiv === "F" && !FFertig} status={F.status} still={FFertig} onClick={() => { if (aktiv !== "F") setF((e) => ({ ...e, pos: e.text.length })); setAktiv((a) => (a === "F" ? null : "F")); }} platzhalter="Stammfunktion eingeben …"
+                pos={F.pos} setPos={(q) => setF((e) => ({ ...e, pos: q }))} />}
             {training && aktiv === "F" && !FFertig && (
               <EingabePopup>
                 {F.versuche > 0 && <button type="button" onClick={loesungF}

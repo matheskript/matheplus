@@ -118,7 +118,7 @@ function diagnose(g, soll, vorher, stufe) {
 }
 
 /* Eine Ableitungszeile: Label, Formelanzeige, Status. */
-function Zeile({ stufe, aktiv, eintrag, onKlick }) {
+function Zeile({ stufe, aktiv, eintrag, onKlick, pos, setPos }) {
   const farbe = eintrag.status === "richtig" ? C.smaragd : eintrag.status === "falsch" ? C.signal : aktiv ? C.see : C.linie;
   return (
     <div onClick={onKlick}
@@ -128,8 +128,9 @@ function Zeile({ stufe, aktiv, eintrag, onKlick }) {
         boxShadow: aktiv ? "0 4px 16px rgba(0,77,152,0.12)" : "none", transition: "box-shadow .2s, border-color .2s" }}>
       <span style={{ fontSize: 20, fontWeight: 700, color: C.tinte, whiteSpace: "nowrap" }}>f{STRICHE[stufe]}(x) =</span>
       <span style={{ flex: 1, fontSize: 22, lineHeight: 1.9, whiteSpace: "nowrap" }}>
-        {eintrag.text ? <LiveFormel text={eintrag.text} />
-          : <span style={{ color: C.hellgrau, fontSize: 15, fontWeight: 300 }}>{aktiv ? "hier eingeben …" : ""}</span>}
+        {setPos ? <LiveFormel text={eintrag.text || ""} pos={pos} setPos={setPos} hinweis={<span style={{ color: C.hellgrau, fontSize: 15, fontWeight: 300 }}>hier eingeben …</span>} />
+          : eintrag.text ? <LiveFormel text={eintrag.text} />
+            : <span style={{ color: C.hellgrau, fontSize: 15, fontWeight: 300 }}>{aktiv ? "hier eingeben …" : ""}</span>}
       </span>
       {eintrag.status === "richtig" && <span style={{ fontSize: 24, color: C.smaragd, fontWeight: 700 }}>✓</span>}
       {eintrag.status === "falsch" && <span style={{ fontSize: 24, color: C.signal, fontWeight: 700 }}>✗</span>}
@@ -326,8 +327,7 @@ export function Ableitungstrainer() {
               display: "flex", alignItems: "center", gap: 8, overflowX: "auto", marginBottom: 10 }}>
               <span style={{ fontWeight: 700, fontSize: 20 }}>f(x) =</span>
               <span style={{ fontSize: 22, lineHeight: 1.9 }}>
-                {eigenText ? <LiveFormel text={eigenText} />
-                  : <span style={{ color: C.hellgrau, fontSize: 15 }}>…</span>}
+                <LiveFormel text={eigenText} pos={eigenPos} setPos={setEigenPos} hinweis={<span style={{ color: C.hellgrau, fontSize: 15 }}>…</span>} />
               </span>
             </div>
             <Tastenfeld wert={eigenText} setWert={setEigenText} pos={eigenPos} setPos={setEigenPos} onOk={uebernehmen} />
@@ -375,7 +375,8 @@ export function Ableitungstrainer() {
             ) : zeilen.map((z, i) => (
               <div key={i}>
                 <Zeile stufe={i + 1} aktiv={i === aktiv && !fertig} eintrag={z.status === "gezeigt" ? { ...z, text: "" } : z}
-                  onKlick={i === aktiv && !fertig ? () => setOffen((o) => !o) : undefined} />
+                  onKlick={i === aktiv && !fertig ? () => { if (!offen) setPos(z.text.length); setOffen(!offen); } : undefined}
+                  pos={pos} setPos={i === aktiv && !fertig && offen ? setPos : undefined} />
                 {i === aktiv && !fertig && offen && (
                   <EingabePopup style={{ marginTop: -4, marginBottom: 14 }}>
                     {eintrag && eintrag.versuche > 0 && (

@@ -154,14 +154,17 @@ ${POP_CSS}
 export const FARBE = { u: C.see, v: C.gruen };
 
 /* Ein Eingabe-/Anzeigefeld: Label „u(x) =“, Formel, Status */
-export function Feld({ label, labelFarbe, text, tex: fertigTex, aktiv, status, still, platzhalter = "hier eingeben …", onClick, extra, kopf, gestapelt }) {
+export function Feld({ label, labelFarbe, text, tex: fertigTex, aktiv, status, still, platzhalter = "hier eingeben …", onClick, extra, kopf, gestapelt, pos, setPos }) {
+  const hinweis = <span style={{ color: C.hellgrau, fontSize: 14, fontWeight: 300 }}>{aktiv ? platzhalter : ""}</span>;
   const zeile = (
     <>
       <span className="wk-label" style={labelFarbe ? { color: labelFarbe } : undefined}>{label}</span>
       <span className="wk-inhalt">
         {fertigTex !== undefined ? (fertigTex ? <M t={fertigTex} /> : <span style={{ color: C.hellgrau, fontSize: 14, fontWeight: 300 }}>…</span>)
-          : text ? <LiveFormel text={text} />
-            : <span style={{ color: C.hellgrau, fontSize: 14, fontWeight: 300 }}>{aktiv ? platzhalter : ""}</span>}
+          // Aktives Feld (pos/setPos): Schreibmarke an der echten Stelle, Platzhalter markiert, Klick setzt die Marke
+          : aktiv && setPos ? <LiveFormel text={text || ""} pos={pos} setPos={setPos} hinweis={hinweis} />
+            : text ? <LiveFormel text={text} />
+              : hinweis}
       </span>
       {status === "richtig" && <span style={{ fontSize: 22, color: C.smaragd, fontWeight: 700 }}>✓</span>}
       {status === "falsch" && <span style={{ fontSize: 22, color: C.signal, fontWeight: 700 }}>✗</span>}
@@ -681,7 +684,14 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
   };
 
   // Tippen auf das aktive Feld schließt das Pop-up
-  const waehleFeld = (id) => setAktiv(aktiv === id ? null : id);
+  const waehleFeld = (id) => {
+    // Beim Öffnen steht die Schreibmarke am Ende des Terms (nicht vorn)
+    if (aktiv !== id) {
+      if (training && felder[id]) setFeld(id, { pos: felder[id].text.length });
+      else if (!training && (id === "u" || id === "v")) setPosUV((o) => ({ ...o, [id]: (id === "u" ? uText : vText).length }));
+    }
+    setAktiv(aktiv === id ? null : id);
+  };
   useEffect(() => {
     if (aktiv && popRef.current && popRef.current.scrollIntoView) {
       try { popRef.current.scrollIntoView({ block: "nearest", behavior: "smooth" }); } catch (e) { /* ältere Browser */ }
@@ -700,11 +710,12 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
     const e = felder[id];
     if (!training) return <Feld kopf={kopf} gestapelt={gestapelt} label={label} labelFarbe={FARBE[teil]} tex={gueltig ? ablTex(id) : ""} still />;
     if (e.status === "gezeigt") return <Feld kopf={kopf} gestapelt={gestapelt} label={label} labelFarbe={FARBE[teil]} tex={e.zeig} status="gezeigt" still />;
-    return <Feld kopf={kopf} gestapelt={gestapelt} label={label} labelFarbe={FARBE[teil]} text={e.text} aktiv={aktiv === id} status={e.status} onClick={() => waehleFeld(id)} />;
+    return <Feld kopf={kopf} gestapelt={gestapelt} label={label} labelFarbe={FARBE[teil]} text={e.text} aktiv={aktiv === id} status={e.status} onClick={() => waehleFeld(id)}
+      pos={e.pos} setPos={(q) => setFeld(id, { pos: q })} />;
   };
   const uvFeld = (teil, text, setText, kopf) => (
     <Feld kopf={kopf} label={`${LABEL(art, teil)}(x) =`} labelFarbe={FARBE[teil]} text={text} aktiv={!training && aktiv === teil} still={training}
-      onClick={() => waehleFeld(teil)} platzhalter="u eingeben …" />
+      onClick={() => waehleFeld(teil)} platzhalter="u eingeben …" pos={posUV[teil]} setPos={(q) => setPosUV((o) => ({ ...o, [teil]: q }))} />
   );
 
   const eingabeText = training ? (felder[aktiv] ? felder[aktiv].text : "") : aktiv === "u" ? uText : vText;
@@ -767,7 +778,7 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
       {felder.f1.status === "gezeigt"
         ? <Feld label="f′(x) =" tex={felder.f1.zeig} status="gezeigt" still />
         : <Feld label="f′(x) =" text={felder.f1.text} aktiv={aktiv === "f1"} status={felder.f1.status} onClick={() => waehleFeld("f1")}
-          platzhalter="Regel anwenden und eintippen …" />}
+          platzhalter="Regel anwenden und eintippen …" pos={felder.f1.pos} setPos={(q) => setFeld("f1", { pos: q })} />}
       {felder.f1.hinweis && <p style={{ fontSize: 13.5, color: C.signal, lineHeight: 1.6, margin: "8px 4px 0" }}>{felder.f1.hinweis}</p>}
       {f1Popup && !voll && popup()}
     </div>
@@ -775,8 +786,8 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
 
   // Vollbild-Eingabe (nur Handy)
   const vollEingabe = {
-    inhalt: felder.f1.text ? <LiveFormel text={felder.f1.text} />
-      : <span style={{ color: C.hellgrau, fontSize: 14, fontWeight: 300 }}>Regel anwenden und eintippen …</span>,
+    inhalt: <LiveFormel text={felder.f1.text} pos={felder.f1.pos} setPos={(q) => setFeld("f1", { pos: q })}
+      hinweis={<span style={{ color: C.hellgrau, fontSize: 14, fontWeight: 300 }}>Regel anwenden und eintippen …</span>} />,
     status: felder.f1.status, onClick: () => setAktiv(null),
   };
   const vollbild = voll && createPortal(
