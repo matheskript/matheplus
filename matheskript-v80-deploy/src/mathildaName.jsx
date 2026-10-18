@@ -13,6 +13,19 @@ export function MathildaName({ dunkel }) {
   );
 }
 
+/* Logo-Schriftzug für den MathildaAI-Knopf im Kreislauf (nur dort, auf dunklem Grund): kleines M, „athilda“ weiß,
+   großes goldenes A, kleines goldenes I. Die normale Wortmarke oben bleibt überall sonst unverändert. */
+export function MathildaKnopfSchrift() {
+  return (
+    <span data-kein-i18n style={{ textTransform: "none", whiteSpace: "nowrap" }}>
+      <span style={{ fontSize: "0.78em", color: "#FFFFFF" }}>M</span>
+      <span style={{ color: "#FFFFFF" }}>athilda</span>
+      <span style={{ fontSize: "1.55em", lineHeight: 0, color: "#EDBB00" }}>A</span>
+      <span style={{ fontSize: "0.78em", color: "#EDBB00" }}>I</span>
+    </span>
+  );
+}
+
 /* Ersetzt in einem Text „Mathilda AI“ bzw. „MathildaAI“ durch die Wortmarke, alles andere bleibt unverändert. */
 export function mitMathildaAI(text, dunkel) {
   if (typeof text !== "string" || !/Mathilda ?AI/.test(text)) return text;

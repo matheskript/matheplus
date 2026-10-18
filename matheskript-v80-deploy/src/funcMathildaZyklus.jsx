@@ -5,7 +5,7 @@
    Der Pfad wird aus den echten Positionen der Knoten berechnet, damit er auf jedem Bildschirm sitzt. */
 import React, { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { C } from "./base1.jsx";
-import { mitMathildaAI } from "./mathildaName.jsx";
+import { mitMathildaAI, MathildaKnopfSchrift } from "./mathildaName.jsx";
 
 const GOLD = C.flaggold;
 const NACHT = C.seeTief;
@@ -209,19 +209,31 @@ export function MathildaZyklus({ scanRef, modus, setModus, weitere }) {
         .mz-scanmini { transition: transform .2s ease; }
         button.mz-zwei-k:hover .mz-scanmini, button.mz-zwei-k:focus-visible .mz-scanmini { transform: translateY(-2px); }
         .mz-scanmini .mz-nr { top: -9px; left: -9px; }
-        /* Handy: der große Scan-Knopf (Schritt 2) – pulsiert, blinkende Pfeile zeigen von oben darauf */
-        .mz-zwei-g { grid-column: 1 / span 2; grid-row: 1; align-self: start; align-items: flex-start; padding-left: 8px; }
-        .mz-zwei-g .mz-feld { height: 88px; justify-content: flex-start; }
+        /* Handy: Schritt 2 „Blatt scannen“ (goldene Pille, pulsiert, blinkende Pfeile von oben) und Schritt 3 „MathildaAI“
+           (dunkelblaue Pille mit goldenem Rand) stehen nebeneinander, beide gleich hoch (--pille); MathildaAI ist breiter. */
+        .mz-zwei-g { grid-column: 1; grid-row: 1; justify-self: start; align-self: start; align-items: flex-start; padding-left: 8px; }
+        .mz-zwei-g .mz-feld { height: auto; justify-content: flex-start; }
         button.mz-zwei-g:focus-visible { outline-offset: 2px; border-radius: 999px; }
-        .mz-scan-gross { gap: 10px; height: 60px; padding: 0 20px 0 7px; border-radius: 999px; color: ${NACHT}; text-align: left;
+        .mz-drei-p .mz-feld { height: auto; }
+        .mz-mai-pille { --pille: clamp(48px, 14.4vw, 54px); height: var(--pille); min-width: clamp(132px, 40vw, 152px); box-sizing: border-box; padding: 0 clamp(14px, 4.4vw, 20px);
+          justify-content: center; font-family: inherit; font-size: clamp(14px, 4.4vw, 17px); font-weight: 700; letter-spacing: -0.02em; line-height: 1; color: #FFFFFF;
+          background: ${NACHT}; border: 2px solid ${GOLD}; border-radius: 999px; cursor: pointer; -webkit-tap-highlight-color: transparent;
+          box-shadow: 0 8px 24px rgba(5,12,40,0.5), 0 0 22px rgba(237,187,0,0.28); transition: filter .15s ease, transform .15s ease; }
+        .mz-mai-pille::before { content: ""; position: absolute; inset: -7px; border-radius: 999px; border: 2px dashed rgba(237,187,0,0.7); pointer-events: none; animation: mz-atmen 2.6s ease-in-out infinite; }
+        .mz-mai-pille:hover { filter: brightness(1.15); }
+        .mz-mai-pille:active { transform: scale(0.97); }
+        .mz-mai-pille:focus-visible { outline: 2px solid ${GOLD}; outline-offset: 9px; }
+        @keyframes mz-atmen { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+        .mz-scan-gross { --pille: clamp(48px, 14.4vw, 54px); gap: 8px; height: var(--pille); padding: 0 clamp(12px, 4vw, 16px) 0 6px; border-radius: 999px; color: ${NACHT}; text-align: left;
           background: linear-gradient(135deg, #F8D23A 0%, ${GOLD} 55%, #D9A600 100%);
           box-shadow: 0 8px 24px rgba(237,187,0,0.42), 0 0 0 0 rgba(237,187,0,0.6), inset 0 1px 0 rgba(255,255,255,0.55);
           animation: mz-puls 1.7s ease-in-out infinite; transition: filter .15s ease; }
         button.mz-zwei-g:hover .mz-scan-gross { filter: brightness(1.06); }
         button.mz-zwei-g:active .mz-scan-gross { transform: scale(0.97); animation: none; }
-        .mz-sg-kam { width: 44px; height: 44px; border-radius: 999px; background: ${NACHT}; display: flex; align-items: center; justify-content: center; flex: none; }
-        .mz-sg-text { font-size: 16px; font-weight: 800; letter-spacing: -0.01em; line-height: 1.12; white-space: nowrap; }
-        .mz-scan-gross .mz-nr { top: -10px; left: -6px; width: 26px; height: 26px; font-size: 14px; background: ${NACHT}; color: ${GOLD}; border: 2px solid ${GOLD}; box-sizing: border-box; }
+        .mz-sg-kam { width: clamp(34px, 10.2vw, 38px); height: clamp(34px, 10.2vw, 38px); border-radius: 999px; background: ${NACHT}; display: flex; align-items: center; justify-content: center; flex: none; }
+        .mz-sg-kam svg { width: 20px; height: 20px; }
+        .mz-sg-text { font-size: clamp(12.5px, 3.7vw, 14px); font-weight: 800; letter-spacing: -0.01em; line-height: 1.12; white-space: nowrap; }
+        .mz-scan-gross .mz-nr { top: -10px; left: -6px; width: 24px; height: 24px; font-size: 13px; background: ${NACHT}; color: ${GOLD}; border: 2px solid ${GOLD}; box-sizing: border-box; }
         .mz-hinweis { position: absolute; left: 50%; bottom: calc(100% + 2px); transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; pointer-events: none; }
         .mz-hinweis svg { display: block; margin-top: -4px; opacity: 0.2; animation: mz-chev 1.3s ease-in-out infinite; }
         .mz-hinweis svg:nth-child(2) { animation-delay: .24s; }
@@ -245,9 +257,9 @@ export function MathildaZyklus({ scanRef, modus, setModus, weitere }) {
           .mz-eins .mz-text b { font-size: 12px; letter-spacing: -0.02em; }
           .mz-eins .mz-text span { font-size: 11px; }
           .mz-raster { row-gap: 34px; }
-          /* MAI ganz nach rechts (Spalte 3, mittig über Schritt 5), Text darunter; links bleibt Platz für den großen Scan-Knopf */
-          .mz-drei { grid-column: 3; grid-row: 1; flex-direction: column; align-items: center; justify-content: flex-start; padding-left: 0; text-align: center; left: 6px; }
-          .mz-drei .mz-text, .mz-drei .mz-text-l { margin: 4px 0 0; text-align: center; max-width: 112px; }
+          /* MathildaAI rechts neben dem Scan-Knopf (Spalten 2–3, rechtsbündig), Text mittig darunter */
+          .mz-drei { grid-column: 2 / span 2; grid-row: 1; justify-self: end; margin-right: 6px; flex-direction: column; align-items: center; justify-content: flex-start; padding-left: 0; text-align: center; }
+          .mz-drei .mz-text, .mz-drei .mz-text-l { margin: 8px 0 0; text-align: center; max-width: 150px; }
           .mz-eins { left: -8px; }
           .mz-fuenf { left: 6px; }
         }
@@ -265,7 +277,7 @@ export function MathildaZyklus({ scanRef, modus, setModus, weitere }) {
           .mz-text-l { margin-left: 18px; }
           .mz-papier svg { width: 100px; height: 100px; }
         }
-        @media (prefers-reduced-motion: reduce) { .mz-pfad, .mz-mai-ring, .mz-knoten, .mz-scan-gross, .mz-hinweis svg { animation: none; } .mz-hinweis svg { opacity: 0.9; } }
+        @media (prefers-reduced-motion: reduce) { .mz-pfad, .mz-mai-ring, .mz-knoten, .mz-scan-gross, .mz-hinweis svg, .mz-mai-pille::before { animation: none; } .mz-hinweis svg { opacity: 0.9; } }
       `}</style>
 
       <div className="mz" ref={zRef} role="group" aria-label="So lernst du mit Mathilda: ein Kreislauf in fünf Schritten">
@@ -278,12 +290,12 @@ export function MathildaZyklus({ scanRef, modus, setModus, weitere }) {
           </button>
 
           {mobil ? (
-            <button type="button" className="mz-knoten mz-zwei-g" aria-label="Scan dein Blatt" onClick={() => scanRef.current && scanRef.current.click()} style={{ animationDelay: "0.12s" }}>
+            <button type="button" className="mz-knoten mz-zwei-g" aria-label="Blatt scannen" onClick={() => scanRef.current && scanRef.current.click()} style={{ animationDelay: "0.12s" }}>
               <span className="mz-feld">
                 <span className="mz-form mz-scan-gross" ref={r2}>
                   <HinweisPfeile />
                   <span className="mz-sg-kam"><KameraGross /></span>
-                  <span className="mz-sg-text">Scan dein<br /> Blatt</span>
+                  <span className="mz-sg-text">Blatt<br /> scannen</span>
                   <span className="mz-nr">2</span>
                 </span>
               </span>
@@ -297,16 +309,26 @@ export function MathildaZyklus({ scanRef, modus, setModus, weitere }) {
             </button>
           )}
 
-          <div className="mz-knoten mz-drei" style={{ animationDelay: "0.2s" }}>
-            <span className="mz-feld" style={{ height: 88 }}>
-              <span className="mz-form mz-kreis mz-mai" ref={r3}>
-                <span className="mz-mai-ring" aria-hidden="true" />
-                <span className="mz-mai-t"><span style={{ color: "#FFFFFF" }}>M</span><span style={{ color: GOLD }}>AI</span></span>
+          {mobil ? (
+            <div className="mz-knoten mz-drei mz-drei-p" style={{ animationDelay: "0.2s" }}>
+              <button type="button" className="mz-form mz-mai-pille" ref={r3} aria-label="MathildaAI" onClick={() => setModus && setModus("chat")}>
+                <MathildaKnopfSchrift />
                 <span className="mz-nr">3</span>
+              </button>
+              <Beschriftung titel="MathildaAI arbeitet" text="Sie liest dein Blatt Zeile für Zeile" links refT={r3t} />
+            </div>
+          ) : (
+            <div className="mz-knoten mz-drei" style={{ animationDelay: "0.2s" }}>
+              <span className="mz-feld" style={{ height: 88 }}>
+                <span className="mz-form mz-kreis mz-mai" ref={r3}>
+                  <span className="mz-mai-ring" aria-hidden="true" />
+                  <span className="mz-mai-t"><span style={{ color: "#FFFFFF" }}>M</span><span style={{ color: GOLD }}>AI</span></span>
+                  <span className="mz-nr">3</span>
+                </span>
               </span>
-            </span>
-            <Beschriftung titel="MathildaAI arbeitet" text="Sie liest dein Blatt Zeile für Zeile" links refT={r3t} />
-          </div>
+              <Beschriftung titel="MathildaAI arbeitet" text="Sie liest dein Blatt Zeile für Zeile" links refT={r3t} />
+            </div>
+          )}
 
           <div className="mz-knoten mz-vier" style={{ animationDelay: "0.35s" }}>
             <span className="mz-feld">
