@@ -108,13 +108,13 @@ with sync_playwright() as p:
                 page.locator("button[aria-label^='Mittelstufe,']").first.click(); page.wait_for_timeout(300)
                 hoehen = [k.bounding_box()["height"] for k in page.locator("button[data-aufklapp-haupt]").all() if k.is_visible()]
                 print(breite, "Box-Höhen", hoehen)
-                pruefe(page.get_by_role("button", name="Bruchrechnen aufklappen").count() == 1, f"{breite}: Bereich Bruchrechnen fehlt in der Mittelstufe")
+                pruefe(page.get_by_role("button", name="Brüche und Dezimalzahlen aufklappen").count() == 1, f"{breite}: Bereich Bruchrechnen fehlt in der Mittelstufe")
                 page.get_by_role("button", name="Geometrie aufklappen").first.click(); page.wait_for_timeout(400)
                 for t in ["Winkel und Winkelsummen", "Kongruenzsätze", "Besondere Linien im Dreieck", "Satz des Thales", "Satz des Pythagoras", "Kathetensatz und Höhensatz", "Strahlensätze", "Trigonometrie am Dreieck", "Kreis und Kreisteile", "Körper: Volumen und Oberfläche"]:
                     pruefe(page.locator(f"button:has-text('{t}')").count() > 0, f"{breite}: {t} fehlt unter Geometrie")
                 page.screenshot(path=f"{AUS}/start-geometrie-{breite}.png", full_page=False)
                 page.get_by_role("button", name="Geometrie zuklappen").first.click(); page.wait_for_timeout(300)
-                page.get_by_role("button", name="Bruchrechnen aufklappen").first.click(); page.wait_for_timeout(400)
+                page.get_by_role("button", name="Brüche und Dezimalzahlen aufklappen").first.click(); page.wait_for_timeout(400)
                 for t in ["Brüche rechnen", "Bruchterme und -gleichungen"]:
                     pruefe(page.locator(f"button:has-text('{t}')").count() > 0, f"{breite}: {t} fehlt unter Bruchrechnen")
                 page.locator(f"button:has-text('Brüche rechnen')").last.click(); page.wait_for_timeout(800)

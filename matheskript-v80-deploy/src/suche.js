@@ -88,6 +88,19 @@ const ORT = (() => {
 
 /* Zusatzwörter je Werkzeug: so spricht man über das Thema (Werkzeugnamen allein reichen nicht) */
 const WZ_WOERTER = {
+  prozent: "prozent prozentrechnung grundwert prozentwert prozentsatz rabatt mehrwertsteuer mwst zinsen zinseszins zinsrechnung skonto prozentstreifen",
+  zuordnungen: "zuordnung zuordnungen proportional antiproportional dreisatz quotientengleich produktgleich proportionalität",
+  flaechen: "fläche flächeninhalt umfang rechteck quadrat dreieck parallelogramm trapez drachen raute zusammengesetzte figur",
+  groessen: "größen einheiten umrechnen länge masse gewicht zeit fläche volumen liter maßstab km m cm mm kg g t",
+  dezimal: "dezimalzahl dezimalzahlen komma dezimalbruch runden periodisch abbrechend stellenwert zehntel hundertstel",
+  quader: "quader würfel volumen oberfläche kanten würfelnetz netz einheitswürfel rauminhalt",
+  ganzezahlen: "ganze zahlen negative zahlen vorzeichen zahlengerade minus mal minus rationale zahlen betrag gegenzahl temperatur",
+  diagramme: "daten diagramm säulendiagramm kreisdiagramm mittelwert durchschnitt median zentralwert spannweite häufigkeit relative häufigkeit strichliste",
+  primzahlen: "primzahl primzahlen primfaktor primfaktorzerlegung ggt kgv teiler vielfache sieb eratosthenes faktorbaum",
+  rechengesetze: "rechengesetze punkt vor strich klammer rechenreihenfolge kommutativgesetz assoziativgesetz distributivgesetz rechenvorteil term",
+  koordinaten: "koordinatensystem koordinaten punkt achsensymmetrie punktsymmetrie spiegeln spiegelung symmetrieachse x-achse y-achse",
+  zufall: "zufall wahrscheinlichkeit laplace würfel münze urne gegenereignis pfadregel relative häufigkeit experiment",
+  stellenwert: "stellenwert stellenwerttafel natürliche zahlen große zahlen runden zahlenstrahl römische zahlen million zehnerpotenz",
   winkelsaetze: "winkel scheitelwinkel nebenwinkel stufenwinkel wechselwinkel nachbarwinkel parallelen winkelsumme innenwinkel außenwinkel aussenwinkel n-eck vieleck gleichschenklig basiswinkel",
   konstruktion: "konstruktion konstruieren mittelsenkrechte winkelhalbierende höhe höhen seitenhalbierende schwerpunkt umkreis inkreis umkreismittelpunkt inkreismittelpunkt höhenschnittpunkt euler-gerade zirkel",
   kathetensatz: "kathetensatz höhensatz satzgruppe des pythagoras hypotenusenabschnitt hypotenusenabschnitte p q höhe",
@@ -365,7 +378,9 @@ const BREIT = [
   { woerter: ["mathe", "mathematik", "schule", "schulmathe", "alles", "training", "trainieren", "ueben", "uben", "lernen", "hilfe", "thema", "unterricht"],
     frage: ["Mathematik ist ein weites Feld. Was genau möchtest du trainieren oder verstehen?", "Maths is a big field. What exactly would you like to practise or understand?"],
     optionen: [
-      frageOpt("Bruchrechnen", "Fractions", "Bruchrechnen"),
+      frageOpt("Zahlen, Größen und Rechengesetze", "Numbers, units and laws of arithmetic", "Stellenwert, Größen umrechnen, Rechengesetze"),
+      frageOpt("Bruchrechnen und Dezimalzahlen", "Fractions and decimals", "Bruchrechnen, Dezimalzahlen"),
+      frageOpt("Prozent und Dreisatz", "Percentages and rule of three", "Prozentrechnung, Dreisatz"),
       frageOpt("Terme und Gleichungen", "Terms and equations", "Terme umformen, Gleichungen"),
       frageOpt("Geometrie: Dreiecke, Pythagoras, Thales", "Geometry: triangles, Pythagoras, Thales", "Geometrie"),
       frageOpt("Funktionen und Ableiten", "Functions and derivatives", "Ableitung"),

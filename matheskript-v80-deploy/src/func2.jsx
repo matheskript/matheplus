@@ -23,7 +23,7 @@ import { AppAnleitung } from "./funcAnleitung.jsx";
 import { SuchBox } from "./funcSuche.jsx";
 import { VektorenLogoKlein } from "./func16.jsx";
 import { StochastikLogoKlein } from "./func17.jsx";
-import { BruchrechnenLogoKlein, GeometrieLogoKlein, GleichungenLogoKlein } from "./funcEntdeckenLogo.jsx";
+import { BruchrechnenLogoKlein, DatenLogoKlein, GeometrieLogoKlein, GleichungenLogoKlein, ProzentLogoKlein, ZahlenLogoKlein } from "./funcEntdeckenLogo.jsx";
 import { MedaillenschrankLogo, BwmLogo, KarteLogo } from "./funcWettbewerbe.jsx";
 import { MasterclassKachel, MatheCheckenKachel, MathCreatorKachel } from "./funcMasterclass.jsx";
 import { ElternabendKachel } from "./funcElternabend.jsx";
@@ -659,9 +659,9 @@ const ZEIGE_GESPERRTE = false;
 
 /* Schulmathematik → Bereiche → Stationen → Werkzeuge. Die Daten stehen in werkzeuge.js (eine Liste für
    Startseite, Werkzeug-Menü, Kopfleiste und Übersichtsseiten); hier kommen nur die Logos dazu. */
-const BEREICH_LOGO = { analysis: <PlotterLogoKlein />, vektoren: <VektorenLogoKlein />, stochastik: <StochastikLogoKlein />, geometrie: <GeometrieLogoKlein />, bruchrechnen: <BruchrechnenLogoKlein />, gleichungen: <GleichungenLogoKlein /> };
+const BEREICH_LOGO = { analysis: <PlotterLogoKlein />, vektoren: <VektorenLogoKlein />, stochastik: <StochastikLogoKlein />, geometrie: <GeometrieLogoKlein />, bruchrechnen: <BruchrechnenLogoKlein />, zahlen: <ZahlenLogoKlein />, prozent: <ProzentLogoKlein />, daten: <DatenLogoKlein />, gleichungen: <GleichungenLogoKlein /> };
 /* Liniennetz: jeder Bereich ist eine „Linie“ mit eigenem Strich, die Stationen sind ihre Halte */
-const LINIEN_MUSTER = { analysis: "4px solid", vektoren: "7px double", stochastik: "4px dashed", geometrie: "4px solid", bruchrechnen: "4px dashed", gleichungen: "4px dotted" };
+const LINIEN_MUSTER = { analysis: "4px solid", vektoren: "7px double", stochastik: "4px dashed", geometrie: "4px solid", bruchrechnen: "4px dashed", gleichungen: "4px dotted", zahlen: "4px solid", prozent: "7px double", daten: "4px dashed" };
 
 const SCHUL_BEREICHE = BEREICHE.map((b) => ({
   id: b.id, titel: b.titel, text: b.text, logo: BEREICH_LOGO[b.id], video: b.video, linie: LINIEN_MUSTER[b.id],
@@ -900,6 +900,19 @@ function MiniBild({ art }) {
     axiome: <>{txt(60, 22, "a + b = b + a", "#fff", 12, "middle")}<path d="M30 32 H90" {...linie} strokeWidth="0.9" opacity="0.6" />{txt(60, 47, "∎", g, 13, "middle")}</>,
     pascal: <>{[[60, 14, "1"], [50, 27, "1"], [70, 27, "1"], [40, 40, "1"], [60, 40, "2"], [80, 40, "1"], [30, 53, "1"], [50, 53, "3"], [70, 53, "3"], [90, 53, "1"]].map(([x, y, z], i) => <React.Fragment key={i}>{txt(x, y, z, z === "1" ? w : g, 11, "middle")}</React.Fragment>)}</>,
     pythagoras: <><path d="M44 44 H80 V20 Z" {...linie} fill="rgba(255,255,255,0.06)" /><rect x="44" y="44" width="36" height="10" fill={g} opacity="0.35" /><rect x="80" y="20" width="12" height="24" fill={g} opacity="0.6" /><path d="M74 44 V38 H80" {...linie} strokeWidth="1" />{txt(28, 24, "a²+b²=c²", "#fff", 10)}</>,
+    prozent: <><rect x="14" y="20" width="92" height="16" rx="3" {...linie} /><rect x="14" y="20" width="23" height="16" rx="3" fill={g} opacity="0.75" />{txt(25, 50, "25 %", g, 10, "middle")}{txt(60, 14, "G = 100 %", "#fff", 9.5, "middle")}</>,
+    zuordnungen: <>{achsen}<path d="M20 46 L104 10" {...linie} stroke={g} /><path d="M26 8 Q 40 40 108 42" {...linie} />{txt(98, 20, "y = kx", g, 9.5, "middle")}</>,
+    flaechen: <><path d="M14 46 H70 L92 14 H36 Z" {...linie} fill="rgba(255,255,255,0.06)" /><path d="M36 14 V46" stroke={g} strokeWidth="1.4" strokeDasharray="3 2" />{txt(100, 36, "g · h", g, 11, "middle")}</>,
+    groessen: <>{["mm", "cm", "dm", "m"].map((u, i) => <g key={u}><rect x={10 + i * 25} y={44 - i * 9} width="22" height={9 + i * 9} rx="2" fill="rgba(255,255,255,0.1)" stroke={w} />{txt(21 + i * 25, 52 - i * 0, u, "#fff", 8, "middle")}</g>)}{txt(12, 20, "·10", g, 10, "start")}</>,
+    dezimal: <>{txt(60, 26, "3/4 = 0,75", "#fff", 13, "middle")}{txt(60, 44, "E , z h", g, 11, "middle")}</>,
+    quader: <><path d="M20 22 H70 V50 H20 Z M20 22 L36 10 H86 L70 22 M86 10 V38 L70 50" {...linie} fill="rgba(255,255,255,0.06)" />{txt(100, 32, "a·b·c", g, 9.5, "middle")}</>,
+    ganzezahlen: <><path d="M8 38 H112" {...linie} />{[-4, -2, 0, 2, 4].map((v) => <path key={v} d={`M${60 + v * 12} 34 V42`} stroke={w} strokeWidth="1.2" />)}<path d="M84 30 Q 60 4 36 30" stroke={g} strokeWidth="1.6" fill="none" />{txt(36, 52, "−2", "#fff", 9, "middle")}{txt(84, 52, "2", "#fff", 9, "middle")}</>,
+    diagramme: <>{[22, 30, 14, 38, 26].map((h, i) => <rect key={i} x={14 + i * 14} y={50 - h} width="10" height={h} rx="1.5" fill={i === 3 ? g : "rgba(255,255,255,0.55)"} />)}<circle cx="100" cy="28" r="14" fill="rgba(255,255,255,0.15)" stroke={w} /><path d="M100 28 V14 A14 14 0 0 1 113 33 Z" fill={g} /></>,
+    primzahlen: <>{txt(60, 22, "2 · 3 · 5 · 7", "#fff", 12.5, "middle")}{txt(60, 44, "ggT · kgV", g, 11, "middle")}</>,
+    rechengesetze: <>{txt(60, 30, "3 + 4 · 5", "#fff", 13, "middle")}<rect x="54" y="18" width="34" height="16" rx="4" fill="none" stroke={g} />{txt(60, 50, "= 23", g, 12, "middle")}</>,
+    koordinaten: <><path d="M60 4 V54 M8 30 H112" {...linie} strokeWidth="1" /><circle cx="84" cy="16" r="3" fill="#fff" /><circle cx="36" cy="16" r="3" fill={g} /><path d="M40 16 H80" stroke={g} strokeWidth="1" strokeDasharray="2 2" /></>,
+    zufall: <><rect x="20" y="14" width="28" height="28" rx="6" fill="rgba(255,255,255,0.1)" stroke={w} />{[[28, 22], [40, 34], [34, 28]].map(([x, y], i) => <circle key={i} cx={x} cy={y} r="2.4" fill="#fff" />)}{txt(84, 34, "P = 1/6", g, 11, "middle")}</>,
+    stellenwert: <>{["HT", "ZT", "T", "H", "Z", "E"].map((u, i) => <g key={u}>{txt(16 + i * 18, 18, u, w, 8, "middle")}{txt(16 + i * 18, 40, String([3, 4, 0, 7, 2, 5][i]), i === 2 ? g : "#fff", 14, "middle")}</g>)}</>,
     parallelwinkel: <><path d="M8 18 H112 M8 42 H112" {...linie} /><path d="M30 54 L88 4" {...linie} stroke={g} /><path d="M80.2 18 A8 8 0 0 0 76 11.4" stroke="#fff" strokeWidth="1.4" fill="none" /><path d="M52.2 42 A8 8 0 0 0 48 35.4" stroke="#fff" strokeWidth="1.4" fill="none" />{txt(98, 14, "α", "#fff", 10)}{txt(70, 38, "α", "#fff", 10)}</>,
     konstruktion: <><path d="M14 48 L104 48 L46 8 Z" {...linie} fill="rgba(255,255,255,0.06)" /><circle cx="57" cy="34" r="12" stroke={g} strokeWidth="1.3" fill="none" /><path d="M14 48 L75 28 M104 48 L30 28 M46 8 L59 48" stroke={g} strokeWidth="0.9" strokeDasharray="2 2" /><circle cx="54.7" cy="34.6" r="2.2" fill={g} /></>,
     kathetensatz: <><path d="M14 48 H106 L26 17 Z" {...linie} fill="rgba(255,255,255,0.06)" /><path d="M26 17 V48" stroke={g} strokeWidth="1.4" strokeDasharray="3 2" /><rect x="26" y="49" width="80" height="6" fill={g} opacity="0.45" />{txt(17, 44, "q", w, 9)}{txt(64, 44, "p", w, 9)}{txt(29, 36, "h", g, 10)}{txt(78, 24, "h² = pq", "#fff", 10, "middle")}</>,
@@ -1598,7 +1611,7 @@ export function Startseite({ gehe }) {
             if (!eintraege.length) return null;   // z. B. Vektoren in der Mittelstufe
             const offen = bereichAuf === b.id;
             const koepfe = eintraege.filter((e) => e.kopf);
-            const ZAHL = ["", "Eine Station", "Zwei Stationen", "Drei Stationen", "Vier Stationen", "Fünf Stationen"];
+            const ZAHL = ["", "Eine Station", "Zwei Stationen", "Drei Stationen", "Vier Stationen", "Fünf Stationen", "Sechs Stationen"];
             const text = stufe === "alle" ? b.text : `${ZAHL[koepfe.length] || `${koepfe.length} Stationen`}: ${koepfe.map((k) => k.titel).join(", ")}.`;
             return (
               <AufklappRahmen key={b.id} auf={offen} innen rahmenRef={offen ? offenRahmen : undefined}>

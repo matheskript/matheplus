@@ -21,7 +21,7 @@
                 (Umschalter oben auf der Seite, z. B. Polynome | Beliebige)
      etikett  – entdecken | rechnen | trainieren
      stufe    – mittel | ober | beide (Stufen-Schalter auf der Startseite)
-     unter    – true: erscheint auch in der Unterstufe (Kl. 5–7)
+     unter    – true: erscheint auch in der Unterstufe (Kl. 5–7); reine Unterstufen-Werkzeuge haben stufe "unter"
      Die Zeile muss auf dem Handy (360 px) in eine Zeile passen.
    ============================================================ */
 
@@ -90,6 +90,12 @@ export const WERKZEUGE = {
     zeichen: "H₀", bild: "hypothese", ziel: { ansicht: "hypothesentest" }, etikett: "trainieren", stufe: "ober" },
 
   /* ---------- Geometrie ---------- */
+  koordinaten: { name: "Koordinatensystem und Symmetrie", kurz: "Koordinaten", zeile: "Punkte, Spiegeln, Symmetrieachsen", slogan: "Punkte ablesen und eintragen, an Achsen und Punkten spiegeln, Symmetrie erkennen.",
+    zeichen: "P(x|y)", bild: "koordinaten", ziel: { ansicht: "koordinaten" }, etikett: "entdecken", stufe: "unter", unter: true },
+  flaechen: { name: "Umfang und Flächeninhalt", kurz: "Flächen", zeile: "Rechteck bis Trapez und Drachen", slogan: "Jede Flächenformel aus dem Rechteck hergeleitet – dazu zusammengesetzte Figuren.",
+    zeichen: "A", bild: "flaechen", ziel: { ansicht: "flaechen" }, etikett: "trainieren", stufe: "mittel", unter: true },
+  quader: { name: "Quader und Würfel", kurz: "Quader", zeile: "Volumen, Oberfläche, Würfelnetze", slogan: "Volumen aus Einheitswürfeln, Oberfläche, Kanten – und welche Netze sich falten lassen.",
+    zeichen: "a³", bild: "quader", ziel: { ansicht: "quader" }, etikett: "entdecken", stufe: "unter", unter: true },
   winkelsaetze: { name: "Winkel und Winkelsummen", kurz: "Winkel", zeile: "Parallelen, Dreieck, n-Eck", slogan: "Scheitel-, Stufen- und Wechselwinkel, Winkelsumme im Dreieck und im n-Eck.",
     zeichen: "∠", bild: "parallelwinkel", ziel: { ansicht: "winkelsaetze" }, etikett: "entdecken", stufe: "mittel", unter: true },
   konstruktion: { name: "Besondere Linien im Dreieck", kurz: "Linien", zeile: "Umkreis, Inkreis, Schwerpunkt", slogan: "Mittelsenkrechte, Winkelhalbierende, Höhe, Seitenhalbierende – und ihre Schnittpunkte.",
@@ -112,6 +118,8 @@ export const WERKZEUGE = {
     zeichen: "sin", bild: "trig", ziel: { ansicht: "trigonometrie" }, etikett: "trainieren", stufe: "mittel" },
 
   /* ---------- Bruchrechnen ---------- */
+  dezimal: { name: "Dezimalzahlen", kurz: "Dezimal", zeile: "Umwandeln, runden, Komma", slogan: "Bruch und Dezimalzahl umwandeln, runden, mit Komma multiplizieren und dividieren.",
+    zeichen: "0,5", bild: "dezimal", ziel: { ansicht: "dezimal" }, etikett: "trainieren", stufe: "unter", unter: true },
   bruchrechnen: { name: "Brüche rechnen", kurz: "Brüche", zeile: "Kürzen, plus, minus, mal, geteilt", slogan: "Kürzen, erweitern und alle Grundrechenarten – mit Bruchstreifen und gezielter Fehlerrückmeldung.",
     zeichen: "¾", bild: "bruch", ziel: { ansicht: "bruchrechnen" }, etikett: "trainieren", stufe: "mittel", unter: true },
   bruchterme: { name: "Bruchterme und -gleichungen", kurz: "Bruchterme", zeile: "Definitionsmenge, kürzen, lösen", slogan: "x im Nenner: Definitionsmenge, Kürzen nur von Faktoren, Bruchgleichungen ohne Scheinlösung.",
@@ -125,6 +133,30 @@ export const WERKZEUGE = {
     modi: [{ ansicht: "gleichungen", name: "Lösen" }, { ansicht: "gleichverstehen", name: "Verstehen" }] },
   lgs: { name: "Gleichungssysteme", kurz: "LGS", zeile: "Mit drei Variablen", slogan: "LGS mit drei Unbekannten – Gauß-Verfahren und direkter Weg.",
     zeichen: "I II III", bild: "lgs", ziel: { ansicht: "lgs" }, etikett: "trainieren", stufe: "beide" },
+
+  /* ---------- Zahlen und Größen (Unterstufe) ---------- */
+  stellenwert: { name: "Natürliche Zahlen und Stellenwert", kurz: "Stellenwert", zeile: "Große Zahlen, runden, Zahlenstrahl", slogan: "Stellenwerttafel bis zu den Millionen, runden, Zahlenstrahl, römische Zahlen.",
+    zeichen: "10⁶", bild: "stellenwert", ziel: { ansicht: "stellenwert" }, etikett: "entdecken", stufe: "unter", unter: true },
+  ganzezahlen: { name: "Ganze und rationale Zahlen", kurz: "Ganze Zahlen", zeile: "Negative Zahlen, Vorzeichenregeln", slogan: "Zahlengerade und Pfeilmodell, Rechnen mit Vorzeichen, negative Brüche.",
+    zeichen: "−3", bild: "ganzezahlen", ziel: { ansicht: "ganzezahlen" }, etikett: "trainieren", stufe: "unter", unter: true },
+  primzahlen: { name: "Primzahlen, ggT und kgV", kurz: "Primzahlen", zeile: "Sieb, Faktorbaum, ggT, kgV", slogan: "Primzahlen aussieben, Primfaktorzerlegung, ggT und kgV – auch in Sachaufgaben.",
+    zeichen: "ggT", bild: "primzahlen", ziel: { ansicht: "primzahlen" }, etikett: "trainieren", stufe: "unter", unter: true },
+  rechengesetze: { name: "Rechengesetze und Rechenvorteile", kurz: "Rechengesetze", zeile: "Punkt vor Strich, geschickt rechnen", slogan: "Rechenreihenfolge Schritt für Schritt, Kommutativ-, Assoziativ- und Distributivgesetz.",
+    zeichen: "a·(b+c)", bild: "rechengesetze", ziel: { ansicht: "rechengesetze" }, etikett: "trainieren", stufe: "unter", unter: true },
+  groessen: { name: "Größen umrechnen", kurz: "Größen", zeile: "Länge, Masse, Zeit, Fläche, Volumen", slogan: "Mit der Umrechnungstreppe sicher umrechnen – dazu Maßstab auf Karten.",
+    zeichen: "km", bild: "groessen", ziel: { ansicht: "groessen" }, etikett: "trainieren", stufe: "unter", unter: true },
+
+  /* ---------- Zuordnungen und Prozent ---------- */
+  zuordnungen: { name: "Zuordnungen und Dreisatz", kurz: "Dreisatz", zeile: "Proportional, antiproportional", slogan: "Zuordnungen an Tabelle und Graph erkennen und mit dem Dreisatz rechnen.",
+    zeichen: "y ~ x", bild: "zuordnungen", ziel: { ansicht: "zuordnungen" }, etikett: "trainieren", stufe: "mittel", unter: true },
+  prozent: { name: "Prozent- und Zinsrechnung", kurz: "Prozent", zeile: "Grundwert, Rabatt, Zinsen", slogan: "Prozentstreifen, Grundwert, Prozentwert, Rabatt, Mehrwertsteuer und Zinsen.",
+    zeichen: "%", bild: "prozent", ziel: { ansicht: "prozent" }, etikett: "trainieren", stufe: "mittel", unter: true },
+
+  /* ---------- Daten und Zufall (Unterstufe) ---------- */
+  diagramme: { name: "Daten und Diagramme", kurz: "Diagramme", zeile: "Mittelwert, Median, Diagramme", slogan: "Säulen- und Kreisdiagramme, relative Häufigkeit, Mittelwert, Median, Spannweite.",
+    zeichen: "x̄", bild: "diagramme", ziel: { ansicht: "diagramme" }, etikett: "entdecken", stufe: "unter", unter: true },
+  zufall: { name: "Zufall und Wahrscheinlichkeit", kurz: "Zufall", zeile: "Würfel, Urne, Pfadregel", slogan: "Laplace-Wahrscheinlichkeit, Würfel-Experiment, Gegenereignis und Pfadregel.",
+    zeichen: "P", bild: "zufall", ziel: { ansicht: "zufall" }, etikett: "entdecken", stufe: "unter", unter: true },
 };
 
 /* Bereiche → Stationen (in Abi-Reihenfolge) → Werkzeuge */
@@ -151,17 +183,18 @@ export const BEREICHE = [
       { id: "zufallsgroessen", titel: "Zufallsgrößen", zeile: "Erwartungswert und Binomialverteilung", werkzeuge: ["erwartungswert", "bernoulli"] },
       { id: "testen", titel: "Testen", zeile: "Hypothesen prüfen", werkzeuge: ["hypothesentest"] },
     ] },
-  { id: "geometrie", titel: "Geometrie", uebersicht: null, text: "Fünf Stationen: Winkel und Dreiecke, rechte Winkel, Ähnlichkeit, Dreiecke berechnen, Kreis und Körper.",
+  { id: "geometrie", titel: "Geometrie", uebersicht: null, text: "Sechs Stationen: Figuren und Flächen, Winkel und Dreiecke, rechte Winkel, Ähnlichkeit, Dreiecke berechnen, Kreis und Körper.",
     stationen: [
+      { id: "figuren", titel: "Figuren und Flächen", zeile: "Koordinaten, Flächen, Quader", werkzeuge: ["koordinaten", "flaechen", "quader"] },
       { id: "dreieck", titel: "Winkel und Dreiecke", zeile: "Winkelsätze, Kongruenz, Konstruktionen", werkzeuge: ["winkelsaetze", "kongruenz", "konstruktion"] },
       { id: "rechtwinklig", titel: "Rechte Winkel", zeile: "Thales, Pythagoras, Höhensatz", werkzeuge: ["thales", "pythagoras", "kathetensatz"] },
       { id: "aehnlich", titel: "Ähnlichkeit", zeile: "Strahlensätze und Streckfaktor", werkzeuge: ["strahlensaetze"] },
       { id: "dreiecke", titel: "Dreiecke berechnen", zeile: "Sinus, Kosinus, Tangens", werkzeuge: ["trigonometrie"] },
       { id: "kreiskoerper", titel: "Kreis und Körper", zeile: "Kreisteile, Volumen, Oberfläche", werkzeuge: ["kreis", "koerper"] },
     ] },
-  { id: "bruchrechnen", titel: "Bruchrechnen", uebersicht: null, text: "Zwei Stationen: Brüche rechnen, Bruchterme und Bruchgleichungen.",
+  { id: "bruchrechnen", titel: "Brüche und Dezimalzahlen", uebersicht: null, text: "Zwei Stationen: Brüche und Dezimalzahlen, Bruchterme und Bruchgleichungen.",
     stationen: [
-      { id: "brueche", titel: "Brüche rechnen", zeile: "Kürzen, erweitern, Grundrechenarten", werkzeuge: ["bruchrechnen"] },
+      { id: "brueche", titel: "Brüche und Dezimalzahlen", zeile: "Kürzen, Grundrechenarten, Komma", werkzeuge: ["bruchrechnen", "dezimal"] },
       { id: "bruchterme", titel: "Bruchterme", zeile: "x im Nenner: kürzen und lösen", werkzeuge: ["bruchterme"] },
     ] },
   { id: "gleichungen", titel: "Gleichungen", uebersicht: null, text: "Zwei Stationen: Terme umformen, Gleichungen lösen.",
@@ -169,6 +202,22 @@ export const BEREICHE = [
     stationen: [
       { id: "terme", titel: "Terme umformen", zeile: "Vereinfachen, ausklammern, Potenzen", werkzeuge: ["terme"] },
       { id: "loesen", titel: "Gleichungen lösen", zeile: "Einzelne Gleichungen und Systeme", werkzeuge: ["gleichungen", "lgs"] },
+    ] },
+  { id: "zahlen", titel: "Zahlen und Größen", uebersicht: null, text: "Drei Stationen: Zahlen, Rechnen, Größen.",
+    stationen: [
+      { id: "zahlen", titel: "Zahlen", zeile: "Stellenwert, ganze Zahlen, Primzahlen", werkzeuge: ["stellenwert", "ganzezahlen", "primzahlen"] },
+      { id: "rechnen", titel: "Rechnen", zeile: "Reihenfolge und Rechengesetze", werkzeuge: ["rechengesetze"] },
+      { id: "groessen", titel: "Größen", zeile: "Einheiten umrechnen, Maßstab", werkzeuge: ["groessen"] },
+    ] },
+  { id: "prozent", titel: "Zuordnungen und Prozent", uebersicht: null, text: "Zwei Stationen: Zuordnungen, Prozent und Zinsen.",
+    stationen: [
+      { id: "zuordnung", titel: "Zuordnungen", zeile: "Proportional, antiproportional, Dreisatz", werkzeuge: ["zuordnungen"] },
+      { id: "prozent", titel: "Prozent und Zinsen", zeile: "Grundwert, Prozentwert, Zinsen", werkzeuge: ["prozent"] },
+    ] },
+  { id: "daten", titel: "Daten und Zufall", uebersicht: null, text: "Zwei Stationen: Daten auswerten, Zufall.",
+    stationen: [
+      { id: "daten", titel: "Daten", zeile: "Diagramme und Kennwerte", werkzeuge: ["diagramme"] },
+      { id: "zufall", titel: "Zufall", zeile: "Wahrscheinlichkeit, Experimente", werkzeuge: ["zufall"] },
     ] },
 ];
 

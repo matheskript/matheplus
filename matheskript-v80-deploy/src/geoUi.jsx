@@ -12,8 +12,8 @@
 import React, { useMemo, useState } from "react";
 import { C } from "./base1.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
-import { GrosserKnopf, hinweis, karte, kicker, zw } from "./ui2.jsx";
-import { SchrittFolge, zt } from "./ui3.jsx";
+import { GrosserKnopf, MS, hinweis, karte, kicker, zw } from "./ui2.jsx";
+import { Aufklapp, ModusLeiste, Seite, SchrittFolge, zt } from "./ui3.jsx";
 
 export const SCHRIFT = "Montserrat, system-ui, sans-serif";
 
@@ -187,7 +187,7 @@ export function UebenRahmen({ titel, arten, neue, schritte, text, skizze, hilfe,
       </div>
       <div style={{ ...karte, marginTop: 12 }} key={au.id}>
         <p style={kicker}>{zw(titel[au.art][0], titel[au.art][1])}</p>
-        <div style={{ ...hinweis, color: C.tinte, fontSize: 15, marginBottom: 8 }}>{text(au)}</div>
+        <div style={{ ...hinweis, color: C.tinte, fontSize: 15, marginBottom: 8 }}>{(() => { const t = text(au); return typeof t === "string" ? <MS s={t} /> : t; })()}</div>
         {sk && <div style={{ background: C.sand, borderRadius: 14, padding: 6 }}>{sk}</div>}
         <SchrittFolge schritte={st} stand={stand} setStand={setStand} fertigText={fertig || zw("Richtig gelöst.", "Solved.")} />
         <GrosserKnopf ghost onClick={() => neu()}>{zw("Neue Aufgabe", "New exercise")}</GrosserKnopf>
@@ -199,3 +199,41 @@ export function UebenRahmen({ titel, arten, neue, schritte, text, skizze, hilfe,
 
 /* Toleranz für gerundete Ergebnisse (π, Wurzeln): 2 Nachkommastellen oder 0,2 % */
 export const tolRund = (w) => Math.max(0.011, Math.abs(w) * 0.002);
+
+/* ---------- Seitenrahmen mit Entdecken | Üben ----------
+   kurz: Inhalt für „Kurz erklärt“; entdecken, ueben: JSX der beiden Modi; start: Startmodus */
+export function ZweiModi({ titel, text, kurz, entdecken, ueben, start = "entdecken" }) {
+  const [modus, setModus] = useState(start);
+  const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Üben", "Practise")]];
+  return (
+    <Seite titel={titel} text={text}>
+      <ModusLeiste modi={MODI} modus={modus} setModus={setModus} label={titel} />
+      {kurz && <Aufklapp titel={zw("Kurz erklärt", "In short")}>{kurz}</Aufklapp>}
+      <div style={{ display: modus === "entdecken" ? "block" : "none" }}>{entdecken}</div>
+      <div style={{ display: modus === "ueben" ? "block" : "none" }}>{ueben}</div>
+    </Seite>
+  );
+}
+
+/* Zahl-Schritt in einer Zeile: zs(id, titel, text, wert, frage, { einheit, fehler, hinweis, erkl, tol, gekuerzt, wertText, rundung }) */
+export function zs(id, titel, text, wert, frage, o = {}) {
+  return {
+    id, titel, typ: "zahl", text, wert, frage, einheit: o.einheit, toleranz: o.tol ?? 1e-9, wertText: o.wertText ?? zt(wert, 4),
+    fehler: (o.fehler || []).map((f) => ({ toleranz: o.tol ?? 1e-9, ...f })), hinweise: o.hinweis ? [o.hinweis] : [], erklaerung: o.erkl ?? "", gekuerzt: o.gekuerzt, rundung: o.rundung, breite: o.breite,
+  };
+}
+/* Auswahl-Schritt: ws(id, titel, frage, optionen, richtig, { fehler, hinweis, erkl }) */
+export function ws(id, titel, frage, optionen, richtig, o = {}) {
+  return { id, titel, typ: "wahl", frage, optionen, richtig, fehler: o.fehler || [], hinweise: o.hinweis ? [o.hinweis] : [], erklaerung: o.erkl ?? "" };
+}
+/* Kleiner Knopf (Pille) */
+export function Pille({ an, children, onClick, farbe = C.see }) {
+  return (
+    <button type="button" aria-pressed={an} onClick={onClick}
+      style={{ padding: "6px 12px", borderRadius: 999, fontFamily: "inherit", fontSize: 13, fontWeight: 700, cursor: "pointer",
+        border: `1.5px solid ${an ? farbe : C.linie}`, background: an ? farbe : C.weiss, color: an ? C.weiss : farbe }}>{children}</button>
+  );
+}
+
+/* Antwortoptionen rotieren (seed z. B. die Aufgaben-id), damit die richtige nicht immer vorn steht */
+export const misch = (liste, seed) => { const k = Math.abs(seed) % liste.length; return [...liste.slice(k), ...liste.slice(0, k)]; };

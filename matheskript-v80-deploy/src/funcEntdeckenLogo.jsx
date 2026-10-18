@@ -113,3 +113,49 @@ export function BruchrechnenLogoKlein() {
     </svg>
   );
 }
+
+/* Bereichs-Logos Unterstufe: Zahlen und Größen, Zuordnungen und Prozent, Daten und Zufall */
+const LOGO_T = { fontFamily: "Montserrat, system-ui, sans-serif", fontWeight: 700 };
+function LogoRahmen({ children }) {
+  return <svg viewBox="0 0 230 190" preserveAspectRatio="xMidYMid meet" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">{children}</svg>;
+}
+export function ZahlenLogoKlein() {
+  const st = ["M", "HT", "ZT", "T", "H", "Z", "E"], z = [3, 4, 0, 7, 2, 5, 0];
+  return (
+    <LogoRahmen>
+      {st.map((s, i) => (
+        <g key={s}>
+          <rect x={14 + i * 29} y="44" width="26" height="62" rx="6" fill={i === 3 ? `${C.flaggold}55` : "rgba(255,255,255,0.08)"} stroke="rgba(255,255,255,0.3)" />
+          <text x={27 + i * 29} y="62" textAnchor="middle" fill="rgba(255,255,255,0.7)" fontSize="11" {...LOGO_T}>{s}</text>
+          <text x={27 + i * 29} y="96" textAnchor="middle" fill={i === 3 ? C.flaggold : C.weiss} fontSize="24" {...LOGO_T}>{z[i]}</text>
+        </g>
+      ))}
+      <text x="115" y="150" textAnchor="middle" fill={C.weiss} fontSize="20" {...LOGO_T}>1 km = 1000 m</text>
+    </LogoRahmen>
+  );
+}
+export function ProzentLogoKlein() {
+  return (
+    <LogoRahmen>
+      <rect x="20" y="40" width="190" height="34" rx="8" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.55)" strokeWidth="2" />
+      <rect x="20" y="40" width="57" height="34" rx="8" fill={C.flaggold} opacity="0.85" />
+      <text x="48" y="63" textAnchor="middle" fill={C.seeTief} fontSize="15" {...LOGO_T}>30 %</text>
+      <text x="200" y="30" textAnchor="end" fill="rgba(255,255,255,0.7)" fontSize="13" {...LOGO_T}>100 %</text>
+      <line x1="30" y1="160" x2="110" y2="104" stroke={C.weiss} strokeWidth="3" strokeLinecap="round" />
+      <circle cx="30" cy="160" r="4" fill={C.weiss} />
+      <text x="128" y="138" fill={C.flaggold} fontSize="22" {...LOGO_T}>y = k · x</text>
+    </LogoRahmen>
+  );
+}
+export function DatenLogoKlein() {
+  const h = [50, 78, 36, 96, 62];
+  return (
+    <LogoRahmen>
+      {h.map((v, i) => <rect key={i} x={20 + i * 24} y={150 - v} width="18" height={v} rx="3" fill={i === 3 ? C.flaggold : "rgba(255,255,255,0.6)"} />)}
+      <line x1="14" y1="150" x2="140" y2="150" stroke="rgba(255,255,255,0.6)" strokeWidth="2" />
+      <rect x="160" y="40" width="50" height="50" rx="10" fill="rgba(255,255,255,0.1)" stroke={C.weiss} strokeWidth="2" />
+      {[[173, 53], [197, 77], [185, 65]].map(([x, y], i) => <circle key={i} cx={x} cy={y} r="5" fill={C.weiss} />)}
+      <text x="185" y="128" textAnchor="middle" fill={C.flaggold} fontSize="20" {...LOGO_T}>P = 1/6</text>
+    </LogoRahmen>
+  );
+}

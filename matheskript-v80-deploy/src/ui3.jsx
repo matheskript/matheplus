@@ -34,8 +34,10 @@ export const bruchText = (z, n) => (n === 1 ? minusZ(z) : `${minusZ(z)}/${n}`);
 
 /* Eingabe lesen: Bruch, Dezimalzahl mit Komma oder Punkt */
 export function liesZahl(s) {
-  const t = String(s).replace(/−/g, "-").replace(/\s/g, "");
+  let t = String(s).replace(/−/g, "-").replace(/\s/g, "");
   if (!t) return null;
+  if (/^-?\d{1,3}(\.\d{3})+(,\d+)?$/.test(t)) t = t.replace(/\./g, "");   // Tausenderpunkte: 3.407.250
+
   const q = qLies(t);
   if (q !== null) return qNum(q);
   const v = Number(t.replace(",", "."));

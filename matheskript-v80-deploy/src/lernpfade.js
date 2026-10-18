@@ -44,6 +44,7 @@ export const STATION_GENERATOREN = {
   "stochastik.zaehlen": [],
   "stochastik.zufallsgroessen": ["ber-genau"],
   "stochastik.testen": ["ber-grenze"],
+  "geometrie.figuren": [],
   "geometrie.dreieck": [],
   "geometrie.kreiskoerper": [],
   "geometrie.rechtwinklig": [],
@@ -51,6 +52,13 @@ export const STATION_GENERATOREN = {
   "geometrie.dreiecke": [],
   "bruchrechnen.brueche": ["bru-add", "bru-div"],
   "bruchrechnen.bruchterme": [],
+  "zahlen.zahlen": [],
+  "zahlen.rechnen": [],
+  "zahlen.groessen": [],
+  "prozent.zuordnung": [],
+  "prozent.prozent": [],
+  "daten.daten": [],
+  "daten.zufall": [],
   "gleichungen.terme": ["ter-binom", "bru-add", "bru-div"],
   "gleichungen.loesen": ["gl-linear", "gl-quadrat", "gl-ausklammern"],
 };
@@ -95,6 +103,19 @@ export const EINHEIT_TEXTE = {
   bernoulli: { worum: "Eine Bernoulli-Kette hat n gleiche Versuche mit Trefferwahrscheinlichkeit p. Die Binomialverteilung zählt die Treffer.", aufgabe: "Berechne P(X = k) und P(X ≥ k) für eine selbst gewählte Kette und vergleiche mit der Simulation." },
   hypothesentest: { worum: "Ein Test entscheidet gegen H₀, wenn das Ergebnis im Ablehnungsbereich liegt. Fehler erster und zweiter Art gehören dazu.", aufgabe: "Baue einen Test auf, bestimme den Ablehnungsbereich und benenne den Fehler erster Art." },
   terme: { worum: "Termumformungen sind Regeln, keine Tricks: ausmultiplizieren, ausklammern, binomische Formeln, Potenzgesetze.", aufgabe: "Vereinfache fünf Terme im Werkzeug, mindestens zwei mit binomischer Formel." },
+  stellenwert: { worum: "Jede Stelle ist zehnmal so viel wert wie die rechts daneben. Beim Runden entscheidet nur die Ziffer rechts von der Rundungsstelle.", aufgabe: "Lies Stellenwerte ab, runde auf verschiedene Stellen und lies einen Zahlenstrahl ab." },
+  ganzezahlen: { worum: "Negative Zahlen liegen links von null. Minus eine negative Zahl ist plus; beim Malnehmen gilt: gleiche Vorzeichen ergeben plus.", aufgabe: "Rechne je eine Plus-, Minus- und Malaufgabe mit negativen Zahlen und erkläre die Vorzeichen." },
+  primzahlen: { worum: "Primzahlen haben genau zwei Teiler. Jede Zahl zerfällt eindeutig in Primfaktoren – daraus bekommt man ggT und kgV.", aufgabe: "Zerlege eine Zahl in Primfaktoren und bestimme ggT und kgV zweier Zahlen." },
+  rechengesetze: { worum: "Klammer vor Potenz vor Punkt vor Strich, sonst von links nach rechts. Rechengesetze erlauben geschicktes Umstellen.", aufgabe: "Berechne zwei Terme in der richtigen Reihenfolge und eine Aufgabe geschickt mit dem Distributivgesetz." },
+  groessen: { worum: "Zur kleineren Einheit wird malgenommen, zur größeren geteilt. Fläche hat Faktor 100, Volumen 1000, Zeit 60.", aufgabe: "Rechne Längen, Flächen und Zeiten um und löse eine Maßstabsaufgabe." },
+  koordinaten: { worum: "Ein Punkt P(x | y): erst Rechtswert, dann Hochwert. Beim Spiegeln wechselt die passende Koordinate ihr Vorzeichen.", aufgabe: "Lies Punkte ab, spiegele an beiden Achsen und ergänze ein Parallelogramm." },
+  flaechen: { worum: "Jede Flächenformel kommt vom Rechteck: Dreieck als Hälfte, Parallelogramm umgelegt, Trapez verdoppelt.", aufgabe: "Berechne die Fläche eines Parallelogramms, eines Trapezes und einer zusammengesetzten Figur." },
+  quader: { worum: "Volumen = Zahl der Einheitswürfel = a · b · c. Die Oberfläche besteht aus drei Paaren gleicher Rechtecke.", aufgabe: "Berechne Volumen und Oberfläche eines Quaders und erkenne ein Würfelnetz." },
+  dezimal: { worum: "Nach dem Komma folgen Zehntel, Hundertstel, Tausendstel. Beim Multiplizieren werden die Kommastellen addiert.", aufgabe: "Wandle einen Bruch in eine Dezimalzahl um und rechne je eine Mal- und eine Geteiltaufgabe mit Komma." },
+  zuordnungen: { worum: "Proportional: y : x bleibt gleich. Antiproportional: x · y bleibt gleich. Der Dreisatz geht immer über die Einheit.", aufgabe: "Erkenne die Art einer Zuordnung und löse je einen Dreisatz proportional und antiproportional." },
+  prozent: { worum: "Der Grundwert ist das Ganze (100 %). W = G · p : 100. Aufschläge und Rabatte rechnet man mit einem Faktor.", aufgabe: "Berechne Prozentwert, Grundwert und einen Preis nach Rabatt." },
+  diagramme: { worum: "Mittelwert = Summe : Anzahl, Median = Mitte der sortierten Liste. Im Kreisdiagramm ist der Winkel Anteil · 360°.", aufgabe: "Berechne Mittelwert und Median einer Liste und den Winkel eines Kreisdiagramm-Sektors." },
+  zufall: { worum: "Laplace: günstige durch mögliche Ergebnisse. Je öfter man ein Experiment wiederholt, desto näher liegt die relative Häufigkeit an der Wahrscheinlichkeit.", aufgabe: "Berechne zwei Laplace-Wahrscheinlichkeiten und eine Wahrscheinlichkeit mit der Pfadregel." },
   winkelsaetze: { worum: "Scheitel-, Stufen- und Wechselwinkel sind gleich groß, Neben- und Nachbarwinkel ergänzen sich zu 180°. Im Dreieck ist die Winkelsumme 180°, im n-Eck (n − 2) · 180°.", aufgabe: "Berechne einen Winkel an Parallelen mit Begründung und die Innenwinkel eines regelmäßigen n-Ecks." },
   konstruktion: { worum: "Mittelsenkrechten treffen sich im Umkreismittelpunkt, Winkelhalbierende im Inkreismittelpunkt, Höhen im Höhenschnittpunkt und Seitenhalbierende im Schwerpunkt.", aufgabe: "Ordne Linien und Punkte zu, berechne einen Schwerpunkt aus Koordinaten und einen Inkreisradius." },
   kathetensatz: { worum: "Die Höhe auf die Hypotenuse teilt sie in p und q. Es gilt a² = c · p, b² = c · q und h² = p · q – die Satzgruppe des Pythagoras.", aufgabe: "Berechne eine Höhe mit dem Höhensatz und eine Kathete mit dem Kathetensatz." },
@@ -142,7 +163,8 @@ export const PFADE = {
   stochastik: { name: "Stochastik", zeile: "Zählen, Zufallsgrößen, testen", bereiche: ["stochastik"], wochen: 4 },
   gleichungen: { name: "Terme und Gleichungen", zeile: "Umformen und lösen – die Grundlage für alles", bereiche: ["gleichungen"], wochen: 2 },
   geometrie: { name: "Geometrie", zeile: "Winkel, Dreiecke, Pythagoras, Ähnlichkeit, Kreis und Körper – Mittelstufe", bereiche: ["geometrie"], wochen: 5 },
-  bruchrechnen: { name: "Bruchrechnen", zeile: "Brüche rechnen, Bruchterme und Bruchgleichungen", bereiche: ["bruchrechnen"], wochen: 2 },
+  bruchrechnen: { name: "Brüche und Dezimalzahlen", zeile: "Brüche, Dezimalzahlen, Bruchterme und Bruchgleichungen", bereiche: ["bruchrechnen"], wochen: 3 },
+  grundlagen: { name: "Grundlagen Klasse 5–7", zeile: "Zahlen, Größen, Prozent, Daten und Zufall", bereiche: ["zahlen", "prozent", "daten"], wochen: 6 },
   abitur: { name: "Abi komplett", zeile: "Alle Bereiche in Abi-Reihenfolge", bereiche: ["bruchrechnen", "gleichungen", "geometrie", "analysis", "vektoren", "stochastik"], wochen: 16 },
 };
 export const PFAD_IDS = Object.keys(PFADE);
@@ -153,7 +175,7 @@ export const pfadStationen = (pfadId) => {
   return pfadEinheiten(pfadId).filter((e) => (gesehen.has(e.stationKey) ? false : (gesehen.add(e.stationKey), true)))
     .map((e) => ({ key: e.stationKey, bereich: e.bereich, bereichTitel: e.bereichTitel, station: e.station, titel: e.stationTitel, sNr: e.sNr, generatoren: STATION_GENERATOREN[e.stationKey] || [] }));
 };
-export const einheit = (id) => pfadEinheiten("abitur").find((e) => e.id === id) || null;
+export const einheit = (id) => Object.keys(PFADE).flatMap(pfadEinheiten).find((e) => e.id === id) || null;
 
 /* ---------- Standortcheck ---------- */
 export const CHECK_PRO_STATION = 3;

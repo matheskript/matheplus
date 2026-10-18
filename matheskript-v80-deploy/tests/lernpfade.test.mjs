@@ -19,7 +19,8 @@ test("alle Generator-Verweise existieren", () => {
 test("jedes Werkzeug hat Einheitstexte und jede Einheit ist auffindbar", () => {
   for (const id of Object.keys(WERKZEUGE)) assert.ok(EINHEIT_TEXTE[id] && EINHEIT_TEXTE[id].worum.length > 40 && EINHEIT_TEXTE[id].aufgabe.length > 20, id);
   const alle = pfadEinheiten("abitur");
-  assert.equal(alle.length, Object.keys(WERKZEUGE).length);
+  const abgedeckt = new Set(PFAD_IDS.flatMap((p) => pfadEinheiten(p).map((e) => e.werkzeug)));
+  for (const id of Object.keys(WERKZEUGE)) assert.ok(abgedeckt.has(id), `Werkzeug ${id} in keinem Lernpfad`);
   for (const e of alle) assert.equal(einheit(e.id).id, e.id);
   for (const p of PFAD_IDS) assert.ok(pfadEinheiten(p).length > 0 && pfadStationen(p).length > 0, p);
 });
