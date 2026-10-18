@@ -211,6 +211,8 @@ function Uebersicht({ stand, oeffnen }) {
 function Modul({ modul, stand, setStand, oeffnen, zurUebersicht, gehe }) {
   const [offen, setOffen] = React.useState(null);
   const [seite, setSeite] = React.useState(modul.von);
+  const [zwei, setZwei] = React.useState(() => { try { return modul.bis > modul.von && localStorage.getItem("matheplus-buch-zwei") === "1"; } catch (e) { return false; } });
+  const zweiStart = React.useRef(zwei);
   const rahmen = React.useRef(null);
   const werkzeugBereich = React.useRef(null);
   const i = KURS_MODULE.indexOf(modul);
@@ -246,14 +248,26 @@ function Modul({ modul, stand, setStand, oeffnen, zurUebersicht, gehe }) {
     return () => window.removeEventListener("message", hoeren);
   });
 
+  const hoechste = zwei ? modul.bis - 1 : modul.bis;
+  const umschalten = () => {
+    const z = !zwei;
+    setZwei(z);
+    try { localStorage.setItem("matheplus-buch-zwei", z ? "1" : "0"); } catch (e) { /* egal */ }
+    if (z && seite >= modul.bis) setSeite(modul.bis - 1);
+    const f = rahmen.current && rahmen.current.contentWindow;
+    if (f) f.postMessage({ typ: "mm-schulbuch-modus", zwei: z }, window.location.origin);
+  };
   const blaettern = (d) => {
-    const neu = Math.max(modul.von, Math.min(modul.bis, seite + d));
+    const neu = Math.max(modul.von, Math.min(hoechste, seite + d));
     if (neu === seite) return;
     setSeite(neu);
     const f = rahmen.current && rahmen.current.contentWindow;
     if (f) f.postMessage({ typ: "mm-schulbuch-zeige", seite: neu, richtung: d }, window.location.origin);
   };
   const nr = seite - modul.von + 1;
+  const anzeige = zwei
+    ? (seitenZahl === 2 ? "Seite 1 und 2" : `Seite ${nr} und ${nr + 1} von ${seitenZahl}`)
+    : `Seite ${nr} von ${seitenZahl}`;
   const pfeil = (richtung, aus) => (
     <button type="button" onClick={() => blaettern(richtung)} disabled={aus} className="dk-pfeil"
       aria-label={richtung < 0 ? "Vorherige Buchseite" : "Nächste Buchseite"}
@@ -278,26 +292,36 @@ function Modul({ modul, stand, setStand, oeffnen, zurUebersicht, gehe }) {
               {modul.nr ? `${modul.nr} ` : ""}{modul.titel}
             </h2>
           </div>
-          <button type="button" onClick={zurUebersicht}
-            style={{ flex: "none", display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 12px 8px 8px", borderRadius: 10, border: `1px solid ${C.linie}`, background: K.weiss,
-              color: K.schwarz, fontFamily: "inherit", fontWeight: 600, fontSize: 13, cursor: "pointer", whiteSpace: "nowrap" }}>
-            <span aria-hidden="true">←</span> Alle Module
-          </button>
+          <div style={{ flex: "none", display: "flex", flexWrap: "wrap", justifyContent: "flex-end", gap: 8 }}>
+            {seitenZahl > 1 && (
+              <button type="button" onClick={umschalten} aria-pressed={zwei}
+                style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "8px 12px", borderRadius: 10, border: `1px solid ${zwei ? K.gold : C.linie}`, background: zwei ? K.hell : K.weiss,
+                  color: K.schwarz, fontFamily: "inherit", fontWeight: 600, fontSize: 13, cursor: "pointer", whiteSpace: "nowrap" }}>
+                <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><rect x="3" y="4" width="8" height="16" rx="1.5" fill="none" stroke="currentColor" strokeWidth="2" /><rect x="13" y="4" width="8" height="16" rx="1.5" fill="none" stroke="currentColor" strokeWidth="2" /></svg>
+                {zwei ? "Eine Seite" : "Zwei Seiten"}
+              </button>
+            )}
+            <button type="button" onClick={zurUebersicht}
+              style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 12px 8px 8px", borderRadius: 10, border: `1px solid ${C.linie}`, background: K.weiss,
+                color: K.schwarz, fontFamily: "inherit", fontWeight: 600, fontSize: 13, cursor: "pointer", whiteSpace: "nowrap" }}>
+              <span aria-hidden="true">←</span> Alle Module
+            </button>
+          </div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "8px 14px", flexWrap: "wrap", margin: "8px 0 14px" }}>
           <p style={{ flex: "1 1 240px", minWidth: 0, fontSize: 15.5, fontStyle: "italic", color: "#2B3A4F", margin: 0 }}>{modul.frage}</p>
           {seitenZahl > 1 && (
             <div style={{ display: "inline-flex", alignItems: "center", gap: 10, flex: "none" }} role="group" aria-label="Buchseiten blättern">
               {pfeil(-1, nr <= 1)}
-              <span aria-live="polite" style={{ fontSize: 13.5, fontWeight: 700, color: K.schwarz, minWidth: 74, textAlign: "center", whiteSpace: "nowrap" }}>Seite {nr} von {seitenZahl}</span>
-              {pfeil(1, nr >= seitenZahl)}
+              <span aria-live="polite" style={{ fontSize: 13.5, fontWeight: 700, color: K.schwarz, minWidth: 74, textAlign: "center", whiteSpace: "nowrap" }}>{anzeige}</span>
+              {pfeil(1, seite >= hoechste)}
             </div>
           )}
         </div>
       </div>
 
-      <div style={{ background: "#fff", aspectRatio: "794 / 1123", width: "100%" }}>
-        <iframe key={modul.id} ref={rahmen} title={`Kapitel ${modul.titel} lesen`} src={`${BUCH}?von=${modul.von}&bis=${modul.bis}&voll=1`}
+      <div style={{ background: "#fff", aspectRatio: zwei ? "1588 / 1123" : "794 / 1123", width: "100%" }}>
+        <iframe key={modul.id} ref={rahmen} title={`Kapitel ${modul.titel} lesen`} src={`${BUCH}?von=${modul.von}&bis=${modul.bis}&voll=${zweiStart.current ? 2 : 1}`}
           style={{ display: "block", width: "100%", height: "100%", border: 0 }} />
       </div>
 

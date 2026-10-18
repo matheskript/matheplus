@@ -67,3 +67,4 @@ body.voll #buehne { top: 0; bottom: 0; overflow: hidden; }
 body.voll #aufschlag { padding: 0; min-height: 0; }
 body.voll .blatt { box-shadow: none; border-radius: 0; }
 body.voll #aufschlag.rein { animation-duration: 0.22s; }
+body.voll .blatt::after { display: none !important; }

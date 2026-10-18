@@ -9,7 +9,8 @@
   const AUSSCHNITT = VON > 1 || BIS < N;
   if (AUSSCHNITT) document.body.classList.add("ausschnitt");
   /* Vollmodus für die Kursseite: ?voll=1 zeigt nur die Seite, randlos, auf ganzer Breite; Blättern steuert die App */
-  const VOLL = par.get("voll") === "1";
+  const VOLL = par.get("voll") === "1" || par.get("voll") === "2";
+  let zwei = par.get("voll") === "2" && BIS > VON; /* Vollmodus: zwei Seiten nebeneinander, Fenster wandert seitenweise */
   if (VOLL) document.body.classList.add("voll", "ohnefuss");
   const buehne = document.getElementById("buehne");
   const aufschlag = document.getElementById("aufschlag");
@@ -27,18 +28,19 @@
   /* Doppelseiten wie im gedruckten Buch: gerade links, ungerade rechts */
   function gruppen() {
     const g = [];
+    if (VOLL && zwei) { for (let p = VON; p < BIS; p++) g.push([p, p + 1]); return g; }
     for (let p = VON; p <= BIS; p++) {
       if (!doppel) { g.push([p]); continue; }
       if (p % 2 === 0 && p + 1 <= BIS) { g.push([p, p + 1]); p++; } else g.push([p]);
     }
     return g;
   }
-  const gruppeVon = (s) => gruppen().findIndex((g) => g.includes(s));
+  const gruppeVon = (s) => (VOLL && zwei ? Math.max(0, Math.min(BIS - VON - 1, s - VON)) : gruppen().findIndex((g) => g.includes(s)));
 
   function ausmessen() {
     const W = buehne.clientWidth, H = buehne.clientHeight;
     const sD = Math.min((W - 48) / (2 * PW), (H - 40) / PH);
-    if (VOLL) { doppel = false; return W / PW; }
+    if (VOLL) { doppel = zwei; return zwei ? W / (2 * PW) : W / PW; }
     doppel = lupe === 0 && W >= 900 && sD >= 0.42;
     if (doppel) return sD;
     const basis = W < 700 ? (W - 16) / PW : Math.min((W - 32) / PW, (H - 40) / PH);
@@ -46,7 +48,7 @@
   }
 
   function zeigen(neu, richtung) {
-    seite = Math.max(VON, Math.min(BIS, neu));
+    seite = Math.max(VON, Math.min(zwei ? BIS - 1 : BIS, neu));
     const s = ausmessen();
     const gs = gruppen();
     const gi = gruppeVon(seite);
@@ -142,7 +144,9 @@
 
   /* Befehle der App (Kapitel öffnen) */
   window.addEventListener("message", (e) => {
-    if (e.origin !== location.origin || !e.data || e.data.typ !== "mm-schulbuch-zeige") return;
+    if (e.origin !== location.origin || !e.data) return;
+    if (e.data.typ === "mm-schulbuch-modus" && VOLL && BIS > VON) { zwei = !!e.data.zwei; letzteGruppe = null; zeigen(seite, 0); return; }
+    if (e.data.typ !== "mm-schulbuch-zeige") return;
     zeigen(+e.data.seite || 1, +e.data.richtung || 1);
   });
 
