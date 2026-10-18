@@ -36,7 +36,7 @@ export function useKonto() {
   return useSyncExternalStore((h) => { hoerer.add(h); return () => hoerer.delete(h); }, () => zustand);
 }
 
-/* ---------- Empfehlungslink: matheplus-scls.vercel.app/482913 ----------
+/* ---------- Empfehlungslink: mythosmathe.de/482913 ----------
    Jeder Schüler bekommt eine eigene sechsstellige Zahl als Code – zufällig
    oder selbst gewählt. Ruft jemand den Link auf, merkt sich die Seite die Zahl,
    bis er sich anmeldet. */
@@ -79,7 +79,7 @@ const gemerkterRef = () => {
 };
 
 /* Basisadresse der Empfehlungslinks = exakter Link der App (zentral, nur hier ändern). */
-export const REF_BASIS = "https://matheplus-scls.vercel.app";
+export const REF_BASIS = "https://mythosmathe.de";
 export const REF_BASIS_ANZEIGE = REF_BASIS.replace(/^https?:\/\//, "");
 export const empfehlungsLink = (code) => `${REF_BASIS}/${code}`;
 
