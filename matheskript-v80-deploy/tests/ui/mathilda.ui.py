@@ -30,7 +30,7 @@ with sync_playwright() as p:
     page.on("pageerror", lambda e: konsole.append(f"pageerror: {e}"))
     page.on("console", lambda m: konsole.append(m.text) if m.type == "error" and "net::" not in m.text and "Failed to load resource" not in m.text else None)
     page.route("**/api/claude", api)
-    page.goto(BASE); page.evaluate("localStorage.clear()"); page.reload(); page.wait_for_timeout(600)
+    page.goto(BASE); page.evaluate("localStorage.clear(); sessionStorage.setItem('mm-entwurf-frei', '744ac4c7a298e917d88972fbbf5a9440cc04c24e24b63c62d292b1771ab69d7b')"); page.reload(); page.wait_for_timeout(600)   # Mathilda-Sperre (skript) offen
 
     # Seite „Mathilda fragen“
     page.evaluate("window.__mmGehe({ ansicht: 'analyse', foto: 'chat' })"); page.wait_for_timeout(400)

@@ -20,6 +20,11 @@ async function sha256(t) {
   const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t));
   return Array.from(new Uint8Array(b)).map((x) => x.toString(16).padStart(2, "0")).join("");
 }
+/* Mathilda AI ist per Klick nur mit Passwort erreichbar (Direktlinks wie /mathilda bleiben offen).
+   Gesperrt sind alle Mathilda-Ziele: Blatt/Weg/Aufgabe/Chat, Textaufgaben-Übersetzer und Klausurbriefkasten. */
+export const istMathildaZiel = (e) => !!e && (
+  e.ansicht === "analyse" || e.ansicht === "klausurbriefkasten" || (e.ansicht === "textaufgaben" && e.seite === "mathilda")
+);
 /* Prüft das Passwort; bei Erfolg wird die Sitzung freigeschaltet und true geliefert */
 export async function entsperren(pw) {
   let ok = false;
