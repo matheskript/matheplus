@@ -69,17 +69,21 @@ with sync_playwright() as p:
             page.route("**/fonts.gstatic.com/local/*", lambda r, q: r.fulfill(status=200, content_type="font/woff2",
                 body=open(os.path.join(FONT_DIR, f"montserrat-latin-{q.url.rsplit('/m', 1)[1].split('.')[0]}-normal.woff2"), "rb").read()))
         page.goto(BASE)
-        page.evaluate("localStorage.clear(); sessionStorage.clear(); localStorage.setItem('mm-onboarding-v1', JSON.stringify({uebersprungen:true}));")
+        page.evaluate("localStorage.clear(); sessionStorage.clear(); localStorage.setItem('mm-onboarding-v1', JSON.stringify({uebersprungen:true})); localStorage.setItem('matheskript-einwilligung-v1', JSON.stringify({am: Date.now()}));")
         page.reload(); page.wait_for_timeout(700)
 
         def breite_ok(wo):
             sw = page.evaluate("document.documentElement.scrollWidth")
             pruefe(sw <= breite, f"{breite}: Überbreite bei {wo}: {sw}")
 
+        # Der Quickfinder steckt in der Startkachel „Dein Training startet hier.“ – ggf. erst aufklappen
+        if page.get_by_role("group", name="Schulsystem wählen").count() == 0:
+            page.get_by_text("Dein Training startet hier.").first.click(); page.wait_for_timeout(600)
         g9 = page.get_by_role("group", name="Schulsystem wählen").get_by_role("button", name="G9")
         g9.scroll_into_view_if_needed(); g9.click(); page.wait_for_timeout(200)
         page.get_by_role("button", name="Klasse 12", exact=True).click(); page.wait_for_timeout(250)
-        page.get_by_role("option", name="Funktionen und ihre Graphen").first.click(); page.wait_for_timeout(300)
+        kap = page.get_by_role("option", name="Funktionen und ihre Graphen")
+        (kap if kap.count() else page.get_by_role("button", name="Funktionen und ihre Graphen")).first.click(); page.wait_for_timeout(300)
         zeile = page.get_by_role("button", name="Formelsammlung zum Kapitel")
         pruefe(zeile.count() == 1, f"{breite}: Zeile Formelsammlung zum Kapitel fehlt")
         pruefe(page.get_by_text("Formelsammlung · Funktionen").count() == 0, f"{breite}: alte Formelsammlung-Zeile noch da")
@@ -113,6 +117,39 @@ with sync_playwright() as p:
         page.screenshot(path=f"{AUS}/{breite}-3-klausur-start.png", full_page=False)
         page.get_by_role("button", name="Testklausur kreieren").first.click(); page.wait_for_timeout(1500)
         pruefe(len(anfragen) > 0 and "Funktionen und ihre Graphen" in anfragen[-1]["system"], f"{breite}: KI-Anfrage fehlt")
+        # Sofort die Wahl: online bearbeiten oder PDF – noch kein Klausurblatt
+        pruefe(page.get_by_text("Möchtest du die Klausur jetzt online bearbeiten oder als PDF herunterladen?").count() == 1, f"{breite}: Auswahl online/PDF fehlt")
+        pruefe(page.get_by_text("Aufgabe 4").count() == 0, f"{breite}: Klausurblatt erscheint vor der Auswahl")
+        breite_ok("Auswahl")
+        page.screenshot(path=f"{AUS}/{breite}-3b-auswahl.png", full_page=False)
+
+        # Weg 1: online bearbeiten (Uhr, Eingabe ohne Fokusverlust, Abgabe, Selbstbewertung)
+        page.get_by_role("button", name="Online bearbeiten").click(); page.wait_for_timeout(300)
+        page.get_by_role("button", name="Klausur starten").click(); page.wait_for_timeout(600)
+        pruefe(page.get_by_role("timer").count() == 1, f"{breite}: Uhr fehlt")
+        pruefe(page.locator("select").count() == 0, f"{breite}: Lösung/Bewertung schon vor Abgabe sichtbar")
+        feld = page.locator("textarea").first
+        feld.click(); page.keyboard.type("x = 3 und y = 4", delay=15)
+        pruefe(feld.input_value() == "x = 3 und y = 4", f"{breite}: Eingabe verliert Fokus/Text")
+        breite_ok("Online")
+        page.screenshot(path=f"{AUS}/{breite}-3c-online.png", full_page=True)
+        page.get_by_role("button", name="Klausur abgeben", exact=True).click(); page.wait_for_timeout(400)
+        pruefe(page.get_by_text("Abgegeben").count() >= 1, f"{breite}: Abgabe fehlt")
+        pruefe(page.locator("select").count() >= 1, f"{breite}: Erwartungshorizont/Bewertung fehlt")
+        pruefe(page.locator("textarea").first.input_value() == "x = 3 und y = 4", f"{breite}: Antwort nach Abgabe weg")
+        page.locator("select").first.select_option(index=1); page.wait_for_timeout(200)
+        pruefe(page.get_by_text("Du hast dir").count() >= 1, f"{breite}: Selbstbewertung wird nicht gezählt")
+        breite_ok("Online-Abgabe")
+        page.screenshot(path=f"{AUS}/{breite}-3d-abgabe.png", full_page=True)
+
+        # Weg 2: zurück zur Wahl → PDF (Download startet direkt)
+        page.get_by_role("button", name="Andere Variante wählen").click(); page.wait_for_timeout(300)
+        pruefe(page.get_by_text("Möchtest du die Klausur jetzt online bearbeiten oder als PDF herunterladen?").count() == 1, f"{breite}: Wahl nach Rückweg fehlt")
+        with page.expect_download(timeout=60000) as d0:
+            page.get_by_role("button", name="Als PDF zum Download").click()
+        d0.value.save_as(f"{AUS}/klausur-direkt-{breite}.pdf")
+        pruefe(os.path.getsize(f"{AUS}/klausur-direkt-{breite}.pdf") > 20000, f"{breite}: PDF direkt aus der Wahl zu klein")
+        page.wait_for_timeout(800)
         pruefe(page.get_by_text("Aufgabe 4").count() >= 1, f"{breite}: Aufgaben fehlen")
         pruefe(page.locator("svg[aria-label='Abbildung zur Aufgabe']").count() == 2, f"{breite}: Abbildungen fehlen")
         pruefe(page.get_by_text("45 BE").count() >= 1, f"{breite}: Gesamtpunkte falsch")

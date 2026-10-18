@@ -520,6 +520,179 @@ function Blatt({ k, info, dauer, mitLoesung, druck = false }) {
   );
 }
 
+/* ---------- Auswahl: online bearbeiten oder als PDF ---------- */
+function WahlKarte({ k, onOnline, onPdf, pdfLaeuft }) {
+  const Weg = ({ onClick, titel, zeile, icon, gold, disabled }) => (
+    <button type="button" onClick={onClick} disabled={disabled}
+      style={{ width: "100%", display: "flex", alignItems: "center", gap: 14, textAlign: "left", padding: "16px 18px", borderRadius: 16, fontFamily: "inherit", cursor: disabled ? "wait" : "pointer",
+        border: gold ? "none" : `2px solid ${C.see}`, background: gold ? GOLD_VERLAUF : C.weiss, color: gold ? C.seeTief : C.see,
+        boxShadow: gold ? "0 6px 20px rgba(226,181,60,0.38), inset 0 1px 0 rgba(255,255,255,0.45)" : "none", opacity: disabled ? 0.8 : 1 }}>
+      <span aria-hidden="true" style={{ flexShrink: 0, width: 42, height: 42, borderRadius: 12, background: gold ? "rgba(14,30,74,0.1)" : C.himmel, display: "flex", alignItems: "center", justifyContent: "center" }}>{icon}</span>
+      <span style={{ flex: 1, minWidth: 0 }}>
+        <span style={{ display: "block", fontSize: 17, fontWeight: 800, letterSpacing: "-0.01em" }}>{titel}</span>
+        <span style={{ display: "block", fontSize: 12.5, fontWeight: 500, marginTop: 2, color: gold ? "rgba(14,30,74,0.78)" : C.grau, lineHeight: 1.4 }}>{zeile}</span>
+      </span>
+      <span aria-hidden="true" style={{ fontSize: 24, fontWeight: 700 }}>›</span>
+    </button>
+  );
+  return (
+    <div style={{ ...KARTE, padding: 18, marginTop: 22 }} role="group" aria-label="Wie möchtest du die Klausur bearbeiten?">
+      <p style={{ ...KICKER, marginBottom: 8 }}>Deine Klausur ist fertig</p>
+      <p style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 800, color: C.tinte, letterSpacing: "-0.01em", lineHeight: 1.3 }}>Möchtest du die Klausur jetzt online bearbeiten oder als PDF herunterladen?</p>
+      <p style={{ margin: "0 0 16px", fontSize: 13, color: C.grau, lineHeight: 1.55 }}>{k.dauer} min · {komma(k.gesamt)} BE · {k.teile.reduce((s, t) => s + t.aufgaben.length, 0)} Aufgaben</p>
+      <div style={{ display: "grid", gap: 10 }}>
+        <Weg gold onClick={onOnline} titel="Online bearbeiten" zeile="Mit Uhr und Eingabefeldern. Danach siehst du den Erwartungshorizont und bewertest dich selbst."
+          icon={<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="7.5" fill="none" stroke={C.seeTief} strokeWidth="1.9" /><path d="M12 9v4.5l3 1.8M9.5 3h5" fill="none" stroke={C.seeTief} strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" /></svg>} />
+        <Weg onClick={onPdf} disabled={pdfLaeuft} titel={pdfLaeuft ? "PDF wird erstellt …" : "Als PDF zum Download"} zeile="Zum Ausdrucken und Rechnen auf Papier, mit Erwartungshorizont und Notenschlüssel."
+          icon={<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 20h16" fill="none" stroke={C.see} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" /></svg>} />
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Online bearbeiten ---------- */
+const ANTWORTEN = (k) => `matheplus-testklausur-antworten-${k}`;
+const mmss = (s) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+
+function AufgabeOnline({ a, ai, phase, antworten, setAntwort, punkte, setPunkt }) {
+  const fertig = phase === "fertig";
+  return (
+    <div style={{ ...KARTE, padding: "16px 18px", marginTop: 14 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 10, marginBottom: 6 }}>
+        <span style={{ fontSize: 15.5, fontWeight: 800, color: C.tinte }}>Aufgabe {a.nr}{a.titel ? <span style={{ fontWeight: 600, color: C.grau }}> · {a.titel}</span> : null}</span>
+        <span style={{ fontSize: 12, fontWeight: 700, color: C.see, whiteSpace: "nowrap" }}>{komma(a.be)} BE</span>
+      </div>
+      {a.text && <p style={{ margin: "0 0 8px", fontSize: 14.5, lineHeight: 1.75, color: C.tinte }}><TeX s={a.text} /></p>}
+      {a.graph && <div style={{ maxWidth: 340, margin: "0 auto" }}><KlausurGraph g={a.graph} breite={340} /></div>}
+      {a.teilaufgaben.map((t, ti) => {
+        const key = `${ai}-${ti}`;
+        const buchstabe = String.fromCharCode(97 + ti);
+        return (
+          <div key={ti} style={{ marginTop: 12 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "24px 1fr auto", columnGap: 6, fontSize: 14.5, lineHeight: 1.75, color: C.tinte }}>
+              <span style={{ fontWeight: 700 }}>{buchstabe})</span>
+              <span style={{ minWidth: 0 }}><TeX s={t.text} /></span>
+              <span style={{ fontSize: 11.5, color: C.hellgrau, fontWeight: 600, whiteSpace: "nowrap", paddingTop: 3 }}>{komma(t.be)}</span>
+            </div>
+            <label style={{ display: "block", marginTop: 6 }}>
+              <span style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)" }}>Deine Antwort zu Aufgabe {a.nr} {buchstabe})</span>
+              <textarea value={antworten[key] || ""} onChange={(e) => setAntwort(key, e.target.value)} readOnly={fertig} rows={3}
+                placeholder={fertig ? "" : "Dein Rechenweg und deine Antwort …"}
+                style={{ width: "100%", boxSizing: "border-box", resize: "vertical", padding: "10px 12px", borderRadius: 12, border: `1.5px solid ${C.linie}`, background: fertig ? C.sand : C.weiss, fontFamily: "inherit", fontSize: 15, lineHeight: 1.6, color: C.tinte }} />
+            </label>
+            {fertig && (
+              <div style={{ marginTop: 8, padding: "10px 12px", borderRadius: 12, background: C.himmel }}>
+                <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", color: C.see, marginBottom: 4 }}>Erwartungshorizont</div>
+                <div style={{ fontSize: 14, lineHeight: 1.7, color: C.tinte }}><TeX s={t.loesung || "—"} /></div>
+                <label style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8, fontSize: 13, fontWeight: 600, color: C.grau }}>
+                  Deine Punkte
+                  <select value={punkte[key] ?? ""} onChange={(e) => setPunkt(key, e.target.value === "" ? null : Number(e.target.value))}
+                    style={{ minHeight: 38, padding: "0 10px", borderRadius: 10, border: `1.5px solid ${C.linie}`, fontFamily: "inherit", fontSize: 14, fontWeight: 700, color: C.tinte, background: C.weiss }}>
+                    <option value="">–</option>
+                    {Array.from({ length: t.be + 1 }, (_, n) => <option key={n} value={n}>{n}</option>)}
+                  </select>
+                  <span style={{ fontWeight: 500, color: C.hellgrau }}>von {komma(t.be)} BE</span>
+                </label>
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function OnlineKlausur({ k, info, kapitelId, zurWahl, onPdf, pdfLaeuft }) {
+  const [phase, setPhase] = useState("bereit");
+  const [ende, setEnde] = useState(0);
+  const [rest, setRest] = useState(k.dauer * 60);
+  const [antworten, setAntworten] = useState(() => { try { return JSON.parse(localStorage.getItem(ANTWORTEN(kapitelId)) || "{}") || {}; } catch (e) { return {}; } });
+  const [punkte, setPunkte] = useState({});
+  const aufgaben = k.teile.flatMap((t) => t.aufgaben);
+
+  useEffect(() => { try { localStorage.setItem(ANTWORTEN(kapitelId), JSON.stringify(antworten)); } catch (e) { /* privat */ } }, [antworten, kapitelId]);
+
+  useEffect(() => {
+    if (phase !== "laeuft") return undefined;
+    const tick = () => {
+      const s = Math.max(0, Math.round((ende - Date.now()) / 1000));
+      setRest(s);
+      if (s <= 0) setPhase("fertig");
+    };
+    tick();
+    const id = setInterval(tick, 500);
+    return () => clearInterval(id);
+  }, [phase, ende]);
+
+  const start = () => { setEnde(Date.now() + k.dauer * 60000); setRest(k.dauer * 60); setPhase("laeuft"); window.scrollTo({ top: 0, behavior: "smooth" }); };
+  const neu = () => { setAntworten({}); setPunkte({}); setRest(k.dauer * 60); setPhase("bereit"); };
+  const setAntwort = (key, v) => setAntworten((alt) => ({ ...alt, [key]: v }));
+  const setPunkt = (key, v) => setPunkte((alt) => { const n = { ...alt }; if (v === null) delete n[key]; else n[key] = v; return n; });
+
+  const summe = Object.values(punkte).reduce((s, x) => s + x, 0);
+  const bewertet = Object.keys(punkte).length;
+  const anzahlTeil = aufgaben.reduce((s, a) => s + a.teilaufgaben.length, 0);
+  const schluessel = notenschluessel(k.gesamt, info.kursstufe);
+  const zeile = schluessel.find((z) => summe >= z.ab) || schluessel[schluessel.length - 1];
+  const knapp = phase === "laeuft" && rest <= 300;
+
+  return (
+    <div style={{ marginTop: 22 }}>
+      {phase === "bereit" && (
+        <div style={{ ...KARTE, padding: 18 }}>
+          <p style={{ ...KICKER, marginBottom: 8 }}>Online bearbeiten</p>
+          <p style={{ margin: "0 0 12px", fontSize: 15, color: C.tinte, lineHeight: 1.7 }}>
+            Du hast <strong>{k.dauer} Minuten</strong> für <strong>{komma(k.gesamt)} BE</strong>. Schreibe Rechenweg und Antwort in die Felder. Den Erwartungshorizont siehst du erst nach der Abgabe.
+            {k.hilfsmittel ? <> Hilfsmittel: {k.hilfsmittel}.</> : null}
+          </p>
+          <GoldKnopf onClick={start} titel="Klausur starten" zeile="Die Uhr läuft ab dem Klick. Nach Ablauf wird automatisch abgegeben." />
+          <button type="button" onClick={zurWahl} style={{ marginTop: 12, background: "none", border: "none", padding: 0, color: C.see, fontFamily: "inherit", fontSize: 13.5, fontWeight: 700, cursor: "pointer", textDecoration: "underline" }}>Doch lieber als PDF</button>
+        </div>
+      )}
+
+      {phase === "laeuft" && (
+        <div style={{ position: "sticky", top: 8, zIndex: 5, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, padding: "10px 16px", borderRadius: 999, background: knapp ? C.signal : C.seeTief, color: C.weiss, boxShadow: "0 4px 16px rgba(15,26,51,0.25)" }}>
+          <span role="timer" aria-label={`Noch ${mmss(rest)} Minuten`} style={{ fontSize: 18, fontWeight: 800, fontVariantNumeric: "tabular-nums" }}>{mmss(rest)}</span>
+          <button type="button" onClick={() => setPhase("fertig")}
+            style={{ minHeight: 38, padding: "0 16px", borderRadius: 999, border: "none", background: C.weiss, color: C.seeTief, fontFamily: "inherit", fontSize: 14, fontWeight: 800, cursor: "pointer" }}>Abgeben</button>
+        </div>
+      )}
+
+      {phase === "fertig" && (
+        <div style={{ ...KARTE, padding: 18 }}>
+          <p style={{ ...KICKER, marginBottom: 8 }}>Abgegeben</p>
+          <p style={{ margin: "0 0 6px", fontSize: 17, fontWeight: 800, color: C.tinte, lineHeight: 1.35 }}>
+            {bewertet ? <>Du hast dir {komma(summe)} von {komma(k.gesamt)} BE gegeben.</> : "Vergleiche deine Antworten mit dem Erwartungshorizont."}
+          </p>
+          {bewertet > 0 && (
+            <p style={{ margin: "0 0 6px", fontSize: 14, color: C.grau, lineHeight: 1.6 }}>
+              Beispiel-Notenschlüssel: {info.kursstufe ? `${zeile.note} Notenpunkte` : `Note ${zeile.note}`}
+              {bewertet < anzahlTeil ? ` (bisher ${bewertet} von ${anzahlTeil} Teilaufgaben bewertet)` : ""}. Jede Schule legt ihren Schlüssel selbst fest.
+            </p>
+          )}
+          <p style={{ margin: "0 0 14px", fontSize: 13, color: C.hellgrau, lineHeight: 1.55 }}>Wähle unter jeder Teilaufgabe, wie viele Punkte du bekämst. Sei ehrlich, das bringt dich weiter.</p>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <PdfKnopf onClick={onPdf} laeuft={pdfLaeuft}>PDF mit Lösungen</PdfKnopf>
+            <button type="button" onClick={neu} style={{ minHeight: 44, padding: "0 18px", borderRadius: 999, border: `1.5px solid ${C.see}`, background: C.weiss, color: C.see, fontFamily: "inherit", fontSize: 14, fontWeight: 700, cursor: "pointer" }}>Noch einmal bearbeiten</button>
+          </div>
+        </div>
+      )}
+
+      {phase !== "bereit" && aufgaben.map((a, ai) => (
+        <AufgabeOnline key={a.nr} a={a} ai={ai} phase={phase} antworten={antworten} setAntwort={setAntwort} punkte={punkte} setPunkt={setPunkt} />
+      ))}
+
+      {phase === "laeuft" && (
+        <button type="button" onClick={() => setPhase("fertig")}
+          style={{ width: "100%", marginTop: 16, minHeight: 50, borderRadius: 999, border: "none", background: C.see, color: C.weiss, fontFamily: "inherit", fontSize: 16, fontWeight: 800, cursor: "pointer" }}>Klausur abgeben</button>
+      )}
+      {phase === "fertig" && (
+        <button type="button" onClick={zurWahl} style={{ marginTop: 16, background: "none", border: "none", padding: 0, color: C.see, fontFamily: "inherit", fontSize: 13.5, fontWeight: 700, cursor: "pointer", textDecoration: "underline" }}>Andere Variante wählen</button>
+      )}
+    </div>
+  );
+}
+
 function Testklausur({ info, zurueck }) {
   const r = rahmen(info);
   const [dauer, setDauer] = useState(r.dauer);
@@ -530,11 +703,13 @@ function Testklausur({ info, zurueck }) {
   const [loesung, setLoesung] = useState(false);
   const [pdfLaeuft, setPdfLaeuft] = useState(false);
   const [drucken, setDrucken] = useState(false);
+  /* Nach dem Erstellen und beim Öffnen einer gespeicherten Klausur wird immer erst gefragt: online oder PDF */
+  const [weg, setWeg] = useState(null);
   const druckRef = useRef(null);
   const obenRef = useRef(null);
 
   const erstellen = async () => {
-    setFehler(""); setLaeuft(true); setLoesung(false);
+    setFehler(""); setLaeuft(true); setLoesung(false); setWeg(null);
     const be = r.be(dauer);
     try {
       const res = await fetch(API_URL, {
@@ -570,6 +745,8 @@ function Testklausur({ info, zurueck }) {
     } catch (e) { setFehler("Das PDF ließ sich gerade nicht erstellen. Bitte noch einmal versuchen."); }
     setDrucken(false); setPdfLaeuft(false);
   };
+
+  const alsPdf = () => { setWeg("pdf"); pdf(); };
 
   const Chip = ({ an, onClick, children, unter }) => (
     <button type="button" aria-pressed={an} onClick={onClick}
@@ -612,18 +789,26 @@ function Testklausur({ info, zurueck }) {
       </div>
 
       {klausur && (
-        <div ref={obenRef} style={{ marginTop: 22 }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 12 }}>
-            <p style={{ margin: 0, fontSize: 13, color: C.grau }}>{klausur.dauer} min · {komma(klausur.gesamt)} BE · {klausur.teile.reduce((s, t) => s + t.aufgaben.length, 0)} Aufgaben</p>
-            <PdfKnopf onClick={pdf} laeuft={pdfLaeuft}>PDF mit Lösungen</PdfKnopf>
-          </div>
-          <div style={{ ...KARTE, overflow: "hidden", opacity: laeuft ? 0.45 : 1, transition: "opacity .2s" }}>
-            <Blatt k={klausur} info={info} dauer={klausur.dauer} mitLoesung={loesung} />
-          </div>
-          <button type="button" onClick={() => setLoesung(!loesung)} aria-expanded={loesung}
-            style={{ width: "100%", marginTop: 14, minHeight: 48, borderRadius: 999, border: `1.5px solid ${C.see}`, background: loesung ? C.himmel : C.weiss, color: C.see, fontFamily: "inherit", fontSize: 15, fontWeight: 700, cursor: "pointer" }}>
-            {loesung ? "Lösungen ausblenden" : "Lösungen und Notenschlüssel zeigen"}
-          </button>
+        <div ref={obenRef} style={{ opacity: laeuft ? 0.45 : 1, transition: "opacity .2s" }}>
+          {weg === null && <WahlKarte k={klausur} onOnline={() => setWeg("online")} onPdf={alsPdf} pdfLaeuft={pdfLaeuft} />}
+          {weg === "online" && <OnlineKlausur key={klausur.erstellt} k={klausur} info={info} kapitelId={info.kapitelId} zurWahl={() => setWeg(null)} onPdf={pdf} pdfLaeuft={pdfLaeuft} />}
+          {weg === "pdf" && (
+            <div style={{ marginTop: 22 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 12 }}>
+                <p style={{ margin: 0, fontSize: 13, color: C.grau }}>{klausur.dauer} min · {komma(klausur.gesamt)} BE · {klausur.teile.reduce((s, t) => s + t.aufgaben.length, 0)} Aufgaben</p>
+                <PdfKnopf onClick={pdf} laeuft={pdfLaeuft}>PDF mit Lösungen</PdfKnopf>
+              </div>
+              <div style={{ ...KARTE, overflow: "hidden" }}>
+                <Blatt k={klausur} info={info} dauer={klausur.dauer} mitLoesung={loesung} />
+              </div>
+              <button type="button" onClick={() => setLoesung(!loesung)} aria-expanded={loesung}
+                style={{ width: "100%", marginTop: 14, minHeight: 48, borderRadius: 999, border: `1.5px solid ${C.see}`, background: loesung ? C.himmel : C.weiss, color: C.see, fontFamily: "inherit", fontSize: 15, fontWeight: 700, cursor: "pointer" }}>
+                {loesung ? "Lösungen ausblenden" : "Lösungen und Notenschlüssel zeigen"}
+              </button>
+              <button type="button" onClick={() => setWeg("online")}
+                style={{ marginTop: 14, background: "none", border: "none", padding: 0, color: C.see, fontFamily: "inherit", fontSize: 13.5, fontWeight: 700, cursor: "pointer", textDecoration: "underline" }}>Stattdessen online bearbeiten</button>
+            </div>
+          )}
           <p style={{ margin: "10px 2px 0", fontSize: 11.5, color: C.hellgrau, lineHeight: 1.55 }}>
             Erstellt von Mathilda AI. Wenn dir eine Lösung komisch vorkommt, frag deine Lehrkraft oder Mathilda – auch eine KI kann sich verrechnen.
           </p>
