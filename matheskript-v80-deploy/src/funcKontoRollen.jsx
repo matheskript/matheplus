@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { C } from "./base1.jsx";
-import { DEMO, useKonto, anmeldenEmail, empfehlungsLink, REF_BASIS, gemerkteEinladung, einladungVergessen, hinweisSchliessen, profilSpeichern } from "./konto.js";
+import { DEMO, useKonto, anmeldenEmail, empfehlungsLink, REF_BASIS, REF_BASIS_ANZEIGE, gemerkteEinladung, einladungVergessen, hinweisSchliessen, profilSpeichern } from "./konto.js";
 import {
   meineBeziehungen, meineKinder, klassenUebersicht, schuelerDetail, elternVerbinden, verbindungLoesen, elternTokenErneuern,
   klasseAnlegen, klasseVorschau, klasseBeitreten, klasseVerlassen, klasseSchuelerEntfernen, klasseLoeschen, klasseCodeNeu,
   rolleWechseln, volljaehrigErklaeren, demoElternHinzufuegen, ANGEBOTE_ANZEIGE, PRO_ENTHAELT, aboVerwalten, meineAbos, proBuchen } from "./kontoRollen.js";
 import {
   ROLLEN, GESCHLECHTER, istGeschlecht, rolleName, istLehrend, ampelSortiert, ampelZaehlung, wochenUebersicht, zuletztText, entdeckenText,
-  elternLink, klassenLink, elternNachricht, klassenNachricht, whatsappLink, einladungAusUrl, KLASSENCODE, SCHULFORM_NAME, maxStufe, klassenLabel,
+  elternLink, klassenLink, elternNachricht, freundeNachricht, lehrkraftNachricht, klassenNachricht, whatsappLink, einladungAusUrl, KLASSENCODE, SCHULFORM_NAME, maxStufe, klassenLabel,
 } from "./rollenLogik.js";
 
 /* ======================================================================
@@ -132,51 +132,96 @@ export function HinweisLeiste() {
    SCHÜLER
    ====================================================================== */
 
-/* Eltern per WhatsApp einladen – der Link ist sofort da (auch vor dem Wunschlink) */
-export function ElternEinladen({ profil }) {
-  const [k, setK] = useState(false);
+/* Leute einladen – EINE kompakte Box: persönlicher Link (kopierbar) + WhatsApp an Eltern, Schulfreunde, Lehrkraft.
+   Der Eltern-Link enthält einen geheimen Token (Verbindung mit dem Konto) und bleibt deshalb ein eigener Link; die Verwaltung ist eingeklappt. */
+const einladenKnopf = (hintergrund, farbe, rand) => ({
+  display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4, minWidth: 0, height: 62, padding: "0 4px", borderRadius: 14,
+  background: hintergrund, color: farbe, border: rand || "none", fontSize: 12.5, fontWeight: 700, fontFamily: "inherit", textDecoration: "none", cursor: "pointer", lineHeight: 1.2, textAlign: "center",
+});
+
+export function EinladenBox({ profil, geworben = 0 }) {
+  const [kLink, setKLink] = useState(false);
+  const [kEltern, setKEltern] = useState(false);
+  const [verwalten, setVerwalten] = useState(false);
   const [bez, neu] = useLaden(meineBeziehungen);
   const [fehler, setFehler] = useState("");
   const [bestaetigen, setBestaetigen] = useState(false);
-  const link = elternLink(REF_BASIS, profil.ref_code, profil.eltern_token);
-  const nachricht = elternNachricht((profil.name || "").split(" ")[0], link);
+  const vorname = (profil.name || "").split(" ")[0];
+  const link = empfehlungsLink(profil.ref_code);
+  const elternUrl = elternLink(REF_BASIS, profil.ref_code, profil.eltern_token);
   const eltern = (bez.daten && bez.daten.eltern) || [];
   const loesen = async (id) => { try { await verbindungLoesen(id); await neu(); } catch (e) { setFehler(e.message); } };
   const erneuern = async () => { try { await elternTokenErneuern(); setBestaetigen(false); } catch (e) { setFehler(e.message); } };
+  const klein = { height: 34, padding: "0 14px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.4)", background: "transparent", color: C.weiss, fontSize: 13.5, fontWeight: 600, fontFamily: "inherit", cursor: "pointer", flexShrink: 0 };
+  const hell = { background: "none", border: "none", padding: 0, color: "#C9D6EE", textDecoration: "underline", fontFamily: "inherit", fontSize: 13, cursor: "pointer" };
   return (
-    <div style={{ ...karte, padding: 18, marginBottom: 14 }} id="eltern-einladen">
-      <Kicker>MEINE ELTERN</Kicker>
-      <p style={{ ...text, marginBottom: 12 }}>Schick deinen Eltern eine Einladung. Wer sich über deinen Link anmeldet, wird automatisch mit deinem Konto verbunden und sieht, wie du vorankommst.</p>
-      <a href={whatsappLink(nachricht)} target="_blank" rel="noopener noreferrer"
-        style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, height: 50, borderRadius: 999, background: "#25D366", color: "#0B3D1E", fontSize: 15.5, fontWeight: 700, textDecoration: "none" }}>
-        <WhatsAppIcon /> Eltern per WhatsApp einladen
-      </a>
-      <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap", alignItems: "center" }}>
-        <button type="button" onClick={() => kopieren(link, setK)} style={knopfRand}>{k ? "Kopiert ✓" : "Link kopieren"}</button>
-        {!bestaetigen && <button type="button" onClick={() => setBestaetigen(true)} style={linkKnopf}>Link erneuern</button>}
+    <div id="eltern-einladen" style={{ ...karte, padding: 16, marginBottom: 14, background: `linear-gradient(155deg, ${C.see} 0%, ${NAVY} 100%)`, color: C.weiss }}>
+      <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", color: C.flaggold, marginBottom: 4 }}>LEUTE EINLADEN</p>
+      <p style={{ fontSize: 13.5, color: "#C9D6EE", fontWeight: 300, lineHeight: 1.5, marginBottom: 10 }}>
+        Dein persönlicher Link: Wer sich darüber anmeldet, wird dir zugeordnet.
+      </p>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: 12, padding: "8px 8px 8px 12px" }}>
+        <span style={{ flex: 1, minWidth: 0, fontSize: 14, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", userSelect: "all" }}>
+          {REF_BASIS_ANZEIGE}/<span style={{ color: C.flaggold }}>{String(profil.ref_code)}</span>
+        </span>
+        <button type="button" onClick={() => kopieren(link, setKLink)} style={klein}>{kLink ? "Kopiert ✓" : "Link kopieren"}</button>
       </div>
-      {bestaetigen && (
-        <div style={{ marginTop: 10, background: C.sand, borderRadius: 12, padding: 12 }}>
-          <p style={{ fontSize: 13.5, color: C.tinte, lineHeight: 1.55, marginBottom: 8 }}>Der alte Einladungslink für Eltern funktioniert danach nicht mehr. Bereits verbundene Eltern bleiben verbunden.</p>
-          <div style={{ display: "flex", gap: 8 }}>
-            <button type="button" onClick={erneuern} style={{ ...knopfVoll(), height: 40 }}>Neuen Link erzeugen</button>
-            <button type="button" onClick={() => setBestaetigen(false)} style={{ ...knopfRand, height: 40 }}>Abbrechen</button>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8, marginTop: 10 }}>
+        <a href={whatsappLink(elternNachricht(vorname, elternUrl))} target="_blank" rel="noopener noreferrer"
+          style={einladenKnopf(`linear-gradient(150deg, #FFE9A0 0%, ${C.flaggold} 55%, #C99A14 100%)`, NAVY)}>
+          <WhatsAppIcon /> Eltern
+        </a>
+        <a href={whatsappLink(freundeNachricht(vorname, link))} target="_blank" rel="noopener noreferrer"
+          style={einladenKnopf("#25D366", "#0B3D1E")}>
+          <WhatsAppIcon /> Schulfreunde
+        </a>
+        <a href={whatsappLink(lehrkraftNachricht(vorname, link))} target="_blank" rel="noopener noreferrer"
+          style={einladenKnopf("rgba(255,255,255,0.14)", C.weiss, "1px solid rgba(255,255,255,0.4)")}>
+          <WhatsAppIcon /> Lehrkraft
+        </a>
+      </div>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginTop: 12, flexWrap: "wrap" }}>
+        <span style={{ fontSize: 13, color: "#C9D6EE" }}>
+          <b style={{ color: C.flaggold, fontSize: 16 }}>{geworben}</b> {geworben === 1 ? "Person" : "Personen"} eingeladen
+          {eltern.length > 0 && <> · <b style={{ color: C.flaggold }}>{eltern.length}</b> {eltern.length === 1 ? "Elternteil" : "Eltern"} verbunden</>}
+        </span>
+        <button type="button" onClick={() => setVerwalten(!verwalten)} aria-expanded={verwalten} aria-controls="eltern-verwalten" style={hell}>
+          {verwalten ? "Eltern-Verbindung schließen ▴" : "Eltern-Verbindung ▾"}
+        </button>
+      </div>
+      {verwalten && (
+        <div id="eltern-verwalten" style={{ marginTop: 10, background: "rgba(255,255,255,0.08)", borderRadius: 12, padding: 12 }}>
+          <p style={{ fontSize: 13, color: "#C9D6EE", fontWeight: 300, lineHeight: 1.5, marginBottom: 8 }}>
+            Der Eltern-Link verbindet dein Konto mit dem Elternkonto – dann sehen deine Eltern, wie du vorankommst.
+          </p>
+          <div style={{ display: "flex", gap: 14, alignItems: "center", flexWrap: "wrap" }}>
+            <button type="button" onClick={() => kopieren(elternUrl, setKEltern)} style={klein}>{kEltern ? "Kopiert ✓" : "Eltern-Link kopieren"}</button>
+            {!bestaetigen && <button type="button" onClick={() => setBestaetigen(true)} style={hell}>Link erneuern</button>}
+          </div>
+          {bestaetigen && (
+            <div style={{ marginTop: 10, background: "rgba(255,255,255,0.12)", borderRadius: 10, padding: 10 }}>
+              <p style={{ fontSize: 13, lineHeight: 1.5, marginBottom: 8 }}>Der alte Eltern-Link funktioniert danach nicht mehr. Bereits verbundene Eltern bleiben verbunden.</p>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button type="button" onClick={erneuern} style={{ ...klein, background: C.flaggold, color: NAVY, border: "none", fontWeight: 700 }}>Neuen Link erzeugen</button>
+                <button type="button" onClick={() => setBestaetigen(false)} style={klein}>Abbrechen</button>
+              </div>
+            </div>
+          )}
+          {fehler && <p role="alert" style={{ fontSize: 13, color: "#FFB4A8", marginTop: 8 }}>{fehler}</p>}
+          <div style={{ marginTop: 10, borderTop: "1px solid rgba(255,255,255,0.18)", paddingTop: 8 }}>
+            <p style={{ fontSize: 12.5, fontWeight: 700, color: C.flaggold, marginBottom: 4 }}>Verbunden</p>
+            {eltern.length === 0 ? (
+              <p style={{ fontSize: 13, color: "#C9D6EE", fontWeight: 300 }}>Noch niemand verbunden.</p>
+            ) : eltern.map((e) => (
+              <div key={e.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "4px 0" }}>
+                <span style={{ flex: 1, fontSize: 14, fontWeight: 600 }}>{e.name}</span>
+                <button type="button" onClick={() => loesen(e.id)} style={hell}>Trennen</button>
+              </div>
+            ))}
+            {DEMO && eltern.length === 0 && <button type="button" onClick={() => { demoElternHinzufuegen(); neu(); }} style={{ ...hell, marginTop: 6 }}>Vorschau: Beispiel-Elternteil verbinden</button>}
           </div>
         </div>
       )}
-      {fehler && <p role="alert" style={{ fontSize: 13, color: C.signal, marginTop: 8 }}>{fehler}</p>}
-      <div style={{ marginTop: 16, borderTop: `1px solid ${C.linie}`, paddingTop: 12 }}>
-        <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 6 }}>Verbunden</p>
-        {eltern.length === 0 ? (
-          <p style={{ fontSize: 13.5, color: C.grau, fontWeight: 300 }}>Noch niemand verbunden.</p>
-        ) : eltern.map((e) => (
-          <div key={e.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 0" }}>
-            <span style={{ flex: 1, fontSize: 14.5, color: C.tinte, fontWeight: 600 }}>{e.name}</span>
-            <button type="button" onClick={() => loesen(e.id)} style={linkKnopf}>Trennen</button>
-          </div>
-        ))}
-        {DEMO && eltern.length === 0 && <button type="button" onClick={() => { demoElternHinzufuegen(); neu(); }} style={{ ...linkKnopf, marginTop: 6 }}>Vorschau: Beispiel-Elternteil verbinden</button>}
-      </div>
     </div>
   );
 }

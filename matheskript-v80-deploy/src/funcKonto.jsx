@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { C } from "./base1.jsx";
 import { SpendenTeaser } from "./funcSpenden.jsx";
-import { RollenWahl, EmailAnmeldung, HinweisLeiste, ElternEinladen, MeineKlassen, PlanKarte, ElternBereich, LehrBereich, RolleAendern, GeschlechtFrage, WhatsAppIcon } from "./funcKontoRollen.jsx";
-import { rolleName, istLehrend, istGeschlecht, KURSSTUFE, NOTEN_AB, datenVollstaendig, elternLink, elternNachricht, freundeNachricht, whatsappLink } from "./rollenLogik.js";
+import { RollenWahl, EmailAnmeldung, HinweisLeiste, EinladenBox, MeineKlassen, PlanKarte, ElternBereich, LehrBereich, RolleAendern, GeschlechtFrage } from "./funcKontoRollen.jsx";
+import { rolleName, istLehrend, istGeschlecht, KURSSTUFE, NOTEN_AB, datenVollstaendig } from "./rollenLogik.js";
 import { MeinTrainingKarte } from "./funcKontoTraining.jsx";
 import { AppKarte, DatenKarte, WochenmailKarte } from "./funcKontoDaten.jsx";
 import { AlterWahl, AlterFrage, ElternZustimmungKarte, KinderEinwilligungKarte } from "./funcEinwilligung.jsx";
 import { darfImKonto } from "./einwilligungLogik.js";
-import { DEMO, useKonto, gemerkteEinladung, anmelden, abmelden, profilAnlegen, profilSpeichern, empfehlungsLink, REF_BASIS, REF_BASIS_ANZEIGE } from "./konto.js";
+import { DEMO, useKonto, gemerkteEinladung, anmelden, abmelden, profilAnlegen, profilSpeichern } from "./konto.js";
 
 /* ======================================================================
    KONTOBEREICH (ansicht "konto")
@@ -148,8 +148,6 @@ function NotenVerlauf({ punkte }) {
   );
 }
 
-const anzeigeGl = (c) => String(c);
-
 /* ---------- Name ändern (Eltern, Lehrkräfte) ---------- */
 function NameKarte({ profil }) {
   const [name, setName] = useState(profil.name || "");
@@ -185,7 +183,6 @@ function VorschauHinweis({ style }) {
 function Profil({ nutzer, profil, geworben, gehe }) {
   const [form, setForm] = useState(() => ({ name: profil.name || "", schulform: profil.schulform || "", klasse: profil.klasse || "", noten: profil.noten || {} }));
   const [status, setStatus] = useState(null);
-  const [kopiert, setKopiert] = useState(false);
   useEffect(() => { setStatus(null); }, [form]);
 
   const sf = SCHULFORMEN.find((s) => s.id === form.schulform);
@@ -218,10 +215,6 @@ function Profil({ nutzer, profil, geworben, gehe }) {
 
   const rolle = profil.rolle || "schueler";
   const [kinder, setKinder] = useState([]);
-  const link = empfehlungsLink(profil.ref_code);
-  const kopieren = async () => {
-    try { await navigator.clipboard.writeText(link); setKopiert(true); setTimeout(() => setKopiert(false), 1800); } catch (e) { /* manuell markieren */ }
-  };
 
   const verlauf = [];
   notenKlassen.forEach((k) => {
@@ -373,37 +366,10 @@ function Profil({ nutzer, profil, geworben, gehe }) {
         </div>
       </div>
 
-          <ElternEinladen profil={profil} />
+          <EinladenBox profil={profil} geworben={geworben} />
           <MeineKlassen rolle={rolle} />
           <PlanKarte profil={profil} />
-      {/* Freunde einladen: persönlicher Link mit automatischer 6-stelliger Zahl, Einladung per WhatsApp */}
-      <div style={{ ...karte, padding: 18, marginBottom: 14, background: `linear-gradient(155deg, ${C.see} 0%, ${NAVY} 100%)`, color: C.weiss }}>
-        <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", color: C.flaggold, marginBottom: 6 }}>FREUNDE EINLADEN</p>
-        <p style={{ fontSize: 14.5, color: "#C9D6EE", fontWeight: 300, lineHeight: 1.6, marginBottom: 12 }}>
-          Das ist dein persönlicher Link. Wer sich darüber anmeldet, wird automatisch dir zugeordnet.
-        </p>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: 12, padding: "10px 12px" }}>
-          <span style={{ flex: 1, minWidth: 0, fontSize: 14, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", userSelect: "all" }}>{REF_BASIS_ANZEIGE}/<span style={{ color: C.flaggold }}>{anzeigeGl(profil.ref_code)}</span></span>
-          <button type="button" onClick={kopieren}
-            style={{ height: 34, padding: "0 14px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.4)", background: "transparent", color: C.weiss, fontSize: 13.5, fontWeight: 600, fontFamily: "inherit", cursor: "pointer", flexShrink: 0 }}>
-            {kopiert ? "Kopiert ✓" : "Kopieren"}
-          </button>
-        </div>
-        <div style={{ display: "grid", gap: 10, marginTop: 12 }}>
-          <a href={whatsappLink(elternNachricht((profil.name || "").split(" ")[0], elternLink(REF_BASIS, profil.ref_code, profil.eltern_token)))} target="_blank" rel="noopener noreferrer"
-            style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, height: 50, borderRadius: 999, background: `linear-gradient(150deg, #FFE9A0 0%, ${C.flaggold} 55%, #C99A14 100%)`, color: NAVY, fontSize: 15.5, fontWeight: 700, textDecoration: "none" }}>
-            <WhatsAppIcon /> Meine Eltern einladen
-          </a>
-          <a href={whatsappLink(freundeNachricht((profil.name || "").split(" ")[0], link))} target="_blank" rel="noopener noreferrer"
-            style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, height: 50, borderRadius: 999, background: "#25D366", color: "#0B3D1E", fontSize: 15.5, fontWeight: 700, textDecoration: "none" }}>
-            <WhatsAppIcon /> Freunde einladen
-          </a>
-        </div>
-        <p style={{ fontSize: 13.5, color: "#C9D6EE", marginTop: 12, textAlign: "center" }}>
-          <b style={{ color: C.flaggold, fontSize: 18 }}>{geworben}</b> {geworben === 1 ? "Person" : "Personen"} eingeladen
-        </p>
-        {profil.geworben_von && <p style={{ fontSize: 12.5, color: "#8FA3C8", marginTop: 10 }}>Du bist selbst über eine Einladung zu Mythos Mathe gekommen.</p>}
-      </div>
+      {profil.geworben_von && <p style={{ fontSize: 12.5, color: C.hellgrau, margin: "-6px 4px 14px" }}>Du bist selbst über eine Einladung zu Mythos Mathe gekommen.</p>}
 
         </>
       )}

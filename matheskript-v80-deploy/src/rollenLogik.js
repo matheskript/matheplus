@@ -146,6 +146,9 @@ export function elternNachricht(name, link) {
 export function freundeNachricht(name, link) {
   return `Hey! Ich lerne Mathe mit Mythos Mathe${name ? " (" + name + ")" : ""} – Mathe verstehen mit System. Schau es dir an, über meinen Link geht's los: ${link}`;
 }
+export function lehrkraftNachricht(name, link) {
+  return `Guten Tag! Ich lerne Mathe mit Mythos Mathe${name ? " (" + name + ")" : ""}. Über diesen Link können Sie sich ein kostenloses Lehrkraft-Konto anlegen, eine Klasse einrichten und sehen, wie aktiv die Schüler lernen: ${link}`;
+}
 export function klassenNachricht(klasse, link, code) {
   return `Hallo! Hier ist unsere Mathe-Klasse ${klasse} bei Mythos Mathe. Tritt über diesen Link bei: ${link} (oder gib den Code ${code} im Konto ein).`;
 }
