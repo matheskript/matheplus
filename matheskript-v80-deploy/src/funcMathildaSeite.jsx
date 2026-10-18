@@ -75,7 +75,7 @@ function ModusGlyph({ id, aktiv }) {
 /* Briefkasten mit Brief – Symbol der Box „Klausurbriefkasten“ */
 function BriefkastenMini() {
   return (
-    <svg viewBox="0 0 64 64" width="56" height="56" aria-hidden="true" style={{ display: "block", flex: "none" }}>
+    <svg viewBox="0 0 64 64" width="44" height="44" aria-hidden="true" style={{ display: "block", flex: "none" }}>
       <defs><linearGradient id="mk-bk-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#F8D23A" /><stop offset="0.55" stopColor={GOLD} /><stop offset="1" stopColor="#D9A600" /></linearGradient></defs>
       <rect x="29" y="40" width="6" height="20" rx="2" fill="#0A1636" />
       <path d="M12 26c0-9 7-15 16-15h14c8 0 12 6 12 14v18H12z" fill="url(#mk-bk-gold)" />
@@ -110,22 +110,20 @@ export function MathildaKopf({ modus, setModus, onScan, onText, onBriefkasten })
         .mathilda-kopf .mk-modus[data-aktiv="1"] { background: #FFFFFF; color: ${NACHT}; border-color: #FFFFFF; box-shadow: 0 10px 26px rgba(5,12,40,0.35), inset 0 -4px 0 ${GOLD}; }
         .mathilda-kopf .mk-modus b { display: block; font-size: 14px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.2; }
         .mathilda-kopf .mk-modus span { display: block; font-size: 12px; font-weight: 400; line-height: 1.4; opacity: .85; }
-        .mathilda-kopf .mk-text-kachel { max-width: 760px; margin: 0 auto; padding: 0 24px 24px; }
-        .mathilda-kopf .mk-text-kachel button { width: 100%; display: flex; align-items: center; gap: 12px; text-align: left; cursor: pointer; font-family: inherit; color: #FFFFFF; border-radius: 16px; padding: 12px 14px;
-          border: 1.5px solid rgba(237,187,0,0.55); background: linear-gradient(135deg, rgba(237,187,0,0.16), rgba(255,255,255,0.04)); transition: transform .15s ease, background .15s ease; -webkit-tap-highlight-color: transparent; }
-        .mathilda-kopf .mk-text-kachel button:hover { transform: translateY(-2px); background: linear-gradient(135deg, rgba(237,187,0,0.24), rgba(255,255,255,0.06)); }
-        .mathilda-kopf .mk-text-kachel b { display: block; font-size: 14.5px; font-weight: 700; }
-        .mathilda-kopf .mk-text-kachel span.mk-tk-z { display: block; font-size: 12.5px; font-weight: 300; color: #C9D6EE; line-height: 1.4; }
-        .mathilda-kopf .mk-text-kachel .mk-tk-neu { font-size: 10px; font-weight: 800; letter-spacing: .12em; color: ${NACHT}; background: ${GOLD}; border-radius: 999px; padding: 3px 8px; flex: none; }
-        .mathilda-kopf .mk-bk { max-width: 760px; margin: 0 auto; padding: 0 24px 26px; }
-        .mathilda-kopf .mk-bk button { width: 100%; display: flex; align-items: center; gap: 14px; text-align: left; cursor: pointer; font-family: inherit; color: #FFFFFF; border-radius: 18px; padding: 14px 16px;
-          border: 1.5px solid rgba(255,255,255,0.16); background: linear-gradient(135deg, rgba(10,22,54,0.85), rgba(29,71,144,0.55)); box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
-          transition: transform .15s ease, border-color .15s ease; -webkit-tap-highlight-color: transparent; }
-        .mathilda-kopf .mk-bk button:hover { transform: translateY(-2px); border-color: rgba(237,187,0,0.6); }
-        .mathilda-kopf .mk-bk .mk-bk-ober { display: block; font-size: 10.5px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #FFFFFF; }
-        .mathilda-kopf .mk-bk b { display: block; font-size: 16px; font-weight: 700; letter-spacing: -0.01em; margin-top: 1px; }
-        .mathilda-kopf .mk-bk .mk-bk-z { display: block; font-size: 12.5px; font-weight: 300; color: #C9D6EE; line-height: 1.45; margin-top: 2px; }
-        .mathilda-kopf .mk-bk .mk-bk-schloss { display: inline-flex; align-items: center; gap: 5px; margin-top: 6px; font-size: 11px; font-weight: 600; color: #E6EDF8; background: rgba(255,255,255,0.08); border-radius: 999px; padding: 3px 9px; }
+        .mathilda-kopf .mk-duo { max-width: 760px; margin: 0 auto; padding: 0 24px 26px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: stretch; }
+        .mathilda-kopf .mk-karte { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; text-align: left; cursor: pointer; font-family: inherit; color: #FFFFFF; border-radius: 16px; padding: 14px 14px 12px; min-width: 0;
+          transition: transform .15s ease, border-color .15s ease, background .15s ease; -webkit-tap-highlight-color: transparent; }
+        .mathilda-kopf .mk-karte:hover { transform: translateY(-2px); }
+        .mathilda-kopf .mk-karte-text { border: 1.5px solid rgba(237,187,0,0.55); background: linear-gradient(135deg, rgba(237,187,0,0.16), rgba(255,255,255,0.04)); }
+        .mathilda-kopf .mk-karte-text:hover { background: linear-gradient(135deg, rgba(237,187,0,0.24), rgba(255,255,255,0.06)); }
+        .mathilda-kopf .mk-karte-bk { border: 1.5px solid rgba(255,255,255,0.16); background: linear-gradient(135deg, rgba(10,22,54,0.85), rgba(29,71,144,0.55)); box-shadow: inset 0 1px 0 rgba(255,255,255,0.08); }
+        .mathilda-kopf .mk-karte-bk:hover { border-color: rgba(237,187,0,0.6); }
+        .mathilda-kopf .mk-karte-kopf { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 44px; }
+        .mathilda-kopf .mk-karte b { display: block; font-size: 15px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.2; }
+        .mathilda-kopf .mk-karte .mk-karte-ober { display: block; font-size: 10.5px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #FFFFFF; }
+        .mathilda-kopf .mk-karte .mk-karte-z { display: block; font-size: 12.5px; font-weight: 300; color: #C9D6EE; line-height: 1.45; flex: 1; }
+        .mathilda-kopf .mk-karte .mk-tk-neu { font-size: 10px; font-weight: 800; letter-spacing: .12em; color: ${NACHT}; background: ${GOLD}; border-radius: 999px; padding: 3px 8px; flex: none; }
+        .mathilda-kopf .mk-karte .mk-bk-schloss { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; color: #E6EDF8; background: rgba(255,255,255,0.08); border-radius: 999px; padding: 3px 9px; }
         .mathilda-kopf .mk-ober { color: ${GOLD}; font-size: 14.4px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; margin-bottom: 8px; }
         .mathilda-kopf .mk-titel { font-weight: 700; font-size: 53px; letter-spacing: -0.03em; line-height: .98; margin: 0; }
         .mathilda-kopf .mk-satz { color: #C9D6EE; font-size: 18.6px; font-weight: 300; line-height: 1.5; margin-top: 14px; white-space: nowrap; }
@@ -180,27 +178,30 @@ export function MathildaKopf({ modus, setModus, onScan, onText, onBriefkasten })
           </button>
         ))}
       </div>
-      {onText && (
-        <div className="mk-text-kachel">
-          <button type="button" onClick={onText} data-mathilda-textaufgabe>
-            <span className="mk-tk-neu">NEU</span>
-            <span style={{ flex: 1, minWidth: 0 }}><b>Textaufgabe übersetzen</b><span className="mk-tk-z">Foto rein – Bedingungen raus. Jede Stelle mit Begründung.</span></span>
-            <span aria-hidden="true" style={{ color: GOLD, fontSize: 20, fontWeight: 700 }}>→</span>
-          </button>
-        </div>
-      )}
-      {onBriefkasten && (
-        <div className="mk-bk">
-          <button type="button" onClick={onBriefkasten} data-mathilda-briefkasten>
-            <BriefkastenMini />
-            <span style={{ flex: 1, minWidth: 0 }}>
-              <span className="mk-bk-ober">Mathilda<span style={{ color: GOLD }}>AI</span></span>
-              <b>Klausurbriefkasten</b>
-              <span className="mk-bk-z">Wirf deine zurückgegebene Klassenarbeit ein – Mathilda lernt daraus, bessere Testklausuren für deine Klasse zu bauen.</span>
+      {(onText || onBriefkasten) && (
+        <div className="mk-duo">
+          {onText && (
+            <button type="button" className="mk-karte mk-karte-text" onClick={onText} data-mathilda-textaufgabe>
+              <span className="mk-karte-kopf">
+                <span className="mk-tk-neu">NEU</span>
+                <span aria-hidden="true" style={{ color: GOLD, fontSize: 20, fontWeight: 700 }}>→</span>
+              </span>
+              <b>Textaufgabe übersetzen</b>
+              <span className="mk-karte-z">Foto rein – Bedingungen raus. Jede Stelle mit Begründung.</span>
+            </button>
+          )}
+          {onBriefkasten && (
+            <button type="button" className="mk-karte mk-karte-bk" onClick={onBriefkasten} data-mathilda-briefkasten>
+              <span className="mk-karte-kopf">
+                <BriefkastenMini />
+                <span aria-hidden="true" style={{ color: GOLD, fontSize: 20, fontWeight: 700 }}>→</span>
+              </span>
+              <span className="mk-karte-ober">Mathilda<span style={{ color: GOLD }}>AI</span></span>
+              <b style={{ marginTop: -4 }}>Klausurbriefkasten</b>
+              <span className="mk-karte-z">Wirf deine zurückgegebene Klassenarbeit ein – Mathilda baut daraus bessere Testklausuren.</span>
               <span className="mk-bk-schloss"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke={GOLD} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>Foto wird nicht gespeichert</span>
-            </span>
-            <span aria-hidden="true" style={{ color: GOLD, fontSize: 20, fontWeight: 700 }}>→</span>
-          </button>
+            </button>
+          )}
         </div>
       )}
     </div>
