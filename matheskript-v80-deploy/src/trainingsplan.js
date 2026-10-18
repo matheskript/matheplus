@@ -1,13 +1,14 @@
 /* ======================================================================
    TRAININGSPLAN – „Trainingsplan erstellen“ im Quickfinder (Startseite)
 
-   Aus einem Buchkapitel (oder einem Unterthema davon) entsteht ein Plan:
+   Aus den angehakten Kapiteln und Unterthemen (auch mehrere Kapitel) entsteht ein Plan:
      1. Warm-up        – leichte Aufgaben aus dem Vorwissen, zum Reinkommen
      2. Basis-Check    – Grundlagen aus früheren Klassen (Vorwissen des Vorwissens)
-     3. Zwischenschritte – direktes Vorwissen und die Unterthemen davor
-     4. Kerntraining   – das gewählte Thema selbst
-     5. Wiederholen    – nach Ebbinghaus: 1, 3, 7, 14 und 30 Tage nach dem Kerntraining;
+     3. Zwischenschritte – direktes Vorwissen
+     4. Kerntraining   – je Kapitel eine Einheit mit genau den angehakten Unterthemen
+     5. Wiederholen    – nach Ebbinghaus: 1, 3, 7, 14 und 30 Tage nach dem letzten Kerntraining;
                          mit Klassenarbeits-Termin verdichtet, dazu eine Generalprobe am Vortag
+   Warm-up, Basis-Check und Zwischenschritte schlägt der Plan selbst vor; jedes davon ist abwählbar (`ohne`).
    Das Vorwissen kommt aus kapitelFormeln.js (KAPITEL_FORMELN[..].vorwissen),
    die Aufgaben aus unterthemen.js → trainingDaten.js. Ergebnisse der Aufgaben
    laufen wie überall über ebbBuchen in den Ebbinghaus-Wiederholungsplan.
@@ -15,7 +16,7 @@
    Reine Logik, kein React, kein Speicher (Speicher: funcKapitelTraining.jsx).
    ====================================================================== */
 import { KAPITEL_FORMELN, klasseVonKapitel } from "./kapitelFormeln.js";
-import { THEMEN, hilfenFuer } from "./schulbuch.js";
+import { PLAN, THEMEN, hilfenFuer } from "./schulbuch.js";
 import { kapitelGeneratoren, unterthema, unterthemen } from "./unterthemen.js";
 import { GENERATOREN } from "./trainingDaten.js";
 import { WERKZEUGE } from "./werkzeuge.js";
@@ -43,14 +44,20 @@ export const tageZwischen = (a, b) => Math.round((tagAus(b) - tagAus(a)) / 86400
 
 /* ---------- Vorwissen ---------- */
 const vorwissenVon = (k) => (KAPITEL_FORMELN[k] ? KAPITEL_FORMELN[k].vorwissen.map(([aus]) => aus).filter((a) => THEMEN[a]) : []);
+const rangVon = (schulart, id) => (klasseVonKapitel(schulart, id) || { rang: 0 }).rang;
+/* Kapitelnummer im Buch der Klasse (für Kapitel derselben Klasse) */
+const nrVon = (schulart, id) => { const k = klasseVonKapitel(schulart, id); return k ? ((PLAN[schulart] || PLAN.g9)[k.box] || []).indexOf(id) : 99; };
 const nachKlasse = (ids, schulart) => ids
-  .map((id, i) => ({ id, i, r: (klasseVonKapitel(schulart, id) || { rang: 0 }).rang }))
-  .sort((a, b) => a.r - b.r || a.i - b.i).map((x) => x.id);
+  .map((id, i) => ({ id, i, r: rangVon(schulart, id), n: nrVon(schulart, id) }))
+  .sort((a, b) => a.r - b.r || a.n - b.n || a.i - b.i).map((x) => x.id);
+/* Die n nächstliegenden Kapitel (jüngste Klasse zuerst ausgewählt), danach wieder chronologisch */
+const naechste = (ids, schulart, n) => nachKlasse(
+  ids.map((id, i) => ({ id, i, r: rangVon(schulart, id) })).sort((a, b) => b.r - a.r || a.i - b.i).slice(0, n).map((x) => x.id), schulart);
 
 /* direkt: Vorwissen des Kapitels; tiefer: Vorwissen davon (höchstens vier, ohne Doppelte) */
 export function vorwissenStufen(kapitelId, schulart = "g9") {
   const direkt = nachKlasse([...new Set(vorwissenVon(kapitelId))], schulart);
-  const tiefer = nachKlasse([...new Set(direkt.flatMap(vorwissenVon))].filter((k) => k !== kapitelId && !direkt.includes(k)), schulart).slice(0, 4);
+  const tiefer = naechste([...new Set(direkt.flatMap(vorwissenVon))].filter((k) => k !== kapitelId && !direkt.includes(k)), schulart, 4);
   return { direkt, tiefer };
 }
 
@@ -67,62 +74,99 @@ function einheitAusKapitel(phase, k, schulart) {
   return { phase, kapitel: k, titel: THEMEN[k].titel, zeile: THEMEN[k].zeile, gen, ziele: [...kapitelHilfen(k), formelZiel(k, schulart)] };
 }
 
+/* ---------- Auswahl ---------- */
+/* Gewählte Unterthemen nach Kapiteln gruppiert, in Buchreihenfolge (Klasse, dann Kapitelnummer im Plan der Schulart) */
+export function auswahlNachKapitel(teile, schulart = "g9") {
+  const ids = [...new Set((teile || []).filter((id) => unterthema(id)))];
+  const kap = nachKlasse([...new Set(ids.map((id) => unterthema(id).kapitel))], schulart);
+  return kap.map((k) => {
+    const alle = unterthemen(k);
+    const gew = alle.filter((u) => ids.includes(u.id));
+    return { kapitel: k, teile: gew, ganz: gew.length === alle.length };
+  });
+}
+
+/* Vorbereitung, die der Plan von sich aus vorschlägt (abwählbar über `ohne`):
+   warmup, Basis-Check-Kapitel (Vorwissen früherer Klassen) und Zwischenschritt-Kapitel (direktes Vorwissen) */
+export function vorbereitungFuer(teile, schulart = "g9") {
+  const gruppen = auswahlNachKapitel(teile, schulart);
+  const eigene = gruppen.map((g) => g.kapitel);
+  const direkt = naechste([...new Set(gruppen.flatMap((g) => vorwissenStufen(g.kapitel, schulart).direkt))].filter((k) => !eigene.includes(k)), schulart, 5);
+  // Grundlagen höchstens drei Klassen unter dem jüngsten gewählten Kapitel (sofern es solche gibt) – kein Klasse-5-Stoff im Abi-Plan
+  const minRang = Math.min(...eigene.map((k) => rangVon(schulart, k)));
+  const kandidaten = [...new Set(gruppen.flatMap((g) => vorwissenStufen(g.kapitel, schulart).tiefer))].filter((k) => !eigene.includes(k) && !direkt.includes(k));
+  const nah = kandidaten.filter((k) => rangVon(schulart, k) >= minRang - 3);
+  const tiefer = naechste(nah.length ? nah : kandidaten, schulart, 4);
+  // Gibt es keine Grundlagen aus früheren Klassen, rückt das direkte Vorwissen in den Basis-Check
+  return tiefer.length ? { basis: tiefer, zwischen: direkt } : { basis: direkt, zwischen: [] };
+}
+
 /* ---------- Plan bauen ---------- */
-/* eingabe: { kapitel, teil (Unterthema-Id oder null), schulart, klasse, heute "JJJJ-MM-TT", termin "JJJJ-MM-TT" | null } */
-export function planErstellen({ kapitel, teil = null, schulart = "g9", klasse = null, heute, termin = null }) {
-  const t = THEMEN[kapitel];
-  if (!t) return null;
-  const u = teil ? unterthema(teil) : null;
-  const { direkt, tiefer } = vorwissenStufen(kapitel, schulart);
+/* eingabe: { teile: [Unterthema-Ids], ohne: ["warmup" | Kapitel-Id, …], schulart, klasse, heute "JJJJ-MM-TT", termin "JJJJ-MM-TT" | null }
+   Kurzform wie früher: { kapitel, teil } = ein Kapitel ganz bzw. ein Unterthema. */
+export function planErstellen({ teile = null, ohne = [], kapitel = null, teil = null, schulart = "g9", klasse = null, heute, termin = null }) {
+  if (!teile) teile = teil ? [teil] : kapitel && THEMEN[kapitel] ? unterthemen(kapitel).map((u) => u.id) : [];
+  const gruppen = auswahlNachKapitel(teile, schulart);
+  if (!gruppen.length) return null;
+  const weg = new Set(ohne || []);
+  const vb = vorbereitungFuer(teile, schulart);
+  const basis = vb.basis.filter((k) => !weg.has(k)).map((k) => einheitAusKapitel("basis", k, schulart));
+  const zwischen = vb.zwischen.filter((k) => !weg.has(k)).map((k) => einheitAusKapitel("zwischen", k, schulart));
 
-  // Basis-Check: Grundlagen aus früheren Klassen; gibt es keine, rückt das direkte Vorwissen nach
-  const basisKap = tiefer.length ? tiefer : direkt;
-  const zwischenKap = tiefer.length ? direkt : [];
-  const basis = basisKap.map((k) => einheitAusKapitel("basis", k, schulart));
-  const zwischen = zwischenKap.map((k) => einheitAusKapitel("zwischen", k, schulart));
-  // Unterthemen vor dem gewählten: als Zwischenschritte im eigenen Kapitel
-  if (u) for (const v of unterthemen(kapitel).filter((x) => x.nr < u.nr)) {
-    zwischen.push({ phase: "zwischen", kapitel, teil: v.id, titel: v.titel, zeile: `${t.titel} · Schritt ${v.nr}`, gen: v.gen.slice(0, 3),
-      ziele: mitWz(v.wz, kapitelHilfen(kapitel, 1)).slice(0, 2) });
-  }
-
-  // Warm-up: leichte Aufgaben aus dem gesamten Vorwissen, sonst Grundlagen
+  // Warm-up: leichte Aufgaben aus der Vorbereitung, sonst Grundlagen passend zur Klasse
   const vorGen = [...new Set([...basis, ...zwischen].flatMap((e) => e.gen))];
-  const rang = (klasseVonKapitel(schulart, kapitel) || { rang: 13 }).rang;
+  const rang = Math.min(...gruppen.map((g) => (klasseVonKapitel(schulart, g.kapitel) || { rang: 13 }).rang));
   const grund = GRUND_GEN.filter(([, ab]) => ab <= rang).map(([g]) => g);
   let warmGen = vorGen.filter((g) => afb(g) === 1);
   if (warmGen.length < 3) warmGen = [...new Set([...warmGen, ...vorGen, ...grund])].filter((g) => afb(g) <= 2);
-  const warmup = { phase: "warmup", titel: "Warm-up", zeile: warmGen.length ? "Leichte Aufgaben aus dem Vorwissen" : "Kopfrechnen zum Reinkommen", gen: warmGen.slice(0, 5),
+  const warmup = weg.has("warmup") ? null : { phase: "warmup", titel: "Warm-up", zeile: warmGen.length ? "Leichte Aufgaben aus dem Vorwissen" : "Kopfrechnen zum Reinkommen", gen: warmGen.slice(0, 5),
     ziele: rang <= 6 ? [{ name: "Head & Numbers", zeile: "Einmaleins, Quadratzahlen, Brüche", ziel: { ansicht: "headnumbers" } }] : [{ name: "5 Minuten Mathe", zeile: "Gemischtes Aufwärmen", ziel: { ansicht: "warmup" } }] };
 
-  const kernTeile = u ? [u] : unterthemen(kapitel);
-  const kernGen = [...new Set(kernTeile.flatMap((x) => x.gen))].sort((a, b) => afb(a) - afb(b));
-  const kern = { phase: "kern", kapitel, teil: u ? u.id : null, titel: u ? u.titel : t.titel, zeile: u ? t.titel : t.zeile, gen: kernGen,
-    ziele: [...mitWz(u && u.wz, kapitelHilfen(kapitel, 3)).slice(0, 3), formelZiel(kapitel, schulart)] };
+  // Kerntraining: eine Einheit je gewähltem Kapitel, mit genau den angehakten Unterthemen
+  const kerne = gruppen.map((g) => {
+    const t = THEMEN[g.kapitel], einzel = g.teile.length === 1 ? g.teile[0] : null;
+    const gen = [...new Set(g.teile.flatMap((x) => x.gen))].sort((a, b) => afb(a) - afb(b));
+    const wz = (g.teile.find((x) => x.wz) || {}).wz;
+    return { phase: "kern", kapitel: g.kapitel, teile: g.teile.map((x) => x.id), teil: einzel ? einzel.id : null,
+      titel: einzel ? einzel.titel : t.titel,
+      zeile: einzel ? t.titel : g.ganz ? t.zeile : g.teile.map((x) => x.titel).join(" · "),
+      gen, ziele: [...mitWz(wz, kapitelHilfen(g.kapitel, 3)).slice(0, 3), formelZiel(g.kapitel, schulart)] };
+  });
+  const kernGen = [...new Set(kerne.flatMap((e) => e.gen))];
   const wiederholGen = [...new Set([...kernGen, ...basis.flatMap((e) => e.gen).slice(0, 1)])];
 
   /* ---------- Tage verteilen ---------- */
   let D = termin ? tageZwischen(heute, termin) : null;
   if (D !== null && D < 1) D = null;   // Termin heute oder vorbei: ohne Termin planen
-  let tag = { warmup: 0, basis: 0, zwischen: 1, kern: 2 }, wdh = WIEDERHOLEN_TAGE;
-  if (!zwischen.length) tag = { warmup: 0, basis: 0, zwischen: 0, kern: 1 };
-  if (D !== null && D < 6) { tag = { warmup: 0, basis: 0, zwischen: 0, kern: D >= 3 ? 1 : 0 }; wdh = WIEDERHOLEN_KOMPAKT; }
+  const eng = D !== null && D < 6 + Math.max(0, kerne.length - 1);
+  const tagZw = zwischen.length && !eng ? 1 : 0;
+  let start = (basis.length || warmup || zwischen.length) ? tagZw + 1 : 0;
+  if (eng) start = D >= 3 ? 1 : 0;
+  // Kerntage: einer je Kapitel; mit Termin höchstens bis zwei Tage vor der Arbeit (Vortag = Generalprobe)
+  const ende = D === null ? start + kerne.length - 1 : Math.max(start, Math.min(start + kerne.length - 1, D - 2));
+  const kernTag = kerne.map((_, i) => start + Math.floor((i * (ende - start + 1)) / kerne.length));
+  const letzter = kernTag[kernTag.length - 1];
+  const wdh = eng ? WIEDERHOLEN_KOMPAKT : WIEDERHOLEN_TAGE;
+
   const einheiten = [];
   const plus = (e, n) => einheiten.push({ ...e, datum: plusTage(heute, n) });
-  plus(warmup, tag.warmup);
-  basis.forEach((e) => plus(e, tag.basis));
-  zwischen.forEach((e) => plus(e, tag.zwischen));
-  plus(kern, tag.kern);
-  const wTage = wdh.map((n) => tag.kern + n).filter((n) => D === null || n < D - 1);
-  wTage.forEach((n, i) => plus({ phase: "wiederholen", kapitel, teil: kern.teil, titel: `${i + 1}. Wiederholung`, zeile: `${kern.titel} · nach ${n - tag.kern} ${n - tag.kern === 1 ? "Tag" : "Tagen"}`, gen: wiederholGen,
+  if (warmup) plus(warmup, 0);
+  basis.forEach((e) => plus(e, 0));
+  zwischen.forEach((e) => plus(e, tagZw));
+  kerne.forEach((e, i) => plus(e, kernTag[i]));
+  const themaText = kerne.length === 1 ? kerne[0].titel : `${kerne.length} Themen`;
+  wdh.map((n) => letzter + n).filter((n) => D === null || n < D - 1).forEach((n, i) => plus({ phase: "wiederholen", kapitel: kerne[0].kapitel, teil: null,
+    titel: `${i + 1}. Wiederholung`, zeile: `${themaText} · nach ${n - letzter} ${n - letzter === 1 ? "Tag" : "Tagen"}`, gen: wiederholGen,
     ziele: [{ name: "Ebbinghaus", zeile: "Alle fälligen Wiederholungen", ziel: { ansicht: "ebbinghaus" } }] }, n));
-  if (D !== null && D - 1 > tag.kern) plus({ phase: "generalprobe", kapitel, teil: kern.teil, titel: "Generalprobe", zeile: "Gemischt, ohne Hilfen – am Tag vor der Arbeit",
+  if (D !== null && D - 1 > letzter) plus({ phase: "generalprobe", kapitel: kerne[0].kapitel, teil: null, titel: "Generalprobe", zeile: "Gemischt, ohne Hilfen – am Tag vor der Arbeit",
     gen: [...new Set([...kernGen, ...vorGen])], ziele: [{ name: "Prüfungsmodus", zeile: "Ohne Hilfen, mit Punkten", ziel: { ansicht: "pruefung" } }] }, D - 1);
 
   einheiten.forEach((e, i) => { e.id = `e${i + 1}`; e.anzahl = e.gen.length ? AUFGABEN_JE[e.phase] : 0; });
+  const titel = kerne.length === 1 ? kerne[0].titel : kerne.map((e) => e.titel).join(" · ");
   return {
-    id: `p${Date.now().toString(36)}`, version: 1, kapitel, teil: u ? u.id : null, schulart, klasse, erstellt: heute, termin: D !== null ? termin : null,
-    titel: u ? u.titel : t.titel, kapitelTitel: t.titel, einheiten,
+    id: `p${Date.now().toString(36)}`, version: 2, teile: gruppen.flatMap((g) => g.teile.map((x) => x.id)), ohne: [...weg],
+    kapitel: gruppen[0].kapitel, teil: kerne.length === 1 ? kerne[0].teil : null, schulart, klasse, erstellt: heute, termin: D !== null ? termin : null,
+    titel, kapitelTitel: gruppen.map((g) => THEMEN[g.kapitel].titel).join(" · "), einheiten,
   };
 }
 

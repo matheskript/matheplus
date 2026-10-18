@@ -5,7 +5,7 @@ import { PLAN, THEMEN } from "../src/schulbuch.js";
 import { UNTERTHEMEN_KAPITEL, kapitelGeneratoren, unterthema, unterthemen } from "../src/unterthemen.js";
 import { GENERATOREN } from "../src/trainingDaten.js";
 import { WERKZEUGE } from "../src/werkzeuge.js";
-import { WIEDERHOLEN_TAGE, einheitAufgabenIds, planErstellen, planStand, planTage, plusTage, tageZwischen, tagName, vorwissenStufen } from "../src/trainingsplan.js";
+import { WIEDERHOLEN_TAGE, auswahlNachKapitel, einheitAufgabenIds, planErstellen, planStand, planTage, plusTage, tageZwischen, tagName, vorbereitungFuer, vorwissenStufen } from "../src/trainingsplan.js";
 
 const GEN = new Set(GENERATOREN.map((g) => g.id));
 const HEUTE = "2026-10-18";
@@ -64,12 +64,64 @@ test("Plan ohne Termin: Reihenfolge der Phasen, Ebbinghaus-Abstände nach dem Ke
   }
 });
 
-test("Plan mit Unterthema: frühere Unterthemen werden Zwischenschritte, Kern ist das Unterthema", () => {
-  const p = planErstellen({ kapitel: "trig", teil: "trig.2", heute: HEUTE });
-  const kern = p.einheiten.find((e) => e.phase === "kern");
-  assert.equal(kern.titel, "Seiten berechnen");
-  assert.ok(p.einheiten.some((e) => e.phase === "zwischen" && e.teil === "trig.1"));
-  assert.ok(!p.einheiten.some((e) => e.teil === "trig.3"));
+test("Angehakte Unterthemen: genau diese im Kerntraining, nicht gewählte bleiben draußen", () => {
+  const p = planErstellen({ teile: ["trig.2"], heute: HEUTE });
+  const kern = p.einheiten.filter((e) => e.phase === "kern");
+  assert.equal(kern.length, 1);
+  assert.equal(kern[0].titel, "Seiten berechnen");
+  assert.deepEqual(kern[0].teile, ["trig.2"]);
+  assert.ok(!p.einheiten.some((e) => e.teil === "trig.1" || e.teil === "trig.3"), "weggelassene Unterthemen tauchen wieder auf");
+  // Kurzform { kapitel } = ganzes Kapitel
+  const ganz = planErstellen({ kapitel: "trig", heute: HEUTE });
+  assert.equal(ganz.einheiten.find((e) => e.phase === "kern").teile.length, 5);
+});
+
+test("Mehrere Kapitel: je Kapitel ein Kerntraining in Buchreihenfolge, Wiederholungen nach dem letzten", () => {
+  const p = planErstellen({ teile: ["explog.3", "trig.1", "trig.2", "sinfkt.3"], heute: HEUTE });
+  const kern = p.einheiten.filter((e) => e.phase === "kern");
+  assert.deepEqual(kern.map((e) => e.kapitel), ["trig", "explog", "sinfkt"]);
+  assert.deepEqual(kern[0].teile, ["trig.1", "trig.2"]);
+  for (let i = 1; i < kern.length; i++) assert.ok(kern[i].datum > kern[i - 1].datum, "ein Kapitel je Tag");
+  const letzter = kern[kern.length - 1].datum;
+  const w = p.einheiten.filter((e) => e.phase === "wiederholen");
+  assert.deepEqual(w.map((e) => tageZwischen(letzter, e.datum)), WIEDERHOLEN_TAGE);
+  for (const e of w) for (const g of ["geo-trig", "pot-log", "sin-periode"]) assert.ok(e.gen.includes(g), `Wiederholung ohne ${g}`);
+  assert.equal(p.teile.length, 4);
+});
+
+test("Vorbereitung abwählen: Warm-up und einzelne Vorwissen-Kapitel fallen weg", () => {
+  const vb = vorbereitungFuer(["trig.2"], "g9");
+  assert.ok(vb.basis.length >= 1 && vb.zwischen.includes("pythagoras"));
+  const ohne = ["warmup", "pythagoras", vb.basis[0]];
+  const p = planErstellen({ teile: ["trig.2"], ohne, heute: HEUTE });
+  assert.ok(!p.einheiten.some((e) => e.phase === "warmup"));
+  assert.ok(!p.einheiten.some((e) => e.kapitel === "pythagoras" || (e.phase === "basis" && e.kapitel === vb.basis[0])));
+  assert.ok(p.einheiten.some((e) => e.phase === "kern"));
+  // alles abgewählt: Kerntraining startet heute
+  const nur = planErstellen({ teile: ["trig.2"], ohne: ["warmup", ...vb.basis, ...vb.zwischen], heute: HEUTE });
+  assert.equal(nur.einheiten[0].phase, "kern");
+  assert.equal(nur.einheiten[0].datum, HEUTE);
+  // gewählte Kapitel stehen nie zugleich in der Vorbereitung
+  const zwei = vorbereitungFuer(["pythagoras.1", "trig.1"], "g9");
+  assert.ok(![...zwei.basis, ...zwei.zwischen].includes("pythagoras"));
+});
+
+test("Mehrere Kapitel mit Termin: alles vor der Arbeit, notfalls mehrere Kapitel an einem Tag", () => {
+  const teile = ["trig.1", "explog.3", "sinfkt.3", "potfkt.2", "kugel.1"];
+  for (const d of [1, 2, 3, 4, 6, 10]) {
+    const termin = plusTage(HEUTE, d);
+    const p = planErstellen({ teile, heute: HEUTE, termin });
+    assert.equal(p.einheiten.filter((e) => e.phase === "kern").length, 5, `d = ${d}`);
+    for (const e of p.einheiten) assert.ok(e.datum < termin, `Termin in ${d} Tagen: ${e.phase} am ${e.datum}`);
+  }
+});
+
+test("Auswahl nach Kapiteln: Buchreihenfolge, ganz/teilweise, ungültige Ids ignoriert", () => {
+  const g = auswahlNachKapitel(["explog.1", "trig.1", "trig.2", "trig.3", "trig.4", "trig.5", "gibtsnicht.1", "trig.1"], "g9");
+  assert.deepEqual(g.map((x) => x.kapitel), ["trig", "explog"]);
+  assert.equal(g[0].ganz, true);
+  assert.equal(g[1].ganz, false);
+  assert.equal(planErstellen({ teile: [], heute: HEUTE }), null);
 });
 
 test("Plan mit Termin: alles vor der Arbeit, Generalprobe am Vortag", () => {

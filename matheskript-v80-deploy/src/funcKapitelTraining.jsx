@@ -50,10 +50,10 @@ export function useAktiverPlan() {
 }
 export const heuteText = () => tagText(new Date());
 /* Beim Rücksprung auf die Startseite den Quickfinder gleich im richtigen Modus öffnen */
-export function modusVormerken(modus) {
+export function modusVormerken(modus, auswahl = null) {
   try {
     const v = JSON.parse(localStorage.getItem("matheplus-quickfinder") || "{}") || {};
-    localStorage.setItem("matheplus-quickfinder", JSON.stringify({ ...v, modus }));
+    localStorage.setItem("matheplus-quickfinder", JSON.stringify({ ...v, modus, ...(auswahl ? { auswahl } : {}) }));
   } catch { /* privat */ }
 }
 
@@ -152,7 +152,7 @@ function SacheTraining({ ziel, gehe }) {
         ) : ende ? (
           <Auswertung zs={ende}>
             <GrosserKnopf onClick={neu}>Noch eine Runde</GrosserKnopf>
-            <GrosserKnopf ghost onClick={() => (modusVormerken("plan"), gehe({ ansicht: "start" }))}>Trainingsplan dazu erstellen</GrosserKnopf>
+            <GrosserKnopf ghost onClick={() => (modusVormerken("plan", ziel.teil ? [ziel.teil] : unterthemen(ziel.kapitel).map((x) => x.id)), gehe({ ansicht: "start" }))}>Trainingsplan dazu erstellen</GrosserKnopf>
             <Hilfsziele gehe={gehe} ziele={hilfsZiele(ziel)} />
           </Auswertung>
         ) : (
@@ -194,7 +194,7 @@ function PlanAnsicht({ gehe }) {
   const { plan, erledigt } = v;
   const stand = planStand(plan, erledigt, heute);
   const starten = (e) => { setLaeuft({ e, aufgaben: erzeugen(einheitAufgabenIds(e)) }); setEnde(null); window.scrollTo(0, 0); };
-  const titel = plan.teil ? `${plan.titel}` : plan.kapitelTitel;
+  const titel = plan.teil ? plan.titel : plan.einheiten.filter((e) => e.phase === "kern").length > 1 ? "Dein Trainingsplan" : plan.kapitelTitel;
   const unter = plan.termin ? `Bis zur Klassenarbeit am ${tagName(plan.termin, heute) === "morgen" ? "morgen" : plan.termin.split("-").reverse().join(".")} – Schritt für Schritt.` : "Warm-up, Basis-Check, Zwischenschritte, Kerntraining und Wiederholungen nach Ebbinghaus.";
   if (laeuft) return (
     <>

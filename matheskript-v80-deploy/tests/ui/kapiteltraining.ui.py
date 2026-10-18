@@ -67,17 +67,46 @@ with sync_playwright() as p:
         breite_ok("Eine Sache trainieren")
         page.screenshot(path=f"{AUS}/{breite}-4-lauf.png")
 
-        # zurück, Plan-Modus
+        # zurück, Plan-Modus: das gerade gewählte Unterthema ist vorab angehakt
         page.go_back(); page.wait_for_timeout(700)
         page.get_by_role("button", name="Trainingsplan", exact=True).click(); page.wait_for_timeout(300)
         pruefe(page.get_by_role("button", name="Trainingsplan", exact=True).get_attribute("aria-pressed") == "true", f"{breite}: Plan-Modus nicht aktiv")
+        pruefe(page.get_by_text("1 Unterthema aus 1 Kapitel").count() == 1, f"{breite}: Unterthema nicht übernommen")
+        # Häkchen-Liste: Kapitel antippen klappt auf, Kästchen links hakt das ganze Kapitel an
+        trig = page.get_by_role("checkbox", name="Ganzes Kapitel anhaken: Trigonometrie im Dreieck")
+        pruefe(trig.count() == 1 and trig.get_attribute("aria-checked") == "mixed", f"{breite}: Trigonometrie nicht teilweise angehakt")
+        pruefe(page.get_by_role("checkbox", name="Seiten berechnen (mit Übungsaufgaben)", exact=True).get_attribute("aria-checked") == "true", f"{breite}: Unterthema nicht angehakt")
+        page.get_by_role("checkbox", name="Sinussatz", exact=True).click(); page.wait_for_timeout(150)
+        pruefe(page.get_by_text("2 Unterthemen aus 1 Kapitel").count() == 1, f"{breite}: zweites Unterthema nicht gezählt")
+        # Exponentialfunktionen antippen → Unterthemen klappen auf, Trigonometrie bleibt offen sichtbar
+        page.get_by_role("button", name="Exponentialfunktionen und Logarithmus", exact=False).first.click(); page.wait_for_timeout(250)
+        pruefe(page.get_by_role("checkbox", name="Logarithmus (mit Übungsaufgaben)", exact=True).count() == 1, f"{breite}: Unterthemen von Exponential klappen nicht auf")
+        pruefe(page.get_by_role("checkbox", name="Sinus-, Kosinus").count() + page.get_by_role("button", name="Sinus- und Kosinusfunktion", exact=False).count() >= 1, f"{breite}: restliche Kapitel verschwunden")
+        # ganzes Kapitel per Kästchen
+        page.get_by_role("checkbox", name="Ganzes Kapitel anhaken: Exponentialfunktionen und Logarithmus").click(); page.wait_for_timeout(200)
+        pruefe(page.get_by_text("7 Unterthemen aus 2 Kapiteln").count() == 1, f"{breite}: ganzes Kapitel nicht angehakt")
+        # ein Unterthema wieder abwählen
+        page.get_by_role("checkbox", name="Halbwertszeit und Verdopplungszeit (mit Übungsaufgaben)", exact=True).click(); page.wait_for_timeout(150)
+        pruefe(page.get_by_text("6 Unterthemen aus 2 Kapiteln").count() == 1, f"{breite}: Abwählen klappt nicht")
+        breite_ok("Häkchen-Liste")
+        page.get_by_role("checkbox", name="Logarithmus (mit Übungsaufgaben)", exact=True).scroll_into_view_if_needed()
+        page.screenshot(path=f"{AUS}/{breite}-5a-haekchen.png")
+
         speichern = page.get_by_role("button", name="Plan speichern und starten ›")
         pruefe(speichern.count() == 1, f"{breite}: Planvorschau fehlt")
+        pruefe(page.get_by_text("2 Themen in einem Plan").count() == 1, f"{breite}: Plan nicht für 2 Themen")
         for wort in ("Warm-up", "Basis-Check", "Kerntraining", "Wiederholen"):
             pruefe(page.get_by_text(wort, exact=True).count() >= 1, f"{breite}: Phase {wort} fehlt in der Vorschau")
+        # Vorbereitung abwählen: Warm-up raus
+        wu = page.get_by_role("checkbox", name="Warm-up", exact=False).first
+        pruefe(wu.get_attribute("aria-checked") == "true", f"{breite}: Warm-up nicht vorgeschlagen")
+        wu.click(); page.wait_for_timeout(200)
+        pruefe(wu.get_attribute("aria-checked") == "false", f"{breite}: Warm-up nicht abwählbar")
         breite_ok("Planvorschau")
         page.get_by_text("Dein Trainingsplan", exact=True).first.scroll_into_view_if_needed()
         page.screenshot(path=f"{AUS}/{breite}-5-vorschau.png")
+        page.get_by_text("Vorbereitung – schlage ich dir vor").scroll_into_view_if_needed()
+        page.screenshot(path=f"{AUS}/{breite}-5b-vorbereitung.png")
         # Klassenarbeit in 5 Tagen
         page.evaluate("""() => { const i = document.querySelector('input[type=date]'); const d = new Date(); d.setDate(d.getDate() + 5);
           const s = d.toISOString().slice(0, 10); const set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set; set.call(i, s); i.dispatchEvent(new Event('input', { bubbles: true })); }""")
@@ -88,8 +117,10 @@ with sync_playwright() as p:
         pruefe(page.get_by_text("Einheiten erledigt").count() == 1, f"{breite}: Planseite ohne Stand")
         breite_ok("Planseite")
         page.screenshot(path=f"{AUS}/{breite}-6-plan.png", full_page=True)
-        page.get_by_role("button", name="Jetzt: Warm-up").click(); page.wait_for_timeout(600)
-        pruefe(page.get_by_role("button", name="Prüfen").count() >= 1, f"{breite}: Warm-up startet nicht")
+        pruefe(page.get_by_text("Warm-up", exact=True).count() == 0, f"{breite}: abgewähltes Warm-up steht im Plan")
+        pruefe(page.get_by_text("Trigonometrie im Dreieck", exact=True).count() >= 1 and page.get_by_text("Exponentialfunktionen und Logarithmus", exact=True).count() >= 1, f"{breite}: Kerntrainings fehlen")
+        page.get_by_role("button", name="Jetzt:", exact=False).first.click(); page.wait_for_timeout(600)
+        pruefe(page.get_by_role("button", name="Prüfen").count() >= 1 or page.get_by_text("Erledigt ✓").count() >= 1, f"{breite}: erste Einheit startet nicht")
         breite_ok("Einheit")
 
         # Startseite im Plan-Modus zeigt den aktiven Plan

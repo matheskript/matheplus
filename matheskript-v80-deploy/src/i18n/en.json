@@ -3431,8 +3431,6 @@
   "Schulmathematik zuklappen": "Collapse school math",
   "Schulmathematik aufklappen": "Expand school math",
   "Schulmathematik": "School math",
-  "Schulmathematik zuklappen": "Collapse school math",
-  "Schulmathematik aufklappen": "Expand school math",
   "Unterstufe": "Lower school",
   "Unter-, Mittel- und Oberstufe bis zum Abi: Analysis, Vektoren, Stochastik, Geometrie, Gleichungen.": "From year 5 to the Abitur: calculus, vectors, probability, geometry, equations.",
   "Schulstufe wählen": "Choose school level",
@@ -5550,7 +5548,6 @@
   "Beende Vergess kennenlernen und lerne wirklich Mathe.": "Stop getting to know forgetting and really learn maths.",
   "Werde die beste Version von dir selbst.": "Become the best version of yourself.",
   "Für ein starkes Abi und Freude daran, endlich Mathe zu verstehen.": "For a strong Abitur and the joy of finally understanding maths.",
-  "Schulstufe wählen": "Choose school level",
   "Werkzeuge nach Art filtern": "Filter tools by type",
   "Tippe ein Etikett an, um nur diese Werkzeuge zu sehen.": "Tap a label to see only those tools.",
   "Vektoren aufklappen": "Expand vectors",
@@ -11011,7 +11008,25 @@
   "Dein Training startet hier.": "Your training starts here.",
   "In welchem Kapitel seid ihr gerade?": "Which chapter are you on right now?",
   "Schulsystem wählen": "Choose school system",
-  "Feedback geben, per Text oder Sprachnachricht": "Give feedback by text or voice message"
+  "Feedback geben, per Text oder Sprachnachricht": "Give feedback by text or voice message",
+  "Hake an, was in deinen Plan soll": "Tick what should go into your plan",
+  "Themen für deinen Plan · Klasse": "Topics for your plan · Grade",
+  "Auch in deinem Plan (andere Klasse)": "Also in your plan (other grade)",
+  "Kapitel antippen: Unterthemen aufklappen. Kästchen links: ganzes Kapitel. Goldener Punkt: mit Übungsaufgaben.": "Tap a chapter: show subtopics. Box on the left: whole chapter. Gold dot: with practice exercises.",
+  "Alles abwählen": "Clear all",
+  "Deine Themen": "Your topics",
+  "Vorbereitung – schlage ich dir vor": "Preparation – my suggestions",
+  "So sieht dein Plan aus": "This is your plan",
+  "Basis-Check: Grundlagen aus früheren Klassen. Zwischenschritte: was du direkt dafür brauchst. Abhaken, was du sicher kannst.": "Basics check: foundations from earlier grades. Intermediate steps: what you need directly. Untick what you already know well.",
+  "Wiederholen: nach Ebbinghaus, vor der Arbeit verdichtet, am Vortag die Generalprobe.": "Review: following Ebbinghaus, condensed before the test, dress rehearsal the day before.",
+  "Wiederholen: 1, 3, 7, 14 und 30 Tage nach dem letzten Kerntraining.": "Review: 1, 3, 7, 14 and 30 days after the last core training.",
+  "Erst das Fundament prüfen, dann deine Themen – und danach Wiederholungen nach Ebbinghaus, damit es bis zur Arbeit sitzt.": "First check the foundations, then your topics – followed by Ebbinghaus-style reviews so it sticks until the test.",
+  "Wähle deine Klasse und hake an, was in den Plan soll – ganze Kapitel, einzelne Unterthemen, auch mehrere Kapitel. Ich ergänze Warm-up, Basis-Check und Wiederholungen nach Ebbinghaus.": "Choose your grade and tick what should go into the plan – whole chapters, single subtopics, even several chapters. I'll add a warm-up, basics check and Ebbinghaus-style reviews.",
+  "Leichte Aufgaben zum Reinkommen": "Easy exercises to get started",
+  "Ganzes Kapitel anhaken": "Tick whole chapter",
+  "Ganzes Kapitel abwählen": "Untick whole chapter",
+  "Unterthema": "subtopic",
+  "Kapiteln": "chapters"
  },
  "muster": [
   [
@@ -12825,6 +12840,26 @@
   [
    "Teil A {0} / 30 · Teil B {1} / 30 · {2} %",
    "Part A {0} / 30 · Part B {1} / 30 · {2} %"
+  ],
+  [
+   "{0} Unterthemen aus {1} Kapiteln",
+   "{0} subtopics from {1} chapters"
+  ],
+  [
+   "{0} Unterthemen aus {1} Kapitel",
+   "{0} subtopics from {1} chapter"
+  ],
+  [
+   "{0} Unterthema aus {1} Kapitel",
+   "{0} subtopic from {1} chapter"
+  ],
+  [
+   "{0} von {1} Unterthemen",
+   "{0} of {1} subtopics"
+  ],
+  [
+   "{0} Themen in einem Plan",
+   "{0} topics in one plan"
   ]
  ],
  "Das ist dein persönlicher Link. Wer sich darüber anmeldet, wird automatisch dir zugeordnet.": "This is your personal link. Anyone who signs up through it is automatically linked to you.",
