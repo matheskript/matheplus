@@ -14,49 +14,49 @@ export function MathildaBild({ groesse = 220, style, className }) {
   return (
     <svg viewBox="0 0 320 440" width={groesse} height={Math.round(groesse * 440 / 320)} className={className} style={style}
       aria-label="Mathilda" role="img">
-  {/* Kopf, leicht geneigt wie auf dem Foto */}
-  <g transform="rotate(7 165 330)">
-    {/* Haar hinten: eng am Kopf, nach unten nur wenig breiter */}
-    <path fill={GOLD} d="M165 86 C 215 86, 248 128, 250 190 C 252 250, 250 330, 262 480 L 68 480 C 80 330, 78 250, 80 190 C 82 128, 115 86, 165 86 Z"/>
+  {/* Kopf, nach dem Foto durchgezeichnet; Neigung wie dort */}
+  <g transform="rotate(-4 165 320)">
+    {/* Haar hinten */}
+    <path fill={GOLD} d="M150 86 C 205 84, 248 120, 256 185 C 262 250, 268 330, 284 480 L 36 480 C 50 360, 56 260, 60 190 C 64 120, 100 86, 150 86 Z"/>
     {/* Hals */}
-    <path fill="#FFFFFF" d="M144 278 L 188 278 L 188 346 C 176 356, 156 356, 144 346 Z"/>
-    <path fill={NACHT} fillOpacity=".12" d="M144 278 L 188 278 C 186 300, 176 312, 166 314 C 156 312, 146 300, 144 278 Z"/>
-    {/* Ohr (Haar dahinter geklemmt) */}
-    <path fill="#FFFFFF" d="M104 208 C 94 206, 88 218, 90 234 C 92 250, 98 258, 108 258 Z"/>
-    <path fill="none" stroke={NACHT} strokeOpacity=".35" strokeWidth="1.6" strokeLinecap="round" d="M98 222 C 95 230, 96 242, 102 248"/>
-    {/* Gesicht */}
-    <path fill="#FFFFFF" d="M165 102 C 220 102, 236 152, 234 204 C 232 254, 206 300, 165 300 C 124 300, 98 254, 96 204 C 94 152, 110 102, 165 102 Z"/>
-    {/* Haar: Kappe über der Stirn (Scheitel etwas links der Mitte) */}
-    <path fill={GOLD} d="M80 190 C 82 128, 115 86, 165 86 C 215 86, 248 128, 250 190 L 232 190 C 226 140, 200 108, 172 108 C 164 107, 155 109, 148 112 C 126 116, 108 140, 102 190 Z"/>
-    {/* linke Strähne (Betrachter), hinter der Schulter */}
-    <path fill={GOLD} d="M102 172 C 94 200, 90 240, 92 280 C 94 320, 86 400, 80 480 L 62 480 C 68 400, 74 300, 76 250 C 76 210, 84 182, 102 172 Z"/>
+    <path fill="#FFFFFF" d="M136 296 L 206 296 L 206 372 C 190 382, 152 382, 136 372 Z"/>
+    <path fill={NACHT} fillOpacity=".12" d="M136 296 L 206 296 C 202 324, 188 338, 171 340 C 154 338, 140 324, 136 296 Z"/>
+    {/* Ohr */}
+    <path fill="#FFFFFF" d="M112 252 C 103 250, 98 262, 100 276 C 102 286, 108 292, 116 290 Z"/>
+    <path fill="none" stroke={NACHT} strokeOpacity=".35" strokeWidth="1.5" strokeLinecap="round" d="M107 264 C 105 270, 106 278, 110 283"/>
+    {/* Gesicht: weiche Wangen, rundes Kinn */}
+    <path fill="#FFFFFF" d="M160 116 C 195 116, 222 135, 230 170 C 238 200, 236 250, 222 282 C 210 305, 190 322, 165 322 C 140 322, 118 304, 110 282 C 100 250, 100 200, 106 168 C 114 135, 135 116, 160 116 Z"/>
+    {/* Haarkappe mit Scheitel links der Mitte */}
+    <path fill={GOLD} d="M60 190 C 64 120, 100 86, 150 86 C 205 84, 248 120, 256 185 L 232 182 C 224 150, 200 124, 165 120 C 158 119, 152 120, 148 121 C 128 124, 112 140, 104 178 L 102 190 Z"/>
+    {/* linke Strähne (Betrachter): hinters Ohr gesteckt, fällt hinter die Schulter */}
+    <path fill={GOLD} d="M104 176 C 96 210, 94 250, 98 290 C 102 330, 94 400, 84 480 L 36 480 C 50 360, 56 260, 60 190 C 62 180, 80 176, 104 176 Z"/>
   </g>
   {/* Schultern + Oberteil */}
-  <path fill="#FFFFFF" d="M10 440 C 16 392, 50 362, 100 348 C 124 342, 140 336, 150 330 L 180 330 C 190 336, 206 342, 230 348 C 280 362, 314 392, 320 440 Z"/>
-  <path fill={NACHT} d="M58 440 L 62 418 C 110 404, 220 404, 268 418 L 272 440 Z"/>
-  <path fill="none" stroke={NACHT} strokeWidth="3" strokeLinecap="round" d="M240 410 L 248 386"/>
-  <g transform="rotate(7 165 330)">
-    {/* rechte Strähne (Betrachter), fällt über die Schulter */}
-    <path fill={GOLD} d="M172 108 C 200 108, 226 140, 232 190 C 236 230, 230 280, 214 340 C 206 380, 204 430, 204 480 L 262 480 C 254 400, 250 330, 252 250 C 252 220, 251 200, 250 190 C 248 128, 215 86, 172 108 Z"/>
+  <path fill="#FFFFFF" d="M0 440 C 6 400, 40 370, 95 358 C 118 352, 130 346, 138 338 L 206 338 C 214 346, 230 352, 250 358 C 300 370, 316 400, 320 440 Z"/>
+  <path fill={NACHT} d="M0 440 L 0 430 C 90 418, 230 418, 320 430 L 320 440 Z"/>
+  <g transform="rotate(-4 165 320)">
+    {/* rechte Strähne (Betrachter): fällt vor die Schulter */}
+    <path fill={GOLD} d="M165 120 C 200 124, 224 150, 232 182 C 240 222, 232 270, 214 304 C 206 330, 206 400, 216 480 L 284 480 C 272 400, 270 320, 266 260 C 262 220, 258 196, 256 185 C 248 120, 205 84, 150 86 Z"/>
     {/* Scheitel und Strähnen */}
-    <path fill="none" stroke="#C99D00" strokeWidth="2" strokeLinecap="round" strokeOpacity=".7" d="M150 112 C 152 104, 156 96, 160 90
-      M126 122 C 110 142, 100 170, 96 200
-      M190 112 C 216 126, 234 160, 240 200 C 246 260, 240 340, 248 420
-      M224 300 C 224 340, 220 400, 228 460
-      M84 230 C 82 270, 80 320, 76 380"/>
-    {/* Augenbrauen: fein, hell */}
-    <path fill="none" stroke={NACHT} strokeOpacity=".8" strokeWidth="2.4" strokeLinecap="round" d="M114 158 C 124 151, 144 150, 156 154 M176 154 C 188 150, 208 151, 218 158"/>
-    {/* Sonnenbrille */}
-    <path d="M104 172 C 126 166, 150 167, 160 172 L 156 206 C 152 220, 140 227, 127 227 C 114 227, 104 220, 102 206 Z" fill={NACHT} stroke={GOLD} strokeWidth="4" strokeLinejoin="round"/>
-    <path d="M172 172 C 182 167, 206 166, 228 172 L 230 206 C 228 220, 218 227, 205 227 C 192 227, 180 220, 176 206 Z" fill={NACHT} stroke={GOLD} strokeWidth="4" strokeLinejoin="round"/>
-    <path d="M160 177 C 164 171, 168 171, 172 177" fill="none" stroke={GOLD} strokeWidth="4" strokeLinecap="round"/>
-    <path d="M104 175 C 98 175, 94 177, 90 182 M228 175 C 234 175, 238 177, 242 182" fill="none" stroke={GOLD} strokeWidth="4" strokeLinecap="round"/>
-    <path d="M114 183 L 132 181 M112 191 L 121 190 M186 183 L 204 181 M184 191 L 193 190" stroke="#FFFFFF" strokeOpacity=".7" strokeWidth="2.8" strokeLinecap="round"/>
-    {/* Nase: gerade, klein */}
-    <path fill="none" stroke={NACHT} strokeWidth="2.4" strokeLinecap="round" d="M166 212 C 165 222, 162 232, 161 238 C 161 242, 165 243, 169 242 C 173 241, 174 238, 172 234"/>
-    {/* Mund: geschlossen, sanft */}
-    <path fill="none" stroke={NACHT} strokeWidth="3" strokeLinecap="round" d="M146 259 C 155 266, 176 266, 186 258"/>
-    <path fill="none" stroke={NACHT} strokeOpacity=".45" strokeWidth="1.6" strokeLinecap="round" d="M152 258 C 160 255, 172 255, 180 257 M154 266 C 162 270, 170 270, 178 266"/>
+    <path fill="none" stroke="#C99D00" strokeWidth="2" strokeLinecap="round" strokeOpacity=".7" d="M148 121 C 149 112, 151 100, 154 90
+      M128 128 C 112 148, 104 170, 100 200
+      M186 122 C 214 136, 232 170, 240 210 C 248 270, 242 350, 250 430
+      M226 310 C 226 360, 228 410, 236 470
+      M80 220 C 76 270, 72 330, 62 400"/>
+    {/* Augenbrauen */}
+    <path fill="none" stroke={NACHT} strokeOpacity=".8" strokeWidth="2.4" strokeLinecap="round" d="M118 186 C 128 178, 146 177, 158 182 M176 178 C 188 172, 206 172, 216 178"/>
+    {/* Sonnenbrille: flachere Gläser auf Augenhöhe */}
+    <path d="M114 192 C 128 188, 150 189, 162 193 L 160 214 C 157 225, 148 229, 138 229 C 126 229, 118 224, 116 214 Z" fill={NACHT} stroke={GOLD} strokeWidth="3.6" strokeLinejoin="round"/>
+    <path d="M172 192 C 184 189, 204 188, 218 192 L 216 214 C 214 224, 206 229, 194 229 C 184 229, 175 225, 173 214 Z" fill={NACHT} stroke={GOLD} strokeWidth="3.6" strokeLinejoin="round"/>
+    <path d="M162 196 C 165 192, 169 192, 172 196" fill="none" stroke={GOLD} strokeWidth="3.6" strokeLinecap="round"/>
+    <path d="M114 195 C 108 195, 103 198, 100 203 M218 195 C 224 195, 230 198, 234 203" fill="none" stroke={GOLD} strokeWidth="3.6" strokeLinecap="round"/>
+    <path d="M124 200 L 140 199 M122 207 L 130 206 M184 200 L 200 199 M182 207 L 190 206" stroke="#FFFFFF" strokeOpacity=".7" strokeWidth="2.6" strokeLinecap="round"/>
+    {/* Nase: schmal, kleine Spitze */}
+    <path fill="none" stroke={NACHT} strokeWidth="2.3" strokeLinecap="round" d="M163 226 C 160 238, 156 248, 157 254 C 158 258, 164 259, 169 258 C 174 257, 176 253, 174 248"/>
+    {/* Mund: geschlossen, Amorbogen, leichtes Lächeln */}
+    <path fill="none" stroke={NACHT} strokeOpacity=".5" strokeWidth="1.6" strokeLinecap="round" d="M141 279 C 150 274, 160 275, 164 278 C 168 275, 178 274, 186 278"/>
+    <path fill="none" stroke={NACHT} strokeWidth="3" strokeLinecap="round" d="M140 281 C 152 289, 174 289, 186 280"/>
+    <path fill="none" stroke={NACHT} strokeOpacity=".4" strokeWidth="1.6" strokeLinecap="round" d="M148 287 C 158 294, 170 294, 180 288"/>
   </g>
     </svg>
   );
