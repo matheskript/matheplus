@@ -319,6 +319,9 @@ function Uebersicht({ stand, oeffne }) {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, padding: "2px 12px 0" }}>
               <FundamentLink titel="Axiome üben" zeile="Gesetze erkennen, Schritte begründen, Inverse finden" onClick={() => FR.gehe && FR.gehe({ ansicht: "axiome" })} />
               <FundamentLink titel="Zahlenräume: ℕ, ℤ, ℚ, ℝ" zeile="Warum es negative Zahlen, Brüche und Wurzeln gibt" onClick={() => FR.gehe && FR.gehe({ ansicht: "zahlenraeume" })} />
+              <div style={{ gridColumn: "1 / -1", display: "grid" }}>
+                <FundamentLink titel="Mengen und Logik" zeile="Mengen, Intervalle, Aussagen – die Sprache der Mathematik" onClick={() => FR.gehe && FR.gehe({ ansicht: "mengenlogik" })} />
+              </div>
             </div>
           </div>
         </div>

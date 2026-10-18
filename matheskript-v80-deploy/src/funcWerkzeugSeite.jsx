@@ -74,6 +74,10 @@ export const WZ_SEITEN = {
   /* Fundament */
   axiome: { titel: "Axiome und Rechenregeln", groesse: "clamp(24px, 7vw, 34px)", Komp: lazy(() => import("./funcAxiomeWz.jsx"), "AxiomeRechenregeln") },
   zahlenraeume: { titel: "Zahlenräume", groesse: "clamp(26px, 7.6vw, 34px)", Komp: lazy(() => import("./funcZahlenraeume.jsx"), "Zahlenraeume") },
+  mengenlogik: { titel: "Mengen und Logik", groesse: "clamp(26px, 7.6vw, 34px)", Komp: lazy(() => import("./funcMengenLogik.jsx"), "MengenLogik") },
+  /* Ungleichungen (Gleichungen) und Funktionen (Analysis) */
+  ungleichungen: { titel: "Ungleichungen und Beträge", groesse: "clamp(24px, 7vw, 34px)", Komp: lazy(() => import("./funcUngleichungen.jsx"), "Ungleichungen") },
+  funktionen: { titel: "Funktionen: Grundlagen", groesse: "clamp(24px, 7vw, 34px)", Komp: lazy(() => import("./funcFunktionen.jsx"), "FunktionenGrundlagen") },
   /* Unterstufe */
   prozent: { titel: "Prozent- und Zinsrechnung", groesse: "clamp(24px, 7vw, 34px)", Komp: lazy(() => import("./funcProzent.jsx"), "Prozentrechnung") },
   zuordnungen: { titel: "Zuordnungen und Dreisatz", groesse: "clamp(24px, 7vw, 34px)", Komp: lazy(() => import("./funcZuordnungen.jsx"), "Zuordnungen") },

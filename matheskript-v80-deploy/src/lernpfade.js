@@ -36,6 +36,7 @@ export const ZIEL_IDS = Object.keys(ZIELE);
 export const STATION_GENERATOREN = {
   "fundament.axiome": [],
   "fundament.zahlenraeume": [],
+  "fundament.mengenlogik": [],
   "analysis.kennen": ["gl-quadrat"],
   "analysis.untersuchen": ["abl-potenz", "abl-kette", "abl-exp", "kur-wende", "kur-nachweis"],
   "analysis.bestimmen": ["kur-nachweis", "kur-wende"],
@@ -64,6 +65,7 @@ export const STATION_GENERATOREN = {
   "daten.zufall": [],
   "gleichungen.terme": ["ter-binom", "bru-add", "bru-div"],
   "gleichungen.loesen": ["gl-linear", "gl-quadrat", "gl-ausklammern"],
+  "gleichungen.ungleichungen": [],
   "gleichungen.gerade": [],
   "gleichungen.parabel": ["gl-quadrat", "fkt-scheitel"],
 };
@@ -71,7 +73,7 @@ export const STATION_GENERATOREN = {
 /* Trainieren je Einheit: welche Generatoren passen zum Werkzeug? Fehlt der Eintrag, gelten die
    Generatoren der Station; eine leere Liste heißt „im Werkzeug selbst trainieren“. */
 export const EINHEIT_GENERATOREN = {
-  geradengleichung: [], sinus: [], wachstum: [], parabeln: ["gl-quadrat"],
+  geradengleichung: [], sinus: [], wachstum: [], parabeln: ["gl-quadrat"], funktionen: [],
   ableitungstrainer: ["abl-potenz", "abl-kette", "abl-exp"], kurvendiskussion: ["kur-wende", "kur-nachweis"], scharen: ["kur-wende"],
   steckbrief: [], optimierung: ["kur-nachweis"],
   vektorgenerator: ["vek-betrag"], kreuzprodukt: [], winkel: ["vek-ortho"], ebenen: [], geraden: [], ebenevsebene: ["vek-geradeebene"], abstaende: [],
@@ -90,6 +92,9 @@ export const EINHEIT_GENERATOREN = {
 export const EINHEIT_TEXTE = {
   axiome: { worum: "Alle Rechnungen beruhen auf neun Spielregeln für Plus und Mal: Kommutativ-, Assoziativ- und Distributivgesetz, neutrale Elemente 0 und 1, inverse Elemente −a und 1/a. Minus und Geteilt sind nur Plus und Mal mit dem Inversen.", aufgabe: "Benenne bei drei Umformungen das Axiom, das sie erlaubt, und löse x + 3 = 7 so, dass jeder Schritt ein Axiom ist." },
   zahlenraeume: { worum: "ℕ ist abgeschlossen bezüglich + und ·. Die Subtraktion führt zu ℤ, die Division zu ℚ = {p/q | p ∈ ℤ, q ∈ ℕ}, die Gleichung x² = 2 zu ℝ. Es gilt ℕ ⊂ ℤ ⊂ ℚ ⊂ ℝ.", aufgabe: "Ordne fünf Zahlen ihrem kleinsten Zahlenraum zu und führe den Beweis, dass √2 irrational ist, in eigenen Worten." },
+  mengenlogik: { worum: "Mengen werden aufgezählt oder beschrieben und mit ∩, ∪ und \\ verknüpft. Intervalle sind die Lösungsmengen auf der Zahlengeraden. Aussagen verbindet man mit ∧, ∨, ¬ und ⇒; eine Allaussage widerlegt ein einziges Gegenbeispiel.", aufgabe: "Bestimme Schnitt und Vereinigung zweier Intervalle und widerlege eine falsche Folgerung mit einem Gegenbeispiel." },
+  funktionen: { worum: "Eine Funktion ordnet jedem x aus D genau ein y zu. Potenz- und Wurzelfunktionen erkennt man an Hochzahl und Startpunkt, die Umkehrfunktion entsteht durch Spiegeln an y = x, die Verkettung f(g(x)) durch Einsetzen.", aufgabe: "Bestimme Definitions- und Wertebereich von zwei Funktionen, die Umkehrfunktion einer linearen Funktion und f(g(2)) für zwei selbst gewählte Funktionen." },
+  ungleichungen: { worum: "Ungleichungen löst man wie Gleichungen – nur dreht sich das Zeichen beim Malnehmen oder Teilen mit einer negativen Zahl. |x − m| ist der Abstand zu m; quadratische Ungleichungen liest man an der Parabel ab.", aufgabe: "Löse eine lineare Ungleichung mit negativem Faktor, eine Betragsungleichung und eine quadratische Ungleichung und gib jede Lösungsmenge als Intervall an." },
   geradengleichung: { worum: "Jede Gerade ist durch Steigung und y-Achsenabschnitt festgelegt. Aus zwei Punkten oder aus Punkt und Steigung baust du die Gleichung y = m·x + c.", aufgabe: "Stelle die Gerade durch zwei selbst gewählte Punkte auf und prüfe die Steigung mit dem Steigungsdreieck." },
   parabeln: { worum: "Scheitelform, Normalform und faktorisierte Form beschreiben dieselbe Parabel. Jede Form zeigt dir etwas anderes: Scheitel, y-Achsenabschnitt oder Nullstellen.", aufgabe: "Verschiebe den Scheitel mit den Reglern und beobachte, wie sich die Nullstellen bewegen. Lies dann aus der Scheitelform die Nullstellen ab." },
   sinus: { worum: "Die vier Parameter a, b, c und d strecken, stauchen und verschieben die Sinuskurve. Die Periode hängt nur von b ab.", aufgabe: "Stelle eine Sinuskurve mit Periode π und Amplitude 2 ein. Prüfe anschließend den Zielgraph in „Zusätzlich üben“." },

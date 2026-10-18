@@ -37,6 +37,11 @@ export const WERKZEUGE = {
     zeichen: "a+0", bild: "axiome", ziel: { ansicht: "axiome" }, etikett: "trainieren", stufe: "beide", unter: true },
   zahlenraeume: { name: "Zahlenräume: von ℕ bis ℝ", kurz: "Zahlenräume", zeile: "Natürlich, ganz, rational, reell", slogan: "Warum es negative Zahlen, Brüche und Wurzeln gibt: ℕ → ℤ → ℚ → ℝ mit Erkläranimationen und Widerspruchsbeweis.",
     zeichen: "ℕℝ", bild: "zahlenraeume", ziel: { ansicht: "zahlenraeume" }, etikett: "entdecken", stufe: "beide", unter: true },
+  mengenlogik: { name: "Mengen und Logik", kurz: "Mengen", zeile: "Mengen, Intervalle, Aussagen, Folgern", slogan: "Die Sprache der Mathematik: Mengen verknüpfen, Intervalle lesen, Aussagen verbinden, richtig folgern und widerlegen.",
+    zeichen: "A∩B", bild: "menge", ziel: { ansicht: "mengenlogik" }, etikett: "trainieren", stufe: "beide", unter: true },
+  /* ---------- Funktionen: Grundlagen (Analysis · Kennen) ---------- */
+  funktionen: { name: "Funktionen: Grundlagen", kurz: "Funktionen", zeile: "Potenz, Wurzel, Umkehrung, Verkettung", slogan: "Funktionsbegriff, Potenz- und Wurzelfunktionen, Umkehrfunktion, Verkettung – und Definitions- und Wertebereich als eigenes Training.",
+    zeichen: "f⁻¹", bild: "funktionen", ziel: { ansicht: "funktionen" }, etikett: "trainieren", stufe: "beide" },
   /* ---------- Analysis ---------- */
   /* ---------- Geraden (Mittelstufe, Beispielkapitel: Basics, P & Q, P & m) ---------- */
   geradengleichung: { name: "Geraden", kurz: "Geraden", zeile: "Basics, P & Q, P & m", slogan: "Was eine Gerade ist und wie du y = m·x + c aus zwei Punkten oder aus Punkt und Steigung findest.",
@@ -141,6 +146,8 @@ export const WERKZEUGE = {
   gleichungen: { name: "Gleichungen lösen", kurz: "Lösen", zeile: "Umformen und verstehen", slogan: "Äquivalenzumformungen eintippen – linear bis Logarithmus, mit Verstehen-Modi.",
     zeichen: "x =", bild: "gleichung", ziel: { ansicht: "gleichungen" }, auch: ["gleichverstehen"], etikett: "trainieren", stufe: "beide", unter: true,
     modi: [{ ansicht: "gleichungen", name: "Lösen" }, { ansicht: "gleichverstehen", name: "Verstehen" }] },
+  ungleichungen: { name: "Ungleichungen und Beträge", kurz: "Ungleichungen", zeile: "Linear, quadratisch, mit Betrag", slogan: "Lösungsmengen von Ungleichungen finden, Betragsgleichungen und -ungleichungen lösen, quadratische Ungleichungen an der Parabel ablesen.",
+    zeichen: "x < 3", bild: "ungleichung", ziel: { ansicht: "ungleichungen" }, etikett: "trainieren", stufe: "beide" },
   lgs: { name: "Gleichungssysteme", kurz: "LGS", zeile: "Mit drei Variablen", slogan: "LGS mit drei Unbekannten – Gauß-Verfahren und direkter Weg.",
     zeichen: "I II III", bild: "lgs", ziel: { ansicht: "lgs" }, etikett: "trainieren", stufe: "beide" },
 
@@ -173,15 +180,16 @@ export const WERKZEUGE = {
    „zeige“ = zusätzlich in der Startseiten-Liste/im Menü aufgeführt, gehört aber zu einer anderen Station
    (Kopfleiste, „Weiter“ und wo() bleiben bei der Heimat-Station). */
 export const BEREICHE = [
-  { id: "fundament", titel: "Fundament", uebersicht: null, text: "Zwei Stationen: Axiome und Rechenregeln, dann die Zahlenräume von ℕ bis ℝ.", fundament: true,
+  { id: "fundament", titel: "Fundament", uebersicht: null, text: "Drei Stationen: Axiome und Rechenregeln, die Zahlenräume von ℕ bis ℝ, Mengen und Logik.", fundament: true,
     stationen: [
       { id: "axiome", titel: "Axiome und Rechenregeln", zeile: "Die Spielregeln jeder Rechnung", werkzeuge: ["axiome"] },
       { id: "zahlenraeume", titel: "Zahlenräume", zeile: "Von ℕ über ℤ und ℚ bis ℝ", werkzeuge: ["zahlenraeume"] },
+      { id: "mengenlogik", titel: "Mengen und Logik", zeile: "Die Sprache der Mathematik", werkzeuge: ["mengenlogik"] },
     ] },
   { id: "analysis", titel: "Analysis", uebersicht: "analysis", text: "Vier Stationen: Funktionen kennen, untersuchen, bestimmen, integrieren.",
     video: { name: "Videokurse Analysis", zeile: "Analysis 1–5 mit Videolektionen und Checks" },
     stationen: [
-      { id: "kennen", titel: "Kennen", zeile: "Die wichtigsten Funktionsklassen", werkzeuge: ["sinus", "wachstum"], zeige: ["geradengleichung", "parabeln"] },
+      { id: "kennen", titel: "Kennen", zeile: "Die wichtigsten Funktionsklassen", werkzeuge: ["funktionen", "sinus", "wachstum"], zeige: ["geradengleichung", "parabeln"] },
       { id: "untersuchen", titel: "Untersuchen", zeile: "Ableiten und Kurven diskutieren", werkzeuge: ["ableitungstrainer", "kurvendiskussion", "scharen"] },
       { id: "bestimmen", titel: "Bestimmen", zeile: "Funktionen aufstellen und anwenden", werkzeuge: ["steckbrief", "optimierung"] },
       { id: "integrieren", titel: "Integrieren", zeile: "Stammfunktionen, Flächen, Bestand", werkzeuge: ["stammintegral", "integrale"] },
@@ -215,11 +223,12 @@ export const BEREICHE = [
       { id: "brueche", titel: "Brüche und Dezimalzahlen", zeile: "Kürzen, Grundrechenarten, Komma", werkzeuge: ["bruchrechnen", "dezimal"] },
       { id: "bruchterme", titel: "Bruchterme", zeile: "x im Nenner: kürzen und lösen", werkzeuge: ["bruchterme"] },
     ] },
-  { id: "gleichungen", titel: "Gleichungen", uebersicht: null, text: "Vier Stationen: Terme umformen, Gleichungen lösen, Geraden, Parabeln.",
+  { id: "gleichungen", titel: "Gleichungen", uebersicht: null, text: "Fünf Stationen: Terme umformen, Gleichungen lösen, Ungleichungen und Beträge, Geraden, Parabeln.",
     video: { name: "Videokurs Gleichungen", zeile: "Umformen, Gleichungssysteme, Musterlösungen" },
     stationen: [
       { id: "terme", titel: "Terme umformen", zeile: "Vereinfachen, ausklammern, Potenzen", werkzeuge: ["terme"] },
       { id: "loesen", titel: "Gleichungen lösen", zeile: "Einzelne Gleichungen und Systeme", werkzeuge: ["gleichungen", "lgs"] },
+      { id: "ungleichungen", titel: "Ungleichungen und Beträge", zeile: "Lösungsmengen als Intervalle", werkzeuge: ["ungleichungen"] },
       { id: "gerade", titel: "Geraden", zeile: "Basics, P & Q, P & m", werkzeuge: ["geradengleichung"] },
       { id: "parabel", titel: "Parabeln", zeile: "Normalform, Scheitelform, Nullstellen", werkzeuge: ["parabeln"] },
     ] },
