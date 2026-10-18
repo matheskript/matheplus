@@ -162,12 +162,14 @@ export const WERKZEUGE = {
     zeichen: "P", bild: "zufall", ziel: { ansicht: "zufall" }, etikett: "entdecken", stufe: "unter", unter: true },
 };
 
-/* Bereiche → Stationen (in Abi-Reihenfolge) → Werkzeuge */
+/* Bereiche → Stationen (in Abi-Reihenfolge) → Werkzeuge.
+   „zeige“ = zusätzlich in der Startseiten-Liste/im Menü aufgeführt, gehört aber zu einer anderen Station
+   (Kopfleiste, „Weiter“ und wo() bleiben bei der Heimat-Station). */
 export const BEREICHE = [
   { id: "analysis", titel: "Analysis", uebersicht: "analysis", text: "Vier Stationen: Funktionen kennen, untersuchen, bestimmen, integrieren.",
     video: { name: "Videokurse Analysis", zeile: "Analysis 1–5 mit Videolektionen und Checks" },
     stationen: [
-      { id: "kennen", titel: "Kennen", zeile: "Die wichtigsten Funktionsklassen", werkzeuge: ["sinus", "wachstum"] },
+      { id: "kennen", titel: "Kennen", zeile: "Die wichtigsten Funktionsklassen", werkzeuge: ["sinus", "wachstum"], zeige: ["geradengleichung", "parabeln"] },
       { id: "untersuchen", titel: "Untersuchen", zeile: "Ableiten und Kurven diskutieren", werkzeuge: ["ableitungstrainer", "kurvendiskussion", "scharen"] },
       { id: "bestimmen", titel: "Bestimmen", zeile: "Funktionen aufstellen und anwenden", werkzeuge: ["steckbrief", "optimierung"] },
       { id: "integrieren", titel: "Integrieren", zeile: "Stammfunktionen, Flächen, Bestand", werkzeuge: ["stammintegral", "integrale"] },

@@ -671,7 +671,7 @@ const BEREICH_KURZ = { analysis: "Funktionen, Kurven, Integrale", vektoren: "Ger
 
 const SCHUL_BEREICHE = BEREICHE.map((b) => ({
   id: b.id, titel: b.titel, text: b.text, logo: BEREICH_LOGO[b.id], video: b.video, linie: LINIEN_MUSTER[b.id],
-  stationen: b.stationen.map((st) => ({ ...st, werkzeuge: st.werkzeuge.map((id) => ({ id, ...WERKZEUGE[id] })) })),
+  stationen: b.stationen.map((st) => ({ ...st, werkzeuge: [...st.werkzeuge, ...(st.zeige || [])].map((id) => ({ id, ...WERKZEUGE[id] })) })),
 }));
 
 /* Flache Liste fürs Untermenü – je Station eine Kopfzeile, darunter ihre Werkzeuge –
