@@ -75,7 +75,7 @@ function MathildaTeaser({ onOeffnen }) {
         background: `radial-gradient(120% 140% at 100% 0%, #1D4790 0%, ${C.see} 40%, ${NACHT} 100%)` }}>
       <MathildaIcon groesse={52} hintergrund="rgba(255,255,255,0.08)" />
       <span style={{ flex: 1, minWidth: 0 }}>
-        <span style={{ display: "block", fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: GOLD }}>{zw("Mathilda übersetzt", "Mathilda translates")}</span>
+        <span style={{ display: "block", fontSize: 12.5, fontWeight: 700, letterSpacing: "0.01em", color: GOLD }}>{zw("Mathilda übersetzt", "Mathilda translates")}</span>
         <span style={{ display: "block", fontSize: 15.5, fontWeight: 700, lineHeight: 1.3, marginTop: 2 }}>{zw("Textaufgabe aus deinem Buch? Fotografiere sie.", "A word problem from your book? Take a photo.")}</span>
         <span style={{ display: "block", fontSize: 12.5, fontWeight: 300, color: "#C9D6EE", lineHeight: 1.45, marginTop: 2 }}>{zw("Mathilda zeigt dir jede Stelle als Bedingung – und warum.", "Mathilda shows every phrase as a condition – and why.")}</span>
       </span>

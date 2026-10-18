@@ -5,7 +5,7 @@ import { COACHING } from "./base3.jsx";
 import { M } from "./func3.jsx";
 import { ELTERNABEND } from "./funcElternabend.jsx";
 import { PerformanceLab } from "./funcPerformanceLab.jsx";
-import { MathildaName } from "./mathildaName.jsx";
+import { MathildaName, mitMathildaAI } from "./mathildaName.jsx";
 import { PenPaperBlatt } from "./func1.jsx";
 import { ElternkursLogoKlein, MathildaLogoKlein, SchulmatheLogoKlein } from "./func2.jsx";
 import { AdvancedLogoKlein } from "./func12.jsx";
@@ -906,7 +906,7 @@ export function Landingpage({ gehe }) {
                     )}
                   <span>
                     <span style={{ display: "block", fontSize: 15, fontWeight: 700, color: F.tinte }}>{x.name || x.rolle}</span>
-                    <span style={{ display: "block", fontSize: 13.5, color: F.still, marginTop: 2 }}>{x.name ? `${x.rolle} · ` : ""}{x.thema}</span>
+                    <span style={{ display: "block", fontSize: 13.5, color: F.still, marginTop: 2 }}>{x.name ? `${x.rolle} · ` : ""}{mitMathildaAI(x.thema, false)}</span>
                   </span>
                 </figcaption>
               </figure>
@@ -995,7 +995,7 @@ export function Landingpage({ gehe }) {
             {FRAGEN.map(([f, a]) => (
               <details key={f} className="lp-frage">
                 <summary>{f}</summary>
-                <p className="lp-text">{a}</p>
+                <p className="lp-text">{mitMathildaAI(a, false)}</p>
               </details>
             ))}
           </div>

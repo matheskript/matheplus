@@ -19,6 +19,8 @@ import { M } from "./func3.jsx";
 import { dekodieren, jsonLesen, rendern } from "./func1.jsx";
 import { BlattScanner } from "./funcBlattScanner.jsx";
 import { MathildaIcon } from "./funcMathildaSeite.jsx";
+import { MathildaName } from "./mathildaName.jsx";
+import { kameraWunschHolen } from "./kameraWunsch.js";
 import { MathildaChatModal } from "./funcMathildaChat.jsx";
 import { useKonto } from "./konto.js";
 import { mathildaSystem } from "./mathildaKontext.js";
@@ -50,7 +52,7 @@ function Kopf() {
       <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
         <MathildaIcon groesse={64} hintergrund="rgba(255,255,255,0.08)" />
         <div style={{ minWidth: 0 }}>
-          <p style={{ margin: 0, fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: C.weiss }}>Mathilda<span style={{ color: GOLD }}>AI</span> · {zw("Übersetzerin", "Translator")}</p>
+          <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: C.weiss }}><MathildaName dunkel /> <span style={{ color: "#C9D6EE", fontWeight: 600 }}>· {zw("Übersetzerin", "Translator")}</span></p>
           <p style={{ margin: "4px 0 0", fontSize: 20, fontWeight: 700, lineHeight: 1.2, letterSpacing: "-0.01em" }}>{zw("Foto rein – Bedingungen raus.", "Photo in – conditions out.")}</p>
         </div>
       </div>
@@ -73,6 +75,8 @@ function Eingabe({ onStart, laeuft, modus, setModus, letzte, onLetzte }) {
   const [fehler, setFehler] = useState("");
   const [lade, setLade] = useState(false);
   const kameraRef = useRef(null), galerieRef = useRef(null);
+  /* Kam der Schüler über den Kamera-Knopf der Textaufgaben-Box, geht die Kamera sofort auf */
+  useEffect(() => { if (kameraWunschHolen("text")) { setArt("foto"); setScan(true); } }, []);
   const datei = async (f) => {
     if (!f) return;
     setFehler(""); setLade(true); setScan(false);

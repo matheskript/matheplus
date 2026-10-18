@@ -10,6 +10,7 @@
    Daten: kapitelFormeln.js (Auswahl), fsIndex.js (Formeln), schulbuch.js (Kapitel).
    ====================================================================== */
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { MathildaName } from "./mathildaName.jsx";
 import { API_URL, C } from "./base1.jsx";
 import { kiAntwort, kiKopf } from "./base4.jsx";
 import { M, alsFunktion } from "./func3.jsx";
@@ -811,7 +812,7 @@ function Testklausur({ info, zurueck }) {
             </div>
           )}
           <p style={{ margin: "10px 2px 0", fontSize: 11.5, color: C.hellgrau, lineHeight: 1.55 }}>
-            Erstellt von Mathilda AI. Wenn dir eine Lösung komisch vorkommt, frag deine Lehrkraft oder Mathilda – auch eine KI kann sich verrechnen.
+            Erstellt von <MathildaName />. Wenn dir eine Lösung komisch vorkommt, frag deine Lehrkraft oder Mathilda – auch eine KI kann sich verrechnen.
           </p>
           {drucken && (
             <div aria-hidden="true" style={{ position: "fixed", left: -10000, top: 0, width: 760, background: C.weiss, fontFamily: "Montserrat, sans-serif" }}>

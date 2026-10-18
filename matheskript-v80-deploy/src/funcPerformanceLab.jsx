@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useKonto } from "./konto.js";
+import { MathildaName } from "./mathildaName.jsx";
 import { FEHLERTYPEN_TAX, HAUPTKATEGORIEN, kontextName, typName, untertypName } from "./perfTaxonomie.js";
 import {
   MUSTER_NAMEN, QUELLEN, SCHWELLEN, STATUS_NAMEN, TAG, baueCluster, clusterTeilen, ereignisKorrigieren, fehlerquote, rueckfall,
@@ -53,7 +54,7 @@ export function PerformanceLab() {
           Performance-<span style={{ background: `linear-gradient(90deg, ${L.blau}, ${L.tuerkis})`, WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>Lab</span>
         </h2>
         <p style={{ margin: "14px 0 22px", maxWidth: 640, fontSize: 16, fontWeight: 400, lineHeight: 1.7, color: L.ged }}>
-          Ein gemeinsames Fehlergedächtnis für digitales und handschriftliches Lernen. MathildaAI erkennt Muster – du trainierst gezielt dagegen.
+          Ein gemeinsames Fehlergedächtnis für digitales und handschriftliches Lernen. <MathildaName dunkel /> erkennt Muster – du trainierst gezielt dagegen.
         </p>
 
         <div role="tablist" aria-label="Performance-Lab" className="perf-tabs" style={{ display: "flex", gap: 6, overflowX: "auto", marginBottom: 24, paddingBottom: 4, position: "sticky", top: 0, zIndex: 5, background: `${L.bg}ee`, backdropFilter: "blur(8px)", paddingTop: 8 }}>

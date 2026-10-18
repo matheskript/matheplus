@@ -175,7 +175,7 @@ export function MathildaChatModal({ aufgabe, schliessen, onHilfe }) {
         style={{ width: "100%", maxWidth: 620, maxHeight: "88vh", display: "flex", flexDirection: "column", background: C.sand, borderRadius: "22px 22px 0 0", boxShadow: "0 -10px 40px rgba(0,0,0,0.25)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 18px", background: C.seeTief, borderRadius: "22px 22px 0 0" }}>
           <div style={{ flex: 1 }}>
-            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", color: C.flaggold }}>MATHILDA FRAGEN</p>
+            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.01em", color: C.flaggold }}>Mathilda fragen</p>
             <p style={{ color: C.weiss, fontSize: 16, fontWeight: 700 }}>Sie fragt zurück, bevor sie verrät</p>
           </div>
           <button ref={zuRef} type="button" onClick={schliessen} style={{ height: 34, padding: "0 12px", borderRadius: 999, border: "none", background: C.flaggold, color: C.seeTief, fontSize: 13, fontWeight: 700, fontFamily: "inherit", cursor: "pointer" }}>Zurück zur Aufgabe</button>
@@ -194,7 +194,7 @@ export function MathildaChatSeite() {
   return (
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620 }}>
       <div style={{ background: C.weiss, borderRadius: 16, padding: 18, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", marginBottom: 14 }}>
-        <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: C.gruenDunkel, marginBottom: 8 }}>Mathilda fragen</p>
+        <p style={{ fontSize: 12.5, fontWeight: 700, letterSpacing: "0.01em", color: C.gruenDunkel, marginBottom: 8 }}>Mathilda fragen</p>
         <p style={{ fontSize: 14.5, color: C.tinte, lineHeight: 1.7 }}>
           Mathilda kennt deinen Lernstand: Klasse, Plan, deine häufigsten Fehlertypen. Sie stellt zuerst eine Rückfrage, gibt dann einen Hinweis und verrät die Lösung nur, wenn du sie ausdrücklich willst. Rechnen lässt sie die App – Ableitungen, Nullstellen, Binomialverteilung.
         </p>

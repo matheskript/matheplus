@@ -3,6 +3,7 @@
 import React, { useRef } from "react";
 import { C } from "./base1.jsx";
 import { MathildaZyklus } from "./funcMathildaZyklus.jsx";
+import { MathildaName } from "./mathildaName.jsx";
 import "@fontsource/caveat/600.css";
 
 const GOLD = C.flaggold;
@@ -50,10 +51,23 @@ export const MODI = [
   { id: "chat", name: "Mathilda fragen", kurz: "Sie fragt zurück, bevor sie verrät" },
 ];
 
-/* Briefkasten mit Brief – Symbol der Box „Klausurbriefkasten“ */
-function BriefkastenMini() {
+/* Blatt mit Textzeilen, markierter Stelle und Gleichheitszeichen – Symbol der Box „Textaufgabe“ */
+function TextaufgabeIcon({ groesse = 30 }) {
   return (
-    <svg viewBox="0 0 64 64" width="44" height="44" aria-hidden="true" style={{ display: "block", flex: "none" }}>
+    <svg viewBox="0 0 32 32" width={groesse} height={groesse} aria-hidden="true" style={{ display: "block", flex: "none" }}
+      fill="none" stroke={GOLD} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M7 3h13l6 6v20H7z" /><path d="M20 3v6h6" />
+      <path d="M11 13h8" />
+      <path d="M11 18h11" strokeWidth="4.6" opacity="0.4" /><path d="M11 18h11" strokeWidth="1.4" />
+      <path d="M11 23.5h6M11 26.5h6" />
+    </svg>
+  );
+}
+
+/* Briefkasten mit Brief – Symbol der Box „Klausurbox“ */
+function BriefkastenMini({ groesse = 56 }) {
+  return (
+    <svg viewBox="0 0 64 64" width={groesse} height={groesse} aria-hidden="true" style={{ display: "block", flex: "none" }}>
       <defs><linearGradient id="mk-bk-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#F8D23A" /><stop offset="0.55" stopColor={GOLD} /><stop offset="1" stopColor="#D9A600" /></linearGradient></defs>
       <rect x="29" y="40" width="6" height="20" rx="2" fill="#0A1636" />
       <path d="M12 26c0-9 7-15 16-15h14c8 0 12 6 12 14v18H12z" fill="url(#mk-bk-gold)" />
@@ -66,8 +80,18 @@ function BriefkastenMini() {
   );
 }
 
-/* Kopfbereich: Titel dicht am Header, Zweizeiler, goldener Scan-Knopf, rechts Mathilda; darunter die vier Modi */
-export function MathildaKopf({ modus, setModus, onScan, onText, onBriefkasten }) {
+/* Kleines Kamera-Symbol für die goldenen Knöpfe */
+function KameraGlyph({ groesse = 18 }) {
+  return (
+    <svg viewBox="0 0 24 24" width={groesse} height={groesse} fill="none" stroke={GOLD} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M4 8h3l2-3h6l2 3h3v11H4z" /><circle cx="12" cy="13" r="3.5" />
+    </svg>
+  );
+}
+
+/* Kopfbereich: Titel dicht am Header, Zweizeiler, goldener Scan-Knopf, rechts Mathilda; darunter der Lern-Zyklus
+   und die zwei Boxen „Textaufgabe“ und „Klausurbox“ im goldenen Schnitt (Breite : Höhe = 1,618 : 1). */
+export function MathildaKopf({ modus, setModus, onScan, onText, onBriefkasten, onTextKamera, onBriefkastenKamera }) {
   const scanRef = useRef(null);
   return (
     <div className="mathilda-kopf" style={{ background: `radial-gradient(120% 90% at 85% 10%, #163A7A 0%, ${C.see} 35%, ${NACHT} 85%)`, position: "relative", overflow: "hidden" }}>
@@ -83,20 +107,25 @@ export function MathildaKopf({ modus, setModus, onScan, onText, onBriefkasten })
         .mathilda-kopf .mk-scan:hover { transform: translateY(-2px); box-shadow: 0 14px 36px rgba(237,187,0,0.5), inset 0 1px 0 rgba(255,255,255,0.55); }
         .mathilda-kopf .mk-scan:active { transform: translateY(0); }
         .mathilda-kopf .mk-scan .mk-kam { width: 42px; height: 42px; border-radius: 999px; background: ${NACHT}; display: flex; align-items: center; justify-content: center; flex: none; }
-        .mathilda-kopf .mk-duo { max-width: 760px; margin: 0 auto; padding: 0 24px 26px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: stretch; }
-        .mathilda-kopf .mk-karte { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; text-align: left; cursor: pointer; font-family: inherit; color: #FFFFFF; border-radius: 16px; padding: 14px 14px 12px; min-width: 0;
-          transition: transform .15s ease, border-color .15s ease, background .15s ease; -webkit-tap-highlight-color: transparent; }
-        .mathilda-kopf .mk-karte:hover { transform: translateY(-2px); }
-        .mathilda-kopf .mk-karte-text { border: 1.5px solid rgba(237,187,0,0.55); background: linear-gradient(135deg, rgba(237,187,0,0.16), rgba(255,255,255,0.04)); }
-        .mathilda-kopf .mk-karte-text:hover { background: linear-gradient(135deg, rgba(237,187,0,0.24), rgba(255,255,255,0.06)); }
-        .mathilda-kopf .mk-karte-bk { border: 1.5px solid rgba(255,255,255,0.16); background: linear-gradient(135deg, rgba(10,22,54,0.85), rgba(29,71,144,0.55)); box-shadow: inset 0 1px 0 rgba(255,255,255,0.08); }
-        .mathilda-kopf .mk-karte-bk:hover { border-color: rgba(237,187,0,0.6); }
-        .mathilda-kopf .mk-karte-kopf { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 44px; }
-        .mathilda-kopf .mk-karte b { display: block; font-size: 15px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.2; }
-        .mathilda-kopf .mk-karte .mk-karte-ober { display: block; font-size: 10.5px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #FFFFFF; }
-        .mathilda-kopf .mk-karte .mk-karte-z { display: block; font-size: 12.5px; font-weight: 300; color: #C9D6EE; line-height: 1.45; flex: 1; }
-        .mathilda-kopf .mk-karte .mk-tk-neu { font-size: 10px; font-weight: 800; letter-spacing: .12em; color: ${NACHT}; background: ${GOLD}; border-radius: 999px; padding: 3px 8px; flex: none; }
-        .mathilda-kopf .mk-karte .mk-bk-schloss { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; color: #E6EDF8; background: rgba(255,255,255,0.08); border-radius: 999px; padding: 3px 9px; }
+        .mathilda-kopf .mk-karten { max-width: 760px; margin: 0 auto; padding: 0 24px 26px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .mathilda-kopf .mk-karte { position: relative; aspect-ratio: 1.618 / 1; min-width: 0; display: flex; flex-direction: column; color: #FFFFFF; border-radius: 18px; padding: 14px 16px; overflow: hidden;
+          border: 1.5px solid rgba(255,255,255,0.16); background: linear-gradient(135deg, rgba(10,22,54,0.85), rgba(29,71,144,0.55)); box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+          transition: transform .15s ease, border-color .15s ease; }
+        .mathilda-kopf .mk-karte:hover { transform: translateY(-2px); border-color: rgba(237,187,0,0.6); }
+        .mathilda-kopf .mk-karte-link { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; padding: 0; border: none; border-radius: inherit; background: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        .mathilda-kopf .mk-karte-link:focus-visible { outline: 3px solid ${GOLD}; outline-offset: -3px; }
+        .mathilda-kopf .mk-karte > :not(.mk-karte-link) { position: relative; z-index: 2; pointer-events: none; }
+        .mathilda-kopf .mk-karte-kopf { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+        .mathilda-kopf .mk-karte-icon { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; flex: none; border-radius: 14px; background: rgba(237,187,0,0.14); border: 1.5px solid rgba(237,187,0,0.4); }
+        .mathilda-kopf .mk-karte-marke { font-size: 14px; font-weight: 700; letter-spacing: -0.01em; text-transform: none; margin-left: 10px; margin-right: auto; white-space: nowrap; }
+        .mathilda-kopf .mk-karte-schloss { display: inline-flex; align-items: center; gap: 5px; font-size: 10.5px; font-weight: 600; color: #E6EDF8; background: rgba(255,255,255,0.08); border-radius: 999px; padding: 3px 9px; white-space: nowrap; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+        .mathilda-kopf .mk-karte-titel { display: block; margin-top: 10px; font-size: 20px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+        .mathilda-kopf .mk-karte-z { display: block; margin-top: 3px; font-size: 12.5px; font-weight: 300; color: #C9D6EE; line-height: 1.4; }
+        .mathilda-kopf .mk-karte-kam { pointer-events: auto !important; z-index: 3 !important; margin-top: auto; align-self: flex-start; display: inline-flex; align-items: center; gap: 9px; height: 40px; padding: 0 16px 0 5px; border: none; border-radius: 999px; cursor: pointer; font-family: inherit;
+          color: ${NACHT}; font-size: 13.5px; font-weight: 800; letter-spacing: -0.01em; white-space: nowrap; background: linear-gradient(135deg, #F8D23A 0%, ${GOLD} 55%, #D9A600 100%);
+          box-shadow: 0 6px 18px rgba(237,187,0,0.35), inset 0 1px 0 rgba(255,255,255,0.55); transition: transform .15s ease, box-shadow .15s ease; -webkit-tap-highlight-color: transparent; }
+        .mathilda-kopf .mk-karte-kam:hover { transform: translateY(-1px); box-shadow: 0 9px 24px rgba(237,187,0,0.45), inset 0 1px 0 rgba(255,255,255,0.55); }
+        .mathilda-kopf .mk-karte-kam i { width: 30px; height: 30px; border-radius: 999px; background: ${NACHT}; display: flex; align-items: center; justify-content: center; flex: none; }
         .mathilda-kopf .mk-ober { color: ${GOLD}; font-size: 14.4px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; margin-bottom: 8px; }
         .mathilda-kopf .mk-titel { font-weight: 700; font-size: 53px; letter-spacing: -0.03em; line-height: .98; margin: 0; }
         .mathilda-kopf .mk-satz { color: #C9D6EE; font-size: 18.6px; font-weight: 300; line-height: 1.5; margin-top: 14px; white-space: nowrap; }
@@ -114,14 +143,18 @@ export function MathildaKopf({ modus, setModus, onScan, onText, onBriefkasten })
           .mathilda-kopf .mk-scan { margin-top: 16px; width: auto; max-width: 100%; white-space: nowrap; justify-content: flex-start; height: 44px; font-size: 13.5px; padding: 0 12px 0 5px; gap: 8px; box-shadow: 0 6px 18px rgba(237,187,0,0.35), inset 0 1px 0 rgba(255,255,255,0.55); }
           .mathilda-kopf .mk-scan .mk-kam { width: 34px; height: 34px; }
           .mathilda-kopf .mk-scan .mk-kam svg { width: 18px; height: 18px; }
+          .mathilda-kopf .mk-karten { grid-template-columns: 1fr; padding-bottom: 22px; }
+          .mathilda-kopf .mk-karte-marke { margin-left: 8px; font-size: 13px; }
+          .mathilda-kopf .mk-karte-schloss { font-size: 10px; line-height: 1.2; padding: 4px 9px; gap: 4px; flex: 0 1 auto; white-space: normal; max-width: 112px; border-radius: 12px; }
+          .mathilda-kopf .mk-karte-schloss svg { display: none; }
         }
         @media (prefers-reduced-motion: reduce) { .mathilda-kopf .mk-portraet, .mathilda-kopf .mk-scan { animation: none; } }
       `}</style>
       <div className="mk-innen">
         <div className="mk-text">
           <p className="mk-ober">Deine Mathe-KI-Trainerin</p>
-          <h1 className="titel-silber mk-titel">
-            Mathilda<span style={{ color: GOLD }}>AI</span>
+          <h1 className="mk-titel">
+            <MathildaName dunkel />
           </h1>
           <p className="mk-satz">
             Sie liest dein Blatt, nicht nur dein Ergebnis –<br />
@@ -143,28 +176,35 @@ export function MathildaKopf({ modus, setModus, onScan, onText, onBriefkasten })
       </div>
       <MathildaZyklus scanRef={scanRef} modus={modus} setModus={setModus} weitere={MODI.filter((x) => x.id !== "blatt")} />
       {(onText || onBriefkasten) && (
-        <div className="mk-duo">
+        <div className="mk-karten">
           {onText && (
-            <button type="button" className="mk-karte mk-karte-text" onClick={onText} data-mathilda-textaufgabe>
-              <span className="mk-karte-kopf">
-                <span className="mk-tk-neu">NEU</span>
-                <span aria-hidden="true" style={{ color: GOLD, fontSize: 20, fontWeight: 700 }}>→</span>
-              </span>
-              <b>Textaufgabe übersetzen</b>
-              <span className="mk-karte-z">Foto rein – Bedingungen raus. Jede Stelle mit Begründung.</span>
-            </button>
+            <div className="mk-karte" data-karte="textaufgabe">
+              <button type="button" className="mk-karte-link" onClick={onText} data-mathilda-textaufgabe aria-label="Textaufgabe öffnen" />
+              <div className="mk-karte-kopf">
+                <span className="mk-karte-icon"><TextaufgabeIcon /></span>
+                <span className="mk-karte-marke"><MathildaName dunkel /></span>
+              </div>
+              <b className="mk-karte-titel">Textaufgabe</b>
+              <span className="mk-karte-z">Foto rein – Bedingungen raus. Mathilda übersetzt jede Stelle und sagt dir, warum.</span>
+              <button type="button" className="mk-karte-kam" onClick={onTextKamera || onText} data-mathilda-textaufgabe-kamera>
+                <i><KameraGlyph /></i>Aufgabe fotografieren
+              </button>
+            </div>
           )}
           {onBriefkasten && (
-            <button type="button" className="mk-karte mk-karte-bk" onClick={onBriefkasten} data-mathilda-briefkasten>
-              <span className="mk-karte-kopf">
-                <BriefkastenMini />
-                <span aria-hidden="true" style={{ color: GOLD, fontSize: 20, fontWeight: 700 }}>→</span>
-              </span>
-              <span className="mk-karte-ober">Mathilda<span style={{ color: GOLD }}>AI</span></span>
-              <b style={{ marginTop: -4 }}>Klausurbriefkasten</b>
-              <span className="mk-karte-z">Wirf deine zurückgegebene Klassenarbeit ein – Mathilda baut daraus bessere Testklausuren.</span>
-              <span className="mk-bk-schloss"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke={GOLD} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>Foto wird nicht gespeichert</span>
-            </button>
+            <div className="mk-karte" data-karte="klausurbox">
+              <button type="button" className="mk-karte-link" onClick={onBriefkasten} data-mathilda-briefkasten aria-label="Klausurbox öffnen" />
+              <div className="mk-karte-kopf">
+                <span className="mk-karte-icon"><BriefkastenMini groesse={34} /></span>
+                <span className="mk-karte-marke"><MathildaName dunkel /></span>
+                <span className="mk-karte-schloss"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke={GOLD} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>Foto wird nicht gespeichert</span>
+              </div>
+              <b className="mk-karte-titel">Klausurbox</b>
+              <span className="mk-karte-z">Wirf deine Klassenarbeit ein. Mathilda gibt dir Tipps – und lernt selbst dabei dazu.</span>
+              <button type="button" className="mk-karte-kam" onClick={onBriefkastenKamera || onBriefkasten} data-mathilda-briefkasten-kamera>
+                <i><KameraGlyph /></i>Klausur fotografieren
+              </button>
+            </div>
           )}
         </div>
       )}

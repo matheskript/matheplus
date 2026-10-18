@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { entsperren } from "./seitenKonstanten.js";
 import { C } from "./base1.jsx";
+import { mitMathildaAI } from "./mathildaName.jsx";
 
 export function SperreDialog({ titel = "Mathilda AI", onFrei, onZu }) {
   const [pw, setPw] = useState("");
@@ -30,7 +31,7 @@ export function SperreDialog({ titel = "Mathilda AI", onFrei, onZu }) {
             <rect x="5" y="11" width="14" height="10" rx="2.2" /><path d="M8 11V7.5a4 4 0 0 1 8 0V11" />
           </svg>
         </span>
-        <h1 style={{ fontSize: 22, fontWeight: 800, margin: "14px 0 0", letterSpacing: "-0.02em" }}>{titel}</h1>
+        <h1 style={{ fontSize: 22, fontWeight: 800, margin: "14px 0 0", letterSpacing: "-0.02em" }}>{mitMathildaAI(titel, true)}</h1>
         <p style={{ fontSize: 14, lineHeight: 1.5, color: "#DCE5F5", margin: "8px 0 18px" }}>Dieser Bereich ist noch nicht öffentlich. Bitte Passwort eingeben.</p>
         <input ref={feld} type="password" value={pw} autoComplete="off" aria-label="Passwort" placeholder="Passwort"
           onChange={(e) => { setPw(e.target.value); setFehler(false); }}

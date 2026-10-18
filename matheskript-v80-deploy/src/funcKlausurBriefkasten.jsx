@@ -1,9 +1,9 @@
 /* ============================================================
-   MathildaAI · Klausurbriefkasten  (/klausurbriefkasten)
+   MathildaAI · Klausurbox  (/klausurbriefkasten)
    Schüler werfen das Aufgabenblatt einer zurückgegebenen Klassenarbeit ein.
    Ablauf: ① Angaben (Bundesland, Schulart, Klasse, Schule, Kapitel, Monat)
            ② drei Häkchen (zurückbekommen · alle haben geschrieben · nur Aufgabenblatt)
-           ③ bis zu 3 Fotos → Mathilda analysiert nur die Struktur
+           ③ bis zu 3 Fotos (Serienmodus: „Foto“ = nächste Seite, „Letztes Foto“ = fertig) → Mathilda analysiert nur die Struktur
            ④ Vorschau „Das merkt sich Mathilda“ → einwerfen oder verwerfen
    Fotos bleiben im Browserspeicher dieser Seite, gehen nur zur Analyse an
    Anthropic und werden danach verworfen – nie gespeichert.
@@ -16,6 +16,8 @@ import { kiAntwort, kiEinwilligungDa, kiKopf } from "./base4.jsx";
 import { dekodieren, jsonLesen, rendern } from "./func1.jsx";
 import { BlattScanner } from "./funcBlattScanner.jsx";
 import { MathildaIcon } from "./funcMathildaSeite.jsx";
+import { MathildaName } from "./mathildaName.jsx";
+import { kameraWunschHolen } from "./kameraWunsch.js";
 import { DEMO, sb, useKonto } from "./konto.js";
 import { hilfenFuer, THEMEN } from "./schulbuch.js";
 import { englisch } from "./i18n.js";
@@ -92,8 +94,8 @@ function Kopf() {
           <span style={{ position: "absolute", right: -6, bottom: -4, border: `2px solid ${NACHT}`, borderRadius: 999 }}><MathildaIcon groesse={30} /></span>
         </div>
         <div style={{ minWidth: 0 }}>
-          <p style={{ margin: 0, fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: C.weiss }}>Mathilda<span style={{ color: GOLD }}>AI</span></p>
-          <p style={{ margin: "3px 0 0", fontSize: 24, fontWeight: 700, lineHeight: 1.12, letterSpacing: "-0.02em" }}>{zw("Klausurbriefkasten", "Test mailbox")}</p>
+          <p style={{ margin: 0, fontSize: 14, fontWeight: 700, letterSpacing: "-0.01em", color: C.weiss }}><MathildaName dunkel /></p>
+          <p style={{ margin: "3px 0 0", fontSize: 24, fontWeight: 700, lineHeight: 1.12, letterSpacing: "-0.02em" }}>{zw("Klausurbox", "Test box")}</p>
         </div>
       </div>
       <p style={{ margin: "14px 0 0", fontSize: 15.5, fontWeight: 600, lineHeight: 1.45 }}>{zw("Wirf deine zurückgegebene Klassenarbeit ein.", "Drop in your returned class test.")}</p>
@@ -266,22 +268,28 @@ function Freigabe({ f, setF, fertig, aktiv }) {
 }
 
 /* ---------- ③ Fotos ---------- */
-function Fotos({ bilder, setBilder, aktiv, onAnalyse, laeuft }) {
+function Fotos({ bilder, setBilder, aktiv, onAnalyse, laeuft, kameraWartet, setKameraWartet }) {
   const [scan, setScan] = useState(false);
   const [lade, setLade] = useState(false);
   const [fehler, setFehler] = useState("");
   const kameraRef = useRef(null), galerieRef = useRef(null);
   const bytes = bilder.reduce((n, b) => n + b.b64.length * 0.75, 0);
   const voll = bilder.length >= MAX_SEITEN;
-  const datei = async (f) => {
-    if (!f || voll) return;
-    setFehler(""); setLade(true); setScan(false);
+  /* Kam der Schüler über den Kamera-Knopf der Klausurbox, geht die Kamera auf, sobald Angaben und Bestätigung stehen */
+  useEffect(() => { if (kameraWartet && aktiv && !voll) { setKameraWartet(false); setScan(true); } }, [kameraWartet, aktiv, voll, setKameraWartet]);
+  /* Serienmodus: opt.weiter = true → Kamera bleibt für die nächste Seite offen (Knopf „Foto“); false → „Letztes Foto“ bzw. Einzelbild */
+  const datei = async (f, opt) => {
+    if (!f) return;
+    if (voll) { setScan(false); return; }
+    const weiter = !!(opt && opt.weiter);
+    setFehler(""); setLade(true); if (!weiter) setScan(false);
     try {
       const src = await dekodieren(f, () => {});
       const r = rendern(src, 0);
       if (bytes + r.b64.length * 0.75 > MAX_BYTES_GESAMT) throw new Error(zw("Zusammen sind die Fotos zu groß. Lass eine Seite weg oder fotografiere näher.", "Together the photos are too large. Leave out a page or take a closer photo."));
       setBilder((alt) => [...alt, { quelle: src, drehung: 0, b64: r.b64, vorschau: r.vorschau }]);
-    } catch (e) { setFehler(e.message || zw("Das Foto ließ sich nicht öffnen.", "The photo could not be opened.")); }
+      if (weiter && bilder.length + 1 >= MAX_SEITEN) setScan(false);   // letzte mögliche Seite erreicht
+    } catch (e) { setScan(false); setFehler(e.message || zw("Das Foto ließ sich nicht öffnen.", "The photo could not be opened.")); }
     finally { setLade(false); }
   };
   const drehen = (i) => setBilder((alt) => alt.map((b, k) => { if (k !== i) return b; const d = (b.drehung + 90) % 360; const r = rendern(b.quelle, d); return { ...b, drehung: d, b64: r.b64, vorschau: r.vorschau }; }));
@@ -325,7 +333,7 @@ function Fotos({ bilder, setBilder, aktiv, onAnalyse, laeuft }) {
       <p style={{ fontSize: 11.5, color: C.hellgrau, margin: "10px 0 0", lineHeight: 1.5 }}>
         {zw("Die Fotos gehen nur zur Analyse an Anthropic (Claude) und werden danach verworfen. Gespeichert wird erst, was du im nächsten Schritt siehst und einwirfst.", "The photos go to Anthropic (Claude) only for the analysis and are discarded afterwards. Only what you see in the next step and drop in is stored.")}
       </p>
-      <BlattScanner offen={scan} onSchliessen={() => setScan(false)} onFoto={datei}
+      <BlattScanner offen={scan} onSchliessen={() => setScan(false)} onFoto={datei} serie={{ seite: Math.min(bilder.length + 1, MAX_SEITEN), max: MAX_SEITEN }}
         onKameraApp={() => { setScan(false); kameraRef.current?.click(); }} onGalerie={() => { setScan(false); galerieRef.current?.click(); }} />
     </div>
   );
@@ -503,6 +511,7 @@ export function KlausurBriefkasten({ gehe }) {
   const [fertig, setFertig] = useState(null);       // eingeworfene Meldung
   const [liste, setListe] = useState([]);
   const [warten, setWarten] = useState(false);
+  const [kameraWartet, setKameraWartet] = useState(() => kameraWunschHolen("klausur"));   // Kamera-Knopf der Klausurbox auf der Startseite
   const oben = useRef(null);
 
   const angabenOk = angabenFehler(a).length === 0;
@@ -570,10 +579,15 @@ export function KlausurBriefkasten({ gehe }) {
           onVerwerfen={() => { setVorschau(null); hoch(); }} />
       ) : (
         <>
+          {kameraWartet && !(angabenOk && freigabeOk) && (
+            <p style={{ margin: "14px 0 0", padding: "10px 14px", borderRadius: 12, background: C.himmel, border: `1.5px solid ${GOLD}`, fontSize: 13.5, fontWeight: 600, lineHeight: 1.5, color: C.tinte }} data-kamera-wartet>
+              {zw("Gleich geht die Kamera auf – vorher kurz Klasse und Bestätigung angeben.", "The camera opens in a moment – first give your class and the quick confirmation.")}
+            </p>
+          )}
           <InfoFeld gehe={gehe} />
           <Angaben a={a} setA={setA} fertig={angabenOk} />
           <Freigabe f={f} setF={setF} fertig={freigabeOk} aktiv={angabenOk} />
-          {laeuft ? <Laeuft /> : <Fotos bilder={bilder} setBilder={setBilder} aktiv={angabenOk && freigabeOk} onAnalyse={analysieren} laeuft={laeuft} />}
+          {laeuft ? <Laeuft /> : <Fotos bilder={bilder} setBilder={setBilder} aktiv={angabenOk && freigabeOk} onAnalyse={analysieren} laeuft={laeuft} kameraWartet={kameraWartet} setKameraWartet={setKameraWartet} />}
           {fehler && !laeuft && <Rueck art="warn">{fehler}</Rueck>}
         </>
       )}

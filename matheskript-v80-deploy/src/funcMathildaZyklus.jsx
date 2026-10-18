@@ -4,6 +4,7 @@
    Der Pfad wird aus den echten Positionen berechnet (Knopf und Knoten), damit er auf jedem Bildschirm sitzt. */
 import React, { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { C } from "./base1.jsx";
+import { mitMathildaAI } from "./mathildaName.jsx";
 
 const GOLD = C.flaggold;
 const NACHT = C.seeTief;
@@ -63,7 +64,7 @@ function AhaBild() {
 function Beschriftung({ titel, text, links }) {
   return (
     <span className={`mz-text${links ? " mz-text-l" : ""}`}>
-      <b>{titel}</b>
+      <b>{mitMathildaAI(titel, true)}</b>
       <span>{text}</span>
     </span>
   );
@@ -140,7 +141,7 @@ export function MathildaZyklus({ scanRef, modus, setModus, weitere }) {
         .mz-mai-ring { position: absolute; inset: -9px; border-radius: 999px; border: 2px dashed rgba(237,187,0,0.7); animation: mz-dreh 14s linear infinite; }
         .mz-text { display: block; margin-top: 4px; max-width: 118px; }
         .mz-text b { display: block; font-size: 13px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.22; }
-        .mz-text span { display: block; font-size: 11.5px; font-weight: 300; line-height: 1.38; color: #C9D6EE; margin-top: 3px; }
+        .mz-text > span { display: block; font-size: 11.5px; font-weight: 300; line-height: 1.38; color: #C9D6EE; margin-top: 3px; }
         .mz-text-l { text-align: left; margin: 0 0 0 14px; max-width: none; }
         .mz-drei { grid-column: 2 / span 2; grid-row: 1; flex-direction: row; justify-content: flex-start; align-items: center; padding-left: calc(25% - 35px); text-align: left; }
         .mz-drei .mz-text { margin-top: 0; }
@@ -182,7 +183,7 @@ export function MathildaZyklus({ scanRef, modus, setModus, weitere }) {
           .mz-drei { padding-left: calc(25% - 39px); }
           .mz-text { max-width: 190px; }
           .mz-text b { font-size: 15px; }
-          .mz-text span { font-size: 12.5px; }
+          .mz-text > span { font-size: 12.5px; }
           .mz-text-l { margin-left: 18px; }
           .mz-papier svg { width: 100px; height: 100px; }
         }

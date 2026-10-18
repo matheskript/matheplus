@@ -24,6 +24,7 @@ import { LernpfadSeite } from "./funcLernpfad.jsx";
 import { KapitelTrainingSeite } from "./funcKapitelTraining.jsx";
 import { MathildaChatSeite } from "./funcMathildaChat.jsx";
 import { MathildaKopf, FotoStart, SoArbeitetMathilda } from "./funcMathildaSeite.jsx";
+import { kameraWunschSetzen } from "./kameraWunsch.js";
 import { BlattScanner } from "./funcBlattScanner.jsx";
 import { mathildaSystem } from "./mathildaKontext.js";
 import { Operatoren, Wiederholen } from "./func7.jsx";
@@ -1354,7 +1355,12 @@ export function Mathilda() {
       ) : (
       <>
 
-      <MathildaKopf modus={fotoModus} setModus={setFotoModus} onText={() => gehe({ ansicht: "textaufgaben", seite: "mathilda" })} onBriefkasten={() => gehe({ ansicht: "klausurbriefkasten" })} onScan={() => {
+      <MathildaKopf modus={fotoModus} setModus={setFotoModus}
+        onText={() => gehe({ ansicht: "textaufgaben", seite: "mathilda" })}
+        onTextKamera={() => { kameraWunschSetzen("text"); gehe({ ansicht: "textaufgaben", seite: "mathilda" }); }}
+        onBriefkasten={() => gehe({ ansicht: "klausurbriefkasten" })}
+        onBriefkastenKamera={() => { kameraWunschSetzen("klausur"); gehe({ ansicht: "klausurbriefkasten" }); }}
+        onScan={() => {
         setFotoModus("blatt");
         if (!fotoErlaubt) {
           setScanNachEinwilligung(true);
@@ -1384,7 +1390,7 @@ export function Mathilda() {
             )}
 
             <section className="mt-12">
-              <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: C.see, marginBottom: 8 }}>So arbeitet Mathilda</p>
+              <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.12em", color: C.see, marginBottom: 8 }}>So arbeitet Mathilda</p>
               <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
                 In dreißig Sekunden vom Blatt zur Rückmeldung
               </h2>

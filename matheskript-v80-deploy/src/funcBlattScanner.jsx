@@ -60,11 +60,17 @@ export function fotoPruefen(canvas) {
 }
 
 /* ---------- Fenster ---------- */
-export function BlattScanner({ offen, onSchliessen, onFoto, onKameraApp, onGalerie }) {
+/* serie = { seite, max } schaltet den Serienmodus ein (Klausurbox, mehrere Seiten):
+   Statt des runden Auslösers gibt es „Foto“ (aufnehmen, Kamera bleibt für die nächste Seite an) und „Letztes Foto“ (aufnehmen und fertig).
+   Sieht die Prüfung kein Problem, geht das Foto sofort weiter; sonst erscheint wie gewohnt die Rückmeldung.
+   onFoto(datei, { weiter }) – weiter = true: Fenster offen lassen. Ohne serie bleibt alles wie bisher: onFoto(datei). */
+export function BlattScanner({ offen, onSchliessen, onFoto, onKameraApp, onGalerie, serie }) {
   const videoRef = useRef(null);
   const kastenRef = useRef(null);
   const streamRef = useRef(null);
   const fotoRef = useRef(null);
+  const letztesRef = useRef(false);
+  const sperreRef = useRef(0);
   const [zustand, setZustand] = useState("start"); // start | live | fehler | pruefen
   const [vorschau, setVorschau] = useState(null);
   const [ergebnis, setErgebnis] = useState(null);
@@ -103,9 +109,19 @@ export function BlattScanner({ offen, onSchliessen, onFoto, onKameraApp, onGaler
     return () => { window.removeEventListener("keydown", esc); document.body.style.overflow = alt; stoppen(); };
   }, [offen, starten, stoppen]);
 
-  const ausloesen = () => {
+  const liefern = (c, opt) => {
+    c.toBlob((b) => {
+      if (!b) return;
+      const datei = new File([b], `blatt-${Date.now()}.jpg`, { type: "image/jpeg" });
+      onFoto(datei, opt);
+    }, "image/jpeg", 0.92);
+  };
+
+  const ausloesen = (letztes = false) => {
     const v = videoRef.current, k = kastenRef.current;
     if (!v || !k || !v.videoWidth) return;
+    if (Date.now() - sperreRef.current < 700) return;   // Doppeltipp: nicht zweimal dasselbe Bild
+    sperreRef.current = Date.now();
     // genau den sichtbaren Ausschnitt (object-fit: cover) übernehmen
     const bw = k.clientWidth, bh = k.clientHeight, vw = v.videoWidth, vh = v.videoHeight;
     const s = Math.max(bw / vw, bh / vh);
@@ -113,21 +129,24 @@ export function BlattScanner({ offen, onSchliessen, onFoto, onKameraApp, onGaler
     const zielB = Math.min(1600, Math.round(sw)), zielH = Math.round(zielB * DIN);
     const c = document.createElement("canvas"); c.width = zielB; c.height = zielH;
     c.getContext("2d").drawImage(v, sx, sy, sw, sh, 0, 0, zielB, zielH);
-    fotoRef.current = c;
+    fotoRef.current = c; letztesRef.current = letztes;
     setBlitz(true); setTimeout(() => setBlitz(false), 180);
+    const pruefung = fotoPruefen(c);
+    if (serie && pruefung.probleme.length === 0) {
+      liefern(c, { weiter: !letztes });   // Kamera bleibt an – gleich die nächste Seite
+      return;
+    }
     setVorschau(c.toDataURL("image/jpeg", 0.85));
-    setErgebnis(fotoPruefen(c));
+    setErgebnis(pruefung);
     setZustand("pruefen");
     stoppen();
   };
 
   const verwenden = () => {
     const c = fotoRef.current; if (!c) return;
-    c.toBlob((b) => {
-      if (!b) return;
-      const datei = new File([b], `blatt-${Date.now()}.jpg`, { type: "image/jpeg" });
-      onFoto(datei);
-    }, "image/jpeg", 0.92);
+    if (!serie) { liefern(c); return; }
+    liefern(c, { weiter: !letztesRef.current });
+    if (!letztesRef.current) starten();
   };
 
   if (!offen) return null;
@@ -158,6 +177,14 @@ export function BlattScanner({ offen, onSchliessen, onFoto, onKameraApp, onGaler
           display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; -webkit-tap-highlight-color: transparent; transition: transform .12s ease; box-shadow: 0 4px 16px rgba(0,0,0,.35); }
         .bs-ausloeser span { width: 46px; height: 46px; border-radius: 999px; background: #FFFFFF; display: block; }
         .bs-ausloeser:active { transform: translateX(-50%) scale(.92); }
+        .bs-serie { position: absolute; left: 8px; right: 8px; bottom: 10px; display: flex; gap: 8px; justify-content: center; }
+        .bs-sk { height: 46px; border: none; border-radius: 999px; padding: 0 16px; display: inline-flex; align-items: center; gap: 8px; font-family: inherit; font-size: 14px; font-weight: 800; letter-spacing: -0.01em; cursor: pointer; white-space: nowrap;
+          box-shadow: 0 4px 16px rgba(0,0,0,.35); -webkit-tap-highlight-color: transparent; transition: transform .12s ease; }
+        .bs-sk:active { transform: scale(.95); }
+        .bs-sk-foto { background: linear-gradient(135deg, #F8D23A 0%, ${GOLD} 55%, #D9A600 100%); color: ${NACHT}; }
+        .bs-sk-foto i { width: 22px; height: 22px; border-radius: 999px; background: #FFFFFF; border: 3px solid ${NACHT}; box-sizing: border-box; flex: none; }
+        .bs-sk-letzt { background: rgba(255,255,255,.95); color: ${NACHT}; }
+        .bs-hinweis-serie { font-size: 12.5px; line-height: 1.5; color: ${C.grau}; margin: 4px 0 0; }
         .bs-blitz { position: absolute; inset: 0; background: #FFF; opacity: 0; transition: opacity .18s ease; pointer-events: none; }
         .bs-blitz[data-an="1"] { opacity: .85; transition: none; }
         .bs-zu { position: absolute; right: 10px; top: 10px; z-index: 2; width: 36px; height: 36px; border-radius: 999px; border: none; background: rgba(255,255,255,.92); color: ${NACHT}; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(0,0,0,.2); }
@@ -179,6 +206,8 @@ export function BlattScanner({ offen, onSchliessen, onFoto, onKameraApp, onGaler
           .bs-schritt b { width: 20px; height: 20px; font-size: 11px; }
           .bs-ausloeser { width: 56px; height: 56px; bottom: 10px; }
           .bs-ausloeser span { width: 40px; height: 40px; }
+          .bs-sk { height: 40px; padding: 0 12px; font-size: 13px; gap: 6px; }
+          .bs-sk-foto i { width: 18px; height: 18px; }
           .bs-knopf { height: 42px; font-size: 13.5px; padding: 0 12px; }
         }
         @media (prefers-reduced-motion: reduce) { .bs-huelle, .bs-fenster { animation: none; } }
@@ -191,11 +220,12 @@ export function BlattScanner({ offen, onSchliessen, onFoto, onKameraApp, onGaler
         <div className="bs-links">
           {zustand !== "pruefen" ? (
             <>
-              <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", color: C.see, marginBottom: 6 }}>Scan dein Blatt</p>
+              <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", color: C.see, marginBottom: 6 }}>{serie ? `Seite ${serie.seite} von ${serie.max}` : "Scan dein Blatt"}</p>
               <p style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1.15, color: C.tinte, marginBottom: 16 }}>Blatt in den Rahmen – fertig.</p>
               <div className="bs-schritt"><b>1</b><span>Blatt flach auf den Tisch, Handy <strong>gerade darüber</strong>.</span></div>
               <div className="bs-schritt"><b>2</b><span>Das Blatt füllt den <strong style={{ color: "#B48A00" }}>goldenen Rahmen</strong>.</span></div>
               <div className="bs-schritt"><b>3</b><span>Gutes Licht, kein Schatten – dann auslösen.</span></div>
+              {serie && <p className="bs-hinweis-serie"><strong>Foto</strong> springt gleich zur nächsten Seite, <strong>Letztes Foto</strong> beendet die Aufnahme.</p>}
               <div style={{ marginTop: "auto", paddingTop: 10 }}>
                 <button type="button" className="bs-link" onClick={onGalerie}>Foto aus der Galerie wählen</button>
               </div>
@@ -248,7 +278,12 @@ export function BlattScanner({ offen, onSchliessen, onFoto, onKameraApp, onGaler
             )}
             <div className="bs-ecken" data-ok={ok ? "1" : "0"} data-schlecht={schlecht ? "1" : "0"}><i /><i /><i /><i /></div>
             <span className="bs-din">DIN A4</span>
-            {zustand === "live" && <button type="button" className="bs-ausloeser" onClick={ausloesen} aria-label="Foto aufnehmen"><span /></button>}
+            {zustand === "live" && (serie ? (
+              <div className="bs-serie">
+                <button type="button" className="bs-sk bs-sk-foto" onClick={() => ausloesen(false)} data-foto-weiter aria-label={`Foto aufnehmen, danach Seite ${serie.seite + 1}`}><i />Foto</button>
+                <button type="button" className="bs-sk bs-sk-letzt" onClick={() => ausloesen(true)} data-foto-letztes aria-label="Letztes Foto aufnehmen und fertig">Letztes Foto</button>
+              </div>
+            ) : <button type="button" className="bs-ausloeser" onClick={() => ausloesen(false)} aria-label="Foto aufnehmen"><span /></button>)}
             <div className="bs-blitz" data-an={blitz ? "1" : "0"} />
           </div>
         </div>

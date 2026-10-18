@@ -324,7 +324,7 @@ function DesktopSystem({ gehe }) {
         Pen & Paper ist der Kurs dazu: ein Schritt pro Zeile, Gleichheitszeichen untereinander.
       </p>
       <p style={START_TEXT}>
-        Mathilda AI ist das Training dazu: Du fotografierst dein Blatt, Mathilda prüft die Rechnung und zeigt dir die Stelle, an der dein Weg bricht.
+        <MathildaName /> ist das Training dazu: Du fotografierst dein Blatt, Mathilda prüft die Rechnung und zeigt dir die Stelle, an der dein Weg bricht.
       </p>
       <p style={{ ...START_TEXT, color: C.tinte, fontWeight: 500, marginBottom: 0 }}>
         So entsteht ein Kreislauf: lernen, schreiben, prüfen lassen, verbessern. Aus einer Regel wird eine Gewohnheit – und aus der Gewohnheit Sicherheit in der Klausur.
