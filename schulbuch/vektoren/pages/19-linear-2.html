@@ -1,10 +1,10 @@
 <!-- kap: II -->
 <div class="kasten beispiel" style="margin-top:0">
   <div class="etikett">Beispiel 2 · Abhängigkeit mit dem Gauß-Verfahren prüfen</div>
-  <p style="text-align:left">Sind $\vec{a} = \begin{pmatrix} 1 \\ 2 \\ 1 \end{pmatrix}$, $\vec{b} = \begin{pmatrix} 2 \\ 1 \\ 0 \end{pmatrix}$, $\vec{c} = \begin{pmatrix} 1 \\ -1 \\ -1 \end{pmatrix}$ linear abhängig? Ansatz: $r\vec{a} + s\vec{b} + t\vec{c} = \vec{o}$.</p>
+  <p style="text-align:left">Sind $\vec{a} = \begin{pmatrix} 1 \\ 2 \\ 1 \end{pmatrix}$, $\vec{b} = \begin{pmatrix} 2 \\ 1 \\ 0 \end{pmatrix}$, $\vec{c} = \begin{pmatrix} 1 \\ -1 \\ -1 \end{pmatrix}$ linear abhängig? Ansatz: $r\vec{a} + s\vec{b} + t\vec{c} = \vec{0}$.</p>
   <div class="loesung"><span class="loesung-kopf">Lösung</span>
   $$\begin{array}{lrcl} \text{(I)} & r + 2s + t &=& 0 \\ \text{(II)} & 2r + s - t &=& 0 \\ \text{(III)} & r - t &=& 0 \end{array} \quad\longrightarrow\quad \begin{array}{lrcl} \text{(I)} & r + 2s + t &=& 0 \\ \text{(II)} - 2\cdot\text{(I)} & -3s - 3t &=& 0 \\ \text{(III)} - \text{(I)} & -2s - 2t &=& 0 \end{array}$$
-  <p style="text-align:left">Beide neuen Zeilen sagen $s = -t$: eine Nullzeile, ein Parameter bleibt frei. Mit $t = 1$ folgt $s = -1$, $r = 1$, also $\vec{a} - \vec{b} + \vec{c} = \vec{o}$: <b>linear abhängig</b>.</p></div>
+  <p style="text-align:left">Beide neuen Zeilen sagen $s = -t$: eine Nullzeile, ein Parameter bleibt frei. Mit $t = 1$ folgt $s = -1$, $r = 1$, also $\vec{a} - \vec{b} + \vec{c} = \vec{0}$: <b>linear abhängig</b>.</p></div>
 </div>
 
 <div class="kasten beispiel">
@@ -49,7 +49,7 @@
   <p>Bestimme die Koordinaten des Vektors mit den Einträgen $4$, $6$, $2$ bezüglich der Basis aus Beispiel 3. Begründe: Vier Vektoren im Raum sind immer linear abhängig.</p>
 </div></div>
 <!--rand-->
-<div class="notiz"><span class="t">Fahrplan · Abhängigkeit</span>① Ansatz $r\vec{a} + s\vec{b} + t\vec{c} = \vec{o}$<br>② LGS zeilenweise aufschreiben<br>③ Gauß-Verfahren (S. {{S:gauss-1}})<br>④ nur $0, 0, 0$? → unabhängig<br>Nullzeile? → abhängig</div>
+<div class="notiz"><span class="t">Fahrplan · Abhängigkeit</span>① Ansatz $r\vec{a} + s\vec{b} + t\vec{c} = \vec{0}$<br>② LGS zeilenweise aufschreiben<br>③ Gauß-Verfahren (S. {{S:gauss-1}})<br>④ nur $0, 0, 0$? → unabhängig<br>Nullzeile? → abhängig</div>
 
 <div class="notiz gold"><span class="t">Zu Aufgabe 4</span>Drei Punkte liegen auf einer Geraden, wenn $\overrightarrow{AB}$ und $\overrightarrow{AC}$ kollinear sind.</div>
 
