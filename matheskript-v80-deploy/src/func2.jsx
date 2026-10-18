@@ -28,6 +28,7 @@ import { BruchrechnenLogoKlein, DatenLogoKlein, GeometrieLogoKlein, GleichungenL
 import { MedaillenschrankLogo, BwmLogo, KarteLogo } from "./funcWettbewerbe.jsx";
 import { MasterclassKachel, MatheCheckenKachel, MathCreatorKachel } from "./funcMasterclass.jsx";
 import { ElternabendKachel } from "./funcElternabend.jsx";
+import { istFrei, entsperren, EVENT_FREI } from "./seitenKonstanten.js";
 import { EntdeckenLogoKlein } from "./funcEntdeckenLogo.jsx";
 import { SatzZeilen, saetze } from "./baseSatz.jsx";
 import { AufklappZeichen } from "./aufklappen.jsx";
@@ -355,22 +356,75 @@ const MYTHEN = [
   ["✎", "„Im Kopf rechnen ist besser als aufschreiben“", "Der Kopf hat wenig Arbeitsspeicher. Ein klarer Rechenweg auf dem Papier entlastet ihn, macht Fehler sichtbar und ist zugleich dein Beweis in der Klausur."],
 ];
 
+/* Passwort-Sperre „skript“: gilt für die ganze Browser-Sitzung (gemeinsam mit den Entwürfen) */
+function useFrei() {
+  const [frei, setFrei] = useState(istFrei);
+  useEffect(() => {
+    const h = () => setFrei(istFrei());
+    window.addEventListener(EVENT_FREI, h);
+    return () => window.removeEventListener(EVENT_FREI, h);
+  }, []);
+  return frei;
+}
+
+function SchlossZeichen({ groesse = 34 }) {
+  return (
+    <span aria-hidden="true" style={{ width: groesse, height: groesse, flexShrink: 0, borderRadius: 999, background: "rgba(255,255,255,0.92)", boxShadow: "0 3px 10px rgba(30,40,60,0.25)",
+      display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <svg viewBox="0 0 24 24" width={Math.round(groesse * 0.5)} height={Math.round(groesse * 0.5)} fill="none" stroke="#5E6878" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="5" y="11" width="14" height="10" rx="2.2" fill="#5E6878" />
+        <path d="M 8 11 V 7.5 a 4 4 0 0 1 8 0 V 11" />
+      </svg>
+    </span>
+  );
+}
+
+function PasswortFeld({ onFrei }) {
+  const [pw, setPw] = useState("");
+  const [fehler, setFehler] = useState(false);
+  const pruefen = async (e) => {
+    e.preventDefault();
+    if (await entsperren(pw)) onFrei(); else { setFehler(true); setPw(""); }
+  };
+  return (
+    <form onSubmit={pruefen} style={{ marginTop: 10, padding: "14px 16px", borderRadius: 16, background: C.weiss, border: `1px solid ${C.linie}`, boxShadow: "0 3px 16px rgba(15,26,51,0.07)" }}>
+      <p style={{ margin: "0 0 10px", fontSize: 13.5, fontWeight: 300, color: C.grau, lineHeight: 1.5 }}>Dieser Bereich ist noch nicht öffentlich. Bitte Passwort eingeben.</p>
+      <div style={{ display: "flex", gap: 8 }}>
+        <input type="password" value={pw} autoFocus autoComplete="off" aria-label="Passwort" placeholder="Passwort"
+          onChange={(e) => { setPw(e.target.value); setFehler(false); }}
+          style={{ flex: 1, minWidth: 0, boxSizing: "border-box", padding: "11px 14px", borderRadius: 10, fontSize: 16, fontFamily: "inherit", color: C.tinte,
+            border: `2px solid ${fehler ? "#E5484D" : C.linie}`, outline: "none", background: "#fff" }} />
+        <button type="submit" style={{ padding: "0 18px", borderRadius: 999, border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 14.5, fontWeight: 700,
+          color: C.seeTief, background: C.flaggold }}>Entsperren</button>
+      </div>
+      {fehler && <div role="alert" style={{ color: "#C8372D", fontSize: 13, marginTop: 8 }}>Das Passwort stimmt nicht.</div>}
+    </form>
+  );
+}
+
 function MythenMenue() {
+  const frei = useFrei();
   const [auf, setAuf] = useState(false);
   const [offen, setOffen] = useState(null);
+  const [fragen, setFragen] = useState(false);
+  const zu = !frei;
   return (
     <div style={{ margin: "22px 0 4px" }}>
-      <button type="button" onClick={() => { setAuf(!auf); if (auf) setOffen(null); }} aria-expanded={auf}
+      <button type="button" onClick={() => { if (zu) { setFragen(!fragen); return; } setAuf(!auf); if (auf) setOffen(null); }} aria-expanded={zu ? fragen : auf}
+        aria-label={zu ? "Die 7 Mathe-Mythen – noch gesperrt, Passwort nötig" : undefined}
         style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14, cursor: "pointer", fontFamily: "inherit", textAlign: "left",
-          padding: "16px 20px", borderRadius: 16, border: `3px solid ${C.see}`, color: C.weiss,
-          background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, boxShadow: "0 6px 20px rgba(0,77,152,0.22)" }}>
+          padding: "16px 20px", borderRadius: 16, border: zu ? "3px solid #9AA4B2" : `3px solid ${C.see}`, color: C.weiss,
+          background: zu ? "linear-gradient(155deg, #B9C2CE 0%, #8C97A6 55%, #6E7989 100%)" : `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, boxShadow: zu ? "0 4px 14px rgba(40,50,70,0.18)" : "0 6px 20px rgba(0,77,152,0.22)" }}>
         <span>
           <span style={{ display: "block", fontSize: 20, fontWeight: 700, letterSpacing: "-0.02em" }}>Die 7 Mathe-Mythen</span>
-          <span style={{ display: "block", fontSize: 13, fontWeight: 300, color: "#DCE5F4", marginTop: 4 }}>Sieben Sätze, die dich bremsen – und warum sie nicht stimmen.</span>
+          <span style={{ display: "block", fontSize: 13, fontWeight: 300, color: zu ? "rgba(255,255,255,0.92)" : "#DCE5F4", marginTop: 4 }}>Sieben Sätze, die dich bremsen – und warum sie nicht stimmen.</span>
         </span>
-        <span aria-hidden="true" style={{ width: 34, height: 34, flexShrink: 0, borderRadius: 999, background: C.flaggold, color: C.seeTief, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, fontWeight: 700, lineHeight: 1 }}>{auf ? "–" : "+"}</span>
+        {zu ? <SchlossZeichen /> : (
+          <span aria-hidden="true" style={{ width: 34, height: 34, flexShrink: 0, borderRadius: 999, background: C.flaggold, color: C.seeTief, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, fontWeight: 700, lineHeight: 1 }}>{auf ? "–" : "+"}</span>
+        )}
       </button>
-      {auf && (
+      {zu && fragen && <PasswortFeld onFrei={() => { setFragen(false); setAuf(true); }} />}
+      {!zu && auf && (
         <div style={{ marginTop: 10, borderRadius: 16, background: C.weiss, border: `1px solid ${C.linie}`, boxShadow: "0 3px 16px rgba(15,26,51,0.07)", overflow: "hidden" }}>
           {MYTHEN.map(([zeichen, titel, text], i) => {
             const o = offen === i;
@@ -1132,6 +1186,7 @@ function BereichsKopfLeiste({ rahmenRef, titel, onZu }) {
 
 export function Startseite({ gehe }) {
   const lernpfad = useLernpfad();
+  const elternabendFrei = useFrei();   // Elternabend-Kachel: Schloss, bis das Passwort „skript“ eingegeben ist
   const [wieder, setWieder] = useState(false);
   const [hinweis, setHinweis] = useState("");
   const [schulAuf, setSchulAuf] = useState(false);     // Dropdown „Schulmathe-Training“
@@ -1685,7 +1740,7 @@ export function Startseite({ gehe }) {
       </>)}
       {!desktop && entdeckenBlock}
       {/* Elternabend: immer sichtbar und offen */}
-      <ElternabendKachel onClick={() => gehe({ ansicht: "elternabend" })} />
+      <ElternabendKachel gesperrt={!elternabendFrei} onClick={() => gehe({ ansicht: "elternabend" })} />
       {ZEIGE_GESPERRTE && (<>
       <MatheCheckenKachel gesperrt onClick={() => gehe({ ansicht: "mathecheck" })} />
       <MasterclassKachel gesperrt onClick={() => gehe({ ansicht: "masterclass" })} />

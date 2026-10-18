@@ -19,20 +19,13 @@ import { AufklappZeichen } from "./aufklappen.jsx";
    ====================================================================== */
 
 export { ENTWUERFE, istEntwurf } from "./seitenKonstanten.js";
-import { istEntwurf } from "./seitenKonstanten.js";
+import { istEntwurf, istFrei, entsperren } from "./seitenKonstanten.js";
 
 /* ---------------------------------------------------------------- Passwort-Sperre
    Die Entwurfsseiten sind intern: Zugang nur mit Passwort (klein geschrieben).
    Im Code steht nur der SHA-256-Wert, nicht das Passwort selbst. Einmal
    entsperrt, bleibt der Zugang für diese Browser-Sitzung offen.
    Hinweis: Das ist eine Sperre im Browser, kein Server-Schutz. */
-const PW_HASH = "744ac4c7a298e917d88972fbbf5a9440cc04c24e24b63c62d292b1771ab69d7b";
-const FREI_KEY = "mm-entwurf-frei";
-const istFrei = () => { try { return sessionStorage.getItem(FREI_KEY) === PW_HASH; } catch (e) { return false; } };
-async function sha256(t) {
-  const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t));
-  return Array.from(new Uint8Array(b)).map((x) => x.toString(16).padStart(2, "0")).join("");
-}
 export function EntwurfTor({ children, gehe }) {
   const [frei, setFrei] = useState(istFrei);
   const [pw, setPw] = useState("");
@@ -40,9 +33,8 @@ export function EntwurfTor({ children, gehe }) {
   if (frei) return children;
   const pruefen = async (e) => {
     e.preventDefault();
-    let ok = false;
-    try { ok = (await sha256(pw.trim().toLowerCase())) === PW_HASH; } catch (err) { ok = false; }
-    if (ok) { try { sessionStorage.setItem(FREI_KEY, PW_HASH); } catch (err) { /* privat */ } setFrei(true); window.scrollTo(0, 0); }
+    const ok = await entsperren(pw);
+    if (ok) { setFrei(true); window.scrollTo(0, 0); }
     else { setFehler(true); setPw(""); }
   };
   return (

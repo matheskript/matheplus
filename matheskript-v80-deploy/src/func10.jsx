@@ -1062,7 +1062,7 @@ export function Mathilda() {
           <LandeswettbewerbSeite land={landWahl} gehe={gehe} />
         </>
       ) : ansicht === "elternabend" ? (
-        <ElternabendSeite gebucht={ticketGebucht} />
+        <EntwurfTor gehe={gehe}><ElternabendSeite gebucht={ticketGebucht} /></EntwurfTor>
       ) : ansicht === "challenge" ? (
         <>
           <SeitenKopf titel="Klassen-Challenge" groesse="clamp(26px, 7.6vw, 31px)" rund>
