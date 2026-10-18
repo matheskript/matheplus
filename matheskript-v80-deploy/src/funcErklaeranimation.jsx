@@ -578,6 +578,9 @@ function integralZeichne(t) {
   );
 }
 
+/* Für weitere Szenen in anderen Dateien (Kopfrechnen: funcKopfVideo.jsx) */
+export { Player, lauf, T };
+
 /* ---------- Szenen-Auswahl ---------- */
 const INFO = {
   produkt: { titel: "Produktregel am Rechteck", unter: "Warum beim Ableiten zwei Streifen entstehen" },

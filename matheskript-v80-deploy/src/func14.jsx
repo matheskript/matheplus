@@ -17,6 +17,7 @@ import { GesperrteKurse } from "./func1.jsx";
 import { Primfaktoren, merken } from "./func5.jsx";
 import { SchriftlichPlusMinus, SchriftlicheDivision } from "./funcSchriftlich.jsx";
 import { ErklaerAnimation } from "./funcErklaeranimation.jsx";
+import { wegPrimzahl } from "./kopfWeg.js";
 
 const zufall = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
 const HOCH = { 2: "²", 3: "³" };
@@ -817,80 +818,118 @@ function Multiplizieren() {
   );
 }
 
+/* ---------- Primzahlen-Trainer: zehn Zahlen, prim oder nicht prim, mit Lösungsweg ---------- */
+const PRIMEN_BIS_200 = Array.from({ length: 199 }, (_, k) => k + 2).filter((n) => wegPrimzahl(n).prim);
+const TRICK_ZAHLEN = Array.from({ length: 199 }, (_, k) => k + 2).filter((n) => n > 20 && n % 2 && n % 5 && !wegPrimzahl(n).prim);
+const ziehe = (liste) => liste[Math.floor(Math.random() * liste.length)];
+const neueZahl = () => (Math.random() < 0.5 ? ziehe(PRIMEN_BIS_200.filter((p) => p > 10)) : Math.random() < 0.7 ? ziehe(TRICK_ZAHLEN) : 2 + Math.floor(Math.random() * 98));
+
+export function PrimzahlTrainer() {
+  const [n, setN] = useState(neueZahl);
+  const [nr, setNr] = useState(1);
+  const [antwort, setAntwort] = useState(null);   // true = „prim“ gewählt
+  const [richtig, setRichtig] = useState(0);
+  const [fertig, setFertig] = useState(false);
+  const weg = wegPrimzahl(n);
+  const gewertet = antwort !== null;
+  const stimmt = gewertet && antwort === weg.prim;
+  const waehle = (a) => { if (gewertet) return; setAntwort(a); if (a === weg.prim) setRichtig((r) => r + 1); };
+  const weiter = () => { if (nr >= 10) { setFertig(true); return; } setNr((x) => x + 1); setN(neueZahl()); setAntwort(null); };
+  const neu = () => { setNr(1); setRichtig(0); setFertig(false); setAntwort(null); setN(neueZahl()); };
+  const knopf = (a, text) => {
+    const gewaehlt = gewertet && antwort === a;
+    const korrekt = gewertet && weg.prim === a;
+    return (
+      <button type="button" onClick={() => waehle(a)} disabled={gewertet}
+        style={{ minHeight: 56, borderRadius: 14, fontFamily: "inherit", fontSize: 16, fontWeight: 800, cursor: gewertet ? "default" : "pointer",
+          border: `2px solid ${korrekt ? C.smaragd : gewaehlt ? C.signal : C.linie}`, background: korrekt ? "#E7F4EC" : gewaehlt ? "#FBEBE3" : C.weiss, color: C.see }}>{text}</button>
+    );
+  };
+  if (fertig) {
+    return (
+      <div style={{ background: C.weiss, borderRadius: 18, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", padding: 20, textAlign: "center" }}>
+        <p style={{ fontSize: 34, fontWeight: 800, color: C.see, margin: "0 0 4px" }}>{richtig} / 10</p>
+        <p style={{ color: C.grau, fontSize: 15, margin: "0 0 16px" }}>{richtig === 10 ? "Alle richtig – stark!" : richtig >= 7 ? "Gut gemacht." : "Schau dir die Anleitung unter Entdecken noch einmal an."}</p>
+        <button type="button" onClick={neu} style={{ minHeight: 52, padding: "12px 24px", borderRadius: 14, border: "none", background: C.see, color: C.weiss, fontFamily: "inherit", fontSize: 15.5, fontWeight: 700, cursor: "pointer" }}>Noch eine Runde</button>
+      </div>
+    );
+  }
+  return (
+    <div data-primzahl-trainer style={{ background: C.weiss, borderRadius: 18, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", padding: 18 }}>
+      <p style={{ fontSize: 12.5, fontWeight: 700, color: C.grau, margin: "0 0 6px" }}>Aufgabe {nr} von 10 · richtig: {richtig}</p>
+      <p style={{ fontSize: 15, color: C.grau, margin: "0 0 4px" }}>Ist die Zahl eine Primzahl?</p>
+      <p style={{ fontSize: 52, fontWeight: 800, color: C.tinte, lineHeight: 1.1, margin: "0 0 14px", textAlign: "center" }}>{n}</p>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>{knopf(true, "Primzahl")}{knopf(false, "Keine Primzahl")}</div>
+      {gewertet && (
+        <div role="status" style={{ marginTop: 14 }}>
+          <p style={{ fontSize: 15.5, fontWeight: 800, color: stimmt ? C.smaragd : C.signal, margin: "0 0 6px" }}>{stimmt ? "Richtig." : "Nicht ganz."}</p>
+          <div style={{ display: "grid", gap: 6, marginBottom: 12 }}>
+            {weg.schritte.map((st, k) => <p key={k} style={{ fontSize: 14, color: C.tinte, lineHeight: 1.55, margin: 0 }}>{st.text}</p>)}
+          </div>
+          <p style={{ fontSize: 15, fontWeight: 800, color: C.seeTief, margin: "0 0 12px" }}>{weg.ergebnis}</p>
+          <button type="button" onClick={weiter} style={{ width: "100%", minHeight: 52, borderRadius: 14, border: "none", background: C.see, color: C.weiss, fontFamily: "inherit", fontSize: 15.5, fontWeight: 700, cursor: "pointer" }}>{nr >= 10 ? "Ergebnis ansehen" : "Weiter"}</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ---------- Übersicht ---------- */
 
-/* Verbindliche Anordnung (Wunsch vom 04.10.2026, 14:58 – ersetzt Punkt 15 des Entwicklungsbriefs):
-   Reihe 1: Plus & Minus | Multiplizieren · Reihe 2: Primfaktoren | Quadrate, Kuben & Wurzeln ·
-   Reihe 3: Schriftlich Teilen | Buchrechnung.
-   „Buchrechnung" ist die wörtliche Bezeichnung aus dem Auftrag und öffnet vorerst den Bruchrechen-Trainer. */
+/* Anordnung (Wunsch vom 18.10.2026): Plus und Minus | Multiplizieren · Quadrate und Wurzeln | Primzahlen ·
+   Primfaktoren | Schriftlich teilen · Bruchrechnung. Kuben stehen im Text unter „Quadrate und Wurzeln“. */
 export const TRAINER = [
-  { id: "plusminus", titel: "Schriftlich Plus & Minus", kurzTitel: "Plus & Minus", slogan: "Untereinander rechnen wie im Heft – mit Übertrag.", zeichen: "+ −" },
-  { id: "multiplizieren", titel: "Multiplizieren", slogan: "Vom kleinen Einmaleins bis zu vierstelligen Zahlen.", zeichen: "7·8" },
-  { id: "primfaktoren", titel: "Primfaktorzerlegung", kurzTitel: "Primfaktoren", slogan: "Primzahlen erkennen und Zahlen zerlegen.", zeichen: "2·3·7" },
-  { id: "potenzen", titel: "Quadrate, Kuben & Wurzeln", slogan: "Quadrat-, Kubikzahlen und Wurzeln blitzschnell abrufen.", zeichen: "12²" },
-  { id: "division", titel: "Schriftlich Teilen", slogan: "Schritt für Schritt teilen – mit oder ohne Rest.", zeichen: "÷" },
-  { id: "bruchrechnen", titel: "Buchrechnung", slogan: "Kürzen, plus, minus, mal, geteilt – mit Lösungsweg.", zeichen: "¾" },
+  { id: "plusminus", titel: "Schriftlich Plus & Minus", kurzTitel: "Plus und Minus", slogan: "Schriftlich, mit Übertrag.", zeichen: "+ −" },
+  { id: "multiplizieren", titel: "Multiplizieren", slogan: "Vom Einmaleins bis vierstellig.", zeichen: "7·8" },
+  { id: "potenzen", titel: "Quadrate und Wurzeln", slogan: "Quadrate, Wurzeln – und Kuben.", zeichen: "12²" },
+  { id: "primzahlen", titel: "Primzahlen", slogan: "Prim oder nicht prim?", zeichen: "13" },
+  { id: "primfaktoren", titel: "Primfaktoren", slogan: "Zahlen in Primfaktoren zerlegen.", zeichen: "2·3·7" },
+  { id: "division", titel: "Schriftlich teilen", slogan: "Ziffer für Ziffer, mit Rest.", zeichen: "÷" },
+  { id: "bruchrechnen", titel: "Bruchrechnung", slogan: "Kürzen, plus, minus, mal, geteilt – mit Lösungsweg.", zeichen: "¾" },
 ];
-const KOPF_REIHEN = [["plusminus", "multiplizieren"], ["primfaktoren", "potenzen"], ["division", "bruchrechnen"]];
+const KOPF_REIHEN = [["plusminus", "multiplizieren"], ["potenzen", "primzahlen"], ["primfaktoren", "division"], ["bruchrechnen"]];
 /* Alte Kennungen (Links, Sprachwechsel) weiterhin öffnen */
 const KOPF_ALT = { plus: "plusminus", minus: "plusminus", quadrate: "potenzen", kuben: "potenzen", wurzeln: "potenzen", einmaleins: "multiplizieren" };
 
-
-/* Verspielte Farben je Trainer */
-/* Kurze Texte für die kleinen Kacheln */
-const KACHEL_TEXT = {
-  plusminus: ["Plus & Minus", "Schriftlich, mit Übertrag."],
-  potenzen: ["Quadrate, Kuben & Wurzeln", "Potenzen und Wurzeln."],
-};
-
 const KOPF_LOOK = {
-  plusminus: { bg: "linear-gradient(150deg, #7CC8FF 0%, #1D6FD6 100%)", schatten: "rgba(29,111,214,0.32)", akzent: "#14529E", text: "#FFFFFF", r: -6 },
-  minus: { bg: "linear-gradient(150deg, #8FD8FF 0%, #0E86B8 100%)", schatten: "rgba(14,134,184,0.32)", akzent: "#0A5F84", text: "#FFFFFF", r: 6 },
-  multiplizieren: { bg: "linear-gradient(150deg, #FFE070 0%, #F59E0B 100%)", schatten: "rgba(245,158,11,0.35)", akzent: "#A15C00", text: "#3A2200", r: 8 },
-  primfaktoren: { bg: "linear-gradient(150deg, #FFE08A 0%, #EDBB00 100%)", schatten: "rgba(237,187,0,0.32)", akzent: "#8A6500", text: "#FFFFFF", r: -7 },
-  potenzen: { bg: "linear-gradient(150deg, #B79CFF 0%, #6D28D9 100%)", schatten: "rgba(109,40,217,0.32)", akzent: "#5B21B6", text: "#FFFFFF", r: 6 },
-  kuben: { bg: "linear-gradient(150deg, #C9B2FF 0%, #7C3AED 100%)", schatten: "rgba(124,58,237,0.32)", akzent: "#5B21B6", text: "#FFFFFF", r: -5 },
-  wurzeln: { bg: "linear-gradient(150deg, #A58BFF 0%, #4C1D95 100%)", schatten: "rgba(76,29,149,0.32)", akzent: "#4C1D95", text: "#FFFFFF", r: 5 },
-  division: { bg: "linear-gradient(150deg, #F5D36B 0%, #C99A00 100%)", schatten: "rgba(201,154,0,0.32)", akzent: "#7A5800", text: "#FFFFFF", r: 7 },
-  bruchrechnen: { bg: "linear-gradient(150deg, #4FE0CB 0%, #0F8A7E 100%)", schatten: "rgba(15,138,126,0.32)", akzent: "#0B6A61", text: "#FFFFFF", r: -5 },
+  plusminus: { bg: "linear-gradient(150deg, #7CC8FF 0%, #1D6FD6 100%)", schatten: "rgba(29,111,214,0.28)", akzent: "#14529E", text: "#FFFFFF", r: -6 },
+  multiplizieren: { bg: "linear-gradient(150deg, #FFE070 0%, #F59E0B 100%)", schatten: "rgba(245,158,11,0.30)", akzent: "#A15C00", text: "#3A2200", r: 8 },
+  potenzen: { bg: "linear-gradient(150deg, #B79CFF 0%, #6D28D9 100%)", schatten: "rgba(109,40,217,0.28)", akzent: "#5B21B6", text: "#FFFFFF", r: 6 },
+  primzahlen: { bg: "linear-gradient(150deg, #FF9F8E 0%, #D93A5E 100%)", schatten: "rgba(217,58,94,0.28)", akzent: "#A5223F", text: "#FFFFFF", r: -6 },
+  primfaktoren: { bg: "linear-gradient(150deg, #FFE08A 0%, #EDBB00 100%)", schatten: "rgba(237,187,0,0.28)", akzent: "#8A6500", text: "#3A2900", r: -7 },
+  division: { bg: "linear-gradient(150deg, #F5D36B 0%, #C99A00 100%)", schatten: "rgba(201,154,0,0.28)", akzent: "#7A5800", text: "#FFFFFF", r: 7 },
+  bruchrechnen: { bg: "linear-gradient(150deg, #4FE0CB 0%, #0F8A7E 100%)", schatten: "rgba(15,138,126,0.28)", akzent: "#0B6A61", text: "#FFFFFF", r: -5 },
 };
 
-/* Kompakte, bunte Trainer-Kacheln im 2er-Raster — für die Startseite und die Kopfrechen-Übersicht */
+/* Kompakte, bunte Trainer-Kacheln im 2er-Raster. Titel immer einzeilig (schrumpft mit der Kachelbreite),
+   Symbol unten rechts in der Ecke, Slogan links daneben. */
 export function KopfKacheln({ onWaehle }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-      <style>{`.kopf-kachel{transition:transform .16s cubic-bezier(.2,.7,.3,1), box-shadow .16s ease}
-        .kopf-kachel:active{transform:scale(0.96)}
+      <style>{`.kopf-kachel{container-type:inline-size;transition:transform .16s cubic-bezier(.2,.7,.3,1), box-shadow .16s ease}
+        .kopf-kachel:active{transform:scale(0.97)}
+        .kopf-titel{font-size:clamp(10px, 8.3cqw, 17px)}
         .kopf-karte{transition:transform .25s cubic-bezier(.3,1.6,.5,1)}
-        @media (hover:hover){.kopf-kachel:hover{transform:translateY(-3px) rotate(-0.6deg)}
-          .kopf-kachel:hover .kopf-karte{transform:rotate(0deg) scale(1.12)!important}}
-        .kopf-kachel:active .kopf-karte{transform:rotate(0deg) scale(1.12)!important}
-        @media (max-width:420px){.kopf-slogan-schmal{display:none!important}}`}</style>
+        @media (hover:hover){.kopf-kachel:hover{transform:translateY(-2px)}
+          .kopf-kachel:hover .kopf-karte{transform:rotate(0deg) scale(1.1)!important}}
+        .kopf-kachel:active .kopf-karte{transform:rotate(0deg) scale(1.1)!important}`}</style>
       {KOPF_REIHEN.map((reihe) => (
       <div key={reihe.join("-")} className="kopf-reihe" style={{ display: "grid", gridTemplateColumns: `repeat(${reihe.length}, minmax(0, 1fr))`, gap: 10 }}>
       {reihe.map((id) => TRAINER.find((x) => x.id === id)).map((t) => {
         const f = KOPF_LOOK[t.id] || KOPF_LOOK.multiplizieren;
-        const [kTitel, kText] = KACHEL_TEXT[t.id] || [t.kurzTitel || t.titel, t.slogan];
-        const schmal = reihe.length >= 3;
         return (
           <button key={t.id} type="button" onClick={() => onWaehle(t.id)} aria-label={`${t.titel} öffnen`} className="kopf-kachel"
-            style={{ position: "relative", minHeight: 88, borderRadius: 20, border: "none", padding: schmal ? "10px 9px 11px" : "10px 10px 11px 12px", overflow: "hidden",
+            style={{ position: "relative", minHeight: 96, borderRadius: 20, border: "none", padding: "13px 12px 12px", overflow: "hidden",
               background: f.bg, color: f.text, textAlign: "left", cursor: "pointer", fontFamily: "inherit",
-              boxShadow: `0 6px 18px ${f.schatten}, inset 0 0 0 1px rgba(255,255,255,0.25)`, display: "flex", flexDirection: "column", justifyContent: "flex-start", gap: 5 }}>
-            <span aria-hidden="true" style={{ position: "absolute", width: 90, height: 90, borderRadius: 999, right: -28, bottom: -38, background: "rgba(255,255,255,0.16)" }} />
-            <span aria-hidden="true" style={{ position: "absolute", width: 34, height: 34, borderRadius: 999, left: -10, top: -12, background: "rgba(255,255,255,0.14)" }} />
-            <span style={{ position: "relative", display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 6 }}>
-              <span style={{ display: "block", flex: 1, minWidth: 0, fontSize: schmal ? "clamp(11px, 3.15vw, 16px)" : "clamp(13.5px, 3.9vw, 16px)", fontWeight: 800, lineHeight: 1.15, letterSpacing: "-0.01em",
-                paddingTop: 3, overflowWrap: "break-word" }}>{kTitel}</span>
-              <span aria-hidden="true" className="kopf-karte"
-                style={{ flexShrink: 0, padding: "3px 8px", borderRadius: 10, background: "rgba(255,255,255,0.95)",
-                  color: f.akzent, fontSize: t.zeichen.length > 4 ? 13 : 16, fontWeight: 800, boxShadow: "0 3px 8px rgba(0,0,0,0.15)",
-                  transform: `rotate(${f.r}deg)`, whiteSpace: "nowrap" }}>
-                {t.zeichen}
-              </span>
+              boxShadow: `0 3px 10px ${f.schatten}, inset 0 0 0 1px rgba(255,255,255,0.25)`, display: "block" }}>
+            <span className="kopf-titel" style={{ display: "block", whiteSpace: "nowrap", fontWeight: 800, lineHeight: 1.2, letterSpacing: "-0.01em" }}>{t.kurzTitel || t.titel}</span>
+            <span style={{ display: "block", marginTop: 5, maxWidth: reihe.length === 1 ? "72%" : "68%", fontSize: 11.5, fontWeight: 500, lineHeight: 1.3, opacity: 0.92 }}>{t.slogan}</span>
+            <span aria-hidden="true" className="kopf-karte"
+              style={{ position: "absolute", right: 10, bottom: 10, padding: "3px 8px", borderRadius: 10, background: "rgba(255,255,255,0.95)",
+                color: f.akzent, fontSize: t.zeichen.length > 4 ? 13 : 16, fontWeight: 800, boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+                transform: `rotate(${f.r}deg)`, whiteSpace: "nowrap" }}>
+              {t.zeichen}
             </span>
-            <span style={{ position: "relative", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden",
-              fontSize: 11.5, fontWeight: 500, lineHeight: 1.3, opacity: 0.92 }} className={schmal ? "kopf-slogan-schmal" : undefined}>{kText}</span>
           </button>
         );
       })}
@@ -938,7 +977,8 @@ export function KopfrechenZentrum({ start = null, gehe = null, eingebettet = fal
         ← Kopfrechnen
       </button>
       <h2 style={{ fontSize: 25, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 14 }}>{t.titel}</h2>
-      {t.id === "primfaktoren" ? <Primfaktoren />
+      {t.id === "primzahlen" ? <PrimzahlTrainer />
+        : t.id === "primfaktoren" ? <Primfaktoren />
         : t.id === "potenzen" ? <QuadratKubik />
         : t.id === "bruchrechnen" ? <Bruchrechnen />
         : t.id === "plusminus" ? <SchriftlichPlusMinus Zahlenfeld={Zahlenfeld} />

@@ -113,11 +113,12 @@ export const FS_ZUSATZ_ZIELE = {
   kopf: { name: "Kopfrechnen", zeile: "Trainer für Rechentricks, Teilbarkeit und Brüche", ziel: { ansicht: "kopf" } },
   /* einzelne Kopfrechen-Trainer (Kennungen aus TRAINER in func14.jsx) */
   "kopf-mult": { name: "Multiplizieren", zeile: "Kopfrechnen: vom Einmaleins bis zu vierstelligen Zahlen", ziel: { ansicht: "kopf", trainer: "multiplizieren" } },
-  "kopf-plusminus": { name: "Schriftlich Plus & Minus", zeile: "Kopfrechnen: untereinander rechnen mit Übertrag", ziel: { ansicht: "kopf", trainer: "plusminus" } },
-  "kopf-prim": { name: "Primfaktorzerlegung", zeile: "Kopfrechnen: Primzahlen erkennen und Zahlen zerlegen", ziel: { ansicht: "kopf", trainer: "primfaktoren" } },
-  "kopf-potenzen": { name: "Quadrate, Kuben & Wurzeln", zeile: "Kopfrechnen: Quadrat-, Kubikzahlen und Wurzeln abrufen", ziel: { ansicht: "kopf", trainer: "potenzen" } },
-  "kopf-division": { name: "Schriftlich Teilen", zeile: "Kopfrechnen: Schritt für Schritt teilen", ziel: { ansicht: "kopf", trainer: "division" } },
-  "kopf-brueche": { name: "Bruchrechnen", zeile: "Kopfrechnen: kürzen, plus, minus, mal, geteilt – mit Lösungsweg", ziel: { ansicht: "kopf", trainer: "bruchrechnen" } },
+  "kopf-plusminus": { name: "Plus und Minus", zeile: "Kopfrechnen: untereinander rechnen mit Übertrag", ziel: { ansicht: "kopf", trainer: "plusminus" } },
+  "kopf-prim": { name: "Primfaktoren", zeile: "Kopfrechnen: Zahlen in Primfaktoren zerlegen", ziel: { ansicht: "kopf", trainer: "primfaktoren" } },
+  "kopf-primzahlen": { name: "Primzahlen", zeile: "Kopfrechnen: Primzahlen erkennen", ziel: { ansicht: "kopf", trainer: "primzahlen" } },
+  "kopf-potenzen": { name: "Quadrate und Wurzeln", zeile: "Kopfrechnen: Quadrate, Wurzeln und Kuben abrufen", ziel: { ansicht: "kopf", trainer: "potenzen" } },
+  "kopf-division": { name: "Schriftlich teilen", zeile: "Kopfrechnen: Schritt für Schritt teilen", ziel: { ansicht: "kopf", trainer: "division" } },
+  "kopf-brueche": { name: "Bruchrechnung", zeile: "Kopfrechnen: kürzen, plus, minus, mal, geteilt – mit Lösungsweg", ziel: { ansicht: "kopf", trainer: "bruchrechnen" } },
 };
 
 /* Suche über Name, Kurztext, Gruppe und Formel – Name zählt am meisten */

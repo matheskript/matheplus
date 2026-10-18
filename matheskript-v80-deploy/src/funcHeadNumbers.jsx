@@ -4,6 +4,8 @@ import { englisch } from "./i18n.js";
 import { EinmaleinsSchachbrett, KopfKacheln, PotenzSpalten } from "./func14.jsx";
 import { ALLE_ITEMS, ITEMS, ITEM_INFO, MODULE, STUFEN, baueRunde, empfehlung, fehlerName, gesamtUebersicht, itemText, modulUebersicht, musterAufgabe, schwacheGrundlagen, status, stufenStand } from "./headNumbers.js";
 import { L, karte, NAVY, FEHLER_TIPP, useKopf, modulInfo, stufeInfo, RICHTUNG_NAME, Kicker, H2, Absatz, Zurueck, Knopf, StandBalken, Legende } from "./funcHeadNumbersBasis.jsx";
+import { Aufklapp, ModusLeiste } from "./ui3.jsx";
+import { KopfEntdecken, KopfRechnen } from "./funcKopfModi.jsx";
 import { Runde } from "./funcHeadNumbersRunde.jsx";
 import { Memory, Zuordnung } from "./funcHeadNumbersSpiele.jsx";
 import { MusterCheck, Verstehen } from "./funcHeadNumbersVerstehen.jsx";
@@ -192,18 +194,34 @@ function StartSeite({ onWaehle, onStart, gehe }) {
   const jetzt = Date.now();
   const g = gesamtUebersicht(K, jetzt);
   const hinweis = schwacheGrundlagen(K);
+  const [modus, setModus] = useState("training");
+  const [thema, setThema] = useState(null);
+  const [rechenThema, setRechenThema] = useState("plusminus");
   const faelligGesamt = g.faellig + g.unsicher;
   return (
     <div>
-      <section style={{ ...karte, padding: 22, marginBottom: 18 }}>
+      <section style={{ ...karte, padding: 16, marginBottom: 14 }}>
         <Kicker>{L("Zu diesem Kurs", "About this course")}</Kicker>
-        <H2>{L("Kopfrechnen: eine Grundlage, die einfach sitzen sollte", "Mental arithmetic: a foundation that should simply be there")}</H2>
+        <H2 style={{ fontSize: 20, marginBottom: 8 }}>{L("Kopfrechnen: eine Grundlage, die einfach sitzen sollte", "Mental arithmetic: a foundation that should simply be there")}</H2>
+        <Aufklapp titel={L("Warum Kopfrechnen?", "Why mental arithmetic?")}>
         <Absatz>{L("Kopfrechnen ist eine wichtige Grundlage in der Mathematik. Es sollte einfach verfügbar und gut trainiert sein, damit es dir keine Schwierigkeiten macht, wenn es in einer Aufgabe darauf ankommt.", "Mental arithmetic is an important foundation in mathematics. It should be readily available and well practised, so that it causes you no trouble when it matters in a problem.")}</Absatz>
         <Absatz>{L("Gleichzeitig ist es eine ganz eigene Aufgabe – sehr getrennt von den wirklichen Fähigkeiten in der Mathematik, mit denen es häufig verwechselt wird. Wir wollen es deshalb als zusätzliche Fähigkeit beherrschen.", "At the same time it is a task of its own – very separate from the real skills in mathematics, with which it is often confused. So we want to master it as an additional skill.")}</Absatz>
         <div style={{ background: "#FFF8DC", borderLeft: `4px solid ${C.flaggold}`, borderRadius: "4px 14px 14px 4px", padding: "14px 16px", marginBottom: 14 }}>
           <p style={{ fontSize: 15, color: C.tinte, lineHeight: 1.75, fontWeight: 400 }}>{L("Stell dir einen Koch vor: Er sollte auch seine Küche sauber halten können. Das hat mit Kochen direkt nichts zu tun – und ist trotzdem eine wichtige Fähigkeit, um eine Küche sauber führen zu können.", "Picture a cook: they should also be able to keep their kitchen clean. That has nothing directly to do with cooking – and yet it is an important skill for running a kitchen cleanly.")}</p>
         </div>
         <Absatz style={{ marginBottom: 0 }}>{L("Genau dafür ist Kopfrechnen da: Einmaleins, Quadratzahlen und Kubikzahlen einmal sauber trainieren – spielerisch, mit Verständnis und ohne Zeitdruck.", "That is exactly what Mental Math is for: practise the times tables, square numbers and cube numbers properly once – playfully, with understanding and without time pressure.")}</Absatz>
+        </Aufklapp>
+      </section>
+
+      <ModusLeiste label={L("Kopfrechnen", "Mental arithmetic")} modi={[["entdecken", L("Entdecken", "Explore")], ["rechnen", L("Rechnen", "Calculate")], ["training", L("Training", "Training")]]} modus={modus} setModus={(m) => { setModus(m); try { window.scrollTo(0, 0); } catch (e) { /* egal */ } }} />
+      <div style={{ height: 16 }} />
+
+      {modus === "entdecken" && <KopfEntdecken thema={thema} setThema={setThema} onRechnen={(id) => { setRechenThema(id); setModus("rechnen"); }} onTraining={(id) => gehe && gehe({ ansicht: "kopf", trainer: id })} />}
+      {modus === "rechnen" && <KopfRechnen key={rechenThema} thema={rechenThema} setThema={setRechenThema} />}
+      {modus === "training" && (
+        <>
+      <section data-kopf-trainer style={{ marginBottom: 18 }}>
+        <KopfKacheln onWaehle={(id) => gehe && gehe({ ansicht: "kopf", trainer: id })} />
       </section>
 
       {faelligGesamt > 0 && (
@@ -237,11 +255,7 @@ function StartSeite({ onWaehle, onStart, gehe }) {
         })}
       </div>
 
-      <section data-kopf-trainer style={{ marginBottom: 20 }}>
-        <Kicker>{L("Weitere Trainer: schriftlich rechnen, zerlegen, Brüche", "More trainers: written arithmetic, factorising, fractions")}</Kicker>
-        <p style={{ fontSize: 13.5, color: C.grau, fontWeight: 300, lineHeight: 1.55, margin: "0 2px 12px" }}>{L("Schnelle Runden mit zehn Aufgaben, Serie und Bestwert – früher unter „Kopfrechnen“ auf der Startseite.", "Quick rounds of ten problems with streak and best score – formerly under “Mental arithmetic” on the start page.")}</p>
-        <KopfKacheln onWaehle={(id) => gehe && gehe({ ansicht: "kopf", trainer: id })} />
-      </section>
+
 
       <section style={{ ...karte, padding: 18, marginBottom: 18 }}>
         <Kicker>{L("So lernst du hier", "How you learn here")}</Kicker>
@@ -281,6 +295,8 @@ function StartSeite({ onWaehle, onStart, gehe }) {
         <p style={{ fontSize: 14.5, color: C.tinte, lineHeight: 1.65, marginBottom: 12 }}>{L("Kopfrechnen trainiert den sicheren Abruf von Zahlen im Kopf. Pen & Paper trainiert die saubere schriftliche Darstellung deiner Lösungswege. Beide ergänzen sich.", "Mental Math trains secure recall of numbers in your head. Pen & Paper trains the clean written presentation of your solution paths. They complement each other.")}</p>
         <Knopf haupt={false} onClick={() => gehe({ ansicht: "penpaperkurs" })}>{L("Zum Pen-&-Paper-Kurs", "To the Pen & Paper course")}</Knopf>
       </section>
+        </>
+      )}
     </div>
   );
 }
@@ -310,7 +326,7 @@ export function HeadNumbersSeite({ gehe, start = null, unten = null }) {
     return zu({ typ: "runde", modul: cfg.modul, stufe: cfg.stufe, aufgaben, cfg });
   };
 
-  const wrap = (kinder) => <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 18 }}>{kinder}</div>;
+  const wrap = (kinder) => <div className="mx-auto px-4 pb-16" style={{ maxWidth: 620, paddingTop: 18 }}>{kinder}</div>;
 
   if (ansicht.typ === "start") return <>{wrap(<StartSeite onWaehle={bereich} onStart={starten} gehe={gehe} />)}{unten}</>;
   if (ansicht.typ === "bereich") return wrap(<BereichSeite modul={ansicht.modul} onZurueck={() => zu({ typ: "start" })} onStart={starten} gehe={gehe} />);
