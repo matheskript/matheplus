@@ -1,0 +1,69 @@
+<!-- kap: IV | uk: Das Kreuzprodukt -->
+<div class="ukap-titel"><span class="nr">{{K:kreuz-1}}</span><h2>Das Kreuzprodukt</h2></div>
+<p class="leitfrage">Wie findet man einen Vektor, der auf zwei Vektoren zugleich senkrecht steht?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <p style="text-align:left">Gegeben sind $\vec{a} = \begin{pmatrix} 1 \\ 2 \\ -1 \end{pmatrix}$ und $\vec{b} = \begin{pmatrix} 2 \\ 0 \\ 1 \end{pmatrix}$. Gesucht ist ein Vektor $\vec{n} \neq \vec{0}$, der zu $\vec{a}$ <b>und</b> zu $\vec{b}$ orthogonal ist.<br><b>a)</b> Stelle mit dem Skalarprodukt zwei Gleichungen für $n_1, n_2, n_3$ auf.<br><b>b)</b> Warum gibt es unendlich viele Lösungen? <b>c)</b> Setze $n_3 = -4$ und berechne $n_1$ und $n_2$.</p>
+</div>
+
+<p>Die beiden Bedingungen $\vec{a} \cdot \vec{n} = 0$ und $\vec{b} \cdot \vec{n} = 0$ bilden ein LGS mit <b>zwei</b> Gleichungen und <b>drei</b> Unbekannten. Mit jedem Vektor $\vec{n}$ ist auch jedes Vielfache eine Lösung (Kapitel {{K:loesungsmengen-1}}). Wir lösen das LGS einmal allgemein – dann haben wir eine Formel für alle Fälle.</p>
+
+<h3>Herleitung</h3>
+<div class="zwei" style="grid-template-columns:auto 1fr;gap:6mm;align-items:center">
+  <div>$$\begin{array}{rrcl} \text{(I)} & a_1n_1 + a_2n_2 + a_3n_3 &=& 0 \\ \text{(II)} & b_1n_1 + b_2n_2 + b_3n_3 &=& 0 \end{array}$$</div>
+  <p style="margin:0">Wir eliminieren $n_1$ wie beim Gauß-Verfahren: Gleichung (I) mal $b_1$, Gleichung (II) mal $a_1$, dann subtrahieren.</p>
+</div>
+<div class="schritte">
+  <span class="sl"><b>①</b> $b_1 \cdot \text{(I)} - a_1 \cdot \text{(II)}$</span><span>$(a_2b_1 - a_1b_2)\,n_2 + (a_3b_1 - a_1b_3)\,n_3 = 0$</span>
+  <span class="sl"><b>②</b> passend wählen</span><span>$n_2 = a_3b_1 - a_1b_3, \qquad n_3 = a_1b_2 - a_2b_1$</span>
+  <span class="sl"><b>③</b> in (I) einsetzen</span><span>$a_1n_1 = -a_2(a_3b_1 - a_1b_3) - a_3(a_1b_2 - a_2b_1)$</span>
+  <span class="sl">ausmultiplizieren</span><span>$\phantom{a_1n_1} = a_1a_2b_3 - a_1a_3b_2 = a_1(a_2b_3 - a_3b_2)$</span>
+  <span class="sl"><b>④</b> durch $a_1$ teilen</span><span>$n_1 = a_2b_3 - a_3b_2$</span>
+</div>
+<p>In Schritt ② tauschen wir die beiden Faktoren und ändern ein Vorzeichen, damit sich die Summanden genau aufheben – derselbe Trick wie auf Seite {{S:skalar-2}}. Die Formel stimmt auch für $a_1 = 0$: Einsetzen zeigt, dass $\vec{a} \cdot \vec{n} = 0$ und $\vec{b} \cdot \vec{n} = 0$ <b>immer</b> gelten.</p>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Kreuzprodukt</div>
+  <div class="zwei-bild" style="grid-template-columns:1fr auto;gap:5mm;align-items:center">
+    <div>
+      <p style="text-align:left">Der Vektor</p>
+      $$\vec{a} \times \vec{b} = \begin{pmatrix} a_1 \\ a_2 \\ a_3 \end{pmatrix} \times \begin{pmatrix} b_1 \\ b_2 \\ b_3 \end{pmatrix} = \begin{pmatrix} a_2b_3 - a_3b_2 \\ a_3b_1 - a_1b_3 \\ a_1b_2 - a_2b_1 \end{pmatrix}$$
+      <p style="text-align:left">heißt <b>Kreuzprodukt</b> (Vektorprodukt) von $\vec{a}$ und $\vec{b}$. Er ist zu $\vec{a}$ und zu $\vec{b}$ orthogonal. Gelesen: „$a$ kreuz $b$“.</p>
+    </div>
+    <svg viewBox="0 0 66 64" width="40mm" height="39mm" xmlns="http://www.w3.org/2000/svg" style="font-family:Montserrat,sans-serif">
+      <g font-size="5.6" font-style="italic" fill="#0E1E4A" text-anchor="middle">
+        <text x="14" y="9" fill="#8A93A6">a₁</text><text x="36" y="9" fill="#8A93A6">b₁</text>
+        <text x="14" y="20">a₂</text><text x="36" y="20">b₂</text>
+        <text x="14" y="31">a₃</text><text x="36" y="31">b₃</text>
+        <text x="14" y="42">a₁</text><text x="36" y="42">b₁</text>
+        <text x="14" y="53">a₂</text><text x="36" y="53">b₂</text>
+      </g>
+      <line x1="7" y1="7.2" x2="43" y2="7.2" stroke="#8A93A6" stroke-width="0.5"/>
+      <g stroke-width="0.9" stroke-linecap="round">
+        <line x1="18" y1="18" x2="32" y2="28" stroke="#004D98"/><line x1="32" y1="18" x2="18" y2="28" stroke="#004D98"/>
+        <line x1="18" y1="29.5" x2="32" y2="39.5" stroke="#A50044"/><line x1="32" y1="29.5" x2="18" y2="39.5" stroke="#A50044"/>
+        <line x1="18" y1="40.5" x2="32" y2="50.5" stroke="#B88A00"/><line x1="32" y1="40.5" x2="18" y2="50.5" stroke="#B88A00"/>
+      </g>
+      <g font-size="4.2" font-weight="700" text-anchor="start">
+        <text x="45" y="25" fill="#004D98">→ n₁</text><text x="45" y="36.5" fill="#A50044">→ n₂</text><text x="45" y="47.5" fill="#B88A00">→ n₃</text>
+      </g>
+      <text x="25" y="62" font-size="3.6" fill="#5B6478" text-anchor="middle">„\“ minus „/“</text>
+    </svg>
+  </div>
+</div>
+
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 1 · Mit dem Schema</div>
+  <p style="text-align:left">$\begin{pmatrix} 1 \\ 2 \\ -1 \end{pmatrix} \times \begin{pmatrix} 2 \\ 0 \\ 1 \end{pmatrix} = \begin{pmatrix} 2 \cdot 1 - (-1) \cdot 0 \\ (-1) \cdot 2 - 1 \cdot 1 \\ 1 \cdot 0 - 2 \cdot 2 \end{pmatrix} = \begin{pmatrix} 2 \\ -3 \\ -4 \end{pmatrix}$ &nbsp; Probe: $2 - 6 + 4 = 0$ ✓ &nbsp; $4 + 0 - 4 = 0$ ✓</p>
+</div>
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: senkrecht zu zwei Vektoren</li><li>LGS allgemein lösen</li><li>Merke: Kreuzprodukt</li><li>Merkschema</li><li>Eigenschaften, Beispiele</li><li>Aufgaben 1–5</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 6 und 7</p></div>
+
+<div class="notiz"><span class="t">Das Schema</span>Beide Vektoren nebeneinander schreiben, die ersten zwei Zeilen unten <b>wiederholen</b>. Oberste Zeile streichen. Dann je zwei Zeilen über Kreuz: Produkt auf „\“ minus Produkt auf „/“.</div>
+
+<div class="notiz gold"><span class="t">Nur im Raum</span>Das Kreuzprodukt gibt es nur für Vektoren mit <b>drei</b> Koordinaten. Das Ergebnis ist ein <b>Vektor</b> – das Skalarprodukt dagegen eine Zahl.</div>
+
+<div class="notiz"><span class="t">Immer Probe</span>Skalarprodukt mit $\vec{a}$ und mit $\vec{b}$ muss null sein. Das kostet zehn Sekunden und findet fast jeden Vorzeichenfehler.</div>

@@ -1,0 +1,53 @@
+<!-- kap: VI | uk: Abstand Punkt–Gerade -->
+<div class="ukap-titel"><span class="nr">{{K:punkt-gerade-1}}</span><h2>Abstand Punkt–Gerade</h2></div>
+<p class="leitfrage">Wo kommt eine Gerade einem Punkt am nächsten?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <div class="zwei-bild" style="gap:5mm">
+    <div>
+      <p style="text-align:left">Ein Laserstrahl verläuft auf der Geraden $g\colon \vec{x} = \begin{pmatrix} 1 \\ 0 \\ 2 \end{pmatrix} + t \cdot \begin{pmatrix} 2 \\ 1 \\ -2 \end{pmatrix}$. Im Punkt $P(4 \mid 3 \mid 2)$ hängt ein Sensor.</p>
+      <p style="text-align:left"><b>a)</b> Wie viele Richtungen stehen im Raum senkrecht auf $g$?<br><b>b)</b> Alle Punkte $X$ mit $\overrightarrow{PX} \perp \vec{u}$ bilden eine Ebene $H$ durch $P$. Welchen Normalenvektor hat sie?<br><b>c)</b> Wo schneidet $H$ die Gerade $g$?</p>
+    </div>
+    <raum>{"b":44,"h":38,"keineAchsen":true,"rand":10,
+      "flaeche":[{"pkte":[[-1.6,1.2,-0.3],[2.2,1.2,-0.3],[2.2,1.2,3],[-1.6,1.2,3]],"c":"gold","o":0.22,"t":"H","tp":[1.9,1.2,0.1],"pos":"r"}],
+      "gerade":[{"p":[0.4,1.2,1],"u":[0,1,0],"von":-2.6,"bis":2.4,"c":"lila","w":1.8,"t":"g","pos":"or"}],
+      "vektor":[{"p":[0.4,3.6,1],"v":[0,1,0],"c":"lila","w":1.4,"t":"u","pos":"u"}],
+      "strecke":[{"p":[0.4,1.2,1],"q":[-1,1.2,2.6],"c":"grana","w":1.8,"t":"d","pos":"l"}],
+      "punkt":[{"p":[-1,1.2,2.6],"t":"P","pos":"or","c":"grana"},{"p":[0.4,1.2,1],"t":"F","pos":"ul","c":"seeTief"}]}</raum>
+  </div>
+</div>
+
+<p>Zu einer Ebene gibt es genau eine Lotrichtung, zu einer Geraden unendlich viele: jede mit $\vec{w} \cdot \vec{u} = 0$. Der kürzeste Weg von $P$ zu $g$ ist trotzdem ein Lot, denn für den Lotfußpunkt $F$ auf $g$ gilt $\overrightarrow{PF} \perp \vec{u}$. Zwei Wege führen zu $F$.</p>
+
+<h3>Weg 1: Hilfsebene</h3>
+<p>Die Ebene $H$ durch $P$ hat den <b>Richtungsvektor von $g$ als Normalenvektor</b>. Sie schneidet $g$ genau im Lotfußpunkt.</p>
+<div class="schritte">
+  <span class="sl"><b>①</b> Hilfsebene</span><span>$H\colon 2x_1 + x_2 - 2x_3 = 2 \cdot 4 + 3 - 2 \cdot 2 = 7$</span>
+  <span class="sl"><b>②</b> $g$ einsetzen</span><span>$2(1 + 2t) + t - 2(2 - 2t) = 7 \;\Leftrightarrow\; 9t - 2 = 7 \;\Leftrightarrow\; t = 1$</span>
+  <span class="sl"><b>③</b> Lotfußpunkt</span><span>$F(3 \mid 1 \mid 0)$</span>
+  <span class="sl"><b>④</b> Abstand</span><span>$d(P, g) = |\overrightarrow{PF}| = \left|\begin{pmatrix} -1 \\ -2 \\ -2 \end{pmatrix}\right| = \sqrt{1 + 4 + 4} = 3$</span>
+</div>
+
+<h3>Weg 2: Skalarprodukt</h3>
+<p>Ein beliebiger Punkt von $g$ ist $X_t(1 + 2t \mid t \mid 2 - 2t)$. Wir suchen das $t$, für das $\overrightarrow{PX_t}$ senkrecht auf $\vec{u}$ steht:</p>
+$$\overrightarrow{PX_t} \cdot \vec{u} = \begin{pmatrix} 2t - 3 \\ t - 3 \\ -2t \end{pmatrix} \cdot \begin{pmatrix} 2 \\ 1 \\ -2 \end{pmatrix} = 4t - 6 + t - 3 + 4t = 9t - 9 = 0 \;\Leftrightarrow\; t = 1.$$
+<p>Das liefert denselben Lotfußpunkt $F(3 \mid 1 \mid 0)$ und den Abstand $3$ – ohne Umweg über eine Ebene.</p>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Abstand Punkt–Gerade</div>
+  <p style="text-align:left">Für $P$ und $g\colon \vec{x} = \vec{p} + t \cdot \vec{u}$ bestimmst du den <b>Lotfußpunkt</b> $F$ auf $g$ mit $\overrightarrow{PF} \perp \vec{u}$:</p>
+  <p style="text-align:left"><b>Weg 1:</b> Hilfsebene durch $P$ mit Normalenvektor $\vec{u}$ aufstellen und mit $g$ schneiden.<br><b>Weg 2:</b> allgemeinen Punkt $X_t$ von $g$ ansetzen und $\overrightarrow{PX_t} \cdot \vec{u} = 0$ nach $t$ lösen.<br>Dann ist $\;d(P, g) = |\overrightarrow{PF}|$.</p>
+</div>
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: Laser und Sensor</li><li>Warum kein einzelnes Lot?</li><li>Weg 1: Hilfsebene</li><li>Weg 2: Skalarprodukt</li><li>Merke</li><li>Aufgaben 1–4</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 5 und 6</p></div>
+
+<div class="notiz"><span class="t">Der Trick</span>Bei der Ebene war $\vec{n}$ die Lotrichtung. Bei der Geraden wird ihr Richtungsvektor $\vec{u}$ zum Normalenvektor der Hilfsebene – die Rollen tauschen.</div>
+
+<div class="notiz gold"><span class="t">Probe</span>$\overrightarrow{PF} \cdot \vec{u} = -2 - 2 + 4 = 0$ ✓<br>Außerdem muss $F$ auf $g$ liegen: $t = 1$ einsetzen.</div>
+
+<div class="notiz"><span class="t">Welcher Weg?</span>Beide führen auf dieselbe Gleichung für $t$. Weg 2 ist kürzer zu schreiben, Weg 1 zeigt besser, <b>warum</b> es funktioniert.</div>
+
+<div class="notiz"><span class="t">Erinnerung</span>Zwei Vektoren sind orthogonal, wenn ihr Skalarprodukt null ist (Seite {{S:skalar-1}}).</div>

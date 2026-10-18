@@ -1,0 +1,81 @@
+<!-- kap: VI -->
+<div class="kasten beispiel" style="margin-top:0">
+  <div class="etikett">Beispiel 1 · Abstand paralleler Geraden</div>
+  <p style="text-align:left">Zeige, dass $g\colon \vec{x} = \left(\begin{smallmatrix} 2 \\ -1 \\ 0 \end{smallmatrix}\right) + t \cdot \left(\begin{smallmatrix} 1 \\ 2 \\ 2 \end{smallmatrix}\right)$ und $h\colon \vec{x} = \left(\begin{smallmatrix} 6 \\ 1 \\ 5 \end{smallmatrix}\right) + s \cdot \left(\begin{smallmatrix} 1 \\ 2 \\ 2 \end{smallmatrix}\right)$ parallel sind, und berechne ihren Abstand.</p>
+  <div class="loesung"><span class="loesung-kopf">Lösung</span>
+  <p style="text-align:left">Gleiche Richtung, und $Q(6 \mid 1 \mid 5) \notin g$ (aus $x_1$: $t = 4$, dann $x_2 = 7 \neq 1$): echt parallel. Gesucht ist $d(Q, g)$:</p>
+  <div class="schritte" style="margin:1mm 0 0">
+    <span class="sl">Ansatz</span><span>$\overrightarrow{QX_t} = \left(\begin{smallmatrix} t - 4 \\ 2t - 2 \\ 2t - 5 \end{smallmatrix}\right)$, &nbsp;$\overrightarrow{QX_t} \cdot \vec{u} = t - 4 + 4t - 4 + 4t - 10 = 9t - 18 = 0 \;\Leftrightarrow\; t = 2$</span>
+    <span class="sl">Ergebnis</span><span>$F(4 \mid 3 \mid 4)$, &nbsp;$d(g, h) = |\overrightarrow{QF}| = \left|\left(\begin{smallmatrix} -2 \\ 2 \\ -1 \end{smallmatrix}\right)\right| = 3$</span>
+  </div></div>
+</div>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Parallele Geraden</div>
+  <p style="text-align:left;margin:0">Sind $g$ und $h$ echt parallel, so ist $d(g, h)$ der Abstand <b>eines beliebigen</b> Punktes von $h$ zur Geraden $g$.</p>
+</div>
+
+<div class="kasten vertiefung">
+  <div class="etikett">★ Für Interessierte · Zwei Formeln ohne Lotfußpunkt</div>
+  <div class="zwei-bild" style="grid-template-columns:1fr auto;gap:4mm">
+    <div>
+      <p style="text-align:left"><b>Parallelogramm:</b> $\vec{a} = \vec{q} - \vec{p}$ und $\vec{u}$ spannen ein Parallelogramm mit Fläche $|\vec{a} \times \vec{u}|$ auf (Seite {{S:kreuz-1}}). Seine Höhe über $\vec{u}$ ist der Abstand:</p>
+      $$d(Q, g) = \frac{|(\vec{q} - \vec{p}) \times \vec{u}|}{|\vec{u}|}$$
+      <p style="text-align:left">Seite {{S:punkt-gerade-1}}: $\left(\begin{smallmatrix} 3 \\ 3 \\ 0 \end{smallmatrix}\right) \times \left(\begin{smallmatrix} 2 \\ 1 \\ -2 \end{smallmatrix}\right) = \left(\begin{smallmatrix} -6 \\ 6 \\ -3 \end{smallmatrix}\right)$ hat den Betrag 9, also $d = \frac{9}{3} = 3$ ✓</p>
+    </div>
+    <svg viewBox="0 0 120 80" width="34mm" height="23mm" xmlns="http://www.w3.org/2000/svg" style="font-family:Montserrat,sans-serif;margin-top:2mm">
+      <polygon points="8,70 78,70 112,18 42,18" fill="#6A3F94" fill-opacity="0.12" stroke="#6A3F94" stroke-width="1.2"/>
+      <line x1="8" y1="70" x2="78" y2="70" stroke="#6A3F94" stroke-width="2.2"/>
+      <line x1="8" y1="70" x2="42" y2="18" stroke="#A50044" stroke-width="2"/>
+      <line x1="42" y1="18" x2="42" y2="70" stroke="#0E1E4A" stroke-width="1.2" stroke-dasharray="3 2"/>
+      <text x="44" y="80" font-size="9" fill="#6A3F94" font-weight="700" font-style="italic">u</text>
+      <text x="14" y="40" font-size="9" fill="#A50044" font-weight="700" font-style="italic">a</text>
+      <text x="45" y="48" font-size="9" fill="#0E1E4A" font-weight="700" font-style="italic">d</text>
+      <circle cx="42" cy="18" r="2.6" fill="#A50044"/><text x="34" y="13" font-size="9" fill="#A50044" font-weight="700">Q</text>
+    </svg>
+  </div>
+  <p style="text-align:left;margin:0"><b>Analysis:</b> $|\overrightarrow{PX_t}|^2 = 9t^2 - 18t + 18 = 9(t - 1)^2 + 9$ ist eine Parabel mit Scheitel bei $t = 1$. Ihr Minimum 9 liefert $d = 3$.</p>
+</div>
+
+<div class="aufgaben-kopf"><span>Aufgaben</span></div>
+
+<div class="auf"><div class="anr"><span class="z">1</span><span class="stufe">●○○</span></div><div class="text">
+  <p>Bestimme den Lotfußpunkt $F$ auf $g$ und den Abstand $d(P, g)$.</p>
+  <div class="teil" style="--sp:2"><div><i>a)</i>$P(3 \mid 3 \mid 0)$, $\;g\colon \vec{x} = t \cdot \left(\begin{smallmatrix} 1 \\ 2 \\ 2 \end{smallmatrix}\right)$</div><div><i>b)</i>$P(3 \mid 3 \mid -1)$, $\;g\colon \vec{x} = \left(\begin{smallmatrix} 1 \\ -2 \\ 3 \end{smallmatrix}\right) + t \cdot \left(\begin{smallmatrix} 2 \\ -1 \\ 2 \end{smallmatrix}\right)$</div><div><i>c)</i>$P(2 \mid 3 \mid 4)$, $g$: $x_1$-Achse</div></div>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">2</span><span class="stufe">●○○</span></div><div class="text">
+  <p>Berechne mit einer Hilfsebene den Abstand von $P(4 \mid 2 \mid 2)$ zu $g\colon \vec{x} = \left(\begin{smallmatrix} 1 \\ 2 \\ -1 \end{smallmatrix}\right) + t \cdot \left(\begin{smallmatrix} 2 \\ 2 \\ 1 \end{smallmatrix}\right)$. Gib die Hilfsebene in Koordinatenform an.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">3</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Zeige, dass $g\colon \vec{x} = \left(\begin{smallmatrix} 2 \\ 0 \\ 1 \end{smallmatrix}\right) + t \cdot \left(\begin{smallmatrix} 1 \\ 2 \\ 2 \end{smallmatrix}\right)$ und $h\colon \vec{x} = \left(\begin{smallmatrix} 7 \\ -2 \\ 5 \end{smallmatrix}\right) + s \cdot \left(\begin{smallmatrix} -2 \\ -4 \\ -4 \end{smallmatrix}\right)$ echt parallel sind, und berechne ihren Abstand.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">4</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Eine Drohne fliegt vom Punkt $A(0 \mid 0 \mid 12)$ geradlinig in Richtung $\left(\begin{smallmatrix} 2 \\ 2 \\ 1 \end{smallmatrix}\right)$ (Einheit 1 m). Wie nah kommt sie der Turmspitze $S(6 \mid 12 \mid 12)$? Wird ein Sicherheitsabstand von 5 m eingehalten?</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">5</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Gegeben ist das Dreieck $A(1 \mid 0 \mid 2)$, $B(5 \mid 2 \mid -2)$, $C(4 \mid 3 \mid 2)$. Berechne die Höhe $h_c$ als Abstand von $C$ zur Geraden $AB$ und damit den Flächeninhalt.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">6</span><span class="stufe">●●●</span></div><div class="text">
+  <p>Für welche Werte von $a$ hat der Punkt $P(a \mid 3 \mid 0)$ von der Geraden $g\colon \vec{x} = t \cdot \left(\begin{smallmatrix} 1 \\ 2 \\ 2 \end{smallmatrix}\right)$ den Abstand 3?</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z offen">7</span><span class="stufe">●●●</span></div><div class="text">
+  <p>Beschreibe die Menge aller Punkte, die von der $x_3$-Achse den Abstand 3 haben. Gib eine Gleichung in $x_1$, $x_2$, $x_3$ an. Was für ein Körper entsteht?</p>
+</div></div>
+<!--rand-->
+<div class="notiz"><span class="t">Fahrplan</span>① $X_t$ allgemein aufschreiben<br>② $\overrightarrow{PX_t}$ bilden<br>③ $\overrightarrow{PX_t} \cdot \vec{u} = 0$ lösen<br>④ $F$ und $|\overrightarrow{PF}|$</div>
+
+<div class="notiz gold"><span class="t">Zu Aufgabe 3</span>Richtungsvektoren dürfen Vielfache sein: $-2 \cdot \vec{u}$ zeigt in dieselbe Richtung.</div>
+
+<div class="notiz"><span class="t">Zu Aufgabe 5</span>Flächeninhalt eines Dreiecks:<br>$A = \frac{1}{2} \cdot g \cdot h$ mit $g = |\overrightarrow{AB}|$.</div>
+
+<div class="notiz gold"><span class="t">Zu Aufgabe 7</span>Der Abstand von $P(x_1 \mid x_2 \mid x_3)$ zur $x_3$-Achse hängt nicht von $x_3$ ab.</div>
+
+<div class="notiz"><span class="t">Achtung</span>Eine Gerade im Raum hat <b>keine</b> Koordinatengleichung und damit keine HNF. Die HNF-Formel gilt nur für Ebenen.</div>
+
+<div class="notiz mathilda"><span class="t">In der App</span>Im Werkzeug <b>Abstände</b> wählst du „Punkt–Gerade“ und verschiebst $X_t$ auf der Geraden, bis $|\overrightarrow{PX_t}|$ am kleinsten ist.</div>

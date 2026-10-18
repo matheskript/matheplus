@@ -1,0 +1,54 @@
+<!-- kap: V | uk: Ebenen in Parameterform -->
+<div class="ukap-titel"><span class="nr">{{K:ebene-param-1}}</span><h2>Ebenen in Parameterform</h2></div>
+<p class="leitfrage">Wie beschreibt man eine Ebene mit einer Vektorgleichung?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <p style="text-align:left">Ein Melkschemel mit drei Beinen wackelt nie – ein Stuhl mit vier Beinen auf unebenem Boden dagegen oft. Ein Sonnensegel wird an drei Punkten $A$, $B$, $C$ gespannt.<br><b>a)</b> Warum wackelt der Dreibeiner nicht? Was legen drei Punkte fest?<br><b>b)</b> Von $A$ aus darfst du nur in Richtung $\overrightarrow{AB}$ laufen. Welche Punkte des Segels erreichst du?<br><b>c)</b> Wie erreichst du jeden Punkt des Segels, wenn du zusätzlich in Richtung $\overrightarrow{AC}$ laufen darfst?</p>
+</div>
+
+<p>Eine Gerade im Raum hat die Form $g\colon \vec{x} = \vec{p} + t \cdot \vec{u}$ (Seite {{S:parameter-1}}): Vom Stützpunkt $P$ aus läuft man $t$-mal den Richtungsvektor $\vec{u}$ entlang. Mit <b>einer</b> Richtung kommt man aber nur auf einer Linie voran.</p>
+
+<div class="zwei-bild" style="grid-template-columns:1fr auto">
+  <div>
+    <p>Für eine Ebene braucht man eine <b>zweite Richtung</b> $\vec{v}$, die nicht parallel zu $\vec{u}$ ist. Dann erreicht man jeden Punkt $X$ der Ebene in zwei Etappen: erst $r$-mal $\vec{u}$, dann $s$-mal $\vec{v}$. Für den Ortsvektor von $X$ heißt das</p>
+    $$\vec{x} = \vec{p} + r \cdot \vec{u} + s \cdot \vec{v}.$$
+    <p>Die Zahlen $r$ und $s$ wirken wie Koordinaten auf der Ebene: Das Paar $(r \mid s)$ sagt, wo $X$ liegt. Im Bild ist $r = 1$ und $s = 1$: $\;\vec{x} = \vec{p} + \vec{u} + \vec{v}$.</p>
+  </div>
+  <raum>{"b":60,"h":48,"achsen":[3,6.5,5],"neg":[0.4,0.4,0.4],"zahlen":false,
+    "flaeche":[{"pkte":[[0.05,0.58,0.8],[1.95,5.32,0.8],[0.15,6.22,4.4],[-1.75,1.48,4.4]],"c":"smaragd","o":0.16,"t":"E","tp":[-1.2,2.3,4.0]}],
+    "vektor":[{"p":[0,0,0],"v":[0,1.5,1.5],"c":"seeTief","t":"p","pos":"l","w":1.6},
+      {"p":[0,1.5,1.5],"v":[1,2.5,0],"c":"grana","t":"u","pos":"u"},{"p":[1,4,1.5],"v":[-1,0.5,2],"c":"goldDunkel","t":"v","pos":"r"}],
+    "strecke":[{"p":[0,1.5,1.5],"q":[0,4.5,3.5],"c":"smaragd","d":"3 2","w":1.1}],
+    "punkt":[{"p":[0,1.5,1.5],"t":"P","pos":"ol"},{"p":[0,4.5,3.5],"t":"X","pos":"or","c":"smaragd"}]}</raum>
+</div>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Parameterform einer Ebene</div>
+  <p style="text-align:left">Eine Ebene durch den Punkt $P$ mit den <b>Spannvektoren</b> $\vec{u}$ und $\vec{v}$ (nicht kollinear) hat die Gleichung</p>
+  $$E\colon \vec{x} = \vec{p} + r \cdot \vec{u} + s \cdot \vec{v} \qquad (r, s \in \mathbb{R}).$$
+  <p style="text-align:left">Durch drei Punkte $A$, $B$, $C$, die nicht auf einer Geraden liegen, geht genau eine Ebene: $\;E\colon \vec{x} = \vec{a} + r \cdot \overrightarrow{AB} + s \cdot \overrightarrow{AC}$ (<b>Drei-Punkte-Form</b>).</p>
+</div>
+
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 1 · Ebene durch drei Punkte</div>
+  <p style="text-align:left">Stelle eine Gleichung der Ebene durch $A(1 \mid 0 \mid 2)$, $B(3 \mid 1 \mid 1)$ und $C(0 \mid 2 \mid 4)$ auf.</p>
+  <div class="loesung"><span class="loesung-kopf">Lösung</span>
+  <div class="schritte" style="margin:1mm 0">
+    <span class="sl">Spannvektoren</span><span>$\overrightarrow{AB} = \begin{pmatrix} 2 \\ 1 \\ -1 \end{pmatrix}$, $\;\overrightarrow{AC} = \begin{pmatrix} -1 \\ 2 \\ 2 \end{pmatrix}$</span>
+    <span class="sl">kollinear?</span><span>$\frac{-1}{2} \neq \frac{2}{1}$: kein Vielfaches, also keine gemeinsame Gerade</span>
+    <span class="sl">Gleichung</span><span>$E\colon \vec{x} = \begin{pmatrix} 1 \\ 0 \\ 2 \end{pmatrix} + r \cdot \begin{pmatrix} 2 \\ 1 \\ -1 \end{pmatrix} + s \cdot \begin{pmatrix} -1 \\ 2 \\ 2 \end{pmatrix}$</span>
+  </div></div>
+</div>
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: Dreibein</li><li>Zweite Richtung</li><li>Merke: Parameterform</li><li>Beispiel 1</li><li>Punktprobe</li><li>Aufgaben 1–5</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 6 und 7</p></div>
+
+<div class="notiz"><span class="t">Wortspeicher</span><b>Stützvektor</b> $\vec{p}$: führt vom Ursprung zur Ebene.<br><b>Spannvektoren</b> $\vec{u}$, $\vec{v}$: „spannen“ die Ebene auf, wie zwei Stangen ein Segel.<br><b>Parameter</b> $r$, $s$: frei wählbare Zahlen.</div>
+
+<div class="notiz gold"><span class="t">Kollinear?</span>Zwei Vektoren sind kollinear, wenn einer ein Vielfaches des anderen ist. Vergleiche die Quotienten der Koordinaten – sind sie nicht alle gleich, ist alles gut.</div>
+
+<div class="notiz"><span class="t">Der rote Faden</span>$y = mx + c$: ein Parameter $x$.<br>Gerade im Raum: ein Parameter $t$.<br>Ebene: <b>zwei</b> Parameter $r$ und $s$ – eine Fläche hat zwei Dimensionen.</div>
+
+<div class="notiz"><span class="t">Nicht eindeutig</span>Jeder Punkt der Ebene taugt als Stützpunkt, und es gibt unendlich viele Paare von Spannvektoren. Eine Ebene hat viele Gleichungen.</div>

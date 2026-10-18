@@ -1,42 +1,36 @@
 <!-- kap: II -->
 <div class="kasten beispiel" style="margin-top:0">
   <div class="etikett">Beispiel 2 · Abhängigkeit mit dem Gauß-Verfahren prüfen</div>
-  <p style="text-align:left">Sind $\vec{a} = \begin{pmatrix} 1 \\ 2 \\ 1 \end{pmatrix}$, $\vec{b} = \begin{pmatrix} 2 \\ 1 \\ 0 \end{pmatrix}$, $\vec{c} = \begin{pmatrix} 1 \\ -1 \\ -1 \end{pmatrix}$ linear abhängig? &nbsp;Ansatz: $r\vec{a} + s\vec{b} + t\vec{c} = \vec{o}$ – ein LGS wie auf Seite {{S:gauss-1}}.</p>
+  <p style="text-align:left">Sind $\vec{a} = \begin{pmatrix} 1 \\ 2 \\ 1 \end{pmatrix}$, $\vec{b} = \begin{pmatrix} 2 \\ 1 \\ 0 \end{pmatrix}$, $\vec{c} = \begin{pmatrix} 1 \\ -1 \\ -1 \end{pmatrix}$ linear abhängig? Ansatz: $r\vec{a} + s\vec{b} + t\vec{c} = \vec{o}$.</p>
   <div class="loesung"><span class="loesung-kopf">Lösung</span>
-  <div class="zwei" style="gap:4mm;align-items:center">
-    $$\begin{array}{lrcl} \text{(I)} & r + 2s + t &=& 0 \\ \text{(II)} & 2r + s - t &=& 0 \\ \text{(III)} & r - t &=& 0 \end{array} \;\to\; \begin{array}{lrcl} & r + 2s + t &=& 0 \\ \text{(II)} - 2\,\text{(I)} & -3s - 3t &=& 0 \\ \text{(III)} - \text{(I)} & -2s - 2t &=& 0 \end{array}$$
-    <p style="text-align:left">Die beiden letzten Zeilen sagen dasselbe: $s = -t$. Eine Zeile fällt weg, es bleibt ein Parameter. Mit $t = 1$: $s = -1$, $r = 1$. <br>Also $\vec{a} - \vec{b} + \vec{c} = \vec{o}$ – die Vektoren sind <b>linear abhängig</b> (komplanar), z. B. $\vec{c} = \vec{b} - \vec{a}$.</p>
-  </div></div>
+  $$\begin{array}{lrcl} \text{(I)} & r + 2s + t &=& 0 \\ \text{(II)} & 2r + s - t &=& 0 \\ \text{(III)} & r - t &=& 0 \end{array} \quad\longrightarrow\quad \begin{array}{lrcl} \text{(I)} & r + 2s + t &=& 0 \\ \text{(II)} - 2\cdot\text{(I)} & -3s - 3t &=& 0 \\ \text{(III)} - \text{(I)} & -2s - 2t &=& 0 \end{array}$$
+  <p style="text-align:left">Beide neuen Zeilen sagen $s = -t$: eine Nullzeile, ein Parameter bleibt frei. Mit $t = 1$ folgt $s = -1$, $r = 1$, also $\vec{a} - \vec{b} + \vec{c} = \vec{o}$: <b>linear abhängig</b>.</p></div>
 </div>
 
 <div class="kasten beispiel">
   <div class="etikett">Beispiel 3 · Linear unabhängig</div>
-  <p style="text-align:left">$\vec{a} = \begin{pmatrix} 1 \\ 1 \\ 0 \end{pmatrix}$, $\vec{b} = \begin{pmatrix} 0 \\ 1 \\ 1 \end{pmatrix}$, $\vec{c} = \begin{pmatrix} 1 \\ 0 \\ 1 \end{pmatrix}$: &nbsp;(I) $r + t = 0$, (II) $r + s = 0$, (III) $s + t = 0$. Aus (I) und (II): $t = -r$, $s = -r$; in (III): $-2r = 0$. Also $r = s = t = 0$ – nur die triviale Lösung, die Vektoren sind <b>linear unabhängig</b>.</p>
-</div>
-
-<div class="kasten merke">
-  <div class="etikett">Merke · Drei unabhängige Vektoren spannen den Raum auf</div>
-  <p style="text-align:left">Löse $r\vec{a} + s\vec{b} + t\vec{c} = \vec{o}$ mit dem Gauß-Verfahren. <b>Nur</b> $r = s = t = 0$: linear unabhängig. <b>Unendlich viele</b> Lösungen (eine Nullzeile): linear abhängig.<br>Sind $\vec{a}$, $\vec{b}$, $\vec{c}$ linear unabhängig, lässt sich <b>jeder</b> Vektor des Raums auf genau eine Weise als $r\vec{a} + s\vec{b} + t\vec{c}$ schreiben. Vier Vektoren im Raum sind immer linear abhängig.</p>
+  <p style="text-align:left">$\vec{a} = \begin{pmatrix} 1 \\ 1 \\ 0 \end{pmatrix}$, $\vec{b} = \begin{pmatrix} 0 \\ 1 \\ 1 \end{pmatrix}$, $\vec{c} = \begin{pmatrix} 1 \\ 0 \\ 1 \end{pmatrix}$ liefern (I) $r + t = 0$, (II) $r + s = 0$, (III) $s + t = 0$. Aus (I), (II): $t = s = -r$; in (III): $-2r = 0$. Nur $r = s = t = 0$ – <b>linear unabhängig</b>.</p>
 </div>
 
 <div class="kasten vertiefung">
   <div class="etikett">★ Für Interessierte · Basis und Koordinaten</div>
-  <p style="text-align:left">Drei linear unabhängige Vektoren heißen eine <b>Basis</b> des Raums, die Zahlen $r$, $s$, $t$ die <b>Koordinaten</b> eines Vektors bezüglich dieser Basis. Die Spaltenschreibweise benutzt still die Basis $\vec{e}_1 = \begin{pmatrix} 1 \\ 0 \\ 0 \end{pmatrix}$, $\vec{e}_2$, $\vec{e}_3$: $\begin{pmatrix} 5 \\ 3 \\ 4 \end{pmatrix} = 5\vec{e}_1 + 3\vec{e}_2 + 4\vec{e}_3$. In der Basis aus Beispiel 3 hat derselbe Vektor die Koordinaten $2$, $1$, $3$, denn $2\vec{a} + \vec{b} + 3\vec{c} = \begin{pmatrix} 5 \\ 3 \\ 4 \end{pmatrix}$.</p>
+  <p style="text-align:left">Drei linear unabhängige Vektoren <b>spannen den Raum auf</b>: Jeder Vektor lässt sich auf genau eine Weise als $r\vec{a} + s\vec{b} + t\vec{c}$ schreiben. Sie bilden eine <b>Basis</b>, $r$, $s$, $t$ sind die <b>Koordinaten</b> bezüglich dieser Basis. Spaltenvektoren nutzen still die Achsen-Einheitsvektoren: Einträge $5$, $3$, $4$ heißt $5\vec{e}_1 + 3\vec{e}_2 + 4\vec{e}_3$. In der Basis aus Beispiel 3 hat derselbe Vektor die Koordinaten $2$, $1$, $3$: $2\vec{a} + \vec{b} + 3\vec{c}$.</p>
 </div>
 
 <div class="aufgaben-kopf"><span>Aufgaben</span></div>
 
 <div class="auf"><div class="anr"><span class="z">1</span><span class="stufe">●○○</span></div><div class="text">
-  <p>Sind die Vektoren kollinear? Gib gegebenenfalls $r$ mit $\vec{b} = r\vec{a}$ an.</p>
-  <div class="teil" style="--sp:4"><div><i>a)</i>$\begin{pmatrix} 2 \\ -1 \\ 3 \end{pmatrix}$, $\begin{pmatrix} -6 \\ 3 \\ -9 \end{pmatrix}$</div><div><i>b)</i>$\begin{pmatrix} 1 \\ 2 \\ 3 \end{pmatrix}$, $\begin{pmatrix} 2 \\ 4 \\ 5 \end{pmatrix}$</div><div><i>c)</i>$\begin{pmatrix} 0 \\ 4 \\ -2 \end{pmatrix}$, $\begin{pmatrix} 0 \\ -2 \\ 1 \end{pmatrix}$</div><div><i>d)</i>$\begin{pmatrix} 3 \\ 0 \\ 6 \end{pmatrix}$, $\begin{pmatrix} 1 \\ 0 \\ 2 \end{pmatrix}$</div></div>
+  <p>Sind die Vektoren kollinear? Gib gegebenenfalls $r$ mit $\vec{v} = r\vec{u}$ an.</p>
+  <div class="teil" style="--sp:4"><div><i>a)</i>$\begin{pmatrix} 2 \\ -1 \\ 3 \end{pmatrix}\!,\, \begin{pmatrix} -6 \\ 3 \\ -9 \end{pmatrix}$</div><div><i>b)</i>$\begin{pmatrix} 1 \\ 2 \\ 3 \end{pmatrix}\!,\, \begin{pmatrix} 2 \\ 4 \\ 5 \end{pmatrix}$</div><div><i>c)</i>$\begin{pmatrix} 0 \\ 4 \\ -2 \end{pmatrix}\!,\, \begin{pmatrix} 0 \\ -2 \\ 1 \end{pmatrix}$</div><div><i>d)</i>$\begin{pmatrix} 3 \\ 0 \\ 6 \end{pmatrix}\!,\, \begin{pmatrix} 1 \\ 0 \\ 2 \end{pmatrix}$</div></div>
 </div></div>
 
 <div class="auf"><div class="anr"><span class="z">2</span><span class="stufe">●○○</span></div><div class="text">
-  <p>Stelle $\vec{c}$ als Linearkombination von $\vec{a} = \begin{pmatrix} 1 \\ 0 \\ 1 \end{pmatrix}$ und $\vec{b} = \begin{pmatrix} 0 \\ 1 \\ 1 \end{pmatrix}$ dar, falls möglich. &nbsp;<b>a)</b> $\vec{c} = \begin{pmatrix} 2 \\ 3 \\ 5 \end{pmatrix}$ &nbsp;<b>b)</b> $\vec{c} = \begin{pmatrix} 1 \\ -2 \\ -1 \end{pmatrix}$ &nbsp;<b>c)</b> $\vec{c} = \begin{pmatrix} 1 \\ 1 \\ 3 \end{pmatrix}$</p>
+  <div class="zwei-bild" style="gap:4mm;align-items:center"><p>Stelle $\vec{c}$ als Linearkombination von $\vec{a}$ und $\vec{b}$ aus Beispiel 1 (Seite {{S:linear-1}}) dar, falls möglich.</p><p><b>a)</b> $\begin{pmatrix} 5 \\ 2 \\ 7 \end{pmatrix}$ &nbsp;<b>b)</b> $\begin{pmatrix} 1 \\ -2 \\ -1 \end{pmatrix}$ &nbsp;<b>c)</b> $\begin{pmatrix} 1 \\ 1 \\ 3 \end{pmatrix}$</p></div>
 </div></div>
 
 <div class="auf"><div class="anr"><span class="z">3</span><span class="stufe">●●○</span></div><div class="text">
-  <p>Untersuche auf lineare Abhängigkeit. &nbsp;<b>a)</b> $\begin{pmatrix} 1 \\ 0 \\ 2 \end{pmatrix}$, $\begin{pmatrix} 2 \\ 1 \\ 1 \end{pmatrix}$, $\begin{pmatrix} 0 \\ 1 \\ 4 \end{pmatrix}$ &nbsp;<b>b)</b> $\begin{pmatrix} 1 \\ 1 \\ 2 \end{pmatrix}$, $\begin{pmatrix} 0 \\ 2 \\ 1 \end{pmatrix}$, $\begin{pmatrix} 3 \\ 1 \\ 5 \end{pmatrix}$ &nbsp;<b>c)</b> $\begin{pmatrix} 2 \\ 1 \\ 0 \end{pmatrix}$, $\begin{pmatrix} 1 \\ 3 \\ 1 \end{pmatrix}$, $\begin{pmatrix} 0 \\ 1 \\ 2 \end{pmatrix}$</p>
+  <p>Untersuche auf lineare Abhängigkeit.</p>
+  <div class="teil" style="--sp:3"><div><i>a)</i>$\begin{pmatrix} 1 \\ 0 \\ 2 \end{pmatrix}\!,\, \begin{pmatrix} 2 \\ 1 \\ 1 \end{pmatrix}\!,\, \begin{pmatrix} 0 \\ 1 \\ 4 \end{pmatrix}$</div><div><i>b)</i>$\begin{pmatrix} 1 \\ 1 \\ 2 \end{pmatrix}\!,\, \begin{pmatrix} 0 \\ 2 \\ 1 \end{pmatrix}\!,\, \begin{pmatrix} 3 \\ 1 \\ 5 \end{pmatrix}$</div><div><i>c)</i>$\begin{pmatrix} 2 \\ 1 \\ 0 \end{pmatrix}\!,\, \begin{pmatrix} 1 \\ 3 \\ 1 \end{pmatrix}\!,\, \begin{pmatrix} 0 \\ 1 \\ 2 \end{pmatrix}$</div></div>
 </div></div>
 
 <div class="auf"><div class="anr"><span class="z">4</span><span class="stufe">●●○</span></div><div class="text">
@@ -48,14 +42,14 @@
 </div></div>
 
 <div class="auf"><div class="anr"><span class="z">6</span><span class="stufe">●●●</span></div><div class="text">
-  <p>Liegen $A(1 \mid 0 \mid 0)$, $B(0 \mid 1 \mid 0)$, $C(0 \mid 0 \mid 1)$ und $D(1 \mid 1 \mid -1)$ in einer Ebene? Untersuche $\overrightarrow{AB}$, $\overrightarrow{AC}$, $\overrightarrow{AD}$.</p>
+  <p>Liegen $A(1 \mid 0 \mid 0)$, $B(0 \mid 1 \mid 0)$, $C(0 \mid 0 \mid 1)$, $D(1 \mid 1 \mid -1)$ in einer Ebene? Untersuche $\overrightarrow{AB}$, $\overrightarrow{AC}$, $\overrightarrow{AD}$.</p>
 </div></div>
 
 <div class="auf"><div class="anr"><span class="z offen">7</span><span class="stufe">●●●</span></div><div class="text">
-  <p>Bestimme die Koordinaten von $\begin{pmatrix} 4 \\ 6 \\ 2 \end{pmatrix}$ bezüglich der Basis aus Beispiel 3. Begründe, warum vier Vektoren im Raum immer linear abhängig sind.</p>
+  <p>Bestimme die Koordinaten des Vektors mit den Einträgen $4$, $6$, $2$ bezüglich der Basis aus Beispiel 3. Begründe: Vier Vektoren im Raum sind immer linear abhängig.</p>
 </div></div>
 <!--rand-->
-<div class="notiz"><span class="t">Fahrplan</span>① Ansatz $r\vec{a} + s\vec{b} + t\vec{c} = \vec{o}$<br>② LGS zeilenweise aufschreiben<br>③ Gauß-Verfahren<br>④ nur $0, 0, 0$? → unabhängig<br>Nullzeile? → abhängig</div>
+<div class="notiz"><span class="t">Fahrplan · Abhängigkeit</span>① Ansatz $r\vec{a} + s\vec{b} + t\vec{c} = \vec{o}$<br>② LGS zeilenweise aufschreiben<br>③ Gauß-Verfahren (S. {{S:gauss-1}})<br>④ nur $0, 0, 0$? → unabhängig<br>Nullzeile? → abhängig</div>
 
 <div class="notiz gold"><span class="t">Zu Aufgabe 4</span>Drei Punkte liegen auf einer Geraden, wenn $\overrightarrow{AB}$ und $\overrightarrow{AC}$ kollinear sind.</div>
 
