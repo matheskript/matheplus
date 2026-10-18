@@ -4,7 +4,7 @@
      1. das Kapitel zum Lesen (Lesefunktion des Buchs, nur die Seiten
         dieses Kapitels: /buecher/ableitungen/index.html?von=…&bis=…)
      2. darunter alle Trainingswerkzeuge zu diesem Kapitel – sie öffnen
-        sich direkt im Modul, man verlässt den Kurs nicht.
+        sich als Pop-up-Fenster im Modul, man verlässt den Kurs nicht.
    Farben: Babyblau, Schwarz, Weiß und sehr dunkles Gold (C.babyblau …).
    Fortschritt (gelesen/geübt) liegt im localStorage dieses Geräts.
    ============================================================ */
@@ -207,6 +207,59 @@ function Uebersicht({ stand, oeffnen }) {
   );
 }
 
+/* ---------- Werkzeug-Fenster (Pop-up im Kurs) ---------- */
+function WerkzeugFenster({ w, modul, gehe, schliessen }) {
+  const zuKnopf = React.useRef(null);
+  const zuletzt = React.useRef(typeof document !== "undefined" ? document.activeElement : null);
+  const zu = React.useCallback(() => schliessen(), [schliessen]);
+
+  React.useEffect(() => {
+    const alt = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const taste = (e) => { if (e.key === "Escape") zu(); };
+    window.addEventListener("keydown", taste);
+    if (zuKnopf.current) zuKnopf.current.focus({ preventScroll: true });
+    const vorher = zuletzt.current;
+    return () => {
+      document.body.style.overflow = alt;
+      window.removeEventListener("keydown", taste);
+      if (vorher && vorher.focus) { try { vorher.focus({ preventScroll: true }); } catch (e) { /* egal */ } }
+    };
+  }, [zu]);
+
+  return (
+    <div className="dk-fenster-hintergrund" onMouseDown={(e) => { if (e.target === e.currentTarget) zu(); }}
+      style={{ position: "fixed", inset: 0, zIndex: 60, background: "rgba(11,12,16,0.55)", display: "flex", alignItems: "center", justifyContent: "center", padding: 12, boxSizing: "border-box" }}>
+      <style>{`@media (max-width:640px){.dk-fenster-hintergrund{padding:0 !important;align-items:flex-end !important}.dk-fenster{max-height:94dvh !important;border-radius:20px 20px 0 0 !important;width:100% !important}}
+        @keyframes dkEin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+        .dk-fenster{animation:dkEin .18s ease-out}
+        @media (prefers-reduced-motion:reduce){.dk-fenster{animation:none}}`}</style>
+      <div className="dk-fenster" role="dialog" aria-modal="true" aria-label={w.titel}
+        style={{ width: "min(100%, 880px)", maxHeight: "calc(100dvh - 24px)", display: "flex", flexDirection: "column", borderRadius: 20,
+          border: `2px solid ${K.baby}`, background: C.sand, overflow: "hidden", boxShadow: "0 24px 70px rgba(11,12,16,0.45)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 14px", background: K.schwarz, color: K.weiss, flex: "none" }}>
+          <Zeichen text={w.zeichen} />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: "0.14em", color: K.baby, margin: 0 }}>TRAINING · MODUL {modul.nr || modul.titel}</p>
+            <p style={{ fontSize: 16, fontWeight: 700, margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{w.titel}</p>
+          </div>
+          <button ref={zuKnopf} type="button" onClick={zu} aria-label="Werkzeug schließen"
+            style={{ width: 40, height: 40, borderRadius: 10, border: "1px solid rgba(255,255,255,0.25)", background: "transparent", color: K.weiss, cursor: "pointer", fontSize: 20, lineHeight: 1 }}>×</button>
+        </div>
+        <div style={{ flex: 1, minHeight: 0, overflowY: "auto", overscrollBehavior: "contain", WebkitOverflowScrolling: "touch", padding: w.schmal ? "8px 0 24px" : "4px 0 24px" }}>
+          <ChunkGrenze>
+            <React.Suspense fallback={<Laden />}>
+              {w.schmal ? (
+                <div className="mx-auto px-6" style={{ maxWidth: 620, paddingTop: 16 }}>{w.render({ gehe, zu })}</div>
+              ) : w.render({ gehe, zu })}
+            </React.Suspense>
+          </ChunkGrenze>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ---------- Modul ---------- */
 function Modul({ modul, stand, setStand, oeffnen, zurUebersicht, gehe }) {
   const [offen, setOffen] = React.useState(null);
@@ -214,7 +267,6 @@ function Modul({ modul, stand, setStand, oeffnen, zurUebersicht, gehe }) {
   const [zwei, setZwei] = React.useState(() => { try { return modul.bis > modul.von && localStorage.getItem("matheplus-buch-zwei") === "1"; } catch (e) { return false; } });
   const zweiStart = React.useRef(zwei);
   const rahmen = React.useRef(null);
-  const werkzeugBereich = React.useRef(null);
   const i = KURS_MODULE.indexOf(modul);
   const naechstes = KURS_MODULE[i + 1], voriges = KURS_MODULE[i - 1];
   const seitenZahl = modul.bis - modul.von + 1;
@@ -226,10 +278,11 @@ function Modul({ modul, stand, setStand, oeffnen, zurUebersicht, gehe }) {
     return neu;
   });
 
+  /* Das Werkzeug öffnet sich als Fenster (Pop-up) über dem Kurs – die Seite scrollt nicht,
+     der Kurs wird nicht verlassen. Schließen: ×, Esc oder Klick neben das Fenster. */
   const werkzeugOeffnen = (id) => {
     setOffen(id);
     merken("geuebt");
-    springe("diffkurs-werkzeug", () => werkzeugBereich.current && werkzeugBereich.current.scrollIntoView({ behavior: "smooth", block: "start" }));
   };
 
   React.useEffect(() => {
@@ -332,13 +385,13 @@ function Modul({ modul, stand, setStand, oeffnen, zurUebersicht, gehe }) {
             <span style={{ marginLeft: "auto", display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12.5, color: C.grau }}><Haken an={!!stand.geuebt[modul.id]} />geübt</span>
           </div>
           <h3 style={{ fontSize: 20, fontWeight: 700, color: K.schwarz, margin: "8px 0 4px" }}>Werkzeuge zu diesem Kapitel</h3>
-          <p style={{ fontSize: 14, color: C.grau, margin: "0 0 14px", lineHeight: 1.6 }}>Tippe auf ein Werkzeug – es öffnet sich direkt hier im Modul.</p>
+          <p style={{ fontSize: 14, color: C.grau, margin: "0 0 14px", lineHeight: 1.6 }}>Tippe auf ein Werkzeug – es öffnet sich als Fenster direkt hier im Modul.</p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 330px), 1fr))", gap: 10 }}>
             {modul.werkzeuge.map((id) => {
               const t = KURS_WERKZEUGE[id];
               const an = offen === id;
               return (
-                <button key={id} type="button" onClick={() => (an ? setOffen(null) : werkzeugOeffnen(id))} aria-expanded={an} className="dk-wz"
+                <button key={id} type="button" onClick={() => (an ? setOffen(null) : werkzeugOeffnen(id))} aria-haspopup="dialog" aria-expanded={an} className="dk-wz"
                   style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 12px", borderRadius: 14, cursor: "pointer", textAlign: "left", fontFamily: "inherit",
                     background: an ? K.hell : K.weiss, border: `1.5px solid ${an ? K.gold : C.linie}`, boxShadow: "0 2px 12px rgba(15,26,51,0.05)" }}>
                   <Zeichen text={t.zeichen} />
@@ -355,30 +408,9 @@ function Modul({ modul, stand, setStand, oeffnen, zurUebersicht, gehe }) {
         </div>
       )}
 
-      <div ref={werkzeugBereich} style={{ scrollMarginTop: 16 }}>
-        {w && (
-          <div style={{ marginTop: 18, borderRadius: 20, border: `2px solid ${K.baby}`, background: C.sand, overflow: "hidden" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 14px", background: K.schwarz, color: K.weiss }}>
-              <Zeichen text={w.zeichen} />
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: "0.14em", color: K.baby, margin: 0 }}>TRAINING · MODUL {modul.nr || modul.titel}</p>
-                <p style={{ fontSize: 16, fontWeight: 700, margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{w.titel}</p>
-              </div>
-              <button type="button" onClick={() => setOffen(null)} aria-label="Werkzeug schließen"
-                style={{ width: 36, height: 36, borderRadius: 10, border: "1px solid rgba(255,255,255,0.25)", background: "transparent", color: K.weiss, cursor: "pointer", fontSize: 18, lineHeight: 1 }}>×</button>
-            </div>
-            <div style={{ padding: w.schmal ? "8px 0 24px" : "4px 0 24px" }}>
-              <ChunkGrenze key={offen}>
-                <React.Suspense fallback={<Laden />}>
-                  {w.schmal ? (
-                    <div className="mx-auto px-6" style={{ maxWidth: 620, paddingTop: 16 }}>{w.render({ gehe, zu: () => setOffen(null) })}</div>
-                  ) : w.render({ gehe, zu: () => setOffen(null) })}
-                </React.Suspense>
-              </ChunkGrenze>
-            </div>
-          </div>
-        )}
-      </div>
+      {w && (
+        <WerkzeugFenster key={offen} w={w} modul={modul} gehe={gehe} schliessen={() => setOffen(null)} />
+      )}
 
       <div style={{ margin: "30px 0 0", display: "flex", gap: 10, flexWrap: "wrap" }}>
         {voriges && (
