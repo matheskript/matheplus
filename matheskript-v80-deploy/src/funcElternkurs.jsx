@@ -127,6 +127,81 @@ export const ELTERNKURS = [
 const SCHATTEN = "0 2px 16px rgba(15,26,51,0.07)";
 const kicker = (k) => `${k.art === "ted" ? "TED-Talk" : k.art === "buchvortrag" ? "Buch · Vortrag des Autors" : "Buchzusammenfassung"} · ${k.sprecher}`;
 
+/* Bilder liegen lokal (kein Abruf bei Google/Verlag vor dem Klick):
+   Buchcover  → public/buecher/<id>.jpg   (Hochformat 2:3, z. B. 600 × 900)
+   TED-Bilder → public/ted/<id>.jpg       (16:9, z. B. 640 × 360)
+   Fehlt eine Datei, erscheint eine eigene Ersatzfläche. */
+const BILD = (ordner, id) => `${import.meta.env.BASE_URL || "/"}${ordner}/${id}.jpg`;
+
+function Haken({ an }) {
+  if (!an) return null;
+  return (
+    <span aria-hidden="true" style={{ position: "absolute", top: 8, right: 8, width: 24, height: 24, borderRadius: 999, background: C.smaragd, color: C.weiss,
+      display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, boxShadow: "0 1px 6px rgba(0,0,0,0.25)" }}>✓</span>
+  );
+}
+
+/* Zwei Buch-Boxen nebeneinander: Cover + „Tippe hier“-Hinweis. Klick öffnet genau dieses Modul. */
+function BuchKarte({ k, gesehen, onOpen }) {
+  const [fehlt, setFehlt] = useState(false);
+  const ist = k.id === "dweck";
+  return (
+    <button onClick={onOpen} className="ek-buch" aria-label={`Modul ${k.nr}: ${k.thema} – ${ist ? "Buch „Selbstbild“" : "Buch „Schnelles Denken, langsames Denken“"} öffnen`}
+      style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", fontFamily: "inherit", cursor: "pointer",
+        background: C.weiss, border: `1.5px solid ${C.linie}`, borderRadius: 18, padding: "16px 12px 14px", boxShadow: SCHATTEN, minWidth: 0 }}>
+      <Haken an={gesehen} />
+      <span style={{ display: "block", width: "62%", maxWidth: 150, aspectRatio: "2 / 3", borderRadius: 6, overflow: "hidden", boxShadow: "0 6px 18px rgba(15,26,51,0.28)", background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
+        {!fehlt ? (
+          <img src={BILD("buecher", k.id)} alt={`Buchcover: ${ist ? "Selbstbild" : "Schnelles Denken, langsames Denken"}`} loading="lazy" onError={() => setFehlt(true)}
+            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+        ) : (
+          <span style={{ height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, padding: 10, color: C.weiss }}>
+            <span style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", opacity: 0.8 }}>Buch</span>
+            <span style={{ fontSize: 13, fontWeight: 700, lineHeight: 1.25 }}>{ist ? "Selbstbild" : "Schnelles Denken, langsames Denken"}</span>
+            <span style={{ width: 24, height: 2, background: C.flaggold, borderRadius: 2 }} />
+            <span style={{ fontSize: 10.5, fontWeight: 400, opacity: 0.9 }}>{k.sprecher}</span>
+          </span>
+        )}
+      </span>
+      <span style={{ display: "block", marginTop: 12, fontSize: 12, fontWeight: 600, color: C.gruenDunkel }}>{k.sprecher}</span>
+      <span style={{ display: "block", marginTop: 2, fontSize: 14.5, fontWeight: 700, color: C.tinte, lineHeight: 1.3 }}>{k.thema}</span>
+      <span style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 10, fontSize: 12.5, fontWeight: 600, color: C.weiss, background: C.see, borderRadius: 999, padding: "7px 13px" }}>
+        Alles zum Buch
+        <svg width="7" height="11" viewBox="0 0 9 15" aria-hidden="true"><path d="M1.5 1.5 L7.5 7.5 L1.5 13.5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+      </span>
+    </button>
+  );
+}
+
+/* TED-Karte: Bild mit Rahmen und Play-Button, darunter Sprecher und Titel (höchstens zwei Zeilen). */
+function TedKarte({ k, gesehen, onOpen }) {
+  const [fehlt, setFehlt] = useState(false);
+  return (
+    <button onClick={onOpen} className="ek-ted" aria-label={`Modul ${k.nr}: ${k.sprecher} – ${k.thema}, Video ansehen`}
+      style={{ position: "relative", display: "flex", flexDirection: "column", textAlign: "left", fontFamily: "inherit", cursor: "pointer",
+        background: C.weiss, border: `1.5px solid ${C.linie}`, borderRadius: 16, padding: 8, boxShadow: SCHATTEN, minWidth: 0 }}>
+      <span style={{ position: "relative", display: "block", width: "100%", aspectRatio: "16 / 9", borderRadius: 10, overflow: "hidden", background: `linear-gradient(135deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
+        {!fehlt && (
+          <img src={BILD("ted", k.id)} alt="" loading="lazy" onError={() => setFehlt(true)}
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+        )}
+        {fehlt && (
+          <span style={{ position: "absolute", left: 10, bottom: 8, right: 10, color: C.weiss, fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", opacity: 0.85 }}>TED</span>
+        )}
+        <span aria-hidden="true" style={{ position: "absolute", left: "50%", top: "50%", width: 46, height: 46, marginLeft: -23, marginTop: -23, borderRadius: 999,
+          background: "rgba(15,26,51,0.62)", border: "2px solid rgba(255,255,255,0.9)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <svg width="16" height="18" viewBox="0 0 16 18"><path d="M3 1.5 L14 9 L3 16.5 Z" fill="#fff" /></svg>
+        </span>
+      </span>
+      <Haken an={gesehen} />
+      <span className="ek-ted-text" style={{ display: "block", minWidth: 0, flex: 1 }}>
+        <span style={{ display: "block", margin: "10px 4px 0", fontSize: 12, fontWeight: 600, color: C.gruenDunkel }}>{k.sprecher}</span>
+        <span style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", margin: "2px 4px 4px", fontSize: 14, fontWeight: 700, color: C.tinte, lineHeight: 1.3 }}>{k.thema}</span>
+      </span>
+    </button>
+  );
+}
+
 function Transfer({ k }) {
   const r = ROLLEN[k.id];
   if (!r) return null;
@@ -190,6 +265,20 @@ export function ElternkursSeite() {
     const anteil = gesehen.length / ELTERNKURS.length;
     return (
       <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
+        <style>{`
+          .ek-buecher{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+          .ek-teds{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+          .ek-buch,.ek-ted{transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease}
+          .ek-buch:hover,.ek-ted:hover{transform:translateY(-2px);border-color:#004D98!important}
+          .ek-buch:focus-visible,.ek-ted:focus-visible{outline:3px solid #EDBB00;outline-offset:2px}
+          @media (max-width:520px){
+            .ek-teds{grid-template-columns:1fr}
+            .ek-ted{flex-direction:row!important;align-items:center;gap:12px}
+            .ek-ted>span:first-child{width:42%!important;flex-shrink:0}
+            .ek-ted-text>span:first-child{margin-top:0!important}
+          }
+          @media (prefers-reduced-motion:reduce){.ek-buch,.ek-ted{transition:none}.ek-buch:hover,.ek-ted:hover{transform:none}}
+        `}</style>
         <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 12 }}>Acht Module für Eltern, Lehrkräfte und Schüler</h2>
         <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.8, marginBottom: 22 }}>
           Sechs der meistgesehenen TED-Talks und zwei Bücher, „Selbstbild“ von Carol Dweck und „Schnelles Denken, langsames Denken“ von Daniel Kahneman – in drei Teilen: Der Kopf, das Gefühl, das Gespräch. Jedes Modul hat einen Text und eine Rollenbox, was du als Elternteil, Lehrkraft oder Schüler daraus mitnimmst.
@@ -209,23 +298,23 @@ export function ElternkursSeite() {
             <p style={{ fontSize: 12, fontWeight: 700, color: C.gruenDunkel, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 2 }}><span>Teil</span>{" "}<span>{t.nr}</span></p>
             <h3 style={{ fontSize: 20, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.25, margin: 0 }}>{t.titel}</h3>
             <p style={{ fontSize: 14, fontWeight: 300, color: C.grau, margin: "2px 0 14px" }}>{t.unter}</p>
-            <div style={{ display: "grid", gap: 12 }}>
+            {t.nr === 1 && (
+              <p style={{ fontSize: 13.5, fontWeight: 500, color: C.tinte, margin: "0 0 12px", display: "flex", alignItems: "center", gap: 8 }}>
+                <span aria-hidden="true" style={{ fontSize: 16 }}>👆</span>
+                <span>Tippe auf ein Buch: Du siehst alles dazu – Zusammenfassung, Video und was du daraus mitnimmst.</span>
+              </p>
+            )}
+            {t.nr !== 1 && (
+              <p style={{ fontSize: 13.5, fontWeight: 500, color: C.tinte, margin: "0 0 12px", display: "flex", alignItems: "center", gap: 8 }}>
+                <span aria-hidden="true" style={{ fontSize: 16 }}>▶</span>
+                <span>Tippe auf einen Talk, um genau dieses Video mit Text und Rollenbox zu öffnen.</span>
+              </p>
+            )}
+            <div className={t.nr === 1 ? "ek-buecher" : "ek-teds"}>
               {ELTERNKURS.map((k, i) => (k.teil !== t.nr ? null : (
-                <button key={k.id} onClick={() => setOffen(i)} aria-label={`Modul ${k.nr}: ${k.thema}`}
-                  style={{ display: "flex", alignItems: "center", gap: 16, textAlign: "left", width: "100%", fontFamily: "inherit", cursor: "pointer",
-                    background: C.weiss, border: "none", borderRadius: 16, padding: "16px 18px", boxShadow: SCHATTEN }}>
-                  <span style={{ flexShrink: 0, width: 40, height: 40, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center",
-                    background: gesehen.includes(k.id) ? C.smaragd : `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)`, color: C.weiss, fontSize: 16, fontWeight: 700 }}>
-                    {gesehen.includes(k.id) ? "✓" : k.nr}
-                  </span>
-                  <span style={{ flex: 1, minWidth: 0 }}>
-                    <span style={{ display: "block", fontSize: 12, fontWeight: 600, color: C.gruenDunkel, marginBottom: 2 }}>{kicker(k)}</span>
-                    <span style={{ display: "block", fontSize: 15.5, fontWeight: 700, color: C.tinte, lineHeight: 1.3 }}>{k.thema}</span>
-                  </span>
-                  <svg width="9" height="15" viewBox="0 0 9 15" aria-hidden="true" style={{ flexShrink: 0 }}>
-                    <path d="M1.5 1.5 L7.5 7.5 L1.5 13.5" fill="none" stroke={C.see} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </button>
+                k.art === "ted"
+                  ? <TedKarte key={k.id} k={k} gesehen={gesehen.includes(k.id)} onOpen={() => setOffen(i)} />
+                  : <BuchKarte key={k.id} k={k} gesehen={gesehen.includes(k.id)} onOpen={() => setOffen(i)} />
               )))}
             </div>
           </section>
