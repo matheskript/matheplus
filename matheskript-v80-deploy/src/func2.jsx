@@ -1144,7 +1144,7 @@ function BereichsKopfLeiste({ rahmenRef, titel, onZu }) {
       const r = rahmenRef.current;
       if (!r || !r.hasAttribute("data-aufklapp-rahmen")) return setLage(null);
       const kopf = document.querySelector("[data-kopfleiste]");
-      const oben = kopf ? kopf.getBoundingClientRect().bottom : 0;
+      const oben = kopf ? Math.max(0, kopf.getBoundingClientRect().bottom) : 0;   // Header scrollt weg → Leiste rückt bis an den Bildrand
       const fr = r.getBoundingClientRect();
       const kachel = r.querySelector("button");
       if (!kachel || kachel.getBoundingClientRect().bottom > oben + 4 || fr.bottom < oben + 110) return setLage(null);
@@ -1206,8 +1206,7 @@ export function Startseite({ gehe }) {
     setBereichAuf(null);
     requestAnimationFrame(() => {
       if (!r) return;
-      const kopf = document.querySelector("[data-kopfleiste]");
-      springe("start-schulmathe", () => window.scrollTo({ top: r.getBoundingClientRect().top + window.scrollY - (kopf ? kopf.offsetHeight : 0) - 12 }));
+      springe("start-schulmathe", () => window.scrollTo({ top: r.getBoundingClientRect().top + window.scrollY - 12 }));
     });
   };
   /* Außen tippen schließt: Ein Tipp auf die abgedunkelte Fläche (kein Knopf, kein Link) klappt das innerste offene Menü zu. */

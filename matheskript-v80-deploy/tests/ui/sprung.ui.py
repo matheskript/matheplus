@@ -52,7 +52,7 @@ with sync_playwright() as p:
         knopf = page.get_by_role("button", name="Analysis aufklappen")
         knopf.scroll_into_view_if_needed(); page.evaluate("window.scrollBy(0, -250)"); page.wait_for_timeout(300)
         knopf.click(force=True); page.wait_for_timeout(1200)
-        kopf = page.evaluate("(() => { const k = document.querySelector('[data-kopfleiste]'); return k ? k.getBoundingClientRect().height : 56; })()")
+        kopf = 0   # Header ist nicht mehr fixiert: Menü landet oben am Bildrand (plus kleiner Puffer)
         oben = page.get_by_role("button", name="Analysis zuklappen").first.evaluate("e => e.getBoundingClientRect().top")
         pruefe(abs(oben - kopf) < 40, f"{breite}: Startseite Analysis nicht nach oben geholt (top {oben}, Kopf {kopf})")
 

@@ -42,9 +42,9 @@ export function AufklappZeichen({ auf, art = "schlicht", groesse, abstand = 8, f
 /* ---------- Scrollen ---------- */
 const KOPF_PUFFER = 10;
 
+/* Der Header scrollt mit weg (nicht mehr fixiert): oben bleibt nur der kleine Puffer frei. */
 function kopfHoehe() {
-  const k = document.querySelector("[data-kopfleiste]");
-  return (k ? k.getBoundingClientRect().height : 56) + KOPF_PUFFER;
+  return KOPF_PUFFER;
 }
 
 /* Welcher Titel soll oben stehen? Bei einem Untermenü das übergeordnete Menü. */

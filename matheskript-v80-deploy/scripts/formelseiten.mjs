@@ -42,7 +42,7 @@ ${s.id ? `<script type="application/ld+json">${JSON.stringify({ "@context": "htt
 *{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
 body{margin:0;background:${C.sand};color:${C.tinte};font-family:Montserrat,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 a:focus-visible{outline:2px solid ${C.flaggold};outline-offset:2px}
-.kopf{background:${C.seeTief};position:sticky;top:0;z-index:5}
+.kopf{background:${C.seeTief}}
 .kopf a{display:block;max-width:720px;margin:0 auto;padding:14px 20px;text-decoration:none;font-weight:700;font-size:22px;letter-spacing:-.02em;text-transform:uppercase}
 .s{background:linear-gradient(180deg,#fff 0%,${C.silberHell} 50%,${C.silber} 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
 .g{background:linear-gradient(180deg,#FFE58A 0%,${C.flaggold} 45%,${C.goldWarm} 70%,#A67C00 100%);-webkit-background-clip:text;background-clip:text;color:transparent}

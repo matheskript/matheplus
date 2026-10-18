@@ -91,7 +91,7 @@ export function Probeabitur() {
   if (teil === "A" || teil === "B") {
     return (
       <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
-        <div className="flex justify-between items-center" style={{ position: "sticky", top: "var(--kopf-h, 56px)", zIndex: 20, background: C.sand, padding: "10px 0", marginBottom: 8 }}>
+        <div className="flex justify-between items-center" style={{ position: "sticky", top: 0, zIndex: 20, background: C.sand, padding: "10px 0", marginBottom: 8 }}>
           <span style={{ fontSize: 14, fontWeight: 600, color: C.see }}>{teil === "A" ? "Teil A · ohne Hilfsmittel" : "Teil B · mit Hilfsmitteln"}</span>
           <span style={{ fontSize: 17, fontWeight: 700, fontVariantNumeric: "tabular-nums", color: rest < 300 ? C.signal : C.tinte }}>{uhr}</span>
         </div>

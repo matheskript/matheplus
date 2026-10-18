@@ -105,7 +105,7 @@ export function LoesungsWeg({ titelTex, aufgabeText, typ, auf, onSchliessen }) {
 
   return (
     <div style={{ position: "fixed", inset: 0, background: C.sand, zIndex: 120, overflowY: "auto" }}>
-      <div style={{ position: "sticky", top: 0, background: C.seeTief, zIndex: 5 }}>
+      <div style={{ position: "relative", background: C.seeTief, zIndex: 5 }}>
         <div className="mx-auto px-5 flex items-center justify-between" style={{ maxWidth: 620, height: 54 }}>
           <span style={{ color: C.weiss, fontSize: 15.5, fontWeight: 600 }}>Lösungsweg</span>
           <button onClick={onSchliessen}
