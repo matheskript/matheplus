@@ -15,6 +15,7 @@ import { WERKZEUGE } from "./werkzeuge.js";
 import { lazyLaden, ChunkGrenze } from "./chunkSchutz.jsx";
 import { WZ_SEITEN, Laden } from "./funcWerkzeugSeite.jsx";
 import { springe } from "./sprung.js";
+import { WerkzeugKarte, KartenStil } from "./funcDiffKursKarten.jsx";
 
 const BUCH = "/buecher/ableitungen/index.html";
 const K = { baby: C.babyblau, hell: C.babyblauHell, tief: C.babyblauTief, schwarz: C.nachtschwarz, gold: C.golddunkel, weiss: C.weiss };
@@ -401,25 +402,12 @@ function Modul({ modul, stand, setStand, oeffnen, zurUebersicht, gehe }) {
           </div>
           <h3 style={{ fontSize: 20, fontWeight: 700, color: K.schwarz, margin: "8px 0 4px" }}>Werkzeuge zu diesem Kapitel</h3>
           <p style={{ fontSize: 14, color: C.grau, margin: "0 0 14px", lineHeight: 1.6 }}>Tippe auf ein Werkzeug – es öffnet sich als Fenster direkt hier im Modul.</p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 330px), 1fr))", gap: 10 }}>
-            {modul.werkzeuge.map((id) => {
-              const t = KURS_WERKZEUGE[id];
-              const an = offen === id;
-              return (
-                <button key={id} type="button" onClick={() => (an ? setOffen(null) : werkzeugOeffnen(id))} aria-haspopup="dialog" aria-expanded={an} className="dk-wz"
-                  style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 12px", borderRadius: 14, cursor: "pointer", textAlign: "left", fontFamily: "inherit",
-                    background: an ? K.hell : K.weiss, border: `1.5px solid ${an ? K.gold : C.linie}`, boxShadow: "0 2px 12px rgba(15,26,51,0.05)" }}>
-                  <Zeichen text={t.zeichen} />
-                  <span style={{ flex: 1, minWidth: 0 }}>
-                    <span style={{ display: "block", fontWeight: 700, fontSize: 14.5, color: K.schwarz }}>{t.titel}</span>
-                    <span style={{ display: "block", fontSize: 12.5, color: C.grau, marginTop: 2, lineHeight: 1.35 }}>{t.zeile}</span>
-                  </span>
-                  <span aria-hidden="true" style={{ fontSize: 13, fontWeight: 700, color: K.gold, whiteSpace: "nowrap" }}>{an ? "Schließen" : "Öffnen"}</span>
-                </button>
-              );
-            })}
+          <KartenStil />
+          <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 16 }}>
+            {modul.werkzeuge.map((id) => (
+              <WerkzeugKarte key={id} id={id} t={KURS_WERKZEUGE[id]} an={offen === id} oeffnen={werkzeugOeffnen} schliessen={() => setOffen(null)} Zeichen={Zeichen} />
+            ))}
           </div>
-          <style>{`.dk-wz{transition:transform .15s ease, border-color .15s} @media (hover:hover){.dk-wz:hover{transform:translateY(-1px)}}`}</style>
         </div>
       )}
 
