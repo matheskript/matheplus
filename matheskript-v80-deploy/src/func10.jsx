@@ -864,15 +864,6 @@ export function Mathilda() {
           </SeitenKopf>
           <TrainingSeite modus="klausurnach" gehe={gehe} />
         </>
-      ) : ansicht === "kopf" ? (
-        <>
-          <SeitenKopf titel="Kopfrechnen" groesse="clamp(26px, 8vw, 36px)">
-              <p style={{ color: C.goldText, fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
-                Kopfrechnen — damit der Kopf beim Rechnen für das Eigentliche frei bleibt.
-              </p>
-          </SeitenKopf>
-          <KopfrechenZentrum key={kopfTrainer || "liste"} start={kopfTrainer} gehe={gehe} />
-        </>
       ) : istWzSeite(ansicht) ? (
         <WerkzeugSeite ansicht={ansicht} gehe={gehe} menue={<SektionsMenue />} />
                                                                                                 ) : ansicht === "analysis" ? (
@@ -1168,11 +1159,11 @@ export function Mathilda() {
           </div>
           <EbbinghausSeite gehe={gehe} />
         </>
-      ) : ansicht === "headnumbers" ? (
+      ) : (ansicht === "headnumbers" || ansicht === "kopf") ? (
         <>
           <div className="kopfblock" style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.14em", color: C.flaggold, marginBottom: 8 }}>KOPFRECHNEN · 3 BEREICHE</p>
+              <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.14em", color: C.flaggold, marginBottom: 8 }}>KOPFRECHNEN · 3 BEREICHE UND 6 TRAINER</p>
               <h1 className="titel-silber" style={{ fontWeight: 800, fontSize: "clamp(28px, 8.4vw, 38px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Kopfrechnen</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
               <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
@@ -1182,7 +1173,9 @@ export function Mathilda() {
             <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
           </div>
           <React.Suspense fallback={<p role="status" style={{ color: C.grau, fontSize: 15, fontWeight: 300, padding: "24px 0" }}>{englisch() ? "Loading …" : "Wird geladen …"}</p>}>
-            <HeadNumbersSeite key={hnModul || "start"} gehe={gehe} start={hnModul} />
+            {ansicht === "kopf" && kopfTrainer
+              ? <KopfrechenZentrum key={kopfTrainer} start={kopfTrainer} onZurueck={() => gehe({ ansicht: "headnumbers" })} />
+              : <HeadNumbersSeite key={hnModul || "start"} gehe={gehe} start={hnModul} unten={<KopfrechenZentrum eingebettet />} />}
           </React.Suspense>
         </>
       ) : ansicht === "lgs" ? (

@@ -900,15 +900,15 @@ export function KopfKacheln({ onWaehle }) {
   );
 }
 
-export function KopfrechenZentrum({ start = null, gehe = null }) {
+export function KopfrechenZentrum({ start = null, gehe = null, eingebettet = false, onZurueck = null }) {
   const [offen, setOffen] = useState(KOPF_ALT[start] || start);
   const t = offen ? TRAINER.find((x) => x.id === offen) : null;
 
   if (!t) {
     return (
-      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
+      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: eingebettet ? 8 : 30 }}>
         <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
-          Zahlen, die einfach sitzen
+          {eingebettet ? "Weitere Trainer" : "Zahlen, die einfach sitzen"}
         </h2>
         <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 22 }}>
           Trainer für das Kopfrechnen und schriftliche Rechnen. Wer Zahlen sofort abrufen kann, kürzt schneller, sieht Teiler auf einen
@@ -933,7 +933,7 @@ export function KopfrechenZentrum({ start = null, gehe = null }) {
 
   return (
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
-      <button onClick={() => setOffen(null)} className="mb-5"
+      <button onClick={() => (onZurueck ? onZurueck() : setOffen(null))} className="mb-5"
         style={{ background: "none", border: "none", color: C.see, fontSize: 13, fontFamily: "inherit", cursor: "pointer", padding: 0 }}>
         ← Kopfrechnen
       </button>

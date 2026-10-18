@@ -37,7 +37,7 @@ const ANSICHT_NAMEN = {
   rechenweg: { name: "Kurvendiskussion · Rechenweg", ziel: { ansicht: "plotter" } },
   graph: { name: "Graphen zuordnen", ziel: { ansicht: "plotter" } },
   headnumbers: { name: "Kopfrechnen", ziel: { ansicht: "headnumbers" } },
-  kopf: { name: "Kopfrechnen", ziel: { ansicht: "kopf" } },
+  kopf: { name: "Kopfrechnen · Trainer", ziel: { ansicht: "kopf" } },
   training: { name: "Aufgaben üben", ziel: { ansicht: "training" } },
   meintraining: { name: "Mein Training", ziel: { ansicht: "meintraining" } },
   warmup: { name: "5 Minuten Mathe", ziel: { ansicht: "warmup" } },

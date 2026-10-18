@@ -288,7 +288,7 @@ function StartSeite({ onWaehle, onStart, gehe }) {
 /* ======================================================================
    SEITE – Navigation innerhalb von Head & Numbers
    ====================================================================== */
-export function HeadNumbersSeite({ gehe, start = null }) {
+export function HeadNumbersSeite({ gehe, start = null, unten = null }) {
   const K = useKopf();
   const [ansicht, setAnsicht] = useState(start && modulInfo(start) ? { typ: "bereich", modul: start } : { typ: "start" });
   const [zaehler, setZaehler] = useState(0);
@@ -312,7 +312,7 @@ export function HeadNumbersSeite({ gehe, start = null }) {
 
   const wrap = (kinder) => <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 18 }}>{kinder}</div>;
 
-  if (ansicht.typ === "start") return wrap(<StartSeite onWaehle={bereich} onStart={starten} gehe={gehe} />);
+  if (ansicht.typ === "start") return <>{wrap(<StartSeite onWaehle={bereich} onStart={starten} gehe={gehe} />)}{unten}</>;
   if (ansicht.typ === "bereich") return wrap(<BereichSeite modul={ansicht.modul} onZurueck={() => zu({ typ: "start" })} onStart={starten} gehe={gehe} />);
   if (ansicht.typ === "verstehen") {
     return wrap(<Verstehen modul={ansicht.modul} onZurueck={() => bereich(ansicht.modul)}
