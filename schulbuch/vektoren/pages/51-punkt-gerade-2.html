@@ -1,9 +1,9 @@
 <!-- kap: VI -->
 <div class="kasten beispiel" style="margin-top:0">
   <div class="etikett">Beispiel 1 · Abstand paralleler Geraden</div>
-  <p style="text-align:left">Zeige, dass $g\colon \vec{x} = \left(\begin{smallmatrix} 2 \\ -1 \\ 0 \end{smallmatrix}\right) + t \cdot \left(\begin{smallmatrix} 1 \\ 2 \\ 2 \end{smallmatrix}\right)$ und $h\colon \vec{x} = \left(\begin{smallmatrix} 6 \\ 1 \\ 5 \end{smallmatrix}\right) + s \cdot \left(\begin{smallmatrix} 1 \\ 2 \\ 2 \end{smallmatrix}\right)$ parallel sind, und berechne ihren Abstand.</p>
+  <p style="text-align:left">Zeige, dass $g\colon \vec{x} = \left(\begin{smallmatrix} 2 \\ -1 \\ 0 \end{smallmatrix}\right) + t \cdot \left(\begin{smallmatrix} 1 \\ 2 \\ 2 \end{smallmatrix}\right)$ und $h\colon \vec{x} = \left(\begin{smallmatrix} 6 \\ 1 \\ 5 \end{smallmatrix}\right) + s \cdot \left(\begin{smallmatrix} 1 \\ 2 \\ 2 \end{smallmatrix}\right)$ parallel sind. Berechne $d(g, h)$.</p>
   <div class="loesung"><span class="loesung-kopf">Lösung</span>
-  <p style="text-align:left">Gleiche Richtung, und $Q(6 \mid 1 \mid 5) \notin g$ (aus $x_1$: $t = 4$, dann $x_2 = 7 \neq 1$): echt parallel. Gesucht ist $d(Q, g)$:</p>
+  <p style="text-align:left">Gleiche Richtung und $Q(6 \mid 1 \mid 5) \notin g$ (aus $x_1$: $t = 4$, dann $x_2 = 7 \neq 1$). Gesucht: $d(Q, g)$.</p>
   <div class="schritte" style="margin:1mm 0 0">
     <span class="sl">Ansatz</span><span>$\overrightarrow{QX_t} = \left(\begin{smallmatrix} t - 4 \\ 2t - 2 \\ 2t - 5 \end{smallmatrix}\right)$, &nbsp;$\overrightarrow{QX_t} \cdot \vec{u} = t - 4 + 4t - 4 + 4t - 10 = 9t - 18 = 0 \;\Leftrightarrow\; t = 2$</span>
     <span class="sl">Ergebnis</span><span>$F(4 \mid 3 \mid 4)$, &nbsp;$d(g, h) = |\overrightarrow{QF}| = \left|\left(\begin{smallmatrix} -2 \\ 2 \\ -1 \end{smallmatrix}\right)\right| = 3$</span>
@@ -21,7 +21,7 @@
     <div>
       <p style="text-align:left"><b>Parallelogramm:</b> $\vec{a} = \vec{q} - \vec{p}$ und $\vec{u}$ spannen ein Parallelogramm mit Fläche $|\vec{a} \times \vec{u}|$ auf (Seite {{S:kreuz-1}}). Seine Höhe über $\vec{u}$ ist der Abstand:</p>
       $$d(Q, g) = \frac{|(\vec{q} - \vec{p}) \times \vec{u}|}{|\vec{u}|}$$
-      <p style="text-align:left">Seite {{S:punkt-gerade-1}}: $\left(\begin{smallmatrix} 3 \\ 3 \\ 0 \end{smallmatrix}\right) \times \left(\begin{smallmatrix} 2 \\ 1 \\ -2 \end{smallmatrix}\right) = \left(\begin{smallmatrix} -6 \\ 6 \\ -3 \end{smallmatrix}\right)$ hat den Betrag 9, also $d = \frac{9}{3} = 3$ ✓</p>
+      <p style="text-align:left">S. {{S:punkt-gerade-1}}: $\left|\left(\begin{smallmatrix} 3 \\ 3 \\ 0 \end{smallmatrix}\right) \times \left(\begin{smallmatrix} 2 \\ 1 \\ -2 \end{smallmatrix}\right)\right| = 9$, $\;d = \frac{9}{3} = 3$ ✓</p>
     </div>
     <svg viewBox="0 0 120 80" width="34mm" height="23mm" xmlns="http://www.w3.org/2000/svg" style="font-family:Montserrat,sans-serif;margin-top:2mm">
       <polygon points="8,70 78,70 112,18 42,18" fill="#6A3F94" fill-opacity="0.12" stroke="#6A3F94" stroke-width="1.2"/>
@@ -45,7 +45,7 @@
 </div></div>
 
 <div class="auf"><div class="anr"><span class="z">2</span><span class="stufe">●○○</span></div><div class="text">
-  <p>Berechne mit einer Hilfsebene den Abstand von $P(4 \mid 2 \mid 2)$ zu $g\colon \vec{x} = \left(\begin{smallmatrix} 1 \\ 2 \\ -1 \end{smallmatrix}\right) + t \cdot \left(\begin{smallmatrix} 2 \\ 2 \\ 1 \end{smallmatrix}\right)$. Gib die Hilfsebene in Koordinatenform an.</p>
+  <p>Berechne $d(P, g)$ mit einer Hilfsebene (in Koordinatenform): $P(4 \mid 2 \mid 2)$, $g\colon \vec{x} = \left(\begin{smallmatrix} 1 \\ 2 \\ -1 \end{smallmatrix}\right) + t \cdot \left(\begin{smallmatrix} 2 \\ 2 \\ 1 \end{smallmatrix}\right)$.</p>
 </div></div>
 
 <div class="auf"><div class="anr"><span class="z">3</span><span class="stufe">●●○</span></div><div class="text">
@@ -53,7 +53,7 @@
 </div></div>
 
 <div class="auf"><div class="anr"><span class="z">4</span><span class="stufe">●●○</span></div><div class="text">
-  <p>Eine Drohne fliegt vom Punkt $A(0 \mid 0 \mid 12)$ geradlinig in Richtung $\left(\begin{smallmatrix} 2 \\ 2 \\ 1 \end{smallmatrix}\right)$ (Einheit 1 m). Wie nah kommt sie der Turmspitze $S(6 \mid 12 \mid 12)$? Wird ein Sicherheitsabstand von 5 m eingehalten?</p>
+  <p>Eine Drohne fliegt von $A(0 \mid 0 \mid 12)$ geradlinig in Richtung $\left(\begin{smallmatrix} 2 \\ 2 \\ 1 \end{smallmatrix}\right)$ (in m). Wie nah kommt sie der Turmspitze $S(6 \mid 12 \mid 12)$? Hält sie 5 m Sicherheitsabstand ein?</p>
 </div></div>
 
 <div class="auf"><div class="anr"><span class="z">5</span><span class="stufe">●●○</span></div><div class="text">
