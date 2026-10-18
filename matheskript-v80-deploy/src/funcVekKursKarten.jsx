@@ -1,9 +1,9 @@
 /* Werkzeug-Karten des Kurses Vektoren, Geraden und Ebenen – gleicher Aufbau wie
-   funcDiffKursKarten.jsx (Kopf · Text · Knopf · Skizze), in Lila mit warmem Gold. */
+   funcDiffKursKarten.jsx (Kopf · Text · Knopf · Skizze), in Dunkelblau mit warmem Gold. */
 import React from "react";
 import { C } from "./base1.jsx";
 
-const N = C.violettNacht, T = C.violettTief, L = C.violett, H = C.violettHell, NB = C.violettNebel, G = C.violettGold;
+const N = C.vkNacht, T = C.vkTief, L = C.vkBlau, H = C.vkHell, NB = C.vkNebel, G = C.vkGold;
 
 export const KARTEN = {
   geraden2d: { art: "Rechnen und Üben", text: "Geraden in der Ebene: y = m · x + c aus Punkt und Steigung oder aus zwei Punkten – der Start, bevor es mit Gleichungssystemen in den Raum geht." },
@@ -21,17 +21,17 @@ export const KARTEN = {
 
 /* ---------- Kleine Skizzen ---------- */
 const Achsen = () => (
-  <path d="M40 78 V16 M40 78 H112 M40 78 L14 98" stroke="rgba(22,10,51,0.28)" strokeWidth="1.4" fill="none" />
+  <path d="M40 78 V16 M40 78 H112 M40 78 L14 98" stroke="rgba(6,18,46,0.28)" strokeWidth="1.4" fill="none" />
 );
 const Pfeil = ({ x1, y1, x2, y2, f = N, b = 2.6 }) => {
   const w = Math.atan2(y2 - y1, x2 - x1), s = 7;
   const p = (d) => `${x2 - s * Math.cos(w + d)},${y2 - s * Math.sin(w + d)}`;
   return <g><line x1={x1} y1={y1} x2={x2 - 3 * Math.cos(w)} y2={y2 - 3 * Math.sin(w)} stroke={f} strokeWidth={b} strokeLinecap="round" /><polygon points={`${x2},${y2} ${p(0.45)} ${p(-0.45)}`} fill={f} /></g>;
 };
-const Ebene = ({ d = "M22 88 L92 74 L114 30 L44 44 Z" }) => <path d={d} fill="rgba(124,77,255,0.16)" stroke={L} strokeWidth="1.4" />;
+const Ebene = ({ d = "M22 88 L92 74 L114 30 L44 44 Z" }) => <path d={d} fill="rgba(36,87,197,0.16)" stroke={L} strokeWidth="1.4" />;
 
 const BILDER = {
-  geraden2d: () => (<><path d="M14 80 H114 M30 96 V8" stroke="rgba(22,10,51,0.3)" strokeWidth="1.3" /><line x1="18" y1="92" x2="110" y2="18" stroke={N} strokeWidth="2.8" strokeLinecap="round" /><line x1="14" y1="40" x2="114" y2="70" stroke={L} strokeWidth="2.8" strokeLinecap="round" /><circle cx="64" cy="55" r="5" fill={G} stroke="#fff" strokeWidth="1.5" /></>),
+  geraden2d: () => (<><path d="M14 80 H114 M30 96 V8" stroke="rgba(6,18,46,0.3)" strokeWidth="1.3" /><line x1="18" y1="92" x2="110" y2="18" stroke={N} strokeWidth="2.8" strokeLinecap="round" /><line x1="14" y1="40" x2="114" y2="70" stroke={L} strokeWidth="2.8" strokeLinecap="round" /><circle cx="64" cy="55" r="5" fill={G} stroke="#fff" strokeWidth="1.5" /></>),
   lgs: () => (<><text x="18" y="32" fontSize="13" fontWeight="700" fill={N} fontFamily="Montserrat, sans-serif">I</text><text x="14" y="56" fontSize="13" fontWeight="700" fill={N} fontFamily="Montserrat, sans-serif">II</text><text x="10" y="80" fontSize="13" fontWeight="700" fill={N} fontFamily="Montserrat, sans-serif">III</text>
     <path d="M36 22 H110 M50 46 H110 M64 70 H110" stroke={L} strokeWidth="5" strokeLinecap="round" /><path d="M36 46 H44 M36 70 H44 M50 70 H58" stroke={H} strokeWidth="5" strokeLinecap="round" /><circle cx="104" cy="92" r="5" fill={G} /></>),
   vektorgenerator: () => (<><Achsen /><Pfeil x1={40} y1={78} x2={78} y2={50} /><Pfeil x1={78} y1={50} x2={104} y2={60} f={L} /><Pfeil x1={40} y1={78} x2={104} y2={60} f={G} b={2.2} /></>),
@@ -57,26 +57,26 @@ function KartenBild({ id, titel }) {
 /* ---------- Die Karte ---------- */
 const CSS = `
 .vkk{position:relative;display:grid;grid-template-columns:240px minmax(0,1fr) 172px;grid-template-rows:auto 1fr;grid-template-areas:"kopf text bild" "knopf text bild";
-  column-gap:18px;row-gap:12px;min-height:140px;padding:16px;border-radius:22px;background:#fff;border:1.5px solid ${C.linie};box-shadow:0 4px 20px rgba(22,10,51,.07);
+  column-gap:18px;row-gap:12px;min-height:140px;padding:16px;border-radius:22px;background:#fff;border:1.5px solid ${C.linie};box-shadow:0 4px 20px rgba(6,18,46,.07);
   cursor:pointer;transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;box-sizing:border-box}
-@media (hover:hover){.vkk:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(61,26,158,.16);border-color:${L}}}
+@media (hover:hover){.vkk:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(13,39,102,.16);border-color:${L}}}
 .vkk-kopf{grid-area:kopf;display:flex;align-items:flex-start;gap:12px;min-width:0}
 .vkk-titel{font-size:15.5px;font-weight:800;letter-spacing:-0.01em;line-height:1.22;color:${N};margin:0;overflow-wrap:break-word}
 .vkk-art{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:${T};margin:0 0 3px}
-.vkk-text{grid-area:text;align-self:center;margin:0;font-size:13.5px;line-height:1.55;color:#2E2748}
+.vkk-text{grid-area:text;align-self:center;margin:0;font-size:13.5px;line-height:1.55;color:#26314C}
 .vkk-knopf-feld{grid-area:knopf;display:flex;align-items:flex-end}
 .vkk-bild{grid-area:bild;align-self:stretch;min-height:108px;border-radius:16px;overflow:hidden;border:1.5px solid ${H};padding:6px;box-sizing:border-box;
-  background-image:linear-gradient(rgba(124,77,255,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(124,77,255,.12) 1px,transparent 1px),linear-gradient(150deg,#fff 0%,${NB} 100%);
+  background-image:linear-gradient(rgba(36,87,197,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(36,87,197,.12) 1px,transparent 1px),linear-gradient(150deg,#fff 0%,${NB} 100%);
   background-size:18px 18px,18px 18px,auto}
 .vkk-knopf{position:relative;display:inline-flex;align-items:center;gap:12px;padding:6px 6px 6px 18px;border:0;border-radius:999px;cursor:pointer;font-family:inherit;font-weight:800;font-size:14px;letter-spacing:.01em;color:#fff;
-  background:linear-gradient(135deg,${L} 0%,${T} 100%);box-shadow:0 8px 18px rgba(124,77,255,.42), inset 0 1px 0 rgba(255,255,255,.25);
+  background:linear-gradient(135deg,${L} 0%,${T} 100%);box-shadow:0 8px 18px rgba(36,87,197,.42), inset 0 1px 0 rgba(255,255,255,.25);
   transition:transform .16s ease, box-shadow .16s ease, background .2s ease, color .2s ease}
 .vkk-knopf .vkk-pfeil{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:${G};color:${N};transition:transform .2s ease, background .2s ease}
-@media (hover:hover){.vkk-knopf:hover{transform:translateY(-2px);box-shadow:0 12px 24px rgba(124,77,255,.55), inset 0 1px 0 rgba(255,255,255,.3)}
+@media (hover:hover){.vkk-knopf:hover{transform:translateY(-2px);box-shadow:0 12px 24px rgba(36,87,197,.55), inset 0 1px 0 rgba(255,255,255,.3)}
   .vkk-knopf:hover .vkk-pfeil{transform:translateX(3px) rotate(-8deg)}}
 .vkk-knopf:active{transform:scale(.96)}
 .vkk-knopf:focus-visible{outline:3px solid ${G};outline-offset:3px}
-.vkk-knopf[aria-expanded="true"]{background:${N};color:#fff;box-shadow:0 8px 18px rgba(22,10,51,.35)}
+.vkk-knopf[aria-expanded="true"]{background:${N};color:#fff;box-shadow:0 8px 18px rgba(6,18,46,.35)}
 .vkk-knopf[aria-expanded="true"] .vkk-pfeil{background:${H};color:${N}}
 @media (max-width:820px){
   .vkk{grid-template-columns:minmax(0,1fr) 150px;grid-template-rows:auto auto auto;grid-template-areas:"kopf bild" "text text" "knopf knopf";column-gap:14px}

@@ -53,13 +53,13 @@ export const C = {
   babyblauTief: "#7FC2EC",
   nachtschwarz: "#0B0C10",
   golddunkel: "#5A4300",
-  /* Kurs Vektoren, Geraden und Ebenen: cooles Lila (Nacht → Tief → Leuchtend → Hell → Nebel) mit warmem Gold */
-  violettNacht: "#160A33",
-  violettTief: "#3D1A9E",
-  violett: "#7C4DFF",
-  violettHell: "#C7B3FF",
-  violettNebel: "#F3EEFF",
-  violettGold: "#F2C14E",
+  /* Kurs Vektoren, Geraden und Ebenen: Dunkelblau (Nacht → Tief → Leuchtend → Hell → Nebel) mit warmem Gold */
+  vkNacht: "#06122E",
+  vkTief: "#0D2766",
+  vkBlau: "#2457C5",
+  vkHell: "#A8C0F0",
+  vkNebel: "#EEF3FC",
+  vkGold: "#F2C14E",
 };
 
 

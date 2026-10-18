@@ -6,7 +6,7 @@
         dieses Kapitels: /buecher/vektoren/index.html?von=…&bis=…)
      2. darunter alle Trainingswerkzeuge zu diesem Kapitel – sie öffnen
         sich als Pop-up-Fenster im Modul, man verlässt den Kurs nicht.
-   Farben: cooles Lila (C.violettNacht … C.violettNebel) mit warmem Gold.
+   Farben: cooles Lila (C.vkNacht … C.vkNebel) mit warmem Gold.
    Fortschritt (gelesen/geübt) liegt im localStorage dieses Geräts.
 
    EINFÜGEN, SOBALD DAS HEFT FERTIG IST (schulbuch/vektoren/LIESMICH.md):
@@ -30,7 +30,7 @@ export const BUCH_BEREIT = false;
 
 /* Rollen wie im Differentialrechnungskurs: baby = Akzent auf Dunkel bzw. helle Fläche, hell = Nebel,
    tief = Linie/Fortschritt, schwarz = Nacht, gold = Akzentschrift auf Hell, leucht = Gold auf Dunkel */
-const K = { baby: C.violettHell, hell: C.violettNebel, tief: C.violett, lila: C.violett, schwarz: C.violettNacht, gold: C.violettTief, leucht: C.violettGold, weiss: C.weiss };
+const K = { baby: C.vkHell, hell: C.vkNebel, tief: C.vkBlau, blau: C.vkBlau, schwarz: C.vkNacht, gold: C.vkTief, leucht: C.vkGold, weiss: C.weiss };
 
 const lazy = (lader, name) => lazyLaden(() => lader().then((m) => ({ default: m[name] })));
 const Geradengleichung = lazy(() => import("./funcGeradengleichung.jsx"), "Geradengleichung");
@@ -131,16 +131,16 @@ function BuchPlatzhalter({ modul }) {
       background: `linear-gradient(160deg, ${K.hell} 0%, #fff 55%, ${K.hell} 100%)`, border: `1.5px solid ${K.baby}`,
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: "28px 24px", boxSizing: "border-box" }}>
       <svg aria-hidden="true" viewBox="0 0 200 140" style={{ width: "min(62%, 240px)", height: "auto", marginBottom: 18 }}>
-        <path d="M40 110 L150 92 L180 30 L70 48 Z" fill="rgba(124,77,255,0.12)" stroke={K.lila} strokeWidth="1.6" />
+        <path d="M40 110 L150 92 L180 30 L70 48 Z" fill="rgba(36,87,197,0.12)" stroke={K.blau} strokeWidth="1.6" />
         <line x1="20" y1="30" x2="190" y2="118" stroke={K.schwarz} strokeWidth="2.6" strokeLinecap="round" />
-        <line x1="108" y1="73" x2="126" y2="22" stroke={C.violettGold} strokeWidth="2.8" strokeLinecap="round" />
+        <line x1="108" y1="73" x2="126" y2="22" stroke={C.vkGold} strokeWidth="2.8" strokeLinecap="round" />
         <circle cx="108" cy="73" r="5" fill={K.schwarz} />
       </svg>
       <p style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: "0.16em", color: K.gold, margin: "0 0 6px" }}>
         {modul.kap === "L" || modul.kap === "A" ? KAPITEL[modul.kap].toUpperCase() : `KAPITEL ${modul.kap} · ${KAPITEL[modul.kap].toUpperCase()}`}
       </p>
       <p style={{ fontSize: 19, fontWeight: 800, color: K.schwarz, margin: "0 0 8px", letterSpacing: "-0.01em" }}>Dieses Kapitel wird gerade geschrieben.</p>
-      <p style={{ fontSize: 14, color: "#3B3357", lineHeight: 1.6, margin: 0, maxWidth: 380 }}>
+      <p style={{ fontSize: 14, color: "#2C3756", lineHeight: 1.6, margin: 0, maxWidth: 380 }}>
         Bald liest du hier {seiten === 1 ? "die Seite" : `die ${seiten} Seiten`} aus unserem Heft „Vektoren, Geraden und Ebenen“.
         {modul.werkzeuge.length > 0 ? " Die Werkzeuge darunter kannst du schon jetzt benutzen." : ""}
       </p>
@@ -177,10 +177,10 @@ function Zeichen({ text, gross }) {
 /* ---------- Kopf ---------- */
 export function VekKursKopf({ untertitel }) {
   return (
-    <div style={{ background: `linear-gradient(160deg, ${K.schwarz} 0%, ${K.tief} 58%, ${K.lila} 100%)`, color: K.weiss, position: "relative", overflow: "hidden" }}>
+    <div style={{ background: `linear-gradient(160deg, ${K.schwarz} 0%, ${K.gold} 60%, #1A3E96 100%)`, color: K.weiss, position: "relative", overflow: "hidden" }}>
       <style>{`@media (max-width:640px){.vk-kopfbild{opacity:.28 !important}}`}</style>
       <svg className="vk-kopfbild" aria-hidden="true" viewBox="0 0 400 180" preserveAspectRatio="xMaxYMid slice" style={{ position: "absolute", right: 0, top: 0, height: "100%", width: "min(62%, 440px)", opacity: 0.7 }}>
-        <path d="M150 150 L330 120 L380 30 L200 60 Z" fill="rgba(199,179,255,0.18)" stroke={K.baby} strokeWidth="1.5" />
+        <path d="M150 150 L330 120 L380 30 L200 60 Z" fill="rgba(168,192,240,0.18)" stroke={K.baby} strokeWidth="1.5" />
         <path d="M120 165 L120 40 M120 165 L250 165 M120 165 L60 210" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" />
         <line x1="70" y1="40" x2="390" y2="150" stroke={K.weiss} strokeWidth="3" strokeLinecap="round" opacity="0.85" />
         <line x1="225" y1="93" x2="268" y2="20" stroke={K.leucht} strokeWidth="3.2" strokeLinecap="round" />

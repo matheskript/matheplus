@@ -1854,7 +1854,7 @@ export function Startseite({ gehe }) {
         text="Analysis 1–5, Vektoren und Stochastik – mit Videolektionen und Checks." />
       {/* Kurs Differentialrechnung: direkt über der Mathe Masterclass */}
       <DiffKursKachel onClick={() => gehe({ ansicht: "diffkurs" })} />
-      {/* Kurs Vektoren, Geraden und Ebenen: direkt darunter, in Lila */}
+      {/* Kurs Vektoren, Geraden und Ebenen: direkt darunter, in Dunkelblau */}
       <VekKursKachel onClick={() => gehe({ ansicht: "vekkurs" })} />
       {/* Ganz unten: Mathe Masterclass (3 Monate, gesperrt) */}
       <MasterclassKachel gesperrt name="Mathe Masterclass" monate="3 MONATE" onClick={() => gehe({ ansicht: "masterclass" })} />
