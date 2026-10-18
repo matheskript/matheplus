@@ -4,10 +4,14 @@
    unverändert (auch Zahlen, Einheiten wie km/h und Zähler wie „2/5“ bleiben Text). */
 import React from "react";
 import { M } from "./func3.jsx";
+import { MitWurzeln } from "./wurzelZeichen.jsx";
 
+/* Auch Wurzeln im Klartext („√2“, „√(a² + b²)“) werden als echte Wurzel gesetzt –
+   Haken und Überstrich als ein Linienzug (wurzelZeichen.jsx). */
 export function MS({ s }) {
-  if (typeof s !== "string" || !s.includes("$")) return s ?? null;
-  return <>{s.split("$").map((t, i) => (i % 2 ? <M key={i} t={t} /> : <React.Fragment key={i}>{t}</React.Fragment>))}</>;
+  if (typeof s !== "string") return s ?? null;
+  if (!s.includes("$")) return <MitWurzeln text={s} />;
+  return <>{s.split("$").map((t, i) => (i % 2 ? <M key={i} t={t} /> : <MitWurzeln key={i} text={t} />))}</>;
 }
 
 /* Bruch als $…$-Formel: bruchS(1, 6) → "$\frac{1}{6}$"; ganze Zahlen bleiben ohne Formel. */

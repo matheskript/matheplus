@@ -13,6 +13,7 @@ import { LoesungsWeg } from "./func6.jsx";
 import { merken } from "./func5.jsx";
 import { termAlsTex } from "./func4.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
+import { MitWurzeln, WurzelZeichen } from "./wurzelZeichen.jsx";
 
 /* Kopf des Polynomplotters im Stil der Sinusfunktion: ein gemeinsames Raster mit einer Spalte je Koeffizient.
    Oben die Plus/Minus-Knöpfe, darunter die allgemeine Form im grauen Kasten, dann die
@@ -765,12 +766,8 @@ export function mZeichne(teile, imExponent = false) {
     }
     if (t.typ === "sup") return <sup key={i} style={{ fontSize: "0.7em", lineHeight: 0 }}>{mZeichne(t.a, true)}</sup>;
     if (t.typ === "sub") return <sub key={i} style={{ fontSize: "0.7em", lineHeight: 0 }}>{mZeichne(t.a)}</sub>;
-    if (t.typ === "sqrt") return (
-      <span key={i} style={{ verticalAlign: "middle", display: "inline-block" }}>
-        {t.n && <sup style={{ fontSize: "0.58em", lineHeight: 0, marginRight: "-0.18em", position: "relative", top: "-0.15em" }}>{t.n}</sup>}
-        √<span style={{ borderTop: "1.1px solid currentColor", padding: "0.08em 0.12em 0" }}>{mZeichne(t.a)}</span>
-      </span>
-    );
+    // Wurzel: Haken und Überstrich als EIN Linienzug (wurzelZeichen.jsx) – nie „√“ + border-top
+    if (t.typ === "sqrt") return <WurzelZeichen key={i} index={t.n}>{mZeichne(t.a, imExponent)}</WurzelZeichen>;
     if (t.typ === "vec") return (
       <span key={i} style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", verticalAlign: "middle", lineHeight: 1 }}>
         <svg width="0.95em" height="0.42em" viewBox="0 0 20 9" aria-hidden="true" style={{ display: "block", marginBottom: "-0.04em" }}>
@@ -841,7 +838,7 @@ export function Text({ s, style }) {
   const stuecke = String(tr(s)).split("$");
   return (
     <p style={style}>
-      {stuecke.map((teil, i) => (i % 2 === 1 ? <M key={i} t={teil} /> : <span key={i}>{teil}</span>))}
+      {stuecke.map((teil, i) => (i % 2 === 1 ? <M key={i} t={teil} /> : <span key={i}><MitWurzeln text={teil} /></span>))}
     </p>
   );
 }

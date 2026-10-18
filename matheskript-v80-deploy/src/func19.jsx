@@ -13,6 +13,7 @@ import { C } from "./base1.jsx";
 import { DrehKnoepfe, FARBE_ACHSE, GRUND_AUS, GrundebenenGitter, GrundebenenSchalter, ebenenPolygon, ebenenText, kamera } from "./func16.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
 import { wAdd, wGanz, wIstNull, wIstRational, wLies, wMul, wNegativ, wNum, wSub, wText, wZ } from "./wzahl.js";
+import { WurzelZeichen } from "./wurzelZeichen.jsx";
 
 const FARBE_E1 = C.see;
 const FARBE_E2 = C.gruen;
@@ -50,13 +51,9 @@ export function Bruch({ oben, unten, gross }) {
   );
 }
 
-export function Wurzel({ children }) {
-  return (
-    <span style={{ display: "inline-flex", alignItems: "stretch", whiteSpace: "nowrap" }}>
-      <span style={{ fontWeight: 400, transform: "scaleY(1.15)", marginRight: 1 }}>√</span>
-      <span style={{ borderTop: "1.4px solid currentColor", paddingTop: 1, paddingLeft: 1 }}>{children}</span>
-    </span>
-  );
+/* Wurzel: Haken und Überstrich als ein Linienzug (wurzelZeichen.jsx) */
+export function Wurzel({ children, index }) {
+  return <WurzelZeichen index={index}>{children}</WurzelZeichen>;
 }
 
 // Zahl oder Bruch als Eintrag

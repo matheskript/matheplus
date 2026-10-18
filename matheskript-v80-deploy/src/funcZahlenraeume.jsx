@@ -235,7 +235,7 @@ function Entdecken({ gehe }) {
 
       {st.id === "N" && (
         <>
-          <StationKopf nr={1} raum="N" titel={st.titel()} menge="\\mathbb{N} = \\{1, 2, 3, 4, \\dots\\}" />
+          <StationKopf nr={1} raum="N" titel={st.titel()} menge={"\\mathbb{N} = \\{1, 2, 3, 4, \\dots\\}"} />
           <P>{zw("Mit den natürlichen Zahlen fängt alles an: Wir zählen. Die erste Frage an jeden Zahlenraum lautet: Welche Rechnungen kann ich darin ausführen, ohne ihn zu verlassen?", "Everything starts with the natural numbers: we count. The first question for every number space is: which calculations can I do inside it without leaving it?")}</P>
           <ZahlraumAnimation art="natuerlich" offen />
           <Tester key="N" raum="N" />
@@ -246,7 +246,7 @@ function Entdecken({ gehe }) {
 
       {st.id === "Z" && (
         <>
-          <StationKopf nr={2} raum="Z" titel={st.titel()} menge="\\mathbb{Z} = \\{\\dots, −2, −1, 0, 1, 2, \\dots\\}" />
+          <StationKopf nr={2} raum="Z" titel={st.titel()} menge={"\\mathbb{Z} = \\{\\dots, −2, −1, 0, 1, 2, \\dots\\}"} />
           <P>{zw("Jetzt nehmen wir die Subtraktion als dritte Rechenart dazu. 7 − 2 = 5 klappt. Aber 2 − 7? In ℕ gibt es kein Ergebnis – wir verlassen den Zahlenraum. Damit die Subtraktion immer ein Ergebnis hat, entstehen die ganzen Zahlen.", "Now we add subtraction as a third operation. 7 − 2 = 5 works. But 2 − 7? In ℕ there is no result – we leave the number space. So that subtraction always has a result, the integers are created.")}</P>
           <ZahlraumAnimation art="ganz" offen />
           <Tester key="Z" raum="Z" />
@@ -256,7 +256,7 @@ function Entdecken({ gehe }) {
 
       {st.id === "Q" && (
         <>
-          <StationKopf nr={3} raum="Q" titel={st.titel()} menge="\\mathbb{Q} = \\{\\frac{p}{q} \\mid p \\in \\mathbb{Z},\\, q \\in \\mathbb{N}\\}" />
+          <StationKopf nr={3} raum="Q" titel={st.titel()} menge={"\\mathbb{Q} = \\{\\frac{p}{q} \\mid p \\in \\mathbb{Z},\\, q \\in \\mathbb{N}\\}"} />
           <P>{zw("Als vierte Rechenart kommt die Division dazu. 10 : 5 = 2 bleibt in ℤ, aber 2 : 5 verlässt ℤ. Deshalb brauchen wir die rationalen Zahlen: Jede rationale Zahl ist eine ganze Zahl geteilt durch eine natürliche Zahl.", "Division joins as the fourth operation. 10 : 5 = 2 stays in ℤ, but 2 : 5 leaves ℤ. That is why we need the rational numbers: every rational number is an integer divided by a natural number.")}</P>
           <ZahlraumAnimation art="rational" offen />
           <Tester key="Q" raum="Q" />
@@ -281,7 +281,7 @@ function Entdecken({ gehe }) {
 
       {st.id === "alle" && (
         <>
-          <StationKopf nr={5} raum="alle" titel={st.titel()} menge="\\mathbb{N} \\subset \\mathbb{Z} \\subset \\mathbb{Q} \\subset \\mathbb{R}" />
+          <StationKopf nr={5} raum="alle" titel={st.titel()} menge={"\\mathbb{N} \\subset \\mathbb{Z} \\subset \\mathbb{Q} \\subset \\mathbb{R}"} />
           <P>{zw("Jeder Zahlenraum ist entstanden, weil eine Rechnung im alten Raum kein Ergebnis hatte. Tippe eine Zahl an und sieh, in welchen Zahlenräumen sie liegt.", "Each number space was created because a calculation had no result in the old one. Tap a number and see which spaces it lies in.")}</P>
           <Mengenbild />
           <div style={{ ...karte, marginTop: 14, padding: 0, overflow: "hidden" }}>

@@ -18,6 +18,8 @@ import { IchHaengeFest } from "./funcHilfe.jsx";
 import { Auswahl, GrosserKnopf, hilfeKontext, hinweis, karte, kicker, zw } from "./ui2.jsx";
 import { wahl } from "./rechnen2.js";
 import { Aufklapp, FunktionsBild, ModusLeiste, Seite, SchrittFolge, zt } from "./ui3.jsx";
+import { klartextWurzeln } from "./wurzelGeometrie.js";
+import { WurzelZeichen } from "./wurzelZeichen.jsx";
 
 let zaehler = 0;
 const PARAM = C.gruen;   // Farbe des Parameters a
@@ -26,8 +28,12 @@ const DE = zw(true, false);   // im Englischen wäre der Artikel „a“ sonst f
 
 /* Formeltext: das Parameterzeichen a farbig hervorheben */
 export function PT({ t, style }) {
-  const teile = String(t).split(/(?<![A-Za-zÄÖÜäöüß])(a)(?![A-Za-zÄÖÜäöüß])/);
-  return <span style={style}>{teile.map((s, i) => (s === "a" ? <b key={i} style={{ color: PARAM, fontStyle: "italic" }}>a</b> : <span key={i}>{s}</span>))}</span>;
+  const param = (text) => text.split(/(?<![A-Za-zÄÖÜäöüß])(a)(?![A-Za-zÄÖÜäöüß])/)
+    .map((s, i) => (s === "a" ? <b key={i} style={{ color: PARAM, fontStyle: "italic" }}>a</b> : <span key={i}>{s}</span>));
+  // Wurzeln (√a, √(3a)) als ein Linienzug, der Parameter darin bleibt hervorgehoben
+  const zeichne = (teile) => teile.map((p, i) => (typeof p === "string" ? <React.Fragment key={i}>{param(p)}</React.Fragment>
+    : <WurzelZeichen key={i} index={p.index}>{zeichne(p.wurzel)}</WurzelZeichen>));
+  return <span style={style}>{zeichne(klartextWurzeln(String(t)))}</span>;
 }
 
 /* ---------- Scharen ---------- */

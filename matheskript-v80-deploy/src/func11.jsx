@@ -11,6 +11,8 @@ import fontMonoBoldUrl from "dejavu-fonts-ttf/ttf/DejaVuSansMono-Bold.ttf?url";
 import { C } from "./base1.jsx";
 import { englisch } from "./i18n.js";
 import { kdInhalt, kdText } from "./kdEnglisch.js";
+import { W_ANF, W_END, klartextMarkieren } from "./wurzelGeometrie.js";
+import { wurzelnImPdf } from "./wurzelPdf.js";
 import {
   baueKurvendiskussionInhaltK, horner, polyAbleitungen, hochZiffer, markanteAllg, nullstellenAllg, polyTextPdf,
   schoenText, schoenerSchritt, tiefZiffer, zahl,
@@ -49,7 +51,8 @@ function schriftenEinbinden(doc, s) {
 /* ---------- Text-Aufbereitung ---------- */
 
 const striche = (t) => t.replace(/''/g, "″").replace(/'/g, "′");
-const pdfText = (t) => striche(schoenText(t));
+/* Wurzeln („√(…)“, „√12“) werden markiert und später als ein Linienzug gezeichnet (wurzelPdf.js). */
+const pdfText = (t) => klartextMarkieren(striche(schoenText(t)));
 
 /* Wandelt die LaTeX-Zeilen (Mitternachtsformel) in gut lesbaren Klartext. */
 function latexZuText(t) {
@@ -63,7 +66,7 @@ function latexZuText(t) {
     }
     return t.slice(start);
   };
-  const einfach = (s) => /^-?[\w.,√·²³⁴⁵⁶⁷⁸⁹⁰¹]+$/.test(s);
+  const einfach = (s) => /^-?[\w.,√·²³⁴⁵⁶⁷⁸⁹⁰¹\u0001\u0002]+$/.test(s);
   let aus = "";
   while (i < t.length) {
     if (t.startsWith("\\frac", i)) {
@@ -75,7 +78,7 @@ function latexZuText(t) {
       let wurzelIndex = "";
       if (t[i] === "[") { const j = t.indexOf("]", i); wurzelIndex = hochZiffer(t.slice(i + 1, j)); i = j + 1; }   // \sqrt[4]{…}
       const r = latexZuText(gruppe());
-      aus += wurzelIndex + (einfach(r) ? `√${r}` : `√(${r})`);
+      aus += wurzelIndex + W_ANF + r + W_END;   // Haken + Überstrich zeichnet wurzelPdf.js
     } else if (t.startsWith("\\text", i) && t[i + 5] === "{") {
       i += 5;
       aus += gruppe();
@@ -399,8 +402,8 @@ function formelZeile(doc, s, latex, { fett, farbe }) {
   while (breite() > SPALTE_B - 2 && gr > 4) gr -= 0.2;
   const em = gr * 0.3528, emB = em * BR;
   const achse = 0.28 * em;                                  // Höhe des Bruchstrichs über der Grundlinie
-  const hZaehler = achse + 0.22 * emB + 0.78 * emB;         // Oberkante des Zählers über der Grundlinie
-  const hNenner = -achse + 0.85 * emB + 0.2 * emB;          // Unterkante des Nenners unter der Grundlinie
+  const hZaehler = achse + 0.22 * emB + 0.78 * emB + (vorbereitet.some((p) => p.zaehler && p.zaehler.includes(W_ANF)) ? 0.14 * emB : 0);         // Oberkante des Zählers über der Grundlinie
+  const hNenner = -achse + 0.85 * emB + 0.2 * emB + (vorbereitet.some((p) => p.nenner && p.nenner.includes(W_ANF)) ? 0.2 * emB : 0);          // Unterkante des Nenners unter der Grundlinie
   const hNormal = gr * 0.46 * ZA;
   const h = Math.max(hNormal, hZaehler + Math.max(hNenner, 0) + 1.2 * SK);
   s.platz(h);
@@ -422,7 +425,9 @@ function formelZeile(doc, s, latex, { fett, farbe }) {
       const w = Math.max(wz, wn);
       const l = luecke(gr) + 0.5;
       doc.text(p.zaehler, x + l + (w - wz) / 2, grundlinie - achse - 0.22 * emB);
-      doc.text(p.nenner, x + l + (w - wn) / 2, grundlinie - achse + 0.85 * emB);
+      // Wurzel im Nenner: etwas tiefer, damit der Überstrich den Bruchstrich nicht berührt
+      const nennerTiefer = p.nenner.includes(W_ANF) ? 0.2 * emB : 0;
+      doc.text(p.nenner, x + l + (w - wn) / 2, grundlinie - achse + 0.85 * emB + nennerTiefer);
       setzeStrich(doc, farbe);
       doc.setLineWidth(0.18 * SK + 0.06);
       doc.line(x + l * 0.6, grundlinie - achse, x + l * 1.4 + w, grundlinie - achse);
@@ -565,12 +570,15 @@ export async function allgemeinesPdf({ kopf, inhalt, modell, dateiname }) {
     };
     dateiname = dateiname.replace(/^Kurvendiskussion_/, "Curve_Sketching_");
   }
+  // Wurzeln auch im Kopf (Advanced Plotter liefert Klartext wie „√(x + 1)“) als Linienzug setzen
+  kopf = { ...kopf, ...Object.fromEntries(["f", "f1", "f2", "fuss"].filter((k) => typeof kopf[k] === "string").map((k) => [k, klartextMarkieren(kopf[k])])) };
   const schriften = await ladeSchriften();
   // Ausnahmslos eine Seite: so lange kleiner setzen, bis nichts mehr überläuft.
   let doc = null;
   const versuch = () => {
     const d = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait", compress: true });
     schriftenEinbinden(d, schriften);
+    wurzelnImPdf(d);
     return { d, ueber: seiteSetzen(d, inhalt, kopf, modell) };
   };
   ZA = 1;
