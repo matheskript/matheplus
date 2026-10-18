@@ -47,6 +47,12 @@ export const C = {
   smaragd: "#2F8F5B",
   lila: "#7B4FA0",
   tuerkis: "#0E8A9B",
+  /* Kurs Differentialrechnung: Babyblau, Schwarz, Weiß und sehr dunkles Gold */
+  babyblau: "#BFE3F8",
+  babyblauHell: "#EAF6FD",
+  babyblauTief: "#7FC2EC",
+  nachtschwarz: "#0B0C10",
+  golddunkel: "#5A4300",
 };
 
 

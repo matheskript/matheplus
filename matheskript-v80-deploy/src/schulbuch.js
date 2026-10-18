@@ -50,6 +50,7 @@ const E_BINOM = z("Binomische Formeln entdecken", "Drei Formeln aus Flächen geb
 const E_GRENZ = z("Ableitung als Grenzwert", "Von der Sekante zur Tangente", { ansicht: "entdecken", seite: "grenzwert" });
 const E_PASCAL = z("Pascalsches Dreieck", "Vom Zahlenmuster zur Potenzregel", { ansicht: "entdecken", seite: "praxis" });
 const DIFFQ = z("Differenzenquotient", "Vom Tangentenproblem zur Ableitung", { ansicht: "diffq" });
+const KURS_DIFF = z("Kurs Differentialrechnung", "Jedes Buchkapitel lesen und direkt darunter trainieren", { ansicht: "diffkurs" });
 const BUCH_ABL = z("Schulbuch: Ableitungen", "36 Seiten zum Blättern – jede Regel hergeleitet", { ansicht: "schulbuch" });
 const POTREGEL = z("Potenzregel", "Beweis mit Produktregel und vollständiger Induktion", { ansicht: "potenzregel" });
 const ABIKETTEN = z("Abi-Ketten", "Eine Abi-Aufgabe durch mehrere Werkzeuge", { ansicht: "abiketten" });
@@ -100,14 +101,14 @@ export const THEMEN = {
   wkt2: { titel: "Mehrstufige Zufallsexperimente", zeile: "Baumdiagramm, Vier-Felder-Tafel, bedingte Wahrscheinlichkeit", hilfen: [w("vierfelder"), w("kombinatorik"), FS_STO] },
   ganzrat: { titel: "Ganzrationale Funktionen", zeile: "Graphen verschieben und strecken, Symmetrie, Gleichungen höheren Grades", hilfen: [w("textaufgaben"), w("kurvendiskussion"), w("gleichungen"), w("steckbrief"), FS_FKT] },
   sinfkt: { titel: "Sinus- und Kosinusfunktion", zeile: "Einheitskreis, Periode, Amplitude, Verschiebung", hilfen: [w("sinus"), w("trigonometrie"), FS_FKT] },
-  diff1: { titel: "Einführung in die Differenzialrechnung", zeile: "Mittlere und momentane Änderungsrate, Ableitung", hilfen: [E_GRENZ, DIFFQ, BUCH_ABL, w("ableitungstrainer")] },
-  ablregeln: { titel: "Ableitungsregeln", zeile: "Potenz-, Faktor- und Summenregel, Tangente", hilfen: [w("ableitungstrainer"), BUCH_ABL, POTREGEL, E_PASCAL, FS_ANA] },
+  diff1: { titel: "Einführung in die Differenzialrechnung", zeile: "Mittlere und momentane Änderungsrate, Ableitung", hilfen: [E_GRENZ, DIFFQ, KURS_DIFF, BUCH_ABL, w("ableitungstrainer")] },
+  ablregeln: { titel: "Ableitungsregeln", zeile: "Potenz-, Faktor- und Summenregel, Tangente", hilfen: [w("ableitungstrainer"), KURS_DIFF, BUCH_ABL, POTREGEL, E_PASCAL, FS_ANA] },
   kugel: { titel: "Kugel, Kegel und Pyramide", zeile: "Oberfläche und Volumen der Körper", hilfen: [w("koerper"), FS_GEO, w("optimierung")] },
   zufallsgr: { titel: "Zufallsgrößen und Erwartungswert", zeile: "Wahrscheinlichkeitsverteilung, faire Spiele", hilfen: [w("erwartungswert"), w("bernoulli"), FS_STO] },
   vek1: { titel: "Vektoren und Geraden im Raum", zeile: "Koordinaten im Raum, Vektoren addieren, Geradengleichung", hilfen: [w("vektorgenerator"), w("zweipunkte"), FS_VEK] },
 
   /* Kursstufe (Kapitel I–X wie im Lambacher Schweizer Kursstufe) */
-  ksDiff: { titel: "Grundlagen der Differenzialrechnung", zeile: "Ketten- und Produktregel, Monotonie, Extrem- und Wendepunkte, Tangente", hilfen: [w("ableitungstrainer"), BUCH_ABL, w("kurvendiskussion"), w("optimierung"), POTREGEL, FS_ANA] },
+  ksDiff: { titel: "Grundlagen der Differenzialrechnung", zeile: "Ketten- und Produktregel, Monotonie, Extrem- und Wendepunkte, Tangente", hilfen: [w("ableitungstrainer"), KURS_DIFF, BUCH_ABL, w("kurvendiskussion"), w("optimierung"), POTREGEL, FS_ANA] },
   ksExp: { titel: "Exponential- und Logarithmusfunktionen", zeile: "e-Funktion, ln, Umkehrfunktion, Wachstum", hilfen: [w("wachstum"), w("funktionen"), w("kurvendiskussion"), w("gleichungen"), FS_FKT] },
   ksInt: { titel: "Integralrechnung", zeile: "Stammfunktion, Hauptsatz, Flächen, Rotationskörper", hilfen: [w("stammintegral"), w("integrale"), FS_ANA] },
   ksFkt: { titel: "Funktionen und ihre Graphen", zeile: "Transformationen, Asymptoten, trigonometrische Funktionen, Scharen", hilfen: [w("funktionen"), w("scharen"), w("kurvendiskussion"), w("sinus"), FS_FKT] },

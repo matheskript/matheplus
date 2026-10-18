@@ -114,6 +114,7 @@ export const NAV = [
     { name: "Mathe entdecken", kurz: "Muster erkennen, Vermutungen aufstellen, Formeln selbst herleiten", ansicht: "entdecken" },
     { name: "Differenzenquotient", kurz: "Vom Tangentenproblem zur Ableitung", ansicht: "diffq" },
     { name: "Potenzregel", kurz: "Beweis mit Produktregel und vollständiger Induktion", ansicht: "potenzregel" },
+    { name: "Kurs Differentialrechnung", kurz: "Jedes Buchkapitel lesen und direkt darunter trainieren", ansicht: "diffkurs" },
     { name: "Schulbuch: Ableitungen", kurz: "36 Seiten zum Blättern – jede Regel hergeleitet", ansicht: "schulbuch" },
     { name: "Formelsammlung", kurz: "Alle Regeln zum Nachschlagen", ansicht: "formeln" },
     { name: "Operatoren", kurz: "Was „bestimmen“, „zeigen“, „begründen“ verlangen", ansicht: "operatoren" },

@@ -27,6 +27,7 @@ import { StochastikLogoKlein } from "./func17.jsx";
 import { BruchrechnenLogoKlein, DatenLogoKlein, GeometrieLogoKlein, GleichungenLogoKlein, ProzentLogoKlein, ZahlenLogoKlein } from "./funcEntdeckenLogo.jsx";
 import { MedaillenschrankLogo, BwmLogo, KarteLogo } from "./funcWettbewerbe.jsx";
 import { MasterclassKachel, MatheCheckenKachel, MathCreatorKachel } from "./funcMasterclass.jsx";
+import { DiffKursKachel } from "./funcDiffKursKachel.jsx";
 import { ElternabendKachel } from "./funcElternabend.jsx";
 import { SpendenBereich } from "./funcSpendenBereich.jsx";
 import { istFrei, entsperren, EVENT_FREI } from "./seitenKonstanten.js";
@@ -1783,6 +1784,8 @@ export function Startseite({ gehe }) {
       <PlotterKachel gesperrt onClick={() => gehe({ ansicht: "kurse" })} label="Videokurse öffnen" logo={<SchulkurseLogoKlein />}
         titel="Videokurse"
         text="Analysis 1–5, Vektoren und Stochastik – mit Videolektionen und Checks." />
+      {/* Kurs Differentialrechnung: direkt über der Mathe Masterclass */}
+      <DiffKursKachel onClick={() => gehe({ ansicht: "diffkurs" })} />
       {/* Ganz unten: Mathe Masterclass (3 Monate, gesperrt) */}
       <MasterclassKachel gesperrt name="Mathe Masterclass" monate="3 MONATE" onClick={() => gehe({ ansicht: "masterclass" })} />
       {/* Die 7 Mathe-Mythen: zwischen Masterclass und „Wo stehst du wirklich?“ */}

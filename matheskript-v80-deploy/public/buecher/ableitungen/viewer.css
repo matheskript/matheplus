@@ -54,3 +54,8 @@ body.offen #schleier { opacity: 1; pointer-events: auto; }
 /* Sprung in die App */
 .appsprung { display: inline-block; margin-top: 2mm; padding: 1.2mm 2.6mm; border-radius: 1.6mm; background: #EDBB00; color: #0E1E4A !important; font-weight: 800; font-size: 7.4pt; text-decoration: none; letter-spacing: 0.02em; }
 .appsprung:hover { background: #fff; }
+
+/* Kurs-Ausschnitt: kein Inhaltsverzeichnis, kein PDF, Regler nur bei mehreren Aufschlägen */
+body.ausschnitt #knInhalt, body.ausschnitt #knPdf, body.ausschnitt #inhalt, body.ausschnitt #schleier { display: none !important; }
+body.ausschnitt #leiste::after { left: 50%; margin-left: -22px; }
+body.ohnefuss #fuss { display: none; } body.ohnefuss #buehne { bottom: 0; }
