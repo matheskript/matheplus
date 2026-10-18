@@ -117,7 +117,7 @@ export const NAV = [
     { name: "Rechenweg schreiben", kurz: "Ganze Wege eintippen und prüfen lassen", ansicht: "training", ziel: "weg" },
     { name: "Kurvendiskussion", kurz: "Das Protokoll in zwölf Schritten", ansicht: "training", ziel: "kd" },
     { name: "Graph-Zuordnung", kurz: "Welcher Graph ist f′?", ansicht: "training", ziel: "gz" },
-    { name: "Head & Numbers", kurz: "Einmaleins, Quadrat- und Kubikzahlen – mit Lernpfad und Wiederholung", ansicht: "headnumbers" },
+    { name: "Kopfrechnen", kurz: "Einmaleins, Quadrat- und Kubikzahlen – mit Lernpfad und Wiederholung", ansicht: "headnumbers" },
     { name: "Mein Training", kurz: "Tagesplan, Lernfortschritt und Übungsmodi", ansicht: "meintraining" },
     { name: "Ebbinghaus", kurz: "Vergessen beenden: Skills im richtigen Moment wiederholen", ansicht: "ebbinghaus" },
   ] },

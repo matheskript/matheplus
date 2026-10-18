@@ -36,7 +36,7 @@ const ANSICHT_NAMEN = {
   abiketten: { name: "Abi-Ketten", ziel: { ansicht: "abiketten" } },
   rechenweg: { name: "Kurvendiskussion · Rechenweg", ziel: { ansicht: "plotter" } },
   graph: { name: "Graphen zuordnen", ziel: { ansicht: "plotter" } },
-  headnumbers: { name: "Head & Numbers", ziel: { ansicht: "headnumbers" } },
+  headnumbers: { name: "Kopfrechnen", ziel: { ansicht: "headnumbers" } },
   kopf: { name: "Kopfrechnen", ziel: { ansicht: "kopf" } },
   training: { name: "Aufgaben üben", ziel: { ansicht: "training" } },
   meintraining: { name: "Mein Training", ziel: { ansicht: "meintraining" } },
@@ -53,7 +53,7 @@ const ANSICHT_NAMEN = {
 };
 /* Gruppen, die einen eigenen Bereich bilden (unabhängig von der Ansicht) */
 const GRUPPEN_PRAEFIX = [
-  ["Head & Numbers", { id: "headnumbers", name: "Head & Numbers", ziel: { ansicht: "headnumbers" } }],
+  ["Head & Numbers", { id: "headnumbers", name: "Kopfrechnen", ziel: { ansicht: "headnumbers" } }],
   ["Teilbarkeit", { id: "teiler", name: "Teilbarkeitsregeln", ziel: { ansicht: "entdecken" } }],
   ["Bruchrechnen", { id: "brueche", name: "Bruchrechnen", ziel: { ansicht: "kopf" } }],
 ];

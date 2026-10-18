@@ -915,13 +915,13 @@ export function KopfrechenZentrum({ start = null, gehe = null }) {
           Blick und hat beim Rechnen den Kopf für das Eigentliche frei.
         </p>
         {gehe && (
-          <button type="button" onClick={() => gehe({ ansicht: "headnumbers" })} aria-label="Head & Numbers öffnen"
+          <button type="button" onClick={() => gehe({ ansicht: "headnumbers" })} aria-label="Kopfrechnen öffnen"
             style={{ display: "flex", alignItems: "center", gap: 14, width: "100%", textAlign: "left", fontFamily: "inherit", cursor: "pointer", marginBottom: 14, padding: 14, borderRadius: 18,
               border: `2px solid ${C.flaggold}`, background: C.weiss, color: C.tinte, boxShadow: "0 2px 14px rgba(15,26,51,0.06)" }}>
             <span aria-hidden="true" style={{ flexShrink: 0, width: 56, height: 56, borderRadius: 14, background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, color: C.flaggold,
               display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17, fontWeight: 800 }}>7·8</span>
             <span style={{ flex: 1, minWidth: 0 }}>
-              <span style={{ display: "block", fontSize: 16.5, fontWeight: 700, lineHeight: 1.25 }}>Head &amp; Numbers</span>
+              <span style={{ display: "block", fontSize: 16.5, fontWeight: 700, lineHeight: 1.25 }}>Kopfrechnen</span>
               <span style={{ display: "block", fontSize: 13, color: C.grau, fontWeight: 300, lineHeight: 1.4, marginTop: 2 }}>Einmaleins, Quadrat- und Kubikzahlen – mit Lernpfad, Spielen und Wiederholung.</span>
             </span>
           </button>

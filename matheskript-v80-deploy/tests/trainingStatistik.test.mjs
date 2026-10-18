@@ -88,7 +88,7 @@ test("Stärke und Baustelle erst ab 5 Aufgaben je Bereich", () => {
 });
 
 test("Bereichsnamen", () => {
-  assert.equal(bereichVon({ gruppe: "Head & Numbers · Einmaleins" }).name, "Head & Numbers");
+  assert.equal(bereichVon({ gruppe: "Head & Numbers · Einmaleins" }).name, "Kopfrechnen");
   assert.equal(bereichVon({ bereich: "abikette" }).name, "Abi-Ketten");
   assert.equal(bereichVon({ bereich: "advplotter" }).name, "Kurvendiskussion");
   assert.equal(bereichVon({ gruppe: "Teilbarkeit · durch 7" }).id, "teiler");

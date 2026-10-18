@@ -76,7 +76,7 @@ function BereichSeite({ modul, onZurueck, onStart, gehe }) {
   const unsicherListe = gemischt ? ALLE_ITEMS.filter((k) => status(K.items[k]) === "unsicher") : u.unsicher;
   const bloeckeFuerRunde = !gemischt && auswahl && auswahl.length ? [...auswahl].sort((a, b) => a - b) : null;
   const start = (art, extra = {}) => onStart({ art, modul, bloecke: bloeckeFuerRunde, ...extra });
-  const hn = L("Head & Numbers", "Head & Numbers");
+  const hn = L("Kopfrechnen", "Mental Math");
 
   return (
     <div>
@@ -203,7 +203,7 @@ function StartSeite({ onWaehle, onStart, gehe }) {
         <div style={{ background: "#FFF8DC", borderLeft: `4px solid ${C.flaggold}`, borderRadius: "4px 14px 14px 4px", padding: "14px 16px", marginBottom: 14 }}>
           <p style={{ fontSize: 15, color: C.tinte, lineHeight: 1.75, fontWeight: 400 }}>{L("Stell dir einen Koch vor: Er sollte auch seine Küche sauber halten können. Das hat mit Kochen direkt nichts zu tun – und ist trotzdem eine wichtige Fähigkeit, um eine Küche sauber führen zu können.", "Picture a cook: they should also be able to keep their kitchen clean. That has nothing directly to do with cooking – and yet it is an important skill for running a kitchen cleanly.")}</p>
         </div>
-        <Absatz style={{ marginBottom: 0 }}>{L("Genau dafür ist Head & Numbers da: Einmaleins, Quadratzahlen und Kubikzahlen einmal sauber trainieren – spielerisch, mit Verständnis und ohne Zeitdruck.", "That is exactly what Head & Numbers is for: practise the times tables, square numbers and cube numbers properly once – playfully, with understanding and without time pressure.")}</Absatz>
+        <Absatz style={{ marginBottom: 0 }}>{L("Genau dafür ist Kopfrechnen da: Einmaleins, Quadratzahlen und Kubikzahlen einmal sauber trainieren – spielerisch, mit Verständnis und ohne Zeitdruck.", "That is exactly what Mental Math is for: practise the times tables, square numbers and cube numbers properly once – playfully, with understanding and without time pressure.")}</Absatz>
       </section>
 
       {faelligGesamt > 0 && (
@@ -278,7 +278,7 @@ function StartSeite({ onWaehle, onStart, gehe }) {
 
       <section style={{ ...karte, padding: 18 }}>
         <Kicker>{L("Zusammen mit Pen & Paper", "Together with Pen & Paper")}</Kicker>
-        <p style={{ fontSize: 14.5, color: C.tinte, lineHeight: 1.65, marginBottom: 12 }}>{L("Head & Numbers trainiert den sicheren Abruf von Zahlen im Kopf. Pen & Paper trainiert die saubere schriftliche Darstellung deiner Lösungswege. Beide ergänzen sich.", "Head & Numbers trains secure recall of numbers in your head. Pen & Paper trains the clean written presentation of your solution paths. They complement each other.")}</p>
+        <p style={{ fontSize: 14.5, color: C.tinte, lineHeight: 1.65, marginBottom: 12 }}>{L("Kopfrechnen trainiert den sicheren Abruf von Zahlen im Kopf. Pen & Paper trainiert die saubere schriftliche Darstellung deiner Lösungswege. Beide ergänzen sich.", "Mental Math trains secure recall of numbers in your head. Pen & Paper trains the clean written presentation of your solution paths. They complement each other.")}</p>
         <Knopf haupt={false} onClick={() => gehe({ ansicht: "penpaperkurs" })}>{L("Zum Pen-&-Paper-Kurs", "To the Pen & Paper course")}</Knopf>
       </section>
     </div>

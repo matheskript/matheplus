@@ -69,7 +69,7 @@ test("Konkrete Themen führen zu Werkzeug, Kurs und Formel", () => {
   assert.ok(hat(suche("Hypothesentest"), "Hypothesentests"));
   assert.ok(hat(suche("Pq-Formel"), "Gleichungen lösen") && !hat(suche("Pq-Formel"), "Bernoulli"));
   assert.ok(hat(suche("Brüche kürzen"), "Terme und Potenzgesetze"));
-  assert.ok(hat(suche("Kopfrechnen"), "Head & Numbers"));
+  assert.ok(hat(suche("Kopfrechnen"), "Kopfrechnen"));
 });
 
 test("Je Videokurs nur eine Lektion, Formeln lassen sich einzeln anspringen", () => {

@@ -399,7 +399,7 @@ function DesktopKurse({ gehe }) {
       <div style={{ marginTop: 56 }}>
         <StartAbschnittKopf kicker="Kurse" titel="Jeder Kurs ein Baustein, zusammen ein System" />
         <p style={{ ...START_TEXT, marginBottom: 24 }}>
-          Hinter allen sieben Mythen steckt dieselbe Lücke: Es fehlt nicht an Begabung, sondern an einer Arbeitsweise. Die Kurse unten schließen sie Stück für Stück. Der Mathe-Mindset-Kurs räumt das Denken auf, Head &amp; Numbers macht Zahlen schnell und sicher, und Ebbinghaus sorgt dafür, dass Gelerntes im richtigen Abstand wiederkommt und bleibt. Die Videokurse und die Masterclass führen dich danach Schritt für Schritt durch den Stoff bis zum Abitur.
+          Hinter allen sieben Mythen steckt dieselbe Lücke: Es fehlt nicht an Begabung, sondern an einer Arbeitsweise. Die Kurse unten schließen sie Stück für Stück. Der Mathe-Mindset-Kurs räumt das Denken auf, Kopfrechnen macht Zahlen schnell und sicher, und Ebbinghaus sorgt dafür, dass Gelerntes im richtigen Abstand wiederkommt und bleibt. Die Videokurse und die Masterclass führen dich danach Schritt für Schritt durch den Stoff bis zum Abitur.
         </p>
       </div>
     </section>
@@ -1405,7 +1405,7 @@ export function Startseite({ gehe }) {
       <div style={{ marginTop: 20, marginBottom: 24 }}>
         {[
           ["Pen & Paper", "Dein Blatt muss dein Denken entlasten, nicht zusätzlich belasten."],
-          ["Head & Numbers", "Sicherheit im Umgang mit Zahlen, damit der Kopf für das Eigentliche frei ist."],
+          ["Kopfrechnen", "Sicherheit im Umgang mit Zahlen, damit der Kopf für das Eigentliche frei ist."],
           ["Mathe & Ich", "Nicht verstehen ist ein Zustand, kein Urteil über dich."],
         ].map(([t, s], i) => (
           <div key={i} style={{ paddingBottom: 16, marginBottom: 16, borderBottom: i < 2 ? `1px solid ${C.linie}` : "none" }}>
@@ -1617,10 +1617,10 @@ export function Startseite({ gehe }) {
       </AufklappRahmen>
       {desktop && entdeckenBlock}
       {!desktop && (<>
-      <PlotterKachel onClick={() => gehe({ ansicht: "headnumbers" })} label="Head & Numbers öffnen" logo={<HeadNumbersLogoKlein />} keinI18nTitel
-        titel="Head & Numbers"
+      <PlotterKachel onClick={() => gehe({ ansicht: "headnumbers" })} label="Kopfrechnen öffnen" logo={<HeadNumbersLogoKlein />}
+        titel="Kopfrechnen"
         text="Einmaleins, Quadrat- und Kubikzahlen, schriftliches Rechnen und Brüche – bis alles sitzt." />
-      <PlotterKachel onClick={() => gehe({ ansicht: "ebbinghaus" })} label="Ebbinghaus öffnen" logo={<EbbinghausLogoKlein />} extra={<EbbinghausBadge />} keinI18nTitel
+      <PlotterKachel gesperrt onClick={() => gehe({ ansicht: "ebbinghaus" })} label="Ebbinghaus öffnen" logo={<EbbinghausLogoKlein />} extra={<EbbinghausBadge />} keinI18nTitel
         titel="Ebbinghaus"
         text={EBB_SLOGAN} />
       <ZonenKopf nr={3} titel="Entdecken" zeile="Herleiten, Kurse, Mathilda und Pen & Paper." />
@@ -1659,10 +1659,10 @@ export function Startseite({ gehe }) {
       </div>
       </>)}
       {desktop && (<>
-      <PlotterKachel onClick={() => gehe({ ansicht: "headnumbers" })} label="Head & Numbers öffnen" logo={<HeadNumbersLogoKlein />} keinI18nTitel
-        titel="Head & Numbers"
+      <PlotterKachel onClick={() => gehe({ ansicht: "headnumbers" })} label="Kopfrechnen öffnen" logo={<HeadNumbersLogoKlein />}
+        titel="Kopfrechnen"
         text="Einmaleins, Quadrat- und Kubikzahlen, schriftliches Rechnen und Brüche – bis alles sitzt." />
-      <PlotterKachel onClick={() => gehe({ ansicht: "ebbinghaus" })} label="Ebbinghaus öffnen" logo={<EbbinghausLogoKlein />} extra={<EbbinghausBadge />} keinI18nTitel
+      <PlotterKachel gesperrt onClick={() => gehe({ ansicht: "ebbinghaus" })} label="Ebbinghaus öffnen" logo={<EbbinghausLogoKlein />} extra={<EbbinghausBadge />} keinI18nTitel
         titel="Ebbinghaus"
         text={EBB_SLOGAN} />
       </>)}

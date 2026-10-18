@@ -992,11 +992,11 @@ export function Lernlandkarte({ gehe }) {
         const ks = L.training && L.training.kopf && L.training.kopf.stand;
         const begonnen = ks && ks.angefangen > 0;
         return (
-          <button onClick={() => gehe({ ansicht: "headnumbers" })} className="kachel w-full" aria-label="Head & Numbers öffnen"
+          <button onClick={() => gehe({ ansicht: "headnumbers" })} className="kachel w-full" aria-label="Kopfrechnen öffnen"
             style={{ display: "block", textAlign: "left", background: C.weiss, border: `1.5px dashed ${C.silberDunkel}`, borderRadius: 14, padding: "12px 14px", cursor: "pointer", fontFamily: "inherit", marginBottom: 18 }}>
             <span style={{ display: "block", fontSize: 12, color: C.gruenDunkel, fontWeight: 600, marginBottom: 3 }}>Kopfrechnen · eigene Fähigkeit neben der Mathematik</span>
             <span style={{ display: "block", fontSize: 15, fontWeight: 600, color: C.tinte }}>
-              {begonnen ? `Head & Numbers: ${ks.sicher} von ${ks.gesamt} Zahlenbeziehungen sicher` : "Head & Numbers: Einmaleins, Quadrat- und Kubikzahlen trainieren"}
+              {begonnen ? `Kopfrechnen: ${ks.sicher} von ${ks.gesamt} Zahlenbeziehungen sicher` : "Kopfrechnen: Einmaleins, Quadrat- und Kubikzahlen trainieren"}
             </span>
             {begonnen && <span style={{ display: "block", fontSize: 12.5, color: C.grau, fontWeight: 300, marginTop: 2 }}>{ks.angefangen} begonnen, {ks.gut} davon im Aufbau oder besser</span>}
           </button>

@@ -575,7 +575,7 @@ export function StartseiteArchiv({ gehe }) {
       <div style={{ marginTop: 20, marginBottom: 24 }}>
         {[
           ["Pen & Paper", "Dein Blatt muss dein Denken entlasten, nicht zusätzlich belasten."],
-          ["Head & Numbers", "Sicherheit im Umgang mit Zahlen, damit der Kopf für das Eigentliche frei ist."],
+          ["Kopfrechnen", "Sicherheit im Umgang mit Zahlen, damit der Kopf für das Eigentliche frei ist."],
           ["Mathe & Ich", "Nicht verstehen ist ein Zustand, kein Urteil über dich."],
         ].map(([t, s], i) => (
           <div key={i} style={{ paddingBottom: 16, marginBottom: 16, borderBottom: i < 2 ? `1px solid ${C.linie}` : "none" }}>

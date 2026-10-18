@@ -868,7 +868,7 @@ export function Mathilda() {
         <>
           <SeitenKopf titel="Kopfrechnen" groesse="clamp(26px, 8vw, 36px)">
               <p style={{ color: C.goldText, fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
-                Head &amp; Numbers — damit der Kopf beim Rechnen für das Eigentliche frei bleibt.
+                Kopfrechnen — damit der Kopf beim Rechnen für das Eigentliche frei bleibt.
               </p>
           </SeitenKopf>
           <KopfrechenZentrum key={kopfTrainer || "liste"} start={kopfTrainer} gehe={gehe} />
@@ -1173,7 +1173,7 @@ export function Mathilda() {
           <div className="kopfblock" style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
               <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.14em", color: C.flaggold, marginBottom: 8 }}>KOPFRECHNEN · 3 BEREICHE</p>
-              <h1 className="titel-silber" style={{ fontWeight: 800, fontSize: "clamp(28px, 8.4vw, 38px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Head &amp; Numbers</h1>
+              <h1 className="titel-silber" style={{ fontWeight: 800, fontSize: "clamp(28px, 8.4vw, 38px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Kopfrechnen</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
               <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
                 Einmaleins, Quadratzahlen und Kubikzahlen – spielerisch trainiert, bis sie einfach sitzen.

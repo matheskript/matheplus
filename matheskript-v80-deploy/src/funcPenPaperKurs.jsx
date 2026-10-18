@@ -1078,14 +1078,14 @@ export function PenPaperKursSeite({ gehe }) {
       </div>
 
       <div style={{ ...karte, padding: "16px 18px", marginTop: 24 }}>
-        <p style={{ fontSize: 15.5, fontWeight: 700, color: NAVY, marginBottom: 6 }}>{L("Dazu passend: Head & Numbers", "A good match: Head & Numbers")}</p>
+        <p style={{ fontSize: 15.5, fontWeight: 700, color: NAVY, marginBottom: 6 }}>{L("Dazu passend: Kopfrechnen", "A good match: Mental Math")}</p>
         <p style={{ fontSize: 14, color: C.grau, fontWeight: 300, lineHeight: 1.65, marginBottom: 12 }}>
-          {L("Pen & Paper trainiert die saubere schriftliche Darstellung deiner Lösungswege. Head & Numbers trainiert den sicheren Abruf von Zahlen im Kopf – Einmaleins, Quadratzahlen und Kubikzahlen.",
-            "Pen & Paper trains the clean written presentation of your solution paths. Head & Numbers trains secure recall of numbers in your head – times tables, square numbers and cube numbers.")}
+          {L("Pen & Paper trainiert die saubere schriftliche Darstellung deiner Lösungswege. Kopfrechnen trainiert den sicheren Abruf von Zahlen im Kopf – Einmaleins, Quadratzahlen und Kubikzahlen.",
+            "Pen & Paper trains the clean written presentation of your solution paths. Mental Math trains secure recall of numbers in your head – times tables, square numbers and cube numbers.")}
         </p>
         <button type="button" onClick={() => gehe({ ansicht: "headnumbers" })}
           style={{ padding: "12px 20px", borderRadius: 999, border: `1.5px solid ${C.linie}`, background: "#fff", color: NAVY, fontFamily: "inherit", fontSize: 15, fontWeight: 600, cursor: "pointer" }}>
-          {L("Zu Head & Numbers", "To Head & Numbers")}
+          {L("Zu Kopfrechnen", "To Mental Math")}
         </button>
       </div>
 

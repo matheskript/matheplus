@@ -33,7 +33,7 @@ def start(page, lang=None):
             pass
 
 
-def zu_headnumbers(page, label="Head & Numbers öffnen"):
+def zu_headnumbers(page, label="Kopfrechnen öffnen"):
     t = page.get_by_label(label).first
     t.scroll_into_view_if_needed()
     t.click()
@@ -96,7 +96,7 @@ def test_lazy_und_navigation(b):
     assert not any("funcHeadNumbers" in u for u in anfragen), "Head-&-Numbers-Chunk darf nicht schon beim Start laden"
     zu_headnumbers(page)
     assert any("funcHeadNumbers" in u for u in anfragen), "Chunk wurde nicht nachgeladen"
-    assert page.get_by_role("heading", name="Head & Numbers").count() >= 1
+    assert page.get_by_role("heading", name="Kopfrechnen").count() >= 1
     body = page.locator("body").inner_text()
     assert "Koch" in body and "Küche" in body, "Einleitung mit Küchen-Vergleich fehlt"
     page.context.close()
@@ -129,7 +129,7 @@ def test_runde_status_und_fehlerarten(b):
     k = kopf(page)
     assert k["fehler"].get("nachbar", {}).get("n", 0) >= 3, f"Fehlerart nicht gespeichert: {k.get('fehler')}"
     zurueck_zur_uebersicht(page)
-    page.locator("button", has_text="← Head & Numbers").first.click(); page.wait_for_timeout(400)
+    page.locator("button", has_text="← Kopfrechnen").first.click(); page.wait_for_timeout(400)
     start_text = page.locator("body").inner_text()
     assert "Wiederkehrende Muster" in start_text and "Nachbaraufgabe erwischt" in start_text, "Karte zu wiederkehrenden Fehlerarten fehlt"
     assert "keine Diagnose" in start_text, "Hinweis 'keine Diagnose' fehlt"
@@ -206,17 +206,17 @@ def test_lernlandkarte_kurzstand(b):
     page.evaluate("() => sessionStorage.setItem('mm-nach-sprachwechsel', JSON.stringify({ ansicht: 'karte' }))")
     page.reload(); page.wait_for_timeout(2000)
     text = page.locator("body").inner_text()
-    assert "Head & Numbers:" in text and "begonnen" in text, "Kurzstand auf der Lernlandkarte fehlt"
-    page.get_by_label("Head & Numbers öffnen").first.click()
+    assert "Kopfrechnen:" in text and "begonnen" in text, "Kurzstand auf der Lernlandkarte fehlt"
+    page.get_by_label("Kopfrechnen öffnen").first.click()
     page.wait_for_selector("text=/Wähle deinen Bereich|Choose your area/", timeout=15000)
     page.context.close()
 
 
 def test_englisch_und_layout(b):
     page = neue_seite(b)
-    start(page, lang="en"); zu_headnumbers(page, "Open Head & Numbers") if page.get_by_label("Open Head & Numbers").count() else zu_headnumbers(page)
+    start(page, lang="en"); zu_headnumbers(page, "Open Mental Math") if page.get_by_label("Open Mental Math").count() else zu_headnumbers(page)
     body = page.locator("body").inner_text()
-    assert "Head & Numbers" in body and "Head und Numbers" not in body
+    assert "Mental Math" in body and "Head und Numbers" not in body
     assert "kitchen" in body.lower(), "Englischer Einleitungstext mit Küchen-Vergleich fehlt"
     ueberlauf = page.evaluate("document.documentElement.scrollWidth > document.documentElement.clientWidth")
     assert not ueberlauf, "horizontaler Überlauf (mobil)"

@@ -120,7 +120,7 @@ export function planErstellen({ teile = null, ohne = [], kapitel = null, teil = 
   let warmGen = vorGen.filter((g) => afb(g) === 1);
   if (warmGen.length < 3) warmGen = [...new Set([...warmGen, ...vorGen, ...grund])].filter((g) => afb(g) <= 2);
   const warmup = weg.has("warmup") ? null : { phase: "warmup", titel: "Warm-up", zeile: warmGen.length ? "Leichte Aufgaben aus dem Vorwissen" : "Kopfrechnen zum Reinkommen", gen: warmGen.slice(0, 5),
-    ziele: rang <= 6 ? [{ name: "Head & Numbers", zeile: "Einmaleins, Quadratzahlen, Brüche", ziel: { ansicht: "headnumbers" } }] : [{ name: "5 Minuten Mathe", zeile: "Gemischtes Aufwärmen", ziel: { ansicht: "warmup" } }] };
+    ziele: rang <= 6 ? [{ name: "Kopfrechnen", zeile: "Einmaleins, Quadratzahlen, Brüche", ziel: { ansicht: "headnumbers" } }] : [{ name: "5 Minuten Mathe", zeile: "Gemischtes Aufwärmen", ziel: { ansicht: "warmup" } }] };
 
   // Kerntraining: eine Einheit je gewähltem Kapitel, mit genau den angehakten Unterthemen
   const kerne = gruppen.map((g) => {

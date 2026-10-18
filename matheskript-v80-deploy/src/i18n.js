@@ -369,7 +369,6 @@ const ZUSATZ = {
   /* Head & Numbers (Seitentext nutzt L() in funcHeadNumbers.jsx; hier Kopfbereich, Kachel, Menü) */
   "KOPFRECHNEN · 3 BEREICHE": "MENTAL ARITHMETIC · 3 AREAS",
   "Einmaleins, Quadratzahlen und Kubikzahlen – spielerisch trainiert, bis sie einfach sitzen.": "Times tables, square numbers and cube numbers – practised playfully until they simply stick.",
-  "Head & Numbers öffnen": "Open Head & Numbers",
   "Einmaleins, Quadrat- und Kubikzahlen – spielerisch, bis sie sitzen.": "Times tables, squares and cubes – playfully, until they stick.",
   "Einmaleins, Quadrat- und Kubikzahlen – mit Lernpfad, Spielen und Wiederholung.": "Times tables, squares and cubes – with a learning path, games and review.",
   "Einmaleins, Quadrat- und Kubikzahlen – mit Lernpfad und Wiederholung": "Times tables, squares and cubes – with a learning path and review",

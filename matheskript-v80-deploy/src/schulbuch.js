@@ -33,7 +33,7 @@ export const stufeAusKlassenBox = (box) => (!box ? "alle" : box.klassen[0] <= 7 
 /* ---------- Hilfen: Werkzeuge der App und weitere Seiten ---------- */
 const w = (id) => ({ art: "werkzeug", id });
 const z = (name, zeile, ziel) => ({ art: "seite", name, zeile, ziel });
-const HEAD = z("Head & Numbers", "Einmaleins, Quadratzahlen, schriftliches Rechnen, Brüche", { ansicht: "headnumbers" });
+const HEAD = z("Kopfrechnen", "Einmaleins, Quadratzahlen, schriftliches Rechnen, Brüche", { ansicht: "headnumbers" });
 const WARMUP = z("5 Minuten Mathe", "Fünf kurze Aufgaben zum Aufwärmen", { ansicht: "warmup" });
 const FS_UNTER = z("Formelsammlung · Unterstufe", "Alle Regeln für Klasse 5 bis 7", { ansicht: "formeln", bereich: "unterstufe" });
 const FS_GEO = z("Formelsammlung · Geometrie", "Pythagoras, Kreis, Körper, Einheitskreis", { ansicht: "formeln", bereich: "geometrie" });

@@ -237,7 +237,7 @@ function baueIndex() {
     ["5 Minuten Mathe", "Fünf kurze Aufgaben", "5 minuten mathe kurz üben täglich aufwärmen warmup schnell", { ansicht: "warmup" }],
     ["Meine Fehler üben", "Gezielt ähnliche Aufgaben", "fehler flüchtigkeitsfehler vorzeichenfehler fehlertypen üben schwächen", { ansicht: "fehlertraining" }],
     ["Mein Training", "Tagesplan, Lernfortschritt und Übungsmodi", "training tagesplan fortschritt übungsmodi lernstand", { ansicht: "meintraining" }],
-    ["Head & Numbers", "Einmaleins, Quadrat- und Kubikzahlen", "kopfrechnen einmaleins 1x1 quadratzahlen kubikzahlen rechentricks kopf rechnen zahlen head numbers", { ansicht: "headnumbers" }],
+    ["Kopfrechnen", "Einmaleins, Quadrat- und Kubikzahlen", "kopfrechnen einmaleins 1x1 quadratzahlen kubikzahlen rechentricks kopf rechnen zahlen head numbers", { ansicht: "headnumbers" }],
     ["Ebbinghaus", "Skills im richtigen Moment wiederholen", "wiederholen vergessen vergessenskurve behalten wiederholung gedächtnis ebbinghaus", { ansicht: "ebbinghaus" }],
     ["Aufgabengenerator", "Geraden, Ableitungen, Kurvendiskussion", "aufgaben generator übungsaufgaben zufällig arbeitsblatt geraden ableitungen kurvendiskussion", { ansicht: "ki", ziel: null }],
     ["Arbeitsblatt drucken", "Aufgabenblatt mit Lösungsteil", "arbeitsblatt drucken pdf aufgabenblatt lösungen übungsblatt", { ansicht: "ki", ziel: "blatt" }],
