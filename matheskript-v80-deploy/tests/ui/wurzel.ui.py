@@ -73,6 +73,7 @@ SEITEN = [
     ("kreuzprodukt", []),
     ("scharen", []),
     ("kathetensatz", []),
+    ("funktionen", [("[data-kapitel=wurzel]", None), ("[data-kapitel=dw]", None)]),
 ]
 
 with sync_playwright() as p:
