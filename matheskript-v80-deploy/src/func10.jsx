@@ -93,6 +93,8 @@ const Plotter = lazyLaden(() => import("./func3.jsx").then((m) => ({ default: m.
 /* Head & Numbers wird erst beim Öffnen nachgeladen (eigener Chunk, nicht im Hauptbündel) */
 const FormelsammlungNeu = lazyLaden(() => import("./funcFormelsammlung.jsx").then((m) => ({ default: m.FormelsammlungNeu })));
 const HeadNumbersSeite = lazyLaden(() => import("./funcHeadNumbers.jsx").then((m) => ({ default: m.HeadNumbersSeite })));
+/* Bereich „Gleichungen“ (Verstehen · Rechnen · Training): eigener Chunk */
+const GleichungenSeite = lazyLaden(() => import("./funcGleichKurs.jsx").then((m) => ({ default: m.GleichungenSeite })));
 import { EBB_SLOGAN } from "./funcEbbinghaus.jsx";
 import { useKonto, kontoStarten } from "./konto.js";
 import { englisch, spracheWechseln } from "./i18n.js";
@@ -127,7 +129,7 @@ export function Mathilda() {
       const a = u.searchParams.get("ansicht");
       if (u.searchParams.has("quelle") || a) {
         u.searchParams.delete("quelle"); u.searchParams.delete("ansicht"); window.history.replaceState({}, "", u.pathname + u.search + u.hash);
-        const erlaubt = ["meintraining", "formeln", "lernpfad", "challenge", "konto", "kopf", "entdecken", "headnumbers", "ebbinghaus", "fehlertraining", "warmup"];
+        const erlaubt = ["meintraining", "formeln", "lernpfad", "challenge", "konto", "kopf", "entdecken", "headnumbers", "gleichkurs", "ebbinghaus", "fehlertraining", "warmup"];
         if (a && (erlaubt.includes(a) || istWzSeite(a) || wo(a))) setTimeout(() => gehe({ ansicht: a }), 0);
       }
       const f = u.searchParams.get("formel");
@@ -154,6 +156,7 @@ export function Mathilda() {
     spracheWechseln();
   };
   const [kopfTrainer, setKopfTrainer] = useState(null);   // direkt geöffneter Kopfrechen-Trainer
+  const [gkSeite, setGkSeite] = useState(null);             // direkt geöffneter Reiter im Bereich Gleichungen
   const [hnModul, setHnModul] = useState(null);             // direkt geöffneter Bereich von Head & Numbers
   const [entdeckenStart, setEntdeckenStart] = useState(null);   // direkt geöffnetes Lernangebot in „Mathe entdecken“
   const [landWahl, setLandWahl] = useState("bw");
@@ -196,7 +199,7 @@ export function Mathilda() {
   const adressErsterLauf = useRef(true);
   const adressAusVerlauf = useRef(0);   // Zeitpunkt der letzten Zurück/Vor-Taste
   const adressZustand = {
-    ansicht, klasse: klasseAktiv, land: landWahl, trainer: kopfTrainer, seite: entdeckenStart, kurs: kursStart,
+    ansicht, klasse: klasseAktiv, land: landWahl, trainer: kopfTrainer, seite: ansicht === "gleichkurs" ? gkSeite : entdeckenStart, kurs: kursStart,
     ziel: ansicht === "training" ? trainZiel : ansicht === "ki" ? genZiel : undefined,
     foto: ansicht === "analyse" ? fotoModus : undefined,
   };
@@ -253,6 +256,7 @@ export function Mathilda() {
     setKursStart(eintrag.ansicht === "kurse" ? eintrag.kurs || null : null);
     setKopfTrainer(eintrag.ansicht === "kopf" ? eintrag.trainer || null : null);
     setHnModul(eintrag.ansicht === "headnumbers" ? eintrag.modul || null : null);
+    setGkSeite(eintrag.ansicht === "gleichkurs" ? eintrag.seite || null : null);
     setEntdeckenStart(eintrag.ansicht === "entdecken" ? eintrag.seite || null : null);
     setEntdeckenStart(eintrag.ansicht === "entdecken" ? eintrag.seite || null : null);
     if (eintrag.land) setLandWahl(eintrag.land);
@@ -1188,6 +1192,23 @@ export function Mathilda() {
             <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
           </div>
           <EbbinghausSeite gehe={gehe} />
+        </>
+      ) : ansicht === "gleichkurs" ? (
+        <>
+          <div className="kopfblock" style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
+            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 640 }}>
+              <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.14em", color: C.flaggold, marginBottom: 8 }}>{englisch() ? "UNDERSTAND · SOLVE · TRAIN" : "VERSTEHEN · RECHNEN · TRAINING"}</p>
+              <h1 className="titel-silber" style={{ fontWeight: 800, fontSize: "clamp(28px, 8.4vw, 38px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>{englisch() ? "Equations" : "Gleichungen"}</h1>
+              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
+              <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+                {englisch() ? "Information about a number – and the way to find it. From 7 · x = 56 to 2^x = 32." : "Eine Information über eine Zahl – und der Weg zu ihr. Von 7 · x = 56 bis 2ˣ = 32."}
+              </p>
+            </div>
+            <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
+          </div>
+          <React.Suspense fallback={<p role="status" style={{ color: C.grau, fontSize: 15, fontWeight: 300, padding: "24px 0" }}>{englisch() ? "Loading …" : "Wird geladen …"}</p>}>
+            <GleichungenSeite gehe={gehe} start={gkSeite} onSeite={setGkSeite} />
+          </React.Suspense>
         </>
       ) : (ansicht === "headnumbers" || ansicht === "kopf") ? (
         <>

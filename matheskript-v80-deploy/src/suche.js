@@ -256,6 +256,7 @@ function baueIndex() {
     ["Meine Fehler üben", "Gezielt ähnliche Aufgaben", "fehler flüchtigkeitsfehler vorzeichenfehler fehlertypen üben schwächen", { ansicht: "fehlertraining" }],
     ["Mein Training", "Tagesplan, Lernfortschritt und Übungsmodi", "training tagesplan fortschritt übungsmodi lernstand", { ansicht: "meintraining" }],
     ["Kopfrechnen", "Einmaleins, Quadrat- und Kubikzahlen", "kopfrechnen einmaleins 1x1 quadratzahlen kubikzahlen rechentricks kopf rechnen zahlen head numbers", { ansicht: "headnumbers" }],
+    ["Gleichungen – Verstehen, Rechnen, Training", "Eine Zahl finden, über die du etwas weißt", "gleichungen gleichung verstehen unbekannte zahl x finden umkehroperation rueckwaerts rechnen aequivalenzumformung waage probe equations unknown", { ansicht: "gleichkurs" }],
     ["Ebbinghaus", "Skills im richtigen Moment wiederholen", "wiederholen vergessen vergessenskurve behalten wiederholung gedächtnis ebbinghaus", { ansicht: "ebbinghaus" }],
     ["Aufgabengenerator", "Geraden, Ableitungen, Kurvendiskussion", "aufgaben generator übungsaufgaben zufällig arbeitsblatt geraden ableitungen kurvendiskussion", { ansicht: "ki", ziel: null }],
     ["Arbeitsblatt drucken", "Aufgabenblatt mit Lösungsteil", "arbeitsblatt drucken pdf aufgabenblatt lösungen übungsblatt", { ansicht: "ki", ziel: "blatt" }],

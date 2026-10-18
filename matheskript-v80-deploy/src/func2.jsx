@@ -15,6 +15,7 @@ import { TerminHinweis } from "./func9.jsx";
 import { Mathilda } from "./func10.jsx";
 import { KopfKacheln, KopfrechnenLogoKlein, TRAINER } from "./func14.jsx";
 import { HeadNumbersLogoKlein } from "./funcHeadNumbersLogo.jsx";
+import { GleichKursLogoKlein } from "./funcGleichKursLogo.jsx";
 import { EBB_SLOGAN, EbbinghausBadge, EbbinghausLogoKlein } from "./funcEbbinghaus.jsx";
 import { DeinPlanBlock, useLernpfad } from "./funcLernpfad.jsx";
 import { StartOnboarding, ZonenKopf } from "./funcOnboarding.jsx";
@@ -1669,6 +1670,9 @@ export function Startseite({ gehe }) {
       <PlotterKachel onClick={() => gehe({ ansicht: "headnumbers" })} label="Kopfrechnen öffnen" logo={<HeadNumbersLogoKlein />}
         titel="Kopfrechnen"
         text="Einmaleins, Quadrat- und Kubikzahlen, schriftliches Rechnen und Brüche – bis alles sitzt." />
+      <PlotterKachel onClick={() => gehe({ ansicht: "gleichkurs" })} label="Gleichungen öffnen" logo={<GleichKursLogoKlein />}
+        titel="Gleichungen"
+        text="Eine Zahl finden, über die du etwas weißt – verstehen, Schritt für Schritt rechnen, trainieren." />
       <PlotterKachel gesperrt onClick={() => gehe({ ansicht: "ebbinghaus" })} label="Ebbinghaus öffnen" logo={<EbbinghausLogoKlein />} extra={<EbbinghausBadge />} keinI18nTitel
         titel="Ebbinghaus"
         text={EBB_SLOGAN} />
@@ -1708,6 +1712,9 @@ export function Startseite({ gehe }) {
       <PlotterKachel onClick={() => gehe({ ansicht: "headnumbers" })} label="Kopfrechnen öffnen" logo={<HeadNumbersLogoKlein />}
         titel="Kopfrechnen"
         text="Einmaleins, Quadrat- und Kubikzahlen, schriftliches Rechnen und Brüche – bis alles sitzt." />
+      <PlotterKachel onClick={() => gehe({ ansicht: "gleichkurs" })} label="Gleichungen öffnen" logo={<GleichKursLogoKlein />}
+        titel="Gleichungen"
+        text="Eine Zahl finden, über die du etwas weißt – verstehen, Schritt für Schritt rechnen, trainieren." />
       <PlotterKachel gesperrt onClick={() => gehe({ ansicht: "ebbinghaus" })} label="Ebbinghaus öffnen" logo={<EbbinghausLogoKlein />} extra={<EbbinghausBadge />} keinI18nTitel
         titel="Ebbinghaus"
         text={EBB_SLOGAN} />
