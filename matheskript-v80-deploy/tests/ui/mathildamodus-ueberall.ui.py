@@ -67,7 +67,7 @@ with sync_playwright() as p:
         for wz in WERKZEUGE:
             konsole.clear()
             page.goto(BASE + wz); page.wait_for_timeout(900)
-            pille = page.locator("[data-mathilda-modus]")
+            pille = page.locator("[data-mathilda-modus]:visible")
             if not pille.count():
                 in_uebung(page)
                 # Abi-Ketten/-Sätze: erste Kette bzw. ersten Satz öffnen
@@ -83,14 +83,17 @@ with sync_playwright() as p:
             n = pille.count()
             ergebnis.setdefault(wz, {})[breite] = n
             pruefe(n >= 1, f"{breite}: {wz} ohne Mathilda-Knopf")
+            print(f"{breite} {wz}: {n}", flush=True)
             if n:
-                pille.first.scroll_into_view_if_needed()
+                try: pille.first.scroll_into_view_if_needed(timeout=4000)
+                except Exception: pass
                 sw = page.evaluate("document.documentElement.scrollWidth"); pruefe(sw <= breite, f"{breite}: {wz} Überbreite {sw}")
             pruefe(not konsole, f"{breite}: {wz} Konsole {konsole[:2]}")
 
             if n and wz in DETAIL:
+              try:
                 page.screenshot(path=f"{AUS}/{breite}-{wz}-1-pille.png")
-                pille.first.click(); page.wait_for_timeout(900)
+                pille.first.click(timeout=5000); page.wait_for_timeout(900)
                 fen = page.locator("[data-mathilda-modus-fenster]")
                 pruefe(fen.count() == 1, f"{breite}: {wz} Fenster fehlt")
                 kopie = page.locator("[data-mm-kopie]")
@@ -115,6 +118,9 @@ with sync_playwright() as p:
                     page.keyboard.press("Escape"); page.wait_for_timeout(300)
                     pruefe(fen.count() == 0, f"{breite}: {wz} Escape schließt nicht")
                 pruefe(not konsole, f"{breite}: {wz} Konsole im Fenster {konsole[:2]}")
+              except Exception as e:
+                pruefe(False, f"{breite}: {wz} Detailprüfung abgebrochen: {str(e).splitlines()[0]}")
+                page.keyboard.press("Escape")
         ctx.close()
     b.close()
 
