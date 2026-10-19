@@ -847,6 +847,7 @@ const ENTDECKEN_MENUE = [
   { name: "Teilbarkeitsregeln", zeile: "Alle Regeln von 2 bis 9 selbst herleiten", bild: "teiler", ziel: { ansicht: "entdecken", seite: "teiler" } },
   { name: "Binomische Formeln", zeile: "Drei Formeln aus Flächen gebaut", bild: "terme", ziel: { ansicht: "entdecken", seite: "binomisch" } },
   { name: "Ableitung als Grenzwert", zeile: "Von der Sekante zur Tangente", bild: "kurve", ziel: { ansicht: "entdecken", seite: "grenzwert" } },
+  { name: "Carl Friedrich Gauß", zeile: "Summenformel, Gauß-Verfahren und die Glocke vom Zehn-Mark-Schein", bild: "normal", ziel: { ansicht: "entdecken", seite: "gauss" } },
   { kopf: true, name: "entdecken-wettbewerbe", nr: 2, titel: "Mathe-Wettbewerbe", zeile: "Für alle, die mehr wollen" },
   { name: "Bundeswettbewerb Mathematik", zeile: "Nächste 1. Runde, Aufgaben vom Vorjahr", bild: "medaille", ziel: { ansicht: "bwm" } },
   { name: "Landeswettbewerbe", zeile: "Tippe auf dein Bundesland", bild: "landkarte", ziel: { ansicht: "landeswettbewerbe" } },
