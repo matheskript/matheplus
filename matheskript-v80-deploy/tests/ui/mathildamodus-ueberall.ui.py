@@ -72,11 +72,17 @@ with sync_playwright() as p:
                 in_uebung(page)
                 # Abi-Ketten/-Sätze: erste Kette bzw. ersten Satz öffnen
                 if not pille.count() and wz.startswith("abi"):
-                    for name in (re.compile(r"^(Starten|Kette starten|Satz starten|Start|Los)"), re.compile(r"Analysis|Satz 1|Kette 1")):
+                    for name in (re.compile(r"^(Starten|Kette starten|Satz starten|Start|Los)"), re.compile(r"Analysis|Calculus|Abi-Satz 1\b|Satz 1\b|Kette 1")):
                         k = page.get_by_role("button", name=name)
                         if k.count():
                             k.first.click(); page.wait_for_timeout(700)
                             if pille.count(): break
+                if not pille.count() and wz == "geradengleichung":
+                    k = page.get_by_role("button", name="P & Q")
+                    if k.count(): k.first.click(); page.wait_for_timeout(600)
+                if not pille.count() and wz == "sinus":
+                    k = page.get_by_role("button", name=re.compile(r"^(Aufgabe lösen|Solve task|Solve a task)$"))
+                    if k.count(): k.first.click(); page.wait_for_timeout(600)
                 if not pille.count() and wz.startswith("gleichungen-lernen"):
                     k = page.get_by_role("button", name=re.compile(r"(Runde|round)", re.I))
                     if k.count(): k.first.click(); page.wait_for_timeout(700)

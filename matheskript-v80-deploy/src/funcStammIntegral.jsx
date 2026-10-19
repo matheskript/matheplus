@@ -22,6 +22,7 @@ import { Eingabe, EingabePopup, FARBE, Feld, Herleitung, Merke, ModusSchalter, W
 import {
   STAMM_ARTEN, auswerter, bisAufKonstante, dez, grenzeLesen, hauptsatz, lies, neueIntegralAufgabe, neueStammAufgabe, probe, schoen, stammfunktion, tex, zahlTex,
 } from "./regelwerkKern.js";
+import { MathildaModusKnopf } from "./funcMathildaModusKnopf.jsx";
 
 const T = ({ s }) => <Text s={s} style={{ fontSize: 14.5, fontWeight: 300, color: C.grau, lineHeight: 1.8, margin: "12px 0 0" }} />;
 const blau = `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`;
@@ -213,11 +214,14 @@ function StammTeil({ modus }) {
               {bilanz.gesamt ? ` · ${bilanz.richtig} von ${bilanz.gesamt} richtig` : ""}
             </p>
           </div>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8, flexShrink: 0 }}>
           <button type="button" onClick={() => starte()}
-            style={{ flexShrink: 0, height: 44, padding: "0 16px", borderRadius: 999, border: "none", cursor: "pointer", fontFamily: "inherit",
-              fontSize: 14.5, fontWeight: 700, color: C.seeTief, background: C.flaggold, display: "inline-flex", alignItems: "center", gap: 8 }}>
-            <span aria-hidden="true" style={{ fontSize: 18, lineHeight: 1 }}>↻</span>{training ? "Neue Aufgabe" : "Beispiel"}
-          </button>
+              style={{ flexShrink: 0, height: 44, padding: "0 16px", borderRadius: 999, border: "none", cursor: "pointer", fontFamily: "inherit",
+                fontSize: 14.5, fontWeight: 700, color: C.seeTief, background: C.flaggold, display: "inline-flex", alignItems: "center", gap: 8 }}>
+              <span aria-hidden="true" style={{ fontSize: 18, lineHeight: 1 }}>↻</span>{training ? "Neue Aufgabe" : "Beispiel"}
+            </button>
+            {training && <MathildaModusKnopf kompakt />}
+          </div>
         </div>
 
         <div style={{ background: blau, borderRadius: 16, padding: "12px 16px", marginBottom: 12, color: C.weiss, display: "flex", flexWrap: "wrap", alignItems: "center", gap: "4px 18px" }}>
@@ -383,11 +387,14 @@ function IntegralTeil({ modus, start }) {
               {bilanz.gesamt ? ` · ${bilanz.richtig} von ${bilanz.gesamt} richtig` : ""}
             </p>
           </div>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8, flexShrink: 0 }}>
           <button type="button" onClick={() => starte()}
-            style={{ flexShrink: 0, height: 44, padding: "0 16px", borderRadius: 999, border: "none", cursor: "pointer", fontFamily: "inherit",
-              fontSize: 14.5, fontWeight: 700, color: C.seeTief, background: C.flaggold, display: "inline-flex", alignItems: "center", gap: 8 }}>
-            <span aria-hidden="true" style={{ fontSize: 18, lineHeight: 1 }}>↻</span>{training ? "Neue Aufgabe" : "Beispiel"}
-          </button>
+              style={{ flexShrink: 0, height: 44, padding: "0 16px", borderRadius: 999, border: "none", cursor: "pointer", fontFamily: "inherit",
+                fontSize: 14.5, fontWeight: 700, color: C.seeTief, background: C.flaggold, display: "inline-flex", alignItems: "center", gap: 8 }}>
+              <span aria-hidden="true" style={{ fontSize: 18, lineHeight: 1 }}>↻</span>{training ? "Neue Aufgabe" : "Beispiel"}
+            </button>
+            {training && <MathildaModusKnopf kompakt />}
+          </div>
         </div>
 
         <div style={{ background: blau, borderRadius: 16, padding: "12px 16px", marginBottom: 12, color: C.weiss, display: "flex", flexWrap: "wrap", alignItems: "center", gap: "4px 18px" }}>

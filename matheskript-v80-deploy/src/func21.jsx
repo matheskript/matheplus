@@ -13,6 +13,7 @@ import { C } from "./base1.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
 import { PruefungsLink } from "./funcTraining.jsx";
 import { SinusUebungen } from "./funcSinusUebung.jsx";
+import { MathildaModusKnopf } from "./funcMathildaModusKnopf.jsx";
 
 const kz = (v) => String(Math.round(v * 100) / 100).replace(".", ",").replace("-", "−");
 function sinusHilfe(z) {
@@ -293,7 +294,7 @@ export function Sinusfunktion({ gehe, ansicht = "sinus" }) {
 
   /* „Ich hänge fest“ und „Prüfungsmodus“ liegen im Aufklappmenü „Zusätzlich üben“ */
   const menueExtra = (modus === "aufgabe" || gehe) ? (<>
-    {modus === "aufgabe" && <IchHaengeFest kontext={sinusHilfe(ziel)} />}
+    {modus === "aufgabe" && <IchHaengeFest mathilda={false} kontext={sinusHilfe(ziel)} />}
     {gehe && <PruefungsLink ansicht={ansicht} gehe={gehe} hell />}
   </>) : null;
 
@@ -349,6 +350,9 @@ export function Sinusfunktion({ gehe, ansicht = "sinus" }) {
             style={{ padding: "6px 12px", borderRadius: 999, fontSize: 12.5, fontFamily: "inherit", cursor: "pointer", border: `1px solid ${C.linie}`, background: C.weiss, color: C.see }}>↺ Zurück auf sin(x)</button>
         </div>
 
+        {modus === "aufgabe" && (
+          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 12 }}><MathildaModusKnopf kompakt /></div>
+        )}
         {modus === "aufgabe" && (
           <div style={{ marginTop: 14 }}>
             {richtig ? (
