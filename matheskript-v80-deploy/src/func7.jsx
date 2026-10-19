@@ -7,6 +7,7 @@ import { ErklaerVideo, Satz, jsonLesen } from "./func1.jsx";
 import { Formel, M, Text, alsFunktion, normieren, stimmtUeberein, zahlAus } from "./func3.jsx";
 import { TermTastatur, kubischErzeugen } from "./func4.jsx";
 import { Lernlandkarte, antwortPruefen, brueckeErgebnis, einheitVon, lernAendern, testBestanden, testNichtBestanden, useLern, wannFaellig, wiederholListe, wiederholungErgebnis } from "./func6.jsx";
+import { ANGEBOT } from "./angebot.js";
 import { EskalationsKarte, aktivitaetMelden, coachingAnfragen, eskalationSignale, variantenFestschreiben, variantenVorschlag } from "./func8.jsx";
 import { Mathilda } from "./func10.jsx";
 import { AufklappZeichen } from "./aufklappen.jsx";
@@ -93,7 +94,7 @@ Antworte auf Deutsch, ohne Vorrede.`;
         </div>
 
         <div style={{ flex: 1, overflowY: "auto", padding: "16px 18px" }}>
-          {verlauf.filter((m) => m.rolle === "schueler").length >= 3 && (
+          {ANGEBOT.coaching && verlauf.filter((m) => m.rolle === "schueler").length >= 3 && (
             <div style={{ background: C.himmel, borderRadius: 12, padding: "10px 14px", marginBottom: 14 }}>
               <p style={{ fontSize: 13, lineHeight: 1.6, color: C.tinte, marginBottom: 6 }}>
                 Wenn wir hier zu zweit nicht weiterkommen, ist das kein Problem — dann schaut Basti persönlich drauf.

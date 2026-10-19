@@ -1,6 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { istPro, kontoArt, kontoEintraege, zugangEintrag, klasseErmitteln, klasseLabel, klassenInhalt, mathematikEintraege, aktiverPunkt, KI_MENUE, TRAINING, KURSE, LEISTE } from "../src/hauptmenue.js";
+import { istPro, kontoArt, kontoEintraege, zugangEintrag, klasseErmitteln, klasseLabel, klassenInhalt, mathematikEintraege, aktiverPunkt, KI_MENUE, TRAINING, KURSE, LEISTE, kurseListe, baldListe } from "../src/hauptmenue.js";
+import { ANGEBOT } from "../src/angebot.js";
+const MIT_PRO = { ...ANGEBOT, pro: true, kurse: true };
 import { SEITEN } from "../src/pfade.js";
 
 test("Pro nur mit plan=pro und nicht abgelaufen", () => {
@@ -19,13 +21,33 @@ test("Account-Art je Rolle", () => {
   assert.equal(kontoArt(null), "Trainings-Account");
 });
 
-test("Konto-Menü: Pro werden oder Mein Plan, rollenabhängige Einträge", () => {
-  assert.ok(kontoEintraege({ rolle: "schueler" }).some((e) => e.id === "pro"));
-  assert.ok(kontoEintraege({ rolle: "schueler", plan: "pro" }).some((e) => e.id === "plan"));
+test("Konto-Menü: Pro werden oder Mein Plan (nur mit Angebot „Pro“), rollenabhängige Einträge", () => {
+  assert.ok(kontoEintraege({ rolle: "schueler" }, true, MIT_PRO).some((e) => e.id === "pro"));
+  assert.ok(kontoEintraege({ rolle: "schueler", plan: "pro" }, true, MIT_PRO).some((e) => e.id === "plan"));
+  assert.ok(kontoEintraege(null, false, MIT_PRO).some((e) => e.id === "pro"));
   assert.ok(kontoEintraege({ rolle: "eltern" }).some((e) => e.id === "kinder"));
   assert.ok(kontoEintraege({ rolle: "lehrkraft" }).some((e) => e.id === "klassen"));
   assert.ok(kontoEintraege({ rolle: "lehrkraft" }).some((e) => e.id === "arbeitsblatt" && e.ziel.ansicht === "lehrerblatt"));
   assert.ok(!kontoEintraege({ rolle: "schueler" }).some((e) => e.id === "arbeitsblatt"));
+});
+
+test("Blog-Start: weder „Pro werden“ noch „Mein Plan“ im Menü, dafür „Unterstützen“", () => {
+  assert.equal(ANGEBOT.pro, false);
+  for (const rolle of ["schueler", "eltern", "lehrkraft", "nachhilfe"]) {
+    assert.ok(!kontoEintraege({ rolle }).some((e) => e.id === "pro" || e.id === "plan"), rolle);
+    assert.ok(!kontoEintraege({ rolle, plan: "pro" }).some((e) => e.id === "pro" || e.id === "plan"), rolle);
+  }
+  const gast = kontoEintraege(null, false);
+  assert.ok(gast.every(Boolean));
+  assert.ok(gast.some((e) => e.id === "spenden" && e.ziel.ansicht === "spenden"));
+});
+
+test("Meine Kurse: Masterclass und „Bald“-Platzhalter nur mit Angebot „Kurse“", () => {
+  assert.ok(!KURSE.some((k) => k.id === "mckurs") && KURSE.length > 0);
+  assert.deepEqual(baldListe(), []);
+  assert.ok(kurseListe(MIT_PRO).some((k) => k.id === "mckurs"));
+  assert.ok(baldListe(MIT_PRO).length > 0);
+  assert.deepEqual(klassenInhalt({ schulart: "g9", box: "10" }).bald, []);
 });
 
 test("☰-Menü: Konto-Punkte einzeilig, Abmelden/Anmelden nur als letzter Punkt (zugangEintrag)", () => {

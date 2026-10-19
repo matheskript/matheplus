@@ -6,7 +6,8 @@
 import React, { useEffect, useState } from "react";
 import { C } from "./base1.jsx";
 import { englisch } from "./i18n.js";
-import { ENTWUERFE, LANDING } from "./seitenKonstanten.js";
+import { ENTWUERFE, LANDING, istFrei } from "./seitenKonstanten.js";
+import { ANGEBOT } from "./angebot.js";
 
 export function Arbeitsmenue({ gehe, ansicht, sprachKnopf, stil }) {
   const [offen, setOffen] = useState(false);
@@ -21,6 +22,8 @@ export function Arbeitsmenue({ gehe, ansicht, sprachKnopf, stil }) {
   const kreis = (an) => ({ width: 28, height: 28, borderRadius: 999, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12.5, fontWeight: 700, background: an ? C.flaggold : C.himmel, color: an ? C.seeTief : C.grau });
   const landAn = ansicht === LANDING;
   const startAn = ansicht === "start";
+  /* Landingpage und passwortgeschützte Entwürfe erscheinen öffentlich erst mit dem Angebot „Landingpage“ (angebot.js); mit dem Passwort immer */
+  const intern = ANGEBOT.landingpage || istFrei();
   return (
     <span style={{ position: "relative", display: "inline-block" }}>
       <button type="button" onClick={() => setOffen(!offen)} aria-expanded={offen} data-kein-scroll data-arbeitsmenue style={stil}>
@@ -35,14 +38,14 @@ export function Arbeitsmenue({ gehe, ansicht, sprachKnopf, stil }) {
             <button type="button" onClick={() => geh({ ansicht: "start" })} aria-current={startAn ? "page" : undefined} style={{ ...zeile, background: startAn ? "rgba(237,187,0,0.14)" : "transparent" }}>
               <span style={kreis(startAn)}>A</span><span style={{ flex: 1, fontSize: 14.5, fontWeight: 700 }}>Startseite</span>
             </button>
-            <button type="button" onClick={() => geh({ ansicht: LANDING })} aria-current={landAn ? "page" : undefined} style={{ ...zeile, background: landAn ? "rgba(237,187,0,0.14)" : "transparent" }}>
+            {intern && <button type="button" onClick={() => geh({ ansicht: LANDING })} aria-current={landAn ? "page" : undefined} style={{ ...zeile, background: landAn ? "rgba(237,187,0,0.14)" : "transparent" }}>
               <span style={kreis(landAn)}>B</span><span style={{ flex: 1, fontSize: 14.5, fontWeight: 700 }}>Landingpage</span>
-            </button>
+            </button>}
             <button type="button" onClick={() => { setOffen(false); sprachKnopf(); }} data-kein-i18n style={{ ...zeile, background: "transparent" }}>
               <span style={kreis(false)}>{englisch() ? "DE" : "EN"}</span>
               <span style={{ flex: 1, fontSize: 14.5, fontWeight: 700 }}>{englisch() ? "Auf Deutsch wechseln" : "Switch to English"}</span>
             </button>
-            {ENTWUERFE.map((e, i) => {
+            {intern && ENTWUERFE.map((e, i) => {
               const an = ansicht === e.ansicht;
               return (
                 <button key={e.ansicht} type="button" onClick={() => geh({ ansicht: e.ansicht })} aria-current={an ? "page" : undefined}

@@ -1,5 +1,6 @@
 import { navWerkzeuge } from "./werkzeuge.js";
 import { sprache } from "./i18n.js";
+import { ANGEBOT } from "./angebot.js";
 import React, { useState, useRef } from "react";
 import { API_URL, C } from "./base1.jsx";
 import { EINHEITEN, RAM_SPEICHER, TAG_MS, WOCHENTAGE, tagSchluessel, wochentagIdx } from "./base3.jsx";
@@ -123,7 +124,7 @@ export const NAV = [
   { id: "klassen", name: "Nach Klasse", kurz: "Der Stoff von Klasse 8 bis 13", eintraege:
     SCHULKLASSEN.map((k) => ({ name: `Klasse ${k}`, kurz: k >= 11 ? "Kursstufe" : "Nach dem Lambacher Schweizer", ansicht: "klasse", klasse: k })) },
   { id: "ueben", name: "Üben", kurz: "Aufgaben und ganze Rechenwege", eintraege: [
-    { name: "Mathe Abi Masterclass", kurz: "Das 6-Monats-Programm fürs Mathe-Abi", ansicht: "masterclass" },
+    ...(ANGEBOT.kurse ? [{ name: "Mathe Abi Masterclass", kurz: "Das 6-Monats-Programm fürs Mathe-Abi", ansicht: "masterclass" }] : []),
     { name: "Aufgabengenerator", kurz: "Geraden, Ableitungen, Kurvendiskussion", ansicht: "ki", ziel: null },
     { name: "Rechenweg schreiben", kurz: "Ganze Wege eintippen und prüfen lassen", ansicht: "training", ziel: "weg" },
     { name: "Kurvendiskussion", kurz: "Das Protokoll in zwölf Schritten", ansicht: "training", ziel: "kd" },
@@ -143,7 +144,7 @@ export const NAV = [
   ] },
   { id: "mindset", name: "Mathe-Mindset-Kurs", kurz: "Must-Know für Eltern und Lehrkräfte", eintraege: [
     { name: "Mathe-Mindset-Kurs", kurz: "6 TED-Talks und 2 Bücher, die inspirieren, wie Mathe auch funktionieren kann", ansicht: "elternkurs" },
-    { name: "Nachhilfe-Kurs", kurz: "Sechs Module für Nachhilfelehrernen", ansicht: "nachhilfekurs" },
+    ...(ANGEBOT.kurse ? [{ name: "Nachhilfe-Kurs", kurz: "Sechs Module für Nachhilfelehrernen", ansicht: "nachhilfekurs" }] : []),
   ] },
   { id: "mathilda", name: "Mathilda AI", kurz: "Alles mit der Kamera", eintraege: [
     { name: "Blatt prüfen", kurz: "Rechenweg und Schriftbild vom Foto", ansicht: "analyse", foto: "blatt" },

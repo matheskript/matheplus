@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import { ANGEBOT } from "./angebot.js";
 import { C } from "./base1.jsx";
 import { FEHLERARTEN } from "./base2.jsx";
 import { ABI_ZEIT, AKTIVE, COACHING, EINHEITEN, ICS_TAGE, KOMP, LERN, LINIEN, MODELLE, TAG_MS, WOCHENTAGE, dauerText, hatEinheit, istLerntag, komma, mischen, notenText, notenpunkte, pseudonymVon, tagSchluessel, wochentagIdx } from "./base3.jsx";
@@ -424,6 +425,8 @@ export function coachingAnfragen(anlass) {
 
 export function EskalationsKarte({ signal, gehe, klein }) {
   const [hinweis, setHinweis] = useState(false);
+  /* Ohne Angebot „Coaching“ (angebot.js) wirbt die App nicht für ein persönliches Gespräch */
+  if (!ANGEBOT.coaching) return null;
   return (
     <div className="auftauchen" style={{ background: C.weiss, borderRadius: 18, padding: klein ? 16 : 20, marginBottom: 14,
       boxShadow: "0 3px 18px rgba(15,26,51,0.08)", borderLeft: `4px solid ${C.gruenDunkel}` }}>

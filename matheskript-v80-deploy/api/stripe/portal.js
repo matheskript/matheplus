@@ -2,12 +2,14 @@
    Vercel-Funktion: Stripe-Kundenportal (Abo verwalten, kündigen, Rechnungen).
    POST, Authorization: Bearer <Supabase-Token>. Antwort: { url }.
    ============================================================ */
+import { ANGEBOT } from "../../src/angebot.js";
 import { stripeClient, supabaseServer } from "../../src/stripeServer.js";
 
 const fehler = (res, status, message) => res.status(status).json({ error: { message } });
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return fehler(res, 405, "Nur POST.");
+  if (!ANGEBOT.pro) return fehler(res, 404, "Dieses Angebot gibt es zurzeit nicht.");   // Schalter: src/angebot.js
   const geheim = process.env.STRIPE_SECRET_KEY;
   const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
   const service = process.env.SUPABASE_SERVICE_ROLE_KEY;

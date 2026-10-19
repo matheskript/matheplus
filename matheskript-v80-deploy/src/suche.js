@@ -18,6 +18,7 @@
    ====================================================================== */
 import { WERKZEUGE, BEREICHE, ETIKETTEN } from "./werkzeuge.js";
 import { FS_ALLE, FS_BEREICHE } from "./fsIndex.js";
+import { ANGEBOT } from "./angebot.js";
 
 /* ---------- Text normalisieren ---------- */
 
@@ -250,9 +251,14 @@ function baueIndex() {
     ["Kurs Vektoren, Geraden und Ebenen", "Jedes Heftkapitel lesen und direkt darunter trainieren", "kurs vektoren vektor geraden ebenen raum analytische geometrie lgs gleichungssystem gauß parameterform normalenform koordinatenform skalarprodukt kreuzprodukt spurpunkte lage abstand windschief schnittwinkel spiegelung module kapitel lesen trainieren", { ansicht: "vekkurs" }, "Kurs"],
     ["Schulbuch: Ableitungen", "50 Seiten zum Blättern – jede Regel hergeleitet", "schulbuch buch ableitungen ableitung differenzenquotient faktorregel summenregel produktregel potenzregel quotientenregel kettenregel sinus kosinus e-funktion logarithmus tangente normale lösungen pdf", { ansicht: "schulbuch" }, "Lernseite"],
     ["Arbeitsheft", "Acht Bausteine mit Herleitung und Aufgaben", "arbeitsheft bausteine herleitung aufgaben lineare funktionen sekante tangente ableitungsregeln nullstellen symmetrie grenzverhalten monotonie extrempunkte krümmung wendepunkte kurvendiskussion anwendung transfer", { ansicht: "training", ziel: "module" }, "Lernseite"],
-    ["Mathe Abi Masterclass", "Das 6-Monats-Programm fürs Mathe-Abi", "abi abitur masterclass programm coaching vorbereitung mathe abi", { ansicht: "masterclass" }, "Programm"],
-    ["Mathe checken", "Das 2-Monats-Programm", "mathe checken programm coaching lücken schließen", { ansicht: "mathecheck" }, "Programm"],
   ];
+  /* Programme nur in der Suche, solange das Angebot „Kurse“ eingeschaltet ist (angebot.js) */
+  if (ANGEBOT.kurse) {
+    lernen.push(
+      ["Mathe Abi Masterclass", "Das 6-Monats-Programm fürs Mathe-Abi", "abi abitur masterclass programm coaching vorbereitung mathe abi", { ansicht: "masterclass" }, "Programm"],
+      ["Mathe checken", "Das 2-Monats-Programm", "mathe checken programm coaching lücken schließen", { ansicht: "mathecheck" }, "Programm"],
+    );
+  }
   for (const [t, z, s, ziel, m] of lernen) liste.push(e("lernen", t, z, s, ziel, m, { id: `lernen:${t}` }));
 
   for (const k of [8, 9, 10, 11, 12, 13]) {

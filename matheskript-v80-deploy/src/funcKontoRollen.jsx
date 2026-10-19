@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { C } from "./base1.jsx";
+import { ANGEBOT } from "./angebot.js";
 import { DEMO, useKonto, anmeldenEmail, empfehlungsLink, REF_BASIS, REF_BASIS_ANZEIGE, gemerkteEinladung, einladungVergessen, hinweisSchliessen, profilSpeichern } from "./konto.js";
 import {
   meineBeziehungen, meineKinder, klassenUebersicht, schuelerDetail, elternVerbinden, verbindungLoesen, elternTokenErneuern,
@@ -701,7 +702,7 @@ export function LehrBereich({ profil, gehe }) {
       {d.laden ? <p style={{ fontSize: 14, color: C.grau }}>Einen Moment …</p> : klassen.map((k) => <KlassenKarte key={k.id} k={k} neu={neu} />)}
       {d.fehler && <p style={{ fontSize: 13.5, color: C.signal }}>{d.fehler}</p>}
       <KlasseAnlegen rolle={rolle} fertig={neu} />
-      {rolle === "nachhilfe" && (
+      {rolle === "nachhilfe" && ANGEBOT.kurse && (
         <div style={{ ...karte, padding: 18, marginBottom: 14, background: `linear-gradient(155deg, ${C.see} 0%, ${NAVY} 100%)`, color: C.weiss }}>
           <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", color: C.flaggold, marginBottom: 6 }}>FÜR NACHHILFELEHRER:INNEN</p>
           <p style={{ fontSize: 17, fontWeight: 700, marginBottom: 6 }}>Nachhilfe-Kurs</p>

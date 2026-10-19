@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { C } from "./base1.jsx";
 import { SpendenTeaser } from "./funcSpenden.jsx";
+import { ANGEBOT } from "./angebot.js";
 import { RollenWahl, EmailAnmeldung, HinweisLeiste, EinladenBox, MeineKlassen, PlanKarte, ElternBereich, LehrBereich, RolleAendern, GeschlechtFrage } from "./funcKontoRollen.jsx";
 import { rolleName, istLehrend, istGeschlecht, KURSSTUFE, NOTEN_AB, datenVollstaendig } from "./rollenLogik.js";
 import { MeinTrainingKarte } from "./funcKontoTraining.jsx";
@@ -69,8 +70,8 @@ function Anmelden({ gehe }) {
       <p style={{ fontSize: 12.5, color: C.hellgrau, textAlign: "center", margin: "16px 0 8px" }}>oder mit E-Mail und Passwort</p>
       <EmailAnmeldung />
       <p style={{ fontSize: 12, color: C.hellgrau, lineHeight: 1.6, marginTop: 14 }}>
-        Mit der Anmeldung akzeptierst du unsere{" "}
-        <button type="button" onClick={() => gehe({ ansicht: "agb" })} style={{ background: "none", border: "none", padding: 0, color: C.see, textDecoration: "underline", fontFamily: "inherit", fontSize: 12, cursor: "pointer" }}>AGB</button>.
+        {ANGEBOT.agb && (<>Mit der Anmeldung akzeptierst du unsere{" "}
+        <button type="button" onClick={() => gehe({ ansicht: "agb" })} style={{ background: "none", border: "none", padding: 0, color: C.see, textDecoration: "underline", fontFamily: "inherit", fontSize: 12, cursor: "pointer" }}>AGB</button>.{" "}</>)}
         Wie wir mit deinen Daten umgehen, steht in der{" "}
         <button type="button" onClick={() => gehe({ ansicht: "datenschutz" })} style={{ background: "none", border: "none", padding: 0, color: C.see, textDecoration: "underline", fontFamily: "inherit", fontSize: 12, cursor: "pointer" }}>Datenschutzerklärung</button>.
         Bist du unter 16, fragen wir nach dem Anlegen deine Eltern um Zustimmung.
@@ -351,7 +352,7 @@ function Profil({ nutzer, profil, geworben, gehe }) {
       <MeinTrainingKarte gehe={gehe} />
       <GeschlechtFrage profil={profil} />
       {/* Meine Kurse */}
-      <div style={{ ...karte, padding: 18, marginBottom: 14 }}>
+      {ANGEBOT.kurse && (<div style={{ ...karte, padding: 18, marginBottom: 14 }}>
         <Kicker>MEINE KURSE</Kicker>
         <p style={{ fontSize: 14.5, color: C.grau, fontWeight: 300, lineHeight: 1.6, marginBottom: 12 }}>Du hast noch keinen Kurs gebucht. Hier erscheinen deine Programme, sobald es losgeht.</p>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
@@ -364,11 +365,11 @@ function Profil({ nutzer, profil, geworben, gehe }) {
             <span style={{ display: "block", fontSize: 12, color: "#3B2A00" }}>6 Monate</span>
           </button>
         </div>
-      </div>
+      </div>)}
 
           <EinladenBox profil={profil} geworben={geworben} />
           <MeineKlassen rolle={rolle} />
-          <PlanKarte profil={profil} />
+          {ANGEBOT.pro && <PlanKarte profil={profil} />}
       {profil.geworben_von && <p style={{ fontSize: 12.5, color: C.hellgrau, margin: "-6px 4px 14px" }}>Du bist selbst über eine Einladung zu Mythos Mathe gekommen.</p>}
 
         </>
@@ -378,7 +379,7 @@ function Profil({ nutzer, profil, geworben, gehe }) {
           <ElternBereich profil={profil} gehe={gehe} kinderRef={setKinder} />
           <KinderEinwilligungKarte />
           <WochenmailKarte />
-          <PlanKarte profil={profil} kinder={kinder} />
+          {ANGEBOT.pro && <PlanKarte profil={profil} kinder={kinder} />}
           <SpendenTeaser gehe={gehe} />
           <NameKarte profil={profil} />
         </>
@@ -386,7 +387,7 @@ function Profil({ nutzer, profil, geworben, gehe }) {
       {istLehrend(rolle) && (
         <>
           <LehrBereich profil={profil} gehe={gehe} />
-          <PlanKarte profil={profil} />
+          {ANGEBOT.pro && <PlanKarte profil={profil} />}
           <NameKarte profil={profil} />
         </>
       )}

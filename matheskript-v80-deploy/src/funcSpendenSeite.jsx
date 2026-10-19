@@ -58,15 +58,15 @@ export function SpendenSeite({ gehe }) {
         <SpendenKarte />
 
         <div style={{ ...karte, padding: 18, marginBottom: 14, border: `1.5px solid ${C.flaggold}`, background: "#FFFBEA" }}>
-          <Kicker>WIR VERGESSEN DAS NICHT</Kicker>
+          <Kicker>OHNE GEGENLEISTUNG</Kicker>
           <p style={{ ...text, color: C.tinte }}>
-            Wir merken uns, wer die Seite jetzt unterstützt. Spenden von heute werden in Zukunft berücksichtigt: Bei neuen Angeboten und Funktionen denken wir an dich. Was genau das sein wird, legen wir noch fest. Versprochen ist heute nur, dass deine Unterstützung nicht untergeht.
+            Für eine Spende gibt es nichts zurück: kein Pro, kein größeres Kontingent, keinen Vorteil. Sie ist ein Dankeschön, nicht mehr und nicht weniger. Mythos Mathe bleibt für alle gleich nutzbar, ob du etwas gibst oder nicht.
           </p>
         </div>
 
-        <button type="button" onClick={() => gehe({ ansicht: "konto" })}
+        <button type="button" onClick={() => gehe({ ansicht: "start" })}
           style={{ display: "block", margin: "6px auto 0", background: "none", border: "none", color: C.see, textDecoration: "underline", fontFamily: "inherit", fontSize: 14, cursor: "pointer" }}>
-          Zurück zu deinem Konto
+          Zurück zur Startseite
         </button>
       </div>
     </>

@@ -38,7 +38,8 @@ import { Arbeitsmenue } from "./funcArbeitsmenue.jsx";
 import { FeedbackKnopf } from "./funcFeedback.jsx";
 import { MatheTastaturHost } from "./matheTastatur.jsx";
 import { LAENDER } from "./funcWettbewerbe.jsx";
-import { ENTWUERFE, istEntwurf, LANDING } from "./seitenKonstanten.js";
+import { ENTWUERFE, istEntwurf, LANDING, istFrei } from "./seitenKonstanten.js";
+import { ansichtErlaubt } from "./angebot.js";
 const EntwurfTor = lazyLaden(() => import("./funcEntwuerfe.jsx").then((m) => ({ default: m.EntwurfTor })));
 const KapitelFormelnSeite = lazyLaden(() => import("./funcKapitelFormeln.jsx").then((m) => ({ default: m.KapitelFormelnSeite })));
 const ChallengeSeite = lazyLaden(() => import("./funcChallenge.jsx").then((m) => ({ default: m.ChallengeSeite })));
@@ -120,7 +121,8 @@ import { springe } from "./sprung.js";
 const ZEIGE_MENUE = false;
 
 export function Mathilda() {
-  const [ansicht, setAnsicht] = useState(() => {
+  /* Abgeschaltete Angebote (angebot.js) führen auf die Startseite; mit dem Passwort „skript“ bleiben sie für Basti offen */
+  const [ansichtRoh, setAnsicht] = useState(() => {
     try {
       masterclassLinkMerken();   // /masterclass/zugang?z=… → Code merken, aus der Adresse nehmen
       const q = new URLSearchParams(window.location.search);
@@ -132,6 +134,7 @@ export function Mathilda() {
       return pz ? pz.ansicht : "start";
     } catch (e) { return "start"; }
   });
+  const ansicht = ansichtErlaubt(ansichtRoh, istFrei());
   // Rückkehr von Stripe nach erfolgreicher Ticketbuchung
   const [ticketGebucht] = useState(() => { try { return new URLSearchParams(window.location.search).get("ticket") === "danke"; } catch (e) { return false; } });
   const konto = useKonto();

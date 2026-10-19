@@ -4,6 +4,7 @@ import { MedienEinstellungen } from "./funcExtern.jsx";
 import { einwilligungLesen, einwilligungSetzen } from "./func9.jsx";
 
 import { springe } from "./sprung.js";
+import { ANGEBOT } from "./angebot.js";
 /* ======================================================================
    RECHTLICHES: Fußzeile, Impressum, AGB, Widerrufsbelehrungen.
    Texte nach dem Entwurf „Impressum und Vertragsbedingungen“ (Stand 1.10.2026);
@@ -17,11 +18,13 @@ import { springe } from "./sprung.js";
 export const ANBIETER = {
   name: "Bastian Blumenröther",
   marke: "Mythos Mathe",
-  strasse: "[Straße und Hausnummer]",
-  ort: "[PLZ und Ort]",
+  strasse: "Heinrich-von-Tettingen-Straße 24",
+  ort: "78465 Konstanz",
   land: "Deutschland",
-  email: "[E-Mail-Adresse]",
-  telefon: "[Telefonnummer]",
+  email: "lakepoker.consulting@gmail.com",
+  telefon: "0160 55 74 171",
+  /* Umsatzsteuer-Identifikationsnummer (nicht die Steuer-ID!). Leer = Abschnitt „Umsatzsteuer“ im Impressum entfällt. */
+  ustId: "",
   domain: "https://mythosmathe.de",
   /* Datenschutz-Aufsicht am Sitz des Anbieters (Baden-Württemberg) */
   aufsicht: "Der Landesbeauftragte für den Datenschutz und die Informationsfreiheit Baden-Württemberg, Lautenschlagerstraße 20, 70173 Stuttgart, www.baden-wuerttemberg.datenschutz.de",
@@ -29,7 +32,7 @@ export const ANBIETER = {
   supabaseRegion: "[Serverstandort prüfen und eintragen – empfohlen: Frankfurt am Main (eu-central-1)]",
 };
 
-export const STAND_DATENSCHUTZ = "18. Oktober 2026";
+export const STAND_DATENSCHUTZ = "19. Oktober 2026";
 
 const anschrift = `${ANBIETER.strasse}, ${ANBIETER.ort}, ${ANBIETER.land}`;
 
@@ -70,10 +73,11 @@ export function Fusszeile({ gehe, arbeitsmenue }) {
         <nav aria-label="Rechtliches" className="flex flex-wrap" style={{ columnGap: 20, rowGap: 2 }}>
           {link("impressum", "Impressum")}
           {link("datenschutz", "Datenschutz")}
-          {link("agb", "AGB")}
+          {ANGEBOT.agb && link("agb", "AGB")}
           {arbeitsmenue && arbeitsmenue({ background: "none", border: "none", padding: "4px 0", color: C.flaggold, fontSize: 13.5, fontWeight: 600, fontFamily: "inherit", cursor: "pointer" })}
-          {link("widerruf", "Widerrufsbelehrung")}
+          {ANGEBOT.agb && link("widerruf", "Widerrufsbelehrung")}
           {link("lehrkraefte", "Für Lehrkräfte")}
+          {link("spenden", "Unterstützen")}
         </nav>
         <p style={{ fontSize: 12.5, color: "#8FA3C8", marginTop: 12 }}>© 2026 Mythos Mathe · Alle Rechte vorbehalten.</p>
       </div>
@@ -97,8 +101,12 @@ export function ImpressumSeite() {
       <P>E-Mail: {ANBIETER.email}<br />Telefon: {ANBIETER.telefon}</P>
       <H2>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</H2>
       <P>{ANBIETER.name}, Anschrift wie oben.</P>
-      <H2>Umsatzsteuer</H2>
-      <P>[Umsatzsteuer-Identifikationsnummer nach § 27a UStG eintragen, sobald vorhanden – bei Kleinunternehmerregelung diesen Abschnitt löschen.]</P>
+      {ANBIETER.ustId && (
+        <>
+          <H2>Umsatzsteuer</H2>
+          <P>Umsatzsteuer-Identifikationsnummer nach § 27a UStG: {ANBIETER.ustId}</P>
+        </>
+      )}
       <H2>Verbraucherstreitbeilegung</H2>
       <P>Ich bin weder bereit noch verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.</P>
       <H2>Haftung für Links</H2>
@@ -271,7 +279,7 @@ const DATENSCHUTZ = [
   ]],
   ["Speicherung auf Ihrem Gerät", [
     "Die App speichert Lernstand, Einstellungen und Zwischenstände im lokalen Speicher Ihres Browsers (localStorage), zum Beispiel Trainingsergebnisse, Wiederholungsplan, gewählte Klasse, Trainingsplan, Fortschritt in „Mathe entdecken“, Ihre Zustimmungen und eine zufällige Gerätekennung zur Begrenzung von KI-Anfragen ohne Konto. Diese Daten bleiben auf dem Gerät, solange Sie sie nicht löschen (Browserdaten löschen genügt).",
-    "Während der Testphase setzt die Seite Cookies für den Passwortschutz (mm_zugang, mm_willkommen, mm_gast). Angemeldete Nutzer erhalten ein Anmelde-Token im lokalen Speicher. Diese Speicherungen sind für den von Ihnen gewünschten Dienst unbedingt erforderlich (§ 25 Abs. 2 Nr. 2 TDDDG) und benötigen keine Einwilligung. Andere Cookies setzen wir nicht.",
+    "Ist der Passwortschutz der Testphase eingeschaltet, setzt die Seite dafür Cookies (mm_zugang, mm_willkommen, mm_gast). Angemeldete Nutzer erhalten ein Anmelde-Token im lokalen Speicher. Diese Speicherungen sind für den von Ihnen gewünschten Dienst unbedingt erforderlich (§ 25 Abs. 2 Nr. 2 TDDDG) und benötigen keine Einwilligung. Andere Cookies setzen wir nicht.",
   ]],
   ["Kundenkonto", [
     `Für das Konto nutzen wir Supabase (Supabase Inc., 970 Toa Payoh North #07-04, Singapur 318992) als Datenbank- und Anmeldedienst im Auftrag. Serverstandort: ${ANBIETER.supabaseRegion}. Mit Supabase besteht ein Auftragsverarbeitungsvertrag; soweit Supabase oder Unterauftragnehmer Daten außerhalb der EU verarbeiten, gelten die EU-Standardvertragsklauseln.`,
@@ -311,8 +319,8 @@ const DATENSCHUTZ = [
     "Rechtsgrundlage ist Art. 6 Abs. 1 lit. b und c DSGVO. Rechnungs- und Buchungsdaten bewahren wir so lange auf, wie es das Handels- und Steuerrecht verlangt (bis zu zehn Jahre).",
   ]],
   ["Freiwillige Spenden", [
-    "Eltern können im Konto freiwillig zu den KI-Kosten der Seite beitragen. Die Zahlung läuft nicht über unsere Server: Mit einem Klick öffnet sich der gewählte Anbieter (PayPal, Karten-Zahlungslink über Stripe, Ko-fi) in einem neuen Fenster, oder Sie überweisen per SEPA. Zahlungsdaten geben Sie nur dort ein; die Anbieter verarbeiten sie als eigene Verantwortliche nach ihren Datenschutzhinweisen, und Daten können dabei in Drittländer gelangen. Wir erhalten von der Zahlung Name, gegebenenfalls E-Mail-Adresse, Betrag und Zeitpunkt, soweit der Anbieter sie uns mitteilt oder sie auf dem Kontoauszug stehen. Beim Öffnen des Links erfährt der Anbieter Ihre IP-Adresse; vorher wird nichts übertragen.",
-    "Rechtsgrundlage für die Buchung der Zahlung ist Art. 6 Abs. 1 lit. c DSGVO (Buchführungspflichten), die Aufbewahrung richtet sich nach dem Handels- und Steuerrecht. Eine Spende ist freiwillig und begründet keinen Anspruch auf Gegenleistung. Vermerken wir eine Spende zu Ihrem Namen, um sie bei künftigen Angeboten zu berücksichtigen, geschieht das auf Grundlage unseres berechtigten Interesses, Unterstützern Wertschätzung zu zeigen (Art. 6 Abs. 1 lit. f DSGVO); dem können Sie jederzeit widersprechen. Mit dem Lernstand wird die Spende nicht verknüpft.",
+    "Besucher können auf der Seite „Donate“ freiwillig zu den KI-Kosten beitragen. Die Zahlung läuft nicht über unsere Server: Mit einem Klick öffnet sich PayPal in einem neuen Fenster, oder Sie überweisen per SEPA an das dort genannte Konto. Zahlungsdaten geben Sie nur bei PayPal bzw. Ihrer Bank ein; PayPal verarbeitet sie als eigener Verantwortlicher nach seinen Datenschutzhinweisen, und Daten können dabei in Drittländer gelangen. Wir erhalten von der Zahlung Name, gegebenenfalls E-Mail-Adresse, Betrag und Zeitpunkt, soweit PayPal sie uns mitteilt oder sie auf dem Kontoauszug stehen. Beim Öffnen des PayPal-Links erfährt PayPal Ihre IP-Adresse; vorher wird nichts übertragen.",
+    "Rechtsgrundlage für die Buchung der Zahlung ist Art. 6 Abs. 1 lit. c DSGVO (Buchführungspflichten), die Aufbewahrung richtet sich nach dem Handels- und Steuerrecht. Eine Spende ist ein freiwilliges Dankeschön: Sie begründet keinen Anspruch auf eine Gegenleistung, schaltet nichts frei und wird nicht mit Ihrem Lernstand verknüpft. Eine Spendenquittung stellen wir nicht aus.",
   ]],
   ["E-Mails und Benachrichtigungen", [
     "Eltern können einen wöchentlichen Lernbericht per E-Mail bestellen. Für den Versand nutzen wir Resend (Resend, Inc., San Francisco, USA) als Auftragsverarbeiter; übermittelt werden E-Mail-Adresse, Name und der Berichtsinhalt. " + DRITTLAND + " Jede Mail enthält einen Abmeldelink. Rechtsgrundlage ist Ihre Einwilligung (Art. 6 Abs. 1 lit. a DSGVO).",
@@ -340,6 +348,9 @@ const DATENSCHUTZ = [
     "Wenn wir neue Funktionen einführen oder Dienstleister wechseln, passen wir diese Erklärung an. Bei wesentlichen Änderungen, die eine Einwilligung betreffen, fragen wir erneut.",
   ]],
 ];
+
+/* Abschnitte, die nur erscheinen, solange das jeweilige Angebot eingeschaltet ist (angebot.js) – ohne Angebot keine Erklärung dazu */
+const NUR_MIT_ANGEBOT = { "Bezahlung": "pro", "Anmeldung zu Veranstaltungen": "elternabend" };
 
 function DeineEinstellungen({ gehe }) {
   const [ki, setKi] = useState(() => einwilligungLesen());
@@ -374,7 +385,7 @@ export function DatenschutzSeite({ gehe }) {
           {KURZ.map((t) => <li key={t} style={{ marginBottom: 4 }}>{t}</li>)}
         </ul>
       </div>
-      {DATENSCHUTZ.map(([titel, absaetze], i) => (
+      {DATENSCHUTZ.filter(([titel]) => !NUR_MIT_ANGEBOT[titel] || ANGEBOT[NUR_MIT_ANGEBOT[titel]]).map(([titel, absaetze], i) => (
         <section key={titel}>
           <H2>{i + 1}. {titel}</H2>
           {absaetze.map((a, j) => <P key={j}>{a}</P>)}

@@ -53,8 +53,9 @@ export function SpendenKarte({ cfg = SPENDEN }) {
   const [sepaOffen, setSepaOffen] = useState(false);
   const liste = wege(betrag, cfg);
   const paypal = liste[0];
-  const andere = liste.slice(1);
   const live = mindestensEinWeg(cfg);
+  /* Öffentlich zeigen wir nur Wege, die wirklich eingetragen sind – kein „Link folgt“ */
+  const andere = liste.slice(1).filter((w) => !live || w.bereit);
 
   return (
     <div style={{ ...karte, padding: 18, marginBottom: 14, border: `1.5px solid ${C.flaggold}` }}>
@@ -79,7 +80,7 @@ export function SpendenKarte({ cfg = SPENDEN }) {
         )}
       </div>
 
-      <p style={{ fontSize: 12.5, fontWeight: 700, letterSpacing: "0.06em", color: C.hellgrau, margin: "16px 0 8px" }}>ODER ANDERS</p>
+      {andere.length > 0 && <p style={{ fontSize: 12.5, fontWeight: 700, letterSpacing: "0.06em", color: C.hellgrau, margin: "16px 0 8px" }}>ODER ANDERS</p>}
       <div style={{ display: "grid", gap: 8 }}>
         {andere.map((w) => {
           const inhalt = (
@@ -106,14 +107,14 @@ export function SpendenKarte({ cfg = SPENDEN }) {
 
       <div style={{ marginTop: 14, paddingTop: 12, borderTop: `1px solid ${C.linie}` }}>
         <p style={{ fontSize: 12.5, color: C.grau, lineHeight: 1.6 }}>
-          Freiwillig: Eine Spende schaltet heute nichts frei, Mythos Mathe bleibt für alle gleich nutzbar. Es gibt keine Spendenquittung, der Betrag ist nicht steuerlich absetzbar. Deine Zahlungsdaten gibst du nur beim gewählten Anbieter ein.
+          Freiwillig und ohne Gegenleistung: Eine Spende ist ein reines Dankeschön. Sie schaltet nichts frei und begründet keinen Anspruch, Mythos Mathe bleibt für alle gleich nutzbar. Es gibt keine Spendenquittung, der Betrag ist nicht steuerlich absetzbar. Deine Zahlungsdaten gibst du nur bei PayPal oder deiner Bank ein.
         </p>
       </div>
     </div>
   );
 }
 
-/* Kleine Karte im Elternkonto: führt zur Seite /spenden */
+/* Kleine Karte im Konto: führt zur Seite /spenden */
 export function SpendenTeaser({ gehe }) {
   return (
     <div style={{ ...karte, padding: 18, marginBottom: 14, background: `linear-gradient(155deg, ${C.see} 0%, ${NAVY} 100%)`, color: C.weiss }}>

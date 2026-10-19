@@ -71,6 +71,7 @@ test("Stripe-Client: Fehler werden zu lesbaren Ausnahmen", async () => {
 process.env.STRIPE_SECRET_KEY = "sk_test"; process.env.STRIPE_WEBHOOK_SECRET = "whsec_test";
 process.env.SUPABASE_URL = "https://beispiel.supabase.co"; process.env.SUPABASE_SERVICE_ROLE_KEY = "service"; process.env.SUPABASE_ANON_KEY = "anon";
 process.env.STRIPE_PRICE_PRO_MONAT = "price_m";
+import { ANGEBOT } from "../src/angebot.js";
 const { default: checkout } = await import("../api/stripe/checkout.js");
 const { default: webhook } = await import("../api/stripe/webhook.js");
 const { default: portal } = await import("../api/stripe/portal.js");
@@ -89,7 +90,17 @@ globalThis.fetch = async (url, init = {}) => {
   throw new Error(`unerwartet: ${u}`);
 };
 
+test("Routen checkout und portal: ohne Angebot „Pro“ (angebot.js) antworten sie mit 404", async () => {
+  const vorher = ANGEBOT.pro;
+  try {
+    ANGEBOT.pro = false;
+    let r = res(); await checkout({ method: "POST", headers: { host: "app.test", authorization: "Bearer gut" }, body: { angebot: "pro_monat", ziele: [K1] } }, r); assert.equal(r.code, 404);
+    r = res(); await portal({ method: "POST", headers: { host: "app.test", authorization: "Bearer gut" } }, r); assert.equal(r.code, 404);
+  } finally { ANGEBOT.pro = vorher; }
+});
+
 test("Route checkout: Anmeldung, Berechtigung, Sitzung", async () => {
+  ANGEBOT.pro = true;
   let r = res(); await checkout({ method: "POST", headers: { host: "app.test" }, body: { angebot: "pro_monat", ziele: [K1] } }, r); assert.equal(r.code, 401);
   r = res(); await checkout({ method: "POST", headers: { host: "app.test", authorization: "Bearer gut" }, body: { angebot: "pro_monat", ziele: [K2] } }, r); assert.equal(r.code, 403);
   r = res(); await checkout({ method: "POST", headers: { host: "app.test", authorization: "Bearer gut" }, body: { angebot: "pro_jahr", ziele: [K1] } }, r); assert.equal(r.code, 400);   // kein Preis hinterlegt
@@ -110,6 +121,7 @@ test("Route webhook: Signatur, Verarbeitung, Unbekanntes ignoriert", async () =>
 });
 
 test("Route portal: Kunde nötig", async () => {
+  ANGEBOT.pro = true;
   let r = res(); await portal({ method: "POST", headers: { host: "app.test" } }, r); assert.equal(r.code, 401);
   r = res(); await portal({ method: "POST", headers: { host: "app.test", authorization: "Bearer gut" } }, r); assert.equal(r.code, 200); assert.match(r.body.url, /billing/);
 });

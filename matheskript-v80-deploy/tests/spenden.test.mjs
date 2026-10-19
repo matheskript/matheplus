@@ -36,12 +36,27 @@ test("IBAN-Prüfziffer", () => {
   assert.equal(ibanAnzeige("de89370400440532013000"), "DE89 3704 0044 0532 0130 00");
 });
 
+const LEER = { ...SPENDEN, paypal: { name: "" }, kofi: { name: "" }, karte: { link: "" }, sepa: { iban: "", empfaenger: "" } };
+
 test("ohne Eintragung: vier Wege, PayPal zuerst, alle gesperrt, nichts erfunden", () => {
-  const w = wege(20);
+  const w = wege(20, LEER);
   assert.equal(w.length, 4);
   assert.deepEqual(w.map((x) => x.id), ["paypal", "karte", "kofi", "sepa"]);
   assert.ok(w.every((x) => !x.bereit && !x.href));
-  assert.equal(mindestensEinWeg(), false);
+  assert.equal(mindestensEinWeg(LEER), false);
+});
+
+test("eingetragene Wege (19.10.2026): PayPal.me/MythosMathe und Überweisung, sonst nichts", () => {
+  assert.equal(SPENDEN.paypal.name, "MythosMathe");
+  assert.equal(ibanOk(SPENDEN.sepa.iban), true);
+  assert.equal(SPENDEN.sepa.empfaenger, "Bastian Blumenröther");
+  for (const b of SPENDEN.betraege) {
+    const w = wege(b);
+    assert.deepEqual(w.filter((x) => x.bereit).map((x) => x.id), ["paypal", "sepa"]);
+    assert.equal(w[0].href, `https://www.paypal.com/paypalme/MythosMathe/${b}EUR`);
+    assert.equal(w[3].iban, "DE92 6906 1800 0000 2162 08");
+  }
+  assert.equal(mindestensEinWeg(), true);
 });
 
 test("mit Eintragung: PayPal trägt den Betrag, Überweisung nennt Zweck und Betrag", () => {

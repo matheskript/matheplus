@@ -1,9 +1,10 @@
 /* ======================================================================
    Spenden für die KI-Kosten – reine Logik (ohne React, testbar mit Node).
-   Einziger Zahlungseingang der Seite: freiwillig, ohne Gegenleistung.
-   Karte: funcSpenden.jsx (im Elternkonto). Alle Zahlungsdaten NUR hier eintragen.
+   Einziger Zahlungseingang der Seite: freiwillig, reines Dankeschön, ohne Gegenleistung
+   (kein Pro, kein Kontingent, keine Spendenquittung). Karte: funcSpenden.jsx, Seite /spenden.
+   Alle Zahlungsdaten NUR hier eintragen.
 
-   Eintragen (leer = Weg erscheint als „Link folgt“, nichts wird erfunden):
+   Eintragen (leer = der Weg wird auf der Seite nicht angezeigt, nichts wird erfunden):
    - paypal.name   → Teil hinter paypal.me/ (z. B. "bastiblumenroether")
    - kofi.name     → Teil hinter ko-fi.com/
    - karte.link    → Stripe-Zahlungslink (Karte, Apple/Google Pay), sobald Stripe steht
@@ -14,10 +15,10 @@ export const SPENDEN = {
   betraege: [10, 20, 50, 100],
   vorgewaehlt: 20,
   zweck: "Mythos Mathe – KI-Kosten",
-  paypal: { name: "" },
+  paypal: { name: "MythosMathe" },   // paypal.me/MythosMathe
   kofi: { name: "" },
   karte: { link: "" },
-  sepa: { iban: "", empfaenger: "" },
+  sepa: { iban: "DE92 6906 1800 0000 2162 08", empfaenger: "Bastian Blumenröther" },
 };
 
 export const euro = (b) => `${b} €`;

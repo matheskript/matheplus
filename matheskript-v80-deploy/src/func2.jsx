@@ -30,6 +30,7 @@ import { MasterclassKachel, MatheCheckenKachel, MathCreatorKachel } from "./func
 import { DiffKursKachel } from "./funcDiffKursKachel.jsx";
 import { VekKursKachel } from "./funcVekKursKachel.jsx";
 import { ElternabendKachel } from "./funcElternabend.jsx";
+import { ANGEBOT } from "./angebot.js";
 import { SpendenBereich } from "./funcSpendenBereich.jsx";
 import { istFrei, entsperren, EVENT_FREI } from "./seitenKonstanten.js";
 import { EntdeckenLogoKlein } from "./funcEntdeckenLogo.jsx";
@@ -485,7 +486,9 @@ function DesktopKurse({ gehe }) {
       <div>
         <StartAbschnittKopf kicker="Kurse" titel="Jeder Kurs ein Baustein, zusammen ein System" />
         <p style={{ ...START_TEXT, marginBottom: 24 }}>
-          Hinter den sieben Mathe-Mythen steckt dieselbe Lücke: Es fehlt nicht an Begabung, sondern an einer Arbeitsweise. Die Kurse unten schließen sie Stück für Stück. Der Mathe-Mindset-Kurs räumt das Denken auf, Kopfrechnen macht Zahlen schnell und sicher, und Ebbinghaus sorgt dafür, dass Gelerntes im richtigen Abstand wiederkommt und bleibt. Die Videokurse und die Masterclass führen dich danach Schritt für Schritt durch den Stoff bis zum Abitur.
+          {ANGEBOT.kurse
+            ? "Hinter den sieben Mathe-Mythen steckt dieselbe Lücke: Es fehlt nicht an Begabung, sondern an einer Arbeitsweise. Die Kurse unten schließen sie Stück für Stück. Der Mathe-Mindset-Kurs räumt das Denken auf, Kopfrechnen macht Zahlen schnell und sicher, und Ebbinghaus sorgt dafür, dass Gelerntes im richtigen Abstand wiederkommt und bleibt. Die Videokurse und die Masterclass führen dich danach Schritt für Schritt durch den Stoff bis zum Abitur."
+            : "Hinter den sieben Mathe-Mythen steckt dieselbe Lücke: Es fehlt nicht an Begabung, sondern an einer Arbeitsweise. Die Kurse unten schließen sie Stück für Stück. Der Mathe-Mindset-Kurs räumt das Denken auf, Kopfrechnen macht Zahlen schnell und sicher, und Ebbinghaus sorgt dafür, dass Gelerntes im richtigen Abstand wiederkommt und bleibt. Die Kurse zur Differentialrechnung sowie zu Vektoren, Geraden und Ebenen führen dich danach Schritt für Schritt durch den Stoff bis zum Abitur."}
         </p>
       </div>
     </section>
@@ -1810,7 +1813,8 @@ export function Startseite({ gehe }) {
       </>)}
       {!desktop && entdeckenBlock}
       {/* Elternabend: immer sichtbar und offen */}
-      <ElternabendKachel gesperrt={!elternabendFrei} onClick={() => gehe({ ansicht: "elternabend" })} />
+      {/* Ohne Angebot „Elternabend“ (angebot.js) nur nach dem Passwort für Basti sichtbar */}
+      {(ANGEBOT.elternabend || elternabendFrei) && <ElternabendKachel gesperrt={!elternabendFrei} onClick={() => gehe({ ansicht: "elternabend" })} />}
       {ZEIGE_GESPERRTE && (<>
       <MatheCheckenKachel gesperrt onClick={() => gehe({ ansicht: "mathecheck" })} />
       <MasterclassKachel gesperrt onClick={() => gehe({ ansicht: "masterclass" })} />
@@ -1857,7 +1861,7 @@ export function Startseite({ gehe }) {
       {/* Kurs Vektoren, Geraden und Ebenen: direkt darunter, in Dunkelblau */}
       <VekKursKachel onClick={() => gehe({ ansicht: "vekkurs" })} />
       {/* Mathe Masterclass: Kursbereich für Teilnehmer (ohne Zugang zeigt er das Code-Feld) */}
-      <MasterclassKachel name="Mathe Masterclass" monate="3 MONATE" knopf="Zum Kursbereich" onClick={() => gehe({ ansicht: "mckurs" })} />
+      {(ANGEBOT.kurse || elternabendFrei) && <MasterclassKachel name="Mathe Masterclass" monate="3 MONATE" knopf="Zum Kursbereich" onClick={() => gehe({ ansicht: "mckurs" })} />}
       {/* Die 7 Mathe-Mythen: zwischen Masterclass und „Wo stehst du wirklich?“ */}
       <MythenAbschnitt />
       {/* Ganz unten: Dein Plan mit Standortcheck („Wo stehst du wirklich?“) */}

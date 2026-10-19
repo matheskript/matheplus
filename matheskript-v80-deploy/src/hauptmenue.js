@@ -9,6 +9,7 @@
    „Arbeitsmenü“ in die Fußzeile gewandert (funcArbeitsmenue.jsx).
    ====================================================================== */
 import { SCHULARTEN, klassenBoxen, kapitelFuer, hilfenFuer, kurseFuer, roemisch, stufeAusKlassenBox } from "./schulbuch.js";
+import { ANGEBOT } from "./angebot.js";
 
 /* ---------- Konto ---------- */
 /* Pro gilt, solange profil.plan = "pro" und pro_bis nicht abgelaufen ist (wie PlanKarte in funcKontoRollen.jsx) */
@@ -29,18 +30,20 @@ export function kontoArt(profil) {
 
 /* Konto-Punkte im ☰-Menü (unter den aufklappbaren Abschnitten) – einzeilig, je nach Rolle.
    Anmelden/Abmelden steht NICHT hier, sondern als letzter Punkt des Menüs (zugangEintrag). */
-export function kontoEintraege(profil, angemeldet = true) {
+export function kontoEintraege(profil, angemeldet = true, cfg = ANGEBOT) {
   const pro = istPro(profil);
-  const proEintrag = pro
+  /* Ohne Angebot „Pro“ (angebot.js) gibt es weder „Pro werden“ noch „Mein Plan · Pro“ */
+  const proEintrag = !cfg.pro ? null : pro
     ? { id: "plan", name: "Mein Plan · Pro", ziel: { ansicht: "konto" } }
     : { id: "pro", name: "Pro werden", ziel: { ansicht: "konto" }, gold: true };
   if (!angemeldet) {
     return [
       { id: "fortschritt", name: "Mein Fortschritt", ziel: { ansicht: "profil" } },
       proEintrag,
+      { id: "spenden", name: "Unterstützen", ziel: { ansicht: "spenden" } },
       { id: "datenschutz", name: "Datenschutz", ziel: { ansicht: "datenschutz" } },
       { id: "impressum", name: "Impressum", ziel: { ansicht: "impressum" } },
-    ];
+    ].filter(Boolean);
   }
   const rolle = (profil && profil.rolle) || "schueler";
   const liste = [{ id: "konto", name: "Mein Konto", ziel: { ansicht: "konto" } }];
@@ -52,7 +55,7 @@ export function kontoEintraege(profil, angemeldet = true) {
     liste.push({ id: "fortschritt", name: "Mein Fortschritt", ziel: { ansicht: "profil" } });
     liste.push({ id: "bericht", name: "Wochenbericht", ziel: { ansicht: "bericht" } });
   }
-  liste.push(proEintrag);
+  if (proEintrag) liste.push(proEintrag);
   liste.push({ id: "datenschutz", name: "Datenschutz", ziel: { ansicht: "datenschutz" } });
   /* Lehrkräfte haben statt des Impressums (steht in der Fußzeile) den Arbeitsblatt-Generator – höchstens 6 Punkte */
   if (rolle === "eltern") liste.push({ id: "impressum", name: "Impressum", ziel: { ansicht: "impressum" } });
@@ -110,7 +113,7 @@ export function klassenInhalt(k) {
 }
 
 /* ---------- Meine Kurse ---------- */
-export const KURSE = [
+const KURSE_ALLE = [
   { id: "mckurs", name: "Mathe Abi Masterclass", zeile: "Kursbereich für Teilnehmer: Videos, Aufträge, Mathilda", ziel: { ansicht: "mckurs" } },
   { id: "diffkurs", name: "Differentialrechnung", zeile: "Schulbuch lesen und direkt trainieren", ziel: { ansicht: "diffkurs" } },
   { id: "vekkurs", name: "Vektoren, Geraden und Ebenen", zeile: "Heftkapitel lesen und trainieren", ziel: { ansicht: "vekkurs" } },
@@ -119,10 +122,15 @@ export const KURSE = [
   { id: "headnumbers", name: "Head & Numbers", zeile: "Kopfrechnen mit Lernpfad", ziel: { ansicht: "headnumbers" } },
   { id: "textaufgaben", name: "Textaufgaben übersetzen", zeile: "Aus dem Text die Gleichung machen", ziel: { ansicht: "textaufgaben" } },
 ];
-export const BALD_KURSE = [
+const BALD_KURSE_ALLE = [
   { id: "mathecheck", name: "Mathe checken", zeile: "Zwei Monate, ein System", bald: true },
   { id: "geometrie", name: "Kurs Geometrie", zeile: "Mittelstufe vom Winkel bis zum Körper", bald: true },
 ];
+/* Ohne Angebot „Kurse“ (angebot.js): keine Masterclass und keine „Bald“-Platzhalter im Menü */
+export const kurseListe = (cfg = ANGEBOT) => KURSE_ALLE.filter((k) => k.id !== "mckurs" || cfg.kurse);
+export const baldListe = (cfg = ANGEBOT) => (cfg.kurse ? BALD_KURSE_ALLE : []);
+export const KURSE = kurseListe();
+export const BALD_KURSE = baldListe();
 
 /* ---------- Die festen Menüs ---------- */
 export const KI_MENUE = [
