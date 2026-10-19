@@ -30,6 +30,7 @@ import { MasterclassKachel, MatheCheckenKachel, MathCreatorKachel } from "./func
 import { DiffKursKachel } from "./funcDiffKursKachel.jsx";
 import { VekKursKachel } from "./funcVekKursKachel.jsx";
 import { GfsKursKachel } from "./funcGfsKursKachel.jsx";
+import { ClaudeKursKachel } from "./funcClaudeKursKachel.jsx";
 import { ElternabendKachel } from "./funcElternabend.jsx";
 import { ANGEBOT } from "./angebot.js";
 import { SpendenBereich } from "./funcSpendenBereich.jsx";
@@ -1866,6 +1867,9 @@ export function Startseite({ gehe }) {
       <VekKursKachel onClick={() => gehe({ ansicht: "vekkurs" })} />
       {/* Kurs GFS: Klassenstufe wählen, Thema aus dem Lambacher Schweizer, sieben Schritte */}
       <GfsKursKachel onClick={() => gehe({ ansicht: "gfs" })} />
+      {/* Kurse Mathe lernen mit Claude (ab 18) und mit Gemini (ab 16): zehn Lektionen Prompt-Technik */}
+      <ClaudeKursKachel kurs="gemini" onClick={() => gehe({ ansicht: "geminikurs" })} />
+      <ClaudeKursKachel kurs="claude" onClick={() => gehe({ ansicht: "claudekurs" })} />
       {/* Mathe Masterclass: Kursbereich für Teilnehmer (ohne Zugang zeigt er das Code-Feld) */}
       {(ANGEBOT.kurse || elternabendFrei) && <MasterclassKachel name="Mathe Masterclass" monate="3 MONATE" knopf="Zum Kursbereich" onClick={() => gehe({ ansicht: "mckurs" })} />}
       {/* Die 7 Mathe-Mythen: zwischen Masterclass und „Wo stehst du wirklich?“ */}

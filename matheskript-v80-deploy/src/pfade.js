@@ -78,6 +78,8 @@ export const SEITEN = [
   { pfad: "gfs-trainer/optimale-dose", ansicht: "gfs-dose", alias: ["gfs/optimale-dose", "optimale-dose", "gfs-dose"] },
   { pfad: "differentialrechnung", ansicht: "diffkurs", alias: ["differenzialrechnung", "kurs-differentialrechnung", "diffkurs"] },
   { pfad: "vektoren-geraden-ebenen", ansicht: "vekkurs", alias: ["kurs-vektoren", "kurs-vektoren-geraden-ebenen", "vekkurs"] },
+  { pfad: "mathe-lernen-mit-claude", ansicht: "claudekurs", alias: ["claude-kurs", "lernen-mit-claude", "claudekurs", "kurs-claude", "mathe-lernen-mit-ki"] },
+  { pfad: "mathe-lernen-mit-gemini", ansicht: "geminikurs", alias: ["gemini-kurs", "lernen-mit-gemini", "geminikurs", "kurs-gemini"] },
   { pfad: "schulbuch/ableitungen", ansicht: "schulbuch", alias: ["schulbuch", "buch-ableitungen"] },
   { pfad: "formelsammlung", ansicht: "formeln", alias: ["formeln-app"] },
   { pfad: "operatoren", ansicht: "operatoren" },

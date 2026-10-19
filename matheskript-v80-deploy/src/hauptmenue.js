@@ -118,6 +118,8 @@ const KURSE_ALLE = [
   { id: "diffkurs", name: "Differentialrechnung", zeile: "Schulbuch lesen und direkt trainieren", ziel: { ansicht: "diffkurs" } },
   { id: "vekkurs", name: "Vektoren, Geraden und Ebenen", zeile: "Heftkapitel lesen und trainieren", ziel: { ansicht: "vekkurs" } },
   { id: "gfs", name: "GFS in Mathe", zeile: "Thema wählen, verstehen, vortragen", ziel: { ansicht: "gfs" } },
+  { id: "claudekurs", name: "Mathe lernen mit Claude", zeile: "Ab 18: die Prompts, mit denen die KI dich verstehen lässt", ziel: { ansicht: "claudekurs" } },
+  { id: "geminikurs", name: "Mathe lernen mit Gemini", zeile: "Ab 16: derselbe Kurs für die Google-KI", ziel: { ansicht: "geminikurs" } },
   { id: "penpaper", name: "Pen & Paper", zeile: "Sauber aufschreiben in neun Lektionen", ziel: { ansicht: "penpaperkurs" } },
   { id: "gleichkurs", name: "Gleichungen lernen", zeile: "Verstehen, rechnen, trainieren", ziel: { ansicht: "gleichkurs" } },
   { id: "headnumbers", name: "Head & Numbers", zeile: "Kopfrechnen mit Lernpfad", ziel: { ansicht: "headnumbers" } },
