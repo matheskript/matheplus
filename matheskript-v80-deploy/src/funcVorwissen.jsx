@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { C } from "./base1.jsx";
 import { AufklappZeichen } from "./aufklappen.jsx";
+import { WurzelZeichen } from "./wurzelZeichen.jsx";
 
 /* ======================================================================
    DEFINITIONEN UND VORWISSEN
@@ -250,6 +251,81 @@ export function BernoulliVorwissen() {
           </div>
         ))}
       </div>
+
+      <VwTitel>ERWARTUNGSWERT UND STREUUNG</VwTitel>
+      <VwText>
+        Wie viele Treffer kannst du auf lange Sicht im Durchschnitt erwarten – und wie stark schwankt die Trefferzahl um diesen Wert?
+        Für eine Bernoulli-Kette gibt es dafür drei einfache Formeln:
+      </VwText>
+      <div style={{ background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, color: C.weiss, borderRadius: 14, padding: "2px 14px",
+        boxShadow: "0 6px 18px -6px rgba(14,30,74,0.5)" }}>
+        {[
+          <>
+            <span>μ</span><span style={{ fontWeight: 400, margin: "0 2px", color: C.goldText }}>=</span>
+            <span>E(X)</span><span style={{ fontWeight: 400, margin: "0 2px", color: C.goldText }}>=</span>
+            <span style={{ color: "#9CC3F0" }}>n</span><span style={{ color: C.goldText, fontWeight: 400 }}>·</span><span style={{ color: C.flaggold }}>p</span>
+          </>,
+          <>
+            <span>σ<sup style={{ fontSize: "0.62em" }}>2</sup></span><span style={{ fontWeight: 400, margin: "0 2px", color: C.goldText }}>=</span>
+            <span>Var(X)</span><span style={{ fontWeight: 400, margin: "0 2px", color: C.goldText }}>=</span>
+            <span style={{ color: "#9CC3F0" }}>n</span><span style={{ color: C.goldText, fontWeight: 400 }}>·</span>
+            <span style={{ color: C.flaggold }}>p</span><span style={{ color: C.goldText, fontWeight: 400 }}>·</span>
+            <span>(1 − <span style={{ color: C.flaggold }}>p</span>)</span>
+          </>,
+          <>
+            <span>σ</span><span style={{ fontWeight: 400, margin: "0 2px", color: C.goldText }}>=</span>
+            <WurzelZeichen>
+              <span style={{ color: "#9CC3F0" }}>n</span><span style={{ color: C.goldText, fontWeight: 400 }}> · </span>
+              <span style={{ color: C.flaggold }}>p</span><span style={{ color: C.goldText, fontWeight: 400 }}> · </span>
+              <span>(1 − <span style={{ color: C.flaggold }}>p</span>)</span>
+            </WurzelZeichen>
+          </>,
+        ].map((f, i) => (
+          <div key={i} className="vw-scroll" style={{ borderTop: i ? "1px solid rgba(255,255,255,0.14)" : "none" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 5, whiteSpace: "nowrap", fontSize: "clamp(15px, 4.4vw, 22px)", fontWeight: 700,
+              minHeight: 56, width: "max-content", color: C.weiss }}>{f}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{ display: "grid", gap: 6, margin: "12px 2px 0" }}>
+        {[
+          ["μ", "Erwartungswert", "durchschnittliche Trefferzahl auf lange Sicht"],
+          ["σ²", "Varianz", "mittlere quadratische Abweichung der Trefferzahl von μ"],
+          ["σ", "Standardabweichung", "Wurzel der Varianz – ein Maß für die Streuung um μ"],
+        ].map(([b, name, t]) => (
+          <div key={b} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, color: C.grau, fontWeight: 300 }}>
+            <span style={{ flexShrink: 0, minWidth: 26, height: 26, padding: "0 4px", borderRadius: 8, background: `${C.see}14`, color: C.see, fontWeight: 700,
+              display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15 }}>{b}</span>
+            <span><B>{name}</B> – {t}</span>
+          </div>
+        ))}
+      </div>
+
+      <VwText style={{ marginTop: 16 }}>
+        <B>Beispiel:</B> Du würfelst wieder <B farbe={FB.n}>5</B>-mal, Treffer ist eine Sechs mit <B farbe={FB.p}>p = 1/6</B>.
+      </VwText>
+      <div style={kasten}>
+        <Zeile>
+          <span>μ</span><Gl /><span style={{ color: FB.n }}>5</span><Mal /><Bruch z="1" n="6" farbe={FB.p} /><Gl /><Bruch z="5" n="6" />
+          <span style={{ color: C.grau, fontWeight: 400, margin: "0 3px" }}>≈</span>0,83
+        </Zeile>
+        <Zeile>
+          <span>σ<sup style={{ fontSize: "0.62em" }}>2</sup></span><Gl /><span style={{ color: FB.n }}>5</span><Mal /><Bruch z="1" n="6" farbe={FB.p} /><Mal /><Bruch z="5" n="6" />
+          <Gl /><Bruch z="25" n="36" /><span style={{ color: C.grau, fontWeight: 400, margin: "0 3px" }}>≈</span>0,69
+        </Zeile>
+        <Zeile>
+          <span>σ</span><Gl /><WurzelZeichen><Bruch z="25" n="36" /></WurzelZeichen><Gl /><Bruch z="5" n="6" />
+          <span style={{ color: C.grau, fontWeight: 400, margin: "0 3px" }}>≈</span>0,83
+        </Zeile>
+      </div>
+      <VwText style={{ marginTop: 12 }}>
+        Bei 5 Würfen erwartest du im Schnitt <B>5/6 ≈ 0,83 Sechsen</B>. Die Trefferzahl streut dabei um etwa <B>0,83</B> um diesen Wert.
+        Je größer σ, desto breiter ist das Histogramm.
+      </VwText>
+      <VwText>
+        Ist <B>σ &gt; 3</B>, liegen rund <B>68 %</B> der Trefferzahlen in μ ± σ – dann lässt sich die Verteilung gut durch die Normalverteilung annähern.
+        Im Werkzeug unten siehst du μ und σ für die Kette, die du gerade eingestellt hast.
+      </VwText>
     </div>
   );
 }
