@@ -13,7 +13,9 @@ import { kapitelAuswahl } from "./kapitelFormeln.js";
 import { englisch } from "./i18n.js";
 import { unterthema, unterthemen } from "./unterthemen.js";
 import { PHASEN, auswahlNachKapitel, planErstellen, planStand, planTage, tagName, vorbereitungFuer } from "./trainingsplan.js";
-import { PhasenPille, heuteText, planSpeichern, sacheGeneratoren, useAktiverPlan } from "./funcKapitelTraining.jsx";
+import { PhasenPille, einheitVormerken, heuteText, planErsetzen, planSpeichern, sacheGeneratoren, useAktiverPlan } from "./funcKapitelTraining.jsx";
+import { erledigtUebertragen, hauptthemaPruefen } from "./hauptthema.js";
+import { HauptthemaAnsicht, HauptthemaLeiste, HauptthemaWahl } from "./funcHauptthema.jsx";
 
 import { springe } from "./sprung.js";
 const SCHLUESSEL = "matheplus-quickfinder";
@@ -25,7 +27,7 @@ function lesen() {
     const box = klassenBoxen(v.schulart).find((b) => b.id === v.klasse) ? v.klasse : null;
     const kapitel = box && kapitelFuer(v.schulart, box).some((k) => k.id === v.kapitel) ? v.kapitel : null;
     const teil = kapitel && v.teil && unterthema(v.teil) && unterthema(v.teil).kapitel === kapitel ? v.teil : null;
-    return { schulart: v.schulart, klasse: box, kapitel, teil, modus: v.modus === "plan" ? "plan" : "sache", auswahl: auswahlLesen(v) };
+    return { schulart: v.schulart, klasse: box, kapitel, teil, modus: v.modus === "plan" ? "plan" : "sache", auswahl: auswahlLesen(v), haupt: hauptthemaPruefen(v.haupt) };
   } catch { return null; }
 }
 /* Angehakte Unterthemen für den Trainingsplan (nur gültige Ids, ohne Doppelte) */
@@ -365,7 +367,7 @@ function UnterthemaZeile({ u, waehle }) {
 
 /* Menü: alle Kapitel der gewählten Klasse untereinander; ein Kapitel klappt auf und zeigt seine Werkzeuge.
    Immer nur ein Kapitel offen; das offene Kapitel bleibt gespeichert. */
-function KapitelMenue({ schulart, klasse, offen, setOffen, gehe, planOeffnen, handy = false }) {
+function KapitelMenue({ schulart, klasse, offen, setOffen, gehe, planOeffnen, handy = false, haupt = null, hauptWaehlen = null }) {
   const kapitel = kapitelFuer(schulart, klasse);
   const s = schulartVon(schulart);
   const box = klassenBoxen(schulart).find((b) => b.id === klasse);
@@ -397,6 +399,14 @@ function KapitelMenue({ schulart, klasse, offen, setOffen, gehe, planOeffnen, ha
               </button>
               {auf && (
                 <div className="auftauchen" style={{ display: "grid", gap: 6, padding: "10px 10px 12px", borderTop: `1px solid ${C.linie}`, background: "#F6F9FE" }}>
+                  {hauptWaehlen && (haupt && haupt.kapitel === k.id ? (
+                    <p style={{ margin: "0 2px 4px", fontSize: 12.5, fontWeight: 700, color: C.gruenDunkel, display: "flex", alignItems: "center", gap: 6 }}><Stern /> Das ist dein Hauptthema</p>
+                  ) : (
+                    <>
+                      <HauptthemaWahl titel={k.titel} ersetzt={haupt ? THEMEN[haupt.kapitel].titel : null} waehle={(termin) => hauptWaehlen(k.id, termin)} />
+                      <p style={{ ...KICKER, fontSize: 10.5, margin: "8px 2px 2px" }}>Oder direkt loslegen</p>
+                    </>
+                  ))}
                   {teile.length > 0 && (
                     <>
                       <p style={{ ...KICKER, fontSize: 10.5, margin: "0 2px 2px" }}>Unterthemen – antippen und üben</p>
@@ -606,6 +616,52 @@ export function Quickfinder({ gehe, setzeStufe, links }) {
     nachOben();
   };
   const zurueck = () => { setze({ ...q, modus: "sache" }); nachOben(); };
+
+  /* ---------- Hauptthema ---------- */
+  const haupt = q.haupt || null;
+  const [liste, setListe] = useState(false);   // Kapitelliste trotz Hauptthema offen („Thema wechseln“)
+  const planFuer = (kapitelId, schulart, klasse, termin) => planErstellen({ kapitel: kapitelId, schulart, klasse, heute: heuteText(), termin: termin || null });
+  const fremderPlan = (h) => aktiv && (!h || aktiv.plan.id !== h.planId);
+  const hauptWaehlen = (kapitelId, termin, schulart = q.schulart, klasse = q.klasse) => {
+    const plan = planFuer(kapitelId, schulart, klasse, termin);
+    if (plan && fremderPlan(haupt) && !window.confirm(`Dein aktueller Trainingsplan „${aktiv.plan.titel}“ wird durch den Plan zum neuen Hauptthema ersetzt. Weiter?`)) return;
+    if (plan) planSpeichern(plan);
+    setze({ ...q, modus: "sache", kapitel: kapitelId, teil: null,
+      haupt: { kapitel: kapitelId, schulart, klasse, termin: termin || null, seit: heuteText(), planId: plan ? plan.id : null, note: null } });
+    setListe(false);
+    nachOben();
+  };
+  const hauptAktionen = haupt && {
+    gehe,
+    liste: () => setListe(true),
+    beenden: () => { setze({ ...q, haupt: null }); setListe(false); },
+    oeffneTeil: (u) => unterthemaOeffnen(u, haupt.kapitel, haupt.schulart, haupt.klasse, gehe),
+    waehleWz: (h) => gehe(h.ziel),
+    heuteStarten: (e) => { if (e.gen.length) einheitVormerken(e.id); gehe({ ansicht: "trainingsplan" }); },
+    planErstellen: () => {
+      const plan = planFuer(haupt.kapitel, haupt.schulart, haupt.klasse, haupt.termin);
+      if (!plan) return;
+      if (fremderPlan(haupt) && !window.confirm(`Dein aktueller Trainingsplan „${aktiv.plan.titel}“ wird ersetzt. Weiter?`)) return;
+      planSpeichern(plan);
+      setze({ ...q, haupt: { ...haupt, planId: plan.id } });
+    },
+    datumSetzen: (termin) => {
+      const plan = planFuer(haupt.kapitel, haupt.schulart, haupt.klasse, termin);
+      const meiner = aktiv && aktiv.plan.id === haupt.planId ? aktiv : null;
+      if (plan && meiner) planErsetzen(plan, erledigtUebertragen(meiner.plan, meiner.erledigt, plan));
+      setze({ ...q, haupt: { ...haupt, termin: termin || null, seit: heuteText(), note: null, planId: plan && meiner ? plan.id : haupt.planId } });
+    },
+    noteSetzen: (n) => setze({ ...q, haupt: { ...haupt, note: n } }),
+    neuesHaupt: (kapitelId) => hauptWaehlen(kapitelId, null, haupt.schulart, haupt.klasse),
+  };
+  const hauptWerkzeuge = useMemo(() => (haupt ? werkzeugeZumKapitel(haupt.kapitel, haupt.schulart, haupt.klasse, false) : []), [haupt && haupt.kapitel, haupt && haupt.schulart, haupt && haupt.klasse]);   // eslint-disable-line react-hooks/exhaustive-deps
+  const hauptKurse = useMemo(() => {
+    if (!haupt || !haupt.klasse) return [];
+    const titel = THEMEN[haupt.kapitel].titel;
+    return kurseFuer(haupt.schulart, haupt.klasse, 6).filter((k) => k.passt.includes(titel)).slice(0, 2);
+  }, [haupt && haupt.kapitel, haupt && haupt.schulart, haupt && haupt.klasse]);   // eslint-disable-line react-hooks/exhaustive-deps
+  const hauptOben = haupt && !plan && !liste;
+  const planGehoertZumHaupt = haupt && aktiv && aktiv.plan.id === haupt.planId;
   return (
     <>
       <style>{`.qf-kopf{display:grid;grid-template-columns:minmax(0,1fr);grid-template-areas:"kopf" "schul" "klass";row-gap:10px;padding:16px 16px 6px}
@@ -618,7 +674,8 @@ export function Quickfinder({ gehe, setzeStufe, links }) {
         @media (hover:hover){.qf-balken:hover{border-color:${C.see} !important}
           .qf-sa[aria-pressed="false"]:hover{background:rgba(255,255,255,0.1) !important}
           .qf-kl[aria-pressed="false"]:hover{border-color:${C.see}55 !important}
-          .qf-gold:hover{filter:brightness(1.04)}}
+          .qf-gold:hover{filter:brightness(1.04)}
+          .ht-gold:hover{filter:brightness(1.05)}}
         .qf-kopf.qf-fertig{grid-template-areas:"kopf" "schul";padding-bottom:12px}
         @media (min-width:600px){.qf-kopf.qf-fertig{grid-template-rows:auto;grid-template-areas:"kopf schul";align-items:start}}`}</style>
       <div className={fertig ? "qf-kopf qf-fertig" : "qf-kopf"}>
@@ -639,14 +696,19 @@ export function Quickfinder({ gehe, setzeStufe, links }) {
           </>
         )}
       </div>
-      {(q.schulart && q.klasse) || aktiv ? (
+      {(q.schulart && q.klasse) || aktiv || haupt ? (
         <div className="qf-menue" ref={menueRef}>
-          {aktiv && <AktiverPlan v={aktiv} gehe={gehe} />}
-          {q.schulart && q.klasse && !plan && (
+          {aktiv && !(hauptOben && planGehoertZumHaupt) && <AktiverPlan v={aktiv} gehe={gehe} />}
+          {hauptOben && (
+            <HauptthemaAnsicht haupt={haupt} plan={aktiv} werkzeuge={hauptWerkzeuge} kurse={hauptKurse} aktionen={hauptAktionen} breit={!handy} />
+          )}
+          {haupt && !plan && liste && <HauptthemaLeiste haupt={haupt} zurueck={() => setListe(false)} beenden={hauptAktionen.beenden} />}
+          {q.schulart && q.klasse && !plan && !hauptOben && (
             <KapitelMenue key={q.schulart + q.klasse} schulart={q.schulart} klasse={q.klasse} offen={q.kapitel} gehe={gehe} planOeffnen={planOeffnen} handy={handy}
+              haupt={haupt} hauptWaehlen={hauptWaehlen}
               setOffen={(id) => setze({ ...q, kapitel: id, teil: null })} />
           )}
-          {q.schulart && q.klasse && !plan && <EmpfohleneKurse schulart={q.schulart} klasse={q.klasse} gehe={gehe} />}
+          {q.schulart && q.klasse && !plan && !hauptOben && <EmpfohleneKurse schulart={q.schulart} klasse={q.klasse} gehe={gehe} />}
           {q.schulart && q.klasse && plan && (
             <>
               <button type="button" onClick={zurueck}

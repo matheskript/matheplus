@@ -33,6 +33,11 @@ function schreiben(v) {
   try { window.dispatchEvent(new Event(EREIGNIS)); } catch { /* egal */ }
 }
 export const planSpeichern = (plan) => schreiben({ plan, erledigt: {} });
+/* Plan ersetzen und Erledigtes mitnehmen (Hauptthema: anderes Datum der Klassenarbeit) */
+export const planErsetzen = (plan, erledigt = {}) => schreiben({ plan, erledigt: erledigt && typeof erledigt === "object" ? erledigt : {} });
+/* „Heute dran“ auf der Startseite: diese Einheit beim Öffnen des Plans sofort starten */
+let startVorgemerkt = null;
+export const einheitVormerken = (id) => { startVorgemerkt = id; };
 export const planLoeschen = () => schreiben(null);
 function erledigtSetzen(id, wert) {
   const v = lesen();
@@ -180,6 +185,12 @@ function PlanAnsicht({ gehe }) {
   const [laeuft, setLaeuft] = useState(null);   // { e, aufgaben }
   const [ende, setEnde] = useState(null);       // { e, zs }
   const heute = heuteText();
+  useEffect(() => {
+    const id = startVorgemerkt;
+    startVorgemerkt = null;
+    const e = id && v ? v.plan.einheiten.find((x) => x.id === id) : null;
+    if (e && e.gen.length) setLaeuft({ e, aufgaben: erzeugen(einheitAufgabenIds(e)) });
+  }, []);   // eslint-disable-line react-hooks/exhaustive-deps
   if (!v) return (
     <>
       <Kopf titel="Dein Trainingsplan" unter="Noch kein Plan angelegt." />
