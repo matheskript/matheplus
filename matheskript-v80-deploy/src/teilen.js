@@ -102,7 +102,48 @@ export const SEITEN_SAETZE = {
   analyse: { de: "Rechenwege per Foto prüfen lassen", en: "get your working checked from a photo" },
   diffq: { de: "den Differenzenquotienten verstehen", en: "understand the difference quotient" },
   potenzregel: { de: "die Potenzregel verstehen und beweisen", en: "understand and prove the power rule" },
+
+  /* Kurse und Lernbereiche */
+  claudekurs: { de: "mit Claude Mathe verstehen, statt sich Lösungen geben zu lassen (ab 18)", en: "use Claude to understand maths instead of copying solutions (18+)" },
+  geminikurs: { de: "mit Gemini Mathe verstehen, statt sich Lösungen geben zu lassen (ab 16)", en: "use Gemini to understand maths instead of copying solutions (16+)" },
+  diffkurs: { de: "die Differentialrechnung Schritt für Schritt lernen", en: "learn differential calculus step by step" },
+  vekkurs: { de: "Vektoren, Geraden und Ebenen von Grund auf lernen", en: "learn vectors, lines and planes from the ground up" },
+  schulbuch: { de: "das Buch Ableitungen mit Lösungen und Erklärungen durcharbeiten", en: "work through the derivatives book with solutions and explanations" },
+  gleichkurs: { de: "Gleichungen verstehen, rechnen und trainieren", en: "understand, solve and train equations" },
+  gfs: { de: "eine GFS mit Mathe-Themen vorbereiten", en: "prepare a school presentation on maths topics" },
+  "gfs-pascal": { de: "das Pascalsche Dreieck für eine GFS entdecken", en: "discover Pascal's triangle for a school presentation" },
+  "gfs-dose": { de: "die optimale Dose berechnen und für eine GFS aufbereiten", en: "calculate the optimal can and turn it into a school presentation" },
+  kurse: { de: "Mathe mit Videokursen lernen", en: "learn maths with video courses" },
+  penpaperkurs: { de: "Mathe mit Stift und Papier üben", en: "practise maths with pen and paper" },
+  elternkurs: { de: "mit dem richtigen Mindset an Mathe herangehen", en: "approach maths with the right mindset" },
+  nachhilfekurs: { de: "Nachhilfe sinnvoll nutzen und Mathe gezielt aufholen", en: "make the most of tutoring and catch up on maths" },
+  operatoren: { de: "Operatoren wie „berechne“, „zeige“ und „begründe“ verstehen", en: "understand command words like “calculate”, “show” and “justify”" },
+  kapitelformeln: { de: "die Formeln zum Kapitel für die Klausur durchgehen", en: "go through the chapter formulas for the exam" },
+  trainieren: { de: "ein einzelnes Kapitel gezielt trainieren", en: "train a single chapter in a targeted way" },
+  trainingsplan: { de: "sich einen Trainingsplan zusammenstellen", en: "put together a training plan" },
+  klausurnach: { de: "eine Klausur gründlich nachbereiten", en: "review an exam thoroughly" },
+  klausurbriefkasten: { de: "eine Klausur zur Auswertung einwerfen", en: "drop in an exam for evaluation" },
+  mathecheck: { de: "den eigenen Mathe-Stand checken", en: "check where you stand in maths" },
+  challenge: { de: "sich mit der Mathe-Challenge herausfordern", en: "challenge yourself with the maths challenge" },
+  bwm: { de: "sich auf Mathe-Wettbewerbe vorbereiten", en: "prepare for maths competitions" },
+  landeswettbewerbe: { de: "Mathe-Landeswettbewerbe entdecken und üben", en: "discover and practise state maths competitions" },
+  landeswettbewerb: { de: "Aufgaben aus Mathe-Landeswettbewerben üben", en: "practise problems from state maths competitions" },
+  karte: { de: "mit der Lernlandkarte den Überblick behalten", en: "keep track of everything with the learning map" },
+  analysis: { de: "Analysis von den Grundlagen bis zum Abi lernen", en: "learn calculus from the basics to the Abitur" },
+  vektoren: { de: "Vektorgeometrie lernen und üben", en: "learn and practise vector geometry" },
+  stochastik: { de: "Stochastik lernen und üben", en: "learn and practise probability and statistics" },
 };
+
+/* Seiten, die bewusst KEINEN Teilen-Knopf haben: Startseite, Verkauf, Konto, Rechtliches,
+   persönliche Auswertungen, Lehrkräfte-Bereich, Mitgliederbereich und Entwürfe.
+   Jede Ansicht mit Direct Link steht entweder hier oder oben (Werkzeug / SEITEN_SAETZE) –
+   der Test tests/teilen.test.mjs schlägt sonst an, damit kein neuer Kurs ohne Knopf live geht. */
+export const KEIN_TEILEN = [
+  "start", "landingpage", "spenden", "elternabend", "masterclass", "mckurs", "mczugang",
+  "lehrkraefte", "lehrerblatt", "plan", "wiederholen", "profil", "profil2", "einstufung",
+  "bericht", "messung", "auswertung", "konto", "impressum", "datenschutz", "einwilligung", "agb", "widerruf",
+  "entwurf-start", "entwurf-checken", "entwurf-pakete", "entwurf-werkzeuge", "entwurf-vorher",
+];
 
 /* Infos zur Ansicht oder null, wenn die Seite kein Tool/Training ist (Startseite, Konto, Recht …) */
 export function teilenInfo(ansicht) {

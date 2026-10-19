@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { TOOL_SAETZE, SEITEN_SAETZE, teilenInfo, teilenText, whatsappUrl } from "../src/teilen.js";
+import { TOOL_SAETZE, SEITEN_SAETZE, KEIN_TEILEN, teilenInfo, teilenText, whatsappUrl } from "../src/teilen.js";
 import { WERKZEUGE, ansichtenVon } from "../src/werkzeuge.js";
 import { PFADE } from "../src/pfade.js";
 
@@ -46,4 +46,22 @@ test("WhatsApp-Link: wa.me mit kodiertem Text, ohne Verlust von Umlauten und Zei
   assert.ok(u.startsWith("https://wa.me/?text="));
   assert.equal(decodeURIComponent(u.slice("https://wa.me/?text=".length)), text);
   assert.ok(!/[\n ]/.test(u));
+});
+
+test("Jede Seite mit Direct Link hat den Teilen-Knopf – oder steht bewusst auf der Ausnahmeliste", () => {
+  const ansichten = [...new Set(PFADE.map((e) => e.ansicht))];
+  for (const a of ansichten) {
+    const hat = !!teilenInfo(a);
+    const ausnahme = KEIN_TEILEN.includes(a);
+    assert.ok(hat !== ausnahme, hat ? `${a}: hat einen Knopf und steht trotzdem in KEIN_TEILEN` : `${a}: kein Teilen-Knopf – in SEITEN_SAETZE (teilen.js) ergänzen oder bewusst in KEIN_TEILEN eintragen`);
+  }
+  for (const a of KEIN_TEILEN) assert.ok(ansichten.includes(a), `KEIN_TEILEN.${a} ist keine Ansicht mit Direct Link`);
+});
+
+test("Alle Kurse – auch Claude- und Gemini-Kurs – haben den Teilen-Knopf mit passendem Satz", () => {
+  for (const a of ["claudekurs", "geminikurs", "diffkurs", "vekkurs", "gleichkurs", "gfs", "gfs-pascal", "gfs-dose", "kurse", "penpaperkurs", "elternkurs", "nachhilfekurs", "schulbuch"]) {
+    assert.ok(teilenInfo(a), `${a} ohne Teilen-Knopf`);
+  }
+  assert.match(teilenText(teilenInfo("claudekurs"), "https://x.de/mathe-lernen-mit-claude"), /Claude Mathe verstehen.*ab 18.*\nhttps:\/\/x\.de\/mathe-lernen-mit-claude/);
+  assert.match(teilenText(teilenInfo("geminikurs"), "https://x.de/g"), /Gemini Mathe verstehen.*ab 16/);
 });

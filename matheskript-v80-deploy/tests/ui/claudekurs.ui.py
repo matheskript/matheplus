@@ -40,6 +40,13 @@ with sync_playwright() as p:
         pruefe(page.get_by_role("heading", name="Mathe lernen mit Claude").count() == 1, f"{breite}: Titel Claude fehlt")
         pruefe(page.locator("[data-claudekurs-schwester]").count() >= 1, f"{breite}: Schwesterkurs-Knopf fehlt")
         breite_ok("Übersicht Claude")
+        # Teilen-Knopf unten auf der Seite: Link kopieren + WhatsApp mit Kurslink
+        tk = page.locator(".tl-knopf")
+        pruefe(tk.count() == 1, f"{breite}: Teilen-Knopf fehlt im Claude-Kurs")
+        tk.scroll_into_view_if_needed(); tk.click(); page.wait_for_timeout(200)
+        wa = page.locator("a.tl-wa").get_attribute("href") or ""
+        pruefe("mathe-lernen-mit-claude" in wa and "Claude" in wa.replace("%20", " "), f"{breite}: WhatsApp-Text ohne Claude-Kurs-Link")
+        page.screenshot(path=f"{AUS}/{breite}-teilen.png")
         page.screenshot(path=f"{AUS}/{breite}-uebersicht.png", full_page=(breite == 390))
 
         # Lektion 2 (Claude): Buchbeispiel, Film, KI-Name
@@ -83,6 +90,7 @@ with sync_playwright() as p:
         pruefe("mathe-lernen-mit-gemini" in page.url, f"{breite}: Gemini-Kurs nicht geöffnet ({page.url})")
         pruefe(page.get_by_role("heading", name="Mathe lernen mit Gemini").count() == 1, f"{breite}: Titel Gemini fehlt")
         pruefe(page.get_by_text("0 von 10 Lektionen").count() == 1, f"{breite}: Gemini-Fortschritt nicht getrennt")
+        pruefe(page.locator(".tl-knopf").count() == 1, f"{breite}: Teilen-Knopf fehlt im Gemini-Kurs")
         page.locator("[data-claudekurs-lektion=zugang]").click(); page.wait_for_timeout(800)
         pruefe(page.get_by_text("gemini.google.com öffnen").count() >= 1, f"{breite}: Gemini-Zugang fehlt")
         pruefe(page.get_by_text("ab 16").count() >= 1, f"{breite}: Altershinweis Gemini fehlt")
