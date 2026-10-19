@@ -1,6 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { istPro, kontoArt, kontoEintraege, zugangEintrag, klasseErmitteln, klasseLabel, klassenInhalt, mathematikEintraege, aktiverPunkt, KI_MENUE, TRAINING, KURSE, LEISTE, kurseListe, baldListe } from "../src/hauptmenue.js";
+import { istPro, kontoArt, kontoEintraege, zugangEintrag, klasseErmitteln, klasseLabel, klassenInhalt, aktiverPunkt, KI_MENUE, TRAINING, KURSE, LEISTE, kurseListe, baldListe,
+  trainingsBereiche, werkzeugAnzahl, entdeckenGruppen, FORMELN, NACHSCHLAGEN, zuletztAus, STUFEN } from "../src/hauptmenue.js";
+import { WERKZEUGE, passtStufe } from "../src/werkzeuge.js";
+import { ENTDECKEN_MENUE } from "../src/startMenues.js";
 import { ANGEBOT } from "../src/angebot.js";
 const MIT_PRO = { ...ANGEBOT, pro: true, kurse: true };
 import { SEITEN } from "../src/pfade.js";
@@ -74,19 +77,57 @@ test("Klasse: Profil vor Quickfinder, Beschriftung", () => {
   assert.equal(klasseLabel(null), "Meine Klasse");
 });
 
-test("Klassen-Inhalt: Kapitel mit Trainieren-Ziel, Abi nur in Oberstufe", () => {
+test("Klassen-Inhalt: Kapitel mit Trainieren-Ziel", () => {
   const i = klassenInhalt({ schulart: "g9", box: "10" });
   assert.ok(i.kapitel.length > 0);
   for (const k of i.kapitel) assert.equal(k.trainieren.ansicht, "trainieren");
-  assert.ok(!mathematikEintraege("mittel").some((e) => e.abi));
-  assert.ok(mathematikEintraege("ober").some((e) => e.abi));
+});
+
+test("Mathe-Training: jedes Werkzeug der Stufe steht im Menü, Abi nur Oberstufe/Alle, keine leeren Stationen", () => {
+  for (const { id: stufe } of STUFEN) {
+    const bereiche = trainingsBereiche(stufe);
+    assert.ok(bereiche.length > 0, stufe);
+    const imMenue = new Set(bereiche.flatMap((b) => b.stationen.flatMap((s) => s.werkzeuge.map((w) => w.id))));
+    for (const [id, w] of Object.entries(WERKZEUGE)) {
+      if (passtStufe(w, stufe) && !imMenue.has(id) && stufe === "alle") assert.fail(`Werkzeug ${id} fehlt im Menü (alle)`);
+    }
+    for (const b of bereiche) {
+      assert.ok(b.stationen.length > 0 && b.anzahl > 0, `${stufe}/${b.id} leer`);
+      for (const st of b.stationen) for (const w of st.werkzeuge) {
+        assert.ok(w.name && w.zeichen && w.ziel && w.ziel.ansicht, `${stufe}/${b.id}/${w.id} unvollständig`);
+        if (!b.abi) assert.ok(passtStufe(WERKZEUGE[w.id], stufe), `${w.id} passt nicht zu ${stufe}`);
+      }
+    }
+    assert.equal(bereiche.some((b) => b.abi), stufe === "ober" || stufe === "alle", `Abi in ${stufe}`);
+  }
+  assert.ok(werkzeugAnzahl("alle") > werkzeugAnzahl("ober"));
+  assert.ok(!trainingsBereiche("mittel").some((b) => b.id === "vektoren"));
+});
+
+test("Mathe entdecken: alle Lernangebote der Startseite, in Gruppen", () => {
+  const g = entdeckenGruppen();
+  assert.equal(g.length, ENTDECKEN_MENUE.filter((e) => e.kopf).length);
+  assert.equal(g.reduce((n, x) => n + x.eintraege.length, 0), ENTDECKEN_MENUE.filter((e) => !e.kopf).length);
+  for (const x of g) for (const e of x.eintraege) assert.ok(e.zeichen, e.name);
+});
+
+test("Weitermachen: nur echte Werkzeuge, mit Bereich und Tag", () => {
+  const jetzt = new Date(2026, 9, 19, 12);
+  const z = zuletztAus(JSON.stringify({ ansicht: "plotter", zeit: new Date(2026, 9, 18, 20).getTime() }), jetzt);
+  assert.equal(z.name, "Kurvendiskussion");
+  assert.equal(z.wann, "gestern");
+  assert.equal(z.ziel.ansicht, "plotter");
+  assert.equal(zuletztAus(JSON.stringify({ ansicht: "start", zeit: 0 }), jetzt), null);
+  assert.equal(zuletztAus("kaputt{", jetzt), null);
+  assert.equal(zuletztAus(null, jetzt), null);
 });
 
 test("Jedes Menü-Ziel hat eine Seite mit Pfad", () => {
   const ansichten = new Set(SEITEN.map((s) => s.ansicht));
-  const ziele = [...KI_MENUE, ...TRAINING, ...KURSE, ...mathematikEintraege("alle"), ...kontoEintraege({ rolle: "eltern" }), ...kontoEintraege({ rolle: "schueler" }), ...kontoEintraege({ rolle: "lehrkraft" }), ...kontoEintraege(null, false), zugangEintrag(false)].filter((e) => e.ziel).map((e) => e.ziel.ansicht);
+  const ziele = [...KI_MENUE, ...TRAINING, ...kurseListe({ kurse: true }), ...FORMELN, ...NACHSCHLAGEN, ...entdeckenGruppen().flatMap((g) => g.eintraege),
+    ...trainingsBereiche("alle").filter((b) => b.abi).flatMap((b) => b.stationen[0].werkzeuge), ...kontoEintraege({ rolle: "eltern" }), ...kontoEintraege({ rolle: "schueler" }), ...kontoEintraege({ rolle: "lehrkraft" }), ...kontoEintraege(null, false), zugangEintrag(false)].filter((e) => e.ziel).map((e) => e.ziel.ansicht);
   for (const a of ziele) assert.ok(ansichten.has(a), "kein Pfad für " + a);
-  assert.equal(LEISTE.length, 5);
+  assert.deepEqual(LEISTE.map((p) => p.id), ["klasse", "schultraining", "training", "entdecken", "mathematik"]);
 });
 
 test("Aktiver Punkt", () => {
@@ -94,5 +135,9 @@ test("Aktiver Punkt", () => {
   assert.equal(aktiverPunkt("diffkurs"), "kurse");
   assert.equal(aktiverPunkt("warmup"), "training");
   assert.equal(aktiverPunkt("formeln"), "mathematik");
+  assert.equal(aktiverPunkt("plotter"), "schultraining");
+  assert.equal(aktiverPunkt("abisaetze"), "schultraining");
+  assert.equal(aktiverPunkt("bwm"), "entdecken");
+  assert.equal(aktiverPunkt("elternkurs"), "kurse");
   assert.equal(aktiverPunkt("start"), null);
 });

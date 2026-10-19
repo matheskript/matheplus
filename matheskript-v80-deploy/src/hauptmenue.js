@@ -2,14 +2,17 @@
    HAUPTMENÜ (Kopfleiste) – reine Daten und Logik, ohne React.
    Getestet in tests/hauptmenue.test.mjs. Oberfläche: funcHauptmenue.jsx.
 
-   Aufbau oben: eine Kopfzeile mit Logo, Konto-Chip und ☰-Knopf. Das ☰-Menü enthält alles:
-   Suche · Mathilda · Meine Kurse · Klasse ▾ · Mein Training · Mathematik (aufklappbar),
-   darunter die Konto-Punkte und ganz unten Abmelden bzw. Anmelden.
+   Aufbau oben: eine Kopfzeile mit Logo, Konto-Chip und ☰-Knopf. Das ☰-Menü enthält alles, was die App hat:
+   Suche · Mathilda-Karte · Weitermachen · Klasse ▾ · Mathe-Training ▾ (alle Werkzeuge nach Stufe) ·
+   Meine Kurse (Karten-Leiste) · Mein Training ▾ · Mathe entdecken ▾ · Formelsammlung ▾,
+   darunter die Konto-Karte und ganz unten Abmelden bzw. Anmelden.
    Das frühere Kopfmenü (Startseite, Landingpage, Sprache, Entwürfe) ist als
    „Arbeitsmenü“ in die Fußzeile gewandert (funcArbeitsmenue.jsx).
    ====================================================================== */
 import { SCHULARTEN, klassenBoxen, kapitelFuer, hilfenFuer, kurseFuer, roemisch, stufeAusKlassenBox } from "./schulbuch.js";
 import { ANGEBOT } from "./angebot.js";
+import { startBloecke, passtStufe, werkzeug, wo } from "./werkzeuge.js";
+import { ABI_MENUE, ENTDECKEN_MENUE, FORMEL_MENUE } from "./startMenues.js";
 
 /* ---------- Konto ---------- */
 /* Pro gilt, solange profil.plan = "pro" und pro_bis nicht abgelaufen ist (wie PlanKarte in funcKontoRollen.jsx) */
@@ -113,6 +116,7 @@ export function klassenInhalt(k) {
 }
 
 /* ---------- Meine Kurse ---------- */
+/* Im Menü als Karten-Leiste (funcHauptmenue.jsx gibt jeder Karte Farbe und Zeichen über die id) */
 const KURSE_ALLE = [
   { id: "mckurs", name: "Mathe Abi Masterclass", zeile: "Kursbereich für Teilnehmer: Videos, Aufträge, Mathilda", ziel: { ansicht: "mckurs" } },
   { id: "diffkurs", name: "Differentialrechnung", zeile: "Schulbuch lesen und direkt trainieren", ziel: { ansicht: "diffkurs" } },
@@ -123,6 +127,8 @@ const KURSE_ALLE = [
   { id: "gleichkurs", name: "Gleichungen lernen", zeile: "Verstehen, rechnen, trainieren", ziel: { ansicht: "gleichkurs" } },
   { id: "headnumbers", name: "Head & Numbers", zeile: "Kopfrechnen mit Lernpfad", ziel: { ansicht: "headnumbers" } },
   { id: "textaufgaben", name: "Textaufgaben übersetzen", zeile: "Aus dem Text die Gleichung machen", ziel: { ansicht: "textaufgaben" } },
+  { id: "efunktion", name: "Minikurs e-Funktion", zeile: "Die wichtigste Funktion der Oberstufe", ziel: { ansicht: "efunktion" } },
+  { id: "mindset", name: "Mathe-Mindset-Kurs", zeile: "6 TED-Talks und 2 Bücher, die inspirieren", ziel: { ansicht: "elternkurs" } },
 ];
 const BALD_KURSE_ALLE = [
   { id: "mathecheck", name: "Mathe checken", zeile: "Zwei Monate, ein System", bald: true },
@@ -134,15 +140,17 @@ export const baldListe = (cfg = ANGEBOT) => (cfg.kurse ? BALD_KURSE_ALLE : []);
 export const KURSE = kurseListe();
 export const BALD_KURSE = baldListe();
 
-/* ---------- Die festen Menüs ---------- */
+/* ---------- Mathilda ---------- */
+/* Der erste Punkt ist die große goldene Aktion in der Mathilda-Karte, die anderen vier stehen als Kacheln darunter */
 export const KI_MENUE = [
-  { id: "blatt", name: "Blatt scannen", zeile: "Foto von deiner Rechnung – Mathilda prüft", ziel: { ansicht: "analyse", foto: "blatt" } },
-  { id: "chat", name: "Mit Mathilda sprechen", zeile: "Tutor-Chat, der dich selbst draufkommen lässt", ziel: { ansicht: "analyse", foto: "chat" } },
-  { id: "weg", name: "Rechenweg prüfen", zeile: "Wo genau ist der Fehler?", ziel: { ansicht: "analyse", foto: "weg" } },
-  { id: "text", name: "Textaufgabe übersetzen", zeile: "Aus dem Text die Bedingungen", ziel: { ansicht: "textaufgaben", seite: "mathilda" } },
-  { id: "briefkasten", name: "Klausurbriefkasten", zeile: "Zurückbekommene Arbeit einwerfen", ziel: { ansicht: "klausurbriefkasten" } },
+  { id: "blatt", name: "Blatt scannen", kurz: "Scannen", zeile: "Foto von deiner Rechnung – Mathilda prüft", ziel: { ansicht: "analyse", foto: "blatt" } },
+  { id: "chat", name: "Mit Mathilda sprechen", kurz: "Chat", zeile: "Tutor-Chat, der dich selbst draufkommen lässt", ziel: { ansicht: "analyse", foto: "chat" } },
+  { id: "weg", name: "Rechenweg prüfen", kurz: "Rechenweg", zeile: "Wo genau ist der Fehler?", ziel: { ansicht: "analyse", foto: "weg" } },
+  { id: "text", name: "Textaufgabe übersetzen", kurz: "Textaufgabe", zeile: "Aus dem Text die Bedingungen", ziel: { ansicht: "textaufgaben", seite: "mathilda" } },
+  { id: "briefkasten", name: "Klausurbriefkasten", kurz: "Klausur", zeile: "Zurückbekommene Arbeit einwerfen", ziel: { ansicht: "klausurbriefkasten" } },
 ];
 
+/* ---------- Mein Training ---------- */
 export const TRAINING = [
   { id: "meintraining", name: "Mein Training", zeile: "Alles auf einen Blick", ziel: { ansicht: "meintraining" } },
   { id: "warmup", name: "5 Minuten Mathe", zeile: "Fünf kurze Aufgaben zum Aufwärmen", ziel: { ansicht: "warmup" } },
@@ -155,43 +163,93 @@ export const TRAINING = [
   { id: "pruefung", name: "Prüfungsmodus", zeile: "Ohne Hilfen, mit Uhr", ziel: { ansicht: "pruefung" } },
 ];
 
-const ABI = [
-  { id: "abiketten", name: "Abi-Ketten", zeile: "Eine Abi-Aufgabe durch mehrere Werkzeuge", ziel: { ansicht: "abiketten" } },
-  { id: "abisaetze", name: "Abi-Sätze", zeile: "Teil A und B im Abi-Format", ziel: { ansicht: "abisaetze" } },
-  { id: "probeabi", name: "Probeabitur", zeile: "Mit Uhr und Notenpunkten", ziel: { ansicht: "abitur" } },
+/* ---------- Mathe-Training: alle Werkzeuge wie auf der Startseite (Schulmathematik) ---------- */
+/* Stufen-Schalter: gleiche Werte und gleicher Speicher wie auf der Startseite */
+export const STUFEN = [
+  { id: "unter", name: "Unterstufe", kurz: "Unter", klassen: "5–6" },
+  { id: "mittel", name: "Mittelstufe", kurz: "Mittel", klassen: "7–10" },
+  { id: "ober", name: "Oberstufe", kurz: "Ober", klassen: "11–13" },
+  { id: "alle", name: "Alle", kurz: "Alle", klassen: "5–13" },
 ];
+export const STUFE_SCHLUESSEL = "matheplus-start-stufe";
+export const istStufe = (w) => STUFEN.some((s) => s.id === w);
 
-/* Mathematik: Schulmathematik (Startseite), Entdecken, Formelsammlung … – Abi nur für Oberstufe/ohne Klasse */
-export function mathematikEintraege(stufe = "alle") {
-  const liste = [
-    { id: "schulmathe", name: "Schulmathematik", zeile: "Alle Bereiche von Klasse 5 bis 13", ziel: { ansicht: "start" } },
-    { id: "entdecken", name: "Mathe entdecken", zeile: "Axiome, Pythagoras, Teilbarkeit – selbst herleiten", ziel: { ansicht: "entdecken" } },
-    { id: "formeln", name: "Formelsammlung", zeile: "Jede Formel mit Bild, Beweis und Beispiel", ziel: { ansicht: "formeln", bereich: "analysis" } },
-    { id: "kopf", name: "Kopfrechnen", zeile: "Plus, Mal, Quadrate, Primzahlen, Brüche", ziel: { ansicht: "headnumbers" } },
-    { id: "gleichungen", name: "Gleichungen", zeile: "Verstehen, rechnen, trainieren", ziel: { ansicht: "gleichkurs" } },
-    { id: "textaufgaben", name: "Textaufgaben", zeile: "Übersetzen lernen", ziel: { ansicht: "textaufgaben" } },
-    { id: "operatoren", name: "Operatoren", zeile: "Was „bestimmen“, „zeigen“, „begründen“ verlangen", ziel: { ansicht: "operatoren" } },
-    { id: "wettbewerbe", name: "Mathe-Wettbewerbe", zeile: "Bundeswettbewerb und Landeswettbewerbe", ziel: { ansicht: "bwm" } },
-  ];
-  if (stufe === "ober" || stufe === "alle") liste.push(...ABI.map((e) => ({ ...e, abi: true })));
+/* Bereiche → Stationen → Werkzeuge für eine Stufe. Leere Stationen und Bereiche fallen weg.
+   Die Formelsammlung steht im Menü als eigener Abschnitt und fehlt deshalb hier. Abi-Vorbereitung (Oberstufe/Alle) als goldener letzter Bereich. */
+export function trainingsBereiche(stufe = "alle") {
+  const liste = [];
+  for (const b of startBloecke(stufe)) {
+    const stationen = [];
+    for (const st of b.stationen) {
+      const ws = st.werkzeuge.map((id) => werkzeug(id)).filter((w) => w && passtStufe(w, stufe))
+        .map((w) => ({ id: w.id, name: w.name, zeile: w.zeile, zeichen: w.zeichen, etikett: w.etikett, ziel: w.ziel }));
+      if (ws.length) stationen.push({ id: st.id, nr: stationen.length + 1, titel: st.titel, zeile: st.zeile, werkzeuge: ws });
+    }
+    if (!stationen.length) continue;
+    liste.push({ id: b.id, titel: b.kiste ? "Werkzeugkasten" : b.titel, text: b.text, gold: b.fundament, kiste: b.kiste, stationen, anzahl: stationen.reduce((n, s) => n + s.werkzeuge.length, 0) });
+  }
+  if (stufe === "ober" || stufe === "alle") {
+    const ws = ABI_MENUE.map((e, i) => ({ id: `abi${i}`, name: e.name, zeile: e.zeile, zeichen: e.zeichen, etikett: e.etikett, ziel: e.ziel }));
+    liste.push({ id: "abitur", titel: "Abi-Vorbereitung", text: "Abi-Ketten, Abi-Sätze und Probeabitur.", gold: true, abi: true,
+      stationen: [{ id: "abi", nr: 1, titel: "Abitur", zeile: "Im Format der Prüfung", werkzeuge: ws }], anzahl: ws.length });
+  }
   return liste;
 }
+/* Wie viele verschiedene Werkzeuge stecken in einer Stufe? (Kopfzeile „Mathe-Training · 48 Werkzeuge“) */
+export const werkzeugAnzahl = (stufe = "alle") => new Set(trainingsBereiche(stufe).flatMap((b) => b.stationen.flatMap((s) => s.werkzeuge.map((w) => w.ziel.ansicht)))).size;
 
-/* Reihenfolge der aufklappbaren Abschnitte im ☰-Menü (die Suche steht als erste Zeile davor) */
-export const LEISTE = [
-  { id: "mathilda", name: "Mathilda" },
-  { id: "kurse", name: "Meine Kurse" },
-  { id: "klasse", name: null },          // Beschriftung aus klasseLabel()
-  { id: "training", name: "Mein Training" },
-  { id: "mathematik", name: "Mathematik" },
+/* ---------- Mathe entdecken ---------- */
+export function entdeckenGruppen() {
+  const gruppen = [];
+  for (const e of ENTDECKEN_MENUE) {
+    if (e.kopf) gruppen.push({ id: e.name, titel: e.titel, zeile: e.zeile, eintraege: [] });
+    else if (gruppen.length) gruppen[gruppen.length - 1].eintraege.push({ id: e.name, name: e.name, zeile: e.zeile, zeichen: e.zeichen, ziel: e.ziel });
+  }
+  return gruppen;
+}
+
+/* ---------- Formelsammlung und Nachschlagen ---------- */
+export const FORMELN = FORMEL_MENUE.map((e) => ({ id: e.ziel.bereich, name: e.name, zeile: e.zeile, zeichen: e.zeichen, ziel: e.ziel }));
+export const NACHSCHLAGEN = [
+  { id: "operatoren", name: "Operatoren", zeile: "Was „bestimmen“, „zeigen“, „begründen“ verlangen", ziel: { ansicht: "operatoren" } },
+  { id: "schulmathe", name: "Alles auf der Startseite", zeile: "Schulmathematik mit Filter nach Art", ziel: { ansicht: "start" } },
 ];
 
-/* Welcher Leisten-Punkt ist auf der aktuellen Seite „aktiv“? */
+/* ---------- Weitermachen ---------- */
+/* Zuletzt benutztes Werkzeug (Startseite schreibt es bei jedem Seitenwechsel, func2.jsx werkzeugMerken) */
+export const ZULETZT_SCHLUESSEL = "matheplus-zuletzt-werkzeug";
+export function zuletztAus(roh, jetzt = new Date()) {
+  let z = null;
+  try { z = typeof roh === "string" ? JSON.parse(roh) : roh; } catch (e) { return null; }
+  if (!z || !z.ansicht) return null;
+  const ort = wo(z.ansicht);
+  if (!ort || !ort.werkzeug) return null;
+  const heute = new Date(jetzt); heute.setHours(0, 0, 0, 0);
+  const dann = new Date(z.zeit || jetzt); dann.setHours(0, 0, 0, 0);
+  const tage = Math.round((heute - dann) / 864e5);
+  const wann = tage <= 0 ? "heute" : tage === 1 ? "gestern" : `vor ${tage} Tagen`;
+  return { name: ort.werkzeug.name, zeichen: ort.werkzeug.zeichen, bereich: ort.bereich.titel, wann, ziel: { ansicht: z.ansicht } };
+}
+
+/* ---------- Abschnitte im ☰-Menü ----------
+   Suche als Zeile ganz oben, dann die Mathilda-Karte (immer offen), „Weitermachen“, und die aufklappbaren Abschnitte.
+   „Meine Kurse“ ist eine Karten-Leiste (immer sichtbar) zwischen Mathe-Training und Mein Training. */
+export const LEISTE = [
+  { id: "klasse", name: null },          // Beschriftung aus klasseLabel()
+  { id: "schultraining", name: "Mathe-Training" },
+  { id: "training", name: "Mein Training" },
+  { id: "entdecken", name: "Mathe entdecken" },
+  { id: "mathematik", name: "Formelsammlung" },
+];
+
+/* Welcher Teil des Menüs gehört zur aktuellen Seite? (wird markiert) */
 export function aktiverPunkt(ansicht, foto) {
   if (ansicht === "analyse" || ansicht === "klausurbriefkasten") return "mathilda";
   if (ansicht === "textaufgaben" && foto === "mathilda") return "mathilda";
-  if (KURSE.some((k) => k.ziel.ansicht === ansicht)) return "kurse";
+  if (KURSE_ALLE.some((k) => k.ziel.ansicht === ansicht)) return "kurse";
   if (TRAINING.some((k) => k.ziel.ansicht === ansicht) || ansicht === "trainieren") return "training";
-  if (mathematikEintraege("alle").some((k) => k.ziel.ansicht === ansicht && ansicht !== "start")) return "mathematik";
+  if (ansicht === "entdecken" || ansicht === "bwm" || ansicht === "landeswettbewerbe" || ansicht === "landeswettbewerb") return "entdecken";
+  if (ansicht === "formeln" || ansicht === "operatoren") return "mathematik";
+  if (wo(ansicht) || ABI_MENUE.some((e) => e.ziel.ansicht === ansicht)) return "schultraining";
   return null;
 }

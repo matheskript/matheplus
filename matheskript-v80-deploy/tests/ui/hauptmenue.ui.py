@@ -1,4 +1,4 @@
-"""Browser-Test ☰-Menü oben (Chip + ☰, Abschnitte, Konto, Anmelden/Abmelden unten) + Arbeitsmenü in der Fußzeile.
+"""Browser-Test ☰-Menü oben (Chip + ☰, Mathilda-Karte, Abschnitte, Mathe-Training mit allen Werkzeugen, Kurs-Leiste, Konto, Anmelden/Abmelden unten) + Arbeitsmenü in der Fußzeile.
   npx vite build && npx vite preview --port 4173 &   →   python3 tests/ui/hauptmenue.ui.py
 """
 import os, re, json
@@ -57,8 +57,12 @@ with sync_playwright() as p:
                 letzter = fm.locator(".hm-eintrag").last.inner_text()
                 pruefe((("Abmelden" if angemeldet else "Anmelden") in letzter), f"{tag}: Zugang steht nicht ganz unten ({letzter!r})")
                 pruefe(("Pro werden" in fm.inner_text()) == ANG.get("pro", False), f"{tag}: „Pro werden“ passt nicht zum Schalter ANGEBOT.pro")
+                # Mathilda-Karte (immer offen), Kurs-Leiste, kein Fenster ragt aus dem Bild
+                pruefe(fm.locator("[data-hm-mathilda]").count() == 1 and "Blatt scannen" in fm.locator("[data-hm-mathilda]").inner_text(), f"{tag}: Mathilda-Karte fehlt")
+                pruefe(fm.locator("[data-hm-mathilda] .hm-ki").count() == 4, f"{tag}: Mathilda hat nicht vier Kacheln")
+                pruefe(fm.locator("[data-hm-kurse] .hm-kurs").count() >= 9, f"{tag}: Kurs-Leiste unvollständig")
             if BILDER: page.screenshot(path=f"{BILDER}/hm-{breite}-{'k' if angemeldet else 'g'}-menue.png")
-            for punkt in ("mathilda", "kurse", "klasse", "training", "mathematik", "suche"):
+            for punkt in ("klasse", "schultraining", "training", "entdecken", "mathematik", "suche"):
                 k = page.locator(f"[data-hm='{punkt}']")
                 k.scroll_into_view_if_needed(); k.click(); page.wait_for_timeout(250)
                 pruefe(page.locator(".hm-ak-inhalt").count() == 1, f"{tag}: Abschnitt {punkt} klappt nicht auf")
@@ -78,6 +82,19 @@ with sync_playwright() as p:
                 pruefe("Klasse 9 (G8)" in page.locator("[data-hm='klasse']").inner_text(), f"{tag}: Klassenwahl greift nicht")
                 if BILDER: page.screenshot(path=f"{BILDER}/hm-{breite}-g-klasse9.png")
                 # Menüpunkt navigiert
+                # Mathe-Training: Stufe wählen, Bereich aufklappen, Werkzeug öffnen
+                page.locator("[data-hm='schultraining']").click(); page.wait_for_timeout(200)
+                page.locator(".hm-stufen button", has_text="Ober").click(); page.wait_for_timeout(150)
+                pruefe(page.locator("[data-hm-bereich='abitur']").count() == 1, f"{tag}: Abi-Vorbereitung fehlt in der Oberstufe")
+                page.locator(".hm-stufen button", has_text="Mittel").click(); page.wait_for_timeout(150)
+                pruefe(page.locator("[data-hm-bereich='abitur']").count() == 0 and page.locator("[data-hm-bereich='vektoren']").count() == 0, f"{tag}: Mittelstufe zeigt Abi/Vektoren")
+                page.locator(".hm-stufen button", has_text="Alle").click(); page.wait_for_timeout(150)
+                page.locator("[data-hm-bereich='vektoren'] > button").click(); page.wait_for_timeout(200)
+                pruefe(page.locator("[data-hm-bereich='vektoren'] .hm-wz").count() >= 9, f"{tag}: Vektoren zeigt zu wenige Werkzeuge")
+                page.locator("[data-hm-bereich='vektoren'] .hm-wz", has_text="Kreuzprodukt").click(); page.wait_for_timeout(900)
+                pruefe(page.locator(".hm-fenster").count() == 0 and "kreuz" in page.url, f"{tag}: Werkzeug aus dem Menü öffnet nicht ({page.url})")
+                # Mein Training → 5 Minuten Mathe
+                page.locator("[data-hm-menue]").first.click(); page.wait_for_timeout(250)
                 page.locator("[data-hm='training']").click(); page.locator(".hm-fenster button", has_text="5 Minuten Mathe").click(); page.wait_for_timeout(900)
                 pruefe("5-minuten-mathe" in page.url, f"{tag}: Menüpunkt navigiert nicht ({page.url})")
                 pruefe(page.locator(".hm-fenster").count() == 0, f"{tag}: Menü bleibt nach dem Navigieren offen")

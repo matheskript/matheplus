@@ -84,7 +84,7 @@ with sync_playwright() as p:
             ctx, page, konsole = neu(b, breite, rolle)
             page.goto(BASE); page.wait_for_timeout(1500)
             page.locator("[data-hm-menue]").click(); page.wait_for_timeout(250)
-            page.locator(".hm-konto .hm-eintrag", has_text=eintrag).click(); page.wait_for_timeout(2200)
+            page.locator("[data-hm-konto] .hm-pille", has_text=eintrag).click(); page.wait_for_timeout(2200)
             tag = f"{breite}/{rolle}"
             pruefe("/konto" in page.url, f"{tag}: {eintrag} führt nicht zur Kontoseite ({page.url})")
             oben = page.evaluate(f"(() => {{ const e = document.getElementById('{anker}'); return e ? Math.round(e.getBoundingClientRect().top) : null; }})()")
@@ -100,17 +100,17 @@ with sync_playwright() as p:
     page.locator("[data-hm-menue]").click(); page.wait_for_timeout(300)
     text = page.locator(".hm-fenster.hm-menue").inner_text()
     low = text.lower()   # Überschriften sind per CSS in Großbuchstaben
-    for wort in ("My courses", "Math", "My Training", "Account", "Sign out"):
+    for wort in ("My courses", "Math training", "My Training", "Discover math", "Formula collection", "My account", "Sign out", "Scan sheet"):
         pruefe(wort.lower() in low, f"en: „{wort}“ fehlt im Menü")
-    for de in ("Meine Kurse", "Mathematik", "Konto", "Abmelden"):
+    for de in ("Meine Kurse", "Mathe-Training", "Konto", "Abmelden", "Blatt scannen"):
         pruefe(de.lower() not in low, f"en: „{de}“ ist noch deutsch")
     page.locator("[data-hm='klasse']").click(); page.wait_for_timeout(300)
     t2 = page.locator(".hm-fenster.hm-menue").inner_text().lower()
     pruefe("your textbook" in t2 and "our course for it" in t2, "en: Klassen-Abschnitt nicht übersetzt")
-    page.locator("[data-hm='kurse']").click(); page.wait_for_timeout(300)
+    page.locator("[data-hm-kurse-alle]").click(); page.wait_for_timeout(300)
     t3 = page.locator(".hm-fenster.hm-menue").inner_text().lower()
     pruefe("bald" not in t3 and ("soon" in t3 or not ANG.get("kurse")), "en: „Bald“ nicht übersetzt")
-    page.locator(".hm-konto .hm-eintrag").last.click(); page.wait_for_timeout(400)
+    page.locator("[data-hm-zugang]").click(); page.wait_for_timeout(400)
     pruefe("Really sign out?" in page.locator("[role='alertdialog']").inner_text(), "en: Abmelde-Frage nicht übersetzt")
     pruefe(not konsole, f"en: Konsolenfehler {konsole}")
     ctx.close()

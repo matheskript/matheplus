@@ -19,7 +19,7 @@ Nie `menge="\\mathbb{N}"` – in JSX-Attributen wird nichts entwertet, es ersche
 Die Seite scrollt nie „von selbst“, außer über `springe("schlüssel", () => …)` aus `src/sprung.js`. Jeder Schlüssel steht dort mit an/aus und Beschreibung; Aufklapp-Menüs laufen über `data-sprung` bzw. `aufklappen@<ansicht>`. Stand 18.10.: Auswahl-Sprünge nur in Startseite → Schulmathematik an. Wächter: `tests/sprung.test.mjs`, Browser: `tests/ui/sprung.ui.py`.
 
 ## Personen-Module in Mathe entdecken
-Module über eine Person (z. B. Gauß) beginnen mit einer reinen Infoseite (Phase mit `info: true`, `schritte: []`): wer war er, Steckbrief, Lebensweg, passendes Bild (z. B. der Zehn-Mark-Schein). Erst danach kommen die Entdecken-Phasen. Neue Module stehen an **zwei** Stellen: `funcEntdecken.jsx` (Übersicht) und `ENTDECKEN_MENUE` in `func2.jsx` (Startseite/Menü).
+Module über eine Person (z. B. Gauß) beginnen mit einer reinen Infoseite (Phase mit `info: true`, `schritte: []`): wer war er, Steckbrief, Lebensweg, passendes Bild (z. B. der Zehn-Mark-Schein). Erst danach kommen die Entdecken-Phasen. Neue Module stehen an **zwei** Stellen: `funcEntdecken.jsx` (Übersicht) und `ENTDECKEN_MENUE` in `src/startMenues.js` (Startseite und ☰-Hauptmenü lesen beide von dort; dort auch `zeichen` fürs Menü setzen).
 
 ## Sonst
 Regel A5 (nichts unvereinfacht), generisches Maskulinum, Farben aus `C` in `base1.jsx`, `base*.jsx` importiert nie aus `func*.jsx`. Gesamtstand: Projekt-Dokument `claude/matheplus-stand.md`.
