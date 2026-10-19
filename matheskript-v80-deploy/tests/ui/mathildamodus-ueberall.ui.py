@@ -18,11 +18,12 @@ def pruefe(bed, text):
         fehler.append(text)
         print("FEHLT:", text)
 
-WERKZEUGE = ("axiome zahlenraeume mengenlogik funktionen geradengleichung parabeln sinus wachstum ableitungstrainer scharen steckbrief optimierung "
+WERKZEUGE_ALLE = ("axiome zahlenraeume mengenlogik funktionen geradengleichung parabeln sinus wachstum ableitungstrainer scharen steckbrief optimierung "
              "stammfunktion integrale kombinatorik vierfeldertafel erwartungswert bernoulli hypothesentest normalverteilung koordinaten flaechen quader "
              "winkelsaetze konstruktion kongruenz thales pythagoras kathetensatz kreis koerper strahlensaetze trigonometrie dezimal bruchrechnen bruchterme "
              "terme gleichungen ungleichungen lgs stellenwert ganzezahlen primzahlen rechengesetze groessen zuordnungen prozent diagramme zufall "
              "gleichungen-lernen/training abi-ketten abi-saetze").split()
+WERKZEUGE = os.environ.get("NUR", "").split() or WERKZEUGE_ALLE
 # Werkzeuge, in denen das Fenster komplett durchgespielt wird
 DETAIL = ["kreis", "prozent", "bruchrechnen", "erwartungswert"]
 
@@ -74,6 +75,10 @@ with sync_playwright() as p:
                 if not pille.count() and wz.startswith("abi"):
                     for name in (re.compile(r"^(Starten|Kette starten|Satz starten|Start|Los)"), re.compile(r"Analysis|Calculus|Abi-Satz 1\b|Satz 1\b|Kette 1")):
                         k = page.get_by_role("button", name=name)
+                        if not k.count():
+                            for t in ("Abi-Satz 1", "Calculus", "Analysis"):
+                                k = page.locator("button:visible", has_text=t)
+                                if k.count(): break
                         if k.count():
                             k.first.click(); page.wait_for_timeout(700)
                             if pille.count(): break
