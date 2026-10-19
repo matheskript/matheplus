@@ -20,7 +20,7 @@ import { useKonto, abmelden } from "./konto.js";
 import { SuchBox } from "./funcSuche.jsx";
 import { SCHULARTEN, klassenBoxen } from "./schulbuch.js";
 import { MathildaName } from "./mathildaName.jsx";
-import { MathildaPfade } from "./mathildaBild.jsx";
+import { MathildaBild } from "./funcMathildaSeite.jsx";
 import { ETIKETTEN } from "./werkzeuge.js";
 import {
   LEISTE, KI_MENUE, TRAINING, KURSE, BALD_KURSE, STUFEN, STUFE_SCHLUESSEL, istStufe, FORMELN, NACHSCHLAGEN,
@@ -43,7 +43,7 @@ const CSS = `
 .hm-schleier{position:fixed;inset:0;z-index:80;background:rgba(8,20,52,0.34);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);animation:hmBlende .2s ease both}
 .hm-fenster{position:fixed;z-index:81;box-sizing:border-box;background:#F2F5FB;color:${C.tinte};border-radius:22px;padding:10px;
   box-shadow:0 30px 70px -12px rgba(6,16,44,0.55),0 0 0 1px rgba(255,255,255,0.6) inset;overflow-y:auto;overscroll-behavior:contain;
-  font-family:Montserrat,system-ui,sans-serif;display:flex;flex-direction:column;gap:8px;transform-origin:calc(100% - 22px) -8px;
+  font-family:Montserrat,system-ui,sans-serif;display:flex;flex-direction:column;gap:8px;transform-origin:calc(100% + 10px) 30px;
   animation:hmAuf .26s cubic-bezier(.2,.85,.25,1) both;scrollbar-width:thin}
 @keyframes hmAuf{from{opacity:0;transform:translateY(-6px) scale(.965)}to{opacity:1;transform:none}}
 @keyframes hmBlende{from{opacity:0}to{opacity:1}}
@@ -541,7 +541,7 @@ export function KontoBereich({ offen, setOffen, gehe }) {
     <>
       <style>{CSS}</style>
       {konto.nutzer && (
-        <button type="button" className="hm-chip" onClick={() => { setOffen(null); gehe && gehe({ ansicht: "konto" }); }}
+        <button type="button" className="hm-chip" style={auf && typeof window !== "undefined" && window.innerWidth >= 900 ? { visibility: "hidden" } : undefined} onClick={() => { setOffen(null); gehe && gehe({ ansicht: "konto" }); }}
           aria-label="Mein Konto" title="Mein Konto" data-kein-scroll data-kein-i18n data-hm-chip>{anfangVon(konto)}</button>
       )}
       <button type="button" className="hm-menueknopf" onClick={() => setOffen(auf ? null : "menue")} aria-expanded={auf} aria-haspopup="true"
@@ -565,7 +565,16 @@ function useLage(anker, istOffen) {
       const r = a.getBoundingClientRect();
       const vw = document.documentElement.clientWidth || window.innerWidth;
       const vh = window.innerHeight;
-      const breite = Math.min(vw >= 900 ? 470 : 410, vw - 24);   // Desktop: etwas breiter, Handy unverändert
+      const breite = Math.min(vw >= 900 ? 470 : 410, vw - 24);
+      /* Desktop: das Fenster beginnt ganz oben und sitzt links neben dem ×-Knopf (überdeckt den Konto-Chip) – mehr Platz nach unten.
+         Handy: wie bisher unter dem Knopf, rechtsbündig. */
+      const knopf = vw >= 900 ? document.querySelector("[data-hm-menue]") : null;
+      if (knopf) {
+        const k = knopf.getBoundingClientRect();
+        const rechts = Math.max(12, vw - k.left + 10);
+        setLage({ top: 10, right: rechts, width: Math.min(breite, vw - rechts - 12), maxHeight: vh - 20 });
+        return;
+      }
       const top = Math.max(8, Math.min(r.top + 4, vh - 260));
       let rechts = vw - r.right + 12;
       rechts = Math.max(12, Math.min(rechts, vw - breite - 12));
@@ -647,7 +656,7 @@ export function HauptMenue({ gehe, ansicht, foto, seite, offen, setOffen }) {
             {/* 2 · Mathilda */}
             <section className="hm-mathilda" data-hm-mathilda aria-label="Mathilda AI">
               <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12, position: "relative" }}>
-                <span className="hm-avatar"><svg viewBox="18 16 84 100" width="56" height="56" aria-hidden="true" style={{ display: "block" }}><MathildaPfade /></svg></span>
+                <span className="hm-avatar"><MathildaBild groesse={96} style={{ display: "block", marginLeft: -22, marginTop: -30 }} /></span>
                 <span className="hm-online" aria-hidden="true" />
                 <span style={{ flex: 1, minWidth: 0 }}>
                   <span style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
