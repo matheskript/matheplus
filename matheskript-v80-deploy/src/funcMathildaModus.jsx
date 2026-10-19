@@ -1,9 +1,9 @@
 /* ======================================================================
    Mathilda-Modus – goldener Knopf unter einer Trainingsaufgabe
    Statt online zu tippen, löst der Schüler die Aufgabe auf Papier:
-   ① Aufgabe oben aufs Blatt schreiben, ② nach dem Schema rechnen
-   (Musterlösung einer ähnlichen Aufgabe als Hilfe), ③ kurz erklärt als
-   Motion-Video, ④ Foto nur dieser Aufgabe an Mathilda.
+   Schaubild mit DIN-A4-Blatt (① Aufgabe aufschreiben → ② nach dem Schema
+   rechnen, funcMathildaModusBlatt.jsx), Musterlösung einer ähnlichen Aufgabe
+   als Hilfe, kurz erklärt als Motion-Video, Foto nur dieser Aufgabe an Mathilda.
    Mathilda kennt die Lösung, verrät sie nicht und nennt höchstens zwei
    Hebel. Stimmt das Ergebnis, kann es ins Antwortfeld übernommen werden –
    geprüft wird dort wie immer von der Rechen-Engine.
@@ -19,6 +19,7 @@ import { dekodieren, jsonLesen, rendern } from "./func1.jsx";
 import { BlattScanner } from "./funcBlattScanner.jsx";
 import { MathildaIcon } from "./funcMathildaSeite.jsx";
 import { MathildaModusFilm } from "./funcMathildaModusFilm.jsx";
+import { MathildaModusBlatt } from "./funcMathildaModusBlatt.jsx";
 import { Blatt } from "./funcPenPaperUebungen.jsx";
 import { useKonto } from "./konto.js";
 import { mathildaSystem } from "./mathildaKontext.js";
@@ -108,27 +109,17 @@ function StiftIcon({ farbe = GOLD }) {
   return <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke={farbe} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 20l4-1 11-11-3-3L5 16z" /><path d="M14 6l3 3" /></svg>;
 }
 
-/* ---------- Abschnitt mit Nummer ---------- */
-function Abschnitt({ nr, titel, children, data }) {
+/* ---------- Abschnitt ---------- */
+function Abschnitt({ oben, titel, children, data }) {
   return (
-    <section data-mm-abschnitt={data} style={{ padding: "16px 0 4px", borderTop: nr > 1 ? `1px solid ${C.linie}` : "none" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-        <span aria-hidden="true" style={{ width: 28, height: 28, borderRadius: 999, background: NACHT, color: GOLD, fontWeight: 800, fontSize: 13.5, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{nr}</span>
-        <h3 style={{ margin: 0, fontSize: 16.5, fontWeight: 800, color: C.tinte, letterSpacing: "-0.01em" }}>{titel}</h3>
-      </div>
+    <section data-mm-abschnitt={data} style={{ padding: "16px 0 4px", borderTop: oben ? `1px solid ${C.linie}` : "none" }}>
+      <h3 style={{ margin: "0 0 8px", fontSize: 16.5, fontWeight: 800, color: C.tinte, letterSpacing: "-0.01em" }}>{titel}</h3>
       {children}
     </section>
   );
 }
 
-/* ---------- ② Schema ---------- */
-const SCHEMA = () => [
-  [zw("Blanko + schwarzer Stift", "Plain paper + black pen"), zw("weißes Papier ohne Karo", "white paper, no squares")],
-  [zw("Ein Schritt pro Zeile", "One step per line"), zw("„=“ genau untereinander", "“=” exactly below each other")],
-  [zw("Umformung an den Rand", "Operation at the margin"), zw("Nebenrechnung in eine Box", "side calculation in a box")],
-  [zw("Ergebnis in den Kasten", "Result in a box"), zw("vollständig vereinfacht", "fully simplified")],
-];
-
+/* ---------- Musterlösung einer ähnlichen Aufgabe ---------- */
 function Musterloesung({ aehnliche, a }) {
   const konto = useKonto();
   const [b, setB] = useState(null);
@@ -199,7 +190,7 @@ function Musterloesung({ aehnliche, a }) {
   );
 }
 
-/* ---------- ③ Kurz erklärt ---------- */
+/* ---------- Kurz erklärt (nur das Motion-Video) ---------- */
 function KurzErklaert() {
   const [auf, setAuf] = useState(false);
   return (
@@ -443,8 +434,7 @@ export function MathildaModusFenster({ a: aGen, karte = null, aehnliche, onSchli
         </p>
 
         <div style={{ padding: "4px 16px 20px" }}>
-          <Abschnitt nr={1} titel={zw("Schreib die Aufgabe auf", "Write down the task")} data="aufgabe">
-            <p style={{ margin: "0 0 8px", fontSize: 14, color: C.grau, lineHeight: 1.55 }}>{zw("Einmal oben aufs Blatt – zum Beispiel die Gleichung oder die Funktion, die du ableiten sollst.", "Once at the top of the sheet – for example the equation, or the function you have to differentiate.")}</p>
+          <Abschnitt titel={zw("Deine Aufgabe", "Your task")} data="aufgabe">
             {aGen ? (
               <Blatt minHoehe={0} style={{ fontFamily: "inherit", padding: "14px 16px" }}>
                 <Text s={a.text} style={{ fontSize: 17, lineHeight: 1.8, color: TINTE }} />
@@ -460,20 +450,13 @@ export function MathildaModusFenster({ a: aGen, karte = null, aehnliche, onSchli
             )}
           </Abschnitt>
 
-          <Abschnitt nr={2} titel={zw("Rechne nach dem Schema", "Calculate following the scheme")} data="schema">
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-              {SCHEMA().map(([t, u], i) => (
-                <div key={i} style={{ background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 12, padding: "10px 12px" }}>
-                  <p style={{ margin: 0, fontSize: 13.5, fontWeight: 800, color: C.tinte, lineHeight: 1.3 }}>{t}</p>
-                  <p style={{ margin: "2px 0 0", fontSize: 12.5, color: C.grau, lineHeight: 1.4 }}>{u}</p>
-                </div>
-              ))}
-            </div>
+          <Abschnitt oben titel={zw("So geht’s auf Papier", "How it works on paper")} data="schema">
+            <MathildaModusBlatt />
             <Musterloesung aehnliche={aehnliche} a={a} />
             <KurzErklaert />
           </Abschnitt>
 
-          <Abschnitt nr={3} titel={zw("Foto nur von dieser Aufgabe", "Photo of this task only")} data="foto">
+          <Abschnitt oben titel={zw("Foto nur von dieser Aufgabe", "Photo of this task only")} data="foto">
             <p style={{ margin: "0 0 10px", fontSize: 14, color: C.grau, lineHeight: 1.55 }}>{zw("Gerade von oben, gutes Licht, nichts anderes im Bild. Mathilda prüft Ergebnis und Weg.", "Straight from above, good light, nothing else in the frame. Mathilda checks your result and your work.")}</p>
             <FotoTeil a={a} onUebernehmen={kannFeld ? (x) => { if (onErgebnis) onErgebnis(x); else inFeldSchreiben(karte, x); onSchliessen(); } : null} />
           </Abschnitt>

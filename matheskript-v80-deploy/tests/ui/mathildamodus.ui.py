@@ -61,6 +61,12 @@ with sync_playwright() as p:
             pruefe(page.locator("[data-mm-abschnitt]").count() == 3, f"{breite}/{sprache}: drei Abschnitte erwartet")
             sw = page.evaluate("document.documentElement.scrollWidth"); pruefe(sw <= breite, f"{breite}/{sprache}: Überbreite {sw}")
             page.screenshot(path=f"{AUS}/{breite}-{sprache}-2-fenster.png")
+            # Schaubild: Blatt mit Handschrift, goldener Pfeil schiebt ② neben ①, gleiche Aufgabe sauber gerechnet
+            pruefe(page.locator("[data-mm-blatt='1'] [data-mm-din-a4]").count() == 1 and page.locator("[data-mm-handschrift]").count() == 1, f"{breite}/{sprache}: Blatt mit Handschrift fehlt")
+            page.locator("[data-mm-blatt-tab='2']").click(); page.wait_for_timeout(1200)
+            pruefe(page.locator("[data-mm-blatt='2'] [data-mm-rechnung]").count() == 1 and page.locator("[data-mm-schema] > div").count() == 4, f"{breite}/{sprache}: Rechnung nach Schema fehlt")
+            page.locator("[data-mm-blatt-tab='1']").click(); page.wait_for_timeout(900)
+            pruefe(page.locator("[data-mm-blatt='1']").count() == 1, f"{breite}/{sprache}: Zurück zu ① klappt nicht")
             page.locator("[data-mm-muster]").click(); page.wait_for_timeout(300)
             pruefe(page.locator("[data-mm-muster-offen]").count() == 1, f"{breite}/{sprache}: Musterlösung fehlt")
             page.locator("[data-mm-muster-offen]").scroll_into_view_if_needed()
