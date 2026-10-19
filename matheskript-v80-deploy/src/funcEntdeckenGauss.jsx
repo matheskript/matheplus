@@ -1,10 +1,12 @@
 /* ======================================================================
    ENTDECKE CARL FRIEDRICH GAUSS – DREI IDEEN, EIN SCHEIN
-   Vierphasiges Lernmodul in „Mathe entdecken“ (Kennung „gauss“):
-     1 Der kleine Gauß: 1 + 2 + … + n als Treppe, die zum Rechteck wird
-     2 Das Gauß-Verfahren: eine Unbekannte verschwinden lassen
-     3 Die Glocke auf dem Zehn-Mark-Schein: μ, σ, Wendestellen
-     4 Alles zusammen: drei Aufgaben, drei Ideen
+   Fünfphasiges Lernmodul in „Mathe entdecken“ (Kennung „gauss“):
+     1 Wer war Carl Friedrich Gauß? Reine Infoseite mit dem Zehn-Mark-Schein
+     2 Der kleine Gauß: 1 + 2 + … + n als Treppe, die zum Rechteck wird
+     3 Das Gauß-Verfahren: eine Unbekannte verschwinden lassen
+     4 Die Glocke vom Zehn-Mark-Schein: μ, σ, Wendestellen
+     5 Alles zusammen: drei Aufgaben, drei Ideen
+   Bei Personen-Modulen ist die erste Phase immer eine Infoseite (info: true).
    Bild des Scheins: public/gauss/zehn-mark-schein.webp
    ====================================================================== */
 import React, { useMemo, useState } from "react";
@@ -106,6 +108,63 @@ function SchneinFoto() {
   );
 }
 
+const abschnitt = { fontSize: 11.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: C.gruenDunkel, margin: "20px 0 8px" };
+const absatz = { fontSize: 14.5, color: C.tinte, lineHeight: 1.7, margin: "0 0 8px" };
+
+/* ---------- Phase 1: reine Infoseite ---------- */
+function InfoSeite() {
+  const zeile = { display: "grid", gridTemplateColumns: "96px 1fr", gap: 10, padding: "8px 0", borderBottom: `1px solid ${C.linie}`, fontSize: 14, lineHeight: 1.55 };
+  const steck = [
+    ["Geboren", "30. April 1777 in Braunschweig"],
+    ["Gestorben", "23. Februar 1855 in Göttingen"],
+    ["Beruf", "Mathematiker, Astronom, Geodät und Physiker"],
+    ["Beiname", "„Fürst der Mathematiker“ (Princeps mathematicorum)"],
+  ];
+  const weg = [
+    ["1796", "Mit 18 Jahren konstruiert er ein regelmäßiges Siebzehneck mit Zirkel und Lineal – eine Aufgabe, die seit der Antike offen war. Danach entscheidet er sich für die Mathematik."],
+    ["1801", "Sein Buch „Disquisitiones Arithmeticae“ legt die Grundlagen der modernen Zahlentheorie. Im selben Jahr berechnet er die Bahn des Zwergplaneten Ceres, damit Astronomen ihn wiederfinden."],
+    ["ab 1807", "Professor in Göttingen und Leiter der Sternwarte, bis zu seinem Tod."],
+    ["1820er bis 1840er", "Er vermisst das Königreich Hannover und entwickelt dafür die Fehlerrechnung: Aus vielen ungenauen Messungen den besten Wert bestimmen. Dabei spielt die Glockenkurve der Normalverteilung die Hauptrolle."],
+    ["1833", "Mit Wilhelm Weber baut er in Göttingen einen elektromagnetischen Telegrafen und erforscht den Erdmagnetismus."],
+  ];
+  return (
+    <div>
+      <BildKarte>
+        <div style={{ ...abschnitt, marginTop: 0 }}>Steckbrief</div>
+        {steck.map(([a, b]) => <div key={a} style={zeile}><b style={{ color: C.see }}>{a}</b><span>{b}</span></div>)}
+
+        <div style={abschnitt}>Sein Weg</div>
+        {weg.map(([jahr, text]) => (
+          <div key={jahr} style={{ ...zeile, gridTemplateColumns: "84px 1fr" }}><b style={{ color: C.see }}>{jahr}</b><span>{text}</span></div>
+        ))}
+        <p style={{ ...absatz, marginTop: 12 }}>
+          Eine Geschichte aus seiner Schulzeit kennt fast jeder: Er soll die Zahlen von 1 bis 100 in kurzer Zeit addiert haben. Wie das geht, entdeckst du in Phase 2.
+        </p>
+      </BildKarte>
+
+      <BildKarte>
+        <div style={{ ...abschnitt, marginTop: 0 }}>Der Zehn-Mark-Schein</div>
+        <SchneinFoto />
+        <p style={{ ...absatz, marginTop: 12 }}>
+          Dieser Zehn-Mark-Schein der Deutschen Bundesbank trägt das Datum 1. Oktober 1993. Er ehrt Gauß mit seinem Porträt und mit der Glockenkurve der Normalverteilung samt ihrer Formel – dem wohl berühmtesten Bild aus seiner Fehlerrechnung. Auf der Rückseite sind ein Sextant und die Göttinger Sternwarte abgebildet.
+        </p>
+        <p style={{ ...absatz, margin: 0 }}>
+          Die D-Mark gibt es nicht mehr, die Kurve schon: In Phase 4 baust du sie selbst.
+        </p>
+      </BildKarte>
+
+      <BildKarte>
+        <div style={{ ...abschnitt, marginTop: 0 }}>Das erwartet dich</div>
+        {[["2", "Der kleine Gauß", "Eine Treppe wird zum Rechteck."], ["3", "Das Gauß-Verfahren", "Eine Unbekannte verschwindet."], ["4", "Die Glocke", "μ, σ und die Kurve vom Schein."], ["5", "Alles zusammen", "Drei Aufgaben zu drei Ideen."]].map(([nr, t, z]) => (
+          <div key={nr} style={{ ...zeile, gridTemplateColumns: "28px 1fr", borderBottom: nr === "5" ? "none" : zeile.borderBottom }}>
+            <b style={{ color: C.see }}>{nr}</b><span><b>{t}</b> – {z}</span>
+          </div>
+        ))}
+      </BildKarte>
+    </div>
+  );
+}
+
 function GlockenBild() {
   const [mu, setMu] = useState(5);
   const [sg, setSg] = useState(1);
@@ -124,9 +183,8 @@ function GlockenBild() {
   flaeche.push(`L${px(b).toFixed(1)},${py(0)} Z`);
   return (
     <BildKarte>
-      <SchneinFoto />
-      <div style={{ marginTop: 18 }}>
-        <Aufforderung>Verschiebe die Glocke mit μ und mach sie mit σ breiter oder schmaler.</Aufforderung>
+      <div>
+        <Aufforderung>Das ist die Kurve von deinem Zehn-Mark-Schein. Verschiebe sie mit μ und mach sie mit σ breiter oder schmaler.</Aufforderung>
         <svg viewBox="0 0 340 200" style={svgStil} role="img" aria-label={`Glockenkurve mit Erwartungswert ${mu} und Standardabweichung ${kommaZahl(sg)}`}>
           <line x1={L} y1={py(0)} x2={L + B} y2={py(0)} stroke={C.hellgrau} strokeWidth="1.2" />
           <path d={flaeche.join(" ")} fill={GOLD} opacity="0.9" />
@@ -179,6 +237,13 @@ function AbschlussKnoepfe() {
 
 function bauePhasen(r) {
   return [
+    {
+      titel: "Wer war Carl Friedrich Gauß?",
+      intro: "Carl Friedrich Gauß gilt als einer der größten Mathematiker aller Zeiten. Bevor du seine Ideen selbst entdeckst, lernst du ihn kennen – und den Geldschein, auf dem er abgebildet war.",
+      info: true,
+      bild: <InfoSeite />,
+      schritte: [],
+    },
     {
       titel: "Der kleine Gauß – eine Treppe wird zum Rechteck",
       intro: "Erzählt wird: Ein Lehrer wollte seine Klasse beschäftigen und ließ alle Zahlen von 1 bis 100 addieren. Der junge Gauß war nach kurzer Zeit fertig. Sein Trick: Eine Summe als Treppe zeichnen und die Treppe verdoppeln.",
@@ -276,11 +341,11 @@ export function GaussModul({ onZurueck }) {
   return (
     <EntdeckenModul id={ID} phasen={phasen} onZurueck={onZurueck}
       titel="Entdecke Carl Friedrich Gauß – drei Ideen auf einem Schein"
-      untertitel="Vier Phasen: die Summenformel des kleinen Gauß, das Gauß-Verfahren und die Glocke vom Zehn-Mark-Schein. Jede Idee baust du selbst auf."
+      untertitel="Fünf Phasen: zuerst ein Blick auf sein Leben und den Zehn-Mark-Schein, dann die Summenformel des kleinen Gauß, das Gauß-Verfahren und die Glocke. Jede Idee baust du selbst auf."
       abschlussTitel="Du hast drei Ideen von Gauß entdeckt."
       abschlussText="Eine Treppe, zwei Gleichungen und eine Glocke – und alle drei stecken noch heute in Schule und Studium."
       abschlussFormel={["1 + 2 + \\ldots + n = \\frac{n(n+1)}{2}", "\\varphi(x) = \\frac{1}{\\sigma\\sqrt{2\\pi}} \\cdot e^{-\\frac{1}{2}\\left(\\frac{x-\\mu}{\\sigma}\\right)^2}"]} />
   );
 }
-export const GAUSS_PHASEN = ["Summenformel", "Gauß-Verfahren", "Glocke", "Alles zusammen"];
+export const GAUSS_PHASEN = ["Wer war Gauß?", "Summenformel", "Gauß-Verfahren", "Glocke", "Alles zusammen"];
 export { bauePhasen as gaussPhasen };

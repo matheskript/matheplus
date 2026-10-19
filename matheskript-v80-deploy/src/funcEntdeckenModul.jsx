@@ -4,7 +4,9 @@
    Abschlusskarte, Neubeginn). Aufbau wie das Pythagoras-Modul.
    Der Stand liegt in entdeckenSpeicher.js unter module[id];
    die Anzahl der Phasen steht in entdeckenMerge.js → MODULE.
-   phasen: [{ titel, intro, bild, schritte, fertig, abschluss? }]
+   phasen: [{ titel, intro, bild, schritte, fertig, abschluss?, info? }]
+   info: true = reine Infoseite ohne Aufgaben (schritte: []), z. B. die erste Seite
+   eines Personen-Moduls („Wer war …?“). Im Reiter steht dann „i“.
    ====================================================================== */
 import React, { useEffect, useState } from "react";
 import { C } from "./base1.jsx";
@@ -80,12 +82,12 @@ export function EntdeckenModul({ id, titel, untertitel, phasen, abschlussTitel, 
         {phasen.map((ph, k) => {
           const an = k === aktuell, ok = fertigePhase(k), offen = k <= ersteOffene;
           return (
-            <button key={k} type="button" role="tab" aria-selected={an} aria-label={`Phase ${k + 1}: ${ph.titel}${ok ? " (abgeschlossen)" : ""}`} disabled={!offen}
+            <button key={k} type="button" role="tab" aria-selected={an} aria-label={`Phase ${k + 1}: ${ph.titel}${ok && !ph.info ? " (abgeschlossen)" : ""}`} disabled={!offen}
               onClick={() => gehePhase(k)}
               style={{ height: 40, borderRadius: 10, fontFamily: "inherit", fontSize: 14, fontWeight: 700, cursor: offen ? "pointer" : "default",
                 border: `1.5px solid ${an ? C.see : ok ? "#0F7A4D" : C.linie}`, background: an ? C.see : ok ? "#E6F6EF" : C.weiss,
                 color: an ? C.weiss : ok ? "#0F7A4D" : offen ? C.see : C.hellgrau, opacity: offen ? 1 : 0.6 }}>
-              {ok && !an ? "✓" : k + 1}
+              {ph.info ? "i" : ok && !an ? "✓" : k + 1}
             </button>
           );
         })}
@@ -100,9 +102,11 @@ export function EntdeckenModul({ id, titel, untertitel, phasen, abschlussTitel, 
         <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.8, margin: 0 }}><T s={p.intro} /></p>
         {p.bild}
 
-        <div style={{ ...karte, marginTop: 18 }}>
-          <SchrittFolge key={aktuell} schritte={p.schritte} stand={stand[aktuell]} setStand={setterFuer(aktuell)} fertigText={p.fertig} />
-        </div>
+        {!p.info && (
+          <div style={{ ...karte, marginTop: 18 }}>
+            <SchrittFolge key={aktuell} schritte={p.schritte} stand={stand[aktuell]} setStand={setterFuer(aktuell)} fertigText={p.fertig} />
+          </div>
+        )}
         {fertigDiese && p.abschluss && <div style={{ ...karte, marginTop: 14, borderLeft: `4px solid ${C.flaggold}` }}>{p.abschluss}</div>}
 
         <div style={{ display: "flex", gap: 10, marginTop: 8 }}>

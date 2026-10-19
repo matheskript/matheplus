@@ -1,8 +1,8 @@
 """Browser-Test des Entdecken-Moduls „Carl Friedrich Gauß“ und des Scheins in der Formelsammlung.
 Je Breite (360, 390, 1280):
   · Übersicht Mathe entdecken: Karte „Carl Friedrich Gauß“, Direktlink /mathe-entdecken/gauss öffnet das Modul
-  · Alle vier Phasen: Regler bewegen, jeder Schritt über „Lösung dieses Schritts zeigen“ bis zum Ende
-  · Phase 3: Bild des Scheins geladen (naturalWidth > 0)
+  · Phase 1 ist eine reine Infoseite (Steckbrief, Zehn-Mark-Schein geladen, keine Aufgabenkarte)
+  · Phasen 2–5: Regler bewegen, jeder Schritt über „Lösung dieses Schritts zeigen“ bis zum Ende
   · Abschluss: drei Knöpfe zu den Werkzeugen
   · Formelsammlung: Normalverteilung zeigt den Schein mit Bildunterschrift
   · keine Seitenfehler, keine Konsolenfehler, keine Überbreite
@@ -55,15 +55,22 @@ with sync_playwright() as p:
 
         page.goto(BASE + "mathe-entdecken/gauss"); page.wait_for_timeout(900)
         pruefe(page.locator("text=Entdecke Carl Friedrich Gauß").count() > 0, f"{wo}: Direktlink öffnet das Modul nicht")
-        for phase in range(1, 5):
-            regler_bewegen(page)
+        for phase in range(1, 6):
             breit_ok(page, breite, f"{wo} Phase {phase}")
-            if phase == 3:
+            if phase == 1:
+                pruefe(page.locator("text=Steckbrief").count() > 0, f"{wo}: Steckbrief fehlt auf der Infoseite")
+                pruefe(page.locator("text=Wer war Carl Friedrich Gauß?").count() > 0, f"{wo}: Titel der Infoseite fehlt")
+                pruefe(page.locator("button:has-text('Schritt prüfen')").count() == 0, f"{wo}: Infoseite hat eine Aufgabenkarte")
+                page.wait_for_timeout(300)
                 ok = page.evaluate("""() => { const i = document.querySelector('img[src*="zehn-mark-schein"]'); return !!i && i.complete && i.naturalWidth > 0; }""")
                 pruefe(ok, f"{wo}: Bild des Scheins nicht geladen")
-                page.screenshot(path=f"{AUS}/phase3-{breite}.png", full_page=True)
-            schritte_durch(page, f"{wo} Phase {phase}")
-            if phase < 4:
+                page.screenshot(path=f"{AUS}/phase1-{breite}.png", full_page=True)
+            else:
+                regler_bewegen(page)
+                if phase == 4:
+                    page.screenshot(path=f"{AUS}/phase4-{breite}.png", full_page=True)
+                schritte_durch(page, f"{wo} Phase {phase}")
+            if phase < 5:
                 page.locator("button:has-text('Weiter zu Phase')").first.click(); page.wait_for_timeout(200)
         pruefe(page.locator("text=Modul abgeschlossen").count() > 0, f"{wo}: Abschlusskarte fehlt")
         pruefe(page.locator("button:has-text('Gleichungssysteme üben')").count() > 0, f"{wo}: Abschluss-Knopf LGS fehlt")
