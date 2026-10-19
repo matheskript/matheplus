@@ -119,6 +119,10 @@ function Kopf({ untertitel, k, gehe }) {
       <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "radial-gradient(90% 70% at 100% 0%, rgba(237,187,0,0.22) 0%, transparent 60%)" }} />
       <div aria-hidden="true" className="clk-kopfbild" style={{ position: "absolute", right: 14, top: 22, opacity: 0.9 }}><KursEmblem groesse={140} /></div>
       <div className="held mx-auto px-6 pt-10 pb-5" style={{ maxWidth: 620, position: "relative" }}>
+        <button type="button" onClick={() => gehe({ ansicht: "kiwahl" })} data-claudekurs-wahl
+          style={{ display: "inline-flex", alignItems: "center", gap: 6, minHeight: 36, padding: 0, margin: "0 0 10px", background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 13, fontWeight: 700, color: "#C9D6EE" }}>
+          <span aria-hidden="true" style={{ color: K.gold }}>←</span> Mathe mit KI lernen · alle drei Wege
+        </button>
         <Kicker hell>KURS {k.alter.toUpperCase()} · 10 LEKTIONEN</Kicker>
         <h1 style={{ fontWeight: 800, fontSize: "clamp(28px, 8vw, 40px)", letterSpacing: "-0.03em", lineHeight: 1.05, margin: 0,
           background: "linear-gradient(180deg, #FFF 0%, #E3E8EF 45%, #B9C2CE 100%)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>

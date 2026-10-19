@@ -597,3 +597,59 @@ export const gesamtMinuten = () => LEKTIONEN.reduce((s, l) => s + l.dauer, 0);
 export function promptFuellen(text, werte = {}) {
   return text.replace(/\[([^\]]+)\]/g, (ganz, schluessel) => (werte[schluessel] ? String(werte[schluessel]) : ganz));
 }
+
+/* ---------- Die drei Wege: Mathe mit KI lernen (Wahlseite „kiwahl“) ----------
+   Stand der Altersregeln: 19.10.2026. Claude.ai ist nur ab 18; ein eigenes Google-Konto gibt es in
+   Deutschland ab 16 (unter 18 mit Jugendschutz-Filtern, Verlauf wird nicht gespeichert); Family-Link-Konten
+   (unter 16) haben im EWR kein Gemini. Mathilda AI läuft in der App auf Claude: für alle, unter 16 mit Zustimmung der Eltern.
+   Vor jeder Änderung die Bedingungen der Anbieter neu prüfen. */
+export const WEGE = [
+  {
+    id: "mathilda", titel: "Mathilda AI", alter: "für alle", altersZeile: "Jede Klassenstufe",
+    zeile: "Die KI direkt in dieser App – ohne eigenes Konto bei einem KI-Anbieter.",
+    voraussetzungen: [
+      "Keine Altersgrenze – auch unter 16.",
+      "Unter 16: ein Elternteil muss der KI-Nutzung zustimmen (Link per WhatsApp, dauert zwei Minuten).",
+      "Du stimmst einmal zu, dass Vorname, Klasse und Lernstand an die KI gehen. Fotos werden nicht gespeichert.",
+      "Kein Konto bei Google oder Anthropic nötig.",
+    ],
+    gutZuWissen: "Läuft auf Claude, kennt deinen Lernstand und hält sich an die Regel „erklären statt lösen“. Pro Tag gibt es ein festes Kontingent an Anfragen.",
+    knopf: "Mathilda öffnen", ziel: { ansicht: "analyse", foto: "chat" },
+  },
+  {
+    id: "gemini", titel: "Mathe lernen mit Gemini", alter: "ab 16", altersZeile: "Klasse 10–11 und älter",
+    zeile: "Zehn Lektionen für die Google-KI – mit Beispielen aus der Mittelstufe.",
+    voraussetzungen: [
+      "Mindestens 16 Jahre – so alt musst du für ein eigenes Google-Konto in Deutschland sein.",
+      "Ein eigenes Google-Konto (kein Kinderkonto über Family Link – dort gibt es in der EU kein Gemini).",
+      "Unter 18 schaltet Google zusätzliche Filter zum Jugendschutz ein und speichert deinen Verlauf nicht – im Kurs steht, wie du dir den Startprompt trotzdem merkst.",
+    ],
+    gutZuWissen: "Der Kurs funktioniert auch mit 18 und älter, die Beispiele kommen aus Parabeln, Gleichungen, Prozent und Pythagoras.",
+    knopf: "Kurs mit Gemini öffnen", ziel: { ansicht: "geminikurs" },
+  },
+  {
+    id: "claude", titel: "Mathe lernen mit Claude", alter: "ab 18", altersZeile: "Klasse 12–13, Studium",
+    zeile: "Zehn Lektionen für Claude – mit Beispielen aus dem Buch Ableitungen.",
+    voraussetzungen: [
+      "Mindestens 18 Jahre – das schreibt Anthropic für claude.ai vor.",
+      "Ein eigenes Claude-Konto (E-Mail oder Google-Anmeldung).",
+      "Noch keine 18? Dann nimm den Gemini-Kurs ab 16 oder Mathilda AI – dort laufen dieselben Prompts.",
+    ],
+    gutZuWissen: "Die Beispiele stammen aus dem Buch Differentialrechnung (Seitenangaben im Kurs) – ideal für Oberstufe und Abitur.",
+    knopf: "Kurs mit Claude öffnen", ziel: { ansicht: "claudekurs" },
+  },
+];
+
+/* Welche Wege passen? stufe: "u16" | "16" | "18" – Reihenfolge = Empfehlung */
+export const ALTERSSTUFEN = [
+  { id: "u16", name: "Unter 16" },
+  { id: "16", name: "16 oder 17" },
+  { id: "18", name: "18 oder älter" },
+];
+export function wegeFuerAlter(stufe) {
+  if (stufe === "u16") return ["mathilda"];
+  if (stufe === "16") return ["gemini", "mathilda"];
+  if (stufe === "18") return ["claude", "gemini", "mathilda"];
+  return [];
+}
+export const weg = (id) => WEGE.find((w) => w.id === id) || null;

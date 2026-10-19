@@ -29,10 +29,28 @@ with sync_playwright() as p:
 
         # Startseite: zwei Kacheln
         page.goto(BASE); page.wait_for_timeout(1200)
-        pruefe(page.locator("[data-claudekurs-kachel=claude]").count() == 1, f"{breite}: Claude-Kachel fehlt")
-        pruefe(page.locator("[data-claudekurs-kachel=gemini]").count() == 1, f"{breite}: Gemini-Kachel fehlt")
-        page.locator("[data-claudekurs-kachel=claude]").scroll_into_view_if_needed(); page.screenshot(path=f"{AUS}/{breite}-kacheln.png")
-        page.locator("[data-claudekurs-kachel=claude]").click(); page.wait_for_timeout(1200)
+        pruefe(page.locator("[data-claudekurs-kachel=ki]").count() == 1, f"{breite}: Kachel „Mathe mit KI lernen“ fehlt")
+        pruefe(page.locator("[data-claudekurs-kachel=claude], [data-claudekurs-kachel=gemini]").count() == 0, f"{breite}: alte Einzelkacheln noch auf der Startseite")
+        page.locator("[data-claudekurs-kachel=ki]").scroll_into_view_if_needed(); page.screenshot(path=f"{AUS}/{breite}-kacheln.png")
+        page.locator("[data-claudekurs-kachel=ki]").click(); page.wait_for_timeout(1200)
+
+        # Wahlseite: drei Wege mit Alter und Voraussetzungen
+        pruefe("mathe-mit-ki-lernen" in page.url, f"{breite}: Wahlseite nicht geöffnet ({page.url})")
+        pruefe(page.locator("[data-kiwahl-weg]").count() == 3, f"{breite}: drei Wege erwartet")
+        pruefe(page.get_by_role("heading", name="Mathilda AI").count() == 1, f"{breite}: Mathilda-Weg fehlt")
+        pruefe(page.get_by_text("ab 16", exact=False).count() >= 1 and page.get_by_text("AB 18").count() == 1, f"{breite}: Altersangaben fehlen")
+        pruefe(page.get_by_text("VORAUSSETZUNGEN").count() == 3, f"{breite}: Voraussetzungen fehlen")
+        pruefe(page.get_by_text("Elternteil muss").count() == 1, f"{breite}: Eltern-Hinweis bei Mathilda fehlt")
+        breite_ok("Wahlseite")
+        page.screenshot(path=f"{AUS}/{breite}-wahl.png", full_page=(breite == 390))
+        page.locator("[data-kiwahl-alter=u16]").click(); page.wait_for_timeout(150)
+        pruefe(page.locator("[data-kiwahl-passt=ja]").count() == 1 and page.locator("[data-kiwahl-weg=mathilda][data-kiwahl-passt=ja]").count() == 1, f"{breite}: unter 16 soll nur Mathilda passen")
+        page.locator("[data-kiwahl-alter='16']").click(); page.wait_for_timeout(150)
+        pruefe(page.locator("[data-kiwahl-passt=ja]").count() == 2 and page.locator("[data-kiwahl-weg=claude][data-kiwahl-passt=nein]").count() == 1, f"{breite}: 16–17: Gemini und Mathilda, nicht Claude")
+        page.locator("[data-kiwahl-alter='18']").click(); page.wait_for_timeout(150)
+        pruefe(page.locator("[data-kiwahl-passt=ja]").count() == 3, f"{breite}: ab 18 alle drei")
+        page.screenshot(path=f"{AUS}/{breite}-wahl-18.png")
+        page.locator("[data-kiwahl-oeffnen=claude]").click(); page.wait_for_timeout(1200)
         pruefe("mathe-lernen-mit-claude" in page.url, f"{breite}: Claude-Kurs nicht geöffnet ({page.url})")
 
         # Übersicht Claude
@@ -40,6 +58,7 @@ with sync_playwright() as p:
         pruefe(page.get_by_role("heading", name="Mathe lernen mit Claude").count() == 1, f"{breite}: Titel Claude fehlt")
         pruefe(page.locator("[data-claudekurs-schwester]").count() >= 1, f"{breite}: Schwesterkurs-Knopf fehlt")
         breite_ok("Übersicht Claude")
+        pruefe(page.locator("[data-claudekurs-wahl]").count() == 1, f"{breite}: Link zurück zur Wahl fehlt")
         # Teilen-Knopf unten auf der Seite: Link kopieren + WhatsApp mit Kurslink
         tk = page.locator(".tl-knopf")
         pruefe(tk.count() == 1, f"{breite}: Teilen-Knopf fehlt im Claude-Kurs")
@@ -84,6 +103,14 @@ with sync_playwright() as p:
         pruefe(page.get_by_text("ab 18 Jahren").count() >= 1, f"{breite}: Altershinweis Claude fehlt")
         pruefe(page.locator("[data-claudekurs-extern]").get_attribute("href") == "https://claude.ai", f"{breite}: externer Link Claude")
         breite_ok("Lektion 1 Claude")
+
+        # Zurück zur Wahl, von dort Mathilda öffnen (Chat) und wieder zurück
+        page.locator("[data-claudekurs-wahl]").click(); page.wait_for_timeout(900)
+        pruefe("mathe-mit-ki-lernen" in page.url, f"{breite}: Rückweg zur Wahl ({page.url})")
+        page.locator("[data-kiwahl-oeffnen=claude]").click(); page.wait_for_timeout(900)
+        pruefe("mathe-lernen-mit-claude" in page.url, f"{breite}: Claude-Kurs aus der Wahl")
+        page.locator("[data-claudekurs-lektion=zugang]").click(); page.wait_for_timeout(600)
+        page.get_by_role("button", name="Alle Lektionen").click(); page.wait_for_timeout(400)
 
         # Über den Schwesterkurs-Knopf zu Gemini: eigener Fortschritt, eigene Beispiele, eigener Zugang
         page.locator("[data-claudekurs-schwester]").first.click(); page.wait_for_timeout(1000)

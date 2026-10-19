@@ -104,6 +104,7 @@ export const SEITEN_SAETZE = {
   potenzregel: { de: "die Potenzregel verstehen und beweisen", en: "understand and prove the power rule" },
 
   /* Kurse und Lernbereiche */
+  kiwahl: { de: "mit KI Mathe verstehen – je nach Alter mit Mathilda AI, Gemini oder Claude", en: "use AI to understand maths – Mathilda AI, Gemini or Claude depending on your age" },
   claudekurs: { de: "mit Claude Mathe verstehen, statt sich Lösungen geben zu lassen (ab 18)", en: "use Claude to understand maths instead of copying solutions (18+)" },
   geminikurs: { de: "mit Gemini Mathe verstehen, statt sich Lösungen geben zu lassen (ab 16)", en: "use Gemini to understand maths instead of copying solutions (16+)" },
   diffkurs: { de: "die Differentialrechnung Schritt für Schritt lernen", en: "learn differential calculus step by step" },

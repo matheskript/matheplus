@@ -1867,9 +1867,8 @@ export function Startseite({ gehe }) {
       <VekKursKachel onClick={() => gehe({ ansicht: "vekkurs" })} />
       {/* Kurs GFS: Klassenstufe wählen, Thema aus dem Lambacher Schweizer, sieben Schritte */}
       <GfsKursKachel onClick={() => gehe({ ansicht: "gfs" })} />
-      {/* Kurse Mathe lernen mit Claude (ab 18) und mit Gemini (ab 16): zehn Lektionen Prompt-Technik */}
-      <ClaudeKursKachel kurs="gemini" onClick={() => gehe({ ansicht: "geminikurs" })} />
-      <ClaudeKursKachel kurs="claude" onClick={() => gehe({ ansicht: "claudekurs" })} />
+      {/* Mathe mit KI lernen: eine Kachel, dahinter die Wahl Mathilda AI (alle) / Gemini (ab 16) / Claude (ab 18) */}
+      <ClaudeKursKachel kurs="ki" onClick={() => gehe({ ansicht: "kiwahl" })} />
       {/* Mathe Masterclass: Kursbereich für Teilnehmer (ohne Zugang zeigt er das Code-Feld) */}
       {(ANGEBOT.kurse || elternabendFrei) && <MasterclassKachel name="Mathe Masterclass" monate="3 MONATE" knopf="Zum Kursbereich" onClick={() => gehe({ ansicht: "mckurs" })} />}
       {/* Die 7 Mathe-Mythen: zwischen Masterclass und „Wo stehst du wirklich?“ */}

@@ -1,7 +1,7 @@
 /* Kurs „Mathe lernen mit Claude“: Daten vollständig und regelkonform */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { LEKTIONEN, KURSE, GRUNDREGELN, lektion, kurs, kiText, kurzFuer, schritteFuer, naechsteLektion, anteilFertig, gesamtMinuten, promptFuellen } from "../src/claudeKursDaten.js";
+import { LEKTIONEN, KURSE, GRUNDREGELN, lektion, kurs, kiText, kurzFuer, schritteFuer, naechsteLektion, anteilFertig, gesamtMinuten, promptFuellen, WEGE, ALTERSSTUFEN, wegeFuerAlter, weg } from "../src/claudeKursDaten.js";
 
 const STUFEN = KURSE.map((k) => ({ id: k.beispiele, name: k.titel }));
 
@@ -88,4 +88,30 @@ test("Hilfsfunktionen", () => {
   assert.ok(gesamtMinuten() >= 60 && gesamtMinuten() <= 100);
   assert.equal(promptFuellen("Ich bin in [Klasse] und lerne [Thema]", { Klasse: "Klasse 9" }), "Ich bin in Klasse 9 und lerne [Thema]");
   assert.equal(lektion("gibtsnicht"), null);
+});
+
+test("Drei Wege: Mathilda AI für alle, Gemini ab 16, Claude ab 18 – mit Voraussetzungen und Ziel", () => {
+  assert.deepEqual(WEGE.map((w) => w.id), ["mathilda", "gemini", "claude"]);
+  assert.deepEqual(WEGE.map((w) => w.alter), ["für alle", "ab 16", "ab 18"]);
+  for (const w of WEGE) {
+    assert.ok(w.voraussetzungen.length >= 3 && w.gutZuWissen && w.knopf && w.ziel.ansicht, w.id);
+    for (const v of w.voraussetzungen) assert.ok(v.length > 20, `${w.id}: Voraussetzung zu knapp`);
+  }
+  /* Ziele: Kurse zeigen auf die Kurs-Ansichten aus KURSE, Mathilda auf den Chat */
+  for (const k of KURSE) assert.equal(weg(k.id).ziel.ansicht, k.ansicht);
+  assert.deepEqual(weg("mathilda").ziel, { ansicht: "analyse", foto: "chat" });
+  /* Altersregeln stehen in den Voraussetzungen */
+  assert.match(weg("claude").voraussetzungen.join(" "), /18/);
+  assert.match(weg("gemini").voraussetzungen.join(" "), /16/);
+  assert.match(weg("mathilda").voraussetzungen.join(" "), /unter 16/i);
+  assert.match(weg("mathilda").voraussetzungen.join(" "), /Elternteil/);
+});
+
+test("Empfehlung nach Alter: unter 16 nur Mathilda, 16–17 Gemini und Mathilda, ab 18 alle drei – Claude nie unter 18", () => {
+  assert.deepEqual(ALTERSSTUFEN.map((s) => s.id), ["u16", "16", "18"]);
+  assert.deepEqual(wegeFuerAlter("u16"), ["mathilda"]);
+  assert.deepEqual(wegeFuerAlter("16"), ["gemini", "mathilda"]);
+  assert.deepEqual(wegeFuerAlter("18"), ["claude", "gemini", "mathilda"]);
+  assert.deepEqual(wegeFuerAlter(null), []);
+  for (const s of ["u16", "16"]) assert.ok(!wegeFuerAlter(s).includes("claude"), s);
 });

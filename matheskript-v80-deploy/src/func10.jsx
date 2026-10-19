@@ -87,6 +87,7 @@ const AdvancedPlotter = lazyLaden(() => import("./func12.jsx").then((m) => ({ de
 const LGSLoeser = lazyLaden(() => import("./funcLGS.jsx").then((m) => ({ default: m.LGSLoeser })));
 const Gleichungsloeser = lazyLaden(() => import("./funcGleichungen.jsx").then((m) => ({ default: m.Gleichungsloeser })));
 const GfsKursSeite = lazyLaden(() => import("./funcGfsKurs.jsx").then((m) => ({ default: m.GfsKursSeite })));
+const KiWahlSeite = lazyLaden(() => import("./funcKiWahl.jsx").then((m) => ({ default: m.KiWahlSeite })));
 const ClaudeKursSeite = lazyLaden(() => import("./funcClaudeKurs.jsx").then((m) => ({ default: m.ClaudeKursSeite })));
 const GfsPascalSeite = lazyLaden(() => import("./funcGfs.jsx").then((m) => ({ default: m.GfsPascalSeite })));
 const GfsDoseSeite = lazyLaden(() => import("./funcGfsDose.jsx").then((m) => ({ default: m.GfsDoseSeite })));
@@ -1037,6 +1038,10 @@ export function Mathilda() {
       ) : ansicht === "vekkurs" ? (
         <React.Suspense fallback={<p role="status" style={{ color: C.grau, fontSize: 15, fontWeight: 300, padding: "24px", textAlign: "center" }}>{englisch() ? "Loading …" : "Wird geladen …"}</p>}>
           <VekKursSeite gehe={gehe} />
+        </React.Suspense>
+      ) : ansicht === "kiwahl" ? (
+        <React.Suspense fallback={<p role="status" style={{ color: C.grau, fontSize: 15, fontWeight: 300, padding: "24px", textAlign: "center" }}>{englisch() ? "Loading …" : "Wird geladen …"}</p>}>
+          <KiWahlSeite gehe={gehe} />
         </React.Suspense>
       ) : ansicht === "claudekurs" || ansicht === "geminikurs" ? (
         <React.Suspense fallback={<p role="status" style={{ color: C.grau, fontSize: 15, fontWeight: 300, padding: "24px", textAlign: "center" }}>{englisch() ? "Loading …" : "Wird geladen …"}</p>}>

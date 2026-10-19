@@ -6,6 +6,7 @@ import React from "react";
 import { C } from "./base1.jsx";
 
 const KACHEL = {
+  ki: { ki: "KI", titel: "Mathe mit KI lernen", kicker: "DREI WEGE · EINE REGEL", alter: "3 WEGE", text: "Gemini ab 16, Claude ab 18, Mathilda AI für alle: Hier siehst du, was für dein Alter offen ist – und wie du die KI dazu bringst, dir Mathe zu erklären statt vorzurechnen.", knopf: "Weg wählen" },
   claude: { ki: "Claude", alter: "AB 18", text: "Nicht „löse mir“, sondern „erklär mir“: die Prompts, mit denen Claude dich Mathe verstehen lässt – mit Beispielen aus dem Buch Ableitungen." },
   gemini: { ki: "Gemini", alter: "AB 16", text: "Derselbe Kurs für die Google-KI: so fragst du Gemini, dass du Mathe verstehst – mit Beispielen zu Parabeln, Gleichungen, Prozent und Pythagoras." },
 };
@@ -13,7 +14,7 @@ const KACHEL = {
 export function ClaudeKursKachel({ onClick, kurs = "claude" }) {
   const k = KACHEL[kurs] || KACHEL.claude;
   return (
-    <button type="button" onClick={onClick} className="clk-kachel" aria-label={`Kurs Mathe lernen mit ${k.ki} öffnen`} data-claudekurs-kachel={kurs}
+    <button type="button" onClick={onClick} className="clk-kachel" aria-label={k.titel ? `${k.titel} öffnen` : `Kurs Mathe lernen mit ${k.ki} öffnen`} data-claudekurs-kachel={kurs}
       style={{ display: "flex", width: "calc(100% + 32px)", marginLeft: -16, marginRight: -16, marginTop: 12, padding: 0, border: "none", borderRadius: 18, overflow: "hidden",
         cursor: "pointer", fontFamily: "inherit", textAlign: "left", position: "relative", minHeight: "calc(104px + 1.1 * clamp(15px, 4.1vw, 22px))",
         background: "linear-gradient(150deg, #06102A 0%, #0B1E4A 55%, #12306E 100%)", color: C.weiss,
@@ -23,16 +24,16 @@ export function ClaudeKursKachel({ onClick, kurs = "claude" }) {
         @media (hover:hover){.clk-kachel:hover{transform:translateY(-2px);box-shadow:0 14px 36px rgba(6,16,42,0.5)}}
         .clk-kachel:focus-visible{outline:3px solid ${C.flaggold};outline-offset:3px}`}</style>
       <div style={{ flex: "1 1 63%", minWidth: 0, padding: "14px 10px 14px 16px", display: "flex", flexDirection: "column" }}>
-        <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.18em", color: C.flaggold }}>KURS {k.alter} · 10 LEKTIONEN</span>
+        <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.18em", color: C.flaggold }}>{k.kicker || `KURS ${k.alter} · 10 LEKTIONEN`}</span>
         <h2 style={{ fontSize: "clamp(15px, 4.1vw, 22px)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.1, margin: "2px 0 0", textWrap: "balance" }}>
-          Mathe lernen mit {k.ki}
+          {k.titel || `Mathe lernen mit ${k.ki}`}
         </h2>
         <span aria-hidden="true" style={{ display: "block", width: 34, height: 2.5, borderRadius: 2, marginTop: 6, background: C.flaggold }} />
         <p style={{ fontSize: 12.5, fontWeight: 500, lineHeight: 1.4, margin: "6px 0 0", color: "rgba(255,255,255,0.84)" }}>
           {k.text}
         </p>
         <span style={{ marginTop: "auto", paddingTop: 8, fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", gap: 6, color: C.weiss }}>
-          Kurs starten
+          {k.knopf || "Kurs starten"}
           <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4l4 4-4 4" stroke={C.flaggold} strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </span>
       </div>
