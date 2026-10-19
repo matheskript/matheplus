@@ -890,10 +890,11 @@ export function istToolMenueSeite(ansicht) {
   return istWerkzeugAnsicht(ansicht) || sammle(menueBaum()).includes(ansicht);
 }
 
-export function ToolMenue({ gehe, schliessen, aktuell }) {
+export function ToolMenue({ gehe, schliessen, aktuell, eingebettet }) {
   const [offen, setOffen] = useState({});
   const baum = React.useMemo(menueBaum, []);
   useEffect(() => {
+    if (eingebettet) return undefined;   // eingebettet (Arbeitsmenü in der Fußzeile): Esc schließt dort das ganze Fenster
     const taste = (e) => { if (e.key === "Escape") schliessen(); };
     window.addEventListener("keydown", taste);
     return () => window.removeEventListener("keydown", taste);
@@ -929,6 +930,7 @@ export function ToolMenue({ gehe, schliessen, aktuell }) {
       </div>
     );
   };
+  if (eingebettet) return <div>{baum.map((k) => zeile(k, "", 0))}</div>;
   return (
     <>
       {/* unsichtbare Fläche: Klick daneben schließt das Menü */}

@@ -34,8 +34,8 @@ export function kontoEintraege(profil, angemeldet = true, cfg = ANGEBOT) {
   const pro = istPro(profil);
   /* Ohne Angebot „Pro“ (angebot.js) gibt es weder „Pro werden“ noch „Mein Plan · Pro“ */
   const proEintrag = !cfg.pro ? null : pro
-    ? { id: "plan", name: "Mein Plan · Pro", ziel: { ansicht: "konto" } }
-    : { id: "pro", name: "Pro werden", ziel: { ansicht: "konto" }, gold: true };
+    ? { id: "plan", name: "Mein Plan · Pro", ziel: { ansicht: "konto", abschnitt: "plan" } }
+    : { id: "pro", name: "Pro werden", ziel: { ansicht: "konto", abschnitt: "plan" }, gold: true };
   if (!angemeldet) {
     return [
       { id: "fortschritt", name: "Mein Fortschritt", ziel: { ansicht: "profil" } },
@@ -47,9 +47,9 @@ export function kontoEintraege(profil, angemeldet = true, cfg = ANGEBOT) {
   }
   const rolle = (profil && profil.rolle) || "schueler";
   const liste = [{ id: "konto", name: "Mein Konto", ziel: { ansicht: "konto" } }];
-  if (rolle === "eltern") liste.push({ id: "kinder", name: "Meine Kinder", ziel: { ansicht: "konto" } });
-  if (rolle === "lehrkraft") liste.push({ id: "klassen", name: "Meine Klassen", ziel: { ansicht: "konto" } });
-  if (rolle === "nachhilfe") liste.push({ id: "schueler", name: "Meine Schüler", ziel: { ansicht: "konto" } });
+  if (rolle === "eltern") liste.push({ id: "kinder", name: "Meine Kinder", ziel: { ansicht: "konto", abschnitt: "kinder" } });
+  if (rolle === "lehrkraft") liste.push({ id: "klassen", name: "Meine Klassen", ziel: { ansicht: "konto", abschnitt: "lehr" } });
+  if (rolle === "nachhilfe") liste.push({ id: "schueler", name: "Meine Schüler", ziel: { ansicht: "konto", abschnitt: "lehr" } });
   if (rolle === "lehrkraft" || rolle === "nachhilfe") liste.push({ id: "arbeitsblatt", name: "Arbeitsblatt-Generator", ziel: { ansicht: "lehrerblatt" } });
   if (rolle === "schueler") {
     liste.push({ id: "fortschritt", name: "Mein Fortschritt", ziel: { ansicht: "profil" } });

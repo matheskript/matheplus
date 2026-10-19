@@ -369,25 +369,25 @@ function Profil({ nutzer, profil, geworben, gehe }) {
 
           <EinladenBox profil={profil} geworben={geworben} />
           <MeineKlassen rolle={rolle} />
-          {ANGEBOT.pro && <PlanKarte profil={profil} />}
+          {ANGEBOT.pro && <div id="konto-plan" style={{ scrollMarginTop: 12 }}><PlanKarte profil={profil} /></div>}
       {profil.geworben_von && <p style={{ fontSize: 12.5, color: C.hellgrau, margin: "-6px 4px 14px" }}>Du bist selbst über eine Einladung zu Mythos Mathe gekommen.</p>}
 
         </>
       )}
       {rolle === "eltern" && (
         <>
-          <ElternBereich profil={profil} gehe={gehe} kinderRef={setKinder} />
+          <div id="konto-kinder" style={{ scrollMarginTop: 12 }}><ElternBereich profil={profil} gehe={gehe} kinderRef={setKinder} /></div>
           <KinderEinwilligungKarte />
           <WochenmailKarte />
-          {ANGEBOT.pro && <PlanKarte profil={profil} kinder={kinder} />}
+          {ANGEBOT.pro && <div id="konto-plan" style={{ scrollMarginTop: 12 }}><PlanKarte profil={profil} kinder={kinder} /></div>}
           <SpendenTeaser gehe={gehe} />
           <NameKarte profil={profil} />
         </>
       )}
       {istLehrend(rolle) && (
         <>
-          <LehrBereich profil={profil} gehe={gehe} />
-          {ANGEBOT.pro && <PlanKarte profil={profil} />}
+          <div id="konto-lehr" style={{ scrollMarginTop: 12 }}><LehrBereich profil={profil} gehe={gehe} /></div>
+          {ANGEBOT.pro && <div id="konto-plan" style={{ scrollMarginTop: 12 }}><PlanKarte profil={profil} /></div>}
           <NameKarte profil={profil} />
         </>
       )}

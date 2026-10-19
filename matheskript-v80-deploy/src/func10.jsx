@@ -5,7 +5,7 @@ import { API_URL, C, REGELN, VIDEO_URL, blattPrompt } from "./base1.jsx";
 import { KOMP } from "./base3.jsx";
 import { NAV, SCHULKLASSEN, kiKopf, kiAntwort } from "./base4.jsx";
 import { dekodieren, jsonLesen, rendern } from "./func1.jsx";
-import { Startseite, ToolMenue, istToolMenueSeite, werkzeugMerken } from "./func2.jsx";
+import { Startseite, ToolMenue, werkzeugMerken } from "./func2.jsx";
 import { WerkzeugLeiste, KompaktKopf } from "./funcWerkzeuge.jsx";
 import { wo } from "./werkzeuge.js";
 import { pfadAufloesen, pfadFuer } from "./pfade.js";
@@ -116,7 +116,7 @@ import { useKonto, kontoStarten } from "./konto.js";
 import { linkAusUrlMerken as masterclassLinkMerken, autoEinloesen as masterclassAutoEinloesen } from "./masterclassZugang.js";
 import { englisch, spracheWechseln } from "./i18n.js";
 
-import { springe } from "./sprung.js";
+import { springe, springeZuId } from "./sprung.js";
 // Menü-Button im Header: vorübergehend aus (true = wieder einblenden)
 const ZEIGE_MENUE = false;
 
@@ -219,7 +219,6 @@ export function Mathilda() {
   const lern = useLern();
 
   const [seitenOffen, setSeitenOffen] = useState(false);
-  const [toolMenueOffen, setToolMenueOffen] = useState(false);
   const [hmOffen, setHmOffen] = useState(null);   // Hauptmenü oben: welches Fenster ist offen
   useEffect(() => { aufklappScrollStarten(); }, []);
   useEffect(() => { werkzeugMerken(ansicht); }, [ansicht]);   // für „Weitermachen“ auf der Startseite
@@ -280,7 +279,7 @@ export function Mathilda() {
     }
     if (!eintrag.uebergabe) hinweisVerwerfen();
     setAnsicht(eintrag.ansicht);
-    setSeitenOffen(false); setToolMenueOffen(false); setHmOffen(null);
+    setSeitenOffen(false); setHmOffen(null);
     if (eintrag.ansicht === "training") setTrainZiel(eintrag.ziel ?? null);
     if (eintrag.ansicht === "ki") setGenZiel(eintrag.ziel ?? null);
     if (eintrag.foto) setFotoModus(eintrag.foto);
@@ -301,6 +300,7 @@ export function Mathilda() {
     if (eintrag.ansicht === "kapitelformeln") setKapitelZiel(eintrag.kapitel ? { kapitel: eintrag.kapitel, schulart: eintrag.schulart, klasse: eintrag.klasse, modus: eintrag.modus } : null);
     setMenuOffen(false); setGruppeOffen(null);
     springe("seitenwechsel", () => window.scrollTo(0, 0));
+    if (eintrag.abschnitt) springeZuId("konto-abschnitt", "konto-" + eintrag.abschnitt);   // z. B. Hauptmenü → Meine Kinder
   };
   FR.toolMenue = ToolMenue;   // Menü im Vollbild der Regel-Eingabe (funcRegelwerk.jsx)
   FR.gehe = gehe;   // für „Weiter mit …“-Knöpfe in den Werkzeugen (uebergabe.js)
@@ -416,28 +416,25 @@ export function Mathilda() {
   // Früher eine Welle – jetzt ein gerader, sauberer Abschluss des Kopfbereichs.
   const Welle = () => <div aria-hidden="true" className="held-welle" style={{ height: 22 }} />;
 
-  // Kopfbereich jeder Werkzeugseite: Menü-Knopf (☰) und die Werkzeug-Leiste aus werkzeuge.js
-  // (Bereich · Station, Werkzeuge der Station, Umschalter, „Weiter“ zur nächsten Station)
+  // Kopfbereich jeder Werkzeugseite: die Werkzeug-Leiste aus werkzeuge.js
+  // (Bereich · Station, Werkzeuge der Station, Umschalter, „Weiter“ zur nächsten Station).
+  // Das alte ☰ „Menü mit allen Bereichen“ gibt es hier nicht mehr: oben steht das Hauptmenü,
+  // der alte Bereichsbaum liegt im Arbeitsmenü der Fußzeile.
   const SektionsMenue = () => {
     const ort = wo(ansicht);
-    const knopf = (ort || istToolMenueSeite(ansicht)) ? (<>
-      <button type="button" className="tool-menue-knopf" onClick={() => setToolMenueOffen(!toolMenueOffen)} aria-haspopup="dialog" aria-expanded={toolMenueOffen}
-        data-kein-scroll aria-label={toolMenueOffen ? "Menü schließen" : "Menü mit allen Bereichen"} title="Menü"
-        style={{ height: 34, width: 34, borderRadius: 999, padding: 0, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 46,
-          border: `1.5px solid ${toolMenueOffen ? C.flaggold : "rgba(255,255,255,0.45)"}`, background: toolMenueOffen ? "rgba(237,187,0,0.16)" : "rgba(255,255,255,0.06)" }}>
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke={toolMenueOffen ? C.flaggold : C.weiss} strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
-          {toolMenueOffen ? <path d="M5 12h14" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
-        </svg>
-      </button>
-      {toolMenueOffen && <ToolMenue gehe={gehe} schliessen={() => setToolMenueOffen(false)} aktuell={ansicht} />}
-    </>) : null;
-    if (!ort) return knopf;
+    if (!ort) return null;
     return (<>
-      {knopf}
       <WerkzeugLeiste ansicht={ansicht} gehe={gehe} />
       {ansicht !== "sinus" && ansicht !== "steckbrief" && <PruefungsLink ansicht={ansicht} gehe={gehe} klein />}
     </>);
   };
+
+  /* Hauptmenü unter der schlanken Kopfleiste (KompaktKopf): gleiches ☰-Fenster wie in der großen Kopfzeile */
+  const kompaktMenue = (
+    <div style={{ position: "absolute", left: 0, right: 0, top: 56, height: 0 }}>
+      <HauptMenue gehe={gehe} ansicht={ansicht} foto={fotoModus} seite={wzSeite} offen={hmOffen} setOffen={setHmOffen} />
+    </div>
+  );
 
   /* Trainingswerkzeuge mit eigener schlanker Kopfleiste (KompaktKopf): der große Seitenkopf entfällt */
   const ohneKopf = ansicht === "ableitungstrainer" || ansicht === "geradengleichung" || ansicht === "parabeln" || ansicht === "stammintegral";
@@ -448,11 +445,9 @@ export function Mathilda() {
       <style>{`/* Schriften: lokal über @fontsource (main.jsx) */
       .kachel { transition: transform .16s ease, box-shadow .16s ease; }
       .held { position: relative; }
-      .held:has(.tool-menue-knopf) h1 { padding-right: 46px; }
-      .tool-menue-knopf { position: absolute; top: 41px; right: 24px; }
-      .test-knopf-klein { position: absolute; top: 41px; right: 66px; }
-      .held:has(.test-knopf-klein) h1 { padding-right: 112px; }
-      @media (max-width:520px){ .tool-menue-knopf { top: 14px; } .test-knopf-klein { top: 14px; } }
+      .test-knopf-klein { position: absolute; top: 41px; right: 24px; }
+      .held:has(.test-knopf-klein) h1 { padding-right: 70px; }
+      @media (max-width:520px){ .test-knopf-klein { top: 14px; } }
       .kachel:hover { transform: translateY(-2px); }
       .kachel:active { transform: scale(.988); }
       .zeichnen { stroke-dasharray: 560; stroke-dashoffset: 560; animation: malen 1.9s cubic-bezier(.4,0,.2,1) forwards; }
@@ -898,22 +893,22 @@ export function Mathilda() {
         </>
       ) : ansicht === "ableitungstrainer" ? (
         <>
-          <KompaktKopf ansicht={ansicht} gehe={gehe} menueOffen={toolMenueOffen} onMenue={() => setToolMenueOffen(!toolMenueOffen)}
-            menue={<ToolMenue gehe={gehe} schliessen={() => setToolMenueOffen(false)} aktuell={ansicht} />}
+          <KompaktKopf ansicht={ansicht} gehe={gehe} menueOffen={hmOffen === "menue"} onMenue={() => setHmOffen(hmOffen === "menue" ? null : "menue")}
+            menue={kompaktMenue}
             testKnopf={<PruefungsLink ansicht={ansicht} gehe={gehe} pille />} />
           <Ableitungstrainer />
         </>
       ) : ansicht === "parabeln" ? (
         <>
-          <KompaktKopf ansicht={ansicht} gehe={gehe} menueOffen={toolMenueOffen} onMenue={() => setToolMenueOffen(!toolMenueOffen)}
-            menue={<ToolMenue gehe={gehe} schliessen={() => setToolMenueOffen(false)} aktuell={ansicht} />}
+          <KompaktKopf ansicht={ansicht} gehe={gehe} menueOffen={hmOffen === "menue"} onMenue={() => setHmOffen(hmOffen === "menue" ? null : "menue")}
+            menue={kompaktMenue}
             testKnopf={<PruefungsLink ansicht={ansicht} gehe={gehe} pille />} />
           <ParabelTrainer />
         </>
       ) : ansicht === "stammintegral" ? (
         <>
-          <KompaktKopf ansicht={ansicht} gehe={gehe} menueOffen={toolMenueOffen} onMenue={() => setToolMenueOffen(!toolMenueOffen)}
-            menue={<ToolMenue gehe={gehe} schliessen={() => setToolMenueOffen(false)} aktuell={ansicht} />}
+          <KompaktKopf ansicht={ansicht} gehe={gehe} menueOffen={hmOffen === "menue"} onMenue={() => setHmOffen(hmOffen === "menue" ? null : "menue")}
+            menue={kompaktMenue}
             testKnopf={<PruefungsLink ansicht={ansicht} gehe={gehe} pille />} />
           <StammIntegral />
         </>
@@ -988,8 +983,8 @@ export function Mathilda() {
         </>
                   ) : ansicht === "geradengleichung" ? (
         <>
-          <KompaktKopf ansicht={ansicht} gehe={gehe} menueOffen={toolMenueOffen} onMenue={() => setToolMenueOffen(!toolMenueOffen)}
-            menue={<ToolMenue gehe={gehe} schliessen={() => setToolMenueOffen(false)} aktuell={ansicht} />} />
+          <KompaktKopf ansicht={ansicht} gehe={gehe} menueOffen={hmOffen === "menue"} onMenue={() => setHmOffen(hmOffen === "menue" ? null : "menue")}
+            menue={kompaktMenue} />
           <Geradengleichung />
         </>
                               ) : ansicht === "bwm" ? (

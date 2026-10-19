@@ -8,11 +8,14 @@ import { C } from "./base1.jsx";
 import { englisch } from "./i18n.js";
 import { ENTWUERFE, LANDING, istFrei } from "./seitenKonstanten.js";
 import { ANGEBOT } from "./angebot.js";
+import { ToolMenue } from "./func2.jsx";
+import { AufklappZeichen } from "./aufklappen.jsx";
 
 export function Arbeitsmenue({ gehe, ansicht, sprachKnopf, stil }) {
   const [offen, setOffen] = useState(false);
+  const [baumAuf, setBaumAuf] = useState(false);
   useEffect(() => {
-    if (!offen) return;
+    if (!offen) { setBaumAuf(false); return; }
     const t = (e) => { if (e.key === "Escape") setOffen(false); };
     window.addEventListener("keydown", t);
     return () => window.removeEventListener("keydown", t);
@@ -45,6 +48,20 @@ export function Arbeitsmenue({ gehe, ansicht, sprachKnopf, stil }) {
               <span style={kreis(false)}>{englisch() ? "DE" : "EN"}</span>
               <span style={{ flex: 1, fontSize: 14.5, fontWeight: 700 }}>{englisch() ? "Auf Deutsch wechseln" : "Switch to English"}</span>
             </button>
+            {/* Das frühere ☰-Menü „Menü mit allen Bereichen“ der Werkzeugseiten: alle Bereiche mit allen Werkzeugen */}
+            <button type="button" onClick={() => setBaumAuf(!baumAuf)} aria-expanded={baumAuf} data-kein-scroll data-arbeitsmenue-bereiche
+              style={{ ...zeile, justifyContent: "space-between", background: baumAuf ? "rgba(237,187,0,0.14)" : "transparent" }}>
+              <span style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <span style={kreis(baumAuf)}>C</span>
+                <span style={{ fontSize: 14.5, fontWeight: 700 }}>Alle Bereiche</span>
+              </span>
+              <AufklappZeichen auf={baumAuf} groesse={16} />
+            </button>
+            {baumAuf && (
+              <div data-aufklapp-inhalt data-scroll-box data-sprung="menue-alle-bereiche" style={{ margin: "2px 4px 6px 8px", padding: "0 4px 4px" }}>
+                <ToolMenue eingebettet gehe={geh} schliessen={() => setOffen(false)} aktuell={ansicht} />
+              </div>
+            )}
             {intern && ENTWUERFE.map((e, i) => {
               const an = ansicht === e.ansicht;
               return (

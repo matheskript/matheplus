@@ -100,6 +100,8 @@ export const SPRUENGE = {
   "diffkurs-aufgabentool":   { an: true,  art: "anker", wo: "Kurs Differentialrechnung → Aufgaben: „Neue Aufgaben dieses Typs üben“ an einer Buchaufgabe führt zum Aufgabentool darunter" },
   "anker":                   { an: true,  art: "anker", wo: "Inhaltsverzeichnisse und Sprungknöpfe: Landingpage, Elternabend „Platz sichern“, Ebbinghaus-Navi, Pen & Paper, Formelsammlung-Gruppen, Entwürfe, Startseite-Archiv, Text-Mathilda-Stellen, Kapiteltraining „nächste Einheit“" },
 
+  "konto-abschnitt":        { an: true,  art: "anker", wo: "Hauptmenü → Konto: „Meine Kinder“, „Meine Klassen“, „Meine Schüler“, „Mein Plan“ springen zum Abschnitt auf der Kontoseite" },
+
   /* ---------------- Im Blick halten ---------------- */
   "tastatur":                { an: true,  art: "halten", wo: "Mathe-Tastatur: aktives Feld bleibt über der Bildschirmtastatur" },
   "formel-cursor":           { an: true,  art: "halten", wo: "Formelfelder: Cursor bleibt in langen Formeln sichtbar" },
@@ -127,6 +129,19 @@ export function springe(id, fn) {
   if (!sprungAn(id)) return false;
   try { fn(); } catch (e) { /* ältere Browser */ }
   return true;
+}
+
+/* Zu einem Abschnitt springen, der erst nach dem Seitenwechsel (und dem Laden der Daten) da ist:
+   wartet bis zu maxMs auf das Element mit dieser Id, dann springe(id, …). Gibt es sie nie, passiert nichts. */
+export function springeZuId(schluessel, elementId, maxMs = 3000) {
+  if (typeof window === "undefined" || typeof document === "undefined") return;
+  const start = Date.now();
+  const versuch = () => {
+    const el = document.getElementById(elementId);
+    if (el) { springe(schluessel, () => el.scrollIntoView({ block: "start", behavior: "smooth" })); return; }
+    if (Date.now() - start < maxMs) setTimeout(versuch, 120);
+  };
+  setTimeout(versuch, 150);
 }
 
 /* Fokus setzen; bei ausgeschaltetem Sprung ohne Scrollen */

@@ -279,6 +279,7 @@ export function HauptMenue({ gehe, ansicht, foto, seite, offen, setOffen }) {
 
   return (
     <div style={{ position: "relative", height: 0 }}>
+      <style>{CSS}</style>
       {istOffen && (
         <>
           <div onClick={() => setOffen(null)} aria-hidden="true" style={{ position: "fixed", inset: 0, zIndex: 2 }} />

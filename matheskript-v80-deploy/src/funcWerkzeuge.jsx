@@ -224,7 +224,7 @@ export function KompaktKopf({ ansicht, gehe, menueOffen, onMenue, menue, testKno
             style={{ flexShrink: 0, transform: auf ? "rotate(180deg)" : "none", transition: "transform .15s" }}><path d="M6 9l6 6 6-6" /></svg>
         </button>
         {testKnopf}
-        <button type="button" onClick={onMenue} aria-haspopup="dialog" aria-expanded={menueOffen} aria-label={menueOffen ? "Menü schließen" : "Menü mit allen Bereichen"} title="Menü"
+        <button type="button" onClick={onMenue} aria-haspopup="dialog" aria-expanded={menueOffen} aria-label={menueOffen ? "Menü schließen" : "Menü öffnen"} title="Menü" data-hm-menue
           style={{ ...rund, borderColor: menueOffen ? C.flaggold : C.linie, background: menueOffen ? "rgba(237,187,0,0.12)" : C.weiss }}>
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
             {menueOffen ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
