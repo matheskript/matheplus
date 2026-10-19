@@ -65,7 +65,22 @@ with sync_playwright() as pw:
         breite_ok("Buchaufgaben offen")
         page.get_by_text("Die Aufgaben von Seite 22 und 23").scroll_into_view_if_needed()
         page.screenshot(path=f"{AUS}/{breite}-buch.png", full_page=(breite != 1280))
+        # Masterclass ist öffentlich abgeschaltet (angebot.js) → ohne Passwort kein Button
+        pruefe(page.locator("[data-efunktion-masterclass]").count() == 0, f"{breite}: Masterclass-Button trotz Sperre sichtbar")
         pruefe(not konsole, f"{breite}: Konsole {konsole[:3]}")
+        ctx.close()
+    # Startseite: Mini-Button zur e-Funktion über der Masterclass
+    for breite in [390, 1280]:
+        ctx = b.new_context(viewport={"width": breite, "height": 860}, locale="de-DE")
+        page = ctx.new_page()
+        page.goto(BASE + "/"); page.wait_for_timeout(1500)
+        k = page.locator("[data-start-efunktion]")
+        pruefe(k.count() == 1, f"Start {breite}: e-Funktion-Button fehlt")
+        if k.count():
+            k.scroll_into_view_if_needed(); page.wait_for_timeout(300)
+            page.screenshot(path=f"{AUS}/start-{breite}-knopf.png")
+            k.click(); page.wait_for_timeout(1200)
+            pruefe("e-funktion" in page.url, f"Start {breite}: Button führt nicht zur e-Funktion ({page.url})")
         ctx.close()
     b.close()
 

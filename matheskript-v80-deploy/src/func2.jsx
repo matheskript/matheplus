@@ -1869,6 +1869,17 @@ export function Startseite({ gehe }) {
       <GfsKursKachel onClick={() => gehe({ ansicht: "gfs" })} />
       {/* Mathe mit KI lernen: eine Kachel, dahinter die Wahl Mathilda AI (alle) / Gemini (ab 16) / Claude (ab 18) */}
       <ClaudeKursKachel kurs="ki" onClick={() => gehe({ ansicht: "kiwahl" })} />
+      {/* Mini-Button zur Themenseite e-Funktion: direkt über der Mathe Masterclass */}
+      <div style={{ display: "flex", justifyContent: "center", margin: "14px 0 2px" }}>
+        <button data-start-efunktion onClick={() => gehe({ ansicht: "efunktion" })}
+          style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "7px 14px", borderRadius: 999,
+            background: C.weiss, border: `1px solid ${C.linie}`, color: C.see, fontSize: 12.5, fontWeight: 600,
+            fontFamily: "inherit", cursor: "pointer", boxShadow: "0 1px 6px rgba(15,26,51,0.05)" }}>
+          <span style={{ width: 6, height: 6, borderRadius: 999, background: C.flaggold, display: "inline-block" }} />
+          Minikurs: Die e-Funktion
+          <span aria-hidden="true">→</span>
+        </button>
+      </div>
       {/* Mathe Masterclass: Kursbereich für Teilnehmer (ohne Zugang zeigt er das Code-Feld) */}
       {(ANGEBOT.kurse || elternabendFrei) && <MasterclassKachel name="Mathe Masterclass" monate="3 MONATE" knopf="Zum Kursbereich" onClick={() => gehe({ ansicht: "mckurs" })} />}
       {/* Die 7 Mathe-Mythen: zwischen Masterclass und „Wo stehst du wirklich?“ */}

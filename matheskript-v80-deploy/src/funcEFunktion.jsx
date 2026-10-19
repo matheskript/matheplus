@@ -9,6 +9,8 @@ import { plotAbbildung, Achsen, Schieber } from "./func6.jsx";
 import { Formeln, Schritt, Kasten } from "./func22.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
 import { ableitAufgabe, asymptoteAufgabe, tangentenAufgabe } from "./efunktionGen.js";
+import { ansichtGesperrt } from "./angebot.js";
+import { istFrei } from "./seitenKonstanten.js";
 
 /* ---------- Themenseite „Die natürliche Exponentialfunktion“ ----------
    Aufbau nach dem Muster der Differenzenquotient-Seite:
@@ -541,7 +543,7 @@ function Buchaufgaben() {
 
 const E_TABELLE = [1, 10, 100, 1000, 10000, 1000000];
 
-export function EFunktionSeite() {
+export function EFunktionSeite({ gehe }) {
   return (
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
       <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 14 }}>
@@ -666,6 +668,20 @@ export function EFunktionSeite() {
         Erst selbst auf Papier rechnen, dann den Lösungsweg aufklappen und Zeile für Zeile vergleichen.
       </p>
       <Buchaufgaben />
+
+      {/* Mini-Button zur Masterclass – nur, solange die Masterclass erreichbar ist (angebot.js oder Passwort) */}
+      {gehe && !ansichtGesperrt("masterclass", istFrei()) && (
+        <div style={{ display: "flex", justifyContent: "center", marginTop: 34 }}>
+          <button data-efunktion-masterclass onClick={() => gehe({ ansicht: "masterclass" })}
+            style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "7px 14px", borderRadius: 999,
+              background: C.weiss, border: `1px solid ${C.linie}`, color: C.see, fontSize: 12.5, fontWeight: 600,
+              fontFamily: "inherit", cursor: "pointer", boxShadow: "0 1px 6px rgba(15,26,51,0.05)" }}>
+            <span style={{ width: 6, height: 6, borderRadius: 999, background: C.flaggold, display: "inline-block" }} />
+            Mathe Abi Masterclass
+            <span aria-hidden="true">→</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 }

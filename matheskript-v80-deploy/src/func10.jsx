@@ -1381,7 +1381,7 @@ export function Mathilda() {
             </div>
             <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
           </div>
-          <EFunktionSeite />
+          <EFunktionSeite gehe={gehe} />
         </>
       ) : ansicht === "training" ? (
         <>
