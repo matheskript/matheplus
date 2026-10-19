@@ -299,6 +299,17 @@ function Detail({ e, zurueck, oeffne, zuFaden, zuHerleitung, gemerkt, merken, na
         </section>
       )}
 
+      {e.foto && (
+        <section style={{ marginTop: 26 }}>
+          <p style={kicker}>{e.foto.titel || "Zum Anschauen"}</p>
+          <figure style={{ ...karte, padding: 12, margin: 0 }}>
+            <img src={e.foto.src} alt={e.foto.alt} width={e.foto.breite} height={e.foto.hoehe} loading="lazy"
+              style={{ width: "100%", height: "auto", display: "block", borderRadius: 10 }} />
+            {e.foto.unter && <figcaption style={{ fontSize: 12.5, color: C.grau, lineHeight: 1.6, margin: "10px 2px 2px" }}>{e.foto.unter}</figcaption>}
+          </figure>
+        </section>
+      )}
+
       <Herleitung e={e} />
 
       {e.bsp && e.bsp.length > 0 && (

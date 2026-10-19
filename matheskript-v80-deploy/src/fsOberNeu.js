@@ -9,6 +9,12 @@ export const FS_OBER_NEU = [
     f: "\\varphi(x) = \\frac{1}{\\sigma \\sqrt{2\\pi}} \\cdot e^{-\\frac{1}{2}\\left(\\frac{x - \\mu}{\\sigma}\\right)^2}",
     k: "Gaußsche Glockenkurve · Wahrscheinlichkeiten sind Flächen unter dem Graphen",
     bild: ["normalKurve", { modus: "dichte" }],
+    foto: {
+      titel: "Die Glocke auf dem Zehn-Mark-Schein",
+      src: "/gauss/zehn-mark-schein.webp", breite: 600, hoehe: 308,
+      alt: "Zehn-Mark-Schein der Deutschen Bundesbank mit dem Porträt von Carl Friedrich Gauß und einer Glockenkurve mit Formel",
+      unter: "Zehn-Mark-Schein der Deutschen Bundesbank (Datum 1. Oktober 1993) mit Carl Friedrich Gauß, 1777–1855. Links neben ihm steht die Glockenkurve, nach ihm Gaußsche Glockenkurve genannt. Mehr zu Gauß unter Mathe entdecken.",
+    },
     her: [
       { t: "Woher kommt die Glocke?", s: [
         "Für großes $n$ werden die Histogramme der Binomialverteilung immer glatter und glockenförmig. Ihr Umriss ist eine stetige Funktion – die Dichtefunktion.",

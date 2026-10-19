@@ -69,6 +69,7 @@ export const SEITEN = [
   { pfad: "mathe-entdecken/teilbarkeit", ansicht: "entdecken", seite: "teiler" },
   { pfad: "mathe-entdecken/binomische-formeln", ansicht: "entdecken", seite: "binomisch" },
   { pfad: "mathe-entdecken/grenzwert", ansicht: "entdecken", seite: "grenzwert" },
+  { pfad: "mathe-entdecken/gauss", ansicht: "entdecken", seite: "gauss", alias: ["gauss"] },
   { pfad: "differenzenquotient", ansicht: "diffq" },
   { pfad: "formeln-zum-kapitel", ansicht: "kapitelformeln", alias: ["kapitel-formeln", "testklausur"] },
   { pfad: "potenzregel", ansicht: "potenzregel" },

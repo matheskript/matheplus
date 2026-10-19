@@ -11,6 +11,7 @@ import { PYTHAGORAS_PHASEN_ANZAHL, PythagorasModul } from "./funcEntdeckenPythag
 import { TeilerModul } from "./funcEntdeckenTeiler.jsx";
 import { BinomischModul } from "./funcEntdeckenBinomisch.jsx";
 import { GrenzwertModul } from "./funcEntdeckenGrenzwert.jsx";
+import { GaussModul } from "./funcEntdeckenGauss.jsx";
 import { MODUL_PHASEN } from "./entdeckenSpeicher.js";
 import { TEILER_ANZAHL } from "./teiler.js";
 import { useEntdeckenSyncStatus } from "./entdeckenSync.js";
@@ -291,7 +292,7 @@ function Uebersicht({ stand, oeffne }) {
   const phaseY = Math.min((modulStand("pythagoras").phase || 0) + 1, PYTHAGORAS_PHASEN_ANZAHL);
   const zuletzt = stand.zuletzt;
   const ZIEL = { axiome: ["axiome", "Axiome"], potenz: ["praxis", "Pascalsches Dreieck"], pythagoras: ["pythagoras", "Satz des Pythagoras"], teiler: ["teiler", "Teilbarkeitsregeln"],
-    binomisch: ["binomisch", "Binomische Formeln"], grenzwert: ["grenzwert", "Ableitung als Grenzwert"] };
+    binomisch: ["binomisch", "Binomische Formeln"], grenzwert: ["grenzwert", "Ableitung als Grenzwert"], gauss: ["gauss", "Carl Friedrich Gauß"] };
   const modulKarte = (nr, id, titel, text) => {
     const st = statusModul(id), ph = Math.min((modulStand(id).phase || 0) + 1, MODUL_PHASEN[id]);
     return <LernangebotKarte nr={nr} titel={titel} text={text} status={st} fortschritt={st === "arbeit" ? `Phase ${ph} von ${MODUL_PHASEN[id]}` : null} onClick={() => oeffne(id)} />;
@@ -341,6 +342,7 @@ function Uebersicht({ stand, oeffne }) {
             fortschritt={sT === "arbeit" ? `${nT} von ${TEILER_ANZAHL} Regeln` : null} onClick={() => oeffne("teiler")} />
           {modulKarte(6, "binomisch", "Binomische Formeln", "Drei Formeln aus Quadraten und Rechtecken gebaut")}
           {modulKarte(7, "grenzwert", "Ableitung als Grenzwert", "Von der Sekante zur Tangente: Wie aus h → 0 die Ableitung wird")}
+          {modulKarte(8, "gauss", "Carl Friedrich Gauß", "Summenformel, Gauß-Verfahren und die Glocke vom Zehn-Mark-Schein")}
         </div>
         {zuletzt && (
           <button type="button" onClick={() => oeffne(zuletztZiel)}
@@ -483,7 +485,7 @@ function Pythagoras({ zurueck, startModul }) {
   );
 }
 
-export const ENTDECKEN_SEITEN = ["uebersicht", "axiome", "einstieg", "praxis", "pythagoras", "teiler", "binomisch", "grenzwert"];
+export const ENTDECKEN_SEITEN = ["uebersicht", "axiome", "einstieg", "praxis", "pythagoras", "teiler", "binomisch", "grenzwert", "gauss"];
 export function EntdeckenSeite({ start }) {
   const stand = useStand();
   const [seite, setSeite] = useState(ENTDECKEN_SEITEN.includes(start) ? start : "uebersicht"); // uebersicht | einstieg | praxis | modul | pythagoras | modulP | teiler
@@ -495,6 +497,7 @@ export function EntdeckenSeite({ start }) {
   if (seite === "teiler") return <TeilerModul onZurueck={() => setSeite("uebersicht")} />;
   if (seite === "binomisch") return <BinomischModul onZurueck={() => setSeite("uebersicht")} />;
   if (seite === "grenzwert") return <GrenzwertModul onZurueck={() => setSeite("uebersicht")} />;
+  if (seite === "gauss") return <GaussModul onZurueck={() => setSeite("uebersicht")} />;
 
   return (
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
