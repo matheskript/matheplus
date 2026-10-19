@@ -86,6 +86,8 @@ const StammIntegral = lazyLaden(() => import("./funcStammIntegral.jsx").then((m)
 const AdvancedPlotter = lazyLaden(() => import("./func12.jsx").then((m) => ({ default: m.AdvancedPlotter })));
 const LGSLoeser = lazyLaden(() => import("./funcLGS.jsx").then((m) => ({ default: m.LGSLoeser })));
 const Gleichungsloeser = lazyLaden(() => import("./funcGleichungen.jsx").then((m) => ({ default: m.Gleichungsloeser })));
+const GfsUebersicht = lazyLaden(() => import("./funcGfs.jsx").then((m) => ({ default: m.GfsUebersicht })));
+const GfsPascalSeite = lazyLaden(() => import("./funcGfs.jsx").then((m) => ({ default: m.GfsPascalSeite })));
 const PotenzregelSeite = lazyLaden(() => import("./func22.jsx").then((m) => ({ default: m.PotenzregelSeite })));
 const AnalysisZentrum = lazyLaden(() => import("./func14.jsx").then((m) => ({ default: m.AnalysisZentrum })));
 const KopfrechenZentrum = lazyLaden(() => import("./func14.jsx").then((m) => ({ default: m.KopfrechenZentrum })));
@@ -1310,6 +1312,34 @@ export function Mathilda() {
             <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
           </div>
           <DifferenzenquotientSeite />
+        </>
+      ) : ansicht === "gfs" ? (
+        <>
+          <div className="kopfblock" style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
+            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 29, letterSpacing: "-0.03em", lineHeight: 1.05 }}>GFS-Trainer</h1>
+              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
+              <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+                Jedes GFS-Thema aus dem Lambacher Schweizer — verstehen, üben, vortragen und die Fragen im Kolloquium sicher beantworten.
+              </p>
+            </div>
+            <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
+          </div>
+          <GfsUebersicht gehe={gehe} />
+        </>
+      ) : ansicht === "gfs-pascal" ? (
+        <>
+          <div className="kopfblock" style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
+            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 29, letterSpacing: "-0.03em", lineHeight: 1.05 }}>Pascal’sches Dreieck</h1>
+              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
+              <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+                GFS-Thema · Kapitel V Binomialverteilung — Beweis, Dreieck zum Antippen, Übung, roter Faden und Kolloquium-Training.
+              </p>
+            </div>
+            <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
+          </div>
+          <GfsPascalSeite gehe={gehe} />
         </>
       ) : ansicht === "potenzregel" ? (
         <>

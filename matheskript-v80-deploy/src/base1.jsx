@@ -133,6 +133,8 @@ export const DEMO_VIDEO_ID = "50LsVekhMCU";
 
 export const DIFFQ_VIDEO_ID = "7xd_G5uIp7k";
 export const POTENZREGEL_VIDEO_ID = "2f_TkmDkz2E";
+/* GFS-Trainer: Pascal’sches Dreieck — Fremdvideo als Platzhalter (oEmbed geprüft), bis Basti ein eigenes aufnimmt */
+export const PASCAL_VIDEO_ID = "G9GiNWtRlhY";
 
 /* Lädt die YouTube-IFrame-API genau einmal, egal wie viele Videos auf der
    Seite stehen. Läuft nur in einem echten Browser — in Claudes eigener

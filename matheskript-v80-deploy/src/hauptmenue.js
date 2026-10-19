@@ -168,6 +168,7 @@ export function mathematikEintraege(stufe = "alle") {
     { id: "kopf", name: "Kopfrechnen", zeile: "Plus, Mal, Quadrate, Primzahlen, Brüche", ziel: { ansicht: "headnumbers" } },
     { id: "gleichungen", name: "Gleichungen", zeile: "Verstehen, rechnen, trainieren", ziel: { ansicht: "gleichkurs" } },
     { id: "textaufgaben", name: "Textaufgaben", zeile: "Übersetzen lernen", ziel: { ansicht: "textaufgaben" } },
+    { id: "gfs", name: "GFS-Trainer", zeile: "Thema verstehen, vortragen, Fragen beantworten", ziel: { ansicht: "gfs" } },
     { id: "operatoren", name: "Operatoren", zeile: "Was „bestimmen“, „zeigen“, „begründen“ verlangen", ziel: { ansicht: "operatoren" } },
     { id: "wettbewerbe", name: "Mathe-Wettbewerbe", zeile: "Bundeswettbewerb und Landeswettbewerbe", ziel: { ansicht: "bwm" } },
   ];

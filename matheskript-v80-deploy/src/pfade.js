@@ -73,6 +73,8 @@ export const SEITEN = [
   { pfad: "differenzenquotient", ansicht: "diffq" },
   { pfad: "formeln-zum-kapitel", ansicht: "kapitelformeln", alias: ["kapitel-formeln", "testklausur"] },
   { pfad: "potenzregel", ansicht: "potenzregel" },
+  { pfad: "gfs-trainer", ansicht: "gfs", alias: ["gfs"] },
+  { pfad: "gfs-trainer/pascalsches-dreieck", ansicht: "gfs-pascal", alias: ["gfs/pascalsches-dreieck"] },
   { pfad: "differentialrechnung", ansicht: "diffkurs", alias: ["differenzialrechnung", "kurs-differentialrechnung", "diffkurs"] },
   { pfad: "vektoren-geraden-ebenen", ansicht: "vekkurs", alias: ["kurs-vektoren", "kurs-vektoren-geraden-ebenen", "vekkurs"] },
   { pfad: "schulbuch/ableitungen", ansicht: "schulbuch", alias: ["schulbuch", "buch-ableitungen"] },
