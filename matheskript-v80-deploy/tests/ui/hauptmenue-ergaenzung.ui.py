@@ -6,11 +6,15 @@
 - Englisch: Menütexte sind übersetzt
   npx vite build && npx vite preview --port 4173 &   →   python3 tests/ui/hauptmenue-ergaenzung.ui.py
 """
-import os, json
+import os, re, json
 from playwright.sync_api import sync_playwright
 
 BASE = os.environ.get("BASE_URL", "http://localhost:4173/")
 fehler = []
+
+# Angebots-Schalter (src/angebot.js): „Pro werden“, Kurse, Landingpage sind im Moment ggf. abgeschaltet
+_a = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "src", "angebot.js"), encoding="utf-8").read().split("export const ANGEBOT")[1].split("};")[0]
+ANG = {k: v == "true" for k, v in re.findall(r"^\s+(\w+): (true|false),", _a, re.M)}
 def pruefe(bed, text):
     if not bed:
         fehler.append(text); print("FEHLT:", text)
@@ -76,7 +80,7 @@ with sync_playwright() as p:
 
         # 4) Konto-Sprünge je Rolle
         for rolle, eintrag, anker in (("eltern", "Meine Kinder", "konto-kinder"), ("lehrkraft", "Meine Klassen", "konto-lehr"),
-                                      ("nachhilfe", "Meine Schüler", "konto-lehr"), ("schueler", "Pro werden", "konto-plan")):
+                                      ("nachhilfe", "Meine Schüler", "konto-lehr")) + ((("schueler", "Pro werden", "konto-plan"),) if ANG.get("pro") else ()):
             ctx, page, konsole = neu(b, breite, rolle)
             page.goto(BASE); page.wait_for_timeout(1500)
             page.locator("[data-hm-menue]").click(); page.wait_for_timeout(250)
@@ -105,7 +109,7 @@ with sync_playwright() as p:
     pruefe("your textbook" in t2 and "our course for it" in t2, "en: Klassen-Abschnitt nicht übersetzt")
     page.locator("[data-hm='kurse']").click(); page.wait_for_timeout(300)
     t3 = page.locator(".hm-fenster.hm-menue").inner_text().lower()
-    pruefe("soon" in t3 and "bald" not in t3, "en: „Bald“ nicht übersetzt")
+    pruefe("bald" not in t3 and ("soon" in t3 or not ANG.get("kurse")), "en: „Bald“ nicht übersetzt")
     page.locator(".hm-konto .hm-eintrag").last.click(); page.wait_for_timeout(400)
     pruefe("Really sign out?" in page.locator("[role='alertdialog']").inner_text(), "en: Abmelde-Frage nicht übersetzt")
     pruefe(not konsole, f"en: Konsolenfehler {konsole}")
