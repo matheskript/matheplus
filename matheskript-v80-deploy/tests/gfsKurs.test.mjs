@@ -1,17 +1,25 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { KLASSEN, THEMEN, themenFuer, LEITFADEN, MEILENSTEINE, zeitplan } from "../src/gfsKurs.js";
+import { KLASSEN, THEMEN, themenFuer, stufenText, LEITFADEN, MEILENSTEINE, zeitplan } from "../src/gfsKurs.js";
 import { SEITEN } from "../src/pfade.js";
 
 test("Jedes gelistete Thema hat Klasse, Buchstelle und eine Seite mit Pfad", () => {
   const ansichten = new Set(SEITEN.map((s) => s.ansicht));
   for (const t of THEMEN) {
     assert.ok(KLASSEN.includes(t.klasse), t.id);
+    assert.ok(t.klassen.every((k) => KLASSEN.includes(k)) && t.klassen[0] === t.klasse, t.id);
     assert.ok(t.kapitel && t.seite > 0 && t.titel && t.kurz && t.frage, t.id);
     assert.ok(ansichten.has(t.ansicht), `kein Pfad für ${t.ansicht}`);
+    assert.ok(t.videos > 0 || t.animationen > 0, `${t.id}: weder Video noch Animation`);
   }
   assert.equal(themenFuer(10)[0].id, "pascal");
   assert.deepEqual(themenFuer(8), []);
+  // Kursstufe: dieselbe Seite für G8 Klasse 11 und G9 Klasse 12
+  assert.equal(themenFuer(11)[0].id, "dose");
+  assert.equal(themenFuer(12)[0].id, "dose");
+  assert.deepEqual(themenFuer(13), []);
+  assert.equal(stufenText(themenFuer(11)[0]), "G8 Klasse 11 · G9 Klasse 12");
+  assert.equal(stufenText(themenFuer(10)[0]), "Klasse 10");
 });
 
 test("Leitfaden: sieben Schritte, jeder mit Frage, drei Absätzen und Checkliste", () => {

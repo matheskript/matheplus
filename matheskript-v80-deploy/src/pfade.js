@@ -75,6 +75,7 @@ export const SEITEN = [
   { pfad: "potenzregel", ansicht: "potenzregel" },
   { pfad: "gfs-trainer", ansicht: "gfs", alias: ["gfs", "kurs-gfs", "gfs-kurs"] },
   { pfad: "gfs-trainer/pascalsches-dreieck", ansicht: "gfs-pascal", alias: ["gfs/pascalsches-dreieck"] },
+  { pfad: "gfs-trainer/optimale-dose", ansicht: "gfs-dose", alias: ["gfs/optimale-dose", "optimale-dose", "gfs-dose"] },
   { pfad: "differentialrechnung", ansicht: "diffkurs", alias: ["differenzialrechnung", "kurs-differentialrechnung", "diffkurs"] },
   { pfad: "vektoren-geraden-ebenen", ansicht: "vekkurs", alias: ["kurs-vektoren", "kurs-vektoren-geraden-ebenen", "vekkurs"] },
   { pfad: "schulbuch/ableitungen", ansicht: "schulbuch", alias: ["schulbuch", "buch-ableitungen"] },

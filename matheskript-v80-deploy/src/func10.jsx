@@ -88,6 +88,7 @@ const LGSLoeser = lazyLaden(() => import("./funcLGS.jsx").then((m) => ({ default
 const Gleichungsloeser = lazyLaden(() => import("./funcGleichungen.jsx").then((m) => ({ default: m.Gleichungsloeser })));
 const GfsKursSeite = lazyLaden(() => import("./funcGfsKurs.jsx").then((m) => ({ default: m.GfsKursSeite })));
 const GfsPascalSeite = lazyLaden(() => import("./funcGfs.jsx").then((m) => ({ default: m.GfsPascalSeite })));
+const GfsDoseSeite = lazyLaden(() => import("./funcGfsDose.jsx").then((m) => ({ default: m.GfsDoseSeite })));
 const PotenzregelSeite = lazyLaden(() => import("./func22.jsx").then((m) => ({ default: m.PotenzregelSeite })));
 const AnalysisZentrum = lazyLaden(() => import("./func14.jsx").then((m) => ({ default: m.AnalysisZentrum })));
 const KopfrechenZentrum = lazyLaden(() => import("./func14.jsx").then((m) => ({ default: m.KopfrechenZentrum })));
@@ -1328,6 +1329,20 @@ export function Mathilda() {
             <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
           </div>
           <GfsPascalSeite gehe={gehe} />
+        </>
+      ) : ansicht === "gfs-dose" ? (
+        <>
+          <div className="kopfblock" style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
+            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 29, letterSpacing: "-0.03em", lineHeight: 1.05 }}>Die optimale Dose</h1>
+              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
+              <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+                Kurs GFS · G8 Klasse 11 / G9 Klasse 12 · Kapitel I Differenzialrechnung — Extremwertprobleme mit Nebenbedingungen: Herleitung, sechs Animationen, Dosen-Labor, Übungen, roter Faden und Kolloquium-Training.
+              </p>
+            </div>
+            <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
+          </div>
+          <GfsDoseSeite gehe={gehe} />
         </>
       ) : ansicht === "potenzregel" ? (
         <>

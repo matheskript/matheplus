@@ -9,14 +9,20 @@
 
 export const KLASSEN = [8, 9, 10, 11, 12, 13];
 export const klasseName = (k) => (k >= 11 ? `Klasse ${k} · Kursstufe` : `Klasse ${k}`);
+/* Ein Thema gehört zu einer oder mehreren Klassen (Kursstufe: G8 Klasse 11 = G9 Klasse 12).
+   stufenText(t) sagt es in Worten, z. B. „Klasse 10“ oder „G8 Klasse 11 · G9 Klasse 12“. */
+export const stufenText = (t) => (t.schulart ? Object.entries(t.schulart).map(([s, k]) => `${s} Klasse ${k}`).join(" · ") : klasseName(t.klasse));
 
 /* ---------- Themen ---------- */
 export const THEMEN = [
-  { id: "pascal", klasse: 10, kapitel: "V", kapitelName: "Schlüsselkonzept: Binomialverteilung", seite: 154,
+  { id: "pascal", klasse: 10, klassen: [10], kapitel: "V", kapitelName: "Schlüsselkonzept: Binomialverteilung", seite: 154,
     titel: "Pascal’sches Dreieck und Binomialkoeffizienten", kurz: "Pascal’sches Dreieck",
-    frage: "Warum stehen im Zahlendreieck genau die Binomialkoeffizienten?", ansicht: "gfs-pascal", videos: 1 },
+    frage: "Warum stehen im Zahlendreieck genau die Binomialkoeffizienten?", ansicht: "gfs-pascal", videos: 1, animationen: 0 },
+  { id: "dose", klasse: 11, klassen: [11, 12], schulart: { G8: 11, G9: 12 }, kapitel: "I", kapitelName: "Grundlagen der Differenzialrechnung", seite: 34,
+    titel: "Die optimale Dose – Extremwertprobleme mit Nebenbedingungen", kurz: "Die optimale Dose",
+    frage: "Wie muss eine Dose aussehen, damit sie bei festem Inhalt am wenigsten Blech braucht?", ansicht: "gfs-dose", videos: 0, animationen: 6 },
 ];
-export const themenFuer = (klasse) => THEMEN.filter((t) => t.klasse === klasse);
+export const themenFuer = (klasse) => THEMEN.filter((t) => (t.klassen || [t.klasse]).includes(klasse));
 export const themenZahl = () => THEMEN.filter((t) => t.ansicht).length;
 
 /* ---------- Leitfaden: So gehst du eine GFS an ---------- */

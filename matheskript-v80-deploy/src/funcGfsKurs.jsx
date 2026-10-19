@@ -12,7 +12,7 @@
 import React, { useState } from "react";
 import { C } from "./base1.jsx";
 import { ErklaerVideo } from "./func1.jsx";
-import { KLASSEN, klasseName, THEMEN, themenFuer, LEITFADEN, zeitplan, datumSchreiben } from "./gfsKurs.js";
+import { KLASSEN, klasseName, stufenText, THEMEN, themenFuer, LEITFADEN, zeitplan, datumSchreiben } from "./gfsKurs.js";
 
 const K = { nacht: C.nachtschwarz, dunkel: C.golddunkel, gold: C.flaggold, goldWarm: C.goldWarm, hell: "#FFF6D6", weiss: C.weiss, text: "#A67C00" };
 
@@ -113,10 +113,10 @@ function ThemenWahl({ stand, setzen, gehe }) {
             <span aria-hidden="true" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", flex: "none", width: 44, height: 44, borderRadius: 12,
               background: K.nacht, color: K.gold, fontWeight: 800, fontSize: 15, fontStyle: "italic" }}>{t.kapitel}</span>
             <span style={{ flex: 1, minWidth: 0 }}>
-              <span style={{ display: "block", fontSize: 11.5, fontWeight: 700, color: K.text, letterSpacing: "0.02em", marginBottom: 3 }}>{t.kapitelName} · S. {t.seite}</span>
+              <span style={{ display: "block", fontSize: 11.5, fontWeight: 700, color: K.text, letterSpacing: "0.02em", marginBottom: 3 }}>{t.kapitelName} · S. {t.seite}{t.schulart ? ` · ${stufenText(t)}` : ""}</span>
               <span style={{ display: "block", fontWeight: 700, fontSize: 15.5, color: K.nacht, lineHeight: 1.3 }}>{t.titel}</span>
               <span style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 12.5, color: C.grau, marginTop: 5, whiteSpace: "nowrap", overflow: "hidden" }}>
-                <span style={{ display: "inline-flex", alignItems: "center", gap: 4, flex: "none" }}><IconVideo />{t.videos} {t.videos === 1 ? "Video" : "Videos"}</span>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 4, flex: "none" }}><IconVideo />{t.animationen ? `${t.animationen} Animationen` : `${t.videos} ${t.videos === 1 ? "Video" : "Videos"}`}</span>
                 <span>Beweis · Übung · Kolloquium</span>
               </span>
             </span>
@@ -237,7 +237,7 @@ export function GfsKursSeite({ gehe }) {
             <div style={{ height: "100%", width: `${(fertigZahl / LEITFADEN.length) * 100}%`, background: `linear-gradient(90deg, ${K.goldWarm}, ${K.gold})`, borderRadius: 4, transition: "width .3s" }} />
           </div>
           <p style={{ fontSize: 13.5, color: "rgba(255,255,255,0.8)", margin: "12px 0 0", lineHeight: 1.5 }}>
-            {thema ? <>Dein Thema: <b style={{ color: K.weiss }}>{thema.kurz}</b> ({klasseName(thema.klasse)})</> : "Noch kein Thema gewählt – Klassenstufe antippen und Thema aussuchen."}
+            {thema ? <>Dein Thema: <b style={{ color: K.weiss }}>{thema.kurz}</b> ({stufenText(thema)})</> : "Noch kein Thema gewählt – Klassenstufe antippen und Thema aussuchen."}
           </p>
           {weiter && (
             <button type="button" onClick={() => setzen({ offen: { ...stand.offen, [weiter.id]: true } })}
