@@ -17,6 +17,7 @@ import { WeiterKnopf } from "./funcWerkzeuge.jsx";
 import { MText } from "./perfUi.jsx";
 
 import { springe } from "./sprung.js";
+import { MathildaModusKnopf } from "./funcMathildaModusKnopf.jsx";
 /* Laufende Ketten: bleiben erhalten, solange die App offen ist (auch beim Ausflug in ein Werkzeug) */
 const LAUF = {};
 let AKTIV = null;
@@ -71,6 +72,7 @@ function Teilaufgabe({ teil, nr, eingaben, ergebnis, setEingabe, pruefen, zeigen
         <div style={{ display: "flex", gap: 8, marginTop: 14, flexWrap: "wrap" }}>
           <button type="button" onClick={pruefen} style={{ flex: "1 1 160px", height: 46, borderRadius: 999, border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 15, fontWeight: 700, background: C.see, color: C.weiss }}>Prüfen</button>
           <button type="button" onClick={zeigen} style={{ flex: "0 1 auto", height: 46, padding: "0 18px", borderRadius: 999, border: `1px solid ${C.linie}`, cursor: "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 600, background: C.weiss, color: C.grau }}>Lösung zeigen (0 P.)</button>
+          <MathildaModusKnopf kompakt />
         </div>
       ) : (
         <div style={{ marginTop: 14 }}>

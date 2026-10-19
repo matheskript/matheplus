@@ -13,6 +13,7 @@ import { merken } from "./func5.jsx";
 import { ANZAHL_SAETZE, BUNDESLAND, abiSatz, feldLoesung, pruefeAbiTeil } from "./abiSaetze.js";
 
 import { springe } from "./sprung.js";
+import { MathildaModusKnopf } from "./funcMathildaModusKnopf.jsx";
 const LAUF = {};   // nr → laufender Satz (bleibt, solange die App offen ist)
 const STAND_SCHLUESSEL = "matheplus-abisaetze";
 const standLesen = () => { try { return JSON.parse(localStorage.getItem(STAND_SCHLUESSEL) || "{}"); } catch (e) { return {}; } };
@@ -92,6 +93,7 @@ function Teilaufgabe({ teil, key_, eingaben, ergebnis, setEingabe, pruefen, zeig
             <div style={{ display: "flex", gap: 8, marginTop: 14, flexWrap: "wrap" }}>
               <button type="button" onClick={pruefen} style={{ flex: "1 1 160px", height: 46, borderRadius: 999, border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 15, fontWeight: 700, background: C.see, color: C.weiss }}>Prüfen</button>
               <button type="button" onClick={zeigen} style={{ flex: "0 1 auto", height: 46, padding: "0 18px", borderRadius: 999, border: `1px solid ${C.linie}`, cursor: "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 600, background: C.weiss, color: C.grau }}>Lösung zeigen (0 VP)</button>
+          <MathildaModusKnopf kompakt />
             </div>
           ) : (
             <div style={{ marginTop: 14, background: C.sand, borderRadius: 12, padding: "10px 12px", fontSize: 14, color: C.tinte, lineHeight: 1.6 }}>

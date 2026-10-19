@@ -10,7 +10,7 @@
    Logik: mathildaModus.js. Film: funcMathildaModusFilm.jsx.
    Keine base-Datei darf diese Datei importieren.
    ====================================================================== */
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { API_URL, C } from "./base1.jsx";
 import { LERN } from "./base3.jsx";
 import { kiAntwort, kiEinwilligungDa, kiKopf } from "./base4.jsx";
@@ -23,10 +23,61 @@ import { Blatt } from "./funcPenPaperUebungen.jsx";
 import { useKonto } from "./konto.js";
 import { mathildaSystem } from "./mathildaKontext.js";
 import { Rueck, zw } from "./ui2.jsx";
-import { MODUS_REGELN, MODUS_ZAEHLER, ergebnisAlsEingabe, modusMoeglich, modusPrompt, rueckmeldungLesen } from "./mathildaModus.js";
+import { MODUS_REGELN, MODUS_ZAEHLER, MUSTER_REGELN, aufgabeAusText, ergebnisAlsEingabe, modusMoeglich, modusPrompt, musterLesen, musterPrompt, rueckmeldungLesen } from "./mathildaModus.js";
 
 const GOLD = C.flaggold, NACHT = C.seeTief, TINTE = "#101827";
 const goldVerlauf = `linear-gradient(135deg, #F8D23A 0%, ${GOLD} 55%, #D9A600 100%)`;
+/* Eine Anfrage an Mathilda (Einwilligung muss schon da sein) → roher Antworttext */
+async function mathildaFragen({ profil, regeln, content, maxTokens = 2000 }) {
+  const system = `${mathildaSystem({ L: LERN, profil })}\n\n${regeln}`;
+  const res = await fetch(API_URL, { method: "POST", headers: kiKopf(), body: JSON.stringify({ model: "claude-sonnet-5-5", max_tokens: maxTokens, system, messages: [{ role: "user", content }] }) });
+  const daten = await kiAntwort(res);
+  if (daten.error) throw new Error(daten.error.message || zw("Mathilda hat abgelehnt.", "Mathilda declined."));
+  return (daten.content || []).map((x) => (x.type === "text" ? x.text : "")).join("");
+}
+/* Fehlt die Einwilligung: Fenster öffnen und die Anfrage danach automatisch nachholen */
+function useMitEinwilligung(los, abh) {
+  const [warten, setWarten] = useState(null);
+  useEffect(() => {
+    const ja = () => setWarten((w) => { if (w) setTimeout(() => los(...w), 0); return null; });
+    window.addEventListener("mm-ki-einwilligung-erteilt", ja);
+    return () => window.removeEventListener("mm-ki-einwilligung-erteilt", ja);
+  }, abh);
+  return (...args) => {
+    if (kiEinwilligungDa()) { los(...args); return; }
+    setWarten(args);
+    try { window.dispatchEvent(new CustomEvent("mm-ki-einwilligung")); } catch (e) { /* kein Browser */ }
+  };
+}
+
+/* ---------- Aufgabe aus der sichtbaren Karte (Trainer ohne eigenen Generator) ----------
+   Vom Knopf aus nach oben bis zur weißen, abgerundeten Aufgabenkarte. Knöpfe, Eingabefelder und
+   Rückmeldungen fliegen aus der Kopie; Formeln, Grafiken und Text bleiben. */
+const WEG = "button, input, textarea, select, [role=radiogroup], [role=tablist], [data-mm-weg], [aria-live], .mm-weg, details, script, style";
+function karteKopie(karte) {
+  if (!karte) return null;
+  const k = karte.cloneNode(true);
+  k.querySelectorAll(WEG).forEach((x) => x.remove());
+  k.querySelectorAll("[id]").forEach((x) => x.removeAttribute("id"));
+  k.removeAttribute("style");
+  return k;
+}
+const karteText = (k) => (k ? (k.innerText || k.textContent || "") : "").replace(/\s+/g, " ").trim();
+/* Ergebnis in das (einzige) Antwortfeld der Karte schreiben – so, dass React es mitbekommt */
+function inFeldSchreiben(karte, wert) {
+  if (!karte) return false;
+  const felder = Array.from(karte.querySelectorAll("input:not([type=hidden]):not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file])")).filter((f) => !f.disabled);
+  if (felder.length !== 1) return false;
+  const f = felder[0];
+  try {
+    const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
+    setter.call(f, wert);
+    f.dispatchEvent(new Event("input", { bubbles: true }));
+    f.dispatchEvent(new Event("change", { bubbles: true }));
+    return true;
+  } catch (e) { return false; }
+}
+
 const zaehlerHoch = () => { try { const n = Number(localStorage.getItem(MODUS_ZAEHLER)) || 0; localStorage.setItem(MODUS_ZAEHLER, String(n + 1)); } catch (e) { /* privat */ } };
 
 const STIL = `
@@ -42,6 +93,9 @@ const STIL = `
 .mmm-knopf::after { content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 34%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent); animation: mmmGlanz 4.2s ease-in-out 1.2s infinite; pointer-events: none; }
 .mmm-knopf:focus-visible, .mmm-klein:focus-visible, .mmm-zu:focus-visible { outline: 3px solid ${C.see}; outline-offset: 2px; }
 .mmm-puls { animation: mmmPuls 1.4s ease-in-out infinite; }
+.mmm-kopie, .mmm-kopie * { max-width: 100%; box-sizing: border-box; }
+.mmm-kopie svg, .mmm-kopie img, .mmm-kopie canvas { height: auto; }
+.mmm-kopie > div > * { margin-top: 0 !important; box-shadow: none !important; }
 @media (prefers-reduced-motion: reduce) { .mmm-huelle, .mmm-fenster, .mmm-knopf::after, .mmm-puls { animation: none; } }
 `;
 
@@ -75,16 +129,46 @@ const SCHEMA = () => [
   [zw("Ergebnis in den Kasten", "Result in a box"), zw("vollständig vereinfacht", "fully simplified")],
 ];
 
-function Musterloesung({ aehnliche }) {
+function Musterloesung({ aehnliche, a }) {
+  const konto = useKonto();
   const [b, setB] = useState(null);
-  const neu = () => { try { setB(aehnliche()); } catch (e) { setB(null); } };
+  const [laeuft, setLaeuft] = useState(false);
+  const [fehler, setFehler] = useState("");
+  const vonMathilda = async () => {
+    setLaeuft(true); setFehler("");
+    try {
+      const roh = await mathildaFragen({ profil: konto.profil, regeln: MUSTER_REGELN, content: [{ type: "text", text: musterPrompt(a) }], maxTokens: 1500 });
+      const m = musterLesen(jsonLesen(roh));
+      if (!m) throw new Error(zw("Mathilda konnte gerade keine Beispielaufgabe schreiben. Versuch es noch einmal.", "Mathilda couldn't write an example right now. Please try again."));
+      setB(m);
+    } catch (e) { setFehler(e.message || zw("Mathilda ist gerade nicht erreichbar.", "Mathilda is not reachable right now.")); }
+    finally { setLaeuft(false); }
+  };
+  const mitEinwilligung = useMitEinwilligung(vonMathilda, [a, konto]);
+  const neu = () => {
+    if (aehnliche) { try { setB(aehnliche()); } catch (e) { setB(null); } return; }
+    mitEinwilligung();
+  };
+  if (laeuft) {
+    return (
+      <div role="status" style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 0 4px" }} data-mm-muster-laeuft>
+        <span className="mmm-puls" style={{ width: 34, height: 34, borderRadius: 999, background: NACHT, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+          <span style={{ width: 10, height: 10, borderRadius: 999, background: GOLD }} />
+        </span>
+        <p style={{ margin: 0, fontSize: 14, fontWeight: 600, color: C.tinte }}>{zw("Mathilda schreibt eine ähnliche Aufgabe vor …", "Mathilda is writing out a similar task …")}</p>
+      </div>
+    );
+  }
   if (!b) {
     return (
+      <>
+      {fehler && <Rueck art="warn">{fehler}</Rueck>}
       <button type="button" className="mmm-klein" onClick={neu} data-mm-muster
         style={{ ...kleinKnopf, width: "100%", minHeight: 46, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 12 }}>
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke={C.see} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" /><circle cx="12" cy="12" r="3" /></svg>
         {zw("Musterlösung einer ähnlichen Aufgabe", "Worked example of a similar task")}
       </button>
+      </>
     );
   }
   const z = b.loesung || [];
@@ -140,7 +224,7 @@ function KurzErklaert() {
 
 /* ---------- ④ Rückmeldung ---------- */
 function Rueckmeldung({ r, onUebernehmen, onNeu }) {
-  const eingabe = r.stimmt === true ? ergebnisAlsEingabe(r.ergebnis) : null;
+  const eingabe = r.stimmt === true && onUebernehmen ? ergebnisAlsEingabe(r.ergebnis) : null;
   if (r.neuesFoto) {
     return (
       <div data-mm-rueckmeldung="neues-foto">
@@ -313,8 +397,18 @@ function FotoTeil({ a, onUebernehmen }) {
 }
 
 /* ---------- Das Fenster ---------- */
-export function MathildaModusFenster({ a, aehnliche, onSchliessen, onErgebnis }) {
+export function MathildaModusFenster({ a: aGen, karte = null, aehnliche, onSchliessen, onErgebnis }) {
   const fenster = useRef(null);
+  const kopieOrt = useRef(null);
+  /* Ohne Generator-Aufgabe: Kopie der sichtbaren Aufgabenkarte, Text daraus für Mathilda */
+  const kopie = useMemo(() => (aGen ? null : karteKopie(karte)), []);
+  const a = useMemo(() => aGen || aufgabeAusText(karteText(kopie)), []);
+  const kannFeld = useMemo(() => {
+    if (onErgebnis) return true;
+    if (!karte) return false;
+    return Array.from(karte.querySelectorAll("input:not([type=hidden]):not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file])")).filter((f) => !f.disabled).length === 1;
+  }, []);
+  useEffect(() => { if (kopie && kopieOrt.current) { kopieOrt.current.innerHTML = ""; kopieOrt.current.appendChild(kopie); } }, [kopie]);
   useEffect(() => {
     const alt = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -327,6 +421,7 @@ export function MathildaModusFenster({ a, aehnliche, onSchliessen, onErgebnis })
     <div className="mmm-huelle" onClick={(e) => { if (e.target === e.currentTarget) onSchliessen(); }} data-mathilda-modus-fenster
       style={{ position: "fixed", inset: 0, zIndex: 950, background: "rgba(6,12,32,0.62)", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)",
         display: "flex", alignItems: "center", justifyContent: "center", padding: "max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom))" }}>
+      <style>{STIL}</style>
       <div ref={fenster} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="mmm-titel" className="mmm-fenster"
         style={{ width: "100%", maxWidth: 560, maxHeight: "100%", overflowY: "auto", overscrollBehavior: "contain", borderRadius: 24, background: C.sand, outline: "none",
           boxShadow: "0 30px 80px rgba(6,12,32,0.45), 0 0 0 1px rgba(237,187,0,0.35)" }}>
@@ -350,9 +445,19 @@ export function MathildaModusFenster({ a, aehnliche, onSchliessen, onErgebnis })
         <div style={{ padding: "4px 16px 20px" }}>
           <Abschnitt nr={1} titel={zw("Schreib die Aufgabe auf", "Write down the task")} data="aufgabe">
             <p style={{ margin: "0 0 8px", fontSize: 14, color: C.grau, lineHeight: 1.55 }}>{zw("Einmal oben aufs Blatt – zum Beispiel die Gleichung oder die Funktion, die du ableiten sollst.", "Once at the top of the sheet – for example the equation, or the function you have to differentiate.")}</p>
-            <Blatt minHoehe={0} style={{ fontFamily: "inherit", padding: "14px 16px" }}>
-              <Text s={a.text} style={{ fontSize: 17, lineHeight: 1.8, color: TINTE }} />
-            </Blatt>
+            {aGen ? (
+              <Blatt minHoehe={0} style={{ fontFamily: "inherit", padding: "14px 16px" }}>
+                <Text s={a.text} style={{ fontSize: 17, lineHeight: 1.8, color: TINTE }} />
+              </Blatt>
+            ) : kopie ? (
+              <div className="mmm-kopie" data-mm-kopie style={{ background: "#fff", border: `1px solid ${C.linie}`, borderRadius: 12, padding: "12px 14px", maxHeight: 340, overflow: "auto", color: TINTE }}>
+                <div ref={kopieOrt} />
+              </div>
+            ) : (
+              <Blatt minHoehe={0} style={{ fontFamily: "inherit", padding: "14px 16px", fontSize: 15, color: C.grau }}>
+                {zw("Schreib die Aufgabe genau so ab, wie sie in der App steht.", "Copy the task exactly as it appears in the app.")}
+              </Blatt>
+            )}
           </Abschnitt>
 
           <Abschnitt nr={2} titel={zw("Rechne nach dem Schema", "Calculate following the scheme")} data="schema">
@@ -364,13 +469,13 @@ export function MathildaModusFenster({ a, aehnliche, onSchliessen, onErgebnis })
                 </div>
               ))}
             </div>
-            {aehnliche && <Musterloesung aehnliche={aehnliche} />}
+            <Musterloesung aehnliche={aehnliche} a={a} />
             <KurzErklaert />
           </Abschnitt>
 
           <Abschnitt nr={3} titel={zw("Foto nur von dieser Aufgabe", "Photo of this task only")} data="foto">
             <p style={{ margin: "0 0 10px", fontSize: 14, color: C.grau, lineHeight: 1.55 }}>{zw("Gerade von oben, gutes Licht, nichts anderes im Bild. Mathilda prüft Ergebnis und Weg.", "Straight from above, good light, nothing else in the frame. Mathilda checks your result and your work.")}</p>
-            <FotoTeil a={a} onUebernehmen={(x) => { onErgebnis && onErgebnis(x); onSchliessen(); }} />
+            <FotoTeil a={a} onUebernehmen={kannFeld ? (x) => { if (onErgebnis) onErgebnis(x); else inFeldSchreiben(karte, x); onSchliessen(); } : null} />
           </Abschnitt>
         </div>
       </div>
@@ -378,27 +483,5 @@ export function MathildaModusFenster({ a, aehnliche, onSchliessen, onErgebnis })
   );
 }
 
-/* ---------- Der goldene Knopf ---------- */
-export function MathildaModusKnopf({ a, aehnliche, onErgebnis }) {
-  const [auf, setAuf] = useState(false);
-  if (!modusMoeglich(a)) return null;
-  return (
-    <>
-      <style>{STIL}</style>
-      <div aria-hidden="true" style={{ display: "flex", alignItems: "center", gap: 10, margin: "16px 0 10px", color: C.hellgrau, fontSize: 12, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>
-        <span style={{ flex: 1, height: 1, background: C.linie }} />{zw("oder auf Papier", "or on paper")}<span style={{ flex: 1, height: 1, background: C.linie }} />
-      </div>
-      <button type="button" className="mmm-knopf" onClick={() => setAuf(true)} data-mathilda-modus aria-haspopup="dialog"
-        style={{ width: "100%", minHeight: 56, borderRadius: 16, border: "none", cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 12, padding: "8px 14px 8px 10px", textAlign: "left",
-          color: NACHT, background: goldVerlauf, boxShadow: "0 8px 22px rgba(237,187,0,0.38), inset 0 1px 0 rgba(255,255,255,0.55)" }}>
-        <span aria-hidden="true" style={{ width: 40, height: 40, borderRadius: 12, background: NACHT, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><StiftIcon /></span>
-        <span style={{ flex: 1, minWidth: 0 }}>
-          <span style={{ display: "block", fontSize: 16, fontWeight: 800, lineHeight: 1.2 }}>{zw("Mathilda-Modus", "Mathilda mode")}</span>
-          <span style={{ display: "block", fontSize: 12.5, fontWeight: 600, lineHeight: 1.3, opacity: 0.8 }}>{zw("Auf Papier rechnen · Foto an Mathilda", "Work on paper · photo to Mathilda")}</span>
-        </span>
-        <Kamera farbe={NACHT} groesse={22} />
-      </button>
-      {auf && <MathildaModusFenster a={a} aehnliche={aehnliche} onSchliessen={() => setAuf(false)} onErgebnis={onErgebnis} />}
-    </>
-  );
-}
+
+export default MathildaModusFenster;

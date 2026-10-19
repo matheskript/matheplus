@@ -18,6 +18,7 @@ import { Auswahl, GrosserKnopf, KleinerLink, Rueck, ZahlFeld, hinweis, karte, ki
 import { FunktionsBild, SchrittFolge, liesZahl, zt } from "./ui3.jsx";
 import { wahl } from "./rechnen2.js";
 import { AufklappZeichen } from "./aufklappen.jsx";
+import { MathildaModusKnopf } from "./funcMathildaModusKnopf.jsx";
 
 const PI = Math.PI;
 let zaehler = 0;
@@ -143,6 +144,7 @@ function Zielgraph() {
         ))}
       </div>
       <GrosserKnopf onClick={pruefen}>{zw("Prüfen", "Check")}</GrosserKnopf>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 10 }}><MathildaModusKnopf kompakt /></div>
       {rueck && <Rueck art={rueck.art}>{rueck.text}</Rueck>}
       {hilfe > 0 && <Rueck art="info">{hilfen.slice(0, hilfe).map((h, i) => <span key={i} style={{ display: "block" }}>{i + 1}. {h}</span>)}</Rueck>}
       {hilfe < hilfen.length && <KleinerLink onClick={() => setHilfe(hilfe + 1)}>{zw("Hinweis zeigen", "Show a hint")}</KleinerLink>}

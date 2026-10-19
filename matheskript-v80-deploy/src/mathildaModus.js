@@ -19,6 +19,12 @@ export function modusMoeglich(a) {
   return !!a && a.typ !== "wahl" && Array.isArray(a.loesung) && a.loesung.length > 0 && s(a.text).trim() !== "";
 }
 
+/* Aufgabe ohne Generator (beliebiger Trainer): Text der sichtbaren Aufgabenkarte, Lösung unbekannt */
+export function aufgabeAusText(text) {
+  const t = s(text).replace(/\s+/g, " ").trim().slice(0, 1500);
+  return { text: t, loesung: [], typ: "text" };
+}
+
 /* Die Formeln einer Aufgabe ($…$) – das, was oben aufs Blatt kommt.
    Kurze Bezeichner wie „$p$“ oder „$x$“ zählen nicht. */
 export function formelnAus(text) {
@@ -63,10 +69,14 @@ Halte jede Angabe unter 160 Zeichen, "zeilen" höchstens 14 Einträge.`;
 
 export function modusPrompt(a) {
   const loesung = (a && Array.isArray(a.loesung) ? a.loesung : []).map(ohneDollar).filter(Boolean);
+  const wert = wertText(a);
+  const text = ohneDollar(a && a.text);
   return [
-    `AUFGABE: ${ohneDollar(a && a.text)}`,
+    text ? `AUFGABE (so steht sie in der App): ${text}` : "AUFGABE: Sie steht oben auf dem Blatt – lies sie dort ab.",
     a && a.einheit ? `EINHEIT DER ANTWORT: ${a.einheit}` : "",
-    `RICHTIGE ANTWORT (geheim, nie verraten): ${wertText(a) || "siehe Lösungsweg"}`,
+    wert ? `RICHTIGE ANTWORT (geheim, nie verraten): ${wert}`
+      : loesung.length ? "RICHTIGE ANTWORT: siehe Lösungsweg (geheim)."
+      : "RICHTIGE ANTWORT: nicht hinterlegt. Rechne die Aufgabe selbst sorgfältig nach, bevor du urteilst. Bist du nicht sicher, setze \"stimmt\": null. Verrate deine Lösung nicht.",
     loesung.length ? `MUSTER-LÖSUNGSWEG (geheim, nur zum Vergleichen):\n${loesung.map((z, i) => `${i + 1}. ${z}`).join("\n")}` : "",
     "",
     "Prüfe jetzt das Foto nach den Regeln des Mathilda-Modus und antworte nur mit dem JSON.",
@@ -113,4 +123,26 @@ export function ergebnisAlsEingabe(t) {
   x = x.replace(/−/g, "-");
   if (!/^-?\d+([.,]\d+)?(\/-?\d+)?$/.test(x)) return null;
   return x.replace(/^-/, "−");
+}
+
+/* ---------- Musterlösung einer ähnlichen Aufgabe, wenn kein Generator da ist ---------- */
+export const MUSTER_REGELN = `Mathilda-Modus · Musterlösung
+Erfinde EINE ähnliche Aufgabe: gleiche Art, gleicher Schwierigkeitsgrad, andere Zahlen. Nie die Aufgabe des Schülers selbst lösen.
+Rechne sie vollständig vor, so wie ein sauberes Blatt aussieht: ein Schritt pro Zeile, Gleichheitszeichen untereinander gedacht, nichts bleibt unvereinfacht stehen (kein 1x, kein x^1, kein + −, kein · 1), Ergebnis vollständig vereinfacht. Dezimalzahlen mit Komma.
+Mathematik in $…$ mit einfachem LaTeX: nur ^, _, \\frac{}{}, \\sqrt{}, \\cdot, \\pi, \\Rightarrow. Kein \\begin, kein \\left/\\right, keine Umgebungen.
+Antworte AUSSCHLIESSLICH mit diesem JSON, ohne Markdown:
+{"aufgabe":"Aufgabentext","zeilen":["Zeile 1","Zeile 2"],"ergebnis":"Ergebniszeile für den Kasten","rand":["optionale Umformung je Zeile oder leer"]}
+Höchstens 10 Zeilen, jede unter 90 Zeichen.`;
+
+export function musterPrompt(a) {
+  return `AUFGABE DES SCHÜLERS (nicht lösen, nur als Vorlage für die Art): ${ohneDollar(a && a.text) || "unbekannt"}\n\nErzeuge jetzt die ähnliche Aufgabe mit Musterlösung und antworte nur mit dem JSON.`;
+}
+
+const dollarOk = (x) => ((s(x).match(/\$/g) || []).length % 2 ? s(x).replace(/\$/g, "") : s(x));
+export function musterLesen(j) {
+  if (!j || typeof j !== "object" || !s(j.aufgabe).trim()) return null;
+  const zeilen = (Array.isArray(j.zeilen) ? j.zeilen : []).map((z) => dollarOk(s(z).slice(0, 160))).filter((z) => z.trim()).slice(0, 10);
+  if (!zeilen.length && !s(j.ergebnis).trim()) return null;
+  const loesung = s(j.ergebnis).trim() ? [...zeilen, dollarOk(s(j.ergebnis).slice(0, 120))] : zeilen;
+  return { text: dollarOk(s(j.aufgabe).slice(0, 600)), loesung };
 }

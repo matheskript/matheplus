@@ -11,6 +11,7 @@ import { FR } from "./funcRegistry.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
 
 import { springe } from "./sprung.js";
+import { MathildaModusKnopf } from "./funcMathildaModusKnopf.jsx";
 export function Probeabitur() {
   const [abi, setAbi] = useState(null);
   const [teil, setTeil] = useState("start");
@@ -235,6 +236,7 @@ export function Modellieren() {
         <button onClick={() => { const ok = antwortPruefen(block, eingabe); setStand(ok ? "ok" : "nein"); aktivitaetMelden({ ok }); if (!ok) setFehlerZahl(fehlerZahl + 1); }}
           disabled={!eingabe.trim()} className="mt-4" style={knopf}>Prüfen</button>
       )}
+      {!stand && <div style={{ marginTop: 10 }}><MathildaModusKnopf kompakt /></div>}
       {stand && (
         <p style={{ fontSize: 14.5, marginTop: 12, lineHeight: 1.9, color: stand === "ok" ? C.see : C.signal }}>
           {stand === "ok" ? "Stimmt." : <>Stimmt nicht — richtig wäre <M t={block.loesung} />.</>}

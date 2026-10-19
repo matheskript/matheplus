@@ -9,6 +9,7 @@ import {
 } from "./perfTraining.js";
 import { perfAendern, usePerf } from "./perfSpeicher.js";
 import { Absatz, Chip, Formel, Formeleingabe, Karte, Kicker, Knopf, Konfetti, L, MText, Ring, Titel, datum } from "./perfUi.jsx";
+import { MathildaModusKnopf } from "./funcMathildaModusKnopf.jsx";
 
 /* ======================================================================
    Training, Skill-Badges und Historie des Performance-Labs.
@@ -242,6 +243,7 @@ function Runde({ nutzerId, rundeId, onZurueck, onNaechste }) {
               {!bestaetigeLoesung
                 ? <Knopf art="sekundaer" onClick={() => setBestaetigeLoesung(true)}>Lösung ansehen</Knopf>
                 : <Knopf art="gefahr" onClick={loesung}>Ja, Lösung zeigen (zählt nicht)</Knopf>}
+              <MathildaModusKnopf kompakt />
             </div>
             {bestaetigeLoesung && <p role="status" style={{ margin: "10px 0 0", fontSize: 13, color: L.orange }}>Wenn du die Lösung ansiehst, wird diese Aufgabe ohne Erfolg beendet und die Runde zählt nicht fürs Badge.</p>}
           </>

@@ -16,6 +16,7 @@ import { kontoZustand } from "./konto.js";
 import { anredeHinweis } from "./rollenLogik.js";
 
 import { springe } from "./sprung.js";
+import { MathildaModusKnopf } from "./funcMathildaModusKnopf.jsx";
 export function MathildaTutor({ kompetenz, aufgabe, eingabe, onSchliessen }) {
   const L = useLern();
   const [verlauf, setVerlauf] = useState([
@@ -370,6 +371,7 @@ export function EinheitSpieler({ id, gehe }) {
                     Prüfen
                   </button>
                   <button onClick={weiter} style={nebenKnopf}>Überspringen</button>
+                  <MathildaModusKnopf kompakt />
                 </div>
               ) : (
                 <div style={{ borderLeft: `4px solid ${brStand === "ok" ? C.see : C.signal}`, paddingLeft: 14, marginTop: 14 }}>
@@ -466,6 +468,7 @@ export function EinheitSpieler({ id, gehe }) {
                   <div className="flex flex-wrap gap-3 mt-4">
                     <button onClick={() => setBspStand(antwortPruefen(bsp, bspEingabe) ? "ok" : "nein")} disabled={!bspEingabe.trim()} style={hauptKnopf}>Prüfen</button>
                     <button onClick={() => setTutor({ aufgabe: bsp, eingabe: bspEingabe })} style={nebenKnopf}><MathildaName /></button>
+                    <MathildaModusKnopf kompakt />
                   </div>
                 ) : (
                   <div style={{ borderLeft: `4px solid ${bspStand === "ok" ? C.see : C.signal}`, paddingLeft: 14, marginTop: 14 }}>
@@ -495,6 +498,7 @@ export function EinheitSpieler({ id, gehe }) {
               <div className="flex flex-wrap gap-3 mt-4">
                 <button onClick={uebPruefen} disabled={!uebEingabe.trim()} style={hauptKnopf}>Prüfen</button>
                 <button onClick={() => setTutor({ aufgabe: ueb, eingabe: uebEingabe })} style={nebenKnopf}><MathildaName /></button>
+                <MathildaModusKnopf kompakt />
               </div>
             ) : (
               <div style={{ borderLeft: `4px solid ${uebStand === "ok" ? C.see : C.signal}`, paddingLeft: 14, marginTop: 14 }}>

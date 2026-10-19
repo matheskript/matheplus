@@ -33,7 +33,7 @@ import { MatheFeld } from "./matheTastatur.jsx";
 import { buchen } from "./buchung.jsx";
 
 import { springe } from "./sprung.js";
-import { MathildaModusKnopf } from "./funcMathildaModus.jsx";
+import { MathildaModusKnopf } from "./funcMathildaModusKnopf.jsx";
 /* ---------- Speicher: im vorhandenen Lernstand (func6) ---------- */
 const aendere = (fn) => lernAendern((L) => { L.training = normiere(L.training); fn(L.training); });
 export const useTraining = () => normiere(useLern().training);
@@ -392,7 +392,7 @@ export function Aufgabenlauf({ aufgaben, quelle, onEnde, endeText = "Fertig", on
         )}
         {z.ok !== true && (
           <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}>
-            <IchHaengeFest kontext={kontextFuer(a)} onHilfe={(b, n) => setz({ hilfe: Math.max(zs[i].hilfe, b === "loesung" ? 4 : Math.max(1, n || 1)) })} />
+            <IchHaengeFest mathilda={false} kontext={kontextFuer(a)} onHilfe={(b, n) => setz({ hilfe: Math.max(zs[i].hilfe, b === "loesung" ? 4 : Math.max(1, n || 1)) })} />
           </div>
         )}
         {z.gebucht && <ErklaerKasten key={a.id} a={a} eingabe={z.eingabe} ok={z.ok === true} />}

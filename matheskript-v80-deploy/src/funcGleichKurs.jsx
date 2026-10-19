@@ -13,6 +13,7 @@ import {
 import { GleichungsFilm } from "./funcGleichKursFilm.jsx";
 
 import { springe } from "./sprung.js";
+import { MathildaModusKnopf } from "./funcMathildaModusKnopf.jsx";
 /* ======================================================================
    GLEICHUNGEN – eigener Bereich nach dem Vorbild „Kopfrechnen“
      Verstehen  Rechnen vs. Gleichung, Motion-Film über alle Schwierigkeits-
@@ -487,6 +488,7 @@ function Runde({ aufgaben, titel, onZurueck, onNochmal }) {
         {!rueck && (
           <div style={{ display: "flex", justifyContent: "space-between", gap: 10, marginTop: 10, flexWrap: "wrap" }}>
             <button type="button" onClick={() => setTipp(1)} disabled={tipp > 0} style={{ background: "none", border: "none", color: tipp ? C.hellgrau : C.see, fontWeight: 700, fontSize: 14, fontFamily: "inherit", cursor: tipp ? "default" : "pointer", minHeight: 44 }}>💡 {L("Tipp", "Hint")}</button>
+            <MathildaModusKnopf kompakt />
             <button type="button" onClick={() => { setWeg(true); setTipp(2); }} disabled={weg} style={{ background: "none", border: "none", color: weg ? C.hellgrau : C.see, fontWeight: 700, fontSize: 14, fontFamily: "inherit", cursor: weg ? "default" : "pointer", minHeight: 44 }}>{L("Lösungsweg zeigen", "Show working")}</button>
           </div>
         )}

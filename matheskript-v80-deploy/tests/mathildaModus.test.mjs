@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { ergebnisAlsEingabe, formelnAus, modusMoeglich, modusPrompt, rueckmeldungLesen, wertText } from "../src/mathildaModus.js";
+import { aufgabeAusText, ergebnisAlsEingabe, formelnAus, modusMoeglich, modusPrompt, musterLesen, musterPrompt, rueckmeldungLesen, wertText } from "../src/mathildaModus.js";
 import { GENERATOREN, neueAufgabe, lies } from "../src/trainingDaten.js";
 
 test("Modus nur für Rechenaufgaben, nicht für Auswahl", () => {
@@ -21,7 +21,7 @@ test("Jeder Rechen-Generator liefert eine Aufgabe für den Modus und eine ähnli
     assert.equal(b.variante, a.variante, `${g.id}: ähnliche Aufgabe vom selben Typ`);
     assert.ok(Array.isArray(b.loesung) && b.loesung.length > 0, `${g.id}: Musterlösung fehlt`);
     const p = modusPrompt(a);
-    assert.ok(p.includes("AUFGABE:") && p.includes("geheim"), `${g.id}: Prompt`);
+    assert.ok(p.includes("AUFGABE (so steht sie in der App):") && p.includes("geheim"), `${g.id}: Prompt`);
     assert.ok(!p.includes("$"), `${g.id}: Prompt ohne TeX-Dollar`);
   }
   assert.ok(n > 30, `nur ${n} Rechen-Generatoren gefunden`);
@@ -63,4 +63,23 @@ test("Ergebnis vom Blatt ins Antwortfeld", () => {
   assert.equal(ergebnisAlsEingabe("x₁ = 2, x₂ = −5"), null);
   assert.equal(ergebnisAlsEingabe(""), null);
   for (const t of ["4", "−2,5", "3/4"]) assert.notEqual(lies(t), null, `${t} wird vom Antwortfeld gelesen`);
+});
+
+test("Trainer ohne Generator: Aufgabe aus der Karte, Lösung prüft Mathilda selbst", () => {
+  const a = aufgabeAusText("  Berechne\n den Umfang   eines Kreises mit r = 3 cm.  ");
+  assert.equal(a.text, "Berechne den Umfang eines Kreises mit r = 3 cm.");
+  const p = modusPrompt(a);
+  assert.ok(p.includes("Umfang eines Kreises"));
+  assert.ok(p.includes("nicht hinterlegt") && p.includes("Verrate deine Lösung nicht"));
+  assert.ok(modusPrompt(aufgabeAusText("")).includes("oben auf dem Blatt"));
+  assert.ok(musterPrompt(a).includes("nicht lösen"));
+});
+
+test("Musterlösung von Mathilda wird abgesichert", () => {
+  const m = musterLesen({ aufgabe: "Löse $2x + 3 = 11$.", zeilen: ["$2x + 3 = 11$", "$2x = 8$"], ergebnis: "$x = 4$" });
+  assert.deepEqual(m.loesung, ["$2x + 3 = 11$", "$2x = 8$", "$x = 4$"]);
+  assert.equal(musterLesen({ aufgabe: "x", zeilen: ["$2x = 8"] }).loesung[0], "2x = 8");   // abgeschnittene Formel ohne $
+  assert.equal(musterLesen({ zeilen: ["a"] }), null);
+  assert.equal(musterLesen(null), null);
+  assert.equal(musterLesen({ aufgabe: "a", zeilen: [] }), null);
 });

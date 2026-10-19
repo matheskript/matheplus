@@ -18,6 +18,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { MathildaModusKnopf } from "./funcMathildaModusKnopf.jsx";
 import { C } from "./base1.jsx";
 import { FS_ALLE, FS_BEREICH_ALIAS, FS_NACH_ID } from "./fsIndex.js";
 import { FR } from "./funcRegistry.jsx";
@@ -330,11 +331,14 @@ function RegelAnsicht({ regeln, schliessen }) {
 /* Merkt sich je Aufgabe, welche Hinweise schon aufgedeckt wurden (überlebt Öffnen und Schließen) */
 const AUFGEDECKT = new Map();
 
-export function IchHaengeFest({ kontext, onHilfe }) {
+/* mathilda: goldene Pille „Mathilda-Modus“ daneben (Aufgabe auf Papier lösen, Foto an Mathilda).
+   Standard an – überall, wo „Ich hänge fest“ steht. Aus nur, wo die Aufgabe den großen Knopf schon hat. */
+export function IchHaengeFest({ kontext, onHilfe, mathilda = true }) {
   const [offen, setOffen] = useState(false);
   if (!kontext) return null;
   return (
-    <>
+    <span data-mm-hilfezeile="" style={{ display: "inline-flex", alignItems: "center", justifyContent: "flex-end", gap: 8, flexWrap: "wrap", maxWidth: "100%" }}>
+      {mathilda && <MathildaModusKnopf kompakt />}
       <button type="button" onClick={() => setOffen(true)} aria-haspopup="dialog"
         style={{ display: "inline-flex", alignItems: "center", gap: 6, height: 34, padding: "0 12px", borderRadius: 999, border: `1px solid ${C.linie}`,
           background: C.weiss, color: C.see, fontSize: 13, fontWeight: 600, fontFamily: "inherit", cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0 }}>
@@ -344,7 +348,7 @@ export function IchHaengeFest({ kontext, onHilfe }) {
         Ich hänge fest
       </button>
       {offen && createPortal(<Panel kontext={kontext} onHilfe={onHilfe} schliessen={() => setOffen(false)} />, document.body)}
-    </>
+    </span>
   );
 }
 
