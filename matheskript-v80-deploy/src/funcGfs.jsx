@@ -8,17 +8,11 @@ import {
 } from "./gfsPascal.js";
 
 /* ============================================================
-   GFS-Trainer
-   Übersicht aller GFS-Themen (Lambacher Schweizer, Baden-Württemberg)
-   und je Thema eine Seite nach dem Muster der Themenseiten:
+   Kurs GFS – Themenseite Pascal’sches Dreieck (Klasse 10, Kapitel V)
+   Die Themen selbst stehen in gfsKurs.js; jede Seite folgt dem Muster der Themenseiten:
    Leitfrage · Video · Herleitung · Visualisierung · Übung,
    dazu der GFS-Teil: roter Faden für den Vortrag und Kolloquium-Training.
    ============================================================ */
-
-export const GFS_THEMEN = [
-  { ansicht: "gfs-pascal", titel: "Pascal’sches Dreieck und Binomialkoeffizienten", kapitel: "Kapitel V · Binomialverteilung",
-    stufe: "Kursstufe", text: "Warum im Zahlendreieck genau die Binomialkoeffizienten stehen – mit Beweis, Mustern und Anwendungen." },
-];
 
 const FLIESS = { color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.8, marginBottom: 16 };
 const KARTE = { background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" };
@@ -96,38 +90,6 @@ function PlusMinus({ setzen, label }) {
 const Kicker = ({ children }) => <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 8 }}>{children}</p>;
 const H3 = ({ children }) => <h3 style={{ fontSize: 21, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.25, marginBottom: 14 }}>{children}</h3>;
 const Trenner = () => <div style={{ height: 1, background: C.linie, margin: "30px 0 26px" }} />;
-
-/* ---------- Übersicht ---------- */
-
-export function GfsUebersicht({ gehe }) {
-  return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
-      <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 12 }}>
-        Deine GFS in Mathe
-      </h2>
-      <p style={FLIESS}>
-        Zu fast jedem Kapitel im Lambacher Schweizer gibt es ein GFS-Thema. Hier findest du zu jedem Thema alles,
-        was du für eine starke GFS brauchst: die Herleitung, ein Bild zum Ausprobieren, Übungsaufgaben,
-        einen roten Faden für den Vortrag und ein Training für die Fragen im Kolloquium.
-      </p>
-      <div className="flex flex-wrap" style={{ gap: 8, marginBottom: 22 }}>
-        {["Verstehen", "Üben", "Vortragen", "Fragen beantworten"].map((t) => (
-          <span key={t} style={{ fontSize: 12.5, fontWeight: 600, color: C.see, background: C.himmel, borderRadius: 999, padding: "5px 12px" }}>{t}</span>
-        ))}
-      </div>
-      {GFS_THEMEN.map((t) => (
-        <button key={t.ansicht} onClick={() => gehe({ ansicht: t.ansicht })} className="w-full px-5 py-5 mb-3"
-          style={{ background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 16, textAlign: "left", cursor: "pointer",
-            fontFamily: "inherit", color: C.tinte, boxShadow: "0 2px 14px rgba(15,26,51,0.06)" }}>
-          <p style={{ fontSize: 12, fontWeight: 600, color: C.gruenDunkel, letterSpacing: "0.02em", marginBottom: 6 }}>{t.stufe} · {t.kapitel}</p>
-          <p style={{ fontSize: 17.5, fontWeight: 600, lineHeight: 1.3, marginBottom: 6 }}>{t.titel}</p>
-          <p style={{ color: C.grau, fontSize: 13.5, fontWeight: 300, lineHeight: 1.6 }}>{t.text}</p>
-        </button>
-      ))}
-      <p style={{ color: C.hellgrau, fontSize: 13, fontWeight: 300, marginTop: 12, textAlign: "center" }}>Weitere Themen folgen Kapitel für Kapitel.</p>
-    </div>
-  );
-}
 
 /* ---------- Visualisierung: das Dreieck zum Antippen ---------- */
 
@@ -546,7 +508,7 @@ export function GfsPascalSeite({ gehe }) {
       {gehe && (
         <button onClick={() => gehe({ ansicht: "gfs" })} className="mb-5"
           style={{ background: "none", border: "none", color: C.see, fontSize: 13, fontFamily: "inherit", cursor: "pointer", padding: 0 }}>
-          ← Alle GFS-Themen
+          ← Zurück zum Kurs GFS
         </button>
       )}
       <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 14 }}>

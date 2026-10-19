@@ -29,6 +29,7 @@ import { MedaillenschrankLogo, BwmLogo, KarteLogo } from "./funcWettbewerbe.jsx"
 import { MasterclassKachel, MatheCheckenKachel, MathCreatorKachel } from "./funcMasterclass.jsx";
 import { DiffKursKachel } from "./funcDiffKursKachel.jsx";
 import { VekKursKachel } from "./funcVekKursKachel.jsx";
+import { GfsKursKachel } from "./funcGfsKursKachel.jsx";
 import { ElternabendKachel } from "./funcElternabend.jsx";
 import { ANGEBOT } from "./angebot.js";
 import { SpendenBereich } from "./funcSpendenBereich.jsx";
@@ -1863,6 +1864,8 @@ export function Startseite({ gehe }) {
       <DiffKursKachel onClick={() => gehe({ ansicht: "diffkurs" })} />
       {/* Kurs Vektoren, Geraden und Ebenen: direkt darunter, in Dunkelblau */}
       <VekKursKachel onClick={() => gehe({ ansicht: "vekkurs" })} />
+      {/* Kurs GFS: Klassenstufe wählen, Thema aus dem Lambacher Schweizer, sieben Schritte */}
+      <GfsKursKachel onClick={() => gehe({ ansicht: "gfs" })} />
       {/* Mathe Masterclass: Kursbereich für Teilnehmer (ohne Zugang zeigt er das Code-Feld) */}
       {(ANGEBOT.kurse || elternabendFrei) && <MasterclassKachel name="Mathe Masterclass" monate="3 MONATE" knopf="Zum Kursbereich" onClick={() => gehe({ ansicht: "mckurs" })} />}
       {/* Die 7 Mathe-Mythen: zwischen Masterclass und „Wo stehst du wirklich?“ */}

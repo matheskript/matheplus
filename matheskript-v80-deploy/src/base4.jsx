@@ -115,7 +115,7 @@ export const NAV = [
     { name: "Mathe entdecken", kurz: "Muster erkennen, Vermutungen aufstellen, Formeln selbst herleiten", ansicht: "entdecken" },
     { name: "Differenzenquotient", kurz: "Vom Tangentenproblem zur Ableitung", ansicht: "diffq" },
     { name: "Potenzregel", kurz: "Beweis mit Produktregel und vollständiger Induktion", ansicht: "potenzregel" },
-    { name: "GFS-Trainer", kurz: "Jedes GFS-Thema: verstehen, vortragen, Fragen beantworten", ansicht: "gfs" },
+    { name: "Kurs GFS in Mathe", kurz: "Klassenstufe wählen, Thema trainieren, in sieben Schritten zur GFS", ansicht: "gfs" },
     { name: "Kurs Differentialrechnung", kurz: "Jedes Buchkapitel lesen und direkt darunter trainieren", ansicht: "diffkurs" },
     { name: "Kurs Vektoren, Geraden und Ebenen", kurz: "Jedes Heftkapitel lesen und direkt darunter trainieren", ansicht: "vekkurs" },
     { name: "Schulbuch: Ableitungen", kurz: "50 Seiten zum Blättern – jede Regel hergeleitet", ansicht: "schulbuch" },

@@ -117,6 +117,7 @@ const KURSE_ALLE = [
   { id: "mckurs", name: "Mathe Abi Masterclass", zeile: "Kursbereich für Teilnehmer: Videos, Aufträge, Mathilda", ziel: { ansicht: "mckurs" } },
   { id: "diffkurs", name: "Differentialrechnung", zeile: "Schulbuch lesen und direkt trainieren", ziel: { ansicht: "diffkurs" } },
   { id: "vekkurs", name: "Vektoren, Geraden und Ebenen", zeile: "Heftkapitel lesen und trainieren", ziel: { ansicht: "vekkurs" } },
+  { id: "gfs", name: "GFS in Mathe", zeile: "Thema wählen, verstehen, vortragen", ziel: { ansicht: "gfs" } },
   { id: "penpaper", name: "Pen & Paper", zeile: "Sauber aufschreiben in neun Lektionen", ziel: { ansicht: "penpaperkurs" } },
   { id: "gleichkurs", name: "Gleichungen lernen", zeile: "Verstehen, rechnen, trainieren", ziel: { ansicht: "gleichkurs" } },
   { id: "headnumbers", name: "Head & Numbers", zeile: "Kopfrechnen mit Lernpfad", ziel: { ansicht: "headnumbers" } },
@@ -168,7 +169,6 @@ export function mathematikEintraege(stufe = "alle") {
     { id: "kopf", name: "Kopfrechnen", zeile: "Plus, Mal, Quadrate, Primzahlen, Brüche", ziel: { ansicht: "headnumbers" } },
     { id: "gleichungen", name: "Gleichungen", zeile: "Verstehen, rechnen, trainieren", ziel: { ansicht: "gleichkurs" } },
     { id: "textaufgaben", name: "Textaufgaben", zeile: "Übersetzen lernen", ziel: { ansicht: "textaufgaben" } },
-    { id: "gfs", name: "GFS-Trainer", zeile: "Thema verstehen, vortragen, Fragen beantworten", ziel: { ansicht: "gfs" } },
     { id: "operatoren", name: "Operatoren", zeile: "Was „bestimmen“, „zeigen“, „begründen“ verlangen", ziel: { ansicht: "operatoren" } },
     { id: "wettbewerbe", name: "Mathe-Wettbewerbe", zeile: "Bundeswettbewerb und Landeswettbewerbe", ziel: { ansicht: "bwm" } },
   ];
