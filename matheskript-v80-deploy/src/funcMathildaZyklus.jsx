@@ -216,7 +216,7 @@ export function MathildaZyklus({ scanRef, modus, setModus, weitere }) {
         button.mz-zwei-g:focus-visible { outline-offset: 2px; border-radius: 999px; }
         .mz-drei-p .mz-feld { height: auto; }
         .mz-mai-pille { --pille: clamp(48px, 14.4vw, 54px); height: var(--pille); min-width: clamp(132px, 40vw, 152px); box-sizing: border-box; padding: 0 clamp(14px, 4.4vw, 20px);
-          justify-content: center; font-family: inherit; font-size: clamp(14px, 4.4vw, 17px); font-weight: 700; letter-spacing: -0.02em; line-height: 1; color: #FFFFFF;
+          justify-content: center; font-family: inherit; font-size: clamp(16.1px, 5.06vw, 19.55px); font-weight: 700; letter-spacing: -0.02em; line-height: 1; color: #FFFFFF;
           background: ${NACHT}; border: 2px solid ${GOLD}; border-radius: 999px; cursor: pointer; -webkit-tap-highlight-color: transparent;
           box-shadow: 0 8px 24px rgba(5,12,40,0.5), 0 0 22px rgba(237,187,0,0.28); transition: filter .15s ease, transform .15s ease; }
         .mz-mai-pille::before { content: ""; position: absolute; inset: -7px; border-radius: 999px; border: 2px dashed rgba(237,187,0,0.7); pointer-events: none; animation: mz-atmen 2.6s ease-in-out infinite; }
