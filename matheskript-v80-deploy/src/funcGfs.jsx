@@ -6,6 +6,9 @@ import {
   binom, zeile, ARTEN, aufgabe, aufgabeTex, pruefe, rechenweg, tipp,
   GLIEDERUNG, TIPPS, KOLLOQUIUM,
 } from "./gfsPascal.js";
+import {
+  BUCH_ARTEN, buchAufgabe, buchPruefe, buchAuftrag, buchRechenweg, buchTipp, ausmultiTeile, ausmultiKopf, BEGRUENDUNGEN, gemischt,
+} from "./gfsPascalAufgaben.js";
 
 /* ============================================================
    Kurs GFS – Themenseite Pascal’sches Dreieck (Klasse 10, Kapitel V)
@@ -291,8 +294,8 @@ function PascalTrainer() {
   return (
     <div>
       <p style={{ ...FLIESS, lineHeight: 1.7, marginBottom: 18 }}>
-        Drei Aufgabenarten wie im Buch: Binomialkoeffizienten berechnen, eine Zahl im Dreieck wiederfinden
-        und Koeffizienten der binomischen Formel bestimmen.
+        Drei Grundtypen: Binomialkoeffizienten berechnen, eine Zahl im Dreieck wiederfinden
+        und einzelne Koeffizienten der binomischen Formel bestimmen.
       </p>
       <div className="flex flex-wrap gap-2 mb-4">
         {ARTEN.map((a) => <Chip key={a.id} aktiv={art === a.id} onClick={() => artSetzen(a.id)}>{a.name}</Chip>)}
@@ -359,6 +362,217 @@ function PascalTrainer() {
         </button>
         {serie.n > 0 && <span className="flex items-center" style={{ fontSize: 13, color: C.grau }}>{serie.ok} von {serie.n} richtig</span>}
       </div>
+    </div>
+  );
+}
+
+/* ---------- Übungen zu den Aufgaben der GFS-Seite ---------- */
+
+const ZELLE = (stand) => ({
+  width: 64, boxSizing: "border-box", padding: "8px 6px", fontSize: 16, fontFamily: "inherit", textAlign: "center", borderRadius: 10, outline: "none",
+  border: `1.5px solid ${stand === true ? C.see : stand === false ? C.signal : C.linie}`, background: stand === true ? C.himmel : C.weiss, color: C.tinte,
+});
+
+/* Text mit $…$-Formeln innerhalb einer Zeile (z. B. in Knöpfen, wo kein <p> stehen darf) */
+const Inline = ({ s }) => <>{String(s).split("$").map((t, i) => (i % 2 === 1 ? <M key={i} t={t} /> : <span key={i}>{t}</span>))}</>;
+
+/* Punktebild einer Dreieckszahl: Zeile i hat i Punkte */
+function PunkteDreieck({ m }) {
+  const r = 5, d = 13, W = Math.max(60, m * d + 8), H = m * d * 0.88 + 10;
+  const punkte = [];
+  for (let i = 1; i <= m; i++) for (let j = 0; j < i; j++) {
+    punkte.push(<circle key={`${i}-${j}`} cx={W / 2 + (j - (i - 1) / 2) * d} cy={6 + (i - 1) * d * 0.88} r={r} fill={i === m ? C.flaggold : C.see} />);
+  }
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: Math.min(W, 220), height: "auto", display: "block" }} role="img" aria-label={`${m} Zeilen Punkte, zusammen ${(m * (m + 1)) / 2}`}>
+      {punkte}
+    </svg>
+  );
+}
+
+function Begruenden() {
+  const [welche, setWelche] = useState(0);
+  const [antworten, setAntworten] = useState({});
+  const b = BEGRUENDUNGEN[welche];
+  const fertig = b.schritte.every((_, i) => antworten[`${b.id}-${i}`] === b.schritte[i].richtig);
+  return (
+    <div>
+      <div className="flex flex-wrap gap-2" style={{ marginBottom: 14 }}>
+        {BEGRUENDUNGEN.map((x, i) => <Chip key={x.id} aktiv={welche === i} onClick={() => setWelche(i)}>{x.id === "symmetrie" ? "Symmetrie" : "Diagonale"}</Chip>)}
+      </div>
+      <p style={{ fontSize: 16, fontWeight: 700, color: C.tinte, lineHeight: 1.35, marginBottom: 4 }}>{b.titel}</p>
+      <Formeln zeilen={[b.ziel]} max={18} />
+      {b.schritte.map((st, i) => {
+        const key = `${b.id}-${i}`, gewaehlt = antworten[key];
+        const offen = i === 0 || antworten[`${b.id}-${i - 1}`] === b.schritte[i - 1].richtig;
+        if (!offen) return null;
+        return (
+          <div key={key} className="auftauchen" style={{ borderTop: `1px solid ${C.linie}`, padding: "12px 0 6px" }}>
+            <Text s={`${i + 1}. ${st.text}`} style={{ fontSize: 14.5, color: C.tinte, fontWeight: 400, lineHeight: 1.8, marginBottom: 8 }} />
+            <div className="flex flex-wrap" style={{ gap: 6 }}>
+              {gemischt(st.optionen, i + welche).map((o) => {
+                const an = gewaehlt === o, gut = an && o === st.richtig, schlecht = an && o !== st.richtig;
+                return (
+                  <button key={o} type="button" onClick={() => setAntworten((a) => ({ ...a, [key]: o }))} aria-pressed={an}
+                    style={{ minHeight: 40, padding: "6px 12px", borderRadius: 10, fontFamily: "inherit", fontSize: 14, cursor: "pointer",
+                      border: `1.5px solid ${gut ? C.see : schlecht ? C.signal : C.linie}`, background: gut ? C.himmel : C.weiss, color: C.tinte }}>
+                    <Inline s={st.optionen[o]} />
+                  </button>
+                );
+              })}
+            </div>
+            {gewaehlt !== undefined && gewaehlt !== st.richtig && <p style={{ fontSize: 13, color: C.signal, marginTop: 6 }}>Noch nicht – lies den Satz noch einmal mit dieser Antwort.</p>}
+          </div>
+        );
+      })}
+      {fertig && (
+        <div className="auftauchen" style={{ borderLeft: `4px solid ${C.see}`, paddingLeft: 14, marginTop: 10 }}>
+          <p style={{ fontSize: 15, fontWeight: 600, color: C.see }}>Beweis vollständig.</p>
+          <p style={{ fontSize: 13.5, color: C.grau, fontWeight: 300, lineHeight: 1.7 }}>Für die GFS: Erzähl die Schritte in deinen eigenen Worten an der Tafel nach – ohne Auswahl.</p>
+        </div>
+      )}
+      <button type="button" onClick={() => setAntworten({})} style={{ marginTop: 12, background: "none", border: "none", color: C.see, fontSize: 13, fontFamily: "inherit", cursor: "pointer", padding: 0, textDecoration: "underline" }}>
+        Von vorn
+      </button>
+    </div>
+  );
+}
+
+function BuchUebungen() {
+  const [art, setArt] = useState("zeile");
+  const [stufe, setStufe] = useState(2);
+  const [auf, setAuf] = useState(() => buchAufgabe("zeile", 2));
+  const [ein, setEin] = useState({});
+  const [erg, setErg] = useState(null);
+  const [zeigen, setZeigen] = useState(false);
+  const [serie, setSerie] = useState({ n: 0, ok: 0 });
+  const neu = (a = art, s = stufe) => { setAuf(buchAufgabe(a, s)); setEin({}); setErg(null); setZeigen(false); };
+  const artSetzen = (a) => { setArt(a); neu(a, stufe); };
+  const stufeSetzen = (s) => { const v = Math.max(1, Math.min(5, s)); setStufe(v); neu(art, v); };
+  const setze = (key, v) => { setEin((e) => ({ ...e, [key]: v })); setErg(null); };
+  const liste = (n) => Array.from({ length: n }, (_, i) => ein[i] ?? "");
+  const eingabe = auf.art === "zeile" ? liste(auf.felder.length) : auf.art === "ausmulti" ? liste(auf.soll.length)
+    : auf.art === "doppelt" ? { a: ein.a ?? "", b: ein.b ?? "" } : { wert: ein.wert ?? "", n: ein.n ?? "", k: ein.k ?? "" };
+  const leer = Array.isArray(eingabe) ? eingabe.some((v) => !String(v).trim()) : Object.values(eingabe).some((v) => !String(v).trim());
+  const pruefen = () => {
+    const e = buchPruefe(auf, eingabe);
+    setErg(e);
+    setSerie((x) => ({ n: x.n + 1, ok: x.ok + (e.ok ? 1 : 0) }));
+  };
+  const stand = (i) => (erg ? erg.felder[i] : null);
+  const feld = (key, i, platz, breite = 64) => (
+    <input key={key} value={ein[key] ?? ""} onChange={(ev) => setze(key, ev.target.value)} onKeyDown={(ev) => { if (ev.key === "Enter" && !leer) pruefen(); }}
+      inputMode={auf.art === "ausmulti" ? "text" : "numeric"} aria-label={platz} placeholder={platz} style={{ ...ZELLE(stand(i)), width: breite }} />
+  );
+  const zahl = (w, gold, key) => (
+    <span key={key} style={{ minWidth: 34, padding: "6px 6px", textAlign: "center", borderRadius: 8, fontSize: 14, fontWeight: 600,
+      background: gold ? "#FFF6D6" : C.sand, border: `1px solid ${gold ? C.flaggold : C.linie}`, color: C.tinte, fontVariantNumeric: "tabular-nums" }}>{w}</span>
+  );
+
+  return (
+    <div>
+      <div className="flex flex-wrap gap-2 mb-4">
+        {BUCH_ARTEN.map((a) => <Chip key={a.id} aktiv={art === a.id} onClick={() => artSetzen(a.id)}>{a.name}</Chip>)}
+      </div>
+      {art === "begruenden" ? <div style={KARTE}><Begruenden /></div> : (
+        <>
+          <div className="flex items-center flex-wrap" style={{ gap: 10, marginBottom: 16 }}>
+            <span style={{ fontSize: 13.5, color: C.grau, fontWeight: 300 }}>Schwierigkeit</span>
+            <PlusMinus setzen={(d) => stufeSetzen(stufe + d)} label="Schwierigkeit" />
+            <div className="flex" style={{ gap: 4 }}>
+              {[1, 2, 3, 4, 5].map((s) => <span key={s} style={{ width: 9, height: 9, borderRadius: 999, background: s <= stufe ? C.see : C.linie, display: "inline-block" }} />)}
+            </div>
+            <span style={{ fontSize: 13.5, color: C.gruenDunkel, fontWeight: 600 }}>{stufe} / 5</span>
+          </div>
+          <div style={KARTE} data-buchuebung={auf.art}>
+            <p style={{ fontSize: 14, color: C.tinte, fontWeight: 400, lineHeight: 1.6, marginBottom: 12 }}>{buchAuftrag(auf)}</p>
+
+            {auf.art === "zeile" && (
+              <div style={{ display: "grid", gap: 10, marginBottom: 14 }}>
+                <div>
+                  <p style={{ fontSize: 12, fontWeight: 700, color: C.grau, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 6 }}>Zeile {auf.n}</p>
+                  <div className="flex flex-wrap" style={{ gap: 4 }}>{auf.oben.map((w, i) => zahl(w, false, i))}</div>
+                </div>
+                <div>
+                  <p style={{ fontSize: 12, fontWeight: 700, color: C.gruenDunkel, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 6 }}>Zeile {auf.n + 1} · linke Hälfte</p>
+                  <div className="flex flex-wrap items-center" style={{ gap: 6 }}>
+                    {zahl(1, true, "rand")}
+                    {auf.felder.map((k, i) => feld(i, i, `Stelle ${k}`, 72))}
+                    <span style={{ fontSize: 13, color: C.hellgrau }}>…</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {auf.art === "doppelt" && (
+              <div className="flex items-center flex-wrap" style={{ gap: 10, marginBottom: 14 }}>
+                <span style={{ fontSize: 16, fontWeight: 500 }}>k =</span>{feld("a", 0, "erste Stelle", 96)}
+                <span style={{ fontSize: 16, fontWeight: 500 }}>und k =</span>{feld("b", 1, "zweite Stelle", 96)}
+              </div>
+            )}
+
+            {auf.art === "ausmulti" && (
+              <div style={{ marginBottom: 14 }}>
+                <Formeln zeilen={[`${ausmultiKopf(auf)} =`]} max={20} />
+                <div className="flex flex-wrap items-center" style={{ gap: "8px 6px" }}>
+                  {ausmultiTeile(auf).map((t, i) => (
+                    <span key={i} className="flex items-center" style={{ gap: 4 }}>
+                      {i > 0 && <span style={{ fontSize: 16, color: C.grau }}>+</span>}
+                      {feld(i, i, `Koeffizient ${i + 1}`, 62)}
+                      {t && <span style={{ fontSize: 16 }}><M t={t} /></span>}
+                    </span>
+                  ))}
+                </div>
+                {auf.variante === "minus" && <p style={{ fontSize: 12.5, color: C.grau, marginTop: 8 }}>Negative Koeffizienten mit Minus eingeben, z. B. −5.</p>}
+              </div>
+            )}
+
+            {auf.art === "dreieckszahl" && (
+              <div style={{ display: "grid", gap: 12, marginBottom: 14 }}>
+                <PunkteDreieck m={Math.min(auf.m, 12)} />
+                {auf.m > 12 && <p style={{ fontSize: 12.5, color: C.grau }}>Bild: die ersten 12 Zeilen – deine hat {auf.m}.</p>}
+                <div className="flex items-center flex-wrap" style={{ gap: 8 }}>
+                  <span style={{ fontSize: 15 }}>1 + 2 + … + {auf.m} =</span>{feld("wert", 0, "Summe", 96)}
+                </div>
+                <div className="flex items-center flex-wrap" style={{ gap: 8 }}>
+                  <span style={{ fontSize: 15 }}>als Binomialkoeffizient: n =</span>{feld("n", 1, "n", 64)}
+                  <span style={{ fontSize: 15 }}>k =</span>{feld("k", 1, "k", 64)}
+                </div>
+              </div>
+            )}
+
+            {erg && erg.ok && (
+              <div style={{ borderLeft: `4px solid ${C.see}`, paddingLeft: 16, marginBottom: 14 }}>
+                <p style={{ fontSize: 16, fontWeight: 600, color: C.see, marginBottom: 2 }}>Stimmt!</p>
+                <Formeln zeilen={buchRechenweg(auf)} max={15} farbe={C.see} />
+              </div>
+            )}
+            {erg && !erg.ok && (
+              <div style={{ borderLeft: `4px solid ${C.signal}`, paddingLeft: 16, marginBottom: 14 }}>
+                <p style={{ fontSize: 15, fontWeight: 600, color: C.signal, marginBottom: 6 }}>
+                  {erg.gleich ? "Zweimal dieselbe Stelle – gesucht sind zwei verschiedene." : "Noch nicht alles richtig – die rot umrandeten Felder stimmen nicht."}
+                </p>
+                <p style={{ fontSize: 14, color: C.tinte, fontWeight: 300, lineHeight: 1.75 }}>{buchTipp(auf)}</p>
+                {!zeigen && <button onClick={() => setZeigen(true)} className="mt-3" style={{ background: "none", border: "none", color: C.see, fontSize: 13, fontFamily: "inherit", cursor: "pointer", padding: 0, textDecoration: "underline" }}>Lösungsweg zeigen</button>}
+                {zeigen && <Formeln zeilen={buchRechenweg(auf)} max={15} farbe={C.see} />}
+              </div>
+            )}
+            {!(erg && erg.ok) && (
+              <button onClick={pruefen} disabled={leer} className="px-6 py-3"
+                style={{ background: leer ? C.hellgrau : C.see, color: C.weiss, border: "none", borderRadius: 999, fontSize: 15, fontWeight: 600, fontFamily: "inherit", cursor: leer ? "default" : "pointer" }}>
+                Prüfen
+              </button>
+            )}
+          </div>
+          <div className="flex flex-wrap gap-3 mt-5">
+            <button onClick={() => neu()} className="px-6 py-3"
+              style={{ background: C.gruenDunkel, color: C.weiss, border: "none", borderRadius: 999, fontSize: 15, fontWeight: 600, fontFamily: "inherit", cursor: "pointer" }}>
+              Nächste Aufgabe
+            </button>
+            {serie.n > 0 && <span className="flex items-center" style={{ fontSize: 13, color: C.grau }}>{serie.ok} von {serie.n} richtig</span>}
+          </div>
+        </>
+      )}
     </div>
   );
 }
@@ -584,6 +798,15 @@ export function GfsPascalSeite({ gehe }) {
       <Kicker>Jetzt selbst üben</Kicker>
       <H3>Binomialkoeffizienten berechnen, wiederfinden und anwenden</H3>
       <PascalTrainer />
+
+      <div style={{ height: 30 }} />
+      <Kicker>Passend zu den Aufgaben deiner GFS-Seite</Kicker>
+      <H3>Dreieck bauen, doppelte Zahlen, ausmultiplizieren, Dreieckszahlen, begründen</H3>
+      <p style={{ ...FLIESS, lineHeight: 1.7, marginBottom: 18 }}>
+        Zu jeder Aufgabe auf der GFS-Seite gibt es hier eine Übung mit derselben Idee – mit immer neuen Zahlen und
+        einer Stufe mehr Tiefe. Wer diese Übungen sicher kann, löst auch die Aufgaben im Buch.
+      </p>
+      <BuchUebungen />
 
       <Trenner />
 
