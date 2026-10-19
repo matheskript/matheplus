@@ -130,6 +130,9 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
         @media ${DESKTOP_MQ}{.kachel-text-klein{height:2.8em !important;-webkit-line-clamp:2 !important}}
         .bereich-lang{display:none}
         @media ${DESKTOP_MQ}{.bereich-kurz{display:none}.bereich-lang{display:inline}.kachel-zwei{font-size:13px !important}}
+        .titel-gold{color:${C.flaggold};-webkit-text-fill-color:${C.flaggold}}
+        .titel-nach{display:none;margin-left:.3em}
+        @media ${DESKTOP_MQ}{.titel-nach{display:inline}}
         .kachel-titel{background:linear-gradient(180deg,#FFFFFF 0%,${C.silberHell} 55%,${C.silber} 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
         .kachel-gesperrt .kachel-titel{background:none;color:#FFFFFF;text-shadow:0 1px 2px rgba(30,40,60,0.25)}`}</style>
       {/* Links (60 %): Titel und Erklärtext von oben */}
@@ -807,7 +810,7 @@ const ABI_BLOCK = { id: "abitur", titel: "Abi-Vorbereitung", text: "Abi-Ketten, 
    Ganz unten, nach „Formelsammlung und Werkzeuge“, steht in der Oberstufe die goldene Abi-Vorbereitung. */
 function schulBereiche(stufe) {
   const liste = startBloecke(stufe).map((b) => ({
-    id: b.id, titel: b.titel, text: b.text, logo: BEREICH_LOGO[b.id], video: b.video, linie: LINIEN_MUSTER[b.id], gold: b.fundament, kiste: b.kiste,
+    id: b.id, titel: b.titel, vorTitel: b.vorTitel, text: b.text, logo: BEREICH_LOGO[b.id], video: b.video, linie: LINIEN_MUSTER[b.id], gold: b.fundament, kiste: b.kiste,
     stationen: b.stationen.map((st) => ({ ...st, werkzeuge: st.werkzeuge.map((id) => ({ id, ...WERKZEUGE[id] })) })),
   }));
   if (stufe === "ober" || stufe === "alle") liste.push({ ...ABI_BLOCK, logo: BEREICH_LOGO.abitur });
@@ -1780,7 +1783,7 @@ export function Startseite({ gehe }) {
               <AufklappRahmen key={b.id} auf={offen} innen rahmenRef={offen ? offenRahmen : undefined}>
                 <PlotterKachel kompakt zweizeilig breit haupt goldRand={b.gold} onClick={() => { setBereichAuf(offen ? null : b.id); }}
                   auf={offen} label={offen ? `${b.titel} zuklappen` : `${b.titel} aufklappen`}
-                  logo={b.logo} titel={b.titel} text={text}
+                  logo={b.logo} titel={b.vorTitel ? <><span className="titel-gold">{b.vorTitel}</span><span className="titel-nach">{b.titel}</span></> : b.titel} text={text}
                   extra={<AufklappPfeil auf={offen} gross />} />
                 {offen && <BereichsKopfLeiste rahmenRef={offenRahmen} titel={b.titel} onZu={bereichZuUndZeigen} />}
                 {offen && <div style={{ margin: "0 -16px" }}><UnterMenue eintraege={eintraege} gehe={gehe} linie={b.linie} /></div>}

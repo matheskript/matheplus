@@ -29,6 +29,25 @@ test("Neue Namen der Bereiche", () => {
   assert.equal(t("ober", "stochastik"), "Wahrscheinlichkeitsrechnung");
   assert.equal(t("mittel", "stochastik"), "Wahrscheinlichkeitsrechnung");
   assert.equal(t("ober", "werkzeuge"), "Formelsammlung und Werkzeuge");
+  assert.equal(t("ober", "fundament"), "Mathematisches Fundament");
+});
+
+test("Mathematisches Fundament steht zwischen Wahrscheinlichkeitsrechnung und Formelsammlung", () => {
+  const d = ids("ober");
+  assert.deepEqual(d.slice(-3), ["stochastik", "fundament", "werkzeuge"]);
+  for (const s of STUFEN) {
+    const i = ids(s);
+    assert.equal(i.indexOf("fundament"), i.indexOf("werkzeuge") - 1, `Fundament direkt vor der Formelsammlung (${s})`);
+    assert.ok(i.indexOf("fundament") > 0, `Fundament nicht mehr am Anfang (${s})`);
+  }
+});
+
+test("Goldenes Kurzwort vor dem Titel (Computer: mit Titel, Handy: nur das Kurzwort)", () => {
+  const v = (stufe, id) => startBloecke(stufe).find((b) => b.id === id)?.vorTitel;
+  assert.equal(v("ober", "analysis"), "Analysis");
+  assert.equal(v("ober", "vektoren"), "Geometrie");
+  assert.equal(v("ober", "stochastik"), "Stochastik");
+  assert.equal(v("mittel", "analysis"), undefined, "Mittelstufe: Geraden und Parabeln ohne Vorsatz");
 });
 
 test("Textaufgaben und Gleichungen sind keine eigenen Bereiche mehr, sondern im Werkzeugkasten", () => {

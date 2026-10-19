@@ -264,20 +264,22 @@ export const BEREICHE = [
    eigenen Feldern, wenn sie hier anders heißt oder anders zusammengesetzt ist.
    nur: Stufen-Schalter-Werte (unter | mittel | ober | alle), bei denen Block bzw. Station erscheint.
    titelStufe: andere Überschrift in einer Stufe (Mittelstufe: „Geraden und Parabeln“).
+   vorTitel: goldenes Kurzwort vor dem Titel – am Computer „Analysis Funktionen und Kurven“, am Handy nur „Analysis“.
+   Entfällt, wenn titelStufe für die Stufe greift (Mittelstufe: „Geraden und Parabeln“ steht ohne Vorsatz).
    Abi-Vorbereitung und die Formelsammlung im Werkzeugkasten sind keine Werkzeuge und stehen in func2.jsx. */
 export const START_BLOECKE = [
-  { id: "fundament", quelle: "fundament", fundament: true, stationen: ["fundament.axiome", "fundament.zahlenraeume", "fundament.mengenlogik"] },
-  { id: "analysis", quelle: "analysis", titelStufe: { mittel: "Geraden und Parabeln" },
+  { id: "analysis", quelle: "analysis", vorTitel: "Analysis", titelStufe: { mittel: "Geraden und Parabeln" },
     stationen: ["gleichungen.gerade", "gleichungen.parabel", "analysis.kennen", "analysis.untersuchen", "analysis.bestimmen", "analysis.integrieren"] },
-  { id: "vektoren", quelle: "vektoren", nur: ["ober", "alle"],
+  { id: "vektoren", quelle: "vektoren", vorTitel: "Geometrie", nur: ["ober", "alle"],
     stationen: ["vektoren.rechnen", "vektoren.aufstellen", "vektoren.lage",
       { id: "lgs", titel: "Gleichungssysteme", zeile: "Lösen mit Gauß, auch mit drei Unbekannten", werkzeuge: ["lgs"] }] },
-  { id: "stochastik", quelle: "stochastik", stationen: ["stochastik.zaehlen", "stochastik.zufallsgroessen", "stochastik.testen", "stochastik.normal"] },
+  { id: "stochastik", quelle: "stochastik", vorTitel: "Stochastik", stationen: ["stochastik.zaehlen", "stochastik.zufallsgroessen", "stochastik.testen", "stochastik.normal"] },
   { id: "geometrie", quelle: "geometrie", stationen: ["geometrie.figuren", "geometrie.dreieck", "geometrie.rechtwinklig", "geometrie.aehnlich", "geometrie.dreiecke", "geometrie.kreiskoerper"] },
   { id: "bruchrechnen", quelle: "bruchrechnen", stationen: ["bruchrechnen.brueche"] },
   { id: "zahlen", quelle: "zahlen", stationen: ["zahlen.zahlen", "zahlen.rechnen", "zahlen.groessen"] },
   { id: "prozent", quelle: "prozent", stationen: ["prozent.zuordnung", "prozent.prozent"] },
   { id: "daten", quelle: "daten", stationen: ["daten.daten", "daten.zufall"] },
+  { id: "fundament", quelle: "fundament", titel: "Mathematisches Fundament", fundament: true, stationen: ["fundament.axiome", "fundament.zahlenraeume", "fundament.mengenlogik"] },
   { id: "werkzeuge", titel: "Formelsammlung und Werkzeuge", text: "Formeln nachschlagen, Gleichungen lösen, Textaufgaben übersetzen.", kiste: true,
     stationen: [
       "gleichungen.terme",
@@ -309,6 +311,7 @@ export function startBloecke(stufe = "alle") {
     return {
       id: b.id,
       titel: (b.titelStufe && b.titelStufe[stufe]) || b.titel || q.titel,
+      vorTitel: b.titelStufe && b.titelStufe[stufe] ? undefined : b.vorTitel,
       text: b.text || (q && q.text) || "",
       video: q ? q.video : undefined,
       fundament: !!b.fundament,
