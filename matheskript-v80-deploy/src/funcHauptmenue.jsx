@@ -565,7 +565,7 @@ function useLage(anker, istOffen) {
       const r = a.getBoundingClientRect();
       const vw = document.documentElement.clientWidth || window.innerWidth;
       const vh = window.innerHeight;
-      const breite = Math.min(410, vw - 24);
+      const breite = Math.min(vw >= 900 ? 470 : 410, vw - 24);   // Desktop: etwas breiter, Handy unverändert
       const top = Math.max(8, Math.min(r.top + 4, vh - 260));
       let rechts = vw - r.right + 12;
       rechts = Math.max(12, Math.min(rechts, vw - breite - 12));
