@@ -6,7 +6,14 @@ export const ENTWUERFE = [
   { ansicht: "entwurf-checken", name: "Mathe-Checken", kurz: "Kursseite – 2-Monats-Konzept" },
   { ansicht: "entwurf-pakete", name: "Tool-Pakete", kurz: "Kostenlos, Plus & Maximum" },
   { ansicht: "entwurf-werkzeuge", name: "Alle Werkzeuge", kurz: "Alte Startseite mit allen Rechentools" },
-  { ansicht: "entwurf-vorher", name: "Vorher: Stand 17.10.", kurz: "Website vor der Max-Version – Desktop & Mobil" },
+  { ansicht: "entwurf-vorher", name: "50-Euro-Seite (17.10.)", kurz: "Website vor der Max-Version – Desktop & Mobil" },
+];
+/* Weitere passwortgeschützte Seiten im Arbeitsmenü (Landingpage und Entwürfe stehen separat) */
+export const WEITERE_SEITEN = [
+  { ansicht: "elternabend", name: "Elternabend" },
+  { ansicht: "masterclass", name: "Mathe Abi Masterclass" },
+  { ansicht: "mathecheck", name: "Mathe checken" },
+  { ansicht: "nachhilfekurs", name: "Nachhilfe-Kurs" },
 ];
 export const istEntwurf = (a) => typeof a === "string" && a.startsWith("entwurf-");
 
