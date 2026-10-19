@@ -102,6 +102,7 @@ export const SEITEN_SAETZE = {
   analyse: { de: "Rechenwege per Foto prüfen lassen", en: "get your working checked from a photo" },
   diffq: { de: "den Differenzenquotienten verstehen", en: "understand the difference quotient" },
   potenzregel: { de: "die Potenzregel verstehen und beweisen", en: "understand and prove the power rule" },
+  efunktion: { de: "die natürliche Exponentialfunktion verstehen", en: "understand the natural exponential function" },
 
   /* Kurse und Lernbereiche */
   kiwahl: { de: "mit KI Mathe verstehen – je nach Alter mit Mathilda AI, Gemini oder Claude", en: "use AI to understand maths – Mathilda AI, Gemini or Claude depending on your age" },

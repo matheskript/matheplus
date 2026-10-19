@@ -92,6 +92,7 @@ const ClaudeKursSeite = lazyLaden(() => import("./funcClaudeKurs.jsx").then((m) 
 const GfsPascalSeite = lazyLaden(() => import("./funcGfs.jsx").then((m) => ({ default: m.GfsPascalSeite })));
 const GfsDoseSeite = lazyLaden(() => import("./funcGfsDose.jsx").then((m) => ({ default: m.GfsDoseSeite })));
 const PotenzregelSeite = lazyLaden(() => import("./func22.jsx").then((m) => ({ default: m.PotenzregelSeite })));
+const EFunktionSeite = lazyLaden(() => import("./funcEFunktion.jsx").then((m) => ({ default: m.EFunktionSeite })));
 const AnalysisZentrum = lazyLaden(() => import("./func14.jsx").then((m) => ({ default: m.AnalysisZentrum })));
 const KopfrechenZentrum = lazyLaden(() => import("./func14.jsx").then((m) => ({ default: m.KopfrechenZentrum })));
 const Begruenden = lazyLaden(() => import("./func7.jsx").then((m) => ({ default: m.Begruenden })));
@@ -1367,6 +1368,20 @@ export function Mathilda() {
             <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
           </div>
           <PotenzregelSeite />
+        </>
+      ) : ansicht === "efunktion" ? (
+        <>
+          <div className="kopfblock" style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
+            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 29, letterSpacing: "-0.03em", lineHeight: 1.05 }}>Die natürliche Exponentialfunktion</h1>
+              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
+              <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
+                Minikurs in sechs Schritten: von aˣ zur Eulerschen Zahl e, Eigenschaften, „e gewinnt“, Ableiten — mit Visualisierung, Trainer und allen Buchaufgaben.
+              </p>
+            </div>
+            <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
+          </div>
+          <EFunktionSeite />
         </>
       ) : ansicht === "training" ? (
         <>

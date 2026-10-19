@@ -1124,6 +1124,7 @@ export function PenPaperBlatt() {
 const ANALYSIS_THEMEN = [
   { ansicht: "diffq", titel: "Differenzenquotient", unter: "Vom Tangentenproblem zur Ableitung", info: "Thema · Video · Übung", grafik: "sekante" },
   { ansicht: "potenzregel", titel: "Potenzregel", unter: "Beweis per Produktregel und Induktion", info: "Thema · Video · Übung", grafik: "potenz" },
+  { ansicht: "efunktion", titel: "Die e-Funktion", unter: "Minikurs: von aˣ zur Eulerschen Zahl", info: "Thema · Video · Übung", grafik: "efunktion" },
 ];
 
 export function KursGrafik({ art, hoehe = 150 }) {
@@ -1167,6 +1168,18 @@ export function KursGrafik({ art, hoehe = 150 }) {
           <rect x="218" y="72" width="18" height="62" rx="3" fill={C.flaggold} transform="rotate(-12 236 134)" />
           <rect x="262" y="72" width="18" height="62" rx="3" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="1.6" />
           <rect x="300" y="72" width="18" height="62" rx="3" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="1.6" />
+        </>
+      )}
+
+      {art === "efunktion" && (
+        <>
+          {/* e-Funktion mit Asymptote (gestrichelt), Tangente in P(0|1) und der Subtangente in Gold */}
+          <line x1="20" y1="128" x2="320" y2="128" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeDasharray="6 5" />
+          <path d="M 20 126 C 110 124 170 116 205 96 S 255 40 272 8" stroke={C.weiss} strokeWidth="2.5" fill="none" />
+          <line x1="128" y1="144.3" x2="290" y2="42.7" stroke={C.gruen} strokeWidth="2" />
+          <line x1="154" y1="128" x2="205" y2="128" stroke={C.flaggold} strokeWidth="5" strokeLinecap="round" />
+          <line x1="205" y1="96" x2="205" y2="128" stroke="rgba(255,255,255,0.55)" strokeWidth="1.4" strokeDasharray="4 3" />
+          <circle cx="205" cy="96" r="5.5" fill={C.flaggold} />
         </>
       )}
 

@@ -334,7 +334,7 @@ export const VIDEOKURSE = {
           richtig: 0,
           erklaerung: "eˣ ist für jedes x positiv, erreicht die 0 also nie. Bei x = 0 ist f(0) = 1 – das ist der y-Achsenabschnitt, keine Nullstelle.",
         },
-        ueben: { label: "Advanced Plotter", ansicht: "advplotter" },
+        ueben: { label: "Themenseite e-Funktion", ansicht: "efunktion" },
       },
       {
         id: "f2", kapitel: "Exponential", titel: "Der natürliche Logarithmus", youtube: "FZ_OLFMlS6o",

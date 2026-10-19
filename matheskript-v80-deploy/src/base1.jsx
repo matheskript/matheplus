@@ -133,6 +133,8 @@ export const DEMO_VIDEO_ID = "50LsVekhMCU";
 
 export const DIFFQ_VIDEO_ID = "7xd_G5uIp7k";
 export const POTENZREGEL_VIDEO_ID = "2f_TkmDkz2E";
+/* Themenseite natürliche Exponentialfunktion — dasselbe Video wie Lektion f1 im Videokurs „Mehr als Polynome“ */
+export const EFUNKTION_VIDEO_ID = "xRftyh3kC_Q";
 /* GFS-Trainer: Pascal’sches Dreieck — Fremdvideo als Platzhalter (oEmbed geprüft), bis Basti ein eigenes aufnimmt */
 export const PASCAL_VIDEO_ID = "G9GiNWtRlhY";
 

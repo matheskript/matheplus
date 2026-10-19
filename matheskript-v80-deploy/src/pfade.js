@@ -73,6 +73,7 @@ export const SEITEN = [
   { pfad: "differenzenquotient", ansicht: "diffq" },
   { pfad: "formeln-zum-kapitel", ansicht: "kapitelformeln", alias: ["kapitel-formeln", "testklausur"] },
   { pfad: "potenzregel", ansicht: "potenzregel" },
+  { pfad: "e-funktion", ansicht: "efunktion", alias: ["natuerliche-exponentialfunktion", "exponentialfunktion"] },
   { pfad: "gfs-trainer", ansicht: "gfs", alias: ["gfs", "kurs-gfs", "gfs-kurs"] },
   { pfad: "gfs-trainer/pascalsches-dreieck", ansicht: "gfs-pascal", alias: ["gfs/pascalsches-dreieck"] },
   { pfad: "gfs-trainer/optimale-dose", ansicht: "gfs-dose", alias: ["gfs/optimale-dose", "optimale-dose", "gfs-dose"] },

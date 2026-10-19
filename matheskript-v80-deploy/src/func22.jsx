@@ -16,7 +16,7 @@ import { ErklaerAnimation } from "./funcErklaeranimation.jsx";
 const FLIESS = { color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.8, marginBottom: 16 };
 
 /* Mehrere Formelzeilen, linksbündig, gemeinsam so verkleinert, dass die längste Zeile passt */
-function Formeln({ titel, zeilen, max = 17, min = 10.5, farbe = C.tinte }) {
+export function Formeln({ titel, zeilen, max = 17, min = 10.5, farbe = C.tinte }) {
   const rahmen = useRef(null), innen = useRef(null);
   const [gr, setGr] = useState(max);
   useEffect(() => {
@@ -44,7 +44,7 @@ function Formeln({ titel, zeilen, max = 17, min = 10.5, farbe = C.tinte }) {
   );
 }
 
-function Schritt({ nr, titel }) {
+export function Schritt({ nr, titel }) {
   return (
     <div className="flex items-center" style={{ gap: 12, margin: "30px 0 12px" }}>
       <span style={{ flexShrink: 0, width: 34, height: 34, borderRadius: 999, background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`,
@@ -54,7 +54,7 @@ function Schritt({ nr, titel }) {
   );
 }
 
-function Kasten({ titel, children }) {
+export function Kasten({ titel, children }) {
   return (
     <div style={{ background: C.weiss, borderLeft: `4px solid ${C.flaggold}`, borderRadius: 12, padding: "12px 16px 4px", margin: "6px 0 18px",
       boxShadow: "0 2px 12px rgba(15,26,51,0.05)" }}>
