@@ -4,19 +4,19 @@
    Startseite den Kurs selbst nicht mitladen muss. */
 import React from "react";
 import { C } from "./base1.jsx";
-import { kachelMobilCss } from "./kachelMobil.js";
+import { kachelMobilCss, kachelMobilVars } from "./kachelMobil.js";
 
 export function GfsKursKachel({ onClick, themen = 1 }) {
   return (
     <button type="button" onClick={onClick} className="gfs-kachel" aria-label="Kurs GFS öffnen"
-      style={{ "--zl": 1, display: "flex", width: "calc(100% + 32px)", marginLeft: -16, marginRight: -16, marginTop: 12, padding: 0, border: "none", borderRadius: 18, overflow: "hidden",
+      style={{ ...kachelMobilVars({ kopf: `linear-gradient(150deg, ${C.nachtschwarz} 0%, #1E1A0E 70%, #2E2408 100%)`, kopfText: C.weiss, koerper: "#FFF6D6", text: C.nachtschwarz, rand: C.golddunkel }), display: "flex", width: "calc(100% + 32px)", marginLeft: -16, marginRight: -16, marginTop: 12, padding: 0, border: "none", borderRadius: 18, overflow: "hidden",
         cursor: "pointer", fontFamily: "inherit", textAlign: "left", position: "relative", minHeight: "calc(104px + 1.1 * clamp(15px, 4.1vw, 22px))",
         background: `linear-gradient(150deg, ${C.nachtschwarz} 0%, #1E1A0E 55%, ${C.golddunkel} 100%)`, color: C.weiss,
         boxShadow: "0 10px 30px rgba(11,12,16,0.4), inset 0 0 0 1px rgba(237,187,0,0.3)" }}>
       <style>{`.gfs-kachel{transition:transform .15s ease, box-shadow .15s ease}
         .gfs-kachel:active{transform:scale(0.985)}
         @media (hover:hover){.gfs-kachel:hover{transform:translateY(-2px);box-shadow:0 14px 36px rgba(90,67,0,0.5)}}
-        .gfs-kachel:focus-visible{outline:3px solid ${C.flaggold};outline-offset:3px}${kachelMobilCss("gfs-kachel", C.flaggold)}`}</style>
+        .gfs-kachel:focus-visible{outline:3px solid ${C.flaggold};outline-offset:3px}${kachelMobilCss("gfs-kachel")}`}</style>
       <div style={{ flex: "1 1 63%", minWidth: 0, padding: "14px 10px 14px 16px", display: "flex", flexDirection: "column" }}>
         <span className="kk-kicker" style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.18em", color: C.flaggold }}>KURS</span>
         <h2 style={{ fontSize: "clamp(15px, 4.1vw, 22px)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.1, margin: "2px 0 0", textWrap: "balance" }}>
@@ -24,7 +24,8 @@ export function GfsKursKachel({ onClick, themen = 1 }) {
         </h2>
         <span aria-hidden="true" className="kk-balken" style={{ display: "block", width: 34, height: 2.5, borderRadius: 2, marginTop: 6, background: C.flaggold }} />
         <p style={{ fontSize: 12.5, fontWeight: 500, lineHeight: 1.4, margin: "6px 0 0", color: "rgba(255,255,255,0.84)" }}>
-          Klassenstufe wählen, dein Thema aus dem Lambacher Schweizer finden – verstehen, vortragen, Fragen meistern.
+          <span className="kk-desk">Klassenstufe wählen, dein Thema aus dem Lambacher Schweizer finden – verstehen, vortragen, Fragen meistern.</span>
+          <span className="kk-mob">Dein Thema aus dem Lambacher Schweizer finden – verstehen, vortragen, Fragen meistern.</span>
         </p>
         <span className="kk-knopf" style={{ marginTop: "auto", paddingTop: 8, fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", gap: 6, color: C.weiss }}>
           <span className="kk-desk">Kurs starten</span><span className="kk-mob">Kurs öffnen</span>

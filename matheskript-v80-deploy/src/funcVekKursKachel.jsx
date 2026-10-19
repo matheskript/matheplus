@@ -4,24 +4,24 @@
    damit die Startseite den Kurs selbst nicht mitladen muss. */
 import React from "react";
 import { C } from "./base1.jsx";
-import { kachelMobilCss } from "./kachelMobil.js";
+import { kachelMobilCss, kachelMobilVars } from "./kachelMobil.js";
 
 /* module = Zahl der Module in KURS_MODULE (funcVekKurs.jsx) */
 export function VekKursKachel({ onClick, module = 31 }) {
   return (
-    <button type="button" onClick={onClick} className="vk-kachel" aria-label="Kurs Vektoren, Geraden und Ebenen öffnen"
-      style={{ "--zl": 2, display: "flex", width: "calc(100% + 32px)", marginLeft: -16, marginRight: -16, marginTop: 12, padding: 0, border: "none", borderRadius: 18, overflow: "hidden",
+    <button type="button" onClick={onClick} className="vk-kachel" aria-label="Kurs Vektoren, Geraden & Ebenen öffnen"
+      style={{ ...kachelMobilVars({ kopf: `linear-gradient(150deg, ${C.vkNacht} 0%, ${C.vkTief} 62%, #1A3E96 100%)`, kopfText: C.weiss, koerper: C.vkNebel, text: C.vkNacht, rand: "#C29200" }), display: "flex", width: "calc(100% + 32px)", marginLeft: -16, marginRight: -16, marginTop: 12, padding: 0, border: "none", borderRadius: 18, overflow: "hidden",
         cursor: "pointer", fontFamily: "inherit", textAlign: "left", position: "relative", minHeight: "calc(104px + 1.1 * clamp(15px, 4.1vw, 22px))",
         background: `linear-gradient(150deg, ${C.vkNacht} 0%, ${C.vkTief} 62%, #1A3E96 100%)`, color: C.weiss,
         boxShadow: "0 10px 30px rgba(13,39,102,0.38), inset 0 0 0 1px rgba(168,192,240,0.35)" }}>
       <style>{`.vk-kachel{transition:transform .15s ease, box-shadow .15s ease}
         .vk-kachel:active{transform:scale(0.985)}
         @media (hover:hover){.vk-kachel:hover{transform:translateY(-2px);box-shadow:0 14px 36px rgba(36,87,197,0.5)}}
-        .vk-kachel:focus-visible{outline:3px solid ${C.vkGold};outline-offset:3px}${kachelMobilCss("vk-kachel", C.vkGold)}`}</style>
+        .vk-kachel:focus-visible{outline:3px solid ${C.vkGold};outline-offset:3px}${kachelMobilCss("vk-kachel")}`}</style>
       <div style={{ flex: "1 1 63%", minWidth: 0, padding: "14px 10px 14px 16px", display: "flex", flexDirection: "column" }}>
         <span className="kk-kicker" style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.18em", color: C.vkGold }}>KURS</span>
         <h2 style={{ fontSize: "clamp(15px, 4.1vw, 22px)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.1, margin: "2px 0 0", textWrap: "balance" }}>
-          Vektoren, Geraden und Ebenen
+          Vektoren, Geraden & Ebenen
         </h2>
         <span aria-hidden="true" className="kk-balken" style={{ display: "block", width: 34, height: 2.5, borderRadius: 2, marginTop: 6, background: C.vkGold }} />
         <p style={{ fontSize: 12.5, fontWeight: 500, lineHeight: 1.4, margin: "6px 0 0", color: "rgba(255,255,255,0.84)" }}>

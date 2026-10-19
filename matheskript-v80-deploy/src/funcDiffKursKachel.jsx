@@ -3,20 +3,20 @@
    damit die Startseite den Kurs selbst nicht mitladen muss. */
 import React from "react";
 import { C } from "./base1.jsx";
-import { kachelMobilCss } from "./kachelMobil.js";
+import { kachelMobilCss, kachelMobilVars } from "./kachelMobil.js";
 
 /* module = Zahl der Module in KURS_MODULE (funcDiffKurs.jsx) */
 export function DiffKursKachel({ onClick, module = 21 }) {
   return (
     <button type="button" onClick={onClick} className="dk-kachel" aria-label="Kurs Differentialrechnung öffnen"
-      style={{ "--zl": 1, display: "flex", width: "calc(100% + 32px)", marginLeft: -16, marginRight: -16, marginTop: 12, padding: 0, border: "none", borderRadius: 18, overflow: "hidden",
+      style={{ ...kachelMobilVars({ kopf: `linear-gradient(150deg, ${C.babyblauHell} 0%, ${C.babyblau} 60%, ${C.babyblauTief} 100%)`, kopfText: C.nachtschwarz, koerper: C.weiss, text: "#1A2230", rand: C.golddunkel }), display: "flex", width: "calc(100% + 32px)", marginLeft: -16, marginRight: -16, marginTop: 12, padding: 0, border: "none", borderRadius: 18, overflow: "hidden",
         cursor: "pointer", fontFamily: "inherit", textAlign: "left", position: "relative", minHeight: "calc(104px + 1.1 * clamp(15px, 4.1vw, 22px))",
         background: `linear-gradient(150deg, ${C.babyblauHell} 0%, ${C.babyblau} 55%, ${C.babyblauTief} 100%)`, color: C.nachtschwarz,
         boxShadow: "0 10px 30px rgba(60,130,190,0.28), inset 0 0 0 1px rgba(255,255,255,0.7)" }}>
       <style>{`.dk-kachel{transition:transform .15s ease, box-shadow .15s ease}
         .dk-kachel:active{transform:scale(0.985)}
         @media (hover:hover){.dk-kachel:hover{transform:translateY(-2px);box-shadow:0 14px 36px rgba(60,130,190,0.38)}}
-        .dk-kachel:focus-visible{outline:3px solid ${C.golddunkel};outline-offset:3px}${kachelMobilCss("dk-kachel", C.golddunkel, "clamp(17px, 4.7vw, 24px)")}`}</style>
+        .dk-kachel:focus-visible{outline:3px solid ${C.golddunkel};outline-offset:3px}${kachelMobilCss("dk-kachel")}`}</style>
       <div style={{ flex: "1 1 63%", minWidth: 0, padding: "14px 10px 14px 16px", display: "flex", flexDirection: "column" }}>
         <span className="kk-kicker" style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.18em", color: C.golddunkel }}>KURS</span>
         <h2 style={{ fontSize: "clamp(15px, 4.1vw, 22px)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.1, margin: "2px 0 0", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
