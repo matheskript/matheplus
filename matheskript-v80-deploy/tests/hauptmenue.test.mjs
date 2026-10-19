@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { istPro, kontoArt, kontoEintraege, klasseErmitteln, klasseLabel, klassenInhalt, mathematikEintraege, aktiverPunkt, KI_MENUE, TRAINING, KURSE, LEISTE } from "../src/hauptmenue.js";
+import { istPro, kontoArt, kontoEintraege, zugangEintrag, klasseErmitteln, klasseLabel, klassenInhalt, mathematikEintraege, aktiverPunkt, KI_MENUE, TRAINING, KURSE, LEISTE } from "../src/hauptmenue.js";
 import { SEITEN } from "../src/pfade.js";
 
 test("Pro nur mit plan=pro und nicht abgelaufen", () => {
@@ -28,16 +28,18 @@ test("Konto-Menü: Pro werden oder Mein Plan, rollenabhängige Einträge", () =>
   assert.ok(!kontoEintraege({ rolle: "schueler" }).some((e) => e.id === "arbeitsblatt"));
 });
 
-test("☰-Menü: 5–6 einzeilige Punkte, Abmelden nur mit Konto, Anmelden nur ohne", () => {
+test("☰-Menü: Konto-Punkte einzeilig, Abmelden/Anmelden nur als letzter Punkt (zugangEintrag)", () => {
   for (const rolle of ["schueler", "eltern", "lehrkraft", "nachhilfe"]) {
     const l = kontoEintraege({ rolle });
-    assert.ok(l.length >= 5 && l.length <= 6, rolle + ": " + l.length);
-    assert.equal(l[l.length - 1].id, "abmelden");
+    assert.ok(l.length >= 4 && l.length <= 6, rolle + ": " + l.length);
+    assert.ok(!l.some((e) => e.id === "abmelden" || e.id === "anmelden"), "Zugang steht nicht in der Liste");
     assert.ok(l.every((e) => !e.zeile), "keine zweite Zeile");
   }
   const gast = kontoEintraege(null, false);
-  assert.equal(gast[0].id, "anmelden");
-  assert.ok(!gast.some((e) => e.id === "abmelden"));
+  assert.ok(!gast.some((e) => e.id === "abmelden" || e.id === "anmelden"));
+  assert.deepEqual(zugangEintrag(true), { id: "abmelden", name: "Abmelden", aktion: "abmelden" });
+  assert.equal(zugangEintrag(false).id, "anmelden");
+  assert.equal(zugangEintrag(false).ziel.ansicht, "konto");
 });
 
 test("Klasse: Profil vor Quickfinder, Beschriftung", () => {
@@ -60,7 +62,7 @@ test("Klassen-Inhalt: Kapitel mit Trainieren-Ziel, Abi nur in Oberstufe", () => 
 
 test("Jedes Menü-Ziel hat eine Seite mit Pfad", () => {
   const ansichten = new Set(SEITEN.map((s) => s.ansicht));
-  const ziele = [...KI_MENUE, ...TRAINING, ...KURSE, ...mathematikEintraege("alle"), ...kontoEintraege({ rolle: "eltern" }), ...kontoEintraege({ rolle: "schueler" }), ...kontoEintraege({ rolle: "lehrkraft" }), ...kontoEintraege(null, false)].filter((e) => e.ziel).map((e) => e.ziel.ansicht);
+  const ziele = [...KI_MENUE, ...TRAINING, ...KURSE, ...mathematikEintraege("alle"), ...kontoEintraege({ rolle: "eltern" }), ...kontoEintraege({ rolle: "schueler" }), ...kontoEintraege({ rolle: "lehrkraft" }), ...kontoEintraege(null, false), zugangEintrag(false)].filter((e) => e.ziel).map((e) => e.ziel.ansicht);
   for (const a of ziele) assert.ok(ansichten.has(a), "kein Pfad für " + a);
   assert.equal(LEISTE.length, 5);
 });

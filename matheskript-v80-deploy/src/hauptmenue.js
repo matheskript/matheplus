@@ -2,8 +2,9 @@
    HAUPTMENÜ (Kopfleiste) – reine Daten und Logik, ohne React.
    Getestet in tests/hauptmenue.test.mjs. Oberfläche: funcHauptmenue.jsx.
 
-   Aufbau oben: ☰-Menü oben rechts (Konto, Pro, Abmelden …), darunter die Leiste
-   Mathilda · Meine Kurse · Klasse ▾ · Mein Training · Mathematik · Suche.
+   Aufbau oben: eine Kopfzeile mit Logo, Konto-Chip und ☰-Knopf. Das ☰-Menü enthält alles:
+   Suche · Mathilda · Meine Kurse · Klasse ▾ · Mein Training · Mathematik (aufklappbar),
+   darunter die Konto-Punkte und ganz unten Abmelden bzw. Anmelden.
    Das frühere Kopfmenü (Startseite, Landingpage, Sprache, Entwürfe) ist als
    „Arbeitsmenü“ in die Fußzeile gewandert (funcArbeitsmenue.jsx).
    ====================================================================== */
@@ -26,8 +27,8 @@ export function kontoArt(profil) {
   return "Trainings-Account";
 }
 
-/* Einträge im Menü hinter dem ☰-Knopf oben rechts – einzeilig, je nach Rolle.
-   Ohne Konto beginnt die Liste mit „Anmelden“; mit Konto steht „Abmelden“ am Ende (aktion statt ziel). */
+/* Konto-Punkte im ☰-Menü (unter den aufklappbaren Abschnitten) – einzeilig, je nach Rolle.
+   Anmelden/Abmelden steht NICHT hier, sondern als letzter Punkt des Menüs (zugangEintrag). */
 export function kontoEintraege(profil, angemeldet = true) {
   const pro = istPro(profil);
   const proEintrag = pro
@@ -35,7 +36,6 @@ export function kontoEintraege(profil, angemeldet = true) {
     : { id: "pro", name: "Pro werden", ziel: { ansicht: "konto" }, gold: true };
   if (!angemeldet) {
     return [
-      { id: "anmelden", name: "Anmelden", ziel: { ansicht: "konto" } },
       { id: "fortschritt", name: "Mein Fortschritt", ziel: { ansicht: "profil" } },
       proEintrag,
       { id: "datenschutz", name: "Datenschutz", ziel: { ansicht: "datenschutz" } },
@@ -56,8 +56,14 @@ export function kontoEintraege(profil, angemeldet = true) {
   liste.push({ id: "datenschutz", name: "Datenschutz", ziel: { ansicht: "datenschutz" } });
   /* Lehrkräfte haben statt des Impressums (steht in der Fußzeile) den Arbeitsblatt-Generator – höchstens 6 Punkte */
   if (rolle === "eltern") liste.push({ id: "impressum", name: "Impressum", ziel: { ansicht: "impressum" } });
-  liste.push({ id: "abmelden", name: "Abmelden", aktion: "abmelden" });
   return liste;
+}
+
+/* Letzter Punkt ganz unten im ☰-Menü: Abmelden (mit Bestätigung) bzw. – ohne Konto – Anmelden */
+export function zugangEintrag(angemeldet = true) {
+  return angemeldet
+    ? { id: "abmelden", name: "Abmelden", aktion: "abmelden" }
+    : { id: "anmelden", name: "Anmelden", ziel: { ansicht: "konto" } };
 }
 
 /* ---------- Klasse ---------- */
@@ -161,7 +167,7 @@ export function mathematikEintraege(stufe = "alle") {
   return liste;
 }
 
-/* Reihenfolge der Leiste (Suche steht als Lupe rechts daneben) */
+/* Reihenfolge der aufklappbaren Abschnitte im ☰-Menü (die Suche steht als erste Zeile davor) */
 export const LEISTE = [
   { id: "mathilda", name: "Mathilda" },
   { id: "kurse", name: "Meine Kurse" },

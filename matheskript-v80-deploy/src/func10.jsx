@@ -516,11 +516,11 @@ export function Mathilda() {
             </span>
           </button>
           <div className="flex items-center" style={{ gap: 6, marginLeft: 10, flexShrink: 0 }}>
-          {/* Menü-Knopf ☰ (Konto, Pro, Abmelden …) – das alte Kopfmenü ist als „Arbeitsmenü“ in der Fußzeile */}
-          <KontoBereich offen={hmOffen} setOffen={setHmOffen} />
+          {/* Konto-Chip (angemeldet) + Menü-Knopf ☰ – das alte Kopfmenü ist als „Arbeitsmenü“ in der Fußzeile */}
+          <KontoBereich offen={hmOffen} setOffen={setHmOffen} gehe={gehe} />
           </div>
         </div>
-        {/* Hauptmenü: Mathilda · Meine Kurse · Klasse · Mein Training · Mathematik · Suche */}
+        {/* ☰-Menü (Fenster): Suche · Mathilda · Meine Kurse · Klasse · Mein Training · Mathematik · Konto · Abmelden/Anmelden */}
         <div className="mx-auto kopf-zeile" style={{ maxWidth: 620, paddingLeft: 12, paddingRight: 12 }}>
           <HauptMenue gehe={gehe} ansicht={ansicht} foto={fotoModus} seite={wzSeite} offen={hmOffen} setOffen={setHmOffen} />
         </div>

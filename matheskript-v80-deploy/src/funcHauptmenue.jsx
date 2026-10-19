@@ -1,10 +1,12 @@
 /* ======================================================================
    HAUPTMENÜ in der Kopfleiste (Oberfläche). Daten und Logik: hauptmenue.js.
 
-   Zeile 1 (neben dem Logo): ein normaler Menü-Knopf ☰. Sein Fenster (⅔ der Breite,
-   rechts) hat 5–6 einzeilige Punkte: Konto, Pro, Datenschutz … und „Abmelden“ (mit Bestätigung).
-   Zeile 2: Mathilda · Meine Kurse · Klasse 10 (G9) ▾ · Mein Training · Mathematik · Suche.
-   Jeder Punkt klappt ein Fenster auf; ein Klick daneben oder Esc schließt es.
+   Es gibt nur noch EINE Kopfzeile: Logo · Konto-Chip (Anfangsbuchstabe, nur angemeldet) · Menü-Knopf ☰.
+   Das ☰-Fenster (rechts) enthält alles in einer Liste:
+     Suche · Mathilda ▾ · Meine Kurse ▾ · Klasse 10 (G9) ▾ · Mein Training ▾ · Mathematik ▾
+     darunter die Konto-Punkte (Mein Konto, Fortschritt, Pro, Datenschutz …)
+     und ganz unten „Abmelden“ (mit Bestätigung) bzw. „Anmelden“.
+   Die Abschnitte klappen im Fenster auf (immer nur einer offen); Klick daneben oder Esc schließt.
    ====================================================================== */
 import React, { useEffect, useRef, useState } from "react";
 import { C } from "./base1.jsx";
@@ -12,7 +14,7 @@ import { useKonto, abmelden } from "./konto.js";
 import { SuchBox } from "./funcSuche.jsx";
 import { SCHULARTEN, klassenBoxen } from "./schulbuch.js";
 import {
-  LEISTE, KI_MENUE, TRAINING, KURSE, BALD_KURSE, kontoEintraege, klasseErmitteln, klasseLabel,
+  LEISTE, KI_MENUE, TRAINING, KURSE, BALD_KURSE, kontoEintraege, zugangEintrag, klasseErmitteln, klasseLabel,
   klassenInhalt, mathematikEintraege, aktiverPunkt,
 } from "./hauptmenue.js";
 
@@ -23,18 +25,9 @@ const qfSchreiben = (teil) => {
 };
 
 const CSS = `
-.hm-leiste{position:relative;z-index:4;display:flex;align-items:center;gap:4px;overflow-x:auto;scrollbar-width:none;padding:0 0 8px}
-.hm-leiste::-webkit-scrollbar{display:none}
-.hm-punkt{flex:0 0 auto;display:inline-flex;align-items:center;gap:5px;height:34px;padding:0 11px;border-radius:999px;border:1.5px solid transparent;
-  background:rgba(255,255,255,0.07);color:#fff;font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .12s ease,border-color .12s ease}
-.hm-punkt:hover{background:rgba(255,255,255,0.14)}
-.hm-punkt[aria-expanded="true"]{border-color:${C.flaggold};background:rgba(237,187,0,0.16);color:${C.flaggold}}
-.hm-punkt[data-aktiv]{color:${C.flaggold}}
-.hm-punkt.hm-klasse{background:rgba(237,187,0,0.14);border-color:rgba(237,187,0,0.55);color:${C.flaggold};font-weight:700}
-.hm-lupe{width:34px;padding:0;justify-content:center;margin-left:auto}
-.hm-fenster{position:absolute;left:12px;right:12px;top:calc(100% - 2px);z-index:3;background:${C.weiss};color:${C.tinte};border-radius:16px;
-  box-shadow:0 18px 44px rgba(8,23,59,0.34);max-height:min(72vh,620px);overflow-y:auto;padding:8px;font-family:Montserrat,system-ui,sans-serif}
-@media (min-width:700px){.hm-fenster{left:var(--hm-x,12px);right:auto;width:400px}.hm-fenster.hm-breit{width:520px}}
+.hm-fenster{position:absolute;right:12px;top:2px;z-index:3;width:min(88vw,360px);background:${C.weiss};color:${C.tinte};border-radius:16px;
+  box-shadow:0 18px 44px rgba(8,23,59,0.34);max-height:min(80vh,700px);overflow-y:auto;padding:6px;font-family:Montserrat,system-ui,sans-serif}
+@media (min-width:700px){.hm-fenster{width:360px}}
 .hm-eintrag{display:flex;width:100%;align-items:center;gap:10px;text-align:left;padding:9px 11px;border-radius:10px;border:none;background:transparent;
   font-family:inherit;cursor:pointer;color:${C.tinte}}
 .hm-eintrag:hover{background:${C.himmel}}
@@ -43,9 +36,18 @@ const CSS = `
 .hm-menueknopf{width:40px;height:40px;border-radius:999px;border:1.5px solid rgba(255,255,255,0.45);background:transparent;color:#fff;cursor:pointer;
   display:inline-flex;align-items:center;justify-content:center;padding:0;position:relative}
 .hm-menueknopf:hover,.hm-menueknopf[aria-expanded="true"]{background:rgba(255,255,255,0.12);border-color:${C.flaggold}}
-.hm-fenster.hm-menue{left:auto;right:12px;width:min(66.667vw,320px);padding:6px}
-@media (min-width:700px){.hm-fenster.hm-menue{left:auto;right:12px;width:300px}}
-.hm-menue .hm-eintrag{padding:12px 13px;font-size:15px;font-weight:700}
+.hm-chip{width:40px;height:40px;border-radius:999px;border:2px solid ${C.flaggold};background:${C.seeTief};color:${C.flaggold};cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;padding:0;font-family:inherit;font-size:17px;font-weight:800;line-height:1}
+.hm-chip:hover{background:rgba(237,187,0,0.16)}
+.hm-ak{display:flex;width:100%;align-items:center;gap:8px;text-align:left;padding:13px 12px;border-radius:10px;border:none;background:transparent;
+  font-family:inherit;font-size:15px;font-weight:700;color:${C.tinte};cursor:pointer}
+.hm-ak:hover{background:${C.himmel}}
+.hm-ak[aria-expanded="true"]{background:rgba(237,187,0,0.14)}
+.hm-ak[data-aktiv]{color:${C.see}}
+.hm-ak.hm-klasse{background:rgba(237,187,0,0.14);box-shadow:inset 0 0 0 1.5px rgba(237,187,0,0.6);margin:3px 0}
+.hm-ak-inhalt{margin:2px 4px 8px 14px;padding-left:6px;border-left:2px solid ${C.flaggold}}
+.hm-linie{height:1px;background:${C.linie};margin:6px 8px}
+.hm-konto .hm-eintrag{padding:10px 12px}
 `;
 
 /* ---------- kleine Bausteine ---------- */
@@ -71,6 +73,11 @@ function Eintrag({ e, gehe, aktuell, aktion }) {
       {e.aktion === "abmelden" && (
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke={C.grau} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ flexShrink: 0 }}>
           <path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3" /><path d="M10 17l-5-5 5-5" /><path d="M5 12h11" />
+        </svg>
+      )}
+      {e.id === "anmelden" && (
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke={C.grau} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ flexShrink: 0 }}>
+          <path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3" /><path d="M10 7l5 5-5 5" /><path d="M15 12H4" />
         </svg>
       )}
       {e.bald && <Bald />}
@@ -166,52 +173,71 @@ function AbmeldenFrage({ ja, nein, laeuft }) {
   );
 }
 
-/* ---------- Menü-Knopf ☰ (Zeile 1) – das Fenster rendert HauptMenue ---------- */
-export function KontoBereich({ offen, setOffen }) {
-  const auf = offen === "konto";
+
+/* ---------- Kopfzeile: Konto-Chip (nur angemeldet) + Menü-Knopf ☰ ---------- */
+export function KontoBereich({ offen, setOffen, gehe }) {
+  const konto = useKonto();
+  const auf = offen === "menue";
+  const quelle = (konto.profil && konto.profil.name) || (konto.nutzer && konto.nutzer.email) || "";
+  const anfang = (String(quelle).trim().charAt(0) || "·").toLocaleUpperCase("de-DE");
   return (
-    <button type="button" className="hm-menueknopf" onClick={() => setOffen(auf ? null : "konto")} aria-expanded={auf} aria-haspopup="true"
-      aria-label="Menü" title="Menü" data-kein-scroll data-hm-menue>
-      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
-        {auf ? <><path d="M6 6l12 12" /><path d="M18 6L6 18" /></> : <><path d="M4 7h16" /><path d="M4 12h16" /><path d="M4 17h16" /></>}
-      </svg>
-    </button>
+    <>
+      <style>{CSS}</style>
+      {konto.nutzer && (
+        <button type="button" className="hm-chip" onClick={() => { setOffen(null); gehe && gehe({ ansicht: "konto" }); }}
+          aria-label="Mein Konto" title="Mein Konto" data-kein-scroll data-kein-i18n data-hm-chip>{anfang}</button>
+      )}
+      <button type="button" className="hm-menueknopf" onClick={() => setOffen(auf ? null : "menue")} aria-expanded={auf} aria-haspopup="true"
+        aria-label="Menü" title="Menü" data-kein-scroll data-hm-menue>
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+          {auf ? <><path d="M6 6l12 12" /><path d="M18 6L6 18" /></> : <><path d="M4 7h16" /><path d="M4 12h16" /><path d="M4 17h16" /></>}
+        </svg>
+      </button>
+    </>
   );
 }
 
-/* ---------- Leiste (Zeile 2) mit den Fenstern ---------- */
+/* ---------- Aufklapp-Zeile im Menü ---------- */
+function Abschnitt({ id, titel, offen, setze, aktiv, klasse, children, ...rest }) {
+  const auf = offen === id;
+  return (
+    <div>
+      <button type="button" className={"hm-ak" + (klasse ? " hm-klasse" : "")} data-hm={id} data-kein-scroll aria-expanded={auf} aria-haspopup="true"
+        data-aktiv={aktiv ? "" : undefined} onClick={() => setze(auf ? null : id)} {...rest}>
+        {id === "mathilda" && <span aria-hidden="true" style={{ width: 7, height: 7, borderRadius: 999, background: C.flaggold, flexShrink: 0 }} />}
+        {id === "suche" && (
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true" style={{ flexShrink: 0 }}><circle cx="11" cy="11" r="6.5" /><path d="M16 16l4.5 4.5" /></svg>
+        )}
+        <span style={{ flex: 1, minWidth: 0 }}>{titel}</span>
+        <Pfeil auf={auf} farbe={C.see} />
+      </button>
+      {auf && <div className="hm-ak-inhalt">{children}</div>}
+    </div>
+  );
+}
+
+/* ---------- Das Menü (Fenster hinter ☰) ---------- */
 export function HauptMenue({ gehe, ansicht, foto, seite, offen, setOffen }) {
   const konto = useKonto();
   const [qf, setQf] = useState(qfLesen);
+  const [abschnitt, setAbschnitt] = useState(null);
   const [waehlen, setWaehlen] = useState(false);
   const [frage, setFrage] = useState(false);
   const [laeuft, setLaeuft] = useState(false);
-  const leisteRef = useRef(null);
-  const [x, setX] = useState(12);
   const ausProfil = !!(konto.profil && konto.profil.schulform && konto.profil.klasse);
   const klasse = klasseErmitteln(konto.profil, qf);
   const stufe = klasse ? klassenInhalt(klasse).stufe : "alle";
   const aktiv = aktiverPunkt(ansicht, seite || foto);
+  const istOffen = offen === "menue";
 
   useEffect(() => {
-    if (!offen) return;
+    if (!istOffen) { setAbschnitt(null); setWaehlen(false); return; }
     setQf(qfLesen());   // Quickfinder auf der Startseite könnte die Klasse inzwischen geändert haben
     const t = (e) => { if (e.key === "Escape") setOffen(null); };
     window.addEventListener("keydown", t);
     return () => window.removeEventListener("keydown", t);
-  }, [offen]);
-  useEffect(() => { if (offen !== "klasse") setWaehlen(false); }, [offen]);
+  }, [istOffen]);
 
-  const umschalten = (id, ev) => {
-    if (offen === id) { setOffen(null); return; }
-    try {
-      const knopf = ev.currentTarget.getBoundingClientRect();
-      const rahmen = leisteRef.current.getBoundingClientRect();
-      const breite = id === "suche" ? 520 : 400;
-      setX(Math.max(12, Math.min(knopf.left - rahmen.left, rahmen.width - breite)));
-    } catch (e) { setX(12); }
-    setOffen(id);
-  };
   const geh = (ziel) => { setOffen(null); gehe(ziel); };
   const aktion = (was) => { if (was === "abmelden") { setOffen(null); setFrage(true); } };
   const raus = async () => {
@@ -222,64 +248,55 @@ export function HauptMenue({ gehe, ansicht, foto, seite, offen, setOffen }) {
   };
   const aktuell = { ansicht, foto, seite };
   const klasseSetzen = (schulart, box) => { qfSchreiben({ schulart, klasse: box }); setQf(qfLesen()); setWaehlen(false); };
+  const liste = (eintraege) => eintraege.map((e) => <Eintrag key={e.id} e={e} gehe={geh} aktuell={aktuell} />);
 
-  const inhalt = () => {
-    if (offen === "konto") return <>{kontoEintraege(konto.profil, !!konto.nutzer).map((e) => <Eintrag key={e.id} e={e} gehe={geh} aktuell={aktuell} aktion={aktion} />)}</>;
-    if (offen === "mathilda") return <><Kicker normal>Mathilda AI</Kicker>{KI_MENUE.map((e) => <Eintrag key={e.id} e={e} gehe={geh} aktuell={aktuell} />)}</>;
-    if (offen === "kurse") return (
+  const inhalt = (id) => {
+    if (id === "suche") return <div style={{ padding: "2px 2px 0" }}><SuchBox gehe={geh} /></div>;
+    if (id === "mathilda") return <>{liste(KI_MENUE)}</>;
+    if (id === "kurse") return (
       <>
-        <Kicker>Meine Kurse</Kicker>
-        {KURSE.map((e) => <Eintrag key={e.id} e={e} gehe={geh} aktuell={aktuell} />)}
+        {liste(KURSE)}
         <Kicker>Bald</Kicker>
         {BALD_KURSE.map((e) => <Eintrag key={e.id} e={e} gehe={geh} />)}
       </>
     );
-    if (offen === "klasse") return (!klasse || waehlen)
+    if (id === "klasse") return (!klasse || waehlen)
       ? <KlasseWaehlen setze={klasseSetzen} schulartStart={klasse && klasse.schulart} />
       : <KlassenFenster klasse={klasse} ausProfil={ausProfil} gehe={geh} aendern={() => setWaehlen(true)} />;
-    if (offen === "training") return <><Kicker>Mein Training</Kicker>{TRAINING.map((e) => <Eintrag key={e.id} e={e} gehe={geh} aktuell={aktuell} />)}</>;
-    if (offen === "mathematik") {
-      const liste = mathematikEintraege(stufe);
+    if (id === "training") return <>{liste(TRAINING)}</>;
+    if (id === "mathematik") {
+      const eintraege = mathematikEintraege(stufe);
       return (
         <>
-          <Kicker>Mathematik</Kicker>
-          {liste.filter((e) => !e.abi).map((e) => <Eintrag key={e.id} e={e} gehe={geh} aktuell={aktuell} />)}
-          {liste.some((e) => e.abi) && <Kicker>Abi-Vorbereitung</Kicker>}
-          {liste.filter((e) => e.abi).map((e) => <Eintrag key={e.id} e={e} gehe={geh} aktuell={aktuell} />)}
+          {liste(eintraege.filter((e) => !e.abi))}
+          {eintraege.some((e) => e.abi) && <Kicker>Abi-Vorbereitung</Kicker>}
+          {liste(eintraege.filter((e) => e.abi))}
         </>
       );
     }
-    if (offen === "suche") return <div style={{ padding: "2px 2px 0" }}><SuchBox gehe={geh} /></div>;
     return null;
   };
 
   return (
-    <div ref={leisteRef} style={{ position: "relative" }}>
-      <style>{CSS}</style>
-      <nav className="hm-leiste" aria-label="Hauptmenü" data-hauptmenue>
-        {LEISTE.map((p) => {
-          const titel = p.id === "klasse" ? klasseLabel(klasse) : p.name;
-          return (
-            <button key={p.id} type="button" className={"hm-punkt" + (p.id === "klasse" ? " hm-klasse" : "")} data-hm={p.id} data-kein-scroll
-              onClick={(ev) => umschalten(p.id, ev)} aria-expanded={offen === p.id} aria-haspopup="true" data-aktiv={aktiv === p.id ? "" : undefined}
-              {...(p.id === "klasse" ? { "data-kein-i18n": true } : {})}>
-              {p.id === "mathilda" && <span aria-hidden="true" style={{ width: 7, height: 7, borderRadius: 999, background: C.flaggold }} />}
-              <span>{titel}</span>
-              <Pfeil auf={offen === p.id} />
-            </button>
-          );
-        })}
-        <button type="button" className="hm-punkt hm-lupe" data-hm="suche" data-kein-scroll onClick={(ev) => umschalten("suche", ev)} aria-expanded={offen === "suche"}
-          aria-label="Suche: Was möchtest du lernen?" title="Suche">
-          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5" /><path d="M16 16l4.5 4.5" /></svg>
-        </button>
-      </nav>
-      {offen && (
+    <div style={{ position: "relative", height: 0 }}>
+      {istOffen && (
         <>
           <div onClick={() => setOffen(null)} aria-hidden="true" style={{ position: "fixed", inset: 0, zIndex: 2 }} />
-          <div role="dialog" aria-label="Menü" data-sprung="hauptmenue" data-scroll-box className={"hm-fenster" + (offen === "suche" ? " hm-breit" : "") + (offen === "konto" ? " hm-menue" : "")}
-            style={{ "--hm-x": `${x}px` }}>
-            {inhalt()}
+          <div role="dialog" aria-label="Menü" data-sprung="hauptmenue" data-scroll-box className="hm-fenster hm-menue" data-hauptmenue>
+            <Abschnitt id="suche" titel="Was möchtest du lernen?" offen={abschnitt} setze={setAbschnitt}>{inhalt("suche")}</Abschnitt>
+            {LEISTE.map((p) => (
+              <Abschnitt key={p.id} id={p.id} titel={p.id === "klasse" ? klasseLabel(klasse) : p.name} offen={abschnitt} setze={setAbschnitt}
+                aktiv={aktiv === p.id} klasse={p.id === "klasse"} {...(p.id === "klasse" ? { "data-kein-i18n": true } : {})}>
+                {inhalt(p.id)}
+              </Abschnitt>
+            ))}
+            <div className="hm-linie" />
+            <div className="hm-konto">
+              <Kicker>Konto</Kicker>
+              {kontoEintraege(konto.profil, !!konto.nutzer).map((e) => <Eintrag key={e.id} e={e} gehe={geh} aktuell={aktuell} />)}
+            </div>
+            <div className="hm-linie" />
+            <div className="hm-konto"><Eintrag e={zugangEintrag(!!konto.nutzer)} gehe={geh} aktuell={aktuell} aktion={aktion} /></div>
           </div>
         </>
       )}
