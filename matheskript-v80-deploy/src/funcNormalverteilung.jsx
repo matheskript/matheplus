@@ -19,6 +19,7 @@ import { Merke, Regler, UebenRahmen, WertZeile, ZweiModi, misch, ws, zs } from "
 import { zt } from "./ui3.jsx";
 import { NormalAnimation } from "./funcNormalAnimation.jsx";
 import { springe } from "./sprung.js";
+import { uebergabeErledigt, uebergabeLesen } from "./uebergabe.js";
 import {
   KONTEXTE, NV_ARTEN, Phi, SIGMA_REGELN, TOL_P, TOL_Z, binomNaeherung, binomSigma, dichte, dz, maxHoehe, nvAufgabe, phi, quantil, vert, zwischen,
 } from "./normal.js";
@@ -112,8 +113,11 @@ function StationKopf({ nr, zeichen, titel, leitfrage }) {
 
 /* Labor 1: Binomialverteilung mit passender Glocke */
 function LaborHistogramm() {
-  const [n, setN] = useState(20);
-  const [p, setP] = useState(0.3);
+  // Übergabe aus der Bernoulli-Kette: { n, p } – Regler laufen in 5er- bzw. 0,05er-Schritten
+  const [mit] = useState(() => { const u = uebergabeLesen("normalverteilung"); return u && u.n >= 5 && u.n <= 200 && u.p > 0 && u.p < 1 ? u : null; });
+  React.useEffect(() => { uebergabeErledigt("normalverteilung"); }, []);
+  const [n, setN] = useState(mit ? Math.max(5, Math.round(mit.n / 5) * 5) : 20);
+  const [p, setP] = useState(mit ? Math.min(0.95, Math.max(0.05, Math.round(mit.p * 20) / 20)) : 0.3);
   const mu = n * p, s = binomSigma(n, p);
   const t = useMemo(() => {
     const out = []; let ln = 0;
