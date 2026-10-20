@@ -117,10 +117,11 @@ function Zeile({ onClick, gold, blau, links, titel, unter, unterGold, etikett, e
         boxShadow: blau && !disabled ? "0 3px 10px rgba(0,77,152,0.18)" : "none" }}>
       {links}
       <span style={{ flex: 1, minWidth: 0 }}>
+        {/* Etikett (Rechnen/Trainieren/Entdecken) als Kicker über dem Titel – so bleibt dem Titel die ganze Breite */}
+        {etikett && <span style={{ display: "inline-block", fontSize: 9.5, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", padding: "3px 8px", borderRadius: 999, marginBottom: 5, lineHeight: 1.3, ...(ETIKETT_STIL[etikettArt] || { background: C.himmel, color: C.see }) }}>{etikett}</span>}
         <span style={{ display: "block", fontSize: blau ? 15 : 14.5, fontWeight: 700, color: hell ? C.tinte : C.weiss, lineHeight: 1.25, letterSpacing: blau ? "-0.005em" : 0 }}>{titel}</span>
         {unter && <span style={{ display: "block", fontSize: 11.5, fontWeight: gold || unterGold ? 700 : 500, color: unterFarbe, marginTop: 2, lineHeight: 1.3 }}>{unter}</span>}
       </span>
-      {etikett && <span style={{ flexShrink: 0, fontSize: 9.5, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", padding: "4px 9px", borderRadius: 999, ...(ETIKETT_STIL[etikettArt] || { background: C.himmel, color: C.see }) }}>{etikett}</span>}
       {!disabled && <span aria-hidden="true" style={{ flexShrink: 0, fontSize: 21, fontWeight: 700, color: blau ? C.flaggold : gold ? GOLD_DUNKEL : C.see }}>›</span>}
     </button>
   );
