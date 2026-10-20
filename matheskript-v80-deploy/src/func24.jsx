@@ -20,6 +20,9 @@ import { FA, FB, FE, Gl, Name, Raum3, Schritt, Vek, k, koordText, n, neueAufgabe
 import { EbenenZeile, Feld, Knopf, Meldung, PunktEingabe, VektorFeld, leseVektor } from "./func23.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
+import { Bild, Ergebnis, ModusReiter, ObjektBox, ObjektReihe, Tafel, VF, VekSeite, HauptKnopf } from "./vekUi.jsx";
+
+const FL = VF.drei;   /* Lot, Lotfußpunkt, Schnittpunkt: Ergebnisfarbe */
 
 /* Lernhilfe je Kombination */
 const ABSTAND_WEG = {
@@ -146,17 +149,20 @@ function lese(o) {
 
 /* ---------- Auswahl links | zu | rechts ---------- */
 
-function Auswahl({ wert, setWert, seite }) {
+function Auswahl({ wert, setWert, seite, farbe }) {
   return (
-    <div role="radiogroup" aria-label={seite === 0 ? "Erstes Objekt" : "Zweites Objekt"} style={{ display: "flex", flexDirection: "column", gap: 6, flex: 1, minWidth: 0 }}>
+    <div role="radiogroup" aria-label={seite === 0 ? "Erstes Objekt" : "Zweites Objekt"}
+      style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 4, padding: 4, borderRadius: 14, background: "#F1F4F9", marginBottom: 12 }}>
       {TYPEN.map((t) => {
         const an = wert === t.id;
         return (
-          <button key={t.id} type="button" role="radio" aria-checked={an} onClick={() => setWert(t.id)}
-            style={{ minHeight: 46, borderRadius: 14, fontFamily: "inherit", cursor: "pointer", fontSize: 15, fontWeight: 700,
-              border: `1px solid ${an ? C.see : C.linie}`, background: an ? C.see : C.weiss, color: an ? C.weiss : C.see,
-              boxShadow: an ? "0 4px 14px rgba(0,77,152,0.25)" : "none" }}>
-            {t.name}
+          <button key={t.id} type="button" role="radio" aria-checked={an} onClick={() => setWert(t.id)} data-vek-typ={t.id}
+            style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 5, minWidth: 0, height: 40, padding: "0 4px", borderRadius: 11,
+              fontFamily: "inherit", cursor: "pointer", fontSize: 13, fontWeight: 700, overflow: "hidden",
+              border: "none", background: an ? C.weiss : "transparent", color: an ? C.tinte : C.grau,
+              boxShadow: an ? "0 1px 4px rgba(15,26,51,0.14)" : "none" }}>
+            <Bild art={t.id} breite={22} farbe={an ? farbe : C.hellgrau} farbe2={an ? farbe : C.hellgrau} />
+            <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{t.name}</span>
           </button>
         );
       })}
@@ -168,11 +174,11 @@ function Auswahl({ wert, setWert, seite }) {
 
 function ObjektEingabe({ o, setO, name, farbe }) {
   const setze = (feld) => (w) => setO({ ...o, [feld]: w });
-  if (o.typ === "punkt") return <PunktEingabe name={name} farbe={farbe} werte={o.punkt} setWerte={setze("punkt")} />;
+  if (o.typ === "punkt") return <div style={{ display: "flex", justifyContent: "center" }}><PunktEingabe name={name} farbe={farbe} werte={o.punkt} setWerte={setze("punkt")} /></div>;
   if (o.typ === "gerade") {
     return (
-      <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8, fontSize: 16, fontWeight: 800, color: farbe }}>
-        <span>{name}: x =</span>
+      <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "center", gap: 8, fontSize: 16, fontWeight: 800, color: C.tinte }}>
+        <span style={{ display: "inline-flex", gap: 6 }}><Name t="x" /> =</span>
         <VektorFeld name="" farbe={farbe} werte={o.stuetz} setWerte={setze("stuetz")} />
         <span>+ {name === "h" ? "s" : "t"} ·</span>
         <VektorFeld name="" farbe={farbe} werte={o.richtung} setWerte={setze("richtung")} />
@@ -181,7 +187,7 @@ function ObjektEingabe({ o, setO, name, farbe }) {
   }
   const w = o.ebene;
   const s = (i) => (v) => { const x = [...w]; x[i] = v; setO({ ...o, ebene: x }); };
-  return <EbenenZeile name={name} w={w} setze={s} farbe={farbe} labelVor={name} />;
+  return <EbenenZeile name={name} w={w} setze={s} farbe={farbe} textFarbe={C.tinte} labelVor={name} />;
 }
 
 /* ---------- Gleichungen anzeigen ---------- */
@@ -195,27 +201,31 @@ const qPunktText = (name, v) => (
     {v.map((x, i) => <React.Fragment key={i}>{i > 0 && <span style={{ color: C.hellgrau }}>|</span>}<Z w={x} /></React.Fragment>)})</span>
 );
 const Erg = ({ links, d2, text }) => (
-  <Schritt titel="Ergebnis">
-    <Einzeilig max={18}><span>{links} =</span><WurzelWert d2={d2} /></Einzeilig>
-    {text && <p style={{ fontSize: 13, color: C.grau, lineHeight: 1.55, marginTop: 8, textAlign: "center" }}>{text}</p>}
-  </Schritt>
+  <div style={{ margin: "0 0 14px" }}>
+    <Ergebnis bild={<Bild art="abstand" breite={44} />} zusatz={text}>
+      <span style={{ display: "inline-flex", alignItems: "center", flexWrap: "wrap", gap: "0.35em", fontVariantNumeric: "tabular-nums" }}>
+        <span>{links} =</span><WurzelWert d2={d2} farbe="#1F6E44" />
+      </span>
+    </Ergebnis>
+  </div>
 );
 
 /* ---------- Die einzelnen Rechnungen ---------- */
 
-function PunktPunkt({ P, Q, nP, nQ }) {
+function PunktPunkt({ P, Q, nP, nQ, fx = FA, fy = FB }) {
   const v = Q.map((x, i) => x - P[i]);
   const d2 = q(skalar(v, v), 1);
   return (
     <>
       <Schritt nr="1" titel={`Verbindungsvektor von ${nP} nach ${nQ}`}>
-        <Einzeilig max={16}><Name t={nP + nQ} farbe={FE} /><Gl /><Vek w={Q.map(n)} farbe={FB} /><span>−</span><Vek w={P.map(n)} farbe={FA} /><Gl /><Vek w={v.map(n)} farbe={FE} /></Einzeilig>
+        <Einzeilig max={16}><Name t={nP + nQ} farbe={FE} /><Gl /><Vek w={Q.map(n)} farbe={fy} /><span>−</span><Vek w={P.map(n)} farbe={fx} /><Gl /><Vek w={v.map(n)} farbe={FE} /></Einzeilig>
       </Schritt>
       <Schritt nr="2" titel="Länge des Verbindungsvektors">
         <Einzeilig max={17}><span>|</span><Name t={nP + nQ} farbe={FE} /><span>| =</span><Wurzel>{v.map((x) => `${k(x)}²`).join(" + ")}</Wurzel><Gl /><Wurzel>{d2.z}</Wurzel></Einzeilig>
       </Schritt>
       <Erg links={`d(${nP}; ${nQ})`} d2={d2} text={d2.z === 0 ? "Die Punkte sind gleich." : null} />
-      <Raum3 punkte={[{ p: P, label: nP, farbe: FA }, { p: Q, label: nQ, farbe: FB }]} lot={[P, Q]} />
+      <Raum3 punkte={[{ p: P, label: nP, farbe: fx }, { p: Q, label: nQ, farbe: fy }]} lot={[P, Q]}
+        legende={[{ text: nP, farbe: fx, art: "punkt" }, { text: nQ, farbe: fy, art: "punkt" }, { text: "d", farbe: FL }]} />
     </>
   );
 }
@@ -229,7 +239,7 @@ function lotAufGerade(P, A, u) {
   return { AP, t0, F, PF, d2: qBetragQuadrat(PF) };
 }
 
-function PunktGerade({ P, A, u, nP, nG }) {
+function PunktGerade({ P, A, u, nP, nG, fx = FB, fy = FA }) {
   const { AP, t0, F, PF, d2 } = lotAufGerade(P, A, u);
   const lin = (c, t) => (t === 0 ? n(c) : `${n(c)} ${t < 0 ? "−" : "+"} ${Math.abs(t) === 1 ? "" : Math.abs(t)}t`);
   const kU = skalar(u, u), kA = skalar(AP, u);
@@ -239,7 +249,7 @@ function PunktGerade({ P, A, u, nP, nG }) {
         <Einzeilig max={16}><Name t={nP + "Fₜ"} farbe={FE} /><Gl /><Vek w={A.map((x, i) => lin(x - P[i], u[i]))} /></Einzeilig>
       </Schritt>
       <Schritt nr="2" titel="Lotbedingung: Verbindungsvektor senkrecht zum Richtungsvektor">
-        <Einzeilig max={16}><Name t={nP + "Fₜ"} farbe={FE} /><span>·</span><Vek w={u.map(n)} farbe={FA} /><span>= 0</span></Einzeilig>
+        <Einzeilig max={16}><Name t={nP + "Fₜ"} farbe={FE} /><span>·</span><Vek w={u.map(n)} farbe={fy} /><span>= 0</span></Einzeilig>
         <div style={{ height: 6 }} />
         <Einzeilig max={16}><span>{u.map((c, i) => `${k(c)}·(${lin(AP[i], u[i])})`).join(" + ")} = 0</span></Einzeilig>
         <div style={{ height: 6 }} />
@@ -251,13 +261,14 @@ function PunktGerade({ P, A, u, nP, nG }) {
         <Einzeilig max={16}>{qPunktText("F", F)}<span style={{ color: C.hellgrau }}>⇒</span><Name t={nP + "F"} farbe={FE} /><Gl />{qVekAnzeige(PF, FE)}</Einzeilig>
       </Schritt>
       <Erg links={`d(${nP}; ${nG}) = |${nP}F|`} d2={d2} text={d2.z === 0 ? `${nP} liegt auf ${nG} – der Abstand ist 0.` : null} />
-      <Raum3 punkte={[{ p: P, label: nP, farbe: FB }, { p: F.map(qWert), label: "F", farbe: C.gruen }, { p: A, label: "A", farbe: FA }]}
-        gerade={{ p: A, r: u }} lot={[P, F.map(qWert)]} />
+      <Raum3 punkte={[{ p: P, label: nP, farbe: fx }, { p: F.map(qWert), label: "F", farbe: FL }, { p: A, label: "A", farbe: fy }]}
+        gerade={{ p: A, r: u, farbe: fy }} lot={[P, F.map(qWert)]}
+        legende={[{ text: nP, farbe: fx, art: "punkt" }, { text: nG, farbe: fy }, { text: "F", farbe: FL, art: "punkt" }]} />
     </>
   );
 }
 
-function PunktEbene({ P, nv, d, nP, nE }) {
+function PunktEbene({ P, nv, d, nP, nE, fx = FB, fy = FA }) {
   const z = skalar(nv, P) - d, qq = skalar(nv, nv);
   const lam = q(-z, qq);
   const F = qPunkt(P, lam, nv);
@@ -270,7 +281,7 @@ function PunktEbene({ P, nv, d, nP, nE }) {
         </Einzeilig>
       </Schritt>
       <Schritt nr="2" titel={`Lotfußpunkt: Lotgerade durch ${nP} mit Richtung n schneidet ${nE}`}>
-        <Einzeilig max={16}><span>l:</span><Name t="x" /><Gl /><Vek w={P.map(n)} farbe={FB} /><span>+ λ ·</span><Vek w={nv.map(n)} farbe={FA} /></Einzeilig>
+        <Einzeilig max={16}><span>l:</span><Name t="x" /><Gl /><Vek w={P.map(n)} farbe={fx} /><span>+ λ ·</span><Vek w={nv.map(n)} farbe={fy} /></Einzeilig>
         <div style={{ height: 6 }} />
         <Einzeilig max={16}><span>einsetzen: {n(skalar(nv, P))} {qq >= 0 ? "+" : "−"} {qq}λ = {n(d)}</span><span style={{ color: C.hellgrau }}>⇔</span><span style={{ color: FE }}>λ =</span><span style={{ color: FE }}><Z w={lam} /></span></Einzeilig>
         <div style={{ height: 6 }} />
@@ -278,25 +289,20 @@ function PunktEbene({ P, nv, d, nP, nE }) {
       </Schritt>
       <Erg links={`d(${nP}; ${nE})`} d2={q(z * z, qq)}
         text={z === 0 ? `${nP} liegt in ${nE} – der Abstand ist 0.` : `Der Betrag sorgt dafür, dass der Abstand nie negativ ist; das Vorzeichen von ${n(z)} verrät nur die Seite der Ebene.`} />
-      <Raum3 punkte={[{ p: P, label: nP, farbe: FB }, { p: F.map(qWert), label: "F", farbe: C.gruen }]} ebene={{ n: nv, d }} lot={[P, F.map(qWert)]} />
+      <Raum3 punkte={[{ p: P, label: nP, farbe: fx }, { p: F.map(qWert), label: "F", farbe: FL }]} ebene={{ n: nv, d, farbe: fy }} lot={[P, F.map(qWert)]}
+        legende={[{ text: nP, farbe: fx, art: "punkt" }, { text: nE, farbe: fy, art: "flaeche" }, { text: "F", farbe: FL, art: "punkt" }]} />
     </>
   );
 }
 
-function GeradeGerade({ A, u, B, v, nG, nH }) {
+function GeradeGerade({ A, u, B, v, nG, nH, fx = FA, fy = C.see }) {
   const nv = kreuz(u, v);
   const AB = B.map((x, i) => x - A[i]);
   const paare = [[1, 2], [2, 0], [0, 1]];
   const parallel = nv.every((x) => x === 0);
-  const kopf = (
-    <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 12 }}>
-      <GeradeText name={nG} a={A} u={u} farbe={FA} par="r" />
-      <GeradeText name={nH} a={B} u={v} farbe={C.see} par="s" />
-    </div>
-  );
   const kreuzSchritt = (
     <Schritt nr="1" titel="Richtungsvektoren vergleichen: Kreuzprodukt">
-      <Einzeilig max={15}><Name t="n" farbe={FE} /><Gl /><Vek w={u.map(n)} farbe={FA} /><span>×</span><Vek w={v.map(n)} farbe={C.see} /><Gl />
+      <Einzeilig max={15}><Name t="n" farbe={FE} /><Gl /><Vek w={u.map(n)} farbe={fx} /><span>×</span><Vek w={v.map(n)} farbe={fy} /><Gl />
         <Vek w={paare.map(([i, j]) => `${k(u[i])}·${k(v[j])} − ${k(u[j])}·${k(v[i])}`)} /><Gl /><Vek w={nv.map(n)} farbe={FE} /></Einzeilig>
     </Schritt>
   );
@@ -314,8 +320,8 @@ function GeradeGerade({ A, u, B, v, nG, nH }) {
           {d2.z !== 0 && <><div style={{ height: 6 }} /><Einzeilig max={16}><span>Lotfußpunkt von B auf {nG}:</span>{qPunktText("F", F)}</Einzeilig></>}
         </Schritt>
         <Erg links={`d(${nG}; ${nH})`} d2={d2} text={d2.z === 0 ? "Identische Geraden haben den Abstand 0." : null} />
-        <Raum3 punkte={[{ p: A, label: "A", farbe: FA }, { p: B, label: "B", farbe: C.see }]} gerade={{ p: A, r: u, ohnePfeil: true }} gerade2={{ p: B, r: v }}
-          lot={d2.z ? [B, F.map(qWert)] : null} />
+        <Raum3 punkte={[{ p: A, label: "A", farbe: fx }, { p: B, label: "B", farbe: fy }]} gerade={{ p: A, r: u, ohnePfeil: true, farbe: fx }} gerade2={{ p: B, r: v, farbe: fy }}
+          lot={d2.z ? [B, F.map(qWert)] : null} legende={[{ text: nG, farbe: fx }, { text: nH, farbe: fy }]} />
       </>
     );
   }
@@ -349,18 +355,18 @@ function GeradeGerade({ A, u, B, v, nG, nH }) {
       </Schritt>
       <Erg links={`d(${nG}; ${nH})`} d2={q(z * z, qq)}
         text={z === 0 ? "Die Geraden schneiden sich – Abstand 0." : "Die Richtungen sind nicht parallel und die Geraden schneiden sich nicht – sie sind windschief. Der Abstand ist die Länge der gemeinsamen Senkrechten."} />
-      <Raum3 punkte={[{ p: A, label: "A", farbe: FA }, { p: B, label: "B", farbe: C.see }, ...(z === 0 ? [{ p: Fg.map(qWert), label: "S", farbe: C.gruen }] : [{ p: Fg.map(qWert), label: "F₁", farbe: C.gruen }, { p: Fh.map(qWert), label: "F₂", farbe: C.gruen }])]}
-        gerade={{ p: A, r: u, ohnePfeil: true }} gerade2={{ p: B, r: v }} lot={z === 0 ? null : [Fg.map(qWert), Fh.map(qWert)]} />
+      <Raum3 punkte={[{ p: A, label: "A", farbe: fx }, { p: B, label: "B", farbe: fy }, ...(z === 0 ? [{ p: Fg.map(qWert), label: "S", farbe: FL }] : [{ p: Fg.map(qWert), label: "F₁", farbe: FL }, { p: Fh.map(qWert), label: "F₂", farbe: FL }])]}
+        gerade={{ p: A, r: u, ohnePfeil: true, farbe: fx }} gerade2={{ p: B, r: v, farbe: fy }} lot={z === 0 ? null : [Fg.map(qWert), Fh.map(qWert)]}
+        legende={[{ text: nG, farbe: fx }, { text: nH, farbe: fy }, z === 0 ? { text: "S", farbe: FL, art: "punkt" } : { text: "Lot", farbe: FL }]} />
     </>
   );
 }
 
-function GeradeEbene({ A, u, nv, d, nG, nE }) {
+function GeradeEbene({ A, u, nv, d, nG, nE, fx = FB, fy = FA }) {
   const nu = skalar(nv, u), nA = skalar(nv, A);
-  const kopf = <div style={{ marginBottom: 12 }}><GeradeText name={nG} a={A} u={u} farbe={FB} /><p style={{ textAlign: "center", fontWeight: 700, color: FA, marginTop: 8 }}>{nE}: {koordText(nv, d)}</p></div>;
   const s1 = (
     <Schritt nr="1" titel="Richtungsvektor · Normalenvektor">
-      <Einzeilig max={16}><Vek w={u.map(n)} farbe={FB} /><span>·</span><Vek w={nv.map(n)} farbe={FA} /><Gl /><span>{u.map((x, i) => `${k(x)}·${k(nv[i])}`).join(" + ")}</span><Gl /><span style={{ color: FE }}>{n(nu)}</span></Einzeilig>
+      <Einzeilig max={16}><Vek w={u.map(n)} farbe={fx} /><span>·</span><Vek w={nv.map(n)} farbe={fy} /><Gl /><span>{u.map((x, i) => `${k(x)}·${k(nv[i])}`).join(" + ")}</span><Gl /><span style={{ color: FE }}>{n(nu)}</span></Einzeilig>
     </Schritt>
   );
   if (nu !== 0) {
@@ -374,7 +380,8 @@ function GeradeEbene({ A, u, nv, d, nG, nE }) {
           <div style={{ height: 6 }} /><Einzeilig max={16}>{qPunktText("S", S)}</Einzeilig>
         </Schritt>
         <Erg links={`d(${nG}; ${nE})`} d2={q(0)} text="Gerade und Ebene schneiden sich – Abstand 0. Ein Abstand ist nur bei Parallelität sinnvoll." />
-        <Raum3 punkte={[{ p: A, label: "A", farbe: FB }, { p: S.map(qWert), label: "S", farbe: C.gruen }]} gerade={{ p: A, r: u }} ebene={{ n: nv, d }} />
+        <Raum3 punkte={[{ p: A, label: "A", farbe: fx }, { p: S.map(qWert), label: "S", farbe: FL }]} gerade={{ p: A, r: u, farbe: fx }} ebene={{ n: nv, d, farbe: fy }}
+          legende={[{ text: nG, farbe: fx }, { text: nE, farbe: fy, art: "flaeche" }, { text: "S", farbe: FL, art: "punkt" }]} />
       </>
     );
   }
@@ -390,21 +397,17 @@ function GeradeEbene({ A, u, nv, d, nG, nE }) {
         </Einzeilig>
       </Schritt>
       <Erg links={`d(${nG}; ${nE})`} d2={q(z * z, qq)} text={z === 0 ? `A liegt in ${nE}, also liegt die ganze Gerade in der Ebene – Abstand 0.` : null} />
-      <Raum3 punkte={[{ p: A, label: "A", farbe: FB }]} gerade={{ p: A, r: u }} ebene={{ n: nv, d }} />
+      <Raum3 punkte={[{ p: A, label: "A", farbe: fx }]} gerade={{ p: A, r: u, farbe: fx }} ebene={{ n: nv, d, farbe: fy }}
+        legende={[{ text: nG, farbe: fx }, { text: nE, farbe: fy, art: "flaeche" }]} />
     </>
   );
 }
 
-function EbeneEbene({ n1, d1, n2, d2, nE1, nE2 }) {
+function EbeneEbene({ n1, d1, n2, d2, nE1, nE2, fx = FA, fy = C.gruen }) {
   const kr = kreuz(n1, n2);
-  const kopf = (
-    <div style={{ textAlign: "center", fontWeight: 700, marginBottom: 12, lineHeight: 1.8 }}>
-      <div style={{ color: FA }}>{nE1}: {koordText(n1, d1)}</div><div style={{ color: C.gruen }}>{nE2}: {koordText(n2, d2)}</div>
-    </div>
-  );
   const s1 = (
     <Schritt nr="1" titel="Normalenvektoren vergleichen: Kreuzprodukt">
-      <Einzeilig max={16}><Vek w={n1.map(n)} farbe={FA} /><span>×</span><Vek w={n2.map(n)} farbe={C.gruen} /><Gl /><Vek w={kr.map(n)} farbe={FE} /></Einzeilig>
+      <Einzeilig max={16}><Vek w={n1.map(n)} farbe={fx} /><span>×</span><Vek w={n2.map(n)} farbe={fy} /><Gl /><Vek w={kr.map(n)} farbe={FE} /></Einzeilig>
     </Schritt>
   );
   if (kr.some((x) => x !== 0)) {
@@ -412,7 +415,8 @@ function EbeneEbene({ n1, d1, n2, d2, nE1, nE2 }) {
       <>
         {s1}
         <Erg links={`d(${nE1}; ${nE2})`} d2={q(0)} text="Die Normalenvektoren sind nicht parallel – die Ebenen schneiden sich in einer Geraden. Abstand 0." />
-        <Raum3 punkte={[]} ebene={{ n: n1, d: d1 }} ebene2={{ n: n2, d: d2 }} />
+        <Raum3 punkte={[]} ebene={{ n: n1, d: d1, farbe: fx }} ebene2={{ n: n2, d: d2, farbe: fy }}
+          legende={[{ text: nE1, farbe: fx, art: "flaeche" }, { text: nE2, farbe: fy, art: "flaeche" }]} />
       </>
     );
   }
@@ -432,7 +436,8 @@ function EbeneEbene({ n1, d1, n2, d2, nE1, nE2 }) {
         </Einzeilig>
       </Schritt>
       <Erg links={`d(${nE1}; ${nE2})`} d2={q(zahlZ * zahlZ, n2[i] * n2[i] * qq)} text={zahlZ === 0 ? "Die Ebenen sind identisch – Abstand 0." : "Die Ebenen sind echt parallel."} />
-      <Raum3 punkte={[{ p: P.map(qWert), label: "P", farbe: C.gruen }]} ebene={{ n: n1, d: d1 }} ebene2={{ n: n2, d: d2 }} />
+      <Raum3 punkte={[{ p: P.map(qWert), label: "P", farbe: FL }]} ebene={{ n: n1, d: d1, farbe: fx }} ebene2={{ n: n2, d: d2, farbe: fy }}
+        legende={[{ text: nE1, farbe: fx, art: "flaeche" }, { text: nE2, farbe: fy, art: "flaeche" }]} />
     </>
   );
 }
@@ -454,6 +459,13 @@ function lotHilfe(art) {
     art === "pg" ? "Setze F = A + t·u an und bestimme t aus PF · u = 0." : "Lotgerade l: x = P + λ·n in die Ebene einsetzen, λ bestimmen, in l einsetzen.",
   ] } };
 }
+
+const LotKopf = ({ nr, children }) => (
+  <p style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, fontWeight: 700, color: C.tinte, margin: "16px 0 8px" }}>
+    <span style={{ width: 24, height: 24, borderRadius: 999, background: C.see, color: C.weiss, fontSize: 12, fontWeight: 800, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{nr}</span>
+    {children}
+  </p>
+);
 
 function LotUeben({ art }) {
   const neu = () => neueAufgabe(art === "pg" ? "abstandPG" : "abstandPE");
@@ -488,9 +500,13 @@ function LotUeben({ art }) {
       <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, marginBottom: 12 }}>
         Bestimme den Lotfußpunkt F von P auf {art === "pg" ? "die Gerade g" : "die Ebene E"}. Der Rechenweg erscheint erst nach dem Prüfen.
       </p>
-      <p style={{ textAlign: "center", fontWeight: 800, color: FB, marginBottom: 8 }}>P({a.P.map(n).join(" | ")})</p>
-      {art === "pg" ? <GeradeText name="g" a={a.A} u={a.u} farbe={FA} /> : <p style={{ textAlign: "center", fontWeight: 700, color: FA }}>E: {koordText(a.n, a.d)}</p>}
-      <p style={{ fontSize: 12.5, fontWeight: 700, color: C.grau, margin: "14px 0 6px" }}>1 · Ansatz wählen</p>
+      <ObjektReihe>
+        <ObjektBox farbe={C.see} name="P" art="Punkt"><Einzeilig max={18} min={11}><span>P({a.P.map(n).join(" | ")})</span></Einzeilig></ObjektBox>
+        {art === "pg"
+          ? <ObjektBox farbe={VF.zwei} name="g" art="Gerade"><Einzeilig max={18} min={10}><Name t="x" /><Gl /><Vek w={a.A.map(n)} farbe={VF.zweiText} /><span>+ t ·</span><Vek w={a.u.map(n)} farbe={VF.zweiText} /></Einzeilig></ObjektBox>
+          : <ObjektBox farbe={VF.zwei} name="E" art="Ebene"><Einzeilig max={18} min={10}><span>{koordText(a.n, a.d)}</span></Einzeilig></ObjektBox>}
+      </ObjektReihe>
+      <LotKopf nr={1}>Ansatz wählen</LotKopf>
       <div role="group" aria-label="Ansatz wählen" style={{ display: "grid", gap: 6 }}>
         {(art === "pg"
           ? [["ok", "F = A + t·u und PF · u = 0 (Lot steht senkrecht zur Richtung)"], ["f1", "F = P + t·u (Gerade durch P statt durch A)"], ["f2", "PF = t·u (Lot läuft entlang der Richtung)"]]
@@ -507,7 +523,7 @@ function LotUeben({ art }) {
       </div>
       {ansatz && ansatz !== "ok" && <Meldung art="schlecht">Das führt nicht zum Lot: Das Lot steht senkrecht auf {art === "pg" ? "der Richtung der Geraden" : "der Ebene, also parallel zum Normalenvektor n"}.</Meldung>}
       {ansatz === "ok" && <Meldung art="gut">Richtig gewählt – damit lässt sich der Lotfußpunkt bestimmen.</Meldung>}
-      <p style={{ fontSize: 12.5, fontWeight: 700, color: C.grau, margin: "14px 0 0" }}>2 · Lotfußpunkt bestimmen</p>
+      <LotKopf nr={2}>Lotfußpunkt bestimmen</LotKopf>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 4, fontSize: 17, fontWeight: 800, margin: "10px 0 14px" }}>
         <span>F(</span>
         {[0, 1, 2].map((i) => (
@@ -521,7 +537,7 @@ function LotUeben({ art }) {
         ))}
         <span>)</span>
       </div>
-      <p style={{ fontSize: 12.5, fontWeight: 700, color: C.grau, margin: "0 0 8px" }}>3 · Länge des Lots (Abstand, gerundet)</p>
+      <LotKopf nr={3}>Länge des Lots (Abstand, gerundet)</LotKopf>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
         <span style={{ fontSize: 16, fontWeight: 800 }}>d =</span>
         <MatheFeld modus="zahl" value={laengeW} aria-label="Länge des Lots" placeholder="z. B. 3,46"
@@ -530,14 +546,14 @@ function LotUeben({ art }) {
       </div>
       {erg && <Meldung art={erg.art}>{erg.text}</Meldung>}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: erg ? 14 : 0 }}>
-        <Knopf gold onClick={pruefen}>Prüfen</Knopf>
+        <HauptKnopf onClick={pruefen}>Prüfen</HauptKnopf>
         <Knopf onClick={naechste}>Neue Aufgabe</Knopf>
       </div>
       {erg && erg.art !== "warn" && (
         <details style={{ marginTop: 6 }}>
           <summary style={{ cursor: "pointer", color: C.see, fontWeight: 600, fontSize: 14, padding: "8px 0" }}>Rechenweg anzeigen</summary>
           <div style={{ marginTop: 8 }}>
-            {art === "pg" ? <PunktGerade P={a.P} A={a.A} u={a.u} nP="P" nG="g" /> : <PunktEbene P={a.P} nv={a.n} d={a.d} nP="P" nE="E" />}
+            {art === "pg" ? <PunktGerade P={a.P} A={a.A} u={a.u} nP="P" nG="g" fx={C.see} fy={VF.zweiText} /> : <PunktEbene P={a.P} nv={a.n} d={a.d} nP="P" nE="E" fx={C.see} fy={VF.zweiText} />}
           </div>
         </details>
       )}
@@ -564,7 +580,8 @@ export function Abstaende() {
   const oL = lese(links), oR = lese(rechts);
   const kombi = [links.typ, rechts.typ].sort((a, b) => TYPEN.findIndex((t) => t.id === a) - TYPEN.findIndex((t) => t.id === b)).join("-");
   const lotArt = kombi === "punkt-gerade" ? "pg" : kombi === "punkt-ebene" ? "pe" : null;
-  const karte = { background: C.weiss, borderRadius: 16, padding: 18, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" };
+  // Farben wie die Boxen: erstes Objekt Blau, zweites Gold – auch wenn die Rechnung die Reihenfolge tauscht
+  const FL_LINKS = C.see, FL_RECHTS = VF.zweiText;
 
   // Objekte in Standardreihenfolge (Punkt < Gerade < Ebene) – umgekehrte Auswahl nutzt dieselbe Logik
   let rechnung = null;
@@ -572,51 +589,46 @@ export function Abstaende() {
     const tausch = TYPEN.findIndex((t) => t.id === links.typ) > TYPEN.findIndex((t) => t.id === rechts.typ);
     const [x, y] = tausch ? [oR, oL] : [oL, oR];
     const [nx, ny] = tausch ? [nR, nL] : [nL, nR];
+    const [fx, fy] = tausch ? [FL_RECHTS, FL_LINKS] : [FL_LINKS, FL_RECHTS];
     const sch = [kombi, x, y, nx, ny].join("|") + JSON.stringify([x, y]);
-    if (kombi === "punkt-punkt") rechnung = <PunktPunkt key={sch} P={x.p} Q={y.p} nP={nx} nQ={ny} />;
-    else if (kombi === "punkt-gerade") rechnung = <PunktGerade key={sch} P={x.p} A={y.a} u={y.u} nP={nx} nG={ny} />;
-    else if (kombi === "punkt-ebene") rechnung = <PunktEbene key={sch} P={x.p} nv={y.nv} d={y.d} nP={nx} nE={ny} />;
-    else if (kombi === "gerade-gerade") rechnung = <GeradeGerade key={sch} A={x.a} u={x.u} B={y.a} v={y.u} nG={nx} nH={ny} />;
-    else if (kombi === "gerade-ebene") rechnung = <GeradeEbene key={sch} A={x.a} u={x.u} nv={y.nv} d={y.d} nG={nx} nE={ny} />;
-    else rechnung = <EbeneEbene key={sch} n1={x.nv} d1={x.d} n2={y.nv} d2={y.d} nE1={nx} nE2={ny} />;
+    const f = { fx, fy };
+    if (kombi === "punkt-punkt") rechnung = <PunktPunkt key={sch} P={x.p} Q={y.p} nP={nx} nQ={ny} {...f} />;
+    else if (kombi === "punkt-gerade") rechnung = <PunktGerade key={sch} P={x.p} A={y.a} u={y.u} nP={nx} nG={ny} {...f} />;
+    else if (kombi === "punkt-ebene") rechnung = <PunktEbene key={sch} P={x.p} nv={y.nv} d={y.d} nP={nx} nE={ny} {...f} />;
+    else if (kombi === "gerade-gerade") rechnung = <GeradeGerade key={sch} A={x.a} u={x.u} B={y.a} v={y.u} nG={nx} nH={ny} {...f} />;
+    else if (kombi === "gerade-ebene") rechnung = <GeradeEbene key={sch} A={x.a} u={x.u} nv={y.nv} d={y.d} nG={nx} nE={ny} {...f} />;
+    else rechnung = <EbeneEbene key={sch} n1={x.nv} d1={x.d} n2={y.nv} d2={y.d} nE1={nx} nE2={ny} {...f} />;
   }
+  const typName = (t) => TYPEN.find((x) => x.id === t).name;
 
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
-      <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>Wie weit ist es von … bis …?</h2>
-      <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 18 }}>
-        Wähle links und rechts je ein Objekt. Du bekommst Eingabefelder, die passende Rechnung und das 3D-Bild.
-        Schneiden sich die Objekte oder liegt eines im anderen, ist der Abstand 0.
-      </p>
+    <VekSeite titel="Wie weit ist es von … bis …?"
+      text="Wähle zwei Objekte und trag ihre Werte ein. Schneiden sie sich oder liegt eines im anderen, ist der Abstand 0.">
+      <ObjektReihe min={270}>
+        <ObjektBox farbe={FL_LINKS} name={nL} art={typName(links.typ)} rechts="von" innen="10px 10px 14px">
+          <Auswahl wert={links.typ} setWert={(t) => { setLinks({ ...links, typ: t }); setModus("rechnen"); }} seite={0} farbe={FL_LINKS} />
+          {modus === "lot" && lotArt ? <p style={{ fontSize: 12.5, color: C.grau, textAlign: "center", margin: 0 }}>Im Lotpunkt-Training kommen die Werte aus der Aufgabe.</p>
+            : <ObjektEingabe o={links} setO={setLinks} name={nL} farbe={FL_LINKS} />}
+        </ObjektBox>
+        <ObjektBox farbe={VF.zwei} name={nR} art={typName(rechts.typ)} rechts="bis" innen="10px 10px 14px">
+          <Auswahl wert={rechts.typ} setWert={(t) => { setRechts({ ...rechts, typ: t }); setModus("rechnen"); }} seite={1} farbe={VF.zwei} />
+          {modus === "lot" && lotArt ? <p style={{ fontSize: 12.5, color: C.grau, textAlign: "center", margin: 0 }}>Im Lotpunkt-Training kommen die Werte aus der Aufgabe.</p>
+            : <ObjektEingabe o={rechts} setO={setRechts} name={nR} farbe={FL_RECHTS} />}
+        </ObjektBox>
+      </ObjektReihe>
 
-      <div style={karte}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
-          <Auswahl wert={links.typ} setWert={(t) => { setLinks({ ...links, typ: t }); setModus("rechnen"); }} seite={0} />
-          <span style={{ fontSize: 15, fontWeight: 700, color: C.grau, flexShrink: 0 }}>zu</span>
-          <Auswahl wert={rechts.typ} setWert={(t) => { setRechts({ ...rechts, typ: t }); setModus("rechnen"); }} seite={1} />
+      {lotArt && (
+        <div style={{ marginTop: 14 }}>
+          <ModusReiter label="Modus" wert={modus} setWert={setModus}
+            modi={[{ id: "rechnen", name: "Abstand berechnen", bild: "abstand" }, { id: "lot", name: "Lotfußpunkt bestimmen", bild: "lot" }]} />
         </div>
+      )}
 
-        {lotArt && (
-          <div role="tablist" aria-label="Modus" style={{ display: "flex", gap: 6, marginBottom: 16, flexWrap: "nowrap" }}>
-            {[["rechnen", "Abstand berechnen"], ["lot", "Lotpunkt bestimmen"]].map(([id, t]) => (
-              <button key={id} type="button" role="tab" aria-selected={modus === id} onClick={() => setModus(id)}
-                style={{ flex: "1 1 0", minWidth: 0, padding: "7px 6px", borderRadius: 999, fontSize: "clamp(9px, calc((100vw - 130px) / 21.5), 13px)", whiteSpace: "nowrap", textAlign: "center", fontFamily: "inherit", cursor: "pointer",
-                  border: `1px solid ${modus === id ? C.see : C.linie}`, background: modus === id ? C.himmel : C.weiss, color: C.see, fontWeight: modus === id ? 700 : 500 }}>{t}</button>
-            ))}
-          </div>
-        )}
-
-        {modus === "lot" && lotArt ? <LotUeben key={lotArt} art={lotArt} /> : (
-          <>
-            <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 16, paddingBottom: 16, borderBottom: `1px solid ${C.linie}` }}>
-              <ObjektEingabe o={links} setO={setLinks} name={nL} farbe={C.see} />
-              <ObjektEingabe o={rechts} setO={setRechts} name={nR} farbe={C.gruen} />
-            </div>
-            {oL.fehler || oR.fehler ? <Meldung art="warn">{oL.fehler || oR.fehler}</Meldung> : rechnung}
-          </>
-        )}
-        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={modus === "lot" && lotArt ? lotHilfe(lotArt) : abstandHilfe(kombi)} /></div>
-      </div>
-    </div>
+      <Tafel titel={modus === "lot" && lotArt ? "Lotfußpunkt bestimmen" : "Rechnung"} stil={{ marginTop: lotArt ? 0 : 14 }}>
+        {modus === "lot" && lotArt ? <LotUeben key={lotArt} art={lotArt} />
+          : oL.fehler || oR.fehler ? <Meldung art="warn">{oL.fehler || oR.fehler}</Meldung> : rechnung}
+      </Tafel>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={modus === "lot" && lotArt ? lotHilfe(lotArt) : abstandHilfe(kombi)} /></div>
+    </VekSeite>
   );
 }

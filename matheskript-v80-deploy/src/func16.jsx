@@ -15,6 +15,7 @@ import { WeiterKnopf, WeiterMit, ZentrumListe } from "./funcWerkzeuge.jsx";
 import { C } from "./base1.jsx";
 import { GesperrteKurse } from "./func1.jsx";
 import { M } from "./func3.jsx";
+import { BUEHNE, BUEHNE_SVG, FallWahl, ObjektBox, Tafel, VekSeite } from "./vekUi.jsx";
 
 /* ---------- Zahlen und Brüche ---------- */
 
@@ -154,19 +155,21 @@ export function GrundebenenGitter({ an, P, L }) {
   );
 }
 
+/* Kompakte Schalter unter dem 3D-Bild: „Grundebenen  x₁x₂  x₂x₃  x₁x₃“ (eine Zeile, auch bei 360 px);
+   ohneTitel: Beschriftung steht schon als Kicker darüber (Desktop-Werkzeugleiste) */
 export function GrundebenenSchalter({ an, setAn, ohneTitel = false }) {
   return (
     <div role="group" aria-label="Grundebenen anzeigen" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 6 }}>
-      {!ohneTitel && <span style={{ fontSize: 12.5, color: C.grau, marginRight: 2 }}>Grundebenen</span>}
+      {!ohneTitel && <span style={{ fontSize: 12.5, fontWeight: 600, color: C.grau, marginRight: 2 }}>Grundebenen</span>}
       {GRUNDEBENEN.map((g) => {
         const aktiv = !!an[g.id], farbe = FARBE_ACHSE[g.senkrecht];
         return (
-          <button key={g.id} type="button" aria-pressed={aktiv} onClick={() => setAn({ ...an, [g.id]: !aktiv })}
-            style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 10px", minHeight: 32, borderRadius: 999,
-              border: `1px solid ${aktiv ? farbe : C.linie}`, background: aktiv ? C.himmel : C.weiss,
-              color: C.tinte, fontSize: 12.5, fontFamily: "inherit", cursor: "pointer", whiteSpace: "nowrap" }}>
-            <span aria-hidden="true" style={{ width: 12, height: 12, borderRadius: 3, border: `1.5px solid ${farbe}`,
-              background: aktiv ? farbe : "transparent", opacity: aktiv ? 0.85 : 0.5 }} />{g.name}
+          <button key={g.id} type="button" aria-pressed={aktiv} aria-label={g.name} title={g.name} onClick={() => setAn({ ...an, [g.id]: !aktiv })}
+            style={{ display: "flex", alignItems: "center", gap: 6, padding: "0 10px", height: 30, borderRadius: 999,
+              border: `1.5px solid ${aktiv ? farbe : C.linie}`, background: aktiv ? `${farbe}14` : C.weiss,
+              color: aktiv ? C.tinte : C.grau, fontSize: 12.5, fontWeight: aktiv ? 700 : 600, fontFamily: "inherit", cursor: "pointer", whiteSpace: "nowrap" }}>
+            <span aria-hidden="true" style={{ width: 11, height: 9, borderRadius: 2, border: `1.5px solid ${farbe}`, transform: "skewX(-24deg)",
+              background: aktiv ? `${farbe}66` : "transparent" }} />{g.name.replace("-Ebene", "").replace("-", "")}
           </button>
         );
       })}
@@ -251,7 +254,7 @@ function Raum({ a, b, c, d, phi, theta, setPhi, setTheta, zeigen, zoom = 1, grun
   };
 
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", display: "block", touchAction: "none", cursor: "grab", background: C.weiss, borderRadius: 14 }}
+    <svg viewBox={`0 0 ${W} ${H}`} style={BUEHNE_SVG}
       onPointerDown={start} onPointerMove={bewege} onPointerUp={ende} onPointerLeave={ende}>
       <defs>
         {[0, 1, 2].map((k) => (
@@ -459,27 +462,30 @@ export function DrehKnoepfe({ setPhi, setTheta, zuruecksetzen }) {
   };
   const stopp = () => clearInterval(timer.current);
   React.useEffect(() => () => clearInterval(timer.current), []);
-  const knopf = (inhalt, stil, dp, dt, titel) => (
+  const knopf = (richtung, stil, dp, dt, titel) => (
     <button aria-label={titel} title={titel}
       onPointerDown={start(dp, dt)} onPointerUp={stopp} onPointerLeave={stopp} onPointerCancel={stopp}
-      style={{ position: "absolute", width: 34, height: 34, borderRadius: 999, border: `1px solid ${C.linie}`,
-        background: "rgba(255,255,255,0.92)", color: C.see, fontSize: 15, fontWeight: 700, cursor: "pointer", padding: 0,
-        display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(15,26,51,0.14)",
+      style={{ position: "absolute", width: 32, height: 32, borderRadius: 999, border: `1px solid ${C.linie}`,
+        background: "rgba(255,255,255,0.9)", color: C.see, cursor: "pointer", padding: 0,
+        display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(15,26,51,0.12)",
         touchAction: "none", userSelect: "none", ...stil }}>
-      {inhalt}
+      <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" style={{ transform: `rotate(${richtung}deg)` }}>
+        <path d="M6 3.5 L10.5 8 L6 12.5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
     </button>
   );
   return (
     <>
-      {knopf("◀", { left: 6, top: "50%", transform: "translateY(-50%)" }, SCHRITT, 0, "Nach links drehen")}
-      {knopf("▶", { right: 6, top: "50%", transform: "translateY(-50%)" }, -SCHRITT, 0, "Nach rechts drehen")}
-      {knopf("▲", { top: 6, left: "50%", transform: "translateX(-50%)" }, 0, SCHRITT, "Nach oben kippen")}
-      {knopf("▼", { bottom: 6, left: "50%", transform: "translateX(-50%)" }, 0, -SCHRITT, "Nach unten kippen")}
+      {knopf(180, { left: 6, top: "50%", transform: "translateY(-50%)" }, SCHRITT, 0, "Nach links drehen")}
+      {knopf(0, { right: 6, top: "50%", transform: "translateY(-50%)" }, -SCHRITT, 0, "Nach rechts drehen")}
+      {knopf(-90, { top: 6, left: "50%", transform: "translateX(-50%)" }, 0, SCHRITT, "Nach oben kippen")}
+      {knopf(90, { bottom: 6, left: "50%", transform: "translateX(-50%)" }, 0, -SCHRITT, "Nach unten kippen")}
       <button aria-label="Ansicht zurücksetzen" title="Ansicht zurücksetzen" onClick={zuruecksetzen}
-        style={{ position: "absolute", left: 6, bottom: 6, height: 30, padding: "0 10px", borderRadius: 999,
-          border: `1px solid ${C.linie}`, background: "rgba(255,255,255,0.92)", color: C.see, fontSize: 12.5, fontWeight: 600,
-          fontFamily: "inherit", cursor: "pointer", boxShadow: "0 2px 8px rgba(15,26,51,0.14)" }}>
-        ↺ Zurück
+        style={{ position: "absolute", left: 6, bottom: 6, height: 30, padding: "0 10px 0 8px", borderRadius: 999, display: "flex", alignItems: "center", gap: 5,
+          border: `1px solid ${C.linie}`, background: "rgba(255,255,255,0.9)", color: C.see, fontSize: 12, fontWeight: 700,
+          fontFamily: "inherit", cursor: "pointer", boxShadow: "0 2px 8px rgba(15,26,51,0.12)" }}>
+        <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path d="M3.2 8a4.8 4.8 0 1 0 1.5-3.5M3 2.4v2.8h2.8" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" /></svg>
+        Zurück
       </button>
     </>
   );
@@ -515,82 +521,66 @@ export function EbenenVisualizer() {
     while (k.every((v) => v === 0)) k = [r(), r(), r()];
     setze([...k, Math.floor(Math.random() * 21) - 10]);
   };
-  const karte = { background: C.weiss, borderRadius: 16, padding: 18, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" };
+  const chip = (an, randFarbe) => ({ display: "flex", alignItems: "center", gap: 6, height: 30, padding: "0 10px", borderRadius: 999, whiteSpace: "nowrap",
+    border: `1.5px solid ${an ? randFarbe : C.linie}`, background: an ? `${randFarbe}14` : C.weiss, color: an ? C.tinte : C.grau,
+    fontSize: 12.5, fontWeight: an ? 700 : 600, fontFamily: "inherit", cursor: "pointer" });
   const schalter = (schl, label, farbe) => (
-    <button key={schl} onClick={() => setZeigen({ ...zeigen, [schl]: !zeigen[schl] })}
-      style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 10px", borderRadius: 999,
-        border: `1px solid ${zeigen[schl] ? farbe : C.linie}`, background: zeigen[schl] ? C.himmel : C.weiss,
-        color: C.tinte, fontSize: 12.5, fontFamily: "inherit", cursor: "pointer" }}>
+    <button key={schl} type="button" aria-pressed={!!zeigen[schl]} onClick={() => setZeigen({ ...zeigen, [schl]: !zeigen[schl] })} style={chip(zeigen[schl], farbe)}>
       <span style={{ width: 14, height: 3, borderRadius: 2, background: farbe, opacity: zeigen[schl] ? 1 : 0.35 }} />{label}
     </button>
   );
-  const ansicht = (name, p, t) => (
-    <button key={name} onClick={() => { setPhi(p); setTheta(t); }}
-      style={{ padding: "5px 10px", borderRadius: 999, border: `1px solid ${C.linie}`, background: C.weiss, color: C.see,
-        fontSize: 12, fontFamily: "inherit", cursor: "pointer" }}>{name}</button>
-  );
+  const ANSICHTEN = [["Schräg", 0.62, 0.42], ["Von vorn", 0.0001, 0.0001], ["Von oben", 0.62, 1.34], ["Von der Seite", 1.5707, 0.0001]];
+  const ansichtAn = ANSICHTEN.find(([, p, t]) => Math.abs(p - phi) < 1e-3 && Math.abs(t - theta) < 1e-3);
+  const beispiel = BEISPIELE.find((x) => x.k.join() === [a, b, c, d].join());
+  const zeileTitel = { fontSize: 12.5, fontWeight: 600, color: C.grau, marginRight: 2 };
 
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
-      <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
-        Sieh, was die Koeffizienten mit der Ebene tun
-      </h2>
-      <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 22 }}>
-        Stell a, b, c und d ein und beobachte, wie sich die Ebene im Raum dreht und verschiebt. Der Normalenvektor
-        n = (a | b | c) steht immer senkrecht auf ihr, d verschiebt sie parallel. Mit dem Finger oder der Maus
-        drehst du das Koordinatensystem.
-      </p>
-
-      <div style={karte}>
+    <VekSeite titel="Sieh, was die Koeffizienten mit der Ebene tun"
+      text="Stell a, b, c und d ein: a, b und c kippen die Ebene (Normalenvektor), d schiebt sie parallel. Mit Finger oder Maus drehst du den Raum.">
+      <ObjektBox farbe={C.see} name="E" art="Ebene in Koordinatenform" innen="14px 10px 4px">
         <GleichungMitReglern a={a} b={b} c={c} d={d} setA={setA} setB={setB} setC={setC} setD={setD} />
+      </ObjektBox>
+      <div style={{ margin: "12px 0" }}>
+        <FallWahl titel="Beispiele" wert={beispiel ? beispiel.name : null}
+          setWert={(name) => (name === "zufall" ? zufall() : setze(BEISPIELE.find((x) => x.name === name).k))}
+          optionen={[["zufall", "Zufall", "zufall"], ...BEISPIELE.map((x) => [x.name, x.name])]} />
+      </div>
 
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 10 }}>
-          {schalter("spur", "Spurgeraden", C.flaggold)}
-          {schalter("normale", "Normalenvektor", C.smaragd)}
-          {schalter("box", "Würfel", C.hellgrau)}
-        </div>
-        <div style={{ marginBottom: 10 }}><GrundebenenSchalter an={grund} setAn={setGrund} /></div>
-
-        <div style={{ position: "relative" }}>
-          <Raum a={a} b={b} c={c} d={d} phi={phi} theta={theta} setPhi={setPhi} setTheta={setTheta} zeigen={zeigen} zoom={zoom} grund={grund} />
-          <DrehKnoepfe setPhi={setPhi} setTheta={setTheta} zuruecksetzen={() => { setPhi(0.62); setTheta(0.42); setZoom(1); }} />
-          {/* Zoom unten rechts */}
-          <div style={{ position: "absolute", right: 6, bottom: 6, display: "flex", flexDirection: "column", borderRadius: 10,
-            overflow: "hidden", border: `1px solid ${C.linie}`, boxShadow: "0 2px 8px rgba(15,26,51,0.14)" }}>
-            {[["+", 1.25, "Hineinzoomen"], ["−", 1 / 1.25, "Herauszoomen"]].map(([z, f, t], i) => (
-              <button key={z} aria-label={t} title={t} onClick={() => setZoom((v) => Math.min(4, Math.max(0.4, v * f)))}
-                style={{ width: 34, height: 32, border: "none", borderTop: i ? `1px solid ${C.linie}` : "none",
-                  background: "rgba(255,255,255,0.95)", color: C.see, fontSize: 19, fontWeight: 700, fontFamily: "inherit",
-                  cursor: "pointer", padding: 0 }}>{z}</button>
-            ))}
-          </div>
-        </div>
-
-        <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginTop: 10 }}>
-          <span style={{ fontSize: 12.5, color: C.grau, marginRight: 2 }}>Ansicht</span>
-          {ansicht("Schräg", 0.62, 0.42)}
-          {ansicht("Von vorn", 0.0001, 0.0001)}
-          {ansicht("Von oben", 0.62, 1.34)}
-          {ansicht("Von der Seite", 1.5707, 0.0001)}
-        </div>
-
-
-        <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingTop: 14 }}>
-          <button onClick={zufall}
-            style={{ flexShrink: 0, padding: "7px 12px", borderRadius: 999, border: "none", background: C.flaggold, color: C.seeTief,
-              fontSize: 12.5, fontWeight: 700, fontFamily: "inherit", cursor: "pointer" }}>🎲 Zufall</button>
-          {BEISPIELE.map((x) => (
-            <button key={x.name} onClick={() => setze(x.k)}
-              style={{ flexShrink: 0, padding: "7px 12px", borderRadius: 999, border: `1px solid ${C.linie}`, background: C.weiss,
-                color: C.see, fontSize: 12.5, fontFamily: "inherit", cursor: "pointer", whiteSpace: "nowrap" }}>{x.name}</button>
+      <div style={BUEHNE}>
+        <Raum a={a} b={b} c={c} d={d} phi={phi} theta={theta} setPhi={setPhi} setTheta={setTheta} zeigen={zeigen} zoom={zoom} grund={grund} />
+        <DrehKnoepfe setPhi={setPhi} setTheta={setTheta} zuruecksetzen={() => { setPhi(0.62); setTheta(0.42); setZoom(1); }} />
+        {/* Zoom unten rechts */}
+        <div style={{ position: "absolute", right: 6, bottom: 6, display: "flex", flexDirection: "column", borderRadius: 10,
+          overflow: "hidden", border: `1px solid ${C.linie}`, boxShadow: "0 2px 8px rgba(15,26,51,0.12)" }}>
+          {[["+", 1.25, "Hineinzoomen"], ["−", 1 / 1.25, "Herauszoomen"]].map(([z, f, t], i) => (
+            <button key={z} aria-label={t} title={t} onClick={() => setZoom((v) => Math.min(4, Math.max(0.4, v * f)))}
+              style={{ width: 32, height: 30, border: "none", borderTop: i ? `1px solid ${C.linie}` : "none",
+                background: "rgba(255,255,255,0.95)", color: C.see, fontSize: 18, fontWeight: 700, fontFamily: "inherit",
+                cursor: "pointer", padding: 0 }}>{z}</button>
           ))}
         </div>
       </div>
 
-      <div style={{ ...karte, marginTop: 16 }}>
-        <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 6 }}>Eigenschaften der Ebene</p>
-        <Eigenschaften a={a} b={b} c={c} d={d} />
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 10 }}>
+        <div role="group" aria-label="Im Bild anzeigen" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 6 }}>
+          <span style={zeileTitel}>Anzeigen</span>
+          {schalter("spur", "Spurgeraden", C.flaggold)}
+          {schalter("normale", "Normalenvektor", C.smaragd)}
+          {schalter("box", "Würfel", C.hellgrau)}
+        </div>
+        <GrundebenenSchalter an={grund} setAn={setGrund} />
+        <div role="group" aria-label="Blickrichtung" style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+          <span style={zeileTitel}>Ansicht</span>
+          {ANSICHTEN.map(([name, p, t]) => (
+            <button key={name} type="button" aria-pressed={ansichtAn ? ansichtAn[0] === name : false} onClick={() => { setPhi(p); setTheta(t); }}
+              style={chip(ansichtAn && ansichtAn[0] === name, C.see)}>{name}</button>
+          ))}
+        </div>
       </div>
+
+      <Tafel titel="Eigenschaften der Ebene">
+        <Eigenschaften a={a} b={b} c={c} d={d} />
+      </Tafel>
 
       {(a !== 0 || b !== 0 || c !== 0) && (
         <WeiterMit titel="Weiter mit dieser Ebene">
@@ -599,20 +589,19 @@ export function EbenenVisualizer() {
         </WeiterMit>
       )}
 
-      <div style={{ ...karte, marginTop: 16 }}>
-        <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 10 }}>So liest du die Koordinatenform</p>
+      <Tafel titel="So liest du die Koordinatenform">
         {[
           ["a, b, c", "bilden den Normalenvektor n = (a | b | c). Er legt fest, wie die Ebene im Raum geneigt ist."],
           ["d", "verschiebt die Ebene parallel. Bei d = 0 geht sie durch den Ursprung."],
           ["Spurpunkte", "entstehen, wenn man zwei Koordinaten null setzt: S₁(d/a | 0 | 0), S₂(0 | d/b | 0), S₃(0 | 0 | d/c)."],
           ["Ein Koeffizient 0", "die Ebene ist parallel zur zugehörigen Achse – zwei Koeffizienten 0: parallel zu einer Koordinatenebene."],
-        ].map(([t, s]) => (
+        ].map(([t, x]) => (
           <p key={t} style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, marginBottom: 6 }}>
-            <b style={{ color: C.tinte }}>{t}:</b> {s}
+            <b style={{ color: C.tinte }}>{t}:</b> {x}
           </p>
         ))}
-      </div>
-    </div>
+      </Tafel>
+    </VekSeite>
   );
 }
 

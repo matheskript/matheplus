@@ -18,10 +18,11 @@ import { MatheFeld } from "./matheTastatur.jsx";
 import { wAdd, wGanz, wIstNull, wIstRational, wLies, wMul, wNegativ, wNum, wSub, wText, wZ } from "./wzahl.js";
 import { WurzelZeichen } from "./wurzelZeichen.jsx";
 import { Arbeitsflaeche, BildKarte, ErgebnisReihe, Werkzeugleiste, chipStil, feinKarte, hinweisStil, titelStil, toenKarte, useBreite, useDesktop } from "./arbeitsflaeche.jsx";
+import { BUEHNE, Bild, Ergebnis, FallWahl, ObjektBox, ObjektReihe, RSchritt, Rechenweg, Tafel, VekSeite } from "./vekUi.jsx";
 
 const FARBE_E1 = C.see;
 const FARBE_E2 = C.gruen;
-const FARBE_G = "#C99A00";
+const FARBE_G = C.smaragd;   /* Schnittgerade = Ergebnis (Gold gehört E₂) */
 
 /* ---------- Zahlen ---------- */
 
@@ -75,10 +76,15 @@ export function Zahl({ q }) {
 export function VecName({ t, idx, farbe }) {
   return (
     <span style={{ color: farbe, whiteSpace: "nowrap" }}>
-      {/* Pfeil absolut über dem Buchstaben – der Buchstabe bleibt auf der Grundlinie des Textes */}
-      <span style={{ position: "relative", display: "inline-block" }}>
-        <span aria-hidden="true" style={{ position: "absolute", left: "-0.05em", right: "-0.05em", top: "-0.58em", textAlign: "center",
-          fontSize: "0.72em", lineHeight: 1, fontWeight: 700 }}>→</span>
+      {/* Pfeil absolut über dem Buchstaben (Strich über die ganze Breite + Spitze) – der Buchstabe bleibt auf der Grundlinie */}
+      {/* lineHeight 1: die Box ist genau 1 em hoch, der Pfeil sitzt damit unabhängig von der Zeilenhöhe knapp über dem Buchstaben */}
+      <span style={{ position: "relative", display: "inline-block", lineHeight: 1 }}>
+        <span aria-hidden="true" style={{ position: "absolute", left: "0.05em", right: "-0.04em", top: "-0.27em", height: "0.38em", minWidth: "0.55em" }}>
+          <span style={{ position: "absolute", left: 0, right: "0.08em", top: "50%", height: "0.09em", marginTop: "-0.045em", background: "currentColor", borderRadius: "0.05em" }} />
+          <svg viewBox="0 0 6 8" preserveAspectRatio="xMaxYMid meet" style={{ position: "absolute", right: 0, top: 0, height: "100%", width: "0.285em", overflow: "visible" }}>
+            <path d="M1.1 1.1 L5 4 L1.1 6.9" fill="none" stroke="currentColor" strokeWidth="1.45" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </span>
         {t}
       </span>
       {idx && <sub style={{ fontSize: "0.65em" }}>{idx}</sub>}
@@ -135,30 +141,24 @@ function ReglerReihe({ name, k, setK, beschriftungOben }) {
   );
 }
 
-/* „E₁: 3x₁ + 2x₂ + x₃ = 6“ in einer Zeile */
-function GleichungsZeile({ name, farbe, k }) {
+/* „3x₁ + 2x₂ + x₃ = 6“ in einer Zeile (der Name steht im Kopf der Box) */
+function GleichungsZeile({ k }) {
   return (
-    <p style={{ fontSize: "clamp(13px, 4vw, 18px)", fontWeight: 700, color: C.tinte, textAlign: "center", lineHeight: 1.3, margin: 0, whiteSpace: "nowrap",
-      fontVariantNumeric: "tabular-nums", padding: "10px 0" }}>
-      <span style={{ color: farbe, fontWeight: 800 }}>E{name}:</span> {ebenenText(...k)}
-    </p>
+    <Einzeilig max={19} min={12}><span>{ebenenText(...k)}</span></Einzeilig>
   );
 }
 
-/* Beide Ebenen übereinander: Regler E₁ – Gleichung E₁ – Gleichung E₂ – Regler E₂ */
+/* Beide Ebenen in eigenen Boxen: E₁ links (Blau), E₂ rechts (Gold); auf schmalen Bildschirmen untereinander */
 function EbenenPaar({ k1, setK1, k2, setK2 }) {
-  const box = (farbe, rundung) => ({ border: `1.5px solid ${farbe}44`, background: `${farbe}08`, borderRadius: rundung, padding: "10px 10px" });
   return (
-    <div>
-      <div style={{ ...box(FARBE_E1, "14px 14px 0 0"), paddingBottom: 0, borderBottom: "none" }}>
-        <ReglerReihe name="₁" k={k1} setK={setK1} beschriftungOben />
-        <GleichungsZeile name="₁" farbe={FARBE_E1} k={k1} />
-      </div>
-      <div style={{ ...box(FARBE_E2, "0 0 14px 14px"), paddingTop: 0, borderTop: "none" }}>
-        <GleichungsZeile name="₂" farbe={FARBE_E2} k={k2} />
-        <ReglerReihe name="₂" k={k2} setK={setK2} beschriftungOben={false} />
-      </div>
-    </div>
+    <ObjektReihe min={260}>
+      {[["₁", FARBE_E1, k1, setK1], ["₂", FARBE_E2, k2, setK2]].map(([nr, farbe, k, setK]) => (
+        <ObjektBox key={nr} farbe={farbe} name={`E${nr}`} art="Ebene" innen="8px 10px 12px">
+          <div style={{ padding: "4px 0 10px" }}><GleichungsZeile k={k} /></div>
+          <ReglerReihe name={nr} k={k} setK={setK} beschriftungOben />
+        </ObjektBox>
+      ))}
+    </ObjektReihe>
   );
 }
 
@@ -305,8 +305,8 @@ function Raum2({ k1, k2, info, phi, theta, setPhi, setTheta, zoom, grund, W = 36
         const [x1, y1] = P(gerade[0]), [x2, y2] = P(gerade[1]);
         return (
           <g>
-            <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#6B5200" strokeWidth="5" strokeLinecap="round" opacity="0.35" />
-            <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={C.flaggold} strokeWidth="3" strokeLinecap="round" />
+            <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#fff" strokeWidth="6" strokeLinecap="round" opacity="0.9" />
+            <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={FARBE_G} strokeWidth="3.2" strokeLinecap="round" />
           </g>
         );
       })()}
@@ -322,7 +322,7 @@ function Raum2({ k1, k2, info, phi, theta, setPhi, setTheta, zoom, grund, W = 36
       <g fontSize="12" fontWeight="700">
         <rect x="10" y="10" width="10" height="10" rx="2" fill={FARBE_E1} opacity="0.6" /><text x="25" y="19.5" fill={FARBE_E1}>E₁</text>
         <rect x="50" y="10" width="10" height="10" rx="2" fill={FARBE_E2} opacity="0.6" /><text x="65" y="19.5" fill={FARBE_E2}>E₂</text>
-        {info.art === "schnitt" && <><rect x="90" y="13" width="14" height="4" rx="2" fill={C.flaggold} /><text x="109" y="19.5" fill={FARBE_G}>g</text></>}
+        {info.art === "schnitt" && <><rect x="90" y="13" width="14" height="4" rx="2" fill={FARBE_G} /><text x="109" y="19.5" fill={FARBE_G}>g</text></>}
       </g>
     </svg>
   );
@@ -330,11 +330,11 @@ function Raum2({ k1, k2, info, phi, theta, setPhi, setTheta, zoom, grund, W = 36
 
 /* ---------- Schnittgerade und Schnittwinkel ---------- */
 
-function Schnittgerade({ info }) {
+function Schnittgerade({ info, ohneName = false }) {
   if (info.art !== "schnitt") return null;
   return (
-    <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 6, fontSize: 17, fontWeight: 700, color: C.tinte, fontVariantNumeric: "tabular-nums" }}>
-      <span style={{ color: FARBE_G }}>g:</span>
+    <div style={{ display: "flex", alignItems: "center", justifyContent: ohneName ? "center" : undefined, flexWrap: "wrap", gap: 6, fontSize: 17, fontWeight: 700, color: C.tinte, fontVariantNumeric: "tabular-nums" }}>
+      {!ohneName && <span style={{ color: FARBE_G }}>g:</span>}
       <VecName t="x" idx="" farbe={C.tinte} />
       <span>=</span>
       <SpaltenVektor eintraege={info.p.map((q, i) => <Zahl key={i} q={q} />)} farbe={C.tinte} />
@@ -510,28 +510,48 @@ export function EbeneVsEbene() {
     );
   }
 
-  /* ---------- Handy und Tablet: eine Spalte ---------- */
+  /* ---------- Handy und Tablet: eine Spalte im Design der Vektor-Werkzeuge (vekUi.jsx) ---------- */
+  const beispielAn = BEISPIELE.find((x) => x.k1.join() === k1.join() && x.k2.join() === k2.join());
+  const lageKurz = { schnitt: "Die Ebenen schneiden sich in einer Geraden g.", parallel: "Die Ebenen sind echt parallel.", identisch: "Die Ebenen sind identisch.", keine: "Mindestens eine Gleichung ist keine Ebene." }[info.art];
+  const lageZusatz = {
+    schnitt: "Die Normalenvektoren sind keine Vielfachen voneinander.",
+    parallel: "Die Normalenvektoren sind Vielfache voneinander, die Gleichungen aber nicht – es gibt keinen gemeinsamen Punkt.",
+    identisch: "Beide Gleichungen sind Vielfache voneinander und beschreiben dieselbe Ebene.",
+    keine: "a, b und c dürfen nicht alle 0 sein.",
+  }[info.art];
+  const lageBild = { schnitt: "ee-schnitt", parallel: "ee-parallel", identisch: "ee-identisch" }[info.art];
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 16 }}>
-      <div style={karte}>
-        <div style={{ marginBottom: 14 }}>
-          <EbenenPaar k1={k1} setK1={setK1} k2={k2} setK2={setK2} />
-        </div>
-        <div style={{ marginBottom: 10 }}><GrundebenenSchalter an={grund} setAn={setGrund} /></div>
-        {schaubild}
-        {beispiele(false)}
+    <VekSeite titel="Zwei Ebenen im Raum" text="Stell beide Ebenen ein und sieh sofort, ob sie sich schneiden, parallel oder identisch sind – mit Schnittgerade und Schnittwinkel.">
+      <EbenenPaar k1={k1} setK1={setK1} k2={k2} setK2={setK2} />
+      <div style={{ margin: "12px 0" }}>
+        <FallWahl titel="Beispiele" wert={beispielAn ? beispielAn.name : null} setWert={(name) => { const x = BEISPIELE.find((y) => y.name === name); setK1(x.k1); setK2(x.k2); }}
+          optionen={BEISPIELE.map((x) => [x.name, x.name])} />
       </div>
+      <div style={{ ...BUEHNE, overflow: "hidden" }}>{schaubild}</div>
+      <div style={{ marginTop: 8 }}><GrundebenenSchalter an={grund} setAn={setGrund} /></div>
 
-      <div style={{ ...karte, marginTop: 16 }}>{lageInhalt}</div>
+      <Tafel titel="Lage der Ebenen">
+        <Ergebnis art={info.art === "keine" ? "warn" : "gut"} titel="Lage" bild={lageBild ? <Bild art={lageBild} breite={44} farbe={FARBE_E1} farbe2={FARBE_E2} /> : null} zusatz={lageZusatz}>
+          {lageKurz}
+        </Ergebnis>
+        {info.art === "schnitt" && (
+          <div style={{ marginTop: 14 }}>
+            <ObjektBox farbe={FARBE_G} name="g" art="Schnittgerade"
+              fuss="Richtung: Kreuzprodukt der Normalenvektoren n₁ × n₂ (gekürzt). Stützpunkt: eine Koordinate 0 gesetzt und das übrige Gleichungssystem gelöst.">
+              <Schnittgerade info={info} ohneName />
+            </ObjektBox>
+          </div>
+        )}
+      </Tafel>
 
       {info.art !== "keine" && (
-        <div style={{ ...karte, marginTop: 16 }}>
-          <p style={titel}>Schnittwinkel</p>
-          <Winkelrechnung k1={k1} k2={k2} />
-          {winkelHinweis}
-        </div>
+        <Tafel titel="Schnittwinkel" text="Der Winkel zwischen zwei Ebenen ist der Winkel zwischen ihren Normalenvektoren. Der Betrag im Zähler sorgt für den spitzen Winkel (0° bis 90°).">
+          <div style={{ background: "#F5F7FB", border: `1px solid ${C.linie}`, borderRadius: 12, padding: "6px 12px" }}>
+            <Winkelrechnung k1={k1} k2={k2} />
+          </div>
+        </Tafel>
       )}
-    </div>
+    </VekSeite>
   );
 }
 
@@ -601,7 +621,7 @@ function KpFeld({ name, nr, farbe, wert, setWert, meldeFehler }) {
 }
 
 /* Ein Vektor: oben „a⃗ =“, darunter drei Zeilen aus − | Feld | + zwischen den Klammern */
-function VektorEingabe({ name, farbe, werte, setWerte }) {
+function VektorEingabe({ name, farbe, werte, setWerte, ohneKopf = false }) {
   const [fehler, setFehler] = useState([false, false, false]);
   const knopf = (i, r, spalte) => (
     <button type="button" aria-label={`${name}${i + 1} ${r > 0 ? "+" : "−"}`} onClick={() => { const n = [...werte]; n[i] = naechsteGanze(werte[i], r); setWerte(n); }}
@@ -615,10 +635,12 @@ function VektorEingabe({ name, farbe, werte, setWerte }) {
       borderRadius: links ? "8px 0 0 8px" : "0 8px 8px 0" }} />
   );
   return (
-    <div style={{ flex: 1, minWidth: 0, maxWidth: 210 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginBottom: 8, fontSize: 18, fontWeight: 800, color: farbe }}>
-        <VecName t={name} idx="" farbe={farbe} /><span>=</span>
-      </div>
+    <div style={{ flex: 1, minWidth: 0, maxWidth: 210, margin: ohneKopf ? "0 auto" : undefined, width: ohneKopf ? "100%" : undefined }}>
+      {!ohneKopf && (
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginBottom: 8, fontSize: 18, fontWeight: 800, color: farbe }}>
+          <VecName t={name} idx="" farbe={farbe} /><span>=</span>
+        </div>
+      )}
       <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 30px) 7px minmax(0, 1fr) 7px minmax(0, 30px)", gridTemplateRows: "repeat(3, 36px)", rowGap: 4, columnGap: 3, alignItems: "center" }}>
         {werte.map((w, i) => knopf(i, -1, 1))}
         {klammer(true)}
@@ -689,66 +711,59 @@ export function KreuzproduktRechner() {
   const parallel = k.every(wIstNull);
   const kreuzZeichen = <span style={{ whiteSpace: "nowrap" }}><VecName t="a" idx="" farbe={FA} /> × <VecName t="b" idx="" farbe={FB} /></span>;
 
+  const beispiel = KP_BEISPIELE.find((x) => kpLies(x.a).map(wText).join() === A.map(wText).join() && kpLies(x.b).map(wText).join() === B.map(wText).join());
+  const textFarbeB = "#8A6D00";
+
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
-      <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
-        Kreuzprodukt auf einen Blick
-      </h2>
-      <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 22 }}>
-        Gib die Koordinaten von zwei Vektoren ein. Darunter siehst du die Formel, die eingesetzten Koordinaten und das
-        fertige Kreuzprodukt – ein Vektor, der auf beiden senkrecht steht.
+    <VekSeite titel="Kreuzprodukt auf einen Blick" text="Gib zwei Vektoren ein. Du siehst die Formel, die eingesetzten Zahlen und das Ergebnis – einen Vektor, der auf beiden senkrecht steht.">
+      <ObjektReihe min={150}>
+        <ObjektBox farbe={FA} name={<VecName t="a" idx="" farbe={C.weiss} />} art="Vektor">
+          <VektorEingabe name="a" farbe={FA} werte={a} setWerte={setA} ohneKopf />
+        </ObjektBox>
+        <ObjektBox farbe={FB} name={<VecName t="b" idx="" farbe={C.weiss} />} art="Vektor">
+          <VektorEingabe name="b" farbe={textFarbeB} werte={b} setWerte={setB} ohneKopf />
+        </ObjektBox>
+      </ObjektReihe>
+      <p style={{ fontSize: 12.5, lineHeight: 1.5, color: C.grau, margin: "10px 2px 0" }}>
+        − und + ändern die Zahl in ganzen Schritten. Tippe auf eine Zahl, um sie direkt einzugeben – auch als Bruch (1/2), Kommazahl (0,5) oder Wurzel (√5).
       </p>
-
-      <div style={karte}>
-        <div style={{ display: "flex", justifyContent: "center", gap: 10 }}>
-          <VektorEingabe name="a" farbe={FA} werte={a} setWerte={setA} />
-          <VektorEingabe name="b" farbe={FB} werte={b} setWerte={setB} />
-        </div>
-        <p style={{ fontSize: 12.5, lineHeight: 1.5, color: C.grau, margin: "12px 0 0", textAlign: "center" }}>
-          Mit − und + änderst du die Zahl in ganzen Schritten. Tippe auf eine Zahl, um sie direkt einzugeben – auch als Bruch (1/2), Kommazahl (0,5) oder Wurzel (√5).
-        </p>
-
-        <div style={{ background: C.sand, borderRadius: 12, padding: "12px 6px", marginTop: 14 }}>
-          <Einzeilig max={14}>
-            {kreuzZeichen}
-            <span>=</span>
-            <SpaltenVektor farbe={C.tinte} eintraege={allgemein} />
-            <span>=</span>
-            <SpaltenVektor farbe={C.tinte} eintraege={eingesetzt} />
-            <span>=</span>
-            <SpaltenVektor farbe={FE} eintraege={ergebnis} />
-          </Einzeilig>
-        </div>
-
-        <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingTop: 14 }}>
-          {KP_BEISPIELE.map((x) => (
-            <button key={x.name} onClick={() => { setA(kpLies(x.a)); setB(kpLies(x.b)); }}
-              style={{ flexShrink: 0, padding: "7px 12px", borderRadius: 999, border: `1px solid ${C.linie}`, background: C.weiss,
-                color: C.see, fontSize: 12.5, fontFamily: "inherit", cursor: "pointer", whiteSpace: "nowrap" }}>{x.name}</button>
-          ))}
-        </div>
+      <div style={{ marginTop: 12 }}>
+        <FallWahl titel="Beispiele" wert={beispiel ? beispiel.name : null} setWert={(name) => { const x = KP_BEISPIELE.find((y) => y.name === name); setA(kpLies(x.a)); setB(kpLies(x.b)); }}
+          optionen={KP_BEISPIELE.map((x) => [x.name, x.name])} />
       </div>
 
-      <div style={{ ...karte, marginTop: 16 }}>
-        <p style={titel}>Was das Ergebnis bedeutet</p>
-        {parallel ? (
-          <p style={{ fontSize: 14.5, color: C.tinte, lineHeight: 1.6 }}>
-            Das Kreuzprodukt ist der Nullvektor – die beiden Vektoren sind parallel (linear abhängig). Sie spannen keine Fläche auf.
-          </p>
-        ) : (
-          <>
+      <Tafel titel="Rechnung">
+        <Rechenweg>
+          <RSchritt nr="1" titel="Formel">
+            <Einzeilig max={16}>{kreuzZeichen}<span>=</span><SpaltenVektor farbe={C.tinte} eintraege={allgemein} /></Einzeilig>
+          </RSchritt>
+          <RSchritt nr="2" titel="Einsetzen und ausrechnen">
+            <Einzeilig max={16}><span>=</span><SpaltenVektor farbe={C.tinte} eintraege={eingesetzt} /><span>=</span><SpaltenVektor farbe={FE} eintraege={ergebnis} /></Einzeilig>
+          </RSchritt>
+          <Ergebnis bild={<Bild art="kreuz" breite={44} />} art={parallel ? "warn" : "gut"}
+            zusatz={parallel ? "Der Nullvektor: Die beiden Vektoren sind parallel (linear abhängig) und spannen keine Fläche auf." : null}>
+            <Einzeilig max={17}>{kreuzZeichen}<span>=</span><SpaltenVektor farbe={C.smaragd} eintraege={k.map((v, z) => <span key={z}>{wText(v)}</span>)} /></Einzeilig>
+          </Ergebnis>
+        </Rechenweg>
+      </Tafel>
+
+      {!parallel && (
+        <Tafel titel="Was das Ergebnis bedeutet">
+          <div style={{ background: "#F5F7FB", border: `1px solid ${C.linie}`, borderRadius: 12, padding: "10px 10px" }}>
             <Einzeilig max={15.5}>
               <span>Probe:</span>
               <VecName t="a" idx="" farbe={FA} /><span>·</span><span>({kreuzZeichen})</span>
               <span>= {wText(wSkalar(A, k))}</span>
               <span style={{ margin: "0 0.4em", color: C.hellgrau }}>und</span>
-              <VecName t="b" idx="" farbe={FB} /><span>·</span><span>({kreuzZeichen})</span>
+              <VecName t="b" idx="" farbe={textFarbeB} /><span>·</span><span>({kreuzZeichen})</span>
               <span>= {wText(wSkalar(B, k))}</span>
             </Einzeilig>
-            <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, margin: "8px 0 12px" }}>
-              Beide Skalarprodukte sind 0 – das Kreuzprodukt steht senkrecht auf <VecName t="a" idx="" farbe={FA} /> und auf <VecName t="b" idx="" farbe={FB} />. Deshalb liefert es zum Beispiel
-              den Normalenvektor einer Ebene aus zwei Spannvektoren.
-            </p>
+          </div>
+          <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, margin: "8px 0 14px" }}>
+            Beide Skalarprodukte sind 0 – das Kreuzprodukt steht senkrecht auf <VecName t="a" idx="" farbe={FA} /> und auf <VecName t="b" idx="" farbe={textFarbeB} />. Deshalb liefert es zum Beispiel
+            den Normalenvektor einer Ebene aus zwei Spannvektoren.
+          </p>
+          <div style={{ background: "#F5F7FB", border: `1px solid ${C.linie}`, borderRadius: 12, padding: "10px 10px" }}>
             <Einzeilig max={15.5}>
               <span>|{kreuzZeichen}|</span>
               <span>=</span>
@@ -756,25 +771,24 @@ export function KreuzproduktRechner() {
               <span>=</span>
               {laengeGanz ? <span>{Math.round(laenge)}</span> : <><Wurzel>{wText(laenge2)}</Wurzel><span>≈ {dez(laenge, 3)}</span></>}
             </Einzeilig>
-            <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, marginTop: 8 }}>
-              Die Länge des Kreuzprodukts ist der Flächeninhalt des Parallelogramms, das <VecName t="a" idx="" farbe={FA} /> und <VecName t="b" idx="" farbe={FB} /> aufspannen – das Dreieck hat die Hälfte davon.
-            </p>
-          </>
-        )}
-      </div>
+          </div>
+          <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, marginTop: 8 }}>
+            Die Länge des Kreuzprodukts ist der Flächeninhalt des Parallelogramms, das <VecName t="a" idx="" farbe={FA} /> und <VecName t="b" idx="" farbe={textFarbeB} /> aufspannen – das Dreieck hat die Hälfte davon.
+          </p>
+        </Tafel>
+      )}
 
-      <div style={{ ...karte, marginTop: 16 }}>
-        <p style={titel}>So merkst du dir die Formel</p>
+      <Tafel titel="So merkst du dir die Formel">
         {[
           ["Zyklisch", "Die Indizes laufen im Kreis: Zeile 1 benutzt 2 und 3, Zeile 2 benutzt 3 und 1, Zeile 3 benutzt 1 und 2."],
           ["Über Kreuz", "Jede Zeile: „überkreuz multiplizieren, dann abziehen“ – erst von oben links nach unten rechts, dann umgekehrt."],
-          ["Reihenfolge", <><VecName t="b" idx="" farbe={FB} /> × <VecName t="a" idx="" farbe={FA} /> = −(<VecName t="a" idx="" farbe={FA} /> × <VecName t="b" idx="" farbe={FB} />): Wer die Vektoren vertauscht, dreht das Ergebnis um.</>],
-        ].map(([t, s]) => (
+          ["Reihenfolge", <><VecName t="b" idx="" farbe={textFarbeB} /> × <VecName t="a" idx="" farbe={FA} /> = −(<VecName t="a" idx="" farbe={FA} /> × <VecName t="b" idx="" farbe={textFarbeB} />): Wer die Vektoren vertauscht, dreht das Ergebnis um.</>],
+        ].map(([t, x]) => (
           <p key={t} style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, marginBottom: 6 }}>
-            <b style={{ color: C.tinte }}>{t}:</b> {s}
+            <b style={{ color: C.tinte }}>{t}:</b> {x}
           </p>
         ))}
-      </div>
-    </div>
+      </Tafel>
+    </VekSeite>
   );
 }

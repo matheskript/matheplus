@@ -1,12 +1,14 @@
 /* ============================================================
-   Vektoren-Bereich: zwei neue Karten
-   · Geraden im Raum: Gerade aus zwei Punkten (das vorhandene Tool),
-     Punktprobe mit beweglichem Parameter, Gerade vs. Gerade
+   Vektoren-Bereich: zwei Karten
+   · Geraden im Raum: Punktprobe mit beweglichem Parameter, Gerade vs. Gerade
      (identisch, parallel, schneidend, windschief), Gerade vs. Ebene
    · Winkel und Skalarprodukt: Skalarprodukt verstehen, Vektorwinkel,
      Gerade-Ebene-Winkel
    Erst vermuten, dann rechnerisch prüfen. Alle Rechnungen exakt
    (rechnen2.js), 3D-Bild aus func20 (Raum3) wiederverwendet.
+   Gestaltung (21.10.): Bausteine aus vekUi.jsx – jedes Objekt in einer
+   eigenen Box (g links in Blau, h/E/P rechts in Gold), Vermutung als
+   Kacheln mit Bildzeichen, Rechnung als nummerierte Zeitleiste.
    Keine base-Datei darf diese Datei importieren.
    ============================================================ */
 
@@ -15,24 +17,27 @@ import { useStateGebucht } from "./buchung.jsx";
 import { C } from "./base1.jsx";
 import { M } from "./func3.jsx";
 import { Einzeilig } from "./func19.jsx";
-import { FA, FB, FE, FS, Gl, Name, Raum3, Vek, koordText, n } from "./func20.jsx";
-import { VektorFeld, ZweiPunkteGerade, leseVektor } from "./func23.jsx";
+import { FS, Gl, Name, Raum3, Vek, koordText, n } from "./func20.jsx";
+import { Feld, leseVektor } from "./func23.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
-import { Auswahl, GrosserKnopf, KleinerLink, Rueck, ZahlFeld, hilfeKontext, hinweis, karte, kicker, zw } from "./ui2.jsx";
+import { ZahlFeld, hilfeKontext, zw } from "./ui2.jsx";
 import { neueLageGE, neueLageGG, neuePunktprobe, neuesVektorPaar } from "./aufgaben2.js";
 import {
   dez, laenge, lageGE, lageGG, nullVek, punktprobe, q, qAdd, qGleich, qLies, qMul, qNum, qTex, skalar, winkelGeradeEbene, winkelZwischen,
 } from "./rechnen2.js";
+import { Bild, Ergebnis, FallWahl, Fusszeile, HauptKnopf, Hinweis, ModusReiter, ObjektBox, ObjektReihe, RSchritt, Rechenweg, Tafel, TippKacheln, VF, VekSeite } from "./vekUi.jsx";
+
+/* Objektfarben: g (erstes Objekt) Blau, h / E / P (zweites Objekt) Gold, Ergebnis Smaragd */
+const F1 = VF.eins, F2 = VF.zwei, F2T = VF.zweiText;
 
 const zeile = { fontSize: 16.5, lineHeight: 1.9, color: C.tinte, overflowX: "auto", whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: 6 };
-const box = { background: C.sand, borderRadius: 14, padding: "10px 14px", marginTop: 12 };
-const schritt = (nr, titel) => (
-  <p style={{ fontSize: 12.5, fontWeight: 700, color: C.grau, margin: "14px 0 8px" }}>
-    <span style={{ display: "inline-flex", width: 20, height: 20, borderRadius: 999, background: C.himmel, color: C.see, alignItems: "center", justifyContent: "center", fontSize: 11.5, marginRight: 6 }}>{nr}</span>{titel}
-  </p>
-);
+const erklaer = { fontSize: 13.5, color: C.grau, lineHeight: 1.6, whiteSpace: "normal", margin: "6px 0 0" };
 const sp = (v) => `\\spalte{${n(v[0])}}{${n(v[1])}}{${n(v[2])}}`;
 const ROEM = ["I", "II", "III"];
+const Roem = ({ r }) => (
+  <span style={{ minWidth: 28, height: 22, padding: "0 6px", borderRadius: 999, background: C.weiss, border: `1px solid ${C.linie}`, color: C.grau,
+    fontSize: 11.5, fontWeight: 800, display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{ROEM[r]}</span>
+);
 
 /* c0 + c1·v als Text, mit Vorzeichen-Logik */
 const lin = (c0, c1, v) => {
@@ -44,10 +49,38 @@ const lin = (c0, c1, v) => {
 const mk = (x) => (x.z < 0 ? `(${qTex(x)})` : qTex(x));
 const punktQ = (S) => `(${S.map((x) => qTex(x)).join(" | ")})`;
 const numPunkt = (S) => S.map(qNum);
+const mkI = (x) => (x < 0 ? `(${n(x)})` : n(x));
 
-const GeradeZeile = ({ name, A, u, farbe, par = "t" }) => (
-  <Einzeilig max={16}><span style={{ color: farbe }}>{name}:</span><Name t="x" farbe={farbe} /><Gl /><Vek w={A.map(n)} farbe={farbe} /><span>+ {par} ·</span><Vek w={u.map(n)} farbe={farbe} /></Einzeilig>
-);
+/* ---------- Objekt-Boxen ---------- */
+
+function GeradeBox({ name, A, u, farbe, par = "t" }) {
+  return (
+    <ObjektBox farbe={farbe} name={name} art={zw("Gerade", "Line")}>
+      <Einzeilig max={18} min={10}>
+        <Name t="x" farbe={C.tinte} /><Gl /><Vek w={A.map(n)} farbe={farbe === F2 ? F2T : farbe} /><span>+ {par} ·</span><Vek w={u.map(n)} farbe={farbe === F2 ? F2T : farbe} />
+      </Einzeilig>
+    </ObjektBox>
+  );
+}
+
+function PunktBox({ name, P, farbe }) {
+  return (
+    <ObjektBox farbe={farbe} name={name} art={zw("Punkt", "Point")}>
+      <Einzeilig max={19} min={11}>
+        <span style={{ color: farbe === F2 ? F2T : farbe }}>{name}</span>
+        <span style={{ color: C.tinte }}>({P.map(n).join(" | ")})</span>
+      </Einzeilig>
+    </ObjektBox>
+  );
+}
+
+function EbeneBox({ name, nv, d, farbe }) {
+  return (
+    <ObjektBox farbe={farbe} name={name} art={zw("Ebene", "Plane")}>
+      <Einzeilig max={18} min={10}><span style={{ color: C.tinte }}>{koordText(nv, d)}</span></Einzeilig>
+    </ObjektBox>
+  );
+}
 
 /* ======================================================================
    Punktprobe
@@ -58,16 +91,16 @@ function ProbeZeilen({ A, u, P, pp, punktName = "P" }) {
     <>
       {pp.zeilen.map((z) => (
         <div key={z.r} style={zeile}>
-          <span style={{ minWidth: 26, color: C.grau, fontSize: 14 }}>{ROEM[z.r]}</span>
+          <Roem r={z.r} />
           {z.frei
-            ? <><M t={`${n(P[z.r])} = ${n(A[z.r])}`} /><span style={{ color: z.ok ? C.smaragd : C.signal, fontWeight: 800 }}>{z.ok ? "✓" : "✗"}</span><span style={{ fontSize: 13, color: C.grau }}>{zw("(t fällt weg: Richtungskomponente 0)", "(t drops out: direction component 0)")}</span></>
+            ? <><M t={`${n(P[z.r])} = ${n(A[z.r])}`} /><span style={{ color: z.ok ? C.smaragd : C.signal, fontWeight: 800 }}>{z.ok ? "✓" : "✗"}</span><span style={{ fontSize: 13, color: C.grau }}>{zw("(t fällt weg)", "(t drops out)")}</span></>
             : <M t={`${n(P[z.r])} = ${lin(A[z.r], u[z.r], "t")} \\Rightarrow t = ${qTex(z.t)}`} />}
         </div>
       ))}
-      <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, marginTop: 6, whiteSpace: "normal" }}>
+      <p style={erklaer}>
         {pp.ok
-          ? zw(`Alle Zeilen passen zum selben Parameter t = ${pp.t ? qTex(pp.t).replace(/\\frac\{(-?\d+)\}\{(\d+)\}/, "$1/$2") : "–"}: ${punktName} liegt auf der Geraden.`, `All rows give the same parameter t = ${pp.t ? qTex(pp.t).replace(/\\frac\{(-?\d+)\}\{(\d+)\}/, "$1/$2") : "–"}: ${punktName} lies on the line.`)
-          : zw(`Die Zeilen widersprechen sich: ${punktName} liegt nicht auf der Geraden.`, `The rows contradict each other: ${punktName} is not on the line.`)}
+          ? zw(`Alle Zeilen passen zum selben Parameter t = ${pp.t ? qTex(pp.t).replace(/\\frac\{(-?\d+)\}\{(\d+)\}/, "$1/$2") : "–"}.`, `All rows give the same parameter t = ${pp.t ? qTex(pp.t).replace(/\\frac\{(-?\d+)\}\{(\d+)\}/, "$1/$2") : "–"}.`)
+          : zw("Die Zeilen liefern verschiedene Werte für t – ein Widerspruch.", "The rows give different values for t – a contradiction.")}
       </p>
     </>
   );
@@ -79,7 +112,9 @@ function Punktprobe() {
   const [vm, setVm] = useState(null);
   const neu = () => { setAu(neuePunktprobe()); setT(0); setVm(null); };
   const pt = au.A.map((a, i) => a + t * au.u[i]);
-  const richtig = vm !== null && (vm === "auf") === au.auf;
+  const loesung = au.auf ? "auf" : "nicht";
+  const richtig = vm === loesung;
+  const kurz = (x) => String(Math.round(x * 10) / 10).replace(".", ",").replace("-", "−");
   const hilfe = hilfeKontext({
     id: `probe-${au.A}-${au.u}-${au.P}`,
     aufgabe: "Punktprobe Gerade Parameter Stützvektor Richtungsvektor",
@@ -94,35 +129,51 @@ function Punktprobe() {
     regeln: [],
   });
   return (
-    <div style={{ ...karte, marginTop: 16 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
-        <p style={kicker}>{zw("Punktprobe", "Point test")}</p>
+    <div data-vek-modus="probe">
+      <ObjektReihe>
+        <GeradeBox name="g" A={au.A} u={au.u} farbe={F1} />
+        <PunktBox name="P" P={au.P} farbe={F2} />
+      </ObjektReihe>
+      <div style={{ marginTop: 12 }}>
+        <Raum3 key={[...au.A, ...au.u, ...au.P].join()} gerade={{ p: au.A, r: au.u, farbe: F1 }}
+          punkte={[{ p: au.A, label: "A", farbe: F1 }, { p: au.P, label: "P", farbe: F2T }, { p: pt, label: "Aₜ", farbe: FS }]}
+          legende={[{ text: "g", farbe: F1 }, { text: "P", farbe: F2, art: "punkt" }, { text: "Aₜ", farbe: FS, art: "punkt" }]} />
       </div>
-      <p style={hinweis}>{zw("Bewege den Parameter und sieh, wo Aₜ liegt. Dann vermute: Liegt P auf g?", "Move the parameter and see where Aₜ is. Then guess: is P on g?")}</p>
-      <GeradeZeile name="g" A={au.A} u={au.u} farbe={FA} />
-      <p style={{ textAlign: "center", fontWeight: 800, color: FB, margin: "6px 0 10px" }}>P({au.P.map(n).join(" | ")})</p>
-      <Raum3 key={[...au.A, ...au.u, ...au.P].join()} punkte={[{ p: au.A, label: "A", farbe: FA }, { p: au.P, label: "P", farbe: FB }, { p: pt, label: "Aₜ", farbe: FS }]} gerade={{ p: au.A, r: au.u }} />
-      <div style={{ marginTop: 10 }}>
-        <label style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, fontWeight: 700, color: C.tinte }}>
-          t = <span style={{ minWidth: 34, color: C.see }}>{String(t).replace(".", ",").replace("-", "−")}</span>
-          <input type="range" min={-4} max={4} step={0.5} value={t} onChange={(e) => setT(Number(e.target.value))} aria-label={zw("Parameter t", "Parameter t")} style={{ flex: 1, accentColor: C.see }} />
+      <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "6px 12px", marginTop: 10, background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 14, padding: "10px 12px" }}>
+        <label style={{ display: "flex", alignItems: "center", gap: 10, flex: "1 1 220px", fontSize: 14, fontWeight: 700, color: C.tinte }}>
+          <span style={{ whiteSpace: "nowrap" }}>{zw("Parameter", "Parameter")} t</span>
+          <span style={{ minWidth: 42, height: 28, borderRadius: 8, background: VF.dreiHell, color: "#1F6E44", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>{kurz(t)}</span>
+          <input type="range" min={-4} max={4} step={0.5} value={t} onChange={(e) => setT(Number(e.target.value))} aria-label={zw("Parameter t", "Parameter t")} style={{ flex: 1, minWidth: 80, accentColor: FS }} />
         </label>
-        <p style={{ fontSize: 13.5, color: C.grau, marginTop: 4 }}>Aₜ({pt.map((x) => String(Math.round(x * 10) / 10).replace(".", ",").replace("-", "−")).join(" | ")})</p>
+        <span style={{ fontSize: 13.5, fontWeight: 600, color: C.grau, whiteSpace: "nowrap" }}>Aₜ({pt.map(kurz).join(" | ")})</span>
       </div>
-      {schritt(1, zw("Vermutung: Liegt P auf g?", "Guess: is P on g?"))}
-      <Auswahl label={zw("Vermutung", "Guess")} wert={vm} setWert={setVm} optionen={[["auf", zw("P liegt auf g", "P is on g")], ["nicht", zw("P liegt nicht auf g", "P is not on g")]]}
-        status={vm !== null ? (richtig ? "gut" : "schlecht") : undefined} />
+
+      <Tafel nr={1} titel={zw("Deine Vermutung", "Your guess")} text={zw("Liegt P auf der Geraden g? Bewege t und schau, ob Aₜ den Punkt P trifft.", "Is P on the line g? Move t and see whether Aₜ hits P.")}>
+        <TippKacheln label={zw("Vermutung", "Guess")} wert={vm} setWert={setVm} loesung={vm !== null ? loesung : undefined}
+          optionen={[["auf", zw("P liegt auf g", "P is on g"), "auf"], ["nicht", zw("P liegt nicht auf g", "P is not on g"), "nicht-auf"]]} />
+        {vm !== null && (
+          <Hinweis art={richtig ? "gut" : "schlecht"}>
+            {richtig ? zw("Deine Vermutung stimmt – die Rechnung beweist es.", "Your guess is right – the calculation proves it.") : zw("Die Vermutung stimmt nicht – an der Rechnung siehst du, welche Zeile den Ausschlag gibt.", "The guess is wrong – the calculation shows which row decides.")}
+          </Hinweis>
+        )}
+      </Tafel>
+
       {vm !== null && (
-        <>
-          <Rueck art={richtig ? "gut" : "schlecht"}>{richtig ? zw("Deine Vermutung stimmt – hier die Rechnung dazu.", "Your guess is right – here is the calculation.") : zw("Die Vermutung stimmt nicht – prüfe an der Rechnung, welche Zeile widerspricht.", "The guess is wrong – check which row contradicts.")}</Rueck>
-          <div style={box}>
-            <p style={{ fontSize: 12.5, fontWeight: 700, color: C.grau, marginBottom: 4 }}>{zw("Punktprobe: P = A + t · u, Zeile für Zeile", "Point test: P = A + t · u, row by row")}</p>
-            <ProbeZeilen A={au.A} u={au.u} P={au.P} pp={au.pp} />
-          </div>
-        </>
+        <Tafel nr={2} titel={zw("Rechnung", "Calculation")}>
+          <Rechenweg>
+            <RSchritt nr="1" titel={zw("Ansatz: P = A + t · u", "Set up: P = A + t · u")}>
+              <div style={zeile}><M t={`${sp(au.P)} = ${sp(au.A)} + t \\cdot ${sp(au.u)}`} /></div>
+            </RSchritt>
+            <RSchritt nr="2" titel={zw("Jede Zeile nach t auflösen", "Solve every row for t")}>
+              <ProbeZeilen A={au.A} u={au.u} P={au.P} pp={au.pp} />
+            </RSchritt>
+            <Ergebnis bild={<Bild art={au.auf ? "auf" : "nicht-auf"} breite={44} />} art={au.auf ? "gut" : "info"}>
+              {au.auf ? zw("P liegt auf der Geraden g.", "P lies on the line g.") : zw("P liegt nicht auf der Geraden g.", "P does not lie on the line g.")}
+            </Ergebnis>
+          </Rechenweg>
+        </Tafel>
       )}
-      <GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>
-      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfe} /></div>
+      <Fusszeile neu={neu} hilfe={<IchHaengeFest kontext={hilfe} />} />
     </div>
   );
 }
@@ -132,6 +183,13 @@ function Punktprobe() {
    ====================================================================== */
 
 const ART_GG = { identisch: ["identisch", "identical"], parallel: ["echt parallel", "parallel and distinct"], schneidend: ["schneidend", "intersecting"], windschief: ["windschief", "skew"] };
+const TIPP_GG = { identisch: ["identisch", "identical"], parallel: ["echt parallel", "parallel"], schneidend: ["schneiden sich", "intersect"], windschief: ["windschief", "skew"] };
+const SATZ_GG = {
+  identisch: ["Die Geraden sind identisch.", "The lines are identical."],
+  parallel: ["Die Geraden sind echt parallel.", "The lines are parallel and distinct."],
+  schneidend: ["Die Geraden schneiden sich.", "The lines intersect."],
+  windschief: ["Die Geraden sind windschief.", "The lines are skew."],
+};
 
 function GeradeVsGerade() {
   const [fall, setFall] = useState("zufall");
@@ -163,66 +221,80 @@ function GeradeVsGerade() {
   });
   const dritteLinks = L.t ? qAdd(q(A[L.dritte]), qMul(L.t, q(u[L.dritte]))) : null;
   const dritteRechts = L.s ? qAdd(q(B[L.dritte]), qMul(L.s, q(v[L.dritte]))) : null;
+  const ab = Object.keys(ART_GG);
   return (
-    <div style={{ ...karte, marginTop: 16 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
-        <p style={kicker}>{zw("Gerade vs. Gerade", "Line vs. line")}</p>
-      </div>
-      <p style={hinweis}>{zw("Erst vermuten, dann Parallelität und Schnitt rechnerisch prüfen.", "First guess, then check parallelism and intersection by calculation.")}</p>
+    <div data-vek-modus="gg">
       <div style={{ marginBottom: 12 }}>
-        <p style={{ fontSize: 12, color: C.grau, marginBottom: 6 }}>{zw("Üben:", "Practise:")}</p>
-        <Auswahl label={zw("Fall wählen", "Choose a case")} wert={fall} setWert={waehleFall}
-          optionen={[["zufall", zw("Zufall", "Random")], ...Object.entries(ART_GG).map(([id, t]) => [id, zw(t[0], t[1])])]} />
+        <FallWahl titel={zw("Übungsfall", "Practice case")} label={zw("Fall wählen", "Choose a case")} wert={fall} setWert={waehleFall}
+          optionen={[["zufall", zw("Zufall", "Random"), "zufall"], ...ab.map((id) => [id, zw(ART_GG[id][0], ART_GG[id][1]), id])]} />
       </div>
-      <GeradeZeile name="g" A={A} u={u} farbe={FA} par="t" />
-      <GeradeZeile name="h" A={B} u={v} farbe={C.see} par="s" />
-      <div style={{ marginTop: 10 }}>
-        <Raum3 key={[...A, ...u, ...B, ...v].join()} punkte={[{ p: A, label: "A", farbe: FA }, { p: B, label: "B", farbe: FB }, ...(L.S ? [{ p: numPunkt(L.S), label: "S", farbe: FS }] : [])]} gerade={{ p: A, r: u }} gerade2={{ p: B, r: v }} />
+      <ObjektReihe>
+        <GeradeBox name="g" A={A} u={u} farbe={F1} par="t" />
+        <GeradeBox name="h" A={B} u={v} farbe={F2} par="s" />
+      </ObjektReihe>
+      <div style={{ marginTop: 12 }}>
+        <Raum3 key={[...A, ...u, ...B, ...v].join()}
+          punkte={[{ p: A, label: "A", farbe: F1 }, { p: B, label: "B", farbe: F2T }, ...(L.S && vm ? [{ p: numPunkt(L.S), label: "S", farbe: FS }] : [])]}
+          gerade={{ p: A, r: u, farbe: F1, ohnePfeil: true }} gerade2={{ p: B, r: v, farbe: F2 }}
+          legende={[{ text: "g", farbe: F1 }, { text: "h", farbe: F2 }, L.S && vm ? { text: "S", farbe: FS, art: "punkt" } : null]} />
       </div>
-      {schritt(1, zw("Vermutung: Wie liegen die Geraden zueinander?", "Guess: how are the lines positioned?"))}
-      <Auswahl label={zw("Vermutung", "Guess")} wert={vm} setWert={setVm}
-        optionen={Object.entries(ART_GG).map(([id, t]) => [id, zw(t[0], t[1])])} status={vm ? (richtig ? "gut" : "schlecht") : undefined} />
-      {vm && (
-        <>
-          <Rueck art={richtig ? "gut" : "schlecht"}>
-            {richtig ? zw(`Richtig: Die Geraden sind ${zw(ART_GG[au.art][0], ART_GG[au.art][1])}. Hier die Rechnung, die das beweist.`, `Right: the lines are ${ART_GG[au.art][1]}. Here is the calculation that proves it.`)
+
+      <Tafel nr={1} titel={zw("Deine Vermutung", "Your guess")} text={zw("Wie liegen g und h zueinander? Dreh das Bild, bevor du dich festlegst.", "How are g and h positioned? Rotate the picture before you decide.")}>
+        <TippKacheln label={zw("Vermutung", "Guess")} wert={vm} setWert={setVm} loesung={vm ? au.art : undefined}
+          optionen={ab.map((id) => [id, zw(TIPP_GG[id][0], TIPP_GG[id][1]), id])} />
+        {vm && (
+          <Hinweis art={richtig ? "gut" : "schlecht"}>
+            {richtig ? zw(`Richtig: Die Geraden sind ${ART_GG[au.art][0]}. Die Rechnung beweist es.`, `Right: the lines are ${ART_GG[au.art][1]}. The calculation proves it.`)
               : zw(`Nicht ganz: Die Geraden sind ${ART_GG[au.art][0]}. Die Rechnung zeigt, woran man es erkennt.`, `Not quite: the lines are ${ART_GG[au.art][1]}. The calculation shows how to tell.`)}
-          </Rueck>
-          <div style={box}>
-            <p style={{ fontSize: 12.5, fontWeight: 700, color: C.grau, marginBottom: 4 }}>{zw("Schritt 1 – Parallel?", "Step 1 – parallel?")}</p>
+          </Hinweis>
+        )}
+      </Tafel>
+
+      {vm && (
+        <Tafel nr={2} titel={zw("Rechnung", "Calculation")}>
+          <Rechenweg>
             {pk ? (
               <>
-                <div style={zeile}><M t={`\\vec{v} = k \\cdot \\vec{u}\\;\\text{mit}\\; k = ${qTex(kFaktor)}`} /></div>
-                <div style={zeile}><M t={`${sp(v)} = ${mk(kFaktor)} \\cdot ${sp(u)}`} /></div>
-                <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, whiteSpace: "normal" }}>{zw("Die Richtungsvektoren sind Vielfache: Die Geraden sind parallel oder identisch.", "The direction vectors are multiples: the lines are parallel or identical.")}</p>
-                <p style={{ fontSize: 12.5, fontWeight: 700, color: C.grau, margin: "10px 0 4px" }}>{zw("Schritt 2 – Liegt B auf g? (Punktprobe)", "Step 2 – is B on g? (point test)")}</p>
-                <ProbeZeilen A={A} u={u} P={B} pp={pp} punktName="B" />
+                <RSchritt nr="1" titel={zw("Sind die Richtungsvektoren Vielfache?", "Are the direction vectors multiples?")}>
+                  <div style={zeile}><M t={`${sp(v)} = ${mk(kFaktor)} \\cdot ${sp(u)}`} /></div>
+                  <p style={erklaer}>{zw(`Ja, mit k = ${qTex(kFaktor).replace(/\\frac\{(-?\d+)\}\{(\d+)\}/, "$1/$2")}: g und h sind parallel oder identisch.`, `Yes, with k = ${qTex(kFaktor).replace(/\\frac\{(-?\d+)\}\{(\d+)\}/, "$1/$2")}: g and h are parallel or identical.`)}</p>
+                </RSchritt>
+                <RSchritt nr="2" titel={zw("Liegt B auf g? (Punktprobe)", "Is B on g? (point test)")}>
+                  <ProbeZeilen A={A} u={u} P={B} pp={pp} punktName="B" />
+                  <p style={erklaer}>{pp.ok ? zw("B liegt auf g – also liegt ganz h auf g.", "B lies on g – so all of h lies on g.") : zw("B liegt nicht auf g – die Geraden haben keinen gemeinsamen Punkt.", "B is not on g – the lines have no common point.")}</p>
+                </RSchritt>
               </>
             ) : (
               <>
-                <div style={zeile}><M t={`\\vec{u} \\times \\vec{v} = ${sp(L.uv)} \\neq \\vec{0}`} /></div>
-                <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, whiteSpace: "normal" }}>{zw("Kein Vielfaches: Die Geraden sind nicht parallel. Jetzt Gleichsetzen – mit zwei verschiedenen Parametern t und s.", "No multiple: the lines are not parallel. Now set equal – with two different parameters t and s.")}</p>
-                <p style={{ fontSize: 12.5, fontWeight: 700, color: C.grau, margin: "10px 0 4px" }}>{zw("Schritt 2 – g = h gleichsetzen", "Step 2 – set g = h")}</p>
-                {[0, 1, 2].map((r) => <div key={r} style={zeile}><span style={{ minWidth: 26, color: C.grau, fontSize: 14 }}>{ROEM[r]}</span><M t={`${lin(A[r], u[r], "t")} = ${lin(B[r], v[r], "s")}`} /></div>)}
-                <p style={{ fontSize: 12.5, fontWeight: 700, color: C.grau, margin: "10px 0 4px" }}>{zw(`Schritt 3 – Zeilen ${ROEM[L.zeilen[0]]} und ${ROEM[L.zeilen[1]]} lösen`, `Step 3 – solve rows ${ROEM[L.zeilen[0]]} and ${ROEM[L.zeilen[1]]}`)}</p>
-                <div style={zeile}><M t={`t = ${qTex(L.t)},\\quad s = ${qTex(L.s)}`} /></div>
-                <p style={{ fontSize: 12.5, fontWeight: 700, color: C.grau, margin: "10px 0 4px" }}>{zw(`Schritt 4 – Probe in Zeile ${ROEM[L.dritte]}`, `Step 4 – check in row ${ROEM[L.dritte]}`)}</p>
-                <div style={zeile}><M t={`${n(A[L.dritte])} + ${mk(L.t)} \\cdot ${n(u[L.dritte])} = ${qTex(dritteLinks)}`} /></div>
-                <div style={zeile}><M t={`${n(B[L.dritte])} + ${mk(L.s)} \\cdot ${n(v[L.dritte])} = ${qTex(dritteRechts)}`} /></div>
-                <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, whiteSpace: "normal" }}>
-                  {qGleich(dritteLinks, dritteRechts)
-                    ? zw("Beide Seiten sind gleich: Die Geraden schneiden sich.", "Both sides are equal: the lines intersect.")
-                    : zw("Die Seiten sind verschieden – ein Widerspruch: Die Geraden sind windschief.", "The sides differ – a contradiction: the lines are skew.")}
-                </p>
-                {L.S && <div style={zeile}><M t={`S = ${punktQ(L.S)}`} /></div>}
+                <RSchritt nr="1" titel={zw("Sind die Richtungsvektoren Vielfache?", "Are the direction vectors multiples?")}>
+                  <div style={zeile}><M t={`\\vec{u} \\times \\vec{v} = ${sp(L.uv)} \\neq \\vec{0}`} /></div>
+                  <p style={erklaer}>{zw("Nein: g und h sind nicht parallel. Jetzt gleichsetzen – mit zwei verschiedenen Parametern t und s.", "No: g and h are not parallel. Now set them equal – with two different parameters t and s.")}</p>
+                </RSchritt>
+                <RSchritt nr="2" titel={zw("g und h gleichsetzen", "Set g and h equal")}>
+                  {[0, 1, 2].map((r) => <div key={r} style={zeile}><Roem r={r} /><M t={`${lin(A[r], u[r], "t")} = ${lin(B[r], v[r], "s")}`} /></div>)}
+                </RSchritt>
+                <RSchritt nr="3" titel={zw(`Zeilen ${ROEM[L.zeilen[0]]} und ${ROEM[L.zeilen[1]]} lösen`, `Solve rows ${ROEM[L.zeilen[0]]} and ${ROEM[L.zeilen[1]]}`)}>
+                  <div style={zeile}><M t={`t = ${qTex(L.t)},\\quad s = ${qTex(L.s)}`} /></div>
+                </RSchritt>
+                <RSchritt nr="4" titel={zw(`Probe in Zeile ${ROEM[L.dritte]}`, `Check in row ${ROEM[L.dritte]}`)}>
+                  <div style={zeile}><span style={{ fontSize: 12.5, fontWeight: 700, color: F1, minWidth: 16 }}>g</span><M t={`${n(A[L.dritte])} + ${mk(L.t)} \\cdot ${mkI(u[L.dritte])} = ${qTex(dritteLinks)}`} /></div>
+                  <div style={zeile}><span style={{ fontSize: 12.5, fontWeight: 700, color: F2T, minWidth: 16 }}>h</span><M t={`${n(B[L.dritte])} + ${mk(L.s)} \\cdot ${mkI(v[L.dritte])} = ${qTex(dritteRechts)}`} /></div>
+                  <p style={erklaer}>
+                    {qGleich(dritteLinks, dritteRechts)
+                      ? zw("Beide Seiten sind gleich: Die Geraden haben einen gemeinsamen Punkt.", "Both sides are equal: the lines share a point.")
+                      : zw("Die Seiten sind verschieden – ein Widerspruch: Es gibt keinen gemeinsamen Punkt.", "The sides differ – a contradiction: there is no common point.")}
+                  </p>
+                </RSchritt>
               </>
             )}
-            <div style={{ ...zeile, marginTop: 6, fontWeight: 800 }}>{zw("Ergebnis:", "Result:")} <span style={{ color: C.see }}>{zw(ART_GG[au.art][0], ART_GG[au.art][1])}</span></div>
-          </div>
-        </>
+            <Ergebnis bild={<Bild art={au.art} breite={44} />} art="gut"
+              zusatz={L.S ? <span>{zw("Schnittpunkt", "Intersection point")} <M t={`S${punktQ(L.S)}`} /></span> : null}>
+              {zw(SATZ_GG[au.art][0], SATZ_GG[au.art][1])}
+            </Ergebnis>
+          </Rechenweg>
+        </Tafel>
       )}
-      <GrosserKnopf ghost onClick={() => neu()}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>
-      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfe} /></div>
+      <Fusszeile neu={() => neu()} hilfe={<IchHaengeFest kontext={hilfe} />} />
     </div>
   );
 }
@@ -232,6 +304,12 @@ function GeradeVsGerade() {
    ====================================================================== */
 
 const ART_GE = { schneidend: ["Gerade schneidet die Ebene", "line meets the plane"], parallel: ["parallel, ohne Schnitt", "parallel, no intersection"], enthalten: ["Gerade liegt in der Ebene", "line lies in the plane"] };
+const TIPP_GE = { schneidend: ["schneidet E", "meets E"], parallel: ["parallel zu E", "parallel to E"], enthalten: ["liegt in E", "lies in E"] };
+const SATZ_GE = {
+  schneidend: ["g schneidet E in genau einem Punkt.", "g meets E in exactly one point."],
+  parallel: ["g ist echt parallel zu E.", "g is parallel to E, with no common point."],
+  enthalten: ["g liegt ganz in der Ebene E.", "g lies completely in the plane E."],
+};
 
 function GeradeVsEbene() {
   const [fall, setFall] = useState("zufall");
@@ -255,93 +333,90 @@ function GeradeVsEbene() {
     regeln: [{ name: "Orthogonalität", bereich: "vektoren" }],
   });
   return (
-    <div style={{ ...karte, marginTop: 16 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
-        <p style={kicker}>{zw("Gerade vs. Ebene", "Line vs. plane")}</p>
-      </div>
-      <p style={hinweis}>{zw("Erst vermuten, dann mit dem Skalarprodukt u · n entscheiden.", "First guess, then decide with the dot product u · n.")}</p>
+    <div data-vek-modus="ge">
       <div style={{ marginBottom: 12 }}>
-        <p style={{ fontSize: 12, color: C.grau, marginBottom: 6 }}>{zw("Üben:", "Practise:")}</p>
-        <Auswahl label={zw("Fall wählen", "Choose a case")} wert={fall} setWert={waehleFall}
-          optionen={[["zufall", zw("Zufall", "Random")], ["schneidend", zw("schneidend", "intersecting")], ["parallel", zw("parallel", "parallel")], ["enthalten", zw("enthalten", "contained")]]} />
+        <FallWahl titel={zw("Übungsfall", "Practice case")} label={zw("Fall wählen", "Choose a case")} wert={fall} setWert={waehleFall}
+          optionen={[["zufall", zw("Zufall", "Random"), "zufall"], ["schneidend", zw("schneidend", "intersecting"), "ge-schneidend"], ["parallel", zw("parallel", "parallel"), "ge-parallel"], ["enthalten", zw("enthalten", "contained"), "ge-enthalten"]]} />
       </div>
-      <GeradeZeile name="g" A={A} u={u} farbe={FA} par="t" />
-      <p style={{ textAlign: "center", fontWeight: 700, color: C.see, margin: "4px 0 10px" }}>E: {koordText(nv, d)}</p>
-      <Raum3 key={[...A, ...u, ...nv, d].join()} punkte={[{ p: A, label: "A", farbe: FA }, ...(L.S ? [{ p: numPunkt(L.S), label: "S", farbe: FS }] : [])]} gerade={{ p: A, r: u }} ebene={{ n: nv, d }} />
-      {schritt(1, zw("Vermutung: Wie liegen Gerade und Ebene?", "Guess: how are line and plane positioned?"))}
-      <Auswahl label={zw("Vermutung", "Guess")} wert={vm} setWert={setVm}
-        optionen={Object.entries(ART_GE).map(([id, t]) => [id, zw(t[0], t[1])])} status={vm ? (richtig ? "gut" : "schlecht") : undefined} />
+      <ObjektReihe>
+        <GeradeBox name="g" A={A} u={u} farbe={F1} par="t" />
+        <EbeneBox name="E" nv={nv} d={d} farbe={F2} />
+      </ObjektReihe>
+      <div style={{ marginTop: 12 }}>
+        <Raum3 key={[...A, ...u, ...nv, d].join()} punkte={[{ p: A, label: "A", farbe: F1 }, ...(L.S && vm ? [{ p: numPunkt(L.S), label: "S", farbe: FS }] : [])]}
+          gerade={{ p: A, r: u, farbe: F1 }} ebene={{ n: nv, d, farbe: F2 }}
+          legende={[{ text: "g", farbe: F1 }, { text: "E", farbe: F2, art: "flaeche" }, L.S && vm ? { text: "S", farbe: FS, art: "punkt" } : null]} />
+      </div>
+
+      <Tafel nr={1} titel={zw("Deine Vermutung", "Your guess")} text={zw("Wie liegt die Gerade g zur Ebene E?", "How does the line g lie relative to the plane E?")}>
+        <TippKacheln spalten={3} label={zw("Vermutung", "Guess")} wert={vm} setWert={setVm} loesung={vm ? au.art : undefined}
+          optionen={Object.keys(ART_GE).map((id) => [id, zw(TIPP_GE[id][0], TIPP_GE[id][1]), `ge-${id}`])} />
+        {vm && (
+          <Hinweis art={richtig ? "gut" : "schlecht"}>
+            {richtig ? zw("Richtig – die Rechnung beweist es.", "Right – the calculation proves it.") : zw(`Nicht ganz: ${ART_GE[au.art][0]}. Die Rechnung zeigt es.`, `Not quite: ${ART_GE[au.art][1]}. The calculation shows it.`)}
+          </Hinweis>
+        )}
+      </Tafel>
+
       {vm && (
-        <>
-          <Rueck art={richtig ? "gut" : "schlecht"}>
-            {richtig ? zw("Richtig – hier die Rechnung dazu.", "Right – here is the calculation.") : zw(`Nicht ganz: ${ART_GE[au.art][0]}. Die Rechnung zeigt es.`, `Not quite: ${ART_GE[au.art][1]}. The calculation shows it.`)}
-          </Rueck>
-          <div style={box}>
-            <p style={{ fontSize: 12.5, fontWeight: 700, color: C.grau, marginBottom: 4 }}>{zw("Schritt 1 – Richtung gegen Normalenvektor", "Step 1 – direction versus normal vector")}</p>
-            <div style={zeile}><M t={`\\vec{u} \\cdot \\vec{n} = ${n(u[0])} \\cdot ${mkI(nv[0])} + ${n(u[1])} \\cdot ${mkI(nv[1])} + ${n(u[2])} \\cdot ${mkI(nv[2])} = ${n(L.un)}`} /></div>
+        <Tafel nr={2} titel={zw("Rechnung", "Calculation")}>
+          <Rechenweg>
+            <RSchritt nr="1" titel={zw("Richtung u gegen Normalenvektor n", "Direction u versus normal vector n")}>
+              <div style={zeile}><M t={`\\vec{u} \\cdot \\vec{n} = ${n(u[0])} \\cdot ${mkI(nv[0])} + ${n(u[1])} \\cdot ${mkI(nv[1])} + ${n(u[2])} \\cdot ${mkI(nv[2])} = ${n(L.un)}`} /></div>
+              <p style={erklaer}>{L.un !== 0
+                ? zw("Ungleich 0: g verläuft nicht parallel zu E – es gibt genau einen Schnittpunkt.", "Not zero: g is not parallel to E – there is exactly one intersection point.")
+                : zw("Gleich 0: Die Richtung steht senkrecht auf n – g ist parallel zu E oder liegt in E.", "Zero: the direction is perpendicular to n – g is parallel to E or lies in it.")}</p>
+            </RSchritt>
             {L.un !== 0 ? (
               <>
-                <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, whiteSpace: "normal" }}>{zw("Ungleich 0: Die Gerade verläuft nicht parallel zur Ebene – sie schneidet sie in genau einem Punkt.", "Not zero: the line is not parallel to the plane – it meets it in exactly one point.")}</p>
-                <p style={{ fontSize: 12.5, fontWeight: 700, color: C.grau, margin: "10px 0 4px" }}>{zw("Schritt 2 – Gerade in die Ebene einsetzen", "Step 2 – plug the line into the plane")}</p>
-                <div style={zeile}><M t={`\\vec{n} \\cdot (\\vec{A} + t\\,\\vec{u}) = d`} /></div>
-                <div style={zeile}><M t={`${n(L.An)} + t \\cdot ${mkI(L.un)} = ${n(d)}`} /></div>
-                <div style={zeile}><M t={`t = ${qTex(L.t)}`} /></div>
-                <div style={zeile}><M t={`S = ${punktQ(L.S)}`} /></div>
+                <RSchritt nr="2" titel={zw("Gerade in die Ebene einsetzen", "Plug the line into the plane")}>
+                  <div style={zeile}><M t={`\\vec{n} \\cdot (\\vec{A} + t\\,\\vec{u}) = d`} /></div>
+                  <div style={zeile}><M t={`${n(L.An)} + t \\cdot ${mkI(L.un)} = ${n(d)}`} /></div>
+                  <div style={zeile}><M t={`t = ${qTex(L.t)}`} /></div>
+                </RSchritt>
+                <RSchritt nr="3" titel={zw("t in g einsetzen", "Plug t into g")}>
+                  <div style={zeile}><M t={`S = ${punktQ(L.S)}`} /></div>
+                </RSchritt>
               </>
             ) : (
-              <>
-                <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, whiteSpace: "normal" }}>{zw("Gleich 0: Die Richtung steht senkrecht auf n – die Gerade ist parallel zur Ebene oder liegt in ihr.", "Zero: the direction is perpendicular to n – the line is parallel to the plane or lies in it.")}</p>
-                <p style={{ fontSize: 12.5, fontWeight: 700, color: C.grau, margin: "10px 0 4px" }}>{zw("Schritt 2 – Stützpunkt A in die Ebene einsetzen", "Step 2 – plug the support point A into the plane")}</p>
+              <RSchritt nr="2" titel={zw("Stützpunkt A in die Ebene einsetzen", "Plug the support point A into the plane")}>
                 <div style={zeile}><M t={`\\vec{n} \\cdot \\vec{A} = ${n(L.An)}\\;\\text{und}\\; d = ${n(d)}`} /></div>
-                <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, whiteSpace: "normal" }}>
-                  {L.An === d ? zw("A liegt in der Ebene: Die ganze Gerade liegt in E.", "A lies in the plane: the whole line lies in E.") : zw("A liegt nicht in der Ebene: Die Gerade ist echt parallel, es gibt keinen Schnittpunkt.", "A does not lie in the plane: the line is parallel and distinct, there is no intersection point.")}
-                </p>
-              </>
+                <p style={erklaer}>{L.An === d ? zw("A liegt in E – und mit A die ganze Gerade.", "A lies in E – and with A the whole line.") : zw("A liegt nicht in E – die Gerade hat keinen Punkt mit E gemeinsam.", "A is not in E – the line has no point in common with E.")}</p>
+              </RSchritt>
             )}
-          </div>
-        </>
+            <Ergebnis bild={<Bild art={`ge-${au.art}`} breite={44} />} art="gut"
+              zusatz={L.S ? <span>{zw("Schnittpunkt", "Intersection point")} <M t={`S${punktQ(L.S)}`} /></span> : null}>
+              {zw(SATZ_GE[au.art][0], SATZ_GE[au.art][1])}
+            </Ergebnis>
+          </Rechenweg>
+        </Tafel>
       )}
-      <GrosserKnopf ghost onClick={() => neu()}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>
-      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfe} /></div>
+      <Fusszeile neu={() => neu()} hilfe={<IchHaengeFest kontext={hilfe} />} />
     </div>
   );
 }
-const mkI = (x) => (x < 0 ? `(${n(x)})` : n(x));
 
 /* ======================================================================
-   Karte „Geraden im Raum“
+   Seite „Geraden im Raum“
    ====================================================================== */
 
 const GERADEN_MODI = [
-  { id: "probe", name: ["Punktprobe", "Point test"] },
-  { id: "gg", name: ["Gerade vs. Gerade", "Line vs. line"] },
-  { id: "ge", name: ["Gerade vs. Ebene", "Line vs. plane"] },
+  { id: "probe", name: ["Punktprobe", "Point test"], bild: "auf" },
+  { id: "gg", name: ["Gerade – Gerade", "Line – line"], bild: "schneidend" },
+  { id: "ge", name: ["Gerade – Ebene", "Line – plane"], bild: "ge-schneidend" },
 ];
 
 export function GeradenImRaum() {
   const [modus, setModus] = useState("probe");
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
-      <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>{zw("Geraden im Raum", "Lines in space")}</h2>
-      <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 18 }}>
-        {zw("Einen Parameter bewegen und Lagebeziehungen erst vermuten, dann rechnerisch prüfen. Die Gerade aus zwei Punkten stellst du in der Station „Aufstellen“ auf.", "Move a parameter, and first guess then calculate positions. You set up a line from two points in the “Set up” station.")}
-      </p>
-      <div role="tablist" aria-label={zw("Geraden-Übungen", "Line exercises")} style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8 }}>
-        {GERADEN_MODI.map((m) => {
-          const an = modus === m.id;
-          return (
-            <button key={m.id} type="button" role="tab" aria-selected={an} onClick={() => setModus(m.id)}
-              style={{ minHeight: 48, padding: "8px 10px", borderRadius: 14, fontFamily: "inherit", cursor: "pointer", fontSize: 14, fontWeight: 700,
-                border: `1px solid ${an ? C.see : C.linie}`, background: an ? C.see : C.weiss, color: an ? C.weiss : C.see, boxShadow: an ? "0 4px 14px rgba(0,77,152,0.25)" : "none" }}>
-              {zw(m.name[0], m.name[1])}
-            </button>
-          );
-        })}
-      </div>
+    <VekSeite titel={zw("Geraden im Raum", "Lines in space")}
+      text={zw("Erst vermuten, dann rechnen: Liegt ein Punkt auf der Geraden, wie liegen zwei Geraden – und wie eine Gerade zur Ebene?", "Guess first, then calculate: is a point on the line, how do two lines lie – and a line relative to a plane?")}>
+      <ModusReiter label={zw("Geraden-Übungen", "Line exercises")} wert={modus} setWert={setModus}
+        modi={GERADEN_MODI.map((m) => ({ id: m.id, name: zw(m.name[0], m.name[1]), bild: m.bild }))} />
       <div style={{ display: modus === "probe" ? "block" : "none" }}><Punktprobe /></div>
       <div style={{ display: modus === "gg" ? "block" : "none" }}><GeradeVsGerade /></div>
       <div style={{ display: modus === "ge" ? "block" : "none" }}><GeradeVsEbene /></div>
-    </div>
+    </VekSeite>
   );
 }
 
@@ -349,10 +424,13 @@ export function GeradenImRaum() {
    Winkel und Skalarprodukt
    ====================================================================== */
 
-const farbA = C.see, farbB = C.gruen;
+const farbA = F1, farbB = F2;
+const bildRahmen = { width: "100%", display: "block", background: "radial-gradient(120% 90% at 50% 40%, #FFFFFF 0%, #F6F8FC 100%)", borderRadius: 18, border: `1px solid ${C.linie}` };
+/* 2D-Bilder: Rahmen über die volle Breite, Zeichnung höchstens 460 px breit */
+const BildRahmen = ({ children }) => <div style={{ ...bildRahmen, display: "flex", justifyContent: "center" }}><div style={{ width: "100%", maxWidth: 460 }}>{children}</div></div>;
 
 /* Der Winkel zwischen a und b in ihrer gemeinsamen Ebene gezeichnet (Längen im richtigen Verhältnis) */
-function WinkelBild({ a, b, projektion = false }) {
+function WinkelBild({ a, b, projektion = false, namen = ["a", "b"] }) {
   const la = laenge(a), lb = laenge(b);
   const phi = (winkelZwischen(a, b) * Math.PI) / 180;
   const W = 300, H = 170, O = [150, 150], s = 110 / Math.max(la, lb);
@@ -364,19 +442,20 @@ function WinkelBild({ a, b, projektion = false }) {
   const rechter = Math.abs(phi - Math.PI / 2) < 0.002;
   const grad = Math.round((phi * 180) / Math.PI * 10) / 10;
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={zw("Winkel zwischen den Vektoren", "Angle between the vectors")} style={{ width: "100%", display: "block", background: C.weiss, borderRadius: 14, border: `1px solid ${C.linie}` }}>
+    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={zw("Winkel zwischen den Vektoren", "Angle between the vectors")} style={{ width: "100%", display: "block" }}>
       <defs>
         <marker id="pfa" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill={farbA} /></marker>
         <marker id="pfb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill={farbB} /></marker>
       </defs>
       {projektion && <line x1={Eb[0]} y1={Eb[1]} x2={Fuss[0]} y2={Fuss[1]} stroke={C.hellgrau} strokeWidth="1.4" strokeDasharray="4 3" />}
       {projektion && <line x1={O[0]} y1={O[1] + 8} x2={Fuss[0]} y2={Fuss[1] + 8} stroke={C.flaggold} strokeWidth="4" strokeLinecap="round" />}
-      <line x1={O[0]} y1={O[1]} x2={Ea[0]} y2={Ea[1]} stroke={farbA} strokeWidth="2.8" markerEnd="url(#pfa)" />
-      <line x1={O[0]} y1={O[1]} x2={Eb[0]} y2={Eb[1]} stroke={farbB} strokeWidth="2.8" markerEnd="url(#pfb)" />
+      <path d={`M${O[0]},${O[1]} L${O[0] + R * 1.9},${O[1]} A${R * 1.9},${R * 1.9} 0 0 0 ${O[0] + R * 1.9 * Math.cos(phi)},${O[1] - R * 1.9 * Math.sin(phi)} Z`} fill={VF.dreiHell} />
+      <line x1={O[0]} y1={O[1]} x2={Ea[0]} y2={Ea[1]} stroke={farbA} strokeWidth="3" markerEnd="url(#pfa)" />
+      <line x1={O[0]} y1={O[1]} x2={Eb[0]} y2={Eb[1]} stroke={farbB} strokeWidth="3" markerEnd="url(#pfb)" />
       {rechter ? <path d={`M${O[0] + 14},${O[1]} v-14 h-14`} fill="none" stroke={C.tinte} strokeWidth="1.6" /> : <path d={bogen} fill="none" stroke={C.tinte} strokeWidth="1.6" />}
       <text x={O[0] + R * 1.25 * Math.cos(phi / 2) + (rechter ? 8 : 4)} y={O[1] - R * 1.25 * Math.sin(phi / 2) + 4} fontSize="12.5" fontWeight="700" fill={C.tinte}>φ = {String(grad).replace(".", ",")}°</text>
-      <text x={Ea[0] + 2} y={Ea[1] + 16} fontSize="13" fontWeight="700" fill={farbA} textAnchor="end">a</text>
-      <text x={Eb[0] + (Eb[0] >= O[0] ? 6 : -6)} y={Eb[1] - 6} fontSize="13" fontWeight="700" fill={farbB} textAnchor={Eb[0] >= O[0] ? "start" : "end"}>b</text>
+      <text x={Ea[0] + 2} y={Ea[1] + 16} fontSize="13" fontWeight="800" fill={farbA} textAnchor="end">{namen[0]}</text>
+      <text x={Eb[0] + (Eb[0] >= O[0] ? 6 : -6)} y={Eb[1] - 6} fontSize="13" fontWeight="800" fill={VF.zweiText} textAnchor={Eb[0] >= O[0] ? "start" : "end"}>{namen[1]}</text>
     </svg>
   );
 }
@@ -389,13 +468,14 @@ function GeBild({ u, nv }) {
   const R = 30;
   const grad = Math.round((alpha * 180) / Math.PI * 10) / 10;
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={zw("Winkel zwischen Gerade und Ebene", "Angle between line and plane")} style={{ width: "100%", display: "block", background: C.weiss, borderRadius: 14, border: `1px solid ${C.linie}` }}>
-      <line x1={20} y1={O[1]} x2={280} y2={O[1]} stroke={C.tinte} strokeWidth="2.4" />
-      <text x={278} y={O[1] + 16} fontSize="12" textAnchor="end" fill={C.grau}>E</text>
-      <line x1={O[0]} y1={O[1]} x2={O[0]} y2={20} stroke={C.hellgrau} strokeWidth="1.6" strokeDasharray="4 3" />
-      <text x={O[0] + 6} y={26} fontSize="12" fill={C.grau}>n</text>
-      <line x1={O[0] - 0.4 * (E[0] - O[0])} y1={O[1] + 0.4 * (O[1] - E[1])} x2={E[0]} y2={E[1]} stroke={farbA} strokeWidth="2.8" />
-      <text x={E[0] + 6} y={E[1] - 2} fontSize="13" fontWeight="700" fill={farbA}>g</text>
+    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={zw("Winkel zwischen Gerade und Ebene", "Angle between line and plane")} style={{ width: "100%", display: "block" }}>
+      <rect x={20} y={O[1]} width={260} height={14} fill={VF.zweiHell} />
+      <line x1={20} y1={O[1]} x2={280} y2={O[1]} stroke={VF.zwei} strokeWidth="2.4" />
+      <text x={276} y={O[1] + 30} fontSize="12" fontWeight="700" textAnchor="end" fill={VF.zweiText}>E</text>
+      <line x1={O[0]} y1={O[1]} x2={O[0]} y2={20} stroke={VF.zwei} strokeWidth="1.6" strokeDasharray="4 3" />
+      <text x={O[0] + 6} y={26} fontSize="12" fontWeight="700" fill={VF.zweiText}>n</text>
+      <line x1={O[0] - 0.4 * (E[0] - O[0])} y1={O[1] + 0.4 * (O[1] - E[1])} x2={E[0]} y2={E[1]} stroke={farbA} strokeWidth="3" strokeLinecap="round" />
+      <text x={E[0] + 6} y={E[1] - 2} fontSize="13" fontWeight="800" fill={farbA}>g</text>
       <path d={`M${O[0] + R},${O[1]} A${R},${R} 0 0 0 ${O[0] + R * Math.cos(alpha)},${O[1] - R * Math.sin(alpha)}`} fill="none" stroke={C.tinte} strokeWidth="1.6" />
       <text x={O[0] + R * 1.35 * Math.cos(alpha / 2) + 4} y={O[1] - R * 1.35 * Math.sin(alpha / 2) + 14} fontSize="12.5" fontWeight="700" fill={C.tinte}>α = {String(grad).replace(".", ",")}°</text>
     </svg>
@@ -403,7 +483,7 @@ function GeBild({ u, nv }) {
 }
 
 /* zwei bzw. ein Vektor als Eingabe: Werte als Strings, Ergebnis als Zahlenvektoren */
-function useVektoren(startAB, namen) {
+function useVektoren(startAB) {
   const [w, setW] = useState(() => startAB.map((v) => v.map(String)));
   const gelesen = w.map((x) => leseVektor(x.map((s) => String(s).replace("−", "-"))));
   const fehler = gelesen.some((x) => x === null) ? zw("Bitte alle Komponenten als ganze Zahlen eintragen.", "Please enter all components as integers.")
@@ -413,52 +493,61 @@ function useVektoren(startAB, namen) {
 
 const wirf = (v) => v.map((x) => String(x).replace("-", "−"));
 
-function EingabeVektoren({ namen, w, setW, farben, zuruecksetzen }) {
+/* Ein Vektor in seiner Box: drei Felder in Klammern */
+function VektorBox({ name, art, farbe, werte, setWerte }) {
+  const setze = (i) => (v) => { const x = [...werte]; x[i] = v; setWerte(x); };
   return (
-    <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 28, margin: "12px 0" }}>
-      {namen.map((nm, i) => (
-        <VektorFeld key={nm} name={nm} farbe={farben[i]} werte={w[i]} setWerte={(x) => { const kopie = w.map((v) => [...v]); kopie[i] = x; setW(kopie); zuruecksetzen && zuruecksetzen(); }} />
-      ))}
-    </div>
+    <ObjektBox farbe={farbe} name={<Name t={name} farbe={C.weiss} />} art={art}>
+      <div style={{ display: "flex", justifyContent: "center" }}>
+        <span style={{ display: "inline-flex", flexDirection: "column", gap: 4, padding: "3px 6px", borderLeft: `2px solid ${farbe}`, borderRight: `2px solid ${farbe}`, borderRadius: 10 }}>
+          {[0, 1, 2].map((i) => <Feld key={i} wert={werte[i]} setWert={setze(i)} label={`${name} ${zw("Komponente", "component")} ${i + 1}`} farbe={farbe === F2 ? F2T : farbe} breite={52} />)}
+        </span>
+      </div>
+    </ObjektBox>
   );
 }
 
+function VektorBoxen({ namen, arten, w, setW, zuruecksetzen }) {
+  return (
+    <ObjektReihe min={130}>
+      {namen.map((nm, i) => (
+        <VektorBox key={nm} name={nm} art={arten[i]} farbe={i === 0 ? farbA : farbB} werte={w[i]}
+          setWerte={(x) => { const kopie = w.map((v) => [...v]); kopie[i] = x; setW(kopie); zuruecksetzen && zuruecksetzen(); }} />
+      ))}
+    </ObjektReihe>
+  );
+}
+
+const WINKELARTEN = [["spitz", ["spitz", "acute"], ["unter 90°", "below 90°"]], ["recht", ["rechtwinklig", "right"], ["genau 90°", "exactly 90°"]], ["stumpf", ["stumpf", "obtuse"], ["über 90°", "above 90°"]]];
+const winkelOptionen = () => WINKELARTEN.map(([id, t, z]) => [id, <span key={id}>{zw(t[0], t[1])}<span style={{ display: "block", fontSize: 11.5, fontWeight: 600, color: C.grau }}>{zw(z[0], z[1])}</span></span>, id]);
+
 /* ---------- Skalarprodukt verstehen ---------- */
 
-/* Winkel konkret bestimmen – komplette Rechnung mit der Kosinus-Formel */
-function WinkelRechnung({ a, b, ab }) {
+/* Winkel konkret bestimmen – komplette Rechnung mit der Kosinus-Formel (Schritte ab start) */
+function WinkelRechnung({ a, b, ab, start = 2 }) {
   const la2 = skalar(a, a), lb2 = skalar(b, b);
   const cosw = ab / (laenge(a) * laenge(b));
   const phi = winkelZwischen(a, b);
   const kl = (v) => (v < 0 ? `(${n(v)})` : n(v));
   const quad = (v) => v.map((x) => `${kl(x)}^2`).join(" + ");
-  const klein = { fontSize: 13.5, color: C.grau, lineHeight: 1.6, whiteSpace: "normal", margin: "4px 0 0" };
   return (
-    <div style={{ marginTop: 6 }}>
-      {schritt(3, zw("Die Formel für den Winkel", "The formula for the angle"))}
-      <div style={box}>
+    <>
+      <RSchritt nr={start} titel={zw("Die Formel für den Winkel", "The formula for the angle")}>
         <div style={zeile}><M t={"\\cos\\varphi = \\frac{\\vec{a}\\cdot\\vec{b}}{|\\vec{a}|\\cdot|\\vec{b}|}"} /></div>
-        <p style={klein}>{zw("Der Kosinus des Winkels ist das Skalarprodukt geteilt durch das Produkt der Beträge (Längen) der beiden Vektoren.", "The cosine of the angle is the dot product divided by the product of the lengths of the two vectors.")}</p>
-        <p style={klein}>{zw("Willst du nur den spitzen Winkel zwischen zwei Geraden, setzt du im Zähler Betragsstriche: |a · b|.", "If you only want the acute angle between two lines, put absolute value bars in the numerator: |a · b|.")}</p>
-      </div>
-      {schritt(4, zw("Die Beträge der Vektoren", "The lengths of the vectors"))}
-      <div style={box}>
+        <p style={erklaer}>{zw("Skalarprodukt geteilt durch das Produkt der Längen. Für den spitzen Winkel zwischen zwei Geraden setzt du im Zähler Betragsstriche: |a · b|.", "Dot product divided by the product of the lengths. For the acute angle between two lines, use absolute value bars in the numerator: |a · b|.")}</p>
+      </RSchritt>
+      <RSchritt nr={start + 1} titel={zw("Die Längen der Vektoren", "The lengths of the vectors")}>
         <div style={zeile}><M t={`|\\vec{a}| = \\sqrt{${quad(a)}} = \\sqrt{${la2}}`} /></div>
         <div style={zeile}><M t={`|\\vec{b}| = \\sqrt{${quad(b)}} = \\sqrt{${lb2}}`} /></div>
-      </div>
-      {schritt(5, zw("Einsetzen", "Plug in"))}
-      <div style={box}>
+      </RSchritt>
+      <RSchritt nr={start + 2} titel={zw("Einsetzen", "Plug in")}>
         <div style={zeile}><M t={`\\cos\\varphi = \\frac{${n(ab)}}{\\sqrt{${la2}}\\cdot\\sqrt{${lb2}}} \\approx ${dez(cosw, 4)}`} /></div>
-      </div>
-      {schritt(6, zw("Mit arccos zum Winkel", "Get the angle with arccos"))}
-      <div style={box}>
+      </RSchritt>
+      <RSchritt nr={start + 3} titel={zw("Mit arccos zum Winkel", "Get the angle with arccos")}>
         <div style={zeile}><M t={`\\varphi = \\arccos(${dez(cosw, 4)}) \\approx ${dez(phi, 1)}°`} /></div>
-        <p style={klein}>{ab > 0 ? zw("Das Skalarprodukt ist positiv – passend dazu ist der Winkel spitz.", "The dot product is positive – matching that, the angle is acute.")
-          : ab < 0 ? zw("Das Skalarprodukt ist negativ – passend dazu ist der Winkel stumpf.", "The dot product is negative – matching that, the angle is obtuse.")
-          : zw("Das Skalarprodukt ist 0 – der Winkel ist genau 90°.", "The dot product is 0 – the angle is exactly 90°.")}</p>
-        <p style={klein}>{zw("Taschenrechner auf Gradmaß (DEG) stellen.", "Set your calculator to degrees (DEG).")}</p>
-      </div>
-    </div>
+        <p style={erklaer}>{zw("Taschenrechner auf Gradmaß (DEG) stellen.", "Set your calculator to degrees (DEG).")}</p>
+      </RSchritt>
+    </>
   );
 }
 
@@ -473,11 +562,12 @@ function SkalarproduktVerstehen() {
   const [a, b] = gelesen;
   const ab = a && b ? skalar(a, b) : null;
   const art = ab === null ? null : ab > 0 ? "spitz" : ab < 0 ? "stumpf" : "recht";
+  const geprueft = pr && pr.art !== "warn";
   const pruefen = () => {
     const x = qLies(antwort);
     if (x === null || x.n !== 1) { setPr({ art: "warn", text: zw("Bitte das Skalarprodukt als ganze Zahl eintragen.", "Please enter the dot product as an integer.") }); return; }
-    setPr({ art: x.z === ab ? "gut" : "schlecht", rechnung: true,
-      text: x.z === ab ? zw("Richtig!", "Correct!") : zw("Nicht ganz: Multipliziere komponentenweise und addiere die drei Produkte.", "Not quite: multiply component by component and add the three products.") });
+    setPr({ art: x.z === ab ? "gut" : "schlecht",
+      text: x.z === ab ? zw("Richtig gerechnet!", "Correct!") : zw("Nicht ganz: Multipliziere komponentenweise und addiere die drei Produkte.", "Not quite: multiply component by component and add the three products.") });
   };
   const hilfe = hilfeKontext({
     id: `skalar-${w.flat().join(",")}`,
@@ -493,48 +583,44 @@ function SkalarproduktVerstehen() {
     regeln: [{ name: "Orthogonalität", bereich: "vektoren" }],
   });
   return (
-    <div style={{ ...karte, marginTop: 16 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
-        <p style={kicker}>{zw("Berechne das Skalarprodukt", "Compute the dot product")}</p>
-      </div>
-      <p style={hinweis}>{zw("Das Skalarprodukt zweier Vektoren ist eine Zahl. Ihr Vorzeichen sagt dir, ob der Winkel spitz, recht oder stumpf ist.", "The dot product of two vectors is a number. Its sign tells you whether the angle is acute, right or obtuse.")}</p>
-      <EingabeVektoren namen={["a", "b"]} w={w} setW={setW} farben={[farbA, farbB]} zuruecksetzen={() => { setPr(null); setVm(null); }} />
-      {fehler ? <Rueck art="warn">{fehler}</Rueck> : <WinkelBild a={a} b={b} projektion={!!pr} />}
+    <div data-vek-modus="skalar">
+      <VektorBoxen namen={["a", "b"]} arten={[zw("Vektor", "Vector"), zw("Vektor", "Vector")]} w={w} setW={setW} zuruecksetzen={() => { setPr(null); setVm(null); setWinkelAn(false); }} />
+      <div style={{ marginTop: 12 }}>{fehler ? <Hinweis art="warn">{fehler}</Hinweis> : <BildRahmen><WinkelBild a={a} b={b} projektion={!!geprueft} /></BildRahmen>}</div>
       {!fehler && (
         <>
-          {schritt(1, zw("Vermutung: Welcher Winkel liegt zwischen a und b?", "Guess: which angle lies between a and b?"))}
-          <Auswahl label={zw("Winkelart", "Type of angle")} wert={vm} setWert={(v) => { setVm(v); setPr(null); }}
-            optionen={[["spitz", zw("spitz (< 90°)", "acute (< 90°)")], ["recht", zw("rechtwinklig (90°)", "right (90°)")], ["stumpf", zw("stumpf (> 90°)", "obtuse (> 90°)")]]}
-            status={pr && pr.art !== "warn" ? (vm === art ? "gut" : "schlecht") : undefined} />
-          {schritt(2, zw("Rechne das Skalarprodukt", "Compute the dot product"))}
-          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-            <span style={{ ...zeile, fontSize: 17 }}><M t="\vec{a} \cdot \vec{b} =" /></span>
-            <ZahlFeld wert={antwort} setWert={(v) => { setAntwort(v); setPr(null); }} label={zw("Skalarprodukt", "Dot product")} onEnter={pruefen} breite={84} />
-          </div>
-          <GrosserKnopf onClick={pruefen} disabled={vm === null || antwort.trim() === ""}>{zw("Prüfen", "Check")}</GrosserKnopf>
-          {pr && <Rueck art={pr.art}>{pr.text}</Rueck>}
-          {pr && pr.art !== "warn" && (
-            <>
-              <Rueck art={vm === art ? "gut" : "schlecht"}>
-                {vm === art ? zw("Die Winkel-Vermutung stimmt.", "The angle guess was right.")
-                  : zw(`Der Winkel ist ${art === "spitz" ? "spitz" : art === "stumpf" ? "stumpf" : "rechtwinklig"}: Das Vorzeichen des Skalarprodukts verrät es.`, `The angle is ${art === "spitz" ? "acute" : art === "stumpf" ? "obtuse" : "a right angle"}: the sign of the dot product tells.`)}
-              </Rueck>
-              <div style={box}>
-                <div style={zeile}><M t={`\\vec{a} \\cdot \\vec{b} = ${n(a[0])}\\cdot${mkI(b[0])} + ${n(a[1])}\\cdot${mkI(b[1])} + ${n(a[2])}\\cdot${mkI(b[2])} = ${n(ab)}`} /></div>
-                <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, whiteSpace: "normal" }}>
-                  {ab > 0 ? zw("Positiv: Der Winkel ist spitz.", "Positive: the angle is acute.") : ab < 0 ? zw("Negativ: Der Winkel ist stumpf.", "Negative: the angle is obtuse.") : zw("Null: Die Vektoren stehen senkrecht aufeinander (orthogonal).", "Zero: the vectors are perpendicular (orthogonal).")}
-                </p>
-              </div>
-              <GrosserKnopf ghost onClick={() => setWinkelAn((x) => !x)}>
+          <Tafel nr={1} titel={zw("Deine Vermutung", "Your guess")} text={zw("Welcher Winkel liegt zwischen a und b?", "Which angle lies between a and b?")}>
+            <TippKacheln spalten={3} label={zw("Winkelart", "Type of angle")} wert={vm} setWert={(v) => { setVm(v); setPr(null); }}
+              loesung={geprueft ? art : undefined} optionen={winkelOptionen()} />
+          </Tafel>
+          <Tafel nr={2} titel={zw("Rechne das Skalarprodukt", "Compute the dot product")}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+              <span style={{ ...zeile, fontSize: 17 }}><M t="\vec{a} \cdot \vec{b} =" /></span>
+              <ZahlFeld wert={antwort} setWert={(v) => { setAntwort(v); setPr(null); }} label={zw("Skalarprodukt", "Dot product")} onEnter={pruefen} breite={84} />
+              <HauptKnopf onClick={pruefen} disabled={vm === null || antwort.trim() === ""} stil={{ marginLeft: "auto" }}>{zw("Prüfen", "Check")}</HauptKnopf>
+            </div>
+            {vm === null && <p style={{ ...erklaer, fontSize: 12.5 }}>{zw("Wähle zuerst oben deine Vermutung.", "Choose your guess above first.")}</p>}
+            {pr && <Hinweis art={pr.art === "warn" ? "warn" : pr.art}>{pr.text}{geprueft && (vm === art ? zw(" Die Winkel-Vermutung stimmt auch.", " Your angle guess was right as well.") : zw(` Der Winkel ist aber ${art === "spitz" ? "spitz" : art === "stumpf" ? "stumpf" : "rechtwinklig"} – das Vorzeichen verrät es.`, ` But the angle is ${art === "spitz" ? "acute" : art === "stumpf" ? "obtuse" : "a right angle"} – the sign tells.`))}</Hinweis>}
+          </Tafel>
+          {geprueft && (
+            <Tafel nr={3} titel={zw("Rechnung", "Calculation")}>
+              <Rechenweg>
+                <RSchritt nr="1" titel={zw("Komponentenweise multiplizieren und addieren", "Multiply component-wise and add")}>
+                  <div style={zeile}><M t={`\\vec{a} \\cdot \\vec{b} = ${n(a[0])}\\cdot${mkI(b[0])} + ${n(a[1])}\\cdot${mkI(b[1])} + ${n(a[2])}\\cdot${mkI(b[2])} = ${n(ab)}`} /></div>
+                </RSchritt>
+                {winkelAn && <WinkelRechnung a={a} b={b} ab={ab} start={2} />}
+                <Ergebnis bild={<Bild art={art} breite={44} />} art="gut">
+                  {ab > 0 ? zw("Positiv: Der Winkel ist spitz.", "Positive: the angle is acute.") : ab < 0 ? zw("Negativ: Der Winkel ist stumpf.", "Negative: the angle is obtuse.") : zw("Null: Die Vektoren stehen senkrecht aufeinander.", "Zero: the vectors are perpendicular.")}
+                </Ergebnis>
+              </Rechenweg>
+              <button type="button" onClick={() => setWinkelAn((x) => !x)}
+                style={{ marginTop: 12, height: 40, padding: "0 14px", borderRadius: 999, border: `1.5px solid ${C.linie}`, background: C.weiss, color: C.see, fontSize: 13.5, fontWeight: 700, fontFamily: "inherit", cursor: "pointer" }}>
                 {winkelAn ? zw("Winkelrechnung ausblenden", "Hide the angle calculation") : zw("Und wie groß ist der Winkel genau?", "And what is the exact angle?")}
-              </GrosserKnopf>
-              {winkelAn && <WinkelRechnung a={a} b={b} ab={ab} />}
-            </>
+              </button>
+            </Tafel>
           )}
         </>
       )}
-      <GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>
-      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfe} /></div>
+      <Fusszeile neu={neu} hilfe={<IchHaengeFest kontext={hilfe} />} />
     </div>
   );
 }
@@ -577,45 +663,51 @@ function Vektorwinkel() {
     regeln: [{ name: "Orthogonalität", bereich: "vektoren" }],
   });
   const ab = a && b ? skalar(a, b) : 0;
+  const geprueft = pr && pr.art !== "warn";
   return (
-    <div style={{ ...karte, marginTop: 16 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
-        <p style={kicker}>{zw("Vektorwinkel", "Angle between vectors")}</p>
-      </div>
-      <p style={hinweis}>{zw("Schätze den Winkel am Bild, dann berechne ihn mit dem Skalarprodukt.", "Estimate the angle from the picture, then compute it with the dot product.")}</p>
-      <EingabeVektoren namen={["a", "b"]} w={w} setW={setW} farben={[farbA, farbB]} zuruecksetzen={() => { setPr(null); setGeschaetzt(false); }} />
-      {fehler ? <Rueck art="warn">{fehler}</Rueck> : <WinkelBild a={a} b={b} />}
+    <div data-vek-modus="winkel">
+      <VektorBoxen namen={["a", "b"]} arten={[zw("Vektor", "Vector"), zw("Vektor", "Vector")]} w={w} setW={setW} zuruecksetzen={() => { setPr(null); setGeschaetzt(false); }} />
+      <div style={{ marginTop: 12 }}>{fehler ? <Hinweis art="warn">{fehler}</Hinweis> : <BildRahmen><WinkelBild a={a} b={b} /></BildRahmen>}</div>
       {!fehler && (
         <>
-          {schritt(1, zw("Schätze den Winkel", "Estimate the angle"))}
-          <label style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, fontWeight: 700 }}>
-            <span style={{ minWidth: 46, color: C.see }}>{schaetz}°</span>
-            <input type="range" min={0} max={180} step={1} value={schaetz} onChange={(e) => { setSchaetz(Number(e.target.value)); setGeschaetzt(true); }} aria-label={zw("Geschätzter Winkel", "Estimated angle")} style={{ flex: 1, accentColor: C.see }} />
-          </label>
-          <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: C.tinte, cursor: "pointer", minHeight: 40, marginTop: 6 }}>
-            <input type="checkbox" checked={gerade} onChange={(e) => { setGerade(e.target.checked); setPr(null); }} style={{ width: 18, height: 18 }} />
-            {zw("Richtungsvektoren zweier Geraden (Schnittwinkel ≤ 90°)", "Direction vectors of two lines (intersection angle ≤ 90°)")}
-          </label>
-          {schritt(2, zw("Berechne den Winkel (in Grad)", "Compute the angle (in degrees)"))}
-          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-            <span style={{ ...zeile, fontSize: 17 }}>{gerade ? zw("Schnittwinkel", "Intersection angle") : "φ"} =</span>
-            <ZahlFeld wert={antwort} setWert={(v) => { setAntwort(v); setPr(null); }} label={zw("Winkel in Grad", "Angle in degrees")} onEnter={pruefen} breite={92} platzhalter="°" />
-          </div>
-          <GrosserKnopf onClick={pruefen} disabled={antwort.trim() === ""}>{zw("Prüfen", "Check")}</GrosserKnopf>
-          {pr && <Rueck art={pr.art}>{pr.text}</Rueck>}
-          {pr && pr.art !== "warn" && (
-            <div style={box}>
-              {geschaetzt && <p style={{ fontSize: 13, color: C.grau, marginBottom: 6 }}>{zw(`Deine Schätzung: ${schaetz}° – exakt: ${dez(phi, 1)}°.`, `Your estimate: ${schaetz}° – exact: ${dez(phi, 1)}°.`)}</p>}
-              <div style={zeile}><M t={`\\cos\\varphi = \\frac{\\vec{a}\\cdot\\vec{b}}{|\\vec{a}|\\cdot|\\vec{b}|} = \\frac{${n(ab)}}{\\sqrt{${skalar(a, a)}}\\cdot\\sqrt{${skalar(b, b)}}} \\approx ${dez(ab / (laenge(a) * laenge(b)), 4)}`} /></div>
-              <div style={zeile}><M t={`\\varphi \\approx ${dez(phi, 1)}°`} /></div>
-              {gerade && phi > 90 && <div style={zeile}><M t={`\\text{Schnittwinkel} = 180° - ${dez(phi, 1)}° = ${dez(180 - phi, 1)}°`} /></div>}
-              <p style={{ fontSize: 12.5, color: C.grau, lineHeight: 1.6, marginTop: 4 }}>{zw("Zwischen Vektoren zählt der volle Winkel bis 180°, zwischen Geraden der kleinere Schnittwinkel bis 90°.", "Between vectors the full angle up to 180° counts, between lines the smaller intersection angle up to 90°.")}</p>
+          <Tafel nr={1} titel={zw("Schätze den Winkel", "Estimate the angle")} text={zw("Schieb den Regler auf den Winkel, den du im Bild siehst.", "Move the slider to the angle you see in the picture.")}>
+            <label style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 14, fontWeight: 700 }}>
+              <span style={{ minWidth: 52, height: 30, borderRadius: 8, background: VF.dreiHell, color: "#1F6E44", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{schaetz}°</span>
+              <input type="range" min={0} max={180} step={1} value={schaetz} onChange={(e) => { setSchaetz(Number(e.target.value)); setGeschaetzt(true); }} aria-label={zw("Geschätzter Winkel", "Estimated angle")} style={{ flex: 1, accentColor: FS }} />
+            </label>
+          </Tafel>
+          <Tafel nr={2} titel={zw("Berechne den Winkel", "Compute the angle")}>
+            <div role="group" aria-label={zw("Art des Winkels", "Kind of angle")} style={{ marginBottom: 12 }}>
+              <FallWahl wert={gerade ? "gerade" : "vektor"} setWert={(x) => { setGerade(x === "gerade"); setPr(null); }}
+                optionen={[["vektor", zw("zwischen Vektoren (bis 180°)", "between vectors (up to 180°)"), "vektorwinkel"], ["gerade", zw("zwischen Geraden (bis 90°)", "between lines (up to 90°)"), "schneidend"]]} />
             </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+              <span style={{ ...zeile, fontSize: 17 }}>{gerade ? zw("Schnittwinkel", "Intersection angle") : "φ"} =</span>
+              <ZahlFeld wert={antwort} setWert={(v) => { setAntwort(v); setPr(null); }} label={zw("Winkel in Grad", "Angle in degrees")} onEnter={pruefen} breite={92} platzhalter="°" />
+              <HauptKnopf onClick={pruefen} disabled={antwort.trim() === ""} stil={{ marginLeft: "auto" }}>{zw("Prüfen", "Check")}</HauptKnopf>
+            </div>
+            {pr && <Hinweis art={pr.art}>{pr.text}</Hinweis>}
+          </Tafel>
+          {geprueft && (
+            <Tafel nr={3} titel={zw("Rechnung", "Calculation")}>
+              <Rechenweg>
+                <RSchritt nr="1" titel={zw("Skalarprodukt und Längen einsetzen", "Plug in dot product and lengths")}>
+                  <div style={zeile}><M t={`\\cos\\varphi = \\frac{\\vec{a}\\cdot\\vec{b}}{|\\vec{a}|\\cdot|\\vec{b}|} = \\frac{${n(ab)}}{\\sqrt{${skalar(a, a)}}\\cdot\\sqrt{${skalar(b, b)}}} \\approx ${dez(ab / (laenge(a) * laenge(b)), 4)}`} /></div>
+                </RSchritt>
+                <RSchritt nr="2" titel={zw("Mit arccos zum Winkel", "Get the angle with arccos")}>
+                  <div style={zeile}><M t={`\\varphi \\approx ${dez(phi, 1)}°`} /></div>
+                  {gerade && phi > 90 && <div style={zeile}><M t={`\\text{Schnittwinkel} = 180° - ${dez(phi, 1)}° = ${dez(180 - phi, 1)}°`} /></div>}
+                </RSchritt>
+                <Ergebnis bild={<Bild art={ziel > 90.05 ? "stumpf" : Math.abs(ziel - 90) <= 0.05 ? "recht" : "spitz"} breite={44} />} art="gut"
+                  zusatz={geschaetzt ? zw(`Deine Schätzung: ${schaetz}°`, `Your estimate: ${schaetz}°`) : zw("Zwischen Vektoren zählt der volle Winkel bis 180°, zwischen Geraden der kleinere bis 90°.", "Between vectors the full angle up to 180° counts, between lines the smaller one up to 90°.")}>
+                  {gerade ? zw("Schnittwinkel", "Intersection angle") : "φ"} ≈ {dez(ziel, 1)}°
+                </Ergebnis>
+              </Rechenweg>
+            </Tafel>
           )}
         </>
       )}
-      <GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>
-      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfe} /></div>
+      <Fusszeile neu={neu} hilfe={<IchHaengeFest kontext={hilfe} />} />
     </div>
   );
 }
@@ -654,93 +746,88 @@ function GeradeEbeneWinkel() {
     regeln: [{ name: "Orthogonalität", bereich: "vektoren" }],
   });
   const un = u && nv ? skalar(u, nv) : 0;
+  const geprueft = pr && pr.art !== "warn";
   return (
-    <div style={{ ...karte, marginTop: 16 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
-        <p style={kicker}>{zw("Gerade-Ebene-Winkel", "Line–plane angle")}</p>
-      </div>
-      <p style={hinweis}>{zw("Der Winkel zwischen Gerade und Ebene wird mit dem Sinus berechnet – nicht mit dem Kosinus.", "The angle between line and plane is computed with the sine – not with the cosine.")}</p>
-      <div style={{ ...box, marginTop: 4, marginBottom: 6 }}>
-        <p style={{ fontSize: 14, fontWeight: 700, color: C.see, margin: "0 0 6px" }}>{zw("Warum Sinus und nicht Kosinus?", "Why sine and not cosine?")}</p>
-        <p style={{ fontSize: 13.5, color: C.tinte, lineHeight: 1.65, margin: "0 0 6px", whiteSpace: "normal" }}>
-          {zw("Die Kosinus-Formel misst den Winkel zwischen zwei Vektoren. Von der Ebene haben wir aber nur den Normalenvektor n – und der steht senkrecht auf der Ebene. Der Kosinus-Weg liefert also den Winkel θ zwischen u und n, nicht den Winkel zur Ebene.",
-            "The cosine formula measures the angle between two vectors. But of the plane we only have the normal vector n – and it stands perpendicular to the plane. The cosine route therefore gives the angle θ between u and n, not the angle to the plane.")}
-        </p>
-        <p style={{ fontSize: 13.5, color: C.tinte, lineHeight: 1.65, margin: "0 0 6px", whiteSpace: "normal" }}>
-          {zw("Zwischen n und der Ebene liegen genau 90°. Deshalb gilt α = 90° − θ. Und für Komplementwinkel vertauschen sich Sinus und Kosinus:", "Between n and the plane there are exactly 90°. So α = 90° − θ. And for complementary angles sine and cosine swap:")}
-        </p>
-        <div style={zeile}><M t={"\\sin\\alpha = \\sin(90° - \\theta) = \\cos\\theta"} /></div>
-        <div style={zeile}><M t={"\\cos\\theta = \\frac{|\\vec{u}\\cdot\\vec{n}|}{|\\vec{u}|\\cdot|\\vec{n}|}"} /></div>
-        <p style={{ fontSize: 13, color: C.grau, lineHeight: 1.6, margin: "4px 0 0", whiteSpace: "normal" }}>
-          {zw("Der Kosinus von θ steckt also im Bruch – er heißt nur sin α, weil wir den Winkel zur Ebene suchen. Die Betragsstriche sorgen dafür, dass α zwischen 0° und 90° bleibt.",
-            "So the cosine of θ is inside the fraction – it is just called sin α because we want the angle to the plane. The absolute value bars keep α between 0° and 90°.")}
-        </p>
-      </div>
-      <EingabeVektoren namen={["u", "n"]} w={w} setW={setW} farben={[farbA, farbB]} zuruecksetzen={() => { setPr(null); setFormel(null); }} />
-      {fehler ? <Rueck art="warn">{fehler}</Rueck> : <GeBild u={u} nv={nv} />}
-      <p style={{ fontSize: 12.5, color: C.hellgrau, marginTop: 6 }}>{zw("u: Richtungsvektor der Geraden · n: Normalenvektor der Ebene", "u: direction vector of the line · n: normal vector of the plane")}</p>
+    <div data-vek-modus="ge-winkel">
+      <VektorBoxen namen={["u", "n"]} arten={[zw("Richtung von g", "Direction of g"), zw("Normale von E", "Normal of E")]} w={w} setW={setW} zuruecksetzen={() => { setPr(null); setFormel(null); }} />
+      <div style={{ marginTop: 12 }}>{fehler ? <Hinweis art="warn">{fehler}</Hinweis> : <BildRahmen><GeBild u={u} nv={nv} /></BildRahmen>}</div>
+      <details style={{ marginTop: 10, background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 14, padding: "4px 14px" }}>
+        <summary style={{ cursor: "pointer", fontSize: 14, fontWeight: 700, color: C.see, padding: "8px 0", listStylePosition: "inside" }}>{zw("Warum Sinus und nicht Kosinus?", "Why sine and not cosine?")}</summary>
+        <div style={{ padding: "2px 0 12px" }}>
+          <p style={{ ...erklaer, color: C.tinte, margin: "0 0 6px" }}>
+            {zw("Die Kosinus-Formel misst den Winkel zwischen zwei Vektoren. Von der Ebene haben wir aber nur den Normalenvektor n – und der steht senkrecht auf der Ebene. Der Kosinus-Weg liefert also den Winkel θ zwischen u und n, nicht den Winkel zur Ebene.",
+              "The cosine formula measures the angle between two vectors. But of the plane we only have the normal vector n – and it stands perpendicular to the plane. The cosine route therefore gives the angle θ between u and n, not the angle to the plane.")}
+          </p>
+          <p style={{ ...erklaer, color: C.tinte, margin: "0 0 6px" }}>
+            {zw("Zwischen n und der Ebene liegen genau 90°. Deshalb gilt α = 90° − θ. Und für Komplementwinkel vertauschen sich Sinus und Kosinus:", "Between n and the plane there are exactly 90°. So α = 90° − θ. And for complementary angles sine and cosine swap:")}
+          </p>
+          <div style={zeile}><M t={"\\sin\\alpha = \\sin(90° - \\theta) = \\cos\\theta"} /></div>
+          <div style={zeile}><M t={"\\cos\\theta = \\frac{|\\vec{u}\\cdot\\vec{n}|}{|\\vec{u}|\\cdot|\\vec{n}|}"} /></div>
+          <p style={erklaer}>
+            {zw("Der Kosinus von θ steckt also im Bruch – er heißt nur sin α, weil wir den Winkel zur Ebene suchen. Die Betragsstriche sorgen dafür, dass α zwischen 0° und 90° bleibt.",
+              "So the cosine of θ is inside the fraction – it is just called sin α because we want the angle to the plane. The absolute value bars keep α between 0° and 90°.")}
+          </p>
+        </div>
+      </details>
       {!fehler && (
         <>
-          {schritt(1, zw("Welche Formel passt?", "Which formula fits?"))}
-          <Auswahl label={zw("Formel wählen", "Choose formula")} wert={formel} setWert={setFormel}
-            optionen={[["sin", "sin α = |u·n| / (|u|·|n|)"], ["cos", "cos α = |u·n| / (|u|·|n|)"], ["tan", "tan α = |u·n| / (|u|·|n|)"]]}
-            status={formel ? (formel === "sin" ? "gut" : "schlecht") : undefined} />
-          {formel && <Rueck art={formel === "sin" ? "gut" : "schlecht"}>{formel === "sin" ? zw("Richtig: Der Sinus, weil n senkrecht auf der Ebene steht.", "Right: the sine, because n is perpendicular to the plane.") : zw("Das ist nicht die Formel für den Winkel zur Ebene. Mit dem Kosinus bekommst du den Winkel zwischen u und n – das Komplement von α.", "That is not the formula for the angle to the plane. The cosine gives the angle between u and n – the complement of α.")}</Rueck>}
-          {schritt(2, zw("Berechne α (in Grad)", "Compute α (in degrees)"))}
-          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-            <span style={{ ...zeile, fontSize: 17 }}>α =</span>
-            <ZahlFeld wert={antwort} setWert={(v) => { setAntwort(v); setPr(null); }} label={zw("Winkel in Grad", "Angle in degrees")} onEnter={pruefen} breite={92} platzhalter="°" />
-          </div>
-          <GrosserKnopf onClick={pruefen} disabled={antwort.trim() === ""}>{zw("Prüfen", "Check")}</GrosserKnopf>
-          {pr && <Rueck art={pr.art}>{pr.text}</Rueck>}
-          {pr && pr.art !== "warn" && (
-            <div style={box}>
-              <div style={zeile}><M t={`\\sin\\alpha = \\frac{|\\vec{u}\\cdot\\vec{n}|}{|\\vec{u}|\\cdot|\\vec{n}|} = \\frac{|${n(un)}|}{\\sqrt{${skalar(u, u)}}\\cdot\\sqrt{${skalar(nv, nv)}}} \\approx ${dez(Math.abs(un) / (laenge(u) * laenge(nv)), 4)}`} /></div>
-              <div style={zeile}><M t={`\\alpha \\approx ${dez(alpha, 1)}°`} /></div>
-              <p style={{ fontSize: 12.5, color: C.grau, lineHeight: 1.6, marginTop: 4 }}>{zw(`Zur Probe: Der Winkel zwischen u und n wäre ${dez(winkelZwischen(u, nv), 1)}°; α ist das Komplement dazu (bis auf das Vorzeichen).`, `Check: the angle between u and n would be ${dez(winkelZwischen(u, nv), 1)}°; α is its complement (up to sign).`)}</p>
+          <Tafel nr={1} titel={zw("Welche Formel passt?", "Which formula fits?")}>
+            <TippKacheln spalten={1} label={zw("Formel wählen", "Choose formula")} wert={formel} setWert={setFormel} loesung={formel ? "sin" : undefined}
+              optionen={[["sin", <span key="s" style={{ fontSize: 18, fontWeight: 400 }}><M t={"\\sin\\alpha = \\frac{|\\vec{u}\\cdot\\vec{n}|}{|\\vec{u}|\\cdot|\\vec{n}|}"} /></span>], ["cos", <span key="c" style={{ fontSize: 18, fontWeight: 400 }}><M t={"\\cos\\alpha = \\frac{|\\vec{u}\\cdot\\vec{n}|}{|\\vec{u}|\\cdot|\\vec{n}|}"} /></span>], ["tan", <span key="t" style={{ fontSize: 18, fontWeight: 400 }}><M t={"\\tan\\alpha = \\frac{|\\vec{u}\\cdot\\vec{n}|}{|\\vec{u}|\\cdot|\\vec{n}|}"} /></span>]]} />
+            {formel && <Hinweis art={formel === "sin" ? "gut" : "schlecht"}>{formel === "sin" ? zw("Richtig: der Sinus, weil n senkrecht auf der Ebene steht.", "Right: the sine, because n is perpendicular to the plane.") : zw("Das ist nicht die Formel für den Winkel zur Ebene. Mit dem Kosinus bekommst du den Winkel zwischen u und n – das Komplement von α.", "That is not the formula for the angle to the plane. The cosine gives the angle between u and n – the complement of α.")}</Hinweis>}
+          </Tafel>
+          <Tafel nr={2} titel={zw("Berechne α", "Compute α")}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+              <span style={{ ...zeile, fontSize: 17 }}>α =</span>
+              <ZahlFeld wert={antwort} setWert={(v) => { setAntwort(v); setPr(null); }} label={zw("Winkel in Grad", "Angle in degrees")} onEnter={pruefen} breite={92} platzhalter="°" />
+              <HauptKnopf onClick={pruefen} disabled={antwort.trim() === ""} stil={{ marginLeft: "auto" }}>{zw("Prüfen", "Check")}</HauptKnopf>
             </div>
+            {pr && <Hinweis art={pr.art}>{pr.text}</Hinweis>}
+          </Tafel>
+          {geprueft && (
+            <Tafel nr={3} titel={zw("Rechnung", "Calculation")}>
+              <Rechenweg>
+                <RSchritt nr="1" titel={zw("In die Sinus-Formel einsetzen", "Plug into the sine formula")}>
+                  <div style={zeile}><M t={`\\sin\\alpha = \\frac{|\\vec{u}\\cdot\\vec{n}|}{|\\vec{u}|\\cdot|\\vec{n}|} = \\frac{|${n(un)}|}{\\sqrt{${skalar(u, u)}}\\cdot\\sqrt{${skalar(nv, nv)}}} \\approx ${dez(Math.abs(un) / (laenge(u) * laenge(nv)), 4)}`} /></div>
+                </RSchritt>
+                <RSchritt nr="2" titel={zw("Mit arcsin zum Winkel", "Get the angle with arcsin")}>
+                  <div style={zeile}><M t={`\\alpha \\approx ${dez(alpha, 1)}°`} /></div>
+                </RSchritt>
+                <Ergebnis bild={<Bild art="ge-winkel" breite={44} />} art="gut"
+                  zusatz={zw(`Zur Probe: Der Winkel zwischen u und n wäre ${dez(winkelZwischen(u, nv), 1)}°; α ist das Komplement dazu (bis auf das Vorzeichen).`, `Check: the angle between u and n would be ${dez(winkelZwischen(u, nv), 1)}°; α is its complement (up to sign).`)}>
+                  α ≈ {dez(alpha, 1)}°
+                </Ergebnis>
+              </Rechenweg>
+            </Tafel>
           )}
         </>
       )}
-      <GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>
-      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfe} /></div>
+      <Fusszeile neu={neu} hilfe={<IchHaengeFest kontext={hilfe} />} />
     </div>
   );
 }
 
 /* ======================================================================
-   Karte „Winkel und Skalarprodukt“
+   Seite „Winkel und Skalarprodukt“
    ====================================================================== */
 
 const WINKEL_MODI = [
-  { id: "skalar", name: ["Berechne das Skalarprodukt", "Compute the dot product"] },
-  { id: "winkel", name: ["Vektorwinkel", "Angle between vectors"] },
-  { id: "ge", name: ["Gerade-Ebene-Winkel", "Line–plane angle"] },
+  { id: "skalar", name: ["Skalarprodukt", "Dot product"], bild: "skalar" },
+  { id: "winkel", name: ["Vektorwinkel", "Vector angle"], bild: "vektorwinkel" },
+  { id: "ge", name: ["Gerade – Ebene", "Line – plane"], bild: "ge-winkel" },
 ];
 
 export function WinkelSkalarprodukt() {
   const [modus, setModus] = useState("skalar");
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
-      <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>{zw("Winkel und Skalarprodukt", "Angles and the dot product")}</h2>
-      <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 18 }}>
-        {zw("Schätze Winkel am Bild, berechne das Skalarprodukt und leite daraus Winkel zwischen Vektoren, Geraden und Ebenen ab.", "Estimate angles from the picture, compute the dot product and derive angles between vectors, lines and planes.")}
-      </p>
-      <div role="tablist" aria-label={zw("Winkel-Übungen", "Angle exercises")} style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8 }}>
-        {WINKEL_MODI.map((m) => {
-          const an = modus === m.id;
-          return (
-            <button key={m.id} type="button" role="tab" aria-selected={an} onClick={() => setModus(m.id)}
-              style={{ minHeight: 48, padding: "8px 10px", borderRadius: 14, fontFamily: "inherit", cursor: "pointer", fontSize: 14, fontWeight: 700,
-                border: `1px solid ${an ? C.see : C.linie}`, background: an ? C.see : C.weiss, color: an ? C.weiss : C.see, boxShadow: an ? "0 4px 14px rgba(0,77,152,0.25)" : "none" }}>
-              {zw(m.name[0], m.name[1])}
-            </button>
-          );
-        })}
-      </div>
+    <VekSeite titel={zw("Winkel und Skalarprodukt", "Angles and the dot product")}
+      text={zw("Schätze Winkel am Bild, berechne das Skalarprodukt und leite daraus Winkel zwischen Vektoren, Geraden und Ebenen ab.", "Estimate angles from the picture, compute the dot product and derive angles between vectors, lines and planes.")}>
+      <ModusReiter label={zw("Winkel-Übungen", "Angle exercises")} wert={modus} setWert={setModus}
+        modi={WINKEL_MODI.map((m) => ({ id: m.id, name: zw(m.name[0], m.name[1]), bild: m.bild }))} />
       <div style={{ display: modus === "skalar" ? "block" : "none" }}><SkalarproduktVerstehen /></div>
       <div style={{ display: modus === "winkel" ? "block" : "none" }}><Vektorwinkel /></div>
       <div style={{ display: modus === "ge" ? "block" : "none" }}><GeradeEbeneWinkel /></div>
-    </div>
+    </VekSeite>
   );
 }
+

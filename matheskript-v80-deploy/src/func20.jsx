@@ -15,6 +15,7 @@ import { DrehKnoepfe, FARBE_ACHSE, GRUND_AUS, GrundebenenGitter, GrundebenenScha
 import { Bruch, Einzeilig, SpaltenVektor, VecName, Wurzel, ggT, kreuz, minus, skalar, strahlImWuerfel } from "./func19.jsx";
 
 import { springe } from "./sprung.js";
+import { BUEHNE, BUEHNE_SVG, FallWahl, Fusszeile, Legende, ModusReiter, RSchritt, Tafel, VF, VekSeite } from "./vekUi.jsx";
 export const FA = C.see, FB = C.gruen, FE = "#8A6D00", FS = C.smaragd;
 
 /* ---------- Zufall ---------- */
@@ -44,17 +45,13 @@ export const Vek = ({ w, farbe = C.tinte }) => <SpaltenVektor farbe={farbe} eint
 export const Name = ({ t, farbe = C.tinte }) => <VecName t={t} idx="" farbe={farbe} />;
 export const Gl = () => <span>=</span>;
 
+/* Ein Rechenschritt: mit Nummer als Zeitleiste (vekUi RSchritt), ohne Nummer als ruhige Fläche */
 export function Schritt({ nr, titel, children }) {
+  if (nr) return <RSchritt nr={nr} titel={titel}>{children}</RSchritt>;
   return (
     <div style={{ marginBottom: 14 }}>
-      {titel && (
-        <p style={{ fontSize: 12.5, fontWeight: 700, color: C.grau, marginBottom: 6 }}>
-          {nr && <span style={{ display: "inline-flex", width: 20, height: 20, borderRadius: 999, background: C.himmel, color: C.see,
-            alignItems: "center", justifyContent: "center", fontSize: 11.5, marginRight: 6 }}>{nr}</span>}
-          {titel}
-        </p>
-      )}
-      <div style={{ background: C.sand, borderRadius: 12, padding: "10px 8px" }}>{children}</div>
+      {titel && <p style={{ fontSize: 14, fontWeight: 700, color: C.tinte, margin: "0 0 8px" }}>{titel}</p>}
+      <div style={{ background: VF.flaeche, border: `1px solid ${C.linie}`, borderRadius: 12, padding: "10px 8px" }}>{children}</div>
     </div>
   );
 }
@@ -142,9 +139,11 @@ export function neueAufgabe(art) {
   }
 }
 
-/* ---------- 3D-Schaubild (Punkte, Gerade, Ebene) ---------- */
+/* ---------- 3D-Schaubild (Punkte, Gerade, Ebene) ----------
+   gerade/gerade2: { p, r, farbe?, ohnePfeil? } · ebene/ebene2: { n, d, farbe? }
+   legende: [{ text, farbe, art }] erscheint oben links im Bild (vekUi Legende). */
 
-export function Raum3({ punkte, gerade, gerade2, lot, ebene, ebene2, lot2 }) {
+export function Raum3({ punkte, gerade, gerade2, lot, ebene, ebene2, lot2, legende }) {
   const [grund, setGrund] = useState(GRUND_AUS);
   const [phi, setPhi] = useState(0.62);
   const [theta, setTheta] = useState(0.42);
@@ -158,6 +157,11 @@ export function Raum3({ punkte, gerade, gerade2, lot, ebene, ebene2, lot2 }) {
   const poly2 = ebene2 ? ebenenPolygon(ebene2.n, ebene2.d, L) : [];
   const strecke = gerade ? strahlImWuerfel(gerade.p, gerade.r, L) : null;
   const strecke2 = gerade2 ? strahlImWuerfel(gerade2.p, gerade2.r, L) : null;
+  const fG1 = (gerade && gerade.farbe) || FE, fG2 = (gerade2 && gerade2.farbe) || C.see;
+  const fE1 = (ebene && ebene.farbe) || C.see, fE2 = (ebene2 && ebene2.farbe) || C.gruen;
+  // Richtungspfeil: früher immer Gold – mit eigener Geradenfarbe in derselben Farbe
+  const fPfeil = gerade && gerade.farbe ? gerade.farbe : FB;
+  const pfeilId = `vgp${fPfeil.replace("#", "")}`;
 
   const ziehen = useRef(null);
   const start = (e) => { ziehen.current = { x: e.clientX, y: e.clientY, phi, theta }; e.currentTarget.setPointerCapture?.(e.pointerId); };
@@ -167,12 +171,21 @@ export function Raum3({ punkte, gerade, gerade2, lot, ebene, ebene2, lot2 }) {
     setTheta(Math.max(-1.35, Math.min(1.35, ziehen.current.theta + (e.clientY - ziehen.current.y) * 0.01)));
   };
   const ende = () => { ziehen.current = null; };
+  const linie = (st, farbe, breite = 2.8) => {
+    if (!st) return null;
+    const [x1, y1] = P(st[0]), [x2, y2] = P(st[1]);
+    return (
+      <g>
+        <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#fff" strokeWidth={breite + 3} strokeLinecap="round" opacity="0.9" />
+        <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={farbe} strokeWidth={breite} strokeLinecap="round" />
+      </g>
+    );
+  };
 
   return (
-    <div>
-    <div style={{ position: "relative" }}>
-      <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", display: "block", touchAction: "none", cursor: "grab", background: C.weiss,
-        borderRadius: 14, border: `1px solid ${C.linie}` }}
+    <div data-vek-raum="">
+    <div style={BUEHNE}>
+      <svg viewBox={`0 0 ${W} ${H}`} style={BUEHNE_SVG}
         onPointerDown={start} onPointerMove={bewege} onPointerUp={ende} onPointerLeave={ende}>
         <defs>
           {[0, 1, 2].map((i) => (
@@ -180,6 +193,9 @@ export function Raum3({ punkte, gerade, gerade2, lot, ebene, ebene2, lot2 }) {
               <path d="M0,0 L10,5 L0,10 z" fill={FARBE_ACHSE[i]} />
             </marker>
           ))}
+          <marker id={pfeilId} viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill={fPfeil} />
+          </marker>
         </defs>
         <GrundebenenGitter an={grund} P={P} L={L} />
         {[0, 1, 2].map((i) => {
@@ -188,22 +204,20 @@ export function Raum3({ punkte, gerade, gerade2, lot, ebene, ebene2, lot2 }) {
           const [x1, y1] = P(a), [x2, y2] = P(b), [lx, ly] = P(l);
           return (
             <g key={i}>
-              <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={FARBE_ACHSE[i]} strokeWidth="1.6" markerEnd={`url(#vg${i})`} opacity="0.85" />
+              <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={FARBE_ACHSE[i]} strokeWidth="1.4" markerEnd={`url(#vg${i})`} opacity="0.7" />
               <text x={lx} y={ly + 4} textAnchor="middle" fontSize="12.5" fontWeight="700" fontStyle="italic" fill={FARBE_ACHSE[i]}>x{["₁", "₂", "₃"][i]}</text>
             </g>
           );
         })}
-        {poly.length >= 3 && <path d={pfad(poly)} fill={C.see} fillOpacity="0.16" stroke={C.see} strokeOpacity="0.6" strokeWidth="1.3" />}
-        {poly2.length >= 3 && <path d={pfad(poly2)} fill={C.gruen} fillOpacity="0.13" stroke={C.gruen} strokeOpacity="0.55" strokeWidth="1.3" />}
+        {poly.length >= 3 && <path d={pfad(poly)} fill={fE1} fillOpacity="0.15" stroke={fE1} strokeOpacity="0.6" strokeWidth="1.3" strokeLinejoin="round" />}
+        {poly2.length >= 3 && <path d={pfad(poly2)} fill={fE2} fillOpacity="0.14" stroke={fE2} strokeOpacity="0.6" strokeWidth="1.3" strokeLinejoin="round" />}
         {ebene && punkte.length === 3 && <path d={pfad(punkte.map((x) => x.p))} fill={C.flaggold} fillOpacity="0.25" stroke={FE} strokeWidth="1.4" />}
-        {strecke && (() => { const [x1, y1] = P(strecke[0]), [x2, y2] = P(strecke[1]);
-          return <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={FE} strokeWidth="2.6" strokeLinecap="round" />; })()}
-        {strecke2 && (() => { const [x1, y1] = P(strecke2[0]), [x2, y2] = P(strecke2[1]);
-          return <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={C.see} strokeWidth="2.6" strokeLinecap="round" />; })()}
+        {linie(strecke, fG1)}
+        {linie(strecke2, fG2)}
         {[lot, lot2].filter(Boolean).map((l, i) => { const [x1, y1] = P(l[0]), [x2, y2] = P(l[1]);
-          return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={C.gruen} strokeWidth="2.4" strokeDasharray="5 4" />; })}
+          return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={VF.drei} strokeWidth="2.4" strokeDasharray="5 4" />; })}
         {gerade && !gerade.ohnePfeil && (() => { const [x1, y1] = P(gerade.p), [x2, y2] = P(gerade.p.map((v, i) => v + gerade.r[i]));
-          return <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={FB} strokeWidth="3" markerEnd="url(#vg1)" />; })()}
+          return <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={fPfeil} strokeWidth="3.4" strokeLinecap="round" markerEnd={`url(#${pfeilId})`} />; })()}
         {(() => { const [x, y] = P([0, 0, 0]); return <circle cx={x} cy={y} r="2.5" fill={C.tinte} />; })()}
         {punkte.map((pt) => {
           const [x, y] = P(pt.p);
@@ -212,15 +226,16 @@ export function Raum3({ punkte, gerade, gerade2, lot, ebene, ebene2, lot2 }) {
           return (
             <g key={pt.label}>
               <line x1={x} y1={y} x2={fx} y2={fy} stroke={C.hellgrau} strokeWidth="1" strokeDasharray="3 3" />
-              <circle cx={x} cy={y} r="5" fill={pt.farbe} stroke={C.weiss} strokeWidth="1.6" />
-              <text x={x + 8} y={y - 7} fontSize="12.5" fontWeight="800" fill={pt.farbe}>{pt.label}</text>
+              <circle cx={x} cy={y} r="5.2" fill={pt.farbe} stroke={C.weiss} strokeWidth="1.8" />
+              <text x={x + 8} y={y - 7} fontSize="13" fontWeight="800" fill={pt.farbe} stroke="#fff" strokeWidth="3" paintOrder="stroke">{pt.label}</text>
             </g>
           );
         })}
       </svg>
+      {legende && <Legende eintraege={legende} stil={{ position: "absolute", left: 10, top: 10, maxWidth: "calc(50% - 30px)", pointerEvents: "none" }} />}
       <DrehKnoepfe setPhi={setPhi} setTheta={setTheta} zuruecksetzen={() => { setPhi(0.62); setTheta(0.42); }} />
     </div>
-      <div style={{ marginTop: 10 }}><GrundebenenSchalter an={grund} setAn={setGrund} /></div>
+      <div style={{ marginTop: 8 }}><GrundebenenSchalter an={grund} setAn={setGrund} /></div>
     </div>
   );
 }
@@ -522,9 +537,9 @@ function AbstandGG({ A, u, B, v }) {
 /* Formeln auf den drei Hauptknöpfen: kleine Buchstaben mit Pfeil darüber (a⃗, b⃗) */
 const va = <VecName t="a" />, vb = <VecName t="b" />;
 const ARTEN = [
-  { id: "addsub", name: "Vektoraddition", formel: <>{va} ± {vb}</>, haupt: true, info: "Komponentenweise addieren oder subtrahieren – oben mit oben, Mitte mit Mitte, unten mit unten." },
-  { id: "skalar", name: "Skalarmultiplikation", formel: <>k · {va}</>, titel: "Skalarmultiplikation", haupt: true, info: "Die Zahl vor dem Vektor wird mit jeder Komponente multipliziert. Der Vektor wird gestreckt, gestaucht oder umgedreht." },
-  { id: "linear", name: "Linearkombination", formel: <>k · {va} + j · {vb}</>, titel: "Linearkombination", haupt: true, info: "Erst jeden Vektor mit seinem Skalar multiplizieren, dann komponentenweise zusammenfassen." },
+  { id: "addsub", name: "Vektoraddition", kurz: "Addition", bild: "summe", formel: <>{va} ± {vb}</>, haupt: true, info: "Komponentenweise addieren oder subtrahieren – oben mit oben, Mitte mit Mitte, unten mit unten." },
+  { id: "skalar", name: "Skalarmultiplikation", kurz: "Skalar\u00ADmulti\u00ADplikation", bild: "vielfaches", formel: <>k · {va}</>, titel: "Skalarmultiplikation", haupt: true, info: "Die Zahl vor dem Vektor wird mit jeder Komponente multipliziert. Der Vektor wird gestreckt, gestaucht oder umgedreht." },
+  { id: "linear", name: "Linearkombination", kurz: "Linear\u00ADkombination", bild: "linear", formel: <>k · {va} + j · {vb}</>, titel: "Linearkombination", haupt: true, info: "Erst jeden Vektor mit seinem Skalar multiplizieren, dann komponentenweise zusammenfassen." },
   { id: "skalarprodukt", name: "Skalarprodukt", info: "Komponenten paarweise multiplizieren und alles addieren – das Ergebnis ist eine Zahl. Ist sie 0, stehen die Vektoren senkrecht." },
   /* Kreuzprodukt und Abstände haben eigene Werkzeuge (Stationen „Rechnen“ und „Lage und Abstand“) –
      hier nur noch als Verweis, damit es dieselbe Rechnung nicht zweimal gibt. */
@@ -541,73 +556,38 @@ export function VektorGenerator({ gehe }) {
   // Auswahl unten bei „Weitere Beispiele“: danach zur Rechnung hochscrollen
   const karteRef = useRef(null);
   const wechsleUnten = (id) => { wechsle(id); requestAnimationFrame(() => karteRef.current && springe("bruch-beispiele", () => karteRef.current.scrollIntoView({ behavior: "smooth", block: "start" }))); };
-  const karte = { background: C.weiss, borderRadius: 16, padding: 18, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" };
   const info = ARTEN.find((x) => x.id === art);
   const titel = art === "addsub" ? (aufgabe.op === "+" ? "Vektoraddition" : "Vektorsubtraktion") : info.titel || info.name;
 
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
-      <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
-        Beispiele ohne Ende
-      </h2>
-      <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 18 }}>
-        Wähle eine Rechenart und lass dir so viele Beispiele zeigen, wie du willst – jedes mit vollständigem Rechenweg.
-        Alle Koordinaten liegen zwischen −7 und 7.
-      </p>
+    <VekSeite titel="Beispiele ohne Ende"
+      text="Wähle eine Rechenart und lass dir so viele Beispiele zeigen, wie du willst – jedes mit vollständigem Rechenweg. Alle Koordinaten liegen zwischen −7 und 7.">
+      <ModusReiter label="Rechenart" wert={ARTEN.find((x) => x.id === art && x.haupt) ? art : null} setWert={wechsle}
+        modi={ARTEN.filter((x) => x.haupt).map((x) => ({ id: x.id, name: x.kurz, bild: x.bild }))} />
 
-      <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: C.gruenDunkel, marginBottom: 8 }}>Rechnen</p>
-      <div className="rv-haupt" style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8, marginBottom: 16 }}>
-        <style>{`@media (max-width:560px){.rv-haupt{grid-template-columns:1fr!important}}`}</style>
-        {ARTEN.filter((x) => x.haupt).map((x) => {
-          const an = art === x.id;
-          return (
-            <button key={x.id} type="button" onClick={() => wechsle(x.id)} aria-pressed={an} aria-label={x.name}
-              style={{ minHeight: 64, padding: "9px 8px", borderRadius: 14, fontFamily: "inherit", cursor: "pointer", textAlign: "center",
-                display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8,
-                border: `1px solid ${an ? C.see : C.linie}`, background: an ? C.see : C.weiss, color: an ? C.weiss : C.see,
-                boxShadow: an ? "0 4px 14px rgba(0,77,152,0.25)" : "0 2px 10px rgba(15,26,51,0.05)" }}>
-              <span style={{ fontSize: "clamp(11px, 2.9vw, 13px)", fontWeight: 700, letterSpacing: "0.01em", whiteSpace: "nowrap" }}>{x.name}</span>
-              <span data-kein-i18n style={{ fontSize: 16, fontWeight: 600, whiteSpace: "nowrap", paddingTop: "0.25em", lineHeight: 1.15 }}>{x.formel}</span>
-            </button>
-          );
-        })}
+      <div ref={karteRef} style={{ scrollMarginTop: 80 }}>
+        <Tafel stil={{ marginTop: 0 }} titel={titel} rechts={<span style={{ fontSize: 12.5, fontWeight: 600, color: C.grau, whiteSpace: "nowrap" }}>Beispiel {zaehler}</span>}>
+          <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.55, margin: "0 0 14px" }}>{info.info}</p>
+          <div key={zaehler + art}>
+            {art === "addsub" && <AddSub {...aufgabe} />}
+            {art === "skalar" && <SkalarMult {...aufgabe} />}
+            {art === "linear" && <Linear {...aufgabe} />}
+            {art === "skalarprodukt" && <SkalarProd {...aufgabe} />}
+            {art === "kreuzprodukt" && <KreuzProd {...aufgabe} />}
+            {art === "abstandPG" && <AbstandPG {...aufgabe} />}
+            {art === "abstandPE" && <AbstandPE {...aufgabe} />}
+            {art === "abstandGG" && <AbstandGG {...aufgabe} />}
+          </div>
+          <Fusszeile neu={neu} neuText="Neues Beispiel" stil={{ marginTop: 8 }} />
+        </Tafel>
       </div>
 
-      <div ref={karteRef} style={{ ...karte, scrollMarginTop: 80 }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 6 }}>
-          <p style={{ fontSize: 18, fontWeight: 800, color: C.tinte }}>{titel}</p>
-          <span style={{ fontSize: 12, color: C.hellgrau, whiteSpace: "nowrap" }}>Beispiel {zaehler}</span>
-        </div>
-        <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.55, marginBottom: 14 }}>{info.info}</p>
-
-        <div key={zaehler + art}>
-          {art === "addsub" && <AddSub {...aufgabe} />}
-          {art === "skalar" && <SkalarMult {...aufgabe} />}
-          {art === "linear" && <Linear {...aufgabe} />}
-          {art === "skalarprodukt" && <SkalarProd {...aufgabe} />}
-          {art === "kreuzprodukt" && <KreuzProd {...aufgabe} />}
-          {art === "abstandPG" && <AbstandPG {...aufgabe} />}
-          {art === "abstandPE" && <AbstandPE {...aufgabe} />}
-          {art === "abstandGG" && <AbstandGG {...aufgabe} />}
-        </div>
-
-        <button onClick={neu}
-          style={{ width: "100%", marginTop: 14, height: 48, borderRadius: 999, border: "none", cursor: "pointer", fontFamily: "inherit",
-            background: C.flaggold, color: C.seeTief, fontSize: 16, fontWeight: 800, boxShadow: "0 4px 14px rgba(237,187,0,0.35)" }}>
-          🎲 Neues Beispiel
-        </button>
+      {/* Weitere Beispiele ganz unten – Kreuzprodukt und Abstände führen in ihre eigenen Werkzeuge */}
+      <div style={{ marginTop: 22 }}>
+        <FallWahl titel="Weitere Beispiele" wert={ARTEN.find((x) => x.id === art && !x.haupt) ? art : null}
+          setWert={(id) => { const x = ARTEN.find((y) => y.id === id); if (x.link) { if (gehe) gehe({ ansicht: x.link }); } else wechsleUnten(id); }}
+          optionen={ARTEN.filter((x) => !x.haupt).map((x) => [x.id, x.link ? (x.id === "kreuzprodukt" ? "Zum Kreuzprodukt" : "Zu den Abständen") : x.name, x.id === "skalarprodukt" ? "skalar" : x.id === "kreuzprodukt" ? "kreuz" : "punkt"])} />
       </div>
-
-      {/* Weitere Beispiele ganz unten – die gewählte Rechnung mit „Neues Beispiel“ steht direkt unter den Hauptknöpfen */}
-      <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: C.grau, marginTop: 26, marginBottom: 8 }}>Weitere Beispiele</p>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-        {ARTEN.filter((x) => !x.haupt).map((x) => (
-          <button key={x.id} onClick={() => (x.link ? gehe && gehe({ ansicht: x.link }) : wechsleUnten(x.id))} title={x.link ? `Zum Werkzeug „${x.name}“` : undefined}
-            style={{ padding: "7px 12px", borderRadius: 999, fontSize: 12.5, fontFamily: "inherit", cursor: "pointer", whiteSpace: "nowrap",
-              border: `1px solid ${art === x.id ? C.see : C.linie}`, background: art === x.id ? C.see : C.weiss,
-              color: art === x.id ? C.weiss : C.see, fontWeight: art === x.id ? 700 : 500, ...(x.link ? { borderStyle: "dashed" } : {}) }}>{x.name}{x.link ? " ›" : ""}</button>
-        ))}
-      </div>
-    </div>
+    </VekSeite>
   );
 }

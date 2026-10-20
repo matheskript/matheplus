@@ -28,6 +28,15 @@ Die Kurse (Unterstufe, Differentialrechnung, Vektoren/Geraden/Ebenen, GFS, Mathe
 - Der Stand auf den Kacheln kommt aus `src/kursStand.js` (nur localStorage + Datendateien `unterstufeDaten.js`, `diffKursDaten.js`, `vekKursDaten.js`, `gfsKurs.js`); die Regeln „wann ist ein Modul geschafft“ müssen dort und in der Kursseite gleich bleiben.
 - Ein neuer Kurs: Palette in `kursFarben.js`, Motiv in `funcKursMotive.jsx`, Kachel in `funcKursKachel.jsx`, Kursseite mit den Bausteinen aus `funcKursKopf.jsx`, Stand in `kursStand.js`.
 
+## Vektor-Werkzeuge: eine Gestaltung (`src/vekUi.jsx`)
+Die neun Werkzeuge der Vektor-Stationen (Rechnen mit Vektoren, Kreuzprodukt, Winkel, Zwei/Drei Punkte, Visualizer, Geraden im Raum, Ebene vs. Ebene, Abstände) bauen auf denselben Bausteinen auf – nichts davon in den Werkzeugdateien nachbauen.
+- **Jedes Objekt hat eine Farbe und eine eigene Box** (`ObjektBox` in `ObjektReihe`): erstes Objekt (g, a⃗, E₁, A, „von“) Blau, zweites (h, b⃗, E, E₂, B, „bis“) Gold (`VF.zwei`, Text in `VF.zweiText`), Ergebnis/Lot/Schnittpunkt Smaragd. Dieselbe Farbe gilt in Gleichung, 3D-Bild (`Raum3` nimmt `farbe` je Gerade/Ebene und eine `legende`) und Rechnung – in den Abständen auch dann, wenn die Rechnung die Reihenfolge tauscht (`fx`/`fy`).
+- `ObjektReihe min={…}`: Boxen nebeneinander, sobald jede mindestens `min` px hat, sonst untereinander (Geraden 150, Ebenen mit Reglern 260).
+- Ablauf: `ModusReiter` (Reiter mit Bildzeichen) → `FallWahl` (Übungsfall/Beispiele) → Boxen → 3D-Bild (`BUEHNE`, Bild höchstens 560 px breit) → `Tafel nr=1` Vermutung als `TippKacheln` → `Tafel nr=2` Rechnung als `Rechenweg`/`RSchritt` → `Ergebnis` → `Fusszeile` („Neue Aufgabe“ + Hilfe). `Schritt` aus func20 mit Nummer ist dieselbe Zeitleiste.
+- Karten setzen `backgroundColor` (nicht `background`), sonst zieht `index.css` (`html[data-wz-voll]`) sie randlos über die ganze Breite.
+- Bildzeichen (Lagebeziehungen, Winkelarten, Punkt/Gerade/Ebene, Abstand, Lot) in `Bild` – neue dort ergänzen.
+- Browser: `tests/ui/vektoren-design.ui.py` (360/390/1280, g links neben h, Vermutung → Ergebnis, keine Überbreite).
+
 ## Lernseiten → Werkzeug mit Aufgabentyp
 `uebenWunschSetzen(ansicht, { modus, art })` aus `src/uebenWunsch.js` vor `gehe()` öffnet ein Werkzeug gleich im gewünschten Modus und Aufgabentyp (ZweiModi/UebenRahmen in geoUi.jsx lesen den Wunsch). Das Modul Unterstufe (`funcUnterstufe.jsx`, Daten `unterstufeDaten5/6.js`, Doku `claude/modul-unterstufe.md`) nutzt das für jeden Übungsknopf.
 

@@ -17,6 +17,7 @@ import { FA, FB, FE, FS, Gl, Name, Raum3, Schritt, Vek, k, koordText, n } from "
 import { IchHaengeFest } from "./funcHilfe.jsx";
 import { AufklappZeichen } from "./aufklappen.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
+import { HauptKnopf, ObjektBox, ObjektReihe, Tafel, VF, VekSeite, WuerfelKnopf } from "./vekUi.jsx";
 
 const pt = (P) => P.map(n).join(" | ");
 function geradeHilfe(A, B) {
@@ -98,15 +99,13 @@ export function normiere(nv, d) {
   return { n: nv.map((x) => (s * x) / g), d: (s * d) / g, faktor: s * g };
 }
 
-const karte = { background: C.weiss, borderRadius: 16, padding: 18, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" };
-const kicker = { fontSize: 11.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: C.gruenDunkel, marginBottom: 8 };
 const hinweis = { fontSize: 13, color: C.grau, lineHeight: 1.6, marginBottom: 12 };
 
 export function Meldung({ art = "info", children }) {
-  const farben = { info: [C.himmel, C.see], warn: ["#FFF4D6", "#7A5A00"], gut: ["#E6F6EF", "#0F7A4D"], schlecht: ["#FCE8EE", C.gruenDunkel] }[art];
+  const farben = { info: [VF.einsHell, C.see], warn: ["#FFF6DD", "#7A5A00"], gut: [VF.dreiHell, "#1F6E44"], schlecht: ["#FCEFE8", "#8E3F17"] }[art];
   return (
     <div role={art === "warn" || art === "schlecht" ? "alert" : "status"}
-      style={{ background: farben[0], color: farben[1], borderRadius: 12, padding: "10px 12px", fontSize: 13.5, lineHeight: 1.55, marginBottom: 12, fontWeight: 500 }}>
+      style={{ background: farben[0], color: farben[1], borderRadius: 12, padding: "10px 12px", fontSize: 13.5, lineHeight: 1.55, marginBottom: 12, fontWeight: 600 }}>
       {children}
     </div>
   );
@@ -156,6 +155,26 @@ export function PunktEingabe({ name, farbe, werte, setWerte }) {
   );
 }
 
+/* Punkt in eigener Box: Kopf „A Punkt“, darunter ( _ | _ | _ ) */
+export function PunktBox({ name, farbe, werte, setWerte, art = "Punkt" }) {
+  const setze = (i) => (v) => { const w = [...werte]; w[i] = v; setWerte(w); };
+  const text = farbe === VF.zwei || farbe === C.gruen ? VF.zweiText : farbe;
+  return (
+    <ObjektBox farbe={farbe} name={name} art={art}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 3, fontSize: 18, fontWeight: 700, color: C.hellgrau }}>
+        <span>(</span>
+        {[0, 1, 2].map((i) => (
+          <React.Fragment key={i}>
+            {i > 0 && <span style={{ fontWeight: 400 }}>|</span>}
+            <Feld wert={werte[i]} setWert={setze(i)} label={`${name} Koordinate x${i + 1}`} farbe={text} breite={40} />
+          </React.Fragment>
+        ))}
+        <span>)</span>
+      </div>
+    </ObjektBox>
+  );
+}
+
 /* Spaltenvektor zur Eingabe */
 export function VektorFeld({ name, farbe, werte, setWerte }) {
   const setze = (i) => (v) => { const w = [...werte]; w[i] = v; setWerte(w); };
@@ -170,16 +189,24 @@ export function VektorFeld({ name, farbe, werte, setWerte }) {
 }
 
 /* Ein Weg im Akkordeon: Kopf ist immer klickbar, damit auch ein geschlossener Weg erreichbar bleibt */
-function Weg({ titel, offen, umschalten, children, id }) {
+function Weg({ titel, offen, umschalten, children, id, stuetz, farbe }) {
   return (
-    <div style={{ border: `1px solid ${offen ? C.see : C.linie}`, borderRadius: 14, marginBottom: 10, background: C.weiss, overflow: "hidden" }}>
+    <div style={{ border: `1.5px solid ${offen ? C.see : C.linie}`, borderRadius: 18, marginTop: 10, background: C.weiss, overflow: "hidden",
+      boxShadow: offen ? "0 10px 30px -18px rgba(15,26,51,0.3)" : "none" }}>
       <button type="button" onClick={umschalten} aria-expanded={offen} aria-controls={id}
-        style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, minHeight: 48, padding: "10px 14px",
-          border: "none", background: offen ? C.himmel : C.weiss, cursor: "pointer", fontFamily: "inherit", textAlign: "left", color: C.tinte }}>
+        style={{ width: "100%", display: "flex", alignItems: "center", gap: 10, minHeight: 54, padding: "10px 14px",
+          border: "none", background: offen ? VF.einsHell : C.weiss, cursor: "pointer", fontFamily: "inherit", textAlign: "left", color: C.tinte }}>
         <span style={{ fontSize: 15, fontWeight: 800 }}>{titel}</span>
-        <AufklappZeichen auf={offen} farbe={C.see} />
+        {stuetz && (
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 600, color: C.grau }}>
+            Stützpunkt
+            <span style={{ minWidth: 24, height: 24, padding: "0 6px", borderRadius: 7, background: farbe, color: C.weiss, fontSize: 13.5, fontWeight: 800,
+              display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{stuetz}</span>
+          </span>
+        )}
+        <span style={{ marginLeft: "auto" }}><AufklappZeichen auf={offen} farbe={C.see} /></span>
       </button>
-      {offen && <div id={id} data-aufklapp-inhalt style={{ padding: "12px 10px 2px" }}>{children}</div>}
+      {offen && <div id={id} data-aufklapp-inhalt style={{ padding: "14px 12px 4px" }}>{children}</div>}
     </div>
   );
 }
@@ -225,31 +252,30 @@ export function ZweiPunkteGerade() {
   const neu = () => { const [a, b] = zweiZufall(); setAw(a); setBw(b); setOffen("A"); };
   const pkt = { A, B }, farbe = { A: FA, B: FB };
 
+  const fG = VF.drei;   // die Gerade ist das Ergebnis
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
-      <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>Durch zwei Punkte geht genau eine Gerade</h2>
-      <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 18 }}>
-        Ein Punkt liefert den Stützvektor, der Verbindungsvektor zum anderen Punkt den Richtungsvektor. Welchen Punkt du als Stützpunkt
-        nimmst, ist egal – beide Wege beschreiben dieselbe Gerade.
-      </p>
+    <VekSeite titel="Durch zwei Punkte geht genau eine Gerade"
+      text="Ein Punkt liefert den Stützvektor, der Weg zum anderen Punkt den Richtungsvektor. Welchen Punkt du als Stützpunkt nimmst, ist egal.">
+      <ObjektReihe>
+        <PunktBox name="A" farbe={FA} werte={Aw} setWerte={setAw} />
+        <PunktBox name="B" farbe={FB} werte={Bw} setWerte={setBw} />
+      </ObjektReihe>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 10 }}><WuerfelKnopf onClick={neu}>Neue Punkte</WuerfelKnopf></div>
 
-      <div style={karte}>
-        <p style={kicker}>Punkte</p>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 14 }}>
-          <PunktEingabe name="A" farbe={FA} werte={Aw} setWerte={setAw} />
-          <PunktEingabe name="B" farbe={FB} werte={Bw} setWerte={setBw} />
-        </div>
-        <div style={{ marginBottom: 16 }}><Knopf gold onClick={neu}>🎲 Neue Punkte</Knopf></div>
-
-        {!A || !B ? (
-          <Meldung art="warn">Bitte in jedes Feld eine ganze Zahl eintragen.</Meldung>
-        ) : gleich(A, B) ? (
-          <Meldung art="warn">A und B sind derselbe Punkt. Durch einen einzelnen Punkt gehen unendlich viele Geraden – die Gerade ist nicht eindeutig bestimmt.
-            Ändere einen der Punkte.</Meldung>
-        ) : (
-          <>
+      {!A || !B ? (
+        <div style={{ marginTop: 12 }}><Meldung art="warn">Bitte in jedes Feld eine ganze Zahl eintragen.</Meldung></div>
+      ) : gleich(A, B) ? (
+        <div style={{ marginTop: 12 }}><Meldung art="warn">A und B sind derselbe Punkt. Durch einen einzelnen Punkt gehen unendlich viele Geraden – die Gerade ist nicht eindeutig bestimmt.
+          Ändere einen der Punkte.</Meldung></div>
+      ) : (
+        <>
+          <div style={{ marginTop: 12 }}>
+            <Raum3 key={[...A, ...B].join()} punkte={[{ p: A, label: "A", farbe: FA }, { p: B, label: "B", farbe: VF.zweiText }]} gerade={{ p: A, r: diff(A, B), farbe: fG }}
+              legende={[{ text: "A", farbe: FA, art: "punkt" }, { text: "B", farbe: FB, art: "punkt" }, { text: "g", farbe: fG }]} />
+          </div>
+          <Tafel titel="Zwei Wege zur Geradengleichung" text="Öffne einen Weg – jeder Schritt steht einzeln da.">
             {[["A", "B"], ["B", "A"]].map(([S, Q], i) => (
-              <Weg key={S} id={`zp-weg-${S}`} titel={`Weg ${i + 1}: Stützpunkt ${S}`} offen={offen === S} umschalten={() => setOffen(offen === S ? null : S)}>
+              <Weg key={S} id={`zp-weg-${S}`} titel={`Weg ${i + 1}`} stuetz={S} farbe={farbe[S]} offen={offen === S} umschalten={() => setOffen(offen === S ? null : S)}>
                 <Schritt nr="1" titel={`Stützvektor: Ortsvektor von ${S}`}>
                   <Einzeilig max={16}><Name t={"O" + S} farbe={farbe[S]} /><Gl /><Vek w={pkt[S].map(n)} farbe={farbe[S]} /></Einzeilig>
                 </Schritt>
@@ -261,20 +287,21 @@ export function ZweiPunkteGerade() {
                     <span>g:</span><Name t="x" /><Gl /><Vek w={pkt[S].map(n)} farbe={farbe[S]} /><span>+ t ·</span><Vek w={diff(pkt[S], pkt[Q]).map(n)} farbe={FE} />
                   </Einzeilig>
                 </Schritt>
-                <p style={hinweis}>Probe: t = 0 ergibt {S}, t = 1 ergibt {Q}.</p>
+                <p style={{ ...hinweis, margin: "0 0 12px 36px" }}>Probe: t = 0 ergibt {S}, t = 1 ergibt {Q}.</p>
               </Weg>
             ))}
-            <Meldung>
-              Beide Wege beschreiben dieselbe Gerade: <Name t="BA" farbe={FE} /> = −1 · <Name t="AB" farbe={FE} /> ist parallel zu <Name t="AB" farbe={FE} />,
-              und B liegt auf der Geraden aus Weg 1 (t = 1).
-            </Meldung>
-            <Raum3 key={[...A, ...B].join()} punkte={[{ p: A, label: "A", farbe: FA }, { p: B, label: "B", farbe: FB }]} gerade={{ p: A, r: diff(A, B) }} />
-          </>
-        )}
-      </div>
+            <div style={{ marginTop: 12 }}>
+              <Meldung>
+                Beide Wege beschreiben dieselbe Gerade: <Name t="BA" farbe={FE} /> = −1 · <Name t="AB" farbe={FE} /> ist parallel zu <Name t="AB" farbe={FE} />,
+                und B liegt auf der Geraden aus Weg 1 (t = 1).
+              </Meldung>
+            </div>
+          </Tafel>
+        </>
+      )}
 
       {A && B && !gleich(A, B) && <GeradePruefen A={A} B={B} key={[...A, ...B].join()} />}
-    </div>
+    </VekSeite>
   );
 }
 
@@ -294,23 +321,21 @@ function GeradePruefen({ A, B }) {
     return setErgebnis({ art: "schlecht", text: "Die Richtung stimmt, aber dein Stützpunkt liegt nicht auf der Geraden – das wäre eine parallele Gerade." });
   };
   return (
-    <div style={{ ...karte, marginTop: 16 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8, flexWrap: "wrap" }}>
-        <p style={{ ...kicker, color: C.gruen }}>Jetzt selbst üben</p>
+    <Tafel titel="Jetzt selbst: Ist das dieselbe Gerade?" text="Gib eine eigene Geradengleichung durch A und B ein – mit beliebigem Stützpunkt der Geraden und beliebigem Richtungsvektor. Die App prüft, ob sie dieselbe Gerade beschreibt.">
+      <ObjektBox farbe={C.see} name="g" art="Deine Gerade">
+        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "center", gap: 8 }}>
+          <span style={{ fontSize: 16, fontWeight: 800, display: "inline-flex", gap: 6 }}><Name t="x" /> =</span>
+          <VektorFeld name="" farbe={FA} werte={Pw} setWerte={(w) => { setPw(w); setErgebnis(null); }} />
+          <span style={{ fontSize: 16, fontWeight: 800 }}>+ t ·</span>
+          <VektorFeld name="" farbe={FE} werte={rw} setWerte={(w) => { setRw(w); setErgebnis(null); }} />
+        </div>
+      </ObjektBox>
+      {ergebnis && <div style={{ marginTop: 12 }}><Meldung art={ergebnis.art}>{ergebnis.text}</Meldung></div>}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginTop: 12 }}>
+        <HauptKnopf onClick={pruefen}>Prüfen</HauptKnopf>
+        <IchHaengeFest kontext={geradeHilfe(A, B)} />
       </div>
-      <h3 style={{ fontSize: 21, fontWeight: 700, letterSpacing: "-0.01em", marginBottom: 8 }}>Ist das dieselbe Gerade?</h3>
-      <p style={hinweis}>Gib eine eigene Geradengleichung durch A und B ein – mit einem beliebigen Stützpunkt der Geraden und einem
-        beliebigen Richtungsvektor. Die App prüft, ob sie dieselbe Gerade beschreibt.</p>
-      <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8, marginBottom: 14 }}>
-        <span style={{ fontSize: 16, fontWeight: 800 }}>g: x =</span>
-        <VektorFeld name="" farbe={FA} werte={Pw} setWerte={(w) => { setPw(w); setErgebnis(null); }} />
-        <span style={{ fontSize: 16, fontWeight: 800 }}>+ t ·</span>
-        <VektorFeld name="" farbe={FE} werte={rw} setWerte={(w) => { setRw(w); setErgebnis(null); }} />
-      </div>
-      {ergebnis && <Meldung art={ergebnis.art}>{ergebnis.text}</Meldung>}
-      <Knopf gold onClick={pruefen}>Prüfen</Knopf>
-      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={geradeHilfe(A, B)} /></div>
-    </div>
+    </Tafel>
   );
 }
 
@@ -389,29 +414,28 @@ export function DreiPunkteEbene() {
   }) : [];
 
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
-      <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>Drei Punkte, eine Ebene – drei Wege</h2>
-      <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 18 }}>
-        Ein Punkt wird Stützpunkt, die Verbindungsvektoren zu den beiden anderen Punkten werden Spannvektoren. Jeder der drei Punkte
-        kann Stützpunkt sein. Danach rechnest du die Parameterform in die Koordinatenform um.
-      </p>
+    <VekSeite titel="Drei Punkte, eine Ebene – drei Wege"
+      text="Ein Punkt wird Stützpunkt, die Wege zu den beiden anderen werden Spannvektoren. Danach rechnest du die Parameterform in die Koordinatenform um.">
+      {/* vier Zellen: A, B, C und der Würfel – mobil 2 × 2, breit eine Reihe */}
+      <ObjektReihe min={160}>
+        <PunktBox name="A" farbe={FA} werte={Aw} setWerte={setAw} />
+        <PunktBox name="B" farbe={FB} werte={Bw} setWerte={setBw} />
+        <PunktBox name="C" farbe={FS} werte={Cw} setWerte={setCw} />
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 60 }}><WuerfelKnopf onClick={neu}>Neue Punkte</WuerfelKnopf></div>
+      </ObjektReihe>
 
-      <div style={karte}>
-        <p style={kicker}>Punkte</p>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 14 }}>
-          <PunktEingabe name="A" farbe={FA} werte={Aw} setWerte={setAw} />
-          <PunktEingabe name="B" farbe={FB} werte={Bw} setWerte={setBw} />
-          <PunktEingabe name="C" farbe={FS} werte={Cw} setWerte={setCw} />
-        </div>
-        <div style={{ marginBottom: 16 }}><Knopf gold onClick={neu}>🎲 Neue Punkte</Knopf></div>
-
-        {fehler ? <Meldung art="warn">{fehler}</Meldung> : (
-          <>
-            <p style={hinweis}>Prüfung: <Name t="AB" farbe={FE} /> × <Name t="AC" farbe={FE} /> ≠ <Name t="0" />, die Punkte liegen also nicht auf einer Geraden.</p>
+      {fehler ? <div style={{ marginTop: 12 }}><Meldung art="warn">{fehler}</Meldung></div> : (
+        <>
+          <div style={{ marginTop: 12 }}>
+            <Raum3 key={[...A, ...B, ...Cp].join()} punkte={[{ p: A, label: "A", farbe: FA }, { p: B, label: "B", farbe: VF.zweiText }, { p: Cp, label: "C", farbe: FS }]}
+              ebene={{ n: formen[0].nv, d: formen[0].d }}
+              legende={[{ text: "A", farbe: FA, art: "punkt" }, { text: "B", farbe: FB, art: "punkt" }, { text: "C", farbe: FS, art: "punkt" }, { text: "E", farbe: C.see, art: "flaeche" }]} />
+          </div>
+          <Tafel titel="Drei Wege zur Ebene" text={<>Prüfung vorab: <Name t="AB" farbe={FE} /> × <Name t="AC" farbe={FE} /> ≠ <Name t="0" />, die Punkte liegen also nicht auf einer Geraden.</>}>
             {varianten.map(([S, P, Q], i) => {
               const u = diff(pkt[S], pkt[P]), v = diff(pkt[S], pkt[Q]);
               return (
-                <Weg key={S} id={`dp-weg-${S}`} titel={`Weg ${String.fromCharCode(65 + i)}: Stützpunkt ${S}`} offen={offen === S}
+                <Weg key={S} id={`dp-weg-${S}`} titel={`Weg ${String.fromCharCode(65 + i)}`} stuetz={S} farbe={farbe[S]} offen={offen === S}
                   umschalten={() => setOffen(offen === S ? null : S)}>
                   <Schritt nr="1" titel="Spannvektoren">
                     <Verb von={S} nach={P} farbeVon={farbe[S]} farbeNach={farbe[P]} P={pkt[S]} Q={pkt[P]} />
@@ -424,13 +448,12 @@ export function DreiPunkteEbene() {
                       <span>+ r ·</span><Vek w={u.map(n)} farbe={FE} /><span>+ s ·</span><Vek w={v.map(n)} farbe={FE} />
                     </Einzeilig>
                   </Schritt>
-                  <p style={{ fontSize: 12.5, fontWeight: 700, color: C.see, margin: "4px 0 8px" }}>Parameterform in Koordinatenform umrechnen</p>
                   <KoordinatenformRechnung S={S} u={u} v={v} P={pkt[S]} farbeS={farbe[S]} nU={S + P} nV={S + Q} />
                 </Weg>
               );
             })}
-            <div style={{ background: C.sand, borderRadius: 12, padding: "12px 12px 4px", marginBottom: 14 }}>
-              <p style={{ fontSize: 13, fontWeight: 700, color: C.tinte, marginBottom: 8 }}>Vergleich der drei Koordinatengleichungen</p>
+            <div style={{ background: VF.flaeche, border: `1px solid ${C.linie}`, borderRadius: 14, padding: "12px 12px 4px", marginTop: 14 }}>
+              <p style={{ fontSize: 14, fontWeight: 700, color: C.tinte, marginBottom: 8 }}>Vergleich der drei Koordinatengleichungen</p>
               {formen.map((f, i) => (
                 <p key={f.S} style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, marginBottom: 6 }}>
                   <b style={{ color: C.tinte }}>Weg {String.fromCharCode(65 + i)}:</b> {koordText(f.nv, f.d)}
@@ -444,24 +467,22 @@ export function DreiPunkteEbene() {
                 Gleichungen nur um einen von 0 verschiedenen Gesamtfaktor, beschreiben sie dieselbe Ebene.
               </p>
             </div>
-            <Raum3 key={[...A, ...B, ...Cp].join()} punkte={[{ p: A, label: "A", farbe: FA }, { p: B, label: "B", farbe: FB }, { p: Cp, label: "C", farbe: FS }]}
-              ebene={{ n: formen[0].nv, d: formen[0].d }} />
-            {(() => {
-              const k = [...formen[0].norm.n, formen[0].norm.d];
-              const passt = k.every((x) => Number.isInteger(x) && Math.abs(x) <= 10);
-              return (
-                <WeiterMit titel="Weiter mit dieser Ebene">
-                  {passt && <WeiterKnopf ziel="ebenen" von="Drei Punkte – eine Ebene" daten={{ k }} zeile={`${koordText(formen[0].norm.n, formen[0].norm.d)} im Raum drehen, Spurpunkte und Normalenvektor sehen`} />}
-                  <WeiterKnopf ziel="abstaende" von="Drei Punkte – eine Ebene" daten={{ ebene: k }} zeile="Abstand eines Punktes zu genau dieser Ebene berechnen" />
-                </WeiterMit>
-              );
-            })()}
-          </>
-        )}
-      </div>
+          </Tafel>
+          {(() => {
+            const k = [...formen[0].norm.n, formen[0].norm.d];
+            const passt = k.every((x) => Number.isInteger(x) && Math.abs(x) <= 10);
+            return (
+              <WeiterMit titel="Weiter mit dieser Ebene">
+                {passt && <WeiterKnopf ziel="ebenen" von="Drei Punkte – eine Ebene" daten={{ k }} zeile={`${koordText(formen[0].norm.n, formen[0].norm.d)} im Raum drehen, Spurpunkte und Normalenvektor sehen`} />}
+                <WeiterKnopf ziel="abstaende" von="Drei Punkte – eine Ebene" daten={{ ebene: k }} zeile="Abstand eines Punktes zu genau dieser Ebene berechnen" />
+              </WeiterMit>
+            );
+          })()}
+        </>
+      )}
 
       {!fehler && <EbenePruefen norm={formen[0].norm} A={A} B={B} Cp={Cp} key={[...A, ...B, ...Cp].join()} />}
-    </div>
+    </VekSeite>
   );
 }
 
@@ -481,16 +502,15 @@ function EbenePruefen({ norm, A, B, Cp }) {
     return setErgebnis({ art: "schlecht", text: "Der Normalenvektor ist kein Vielfaches des richtigen. Prüfe das Kreuzprodukt der Spannvektoren." });
   };
   return (
-    <div style={{ ...karte, marginTop: 16 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8, flexWrap: "wrap" }}>
-        <p style={{ ...kicker, color: C.gruen }}>Jetzt selbst üben</p>
+    <Tafel titel="Jetzt selbst: Stimmt deine Koordinatengleichung?" text="Rechne selbst und gib deine Koordinatengleichung ein. Auch Vielfache der gekürzten Form werden als richtig erkannt.">
+      <ObjektBox farbe={C.see} name="E" art="Deine Ebene">
+        <EbenenZeile name="E" w={w} setze={setze} textFarbe="inherit" />
+      </ObjektBox>
+      {ergebnis && <div style={{ marginTop: 12 }}><Meldung art={ergebnis.art}>{ergebnis.text}</Meldung></div>}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginTop: 12 }}>
+        <HauptKnopf onClick={pruefen}>Prüfen</HauptKnopf>
+        <IchHaengeFest kontext={ebeneHilfe(A, B, Cp, norm)} />
       </div>
-      <h3 style={{ fontSize: 21, fontWeight: 700, letterSpacing: "-0.01em", marginBottom: 8 }}>Stimmt deine Koordinatengleichung?</h3>
-      <p style={hinweis}>Rechne selbst und gib deine Koordinatengleichung ein. Auch Vielfache der gekürzten Form werden als richtig erkannt.</p>
-      <EbenenZeile name="E" w={w} setze={setze} textFarbe="inherit" style={{ marginBottom: 14 }} />
-      {ergebnis && <Meldung art={ergebnis.art}>{ergebnis.text}</Meldung>}
-      <Knopf gold onClick={pruefen}>Prüfen</Knopf>
-      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={ebeneHilfe(A, B, Cp, norm)} /></div>
-    </div>
+    </Tafel>
   );
 }
