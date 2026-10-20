@@ -113,22 +113,45 @@ export function gleichwertig(term, soll) {
   return gleich >= 4;
 }
 
-/* Stammfunktion prüfen: F unterscheidet sich vom Soll nur um eine Konstante.
-   Wer ln(x) statt ln|x| schreibt, ist für x > 0 richtig – das wird gemeldet, nicht bestraft. */
-export function bisAufKonstante(F, soll) {
-  const g = fnVon(F), s = fnVon(soll);
+/* Stammfunktion prüfen: F unterscheidet sich vom Soll nur um eine Konstante – überall dort, wo das Soll definiert ist.
+   Einzige Lockerung: Enthält das Soll ln|…|, darf man ln(…) (oder ln(−…)) schreiben; das ist dort richtig,
+   wo das Argument positiv ist, und wird gemeldet (nurPositiv), nicht bestraft.
+   Früher galt die Lockerung für jeden Term, der links von 0 undefiniert ist – damit gingen z. B. √x⁶ oder (√x)⁶
+   für 3x² als richtig durch. */
+function konstanterAbstand(g, s) {
   const d = [];
-  let nurPositiv = false;
   for (const x of STELLEN) {
     const sv = s(x);
     if (!endlich(sv)) continue;
     const gv = g(x);
-    if (!endlich(gv)) { if (x < 0) { nurPositiv = true; continue; } return { ok: false }; }
+    if (!endlich(gv)) return { ok: false };
     d.push(gv - sv);
   }
   if (d.length < 4) return { ok: false };
   const ok = Math.max(...d) - Math.min(...d) <= 1e-6 * (1 + Math.max(...d.map(Math.abs)));
-  return { ok, nurPositiv: ok && nurPositiv, c: d[0] };
+  return { ok, c: d[0] };
+}
+function hatLnb(n) {
+  if (!n || typeof n !== "object") return false;
+  return (n.k === "fn" && n.n === "lnb") || hatLnb(n.a) || hatLnb(n.b);
+}
+function lnbAlsLnNeg(n) {
+  if (!n) return n;
+  const m = { ...n };
+  if (n.k === "fn" && n.n === "lnb") { m.n = "ln"; m.a = neg(lnbAlsLnNeg(n.a)); return m; }
+  if (n.a) m.a = lnbAlsLnNeg(n.a);
+  if (n.b) m.b = lnbAlsLnNeg(n.b);
+  return m;
+}
+export function bisAufKonstante(F, soll) {
+  const g = fnVon(F);
+  const streng = konstanterAbstand(g, fnVon(soll));
+  if (streng.ok || typeof soll === "function" || !hatLnb(soll)) return { ok: !!streng.ok, nurPositiv: false, c: streng.c };
+  for (const variante of [lnbAlsLn(soll), lnbAlsLnNeg(soll)]) {
+    const locker = konstanterAbstand(g, auswerter(variante));
+    if (locker.ok) return { ok: true, nurPositiv: true, c: locker.c };
+  }
+  return { ok: false, nurPositiv: false };
 }
 
 /* ---------- Brüche ---------- */
@@ -910,6 +933,77 @@ export function hauptsatz(f, a, b) {
     FbTex: einsetzenTex(b), FaTex: einsetzenTex(a),
     FbWert: exTex(Fb), FaWert: exTex(Fa), wertTex: exTex(wert), exakt: !!exakt,
   };
+}
+
+/* ---------- Trainer „Stammfunktion & Integral“: Eingaben bewerten ----------
+   Reine Funktionen, damit die Rückmeldung testbar ist (tests/stammIntegral.test.mjs).
+   Rückgabe immer { ok, hinweis } – „Richtig“ gibt es nur mit ok: true. */
+
+export const HINWEIS_UNVOLLSTAENDIG = "Der Term ist noch nicht vollständig – fülle alle Platzhalter ▯ und schließe die Klammern.";
+const HINWEIS_LN = "Richtig, solange das Argument im ln positiv ist. Ganz allgemein schreibt man ln|…|, damit auch die übrigen x erlaubt sind.";
+const PRUEF_X = [0.37, 0.83, 1.29, 1.77];
+const numAbl = (fn0, x, h = 1e-5) => (fn0(x + h) - fn0(x - h)) / (2 * h);
+const alsBaum = (e) => (typeof e === "string" ? lies(e) : e || null);
+const tippZu = (st) => (st && st.teile.length ? ` Tipp: ${st.teile[0].regel}` : "");
+
+/* Stammfunktion bilden: eingabe (Text oder Baum) gegen f */
+export function pruefeStamm(eingabe, f) {
+  const st = f ? stammfunktion(f) : null;
+  if (!st) return { ok: false, hinweis: "" };
+  const b = alsBaum(eingabe);
+  if (!b) return { ok: false, unvollstaendig: true, hinweis: HINWEIS_UNVOLLSTAENDIG };
+  const erg = bisAufKonstante(b, st.F);
+  if (erg.ok) return { ok: true, nurPositiv: erg.nurPositiv, hinweis: erg.nurPositiv ? HINWEIS_LN : "" };
+  const falsch = (hinweis, art) => ({ ok: false, art, hinweis });
+  if (bisAufKonstante(b, f).ok) return falsch("Das ist f selbst – gesucht ist F mit F′ = f, also „rückwärts ableiten“.", "f");
+  const d = ableitung(f), fStrich = d ? schoen(d) : null;
+  if (fStrich &&bisAufKonstante(b, fStrich).ok) return falsch("Du hast abgeleitet statt aufgeleitet. Beim Aufleiten wird der Exponent um 1 größer.", "abgeleitet");
+  const fFn = auswerter(f), bFn = auswerter(b);
+  // Verhältnis F′ : f an mehreren Stellen – konstant ≠ 1 heißt: Form stimmt, Faktor oder Vorzeichen nicht
+  const q = PRUEF_X.slice(1).map((x) => numAbl(bFn, x) / fFn(x)).filter(endlich);
+  if (q.length === 3 && Math.max(...q) - Math.min(...q) < 1e-3 && Math.abs(q[0] - 1) > 1e-3) {
+    if (Math.abs(q[0] + 1) < 1e-3) return falsch("Fast – das Vorzeichen stimmt nicht: Deine Ableitung ist −f. Beispiel: ∫ sin(x) dx = −cos(x) + C, aber ∫ cos(x) dx = sin(x) + C.", "vorzeichen");
+    const innen = st.teile.some((t) => t.linear);
+    return falsch(`Die Form stimmt, aber ein Vorfaktor ist falsch: Deine Ableitung ist das ${dez(q[0], 2)}-Fache von f. Prüfe die Division durch den neuen Exponenten${innen ? " und den inneren Faktor" : ""}.`, "faktor");
+  }
+  // F′ = f nur für einen Teil der x-Werte (z. B. √x⁶ statt x³ oder ln(x − 5)): kein „Richtig!“, sondern ein gezielter Hinweis
+  const stellen = PRUEF_X.filter((x) => endlich(fFn(x)) && endlich(numAbl(bFn, x)));
+  const teilweise = stellen.length >= 3 && stellen.every((x) => Math.abs(numAbl(bFn, x) - fFn(x)) < 1e-3 * (1 + Math.abs(fFn(x))));
+  if (teilweise) return falsch("Noch nicht richtig: Deine Ableitung stimmt nur für einen Teil der x-Werte mit f überein. F′ = f muss überall gelten, wo f definiert ist – prüfe Beträge, Wurzeln und Vorzeichen.", "teilweise");
+  return falsch(`Noch nicht richtig: Leite dein F zur Probe ab – es muss f herauskommen.${tippZu(st)}`, "sonst");
+}
+
+/* Integral mit dem Hauptsatz, Nebenrechnung: Stammfunktion, die auf dem ganzen Intervall [a; b] passt */
+export function pruefeIntegralStamm(eingabe, f, hs, a, b) {
+  const t = alsBaum(eingabe);
+  if (!t) return { ok: false, unvollstaendig: true, hinweis: HINWEIS_UNVOLLSTAENDIG };
+  const erg = bisAufKonstante(t, hs.F);
+  if (erg.ok) {
+    const Fn = auswerter(t), lo = Math.min(a, b), hi = Math.max(a, b);
+    const definiert = Array.from({ length: 9 }, (_, i) => lo + ((hi - lo) * i) / 8).every((x) => endlich(Fn(x)));
+    const wert = Fn(b) - Fn(a);
+    if (definiert && Math.abs(wert - hs.wert) <= 1e-6 * (1 + Math.abs(hs.wert))) return { ok: true, hinweis: "" };
+    return { ok: false, art: "intervall", hinweis: `Dein F ist auf dem Intervall [${dez(lo, 2)}; ${dez(hi, 2)}] nicht überall definiert – dort taugt es nicht für F(b) − F(a). Schreibe ln|…| statt ln(…).` };
+  }
+  if (bisAufKonstante(t, f).ok) return { ok: false, art: "f", hinweis: "Das ist f selbst – gesucht ist eine Stammfunktion F mit F′ = f." };
+  const s = pruefeStamm(t, f);
+  return { ok: false, art: s.art, hinweis: s.art === "vorzeichen" || s.art === "faktor" || s.art === "teilweise" || s.art === "abgeleitet" ? s.hinweis : `Noch nicht richtig. Leite dein F zur Probe ab – es muss f herauskommen.${tippZu(hs.st)}` };
+}
+
+/* Integral mit dem Hauptsatz: Zahlwert F(b) − F(a). Typische Fehler (Vorzeichen, vertauschte Grenzen, F(a) vergessen
+   oder addiert) bekommen eigene Hinweise – aber nur, wenn die Antwort wirklich falsch ist. */
+export function pruefeIntegralWert(text, hs) {
+  const w = grenzeLesen(text);
+  if (!w) return { ok: false, unvollstaendig: true, hinweis: "Gib eine Zahl ein – Brüche wie 7/3, auch π oder e sind erlaubt." };
+  const tol = 1e-3 * (1 + Math.abs(hs.wert));
+  const nah = (v) => endlich(v) && Math.abs(w.v - v) <= tol;
+  if (nah(hs.wert)) return { ok: true, hinweis: "", wert: w.v };
+  const falsch = (hinweis, art) => ({ ok: false, art, hinweis, wert: w.v });
+  if (nah(-hs.wert)) return falsch("Vorzeichen gedreht: Es heißt F(b) − F(a) – zuerst die Grenze oben am Integralzeichen einsetzen, dann die untere abziehen.", "vorzeichen");
+  if (nah(hs.Fb + hs.Fa)) return falsch("Du hast F(a) addiert statt subtrahiert.", "addiert");
+  if (nah(hs.Fb)) return falsch("Das ist nur F(b) – F(a) muss noch abgezogen werden.", "ohneFa");
+  if (nah(-hs.Fa)) return falsch("Das ist nur −F(a) – F(b) fehlt noch.", "ohneFb");
+  return falsch(`Noch nicht richtig – gerundet wäre es ${dez(hs.wert, 3)}.`, "sonst");
 }
 
 /* ---------- Aufgaben: Stammfunktion und Integral ---------- */

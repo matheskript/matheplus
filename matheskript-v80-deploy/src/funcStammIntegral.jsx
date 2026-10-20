@@ -20,7 +20,7 @@ import { uebergabeErledigt, uebergabeLesen } from "./uebergabe.js";
 import { IntZ } from "./ui2.jsx";
 import { Eingabe, EingabePopup, FARBE, Feld, Herleitung, Merke, ModusSchalter, WERK_CSS } from "./funcRegelwerk.jsx";
 import {
-  STAMM_ARTEN, auswerter, bisAufKonstante, dez, grenzeLesen, hauptsatz, lies, neueIntegralAufgabe, neueStammAufgabe, probe, schoen, stammfunktion, tex, zahlTex,
+  STAMM_ARTEN, auswerter, dez, grenzeLesen, hauptsatz, lies, neueIntegralAufgabe, neueStammAufgabe, probe, pruefeIntegralStamm, pruefeIntegralWert, pruefeStamm, stammfunktion, tex, zahlTex,
 } from "./regelwerkKern.js";
 import { MathildaModusKnopf } from "./funcMathildaModusKnopf.jsx";
 
@@ -159,29 +159,12 @@ function StammTeil({ modus }) {
 
   const pruefen = () => {
     if (!training || !st) return;
-    const b = lies(F.text);
-    if (!b) { setF((e) => ({ ...e, status: "falsch", hinweis: "Der Term ist noch nicht vollständig – fülle alle Platzhalter ▯ und schließe die Klammern." })); return; }
-    const erg = bisAufKonstante(b, st.F);
+    const erg = pruefeStamm(F.text, f);
+    if (erg.unvollstaendig) { setF((e) => ({ ...e, status: "falsch", hinweis: erg.hinweis })); return; }
     setBilanz((bz) => ({ richtig: bz.richtig + (erg.ok ? 1 : 0), gesamt: bz.gesamt + 1 }));
-    buchen({ richtig: !!erg.ok, gruppe: `stamm-${art}`, stufe });
-    if (erg.ok) {
-      setF((e) => ({ ...e, status: "richtig", hinweis: erg.nurPositiv ? "Richtig für x > 0. Ganz allgemein schreibt man ln|…|, damit auch negative x erlaubt sind." : "" }));
-      return;
-    }
-    let hinweis = "Noch nicht richtig.";
-    const fFn = auswerter(f), bFn = auswerter(b);
-    const h = 1e-5;
-    const istAbl = [0.37, 0.83, 1.29, 1.77].every((x) => { const v = fFn(x); const d = (bFn(x + h) - bFn(x - h)) / (2 * h); return !Number.isFinite(v) || !Number.isFinite(d) || Math.abs(d - v) < 1e-3 * (1 + Math.abs(v)); });
-    if (bisAufKonstante(b, f).ok) hinweis = "Das ist f selbst – gesucht ist F mit F′ = f, also „rückwärts ableiten“.";
-    else if (bisAufKonstante(b, schoen(probe(st.F, f))).ok) hinweis = "Du hast abgeleitet statt aufgeleitet. Beim Aufleiten wird der Exponent um 1 größer.";
-    else if (istAbl) hinweis = "Richtig!";
-    else {
-      const q = [0.83, 1.29, 1.77].map((x) => { const d = (bFn(x + h) - bFn(x - h)) / (2 * h); return d / fFn(x); }).filter(Number.isFinite);
-      if (q.length === 3 && Math.max(...q) - Math.min(...q) < 1e-3 && Math.abs(q[0] - 1) > 1e-3)
-        hinweis = `Die Form stimmt, aber ein Vorfaktor ist falsch: Deine Ableitung ist das ${dez(q[0], 2)}-Fache von f. Prüfe die Division durch den neuen Exponenten${/\(|sin|cos|e\^/.test(fText) ? " und den inneren Faktor" : ""}.`;
-      else hinweis = `Noch nicht richtig: Leite deine F zur Probe ab – es muss f herauskommen. Tipp: ${st.teile[0].regel}`;
-    }
-    setF((e) => ({ ...e, status: "falsch", hinweis, versuche: e.versuche + 1 }));
+    buchen({ richtig: erg.ok, gruppe: `stamm-${art}`, stufe });
+    if (erg.ok) setF((e) => ({ ...e, status: "richtig", hinweis: erg.hinweis }));
+    else setF((e) => ({ ...e, status: "falsch", hinweis: erg.hinweis, versuche: e.versuche + 1 }));
   };
   const loesung = () => setF((e) => ({ ...e, status: "gezeigt", hinweis: "", zeig: tex(st.F) }));
 
@@ -340,28 +323,21 @@ function IntegralTeil({ modus, start }) {
 
   const pruefenF = () => {
     if (!gueltig) return;
-    const t = lies(F.text);
-    if (!t) { setF((e) => ({ ...e, status: "falsch", hinweis: "Der Term ist noch nicht vollständig – fülle alle Platzhalter ▯ und schließe die Klammern." })); return; }
-    const erg = bisAufKonstante(t, hs.F);
+    const erg = pruefeIntegralStamm(F.text, f, hs, a.v, b.v);
+    if (erg.unvollstaendig) { setF((e) => ({ ...e, status: "falsch", hinweis: erg.hinweis })); return; }
     setBilanz((bz) => ({ richtig: bz.richtig + (erg.ok ? 1 : 0), gesamt: bz.gesamt + 1 }));
-    buchen({ richtig: !!erg.ok, gruppe: "integral-stamm", stufe });
+    buchen({ richtig: erg.ok, gruppe: "integral-stamm", stufe });
     if (erg.ok) setF((e) => ({ ...e, status: "richtig", hinweis: "" }));
-    else setF((e) => ({ ...e, status: "falsch", versuche: e.versuche + 1,
-      hinweis: bisAufKonstante(t, f).ok ? "Das ist f selbst – gesucht ist eine Stammfunktion F mit F′ = f." : `Noch nicht richtig. Leite dein F zur Probe ab – es muss f herauskommen. Tipp: ${hs.st.teile[0].regel}` }));
+    else setF((e) => ({ ...e, status: "falsch", versuche: e.versuche + 1, hinweis: erg.hinweis }));
   };
   const pruefenWert = () => {
     if (!gueltig) return;
-    const w = grenzeLesen(wertText);
-    if (!w) { setWertStatus((s) => ({ ...s, status: "falsch", hinweis: "Gib eine Zahl ein – Brüche wie 7/3, auch π oder e sind erlaubt." })); return; }
-    const ok = Math.abs(w.v - hs.wert) <= 1e-3 * (1 + Math.abs(hs.wert));
-    setBilanz((bz) => ({ richtig: bz.richtig + (ok ? 1 : 0), gesamt: bz.gesamt + 1 }));
-    buchen({ richtig: ok, gruppe: "integral-wert", stufe });
-    if (ok) { setWertStatus((s) => ({ ...s, status: "richtig", hinweis: "" })); return; }
-    let hinweis = `Noch nicht richtig – gerundet wäre es ${dez(hs.wert, 3)}.`;
-    if (Math.abs(w.v + hs.wert) < 1e-6 * (1 + Math.abs(hs.wert))) hinweis = "Vorzeichen gedreht: Es heißt F(b) − F(a), obere Grenze zuerst.";
-    else if (Math.abs(w.v - (hs.Fb + hs.Fa)) < 1e-6 * (1 + Math.abs(hs.wert))) hinweis = "Du hast F(a) addiert statt subtrahiert.";
-    else if (Math.abs(w.v - hs.Fb) < 1e-6 * (1 + Math.abs(hs.Fb))) hinweis = "Das ist nur F(b) – F(a) muss noch abgezogen werden.";
-    setWertStatus((s) => ({ ...s, status: "falsch", hinweis, versuche: s.versuche + 1 }));
+    const erg = pruefeIntegralWert(wertText, hs);
+    if (erg.unvollstaendig) { setWertStatus((s) => ({ ...s, status: "falsch", hinweis: erg.hinweis })); return; }
+    setBilanz((bz) => ({ richtig: bz.richtig + (erg.ok ? 1 : 0), gesamt: bz.gesamt + 1 }));
+    buchen({ richtig: erg.ok, gruppe: "integral-wert", stufe });
+    if (erg.ok) setWertStatus((s) => ({ ...s, status: "richtig", hinweis: "" }));
+    else setWertStatus((s) => ({ ...s, status: "falsch", hinweis: erg.hinweis, versuche: s.versuche + 1 }));
   };
   const loesungF = () => setF((e) => ({ ...e, status: "gezeigt", hinweis: "", zeig: tex(hs.F) }));
   const loesungWert = () => setWertStatus((s) => ({ ...s, status: "gezeigt", hinweis: "" }));
