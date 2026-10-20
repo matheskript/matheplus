@@ -48,7 +48,7 @@ const STIL = `
   .us-tab[aria-pressed="true"]{border-color:transparent;background:var(--ks-dunkel);box-shadow:0 1px 0 rgba(255,255,255,0.14) inset,0 14px 30px -16px rgba(58,0,25,0.7)}
   .us-tab[aria-pressed="true"] b{color:${C.weiss}}.us-tab[aria-pressed="true"] span{color:rgba(255,255,255,0.78)}
   .us-tab:focus-visible{outline:3px solid ${C.flaggold};outline-offset:3px}
-  .us-karte{background:${C.weiss};border:1px solid ${C.linie};border-radius:20px;padding:18px 18px 16px;margin:0 0 14px;box-shadow:0 1px 2px rgba(15,26,51,0.04),0 8px 22px -16px rgba(15,26,51,0.18)}
+  .us-karte{overflow-wrap:break-word;hyphens:auto;-webkit-hyphens:auto;background:${C.weiss};border:1px solid ${C.linie};border-radius:20px;padding:18px 18px 16px;margin:0 0 14px;box-shadow:0 1px 2px rgba(15,26,51,0.04),0 8px 22px -16px rgba(15,26,51,0.18)}
   .us-kicker{margin:0 0 10px;font-size:11.5px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:#7A0032}
   .us-text{margin:0 0 12px;font-size:15.5px;line-height:1.7;color:${C.tinte}}
   .us-text:last-child{margin-bottom:0}
@@ -66,7 +66,8 @@ const STIL = `
   .us-schritt i{flex:none;display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:9px;font-style:normal;font-weight:800;font-size:12.5px;background:#5A0024;color:#FFD66B}
   .us-merke{border:none;background:linear-gradient(150deg,#3A0019 0%,#5A0024 100%);color:${C.weiss};padding:18px 18px 16px}
   .us-merke .us-kicker{color:#FFD66B}.us-merke .us-text{color:${C.weiss};font-weight:600}.us-merke .us-text b{color:#FFE9A0}
-  .us-fehler{border-left:5px solid ${C.gruen}}
+  .us-fehler{background:linear-gradient(160deg,#FFF9F6 0%,#FFEDE7 100%);border-color:#F4D3C8;border-left:5px solid #C2462E}
+  .us-fehler .us-kicker{color:#A8361F}
   .us-knoepfe{display:flex;flex-wrap:wrap;gap:8px}
   .us-knopf{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:8px 14px 8px 12px;border-radius:999px;border:1.5px solid ${C.linie};background:${C.weiss};color:${C.tinte};
     font-family:inherit;font-size:13.5px;font-weight:700;cursor:pointer;text-align:left;transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease}
@@ -121,12 +122,15 @@ const STIL = `
   .us-fenster-inhalt .ks-liste{margin-bottom:0;grid-template-columns:minmax(0,1fr)}
   .us-fenster-inhalt .ks-modul{min-width:0}
   .us-fenster-inhalt .ks-modul-meta{flex-wrap:wrap;white-space:normal;gap:6px 12px;font-size:12px}
-  .us-video{margin:0 0 14px;border-radius:20px;overflow:hidden;border:1px solid ${C.linie};background:${C.weiss};box-shadow:0 1px 2px rgba(15,26,51,0.04),0 8px 22px -16px rgba(15,26,51,0.18)}
-  .us-video-kopf{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;border:none;background:none;cursor:pointer;font-family:inherit;text-align:left;color:${C.tinte}}
-  .us-video-kopf em{flex:none;display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:12px;background:linear-gradient(150deg,#3A0019 0%,#7A0032 100%);color:#FFD66B;font-style:normal}
-  .us-video-kopf b{display:block;font-size:14.5px;font-weight:800;letter-spacing:-0.01em}
-  .us-video-kopf small{display:block;font-size:11.5px;color:${C.grau};margin-top:2px}
-  .us-video-kopf svg.us-pfeil{flex:none;margin-left:auto;color:${C.grau};transition:transform .18s ease}
+  .us-einheit{position:relative;z-index:1;margin-top:-20px}
+  .us-video{margin:0 0 14px;border-radius:20px;overflow:hidden;border:1px solid rgba(255,233,160,0.22);background:linear-gradient(150deg,#24000F 0%,#4A001E 60%,#5A0024 100%);
+    box-shadow:0 1px 0 rgba(255,255,255,0.08) inset,0 14px 30px -18px rgba(58,0,25,0.8)}
+  .us-video-kopf{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;border:none;background:none;cursor:pointer;font-family:inherit;text-align:left;color:${C.weiss}}
+  .us-video-kopf em{flex:none;display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:999px;background:${GOLD_VERLAUF};color:#3A0019;font-style:normal;box-shadow:0 6px 14px -6px rgba(242,193,78,0.7)}
+  .us-video-kopf em svg{margin-left:2px}
+  .us-video-kopf b{display:block;font-size:14.5px;font-weight:800;letter-spacing:-0.01em;line-height:1.3}
+  .us-video-kopf small{display:block;font-size:11.5px;color:rgba(255,255,255,0.68);margin-top:2px}
+  .us-video-kopf svg.us-pfeil{flex:none;margin-left:auto;color:#FFD66B;transition:transform .18s ease}
   .us-video-kopf[aria-expanded="true"] svg.us-pfeil{transform:rotate(180deg)}
   .us-video-kopf:focus-visible{outline:3px solid ${C.flaggold};outline-offset:-3px}
   .us-video-buehne{position:relative;width:100%;padding-bottom:56.25%;height:0;background:#1a0a10}
@@ -135,7 +139,10 @@ const STIL = `
   .us-video-play i{width:64px;height:64px;border-radius:999px;background:${GOLD_VERLAUF};display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(0,0,0,0.4);font-style:normal}
   .us-video-play b{font-size:14px;font-weight:800}
   .us-video-play small{font-size:11.5px;opacity:0.8;line-height:1.4;text-align:center;max-width:300px}
-  .us-video-fuss{padding:8px 14px 10px;font-size:11.5px;color:${C.grau};line-height:1.45}
+  .us-video-fuss{margin:0;padding:8px 14px 10px;font-size:11.5px;color:rgba(255,255,255,0.68);line-height:1.45}
+  .us-karte.us-ton-rose{background:linear-gradient(160deg,#FFF8FA 0%,#FCEAF0 100%);border-color:#F2D3DE}
+  .us-karte.us-ton-gold{background:linear-gradient(160deg,#FFFDF7 0%,#FFF2D6 100%);border-color:#F0DCA5}
+  .us-karte.us-ton-gold .us-schritt{border-top-color:#EBD7A6}
   @media (min-width:600px){.us-kacheln{grid-template-columns:repeat(3,minmax(0,1fr))}.us-schleier{align-items:center;padding:20px}.us-fenster{border-radius:24px;max-height:84vh}}
   @media (min-width:840px){.us-tabs{max-width:360px}.us-kacheln{grid-template-columns:repeat(4,minmax(0,1fr))}.us-karte{padding:22px 24px 20px}.us-text{font-size:16px}}
   @media (prefers-reduced-motion:reduce){.us-knopf,.us-tab{transition:none}.us-knopf:hover,.us-tab:hover{transform:none}}
@@ -218,7 +225,7 @@ function Beispiel({ beispiel }) {
   const [n, setN] = useState(0);
   const alle = beispiel.schritte.length;
   return (
-    <Karte kicker="Beispiel" kennung={{ "data-us-beispiel": "" }}>
+    <Karte kicker="Beispiel" className="us-ton-gold" kennung={{ "data-us-beispiel": "" }}>
       <p className="us-aufgabe"><MS s={beispiel.aufgabe} /></p>
       {beispiel.schritte.slice(0, n).map((s, i) => <div key={i} className="us-schritt"><i>{i + 1}</i><span><MS s={s} /></span></div>)}
       <div className="us-knoepfe" style={{ marginTop: 10 }}>
@@ -315,6 +322,14 @@ function Ueben({ einheit, gehe }) {
   );
 }
 
+/* Raster aus vier Kacheln – „zur Kursübersicht“ */
+const IconRaster = () => (
+  <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
+    <rect x="3.5" y="3.5" width="7.5" height="7.5" rx="2.2" /><rect x="13" y="3.5" width="7.5" height="7.5" rx="2.2" opacity="0.55" />
+    <rect x="3.5" y="13" width="7.5" height="7.5" rx="2.2" opacity="0.55" /><rect x="13" y="13" width="7.5" height="7.5" rx="2.2" />
+  </svg>
+);
+
 /* ---------- Video zur Lerneinheit: zum Ausklappen, Abspielen erst auf Klick (zwei Klicks, ExternSchutz) ---------- */
 function VideoKlappe({ einheit }) {
   const [offen, setOffen] = useState(false);
@@ -400,14 +415,15 @@ function EinheitSeite({ einheit, stand, setze, zu, gehe }) {
   const bildVor = einheit.bild && einheit.lesen.length > 1;
   return (
     <>
-      <KursKopf farben={GRANAT} Motiv={MotivGeodreieck} id="ks-unter" kompakt titel={einheit.titel}
-        zeile={`${klasse.titel} · Kapitel ${einheit.marke} ${einheit.kapitelTitel} · Einheit ${einheit.nr} von ${einheit.anzahl}`} kennung={{ "data-us-einheit": einheit.id }} />
-      <div className="mx-auto px-4 pb-16" style={{ maxWidth: 760 }}>
-        <button type="button" className="us-zurueck" onClick={() => zu(`klasse-${einheit.klasse}`)}>← Alle Einheiten der {klasse.titel}</button>
+      <KursKopf farben={GRANAT} Motiv={MotivGeodreieck} id="ks-unter" kompakt buendig einzeilig titel={einheit.titel}
+        zeile={`${klasse.titel} · ${einheit.marke} ${(KAPITEL_ANZEIGE[einheit.kapitel] || {}).name || einheit.kapitelTitel} · Einheit ${einheit.nr}/${einheit.anzahl}`}
+        aktion={{ text: "Kurs", label: `Alle Einheiten der ${klasse.titel}`, icon: <IconRaster />, onClick: () => zu(`klasse-${einheit.klasse}`), kennung: { "data-us-zurueck": "" } }}
+        kennung={{ "data-us-einheit": einheit.id }} />
+      <div className="mx-auto px-4 pb-16 us-einheit" style={{ maxWidth: 760 }}>
 
         <VideoKlappe key={einheit.id} einheit={einheit} />
 
-        <Karte kicker="Darum geht’s"><p className="us-ziel">{einheit.ziel}</p></Karte>
+        <Karte kicker="Darum geht’s" className="us-ton-rose"><p className="us-ziel">{einheit.ziel}</p></Karte>
 
         <Karte kicker="Verstehen" kennung={{ "data-us-lesen": "" }}>
           <Absatz a={einheit.lesen[0]} />

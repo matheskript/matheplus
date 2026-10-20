@@ -35,6 +35,21 @@ const STIL = `
   .ks-kopf-kompakt .ks-zeile{margin-top:6px;font-size:14px}
   .ks-kopf-kompakt .ks-motiv,.ks-kopf-kompakt .ks-chips{display:none}
   .ks-kurve{height:24px;background:${C.sand};border-radius:24px 24px 0 0;position:relative}
+  /* buendig: größerer Radius (36) – Inhalt darunter rückt 20 px hoch, Karten mit Radius 20 und 16 px Rand liegen dann konzentrisch zur Kurve */
+  .ks-kopf-buendig .ks-kurve{height:36px;border-radius:36px 36px 0 0}
+  .ks-kopf-buendig.ks-kopf-kompakt .ks-kopf-innen{padding-bottom:10px}
+  .ks-titelzeile{grid-column:1 / -1;grid-row:1;display:flex;align-items:flex-start;gap:12px;min-width:0}
+  .ks-titelzeile .ks-titel{flex:1;min-width:0;hyphens:auto;-webkit-hyphens:auto;overflow-wrap:break-word}
+  .ks-zeile-eine{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:none}
+  .ks-kopf-kompakt .ks-zeile-eine{font-size:13px;margin-top:8px}
+  .ks-aktion{flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;width:50px;height:50px;margin-top:-2px;border-radius:15px;cursor:pointer;font-family:inherit;
+    color:var(--ks-titel);background:var(--ks-chip);border:1px solid var(--ks-chiprand);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+    box-shadow:0 1px 0 rgba(255,255,255,0.16) inset,0 10px 22px -14px rgba(0,0,0,0.6);transition:transform .15s ease,background .15s ease}
+  .ks-aktion svg{width:19px;height:19px;color:var(--ks-akzent)}
+  .ks-aktion span{font-size:9.5px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;line-height:1}
+  .ks-aktion:active{transform:scale(0.96)}
+  .ks-aktion:focus-visible{outline:3px solid var(--ks-akzent);outline-offset:3px}
+  @media (hover:hover){.ks-aktion:hover{transform:translateY(-1px);background:rgba(255,255,255,0.18)}}
   .ks-fortschritt{position:relative;z-index:2;margin:-48px 0 22px;padding:18px 18px 16px;border-radius:22px;color:var(--ks-dunkeltext);
     border:1px solid transparent;background:var(--ks-dunkel) padding-box,var(--ks-rand) border-box;
     box-shadow:0 1px 0 rgba(255,255,255,0.14) inset,0 24px 48px -20px rgba(8,14,32,0.75),0 2px 8px rgba(8,14,32,0.18)}
@@ -132,14 +147,37 @@ const Chevron = () => (
 /* ---------- Kopf ---------- */
 /* chips = [{ icon, text }, …] – die Fakten des Kurses (Module, Kapitel, Lesen und Trainieren …) */
 /* kompakt = in der Modulansicht: nur Titel und Zeile, ohne Chips und Motiv. flach = ohne Fortschrittskarte darunter */
-export function KursKopf({ farben, Motiv, id, titel, zeile, chips = [], kompakt, flach, kennung }) {
+/* aktion = { text, label, icon, onClick }: Knopf oben rechts neben dem Titel. einzeilig = Zeile nie umbrechen. buendig = Kurve mit Radius 36 (konzentrische Karten) */
+export function KursKopf({ farben, Motiv, id, titel, zeile, chips = [], kompakt, flach, kennung, aktion, einzeilig, buendig }) {
   React.useInsertionEffect(stilSetzen, []);
+  const zeileRef = React.useRef(null);
+  /* einzeilig: Schrift schrittweise verkleinern (bis 11 px), bis die Zeile passt; Auslassungspunkte nur als letzte Rettung */
+  React.useLayoutEffect(() => {
+    const el = zeileRef.current;
+    if (!einzeilig || !el) return undefined;
+    const passen = () => {
+      el.style.fontSize = "";
+      let g = parseFloat(getComputedStyle(el).fontSize);
+      while (el.scrollWidth > el.clientWidth + 0.5 && g > 11) { g -= 0.5; el.style.fontSize = `${g}px`; }
+    };
+    passen();
+    if (typeof ResizeObserver === "undefined") return undefined;
+    const ro = new ResizeObserver(passen); ro.observe(el);
+    return () => ro.disconnect();
+  }, [einzeilig, zeile]);
   return (
-    <div className={`ks-kopf${kompakt ? " ks-kopf-kompakt" : ""}${flach ? " ks-kopf-flach" : ""}`} style={kursVars(farben)} {...kennung}>
+    <div className={`ks-kopf${kompakt ? " ks-kopf-kompakt" : ""}${flach ? " ks-kopf-flach" : ""}${buendig ? " ks-kopf-buendig" : ""}`} style={kursVars(farben)} {...kennung}>
       <div className="mx-auto px-6 ks-kopf-innen" style={{ maxWidth: 620 }}>
-        <h1 className="ks-titel">{titel}</h1>
+        {aktion ? (
+          <div className="ks-titelzeile">
+            <h1 className="ks-titel">{titel}</h1>
+            <button type="button" className="ks-aktion" onClick={aktion.onClick} aria-label={aktion.label} title={aktion.label} {...aktion.kennung}>
+              {aktion.icon}<span>{aktion.text}</span>
+            </button>
+          </div>
+        ) : <h1 className="ks-titel">{titel}</h1>}
         <div className="ks-kopf-text">
-          {zeile && <p className="ks-zeile">{zeile}</p>}
+          {zeile && <p ref={zeileRef} className={`ks-zeile${einzeilig ? " ks-zeile-eine" : ""}`} title={einzeilig ? zeile : undefined}>{zeile}</p>}
           {chips.length > 0 && (
             <ul className="ks-chips" aria-label="Kurs auf einen Blick">
               {chips.map((c, i) => <li key={i}>{c.icon}{c.text}</li>)}
