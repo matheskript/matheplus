@@ -108,7 +108,16 @@ export function datumLang(iso) {
   return `${Number(m[3])}. ${MONATE[Number(m[2]) - 1]} ${m[1]}`;
 }
 
-/* Lesezeit in Minuten (grob: 200 Wörter pro Minute, mindestens 1) */
+const MONATE_KURZ = ["Jan", "Feb", "März", "Apr", "Mai", "Juni", "Juli", "Aug", "Sep", "Okt", "Nov", "Dez"];
+/* "2026-10-11" → { tag: "11.", monat: "Okt", text: "11. Okt" } – ohne Jahr (Liste und Beitrag) */
+export function datumKurz(iso) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ""));
+  if (!m) return { tag: "", monat: "", text: String(iso || "") };
+  const tag = `${Number(m[3])}.`, monat = MONATE_KURZ[Number(m[2]) - 1];
+  return { tag, monat, text: `${tag} ${monat}` };
+}
+
+/* Lesezeit in Minuten, wird im Blog nicht mehr angezeigt (grob: 200 Wörter pro Minute, mindestens 1) */
 export function lesezeit(beitrag) {
   const woerter = (beitrag.absaetze || []).join(" ").split(/\s+/).filter(Boolean).length;
   return Math.max(1, Math.round(woerter / 200));

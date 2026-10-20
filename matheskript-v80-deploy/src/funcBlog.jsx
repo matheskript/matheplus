@@ -2,17 +2,20 @@
    BLOG – Bastis privater Mathe-Blog (Adresse /blog, Beiträge /blog/<slug>).
    Daten: src/blogDaten.js. Eigener Chunk (lazy in func10.jsx).
 
-   Bewusst schlicht: Liste = Titelbild, Datum, Titel, eine Zeile Text
-   (ab 700 px: neuester Beitrag groß, die übrigen als Zeilen mit Bild rechts).
+   Liste (21.10.): Kopf mit Logo rechts neben „Mathe-Blog“, darunter jeder
+   Beitrag als ganze Box (die Box ist der Link, kein „Weiterlesen“): Datum
+   kurz ohne Jahr links („11. Okt“), Titel ganz oben, Text, Bild rechts.
+   Der neueste Beitrag ist hervorgehoben (Nacht mit Goldlicht). Darunter
+   noch einmal alle Beiträge schlicht untereinander. Keine Lesezeit.
    Beitrag = Datum, Titel, Titelbild, Absätze, am Ende der nächste Beitrag.
-   Keine Kommentare, keine Zähler, keine Kästen – weißes Blatt, viel Luft.
+   Keine Kommentare, keine Zähler.
    Die Titelbilder sind gezeichnete Motive (SVG) in der Kursoptik (Nacht-
    blau, Goldfolie); ein echtes Foto bekommt ein Beitrag, wenn er statt
    motiv ein bild (Pfad unter public/) trägt.
    ====================================================================== */
 import React, { useEffect } from "react";
 import { C } from "./base1.jsx";
-import { BLOG, beitragVon, naechsterBeitrag, datumLang, lesezeit } from "./blogDaten.js";
+import { BLOG, beitragVon, naechsterBeitrag, datumKurz } from "./blogDaten.js";
 import { springe } from "./sprung.js";
 
 const NACHT = "#050B1F";
@@ -28,33 +31,66 @@ const CSS = `
 .bl-kicker { margin: 0; font-size: 11px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: ${C.gruen}; }
 .bl h1 { margin: 10px 0 0; font-size: clamp(30px, 7vw, 44px); font-weight: 900; letter-spacing: -0.035em; line-height: 1.02; color: ${C.seeTief}; }
 .bl-unter { margin: 14px 0 0; font-size: 16px; font-weight: 300; line-height: 1.6; color: ${C.grau}; max-width: 46ch; }
-.bl-liste { list-style: none; margin: 46px 0 0; padding: 0; display: grid; gap: 54px; }
-@media ${DESKTOP} { .bl-liste { gap: 64px; } }
-.bl-eintrag { display: block; }
-/* Ab 700 px: der neueste Beitrag groß, die übrigen als ruhige Zeilen – Text links, Bild rechts */
-@media (min-width: 700px) {
-  .bl-eintrag + .bl-eintrag { display: grid; grid-template-columns: minmax(0, 1fr) 248px; grid-template-rows: auto auto auto 1fr; column-gap: 40px; align-items: start; }
-  .bl-eintrag + .bl-eintrag > * { grid-column: 1; }
-  .bl-eintrag + .bl-eintrag > .bl-bild { grid-column: 2; grid-row: 1 / 5; aspect-ratio: 16 / 10; border-radius: 14px; }
-  .bl-eintrag + .bl-eintrag > .bl-meta { margin-top: 2px; }
-  .bl-eintrag + .bl-eintrag h2 { font-size: 23px; }
-  .bl-eintrag + .bl-eintrag .bl-kurz { font-size: 15.5px; }
-  .bl-eintrag:first-child h2 { font-size: clamp(26px, 3.4vw, 32px); }
-}
-.bl-bild { display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: 18px; overflow: hidden; border: none; padding: 0; margin: 0; cursor: pointer; background: ${NACHT};
-  box-shadow: 0 18px 40px -24px rgba(5,11,31,.55); transition: transform .25s cubic-bezier(.2,.7,.3,1), box-shadow .25s ease; }
+.bl-bild { display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: 18px; overflow: hidden; border: none; padding: 0; margin: 0; background: ${NACHT};
+  box-shadow: 0 18px 40px -24px rgba(5,11,31,.55); }
 .bl-bild svg { display: block; width: 100%; height: 100%; }
 .bl-bild img { display: block; width: 100%; height: 100%; object-fit: cover; }
-.bl-eintrag:hover .bl-bild { transform: translateY(-2px); box-shadow: 0 26px 50px -24px rgba(5,11,31,.6); }
 .bl-meta { margin: 18px 0 0; font-size: 12.5px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: ${C.hellgrau}; }
-.bl-meta b { font-weight: 600; color: ${C.grau}; }
-.bl-eintrag h2 { margin: 8px 0 0; font-size: clamp(22px, 5.4vw, 28px); font-weight: 800; letter-spacing: -0.025em; line-height: 1.12; }
-.bl-eintrag h2 button { background: none; border: none; padding: 0; margin: 0; cursor: pointer; text-align: left; color: ${C.seeTief}; font: inherit; letter-spacing: inherit; line-height: inherit; }
-.bl-eintrag h2 button:hover { color: ${C.see}; }
-.bl-kurz { margin: 10px 0 0; font-size: 16px; font-weight: 300; line-height: 1.6; color: ${C.grau}; max-width: 58ch; }
-.bl-lesen { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; background: none; border: none; padding: 0; cursor: pointer; font-size: 14px; font-weight: 700; color: ${C.gruenDunkel}; }
-.bl-lesen span { transition: transform .2s ease; }
-.bl-lesen:hover span { transform: translateX(3px); }
+.bl-kopf { display: flex; align-items: center; justify-content: space-between; gap: 22px; }
+.bl-kopf-text { min-width: 0; }
+.bl-logo { flex: none; width: 92px; height: 76px; border-radius: 18px; overflow: hidden; position: relative;
+  background: radial-gradient(120% 90% at 0% 0%, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 55%), linear-gradient(155deg, #0A5AB0 0%, ${C.see} 40%, ${C.seeTief} 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.28), 0 18px 36px -20px rgba(5,11,31,.6); }
+.bl-logo svg { display: block; width: 100%; height: 100%; }
+@media (min-width: 700px) { .bl-logo { width: 150px; height: 118px; border-radius: 24px; } }
+
+/* Boxen: die ganze Box ist der Link (kein „Weiterlesen“) */
+.bl-box { display: grid; grid-template-columns: 54px minmax(0, 1fr); column-gap: 16px; width: 100%; text-align: left; cursor: pointer; font: inherit; color: inherit;
+  background: #fff; border: 1px solid ${C.linie}; border-radius: 20px; padding: 20px 20px 20px 16px; margin: 0;
+  box-shadow: 0 14px 34px -26px rgba(5,11,31,.45); transition: transform .22s cubic-bezier(.2,.7,.3,1), box-shadow .22s ease, border-color .22s ease; }
+.bl-box:hover { transform: translateY(-3px); border-color: ${GOLD}; box-shadow: 0 24px 46px -26px rgba(5,11,31,.5); }
+.bl-box:focus-visible { outline: 3px solid ${GOLD}; outline-offset: 3px; }
+.bl-datum { grid-column: 1; grid-row: 1 / 4; align-self: start; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  width: 54px; height: 58px; border-radius: 14px; background: ${C.himmel}; color: ${C.seeTief}; line-height: 1; }
+.bl-datum b { font-size: 21px; font-weight: 900; letter-spacing: -0.03em; }
+.bl-datum span { margin-top: 4px; font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: ${C.see}; }
+.bl-box h2 { grid-column: 2; margin: 0; font-size: clamp(19px, 4.6vw, 23px); font-weight: 800; letter-spacing: -0.025em; line-height: 1.16; color: ${C.seeTief}; }
+.bl-box .bl-kurz { grid-column: 2; margin: 8px 0 0; font-size: 15px; font-weight: 300; line-height: 1.55; color: ${C.grau}; max-width: 58ch; }
+.bl-box .bl-bild { grid-column: 2; margin-top: 16px; aspect-ratio: 16 / 7; border-radius: 14px; box-shadow: none; cursor: inherit; }
+.bl-box:hover .bl-bild { transform: none; }
+@media (min-width: 700px) {
+  .bl-box { grid-template-columns: 58px minmax(0, 1fr) 220px; grid-template-rows: auto 1fr; column-gap: 24px; padding: 22px; align-items: start; }
+  .bl-datum { grid-row: 1 / 3; width: 58px; height: 62px; }
+  .bl-box .bl-bild { grid-column: 3; grid-row: 1 / 3; margin: 0; aspect-ratio: 16 / 10; }
+}
+
+/* Hervorgehobener (neuester) Beitrag: Nacht mit Goldlicht */
+.bl-box.oben { position: relative; overflow: hidden; border: none; background: radial-gradient(70% 90% at 100% 0%, rgba(237,187,0,0.22) 0%, rgba(237,187,0,0) 60%), linear-gradient(155deg, #0B1A44 0%, ${NACHT} 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 26px 50px -26px rgba(5,11,31,.75); }
+.bl-box.oben:hover { box-shadow: inset 0 0 0 1px ${GOLD}, 0 32px 56px -26px rgba(5,11,31,.8); }
+.bl-box.oben .bl-datum { background: linear-gradient(180deg, ${GOLD_HELL} 0%, ${GOLD} 100%); color: ${NACHT}; }
+.bl-box.oben .bl-datum span { color: ${NACHT}; }
+.bl-box.oben h2 { color: #fff; font-size: clamp(22px, 5.6vw, 30px); }
+.bl-box.oben .bl-kurz { color: #C9D6EE; font-size: 16px; }
+.bl-box.oben .bl-hinweis { grid-column: 2; margin: 0 0 8px; font-size: 11px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: ${GOLD}; }
+@media (min-width: 700px) {
+  .bl-box.oben { grid-template-columns: 58px minmax(0, 1fr) 240px; grid-template-rows: auto auto 1fr; padding: 28px; }
+  .bl-box.oben .bl-datum { grid-row: 1 / 4; }
+  .bl-box.oben .bl-bild { grid-row: 1 / 4; }
+}
+
+.bl-liste { list-style: none; margin: 40px 0 0; padding: 0; display: grid; gap: 18px; }
+.bl-liste > li:first-child { margin-bottom: 14px; }
+
+/* Darunter: alle Beiträge noch einmal, schlicht untereinander */
+.bl-alle { margin-top: 64px; }
+.bl-alle h3 { margin: 0 0 6px; font-size: 13px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: ${C.hellgrau}; }
+.bl-alle ol { list-style: none; margin: 0; padding: 0; border-top: 1px solid ${C.linie}; }
+.bl-alle li { border-bottom: 1px solid ${C.linie}; }
+.bl-alle button { display: flex; align-items: baseline; gap: 18px; width: 100%; padding: 14px 4px; background: none; border: none; cursor: pointer; text-align: left; font: inherit; color: ${C.seeTief}; }
+.bl-alle button time { flex: none; width: 64px; font-size: 13px; font-weight: 700; color: ${C.hellgrau}; letter-spacing: .02em; }
+.bl-alle button span { font-size: 16px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.3; }
+.bl-alle button:hover span { color: ${C.see}; }
 .bl button:focus-visible { outline: 3px solid ${GOLD}; outline-offset: 3px; border-radius: 6px; }
 
 /* Beitrag */
@@ -170,6 +206,37 @@ const MOTIVE = {
   ),
 };
 
+/* Logo neben der Überschrift – lackiertes Blau wie die Kacheln der Startseite:
+   Heftseite mit Zeilen, eine Kurve mit Punkt in Gold, daneben der Stift. */
+function BlogLogo() {
+  return (
+    <svg viewBox="0 0 150 118" aria-hidden="true">
+      <defs>
+        <linearGradient id="bll-gold" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor={GOLD_HELL} /><stop offset=".6" stopColor={GOLD} /><stop offset="1" stopColor="#C9931A" />
+        </linearGradient>
+        <radialGradient id="bll-licht" cx="78%" cy="18%" r="60%">
+          <stop offset="0" stopColor="rgba(255,229,138,0.35)" /><stop offset="1" stopColor="rgba(255,229,138,0)" />
+        </radialGradient>
+      </defs>
+      <rect width="150" height="118" fill="url(#bll-licht)" />
+      <rect x="28" y="20" width="74" height="80" rx="7" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.6)" strokeWidth="1.6" />
+      <path d="M38 34h30" stroke="url(#bll-gold)" strokeWidth="3.4" strokeLinecap="round" />
+      <g stroke="rgba(255,255,255,0.45)" strokeWidth="1.6" strokeLinecap="round">
+        <path d="M38 46h54" /><path d="M38 56h46" /><path d="M38 88h40" />
+      </g>
+      <path d="M38 82 C 50 82, 54 64, 64 68 S 80 78, 92 62" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" />
+      <circle cx="64" cy="68" r="3.4" fill="url(#bll-gold)" />
+      <g transform="rotate(38 112 58)">
+        <rect x="106" y="18" width="12" height="62" rx="3" fill="url(#bll-gold)" />
+        <rect x="106" y="18" width="12" height="9" rx="3" fill="#fff" opacity=".9" />
+        <path d="M106 80 L112 94 L118 80 Z" fill="#F6E7B5" />
+        <path d="M110.6 90.8 L112 94 L113.4 90.8 Z" fill={NACHT} />
+      </g>
+    </svg>
+  );
+}
+
 export function BlogMotiv({ beitrag }) {
   if (beitrag.bild) return <img src={beitrag.bild} alt="" loading="lazy" />;
   return MOTIVE[beitrag.motiv] || MOTIVE.raster;
@@ -202,7 +269,7 @@ export function BlogSeite({ gehe, seite, setSeite }) {
     return (
       <article className="bl bl-beitrag" data-blog-beitrag={beitrag.slug}><style>{CSS}</style>
         <button type="button" className="bl-zurueck" onClick={zurueck}><span aria-hidden="true">←</span> Alle Beiträge</button>
-        <p className="bl-meta" style={{ marginTop: 26 }}><time dateTime={beitrag.datum}>{datumLang(beitrag.datum)}</time> · {lesezeit(beitrag)} Min.</p>
+        <p className="bl-meta" style={{ marginTop: 26 }}><time dateTime={beitrag.datum}>{datumKurz(beitrag.datum).text}</time></p>
         <h1>{beitrag.titel}</h1>
         <div className="bl-bild"><BlogMotiv beitrag={beitrag} /></div>
         <div className="bl-text">
@@ -221,20 +288,42 @@ export function BlogSeite({ gehe, seite, setSeite }) {
 
   return (
     <div className="bl" data-blog-liste><style>{CSS}</style>
-      <p className="bl-kicker">Blog</p>
-      <h1>Mathe-Blog</h1>
-      <p className="bl-unter">Notizen von Basti – über Mathe, übers Lernen und über das, was zwischen Aufgabe und Lösung passiert.</p>
+      <div className="bl-kopf">
+        <div className="bl-kopf-text">
+          <p className="bl-kicker">Blog</p>
+          <h1>Mathe-Blog</h1>
+          <p className="bl-unter">Notizen von Basti – über Mathe, übers Lernen und über das, was zwischen Aufgabe und Lösung passiert.</p>
+        </div>
+        <span className="bl-logo"><BlogLogo /></span>
+      </div>
       <ul className="bl-liste">
-        {BLOG.map((b) => (
-          <li key={b.slug} className="bl-eintrag">
-            <button type="button" className="bl-bild" onClick={() => oeffnen(b.slug)} aria-label={b.titel} tabIndex={-1}><BlogMotiv beitrag={b} /></button>
-            <p className="bl-meta"><time dateTime={b.datum}>{datumLang(b.datum)}</time> · {lesezeit(b)} Min.</p>
-            <h2><button type="button" onClick={() => oeffnen(b.slug)}>{b.titel}</button></h2>
-            <p className="bl-kurz">{b.kurz}</p>
-            <button type="button" className="bl-lesen" onClick={() => oeffnen(b.slug)}>Weiterlesen <span aria-hidden="true">→</span></button>
-          </li>
-        ))}
+        {BLOG.map((b, i) => {
+          const d = datumKurz(b.datum);
+          return (
+            <li key={b.slug} className="bl-eintrag">
+              <button type="button" className={i === 0 ? "bl-box oben" : "bl-box"} onClick={() => oeffnen(b.slug)} data-blog-box={b.slug}>
+                <time className="bl-datum" dateTime={b.datum} aria-label={d.text}><b>{d.tag}</b><span>{d.monat}</span></time>
+                {i === 0 && <span className="bl-hinweis">Neuester Beitrag</span>}
+                <h2>{b.titel}</h2>
+                <span className="bl-kurz">{b.kurz}</span>
+                <span className="bl-bild"><BlogMotiv beitrag={b} /></span>
+              </button>
+            </li>
+          );
+        })}
       </ul>
+      <section className="bl-alle" aria-label="Alle Beiträge">
+        <h3>Alle Beiträge</h3>
+        <ol>
+          {BLOG.map((b) => (
+            <li key={b.slug}>
+              <button type="button" onClick={() => oeffnen(b.slug)} data-blog-alle={b.slug}>
+                <time dateTime={b.datum}>{datumKurz(b.datum).text}</time><span>{b.titel}</span>
+              </button>
+            </li>
+          ))}
+        </ol>
+      </section>
     </div>
   );
 }

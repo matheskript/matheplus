@@ -81,15 +81,13 @@ with sync_playwright() as p:
                         pruefe(farbe == FARBE_WEISS, f"{tag}: Menüschrift nicht weiß ({farbe})")
                     ai = page.evaluate("getComputedStyle(document.querySelector('[data-besucher-menue=mathilda] > span > span + span')).color")
                     pruefe(ai in ("rgb(237, 187, 0)", "rgb(185, 138, 0)"), f"{tag}: AI nicht gold ({ai})")
-                    # Wortmarke: ab 1000 px voll (40 px), ab 1060 px steht das T von MYTHOS über dem Anfang der Schlagzeile;
-                    # darunter ein Drittel kleiner (höchstens 26,7 px)
+                    # Wortmarke: ab 1000 px voll (40 px); die Zeile ist symmetrisch – das ☰ endet so weit vom rechten Rand
+                    # wie die Wortmarke vom linken beginnt (seit 21.10., statt T über der Schlagzeile); darunter ein Drittel kleiner
                     if breite >= 1000:
                         pruefe(abs(logo - 40) < 0.6, f"{tag}: Wortmarke {logo}px statt 40px")
-                        if breite >= 1060 and page.locator("h1").count():
-                            held = page.evaluate("document.querySelector('h1').getBoundingClientRect().left")
-                            t = page.evaluate("""() => { const n = document.querySelector('.kl-marke > span > span').firstChild; const r = document.createRange();
-                              r.setStart(n, 2); r.setEnd(n, 3); return r.getBoundingClientRect().left; }""")
-                            pruefe(abs(held - t) < 1.5, f"{tag}: T der Wortmarke ({t:.1f}) steht nicht über der Schlagzeile ({held:.1f})")
+                        li, re = page.evaluate("""() => [document.querySelector('.kl-marke').getBoundingClientRect().left,
+                          window.innerWidth - document.querySelector('.kl-rechts').getBoundingClientRect().right]""")
+                        pruefe(abs(li - re) < 1.5, f"{tag}: Kopfzeile nicht symmetrisch (links {li:.1f}, rechts {re:.1f})")
                     else:
                         pruefe(logo <= 26.8, f"{tag}: Wortmarke {logo}px statt höchstens 26,7px")
                     pruefe(page.locator("[data-kl-anmelden]").is_visible() == (breite >= 700), f"{tag}: Anmelden ab 700 px")
@@ -153,7 +151,7 @@ with sync_playwright() as p:
                     pruefe(page.locator("[data-besucher-menue=blog]").get_attribute("aria-current") == "page", f"{tag}: Blog nicht markiert")
                     pruefe(not page.evaluate("document.documentElement.scrollWidth > window.innerWidth + 1"), f"{tag}: Blog Überbreite")
                     foto(page, f"blog-{breite}", ganz=True)
-                    page.locator(".bl-eintrag h2 button").nth(1).click(); page.wait_for_timeout(1200)
+                    page.locator(".bl-box").nth(1).click(); page.wait_for_timeout(1200)
                     pruefe("/blog/vektoren-sind-pfeile" in page.url, f"{tag}: Beitragsadresse {page.url}")
                     pruefe(page.locator("[data-blog-beitrag] .bl-text p").count() >= 3, f"{tag}: Beitragstext fehlt")
                     foto(page, f"beitrag-{breite}", ganz=True)

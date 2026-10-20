@@ -49,9 +49,10 @@ const BREIT = "(min-width: 1000px)";       // Besucher: eine breite Zeile, Wortm
 /* Linke Kante der Schlagzeile auf der Startseite (Bühne in funcStartseite.jsx): 50 % − 371,5 px.
    Die Wortmarke beginnt 63 px davor – dann steht das T von MYTHOS über dem M von „Mathe“. */
 const HELD_KANTE = "calc(50% - 434.5px)";
-/* Platz ab der linken Kante der Wortmarke bis zum rechten Fensterrand (Wortmarke 395 + Abstand 28 + Menü 329 + 16 + Anmelden/☰ 153
-   + Rand 32 = 953, mit Reserve). Die T-Ausrichtung hält also ab etwa 1055 px, darunter rückt die Marke nach links. */
-const BREIT_BEDARF = "962px";
+/* Breite des Inhalts von der Wortmarke bis zum ☰ (gemessen 930 px, mit Reserve). Seit 21.10. symmetrisch:
+   links und rechts derselbe Rand (--kl-rand), höchstens bis zur Schlagzeilenkante – das Menü endet also so weit
+   vom rechten Rand wie die Wortmarke vom linken. Passt beides nicht, rückt die Marke ein Stück vor die T-Kante. */
+const BREIT_BEDARF = "940px";
 
 const CSS = `
 .kl { position: relative; z-index: 50; isolation: isolate; color: var(--kl-text); font-family: Montserrat, system-ui, sans-serif;
@@ -139,11 +140,11 @@ const CSS = `
 }
 /* Ab 1000 px: Besucher bekommen eine breite Zeile wie eine normale Website. Die Wortmarke (voll, 40 px) beginnt
    bündig mit der Schlagzeile; nur wenn rechts der Platz fehlt, rückt sie so weit wie nötig nach links.
-   Rechts endet die Zeile 32 px vor dem Rand, auf sehr breiten Schirmen spätestens 1160 px nach der Schlagzeilenkante. */
+   Rechts endet die Zeile genauso weit vor dem Rand wie die Wortmarke links beginnt (symmetrisch, --kl-rand). */
 @media ${BREIT} {
-  .kl { --kl-logo-gast: 40px; }
+  .kl { --kl-logo-gast: 40px; --kl-rand: max(32px, min(${HELD_KANTE}, calc((100% - ${BREIT_BEDARF}) / 2))); }
   .kl[data-gast] .mx-auto.kopf-zeile.kl-zeile { width: 100% !important; max-width: none !important; margin-left: 0 !important; margin-right: 0 !important;
-    padding: 0 max(32px, calc(50% - 788.5px)) 0 max(32px, min(${HELD_KANTE}, calc(100% - ${BREIT_BEDARF}))) !important; gap: 0; }
+    padding: 0 var(--kl-rand) !important; gap: 0; }
   .kl[data-gast] .kl-marke { margin-right: 28px; }
   .kl[data-gast] .kl-nav { gap: 22px; margin-right: 16px; }
   .kl[data-gast] .kl-nav button { font-size: 14px; }
