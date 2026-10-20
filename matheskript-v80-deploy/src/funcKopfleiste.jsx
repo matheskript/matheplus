@@ -4,8 +4,10 @@
 
    Sie folgt dem Modus der Startseite (src/startModus.js) und trägt dieselben
    Farben wie das Rechenblatt darunter:
-     dunkel  Nachtblau, Papierraster, Goldlicht oben rechts, Goldkurve
-     hell    weißes Blatt, blaues Raster, Wortmarke in Nachtblau, blaue Kurve
+     dunkel  Nachtblau, Goldlicht oben rechts, Goldkurve
+     hell    Weiß, Wortmarke in Nachtblau, blaue Kurve
+   Bewusst ohne Karoraster (passt nicht zur Marke). Die Kurve zeichnet sich
+   einmal ein, wird danach leiser und läuft links weich aus.
      mix     lackiertes Blau mit Lichtsaum (die Farbe der dunklen Inseln im Mix)
    Alles hängt an CSS-Variablen (data-modus), die Kurve zeichnet sich einmal ein.
 
@@ -13,9 +15,12 @@
                 · Modus-Knopf (dunkel → hell → mix) · Konto-Chip · ☰
    Besucher:    Wortmarke ein Drittel kleiner · festes Menü Vision · Mathe lernen
                 · Mathilda AI · Blog (nie zum Ausklappen) · Anmelden · Modus · ☰.
-                Ab 960 px eine breite Zeile wie eine normale Website (Marke links,
-                Menü und Anmelden rechts), darunter steht das Menü in einer
-                zweiten Zeile (Handy: über die volle Breite verteilt).
+                Ab 1060 px eine breite Zeile wie eine normale Website: Wortmarke
+                in voller Größe (40 px), linke Kante bündig mit der Schlagzeile
+                der Startseite („Mathe kann …“, 50 % − 371,5 px), Menü und
+                Anmelden rechts. Darunter steht das Menü in einer zweiten Zeile
+                und die Wortmarke ist ein Drittel kleiner (Handy: Menü über die
+                volle Breite verteilt).
    Handy angemeldet: kein Modus-Knopf oben (Platz für die Wortmarke); die
                 Pille „Dunkel | Hell | Mix“ auf der Startseite bleibt.
    Auf Seiten, die kein Werkzeug sind, klebt die Leiste oben, zieht sich beim
@@ -39,22 +44,27 @@ const GOLD = C.flaggold;
 const GOLD_HELL = "#FFE58A";
 const DESKTOP = "(min-width: 840px)";
 const HANDY = "(max-width: 699px)";
-const ZWEIZEILIG = "(max-width: 959px)";   // Besucher: Menü in einer zweiten Zeile
-const BREIT = "(min-width: 960px)";        // Besucher: eine breite Zeile
+const ZWEIZEILIG = "(max-width: 1059px)";  // Besucher: Menü in einer zweiten Zeile
+const BREIT = "(min-width: 1060px)";       // Besucher: eine breite Zeile, Wortmarke voll und bündig mit der Schlagzeile
+/* Linke Kante der Schlagzeile auf der Startseite (Bühne in funcStartseite.jsx) */
+const HELD_KANTE = "calc(50% - 371.5px)";
+/* Platz ab der linken Kante der Wortmarke bis zum rechten Fensterrand (Wortmarke 395 + Abstand 28 + Menü + 16 + Knöpfe 199 + Rand 32,
+   gemessen ~1000, mit Reserve). Bündig mit der Schlagzeile also ab etwa 1275 px Fensterbreite, darunter rückt die Marke nach links. */
+const BREIT_BEDARF = "1008px";
 
 const CSS = `
 .kl { position: relative; z-index: 50; isolation: isolate; color: var(--kl-text); font-family: Montserrat, system-ui, sans-serif;
-  --kl-hg: ${NACHT}; --kl-text: #EEF2FF; --kl-nebel: #AEBCDD; --kl-linie: rgba(255,255,255,0.11); --kl-raster: rgba(255,255,255,0.05);
+  --kl-hg: ${NACHT}; --kl-text: #EEF2FF; --kl-nebel: #AEBCDD; --kl-linie: rgba(255,255,255,0.11); --kl-kurve-ruhe: .24;
   --kl-kurve: ${GOLD}; --kl-ring: rgba(255,255,255,0.45); --kl-ring-hover: rgba(255,255,255,0.12); --kl-chip-hg: ${NACHT};
   --kl-pille-hg: rgba(255,255,255,0.07); --kl-pille-rand: rgba(255,255,255,0.14); --kl-pille-hover: rgba(255,255,255,0.13);
   --kl-licht1: rgba(237,187,0,0.42); --kl-licht2: rgba(0,77,152,0.55); --kl-schatten: 0 18px 40px -22px rgba(0,0,0,.85);
   --kl-nav: #FFFFFF; --kl-plus: ${GOLD}; }
-.kl[data-modus="hell"] { --kl-hg: #FFFFFF; --kl-text: ${C.tinte}; --kl-nebel: ${C.grau}; --kl-linie: ${C.linie}; --kl-raster: rgba(0,77,152,0.075);
+.kl[data-modus="hell"] { --kl-hg: #FFFFFF; --kl-text: ${C.tinte}; --kl-nebel: ${C.grau}; --kl-linie: ${C.linie}; --kl-kurve-ruhe: .3;
   --kl-kurve: ${C.see}; --kl-ring: rgba(14,30,74,0.28); --kl-ring-hover: rgba(14,30,74,0.07); --kl-chip-hg: ${C.seeTief};
   --kl-pille-hg: #FFFFFF; --kl-pille-rand: ${C.linie}; --kl-pille-hover: ${C.himmel};
   --kl-licht1: rgba(237,187,0,0.22); --kl-licht2: rgba(0,77,152,0.16); --kl-schatten: 0 10px 30px -18px rgba(15,26,51,0.25);
   --kl-nav: ${C.seeTief}; --kl-plus: ${C.gruen}; }
-.kl[data-modus="mix"] { --kl-hg: ${C.seeTief}; --kl-text: #FFFFFF; --kl-nebel: #C9D6EE; --kl-linie: rgba(255,255,255,0.16); --kl-raster: rgba(255,255,255,0.055);
+.kl[data-modus="mix"] { --kl-hg: ${C.seeTief}; --kl-text: #FFFFFF; --kl-nebel: #C9D6EE; --kl-linie: rgba(255,255,255,0.16); --kl-kurve-ruhe: .3;
   --kl-kurve: ${GOLD_HELL}; --kl-ring: rgba(255,255,255,0.5); --kl-ring-hover: rgba(255,255,255,0.14); --kl-chip-hg: ${NACHT};
   --kl-pille-hg: rgba(5,11,31,0.28); --kl-pille-rand: rgba(255,255,255,0.18); --kl-pille-hover: rgba(5,11,31,0.45);
   --kl-licht1: rgba(255,229,138,0.32); --kl-licht2: rgba(255,255,255,0.12); --kl-schatten: 0 18px 40px -22px rgba(0,47,110,.8);
@@ -62,21 +72,22 @@ const CSS = `
 .kl *, .kl *::before, .kl *::after { box-sizing: border-box; }
 .kl button { font-family: inherit; }
 .kl[data-klebrig] { position: sticky; top: 0; }
-/* Hintergrund: Fläche, Raster, Licht, Kurve */
+/* Hintergrund: Fläche, Licht, Kurve (kein Raster) */
 .kl-hg { position: absolute; inset: 0; z-index: -1; overflow: hidden; background: var(--kl-hg); border-bottom: 1px solid var(--kl-linie);
   transition: box-shadow .3s ease; }
 .kl[data-modus="mix"] .kl-hg { background: radial-gradient(120% 90% at 0% 0%, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0) 55%),
   linear-gradient(155deg, #0A5AB0 0%, ${C.see} 38%, ${C.seeTief} 100%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.22); }
-.kl-hg::before { content: ""; position: absolute; inset: 0;
-  background-image: linear-gradient(var(--kl-raster) 1px, transparent 1px), linear-gradient(90deg, var(--kl-raster) 1px, transparent 1px);
-  background-size: 28px 28px; background-position: 0 -1px; }
 .kl-licht { position: absolute; border-radius: 999px; filter: blur(28px); pointer-events: none; }
 .kl-licht.l1 { width: 46vw; max-width: 520px; height: 46vw; max-height: 520px; top: -30vw; right: -10vw; background: radial-gradient(circle, var(--kl-licht1) 0%, rgba(0,0,0,0) 70%); }
 .kl-licht.l2 { width: 40vw; max-width: 420px; height: 40vw; max-height: 420px; top: -26vw; left: -16vw; background: radial-gradient(circle, var(--kl-licht2) 0%, rgba(0,0,0,0) 70%); }
-/* Kurve: wird von links nach rechts aufgedeckt (Clip statt Strichlänge – unabhängig von der Breite) */
-.kl-kurve { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; clip-path: inset(0 100% 0 0); animation: klWeg 2.4s cubic-bezier(.4,0,.2,1) .3s forwards; }
-.kl-kurve path { fill: none; stroke: var(--kl-kurve); stroke-width: 1.6; stroke-linecap: round; vector-effect: non-scaling-stroke; opacity: .5; }
+/* Kurve: wird von links nach rechts aufgedeckt (Clip statt Strichlänge – unabhängig von der Breite).
+   Links läuft sie weich aus (Maske), damit sie die Wortmarke nicht durchstreicht; eingezeichnet wird sie leiser (--kl-kurve-ruhe). */
+.kl-kurve { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; clip-path: inset(0 100% 0 0); animation: klWeg 2.4s cubic-bezier(.4,0,.2,1) .3s forwards;
+  -webkit-mask-image: linear-gradient(90deg, rgba(0,0,0,.18) 0%, rgba(0,0,0,.18) 6%, #000 42%); mask-image: linear-gradient(90deg, rgba(0,0,0,.18) 0%, rgba(0,0,0,.18) 6%, #000 42%); }
+.kl-kurve path { fill: none; stroke: var(--kl-kurve); stroke-width: 1.6; stroke-linecap: round; vector-effect: non-scaling-stroke; opacity: .5;
+  animation: klLeiser 1.6s ease 2.7s forwards; }
 @keyframes klWeg { to { clip-path: inset(0 0 0 0); } }
+@keyframes klLeiser { to { opacity: var(--kl-kurve-ruhe); } }
 /* Der Punkt auf der Kurve (64 % / 56 % = Kurvenpunkt 640|56): rund, leuchtet einmal auf, wenn die Kurve ihn erreicht */
 .kl-punkt { position: absolute; left: 64%; top: 56%; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 999px; background: var(--kl-kurve); opacity: 0;
   animation: klPunkt 1.1s ease 1.75s forwards; }
@@ -84,7 +95,7 @@ const CSS = `
 .kl-punkt { display: none; }
 @media ${DESKTOP} { .kl:not([data-gast]) .kl-punkt { display: block; } }
 @keyframes klPunkt { 0% { opacity: 0; transform: scale(.4); box-shadow: 0 0 0 0 var(--kl-kurve); } 45% { opacity: 1; transform: scale(1.5); box-shadow: 0 0 14px 4px var(--kl-kurve); }
-  100% { opacity: .85; transform: none; box-shadow: 0 0 6px 0 var(--kl-kurve); } }
+  100% { opacity: .55; transform: none; box-shadow: 0 0 5px 0 var(--kl-kurve); } }
 .kl[data-kompakt] .kl-hg { box-shadow: var(--kl-schatten); }
 .kl[data-kompakt][data-modus="mix"] .kl-hg { box-shadow: var(--kl-schatten), inset 0 1px 0 rgba(255,255,255,0.22); }
 
@@ -105,14 +116,16 @@ const CSS = `
 @media (max-width: 420px) { .kl-zeile { padding-left: 14px; } }
 
 /* Besuchermenü: feste Punkte */
-.kl-nav { display: flex; align-items: center; gap: 28px; margin: 0 14px 0 auto; padding: 0; list-style: none; }
+.kl-nav { display: flex; align-items: center; gap: 24px; margin: 0 12px 0 auto; padding: 0; list-style: none; }
+/* Größe der Wortmarke für Besucher: unter 1060 px ein Drittel kleiner, darüber voll (siehe BREIT) */
+.kl { --kl-logo-gast: clamp(14px, 4.33vw, 26.7px); }
 .kl-nav button { position: relative; background: none; border: none; padding: 8px 0; cursor: pointer; color: var(--kl-nav); font-size: 14.5px; font-weight: 700; letter-spacing: .005em; white-space: nowrap; line-height: 1; }
 .kl-nav button::after { content: ""; position: absolute; left: 0; right: 0; bottom: 2px; height: 2px; border-radius: 2px; background: ${GOLD}; transform: scaleX(0); transform-origin: left; transition: transform .22s cubic-bezier(.2,.7,.3,1); }
 .kl-nav button:hover::after, .kl-nav button[aria-current="page"]::after { transform: scaleX(1); }
 .kl-nav button[aria-current="page"] { color: var(--kl-nav); }
 /* „Mathilda AI“: die Marke schreibt beide Teile zusammen, im Menü steht ein schmaler Abstand davor (AI bleibt gold) */
 .kl-nav [data-besucher-menue="mathilda"] > span > span + span { margin-left: .26em; }
-/* Unter 960 px: Menü in der zweiten Zeile, bündig mit der Wortmarke; Handy: über die volle Breite verteilt */
+/* Unter 1060 px: Menü in der zweiten Zeile, bündig mit der Wortmarke; Handy: über die volle Breite verteilt */
 @media ${ZWEIZEILIG} {
   .kl[data-gast] .kl-zeile { flex-wrap: wrap; row-gap: 0; }
   .kl[data-gast] .kl-rechts { margin-left: auto; }
@@ -125,9 +138,17 @@ const CSS = `
   /* Angemeldet: der Modus-Knopf weicht der Wortmarke (umschalten über die Pille der Startseite) */
   .kl:not([data-gast]) .kl-modus { display: none; }
 }
-/* Ab 960 px: Besucher bekommen eine breite Zeile wie eine normale Website */
+/* Ab 1060 px: Besucher bekommen eine breite Zeile wie eine normale Website. Die Wortmarke (voll, 40 px) beginnt
+   bündig mit der Schlagzeile; nur wenn rechts der Platz fehlt, rückt sie so weit wie nötig nach links.
+   Rechts endet die Zeile 32 px vor dem Rand, auf sehr breiten Schirmen spätestens 1160 px nach der Schlagzeilenkante. */
 @media ${BREIT} {
-  .kl[data-gast] .mx-auto.kopf-zeile.kl-zeile { width: min(1160px, calc(100% - 64px)) !important; max-width: none !important; margin-left: auto !important; margin-right: auto !important; padding: 0 !important; }
+  .kl { --kl-logo-gast: 40px; }
+  .kl[data-gast] .mx-auto.kopf-zeile.kl-zeile { width: 100% !important; max-width: none !important; margin-left: 0 !important; margin-right: 0 !important;
+    padding: 0 max(32px, calc(50% - 788.5px)) 0 max(32px, min(${HELD_KANTE}, calc(100% - ${BREIT_BEDARF}))) !important; gap: 0; }
+  .kl[data-gast] .kl-marke { margin-right: 28px; }
+  .kl[data-gast] .kl-nav { gap: 22px; margin-right: 16px; }
+  .kl[data-gast] .kl-nav button { font-size: 14px; }
+  .kl[data-gast] .kl-rechts { margin-left: 0; }
 }
 
 /* Rechts: Weiter-Pille, Anmelden, Modus, Chip, ☰ */
@@ -158,7 +179,7 @@ const CSS = `
 /* Lese-Fortschritt (nur wenn die Leiste klebt) */
 .kl-fortschritt { position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; transform-origin: left; transform: scaleX(0); pointer-events: none;
   background: linear-gradient(90deg, ${GOLD} 0%, ${GOLD_HELL} 100%); box-shadow: 0 0 10px rgba(237,187,0,0.55); }
-@media (prefers-reduced-motion: reduce) { .kl-kurve, .kl-punkt, .kl-modus svg { animation: none !important; } .kl-kurve { clip-path: none; } .kl-punkt { opacity: .85; } .kl-zeile, .kl-slogan { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .kl-kurve, .kl-kurve path, .kl-punkt, .kl-modus svg { animation: none !important; } .kl-kurve { clip-path: none; } .kl-kurve path { opacity: var(--kl-kurve-ruhe); } .kl-punkt { opacity: .55; } .kl-zeile, .kl-slogan { transition: none; } }
 `;
 
 /* ---------- Modus der Startseite als Hook (dieselbe Quelle wie die Pille unten links) ---------- */
@@ -282,7 +303,7 @@ export function Kopfleiste({ ansicht, gehe, zurStartseite, hmOffen, setHmOffen, 
       <div className="mx-auto kopf-zeile kl-zeile" style={{ maxWidth: 620 }}>
         <button type="button" className="kl-marke" data-kein-i18n aria-label={en ? "Home" : "Zur Startseite"} title={en ? "Home" : "Zur Startseite"} onClick={zurStartseite}>
           {/* Wortmarke in der Schrift der Startseiten-Headline (src/markenLogo.jsx); Besucher: ein Drittel kleiner */}
-          <MarkenLogo groesse={gast ? "clamp(14px, 4.33vw, 26.7px)" : "clamp(21px, 6.5vw, 40px)"} grund={modus === "hell" ? "hell" : "dunkel"} />
+          <MarkenLogo groesse={gast ? "var(--kl-logo-gast)" : "clamp(21px, 6.5vw, 40px)"} grund={modus === "hell" ? "hell" : "dunkel"} />
           {!gast && (
             <span className="kl-slogan">System <b>+</b> Freude <b>=</b> Erfolg</span>
           )}

@@ -27,9 +27,13 @@ test("Alle drei Modi der Startseite sind im Stil der Kopfleiste definiert; Mathi
   for (const m of START_MODI.filter((x) => x !== "dunkel")) assert.ok(q.includes(`.kl[data-modus="${m}"]`), m);
   assert.ok(q.includes("useKopfModus") && q.includes("EVENT_START_MODUS"));
   assert.ok(q.includes("<MathildaName dunkel={modus !== \"hell\"} />"), "Mathilda AI kommt aus mathildaName.jsx (AI in Gold)");
-  assert.ok(q.includes("<MarkenLogo groesse={gast ? \"clamp(14px, 4.33vw, 26.7px)\" : \"clamp(21px, 6.5vw, 40px)\"}"), "Besucher: Wortmarke ein Drittel kleiner");
+  assert.ok(q.includes("<MarkenLogo groesse={gast ? \"var(--kl-logo-gast)\" : \"clamp(21px, 6.5vw, 40px)\"}"), "Besucher: Größe über --kl-logo-gast");
+  assert.ok(q.includes("--kl-logo-gast: clamp(14px, 4.33vw, 26.7px)") && q.includes("--kl-logo-gast: 40px"), "Besucher: unter 1060 px ein Drittel kleiner, darüber voll");
+  assert.ok(q.includes('HELD_KANTE = "calc(50% - 371.5px)"'), "Besucher am Desktop: Wortmarke bündig mit der Schlagzeile");
   assert.ok(!/aria-expanded/.test(q.split("kl-nav")[1].split("</nav>")[0]), "Das Besuchermenü klappt nicht aus");
   assert.ok(q.includes("kl-fortschritt") && q.includes("data-kompakt"), "Lese-Fortschritt und Zusammenziehen beim Scrollen");
+  assert.ok(!/background-size:\s*\d+px \d+px/.test(q) && !q.includes("kl-raster"), "Kein Karoraster im Header (passt nicht zur Marke)");
+  assert.ok(q.includes("klLeiser") && q.includes("--kl-kurve-ruhe") && q.includes("mask-image"), "Kurve wird nach dem Einzeichnen leiser und läuft links aus");
 });
 
 test("func10.jsx benutzt die Kopfleiste statt einer eigenen Kopfzeile", () => {

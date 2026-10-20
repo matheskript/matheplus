@@ -32,7 +32,7 @@ def foto(page, name, ganz=False):
 
 with sync_playwright() as p:
     b = p.chromium.launch()
-    for breite in (360, 390, 768, 1024, 1280):
+    for breite in (360, 390, 768, 1024, 1060, 1100, 1280, 1512, 1920):
         for angemeldet in (False, True):
             for modus in ("dunkel", "hell", "mix"):
                 ctx = b.new_context(viewport={"width": breite, "height": 860}, locale="de-DE")
@@ -81,15 +81,21 @@ with sync_playwright() as p:
                         pruefe(farbe == FARBE_WEISS, f"{tag}: Menüschrift nicht weiß ({farbe})")
                     ai = page.evaluate("getComputedStyle(document.querySelector('[data-besucher-menue=mathilda] > span > span + span')).color")
                     pruefe(ai in ("rgb(237, 187, 0)", "rgb(185, 138, 0)"), f"{tag}: AI nicht gold ({ai})")
-                    # Wortmarke ein Drittel kleiner als angemeldet (40 → 26,7 px am Desktop)
-                    if breite >= 1280:
-                        pruefe(abs(logo - 26.7) < 0.6, f"{tag}: Wortmarke {logo}px statt 26,7px")
+                    # Wortmarke: ab 1060 px voll (40 px) und bündig mit der Schlagzeile, darunter ein Drittel kleiner (höchstens 26,7 px)
+                    if breite >= 1060:
+                        pruefe(abs(logo - 40) < 0.6, f"{tag}: Wortmarke {logo}px statt 40px")
+                        if breite >= 1280 and page.locator("h1").count():
+                            held = page.evaluate("document.querySelector('h1').getBoundingClientRect().left")
+                            marke = page.evaluate("document.querySelector('.kl-marke').getBoundingClientRect().left")
+                            pruefe(abs(held - marke) < 1.5, f"{tag}: Wortmarke ({marke:.1f}) nicht bündig mit der Schlagzeile ({held:.1f})")
+                    else:
+                        pruefe(logo <= 26.8, f"{tag}: Wortmarke {logo}px statt höchstens 26,7px")
                     pruefe(page.locator("[data-kl-anmelden]").is_visible() == (breite >= 700), f"{tag}: Anmelden ab 700 px")
                     # ab 960 px eine Zeile, darunter zwei
                     mitte = lambda bb: bb["y"] + bb["height"] / 2
                     m0 = mitte(page.locator(".kl-marke").bounding_box())
                     zeilen = 1 + int(any(abs(mitte(e.bounding_box()) - m0) > 12 for e in nav.all()))
-                    pruefe((zeilen == 1) == (breite >= 960), f"{tag}: Menü sollte {'neben' if breite >= 960 else 'unter'} der Wortmarke stehen")
+                    pruefe((zeilen == 1) == (breite >= 1060), f"{tag}: Menü sollte {'neben' if breite >= 1060 else 'unter'} der Wortmarke stehen")
                 if angemeldet and breite >= 1280:
                     pruefe(abs(logo - 40) < 0.6, f"{tag}: Wortmarke {logo}px statt 40px")
 
