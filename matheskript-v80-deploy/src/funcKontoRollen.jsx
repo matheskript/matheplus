@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { C } from "./base1.jsx";
+import { auftragGeben, auftragLoeschen, auftraegeFuer } from "./trainingAuftraege.js";
 import { ANGEBOT } from "./angebot.js";
 import { DEMO, useKonto, anmeldenEmail, empfehlungsLink, REF_BASIS, REF_BASIS_ANZEIGE, gemerkteEinladung, einladungVergessen, hinweisSchliessen, profilSpeichern } from "./konto.js";
 import {
@@ -562,7 +563,52 @@ export function ElternBereich({ profil, gehe, kinderRef }) {
 const AMPEL_FARBE = { rot: "#E0485A", gelb: "#F2B31A", gruen: "#2DA865", grau: "#B8BFCC" };
 const Punkt = ({ farbe, gross }) => <span aria-hidden="true" style={{ display: "inline-block", width: gross ? 14 : 12, height: gross ? 14 : 12, borderRadius: 999, background: AMPEL_FARBE[farbe], flexShrink: 0 }} />;
 
-function SchuelerZeile({ s, klasseId, onEntfernt }) {
+/* Coach/Lehrkraft legt einen Eintrag in den Tagesplan des Schülers („Mein Mathe-Training“, supabase/training.sql).
+   Der Coach (Nachhilfe) darf immer, die Lehrkraft nur, wenn der Schüler es freigegeben hat. */
+function AuftragGeben({ schuelerId, rolle }) {
+  const [liste, setListe] = useState(null);
+  const [titel, setTitel] = useState("");
+  const [zeile, setZeile] = useState("");
+  const [faellig, setFaellig] = useState("");
+  const [fehler, setFehler] = useState("");
+  const [laeuft, setLaeuft] = useState(false);
+  const laden = useCallback(() => auftraegeFuer(schuelerId).then((l) => setListe(Array.isArray(l) ? l : [])).catch(() => setListe([])), [schuelerId]);
+  useEffect(() => { laden(); }, [laden]);
+  const senden = async () => {
+    setLaeuft(true); setFehler("");
+    try { await auftragGeben(schuelerId, { titel, zeile, faellig: faellig || null }); setTitel(""); setZeile(""); setFaellig(""); laden(); }
+    catch (e) { setFehler(e.message); }
+    setLaeuft(false);
+  };
+  const weg = async (id) => { try { await auftragLoeschen(id); laden(); } catch (e) { /* egal */ } };
+  const offen = (liste || []).filter((a) => !a.erledigt);
+  return (
+    <div style={{ marginTop: 12, background: C.himmel, borderRadius: 14, padding: 12 }}>
+      <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.06em", color: C.see, marginBottom: 6 }}>IN DEN TAGESPLAN LEGEN</p>
+      <p style={{ fontSize: 12.5, color: C.grau, lineHeight: 1.5, marginBottom: 8 }}>{rolle === "nachhilfe" ? "Aufträge stehen oben im Tagesplan deines Schülers und verfallen nicht." : "Nur möglich, wenn der Schüler es in seinem Training freigegeben hat. Aufträge stehen oben im Tagesplan und verfallen nicht."}</p>
+      <input value={titel} onChange={(e) => setTitel(e.target.value)} maxLength={120} placeholder="z. B. Buch S. 42, Nr. 3–5" aria-label="Auftrag" style={{ ...feld, marginBottom: 6 }} />
+      <input value={zeile} onChange={(e) => setZeile(e.target.value)} maxLength={200} placeholder="Hinweis (optional)" aria-label="Hinweis zum Auftrag" style={{ ...feld, marginBottom: 6 }} />
+      <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+        <input type="date" value={faellig} onChange={(e) => setFaellig(e.target.value)} aria-label="Bis wann (optional)" style={{ ...feld, width: "auto", padding: "8px 12px", fontSize: 14 }} />
+        <button type="button" onClick={senden} disabled={laeuft || !titel.trim()} style={{ ...knopfVoll(!!titel.trim() && !laeuft), height: 40 }}>{laeuft ? "Einen Moment …" : "In den Plan legen"}</button>
+      </div>
+      {fehler && <p role="alert" style={{ fontSize: 13, color: C.signal, marginTop: 6 }}>{fehler}</p>}
+      {offen.length > 0 && (
+        <div style={{ marginTop: 10 }}>
+          {offen.map((a) => (
+            <p key={a.id} style={{ fontSize: 13, color: C.tinte, lineHeight: 1.6, display: "flex", gap: 8, alignItems: "baseline" }}>
+              <span style={{ flex: 1 }}>○ {a.titel}{a.faellig ? ` · bis ${a.faellig.split("-").reverse().join(".")}` : ""}</span>
+              <button type="button" onClick={() => weg(a.id)} style={{ ...linkKnopf, color: C.signal }}>löschen</button>
+            </p>
+          ))}
+        </div>
+      )}
+      {liste && liste.some((a) => a.erledigt) && <p style={{ fontSize: 12, color: C.grau, marginTop: 4 }}>Erledigt: {liste.filter((a) => a.erledigt).length}</p>}
+    </div>
+  );
+}
+
+function SchuelerZeile({ s, klasseId, onEntfernt, rolle }) {
   const [offen, setOffen] = useState(false);
   const [det, setDet] = useState(null);
   const [frage, setFrage] = useState(false);
@@ -590,6 +636,7 @@ function SchuelerZeile({ s, klasseId, onEntfernt }) {
           {det && det.noten && Object.keys(det.noten).length > 0 && (
             <p style={{ fontSize: 13.5, color: C.grau, marginTop: 4 }}>Noten: {Object.entries(det.noten).sort((a, b) => parseFloat(a[0]) - parseFloat(b[0])).map(([k, v]) => `Kl. ${k}: ${v}`).join(" · ")}</p>
           )}
+          {!s.beispiel && <AuftragGeben schuelerId={s.id} rolle={rolle} />}
           {!frage ? <button type="button" onClick={() => setFrage(true)} style={{ ...linkKnopf, marginTop: 8, color: C.signal }}>Aus Klasse entfernen</button> : (
             <div style={{ marginTop: 8, display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
               <span style={{ fontSize: 13.5, color: C.tinte }}>{s.name} wirklich entfernen?</span>
@@ -637,7 +684,7 @@ function KlassenKarte({ k, neu }) {
 
       <div style={{ marginTop: 10 }}>
         {liste.length === 0 ? <p style={{ fontSize: 13.5, color: C.grau, fontWeight: 300 }}>Noch keine Schüler. Sobald sie mit dem Code beitreten, erscheinen sie hier.</p>
-          : liste.map((s) => <SchuelerZeile key={s.id} s={s} klasseId={k.id} onEntfernt={neu} />)}
+          : liste.map((s) => <SchuelerZeile key={s.id} s={s} klasseId={k.id} onEntfernt={neu} rolle={k.art === "nachhilfe" ? "nachhilfe" : "lehrkraft"} />)}
       </div>
       <p style={{ fontSize: 11.5, color: C.hellgrau, lineHeight: 1.5, marginTop: 10 }}>Die Ampel zeigt Aktivität, nicht Leistung: grün = an mindestens 2 der letzten 7 Tage gelernt, gelb = an 1 Tag oder zuletzt vor 8–14 Tagen, rot = länger als 14 Tage nicht aktiv, grau = noch nicht gestartet.</p>
 

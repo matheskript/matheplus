@@ -163,7 +163,7 @@ function Ring({ cd, gross }) {
           zeige – nur ein Bereich der Kachel (Menü in funcQuickfinder.jsx): "thema" (Kopf, Note, Unterthemen, Vorwissen, Kurs),
                   "plan" (Heute dran / Als Nächstes), "tools" (alle Werkzeuge zum Kapitel); ohne zeige: alles untereinander
    ====================================================================== */
-export function HauptthemaAnsicht({ haupt, plan, werkzeuge, kurse, aktionen, breit, zeige = null }) {
+export function HauptthemaAnsicht({ haupt, plan, imTraining = false, werkzeuge, kurse, aktionen, breit, zeige = null }) {
   const en = englisch();
   const E = useLernstand();
   const heute = heuteText();
@@ -314,14 +314,25 @@ export function HauptthemaAnsicht({ haupt, plan, werkzeuge, kurse, aktionen, bre
       ) : (
         <>
           <Abschnitt farbe={GOLD_DUNKEL}>Dein Plan</Abschnitt>
-          <button type="button" onClick={aktionen.planErstellen} className="ht-gold"
-            style={{ ...knopf, width: "100%", textAlign: "left", display: "flex", alignItems: "center", gap: 10, padding: "11px 12px 11px 14px", borderRadius: 12, border: "none", background: C.flaggold, color: C.seeTief }}>
-            <span style={{ flex: 1, minWidth: 0, display: "grid", gap: 2 }}>
-              <span style={{ fontSize: 15, fontWeight: 800, lineHeight: 1.25 }}>Trainingsplan zum Hauptthema erstellen</span>
-              <span style={{ fontSize: 12, fontWeight: 500, color: "#3D2F00", lineHeight: 1.3 }}>Warm-up, Basis-Check, Kerntraining und Wiederholungen{haupt.termin ? " bis zur Arbeit" : ""}</span>
-            </span>
-            <span aria-hidden="true" style={{ fontSize: 22, fontWeight: 800 }}>›</span>
-          </button>
+          {imTraining ? (
+            <button type="button" onClick={aktionen.heuteStarten} className="ht-gold"
+              style={{ ...knopf, width: "100%", textAlign: "left", display: "flex", alignItems: "center", gap: 10, padding: "11px 12px 11px 14px", borderRadius: 12, border: "none", background: C.flaggold, color: C.seeTief }}>
+              <span style={{ flex: 1, minWidth: 0, display: "grid", gap: 2 }}>
+                <span style={{ fontSize: 15, fontWeight: 800, lineHeight: 1.25 }}>Dieses Kapitel ist in deinem Mathe-Training</span>
+                <span style={{ fontSize: 12, fontWeight: 500, color: "#3D2F00", lineHeight: 1.3 }}>Zum Tagesplan: Basis-Checks, Kerntraining, Wiederholungen{haupt.termin ? " – bis zur Arbeit verdichtet" : ""}</span>
+              </span>
+              <span aria-hidden="true" style={{ fontSize: 22, fontWeight: 800 }}>›</span>
+            </button>
+          ) : (
+            <button type="button" onClick={aktionen.planErstellen} className="ht-gold"
+              style={{ ...knopf, width: "100%", textAlign: "left", display: "flex", alignItems: "center", gap: 10, padding: "11px 12px 11px 14px", borderRadius: 12, border: "none", background: C.flaggold, color: C.seeTief }}>
+              <span style={{ flex: 1, minWidth: 0, display: "grid", gap: 2 }}>
+                <span style={{ fontSize: 15, fontWeight: 800, lineHeight: 1.25 }}>Ins Mathe-Training aufnehmen</span>
+                <span style={{ fontSize: 12, fontWeight: 500, color: "#3D2F00", lineHeight: 1.3 }}>Täglich ein Schritt: Basis-Check, Kerntraining, Wiederholungen nach Ebbinghaus{haupt.termin ? " – bis zur Arbeit" : ""}</span>
+              </span>
+              <span aria-hidden="true" style={{ fontSize: 22, fontWeight: 800 }}>›</span>
+            </button>
+          )}
         </>
       )}
     </div>

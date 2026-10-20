@@ -11,7 +11,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { C } from "./base1.jsx";
 import { lernAendern, useLern } from "./func6.jsx";
 import { Aufgabenlauf, ebbBuchen } from "./funcTraining.jsx";
-import { useOffenHeute } from "./funcMeinTraining.jsx";
+import { useOffenHeute } from "./funcMeinTrainingKachel.jsx";
 import { EtikettPille } from "./funcWerkzeuge.jsx";
 import { rueckwegSetzen } from "./uebergabe.js";
 import { werkzeug, wo } from "./werkzeuge.js";

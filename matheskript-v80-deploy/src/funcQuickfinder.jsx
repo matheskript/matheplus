@@ -17,11 +17,12 @@ import { VIDEOKURSE } from "./base5.jsx";
 import { SCHULARTEN, SCHULART_STANDARD, THEMEN, hilfenFuer, kapitelFuer, klasseImBereich, klassenBoxen, kurseFuer, roemisch, schulart as schulartVon, stufeAusKlassenBox } from "./schulbuch.js";
 import { WERKZEUGE } from "./werkzeuge.js";
 import { kapitelAuswahl } from "./kapitelFormeln.js";
-import { englisch } from "./i18n.js";
 import { unterthema, unterthemen } from "./unterthemen.js";
-import { PHASEN, auswahlNachKapitel, planErstellen, planStand, planTage, tagName, vorbereitungFuer } from "./trainingsplan.js";
-import { PhasenPille, einheitVormerken, heuteText, planErsetzen, planSpeichern, sacheGeneratoren, useAktiverPlan } from "./funcKapitelTraining.jsx";
-import { erledigtUebertragen, hauptthemaPruefen } from "./hauptthema.js";
+import { PHASEN, auswahlNachKapitel, vorbereitungFuer } from "./trainingsplan.js";
+import { PhasenPille, heuteText, sacheGeneratoren } from "./funcKapitelTraining.jsx";
+import { hauptthemaPruefen } from "./hauptthema.js";
+import { themenUebernehmen, useMT } from "./meinTrainingSpeicher.js";
+import { MAX_AKTIV, themaInfo } from "./meinTraining.js";
 import { Abschnitt, HauptthemaAnsicht, HauptthemaLeiste, HauptthemaWahl } from "./funcHauptthema.jsx";
 
 import { springe } from "./sprung.js";
@@ -555,43 +556,40 @@ function EmpfohleneKurse({ schulart, klasse, gehe }) {
   );
 }
 
-/* ---------- Trainingsplan erstellen ---------- */
-function AktiverPlan({ v, gehe }) {
-  const heute = heuteText();
-  const st = planStand(v.plan, v.erledigt, heute);
+/* ---------- Mein Mathe-Training: Themen übernehmen ---------- */
+/* Kleiner Hinweis, wenn schon Themen im Training sind */
+function MeinTrainingLink({ MT, gehe }) {
+  if (!MT.aktiv.length) return null;
+  const titel = MT.aktiv.map((t) => (themaInfo(t.id) || {}).titel).filter(Boolean);
   return (
-    <button type="button" onClick={() => gehe({ ansicht: "trainingsplan" })}
+    <button type="button" onClick={() => gehe({ ansicht: "meintraining" })}
       style={{ ...knopfBasis, width: "100%", display: "flex", alignItems: "center", gap: 10, textAlign: "left", marginTop: 12, padding: "10px 12px", borderRadius: 12,
         border: `1.5px solid ${C.flaggold}`, background: "#FFFBEA", color: C.tinte }}>
       <span style={{ flex: 1, minWidth: 0 }}>
-        <span style={{ display: "block", fontSize: 11, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "#8A6A00" }}>Dein Trainingsplan · {st.fertig}/{st.gesamt}</span>
-        <span style={{ display: "block", fontSize: 14.5, fontWeight: 700, marginTop: 2, lineHeight: 1.25 }}>{v.plan.titel}</span>
-        <span style={{ display: "block", fontSize: 12, fontWeight: 500, color: C.grau, marginTop: 2 }}>
-          {st.naechste ? `${st.faellig ? "Heute dran" : `Als Nächstes ${tagName(st.naechste.datum, heute, englisch())}`}: ${st.naechste.titel}` : "Komplett geschafft"}
-        </span>
+        <span style={{ display: "block", fontSize: 11, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "#8A6A00" }}>Mein Mathe-Training · {MT.aktiv.length} von {MAX_AKTIV} Themen</span>
+        <span style={{ display: "block", fontSize: 14.5, fontWeight: 700, marginTop: 2, lineHeight: 1.25 }}>{titel.join(" · ")}</span>
+        <span style={{ display: "block", fontSize: 12, fontWeight: 500, color: C.grau, marginTop: 2 }}>Zum Tagesplan ›</span>
       </span>
       <span aria-hidden="true" style={{ flexShrink: 0, fontSize: 20, color: "#8A6A00" }}>›</span>
     </button>
   );
 }
-function PlanKarte({ q, auswahl, gehe, aktiv }) {
+function PlanKarte({ q, auswahl, gehe, MT }) {
   const heute = heuteText();
   const [termin, setTermin] = useState("");
-  const [ohne, setOhne] = useState([]);   // abgewählte Vorbereitung: "warmup" oder Kapitel-Ids
+  const [ohne, setOhne] = useState([]);   // abgewählte Basis-Checks (Kapitel-Ids)
+  const [meldung, setMeldung] = useState("");
   const vb = useMemo(() => vorbereitungFuer(auswahl, q.schulart), [auswahl, q.schulart]);
-  const plan = useMemo(() => planErstellen({ teile: auswahl, ohne, schulart: q.schulart, klasse: q.klasse, heute, termin: termin || null }),
-    [auswahl, ohne, q.schulart, q.klasse, heute, termin]);
-  if (!plan) return null;
-  const tage = planTage(plan);
-  const kerne = plan.einheiten.filter((e) => e.phase === "kern");
+  const gruppen = useMemo(() => auswahlNachKapitel(auswahl, q.schulart), [auswahl, q.schulart]);
+  if (!gruppen.length) return null;
+  const frei = Math.max(0, MAX_AKTIV - MT.aktiv.length) + Math.max(0, 3 - MT.danach.length);
   const umschalten = (id) => setOhne(ohne.includes(id) ? ohne.filter((x) => x !== id) : [...ohne, id]);
-  const speichern = () => {
-    if (aktiv && !window.confirm(`Dein aktueller Plan „${aktiv.plan.titel}“ wird ersetzt. Weiter?`)) return;
-    planSpeichern(plan);
-    gehe({ ansicht: "trainingsplan" });
+  const uebernehmen = () => {
+    const r = themenUebernehmen({ teile: auswahl, schulart: q.schulart, klasse: q.klasse, termin: termin || null, ohne });
+    if (!r.aufgenommen.length) { setMeldung(r.uebrig.length ? "Diese Themen sind schon in deinem Training oder alle Plätze sind belegt." : "Nichts ausgewählt."); return; }
+    gehe({ ansicht: "meintraining" });
   };
   const vorschlaege = [
-    { id: "warmup", phase: "warmup", titel: "Warm-up", zeile: "Leichte Aufgaben zum Reinkommen" },
     ...vb.basis.map((k) => ({ id: k, phase: "basis", titel: THEMEN[k].titel, zeile: THEMEN[k].zeile })),
     ...vb.zwischen.map((k) => ({ id: k, phase: "zwischen", titel: THEMEN[k].titel, zeile: THEMEN[k].zeile })),
   ];
@@ -599,9 +597,9 @@ function PlanKarte({ q, auswahl, gehe, aktiv }) {
   return (
     <div className="auftauchen" style={{ marginTop: 12, borderRadius: 14, border: `2px solid ${C.see}`, background: C.weiss, overflow: "hidden" }}>
       <div style={{ padding: "13px 14px 12px", background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)`, color: C.weiss }}>
-        <p style={{ ...KICKER, color: C.flaggold }}>Dein Trainingsplan</p>
-        <p style={{ fontSize: 17, fontWeight: 700, marginTop: 6, lineHeight: 1.25 }}>{kerne.length === 1 ? plan.titel : `${kerne.length} Themen in einem Plan`}</p>
-        <p style={{ fontSize: 12.5, color: "#C9D6EE", marginTop: 3, lineHeight: 1.45 }}>Erst das Fundament prüfen, dann deine Themen – und danach Wiederholungen nach Ebbinghaus, damit es bis zur Arbeit sitzt.</p>
+        <p style={{ ...KICKER, color: C.flaggold }}>Mein Mathe-Training</p>
+        <p style={{ fontSize: 17, fontWeight: 700, marginTop: 6, lineHeight: 1.25 }}>{gruppen.length === 1 ? THEMEN[gruppen[0].kapitel].titel : `${gruppen.length} Themen ins Training`}</p>
+        <p style={{ fontSize: 12.5, color: "#C9D6EE", marginTop: 3, lineHeight: 1.45 }}>Jedes Thema bekommt täglich einen Schritt: erst Basis-Checks, dann Kerntraining, danach Wiederholungen nach Ebbinghaus – mit Klassenarbeit verdichtet.</p>
         <label style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginTop: 10, fontSize: 12.5, fontWeight: 700, color: C.weiss }}>
           Klassenarbeit am
           <input type="date" value={termin} min={heute} onChange={(e) => setTermin(e.target.value)} aria-label="Datum der Klassenarbeit (optional)"
@@ -614,63 +612,47 @@ function PlanKarte({ q, auswahl, gehe, aktiv }) {
       <div style={{ padding: "2px 12px 0" }}>
         <Abschnitt>Deine Themen</Abschnitt>
         <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 6 }}>
-          {kerne.map((e) => (
-            <div key={e.id} style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: "8px 10px", borderRadius: 10, background: "#FCE8EE33", border: `1px solid ${C.linie}` }}>
+          {gruppen.map((g) => (
+            <div key={g.kapitel} style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: "8px 10px", borderRadius: 10, background: "#FCE8EE33", border: `1px solid ${C.linie}` }}>
               <PhasenPille phase="kern" />
               <span style={{ minWidth: 0 }}>
-                <span style={{ display: "block", fontSize: 13.5, fontWeight: 700, color: C.tinte, lineHeight: 1.25 }}>{e.titel}</span>
-                <span style={{ display: "block", fontSize: 12, color: C.grau, lineHeight: 1.35, marginTop: 1 }}>{e.zeile}</span>
+                <span style={{ display: "block", fontSize: 13.5, fontWeight: 700, color: C.tinte, lineHeight: 1.25 }}>{THEMEN[g.kapitel].titel}</span>
+                <span style={{ display: "block", fontSize: 12, color: C.grau, lineHeight: 1.35, marginTop: 1 }}>{g.ganz ? THEMEN[g.kapitel].zeile : g.teile.map((x) => x.titel).join(" · ")}</span>
               </span>
             </div>
           ))}
         </div>
 
-        <Abschnitt>Vorbereitung – schlage ich dir vor</Abschnitt>
-        <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 5 }}>
-          {vorschlaege.map((v) => {
-            const an = !ohne.includes(v.id);
-            return (
-              <button key={v.phase + v.id} type="button" role="checkbox" aria-checked={an} onClick={() => umschalten(v.id)} className="qf-balken"
-                aria-label={`${PHASEN[v.phase].name}: ${v.titel}`}
-                style={{ ...knopfBasis, display: "flex", alignItems: "center", gap: 9, width: "100%", minWidth: 0, textAlign: "left", minHeight: 40, padding: "6px 10px", borderRadius: 10,
-                  border: `1px solid ${an ? C.see : C.linie}`, background: an ? C.weiss : "#F4F6FA", color: C.tinte, opacity: an ? 1 : 0.7 }}>
-                <Haekchen zustand={an} />
-                <PhasenPille phase={v.phase} />
-                <span style={{ flex: 1, minWidth: 0, fontSize: 13, fontWeight: 600, lineHeight: 1.25, textDecoration: an ? "none" : "line-through", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{v.titel}</span>
-              </button>
-            );
-          })}
-        </div>
-        <p style={{ fontSize: 11.5, color: C.hellgrau, lineHeight: 1.5, margin: "6px 2px 0" }}>
-          Basis-Check: Grundlagen aus früheren Klassen. Zwischenschritte: was du direkt dafür brauchst. Abhaken, was du sicher kannst.
-        </p>
-
-        <Abschnitt>So sieht dein Plan aus</Abschnitt>
+        {vorschlaege.length > 0 && (
+          <>
+            <Abschnitt>Basis-Checks davor – schlage ich dir vor</Abschnitt>
+            <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 5 }}>
+              {vorschlaege.map((v) => {
+                const an = !ohne.includes(v.id);
+                return (
+                  <button key={v.phase + v.id} type="button" role="checkbox" aria-checked={an} onClick={() => umschalten(v.id)} className="qf-balken"
+                    aria-label={`${PHASEN[v.phase].name}: ${v.titel}`}
+                    style={{ ...knopfBasis, display: "flex", alignItems: "center", gap: 9, width: "100%", minWidth: 0, textAlign: "left", minHeight: 40, padding: "6px 10px", borderRadius: 10,
+                      border: `1px solid ${an ? C.see : C.linie}`, background: an ? C.weiss : "#F4F6FA", color: C.tinte, opacity: an ? 1 : 0.7 }}>
+                    <Haekchen zustand={an} />
+                    <PhasenPille phase={v.phase} />
+                    <span style={{ flex: 1, minWidth: 0, fontSize: 13, fontWeight: 600, lineHeight: 1.25, textDecoration: an ? "none" : "line-through", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{v.titel}</span>
+                  </button>
+                );
+              })}
+            </div>
+            <p style={{ fontSize: 11.5, color: C.hellgrau, lineHeight: 1.5, margin: "6px 2px 0" }}>Grundlagen aus früheren Klassen, drei Aufgaben je Check. Abhaken, was du sicher kannst – die Checks kannst du auch auf der Trainingsseite entfernen.</p>
+          </>
+        )}
       </div>
-      <ol style={{ listStyle: "none", margin: 0, padding: "0 12px 4px" }}>
-        {tage.map((t) => (
-          <li key={t.datum} style={{ display: "flex", gap: 10, padding: "8px 0", borderBottom: `1px solid ${C.linie}` }}>
-            <span style={{ flexShrink: 0, width: 80, fontSize: 11.5, fontWeight: 800, whiteSpace: "nowrap", color: t.datum === heute ? C.gruenDunkel : C.grau, paddingTop: 3, textTransform: "uppercase", letterSpacing: "0.04em" }}>{tagName(t.datum, heute, englisch())}</span>
-            <span style={{ flex: 1, minWidth: 0, display: "grid", gap: 5 }}>
-              {t.einheiten.map((e) => (
-                <span key={e.id} style={{ display: "flex", alignItems: "center", gap: 7, minWidth: 0 }}>
-                  <PhasenPille phase={e.phase} />
-                  <span style={{ fontSize: 13, color: C.tinte, fontWeight: 600, lineHeight: 1.25, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                    {e.phase === "warmup" || e.phase === "generalprobe" || e.phase === "wiederholen" ? e.zeile.split(" · ")[0] : e.titel}
-                  </span>
-                </span>
-              ))}
-            </span>
-          </li>
-        ))}
-      </ol>
       <div style={{ padding: "6px 12px 14px" }}>
         <p style={{ fontSize: 11.5, color: C.hellgrau, lineHeight: 1.5, margin: "2px 2px 0" }}>
-          {termin ? "Wiederholen: nach Ebbinghaus, vor der Arbeit verdichtet, am Vortag die Generalprobe." : "Wiederholen: 1, 3, 7, 14 und 30 Tage nach dem letzten Kerntraining."}
+          {frei < gruppen.length ? `Es ${frei === 1 ? "ist noch ein Platz" : `sind noch ${frei} Plätze`} frei (3 in Arbeit, 3 danach).` : "Bis zu 3 Themen in Arbeit, 3 in der Warteschlange."}
         </p>
-        <button type="button" onClick={speichern}
+        {meldung && <p role="status" style={{ fontSize: 13, color: C.gruenDunkel, fontWeight: 600, marginTop: 6 }}>{meldung}</p>}
+        <button type="button" onClick={uebernehmen}
           style={{ ...knopfBasis, width: "100%", minHeight: 46, marginTop: 10, border: "none", background: C.flaggold, color: C.seeTief, fontSize: 15, fontWeight: 800, boxShadow: "0 4px 14px rgba(237,187,0,0.3)" }}>
-          Plan speichern und starten ›
+          Ins Mathe-Training übernehmen ›
         </button>
       </div>
     </div>
@@ -692,7 +674,7 @@ export function Quickfinder({ gehe, setzeStufe, links }) {
   // tab: Bereich des Menüs (Thema · Plan · Tools · Videos); am Desktop startet ein gespeicherter Anhak-Plan im Bereich Plan
   const [tab, setTabRoh] = useState(() => tabLesen() || (modusLesen() === "plan" && !handyJetzt() ? "plan" : "thema"));
   const setTab = (t) => { setTabRoh(t); tabSchreiben(t); };
-  const aktiv = useAktiverPlan();
+  const MT = useMT();
   const menueRef = useRef(null);
   const setze = (neu) => { setQ(neu); schreiben(neu); };
   const schulartSetzen = (id) => {
@@ -724,37 +706,29 @@ export function Quickfinder({ gehe, setzeStufe, links }) {
   /* ---------- Hauptthema ---------- */
   const haupt = q.haupt || null;
   const [liste, setListe] = useState(false);   // Kapitelliste trotz Hauptthema offen („Thema wechseln“)
-  const planFuer = (kapitelId, schulart, klasse, termin) => planErstellen({ kapitel: kapitelId, schulart, klasse, heute: heuteText(), termin: termin || null });
-  const fremderPlan = (h) => aktiv && (!h || aktiv.plan.id !== h.planId);
+  /* Hauptthema = Kapitel, das der Schüler gerade in der Schule hat. Der Plan dazu lebt in Mein Mathe-Training (ein Thema je Kapitel). */
+  const imTraining = (kapitelId) => [...MT.aktiv, ...MT.danach].some((t) => (themaInfo(t.id) || {}).kapitel === kapitelId);
   const hauptWaehlen = (kapitelId, termin, schulart = q.schulart, klasse = q.klasse) => {
-    const plan = planFuer(kapitelId, schulart, klasse, termin);
-    if (plan && fremderPlan(haupt) && !window.confirm(`Dein aktueller Trainingsplan „${aktiv.plan.titel}“ wird durch den Plan zum neuen Hauptthema ersetzt. Weiter?`)) return;
-    if (plan) planSpeichern(plan);
     setze({ ...q, modus: "sache", kapitel: kapitelId, teil: null,
-      haupt: { kapitel: kapitelId, schulart, klasse, termin: termin || null, seit: heuteText(), planId: plan ? plan.id : null, note: null } });
+      haupt: { kapitel: kapitelId, schulart, klasse, termin: termin || null, seit: heuteText(), planId: imTraining(kapitelId) ? "meintraining" : null, note: null } });
     setListe(false);
-    setTab("thema");
     nachOben();
   };
   const hauptAktionen = haupt && {
     gehe,
-    liste: () => { setListe(true); setTab("thema"); },
+    liste: () => setListe(true),
     beenden: () => { setze({ ...q, haupt: null }); setListe(false); },
     oeffneTeil: (u) => unterthemaOeffnen(u, haupt.kapitel, haupt.schulart, haupt.klasse, gehe),
     waehleWz: (h) => gehe(h.ziel),
-    heuteStarten: (e) => { if (e.gen.length) einheitVormerken(e.id); gehe({ ansicht: "trainingsplan" }); },
+    heuteStarten: () => gehe({ ansicht: "meintraining" }),
     planErstellen: () => {
-      const plan = planFuer(haupt.kapitel, haupt.schulart, haupt.klasse, haupt.termin);
-      if (!plan) return;
-      if (fremderPlan(haupt) && !window.confirm(`Dein aktueller Trainingsplan „${aktiv.plan.titel}“ wird ersetzt. Weiter?`)) return;
-      planSpeichern(plan);
-      setze({ ...q, haupt: { ...haupt, planId: plan.id } });
+      themenUebernehmen({ kapitel: haupt.kapitel, schulart: haupt.schulart, klasse: haupt.klasse, termin: haupt.termin });
+      setze({ ...q, haupt: { ...haupt, planId: "meintraining" } });
+      gehe({ ansicht: "meintraining" });
     },
     datumSetzen: (termin) => {
-      const plan = planFuer(haupt.kapitel, haupt.schulart, haupt.klasse, termin);
-      const meiner = aktiv && aktiv.plan.id === haupt.planId ? aktiv : null;
-      if (plan && meiner) planErsetzen(plan, erledigtUebertragen(meiner.plan, meiner.erledigt, plan));
-      setze({ ...q, haupt: { ...haupt, termin: termin || null, seit: heuteText(), note: null, planId: plan && meiner ? plan.id : haupt.planId } });
+      if (termin && imTraining(haupt.kapitel)) themenUebernehmen({ kapitel: haupt.kapitel, schulart: haupt.schulart, klasse: haupt.klasse, termin });
+      setze({ ...q, haupt: { ...haupt, termin: termin || null, seit: heuteText(), note: null } });
     },
     noteSetzen: (n) => setze({ ...q, haupt: { ...haupt, note: n } }),
     neuesHaupt: (kapitelId) => hauptWaehlen(kapitelId, null, haupt.schulart, haupt.klasse),
@@ -766,9 +740,9 @@ export function Quickfinder({ gehe, setzeStufe, links }) {
     return kurseFuer(haupt.schulart, haupt.klasse, 6).filter((k) => k.passt.includes(titel)).slice(0, 2);
   }, [haupt && haupt.kapitel, haupt && haupt.schulart, haupt && haupt.klasse]);   // eslint-disable-line react-hooks/exhaustive-deps
   const hauptOben = haupt && !liste;   // Hauptthema sichtbar (die Kapitelliste ist nicht über „Thema wechseln“ offen)
-  const planGehoertZumHaupt = haupt && aktiv && aktiv.plan.id === haupt.planId;
+  const hauptImTraining = haupt && imTraining(haupt.kapitel);
   const hauptAnsicht = (zeige) => (
-    <HauptthemaAnsicht haupt={haupt} plan={aktiv} werkzeuge={hauptWerkzeuge} kurse={hauptKurse} aktionen={hauptAktionen} breit={!handy} zeige={zeige} />
+    <HauptthemaAnsicht haupt={haupt} plan={null} imTraining={hauptImTraining} werkzeuge={hauptWerkzeuge} kurse={hauptKurse} aktionen={hauptAktionen} breit={!handy} zeige={zeige} />
   );
   const kapitelMenue = (extra = {}) => (
     <KapitelMenue key={q.schulart + q.klasse} schulart={q.schulart} klasse={q.klasse} offen={q.kapitel} gehe={gehe} planOeffnen={planOeffnen} handy={handy}
@@ -823,7 +797,7 @@ export function Quickfinder({ gehe, setzeStufe, links }) {
           <AuswahlChip schulart={q.schulart} klasse={q.klasse} oeffnen={() => setWaehlen(true)} />
         </div>
       )}
-      {gewaehlt || aktiv || haupt ? (
+      {gewaehlt || MT.aktiv.length || haupt ? (
         <div className="qf-menue" ref={menueRef} data-bereich={tab}>
           {tab === "thema" && (
             <>
@@ -835,7 +809,7 @@ export function Quickfinder({ gehe, setzeStufe, links }) {
           )}
           {tab === "plan" && (
             <>
-              {aktiv && !planGehoertZumHaupt && <AktiverPlan v={aktiv} gehe={gehe} />}
+              {MT.aktiv.length > 0 && !hauptImTraining && <MeinTrainingLink MT={MT} gehe={gehe} />}
               {gewaehlt && plan ? (
                 <>
                   <button type="button" onClick={zurueck}
@@ -843,9 +817,9 @@ export function Quickfinder({ gehe, setzeStufe, links }) {
                     <span aria-hidden="true">‹</span> Zurück zu den Kapiteln
                   </button>
                   <PlanAuswahl key={q.schulart + q.klasse} schulart={q.schulart} klasse={q.klasse} auswahl={auswahl} setzeAuswahl={(a) => setze({ ...q, auswahl: a })} />
-                  {auswahl.length > 0 && <PlanKarte q={q} auswahl={auswahl} gehe={gehe} aktiv={aktiv} />}
+                  {auswahl.length > 0 && <PlanKarte q={q} auswahl={auswahl} gehe={gehe} MT={MT} />}
                 </>
-              ) : haupt ? hauptAnsicht("plan") : !aktiv && (
+              ) : haupt ? hauptAnsicht("plan") : !MT.aktiv.length && (
                 <PlanHinweis zumThema={() => setTab("thema")} anhaken={gewaehlt && !handy ? () => setze({ ...q, modus: "plan" }) : null} />
               )}
             </>

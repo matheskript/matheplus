@@ -13,6 +13,7 @@ Alles ist im Code fertig und bleibt aus, bis die Schritte unten erledigt sind.
 
 7. `penpaper.sql` – Fortschritt im Pen-&-Paper-Kurs (Lektionen, Übungen, 7-Tage-Plan) im Konto; ohne das Skript bleibt der Kursfortschritt auf dem Gerät
 8. `arbeitsblatt.sql` – gespeicherte Blätter des Lehrer-Arbeitsblatt-Generators (danach `konto.sql` noch einmal, damit der Datenexport sie enthält); ohne das Skript funktioniert der Generator, nur „Blatt speichern“ meldet einen Fehler
+9. `training.sql` – Aufträge von Coach/Lehrkraft im Tagesplan („Mein Mathe-Training“) und der Freigabe-Schalter des Schülers (nach `rollen.sql`); ohne das Skript läuft die Trainingsseite normal, nur Aufträge und Freigabe bleiben leer bzw. nur im Browser
 
 Vorher müssen `schema.sql`, `rollen.sql`, `lernstand.sql`, `entdecken.sql`, `ki.sql`, `perf-lab.sql` und `stripe.sql` laufen (sind schon eingerichtet).
 

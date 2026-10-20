@@ -18,6 +18,12 @@ export const DEMO = !sb;
 
 const REF_SPEICHER = "mm-werber";
 const DEMO_SPEICHER = "mm-demo-konto";
+/* Test-Account: ein Klick im Hauptmenü, kein Login. Läuft wie der Demo-Modus nur im Browser (kein Konto-Abgleich,
+   lernSync.js sieht nutzer.demo) – mit einem fertigen Schülerprofil, damit „Mein Mathe-Training“ sofort nutzbar ist. */
+const TEST_SPEICHER = "mm-testkonto";
+export const TEST_NUTZER = { id: "testkonto", email: "test@mythosmathe.de", user_metadata: { full_name: "Test-Schüler" }, demo: true, test: true };
+export const TEST_PROFIL = { id: "testkonto", name: "Test-Schüler", rolle: "schueler", geschlecht: "m", plan: "free", unter16: false, einwilligung: null,
+  schulform: "G9", klasse: 10, noten: {}, ref_code: "100001", ref_fest: false, eltern_token: "testkontoeltern01", geworben_von: null, test: true };
 const EINLADUNG_SPEICHER = "mm-einladung";
 
 const lies = (k) => { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } };
@@ -32,6 +38,10 @@ export const kontoZustand = () => zustand;
 FR.kontoAngemeldet = () => !!zustand.nutzer;   // für aktivitaetMelden (func8.jsx): Tageswerte auch ohne Lernprofil
 export const kontoAbonnieren = (fn) => { hoerer.add(fn); return () => hoerer.delete(fn); };
 export const vorAbmelden = [];
+export const istTestkonto = () => !!(zustand.nutzer && zustand.nutzer.test);
+/* Demo-Modus oder Test-Account: alles bleibt im Browser */
+const lokal = () => DEMO || istTestkonto();
+const lokalSpeicher = () => (istTestkonto() ? TEST_SPEICHER : DEMO_SPEICHER);
 export function useKonto() {
   return useSyncExternalStore((h) => { hoerer.add(h); return () => hoerer.delete(h); }, () => zustand);
 }
@@ -87,6 +97,11 @@ export const empfehlungsLink = (code) => `${REF_BASIS}/${code}`;
 /* ---------- Laden ---------- */
 async function profilLaden(nutzer) {
   if (!nutzer) { setzen({ geladen: true, nutzer: null, profil: null, geworben: 0 }); return; }
+  if (nutzer.test) {
+    const d = lies(TEST_SPEICHER);
+    setzen({ geladen: true, nutzer, profil: (d && d.profil) || TEST_PROFIL, geworben: 0, fehler: "" });
+    return;
+  }
   if (DEMO) {
     const d = lies(DEMO_SPEICHER);
     setzen({ geladen: true, nutzer, profil: d?.profil || null, geworben: 0 });
@@ -111,6 +126,8 @@ export const hinweisSchliessen = () => setzen({ hinweis: "" });
 
 export function kontoStarten() {
   refAusUrlMerken();
+  const t = lies(TEST_SPEICHER);
+  if (t && t.nutzer && t.nutzer.test) { profilLaden(t.nutzer); return; }
   if (DEMO) {
     const d = lies(DEMO_SPEICHER);
     profilLaden(d?.nutzer || null);
@@ -170,8 +187,17 @@ export async function anmeldenEmail(email, passwort, neu) {
   if (neu && !r.data.session) throw new Error("Zum Fertigstellen wird eine Bestätigung per E-Mail verlangt – die ist hier noch nicht eingerichtet.");
 }
 
+/* Test-Account starten (Hauptmenü): sofort angemeldet als Test-Schüler, ohne Login */
+export function testkontoStarten() {
+  const nutzer = { ...TEST_NUTZER };
+  schreib(TEST_SPEICHER, { nutzer, profil: { ...TEST_PROFIL } });
+  profilLaden(nutzer);
+  return nutzer;
+}
+
 export async function abmelden() {
   for (const f of vorAbmelden) { try { await f(); } catch (e) { /* Abmelden darf daran nicht scheitern */ } }
+  if (istTestkonto()) { schreib(TEST_SPEICHER, null); profilLaden(null); if (!DEMO) kontoStarten(); return; }
   if (DEMO) { schreib(DEMO_SPEICHER, null); profilLaden(null); return; }
   await sb.auth.signOut();
   profilLaden(null);
@@ -182,7 +208,7 @@ export const neuerCode = () => String(100000 + Math.floor(Math.random() * 900000
 /* Ist die Zahl gültig und noch frei? */
 export async function refPruefen(code) {
   if (!istRefCode(code)) return { gueltig: false, frei: false };
-  if (DEMO) return { gueltig: true, frei: true };
+  if (lokal()) return { gueltig: true, frei: true };
   const { data, error } = await sb.rpc("ref_frei", { code });
   return { gueltig: true, frei: !error && !!data };
 }
@@ -190,9 +216,9 @@ export async function refPruefen(code) {
 /* Legt den Empfehlungslink endgültig fest. */
 export async function refFestlegen(code) {
   if (!istRefCode(code)) throw new Error("Bitte eine sechsstellige Zahl wählen.");
-  if (DEMO) {
+  if (lokal()) {
     const profil = { ...zustand.profil, ref_code: code, ref_fest: true };
-    schreib(DEMO_SPEICHER, { nutzer: zustand.nutzer, profil });
+    schreib(lokalSpeicher(), { nutzer: zustand.nutzer, profil });
     setzen({ profil });
     return;
   }
@@ -245,12 +271,12 @@ export async function profilSpeichern(aenderung) {
   ["name", "schulform", "klasse", "noten", "geschlecht"].forEach((k) => { if (k in aenderung) erlaubt[k] = aenderung[k]; });
   if ("name" in erlaubt && !String(erlaubt.name).trim()) throw new Error("Der Name darf nicht leer sein.");
   if ("geschlecht" in erlaubt && !istGeschlecht(erlaubt.geschlecht)) throw new Error("Bitte wähle Schüler oder Schülerin.");
-  if (DEMO) {
+  if (lokal()) {
     const p0 = zustand.profil || {};
     if ((p0.rolle || "schueler") === "schueler" && ["schulform", "klasse", "noten"].some((k) => k in erlaubt)
         && !(p0.unter16 === false || (p0.unter16 && p0.einwilligung && p0.einwilligung.konto))) throw new Error(einwilligungsFehler("eltern_einwilligung_fehlt"));
     const profil = { ...zustand.profil, ...erlaubt };
-    schreib(DEMO_SPEICHER, { nutzer: zustand.nutzer, profil });
+    schreib(lokalSpeicher(), { nutzer: zustand.nutzer, profil });
     setzen({ profil });
     return;
   }
@@ -261,10 +287,10 @@ export async function profilSpeichern(aenderung) {
 
 /* ---------- Altersangabe und Eltern-Einwilligung (supabase/einwilligung.sql) ---------- */
 export async function alterAngeben(unter16) {
-  if (DEMO) {
-    const d = lies(DEMO_SPEICHER) || {};
+  if (lokal()) {
+    const d = lies(lokalSpeicher()) || {};
     const profil = { ...zustand.profil, unter16, alter_angegeben_am: new Date().toISOString() };
-    schreib(DEMO_SPEICHER, { ...d, nutzer: zustand.nutzer, profil });
+    schreib(lokalSpeicher(), { ...d, nutzer: zustand.nutzer, profil });
     setzen({ profil });
     return;
   }

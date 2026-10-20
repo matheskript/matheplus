@@ -4,7 +4,8 @@
      · Trainingsplan: Warm-up → Basis-Check → Zwischenschritte → Kern → Wiederholen
    Plan-Logik: trainingsplan.js (rein). Aufgaben: unterthemen.js → trainingDaten.js.
    Ergebnisse laufen über ebbBuchen in den Ebbinghaus-Wiederholungsplan.
-   Der aktive Plan liegt im Browser (localStorage matheplus-trainingsplan).
+   Der frühere eigene Trainingsplan (localStorage matheplus-trainingsplan) ist in „Mein Mathe-Training“ aufgegangen
+   (meinTraining.js); PlanAnsicht bleibt nur als Altbestand erhalten und wird nicht mehr geroutet.
    ====================================================================== */
 import React, { useEffect, useMemo, useState } from "react";
 import { C } from "./base1.jsx";
@@ -16,6 +17,7 @@ import { WERKZEUGE } from "./werkzeuge.js";
 import { unterthema, unterthemen, kapitelGeneratoren } from "./unterthemen.js";
 import { GENERATOREN, neueAufgabe } from "./trainingDaten.js";
 import { PHASEN, einheitAufgabenIds, planStand, planTage, tagName, tagText } from "./trainingsplan.js";
+import { themenUebernehmen } from "./meinTrainingSpeicher.js";
 
 import { springe } from "./sprung.js";
 /* ---------- Speicher ---------- */
@@ -158,7 +160,7 @@ function SacheTraining({ ziel, gehe }) {
         ) : ende ? (
           <Auswertung zs={ende}>
             <GrosserKnopf onClick={neu}>Noch eine Runde</GrosserKnopf>
-            <GrosserKnopf ghost onClick={() => (modusVormerken("plan", ziel.teil ? [ziel.teil] : unterthemen(ziel.kapitel).map((x) => x.id)), gehe({ ansicht: "start" }))}>Trainingsplan dazu erstellen</GrosserKnopf>
+            <GrosserKnopf ghost onClick={() => { themenUebernehmen({ teile: ziel.teil ? [ziel.teil] : unterthemen(ziel.kapitel).map((x) => x.id), schulart: ziel.schulart || "g9", klasse: ziel.klasse || null }); gehe({ ansicht: "meintraining" }); }}>Ins Mathe-Training aufnehmen</GrosserKnopf>
             <Hilfsziele gehe={gehe} ziele={hilfsZiele(ziel)} />
           </Auswertung>
         ) : (

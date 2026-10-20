@@ -86,6 +86,7 @@ export const SPRUENGE = {
   "textaufgaben-wechsel":    { an: true,  art: "seite", wo: "Textaufgaben: Knöpfe „Zu Mathilda/Zum Training“ im Inhalt (die Reiterleiste springt nicht)" },
   "training-lauf":           { an: true,  art: "seite", wo: "Mein Training: nächste Aufgabe, Runde/Prüfung starten, Auswertung, Klausur speichern/bearbeiten" },
   "kapiteltraining":         { an: true,  art: "seite", wo: "Kapiteltraining/Trainingsplan: Runde starten, Auswertung, neue Runde" },
+  "meintraining":            { an: true,  art: "seite", wo: "Mein Mathe-Training: Eintrag starten, Auswertung, nach „Thema hinzufügen“ zurück zum Tagesplan" },
   "lernpfad":                { an: true,  art: "seite", wo: "Lernpfad: Einrichtung → Check → Plan → Einheit" },
   "abiketten":               { an: true,  art: "seite", wo: "Abi-Ketten: Kette öffnen" },
   "probeabitur":             { an: true,  art: "seite", wo: "Probeabitur: Start, Teil B, Ende" },

@@ -151,14 +151,14 @@ export const KI_MENUE = [
 ];
 
 /* ---------- Mein Training ---------- */
+/* Mein Mathe-Training ist die eine Trainingsseite (Tagesplan, Themen, Wiederholungen, Nachholen); Trainingsplan, Lernpfad-Wochenplan
+   und der Ebbinghaus-Tagesplan sind darin aufgegangen. Die übrigen Punkte sind Werkzeuge, die der Tagesplan ebenfalls nutzt. */
 export const TRAINING = [
-  { id: "meintraining", name: "Mein Training", zeile: "Alles auf einen Blick", ziel: { ansicht: "meintraining" } },
+  { id: "meintraining", name: "Mein Mathe-Training", zeile: "Tagesplan, Themen, Wiederholungen", ziel: { ansicht: "meintraining" } },
   { id: "warmup", name: "5 Minuten Mathe", zeile: "Fünf kurze Aufgaben zum Aufwärmen", ziel: { ansicht: "warmup" } },
   { id: "fehler", name: "Meine Fehler üben", zeile: "Genau das, was bei dir öfter schiefgeht", ziel: { ansicht: "fehlertraining" } },
-  { id: "plan", name: "Trainingsplan", zeile: "Bis zur Klassenarbeit, Tag für Tag", ziel: { ansicht: "trainingsplan" } },
-  { id: "lernpfad", name: "Lernpfad", zeile: "Standortcheck und Wochenplan", ziel: { ansicht: "lernpfad" } },
-  { id: "wiederholen", name: "Wiederholen", zeile: "Im richtigen Moment, bevor du es vergisst", ziel: { ansicht: "ebbinghaus" } },
-  { id: "vorbereiten", name: "Klassenarbeit vorbereiten", zeile: "Termin eintragen, Generalprobe", ziel: { ansicht: "vorbereiten" } },
+  { id: "wiederholen", name: "Wiederholen", zeile: "Wie der Ebbinghaus-Rhythmus funktioniert", ziel: { ansicht: "ebbinghaus" } },
+  { id: "lernpfad", name: "Standortcheck", zeile: "Wo stehst du wirklich?", ziel: { ansicht: "lernpfad" } },
   { id: "nachbereiten", name: "Klassenarbeit nachbereiten", zeile: "Aus Fehlern einen Plan machen", ziel: { ansicht: "klausurnach" } },
   { id: "pruefung", name: "Prüfungsmodus", zeile: "Ohne Hilfen, mit Uhr", ziel: { ansicht: "pruefung" } },
 ];
@@ -237,7 +237,7 @@ export function zuletztAus(roh, jetzt = new Date()) {
 export const LEISTE = [
   { id: "klasse", name: null },          // Beschriftung aus klasseLabel()
   { id: "schultraining", name: "Mathe-Training" },
-  { id: "training", name: "Mein Training" },
+  { id: "training", name: "Mein Mathe-Training" },
   { id: "entdecken", name: "Mathe entdecken" },
   { id: "mathematik", name: "Formelsammlung" },
 ];
@@ -247,7 +247,7 @@ export function aktiverPunkt(ansicht, foto) {
   if (ansicht === "analyse" || ansicht === "klausurbriefkasten") return "mathilda";
   if (ansicht === "textaufgaben" && foto === "mathilda") return "mathilda";
   if (KURSE_ALLE.some((k) => k.ziel.ansicht === ansicht)) return "kurse";
-  if (TRAINING.some((k) => k.ziel.ansicht === ansicht) || ansicht === "trainieren") return "training";
+  if (TRAINING.some((k) => k.ziel.ansicht === ansicht) || ansicht === "trainieren" || ansicht === "trainingsplan" || ansicht === "vorbereiten") return "training";
   if (ansicht === "entdecken" || ansicht === "bwm" || ansicht === "landeswettbewerbe" || ansicht === "landeswettbewerb") return "entdecken";
   if (ansicht === "formeln" || ansicht === "operatoren") return "mathematik";
   if (wo(ansicht) || ABI_MENUE.some((e) => e.ziel.ansicht === ansicht)) return "schultraining";

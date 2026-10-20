@@ -114,7 +114,7 @@ export const SEITEN = [
   { pfad: "kopfrechnen/primzahlen", ansicht: "kopf", trainer: "primzahlen" },
   { pfad: "kopfrechnen/primfaktoren", ansicht: "kopf", trainer: "primfaktoren" },
   { pfad: "kopfrechnen/schriftlich-teilen", ansicht: "kopf", trainer: "division" },
-  { pfad: "mein-training", ansicht: "meintraining", alias: ["training-heute"] },
+  { pfad: "mein-mathe-training", ansicht: "meintraining", alias: ["mein-training", "training-heute", "mathe-training-heute"] },
   { pfad: "5-minuten-mathe", ansicht: "warmup", alias: ["warmup", "fuenf-minuten"] },
   { pfad: "fehlertraining", ansicht: "fehlertraining", alias: ["meine-fehler"] },
   { pfad: "ebbinghaus", ansicht: "ebbinghaus" },

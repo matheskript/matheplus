@@ -24,7 +24,8 @@ import { HeadNumbersLogoKlein } from "./funcHeadNumbersLogo.jsx";
 import { GleichKursLogoKlein } from "./funcGleichKursLogo.jsx";
 import { EBB_SLOGAN, EbbinghausBadge, EbbinghausLogoKlein } from "./funcEbbinghaus.jsx";
 import { EntdeckenLogoKlein } from "./funcEntdeckenLogo.jsx";
-import { DeinPlanBlock, useLernpfad } from "./funcLernpfad.jsx";
+import { useLernpfad } from "./funcLernpfad.jsx";
+import { MeinTrainingKachel } from "./funcMeinTrainingKachel.jsx";
 import { StartOnboarding } from "./funcOnboarding.jsx";
 import { Quickfinder } from "./funcQuickfinder.jsx";
 import { AppAnleitung } from "./funcAnleitung.jsx";
@@ -530,8 +531,9 @@ export function Startseite({ gehe }) {
       </section>
 
       <div className="sbb-spalte">
-        {/* ---------- Dein Training + Suche ---------- */}
-        <div className="sbb-abschnitt"><TrainingKachel gehe={gehe} setzeStufe={stufeSetzen} /></div>
+        {/* ---------- Mein Mathe-Training (Tagesplan, Themen) · Dein Training startet hier · Suche ---------- */}
+        <div className="sbb-abschnitt sbb-wieder" style={{ marginTop: 16 }}><MeinTrainingKachel gehe={gehe} /></div>
+        <div className="sbb-abschnitt" style={{ marginTop: 14 }}><TrainingKachel gehe={gehe} setzeStufe={stufeSetzen} /></div>
         <div className="sbb-papier eng" style={{ marginTop: 14 }}><SuchBox gehe={gehe} einzeilig /></div>
         <p className="sbb-einleitung">
           Hier wird Oberstufenmathe <b>sichtbar</b>: Graphen live plotten, Ebenen im Raum drehen, Wahrscheinlichkeiten in Tafeln und Bäumen sehen.
@@ -679,9 +681,8 @@ export function Startseite({ gehe }) {
         <p className="sbb-text">Jeder Kurs ist für sich nutzbar. Zusammen ergeben sie das System, mit dem Mythos Mathe Gymnasiasten von Klasse 8 bis zum Abitur begleitet.</p>
         <Mythen />
 
-        {/* Dein Plan, Anleitung, Spenden – wie in A auf weißen Blättern bzw. in Blau */}
-        <div className="sbb-wieder" style={{ marginTop: 22 }}><DeinPlanBlock gehe={gehe} /></div>
-        <div className="sbb-wieder"><AppAnleitung /></div>
+        {/* Anleitung, Spenden – wie in A auf weißen Blättern bzw. in Blau (der Plan lebt oben in Mein Mathe-Training) */}
+        <div className="sbb-wieder" style={{ marginTop: 22 }}><AppAnleitung /></div>
         <div className="sbb-wieder"><SpendenBereich gehe={gehe} /></div>
       </div>
     </div>

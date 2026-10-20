@@ -29,6 +29,8 @@ import { FEHLERTYPEN, GENERATOREN, THEMEN } from "./trainingDaten.js";
 export const PLAENE = {
   standard: { name: "Standard", tage: [0, 1, 3, 7, 14, 30, 60] },
   kompakt: { name: "Kompakt (Prüfung in Sicht)", tage: [0, 1, 2, 4, 7, 14, 30] },
+  /* Enger Rhythmus für einzelne Skills mit wiederkehrendem Fehler (S.rhythmus = "eng", siehe meinTraining.js) */
+  eng: { name: "Eng (wiederkehrender Fehler)", tage: [0, 1, 2, 4, 8, 16, 30] },
 };
 export const PLAN_IDS = Object.keys(PLAENE);
 export const SCHRITTE = [
@@ -45,8 +47,25 @@ export const MAX_HISTORIE = 60;     // je Skill gespeicherte Verlaufseinträge
 export const MAX_QUELLEN = 30;      // je Skill gespeicherte Aufgaben-IDs
 export const SCHRITT_AB_HILFE_AUS = 3; // ab diesem Schritt (Tag 7) soll ohne Hilfe gearbeitet werden
 
-export const planTage = (E) => (PLAENE[E && E.plan] || PLAENE.standard).tage;
-export const letzterSchritt = (E) => planTage(E).length - 1;
+/* Plan eines Skills: ein eigener Rhythmus am Skill (S.rhythmus, z. B. "eng") geht vor dem Plan des Lernstands (E.plan) */
+export const planTage = (E, S) => (PLAENE[S && S.rhythmus] || PLAENE[E && E.plan] || PLAENE.standard).tage;
+export const letzterSchritt = (E, S) => planTage(E, S).length - 1;
+export const RHYTHMEN = ["standard", "eng"];
+/* Setzt den Rhythmus einzelner Skills – nur für Skills, die es schon gibt (nie neue anlegen, sonst würden sie fällig).
+   Verändert E; liefert die geänderten Skill-Ids. */
+export function rhythmusSetzen(E, skillIds, rhythmus = "eng") {
+  const aus = [];
+  if (!RHYTHMEN.includes(rhythmus)) return aus;
+  for (const id of skillIds || []) {
+    const S = SKILL_INFO[id] && E.skills[id];
+    if (!S) continue;
+    const neu = rhythmus === "standard" ? null : rhythmus;
+    if ((S.rhythmus || null) === neu) continue;
+    if (neu) S.rhythmus = neu; else delete S.rhythmus;
+    aus.push(id);
+  }
+  return aus;
+}
 
 /* ---------- Skills ---------- */
 
@@ -215,6 +234,7 @@ export function normiereEbb(E) {
     s.consecutive_successes = Number.isFinite(s.consecutive_successes) ? s.consecutive_successes : 0;
     s.source_exercise_ids = Array.isArray(s.source_exercise_ids) ? s.source_exercise_ids.slice(-MAX_QUELLEN) : [];
     s.review_history = Array.isArray(s.review_history) ? s.review_history.slice(-MAX_HISTORIE) : [];
+    if (s.rhythmus && (!RHYTHMEN.includes(s.rhythmus) || s.rhythmus === "standard")) delete s.rhythmus;
     s.mastery_status = statusVon(s, d);
     skills[id] = s;
   }
@@ -275,8 +295,6 @@ export const ERGEBNIS_TEXT = {
 export function bucheErgebnis(E, skillIds, info, jetzt = Date.now(), tz) {
   const heute = datumVon(jetzt, tz);
   const iso = new Date(jetzt).toISOString();
-  const plan = planTage(E);
-  const letzter = plan.length - 1;
   const ergebnis = info.ergebnis;
   const aenderungen = [];
   if (!["sicher", "teilweise", "nicht"].includes(ergebnis)) return aenderungen;
@@ -290,6 +308,8 @@ export function bucheErgebnis(E, skillIds, info, jetzt = Date.now(), tz) {
     if (!SKILL_INFO[id]) continue;
     const S = E.skills[id] || (E.skills[id] = leererSkill(id, heute));
     if (info.exercise_id && S.review_history.some((h) => h.exercise_id === info.exercise_id)) continue; // schon gebucht
+    const plan = planTage(E, S);
+    const letzter = plan.length - 1;
 
     const lernphase = !S.first_learned_at;
     const faellig = lernphase || S.next_review_at <= heute;
@@ -317,8 +337,7 @@ export function bucheErgebnis(E, skillIds, info, jetzt = Date.now(), tz) {
       S.interval_days = Math.max(1, Math.ceil((S.interval_days || 1) / 2));
       S.consecutive_successes = 0;
       S.next_review_at = addTage(heute, S.interval_days);
-    } else { // nicht abrufbar
-      S.stufe = Math.max(0, S.stufe - 2);
+    } else { // nicht abrufbar: kein Rückschritt – die Stufe bleibt, die Wiederholung wird morgen nachgeholt
       S.interval_days = 1; S.consecutive_successes = 0;
       S.next_review_at = addTage(heute, 1);
     }

@@ -16,7 +16,7 @@
    ====================================================================== */
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { C } from "./base1.jsx";
-import { useKonto, abmelden } from "./konto.js";
+import { useKonto, abmelden, testkontoStarten } from "./konto.js";
 import { SuchBox } from "./funcSuche.jsx";
 import { SCHULARTEN, klassenBoxen } from "./schulbuch.js";
 import { MathildaName } from "./mathildaName.jsx";
@@ -729,7 +729,7 @@ export function HauptMenue({ gehe, ansicht, foto, seite, offen, setOffen }) {
             </div>
 
             {/* 7 · Mein Training */}
-            <Abschnitt id="training" titel={titelVon("training")} zeile="Tagesplan, Fehler, Prüfung" ikon={<HellIkon n="ziel" />} zahl={TRAINING.length}
+            <Abschnitt id="training" titel={titelVon("training")} zeile="Tagesplan, Themen, Wiederholungen" ikon={<HellIkon n="ziel" />} zahl={TRAINING.length}
               offen={abschnitt} setze={setAbschnitt} aktiv={aktiv === "training"}>
               <button type="button" className="hm-eintrag" onClick={() => geh(TRAINING[0].ziel)} aria-current={istAktuell(TRAINING[0].ziel, aktuell) ? "page" : undefined}
                 style={{ background: C.seeTief, color: "#fff", padding: "11px 12px", marginBottom: 6 }}>
@@ -798,7 +798,19 @@ export function HauptMenue({ gehe, ansicht, foto, seite, offen, setOffen }) {
                   <span style={{ fontSize: 12, fontWeight: 700, color: C.see, display: "flex", alignItems: "center", gap: 2 }}>Mein Konto<Ikon n="pfeil" g={14} dicke={2.2} /></span>
                 </button>
               ) : (
-                <Kicker style={{ padding: "12px 12px 8px" }}>Konto</Kicker>
+                <>
+                  <Kicker style={{ padding: "12px 12px 8px" }}>Konto</Kicker>
+                  {/* Test-Account: ein Klick, kein Login – Schülerprofil nur in diesem Browser, mit Beispiel-Lernstand für Mein Mathe-Training */}
+                  <button type="button" className="hm-eintrag" data-hm-testkonto onClick={() => { testkontoStarten(); import("./funcMeinTraining.jsx").then((m) => m.testdatenEinspielen()).catch(() => {}); geh({ ansicht: "meintraining" }); }}
+                    style={{ margin: "0 10px 8px", width: "calc(100% - 20px)", padding: "10px 12px", background: "#FFFBEA", boxShadow: `0 0 0 1.5px ${C.flaggold}` }}>
+                    <span aria-hidden="true" style={{ flexShrink: 0, width: 34, height: 34, borderRadius: 999, background: GOLD_VERLAUF, color: C.seeTief, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 800 }}>T</span>
+                    <span style={{ flex: 1, minWidth: 0 }}>
+                      <span style={{ display: "block", fontSize: 14.5, fontWeight: 800 }}>Test-Account</span>
+                      <span className="hm-zeile" style={{ fontSize: 12, color: C.grau }}>Ohne Login ausprobieren – Mein Mathe-Training mit Beispieldaten</span>
+                    </span>
+                    <Ikon n="pfeil" g={16} dicke={2.2} style={{ color: "#8A6A00" }} />
+                  </button>
+                </>
               )}
               <div className="hm-pillen">
                 {kontoListe.filter((e) => e.id !== "konto").map((e) => (

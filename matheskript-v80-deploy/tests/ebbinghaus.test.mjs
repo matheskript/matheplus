@@ -97,19 +97,20 @@ test("Teilweise sicher: Abstand wird kürzer, Stufe bleibt", () => {
   assert.equal(S.consecutive_successes, 0);
   assert.equal(S.mastery_status, "unsicher");
 });
-test("Nicht abrufbar: Stufe fällt, morgen erneut, Fehlertyp wird gemerkt", () => {
+test("Nicht abrufbar: Stufe bleibt (kein Rückschritt), morgen erneut, Fehlertyp wird gemerkt", () => {
   const E = leereEbb();
   sicher(E, "kettenregel", T0); sicher(E, "kettenregel", tag(1)); sicher(E, "kettenregel", tag(3));
   assert.equal(E.skills.kettenregel.stufe, 2);
   nicht(E, "kettenregel", tag(7), "kettenregel");
   const S = E.skills.kettenregel;
-  assert.equal(S.stufe, 0);
+  assert.equal(S.stufe, 2);
   assert.equal(S.interval_days, 1);
   assert.equal(S.next_review_at, datumVon(tag(8), TZ));
   assert.equal(S.last_error_type, "kettenregel");
   assert.equal(S.mastery_status, "unsicher");
-  sicher(E, "kettenregel", tag(8));
-  assert.equal(E.skills.kettenregel.mastery_status, "training");
+  sicher(E, "kettenregel", tag(8));                 // nachgeholt: es geht normal weiter (Stufe 3, Tag 14 des Plans)
+  assert.equal(E.skills.kettenregel.stufe, 3);
+  assert.equal(E.skills.kettenregel.mastery_status, "stabil");
 });
 test("Fällige Wiederholungen: Anzeige und Reihenfolge (überfällig, Schwierigkeit, heute)", () => {
   const E = leereEbb();

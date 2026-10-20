@@ -1,6 +1,6 @@
 """Browser-Test Hauptthema in „Dein Training startet hier.“:
 Kapitel aufklappen → „Als mein Hauptthema wählen“ mit Klassenarbeits-Datum → Hauptthema-Ansicht im Bereich Thema (Countdown,
-Unterthemen mit Stand, Vorwissen), Bereich Plan („Heute dran“ startet die Einheit direkt), Bereich Tools (Werkzeuge) → zurück → Datum ändern →
+Unterthemen mit Stand, Vorwissen), Bereich Plan („Ins Mathe-Training aufnehmen“ → Seite Mein Mathe-Training), Bereich Tools (Werkzeuge) → zurück → Datum ändern →
 Thema wechseln (Kapitelliste, anderes Kapitel wählen) → Arbeit vorbei (Note, nächstes Kapitel) → beenden.
 Prüft bei 360, 390 und 1280 px: keine Seitenüberbreite, keine Konsolenfehler, Screenshots.
   npm run build && npx vite preview --port 4173 &   →   python3 tests/ui/hauptthema.ui.py
@@ -66,11 +66,9 @@ with sync_playwright() as p:
         pruefe(page.get_by_text("Alles zu diesem Kapitel").count() == 0, f"{breite}: Werkzeuge schon im Bereich Thema")
         pruefe(page.get_by_text("Dafür brauchst du sicher").count() == 1, f"{breite}: Vorwissen fehlt")
         pruefe(page.get_by_role("button", name="Bruchterme und Bruchgleichungen").count() == 0, f"{breite}: Kapitelliste trotz Hauptthema sichtbar")
-        pruefe(page.get_by_text("Dein Trainingsplan ·").count() == 0, f"{breite}: Plan-Karte doppelt")
-        plan = page.evaluate("JSON.parse(localStorage.getItem('matheplus-trainingsplan'))")
+        pruefe(page.get_by_text("Mein Mathe-Training ·").count() == 0, f"{breite}: Trainings-Link doppelt")
         qf = page.evaluate("JSON.parse(localStorage.getItem('matheplus-quickfinder'))")
-        pruefe(plan and plan["plan"]["termin"] == termin, f"{breite}: Plan ohne Termin")
-        pruefe(qf and qf["haupt"]["kapitel"] == "quad" and qf["haupt"]["planId"] == plan["plan"]["id"], f"{breite}: Hauptthema nicht gespeichert")
+        pruefe(qf and qf["haupt"]["kapitel"] == "quad" and qf["haupt"]["termin"] == termin, f"{breite}: Hauptthema nicht gespeichert")
         breite_ok("Hauptthema")
         ansicht.scroll_into_view_if_needed()
         page.screenshot(path=f"{AUS}/{breite}-2-hauptthema.png", full_page=True)
@@ -81,32 +79,37 @@ with sync_playwright() as p:
         pruefe(page.get_by_role("button", name="Quadratische Funktionen und Gleichungen").count() == 0, f"{breite}: Hauptthema doppelt im Bereich Tools")
         breite_ok("Tools")
         page.screenshot(path=f"{AUS}/{breite}-2b-tools.png", full_page=True)
-        # Bereich Plan: „Heute dran“
+        # Bereich Plan: der Plan lebt in Mein Mathe-Training – hier der Knopf zum Aufnehmen
         page.get_by_role("tab", name="Plan").click(); page.wait_for_timeout(250)
-        pruefe(page.get_by_text("Heute dran").count() >= 1, f"{breite}: „Heute dran“ fehlt im Bereich Plan")
+        pruefe(page.get_by_role("button", name="Ins Mathe-Training aufnehmen").count() == 1, f"{breite}: „Ins Mathe-Training aufnehmen“ fehlt im Bereich Plan")
         pruefe(page.get_by_text("Unterthemen · Dein Stand").count() == 0, f"{breite}: Unterthemen im Bereich Plan")
         breite_ok("Plan")
         page.screenshot(path=f"{AUS}/{breite}-2c-plan.png")
 
-        # 3 · Heute dran → Einheit läuft sofort
+        # 3 · Ins Mathe-Training aufnehmen → Kapitel (mit Klassenarbeit) im Lernstand, Seite „Mein Mathe-Training“
         page.locator("[data-hauptthema] button.ht-gold").first.click(); page.wait_for_timeout(900)
-        pruefe("/trainingsplan" in page.url, f"{breite}: Heute dran → Adresse {page.url}")
-        pruefe(page.get_by_role("button", name="‹ Zurück zum Plan").count() == 1, f"{breite}: Einheit startet nicht direkt")
-        page.screenshot(path=f"{AUS}/{breite}-3-einheit.png")
+        pruefe("/mein-mathe-training" in page.url, f"{breite}: Aufnehmen → Adresse {page.url}")
+        lern = page.evaluate("JSON.parse(localStorage.getItem('matheskript-lernstand-v1') || 'null')")
+        mt = lern and lern.get("training") and lern["training"].get("meinTraining")
+        pruefe(bool(mt) and any(t["id"] == "quad" for t in mt["aktiv"]), f"{breite}: Kapitel nicht im Training")
+        ebb = lern and lern["training"].get("ebbinghaus")
+        pruefe(bool(ebb) and any(a["datum"] == termin for a in ebb.get("arbeiten", [])), f"{breite}: Klassenarbeit nicht eingetragen")
+        page.screenshot(path=f"{AUS}/{breite}-3-training.png")
         page.go_back(); page.wait_for_timeout(900)
         pruefe(page.locator("[data-hauptthema='quad']").count() == 1, f"{breite}: nach Zurück kein Hauptthema")
         pruefe(page.get_by_role("tab", name="Plan").get_attribute("aria-selected") == "true", f"{breite}: Bereich Plan nach Zurück nicht gemerkt")
+        pruefe(page.get_by_role("button", name="Dieses Kapitel ist in deinem Mathe-Training", exact=False).count() == 1, f"{breite}: Hauptthema kennt das Training nicht")
         page.get_by_role("tab", name="Thema").click(); page.wait_for_timeout(250)
 
-        # 4 · Datum ändern: Plan neu, Hauptthema bleibt
+        # 4 · Datum ändern: Hauptthema bleibt, neue Klassenarbeit im Lernstand
         if breite >= 840: page.get_by_role("button", name="Datum ändern").click()
         else: page.get_by_role("button", name="Datum der Klassenarbeit ändern").click()
         page.wait_for_timeout(200)
         page.locator("[data-hauptthema] input[type=date]").fill(termin2)
         page.get_by_role("button", name="Übernehmen").click(); page.wait_for_timeout(300)
-        plan2 = page.evaluate("JSON.parse(localStorage.getItem('matheplus-trainingsplan'))")
         qf2 = page.evaluate("JSON.parse(localStorage.getItem('matheplus-quickfinder'))")
-        pruefe(plan2["plan"]["termin"] == termin2 and qf2["haupt"]["planId"] == plan2["plan"]["id"], f"{breite}: Datum ändern klappt nicht")
+        lern2 = page.evaluate("JSON.parse(localStorage.getItem('matheskript-lernstand-v1') || 'null')")
+        pruefe(qf2["haupt"]["termin"] == termin2 and any(a["datum"] == termin2 for a in lern2["training"]["ebbinghaus"]["arbeiten"]), f"{breite}: Datum ändern klappt nicht")
         pruefe(page.get_by_text("24").first.count() >= 1, f"{breite}: Countdown nicht aktualisiert")
 
         # 5 · Thema wechseln: kompakte Leiste + Kapitelliste, anderes Kapitel wählen

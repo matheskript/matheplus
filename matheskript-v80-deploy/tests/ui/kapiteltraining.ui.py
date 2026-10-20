@@ -1,5 +1,5 @@
 """Browser-Test „Dein Training startet hier.“: Kapitel-Menü, „5 Aufgaben zum Kapitel“, „Trainingsplan zu diesem Kapitel“ mit Häkchen,
-Eine Sache trainieren (Aufgabenlauf) und Trainingsplan erstellen (Vorschau, Speichern, Planseite, Einheit starten).
+Eine Sache trainieren (Aufgabenlauf) und die Übernahme ins Mathe-Training (Themen, Basis-Checks, Klassenarbeit, Seite).
 Prüft bei 360, 390 und 1280 px: keine Seitenüberbreite, keine Konsolenfehler, Screenshots.
   npm run build && npx vite preview --port 4173 &   →   python3 tests/ui/kapiteltraining.ui.py
 """
@@ -94,45 +94,43 @@ with sync_playwright() as p:
         page.get_by_role("button", name="Exponentialfunktionen und Logarithmus", exact=False).first.click(); page.wait_for_timeout(250)
         page.get_by_role("checkbox", name="Halbwertszeit und Verdopplungszeit (mit Übungsaufgaben)", exact=True).click(); page.wait_for_timeout(150)
 
-        speichern = page.get_by_role("button", name="Plan speichern und starten ›")
-        pruefe(speichern.count() == 1, f"{breite}: Planvorschau fehlt")
-        pruefe(page.get_by_text("2 Themen in einem Plan").count() == 1, f"{breite}: Plan nicht für 2 Themen")
-        for wort in ("Warm-up", "Basis-Check", "Kerntraining", "Wiederholen"):
-            pruefe(page.get_by_text(wort, exact=True).count() >= 1, f"{breite}: Phase {wort} fehlt in der Vorschau")
-        # Vorbereitung abwählen: Warm-up raus
-        wu = page.get_by_role("checkbox", name="Warm-up", exact=False).first
-        pruefe(wu.get_attribute("aria-checked") == "true", f"{breite}: Warm-up nicht vorgeschlagen")
-        wu.click(); page.wait_for_timeout(200)
-        pruefe(wu.get_attribute("aria-checked") == "false", f"{breite}: Warm-up nicht abwählbar")
-        breite_ok("Planvorschau")
-        page.get_by_text("Dein Trainingsplan", exact=True).first.scroll_into_view_if_needed()
+        uebernehmen = page.get_by_role("button", name="Ins Mathe-Training übernehmen ›")
+        pruefe(uebernehmen.count() == 1, f"{breite}: Übernahme-Karte fehlt")
+        pruefe(page.get_by_text("2 Themen ins Training").count() == 1, f"{breite}: Karte nicht für 2 Themen")
+        pruefe(page.get_by_text("Basis-Checks davor – schlage ich dir vor").count() == 1, f"{breite}: Basis-Checks fehlen")
+        bc = page.locator("[role=checkbox][aria-label^='Basis-Check:']").first
+        pruefe(bc.count() == 1 and bc.get_attribute("aria-checked") == "true", f"{breite}: Basis-Check nicht vorgeschlagen")
+        bc.click(); page.wait_for_timeout(200)
+        pruefe(bc.get_attribute("aria-checked") == "false", f"{breite}: Basis-Check nicht abwählbar")
+        breite_ok("Übernahme-Karte")
+        page.get_by_text("Deine Themen", exact=True).first.scroll_into_view_if_needed()
         page.screenshot(path=f"{AUS}/{breite}-5-vorschau.png")
-        page.get_by_text("Vorbereitung – schlage ich dir vor").scroll_into_view_if_needed()
-        page.screenshot(path=f"{AUS}/{breite}-5b-vorbereitung.png")
         # Klassenarbeit in 5 Tagen
         page.evaluate("""() => { const i = document.querySelector('input[type=date]'); const d = new Date(); d.setDate(d.getDate() + 5);
           const s = d.toISOString().slice(0, 10); const set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set; set.call(i, s); i.dispatchEvent(new Event('input', { bubbles: true })); }""")
         page.wait_for_timeout(250)
-        pruefe(page.get_by_text("Generalprobe", exact=True).count() >= 1, f"{breite}: Generalprobe fehlt mit Termin")
-        speichern.click(); page.wait_for_timeout(700)
-        pruefe("/trainingsplan" in page.url, f"{breite}: Adresse {page.url}")
-        pruefe(page.get_by_text("Einheiten erledigt").count() == 1, f"{breite}: Planseite ohne Stand")
-        breite_ok("Planseite")
-        page.screenshot(path=f"{AUS}/{breite}-6-plan.png", full_page=True)
-        pruefe(page.get_by_text("Warm-up", exact=True).count() == 0, f"{breite}: abgewähltes Warm-up steht im Plan")
-        pruefe(page.get_by_text("Trigonometrie im Dreieck", exact=True).count() >= 1 and page.get_by_text("Exponentialfunktionen und Logarithmus", exact=True).count() >= 1, f"{breite}: Kerntrainings fehlen")
-        page.get_by_role("button", name="Jetzt:", exact=False).first.click(); page.wait_for_timeout(600)
-        pruefe(page.get_by_role("button", name="Prüfen").count() >= 1 or page.get_by_text("Erledigt ✓").count() >= 1, f"{breite}: erste Einheit startet nicht")
-        breite_ok("Einheit")
+        uebernehmen.click(); page.wait_for_timeout(900)
+        pruefe("/mein-mathe-training" in page.url, f"{breite}: Adresse {page.url}")
+        lern = page.evaluate("JSON.parse(localStorage.getItem('matheskript-lernstand-v1') || 'null')")
+        mt = lern and lern.get("training") and lern["training"].get("meinTraining")
+        ids = sorted(t["id"] for t in (mt["aktiv"] if mt else []))
+        pruefe(ids == ["explog", "trig"], f"{breite}: Themen nicht übernommen ({ids})")
+        trigT = next((t for t in mt["aktiv"] if t["id"] == "trig"), None) if mt else None
+        pruefe(bool(trigT) and len(trigT["teile"]) == 6, f"{breite}: Trigonometrie nicht als ganzes Kapitel übernommen")
+        arbeiten = (lern["training"].get("ebbinghaus") or {}).get("arbeiten", [])
+        pruefe(len(arbeiten) == 1, f"{breite}: Klassenarbeit nicht eingetragen")
+        breite_ok("Trainingsseite")
+        page.screenshot(path=f"{AUS}/{breite}-6-training.png", full_page=True)
 
-        # Startseite im Plan-Modus zeigt den aktiven Plan
+        # Startseite: Bereich Plan zeigt den Link zum Training mit beiden Themen
         page.goto(BASE); page.wait_for_timeout(800)
-        pruefe(page.get_by_role("tab", name="Plan").get_attribute("aria-selected") == "true", f"{breite}: Startseite nicht im Bereich Plan")
-        pruefe(page.get_by_text("Dein Trainingsplan · 0/").count() == 1, f"{breite}: aktiver Plan fehlt auf der Startseite")
-        breite_ok("Startseite mit Plan")
+        if page.get_by_role("button", name="Dein Training aufklappen").count(): page.get_by_role("button", name="Dein Training aufklappen").click(); page.wait_for_timeout(200)
+        page.get_by_role("tab", name="Plan").click(); page.wait_for_timeout(250)
+        pruefe(page.get_by_text("Mein Mathe-Training · 2 von 3 Themen").count() == 1, f"{breite}: Trainings-Link fehlt auf der Startseite")
+        breite_ok("Startseite mit Training")
 
         # Direktlinks
-        for pfad in ("trainingsplan", "trainieren"):
+        for pfad in ("mein-mathe-training", "trainieren"):
             page.goto(BASE + pfad); page.wait_for_timeout(700); breite_ok(pfad)
         pruefe(not konsole, f"{breite}: Konsole: {konsole[:3]}")
         ctx.close()

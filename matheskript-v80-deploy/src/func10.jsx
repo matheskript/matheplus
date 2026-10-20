@@ -1195,18 +1195,18 @@ export function Mathilda() {
         <>
           <div className="kopfblock" style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(26px, 7.6vw, 36px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Dein Plan</h1>
+              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: "clamp(26px, 7.6vw, 36px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>Standortcheck</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
-              <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>Standortcheck, Wochenplan, eine Einheit nach der anderen – entdecken, rechnen, trainieren.</p>
+              <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>Wo stehst du wirklich? Fünfzehn Minuten Check mit Ampel – dein Tagesplan lebt in Mein Mathe-Training.</p>
             </div>
             <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
           </div>
           <LernpfadSeite key={pfadStart ? `${pfadStart.einheit}-${pfadStart.zeit}` : "plan"} gehe={gehe} start={pfadStart} />
         </>
-      ) : ansicht === "meintraining" ? (
+      ) : ansicht === "meintraining" || ansicht === "trainingsplan" ? (
         <>
-          <SeitenKopf titel="Mein Training" groesse="clamp(26px, 7.6vw, 36px)" rund>
-              <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>Dein Tagesplan, dein Lernfortschritt und alle Übungsmodi.</p>
+          <SeitenKopf titel="Mein Mathe-Training" groesse="clamp(26px, 7.6vw, 36px)" rund>
+              <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>Was mache ich heute? Wo stehe ich? Dein Tagesplan, deine Themen, deine Wiederholungen – an einem Ort.</p>
           </SeitenKopf>
           <MeinTrainingSeite gehe={gehe} />
         </>
@@ -1313,8 +1313,8 @@ export function Mathilda() {
           </div>
           <NachhilfekursSeite />
         </>
-      ) : ansicht === "trainieren" || ansicht === "trainingsplan" ? (
-        <KapitelTrainingSeite key={ansicht + (trainierenZiel ? `${trainierenZiel.kapitel}-${trainierenZiel.teil}-${trainierenZiel.zeit}` : "")} ansicht={ansicht} ziel={ansicht === "trainieren" ? trainierenZiel : null} gehe={gehe} />
+      ) : ansicht === "trainieren" ? (
+        <KapitelTrainingSeite key={ansicht + (trainierenZiel ? `${trainierenZiel.kapitel}-${trainierenZiel.teil}-${trainierenZiel.zeit}` : "")} ansicht={ansicht} ziel={trainierenZiel} gehe={gehe} />
       ) : ansicht === "kapitelformeln" ? (
         <React.Suspense fallback={<p role="status" style={{ color: C.grau, fontSize: 15, fontWeight: 300, padding: "24px", textAlign: "center" }}>{englisch() ? "Loading …" : "Wird geladen …"}</p>}>
           <KapitelFormelnSeite key={kapitelZiel ? kapitelZiel.kapitel + (kapitelZiel.modus || "") : "q"} ziel={kapitelZiel} gehe={gehe} />
