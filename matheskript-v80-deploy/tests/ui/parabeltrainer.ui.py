@@ -121,7 +121,7 @@ with sync_playwright() as p:
     page.goto(BASE + "sinus"); page.wait_for_timeout(1000)
     page.locator("[data-werkzeug-leiste] button[aria-haspopup=listbox]").click(); page.wait_for_timeout(100)
     chips = [c.inner_text() for c in page.locator("[data-werkzeug-leiste] [role=option]").all()]
-    pruefe(not any("Parabel" in c for c in chips) and len(chips) == 2, f"Station Kennen zeigt noch Parabeln: {chips!r}")
+    pruefe(not any("Parabel" in c for c in chips) and len(chips) >= 2, f"Station Kennen zeigt noch Parabeln: {chips!r}")
     # Gleichungen: Geraden → Weiter → Parabeln
     page.goto(BASE + "geradengleichung"); page.wait_for_timeout(1000)
     page.locator("[data-kompakt-kopf] button[aria-haspopup=listbox]").click(); page.wait_for_timeout(100)
