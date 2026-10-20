@@ -64,8 +64,7 @@ with sync_playwright() as p:
                 print(wo, "ok,", n, "Aufgabentypen")
             if sprache == "de":
                 page.goto(BASE); page.wait_for_timeout(900)
-                page.get_by_role("button", name="Schulmathematik aufklappen").first.click(); page.wait_for_timeout(300)
-                page.locator("button[aria-label^='Unterstufe,']").first.click(); page.wait_for_timeout(300)
+                page.get_by_role("button", name="Unterstufe aufklappen").first.click(); page.wait_for_timeout(300)
                 for bname in ["Zahlen und Größen", "Zuordnungen und Prozent", "Daten und Zufall", "Brüche und Dezimalzahlen", "Geometrie"]:
                     pruefe(page.get_by_role("button", name=f"{bname} aufklappen").count() == 1, f"{breite}: Bereich {bname} fehlt in der Unterstufe")
                 page.get_by_role("button", name="Zahlen und Größen aufklappen").first.click(); page.wait_for_timeout(400)
@@ -73,8 +72,7 @@ with sync_playwright() as p:
                 page.locator("button:has-text('Größen umrechnen')").last.click(); page.wait_for_timeout(800)
                 pruefe("/groessen" in page.url, f"{breite}: Sprung zu Größen ({page.url})")
                 page.goto(BASE); page.wait_for_timeout(800)
-                page.get_by_role("button", name="Schulmathematik aufklappen").first.click(); page.wait_for_timeout(300)
-                page.locator("button[aria-label^='Mittelstufe,']").first.click(); page.wait_for_timeout(300)
+                page.get_by_role("button", name="Mittelstufe aufklappen").first.click(); page.wait_for_timeout(300)
                 pruefe(page.get_by_role("button", name="Zahlen und Größen aufklappen").count() == 0, f"{breite}: Zahlen und Größen in der Mittelstufe sichtbar")
                 pruefe(page.get_by_role("button", name="Zuordnungen und Prozent aufklappen").count() == 0, f"{breite}: Zuordnungen und Prozent stehen in der Mittelstufe")
             pruefe(not konsole, f"{sprache}/{breite}: Konsolenfehler {konsole[:3]}")

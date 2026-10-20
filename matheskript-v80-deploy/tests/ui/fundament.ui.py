@@ -142,7 +142,7 @@ with sync_playwright() as p:
             # ---------- Startseite: Bereich Fundament ----------
             if sprache == "de":
                 page.goto(BASE); page.wait_for_timeout(1000)
-                page.get_by_role("button", name="Schulmathematik aufklappen").first.click(); page.wait_for_timeout(300)
+                page.get_by_role("button", name="Oberstufe aufklappen").first.click(); page.wait_for_timeout(300)
                 haupt = [k.get_attribute("aria-label") for k in page.locator("button[data-aufklapp-haupt]").all() if k.is_visible()]
                 pruefe(haupt and haupt[0] == "Fundament aufklappen", f"{breite}: Fundament ist nicht der erste Bereich ({haupt[:3]})")
                 page.get_by_role("button", name="Fundament aufklappen").first.click(); page.wait_for_timeout(400)

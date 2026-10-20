@@ -104,8 +104,7 @@ with sync_playwright() as p:
             # Startseite: Mittelstufe → Geometrie und Werkzeugkasten (Bruchterme); Brüche und Dezimalzahlen gehören in die Unterstufe
             if sprache == "de":
                 page.goto(BASE); page.wait_for_timeout(900)
-                page.get_by_role("button", name="Schulmathematik aufklappen").first.click(); page.wait_for_timeout(300)
-                page.locator("button[aria-label^='Mittelstufe,']").first.click(); page.wait_for_timeout(300)
+                page.get_by_role("button", name="Mittelstufe aufklappen").first.click(); page.wait_for_timeout(300)
                 hoehen = [k.bounding_box()["height"] for k in page.locator("button[data-aufklapp-haupt]").all() if k.is_visible()]
                 print(breite, "Box-Höhen", hoehen)
                 pruefe(page.get_by_role("button", name="Brüche und Dezimalzahlen aufklappen").count() == 0, f"{breite}: Brüche und Dezimalzahlen stehen in der Mittelstufe")

@@ -48,7 +48,7 @@ with sync_playwright() as p:
 
         # 3) Startseite: Schulmathematik → Funktionen und Kurven springt (gewollt)
         page.goto(BASE); page.wait_for_timeout(1200)
-        page.get_by_role("button", name="Schulmathematik aufklappen").click(); page.wait_for_timeout(900)
+        page.get_by_role("button", name="Oberstufe aufklappen").click(); page.wait_for_timeout(900)
         knopf = page.get_by_role("button", name="Funktionen und Kurven aufklappen")
         knopf.scroll_into_view_if_needed(); page.evaluate("window.scrollBy(0, -250)"); page.wait_for_timeout(300)
         knopf.click(force=True); page.wait_for_timeout(1200)

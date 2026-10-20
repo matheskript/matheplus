@@ -134,7 +134,7 @@ with sync_playwright() as p:
             # ---------- Startseite: Einordnung in die Bereiche ----------
             if sprache == "de":
                 page.goto(BASE); page.wait_for_timeout(1000)
-                page.get_by_role("button", name="Schulmathematik aufklappen").first.click(); page.wait_for_timeout(300)
+                page.get_by_role("button", name="Oberstufe aufklappen").first.click(); page.wait_for_timeout(300)
                 for bereich, t in [("Fundament", "Mengen und Logik"), ("Formelsammlung und Werkzeuge", "Ungleichungen und Beträge"), ("Funktionen und Kurven", "Funktionen: Grundlagen")]:
                     page.get_by_role("button", name=f"{bereich} aufklappen").first.click(); page.wait_for_timeout(400)
                     pruefe(page.locator(f"button:has-text('{t}')").count() > 0, f"{breite}: {t} fehlt unter {bereich}")

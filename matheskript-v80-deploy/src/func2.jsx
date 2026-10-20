@@ -112,7 +112,7 @@ export function PasswortFeld({ onFrei }) {
 }
 
 /* Grafik für die Schulmathematik-Kachel: vier Mini-Motive (Kurve, Vektor, Säulen, Video). */
-export function SchulmatheLogoKlein() {
+export function SchulmatheLogoKlein({ eng = false }) {
   const W = 230, H = 190;
   const feld = (x, y, inhalt) => (
     <g transform={`translate(${x} ${y})`}>
@@ -121,7 +121,7 @@ export function SchulmatheLogoKlein() {
     </g>
   );
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
+    <svg viewBox={eng ? "14 14 202 162" : `0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
       {feld(18, 18, <path d="M 10 58 C 26 6, 42 6, 50 36 C 58 64, 72 60, 84 14" stroke={C.weiss} strokeWidth="2.6" fill="none" />)}
       {feld(120, 18, <><line x1="16" y1="58" x2="70" y2="18" stroke={C.flaggold} strokeWidth="3" /><path d="M 70 18 L 58 20 L 64 29 Z" fill={C.flaggold} /><line x1="16" y1="58" x2="80" y2="58" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" /></>)}
       {feld(18, 100, [10, 26, 42, 58, 74].map((x, i) => <rect key={x} x={x} y={62 - [14, 30, 44, 26, 12][i]} width="11" height={[14, 30, 44, 26, 12][i]} rx="2" fill={i === 2 ? C.flaggold : "rgba(255,255,255,0.45)"} />))}

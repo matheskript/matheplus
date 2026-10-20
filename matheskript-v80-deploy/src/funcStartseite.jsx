@@ -23,9 +23,10 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { C } from "./base1.jsx";
 import { PenPaperBlatt } from "./func1.jsx";
 import { MathildaName } from "./mathildaName.jsx";
-import { MathildaBild } from "./funcMathildaSeite.jsx";
-import { SchulKopf, UnterMenue, schulBereiche, blockEintraege, bereichInhalt, useStartStufe, MYTHEN, useFrei, PasswortFeld,
+import { MathildaPfade } from "./mathildaBild.jsx";
+import { UnterMenue, schulBereiche, blockEintraege, bereichInhalt, useStartStufe, MYTHEN, useFrei, PasswortFeld,
   SchlossZeichen, SchulkurseLogoKlein, ZEIGE_GESPERRTE, WeitermachenZeile, SchulmatheLogoKlein, ElternkursLogoKlein, MathildaLogoKlein } from "./func2.jsx";
+import { EtikettKnoepfe } from "./funcWerkzeuge.jsx";
 import { HeadNumbersLogoKlein } from "./funcHeadNumbersLogo.jsx";
 import { GleichKursLogoKlein } from "./funcGleichKursLogo.jsx";
 import { EBB_SLOGAN, EbbinghausBadge, EbbinghausLogoKlein } from "./funcEbbinghaus.jsx";
@@ -65,6 +66,7 @@ const CSS = `
   --zu-titel: #C9D2E6; --knopf-hg: #FFFFFF; --knopf-text: ${NACHT}; --pille-hg: rgba(237,187,0,0.08); --pille-text: ${GOLD_HELL};
   --mythos-hg: rgba(237,187,0,0.07); --schalter-hg: rgba(5,11,31,0.86); --schalter-rand: rgba(255,255,255,0.18);
   --h1-schatten: 0 12px 50px rgba(0,0,0,.45); --glyph: #FFFFFF; --licht: .55;
+  --stufe-hg: rgba(255,255,255,0.07); --stufe-rand: rgba(255,255,255,0.16); --stufe-zeile: #AEBCDD;
 }
 .sbb[data-modus="hell"], .sbb-schalter[data-modus="hell"], .sbb[data-modus="mix"], .sbb-schalter[data-modus="mix"] {
   --hg: #FFFFFF; --text: ${C.tinte}; --nebel: ${C.grau}; --titel: ${C.seeTief}; --linie: ${C.linie};
@@ -75,6 +77,7 @@ const CSS = `
   --zu-titel: ${C.hellgrau}; --knopf-hg: ${C.seeTief}; --knopf-text: #FFFFFF; --pille-hg: #FFFBEA; --pille-text: ${C.gruenDunkel};
   --mythos-hg: #FFF7D6; --schalter-hg: rgba(255,255,255,0.94); --schalter-rand: ${C.linie};
   --h1-schatten: none; --glyph: ${C.see}; --licht: .28;
+  --stufe-hg: #F3F6FB; --stufe-rand: ${C.linie}; --stufe-zeile: ${C.grau};
 }
 html[data-start-modus="dunkel"] .app-wurzel { background: ${NACHT} !important; }
 html[data-start-modus="hell"] .app-wurzel, html[data-start-modus="mix"] .app-wurzel { background: #FFFFFF !important; }
@@ -179,10 +182,36 @@ html[data-start-modus="dunkel"] .fuss-paar button { color: #EEF2FF !important; b
 .sbb-raster2 > * { min-width: 0; }
 @media ${DESKTOP} { .sbb-raster2 { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; } .sbb-breit { grid-column: 1 / -1; } }
 
-/* Mathilda-Porträt: keine Trennlinie, Bild oben bündig mit dem Titel, unten angeschnitten */
+/* Mathilda-Porträt (vereinfachtes Schablonen-Gesicht): keine Trennlinie, Haaroberkante bündig mit dem Titel, unten angeschnitten */
 .sbb-mathilda-bild { border-left: none; padding: 0; overflow: hidden; display: block; }
-.sbb-mathilda-bild > svg { position: absolute; left: -12px; top: var(--mb-top, -16px); width: 136px; height: auto; max-width: none; max-height: none; filter: drop-shadow(0 10px 24px rgba(0,0,0,.45)); }
-@media ${DESKTOP} { .sbb-mathilda-bild > svg { left: -6px; } }
+.sbb-mathilda-bild > svg { position: absolute; left: 50%; transform: translateX(-50%); top: -8px; width: 124px; height: auto; max-width: none; max-height: none; filter: drop-shadow(0 10px 24px rgba(0,0,0,.4)); }
+@media ${DESKTOP} { .sbb-mathilda-bild > svg { width: 136px; top: -10px; } }
+
+/* Schulmathematik: Titel über die volle Breite, links die Stufen (Abi als Quadrat neben Oberstufe), rechts die Grafik */
+.sbb-schul { padding: 16px 16px 16px; }
+.sbb-schul h2 { margin: 0; font-size: clamp(25px, 7.6vw, 40px); font-weight: 900; letter-spacing: -0.04em; line-height: 1; color: var(--titel); white-space: nowrap; }
+.sbb-schul-unten { margin-top: 14px; display: grid; grid-template-columns: minmax(0, 1fr) clamp(88px, 26vw, 220px); gap: 10px; align-items: stretch; }
+.sbb-stufen { display: grid; gap: 8px; min-width: 0; }
+.sbb-stufen .reihe { display: flex; gap: 6px; min-width: 0; }
+.sbb-stufe { flex: 1 1 auto; min-width: 0; min-height: 50px; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 7px 7px 7px 11px; border-radius: 14px;
+  border: 1px solid var(--stufe-rand); background: var(--stufe-hg); cursor: pointer; font-family: inherit; text-align: left; color: var(--titel); transition: background .15s ease, border-color .15s ease; }
+.sbb-stufe .n { display: block; font-size: clamp(13.5px, 3.7vw, 14.5px); font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sbb-stufe .k { display: block; margin-top: 2px; font-size: 11px; font-weight: 600; line-height: 1.1; color: var(--stufe-zeile); white-space: nowrap; }
+.sbb-stufe .p { flex: none; width: 22px; height: 22px; border-radius: 999px; background: ${GOLD}; color: ${NACHT}; display: flex; align-items: center; justify-content: center; transition: transform .2s ease; }
+.sbb-stufe.abi { flex: none; width: 48px; padding: 6px 0 5px; flex-direction: column; justify-content: center; gap: 4px; text-align: center; border-color: rgba(237,187,0,0.75); }
+.sbb-stufe.abi .n { font-size: 15px; font-weight: 900; color: var(--titel); overflow: visible; }
+.sbb-stufe.abi .p { width: 18px; height: 18px; }
+.sbb-stufe[aria-expanded="true"] { background: ${GOLD}; border-color: ${GOLD}; color: ${NACHT}; }
+.sbb-stufe[aria-expanded="true"] .n { color: ${NACHT}; }
+.sbb-stufe[aria-expanded="true"] .k { color: rgba(5,11,31,0.7); }
+.sbb-stufe[aria-expanded="true"] .p { background: ${NACHT}; color: ${GOLD}; transform: rotate(45deg); }
+@media (hover:hover) { .sbb-stufe:not([aria-expanded="true"]):hover { border-color: rgba(237,187,0,0.6); } }
+.sbb-schul-bild { border-radius: 16px; background: var(--bild-rechts); display: flex; align-items: center; justify-content: center; padding: 4px; min-height: 0; overflow: hidden; }
+.sbb-schul-bild > svg { width: 100%; height: auto; max-height: 100%; }
+@media ${DESKTOP} { .sbb-schul { padding: 22px 24px 24px; } .sbb-schul-unten { gap: 18px; } .sbb-stufe { min-height: 56px; padding: 8px 12px 8px 16px; } .sbb-stufe .n { font-size: 16px; } .sbb-stufe.abi { width: 56px; } }
+.sbb-schul-panel-kopf { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 2px 4px 0; }
+.sbb-schul-panel-kopf b { font-size: 16px; font-weight: 800; letter-spacing: -0.02em; color: ${C.seeTief}; }
+.sbb-schul-panel-kopf span { font-size: 12px; font-weight: 600; color: ${C.grau}; }
 
 /* Hauptkacheln mit Aufklappen (Schulmathematik, Mathe entdecken): Text links, rechts eine Spalte mit dem Bild und
    darunter dem Plus – auf allen Breiten gleich, ab 840 px nur breiter */
@@ -314,8 +343,8 @@ function Plus() {
   return <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M9 2.5v13M2.5 9h13" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" /></svg>;
 }
 
-function PlusKlein() {
-  return <svg width="13" height="13" viewBox="0 0 18 18" aria-hidden="true"><path d="M9 2.5v13M2.5 9h13" stroke={C.seeTief} strokeWidth="3" strokeLinecap="round" /></svg>;
+function PlusKlein({ farbe = C.seeTief }) {
+  return <svg width="13" height="13" viewBox="0 0 18 18" aria-hidden="true"><path d="M9 2.5v13M2.5 9h13" stroke={farbe} strokeWidth="3" strokeLinecap="round" /></svg>;
 }
 
 /* Die Kurve über der Bühne: ein Funktionsgraph, der sich einmal über das Blatt zeichnet, dazu ein Punkt mit Tangente. */
@@ -416,9 +445,10 @@ function MathildaKachel({ gehe }) {
         <p className="drei">Foto vom Blatt – Mathilda prüft deinen Weg, nicht nur das Ergebnis.</p>
         <span className="weiter pille">Mit KI lernen <i aria-hidden="true">→</i></span>
       </div>
-      {/* Das originalgetreue Porträt (aus dem Foto). Haaroberkante (y = 80 von 440) liegt auf Höhe der Oberkante von „MathildaAI“. */}
+      {/* Das vereinfachte Schablonen-Gesicht (dieselben Pfade wie Hauptmenü und Archiv-Startseite). Haaroberkante (y = 22 von 138)
+          liegt etwa auf Höhe der Oberkante von „MathildaAI“. */}
       <div className="sbb-kachel-bild sbb-mathilda-bild" aria-hidden="true">
-        <MathildaBild groesse={136} />
+        <svg viewBox="0 0 120 138"><MathildaPfade /></svg>
       </div>
     </button>
   );
@@ -434,6 +464,41 @@ function HauptKachel({ titel, text, logo, auf, onClick, label }) {
         <span className="logo">{logo}</span>
       </span>
     </button>
+  );
+}
+
+/* Schulmathematik: großer Titel über die volle Breite; links je Stufe ein Knopf mit Plus (Abi als Quadrat neben Oberstufe),
+   rechts die Grafik. Ein Knopf klappt darunter das Menü genau dieser Stufe auf, ein zweiter Tipp klappt es wieder zu. */
+export const SCHUL_STUFEN = [
+  { id: "unter", name: "Unterstufe", kl: "Klasse 5–6" },
+  { id: "mittel", name: "Mittelstufe", kl: "Klasse 7–9/10" },
+  { id: "ober", name: "Oberstufe", kl: "Klasse 10–13" },
+  { id: "abi", name: "Abi", kl: "Abitur-Vorbereitung" },
+];
+function StufenKnopf({ s, wahl, waehle, abi }) {
+  const auf = wahl === s.id;
+  return (
+    <button type="button" className={abi ? "sbb-stufe abi" : "sbb-stufe"} aria-expanded={auf} onClick={() => waehle(auf ? null : s.id)}
+      aria-label={`${abi ? "Abitur" : s.name} ${auf ? "zuklappen" : "aufklappen"}`}>
+      {abi ? <span className="n">{s.name}</span> : <span style={{ minWidth: 0 }}><span className="n">{s.name}</span><span className="k">{s.kl}</span></span>}
+      <span className="p" aria-hidden="true"><PlusKlein farbe="currentColor" /></span>
+    </button>
+  );
+}
+function SchulKachel({ wahl, waehle }) {
+  const [u, m, o, a] = SCHUL_STUFEN;
+  return (
+    <div className="sbb-karte sbb-schul sbb-insel">
+      <h2>Schulmathematik</h2>
+      <div className="sbb-schul-unten">
+        <div className="sbb-stufen" role="group" aria-label="Schulmathematik nach Stufe">
+          <StufenKnopf s={u} wahl={wahl} waehle={waehle} />
+          <StufenKnopf s={m} wahl={wahl} waehle={waehle} />
+          <div className="reihe"><StufenKnopf s={o} wahl={wahl} waehle={waehle} /><StufenKnopf s={a} wahl={wahl} waehle={waehle} abi /></div>
+        </div>
+        <div className="sbb-schul-bild" aria-hidden="true"><SchulmatheLogoKlein eng /></div>
+      </div>
+    </div>
   );
 }
 
@@ -535,7 +600,8 @@ export function Startseite({ gehe }) {
   const hell = modus === "hell";
   const lernpfad = useLernpfad();
   const frei = useFrei();
-  const [schulAuf, setSchulAuf] = useState(false);
+  const [schulWahl, setSchulWahl] = useState(null);   // null | unter | mittel | ober | abi
+  const schulAuf = schulWahl !== null;
   const [entdAuf, setEntdAuf] = useState(false);
   const [bereichAuf, setBereichAuf] = useState(null);
   const [etikett, setEtikett] = useState(null);
@@ -548,6 +614,13 @@ export function Startseite({ gehe }) {
   }, [modus]);
 
   const bereiche = schulBereiche(stufe);
+  /* Stufe auf der Kachel wählen: Abi zeigt die Abi-Vorbereitung der Oberstufe, die anderen setzen den Stufen-Filter */
+  const schulWaehlen = (w) => {
+    setSchulWahl(w); setEntdAuf(false); setBereichAuf(null); setEtikett(null);
+    if (w) stufeSetzen(w === "abi" ? "ober" : w);
+  };
+  const schulStufe = SCHUL_STUFEN.find((s) => s.id === schulWahl);
+  const abiBlock = schulWahl === "abi" ? bereiche.find((b) => b.id === "abitur") : null;
 
   return (
     <ModusKontext.Provider value={modus}>
@@ -595,14 +668,15 @@ export function Startseite({ gehe }) {
         <Zone nr="2" titel="Lernen" zeile="Alle Werkzeuge nach Bereich und Stufe." />
         <div className="sbb-raster2">
           <div className="sbb-breit">
-            <HauptKachel auf={schulAuf} onClick={() => { setSchulAuf(!schulAuf); setEntdAuf(false); setBereichAuf(null); setEtikett(null); }}
-              label={schulAuf ? "Schulmathematik zuklappen" : "Schulmathematik aufklappen"} logo={<SchulmatheLogoKlein />} titel="Schulmathematik"
-              text={schulAuf ? "Funktionen, Vektoren, Wahrscheinlichkeit, Geometrie und Werkzeuge." : "Unter-, Mittel- und Oberstufe bis zum Abi: Funktionen, Vektoren, Wahrscheinlichkeits­rechnung, Geometrie, Werkzeuge."} />
+            <SchulKachel wahl={schulWahl} waehle={schulWaehlen} />
             {schulAuf && (
               <div className="sbb-papier" data-aufklapp-inhalt>
-                <SchulKopf gehe={gehe} mitWeiter={false} stufe={stufe} setzeStufe={stufeSetzen} klasse={klasse} etikett={etikett} setzeEtikett={(e) => { setEtikett(e); setBereichAuf(null); }} />
+                <div className="sbb-schul-panel-kopf"><b>{schulStufe.id === "abi" ? "Abitur-Vorbereitung" : schulStufe.name}</b><span>{schulStufe.id === "abi" ? "Oberstufe" : schulStufe.kl}</span></div>
+                {schulWahl !== "abi" && <div style={{ marginTop: 10 }}><EtikettKnoepfe wert={etikett} setze={(e) => { setEtikett(e); setBereichAuf(null); }} /></div>}
                 <div style={{ marginTop: 12 }}>
-                  {etikett ? (
+                  {abiBlock ? (
+                    <UnterMenue eintraege={blockEintraege(abiBlock, "ober", null)} gehe={gehe} linie={abiBlock.linie} />
+                  ) : etikett ? (
                     bereiche.map((b) => {
                       const ws = blockEintraege(b, stufe, etikett).filter((e) => !e.kopf);
                       if (!ws.length) return null;
@@ -652,7 +726,7 @@ export function Startseite({ gehe }) {
 
         {/* ---------- 3 Entdecken ---------- */}
         <Zone nr="3" titel="Entdecken" zeile="Herleiten, Kurse und Pen & Paper." />
-        <HauptKachel auf={entdAuf} onClick={() => { setEntdAuf(!entdAuf); setSchulAuf(false); setBereichAuf(null); }}
+        <HauptKachel auf={entdAuf} onClick={() => { setEntdAuf(!entdAuf); setSchulWahl(null); setBereichAuf(null); }}
           label={entdAuf ? "Mathe entdecken zuklappen" : "Mathe entdecken aufklappen"} logo={<EntdeckenLogoKlein />} titel="Mathe entdecken"
           text={entdAuf ? "Herleiten, entdecken, Wettbewerbe." : "Muster erkennen, Formeln selbst herleiten – und Mathe-Wettbewerbe."} />
         {entdAuf && <div className="sbb-papier" data-aufklapp-inhalt><UnterMenue eintraege={ENTDECKEN_MENUE} gehe={gehe} /></div>}
