@@ -3,9 +3,11 @@
    Gestaltung „Lack und Goldfolie“ (Palette GRANAT, Motiv Geodreieck), Bausteine aus funcKursKopf.jsx.
 
    Übersicht:   Kopf · Klassenwahl (5 | 6) · Fortschrittskarte der Klasse · Kapitel mit Lerneinheiten
-   Lerneinheit: Darum geht's · Verstehen (Text, Skizze) · Beispiel Schritt für Schritt · Merke · Typischer Fehler ·
-                Probier es gleich (Aufgaben aus arbeitsblatt.js mit Lösung) · Üben (Werkzeuge mit Aufgabentyp,
-                Kopfrechen-Trainer eingebettet, Seiten) · Kann ich das? (drei Haken = geschafft) · Weiter
+   Lerneinheit: Darum geht's + Video · Verstehen (Text, Motion-Animationen, Skizze) · Beispiel Schritt für Schritt ·
+                Merke · Typischer Fehler · Üben (Probier-es-Aufgabe aus arbeitsblatt.js mit Lösung; darunter EIN Knopf
+                zum passenden Werkzeug + Untermenü „Mehr üben“ mit den übrigen Werkzeugen, Kopfrechen-Trainern, Seiten) ·
+                Kann ich das? (drei Haken = geschafft) · Weiter
+   Medien: unterstufeMedien.js (Animationen je Lerneinheit, Video bzw. Michael-Penn-Platzhalter), Abspieler funcUnterstufeMotion.jsx.
 
    Daten: unterstufeDaten.js (+ 5/6). Speicher: localStorage mm_unterstufe
    { gelesen: {[id]: true}, haken: {[id]: [bool, bool, bool]}, zuletzt: id } – Stand für die Kachel in kursStand.js.
@@ -22,6 +24,9 @@ import { GRANAT, GOLD_VERLAUF } from "./kursFarben.js";
 import { MotivGeodreieck } from "./funcKursMotive.jsx";
 import { KursKopf, FortschrittKarte, KapitelKopf, ModulKarte, ModulListe, Hinweis, IconBuch, IconAufgabe, IconWerkzeug, kursVars } from "./funcKursKopf.jsx";
 import { UnterBild } from "./funcUnterstufeBilder.jsx";
+import { Motion } from "./funcUnterstufeMotion.jsx";
+import { ExternSchutz } from "./funcExtern.jsx";
+import { animationenFuer, videoFuer } from "./unterstufeMedien.js";
 import {
   UNTERSTUFE_KLASSEN, UNTERSTUFE_EINHEITEN, UNTERSTUFE_INFO, UNTERSTUFE_ZAHLEN, einheitVon, klasseVon, naechsteEinheit, vorigeEinheit, einheitGeschafft, unterstufeStand,
 } from "./unterstufeDaten.js";
@@ -90,6 +95,30 @@ const STIL = `
   .us-weg{margin:10px 0 0;padding:12px 14px;border-radius:14px;background:${C.sand};font-size:15px;line-height:1.9;color:${C.tinte}}
   .us-weg p{margin:0}
   .us-ergebnis{margin-top:8px;font-weight:800;color:#7A0032}
+  .us-video{position:relative;width:100%;padding-top:56.25%;border-radius:16px;overflow:hidden;margin-top:14px;background:#3A0019}
+  .us-video iframe,.us-video>button{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .us-video>button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;cursor:pointer;font-family:inherit;color:#fff;padding:16px;
+    background:radial-gradient(120% 90% at 20% 0%,#7A0032 0%,#3A0019 70%)}
+  .us-video>button i{width:58px;height:58px;border-radius:999px;display:flex;align-items:center;justify-content:center;background:linear-gradient(150deg,#FFE9A0 0%,#E2B53C 100%);box-shadow:0 10px 24px -10px rgba(0,0,0,0.6)}
+  .us-video>button b{font-size:14.5px;font-weight:800}
+  .us-video>button span{font-size:11.5px;opacity:0.8;max-width:300px;line-height:1.45;text-align:center}
+  .us-platzhalter{margin:8px 0 0;font-size:12px;color:${C.grau};line-height:1.5}
+  .us-trenn{height:1px;background:${C.linie};margin:16px 0 14px}
+  .us-app{display:flex;gap:8px;align-items:stretch}
+  .us-app .us-knopf{flex:1;justify-content:flex-start}
+  .us-mehr{flex:none;display:inline-flex;align-items:center;gap:6px;padding:0 14px;border-radius:999px;border:1.5px solid ${C.linie};background:${C.weiss};color:#7A0032;
+    font-family:inherit;font-size:13px;font-weight:800;cursor:pointer}
+  .us-mehr svg{transition:transform .2s ease}.us-mehr[aria-expanded="true"] svg{transform:rotate(180deg)}
+  .us-mehr:focus-visible{outline:3px solid ${C.flaggold};outline-offset:3px}
+  .us-menue{margin:8px 0 0;border:1px solid ${C.linie};border-radius:16px;overflow:hidden;background:${C.weiss}}
+  .us-zeile{display:flex;align-items:center;gap:12px;width:100%;padding:11px 14px;border:none;border-top:1px solid ${C.linie};background:none;cursor:pointer;font-family:inherit;text-align:left;color:${C.tinte}}
+  .us-zeile:first-child{border-top:none}
+  .us-zeile em{flex:none;display:inline-flex;align-items:center;justify-content:center;min-width:32px;height:32px;padding:0 6px;border-radius:9px;font-style:normal;font-size:12px;font-weight:800;background:#FFF5F8;color:#7A0032}
+  .us-zeile span{flex:1;font-size:14px;font-weight:700;line-height:1.35}.us-zeile small{display:block;font-size:11.5px;font-weight:600;color:${C.grau}}
+  .us-zeile[aria-expanded="true"]{background:#FFF5F8}
+  @media (hover:hover){.us-zeile:hover{background:#FFF9FB}}
+  .us-zeile:focus-visible{outline:3px solid ${C.flaggold};outline-offset:-3px}
+  .us-link{background:none;border:none;padding:6px 0;color:#7A0032;font-family:inherit;font-size:13.5px;font-weight:700;cursor:pointer;text-align:left}
   @media (min-width:840px){.us-tabs{max-width:420px}.us-karte{padding:22px 24px 20px}.us-text{font-size:16px}}
   @media (prefers-reduced-motion:reduce){.us-knopf,.us-tab{transition:none}.us-knopf:hover,.us-tab:hover{transform:none}}
 `;
@@ -132,9 +161,9 @@ function Beispiel({ beispiel }) {
       <p className="us-aufgabe"><MS s={beispiel.aufgabe} /></p>
       {beispiel.schritte.slice(0, n).map((s, i) => <div key={i} className="us-schritt"><i>{i + 1}</i><span><MS s={s} /></span></div>)}
       <div className="us-knoepfe" style={{ marginTop: 10 }}>
-        {n < alle && <button type="button" className="us-knopf us-knopf-dunkel" onClick={() => setN(n + 1)}>{n === 0 ? "Ersten Schritt zeigen" : "Nächsten Schritt zeigen"}</button>}
-        {n < alle && alle > 1 && <button type="button" className="us-knopf" onClick={() => setN(alle)}>Alle Schritte</button>}
-        {n > 0 && <button type="button" className="us-knopf" onClick={() => setN(0)}>Noch einmal</button>}
+        {n < alle
+          ? <button type="button" className="us-knopf us-knopf-dunkel" onClick={() => setN(n + 1)}>{n === 0 ? "Ersten Schritt zeigen" : `Schritt ${n + 1} von ${alle}`}</button>
+          : <button type="button" className="us-link" onClick={() => setN(0)}>↺ Noch einmal von vorn</button>}
       </div>
     </Karte>
   );
@@ -151,7 +180,8 @@ function ProbierEs({ quellen }) {
   if (!aufgabe) return null;
   const neu = () => { setNr(nr + 1); setOffen(false); };
   return (
-    <Karte kicker="Probier es gleich" kennung={{ "data-us-aufgabe": "" }}>
+    <div data-us-aufgabe="">
+      <p className="us-kicker" style={{ color: C.grau }}>Probier es gleich</p>
       <p className="us-aufgabe"><MS s={aufgabe.text} /></p>
       {aufgabe.tabelle && (
         <table className="us-tabelle" style={{ width: "auto" }}>
@@ -169,59 +199,105 @@ function ProbierEs({ quellen }) {
       )}
       <div className="us-knoepfe" style={{ marginTop: 10 }}>
         {!offen && <button type="button" className="us-knopf us-knopf-dunkel" onClick={() => setOffen(true)}>Lösung zeigen</button>}
-        <button type="button" className="us-knopf" onClick={neu}>Neue Aufgabe</button>
+        <button type="button" className="us-link" onClick={neu}>Neue Aufgabe →</button>
       </div>
-    </Karte>
+    </div>
   );
 }
 
-/* ---------- Üben: Werkzeuge, Trainer, Seiten ---------- */
+/* ---------- Üben: Probier-es-Aufgabe + EIN Knopf zum Werkzeug + Untermenü „Mehr üben“ ---------- */
+const Pfeilchen = () => <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5 L6 8 L9.5 4.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>;
+function uebenInfo(u) {
+  if (u.wz) { const w = WERKZEUGE[u.wz]; return { zeichen: w ? w.zeichen : "→", text: u.text, art: `${u.modus === "entdecken" ? "Entdecken" : "Üben"} · ${w ? w.kurz || w.name : u.wz}` }; }
+  if (u.kopf) return { zeichen: TRAINER_ZEICHEN[u.kopf], text: u.text, art: `Kopfrechnen · ${TRAINER_NAME[u.kopf]}` };
+  return { zeichen: "→", text: u.text, art: "Seite öffnen" };
+}
 function Ueben({ einheit, gehe }) {
   const [trainer, setTrainer] = useState(null);
-  const zuWerkzeug = (u) => {
-    const w = WERKZEUGE[u.wz];
-    if (!w) return;
-    uebenWunschSetzen(w.ziel.ansicht, { modus: u.modus || (u.art ? "ueben" : null), art: u.art || null });
-    gehe({ ...w.ziel });
+  const [mehr, setMehr] = useState(false);
+  const los = (u) => {
+    if (u.kopf) { setTrainer(trainer === u.kopf ? null : u.kopf); return; }
+    if (u.wz) {
+      const w = WERKZEUGE[u.wz];
+      if (!w) return;
+      uebenWunschSetzen(w.ziel.ansicht, { modus: u.modus || (u.art ? "ueben" : null), art: u.art || null });
+      gehe({ ...w.ziel });
+      return;
+    }
+    gehe(u.ziel);
   };
+  /* Hauptknopf: das erste Werkzeug im Übungsmodus (sonst der erste Eintrag) */
+  const iHaupt = Math.max(0, einheit.ueben.findIndex((u) => u.wz && u.modus !== "entdecken"));
+  const haupt = einheit.ueben[iHaupt], rest = einheit.ueben.filter((_, i) => i !== iHaupt);
+  const h = haupt && uebenInfo(haupt);
   return (
     <Karte kicker="Üben" kennung={{ "data-us-ueben": "" }}>
-      <p style={{ margin: "0 0 12px", fontSize: 14, color: C.grau, lineHeight: 1.55 }}>Jeder Knopf öffnet das passende Werkzeug der App – gleich mit dem richtigen Aufgabentyp. Die Kopfrechen-Trainer laufen direkt hier.</p>
-      <div className="us-knoepfe">
-        {einheit.ueben.map((u, i) => {
-          if (u.wz) {
-            const w = WERKZEUGE[u.wz];
-            return (
-              <button key={i} type="button" className={`us-knopf${u.modus === "entdecken" ? "" : " us-knopf-gold"}`} onClick={() => zuWerkzeug(u)} data-us-wz={u.wz}>
-                <em>{w ? w.zeichen : "→"}</em><span>{u.text}<small>{u.modus === "entdecken" ? "Entdecken" : "Üben"} · {w ? w.kurz || w.name : u.wz}</small></span>
+      {einheit.aufgaben.length > 0 && <><ProbierEs key={einheit.id} quellen={einheit.aufgaben} /><div className="us-trenn" /></>}
+      {haupt && (
+        <>
+          <div className="us-app">
+            <button type="button" className={`us-knopf ${haupt.kopf ? "us-knopf-dunkel" : "us-knopf-gold"}`} onClick={() => los(haupt)} data-us-wz={haupt.wz} data-us-kopf={haupt.kopf} data-us-haupt="">
+              <em>{h.zeichen}</em><span>{h.text}<small>{h.art}</small></span>
+            </button>
+            {rest.length > 0 && (
+              <button type="button" className="us-mehr" aria-expanded={mehr} aria-controls={`us-mehr-${einheit.id}`} onClick={() => setMehr(!mehr)} data-us-mehr="">
+                Mehr <span style={{ fontWeight: 600, color: C.grau }}>{rest.length}</span><Pfeilchen />
               </button>
-            );
-          }
-          if (u.kopf) return (
-            <button key={i} type="button" className={`us-knopf${trainer === u.kopf ? " us-knopf-dunkel" : ""}`} onClick={() => setTrainer(trainer === u.kopf ? null : u.kopf)} aria-expanded={trainer === u.kopf} data-us-kopf={u.kopf}>
-              <em>{TRAINER_ZEICHEN[u.kopf]}</em><span>{u.text}<small>Kopfrechnen · {TRAINER_NAME[u.kopf]}</small></span>
-            </button>
-          );
-          return (
-            <button key={i} type="button" className="us-knopf" onClick={() => gehe(u.ziel)}>
-              <em>→</em><span>{u.text}<small>Seite öffnen</small></span>
-            </button>
-          );
-        })}
-      </div>
+            )}
+          </div>
+          {mehr && rest.length > 0 && (
+            <div className="us-menue" id={`us-mehr-${einheit.id}`} data-us-menue="">
+              {rest.map((u, i) => {
+                const info = uebenInfo(u);
+                return (
+                  <button key={i} type="button" className="us-zeile" onClick={() => los(u)} aria-expanded={u.kopf ? trainer === u.kopf : undefined} data-us-wz={u.wz} data-us-kopf={u.kopf}>
+                    <em>{info.zeichen}</em><span>{info.text}<small>{info.art}</small></span><span aria-hidden="true" style={{ flex: "none", color: C.grau }}>{u.kopf ? (trainer === u.kopf ? "−" : "+") : "→"}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </>
+      )}
       {trainer && (
         <div className="us-trainer" data-us-trainer={trainer}>
           <p className="us-kicker" style={{ marginTop: 8 }}>Kopfrechnen · {TRAINER_NAME[trainer]}</p>
           <React.Suspense fallback={<p style={{ color: C.grau, fontSize: 14 }}>Trainer wird geladen …</p>}>
             <KopfTrainer id={trainer} />
           </React.Suspense>
-          <div className="us-knoepfe" style={{ marginTop: 10 }}>
-            <button type="button" className="us-knopf" onClick={() => setTrainer(null)}>Trainer schließen</button>
-            <button type="button" className="us-knopf" onClick={() => gehe({ ansicht: "kopf", trainer })}>Im Bereich Kopfrechnen öffnen</button>
+          <div className="us-knoepfe" style={{ marginTop: 10, gap: 16 }}>
+            <button type="button" className="us-link" onClick={() => setTrainer(null)}>Trainer schließen</button>
+            <button type="button" className="us-link" onClick={() => gehe({ ansicht: "kopf", trainer })}>Im Bereich Kopfrechnen öffnen →</button>
           </div>
         </div>
       )}
     </Karte>
+  );
+}
+
+/* ---------- Video: erst beim Klick laden (YouTube-nocookie, Einwilligung über ExternSchutz) ---------- */
+function Video({ einheit }) {
+  const [an, setAn] = useState(false);
+  useEffect(() => setAn(false), [einheit.id]);
+  const v = videoFuer(einheit.id);
+  return (
+    <>
+      <div className="us-video" data-us-video={v.youtube}>
+        {an ? (
+          <ExternSchutz dienst="youtube">
+            <iframe title={v.platzhalter ? `Video (Platzhalter) zu ${einheit.titel}` : v.titel} src={`https://www.youtube-nocookie.com/embed/${v.youtube}?autoplay=1&rel=0&modestbranding=1&playsinline=1`}
+              loading="lazy" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" />
+          </ExternSchutz>
+        ) : (
+          <button type="button" onClick={() => setAn(true)} aria-label={`Video zu ${einheit.titel} abspielen`}>
+            <i><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M8 5 L8 19 L19 12 Z" fill="#3A0019" /></svg></i>
+            <b>Video zur Lerneinheit</b>
+            <span>Beim Abspielen wird das Video von YouTube (youtube-nocookie.com) geladen.</span>
+          </button>
+        )}
+      </div>
+      {v.platzhalter && <p className="us-platzhalter">Platzhalter: ein Video von Michael Penn (Englisch). Das deutsche Video zu „{einheit.titel}“ folgt.</p>}
+    </>
   );
 }
 
@@ -238,6 +314,7 @@ function EinheitSeite({ einheit, stand, setze, zu, gehe }) {
     return { ...s, haken: { ...(s.haken || {}), [einheit.id]: neu } };
   });
   const bildVor = einheit.bild && einheit.lesen.length > 1;
+  const anims = animationenFuer(einheit.id);
   return (
     <>
       <KursKopf farben={GRANAT} Motiv={MotivGeodreieck} id="ks-unter" kompakt titel={einheit.titel}
@@ -245,12 +322,18 @@ function EinheitSeite({ einheit, stand, setze, zu, gehe }) {
       <div className="mx-auto px-4 pb-16" style={{ maxWidth: 760 }}>
         <button type="button" className="us-zurueck" onClick={() => zu(`klasse-${einheit.klasse}`)}>← Alle Lerneinheiten der {klasse.titel}</button>
 
-        <Karte kicker="Darum geht’s"><p className="us-ziel">{einheit.ziel}</p></Karte>
+        <Karte kicker="Darum geht’s"><p className="us-ziel">{einheit.ziel}</p><Video einheit={einheit} /></Karte>
 
         <Karte kicker="Verstehen" kennung={{ "data-us-lesen": "" }}>
-          <Absatz a={einheit.lesen[0]} />
-          {bildVor && <div className="us-bild"><UnterBild bild={einheit.bild} /></div>}
-          {einheit.lesen.slice(1).map((a, i) => <Absatz key={i} a={a} />)}
+          {einheit.lesen.map((a, i) => (
+            <React.Fragment key={i}>
+              <Absatz a={a} />
+              {i === 0 && anims[0] && <Motion key={`${einheit.id}-0`} {...anims[0]} />}
+              {i === 1 && bildVor && <div className="us-bild"><UnterBild bild={einheit.bild} /></div>}
+              {i >= 1 && anims[i] && <Motion key={`${einheit.id}-${i}`} {...anims[i]} />}
+            </React.Fragment>
+          ))}
+          {anims.slice(Math.max(1, einheit.lesen.length)).map((m, i) => <Motion key={`${einheit.id}-r${i}`} {...m} />)}
           {einheit.bild && !bildVor && <div className="us-bild"><UnterBild bild={einheit.bild} /></div>}
         </Karte>
 
@@ -259,9 +342,7 @@ function EinheitSeite({ einheit, stand, setze, zu, gehe }) {
         <Karte kicker="Merke" className="us-merke"><p className="us-text"><Fett s={einheit.merke} /></p></Karte>
         {einheit.fehler && <Karte kicker="Typischer Fehler" className="us-fehler"><p className="us-text"><Fett s={einheit.fehler} /></p></Karte>}
 
-        {einheit.aufgaben.length > 0 && <ProbierEs key={einheit.id} quellen={einheit.aufgaben} />}
-
-        <Ueben einheit={einheit} gehe={gehe} />
+        <Ueben key={einheit.id} einheit={einheit} gehe={gehe} />
 
         <Karte kicker="Kann ich das?" kennung={{ "data-us-kann": "" }}>
           <p style={{ margin: "0 0 8px", fontSize: 14, color: C.grau, lineHeight: 1.55 }}>Hake ehrlich ab. Mit drei Haken gilt die Lerneinheit als geschafft – und zählt auf der Kachel.</p>
@@ -275,7 +356,7 @@ function EinheitSeite({ einheit, stand, setze, zu, gehe }) {
         </Karte>
 
         <div className="us-nav">
-          {vorige ? <button type="button" className="us-knopf" onClick={() => zu(vorige.id)}>← {vorige.titel}</button> : <span />}
+          {vorige ? <button type="button" className="us-link" onClick={() => zu(vorige.id)}>← {vorige.titel}</button> : <span />}
           {naechste
             ? <button type="button" className="us-knopf us-knopf-gold" onClick={() => zu(naechste.id)} data-us-weiter="">Nächste Lerneinheit: {naechste.titel} →</button>
             : <button type="button" className="us-knopf us-knopf-gold" onClick={() => zu(null)}>Zur Übersicht →</button>}
@@ -354,6 +435,7 @@ export function UnterstufeSeite({ gehe, seite = null, setSeite = () => {} }) {
           { icon: <IconBuch />, text: `${UNTERSTUFE_ZAHLEN.kapitel} Kapitel` },
           { icon: <IconAufgabe />, text: `${UNTERSTUFE_ZAHLEN.einheiten} Lerneinheiten` },
           { icon: <IconWerkzeug />, text: "Kopfrechnen inklusive" },
+          { icon: <IconBuch />, text: "Animationen und Videos" },
           ...(st.fertig ? [{ icon: <IconAufgabe />, text: `${st.fertig} geschafft` }] : []),
         ]} />
       <Uebersicht klasseId={klasse} setKlasse={setKlasse} stand={stand} zu={zu} />

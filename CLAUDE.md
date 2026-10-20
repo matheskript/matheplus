@@ -31,6 +31,13 @@ Die Kurse (Unterstufe, Differentialrechnung, Vektoren/Geraden/Ebenen, GFS, Mathe
 ## Lernseiten → Werkzeug mit Aufgabentyp
 `uebenWunschSetzen(ansicht, { modus, art })` aus `src/uebenWunsch.js` vor `gehe()` öffnet ein Werkzeug gleich im gewünschten Modus und Aufgabentyp (ZweiModi/UebenRahmen in geoUi.jsx lesen den Wunsch). Das Modul Unterstufe (`funcUnterstufe.jsx`, Daten `unterstufeDaten5/6.js`, Doku `claude/modul-unterstufe.md`) nutzt das für jeden Übungsknopf.
 
+## Unterstufe: Motion-Animationen und Videos
+Jede Lerneinheit hat mindestens eine Animation und ein Video (`src/unterstufeMedien.js`; Test `tests/unterstufeMedien.test.mjs`).
+- Szenen sind reine Funktionen des Fortschritts (Vertrag im Kopf von `src/motion/kern.jsx`), je Gruppe `src/motion/szenen*.jsx`, Zuordnung je Lerneinheit `src/motion/medien*.js`; Abspieler `src/funcUnterstufeMotion.jsx`. Das Schlussbild ist zugleich das Standbild.
+- Kontaktbogen zum Ansehen ohne Browser-Klickerei: `node scripts/motion-blatt.mjs [filter] /tmp/mb` → PNGs.
+- Videos: Platzhalter ist ein Michael-Penn-Video; eigenes Video = Eintrag in `VIDEO_EIGEN` (YouTube-ID), dann verschwindet der Hinweis.
+- Üben in der Lerneinheit bleibt kompakt: ein Hauptknopf + Untermenü „Mehr“, keine Knopf-Reihen. Browser: `tests/ui/unterstufe-modul.ui.py`.
+
 ## Logo: nur über `MarkenLogo`
 Die Wortmarke MYTHOSMATHE.DE kommt immer aus `src/markenLogo.jsx` (`<MarkenLogo groesse=… />`, auf hellem Grund `grund="hell"`, für PDF-Bilder `druck`): Schrift der Startseiten-Headline, Black, Laufweite −0,02 em, Weiß + Headline-Gold. Nie selbst nachbauen; die Wochenmail (`src/wochenmail.js`) setzt dieselben Werte als HTML.
 
