@@ -1,0 +1,67 @@
+/* ============================================================
+   Farbwelten der vier Kurse – „Lack und Goldfolie“. Eine Palette je Kurs,
+   gemeinsam genutzt von den Startseiten-Kacheln (funcKursKachel.jsx) und den
+   Kursseiten (funcKursKopf.jsx). Reine Daten, keine Importe aus func-Dateien.
+
+   lack      = tief lackierte Fläche (Kachel, Kopf der Kursseite)
+   rand      = Folienkante (1 px, als Verlauf)
+   glanz     = Lichtkante oben links, schein = Schein unten rechts hinter dem Motiv
+   titel/text/akzent = Schrift auf dem Lack
+   knopf/knopftext   = Pille „Kurs öffnen“ bzw. „Weiter mit …“
+   dunkel    = dunkle Karte „Dein Fortschritt“ auf der Kursseite, ring = Ring darauf
+   medaille/medailleText = Nummernplakette eines Moduls, fertig = Plakette, wenn geschafft
+   badge/badgeText       = Kapitel-Plakette
+   ============================================================ */
+import { C } from "./base1.jsx";
+
+export const FOLIE = {
+  gold: ["#FFF3C4", "#F2C14E", "#D9A520", "#FFE9A0", "#B58612"],
+  silber: ["#FFFFFF", "#E3E7EE", "#9AA3B3", "#F4F6FA", "#7F8898"],
+  praegung: ["#2A1F00", "#5A4300", "#8A6A00", "#5A4300", "#2A1F00"],
+};
+export const GOLD_VERLAUF = "linear-gradient(90deg, #FFE9A0, #F2C14E 55%, #B58612)";
+export const GOLD_PILLE = "linear-gradient(150deg, #FFE9A0 0%, #F4CE4A 28%, #EDBB00 55%, #D9A520 78%, #B58612 100%)";
+
+/* Differentialrechnung: Porzellan – Babyblau, Schwarz, Weiß, sehr dunkles Gold */
+export const PORZELLAN = {
+  lack: `linear-gradient(145deg, ${C.babyblauHell} 0%, ${C.babyblau} 58%, #8FCBEE 100%)`,
+  rand: "linear-gradient(135deg, rgba(255,255,255,0.95), rgba(90,67,0,0.35) 60%, rgba(90,67,0,0.55))",
+  glanz: "rgba(255,255,255,0.75)", schein: "rgba(255,255,255,0.55)", kante: "rgba(255,255,255,0.9)", schatten: "rgba(60,130,190,0.55)",
+  titel: C.nachtschwarz, text: "#1A2230", akzent: C.golddunkel, chip: "rgba(11,12,16,0.07)", chipRand: "rgba(11,12,16,0.14)",
+  knopf: C.nachtschwarz, knopftext: C.weiss, knopfschatten: "rgba(11,12,16,0.6)", spur: "rgba(11,12,16,0.14)", fuellung: `linear-gradient(90deg, ${C.golddunkel}, #B98A00)`,
+  dunkel: `linear-gradient(150deg, ${C.nachtschwarz} 0%, #16181F 100%)`, dunkelText: C.weiss, ring: C.babyblau, ringSpur: "rgba(255,255,255,0.14)", dunkelKnopf: C.babyblau, dunkelKnopfText: C.nachtschwarz,
+  medaille: C.babyblau, medailleText: C.nachtschwarz, fertig: C.golddunkel, fertigText: C.weiss, badge: C.nachtschwarz, badgeText: C.babyblau, linieFertig: C.babyblauTief,
+};
+
+/* Vektoren, Geraden und Ebenen: Tiefblau mit warmem Gold */
+export const TIEFBLAU = {
+  lack: `linear-gradient(150deg, ${C.vkNacht} 0%, ${C.vkTief} 58%, #1A3E96 100%)`,
+  rand: "linear-gradient(135deg, rgba(255,233,160,0.85), rgba(242,193,78,0.25) 55%, rgba(168,192,240,0.35))",
+  glanz: "rgba(168,192,240,0.22)", schein: "rgba(36,87,197,0.55)", kante: "rgba(255,255,255,0.22)", schatten: "rgba(13,39,102,0.75)",
+  titel: C.weiss, text: "rgba(255,255,255,0.84)", akzent: C.vkGold, chip: "rgba(255,255,255,0.1)", chipRand: "rgba(255,255,255,0.22)",
+  knopf: GOLD_VERLAUF, knopftext: C.vkNacht, knopfschatten: "rgba(242,193,78,0.6)", spur: "rgba(255,255,255,0.16)", fuellung: GOLD_VERLAUF,
+  dunkel: `linear-gradient(150deg, ${C.vkNacht} 0%, ${C.vkTief} 100%)`, dunkelText: C.weiss, ring: C.vkGold, ringSpur: "rgba(255,255,255,0.14)", dunkelKnopf: GOLD_PILLE, dunkelKnopfText: C.vkNacht,
+  medaille: C.vkHell, medailleText: C.vkNacht, fertig: C.vkGold, fertigText: C.vkNacht, badge: C.vkNacht, badgeText: C.vkGold, linieFertig: C.vkGold,
+};
+
+/* GFS: Lackschwarz mit Gold – die Bühne */
+export const LACKSCHWARZ = {
+  lack: `linear-gradient(150deg, ${C.nachtschwarz} 0%, #1A1608 58%, #2E2408 100%)`,
+  rand: "linear-gradient(135deg, rgba(255,233,160,0.9), rgba(237,187,0,0.3) 55%, rgba(237,187,0,0.55))",
+  glanz: "rgba(255,246,214,0.14)", schein: "rgba(237,187,0,0.38)", kante: "rgba(255,255,255,0.2)", schatten: "rgba(11,12,16,0.8)",
+  titel: C.weiss, text: "rgba(255,255,255,0.84)", akzent: C.flaggold, chip: "rgba(255,255,255,0.1)", chipRand: "rgba(237,187,0,0.3)",
+  knopf: GOLD_VERLAUF, knopftext: C.nachtschwarz, knopfschatten: "rgba(237,187,0,0.6)", spur: "rgba(255,255,255,0.16)", fuellung: GOLD_VERLAUF,
+  dunkel: `linear-gradient(150deg, ${C.nachtschwarz} 0%, #1E1A0E 100%)`, dunkelText: C.weiss, ring: C.flaggold, ringSpur: "rgba(255,255,255,0.14)", dunkelKnopf: GOLD_PILLE, dunkelKnopfText: C.nachtschwarz,
+  medaille: "#FFF6D6", medailleText: C.nachtschwarz, fertig: C.flaggold, fertigText: C.nachtschwarz, badge: C.nachtschwarz, badgeText: C.flaggold, linieFertig: C.flaggold,
+};
+
+/* Mathe mit KI lernen: Nachtblau mit Silber und Gold */
+export const NACHTBLAU = {
+  lack: "linear-gradient(150deg, #06102A 0%, #0B1E4A 56%, #12306E 100%)",
+  rand: "linear-gradient(135deg, rgba(244,246,250,0.9), rgba(199,205,214,0.25) 55%, rgba(237,187,0,0.5))",
+  glanz: "rgba(199,205,214,0.2)", schein: "rgba(237,187,0,0.3)", kante: "rgba(255,255,255,0.22)", schatten: "rgba(6,16,42,0.8)",
+  titel: C.weiss, text: "rgba(255,255,255,0.84)", akzent: C.flaggold, chip: "rgba(255,255,255,0.1)", chipRand: "rgba(199,205,214,0.3)",
+  knopf: GOLD_VERLAUF, knopftext: "#06102A", knopfschatten: "rgba(237,187,0,0.6)", spur: "rgba(255,255,255,0.16)", fuellung: GOLD_VERLAUF,
+  dunkel: "linear-gradient(150deg, #06102A 0%, #0B1E4A 100%)", dunkelText: C.weiss, ring: C.flaggold, ringSpur: "rgba(255,255,255,0.14)", dunkelKnopf: GOLD_PILLE, dunkelKnopfText: "#06102A",
+  medaille: "#EEF3FC", medailleText: "#06102A", fertig: C.flaggold, fertigText: "#06102A", badge: "#0B1E4A", badgeText: C.flaggold, linieFertig: C.flaggold,
+};

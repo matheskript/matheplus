@@ -2,25 +2,18 @@
    „Mathe mit KI lernen“ – Wahlseite hinter der Startseiten-Kachel.
    Drei Wege nach Alter: Mathilda AI (für alle), Gemini (ab 16), Claude (ab 18),
    jeweils mit Voraussetzungen. Daten: WEGE in claudeKursDaten.js.
-   Ansicht „kiwahl“, Direct Link /mathe-mit-ki-lernen.
+   Ansicht „kiwahl“, Direct Link /mathe-mit-ki-lernen. Kopf aus funcKursKopf.jsx
+   (NACHTBLAU in kursFarben.js), Wege-Karten in derselben Lack-und-Folie-Optik.
    ====================================================================== */
 import React, { useState } from "react";
 import { C } from "./base1.jsx";
 import { WEGE, ALTERSSTUFEN, wegeFuerAlter, KURSE } from "./claudeKursDaten.js";
+import { NACHTBLAU } from "./kursFarben.js";
+import { MotivDialog } from "./funcKursMotive.jsx";
+import { KursKopf } from "./funcKursKopf.jsx";
 
 const K = { nacht: "#06102A", navy: "#0B1E4A", gold: C.flaggold, goldText: "#8A6A00", weiss: C.weiss, tinte: C.tinte, grau: C.grau, linie: C.linie, sand: C.sand, gruen: C.smaragd };
 const GOLD = "linear-gradient(150deg, #FFE9A0 0%, #F4CE4A 28%, #EDBB00 55%, #D9A520 78%, #B58612 100%)";
-const NACHT = `linear-gradient(165deg, ${K.nacht} 0%, ${K.navy} 55%, #12306E 100%)`;
-
-function Emblem({ groesse = 120 }) {
-  return (
-    <svg viewBox="0 0 120 120" width={groesse} height={groesse} aria-hidden="true" style={{ display: "block" }}>
-      <path d="M22 28 h64 a12 12 0 0 1 12 12 v34 a12 12 0 0 1 -12 12 h-36 l-18 16 v-16 h-10 a12 12 0 0 1 -12 -12 v-34 a12 12 0 0 1 12 -12z" fill="none" stroke={K.gold} strokeWidth="4.5" strokeLinejoin="round" />
-      <path d="M38 50 h44 M38 62 h30" stroke={K.gold} strokeWidth="4.5" strokeLinecap="round" />
-      <path d="M96 10 l3.2 8.8 l8.8 3.2 l-8.8 3.2 l-3.2 8.8 l-3.2 -8.8 l-8.8 -3.2 l8.8 -3.2z" fill={K.gold} />
-    </svg>
-  );
-}
 
 /* Fortschritt der Kurse (Speicher wie in funcClaudeKurs.jsx) */
 const erledigt = (kursId) => {
@@ -38,25 +31,12 @@ export function KiWahlSeite({ gehe }) {
         .kw-chip:focus-visible,.kw-knopf:focus-visible{outline:3px solid ${K.gold};outline-offset:2px}
         .kw-karte{transition:transform .15s ease, box-shadow .15s ease}
         @media (hover:hover){.kw-karte:hover{transform:translateY(-1px);box-shadow:0 10px 26px rgba(15,26,51,0.12)}}
-        @media (max-width:520px){.kw-bild svg{width:84px !important;height:84px !important}.kw-bild{top:16px !important;opacity:.55 !important}}`}</style>
-      <div style={{ background: NACHT, color: K.weiss, position: "relative", overflow: "hidden" }}>
-        <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "radial-gradient(90% 70% at 100% 0%, rgba(237,187,0,0.22) 0%, transparent 60%)" }} />
-        <div aria-hidden="true" className="kw-bild" style={{ position: "absolute", right: 14, top: 22, opacity: 0.9 }}><Emblem groesse={140} /></div>
-        <div className="held mx-auto px-6 pt-10 pb-5" style={{ maxWidth: 620, position: "relative" }}>
-          <p style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: "0.16em", color: K.gold, margin: "0 0 6px" }}>DREI WEGE · EINE REGEL</p>
-          <h1 data-kiwahl-titel style={{ fontWeight: 800, fontSize: "clamp(28px, 8vw, 40px)", letterSpacing: "-0.03em", lineHeight: 1.05, margin: 0,
-            background: "linear-gradient(180deg, #FFF 0%, #E3E8EF 45%, #B9C2CE 100%)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>
-            Mathe mit<br />KI lernen
-          </h1>
-          <div style={{ width: 54, height: 4, background: GOLD, borderRadius: 2, marginTop: 16, marginBottom: 14 }} />
-          <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.6, margin: 0, maxWidth: 400 }}>
-            Die KI erklärt, du rechnest: nicht „löse mir“, sondern „erklär mir“. Welcher Weg für dich offen ist, hängt vom Alter ab.
-          </p>
-        </div>
-        <div style={{ height: 24, background: K.sand, borderRadius: "20px 20px 0 0", position: "relative" }} />
-      </div>
+`}</style>
+      <KursKopf farben={NACHTBLAU} Motiv={MotivDialog} id="ks-ki" titel="Mathe mit KI lernen" flach kennung={{ "data-kiwahl-titel": "" }}
+        zeile="Die KI erklärt, du rechnest – nicht „löse mir“, sondern „erklär mir“. Welcher Weg offen ist, hängt vom Alter ab."
+        chips={[{ text: "Drei Wege" }, { text: "Zehn Lektionen" }, { text: "Erklären statt vorrechnen" }]} />
 
-      <div className="mx-auto px-6" style={{ maxWidth: 620, paddingBottom: 36 }}>
+      <div className="mx-auto px-6" style={{ maxWidth: 620, paddingBottom: 36, paddingTop: 4 }}>
         <p style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: "0.16em", color: K.goldText, margin: "0 0 8px" }}>WIE ALT BIST DU?</p>
         <div role="group" aria-label="Alter wählen" style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 6 }}>
           {ALTERSSTUFEN.map((s) => {
@@ -84,8 +64,9 @@ export function KiWahlSeite({ gehe }) {
             const zahl = w.id === "mathilda" ? null : erledigt(w.id);
             return (
               <section key={w.id} className="kw-karte" data-kiwahl-weg={w.id} data-kiwahl-passt={empfohlen ? "ja" : stufe ? "nein" : ""}
-                style={{ background: K.weiss, borderRadius: 20, padding: "18px 16px 16px", position: "relative", opacity: gedimmt ? 0.62 : 1,
-                  border: `${empfohlen ? 2 : 1}px solid ${empfohlen ? K.gold : K.linie}`, boxShadow: "0 2px 14px rgba(15,26,51,0.06)" }}>
+                style={{ background: K.weiss, borderRadius: 22, padding: "18px 16px 16px", position: "relative", opacity: gedimmt ? 0.62 : 1,
+                  border: `${empfohlen ? 2 : 1}px solid ${empfohlen ? K.gold : K.linie}`,
+                  boxShadow: empfohlen ? "0 1px 2px rgba(15,26,51,0.04), 0 14px 32px -14px rgba(237,187,0,0.55)" : "0 1px 2px rgba(15,26,51,0.04), 0 6px 18px -10px rgba(15,26,51,0.14)" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
                   <span style={{ background: K.navy, color: K.gold, fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", padding: "5px 11px", borderRadius: 999 }}>{w.alter.toUpperCase()}</span>
                   <span style={{ fontSize: 12.5, color: K.grau, fontWeight: 600 }}>{w.altersZeile}</span>

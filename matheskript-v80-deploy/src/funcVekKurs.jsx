@@ -6,7 +6,8 @@
         dieses Kapitels: /buecher/vektoren/index.html?von=…&bis=…)
      2. darunter alle Trainingswerkzeuge zu diesem Kapitel – sie öffnen
         sich als Pop-up-Fenster im Modul, man verlässt den Kurs nicht.
-   Farben: cooles Lila (C.vkNacht … C.vkNebel) mit warmem Gold.
+   Farben: Tiefblau (C.vkNacht … C.vkNebel) mit warmem Gold (TIEFBLAU in kursFarben.js);
+   Kopf, Fortschritt und Modulliste aus funcKursKopf.jsx (wie bei allen Kursen).
    Fortschritt (gelesen/geübt) liegt im localStorage dieses Geräts.
 
    EINFÜGEN, SOBALD DAS HEFT FERTIG IST (schulbuch/vektoren/LIESMICH.md):
@@ -23,10 +24,14 @@ import { lazyLaden, ChunkGrenze } from "./chunkSchutz.jsx";
 import { WZ_SEITEN, Laden } from "./funcWerkzeugSeite.jsx";
 import { springe } from "./sprung.js";
 import { WerkzeugKarte, KartenStil } from "./funcVekKursKarten.jsx";
+import { KURS_MODULE, KAPITEL, TITEL_KURZ, KAPITEL_KURZ, BUCH_BEREIT } from "./vekKursDaten.js";
+import { TIEFBLAU } from "./kursFarben.js";
+import { MotivEbene } from "./funcKursMotive.jsx";
+import { KursKopf, FortschrittKarte, Hinweis, KapitelKopf, ModulKarte, ModulListe, IconBuch, IconWerkzeug, IconVideo } from "./funcKursKopf.jsx";
+
+export { KURS_MODULE, KAPITEL, BUCH_BEREIT };
 
 const BUCH = "/buecher/vektoren/index.html";
-/* Das Heft ist fertig: die Lesefunktion ersetzt den Platzhalter */
-export const BUCH_BEREIT = true;
 
 /* Rollen wie im Differentialrechnungskurs: baby = Akzent auf Dunkel bzw. helle Fläche, hell = Nebel,
    tief = Linie/Fortschritt, schwarz = Nacht, gold = Akzentschrift auf Hell, leucht = Gold auf Dunkel */
@@ -56,79 +61,6 @@ export const KURS_WERKZEUGE = {
   abstaende: wzSeite("abstaende"),
 };
 
-/* Ein Modul je Unterkapitel des Hefts. von/bis = Buchseiten (Dateinummer in schulbuch/vektoren/pages = Seitenzahl).
-   Die Auftaktseite eines Kapitels gehört wie im Differentialrechnungskurs zum ersten Modul. */
-export const KURS_MODULE = [
-  { id: "zweigeraden", kap: "I", nr: "1", titel: "Zwei Geraden in der Ebene", frage: "Wo treffen sich zwei Geraden – und warum ist das schon ein Gleichungssystem?", von: 3, bis: 5,
-    werkzeuge: ["geraden2d", "lgs"] },
-  { id: "gauss", kap: "I", nr: "2", titel: "Das Gauß-Verfahren", frage: "Wie löst man drei Gleichungen mit drei Unbekannten mit System?", von: 6, bis: 7,
-    werkzeuge: ["lgs"] },
-  { id: "loesungsmengen", kap: "I", nr: "3", titel: "Keine, eine oder unendlich viele Lösungen", frage: "Woran erkennt man, wie viele Lösungen ein Gleichungssystem hat?", von: 8, bis: 9,
-    werkzeuge: ["lgs", "ebenevsebene"] },
-  { id: "t1", kap: "I", nr: "", titel: "Training I", frage: "Gleichungssysteme – prüfe dich, bevor es in den Raum geht.", von: 10, bis: 10,
-    werkzeuge: ["lgs", "geraden2d"] },
-  { id: "raum", kap: "II", nr: "4", titel: "Punkte im Raum", frage: "Wie beschreibt man die Lage eines Punktes im Raum?", von: 11, bis: 13,
-    werkzeuge: ["ebenen", "vektorgenerator"] },
-  { id: "vektoren", kap: "II", nr: "5", titel: "Vektoren", frage: "Was haben alle Pfeile mit gleicher Richtung und Länge gemeinsam?", von: 14, bis: 15,
-    werkzeuge: ["vektorgenerator", "zweipunkte"] },
-  { id: "rechnen", kap: "II", nr: "6", titel: "Rechnen mit Vektoren", frage: "Wie addiert und vervielfacht man Verschiebungen?", von: 16, bis: 17,
-    werkzeuge: ["vektorgenerator"] },
-  { id: "linear", kap: "II", nr: "7", titel: "Kollinear, komplanar, linear abhängig", frage: "Wann liegen Vektoren auf einer Linie oder in einer Ebene?", von: 18, bis: 19,
-    werkzeuge: ["vektorgenerator", "lgs", "kreuzprodukt"] },
-  { id: "t2", kap: "II", nr: "", titel: "Training II", frage: "Punkte und Vektoren im Raum – prüfe dich, bevor die Geraden kommen.", von: 20, bis: 20,
-    werkzeuge: ["vektorgenerator", "zweipunkte"] },
-  { id: "parameter", kap: "III", nr: "8", titel: "Geraden in Parameterform", frage: "Wie beschreibt man eine Gerade im Raum, wo y = m · x + c nicht mehr reicht?", von: 21, bis: 23,
-    werkzeuge: ["zweipunkte", "geraden"] },
-  { id: "lagegeraden", kap: "III", nr: "9", titel: "Lage zweier Geraden", frage: "Schneiden, parallel, identisch – oder windschief?", von: 24, bis: 25,
-    werkzeuge: ["geraden", "lgs"] },
-  { id: "t3", kap: "III", nr: "", titel: "Training III", frage: "Geraden im Raum – alles klar?", von: 26, bis: 26,
-    werkzeuge: ["geraden", "zweipunkte"] },
-  { id: "skalar", kap: "IV", nr: "10", titel: "Skalarprodukt und Orthogonalität", frage: "Wie erkennt man an Zahlen, dass zwei Vektoren senkrecht stehen?", von: 27, bis: 29,
-    werkzeuge: ["winkel", "vektorgenerator"] },
-  { id: "winkelvek", kap: "IV", nr: "11", titel: "Winkel zwischen Vektoren", frage: "Wie berechnet man den Winkel zwischen zwei Richtungen im Raum?", von: 30, bis: 31,
-    werkzeuge: ["winkel"] },
-  { id: "kreuz", kap: "IV", nr: "12", titel: "Das Kreuzprodukt", frage: "Gibt es einen Vektor, der auf zwei Vektoren zugleich senkrecht steht?", von: 32, bis: 33,
-    werkzeuge: ["kreuzprodukt", "dreipunkte"] },
-  { id: "t4", kap: "IV", nr: "", titel: "Training IV", frage: "Skalar- und Kreuzprodukt gemischt.", von: 34, bis: 34,
-    werkzeuge: ["winkel", "kreuzprodukt"] },
-  { id: "ebeneparam", kap: "V", nr: "13", titel: "Ebenen in Parameterform", frage: "Wie spannt man mit zwei Richtungen eine Ebene auf?", von: 35, bis: 37,
-    werkzeuge: ["dreipunkte", "ebenen"] },
-  { id: "normalenform", kap: "V", nr: "14", titel: "Normalenform und Koordinatenform", frage: "Reicht ein einziger Vektor, um eine Ebene festzulegen?", von: 38, bis: 39,
-    werkzeuge: ["dreipunkte", "kreuzprodukt", "ebenen"] },
-  { id: "spurpunkte", kap: "V", nr: "15", titel: "Umwandeln, Spurpunkte, Zeichnen", frage: "Wie wechselt man zwischen den Formen – und wie zeichnet man eine Ebene?", von: 40, bis: 41,
-    werkzeuge: ["ebenen", "dreipunkte"] },
-  { id: "geradeebene", kap: "V", nr: "16", titel: "Gerade und Ebene", frage: "Durchstößt die Gerade die Ebene, liegt sie darin oder läuft sie parallel?", von: 42, bis: 43,
-    werkzeuge: ["abstaende", "ebenen"] },
-  { id: "ebeneebene", kap: "V", nr: "17", titel: "Zwei und drei Ebenen", frage: "Wo schneiden sich Ebenen – und was hat das mit Gleichungssystemen zu tun?", von: 44, bis: 45,
-    werkzeuge: ["ebenevsebene", "lgs"] },
-  { id: "t5", kap: "V", nr: "", titel: "Training V", frage: "Ebenen in allen Formen – alles klar?", von: 46, bis: 46,
-    werkzeuge: ["ebenevsebene", "dreipunkte", "ebenen"] },
-  { id: "hnf", kap: "VI", nr: "18", titel: "Abstand Punkt–Ebene", frage: "Wie weit ist ein Punkt von einer Ebene entfernt?", von: 47, bis: 49,
-    werkzeuge: ["abstaende"] },
-  { id: "punktgerade", kap: "VI", nr: "19", titel: "Abstand Punkt–Gerade", frage: "Wo liegt der Lotfußpunkt – und wie findet man ihn auf zwei Wegen?", von: 50, bis: 51,
-    werkzeuge: ["abstaende", "geraden"] },
-  { id: "windschief", kap: "VI", nr: "20", titel: "Abstand windschiefer Geraden", frage: "Wie nah kommen sich zwei Geraden, die sich nie treffen?", von: 52, bis: 53,
-    werkzeuge: ["abstaende", "geraden"] },
-  { id: "schnittwinkel", kap: "VI", nr: "21", titel: "Schnittwinkel", frage: "Unter welchem Winkel schneiden sich Geraden und Ebenen?", von: 54, bis: 55,
-    werkzeuge: ["winkel", "ebenevsebene"] },
-  { id: "spiegeln", kap: "VI", nr: "22", titel: "Spiegelungen", frage: "Wie spiegelt man einen Punkt an einem Punkt oder an einer Ebene?", von: 56, bis: 57,
-    werkzeuge: ["abstaende", "vektorgenerator"] },
-  { id: "t6", kap: "VI", nr: "", titel: "Training VI", frage: "Abstände, Winkel, Spiegelungen – prüfe dich.", von: 58, bis: 58,
-    werkzeuge: ["abstaende", "winkel"] },
-  { id: "abitur", kap: "A", nr: "", titel: "Abitur-Training", frage: "Alles zusammen – auf Abiturniveau.", von: 59, bis: 60,
-    werkzeuge: ["abstaende", "ebenevsebene", "geraden"] },
-  { id: "rueckblick", kap: "A", nr: "", titel: "Rückblick · Alles auf einen Blick", frage: "Alle Formen, Verfahren und Formeln auf einer Seite.", von: 61, bis: 61, werkzeuge: [] },
-  { id: "loes", kap: "L", nr: "", titel: "Lösungen", frage: "Alle Lösungen zum Nachschlagen und Vergleichen.", von: 62, bis: 68, werkzeuge: [] },
-];
-
-export const KAPITEL = { I: "Geraden und Gleichungssysteme", II: "Vektoren im Raum", III: "Geraden im Raum", IV: "Skalarprodukt und Kreuzprodukt", V: "Ebenen", VI: "Abstände, Winkel, Spiegelungen", A: "Abitur", L: "Anhang" };
-
-/* Kurztitel und Kurznamen der Kapitel für die Übersicht – damit jede Überschrift in eine Zeile passt */
-const TITEL_KURZ = {
-  loesungsmengen: "Anzahl der Lösungen", linear: "Linear abhängig", skalar: "Skalarprodukt", normalenform: "Normalenform",
-  spurpunkte: "Spurpunkte und Zeichnen", windschief: "Windschiefe Geraden", rueckblick: "Rückblick",
-};
-const KAPITEL_KURZ = { I: "Gleichungssysteme", II: "Vektoren im Raum", III: "Geraden im Raum", IV: "Skalar- und Kreuzprodukt", V: "Ebenen", VI: "Abstände und Winkel", A: "Abitur", L: "Anhang" };
 /* Anzahl Erklärvideos je Modul (noch keine produziert → 0); später: videos: n im Modul eintragen */
 const videosVon = (m) => m.videos || 0;
 
@@ -169,11 +101,11 @@ const fertig = (m, s) => (s.haken && typeof s.haken[m.id] === "boolean" ? s.hake
 const nachOben = () => springe("vekkurs-modul", () => window.scrollTo({ top: 0, behavior: "auto" }));
 
 /* ---------- Kleine Bausteine ---------- */
-function Haken({ an, farbe = K.gold }) {
+function Haken({ an, farbe = K.leucht }) {
   return (
     <span aria-hidden="true" style={{ display: "inline-flex", width: 22, height: 22, borderRadius: 11, flex: "none", alignItems: "center", justifyContent: "center",
       background: an ? farbe : "transparent", border: an ? "none" : `1.5px solid ${C.linie}` }}>
-      {an && <svg width="12" height="12" viewBox="0 0 12 12"><path d="M2.5 6.2l2.4 2.4 4.6-5" stroke="#fff" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>}
+      {an && <svg width="12" height="12" viewBox="0 0 12 12"><path d="M2.5 6.2l2.4 2.4 4.6-5" stroke={K.schwarz} strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>}
     </span>
   );
 }
@@ -186,40 +118,19 @@ function Zeichen({ text, gross }) {
 }
 
 /* ---------- Kopf ---------- */
-export function VekKursKopf({ untertitel }) {
+const KAPITEL_ZAHL = Object.keys(KAPITEL).filter((k) => k !== "L" && k !== "A").length;
+export function VekKursKopf({ untertitel, kompakt }) {
   return (
-    <div style={{ background: `linear-gradient(160deg, ${K.schwarz} 0%, ${K.gold} 60%, #1A3E96 100%)`, color: K.weiss, position: "relative", overflow: "hidden" }}>
-      <style>{`@media (max-width:640px){.vk-kopfbild{opacity:.28 !important}}`}</style>
-      <svg className="vk-kopfbild" aria-hidden="true" viewBox="0 0 400 180" preserveAspectRatio="xMaxYMid slice" style={{ position: "absolute", right: 0, top: 0, height: "100%", width: "min(62%, 440px)", opacity: 0.7 }}>
-        <path d="M150 150 L330 120 L380 30 L200 60 Z" fill="rgba(168,192,240,0.18)" stroke={K.baby} strokeWidth="1.5" />
-        <path d="M120 165 L120 40 M120 165 L250 165 M120 165 L60 210" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" />
-        <line x1="70" y1="40" x2="390" y2="150" stroke={K.weiss} strokeWidth="3" strokeLinecap="round" opacity="0.85" />
-        <line x1="225" y1="93" x2="268" y2="20" stroke={K.leucht} strokeWidth="3.2" strokeLinecap="round" />
-        <path d="M268 20 l-11 4 l6 7 z" fill={K.leucht} />
-        <circle cx="225" cy="93" r="6.5" fill={K.leucht} />
-      </svg>
-      <div className="held mx-auto px-6 pt-10 pb-5" style={{ maxWidth: 620, position: "relative" }}>
-        <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.18em", color: K.leucht, marginBottom: 8 }}>KURS</p>
-        <h1 style={{ fontWeight: 800, fontSize: "clamp(26px, 7.4vw, 38px)", letterSpacing: "-0.03em", lineHeight: 1.08, color: K.weiss, margin: 0 }}>Vektoren, Geraden<br />und Ebenen</h1>
-        <div style={{ width: 54, height: 4, background: K.leucht, borderRadius: 2, marginTop: 16, marginBottom: 14 }} />
-        <p style={{ color: "rgba(255,255,255,0.82)", fontSize: 15, fontWeight: 400, lineHeight: 1.6, margin: 0, maxWidth: 440 }}>{untertitel}</p>
-      </div>
-      <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0", position: "relative" }} />
-    </div>
+    <KursKopf farben={TIEFBLAU} Motiv={MotivEbene} id="ks-vek" titel="Vektoren, Geraden und Ebenen" zeile={untertitel} kompakt={kompakt}
+      chips={[
+        { icon: <IconBuch />, text: `${KURS_MODULE.length} Module` },
+        { icon: <IconVideo />, text: `${KAPITEL_ZAHL} Kapitel + Abitur` },
+        { icon: <IconWerkzeug />, text: "Lesen, dann trainieren" },
+      ]} />
   );
 }
 
 /* ---------- Übersicht ---------- */
-const IconBuch = () => (
-  <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" style={{ flex: "none" }}><path d="M4 5.5C4 4.7 4.7 4 5.5 4H11v15H5.5C4.7 19 4 18.3 4 17.5zM20 5.5c0-.8-.7-1.5-1.5-1.5H13v15h5.5c.8 0 1.5-.7 1.5-1.5z" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" /></svg>
-);
-const IconWerkzeug = () => (
-  <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" style={{ flex: "none" }}><path d="M14.5 6.2a4 4 0 0 0 4.9 4.9l-9.3 9.3a2.2 2.2 0 0 1-3.1-3.1l9.3-9.3a4 4 0 0 0-1.8-1.8z" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" strokeLinecap="round" /></svg>
-);
-const IconVideo = () => (
-  <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" style={{ flex: "none" }}><rect x="3" y="5.5" width="18" height="13" rx="3" fill="none" stroke="currentColor" strokeWidth="1.8" /><path d="M10.2 9.6v4.8l4.2-2.4z" fill="currentColor" /></svg>
-);
-
 function Uebersicht({ stand, setStand, oeffnen }) {
   /* Zahl antippen = Modul von Hand als geschafft markieren bzw. wieder lösen (nur die Zahl, nicht der Balken) */
   const hakenUmschalten = (m) => setStand((s) => {
@@ -232,63 +143,33 @@ function Uebersicht({ stand, setStand, oeffnen }) {
   const kapitel = ["I", "II", "III", "IV", "V", "VI", "A", "L"];
   return (
     <div className="mx-auto px-4 pb-16" style={{ maxWidth: 760 }}>
-      <div style={{ background: K.schwarz, color: K.weiss, borderRadius: 18, padding: "18px 18px 16px", marginBottom: 22, boxShadow: "0 8px 26px rgba(11,12,16,0.22)" }}>
-        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10 }}>
-          <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.14em", color: K.baby, margin: 0 }}>DEIN FORTSCHRITT</p>
-          <p style={{ fontSize: 13, color: "#C9D2DE", margin: 0 }}><b style={{ color: K.weiss, fontSize: 18 }}>{zahl}</b> von {KURS_MODULE.length} Modulen</p>
-        </div>
-        <div style={{ height: 8, borderRadius: 4, background: "rgba(255,255,255,0.14)", marginTop: 10, overflow: "hidden" }} role="progressbar" aria-valuemin={0} aria-valuemax={KURS_MODULE.length} aria-valuenow={zahl}>
-          <div style={{ height: "100%", width: `${(zahl / KURS_MODULE.length) * 100}%`, background: `linear-gradient(90deg, ${K.baby}, ${K.tief})`, borderRadius: 4, transition: "width .3s" }} />
-        </div>
-        <button type="button" onClick={() => oeffnen(weiterMit.id)}
-          style={{ marginTop: 14, width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, padding: "12px 14px", borderRadius: 12, border: "none", cursor: "pointer",
-            background: K.baby, color: K.schwarz, fontFamily: "inherit", fontWeight: 700, fontSize: 14.5, textAlign: "left" }}>
-          <span style={{ minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{`${zahl === 0 ? "Kurs starten" : "Weiter mit"}: ${weiterMit.nr ? weiterMit.nr + " " : ""}${TITEL_KURZ[weiterMit.id] || weiterMit.titel}`}</span>
-          <span aria-hidden="true" style={{ flex: "none" }}>→</span>
-        </button>
-      </div>
+      <FortschrittKarte farben={TIEFBLAU} zahl={zahl} gesamt={KURS_MODULE.length} einheit="Module" einheitDativ="Modulen" onKnopf={() => oeffnen(weiterMit.id)}
+        knopf={zahl === 0 ? "Kurs starten" : "Weiter mit"} ziel={`${weiterMit.nr ? weiterMit.nr + " " : ""}${TITEL_KURZ[weiterMit.id] || weiterMit.titel}`} />
 
-      <p style={{ color: C.grau, fontSize: 15, lineHeight: 1.75, fontWeight: 300, margin: "0 4px 18px" }}>
-        Jedes Modul ist ein Kapitel aus unserem Schulbuch: Du liest es direkt hier und trainierst darunter mit den passenden Werkzeugen.
-        {BUCH_BEREIT ? " Ein Modul gilt als geschafft, wenn du bis zur letzten Seite gelesen und mindestens ein Werkzeug benutzt hast." : "Das Heft entsteht gerade – die Werkzeuge kannst du schon jetzt in jedem Modul benutzen."}
-      </p>
+      <Hinweis>
+        Jedes Modul ist ein Kapitel aus unserem Heft: Du liest es direkt hier und trainierst darunter mit den passenden Werkzeugen.
+        {BUCH_BEREIT ? " Geschafft ist ein Modul, wenn du bis zur letzten Seite gelesen und mindestens ein Werkzeug benutzt hast – oder du tippst die Zahl an und setzt den Haken selbst." : " Das Heft entsteht gerade – die Werkzeuge kannst du schon jetzt in jedem Modul benutzen."}
+      </Hinweis>
 
       {kapitel.map((k) => (
-        <section key={k} style={{ marginBottom: 22 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "0 4px 10px", minWidth: 0 }}>
-            {k !== "L" && k !== "A" && <span style={{ flex: "none", whiteSpace: "nowrap", fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", color: K.weiss, background: K.schwarz, padding: "4px 9px", borderRadius: 6 }}>KAPITEL {k}</span>}
-            <h2 title={KAPITEL[k]} style={{ fontSize: 17, fontWeight: 700, color: K.schwarz, margin: 0, minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{KAPITEL_KURZ[k] || KAPITEL[k]}</h2>
-          </div>
-          <div style={{ display: "grid", gap: 10 }}>
+        <section key={k}>
+          <KapitelKopf farben={TIEFBLAU} marke={k !== "L" && k !== "A" ? k : null} titel={KAPITEL_KURZ[k] || KAPITEL[k]} voll={KAPITEL[k]} />
+          <ModulListe>
             {KURS_MODULE.filter((m) => m.kap === k).map((m) => {
               const ok = fertig(m, stand);
               const seiten = m.bis - m.von + 1;
-              const kurz = TITEL_KURZ[m.id] || m.titel;
+              const meta = [{ icon: <IconBuch />, text: `${seiten} S.`, label: `${seiten} ${seiten === 1 ? "Seite" : "Seiten"} lesen` }];
+              if (m.werkzeuge.length > 0) meta.push({ icon: <IconWerkzeug />, text: `${m.werkzeuge.length} Tools`, label: `${m.werkzeuge.length} Werkzeuge` });
+              meta.push({ icon: <IconVideo />, text: `${videosVon(m)} ${videosVon(m) === 1 ? "Video" : "Videos"}`, label: `${videosVon(m)} Videos` });
               return (
-                <div key={m.id} className="vk-modul" onClick={() => oeffnen(m.id)}
-                  style={{ display: "flex", alignItems: "center", gap: 14, width: "100%", boxSizing: "border-box", padding: "14px 14px", borderRadius: 16, cursor: "pointer", textAlign: "left", fontFamily: "inherit",
-                    background: K.weiss, border: `1px solid ${ok ? K.leucht : C.linie}`, boxShadow: "0 2px 14px rgba(15,26,51,0.06)" }}>
-                  <button type="button" onClick={(e) => { e.stopPropagation(); hakenUmschalten(m); }} aria-pressed={ok}
-                    aria-label={`${m.nr ? "Modul " + m.nr : m.titel}: ${ok ? "als geschafft markiert – antippen zum Zurücknehmen" : "als geschafft markieren"}`}
-                    style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", flex: "none", width: 44, height: 44, borderRadius: 12, padding: 0, border: "none", cursor: "pointer", fontFamily: "inherit",
-                      background: ok ? K.leucht : m.nr ? K.baby : K.hell, color: K.schwarz, fontWeight: 800, fontSize: m.nr ? 18 : 13, transition: "background .15s" }}>
-                    {m.nr || (m.id === "loes" ? "✓" : m.kap === "A" ? "A" : "T")}
-                  </button>
-                  <span style={{ flex: 1, minWidth: 0 }}>
-                    <span title={m.titel} style={{ display: "block", fontWeight: 700, fontSize: 15.5, color: K.schwarz, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{kurz}</span>
-                    <span style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 12.5, color: C.grau, marginTop: 4, whiteSpace: "nowrap", overflow: "hidden" }}>
-                      <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }} aria-label={`${seiten} ${seiten === 1 ? "Seite" : "Seiten"} lesen`}><IconBuch />{seiten} S.</span>
-                      {m.werkzeuge.length > 0 && <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }} aria-label={`${m.werkzeuge.length} Werkzeuge`}><IconWerkzeug />{m.werkzeuge.length} Tools</span>}
-                      <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }} aria-label={`${videosVon(m)} Videos`}><IconVideo />{videosVon(m)} {videosVon(m) === 1 ? "Video" : "Videos"}</span>
-                    </span>
-                  </span>
-                </div>
+                <ModulKarte key={m.id} klasse="vk-modul" farben={TIEFBLAU} nr={m.nr} zeichen={m.id === "loes" ? "✓" : m.kap === "A" ? "A" : "T"} titel={TITEL_KURZ[m.id] || m.titel} voll={m.titel}
+                  meta={meta} ok={ok} onClick={() => oeffnen(m.id)} onHaken={() => hakenUmschalten(m)}
+                  hakenLabel={`${m.nr ? "Modul " + m.nr : m.titel}: ${ok ? "als geschafft markiert – antippen zum Zurücknehmen" : "als geschafft markieren"}`} />
               );
             })}
-          </div>
+          </ModulListe>
         </section>
       ))}
-      <style>{`.vk-modul{transition:transform .15s ease, box-shadow .15s ease} @media (hover:hover){.vk-modul:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(15,26,51,0.10)}}`}</style>
     </div>
   );
 }
@@ -541,7 +422,7 @@ export function VekKursSeite({ gehe }) {
   const zurUebersicht = () => { setModulId(null); nachOben(); };
   return (
     <>
-      <VekKursKopf untertitel={modul ? `${KURS_MODULE.length} Module · Kapitel lesen, dann trainieren` : "Vom Gleichungssystem bis zum Abstand windschiefer Geraden – jedes Kapitel lesen und direkt darunter trainieren."} />
+      <VekKursKopf kompakt={!!modul} untertitel={modul ? `${KURS_MODULE.length} Module · Kapitel lesen, dann trainieren` : "Vom Gleichungssystem bis zum Abstand windschiefer Geraden – lesen, dann trainieren."} />
       {modul
         ? <Modul key={modul.id} modul={modul} stand={stand} setStand={setStand} oeffnen={oeffnen} zurUebersicht={zurUebersicht} gehe={gehe} />
         : <Uebersicht stand={stand} setStand={setStand} oeffnen={oeffnen} />}

@@ -1,7 +1,8 @@
-"""Kurs Vektoren, Geraden und Ebenen: Kachel auf der Startseite, Übersicht, Modul mit Platzhalter, Werkzeug-Fenster.
+"""Kurs Vektoren, Geraden und Ebenen: Kachel auf der Startseite, Übersicht, Modul mit Lesefunktion, Werkzeug-Fenster.
 Bei 360/390/1280 px, ohne Überbreite und ohne Konsolenfehler."""
 import os, sys
 from playwright.sync_api import sync_playwright
+os.makedirs("/tmp/vekkurs", exist_ok=True)
 
 BASE = os.environ.get("BASE_URL", "http://localhost:4173/")
 fehler = []
@@ -20,20 +21,20 @@ with sync_playwright() as p:
             fehler.append(f"{breite}: Kachel fehlt")
             continue
         kachel.first.scroll_into_view_if_needed()
-        seite.screenshot(path=f"/tmp/claude-0/-home-claude/2301709f-8eb2-5551-b0bc-6db8a05cba0d/scratchpad/vk-kachel-{breite}.png", clip=None)
+        seite.screenshot(path=f"/tmp/vekkurs/vk-kachel-{breite}.png", clip=None)
         kachel.first.click()
         seite.wait_for_timeout(800)
         if "vektoren-geraden-ebenen" not in seite.url: fehler.append(f"{breite}: Pfad {seite.url}")
-        seite.get_by_text("Kurs starten:").first.click()
-        seite.wait_for_timeout(600)
-        if seite.get_by_text("Dieses Kapitel wird gerade geschrieben.").count() == 0: fehler.append(f"{breite}: Platzhalter fehlt")
+        seite.locator(".ks-weiter").first.click()
+        seite.wait_for_timeout(800)
+        if seite.locator("iframe[title*='lesen']").count() == 0: fehler.append(f"{breite}: Lesefunktion (Heft) fehlt")
         seite.get_by_role("button", name="Jetzt öffnen").first.click()
         seite.wait_for_timeout(1500)
         if seite.get_by_role("dialog").count() == 0: fehler.append(f"{breite}: Werkzeug-Fenster fehlt")
-        seite.screenshot(path=f"/tmp/claude-0/-home-claude/2301709f-8eb2-5551-b0bc-6db8a05cba0d/scratchpad/vk-fenster-{breite}.png")
+        seite.screenshot(path=f"/tmp/vekkurs/vk-fenster-{breite}.png")
         seite.keyboard.press("Escape")
         seite.wait_for_timeout(300)
-        seite.screenshot(path=f"/tmp/claude-0/-home-claude/2301709f-8eb2-5551-b0bc-6db8a05cba0d/scratchpad/vk-modul-{breite}.png", full_page=True)
+        seite.screenshot(path=f"/tmp/vekkurs/vk-modul-{breite}.png", full_page=True)
         ueber = seite.evaluate("document.documentElement.scrollWidth - window.innerWidth")
         if ueber > 1: fehler.append(f"{breite}: Überbreite {ueber}px")
         if konsole: fehler.append(f"{breite}: Konsole {konsole[:2]}")

@@ -6,13 +6,17 @@
      2. So gehst du eine GFS an: sieben Schritte mit Text, Video-Platz
         und Checkliste
      3. Zeitplaner: vom Termin aus rückwärts
-   Farben: Nachtschwarz mit Gold (die Bühne). Fortschritt im localStorage.
+   Farben: Lackschwarz mit Gold, die Bühne (LACKSCHWARZ in kursFarben.js); Kopf,
+   Fortschritt und Abschnittsköpfe aus funcKursKopf.jsx. Fortschritt im localStorage.
    Daten und Logik: gfsKurs.js
    ============================================================ */
 import React, { useState } from "react";
 import { C } from "./base1.jsx";
 import { ErklaerVideo } from "./func1.jsx";
 import { KLASSEN, klasseName, stufenText, THEMEN, themenFuer, LEITFADEN, zeitplan, datumSchreiben } from "./gfsKurs.js";
+import { LACKSCHWARZ } from "./kursFarben.js";
+import { MotivBuehne } from "./funcKursMotive.jsx";
+import { KursKopf, FortschrittKarte, KapitelKopf, IconVideo, IconAufgabe, IconUhr } from "./funcKursKopf.jsx";
 
 const K = { nacht: C.nachtschwarz, dunkel: C.golddunkel, gold: C.flaggold, goldWarm: C.goldWarm, hell: "#FFF6D6", weiss: C.weiss, text: "#A67C00" };
 
@@ -25,37 +29,21 @@ const schrittFertig = (s, stand) => s.check.every((_, i) => stand.haken[`${s.id}
 /* ---------- Kopf ---------- */
 export function GfsKursKopf() {
   return (
-    <div style={{ background: `linear-gradient(160deg, ${K.nacht} 0%, #1E1A0E 55%, ${K.dunkel} 100%)`, color: K.weiss, position: "relative", overflow: "hidden" }}>
-      <style>{`@media (max-width:640px){.gfs-kopfbild{opacity:.22 !important}}`}</style>
-      <svg className="gfs-kopfbild" aria-hidden="true" viewBox="0 0 400 180" preserveAspectRatio="xMaxYMid slice" style={{ position: "absolute", right: 0, top: 0, height: "100%", width: "min(62%, 440px)", opacity: 0.55 }}>
-        <rect x="150" y="18" width="230" height="120" rx="8" fill="rgba(255,246,214,0.08)" stroke={K.gold} strokeWidth="1.5" />
-        <g fill={K.hell} fontFamily="Montserrat, sans-serif" fontWeight="700" fontSize="16" textAnchor="middle" opacity="0.9">
-          <text x="265" y="52">1</text><text x="249" y="76">1</text><text x="281" y="76">1</text>
-          <text x="233" y="100">1</text><text x="265" y="100">2</text><text x="297" y="100">1</text>
-          <text x="217" y="124">1</text><text x="249" y="124">3</text><text x="281" y="124">3</text><text x="313" y="124">1</text>
-        </g>
-      </svg>
-      <div className="held mx-auto px-6 pt-10 pb-5" style={{ maxWidth: 620, position: "relative" }}>
-        <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.18em", color: K.gold, marginBottom: 8 }}>KURS</p>
-        <h1 style={{ fontWeight: 800, fontSize: "clamp(26px, 7.4vw, 38px)", letterSpacing: "-0.03em", lineHeight: 1.08, color: K.weiss, margin: 0 }}>GFS in Mathe</h1>
-        <div style={{ width: 54, height: 4, background: K.gold, borderRadius: 2, marginTop: 16, marginBottom: 14 }} />
-        <p style={{ color: "rgba(255,255,255,0.82)", fontSize: 15, fontWeight: 400, lineHeight: 1.6, margin: 0, maxWidth: 440 }}>
-          Dein Thema aus dem Lambacher Schweizer finden und gezielt trainieren – und in sieben Schritten lernen, wie eine GFS gelingt.
-        </p>
-      </div>
-      <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0", position: "relative" }} />
-    </div>
+    <KursKopf farben={LACKSCHWARZ} Motiv={MotivBuehne} id="ks-gfs" titel="GFS in Mathe"
+      zeile="Dein Thema aus dem Lambacher Schweizer finden – und in sieben Schritten lernen, wie eine GFS gelingt."
+      chips={[
+        { icon: <IconAufgabe />, text: `${LEITFADEN.length} Schritte` },
+        { icon: <span style={{ display: "inline-flex", width: 14, height: 14, flex: "none" }}><IconVideo /></span>, text: `${THEMEN.length} ${THEMEN.length === 1 ? "Themenseite" : "Themenseiten"}` },
+        { icon: <IconUhr />, text: "Zeitplan bis zum Termin" },
+      ]} />
   );
 }
 
 /* ---------- Kleine Bausteine ---------- */
 const Abschnitt = ({ nr, titel, text, children }) => (
   <section style={{ marginBottom: 34 }}>
-    <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "0 4px 8px" }}>
-      <span style={{ flex: "none", fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", color: K.weiss, background: K.nacht, padding: "4px 9px", borderRadius: 6 }}>TEIL {nr}</span>
-      <h2 style={{ fontSize: 19, fontWeight: 700, color: K.nacht, margin: 0, letterSpacing: "-0.01em" }}>{titel}</h2>
-    </div>
-    {text && <p style={{ color: C.grau, fontSize: 15, lineHeight: 1.75, fontWeight: 300, margin: "0 4px 16px" }}>{text}</p>}
+    <KapitelKopf farben={LACKSCHWARZ} marke={`Teil ${nr}`} titel={titel} />
+    {text && <p style={{ color: C.grau, fontSize: 14.5, lineHeight: 1.65, margin: "2px 4px 16px", maxWidth: "62ch" }}>{text}</p>}
     {children}
   </section>
 );
@@ -65,10 +53,6 @@ const Haken = ({ an }) => (
     background: an ? K.gold : K.weiss, border: an ? "none" : `1.5px solid ${C.linie}`, transition: "background .15s" }}>
     {an && <svg width="12" height="12" viewBox="0 0 12 12"><path d="M2.5 6.2l2.4 2.4 4.6-5" stroke={K.nacht} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>}
   </span>
-);
-
-const IconVideo = () => (
-  <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" style={{ flex: "none" }}><rect x="3" y="5.5" width="18" height="13" rx="3" fill="none" stroke="currentColor" strokeWidth="1.8" /><path d="M10.2 9.6v4.8l4.2-2.4z" fill="currentColor" /></svg>
 );
 
 /* ---------- Teil 1: Dein Thema ---------- */
@@ -108,15 +92,15 @@ function ThemenWahl({ stand, setzen, gehe }) {
         const gewaehlt = stand.thema === t.id;
         return (
           <div key={t.id} className="gfs-thema" onClick={() => { setzen({ thema: t.id }); gehe({ ansicht: t.ansicht }); }}
-            style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 14px", borderRadius: 16, cursor: "pointer", marginBottom: 10,
-              background: K.weiss, border: `1px solid ${gewaehlt ? K.gold : C.linie}`, boxShadow: "0 2px 14px rgba(15,26,51,0.06)" }}>
-            <span aria-hidden="true" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", flex: "none", width: 44, height: 44, borderRadius: 12,
+            style={{ display: "flex", alignItems: "center", gap: 14, padding: "12px 14px 12px 12px", borderRadius: 18, cursor: "pointer", marginBottom: 10,
+              background: K.weiss, border: `1px solid ${gewaehlt ? K.gold : C.linie}`, boxShadow: "0 1px 2px rgba(15,26,51,0.04), 0 6px 18px -10px rgba(15,26,51,0.14)" }}>
+            <span aria-hidden="true" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", flex: "none", width: 46, height: 46, borderRadius: 14,
               background: K.nacht, color: K.gold, fontWeight: 800, fontSize: 15, fontStyle: "italic" }}>{t.kapitel}</span>
             <span style={{ flex: 1, minWidth: 0 }}>
               <span style={{ display: "block", fontSize: 11.5, fontWeight: 700, color: K.text, letterSpacing: "0.02em", marginBottom: 3 }}>{t.kapitelName} · S. {t.seite}{t.schulart ? ` · ${stufenText(t)}` : ""}</span>
               <span style={{ display: "block", fontWeight: 700, fontSize: 15.5, color: K.nacht, lineHeight: 1.3 }}>{t.titel}</span>
               <span style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 12.5, color: C.grau, marginTop: 5, whiteSpace: "nowrap", overflow: "hidden" }}>
-                <span style={{ display: "inline-flex", alignItems: "center", gap: 4, flex: "none" }}><IconVideo />{t.animationen ? `${t.animationen} Animationen` : `${t.videos} ${t.videos === 1 ? "Video" : "Videos"}`}</span>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 4, flex: "none" }}><span style={{ display: "inline-flex", width: 14, height: 14, flex: "none" }}><IconVideo /></span>{t.animationen ? `${t.animationen} Animationen` : `${t.videos} ${t.videos === 1 ? "Video" : "Videos"}`}</span>
                 <span>Beweis · Übung · Kolloquium</span>
               </span>
             </span>
@@ -137,10 +121,10 @@ function Schritt({ s, stand, setzen }) {
   const umschalten = () => setzen({ offen: { ...stand.offen, [s.id]: !offen } });
   const haken = (i) => { const k = `${s.id}-${i}`; setzen({ haken: { ...stand.haken, [k]: !stand.haken[k] } }); };
   return (
-    <div style={{ background: K.weiss, border: `1px solid ${fertig ? K.gold : C.linie}`, borderRadius: 16, marginBottom: 10, boxShadow: "0 2px 14px rgba(15,26,51,0.06)", overflow: "hidden" }}>
+    <div style={{ background: K.weiss, border: `1px solid ${fertig ? K.gold : C.linie}`, borderRadius: 18, marginBottom: 10, boxShadow: "0 1px 2px rgba(15,26,51,0.04), 0 6px 18px -10px rgba(15,26,51,0.14)", overflow: "hidden" }}>
       <button type="button" onClick={umschalten} aria-expanded={offen}
-        style={{ display: "flex", alignItems: "center", gap: 14, width: "100%", padding: "14px 14px", border: "none", background: "none", cursor: "pointer", fontFamily: "inherit", textAlign: "left", color: K.nacht }}>
-        <span aria-hidden="true" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", flex: "none", width: 44, height: 44, borderRadius: 12,
+        style={{ display: "flex", alignItems: "center", gap: 14, width: "100%", padding: "12px 14px 12px 12px", border: "none", background: "none", cursor: "pointer", fontFamily: "inherit", textAlign: "left", color: K.nacht }}>
+        <span aria-hidden="true" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", flex: "none", width: 46, height: 46, borderRadius: 14,
           background: fertig ? K.gold : K.hell, color: K.nacht, fontWeight: 800, fontSize: 18, transition: "background .15s" }}>{s.nr}</span>
         <span style={{ flex: 1, minWidth: 0 }}>
           <span style={{ display: "block", fontWeight: 700, fontSize: 15.5, lineHeight: 1.3 }}>{s.titel}</span>
@@ -156,7 +140,7 @@ function Schritt({ s, stand, setzen }) {
           <p style={{ fontSize: 16.5, fontWeight: 700, color: K.nacht, letterSpacing: "-0.01em", lineHeight: 1.3, margin: "16px 0 12px" }}>{s.frage}</p>
           {s.video ? <ErklaerVideo id={s.video} titel={s.titel} /> : (
             <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12.5, fontWeight: 600, color: K.text, background: K.hell, borderRadius: 10, padding: "8px 12px", marginBottom: 14 }}>
-              <IconVideo />Video zu diesem Schritt folgt
+              <span style={{ display: "inline-flex", width: 14, height: 14, flex: "none" }}><IconVideo /></span>Video zu diesem Schritt folgt
             </div>
           )}
           {s.absaetze.map((a, i) => <p key={i} style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.8, margin: "0 0 12px" }}>{a}</p>)}
@@ -182,7 +166,7 @@ function Zeitplaner({ stand, setzen }) {
   const heute = datumSchreiben(Date.now() - new Date().getTimezoneOffset() * 60000);
   const plan = stand.termin ? zeitplan(stand.termin, heute) : null;
   return (
-    <div style={{ background: K.weiss, borderRadius: 16, padding: "16px 16px 10px", border: `1px solid ${C.linie}`, boxShadow: "0 2px 14px rgba(15,26,51,0.06)" }}>
+    <div style={{ background: K.weiss, borderRadius: 18, padding: "16px 16px 10px", border: `1px solid ${C.linie}`, boxShadow: "0 1px 2px rgba(15,26,51,0.04), 0 6px 18px -10px rgba(15,26,51,0.14)" }}>
       <label style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 10, marginBottom: plan ? 16 : 4 }}>
         <span style={{ fontSize: 14.5, fontWeight: 600, color: K.nacht }}>Wann ist deine GFS?</span>
         <input type="date" value={stand.termin} min={heute} onChange={(e) => setzen({ termin: e.target.value })} aria-label="Termin der GFS"
@@ -227,27 +211,11 @@ export function GfsKursSeite({ gehe }) {
   return (
     <>
       <GfsKursKopf />
-      <div className="mx-auto px-4 pb-16" style={{ maxWidth: 760, paddingTop: 6 }}>
-        <div style={{ background: K.nacht, color: K.weiss, borderRadius: 18, padding: "18px 18px 16px", marginBottom: 26, boxShadow: "0 8px 26px rgba(11,12,16,0.22)" }}>
-          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10 }}>
-            <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.14em", color: K.gold, margin: 0 }}>DEIN FORTSCHRITT</p>
-            <p style={{ fontSize: 13, color: "#C9D2DE", margin: 0 }}><b style={{ color: K.weiss, fontSize: 18 }}>{fertigZahl}</b> von {LEITFADEN.length} Schritten</p>
-          </div>
-          <div style={{ height: 8, borderRadius: 4, background: "rgba(255,255,255,0.14)", marginTop: 10, overflow: "hidden" }} role="progressbar" aria-valuemin={0} aria-valuemax={LEITFADEN.length} aria-valuenow={fertigZahl}>
-            <div style={{ height: "100%", width: `${(fertigZahl / LEITFADEN.length) * 100}%`, background: `linear-gradient(90deg, ${K.goldWarm}, ${K.gold})`, borderRadius: 4, transition: "width .3s" }} />
-          </div>
-          <p style={{ fontSize: 13.5, color: "rgba(255,255,255,0.8)", margin: "12px 0 0", lineHeight: 1.5 }}>
-            {thema ? <>Dein Thema: <b style={{ color: K.weiss }}>{thema.kurz}</b> ({stufenText(thema)})</> : "Noch kein Thema gewählt – Klassenstufe antippen und Thema aussuchen."}
-          </p>
-          {weiter && (
-            <button type="button" onClick={() => setzen({ offen: { ...stand.offen, [weiter.id]: true } })}
-              style={{ marginTop: 14, width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, padding: "12px 14px", borderRadius: 12, border: "none", cursor: "pointer",
-                background: K.gold, color: K.nacht, fontFamily: "inherit", fontWeight: 700, fontSize: 14.5, textAlign: "left" }}>
-              <span style={{ minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{fertigZahl === 0 ? "Kurs starten" : "Weiter mit"}: {weiter.nr} {weiter.titel}</span>
-              <span aria-hidden="true" style={{ flex: "none" }}>→</span>
-            </button>
-          )}
-        </div>
+      <div className="mx-auto px-4 pb-16" style={{ maxWidth: 760 }}>
+        <FortschrittKarte farben={LACKSCHWARZ} zahl={fertigZahl} gesamt={LEITFADEN.length} einheit="Schritte" einheitDativ="Schritten"
+          zusatz={thema ? <>Dein Thema: <b style={{ color: K.weiss }}>{thema.kurz}</b> ({stufenText(thema)})</> : "Noch kein Thema gewählt – Klassenstufe antippen und Thema aussuchen."}
+          knopf={weiter ? (fertigZahl === 0 ? "Kurs starten" : "Weiter mit") : null} ziel={weiter ? `${weiter.nr} ${weiter.titel}` : null}
+          onKnopf={() => weiter && setzen({ offen: { ...stand.offen, [weiter.id]: true } })} />
 
         <Abschnitt nr="1" titel="Dein Thema" text="Zu fast jedem Kapitel im Lambacher Schweizer gibt es ein GFS-Thema. Wähle deine Klassenstufe, dann dein Thema – jede Themenseite bringt Herleitung, Übung, roten Faden und Kolloquium-Training.">
           <ThemenWahl stand={stand} setzen={setzen} gehe={gehe} />
