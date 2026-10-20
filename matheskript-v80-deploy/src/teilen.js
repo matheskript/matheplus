@@ -85,6 +85,7 @@ export const SEITEN_SAETZE = {
   headnumbers: { de: "Kopfrechnen trainieren", en: "train mental arithmetic" },
   kopf: { de: "Kopfrechnen trainieren", en: "train mental arithmetic" },
   meintraining: { de: "jeden Tag gezielt Mathe trainieren", en: "train maths a little every day" },
+  trainingszentrum: { de: "alle Mathe-Trainings an einem Ort – jedes im Vollbild", en: "all maths trainings in one place – each in full screen" },
   fehlertraining: { de: "aus den eigenen Fehlern lernen", en: "learn from your own mistakes" },
   ebbinghaus: { de: "Mathe so wiederholen, dass es hängen bleibt", en: "review maths so that it sticks" },
   abiketten: { de: "Abi-Aufgaben Schritt für Schritt üben", en: "practise Abitur problems step by step" },

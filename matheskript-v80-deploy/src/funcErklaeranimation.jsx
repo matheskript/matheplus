@@ -718,7 +718,7 @@ function integralZeichne(t) {
 export { lauf, T };
 
 /* ---------- Szenen-Auswahl ---------- */
-const INFO = {
+export const INFO = {
   produkt: { titel: "Produktregel am Rechteck", unter: "Warum beim Ableiten zwei Streifen entstehen" },
   kette: { titel: "Kettenregel als Verstärkerkette", unter: "Warum die innere Ableitung nie fehlen darf" },
   stamm: { titel: "Stammfunktion: Ableiten rückwärts", unter: "Warum durch den neuen Exponenten geteilt wird – und warum + C" },
@@ -762,7 +762,7 @@ function IntegralSzene() {
   return <Player szene={{ dauer: 25, hoehe: 350, schritte: INTEGRAL_SCHRITTE, zeichne: integralZeichne,
     beschreibung: "Animation: Die Fläche unter x² zwischen 1 und 3 wird mit 4, 8, 16 und 50 Streifen genähert. Der Hauptsatz liefert den genauen Wert F(3) − F(1) = 26/3." }} />;
 }
-const SZENEN = { produkt: ProduktSzene, kette: KetteSzene, stamm: StammSzene, integral: IntegralSzene, wurzel: WurzelSzene };
+export const SZENEN = { produkt: ProduktSzene, kette: KetteSzene, stamm: StammSzene, integral: IntegralSzene, wurzel: WurzelSzene };
 
 /* ======================================================================
    AUFKLAPP-KARTE

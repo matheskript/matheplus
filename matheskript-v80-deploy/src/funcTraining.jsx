@@ -284,7 +284,7 @@ export function PruefungsLink({ ansicht, gehe, klein, hell = false, pille = fals
   );
 }
 
-export function Aufgabenlauf({ aufgaben, quelle, onEnde, endeText = "Fertig", onWeiter }) {
+export function Aufgabenlauf({ aufgaben, quelle, onEnde, endeText = "Fertig", onWeiter, onSchritt, ohneSprung = false }) {
   const konto = useKonto();
   const [i, setI] = useState(0);
   const [zs, setZs] = useState(() => aufgaben.map(leerZustand));
@@ -294,7 +294,9 @@ export function Aufgabenlauf({ aufgaben, quelle, onEnde, endeText = "Fertig", on
   const kopf = useRef(null);
   const setz = (teil) => setZs((alt) => alt.map((x, k) => (k === i ? { ...x, ...teil } : x)));
 
-  useEffect(() => { try { kopf.current && springe("training-lauf", () => kopf.current.scrollIntoView({ block: "start" })); } catch (e) { /* egal */ } }, [i]);
+  useEffect(() => { if (ohneSprung) return; try { kopf.current && springe("training-lauf", () => kopf.current.scrollIntoView({ block: "start" })); } catch (e) { /* egal */ } }, [i, ohneSprung]);
+  /* Vollbild-Session (funcTrainingsSession.jsx): die Hülle zeigt den Fortschritt und bekommt jeden Schritt gemeldet */
+  useEffect(() => { if (onSchritt) onSchritt(fertig ? aufgaben.length : i, aufgaben.length); }, [i, fertig]);   // eslint-disable-line react-hooks/exhaustive-deps
 
   const pruefen = () => {
     const r = pruefeAntwort(a, z.eingabe);

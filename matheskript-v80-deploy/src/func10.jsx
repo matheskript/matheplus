@@ -104,6 +104,7 @@ const MeinPlan = lazyLaden(() => import("./func8.jsx").then((m) => ({ default: m
 const KlasseAnsicht = lazyLaden(() => import("./func9.jsx").then((m) => ({ default: m.KlasseAnsicht })));
 const KlausurVorbereitung = lazyLaden(() => import("./func9.jsx").then((m) => ({ default: m.KlausurVorbereitung })));
 const TrainingSeite = lazyLaden(() => import("./funcTraining.jsx").then((m) => ({ default: m.TrainingSeite })));
+const Trainingszentrum = lazyLaden(() => import("./funcTrainingszentrum.jsx").then((m) => ({ default: m.Trainingszentrum })));
 const DifferenzenquotientSeite = lazyLaden(() => import("./func5.jsx").then((m) => ({ default: m.DifferenzenquotientSeite })));
 const FotoAufgaben = lazyLaden(() => import("./func4.jsx").then((m) => ({ default: m.FotoAufgaben })));
 const GeneratorHub = lazyLaden(() => import("./func5.jsx").then((m) => ({ default: m.GeneratorHub })));
@@ -163,7 +164,7 @@ export function Mathilda() {
       const a = u.searchParams.get("ansicht");
       if (u.searchParams.has("quelle") || a) {
         u.searchParams.delete("quelle"); u.searchParams.delete("ansicht"); window.history.replaceState({}, "", u.pathname + u.search + u.hash);
-        const erlaubt = ["meintraining", "formeln", "lernpfad", "challenge", "konto", "kopf", "entdecken", "headnumbers", "gleichkurs", "ebbinghaus", "fehlertraining", "warmup"];
+        const erlaubt = ["trainingszentrum", "meintraining", "formeln", "lernpfad", "challenge", "konto", "kopf", "entdecken", "headnumbers", "gleichkurs", "ebbinghaus", "fehlertraining", "warmup"];
         if (a && (erlaubt.includes(a) || istWzSeite(a) || wo(a))) setTimeout(() => gehe({ ansicht: a }), 0);
       }
       const f = u.searchParams.get("formel");
@@ -208,6 +209,7 @@ export function Mathilda() {
   const [formelBereich, setFormelBereich] = useState("analysis");
   const [formelZiel, setFormelZiel] = useState(null);
   const [trainierenZiel, setTrainierenZiel] = useState(null);   // „Eine Sache trainieren“: { kapitel, teil, schulart, klasse }
+  const [tzStart, setTzStart] = useState(null);   // Trainingszentrum: Session direkt starten, z. B. "programm:ableiten-zehn"
   const [kapitelZiel, setKapitelZiel] = useState(null);   // Formelauswahl zum Buchkapitel (Quickfinder)   // Deep-Link auf eine einzelne Formel   // Bereich der Formelsammlung          // Bundesland der Landeswettbewerb-Seite
   const [sprung, setSprung] = useState(null);
   const [fotoModus, setFotoModus] = useState("blatt");
@@ -308,6 +310,7 @@ export function Mathilda() {
     setEntdeckenStart(eintrag.ansicht === "entdecken" ? eintrag.seite || null : null);
     if (eintrag.land) setLandWahl(eintrag.land);
     if (eintrag.ansicht === "formeln") { setFormelBereich(eintrag.bereich || "analysis"); setFormelZiel(eintrag.formel || null); }
+    if (eintrag.ansicht === "trainingszentrum") setTzStart(eintrag.start ? { kennung: eintrag.start, zeit: Date.now() } : null);
     if (eintrag.ansicht === "trainieren") setTrainierenZiel(eintrag.kapitel ? { kapitel: eintrag.kapitel, teil: eintrag.teil || null, schulart: eintrag.schulart, klasse: eintrag.klasse, zeit: Date.now() } : null);
     if (eintrag.ansicht === "kapitelformeln") setKapitelZiel(eintrag.kapitel ? { kapitel: eintrag.kapitel, schulart: eintrag.schulart, klasse: eintrag.klasse, modus: eintrag.modus } : null);
     setMenuOffen(false); setGruppeOffen(null);
@@ -813,6 +816,8 @@ export function Mathilda() {
           <Fortschritt />
           <TrainingFortschritt gehe={gehe} />
         </>
+      ) : ansicht === "trainingszentrum" ? (
+        <Trainingszentrum key={tzStart ? tzStart.zeit : "tz"} gehe={gehe} start={tzStart ? tzStart.kennung : null} />
       ) : ansicht === "warmup" ? (
         <>
           <SeitenKopf titel="5 Minuten Mathe" groesse="clamp(24px, 7vw, 34px)">

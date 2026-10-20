@@ -154,6 +154,7 @@ export const KI_MENUE = [
 /* Mein Mathe-Training ist die eine Trainingsseite (Tagesplan, Themen, Wiederholungen, Nachholen); Trainingsplan, Lernpfad-Wochenplan
    und der Ebbinghaus-Tagesplan sind darin aufgegangen. Die übrigen Punkte sind Werkzeuge, die der Tagesplan ebenfalls nutzt. */
 export const TRAINING = [
+  { id: "trainingszentrum", name: "Trainingszentrum", zeile: "Alle Trainings an einem Ort, jedes im Vollbild", ziel: { ansicht: "trainingszentrum" } },
   { id: "meintraining", name: "Mein Mathe-Training", zeile: "Tagesplan, Themen, Wiederholungen", ziel: { ansicht: "meintraining" } },
   { id: "warmup", name: "5 Minuten Mathe", zeile: "Fünf kurze Aufgaben zum Aufwärmen", ziel: { ansicht: "warmup" } },
   { id: "fehler", name: "Meine Fehler üben", zeile: "Genau das, was bei dir öfter schiefgeht", ziel: { ansicht: "fehlertraining" } },

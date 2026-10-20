@@ -127,6 +127,7 @@ export const NAV = [
     SCHULKLASSEN.map((k) => ({ name: `Klasse ${k}`, kurz: k >= 11 ? "Kursstufe" : "Nach dem Lambacher Schweizer", ansicht: "klasse", klasse: k })) },
   { id: "ueben", name: "Üben", kurz: "Aufgaben und ganze Rechenwege", eintraege: [
     ...(ANGEBOT.kurse ? [{ name: "Mathe Abi Masterclass", kurz: "Das 6-Monats-Programm fürs Mathe-Abi", ansicht: "masterclass" }] : []),
+    { name: "Trainingszentrum", kurz: "Alle Trainings an einem Ort – jedes im Vollbild", ansicht: "trainingszentrum" },
     { name: "Aufgabengenerator", kurz: "Geraden, Ableitungen, Kurvendiskussion", ansicht: "ki", ziel: null },
     { name: "Rechenweg schreiben", kurz: "Ganze Wege eintippen und prüfen lassen", ansicht: "training", ziel: "weg" },
     { name: "Kurvendiskussion", kurz: "Das Protokoll in zwölf Schritten", ansicht: "training", ziel: "kd" },
