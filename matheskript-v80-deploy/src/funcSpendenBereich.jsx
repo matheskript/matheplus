@@ -17,14 +17,13 @@ export function SpendenBereich({ gehe }) {
       <p style={{ margin: "8px 0 14px", fontSize: 14, fontWeight: 300, lineHeight: 1.6, color: "#C9D6EE" }}>
         Für <MathildaName dunkel /> kaufen wir laufend KI-Credits, und die Weiterentwicklung der Seite entsteht mit Claude. Wenn du magst, trägst du einen Teil davon.
       </p>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 14 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
         {SPENDEN.betraege.map((b) => (
           <button key={b} type="button" onClick={los} aria-label={`${euro(b)} spenden`}
             style={{ height: 46, borderRadius: 12, border: `1.5px solid ${b === SPENDEN.vorgewaehlt ? C.flaggold : "rgba(255,255,255,0.35)"}`, background: b === SPENDEN.vorgewaehlt ? "rgba(237,187,0,0.16)" : "rgba(255,255,255,0.06)",
               color: C.weiss, fontSize: 16, fontWeight: 800, fontFamily: "inherit", cursor: "pointer" }}>{euro(b)}</button>
         ))}
       </div>
-      <button type="button" onClick={los} style={{ height: 48, padding: "0 26px", borderRadius: 999, border: "none", background: C.flaggold, color: NAVY, fontSize: 15.5, fontWeight: 800, fontFamily: "inherit", cursor: "pointer" }}>Donate</button>
     </section>
   );
 }

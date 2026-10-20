@@ -23,7 +23,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { C } from "./base1.jsx";
 import { PenPaperBlatt } from "./func1.jsx";
 import { MathildaName } from "./mathildaName.jsx";
-import { MathildaPfade } from "./mathildaBild.jsx";
+import { MathildaBild } from "./funcMathildaSeite.jsx";
 import { SchulKopf, UnterMenue, schulBereiche, blockEintraege, bereichInhalt, useStartStufe, MYTHEN, useFrei, PasswortFeld,
   SchlossZeichen, SchulkurseLogoKlein, ZEIGE_GESPERRTE, WeitermachenZeile, SchulmatheLogoKlein, ElternkursLogoKlein, MathildaLogoKlein } from "./func2.jsx";
 import { HeadNumbersLogoKlein } from "./funcHeadNumbersLogo.jsx";
@@ -148,15 +148,19 @@ html[data-start-modus="dunkel"] .fuss-paar button { color: #EEF2FF !important; b
 
 /* Kachel (dunkel: Glas, hell: weiß mit Rand): Text links, rechts eine schmale Bildspalte über die ganze Höhe */
 .sbb-karte { position: relative; width: 100%; border-radius: 22px; border: 1px solid var(--linie); background: var(--karte); box-shadow: var(--karte-schatten); color: var(--text); }
-.sbb-kachel { display: flex; flex-direction: row; align-items: stretch; min-height: 122px; padding: 0; overflow: hidden; cursor: pointer; font-family: inherit; text-align: left; transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
+.sbb-kachel { display: flex; flex-direction: row; align-items: stretch; padding: 0; overflow: hidden; cursor: pointer; font-family: inherit; text-align: left; transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
 @media (hover:hover) { .sbb-kachel:not(:disabled):hover { transform: translateY(-3px); border-color: rgba(237,187,0,0.55); box-shadow: 0 0 0 1px rgba(237,187,0,0.35), 0 30px 60px -30px rgba(237,187,0,0.35), var(--karte-schatten); } }
 .sbb-kachel:not(:disabled):active { transform: scale(.985); }
 .sbb-kachel-bild { position: relative; flex: none; width: 112px; display: flex; align-items: center; justify-content: center; padding: 12px 8px; background: var(--bild-rechts); border-left: 1px solid var(--linie); }
 .sbb-kachel-bild > svg, .sbb-kachel-bild > span, .sbb-kachel-bild > div { max-height: 100%; max-width: 100%; }
-.sbb-kachel-text { flex: 1 1 auto; min-width: 0; padding: 16px 10px 16px 16px; display: flex; flex-direction: column; justify-content: center; gap: 6px; }
+.sbb-kachel-text { flex: 1 1 auto; min-width: 0; padding: 14px 10px 14px 16px; display: flex; flex-direction: column; justify-content: flex-start; gap: 6px; }
 .sbb-kachel h2, .sbb-kachel h3 { margin: 0; font-size: 21px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; color: var(--titel); overflow-wrap: anywhere; hyphens: auto; }
-.sbb-kachel p { margin: 0; font-size: 13.5px; font-weight: 400; line-height: 1.5; color: var(--nebel); overflow-wrap: anywhere; hyphens: auto; }
+.sbb-kachel p { margin: 0; font-size: 13.5px; font-weight: 400; line-height: 1.45; color: var(--nebel); overflow-wrap: anywhere; hyphens: auto; }
+/* Lernen-Kacheln: Überschrift, genau drei Zeilen Text, darunter der Knopf als Pille */
+.sbb-kachel p.drei { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; height: calc(3 * 1.45em); }
 .sbb-kachel .weiter { margin-top: 2px; padding-top: 6px; font-size: 13px; font-weight: 700; color: ${GOLD}; display: inline-flex; align-items: center; gap: 8px; }
+.sbb-kachel .weiter.pille { align-self: flex-start; margin-top: 6px; padding: 6px 14px; border-radius: 999px; border: 1.5px solid currentColor; background: rgba(237,187,0,0.08); line-height: 1.2; }
+.sbb-kachel .weiter.pille.zu { color: var(--zu-titel); background: transparent; border-style: dashed; }
 .sbb[data-modus="hell"] .sbb-kachel .weiter { color: ${C.gruenDunkel}; }
 .sbb-kachel .weiter i { font-style: normal; display: inline-block; transition: transform .18s ease; }
 @media (hover:hover) { .sbb-kachel:hover .weiter i { transform: translateX(4px); } }
@@ -170,20 +174,25 @@ html[data-start-modus="dunkel"] .fuss-paar button { color: #EEF2FF !important; b
 .sbb-raster2 > * { min-width: 0; }
 @media ${DESKTOP} { .sbb-raster2 { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; } .sbb-breit { grid-column: 1 / -1; } }
 
+/* Mathilda-Porträt: keine Trennlinie, Bild oben bündig mit dem Titel, unten angeschnitten */
+.sbb-mathilda-bild { border-left: none; padding: 0; overflow: hidden; display: block; }
+.sbb-mathilda-bild > svg { position: absolute; left: -12px; top: var(--mb-top, -16px); width: 136px; height: auto; max-width: none; max-height: none; filter: drop-shadow(0 10px 24px rgba(0,0,0,.45)); }
+@media ${DESKTOP} { .sbb-mathilda-bild > svg { left: -6px; } }
+
 /* Hauptkacheln mit Aufklappen (Schulmathematik, Mathe entdecken): Text links, rechts eine Spalte mit dem Bild und
    darunter dem Plus – auf allen Breiten gleich, ab 840 px nur breiter */
 .sbb-haupt { position: relative; display: flex; flex-direction: row; align-items: stretch; gap: 0; width: 100%; padding: 0; cursor: pointer; font-family: inherit; text-align: left; overflow: hidden; transition: border-color .18s ease, box-shadow .18s ease; }
-.sbb-haupt .bild { flex: none; width: 112px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 12px 8px; border-left: 1px solid var(--linie); background: var(--bild-rechts); }
-.sbb-haupt .bild .logo { flex: none; width: 100%; height: 80px; display: flex; align-items: center; justify-content: center; }
+.sbb-haupt .bild { flex: none; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 10px; padding: 10px 12px 10px 8px; background: var(--bild-rechts); }
+.sbb-haupt .bild .logo { flex: none; width: 70px; height: 64px; display: flex; align-items: center; justify-content: center; }
 .sbb-haupt .bild .logo > svg { width: 100%; height: 100%; max-height: 100%; }
-.sbb-haupt .txt { flex: 1 1 auto; min-width: 0; padding: 16px 10px 16px 16px; display: flex; flex-direction: column; justify-content: center; gap: 5px; }
+.sbb-haupt .txt { flex: 1 1 auto; min-width: 0; padding: 12px 10px 12px 16px; display: flex; flex-direction: column; justify-content: center; gap: 5px; }
 .sbb-haupt h2 { margin: 0; font-size: clamp(18px, 5.2vw, 28px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; color: var(--titel); overflow-wrap: anywhere; hyphens: auto; }
 .sbb-haupt p { margin: 0; font-size: 13.5px; line-height: 1.45; color: var(--nebel); overflow-wrap: anywhere; hyphens: auto; }
-.sbb-haupt .plus { flex: none; width: 46px; height: 46px; border-radius: 999px; background: ${GOLD}; color: var(--akzent-text); display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 22px rgba(237,187,0,0.4); transition: transform .22s ease; }
+.sbb-haupt .plus { flex: none; width: 42px; height: 42px; border-radius: 999px; background: ${GOLD}; color: var(--akzent-text); display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 22px rgba(237,187,0,0.4); transition: transform .22s ease; }
 @media ${DESKTOP} {
-  .sbb-haupt .bild { width: 160px; padding: 14px 16px; }
-  .sbb-haupt .bild .logo { height: 88px; }
-  .sbb-haupt .txt { padding: 18px 20px 18px 22px; }
+  .sbb-haupt .bild { gap: 14px; padding: 12px 20px 12px 12px; }
+  .sbb-haupt .bild .logo { width: 96px; height: 72px; }
+  .sbb-haupt .txt { padding: 14px 20px 14px 22px; }
   .sbb-kachel-bild { width: 124px; }
 }
 .sbb-haupt[aria-expanded="true"] .plus { transform: rotate(45deg); }
@@ -368,15 +377,16 @@ function Kopf({ titel }) {
 }
 
 /* Glaskachel: Text links, Bild rechts. gesperrt = ausgegraut mit Schloss. */
-function Kachel({ titel, text, logo, extra, ziel, label, gesperrt, keinI18n, gold, gehe, breit, weiter = "Öffnen" }) {
+function Kachel({ titel, text, logo, extra, ziel, label, gesperrt, keinI18n, gold, gehe, breit, weiter = "Öffnen", drei }) {
   return (
     <button type="button" onClick={gesperrt ? undefined : () => gehe(ziel)} disabled={gesperrt} aria-disabled={gesperrt || undefined}
       aria-label={gesperrt ? `${typeof titel === "string" ? titel : label} – noch gesperrt` : label} title={gesperrt ? "Noch gesperrt" : undefined}
       className={["sbb-karte", "sbb-kachel", gesperrt ? "zu" : null, gold ? "sbb-gold" : null, breit ? "sbb-breit" : null].filter(Boolean).join(" ")}>
       <div className="sbb-kachel-text">
         <h2 data-kein-i18n={keinI18n || undefined}>{titel}</h2>
-        <p>{text}</p>
-        {!gesperrt && <span className="weiter">{weiter} <i aria-hidden="true">→</i></span>}
+        <p className={drei ? "drei" : undefined}>{text}</p>
+        {drei ? (gesperrt ? <span className="weiter pille zu">Noch gesperrt</span> : <span className="weiter pille">{weiter} <i aria-hidden="true">→</i></span>)
+          : !gesperrt && <span className="weiter">{weiter} <i aria-hidden="true">→</i></span>}
       </div>
       <div className="sbb-kachel-bild">
         <div className="sbb-logo">{logo}</div>
@@ -394,11 +404,12 @@ function MathildaKachel({ gehe }) {
     <button type="button" onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })} aria-label="Mathilda AI öffnen" className="sbb-karte sbb-kachel sbb-gold sbb-insel">
       <div className="sbb-kachel-text">
         <h2><MathildaName dunkel={!hell} /></h2>
-        <p>Foto vom Blatt – Mathilda prüft deinen Weg.</p>
-        <span className="weiter">Mit KI lernen <i aria-hidden="true">→</i></span>
+        <p className="drei">Foto vom Blatt – Mathilda prüft deinen Weg, nicht nur das Ergebnis.</p>
+        <span className="weiter pille">Mit KI lernen <i aria-hidden="true">→</i></span>
       </div>
-      <div className="sbb-kachel-bild" style={{ alignItems: "flex-end", padding: "10px 6px 0", overflow: "hidden" }}>
-        <svg viewBox="0 0 120 138" aria-hidden="true" style={{ width: "100%", height: "auto", flex: "none", marginBottom: -12, filter: "drop-shadow(0 10px 24px rgba(0,0,0,.5))" }}><MathildaPfade /></svg>
+      {/* Das originalgetreue Porträt (aus dem Foto). Haaroberkante (y = 80 von 440) liegt auf Höhe der Oberkante von „MathildaAI“. */}
+      <div className="sbb-kachel-bild sbb-mathilda-bild" aria-hidden="true">
+        <MathildaBild groesse={136} />
       </div>
     </button>
   );
@@ -410,8 +421,8 @@ function HauptKachel({ titel, text, logo, auf, onClick, label }) {
     <button type="button" onClick={onClick} aria-expanded={auf} aria-label={label} className="sbb-karte sbb-haupt sbb-insel">
       <span className="txt"><h2>{titel}</h2><p>{text}</p></span>
       <span className="bild" aria-hidden="true">
-        <span className="logo">{logo}</span>
         <span className="plus"><Plus /></span>
+        <span className="logo">{logo}</span>
       </span>
     </button>
   );
@@ -622,11 +633,11 @@ export function Startseite({ gehe }) {
             )}
           </div>
           <MathildaKachel gehe={gehe} />
-          <Kachel gehe={gehe} titel="Kopfrechnen" label="Kopfrechnen öffnen" logo={<HeadNumbersLogoKlein />} ziel={{ ansicht: "headnumbers" }} weiter="Trainieren"
-            text="Einmaleins, Quadrat- und Kubikzahlen, schriftliches Rechnen und Brüche – bis alles sitzt." />
-          <Kachel gehe={gehe} titel="Gleichungen" label="Gleichungen öffnen" logo={<GleichKursLogoKlein />} ziel={{ ansicht: "gleichkurs" }} weiter="Üben"
-            text="Eine Zahl finden, über die du etwas weißt – verstehen, Schritt für Schritt rechnen, trainieren." />
-          <Kachel gehe={gehe} gesperrt keinI18n titel="Ebbinghaus" label="Ebbinghaus öffnen" logo={<EbbinghausLogoKlein />} extra={<EbbinghausBadge />} ziel={{ ansicht: "ebbinghaus" }}
+          <Kachel gehe={gehe} titel="Kopfrechnen" label="Kopfrechnen öffnen" logo={<HeadNumbersLogoKlein />} ziel={{ ansicht: "headnumbers" }} weiter="Trainieren" drei
+            text="Einmaleins, Quadrat- und Kubikzahlen, Brüche – trainieren, bis alles sitzt." />
+          <Kachel gehe={gehe} titel="Gleichungen" label="Gleichungen öffnen" logo={<GleichKursLogoKlein />} ziel={{ ansicht: "gleichkurs" }} weiter="Üben" drei
+            text="Eine Zahl finden, über die du etwas weißt: verstehen, rechnen, trainieren." />
+          <Kachel gehe={gehe} gesperrt keinI18n titel="Ebbinghaus" label="Ebbinghaus öffnen" logo={<EbbinghausLogoKlein />} extra={<EbbinghausBadge />} ziel={{ ansicht: "ebbinghaus" }} drei
             text={EBB_SLOGAN} />
         </div>
 

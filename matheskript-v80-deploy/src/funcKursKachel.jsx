@@ -26,7 +26,7 @@ import { MotivTangente, MotivEbene, MotivBuehne, MotivDialog } from "./funcKursM
 const STIL_ID = "kk-stil";
 const STIL = `
       .kk{display:grid;grid-template-columns:minmax(0,1fr) 40%;grid-template-rows:auto 1fr;column-gap:6px;position:relative;isolation:isolate;overflow:hidden;
-        width:100%;margin:14px 0 0;padding:18px 16px 16px;box-sizing:border-box;min-height:200px;
+        width:100%;margin:14px 0 0;padding:16px 16px 14px;box-sizing:border-box;
         border:1px solid transparent;border-radius:24px;text-align:left;font-family:inherit;cursor:pointer;color:var(--kk-text);
         background:var(--kk-lack) padding-box,var(--kk-rand) border-box;
         box-shadow:0 1px 0 var(--kk-kante) inset,0 22px 44px -18px var(--kk-schatten),0 2px 6px rgba(8,14,32,0.14);
@@ -40,16 +40,20 @@ const STIL = `
       .kk:focus-visible{outline:3px solid ${C.flaggold};outline-offset:3px}
       .kk-titel{grid-column:1 / -1;margin:0 0 2px;font-size:clamp(22px,6.3vw,26px);font-weight:800;letter-spacing:-0.035em;line-height:1.08;text-wrap:balance;color:var(--kk-titel)}
       .kk-text{grid-column:1;grid-row:2;min-width:0;display:flex;flex-direction:column;padding-top:6px}
-      .kk-meta{margin:0;font-size:12.5px;font-weight:700;line-height:1.35;color:var(--kk-akzent)}
-      .kk-zeile{margin:8px 0 0;font-size:13.5px;font-weight:400;line-height:1.45;color:var(--kk-text)}
-      .kk-balken{display:block;height:4px;border-radius:2px;margin:11px 0 0;background:var(--kk-spur);overflow:hidden;max-width:220px}
+      /* Unter dem Titel: goldener Strich, genau zwei Zeilen Text, direkt darunter Knopf und rechts daneben der Stand */
+      .kk-strich{display:block;width:40px;height:3px;border-radius:2px;background:linear-gradient(90deg,#C9931A 0%,${C.flaggold} 100%)}
+      .kk-zeile{margin:10px 0 0;font-size:13.5px;font-weight:400;line-height:1.45;color:var(--kk-text);
+        display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;height:calc(2 * 1.45em)}
+      .kk-fuss{display:flex;align-items:center;flex-wrap:wrap;gap:8px 14px;margin-top:12px}
+      .kk-meta{margin:0;font-size:12px;font-weight:700;line-height:1.3;color:var(--kk-akzent)}
+      .kk-stand{display:flex;flex-direction:column;gap:5px;min-width:0}
+      .kk-balken{display:block;height:3px;border-radius:2px;background:var(--kk-spur);overflow:hidden;width:120px;max-width:100%}
       .kk-balken i{display:block;height:100%;border-radius:2px;background:var(--kk-fuellung)}
-      .kk-weiter{margin:7px 0 0;font-size:12.5px;line-height:1.4;color:var(--kk-text);opacity:.9}
-      .kk-knopf{margin-top:auto;padding-top:16px;align-self:flex-start}
-      .kk-knopf span{display:inline-flex;align-items:center;gap:8px;height:42px;padding:0 18px 0 20px;border-radius:999px;font-size:14px;font-weight:800;letter-spacing:-0.01em;white-space:nowrap;
+      .kk-knopf{flex:none}
+      .kk-knopf span{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 15px 0 17px;border-radius:999px;font-size:14px;font-weight:800;letter-spacing:-0.01em;white-space:nowrap;
         background:var(--kk-knopf);color:var(--kk-knopftext);box-shadow:0 8px 20px -8px var(--kk-knopfschatten),0 1px 0 rgba(255,255,255,0.35) inset}
       .kk-pfeil{transition:transform .18s ease}
-      .kk-motiv{grid-column:2;grid-row:2;align-self:end;justify-self:end;width:calc(100% + 22px);height:auto;margin:4px -14px -16px 0;overflow:visible}
+      .kk-motiv{grid-column:2;grid-row:2;align-self:end;justify-self:end;width:calc(100% + 22px);height:auto;margin:4px -14px -14px 0;overflow:visible}
       /* Handy: Kopfzeile – der Titel liegt auf einem eigenen Streifen (--kk-kopf) über die volle Breite,
          darunter eine durchgezogene Folienlinie (--kk-linie); der Rest der Kachel ist der Lack. */
       @media (max-width:839px){
@@ -58,10 +62,14 @@ const STIL = `
           background:var(--kk-linie) bottom / 100% 3px no-repeat,var(--kk-kopf);
           box-shadow:0 1px 0 var(--kk-kante) inset}
         .kk-text{padding-top:12px}
+        .kk-strich{display:none}
+        .kk-zeile{margin-top:0}
         .kk-motiv{margin-top:10px}}
-      @media (min-width:840px){.kk{grid-template-columns:minmax(0,1fr) 36%;padding:26px 30px 24px;min-height:220px;column-gap:16px}
-        .kk-titel{font-size:31px;margin-bottom:4px}.kk-text{padding-top:8px}.kk-meta{font-size:13.5px}.kk-zeile{font-size:15.5px;line-height:1.5;max-width:40ch}
-        .kk-motiv{width:calc(100% + 30px);max-width:258px;margin:0 -24px -26px 0}}
+      @media (min-width:840px){.kk{grid-template-columns:minmax(0,1fr) 34%;padding:20px 30px 20px;column-gap:16px}
+        .kk-titel{font-size:29px;margin-bottom:0}.kk-text{padding-top:10px}.kk-meta{font-size:12.5px}.kk-zeile{font-size:15px;line-height:1.45;max-width:46ch}
+        .kk-titel{max-width:66%}
+        /* Motiv liegt frei rechts unten und bestimmt die Höhe der Kachel nicht mehr */
+        .kk > .kk-motiv{position:absolute;grid-column:auto;grid-row:auto;right:4px;bottom:0;width:min(31%,236px);height:auto;margin:0;z-index:0}}
       @media (prefers-reduced-motion:reduce){.kk,.kk-pfeil{transition:none}.kk:hover{transform:none}}
 `;
 function stilSetzen() {
@@ -96,14 +104,15 @@ function KursKachel({ onClick, label, titel, meta, zeile, stand, einheit, farben
     <button type="button" onClick={onClick} className="kk" aria-label={label} style={vars} {...daten}>
       <h2 className="kk-titel">{titel}</h2>
       <div className="kk-text">
-        <p className="kk-meta">{begonnen ? `${stand.fertig} von ${stand.gesamt} ${einheit} geschafft` : meta}</p>
-        {begonnen ? (
-          <>
-            <span className="kk-balken" role="progressbar" aria-valuemin={0} aria-valuemax={stand.gesamt} aria-valuenow={stand.fertig}><i style={{ width: `${anteil}%` }} /></span>
-            {stand.weiter && <p className="kk-weiter">{stand.weiter}</p>}
-          </>
-        ) : <p className="kk-zeile">{zeile}</p>}
-        <span className="kk-knopf"><span>{begonnen ? "Weitermachen" : "Kurs öffnen"}<Pfeil farbe={farben.knopftext} /></span></span>
+        <span className="kk-strich" aria-hidden="true" />
+        <p className="kk-zeile">{zeile}</p>
+        <span className="kk-fuss">
+          <span className="kk-knopf"><span>{begonnen ? "Weitermachen" : "Kurs öffnen"}<Pfeil farbe={farben.knopftext} /></span></span>
+          <span className="kk-stand" title={begonnen && stand.weiter ? stand.weiter : undefined}>
+            <span className="kk-meta">{begonnen ? `${stand.fertig} von ${stand.gesamt} ${einheit} geschafft` : meta}</span>
+            {begonnen && <span className="kk-balken" role="progressbar" aria-valuemin={0} aria-valuemax={stand.gesamt} aria-valuenow={stand.fertig}><i style={{ width: `${anteil}%` }} /></span>}
+          </span>
+        </span>
       </div>
       <Motiv id={id} />
     </button>
