@@ -188,28 +188,27 @@ html[data-start-modus="dunkel"] .fuss-paar button { color: #EEF2FF !important; b
 .sbb-mathilda-bild > svg { position: absolute; left: 50%; transform: translateX(-50%); top: -8px; width: 124px; height: auto; max-width: none; max-height: none; filter: drop-shadow(0 10px 24px rgba(0,0,0,.4)); }
 @media ${DESKTOP} { .sbb-mathilda-bild > svg { width: 136px; top: -10px; } }
 
-/* Schulmathematik: Titel über die volle Breite, links die Stufen (Abi als Quadrat neben Oberstufe), rechts die Grafik */
+/* Schulmathematik: Titel über die volle Breite, links schmale Stufen-Knöpfe nur mit Namen (Abi ganz gold, ohne Plus, neben Oberstufe), rechts die Grafik – sie nimmt den Rest der Breite */
 .sbb-schul { padding: 16px 16px 16px; }
 .sbb-schul h2 { margin: 0; font-size: clamp(25px, 7.6vw, 40px); font-weight: 900; letter-spacing: -0.04em; line-height: 1; color: var(--titel); white-space: nowrap; }
-.sbb-schul-unten { margin-top: 14px; display: grid; grid-template-columns: minmax(0, 1fr) clamp(88px, 26vw, 220px); gap: 10px; align-items: stretch; }
-.sbb-stufen { display: grid; gap: 8px; min-width: 0; }
-.sbb-stufen .reihe { display: flex; gap: 6px; min-width: 0; }
-.sbb-stufe { flex: 1 1 auto; min-width: 0; min-height: 50px; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 7px 7px 7px 11px; border-radius: 14px;
-  border: 1px solid var(--stufe-rand); background: var(--stufe-hg); cursor: pointer; font-family: inherit; text-align: left; color: var(--titel); transition: background .15s ease, border-color .15s ease; }
-.sbb-stufe .n { display: block; font-size: clamp(13.5px, 3.7vw, 14.5px); font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.sbb-stufe .k { display: block; margin-top: 2px; font-size: 11px; font-weight: 600; line-height: 1.1; color: var(--stufe-zeile); white-space: nowrap; }
-.sbb-stufe .p { flex: none; width: 22px; height: 22px; border-radius: 999px; background: ${GOLD}; color: ${NACHT}; display: flex; align-items: center; justify-content: center; transition: transform .2s ease; }
-.sbb-stufe.abi { flex: none; width: 48px; padding: 6px 0 5px; flex-direction: column; justify-content: center; gap: 4px; text-align: center; border-color: rgba(237,187,0,0.75); }
-.sbb-stufe.abi .n { font-size: 15px; font-weight: 900; color: var(--titel); overflow: visible; }
-.sbb-stufe.abi .p { width: 18px; height: 18px; }
+.sbb-schul-unten { margin-top: 14px; display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 8px; align-items: stretch; }
+.sbb-stufen { display: grid; gap: 7px; min-width: 0; align-content: center; }
+.sbb-stufen .reihe { display: flex; gap: 5px; min-width: 0; }
+.sbb-stufe { flex: 1 1 auto; min-width: 0; min-height: 40px; display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 6px 7px 6px 11px; border-radius: 12px;
+  border: 1px solid var(--stufe-rand); background: var(--stufe-hg); cursor: pointer; font-family: inherit; text-align: left; color: var(--titel); transition: background .15s ease, border-color .15s ease, box-shadow .15s ease; }
+.sbb-stufe .n { display: block; font-size: clamp(13.5px, 3.7vw, 14.5px); font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; white-space: nowrap; }
+.sbb-stufe .p { flex: none; width: 17px; height: 17px; border-radius: 999px; background: ${GOLD}; color: ${NACHT}; display: flex; align-items: center; justify-content: center; transition: transform .2s ease; }
+.sbb-stufe .p svg { width: 10px; height: 10px; }
+.sbb-stufe.abi { flex: none; padding: 6px 10px; justify-content: center; background: ${GOLD}; border-color: ${GOLD}; color: ${NACHT}; box-shadow: 0 4px 14px rgba(237,187,0,0.28); }
+.sbb-stufe.abi .n { font-size: clamp(14px, 3.9vw, 15px); font-weight: 900; color: ${NACHT}; }
 .sbb-stufe[aria-expanded="true"] { background: ${GOLD}; border-color: ${GOLD}; color: ${NACHT}; }
 .sbb-stufe[aria-expanded="true"] .n { color: ${NACHT}; }
-.sbb-stufe[aria-expanded="true"] .k { color: rgba(5,11,31,0.7); }
 .sbb-stufe[aria-expanded="true"] .p { background: ${NACHT}; color: ${GOLD}; transform: rotate(45deg); }
-@media (hover:hover) { .sbb-stufe:not([aria-expanded="true"]):hover { border-color: rgba(237,187,0,0.6); } }
-.sbb-schul-bild { border-radius: 16px; background: var(--bild-rechts); display: flex; align-items: center; justify-content: center; padding: 4px; min-height: 0; overflow: hidden; }
+.sbb-stufe.abi[aria-expanded="true"] { box-shadow: 0 0 0 2px var(--titel); }
+@media (hover:hover) { .sbb-stufe:not([aria-expanded="true"]):not(.abi):hover { border-color: rgba(237,187,0,0.6); } .sbb-stufe.abi:hover { filter: brightness(1.06); } }
+.sbb-schul-bild { border-radius: 16px; background: var(--bild-rechts); display: flex; align-items: center; justify-content: center; padding: 2px; min-height: 0; overflow: hidden; }
 .sbb-schul-bild > svg { width: 100%; height: auto; max-height: 100%; }
-@media ${DESKTOP} { .sbb-schul { padding: 22px 24px 24px; } .sbb-schul-unten { gap: 18px; } .sbb-stufe { min-height: 56px; padding: 8px 12px 8px 16px; } .sbb-stufe .n { font-size: 16px; } .sbb-stufe.abi { width: 56px; } }
+@media ${DESKTOP} { .sbb-schul { padding: 22px 24px 24px; } .sbb-schul-unten { gap: 18px; } .sbb-stufe { min-height: 46px; padding: 8px 12px 8px 16px; } .sbb-stufe .n { font-size: 16px; } .sbb-stufe.abi { padding: 8px 16px; } .sbb-stufe.abi .n { font-size: 16px; } .sbb-schul-bild > svg { max-width: 280px; } }
 .sbb-schul-panel-kopf { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 2px 4px 0; }
 .sbb-schul-panel-kopf b { font-size: 16px; font-weight: 800; letter-spacing: -0.02em; color: ${C.seeTief}; }
 .sbb-schul-panel-kopf span { font-size: 12px; font-weight: 600; color: ${C.grau}; }
@@ -481,8 +480,8 @@ function StufenKnopf({ s, wahl, waehle, abi }) {
   return (
     <button type="button" className={abi ? "sbb-stufe abi" : "sbb-stufe"} aria-expanded={auf} onClick={() => waehle(auf ? null : s.id)}
       aria-label={`${abi ? "Abitur" : s.name} ${auf ? "zuklappen" : "aufklappen"}`}>
-      {abi ? <span className="n">{s.name}</span> : <span style={{ minWidth: 0 }}><span className="n">{s.name}</span><span className="k">{s.kl}</span></span>}
-      <span className="p" aria-hidden="true"><PlusKlein farbe="currentColor" /></span>
+      <span className="n">{s.name}</span>
+      {!abi && <span className="p" aria-hidden="true"><PlusKlein farbe="currentColor" /></span>}
     </button>
   );
 }
