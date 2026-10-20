@@ -856,8 +856,6 @@ export function StochastikLogoKlein() {
   const max = Math.max(...werte);
   return (
     <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
-      {Array.from({ length: 9 }, (_, i) => <line key={`v${i}`} x1={i * 28} y1="0" x2={i * 28} y2={H} stroke="rgba(255,255,255,0.05)" />)}
-      {Array.from({ length: 7 }, (_, i) => <line key={`h${i}`} x1="0" y1={i * 28} x2={W} y2={i * 28} stroke="rgba(255,255,255,0.05)" />)}
       {werte.map((v, i) => {
         const h = (v / max) * 100;
         return <rect key={i} x={18 + i * 18} y={128 - h} width="13" height={h} rx="2.5"

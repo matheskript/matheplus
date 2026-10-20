@@ -651,8 +651,6 @@ export function VektorenLogoKlein() {
   const [fx, fy] = P(fuss), [nx, ny] = P(fuss.map((v, k) => v + [0.52, 0.42, 0.38][k] * 3.6));
   return (
     <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
-      {Array.from({ length: 9 }, (_, i) => <line key={`v${i}`} x1={i * 28} y1="0" x2={i * 28} y2={H} stroke="rgba(255,255,255,0.05)" />)}
-      {Array.from({ length: 7 }, (_, i) => <line key={`h${i}`} x1="0" y1={i * 28} x2={W} y2={i * 28} stroke="rgba(255,255,255,0.05)" />)}
       {achse(0, C.flaggold)}{achse(1, C.granaHell)}{achse(2, "rgba(255,255,255,0.8)")}
       <path d={pfad(S)} fill="rgba(255,255,255,0.18)" stroke={C.weiss} strokeWidth="2" strokeLinejoin="round" />
       {S.map((p, i) => { const [x, y] = P(p); return <circle key={i} cx={x} cy={y} r="4.5" fill={C.gruen} stroke={C.weiss} strokeWidth="1.5" />; })}

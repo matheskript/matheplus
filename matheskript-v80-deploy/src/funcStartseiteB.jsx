@@ -16,7 +16,7 @@ import { C } from "./base1.jsx";
 import { PenPaperBlatt } from "./func1.jsx";
 import { MathildaName } from "./mathildaName.jsx";
 import { MathildaPfade } from "./mathildaBild.jsx";
-import { SchulKopf, UnterMenue, schulBereiche, blockEintraege, bereichInhalt, STUFE_SCHLUESSEL, STUFEN_KEYS, MYTHEN, useFrei, PasswortFeld,
+import { SchulKopf, UnterMenue, schulBereiche, blockEintraege, bereichInhalt, useStartStufe, MYTHEN, useFrei, PasswortFeld,
   SchlossZeichen, SchulkurseLogoKlein, ZEIGE_GESPERRTE, WeitermachenZeile, SchulmatheLogoKlein, ElternkursLogoKlein, MathildaLogoKlein } from "./func2.jsx";
 import { HeadNumbersLogoKlein } from "./funcHeadNumbersLogo.jsx";
 import { GleichKursLogoKlein } from "./funcGleichKursLogo.jsx";
@@ -464,7 +464,6 @@ export function StartVarianteSchalter() {
 
 /* ====================================================================== */
 
-const lies = (k, d) => { try { return localStorage.getItem(k) ?? d; } catch { return d; } };
 
 export function StartseiteB({ gehe }) {
   const lernpfad = useLernpfad();
@@ -473,8 +472,8 @@ export function StartseiteB({ gehe }) {
   const [entdAuf, setEntdAuf] = useState(false);
   const [bereichAuf, setBereichAuf] = useState(null);
   const [etikett, setEtikett] = useState(null);
-  const [stufe, setStufe] = useState(() => { const w = lies(STUFE_SCHLUESSEL, "alle"); return STUFEN_KEYS.includes(w) ? w : "alle"; });
-  const stufeSetzen = (w) => { setStufe(w); setBereichAuf(null); try { localStorage.setItem(STUFE_SCHLUESSEL, w); } catch { /* egal */ } };
+  const { stufe, setzen: stufeWaehlen, klasse } = useStartStufe();   // folgt der angegebenen Klasse (Konto, Quickfinder, Onboarding)
+  const stufeSetzen = (w) => { stufeWaehlen(w); setBereichAuf(null); };
   const wurzel = useRef(null);
 
   /* Die ganze App-Fläche wird Nacht: Hintergrund und Fußknöpfe (Regeln oben in CSS) */
@@ -534,7 +533,7 @@ export function StartseiteB({ gehe }) {
               text={schulAuf ? "Funktionen, Vektoren, Wahrscheinlichkeit, Geometrie und Werkzeuge." : "Unter-, Mittel- und Oberstufe bis zum Abi: Funktionen, Vektoren, Wahrscheinlichkeitsrechnung, Geometrie, Werkzeuge."} />
             {schulAuf && (
               <div className="sbb-papier" data-aufklapp-inhalt>
-                <SchulKopf gehe={gehe} mitWeiter={false} stufe={stufe} setzeStufe={stufeSetzen} etikett={etikett} setzeEtikett={(e) => { setEtikett(e); setBereichAuf(null); }} />
+                <SchulKopf gehe={gehe} mitWeiter={false} stufe={stufe} setzeStufe={stufeSetzen} klasse={klasse} etikett={etikett} setzeEtikett={(e) => { setEtikett(e); setBereichAuf(null); }} />
                 <div style={{ marginTop: 12 }}>
                   {etikett ? (
                     bereiche.map((b) => {

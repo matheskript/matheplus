@@ -35,7 +35,9 @@ export function AufklappZeichen({ auf, art = "schlicht", groesse, abstand = 8, f
   }
   return (
     <span aria-hidden="true" style={{ position: "absolute", right: abstand, bottom: abstand, width: g, height: g, borderRadius: 999,
-      background: C.flaggold, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.3)" }}>{svg}</span>
+      // Goldverlauf wie die Klassen-Boxen im Quickfinder, dazu ein zarter heller Ring, der den Knopf vom Blau abhebt
+      background: "linear-gradient(180deg, #F5CB2E 0%, #EDBB00 100%)", display: "flex", alignItems: "center", justifyContent: "center",
+      boxShadow: "0 3px 10px rgba(0,0,0,0.32), 0 0 0 3px rgba(255,255,255,0.12)" }}>{svg}</span>
   );
 }
 

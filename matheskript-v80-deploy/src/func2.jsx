@@ -19,8 +19,11 @@ import { HeadNumbersLogoKlein } from "./funcHeadNumbersLogo.jsx";
 import { GleichKursLogoKlein } from "./funcGleichKursLogo.jsx";
 import { EBB_SLOGAN, EbbinghausBadge, EbbinghausLogoKlein } from "./funcEbbinghaus.jsx";
 import { DeinPlanBlock, useLernpfad } from "./funcLernpfad.jsx";
-import { StartOnboarding, ZonenKopf } from "./funcOnboarding.jsx";
-import { Quickfinder } from "./funcQuickfinder.jsx";
+import { StartOnboarding, ZonenKopf, onboardingLesen, stufeAusKlasse } from "./funcOnboarding.jsx";
+import { Quickfinder, quickfinderLesen } from "./funcQuickfinder.jsx";
+import { kontoZustand, useKonto } from "./konto.js";
+import { klasseErmitteln } from "./hauptmenue.js";
+import { klassenBoxen, stufeAusKlassenBox } from "./schulbuch.js";
 import { AppAnleitung } from "./funcAnleitung.jsx";
 import { SuchBox } from "./funcSuche.jsx";
 import { VektorenLogoKlein } from "./func16.jsx";
@@ -63,10 +66,8 @@ function PlotterLogoKlein() {
   const ext = [-Math.sqrt(3.2), 0, Math.sqrt(3.2)];
   return (
     <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
-      {[-4, -3, -2, -1, 0, 1, 2, 3, 4].map((i) => <line key={`v${i}`} x1={x0 + i * sx} y1="0" x2={x0 + i * sx} y2={H} stroke="rgba(255,255,255,0.06)" />)}
-      {[-4, -3, -2, -1, 0, 1, 2, 3, 4].map((i) => <line key={`h${i}`} x1="0" y1={y0 + i * sy} x2={W} y2={y0 + i * sy} stroke="rgba(255,255,255,0.06)" />)}
-      <line x1="0" y1={y0} x2={W} y2={y0} stroke="rgba(255,255,255,0.3)" />
-      <line x1={x0} y1="0" x2={x0} y2={H} stroke="rgba(255,255,255,0.3)" />
+      <line x1="0" y1={y0} x2={W} y2={y0} stroke="rgba(255,255,255,0.28)" />
+      <line x1={x0} y1="0" x2={x0} y2={H} stroke="rgba(255,255,255,0.28)" />
       <path d={pfad(fs, 0.5)} stroke={C.flaggold} strokeWidth="2" fill="none" opacity="0.9" />
       <path d={pfad(f)} stroke={C.weiss} strokeWidth="3" fill="none" strokeLinecap="round" />
       {ext.map((x) => <circle key={x} cx={x0 + x * sx} cy={y0 - f(x) * sy} r="4.5" fill={C.seeTief} stroke={C.weiss} strokeWidth="2.2" />)}
@@ -119,8 +120,11 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
       style={{ display: "flex", width: klein && !breit ? "100%" : "calc(100% + 32px)", marginLeft: klein && !breit ? 0 : -16, marginRight: klein && !breit ? 0 : -16,
         height: "auto", marginTop: klein && !breit ? 8 : 12, padding: 0, border: goldRand ? `4px solid ${C.flaggold}` : hell ? `2px solid ${C.see}` : "none", borderRadius: klein ? 14 : 18,
         overflow: "hidden", cursor: gesperrt ? "not-allowed" : "pointer", fontFamily: "inherit", textAlign: "left", position: "relative",
-        background: gesperrt ? "linear-gradient(155deg, #B9C2CE 0%, #8C97A6 55%, #6E7989 100%)" : hell ? C.weiss : `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`,
-        boxShadow: hell ? "0 6px 22px rgba(0,77,152,0.14)" : gesperrt ? "0 4px 14px rgba(40,50,70,0.18), inset 0 0 0 1px rgba(255,255,255,0.45)" : `0 6px 22px rgba(0,77,152,0.24), inset 0 0 0 1px ${C.silber}40`,
+        // Dunkle Kachel: Blau mit Tiefe (hell oben links, tief unten rechts), dazu ein feiner Lichtsaum an der Oberkante
+        background: gesperrt ? "linear-gradient(155deg, #B9C2CE 0%, #8C97A6 55%, #6E7989 100%)" : hell ? C.weiss
+          : `radial-gradient(120% 90% at 0% 0%, rgba(255,255,255,0.13) 0%, rgba(255,255,255,0) 55%), linear-gradient(155deg, #0A5AB0 0%, ${C.see} 38%, ${C.seeTief} 100%)`,
+        boxShadow: hell ? "0 6px 22px rgba(0,77,152,0.14)" : gesperrt ? "0 4px 14px rgba(40,50,70,0.18), inset 0 0 0 1px rgba(255,255,255,0.45)"
+          : `0 8px 26px rgba(0,47,110,0.28), inset 0 1px 0 rgba(255,255,255,0.22), inset 0 0 0 1px ${C.silber}33`,
         // inRahmen: Kachel sitzt als Kopf in einem eigenen Rahmen (Mein Training mit Quickfinder) – ohne Rand, Abstand und Schatten
         ...(inRahmen ? { width: "100%", marginLeft: 0, marginRight: 0, marginTop: 0, border: "none", borderRadius: 0, boxShadow: "none" } : {}) }}>
       <style>{`.plotter-kachel{transition:transform .15s ease, box-shadow .15s ease}
@@ -135,6 +139,7 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
         .titel-nach{display:none}
         .titel-nach::before{content:"\\2013";margin:0 .3em}
         @media ${DESKTOP_MQ}{.titel-nach{display:inline}}
+        @media (max-width: 839.98px){.kachel-logo-frei{inset:2px 12px 10px 0 !important}}
         .kachel-titel{background:linear-gradient(180deg,#FFFFFF 0%,${C.silberHell} 55%,${C.silber} 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
         .kachel-gesperrt .kachel-titel{background:none;color:#FFFFFF;text-shadow:0 1px 2px rgba(30,40,60,0.25)}`}</style>
       {/* Links (60 %): Titel und Erklärtext von oben */}
@@ -168,10 +173,13 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
           <div className="kachel-portraet" style={{ position: "absolute", inset: "0 0 0 0", display: "flex" }}>{portraet}</div>
         </div>
       )}
-      {/* Rechts (40 %): nur die Grafik */}
-      <div style={{ flex: kompakt ? (zweizeilig ? "0 0 26%" : "0 0 24%") : klein ? "0 0 32%" : "0 0 40%", position: "relative", background: hell ? C.himmel : "rgba(255,255,255,0.04)",
-        borderLeft: `1px solid ${hell ? `${C.see}33` : gesperrt ? "rgba(255,255,255,0.35)" : `${C.silber}33`}`, display: "flex" }}>
-        <div style={{ position: "absolute", inset: 0, display: "flex", ...(gesperrt && !logoHell ? { filter: "grayscale(1) brightness(1.15)", opacity: 0.35 } : {}) }}>{logo}</div>
+      {/* Rechts (40 %): nur die Grafik. Dunkle Kachel: kein Trennstrich, die Grafik steht in einem weichen Lichtkegel,
+          unten rechts ein warmer Goldschein, in dem der Plus-Knopf sitzt. */}
+      <div style={{ flex: kompakt ? (zweizeilig ? "0 0 27%" : "0 0 25%") : klein ? "0 0 33%" : "0 0 40%", position: "relative", display: "flex",
+        ...(hell ? { background: C.himmel, borderLeft: `1px solid ${C.see}33` }
+          : gesperrt ? { background: "radial-gradient(70% 70% at 55% 45%, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0) 100%)" }
+          : { background: "radial-gradient(75% 75% at 50% 42%, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.035) 55%, rgba(255,255,255,0) 100%), radial-gradient(55% 55% at 100% 100%, rgba(237,187,0,0.22) 0%, rgba(237,187,0,0) 100%)" }) }}>
+        <div className={kompakt && extra ? "kachel-logo-frei" : undefined} style={{ position: "absolute", inset: 0, display: "flex", ...(gesperrt && !logoHell ? { filter: "grayscale(1) brightness(1.15)", opacity: 0.35 } : {}) }}>{logo}</div>
         {extra}
         {gesperrt && (
           <div aria-hidden="true" style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", gap: 4, ...(logoHell ? { alignItems: "flex-end", justifyContent: "flex-end", padding: 8 } : { alignItems: "center", justifyContent: "center" }) }}>
@@ -527,8 +535,6 @@ function FormelLogoKlein() {
   const T = { fontFamily: "Montserrat, system-ui, sans-serif", fontWeight: 700, fill: C.seeTief };
   return (
     <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
-      {Array.from({ length: 9 }, (_, i) => <line key={`v${i}`} x1={i * 28} y1="0" x2={i * 28} y2={H} stroke="rgba(255,255,255,0.05)" />)}
-      {Array.from({ length: 7 }, (_, i) => <line key={`h${i}`} x1="0" y1={i * 28} x2={W} y2={i * 28} stroke="rgba(255,255,255,0.05)" />)}
       <path d="M 115 40 L 20 30 L 20 160 L 115 170 Z" fill="#FFFFFF" />
       <path d="M 115 40 L 210 30 L 210 160 L 115 170 Z" fill="#F1F4F9" />
       <line x1="115" y1="40" x2="115" y2="170" stroke={C.silberDunkel} strokeWidth="1.5" />
@@ -1105,8 +1111,46 @@ export function UnterMenue({ eintraege, gehe, tiefe = 0, linie }) {
 /* Eigener Schlüssel (nicht "matheplus-stufe"): den benutzt die Formelsammlung mit anderen Werten (unter/mittel/ober).
    Vorher setzte „Mittelstufe“ in der Formelsammlung die Startseite still auf Mittelstufe → nur Station „Kennen“ sichtbar. */
 export const STUFE_SCHLUESSEL = "matheplus-start-stufe";
+/* Zu welcher Klasse die Stufe zuletzt gesetzt wurde (Stempel, z. B. "g9:11-12"). Ändert der Schüler seine Klasse,
+   folgt der Stufen-Schalter wieder der Klasse; solange die Klasse gleich bleibt, gilt seine eigene Wahl. */
+const STUFE_KLASSE_SCHLUESSEL = "matheplus-start-stufe-klasse";
 const ZULETZT_SCHLUESSEL = "matheplus-zuletzt-werkzeug";
 const lies = (k, d) => { try { return localStorage.getItem(k) ?? d; } catch { return d; } };
+
+/* Die Klasse, die der Schüler angegeben hat: im Konto (Profil) > in „Dein Training startet hier“ (Quickfinder) >
+   bei den Onboarding-Fragen am Handy. Liefert { id, stufe } (Stempel und Stufen-Schalter-Wert) oder null. */
+function angegebeneKlasse(profil) {
+  const k = klasseErmitteln(profil, quickfinderLesen());
+  if (k) {
+    const box = klassenBoxen(k.schulart).find((b) => b.id === k.box);
+    return { id: `${k.schulart}:${k.box}`, stufe: stufeAusKlassenBox(box), label: box.label };
+  }
+  const o = onboardingLesen();
+  if (o && o.rolle === "schueler" && Number.isInteger(o.klasse)) return { id: `onboarding:${o.klasse}`, stufe: stufeAusKlasse(o.klasse), label: String(o.klasse) };
+  return null;
+}
+/* Stufe für den Schalter: Hat der Schüler eine Klasse angegeben und seit dieser Klasse nichts selbst gewählt,
+   steht der Schalter auf ihrer Stufe. Sonst gilt die gemerkte Wahl, ohne beides „Alle“. */
+function stufeErmitteln(profil) {
+  const klasse = angegebeneKlasse(profil);
+  const wahl = lies(STUFE_SCHLUESSEL, null);
+  const wahlKlasse = lies(STUFE_KLASSE_SCHLUESSEL, "");
+  if (klasse && wahlKlasse !== klasse.id) return klasse.stufe;
+  return STUFEN_KEYS.includes(wahl) ? wahl : klasse ? klasse.stufe : "alle";
+}
+/* Stufen-Schalter der Startseite (Fassung A und B): { stufe, setzen, klasse }. stufe folgt der angegebenen Klasse,
+   eine eigene Wahl bleibt (auch nach Neuladen), bis die Klasse wechselt; klasse für die Zeile „Vorgewählt nach …“. */
+export function useStartStufe() {
+  const konto = useKonto();
+  const [wahl, setWahl] = useState(null);     // in dieser Sitzung selbst gewählt (sonst aus Klasse und Speicher)
+  const stufe = STUFEN_KEYS.includes(wahl) ? wahl : stufeErmitteln(konto.profil);
+  const setzen = (w) => {
+    setWahl(w);
+    const klasse = angegebeneKlasse(kontoZustand().profil);   // frisch lesen: der Quickfinder hat die Klasse gerade erst gespeichert
+    try { localStorage.setItem(STUFE_SCHLUESSEL, w); localStorage.setItem(STUFE_KLASSE_SCHLUESSEL, klasse ? klasse.id : ""); } catch { /* egal */ }
+  };
+  return { stufe, setzen, klasse: angegebeneKlasse(konto.profil) };
+}
 
 /* Zuletzt benutztes Werkzeug merken (aufgerufen aus func10 bei jedem Ansichtswechsel) */
 export function werkzeugMerken(ansicht) {
@@ -1165,13 +1209,22 @@ function StufenSchalter({ wert, setze }) {
 
 /* Kopf des aufgeklappten Bereichs: links „Weitermachen“ (nur Desktop), rechts Stufen und darunter die Etiketten –
    alles auf einer Höhe, danach kommen direkt die Themen. Schmal (oder ohne Weitermachen): untereinander, volle Breite. */
-export function SchulKopf({ gehe, mitWeiter, stufe, setzeStufe, etikett, setzeEtikett }) {
+export function SchulKopf({ gehe, mitWeiter, stufe, setzeStufe, etikett, setzeEtikett, klasse }) {
   const weiter = mitWeiter && zuletztWerkzeug() ? <WeitermachenZeile gehe={gehe} neben /> : null;
+  // Steht der Schalter auf der Stufe der angegebenen Klasse, sagt eine kleine Zeile, woher die Vorwahl kommt
+  const vorwahl = klasse && klasse.stufe === stufe;
   return (
     <div style={{ marginTop: 12, display: "flex", flexWrap: "wrap", alignItems: "stretch", gap: 10 }}>
       {weiter && <div style={{ flex: "1 1 240px", minWidth: 0, display: "flex" }}>{weiter}</div>}
       <div style={{ flex: "1 1 280px", minWidth: 0, display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 8 }}>
-        <StufenSchalter wert={stufe} setze={setzeStufe} />
+        <div>
+          <StufenSchalter wert={stufe} setze={setzeStufe} />
+          {vorwahl && (
+            <p style={{ margin: "5px 6px 0", fontSize: 11, fontWeight: 600, color: C.grau, textAlign: "right", lineHeight: 1.2 }}>
+              Vorgewählt nach deiner Klasse <span data-kein-i18n>{klasse.label}</span>
+            </p>
+          )}
+        </div>
         <EtikettKnoepfe wert={etikett} setze={setzeEtikett} />
       </div>
     </div>
@@ -1241,10 +1294,10 @@ export function Startseite({ gehe }) {
   const desktop = useDesktop();
   const [bereichAuf, setBereichAuf] = useState(null);   // aufgeklappter Unterbereich (analysis, vektoren, …)
   const [kopfAuf, setKopfAuf] = useState(false);        // Dropdown „Kopfrechnen“
-  const [stufe, setStufe] = useState(() => { const w = lies(STUFE_SCHLUESSEL, "alle"); return STUFEN_KEYS.includes(w) ? w : "alle"; });
+  const { stufe, setzen: stufeWaehlen, klasse } = useStartStufe();   // folgt der angegebenen Klasse (Konto, Quickfinder, Onboarding)
   const [etikett, setEtikett] = useState(null);         // Filter Entdecken | Rechnen | Trainieren
   const offenRahmen = useRef(null);                     // Rahmen des offenen Bereichs (für die mitlaufende Leiste)
-  const stufeSetzen = (w) => { setStufe(w); setBereichAuf(null); try { localStorage.setItem(STUFE_SCHLUESSEL, w); } catch { /* egal */ } };
+  const stufeSetzen = (w) => { stufeWaehlen(w); setBereichAuf(null); };
   const bereichZuUndZeigen = () => {
     const r = offenRahmen.current;
     setBereichAuf(null);
@@ -1700,7 +1753,7 @@ export function Startseite({ gehe }) {
         extra={<PlusKnopf auf={schulAuf} klein={schulAuf} />} />
       {schulAuf && (
         <div data-aufklapp-inhalt style={{ margin: "0 0 4px" }}>
-          <SchulKopf gehe={gehe} mitWeiter={desktop} stufe={stufe} setzeStufe={stufeSetzen}
+          <SchulKopf gehe={gehe} mitWeiter={desktop} stufe={stufe} setzeStufe={stufeSetzen} klasse={klasse}
             etikett={etikett} setzeEtikett={(e) => { setEtikett(e); setBereichAuf(null); }} />
           {etikett ? (
             /* Filter aktiv: passende Werkzeuge direkt sichtbar, nach Bereich gruppiert */
