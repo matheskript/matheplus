@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { MarkenLogo } from "./markenLogo.jsx";
 import bildBerg from "./assets/entwurf/berg.jpg";
 import bildHeft from "./assets/entwurf/heft.jpg";
 import bildMuenzen from "./assets/entwurf/muenzen.jpg";
@@ -300,7 +301,7 @@ function Fuss({ gehe }) {
     <footer style={{ background: "#FFFFFF", borderTop: "1px solid #E3E8F2" }}>
       <div className="ew-innen ew-fuss" style={{ maxWidth: 1040, margin: "0 auto", padding: "26px 24px" }}>
         <div data-kein-i18n>
-          <div style={{ fontWeight: 800, fontSize: 19, letterSpacing: "-0.01em", color: N }}>MYTHOS<span style={{ color: GOLD }}>MATHE</span>.DE</div>
+          <div><MarkenLogo groesse={19} grund="hell" textFarbe={N} /></div>
           <div style={{ fontSize: 12.5, color: N, marginTop: 2 }}>System <span style={{ color: GOLD }}>+</span> Freude <span style={{ color: GOLD }}>=</span> Erfolg.</div>
         </div>
         <div style={{ textAlign: "center" }}>

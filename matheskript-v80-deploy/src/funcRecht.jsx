@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { MarkenLogo } from "./markenLogo.jsx";
 import { C } from "./base1.jsx";
 import { MedienEinstellungen } from "./funcExtern.jsx";
 import { einwilligungLesen, einwilligungSetzen } from "./func9.jsx";
@@ -55,16 +56,9 @@ export function Fusszeile({ gehe, arbeitsmenue }) {
   );
   return (
     <footer style={{ background: C.seeTief, marginTop: 24 }}>
-      {/* Logo-Verläufe hier mitliefern: Auf Seiten ohne Kopfleiste (Trainingstools) fehlen sie sonst und das Logo wird schwarz */}
-      <style>{`
-        .logo-silber{color:#FFFFFF}
-        .logo-gold{background:linear-gradient(180deg,#FFE58A 0%,${C.flaggold} 45%,${C.goldWarm} 70%,#A67C00 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
-      `}</style>
       <div className="mx-auto px-6" style={{ maxWidth: 620, padding: "26px 24px 30px" }}>
         <div style={{ display: "inline-flex", flexDirection: "column", alignItems: "center" }}>
-          <p style={{ fontSize: "min(36px, 8.4vw)", fontWeight: 700, letterSpacing: "-0.02em", textTransform: "uppercase", lineHeight: 1 }}>
-            <span className="logo-silber">mythos</span><span className="logo-gold">mathe</span><span className="logo-silber">.de</span>
-          </p>
+          <p style={{ lineHeight: 1 }}><MarkenLogo groesse="min(36px, 8.4vw)" /></p>
           <p style={{ fontSize: "min(21px, 4.9vw)", fontWeight: 600, marginTop: 2, lineHeight: 1, letterSpacing: "0.03em", color: "#FFFFFF", whiteSpace: "nowrap" }}>
             System <span style={{ color: C.flaggold }}>+</span> Freude <span style={{ color: C.flaggold }}>=</span> Erfolg
           </p>

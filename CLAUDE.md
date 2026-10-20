@@ -31,5 +31,8 @@ Die Kurse (Unterstufe, Differentialrechnung, Vektoren/Geraden/Ebenen, GFS, Mathe
 ## Lernseiten → Werkzeug mit Aufgabentyp
 `uebenWunschSetzen(ansicht, { modus, art })` aus `src/uebenWunsch.js` vor `gehe()` öffnet ein Werkzeug gleich im gewünschten Modus und Aufgabentyp (ZweiModi/UebenRahmen in geoUi.jsx lesen den Wunsch). Das Modul Unterstufe (`funcUnterstufe.jsx`, Daten `unterstufeDaten5/6.js`, Doku `claude/modul-unterstufe.md`) nutzt das für jeden Übungsknopf.
 
+## Logo: nur über `MarkenLogo`
+Die Wortmarke MYTHOSMATHE.DE kommt immer aus `src/markenLogo.jsx` (`<MarkenLogo groesse=… />`, auf hellem Grund `grund="hell"`, für PDF-Bilder `druck`): Schrift der Startseiten-Headline, Black, Laufweite −0,02 em, Weiß + Headline-Gold. Nie selbst nachbauen; die Wochenmail (`src/wochenmail.js`) setzt dieselben Werte als HTML.
+
 ## Sonst
 Regel A5 (nichts unvereinfacht), generisches Maskulinum, Farben aus `C` in `base1.jsx`, `base*.jsx` importiert nie aus `func*.jsx`. Gesamtstand: Projekt-Dokument `claude/matheplus-stand.md`.

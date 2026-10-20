@@ -1,6 +1,7 @@
 import { mitMathildaAI } from "./mathildaName.jsx";
 import { lazyLaden, ChunkGrenze } from "./chunkSchutz.jsx";
 import React, { useState, useRef, useEffect } from "react";
+import { MarkenLogo } from "./markenLogo.jsx";
 import { API_URL, C, REGELN, VIDEO_URL, blattPrompt } from "./base1.jsx";
 import { KOMP } from "./base3.jsx";
 import { NAV, SCHULKLASSEN, kiKopf, kiAntwort } from "./base4.jsx";
@@ -507,7 +508,6 @@ export function Mathilda() {
             :root{--kopf-h:56px}
             @media (min-width:421px){:root{--kopf-h:clamp(62px, calc(11.1vw + 26px), 90px)}.kopf-slogan{margin-top:6px !important}}
             @media (min-width:840px){.kopf-slogan{margin-top:1px !important}}
-            .logo-silber{color:#FFFFFF}
             .titel-kurz{display:none}
             @media (max-width:520px){.held{padding-top:18px !important;padding-bottom:4px !important}.held h1{font-size:25px !important;line-height:1.1 !important}.held h1+div{margin-top:12px !important;margin-bottom:13px !important}.held-welle{height:12px !important}}
             .kopfblock{margin-bottom:-16px}
@@ -521,16 +521,12 @@ export function Mathilda() {
               .intro-p{display:-webkit-box !important;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}}
             @media (max-width:340px){.sek-chip{padding:6px 4px !important;font-size:11.5px !important}.sek-menue{gap:4px !important}}
             .titel-silber{background:linear-gradient(180deg,#FFFFFF 0%,${C.silberHell} 50%,${C.silber} 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
-            .logo-gold{background:linear-gradient(180deg,#FFE58A 0%,${C.flaggold} 45%,${C.goldWarm} 70%,#A67C00 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
-            .logo-gold-held{background:linear-gradient(180deg,#FFE58A 0%,${C.flaggold} 55%,#C9931A 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
           `}</style>
           <button type="button" data-kein-i18n aria-label={englisch() ? "Home" : "Zur Startseite"} title={englisch() ? "Home" : "Zur Startseite"}
             onClick={() => { setAnsicht("start"); setMenuOffen(false); setGruppeOffen(null); setSeitenOffen(false); springe("seitenwechsel", () => window.scrollTo(0, 0)); }}
             style={{ background: "none", border: "none", padding: 0, margin: 0, cursor: "pointer", fontFamily: "inherit", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", minWidth: 0 }}>
-            {/* Logo in der Schrift der Startseiten-Headline „Mathe kann jeder verstehen“: Black, enge Laufweite, Weiß + Headline-Gold */}
-            <span style={{ color: C.weiss, fontSize: "clamp(21px, 7vw, 40px)", fontWeight: 900, letterSpacing: "-0.045em", textTransform: "uppercase", whiteSpace: "nowrap", lineHeight: 1 }}>
-              <span>mythos</span><span className="logo-gold-held">mathe</span><span>.de</span>
-            </span>
+            {/* Wortmarke in der Schrift der Startseiten-Headline (src/markenLogo.jsx) */}
+            <MarkenLogo groesse="clamp(21px, 7vw, 40px)" />
             <span className="kopf-slogan" style={{ fontSize: "clamp(12.25px, 4.083vw, 23.33px)", fontWeight: 600, marginTop: 0, letterSpacing: "0.03em", color: "#FFFFFF", whiteSpace: "nowrap", lineHeight: 1 }}>
               System <span style={{ color: C.flaggold }}>+</span> Freude <span style={{ color: C.flaggold }}>=</span> Erfolg
             </span>

@@ -10,6 +10,7 @@
    Daten: kapitelFormeln.js (Auswahl), fsIndex.js (Formeln), schulbuch.js (Kapitel).
    ====================================================================== */
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { MarkenLogo } from "./markenLogo.jsx";
 import { MathildaName } from "./mathildaName.jsx";
 import { API_URL, C } from "./base1.jsx";
 import { kiAntwort, kiKopf } from "./base4.jsx";
@@ -232,9 +233,7 @@ function Formelauswahl({ info, gehe, zurKlausur }) {
 function DruckKopf({ info, rechts }) {
   return (
     <div style={{ background: C.seeTief, padding: "14px 26px 13px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: `3px solid ${C.flaggold}`, fontFamily: "Montserrat, sans-serif" }}>
-      <span style={{ fontSize: 21, fontWeight: 800, letterSpacing: "-0.02em" }}>
-        <span style={{ color: C.silberHell }}>MYTHOS</span><span style={{ color: C.flaggold }}>MATHE</span><span style={{ color: C.silberHell }}>.DE</span>
-      </span>
+      <MarkenLogo groesse={21} druck />
       <span style={{ fontSize: 12.5, fontWeight: 600, color: C.goldText }}>{rechts}</span>
     </div>
   );

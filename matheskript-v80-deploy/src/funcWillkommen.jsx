@@ -9,6 +9,7 @@
    Die Zeiten stehen in willkommen.js.
    ====================================================================== */
 import React, { useEffect, useRef, useState } from "react";
+import { MarkenLogo } from "./markenLogo.jsx";
 import { C } from "./base1.jsx";
 import { SprechblaseIcon } from "./funcFeedback.jsx";
 import {
@@ -33,9 +34,7 @@ const CSS = `
     font-family:Montserrat,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
     padding:calc(env(safe-area-inset-top,0px) + 22px) 24px calc(env(safe-area-inset-bottom,0px) + 22px);transition:opacity .5s ease}
   .mw-kopf{width:100%;max-width:480px}
-  .mw-logo{font-size:20px;font-weight:800;letter-spacing:-.02em;text-transform:uppercase;margin:0}
-  .mw-silber{background:linear-gradient(180deg,#fff 0%,#E3E8EF 35%,#B9C2CE 60%,#8E97A6 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
-  .mw-logogold{background:linear-gradient(180deg,#FFE58A 0%,#EDBB00 45%,#E2B53C 70%,#A67C00 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .mw-logo{margin:0;line-height:1}
   .mw-innen{width:100%;max-width:480px;flex:1;display:flex;flex-direction:column;justify-content:center;gap:26px;padding:24px 0}
   .mw-text h1{margin:0;font-size:clamp(26px,7.4vw,34px);line-height:1.18;font-weight:800;letter-spacing:-.01em}
   .mw-text p{margin:14px 0 0;font-size:17px;line-height:1.6}
@@ -126,7 +125,7 @@ export default function WillkommenOverlay() {
       <style>{CSS}</style>
 
       <div className="mw-kopf">
-        <p className="mw-logo"><span className="mw-silber">mythos</span><span className="mw-logogold">mathe</span><span className="mw-silber">.de</span></p>
+        <p className="mw-logo"><MarkenLogo groesse={20} /></p>
       </div>
 
       <div className="mw-innen">

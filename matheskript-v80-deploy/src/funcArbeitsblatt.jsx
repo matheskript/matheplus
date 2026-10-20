@@ -9,6 +9,7 @@
    Logik: arbeitsblatt.js · Speicher: arbeitsblattSpeicher.js · PDF: pdfBloecke.js
    ====================================================================== */
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { MarkenLogo } from "./markenLogo.jsx";
 import { C } from "./base1.jsx";
 import { M } from "./func3.jsx";
 import { SCHULARTEN, SCHULART_STANDARD, klassenBoxen, roemisch } from "./schulbuch.js";
@@ -102,9 +103,7 @@ const PX_JE_ZEILE = 32;   // Rechenraum: eine „Zeile“ ≈ 7,8 mm auf A4
 
 function Logo({ gross }) {
   return (
-    <span style={{ fontSize: gross ? 19 : 15, fontWeight: 800, letterSpacing: "-0.02em" }}>
-      <span style={{ color: C.silberHell }}>MYTHOS</span><span style={{ color: C.flaggold }}>MATHE</span><span style={{ color: C.silberHell }}>.DE</span>
-    </span>
+    <MarkenLogo groesse={gross ? 19 : 15} druck />
   );
 }
 

@@ -83,7 +83,7 @@ export function wochenmail({ eltern, kinder, abmeldeUrl, appUrl = "https://mytho
 <body style="margin:0;background:#F4F6FA;font-family:Montserrat,Arial,sans-serif">
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#F4F6FA"><tr><td align="center" style="padding:24px 12px">
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:560px;background:#ffffff;border-radius:16px;overflow:hidden">
-  <tr><td style="background:#0B1E4A;padding:18px 20px;font-size:20px;font-weight:800;letter-spacing:-.01em;color:#ffffff">MYTHOS<span style="color:#EDBB00">MATHE</span>.DE</td></tr>
+  <tr><td style="background:#0B1E4A;padding:18px 20px;font-family:Montserrat,Arial,sans-serif;font-size:20px;font-weight:900;letter-spacing:-.02em;color:#ffffff">MYTHOS<span style="color:#EDBB00">MATHE</span>.DE</td></tr>
   <tr><td style="padding:22px 20px 6px">
     <p style="margin:0 0 6px;font-size:12px;font-weight:700;letter-spacing:.12em;color:#8A6A00;text-transform:uppercase">Ihr Wochenbericht</p>
     <p style="margin:0;font-size:15px;line-height:1.65;color:#2E3A4E">Hallo ${esc(vorname(eltern.name))}, so lief die Mathe-Woche – ohne Noten, nur Gewohnheit und Richtung.</p>
