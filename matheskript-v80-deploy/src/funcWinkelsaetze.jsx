@@ -87,6 +87,15 @@ function EntdeckenParallelen() {
   );
 }
 
+/* Auf Zehntel runden, Summe erhalten (größter Rest): 52,44 + 61,44 + 66,12 → 52,4 + 61,5 + 66,1 = 180 */
+function zehntelMitSumme(werte) {
+  const z = werte.map((v) => v * 10), unten = z.map(Math.floor);
+  let rest = Math.round(z.reduce((s, v) => s + v, 0)) - unten.reduce((s, v) => s + v, 0);
+  const reihe = z.map((v, i) => [v - unten[i], i]).sort((x, y) => y[0] - x[0]);
+  for (const [, i] of reihe) { if (rest <= 0) break; unten[i]++; rest--; }
+  return unten.map((v) => v / 10);
+}
+
 function EntdeckenDreieck() {
   const [cx, setCx] = useState(2.2);
   const [cy, setCy] = useState(3.2);
@@ -95,7 +104,10 @@ function EntdeckenDreieck() {
     const u = [Q[0] - P[0], Q[1] - P[1]], v = [R[0] - P[0], R[1] - P[1]];
     return Math.acos((u[0] * v[0] + u[1] * v[1]) / (Math.hypot(...u) * Math.hypot(...v))) * 180 / Math.PI;
   };
-  const al = w(A, B, Cp), be = w(B, A, Cp), ga = 180 - al - be;
+  // Alle drei Winkel gemessen (nicht γ = 180° − α − β), die Summe daraus berechnet.
+  // Gerundet wird auf Zehntel so, dass die angezeigten Werte genau die angezeigte Summe ergeben.
+  const [al, be, ga] = zehntelMitSumme([w(A, B, Cp), w(B, A, Cp), w(Cp, A, B)]);
+  const summe = (Math.round(al * 10) + Math.round(be * 10) + Math.round(ga * 10)) / 10;
   const P1 = [cx - 3, cy], P2 = [cx + 3, cy];
   return (
     <>
@@ -121,7 +133,7 @@ function EntdeckenDreieck() {
       <WertZeile links="α" rechts={g0(al)} farbe="#8A6A00" />
       <WertZeile links="β" rechts={g0(be)} farbe="#0B5E43" />
       <WertZeile links="γ" rechts={g0(ga)} />
-      <WertZeile links="α + β + γ" rechts="180°" farbe={C.gruen} />
+      <WertZeile links="α + β + γ" rechts={g0(summe)} farbe={C.gruen} />
       <Merke>{zw("Zieh durch C die Parallele zu AB. Links von C liegt α noch einmal (Wechselwinkel), rechts β. Zusammen mit γ bilden sie einen gestreckten Winkel: α + β + γ = 180°.",
         "Draw the parallel to AB through C. To the left of C you find α again (alternate angle), to the right β. Together with γ they form a straight angle: α + β + γ = 180°.")}</Merke>
     </>
