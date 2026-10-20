@@ -19,12 +19,24 @@ test("Jedes Dokument hat Titel, Art, Zweck und gültige Zweck-Marken; Seitenzahl
   }
 });
 
-test("Liegt eine Datei bei, existiert sie unter public/", () => {
+test("Liegt eine Datei bei (Dokument oder Cover), existiert sie unter public/", () => {
   for (const d of DOKUMENTE) {
-    if (!d.datei) continue;
-    assert.ok(d.datei.startsWith("/"), `${d.id}: Pfad beginnt nicht mit /`);
-    assert.ok(existsSync(new URL(`../public${d.datei}`, import.meta.url)), `${d.id}: ${d.datei} fehlt`);
+    for (const pfad of [d.datei, d.cover]) {
+      if (!pfad) continue;
+      assert.ok(pfad.startsWith("/"), `${d.id}: Pfad beginnt nicht mit /`);
+      assert.ok(existsSync(new URL(`../public${pfad}`, import.meta.url)), `${d.id}: ${pfad} fehlt`);
+    }
   }
+});
+
+test("Cover gehört in die Box der Druckausgabe: keine eigenen Umschlag-Boxen, kein „Innenteil“, kein „Amazon-Umschlag“", () => {
+  assert.ok(!DOKUMENTE.some((d) => /umschlag/i.test(d.id) || /umschlag/i.test(d.titel)), "es gibt noch eine Umschlag-Box");
+  for (const d of DOKUMENTE) assert.ok(!/innenteil|amazon-umschlag/i.test(`${d.titel} ${d.art} ${d.zweck}`), `${d.id}: alter Begriff`);
+  const b1 = DOKUMENTE.find((d) => d.id === "druck-ableitungen-innenteil");
+  const b2 = DOKUMENTE.find((d) => d.id === "druck-vektoren-innenteil");
+  assert.equal(b1.cover, "/druck/Ableitungen-Umschlag.pdf");
+  assert.equal(b2.cover, "/druck/Vektoren-Umschlag.pdf");
+  assert.match(b2.titel, /Vektoren, Geraden und Ebenen/);
 });
 
 test("Schulbücher stehen drin: Amazon-Marke, 50 und 70 Seiten", () => {
@@ -74,6 +86,7 @@ test("Karte: Öffnen, Download und Pfeil; Zweck-Text erst nach dem Aufklappen", 
   const s = quelle("funcDokumente.jsx");
   assert.ok(s.includes("data-dokument-oeffnen") && s.includes("data-dokument-laden") && s.includes("data-dokument-mehr"));
   assert.match(s, /download=\{dateiName\(d\.datei\)\}/);
+  assert.ok(s.includes("data-dokument-cover") && /download=\{dateiName\(d\.cover\)\}/.test(s) && /Cover\s*<\/a>/.test(s), "Cover-Knopf fehlt");
   assert.match(s, /\{offen && \(\s*<div className="dk-mehr"/);
 });
 
@@ -83,6 +96,6 @@ test("Jedes PDF unter public/buecher und public/druck steht in der Liste", async
   const pdfs = [];
   const lauf = (rel) => { for (const n of readdirSync(new URL(rel, wurzel))) { const r = rel + n; if (statSync(new URL(r, wurzel)).isDirectory()) lauf(r + "/"); else if (n.toLowerCase().endsWith(".pdf")) pdfs.push("/" + r); } };
   lauf("buecher/"); lauf("druck/");
-  const eingetragen = new Set(DOKUMENTE.map((d) => d.datei).filter(Boolean));
+  const eingetragen = new Set(DOKUMENTE.flatMap((d) => [d.datei, d.cover]).filter(Boolean));
   for (const p of pdfs) assert.ok(eingetragen.has(p), `${p} fehlt in DOKUMENTE`);
 });

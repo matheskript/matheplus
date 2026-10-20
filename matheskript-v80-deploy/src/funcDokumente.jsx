@@ -8,7 +8,7 @@ import { DokumentMotiv } from "./funcDokumentMotive.jsx";
    SEITE „DOKUMENTE“ (Ansicht "dokumente", hinter dem gemeinsamen Passwort).
    Eine kompakte Karte je Dokument in der Optik der Kurs-Kacheln („Lack und Goldfolie“):
    Marken, Titel, Art · Seiten, Motiv rechts oben, drei Knöpfe
-   (Öffnen · Download · Pfeil). Der Pfeil klappt Zweck und Stand auf – sonst kein Fließtext.
+   (Öffnen · Download · bei Druckausgaben Cover · Pfeil). Der Pfeil klappt Zweck und Stand auf – sonst kein Fließtext.
    Die Liste steht in src/dokumente.js.
    ====================================================================== */
 
@@ -50,7 +50,7 @@ const STIL = `
   .dk-titel{margin:0;font-size:16.5px;font-weight:800;letter-spacing:-0.02em;line-height:1.22;color:var(--dk-titel);text-wrap:balance}
   .dk-meta{margin:6px 0 0;font-size:12.5px;font-weight:600;color:var(--dk-text);display:flex;flex-wrap:wrap;gap:2px 10px}
   .dk-meta b{color:var(--dk-akzent);font-weight:800}
-  .dk-knoepfe{display:flex;align-items:center;gap:8px;margin-top:12px}
+  .dk-knoepfe{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px}
   .dk-k{position:relative;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;gap:6px;height:34px;padding:0 13px 0 11px;border-radius:999px;border:0;
     font-family:inherit;font-size:13px;font-weight:800;letter-spacing:-0.01em;text-decoration:none;cursor:pointer;white-space:nowrap;
     transition:transform .15s ease,box-shadow .15s ease,filter .15s ease}
@@ -69,6 +69,7 @@ const STIL = `
   .dk-mehr{margin-top:12px;padding:11px 12px;border-radius:14px;background:var(--dk-chip);border:1px solid var(--dk-chiprand)}
   .dk-mehr p{margin:0;font-size:13px;line-height:1.6;font-weight:400;color:var(--dk-text)}
   .dk-mehr .dk-stand{margin-top:8px;font-size:11.5px;font-weight:700;color:var(--dk-akzent)}
+  @media (max-width:440px){.dk-knoepfe--cover{gap:6px}.dk-knoepfe--cover .dk-k:not(.dk-pfeil){padding:0 10px 0 8px;gap:4px;font-size:12.5px}}
   @media (max-width:380px){.dk-k{padding:0 11px 0 9px;font-size:12.5px}.dk-kopf{padding-right:86px}.dk-motiv{width:100px}}
   @media (prefers-reduced-motion:reduce){.dk,.dk-k,.dk-k::after,.dk-pfeil svg{transition:none}}
 `;
@@ -113,7 +114,7 @@ function Karte({ d }) {
         <h3 className="dk-titel">{d.titel}</h3>
         <p className="dk-meta"><span>{d.art}</span><b data-dokument-seiten>{seiten}</b></p>
       </div>
-      <div className="dk-knoepfe">
+      <div className={d.cover ? "dk-knoepfe dk-knoepfe--cover" : "dk-knoepfe"}>
         {d.datei ? (
           <>
             <a className="dk-k dk-oeffnen" href={d.datei} target="_blank" rel="noopener noreferrer" data-dokument-oeffnen aria-label={`${d.titel} öffnen`}>
@@ -122,6 +123,11 @@ function Karte({ d }) {
             <a className="dk-k dk-laden" href={d.datei} download={dateiName(d.datei)} data-dokument-laden aria-label={`${d.titel} herunterladen`}>
               <IconLaden />Download
             </a>
+            {d.cover ? (
+              <a className="dk-k dk-laden" href={d.cover} download={dateiName(d.cover)} data-dokument-cover aria-label={`Cover zu ${d.titel} herunterladen`}>
+                <IconLaden />Cover
+              </a>
+            ) : null}
           </>
         ) : (
           <span className="dk-fehlt" data-dokument-ohne-datei>Datei noch nicht hier</span>

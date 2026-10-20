@@ -6,6 +6,7 @@
    Businessplan …), bekommt hier einen Eintrag – mit Seitenzahl und Zweck.
      - datei: Pfad unter public/ (z. B. "/dokumente/xyz.pdf"), oder null, solange die Datei
        noch nicht im Projekt liegt (dann zeigt die Box „Datei noch nicht hier abgelegt“).
+     - cover: optional, Pfad des Covers (Rückseite + Rücken + Vorderseite) unter public/; die Karte zeigt dann den Knopf „Cover“ (Download).
      - seiten: Zahl, oder null, wenn die Seitenzahl noch offen ist.
      - zwecke: Kurzmarken, jede aus ZWECK_MARKEN.
      - farbe: Lack der Karte (eine aus FARBEN, Paletten in kursFarben.js), motiv: Bild rechts oben (funcDokumentMotive.jsx).
@@ -59,49 +60,27 @@ export const DOKUMENTE = [
     id: "druck-ableitungen-innenteil",
     farbe: "porzellan",
     motiv: "druck",
-    titel: "Amazon-Druckausgabe Band 1 – Ableitungen (Innenteil)",
-    art: "PDF · Druckvorlage KDP",
+    titel: "Amazon-Druckausgabe Band 1 – Ableitungen",
+    art: "PDF · Druckausgabe KDP",
     seiten: 58,
     zwecke: ["Amazon"],
-    zweck: "Hochladen bei Kindle Direct Publishing als Manuskript: A4 mit 3,2 mm Beschnitt, Premium-Farbe. Vorspann I–VIII stellt Mythos Mathe vor (Teil der Leseprobe), danach das Buch mit QR-Codes zu jeder Rechenaufgabe. Vor dem Upload in kdp.json Impressum-Adresse eintragen.",
+    zweck: "Hochladen bei Kindle Direct Publishing als Manuskript: A4 mit 3,2 mm Beschnitt, Premium-Farbe. Vorspann I–VIII stellt Mythos Mathe vor (Teil der Leseprobe), danach das Buch mit QR-Codes zu jeder Rechenaufgabe. Vor dem Upload in kdp.json Impressum-Adresse eintragen. Cover: Rückseite, Buchrücken (3,46 mm für 58 Seiten) und Vorderseite in einer Datei, mit Beschnitt und weißem Feld unten rechts für den Barcode, den KDP setzt.",
     stand: "20.10.2026",
     datei: "/druck/Ableitungen-Druck.pdf",
-  },
-  {
-    id: "druck-ableitungen-umschlag",
-    farbe: "porzellan",
-    motiv: "umschlag",
-    titel: "Amazon-Umschlag Band 1 – Ableitungen",
-    art: "PDF · Umschlag KDP",
-    seiten: 1,
-    zwecke: ["Amazon"],
-    zweck: "Buchcover als eine Datei: Rückseite, Buchrücken (3,46 mm für 58 Seiten) und Vorderseite mit Beschnitt. Weißes Feld unten rechts für den Barcode, den KDP setzt.",
-    stand: "20.10.2026",
-    datei: "/druck/Ableitungen-Umschlag.pdf",
+    cover: "/druck/Ableitungen-Umschlag.pdf",
   },
   {
     id: "druck-vektoren-innenteil",
     farbe: "tiefblau",
     motiv: "druck",
-    titel: "Amazon-Druckausgabe Band 2 – Vektoren, Geraden und Ebenen (Innenteil)",
-    art: "PDF · Druckvorlage KDP",
+    titel: "Amazon-Druckausgabe Band 2 – Vektoren, Geraden und Ebenen",
+    art: "PDF · Druckausgabe KDP",
     seiten: 78,
     zwecke: ["Amazon"],
-    zweck: "Hochladen bei Kindle Direct Publishing als Manuskript: A4 mit 3,2 mm Beschnitt, Premium-Farbe. Vorspann I–VIII mit Mythos Mathe (Leseprobe), danach das Buch mit QR-Codes zu den Rechenaufgaben. Vor dem Upload in kdp.json Impressum-Adresse eintragen.",
+    zweck: "Hochladen bei Kindle Direct Publishing als Manuskript: A4 mit 3,2 mm Beschnitt, Premium-Farbe. Vorspann I–VIII mit Mythos Mathe (Leseprobe), danach das Buch mit QR-Codes zu den Rechenaufgaben. Vor dem Upload in kdp.json Impressum-Adresse eintragen. Cover: Rückseite, Buchrücken (4,65 mm für 78 Seiten) und Vorderseite in einer Datei, mit Beschnitt und weißem Feld unten rechts für den Barcode, den KDP setzt.",
     stand: "20.10.2026",
     datei: "/druck/Vektoren-Druck.pdf",
-  },
-  {
-    id: "druck-vektoren-umschlag",
-    farbe: "tiefblau",
-    motiv: "umschlag",
-    titel: "Amazon-Umschlag Band 2 – Vektoren, Geraden und Ebenen",
-    art: "PDF · Umschlag KDP",
-    seiten: 1,
-    zwecke: ["Amazon"],
-    zweck: "Buchcover als eine Datei: Rückseite, Buchrücken (4,65 mm für 78 Seiten) und Vorderseite mit Beschnitt. Weißes Feld unten rechts für den Barcode, den KDP setzt.",
-    stand: "20.10.2026",
-    datei: "/druck/Vektoren-Umschlag.pdf",
+    cover: "/druck/Vektoren-Umschlag.pdf",
   },
   {
     id: "businessplan",

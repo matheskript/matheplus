@@ -50,7 +50,7 @@ function MotivExtrem({ id, klasse, linie }) {
   );
 }
 
-/* Druckausgabe (Innenteil): gestapelte Seiten mit QR-Ecke */
+/* Druckausgabe: gestapelte Seiten mit QR-Ecke */
 function MotivDruck({ id, klasse, linie, tief }) {
   const g = `url(#${id}-gold)`;
   return (
