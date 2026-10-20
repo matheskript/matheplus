@@ -149,7 +149,7 @@ html[data-start-modus="dunkel"] .fuss-paar button { color: #EEF2FF !important; b
 .sbb-zone { margin: 44px 0 14px; display: flex; align-items: flex-end; gap: 14px; }
 .sbb-zone .nr { font-size: 60px; font-weight: 900; line-height: .8; letter-spacing: -0.04em; background: linear-gradient(180deg, ${GOLD_HELL} 0%, ${GOLD} 60%, #C9931A 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .sbb-zone h2 { margin: 0; font-size: clamp(26px, 6.4vw, 34px); font-weight: 800; letter-spacing: -0.03em; line-height: 1; color: var(--titel); }
-.sbb-zone p { margin: 6px 0 0; font-size: 14px; color: var(--nebel); line-height: 1.4; }
+.sbb-zone p { margin: 6px 0 0; font-size: 14px; color: var(--nebel); line-height: 1.4; white-space: nowrap; }
 
 /* Kachel (dunkel: Glas, hell: weiß mit Rand): Text links, rechts eine schmale Bildspalte über die ganze Höhe */
 .sbb-karte { position: relative; width: 100%; border-radius: 22px; border: 1px solid var(--linie); background: var(--karte); box-shadow: var(--karte-schatten); color: var(--text); }
@@ -651,7 +651,7 @@ export function Startseite({ gehe }) {
         </div>
 
         {/* ---------- 3 Entdecken ---------- */}
-        <Zone nr="3" titel="Entdecken" zeile="Herleiten, Kurse, Mathilda und Pen & Paper." />
+        <Zone nr="3" titel="Entdecken" zeile="Herleiten, Kurse und Pen & Paper." />
         <HauptKachel auf={entdAuf} onClick={() => { setEntdAuf(!entdAuf); setSchulAuf(false); setBereichAuf(null); }}
           label={entdAuf ? "Mathe entdecken zuklappen" : "Mathe entdecken aufklappen"} logo={<EntdeckenLogoKlein />} titel="Mathe entdecken"
           text={entdAuf ? "Herleiten, entdecken, Wettbewerbe." : "Muster erkennen, Formeln selbst herleiten – und Mathe-Wettbewerbe."} />
