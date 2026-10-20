@@ -1,5 +1,5 @@
 /* Startseite dunkel / hell (src/startModus.js): Pfade /start-hell und /start-dunkel (und Aliasse) wählen den Modus;
-   ohne Wahl gilt dunkel. Die Startseite (funcStartseite.jsx) kennt beide Modi und führt zu allen Angeboten. */
+   ohne Wahl gilt dunkel. Die Startseite (funcStartseite.jsx) kennt beide Modi und führt zu allen Angeboten (Mein Mathe-Training ganz oben). */
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -27,7 +27,7 @@ test("Die Startseite führt zu allen Angeboten", () => {
   for (const z of ["ki", "headnumbers", "gleichkurs", "ebbinghaus", "analyse", "penpaperkurs", "elternkurs", "kurse", "diffkurs", "vekkurs", "gfs", "kiwahl", "efunktion", "mckurs", "elternabend"]) {
     assert.ok(q.includes(`ansicht: "${z}"`), `Startseite kennt das Ziel „${z}“ nicht`);
   }
-  for (const b of ["<Quickfinder", "<SuchBox", "<StartOnboarding", "<WeitermachenZeile", "<UnterMenue", "<SchulKopf", "ENTDECKEN_MENUE", "MYTHEN", "<DeinPlanBlock", "<AppAnleitung", "<SpendenBereich"]) {
+  for (const b of ["<Quickfinder", "<SuchBox", "<StartOnboarding", "<WeitermachenZeile", "<UnterMenue", "<SchulKopf", "ENTDECKEN_MENUE", "MYTHEN", "<MeinTrainingKachel", "<AppAnleitung", "<SpendenBereich"]) {
     assert.ok(q.includes(b), `Startseite ohne ${b}`);
   }
 });
