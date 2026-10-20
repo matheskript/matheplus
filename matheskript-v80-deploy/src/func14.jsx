@@ -1022,7 +1022,7 @@ export function KopfrechenZentrum({ start = null, gehe = null, eingebettet = fal
     return (
       <div data-kr-trainerseite>
         <KopfrechnenKopf kompakt kicker="Kopfrechnen · Training" zurueck="Alle Trainer" onZurueck={onZurueck}
-          badge={{ zeichen: t.zeichen, farbe: f.bg, text: f.text }} titel={t.kurzTitel || t.titel} satz={t.slogan} />
+          badge={{ zeichen: t.zeichen, hell: f.hell, kraeftig: f.kraeftig }} titel={t.kurzTitel || t.titel} satz={t.slogan} />
         <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 18 }}>
           <TrainerInhalt id={t.id} />
         </div>

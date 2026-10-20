@@ -37,7 +37,15 @@ export const KOPF_CSS = `
   .kr-kopf.kompakt .kr-k-zurueck:hover{background:rgba(255,255,255,0.14);border-color:rgba(237,187,0,0.6);color:#fff}
   .kr-kopf.kompakt .kr-k-zurueck:focus-visible{outline:3px solid ${GOLD};outline-offset:2px}
   .kr-kopf.kompakt .kr-k-titelzeile{display:flex;align-items:center;gap:12px;min-width:0}
-  .kr-kopf.kompakt .kr-k-badge{flex:none;display:inline-flex;align-items:center;justify-content:center;height:36px;padding:0 10px;border-radius:11px;font-size:15px;font-weight:800;letter-spacing:-0.01em;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.35)}
+  /* Trainerziffer als Wasserzeichen (Variante D, Wunsch 21.10.): rechts unten hinter Titel und Satz,
+     Farbverlauf der Trainerfarbe, nach links weich ausgeblendet. Text liegt immer davor. */
+  .kr-kopf.kompakt .kr-k-innen{position:relative}
+  .kr-kopf.kompakt .kr-k-zeile,.kr-kopf.kompakt .kr-k-titelzeile,.kr-kopf.kompakt .kr-k-satz{position:relative;z-index:1}
+  .kr-kopf.kompakt .kr-k-wz{position:absolute;right:10px;bottom:-6px;z-index:0;pointer-events:none;user-select:none;
+    font-size:clamp(62px, 19cqw, 92px);font-weight:800;letter-spacing:-0.04em;line-height:.9;white-space:nowrap;opacity:.5;
+    background:linear-gradient(170deg,#fff 0%,var(--hell) 38%,var(--kraeftig) 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;
+    -webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 60%);mask-image:linear-gradient(90deg,transparent 0%,#000 60%)}
+  .kr-kopf.kompakt .kr-k-wz.symbol{font-size:clamp(80px, 25cqw, 120px);line-height:.75;bottom:-2px}
   .kr-kopf.kompakt .kr-k-titel{flex:1;min-width:0;font-size:var(--kr-titel-gr);line-height:1.1;letter-spacing:-0.025em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .kr-kopf.kompakt .kr-k-satz{margin-top:7px;max-width:none;font-size:var(--kr-satz-gr);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 `;
@@ -55,13 +63,14 @@ const SATZ_GRUND = "clamp(13.5px, 4.2cqw, 16.5px)";
 /* Der dunkle Kopf. kinder = Inhalt unter der Headline (Modus-Leiste, Karten …) */
 export function KopfrechnenKopf({ kicker, titel, satz, zurueck, onZurueck, kinder, modi, modus, setModus, kompakt = false, badge = null }) {
   if (kompakt) {
-    /* titel und satz sind hier reiner Text (für die Größenanpassung). badge = { zeichen, farbe, text } */
-    const titelGr = passend(titel, TITEL_GRUND, 17, 0.6, badge ? 64 : 0);
+    /* titel und satz sind hier reiner Text (für die Größenanpassung). badge = { zeichen, hell, kraeftig } → Wasserzeichen */
+    const titelGr = passend(titel, TITEL_GRUND, 17, 0.6);
     const satzGr = passend(satz, SATZ_GRUND, 12, 0.54);
     return (
-      <div className="kr-kopf kompakt" data-kr-kopf data-kr-kompakt style={{ "--kr-titel-gr": titelGr, "--kr-satz-gr": satzGr }}>
+      <div className="kr-kopf kompakt" data-kr-kopf data-kr-kompakt style={{ "--kr-titel-gr": titelGr, "--kr-satz-gr": satzGr, ...(badge ? { "--hell": badge.hell, "--kraeftig": badge.kraeftig } : {}) }}>
         <style>{KOPF_CSS}</style>
         <div className="kr-k-innen">
+          {badge && <span className={"kr-k-wz" + (/\d/.test(String(badge.zeichen)) ? "" : " symbol")} aria-hidden="true" data-kr-wasserzeichen>{badge.zeichen}</span>}
           <div className="kr-k-zeile">
             <p className="kr-k-ober">{kicker}</p>
             {zurueck && (
@@ -72,7 +81,6 @@ export function KopfrechnenKopf({ kicker, titel, satz, zurueck, onZurueck, kinde
             )}
           </div>
           <div className="kr-k-titelzeile">
-            {badge && <span className="kr-k-badge" aria-hidden="true" style={{ background: badge.farbe, color: badge.text || "#fff" }}>{badge.zeichen}</span>}
             <h1 className="kr-k-titel" title={titel}>{titel}</h1>
           </div>
           {satz && <p className="kr-k-satz" title={satz}>{satz}</p>}
