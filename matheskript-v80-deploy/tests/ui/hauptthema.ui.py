@@ -1,6 +1,6 @@
 """Browser-Test Hauptthema in „Dein Training startet hier.“:
-Kapitel aufklappen → „Als mein Hauptthema wählen“ mit Klassenarbeits-Datum → Hauptthema-Ansicht (Countdown, Heute dran,
-Unterthemen mit Stand, Werkzeuge, Vorwissen) → „Heute dran“ startet die Einheit direkt → zurück → Datum ändern →
+Kapitel aufklappen → „Als mein Hauptthema wählen“ mit Klassenarbeits-Datum → Hauptthema-Ansicht im Bereich Thema (Countdown,
+Unterthemen mit Stand, Vorwissen), Bereich Plan („Heute dran“ startet die Einheit direkt), Bereich Tools (Werkzeuge) → zurück → Datum ändern →
 Thema wechseln (Kapitelliste, anderes Kapitel wählen) → Arbeit vorbei (Note, nächstes Kapitel) → beenden.
 Prüft bei 360, 390 und 1280 px: keine Seitenüberbreite, keine Konsolenfehler, Screenshots.
   npm run build && npx vite preview --port 4173 &   →   python3 tests/ui/hauptthema.ui.py
@@ -59,10 +59,11 @@ with sync_playwright() as p:
         pruefe(ansicht.count() == 1, f"{breite}: Hauptthema-Ansicht fehlt")
         pruefe(page.get_by_text("Dein Hauptthema").count() >= 1, f"{breite}: Kicker fehlt")
         pruefe(page.get_by_text("17").first.count() >= 1 and page.get_by_text("Tage", exact=True).count() >= 1, f"{breite}: Countdown fehlt")
-        pruefe(page.get_by_text("Heute dran").count() >= 1, f"{breite}: „Heute dran“ fehlt")
+        pruefe(page.get_by_role("tab", name="Thema").get_attribute("aria-selected") == "true", f"{breite}: nach der Wahl nicht im Bereich Thema")
+        pruefe(page.get_by_text("Heute dran").count() == 0, f"{breite}: „Heute dran“ schon im Bereich Thema")
         pruefe(page.get_by_text("Unterthemen · Dein Stand").count() == 1, f"{breite}: Unterthemen fehlen")
         pruefe(page.get_by_role("button", name="Scheitelpunktform").count() >= 1, f"{breite}: Unterthema Scheitelpunktform fehlt")
-        pruefe(page.get_by_text("Alles zu diesem Kapitel").count() == 1, f"{breite}: Werkzeuge fehlen")
+        pruefe(page.get_by_text("Alles zu diesem Kapitel").count() == 0, f"{breite}: Werkzeuge schon im Bereich Thema")
         pruefe(page.get_by_text("Dafür brauchst du sicher").count() == 1, f"{breite}: Vorwissen fehlt")
         pruefe(page.get_by_role("button", name="Bruchterme und Bruchgleichungen").count() == 0, f"{breite}: Kapitelliste trotz Hauptthema sichtbar")
         pruefe(page.get_by_text("Dein Trainingsplan ·").count() == 0, f"{breite}: Plan-Karte doppelt")
@@ -73,6 +74,19 @@ with sync_playwright() as p:
         breite_ok("Hauptthema")
         ansicht.scroll_into_view_if_needed()
         page.screenshot(path=f"{AUS}/{breite}-2-hauptthema.png", full_page=True)
+        # Bereich Tools: alle Werkzeuge zum Kapitel, darunter die anderen Kapitel nur mit Werkzeugen
+        page.get_by_role("tab", name="Tools").click(); page.wait_for_timeout(250)
+        pruefe(page.get_by_text("Alles zu diesem Kapitel").count() == 1, f"{breite}: Werkzeuge fehlen im Bereich Tools")
+        pruefe(page.get_by_text("Werkzeuge anderer Kapitel").count() == 1, f"{breite}: andere Kapitel fehlen im Bereich Tools")
+        pruefe(page.get_by_role("button", name="Quadratische Funktionen und Gleichungen").count() == 0, f"{breite}: Hauptthema doppelt im Bereich Tools")
+        breite_ok("Tools")
+        page.screenshot(path=f"{AUS}/{breite}-2b-tools.png", full_page=True)
+        # Bereich Plan: „Heute dran“
+        page.get_by_role("tab", name="Plan").click(); page.wait_for_timeout(250)
+        pruefe(page.get_by_text("Heute dran").count() >= 1, f"{breite}: „Heute dran“ fehlt im Bereich Plan")
+        pruefe(page.get_by_text("Unterthemen · Dein Stand").count() == 0, f"{breite}: Unterthemen im Bereich Plan")
+        breite_ok("Plan")
+        page.screenshot(path=f"{AUS}/{breite}-2c-plan.png")
 
         # 3 · Heute dran → Einheit läuft sofort
         page.locator("[data-hauptthema] button.ht-gold").first.click(); page.wait_for_timeout(900)
@@ -81,6 +95,8 @@ with sync_playwright() as p:
         page.screenshot(path=f"{AUS}/{breite}-3-einheit.png")
         page.go_back(); page.wait_for_timeout(900)
         pruefe(page.locator("[data-hauptthema='quad']").count() == 1, f"{breite}: nach Zurück kein Hauptthema")
+        pruefe(page.get_by_role("tab", name="Plan").get_attribute("aria-selected") == "true", f"{breite}: Bereich Plan nach Zurück nicht gemerkt")
+        page.get_by_role("tab", name="Thema").click(); page.wait_for_timeout(250)
 
         # 4 · Datum ändern: Plan neu, Hauptthema bleibt
         if breite >= 840: page.get_by_role("button", name="Datum ändern").click()

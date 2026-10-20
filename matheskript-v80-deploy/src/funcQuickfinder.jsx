@@ -1,13 +1,20 @@
 /* ======================================================================
    QUICKFINDER – Kachel „Dein Training startet hier.“ auf der Startseite
    Schulsystem (blauer Balken G8 · G9 · GS9) → Klasse (2 × 4 Boxen, die beiden
-   Abi-Jahrgänge gold) → Menü mit den Kapiteln des Buchs; jedes Kapitel klappt
-   auf und zeigt alle Trainings-Werkzeuge der App dazu.
-   Daten: schulbuch.js. Auswahl bleibt im Browser (matheplus-quickfinder).
+   Abi-Jahrgänge gold). Sind beide gewählt, schrumpft die Auswahl auf einen
+   kleinen Chip „Kl. 13 (GS9)“ ganz vorn; daneben das Menü Thema · Plan ·
+   Tools · Videos, das den Inhalt darunter umschaltet:
+     Thema   Hauptthema bzw. Kapitel des Buchs (jedes klappt auf) + passende Kurse
+     Plan    Heute dran / Als Nächstes, aktiver Plan, am Desktop Themen zum Anhaken
+     Tools   alle Trainings-Werkzeuge, nach Kapitel
+     Videos  Videokurse, deren Klassenbereich zur Klasse passt
+   Daten: schulbuch.js. Auswahl bleibt im Browser (matheplus-quickfinder),
+   der gewählte Bereich in der Sitzung (matheplus-training-tab).
    ====================================================================== */
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { C } from "./base1.jsx";
-import { SCHULARTEN, SCHULART_STANDARD, THEMEN, hilfenFuer, kapitelFuer, klassenBoxen, kurseFuer, roemisch, schulart as schulartVon, stufeAusKlassenBox } from "./schulbuch.js";
+import { C, KURSE } from "./base1.jsx";
+import { VIDEOKURSE } from "./base5.jsx";
+import { SCHULARTEN, SCHULART_STANDARD, THEMEN, hilfenFuer, kapitelFuer, klasseImBereich, klassenBoxen, kurseFuer, roemisch, schulart as schulartVon, stufeAusKlassenBox } from "./schulbuch.js";
 import { WERKZEUGE } from "./werkzeuge.js";
 import { kapitelAuswahl } from "./kapitelFormeln.js";
 import { englisch } from "./i18n.js";
@@ -15,7 +22,7 @@ import { unterthema, unterthemen } from "./unterthemen.js";
 import { PHASEN, auswahlNachKapitel, planErstellen, planStand, planTage, tagName, vorbereitungFuer } from "./trainingsplan.js";
 import { PhasenPille, einheitVormerken, heuteText, planErsetzen, planSpeichern, sacheGeneratoren, useAktiverPlan } from "./funcKapitelTraining.jsx";
 import { erledigtUebertragen, hauptthemaPruefen } from "./hauptthema.js";
-import { HauptthemaAnsicht, HauptthemaLeiste, HauptthemaWahl } from "./funcHauptthema.jsx";
+import { Abschnitt, HauptthemaAnsicht, HauptthemaLeiste, HauptthemaWahl } from "./funcHauptthema.jsx";
 
 import { springe } from "./sprung.js";
 const SCHLUESSEL = "matheplus-quickfinder";
@@ -94,25 +101,48 @@ function KlassenWahl({ schulart, wert, setze }) {
   );
 }
 
-/* Nach der Wahl von Schulsystem und Klasse: alles in einer Zeile im blauen Balken –
-   vorne das Schulsystem (weißer Rahmen), daneben die Klasse als goldene Box über zwei Breiten.
-   Antippen öffnet die Auswahl wieder. */
-function GewaehltLeiste({ schulart, klasse, oeffnen }) {
+/* Nach der Wahl von Schulsystem und Klasse schrumpft die Auswahl auf einen kleinen Chip ganz vorn in der Zeile:
+   eine blaue Box, darin „Kl. 13“ in Gold (wie die goldene Klassenbox) und dahinter „(GS9)“ in Weiß (wie der
+   Schulsystem-Balken). Antippen öffnet die Auswahl wieder. */
+function AuswahlChip({ schulart, klasse, oeffnen }) {
   const s = schulartVon(schulart);
   const box = klassenBoxen(schulart).find((b) => b.id === klasse);
+  const label = box ? box.label : "", name = s ? s.name : "";
   return (
-    <div role="group" aria-label="Deine Auswahl"
-      style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 4, padding: 4, borderRadius: 12, background: C.see,
-        boxShadow: "0 4px 12px rgba(0,77,152,0.22)" }}>
-      <button type="button" onClick={oeffnen} data-kein-i18n className="qf-sa" aria-label={`Schulsystem ${s ? s.name : ""} – ändern`} title="Schulsystem ändern"
-        style={{ ...TASTE, height: HOEHE - 8, color: C.weiss, border: `2px solid ${C.weiss}`, background: "rgba(255,255,255,0.14)" }}>
-        {s ? s.name : ""}
-      </button>
-      <button type="button" onClick={oeffnen} className="qf-gold" aria-label={`Klasse ${box ? box.label : ""} – ändern`} title="Klasse ändern"
-        style={{ ...TASTE, gridColumn: "span 2", height: HOEHE - 8, gap: 5, color: C.seeTief, border: "none",
-          background: "linear-gradient(180deg, #F5CB2E 0%, #EDBB00 100%)" }}>
-        Klasse <span data-kein-i18n>{box ? box.label : ""}</span>
-      </button>
+    <button type="button" onClick={oeffnen} className="qf-chip" aria-label={`Klasse ${label} (${name}) – ändern`} title="Schulsystem oder Klasse ändern"
+      style={{ ...knopfBasis, flexShrink: 0, height: 36, padding: "0 10px 0 11px", borderRadius: 10, border: "none", background: C.see,
+        display: "inline-flex", alignItems: "baseline", gap: 4, whiteSpace: "nowrap", boxShadow: "0 3px 10px rgba(0,77,152,0.22)" }}>
+      <span style={{ fontSize: 13, fontWeight: 800, color: C.flaggold, letterSpacing: "0.01em" }}>Kl. <span data-kein-i18n>{label}</span></span>
+      <span data-kein-i18n style={{ fontSize: 11.5, fontWeight: 700, color: "rgba(255,255,255,0.9)" }}>({name})</span>
+    </button>
+  );
+}
+
+/* Das Menü neben dem Chip: vier Bereiche, bewusst kurz benannt, damit alles in eine Zeile passt (auch bei 360 px) */
+const BEREICHE = [
+  { id: "thema", name: "Thema" },
+  { id: "plan", name: "Plan" },
+  { id: "tools", name: "Tools" },
+  { id: "videos", name: "Videos" },
+];
+const TAB_SCHLUESSEL = "matheplus-training-tab";
+function tabLesen() { try { const t = sessionStorage.getItem(TAB_SCHLUESSEL); return BEREICHE.some((b) => b.id === t) ? t : null; } catch { return null; } }
+function tabSchreiben(t) { try { sessionStorage.setItem(TAB_SCHLUESSEL, t); } catch { /* egal */ } }
+
+function TrainingsMenue({ tab, setTab }) {
+  return (
+    <div role="tablist" aria-label="Bereich wählen"
+      style={{ flex: 1, minWidth: 0, display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 3, padding: 3, borderRadius: 11, background: "#EEF2F8" }}>
+      {BEREICHE.map((b) => {
+        const an = b.id === tab;
+        return (
+          <button key={b.id} type="button" role="tab" aria-selected={an} onClick={() => setTab(b.id)} className="qf-tab" data-tab={b.id}
+            style={{ ...knopfBasis, height: 30, padding: "0 4px", borderRadius: 8, border: "none", minWidth: 0, fontSize: 12.5, fontWeight: an ? 800 : 700,
+              color: an ? C.see : C.grau, background: an ? C.weiss : "transparent", boxShadow: an ? "0 1px 4px rgba(15,26,51,0.14)" : "none", whiteSpace: "nowrap" }}>
+            {b.name}
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -126,8 +156,9 @@ const Pfeil = ({ auf, farbe = C.see, gross = 18 }) => (
 /* Handy und Tablet (unter 840 px, wie die Startseite): hier gibt es keinen Trainingsplan zum Anhaken,
    sondern das einfache Menü – Kapitel aufklappen, Unterthema oder Werkzeug antippen, unten Kurs-Empfehlungen. */
 const HANDY_MQ = "(max-width: 839.98px)";
+const handyJetzt = () => { try { return window.matchMedia(HANDY_MQ).matches; } catch { return false; } };
 function useHandy() {
-  const [h, setH] = useState(() => { try { return window.matchMedia(HANDY_MQ).matches; } catch { return false; } });
+  const [h, setH] = useState(handyJetzt);
   useEffect(() => {
     let mq; try { mq = window.matchMedia(HANDY_MQ); } catch { return undefined; }
     const f = () => setH(mq.matches);
@@ -366,23 +397,26 @@ function UnterthemaZeile({ u, waehle }) {
 }
 
 /* Menü: alle Kapitel der gewählten Klasse untereinander; ein Kapitel klappt auf und zeigt seine Werkzeuge.
-   Immer nur ein Kapitel offen; das offene Kapitel bleibt gespeichert. */
-function KapitelMenue({ schulart, klasse, offen, setOffen, gehe, planOeffnen, handy = false, haupt = null, hauptWaehlen = null }) {
-  const kapitel = kapitelFuer(schulart, klasse);
+   Immer nur ein Kapitel offen; das offene Kapitel bleibt gespeichert.
+   nurWerkzeuge (Bereich „Tools“): nur die Werkzeug-Zeilen je Kapitel – ohne Hauptthema-Wahl, Unterthemen und Plan-Eintrag;
+   ausser: dieses Kapitel weglassen (das Hauptthema zeigt seine Werkzeuge schon darüber). */
+function KapitelMenue({ schulart, klasse, offen, setOffen, gehe, planOeffnen, handy = false, haupt = null, hauptWaehlen = null, nurWerkzeuge = false, ausser = null }) {
+  const kapitel = kapitelFuer(schulart, klasse).filter((k) => k.id !== ausser);
   const s = schulartVon(schulart);
   const box = klassenBoxen(schulart).find((b) => b.id === klasse);
   const { refs, merke } = useRuhigAufklappen(offen);
   const umschalten = (id) => { merke(id); setOffen(offen === id ? null : id); };
+  const titel = nurWerkzeuge ? (ausser ? "Werkzeuge anderer Kapitel" : "Werkzeuge nach Kapitel") : "Themen der Klasse";
   return (
     <div className="auftauchen" data-kein-scroll style={{ marginTop: 6, overflowAnchor: "none" }}>
       <p style={{ ...KICKER, color: C.grau, marginBottom: 8 }}>
-        Themen der Klasse <span data-kein-i18n>{box ? box.label : ""} · {s ? s.name : ""}</span>
+        {titel} {!nurWerkzeuge && <span data-kein-i18n>{box ? box.label : ""} · {s ? s.name : ""}</span>}
       </p>
-      <div role="list" aria-label="Themen der Klasse" style={{ display: "grid", gap: 6 }}>
+      <div role="list" aria-label={titel} style={{ display: "grid", gap: 6 }}>
         {kapitel.map((k) => {
           const auf = offen === k.id;
-          const werkzeuge = auf ? werkzeugeZumKapitel(k.id, schulart, klasse, !handy) : [];
-          const teile = auf && handy ? unterthemen(k.id) : [];
+          const werkzeuge = auf ? werkzeugeZumKapitel(k.id, schulart, klasse, !handy && !nurWerkzeuge) : [];
+          const teile = auf && handy && !nurWerkzeuge ? unterthemen(k.id) : [];
           return (
             <div key={k.id} role="listitem" ref={(el) => { refs.current[k.id] = el; }}
               style={{ borderRadius: 12, border: `1.5px solid ${auf ? C.see : C.linie}`, background: C.weiss, overflow: "hidden",
@@ -399,7 +433,7 @@ function KapitelMenue({ schulart, klasse, offen, setOffen, gehe, planOeffnen, ha
               </button>
               {auf && (
                 <div className="auftauchen" style={{ display: "grid", gap: 6, padding: "10px 10px 12px", borderTop: `1px solid ${C.linie}`, background: "#F6F9FE" }}>
-                  {hauptWaehlen && (haupt && haupt.kapitel === k.id ? (
+                  {hauptWaehlen && !nurWerkzeuge && (haupt && haupt.kapitel === k.id ? (
                     <p style={{ margin: "0 2px 4px", fontSize: 12.5, fontWeight: 700, color: C.gruenDunkel, display: "flex", alignItems: "center", gap: 6 }}><Stern /> Das ist dein Hauptthema</p>
                   ) : (
                     <>
@@ -422,9 +456,72 @@ function KapitelMenue({ schulart, klasse, offen, setOffen, gehe, planOeffnen, ha
           );
         })}
       </div>
-      <p style={{ margin: "8px 2px 0", fontSize: 11.5, color: C.hellgrau, lineHeight: 1.5 }}>
-        Reihenfolge wie im Lambacher Schweizer (Baden-Württemberg); je nach Schule kann sie abweichen.
+      {!nurWerkzeuge && (
+        <p style={{ margin: "8px 2px 0", fontSize: 11.5, color: C.hellgrau, lineHeight: 1.5 }}>
+          Reihenfolge wie im Lambacher Schweizer (Baden-Württemberg); je nach Schule kann sie abweichen.
+        </p>
+      )}
+    </div>
+  );
+}
+
+/* ---------- Bereich „Videos“: Videokurse, deren Klassenbereich („Klasse 11 – 13“) die gewählte Klasse enthält ---------- */
+function videokurseFuer(schulartId, boxId) {
+  const box = klassenBoxen(schulartId).find((b) => b.id === boxId);
+  if (!box) return [];
+  return KURSE.filter((k) => VIDEOKURSE[k.id] && klasseImBereich(k.stufe, box.klassen))
+    .map((k) => ({ id: k.id, titel: k.titel, unter: k.unter, stufe: k.stufe, lektionen: VIDEOKURSE[k.id].lektionen.length }));
+}
+const Play = () => (
+  <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill={C.flaggold} /></svg>
+);
+function Videokurse({ schulart, klasse, gehe, breit = false }) {
+  const box = klassenBoxen(schulart).find((b) => b.id === klasse);
+  const liste = useMemo(() => videokurseFuer(schulart, klasse), [schulart, klasse]);
+  return (
+    <div className="auftauchen" style={{ marginTop: 12, display: "grid", gap: 6, maxWidth: breit ? 640 : undefined }}>
+      <Abschnitt rechts={liste.length ? <><span data-kein-i18n>{liste.length}</span> {liste.length === 1 ? "Kurs" : "Kurse"}</> : null}>
+        Videokurse für Klasse <span data-kein-i18n>{box ? box.label : ""}</span>
+      </Abschnitt>
+      {liste.map((k) => (
+        <button key={k.id} type="button" onClick={() => gehe({ ansicht: "kurse", kurs: k.id })} className="qf-balken" data-videokurs={k.id}
+          style={{ ...knopfBasis, width: "100%", display: "flex", alignItems: "center", gap: 11, textAlign: "left", minHeight: 56, padding: "8px 10px",
+            borderRadius: 12, border: `1.5px solid ${C.linie}`, background: C.weiss, color: C.tinte }}>
+          <span aria-hidden="true" style={{ flexShrink: 0, width: 38, height: 38, borderRadius: 10, background: C.seeTief, display: "flex", alignItems: "center", justifyContent: "center" }}><Play /></span>
+          <span style={{ flex: 1, minWidth: 0 }}>
+            <span style={{ display: "block", fontSize: 14.5, fontWeight: 700, lineHeight: 1.25 }}>{k.titel}</span>
+            <span style={{ display: "block", fontSize: 12.5, fontWeight: 500, color: C.tinte, marginTop: 1, lineHeight: 1.3 }}>{k.unter}</span>
+            <span style={{ display: "block", fontSize: 11.5, fontWeight: 400, color: C.grau, marginTop: 2, lineHeight: 1.3 }}>
+              <span data-kein-i18n>{k.lektionen}</span> Lektionen · {k.stufe}
+            </span>
+          </span>
+          <span aria-hidden="true" style={{ flexShrink: 0, fontSize: 20, color: C.see }}>›</span>
+        </button>
+      ))}
+      <button type="button" onClick={() => gehe({ ansicht: "kurse" })}
+        style={{ ...knopfBasis, justifySelf: "start", border: "none", background: "none", padding: "6px 2px", fontSize: 13, color: C.see }}>
+        Alle Videokurse ansehen ›
+      </button>
+    </div>
+  );
+}
+
+/* ---------- Bereich „Plan“ ohne Hauptthema und ohne aktiven Plan ---------- */
+function PlanHinweis({ zumThema, anhaken }) {
+  return (
+    <div className="auftauchen" style={{ marginTop: 12, borderRadius: 12, border: `1.5px solid ${C.linie}`, background: C.weiss, padding: "12px 14px 14px", display: "grid", gap: 8, maxWidth: 640 }}>
+      <p style={{ ...KICKER, color: "#8A6A00" }}>Dein Trainingsplan</p>
+      <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.5, color: C.tinte }}>
+        Noch kein Plan. Wähle unter „Thema“ ein Kapitel als Hauptthema – dann bekommst du jeden Tag eine Einheit, Wiederholungen nach Ebbinghaus und vor der Arbeit die Generalprobe.
       </p>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <button type="button" onClick={zumThema} className="qf-gold"
+          style={{ ...knopfBasis, minHeight: 40, padding: "8px 14px", border: "none", background: C.flaggold, color: C.seeTief, fontSize: 13.5, fontWeight: 800 }}>Kapitel wählen ›</button>
+        {anhaken && (
+          <button type="button" onClick={anhaken} className="qf-balken"
+            style={{ ...knopfBasis, minHeight: 40, padding: "8px 14px", border: `1.5px solid ${C.linie}`, background: C.weiss, color: C.see, fontSize: 13.5 }}>Themen selbst anhaken</button>
+        )}
+      </div>
     </div>
   );
 }
@@ -586,9 +683,13 @@ function PlanKarte({ q, auswahl, gehe, aktiv }) {
    Plan-Modus (Themen zum Anhaken, das Kapitel ist schon angehakt) – „‹ Zurück zu den Kapiteln“ führt zurück. */
 export function Quickfinder({ gehe, setzeStufe, links }) {
   const [q, setQ] = useState(() => lesen() || { schulart: null, klasse: null, kapitel: null, teil: null, modus: modusLesen(), auswahl: auswahlOhneSchulart() });
-  // waehlen: Auswahl von Schulsystem und Klasse ist offen. Ist beides gewählt, schrumpft sie auf eine Zeile.
+  // waehlen: Auswahl von Schulsystem und Klasse ist offen. Ist beides gewählt, schrumpft sie auf den Chip mit dem Menü daneben.
   const [waehlen, setWaehlen] = useState(false);
-  const fertig = !!(q.schulart && q.klasse) && !waehlen;
+  const gewaehlt = !!(q.schulart && q.klasse);
+  const fertig = gewaehlt && !waehlen;
+  // tab: Bereich des Menüs (Thema · Plan · Tools · Videos); am Desktop startet ein gespeicherter Anhak-Plan im Bereich Plan
+  const [tab, setTabRoh] = useState(() => tabLesen() || (modusLesen() === "plan" && !handyJetzt() ? "plan" : "thema"));
+  const setTab = (t) => { setTabRoh(t); tabSchreiben(t); };
   const aktiv = useAktiverPlan();
   const menueRef = useRef(null);
   const setze = (neu) => { setQ(neu); schreiben(neu); };
@@ -613,9 +714,10 @@ export function Quickfinder({ gehe, setzeStufe, links }) {
   const planOeffnen = (kId) => {
     const ids = unterthemen(kId).map((x) => x.id);
     setze({ ...q, modus: "plan", auswahl: [...auswahl, ...ids.filter((id) => !auswahl.includes(id))] });
+    setTab("plan");
     nachOben();
   };
-  const zurueck = () => { setze({ ...q, modus: "sache" }); nachOben(); };
+  const zurueck = () => { setze({ ...q, modus: "sache" }); setTab("thema"); nachOben(); };
 
   /* ---------- Hauptthema ---------- */
   const haupt = q.haupt || null;
@@ -629,11 +731,12 @@ export function Quickfinder({ gehe, setzeStufe, links }) {
     setze({ ...q, modus: "sache", kapitel: kapitelId, teil: null,
       haupt: { kapitel: kapitelId, schulart, klasse, termin: termin || null, seit: heuteText(), planId: plan ? plan.id : null, note: null } });
     setListe(false);
+    setTab("thema");
     nachOben();
   };
   const hauptAktionen = haupt && {
     gehe,
-    liste: () => setListe(true),
+    liste: () => { setListe(true); setTab("thema"); },
     beenden: () => { setze({ ...q, haupt: null }); setListe(false); },
     oeffneTeil: (u) => unterthemaOeffnen(u, haupt.kapitel, haupt.schulart, haupt.klasse, gehe),
     waehleWz: (h) => gehe(h.ziel),
@@ -660,8 +763,18 @@ export function Quickfinder({ gehe, setzeStufe, links }) {
     const titel = THEMEN[haupt.kapitel].titel;
     return kurseFuer(haupt.schulart, haupt.klasse, 6).filter((k) => k.passt.includes(titel)).slice(0, 2);
   }, [haupt && haupt.kapitel, haupt && haupt.schulart, haupt && haupt.klasse]);   // eslint-disable-line react-hooks/exhaustive-deps
-  const hauptOben = haupt && !plan && !liste;
+  const hauptOben = haupt && !liste;   // Hauptthema sichtbar (die Kapitelliste ist nicht über „Thema wechseln“ offen)
   const planGehoertZumHaupt = haupt && aktiv && aktiv.plan.id === haupt.planId;
+  const hauptAnsicht = (zeige) => (
+    <HauptthemaAnsicht haupt={haupt} plan={aktiv} werkzeuge={hauptWerkzeuge} kurse={hauptKurse} aktionen={hauptAktionen} breit={!handy} zeige={zeige} />
+  );
+  const kapitelMenue = (extra = {}) => (
+    <KapitelMenue key={q.schulart + q.klasse} schulart={q.schulart} klasse={q.klasse} offen={q.kapitel} gehe={gehe} planOeffnen={planOeffnen} handy={handy}
+      haupt={haupt} hauptWaehlen={hauptWaehlen} setOffen={(id) => setze({ ...q, kapitel: id, teil: null })} {...extra} />
+  );
+  // Videos und Werkzeuge brauchen Schulart und Klasse – notfalls die des Hauptthemas
+  const sk = gewaehlt ? { schulart: q.schulart, klasse: q.klasse } : haupt && haupt.klasse ? { schulart: haupt.schulart, klasse: haupt.klasse } : null;
+  const [toolsOffen, setToolsOffen] = useState(null);   // offenes Kapitel im Bereich Tools (eigener Zustand, unabhängig vom Bereich Thema)
   return (
     <>
       <style>{`.qf-kopf{display:grid;grid-template-columns:minmax(0,1fr);grid-template-areas:"kopf" "schul" "klass";row-gap:10px;padding:16px 16px 6px}
@@ -675,10 +788,17 @@ export function Quickfinder({ gehe, setzeStufe, links }) {
           .qf-sa[aria-pressed="false"]:hover{background:rgba(255,255,255,0.1) !important}
           .qf-kl[aria-pressed="false"]:hover{border-color:${C.see}55 !important}
           .qf-gold:hover{filter:brightness(1.04)}
+          .qf-chip:hover{filter:brightness(1.1)}
+          .qf-tab[aria-selected="false"]:hover{color:${C.see} !important}
           .ht-gold:hover{filter:brightness(1.05)}
           .ht-blau:hover{filter:brightness(1.12);border-color:rgba(255,255,255,0.4) !important}}
-        .qf-kopf.qf-fertig{grid-template-areas:"kopf" "schul";padding-bottom:12px}
-        @media (min-width:600px){.qf-kopf.qf-fertig{grid-template-rows:auto;grid-template-areas:"kopf schul";align-items:start}}`}</style>
+        .qf-kopf.qf-fertig{grid-template-areas:"kopf";padding-bottom:10px}
+        .qf-kopf.qf-fertig>.qf-a-kopf{margin-bottom:0}
+        @media (min-width:600px){.qf-kopf.qf-fertig{grid-template-columns:minmax(0,1fr);grid-template-rows:auto;grid-template-areas:"kopf"}}
+        .qf-leiste{display:flex;align-items:center;gap:8px;padding:0 16px 12px}
+        @media (min-width:840px){.qf-leiste{padding:0 18px 12px 20px;max-width:600px}}
+        .qf-zwei{display:grid;gap:0}
+        @media (min-width:840px){.qf-zwei{grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:24px;align-items:start}}`}</style>
       <div className={fertig ? "qf-kopf qf-fertig" : "qf-kopf"}>
         <div className="qf-a-kopf" style={{ minWidth: 0 }}>
           {links}
@@ -688,38 +808,55 @@ export function Quickfinder({ gehe, setzeStufe, links }) {
               : "Wähle dein Schulsystem und deine Klasse. Dann siehst du alle Kapitel aus deinem Buch – und zu jedem Kapitel die Werkzeuge, mit denen du es trainierst."}
           </p>}
         </div>
-        {fertig ? (
-          <div className="qf-a-schul"><GewaehltLeiste schulart={q.schulart} klasse={q.klasse} oeffnen={() => setWaehlen(true)} /></div>
-        ) : (
+        {!fertig && (
           <>
             <div className="qf-a-schul"><SchulartWahl wert={q.schulart} setze={schulartSetzen} /></div>
             <div className="qf-a-klass"><KlassenWahl schulart={q.schulart} wert={q.klasse} setze={klasseSetzen} /></div>
           </>
         )}
       </div>
-      {(q.schulart && q.klasse) || aktiv || haupt ? (
-        <div className="qf-menue" ref={menueRef}>
-          {aktiv && !(hauptOben && planGehoertZumHaupt) && <AktiverPlan v={aktiv} gehe={gehe} />}
-          {hauptOben && (
-            <HauptthemaAnsicht haupt={haupt} plan={aktiv} werkzeuge={hauptWerkzeuge} kurse={hauptKurse} aktionen={hauptAktionen} breit={!handy} />
-          )}
-          {haupt && !plan && liste && <HauptthemaLeiste haupt={haupt} zurueck={() => setListe(false)} beenden={hauptAktionen.beenden} />}
-          {q.schulart && q.klasse && !plan && !hauptOben && (
-            <KapitelMenue key={q.schulart + q.klasse} schulart={q.schulart} klasse={q.klasse} offen={q.kapitel} gehe={gehe} planOeffnen={planOeffnen} handy={handy}
-              haupt={haupt} hauptWaehlen={hauptWaehlen}
-              setOffen={(id) => setze({ ...q, kapitel: id, teil: null })} />
-          )}
-          {q.schulart && q.klasse && !plan && !hauptOben && <EmpfohleneKurse schulart={q.schulart} klasse={q.klasse} gehe={gehe} />}
-          {q.schulart && q.klasse && plan && (
+      {fertig && (
+        <div className="qf-leiste">
+          <AuswahlChip schulart={q.schulart} klasse={q.klasse} oeffnen={() => setWaehlen(true)} />
+          <TrainingsMenue tab={tab} setTab={setTab} />
+        </div>
+      )}
+      {gewaehlt || aktiv || haupt ? (
+        <div className="qf-menue" ref={menueRef} data-bereich={tab}>
+          {tab === "thema" && (
             <>
-              <button type="button" onClick={zurueck}
-                style={{ ...knopfBasis, display: "inline-flex", alignItems: "center", gap: 6, marginTop: 12, padding: "4px 0", border: "none", background: "none", fontSize: 13, color: C.see }}>
-                <span aria-hidden="true">‹</span> Zurück zu den Kapiteln
-              </button>
-              <PlanAuswahl key={q.schulart + q.klasse} schulart={q.schulart} klasse={q.klasse} auswahl={auswahl} setzeAuswahl={(a) => setze({ ...q, auswahl: a })} />
-              {auswahl.length > 0 && <PlanKarte q={q} auswahl={auswahl} gehe={gehe} aktiv={aktiv} />}
+              {hauptOben && hauptAnsicht("thema")}
+              {haupt && liste && <HauptthemaLeiste haupt={haupt} zurueck={() => setListe(false)} beenden={hauptAktionen.beenden} />}
+              {gewaehlt && !hauptOben && kapitelMenue()}
+              {gewaehlt && !hauptOben && <EmpfohleneKurse schulart={q.schulart} klasse={q.klasse} gehe={gehe} />}
             </>
           )}
+          {tab === "plan" && (
+            <>
+              {aktiv && !planGehoertZumHaupt && <AktiverPlan v={aktiv} gehe={gehe} />}
+              {gewaehlt && plan ? (
+                <>
+                  <button type="button" onClick={zurueck}
+                    style={{ ...knopfBasis, display: "inline-flex", alignItems: "center", gap: 6, marginTop: 12, padding: "4px 0", border: "none", background: "none", fontSize: 13, color: C.see }}>
+                    <span aria-hidden="true">‹</span> Zurück zu den Kapiteln
+                  </button>
+                  <PlanAuswahl key={q.schulart + q.klasse} schulart={q.schulart} klasse={q.klasse} auswahl={auswahl} setzeAuswahl={(a) => setze({ ...q, auswahl: a })} />
+                  {auswahl.length > 0 && <PlanKarte q={q} auswahl={auswahl} gehe={gehe} aktiv={aktiv} />}
+                </>
+              ) : haupt ? hauptAnsicht("plan") : !aktiv && (
+                <PlanHinweis zumThema={() => setTab("thema")} anhaken={gewaehlt && !handy ? () => setze({ ...q, modus: "plan" }) : null} />
+              )}
+            </>
+          )}
+          {tab === "tools" && sk && (
+            <div className={haupt ? "qf-zwei" : undefined}>
+              {haupt && hauptAnsicht("tools")}
+              <div style={{ marginTop: haupt && handy ? 14 : 0 }}>
+                {kapitelMenue({ schulart: sk.schulart, klasse: sk.klasse, nurWerkzeuge: true, ausser: haupt ? haupt.kapitel : null, offen: toolsOffen, setOffen: setToolsOffen })}
+              </div>
+            </div>
+          )}
+          {tab === "videos" && sk && <Videokurse schulart={sk.schulart} klasse={sk.klasse} gehe={gehe} breit={!handy} />}
         </div>
       ) : null}
     </>

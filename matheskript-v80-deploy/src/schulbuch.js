@@ -167,6 +167,15 @@ export function hilfenFuer(themaId) {
 /* Römische Ziffer fürs Kapitel (I … XII) */
 export const roemisch = (n) => ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"][n] || String(n);
 
+/* Klassenbereich eines Kurses („Klasse 8 – 13“, „Klasse 11 – 13“): liegt eine der Klassen der Box darin?
+   Für die Videokurse-Liste in „Dein Training startet hier.“ (Bereich „Videos“). */
+export function klasseImBereich(stufe, klassen) {
+  const m = /(\d+)\s*[–-]\s*(\d+)/.exec(String(stufe || ""));
+  if (!m) return false;
+  const von = Number(m[1]), bis = Number(m[2]);
+  return (klassen || []).some((k) => k >= von && k <= bis);
+}
+
 /* ---------- Empfohlene Kurse zur gewählten Klasse ----------
    Ein Kurs wird empfohlen, wenn Kapitel der Klasse zu ihm passen. Je mehr Kapitel, desto weiter vorn (höchstens 3).
    Gesperrte Programme (Masterclass, Mathe checken, Videokurse) tauchen hier nicht auf. */

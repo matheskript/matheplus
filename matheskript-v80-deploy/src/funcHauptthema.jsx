@@ -126,7 +126,7 @@ function Zeile({ onClick, gold, blau, links, titel, unter, unterGold, etikett, e
   );
 }
 /* Abschnitts-Überschrift: goldener Akzentstrich, kräftiger Titel, rechts eine Pille (z. B. „2 geübt“) */
-const Abschnitt = ({ children, rechts, farbe = C.seeTief }) => (
+export const Abschnitt = ({ children, rechts, farbe = C.seeTief }) => (
   <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "6px 2px 8px" }}>
     <span aria-hidden="true" style={{ flexShrink: 0, width: 5, height: 20, borderRadius: 999, background: `linear-gradient(180deg, ${C.flaggold}, ${C.granaHell})` }} />
     <p style={{ margin: 0, flex: 1, minWidth: 0, fontSize: 16.5, fontWeight: 800, lineHeight: 1.2, letterSpacing: "-0.015em", color: farbe }}>{children}</p>
@@ -159,8 +159,10 @@ function Ring({ cd, gross }) {
           werkzeuge – Werkzeug-Zeilen zum Kapitel (werkzeugeZumKapitel), kurse – passende Kurse
           aktionen: { gehe, oeffneTeil(u), waehleWz(h), heuteStarten(e), planErstellen(), datumSetzen(t), noteSetzen(n), liste(), beenden(), neuesHaupt(kapitelId) }
           breit – ab 840 px zweispaltig
+          zeige – nur ein Bereich der Kachel (Menü in funcQuickfinder.jsx): "thema" (Kopf, Note, Unterthemen, Vorwissen, Kurs),
+                  "plan" (Heute dran / Als Nächstes), "tools" (alle Werkzeuge zum Kapitel); ohne zeige: alles untereinander
    ====================================================================== */
-export function HauptthemaAnsicht({ haupt, plan, werkzeuge, kurse, aktionen, breit }) {
+export function HauptthemaAnsicht({ haupt, plan, werkzeuge, kurse, aktionen, breit, zeige = null }) {
   const en = englisch();
   const E = useLernstand();
   const heute = heuteText();
@@ -403,6 +405,52 @@ export function HauptthemaAnsicht({ haupt, plan, werkzeuge, kurse, aktionen, bre
       Dein Hauptthema bleibt oben, bis du es wechselst. Nach der Klassenarbeit fragt die App nach deiner Note und schlägt das nächste Kapitel vor.
     </p>
   );
+
+  /* ---------- Nur ein Bereich (Menü Thema · Plan · Tools) ---------- */
+  if (zeige) {
+    const luft = breit ? 18 : 16;
+    if (zeige === "plan") return (
+      <div className="auftauchen" data-hauptthema={haupt.kapitel} data-bereich="plan" style={{ display: "grid", gap: luft, marginTop: 6, maxWidth: breit ? 640 : undefined }}>
+        <p style={{ margin: "4px 2px 0", fontSize: 12.5, lineHeight: 1.45, color: C.grau }}>
+          <span style={{ fontWeight: 700, color: C.seeTief }}>{t.titel}</span>
+          {" · "}
+          {!haupt.termin ? <span>Noch kein Datum</span>
+            : vorbei ? <><span>Klassenarbeit</span> <span>geschrieben</span></>
+            : cd && cd.tage === 0 ? <><span>Klassenarbeit</span> <span>heute</span></>
+            : <><span>Klassenarbeit</span> <span>in <span data-kein-i18n>{cd ? cd.tage : ""}</span> {cd && cd.tage === 1 ? "Tag" : "Tagen"}</span></>}
+        </p>
+        {vorbei ? (
+          <div style={{ borderRadius: 12, border: `1.5px solid ${C.flaggold}`, background: "#FFFBEA", padding: "11px 12px", display: "grid", gap: 4 }}>
+            <p style={{ ...KICKER, color: GOLD_DUNKEL }}>Die Arbeit ist geschrieben</p>
+            <p style={{ margin: 0, fontSize: 13, lineHeight: 1.5, color: C.tinte }}>Die Wiederholungen laufen weiter. Unter „Thema“ trägst du deine Note ein und wählst das nächste Kapitel.</p>
+          </div>
+        ) : heuteDran}
+      </div>
+    );
+    if (zeige === "tools") return (
+      <div className="auftauchen" data-hauptthema={haupt.kapitel} data-bereich="tools" style={{ display: "grid", gap: luft, marginTop: 6 }}>{alles}</div>
+    );
+    if (breit) return (
+      <div className="auftauchen" data-hauptthema={haupt.kapitel} data-bereich="thema" style={{ display: "grid", gap: 18, marginTop: 6 }}>
+        {kopf}
+        {nachDerArbeit}
+        <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)", columnGap: 24, alignItems: "start" }}>
+          <div style={{ display: "grid", gap: 18, minWidth: 0 }}>{unterthemen}{vorwissen}</div>
+          <div style={{ display: "grid", gap: 18, minWidth: 0 }}>{kurs}{alleKapitel}{fuss}</div>
+        </div>
+      </div>
+    );
+    return (
+      <div className="auftauchen" data-hauptthema={haupt.kapitel} data-bereich="thema" style={{ display: "grid", gap: 16, marginTop: 6 }}>
+        {kopf}
+        {nachDerArbeit}
+        {unterthemen}
+        {vorwissen}
+        {kurs}
+        <div style={{ display: "grid", gap: 8 }}>{alleKapitel}{fuss}</div>
+      </div>
+    );
+  }
 
   if (breit) return (
     <div className="auftauchen" data-hauptthema={haupt.kapitel} style={{ display: "grid", gap: 18, marginTop: 6 }}>

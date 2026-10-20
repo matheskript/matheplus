@@ -472,6 +472,15 @@ const ZUSATZ = {
   "Einmaleins, Quadrat- und Kubikzahlen – mit Lernpfad, Spielen und Wiederholung.": "Times tables, squares and cubes – with a learning path, games and review.",
   "Einmaleins, Quadrat- und Kubikzahlen – mit Lernpfad und Wiederholung": "Times tables, squares and cubes – with a learning path and review",
   "Mathematik so aufschreiben, dass du deinen Denkweg siehst, verstehst und kontrollierst – für Mittelstufe und Oberstufe.": "Write down your maths so that you can see, understand and check your line of thought – for middle and upper school.",
+  /* „Dein Training startet hier.“: Chip „Kl. 13 (GS9)“ und Menü Thema · Plan · Tools · Videos (funcQuickfinder.jsx) */
+  "Kl.": "Gr.", "Plan": "Plan", "Tools": "Tools", "Videos": "Videos",
+  "Bereich wählen": "Choose a section", "Schulsystem oder Klasse ändern": "Change school type or grade",
+  "Werkzeuge nach Kapitel": "Tools by chapter", "Werkzeuge anderer Kapitel": "Tools from other chapters",
+  "Videokurse für Klasse": "Video courses for grade", "Lektionen ·": "lessons ·", "Alle Videokurse ansehen ›": "See all video courses ›",
+  "Noch kein Plan. Wähle unter „Thema“ ein Kapitel als Hauptthema – dann bekommst du jeden Tag eine Einheit, Wiederholungen nach Ebbinghaus und vor der Arbeit die Generalprobe.": "No plan yet. Under “Topic”, choose a chapter as your main topic – then you get one unit a day, Ebbinghaus reviews and the dress rehearsal before the test.",
+  "Kapitel wählen ›": "Choose a chapter ›", "Themen selbst anhaken": "Tick topics yourself",
+  "heute": "today", "geschrieben": "written", "Noch kein Datum": "No date yet",
+  "Die Wiederholungen laufen weiter. Unter „Thema“ trägst du deine Note ein und wählst das nächste Kapitel.": "The reviews continue. Under “Topic”, enter your grade and choose the next chapter.",
 };
 
 /* Fachbegriffe in berechneten Texten (Kurvendiskussion usw.) */

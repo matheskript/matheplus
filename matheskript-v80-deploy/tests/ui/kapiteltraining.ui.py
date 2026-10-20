@@ -56,30 +56,41 @@ with sync_playwright() as p:
         breite_ok("Eine Sache trainieren")
         page.screenshot(path=f"{AUS}/{breite}-4-lauf.png")
 
-        # zurück, „Trainingsplan zu diesem Kapitel“: das ganze Kapitel ist vorab angehakt
+        # zurück, „Trainingsplan zu diesem Kapitel“: das ganze Kapitel ist vorab angehakt (nur am Desktop – am Handy gibt es den Anhak-Plan nicht)
         page.go_back(); page.wait_for_timeout(800)
+        if breite < 840:
+            pruefe(page.get_by_role("button", name="Trainingsplan zu diesem Kapitel").count() == 0, f"{breite}: Plan-Eintrag am Handy")
+            pruefe(page.get_by_role("button", name="5 Aufgaben zum Kapitel").count() == 1, f"{breite}: Kapitel nach Zurück nicht mehr offen")
+            page.get_by_role("tab", name="Plan").click(); page.wait_for_timeout(250)
+            pruefe(page.get_by_text("Noch kein Plan.").count() == 1, f"{breite}: Plan-Hinweis am Handy fehlt")
+            breite_ok("Plan am Handy")
+            pruefe(not konsole, f"{breite}: Konsole: {konsole[:3]}")
+            ctx.close()
+            continue
         page.get_by_role("button", name="Trainingsplan zu diesem Kapitel").click(); page.wait_for_timeout(400)
-        pruefe(page.get_by_text("5 Unterthemen aus 1 Kapitel").count() == 1, f"{breite}: Kapitel nicht übernommen")
+        pruefe(page.get_by_role("tab", name="Plan").get_attribute("aria-selected") == "true", f"{breite}: Anhak-Plan nicht im Bereich Plan")
+        pruefe(page.get_by_text("6 Unterthemen aus 1 Kapitel").count() == 1, f"{breite}: Kapitel nicht übernommen")
         trig = page.get_by_role("checkbox", name="Ganzes Kapitel abwählen: Trigonometrie im Dreieck")
         pruefe(trig.count() == 1 and trig.get_attribute("aria-checked") == "true", f"{breite}: Trigonometrie nicht ganz angehakt")
         page.get_by_role("checkbox", name="Sinussatz", exact=True).click(); page.wait_for_timeout(150)
-        pruefe(page.get_by_text("4 Unterthemen aus 1 Kapitel").count() == 1, f"{breite}: Abwählen eines Unterthemas klappt nicht")
+        pruefe(page.get_by_text("5 Unterthemen aus 1 Kapitel").count() == 1, f"{breite}: Abwählen eines Unterthemas klappt nicht")
         # Exponentialfunktionen antippen → Unterthemen klappen auf
         page.get_by_role("button", name="Exponentialfunktionen und Logarithmus", exact=False).first.click(); page.wait_for_timeout(250)
         pruefe(page.get_by_role("checkbox", name="Logarithmus (mit Übungsaufgaben)", exact=True).count() == 1, f"{breite}: Unterthemen von Exponential klappen nicht auf")
         # ganzes Kapitel per Kästchen
         page.get_by_role("checkbox", name="Ganzes Kapitel anhaken: Exponentialfunktionen und Logarithmus").click(); page.wait_for_timeout(200)
-        pruefe(page.get_by_text("9 Unterthemen aus 2 Kapiteln").count() == 1, f"{breite}: ganzes Kapitel nicht angehakt")
+        pruefe(page.get_by_text("10 Unterthemen aus 2 Kapiteln").count() == 1, f"{breite}: ganzes Kapitel nicht angehakt")
         page.get_by_role("checkbox", name="Halbwertszeit und Verdopplungszeit (mit Übungsaufgaben)", exact=True).click(); page.wait_for_timeout(150)
-        pruefe(page.get_by_text("8 Unterthemen aus 2 Kapiteln").count() == 1, f"{breite}: Abwählen klappt nicht")
+        pruefe(page.get_by_text("9 Unterthemen aus 2 Kapiteln").count() == 1, f"{breite}: Abwählen klappt nicht")
         breite_ok("Häkchen-Liste")
         page.get_by_role("checkbox", name="Logarithmus (mit Übungsaufgaben)", exact=True).scroll_into_view_if_needed()
         page.screenshot(path=f"{AUS}/{breite}-5a-haekchen.png")
         # „Zurück zu den Kapiteln“ und wieder hin: Auswahl bleibt
         page.get_by_role("button", name="Zurück zu den Kapiteln").click(); page.wait_for_timeout(300)
+        pruefe(page.get_by_role("tab", name="Thema").get_attribute("aria-selected") == "true", f"{breite}: Zurück führt nicht in den Bereich Thema")
         pruefe(page.get_by_role("button", name="5 Aufgaben zum Kapitel").count() == 1, f"{breite}: Zurück zu den Kapiteln klappt nicht")
         page.get_by_role("button", name="Trainingsplan zu diesem Kapitel").click(); page.wait_for_timeout(300)
-        pruefe(page.get_by_text("9 Unterthemen aus 2 Kapiteln").count() == 1, f"{breite}: Auswahl nach Zurück nicht erhalten")
+        pruefe(page.get_by_text("10 Unterthemen aus 2 Kapiteln").count() == 1, f"{breite}: Auswahl nach Zurück nicht erhalten")
         page.get_by_role("button", name="Exponentialfunktionen und Logarithmus", exact=False).first.click(); page.wait_for_timeout(250)
         page.get_by_role("checkbox", name="Halbwertszeit und Verdopplungszeit (mit Übungsaufgaben)", exact=True).click(); page.wait_for_timeout(150)
 
@@ -116,6 +127,7 @@ with sync_playwright() as p:
 
         # Startseite im Plan-Modus zeigt den aktiven Plan
         page.goto(BASE); page.wait_for_timeout(800)
+        pruefe(page.get_by_role("tab", name="Plan").get_attribute("aria-selected") == "true", f"{breite}: Startseite nicht im Bereich Plan")
         pruefe(page.get_by_text("Dein Trainingsplan · 0/").count() == 1, f"{breite}: aktiver Plan fehlt auf der Startseite")
         breite_ok("Startseite mit Plan")
 

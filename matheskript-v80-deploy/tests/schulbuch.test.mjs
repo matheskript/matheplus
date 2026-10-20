@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { PLAN, SCHULARTEN, THEMEN, hilfenFuer, kapitelFuer, klassenBoxen, roemisch, stufeAusKlassenBox } from "../src/schulbuch.js";
+import { PLAN, SCHULARTEN, THEMEN, hilfenFuer, kapitelFuer, klasseImBereich, klassenBoxen, roemisch, stufeAusKlassenBox } from "../src/schulbuch.js";
 import { WERKZEUGE } from "../src/werkzeuge.js";
 
 const func10 = readFileSync(new URL("../src/func10.jsx", import.meta.url), "utf8");
@@ -78,6 +78,18 @@ test("Kurs-Empfehlungen: Kapitel existieren, höchstens 3, Klasse 12 G9 bekommt 
   assert.ok(ids.includes("diffkurs") && ids.includes("vekkurs"), ids.join());
   assert.equal(kurseFuer("g9", "12")[0].id === "diffkurs" || kurseFuer("g9", "12")[0].id === "vekkurs", true);
 });
+test("Videos: Klassenbereich eines Kurses („Klasse 8 – 13“) enthält die Klasse", () => {
+  assert.equal(klasseImBereich("Klasse 8 – 13", [13]), true);
+  assert.equal(klasseImBereich("Klasse 11 – 13", [10]), false);
+  assert.equal(klasseImBereich("Klasse 9 – 12", [5, 6]), false);
+  assert.equal(klasseImBereich("Klasse 5 – 7", [5, 6]), true);
+  assert.equal(klasseImBereich("Klasse 8-13", [9]), true);        // auch mit kurzem Strich
+  assert.equal(klasseImBereich("", [9]), false);
+  assert.equal(klasseImBereich(undefined, undefined), false);
+  const box13 = klassenBoxen("gms").find((b) => b.label === "13");
+  assert.equal(klasseImBereich("Klasse 11 – 13", box13.klassen), true);
+});
+
 test("Handy-Menü: jedes Unterthema mit Generator oder Werkzeug hat ein gültiges Ziel", () => {
   for (const s of SCHULARTEN) for (const b of klassenBoxen(s.id)) for (const k of kapitelFuer(s.id, b.id))
     for (const u of unterthemenTest(k.id)) if (!u.gen.length && u.wz) assert.ok(WZ_TEST[u.wz] && WZ_TEST[u.wz].ziel, `${u.id}: ${u.wz}`);
