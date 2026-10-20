@@ -12,10 +12,10 @@ export function SpendenBereich({ gehe }) {
   return (
     <section aria-labelledby="spenden-titel" style={{ marginTop: 22, borderRadius: 20, padding: "20px 18px 18px", color: C.weiss, position: "relative", overflow: "hidden",
       background: `radial-gradient(120% 140% at 100% 0%, #1D4790 0%, ${C.see} 40%, ${NAVY} 100%)`, boxShadow: "0 10px 28px rgba(14,30,74,0.22)" }}>
-      <p style={{ margin: 0, fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", color: C.flaggold }}>DONATE · FREIWILLIG</p>
-      <h2 id="spenden-titel" style={{ margin: "6px 0 0", fontSize: 21, fontWeight: 800, lineHeight: 1.2, letterSpacing: "-0.02em" }}>Hilf mit, die KI-Kosten zu tragen</h2>
+      <p style={{ margin: 0, fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", color: C.flaggold }}>DONATE</p>
+      <h2 id="spenden-titel" style={{ margin: "6px 0 0", fontSize: 21, fontWeight: 800, lineHeight: 1.2, letterSpacing: "-0.02em" }}>Hilf mit, Mythos Mathe und <MathildaName dunkel /> zu entwickeln</h2>
       <p style={{ margin: "8px 0 14px", fontSize: 14, fontWeight: 300, lineHeight: 1.6, color: "#C9D6EE" }}>
-        Für <MathildaName dunkel /> kaufen wir laufend KI-Credits, und die Weiterentwicklung der Seite entsteht mit Claude. Wenn du magst, trägst du einen Teil davon.
+        Mythos Mathe wächst jede Woche: neue Kurse, neue Werkzeuge, eine immer stärkere <MathildaName dunkel />. Dein Beitrag fließt direkt in KI-Credits und Entwicklung und bringt das nächste Feature schneller an den Start.
       </p>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
         {SPENDEN.betraege.map((b) => (

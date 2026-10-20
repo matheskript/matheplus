@@ -1,3 +1,4 @@
+import { MathildaName } from "./mathildaName.jsx";
 import React, { useState } from "react";
 import { C } from "./base1.jsx";
 import { karte, Kicker } from "./funcKontoRollen.jsx";
@@ -118,9 +119,9 @@ export function SpendenKarte({ cfg = SPENDEN }) {
 export function SpendenTeaser({ gehe }) {
   return (
     <div style={{ ...karte, padding: 18, marginBottom: 14, background: `linear-gradient(155deg, ${C.see} 0%, ${NAVY} 100%)`, color: C.weiss }}>
-      <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", color: C.flaggold, marginBottom: 6 }}>FREIWILLIG</p>
-      <p style={{ fontSize: 17, fontWeight: 700, marginBottom: 6 }}>Hilf mit, die KI-Kosten zu tragen</p>
-      <p style={{ fontSize: 14, color: "#C9D6EE", fontWeight: 300, lineHeight: 1.6, marginBottom: 12 }}>Mathilda und die Weiterentwicklung der Seite kosten laufend Geld. Wenn du magst, unterstützt du uns mit 10, 20, 50 oder 100 Euro.</p>
+      <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", color: C.flaggold, marginBottom: 6 }}>DONATE</p>
+      <p style={{ fontSize: 17, fontWeight: 700, marginBottom: 6 }}>Hilf mit, Mythos Mathe und <MathildaName dunkel /> zu entwickeln</p>
+      <p style={{ fontSize: 14, color: "#C9D6EE", fontWeight: 300, lineHeight: 1.6, marginBottom: 12 }}>Neue Kurse, neue Werkzeuge, eine immer stärkere <MathildaName dunkel />: Dein Beitrag mit 10, 20, 50 oder 100 Euro fließt direkt in KI-Credits und Entwicklung.</p>
       <button type="button" onClick={() => gehe({ ansicht: "spenden" })} style={{ height: 44, padding: "0 22px", borderRadius: 999, border: "none", background: C.flaggold, color: NAVY, fontSize: 14.5, fontWeight: 800, fontFamily: "inherit", cursor: "pointer" }}>Donate</button>
     </div>
   );
