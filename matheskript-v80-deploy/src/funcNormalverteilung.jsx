@@ -15,11 +15,12 @@
 import React, { useMemo, useState } from "react";
 import { C } from "./base1.jsx";
 import { GrosserKnopf, MS, hilfeKontext, karte, kicker, zw } from "./ui2.jsx";
-import { Merke, Regler, UebenRahmen, WertZeile, ZweiModi, misch, ws, zs } from "./geoUi.jsx";
+import { KompaktCtx, Merke, Regler, UebenRahmen, WertZeile, ZweiModi, misch, ws, zs } from "./geoUi.jsx";
 import { zt } from "./ui3.jsx";
 import { NormalAnimation } from "./funcNormalAnimation.jsx";
 import { springe } from "./sprung.js";
 import { uebergabeErledigt, uebergabeLesen } from "./uebergabe.js";
+import { Arbeitsflaeche, BildKarte, FeinKarte, feinKarte, titelStil, useBreite, useDesktop } from "./arbeitsflaeche.jsx";
 import {
   KONTEXTE, NV_ARTEN, Phi, SIGMA_REGELN, TOL_P, TOL_Z, binomNaeherung, binomSigma, dichte, dz, maxHoehe, nvAufgabe, phi, quantil, vert, zwischen,
 } from "./normal.js";
@@ -34,8 +35,9 @@ const einheitVon = (k) => (typeof k.einheit === "string" ? k.einheit : zw(k.einh
    Grafik: Glockenkurve in echten Einheiten
    flaechen: [{ a, b, farbe }], marken: [{ x, text, farbe }], ticks: [{ x, text }]
    ====================================================================== */
-export function GlockenBild({ mu, s, flaechen = [], marken = [], ticks, wende = false, hoch = false, hoehe = 200, label, ymax }) {
-  const W = 340, L = 12, R = 12, B = hoehe - 34, TOP = 16;
+/* breite: Desktop zeichnet in echten Pixeln (gemessene Breite); ohne breite wie bisher 340 breit */
+export function GlockenBild({ mu, s, flaechen = [], marken = [], ticks, wende = false, hoch = false, hoehe = 200, label, ymax, breite }) {
+  const W = breite || 340, L = 12, R = 12, B = hoehe - 34, TOP = 16;
   const x0 = mu - 3.8 * s, x1 = mu + 3.8 * s;
   const X = (v) => L + ((v - x0) / (x1 - x0)) * (W - L - R);
   const ym = ymax ?? maxHoehe(s);
@@ -111,6 +113,45 @@ function StationKopf({ nr, zeichen, titel, leitfrage }) {
   );
 }
 
+/* ---------- Rahmen eines Labors ----------
+   Handy: eine Karte (Satz, Regler, Bild auf zartem Grund, Kennzahlen, Merksatz).
+   Desktop (DESKTOP-STIL.md): Regler und Kennzahlen links, Bild rechts in der Bildkarte in echten Pixeln, Merksatz darunter.
+   bild(breite, hoehe): breite/hoehe nur am Desktop gesetzt. */
+function Labor({ name, titel, regler, bild, werte, merke }) {
+  const desktop = useDesktop();
+  const [bildRef, bildBreite] = useBreite();
+  if (desktop) {
+    const W = bildBreite || 400;
+    return (
+      <div data-labor={name} style={{ marginTop: 14 }}>
+        <Arbeitsflaeche
+          links={(
+            <FeinKarte>
+              <p style={titelStil}>{titel}</p>
+              <KompaktCtx.Provider value={true}><div style={{ display: "grid", gap: 12 }}>{regler}</div></KompaktCtx.Provider>
+              <div style={{ marginTop: 10 }}>{werte}</div>
+            </FeinKarte>
+          )}
+          rechts={<BildKarte><div style={{ padding: "12px 12px 6px" }}><div ref={bildRef}>{bild(W, Math.round(W * 0.72))}</div></div></BildKarte>} />
+        {merke && <div style={{ marginTop: 4 }}>{merke}</div>}
+      </div>
+    );
+  }
+  return (
+    <div style={{ ...karte, marginTop: 14 }} data-labor={name}>
+      <p style={{ fontSize: 13, fontWeight: 600, color: C.see, margin: "0 0 10px" }}>{titel}</p>
+      <div style={{ display: "grid", gap: 8 }}>{regler}</div>
+      <div style={{ marginTop: 12, background: C.sand, borderRadius: 14, padding: 6 }}>
+        {bild()}
+      </div>
+      {werte}
+      {merke}
+    </div>
+  );
+}
+/* Karten in den Stationen: Handy mit Schatten wie bisher, Desktop mit feinem Rahmen */
+const useKarte = () => (useDesktop() ? feinKarte : karte);
+
 /* Labor 1: Binomialverteilung mit passender Glocke */
 function LaborHistogramm() {
   // Übergabe aus der Bernoulli-Kette: { n, p } – Regler laufen in 5er- bzw. 0,05er-Schritten
@@ -125,23 +166,18 @@ function LaborHistogramm() {
     return out;
   }, [n, p]);
   const von = Math.max(0, Math.floor(mu - 4.2 * s)), bis = Math.min(n, Math.ceil(mu + 4.2 * s));
-  const W = 340, H = 200, L = 12, R = 12, B = 168, TOP = 14;
-  const xa = von - 0.5, xb = bis + 0.5;
-  const X = (v) => L + ((v - xa) / (xb - xa)) * (W - L - R);
-  const ym = Math.max(...t.slice(von, bis + 1), dichte(mu, mu, s)) * 1.05;
-  const Yp = (d) => B - (d / ym) * (B - TOP);
-  const pts = [];
-  for (let i = 0; i <= 140; i++) { const v = xa + ((xb - xa) * i) / 140; pts.push(`${X(v).toFixed(1)},${Yp(dichte(v, mu, s)).toFixed(1)}`); }
   const schritt = Math.max(1, Math.ceil((bis - von) / 8));
   const ok = s > 3;
-  return (
-    <div style={{ ...karte, marginTop: 14 }} data-labor="histogramm">
-      <p style={{ fontSize: 13, fontWeight: 600, color: C.see, margin: "0 0 10px" }}>{zw("Zieh an n und p und beobachte, wie gut die Glocke auf die Balken passt.", "Drag n and p and watch how well the bell fits the bars.")}</p>
-      <div style={{ display: "grid", gap: 8 }}>
-        <Regler name="n" wert={n} setWert={setN} min={5} max={200} schritt={5} format={(v) => zt(v, 0)} />
-        <Regler name="p" wert={p} setWert={setP} min={0.05} max={0.95} schritt={0.05} farbe={C.gruen} format={(v) => zt(v, 2)} />
-      </div>
-      <div style={{ marginTop: 12, background: C.sand, borderRadius: 14, padding: 6 }}>
+  // breite/hoehe: Desktop in echten Pixeln; Handy wie bisher 340 × 200
+  const bild = (breite, hoehe) => {
+    const W = breite || 340, H = hoehe || 200, L = 12, R = 12, B = H - 32, TOP = 14;
+    const xa = von - 0.5, xb = bis + 0.5;
+    const X = (v) => L + ((v - xa) / (xb - xa)) * (W - L - R);
+    const ym = Math.max(...t.slice(von, bis + 1), dichte(mu, mu, s)) * 1.05;
+    const Yp = (d) => B - (d / ym) * (B - TOP);
+    const pts = [];
+    for (let i = 0; i <= 140; i++) { const v = xa + ((xb - xa) * i) / 140; pts.push(`${X(v).toFixed(1)},${Yp(dichte(v, mu, s)).toFixed(1)}`); }
+    return (
         <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={zw(`Histogramm von B(${n}; ${zt(p, 2)}) mit Glockenkurve`, `Histogram of B(${n}; ${zt(p, 2)}) with bell curve`)} style={{ width: "100%", display: "block" }}>
           {t.slice(von, bis + 1).map((pk, i) => {
             const k = von + i, w = X(k + 0.5) - X(k - 0.5);
@@ -153,14 +189,23 @@ function LaborHistogramm() {
             <text key={k} x={X(k)} y={B + 16} textAnchor="middle" style={{ fontSize: 10.5, fontWeight: 600, fill: C.grau, fontFamily: "inherit" }}>{k}</text>
           ))}
         </svg>
-      </div>
-      <WertZeile links={zw("Erwartungswert μ = n · p", "Mean μ = n · p")} rechts={zt(mu, 2)} />
-      <WertZeile links={<MS s={zw("Standardabweichung $\\sigma = \\sqrt{n \\cdot p \\cdot (1 - p)}$", "Standard deviation $\\sigma = \\sqrt{n \\cdot p \\cdot (1 - p)}$")} />} rechts={z2(s)} />
-      <WertZeile links={zw("Laplace-Bedingung σ > 3", "Laplace condition σ > 3")} rechts={ok ? zw("erfüllt ✓", "met ✓") : zw("nicht erfüllt", "not met")} farbe={ok ? C.smaragd : C.signal} />
-      <Merke farbe={ok ? C.smaragd : C.signal}>{ok
+    );
+  };
+  return (
+    <Labor name="histogramm" titel={zw("Zieh an n und p und beobachte, wie gut die Glocke auf die Balken passt.", "Drag n and p and watch how well the bell fits the bars.")}
+      regler={<>
+        <Regler name="n" wert={n} setWert={setN} min={5} max={200} schritt={5} format={(v) => zt(v, 0)} />
+        <Regler name="p" wert={p} setWert={setP} min={0.05} max={0.95} schritt={0.05} farbe={C.gruen} format={(v) => zt(v, 2)} />
+      </>}
+      bild={bild}
+      werte={<>
+        <WertZeile links={zw("Erwartungswert μ = n · p", "Mean μ = n · p")} rechts={zt(mu, 2)} />
+        <WertZeile links={<MS s={zw("Standardabweichung $\\sigma = \\sqrt{n \\cdot p \\cdot (1 - p)}$", "Standard deviation $\\sigma = \\sqrt{n \\cdot p \\cdot (1 - p)}$")} />} rechts={z2(s)} />
+        <WertZeile links={zw("Laplace-Bedingung σ > 3", "Laplace condition σ > 3")} rechts={ok ? zw("erfüllt ✓", "met ✓") : zw("nicht erfüllt", "not met")} farbe={ok ? C.smaragd : C.signal} />
+      </>}
+      merke={<Merke farbe={ok ? C.smaragd : C.signal}>{ok
         ? zw("Die Glocke liegt fast genau auf den Balken. Ab σ > 3 darf man die Binomialverteilung durch die Normalverteilung mit demselben μ und σ ersetzen.", "The bell lies almost exactly on the bars. From σ > 3 on you may replace the binomial distribution by the normal distribution with the same μ and σ.")
-        : zw("Noch zu schief oder zu schmal: Bei σ ≤ 3 weicht die Glocke sichtbar von den Balken ab. Erhöhe n oder bring p näher an 0,5.", "Still too skewed or too narrow: with σ ≤ 3 the bell visibly deviates from the bars. Increase n or bring p closer to 0.5.")}</Merke>
-    </div>
+        : zw("Noch zu schief oder zu schmal: Bei σ ≤ 3 weicht die Glocke sichtbar von den Balken ab. Erhöhe n oder bring p näher an 0,5.", "Still too skewed or too narrow: with σ ≤ 3 the bell visibly deviates from the bars. Increase n or bring p closer to 0.5.")}</Merke>} />
   );
 }
 
@@ -169,25 +214,23 @@ function LaborParameter() {
   const [mu, setMu] = useState(0);
   const [s, setS] = useState(1);
   return (
-    <div style={{ ...karte, marginTop: 14 }} data-labor="parameter">
-      <p style={{ fontSize: 13, fontWeight: 600, color: C.see, margin: "0 0 10px" }}>{zw("Verändere μ und σ. Achte auf Hochpunkt, Wendepunkte und Höhe.", "Change μ and σ. Watch the peak, the inflection points and the height.")}</p>
-      <div style={{ display: "grid", gap: 8 }}>
+    <Labor name="parameter" titel={zw("Verändere μ und σ. Achte auf Hochpunkt, Wendepunkte und Höhe.", "Change μ and σ. Watch the peak, the inflection points and the height.")}
+      regler={<>
         <Regler name="μ" wert={mu} setWert={setMu} min={-3} max={3} schritt={0.5} farbe={C.gruen} />
         <Regler name="σ" wert={s} setWert={setS} min={0.5} max={2.5} schritt={0.1} />
-      </div>
-      <div style={{ marginTop: 12, background: C.sand, borderRadius: 14, padding: 6 }}>
-        <ParamBild mu={mu} s={s} />
-      </div>
-      <WertZeile links={zw("Hochpunkt bei x = μ", "Peak at x = μ")} rechts={zt(mu, 1)} farbe={C.gruenDunkel} />
-      <WertZeile links={<MS s={zw("Höhe $\\frac{1}{\\sigma\\sqrt{2\\pi}}$", "Height $\\frac{1}{\\sigma\\sqrt{2\\pi}}$")} />} rechts={zt(maxHoehe(s), 3)} />
-      <WertZeile links={zw("Wendestellen μ − σ und μ + σ", "Inflection points μ − σ and μ + σ")} rechts={`${zt(mu - s, 1)} | ${zt(mu + s, 1)}`} farbe={C.signal} />
-      <WertZeile links={zw("Fläche unter der Kurve", "Area under the curve")} rechts="1" farbe={C.smaragd} />
-    </div>
+      </>}
+      bild={(breite, hoehe) => <ParamBild mu={mu} s={s} breite={breite} hoehe={hoehe} />}
+      werte={<>
+        <WertZeile links={zw("Hochpunkt bei x = μ", "Peak at x = μ")} rechts={zt(mu, 1)} farbe={C.gruenDunkel} />
+        <WertZeile links={<MS s={zw("Höhe $\\frac{1}{\\sigma\\sqrt{2\\pi}}$", "Height $\\frac{1}{\\sigma\\sqrt{2\\pi}}$")} />} rechts={zt(maxHoehe(s), 3)} />
+        <WertZeile links={zw("Wendestellen μ − σ und μ + σ", "Inflection points μ − σ and μ + σ")} rechts={`${zt(mu - s, 1)} | ${zt(mu + s, 1)}`} farbe={C.signal} />
+        <WertZeile links={zw("Fläche unter der Kurve", "Area under the curve")} rechts="1" farbe={C.smaragd} />
+      </>} />
   );
 }
 /* Fester Ausschnitt −6 … 6, damit Verschieben und Strecken sichtbar werden */
-function ParamBild({ mu, s }) {
-  const W = 340, H = 210, L = 12, R = 12, B = 176, TOP = 12, x0 = -6, x1 = 6;
+function ParamBild({ mu, s, breite, hoehe }) {
+  const W = breite || 340, H = hoehe || 210, L = 12, R = 12, B = H - 34, TOP = 12, x0 = -6, x1 = 6;
   const X = (v) => L + ((v - x0) / (x1 - x0)) * (W - L - R);
   const ym = maxHoehe(0.5) * 1.02;
   const Yp = (d) => B - (d / ym) * (B - TOP);
@@ -219,20 +262,18 @@ function LaborFlaeche() {
   const lo = Math.min(a, b), hi = Math.max(a, b);
   const za = (lo - mu) / s, zb = (hi - mu) / s;
   return (
-    <div style={{ ...karte, marginTop: 14 }} data-labor="flaeche">
-      <p style={{ fontSize: 13, fontWeight: 600, color: C.see, margin: "0 0 10px" }}>{zw("Körpergröße X mit μ = 176 cm und σ = 7 cm. Verschiebe die Grenzen a und b.", "Height X with μ = 176 cm and σ = 7 cm. Move the bounds a and b.")}</p>
-      <div style={{ display: "grid", gap: 8 }}>
+    <Labor name="flaeche" titel={zw("Körpergröße X mit μ = 176 cm und σ = 7 cm. Verschiebe die Grenzen a und b.", "Height X with μ = 176 cm and σ = 7 cm. Move the bounds a and b.")}
+      regler={<>
         <Regler name="a" wert={a} setWert={setA} min={150} max={202} schritt={1} format={(v) => `${zt(v, 0)} cm`} breiteName={20} />
         <Regler name="b" wert={b} setWert={setB} min={150} max={202} schritt={1} farbe={C.gruen} format={(v) => `${zt(v, 0)} cm`} breiteName={20} />
-      </div>
-      <div style={{ marginTop: 12, background: C.sand, borderRadius: 14, padding: 6 }}>
-        <GlockenBild mu={mu} s={s} flaechen={[{ a: lo, b: hi, farbe: C.flaggold }]} marken={[{ x: lo, text: "a", farbe: C.see }, { x: hi, text: "b", farbe: C.gruenDunkel }]} hoehe={216} />
-      </div>
-      <WertZeile links={<MS s={zw(`$z_a = \\frac{${lo} - 176}{7}$`, `$z_a = \\frac{${lo} - 176}{7}$`)} />} rechts={z2(za)} />
-      <WertZeile links={<MS s={`$z_b = \\frac{${hi} - 176}{7}$`} />} rechts={z2(zb)} />
-      <WertZeile links={<MS s={"$\\Phi(z_b) - \\Phi(z_a)$"} />} rechts={`${z4(Phi(zb))} − ${z4(Phi(za))}`} blass />
-      <WertZeile links={`P(${lo} ≤ X ≤ ${hi})`} rechts={`≈ ${z4(zwischen(lo, hi, mu, s))}`} farbe={C.gruenDunkel} />
-    </div>
+      </>}
+      bild={(breite, hoehe) => <GlockenBild mu={mu} s={s} flaechen={[{ a: lo, b: hi, farbe: C.flaggold }]} marken={[{ x: lo, text: "a", farbe: C.see }, { x: hi, text: "b", farbe: C.gruenDunkel }]} hoehe={hoehe || 216} breite={breite} />}
+      werte={<>
+        <WertZeile links={<MS s={zw(`$z_a = \\frac{${lo} - 176}{7}$`, `$z_a = \\frac{${lo} - 176}{7}$`)} />} rechts={z2(za)} />
+        <WertZeile links={<MS s={`$z_b = \\frac{${hi} - 176}{7}$`} />} rechts={z2(zb)} />
+        <WertZeile links={<MS s={"$\\Phi(z_b) - \\Phi(z_a)$"} />} rechts={`${z4(Phi(zb))} − ${z4(Phi(za))}`} blass />
+        <WertZeile links={`P(${lo} ≤ X ≤ ${hi})`} rechts={`≈ ${z4(zwischen(lo, hi, mu, s))}`} farbe={C.gruenDunkel} />
+      </>} />
   );
 }
 
@@ -241,15 +282,13 @@ function LaborSigma() {
   const [k, setK] = useState(1);
   const p = zwischen(-k, k);
   return (
-    <div style={{ ...karte, marginTop: 14 }} data-labor="sigma">
-      <p style={{ fontSize: 13, fontWeight: 600, color: C.see, margin: "0 0 10px" }}>{zw("Wie viel Prozent liegen höchstens k Standardabweichungen von μ entfernt?", "What percentage lies at most k standard deviations from μ?")}</p>
-      <Regler name="k" wert={k} setWert={setK} min={0.25} max={3.5} schritt={0.25} format={(v) => zt(v, 2)} breiteName={20} />
-      <div style={{ marginTop: 12, background: C.sand, borderRadius: 14, padding: 6 }}>
-        <GlockenBild mu={0} s={1} flaechen={[{ a: -k, b: k, farbe: C.smaragd }]} ticks={[-3, -2, -1, 0, 1, 2, 3].map((v) => ({ x: v, text: v === 0 ? "μ" : `${v > 0 ? "μ+" : "μ−"}${Math.abs(v) === 1 ? "" : Math.abs(v)}σ` }))} />
-      </div>
-      <WertZeile links={`P(μ − ${zt(k, 2)}σ ≤ X ≤ μ + ${zt(k, 2)}σ)`} rechts={pr(p)} farbe={C.smaragd} />
-      <WertZeile links={zw("außerhalb (beide Ränder)", "outside (both tails)")} rechts={pr(1 - p)} farbe={C.signal} />
-    </div>
+    <Labor name="sigma" titel={zw("Wie viel Prozent liegen höchstens k Standardabweichungen von μ entfernt?", "What percentage lies at most k standard deviations from μ?")}
+      regler={<Regler name="k" wert={k} setWert={setK} min={0.25} max={3.5} schritt={0.25} format={(v) => zt(v, 2)} breiteName={20} />}
+      bild={(breite, hoehe) => <GlockenBild mu={0} s={1} flaechen={[{ a: -k, b: k, farbe: C.smaragd }]} ticks={[-3, -2, -1, 0, 1, 2, 3].map((v) => ({ x: v, text: v === 0 ? "μ" : `${v > 0 ? "μ+" : "μ−"}${Math.abs(v) === 1 ? "" : Math.abs(v)}σ` }))} hoehe={hoehe || 200} breite={breite} />}
+      werte={<>
+        <WertZeile links={`P(μ − ${zt(k, 2)}σ ≤ X ≤ μ + ${zt(k, 2)}σ)`} rechts={pr(p)} farbe={C.smaragd} />
+        <WertZeile links={zw("außerhalb (beide Ränder)", "outside (both tails)")} rechts={pr(1 - p)} farbe={C.signal} />
+      </>} />
   );
 }
 
@@ -258,20 +297,19 @@ function LaborQuantil() {
   const [p, setP] = useState(0.9);
   const mu = 500, s = 4, zp = quantil(p);
   return (
-    <div style={{ ...karte, marginTop: 14 }} data-labor="quantil">
-      <p style={{ fontSize: 13, fontWeight: 600, color: C.see, margin: "0 0 10px" }}>{zw("Füllmenge X mit μ = 500 ml und σ = 4 ml. Welche Menge wird mit Wahrscheinlichkeit p nicht überschritten?", "Filling amount X with μ = 500 ml and σ = 4 ml. Which amount is not exceeded with probability p?")}</p>
-      <Regler name="p" wert={p} setWert={setP} min={0.05} max={0.99} schritt={0.01} format={(v) => zt(v, 2)} breiteName={20} />
-      <div style={{ marginTop: 12, background: C.sand, borderRadius: 14, padding: 6 }}>
-        <GlockenBild mu={mu} s={s} flaechen={[{ a: mu - 4 * s, b: mu + zp * s, farbe: C.flaggold }]} marken={[{ x: mu + zp * s, text: `x ≈ ${zt(mu + zp * s, 1)}`, farbe: C.gruenDunkel }]} hoehe={216} />
-      </div>
-      <WertZeile links={<MS s={zw("$z$ mit $\\Phi(z) = p$ (Umkehrung von Φ)", "$z$ with $\\Phi(z) = p$ (inverse of Φ)")} />} rechts={z2(zp)} />
-      <WertZeile links={<MS s={"$x = \\mu + z \\cdot \\sigma$"} />} rechts={`${zt(mu + zp * s, 2)} ml`} farbe={C.gruenDunkel} />
-    </div>
+    <Labor name="quantil" titel={zw("Füllmenge X mit μ = 500 ml und σ = 4 ml. Welche Menge wird mit Wahrscheinlichkeit p nicht überschritten?", "Filling amount X with μ = 500 ml and σ = 4 ml. Which amount is not exceeded with probability p?")}
+      regler={<Regler name="p" wert={p} setWert={setP} min={0.05} max={0.99} schritt={0.01} format={(v) => zt(v, 2)} breiteName={20} />}
+      bild={(breite, hoehe) => <GlockenBild mu={mu} s={s} flaechen={[{ a: mu - 4 * s, b: mu + zp * s, farbe: C.flaggold }]} marken={[{ x: mu + zp * s, text: `x ≈ ${zt(mu + zp * s, 1)}`, farbe: C.gruenDunkel }]} hoehe={hoehe || 216} breite={breite} />}
+      werte={<>
+        <WertZeile links={<MS s={zw("$z$ mit $\\Phi(z) = p$ (Umkehrung von Φ)", "$z$ with $\\Phi(z) = p$ (inverse of Φ)")} />} rechts={z2(zp)} />
+        <WertZeile links={<MS s={"$x = \\mu + z \\cdot \\sigma$"} />} rechts={`${zt(mu + zp * s, 2)} ml`} farbe={C.gruenDunkel} />
+      </>} />
   );
 }
 
 function Entdecken({ gehe }) {
   const [st, setSt] = useState(0);
+  const karte = useKarte();
   const s = STATIONEN[st];
   const weiter = (
     <div style={{ display: "flex", gap: 10, marginTop: 16 }}>

@@ -16,6 +16,7 @@ import { M } from "./func3.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
 import { WeiterKnopf, WeiterMit } from "./funcWerkzeuge.jsx";
 import { uebergabeErledigt, uebergabeLesen } from "./uebergabe.js";
+import { Arbeitsflaeche, BildKarte, ErgebnisReihe, FeinKarte, Werkzeugleiste, chipStil, hinweisStil, titelStil, useBreite, useDesktop } from "./arbeitsflaeche.jsx";
 
 function vierfelderHilfe(ereignisName, bedingungName, sym) {
   return {
@@ -108,30 +109,32 @@ function Summe({ wert, modus, anteil, stark, markiert }) {
 
 /* ---------- Einheitsquadrat ---------- */
 
-function Einheitsquadrat({ P, namen }) {
-  const W = 320, H = 200, l = 6, o = 22;
+/* breite: Desktop in echten Pixeln (gemessene Breite), Höhe 0,62 · Breite; ohne breite wie bisher 320 × 200 */
+function Einheitsquadrat({ P, namen, breite }) {
+  const W = breite || 320, H = breite ? Math.round(breite * 0.62) : 200, l = 6, o = 22;
+  const g = breite ? 1.15 : 1;   // Desktop: Schrift eine Spur größer
   const b = W - 2 * l, h = H - o - 26;
   const wA = b * P.A;
   const hAB = h * (P.A ? P.AB / P.A : 0), hAnB = h * (P.An ? P.AnB / P.An : 0);
   const feld = (x, y, w, hh, farbe, t) => w > 0.5 && hh > 0.5 && (
     <g>
       <rect x={x} y={y} width={w} height={hh} fill={farbe} stroke={C.weiss} strokeWidth="2" rx="3" />
-      {w > 44 && hh > 20 && <text x={x + w / 2} y={y + hh / 2 + 4} textAnchor="middle" fontSize="11" fontWeight="700" fill={C.weiss}>{t}</text>}
+      {w > 44 && hh > 20 && <text x={x + w / 2} y={y + hh / 2 + 4} textAnchor="middle" fontSize={11 * g} fontWeight="700" fill={C.weiss}>{t}</text>}
     </g>
   );
   return (
     <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", display: "block" }}>
-      <text x={wA < 90 ? l : l + wA / 2} y={14} textAnchor={wA < 90 ? "start" : "middle"} fontSize="11" fontWeight="700" fill={FARBE.A}>{namen.a} · {pr(P.A, 0)}</text>
-      <text x={b - wA < 90 ? W - l : l + wA + (b - wA) / 2} y={14} textAnchor={b - wA < 90 ? "end" : "middle"} fontSize="11" fontWeight="700" fill={FARBE.An}>{namen.an} · {pr(P.An, 0)}</text>
+      <text x={wA < 90 ? l : l + wA / 2} y={14} textAnchor={wA < 90 ? "start" : "middle"} fontSize={11 * g} fontWeight="700" fill={FARBE.A}>{namen.a} · {pr(P.A, 0)}</text>
+      <text x={b - wA < 90 ? W - l : l + wA + (b - wA) / 2} y={14} textAnchor={b - wA < 90 ? "end" : "middle"} fontSize={11 * g} fontWeight="700" fill={FARBE.An}>{namen.an} · {pr(P.An, 0)}</text>
       {feld(l, o, wA, hAB, FARBE.B, pr(P.AB))}
       {feld(l, o + hAB, wA, h - hAB, "#F3DFA0", pr(P.ABn))}
       {feld(l + wA, o, b - wA, hAnB, FARBE.B, pr(P.AnB))}
       {feld(l + wA, o + hAnB, b - wA, h - hAnB, "#F3DFA0", pr(P.AnBn))}
-      <g fontSize="10.5" fill={C.grau}>
+      <g fontSize={10.5 * g} fill={C.grau}>
         <rect x={l} y={H - 16} width="10" height="10" rx="2" fill={FARBE.B} />
         <text x={l + 14} y={H - 7}>{namen.b}</text>
-        <rect x={l + 130} y={H - 16} width="10" height="10" rx="2" fill="#F3DFA0" />
-        <text x={l + 144} y={H - 7}>{namen.bn}</text>
+        <rect x={l + (breite ? Math.round(W * 0.45) : 130)} y={H - 16} width="10" height="10" rx="2" fill="#F3DFA0" />
+        <text x={l + (breite ? Math.round(W * 0.45) : 130) + 14} y={H - 7}>{namen.bn}</text>
       </g>
     </svg>
   );
@@ -139,17 +142,19 @@ function Einheitsquadrat({ P, namen }) {
 
 /* ---------- Baumdiagramm ---------- */
 
-function Baum({ ersteStufe, P, namen }) {
+/* breite: Desktop in echten Pixeln – Lage der Knoten wächst mit, Schrift bleibt in Pixeln; ohne breite wie bisher 320 × 210 */
+function Baum({ ersteStufe, P, namen, breite }) {
   // ersteStufe "A": A → B, sonst B → A (umgekehrter Baum)
-  const W = 320, H = 210;
+  const W = breite || 320, H = breite ? Math.round(Math.min(260, breite * 0.62)) : 210;
+  const fx = W / 320, fy = H / 210, g = breite ? 1.15 : 1;   // Desktop: Schrift eine Spur größer
   const o = ersteStufe === "A";
   const s1 = o ? [[namen.a, P.A], [namen.an, P.An]] : [[namen.b, P.B], [namen.bn, P.Bn]];
   const pfade = o
     ? [[P.AB, P.A], [P.ABn, P.A], [P.AnB, P.An], [P.AnBn, P.An]]
     : [[P.AB, P.B], [P.AnB, P.B], [P.ABn, P.Bn], [P.AnBn, P.Bn]];
   const s2 = o ? [namen.b, namen.bn, namen.b, namen.bn] : [namen.a, namen.an, namen.a, namen.an];
-  const x0 = 14, x1 = 110, x2 = 212, y0 = H / 2;
-  const y1 = [58, 152], y2 = [26, 88, 124, 186];
+  const x0 = 14, x1 = Math.round(110 * fx), x2 = Math.round(212 * fx), y0 = H / 2;
+  const y1 = [58, 152].map((y) => Math.round(y * fy)), y2 = [26, 88, 124, 186].map((y) => Math.round(y * fy));
   const kurz = (t0) => { const t = String(tr(t0)); return t.length > 13 ? `${t.slice(0, 12)}…` : t; };
   return (
     <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", display: "block" }}>
@@ -157,8 +162,8 @@ function Baum({ ersteStufe, P, namen }) {
       {s1.map(([name, p], i) => (
         <g key={`a${i}`}>
           <line x1={x0} y1={y0} x2={x1 - 4} y2={y1[i]} stroke={C.hellgrau} strokeWidth="1.5" />
-          <text x={(x0 + x1) / 2 - 4} y={(y0 + y1[i]) / 2 + (i ? 14 : -6)} textAnchor="middle" fontSize="10.5" fontWeight="700" fill={C.see}>{pr(p)}</text>
-          <text x={x1} y={y1[i] + 4} fontSize="10.5" fontWeight="700" fill={C.tinte}>{kurz(name)}</text>
+          <text x={(x0 + x1) / 2 - 4} y={(y0 + y1[i]) / 2 + (i ? 14 : -6)} textAnchor="middle" fontSize={10.5 * g} fontWeight="700" fill={C.see}>{pr(p)}</text>
+          <text x={x1} y={y1[i] + 4} fontSize={10.5 * g} fontWeight="700" fill={C.tinte}>{kurz(name)}</text>
         </g>
       ))}
       {pfade.map(([pAB, pErst], j) => {
@@ -167,9 +172,9 @@ function Baum({ ersteStufe, P, namen }) {
         return (
           <g key={`b${j}`}>
             <line x1={x1 + 54} y1={y1[i]} x2={x2 - 4} y2={y2[j]} stroke={C.hellgrau} strokeWidth="1.5" />
-            <text x={(x1 + 54 + x2) / 2 - 2} y={(y1[i] + y2[j]) / 2 + (j % 2 ? 12 : -4)} textAnchor="middle" fontSize="9.5" fill={C.gruen} fontWeight="700">{pr(bedingt)}</text>
-            <text x={x2} y={y2[j] + 4} fontSize="10" fill={C.tinte}>{kurz(s2[j])}</text>
-            <text x={W - 4} y={y2[j] + 4} textAnchor="end" fontSize="10" fontWeight="800" fill={C.see}>{pr(pAB)}</text>
+            <text x={(x1 + 54 + x2) / 2 - 2} y={(y1[i] + y2[j]) / 2 + (j % 2 ? 12 : -4)} textAnchor="middle" fontSize={9.5 * g} fill={C.gruen} fontWeight="700">{pr(bedingt)}</text>
+            <text x={x2} y={y2[j] + 4} fontSize={10 * g} fill={C.tinte}>{kurz(s2[j])}</text>
+            <text x={W - 4} y={y2[j] + 4} textAnchor="end" fontSize={10 * g} fontWeight="800" fill={C.see}>{pr(pAB)}</text>
           </g>
         );
       })}
@@ -196,6 +201,9 @@ export function Vierfeldertafel() {
   const [rel, setRel] = useState(() => { const s = start.abs.reduce((x, y) => x + y, 0); return start.abs.map((v) => Math.round((v / s) * 1000) / 1000); });
   const [frage, setFrage] = useState({ ereignis: "A", bedingung: "B" });
   const [baum, setBaum] = useState("A");
+  const desktop = useDesktop();
+  const [quadratRef, quadratBreite] = useBreite();
+  const [baumRef, baumBreite] = useBreite();
 
   const laden = (v) => {
     setVorlage(v); setNamen({ a: v.a, an: v.an, b: v.b, bn: v.bn }); setAbs(v.abs);
@@ -263,8 +271,9 @@ export function Vierfeldertafel() {
   const inZeile = bedingung === "A" || bedingung === "An";
   const markiertSumme = (k) => k === bedingung;
 
-  return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
+  // Gemeinsame Teile für Handy und Desktop
+  const einleitung = (
+    <>
       <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
         Zwei Merkmale, vier Felder
       </h2>
@@ -272,10 +281,235 @@ export function Vierfeldertafel() {
         Stell die vier inneren Felder ein – Randsummen, Baumdiagramme und alle bedingten Wahrscheinlichkeiten
         rechnen sich live mit. Wahlweise mit <b>absoluten Häufigkeiten</b> oder mit <b>Wahrscheinlichkeiten</b>, die sich zu 100 % ergänzen.
       </p>
+    </>
+  );
+  const VARIANTEN = [["abs", "Absolut (Anzahl)"], ["rel", "Relativ (in %)"]];
+  const tafel = (
+    <div style={{ display: "grid", gridTemplateColumns: "minmax(58px, 0.8fr) 1fr 1fr 1fr", gap: 6, alignItems: "stretch" }}>
+      <div />
+      {kopfZelle("B", FARBE.B, namen.b)}
+      {kopfZelle("B̄", FARBE.Bn, namen.bn)}
+      {kopfZelle("Σ", "#7A5E00", "Summe")}
+
+      {kopfZelle("A", FARBE.A, namen.a)}
+      <Zelle modus={modus} wert={modus === "abs" ? abs[0] : rel[0]} anteil={P.AB} markiert={zelleIdx === 0}
+        setzen={(v) => (modus === "abs" ? setAbs([v, abs[1], abs[2], abs[3]]) : setzeRel(0, v))} />
+      <Zelle modus={modus} wert={modus === "abs" ? abs[1] : rel[1]} anteil={P.ABn} markiert={zelleIdx === 1}
+        setzen={(v) => (modus === "abs" ? setAbs([abs[0], v, abs[2], abs[3]]) : setzeRel(1, v))} />
+      <Summe modus={modus} wert={modus === "abs" ? abs[0] + abs[1] : P.A} anteil={P.A} markiert={markiertSumme("A")} />
+
+      {kopfZelle("Ā", FARBE.An, namen.an)}
+      <Zelle modus={modus} wert={modus === "abs" ? abs[2] : rel[2]} anteil={P.AnB} markiert={zelleIdx === 2}
+        setzen={(v) => (modus === "abs" ? setAbs([abs[0], abs[1], v, abs[3]]) : setzeRel(2, v))} />
+      <Zelle modus={modus} wert={modus === "abs" ? abs[3] : rel[3]} anteil={P.AnBn} markiert={zelleIdx === 3} gesperrt={modus === "rel"}
+        setzen={(v) => setAbs([abs[0], abs[1], abs[2], v])} />
+      <Summe modus={modus} wert={modus === "abs" ? abs[2] + abs[3] : P.An} anteil={P.An} markiert={markiertSumme("An")} />
+
+      {kopfZelle("Σ", "#7A5E00", "Summe")}
+      <Summe modus={modus} wert={modus === "abs" ? abs[0] + abs[2] : P.B} anteil={P.B} markiert={markiertSumme("B")} />
+      <Summe modus={modus} wert={modus === "abs" ? abs[1] + abs[3] : P.Bn} anteil={P.Bn} markiert={markiertSumme("Bn")} />
+      <Summe modus={modus} wert={modus === "abs" ? N : 1} anteil={1} stark />
+    </div>
+  );
+  const umbenennen = (
+    <details style={{ marginTop: 12 }}>
+      <summary style={{ cursor: "pointer", fontSize: 13, fontWeight: 600, color: C.see }}>Merkmale umbenennen</summary>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 10 }}>
+        {[["a", "A"], ["an", "Ā"], ["b", "B"], ["bn", "B̄"]].map(([k, t]) => (
+          <label key={k} style={{ fontSize: 12, color: C.grau }}>
+            {t}
+            <input value={namen[k]} onChange={(e) => setNamen({ ...namen, [k]: e.target.value.slice(0, 24) })}
+              style={{ width: "100%", boxSizing: "border-box", height: 36, borderRadius: 10, border: `1.5px solid ${C.linie}`,
+                padding: "0 10px", fontSize: 14, fontFamily: "inherit", marginTop: 3 }} />
+          </label>
+        ))}
+      </div>
+    </details>
+  );
+  const relHinweis = modus === "rel" && (
+    <p style={{ fontSize: 12.5, color: C.hellgrau, marginTop: 10, lineHeight: 1.5 }}>
+      Die vier inneren Felder ergänzen sich immer zu 100 % – das Feld Ā ∩ B̄ ergibt sich deshalb aus den anderen drei.
+    </p>
+  );
+  // gestapelt (Desktop, schmale Spalte): Beschriftung über den Chips statt davor
+  const frageWahl = (gestapelt) => (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginBottom: 8 }}>
+        <span style={{ fontSize: 13, color: C.grau, minWidth: 74, ...(gestapelt ? { width: "100%" } : {}) }}>Gesucht:</span>
+        {(inZeile ? ["B", "Bn"] : ["A", "An"]).map((e) => (
+          <button key={e} onClick={() => setFrage({ ...frage, ereignis: e })} style={chip(ereignis === e, e.startsWith("A") ? FARBE.A : FARBE.B)}>{sym(e)} · {name(e)}</button>
+        ))}
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
+        <span style={{ fontSize: 13, color: C.grau, minWidth: 74, ...(gestapelt ? { width: "100%" } : {}) }}>unter der Bedingung:</span>
+        {["A", "An", "B", "Bn"].map((e) => (
+          <button key={e} onClick={() => {
+            const neuZeile = e === "A" || e === "An";
+            setFrage({ bedingung: e, ereignis: neuZeile ? (ereignis.startsWith("B") ? ereignis : "B") : (ereignis.startsWith("A") ? ereignis : "A") });
+          }} style={chip(bedingung === e, e.startsWith("A") ? FARBE.A : FARBE.B)}>{sym(e)}</button>
+        ))}
+      </div>
+    </>
+  );
+  const bedingtRechnung = (
+    <div style={{ background: C.sand, borderRadius: 12, padding: "12px 14px" }}>
+      <p style={{ fontSize: 14, color: C.grau, lineHeight: 1.5 }}>
+        Wie wahrscheinlich ist <b style={{ color: C.tinte }}>{name(ereignis)}</b>, wenn man schon weiß: <b style={{ color: C.tinte }}>{name(bedingung)}</b>?
+      </p>
+      <p style={{ fontSize: 15.5, fontWeight: 700, color: C.tinte, marginTop: 8, overflowX: "auto", whiteSpace: "nowrap", fontVariantNumeric: "tabular-nums" }}>
+        <M t={`P_{${sym(bedingung)}}(${sym(ereignis)}) = \\frac{P(${sym(ereignis)} \\cap ${sym(bedingung)})}{P(${sym(bedingung)})}`} />
+      </p>
+      <p style={{ fontSize: 15, color: C.grau, marginTop: 4, overflowX: "auto", whiteSpace: "nowrap", fontVariantNumeric: "tabular-nums" }}>
+        <M t={modus === "abs"
+          ? `= \\frac{${absWert(s.key)}}{${absWert(bedingung)}}${ggT(absWert(s.key), absWert(bedingung)) > 1 ? ` = ${bruch(absWert(s.key), absWert(bedingung))}` : ""}`
+          : `= \\frac{${dz(pSchnitt)}}{${dz(pBed)}}`} />
+      </p>
+      <p style={{ fontSize: 26, fontWeight: 800, color: C.see, marginTop: 4 }}>{Number.isFinite(ergebnis) ? `≈ ${pr(ergebnis)}` : "nicht definiert (Bedingung hat Wahrscheinlichkeit 0)"}</p>
+      <p style={{ fontSize: 12.5, color: C.hellgrau, marginTop: 6, lineHeight: 1.5 }}>
+        In der Tafel markiert: das Schnittfeld (Zähler) und die Randsumme der Bedingung (Nenner). Man rechnet nur noch
+        in der {inZeile ? "Zeile" : "Spalte"} der Bedingung – sie ist die neue Gesamtheit.
+      </p>
+    </div>
+  );
+  const quadratText = (
+    <p style={{ fontSize: 13, color: C.grau, lineHeight: 1.55, marginBottom: 10 }}>
+      Die Breite zeigt P(A) und P(Ā), die Höhe darin den Anteil von B. Jede Fläche ist eine Schnittwahrscheinlichkeit.
+    </p>
+  );
+  const baumKnoepfe = (
+    <div style={{ display: "flex", gap: 6 }}>
+      <button onClick={() => setBaum("A")} style={chip(baum === "A")}>erst A</button>
+      <button onClick={() => setBaum("B")} style={chip(baum === "B")}>umgekehrt: erst B</button>
+    </div>
+  );
+  const baumText = (
+    <p style={{ fontSize: 12.5, color: C.hellgrau, marginTop: 6, lineHeight: 1.5 }}>
+      Blau: Wahrscheinlichkeiten der ersten Stufe und Pfadwahrscheinlichkeiten (= innere Felder). Gold: bedingte Wahrscheinlichkeiten
+      auf der zweiten Stufe. Der umgekehrte Baum ist der Kern des Satzes von Bayes.
+    </p>
+  );
+  const unabhRechnung = (
+    <p style={{ fontSize: 14.5, color: C.tinte, fontVariantNumeric: "tabular-nums", lineHeight: 1.7 }}>
+      P(A) · P(B) = {dz(P.A)} · {dz(P.B)} = <b>{dz(produkt, 4)}</b><br />
+      P(A ∩ B) = <b>{dz(P.AB, 4)}</b>
+    </p>
+  );
+  const unabhUrteil = (
+    <div style={{ marginTop: 10, borderRadius: 12, padding: "10px 14px",
+      background: unabhaengig ? "#EEF8F2" : "#FBEFEA", color: unabhaengig ? C.smaragd : C.signal, fontWeight: 700, fontSize: 14.5 }}>
+      {unabhaengig
+        ? "Gleich → A und B sind stochastisch unabhängig. Das Wissen über A ändert nichts an der Wahrscheinlichkeit von B."
+        : "Verschieden → A und B sind abhängig. P_A(B) und P(B) unterscheiden sich."}
+    </div>
+  );
+  const unabhVergleich = !unabhaengig && P.A > 0 && (
+    <p style={{ fontSize: 13, color: C.grau, marginTop: 8, fontVariantNumeric: "tabular-nums" }}>
+      Vergleich: P<sub>A</sub>(B) ≈ {pr(P.AB / P.A)} gegenüber P(B) ≈ {pr(P.B)}.
+    </p>
+  );
+  const hilfeZeile = (
+    <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}>
+      <IchHaengeFest kontext={vierfelderHilfe(name(ereignis), name(bedingung), { e: sym(ereignis), b: sym(bedingung) })} />
+    </div>
+  );
+  const weiterMit = (
+    <WeiterMit titel="Weiter zum Baumdiagramm">
+      <WeiterKnopf ziel="kombinatorik" von="Vier-Felder-Tafel" daten={{ modus: "baum" }}
+        titel="Baumdiagramm aufbauen" zeile="Zweige selbst beschriften – Pfadregel und Summenregel üben" />
+    </WeiterMit>
+  );
+  const MERKSAETZE = [
+    ["Innere Felder", "sind Schnittwahrscheinlichkeiten wie P(A ∩ B) – die Pfadwahrscheinlichkeiten im Baumdiagramm."],
+    ["Randsummen", "sind P(A), P(Ā), P(B), P(B̄). Zeilen und Spalten addieren sich, alles zusammen ergibt 100 % bzw. die Gesamtzahl."],
+    ["Bedingte Wahrscheinlichkeit", "P_A(B) = P(A ∩ B) / P(A): Man rechnet nur in der Zeile (bzw. Spalte) der Bedingung."],
+    ["Unabhängigkeit", "A und B sind unabhängig genau dann, wenn P(A ∩ B) = P(A) · P(B) – gleichwertig: P_A(B) = P(B)."],
+    ["Umgekehrter Baum", "Aus P(A) und P_A(B) lässt sich über die Tafel P_B(A) bestimmen (Satz von Bayes)."],
+  ];
+  const merksatz = ([t, x]) => <p key={t} style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, marginBottom: 6 }}><b style={{ color: C.tinte }}>{t}:</b> {x}</p>;
+
+  /* ---------- Desktop: Frage und Ergebnis links, Tafel rechts, Einheitsquadrat und Baum darunter ---------- */
+  if (desktop) {
+    return (
+      <div className="mx-auto px-6 pb-16" data-vf="breit" style={{ maxWidth: 620, paddingTop: 30 }}>
+        <div>{einleitung}</div>
+        <Arbeitsflaeche
+          links={(
+            <FeinKarte data-vf-bedingt>
+              <p style={titelStil}>Bedingte Wahrscheinlichkeit</p>
+              {frageWahl(true)}
+              {bedingtRechnung}
+            </FeinKarte>
+          )}
+          rechts={<>
+            <BildKarte data-vf-tafel style={{ padding: "14px 14px 12px" }}>
+              {tafel}
+              {umbenennen}
+              {relHinweis}
+            </BildKarte>
+            <Werkzeugleiste gruppen={[
+              { titel: "Darstellung", inhalt: (
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                  {VARIANTEN.map(([id, t]) => <button key={id} onClick={() => wechsel(id)} aria-pressed={modus === id} style={chipStil(modus === id)}>{t}</button>)}
+                </div>
+              ) },
+              { titel: "Beispiele", inhalt: (
+                <>
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                    {VORLAGEN.map((v) => <button key={v.id} onClick={() => laden(v)} style={chipStil(vorlage.id === v.id)}>{v.name}</button>)}
+                  </div>
+                  <p style={{ ...hinweisStil, marginTop: 8 }}>{vorlage.text}</p>
+                </>
+              ) },
+            ]} />
+          </>} />
+
+        <div style={{ marginTop: 20, display: "grid", gap: 16 }}>
+          <ErgebnisReihe spalten="minmax(0, 1fr) minmax(0, 1fr)" style={{ alignItems: "stretch" }}>
+            <FeinKarte data-vf-quadrat>
+              <p style={{ ...titelStil, marginBottom: 6 }}>Einheitsquadrat</p>
+              {quadratText}
+              <div ref={quadratRef}><Einheitsquadrat P={P} namen={namen} breite={quadratBreite || 320} /></div>
+            </FeinKarte>
+            <FeinKarte data-vf-baum>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
+                <p style={{ ...titelStil, marginBottom: 0 }}>Baumdiagramm</p>
+                {baumKnoepfe}
+              </div>
+              <div ref={baumRef}><Baum ersteStufe={baum} P={P} namen={namen} breite={baumBreite || 320} /></div>
+              {baumText}
+            </FeinKarte>
+          </ErgebnisReihe>
+
+          <FeinKarte data-vf-unabh style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 300px)", columnGap: 28, alignItems: "center" }}>
+            <div style={{ minWidth: 0 }}>
+              <p style={titelStil}>Stochastische Unabhängigkeit</p>
+              {unabhRechnung}
+              {unabhVergleich}
+            </div>
+            <div style={{ minWidth: 0 }}>{unabhUrteil}</div>
+          </FeinKarte>
+        </div>
+
+        {hilfeZeile}
+        <div>{weiterMit}</div>
+
+        <div style={{ marginTop: 16 }}>
+          <FeinKarte>
+            <p style={titelStil}>Das Wichtigste zur Vier-Felder-Tafel</p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", columnGap: 28 }}>{MERKSAETZE.map(merksatz)}</div>
+          </FeinKarte>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
+      {einleitung}
 
       {/* Variante */}
       <div style={{ display: "flex", gap: 6, marginBottom: 12, background: C.weiss, borderRadius: 14, padding: 5, boxShadow: "0 2px 12px rgba(15,26,51,0.06)" }}>
-        {[["abs", "Absolut (Anzahl)"], ["rel", "Relativ (in %)"]].map(([id, t]) => (
+        {VARIANTEN.map(([id, t]) => (
           <button key={id} onClick={() => wechsel(id)}
             style={{ flex: 1, height: 42, borderRadius: 10, border: "none", fontFamily: "inherit", cursor: "pointer", fontSize: 14, fontWeight: 700,
               background: modus === id ? `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)` : "transparent",
@@ -293,97 +527,24 @@ export function Vierfeldertafel() {
 
       {/* Tafel */}
       <div style={karte}>
-        <div style={{ display: "grid", gridTemplateColumns: "minmax(58px, 0.8fr) 1fr 1fr 1fr", gap: 6, alignItems: "stretch" }}>
-          <div />
-          {kopfZelle("B", FARBE.B, namen.b)}
-          {kopfZelle("B̄", FARBE.Bn, namen.bn)}
-          {kopfZelle("Σ", "#7A5E00", "Summe")}
-
-          {kopfZelle("A", FARBE.A, namen.a)}
-          <Zelle modus={modus} wert={modus === "abs" ? abs[0] : rel[0]} anteil={P.AB} markiert={zelleIdx === 0}
-            setzen={(v) => (modus === "abs" ? setAbs([v, abs[1], abs[2], abs[3]]) : setzeRel(0, v))} />
-          <Zelle modus={modus} wert={modus === "abs" ? abs[1] : rel[1]} anteil={P.ABn} markiert={zelleIdx === 1}
-            setzen={(v) => (modus === "abs" ? setAbs([abs[0], v, abs[2], abs[3]]) : setzeRel(1, v))} />
-          <Summe modus={modus} wert={modus === "abs" ? abs[0] + abs[1] : P.A} anteil={P.A} markiert={markiertSumme("A")} />
-
-          {kopfZelle("Ā", FARBE.An, namen.an)}
-          <Zelle modus={modus} wert={modus === "abs" ? abs[2] : rel[2]} anteil={P.AnB} markiert={zelleIdx === 2}
-            setzen={(v) => (modus === "abs" ? setAbs([abs[0], abs[1], v, abs[3]]) : setzeRel(2, v))} />
-          <Zelle modus={modus} wert={modus === "abs" ? abs[3] : rel[3]} anteil={P.AnBn} markiert={zelleIdx === 3} gesperrt={modus === "rel"}
-            setzen={(v) => setAbs([abs[0], abs[1], abs[2], v])} />
-          <Summe modus={modus} wert={modus === "abs" ? abs[2] + abs[3] : P.An} anteil={P.An} markiert={markiertSumme("An")} />
-
-          {kopfZelle("Σ", "#7A5E00", "Summe")}
-          <Summe modus={modus} wert={modus === "abs" ? abs[0] + abs[2] : P.B} anteil={P.B} markiert={markiertSumme("B")} />
-          <Summe modus={modus} wert={modus === "abs" ? abs[1] + abs[3] : P.Bn} anteil={P.Bn} markiert={markiertSumme("Bn")} />
-          <Summe modus={modus} wert={modus === "abs" ? N : 1} anteil={1} stark />
-        </div>
+        {tafel}
 
         {/* Namen anpassen */}
-        <details style={{ marginTop: 12 }}>
-          <summary style={{ cursor: "pointer", fontSize: 13, fontWeight: 600, color: C.see }}>Merkmale umbenennen</summary>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 10 }}>
-            {[["a", "A"], ["an", "Ā"], ["b", "B"], ["bn", "B̄"]].map(([k, t]) => (
-              <label key={k} style={{ fontSize: 12, color: C.grau }}>
-                {t}
-                <input value={namen[k]} onChange={(e) => setNamen({ ...namen, [k]: e.target.value.slice(0, 24) })}
-                  style={{ width: "100%", boxSizing: "border-box", height: 36, borderRadius: 10, border: `1.5px solid ${C.linie}`,
-                    padding: "0 10px", fontSize: 14, fontFamily: "inherit", marginTop: 3 }} />
-              </label>
-            ))}
-          </div>
-        </details>
-        {modus === "rel" && (
-          <p style={{ fontSize: 12.5, color: C.hellgrau, marginTop: 10, lineHeight: 1.5 }}>
-            Die vier inneren Felder ergänzen sich immer zu 100 % – das Feld Ā ∩ B̄ ergibt sich deshalb aus den anderen drei.
-          </p>
-        )}
+        {umbenennen}
+        {relHinweis}
       </div>
 
       {/* Bedingte Wahrscheinlichkeit */}
       <div style={{ ...karte, marginTop: 16 }}>
         <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 10 }}>Bedingte Wahrscheinlichkeit</p>
-        <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginBottom: 8 }}>
-          <span style={{ fontSize: 13, color: C.grau, minWidth: 74 }}>Gesucht:</span>
-          {(inZeile ? ["B", "Bn"] : ["A", "An"]).map((e) => (
-            <button key={e} onClick={() => setFrage({ ...frage, ereignis: e })} style={chip(ereignis === e, e.startsWith("A") ? FARBE.A : FARBE.B)}>{sym(e)} · {name(e)}</button>
-          ))}
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
-          <span style={{ fontSize: 13, color: C.grau, minWidth: 74 }}>unter der Bedingung:</span>
-          {["A", "An", "B", "Bn"].map((e) => (
-            <button key={e} onClick={() => {
-              const neuZeile = e === "A" || e === "An";
-              setFrage({ bedingung: e, ereignis: neuZeile ? (ereignis.startsWith("B") ? ereignis : "B") : (ereignis.startsWith("A") ? ereignis : "A") });
-            }} style={chip(bedingung === e, e.startsWith("A") ? FARBE.A : FARBE.B)}>{sym(e)}</button>
-          ))}
-        </div>
-        <div style={{ background: C.sand, borderRadius: 12, padding: "12px 14px" }}>
-          <p style={{ fontSize: 14, color: C.grau, lineHeight: 1.5 }}>
-            Wie wahrscheinlich ist <b style={{ color: C.tinte }}>{name(ereignis)}</b>, wenn man schon weiß: <b style={{ color: C.tinte }}>{name(bedingung)}</b>?
-          </p>
-          <p style={{ fontSize: 15.5, fontWeight: 700, color: C.tinte, marginTop: 8, overflowX: "auto", whiteSpace: "nowrap", fontVariantNumeric: "tabular-nums" }}>
-            <M t={`P_{${sym(bedingung)}}(${sym(ereignis)}) = \\frac{P(${sym(ereignis)} \\cap ${sym(bedingung)})}{P(${sym(bedingung)})}`} />
-          </p>
-          <p style={{ fontSize: 15, color: C.grau, marginTop: 4, overflowX: "auto", whiteSpace: "nowrap", fontVariantNumeric: "tabular-nums" }}>
-            <M t={modus === "abs"
-              ? `= \\frac{${absWert(s.key)}}{${absWert(bedingung)}}${ggT(absWert(s.key), absWert(bedingung)) > 1 ? ` = ${bruch(absWert(s.key), absWert(bedingung))}` : ""}`
-              : `= \\frac{${dz(pSchnitt)}}{${dz(pBed)}}`} />
-          </p>
-          <p style={{ fontSize: 26, fontWeight: 800, color: C.see, marginTop: 4 }}>{Number.isFinite(ergebnis) ? `≈ ${pr(ergebnis)}` : "nicht definiert (Bedingung hat Wahrscheinlichkeit 0)"}</p>
-          <p style={{ fontSize: 12.5, color: C.hellgrau, marginTop: 6, lineHeight: 1.5 }}>
-            In der Tafel markiert: das Schnittfeld (Zähler) und die Randsumme der Bedingung (Nenner). Man rechnet nur noch
-            in der {inZeile ? "Zeile" : "Spalte"} der Bedingung – sie ist die neue Gesamtheit.
-          </p>
-        </div>
+        {frageWahl(false)}
+        {bedingtRechnung}
       </div>
 
       {/* Einheitsquadrat */}
       <div style={{ ...karte, marginTop: 16 }}>
         <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 8 }}>Einheitsquadrat</p>
-        <p style={{ fontSize: 13, color: C.grau, lineHeight: 1.55, marginBottom: 10 }}>
-          Die Breite zeigt P(A) und P(Ā), die Höhe darin den Anteil von B. Jede Fläche ist eine Schnittwahrscheinlichkeit.
-        </p>
+        {quadratText}
         <Einheitsquadrat P={P} namen={namen} />
       </div>
 
@@ -391,59 +552,28 @@ export function Vierfeldertafel() {
       <div style={{ ...karte, marginTop: 16 }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
           <p style={{ fontSize: 13, fontWeight: 600, color: C.see }}>Baumdiagramm</p>
-          <div style={{ display: "flex", gap: 6 }}>
-            <button onClick={() => setBaum("A")} style={chip(baum === "A")}>erst A</button>
-            <button onClick={() => setBaum("B")} style={chip(baum === "B")}>umgekehrt: erst B</button>
-          </div>
+          {baumKnoepfe}
         </div>
         <Baum ersteStufe={baum} P={P} namen={namen} />
-        <p style={{ fontSize: 12.5, color: C.hellgrau, marginTop: 6, lineHeight: 1.5 }}>
-          Blau: Wahrscheinlichkeiten der ersten Stufe und Pfadwahrscheinlichkeiten (= innere Felder). Gold: bedingte Wahrscheinlichkeiten
-          auf der zweiten Stufe. Der umgekehrte Baum ist der Kern des Satzes von Bayes.
-        </p>
+        {baumText}
       </div>
 
       {/* Unabhängigkeit */}
       <div style={{ ...karte, marginTop: 16 }}>
         <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 8 }}>Stochastische Unabhängigkeit</p>
-        <p style={{ fontSize: 14.5, color: C.tinte, fontVariantNumeric: "tabular-nums", lineHeight: 1.7 }}>
-          P(A) · P(B) = {dz(P.A)} · {dz(P.B)} = <b>{dz(produkt, 4)}</b><br />
-          P(A ∩ B) = <b>{dz(P.AB, 4)}</b>
-        </p>
-        <div style={{ marginTop: 10, borderRadius: 12, padding: "10px 14px",
-          background: unabhaengig ? "#EEF8F2" : "#FBEFEA", color: unabhaengig ? C.smaragd : C.signal, fontWeight: 700, fontSize: 14.5 }}>
-          {unabhaengig
-            ? "Gleich → A und B sind stochastisch unabhängig. Das Wissen über A ändert nichts an der Wahrscheinlichkeit von B."
-            : "Verschieden → A und B sind abhängig. P_A(B) und P(B) unterscheiden sich."}
-        </div>
-        {!unabhaengig && P.A > 0 && (
-          <p style={{ fontSize: 13, color: C.grau, marginTop: 8, fontVariantNumeric: "tabular-nums" }}>
-            Vergleich: P<sub>A</sub>(B) ≈ {pr(P.AB / P.A)} gegenüber P(B) ≈ {pr(P.B)}.
-          </p>
-        )}
+        {unabhRechnung}
+        {unabhUrteil}
+        {unabhVergleich}
       </div>
 
-      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}>
-        <IchHaengeFest kontext={vierfelderHilfe(name(ereignis), name(bedingung), { e: sym(ereignis), b: sym(bedingung) })} />
-      </div>
+      {hilfeZeile}
 
-      <WeiterMit titel="Weiter zum Baumdiagramm">
-        <WeiterKnopf ziel="kombinatorik" von="Vier-Felder-Tafel" daten={{ modus: "baum" }}
-          titel="Baumdiagramm aufbauen" zeile="Zweige selbst beschriften – Pfadregel und Summenregel üben" />
-      </WeiterMit>
+      {weiterMit}
 
       {/* Merkkarte */}
       <div style={{ ...karte, marginTop: 16 }}>
         <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 10 }}>Das Wichtigste zur Vier-Felder-Tafel</p>
-        {[
-          ["Innere Felder", "sind Schnittwahrscheinlichkeiten wie P(A ∩ B) – die Pfadwahrscheinlichkeiten im Baumdiagramm."],
-          ["Randsummen", "sind P(A), P(Ā), P(B), P(B̄). Zeilen und Spalten addieren sich, alles zusammen ergibt 100 % bzw. die Gesamtzahl."],
-          ["Bedingte Wahrscheinlichkeit", "P_A(B) = P(A ∩ B) / P(A): Man rechnet nur in der Zeile (bzw. Spalte) der Bedingung."],
-          ["Unabhängigkeit", "A und B sind unabhängig genau dann, wenn P(A ∩ B) = P(A) · P(B) – gleichwertig: P_A(B) = P(B)."],
-          ["Umgekehrter Baum", "Aus P(A) und P_A(B) lässt sich über die Tafel P_B(A) bestimmen (Satz von Bayes)."],
-        ].map(([t, x]) => (
-          <p key={t} style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, marginBottom: 6 }}><b style={{ color: C.tinte }}>{t}:</b> {x}</p>
-        ))}
+        {MERKSAETZE.map(merksatz)}
       </div>
     </div>
   );

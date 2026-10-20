@@ -16,8 +16,11 @@ import { IchHaengeFest } from "./funcHilfe.jsx";
 import { GrosserKnopf, MS, Rueck, hilfeKontext, hinweis, karte, kicker, zw } from "./ui2.jsx";
 import { ggT, wahl } from "./rechnen2.js";
 import { Aufklapp, Balken, Marke, ModusLeiste, Seite, SchrittFolge, Verlauf, euro, minusZ, ziehe, zt } from "./ui3.jsx";
+import { FeinKarte, useDesktop } from "./arbeitsflaeche.jsx";
+import { TrainerSpalten, tabellenKasten } from "./func17.jsx";
 
 let zaehler = 0;
+
 
 /* ---------- Spiele ---------- */
 const SPIELE = [
@@ -55,13 +58,15 @@ function spiel({ fairBar = false } = {}) {
 }
 
 /* ---------- Tabelle der Verteilung ---------- */
-function Tabelle({ sp, zeigeP3, netto, einsatz }) {
+/* schmal: Desktop, rechte Spalte (300 px) – etwas kleinere Schrift und Abstände */
+function Tabelle({ sp, zeigeP3, netto, einsatz, schmal = false }) {
   const e = einsatz ?? sp.e;
-  const zelle = { padding: "7px 6px", borderBottom: `1px solid ${C.linie}`, fontSize: 13.5, lineHeight: 1.35, verticalAlign: "top" };
-  const kopfZ = { ...zelle, fontWeight: 700, color: C.grau, fontSize: 12, textAlign: "left" };
+  const zelle = { padding: schmal ? "7px 3px" : "7px 6px", borderBottom: `1px solid ${C.linie}`, fontSize: schmal ? 12.5 : 13.5, lineHeight: 1.35, verticalAlign: "top" };
+  const kopfZ = { ...zelle, fontWeight: 700, color: C.grau, fontSize: schmal ? 11 : 12, textAlign: "left" };
+  const breiten = schmal ? ["30%", "14%", "28%", "28%"] : ["34%", "16%", "25%", "25%"];
   return (
     <table style={{ borderCollapse: "collapse", width: "100%", tableLayout: "fixed", color: C.tinte, margin: "8px 0" }}>
-      <colgroup><col style={{ width: "34%" }} /><col style={{ width: "16%" }} /><col style={{ width: "25%" }} /><col style={{ width: "25%" }} /></colgroup>
+      <colgroup>{breiten.map((b, i) => <col key={i} style={{ width: b }} />)}</colgroup>
       <thead><tr>
         <th style={kopfZ}>{zw("Ergebnis", "Outcome")}</th><th style={{ ...kopfZ, textAlign: "center" }}>P</th>
         <th style={{ ...kopfZ, textAlign: "right" }}>{zw("Auszahlung", "Payout")}</th><th style={{ ...kopfZ, textAlign: "right" }}>{zw("Netto", "Net")}</th>
@@ -160,22 +165,48 @@ function Gewinnverteilung() {
   ], [sp]);
   const nettoSichtbar = [stand > 1, stand > 2, stand > 3];
   const balken = stand > 3 ? netto.map((x, i) => ({ x: zt(x, 2), h: sp.p[i], wert: x })).sort((a, b) => a.wert - b.wert) : null;
+  const desktop = useDesktop();
+  const kopf = (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
+      <p style={kicker}>{zw("Gewinnverteilung", "Payout distribution")}</p>
+    </div>
+  );
+  const aufgabe = <p style={{ ...hinweis, color: C.tinte, marginBottom: 4 }}>{sp.text} {zw(`Ein Spiel kostet ${euro(sp.e)} Einsatz. Ausgezahlt wird nach folgender Tabelle.`, `One game costs a stake of ${euro(sp.e)}. Payouts follow the table.`)}</p>;
+  const diagramm = balken && <Balken werte={balken} hoehe={170} xBeschriftung={zw("Nettogewinn in €", "Net gain in €")} label={zw("Verteilung des Nettogewinns", "Distribution of the net gain")} />;
+  const folge = (
+    <SchrittFolge schritte={schritte} stand={stand} setStand={setStand}
+      fertigText={zw("Vollständig: Verteilung aufgestellt, Erwartungswert berechnet und richtig gedeutet.", "Complete: distribution set up, expected value computed and interpreted correctly.")} />
+  );
+  const unten = (
+    <>
+      <GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfeFuer(`erw-v-${sp.id}`, sp)} /></div>
+    </>
+  );
+  if (desktop) {
+    return (
+      <FeinKarte data-erw="breit" style={{ marginTop: 16 }}>
+        <TrainerSpalten
+          links={<>{kopf}{aufgabe}{folge}{unten}</>}
+          rechts={<>
+            <div style={tabellenKasten}><Tabelle sp={sp} zeigeP3={stand > 0} netto={nettoSichtbar} schmal /></div>
+            {diagramm}
+          </>} />
+      </FeinKarte>
+    );
+  }
   return (
     <div style={{ ...karte, marginTop: 16 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
-        <p style={kicker}>{zw("Gewinnverteilung", "Payout distribution")}</p>
-      </div>
-      <p style={{ ...hinweis, color: C.tinte, marginBottom: 4 }}>{sp.text} {zw(`Ein Spiel kostet ${euro(sp.e)} Einsatz. Ausgezahlt wird nach folgender Tabelle.`, `One game costs a stake of ${euro(sp.e)}. Payouts follow the table.`)}</p>
+      {kopf}
+      {aufgabe}
       <Tabelle sp={sp} zeigeP3={stand > 0} netto={nettoSichtbar} />
       {balken && (
         <div style={{ margin: "8px 0" }}>
-          <Balken werte={balken} hoehe={170} xBeschriftung={zw("Nettogewinn in €", "Net gain in €")} label={zw("Verteilung des Nettogewinns", "Distribution of the net gain")} />
+          {diagramm}
         </div>
       )}
-      <SchrittFolge schritte={schritte} stand={stand} setStand={setStand}
-        fertigText={zw("Vollständig: Verteilung aufgestellt, Erwartungswert berechnet und richtig gedeutet.", "Complete: distribution set up, expected value computed and interpreted correctly.")} />
-      <GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>
-      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfeFuer(`erw-v-${sp.id}`, sp)} /></div>
+      {folge}
+      {unten}
     </div>
   );
 }
@@ -206,13 +237,14 @@ function FairerEinsatz() {
       hinweise: [zw("Probiere es im Modus „Langfristig spielen“ aus.", "Try it in the “Play in the long run” mode.")],
       erklaerung: zw("Fair bedeutet: erwarteter Nettogewinn 0. Das ist eine Aussage über den Durchschnitt vieler Spiele.", "Fair means: expected net gain 0. It is a statement about the average of many games.") },
   ], [sp, maxE]);
-  return (
-    <div style={{ ...karte, marginTop: 16 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
-        <p style={kicker}>{zw("Fairer Einsatz", "Fair stake")}</p>
-      </div>
-      <p style={{ ...hinweis, color: C.tinte, marginBottom: 4 }}>{sp.text} {zw("Wie hoch muss der Einsatz sein, damit das Spiel fair ist?", "How high must the stake be for the game to be fair?")}</p>
-      <Tabelle sp={sp} zeigeP3 netto={[true, true, true]} einsatz={einsatz} />
+  const desktop = useDesktop();
+  const kopf = (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
+      <p style={kicker}>{zw("Fairer Einsatz", "Fair stake")}</p>
+    </div>
+  );
+  const aufgabe = <p style={{ ...hinweis, color: C.tinte, marginBottom: 4 }}>{sp.text} {zw("Wie hoch muss der Einsatz sein, damit das Spiel fair ist?", "How high must the stake be for the game to be fair?")}</p>;
+  const regler = (
       <div style={{ background: C.sand, borderRadius: 14, padding: "12px 14px", margin: "8px 0" }}>
         <label style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, fontSize: 14, fontWeight: 700, color: C.tinte }}>
           <span>{zw("Einsatz", "Stake")}</span><span style={{ color: C.see, fontSize: 17 }}>{euro(einsatz)}</span>
@@ -225,9 +257,34 @@ function FairerEinsatz() {
           {Math.abs(Enetto) < 1e-9 ? zw(" – fair!", " – fair!") : Enetto < 0 ? zw(" – Vorteil für den Anbieter", " – advantage for the operator") : zw(" – Vorteil für die Spieler", " – advantage for the players")}
         </p>
       </div>
-      <SchrittFolge schritte={schritte} stand={stand} setStand={setStand} fertigText={zw("Richtig: Der faire Einsatz ist die erwartete Auszahlung.", "Correct: the fair stake is the expected payout.")} />
+  );
+  const folge = <SchrittFolge schritte={schritte} stand={stand} setStand={setStand} fertigText={zw("Richtig: Der faire Einsatz ist die erwartete Auszahlung.", "Correct: the fair stake is the expected payout.")} />;
+  const unten = (
+    <>
       <GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>
       <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfeFuer(`erw-f-${sp.id}`, { ...sp, e: einsatz })} /></div>
+    </>
+  );
+  if (desktop) {
+    return (
+      <FeinKarte data-erw="breit" style={{ marginTop: 16 }}>
+        <TrainerSpalten
+          links={<>{kopf}{aufgabe}{folge}{unten}</>}
+          rechts={<>
+            <div style={tabellenKasten}><Tabelle sp={sp} zeigeP3 netto={[true, true, true]} einsatz={einsatz} schmal /></div>
+            {regler}
+          </>} />
+      </FeinKarte>
+    );
+  }
+  return (
+    <div style={{ ...karte, marginTop: 16 }}>
+      {kopf}
+      {aufgabe}
+      <Tabelle sp={sp} zeigeP3 netto={[true, true, true]} einsatz={einsatz} />
+      {regler}
+      {folge}
+      {unten}
     </div>
   );
 }
@@ -264,71 +321,104 @@ function Langfristig() {
   const PROG = [["a", zw("Er nähert sich dem Erwartungswert, schwankt aber weiter ein wenig.", "It approaches the expected value but keeps fluctuating a little.")],
     ["b", zw("Er ist nach jedem Spiel genau gleich dem Erwartungswert.", "It equals the expected value exactly after every game.")],
     ["c", zw("Er wird mit jedem Spiel immer größer.", "It keeps growing with every game.")]];
-  return (
-    <div style={{ ...karte, marginTop: 16 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
-        <p style={kicker}>{zw("Langfristig spielen", "Play in the long run")}</p>
-      </div>
-      <p style={{ ...hinweis, color: C.tinte, marginBottom: 4 }}>{sp.text} {zw(`Einsatz ${euro(sp.e)} pro Spiel.`, `Stake ${euro(sp.e)} per game.`)}</p>
-      <Tabelle sp={sp} zeigeP3 netto={[true, true, true]} />
-      <p style={{ fontSize: 14.5, color: C.tinte, margin: "4px 0 6px" }}>
-        <Marke art="exakt" /> {zw("Erwarteter Nettogewinn:", "Expected net gain:")} <b>{euro(E)}</b> <span style={{ color: C.grau, fontSize: 13 }}>({zt(E, 4)} €)</span>
+  const desktop = useDesktop();
+  const kopf = (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
+      <p style={kicker}>{zw("Langfristig spielen", "Play in the long run")}</p>
+    </div>
+  );
+  const aufgabe = <p style={{ ...hinweis, color: C.tinte, marginBottom: 4 }}>{sp.text} {zw(`Einsatz ${euro(sp.e)} pro Spiel.`, `Stake ${euro(sp.e)} per game.`)}</p>;
+  const erwartet = (
+    <p style={{ fontSize: 14.5, color: C.tinte, margin: "4px 0 6px" }}>
+      <Marke art="exakt" /> {zw("Erwarteter Nettogewinn:", "Expected net gain:")} <b>{euro(E)}</b> <span style={{ color: C.grau, fontSize: 13 }}>({zt(E, 4)} €)</span>
+    </p>
+  );
+  const verlaufTeil = n > 0 && (
+    <>
+      <p style={{ fontSize: 12.5, fontWeight: 700, color: C.grau, margin: "0 0 4px" }}><Marke art="sim" /> {zw("Durchschnittlicher Nettogewinn nach n Spielen", "Average net gain after n games")}</p>
+      <Verlauf werte={verlauf} ziel={E} zielText={`E = ${zt(E, 2)} €`} einheit={zw("Spiele", "games")} />
+    </>
+  );
+  // mitVerlauf: Handy zeigt den Verlauf hier, am Desktop steht er rechts
+  const spielTeil = (mitVerlauf) => !prognose ? (
+    <div style={{ marginTop: 8 }}>
+      <p style={{ fontSize: 14.5, color: C.tinte, lineHeight: 1.6, margin: "0 0 8px" }}>
+        {zw("Erst vermuten: Was passiert mit dem durchschnittlichen Nettogewinn pro Spiel, wenn du sehr oft spielst?", "Guess first: what happens to the average net gain per game if you play very often?")}
       </p>
-      {!prognose ? (
-        <div style={{ marginTop: 8 }}>
-          <p style={{ fontSize: 14.5, color: C.tinte, lineHeight: 1.6, margin: "0 0 8px" }}>
-            {zw("Erst vermuten: Was passiert mit dem durchschnittlichen Nettogewinn pro Spiel, wenn du sehr oft spielst?", "Guess first: what happens to the average net gain per game if you play very often?")}
-          </p>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {PROG.map(([id, t]) => (
-              <button key={id} type="button" onClick={() => setPrognose(id)}
-                style={{ minHeight: 46, padding: "8px 14px", borderRadius: 14, border: `1.5px solid ${C.linie}`, background: C.weiss, color: C.see, fontFamily: "inherit", fontSize: 14, fontWeight: 700, textAlign: "left", cursor: "pointer" }}>{t}</button>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {PROG.map(([id, t]) => (
+          <button key={id} type="button" onClick={() => setPrognose(id)}
+            style={{ minHeight: 46, padding: "8px 14px", borderRadius: 14, border: `1.5px solid ${C.linie}`, background: C.weiss, color: C.see, fontFamily: "inherit", fontSize: 14, fontWeight: 700, textAlign: "left", cursor: "pointer" }}>{t}</button>
+        ))}
+      </div>
+    </div>
+  ) : (
+    <>
+      <p style={{ fontSize: 13, color: C.grau, margin: "6px 0" }}>{zw("Deine Vermutung:", "Your guess:")} {PROG.find((x) => x[0] === prognose)[1]}</p>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", margin: "6px 0 10px" }}>
+        {knopf(1, zw("1 Spiel", "1 game"))}{knopf(10, "+10")}{knopf(100, "+100")}{knopf(1000, "+1000")}
+      </div>
+      {n > 0 && (
+        <>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: 8, marginBottom: 10 }}>
+            {[[zw("Gespielt", "Played"), String(n)], [zw("Letztes Spiel", "Last game"), letztes === null ? "–" : `${sp.namen[letztes]}: ${euro(netto[letztes])}`],
+              [zw("Summe netto", "Total net"), euro(summe)], [zw("Durchschnitt pro Spiel", "Average per game"), `${zt(summe / n, 3)} €`]].map(([t, w]) => (
+              <div key={t} style={{ background: C.sand, borderRadius: 12, padding: "8px 10px" }}>
+                <p style={{ fontSize: 11.5, fontWeight: 700, color: C.grau, margin: 0 }}>{t}</p>
+                <p style={{ fontSize: 15, fontWeight: 800, color: C.tinte, margin: "2px 0 0" }}>{w}</p>
+              </div>
             ))}
           </div>
-        </div>
-      ) : (
-        <>
-          <p style={{ fontSize: 13, color: C.grau, margin: "6px 0" }}>{zw("Deine Vermutung:", "Your guess:")} {PROG.find((x) => x[0] === prognose)[1]}</p>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", margin: "6px 0 10px" }}>
-            {knopf(1, zw("1 Spiel", "1 game"))}{knopf(10, "+10")}{knopf(100, "+100")}{knopf(1000, "+1000")}
+          {mitVerlauf && verlaufTeil}
+          <div style={{ overflowX: "auto", marginTop: mitVerlauf ? 10 : 0 }}>
+            <table style={{ borderCollapse: "collapse", width: "100%", fontSize: 13.5, color: C.tinte }}>
+              <thead><tr>{[zw("Ergebnis", "Outcome"), zw("relative Häufigkeit", "relative frequency"), zw("Wahrscheinlichkeit", "probability")].map((t) => <th key={t} style={{ textAlign: "left", padding: "6px 6px", fontSize: 12, color: C.grau, borderBottom: `1px solid ${C.linie}` }}>{t}</th>)}</tr></thead>
+              <tbody>{sp.namen.map((nm, i) => (
+                <tr key={nm}><td style={{ padding: "6px", borderBottom: `1px solid ${C.linie}` }}>{nm}</td>
+                  <td style={{ padding: "6px", borderBottom: `1px solid ${C.linie}` }}>{zt(anzahl[i] / n, 3)}</td>
+                  <td style={{ padding: "6px", borderBottom: `1px solid ${C.linie}` }}><MS s={bText(sp.brueche[i])} /> ≈ {zt(sp.p[i], 3)}</td></tr>
+              ))}</tbody>
+            </table>
           </div>
-          {n > 0 && (
-            <>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: 8, marginBottom: 10 }}>
-                {[[zw("Gespielt", "Played"), String(n)], [zw("Letztes Spiel", "Last game"), letztes === null ? "–" : `${sp.namen[letztes]}: ${euro(netto[letztes])}`],
-                  [zw("Summe netto", "Total net"), euro(summe)], [zw("Durchschnitt pro Spiel", "Average per game"), `${zt(summe / n, 3)} €`]].map(([t, w]) => (
-                  <div key={t} style={{ background: C.sand, borderRadius: 12, padding: "8px 10px" }}>
-                    <p style={{ fontSize: 11.5, fontWeight: 700, color: C.grau, margin: 0 }}>{t}</p>
-                    <p style={{ fontSize: 15, fontWeight: 800, color: C.tinte, margin: "2px 0 0" }}>{w}</p>
-                  </div>
-                ))}
-              </div>
-              <p style={{ fontSize: 12.5, fontWeight: 700, color: C.grau, margin: "0 0 4px" }}><Marke art="sim" /> {zw("Durchschnittlicher Nettogewinn nach n Spielen", "Average net gain after n games")}</p>
-              <Verlauf werte={verlauf} ziel={E} zielText={`E = ${zt(E, 2)} €`} einheit={zw("Spiele", "games")} />
-              <div style={{ overflowX: "auto", marginTop: 10 }}>
-                <table style={{ borderCollapse: "collapse", width: "100%", fontSize: 13.5, color: C.tinte }}>
-                  <thead><tr>{[zw("Ergebnis", "Outcome"), zw("relative Häufigkeit", "relative frequency"), zw("Wahrscheinlichkeit", "probability")].map((t) => <th key={t} style={{ textAlign: "left", padding: "6px 6px", fontSize: 12, color: C.grau, borderBottom: `1px solid ${C.linie}` }}>{t}</th>)}</tr></thead>
-                  <tbody>{sp.namen.map((nm, i) => (
-                    <tr key={nm}><td style={{ padding: "6px", borderBottom: `1px solid ${C.linie}` }}>{nm}</td>
-                      <td style={{ padding: "6px", borderBottom: `1px solid ${C.linie}` }}>{zt(anzahl[i] / n, 3)}</td>
-                      <td style={{ padding: "6px", borderBottom: `1px solid ${C.linie}` }}><MS s={bText(sp.brueche[i])} /> ≈ {zt(sp.p[i], 3)}</td></tr>
-                  ))}</tbody>
-                </table>
-              </div>
-              {n >= 100 && (
-                <Rueck art={prognose === "a" ? "gut" : "info"}>
-                  {prognose === "a" ? zw("Deine Vermutung passt: ", "Your guess fits: ") : zw("Schau genau hin: ", "Look closely: ")}
-                  {zw(`Der Durchschnitt (Simulation) liegt nach ${n} Spielen bei ${zt(summe / n, 3)} €, der Erwartungswert (exakt) bei ${zt(E, 3)} €. Mit wachsender Spielzahl rückt der Durchschnitt meist näher an E heran – einzelne Spiele und kurze Serien schwanken trotzdem stark.`,
-                    `After ${n} games the average (simulation) is €${zt(summe / n, 3)}, the expected value (exact) €${zt(E, 3)}. As the number of games grows, the average usually moves closer to E – single games and short runs still vary a lot.`)}
-                </Rueck>
-              )}
-              <GrosserKnopf ghost onClick={zuruecksetzen}>{zw("Simulation zurücksetzen", "Reset simulation")}</GrosserKnopf>
-            </>
+          {n >= 100 && (
+            <Rueck art={prognose === "a" ? "gut" : "info"}>
+              {prognose === "a" ? zw("Deine Vermutung passt: ", "Your guess fits: ") : zw("Schau genau hin: ", "Look closely: ")}
+              {zw(`Der Durchschnitt (Simulation) liegt nach ${n} Spielen bei ${zt(summe / n, 3)} €, der Erwartungswert (exakt) bei ${zt(E, 3)} €. Mit wachsender Spielzahl rückt der Durchschnitt meist näher an E heran – einzelne Spiele und kurze Serien schwanken trotzdem stark.`,
+                `After ${n} games the average (simulation) is €${zt(summe / n, 3)}, the expected value (exact) €${zt(E, 3)}. As the number of games grows, the average usually moves closer to E – single games and short runs still vary a lot.`)}
+            </Rueck>
           )}
+          <GrosserKnopf ghost onClick={zuruecksetzen}>{zw("Simulation zurücksetzen", "Reset simulation")}</GrosserKnopf>
         </>
       )}
+    </>
+  );
+  const unten = (
+    <>
       <GrosserKnopf ghost onClick={neu}>{zw("Neues Spiel", "New game")}</GrosserKnopf>
       <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfeFuer(`erw-l-${sp.id}`, sp)} /></div>
+    </>
+  );
+  if (desktop) {
+    return (
+      <FeinKarte data-erw="breit" style={{ marginTop: 16 }}>
+        <TrainerSpalten
+          links={<>{kopf}{aufgabe}{spielTeil(false)}{unten}</>}
+          rechts={<>
+            <div style={tabellenKasten}><Tabelle sp={sp} zeigeP3 netto={[true, true, true]} schmal /></div>
+            {erwartet}
+            {verlaufTeil && <div>{verlaufTeil}</div>}
+          </>} />
+      </FeinKarte>
+    );
+  }
+  return (
+    <div style={{ ...karte, marginTop: 16 }}>
+      {kopf}
+      {aufgabe}
+      <Tabelle sp={sp} zeigeP3 netto={[true, true, true]} />
+      {erwartet}
+      {spielTeil(true)}
+      {unten}
     </div>
   );
 }

@@ -20,6 +20,8 @@ import { GrosserKnopf, MS, Rueck, Stufe, hilfeKontext, hinweis, karte, kicker, z
 import { wahl } from "./rechnen2.js";
 import { Aufklapp, Balken, Marke, ModusLeiste, Seite, SchrittFolge, zf, zt } from "./ui3.jsx";
 import { binomTabelle, fehler1, fehler2, imBereich, kritisch, kumuliert, pAb, pAblehnung, pBis, simuliereTests } from "./hypo.js";
+import { TrainerSpalten } from "./func17.jsx";
+import { Arbeitsflaeche, FeinKarte, useDesktop } from "./arbeitsflaeche.jsx";
 
 let zaehler = 0;
 /* p als Text mit $…$-Formel: 1/6 steht als echter Bruch (Anzeige mit MS), nie als „1/6“ */
@@ -181,28 +183,57 @@ function TestAufbauen() {
   const werte = []; const t = binomTabelle(n, p0);
   for (let k = von; k <= bis; k++) werte.push({ x: k, h: t[k] });
   const zeigeA = stand >= (au.r === "beide" ? 5 : 4);
-  return (
-    <div style={{ ...karte, marginTop: 16 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
-        <p style={kicker}>{zw("Test aufbauen", "Set up a test")}</p>
-      </div>
-      <p style={{ ...hinweis, color: C.tinte, marginBottom: 4 }}><MS s={au.text(n)} /> {zw(`Signifikanzniveau α = ${prz(alpha)}.`, `Significance level α = ${prz(alpha)}.`)}</p>
-      {stand >= 3 && (
-        <div style={{ margin: "8px 0" }}>
-          <p style={{ fontSize: 12.5, fontWeight: 700, color: C.grau, margin: "0 0 4px" }}><Marke art="exakt" /> <MS s={zw(`Verteilung unter H₀: B(${n}; ${pT(p0)})`, `Distribution under H₀: B(${n}; ${pT(p0)})`)} /></p>
-          <Balken werte={werte} markiert={zeigeA ? (k) => (imBereich(k, r, au.r) ? C.gruen : null) : null} hoehe={170}
-            linien={zeigeA ? [{ x: au.k, farbe: "#B58A00", text: `X = ${au.k}`, rechts: au.r === "links" }] : []} />
-        </div>
-      )}
-      {stand >= 3 && stand < (au.r === "beide" ? 5 : 4) && (
-        <Aufklapp titel={zw("Tabelle der kumulierten Wahrscheinlichkeiten unter H₀", "Table of cumulative probabilities under H₀")}>
-          <KumTabelle n={n} p={p0} von={tabVon} bis={tabBis} />
-          {au.r === "beide" && <div style={{ marginTop: 8 }}><KumTabelle n={n} p={p0} von={r.gr - 5} bis={r.gr + 4} /></div>}
-        </Aufklapp>
-      )}
-      <SchrittFolge schritte={schritte} stand={stand} setStand={setStand} fertigText={zw("Test vollständig: Hypothesen, Richtung, Ablehnungsbereich und vorsichtig formulierte Entscheidung.", "Test complete: hypotheses, direction, rejection region and a carefully phrased decision.")} />
+  const desktop = useDesktop();
+  const kopf = (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
+      <p style={kicker}>{zw("Test aufbauen", "Set up a test")}</p>
+    </div>
+  );
+  const aufgabe = <p style={{ ...hinweis, color: C.tinte, marginBottom: 4 }}><MS s={au.text(n)} /> {zw(`Signifikanzniveau α = ${prz(alpha)}.`, `Significance level α = ${prz(alpha)}.`)}</p>;
+  const verteilung = stand >= 3 && (
+    <div style={{ margin: "8px 0" }}>
+      <p style={{ fontSize: 12.5, fontWeight: 700, color: C.grau, margin: "0 0 4px" }}><Marke art="exakt" /> <MS s={zw(`Verteilung unter H₀: B(${n}; ${pT(p0)})`, `Distribution under H₀: B(${n}; ${pT(p0)})`)} /></p>
+      <Balken werte={werte} markiert={zeigeA ? (k) => (imBereich(k, r, au.r) ? C.gruen : null) : null} hoehe={170}
+        linien={zeigeA ? [{ x: au.k, farbe: "#B58A00", text: `X = ${au.k}`, rechts: au.r === "links" }] : []} />
+    </div>
+  );
+  const tabelle = stand >= 3 && stand < (au.r === "beide" ? 5 : 4) && (
+    <Aufklapp titel={zw("Tabelle der kumulierten Wahrscheinlichkeiten unter H₀", "Table of cumulative probabilities under H₀")}>
+      <KumTabelle n={n} p={p0} von={tabVon} bis={tabBis} />
+      {au.r === "beide" && <div style={{ marginTop: 8 }}><KumTabelle n={n} p={p0} von={r.gr - 5} bis={r.gr + 4} /></div>}
+    </Aufklapp>
+  );
+  const folge = <SchrittFolge schritte={schritte} stand={stand} setStand={setStand} fertigText={zw("Test vollständig: Hypothesen, Richtung, Ablehnungsbereich und vorsichtig formulierte Entscheidung.", "Test complete: hypotheses, direction, rejection region and a carefully phrased decision.")} />;
+  const unten = (
+    <>
       <GrosserKnopf ghost onClick={neu}>{zw("Neuer Test", "New test")}</GrosserKnopf>
       <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfeTest(`ht-${au.id}`, au)} /></div>
+    </>
+  );
+  /* Desktop: Schritte links; Sachkontext, Verteilung und Tabelle rechts (bleiben beim Durcharbeiten sichtbar) */
+  if (desktop) {
+    return (
+      <FeinKarte data-ht="breit" style={{ marginTop: 16 }}>
+        <TrainerSpalten links={<>{kopf}{folge}{unten}</>}
+          rechts={<>
+            <div style={{ background: C.sand, borderRadius: 14, padding: "12px 14px", border: `1px solid ${C.linie}` }}>
+              <p style={{ ...kicker, marginBottom: 6 }}>{zw("Sachkontext", "Context")}</p>
+              <div style={{ ...hinweis, color: C.tinte, marginBottom: 0 }}><MS s={au.text(n)} /> {zw(`Signifikanzniveau α = ${prz(alpha)}.`, `Significance level α = ${prz(alpha)}.`)}</div>
+            </div>
+            {verteilung}
+            {tabelle}
+          </>} />
+      </FeinKarte>
+    );
+  }
+  return (
+    <div style={{ ...karte, marginTop: 16 }}>
+      {kopf}
+      {aufgabe}
+      {verteilung}
+      {tabelle}
+      {folge}
+      {unten}
     </div>
   );
 }
@@ -234,30 +265,71 @@ function Ablehnungsbereich({ start: mitStart = null }) {
       `Correct: ${bereichText(r, au.r, n)}. The actual error probability is ${zf(P)} – because of the integer limits usually smaller than α = ${zt(alpha, 2)}. One more value would exceed α.`) });
   };
   const ok = P <= alpha + 1e-12 && (au.r !== "beide" || (pBis(c, wahlG.gl) <= alpha / 2 + 1e-12 && pAb(c, wahlG.gr) <= alpha / 2 + 1e-12));
-  return (
-    <div style={{ ...karte, marginTop: 16 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
-        <p style={kicker}>{zw("Ablehnungsbereich", "Rejection region")}</p>
-      </div>
-      <p style={{ ...hinweis, color: C.tinte, marginBottom: 4 }}><MS s={au.text(n)} /></p>
-      <p style={{ fontSize: 14, color: C.tinte, margin: "0 0 8px", lineHeight: 1.6 }}>
-        <b><MS s={H0(au)} /></b>, α = {prz(alpha)}. {zw("Verschiebe die Grenze, bis der Ablehnungsbereich so groß wie möglich ist, ohne dass P(X ∈ A) unter H₀ größer als α wird.", "Move the limit until the rejection region is as large as possible without P(X ∈ A) under H₀ exceeding α.")}
-      </p>
-      <Balken werte={werte} hoehe={180} markiert={(k) => (imBereich(k, wahlG, au.r) ? (ok ? C.gruen : C.signal) : null)} legende={`B(${n}; ${pT(p0)})`} />
-      <div style={{ display: "flex", gap: 18, flexWrap: "wrap", margin: "10px 0" }}>
-        {au.r === "beide"
-          ? <><Stufe wert={wahlG.gl} setWert={setze("gl")} min={0} max={wahlG.gr - 1} label={zw("linke Grenze", "left limit")} text="g₁" /><Stufe wert={wahlG.gr} setWert={setze("gr")} min={wahlG.gl + 1} max={n} label={zw("rechte Grenze", "right limit")} text="g₂" /></>
-          : <Stufe wert={wahlG.g} setWert={setze("g")} min={0} max={n} label={zw("Grenze", "limit")} text="g" />}
-      </div>
+  const desktop = useDesktop();
+  const kopf = (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
+      <p style={kicker}>{zw("Ablehnungsbereich", "Rejection region")}</p>
+    </div>
+  );
+  const aufgabe = <p style={{ ...hinweis, color: C.tinte, marginBottom: 4 }}><MS s={au.text(n)} /></p>;
+  const anleitung = (
+    <p style={{ fontSize: 14, color: C.tinte, margin: "0 0 8px", lineHeight: 1.6 }}>
+      <b><MS s={H0(au)} /></b>, α = {prz(alpha)}. {zw("Verschiebe die Grenze, bis der Ablehnungsbereich so groß wie möglich ist, ohne dass P(X ∈ A) unter H₀ größer als α wird.", "Move the limit until the rejection region is as large as possible without P(X ∈ A) under H₀ exceeding α.")}
+    </p>
+  );
+  const bild = <Balken werte={werte} hoehe={180} markiert={(k) => (imBereich(k, wahlG, au.r) ? (ok ? C.gruen : C.signal) : null)} legende={`B(${n}; ${pT(p0)})`} />;
+  const stufen = (
+    <div style={{ display: "flex", gap: 18, flexWrap: "wrap", margin: "10px 0" }}>
+      {au.r === "beide"
+        ? <><Stufe wert={wahlG.gl} setWert={setze("gl")} min={0} max={wahlG.gr - 1} label={zw("linke Grenze", "left limit")} text="g₁" /><Stufe wert={wahlG.gr} setWert={setze("gr")} min={wahlG.gl + 1} max={n} label={zw("rechte Grenze", "right limit")} text="g₂" /></>
+        : <Stufe wert={wahlG.g} setWert={setze("g")} min={0} max={n} label={zw("Grenze", "limit")} text="g" />}
+    </div>
+  );
+  const bereichStand = (
+    <>
       <p style={{ fontSize: 14.5, color: C.tinte, margin: "0 0 4px" }}>{bereichText(wahlG, au.r, n)}</p>
       <p style={{ fontSize: 14.5, color: C.tinte, margin: 0 }}>
         <Marke art="exakt" /> P(X ∈ A) = <b style={{ color: ok ? "#0F7A4D" : C.gruenDunkel }}>{zf(P)}</b> {ok ? "≤" : ">"} α = {zt(alpha, 2)}
         {au.r === "beide" && <span style={{ color: C.grau, fontSize: 13 }}> ({zw("links", "left")} {zf(pBis(c, wahlG.gl))}, {zw("rechts", "right")} {zf(pAb(c, wahlG.gr))})</span>}
       </p>
+    </>
+  );
+  const pruefTeil = (
+    <>
       <GrosserKnopf onClick={pruefen}>{zw("Ablehnungsbereich prüfen", "Check rejection region")}</GrosserKnopf>
       {meld && <Rueck art={meld.art}>{meld.text}</Rueck>}
+    </>
+  );
+  const unten = (
+    <>
       <GrosserKnopf ghost onClick={neu}>{zw("Neuer Test", "New test")}</GrosserKnopf>
       <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfeTest(`ab-${au.id}`, au)} /></div>
+    </>
+  );
+  /* Desktop: Arbeitsfläche – Aufgabe, Grenze und P(X ∈ A) links, Histogramm rechts */
+  if (desktop) {
+    return (
+      <div data-ht="breit" style={{ marginTop: 16 }}>
+        <Arbeitsflaeche
+          links={(
+            <FeinKarte>
+              {kopf}{aufgabe}{anleitung}{stufen}{bereichStand}{pruefTeil}
+            </FeinKarte>
+          )}
+          rechts={<>{bild}{unten}</>} />
+      </div>
+    );
+  }
+  return (
+    <div style={{ ...karte, marginTop: 16 }}>
+      {kopf}
+      {aufgabe}
+      {anleitung}
+      {bild}
+      {stufen}
+      {bereichStand}
+      {pruefTeil}
+      {unten}
     </div>
   );
 }
@@ -303,15 +375,21 @@ function FehlerVerstehen() {
   const werte = [], werte2 = [];
   for (let k = lo; k <= hi; k++) { werte.push({ x: k, h: t0[k] }); werte2.push({ x: k, h: t1[k] }); }
   const simulieren = () => { const ab = simuliereTests(n, pWahr, r, au.r, 1000); setSim({ p: pWahr, ab }); };
-  return (
-    <div style={{ ...karte, marginTop: 16 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
-        <p style={kicker}>{zw("Fehler verstehen", "Understand errors")}</p>
-      </div>
+  const desktop = useDesktop();
+  const kopf = (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
+      <p style={kicker}>{zw("Fehler verstehen", "Understand errors")}</p>
+    </div>
+  );
+  const aufgabe = (
+    <>
       <p style={{ ...hinweis, color: C.tinte, marginBottom: 4 }}><MS s={au.text(n)} /></p>
       <p style={{ fontSize: 14, color: C.tinte, margin: "0 0 8px", lineHeight: 1.6 }}><b><MS s={H0(au)} /></b>, α = {prz(au.alpha)}, <b>{bereichText(r, au.r, n)}</b></p>
-      <SchrittFolge schritte={schritte} stand={stand} setStand={setStand} fertigText={zw("Beide Fehlerarten berechnet und gedeutet.", "Both error types computed and interpreted.")} />
-      <div style={{ background: C.sand, borderRadius: 14, padding: "12px 14px", marginTop: 14 }}>
+    </>
+  );
+  const folge = <SchrittFolge schritte={schritte} stand={stand} setStand={setStand} fertigText={zw("Beide Fehlerarten berechnet und gedeutet.", "Both error types computed and interpreted.")} />;
+  const ausprobieren = (
+      <div style={{ background: C.sand, borderRadius: 14, padding: "12px 14px", marginTop: desktop ? 0 : 14 }}>
         <p style={{ fontSize: 14, fontWeight: 700, color: C.tinte, margin: "0 0 6px" }}>{zw("Ausprobieren: Was, wenn in Wahrheit p gilt?", "Try it: what if the true value is p?")}</p>
         <label style={{ display: "flex", justifyContent: "space-between", fontSize: 14, color: C.tinte }}><span>{zw("wahres p", "true p")}</span><b style={{ color: C.gruen }}>{zt(pWahr, 2)}</b></label>
         <input type="range" min={0.01} max={0.99} step={0.01} value={pWahr} onChange={(e) => { setPWahr(Number(e.target.value)); setSim(null); }} aria-label={zw("wahres p", "true p")} style={{ width: "100%", accentColor: C.gruen, height: 32 }} />
@@ -330,8 +408,28 @@ function FehlerVerstehen() {
           </p>
         )}
       </div>
+  );
+  const unten = (
+    <>
       <GrosserKnopf ghost onClick={neu}>{zw("Neuer Test", "New test")}</GrosserKnopf>
       <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfeTest(`fv-${au.id}`, au)} /></div>
+    </>
+  );
+  /* Desktop: Aufgabe und Schritte links, „Ausprobieren“ mit Regler und Histogramm rechts */
+  if (desktop) {
+    return (
+      <FeinKarte data-ht="breit" style={{ marginTop: 16 }}>
+        <TrainerSpalten links={<>{kopf}{aufgabe}{folge}{unten}</>} rechts={ausprobieren} />
+      </FeinKarte>
+    );
+  }
+  return (
+    <div style={{ ...karte, marginTop: 16 }}>
+      {kopf}
+      {aufgabe}
+      {folge}
+      {ausprobieren}
+      {unten}
     </div>
   );
 }

@@ -14,19 +14,22 @@ import { qNum } from "./rechnen2.js";
 import { ZUFALL_ARTEN, zufallAufgabe } from "./unterGen.js";
 import { Merke, UebenRahmen, WertZeile, ZweiModi, zs } from "./geoUi.jsx";
 import { werkzeugAnimationen } from "./unterstufeMedien.js";
+import { Arbeitsflaeche, BildKarte, FeinKarte, titelStil, useBreite, useDesktop } from "./arbeitsflaeche.jsx";
 
 let zaehler = 0;
 const fr = (b) => (b.n === 1 ? String(b.z) : `$\\frac{${b.z}}{${b.n}}$`);
 
-function Haeufigkeiten({ h }) {
-  const n = h.reduce((s, x) => s + x, 0), W = 320, H = 180, b = (W - 40) / 6, max = 0.4;
-  const Y = (v) => H - 24 - (v / max) * (H - 40);
+/* breite/hoehe: Desktop zeichnet in echten Pixeln (gemessene Breite), Handy wie bisher im Format 320 × 180 */
+function Haeufigkeiten({ h, breite, hoehe }) {
+  const n = h.reduce((s, x) => s + x, 0), W = breite || 320, H = hoehe || 180, b = (W - 40) / 6, max = 0.4;
+  const g = breite ? 1.1 : 1;   // Desktop: Beschriftung eine Spur größer
+  const Y = (v) => H - 24 * g - (v / max) * (H - 40 * g);
   return (
     <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }} role="img" aria-label={zw("Relative Häufigkeiten der Augenzahlen", "Relative frequencies of the dice values")}>
-      {[0, 0.1, 0.2, 0.3, 0.4].map((v) => <g key={v}><line x1="30" y1={Y(v)} x2={W - 6} y2={Y(v)} stroke={`${C.see}18`} /><text x="26" y={Y(v) + 4} textAnchor="end" style={{ fontSize: 10, fill: C.grau }}>{zt(v, 1)}</text></g>)}
-      {h.map((x, i) => { const r = n ? x / n : 0; return <g key={i}><rect x={34 + i * b + b * 0.15} y={Y(r)} width={b * 0.7} height={Y(0) - Y(r)} rx="3" fill={C.see} opacity="0.85" /><text x={34 + i * b + b / 2} y={H - 8} textAnchor="middle" style={{ fontSize: 12, fontWeight: 800, fill: C.tinte }}>{i + 1}</text></g>; })}
+      {[0, 0.1, 0.2, 0.3, 0.4].map((v) => <g key={v}><line x1="30" y1={Y(v)} x2={W - 6} y2={Y(v)} stroke={`${C.see}18`} /><text x="26" y={Y(v) + 4} textAnchor="end" style={{ fontSize: 10 * g, fill: C.grau }}>{zt(v, 1)}</text></g>)}
+      {h.map((x, i) => { const r = n ? x / n : 0; return <g key={i}><rect x={34 + i * b + b * 0.15} y={Y(r)} width={b * 0.7} height={Y(0) - Y(r)} rx="3" fill={C.see} opacity="0.85" /><text x={34 + i * b + b / 2} y={H - 8} textAnchor="middle" style={{ fontSize: 12 * g, fontWeight: 800, fill: C.tinte }}>{i + 1}</text></g>; })}
       <line x1="30" y1={Y(1 / 6)} x2={W - 6} y2={Y(1 / 6)} stroke={C.flaggold} strokeWidth="2" strokeDasharray="6 4" />
-      <text x={W - 8} y={Y(1 / 6) - 5} textAnchor="end" style={{ fontSize: 11, fontWeight: 800, fill: "#8A6A00" }}>1/6 ≈ 0,167</text>
+      <text x={W - 8} y={Y(1 / 6) - 5} textAnchor="end" style={{ fontSize: 11 * g, fontWeight: 800, fill: "#8A6A00" }}>1/6 ≈ 0,167</text>
     </svg>
   );
 }
@@ -36,19 +39,50 @@ function Entdecken() {
   const wirf = (k) => { const neu = [...h]; for (let i = 0; i < k; i++) neu[Math.floor(Math.random() * 6)] += 1; setH(neu); };
   const n = h.reduce((s, x) => s + x, 0);
   const abw = n ? Math.max(...h.map((x) => Math.abs(x / n - 1 / 6))) : 0;
+  const desktop = useDesktop();
+  const [bildRef, bildBreite] = useBreite();
+  const knoepfe = (spalten) => (
+    <div style={{ display: "grid", gridTemplateColumns: spalten, gap: 6 }}>
+      <GrosserKnopf onClick={() => wirf(10)}>+10</GrosserKnopf>
+      <GrosserKnopf onClick={() => wirf(100)}>+100</GrosserKnopf>
+      <GrosserKnopf onClick={() => wirf(1000)}>+1000</GrosserKnopf>
+      <GrosserKnopf ghost onClick={() => setH([0, 0, 0, 0, 0, 0])}>{zw("Neu", "Reset")}</GrosserKnopf>
+    </div>
+  );
+  const werte = (
+    <>
+      <WertZeile links={zw("Würfe insgesamt", "Total throws")} rechts={n} />
+      <WertZeile links={zw("Größte Abweichung von 1/6", "Largest deviation from 1/6")} rechts={n ? zt(abw, 3) : "–"} farbe={C.gruen} />
+    </>
+  );
+  const merke = <Merke>{zw("Bei wenigen Würfen schwanken die relativen Häufigkeiten stark. Je öfter du würfelst, desto näher kommen sie der Wahrscheinlichkeit 1/6 – das empirische Gesetz der großen Zahlen.", "With few throws the relative frequencies vary a lot. The more often you throw, the closer they get to the probability 1/6 – the empirical law of large numbers.")}</Merke>;
+
+  /* Desktop: Würfeln und Kennzahlen links, Diagramm rechts in echten Pixeln */
+  if (desktop) {
+    const W = bildBreite || 400;
+    return (
+      <div data-zufall="breit" style={{ marginTop: 16 }}>
+        <Arbeitsflaeche
+          links={(
+            <FeinKarte>
+              <p style={titelStil}>{zw("Würfel-Experiment", "Dice experiment")}</p>
+              <div style={{ marginTop: -12 }}>{knoepfe("repeat(2, minmax(0, 1fr))")}</div>
+              <div style={{ marginTop: 10 }}>{werte}</div>
+            </FeinKarte>
+          )}
+          rechts={<BildKarte><div style={{ padding: "12px 14px 8px" }}><div ref={bildRef}><Haeufigkeiten h={h} breite={W} hoehe={Math.round(W * 0.62)} /></div></div></BildKarte>} />
+        <div style={{ marginTop: 8 }}>{merke}</div>
+      </div>
+    );
+  }
+
   return (
     <div style={{ ...karte, marginTop: 16 }}>
       <p style={kicker}>{zw("Würfel-Experiment", "Dice experiment")}</p>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6 }}>
-        <GrosserKnopf onClick={() => wirf(10)}>+10</GrosserKnopf>
-        <GrosserKnopf onClick={() => wirf(100)}>+100</GrosserKnopf>
-        <GrosserKnopf onClick={() => wirf(1000)}>+1000</GrosserKnopf>
-        <GrosserKnopf ghost onClick={() => setH([0, 0, 0, 0, 0, 0])}>{zw("Neu", "Reset")}</GrosserKnopf>
-      </div>
+      {knoepfe("repeat(4, 1fr)")}
       <div style={{ marginTop: 12, background: C.sand, borderRadius: 14, padding: 6 }}><Haeufigkeiten h={h} /></div>
-      <WertZeile links={zw("Würfe insgesamt", "Total throws")} rechts={n} />
-      <WertZeile links={zw("Größte Abweichung von 1/6", "Largest deviation from 1/6")} rechts={n ? zt(abw, 3) : "–"} farbe={C.gruen} />
-      <Merke>{zw("Bei wenigen Würfen schwanken die relativen Häufigkeiten stark. Je öfter du würfelst, desto näher kommen sie der Wahrscheinlichkeit 1/6 – das empirische Gesetz der großen Zahlen.", "With few throws the relative frequencies vary a lot. The more often you throw, the closer they get to the probability 1/6 – the empirical law of large numbers.")}</Merke>
+      {werte}
+      {merke}
     </div>
   );
 }

@@ -19,6 +19,7 @@ import { GesperrteKurse } from "./func1.jsx";
 import { Vorwissen, BernoulliVorwissen } from "./funcVorwissen.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
 import { neueAufgabe, pruefen, ereignisTex, pAlsText } from "./bernoulliUebung.js";
+import { Arbeitsflaeche, BildKarte, ErgebnisReihe, FeinKarte, Werkzeugleiste, chipStil, hinweisStil, titelStil, toenKarte, useBreite, useDesktop } from "./arbeitsflaeche.jsx";
 
 function bernoulliHilfe(n, pT, k, modus, a = 0) {
   const ereignis = modus === "gleich" ? `genau ${k}` : modus === "hoechstens" ? `höchstens ${k}` : modus === "zwischen" ? `zwischen ${a} und ${k}` : `mindestens ${k}`;
@@ -59,6 +60,19 @@ function bernoulliHilfe(n, pT, k, modus, a = 0) {
     loesung: null,
   };
 }
+
+/* Desktop-Stil (DESKTOP-STIL.md): Trainer – Aufgabe und Schritte links breit, Tabelle/Diagramm/Regler rechts (300 px).
+   Genutzt von Erwartungswert, Kombinatorik und Hypothesentests. */
+export function TrainerSpalten({ links, rechts }) {
+  return (
+    <div data-trainer-spalten style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 300px)", gap: 24, alignItems: "start" }}>
+      <div style={{ minWidth: 0 }}>{links}</div>
+      <div style={{ minWidth: 0, position: "sticky", top: 76, display: "grid", gap: 12 }}>{rechts}</div>
+    </div>
+  );
+}
+/* Rechte Spalte: Tabelle der Verteilung auf zartem Grund */
+export const tabellenKasten = { background: C.sand, borderRadius: 14, padding: "2px 10px", border: `1px solid ${C.linie}` };
 
 /* ---------- Mathematik ---------- */
 
@@ -104,23 +118,29 @@ function alsBruch(p) {
   return { z: Math.max(1, Math.round(p * 100)), nn: 100 };
 }
 
+// von Brüchen wie 1/6 aus zum nächsten 5-%-Schritt
+function naechstesPWert(p, richtung) {
+  const liste = richtung > 0 ? P_WERTE.filter((v) => v > p + 1e-9) : P_WERTE.filter((v) => v < p - 1e-9).reverse();
+  return liste.length ? liste[0] : p;
+}
+// Zähler/Nenner ändern – aus einer Kommazahl wird dabei automatisch ein Bruch
+function bruchSchritt(bruch, p, teil, d) {
+  const b = bruch || alsBruch(p);
+  let { z, nn } = b;
+  if (teil === "z") z = Math.min(nn, Math.max(1, z + d));
+  else nn = Math.min(100, Math.max(z, 1, nn + d));
+  return { z, nn };
+}
+
 function Kopf({ n, p, k, setN, setP, setK, pT, qT, bruch, setBruch }) {
-  const naechstesP = (richtung) => {
-    // von Brüchen wie 1/6 aus zum nächsten 5-%-Schritt
-    const liste = richtung > 0 ? P_WERTE.filter((v) => v > p + 1e-9) : P_WERTE.filter((v) => v < p - 1e-9).reverse();
-    return liste.length ? liste[0] : p;
-  };
+  const naechstesP = (richtung) => naechstesPWert(p, richtung);
   const zeilen = [
     { name: "n", kurz: "Versuche", label: "Versuche", wert: `${n}`, farbe: FARBEN.n, plus: () => setN(Math.min(N_MAX, n + 1)), minus: () => setN(Math.max(1, n - 1)) },
     { name: "p", kurz: "Treffer-WKT", label: "Treffer\u00ADwahr\u00ADschein\u00ADlich\u00ADkeit", wert: <Wert t={pT} farbe={FARBEN.p} klammer={false} />, farbe: FARBEN.p, plus: () => { setBruch(null); setP(naechstesP(1)); }, minus: () => { setBruch(null); setP(naechstesP(-1)); } },
     { name: "k", kurz: "Treffer", label: "Treffer", wert: `${k}`, farbe: FARBEN.k, plus: () => setK(Math.min(n, k + 1)), minus: () => setK(Math.max(0, k - 1)) },
   ];
-  // Zähler/Nenner ändern – aus einer Kommazahl wird dabei automatisch ein Bruch
   const bruchAendern = (teil, d) => {
-    const b = bruch || alsBruch(p);
-    let { z, nn } = b;
-    if (teil === "z") z = Math.min(nn, Math.max(1, z + d));
-    else nn = Math.min(100, Math.max(z, 1, nn + d));
+    const { z, nn } = bruchSchritt(bruch, p, teil, d);
     setBruch({ z, nn });
     setP(z / nn);
   };
@@ -180,6 +200,52 @@ function Kopf({ n, p, k, setN, setP, setK, pT, qT, bruch, setBruch }) {
       {/* Formel von Bernoulli oben, Kurzform X ∼ B(n; p) darunter */}
       <div style={{ gridArea: "formel", minWidth: 0, display: "flex" }}>
         <BernoulliFormel n={n} k={k} pT={pT} qT={qT} wert={bin(n, p, k)} p={p} />
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Desktop: n, k und p als Karte (+ oben, Wert, − unten wie die Ebenen-Karten) ---------- */
+function KettenKarte({ n, p, k, setN, setP, setK, pT, bruch, setBruch }) {
+  const knopf = (f) => ({
+    width: "100%", maxWidth: 66, height: 30, borderRadius: 9, border: `1.5px solid ${f}55`, background: `${f}12`,
+    color: f, fontSize: 18, fontWeight: 700, fontFamily: "inherit", cursor: "pointer", padding: 0, lineHeight: 1,
+    display: "flex", alignItems: "center", justifyContent: "center", touchAction: "manipulation",
+  });
+  const mini = {
+    width: 30, height: 26, borderRadius: 8, border: `1px solid ${FARBEN.p}55`, background: C.weiss,
+    color: FARBEN.p, fontSize: 15, fontWeight: 700, fontFamily: "inherit", cursor: "pointer", padding: 0, lineHeight: 1,
+    display: "flex", alignItems: "center", justifyContent: "center",
+  };
+  const bruchAendern = (teil, d) => { const b = bruchSchritt(bruch, p, teil, d); setBruch(b); setP(b.z / b.nn); };
+  const spalten = [
+    { name: "n", kurz: "Versuche", farbe: FARBEN.n, wert: n, plus: () => setN(Math.min(N_MAX, n + 1)), minus: () => setN(Math.max(1, n - 1)) },
+    { name: "k", kurz: "Treffer", farbe: FARBEN.k, wert: k, plus: () => setK(Math.min(n, k + 1)), minus: () => setK(Math.max(0, k - 1)) },
+    { name: "p", kurz: "Treffer-WKT", farbe: FARBEN.p, wert: <Wert t={pT} farbe={FARBEN.p} klammer={false} />,
+      plus: () => { setBruch(null); setP(naechstesPWert(p, 1)); }, minus: () => { setBruch(null); setP(naechstesPWert(p, -1)); } },
+  ];
+  return (
+    <div data-bk-kette style={toenKarte(FARBEN.n)}>
+      <p style={{ ...titelStil, textAlign: "center", marginBottom: 12 }}>X ∼ B(<span style={{ color: FARBEN.n }}>{n}</span>; <Wert t={pT} farbe={FARBEN.p} klammer={false} />)</p>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8 }}>
+        {spalten.map((z) => (
+          <div key={z.name} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+            <span style={{ fontSize: 11.5, fontWeight: 600, color: C.grau, whiteSpace: "nowrap" }}><b style={{ color: z.farbe, fontWeight: 800 }}>{z.name}</b> {z.kurz}</span>
+            <button className="eve-knopf" aria-label={`${z.name} erhöhen`} style={knopf(z.farbe)} onClick={z.plus}>+</button>
+            <span style={{ height: 40, display: "flex", alignItems: "center", fontSize: 21, fontWeight: 800, color: z.farbe, fontVariantNumeric: "tabular-nums", lineHeight: 1, whiteSpace: "nowrap" }}>{z.wert}</span>
+            <button className="eve-knopf" aria-label={`${z.name} verringern`} style={knopf(z.farbe)} onClick={z.minus}>−</button>
+          </div>
+        ))}
+      </div>
+      <div style={{ height: 1, background: `${FARBEN.n}22`, margin: "12px 4px 10px" }} />
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 18 }}>
+        {[["z", "Zähler"], ["nn", "Nenner"]].map(([teil, t]) => (
+          <div key={teil} style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <span style={{ fontSize: 11.5, fontWeight: 600, color: C.grau, marginRight: 3, whiteSpace: "nowrap" }}><b style={{ color: FARBEN.p }}>p</b>-{t}</span>
+            <button className="eve-knopf" aria-label={`${t} verringern`} style={mini} onClick={() => bruchAendern(teil, -1)}>−</button>
+            <button className="eve-knopf" aria-label={`${t} erhöhen`} style={mini} onClick={() => bruchAendern(teil, 1)}>+</button>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -320,8 +386,10 @@ function Zeile({ children, stark }) {
 
 /* ---------- Histogramm ---------- */
 
-function Histogramm({ n, p, drin, k, simuliert, letzter }) {
-  const W = 360, H = 210, rl = 30, rr = 8, ro = 14, ru = 26;
+/* breite/hoehe: Desktop zeichnet in echten Pixeln (gemessene Breite) mit etwas größerer Schrift; Handy wie bisher 360 × 210 */
+function Histogramm({ n, p, drin, k, simuliert, letzter, breite, hoehe }) {
+  const g = breite ? 1.3 : 1;
+  const W = breite || 360, H = hoehe || 210, rl = Math.round(30 * g), rr = 8, ro = Math.round(14 * g), ru = Math.round(26 * g);
   const werte = Array.from({ length: n + 1 }, (_, i) => bin(n, p, i));
   const maxSim = simuliert && simuliert.gesamt ? Math.max(...simuliert.zaehler.map((z) => z / simuliert.gesamt)) : 0;
   const yMax = Math.max(...werte, maxSim) * 1.12 || 1;
@@ -339,7 +407,7 @@ function Histogramm({ n, p, drin, k, simuliert, letzter }) {
       {yTicks.map((v) => (
         <g key={v}>
           <line x1={rl} y1={y(v)} x2={W - rr} y2={y(v)} stroke={C.linie} strokeWidth="1" />
-          <text x={rl - 4} y={y(v) + 3} fontSize="8.5" textAnchor="end" fill={C.hellgrau}>{Math.round(v * 100)} %</text>
+          <text x={rl - 4} y={y(v) + 3} fontSize={8.5 * g} textAnchor="end" fill={breite ? C.grau : C.hellgrau}>{Math.round(v * 100)} %</text>
         </g>
       ))}
       {/* σ-Umgebung als zarter Streifen */}
@@ -357,13 +425,13 @@ function Histogramm({ n, p, drin, k, simuliert, letzter }) {
       ))}
       {/* Erwartungswert */}
       <line x1={x(mu) + bw / 2} x2={x(mu) + bw / 2} y1={ro - 4} y2={H - ru} stroke={C.smaragd} strokeWidth="1.6" strokeDasharray="4 3" />
-      <text x={x(mu) + bw / 2 + 4} y={ro + 4} fontSize="10" fontWeight="700" fill={C.smaragd}>μ = {dez(mu, 2).replace(/,00$/, "")}</text>
+      <text x={x(mu) + bw / 2 + 4} y={ro + 4} fontSize={10 * g} fontWeight="700" fill={C.smaragd}>μ = {dez(mu, 2).replace(/,00$/, "")}</text>
       <line x1={rl} y1={H - ru} x2={W - rr} y2={H - ru} stroke={C.hellgrau} strokeWidth="1.2" />
       {werte.map((_, i) => i % labelSchritt === 0 && (
-        <text key={`l${i}`} x={x(i) + bw / 2} y={H - ru + 13} fontSize="9" textAnchor="middle"
+        <text key={`l${i}`} x={x(i) + bw / 2} y={H - ru + 13 * g} fontSize={9 * g} textAnchor="middle"
           fill={i === k ? FARBEN.k : C.grau} fontWeight={i === k ? 800 : 400}>{i}</text>
       ))}
-      <text x={W - rr} y={H - 4} fontSize="9" textAnchor="end" fill={C.hellgrau}>Anzahl Treffer k</text>
+      <text x={W - rr} y={H - 4} fontSize={9 * g} textAnchor="end" fill={breite ? C.grau : C.hellgrau}>Anzahl Treffer k</text>
     </svg>
   );
 }
@@ -502,6 +570,8 @@ export function BernoulliBingo() {
   const [sim, setSim] = useState({ gesamt: 0, bingo: 0, zaehler: [] });
   const [trefferName, setTrefferName] = useState("Sechs");
   const [tabelle, setTabelle] = useState(false);
+  const desktop = useDesktop();
+  const [histoRef, histoBreite] = useBreite();
   const timer = useRef(null);
   const a = Math.min(aRoh, k);   // untere Grenze nie über k
 
@@ -637,8 +707,11 @@ export function BernoulliBingo() {
     fontSize: 15, fontWeight: 700, fontFamily: "inherit", cursor: "pointer", padding: 0, lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center",
   };
 
-  return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
+  // Gemeinsame Teile für Handy und Desktop
+  const nWaehlen = (v) => { setN(v); const kk = Math.max(0, Math.min(v, Math.round(v * p))); setK(kk); setA(Math.max(0, Math.min(a, kk))); };
+  const vorlageWaehlen = (v) => { setP(v.p); setBruch(alsBruch(v.p)); setTrefferName(v.text); };
+  const einleitung = (
+    <>
       <Vorwissen untertitel="Bernoulli-Kette, Formel und ein Beispiel"><BernoulliVorwissen /></Vorwissen>
       <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
         Wie oft trifft der Zufall?
@@ -648,6 +721,260 @@ export function BernoulliBingo() {
         Trefferwahrscheinlichkeit <b style={{ color: FARBEN.p }}>p</b> und deinen Tipp <b style={{ color: FARBEN.k }}>k</b>.
         Die Binomialverteilung entsteht live – und im Experiment siehst du, ob der Zufall mitspielt.
       </p>
+    </>
+  );
+  const modusKnoepfe = (spalten) => (
+    <div style={{ display: "grid", gridTemplateColumns: spalten, gap: 6, margin: "12px 0 8px" }}>
+      {MODI.map(([id, t]) => (
+        <button key={id} onClick={() => setModus(id)} aria-pressed={modus === id}
+          style={{ height: 36, borderRadius: 10, fontFamily: "inherit", cursor: "pointer", fontSize: 13.5, fontWeight: 700, padding: 0, whiteSpace: "nowrap",
+            border: `1px solid ${modus === id ? C.see : C.linie}`, background: modus === id ? C.see : C.weiss,
+            color: modus === id ? C.weiss : C.see }}>{t}</button>
+      ))}
+    </div>
+  );
+  const untereGrenze = modus === "zwischen" && (
+    <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 6 }}>
+      <span style={{ fontSize: 13, color: C.grau }}>untere Grenze <b style={{ color: FARBEN.k }}>a</b></span>
+      <button aria-label="a verringern" style={aKnopf} onClick={() => setA(Math.max(0, a - 1))}>−</button>
+      <span style={{ minWidth: 24, textAlign: "center", fontSize: 18, fontWeight: 800, color: FARBEN.k, fontVariantNumeric: "tabular-nums" }}>{a}</span>
+      <button aria-label="a erhöhen" style={aKnopf} onClick={() => setA(Math.min(k, a + 1))}>+</button>
+      <span style={{ fontSize: 12.5, color: C.hellgrau }}>obere Grenze ist k = {k}</span>
+    </div>
+  );
+  const ergebnisZeile = (
+    <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginTop: 8 }}>
+      <span style={{ fontSize: 15, color: C.grau }}>P(<b style={{ color: FARBEN.k }}>{ereignisText}</b> {trefferName === "Treffer" ? "Treffer" : `× ${trefferName}`})</span>
+      <span style={{ fontSize: 30, fontWeight: 800, color: C.tinte, fontVariantNumeric: "tabular-nums" }}>{prozent(wahrscheinlichkeit)}</span>
+    </div>
+  );
+  const rechenweg = (
+    <div style={{ background: C.sand, borderRadius: 12, padding: "10px 14px", marginTop: 8, overflowX: "auto" }}>
+      {formel.map((z, i) => <Zeile key={i} stark={i === formel.length - 1}>{z}</Zeile>)}
+    </div>
+  );
+  const tabelleTeil = (
+    <>
+      <button onClick={() => setTabelle((t) => !t)} aria-expanded={tabelle}
+        style={{ marginTop: 8, background: "none", border: "none", padding: 0, fontFamily: "inherit", fontSize: 13, fontWeight: 700, color: C.see, cursor: "pointer" }}>
+        {tabelle ? "▾ Tabelle ausblenden" : "▸ Tabelle der Verteilung (wie im Tafelwerk)"}
+      </button>
+      {tabelle && <Tabelle n={n} p={p} drin={drin} />}
+    </>
+  );
+  const kennzahlen = (
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8, marginTop: 12 }}>
+      {[
+        ["Erwartungs­wert", "$μ = n · p$", dez(mu, 2)],
+        ["Standardabw.", "$σ = \\sqrt{n · p · (1 − p)}$", dez(sigma, 2)],
+        ["σ-Umgebung", `$[${sigVon}; ${sigBis}]$ · μ ± σ`, prozent(sigP)],
+      ].map(([t, f, w], i) => (
+        <button key={t} onClick={i === 2 ? () => { setModus("zwischen"); setA(sigVon); setK(sigBis); } : undefined}
+          title={i === 2 ? "als Ereignis einstellen" : undefined}
+          style={{ background: C.himmel, borderRadius: 12, padding: "8px 10px", textAlign: "left", border: "none", fontFamily: "inherit",
+            cursor: i === 2 ? "pointer" : "default", minWidth: 0 }}>
+          <p style={{ fontSize: 11, color: C.grau, fontWeight: 600 }}>{t}</p>
+          <p style={{ fontSize: 18, fontWeight: 800, color: C.see, whiteSpace: "nowrap" }}>{w}</p>
+          <p style={{ fontSize: 10.5, color: C.hellgrau, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}><MS s={f} /></p>
+        </button>
+      ))}
+    </div>
+  );
+  const sigmaText = sigma > 3
+    ? <>σ &gt; 3: Die Laplace-Bedingung ist erfüllt – die Verteilung lässt sich gut durch eine Normalverteilung annähern. Rund 68 % der Treffer liegen in μ ± σ.</>
+    : <>σ ≤ 3: Für die Näherung durch die Normalverteilung ist die Kette noch zu kurz (Laplace-Bedingung σ &gt; 3). Tippe auf „σ-Umgebung“, um sie als Ereignis zu sehen.</>;
+  const uebung = <Uebung n={n} p={p} pT={pT} menge={menge} einstellen={einstellen} />;
+  const experimentText = (
+    <>
+      <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 4 }}>Das Experiment</p>
+      <p style={{ fontSize: 14, color: C.grau, lineHeight: 1.6, marginBottom: 12 }}>
+        {n} Versuche, jeder mit der Trefferwahrscheinlichkeit <Wert t={pT} farbe={FARBEN.p} klammer={false} />. Bingo gibt es bei <b>{ereignisText}</b> Treffer{k === 1 && modus === "gleich" ? "" : "n"}.
+      </p>
+    </>
+  );
+  const kacheln = (
+    <div style={{ display: "grid", gridTemplateColumns: `repeat(${n <= 10 ? n : n <= 40 ? 10 : 20}, 1fr)`, gap: n > 40 ? 3 : 5, marginBottom: 12 }}>
+      {Array.from({ length: n }, (_, i) => {
+        const offen = ergebnis && i < sichtbar;
+        const t = offen && ergebnis[i];
+        return (
+          <div key={i} style={{ aspectRatio: "1 / 1", borderRadius: n > 40 ? 5 : 9, display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: n > 40 ? 10 : 15, fontWeight: 800, transition: "all .15s",
+            background: !offen ? C.sand : t ? C.flaggold : "#E6EAF2", color: t ? C.seeTief : C.hellgrau,
+            border: `1.5px solid ${!offen ? C.linie : t ? "#B38D00" : C.linie}`, transform: offen ? "scale(1)" : "scale(0.94)" }}>
+            {offen ? (t ? "✓" : "·") : i + 1}
+          </div>
+        );
+      })}
+    </div>
+  );
+  const trefferZeile = (
+    <>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", minHeight: 44, marginBottom: 10 }}>
+        <span style={{ fontSize: 15, color: C.tinte }}>Treffer: <b style={{ fontSize: 22 }}>{ergebnis ? treffer : "–"}</b></span>
+        {fertig && (
+          <span style={{ fontSize: bingo ? 24 : 15, fontWeight: 800, color: bingo ? C.gruen : C.grau,
+            animation: bingo ? "bingoPop .45s ease" : "none" }}>
+            {bingo ? "BINGO! 🎉" : "Diesmal nicht"}
+          </span>
+        )}
+      </div>
+      <style>{`@keyframes bingoPop{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}`}</style>
+    </>
+  );
+  const startKnopf = (
+    <button onClick={starten} disabled={laeuft}
+      style={{ width: "100%", height: 54, borderRadius: 14, border: "none", cursor: laeuft ? "wait" : "pointer", fontFamily: "inherit",
+        fontSize: 17, fontWeight: 800, color: C.weiss, background: C.gruen, boxShadow: "0 4px 14px rgba(185,138,0,0.3)", opacity: laeuft ? 0.7 : 1 }}>
+      {laeuft ? "Läuft …" : ergebnis ? "Nochmal!" : "Experiment starten"}
+    </button>
+  );
+  // untereinander: schmale Spalte am Desktop
+  const simKnoepfe = (untereinander) => (
+    <div style={{ display: "flex", flexDirection: untereinander ? "column" : "row", gap: 8, marginTop: 8 }}>
+      {[10, 100, 1000].map((m) => (
+        <button key={m} onClick={() => vielmals(m)}
+          style={{ flex: untereinander ? "none" : 1, height: 40, borderRadius: 12, border: `1px solid ${C.linie}`, background: C.weiss, color: C.see,
+            fontFamily: "inherit", fontSize: 13, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap", padding: 0 }}>{m}× simulieren</button>
+      ))}
+    </div>
+  );
+  const simStand = sim.gesamt > 0 && (
+    <div style={{ marginTop: 14, background: C.sand, borderRadius: 12, padding: "12px 14px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
+        <span style={{ fontSize: 13.5, color: C.grau }}>Durchgänge: <b style={{ color: C.tinte }}>{sim.gesamt}</b></span>
+        <span style={{ fontSize: 13.5, color: C.grau }}>Bingos: <b style={{ color: C.gruen }}>{bingos}</b></span>
+      </div>
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap", marginTop: 6 }}>
+        <span style={{ fontSize: 13.5, color: C.grau }}>relative Häufigkeit: <b style={{ color: C.tinte }}>{prozent(bingos / sim.gesamt)}</b></span>
+        <span style={{ fontSize: 13.5, color: C.grau }}>Theorie: <b style={{ color: C.tinte }}>{prozent(wahrscheinlichkeit)}</b></span>
+      </div>
+      <div style={{ marginTop: 8, height: 6, borderRadius: 3, background: C.linie, position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: `${Math.min(100, wahrscheinlichkeit * 100)}%`, background: `${C.flaggold}66` }} />
+        <div style={{ position: "absolute", top: 0, bottom: 0, left: `${Math.min(100, (bingos / sim.gesamt) * 100)}%`, width: 2, background: C.see, transform: "translateX(-1px)" }} />
+      </div>
+      <p style={{ fontSize: 12.5, color: C.hellgrau, lineHeight: 1.55, marginTop: 8 }}>
+        Abweichung: <b style={{ color: C.tinte }}>{(Math.abs(bingos / sim.gesamt - wahrscheinlichkeit) * 100).toFixed(2).replace(".", ",")} Prozentpunkte</b>.
+        Die blauen Striche im Diagramm zeigen die simulierten Häufigkeiten. Je mehr Durchgänge, desto näher liegen sie an
+        den Säulen – das Gesetz der großen Zahlen.
+      </p>
+    </div>
+  );
+  const hilfeZeile = (
+    <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}>
+      <IchHaengeFest kontext={bernoulliHilfe(n, pT, k, modus, a)} />
+    </div>
+  );
+  const weiterMit = n >= 5 && p > 0 && p < 1 && (
+    <WeiterMit titel={`Weiter mit B(${n}; ${pS(pT)})`}>
+      <WeiterKnopf ziel="hypothesentest" von="Bernoulli-Kette" daten={{ n, p }}
+        zeile={`Ablehnungsbereich für H₀: p ≤ ${pS(pT)} bei n = ${n} und α = 5 % finden`} />
+      {sigma > 3 && (
+        <WeiterKnopf ziel="normalverteilung" von="Bernoulli-Kette" daten={{ n, p }}
+          zeile={`Dieselbe Verteilung (μ = ${dez(mu, 2)}, σ = ${dez(sigma, 2)}) mit der Glockenkurve vergleichen`} />
+      )}
+    </WeiterMit>
+  );
+  const SAETZE = [
+    ["Bernoulli-Versuch", "hat genau zwei Ausgänge: Treffer (Wahrscheinlichkeit p) oder Niete (1 − p)."],
+    ["Bernoulli-Kette", "n-mal unabhängig wiederholt, p bleibt immer gleich. X zählt die Treffer und ist binomialverteilt: X ∼ B(n; p)."],
+    ["Bernoulli-Formel", "P(X = k) = (n über k) · pᵏ · (1 − p)ⁿ⁻ᵏ – (n über k) zählt die Pfade mit genau k Treffern."],
+    ["Übersetzen", "„mindestens k“ ist X ≥ k, „mehr als k“ ist X ≥ k + 1, „höchstens k“ ist X ≤ k, „weniger als k“ ist X ≤ k − 1. „Mindestens“ geht fast immer über das Gegenereignis."],
+  ];
+  const satz = ([t, s0]) => (
+    <p key={t} style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, marginBottom: 6 }}>
+      <b style={{ color: C.tinte }}>{t}:</b> {s0}
+    </p>
+  );
+
+  /* ---------- Desktop: Kette links, Verteilung rechts, Rechenweg und Experiment darunter ---------- */
+  if (desktop) {
+    const HW = histoBreite || 420;
+    return (
+      <div className="mx-auto px-6 pb-16" data-bk="breit" style={{ maxWidth: 620, paddingTop: 30 }}>
+        <div>{einleitung}</div>
+        <Arbeitsflaeche
+          links={<>
+            <KettenKarte n={n} p={p} k={k} setN={setN} setP={setP} setK={setK} pT={pT} bruch={bruch} setBruch={setBruch} />
+            <FeinKarte data-bk-ereignis>
+              <p style={{ ...titelStil, marginBottom: 0 }}>Ereignis</p>
+              {modusKnoepfe("repeat(2, minmax(0, 1fr))")}
+              {untereGrenze}
+              <div style={{ height: 1, background: C.linie, margin: "6px 0 4px" }} />
+              {ergebnisZeile}
+            </FeinKarte>
+          </>}
+          rechts={<>
+            <BildKarte>
+              <div style={{ padding: "14px 14px 12px" }}>
+                <div ref={histoRef}>
+                  <Histogramm n={n} p={p} drin={drin} k={k} simuliert={sim} letzter={fertig ? treffer : null} breite={HW} hoehe={Math.round(HW * 0.66)} />
+                </div>
+                <div style={{ marginTop: 6 }}><Legende mitSim={sim.gesamt > 0} /></div>
+              </div>
+            </BildKarte>
+            <Werkzeugleiste gruppen={[
+              { titel: "Anzahl der Versuche", inhalt: (
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                  {N_CHIPS.map((v) => <button key={v} onClick={() => nWaehlen(v)} aria-label={`n = ${v}`} style={chipStil(n === v, FARBEN.n)}>{v}</button>)}
+                </div>
+              ) },
+              { titel: "Trefferwahrscheinlichkeit", inhalt: (
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                  {VORLAGEN.map((v) => <button key={v.name} onClick={() => vorlageWaehlen(v)} style={{ ...chipStil(Math.abs(p - v.p) < 1e-9, FARBEN.p), color: Math.abs(p - v.p) < 1e-9 ? C.weiss : C.tinte }}><MS s={v.name} /></button>)}
+                </div>
+              ) },
+            ]} />
+          </>} />
+
+        <div style={{ marginTop: 20, display: "grid", gap: 16 }}>
+          <ErgebnisReihe spalten="minmax(0, 1fr) minmax(0, 1fr)" style={{ alignItems: "stretch" }}>
+            <FeinKarte data-bk-rechenweg>
+              <p style={{ ...titelStil, marginBottom: 2 }}>Rechenweg</p>
+              {rechenweg}
+              {tabelleTeil}
+            </FeinKarte>
+            <FeinKarte data-bk-kennzahlen>
+              <p style={{ ...titelStil, marginBottom: 0 }}>Kennzahlen der Verteilung</p>
+              {kennzahlen}
+              <p style={{ ...hinweisStil, marginTop: 10 }}>{sigmaText}</p>
+            </FeinKarte>
+          </ErgebnisReihe>
+
+          <FeinKarte>{uebung}</FeinKarte>
+
+          <FeinKarte data-bk-experiment>
+          <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 300px)", columnGap: 28, alignItems: "start" }}>
+            <div style={{ minWidth: 0 }}>
+              {experimentText}
+              {kacheln}
+              {trefferZeile}
+            </div>
+            <div style={{ minWidth: 0, borderLeft: `2px solid ${C.linie}`, paddingLeft: 20 }}>
+              {startKnopf}
+              {simKnoepfe(true)}
+              {simStand}
+            </div>
+          </div>
+          </FeinKarte>
+        </div>
+
+        {hilfeZeile}
+        <div>{weiterMit}</div>
+
+        <div style={{ marginTop: 16 }}>
+          <FeinKarte>
+            <p style={titelStil}>Die Bernoulli-Kette in vier Sätzen</p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", columnGap: 28 }}>{SAETZE.map(satz)}</div>
+          </FeinKarte>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
+      {einleitung}
 
       {/* Einstellungen + Verteilung */}
       <div style={karte}>
@@ -655,174 +982,54 @@ export function BernoulliBingo() {
         <div style={{ display: "flex", gap: 6, overflowX: "auto", padding: "8px 0 4px", alignItems: "center" }}>
           <span style={{ fontSize: 11, fontWeight: 700, color: FARBEN.n, flexShrink: 0 }}>n</span>
           {N_CHIPS.map((v) => (
-            <button key={v} onClick={() => { setN(v); const kk = Math.max(0, Math.min(v, Math.round(v * p))); setK(kk); setA(Math.max(0, Math.min(a, kk))); }}
+            <button key={v} onClick={() => nWaehlen(v)}
               aria-label={`n = ${v}`} style={chip(n === v, FARBEN.n)}>{v}</button>
           ))}
           <span style={{ width: 1, height: 22, background: C.linie, flexShrink: 0, margin: "0 2px" }} />
           <span style={{ fontSize: 11, fontWeight: 700, color: FARBEN.p, flexShrink: 0 }}>p</span>
           {VORLAGEN.map((v) => (
-            <button key={v.name} onClick={() => { setP(v.p); setBruch(alsBruch(v.p)); setTrefferName(v.text); }}
+            <button key={v.name} onClick={() => vorlageWaehlen(v)}
               style={chip(Math.abs(p - v.p) < 1e-9, FARBEN.p)}><MS s={v.name} /></button>
           ))}
         </div>
         <Histogramm n={n} p={p} drin={drin} k={k} simuliert={sim} letzter={fertig ? treffer : null} />
         <Legende mitSim={sim.gesamt > 0} />
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 6, margin: "12px 0 8px" }}>
-          {MODI.map(([id, t]) => (
-            <button key={id} onClick={() => setModus(id)} aria-pressed={modus === id}
-              style={{ height: 36, borderRadius: 10, fontFamily: "inherit", cursor: "pointer", fontSize: 13.5, fontWeight: 700, padding: 0, whiteSpace: "nowrap",
-                border: `1px solid ${modus === id ? C.see : C.linie}`, background: modus === id ? C.see : C.weiss,
-                color: modus === id ? C.weiss : C.see }}>{t}</button>
-          ))}
-        </div>
-        {modus === "zwischen" && (
-          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 6 }}>
-            <span style={{ fontSize: 13, color: C.grau }}>untere Grenze <b style={{ color: FARBEN.k }}>a</b></span>
-            <button aria-label="a verringern" style={aKnopf} onClick={() => setA(Math.max(0, a - 1))}>−</button>
-            <span style={{ minWidth: 24, textAlign: "center", fontSize: 18, fontWeight: 800, color: FARBEN.k, fontVariantNumeric: "tabular-nums" }}>{a}</span>
-            <button aria-label="a erhöhen" style={aKnopf} onClick={() => setA(Math.min(k, a + 1))}>+</button>
-            <span style={{ fontSize: 12.5, color: C.hellgrau }}>obere Grenze ist k = {k}</span>
-          </div>
-        )}
+        {modusKnoepfe("repeat(4, minmax(0, 1fr))")}
+        {untereGrenze}
 
-        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginTop: 8 }}>
-          <span style={{ fontSize: 15, color: C.grau }}>P(<b style={{ color: FARBEN.k }}>{ereignisText}</b> {trefferName === "Treffer" ? "Treffer" : `× ${trefferName}`})</span>
-          <span style={{ fontSize: 30, fontWeight: 800, color: C.tinte, fontVariantNumeric: "tabular-nums" }}>{prozent(wahrscheinlichkeit)}</span>
-        </div>
-        <div style={{ background: C.sand, borderRadius: 12, padding: "10px 14px", marginTop: 8, overflowX: "auto" }}>
-          {formel.map((z, i) => <Zeile key={i} stark={i === formel.length - 1}>{z}</Zeile>)}
-        </div>
-        <button onClick={() => setTabelle((t) => !t)} aria-expanded={tabelle}
-          style={{ marginTop: 8, background: "none", border: "none", padding: 0, fontFamily: "inherit", fontSize: 13, fontWeight: 700, color: C.see, cursor: "pointer" }}>
-          {tabelle ? "▾ Tabelle ausblenden" : "▸ Tabelle der Verteilung (wie im Tafelwerk)"}
-        </button>
-        {tabelle && <Tabelle n={n} p={p} drin={drin} />}
+        {ergebnisZeile}
+        {rechenweg}
+        {tabelleTeil}
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8, marginTop: 12 }}>
-          {[
-            ["Erwartungs­wert", "$μ = n · p$", dez(mu, 2)],
-            ["Standardabw.", "$σ = \\sqrt{n · p · (1 − p)}$", dez(sigma, 2)],
-            ["σ-Umgebung", `$[${sigVon}; ${sigBis}]$ · μ ± σ`, prozent(sigP)],
-          ].map(([t, f, w], i) => (
-            <button key={t} onClick={i === 2 ? () => { setModus("zwischen"); setA(sigVon); setK(sigBis); } : undefined}
-              title={i === 2 ? "als Ereignis einstellen" : undefined}
-              style={{ background: C.himmel, borderRadius: 12, padding: "8px 10px", textAlign: "left", border: "none", fontFamily: "inherit",
-                cursor: i === 2 ? "pointer" : "default", minWidth: 0 }}>
-              <p style={{ fontSize: 11, color: C.grau, fontWeight: 600 }}>{t}</p>
-              <p style={{ fontSize: 18, fontWeight: 800, color: C.see, whiteSpace: "nowrap" }}>{w}</p>
-              <p style={{ fontSize: 10.5, color: C.hellgrau, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}><MS s={f} /></p>
-            </button>
-          ))}
-        </div>
+        {kennzahlen}
         <p style={{ fontSize: 12, color: C.hellgrau, lineHeight: 1.5, marginTop: 8 }}>
-          {sigma > 3
-            ? <>σ &gt; 3: Die Laplace-Bedingung ist erfüllt – die Verteilung lässt sich gut durch eine Normalverteilung annähern. Rund 68 % der Treffer liegen in μ ± σ.</>
-            : <>σ ≤ 3: Für die Näherung durch die Normalverteilung ist die Kette noch zu kurz (Laplace-Bedingung σ &gt; 3). Tippe auf „σ-Umgebung“, um sie als Ereignis zu sehen.</>}
+          {sigmaText}
         </p>
       </div>
 
       {/* Übung */}
       <div style={{ ...karte, marginTop: 16 }}>
-        <Uebung n={n} p={p} pT={pT} menge={menge} einstellen={einstellen} />
+        {uebung}
       </div>
 
       {/* Experiment */}
       <div style={{ ...karte, marginTop: 16 }}>
-        <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 4 }}>Das Experiment</p>
-        <p style={{ fontSize: 14, color: C.grau, lineHeight: 1.6, marginBottom: 12 }}>
-          {n} Versuche, jeder mit der Trefferwahrscheinlichkeit <Wert t={pT} farbe={FARBEN.p} klammer={false} />. Bingo gibt es bei <b>{ereignisText}</b> Treffer{k === 1 && modus === "gleich" ? "" : "n"}.
-        </p>
-
-        <div style={{ display: "grid", gridTemplateColumns: `repeat(${n <= 10 ? n : n <= 40 ? 10 : 20}, 1fr)`, gap: n > 40 ? 3 : 5, marginBottom: 12 }}>
-          {Array.from({ length: n }, (_, i) => {
-            const offen = ergebnis && i < sichtbar;
-            const t = offen && ergebnis[i];
-            return (
-              <div key={i} style={{ aspectRatio: "1 / 1", borderRadius: n > 40 ? 5 : 9, display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: n > 40 ? 10 : 15, fontWeight: 800, transition: "all .15s",
-                background: !offen ? C.sand : t ? C.flaggold : "#E6EAF2", color: t ? C.seeTief : C.hellgrau,
-                border: `1.5px solid ${!offen ? C.linie : t ? "#B38D00" : C.linie}`, transform: offen ? "scale(1)" : "scale(0.94)" }}>
-                {offen ? (t ? "✓" : "·") : i + 1}
-              </div>
-            );
-          })}
-        </div>
-
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", minHeight: 44, marginBottom: 10 }}>
-          <span style={{ fontSize: 15, color: C.tinte }}>Treffer: <b style={{ fontSize: 22 }}>{ergebnis ? treffer : "–"}</b></span>
-          {fertig && (
-            <span style={{ fontSize: bingo ? 24 : 15, fontWeight: 800, color: bingo ? C.gruen : C.grau,
-              animation: bingo ? "bingoPop .45s ease" : "none" }}>
-              {bingo ? "BINGO! 🎉" : "Diesmal nicht"}
-            </span>
-          )}
-        </div>
-        <style>{`@keyframes bingoPop{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}`}</style>
-
-        <button onClick={starten} disabled={laeuft}
-          style={{ width: "100%", height: 54, borderRadius: 14, border: "none", cursor: laeuft ? "wait" : "pointer", fontFamily: "inherit",
-            fontSize: 17, fontWeight: 800, color: C.weiss, background: C.gruen, boxShadow: "0 4px 14px rgba(185,138,0,0.3)", opacity: laeuft ? 0.7 : 1 }}>
-          {laeuft ? "Läuft …" : ergebnis ? "Nochmal!" : "Experiment starten"}
-        </button>
-        <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-          {[10, 100, 1000].map((m) => (
-            <button key={m} onClick={() => vielmals(m)}
-              style={{ flex: 1, height: 40, borderRadius: 12, border: `1px solid ${C.linie}`, background: C.weiss, color: C.see,
-                fontFamily: "inherit", fontSize: 13, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap", padding: 0 }}>{m}× simulieren</button>
-          ))}
-        </div>
-
-        {sim.gesamt > 0 && (
-          <div style={{ marginTop: 14, background: C.sand, borderRadius: 12, padding: "12px 14px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
-              <span style={{ fontSize: 13.5, color: C.grau }}>Durchgänge: <b style={{ color: C.tinte }}>{sim.gesamt}</b></span>
-              <span style={{ fontSize: 13.5, color: C.grau }}>Bingos: <b style={{ color: C.gruen }}>{bingos}</b></span>
-            </div>
-            <div style={{ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap", marginTop: 6 }}>
-              <span style={{ fontSize: 13.5, color: C.grau }}>relative Häufigkeit: <b style={{ color: C.tinte }}>{prozent(bingos / sim.gesamt)}</b></span>
-              <span style={{ fontSize: 13.5, color: C.grau }}>Theorie: <b style={{ color: C.tinte }}>{prozent(wahrscheinlichkeit)}</b></span>
-            </div>
-            <div style={{ marginTop: 8, height: 6, borderRadius: 3, background: C.linie, position: "relative", overflow: "hidden" }}>
-              <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: `${Math.min(100, wahrscheinlichkeit * 100)}%`, background: `${C.flaggold}66` }} />
-              <div style={{ position: "absolute", top: 0, bottom: 0, left: `${Math.min(100, (bingos / sim.gesamt) * 100)}%`, width: 2, background: C.see, transform: "translateX(-1px)" }} />
-            </div>
-            <p style={{ fontSize: 12.5, color: C.hellgrau, lineHeight: 1.55, marginTop: 8 }}>
-              Abweichung: <b style={{ color: C.tinte }}>{(Math.abs(bingos / sim.gesamt - wahrscheinlichkeit) * 100).toFixed(2).replace(".", ",")} Prozentpunkte</b>.
-              Die blauen Striche im Diagramm zeigen die simulierten Häufigkeiten. Je mehr Durchgänge, desto näher liegen sie an
-              den Säulen – das Gesetz der großen Zahlen.
-            </p>
-          </div>
-        )}
+        {experimentText}
+        {kacheln}
+        {trefferZeile}
+        {startKnopf}
+        {simKnoepfe(false)}
+        {simStand}
       </div>
 
-      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}>
-        <IchHaengeFest kontext={bernoulliHilfe(n, pT, k, modus, a)} />
-      </div>
+      {hilfeZeile}
 
-      {n >= 5 && p > 0 && p < 1 && (
-        <WeiterMit titel={`Weiter mit B(${n}; ${pS(pT)})`}>
-          <WeiterKnopf ziel="hypothesentest" von="Bernoulli-Kette" daten={{ n, p }}
-            zeile={`Ablehnungsbereich für H₀: p ≤ ${pS(pT)} bei n = ${n} und α = 5 % finden`} />
-          {sigma > 3 && (
-            <WeiterKnopf ziel="normalverteilung" von="Bernoulli-Kette" daten={{ n, p }}
-              zeile={`Dieselbe Verteilung (μ = ${dez(mu, 2)}, σ = ${dez(sigma, 2)}) mit der Glockenkurve vergleichen`} />
-          )}
-        </WeiterMit>
-      )}
+      {weiterMit}
 
       <div style={{ ...karte, marginTop: 16 }}>
         <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 10 }}>Die Bernoulli-Kette in vier Sätzen</p>
-        {[
-          ["Bernoulli-Versuch", "hat genau zwei Ausgänge: Treffer (Wahrscheinlichkeit p) oder Niete (1 − p)."],
-          ["Bernoulli-Kette", "n-mal unabhängig wiederholt, p bleibt immer gleich. X zählt die Treffer und ist binomialverteilt: X ∼ B(n; p)."],
-          ["Bernoulli-Formel", "P(X = k) = (n über k) · pᵏ · (1 − p)ⁿ⁻ᵏ – (n über k) zählt die Pfade mit genau k Treffern."],
-          ["Übersetzen", "„mindestens k“ ist X ≥ k, „mehr als k“ ist X ≥ k + 1, „höchstens k“ ist X ≤ k, „weniger als k“ ist X ≤ k − 1. „Mindestens“ geht fast immer über das Gegenereignis."],
-        ].map(([t, s]) => (
-          <p key={t} style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, marginBottom: 6 }}>
-            <b style={{ color: C.tinte }}>{t}:</b> {s}
-          </p>
-        ))}
+        {SAETZE.map(satz)}
       </div>
     </div>
   );

@@ -13,32 +13,38 @@ import { zt } from "./ui3.jsx";
 import { DATEN_ARTEN, datenAufgabe, median, mittelwert } from "./unterGen.js";
 import { Merke, Regler, UebenRahmen, WertZeile, ZweiModi, zs } from "./geoUi.jsx";
 import { werkzeugAnimationen } from "./unterstufeMedien.js";
+import { Arbeitsflaeche, BildKarte, FeinKarte, hinweisStil, titelStil, toenKarte, useBreite, useDesktop } from "./arbeitsflaeche.jsx";
 
 let zaehler = 0;
 const z = (v) => zt(v, 2);
 const FARBEN = [C.see, C.flaggold, C.smaragd, C.granaHell, C.lila || "#6B4FA0"];
 
-export function Saeulen({ kat, werte, hoehe = 170, markiert = -1, max = null }) {
-  const W = 320, m = max ?? Math.max(...werte, 1), b = (W - 40) / kat.length;
-  const Y = (v) => hoehe - 22 - (v / m) * (hoehe - 40);
+/* breite: Desktop zeichnet in echten Pixeln (gemessene Breite); ohne breite wie bisher 320 breit */
+export function Saeulen({ kat, werte, hoehe = 170, markiert = -1, max = null, breite }) {
+  const W = breite || 320, m = max ?? Math.max(...werte, 1), b = (W - 40) / kat.length;
+  const g = breite ? 1.1 : 1;   // Desktop: Achsenbeschriftung eine Spur größer
+  const Y = (v) => hoehe - 22 * g - (v / m) * (hoehe - 40 * g);
   return (
     <svg viewBox={`0 0 ${W} ${hoehe}`} style={{ width: "100%", height: "auto", display: "block" }} role="img" aria-label={zw("Säulendiagramm", "Bar chart")}>
-      {Array.from({ length: m + 1 }, (_, i) => <g key={i}><line x1="30" y1={Y(i)} x2={W - 6} y2={Y(i)} stroke={`${C.see}${i % 5 === 0 ? "33" : "14"}`} /><text x="24" y={Y(i) + 4} textAnchor="end" style={{ fontSize: 10, fill: C.grau, fontFamily: "inherit" }}>{m > 12 && i % 5 ? "" : i}</text></g>)}
+      {Array.from({ length: m + 1 }, (_, i) => <g key={i}><line x1="30" y1={Y(i)} x2={W - 6} y2={Y(i)} stroke={`${C.see}${i % 5 === 0 ? "33" : "14"}`} /><text x="24" y={Y(i) + 4} textAnchor="end" style={{ fontSize: 10 * g, fill: C.grau, fontFamily: "inherit" }}>{m > 12 && i % 5 ? "" : i}</text></g>)}
       {kat.map((k, i) => (
         <g key={k}>
           <rect x={34 + i * b + b * 0.15} y={Y(werte[i])} width={b * 0.7} height={Y(0) - Y(werte[i])} rx="3" fill={i === markiert ? C.flaggold : FARBEN[i % 5]} opacity={markiert >= 0 && i !== markiert ? 0.55 : 0.9} />
-          <text x={34 + i * b + b / 2} y={hoehe - 6} textAnchor="middle" style={{ fontSize: 11.5, fontWeight: 700, fill: C.tinte, fontFamily: "inherit" }}>{k}</text>
+          <text x={34 + i * b + b / 2} y={hoehe - 6} textAnchor="middle" style={{ fontSize: 11.5 * g, fontWeight: 700, fill: C.tinte, fontFamily: "inherit" }}>{k}</text>
         </g>
       ))}
     </svg>
   );
 }
 
-function Kreisdiagramm({ werte, kat }) {
-  const summe = werte.reduce((s, x) => s + x, 0) || 1, R = 70, cx = 90, cy = 85;
+/* breite: Desktop in echten Pixeln (Kreis links, Legende rechts daneben); ohne breite wie bisher 320 × 170 */
+function Kreisdiagramm({ werte, kat, breite }) {
+  const W = breite || 320, H = breite ? 200 : 170;
+  const summe = werte.reduce((s, x) => s + x, 0) || 1, R = breite ? 82 : 70, cx = breite ? Math.round(W * 0.3) : 90, cy = breite ? 100 : 85;
+  const lx = breite ? Math.round(W * 0.6) : 190, ly = breite ? 38 : 22;
   let w0 = -90;
   return (
-    <svg viewBox="0 0 320 170" style={{ width: "100%", height: "auto", display: "block" }} role="img" aria-label={zw("Kreisdiagramm", "Pie chart")}>
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }} role="img" aria-label={zw("Kreisdiagramm", "Pie chart")}>
       {werte.map((v, i) => {
         const w = (v / summe) * 360, a0 = w0 * Math.PI / 180, a1 = (w0 + w) * Math.PI / 180;
         const p = `M ${cx} ${cy} L ${cx + R * Math.cos(a0)} ${cy + R * Math.sin(a0)} A ${R} ${R} 0 ${w > 180 ? 1 : 0} 1 ${cx + R * Math.cos(a1)} ${cy + R * Math.sin(a1)} Z`;
@@ -47,8 +53,8 @@ function Kreisdiagramm({ werte, kat }) {
       })}
       {kat.map((k, i) => (
         <g key={k}>
-          <rect x="190" y={22 + i * 26} width="14" height="14" rx="3" fill={FARBEN[i % 5]} />
-          <text x="210" y={34 + i * 26} style={{ fontSize: 12, fontFamily: "inherit", fill: C.tinte }}>{k}: {zt(werte[i] / summe * 360, 1)}°</text>
+          <rect x={lx} y={ly + i * 26} width="14" height="14" rx="3" fill={FARBEN[i % 5]} />
+          <text x={lx + 20} y={ly + 12 + i * 26} style={{ fontSize: breite ? 13 : 12, fontFamily: "inherit", fill: C.tinte }}>{k}: {zt(werte[i] / summe * 360, 1)}°</text>
         </g>
       ))}
     </svg>
@@ -61,6 +67,65 @@ function Entdecken() {
   const [w, setW] = useState([8, 5, 6, 3, 2]);
   const setze = (i) => (v) => setW(w.map((x, k) => (k === i ? v : x)));
   const summe = w.reduce((s, x) => s + x, 0);
+  const desktop = useDesktop();
+  const [bildRef, bildBreite] = useBreite();
+  const relA = `${zt(summe ? w[0] / summe * 100 : 0, 1)} %`;
+  const kennwerte = (breit) => (
+    <>
+      <WertZeile links={zw("Gesamtzahl", "Total")} rechts={summe} />
+      <WertZeile links={zw(`Relative Häufigkeit A (${kat[0]})`, `Relative frequency A (${kat[0]})`)} rechts={breit ? <span style={{ whiteSpace: "nowrap" }}>{relA}</span> : relA} />
+      <WertZeile links={zw("Mittelwert der Säulen", "Mean of the bars")} rechts={z(mittelwert(w))} farbe={C.gruen} />
+      <WertZeile links={zw("Median der Säulen", "Median of the bars")} rechts={z(median(w))} farbe={C.gruen} />
+      <WertZeile links={zw("Spannweite", "Range")} rechts={Math.max(...w) - Math.min(...w)} />
+    </>
+  );
+  const merke = <Merke>{zw("Im Kreisdiagramm bekommt jede Gruppe den Winkel Anteil · 360°. Der Median ist robust: Eine einzelne sehr hohe Säule verschiebt den Mittelwert stark, den Median kaum. Probier es mit A = 12 aus.", "In a pie chart each group gets the angle share · 360°. The median is robust: one very high bar shifts the mean a lot, the median hardly at all. Try A = 12.")}</Merke>;
+
+  /* Desktop: Umfrage (je Gruppe + / Wert / −) und Kennwerte links, Säulen- und Kreisdiagramm rechts in echten Pixeln */
+  if (desktop) {
+    const knopf = (f, aus) => ({
+      width: "100%", maxWidth: 66, height: 30, borderRadius: 9, border: `1.5px solid ${f}55`, background: `${f}12`, color: f, fontSize: 18, fontWeight: 700,
+      fontFamily: "inherit", cursor: aus ? "default" : "pointer", padding: 0, lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center",
+      touchAction: "manipulation", opacity: aus ? 0.35 : 1,
+    });
+    const BW = bildBreite || 420;
+    return (
+      <div data-diagramme="breit" style={{ marginTop: 16 }}>
+        <Arbeitsflaeche
+          links={<>
+            <div style={toenKarte(C.see)}>
+              <p style={{ ...titelStil, textAlign: "center" }}>{zw("Umfrage: Lieblingshobby der Klasse", "Survey: the class's favourite hobby")}</p>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(5, minmax(0, 1fr))", gap: 6 }}>
+                {kat.map((k, i) => {
+                  const f = FARBEN[i], name = `${kurz[i]} ${k}`;
+                  return (
+                    <div key={k} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+                      <span style={{ fontSize: 13, fontWeight: 800, color: f }}>{kurz[i]}</span>
+                      <button type="button" className="eve-knopf" aria-label={`${name} +`} disabled={w[i] >= 12} style={knopf(f, w[i] >= 12)} onClick={() => setze(i)(Math.min(12, w[i] + 1))}>+</button>
+                      <span style={{ fontSize: 17, fontWeight: 800, color: C.tinte, fontVariantNumeric: "tabular-nums", lineHeight: 1.2 }}>{w[i]}</span>
+                      <button type="button" className="eve-knopf" aria-label={`${name} −`} disabled={w[i] <= 0} style={knopf(f, w[i] <= 0)} onClick={() => setze(i)(Math.max(0, w[i] - 1))}>−</button>
+                    </div>
+                  );
+                })}
+              </div>
+              <p style={{ ...hinweisStil, fontSize: 12, display: "flex", flexWrap: "wrap", justifyContent: "center", columnGap: 10, rowGap: 2, marginTop: 12 }}>
+                {kat.map((k, i) => <span key={k} style={{ whiteSpace: "nowrap" }}><b style={{ color: FARBEN[i] }}>{kurz[i]}</b> {k}</span>)}
+              </p>
+            </div>
+            <FeinKarte>
+              <p style={{ ...titelStil, marginBottom: 2 }}>{zw("Kennwerte", "Statistics")}</p>
+              {kennwerte(true)}
+            </FeinKarte>
+          </>}
+          rechts={<>
+            <BildKarte><div style={{ padding: "14px 14px 8px" }}><div ref={bildRef}><Saeulen kat={kurz} werte={w} max={12} breite={BW} hoehe={Math.round(BW * 0.56)} /></div></div></BildKarte>
+            <BildKarte><div style={{ padding: "6px 14px" }}><Kreisdiagramm werte={w} kat={kurz} breite={BW} /></div></BildKarte>
+          </>} />
+        <div style={{ marginTop: 8 }}>{merke}</div>
+      </div>
+    );
+  }
+
   return (
     <>
       <div style={{ ...karte, marginTop: 16 }}>
@@ -71,12 +136,8 @@ function Entdecken() {
       </div>
       <div style={{ ...karte, marginTop: 12 }}>
         <p style={kicker}>{zw("Kennwerte", "Statistics")}</p>
-        <WertZeile links={zw("Gesamtzahl", "Total")} rechts={summe} />
-        <WertZeile links={zw(`Relative Häufigkeit A (${kat[0]})`, `Relative frequency A (${kat[0]})`)} rechts={`${zt(summe ? w[0] / summe * 100 : 0, 1)} %`} />
-        <WertZeile links={zw("Mittelwert der Säulen", "Mean of the bars")} rechts={z(mittelwert(w))} farbe={C.gruen} />
-        <WertZeile links={zw("Median der Säulen", "Median of the bars")} rechts={z(median(w))} farbe={C.gruen} />
-        <WertZeile links={zw("Spannweite", "Range")} rechts={Math.max(...w) - Math.min(...w)} />
-        <Merke>{zw("Im Kreisdiagramm bekommt jede Gruppe den Winkel Anteil · 360°. Der Median ist robust: Eine einzelne sehr hohe Säule verschiebt den Mittelwert stark, den Median kaum. Probier es mit A = 12 aus.", "In a pie chart each group gets the angle share · 360°. The median is robust: one very high bar shifts the mean a lot, the median hardly at all. Try A = 12.")}</Merke>
+        {kennwerte(false)}
+        {merke}
       </div>
     </>
   );

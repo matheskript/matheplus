@@ -16,7 +16,8 @@ import { C } from "./base1.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
 import { WeiterKnopf, WeiterMit } from "./funcWerkzeuge.jsx";
 import { uebergabeErledigt, uebergabeLesen } from "./uebergabe.js";
-import { binomKoeff } from "./func17.jsx";
+import { TrainerSpalten, binomKoeff } from "./func17.jsx";
+import { BildKarte, FeinKarte, useBreite, useDesktop } from "./arbeitsflaeche.jsx";
 import { Auswahl, GrosserKnopf, Rueck, ZahlFeld, hilfeKontext, hinweis, karte, kicker, zw } from "./ui2.jsx";
 import { ggT, wahl, zz } from "./rechnen2.js";
 import { Aufklapp, Marke, ModusLeiste, Seite, SchrittFolge, liesZahl, zt } from "./ui3.jsx";
@@ -62,12 +63,13 @@ function hilfeUrne(id) {
 }
 
 /* ---------- Urne zeichnen ---------- */
-function Urne({ rot, blau, gezogen = [] }) {
+/* gross: Desktop, rechte Spalte – die Urne füllt die Spalte (bis 260 px), „Gezogen“ steht darunter */
+function Urne({ rot, blau, gezogen = [], gross = false }) {
   const kugeln = [...Array(rot).fill("r"), ...Array(blau).fill("b")];
   const W = 220, H = 120;
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
-      <svg viewBox={`0 0 ${W} ${H}`} style={{ width: 200, maxWidth: "60%" }} role="img" aria-label={zw(`Urne mit ${rot} roten und ${blau} blauen Kugeln`, `Urn with ${rot} red and ${blau} blue balls`)}>
+      <svg viewBox={`0 0 ${W} ${H}`} style={gross ? { width: "100%", maxWidth: 260, margin: "0 auto", display: "block" } : { width: 200, maxWidth: "60%" }} role="img" aria-label={zw(`Urne mit ${rot} roten und ${blau} blauen Kugeln`, `Urn with ${rot} red and ${blau} blue balls`)}>
         <path d="M24 14 Q20 112 110 112 Q200 112 196 14" fill={C.sand} stroke={C.grau} strokeWidth="2" />
         <line x1="16" y1="14" x2="204" y2="14" stroke={C.grau} strokeWidth="2.5" strokeLinecap="round" />
         {kugeln.map((k, i) => {
@@ -153,26 +155,34 @@ function Versuche() {
       erklaerung: mit ? zw("Mit Zurücklegen: unabhängige Züge mit gleichem p – binomial mit n = 2.", "With replacement: independent draws with the same p – binomial with n = 2.") : zw("Ohne Zurücklegen ist das Modell nicht binomial; man rechnet mit dem Baumdiagramm (oder hypergeometrisch).", "Without replacement the model is not binomial; use the tree diagram (or the hypergeometric distribution).") },
   ], [au]);
   const nr = inhalt.r + inhalt.b;
-  return (
-    <div style={{ ...karte, marginTop: 16 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
-        <p style={kicker}>{zw("Versuche durchführen", "Run experiments")}</p>
-      </div>
-      <Auswahl optionen={[["ohne", zw("ohne Zurücklegen", "without replacement")], ["mit", zw("mit Zurücklegen", "with replacement")]]} wert={zurueck} setWert={wechsel} label={zw("Ziehen", "Drawing")} />
-      <p style={{ ...hinweis, color: C.tinte, margin: "10px 0 6px" }}>
-        {zw(`Aus der Urne werden nacheinander zwei Kugeln gezogen, ${mit ? "mit" : "ohne"} Zurücklegen.`, `Two balls are drawn one after the other, ${mit ? "with" : "without"} replacement.`)}
-      </p>
-      <Urne rot={inhalt.r} blau={inhalt.b} gezogen={inhalt.gezogen} />
-      <p style={{ fontSize: 13.5, color: C.tinte, margin: "6px 0" }}>
-        {inhalt.gezogen.length < 2
-          ? <>{zw("Nächster Zug:", "Next draw:")} P({zw("rot", "red")}) = <b><MS s={frS(inhalt.r, nr)} /></b>{nr !== n || inhalt.gezogen.length ? zw(` (in der Urne: ${inhalt.r} rot, ${inhalt.b} blau)`, ` (in the urn: ${inhalt.r} red, ${inhalt.b} blue)`) : ""}</>
-          : zw("Beide Züge gemacht.", "Both draws done.")}
-      </p>
-      <div style={{ display: "flex", gap: 8 }}>
-        <div style={{ flex: 1 }}><GrosserKnopf gold onClick={ziehen} disabled={inhalt.gezogen.length >= 2}>{zw("Kugel ziehen", "Draw a ball")}</GrosserKnopf></div>
-        <div style={{ flex: 1 }}><GrosserKnopf ghost onClick={() => setInhalt({ r: au.r, b: au.b, gezogen: [] })}>{zw("Urne neu füllen", "Refill urn")}</GrosserKnopf></div>
-      </div>
-      <SchrittFolge schritte={schritte} stand={stand} setStand={setStand} fertigText={zw("Fertig: Wahrscheinlichkeiten pro Zug, Pfadregel und passendes Modell.", "Done: probability per draw, product rule and suitable model.")} />
+  const desktop = useDesktop();
+  const kopf = (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
+      <p style={kicker}>{zw("Versuche durchführen", "Run experiments")}</p>
+    </div>
+  );
+  const auswahl = <Auswahl optionen={[["ohne", zw("ohne Zurücklegen", "without replacement")], ["mit", zw("mit Zurücklegen", "with replacement")]]} wert={zurueck} setWert={wechsel} label={zw("Ziehen", "Drawing")} />;
+  const aufgabe = (
+    <p style={{ ...hinweis, color: C.tinte, margin: "10px 0 6px" }}>
+      {zw(`Aus der Urne werden nacheinander zwei Kugeln gezogen, ${mit ? "mit" : "ohne"} Zurücklegen.`, `Two balls are drawn one after the other, ${mit ? "with" : "without"} replacement.`)}
+    </p>
+  );
+  const naechster = (
+    <p style={{ fontSize: 13.5, color: C.tinte, margin: "6px 0" }}>
+      {inhalt.gezogen.length < 2
+        ? <>{zw("Nächster Zug:", "Next draw:")} P({zw("rot", "red")}) = <b><MS s={frS(inhalt.r, nr)} /></b>{nr !== n || inhalt.gezogen.length ? zw(` (in der Urne: ${inhalt.r} rot, ${inhalt.b} blau)`, ` (in the urn: ${inhalt.r} red, ${inhalt.b} blue)`) : ""}</>
+        : zw("Beide Züge gemacht.", "Both draws done.")}
+    </p>
+  );
+  const ziehKnoepfe = (untereinander) => (
+    <div style={{ display: "flex", flexDirection: untereinander ? "column" : "row", gap: untereinander ? 0 : 8 }}>
+      <div style={{ flex: 1 }}><GrosserKnopf gold onClick={ziehen} disabled={inhalt.gezogen.length >= 2}>{zw("Kugel ziehen", "Draw a ball")}</GrosserKnopf></div>
+      <div style={{ flex: 1 }}><GrosserKnopf ghost onClick={() => setInhalt({ r: au.r, b: au.b, gezogen: [] })}>{zw("Urne neu füllen", "Refill urn")}</GrosserKnopf></div>
+    </div>
+  );
+  const folge = <SchrittFolge schritte={schritte} stand={stand} setStand={setStand} fertigText={zw("Fertig: Wahrscheinlichkeiten pro Zug, Pfadregel und passendes Modell.", "Done: probability per draw, product rule and suitable model.")} />;
+  const rest = (
+    <>
       {stand >= 4 && (
         <div style={{ background: C.sand, borderRadius: 14, padding: "10px 14px", marginTop: 12 }}>
           <p style={{ fontSize: 14, color: C.tinte, margin: "0 0 4px" }}><Marke art="exakt" /> P({zw("rot, rot", "red, red")}) = <MS s={tB} /> ≈ {zt(pBeide, 4)}</p>
@@ -182,6 +192,35 @@ function Versuche() {
       )}
       <GrosserKnopf ghost onClick={() => neu()}>{zw("Neue Urne", "New urn")}</GrosserKnopf>
       <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfeUrne(`urne-${au.id}`)} /></div>
+    </>
+  );
+  /* Desktop: Aufgabe und Schritte links, Urne mit Ziehen rechts */
+  if (desktop) {
+    return (
+      <FeinKarte data-komb="breit" style={{ marginTop: 16 }}>
+        <TrainerSpalten
+          links={<>{kopf}{auswahl}{aufgabe}{folge}{rest}</>}
+          rechts={(
+            <BildKarte style={{ padding: "14px 14px 4px" }}>
+              <Urne rot={inhalt.r} blau={inhalt.b} gezogen={inhalt.gezogen} gross />
+              {naechster}
+              {ziehKnoepfe(true)}
+              <div style={{ height: 12 }} />
+            </BildKarte>
+          )} />
+      </FeinKarte>
+    );
+  }
+  return (
+    <div style={{ ...karte, marginTop: 16 }}>
+      {kopf}
+      {auswahl}
+      {aufgabe}
+      <Urne rot={inhalt.r} blau={inhalt.b} gezogen={inhalt.gezogen} />
+      {naechster}
+      {ziehKnoepfe(false)}
+      {folge}
+      {rest}
     </div>
   );
 }
@@ -274,18 +313,23 @@ function Zaehlen() {
     return s;
   }, [au]);
   const liste = aufzaehlen(au.typ);
-  return (
-    <div style={{ ...karte, marginTop: 16 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
-        <p style={kicker}>{zw("Zählmethode wählen", "Choose a counting method")}</p>
-      </div>
-      <p style={{ ...hinweis, color: C.tinte, marginBottom: 6 }}>{au.text}</p>
-      <SchrittFolge schritte={schritte} stand={stand} setStand={setStand} fertigText={zw("Gezählt und – wo gefragt – die Wahrscheinlichkeit getrennt berechnet.", "Counted, and – where asked – the probability computed separately.")} />
-      <Aufklapp titel={zw("Kleinen Fall aufzählen (4 Elemente, k = 2)", "List a small case (4 elements, k = 2)")} start={klein}>
-        <p style={{ margin: "0 0 6px" }}>{zw(`Gleiche Situation (Reihenfolge ${t.reihenfolge ? "ja" : "nein"}, Wiederholung ${t.zurueck ? "ja" : "nein"}) mit A, B, C, D und k = 2:`, `Same situation (order ${t.reihenfolge ? "yes" : "no"}, repetition ${t.zurueck ? "yes" : "no"}) with A, B, C, D and k = 2:`)}</p>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>{liste.map((x) => <span key={x} style={{ background: C.himmel, color: C.see, borderRadius: 8, padding: "3px 8px", fontWeight: 700, fontSize: 13.5 }}>{x}</span>)}</div>
-        <p style={{ margin: "8px 0 0" }}>{zw(`Das sind ${liste.length} Möglichkeiten – genau ${t.formel} mit n = 4, k = 2.`, `That is ${liste.length} possibilities – exactly ${t.formel} with n = 4, k = 2.`)}</p>
-      </Aufklapp>
+  const desktop = useDesktop();
+  const kopf = (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
+      <p style={kicker}>{zw("Zählmethode wählen", "Choose a counting method")}</p>
+    </div>
+  );
+  const aufgabe = <p style={{ ...hinweis, color: C.tinte, marginBottom: 6 }}>{au.text}</p>;
+  const folge = <SchrittFolge schritte={schritte} stand={stand} setStand={setStand} fertigText={zw("Gezählt und – wo gefragt – die Wahrscheinlichkeit getrennt berechnet.", "Counted, and – where asked – the probability computed separately.")} />;
+  const kleinerFall = (
+    <Aufklapp titel={zw("Kleinen Fall aufzählen (4 Elemente, k = 2)", "List a small case (4 elements, k = 2)")} start={klein}>
+      <p style={{ margin: "0 0 6px" }}>{zw(`Gleiche Situation (Reihenfolge ${t.reihenfolge ? "ja" : "nein"}, Wiederholung ${t.zurueck ? "ja" : "nein"}) mit A, B, C, D und k = 2:`, `Same situation (order ${t.reihenfolge ? "yes" : "no"}, repetition ${t.zurueck ? "yes" : "no"}) with A, B, C, D and k = 2:`)}</p>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>{liste.map((x) => <span key={x} style={{ background: C.himmel, color: C.see, borderRadius: 8, padding: "3px 8px", fontWeight: 700, fontSize: 13.5 }}>{x}</span>)}</div>
+      <p style={{ margin: "8px 0 0" }}>{zw(`Das sind ${liste.length} Möglichkeiten – genau ${t.formel} mit n = 4, k = 2.`, `That is ${liste.length} possibilities – exactly ${t.formel} with n = 4, k = 2.`)}</p>
+    </Aufklapp>
+  );
+  const unten = (
+    <>
       <GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>
       <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfeKontext({
           id: `zaehl-${au.id}`, aufgabe: "Kombinatorik Reihenfolge Zurücklegen Binomialkoeffizient Fakultät",
@@ -295,18 +339,37 @@ function Zaehlen() {
           pruefen: [zw("Mit Reihenfolge muss mindestens so viel herauskommen wie ohne.", "With order you must get at least as many as without."), zw("Prüfe mit dem kleinen Fall (4 Elemente, k = 2).", "Check with the small case (4 elements, k = 2)."), zw("Eine Wahrscheinlichkeit liegt zwischen 0 und 1.", "A probability lies between 0 and 1.")],
           regeln: KOMB_REGELN,
         })} /></div>
+    </>
+  );
+  /* Desktop: Aufgabe und Schritte links, der kleine Fall als Hilfe rechts */
+  if (desktop) {
+    return (
+      <FeinKarte data-komb="breit" style={{ marginTop: 16 }}>
+        <TrainerSpalten links={<>{kopf}{aufgabe}{folge}{unten}</>} rechts={<div style={{ marginTop: -10 }}>{kleinerFall}</div>} />
+      </FeinKarte>
+    );
+  }
+  return (
+    <div style={{ ...karte, marginTop: 16 }}>
+      {kopf}
+      {aufgabe}
+      {folge}
+      {kleinerFall}
+      {unten}
     </div>
   );
 }
 
 /* ---------- Modus 3: Baumdiagramm aufbauen ---------- */
 const ZWEIGE = [["r", 0], ["b", 0], ["rr", 1], ["rb", 1], ["br", 1], ["bb", 1]];
-function Baum({ werte, ok, pfade }) {
-  const W = 340, H = 220;
-  const pos = { "": [20, 110], r: [140, 55], b: [140, 165], rr: [270, 25], rb: [270, 85], br: [270, 135], bb: [270, 195] };
+/* breite: Desktop in echten Pixeln (gemessene Breite) – nur die waagerechten Lagen wachsen mit; ohne breite wie bisher 340 × 220 */
+function Baum({ werte, ok, pfade, breite }) {
+  const W = breite || 340, H = 220, fx = W / 340;
+  const pos = Object.fromEntries(Object.entries({ "": [20, 110], r: [140, 55], b: [140, 165], rr: [270, 25], rb: [270, 85], br: [270, 135], bb: [270, 195] })
+    .map(([k, [x, y]]) => [k, [Math.round(x * fx), y]]));
   const lbl = (k) => werte[k] || "?";
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", maxWidth: 420, display: "block" }} role="img" aria-label={zw("Baumdiagramm", "Tree diagram")}>
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", maxWidth: breite ? undefined : 420, display: "block" }} role="img" aria-label={zw("Baumdiagramm", "Tree diagram")}>
       {ZWEIGE.map(([k]) => {
         const von = pos[k.slice(0, -1)], nach = pos[k];
         const mx = (von[0] + nach[0]) / 2, my = (von[1] + nach[1]) / 2;
@@ -384,16 +447,22 @@ function BaumAufbauen() {
       <ZahlFeld wert={eing[k] || ""} setWert={(v) => { setEing({ ...eing, [k]: v }); setOk({ ...ok, [k]: undefined }); }} label={t} breite={86} farbe={ok[k] === false ? C.gruenDunkel : ok[k] ? "#0F7A4D" : C.see} />
     </label>
   );
-  return (
-    <div style={{ ...karte, marginTop: 16 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
-        <p style={kicker}>{zw("Baumdiagramm aufbauen", "Build a tree diagram")}</p>
-      </div>
-      <p style={{ ...hinweis, color: C.tinte, marginBottom: 6 }}>
-        {zw(`In einer Urne liegen ${au.r} rote und ${au.b} blaue Kugeln. Es werden zwei Kugeln nacheinander ${au.mit ? "mit" : "ohne"} Zurücklegen gezogen. Beschrifte alle Zweige.`,
-          `An urn holds ${au.r} red and ${au.b} blue balls. Two balls are drawn one after the other ${au.mit ? "with" : "without"} replacement. Label all branches.`)}
-      </p>
-      <Baum werte={eing} ok={ok} pfade={alleOk ? { rr: ppT("rr"), rb: ppT("rb"), br: ppT("br"), bb: ppT("bb") } : null} />
+  const desktop = useDesktop();
+  const [baumRef, baumBreite] = useBreite();
+  const pfade = alleOk ? { rr: ppT("rr"), rb: ppT("rb"), br: ppT("br"), bb: ppT("bb") } : null;
+  const kopf = (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
+      <p style={kicker}>{zw("Baumdiagramm aufbauen", "Build a tree diagram")}</p>
+    </div>
+  );
+  const aufgabe = (
+    <p style={{ ...hinweis, color: C.tinte, marginBottom: 6 }}>
+      {zw(`In einer Urne liegen ${au.r} rote und ${au.b} blaue Kugeln. Es werden zwei Kugeln nacheinander ${au.mit ? "mit" : "ohne"} Zurücklegen gezogen. Beschrifte alle Zweige.`,
+        `An urn holds ${au.r} red and ${au.b} blue balls. Two balls are drawn one after the other ${au.mit ? "with" : "without"} replacement. Label all branches.`)}
+    </p>
+  );
+  const rest = (
+    <>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))", columnGap: 18, marginTop: 6 }}>
         <div>
           <p style={{ fontSize: 12, fontWeight: 700, color: C.grau, margin: "4px 0" }}>{zw("1. Zug", "1st draw")}</p>
@@ -427,6 +496,23 @@ function BaumAufbauen() {
       )}
       <GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>
       <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfeUrne(`baum-${au.id}`)} /></div>
+    </>
+  );
+  /* Desktop: Aufgabe und Eingaben links, das Baumdiagramm rechts in echten Pixeln */
+  if (desktop) {
+    return (
+      <FeinKarte data-komb="breit" style={{ marginTop: 16 }}>
+        <TrainerSpalten links={<>{kopf}{aufgabe}{rest}</>}
+          rechts={<BildKarte style={{ padding: "10px 8px" }}><div ref={baumRef}><Baum werte={eing} ok={ok} pfade={pfade} breite={baumBreite || 280} /></div></BildKarte>} />
+      </FeinKarte>
+    );
+  }
+  return (
+    <div style={{ ...karte, marginTop: 16 }}>
+      {kopf}
+      {aufgabe}
+      <Baum werte={eing} ok={ok} pfade={pfade} />
+      {rest}
     </div>
   );
 }
