@@ -101,7 +101,7 @@ function KlassenWahl({ schulart, wert, setze }) {
   );
 }
 
-/* Nach der Wahl von Schulsystem und Klasse schrumpft die Auswahl auf einen kleinen Chip ganz vorn in der Zeile:
+/* Nach der Wahl von Schulsystem und Klasse schrumpft die Auswahl auf einen kleinen Chip rechts neben dem Menü:
    eine blaue Box, darin „Kl. 13“ in Gold (wie die goldene Klassenbox) und dahinter „(GS9)“ in Weiß (wie der
    Schulsystem-Balken). Antippen öffnet die Auswahl wieder. */
 function AuswahlChip({ schulart, klasse, oeffnen }) {
@@ -110,10 +110,10 @@ function AuswahlChip({ schulart, klasse, oeffnen }) {
   const label = box ? box.label : "", name = s ? s.name : "";
   return (
     <button type="button" onClick={oeffnen} className="qf-chip" aria-label={`Klasse ${label} (${name}) – ändern`} title="Schulsystem oder Klasse ändern"
-      style={{ ...knopfBasis, flexShrink: 0, height: 36, padding: "0 10px 0 11px", borderRadius: 10, border: "none", background: C.see,
-        display: "inline-flex", alignItems: "baseline", gap: 4, whiteSpace: "nowrap", boxShadow: "0 3px 10px rgba(0,77,152,0.22)" }}>
+      style={{ ...knopfBasis, flexShrink: 0, height: 40, padding: "0 10px", borderRadius: 12, border: `1.5px solid ${C.flaggold}`, background: C.see,
+        display: "inline-flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, whiteSpace: "nowrap", lineHeight: 1, boxShadow: "0 3px 10px rgba(0,77,152,0.22)" }}>
       <span style={{ fontSize: 13, fontWeight: 800, color: C.flaggold, letterSpacing: "0.01em" }}>Kl. <span data-kein-i18n>{label}</span></span>
-      <span data-kein-i18n style={{ fontSize: 11.5, fontWeight: 700, color: "rgba(255,255,255,0.9)" }}>({name})</span>
+      <span data-kein-i18n style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: "0.08em", color: "rgba(255,255,255,0.9)" }}>{name}</span>
     </button>
   );
 }
@@ -132,13 +132,15 @@ function tabSchreiben(t) { try { sessionStorage.setItem(TAB_SCHLUESSEL, t); } ca
 function TrainingsMenue({ tab, setTab }) {
   return (
     <div role="tablist" aria-label="Bereich wählen"
-      style={{ flex: 1, minWidth: 0, display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 3, padding: 3, borderRadius: 11, background: "#EEF2F8" }}>
+      style={{ flex: 1, minWidth: 0, display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 2, padding: 3, height: 40, boxSizing: "border-box", borderRadius: 12,
+        background: C.seeTief, boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.06), 0 3px 10px rgba(14,30,74,0.22)" }}>
       {BEREICHE.map((b) => {
         const an = b.id === tab;
         return (
           <button key={b.id} type="button" role="tab" aria-selected={an} onClick={() => setTab(b.id)} className="qf-tab" data-tab={b.id}
-            style={{ ...knopfBasis, height: 30, padding: "0 4px", borderRadius: 8, border: "none", minWidth: 0, fontSize: 12.5, fontWeight: an ? 800 : 700,
-              color: an ? C.see : C.grau, background: an ? C.weiss : "transparent", boxShadow: an ? "0 1px 4px rgba(15,26,51,0.14)" : "none", whiteSpace: "nowrap" }}>
+            style={{ ...knopfBasis, height: "100%", padding: "0 2px", borderRadius: 9, border: "none", minWidth: 0, fontSize: 12.5, fontWeight: 800,
+              color: an ? C.seeTief : "#C9D6EE", background: an ? `linear-gradient(180deg, ${C.flaggold}, #D9A800)` : "transparent",
+              boxShadow: an ? "0 2px 6px rgba(237,187,0,0.35)" : "none", whiteSpace: "nowrap", transition: "background .15s ease, color .15s ease" }}>
             {b.name}
           </button>
         );
@@ -789,7 +791,7 @@ export function Quickfinder({ gehe, setzeStufe, links }) {
           .qf-kl[aria-pressed="false"]:hover{border-color:${C.see}55 !important}
           .qf-gold:hover{filter:brightness(1.04)}
           .qf-chip:hover{filter:brightness(1.1)}
-          .qf-tab[aria-selected="false"]:hover{color:${C.see} !important}
+          .qf-tab[aria-selected="false"]:hover{color:${C.weiss} !important;background:rgba(255,255,255,0.08) !important}
           .ht-gold:hover{filter:brightness(1.05)}
           .ht-blau:hover{filter:brightness(1.12);border-color:rgba(255,255,255,0.4) !important}}
         .qf-kopf.qf-fertig{grid-template-areas:"kopf";padding-bottom:10px}
@@ -817,8 +819,8 @@ export function Quickfinder({ gehe, setzeStufe, links }) {
       </div>
       {fertig && (
         <div className="qf-leiste">
-          <AuswahlChip schulart={q.schulart} klasse={q.klasse} oeffnen={() => setWaehlen(true)} />
           <TrainingsMenue tab={tab} setTab={setTab} />
+          <AuswahlChip schulart={q.schulart} klasse={q.klasse} oeffnen={() => setWaehlen(true)} />
         </div>
       )}
       {gewaehlt || aktiv || haupt ? (
