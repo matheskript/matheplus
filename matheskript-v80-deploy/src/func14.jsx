@@ -504,17 +504,19 @@ function BruchZahlenfeld({ onZiffer, onLoeschen, onWechsel, onOk, gesperrt, turb
 }
 
 /* Aufgabe und Eingabe in EINER Zeile: links die Aufgabe auf Nachtblau, rechts das
-   Ergebnis auf Weiß – liest sich wie eine Gleichung. Die Bruchgröße (--bg) folgt
+   Ergebnis auf Weiß – liest sich wie eine Gleichung. Festes Verhältnis 62 : 38
+   (Aufgabe hat zwei Brüche, Eingabe einen), unabhängig von Aufgabe und Getipptem –
+   nichts springt. Zahlen in Aufgabe und Eingabe gleich groß; 4 Ziffern passen ab 360 px. Die Bruchgröße (--bg) folgt
    der Bildschirmbreite, damit auch 360 px und dreistellige Zahlen in eine Zeile passen. */
 const BRUCH_ZEILE_CSS = `
-  .kr-bz{display:flex;align-items:stretch;gap:8px;--bg:clamp(26px, 9.2vw, 42px)}
-  .kr-bz-aufgabe{flex:1 1 auto;min-width:0;display:flex;align-items:center;justify-content:center;gap:4px;flex-wrap:nowrap;
+  .kr-bz{display:flex;align-items:stretch;gap:8px;--bg:clamp(24px, 8.4vw, 42px)}
+  .kr-bz-aufgabe{flex:1 1 0;min-width:0;display:flex;align-items:center;justify-content:center;gap:4px;flex-wrap:nowrap;
     background:${NACHT_VERLAUF};border-radius:18px;padding:14px 10px;color:#fff;box-shadow:0 8px 24px rgba(14,30,74,0.22)}
-  .kr-bz-op{color:${C.flaggold};font-size:calc(var(--bg) * 0.82);font-weight:800;margin:0 2px;line-height:1;flex:none}
+  .kr-bz-op{color:${C.flaggold};font-size:calc(var(--bg) * 0.82);font-weight:800;min-width:0.5em;text-align:center;line-height:1;flex:none}
   .kr-bz-kuerze{color:${C.flaggold};font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-right:4px;flex:none}
-  .kr-bz-eingabe{flex:none;position:relative;display:flex;align-items:center;justify-content:center;border-radius:18px;padding:10px;transition:all .15s;box-shadow:0 2px 12px rgba(15,26,51,0.06)}
+  .kr-bz-eingabe{flex:0 0 38%;position:relative;box-sizing:border-box;display:flex;align-items:center;justify-content:center;border-radius:18px;padding:10px;transition:all .15s;box-shadow:0 2px 12px rgba(15,26,51,0.06)}
   .kr-bz-feld{min-width:calc(var(--bg) * 1.55);height:calc(var(--bg) * 1.2);border-radius:10px;display:flex;align-items:center;justify-content:center;
-    font-size:calc(var(--bg) * 0.8);font-weight:800;color:${C.tinte};cursor:pointer;padding:0 6px;box-sizing:border-box;font-variant-numeric:tabular-nums}
+    font-size:var(--bg);font-weight:800;color:${C.tinte};cursor:pointer;padding:0 6px;box-sizing:border-box;font-variant-numeric:tabular-nums}
   .kr-bz-platz{color:${C.hellgrau};font-size:12px;font-weight:600}
   .kr-bz-marke{position:absolute;top:-9px;right:-7px;width:24px;height:24px;border-radius:999px;color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.18)}
   @media (min-width:561px){.kr-bz{--bg:46px;gap:12px}.kr-bz-aufgabe,.kr-bz-eingabe{padding:22px 18px}}
