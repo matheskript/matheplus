@@ -110,10 +110,15 @@ html[data-start-modus="dunkel"] .fuss-paar button { color: #EEF2FF !important; b
 .sbb-held-kurve .glyph { fill: var(--glyph); opacity: .07; }
 .sbb-held-kurve .weg { stroke-dasharray: 1400; stroke-dashoffset: 1400; animation: sbbWeg 2.6s cubic-bezier(.4,0,.2,1) .2s forwards; }
 .sbb-held-kurve .punkt { opacity: 0; animation: sbbPunkt .6s ease 2.4s forwards; }
+/* Nach dem Einzeichnen tritt die Kurve zurück und geht ins Blatt über (Text bleibt vorne) */
+.sbb-held-kurve .kurve { animation: sbbVerblassen 1.8s ease 2.9s forwards; }
+.sbb[data-modus="hell"] .sbb-held-kurve .kurve { animation-name: sbbVerblassenHell; }
 @keyframes sbbWeg { to { stroke-dashoffset: 0; } }
 @keyframes sbbPunkt { to { opacity: 1; } }
+@keyframes sbbVerblassen { to { opacity: .36; } }
+@keyframes sbbVerblassenHell { to { opacity: .5; } }
 .sbb-held-text { position: relative; z-index: 1; }
-.sbb-held h1 { margin: 0; font-weight: 900; letter-spacing: -0.045em; line-height: .92; font-size: clamp(42px, 10.6vw, 92px); color: var(--titel); text-shadow: var(--h1-schatten); }
+.sbb-held h1 { margin: 0; font-weight: 900; letter-spacing: -0.045em; line-height: .92; font-size: clamp(34px, 8.2vw, 68px); color: var(--titel); text-shadow: var(--h1-schatten); }
 .sbb-held h1 .gold { display: block; background: linear-gradient(180deg, ${GOLD_HELL} 0%, ${GOLD} 55%, #C9931A 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .sbb[data-modus="hell"] .sbb-held h1 .gold { background: linear-gradient(180deg, ${GOLD} 0%, #D9A400 60%, #B8860B 100%); -webkit-background-clip: text; background-clip: text; }
 .sbb-held .unter { margin: 14px 0 0; font-weight: 300; font-size: clamp(20px, 4.6vw, 30px); line-height: 1.15; color: var(--text); }
@@ -288,6 +293,8 @@ html[data-start-modus="dunkel"] .fuss-paar button { color: #EEF2FF !important; b
 @media (prefers-reduced-motion: reduce) {
   .sbb-held-kurve .weg { animation: none; stroke-dashoffset: 0; }
   .sbb-held-kurve .punkt { animation: none; opacity: 1; }
+  .sbb-held-kurve .kurve { animation: none; opacity: .36; }
+  .sbb[data-modus="hell"] .sbb-held-kurve .kurve { opacity: .5; }
   .sbb-band-spur { animation: none; }
   .sbb-kachel, .sbb-schritt { transition: none; }
 }
@@ -330,13 +337,15 @@ function HeldKurve() {
         <text x="700" y="420" fontSize="30" className="glyph">√</text>
         <text x="520" y="250" fontSize="22" className="glyph">lim</text>
       </g>
-      {/* Leuchtspur der Kurve, darüber die Kurve selbst */}
+      {/* Leuchtspur der Kurve, darüber die Kurve selbst – als Gruppe, damit sie nach dem Einzeichnen gemeinsam zurücktritt */}
+      <g className="kurve">
       <path className="weg" d="M -20 400 C 120 400, 200 120, 330 160 C 440 195, 470 330, 560 300 C 650 270, 690 120, 800 60" fill="none" stroke={GOLD} strokeWidth="14" opacity="0.22" filter="url(#sbbGlow)" strokeLinecap="round" />
       <path className="weg" d="M -20 400 C 120 400, 200 120, 330 160 C 440 195, 470 330, 560 300 C 650 270, 690 120, 800 60" fill="none" stroke="url(#sbbGold)" strokeWidth="3.5" strokeLinecap="round" />
       <g className="punkt">
         <line x1="500" y1="334" x2="620" y2="276" stroke="#fff" strokeWidth="1.4" opacity="0.55" strokeDasharray="5 4" />
         <circle cx="560" cy="300" r="7" fill={GOLD_HELL} />
         <circle cx="560" cy="300" r="14" fill="none" stroke={GOLD} strokeWidth="1.2" opacity="0.6" className="pulsieren" />
+      </g>
       </g>
     </svg>
   );
