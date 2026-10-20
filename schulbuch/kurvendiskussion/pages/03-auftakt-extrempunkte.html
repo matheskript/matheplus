@@ -1,0 +1,57 @@
+<!-- kap: I | typ: auftakt -->
+<div class="auftakt-kopf">
+  <div class="knr">Kapitel I</div>
+  <h1>Extrempunkte</h1>
+  <p>In Band 1 hast du gelernt, die Steigung eines Graphen in <b style="color:#FFE9A0">einem</b> Punkt zu berechnen. Jetzt drehen wir die Frage um: Wo ist die Steigung null? Dort liegen die Gipfel und Täler einer Kurve – und die sucht man in fast jeder Anwendung: den größten Gewinn, die höchste Flughöhe, den kleinsten Verbrauch.</p>
+  <div class="goldlinie" style="background:#fff"></div>
+</div>
+<div class="auftakt-inhalt">
+  <div class="zwei-bild" style="grid-template-columns:auto 1fr;gap:6mm">
+    <graph>{"b":80,"h":46,"x":[-0.5,4.6],"y":[-0.6,6.6],"gitter":1,"tx":1,"ty":1,
+      "fn":[{"f":"x**3-6*x**2+9*x+1","c":"see","w":2.4,"von":-0.1,"bis":4.12,"label":"f","lx":4.2,"ly":5.6}],
+      "gerade":[
+        {"f":"x**3-6*x**2+9*x+1","tan":1,"c":"gold","w":1.8,"von":0.3,"bis":1.7},
+        {"f":"x**3-6*x**2+9*x+1","tan":3,"c":"gold","w":1.8,"von":2.3,"bis":3.7}],
+      "punkt":[
+        {"x":1,"y":5,"c":"grana","t":"Gipfel","pos":"o"},
+        {"x":3,"y":1,"c":"grana","t":"Tal","pos":"u"}]}</graph>
+    <div>
+      <h3 style="margin-top:0">Die Frage des Kapitels</h3>
+      <p style="text-align:left">Wo genau liegen Gipfel und Tal des Graphen von $f(x) = x^3 - 6x^2 + 9x + 1$? Ablesen geht nur ungefähr. Wir wollen die <b>exakten</b> Koordinaten – und eine Methode, die bei jeder Funktion funktioniert.</p>
+      <p style="text-align:left">Schau auf die goldenen Tangenten: Am Gipfel und im Tal liegen sie <b>waagrecht</b>. Die Ableitung verrät also, wo man suchen muss. Ob man dort wirklich einen Gipfel findet, ist die zweite, ebenso wichtige Frage.</p>
+    </div>
+  </div>
+
+  <h3>Das kannst du schon – kurzer Check</h3>
+  <table class="check-tab">
+    <tr style="font-size:7.6pt;color:#5B6478;text-transform:uppercase;letter-spacing:0.06em"><td><b style="color:#5B6478">Vorwissen</b></td><td><b style="color:#5B6478">Mini-Check</b></td><td style="white-space:nowrap">sicher · geht so · nein</td></tr>
+    <tr><td>Ableiten (Band 1, Kapitel III)</td><td>$f(x) = x^3 - 6x^2 + 9x$: $f'(x) = \,?$</td><td><span class="kreis"></span><span class="kreis"></span><span class="kreis"></span></td></tr>
+    <tr><td>Ableitung als Steigung (Band 1)</td><td>$f(x) = x^2$: $f'(-1) = \,?$</td><td><span class="kreis"></span><span class="kreis"></span><span class="kreis"></span></td></tr>
+    <tr><td>Ausklammern und Satz vom Nullprodukt</td><td>$x^3 - 4x = 0$: $x = \,?$</td><td><span class="kreis"></span><span class="kreis"></span><span class="kreis"></span></td></tr>
+    <tr><td>p-q-Formel</td><td>$x^2 - 2x - 8 = 0$: $x = \,?$</td><td><span class="kreis"></span><span class="kreis"></span><span class="kreis"></span></td></tr>
+  </table>
+  <p class="klein mild" style="margin-top:1.5mm;text-align:left">Lösungen auf Seite {{S:loesungen-1}}. Wo du „unsicher“ angekreuzt hast: kurz in der App unter <b>Gleichungen</b> und im <b>Ableitungstrainer</b> nachüben.</p>
+
+  <div class="lernziele" style="margin-top:4mm">
+    <div>
+      <h3 style="margin-top:0">Das lernst du in diesem Kapitel</h3>
+      <ul>
+        <li>Hoch-, Tief- und Sattelpunkte erkennen</li>
+        <li>begründen, warum an einem Extrempunkt $f'(x_0) = 0$ gilt</li>
+        <li>verstehen, warum $f'(x_0) = 0$ allein noch nicht reicht</li>
+        <li>mit dem Vorzeichenwechsel von $f'$ sicher entscheiden</li>
+        <li>mit $f''$ schnell entscheiden – und wissen, wann das nicht geht</li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="margin-top:0">Unterkapitel</h3>
+      <ol class="ukap-liste" style="margin:0">
+        <li><span class="n">{{K:waagrecht-1}}</span>Die waagrechte Tangente<span class="s">{{S:waagrecht-1}}</span></li>
+        <li><span class="n">{{K:vzw-1}}</span>Vorzeichenwechsel und zweite Ableitung<span class="s">{{S:vzw-1}}</span></li>
+        <li><span class="n"></span>Alles klar? Training I<span class="s">{{S:training-extrempunkte}}</span></li>
+      </ol>
+      <p class="klein mild" style="margin-top:3mm;text-align:left">Der rote Faden: <b>Die Tangente verrät die Kurve.</b> Und: <b>Notwendig ist nicht hinreichend.</b></p>
+    </div>
+  </div>
+</div>
+<div style="position:absolute;right:20mm;top:16mm;font-size:76pt;font-weight:800;color:rgba(255,255,255,0.10);line-height:1">f′=0</div>

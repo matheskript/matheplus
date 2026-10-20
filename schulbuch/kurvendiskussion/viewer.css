@@ -1,0 +1,70 @@
+/* Blätterbares Buch – Bildschirmansicht */
+html, body.viewer { height: 100%; }
+body.viewer { margin: 0; background: #E4E9F2; overflow: hidden; -webkit-text-size-adjust: 100%; }
+body.viewer #vorrat { display: none; }
+
+#leiste { position: fixed; top: 0; left: 0; right: 0; height: 52px; z-index: 30; display: flex; align-items: center; gap: 10px; padding: 0 12px; background: #0E1E4A; color: #fff; font-family: "Montserrat", sans-serif; box-shadow: 0 2px 12px rgba(14,30,74,0.25); }
+#leiste::after { content: ""; position: absolute; left: 12px; bottom: 0; width: 44px; height: 3px; background: #EDBB00; border-radius: 2px; }
+#anzeige { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; line-height: 1.2; }
+#anzeige b { color: #fff; font-size: 13px; font-weight: 700; letter-spacing: 0.02em; }
+#anzeige span { font-size: 11.5px; color: #C9D6EE; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.rechts { display: flex; gap: 6px; align-items: center; }
+.kn { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.06); color: #fff; font: 600 13px "Montserrat", sans-serif; cursor: pointer; text-decoration: none; }
+.kn:hover { background: rgba(255,255,255,0.14); }
+.kn:disabled { opacity: 0.35; cursor: default; }
+.kn.rund { width: 36px; padding: 0; justify-content: center; }
+.kn:focus-visible { outline: 2px solid #EDBB00; outline-offset: 2px; }
+@media (max-width: 520px) { .kn span { display: none; } .kn { padding: 0 9px; } #knInhalt { width: 36px; padding: 0; justify-content: center; } .rechts { gap: 4px; } #leiste { gap: 6px; padding: 0 8px; } .kn.rund { width: 34px; } }
+
+#buehne { position: absolute; top: 52px; bottom: 44px; left: 0; right: 0; overflow: auto; -webkit-overflow-scrolling: touch; }
+#aufschlag { display: flex; justify-content: center; width: max-content; min-width: 100%; margin: 0 auto; align-items: flex-start; padding: 16px 0 24px; min-height: 100%; box-sizing: border-box; }
+.blatt { position: relative; flex: none; overflow: hidden; background: #fff; box-shadow: 0 6px 28px rgba(14,30,74,0.18); }
+.blatt .page { position: absolute; top: 0; left: 0; margin: 0 !important; transform-origin: 0 0; }
+.doppel .blatt.l { border-radius: 4px 0 0 4px; }
+.doppel .blatt.r { border-radius: 0 4px 4px 0; }
+.doppel .blatt.l::after, .doppel .blatt.r::after { content: ""; position: absolute; top: 0; bottom: 0; width: 26px; pointer-events: none; z-index: 5; }
+.doppel .blatt.l::after { right: 0; background: linear-gradient(90deg, rgba(14,30,74,0) 0%, rgba(14,30,74,0.10) 100%); }
+.doppel .blatt.r::after { left: 0; background: linear-gradient(270deg, rgba(14,30,74,0) 0%, rgba(14,30,74,0.12) 100%); }
+.kn.an { background: #EDBB00; color: #0E1E4A; border-color: #EDBB00; }
+#aufschlag.rein { animation: rein 0.32s ease-out; }
+#aufschlag.rein.rueck { animation-name: reinRueck; }
+@keyframes rein { from { opacity: 0.25; transform: translateX(18px); } to { opacity: 1; transform: none; } }
+@keyframes reinRueck { from { opacity: 0.25; transform: translateX(-18px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .kn.an { background: #EDBB00; color: #0E1E4A; border-color: #EDBB00; }
+#aufschlag.rein { animation: none; } }
+
+#fuss { position: fixed; left: 0; right: 0; bottom: 0; height: 44px; display: flex; align-items: center; padding: 0 18px; background: #fff; border-top: 1px solid #D5DDEB; z-index: 20; }
+#regler { width: 100%; accent-color: #004D98; }
+
+#schleier { position: fixed; inset: 0; background: rgba(14,30,74,0.45); z-index: 40; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+#inhalt { position: fixed; top: 0; bottom: 0; left: 0; width: min(340px, 88vw); background: #fff; z-index: 41; transform: translateX(-102%); transition: transform 0.25s ease; overflow-y: auto; font-family: "Montserrat", sans-serif; box-shadow: 4px 0 24px rgba(14,30,74,0.2); }
+body.offen #inhalt { transform: none; }
+body.offen #schleier { opacity: 1; pointer-events: auto; }
+.inhalt-kopf { position: sticky; top: 0; background: #0E1E4A; color: #fff; font-weight: 800; font-size: 15px; padding: 16px 18px; letter-spacing: 0.02em; }
+#inhalt ol { list-style: none; margin: 0; padding: 6px 0 24px; }
+#inhalt button { width: 100%; display: flex; justify-content: space-between; gap: 12px; align-items: baseline; padding: 11px 18px; border: 0; background: none; text-align: left; font: 500 14px "Montserrat", sans-serif; color: #0E1E4A; cursor: pointer; border-left: 4px solid transparent; }
+#inhalt button:hover, #inhalt button.aktiv { background: #F3F6FB; }
+#inhalt button.aktiv { border-left-color: #EDBB00; font-weight: 700; }
+#inhalt button i { font-style: normal; color: #8A93A6; font-size: 12.5px; }
+#inhalt .kap-I span::before, #inhalt .kap-II span::before, #inhalt .kap-III span::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 9px; vertical-align: 1px; }
+#inhalt .kap-I span::before { background: #004D98; }
+#inhalt .kap-II span::before { background: #A50044; }
+#inhalt .kap-III span::before { background: #0E1E4A; }
+
+/* Sprung in die App */
+.appsprung { display: inline-block; margin-top: 2mm; padding: 1.2mm 2.6mm; border-radius: 1.6mm; background: #EDBB00; color: #0E1E4A !important; font-weight: 800; font-size: 7.4pt; text-decoration: none; letter-spacing: 0.02em; }
+.appsprung:hover { background: #fff; }
+
+/* Kurs-Ausschnitt: kein Inhaltsverzeichnis, kein PDF, Regler nur bei mehreren Aufschlägen */
+body.ausschnitt #knInhalt, body.ausschnitt #knPdf, body.ausschnitt #inhalt, body.ausschnitt #schleier { display: none !important; }
+body.ausschnitt #leiste::after { left: 50%; margin-left: -22px; }
+body.ohnefuss #fuss { display: none; } body.ohnefuss #buehne { bottom: 0; }
+
+/* Vollmodus (Kursseite): keine Leiste, kein Grau, keine Ränder – die Seite füllt die Breite, die App blättert */
+body.voll { background: #fff; overflow: hidden; }
+body.voll #leiste, body.voll #fuss { display: none !important; }
+body.voll #buehne { top: 0; bottom: 0; overflow: hidden; }
+body.voll #aufschlag { padding: 0; min-height: 0; }
+body.voll .blatt { box-shadow: none; border-radius: 0; }
+body.voll #aufschlag.rein { animation-duration: 0.22s; }
+body.voll .blatt::after { display: none !important; }

@@ -1,0 +1,42 @@
+<!-- kap: L | ukap: Rückblick -->
+<div class="ukap-titel"><h2>Rückblick · Extrempunkte auf einen Blick</h2></div>
+<p class="leitfrage">Eine Seite zum Wiederholen vor jeder Klausur.</p>
+
+<table class="wt voll rb" style="margin-top:0">
+  <tr><th class="l">Begriff / Bedingung</th><th class="l">Formel</th><th class="l">hergeleitet aus</th><th class="l">Beispiel</th><th>S.</th></tr>
+  <tr><td class="l"><b>Hoch-/Tiefpunkt</b></td><td class="l">$f(x_0) \geq f(x)$ bzw. $f(x_0) \leq f(x)$ nahe $x_0$</td><td class="l">Gipfel und Tal am Graphen</td><td class="l">$x^3 - 3x$: $H(-1 \mid 2)$, $T(1 \mid -2)$</td><td>{{S:waagrecht-1}}</td></tr>
+  <tr><td class="l"><b>Notwendige Bedingung</b></td><td class="l">$f'(x_0) = 0$</td><td class="l">waagrechte Tangente</td><td class="l">$x^3 - 3x^2$: $x = 0$, $x = 2$</td><td>{{S:waagrecht-1}}</td></tr>
+  <tr><td class="l"><b>Sattelpunkt</b></td><td class="l">$f'(x_0) = 0$ ohne VZW</td><td class="l">Gegenbeispiel $x^3$</td><td class="l">$x^3$: $S(0 \mid 0)$</td><td>{{S:waagrecht-1}}</td></tr>
+  <tr><td class="l"><b>Monotonie</b></td><td class="l">$f' &gt; 0$ ⇒ steigend, $f' &lt; 0$ ⇒ fallend</td><td class="l">Tangentensteigung, Mittelwertsatz</td><td class="l">$x^3 - 6x^2 + 9x + 1$ fällt auf $]1;\,3[$</td><td>{{S:vzw-1}}</td></tr>
+  <tr><td class="l"><b>Hinreichend: VZW</b></td><td class="l">$f'(x_0) = 0$, VZW $+ \to -$: H, $- \to +$: T</td><td class="l">Monotonie links und rechts</td><td class="l">$x^3 - 6x^2 + 9x + 1$: $H(1 \mid 5)$, $T(3 \mid 1)$</td><td>{{S:vzw-1}}</td></tr>
+  <tr><td class="l"><b>Hinreichend: $f''$</b></td><td class="l">$f'(x_0) = 0$, $f''(x_0) &lt; 0$: H, $f''(x_0) &gt; 0$: T</td><td class="l">$f''$ = Steigung von $f'$</td><td class="l">$x^4 - 2x^2$: $H(0 \mid 0)$, $T(\pm 1 \mid -1)$</td><td>{{S:vzw-2}}</td></tr>
+  <tr><td class="l"><b>Grenze von $f''$</b></td><td class="l">$f''(x_0) = 0$ ⇒ VZW entscheidet</td><td class="l">Vergleich $x^4$ und $x^3$</td><td class="l">$x^4$: $T(0 \mid 0)$; &nbsp;$x^3$: $S(0 \mid 0)$</td><td>{{S:vzw-2}}</td></tr>
+</table>
+
+<div class="kasten" style="margin:4mm 0 5mm;background:#F3F6FB">
+  <div class="etikett" style="background:var(--kap);color:#EDBB00">Das Rezept in vier Schritten</div>
+  <ol class="klein" style="margin:0;padding-left:4.5mm;text-align:left">
+    <li><b>Ableiten:</b> $f'(x)$ und, wenn du das Kriterium mit $f''$ nutzen willst, $f''(x)$ bilden.</li>
+    <li><b>Kandidaten finden:</b> $f'(x) = 0$ lösen (Ausklammern, Satz vom Nullprodukt, abc-Formel, Substitution).</li>
+    <li><b>Entscheiden:</b> $f''(x_0)$ einsetzen. Ist $f''(x_0) = 0$, mit der Vorzeichentabelle von $f'$ entscheiden.</li>
+    <li><b>Punkt angeben:</b> $y$-Wert mit $f(x_0)$ – nicht mit $f'$ oder $f''$! – berechnen und $H(\ldots \mid \ldots)$ bzw. $T(\ldots \mid \ldots)$ notieren.</li>
+  </ol>
+</div>
+
+<div class="zwei" style="gap:5mm">
+  <div class="kasten rueckblick" style="margin:0">
+    <div class="etikett">Die fünf häufigsten Fehler</div>
+    <ol style="margin:0;padding-left:4.5mm">
+      <li>Aus $f'(x_0) = 0$ sofort „Extrempunkt“ folgern – es kann ein Sattelpunkt sein.</li>
+      <li>Aus $f''(x_0) = 0$ folgern „kein Extrempunkt“ – bei $x^4$ ist es ein Tiefpunkt.</li>
+      <li>Den $y$-Wert in $f'$ statt in $f$ ausrechnen.</li>
+      <li>Beim Ausklammern die Lösung $x = 0$ verlieren.</li>
+      <li>Hoch- und Tiefpunkt vertauschen: $f''(x_0) &lt; 0$ heißt <b>Hoch</b>punkt.</li>
+    </ol>
+  </div>
+  <div class="kasten" style="margin:0;background:#FFF7D9"><div class="etikett" style="background:#EDBB00;color:#0E1E4A">Der rote Faden</div><p class="klein" style="text-align:left;margin:0">Die Tangente verrät die Kurve. Waagrechte Tangente heißt: Kandidat. Erst das Vorzeichen von $f'$ links und rechts – oder kurz $f''$ – entscheidet, ob ein Gipfel, ein Tal oder ein Sattel vorliegt. Im nächsten Kapitel fragst du, wo die Kurve ihre <b>Krümmung</b> wechselt: Wendepunkte.</p></div>
+</div>
+<div class="zwei" style="gap:5mm;margin-top:5mm">
+  <div class="kasten" style="margin:0;background:color-mix(in srgb, var(--kap) 6%, white)"><div class="etikett" style="background:var(--kap);color:#fff">Lerntipp</div><p class="klein" style="text-align:left;margin:0">Skizziere zu jeder Aufgabe den Graphen von $f'$ unter den Graphen von $f$. Wo $f'$ die $x$-Achse von oben nach unten kreuzt, liegt ein Hochpunkt – das siehst du, bevor du rechnest.</p></div>
+  <div class="kasten" style="margin:0;background:#F3F6FB"><div class="etikett" style="background:var(--kap);color:#EDBB00">Selbstkontrolle</div><p class="klein" style="text-align:left;margin:0">Prüfe jedes Ergebnis in der App mit dem Werkzeug Kurvendiskussion: Graph zeichnen lassen und nachsehen, ob deine Hoch- und Tiefpunkte wirklich Gipfel und Täler sind.</p></div>
+</div>

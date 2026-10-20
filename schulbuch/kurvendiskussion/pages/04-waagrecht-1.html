@@ -1,0 +1,55 @@
+<!-- kap: I | uk: Die waagrechte Tangente -->
+<div class="ukap-titel"><span class="nr">{{K:waagrecht-1}}</span><h2>Die waagrechte Tangente</h2></div>
+<p class="leitfrage">Was verrät die Ableitung über die Gipfel und Täler eines Graphen?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <div class="zwei-bild" style="gap:5mm;align-items:center">
+    <p style="text-align:left">Der Graph zeigt $f(x) = x^3 - 3x$ mit einigen Tangenten.<br><b>a)</b> Wo hat der Graph einen „Gipfel“, wo ein „Tal“? Lies die Koordinaten ab.<br><b>b)</b> Wie verlaufen die Tangenten genau dort?<br><b>c)</b> Berechne $f'(x)$ für $x = -2;\ -1;\ 0;\ 1;\ 2$. Was fällt dir auf?</p>
+    <graph>{"b":42,"h":31,"x":[-2.3,2.3],"y":[-2.8,2.8],"gitter":1,"tx":1,"ty":1,
+      "fn":[{"f":"x**3-3*x","c":"see","w":2}],
+      "gerade":[{"f":"x**3-3*x","tan":-1,"c":"gold","w":1.5,"von":-1.8,"bis":-0.2},{"f":"x**3-3*x","tan":1,"c":"gold","w":1.5,"von":0.2,"bis":1.8},
+        {"f":"x**3-3*x","tan":-1.6,"c":"gold","w":1.1,"d":"3 2","von":-1.9,"bis":-1.3},{"f":"x**3-3*x","tan":0,"c":"gold","w":1.1,"d":"3 2","von":-0.45,"bis":0.45},{"f":"x**3-3*x","tan":1.6,"c":"gold","w":1.1,"d":"3 2","von":1.3,"bis":1.9}]}</graph>
+  </div>
+</div>
+
+<h3>Hochpunkt, Tiefpunkt, Extrempunkt</h3>
+<p>Der Gipfel bei $x = -1$ ist nicht der höchste Punkt des ganzen Graphen, aber höher als alle Punkte in seiner <b>Nähe</b>. Die Stelle $x_0$ heißt <b>lokale Maximalstelle</b>, wenn $f(x_0) \ge f(x)$ für alle $x$ nahe $x_0$ gilt; $H(x_0 \mid f(x_0))$ ist dann ein <b>Hochpunkt</b>. Entsprechend mit $f(x_0) \le f(x)$: lokale Minimalstelle, <b>Tiefpunkt</b> $T$. Zusammen: <b>Extremstellen</b> ($x$-Werte) und <b>Extrempunkte</b>.</p>
+
+<h3>Warum die Tangente dort waagrecht ist</h3>
+<p>Laufe von links auf den Hochpunkt zu: Es geht bergauf, die Tangenten steigen. Dahinter geht es bergab, die Tangenten fallen. Genau im Hochpunkt kann die Tangente weder steigen (sonst ginge es rechts noch höher) noch fallen (sonst wäre es links höher) – sie liegt <b>waagrecht</b>. Weil $f'(x_0)$ die Tangentensteigung ist (Band 1, Kapitel II), heißt das: $f'(x_0) = 0$. Beim Tiefpunkt ebenso.</p>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Notwendige Bedingung</div>
+  <p style="text-align:left">Ist $f$ differenzierbar und hat $f$ an der Stelle $x_0$ eine Extremstelle, dann gilt</p>
+  $$f'(x_0) = 0.$$
+  <p style="text-align:left">Die Tangente im Extrempunkt ist waagrecht. Extremstellen findet man deshalb nur unter den Lösungen der Gleichung $f'(x) = 0$.</p>
+</div>
+
+<div class="zwei-bild" style="gap:5mm">
+  <div>
+    <h3 style="margin-top:0">Ein Gegenbeispiel: $f(x) = x^3$</h3>
+    <p>Gilt die Umkehrung? Nein. Für $f(x) = x^3$ ist $f'(x) = 3x^2$, also $f'(0) = 0$. Trotzdem steigt der Graph links <b>und</b> rechts von 0 – kein Gipfel, kein Tal. Ein Punkt mit waagrechter Tangente ohne Extremum heißt <b>Sattelpunkt</b>, hier $S(0 \mid 0)$. Also: $f'(x_0) = 0$ ist <b>notwendig</b>, aber <b>nicht hinreichend</b>. Es liefert nur <b>Kandidaten</b>.</p>
+  </div>
+  <graph>{"b":32,"h":27,"x":[-1.5,1.5],"y":[-2.2,2.2],"gitter":1,"tx":1,"ty":1,
+    "fn":[{"f":"x**3","c":"see","w":2}],
+    "gerade":[{"f":"x**3","tan":0,"c":"gold","w":1.5,"von":-1,"bis":1}],
+    "punkt":[{"x":0,"y":0,"c":"grana","t":"S","pos":"ul"}]}</graph>
+</div>
+
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 1 · Kandidaten finden</div>
+  <p style="text-align:left">Bestimme die Punkte mit waagrechter Tangente von $f(x) = x^3 - 3x^2$.</p>
+  <div class="loesung"><span class="loesung-kopf">Lösung</span>
+  <p style="text-align:left">$f'(x) = 3x^2 - 6x = 3x(x - 2) = 0$ &nbsp;⇒&nbsp; $x_1 = 0$, $x_2 = 2$. &nbsp;$f(0) = 0$, $f(2) = 8 - 12 = -4$.<br>Kandidaten $(0 \mid 0)$ und $(2 \mid -4)$. Was sie sind, klärt Kapitel {{K:vzw-1}}.</p></div>
+</div>
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: Tangenten an $x^3 - 3x$</li><li>Hoch-, Tief-, Extrempunkt</li><li>Warum $f'(x_0) = 0$</li><li>Merke: notwendige Bedingung</li><li>Gegenbeispiel $x^3$</li><li>Beispiele 1 und 2</li><li>Aufgaben 1–4</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 5 und 6</p></div>
+
+<div class="notiz"><span class="t">Wortspeicher</span><b>Extremstelle:</b> der $x$-Wert, z. B. $x_0 = -1$.<br><b>Extrempunkt:</b> der Punkt, z. B. $H(-1 \mid 2)$.<br><b>Extremwert:</b> der $y$-Wert $f(x_0)$.<br><b>Sattelpunkt:</b> waagrechte Tangente, aber kein Extremum.</div>
+
+<div class="notiz"><span class="t">Aus Band 1</span>$f'(x_0)$ ist die Steigung der Tangente im Punkt $P(x_0 \mid f(x_0))$. Eine Gerade mit Steigung 0 ist waagrecht.</div>
+
+<div class="notiz gold"><span class="t">Lokal und global</span>„Lokal“ heißt: verglichen mit der Nachbarschaft. Den höchsten Punkt überhaupt nennt man <b>globales</b> Maximum – manchmal gibt es keinen, wie bei $x^3 - 3x$.</div>
