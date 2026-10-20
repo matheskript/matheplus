@@ -3,7 +3,7 @@
   <div class="etikett">Beispiel 2 · Drei Kandidaten</div>
   <p style="text-align:left">Bestimme alle Punkte mit waagrechter Tangente von $f(x) = x^4 - 2x^2$.</p>
   <div class="loesung"><span class="loesung-kopf">Lösung</span>
-  <p style="text-align:left">$f'(x) = 4x^3 - 4x = 4x(x^2 - 1) = 0$ &nbsp;⇒&nbsp; $x_1 = 0$, $x_2 = 1$, $x_3 = -1$.<br>$f(0) = 0$, $f(1) = 1 - 2 = -1$, $f(-1) = -1$. Kandidaten: $(0 \mid 0)$, $(1 \mid -1)$, $(-1 \mid -1)$ – ihre Art klärt Kapitel {{K:vzw-1}}.</p></div>
+  <p style="text-align:left">$f'(x) = 4x^3 - 4x = 4x(x^2 - 1) = 0$ &nbsp;⇒&nbsp; $x_1 = 0$, $x_2 = 1$, $x_3 = -1$.<br>$f(0) = 0$, $f(1) = 1 - 2 = -1$, $f(-1) = -1$. Kandidaten: $(0 \mid 0)$, $(1 \mid -1)$, $(-1 \mid -1)$ – ihre Art klärt Unterkapitel {{K:vzw-1}}.</p></div>
 </div>
 
 <div class="kasten achtung">
@@ -14,7 +14,7 @@
 <div class="kasten vertiefung">
   <div class="etikett">★ Für Interessierte · Sattelpunkt und der Satz von Fermat</div>
   <p style="text-align:left"><b>Warum es nicht reicht:</b> $f'(x_0)$ beschreibt nur die Steigung <b>genau an</b> der Stelle $x_0$. Bei $x^3$ ist $f'(x) = 3x^2 > 0$ für alle $x \neq 0$ – links und rechts steigt der Graph, im Ursprung macht er nur eine „Atempause“. Entscheidend ist das <b>Vorzeichen von $f'$ links und rechts</b> von $x_0$.</p>
-  <p style="text-align:left"><b>Warum es notwendig ist (Fermat):</b> Hat $f$ bei $x_0$ ein lokales Maximum, so ist $f(x_0 + h) - f(x_0) \le 0$ für kleine $h$. Der Differenzenquotient $\frac{f(x_0 + h) - f(x_0)}{h}$ ist also $\le 0$ für $h > 0$ und $\ge 0$ für $h < 0$. Für $h \to 0$ von rechts folgt $f'(x_0) \le 0$, von links $f'(x_0) \ge 0$ – also $f'(x_0) = 0$. Der Beweis braucht, dass $f$ bei $x_0$ <b>differenzierbar</b> ist.</p>
+  <p style="text-align:left"><b>Warum es notwendig ist (Fermat):</b> Hat $f$ bei $x_0$ ein lokales Maximum, so ist $f(x_0 + h) - f(x_0) \le 0$ für alle $h \neq 0$ mit kleinem $|h|$. Der Differenzenquotient $\frac{f(x_0 + h) - f(x_0)}{h}$ ist also $\le 0$ für $h > 0$ und $\ge 0$ für $h < 0$. Weil $f$ bei $x_0$ <b>differenzierbar</b> ist, streben beide gegen $f'(x_0)$: von rechts folgt $f'(x_0) \le 0$, von links $f'(x_0) \ge 0$ – also $f'(x_0) = 0$. Beim Minimum analog. $x_0$ muss innen liegen.</p>
 </div>
 
 <div class="aufgaben-kopf"><span>Aufgaben</span></div>
@@ -48,7 +48,7 @@
 </div></div>
 
 <div class="auf"><div class="anr"><span class="z offen">7</span><span class="stufe">●●●</span></div><div class="text">
-  <p>$f(x) = |x|$ hat bei 0 ein Minimum, aber nicht $f'(0) = 0$. Berechne den Differenzenquotienten bei 0 für $h > 0$ und $h < 0$. Warum ist das kein Widerspruch zum Merke?</p>
+  <p>$f(x) = |x|$ hat bei 0 ein Minimum, und doch gilt dort nicht $f'(0) = 0$ – es gibt gar kein $f'(0)$. Berechne den Differenzenquotienten bei 0 für $h > 0$ und $h < 0$. Warum ist das kein Widerspruch zum Merke?</p>
 </div></div>
 <!--rand-->
 <div class="notiz"><span class="t">Fahrplan</span>① $f'(x)$ bilden<br>② $f'(x) = 0$ lösen<br>③ Lösungen in $f$ einsetzen<br>④ Kandidaten notieren</div>
