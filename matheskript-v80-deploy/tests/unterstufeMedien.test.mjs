@@ -1,0 +1,65 @@
+/* Modul Unterstufe – Medien: jede Lerneinheit hat Video + mindestens eine Motion-Animation,
+   jede Animation verweist auf eine vorhandene Szene und rendert zu jedem Zeitpunkt fehlerfrei (kein NaN/undefined),
+   jeder Ablauf hat Untertitel, Brüche nie mit Schrägstrich in Untertiteln. */
+import test from "node:test";
+import assert from "node:assert/strict";
+import { build } from "esbuild";
+import { rmSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import { UNTERSTUFE_EINHEITEN } from "../src/unterstufeDaten.js";
+import { ANIMATIONEN, animationenFuer, videoFuer, VIDEO_EIGEN, VIDEO_PLATZHALTER } from "../src/unterstufeMedien.js";
+
+const wurzel = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const IDS = new Set(UNTERSTUFE_EINHEITEN.map((e) => e.id));
+
+test("jede Lerneinheit hat mindestens eine Animation, keine fremden Schlüssel", () => {
+  for (const e of UNTERSTUFE_EINHEITEN) assert.ok(animationenFuer(e.id).length >= 1, `${e.id}: keine Animation`);
+  for (const id of Object.keys(ANIMATIONEN)) assert.ok(IDS.has(id), `Animation für unbekannte Lerneinheit ${id}`);
+  for (const [id, liste] of Object.entries(ANIMATIONEN)) for (const a of liste) {
+    assert.equal(typeof a.szene, "string", id);
+    assert.ok(a.titel && a.titel.length <= 40, `${id}: Titel fehlt oder zu lang`);
+  }
+});
+
+test("jede Lerneinheit hat ein Video (eigenes oder Platzhalter)", () => {
+  assert.match(VIDEO_PLATZHALTER.youtube, /^[\w-]{11}$/);
+  for (const e of UNTERSTUFE_EINHEITEN) assert.match(videoFuer(e.id).youtube, /^[\w-]{11}$/, e.id);
+  for (const id of Object.keys(VIDEO_EIGEN)) assert.ok(IDS.has(id), `Video für unbekannte Lerneinheit ${id}`);
+  assert.equal(videoFuer(UNTERSTUFE_EINHEITEN[0].id).platzhalter, !VIDEO_EIGEN[UNTERSTUFE_EINHEITEN[0].id]);
+});
+
+test("alle Szenen existieren und rendern zu jedem Zeitpunkt sauber", async () => {
+  const datei = path.join(wurzel, "node_modules", `.motion-test-${process.pid}.mjs`);
+  await build({
+    stdin: { contents: `
+      import React from "react";
+      import { renderToStaticMarkup } from "react-dom/server";
+      export { SZENEN } from "./src/funcUnterstufeMotion.jsx";
+      export { zeitplan, fortschritt, untertitel, B } from "./src/motion/kern.jsx";
+      export { React, renderToStaticMarkup };`, resolveDir: wurzel, loader: "jsx" },
+    bundle: true, platform: "node", format: "esm", outfile: datei, loader: { ".js": "jsx" }, logLevel: "error",
+    external: ["react", "react-dom", "react-dom/server"],
+  });
+  try {
+    const { SZENEN, zeitplan, fortschritt, untertitel, B, React, renderToStaticMarkup } = await import(pathToFileURL(datei).href);
+    let n = 0;
+    for (const [id, liste] of Object.entries(ANIMATIONEN)) for (const a of liste) {
+      const S = SZENEN[a.szene];
+      assert.ok(S, `${id}: Szene ${a.szene} fehlt`);
+      const plan = zeitplan(S.ablauf(a.p || {}));
+      const texte = plan.abschnitte.filter((s) => s.text).map((s) => s.text);
+      assert.ok(texte.length >= 1, `${id}/${a.szene}: kein Untertitel`);
+      for (const t of texte) assert.ok(!/\d\s*\/\s*\d/.test(t), `${id}/${a.szene}: Bruch mit Schrägstrich im Untertitel: ${t}`);
+      assert.ok(plan.dauer >= 2500 && plan.dauer <= 30000, `${id}/${a.szene}: Dauer ${plan.dauer} ms`);
+      for (const q of [0, 0.2, 0.4, 0.6, 0.8, 1]) {
+        const t = plan.dauer * q, { Z, z } = fortschritt(plan, t);
+        const svg = renderToStaticMarkup(React.createElement("svg", { viewBox: `0 0 ${B} ${S.h}` }, S.bild({ Z, z, p: a.p || {}, t })));
+        assert.ok(!/NaN|Infinity|undefined/.test(svg), `${id}/${a.szene} @${q}: NaN/undefined im SVG`);
+        untertitel(plan, t);
+      }
+      n++;
+    }
+    assert.ok(n >= 86, `nur ${n} Animationen`);
+  } finally { rmSync(datei, { force: true }); }
+});
