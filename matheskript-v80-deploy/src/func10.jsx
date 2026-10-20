@@ -5,9 +5,9 @@ import { API_URL, C, REGELN, VIDEO_URL, blattPrompt } from "./base1.jsx";
 import { KOMP } from "./base3.jsx";
 import { NAV, SCHULKLASSEN, kiKopf, kiAntwort } from "./base4.jsx";
 import { dekodieren, jsonLesen, rendern } from "./func1.jsx";
-import { Startseite, ToolMenue, werkzeugMerken } from "./func2.jsx";
-import { StartseiteB, StartVarianteSchalter, useStartVariante } from "./funcStartseiteB.jsx";
-import { startVarianteSetzen, varianteAusPfad } from "./startVariante.js";
+import { ToolMenue, werkzeugMerken } from "./func2.jsx";
+import { Startseite, StartModusSchalter } from "./funcStartseite.jsx";
+import { startModusSetzen, modusAusPfad } from "./startModus.js";
 import { WerkzeugLeiste, KompaktKopf } from "./funcWerkzeuge.jsx";
 import { wo } from "./werkzeuge.js";
 import { pfadAufloesen, pfadFuer } from "./pfade.js";
@@ -139,9 +139,9 @@ export function Mathilda() {
       if (q.get("ticket") === "danke") return "elternabend";
       const h = window.location.hash.slice(1);
       if (h === LANDING || ENTWUERFE.some((e) => e.ansicht === h)) return h;   // ältere Links mit #landingpage / #entwurf-…
-      /* /start-a und /start-b wählen die Fassung der Startseite (startVariante.js) und landen auf "/" */
-      const sv = varianteAusPfad(window.location.pathname);
-      if (sv) { startVarianteSetzen(sv); window.history.replaceState({}, "", "/" + window.location.search); return "start"; }
+      /* /start-hell und /start-dunkel wählen den Modus der Startseite (startModus.js) und landen auf "/" */
+      const sm = modusAusPfad(window.location.pathname);
+      if (sm) { startModusSetzen(sm); window.history.replaceState({}, "", "/" + window.location.search); return "start"; }
       const pz = pfadAufloesen(window.location.pathname);   // Direct Links wie /elternabend (pfade.js)
       return pz ? pz.ansicht : "start";
     } catch (e) { return "start"; }
@@ -150,7 +150,6 @@ export function Mathilda() {
   // Rückkehr von Stripe nach erfolgreicher Ticketbuchung
   const [ticketGebucht] = useState(() => { try { return new URLSearchParams(window.location.search).get("ticket") === "danke"; } catch (e) { return false; } });
   const konto = useKonto();
-  const startVar = useStartVariante();   // Startseite A oder B (startVariante.js)
   // Masterclass: gemerkten Teilnehmer-Code nach der Anmeldung automatisch mit dem Konto verbinden
   useEffect(() => { if (konto.nutzer && konto.profil) masterclassAutoEinloesen(konto); }, [konto.nutzer, konto.profil]);
   useEffect(() => {
@@ -938,7 +937,7 @@ export function Mathilda() {
           <AdvancedPlotter />
         </>
       ) : ansicht === "start" ? (
-        <>{startVar === "b" ? <StartseiteB gehe={gehe} /> : <Startseite gehe={gehe} />}<StartVarianteSchalter /></>
+        <><Startseite gehe={gehe} /><StartModusSchalter /></>
       ) : ansicht === LANDING ? (
         <Landingpage gehe={gehe} />
       ) : ansicht === "entwurf-start" ? (

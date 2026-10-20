@@ -1,17 +1,19 @@
 /* ======================================================================
-   STARTSEITE B – „Nachtblatt“: dieselben Inhalte und Ziele wie die
-   Startseite A (func2.jsx → Startseite), aber in einem eigenen Design.
+   STARTSEITE – „Rechenblatt“ in zwei Modi: dunkel (Nachtblau) und hell (weiß).
 
-   Idee: Die ganze Seite ist ein kariertes Blatt bei Nacht. Tiefes Nachtblau,
-   das Raster von Rechenpapier über die ganze Fläche, Gold als einziges Licht.
-   Oben zieht sich einmal eine Funktionskurve über das Blatt; darunter liegen
-   die Inhalte als Glaskacheln. Alles, was selbst ein Werkzeug ist (Dein
-   Training, Suche, Bereiche, Plan), liegt als weißes „Blatt“ auf dem Tisch.
+   Idee: Die ganze Seite ist ein kariertes Rechenblatt. Dunkel: tiefes
+   Nachtblau, das Papierraster über die ganze Fläche, Gold als einziges Licht.
+   Hell: dasselbe Blatt bei Tag – weißer Grund, blaues Raster, die Bilder
+   der Kacheln in Blau. Oben zieht sich einmal eine Funktionskurve über das
+   Blatt; darunter liegen die Inhalte als Kacheln. Alles, was selbst ein
+   Werkzeug ist (Dein Training, Suche, Bereiche, Plan), liegt als weißes
+   „Blatt“ auf dem Tisch.
 
-   Umschalten A/B: src/startVariante.js (Links /start-a und /start-b, Pille
-   unten links). Diese Datei verändert A nicht.
+   Modus: src/startModus.js (Pille unten links, Arbeitsmenü, Links
+   /start-hell und /start-dunkel). Die Startseite vom 20.10. liegt
+   eingefroren im Archiv „Biro-Edition (20.10.)“ (public/archiv/2026-10-20).
    ====================================================================== */
-import React, { useEffect, useRef, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { C } from "./base1.jsx";
 import { PenPaperBlatt } from "./func1.jsx";
 import { MathildaName } from "./mathildaName.jsx";
@@ -37,30 +39,49 @@ import { SpendenBereich } from "./funcSpendenBereich.jsx";
 import { ANGEBOT } from "./angebot.js";
 import { BEREICHE } from "./werkzeuge.js";
 import { ENTDECKEN_MENUE } from "./startMenues.js";
-import { istFrei } from "./seitenKonstanten.js";
-import { EVENT_START_VARIANTE, startVariante, startVarianteGewaehlt, startVarianteSetzen } from "./startVariante.js";
+import { EVENT_START_MODUS, startModus, startModusSetzen } from "./startModus.js";
 
-/* ---------- Farben der Fassung B ---------- */
+/* ---------- Farben ---------- */
 const NACHT = "#050B1F";
-const NACHT_HELL = "#0B1838";
 const GOLD = C.flaggold;
 const GOLD_HELL = "#FFE58A";
-const TEXT = "#EEF2FF";
-const NEBEL = "#AEBCDD";
-const LINIE = "rgba(255,255,255,0.11)";
 const DESKTOP = "(min-width: 840px)";
 
+/* Alle Farben hängen an Variablen; der Modus „hell“ setzt sie unten um (gleiche Fläche, weißer Grund). */
 const CSS = `
-html[data-start-b] .app-wurzel { background: ${NACHT} !important; color: ${TEXT}; }
-html[data-start-b] .fuss-paar button { color: ${TEXT} !important; background: rgba(255,255,255,0.06) !important; border-color: ${LINIE} !important; }
-.sbb { position: relative; color: ${TEXT}; }
+.sbb, .sbb-schalter {
+  --hg: ${NACHT}; --text: #EEF2FF; --nebel: #AEBCDD; --titel: #FFFFFF; --linie: rgba(255,255,255,0.11);
+  --karte: linear-gradient(160deg, rgba(255,255,255,0.085) 0%, rgba(255,255,255,0.035) 60%, rgba(255,255,255,0.02) 100%);
+  --karte-schatten: 0 30px 60px -36px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,0.08);
+  --bild: radial-gradient(120% 140% at 50% 120%, rgba(0,77,152,0.55) 0%, rgba(0,77,152,0.08) 55%, rgba(0,0,0,0) 100%);
+  --bild-links: radial-gradient(120% 140% at 0% 50%, rgba(0,77,152,0.55) 0%, rgba(0,77,152,0.08) 60%, rgba(0,0,0,0) 100%);
+  --akzent-text: ${NACHT}; --raster: rgba(255,255,255,0.05); --band: rgba(5,11,31,0.55);
+  --papier-schatten: 0 30px 60px -30px rgba(0,0,0,.9), 0 0 0 1px rgba(255,255,255,0.08);
+  --zu-titel: #C9D2E6; --knopf-hg: #FFFFFF; --knopf-text: ${NACHT}; --pille-hg: rgba(237,187,0,0.08); --pille-text: ${GOLD_HELL};
+  --mythos-hg: rgba(237,187,0,0.07); --schalter-hg: rgba(5,11,31,0.86); --schalter-rand: rgba(255,255,255,0.18);
+  --h1-schatten: 0 12px 50px rgba(0,0,0,.45); --glyph: #FFFFFF; --licht: .55;
+}
+.sbb[data-modus="hell"], .sbb-schalter[data-modus="hell"] {
+  --hg: #FFFFFF; --text: ${C.tinte}; --nebel: ${C.grau}; --titel: ${C.seeTief}; --linie: ${C.linie};
+  --karte: #FFFFFF; --karte-schatten: 0 3px 16px rgba(15,26,51,0.07);
+  --bild: linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%); --bild-links: linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%);
+  --akzent-text: ${C.seeTief}; --raster: rgba(0,77,152,0.075); --band: rgba(255,255,255,0.85);
+  --papier-schatten: 0 3px 16px rgba(15,26,51,0.08), 0 0 0 1px ${C.linie};
+  --zu-titel: ${C.hellgrau}; --knopf-hg: ${C.seeTief}; --knopf-text: #FFFFFF; --pille-hg: #FFFBEA; --pille-text: ${C.gruenDunkel};
+  --mythos-hg: #FFF7D6; --schalter-hg: rgba(255,255,255,0.94); --schalter-rand: ${C.linie};
+  --h1-schatten: none; --glyph: ${C.see}; --licht: .28;
+}
+html[data-start-modus="dunkel"] .app-wurzel { background: ${NACHT} !important; }
+html[data-start-modus="hell"] .app-wurzel { background: #FFFFFF !important; }
+html[data-start-modus="dunkel"] .fuss-paar button { color: #EEF2FF !important; background: rgba(255,255,255,0.06) !important; border-color: rgba(255,255,255,0.11) !important; }
+.sbb { position: relative; color: var(--text); }
 .sbb *, .sbb *::before, .sbb *::after { box-sizing: border-box; }
 /* Das Rechenpapier und das Licht liegen hinter allem (negativer z-index: unter jedem Inhalt, über dem Seitenhintergrund) */
 .sbb-raster { position: fixed; inset: 0; z-index: -1; pointer-events: none;
-  background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+  background-image: linear-gradient(var(--raster) 1px, transparent 1px), linear-gradient(90deg, var(--raster) 1px, transparent 1px);
   background-size: 28px 28px; }
 .sbb-licht { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
-.sbb-licht span { position: absolute; border-radius: 999px; filter: blur(60px); opacity: .55; }
+.sbb-licht span { position: absolute; border-radius: 999px; filter: blur(60px); opacity: var(--licht); }
 .sbb-licht .l1 { width: 56vw; height: 56vw; max-width: 640px; max-height: 640px; top: -18vw; right: -14vw; background: radial-gradient(circle, rgba(237,187,0,0.45) 0%, rgba(237,187,0,0) 70%); }
 .sbb-licht .l2 { width: 70vw; height: 70vw; max-width: 760px; max-height: 760px; top: 30vh; left: -30vw; background: radial-gradient(circle, rgba(0,77,152,0.55) 0%, rgba(0,77,152,0) 70%); }
 .sbb-licht .l3 { width: 50vw; height: 50vw; max-width: 520px; max-height: 520px; bottom: -20vw; right: -10vw; background: radial-gradient(circle, rgba(36,87,197,0.45) 0%, rgba(36,87,197,0) 70%); }
@@ -68,64 +89,62 @@ html[data-start-b] .fuss-paar button { color: ${TEXT} !important; background: rg
 /* ---------- Bühne oben ---------- */
 .sbb-held { position: relative; overflow: hidden; padding: clamp(28px, 6vw, 56px) 0 0; }
 .sbb-held-kurve { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.sbb-held-kurve .glyph { fill: var(--glyph); opacity: .07; }
 .sbb-held-kurve .weg { stroke-dasharray: 1400; stroke-dashoffset: 1400; animation: sbbWeg 2.6s cubic-bezier(.4,0,.2,1) .2s forwards; }
 .sbb-held-kurve .punkt { opacity: 0; animation: sbbPunkt .6s ease 2.4s forwards; }
 @keyframes sbbWeg { to { stroke-dashoffset: 0; } }
 @keyframes sbbPunkt { to { opacity: 1; } }
 .sbb-held-text { position: relative; z-index: 1; }
-.sbb-held h1 { margin: 0; font-weight: 900; letter-spacing: -0.045em; line-height: .92; font-size: clamp(42px, 10.6vw, 92px); color: #fff;
-  text-shadow: 0 12px 50px rgba(0,0,0,.45); }
+.sbb-held h1 { margin: 0; font-weight: 900; letter-spacing: -0.045em; line-height: .92; font-size: clamp(42px, 10.6vw, 92px); color: var(--titel); text-shadow: var(--h1-schatten); }
 .sbb-held h1 .gold { display: block; background: linear-gradient(180deg, ${GOLD_HELL} 0%, ${GOLD} 55%, #C9931A 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.sbb-held .unter { margin: 14px 0 0; font-weight: 300; font-size: clamp(20px, 4.6vw, 30px); line-height: 1.15; color: ${TEXT}; }
+.sbb[data-modus="hell"] .sbb-held h1 .gold { background: linear-gradient(180deg, ${GOLD} 0%, #D9A400 60%, #B8860B 100%); -webkit-background-clip: text; background-clip: text; }
+.sbb-held .unter { margin: 14px 0 0; font-weight: 300; font-size: clamp(20px, 4.6vw, 30px); line-height: 1.15; color: var(--text); }
 .sbb-held ul { list-style: none; margin: 26px 0 0; padding: 0; display: grid; gap: 10px; }
 @media ${DESKTOP} { .sbb-held ul { grid-template-columns: 1fr 1fr; column-gap: 24px; } }
-.sbb-held li { display: flex; align-items: center; gap: 12px; font-size: 15px; font-weight: 500; color: ${TEXT}; }
+.sbb-held li { display: flex; align-items: center; gap: 12px; font-size: 15px; font-weight: 500; color: var(--text); }
 .sbb-haken { flex: none; width: 26px; height: 26px; border-radius: 50%; background: ${GOLD}; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 0 0 4px rgba(237,187,0,0.18), 0 6px 16px rgba(237,187,0,0.35); }
 .sbb-haken svg { width: 56%; height: 56%; }
 .sbb-start-knopf { margin-top: 28px; display: inline-flex; align-items: center; gap: 10px; padding: 15px 22px; border-radius: 999px; border: none; cursor: pointer; font-family: inherit;
-  font-size: 15.5px; font-weight: 800; color: ${NACHT}; background: linear-gradient(180deg, ${GOLD_HELL} 0%, ${GOLD} 100%); box-shadow: 0 12px 34px rgba(237,187,0,0.35), inset 0 1px 0 rgba(255,255,255,.6); }
+  font-size: 15.5px; font-weight: 800; color: var(--akzent-text); background: linear-gradient(180deg, ${GOLD_HELL} 0%, ${GOLD} 100%); box-shadow: 0 12px 34px rgba(237,187,0,0.35), inset 0 1px 0 rgba(255,255,255,.6); }
 .sbb-start-knopf:focus-visible, .sbb button:focus-visible { outline: 3px solid ${GOLD}; outline-offset: 3px; }
 
 /* Laufband mit den Bereichen – langsam, nur Deko mit Inhalt */
-.sbb-band { margin-top: clamp(26px, 6vw, 44px); border-top: 1px solid ${LINIE}; border-bottom: 1px solid ${LINIE}; overflow: hidden; background: rgba(5,11,31,0.55); backdrop-filter: blur(6px); }
+.sbb-band { margin-top: clamp(26px, 6vw, 44px); border-top: 1px solid var(--linie); border-bottom: 1px solid var(--linie); overflow: hidden; background: var(--band); backdrop-filter: blur(6px); }
 .sbb-band-spur { display: flex; width: max-content; animation: sbbBand 48s linear infinite; }
-.sbb-band span { display: inline-flex; align-items: center; gap: 18px; padding: 11px 18px 11px 0; font-size: 13px; font-weight: 700; letter-spacing: .01em; color: ${NEBEL}; white-space: nowrap; }
+.sbb-band span { display: inline-flex; align-items: center; gap: 18px; padding: 11px 18px 11px 0; font-size: 13px; font-weight: 700; letter-spacing: .01em; color: var(--nebel); white-space: nowrap; }
 .sbb-band span::after { content: ""; width: 6px; height: 6px; border-radius: 50%; background: ${GOLD}; }
 @keyframes sbbBand { to { transform: translateX(-50%); } }
 
 /* ---------- Spalte ---------- */
 .sbb-spalte { width: 100%; max-width: 783px; margin: 0 auto; padding: 0 20px 70px; }
-.sbb-spalte > * + * { }
 .sbb-abschnitt { margin-top: 28px; }
-.sbb-einleitung { margin: 26px 0 0; font-size: clamp(17px, 4.4vw, 22px); font-weight: 300; line-height: 1.5; color: ${NEBEL}; max-width: 640px; }
-.sbb-einleitung b { color: #fff; font-weight: 700; }
+.sbb-einleitung { margin: 26px 0 0; font-size: clamp(17px, 4.4vw, 22px); font-weight: 300; line-height: 1.5; color: var(--nebel); max-width: 640px; }
+.sbb-einleitung b { color: var(--titel); font-weight: 700; }
 
 /* Zonen: Heute · Lernen · Entdecken – ein Weg in drei Etappen, daher die großen Ziffern */
 .sbb-zone { margin: 44px 0 14px; display: flex; align-items: flex-end; gap: 14px; }
 .sbb-zone .nr { font-size: 60px; font-weight: 900; line-height: .8; letter-spacing: -0.04em; background: linear-gradient(180deg, ${GOLD_HELL} 0%, ${GOLD} 60%, #C9931A 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.sbb-zone h2 { margin: 0; font-size: clamp(26px, 6.4vw, 34px); font-weight: 800; letter-spacing: -0.03em; line-height: 1; color: #fff; }
-.sbb-zone p { margin: 6px 0 0; font-size: 14px; color: ${NEBEL}; line-height: 1.4; }
+.sbb-zone h2 { margin: 0; font-size: clamp(26px, 6.4vw, 34px); font-weight: 800; letter-spacing: -0.03em; line-height: 1; color: var(--titel); }
+.sbb-zone p { margin: 6px 0 0; font-size: 14px; color: var(--nebel); line-height: 1.4; }
 
-/* Glaskachel */
-.sbb-karte { position: relative; width: 100%; border-radius: 22px; border: 1px solid ${LINIE};
-  background: linear-gradient(160deg, rgba(255,255,255,0.085) 0%, rgba(255,255,255,0.035) 60%, rgba(255,255,255,0.02) 100%);
-  box-shadow: 0 30px 60px -36px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,0.08); color: ${TEXT}; }
+/* Kachel (dunkel: Glas, hell: weiß mit Rand) */
+.sbb-karte { position: relative; width: 100%; border-radius: 22px; border: 1px solid var(--linie); background: var(--karte); box-shadow: var(--karte-schatten); color: var(--text); }
 .sbb-kachel { display: flex; flex-direction: column; padding: 0; overflow: hidden; cursor: pointer; font-family: inherit; text-align: left; transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
-@media (hover:hover) { .sbb-kachel:not(:disabled):hover { transform: translateY(-3px); border-color: rgba(237,187,0,0.55); box-shadow: 0 0 0 1px rgba(237,187,0,0.35), 0 30px 60px -30px rgba(237,187,0,0.35), 0 30px 60px -36px rgba(0,0,0,.9); } }
+@media (hover:hover) { .sbb-kachel:not(:disabled):hover { transform: translateY(-3px); border-color: rgba(237,187,0,0.55); box-shadow: 0 0 0 1px rgba(237,187,0,0.35), 0 30px 60px -30px rgba(237,187,0,0.35), var(--karte-schatten); } }
 .sbb-kachel:not(:disabled):active { transform: scale(.985); }
-.sbb-kachel-bild { position: relative; height: 128px; flex: none; display: flex; align-items: center; justify-content: center; padding: 10px 18px;
-  background: radial-gradient(120% 140% at 50% 120%, rgba(0,77,152,0.55) 0%, rgba(0,77,152,0.08) 55%, rgba(0,0,0,0) 100%); border-bottom: 1px solid ${LINIE}; }
+.sbb-kachel-bild { position: relative; height: 128px; flex: none; display: flex; align-items: center; justify-content: center; padding: 10px 18px; background: var(--bild); border-bottom: 1px solid var(--linie); }
 .sbb-kachel-bild > svg, .sbb-kachel-bild > span, .sbb-kachel-bild > div { max-height: 100%; }
 .sbb-kachel-text { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 6px; flex: 1 1 auto; }
-.sbb-kachel h2, .sbb-kachel h3 { margin: 0; font-size: 21px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; color: #fff; overflow-wrap: anywhere; hyphens: auto; }
-.sbb-kachel p { margin: 0; font-size: 13.5px; font-weight: 400; line-height: 1.5; color: ${NEBEL}; }
+.sbb-kachel h2, .sbb-kachel h3 { margin: 0; font-size: 21px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; color: var(--titel); overflow-wrap: anywhere; hyphens: auto; }
+.sbb-kachel p { margin: 0; font-size: 13.5px; font-weight: 400; line-height: 1.5; color: var(--nebel); }
 .sbb-kachel .weiter { margin-top: auto; padding-top: 8px; font-size: 13px; font-weight: 700; color: ${GOLD}; display: inline-flex; align-items: center; gap: 8px; }
+.sbb[data-modus="hell"] .sbb-kachel .weiter { color: ${C.gruenDunkel}; }
 .sbb-kachel .weiter i { font-style: normal; display: inline-block; transition: transform .18s ease; }
 @media (hover:hover) { .sbb-kachel:hover .weiter i { transform: translateX(4px); } }
 .sbb-kachel.zu { cursor: not-allowed; }
 .sbb-logo { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
 .sbb-kachel.zu .sbb-logo { filter: grayscale(1); opacity: .32; }
-.sbb-kachel.zu h2, .sbb-kachel.zu h3 { color: #C9D2E6; }
+.sbb-kachel.zu h2, .sbb-kachel.zu h3 { color: var(--zu-titel); }
 .sbb-schloss { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
 .sbb-gold { border-color: rgba(237,187,0,0.75); box-shadow: 0 0 0 1px rgba(237,187,0,0.45), 0 30px 60px -30px rgba(237,187,0,0.45); }
 .sbb-raster2 { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
@@ -135,17 +154,15 @@ html[data-start-b] .fuss-paar button { color: ${TEXT} !important; background: rg
 /* Hauptkacheln mit Aufklappen (Schulmathematik, Mathe entdecken): am Handy Bild oben, Text darunter, Plus rechts unten;
    ab 840 px Bild links, Text rechts, Plus rechts außen */
 .sbb-haupt { position: relative; display: flex; flex-direction: column; align-items: stretch; gap: 0; width: 100%; padding: 0; cursor: pointer; font-family: inherit; text-align: left; overflow: hidden; transition: border-color .18s ease, box-shadow .18s ease; }
-.sbb-haupt .bild { flex: none; height: 104px; display: flex; align-items: center; justify-content: center; padding: 8px 18px; border-bottom: 1px solid ${LINIE};
-  background: radial-gradient(120% 140% at 50% 120%, rgba(0,77,152,0.55) 0%, rgba(0,77,152,0.08) 60%, rgba(0,0,0,0) 100%); }
+.sbb-haupt .bild { flex: none; height: 104px; display: flex; align-items: center; justify-content: center; padding: 8px 18px; border-bottom: 1px solid var(--linie); background: var(--bild); }
 .sbb-haupt .bild > svg { height: 100%; width: auto; max-width: 100%; }
 .sbb-haupt .txt { flex: 1 1 auto; min-width: 0; padding: 16px 74px 16px 18px; display: flex; flex-direction: column; justify-content: center; gap: 5px; }
-.sbb-haupt h2 { margin: 0; font-size: clamp(22px, 6vw, 28px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; color: #fff; }
-.sbb-haupt p { margin: 0; font-size: 13.5px; line-height: 1.45; color: ${NEBEL}; }
-.sbb-haupt .plus { position: absolute; right: 16px; bottom: 16px; width: 46px; height: 46px; border-radius: 999px; background: ${GOLD}; color: ${NACHT}; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 22px rgba(237,187,0,0.4); transition: transform .22s ease; }
+.sbb-haupt h2 { margin: 0; font-size: clamp(22px, 6vw, 28px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; color: var(--titel); }
+.sbb-haupt p { margin: 0; font-size: 13.5px; line-height: 1.45; color: var(--nebel); }
+.sbb-haupt .plus { position: absolute; right: 16px; bottom: 16px; width: 46px; height: 46px; border-radius: 999px; background: ${GOLD}; color: var(--akzent-text); display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 22px rgba(237,187,0,0.4); transition: transform .22s ease; }
 @media ${DESKTOP} {
   .sbb-haupt { flex-direction: row; }
-  .sbb-haupt .bild { height: auto; flex: 0 0 170px; padding: 10px; border-bottom: none; border-right: 1px solid ${LINIE};
-    background: radial-gradient(120% 140% at 0% 50%, rgba(0,77,152,0.55) 0%, rgba(0,77,152,0.08) 60%, rgba(0,0,0,0) 100%); }
+  .sbb-haupt .bild { height: auto; flex: 0 0 170px; padding: 10px; border-bottom: none; border-right: 1px solid var(--linie); background: var(--bild-links); }
   .sbb-haupt .bild > svg { height: auto; width: 100%; }
   .sbb-haupt .txt { padding: 16px 80px 16px 16px; }
   .sbb-haupt .plus { right: 18px; bottom: auto; top: 50%; transform: translateY(-50%); }
@@ -156,10 +173,10 @@ html[data-start-b] .fuss-paar button { color: ${TEXT} !important; background: rg
 @media (hover:hover) { .sbb-haupt:hover { border-color: rgba(237,187,0,0.55); } }
 
 /* Weißes Blatt für alles, was selbst ein Werkzeug ist */
-.sbb-papier { margin-top: 10px; border-radius: 20px; background: ${C.weiss}; color: ${C.tinte}; padding: 14px 16px 16px; box-shadow: 0 30px 60px -30px rgba(0,0,0,.9), 0 0 0 1px rgba(255,255,255,0.08); }
+.sbb-papier { margin-top: 10px; border-radius: 20px; background: ${C.weiss}; color: ${C.tinte}; padding: 14px 16px 16px; box-shadow: var(--papier-schatten); }
 .sbb-papier.eng { padding: 0; overflow: hidden; }
 .sbb-papier [data-such-box] { margin: 0 !important; box-shadow: none !important; border: none !important; }
-/* Wiederverwendete Kacheln (Kurse, Plan, Spenden …) laufen in A um 16 px über den Rand; hier füllen sie genau die Spalte */
+/* Wiederverwendete Kacheln (Kurse, Plan, Spenden …) laufen in ihrer eigenen Datei um 16 px über den Rand; hier füllen sie genau die Spalte */
 .sbb-wieder > [style*="calc(100% + 32px)"], .sbb-wieder > div > [style*="calc(100% + 32px)"] { width: 100% !important; margin-left: 0 !important; margin-right: 0 !important; }
 .sbb-wieder > * { margin-top: 14px !important; }
 
@@ -175,7 +192,7 @@ html[data-start-b] .fuss-paar button { color: ${TEXT} !important; background: rg
 .sbb-bereich .pf { flex: none; width: 30px; height: 30px; border-radius: 999px; background: ${GOLD}; display: flex; align-items: center; justify-content: center; transition: transform .2s ease; }
 .sbb-bereich[aria-expanded="true"] .pf { transform: rotate(45deg); }
 .sbb-bereich-inhalt { padding: 2px 4px 8px; border-bottom: 1px solid ${C.linie}; margin-bottom: 6px; }
-/* Zusammenfassung je Bereich (bereichInhalt aus func2.jsx): kurz am Handy, lang ab 840 px – wie in A */
+/* Zusammenfassung je Bereich (bereichInhalt aus func2.jsx): kurz am Handy, lang ab 840 px */
 .sbb .bereich-lang { display: none; }
 @media ${DESKTOP} { .sbb .bereich-kurz { display: none; } .sbb .bereich-lang { display: inline; } }
 
@@ -186,45 +203,48 @@ html[data-start-b] .fuss-paar button { color: ${TEXT} !important; background: rg
 .sbb-schritt { display: flex; flex-direction: column; padding: 20px 20px 18px; cursor: pointer; font-family: inherit; text-align: left; transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
 @media (hover:hover) { .sbb-schritt:hover { transform: translateY(-3px); border-color: rgba(237,187,0,0.55); } }
 .sbb-schritt .nr { font-size: 12.5px; font-weight: 700; color: ${GOLD}; }
-.sbb-schritt h3 { margin: 8px 0 0; font-size: 28px; font-weight: 800; letter-spacing: -0.035em; line-height: 1; color: #fff; }
-.sbb-schritt p { margin: 10px 0 0; font-size: 14px; line-height: 1.5; color: ${NEBEL}; }
-.sbb-schritt .bild { height: 110px; margin: 14px -6px 0; display: flex; align-items: center; justify-content: center; }
-.sbb-schritt .knopf { margin-top: 16px; align-self: flex-start; padding: 10px 16px; border-radius: 999px; font-size: 13.5px; font-weight: 800; color: ${NACHT}; background: #fff; }
-.sbb-schritt .knopf.gold { background: linear-gradient(180deg, ${GOLD_HELL} 0%, ${GOLD} 100%); }
-.sbb-verbinder { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 2; width: 40px; height: 40px; border-radius: 999px; background: ${GOLD}; color: ${NACHT}; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 5px ${NACHT}, 0 8px 20px rgba(237,187,0,0.45); }
+.sbb[data-modus="hell"] .sbb-schritt .nr { color: ${C.gruenDunkel}; }
+.sbb-schritt h3 { margin: 8px 0 0; font-size: 28px; font-weight: 800; letter-spacing: -0.035em; line-height: 1; color: var(--titel); }
+.sbb-schritt p { margin: 10px 0 0; font-size: 14px; line-height: 1.5; color: var(--nebel); }
+.sbb-schritt .bild { height: 118px; margin: 14px 0 0; padding: 6px 10px; border-radius: 14px; background: var(--bild); display: flex; align-items: center; justify-content: center; }
+.sbb-schritt .bild > svg { height: 100%; width: auto; max-width: 100%; }
+.sbb-schritt .knopf { margin-top: 16px; align-self: flex-start; padding: 10px 16px; border-radius: 999px; font-size: 13.5px; font-weight: 800; color: var(--knopf-text); background: var(--knopf-hg); }
+.sbb-schritt .knopf.gold { background: linear-gradient(180deg, ${GOLD_HELL} 0%, ${GOLD} 100%); color: ${NACHT}; }
+.sbb-verbinder { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 2; width: 40px; height: 40px; border-radius: 999px; background: ${GOLD}; color: ${NACHT}; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 5px var(--hg), 0 8px 20px rgba(237,187,0,0.45); }
 .sbb-verbinder svg { transform: rotate(90deg); }
 @media ${DESKTOP} { .sbb-verbinder svg { transform: none; } }
 
 /* Abschnittsköpfe */
 .sbb-kopf { margin-top: 48px; }
-.sbb-kopf h2 { margin: 0; font-size: clamp(26px, 6.8vw, 40px); font-weight: 800; letter-spacing: -0.035em; line-height: 1.05; color: #fff; max-width: 680px; }
+.sbb-kopf h2 { margin: 0; font-size: clamp(26px, 6.8vw, 40px); font-weight: 800; letter-spacing: -0.035em; line-height: 1.05; color: var(--titel); max-width: 680px; }
 .sbb-kopf .strich { display: block; width: 72px; height: 4px; border-radius: 2px; margin: 16px 0 18px; background: linear-gradient(90deg, ${GOLD_HELL}, ${GOLD}); box-shadow: 0 0 18px rgba(237,187,0,0.5); }
-.sbb-text { margin: 0 0 12px; font-size: 15.5px; font-weight: 300; line-height: 1.7; color: ${NEBEL}; max-width: 660px; }
-.sbb-text b { color: #fff; font-weight: 600; }
-.sbb-text.stark { color: ${TEXT}; font-weight: 500; }
+.sbb-text { margin: 0 0 12px; font-size: 15.5px; font-weight: 300; line-height: 1.7; color: var(--nebel); max-width: 660px; }
+.sbb-text b { color: var(--titel); font-weight: 600; }
+.sbb-text.stark { color: var(--text); font-weight: 500; }
 
 /* Minikurs-Pille */
 .sbb-pille { margin: 18px auto 0; display: flex; justify-content: center; }
-.sbb-pille button { display: inline-flex; align-items: center; gap: 10px; padding: 10px 18px; border-radius: 999px; border: 1px solid rgba(237,187,0,0.5); background: rgba(237,187,0,0.08); color: ${GOLD_HELL}; font-size: 13.5px; font-weight: 700; font-family: inherit; cursor: pointer; }
+.sbb-pille button { display: inline-flex; align-items: center; gap: 10px; padding: 10px 18px; border-radius: 999px; border: 1px solid rgba(237,187,0,0.5); background: var(--pille-hg); color: var(--pille-text); font-size: 13.5px; font-weight: 700; font-family: inherit; cursor: pointer; }
 .sbb-pille button i { width: 8px; height: 8px; border-radius: 999px; background: ${GOLD}; box-shadow: 0 0 10px ${GOLD}; display: inline-block; }
 
 /* Mythen */
-.sbb-mythen-kopf { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 18px 20px; cursor: pointer; font-family: inherit; text-align: left; color: #fff; }
+.sbb-mythen-kopf { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 18px 20px; cursor: pointer; font-family: inherit; text-align: left; color: var(--titel); }
 .sbb-mythen-kopf b { display: block; font-size: 22px; font-weight: 800; letter-spacing: -0.03em; }
-.sbb-mythen-kopf span { display: block; font-size: 13.5px; color: ${NEBEL}; margin-top: 4px; }
-.sbb-mythos { border-top: 1px solid ${LINIE}; }
-.sbb-mythos button { width: 100%; display: flex; align-items: center; gap: 14px; padding: 13px 18px; background: transparent; border: none; cursor: pointer; font-family: inherit; text-align: left; color: #fff; }
-.sbb-mythos button[aria-expanded="true"] { background: rgba(237,187,0,0.07); }
+.sbb-mythen-kopf span { display: block; font-size: 13.5px; color: var(--nebel); margin-top: 4px; }
+.sbb-mythos { border-top: 1px solid var(--linie); }
+.sbb-mythos button { width: 100%; display: flex; align-items: center; gap: 14px; padding: 13px 18px; background: transparent; border: none; cursor: pointer; font-family: inherit; text-align: left; color: var(--titel); }
+.sbb-mythos button[aria-expanded="true"] { background: var(--mythos-hg); }
 .sbb-mythos .z { flex: none; width: 36px; height: 36px; border-radius: 10px; background: rgba(237,187,0,0.14); color: ${GOLD}; font-size: 17px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
-.sbb-mythos .n { color: ${NEBEL}; font-weight: 600; margin-right: 8px; }
+.sbb[data-modus="hell"] .sbb-mythos .z { color: ${C.gruenDunkel}; }
+.sbb-mythos .n { color: var(--nebel); font-weight: 600; margin-right: 8px; }
 .sbb-mythos b { flex: 1; font-size: 15px; font-weight: 700; line-height: 1.35; }
-.sbb-mythos p { margin: 0; padding: 0 18px 16px 68px; font-size: 14px; line-height: 1.65; color: ${NEBEL}; background: rgba(237,187,0,0.07); }
+.sbb-mythos p { margin: 0; padding: 0 18px 16px 68px; font-size: 14px; line-height: 1.65; color: var(--nebel); background: var(--mythos-hg); }
 
 /* Dein Training */
 .sbb-training { position: relative; }
 .sbb-training .kopfzeile { width: 100%; display: flex; align-items: center; gap: 14px; padding: 18px 70px 18px 20px; cursor: pointer; background: transparent; border: none; font-family: inherit; text-align: left; }
-.sbb-training h2 { margin: 0; font-size: clamp(22px, 6vw, 30px); font-weight: 800; letter-spacing: -0.035em; line-height: 1.05; color: #fff; }
-.sbb-training .zeile { margin: 6px 0 0; font-size: 13.5px; color: ${NEBEL}; }
+.sbb-training h2 { margin: 0; font-size: clamp(22px, 6vw, 30px); font-weight: 800; letter-spacing: -0.035em; line-height: 1.05; color: var(--titel); }
+.sbb-training .zeile { margin: 6px 0 0; font-size: 13.5px; color: var(--nebel); }
 .sbb-training .pfeil { position: absolute; top: 16px; right: 16px; width: 40px; height: 40px; border-radius: 999px; border: none; cursor: pointer; background: ${GOLD}; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 22px rgba(237,187,0,0.4); }
 .sbb-training .pfeil svg { transition: transform .22s ease; }
 .sbb-training.auf .pfeil svg { transform: rotate(180deg); }
@@ -232,11 +252,11 @@ html[data-start-b] .fuss-paar button { color: ${TEXT} !important; background: rg
 .sbb-training.auf .qf-kopf { padding-right: 60px; }
 .sbb-training.auf .pfeil { top: 14px; right: 14px; box-shadow: 0 4px 14px rgba(14,30,74,0.25); }
 
-/* Umschalter A/B */
-.sbb-schalter { position: fixed; left: 14px; bottom: 14px; z-index: 40; display: inline-flex; align-items: center; gap: 2px; padding: 3px; border-radius: 999px; background: rgba(5,11,31,0.86); border: 1px solid rgba(255,255,255,0.18); box-shadow: 0 10px 30px rgba(0,0,0,.45); backdrop-filter: blur(8px); font-family: Montserrat, system-ui, sans-serif; }
-.sbb-schalter .lab { padding: 0 8px 0 10px; font-size: 11px; font-weight: 700; color: ${NEBEL}; }
-.sbb-schalter button { min-width: 34px; height: 30px; padding: 0 10px; border-radius: 999px; border: none; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 800; color: ${NEBEL}; background: transparent; }
+/* Umschalter Dunkel / Hell (unten links, wie die Sprachwahl im Arbeitsmenü) */
+.sbb-schalter { position: fixed; left: 14px; bottom: 14px; z-index: 40; display: inline-flex; align-items: center; gap: 2px; padding: 3px; border-radius: 999px; background: var(--schalter-hg); border: 1px solid var(--schalter-rand); box-shadow: 0 10px 30px rgba(0,0,0,.25); backdrop-filter: blur(8px); font-family: Montserrat, system-ui, sans-serif; }
+.sbb-schalter button { height: 30px; padding: 0 12px; border-radius: 999px; border: none; cursor: pointer; font-family: inherit; font-size: 12.5px; font-weight: 800; color: var(--nebel); background: transparent; display: inline-flex; align-items: center; gap: 6px; }
 .sbb-schalter button[aria-pressed="true"] { background: ${GOLD}; color: ${NACHT}; }
+.sbb-schalter button:focus-visible { outline: 3px solid ${GOLD}; outline-offset: 2px; }
 
 @media (prefers-reduced-motion: reduce) {
   .sbb-held-kurve .weg { animation: none; stroke-dashoffset: 0; }
@@ -275,13 +295,13 @@ function HeldKurve() {
         <filter id="sbbGlow" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="6" /></filter>
       </defs>
       {/* Glyphen auf dem Blatt */}
-      <g fontFamily="Montserrat, system-ui, sans-serif" fontWeight="700" fill="#fff">
-        <text x="560" y="86" fontSize="56" opacity="0.07" className="schweben">∫</text>
-        <text x="650" y="300" fontSize="46" opacity="0.07" className="pulsieren">∑</text>
-        <text x="470" y="420" fontSize="34" opacity="0.07">π</text>
-        <text x="600" y="190" fontSize="26" opacity="0.08">f′(x)</text>
-        <text x="700" y="420" fontSize="30" opacity="0.07">√</text>
-        <text x="520" y="250" fontSize="22" opacity="0.07">lim</text>
+      <g fontFamily="Montserrat, system-ui, sans-serif" fontWeight="700">
+        <text x="560" y="86" fontSize="56" className="glyph schweben">∫</text>
+        <text x="650" y="300" fontSize="46" className="glyph pulsieren">∑</text>
+        <text x="470" y="420" fontSize="34" className="glyph">π</text>
+        <text x="600" y="190" fontSize="26" className="glyph">f′(x)</text>
+        <text x="700" y="420" fontSize="30" className="glyph">√</text>
+        <text x="520" y="250" fontSize="22" className="glyph">lim</text>
       </g>
       {/* Leuchtspur der Kurve, darüber die Kurve selbst */}
       <path className="weg" d="M -20 400 C 120 400, 200 120, 330 160 C 440 195, 470 330, 560 300 C 650 270, 690 120, 800 60" fill="none" stroke={GOLD} strokeWidth="14" opacity="0.22" filter="url(#sbbGlow)" strokeLinecap="round" />
@@ -351,6 +371,7 @@ function Kachel({ titel, text, logo, extra, ziel, label, gesperrt, keinI18n, gol
 
 /* Mathilda-Kachel: Bild mit Blatt im Sucher, rechts das Porträt */
 function MathildaKachel({ gehe }) {
+  const hell = useHell();
   return (
     <button type="button" onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })} aria-label="Mathilda AI öffnen" className="sbb-karte sbb-kachel sbb-gold">
       <div className="sbb-kachel-bild" style={{ justifyContent: "space-between", padding: "8px 8px 0 14px", overflow: "hidden" }}>
@@ -358,7 +379,7 @@ function MathildaKachel({ gehe }) {
         <svg viewBox="0 0 120 138" aria-hidden="true" style={{ height: "118%", width: "auto", flex: "none", marginTop: "auto", marginBottom: -20, filter: "drop-shadow(0 10px 24px rgba(0,0,0,.5))" }}><MathildaPfade /></svg>
       </div>
       <div className="sbb-kachel-text">
-        <h2><MathildaName dunkel /></h2>
+        <h2><MathildaName dunkel={!hell} /></h2>
         <p>Foto vom Blatt – Mathilda prüft deinen Weg.</p>
         <span className="weiter">Mit KI lernen <i aria-hidden="true">→</i></span>
       </div>
@@ -435,37 +456,41 @@ function Mythen() {
   );
 }
 
-/* ---------- Umschalter A/B (sichtbar nach bewusster Wahl oder mit dem Passwort „skript“) ---------- */
-export function useStartVariante() {
-  const [v, setV] = useState(startVariante);
+/* ---------- Modus dunkel / hell ---------- */
+const ModusKontext = createContext("dunkel");
+const useHell = () => useContext(ModusKontext) === "hell";
+
+export function useStartModus() {
+  const [v, setV] = useState(startModus);
   useEffect(() => {
-    const h = () => setV(startVariante());
-    window.addEventListener(EVENT_START_VARIANTE, h);
-    return () => window.removeEventListener(EVENT_START_VARIANTE, h);
+    const h = () => setV(startModus());
+    window.addEventListener(EVENT_START_MODUS, h);
+    return () => window.removeEventListener(EVENT_START_MODUS, h);
   }, []);
   return v;
 }
 
-export function StartVarianteSchalter() {
-  const v = useStartVariante();
-  const [zeigen, setZeigen] = useState(() => startVarianteGewaehlt() || istFrei());
-  useEffect(() => { setZeigen(startVarianteGewaehlt() || istFrei()); }, [v]);
-  if (!zeigen) return null;
+/* Pille unten links auf der Startseite: Dunkel | Hell (dieselbe Wahl auch im Arbeitsmenü, wie die Sprache) */
+export function StartModusSchalter() {
+  const v = useStartModus();
   return (
-    <div className="sbb-schalter" role="group" aria-label="Startseite: Fassung wählen" data-kein-i18n>
+    <div className="sbb-schalter" data-modus={v} role="group" aria-label="Startseite: dunkel oder hell">
       <style>{CSS}</style>
-      <span className="lab">Startseite</span>
-      {["a", "b"].map((k) => (
-        <button key={k} type="button" aria-pressed={v === k} onClick={() => startVarianteSetzen(k)} aria-label={`Fassung ${k.toUpperCase()}`}>{k.toUpperCase()}</button>
-      ))}
+      <button type="button" aria-pressed={v === "dunkel"} onClick={() => startModusSetzen("dunkel")} aria-label="Dunkler Modus">
+        <svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="currentColor" /></svg>Dunkel
+      </button>
+      <button type="button" aria-pressed={v === "hell"} onClick={() => startModusSetzen("hell")} aria-label="Heller Modus">
+        <svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><circle cx="12" cy="12" r="4" fill="currentColor" /><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" /></svg>Hell
+      </button>
     </div>
   );
 }
 
 /* ====================================================================== */
 
-
-export function StartseiteB({ gehe }) {
+export function Startseite({ gehe }) {
+  const modus = useStartModus();
+  const hell = modus === "hell";
   const lernpfad = useLernpfad();
   const frei = useFrei();
   const [schulAuf, setSchulAuf] = useState(false);
@@ -474,18 +499,17 @@ export function StartseiteB({ gehe }) {
   const [etikett, setEtikett] = useState(null);
   const { stufe, setzen: stufeWaehlen, klasse } = useStartStufe();   // folgt der angegebenen Klasse (Konto, Quickfinder, Onboarding)
   const stufeSetzen = (w) => { stufeWaehlen(w); setBereichAuf(null); };
-  const wurzel = useRef(null);
-
-  /* Die ganze App-Fläche wird Nacht: Hintergrund und Fußknöpfe (Regeln oben in CSS) */
+  /* Die ganze App-Fläche folgt dem Modus: Hintergrund und Fußknöpfe (Regeln oben in CSS) */
   useEffect(() => {
-    document.documentElement.setAttribute("data-start-b", "1");
-    return () => document.documentElement.removeAttribute("data-start-b");
-  }, []);
+    document.documentElement.setAttribute("data-start-modus", modus);
+    return () => document.documentElement.removeAttribute("data-start-modus");
+  }, [modus]);
 
   const bereiche = schulBereiche(stufe);
 
   return (
-    <div className="sbb" ref={wurzel}>
+    <ModusKontext.Provider value={modus}>
+    <div className="sbb" data-modus={modus}>
       <style>{CSS}</style>
       <div className="sbb-raster" aria-hidden="true" />
       <div className="sbb-licht" aria-hidden="true"><span className="l1" /><span className="l2" /><span className="l3" /></div>
@@ -594,7 +618,7 @@ export function StartseiteB({ gehe }) {
         <Kopf titel="Erst sauber schreiben lernen. Dann trainieren, bis es sitzt." />
         <p className="sbb-text">Die meisten Fehler in Klausuren entstehen nicht im Kopf, sondern auf dem Blatt.</p>
         <p className="sbb-text">Pen & Paper ist der Kurs dazu: ein Schritt pro Zeile, Gleichheitszeichen untereinander.</p>
-        <p className="sbb-text"><MathildaName dunkel /> ist das Training dazu: Du fotografierst dein Blatt, Mathilda prüft die Rechnung und zeigt dir die Stelle, an der dein Weg bricht.</p>
+        <p className="sbb-text"><MathildaName dunkel={!hell} /> ist das Training dazu: Du fotografierst dein Blatt, Mathilda prüft die Rechnung und zeigt dir die Stelle, an der dein Weg bricht.</p>
         <p className="sbb-text stark">So entsteht ein Kreislauf: lernen, schreiben, prüfen lassen, verbessern. Aus einer Regel wird eine Gewohnheit – und aus der Gewohnheit Sicherheit in der Klausur.</p>
         <div className="sbb-system">
           <button type="button" className="sbb-karte sbb-schritt" onClick={() => gehe({ ansicht: "penpaperkurs" })} aria-label="Pen & Paper Kurs öffnen">
@@ -606,7 +630,7 @@ export function StartseiteB({ gehe }) {
           </button>
           <button type="button" className="sbb-karte sbb-schritt sbb-gold" onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })} aria-label="Mathilda AI öffnen – mit KI lernen">
             <span className="nr">Schritt 2: Trainieren</span>
-            <h3><MathildaName dunkel /></h3>
+            <h3><MathildaName dunkel={!hell} /></h3>
             <p>Foto vom Blatt – Mathilda prüft deinen Weg und zeigt dir den nächsten Hebel.</p>
             <span className="bild" aria-hidden="true"><MathildaLogoKlein /></span>
             <span className="knopf gold">Mit KI lernen</span>
@@ -664,5 +688,6 @@ export function StartseiteB({ gehe }) {
         <div className="sbb-wieder"><SpendenBereich gehe={gehe} /></div>
       </div>
     </div>
+    </ModusKontext.Provider>
   );
 }
