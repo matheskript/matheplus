@@ -100,6 +100,9 @@ const STIL = `
   .ks-modul-meta{display:flex;align-items:center;gap:12px;margin-top:4px;font-size:12.5px;color:${C.grau};white-space:nowrap;overflow:hidden}
   .ks-modul-meta span{display:inline-flex;align-items:center;gap:4px}
   .ks-modul-meta svg{width:14px;height:14px;flex:none}
+  /* Handy/Tablet: Modulzeilen passen in die Breite – Titel und Angaben brechen um, statt die Seite breiter zu machen (vorher 436 px bei 360/390) */
+  @media (max-width:839px){.ks-liste{grid-template-columns:minmax(0,1fr)}.ks-modul{min-width:0}
+    .ks-modul-titel{white-space:normal;overflow-wrap:break-word}.ks-modul-meta{flex-wrap:wrap;white-space:normal;gap:4px 12px}}
   .ks-haken{flex:none;display:inline-flex;width:24px;height:24px;border-radius:12px;align-items:center;justify-content:center;border:1.5px solid ${C.linie};color:${C.hellgrau}}
   .ks-modul-ok .ks-haken{border-color:transparent;background:var(--ks-fertig);color:var(--ks-fertigtext)}
   @media (min-width:840px){.ks-kopf-innen{grid-template-columns:minmax(0,1fr) 34%;grid-template-rows:auto auto;padding-top:44px;padding-bottom:58px;column-gap:24px}
