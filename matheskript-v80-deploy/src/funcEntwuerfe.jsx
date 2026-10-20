@@ -13,6 +13,7 @@ import { AufklappZeichen } from "./aufklappen.jsx";
      entwurf-checken  – Kursseite „Mathe-Checken“ (2 Monate)
      entwurf-pakete   – Tool-Pakete „Dein Training“ (Kostenlos/Plus/Maximum)
      entwurf-vorher   – eingefrorene Kopie der App vom 17.10.2026 (funcVorher.jsx)
+     entwurf-biro     – Biro-Edition: eingefrorene Kopie vom 20.10.2026 (funcVorher.jsx)
      entwurf-werkzeuge – Archiv: alte Startseite (Stand 3.10.) + Verzeichnis aller Werkzeuge (funcStartArchiv.jsx)
    Die bestehende App bleibt unverändert; umgeschaltet wird über den
    Seiten-Knopf in der Kopfleiste (func10.jsx).

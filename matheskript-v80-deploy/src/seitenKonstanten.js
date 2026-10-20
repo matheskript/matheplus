@@ -7,6 +7,7 @@ export const ENTWUERFE = [
   { ansicht: "entwurf-pakete", name: "Tool-Pakete", kurz: "Kostenlos, Plus & Maximum" },
   { ansicht: "entwurf-werkzeuge", name: "Alle Werkzeuge", kurz: "Alte Startseite mit allen Rechentools" },
   { ansicht: "entwurf-vorher", name: "50-Euro-Seite (17.10.)", kurz: "Website vor der Max-Version – Desktop & Mobil" },
+  { ansicht: "entwurf-biro", name: "Biro-Edition (20.10.)", kurz: "Website am 20.10. – Desktop & Mobil" },
 ];
 /* Weitere passwortgeschützte Seiten im Arbeitsmenü (Landingpage und Entwürfe stehen separat) */
 export const WEITERE_SEITEN = [

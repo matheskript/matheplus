@@ -167,6 +167,7 @@ export const SEITEN = [
   { pfad: "entwurf/pakete", ansicht: "entwurf-pakete" },
   { pfad: "entwurf/werkzeuge", ansicht: "entwurf-werkzeuge" },
   { pfad: "entwurf/vorher", ansicht: "entwurf-vorher" },
+  { pfad: "entwurf/biro", ansicht: "entwurf-biro" },
 ];
 
 /* Klassen 8–13 */

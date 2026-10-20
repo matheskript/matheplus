@@ -144,7 +144,7 @@ export const KEIN_TEILEN = [
   "start", "landingpage", "spenden", "elternabend", "masterclass", "mckurs", "mczugang",
   "lehrkraefte", "lehrerblatt", "plan", "wiederholen", "profil", "profil2", "einstufung",
   "bericht", "messung", "auswertung", "konto", "impressum", "datenschutz", "einwilligung", "agb", "widerruf",
-  "entwurf-start", "entwurf-checken", "entwurf-pakete", "entwurf-werkzeuge", "entwurf-vorher",
+  "entwurf-start", "entwurf-checken", "entwurf-pakete", "entwurf-werkzeuge", "entwurf-vorher", "entwurf-biro",
 ];
 
 /* Infos zur Ansicht oder null, wenn die Seite kein Tool/Training ist (Startseite, Konto, Recht …) */

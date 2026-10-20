@@ -74,6 +74,7 @@ const LandeswettbewerbSeite = lazyLaden(() => import("./funcWettbewerbe.jsx").th
 const MasterclassSeite = lazyLaden(() => import("./funcMasterclass.jsx").then((m) => ({ default: m.MasterclassSeite })));
 const MatheCheckenSeite = lazyLaden(() => import("./funcMasterclass.jsx").then((m) => ({ default: m.MatheCheckenSeite })));
 const EntwurfVorher = lazyLaden(() => import("./funcVorher.jsx").then((m) => ({ default: m.EntwurfVorher })));
+const EntwurfBiro = lazyLaden(() => import("./funcVorher.jsx").then((m) => ({ default: m.EntwurfBiro })));
 const EntwurfWerkzeuge = lazyLaden(() => import("./funcStartArchiv.jsx").then((m) => ({ default: m.EntwurfWerkzeuge })));
 const EbbinghausSeite = lazyLaden(() => import("./funcEbbinghaus.jsx").then((m) => ({ default: m.EbbinghausSeite })));
 const AbiKettenSeite = lazyLaden(() => import("./funcAbiKetten.jsx").then((m) => ({ default: m.AbiKettenSeite })));
@@ -942,6 +943,8 @@ export function Mathilda() {
         <EntwurfTor gehe={gehe}><EntwurfPakete gehe={gehe} /></EntwurfTor>
       ) : ansicht === "entwurf-vorher" ? (
         <EntwurfTor gehe={gehe}><EntwurfVorher /></EntwurfTor>
+      ) : ansicht === "entwurf-biro" ? (
+        <EntwurfTor gehe={gehe}><EntwurfBiro /></EntwurfTor>
       ) : ansicht === "entwurf-werkzeuge" ? (
         <EntwurfTor gehe={gehe}><EntwurfWerkzeuge gehe={gehe} /></EntwurfTor>
       ) : ansicht === "kurse" ? (

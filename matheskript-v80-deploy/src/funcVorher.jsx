@@ -56,6 +56,10 @@ function BuchKnopf({ b }) {
 export const STAENDE = [
   { id: "2026-10-17", titel: "17. Oktober 2026", notiz: "Stand vor der Max-Version", pfad: "/archiv/2026-10-17/index.html" },
 ];
+/* Biro-Edition: eigene Seite (Ansicht "entwurf-biro"), gleiche Ansicht ohne Schulbücher */
+export const STAENDE_BIRO = [
+  { id: "2026-10-20", titel: "20. Oktober 2026", notiz: "Biro-Edition", pfad: "/archiv/2026-10-20/index.html" },
+];
 
 const N = "#0B1E4A";
 const N2 = "#08173B";
@@ -100,8 +104,12 @@ function Umschalter({ wert, setWert }) {
   );
 }
 
-export function EntwurfVorher() {
-  const [stand, setStand] = useState(STAENDE[0]);
+export function EntwurfBiro() {
+  return <EntwurfVorher staende={STAENDE_BIRO} buecher={false} />;
+}
+
+export function EntwurfVorher({ staende = STAENDE, buecher = true }) {
+  const [stand, setStand] = useState(staende[0]);
   const [geraet, setGeraet] = useState(() => (typeof window !== "undefined" && window.innerWidth < 700 ? "mobil" : "desktop"));
   const buehne = useRef(null);
   const w = useBreite(buehne);
@@ -120,20 +128,22 @@ export function EntwurfVorher() {
     <div style={{ minHeight: "calc(100vh - var(--kopf-h, 56px))", background: `radial-gradient(120% 70% at 80% 0%, #17306B 0%, ${N} 45%, ${N2} 100%)`,
       color: "#fff", fontFamily: "Montserrat, system-ui, sans-serif", padding: "28px 16px 40px" }}>
       <div style={{ maxWidth: 1320, margin: "0 auto" }}>
+        {buecher && (<>
         <div style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.16em", color: GOLD }}>SCHULBÜCHER</div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 14, margin: "12px 0 36px" }}>
           {BUECHER.map((b) => <BuchKnopf key={b.id} b={b} />)}
         </div>
+        </>)}
 
-        <div style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.16em", color: GOLD }}>ARCHIV · VORHER</div>
+        <div style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.16em", color: GOLD }}>{stand.id === "2026-10-20" ? "ARCHIV · BIRO-EDITION" : "ARCHIV · VORHER"}</div>
         <h1 style={{ fontSize: "clamp(24px, 5vw, 34px)", fontWeight: 800, letterSpacing: "-0.02em", margin: "8px 0 6px" }}>So sah die Website aus</h1>
         <p style={{ fontSize: 15, lineHeight: 1.55, color: BLAU_TXT, margin: 0, maxWidth: 640 }}>
           Eingefrorene Kopie vom <b style={{ color: "#fff" }}>{stand.titel}</b> ({stand.notiz}). Sie ist voll bedienbar und bleibt unverändert, egal was danach gebaut wird.
         </p>
 
-        {STAENDE.length > 1 && (
+        {staende.length > 1 && (
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 16 }}>
-            {STAENDE.map((s) => (
+            {staende.map((s) => (
               <button key={s.id} type="button" onClick={() => setStand(s)}
                 style={{ border: `1.5px solid ${s.id === stand.id ? GOLD : "rgba(255,255,255,0.25)"}`, background: "transparent", color: "#fff", borderRadius: 999,
                   padding: "6px 14px", fontFamily: "inherit", fontSize: 13.5, fontWeight: 600, cursor: "pointer" }}>{s.titel}</button>
