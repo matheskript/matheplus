@@ -19,6 +19,7 @@
    ============================================================ */
 import { WERKZEUGE, BEREICHE, ansichtenVon } from "./werkzeuge.js";
 import { istUnterstufeSeite } from "./unterstufeDaten.js";
+import { istBlogBeitrag } from "./blogDaten.js";
 
 /* Werkzeuge, deren Pfad vom Schlüssel abweicht */
 export const WZ_SLUG = {
@@ -46,6 +47,7 @@ export const SEITEN = [
   { pfad: "elternabend", ansicht: "elternabend", alias: ["eltern-abend", "infoabend"] },
   { pfad: "lehrkraefte", ansicht: "lehrkraefte", alias: ["lehrer", "fuer-lehrkraefte", "fuer-lehrer", "lehrerinnen"] },
   { pfad: "lehrkraefte/arbeitsblatt", ansicht: "lehrerblatt", alias: ["arbeitsblatt-generator", "lehrer-arbeitsblatt", "lehrer/arbeitsblatt", "arbeitsblaetter"] },
+  { pfad: "blog", ansicht: "blog", alias: ["mathe-blog", "beitraege"] },
 
   /* Mein Weg */
   { pfad: "lernlandkarte", ansicht: "karte", alias: ["karte", "landkarte"] },
@@ -228,6 +230,9 @@ export function pfadAufloesen(roh) {
   /* Modul Unterstufe: /unterstufe/klasse-5, /unterstufe/<lerneinheit> (Ids aus unterstufeDaten.js); /klasse-5 und /klasse-6 als Kurzform */
   const u = /^unterstufe\/([a-z0-9-]+)$/.exec(p);
   if (u && istUnterstufeSeite(u[1])) return { ansicht: "unterstufe", seite: u[1], kanonisch: true };
+  /* Blog: /blog/<slug> (Slugs aus blogDaten.js) */
+  const blog = /^blog\/([a-z0-9-]+)$/.exec(p);
+  if (blog && istBlogBeitrag(blog[1])) return { ansicht: "blog", seite: blog[1], kanonisch: true };
   const k56 = /^klasse-([56])$/.exec(p);
   if (k56) return { ansicht: "unterstufe", seite: `klasse-${k56[1]}`, kanonisch: false };
   const bl = buchLinkAufloesen(p);   // QR-Codes der gedruckten Schulbücher: /b1/25-1, /b2/s17
@@ -272,6 +277,7 @@ export function pfadFuer(zustand) {
   if (z.ansicht === "landeswettbewerb" && LAND_IDS.includes(z.land) && z.land !== "bw") return `/landeswettbewerb/${z.land}`;
   if (z.ansicht === "unterstufe" && z.seite && istUnterstufeSeite(z.seite)) return `/unterstufe/${z.seite}`;
   if (z.ansicht === "blatt" && BUECHER[z.band] && z.seite) return z.kasten ? buchLink(z.band, z.seite) : buchLink(z.band, z.seite, z.nr);
+  if (z.ansicht === "blog" && z.seite && istBlogBeitrag(z.seite)) return `/blog/${z.seite}`;
   let beste = null, bestePunkte = -1;
   for (const e of PFADE) {
     if (e.ansicht !== z.ansicht) continue;

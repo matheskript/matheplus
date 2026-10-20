@@ -105,6 +105,7 @@ export const SPRUENGE = {
   "anker":                   { an: true,  art: "anker", wo: "Inhaltsverzeichnisse und Sprungknöpfe: Landingpage, Elternabend „Platz sichern“, Ebbinghaus-Navi, Pen & Paper, Formelsammlung-Gruppen, Entwürfe, Startseite-Archiv, Text-Mathilda-Stellen, Kapiteltraining „nächste Einheit“" },
 
   "konto-abschnitt":        { an: true,  art: "anker", wo: "Hauptmenü → Konto: „Meine Kinder“, „Meine Klassen“, „Meine Schüler“, „Mein Plan“ springen zum Abschnitt auf der Kontoseite" },
+  "kopfmenue-anker":        { an: true,  art: "anker", wo: "Besuchermenü in der Kopfleiste (nicht angemeldet): „Vision“ und „Mathe lernen“ springen zum Abschnitt auf der Startseite (ids vision, lernen)" },
 
   /* ---------------- Im Blick halten ---------------- */
   "tastatur":                { an: true,  art: "halten", wo: "Mathe-Tastatur: aktives Feld bleibt über der Bildschirmtastatur" },

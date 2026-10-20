@@ -24,7 +24,9 @@ export function MarkenLogo({ groesse, grund = "dunkel", druck = false, textFarbe
   const hell = grund === "hell";
   const gold = druck
     ? { color: C.flaggold }
-    : { background: hell ? LOGO_GOLD_VERLAUF_HELL : LOGO_GOLD_VERLAUF, WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent", WebkitTextFillColor: "transparent" };
+    /* backgroundImage statt background: die Kurzschreibweise setzt beim Moduswechsel (hell ↔ dunkel) background-clip zurück,
+       React setzt den unveränderten Clip nicht neu – dann erscheint „mathe“ als goldener Block */
+    : { backgroundImage: hell ? LOGO_GOLD_VERLAUF_HELL : LOGO_GOLD_VERLAUF, WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent", WebkitTextFillColor: "transparent" };
   return (
     <span data-kein-i18n style={{
       fontFamily: "Montserrat, system-ui, sans-serif", fontSize: groesse, fontWeight: LOGO_GEWICHT, letterSpacing: LOGO_LAUFWEITE,

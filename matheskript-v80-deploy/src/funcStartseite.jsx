@@ -664,7 +664,8 @@ export function Startseite({ gehe }) {
           <WeitermachenZeile gehe={gehe} />
         </div>
 
-        {/* ---------- 2 Lernen ---------- */}
+        {/* ---------- 2 Lernen (Anker „lernen“: Besuchermenü in der Kopfleiste) ---------- */}
+        <div id="lernen" style={{ scrollMarginTop: 64 }} />
         <Zone nr="2" titel="Lernen" zeile="Alle Werkzeuge nach Bereich und Stufe." />
         <div className="sbb-raster2">
           <div className="sbb-breit">
@@ -732,8 +733,8 @@ export function Startseite({ gehe }) {
         {entdAuf && <div className="sbb-papier" data-aufklapp-inhalt><UnterMenue eintraege={ENTDECKEN_MENUE} gehe={gehe} /></div>}
       </div></section>
 
-      {/* Das System – im Mix ein dunkler Streifen über die volle Breite */}
-      <section className="sbb-teil sbb-streifen sbb-insel"><div className="sbb-spalte">
+      {/* Das System – im Mix ein dunkler Streifen über die volle Breite; Anker „vision“ für das Besuchermenü in der Kopfleiste */}
+      <section className="sbb-teil sbb-streifen sbb-insel" id="vision" style={{ scrollMarginTop: 56 }}><div className="sbb-spalte">
         <Kopf titel="Erst sauber schreiben lernen. Dann trainieren, bis es sitzt." />
         <p className="sbb-text">Die meisten Fehler in Klausuren entstehen nicht im Kopf, sondern auf dem Blatt.</p>
         <p className="sbb-text">Pen & Paper ist der Kurs dazu: ein Schritt pro Zeile, Gleichheitszeichen untereinander.</p>

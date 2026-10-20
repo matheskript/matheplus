@@ -1,7 +1,6 @@
 import { mitMathildaAI } from "./mathildaName.jsx";
 import { lazyLaden, ChunkGrenze } from "./chunkSchutz.jsx";
 import React, { useState, useRef, useEffect } from "react";
-import { MarkenLogo } from "./markenLogo.jsx";
 import { API_URL, C, REGELN, VIDEO_URL, blattPrompt } from "./base1.jsx";
 import { KOMP } from "./base3.jsx";
 import { NAV, SCHULKLASSEN, kiKopf, kiAntwort } from "./base4.jsx";
@@ -37,7 +36,8 @@ import { Messbericht, Modellieren, Probeabitur, Wochenbericht } from "./func8.js
 import { Auswertung, Einwilligung, KiEinwilligungFenster, einwilligungLesen } from "./func9.jsx";
 import { TrainingFortschritt, PruefungsLink } from "./funcTraining.jsx";
 import { Fusszeile } from "./funcRecht.jsx";
-import { HauptMenue, KontoBereich } from "./funcHauptmenue.jsx";
+import { HauptMenue } from "./funcHauptmenue.jsx";
+import { Kopfleiste } from "./funcKopfleiste.jsx";
 import { Arbeitsmenue } from "./funcArbeitsmenue.jsx";
 import { FeedbackKnopf } from "./funcFeedback.jsx";
 import { MatheTastaturHost } from "./matheTastatur.jsx";
@@ -53,6 +53,8 @@ import { Laden, SeitenKopf, WerkzeugSeite, istWzSeite } from "./funcWerkzeugSeit
 const ElternkursSeite = lazyLaden(() => import("./funcElternkurs.jsx").then((m) => ({ default: m.ElternkursSeite })));
 const NachhilfekursSeite = lazyLaden(() => import("./funcNachhilfekurs.jsx").then((m) => ({ default: m.NachhilfekursSeite })));
 const DokumenteSeite = lazyLaden(() => import("./funcDokumente.jsx").then((m) => ({ default: m.DokumenteSeite })));
+/* Blog (öffentlich): /blog und /blog/<slug>, Daten in blogDaten.js */
+const BlogSeite = lazyLaden(() => import("./funcBlog.jsx").then((m) => ({ default: m.BlogSeite })));
 const EntdeckenSeite = lazyLaden(() => import("./funcEntdecken.jsx").then((m) => ({ default: m.EntdeckenSeite })));
 const PenPaperKursSeite = lazyLaden(() => import("./funcPenPaperKurs.jsx").then((m) => ({ default: m.PenPaperKursSeite })));
 const KontoSeite = lazyLaden(() => import("./funcKonto.jsx").then((m) => ({ default: m.KontoSeite })));
@@ -210,6 +212,7 @@ export function Mathilda() {
   const [wzSeite, setWzSeite] = useState(null);             // Reiter eines Werkzeugs mit Unterpfaden (Textaufgaben: verstehen | training | mathilda)
   const [hnModul, setHnModul] = useState(null);             // direkt geöffneter Bereich von Head & Numbers
   const [usSeite, setUsSeite] = useState(null);             // Modul Unterstufe: klasse-5 | klasse-6 | Lerneinheit (Pfad /unterstufe/…)
+  const [blogSeite, setBlogSeite] = useState(null);         // Blog: Slug des offenen Beitrags (Pfad /blog/<slug>) oder null = Übersicht
   const [entdeckenStart, setEntdeckenStart] = useState(null);   // direkt geöffnetes Lernangebot in „Mathe entdecken“
   const [landWahl, setLandWahl] = useState("bw");
   const [formelBereich, setFormelBereich] = useState("analysis");
@@ -255,7 +258,7 @@ export function Mathilda() {
   const adressErsterLauf = useRef(true);
   const adressAusVerlauf = useRef(0);   // Zeitpunkt der letzten Zurück/Vor-Taste
   const adressZustand = {
-    ansicht, klasse: klasseAktiv, land: landWahl, trainer: kopfTrainer, seite: ansicht === "gleichkurs" ? gkSeite : ansicht === "textaufgaben" ? wzSeite : ansicht === "unterstufe" ? usSeite : entdeckenStart, kurs: kursStart,
+    ansicht, klasse: klasseAktiv, land: landWahl, trainer: kopfTrainer, seite: ansicht === "gleichkurs" ? gkSeite : ansicht === "textaufgaben" ? wzSeite : ansicht === "unterstufe" ? usSeite : ansicht === "blog" ? blogSeite : entdeckenStart, kurs: kursStart,
     ziel: ansicht === "training" ? trainZiel : ansicht === "ki" ? genZiel : undefined,
     foto: ansicht === "analyse" ? fotoModus : undefined,
     ...(ansicht === "blatt" ? { band: blattZiel.band, seite: blattZiel.seite, nr: blattZiel.nr, kasten: blattZiel.kasten } : {}),
@@ -284,7 +287,7 @@ export function Mathilda() {
       if (erster || ausVerlauf) window.history.replaceState({}, "", soll + rest);
       else window.history.pushState({}, "", soll + rest);
     } catch (e) { /* ignorieren */ }
-  }, [ansicht, trainZiel, genZiel, fotoModus, klasseAktiv, kopfTrainer, entdeckenStart, kursStart, landWahl, wzSeite, usSeite]);
+  }, [ansicht, trainZiel, genZiel, fotoModus, klasseAktiv, kopfTrainer, entdeckenStart, kursStart, landWahl, wzSeite, usSeite, blogSeite]);
   // Zurück/Vor-Taste des Browsers
   useEffect(() => {
     const f = () => {
@@ -317,6 +320,7 @@ export function Mathilda() {
     setHnModul(eintrag.ansicht === "headnumbers" ? eintrag.modul || null : null);
     setGkSeite(eintrag.ansicht === "gleichkurs" ? eintrag.seite || null : null);
     setUsSeite(eintrag.ansicht === "unterstufe" ? eintrag.seite || null : null);
+    setBlogSeite(eintrag.ansicht === "blog" ? eintrag.seite || null : null);
     setWzSeite(eintrag.ansicht === "textaufgaben" ? eintrag.seite || null : null);
     setEntdeckenStart(eintrag.ansicht === "entdecken" ? eintrag.seite || null : null);
     setEntdeckenStart(eintrag.ansicht === "entdecken" ? eintrag.seite || null : null);
@@ -506,46 +510,10 @@ export function Mathilda() {
         .seitenumbruch { page-break-before: always; }
       }`}</style>
 
-      {/* Kopfleiste mit Menü */}
+      {/* Kopfleiste mit Menü (src/funcKopfleiste.jsx): folgt dem Modus der Startseite, Besucher bekommen das feste Menü */}
       {!ohneKopf && (
-      <div data-kopfleiste style={{ position: "relative", zIndex: 50, background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
-        <div className="mx-auto flex items-center justify-between kopf-zeile" style={{ maxWidth: 620, height: "var(--kopf-h, 56px)", paddingLeft: 18, paddingRight: 12 }}>
-          <style>{`
-            :root{--kopf-h:56px}
-            @media (min-width:421px){:root{--kopf-h:clamp(62px, calc(11.1vw + 26px), 90px)}.kopf-slogan{margin-top:6px !important}}
-            @media (min-width:840px){.kopf-slogan{margin-top:1px !important}}
-            .titel-kurz{display:none}
-            @media (max-width:520px){.held{padding-top:18px !important;padding-bottom:4px !important}.held h1{font-size:25px !important;line-height:1.1 !important}.held h1+div{margin-top:12px !important;margin-bottom:13px !important}.held-welle{height:12px !important}}
-            .kopfblock{margin-bottom:-16px}
-            .kopfblock .held{padding-bottom:30px !important}
-            @media (max-width:520px){.kopfblock .held{padding-bottom:22px !important}}
-            @media (max-width:480px){.titel-lang{display:none}.titel-kurz{display:inline}
-              .sek-menue{flex-wrap:nowrap !important;gap:5px !important;overflow-x:auto;scrollbar-width:none;margin-right:-24px;padding-right:24px}
-              .sek-menue::-webkit-scrollbar{display:none}
-              .sek-chip{flex:1 1 auto;padding:6px 6px !important;font-size:12px !important;text-align:center}
-              .intro-h2{font-size:clamp(20px,6.6vw,26px) !important;white-space:nowrap}
-              .intro-p{display:-webkit-box !important;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}}
-            @media (max-width:340px){.sek-chip{padding:6px 4px !important;font-size:11.5px !important}.sek-menue{gap:4px !important}}
-            .titel-silber{background:linear-gradient(180deg,#FFFFFF 0%,${C.silberHell} 50%,${C.silber} 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
-          `}</style>
-          <button type="button" data-kein-i18n aria-label={englisch() ? "Home" : "Zur Startseite"} title={englisch() ? "Home" : "Zur Startseite"}
-            onClick={() => { setAnsicht("start"); setMenuOffen(false); setGruppeOffen(null); setSeitenOffen(false); springe("seitenwechsel", () => window.scrollTo(0, 0)); }}
-            style={{ background: "none", border: "none", padding: 0, margin: 0, cursor: "pointer", fontFamily: "inherit", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", minWidth: 0 }}>
-            {/* Wortmarke in der Schrift der Startseiten-Headline (src/markenLogo.jsx) */}
-            <MarkenLogo groesse="clamp(21px, 7vw, 40px)" />
-            <span className="kopf-slogan" style={{ fontSize: "clamp(12.25px, 4.083vw, 23.33px)", fontWeight: 600, marginTop: 0, letterSpacing: "0.03em", color: "#FFFFFF", whiteSpace: "nowrap", lineHeight: 1 }}>
-              System <span style={{ color: C.flaggold }}>+</span> Freude <span style={{ color: C.flaggold }}>=</span> Erfolg
-            </span>
-          </button>
-          <div className="flex items-center" style={{ gap: 6, marginLeft: 10, flexShrink: 0 }}>
-          {/* Konto-Chip (angemeldet) + Menü-Knopf ☰ – das alte Kopfmenü ist als „Arbeitsmenü“ in der Fußzeile */}
-          <KontoBereich offen={hmOffen} setOffen={setHmOffen} gehe={gehe} />
-          </div>
-        </div>
-        {/* ☰-Menü (Fenster): Suche · Mathilda · Meine Kurse · Klasse · Mein Training · Mathematik · Konto · Abmelden/Anmelden */}
-        <div className="mx-auto kopf-zeile" style={{ maxWidth: 620, paddingLeft: 12, paddingRight: 12 }}>
-          <HauptMenue gehe={gehe} ansicht={ansicht} foto={fotoModus} seite={wzSeite} offen={hmOffen} setOffen={setHmOffen} />
-        </div>
+      <Kopfleiste ansicht={ansicht} gehe={gehe} hmOffen={hmOffen} setHmOffen={setHmOffen} fotoModus={fotoModus} wzSeite={wzSeite}
+        zurStartseite={() => { setAnsicht("start"); setMenuOffen(false); setGruppeOffen(null); setSeitenOffen(false); springe("seitenwechsel", () => window.scrollTo(0, 0)); }}>
         {menuOffen && (
           <div style={{ background: C.seeTief, maxHeight: "72vh", overflowY: "auto" }}>
             <div className="mx-auto px-6 py-2" style={{ maxWidth: 620 }}>
@@ -588,7 +556,7 @@ export function Mathilda() {
             </div>
           </div>
         )}
-      </div>
+      </Kopfleiste>
       )}
 
       <ChunkGrenze key={ansicht}>
@@ -1117,6 +1085,8 @@ export function Mathilda() {
         <EntwurfTor gehe={gehe}><ElternabendSeite gebucht={ticketGebucht} /></EntwurfTor>
       ) : ansicht === "dokumente" ? (
         <EntwurfTor gehe={gehe}><DokumenteSeite /></EntwurfTor>
+      ) : ansicht === "blog" ? (
+        <BlogSeite gehe={gehe} seite={blogSeite} setSeite={setBlogSeite} />
       ) : ansicht === "challenge" ? (
         <>
           <SeitenKopf titel="Klassen-Challenge" groesse="clamp(26px, 7.6vw, 31px)" rund>

@@ -41,6 +41,10 @@ Jede Lerneinheit hat mindestens eine Animation und ein Video (`src/unterstufeMed
 ## Logo: nur über `MarkenLogo`
 Die Wortmarke MYTHOSMATHE.DE kommt immer aus `src/markenLogo.jsx` (`<MarkenLogo groesse=… />`, auf hellem Grund `grund="hell"`, für PDF-Bilder `druck`): Schrift der Startseiten-Headline, Black, Laufweite −0,02 em, Weiß + Headline-Gold. Nie selbst nachbauen; die Wochenmail (`src/wochenmail.js`) setzt dieselben Werte als HTML.
 
+## Kopfleiste und Blog
+Die Zeile oben ist `src/funcKopfleiste.jsx` (Daten des Besuchermenüs in `src/kopfleiste.js`). Sie folgt dem Modus der Startseite (dunkel/hell/mix, `startModus.js`) über CSS-Variablen an `data-modus`. Besucher ohne Konto: Wortmarke ein Drittel kleiner, festes Menü Vision · Mathe lernen · Mathilda AI · Blog (nie zum Ausklappen; ab 960 px eine breite Zeile, darunter Menü in Zeile zwei). Wortmarke darf nie schrumpfen (`flex-shrink: 0`), Kurve wird per `clip-path` aufgedeckt, nicht per Strichlänge.
+Blog: Beiträge in `src/blogDaten.js` (neuester oben, `motiv` oder `bild`), Seite `src/funcBlog.jsx`, Pfade `/blog` und `/blog/<slug>`. Bewusst schlicht: keine Kommentare, Zähler oder Kästen. Motive mathematisch exakt zeichnen (Tangente berührt, Quadrate stimmen). Tests: `tests/kopfleiste.test.mjs`, `tests/blog.test.mjs`, Browser `tests/ui/kopfleiste.ui.py`.
+
 ## Dokumente: jedes neue PDF kommt in die Liste
 Die Seite „Dokumente“ (Arbeitsmenü F, Pfad `/dokumente`, hinter dem gemeinsamen Passwort) zeigt eine Box je Dokument mit Art, Seitenzahl und Zweck (Amazon · Hier auf der Seite · Investoren · Intern). Die Liste steht in `src/dokumente.js` (`DOKUMENTE`), die Seite in `src/funcDokumente.jsx`.
 - **Immer**, wenn in einer Sitzung ein PDF/Dokument entsteht (Schulbuch, Arbeitsheft, Businessplan, Finanzplan …): Eintrag in `DOKUMENTE` ergänzen (Titel, Art, echte Seitenzahl mit `pdfinfo`, Zweck, Stand). Test: `tests/dokumente.test.mjs`, Browser: `tests/ui/dokumente.ui.py`.
