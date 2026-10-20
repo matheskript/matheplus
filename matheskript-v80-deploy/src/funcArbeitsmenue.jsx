@@ -6,7 +6,7 @@
 import React, { useEffect, useState } from "react";
 import { C } from "./base1.jsx";
 import { englisch } from "./i18n.js";
-import { ENTWUERFE, WEITERE_SEITEN, LANDING, istFrei, entsperren, EVENT_FREI } from "./seitenKonstanten.js";
+import { ENTWUERFE, WEITERE_SEITEN, LANDING, DOKUMENTE_SEITE, istFrei, entsperren, EVENT_FREI } from "./seitenKonstanten.js";
 import { ANGEBOT } from "./angebot.js";
 import { ToolMenue } from "./func2.jsx";
 import { AufklappZeichen } from "./aufklappen.jsx";
@@ -15,6 +15,8 @@ import { EVENT_START_MODUS, naechsterModus, startModus, startModusSetzen } from 
 export function Arbeitsmenue({ gehe, ansicht, sprachKnopf, stil }) {
   const [offen, setOffen] = useState(false);
   const [baumAuf, setBaumAuf] = useState(false);
+  const [entwuerfeAuf, setEntwuerfeAuf] = useState(false);   // D Entwürfe
+  const [weitereAuf, setWeitereAuf] = useState(false);       // E Weitere Seiten
   const [frei, setFrei] = useState(istFrei);
   const [modus, setModus] = useState(startModus);   // Startseite dunkel / hell (startModus.js)
   useEffect(() => {
@@ -31,11 +33,15 @@ export function Arbeitsmenue({ gehe, ansicht, sprachKnopf, stil }) {
     return () => window.removeEventListener(EVENT_FREI, h);
   }, []);
   useEffect(() => {
-    if (!offen) { setBaumAuf(false); setPwZiel(null); setPw(""); setPwFehler(false); return; }
+    if (!offen) {
+      setBaumAuf(false); setPwZiel(null); setPw(""); setPwFehler(false);
+      setEntwuerfeAuf(false); setWeitereAuf(WEITERE_SEITEN.some((e) => e.ansicht === ansicht));   // E offen, wenn man gerade auf einer dieser Seiten ist
+      return;
+    }
     const t = (e) => { if (e.key === "Escape") setOffen(false); };
     window.addEventListener("keydown", t);
     return () => window.removeEventListener("keydown", t);
-  }, [offen]);
+  }, [offen, ansicht]);
   const geh = (z) => { setOffen(false); gehe(z); };
   /* Geschützte Seite: mit Passwort (Sitzung) direkt öffnen, sonst erst das Passwortfeld zeigen */
   const gesperrt = (ansichtZiel) => {
@@ -66,7 +72,33 @@ export function Arbeitsmenue({ gehe, ansicht, sprachKnopf, stil }) {
   };
   const zeile = { width: "100%", display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", borderRadius: 10, border: "none", cursor: "pointer", fontFamily: "inherit", textAlign: "left", color: C.tinte };
   const kreis = (an) => ({ width: 28, height: 28, borderRadius: 999, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12.5, fontWeight: 700, background: an ? C.flaggold : C.himmel, color: an ? C.seeTief : C.grau });
-  const landAn = ansicht === LANDING;
+  /* Passwortfeld direkt unter der Gruppe, in der man geklickt hat – so liegt es immer im Blick (kein Scrollen nötig) */
+  const formular = (ziele) => pwZiel && ziele.includes(pwZiel) && (
+    <form onSubmit={pruefen} data-arbeitsmenue-passwort style={{ margin: "10px 4px 4px", padding: 12, borderRadius: 12, background: "#EEF1F6" }}>
+      <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 8 }}>Passwort für diese Seite</label>
+      <div style={{ display: "flex", gap: 8 }}>
+        <input type="password" value={pw} autoFocus autoComplete="off" aria-label="Passwort" placeholder="Passwort"
+          onChange={(e) => { setPw(e.target.value); setPwFehler(false); }}
+          style={{ flex: 1, minWidth: 0, boxSizing: "border-box", padding: "10px 12px", borderRadius: 10, fontSize: 16, fontFamily: "inherit", color: C.tinte, border: `2px solid ${pwFehler ? "#E5484D" : "transparent"}`, outline: "none", background: "#fff" }} />
+        <button type="submit" style={{ padding: "0 16px", borderRadius: 10, border: "none", cursor: "pointer", fontFamily: "inherit", fontWeight: 700, fontSize: 14, background: C.flaggold, color: C.seeTief }}>Öffnen</button>
+      </div>
+      {pwFehler && <div role="alert" style={{ color: "#B3261E", fontSize: 13, marginTop: 6 }}>Das Passwort stimmt nicht.</div>}
+    </form>
+  );
+  /* Aufklapp-Gruppe wie „C Alle Bereiche“: Buchstabe, Name, Pfeil */
+  const gruppe = (nr, name, auf, setAuf, attr, kinder) => (
+    <>
+      <button type="button" onClick={() => setAuf(!auf)} aria-expanded={auf} data-kein-scroll {...{ [attr]: true }}
+        style={{ ...zeile, justifyContent: "space-between", background: auf ? "rgba(237,187,0,0.14)" : "transparent" }}>
+        <span style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <span style={kreis(auf)}>{nr}</span>
+          <span style={{ fontSize: 14.5, fontWeight: 700 }}>{name}</span>
+        </span>
+        <AufklappZeichen auf={auf} groesse={16} />
+      </button>
+      {auf && <div data-aufklapp-inhalt style={{ margin: "0 0 6px", padding: "0 0 4px" }}>{kinder}</div>}
+    </>
+  );
   const startAn = ansicht === "start";
   return (
     <span style={{ position: "relative", display: "inline-block" }}>
@@ -83,6 +115,7 @@ export function Arbeitsmenue({ gehe, ansicht, sprachKnopf, stil }) {
               <span style={kreis(startAn)}>A</span><span style={{ flex: 1, fontSize: 14.5, fontWeight: 700 }}>Startseite</span>
             </button>
             {geschuetzt(LANDING, "Landingpage", "B")}
+            {formular([LANDING])}
             <button type="button" onClick={() => { setOffen(false); sprachKnopf(); }} data-kein-i18n style={{ ...zeile, background: "transparent" }}>
               <span style={kreis(false)}>{englisch() ? "DE" : "EN"}</span>
               <span style={{ flex: 1, fontSize: 14.5, fontWeight: 700 }}>{englisch() ? "Auf Deutsch wechseln" : "Switch to English"}</span>
@@ -106,22 +139,22 @@ export function Arbeitsmenue({ gehe, ansicht, sprachKnopf, stil }) {
                 <ToolMenue eingebettet gehe={geh} schliessen={() => setOffen(false)} aktuell={ansicht} />
               </div>
             )}
-            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", color: C.grau, padding: "12px 12px 2px" }}>ENTWÜRFE</div>
-            {ENTWUERFE.map((e, i) => geschuetzt(e.ansicht, e.name, i + 1, true))}
-            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", color: C.grau, padding: "12px 12px 2px" }}>WEITERE SEITEN</div>
-            {WEITERE_SEITEN.map((e, i) => geschuetzt(e.ansicht, e.name, String.fromCharCode(68 + i), true))}
-            {pwZiel && (
-              <form onSubmit={pruefen} data-arbeitsmenue-passwort style={{ margin: "10px 4px 4px", padding: 12, borderRadius: 12, background: "#EEF1F6" }}>
-                <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 8 }}>Passwort für diese Seite</label>
-                <div style={{ display: "flex", gap: 8 }}>
-                  <input type="password" value={pw} autoFocus autoComplete="off" aria-label="Passwort" placeholder="Passwort"
-                    onChange={(e) => { setPw(e.target.value); setPwFehler(false); }}
-                    style={{ flex: 1, minWidth: 0, boxSizing: "border-box", padding: "10px 12px", borderRadius: 10, fontSize: 16, fontFamily: "inherit", color: C.tinte, border: `2px solid ${pwFehler ? "#E5484D" : "transparent"}`, outline: "none", background: "#fff" }} />
-                  <button type="submit" style={{ padding: "0 16px", borderRadius: 10, border: "none", cursor: "pointer", fontFamily: "inherit", fontWeight: 700, fontSize: 14, background: C.flaggold, color: C.seeTief }}>Öffnen</button>
-                </div>
-                {pwFehler && <div role="alert" style={{ color: "#B3261E", fontSize: 13, marginTop: 6 }}>Das Passwort stimmt nicht.</div>}
-              </form>
-            )}
+            {/* D Entwürfe und E Weitere Seiten: eingeklappt, wie C – damit nicht alles gleich dasteht */}
+            {gruppe("D", "Entwürfe", entwuerfeAuf, setEntwuerfeAuf, "data-arbeitsmenue-entwuerfe", (
+              <>
+                {ENTWUERFE.map((e, i) => geschuetzt(e.ansicht, e.name, i + 1, true))}
+                {formular(ENTWUERFE.map((e) => e.ansicht))}
+              </>
+            ))}
+            {gruppe("E", "Weitere Seiten", weitereAuf, setWeitereAuf, "data-arbeitsmenue-weitere", (
+              <>
+                {WEITERE_SEITEN.map((e, i) => geschuetzt(e.ansicht, e.name, i + 1, true))}
+                {formular(WEITERE_SEITEN.map((e) => e.ansicht))}
+              </>
+            ))}
+            {/* F Dokumente: ganz unten, hinter demselben Passwort */}
+            {geschuetzt(DOKUMENTE_SEITE, "Dokumente", "F")}
+            {formular([DOKUMENTE_SEITE])}
           </div>
         </>
       )}

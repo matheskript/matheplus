@@ -16,6 +16,8 @@ export const WEITERE_SEITEN = [
   { ansicht: "mathecheck", name: "Mathe checken" },
   { ansicht: "nachhilfekurs", name: "Nachhilfe-Kurs" },
 ];
+/* Seite „Dokumente“ (src/funcDokumente.jsx, Liste in src/dokumente.js) – steht im Arbeitsmenü ganz unten */
+export const DOKUMENTE_SEITE = "dokumente";
 export const istEntwurf = (a) => typeof a === "string" && a.startsWith("entwurf-");
 
 /* Passwort-Sperre (gemeinsam für Entwürfe, 7 Mathe-Mythen, Elternabend). Im Code steht nur der SHA-256-Wert.

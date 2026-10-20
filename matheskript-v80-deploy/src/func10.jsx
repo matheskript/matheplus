@@ -52,6 +52,7 @@ import { Laden, SeitenKopf, WerkzeugSeite, istWzSeite } from "./funcWerkzeugSeit
 /* Seiten werden erst beim Öffnen nachgeladen (je eigener Chunk) */
 const ElternkursSeite = lazyLaden(() => import("./funcElternkurs.jsx").then((m) => ({ default: m.ElternkursSeite })));
 const NachhilfekursSeite = lazyLaden(() => import("./funcNachhilfekurs.jsx").then((m) => ({ default: m.NachhilfekursSeite })));
+const DokumenteSeite = lazyLaden(() => import("./funcDokumente.jsx").then((m) => ({ default: m.DokumenteSeite })));
 const EntdeckenSeite = lazyLaden(() => import("./funcEntdecken.jsx").then((m) => ({ default: m.EntdeckenSeite })));
 const PenPaperKursSeite = lazyLaden(() => import("./funcPenPaperKurs.jsx").then((m) => ({ default: m.PenPaperKursSeite })));
 const KontoSeite = lazyLaden(() => import("./funcKonto.jsx").then((m) => ({ default: m.KontoSeite })));
@@ -1105,6 +1106,8 @@ export function Mathilda() {
         </React.Suspense>
       ) : ansicht === "elternabend" ? (
         <EntwurfTor gehe={gehe}><ElternabendSeite gebucht={ticketGebucht} /></EntwurfTor>
+      ) : ansicht === "dokumente" ? (
+        <EntwurfTor gehe={gehe}><DokumenteSeite /></EntwurfTor>
       ) : ansicht === "challenge" ? (
         <>
           <SeitenKopf titel="Klassen-Challenge" groesse="clamp(26px, 7.6vw, 31px)" rund>

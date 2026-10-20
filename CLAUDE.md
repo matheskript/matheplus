@@ -34,5 +34,11 @@ Die Kurse (Unterstufe, Differentialrechnung, Vektoren/Geraden/Ebenen, GFS, Mathe
 ## Logo: nur über `MarkenLogo`
 Die Wortmarke MYTHOSMATHE.DE kommt immer aus `src/markenLogo.jsx` (`<MarkenLogo groesse=… />`, auf hellem Grund `grund="hell"`, für PDF-Bilder `druck`): Schrift der Startseiten-Headline, Black, Laufweite −0,02 em, Weiß + Headline-Gold. Nie selbst nachbauen; die Wochenmail (`src/wochenmail.js`) setzt dieselben Werte als HTML.
 
+## Dokumente: jedes neue PDF kommt in die Liste
+Die Seite „Dokumente“ (Arbeitsmenü F, Pfad `/dokumente`, hinter dem gemeinsamen Passwort) zeigt eine Box je Dokument mit Art, Seitenzahl und Zweck (Amazon · Hier auf der Seite · Investoren · Intern). Die Liste steht in `src/dokumente.js` (`DOKUMENTE`), die Seite in `src/funcDokumente.jsx`.
+- **Immer**, wenn in einer Sitzung ein PDF/Dokument entsteht (Schulbuch, Arbeitsheft, Businessplan, Finanzplan …): Eintrag in `DOKUMENTE` ergänzen (Titel, Art, echte Seitenzahl mit `pdfinfo`, Zweck, Stand). Test: `tests/dokumente.test.mjs`, Browser: `tests/ui/dokumente.ui.py`.
+- Datei nur dann unter `public/` legen und in `datei` eintragen, wenn sie öffentlich sein darf (alles in `public/` ist per Direktlink ohne Passwort abrufbar). **Vertrauliches** (Businessplan, Finanzplan, Investorenunterlagen) bleibt `datei: null`.
+- Arbeitsmenü: A Startseite, B Landingpage, C Alle Bereiche (Aufklapp-Gruppe), D Entwürfe (Aufklapp-Gruppe), E Weitere Seiten (Aufklapp-Gruppe), F Dokumente. Neue Entwürfe/Seiten in `src/seitenKonstanten.js` eintragen.
+
 ## Sonst
 Regel A5 (nichts unvereinfacht), generisches Maskulinum, Farben aus `C` in `base1.jsx`, `base*.jsx` importiert nie aus `func*.jsx`. Gesamtstand: Projekt-Dokument `claude/matheplus-stand.md`.
