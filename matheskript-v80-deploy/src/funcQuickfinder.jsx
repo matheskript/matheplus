@@ -675,7 +675,8 @@ export function Quickfinder({ gehe, setzeStufe, links }) {
           .qf-sa[aria-pressed="false"]:hover{background:rgba(255,255,255,0.1) !important}
           .qf-kl[aria-pressed="false"]:hover{border-color:${C.see}55 !important}
           .qf-gold:hover{filter:brightness(1.04)}
-          .ht-gold:hover{filter:brightness(1.05)}}
+          .ht-gold:hover{filter:brightness(1.05)}
+          .ht-blau:hover{filter:brightness(1.12);border-color:rgba(255,255,255,0.4) !important}}
         .qf-kopf.qf-fertig{grid-template-areas:"kopf" "schul";padding-bottom:12px}
         @media (min-width:600px){.qf-kopf.qf-fertig{grid-template-rows:auto;grid-template-areas:"kopf schul";align-items:start}}`}</style>
       <div className={fertig ? "qf-kopf qf-fertig" : "qf-kopf"}>

@@ -60,7 +60,7 @@ with sync_playwright() as p:
         pruefe(page.get_by_text("Dein Hauptthema").count() >= 1, f"{breite}: Kicker fehlt")
         pruefe(page.get_by_text("17").first.count() >= 1 and page.get_by_text("Tage", exact=True).count() >= 1, f"{breite}: Countdown fehlt")
         pruefe(page.get_by_text("Heute dran").count() >= 1, f"{breite}: „Heute dran“ fehlt")
-        pruefe(page.get_by_text("Unterthemen · dein Stand").count() == 1, f"{breite}: Unterthemen fehlen")
+        pruefe(page.get_by_text("Unterthemen · Dein Stand").count() == 1, f"{breite}: Unterthemen fehlen")
         pruefe(page.get_by_role("button", name="Scheitelpunktform").count() >= 1, f"{breite}: Unterthema Scheitelpunktform fehlt")
         pruefe(page.get_by_text("Alles zu diesem Kapitel").count() == 1, f"{breite}: Werkzeuge fehlen")
         pruefe(page.get_by_text("Dafür brauchst du sicher").count() == 1, f"{breite}: Vorwissen fehlt")

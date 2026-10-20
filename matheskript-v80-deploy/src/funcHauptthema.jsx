@@ -81,39 +81,56 @@ export function HauptthemaLeiste({ haupt, zurueck, beenden }) {
   );
 }
 
-/* ---------- Status-Symbol eines Unterthemas ---------- */
+/* ---------- Status-Symbol eines Unterthemas (auf blauem Grund: Weiß = sicher/geübt, Gold = wackelt) ---------- */
+const PUNKT_REST = "rgba(255,255,255,0.22)";
+const PUNKT_RAND = "rgba(255,255,255,0.55)";
 function StandPunkt({ art }) {
-  const basis = { flexShrink: 0, width: 22, height: 22, borderRadius: 999, boxSizing: "border-box", display: "inline-flex", alignItems: "center", justifyContent: "center" };
+  const basis = { flexShrink: 0, width: 24, height: 24, borderRadius: 999, boxSizing: "border-box", display: "inline-flex", alignItems: "center", justifyContent: "center" };
   if (art === "sicher") return (
-    <span aria-hidden="true" style={{ ...basis, background: C.see }}>
-      <svg width="12" height="12" viewBox="0 0 12 12"><path d="M2.2 6.3 L4.8 8.8 L9.8 3.4" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+    <span aria-hidden="true" style={{ ...basis, background: C.weiss }}>
+      <svg width="13" height="13" viewBox="0 0 12 12"><path d="M2.2 6.3 L4.8 8.8 L9.8 3.4" fill="none" stroke={C.see} strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round" /></svg>
     </span>
   );
-  if (art === "geuebt") return <span aria-hidden="true" style={{ ...basis, background: `conic-gradient(${C.see} 0deg 180deg, ${C.linie} 180deg 360deg)` }} />;
-  if (art === "unsicher") return <span aria-hidden="true" style={{ ...basis, background: `conic-gradient(${C.flaggold} 0deg 120deg, ${C.linie} 120deg 360deg)` }} />;
-  if (art === "offen") return <span aria-hidden="true" style={{ ...basis, border: `2px solid ${C.linie}` }} />;
-  return <span aria-hidden="true" style={{ ...basis, border: `2px dashed ${C.linie}` }} />;
+  if (art === "geuebt") return <span aria-hidden="true" style={{ ...basis, background: `conic-gradient(${C.weiss} 0deg 180deg, ${PUNKT_REST} 180deg 360deg)` }} />;
+  if (art === "unsicher") return <span aria-hidden="true" style={{ ...basis, background: `conic-gradient(${C.flaggold} 0deg 120deg, ${PUNKT_REST} 120deg 360deg)` }} />;
+  if (art === "offen") return <span aria-hidden="true" style={{ ...basis, border: `2px solid ${PUNKT_RAND}` }} />;
+  return <span aria-hidden="true" style={{ ...basis, border: `2px dashed ${PUNKT_RAND}` }} />;
 }
 
-function Zeile({ onClick, gold, links, titel, unter, etikett, disabled }) {
+/* Etikett-Pillen der Werkzeuge: je Art eine Farbe */
+const ETIKETT_STIL = {
+  rechnen: { background: C.see, color: C.weiss },
+  trainieren: { background: C.flaggold, color: C.seeTief },
+  entdecken: { background: C.seeTief, color: C.flaggold },
+};
+
+/* Zeile: weiß (Werkzeuge) oder blau (Unterthemen – weiße Schrift, Gold für „wackelt“ und „heute dran“) */
+function Zeile({ onClick, gold, blau, links, titel, unter, unterGold, etikett, etikettArt, disabled }) {
+  const hell = !blau;
+  const rand = blau ? (gold ? C.flaggold : "rgba(255,255,255,0.12)") : gold ? C.flaggold : C.linie;
+  const grund = blau ? C.see : gold ? "#FFFBEA" : C.weiss;
+  const unterFarbe = blau ? (gold || unterGold ? C.flaggold : NACHT_TEXT) : gold ? GOLD_DUNKEL : C.grau;
   return (
-    <button type="button" onClick={onClick} disabled={disabled} className={disabled ? undefined : "qf-balken"}
-      style={{ ...knopf, width: "100%", display: "flex", alignItems: "center", gap: 10, textAlign: "left", minHeight: 48, padding: "7px 10px 7px 12px", borderRadius: 10,
-        border: `1.5px solid ${gold ? C.flaggold : C.linie}`, background: gold ? "#FFFBEA" : C.weiss, cursor: disabled ? "default" : "pointer", opacity: disabled ? 0.55 : 1 }}>
+    <button type="button" onClick={onClick} disabled={disabled} className={disabled ? undefined : blau ? "ht-blau" : "qf-balken"}
+      style={{ ...knopf, width: "100%", display: "flex", alignItems: "center", gap: 11, textAlign: "left", minHeight: blau ? 54 : 50, padding: blau ? "9px 12px 9px 13px" : "8px 10px 8px 13px", borderRadius: 12,
+        border: `1.5px solid ${rand}`, background: grund, cursor: disabled ? "default" : "pointer", opacity: disabled ? 0.6 : 1,
+        boxShadow: blau && !disabled ? "0 3px 10px rgba(0,77,152,0.18)" : "none" }}>
       {links}
       <span style={{ flex: 1, minWidth: 0 }}>
-        <span style={{ display: "block", fontSize: 14, fontWeight: gold ? 700 : 600, color: C.tinte, lineHeight: 1.25 }}>{titel}</span>
-        {unter && <span style={{ display: "block", fontSize: 11.5, fontWeight: gold ? 600 : 500, color: gold ? GOLD_DUNKEL : C.grau, marginTop: 1, lineHeight: 1.3 }}>{unter}</span>}
+        <span style={{ display: "block", fontSize: blau ? 15 : 14.5, fontWeight: 700, color: hell ? C.tinte : C.weiss, lineHeight: 1.25, letterSpacing: blau ? "-0.005em" : 0 }}>{titel}</span>
+        {unter && <span style={{ display: "block", fontSize: 11.5, fontWeight: gold || unterGold ? 700 : 500, color: unterFarbe, marginTop: 2, lineHeight: 1.3 }}>{unter}</span>}
       </span>
-      {etikett && <span style={{ flexShrink: 0, fontSize: 10, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: C.see, padding: "3px 7px", borderRadius: 999, background: C.himmel }}>{etikett}</span>}
-      {!disabled && <span aria-hidden="true" style={{ flexShrink: 0, fontSize: 20, color: gold ? GOLD_DUNKEL : C.see }}>›</span>}
+      {etikett && <span style={{ flexShrink: 0, fontSize: 9.5, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", padding: "4px 9px", borderRadius: 999, ...(ETIKETT_STIL[etikettArt] || { background: C.himmel, color: C.see }) }}>{etikett}</span>}
+      {!disabled && <span aria-hidden="true" style={{ flexShrink: 0, fontSize: 21, fontWeight: 700, color: blau ? C.flaggold : gold ? GOLD_DUNKEL : C.see }}>›</span>}
     </button>
   );
 }
-const Abschnitt = ({ children, rechts, farbe = C.grau }) => (
-  <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8, margin: "0 2px 6px", flexWrap: "wrap" }}>
-    <p style={{ ...KICKER, color: farbe }}>{children}</p>
-    {rechts && <p style={{ margin: 0, fontSize: 11.5, fontWeight: 600, color: C.grau }}>{rechts}</p>}
+/* Abschnitts-Überschrift: goldener Akzentstrich, kräftiger Titel, rechts eine Pille (z. B. „2 geübt“) */
+const Abschnitt = ({ children, rechts, farbe = C.seeTief }) => (
+  <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "6px 2px 8px" }}>
+    <span aria-hidden="true" style={{ flexShrink: 0, width: 5, height: 20, borderRadius: 999, background: `linear-gradient(180deg, ${C.flaggold}, ${C.granaHell})` }} />
+    <p style={{ margin: 0, flex: 1, minWidth: 0, fontSize: 16.5, fontWeight: 800, lineHeight: 1.2, letterSpacing: "-0.015em", color: farbe }}>{children}</p>
+    {rechts && <span style={{ flexShrink: 0, fontSize: 11, fontWeight: 800, letterSpacing: "0.04em", color: C.see, background: C.himmel, borderRadius: 999, padding: "4px 10px", lineHeight: 1.2 }}>{rechts}</span>}
   </div>
 );
 const ETIKETT = { entdecken: "Entdecken", rechnen: "Rechnen", trainieren: "Trainieren" };
@@ -312,15 +329,15 @@ export function HauptthemaAnsicht({ haupt, plan, werkzeuge, kurse, aktionen, bre
   const heutigeTeile = meinPlan && st && st.naechste && st.naechste.phase === "kern" && st.faellig ? new Set(st.naechste.teile || []) : new Set();
   const unterthemen = (
     <div style={{ display: "grid", gap: 6 }}>
-      <Abschnitt rechts={teileZaehlung || null}>Unterthemen · dein Stand</Abschnitt>
+      <Abschnitt rechts={teileZaehlung || null}>Unterthemen · Dein Stand</Abschnitt>
       {ks.teile.map((u) => {
         const geht = u.gen.length > 0 || !!u.wz;
         const zeile = standZeile(u.stand) || (u.wz ? "Mit dem passenden Werkzeug üben" : "Aufgaben kommen noch");
         const gold = heutigeTeile.size > 0 && heutigeTeile.size < ks.teile.length && heutigeTeile.has(u.id);
-        return <Zeile key={u.id} onClick={() => aktionen.oeffneTeil(u)} disabled={!geht} gold={gold}
+        return <Zeile key={u.id} onClick={() => aktionen.oeffneTeil(u)} disabled={!geht} gold={gold} blau unterGold={u.stand.art === "unsicher"}
           links={<StandPunkt art={u.stand.art} />} titel={u.titel} unter={gold ? `Heute dran · ${zeile}` : zeile} />;
       })}
-      <p style={{ margin: "2px 2px 0", fontSize: 11, color: C.grau, lineHeight: 1.45 }}>
+      <p style={{ margin: "4px 2px 0", fontSize: 11, color: C.grau, lineHeight: 1.45 }}>
         Voller Kreis: {STAND.sicher.name.toLowerCase()}. Halber Kreis: geübt (gold: wackelt noch). Leerer Kreis: offen. Gestrichelt: nur mit Werkzeug.
       </p>
     </div>
@@ -330,7 +347,7 @@ export function HauptthemaAnsicht({ haupt, plan, werkzeuge, kurse, aktionen, bre
   const alles = (
     <div style={{ display: "grid", gap: 6 }}>
       <Abschnitt>Alles zu diesem Kapitel</Abschnitt>
-      {werkzeuge.map((h) => <Zeile key={h.art + h.id} onClick={() => aktionen.waehleWz(h)} titel={h.name} unter={h.zeile} etikett={h.etikett ? ETIKETT[h.etikett] : null} />)}
+      {werkzeuge.map((h) => <Zeile key={h.art + h.id} onClick={() => aktionen.waehleWz(h)} titel={h.name} unter={h.zeile} etikett={h.etikett ? ETIKETT[h.etikett] : null} etikettArt={h.etikett} />)}
     </div>
   );
 
