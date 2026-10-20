@@ -10,6 +10,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { ZentrumListe } from "./funcWerkzeuge.jsx";
 import { MS } from "./mathText.jsx";
+import { MitWurzeln } from "./wurzelZeichen.jsx";
 const bT = (z, n) => (n === 1 ? `${z}` : `$\\frac{${z}}{${n}}$`);
 import { C } from "./base1.jsx";
 import { englisch } from "./i18n.js";
@@ -20,6 +21,8 @@ import { ErklaerAnimation } from "./funcErklaeranimation.jsx";
 import { wegPrimzahl } from "./kopfWeg.js";
 
 import { springe } from "./sprung.js";
+import { KopfrechnenKopf, KopfKarte, KARTEN_CSS } from "./funcKopfrechnenKopf.jsx";
+import { useKopfEinstellungen, RundenStart, Vollbild, Ergebnis, AufgabenKarte, StartKnopf, ZweitKnopf, useTimer, GOLD_PILLE, NACHT_VERLAUF } from "./kopfTraining.jsx";
 const zufall = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
 const HOCH = { 2: "²", 3: "³" };
 
@@ -63,22 +66,20 @@ export const GLEICHUNG_CSS = `
 
 /* ---------- Schnellrechen-Baustein ---------- */
 
-const RUNDE = 10;
-
-export function Zahlenfeld({ onZiffer, onLoeschen, onOk, gesperrt, labelLoeschen, labelOk }) {
+export function Zahlenfeld({ onZiffer, onLoeschen, onOk, gesperrt, labelLoeschen, labelOk, turbo = false }) {
   const taste = (inhalt, onClick, art, label) => (
     <button key={String(inhalt)} onClick={onClick} disabled={gesperrt} className="kr-taste" type="button" aria-label={label}
-      style={{ height: 58, borderRadius: 14, fontFamily: "inherit", cursor: gesperrt ? "default" : "pointer",
+      style={{ height: "clamp(44px, 7.2vh, 60px)", borderRadius: 14, fontFamily: "inherit", cursor: gesperrt ? "default" : "pointer",
         fontSize: art === "ok" ? 18 : 24, fontWeight: 700, letterSpacing: art === "ok" ? "0.04em" : 0,
-        border: `1px solid ${art === "ok" ? C.smaragd : art === "nav" ? C.seeTief : C.linie}`,
-        background: art === "ok" ? C.smaragd : art === "nav" ? C.seeTief : C.weiss,
-        color: art === "ok" ? C.weiss : art === "nav" ? C.flaggold : C.tinte,
-        boxShadow: art === "ok" ? "0 4px 12px rgba(47,143,91,0.3)" : "0 1px 0 rgba(15,26,51,0.06)" }}>
+        border: `1px solid ${art === "ok" ? (turbo ? C.linie : C.smaragd) : art === "nav" ? C.seeTief : C.linie}`,
+        background: art === "ok" ? (turbo ? C.weiss : C.smaragd) : art === "nav" ? C.seeTief : C.weiss,
+        color: art === "ok" ? (turbo ? C.smaragd : C.weiss) : art === "nav" ? C.flaggold : C.tinte,
+        boxShadow: art === "ok" && !turbo ? "0 4px 12px rgba(47,143,91,0.3)" : "0 1px 0 rgba(15,26,51,0.06)" }}>
       {inhalt}
     </button>
   );
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+    <div data-kr-zahlenfeld style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
       <style>{`.kr-taste{transition:transform .08s ease, filter .12s ease}.kr-taste:active{transform:scale(0.94);filter:brightness(0.94)}`}</style>
       {[7, 8, 9, 4, 5, 6, 1, 2, 3].map((z) => taste(z, () => onZiffer(String(z))))}
       {taste("⌫", onLoeschen, "nav", labelLoeschen)}
@@ -88,7 +89,12 @@ export function Zahlenfeld({ onZiffer, onLoeschen, onOk, gesperrt, labelLoeschen
   );
 }
 
-function Schnellrechnen({ erzeugen, gruppe, bestSchluessel, maxLaenge = 6 }) {
+/* Eine Runde Schnellrechnen im Vollbild. erzeugen() liefert { text, loesung }.
+   Rundenlänge und Turbo kommen aus den Kopfrechen-Einstellungen (kopfTraining.jsx). */
+function Schnellrechnen({ erzeugen, gruppe, bestSchluessel, maxLaenge = 6, titel, untertitel, onEnde }) {
+  const [einst] = useKopfEinstellungen();
+  const RUNDE = einst.runde;
+  const turbo = einst.turbo;
   const [nr, setNr] = useState(0);
   const [aufgabe, setAufgabe] = useState(() => erzeugen());
   const [eingabe, setEingabe] = useState("");
@@ -99,10 +105,11 @@ function Schnellrechnen({ erzeugen, gruppe, bestSchluessel, maxLaenge = 6 }) {
   const [aufgStart, setAufgStart] = useState(() => Date.now());
   const [fertig, setFertig] = useState(null);
   const [fehlerListe, setFehlerListe] = useState([]);
+  const schluessel = `${bestSchluessel}-${RUNDE}`;
   const [best, setBest] = useState(() => {
-    try { return JSON.parse(localStorage.getItem(bestSchluessel) || "null"); } catch { return null; }
+    try { return JSON.parse(localStorage.getItem(schluessel) || "null"); } catch { return null; }
   });
-  const timer = useRef(null);
+  const timer = useTimer();
 
   const neueRunde = () => {
     clearTimeout(timer.current);
@@ -111,38 +118,43 @@ function Schnellrechnen({ erzeugen, gruppe, bestSchluessel, maxLaenge = 6 }) {
   };
   // Neuer Modus → neue Runde
   useEffect(neueRunde, [erzeugen]);  // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => () => clearTimeout(timer.current), []);
 
   const weiter = (warRichtig) => {
     const n = nr + 1;
     if (n >= RUNDE) {
       const sek = Math.round((Date.now() - start) / 100) / 10;
-      const ergebnis = { richtig: richtig + (warRichtig ? 1 : 0), sek };
+      const ergebnis = { richtig: richtig + (warRichtig ? 1 : 0), sek, gesamt: RUNDE };
       setFertig(ergebnis);
       const besser = !best || ergebnis.richtig > best.richtig || (ergebnis.richtig === best.richtig && sek < best.sek);
       if (besser) {
         setBest(ergebnis);
-        try { localStorage.setItem(bestSchluessel, JSON.stringify(ergebnis)); } catch { /* optional */ }
+        try { localStorage.setItem(schluessel, JSON.stringify(ergebnis)); } catch { /* optional */ }
       }
       return;
     }
     setNr(n); setAufgabe(erzeugen()); setEingabe(""); setRueck(null); setAufgStart(Date.now());
   };
 
-  const pruefen = () => {
-    if (rueck || fertig || eingabe === "") return;
-    const ok = Number(eingabe) === aufgabe.loesung;
+  const pruefen = (wert = eingabe) => {
+    if (rueck || fertig || wert === "") return;
+    const ok = Number(wert) === aufgabe.loesung;
     const sekunden = Math.round((Date.now() - aufgStart) / 100) / 10;
     try { merken({ gruppe, richtig: ok, sekunden, fehlerart: ok ? null : "rechnen" }); } catch { /* optional */ }
     setRueck(ok ? "richtig" : "falsch");
     if (ok) { setRichtig((r) => r + 1); setSerie((s) => s + 1); }
-    else { setSerie(0); setFehlerListe((l) => [...l, { ...aufgabe, eingabe }]); }
-    timer.current = setTimeout(() => weiter(ok), ok ? 550 : 1500);
+    else { setSerie(0); setFehlerListe((l) => [...l, { ...aufgabe, eingabe: wert }]); }
+    timer.current = setTimeout(() => weiter(ok), ok ? (turbo ? 220 : 550) : 1500);
   };
+
+  // Turbo: Steht die richtige Lösung im Feld, zählt sie sofort – ohne OK.
+  useEffect(() => {
+    if (turbo && !rueck && !fertig && eingabe !== "" && Number(eingabe) === aufgabe.loesung) pruefen(eingabe);
+  }, [eingabe]);  // eslint-disable-line react-hooks/exhaustive-deps
 
   // Tastatur am Rechner
   useEffect(() => {
     const taste = (e) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (/^[0-9]$/.test(e.key)) setEingabe((v) => (rueck || v.length >= maxLaenge ? v : v + e.key));
       else if (e.key === "Backspace") setEingabe((v) => (rueck ? v : v.slice(0, -1)));
       else if (e.key === "Enter") pruefen();
@@ -151,86 +163,60 @@ function Schnellrechnen({ erzeugen, gruppe, bestSchluessel, maxLaenge = 6 }) {
     return () => window.removeEventListener("keydown", taste);
   });
 
-  const karte = { background: C.weiss, borderRadius: 18, padding: 18, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" };
-
   if (fertig) {
-    const quote = Math.round((fertig.richtig / RUNDE) * 100);
     return (
-      <div style={karte}>
-        <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 6 }}>Runde geschafft</p>
-        <p style={{ fontSize: 44, fontWeight: 800, color: C.tinte, lineHeight: 1.1 }}>
-          {fertig.richtig} <span style={{ fontSize: 22, color: C.grau, fontWeight: 600 }}>von {RUNDE}</span>
-        </p>
-        <p style={{ fontSize: 15, color: C.grau, marginTop: 6 }}>
-          in {String(fertig.sek).replace(".", ",")} s · {quote} %
-          {best && <span style={{ marginLeft: 8, color: C.see }}>· Bestwert {best.richtig}/{RUNDE} in {String(best.sek).replace(".", ",")} s</span>}
-        </p>
-        <p style={{ fontSize: 15, fontWeight: 600, color: quote === 100 ? C.smaragd : C.tinte, marginTop: 14 }}>
-          {quote === 100 ? "Fehlerfrei! 🎉" : quote >= 80 ? "Stark — fast alles sitzt." : quote >= 50 ? "Gute Basis, weiter üben." : "Dranbleiben — Wiederholung macht schnell."}
-        </p>
-        {fehlerListe.length > 0 && (
-          <div style={{ marginTop: 14, background: C.sand, borderRadius: 12, padding: "10px 14px" }}>
-            <p style={{ fontSize: 12.5, fontWeight: 700, color: C.grau, marginBottom: 6 }}>Nochmal anschauen</p>
-            {fehlerListe.map((f, i) => (
-              <p key={i} style={{ fontSize: 15, color: C.tinte, marginBottom: 3 }}>
-                {f.text} = <b>{f.loesung}</b> <span style={{ color: C.signal, fontSize: 13, marginLeft: 6 }}>(du: {f.eingabe})</span>
-              </p>
-            ))}
-          </div>
-        )}
-        <button onClick={neueRunde}
-          style={{ width: "100%", height: 52, marginTop: 16, borderRadius: 14, border: "none", cursor: "pointer", fontFamily: "inherit",
-            fontSize: 16, fontWeight: 700, color: C.weiss, background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
-          Neue Runde
-        </button>
-      </div>
+      <Vollbild titel={titel} untertitel={untertitel} onEnde={onEnde}>
+        <Ergebnis richtig={fertig.richtig} gesamt={RUNDE} sek={fertig.sek} best={best} onNochmal={neueRunde} onEnde={onEnde}
+          fehler={fehlerListe.length ? fehlerListe.map((f, i) => (
+            <p key={i} style={{ fontSize: 15, color: C.tinte }}>
+              <MitWurzeln text={f.text} /> = <b>{f.loesung}</b> <span style={{ color: C.signal, fontSize: 13, marginLeft: 6 }}>(du: {f.eingabe})</span>
+            </p>
+          )) : null} />
+      </Vollbild>
     );
   }
 
   const farbe = rueck === "richtig" ? C.smaragd : rueck === "falsch" ? C.signal : C.see;
   return (
-    <div style={karte}>
-      {/* Fortschritt */}
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
-        <div style={{ flex: 1, display: "flex", gap: 4 }}>
-          {Array.from({ length: RUNDE }, (_, i) => (
-            <span key={i} style={{ flex: 1, height: 6, borderRadius: 3,
-              background: i < nr ? C.see : i === nr ? C.flaggold : C.linie }} />
-          ))}
-        </div>
-        <span style={{ fontSize: 12.5, color: C.grau, whiteSpace: "nowrap" }}>{nr + 1} / {RUNDE}</span>
-        {serie >= 3 && <span style={{ fontSize: 12.5, fontWeight: 700, color: C.gruen, whiteSpace: "nowrap" }}>🔥 {serie}</span>}
-      </div>
-
+    <Vollbild titel={titel} untertitel={untertitel} nr={nr} gesamt={RUNDE} serie={serie} onEnde={onEnde}>
       <style>{GLEICHUNG_CSS}</style>
-      <div className="kr-gleichung">
-        {/* Aufgabe: rechtsbündig, endet mit „=“ */}
-        <div className="kr-aufgabe" style={{ background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 16,
-          padding: "20px 18px", minHeight: 96 }}>
-          <p style={{ color: C.weiss, fontSize: aufgabe.text.length > 9 ? "clamp(24px, 7.2vw, 40px)" : "clamp(34px, 9vw, 44px)", fontWeight: 800, letterSpacing: "-0.01em", lineHeight: 1.1, whiteSpace: "nowrap" }}>
-            {aufgabe.text} <span style={{ color: C.goldText, fontWeight: 600 }}>=</span>
+      <div className="kr-gleichung" style={{ flex: 1, minHeight: 0 }}>
+        {/* Aufgabe: endet mit „=“ */}
+        <AufgabenKarte style={{ flex: "1 1 auto" }}>
+          <p style={{ color: C.weiss, fontSize: aufgabe.text.length > 9 ? "clamp(26px, 7.6vw, 46px)" : "clamp(38px, 11vw, 58px)", fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1.1, whiteSpace: "nowrap" }}>
+            <MitWurzeln text={aufgabe.text} /> <span style={{ color: C.flaggold, fontWeight: 600 }}>=</span>
           </p>
-        </div>
+        </AufgabenKarte>
 
         {/* Eingabe */}
-        <div className="kr-eingabe" style={{ border: `2.5px solid ${farbe}`, borderRadius: 14, minHeight: 64,
+        <div className="kr-eingabe" data-kr-eingabe style={{ border: `2.5px solid ${farbe}`, borderRadius: 16, minHeight: 68,
           display: "flex", alignItems: "center", justifyContent: "center", gap: 10, flexWrap: "wrap", padding: "6px 8px",
-          background: rueck === "richtig" ? "#EEF8F2" : rueck === "falsch" ? "#FBEFEA" : C.weiss, transition: "all .15s" }}>
-          <span style={{ fontSize: eingabe.length > 6 ? 28 : 34, fontWeight: 800, color: C.tinte, minWidth: 20 }}>{eingabe || <span style={{ color: C.hellgrau }}>?</span>}</span>
-          {rueck === "richtig" && <span style={{ fontSize: 26, color: C.smaragd, fontWeight: 800 }}>✓</span>}
+          background: rueck === "richtig" ? "#EEF8F2" : rueck === "falsch" ? "#FBEFEA" : C.weiss, transition: "all .15s", boxShadow: "0 2px 12px rgba(15,26,51,0.06)" }}>
+          <span style={{ fontSize: eingabe.length > 6 ? 30 : 38, fontWeight: 800, color: C.tinte, minWidth: 20, fontVariantNumeric: "tabular-nums" }}>{eingabe || <span style={{ color: C.hellgrau }}>?</span>}</span>
+          {rueck === "richtig" && <span style={{ fontSize: 28, color: C.smaragd, fontWeight: 800 }}>✓</span>}
           {rueck === "falsch" && <span style={{ fontSize: 17, color: C.signal, fontWeight: 700 }}>✗ richtig: {aufgabe.loesung}</span>}
         </div>
       </div>
-      <p style={{ fontSize: 12, color: C.hellgrau, textAlign: "center", marginBottom: 12, minHeight: 16 }}>
-        {best ? `Bestwert: ${best.richtig}/${RUNDE} in ${String(best.sek).replace(".", ",")} s` : "Tippe die Lösung ein und drücke OK."}
+      <p style={{ fontSize: 12, color: C.hellgrau, textAlign: "center", margin: "8px 0 10px", minHeight: 16, flex: "none" }}>
+        {best ? `Bestwert: ${best.richtig}/${RUNDE} in ${String(best.sek).replace(".", ",")} s` : turbo ? "Turbo: Die richtige Zahl zählt sofort." : "Tippe die Lösung ein und drücke OK."}
       </p>
 
-      <Zahlenfeld gesperrt={!!rueck}
-        onZiffer={(z) => setEingabe((v) => (v.length >= maxLaenge ? v : v + z))}
-        onLoeschen={() => setEingabe((v) => v.slice(0, -1))}
-        onOk={pruefen} />
-    </div>
+      <div style={{ flex: "none" }}>
+        <Zahlenfeld gesperrt={!!rueck} turbo={turbo}
+          onZiffer={(z) => setEingabe((v) => (v.length >= maxLaenge ? v : v + z))}
+          onLoeschen={() => setEingabe((v) => v.slice(0, -1))}
+          onOk={() => pruefen()} />
+      </div>
+    </Vollbild>
   );
+}
+
+/* Setup + Runde: vor dem Start die Auswahl (kinder) und die Optionen, dann das Vollbild */
+function SchnellTrainer({ titel, untertitel, kinder, hinweis, ...rest }) {
+  const [laeuft, setLaeuft] = useState(false);
+  const [lauf, setLauf] = useState(0);
+  if (!laeuft) return <RundenStart kinder={kinder} hinweis={hinweis} onStart={() => { setLauf((l) => l + 1); setLaeuft(true); }} />;
+  return <Schnellrechnen key={lauf} titel={titel} untertitel={untertitel} onEnde={() => setLaeuft(false)} {...rest} />;
 }
 
 /* Modus-Leiste (Chips) */
@@ -385,24 +371,30 @@ function QuadratKubik({ art }) {
   const ids = art ? POTENZ_GRUPPEN[art] : null;
   const [modus, setModus] = useState(ids ? ids[0] : "quadrat");
   const erzeugen = React.useCallback(() => potenzAufgabe(modus), [modus]);
+  const m = POTENZ_MODI.find((x) => x.id === modus);
   return (
     <div>
       <style>{`.kr-details > summary{list-style:none;cursor:pointer;padding:13px 0;font-size:15px;font-weight:700;color:${C.see}}
         .kr-details > summary::-webkit-details-marker{display:none}
         .kr-details[open]{padding-bottom:14px}`}</style>
+      <SchnellTrainer titel="Quadrate und Wurzeln" untertitel={(m.aria || m.name).replace("\u00AD", "")}
+        erzeugen={erzeugen} gruppe="Potenzen" bestSchluessel={`kr-best-pot-${modus}`}
+        kinder={(
+          <>
+            <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: C.gruenDunkel, marginBottom: 8 }}>Üben</p>
+            {(!ids || ids.length > 1) && <PotenzModi wert={modus} setWert={setModus} ids={ids} />}
+            {modus === "wurzel10k" && <ErklaerAnimation art="wurzel" style={{ marginTop: 4, marginBottom: 14 }} />}
+          </>
+        )} />
+      <div style={{ height: 16 }} />
       {art !== "kubik" && <details className="kr-details" style={{ marginBottom: 10, background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 14, padding: "0 14px" }}>
         <summary>Quadratzahlen · 1² bis 30²</summary>
         <PotenzSpalten hoch={2} bloecke={[[1, 10], [11, 20], [21, 30]]} />
       </details>}
-      {art !== "quadrat" && <details className="kr-details" style={{ marginBottom: 22, background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 14, padding: "0 14px" }}>
+      {art !== "quadrat" && <details className="kr-details" style={{ marginBottom: 10, background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 14, padding: "0 14px" }}>
         <summary>Kubikzahlen · 1³ bis 20³</summary>
         <PotenzSpalten hoch={3} bloecke={[[1, 10], [11, 20]]} />
       </details>}
-      {art === "quadrat" && <div style={{ height: 12 }} />}
-      <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: C.gruenDunkel, marginBottom: 8 }}>Üben</p>
-      {(!ids || ids.length > 1) && <PotenzModi wert={modus} setWert={setModus} ids={ids} />}
-      {modus === "wurzel10k" && <ErklaerAnimation art="wurzel" style={{ marginTop: 4 }} />}
-      <Schnellrechnen erzeugen={erzeugen} gruppe="Potenzen" bestSchluessel={`kr-best-pot-${modus}`} />
     </div>
   );
 }
@@ -485,20 +477,20 @@ function Bruch({ z, n, gross = 40, farbe = C.weiss }) {
   );
 }
 
-function BruchZahlenfeld({ onZiffer, onLoeschen, onWechsel, onOk, gesperrt }) {
+function BruchZahlenfeld({ onZiffer, onLoeschen, onWechsel, onOk, gesperrt, turbo }) {
   const taste = (inhalt, onClick, art, span) => (
-    <button key={String(inhalt)} onClick={onClick} disabled={gesperrt} className="kr-taste"
-      style={{ gridColumn: span ? `span ${span}` : undefined, height: 54, borderRadius: 14, fontFamily: "inherit",
+    <button key={String(inhalt)} onClick={onClick} disabled={gesperrt} className="kr-taste" type="button"
+      style={{ gridColumn: span ? `span ${span}` : undefined, height: "clamp(42px, 6.6vh, 54px)", borderRadius: 14, fontFamily: "inherit",
         cursor: gesperrt ? "default" : "pointer", fontSize: art === "ok" ? 18 : art === "wechsel" ? 14 : 24, fontWeight: 700,
-        border: `1px solid ${art === "ok" ? C.smaragd : art === "nav" || art === "wechsel" ? C.seeTief : C.linie}`,
-        background: art === "ok" ? C.smaragd : art === "nav" || art === "wechsel" ? C.seeTief : C.weiss,
-        color: art === "ok" ? C.weiss : art === "nav" || art === "wechsel" ? C.flaggold : C.tinte,
-        boxShadow: art === "ok" ? "0 4px 12px rgba(47,143,91,0.3)" : "0 1px 0 rgba(15,26,51,0.06)" }}>
+        border: `1px solid ${art === "ok" ? (turbo ? C.linie : C.smaragd) : art === "nav" || art === "wechsel" ? C.seeTief : C.linie}`,
+        background: art === "ok" ? (turbo ? C.weiss : C.smaragd) : art === "nav" || art === "wechsel" ? C.seeTief : C.weiss,
+        color: art === "ok" ? (turbo ? C.smaragd : C.weiss) : art === "nav" || art === "wechsel" ? C.flaggold : C.tinte,
+        boxShadow: art === "ok" && !turbo ? "0 4px 12px rgba(47,143,91,0.3)" : "0 1px 0 rgba(15,26,51,0.06)" }}>
       {inhalt}
     </button>
   );
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+    <div data-kr-zahlenfeld style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
       <style>{`.kr-taste{transition:transform .08s ease, filter .12s ease}.kr-taste:active{transform:scale(0.94);filter:brightness(0.94)}`}</style>
       {[7, 8, 9, 4, 5, 6, 1, 2, 3].map((z) => taste(z, () => onZiffer(String(z))))}
       {taste("⌫", onLoeschen, "nav")}
@@ -509,9 +501,10 @@ function BruchZahlenfeld({ onZiffer, onLoeschen, onWechsel, onOk, gesperrt }) {
   );
 }
 
-const BRUCH_RUNDE = 10;
-
-function BruchRunde({ modus, stufe }) {
+function BruchRunde({ modus, stufe, titel, untertitel, onEnde }) {
+  const [einst] = useKopfEinstellungen();
+  const BRUCH_RUNDE = einst.runde;
+  const turbo = einst.turbo;
   const erzeugen = () => bruchAufgabe(modus, stufe);
   const [nr, setNr] = useState(0);
   const [auf, setAuf] = useState(erzeugen);
@@ -525,9 +518,9 @@ function BruchRunde({ modus, stufe }) {
   const [aufgStart, setAufgStart] = useState(() => Date.now());
   const [fertig, setFertig] = useState(null);
   const [fehler, setFehler] = useState([]);
-  const schluessel = `kr-best-bruch-${modus}-${stufe}`;
+  const schluessel = `kr-best-bruch-${modus}-${stufe}-${BRUCH_RUNDE}`;
   const [best, setBest] = useState(() => { try { return JSON.parse(localStorage.getItem(schluessel) || "null"); } catch { return null; } });
-  const timer = useRef(null);
+  const timer = useTimer();
 
   const neueRunde = () => {
     clearTimeout(timer.current);
@@ -536,13 +529,12 @@ function BruchRunde({ modus, stufe }) {
     try { setBest(JSON.parse(localStorage.getItem(schluessel) || "null")); } catch { setBest(null); }
   };
   useEffect(neueRunde, [modus, stufe]);  // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => () => clearTimeout(timer.current), []);
 
   const weiter = (warRichtig) => {
     const k = nr + 1;
     if (k >= BRUCH_RUNDE) {
       const sek = Math.round((Date.now() - start) / 100) / 10;
-      const erg = { richtig: richtig + (warRichtig ? 1 : 0), sek };
+      const erg = { richtig: richtig + (warRichtig ? 1 : 0), sek, gesamt: BRUCH_RUNDE };
       setFertig(erg);
       if (!best || erg.richtig > best.richtig || (erg.richtig === best.richtig && sek < best.sek)) {
         setBest(erg);
@@ -565,9 +557,16 @@ function BruchRunde({ modus, stufe }) {
     const ok = wertGleich && gekuerzt;
     try { merken({ gruppe: "Bruchrechnen", richtig: ok, sekunden, fehlerart: ok ? null : "rechnen" }); } catch { /* optional */ }
     setRueck(ok ? "richtig" : "falsch");
-    if (ok) { setRichtig((r) => r + 1); setSerie((s) => s + 1); timer.current = setTimeout(() => weiter(true), 650); }
+    if (ok) { setRichtig((r) => r + 1); setSerie((s) => s + 1); timer.current = setTimeout(() => weiter(true), turbo ? 260 : 650); }
     else { setSerie(0); setFehler((l) => [...l, { ...auf, eingabe: n === "" || n === "1" ? z : `$\\frac{${z}}{${n}}$` }]); }
   };
+
+  // Turbo: Zähler und Nenner stimmen (vollständig gekürzt) → sofort weiter
+  useEffect(() => {
+    if (!turbo || fertig || (rueck && rueck !== "kuerzen") || z === "") return;
+    const ez = Number(z), en = n === "" ? 1 : Number(n);
+    if (en !== 0 && ez * auf.loes.n === en * auf.loes.z && ggT(ez, en) === 1) pruefen();
+  }, [z, n]);  // eslint-disable-line react-hooks/exhaustive-deps
 
   const ziffer = (d) => {
     if (rueck && rueck !== "kuerzen" && rueck !== "null") return;
@@ -584,6 +583,7 @@ function BruchRunde({ modus, stufe }) {
 
   useEffect(() => {
     const taste = (e) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (/^[0-9]$/.test(e.key)) ziffer(e.key);
       else if (e.key === "Backspace") loeschen();
       else if (e.key === "/" || e.key === "Tab" || e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); wechsel(); }
@@ -593,41 +593,20 @@ function BruchRunde({ modus, stufe }) {
     return () => window.removeEventListener("keydown", taste);
   });
 
-  const karte = { background: C.weiss, borderRadius: 18, padding: 18, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" };
   const bText = (b) => bT(b.z, b.n);
 
   if (fertig) {
-    const quote = Math.round((fertig.richtig / BRUCH_RUNDE) * 100);
     return (
-      <div style={karte}>
-        <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 6 }}>Runde geschafft</p>
-        <p style={{ fontSize: 44, fontWeight: 800, color: C.tinte, lineHeight: 1.1 }}>
-          {fertig.richtig} <span style={{ fontSize: 22, color: C.grau, fontWeight: 600 }}>von {BRUCH_RUNDE}</span>
-        </p>
-        <p style={{ fontSize: 15, color: C.grau, marginTop: 6 }}>
-          in {String(fertig.sek).replace(".", ",")} s · {quote} %
-          {best && <span style={{ marginLeft: 8, color: C.see }}>· Bestwert {best.richtig}/{BRUCH_RUNDE} in {String(best.sek).replace(".", ",")} s</span>}
-        </p>
-        <p style={{ fontSize: 15, fontWeight: 600, color: quote === 100 ? C.smaragd : C.tinte, marginTop: 14 }}>
-          {quote === 100 ? "Fehlerfrei! 🎉" : quote >= 80 ? "Stark — Brüche sitzen." : quote >= 50 ? "Gute Basis, weiter üben." : "Dranbleiben — Schritt für Schritt wird’s sicher."}
-        </p>
-        {fehler.length > 0 && (
-          <div style={{ marginTop: 14, background: C.sand, borderRadius: 12, padding: "10px 14px" }}>
-            <p style={{ fontSize: 12.5, fontWeight: 700, color: C.grau, marginBottom: 6 }}>Nochmal anschauen</p>
-            {fehler.map((f, i) => (
-              <p key={i} style={{ fontSize: 14.5, color: C.tinte, marginBottom: 4, lineHeight: 1.5 }}>
-                <MS s={f.op ? `${bText(f.a)} ${f.op} ${bText(f.b)}` : `${bText(f.a)} kürzen`} /> = <b><MS s={bText(f.loes)} /></b>
-                <span style={{ color: C.signal, fontSize: 13, marginLeft: 6 }}>(du: <MS s={f.eingabe} />)</span>
-              </p>
-            ))}
-          </div>
-        )}
-        <button onClick={neueRunde}
-          style={{ width: "100%", height: 52, marginTop: 16, borderRadius: 14, border: "none", cursor: "pointer", fontFamily: "inherit",
-            fontSize: 16, fontWeight: 700, color: C.weiss, background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
-          Neue Runde
-        </button>
-      </div>
+      <Vollbild titel={titel} untertitel={untertitel} onEnde={onEnde}>
+        <Ergebnis richtig={fertig.richtig} gesamt={BRUCH_RUNDE} sek={fertig.sek} best={best} onNochmal={neueRunde} onEnde={onEnde}
+          text={fertig.richtig === BRUCH_RUNDE ? "Fehlerfrei! 🎉" : fertig.richtig / BRUCH_RUNDE >= 0.8 ? "Stark — Brüche sitzen." : fertig.richtig / BRUCH_RUNDE >= 0.5 ? "Gute Basis, weiter üben." : "Dranbleiben — Schritt für Schritt wird’s sicher."}
+          fehler={fehler.length ? fehler.map((f, i) => (
+            <p key={i} style={{ fontSize: 14.5, color: C.tinte, lineHeight: 1.5 }}>
+              <MS s={f.op ? `${bText(f.a)} ${f.op} ${bText(f.b)}` : `${bText(f.a)} kürzen`} /> = <b><MS s={bText(f.loes)} /></b>
+              <span style={{ color: C.signal, fontSize: 13, marginLeft: 6 }}>(du: <MS s={f.eingabe} />)</span>
+            </p>
+          )) : null} />
+      </Vollbild>
     );
   }
 
@@ -640,86 +619,79 @@ function BruchRunde({ modus, stufe }) {
   });
 
   return (
-    <div style={karte}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
-        <div style={{ flex: 1, display: "flex", gap: 4 }}>
-          {Array.from({ length: BRUCH_RUNDE }, (_, i) => (
-            <span key={i} style={{ flex: 1, height: 6, borderRadius: 3, background: i < nr ? C.see : i === nr ? C.flaggold : C.linie }} />
-          ))}
-        </div>
-        <span style={{ fontSize: 12.5, color: C.grau, whiteSpace: "nowrap" }}>{nr + 1} / {BRUCH_RUNDE}</span>
-        {serie >= 3 && <span style={{ fontSize: 12.5, fontWeight: 700, color: C.gruen, whiteSpace: "nowrap" }}>🔥 {serie}</span>}
-      </div>
-
+    <Vollbild titel={titel} untertitel={untertitel} nr={nr} gesamt={BRUCH_RUNDE} serie={serie} onEnde={onEnde} scrollbar>
       <style>{GLEICHUNG_CSS}</style>
-      <div className="kr-gleichung">
-      {/* Aufgabe: rechtsbündig, endet mit „=“. Beide Blöcke gleich hoch und vertikal zentriert,
-          dadurch liegen die Bruchstriche von Aufgabe und Eingabe auf derselben Höhe. */}
-      <div className="kr-aufgabe" style={{ background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 16,
-        padding: "14px 16px", gap: 6, flexWrap: "nowrap" }}>
-        {!auf.op && <span style={{ color: C.goldText, fontSize: 15, fontWeight: 600, marginRight: 6 }}>Kürze</span>}
-        <Bruch z={auf.a.z} n={auf.a.n} />
-        {auf.op && <span style={{ color: C.flaggold, fontSize: 34, fontWeight: 800, margin: "0 4px" }}>{auf.op}</span>}
-        {auf.op && <Bruch z={auf.b.z} n={auf.b.n} />}
-        <span style={{ color: C.goldText, fontSize: 34, fontWeight: 700, marginLeft: 6 }}>=</span>
-      </div>
+      <div className="kr-gleichung" style={{ flex: "1 0 auto" }}>
+        {/* Aufgabe: endet mit „=“. Beide Blöcke vertikal zentriert, Bruchstriche auf gleicher Höhe. */}
+        <AufgabenKarte style={{ padding: "14px 16px", gap: 6, flexWrap: "nowrap", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          {!auf.op && <span style={{ color: C.flaggold, fontSize: 15, fontWeight: 600, marginRight: 6 }}>Kürze</span>}
+          <Bruch z={auf.a.z} n={auf.a.n} />
+          {auf.op && <span style={{ color: C.flaggold, fontSize: 34, fontWeight: 800, margin: "0 4px" }}>{auf.op}</span>}
+          {auf.op && <Bruch z={auf.b.z} n={auf.b.n} />}
+          <span style={{ color: C.flaggold, fontSize: 34, fontWeight: 700, marginLeft: 6 }}>=</span>
+        </AufgabenKarte>
 
-      {/* Eingabe als Bruch */}
-      <div className="kr-eingabe" style={{ border: `2.5px solid ${rahmen}`, borderRadius: 14, padding: "10px 14px",
-        display: "flex", alignItems: "center", justifyContent: "center", gap: 12, transition: "all .15s",
-        background: rueck === "richtig" ? "#EEF8F2" : rueck === "falsch" ? "#FBEFEA" : C.weiss }}>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-          <div onClick={() => setFeld("z")} style={feldStil(feld === "z")}>{z || <span style={{ color: C.hellgrau, fontSize: 18 }}>Zähler</span>}</div>
-          <div style={{ alignSelf: "stretch", height: 4, background: C.tinte, borderRadius: 2, margin: "6px 0" }} />
-          <div onClick={() => setFeld("n")} style={feldStil(feld === "n")}>{n || <span style={{ color: C.hellgrau, fontSize: 18 }}>Nenner</span>}</div>
+        {/* Eingabe als Bruch */}
+        <div className="kr-eingabe" data-kr-eingabe style={{ border: `2.5px solid ${rahmen}`, borderRadius: 16, padding: "10px 14px",
+          display: "flex", alignItems: "center", justifyContent: "center", gap: 12, transition: "all .15s", boxShadow: "0 2px 12px rgba(15,26,51,0.06)",
+          background: rueck === "richtig" ? "#EEF8F2" : rueck === "falsch" ? "#FBEFEA" : C.weiss }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <div className="kr-bruchfeld" onClick={() => setFeld("z")} style={feldStil(feld === "z")}>{z || <span style={{ color: C.hellgrau, fontSize: 18 }}>Zähler</span>}</div>
+            <div style={{ alignSelf: "stretch", height: 4, background: C.tinte, borderRadius: 2, margin: "6px 0" }} />
+            <div className="kr-bruchfeld" onClick={() => setFeld("n")} style={feldStil(feld === "n")}>{n || <span style={{ color: C.hellgrau, fontSize: 18 }}>Nenner</span>}</div>
+          </div>
+          {rueck === "richtig" && <span style={{ fontSize: 30, color: C.smaragd, fontWeight: 800 }}>✓</span>}
+          {rueck === "falsch" && (
+            <span style={{ display: "flex", alignItems: "center", gap: 6, color: C.signal, fontWeight: 700 }}>
+              ✗ <Bruch z={auf.loes.z} n={auf.loes.n} gross={26} farbe={C.signal} />
+            </span>
+          )}
         </div>
-        {rueck === "richtig" && <span style={{ fontSize: 30, color: C.smaragd, fontWeight: 800 }}>✓</span>}
-        {rueck === "falsch" && (
-          <span style={{ display: "flex", alignItems: "center", gap: 6, color: C.signal, fontWeight: 700 }}>
-            ✗ <Bruch z={auf.loes.z} n={auf.loes.n} gross={26} farbe={C.signal} />
-          </span>
-        )}
-      </div>
       </div>
 
-      <div style={{ minHeight: 20, margin: "6px 2px 12px" }}>
+      <div className="kr-hinweis-box" style={{ minHeight: 20, margin: "8px 2px 10px", flex: "none" }}>
         {rueck === "kuerzen" && <p style={{ fontSize: 13.5, color: C.gruenDunkel, fontWeight: 600 }}>Der Wert stimmt — aber noch nicht vollständig gekürzt.</p>}
         {rueck === "null" && <p style={{ fontSize: 13.5, color: C.signal, fontWeight: 600 }}>Der Nenner darf nicht 0 sein.</p>}
         {rueck === "falsch" && <p style={{ fontSize: 13.5, color: C.tinte, lineHeight: 1.55 }}><b>So geht’s:</b> <MS s={auf.weg} /></p>}
-        {!rueck && <p style={{ fontSize: 12, color: C.hellgrau, textAlign: "center" }}>
+        {!rueck && <p className="kr-hinweis" style={{ fontSize: 12, color: C.hellgrau, textAlign: "center" }}>
           {best ? `Bestwert: ${best.richtig}/${BRUCH_RUNDE} in ${String(best.sek).replace(".", ",")} s · ` : ""}Ergebnis vollständig gekürzt eingeben. Ganze Zahl: Nenner leer lassen.
         </p>}
       </div>
 
-      {rueck === "falsch" ? (
-        <button onClick={() => weiter(false)}
-          style={{ width: "100%", height: 54, borderRadius: 14, border: "none", cursor: "pointer", fontFamily: "inherit",
-            fontSize: 17, fontWeight: 700, color: C.weiss, background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
-          Weiter →
-        </button>
-      ) : (
-        <BruchZahlenfeld gesperrt={rueck === "richtig"} onZiffer={ziffer} onLoeschen={loeschen} onWechsel={wechsel} onOk={pruefen} />
-      )}
-    </div>
+      <div style={{ flex: "none" }}>
+        {rueck === "falsch" ? (
+          <StartKnopf onClick={() => weiter(false)} style={{ height: 54 }}>Weiter →</StartKnopf>
+        ) : (
+          <BruchZahlenfeld gesperrt={rueck === "richtig"} turbo={turbo} onZiffer={ziffer} onLoeschen={loeschen} onWechsel={wechsel} onOk={pruefen} />
+        )}
+      </div>
+    </Vollbild>
   );
 }
 
 function Bruchrechnen() {
   const [modus, setModus] = useState("kuerzen");
   const [stufe, setStufe] = useState(1);
+  const [laeuft, setLaeuft] = useState(false);
+  const [lauf, setLauf] = useState(0);
+  const name = BRUCH_MODI.find((m) => m.id === modus).name;
+  if (laeuft) return <BruchRunde key={lauf} modus={modus} stufe={stufe} titel={`Bruchrechnung · ${name}`} untertitel={`Stufe ${stufe} · ${BRUCH_STUFEN.find((s) => s.id === stufe).name}`} onEnde={() => setLaeuft(false)} />;
   return (
     <div>
-      <Modi kompakt liste={BRUCH_MODI} wert={modus} setWert={setModus} />
-      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 14 }}>
-        <span style={{ fontSize: 12.5, color: C.grau, marginRight: 4 }}>Stufe</span>
-        {BRUCH_STUFEN.map((s) => (
-          <button key={s.id} onClick={() => setStufe(s.id)}
-            style={{ height: 30, padding: "0 12px", borderRadius: 999, fontFamily: "inherit", cursor: "pointer", fontSize: 12.5, fontWeight: 600,
-              border: `1px solid ${stufe === s.id ? C.gruen : C.linie}`, background: stufe === s.id ? C.gruen : C.weiss,
-              color: stufe === s.id ? C.weiss : C.tinte }}>{s.name}</button>
-        ))}
-      </div>
-      <BruchRunde modus={modus} stufe={stufe} />
+      <RundenStart onStart={() => { setLauf((l) => l + 1); setLaeuft(true); }} kinder={(
+        <>
+          <Modi kompakt liste={BRUCH_MODI} wert={modus} setWert={setModus} />
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 14 }}>
+            <span style={{ fontSize: 12.5, color: C.grau, marginRight: 4 }}>Stufe</span>
+            {BRUCH_STUFEN.map((s) => (
+              <button key={s.id} onClick={() => setStufe(s.id)}
+                style={{ height: 32, padding: "0 14px", borderRadius: 999, fontFamily: "inherit", cursor: "pointer", fontSize: 12.5, fontWeight: 700,
+                  border: `1px solid ${stufe === s.id ? C.gruen : C.linie}`, background: stufe === s.id ? C.gruen : C.weiss,
+                  color: stufe === s.id ? C.weiss : C.tinte }}>{s.name}</button>
+            ))}
+          </div>
+        </>
+      )} />
       <div style={{ marginTop: 16, background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 14, padding: "12px 14px" }}>
         <p style={{ fontSize: 13, fontWeight: 700, color: C.see, marginBottom: 6 }}>Die Regeln auf einen Blick</p>
         {[
@@ -782,32 +754,38 @@ function BereichWahl({ label, wert, setWert, farbe }) {
   );
 }
 
+
 function Multiplizieren() {
   const [a, setA] = useState("b10");
   const [b, setB] = useState("b10");
   const [art, setArt] = useState("mal");
   const erzeugen = React.useCallback(() => multiAufgabe(a, b, art), [a, b, art]);
   const stellen = (id) => (id.startsWith("d") ? Number(id.slice(1)) : id === "b5" ? 1 : 2);
+  const bereichName = (id) => BEREICHE.find((x) => x.id === id).name;
   return (
     <div>
-      <p style={{ color: C.grau, fontSize: 14.5, fontWeight: 300, lineHeight: 1.65, marginBottom: 16 }}>
-        Wähle für beide Zahlen einen Bereich – vom kleinen Einmaleins bis zu vierstelligen Zahlen. Rechne im Kopf und tippe das Ergebnis ein.
-      </p>
-      <BereichWahl label="1. Zahl" wert={a} setWert={setA} farbe="#F59E0B" />
-      <BereichWahl label="2. Zahl" wert={b} setWert={setB} farbe="#E07A00" />
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
-        <span style={{ fontSize: 12.5, fontWeight: 700, color: C.grau, width: 56, flexShrink: 0 }}>Aufgabe</span>
-        <div role="group" aria-label="Rechenart" style={{ display: "flex", background: "#EEF2F8", borderRadius: 999, padding: 3 }}>
-          {[["mal", "Malnehmen"], ["geteilt", "Umkehraufgabe"]].map(([id, name]) => (
-            <button key={id} type="button" onClick={() => setArt(id)} aria-pressed={art === id}
-              style={{ border: "none", borderRadius: 999, padding: "7px 14px", fontFamily: "inherit", cursor: "pointer", fontSize: 13,
-                fontWeight: art === id ? 700 : 500, background: art === id ? C.weiss : "transparent", color: art === id ? C.see : C.grau,
-                boxShadow: art === id ? "0 1px 6px rgba(15,26,51,0.12)" : "none" }}>{name}</button>
-          ))}
-        </div>
-      </div>
-      <Schnellrechnen erzeugen={erzeugen} gruppe="Multiplizieren" bestSchluessel={`kr-best-multi2-${a}x${b}-${art}`}
-        maxLaenge={Math.max(4, stellen(a) + stellen(b))} />
+      <SchnellTrainer titel={art === "mal" ? "Multiplizieren" : "Multiplizieren · Umkehraufgabe"} untertitel={`${bereichName(a)} · ${bereichName(b)}`}
+        erzeugen={erzeugen} gruppe="Multiplizieren" bestSchluessel={`kr-best-multi2-${a}x${b}-${art}`} maxLaenge={Math.max(4, stellen(a) + stellen(b))}
+        kinder={(
+          <>
+            <p style={{ color: C.grau, fontSize: 14.5, fontWeight: 300, lineHeight: 1.65, marginBottom: 16 }}>
+              Wähle für beide Zahlen einen Bereich – vom kleinen Einmaleins bis zu vierstelligen Zahlen. Rechne im Kopf und tippe das Ergebnis ein.
+            </p>
+            <BereichWahl label="1. Zahl" wert={a} setWert={setA} farbe="#F59E0B" />
+            <BereichWahl label="2. Zahl" wert={b} setWert={setB} farbe="#E07A00" />
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+              <span style={{ fontSize: 12.5, fontWeight: 700, color: C.grau, width: 56, flexShrink: 0 }}>Aufgabe</span>
+              <div role="group" aria-label="Rechenart" style={{ display: "flex", background: "#EEF2F8", borderRadius: 999, padding: 3 }}>
+                {[["mal", "Malnehmen"], ["geteilt", "Umkehraufgabe"]].map(([id, name]) => (
+                  <button key={id} type="button" onClick={() => setArt(id)} aria-pressed={art === id}
+                    style={{ border: "none", borderRadius: 999, padding: "7px 14px", fontFamily: "inherit", cursor: "pointer", fontSize: 13,
+                      fontWeight: art === id ? 700 : 500, background: art === id ? C.weiss : "transparent", color: art === id ? C.see : C.grau,
+                      boxShadow: art === id ? "0 1px 6px rgba(15,26,51,0.12)" : "none" }}>{name}</button>
+                ))}
+              </div>
+            </div>
+          </>
+        )} />
       <details className="kr-details" style={{ marginTop: 16, background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 14, padding: "0 14px" }}>
         <style>{`.kr-details > summary{list-style:none;cursor:pointer;padding:13px 0;font-size:14px;font-weight:600;color:${C.see}}
           .kr-details > summary::-webkit-details-marker{display:none}
@@ -825,53 +803,100 @@ const TRICK_ZAHLEN = Array.from({ length: 199 }, (_, k) => k + 2).filter((n) => 
 const ziehe = (liste) => liste[Math.floor(Math.random() * liste.length)];
 const neueZahl = () => (Math.random() < 0.5 ? ziehe(PRIMEN_BIS_200.filter((p) => p > 10)) : Math.random() < 0.7 ? ziehe(TRICK_ZAHLEN) : 2 + Math.floor(Math.random() * 98));
 
-export function PrimzahlTrainer() {
+/* Runde im Vollbild: prim oder nicht prim, mit Lösungsweg. Turbo: richtige Antwort geht sofort weiter. */
+function PrimzahlRunde({ onEnde }) {
+  const [einst] = useKopfEinstellungen();
+  const RUNDE = einst.runde;
+  const turbo = einst.turbo;
   const [n, setN] = useState(neueZahl);
   const [nr, setNr] = useState(1);
   const [antwort, setAntwort] = useState(null);   // true = „prim“ gewählt
   const [richtig, setRichtig] = useState(0);
+  const [serie, setSerie] = useState(0);
+  const [fehler, setFehler] = useState([]);
   const [fertig, setFertig] = useState(false);
+  const timer = useTimer();
   const weg = wegPrimzahl(n);
   const gewertet = antwort !== null;
   const stimmt = gewertet && antwort === weg.prim;
-  const waehle = (a) => { if (gewertet) return; setAntwort(a); if (a === weg.prim) setRichtig((r) => r + 1); };
-  const weiter = () => { if (nr >= 10) { setFertig(true); return; } setNr((x) => x + 1); setN(neueZahl()); setAntwort(null); };
-  const neu = () => { setNr(1); setRichtig(0); setFertig(false); setAntwort(null); setN(neueZahl()); };
+  const weiter = () => { clearTimeout(timer.current); if (nr >= RUNDE) { setFertig(true); return; } setNr((x) => x + 1); setN(neueZahl()); setAntwort(null); };
+  const waehle = (a) => {
+    if (gewertet) return;
+    setAntwort(a);
+    const ok = a === weg.prim;
+    try { merken({ gruppe: "Primzahlen", richtig: ok, fehlerart: ok ? null : "rechnen" }); } catch { /* optional */ }
+    if (ok) { setRichtig((r) => r + 1); setSerie((s) => s + 1); if (turbo) timer.current = setTimeout(weiter, 350); }
+    else { setSerie(0); setFehler((l) => [...l, { n, prim: weg.prim }]); }
+  };
+  const neu = () => { clearTimeout(timer.current); setNr(1); setRichtig(0); setSerie(0); setFehler([]); setFertig(false); setAntwort(null); setN(neueZahl()); };
+  useEffect(() => {
+    const taste = (e) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (gewertet && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); weiter(); }
+      else if (!gewertet && (e.key === "j" || e.key === "p" || e.key === "1")) waehle(true);
+      else if (!gewertet && (e.key === "n" || e.key === "2")) waehle(false);
+    };
+    window.addEventListener("keydown", taste);
+    return () => window.removeEventListener("keydown", taste);
+  });
   const knopf = (a, text) => {
     const gewaehlt = gewertet && antwort === a;
     const korrekt = gewertet && weg.prim === a;
     return (
       <button type="button" onClick={() => waehle(a)} disabled={gewertet}
-        style={{ minHeight: 56, borderRadius: 14, fontFamily: "inherit", fontSize: 16, fontWeight: 800, cursor: gewertet ? "default" : "pointer",
-          border: `2px solid ${korrekt ? C.smaragd : gewaehlt ? C.signal : C.linie}`, background: korrekt ? "#E7F4EC" : gewaehlt ? "#FBEBE3" : C.weiss, color: C.see }}>{text}</button>
+        style={{ minHeight: 64, borderRadius: 16, fontFamily: "inherit", fontSize: 17, fontWeight: 800, cursor: gewertet ? "default" : "pointer",
+          border: `2px solid ${korrekt ? C.smaragd : gewaehlt ? C.signal : C.linie}`, background: korrekt ? "#E7F4EC" : gewaehlt ? "#FBEBE3" : C.weiss, color: C.see,
+          boxShadow: gewertet ? "none" : "0 2px 12px rgba(15,26,51,0.06)" }}>{text}</button>
     );
   };
   if (fertig) {
     return (
-      <div style={{ background: C.weiss, borderRadius: 18, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", padding: 20, textAlign: "center" }}>
-        <p style={{ fontSize: 34, fontWeight: 800, color: C.see, margin: "0 0 4px" }}>{richtig} / 10</p>
-        <p style={{ color: C.grau, fontSize: 15, margin: "0 0 16px" }}>{richtig === 10 ? "Alle richtig – stark!" : richtig >= 7 ? "Gut gemacht." : "Schau dir die Anleitung unter Entdecken noch einmal an."}</p>
-        <button type="button" onClick={neu} style={{ minHeight: 52, padding: "12px 24px", borderRadius: 14, border: "none", background: C.see, color: C.weiss, fontFamily: "inherit", fontSize: 15.5, fontWeight: 700, cursor: "pointer" }}>Noch eine Runde</button>
-      </div>
+      <Vollbild titel="Primzahlen" onEnde={onEnde}>
+        <Ergebnis richtig={richtig} gesamt={RUNDE} onNochmal={neu} onEnde={onEnde}
+          text={richtig === RUNDE ? "Alle richtig – stark! 🎉" : richtig / RUNDE >= 0.7 ? "Gut gemacht." : "Schau dir die Anleitung unter Entdecken noch einmal an."}
+          fehler={fehler.length ? fehler.map((f, i) => <p key={i} style={{ fontSize: 15, color: C.tinte }}>{f.n} ist <b>{f.prim ? "eine Primzahl" : "keine Primzahl"}</b>{!f.prim && <span style={{ color: C.grau }}> · {wegPrimzahl(f.n).ergebnis}</span>}</p>) : null} />
+      </Vollbild>
     );
   }
   return (
-    <div data-primzahl-trainer style={{ background: C.weiss, borderRadius: 18, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", padding: 18 }}>
-      <p style={{ fontSize: 12.5, fontWeight: 700, color: C.grau, margin: "0 0 6px" }}>Aufgabe {nr} von 10 · richtig: {richtig}</p>
-      <p style={{ fontSize: 15, color: C.grau, margin: "0 0 4px" }}>Ist die Zahl eine Primzahl?</p>
-      <p style={{ fontSize: 52, fontWeight: 800, color: C.tinte, lineHeight: 1.1, margin: "0 0 14px", textAlign: "center" }}>{n}</p>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>{knopf(true, "Primzahl")}{knopf(false, "Keine Primzahl")}</div>
-      {gewertet && (
-        <div role="status" style={{ marginTop: 14 }}>
-          <p style={{ fontSize: 15.5, fontWeight: 800, color: stimmt ? C.smaragd : C.signal, margin: "0 0 6px" }}>{stimmt ? "Richtig." : "Nicht ganz."}</p>
-          <div style={{ display: "grid", gap: 6, marginBottom: 12 }}>
-            {weg.schritte.map((st, k) => <p key={k} style={{ fontSize: 14, color: C.tinte, lineHeight: 1.55, margin: 0 }}>{st.text}</p>)}
+    <Vollbild titel="Primzahlen" untertitel="Prim oder nicht prim?" nr={nr - 1} gesamt={RUNDE} serie={serie} onEnde={onEnde} scrollbar>
+      <div data-primzahl-trainer style={{ display: "flex", flexDirection: "column", flex: "1 0 auto" }}>
+        <AufgabenKarte style={{ flex: "1 1 auto", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "22px 16px" }}>
+          <p style={{ fontSize: 12.5, color: "#C9D6EE", fontWeight: 400, marginBottom: 8 }}>Ist die Zahl eine Primzahl?</p>
+          <p data-kr-zahl style={{ fontSize: "clamp(56px, 16vw, 84px)", fontWeight: 800, color: C.weiss, lineHeight: 1, letterSpacing: "-0.03em" }}>{n}</p>
+        </AufgabenKarte>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 12, flex: "none" }}>{knopf(true, "Primzahl")}{knopf(false, "Keine Primzahl")}</div>
+        {gewertet && (
+          <div role="status" style={{ marginTop: 12, background: C.weiss, borderRadius: 16, padding: "12px 14px", border: `1px solid ${C.linie}`, flex: "none" }}>
+            <p style={{ fontSize: 15.5, fontWeight: 800, color: stimmt ? C.smaragd : C.signal, margin: "0 0 6px" }}>{stimmt ? "Richtig." : "Nicht ganz."}</p>
+            {!(turbo && stimmt) && (
+              <>
+                <div style={{ display: "grid", gap: 6, marginBottom: 10 }}>
+                  {weg.schritte.map((st, k) => <p key={k} style={{ fontSize: 14, color: C.tinte, lineHeight: 1.55, margin: 0 }}>{st.text}</p>)}
+                </div>
+                <p style={{ fontSize: 15, fontWeight: 800, color: C.seeTief, margin: "0 0 12px" }}>{weg.ergebnis}</p>
+                <StartKnopf onClick={weiter} style={{ height: 52 }}>{nr >= RUNDE ? "Ergebnis ansehen" : "Weiter"}</StartKnopf>
+              </>
+            )}
           </div>
-          <p style={{ fontSize: 15, fontWeight: 800, color: C.seeTief, margin: "0 0 12px" }}>{weg.ergebnis}</p>
-          <button type="button" onClick={weiter} style={{ width: "100%", minHeight: 52, borderRadius: 14, border: "none", background: C.see, color: C.weiss, fontFamily: "inherit", fontSize: 15.5, fontWeight: 700, cursor: "pointer" }}>{nr >= 10 ? "Ergebnis ansehen" : "Weiter"}</button>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </Vollbild>
+  );
+}
+
+export function PrimzahlTrainer() {
+  const [laeuft, setLaeuft] = useState(false);
+  const [lauf, setLauf] = useState(0);
+  if (laeuft) return <PrimzahlRunde key={lauf} onEnde={() => setLaeuft(false)} />;
+  return (
+    <RundenStart onStart={() => { setLauf((l) => l + 1); setLaeuft(true); }}
+      hinweis="Tastatur: P oder 1 = Primzahl, N oder 2 = keine Primzahl."
+      kinder={(
+        <p style={{ color: C.grau, fontSize: 14.5, fontWeight: 300, lineHeight: 1.65, marginBottom: 16 }}>
+          Zehn oder zwanzig Zahlen bis 200: Ist sie prim oder nicht? Nach jeder Antwort siehst du den Weg – bis zur Wurzel testen, Teiler finden oder keinen.
+        </p>
+      )} />
   );
 }
 
@@ -882,7 +907,7 @@ export function PrimzahlTrainer() {
 export const TRAINER = [
   { id: "plusminus", titel: "Schriftlich Plus & Minus", kurzTitel: "Plus und Minus", slogan: "Schriftlich, mit Übertrag.", zeichen: "+ −" },
   { id: "multiplizieren", titel: "Multiplizieren", slogan: "Vom Einmaleins bis vierstellig.", zeichen: "7·8" },
-  { id: "potenzen", titel: "Quadrate und Wurzeln", slogan: "Quadrate, Wurzeln – und Kuben.", zeichen: "12²" },
+  { id: "potenzen", titel: "Quadrate und Wurzeln", kurzTitel: "Quadrate & Wurzeln", slogan: "Quadrate, Wurzeln – und Kuben.", zeichen: "12²" },
   { id: "primzahlen", titel: "Primzahlen", slogan: "Prim oder nicht prim?", zeichen: "13" },
   { id: "primfaktoren", titel: "Primfaktoren", slogan: "Zahlen in Primfaktoren zerlegen.", zeichen: "2·3·7" },
   { id: "division", titel: "Schriftlich teilen", slogan: "Ziffer für Ziffer, mit Rest.", zeichen: "÷" },
@@ -902,44 +927,39 @@ const KOPF_LOOK = {
   bruchrechnen: { bg: "linear-gradient(150deg, #4FE0CB 0%, #0F8A7E 100%)", schatten: "rgba(15,138,126,0.28)", akzent: "#0B6A61", text: "#FFFFFF", r: -5 },
 };
 
-/* Kompakte, bunte Trainer-Kacheln im 2er-Raster. Titel immer einzeilig (schrumpft mit der Kachelbreite),
-   Symbol unten rechts in der Ecke, Slogan links daneben. */
+/* Trainer-Kacheln als Glas-Karten im Mathilda-Look (funcKopfrechnenKopf.jsx): zwei Spalten,
+   die letzte Karte über die volle Breite. Symbol-Badge in der Trainerfarbe. */
 export function KopfKacheln({ onWaehle }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-      <style>{`.kopf-kachel{container-type:inline-size;transition:transform .16s cubic-bezier(.2,.7,.3,1), box-shadow .16s ease}
-        .kopf-kachel:active{transform:scale(0.97)}
-        .kopf-titel{font-size:clamp(10px, 8.3cqw, 17px)}
-        .kopf-karte{transition:transform .25s cubic-bezier(.3,1.6,.5,1)}
-        @media (hover:hover){.kopf-kachel:hover{transform:translateY(-2px)}
-          .kopf-kachel:hover .kopf-karte{transform:rotate(0deg) scale(1.1)!important}}
-        .kopf-kachel:active .kopf-karte{transform:rotate(0deg) scale(1.1)!important}`}</style>
-      {KOPF_REIHEN.map((reihe) => (
-      <div key={reihe.join("-")} className="kopf-reihe" style={{ display: "grid", gridTemplateColumns: `repeat(${reihe.length}, minmax(0, 1fr))`, gap: 10 }}>
-      {reihe.map((id) => TRAINER.find((x) => x.id === id)).map((t) => {
-        const f = KOPF_LOOK[t.id] || KOPF_LOOK.multiplizieren;
-        return (
-          <button key={t.id} type="button" onClick={() => onWaehle(t.id)} aria-label={`${t.titel} öffnen`} className="kopf-kachel"
-            style={{ position: "relative", minHeight: 96, borderRadius: 20, border: "none", padding: "13px 12px 12px", overflow: "hidden",
-              background: f.bg, color: f.text, textAlign: "left", cursor: "pointer", fontFamily: "inherit",
-              boxShadow: `0 3px 10px ${f.schatten}, inset 0 0 0 1px rgba(255,255,255,0.25)`, display: "block" }}>
-            <span className="kopf-titel" style={{ display: "block", whiteSpace: "nowrap", fontWeight: 800, lineHeight: 1.2, letterSpacing: "-0.01em" }}>{t.kurzTitel || t.titel}</span>
-            <span style={{ display: "block", marginTop: 5, maxWidth: reihe.length === 1 ? "72%" : "68%", fontSize: 11.5, fontWeight: 500, lineHeight: 1.3, opacity: 0.92 }}>{t.slogan}</span>
-            <span aria-hidden="true" className="kopf-karte"
-              style={{ position: "absolute", right: 10, bottom: 10, padding: "3px 8px", borderRadius: 10, background: "rgba(255,255,255,0.95)",
-                color: f.akzent, fontSize: t.zeichen.length > 4 ? 13 : 16, fontWeight: 800, boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
-                transform: `rotate(${f.r}deg)`, whiteSpace: "nowrap" }}>
-              {t.zeichen}
+    <div data-kopf-kacheln>
+      <style>{KARTEN_CSS}</style>
+      <div className="kr-karten">
+        {KOPF_REIHEN.flat().map((id) => {
+          const t = TRAINER.find((x) => x.id === id);
+          const f = KOPF_LOOK[t.id] || KOPF_LOOK.multiplizieren;
+          const breit = KOPF_REIHEN.find((r) => r.includes(id)).length === 1;
+          return (
+            <span key={t.id} style={{ gridColumn: breit ? "1 / -1" : undefined, display: "grid" }}>
+              <KopfKarte titel={t.kurzTitel || t.titel} slogan={t.slogan} zeichen={t.zeichen} farbe={f.bg} text={f.text} breit={breit} onClick={() => onWaehle(t.id)} label={`${t.titel} öffnen`} />
             </span>
-          </button>
-        );
-      })}
+          );
+        })}
       </div>
-      ))}
     </div>
   );
 }
 
+function TrainerInhalt({ id }) {
+  return id === "primzahlen" ? <PrimzahlTrainer />
+    : id === "primfaktoren" ? <Primfaktoren />
+    : id === "potenzen" ? <QuadratKubik />
+    : id === "bruchrechnen" ? <Bruchrechnen />
+    : id === "plusminus" ? <SchriftlichPlusMinus Zahlenfeld={Zahlenfeld} />
+    : id === "division" ? <SchriftlicheDivision Zahlenfeld={Zahlenfeld} /> : <Multiplizieren />;
+}
+
+/* Trainerseite. Mit onZurueck (eigene Seite unter /kopfrechnen/…) bekommt sie den dunklen Kopf;
+   eingebettet (Hilfe, Übersicht) bleibt sie kompakt. */
 export function KopfrechenZentrum({ start = null, gehe = null, eingebettet = false, onZurueck = null }) {
   const [offen, setOffen] = useState(KOPF_ALT[start] || start);
   const t = offen ? TRAINER.find((x) => x.id === offen) : null;
@@ -966,24 +986,38 @@ export function KopfrechenZentrum({ start = null, gehe = null, eingebettet = fal
             </span>
           </button>
         )}
-        <KopfKacheln onWaehle={(id) => { setOffen(id); springe("kurse", () => window.scrollTo(0, 0)); }} />
+        <div style={{ background: NACHT_VERLAUF, borderRadius: 22, padding: 14 }}>
+          <KopfKacheln onWaehle={(id) => { setOffen(id); springe("kurse", () => window.scrollTo(0, 0)); }} />
+        </div>
+      </div>
+    );
+  }
+
+  if (onZurueck) {
+    const f = KOPF_LOOK[t.id] || KOPF_LOOK.multiplizieren;
+    return (
+      <div data-kr-trainerseite>
+        <KopfrechnenKopf kicker="Kopfrechnen · Training" zurueck="Alle Trainer" onZurueck={onZurueck}
+          titel={<span style={{ display: "inline-flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
+            <span aria-hidden="true" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", height: 44, padding: "0 12px", borderRadius: 13, background: f.bg, color: f.text, fontSize: 17, fontWeight: 800, letterSpacing: "-0.01em", boxShadow: "0 4px 12px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.35)", verticalAlign: "middle" }}>{t.zeichen}</span>
+            <span>{t.titel}</span>
+          </span>}
+          satz={t.slogan} />
+        <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 18 }}>
+          <TrainerInhalt id={t.id} />
+        </div>
       </div>
     );
   }
 
   return (
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
-      <button onClick={() => (onZurueck ? onZurueck() : setOffen(null))} className="mb-5"
+      <button onClick={() => setOffen(null)} className="mb-5"
         style={{ background: "none", border: "none", color: C.see, fontSize: 13, fontFamily: "inherit", cursor: "pointer", padding: 0 }}>
         ← Kopfrechnen
       </button>
       <h2 style={{ fontSize: 25, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 14 }}>{t.titel}</h2>
-      {t.id === "primzahlen" ? <PrimzahlTrainer />
-        : t.id === "primfaktoren" ? <Primfaktoren />
-        : t.id === "potenzen" ? <QuadratKubik />
-        : t.id === "bruchrechnen" ? <Bruchrechnen />
-        : t.id === "plusminus" ? <SchriftlichPlusMinus Zahlenfeld={Zahlenfeld} />
-        : t.id === "division" ? <SchriftlicheDivision Zahlenfeld={Zahlenfeld} /> : <Multiplizieren />}
+      <TrainerInhalt id={t.id} />
     </div>
   );
 }
@@ -992,12 +1026,7 @@ export function KopfrechenZentrum({ start = null, gehe = null, eingebettet = fal
 export function KopfTrainer({ id }) {
   const t = TRAINER.find((x) => x.id === (KOPF_ALT[id] || id));
   if (!t) return null;
-  return t.id === "primzahlen" ? <PrimzahlTrainer />
-    : t.id === "primfaktoren" ? <Primfaktoren />
-    : t.id === "potenzen" ? <QuadratKubik />
-    : t.id === "bruchrechnen" ? <Bruchrechnen />
-    : t.id === "plusminus" ? <SchriftlichPlusMinus Zahlenfeld={Zahlenfeld} />
-    : t.id === "division" ? <SchriftlicheDivision Zahlenfeld={Zahlenfeld} /> : <Multiplizieren />;
+  return <TrainerInhalt id={t.id} />;
 }
 
 /* Grafik für die Startseiten-Kachel: schwebende Rechenkärtchen. */

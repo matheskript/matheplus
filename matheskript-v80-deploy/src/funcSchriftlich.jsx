@@ -8,6 +8,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { C } from "./base1.jsx";
 import { englisch } from "./i18n.js";
 import { AufklappZeichen } from "./aufklappen.jsx";
+import { useKopfEinstellungen, RundenStart, Vollbild, Ergebnis, StartKnopf, useTimer } from "./kopfTraining.jsx";
 
 const L = (de, en) => (englisch() ? en : de);
 const zufall = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
@@ -64,15 +65,6 @@ function Chips({ label, optionen, wert, setWert, gesperrt = () => false }) {
 
 const karte = { background: C.weiss, borderRadius: 18, padding: "18px 16px", boxShadow: "0 2px 16px rgba(15,26,51,0.07)" };
 
-function Zaehler({ richtig, gesamt, serie }) {
-  return (
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, fontSize: 13, color: C.grau }}>
-      <span>{L("Richtig", "Correct")}: <b style={{ color: C.tinte }}>{richtig}</b> {L("von", "of")} {gesamt}</span>
-      {serie >= 3 && <span style={{ fontWeight: 700, color: C.gruen }}>🔥 {serie}</span>}
-    </div>
-  );
-}
-
 function Rueckmeldung({ rueck, text }) {
   if (!rueck) return null;
   const ok = rueck === "richtig";
@@ -82,9 +74,6 @@ function Rueckmeldung({ rueck, text }) {
     </p>
   );
 }
-
-const weiterKnopf = { width: "100%", height: 50, marginTop: 12, borderRadius: 14, border: "none", cursor: "pointer", fontFamily: "inherit",
-  fontSize: 16, fontWeight: 700, color: C.weiss, background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)` };
 
 /* Tastatur am Rechner: Ziffern, Rücktaste, Enter */
 function useTastatur(onZiffer, onLoeschen, onOk) {
@@ -124,33 +113,43 @@ function uebertraege(a, b, op, breite) {
   return u;
 }
 
-export function SchriftlichPlusMinus({ Zahlenfeld, startArt = "plus" }) {
-  const [art, setArt] = useState(startArt);
-  const [stellen, setStellen] = useState(3);
+function PlusMinusRunde({ art, stellen, Zahlenfeld, onEnde }) {
+  const [einst] = useKopfEinstellungen();
+  const RUNDE = einst.runde, turbo = einst.turbo;
   const neu = useCallback(() => plusMinusAufgabe(art, stellen), [art, stellen]);
   const [aufg, setAufg] = useState(() => neu());
   const [eingabe, setEingabe] = useState("");          // von rechts nach links geschrieben
   const [rueck, setRueck] = useState(null);
+  const [nr, setNr] = useState(0);
   const [stand, setStand] = useState({ richtig: 0, gesamt: 0, serie: 0 });
-  const timer = useRef(null);
+  const [fehler, setFehler] = useState([]);
+  const [fertig, setFertig] = useState(false);
+  const timer = useTimer();
 
-  useEffect(() => { clearTimeout(timer.current); setAufg(neu()); setEingabe(""); setRueck(null); }, [neu]);
-  useEffect(() => () => clearTimeout(timer.current), []);
-
-  const weiter = () => { clearTimeout(timer.current); setAufg(neu()); setEingabe(""); setRueck(null); };
+  const neueRunde = () => { clearTimeout(timer.current); setAufg(neu()); setEingabe(""); setRueck(null); setNr(0); setStand({ richtig: 0, gesamt: 0, serie: 0 }); setFehler([]); setFertig(false); };
+  const weiter = () => {
+    clearTimeout(timer.current);
+    if (nr + 1 >= RUNDE) { setFertig(true); return; }
+    setNr((k) => k + 1); setAufg(neu()); setEingabe(""); setRueck(null);
+  };
   const breite = Math.max(String(aufg.a).length, String(aufg.b).length, String(aufg.ergebnis).length);
   const spalten = breite + 1;
   // Ziffer kommt links vor die bisherigen – so wie man von den Einern aus nach links schreibt
   const ziffer = (z) => { if (!rueck) setEingabe((v) => (v.length >= breite ? v : z + v)); };
   const loeschen = () => { if (!rueck) setEingabe((v) => v.slice(1)); };
-  const pruefen = () => {
-    if (rueck || !eingabe) return;
-    const ok = Number(eingabe) === aufg.ergebnis;
+  const pruefen = (wert = eingabe) => {
+    if (rueck || !wert) return;
+    const ok = Number(wert) === aufg.ergebnis;
     setRueck(ok ? "richtig" : "falsch");
     setStand((s) => ({ richtig: s.richtig + (ok ? 1 : 0), gesamt: s.gesamt + 1, serie: ok ? s.serie + 1 : 0 }));
-    if (ok) timer.current = setTimeout(weiter, 1100);
+    if (!ok) setFehler((l) => [...l, { ...aufg, eingabe: wert }]);
+    if (ok) timer.current = setTimeout(weiter, turbo ? 300 : 1100);
   };
-  useTastatur(ziffer, loeschen, rueck === "falsch" ? weiter : pruefen);
+  // Turbo: alle Stellen stehen und stimmen → sofort weiter
+  useEffect(() => {
+    if (turbo && !rueck && eingabe.length === String(aufg.ergebnis).length && Number(eingabe) === aufg.ergebnis) pruefen(eingabe);
+  }, [eingabe]);  // eslint-disable-line react-hooks/exhaustive-deps
+  useTastatur(ziffer, loeschen, rueck === "falsch" ? weiter : () => pruefen());
 
   const zeileZahl = (n, extra = {}) => {
     const s = String(n), z = {};
@@ -172,25 +171,50 @@ export function SchriftlichPlusMinus({ Zahlenfeld, startArt = "plus" }) {
   ];
   if (rueck === "falsch") zeilen.push({ zellen: zeileZahl(aufg.ergebnis, { farbe: C.smaragd, fett: true }) });
 
+  const titel = L(art === "plus" ? "Schriftlich Plus" : art === "minus" ? "Schriftlich Minus" : "Schriftlich Plus & Minus", art === "plus" ? "Column addition" : art === "minus" ? "Column subtraction" : "Column addition & subtraction");
+  if (fertig) {
+    return (
+      <Vollbild titel={titel} onEnde={onEnde}>
+        <Ergebnis richtig={stand.richtig} gesamt={RUNDE} onNochmal={neueRunde} onEnde={onEnde}
+          fehler={fehler.length ? fehler.map((f, i) => <p key={i} style={{ fontSize: 15, color: C.tinte }}>{f.a} {f.op} {f.b} = <b>{f.ergebnis}</b> <span style={{ color: C.signal, fontSize: 13, marginLeft: 6 }}>(du: {f.eingabe})</span></p>) : null} />
+      </Vollbild>
+    );
+  }
   return (
-    <div>
-      <p style={{ color: C.grau, fontSize: 14.5, fontWeight: 300, lineHeight: 1.65, marginBottom: 14 }}>
-        {L("Rechne untereinander wie im Heft: Beginne rechts bei den Einern und schreibe nach links. Überträge merkst du dir – nach dem Prüfen siehst du sie klein in Rot.",
-          "Calculate in columns like in your exercise book: start on the right with the ones and write to the left. Keep carries in mind – after checking you see them small in red.")}
-      </p>
-      <Chips label={L("Rechenart", "Operation")} optionen={[["plus", "Plus"], ["minus", "Minus"], ["mix", L("Gemischt", "Mixed")]]} wert={art} setWert={setArt} />
-      <Chips label={L("Stellen", "Digits")} optionen={[2, 3, 4, 5, 6].map((d) => [d, String(d)])} wert={stellen} setWert={setStellen} />
-      <div style={{ ...karte, marginTop: 6 }}>
-        <Zaehler {...stand} />
+    <Vollbild titel={titel} untertitel={L(`${stellen} Stellen`, `${stellen} digits`)} nr={nr} gesamt={RUNDE} serie={stand.serie} onEnde={onEnde} scrollbar>
+      <div style={{ ...karte, flex: "1 0 auto", display: "flex", flexDirection: "column", justifyContent: "center" }}>
         <Kaestchen spalten={spalten} zeilen={zeilen} gross />
         <Rueckmeldung rueck={rueck} text={L(`Leider nicht – richtig ist ${aufg.ergebnis}. Schau dir die Überträge an.`, `Not quite – the answer is ${aufg.ergebnis}. Look at the carries.`)} />
-        <p style={{ fontSize: 12, color: C.hellgrau, textAlign: "center", margin: "10px 0 12px" }}>
-          {L("Tippe die Ziffern von rechts nach links ein.", "Type the digits from right to left.")}
-        </p>
-        {rueck === "falsch" ? <button onClick={weiter} style={weiterKnopf}>{L("Nächste Aufgabe", "Next task")}</button>
-          : <Zahlenfeld gesperrt={!!rueck} onZiffer={ziffer} onLoeschen={loeschen} onOk={pruefen} />}
       </div>
-    </div>
+      <p style={{ fontSize: 12, color: C.hellgrau, textAlign: "center", margin: "8px 0 10px", flex: "none" }}>
+        {L("Tippe die Ziffern von rechts nach links ein.", "Type the digits from right to left.")}
+      </p>
+      <div style={{ flex: "none" }}>
+        {rueck === "falsch" ? <StartKnopf onClick={weiter} style={{ height: 52 }}>{L("Nächste Aufgabe", "Next task")}</StartKnopf>
+          : <Zahlenfeld gesperrt={!!rueck} turbo={turbo} onZiffer={ziffer} onLoeschen={loeschen} onOk={() => pruefen()} />}
+      </div>
+    </Vollbild>
+  );
+}
+
+export function SchriftlichPlusMinus({ Zahlenfeld, startArt = "plus" }) {
+  const [art, setArt] = useState(startArt);
+  const [stellen, setStellen] = useState(3);
+  const [laeuft, setLaeuft] = useState(false);
+  const [lauf, setLauf] = useState(0);
+  if (laeuft) return <PlusMinusRunde key={lauf} art={art} stellen={stellen} Zahlenfeld={Zahlenfeld} onEnde={() => setLaeuft(false)} />;
+  return (
+    <RundenStart onStart={() => { setLauf((l) => l + 1); setLaeuft(true); }} kinder={(
+      <>
+        <p style={{ color: C.grau, fontSize: 14.5, fontWeight: 300, lineHeight: 1.65, marginBottom: 14 }}>
+          {L("Rechne untereinander wie im Heft: Beginne rechts bei den Einern und schreibe nach links. Überträge merkst du dir – nach dem Prüfen siehst du sie klein in Rot.",
+            "Calculate in columns like in your exercise book: start on the right with the ones and write to the left. Keep carries in mind – after checking you see them small in red.")}
+        </p>
+        <Chips label={L("Rechenart", "Operation")} optionen={[["plus", "Plus"], ["minus", "Minus"], ["mix", L("Gemischt", "Mixed")]]} wert={art} setWert={setArt} />
+        <Chips label={L("Stellen", "Digits")} optionen={[2, 3, 4, 5, 6].map((d) => [d, String(d)])} wert={stellen} setWert={setStellen} />
+        <div style={{ height: 6 }} />
+      </>
+    )} />
   );
 }
 
@@ -230,10 +254,9 @@ function divisionsSchritte(n, d) {
   return schritte;
 }
 
-export function SchriftlicheDivision({ Zahlenfeld }) {
-  const [stDividend, setStDividend] = useState(3);
-  const [stDivisor, setStDivisor] = useState(1);
-  const [rest, setRest] = useState(false);
+function DivisionRunde({ stDividend, stDivisor, rest, Zahlenfeld, onEnde }) {
+  const [einst] = useKopfEinstellungen();
+  const RUNDE = einst.runde, turbo = einst.turbo;
   const neu = useCallback(() => divisionAufgabe(stDividend, Math.min(stDivisor, stDividend), rest), [stDividend, stDivisor, rest]);
   const [aufg, setAufg] = useState(() => neu());
   const [q, setQ] = useState("");
@@ -241,25 +264,36 @@ export function SchriftlicheDivision({ Zahlenfeld }) {
   const [feld, setFeld] = useState("q");
   const [rueck, setRueck] = useState(null);
   const [wegAuf, setWegAuf] = useState(false);
+  const [nr, setNr] = useState(0);
   const [stand, setStand] = useState({ richtig: 0, gesamt: 0, serie: 0 });
-  const timer = useRef(null);
+  const [fehler, setFehler] = useState([]);
+  const [fertig, setFertig] = useState(false);
+  const timer = useTimer();
 
   const zuruecksetzen = (a) => { clearTimeout(timer.current); setAufg(a); setQ(""); setR(""); setFeld("q"); setRueck(null); setWegAuf(false); };
-  useEffect(() => { if (stDivisor > stDividend) setStDivisor(stDividend); }, [stDividend]);  // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => { zuruecksetzen(neu()); }, [neu]);  // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => () => clearTimeout(timer.current), []);
-  const weiter = () => zuruecksetzen(neu());
+  const neueRunde = () => { zuruecksetzen(neu()); setNr(0); setStand({ richtig: 0, gesamt: 0, serie: 0 }); setFehler([]); setFertig(false); };
+  const weiter = () => { clearTimeout(timer.current); if (nr + 1 >= RUNDE) { setFertig(true); return; } setNr((k) => k + 1); zuruecksetzen(neu()); };
 
   const ziffer = (z) => { if (rueck) return; if (feld === "q") setQ((v) => (v.length >= 6 ? v : v + z)); else setR((v) => (v.length >= 4 ? v : v + z)); };
   const loeschen = () => { if (rueck) return; if (feld === "q") setQ((v) => v.slice(0, -1)); else setR((v) => v.slice(0, -1)); };
+  const werten = (ok) => {
+    setRueck(ok ? "richtig" : "falsch");
+    setStand((s) => ({ richtig: s.richtig + (ok ? 1 : 0), gesamt: s.gesamt + 1, serie: ok ? s.serie + 1 : 0 }));
+    if (!ok) setFehler((l) => [...l, { ...aufg, eingabe: `${q}${rest ? ` R ${r || 0}` : ""}` }]);
+    if (ok) timer.current = setTimeout(weiter, turbo ? 350 : 1300); else setWegAuf(true);
+  };
   const pruefen = () => {
     if (rueck || !q) return;
     if (rest && feld === "q" && r === "") { setFeld("r"); return; }   // erst noch den Rest eintragen
-    const ok = Number(q) === aufg.q && (rest ? Number(r || 0) === aufg.r : true);
-    setRueck(ok ? "richtig" : "falsch");
-    setStand((s) => ({ richtig: s.richtig + (ok ? 1 : 0), gesamt: s.gesamt + 1, serie: ok ? s.serie + 1 : 0 }));
-    if (ok) timer.current = setTimeout(weiter, 1300); else setWegAuf(true);
+    werten(Number(q) === aufg.q && (rest ? Number(r || 0) === aufg.r : true));
   };
+  // Turbo: Ergebnis (und Rest) stimmen → sofort weiter; stimmt das Ergebnis, springt der Cursor zum Rest
+  useEffect(() => {
+    if (!turbo || rueck || !q || Number(q) !== aufg.q) return;
+    if (!rest) { werten(true); return; }
+    if (feld === "q" && r === "") { setFeld("r"); return; }
+    if (r !== "" && Number(r) === aufg.r) werten(true);
+  }, [q, r]);  // eslint-disable-line react-hooks/exhaustive-deps
   useTastatur(ziffer, loeschen, rueck === "falsch" ? weiter : pruefen);
 
   /* Kästchen: Spalte 0 frei (für das Minuszeichen), dann Dividend, „:“, Divisor, „=“, Quotient, ggf. „R“ Rest */
@@ -302,18 +336,18 @@ export function SchriftlicheDivision({ Zahlenfeld }) {
     fontFamily: "inherit", padding: "4px 10px",
   });
   const qOk = Number(q) === aufg.q, rOk = Number(r || 0) === aufg.r;
-
+  const titel = L("Schriftlich teilen", "Long division");
+  if (fertig) {
+    return (
+      <Vollbild titel={titel} onEnde={onEnde}>
+        <Ergebnis richtig={stand.richtig} gesamt={RUNDE} onNochmal={neueRunde} onEnde={onEnde}
+          fehler={fehler.length ? fehler.map((f, i) => <p key={i} style={{ fontSize: 15, color: C.tinte }}>{f.n} : {f.d} = <b>{f.q}{f.r || rest ? ` R ${f.r}` : ""}</b> <span style={{ color: C.signal, fontSize: 13, marginLeft: 6 }}>(du: {f.eingabe})</span></p>) : null} />
+      </Vollbild>
+    );
+  }
   return (
-    <div>
-      <p style={{ color: C.grau, fontSize: 14.5, fontWeight: 300, lineHeight: 1.65, marginBottom: 14 }}>
-        {L("Teile schriftlich wie im Heft: Stelle für Stelle teilen, malnehmen, abziehen, die nächste Ziffer herunterholen. Wähle, wie viele Stellen Dividend und Divisor haben.",
-          "Divide in writing like in your exercise book: divide digit by digit, multiply, subtract, bring down the next digit. Choose how many digits the dividend and divisor have.")}
-      </p>
-      <Chips label={L("Dividend", "Dividend")} optionen={[2, 3, 4, 5].map((n) => [n, L(`${n}-stellig`, `${n}-digit`)])} wert={stDividend} setWert={setStDividend} />
-      <Chips label={L("Divisor", "Divisor")} optionen={[1, 2, 3].map((n) => [n, L(`${n}-stellig`, `${n}-digit`)])} wert={stDivisor} setWert={setStDivisor} gesperrt={(n) => n > stDividend} />
-      <Chips label={L("Rest", "Remainder")} optionen={[[false, L("ohne Rest", "no remainder")], [true, L("mit Rest", "with remainder")]]} wert={rest} setWert={setRest} />
-      <div style={{ ...karte, marginTop: 6 }}>
-        <Zaehler {...stand} />
+    <Vollbild titel={titel} untertitel={L(`${stDividend}-stellig : ${Math.min(stDivisor, stDividend)}-stellig${rest ? " · mit Rest" : ""}`, `${stDividend}-digit : ${Math.min(stDivisor, stDividend)}-digit${rest ? " · with remainder" : ""}`)} nr={nr} gesamt={RUNDE} serie={stand.serie} onEnde={onEnde} scrollbar>
+      <div style={{ ...karte, flex: "1 0 auto", display: "flex", flexDirection: "column", justifyContent: "center" }}>
         <Kaestchen spalten={spalten} zeilen={zeilen} />
         <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
           <button type="button" onClick={() => !rueck && setFeld("q")} style={feldStil(feld === "q", q, qOk)}>
@@ -331,17 +365,43 @@ export function SchriftlicheDivision({ Zahlenfeld }) {
           `Not quite – the answer is ${aufg.q}${rest ? ` remainder ${aufg.r}` : ""}. The working is shown above.`)} />
         {!rueck && (
           <button type="button" onClick={() => setWegAuf(!wegAuf)} aria-expanded={wegAuf}
-            style={{ display: "flex", alignItems: "center", gap: 6, margin: "10px auto 12px", background: "none", border: "none", color: C.see, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+            style={{ display: "flex", alignItems: "center", gap: 6, margin: "10px auto 0", background: "none", border: "none", color: C.see, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
             {wegAuf ? L("Rechenweg ausblenden", "Hide working") : L("Rechenweg zeigen", "Show working")}
             <AufklappZeichen auf={wegAuf} groesse={14} />
           </button>
         )}
-        {rueck === "falsch" ? <button onClick={weiter} style={weiterKnopf}>{L("Nächste Aufgabe", "Next task")}</button>
-          : <Zahlenfeld gesperrt={!!rueck} onZiffer={ziffer} onLoeschen={loeschen} onOk={pruefen} />}
-        {rest && !rueck && <p style={{ fontSize: 12, color: C.hellgrau, textAlign: "center", marginTop: 10 }}>
-          {L("Erst das Ergebnis, dann OK – danach den Rest eintragen.", "First the result, then OK – then enter the remainder.")}
-        </p>}
       </div>
-    </div>
+      <p style={{ fontSize: 12, color: C.hellgrau, textAlign: "center", margin: "8px 0 10px", flex: "none" }}>
+        {rest ? L("Erst das Ergebnis, dann OK – danach den Rest eintragen.", "First the result, then OK – then enter the remainder.") : L("Tippe das Ergebnis ein und drücke OK.", "Type the result and press OK.")}
+      </p>
+      <div style={{ flex: "none" }}>
+        {rueck === "falsch" ? <StartKnopf onClick={weiter} style={{ height: 52 }}>{L("Nächste Aufgabe", "Next task")}</StartKnopf>
+          : <Zahlenfeld gesperrt={!!rueck} turbo={turbo} onZiffer={ziffer} onLoeschen={loeschen} onOk={pruefen} />}
+      </div>
+    </Vollbild>
+  );
+}
+
+export function SchriftlicheDivision({ Zahlenfeld }) {
+  const [stDividend, setStDividend] = useState(3);
+  const [stDivisor, setStDivisor] = useState(1);
+  const [rest, setRest] = useState(false);
+  const [laeuft, setLaeuft] = useState(false);
+  const [lauf, setLauf] = useState(0);
+  useEffect(() => { if (stDivisor > stDividend) setStDivisor(stDividend); }, [stDividend]);  // eslint-disable-line react-hooks/exhaustive-deps
+  if (laeuft) return <DivisionRunde key={lauf} stDividend={stDividend} stDivisor={stDivisor} rest={rest} Zahlenfeld={Zahlenfeld} onEnde={() => setLaeuft(false)} />;
+  return (
+    <RundenStart onStart={() => { setLauf((l) => l + 1); setLaeuft(true); }} kinder={(
+      <>
+        <p style={{ color: C.grau, fontSize: 14.5, fontWeight: 300, lineHeight: 1.65, marginBottom: 14 }}>
+          {L("Teile schriftlich wie im Heft: Stelle für Stelle teilen, malnehmen, abziehen, die nächste Ziffer herunterholen. Wähle, wie viele Stellen Dividend und Divisor haben.",
+            "Divide in writing like in your exercise book: divide digit by digit, multiply, subtract, bring down the next digit. Choose how many digits the dividend and divisor have.")}
+        </p>
+        <Chips label={L("Dividend", "Dividend")} optionen={[2, 3, 4, 5].map((n) => [n, L(`${n}-stellig`, `${n}-digit`)])} wert={stDividend} setWert={setStDividend} />
+        <Chips label={L("Divisor", "Divisor")} optionen={[1, 2, 3].map((n) => [n, L(`${n}-stellig`, `${n}-digit`)])} wert={stDivisor} setWert={setStDivisor} gesperrt={(n) => n > stDividend} />
+        <Chips label={L("Rest", "Remainder")} optionen={[[false, L("ohne Rest", "no remainder")], [true, L("mit Rest", "with remainder")]]} wert={rest} setWert={setRest} />
+        <div style={{ height: 6 }} />
+      </>
+    )} />
   );
 }

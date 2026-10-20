@@ -3,6 +3,7 @@ import { C } from "./base1.jsx";
 import { englisch } from "./i18n.js";
 import { merken } from "./func5.jsx";
 import { GLEICHUNG_CSS, Zahlenfeld } from "./func14.jsx";
+import { useKopfEinstellungen, AufgabenKarte } from "./kopfTraining.jsx";
 import { ALLE_ITEMS, BLOECKE, ITEM_INFO, MODULE, offeneBloecke, aufgabeFuer, buche, bucheFehler, bucheVerstehen, fehlerName, haeufigeFehlerarten, itemText, RANG, setzeBest, status, wertung } from "./headNumbers.js";
 import { L, karte, formatZahl, kopfAendern, useKopf, modulInfo, stufeInfo, STATUS_NAME, RICHTUNG_NAME, Kicker, Knopf, useZeitMesser, PAUSE_SCHWELLE_MS, gesprochen } from "./funcHeadNumbersBasis.jsx";
 
@@ -16,8 +17,10 @@ import { L, karte, formatZahl, kopfAendern, useKopf, modulInfo, stufeInfo, STATU
 const SR_NUR = { position: "absolute", width: 1, height: 1, margin: -1, padding: 0, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap", border: 0 };
 const snapshot = (K) => Object.fromEntries(ALLE_ITEMS.map((k) => [k, status(K.items[k])]));
 
-export function Runde({ aufgaben, modul, stufe, onNochmal, onZurueck, nochmalText }) {
+export function Runde({ aufgaben, modul, stufe, onNochmal, onZurueck, nochmalText, onStand = null }) {
   const K = useKopf();
+  const [einst] = useKopfEinstellungen();
+  const turbo = einst.turbo;
   const info = modulInfo(modul);
   const en = englisch();
   const mitTipp = stufe !== "schnell";
@@ -44,6 +47,8 @@ export function Runde({ aufgaben, modul, stufe, onNochmal, onZurueck, nochmalTex
   if (vorher.current === null) vorher.current = snapshot(K);
   if (vorherOffen.current === null) vorherOffen.current = Object.fromEntries(MODULE.map((m) => [m, offeneBloecke(K, m)]));
   useEffect(() => { aufgStart.current = Date.now(); aufgPause.current = pauseJetzt(); }, [idx]);
+  /* Stand nach außen (Vollbild-Kopf): Aufgabe, Anzahl, Serie */
+  useEffect(() => { if (onStand) onStand({ nr: idx, gesamt: queue.length, serie, fertig: !!abschluss }); }, [idx, queue.length, serie, abschluss]);  // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => () => clearTimeout(timer.current), []);
 
   const a = queue[idx];
@@ -100,7 +105,7 @@ export function Runde({ aufgaben, modul, stufe, onNochmal, onZurueck, nochmalTex
       timer.current = setTimeout(() => {
         // Tempo: Weitergehen sofort, sonst kurz Zeit für das Häkchen
         if (idx + 1 >= queue.length) beenden(neueErgs, punkte + gewinn); else weiterRef.current();
-      }, stufe === "schnell" ? 450 : 650);
+      }, turbo ? 250 : stufe === "schnell" ? 450 : 650);
     } else {
       setSerie(0);
       if (!a.retry && !verstehen) {
@@ -109,6 +114,11 @@ export function Runde({ aufgaben, modul, stufe, onNochmal, onZurueck, nochmalTex
       }
     }
   };
+
+  /* Turbo: Steht die richtige Zahl im Feld, zählt sie sofort – ohne OK */
+  useEffect(() => {
+    if (turbo && !rueck && a && a.art === "zahl" && eingabe !== "" && String(Number(eingabe)) === String(a.loesung)) pruefen(eingabe);
+  }, [eingabe]);  // eslint-disable-line react-hooks/exhaustive-deps
 
   /* Tastatur: Ziffern, Rücktaste, Enter; 1–4 wählen bei Auswahlaufgaben */
   useEffect(() => {
@@ -207,14 +217,14 @@ export function Runde({ aufgaben, modul, stufe, onNochmal, onZurueck, nochmalTex
   const tippMoeglich = mitTipp && !rueck && tipp < hilfen.length && a.modus !== "verstehen";
   const zeigeFrage = a.frage && a.art === "zahl" ? a.frage : null;
   return (
-    <div style={{ ...karte, padding: 18 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+    <div style={onStand ? { display: "flex", flexDirection: "column", flex: "1 0 auto" } : { ...karte, padding: 18 }}>
+      {!onStand && <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
         <div style={{ flex: 1, display: "flex", gap: 4 }} aria-hidden="true">
           {queue.map((q, i) => <span key={i} style={{ flex: 1, height: 6, borderRadius: 3, background: i < idx ? C.see : i === idx ? C.flaggold : C.linie, opacity: q.retry && i > idx ? 0.6 : 1 }} />)}
         </div>
         <span style={{ fontSize: 12.5, color: C.grau, whiteSpace: "nowrap" }}>{idx + 1} / {queue.length}</span>
         {serie >= 3 && <span style={{ fontSize: 12.5, fontWeight: 700, color: C.gruenDunkel, whiteSpace: "nowrap" }}>{L("Serie", "Streak")} {serie}</span>}
-      </div>
+      </div>}
       {a.retry && <p style={{ fontSize: 12.5, fontWeight: 700, color: C.gruenDunkel, marginBottom: 8 }}>{L("Noch einmal – diese Aufgabe war eben dran", "Once more – this one came up earlier")}</p>}
       <p role="status" aria-live="polite" style={SR_NUR}>
         {rueck === "richtig" ? L("Richtig.", "Correct.") : rueck === "falsch" ? "" : `${L("Aufgabe", "Problem")} ${idx + 1} ${L("von", "of")} ${queue.length}: ${a.frage ? a.frage + " " : ""}${gesprochen(a.text)}`}
@@ -224,12 +234,12 @@ export function Runde({ aufgaben, modul, stufe, onNochmal, onZurueck, nochmalTex
       {a.art === "zahl" ? (
         <>
           <style>{GLEICHUNG_CSS}</style>
-          <div className="kr-gleichung">
-            <div className="kr-aufgabe" style={{ background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 16, padding: "20px 18px", minHeight: 96 }}>
-              <p style={{ color: C.weiss, fontSize: a.text.length > 9 ? "clamp(24px, 7.2vw, 40px)" : "clamp(34px, 9vw, 44px)", fontWeight: 800, letterSpacing: "-0.01em", lineHeight: 1.1, whiteSpace: "nowrap" }}>
-                {a.text}{!a.ohneGleich && <> <span style={{ color: C.goldText, fontWeight: 600 }}>=</span></>}
+          <div className="kr-gleichung" style={onStand ? { flex: "1 0 auto" } : undefined}>
+            <AufgabenKarte style={onStand ? { flex: "1 1 auto", display: "flex", alignItems: "center", justifyContent: "center" } : { padding: "20px 18px" }}>
+              <p style={{ color: C.weiss, fontSize: a.text.length > 9 ? "clamp(26px, 7.6vw, 46px)" : "clamp(38px, 11vw, 58px)", fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1.1, whiteSpace: "nowrap" }}>
+                {a.text}{!a.ohneGleich && <> <span style={{ color: C.flaggold, fontWeight: 600 }}>=</span></>}
               </p>
-            </div>
+            </AufgabenKarte>
             <div className="kr-eingabe" aria-live="polite" style={{ border: `2.5px solid ${farbe}`, borderRadius: 14, minHeight: 64, display: "flex", alignItems: "center", justifyContent: "center", gap: 10, flexWrap: "wrap", padding: "6px 8px",
               background: rueck === "richtig" ? "#EEF8F2" : rueck === "falsch" ? "#FBEFEA" : C.weiss, transition: "all .15s" }}>
               <span style={{ fontSize: eingabe.length > 6 ? 28 : 34, fontWeight: 800, color: C.tinte, minWidth: 20 }}>{eingabe || <span style={{ color: C.hellgrau }}>?</span>}</span>
@@ -281,13 +291,13 @@ export function Runde({ aufgaben, modul, stufe, onNochmal, onZurueck, nochmalTex
         </button>
       )}
       {a.art === "zahl" && (
-        <Zahlenfeld gesperrt={!!rueck} labelLoeschen={L("Letzte Ziffer löschen", "Delete last digit")} labelOk={L("Antwort prüfen", "Check answer")}
+        <Zahlenfeld gesperrt={!!rueck} turbo={turbo} labelLoeschen={L("Letzte Ziffer löschen", "Delete last digit")} labelOk={L("Antwort prüfen", "Check answer")}
           onZiffer={(z) => setEingabe((v) => (v.length >= 5 ? v : v + z))}
           onLoeschen={() => setEingabe((v) => v.slice(0, -1))}
           onOk={() => { if (eingabe !== "") pruefen(eingabe); }} />
       )}
-      <p style={{ fontSize: 12, color: C.hellgrau, textAlign: "center", marginTop: 12 }}>
-        {stufe === "schnell" ? L("Erst richtig, dann schnell.", "Correct first, then fast.") : L("Du brauchst kein Tempo – genau und sicher zählt.", "No rush – accuracy and certainty count.")}
+      <p style={{ fontSize: 12, color: C.hellgrau, textAlign: "center", marginTop: 10, flex: "none" }}>
+        {turbo ? L("Turbo: Die richtige Zahl zählt sofort.", "Turbo: the right number counts at once.") : stufe === "schnell" ? L("Erst richtig, dann schnell.", "Correct first, then fast.") : L("Du brauchst kein Tempo – genau und sicher zählt.", "No rush – accuracy and certainty count.")}
       </p>
     </div>
   );

@@ -97,6 +97,7 @@ def test_lazy_und_navigation(b):
     zu_headnumbers(page)
     assert any("funcHeadNumbers" in u for u in anfragen), "Chunk wurde nicht nachgeladen"
     assert page.get_by_role("heading", name="Kopfrechnen").count() >= 1
+    page.get_by_role("button", name="Warum Kopfrechnen?").first.click(); page.wait_for_timeout(200)
     body = page.locator("body").inner_text()
     assert "Koch" in body and "Küche" in body, "Einleitung mit Küchen-Vergleich fehlt"
     page.context.close()
@@ -129,7 +130,7 @@ def test_runde_status_und_fehlerarten(b):
     k = kopf(page)
     assert k["fehler"].get("nachbar", {}).get("n", 0) >= 3, f"Fehlerart nicht gespeichert: {k.get('fehler')}"
     zurueck_zur_uebersicht(page)
-    page.locator("button", has_text="← Kopfrechnen").first.click(); page.wait_for_timeout(400)
+    page.locator("[data-kr-zurueck]").first.click(); page.wait_for_timeout(400)
     start_text = page.locator("body").inner_text()
     assert "Wiederkehrende Muster" in start_text and "Nachbaraufgabe erwischt" in start_text, "Karte zu wiederkehrenden Fehlerarten fehlt"
     assert "keine Diagnose" in start_text, "Hinweis 'keine Diagnose' fehlt"
@@ -215,6 +216,7 @@ def test_lernlandkarte_kurzstand(b):
 def test_englisch_und_layout(b):
     page = neue_seite(b)
     start(page, lang="en"); zu_headnumbers(page, "Open Mental Math") if page.get_by_label("Open Mental Math").count() else zu_headnumbers(page)
+    page.get_by_role("button", name="Why mental arithmetic?").first.click(); page.wait_for_timeout(200)
     body = page.locator("body").inner_text()
     assert "Mental Math" in body and "Head und Numbers" not in body
     assert "kitchen" in body.lower(), "Englischer Einleitungstext mit Küchen-Vergleich fehlt"

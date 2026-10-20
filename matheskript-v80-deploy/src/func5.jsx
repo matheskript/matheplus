@@ -1,5 +1,5 @@
 import { FotoStart } from "./funcMathildaSeite.jsx";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { FR } from "./funcRegistry.jsx";
 import { API_URL, C, DEMO_VIDEO_ID, DIFFQ_TESTPAARE, DIFFQ_VIDEO_ID, Regler, ganz } from "./base1.jsx";
 import { ABL_TYPEN, FEHLERARTEN, GEN_MODULE, KOPF_WERKZEUGE, PF_STUFEN, PRIMLISTE, PROTOKOLL, WEG_TYPEN } from "./base2.jsx";
@@ -14,6 +14,7 @@ import { aktivitaetMelden } from "./func8.jsx";
 import { Auswertung } from "./func9.jsx";
 import { Mathilda } from "./func10.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
+import { useKopfEinstellungen, RundenStart, Vollbild, Ergebnis, StartKnopf, useTimer } from "./kopfTraining.jsx";
 
 export function KurvenGenerator() {
   const [auf, setAuf] = useState(() => kubischErzeugen());
@@ -580,9 +581,16 @@ export function pfErzeugen(stufe) {
 }
 
 
-export function Primfaktoren() {
-  const [stufe, setStufe] = useState(PF_STUFEN[0]);
-  const [auf, setAuf] = useState(() => pfErzeugen(PF_STUFEN[0]));
+function PrimfaktorenRunde({ stufe, onEnde }) {
+  const [einst] = useKopfEinstellungen();
+  const RUNDE = einst.runde, turbo = einst.turbo;
+  const [nr, setNr] = useState(0);
+  const [sauber, setSauber] = useState(true);          // ohne Fehltipp und ohne Hinweis gelöst
+  const [richtig, setRichtig] = useState(0);
+  const [fehlerListe, setFehlerListe] = useState([]);
+  const [fertig, setFertig] = useState(false);
+  const timer = useTimer();
+  const [auf, setAuf] = useState(() => pfErzeugen(stufe));
   const [faktoren, setFaktoren] = useState([]);
   const [sichtbar, setSichtbar] = useState(20);
   const [meldung, setMeldung] = useState(null);
@@ -593,7 +601,7 @@ export function Primfaktoren() {
 
   const produkt = faktoren.reduce((p, k) => p * k, 1);
   const rest = auf.n / produkt;
-  const fertig = stand !== null;
+  const geloest = stand !== null;
 
   /* Die Leiter: jede Zeile spaltet einen Faktor vom Rest ab. */
   const leiter = [];
@@ -601,16 +609,28 @@ export function Primfaktoren() {
   const gezeigt = autoletzter ? faktoren.slice(0, -1) : faktoren;
   gezeigt.forEach((k) => { leiter.push({ von: laufend, faktor: k, rest: laufend / k }); laufend /= k; });
 
-  const neu = (s) => {
-    const art = s || stufe;
-    setAuf(pfErzeugen(art)); setFaktoren([]); setSichtbar(20);
+  const neu = () => {
+    clearTimeout(timer.current);
+    setAuf(pfErzeugen(stufe)); setFaktoren([]); setSichtbar(20); setSauber(true);
     setMeldung(null); setStand(null); setHilfe(0); setAutoletzter(null);
   };
-  const stufeWechseln = (s) => { setStufe(s); neu(s); };
+  /* Zahl geschafft: zählen, dann weiter (Turbo: von selbst) */
+  const geschafft = () => {
+    const ok = sauber;
+    if (ok) setRichtig((r) => r + 1); else setFehlerListe((l) => [...l, auf]);
+    if (turbo) timer.current = setTimeout(() => weiter(), 700);
+  };
+  const weiter = () => {
+    clearTimeout(timer.current);
+    if (nr + 1 >= RUNDE) { setFertig(true); return; }
+    setNr((k) => k + 1); neu();
+  };
+  const neueRunde = () => { setNr(0); setRichtig(0); setFehlerListe([]); setFertig(false); neu(); };
 
   const faktorNehmen = (k) => {
     if (rest % k !== 0) {
       setMeldung({ art: "warn", text: `${k} ist kein Teiler von ${rest}.` });
+      setSauber(false);
       return;
     }
     const liste = [...faktoren, k];
@@ -623,10 +643,11 @@ export function Primfaktoren() {
       setAutoletzter(neuerRest);
       setFaktoren(liste);
       setStand("ok"); setSerie((s) => ({ n: s.n + 1, ok: s.ok + 1 }));
+      geschafft();
       return;
     }
     setFaktoren(liste);
-    if (neuerRest === 1) { setStand("ok"); setSerie((s) => ({ n: s.n + 1, ok: s.ok + 1 })); aktivitaetMelden({ ok: true }); }
+    if (neuerRest === 1) { setStand("ok"); setSerie((s) => ({ n: s.n + 1, ok: s.ok + 1 })); aktivitaetMelden({ ok: true }); geschafft(); }
   };
 
   const letztenWeg = () => {
@@ -645,26 +666,21 @@ export function Primfaktoren() {
       : rest > 1 ? `${rest} ist selbst schon prim — das ist dein letzter Faktor.` : "Du bist bereits fertig.",
   ];
 
+  if (fertig) {
+    return (
+      <Vollbild titel="Primfaktoren" onEnde={onEnde}>
+        <Ergebnis richtig={richtig} gesamt={RUNDE} onNochmal={neueRunde} onEnde={onEnde}
+          text={richtig === RUNDE ? "Alle ohne Umweg zerlegt! 🎉" : richtig / RUNDE >= 0.7 ? "Stark — die Teiler sitzen." : "Gute Basis — die Hinweise zeigen dir den Weg."}
+          fehler={fehlerListe.length ? fehlerListe.map((f, i) => <p key={i} style={{ fontSize: 15, color: C.tinte }}>{f.n} = <b>{f.faktoren.join(" · ")}</b> <span style={{ color: C.grau, fontSize: 13, marginLeft: 6 }}>(mit Umweg oder Hinweis)</span></p>) : null} />
+      </Vollbild>
+    );
+  }
   return (
+    <Vollbild titel="Primfaktoren" untertitel={stufe.name} nr={nr} gesamt={RUNDE} onEnde={onEnde} scrollbar>
     <div>
-      <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 18 }}>
-        Spalte einen Primfaktor nach dem anderen ab, bis nichts mehr übrig bleibt — jeden einzeln,
-        also 2 · 2 · 2 · 5 und nicht 2³ · 5.
-      </p>
-
-      <div className="flex gap-2 mb-5">
-        {PF_STUFEN.map((s) => (
-          <button key={s.id} onClick={() => stufeWechseln(s)} className="px-4 py-2"
-            style={{ flex: 1, background: stufe.id === s.id ? C.see : C.weiss, color: stufe.id === s.id ? C.weiss : C.grau,
-              border: `1px solid ${stufe.id === s.id ? C.see : C.linie}`, borderRadius: 999, fontSize: 13, fontFamily: "inherit", cursor: "pointer" }}>
-            {s.name}
-          </button>
-        ))}
-      </div>
-
       {/* Die Zahl, an der gerade gearbeitet wird */}
-      <div style={{ background: `linear-gradient(160deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 18,
-        padding: "24px 20px", textAlign: "center", marginBottom: 14 }}>
+      <div className="kr-aufgabe" style={{ background: `radial-gradient(120% 90% at 85% 10%, #163A7A 0%, ${C.see} 35%, ${C.seeTief} 85%)`, borderRadius: 18,
+        padding: "22px 20px", textAlign: "center", marginBottom: 12, boxShadow: "0 8px 24px rgba(14,30,74,0.22)" }}>
         <p style={{ fontSize: 12.5, color: "#C9D6EE", fontWeight: 300, marginBottom: 6 }}>
           Zerlege in Primfaktoren
         </p>
@@ -680,9 +696,9 @@ export function Primfaktoren() {
             Faktoren: {[...faktoren].sort((a, b) => a - b).join(" · ")}
           </p>
         )}
-        {serie.n > 0 && (
+        {nr > 0 && (
           <p style={{ fontSize: 12.5, color: "#C9D6EE", fontWeight: 300, marginTop: 8 }}>
-            {serie.ok} von {serie.n} richtig
+            {richtig} von {nr} ohne Umweg
           </p>
         )}
       </div>
@@ -731,7 +747,7 @@ export function Primfaktoren() {
         </div>
       )}
 
-      {!fertig && (
+      {!geloest && (
         <>
           <p style={{ fontSize: 12.5, color: C.grau, fontWeight: 300, marginBottom: 8 }}>
             Tippe die Primzahl an, die du abspalten willst.
@@ -767,21 +783,19 @@ export function Primfaktoren() {
       )}
 
       <div className="flex flex-wrap gap-3 mt-5">
-        <button onClick={() => neu()} className="px-6 py-3"
-          style={{ background: fertig ? C.gruenDunkel : C.weiss, color: fertig ? C.weiss : C.see,
-            border: fertig ? "none" : `1px solid ${C.linie}`, borderRadius: 999, fontSize: 15,
-            fontWeight: fertig ? 600 : 400, fontFamily: "inherit", cursor: "pointer" }}>
-          Neue Zahl
-        </button>
-        {!fertig && (
-          <button onClick={() => setHilfe(Math.min(hilfe + 1, 3))} className="px-6 py-3"
+        {geloest && !turbo && (
+          <StartKnopf onClick={weiter} style={{ height: 52 }}>{nr + 1 >= RUNDE ? "Ergebnis ansehen" : "Nächste Zahl →"}</StartKnopf>
+        )}
+        {geloest && turbo && <p style={{ fontSize: 13, color: C.grau, width: "100%", textAlign: "center" }}>Turbo: gleich kommt die nächste Zahl …</p>}
+        {!geloest && (
+          <button onClick={() => { setSauber(false); setHilfe(Math.min(hilfe + 1, 3)); }} className="px-6 py-3"
             style={{ background: "transparent", color: C.grau, border: `1px solid ${C.linie}`, borderRadius: 999, fontSize: 15, fontFamily: "inherit", cursor: "pointer" }}>
             {hilfe === 0 ? "Ich komme nicht weiter" : "Noch ein Hinweis"}
           </button>
         )}
       </div>
 
-      {hilfe > 0 && !fertig && (
+      {hilfe > 0 && !geloest && (
         <div style={{ background: C.himmel, borderRadius: 16, padding: 18, marginTop: 16 }}>
           <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 10 }}>Hinweis {hilfe} von 3</p>
           {hilfeTexte.slice(0, hilfe).map((t, i) => (
@@ -790,6 +804,34 @@ export function Primfaktoren() {
         </div>
       )}
     </div>
+    </Vollbild>
+  );
+}
+
+export function Primfaktoren() {
+  const [stufe, setStufe] = useState(PF_STUFEN[0]);
+  const [laeuft, setLaeuft] = useState(false);
+  const [lauf, setLauf] = useState(0);
+  if (laeuft) return <PrimfaktorenRunde key={lauf} stufe={stufe} onEnde={() => setLaeuft(false)} />;
+  return (
+    <RundenStart onStart={() => { setLauf((l) => l + 1); setLaeuft(true); }} hinweis="Eine Zahl zählt als „ohne Umweg“, wenn du keinen falschen Teiler antippst und keinen Hinweis brauchst."
+      kinder={(
+        <>
+          <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 18 }}>
+            Spalte einen Primfaktor nach dem anderen ab, bis nichts mehr übrig bleibt — jeden einzeln,
+            also 2 · 2 · 2 · 5 und nicht 2³ · 5.
+          </p>
+          <div className="flex gap-2 mb-5">
+            {PF_STUFEN.map((s) => (
+              <button key={s.id} onClick={() => setStufe(s)} className="px-4 py-2"
+                style={{ flex: 1, background: stufe.id === s.id ? C.see : C.weiss, color: stufe.id === s.id ? C.weiss : C.grau,
+                  border: `1px solid ${stufe.id === s.id ? C.see : C.linie}`, borderRadius: 999, fontSize: 13, fontFamily: "inherit", cursor: "pointer" }}>
+                {s.name}
+              </button>
+            ))}
+          </div>
+        </>
+      )} />
   );
 }
 

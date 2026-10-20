@@ -82,6 +82,7 @@ export const SPRUENGE = {
   "vekkurs-modul":           { an: true,  art: "seite", wo: "Kurs Vektoren, Geraden und Ebenen: Modul öffnen, „Nächstes Modul“, zurück zur Modulübersicht" },
   "kopfmodi-thema":          { an: true,  art: "seite", wo: "Kopfrechnen → Entdecken: Thema aus der Liste öffnen, „Weiter: …“" },
   "headnumbers-ansicht":     { an: true,  art: "seite", wo: "Head & Numbers: Bereich/Trainer öffnen und zurück" },
+  "kopf-vollbild":           { an: true,  art: "seite", wo: "Kopfrechnen: Runde im Vollbild startet – Seite nach oben, damit die Kopfleiste über dem Trainer steht" },
   "steckbrief-neu":          { an: true,  art: "seite", wo: "Steckbriefaufgaben: neue Aufgabe" },
   "kapitelformeln-ansicht":  { an: true,  art: "seite", wo: "Kapitel-Formeln: Formelauswahl ↔ Testklausur, Klausur starten" },
   "textaufgaben-wechsel":    { an: true,  art: "seite", wo: "Textaufgaben: Knöpfe „Zu Mathilda/Zum Training“ im Inhalt (die Reiterleiste springt nicht)" },

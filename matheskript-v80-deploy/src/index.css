@@ -15,3 +15,8 @@ html[data-wz-voll] .mx-auto.px-6.pb-16 > :not([style*="background: rgb(255, 255,
 /* Der große „Kurvendiskussion“-Knopf bleibt ein abgerundeter Knopf mit Rand wie vorher */
 html[data-wz-voll] .mx-auto.px-6.pb-16 > .kd-knopf { margin-left: 24px !important; margin-right: 24px !important; max-width: calc(100% - 48px); width: calc(100% - 48px) !important; }
 html[data-wz-voll] .mx-auto.px-6.pb-16 > :first-child:not([style*="background: rgb(255, 255, 255)"]) { margin-top: 18px !important; }
+
+/* Kopfrechnen im Vollbild (data-kr-voll, gesetzt von Vollbild in kopfTraining.jsx):
+   die Seite dahinter steht still – nur der Trainer unter der Kopfleiste ist bedienbar. */
+html[data-kr-voll], html[data-kr-voll] body { overflow: hidden !important; overscroll-behavior: none; height: 100%; }
+html[data-kr-voll] .app-wurzel { min-height: 0 !important; height: 100%; overflow: hidden; }
