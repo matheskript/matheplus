@@ -1,19 +1,20 @@
 /* ======================================================================
-   STARTSEITE – Dunkel / Hell: der Modus der Startseite (funcStartseite.jsx).
-   „dunkel“ = Nachtblau mit Rechenpapier (Standard), „hell“ = weißer Grund.
+   STARTSEITE – Dunkel / Hell / Mix: der Modus der Startseite (funcStartseite.jsx).
+   „dunkel“ = Nachtblau mit Rechenpapier (Standard), „hell“ = weißer Grund,
+   „mix“ = weißer Grund mit dunklen Inseln (Bühne, Hauptkacheln, zwei Streifen).
 
    Gewählt wird je Browser (localStorage); umschalten über die Pille unten
    links auf der Startseite, das Arbeitsmenü (wie „Switch to English“) oder
-   per Link: /start-hell und /start-dunkel landen danach auf „/“.
+   per Link: /start-hell, /start-dunkel und /start-mix landen danach auf „/“.
    Reine Daten und Browser-Speicher, keine React-Importe (Node-testbar).
    ====================================================================== */
 
 export const START_MODUS_SCHLUESSEL = "matheplus-start-modus";
 export const EVENT_START_MODUS = "mm-start-modus";
-export const START_MODI = ["dunkel", "hell"];
+export const START_MODI = ["dunkel", "hell", "mix"];
 const STANDARD = "dunkel";
 
-/* Gewählter Modus: "dunkel" oder "hell" (ohne Wahl: dunkel) */
+/* Gewählter Modus: "dunkel", "hell" oder "mix" (ohne Wahl: dunkel) */
 export function startModus() {
   try {
     const v = localStorage.getItem(START_MODUS_SCHLUESSEL);
@@ -27,10 +28,12 @@ export function startModusSetzen(v) {
   try { window.dispatchEvent(new Event(EVENT_START_MODUS)); } catch { /* kein Fenster */ }
 }
 
-export const startModusWechseln = () => startModusSetzen(startModus() === "hell" ? "dunkel" : "hell");
+/* Reihum: dunkel → hell → mix → dunkel */
+export const naechsterModus = (m = startModus()) => START_MODI[(START_MODI.indexOf(m) + 1) % START_MODI.length];
+export const startModusWechseln = () => startModusSetzen(naechsterModus());
 
-/* Pfad wie "/start-hell" → "hell"; sonst null. Erkannt werden start-, startseite- und frontpage- mit hell oder dunkel. */
+/* Pfad wie "/start-hell" → "hell"; sonst null. Erkannt werden start-, startseite- und frontpage- mit hell, dunkel oder mix. */
 export function modusAusPfad(pfad) {
-  const m = /^\/?(?:start|startseite|frontpage)-(hell|dunkel)\/?$/i.exec(String(pfad || "").split(/[?#]/)[0]);
+  const m = /^\/?(?:start|startseite|frontpage)-(hell|dunkel|mix)\/?$/i.exec(String(pfad || "").split(/[?#]/)[0]);
   return m ? m[1].toLowerCase() : null;
 }

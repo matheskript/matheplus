@@ -1,5 +1,6 @@
 /* ======================================================================
-   STARTSEITE – „Rechenblatt“ in zwei Modi: dunkel (Nachtblau) und hell (weiß).
+   STARTSEITE – „Rechenblatt“ in drei Modi: dunkel (Nachtblau), hell (weiß)
+   und mix (weißer Grund mit dunklen Inseln).
 
    Idee: Die ganze Seite ist ein kariertes Rechenblatt. Dunkel: tiefes
    Nachtblau, das Papierraster über die ganze Fläche, Gold als einziges Licht.
@@ -9,8 +10,13 @@
    Werkzeug ist (Dein Training, Suche, Bereiche, Plan), liegt als weißes
    „Blatt“ auf dem Tisch.
 
+   Mix: die Seite ist hell, dunkel bleiben die Bühne, die Hauptkacheln
+   (Dein Training, Schulmathematik, Mathilda, Mathe entdecken) und zwei
+   Streifen über die volle Breite (Das System, Mythen). Technisch: jede
+   Insel trägt die Klasse sbb-insel und bekommt dort den dunklen Satz der
+   Variablen zurück; Streifen (sbb-streifen) malen Nacht und Raster selbst.
    Modus: src/startModus.js (Pille unten links, Arbeitsmenü, Links
-   /start-hell und /start-dunkel). Die Startseite vom 20.10. liegt
+   /start-hell, /start-dunkel, /start-mix). Die Startseite vom 20.10. liegt
    eingefroren im Archiv „Biro-Edition (20.10.)“ (public/archiv/2026-10-20).
    ====================================================================== */
 import React, { createContext, useContext, useEffect, useState } from "react";
@@ -45,9 +51,10 @@ const GOLD = C.flaggold;
 const GOLD_HELL = "#FFE58A";
 const DESKTOP = "(min-width: 840px)";
 
-/* Alle Farben hängen an Variablen; der Modus „hell“ setzt sie unten um (gleiche Fläche, weißer Grund). */
+/* Alle Farben hängen an Variablen; „hell“ und „mix“ setzen sie unten um (gleiche Fläche, weißer Grund).
+   Im Mix bekommen die Inseln (sbb-insel) den dunklen Satz zurück. */
 const CSS = `
-.sbb, .sbb-schalter {
+.sbb, .sbb-schalter, .sbb[data-modus="mix"] .sbb-insel {
   --hg: ${NACHT}; --text: #EEF2FF; --nebel: #AEBCDD; --titel: #FFFFFF; --linie: rgba(255,255,255,0.11);
   --karte: linear-gradient(160deg, rgba(255,255,255,0.085) 0%, rgba(255,255,255,0.035) 60%, rgba(255,255,255,0.02) 100%);
   --karte-schatten: 0 30px 60px -36px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,0.08);
@@ -59,7 +66,7 @@ const CSS = `
   --mythos-hg: rgba(237,187,0,0.07); --schalter-hg: rgba(5,11,31,0.86); --schalter-rand: rgba(255,255,255,0.18);
   --h1-schatten: 0 12px 50px rgba(0,0,0,.45); --glyph: #FFFFFF; --licht: .55;
 }
-.sbb[data-modus="hell"], .sbb-schalter[data-modus="hell"] {
+.sbb[data-modus="hell"], .sbb-schalter[data-modus="hell"], .sbb[data-modus="mix"], .sbb-schalter[data-modus="mix"] {
   --hg: #FFFFFF; --text: ${C.tinte}; --nebel: ${C.grau}; --titel: ${C.seeTief}; --linie: ${C.linie};
   --karte: #FFFFFF; --karte-schatten: 0 3px 16px rgba(15,26,51,0.07);
   --bild: linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%); --bild-rechts: linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%);
@@ -70,7 +77,20 @@ const CSS = `
   --h1-schatten: none; --glyph: ${C.see}; --licht: .28;
 }
 html[data-start-modus="dunkel"] .app-wurzel { background: ${NACHT} !important; }
-html[data-start-modus="hell"] .app-wurzel { background: #FFFFFF !important; }
+html[data-start-modus="hell"] .app-wurzel, html[data-start-modus="mix"] .app-wurzel { background: #FFFFFF !important; }
+/* Mix: Bühne und Streifen malen Nacht und Raster selbst (das feste Raster dahinter ist hell) */
+.sbb[data-modus="mix"] .sbb-held, .sbb[data-modus="mix"] .sbb-streifen { background-color: ${NACHT};
+  background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 28px 28px; }
+.sbb[data-modus="mix"] .sbb-held::before { content: ""; position: absolute; width: 60vw; max-width: 640px; height: 60vw; max-height: 640px; top: -22vw; right: -18vw; border-radius: 999px; pointer-events: none;
+  background: radial-gradient(circle, rgba(237,187,0,0.38) 0%, rgba(237,187,0,0) 70%); filter: blur(50px); }
+.sbb[data-modus="mix"] .sbb-streifen { margin-top: 48px; padding: 4px 0 46px; }
+.sbb[data-modus="mix"] .sbb-streifen .sbb-kopf { margin-top: 36px; }
+.sbb[data-modus="mix"] .sbb-streifen + .sbb-teil .sbb-kopf { margin-top: 40px; }
+/* Mix: Inseln als Kacheln – lackiertes Blau mit Lichtsaum oben, damit sie auf dem weißen Blatt hervorstehen */
+.sbb[data-modus="mix"] .sbb-karte.sbb-insel { background: radial-gradient(120% 90% at 0% 0%, rgba(255,255,255,0.13) 0%, rgba(255,255,255,0) 55%), linear-gradient(155deg, #0A5AB0 0%, ${C.see} 38%, ${C.seeTief} 100%);
+  border-color: rgba(255,255,255,0.16); box-shadow: 0 10px 28px rgba(0,47,110,0.28), inset 0 1px 0 rgba(255,255,255,0.22); }
+.sbb[data-modus="mix"] .sbb-karte.sbb-insel.sbb-gold { border-color: rgba(237,187,0,0.8); box-shadow: 0 0 0 1px rgba(237,187,0,0.45), 0 14px 34px rgba(0,47,110,0.3); }
+.sbb[data-modus="mix"] .sbb-kachel:not(.sbb-insel) .weiter { color: ${C.gruenDunkel}; }
 html[data-start-modus="dunkel"] .fuss-paar button { color: #EEF2FF !important; background: rgba(255,255,255,0.06) !important; border-color: rgba(255,255,255,0.11) !important; }
 .sbb { position: relative; color: var(--text); }
 .sbb *, .sbb *::before, .sbb *::after { box-sizing: border-box; }
@@ -114,7 +134,8 @@ html[data-start-modus="dunkel"] .fuss-paar button { color: #EEF2FF !important; b
 @keyframes sbbBand { to { transform: translateX(-50%); } }
 
 /* ---------- Spalte ---------- */
-.sbb-spalte { width: 100%; max-width: 783px; margin: 0 auto; padding: 0 20px 70px; }
+.sbb-spalte { width: 100%; max-width: 783px; margin: 0 auto; padding: 0 20px; }
+.sbb-teil.ende .sbb-spalte { padding-bottom: 70px; }
 .sbb-abschnitt { margin-top: 28px; }
 .sbb-einleitung { margin: 26px 0 0; font-size: clamp(17px, 4.4vw, 22px); font-weight: 300; line-height: 1.5; color: var(--nebel); max-width: 640px; }
 .sbb-einleitung b { color: var(--titel); font-weight: 700; }
@@ -370,7 +391,7 @@ function Kachel({ titel, text, logo, extra, ziel, label, gesperrt, keinI18n, gol
 function MathildaKachel({ gehe }) {
   const hell = useHell();
   return (
-    <button type="button" onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })} aria-label="Mathilda AI öffnen" className="sbb-karte sbb-kachel sbb-gold">
+    <button type="button" onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })} aria-label="Mathilda AI öffnen" className="sbb-karte sbb-kachel sbb-gold sbb-insel">
       <div className="sbb-kachel-text">
         <h2><MathildaName dunkel={!hell} /></h2>
         <p>Foto vom Blatt – Mathilda prüft deinen Weg.</p>
@@ -386,7 +407,7 @@ function MathildaKachel({ gehe }) {
 /* Aufklappbare Hauptkachel (Schulmathematik, Mathe entdecken): Text links, rechts Bild und Plus */
 function HauptKachel({ titel, text, logo, auf, onClick, label }) {
   return (
-    <button type="button" onClick={onClick} aria-expanded={auf} aria-label={label} className="sbb-karte sbb-haupt">
+    <button type="button" onClick={onClick} aria-expanded={auf} aria-label={label} className="sbb-karte sbb-haupt sbb-insel">
       <span className="txt"><h2>{titel}</h2><p>{text}</p></span>
       <span className="bild" aria-hidden="true">
         <span className="logo">{logo}</span>
@@ -407,7 +428,7 @@ function TrainingKachel({ gehe, setzeStufe }) {
     </>
   );
   return (
-    <div className={auf ? "sbb-karte sbb-training sbb-gold auf" : "sbb-karte sbb-training sbb-gold"}>
+    <div className={auf ? "sbb-karte sbb-training sbb-gold sbb-insel auf" : "sbb-karte sbb-training sbb-gold sbb-insel"}>
       <button type="button" className="pfeil" onClick={umschalten} aria-expanded={auf} aria-label={auf ? "Dein Training zuklappen" : "Dein Training aufklappen"}>
         <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 6 L8 10.5 L12.5 6" stroke={NACHT} strokeWidth="2.6" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
       </button>
@@ -480,6 +501,9 @@ export function StartModusSchalter() {
       <button type="button" aria-pressed={v === "hell"} onClick={() => startModusSetzen("hell")} aria-label="Heller Modus">
         <svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><circle cx="12" cy="12" r="4" fill="currentColor" /><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" /></svg>Hell
       </button>
+      <button type="button" aria-pressed={v === "mix"} onClick={() => startModusSetzen("mix")} aria-label="Mix: hell mit dunklen Inseln">
+        <svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="2.4" /><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor" /></svg>Mix
+      </button>
     </div>
   );
 }
@@ -513,7 +537,7 @@ export function Startseite({ gehe }) {
       <div className="sbb-licht" aria-hidden="true"><span className="l1" /><span className="l2" /><span className="l3" /></div>
 
       {/* ---------- Bühne ---------- */}
-      <section className="sbb-held" aria-label="Mythos Mathe">
+      <section className="sbb-held sbb-insel" aria-label="Mythos Mathe">
         <HeldKurve />
         <div className="sbb-spalte sbb-held-text" style={{ paddingBottom: 0 }}>
           <h1>Mathe kann<span className="gold">jeder verstehen</span></h1>
@@ -530,7 +554,7 @@ export function Startseite({ gehe }) {
         <Band />
       </section>
 
-      <div className="sbb-spalte">
+      <section className="sbb-teil"><div className="sbb-spalte">
         {/* ---------- Mein Mathe-Training (Tagesplan, Themen) · Dein Training startet hier · Suche ---------- */}
         <div className="sbb-abschnitt sbb-wieder" style={{ marginTop: 16 }}><MeinTrainingKachel gehe={gehe} /></div>
         <div className="sbb-abschnitt" style={{ marginTop: 14 }}><TrainingKachel gehe={gehe} setzeStufe={stufeSetzen} /></div>
@@ -612,8 +636,10 @@ export function Startseite({ gehe }) {
           label={entdAuf ? "Mathe entdecken zuklappen" : "Mathe entdecken aufklappen"} logo={<EntdeckenLogoKlein />} titel="Mathe entdecken"
           text={entdAuf ? "Herleiten, entdecken, Wettbewerbe." : "Muster erkennen, Formeln selbst herleiten – und Mathe-Wettbewerbe."} />
         {entdAuf && <div className="sbb-papier" data-aufklapp-inhalt><UnterMenue eintraege={ENTDECKEN_MENUE} gehe={gehe} /></div>}
+      </div></section>
 
-        {/* Das System */}
+      {/* Das System – im Mix ein dunkler Streifen über die volle Breite */}
+      <section className="sbb-teil sbb-streifen sbb-insel"><div className="sbb-spalte">
         <Kopf titel="Erst sauber schreiben lernen. Dann trainieren, bis es sitzt." />
         <p className="sbb-text">Die meisten Fehler in Klausuren entstehen nicht im Kopf, sondern auf dem Blatt.</p>
         <p className="sbb-text">Pen & Paper ist der Kurs dazu: ein Schritt pro Zeile, Gleichheitszeichen untereinander.</p>
@@ -649,7 +675,10 @@ export function Startseite({ gehe }) {
           </div>
         )}
 
-        {/* Kurse */}
+      </div></section>
+
+      {/* Kurse */}
+      <section className="sbb-teil"><div className="sbb-spalte">
         <Kopf titel="Jeder Kurs ein Baustein, zusammen ein System" />
         <p className="sbb-text" style={{ marginBottom: 20 }}>
           {ANGEBOT.kurse
@@ -675,16 +704,21 @@ export function Startseite({ gehe }) {
         </div>
         {(ANGEBOT.kurse || frei) && <div className="sbb-wieder"><MasterclassKachel name="Mathe Masterclass" monate="3 MONATE" knopf="Zum Kursbereich" onClick={() => gehe({ ansicht: "mckurs" })} /></div>}
 
-        {/* Mythen */}
+      </div></section>
+
+      {/* Mythen – im Mix der zweite dunkle Streifen */}
+      <section className="sbb-teil sbb-streifen sbb-insel"><div className="sbb-spalte">
         <Kopf titel="Mathetalent ist ein Mythos. Ein System kann man lernen." />
         <p className="sbb-text">Hinter guten Mathenoten steckt kein besonderes Gehirn, sondern eine Arbeitsweise. Die Kurse bauen sie Schritt für Schritt auf: wie du denkst, wie du rechnest, wie du schreibst und wie du Gelerntes behältst.</p>
         <p className="sbb-text">Jeder Kurs ist für sich nutzbar. Zusammen ergeben sie das System, mit dem Mythos Mathe Gymnasiasten von Klasse 8 bis zum Abitur begleitet.</p>
         <Mythen />
+      </div></section>
 
-        {/* Anleitung, Spenden – wie in A auf weißen Blättern bzw. in Blau (der Plan lebt oben in Mein Mathe-Training) */}
+      {/* Anleitung, Spenden – auf weißen Blättern bzw. in Blau (der Plan lebt oben in Mein Mathe-Training) */}
+      <section className="sbb-teil ende"><div className="sbb-spalte">
         <div className="sbb-wieder" style={{ marginTop: 22 }}><AppAnleitung /></div>
         <div className="sbb-wieder"><SpendenBereich gehe={gehe} /></div>
-      </div>
+      </div></section>
     </div>
     </ModusKontext.Provider>
   );

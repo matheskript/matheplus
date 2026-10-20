@@ -10,7 +10,7 @@ import { ENTWUERFE, WEITERE_SEITEN, LANDING, istFrei, entsperren, EVENT_FREI } f
 import { ANGEBOT } from "./angebot.js";
 import { ToolMenue } from "./func2.jsx";
 import { AufklappZeichen } from "./aufklappen.jsx";
-import { EVENT_START_MODUS, startModus, startModusSetzen } from "./startModus.js";
+import { EVENT_START_MODUS, naechsterModus, startModus, startModusSetzen } from "./startModus.js";
 
 export function Arbeitsmenue({ gehe, ansicht, sprachKnopf, stil }) {
   const [offen, setOffen] = useState(false);
@@ -87,10 +87,10 @@ export function Arbeitsmenue({ gehe, ansicht, sprachKnopf, stil }) {
               <span style={kreis(false)}>{englisch() ? "DE" : "EN"}</span>
               <span style={{ flex: 1, fontSize: 14.5, fontWeight: 700 }}>{englisch() ? "Auf Deutsch wechseln" : "Switch to English"}</span>
             </button>
-            {/* Startseite dunkel / hell – wie die Sprachwahl; die Wahl gilt je Browser (startModus.js) */}
-            <button type="button" onClick={() => { startModusSetzen(modus === "hell" ? "dunkel" : "hell"); geh({ ansicht: "start" }); }} data-arbeitsmenue-modus style={{ ...zeile, background: "transparent" }}>
-              <span style={kreis(false)} aria-hidden="true">{modus === "hell" ? "☾" : "☀"}</span>
-              <span style={{ flex: 1, fontSize: 14.5, fontWeight: 700 }}>{modus === "hell" ? "Startseite dunkel" : "Startseite hell"}</span>
+            {/* Startseite dunkel / hell / mix – reihum, wie die Sprachwahl; die Wahl gilt je Browser (startModus.js) */}
+            <button type="button" onClick={() => { startModusSetzen(naechsterModus(modus)); geh({ ansicht: "start" }); }} data-arbeitsmenue-modus style={{ ...zeile, background: "transparent" }}>
+              <span style={kreis(false)} aria-hidden="true">{{ dunkel: "☀", hell: "◐", mix: "☾" }[modus] || "☀"}</span>
+              <span style={{ flex: 1, fontSize: 14.5, fontWeight: 700 }}>{{ dunkel: "Startseite hell", hell: "Startseite mix", mix: "Startseite dunkel" }[modus] || "Startseite hell"}</span>
             </button>
             {/* Das frühere ☰-Menü „Menü mit allen Bereichen“ der Werkzeugseiten: alle Bereiche mit allen Werkzeugen */}
             <button type="button" onClick={() => setBaumAuf(!baumAuf)} aria-expanded={baumAuf} data-kein-scroll data-arbeitsmenue-bereiche
