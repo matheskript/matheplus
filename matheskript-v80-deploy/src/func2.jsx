@@ -132,8 +132,8 @@ function PlotterKachel({ onClick, label, logo, titel, text, marke, kategorie = "
         @media ${DESKTOP_MQ}{.kachel-text-klein{height:2.8em !important;-webkit-line-clamp:2 !important}}
         .bereich-lang{display:none}
         @media ${DESKTOP_MQ}{.bereich-kurz{display:none}.bereich-lang{display:inline}.kachel-zwei{font-size:13px !important}}
-        .titel-gold{color:${C.flaggold};-webkit-text-fill-color:${C.flaggold}}
-        .titel-nach{display:none;margin-left:.3em}
+        .titel-nach{display:none}
+        .titel-nach::before{content:"\\2013";margin:0 .3em}
         @media ${DESKTOP_MQ}{.titel-nach{display:inline}}
         .kachel-titel{background:linear-gradient(180deg,#FFFFFF 0%,${C.silberHell} 55%,${C.silber} 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
         .kachel-gesperrt .kachel-titel{background:none;color:#FFFFFF;text-shadow:0 1px 2px rgba(30,40,60,0.25)}`}</style>
@@ -1726,7 +1726,7 @@ export function Startseite({ gehe }) {
               <AufklappRahmen key={b.id} auf={offen} innen rahmenRef={offen ? offenRahmen : undefined}>
                 <PlotterKachel kompakt zweizeilig breit haupt goldRand={b.gold} onClick={() => { setBereichAuf(offen ? null : b.id); }}
                   auf={offen} label={offen ? `${b.titel} zuklappen` : `${b.titel} aufklappen`}
-                  logo={b.logo} titel={b.vorTitel ? <><span className="titel-gold">{b.vorTitel}</span><span className="titel-nach">{b.titel}</span></> : b.titel} text={text}
+                  logo={b.logo} titel={b.vorTitel ? <><span className="titel-vor">{b.vorTitel}</span><span className="titel-nach">{b.titel}</span></> : b.titel} text={text}
                   extra={<AufklappPfeil auf={offen} gross />} />
                 {offen && <BereichsKopfLeiste rahmenRef={offenRahmen} titel={b.titel} onZu={bereichZuUndZeigen} />}
                 {offen && <div style={{ margin: "0 -16px" }}><UnterMenue eintraege={eintraege} gehe={gehe} linie={b.linie} /></div>}
