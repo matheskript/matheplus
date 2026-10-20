@@ -20,8 +20,9 @@ import { uebenWunschSetzen } from "./uebenWunsch.js";
 import { aufgabeAus } from "./arbeitsblatt.js";
 import { GRANAT, GOLD_VERLAUF } from "./kursFarben.js";
 import { MotivGeodreieck } from "./funcKursMotive.jsx";
-import { KursKopf, FortschrittKarte, KapitelKopf, ModulKarte, ModulListe, Hinweis, IconBuch, IconAufgabe, IconWerkzeug, kursVars } from "./funcKursKopf.jsx";
+import { KursKopf, FortschrittKarte, ModulKarte, ModulListe, Hinweis, IconBuch, IconAufgabe, IconWerkzeug, kursVars } from "./funcKursKopf.jsx";
 import { UnterBild } from "./funcUnterstufeBilder.jsx";
+import { ExternSchutz } from "./funcExtern.jsx";
 import {
   UNTERSTUFE_KLASSEN, UNTERSTUFE_EINHEITEN, UNTERSTUFE_INFO, UNTERSTUFE_ZAHLEN, einheitVon, klasseVon, naechsteEinheit, vorigeEinheit, einheitGeschafft, unterstufeStand,
 } from "./unterstufeDaten.js";
@@ -40,10 +41,10 @@ const nachOben = () => springe("unterstufe-seite", () => window.scrollTo({ top: 
 const STIL_ID = "us-stil";
 const STIL = `
   .us-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 18px}
-  .us-tab{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:12px 16px;border-radius:16px;border:1px solid ${C.linie};background:${C.weiss};cursor:pointer;font-family:inherit;text-align:left;
+  .us-tab{display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:9px 13px;border-radius:14px;border:1px solid ${C.linie};background:${C.weiss};cursor:pointer;font-family:inherit;text-align:left;min-width:0;
     box-shadow:0 1px 2px rgba(15,26,51,0.04);transition:transform .15s ease,box-shadow .15s ease}
-  .us-tab b{font-size:17px;font-weight:800;letter-spacing:-0.02em;color:${C.tinte}}
-  .us-tab span{font-size:12.5px;color:${C.grau}}
+  .us-tab b{font-size:15px;font-weight:800;letter-spacing:-0.02em;color:${C.tinte};white-space:nowrap}
+  .us-tab span{font-size:11px;color:${C.grau};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
   .us-tab[aria-pressed="true"]{border-color:transparent;background:var(--ks-dunkel);box-shadow:0 1px 0 rgba(255,255,255,0.14) inset,0 14px 30px -16px rgba(58,0,25,0.7)}
   .us-tab[aria-pressed="true"] b{color:${C.weiss}}.us-tab[aria-pressed="true"] span{color:rgba(255,255,255,0.78)}
   .us-tab:focus-visible{outline:3px solid ${C.flaggold};outline-offset:3px}
@@ -90,13 +91,102 @@ const STIL = `
   .us-weg{margin:10px 0 0;padding:12px 14px;border-radius:14px;background:${C.sand};font-size:15px;line-height:1.9;color:${C.tinte}}
   .us-weg p{margin:0}
   .us-ergebnis{margin-top:8px;font-weight:800;color:#7A0032}
-  @media (min-width:840px){.us-tabs{max-width:420px}.us-karte{padding:22px 24px 20px}.us-text{font-size:16px}}
+  .us-kacheln{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0 0 30px}
+  .us-kachel{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:10px;min-height:118px;padding:13px 13px 12px;border-radius:18px;border:1px solid ${C.linie};background:${C.weiss};
+    cursor:pointer;font-family:inherit;text-align:left;min-width:0;overflow:hidden;box-shadow:0 1px 2px rgba(15,26,51,0.04),0 8px 22px -14px rgba(15,26,51,0.2);transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease}
+  .us-kachel::after{content:"";position:absolute;right:-26px;top:-26px;width:76px;height:76px;border-radius:999px;background:radial-gradient(circle,rgba(242,193,78,0.22) 0%,rgba(242,193,78,0) 70%);pointer-events:none}
+  .us-kachel-ok{border-color:#E7C77A;background:linear-gradient(160deg,#FFFDF6 0%,#FFF6DC 100%)}
+  .us-kachel-icon{flex:none;display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:14px;background:linear-gradient(150deg,#3A0019 0%,#7A0032 100%);color:#FFD66B;box-shadow:0 8px 16px -10px rgba(58,0,25,0.7)}
+  .us-kachel-ok .us-kachel-icon{background:${GOLD_VERLAUF};color:#3A0019}
+  .us-kachel-icon svg{width:24px;height:24px}
+  .us-kachel-marke{position:absolute;top:11px;right:12px;font-size:10.5px;font-weight:800;letter-spacing:0.08em;color:#7A0032;opacity:0.7}
+  .us-kachel-text{display:flex;flex-direction:column;gap:3px;min-width:0;width:100%}
+  .us-kachel-titel{font-size:14.5px;font-weight:800;letter-spacing:-0.015em;line-height:1.2;color:${C.tinte}}
+  .us-kachel-zeile{font-size:11.5px;color:${C.grau};line-height:1.35}
+  .us-kachel-stand{display:flex;gap:3px;margin-top:auto;padding-top:2px}
+  .us-kachel-stand i{display:block;width:7px;height:7px;border-radius:999px;background:#F3D9E2}
+  .us-kachel-stand i[data-ok="1"]{background:#D4A338}
+  .us-kachel:focus-visible{outline:3px solid ${C.flaggold};outline-offset:3px}
+  @media (hover:hover){.us-kachel:hover{transform:translateY(-2px);border-color:#E7C77A;box-shadow:0 1px 2px rgba(15,26,51,0.04),0 16px 30px -14px rgba(58,0,25,0.35)}}
+  .us-schleier{position:fixed;inset:0;z-index:70;background:rgba(20,8,14,0.55);backdrop-filter:blur(3px);display:flex;align-items:flex-end;justify-content:center;padding:0}
+  .us-fenster{width:100%;max-width:640px;max-height:88dvh;display:flex;flex-direction:column;background:${C.sand};border-radius:24px 24px 0 0;box-shadow:0 -10px 40px rgba(0,0,0,0.3);overflow:hidden;animation:us-hoch .22s ease}
+  @keyframes us-hoch{from{transform:translateY(24px);opacity:0}to{transform:translateY(0);opacity:1}}
+  .us-fenster-kopf{display:flex;align-items:center;gap:12px;padding:16px 16px 12px;background:linear-gradient(150deg,#3A0019 0%,#5A0024 100%);color:${C.weiss}}
+  .us-fenster-kopf .us-kachel-icon{box-shadow:none;background:rgba(255,255,255,0.1)}
+  .us-fenster-kopf b{display:block;font-size:17px;font-weight:800;letter-spacing:-0.02em;line-height:1.2}
+  .us-fenster-kopf span{display:block;font-size:12px;color:rgba(255,255,255,0.78);margin-top:3px;line-height:1.35}
+  .us-fenster-zu{flex:none;margin-left:auto;width:36px;height:36px;border-radius:999px;border:none;background:rgba(255,255,255,0.14);color:${C.weiss};font-size:20px;line-height:1;cursor:pointer;font-family:inherit}
+  .us-fenster-zu:focus-visible{outline:3px solid ${C.flaggold};outline-offset:2px}
+  .us-fenster-inhalt{overflow-y:auto;padding:14px 14px 20px}
+  .us-fenster-inhalt .ks-liste{margin-bottom:0;grid-template-columns:minmax(0,1fr)}
+  .us-fenster-inhalt .ks-modul{min-width:0}
+  .us-fenster-inhalt .ks-modul-meta{flex-wrap:wrap;white-space:normal;gap:6px 12px;font-size:12px}
+  .us-video{margin:0 0 14px;border-radius:20px;overflow:hidden;border:1px solid ${C.linie};background:${C.weiss};box-shadow:0 1px 2px rgba(15,26,51,0.04),0 8px 22px -16px rgba(15,26,51,0.18)}
+  .us-video-kopf{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;border:none;background:none;cursor:pointer;font-family:inherit;text-align:left;color:${C.tinte}}
+  .us-video-kopf em{flex:none;display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:12px;background:linear-gradient(150deg,#3A0019 0%,#7A0032 100%);color:#FFD66B;font-style:normal}
+  .us-video-kopf b{display:block;font-size:14.5px;font-weight:800;letter-spacing:-0.01em}
+  .us-video-kopf small{display:block;font-size:11.5px;color:${C.grau};margin-top:2px}
+  .us-video-kopf svg.us-pfeil{flex:none;margin-left:auto;color:${C.grau};transition:transform .18s ease}
+  .us-video-kopf[aria-expanded="true"] svg.us-pfeil{transform:rotate(180deg)}
+  .us-video-kopf:focus-visible{outline:3px solid ${C.flaggold};outline-offset:-3px}
+  .us-video-buehne{position:relative;width:100%;padding-bottom:56.25%;height:0;background:#1a0a10}
+  .us-video-play{position:absolute;inset:0;width:100%;height:100%;border:none;cursor:pointer;font-family:inherit;color:${C.weiss};padding:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+    background:radial-gradient(ellipse at 30% 20%,rgba(122,0,50,0.9) 0%,#2A0012 60%,#160009 100%)}
+  .us-video-play i{width:64px;height:64px;border-radius:999px;background:${GOLD_VERLAUF};display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(0,0,0,0.4);font-style:normal}
+  .us-video-play b{font-size:14px;font-weight:800}
+  .us-video-play small{font-size:11.5px;opacity:0.8;line-height:1.4;text-align:center;max-width:300px}
+  .us-video-fuss{padding:8px 14px 10px;font-size:11.5px;color:${C.grau};line-height:1.45}
+  @media (min-width:600px){.us-kacheln{grid-template-columns:repeat(3,minmax(0,1fr))}.us-schleier{align-items:center;padding:20px}.us-fenster{border-radius:24px;max-height:84vh}}
+  @media (min-width:840px){.us-tabs{max-width:360px}.us-kacheln{grid-template-columns:repeat(4,minmax(0,1fr))}.us-karte{padding:22px 24px 20px}.us-text{font-size:16px}}
   @media (prefers-reduced-motion:reduce){.us-knopf,.us-tab{transition:none}.us-knopf:hover,.us-tab:hover{transform:none}}
 `;
 function stilSetzen() {
   if (typeof document === "undefined" || document.getElementById(STIL_ID)) return;
   const el = document.createElement("style"); el.id = STIL_ID; el.textContent = STIL; document.head.appendChild(el);
 }
+
+/* ---------- Kapitel-Kacheln: kurzer Name und Icon je Kapitel (Datentitel bleiben für die Lerneinheit-Seite) ---------- */
+const S = { fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round" };
+const ICONS = {
+  zahlen: <svg viewBox="0 0 24 24" {...S}><path d="M4 18V8l-2 2M11 18h6M13 8a2 2 0 1 1 4 1.5L13 13v1h5M22 8h-3l-.6 4h.6a2 2 0 1 1 0 4" /></svg>,
+  rechnen: <svg viewBox="0 0 24 24" {...S}><path d="M6 4v6M3 7h6M15 7h6M3 15l6 6M9 15l-6 6M15 18h6M18 15v.01M18 21v.01" /></svg>,
+  teilbar: <svg viewBox="0 0 24 24" {...S}><rect x="3" y="3" width="18" height="18" rx="3" /><path d="M9 3v18M15 3v18M3 9h18M3 15h18" /></svg>,
+  lineal: <svg viewBox="0 0 24 24" {...S}><rect x="2" y="8" width="20" height="8" rx="2" /><path d="M6 8v3M10 8v4M14 8v3M18 8v4" /></svg>,
+  spiegel: <svg viewBox="0 0 24 24" {...S}><path d="M12 3v18" strokeDasharray="2 3" /><path d="M9 7l-5 5 5 5V7zM15 7l5 5-5 5V7z" /></svg>,
+  flaeche: <svg viewBox="0 0 24 24" {...S}><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M3 12h18M12 5v14" opacity="0.5" /></svg>,
+  wuerfel: <svg viewBox="0 0 24 24" {...S}><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3zM12 12l8-4.5M12 12L4 7.5M12 12v9" /></svg>,
+  minus: <svg viewBox="0 0 24 24" {...S}><path d="M3 12h18M12 7v.01M6 12l2-2M6 12l2 2" /><circle cx="17" cy="12" r="2.2" /></svg>,
+  bruch: <svg viewBox="0 0 24 24" {...S}><path d="M6 12h12M12 4v5M10 6.5l2-2M12 15v5M10 17.5l2-2" /></svg>,
+  komma: <svg viewBox="0 0 24 24" {...S}><ellipse cx="6" cy="12" rx="3" ry="5" /><path d="M12 16v1c0 1.2-.5 2-1.3 2.5M21 7h-4l-.5 4.5h.5a2.5 2.5 0 1 1 0 5" /></svg>,
+  plusminus: <svg viewBox="0 0 24 24" {...S}><path d="M7 4v8M3 8h8M3 17h8M14 20L20 4" /></svg>,
+  malgeteilt: <svg viewBox="0 0 24 24" {...S}><path d="M4 5l6 6M10 5l-6 6M14 11h6M17 8v.01M17 14v.01M14 20L20 4" /></svg>,
+  winkel: <svg viewBox="0 0 24 24" {...S}><path d="M4 20L20 8M4 20h16M11 20a7 7 0 0 0-1.5-4.3" /><circle cx="17" cy="4" r="2.5" /></svg>,
+  x: <svg viewBox="0 0 24 24" {...S}><path d="M5 7l7 10M12 7l-7 10M16 10h5M16 14h5" /></svg>,
+  daten: <svg viewBox="0 0 24 24" {...S}><path d="M4 20V11M9 20V5M14 20v-7" /><rect x="17" y="12" width="5" height="8" rx="1" /><path d="M19.5 15v.01" /></svg>,
+  dreisatz: <svg viewBox="0 0 24 24" {...S}><path d="M4 6h6M4 12h6M4 18h6M14 6h6M14 12h6M14 18h6" /><path d="M11 8l1 1 1-1M11 14l1 1 1-1" opacity="0.7" /></svg>,
+};
+const KAPITEL_ANZEIGE = {
+  "k5-natzahlen": { name: "Natürliche Zahlen", icon: "zahlen" },
+  "k5-rechnen": { name: "Rechnen", icon: "rechnen" },
+  "k5-teilbarkeit": { name: "Teilbarkeit", icon: "teilbar" },
+  "k5-groessen": { name: "Größen", icon: "lineal" },
+  "k5-symmetrie": { name: "Symmetrie", icon: "spiegel" },
+  "k5-flaechen": { name: "Flächen", icon: "flaeche" },
+  "k5-koerper": { name: "Körper", icon: "wuerfel" },
+  "k5-ganze": { name: "Ganze Zahlen", icon: "minus" },
+  "k6-brueche": { name: "Bruchrechnen", icon: "bruch" },
+  "k6-dezimal": { name: "Dezimalzahlen", icon: "komma" },
+  "k6-addsub": { name: "Addieren und Subtrahieren", icon: "plusminus" },
+  "k6-multdiv": { name: "Multiplizieren und Dividieren", icon: "malgeteilt" },
+  "k6-winkel": { name: "Geometrie", icon: "winkel" },
+  "k6-terme": { name: "Terme und Gleichungen", icon: "x" },
+  "k6-daten": { name: "Daten und Zufall", icon: "daten" },
+  "k6-zuordnungen": { name: "Dreisatz", icon: "dreisatz" },
+};
+const kapitelAnzeige = (kap) => KAPITEL_ANZEIGE[kap.id] || { name: kap.titel, icon: "zahlen" };
+
+/* Video je Lerneinheit: einheit.video (YouTube-Id) – sonst der Platzhalter (Michael Penn, Englisch), bis das eigene Video da ist. */
+export const PLATZHALTER_VIDEO = "OkFMxhkAafw";
 
 /* ---------- Text mit **fett** und $Formeln$ ---------- */
 function Fett({ s }) {
@@ -225,6 +315,76 @@ function Ueben({ einheit, gehe }) {
   );
 }
 
+/* ---------- Video zur Lerneinheit: zum Ausklappen, Abspielen erst auf Klick (zwei Klicks, ExternSchutz) ---------- */
+function VideoKlappe({ einheit }) {
+  const [offen, setOffen] = useState(false);
+  const [an, setAn] = useState(false);
+  const id = einheit.video || PLATZHALTER_VIDEO;
+  const platzhalter = !einheit.video;
+  return (
+    <section className="us-video" data-us-video={id}>
+      <button type="button" className="us-video-kopf" onClick={() => setOffen(!offen)} aria-expanded={offen} aria-controls={`us-video-${einheit.id}`}>
+        <em aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M8 5v14l11-7z" fill="currentColor" /></svg></em>
+        <span><b>Video: {einheit.titel}</b><small>{platzhalter ? "Platzhalter · Michael Penn (YouTube, Englisch)" : "Erklärvideo zur Lerneinheit"} · {offen ? "einklappen" : "ausklappen"}</small></span>
+        <svg className="us-pfeil" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+      </button>
+      {offen && (
+        <div id={`us-video-${einheit.id}`}>
+          <div className="us-video-buehne">
+            {an ? (
+              <ExternSchutz dienst="youtube"><iframe title={`Video: ${einheit.titel}`} src={`https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&modestbranding=1&playsinline=1`}
+                loading="lazy" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowFullScreen referrerPolicy="strict-origin-when-cross-origin"
+                style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: 0 }} /></ExternSchutz>
+            ) : (
+              <button type="button" className="us-video-play" onClick={() => setAn(true)} aria-label="Video abspielen" data-us-play="">
+                <i aria-hidden="true"><svg viewBox="0 0 24 24" width="28" height="28"><path d="M8 5v14l11-7z" fill="#3A0019" /></svg></i>
+                <b>Video abspielen</b>
+                <small>Beim Abspielen wird das Video von YouTube (youtube-nocookie.com) geladen.</small>
+              </button>
+            )}
+          </div>
+          {platzhalter && <p className="us-video-fuss">Bis unser deutsches Video zu „{einheit.titel}“ fertig ist, steht hier ein Video von Michael Penn als Platzhalter.</p>}
+        </div>
+      )}
+    </section>
+  );
+}
+
+/* ---------- Kapitel-Pop-up: die Lerneinheiten eines Kapitels ---------- */
+function KapitelFenster({ kap, stand, zu, schliessen }) {
+  const a = kapitelAnzeige(kap);
+  useEffect(() => {
+    const taste = (e) => { if (e.key === "Escape") schliessen(); };
+    document.addEventListener("keydown", taste);
+    const alt = document.body.style.overflow; document.body.style.overflow = "hidden";
+    return () => { document.removeEventListener("keydown", taste); document.body.style.overflow = alt; };
+  }, [schliessen]);
+  return (
+    <div className="us-schleier" onClick={schliessen} data-us-fenster={kap.id}>
+      <div className="us-fenster" role="dialog" aria-modal="true" aria-label={`Kapitel ${kap.marke}: ${a.name}`} onClick={(e) => e.stopPropagation()} style={kursVars(GRANAT)}>
+        <div className="us-fenster-kopf">
+          <span className="us-kachel-icon" aria-hidden="true">{ICONS[a.icon]}</span>
+          <span style={{ minWidth: 0 }}><b>{a.name}</b><span>Kapitel {kap.marke} · {kap.einheiten.length} Einheiten · {kap.zeile}</span></span>
+          <button type="button" className="us-fenster-zu" onClick={schliessen} aria-label="Schließen">×</button>
+        </div>
+        <div className="us-fenster-inhalt">
+          <ModulListe>
+            {kap.einheiten.map((e, i) => {
+              const voll = einheitVon(e.id);
+              const wz = e.ueben.filter((u) => u.wz).length, kopf = e.ueben.filter((u) => u.kopf).length;
+              const meta = [{ icon: <IconBuch />, text: "Lesen", label: "Erklärung und Beispiel" }];
+              if (e.aufgaben.length) meta.push({ icon: <IconAufgabe />, text: `${e.aufgaben.length} Aufgaben${e.aufgaben.length > 1 ? "typen" : "typ"}`, label: "Aufgaben zum Probieren" });
+              if (wz) meta.push({ icon: <IconWerkzeug />, text: `${wz} Werkzeug${wz > 1 ? "e" : ""}`, label: "Werkzeuge der App" });
+              if (kopf) meta.push({ icon: <IconWerkzeug />, text: "Kopfrechnen", label: "Kopfrechen-Trainer" });
+              return <ModulKarte key={e.id} farben={GRANAT} nr={i + 1} titel={e.titel} voll={e.ziel} meta={meta} ok={einheitGeschafft(voll, stand)} onClick={() => { schliessen(); zu(e.id); }} klasse="us-modul" kennung={{ "data-us-modul": e.id }} />;
+            })}
+          </ModulListe>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ---------- Lerneinheit ---------- */
 function EinheitSeite({ einheit, stand, setze, zu, gehe }) {
   const haken = (stand.haken && stand.haken[einheit.id]) || [];
@@ -241,9 +401,11 @@ function EinheitSeite({ einheit, stand, setze, zu, gehe }) {
   return (
     <>
       <KursKopf farben={GRANAT} Motiv={MotivGeodreieck} id="ks-unter" kompakt titel={einheit.titel}
-        zeile={`${klasse.titel} · Kapitel ${einheit.marke} ${einheit.kapitelTitel} · Lerneinheit ${einheit.nr} von ${einheit.anzahl}`} kennung={{ "data-us-einheit": einheit.id }} />
+        zeile={`${klasse.titel} · Kapitel ${einheit.marke} ${einheit.kapitelTitel} · Einheit ${einheit.nr} von ${einheit.anzahl}`} kennung={{ "data-us-einheit": einheit.id }} />
       <div className="mx-auto px-4 pb-16" style={{ maxWidth: 760 }}>
-        <button type="button" className="us-zurueck" onClick={() => zu(`klasse-${einheit.klasse}`)}>← Alle Lerneinheiten der {klasse.titel}</button>
+        <button type="button" className="us-zurueck" onClick={() => zu(`klasse-${einheit.klasse}`)}>← Alle Einheiten der {klasse.titel}</button>
+
+        <VideoKlappe key={einheit.id} einheit={einheit} />
 
         <Karte kicker="Darum geht’s"><p className="us-ziel">{einheit.ziel}</p></Karte>
 
@@ -277,7 +439,7 @@ function EinheitSeite({ einheit, stand, setze, zu, gehe }) {
         <div className="us-nav">
           {vorige ? <button type="button" className="us-knopf" onClick={() => zu(vorige.id)}>← {vorige.titel}</button> : <span />}
           {naechste
-            ? <button type="button" className="us-knopf us-knopf-gold" onClick={() => zu(naechste.id)} data-us-weiter="">Nächste Lerneinheit: {naechste.titel} →</button>
+            ? <button type="button" className="us-knopf us-knopf-gold" onClick={() => zu(naechste.id)} data-us-weiter="">Nächste Einheit: {naechste.titel} →</button>
             : <button type="button" className="us-knopf us-knopf-gold" onClick={() => zu(null)}>Zur Übersicht →</button>}
         </div>
       </div>
@@ -293,38 +455,44 @@ function Uebersicht({ klasseId, setKlasse, stand, zu }) {
   const inKlasse = UNTERSTUFE_EINHEITEN.filter((e) => e.klasse === klasse.id);
   const zuletzt = stand.zuletzt ? einheitVon(stand.zuletzt) : null;
   const weiter = (zuletzt && zuletzt.klasse === klasse.id && !einheitGeschafft(zuletzt, stand) ? zuletzt : null) || inKlasse.find((e) => !einheitGeschafft(e, stand)) || inKlasse[0];
+  const [offenesKapitel, setOffenesKapitel] = useState(null);
+  const schliessen = React.useCallback(() => setOffenesKapitel(null), []);
+  const kapOffen = offenesKapitel ? klasse.kapitel.find((k) => k.id === offenesKapitel) : null;
   return (
     <div className="mx-auto px-4 pb-16" style={{ maxWidth: 760 }}>
-      <FortschrittKarte farben={GRANAT} zahl={je.fertig} gesamt={je.gesamt} einheit="Lerneinheiten" einheitDativ="Lerneinheiten" onKnopf={() => zu(weiter.id)}
+      <FortschrittKarte farben={GRANAT} zahl={je.fertig} gesamt={je.gesamt} einheit="Einheiten" einheitDativ="Einheiten" onKnopf={() => zu(weiter.id)}
         knopf={je.fertig === 0 ? `${klasse.titel} starten` : "Weiter mit"} ziel={weiter.titel} kennung={{ "data-us-fortschritt": klasse.id }}
-        zusatz={st.fertig > je.fertig ? `Insgesamt ${st.fertig} von ${st.gesamt} Lerneinheiten in beiden Klassen` : undefined} />
+        zusatz={st.fertig > je.fertig ? `Insgesamt ${st.fertig} von ${st.gesamt} Einheiten in beiden Klassen` : undefined} />
       <div className="us-tabs" style={kursVars(GRANAT)} role="tablist" aria-label="Klasse wählen">
         {UNTERSTUFE_KLASSEN.map((k) => (
           <button key={k.id} type="button" role="tab" className="us-tab" aria-pressed={k.id === klasse.id} aria-selected={k.id === klasse.id} onClick={() => setKlasse(k.id)} data-us-klasse={k.id}>
-            <b>{k.titel}</b><span>{k.kapitel.length} Kapitel · {UNTERSTUFE_ZAHLEN.jeKlasse[k.id]} Lerneinheiten</span>
+            <b>{k.titel}</b><span>{k.kapitel.length} Kapitel · {UNTERSTUFE_ZAHLEN.jeKlasse[k.id]} Einheiten</span>
           </button>
         ))}
       </div>
       <Hinweis>
-        {klasse.zeile}. Jede Lerneinheit erklärt eine Sache so, wie sie im Unterricht drankommt: lesen, ein Beispiel Schritt für Schritt, der Merksatz –
-        und dann gleich üben, mit den Werkzeugen der App und den Kopfrechen-Trainern. Orientiert am Bildungsplan Baden-Württemberg; die Reihenfolge ist je Schule etwas anders.
+        Jede Einheit: lesen, ein Beispiel Schritt für Schritt, der Merksatz – dann gleich üben. Nach dem Bildungsplan Baden-Württemberg; die Reihenfolge ist je Schule etwas anders.
       </Hinweis>
-      {klasse.kapitel.map((kap) => (
-        <section key={kap.id} data-us-kapitel={kap.id}>
-          <KapitelKopf farben={GRANAT} marke={kap.marke} titel={kap.titel} voll={`${kap.titel} – ${kap.zeile}`} />
-          <ModulListe>
-            {kap.einheiten.map((e, i) => {
-              const voll = einheitVon(e.id);
-              const wz = e.ueben.filter((u) => u.wz).length, kopf = e.ueben.filter((u) => u.kopf).length;
-              const meta = [{ icon: <IconBuch />, text: "Lesen", label: "Erklärung und Beispiel" }];
-              if (e.aufgaben.length) meta.push({ icon: <IconAufgabe />, text: `${e.aufgaben.length} Aufgaben${e.aufgaben.length > 1 ? "typen" : "typ"}`, label: "Aufgaben zum Probieren" });
-              if (wz) meta.push({ icon: <IconWerkzeug />, text: `${wz} Werkzeug${wz > 1 ? "e" : ""}`, label: "Werkzeuge der App" });
-              if (kopf) meta.push({ icon: <IconWerkzeug />, text: "Kopfrechnen", label: "Kopfrechen-Trainer" });
-              return <ModulKarte key={e.id} farben={GRANAT} nr={i + 1} titel={e.titel} voll={e.ziel} meta={meta} ok={einheitGeschafft(voll, stand)} onClick={() => zu(e.id)} klasse="us-modul" kennung={{ "data-us-modul": e.id }} />;
-            })}
-          </ModulListe>
-        </section>
-      ))}
+      <div className="us-kacheln" style={kursVars(GRANAT)} data-us-kapitelliste={klasse.id}>
+        {klasse.kapitel.map((kap) => {
+          const a = kapitelAnzeige(kap);
+          const fertig = kap.einheiten.filter((e) => einheitGeschafft(einheitVon(e.id), stand)).length;
+          const alle = fertig === kap.einheiten.length;
+          return (
+            <button key={kap.id} type="button" className={`us-kachel${alle ? " us-kachel-ok" : ""}`} onClick={() => setOffenesKapitel(kap.id)} data-us-kapitel={kap.id}
+              aria-haspopup="dialog" aria-label={`${a.name}: ${kap.einheiten.length} Einheiten, ${fertig} geschafft`}>
+              <span className="us-kachel-icon" aria-hidden="true">{ICONS[a.icon]}</span>
+              <span className="us-kachel-marke" aria-hidden="true">{kap.marke}</span>
+              <span className="us-kachel-text">
+                <span className="us-kachel-titel">{a.name}</span>
+                <span className="us-kachel-zeile">{kap.einheiten.length} Einheiten{fertig ? ` · ${fertig} geschafft` : ""}</span>
+              </span>
+              <span className="us-kachel-stand" aria-hidden="true">{kap.einheiten.map((e, i) => <i key={e.id} data-ok={i < fertig ? "1" : "0"} />)}</span>
+            </button>
+          );
+        })}
+      </div>
+      {kapOffen && <KapitelFenster kap={kapOffen} stand={stand} zu={zu} schliessen={schliessen} />}
     </div>
   );
 }
@@ -352,7 +520,7 @@ export function UnterstufeSeite({ gehe, seite = null, setSeite = () => {} }) {
       <KursKopf farben={GRANAT} Motiv={MotivGeodreieck} id="ks-unter" titel={UNTERSTUFE_INFO.titel} zeile={UNTERSTUFE_INFO.zeile} kennung={{ "data-us-kopf": "" }}
         chips={[
           { icon: <IconBuch />, text: `${UNTERSTUFE_ZAHLEN.kapitel} Kapitel` },
-          { icon: <IconAufgabe />, text: `${UNTERSTUFE_ZAHLEN.einheiten} Lerneinheiten` },
+          { icon: <IconAufgabe />, text: `${UNTERSTUFE_ZAHLEN.einheiten} Einheiten` },
           { icon: <IconWerkzeug />, text: "Kopfrechnen inklusive" },
           ...(st.fertig ? [{ icon: <IconAufgabe />, text: `${st.fertig} geschafft` }] : []),
         ]} />
