@@ -52,7 +52,7 @@ const CSS = `
   --karte: linear-gradient(160deg, rgba(255,255,255,0.085) 0%, rgba(255,255,255,0.035) 60%, rgba(255,255,255,0.02) 100%);
   --karte-schatten: 0 30px 60px -36px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,0.08);
   --bild: radial-gradient(120% 140% at 50% 120%, rgba(0,77,152,0.55) 0%, rgba(0,77,152,0.08) 55%, rgba(0,0,0,0) 100%);
-  --bild-links: radial-gradient(120% 140% at 0% 50%, rgba(0,77,152,0.55) 0%, rgba(0,77,152,0.08) 60%, rgba(0,0,0,0) 100%);
+  --bild-rechts: radial-gradient(140% 120% at 100% 50%, rgba(0,77,152,0.55) 0%, rgba(0,77,152,0.08) 60%, rgba(0,0,0,0) 100%);
   --akzent-text: ${NACHT}; --raster: rgba(255,255,255,0.05); --band: rgba(5,11,31,0.55);
   --papier-schatten: 0 30px 60px -30px rgba(0,0,0,.9), 0 0 0 1px rgba(255,255,255,0.08);
   --zu-titel: #C9D2E6; --knopf-hg: #FFFFFF; --knopf-text: ${NACHT}; --pille-hg: rgba(237,187,0,0.08); --pille-text: ${GOLD_HELL};
@@ -62,7 +62,7 @@ const CSS = `
 .sbb[data-modus="hell"], .sbb-schalter[data-modus="hell"] {
   --hg: #FFFFFF; --text: ${C.tinte}; --nebel: ${C.grau}; --titel: ${C.seeTief}; --linie: ${C.linie};
   --karte: #FFFFFF; --karte-schatten: 0 3px 16px rgba(15,26,51,0.07);
-  --bild: linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%); --bild-links: linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%);
+  --bild: linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%); --bild-rechts: linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%);
   --akzent-text: ${C.seeTief}; --raster: rgba(0,77,152,0.075); --band: rgba(255,255,255,0.85);
   --papier-schatten: 0 3px 16px rgba(15,26,51,0.08), 0 0 0 1px ${C.linie};
   --zu-titel: ${C.hellgrau}; --knopf-hg: ${C.seeTief}; --knopf-text: #FFFFFF; --pille-hg: #FFFBEA; --pille-text: ${C.gruenDunkel};
@@ -125,17 +125,17 @@ html[data-start-modus="dunkel"] .fuss-paar button { color: #EEF2FF !important; b
 .sbb-zone h2 { margin: 0; font-size: clamp(26px, 6.4vw, 34px); font-weight: 800; letter-spacing: -0.03em; line-height: 1; color: var(--titel); }
 .sbb-zone p { margin: 6px 0 0; font-size: 14px; color: var(--nebel); line-height: 1.4; }
 
-/* Kachel (dunkel: Glas, hell: weiß mit Rand) */
+/* Kachel (dunkel: Glas, hell: weiß mit Rand): Text links, rechts eine schmale Bildspalte über die ganze Höhe */
 .sbb-karte { position: relative; width: 100%; border-radius: 22px; border: 1px solid var(--linie); background: var(--karte); box-shadow: var(--karte-schatten); color: var(--text); }
-.sbb-kachel { display: flex; flex-direction: column; padding: 0; overflow: hidden; cursor: pointer; font-family: inherit; text-align: left; transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
+.sbb-kachel { display: flex; flex-direction: row; align-items: stretch; min-height: 122px; padding: 0; overflow: hidden; cursor: pointer; font-family: inherit; text-align: left; transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
 @media (hover:hover) { .sbb-kachel:not(:disabled):hover { transform: translateY(-3px); border-color: rgba(237,187,0,0.55); box-shadow: 0 0 0 1px rgba(237,187,0,0.35), 0 30px 60px -30px rgba(237,187,0,0.35), var(--karte-schatten); } }
 .sbb-kachel:not(:disabled):active { transform: scale(.985); }
-.sbb-kachel-bild { position: relative; height: 128px; flex: none; display: flex; align-items: center; justify-content: center; padding: 10px 18px; background: var(--bild); border-bottom: 1px solid var(--linie); }
-.sbb-kachel-bild > svg, .sbb-kachel-bild > span, .sbb-kachel-bild > div { max-height: 100%; }
-.sbb-kachel-text { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 6px; flex: 1 1 auto; }
+.sbb-kachel-bild { position: relative; flex: none; width: 112px; display: flex; align-items: center; justify-content: center; padding: 12px 8px; background: var(--bild-rechts); border-left: 1px solid var(--linie); }
+.sbb-kachel-bild > svg, .sbb-kachel-bild > span, .sbb-kachel-bild > div { max-height: 100%; max-width: 100%; }
+.sbb-kachel-text { flex: 1 1 auto; min-width: 0; padding: 16px 10px 16px 16px; display: flex; flex-direction: column; justify-content: center; gap: 6px; }
 .sbb-kachel h2, .sbb-kachel h3 { margin: 0; font-size: 21px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; color: var(--titel); overflow-wrap: anywhere; hyphens: auto; }
-.sbb-kachel p { margin: 0; font-size: 13.5px; font-weight: 400; line-height: 1.5; color: var(--nebel); }
-.sbb-kachel .weiter { margin-top: auto; padding-top: 8px; font-size: 13px; font-weight: 700; color: ${GOLD}; display: inline-flex; align-items: center; gap: 8px; }
+.sbb-kachel p { margin: 0; font-size: 13.5px; font-weight: 400; line-height: 1.5; color: var(--nebel); overflow-wrap: anywhere; hyphens: auto; }
+.sbb-kachel .weiter { margin-top: 2px; padding-top: 6px; font-size: 13px; font-weight: 700; color: ${GOLD}; display: inline-flex; align-items: center; gap: 8px; }
 .sbb[data-modus="hell"] .sbb-kachel .weiter { color: ${C.gruenDunkel}; }
 .sbb-kachel .weiter i { font-style: normal; display: inline-block; transition: transform .18s ease; }
 @media (hover:hover) { .sbb-kachel:hover .weiter i { transform: translateX(4px); } }
@@ -149,22 +149,21 @@ html[data-start-modus="dunkel"] .fuss-paar button { color: #EEF2FF !important; b
 .sbb-raster2 > * { min-width: 0; }
 @media ${DESKTOP} { .sbb-raster2 { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; } .sbb-breit { grid-column: 1 / -1; } }
 
-/* Hauptkacheln mit Aufklappen (Schulmathematik, Mathe entdecken): am Handy Bild oben, Text darunter, Plus rechts unten;
-   ab 840 px Bild links, Text rechts, Plus rechts außen */
-.sbb-haupt { position: relative; display: flex; flex-direction: column; align-items: stretch; gap: 0; width: 100%; padding: 0; cursor: pointer; font-family: inherit; text-align: left; overflow: hidden; transition: border-color .18s ease, box-shadow .18s ease; }
-.sbb-haupt .bild { flex: none; height: 104px; display: flex; align-items: center; justify-content: center; padding: 8px 18px; border-bottom: 1px solid var(--linie); background: var(--bild); }
-.sbb-haupt .bild > svg { height: 100%; width: auto; max-width: 100%; }
-.sbb-haupt .txt { flex: 1 1 auto; min-width: 0; padding: 16px 74px 16px 18px; display: flex; flex-direction: column; justify-content: center; gap: 5px; }
-.sbb-haupt h2 { margin: 0; font-size: clamp(22px, 6vw, 28px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; color: var(--titel); }
-.sbb-haupt p { margin: 0; font-size: 13.5px; line-height: 1.45; color: var(--nebel); }
-.sbb-haupt .plus { position: absolute; right: 16px; bottom: 16px; width: 46px; height: 46px; border-radius: 999px; background: ${GOLD}; color: var(--akzent-text); display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 22px rgba(237,187,0,0.4); transition: transform .22s ease; }
+/* Hauptkacheln mit Aufklappen (Schulmathematik, Mathe entdecken): Text links, rechts eine Spalte mit dem Bild und
+   darunter dem Plus – auf allen Breiten gleich, ab 840 px nur breiter */
+.sbb-haupt { position: relative; display: flex; flex-direction: row; align-items: stretch; gap: 0; width: 100%; padding: 0; cursor: pointer; font-family: inherit; text-align: left; overflow: hidden; transition: border-color .18s ease, box-shadow .18s ease; }
+.sbb-haupt .bild { flex: none; width: 112px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 12px 8px; border-left: 1px solid var(--linie); background: var(--bild-rechts); }
+.sbb-haupt .bild .logo { flex: none; width: 100%; height: 80px; display: flex; align-items: center; justify-content: center; }
+.sbb-haupt .bild .logo > svg { width: 100%; height: 100%; max-height: 100%; }
+.sbb-haupt .txt { flex: 1 1 auto; min-width: 0; padding: 16px 10px 16px 16px; display: flex; flex-direction: column; justify-content: center; gap: 5px; }
+.sbb-haupt h2 { margin: 0; font-size: clamp(18px, 5.2vw, 28px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; color: var(--titel); overflow-wrap: anywhere; hyphens: auto; }
+.sbb-haupt p { margin: 0; font-size: 13.5px; line-height: 1.45; color: var(--nebel); overflow-wrap: anywhere; hyphens: auto; }
+.sbb-haupt .plus { flex: none; width: 46px; height: 46px; border-radius: 999px; background: ${GOLD}; color: var(--akzent-text); display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 22px rgba(237,187,0,0.4); transition: transform .22s ease; }
 @media ${DESKTOP} {
-  .sbb-haupt { flex-direction: row; }
-  .sbb-haupt .bild { height: auto; flex: 0 0 170px; padding: 10px; border-bottom: none; border-right: 1px solid var(--linie); background: var(--bild-links); }
-  .sbb-haupt .bild > svg { height: auto; width: 100%; }
-  .sbb-haupt .txt { padding: 16px 80px 16px 16px; }
-  .sbb-haupt .plus { right: 18px; bottom: auto; top: 50%; transform: translateY(-50%); }
-  .sbb-haupt[aria-expanded="true"] .plus { transform: translateY(-50%) rotate(45deg); }
+  .sbb-haupt .bild { width: 160px; padding: 14px 16px; }
+  .sbb-haupt .bild .logo { height: 88px; }
+  .sbb-haupt .txt { padding: 18px 20px 18px 22px; }
+  .sbb-kachel-bild { width: 124px; }
 }
 .sbb-haupt[aria-expanded="true"] .plus { transform: rotate(45deg); }
 .sbb-haupt[aria-expanded="true"] { border-color: rgba(237,187,0,0.6); }
@@ -347,51 +346,52 @@ function Kopf({ titel }) {
   );
 }
 
-/* Glaskachel: Bild oben, Text unten. gesperrt = ausgegraut mit Schloss. */
+/* Glaskachel: Text links, Bild rechts. gesperrt = ausgegraut mit Schloss. */
 function Kachel({ titel, text, logo, extra, ziel, label, gesperrt, keinI18n, gold, gehe, breit, weiter = "Öffnen" }) {
   return (
     <button type="button" onClick={gesperrt ? undefined : () => gehe(ziel)} disabled={gesperrt} aria-disabled={gesperrt || undefined}
       aria-label={gesperrt ? `${typeof titel === "string" ? titel : label} – noch gesperrt` : label} title={gesperrt ? "Noch gesperrt" : undefined}
       className={["sbb-karte", "sbb-kachel", gesperrt ? "zu" : null, gold ? "sbb-gold" : null, breit ? "sbb-breit" : null].filter(Boolean).join(" ")}>
-      <div className="sbb-kachel-bild">
-        <div className="sbb-logo">{logo}</div>
-        {extra}
-        {gesperrt && <span className="sbb-schloss" aria-hidden="true"><SchlossZeichen groesse={40} /></span>}
-      </div>
       <div className="sbb-kachel-text">
         <h2 data-kein-i18n={keinI18n || undefined}>{titel}</h2>
         <p>{text}</p>
         {!gesperrt && <span className="weiter">{weiter} <i aria-hidden="true">→</i></span>}
       </div>
+      <div className="sbb-kachel-bild">
+        <div className="sbb-logo">{logo}</div>
+        {extra}
+        {gesperrt && <span className="sbb-schloss" aria-hidden="true"><SchlossZeichen groesse={40} /></span>}
+      </div>
     </button>
   );
 }
 
-/* Mathilda-Kachel: Bild mit Blatt im Sucher, rechts das Porträt */
+/* Mathilda-Kachel: Text links, rechts das Porträt, unten angeschnitten */
 function MathildaKachel({ gehe }) {
   const hell = useHell();
   return (
     <button type="button" onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })} aria-label="Mathilda AI öffnen" className="sbb-karte sbb-kachel sbb-gold">
-      <div className="sbb-kachel-bild" style={{ justifyContent: "space-between", padding: "8px 8px 0 14px", overflow: "hidden" }}>
-        <div style={{ height: "100%", flex: "1 1 auto", minWidth: 0 }}><MathildaLogoKlein /></div>
-        <svg viewBox="0 0 120 138" aria-hidden="true" style={{ height: "118%", width: "auto", flex: "none", marginTop: "auto", marginBottom: -20, filter: "drop-shadow(0 10px 24px rgba(0,0,0,.5))" }}><MathildaPfade /></svg>
-      </div>
       <div className="sbb-kachel-text">
         <h2><MathildaName dunkel={!hell} /></h2>
         <p>Foto vom Blatt – Mathilda prüft deinen Weg.</p>
         <span className="weiter">Mit KI lernen <i aria-hidden="true">→</i></span>
       </div>
+      <div className="sbb-kachel-bild" style={{ alignItems: "flex-end", padding: "10px 6px 0", overflow: "hidden" }}>
+        <svg viewBox="0 0 120 138" aria-hidden="true" style={{ width: "100%", height: "auto", flex: "none", marginBottom: -12, filter: "drop-shadow(0 10px 24px rgba(0,0,0,.5))" }}><MathildaPfade /></svg>
+      </div>
     </button>
   );
 }
 
-/* Aufklappbare Hauptkachel (Schulmathematik, Mathe entdecken) */
+/* Aufklappbare Hauptkachel (Schulmathematik, Mathe entdecken): Text links, rechts Bild und Plus */
 function HauptKachel({ titel, text, logo, auf, onClick, label }) {
   return (
     <button type="button" onClick={onClick} aria-expanded={auf} aria-label={label} className="sbb-karte sbb-haupt">
-      <span className="bild" aria-hidden="true">{logo}</span>
       <span className="txt"><h2>{titel}</h2><p>{text}</p></span>
-      <span className="plus" aria-hidden="true"><Plus /></span>
+      <span className="bild" aria-hidden="true">
+        <span className="logo">{logo}</span>
+        <span className="plus"><Plus /></span>
+      </span>
     </button>
   );
 }
@@ -553,7 +553,7 @@ export function Startseite({ gehe }) {
           <div className="sbb-breit">
             <HauptKachel auf={schulAuf} onClick={() => { setSchulAuf(!schulAuf); setEntdAuf(false); setBereichAuf(null); setEtikett(null); }}
               label={schulAuf ? "Schulmathematik zuklappen" : "Schulmathematik aufklappen"} logo={<SchulmatheLogoKlein />} titel="Schulmathematik"
-              text={schulAuf ? "Funktionen, Vektoren, Wahrscheinlichkeit, Geometrie und Werkzeuge." : "Unter-, Mittel- und Oberstufe bis zum Abi: Funktionen, Vektoren, Wahrscheinlichkeitsrechnung, Geometrie, Werkzeuge."} />
+              text={schulAuf ? "Funktionen, Vektoren, Wahrscheinlichkeit, Geometrie und Werkzeuge." : "Unter-, Mittel- und Oberstufe bis zum Abi: Funktionen, Vektoren, Wahrscheinlichkeits­rechnung, Geometrie, Werkzeuge."} />
             {schulAuf && (
               <div className="sbb-papier" data-aufklapp-inhalt>
                 <SchulKopf gehe={gehe} mitWeiter={false} stufe={stufe} setzeStufe={stufeSetzen} klasse={klasse} etikett={etikett} setzeEtikett={(e) => { setEtikett(e); setBereichAuf(null); }} />
