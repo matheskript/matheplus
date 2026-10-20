@@ -21,10 +21,15 @@ html[data-wz-voll] .mx-auto.px-6.pb-16 > :first-child:not([style*="background: r
 html[data-kr-voll], html[data-kr-voll] body { overflow: hidden !important; overscroll-behavior: none; height: 100%; }
 html[data-kr-voll] .app-wurzel { min-height: 0 !important; height: 100%; overflow: hidden; }
 
-/* Ebene vs. Ebene am Desktop (func19.jsx, data-eve="breit"): Ränder wie der Seitentitel,
-   Karten behalten Rahmen und Rundung (sie liegen nicht direkt unter dem Seitencontainer). */
-html[data-wz-voll] .mx-auto.px-6.pb-16.eve-breit > div { margin-left: 24px !important; margin-right: 24px !important; max-width: calc(100% - 48px); }
-html[data-wz-voll] .mx-auto.px-6.pb-16.eve-breit > div:first-child { margin-top: 24px !important; }
+/* Desktop-Stil aller Werkzeugseiten (ab 840 px, Regeln in DESKTOP-STIL.md, Bausteine in arbeitsflaeche.jsx):
+   Inhalt mit 24 px Rand wie der Seitentitel, weiße Karten als Karten mit feinem Rahmen statt randloser Flächen. */
+@media (min-width: 840px) {
+  html[data-wz-voll] .mx-auto.px-6.pb-16 > div { margin-left: 24px !important; margin-right: 24px !important; max-width: calc(100% - 48px); }
+  html[data-wz-voll] .mx-auto.px-6.pb-16 > div:first-child { margin-top: 24px !important; }
+  html[data-wz-voll] .mx-auto.px-6.pb-16 > div[style*="background: rgb(255, 255, 255)"] { border: 1px solid #E3E8F2 !important; border-radius: 16px !important; box-shadow: none !important; }
+  html[data-wz-voll] .mx-auto.px-6.pb-16 > div + div[style*="background: rgb(255, 255, 255)"]:not([style*="margin-top"]) { margin-top: 16px !important; }
+  html[data-wz-voll] .mx-auto.px-6.pb-16 > .kd-knopf { margin-left: 24px !important; margin-right: 24px !important; width: calc(100% - 48px) !important; }
+}
 .eve-knopf { transition: filter .12s ease, transform .08s ease; }
 .eve-knopf:hover { filter: brightness(0.94); }
 .eve-knopf:active { transform: scale(0.95); }

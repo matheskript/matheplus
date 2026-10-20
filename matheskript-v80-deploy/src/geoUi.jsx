@@ -15,6 +15,7 @@ import { IchHaengeFest } from "./funcHilfe.jsx";
 import { GrosserKnopf, MS, hinweis, karte, kicker, zw } from "./ui2.jsx";
 import { Aufklapp, ModusLeiste, Seite, SchrittFolge, zt } from "./ui3.jsx";
 import { uebenWunschHolen, uebenWunschLesen } from "./uebenWunsch.js";
+import { Arbeitsflaeche, BildKarte, DESKTOP } from "./arbeitsflaeche.jsx";
 
 /* Animationen der Unterstufen-Werkzeuge: erst laden, wenn ein Werkzeug welche mitgibt (nur auf Deutsch) */
 const MotionAuswahl = React.lazy(() => import("./funcUnterstufeMotion.jsx").then((m) => ({ default: m.MotionAuswahl })));
@@ -177,7 +178,7 @@ export function Zeichenblatt({ punkte, breite = 340, hoehe = 240, rand = 34, lab
    bild:      Grafik (rechts daneben, auf bildMax px begrenzt)
    unten:     Merksatz u. Ä. über die volle Breite
    Unter 900 px bleibt alles untereinander wie bisher. */
-const ZWEI_MQ = "(min-width: 900px)";
+const ZWEI_MQ = DESKTOP;   // gleicher Umbruch wie alle Werkzeugseiten (arbeitsflaeche.jsx)
 export function useZweiSpalten() {
   const [d, setD] = useState(() => { try { return window.matchMedia(ZWEI_MQ).matches; } catch { return false; } });
   React.useEffect(() => {
@@ -194,12 +195,12 @@ export function EntdeckenZweispaltig({ steuerung, bild, unten, bildMax = 460 }) 
   if (!zwei) {
     return (<>{steuerung}<div style={{ marginTop: 12 }}>{bild}</div>{unten}</>);
   }
+  // Desktop-Stil (DESKTOP-STIL.md): Einstellungen links, Bild rechts in der Bildkarte
   return (
     <>
-      <div style={{ display: "grid", gridTemplateColumns: "minmax(260px, 1fr) minmax(0, 2fr)", gap: 22, alignItems: "start" }}>
-        <KompaktCtx.Provider value={true}><div style={{ minWidth: 0 }}>{steuerung}</div></KompaktCtx.Provider>
-        <div style={{ minWidth: 0, maxWidth: bildMax, width: "100%", justifySelf: "center" }}>{bild}</div>
-      </div>
+      <Arbeitsflaeche
+        links={<KompaktCtx.Provider value={true}><div style={{ minWidth: 0 }}>{steuerung}</div></KompaktCtx.Provider>}
+        rechts={<BildKarte style={{ padding: 8, maxWidth: bildMax + 16, width: "100%", alignSelf: "center" }}>{bild}</BildKarte>} />
       {unten}
     </>
   );
@@ -237,6 +238,8 @@ export function UebenRahmen({ titel, arten, neue, schritte, text, skizze, hilfe,
   const st = useMemo(() => schritte(au), [au]);
   const liste = [["mix", zw("Gemischt", "Mixed")], ...arten.map((a) => [a, zw(titel[a][0], titel[a][1])])];
   const sk = skizze ? skizze(au) : null;
+  const zwei = useZweiSpalten() && !!sk;
+  const aufgabenText = <div style={{ ...hinweis, color: C.tinte, fontSize: 15, marginBottom: 8 }}>{(() => { const t = text(au); return typeof t === "string" ? <MS s={t} /> : t; })()}</div>;
   return (
     <>
       <div style={{ ...karte, marginTop: 16 }}>
@@ -251,9 +254,21 @@ export function UebenRahmen({ titel, arten, neue, schritte, text, skizze, hilfe,
       </div>
       <div style={{ ...karte, marginTop: 12 }} key={au.id}>
         <p style={kicker}>{zw(titel[au.art][0], titel[au.art][1])}</p>
-        <div style={{ ...hinweis, color: C.tinte, fontSize: 15, marginBottom: 8 }}>{(() => { const t = text(au); return typeof t === "string" ? <MS s={t} /> : t; })()}</div>
-        {sk && <div style={{ background: C.sand, borderRadius: 14, padding: 6 }}>{sk}</div>}
-        <SchrittFolge schritte={st} stand={stand} setStand={setStand} fertigText={fertig || zw("Richtig gelöst.", "Solved.")} />
+        {zwei ? (
+          <div data-ueben-zweispaltig style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 300px)", gap: 20, alignItems: "start" }}>
+            <div style={{ minWidth: 0 }}>
+              {aufgabenText}
+              <SchrittFolge schritte={st} stand={stand} setStand={setStand} fertigText={fertig || zw("Richtig gelöst.", "Solved.")} />
+            </div>
+            <div style={{ position: "sticky", top: 76, background: C.sand, borderRadius: 14, padding: 6 }}>{sk}</div>
+          </div>
+        ) : (
+          <>
+            {aufgabenText}
+            {sk && <div style={{ background: C.sand, borderRadius: 14, padding: 6 }}>{sk}</div>}
+            <SchrittFolge schritte={st} stand={stand} setStand={setStand} fertigText={fertig || zw("Richtig gelöst.", "Solved.")} />
+          </>
+        )}
         <GrosserKnopf ghost onClick={() => neu()}>{zw("Neue Aufgabe", "New exercise")}</GrosserKnopf>
         <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfe(au)} /></div>
       </div>

@@ -17,6 +17,7 @@ import { DrehKnoepfe, FARBE_ACHSE, GRUND_AUS, GrundebenenGitter, GrundebenenScha
 import { MatheFeld } from "./matheTastatur.jsx";
 import { wAdd, wGanz, wIstNull, wIstRational, wLies, wMul, wNegativ, wNum, wSub, wText, wZ } from "./wzahl.js";
 import { WurzelZeichen } from "./wurzelZeichen.jsx";
+import { Arbeitsflaeche, BildKarte, ErgebnisReihe, Werkzeugleiste, chipStil, feinKarte, hinweisStil, titelStil, toenKarte, useBreite, useDesktop } from "./arbeitsflaeche.jsx";
 
 const FARBE_E1 = C.see;
 const FARBE_E2 = C.gruen;
@@ -161,39 +162,6 @@ function EbenenPaar({ k1, setK1, k2, setK2 }) {
   );
 }
 
-/* ---------- Bildschirmbreite ---------- */
-
-const DESKTOP = "(min-width: 840px)";   // ab hier ist die Inhaltsspalte 783 px breit (func10.jsx)
-
-function useMedien(q) {
-  const lies = () => typeof window !== "undefined" && !!window.matchMedia && window.matchMedia(q).matches;
-  const [an, setAn] = useState(lies);
-  React.useEffect(() => {
-    if (!window.matchMedia) return undefined;
-    const m = window.matchMedia(q);
-    const f = () => setAn(m.matches);
-    f();
-    if (m.addEventListener) m.addEventListener("change", f); else m.addListener(f);
-    return () => { if (m.removeEventListener) m.removeEventListener("change", f); else m.removeListener(f); };
-  }, [q]);
-  return an;
-}
-
-// Breite eines Elements in Pixeln (Callback-Ref, damit auch ein neu gemountetes Element gemessen wird)
-function useBreite() {
-  const [el, setEl] = useState(null);
-  const [b, setB] = useState(0);
-  React.useEffect(() => {
-    if (!el) return undefined;
-    const f = () => setB(Math.round(el.clientWidth));
-    f();
-    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(f) : null;
-    if (ro) ro.observe(el);
-    return () => { if (ro) ro.disconnect(); };
-  }, [el]);
-  return [setEl, b];
-}
-
 /* ---------- Desktop: eine Ebene als Karte ----------
    Oben die Gleichung, darunter je Koeffizient + / „a = 3“ / − untereinander. */
 function EbenenKarte({ name, farbe, k, setK }) {
@@ -204,7 +172,7 @@ function EbenenKarte({ name, farbe, k, setK }) {
     display: "flex", alignItems: "center", justifyContent: "center", touchAction: "manipulation",
   });
   return (
-    <div data-eve-karte={name} style={{ border: `1.5px solid ${farbe}33`, background: `${farbe}08`, borderRadius: 16, padding: "14px 12px 14px" }}>
+    <div data-eve-karte={name} style={toenKarte(farbe)}>
       <Einzeilig max={19} min={12}>
         <span style={{ color: farbe, fontWeight: 800 }}>E{name}:</span>
         <span>{ebenenText(...k)}</span>
@@ -440,14 +408,13 @@ export function EbeneVsEbene() {
   const [theta, setTheta] = useState(0.42);
   const [zoom, setZoom] = useState(1);
   const [grund, setGrund] = useState(GRUND_AUS);
-  const breit = useMedien(DESKTOP);
+  const breit = useDesktop();
   const [plotRef, plotBreite] = useBreite();
   const info = lage(k1, k2);
   const karte = { background: C.weiss, borderRadius: 16, padding: 18, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" };
-  const fein = { background: C.weiss, borderRadius: 16, padding: "18px 20px", border: `1px solid ${C.linie}` };
-  const titel = { fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 10 };
-  const hinweis = { fontSize: 12.5, color: C.grau, lineHeight: 1.55, marginTop: 10 };
-  const kicker = { fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: C.grau, marginBottom: 8 };
+  const fein = feinKarte;
+  const titel = titelStil;
+  const hinweis = { ...hinweisStil, marginTop: 10 };
 
   const lageText = {
     schnitt: "Die Ebenen schneiden sich in einer Geraden g.",
@@ -479,8 +446,7 @@ export function EbeneVsEbene() {
     <div style={{ display: "flex", gap: 6, ...(umbruch ? { flexWrap: "wrap", alignItems: "center" } : { overflowX: "auto", paddingTop: 14 }) }}>
       {BEISPIELE.map((x) => (
         <button key={x.name} onClick={() => { setK1(x.k1); setK2(x.k2); }}
-          style={{ flexShrink: 0, padding: "6px 12px", minHeight: 32, borderRadius: 999, border: `1px solid ${C.linie}`, background: C.weiss,
-            color: C.see, fontSize: 12.5, fontFamily: "inherit", cursor: "pointer", whiteSpace: "nowrap" }}>{x.name}</button>
+          style={chipStil()}>{x.name}</button>
       ))}
     </div>
   );
@@ -512,37 +478,32 @@ export function EbeneVsEbene() {
   /* ---------- Desktop: Arbeitsfläche in zwei Spalten ---------- */
   if (breit) {
     return (
-      <div className="mx-auto px-6 pb-16 eve-breit" data-eve="breit" style={{ maxWidth: 620, paddingTop: 16 }}>
-        <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 290px) minmax(0, 1fr)", gap: 20, alignItems: "start" }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      <div className="mx-auto px-6 pb-16" data-eve="breit" style={{ maxWidth: 620, paddingTop: 16 }}>
+        <Arbeitsflaeche
+          links={<>
             <EbenenKarte name="₁" farbe={FARBE_E1} k={k1} setK={setK1} />
             <EbenenKarte name="₂" farbe={FARBE_E2} k={k2} setK={setK2} />
             <div data-eve-lage style={fein}>{lageInhalt}</div>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            <div style={{ border: `1px solid ${C.linie}`, borderRadius: 16, overflow: "hidden", background: C.weiss }}>{schaubild}</div>
-            <div style={{ display: "grid", gap: 14, padding: "2px 2px 0" }}>
-              <div>
-                <p style={kicker}>Grundebenen einblenden</p>
-                <GrundebenenSchalter an={grund} setAn={setGrund} ohneTitel />
-              </div>
-              <div>
-                <p style={kicker}>Beispiele</p>
-                {beispiele(true)}
-              </div>
-            </div>
-          </div>
-        </div>
+          </>}
+          rechts={<>
+            <BildKarte>{schaubild}</BildKarte>
+            <Werkzeugleiste gruppen={[
+              { titel: "Grundebenen einblenden", inhalt: <GrundebenenSchalter an={grund} setAn={setGrund} ohneTitel /> },
+              { titel: "Beispiele", inhalt: beispiele(true) },
+            ]} />
+          </>} />
 
         {info.art !== "keine" && (
           <div style={{ marginTop: 20 }}>
-            <div data-eve-winkel style={{ ...fein, display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 240px)", columnGap: 32, alignItems: "center" }}>
-              <div style={{ minWidth: 0 }}>
-                <p style={titel}>Schnittwinkel</p>
-                <Winkelrechnung k1={k1} k2={k2} />
+            <ErgebnisReihe spalten="minmax(0, 1fr)">
+              <div data-eve-winkel style={{ ...fein, display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 240px)", columnGap: 32, alignItems: "center" }}>
+                <div style={{ minWidth: 0 }}>
+                  <p style={titel}>Schnittwinkel</p>
+                  <Winkelrechnung k1={k1} k2={k2} />
+                </div>
+                <div style={{ borderLeft: `2px solid ${C.linie}`, paddingLeft: 18 }}>{winkelHinweis}</div>
               </div>
-              <div style={{ borderLeft: `2px solid ${C.linie}`, paddingLeft: 18 }}>{winkelHinweis}</div>
-            </div>
+            </ErgebnisReihe>
           </div>
         )}
       </div>
