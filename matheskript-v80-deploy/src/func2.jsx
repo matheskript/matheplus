@@ -363,7 +363,7 @@ function DesktopSystem({ gehe }) {
 }
 
 /* Sieben Mathe-Mythen: Aufklappmenü mit Mini-Icons, jeder Mythos klappt einzeln zum Erklärtext auf */
-const MYTHEN = [
+export const MYTHEN = [
   ["★", "„Mathe ist Talent“", "Es gibt kein Mathe-Gen. Gute Noten entstehen aus Methode, Wiederholung und Übung – genau wie beim Klavier oder beim Fußball. Wer früh Erfolg hatte, hat meist früher ein gutes System gefunden, kein besseres Gehirn."],
   ["?", "„Ich bin kein Mathe-Typ“", "Der Satz beschreibt einen Zustand, kein Urteil. „Ich verstehe das noch nicht“ stimmt – „ich kann das nicht“ nie. Sobald die Lücke gefunden ist, lässt sie sich schließen."],
   ["»", "„Gute Schüler rechnen schnell“", "Tempo ist ein Ergebnis von Sicherheit, nicht ihre Ursache. Wer sauber und in kleinen Schritten arbeitet, wird von allein schneller – wer hetzt, macht Flüchtigkeitsfehler."],
@@ -374,7 +374,7 @@ const MYTHEN = [
 ];
 
 /* Passwort-Sperre „skript“: gilt für die ganze Browser-Sitzung (gemeinsam mit den Entwürfen) */
-function useFrei() {
+export function useFrei() {
   const [frei, setFrei] = useState(istFrei);
   useEffect(() => {
     const h = () => setFrei(istFrei());
@@ -384,7 +384,7 @@ function useFrei() {
   return frei;
 }
 
-function SchlossZeichen({ groesse = 34 }) {
+export function SchlossZeichen({ groesse = 34 }) {
   return (
     <span aria-hidden="true" style={{ width: groesse, height: groesse, flexShrink: 0, borderRadius: 999, background: "rgba(255,255,255,0.92)", boxShadow: "0 3px 10px rgba(30,40,60,0.25)",
       display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -396,7 +396,7 @@ function SchlossZeichen({ groesse = 34 }) {
   );
 }
 
-function PasswortFeld({ onFrei }) {
+export function PasswortFeld({ onFrei }) {
   const [pw, setPw] = useState("");
   const [fehler, setFehler] = useState(false);
   const pruefen = async (e) => {
@@ -544,7 +544,7 @@ function FormelLogoKlein() {
 }
 
 /* Grafik für die Schulkurse-Kachel: Videoplayer mit Lektionsliste. */
-function SchulkurseLogoKlein() {
+export function SchulkurseLogoKlein() {
   const W = 230, H = 190;
   return (
     <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
@@ -645,7 +645,7 @@ export function MathildaLogoKlein() {
 
 /* Mathilda als Schablonen-Porträt (Stencil, wie die bekannten Revolutions-Drucke):
    flache Flächen in den Silbertönen der gesperrten Kachel. */
-function MathildaPortraet() {
+export function MathildaPortraet() {
   return (
     /* Größe hängt nur an der Breite der Spalte (--pw), nicht an der Kachelhöhe. Die Oberkante des Haares (y = 22 von 120×138)
        liegt immer 16 px unter dem oberen Kachelinnenrand, also bündig mit der Oberkante des Titels. */
@@ -704,7 +704,7 @@ function PlotterLogo() {
 
 const ZEIGE_WETTBEWERBE = true;
 /* Gesperrte Kurse/Angebote (Schloss) vorerst nicht auf der Startseite zeigen. Auf true setzen, um sie wieder einzublenden. */
-const ZEIGE_GESPERRTE = false;
+export const ZEIGE_GESPERRTE = false;
 
 /* Schulmathematik → Bereiche → Stationen → Werkzeuge. Die Daten stehen in werkzeuge.js (eine Liste für
    Startseite, Werkzeug-Menü, Kopfleiste und Übersichtsseiten); hier kommen nur die Logos dazu. */
@@ -768,7 +768,7 @@ const BEREICH_INHALT = {
       "Abi-Ketten: eine Aufgabe durch mehrere Werkzeuge, zehn komplette Abi-Sätze mit Teil A und B, Probeabitur mit Uhr und Notenpunkten"] },
 };
 const STUFE_KUERZEL = { unter: "u", mittel: "m", ober: "o", alle: "a" };
-function bereichInhalt(id, stufe) {
+export function bereichInhalt(id, stufe) {
   const t = BEREICH_INHALT[id];
   const [kurz, lang] = t ? (t[STUFE_KUERZEL[stufe] || "a"] || t.a) : [];
   if (!kurz) return null;
@@ -779,7 +779,7 @@ const ABI_BLOCK = { id: "abitur", titel: "Abi-Vorbereitung", text: "Abi-Ketten, 
 
 /* Die Blöcke der Schulmathematik-Liste für eine Stufe: Anordnung aus werkzeuge.js (START_BLOECKE), dazu Logos.
    Ganz unten, nach „Formelsammlung und Werkzeuge“, steht in der Oberstufe die goldene Abi-Vorbereitung. */
-function schulBereiche(stufe) {
+export function schulBereiche(stufe) {
   const liste = startBloecke(stufe).map((b) => ({
     id: b.id, titel: b.titel, vorTitel: b.vorTitel, text: b.text, logo: BEREICH_LOGO[b.id], video: b.video, linie: LINIEN_MUSTER[b.id], gold: b.fundament, kiste: b.kiste,
     stationen: b.stationen.map((st) => ({ ...st, werkzeuge: st.werkzeuge.map((id) => ({ id, ...WERKZEUGE[id] })) })),
@@ -805,7 +805,7 @@ function bereichsEintraege(b, stufe, etikett, ab = 0) {
 
 /* Einträge eines Blocks: Abi-Vorbereitung = feste Liste; „Formelsammlung und Werkzeuge“ beginnt mit der Formelsammlung
    (nur ohne Etikett-Filter), danach kommen die Werkzeug-Stationen; alle anderen Blöcke = ihre Stationen. */
-function blockEintraege(b, stufe, etikett) {
+export function blockEintraege(b, stufe, etikett) {
   if (b.eintraege) return etikett ? b.eintraege.filter((e) => e.etikett === etikett) : b.eintraege;
   if (!b.kiste || etikett) return bereichsEintraege(b, stufe, etikett);
   const formel = [{ kopf: true, name: "werkzeuge-formelsammlung", nr: 1, titel: "Formelsammlung", zeile: "Alle wichtigen Formeln zum Nachschlagen" }, ...FORMEL_MENUE];
@@ -954,7 +954,7 @@ function ZeichenLogo({ zeichen, platz }) {
 }
 
 /* Goldener Plus-/Minus-Knopf unten rechts in der Grafik eines aufklappbaren Bereichs */
-function AufklappPfeil({ auf, klein, gross }) {
+export function AufklappPfeil({ auf, klein, gross }) {
   return <AufklappZeichen art="gold" auf={auf} groesse={gross ? 38 : klein ? 26 : 30} abstand={gross ? 10 : 8} />;
 }
 
@@ -1046,7 +1046,7 @@ function MiniBild({ art }) {
 /* Werkzeug-Knöpfe unter einem Bereich: helleres Blau als die Bereichs-Kachel, gleiche Breite,
    Titel + eine Zeile darunter, rechts ein kleines Motiv. Einträge mit „kinder“ klappen eine
    weitere Ebene auf (z. B. Kurvendiskussion → Polynome / Beliebige Funktionen). */
-function UnterMenue({ eintraege, gehe, tiefe = 0, linie }) {
+export function UnterMenue({ eintraege, gehe, tiefe = 0, linie }) {
   const [offen, setOffen] = useState(null);
   const mitLinie = !!linie && tiefe === 0 && eintraege.some((e) => e.kopf);
   // Dunkleres Blau für besseren Kontrast zur weißen Schrift; Ebene 2 etwas heller zur Unterscheidung
@@ -1104,7 +1104,7 @@ function UnterMenue({ eintraege, gehe, tiefe = 0, linie }) {
 /* ---------- Schulmathe-Training: Bausteine ---------- */
 /* Eigener Schlüssel (nicht "matheplus-stufe"): den benutzt die Formelsammlung mit anderen Werten (unter/mittel/ober).
    Vorher setzte „Mittelstufe“ in der Formelsammlung die Startseite still auf Mittelstufe → nur Station „Kennen“ sichtbar. */
-const STUFE_SCHLUESSEL = "matheplus-start-stufe";
+export const STUFE_SCHLUESSEL = "matheplus-start-stufe";
 const ZULETZT_SCHLUESSEL = "matheplus-zuletzt-werkzeug";
 const lies = (k, d) => { try { return localStorage.getItem(k) ?? d; } catch { return d; } };
 
@@ -1124,7 +1124,7 @@ function zuletztWerkzeug() {
   } catch { return null; }
 }
 
-function WeitermachenZeile({ gehe, neben = false }) {
+export function WeitermachenZeile({ gehe, neben = false }) {
   const z = zuletztWerkzeug();
   if (!z) return null;
   return (
@@ -1145,7 +1145,7 @@ function WeitermachenZeile({ gehe, neben = false }) {
 }
 
 const STUFEN = [["unter", "Unterstufe", "5–6"], ["mittel", "Mittelstufe", "7–10"], ["ober", "Oberstufe", "11–13"], ["alle", "Alle", "5–13"]];
-const STUFEN_KEYS = STUFEN.map((s) => s[0]);
+export const STUFEN_KEYS = STUFEN.map((s) => s[0]);
 function StufenSchalter({ wert, setze }) {
   return (
     <div role="group" aria-label="Schulstufe wählen" style={{ padding: 3, borderRadius: 13, background: "#EEF2F8",
@@ -1165,7 +1165,7 @@ function StufenSchalter({ wert, setze }) {
 
 /* Kopf des aufgeklappten Bereichs: links „Weitermachen“ (nur Desktop), rechts Stufen und darunter die Etiketten –
    alles auf einer Höhe, danach kommen direkt die Themen. Schmal (oder ohne Weitermachen): untereinander, volle Breite. */
-function SchulKopf({ gehe, mitWeiter, stufe, setzeStufe, etikett, setzeEtikett }) {
+export function SchulKopf({ gehe, mitWeiter, stufe, setzeStufe, etikett, setzeEtikett }) {
   const weiter = mitWeiter && zuletztWerkzeug() ? <WeitermachenZeile gehe={gehe} neben /> : null;
   return (
     <div style={{ marginTop: 12, display: "flex", flexWrap: "wrap", alignItems: "stretch", gap: 10 }}>
