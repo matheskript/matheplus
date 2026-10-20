@@ -1,46 +1,141 @@
 import React from "react";
 import { C } from "./base1.jsx";
 import { DOKUMENTE, dokumenteUebersicht } from "./dokumente.js";
+import { PORZELLAN, TIEFBLAU, GRANAT, LACKSCHWARZ, NACHTBLAU, GOLD_PILLE } from "./kursFarben.js";
+import { DokumentMotiv } from "./funcDokumentMotive.jsx";
 
 /* ======================================================================
    SEITE „DOKUMENTE“ (Ansicht "dokumente", hinter dem gemeinsamen Passwort).
-   Eine Box je Dokument: was es ist, wie viele Seiten, wofür es gedacht ist.
+   Eine kompakte Karte je Dokument in der Optik der Kurs-Kacheln („Lack und Goldfolie“):
+   Marken, Titel, Art · Seiten, Motiv rechts oben, drei Knöpfe
+   (Öffnen · Download · Pfeil). Der Pfeil klappt Zweck und Stand auf – sonst kein Fließtext.
    Die Liste steht in src/dokumente.js.
    ====================================================================== */
 
-const SCHATTEN = "0 2px 14px rgba(14,30,74,0.09)";
-
-/* Farbe der Zweck-Marke: Amazon = Gold, Seite = Blau, Investoren = Dunkelblau, Intern = Grau */
-const MARKE = {
-  "Amazon": { bg: "#FBF0C8", fg: "#5A4300" },
-  "Hier auf der Seite": { bg: C.himmel, fg: C.see },
-  "Investoren": { bg: C.seeTief, fg: "#fff" },
-  "Intern": { bg: C.silberHell, fg: C.grau },
+const PALETTE = { porzellan: PORZELLAN, tiefblau: TIEFBLAU, granat: GRANAT, lackschwarz: LACKSCHWARZ, nachtblau: NACHTBLAU };
+/* Strichfarbe und dunkle Füllung der Motive passend zum Lack */
+const MOTIV_TON = {
+  porzellan: { linie: C.nachtschwarz, tief: C.nachtschwarz },
+  tiefblau: { linie: "#FFFFFF", tief: C.vkNacht },
+  granat: { linie: "#FFFFFF", tief: "#3A0019" },
+  lackschwarz: { linie: "#FFFFFF", tief: "#141005" },
+  nachtblau: { linie: "#FFFFFF", tief: "#06102A" },
 };
+/* Download-Knopf: Granat-Pink, auf dem Granat-Lack Blau-Violett (sonst verschwindet er) */
+const LADEN = {
+  standard: ["linear-gradient(135deg,#7A0032 0%,#A50044 45%,#D4145A 80%,#FF5A8A 100%)", "rgba(212,20,90,0.8)"],
+  granat: ["linear-gradient(135deg,#1A3E96 0%,#2457C5 40%,#5B5BF0 75%,#9B6BFF 100%)", "rgba(91,91,240,0.8)"],
+};
+/* Punktfarbe je Zweck-Marke */
+const MARKE_PUNKT = { "Amazon": "#FF9900", "Hier auf der Seite": "#4FC3F7", "Investoren": "#EDBB00", "Intern": "#B9C2D3" };
 
-function Box({ d }) {
+const STIL_ID = "dk-stil";
+const STIL = `
+  .dk-gitter{display:grid;gap:14px;grid-template-columns:minmax(0,1fr)}
+  @media (min-width:760px){.dk-gitter{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  .dk{position:relative;isolation:isolate;overflow:hidden;border:1px solid transparent;border-radius:22px;padding:14px 14px 13px;
+    background:var(--dk-lack) padding-box,var(--dk-rand) border-box;color:var(--dk-text);
+    box-shadow:0 1px 0 var(--dk-kante) inset,0 18px 36px -18px var(--dk-schatten),0 2px 6px rgba(8,14,32,0.12);
+    transition:transform .18s ease,box-shadow .18s ease;align-self:start}
+  .dk::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:0;
+    background:linear-gradient(118deg,var(--dk-glanz) 0%,transparent 42%),radial-gradient(60% 80% at 95% 0%,var(--dk-schein) 0%,transparent 60%)}
+  .dk > *{position:relative;z-index:1}
+  @media (hover:hover){.dk:hover{transform:translateY(-2px);box-shadow:0 1px 0 var(--dk-kante) inset,0 26px 44px -18px var(--dk-schatten),0 4px 10px rgba(8,14,32,0.14)}}
+  .dk-motiv{position:absolute;z-index:0;top:4px;right:-6px;width:112px;height:auto;pointer-events:none}
+  .dk-kopf{padding-right:98px;min-height:84px}
+  .dk-marken{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+  .dk-marke{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:700;letter-spacing:0.03em;padding:3px 8px 3px 7px;border-radius:999px;
+    background:var(--dk-chip);border:1px solid var(--dk-chiprand);color:var(--dk-titel);white-space:nowrap}
+  .dk-marke i{width:6px;height:6px;border-radius:50%;flex:none}
+  .dk-titel{margin:0;font-size:16.5px;font-weight:800;letter-spacing:-0.02em;line-height:1.22;color:var(--dk-titel);text-wrap:balance}
+  .dk-meta{margin:6px 0 0;font-size:12.5px;font-weight:600;color:var(--dk-text);display:flex;flex-wrap:wrap;gap:2px 10px}
+  .dk-meta b{color:var(--dk-akzent);font-weight:800}
+  .dk-knoepfe{display:flex;align-items:center;gap:8px;margin-top:12px}
+  .dk-k{position:relative;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;gap:6px;height:34px;padding:0 13px 0 11px;border-radius:999px;border:0;
+    font-family:inherit;font-size:13px;font-weight:800;letter-spacing:-0.01em;text-decoration:none;cursor:pointer;white-space:nowrap;
+    transition:transform .15s ease,box-shadow .15s ease,filter .15s ease}
+  .dk-k::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;pointer-events:none;
+    background:linear-gradient(100deg,transparent,rgba(255,255,255,0.55),transparent);transform:skewX(-20deg);transition:left .5s ease}
+  @media (hover:hover){.dk-k:hover{transform:translateY(-1px);filter:saturate(1.15)}.dk-k:hover::after{left:120%}}
+  .dk-k:active{transform:scale(0.96)}
+  .dk-k:focus-visible{outline:3px solid ${C.flaggold};outline-offset:2px}
+  .dk-oeffnen{background:${GOLD_PILLE};color:#2A1F00;box-shadow:0 6px 16px -6px rgba(237,187,0,0.75),0 1px 0 rgba(255,255,255,0.6) inset}
+  .dk-laden{background:var(--dk-laden);color:#fff;box-shadow:0 6px 16px -6px var(--dk-ladenschatten),0 1px 0 rgba(255,255,255,0.35) inset}
+  .dk-pfeil{margin-left:auto;width:34px;padding:0;flex:none;background:var(--dk-chip);border:1px solid var(--dk-chiprand);color:var(--dk-titel)}
+  .dk-pfeil svg{transition:transform .25s ease}
+  .dk-pfeil[aria-expanded="true"] svg{transform:rotate(180deg)}
+  .dk-fehlt{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 11px;border-radius:999px;font-size:12px;font-weight:700;
+    border:1px dashed var(--dk-chiprand);color:var(--dk-text);opacity:0.85}
+  .dk-mehr{margin-top:12px;padding:11px 12px;border-radius:14px;background:var(--dk-chip);border:1px solid var(--dk-chiprand)}
+  .dk-mehr p{margin:0;font-size:13px;line-height:1.6;font-weight:400;color:var(--dk-text)}
+  .dk-mehr .dk-stand{margin-top:8px;font-size:11.5px;font-weight:700;color:var(--dk-akzent)}
+  @media (max-width:380px){.dk-k{padding:0 11px 0 9px;font-size:12.5px}.dk-kopf{padding-right:86px}.dk-motiv{width:100px}}
+  @media (prefers-reduced-motion:reduce){.dk,.dk-k,.dk-k::after,.dk-pfeil svg{transition:none}}
+`;
+function stilSetzen() {
+  if (typeof document === "undefined" || document.getElementById(STIL_ID)) return;
+  const el = document.createElement("style");
+  el.id = STIL_ID;
+  el.textContent = STIL;
+  document.head.appendChild(el);
+}
+
+const IconAuge = () => (
+  <svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 8s2.4-4.5 6.5-4.5S14.5 8 14.5 8 12.1 12.5 8 12.5 1.5 8 1.5 8z" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" /><circle cx="8" cy="8" r="2.1" fill="currentColor" /></svg>
+);
+const IconLaden = () => (
+  <svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v8M4.5 6.8 8 10.3l3.5-3.5M2.5 13.5h11" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+);
+const IconPfeil = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+);
+
+const dateiName = (pfad) => decodeURIComponent(pfad.split("/").pop() || "dokument.pdf");
+
+function Karte({ d }) {
+  const [offen, setOffen] = React.useState(false);
+  const f = PALETTE[d.farbe] || NACHTBLAU;
+  const ton = MOTIV_TON[d.farbe] || MOTIV_TON.nachtblau;
+  const vars = {
+    "--dk-lack": f.lack, "--dk-rand": f.rand, "--dk-glanz": f.glanz, "--dk-schein": f.schein, "--dk-kante": f.kante, "--dk-schatten": f.schatten,
+    "--dk-titel": f.titel, "--dk-text": f.text, "--dk-akzent": f.akzent, "--dk-chip": f.chip, "--dk-chiprand": f.chipRand,
+    "--dk-laden": (LADEN[d.farbe] || LADEN.standard)[0], "--dk-ladenschatten": (LADEN[d.farbe] || LADEN.standard)[1],
+  };
   const seiten = d.seiten ? `${d.seiten} ${d.seiten === 1 ? "Seite" : "Seiten"}` : "Seitenzahl offen";
+  const mehrId = `dk-mehr-${d.id}`;
   return (
-    <article data-dokument={d.id} style={{ background: C.weiss, borderRadius: 18, boxShadow: SCHATTEN, padding: "20px 20px 18px", display: "flex", flexDirection: "column", gap: 12 }}>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-        {d.zwecke.map((z) => (
-          <span key={z} style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.04em", padding: "4px 10px", borderRadius: 999, background: (MARKE[z] || MARKE.Intern).bg, color: (MARKE[z] || MARKE.Intern).fg }}>{z}</span>
-        ))}
+    <article data-dokument={d.id} className="dk" style={vars}>
+      <DokumentMotiv name={d.motiv} id={`dkm-${d.id}`} klasse="dk-motiv" linie={ton.linie} tief={ton.tief} />
+      <div className="dk-kopf">
+        <div className="dk-marken">
+          {d.zwecke.map((z) => <span key={z} className="dk-marke"><i style={{ background: MARKE_PUNKT[z] || MARKE_PUNKT.Intern }} />{z}</span>)}
+        </div>
+        <h3 className="dk-titel">{d.titel}</h3>
+        <p className="dk-meta"><span>{d.art}</span><b data-dokument-seiten>{seiten}</b></p>
       </div>
-      <h3 style={{ fontSize: 18, fontWeight: 700, lineHeight: 1.3, letterSpacing: "-0.01em", color: C.tinte, margin: 0 }}>{d.titel}</h3>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "4px 14px", fontSize: 13.5, color: C.grau }}>
-        <span>{d.art}</span>
-        <span data-dokument-seiten style={{ fontWeight: 700, color: C.tinte }}>{seiten}</span>
-        {d.stand ? <span>Stand {d.stand}</span> : null}
+      <div className="dk-knoepfe">
+        {d.datei ? (
+          <>
+            <a className="dk-k dk-oeffnen" href={d.datei} target="_blank" rel="noopener noreferrer" data-dokument-oeffnen aria-label={`${d.titel} öffnen`}>
+              <IconAuge />Öffnen
+            </a>
+            <a className="dk-k dk-laden" href={d.datei} download={dateiName(d.datei)} data-dokument-laden aria-label={`${d.titel} herunterladen`}>
+              <IconLaden />Download
+            </a>
+          </>
+        ) : (
+          <span className="dk-fehlt" data-dokument-ohne-datei>Datei noch nicht hier</span>
+        )}
+        <button type="button" className="dk-k dk-pfeil" aria-expanded={offen} aria-controls={mehrId} aria-label={offen ? "Infos zuklappen" : "Infos aufklappen"}
+          data-dokument-mehr onClick={() => setOffen((o) => !o)}>
+          <IconPfeil />
+        </button>
       </div>
-      <p style={{ fontSize: 14.5, fontWeight: 300, lineHeight: 1.7, color: C.grau, margin: 0 }}>{d.zweck}</p>
-      {d.datei ? (
-        <a href={d.datei} target="_blank" rel="noopener noreferrer" data-dokument-oeffnen
-          style={{ alignSelf: "flex-start", marginTop: 2, display: "inline-flex", alignItems: "center", gap: 8, height: 44, padding: "0 20px", borderRadius: 999, background: C.flaggold, color: C.seeTief, fontSize: 14.5, fontWeight: 800, textDecoration: "none" }}>
-          PDF öffnen <span aria-hidden="true">→</span>
-        </a>
-      ) : (
-        <span data-dokument-ohne-datei style={{ alignSelf: "flex-start", marginTop: 2, fontSize: 13, color: C.hellgrau }}>Datei noch nicht hier abgelegt</span>
+      {offen && (
+        <div className="dk-mehr" id={mehrId} data-dokument-info>
+          <p>{d.zweck}</p>
+          {d.stand ? <div className="dk-stand">Stand {d.stand}</div> : null}
+        </div>
       )}
     </article>
   );
@@ -48,24 +143,22 @@ function Box({ d }) {
 
 export function DokumenteSeite() {
   const u = dokumenteUebersicht();
+  React.useInsertionEffect(stilSetzen, []);
   return (
     <>
       <div className="kopfblock" style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-        <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
+        <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 920 }}>
           <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 29, letterSpacing: "-0.03em", lineHeight: 1.1 }}>Dokumente</h1>
-          <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
-          <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
-            Alle Dokumente an einem Ort: was es ist, wie viele Seiten es hat und wofür es gedacht ist.
+          <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 14 }} />
+          <p data-dokumente-summe style={{ color: "#C9D6EE", fontSize: 13.5, fontWeight: 400, lineHeight: 1.6 }}>
+            {u.anzahl} Dokumente · {u.seiten} Seiten{u.ohneDatei ? ` · ${u.ohneDatei} ohne Datei` : ""}
           </p>
         </div>
         <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
       </div>
-      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 24 }}>
-        <p data-dokumente-summe style={{ fontSize: 13, color: C.hellgrau, marginBottom: 18 }}>
-          {u.anzahl} Dokumente · {u.seiten} Seiten insgesamt{u.ohneDatei ? ` · bei ${u.ohneDatei} liegt die Datei noch nicht hier` : ""}
-        </p>
-        <div style={{ display: "grid", gap: 16 }}>
-          {DOKUMENTE.map((d) => <Box key={d.id} d={d} />)}
+      <div className="mx-auto px-4 pb-16" style={{ maxWidth: 920, paddingTop: 16 }}>
+        <div className="dk-gitter">
+          {DOKUMENTE.map((d) => <Karte key={d.id} d={d} />)}
         </div>
       </div>
     </>

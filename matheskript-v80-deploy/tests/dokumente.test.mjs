@@ -2,7 +2,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
-import { DOKUMENTE, ZWECK_MARKEN, dokumenteUebersicht } from "../src/dokumente.js";
+import { DOKUMENTE, ZWECK_MARKEN, FARBEN, dokumenteUebersicht } from "../src/dokumente.js";
 import { PFADE } from "../src/pfade.js";
 import { KEIN_TEILEN } from "../src/teilen.js";
 import { DOKUMENTE_SEITE } from "../src/seitenKonstanten.js";
@@ -60,4 +60,29 @@ test("Arbeitsmenü: A–C wie bisher, D Entwürfe und E Weitere Seiten als Aufkl
   assert.ok(m.includes('geschuetzt(DOKUMENTE_SEITE, "Dokumente", "F")'), "F Dokumente fehlt");
   assert.ok(m.indexOf('gruppe("D"') < m.indexOf('gruppe("E"') && m.indexOf('gruppe("E"') < m.indexOf('"Dokumente", "F"'), "Reihenfolge D, E, F");
   assert.ok(!m.includes("WEITERE SEITEN</div>") && !m.includes("ENTWÜRFE</div>"), "alte Zwischenüberschriften stehen noch drin");
+});
+
+test("Jede Karte hat einen Lack (FARBEN) und ein Motiv, das es gibt", () => {
+  const motive = quelle("funcDokumentMotive.jsx");
+  for (const d of DOKUMENTE) {
+    assert.ok(FARBEN.includes(d.farbe), `${d.id}: Farbe ${d.farbe}`);
+    assert.ok(["tangente", "ebene"].includes(d.motiv) || new RegExp(`\\b${d.motiv}: Motiv`).test(motive), `${d.id}: Motiv ${d.motiv}`);
+  }
+});
+
+test("Karte: Öffnen, Download und Pfeil; Zweck-Text erst nach dem Aufklappen", () => {
+  const s = quelle("funcDokumente.jsx");
+  assert.ok(s.includes("data-dokument-oeffnen") && s.includes("data-dokument-laden") && s.includes("data-dokument-mehr"));
+  assert.match(s, /download=\{dateiName\(d\.datei\)\}/);
+  assert.match(s, /\{offen && \(\s*<div className="dk-mehr"/);
+});
+
+test("Jedes PDF unter public/buecher und public/druck steht in der Liste", async () => {
+  const { readdirSync, statSync } = await import("node:fs");
+  const wurzel = new URL("../public/", import.meta.url);
+  const pdfs = [];
+  const lauf = (rel) => { for (const n of readdirSync(new URL(rel, wurzel))) { const r = rel + n; if (statSync(new URL(r, wurzel)).isDirectory()) lauf(r + "/"); else if (n.toLowerCase().endsWith(".pdf")) pdfs.push("/" + r); } };
+  lauf("buecher/"); lauf("druck/");
+  const eingetragen = new Set(DOKUMENTE.map((d) => d.datei).filter(Boolean));
+  for (const p of pdfs) assert.ok(eingetragen.has(p), `${p} fehlt in DOKUMENTE`);
 });

@@ -8,6 +8,7 @@
        noch nicht im Projekt liegt (dann zeigt die Box „Datei noch nicht hier abgelegt“).
      - seiten: Zahl, oder null, wenn die Seitenzahl noch offen ist.
      - zwecke: Kurzmarken, jede aus ZWECK_MARKEN.
+     - farbe: Lack der Karte (eine aus FARBEN, Paletten in kursFarben.js), motiv: Bild rechts oben (funcDokumentMotive.jsx).
    VERTRAULICHE Dokumente (Businessplan, Finanzplan) nicht unter public/ legen:
    alles in public/ ist für jeden mit dem direkten Link abrufbar, sobald der Seitenschutz aus ist.
    Ausnahme: /druck/… und /buecher/<band>/<Name>.pdf bleiben immer hinter dem Passwort (middleware.js).
@@ -15,9 +16,13 @@
 
 export const ZWECK_MARKEN = ["Amazon", "Hier auf der Seite", "Investoren", "Intern"];
 
+export const FARBEN = ["porzellan", "tiefblau", "granat", "lackschwarz", "nachtblau"];
+
 export const DOKUMENTE = [
   {
     id: "schulbuch-ableitungen",
+    farbe: "porzellan",
+    motiv: "tangente",
     titel: "Schulbuch Band 1 – Ableitungen",
     art: "PDF · Schulbuch",
     seiten: 50,
@@ -28,6 +33,8 @@ export const DOKUMENTE = [
   },
   {
     id: "schulbuch-vektoren",
+    farbe: "tiefblau",
+    motiv: "ebene",
     titel: "Schulbuch Band 2 – Vektoren, Geraden und Ebenen",
     art: "PDF · Schulbuch",
     seiten: 70,
@@ -38,6 +45,8 @@ export const DOKUMENTE = [
   },
   {
     id: "schulbuch-kurvendiskussion",
+    farbe: "granat",
+    motiv: "extrem",
     titel: "Schulbuch Band 3 – Kurvendiskussion (Probekapitel)",
     art: "PDF · Schulbuch",
     seiten: 12,
@@ -48,6 +57,8 @@ export const DOKUMENTE = [
   },
   {
     id: "druck-ableitungen-innenteil",
+    farbe: "porzellan",
+    motiv: "druck",
     titel: "Amazon-Druckausgabe Band 1 – Ableitungen (Innenteil)",
     art: "PDF · Druckvorlage KDP",
     seiten: 58,
@@ -58,6 +69,8 @@ export const DOKUMENTE = [
   },
   {
     id: "druck-ableitungen-umschlag",
+    farbe: "porzellan",
+    motiv: "umschlag",
     titel: "Amazon-Umschlag Band 1 – Ableitungen",
     art: "PDF · Umschlag KDP",
     seiten: 1,
@@ -68,6 +81,8 @@ export const DOKUMENTE = [
   },
   {
     id: "druck-vektoren-innenteil",
+    farbe: "tiefblau",
+    motiv: "druck",
     titel: "Amazon-Druckausgabe Band 2 – Vektoren, Geraden und Ebenen (Innenteil)",
     art: "PDF · Druckvorlage KDP",
     seiten: 78,
@@ -78,6 +93,8 @@ export const DOKUMENTE = [
   },
   {
     id: "druck-vektoren-umschlag",
+    farbe: "tiefblau",
+    motiv: "umschlag",
     titel: "Amazon-Umschlag Band 2 – Vektoren, Geraden und Ebenen",
     art: "PDF · Umschlag KDP",
     seiten: 1,
@@ -88,6 +105,8 @@ export const DOKUMENTE = [
   },
   {
     id: "businessplan",
+    farbe: "lackschwarz",
+    motiv: "diagramm",
     titel: "Businessplan Mythos Mathe 2027–2029",
     art: "PDF · Investoren-Dossier",
     seiten: 8,
@@ -98,6 +117,8 @@ export const DOKUMENTE = [
   },
   {
     id: "arbeitsheft-penpaper",
+    farbe: "nachtblau",
+    motiv: "heft",
     titel: "Arbeitsheft Pen & Paper (Matheskript Band 2)",
     art: "PDF · Arbeitsheft",
     seiten: 10,
@@ -108,6 +129,8 @@ export const DOKUMENTE = [
   },
   {
     id: "arbeitsheft-analysis-01",
+    farbe: "nachtblau",
+    motiv: "heft",
     titel: "Arbeitsheft Analysis 01 – Von der Geraden zur Kurvendiskussion",
     art: "PDF · Arbeitsheft",
     seiten: null,
@@ -118,6 +141,8 @@ export const DOKUMENTE = [
   },
   {
     id: "matheskript-bibel",
+    farbe: "granat",
+    motiv: "buch",
     titel: "Die Matheskript Bibel (Version 1.0)",
     art: "PDF · Grundlagendokument",
     seiten: 23,
