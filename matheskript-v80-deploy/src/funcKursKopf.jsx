@@ -42,6 +42,13 @@ const STIL = `
   .ks-titelzeile .ks-titel{flex:1;min-width:0;hyphens:auto;-webkit-hyphens:auto;overflow-wrap:break-word}
   .ks-zeile-eine{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:none}
   .ks-kopf-kompakt .ks-zeile-eine{font-size:13px;margin-top:8px}
+  /* kompakt mit Aktion: Knopf rechts über Titel UND Zeile (vertikal mittig), damit er die Titelzeile nicht aufbläht */
+  .ks-kopf-kompakt.ks-mit-aktion .ks-kopf-innen{grid-template-columns:minmax(0,1fr) auto;align-items:center}
+  .ks-kopf-kompakt.ks-mit-aktion .ks-titelzeile{display:contents}
+  .ks-kopf-kompakt.ks-mit-aktion .ks-titel{grid-column:1;grid-row:1;align-self:end}
+  .ks-kopf-kompakt.ks-mit-aktion .ks-kopf-text{grid-column:1;grid-row:2;align-self:start;padding-bottom:0}
+  .ks-kopf-kompakt.ks-mit-aktion .ks-aktion{grid-column:2;grid-row:1 / span 2;align-self:center;margin-top:0}
+  .ks-kopf-kompakt.ks-mit-aktion .ks-zeile-eine{margin-top:4px}
   .ks-aktion{flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;width:50px;height:50px;margin-top:-2px;border-radius:15px;cursor:pointer;font-family:inherit;
     color:var(--ks-titel);background:var(--ks-chip);border:1px solid var(--ks-chiprand);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
     box-shadow:0 1px 0 rgba(255,255,255,0.16) inset,0 10px 22px -14px rgba(0,0,0,0.6);transition:transform .15s ease,background .15s ease}
@@ -166,7 +173,7 @@ export function KursKopf({ farben, Motiv, id, titel, zeile, chips = [], kompakt,
     return () => ro.disconnect();
   }, [einzeilig, zeile]);
   return (
-    <div className={`ks-kopf${kompakt ? " ks-kopf-kompakt" : ""}${flach ? " ks-kopf-flach" : ""}${buendig ? " ks-kopf-buendig" : ""}`} style={kursVars(farben)} {...kennung}>
+    <div className={`ks-kopf${kompakt ? " ks-kopf-kompakt" : ""}${flach ? " ks-kopf-flach" : ""}${buendig ? " ks-kopf-buendig" : ""}${aktion ? " ks-mit-aktion" : ""}`} style={kursVars(farben)} {...kennung}>
       <div className="mx-auto px-6 ks-kopf-innen" style={{ maxWidth: 620 }}>
         {aktion ? (
           <div className="ks-titelzeile">
