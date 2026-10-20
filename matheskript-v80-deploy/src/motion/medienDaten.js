@@ -46,7 +46,7 @@ export const ANIM_DATEN = {
     { szene: "umformung4", titel: "Quaderformel rückwärts", p: {
       zeilen: [
         { t: "V = a · b · c", n: "Formel" },
-        { t: "480 = 8 · 6 · c", m: "8 · 6", n: "einsetzen" },
+        { t: "480 = 8 · 6 · c", m: "8 · 6 · c", n: "einsetzen" },
         { t: "480 = 48c", n: "| : 48" },
         { t: "c = 10 cm", n: "Probe: 8 · 6 · 10 = 480 ✓" },
       ],
@@ -70,7 +70,7 @@ export const ANIM_DATEN = {
   ],
   "zufall-und-wahrscheinlichkeit": [
     { szene: "d_urne", titel: "Günstige durch mögliche", p: {} },
-    { szene: "d_gesetz", titel: "Viele Würfe", p: { n: 600, seed: 57 } },
+    { szene: "d_gesetz", titel: "Viele Würfe", p: { n: 300, seed: 162 } },
   ],
 
   /* ---------- VIII Zuordnungen ---------- */

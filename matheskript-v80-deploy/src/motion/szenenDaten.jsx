@@ -55,7 +55,7 @@ function Achsen({ X, Y, xv, yv, xt = [], yt = [], u = 1, xName, yName, xf = (v) 
       <Spitze x={x0} y={y1 - 3} winkel={-90} f={F.tinte} g={6.5} />
       {xt.map((v) => <g key={"x" + v}><line x1={X(v)} x2={X(v)} y1={y0 - 3} y2={y0 + 3} stroke={F.tinte} strokeWidth="1.2" /><Tx x={X(v)} y={y0 + 15} g={10} f={F.grau} w={700}>{xf(v)}</Tx></g>)}
       {yt.filter((v) => v !== yv[0]).map((v) => <g key={"y" + v}><line x1={x0 - 3} x2={x0 + 3} y1={Y(v)} y2={Y(v)} stroke={F.tinte} strokeWidth="1.2" /><Tx x={x0 - 6} y={Y(v) + 3.5} g={10} f={F.grau} w={700} a="end">{yf(v)}</Tx></g>)}
-      {xName && <Tx x={x1 + 4} y={y0 + 15} g={10} f={F.tinte} w={800} a="end">{xName}</Tx>}
+      {xName && <Tx x={x1 + 4} y={y0 - 8} g={10} f={F.tinte} w={800} a="end">{xName}</Tx>}
       {yName && <Tx x={x0 + 8} y={y1 + 4} g={10} f={F.tinte} w={800} a="start">{yName}</Tx>}
     </g>
   );
@@ -441,10 +441,11 @@ const d_waage = {
       { k: "probe", ms: 1400, text: `Also x = ${x}. Probe: ${p.a} · ${x} + ${p.b} = ${p.c} ✓` },
     ];
   },
-  bild: ({ Z, p }) => {
+  bild: ({ Z, z, p }) => {
     const { a, b, c } = p, x = (c - b) / a;
     const P = { x: 180, y: 162 }, plY = 152;
-    const uk = Z("kippt"), ur = Z("zurueck"), ub = Z("beide"), ut = Z("teilen"), upr = Z("probe");
+    const uk = Z("kippt"), ur = Z("zurueck"), ub = Z("beide"), ut = Z("teilen"), upr = Z("probe"), ua = z("aufbau");
+    const fall = (i, n) => { const u = raus(staffel(ua, i, n, 0.6)); return { o: klemm(u * 3), dy: (u - 1) * 30 }; };
     const kipp = uk * (1 - ur), winkel = 7 * kipp;
     const weg = Math.max(kipp, ub);   // Kugeln links b: weg
     const wegR = ub;                  // Kugeln rechts b: weg
@@ -483,20 +484,22 @@ const d_waage = {
           {/* links: Kisten */}
           {Array.from({ length: a }, (_, i) => {
             const o = i === 0 ? 1 : 1 - aus, xx = i === 0 ? mix(kistenX(0), lx, schieb) : kistenX(i);
+            const fa = fall(i, a + 2);
             return o > 0 && (
-              <g key={"k" + i} opacity={o}>
+              <g key={"k" + i} opacity={o * fa.o} transform={`translate(0 ${fa.dy})`}>
                 <rect x={xx - kb / 2} y={plY - kb} width={kb} height={kb} rx="5" fill={F.blauHell} stroke={F.blau} strokeWidth="1.6" />
                 <Tx x={xx} y={plY - kb / 2 + 5.5} g={15} f={F.blau} w={800} style={{ ...SCHRIFT, fontStyle: "italic" }}>x</Tx>
               </g>
             );
           })}
-          {Array.from({ length: b }, (_, i) => <Kugel key={"lb" + i} cx={lx + (i - (b - 1) / 2) * 17} cy={plY - kb - r - 3} dy={-weg * 40} o={1 - weg} />)}
+          {Array.from({ length: b }, (_, i) => <Kugel key={"lb" + i} cx={lx + (i - (b - 1) / 2) * 17} cy={plY - kb - r - 3} dy={-weg * 40 + fall(a, a + 2).dy} o={(1 - weg) * fall(a, a + 2).o} />)}
           {/* rechts */}
           {kugeln.map((k, i) => {
             const o = k.j === 0 ? 1 : 1 - aus, xx = k.j === 0 ? k.x + (rx - gruppeX(0)) * schieb : k.x;
-            return <Kugel key={"r" + i} cx={xx} cy={k.y} o={o} />;
+            const fa = fall(a + 1, a + 2);
+            return <Kugel key={"r" + i} cx={xx} cy={k.y} dy={fa.dy} o={o * fa.o} />;
           })}
-          {Array.from({ length: b }, (_, i) => <Kugel key={"rb" + i} cx={rx + (i - (b - 1) / 2) * 17} cy={extraY} dy={-wegR * 40} o={1 - wegR} />)}
+          {Array.from({ length: b }, (_, i) => <Kugel key={"rb" + i} cx={rx + (i - (b - 1) / 2) * 17} cy={extraY} dy={-wegR * 40 + fall(a + 1, a + 2).dy} o={(1 - wegR) * fall(a + 1, a + 2).o} />)}
           {/* Trennlinien beim Teilen */}
           {teilSicht > 0 && Array.from({ length: a - 1 }, (_, i) => (
             <g key={"t" + i} opacity={teilSicht * (1 - schieb)}>
@@ -573,7 +576,7 @@ const d_pfeilkette = {
    p: { a: 4, b: 7, einheit: "cm" }
    ============================================================ */
 const d_formel = {
-  h: 200,
+  h: 184,
   label: (p) => `Formel u = 2 · (a + b) mit a = ${p.a}, b = ${p.b}`,
   ablauf: (p) => [
     { k: "rechteck", ms: 1100, text: "Ein Rechteck mit den Seiten a und b." },
@@ -659,7 +662,7 @@ const d_urliste = {
     const cw = (B - 40) / nk, cx = (c) => 20 + cw * (c + 0.5);
     const strichX = (c, k) => { const bund = Math.floor(k / 5), im = k % 5, nb = Math.ceil(d[c][2] / 5), tw = (nb - 1) * 28 + 17; return { x: cx(c) - tw / 2 + bund * 28 + im * 5.5, quer: im === 4, bx: cx(c) - tw / 2 + bund * 28 }; };
     const uu = Z("urliste"), us = z("sammeln"), uz = Z("zaehlen"), usa = Z("saeulen", raus), um = Z("summe");
-    const y0 = 196, hmax = 64, ys1 = 74, ys2 = 94;
+    const y0 = 196, hmax = 54, ys1 = 74, ys2 = 94;
     return (
       <>
         {liste.map((c, j) => {
@@ -701,7 +704,7 @@ const d_urliste = {
           );
         })}
         <Strich x1={14} y1={y0} x2={B - 14} y2={y0} f={F.tinte} b={1.5} u={usa > 0 ? 1 : 0} />
-        <Pille x={B - 14 - (breite(`zusammen ${ges}`, 11.5) + 16)} y={118} a="start" text={`zusammen ${ges}`} o={um} f={F.granatHell} tf={F.granat} />
+        <Pille x={B - 14 - (breite(`zusammen ${ges}`, 11.5) + 16)} y={112} a="start" text={`zusammen ${ges}`} o={um} f={F.granatHell} tf={F.granat} />
       </>
     );
   },
@@ -712,7 +715,7 @@ const d_urliste = {
    p: { a: ["Rad", 7], b: ["Bus", 9], ab: 6, max: 10 }
    ============================================================ */
 const d_achse = {
-  h: 204,
+  h: 216,
   label: (p) => "Diagramm mit abgeschnittener Achse",
   ablauf: (p) => {
     const rEnd = (p.b[1] - p.ab) / (p.a[1] - p.ab);
@@ -758,7 +761,7 @@ const d_achse = {
         <line x1={xa - 6} y1={y0} x2={320} y2={y0} stroke={F.tinte} strokeWidth="1.5" />
         {us > 0 && <path d={`M${xa - 7} ${y0 - 4} l4 -4 l6 6 l4 -4`} fill="none" stroke={F.granat} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity={teil(us, 0.3, 0.8)} transform={`translate(0 ${-3})`} />}
         <Pille x={330 - (breite(`${p.b[0]} wirkt ${de(Math.round(ratio * 10) / 10)}-mal so hoch`, 11.5) + 16)} y={24} a="start" text={`${p.b[0]} wirkt ${de(Math.round(ratio * 10) / 10)}-mal so hoch`} f={us > 0.5 ? F.granat : F.goldHell} tf={us > 0.5 ? F.weiss : F.goldDunkel} o={ue} />
-        <Pille x={B / 2 + 25} y={196} text="Achse prüfen!" f={F.granatHell} tf={F.granat} o={umk} g={11} />
+        <Pille x={205} y={207} text="Achse prüfen!" f={F.granatHell} tf={F.granat} o={umk} g={11} />
         {uw > 0 && uw < 1 && <Puls x={250} y={Y(p.b[1])} u={uw} r={20} f={F.granat} />}
       </>
     );
@@ -809,7 +812,7 @@ const d_kreis = {
         })}
         <line x1={cx} y1={cy} x2={cx} y2={cy - r} stroke={F.tinte} strokeWidth="1.6" opacity={ug} />
         <circle cx={cx} cy={cy} r="3" fill={F.tinte} opacity={ug} />
-        <Pille x={tx} y={24} a="start" text={`1 Schüler: 360° : ${p.gesamt} = ${de(gr)}°`} o={ug} />
+        <Pille x={350 - (breite(`1 Schüler: 360° : ${p.gesamt} = ${de(gr)}°`, 11.5) + 16)} y={24} a="start" text={`1 Schüler: 360° : ${p.gesamt} = ${de(gr)}°`} o={ug} />
         {sek.map((s) => {
           const u = Z(`s${s.i}`), y = 60 + 36 * s.i;
           return (
@@ -831,7 +834,7 @@ const d_kreis = {
    p: { werte: [3, 7, 2, 9, 5] }
    ============================================================ */
 const d_median = {
-  h: 182,
+  h: 172,
   label: (p) => `Median und Spannweite von ${p.werte.map((v) => de(v)).join(", ")}`,
   ablauf: (p) => {
     const s = [...p.werte].sort((a, b) => a - b), n = s.length, gerade = n % 2 === 0;
@@ -859,7 +862,7 @@ const d_median = {
     return (
       <>
         {w.map((v, i) => {
-          const k = platz[i], x = mix(X(i), X(k), us), dy = -Math.sin(Math.PI * us) * (8 + Math.abs(X(k) - X(i)) * 0.12);
+          const k = platz[i], x = mix(X(i), X(k), us), dy = Math.sign(X(i) - X(k)) * Math.sin(Math.PI * us) * Math.min(30, 6 + Math.abs(X(k) - X(i)) * 0.14);
           const pj = Math.min(k, n - 1 - k), weg = pj < paare ? staffel(ua, pj, paare, 0.1) : 0;
           const hervor = mitte(k) && um > 0, blau = rand(k) && usp > 0;
           const o = 1 - weg * 0.7 + (blau ? 0.7 * usp : 0);
@@ -870,7 +873,7 @@ const d_median = {
             </g>
           );
         })}
-        <Tx x={B / 2} y={y - 12} g={10.5} f={F.grau} w={700} o={us}>sortiert: klein → groß</Tx>
+        <Tx x={B / 2} y={y - 12} g={10.5} f={F.grau} w={700} o={teil(us, 0.85, 1)}>sortiert: klein → groß</Tx>
         {um > 0 && <Puls x={B / 2} y={y + ch / 2} u={um} r={gerade ? 26 : 22} f={F.gold} />}
         <g opacity={um}>
           <path d={`M${B / 2} ${y + ch + 4} v10`} stroke={F.goldDunkel} strokeWidth="1.8" />
@@ -914,8 +917,8 @@ const d_klassen = {
                 const o = staffel(ua, i + r * 4, n + 4, 0.85);
                 return o > 0 && <rect key={i} x={x0 + i * cw + 0.8} y={y} width={Math.max(0.5, cw - 1.6)} height={26} rx={Math.min(2.5, cw / 3)} fill={i < k ? F.granat : F.flaeche} stroke={i < k ? "none" : F.linie} strokeWidth="1" opacity={o} />;
               })}
-              <Tx x={x0} y={y + 46} g={12} f={F.grau} w={700} a="start" o={teil(ua, 0.5, 1) * (1 - uan)}>{`${k} von ${n} fahren ${p.was}`}</Tx>
-              <Tx x={x0} y={y + 46} g={12.5} f={F.granat} w={800} a="start" o={uan}>{`${k} : ${n} ≈ ${de(k / n, 2)} ≈ ${prozent(k / n)}`}</Tx>
+              <Tx x={x0} y={y + 46} g={12} f={F.grau} w={700} a="start" o={teil(ua, 0.5, 1) * (1 - teil(uan, 0, 0.35))}>{`${k} von ${n} fahren ${p.was}`}</Tx>
+              <Tx x={x0} y={y + 46} g={12.5} f={F.granat} w={800} a="start" o={teil(uan, 0.4, 0.8)}>{`${k} : ${n} ≈ ${de(k / n, 2)} ≈ ${prozent(k / n)}`}</Tx>
             </g>
           );
         })}
@@ -974,7 +977,7 @@ const d_zwecke = {
         <line x1={X(0)} x2={X(N)} y1={Y(K / N)} y2={Y(K / N)} stroke={F.gold} strokeWidth="1.8" strokeDasharray="5 4" opacity={ub} />
         {/* rechte Spalte: Bruch live */}
         <Tx x={rx} y={70} g={10.5} f={F.grau} w={700}>{`${p.ja} : alle`}</Tx>
-        <SvgBruch x={ub > 0 ? rx - 26 * ub : rx} y={98} z={k} n={Math.max(w, 0)} g={16} f={F.granat} o={w > 0 ? 1 : 0.3} />
+        <SvgBruch x={ub > 0 ? rx - 26 * ub : rx} y={98} z={k} n={Math.max(w, 0)} g={16} f={F.granat} o={w > 0 ? 1 : 0} />
         <g opacity={ub}>
           <Tx x={rx + 2} y={105} g={16} f={F.tinte} w={800}>=</Tx>
           <SvgBruch x={rx + 28} y={98} z={K / t} n={N / t} g={16} f={F.granat} />
@@ -1161,7 +1164,7 @@ const d_wertegraph = {
           );
         })}
         {uw > 0.45 && <circle cx={X(xs[n - 1])} cy={Y(ys[n - 1])} r="5" fill={F.gold} stroke={F.granat} strokeWidth="1.8" opacity={teil(uw, 0.45, 0.7)} />}
-        <Pille x={X(xs[n - 1]) - 12 - (breite(`${de(xs[n - 1])} ${p.ex} → ${de(ys[n - 1])} ${p.ey}`, 11) + 16)} y={Y(ys[n - 1]) + 4} a="start" text={`${de(xs[n - 1])} ${p.ex} → ${de(ys[n - 1])} ${p.ey}`} g={11} o={teil(uw, 0.6, 1)} />
+        <Pille x={X(xs[n - 1]) - 12 - (breite(`${de(xs[n - 1])} ${p.ex} → ${de(ys[n - 1])} ${p.ey}`, 11) + 16)} y={Y(ys[n - 1]) - 6} a="start" text={`${de(xs[n - 1])} ${p.ex} → ${de(ys[n - 1])} ${p.ey}`} g={11} o={teil(uw, 0.6, 1)} />
       </>
     );
   },
@@ -1217,7 +1220,7 @@ const d_temperatur = {
         <Achsen X={X} Y={Y} xv={[x0, x1]} yv={[0, 25]} xt={P.map((q) => q[0]).filter((_, i) => i % 2 === 0)} yt={[0, 5, 10, 15, 20, 25]} u={ua} xName="Uhr" yName="°C" />
         {pts.length > 1 && <polyline points={pts.join(" ")} fill="none" stroke={F.granat} strokeWidth="2.6" strokeLinejoin="round" strokeLinecap="round" />}
         {ende > x0 && ende < x1 && <circle cx={X(ende)} cy={Y(f(ende))} r="5" fill={F.gold} stroke={F.granat} strokeWidth="1.6" />}
-        <Tx x={X((x0 + mx[0]) / 2) - 8} y={Y(f((x0 + mx[0]) / 2)) - 14} g={12} f={F.blau} w={800} a="end" o={teil(us, 0.4, 0.8)}>steigt ↗</Tx>
+        <Tx x={X((x0 + mx[0]) / 2) + 6} y={Y(f((x0 + mx[0]) / 2)) + 22} g={12} f={F.blau} w={800} a="start" o={teil(us, 0.4, 0.8)}>steigt ↗</Tx>
         <Tx x={X((mx[0] + x1) / 2) + 14} y={Y(f((mx[0] + x1) / 2)) - 10} g={12} f={F.granat} w={800} a="start" o={teil(uf, 0.4, 0.8)}>fällt ↘</Tx>
         <g opacity={um}>
           <circle cx={X(mx[0])} cy={Y(mx[1])} r="5.5" fill={F.gold} stroke={F.granat} strokeWidth="2" />
@@ -1252,7 +1255,7 @@ const d_proportional = {
   bild: ({ Z, z, p }) => {
     const { k, n } = p, xc = 68, yc = 124, ry = (i) => 52 + i * 24;
     const ymax = Math.ceil(k * n);
-    const X = (v) => 210 + v * 21, Y = (v) => 190 - (v / ymax) * 144;
+    const X = (v) => 212 + v * 19, Y = (v) => 190 - (v / ymax) * 144;
     const ut = Z("tabelle"), ud = Z("doppelt"), up = z("punkte"), ug = Z("gerade"), uf = Z("faktor");
     const xEnde = Math.min(n + 0.5, (ymax * 1.0) / k);
     return (
@@ -1280,7 +1283,7 @@ const d_proportional = {
           return <circle key={"p" + i} cx={px} cy={py} r="4.6" fill={F.gold} stroke={F.granat} strokeWidth="1.6" />;
         })}
         <circle cx={X(0)} cy={Y(0)} r="4" fill={F.granat} opacity={ug} />
-        <Pille x={X(0.4)} y={Y(ymax) + 6} a="start" text={`y = ${de(k)} · x`} g={12} f={F.granat} tf={F.weiss} o={uf} />
+        <Pille x={X(0.3)} y={Y(ymax * 0.78)} a="start" text={`y = ${de(k)} · x`} g={12} f={F.granat} tf={F.weiss} o={uf} />
         <Tx x={97} y={ry(n - 1) + 30} g={11} f={F.granat} w={800} o={uf}>{`Preis : Anzahl = ${de(k, 2)}`}</Tx>
       </>
     );
@@ -1293,18 +1296,18 @@ const d_proportional = {
         bild: "heft" | "maler", texte: [4 Untertitel] }
    ============================================================ */
 function Bildchen({ art, anzahl, cx, cy, u }) {
-  const proReihe = 4, d = 11, reihen = Math.ceil(anzahl / proReihe);
+  const proReihe = 4, d = 14, reihen = Math.ceil(anzahl / proReihe);
   return (
     <g>
       {Array.from({ length: anzahl }, (_, i) => {
         const o = staffel(u, i, anzahl, 0.5);
         if (o <= 0) return null;
         const r = Math.floor(i / proReihe), sp = i % proReihe, inR = Math.min(proReihe, anzahl - r * proReihe);
-        const x = cx + (sp - (inR - 1) / 2) * d, y = cy + (r - (reihen - 1) / 2) * 15;
+        const x = cx + (sp - (inR - 1) / 2) * d, y = cy + (r - (reihen - 1) / 2) * 18;
         return art === "maler" ? (
-          <g key={i} opacity={o}><circle cx={x} cy={y - 4} r="2.6" fill={F.blau} /><path d={`M${x - 3.6} ${y + 6} Q${x - 3.6} ${y - 1} ${x} ${y - 1} Q${x + 3.6} ${y - 1} ${x + 3.6} ${y + 6} Z`} fill={F.blau} /></g>
+          <g key={i} opacity={o}><circle cx={x} cy={y - 5} r="3.2" fill={F.blau} /><path d={`M${x - 4.6} ${y + 7} Q${x - 4.6} ${y - 1} ${x} ${y - 1} Q${x + 4.6} ${y - 1} ${x + 4.6} ${y + 7} Z`} fill={F.blau} /></g>
         ) : (
-          <g key={i} opacity={o}><rect x={x - 4} y={y - 6} width={8} height={12} rx="1.5" fill={F.blauHell} stroke={F.blau} strokeWidth="1.2" /><line x1={x - 2} x2={x + 2} y1={y - 2} y2={y - 2} stroke={F.blau} strokeWidth="1" /></g>
+          <g key={i} opacity={o}><rect x={x - 5} y={y - 7.5} width={10} height={15} rx="1.8" fill={F.blauHell} stroke={F.blau} strokeWidth="1.3" /><line x1={x - 2.5} x2={x + 2.5} y1={y - 3} y2={y - 3} stroke={F.blau} strokeWidth="1.1" /><line x1={x - 2.5} x2={x + 2.5} y1={y} y2={y} stroke={F.blau} strokeWidth="1.1" /></g>
         );
       })}
     </g>
@@ -1322,32 +1325,31 @@ const d_dreisatz = {
     { k: "fertig", ms: 1400, text: p.texte[3] },
   ],
   bild: ({ Z, p }) => {
-    const zl = p.zeilen, ry = (i) => 70 + i * 50, cl = 140, cr = 226, rmax = Math.max(...zl.map((x) => x.r));
+    const zl = p.zeilen, ry = (i) => 70 + i * 50, cl = 150, cr = 236;
     const uz = [Z("z0"), Z("z1"), Z("z2")], uo = [Z("op0"), Z("op1")], uf = Z("fertig");
     return (
       <>
         <Tx x={cl} y={30} g={11} f={F.blau} w={800} o={uz[0]}>{p.kopf[0]}</Tx>
         <Tx x={cr} y={30} g={11} f={F.granat} w={800} o={uz[0]}>{p.kopf[1]}</Tx>
-        <line x1={100} x2={266} y1={40} y2={40} stroke={F.linie} strokeWidth="1.4" opacity={uz[0]} />
+        <line x1={110} x2={276} y1={40} y2={40} stroke={F.linie} strokeWidth="1.4" opacity={uz[0]} />
         <line x1={(cl + cr) / 2} x2={(cl + cr) / 2} y1={44} y2={ry(2) + 16} stroke={F.linie} strokeWidth="1.4" opacity={uz[0]} />
         {zl.map((zz, i) => {
           const u = uz[i], letzte = i === 2;
           return (
             <g key={i}>
               <g opacity={u} transform={`translate(0 ${(1 - raus(u)) * 10})`}>
-                {letzte && <rect x={102} y={ry(i) - 19} width={162} height={34} rx="10" fill="none" stroke={F.granat} strokeWidth="2" opacity={uf} />}
+                {letzte && <rect x={112} y={ry(i) - 19} width={162} height={34} rx="10" fill="none" stroke={F.granat} strokeWidth="2" opacity={uf} />}
                 <Tx x={cl} y={ry(i) + 5} g={16} f={F.tinte} w={800}>{de(zz.l)}</Tx>
                 <Tx x={cr} y={ry(i) + 5} g={16} f={letzte ? F.granat : F.tinte} w={800}>{zz.rt}</Tx>
               </g>
-              {p.bild && <Bildchen art={p.bild} anzahl={zz.l} cx={34} cy={ry(i)} u={u} />}
-              <rect x={334} y={ry(i) + 18 - (36 * zz.r) / rmax * u} width={14} height={(36 * zz.r) / rmax * u} rx="3" fill={letzte ? F.granat : F.gold} />
+              {p.bild && <Bildchen art={p.bild} anzahl={zz.l} cx={40} cy={ry(i)} u={u} />}
             </g>
           );
         })}
         {uo.map((u, i) => (
           <g key={"o" + i}>
-            <Bogen x={102} y1={ry(i) + 2} y2={ry(i + 1) - 6} seite={-1} u={u} text={p.ops[i][0]} weite={11} f={F.blau} />
-            <Bogen x={264} y1={ry(i) + 2} y2={ry(i + 1) - 6} seite={1} u={u} text={p.ops[i][1]} weite={11} f={F.granat} />
+            <Bogen x={112} y1={ry(i) + 2} y2={ry(i + 1) - 6} seite={-1} u={u} text={p.ops[i][0]} weite={11} f={F.blau} />
+            <Bogen x={274} y1={ry(i) + 2} y2={ry(i + 1) - 6} seite={1} u={u} text={p.ops[i][1]} weite={11} f={F.granat} />
           </g>
         ))}
       </>
@@ -1412,7 +1414,7 @@ const d_antiprop = {
             </g>
           );
         })}
-        <Pille x={292} y={200} text={`${p.x} · ${p.y} = ${P}`} g={11} o={Math.max(teil(ust, 0.6, 1), 0)} f={F.granatHell} tf={F.granat} />
+        <Pille x={350 - (breite(`${p.x} · ${p.y} = ${P}`, 11) + 16)} a="start" y={200} text={`${p.x} · ${p.y} = ${P}`} g={11} o={Math.max(teil(ust, 0.6, 1), 0)} f={F.granatHell} tf={F.granat} />
       </>
     );
   },
