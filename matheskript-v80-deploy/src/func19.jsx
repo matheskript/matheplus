@@ -4,6 +4,9 @@
    untereinander), beide im selben 3D-Schaubild sehen, dazu die
    Schnittgerade in Parameterform und den Schnittwinkel über die
    Kosinusformel – mit sauberen Brüchen übereinander.
+   Desktop (ab 840 px): Ebenen-Karten und Ergebnis links, Schaubild rechts,
+   Schnittwinkel darunter über die volle Breite. Das Schaubild rechnet in
+   echten Pixeln – Beschriftungen bleiben auf jeder Breite gleich groß.
    Keine base-Datei darf diese Datei importieren.
    ============================================================ */
 
@@ -158,6 +161,73 @@ function EbenenPaar({ k1, setK1, k2, setK2 }) {
   );
 }
 
+/* ---------- Bildschirmbreite ---------- */
+
+const DESKTOP = "(min-width: 840px)";   // ab hier ist die Inhaltsspalte 783 px breit (func10.jsx)
+
+function useMedien(q) {
+  const lies = () => typeof window !== "undefined" && !!window.matchMedia && window.matchMedia(q).matches;
+  const [an, setAn] = useState(lies);
+  React.useEffect(() => {
+    if (!window.matchMedia) return undefined;
+    const m = window.matchMedia(q);
+    const f = () => setAn(m.matches);
+    f();
+    if (m.addEventListener) m.addEventListener("change", f); else m.addListener(f);
+    return () => { if (m.removeEventListener) m.removeEventListener("change", f); else m.removeListener(f); };
+  }, [q]);
+  return an;
+}
+
+// Breite eines Elements in Pixeln (Callback-Ref, damit auch ein neu gemountetes Element gemessen wird)
+function useBreite() {
+  const [el, setEl] = useState(null);
+  const [b, setB] = useState(0);
+  React.useEffect(() => {
+    if (!el) return undefined;
+    const f = () => setB(Math.round(el.clientWidth));
+    f();
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(f) : null;
+    if (ro) ro.observe(el);
+    return () => { if (ro) ro.disconnect(); };
+  }, [el]);
+  return [setEl, b];
+}
+
+/* ---------- Desktop: eine Ebene als Karte ----------
+   Oben die Gleichung, darunter je Koeffizient + / „a = 3“ / − untereinander. */
+function EbenenKarte({ name, farbe, k, setK }) {
+  const aendern = (i, delta) => { const n = [...k]; n[i] = Math.max(-10, Math.min(10, n[i] + delta)); setK(n); };
+  const knopf = (f) => ({
+    width: "100%", maxWidth: 66, height: 30, borderRadius: 9, border: `1.5px solid ${f}55`, background: `${f}12`,
+    color: f, fontSize: 18, fontWeight: 700, fontFamily: "inherit", cursor: "pointer", padding: 0, lineHeight: 1,
+    display: "flex", alignItems: "center", justifyContent: "center", touchAction: "manipulation",
+  });
+  return (
+    <div data-eve-karte={name} style={{ border: `1.5px solid ${farbe}33`, background: `${farbe}08`, borderRadius: 16, padding: "14px 12px 14px" }}>
+      <Einzeilig max={19} min={12}>
+        <span style={{ color: farbe, fontWeight: 800 }}>E{name}:</span>
+        <span>{ebenenText(...k)}</span>
+      </Einzeilig>
+      <div style={{ height: 1, background: `${farbe}22`, margin: "12px 4px 12px" }} />
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 6 }}>
+        {k.map((v, i) => {
+          const f = KOEFF_FARBEN[i];
+          return (
+            <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+              <button className="eve-knopf" aria-label={`${BUCHSTABEN[i]} von E${name} erhöhen`} style={knopf(f)} onClick={() => aendern(i, 1)}>+</button>
+              <span style={{ fontSize: minus(v).length >= 3 ? 14 : 15.5, fontWeight: 800, color: f, fontVariantNumeric: "tabular-nums", lineHeight: 1.2, whiteSpace: "nowrap" }}>
+                {BUCHSTABEN[i]} = {minus(v)}
+              </span>
+              <button className="eve-knopf" aria-label={`${BUCHSTABEN[i]} von E${name} verringern`} style={knopf(f)} onClick={() => aendern(i, -1)}>−</button>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 /* ---------- Lage der beiden Ebenen ---------- */
 
 function lage(k1, k2) {
@@ -204,10 +274,10 @@ export function strahlImWuerfel(p, r, L) {
   return [p.map((v, k) => v + t0 * r[k]), p.map((v, k) => v + t1 * r[k])];
 }
 
-function Raum2({ k1, k2, info, phi, theta, setPhi, setTheta, zoom, grund }) {
+function Raum2({ k1, k2, info, phi, theta, setPhi, setTheta, zoom, grund, W = 360, H = 320 }) {
   const abschnitte = [k1, k2].flatMap((k) => k.slice(0, 3).filter((v) => v !== 0).map((v) => Math.abs(k[3] / v)));
   const L = Math.min(12, Math.max(5, Math.ceil(Math.max(0, ...abschnitte) + 1)));
-  const W = 360, H = 320, s = ((Math.min(W, H) / 2 - 18) / (L * 1.55)) * zoom;
+  const s = ((Math.min(W, H) / 2 - 18) / (L * 1.55)) * zoom;
   const cam = kamera(phi, theta);
   const P = (p) => { const q = cam.proj(p); return [W / 2 + s * q.u, H / 2 - s * q.v]; };
   const pfad = (pts) => pts.map((p, k) => `${k ? "L" : "M"}${P(p)[0].toFixed(1)},${P(p)[1].toFixed(1)}`).join(" ") + " Z";
@@ -254,7 +324,7 @@ function Raum2({ k1, k2, info, phi, theta, setPhi, setTheta, zoom, grund }) {
         return (
           <g key={k}>
             <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={FARBE_ACHSE[k]} strokeWidth="1.8" markerEnd={`url(#evp${k})`} />
-            <text x={lx} y={ly + 4} textAnchor="middle" fontSize="13" fontWeight="700" fontStyle="italic" fill={FARBE_ACHSE[k]}>x{["₁", "₂", "₃"][k]}</text>
+            <text x={lx} y={ly + 4} textAnchor="middle" fontSize={W > 400 ? 14.5 : 13} fontWeight="700" fontStyle="italic" fill={FARBE_ACHSE[k]}>x{["₁", "₂", "₃"][k]}</text>
           </g>
         );
       })}
@@ -370,9 +440,14 @@ export function EbeneVsEbene() {
   const [theta, setTheta] = useState(0.42);
   const [zoom, setZoom] = useState(1);
   const [grund, setGrund] = useState(GRUND_AUS);
+  const breit = useMedien(DESKTOP);
+  const [plotRef, plotBreite] = useBreite();
   const info = lage(k1, k2);
   const karte = { background: C.weiss, borderRadius: 16, padding: 18, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" };
+  const fein = { background: C.weiss, borderRadius: 16, padding: "18px 20px", border: `1px solid ${C.linie}` };
   const titel = { fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 10 };
+  const hinweis = { fontSize: 12.5, color: C.grau, lineHeight: 1.55, marginTop: 10 };
+  const kicker = { fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: C.grau, marginBottom: 8 };
 
   const lageText = {
     schnitt: "Die Ebenen schneiden sich in einer Geraden g.",
@@ -381,6 +456,100 @@ export function EbeneVsEbene() {
     keine: "Mindestens eine Gleichung ist keine Ebene: a, b und c dürfen nicht alle 0 sein.",
   }[info.art];
 
+  // Schaubild: Handy wie bisher im Format 360 × 320, Desktop quadratisch – immer in echten Pixeln
+  const W = plotBreite || 360;
+  const H = breit ? W : Math.round((W * 320) / 360);
+  const schaubild = (
+    <div ref={plotRef} style={{ position: "relative" }}>
+      <Raum2 k1={k1} k2={k2} info={info} phi={phi} theta={theta} setPhi={setPhi} setTheta={setTheta} zoom={zoom} grund={grund} W={W} H={H} />
+      <DrehKnoepfe setPhi={setPhi} setTheta={setTheta} zuruecksetzen={() => { setPhi(0.62); setTheta(0.42); setZoom(1); }} />
+      <div style={{ position: "absolute", right: 6, bottom: 6, display: "flex", flexDirection: "column", borderRadius: 10,
+        overflow: "hidden", border: `1px solid ${C.linie}`, boxShadow: "0 2px 8px rgba(15,26,51,0.14)" }}>
+        {[["+", 1.25, "Hineinzoomen"], ["−", 1 / 1.25, "Herauszoomen"]].map(([z, f, t], i) => (
+          <button key={z} aria-label={t} title={t} onClick={() => setZoom((v) => Math.min(4, Math.max(0.4, v * f)))}
+            style={{ width: 34, height: 32, border: "none", borderTop: i ? `1px solid ${C.linie}` : "none",
+              background: "rgba(255,255,255,0.95)", color: C.see, fontSize: 19, fontWeight: 700, fontFamily: "inherit",
+              cursor: "pointer", padding: 0 }}>{z}</button>
+        ))}
+      </div>
+    </div>
+  );
+
+  const beispiele = (umbruch) => (
+    <div style={{ display: "flex", gap: 6, ...(umbruch ? { flexWrap: "wrap", alignItems: "center" } : { overflowX: "auto", paddingTop: 14 }) }}>
+      {BEISPIELE.map((x) => (
+        <button key={x.name} onClick={() => { setK1(x.k1); setK2(x.k2); }}
+          style={{ flexShrink: 0, padding: "6px 12px", minHeight: 32, borderRadius: 999, border: `1px solid ${C.linie}`, background: C.weiss,
+            color: C.see, fontSize: 12.5, fontFamily: "inherit", cursor: "pointer", whiteSpace: "nowrap" }}>{x.name}</button>
+      ))}
+    </div>
+  );
+
+  const lageInhalt = (
+    <>
+      <p style={titel}>Lage der Ebenen</p>
+      <p style={{ fontSize: 14.5, color: C.tinte, lineHeight: 1.6, marginBottom: info.art === "schnitt" ? 14 : 0 }}>{lageText}</p>
+      {info.art === "schnitt" && (
+        <>
+          <p style={{ ...titel, marginBottom: 8 }}>Schnittgerade</p>
+          <Schnittgerade info={info} />
+          <p style={hinweis}>
+            Richtungsvektor: Kreuzprodukt der Normalenvektoren n₁ × n₂ (gekürzt). Stützpunkt: eine Koordinate 0 gesetzt
+            und das verbleibende Gleichungssystem gelöst.
+          </p>
+        </>
+      )}
+    </>
+  );
+
+  const winkelHinweis = (
+    <p style={{ ...hinweis, marginTop: breit ? 0 : 10 }}>
+      Der Winkel zwischen zwei Ebenen ist der Winkel zwischen ihren Normalenvektoren – der Betrag im Zähler sorgt dafür,
+      dass immer der spitze Winkel (0° bis 90°) herauskommt.
+    </p>
+  );
+
+  /* ---------- Desktop: Arbeitsfläche in zwei Spalten ---------- */
+  if (breit) {
+    return (
+      <div className="mx-auto px-6 pb-16 eve-breit" data-eve="breit" style={{ maxWidth: 620, paddingTop: 16 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 290px) minmax(0, 1fr)", gap: 20, alignItems: "start" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <EbenenKarte name="₁" farbe={FARBE_E1} k={k1} setK={setK1} />
+            <EbenenKarte name="₂" farbe={FARBE_E2} k={k2} setK={setK2} />
+            <div data-eve-lage style={fein}>{lageInhalt}</div>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            <div style={{ border: `1px solid ${C.linie}`, borderRadius: 16, overflow: "hidden", background: C.weiss }}>{schaubild}</div>
+            <div style={{ display: "grid", gap: 14, padding: "2px 2px 0" }}>
+              <div>
+                <p style={kicker}>Grundebenen einblenden</p>
+                <GrundebenenSchalter an={grund} setAn={setGrund} ohneTitel />
+              </div>
+              <div>
+                <p style={kicker}>Beispiele</p>
+                {beispiele(true)}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {info.art !== "keine" && (
+          <div style={{ marginTop: 20 }}>
+            <div data-eve-winkel style={{ ...fein, display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 240px)", columnGap: 32, alignItems: "center" }}>
+              <div style={{ minWidth: 0 }}>
+                <p style={titel}>Schnittwinkel</p>
+                <Winkelrechnung k1={k1} k2={k2} />
+              </div>
+              <div style={{ borderLeft: `2px solid ${C.linie}`, paddingLeft: 18 }}>{winkelHinweis}</div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  /* ---------- Handy und Tablet: eine Spalte ---------- */
   return (
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 16 }}>
       <div style={karte}>
@@ -388,53 +557,17 @@ export function EbeneVsEbene() {
           <EbenenPaar k1={k1} setK1={setK1} k2={k2} setK2={setK2} />
         </div>
         <div style={{ marginBottom: 10 }}><GrundebenenSchalter an={grund} setAn={setGrund} /></div>
-
-        <div style={{ position: "relative" }}>
-          <Raum2 k1={k1} k2={k2} info={info} phi={phi} theta={theta} setPhi={setPhi} setTheta={setTheta} zoom={zoom} grund={grund} />
-          <DrehKnoepfe setPhi={setPhi} setTheta={setTheta} zuruecksetzen={() => { setPhi(0.62); setTheta(0.42); setZoom(1); }} />
-          <div style={{ position: "absolute", right: 6, bottom: 6, display: "flex", flexDirection: "column", borderRadius: 10,
-            overflow: "hidden", border: `1px solid ${C.linie}`, boxShadow: "0 2px 8px rgba(15,26,51,0.14)" }}>
-            {[["+", 1.25, "Hineinzoomen"], ["−", 1 / 1.25, "Herauszoomen"]].map(([z, f, t], i) => (
-              <button key={z} aria-label={t} title={t} onClick={() => setZoom((v) => Math.min(4, Math.max(0.4, v * f)))}
-                style={{ width: 34, height: 32, border: "none", borderTop: i ? `1px solid ${C.linie}` : "none",
-                  background: "rgba(255,255,255,0.95)", color: C.see, fontSize: 19, fontWeight: 700, fontFamily: "inherit",
-                  cursor: "pointer", padding: 0 }}>{z}</button>
-            ))}
-          </div>
-        </div>
-
-        <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingTop: 14 }}>
-          {BEISPIELE.map((x) => (
-            <button key={x.name} onClick={() => { setK1(x.k1); setK2(x.k2); }}
-              style={{ flexShrink: 0, padding: "7px 12px", borderRadius: 999, border: `1px solid ${C.linie}`, background: C.weiss,
-                color: C.see, fontSize: 12.5, fontFamily: "inherit", cursor: "pointer", whiteSpace: "nowrap" }}>{x.name}</button>
-          ))}
-        </div>
+        {schaubild}
+        {beispiele(false)}
       </div>
 
-      <div style={{ ...karte, marginTop: 16 }}>
-        <p style={titel}>Lage der Ebenen</p>
-        <p style={{ fontSize: 14.5, color: C.tinte, lineHeight: 1.6, marginBottom: info.art === "schnitt" ? 14 : 0 }}>{lageText}</p>
-        {info.art === "schnitt" && (
-          <>
-            <p style={{ ...titel, marginBottom: 8 }}>Schnittgerade</p>
-            <Schnittgerade info={info} />
-            <p style={{ fontSize: 12.5, color: C.hellgrau, lineHeight: 1.55, marginTop: 10 }}>
-              Richtungsvektor: Kreuzprodukt der Normalenvektoren n₁ × n₂ (gekürzt). Stützpunkt: eine Koordinate 0 gesetzt
-              und das verbleibende Gleichungssystem gelöst.
-            </p>
-          </>
-        )}
-      </div>
+      <div style={{ ...karte, marginTop: 16 }}>{lageInhalt}</div>
 
       {info.art !== "keine" && (
         <div style={{ ...karte, marginTop: 16 }}>
           <p style={titel}>Schnittwinkel</p>
           <Winkelrechnung k1={k1} k2={k2} />
-          <p style={{ fontSize: 12.5, color: C.hellgrau, lineHeight: 1.55, marginTop: 10 }}>
-            Der Winkel zwischen zwei Ebenen ist der Winkel zwischen ihren Normalenvektoren – der Betrag im Zähler sorgt dafür,
-            dass immer der spitze Winkel (0° bis 90°) herauskommt.
-          </p>
+          {winkelHinweis}
         </div>
       )}
     </div>

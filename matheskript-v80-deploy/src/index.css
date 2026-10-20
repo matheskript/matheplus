@@ -20,3 +20,11 @@ html[data-wz-voll] .mx-auto.px-6.pb-16 > :first-child:not([style*="background: r
    die Seite dahinter steht still – nur der Trainer unter der Kopfleiste ist bedienbar. */
 html[data-kr-voll], html[data-kr-voll] body { overflow: hidden !important; overscroll-behavior: none; height: 100%; }
 html[data-kr-voll] .app-wurzel { min-height: 0 !important; height: 100%; overflow: hidden; }
+
+/* Ebene vs. Ebene am Desktop (func19.jsx, data-eve="breit"): Ränder wie der Seitentitel,
+   Karten behalten Rahmen und Rundung (sie liegen nicht direkt unter dem Seitencontainer). */
+html[data-wz-voll] .mx-auto.px-6.pb-16.eve-breit > div { margin-left: 24px !important; margin-right: 24px !important; max-width: calc(100% - 48px); }
+html[data-wz-voll] .mx-auto.px-6.pb-16.eve-breit > div:first-child { margin-top: 24px !important; }
+.eve-knopf { transition: filter .12s ease, transform .08s ease; }
+.eve-knopf:hover { filter: brightness(0.94); }
+.eve-knopf:active { transform: scale(0.95); }

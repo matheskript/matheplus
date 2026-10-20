@@ -154,10 +154,10 @@ export function GrundebenenGitter({ an, P, L }) {
   );
 }
 
-export function GrundebenenSchalter({ an, setAn }) {
+export function GrundebenenSchalter({ an, setAn, ohneTitel = false }) {
   return (
     <div role="group" aria-label="Grundebenen anzeigen" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 6 }}>
-      <span style={{ fontSize: 12.5, color: C.grau, marginRight: 2 }}>Grundebenen</span>
+      {!ohneTitel && <span style={{ fontSize: 12.5, color: C.grau, marginRight: 2 }}>Grundebenen</span>}
       {GRUNDEBENEN.map((g) => {
         const aktiv = !!an[g.id], farbe = FARBE_ACHSE[g.senkrecht];
         return (
