@@ -61,7 +61,7 @@ export const WERKZEUGE = {
     zeichen: "f′", bild: "ableitung", ziel: { ansicht: "ableitungstrainer" }, etikett: "trainieren", stufe: "ober" },
   kurvendiskussion: { name: "Kurvendiskussion", kurz: "Kurven", zeile: "Graph, Ableitungen und PDF", slogan: "Graph, Ableitungen und die komplette Kurvendiskussion – für Polynome und beliebige Funktionen.",
     zeichen: "f(x)", bild: "kurve", ziel: { ansicht: "plotter" }, auch: ["advplotter"], etikett: "rechnen", stufe: "ober",
-    modi: [{ ansicht: "plotter", name: "Polynome" }, { ansicht: "advplotter", name: "Beliebige Funktionen" }] },
+    modi: [{ ansicht: "plotter", name: "Polynome" }, { ansicht: "advplotter", name: "Beliebige Funktionen", kurz: "Beliebig" }] },
   scharen: { name: "Funktionsscharen", kurz: "Scharen", zeile: "Parameter, Ortskurven, Sonderfälle", slogan: "Parameter per Regler verändern, Punkte und Ortskurven berechnen.",
     zeichen: "fₐ", bild: "scharen", ziel: { ansicht: "scharen" }, etikett: "entdecken", stufe: "ober" },
   steckbrief: { name: "Steckbriefaufgaben", kurz: "Steckbrief", zeile: "Aus Eigenschaften die Funktion", slogan: "Aus Hochpunkt, Wendepunkt & Co. die Funktion bauen.",

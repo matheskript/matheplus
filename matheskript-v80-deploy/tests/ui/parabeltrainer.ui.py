@@ -119,7 +119,8 @@ with sync_playwright() as p:
     ctx = b.new_context(viewport={"width": 1280, "height": 900}); page = ctx.new_page()
     page.goto(BASE); page.evaluate("localStorage.setItem('mm-onboarding-v1', JSON.stringify({uebersprungen:true}))")
     page.goto(BASE + "sinus"); page.wait_for_timeout(1000)
-    chips = [c.inner_text() for c in page.locator("[data-werkzeug-leiste] .sek-chip").all() if "›" not in c.inner_text()]
+    page.locator("[data-werkzeug-leiste] button[aria-haspopup=listbox]").click(); page.wait_for_timeout(100)
+    chips = [c.inner_text() for c in page.locator("[data-werkzeug-leiste] [role=option]").all()]
     pruefe(not any("Parabel" in c for c in chips) and len(chips) == 2, f"Station Kennen zeigt noch Parabeln: {chips!r}")
     # Gleichungen: Geraden → Weiter → Parabeln
     page.goto(BASE + "geradengleichung"); page.wait_for_timeout(1000)

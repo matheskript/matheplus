@@ -104,11 +104,26 @@ const chipStil = (aktiv) => ({
   background: aktiv ? "rgba(237,187,0,0.16)" : "rgba(255,255,255,0.08)", color: aktiv ? C.flaggold : C.silberHell,
 });
 
+/* Eine einzige Zeile unter dem Titel: links die Stations-Auswahl (Werkzeuge der Station,
+   „Weiter“ zur nächsten Station und die Bereichsübersicht stecken im Aufklappfeld),
+   rechts daneben – falls das Werkzeug mehrere Ansichten hat – der Umschalter
+   (z. B. Polynome | Beliebige Funktionen). Früher waren das drei Zeilen
+   (Stationszeile, Chip-Leiste, Umschalter). */
 export function WerkzeugLeiste({ ansicht, gehe }) {
   const ort = wo(ansicht);
+  const [auf, setAuf] = useState(false);
+  const wurzel = useRef(null);
+  useEffect(() => { setAuf(false); }, [ansicht]);
+  useEffect(() => {
+    if (!auf) return undefined;
+    const taste = (e) => { if (e.key === "Escape") setAuf(false); };
+    const aussen = (e) => { if (wurzel.current && !wurzel.current.contains(e.target)) setAuf(false); };
+    window.addEventListener("keydown", taste);
+    document.addEventListener("pointerdown", aussen);
+    return () => { window.removeEventListener("keydown", taste); document.removeEventListener("pointerdown", aussen); };
+  }, [auf]);
   if (!ort) return null;
   const { bereich, station, werkzeug: wAktiv, sNr } = ort;
-  const scrollZuAktiv = (el) => { if (el) { const c = el.querySelector('[aria-current="page"]'); if (c && c.offsetLeft + c.offsetWidth > el.clientWidth) el.scrollLeft = c.offsetLeft + c.offsetWidth - el.clientWidth + 12; } };
 
   /* Übersichtsseite eines Bereichs: die Stationen als Chips */
   if (!station) {
@@ -125,33 +140,74 @@ export function WerkzeugLeiste({ ansicht, gehe }) {
 
   const naechste = bereich.stationen[sNr];   // sNr ist 1-basiert → Index der nächsten Station
   const weiter = naechste ? werkzeug(naechste.werkzeuge[0]) : null;
+  const anzahl = bereich.stationen.length;
+  const zeile = (aktiv) => ({ display: "flex", alignItems: "center", gap: 10, width: "100%", minHeight: 42, padding: "0 12px", border: "none", borderRadius: 10, textAlign: "left",
+    fontFamily: "inherit", fontSize: 14.5, fontWeight: aktiv ? 700 : 500, cursor: "pointer", color: aktiv ? C.seeTief : C.tinte, background: aktiv ? "rgba(237,187,0,0.16)" : "transparent" });
+  const zurUebersicht = bereich.uebersicht ? { ansicht: bereich.uebersicht } : null;
   return (
     <div data-werkzeug-leiste>
-      <p style={{ textAlign: "center", fontSize: 11, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.62)", margin: "0 0 8px" }}>
-        {bereich.uebersicht
-          ? <button type="button" onClick={() => gehe({ ansicht: bereich.uebersicht })} style={{ background: "none", border: "none", padding: 0, cursor: "pointer", fontFamily: "inherit", fontSize: "inherit", fontWeight: "inherit", letterSpacing: "inherit", textTransform: "inherit", color: "inherit", textDecoration: "underline", textUnderlineOffset: 3, textDecorationColor: "rgba(255,255,255,0.3)" }}>{bereich.titel}</button>
-          : bereich.titel}
-        {` · Station ${sNr} von ${bereich.stationen.length} · `}<span style={{ color: C.flaggold }}>{station.titel}</span>
-      </p>
-      <div className="sek-menue" ref={scrollZuAktiv} style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 6, paddingBottom: 4 }}>
-        {station.werkzeuge.map((id) => {
-          const w = werkzeug(id);
-          const aktiv = w.id === wAktiv.id;
-          return (
-            <button key={id} type="button" onClick={() => gehe(w.ziel)} aria-current={aktiv ? "page" : undefined} className="sek-chip" title={w.name} style={chipStil(aktiv)}>
-              <span className="titel-lang">{w.name}</span><span className="titel-kurz">{w.kurz}</span>
-            </button>
-          );
-        })}
-        {weiter && (
-          <button type="button" onClick={() => gehe(weiter.ziel)} className="sek-chip" title={`Weiter zur Station ${sNr + 1}: ${naechste.titel}`}
-            style={{ ...chipStil(false), border: "1px dashed rgba(237,187,0,0.6)", color: C.flaggold, background: "transparent" }}>
-            <span className="titel-lang">{`Weiter: ${naechste.titel} ›`}</span><span className="titel-kurz">Weiter ›</span>
+      <style>{`@media (max-width:480px){.wz-zeile .wz-pille{padding:0 9px 0 11px !important;gap:5px !important}.wz-zeile .wz-tab{padding:0 10px !important}}@media (max-width:374px){.wz-zeile .wz-nr{display:none}.wz-zeile .wz-pille{font-size:12px !important}}`}</style>
+      <div className="wz-zeile" style={{ display: "flex", flexWrap: "nowrap", alignItems: "center", gap: 8 }}>
+        <div ref={wurzel} style={{ position: "relative", flex: "0 1 auto", minWidth: 0 }}>
+          <button type="button" className="wz-pille" onClick={() => setAuf(!auf)} aria-expanded={auf} aria-haspopup="listbox"
+            title={`${bereich.titel} · Station ${sNr} von ${anzahl}: ${station.titel}`}
+            style={{ height: 34, maxWidth: "100%", display: "inline-flex", alignItems: "center", gap: 7, padding: "0 12px 0 13px", borderRadius: 999, cursor: "pointer", fontFamily: "inherit",
+              fontSize: 12.5, fontWeight: 600, whiteSpace: "nowrap", color: C.silberHell,
+              border: `1px solid ${auf ? C.flaggold : "rgba(255,255,255,0.28)"}`, background: auf ? "rgba(237,187,0,0.14)" : "rgba(255,255,255,0.08)" }}>
+            <span className="wz-nr" style={{ color: "rgba(255,255,255,0.62)", fontWeight: 500, flexShrink: 0 }}><span className="titel-lang">Station </span>{`${sNr}/${anzahl}`}</span>
+            <span style={{ color: C.flaggold, fontWeight: 700, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis" }}>{station.titel}</span>
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"
+              style={{ flexShrink: 0, transform: auf ? "rotate(180deg)" : "none", transition: "transform .15s" }}><path d="M6 9l6 6 6-6" /></svg>
           </button>
+          {auf && (
+            <div role="listbox" aria-label={`${bereich.titel}: Station ${sNr}`}
+              style={{ position: "absolute", top: 40, left: 0, zIndex: 60, width: "min(320px, calc(100vw - 48px))", background: C.weiss, borderRadius: 14, padding: 6,
+                boxShadow: "0 14px 40px rgba(8,23,59,0.32)", border: `1px solid ${C.linie}`, textAlign: "left" }}>
+              <p style={{ margin: "6px 12px 4px", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: C.grau, lineHeight: 1.6 }}>
+                <span style={{ display: "block" }}>{bereich.titel}</span>
+                <span style={{ display: "block", fontWeight: 600, letterSpacing: "0.06em" }}>{`Station ${sNr} von ${anzahl} · `}<span style={{ color: "#8A6A00" }}>{station.titel}</span></span>
+              </p>
+              {station.werkzeuge.map((id) => {
+                const w = werkzeug(id);
+                const aktiv = w.id === wAktiv.id;
+                return (
+                  <button key={id} type="button" role="option" aria-selected={aktiv} onClick={() => (aktiv ? setAuf(false) : gehe(w.ziel))} style={zeile(aktiv)}>
+                    <span style={{ flex: 1 }}>{w.name}</span>{aktiv && <span aria-hidden="true" style={{ color: C.flaggold, fontWeight: 800 }}>●</span>}
+                  </button>
+                );
+              })}
+              {(weiter || zurUebersicht) && <div style={{ borderTop: `1px solid ${C.linie}`, margin: "4px 0" }} />}
+              {weiter && (
+                <button type="button" onClick={() => gehe(weiter.ziel)} style={{ ...zeile(false), color: C.see, fontWeight: 700, justifyContent: "space-between" }}>
+                  <span>{`Weiter: ${naechste.titel}`}</span><span aria-hidden="true">›</span>
+                </button>
+              )}
+              {zurUebersicht && (
+                <button type="button" onClick={() => gehe(zurUebersicht)} style={{ ...zeile(false), fontSize: 13.5, color: C.grau }}>
+                  ‹ Alle Stationen
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+        {wAktiv.modi && (
+          <div role="tablist" aria-label={`${wAktiv.name}: Ansicht wählen`}
+            style={{ display: "inline-flex", flexShrink: 0, height: 34, boxSizing: "border-box", padding: 3, borderRadius: 999, background: "rgba(0,0,0,0.22)", border: "1px solid rgba(255,255,255,0.18)", minWidth: 0 }}>
+            {wAktiv.modi.map((m) => {
+              const an = m.ansicht === ansicht;
+              return (
+                <button key={m.ansicht} type="button" role="tab" className="wz-tab" aria-selected={an} onClick={() => !an && gehe({ ansicht: m.ansicht })} title={m.name}
+                  style={{ padding: "0 12px", borderRadius: 999, border: "none", fontFamily: "inherit", fontSize: 12.5, fontWeight: an ? 700 : 500, cursor: an ? "default" : "pointer",
+                    background: an ? C.weiss : "transparent", color: an ? C.seeTief : C.silberHell, whiteSpace: "nowrap" }}>
+                  {m.kurz ? <><span className="titel-lang">{m.name}</span><span className="titel-kurz">{m.kurz}</span></> : m.name}
+                </button>
+              );
+            })}
+          </div>
         )}
       </div>
       {uebergabeHinweis(ansicht) && (
-        <p data-uebergabe-hinweis style={{ textAlign: "center", fontSize: 12.5, color: C.flaggold, margin: "8px 0 0", fontWeight: 600 }}>
+        <p data-uebergabe-hinweis style={{ fontSize: 12.5, color: C.flaggold, margin: "8px 0 0", fontWeight: 600 }}>
           {`↪ Übernommen aus „${uebergabeHinweis(ansicht)}“`}
           {uebergabeZurueck(ansicht) && (<>
             {" · "}
@@ -161,22 +217,6 @@ export function WerkzeugLeiste({ ansicht, gehe }) {
             </button>
           </>)}
         </p>
-      )}
-      {wAktiv.modi && (
-        <div role="tablist" aria-label={`${wAktiv.name}: Ansicht wählen`} style={{ display: "flex", justifyContent: "center", margin: "10px auto 2px" }}>
-          <div style={{ display: "inline-flex", padding: 3, borderRadius: 999, background: "rgba(0,0,0,0.22)", border: "1px solid rgba(255,255,255,0.18)" }}>
-            {wAktiv.modi.map((m) => {
-              const an = m.ansicht === ansicht;
-              return (
-                <button key={m.ansicht} type="button" role="tab" aria-selected={an} onClick={() => !an && gehe({ ansicht: m.ansicht })}
-                  style={{ padding: "6px 14px", borderRadius: 999, border: "none", fontFamily: "inherit", fontSize: 12.5, fontWeight: an ? 700 : 500, cursor: an ? "default" : "pointer",
-                    background: an ? C.weiss : "transparent", color: an ? C.seeTief : C.silberHell, whiteSpace: "nowrap" }}>
-                  {m.name}
-                </button>
-              );
-            })}
-          </div>
-        </div>
       )}
     </div>
   );

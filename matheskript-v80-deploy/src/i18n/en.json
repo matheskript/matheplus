@@ -1,5 +1,7 @@
 {
  "exakt": {
+  "Beliebig": "Any",
+  "‹ Alle Stationen": "‹ All stations",
   "Funktionen und Kurven": "Functions and curves",
   "Trainingszentrum": "Training centre",
   "Ein Ort für alles, was du selbst rechnest. Wählen, starten, Vollbild – und von Seite zu Seite.": "One place for everything you work out yourself. Choose, start, full screen – and page by page.",
@@ -11378,6 +11380,10 @@
   "Formelsammlung, Terme und Potenzgesetze, Gleichungen, Ungleichungen und Beträge, Bruchterme, Textaufgaben übersetzen": "Formula collection, terms and power laws, equations, inequalities and absolute values, rational terms, word problems"
  },
  "muster": [
+  [
+   "{0} · Station {1} von {2}: {3}",
+   "{0} · Station {1} of {2}: {3}"
+  ],
   [
    "$f(x) = {0}x^2 {1} {2}x$. Bestimme $f′(x)$ mit der h-Methode.",
    "$f(x) = {0}x^2 {1} {2}x$. Find $f′(x)$ using the h-method."
