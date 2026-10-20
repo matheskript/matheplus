@@ -405,11 +405,8 @@ function Adaption() {
 export function GfsDoseSeite({ gehe }) {
   return (
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 22 }}>
-      {gehe && (
-        <button onClick={() => gehe({ ansicht: "gfs" })} className="mb-5" style={{ ...LINK, textDecoration: "none" }}>← Zurück zum Kurs GFS</button>
-      )}
-      <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 14 }}>
-        Wie muss eine Dose aussehen, damit sie bei festem Inhalt am wenigsten Blech braucht?
+      <h2 style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 14 }}>
+        Welche Dose braucht am wenigsten Blech?
       </h2>
       <Text s="Zwei Dosen mit demselben Inhalt können völlig verschieden aussehen: schlank und hoch oder breit und flach. Beide
         halten 330 ml – aber nicht beide brauchen gleich viel Blech. Die Frage nach der sparsamsten Form ist ein

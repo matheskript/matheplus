@@ -498,14 +498,8 @@ function BuchUebungen() {
 export function GfsPascalSeite({ gehe }) {
   return (
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 22 }}>
-      {gehe && (
-        <button onClick={() => gehe({ ansicht: "gfs" })} className="mb-5"
-          style={{ background: "none", border: "none", color: C.see, fontSize: 13, fontFamily: "inherit", cursor: "pointer", padding: 0 }}>
-          ← Zurück zum Kurs GFS
-        </button>
-      )}
-      <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 14 }}>
-        Warum stehen im Pascal’schen Dreieck genau die Binomialkoeffizienten?
+      <h2 style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 14 }}>
+        Woher kennt das Dreieck die Binomialkoeffizienten?
       </h2>
 
       <ErklaerVideo id={PASCAL_VIDEO_ID} titel="Pascal’sches Dreieck und Binomialkoeffizienten" />

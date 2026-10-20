@@ -35,12 +35,14 @@ with sync_playwright() as p:
         seitenfehler = []
         page.on("pageerror", lambda e: seitenfehler.append(str(e)))
         page.goto(BASE + "gfs-trainer"); page.wait_for_timeout(1500)
-        pruefe(page.locator("text=Deine GFS in Mathe").count() > 0, f"{breite}: Übersicht")
+        pruefe(page.locator("h1", has_text="GFS-Training").count() > 0, f"{breite}: Übersicht")
         breit_ok(page, breite, f"{breite} Übersicht")
         page.screenshot(path=f"{AUS}/uebersicht-{breite}.png", full_page=True)
-        page.locator("button:has-text('Pascal’sches Dreieck und Binomialkoeffizienten')").first.click()
+        page.locator(".gfs-stufe-knopf").click(); page.wait_for_timeout(120)
+        page.get_by_role("option", name="Klasse 10").click(); page.wait_for_timeout(250)
+        page.locator(".gfs-thema-fertig", has_text="Pascal’sches Dreieck").click()
         page.wait_for_timeout(1500)
-        pruefe(page.locator("text=Warum stehen im Pascal’schen Dreieck").count() > 0, f"{breite}: Pascal-Seite")
+        pruefe(page.locator("text=Woher kennt das Dreieck").count() > 0, f"{breite}: Pascal-Seite")
         pruefe("/gfs-trainer/pascalsches-dreieck" in page.url, f"{breite}: URL {page.url}")
         breit_ok(page, breite, f"{breite} Pascal oben")
         page.screenshot(path=f"{AUS}/pascal-{breite}.png", full_page=True)
@@ -53,8 +55,8 @@ with sync_playwright() as p:
             breit_ok(page, breite, f"{breite} Muster {m}")
         pruefe(page.locator("text=0 bis 15").count() > 0, f"{breite}: Ungerade setzt 15 Zeilen")
         page.locator("button[aria-label='Binomialkoeffizienten zeigen']").click(); page.wait_for_timeout(80)
-        page.locator("svg[role=img] g").nth(30).click(); page.wait_for_timeout(80)
-        vis = page.locator("svg[role=img]").first
+        page.locator("svg[role=img]:not(.gtk-bild) g").nth(30).click(); page.wait_for_timeout(80)
+        vis = page.locator("svg[role=img]:not(.gtk-bild)").first
         vis.screenshot(path=f"{AUS}/dreieck-{breite}.png")
         page.locator("button[aria-label='Zahlen zeigen']").click()
 
@@ -71,29 +73,29 @@ with sync_playwright() as p:
                     for k in range(2, n - 1):
                         if binom(n, k) == x: gef = (n, k); break
                     if gef: break
-                page.locator("input[aria-label=n]").fill(str(gef[0])); page.locator("input[aria-label=k]").fill(str(gef[1]))
+                page.locator("input[aria-label=n]").first.fill(str(gef[0])); page.locator("input[aria-label=k]").first.fill(str(gef[1]))
             else:
-                page.locator("input[aria-label=Ergebnis]").fill("1")
-                page.locator("button:has-text('Prüfen')").click(); page.wait_for_timeout(100)
+                page.locator("input[aria-label=Ergebnis]").first.fill("1")
+                page.locator("button:has-text('Prüfen')").first.click(); page.wait_for_timeout(100)
                 if page.locator("text=Stimmt noch nicht").count():
-                    page.locator("button:has-text('Rechenweg zeigen')").click(); page.wait_for_timeout(100)
+                    page.locator("button:has-text('Rechenweg zeigen')").first.click(); page.wait_for_timeout(100)
                     weg = karte.inner_text()
                     zahlen = re.findall(r"=\s*(\d+)\s*$", weg, re.M)
                     pruefe(len(zahlen) > 0, f"{breite} {art}: Rechenweg ohne Ergebnis")
-                    page.locator("input[aria-label=Ergebnis]").fill(zahlen[-1] if zahlen else "0")
+                    page.locator("input[aria-label=Ergebnis]").first.fill(zahlen[-1] if zahlen else "0")
                 else:
-                    page.locator("button:has-text('Nächste Aufgabe')").click(); continue
-            page.locator("button:has-text('Prüfen')").click(); page.wait_for_timeout(150)
+                    page.locator("button:has-text('Nächste Aufgabe')").first.click(); continue
+            page.locator("button:has-text('Prüfen')").first.click(); page.wait_for_timeout(150)
             pruefe(page.locator("text=Stimmt!").count() > 0, f"{breite} {art}: richtige Antwort nicht erkannt")
             breit_ok(page, breite, f"{breite} Trainer {art}")
             karte.screenshot(path=f"{AUS}/trainer-{art[:4]}-{breite}.png")
-            page.locator("button:has-text('Nächste Aufgabe')").click(); page.wait_for_timeout(100)
+            page.locator("button:has-text('Nächste Aufgabe')").first.click(); page.wait_for_timeout(100)
 
         # Kolloquium
-        page.locator("button:has-text('Antwort aufdecken')").click(); page.wait_for_timeout(80)
-        page.locator("button:has-text('Konnte ich')").click(); page.wait_for_timeout(80)
+        page.locator("button:has-text('Antwort aufdecken')").first.click(); page.wait_for_timeout(80)
+        page.locator("button:has-text('Konnte ich')").first.click(); page.wait_for_timeout(80)
         pruefe(page.locator("text=1 von 11 sitzen").count() > 0, f"{breite}: Kolloquium zählt")
-        page.locator("button:has-text('Alle Fragen auf einen Blick')").click(); page.wait_for_timeout(80)
+        page.locator("button:has-text('Alle Fragen auf einen Blick')").first.click(); page.wait_for_timeout(80)
         breit_ok(page, breite, f"{breite} Kolloquium")
         page.screenshot(path=f"{AUS}/pascal-unten-{breite}.png", full_page=True)
         pruefe(not seitenfehler, f"{breite}: Seitenfehler {seitenfehler}")

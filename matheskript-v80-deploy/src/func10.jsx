@@ -134,6 +134,7 @@ import { linkAusUrlMerken as masterclassLinkMerken, autoEinloesen as masterclass
 import { englisch, spracheWechseln } from "./i18n.js";
 
 import { springe, springeZuId } from "./sprung.js";
+import { GfsThemenKopf, DosenBild, PascalBild } from "./funcGfsThemenKopf.jsx";
 // Menü-Button im Header: vorübergehend aus (true = wieder einblenden)
 const ZEIGE_MENUE = false;
 
@@ -1321,30 +1322,14 @@ export function Mathilda() {
         <GfsKursSeite gehe={gehe} />
       ) : ansicht === "gfs-pascal" ? (
         <>
-          <div className="kopfblock" style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 29, letterSpacing: "-0.03em", lineHeight: 1.05 }}>Pascal’sches Dreieck</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
-              <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
-                Kurs GFS · Klasse 10 · Kapitel V Binomialverteilung — Beweis, Dreieck zum Antippen, Übung, roter Faden und Kolloquium-Training.
-              </p>
-            </div>
-            <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
-          </div>
+          <GfsThemenKopf titel="Pascal’sches Dreieck" chips={["Klasse 10", "Kap. V", "Video + Beweis"]} Bild={PascalBild}
+            farben={{ schein2: "rgba(165,0,68,0.34)" }} onZurueck={() => gehe({ ansicht: "gfs" })} />
           <GfsPascalSeite gehe={gehe} />
         </>
       ) : ansicht === "gfs-dose" ? (
         <>
-          <div className="kopfblock" style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 29, letterSpacing: "-0.03em", lineHeight: 1.05 }}>Die optimale Dose</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
-              <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
-                Kurs GFS · G8 Klasse 11 / G9 Klasse 12 · Kapitel I Differenzialrechnung — Extremwertprobleme mit Nebenbedingungen: Herleitung, sechs Animationen, Dosen-Labor, Übungen, roter Faden und Kolloquium-Training.
-              </p>
-            </div>
-            <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
-          </div>
+          <GfsThemenKopf titel="Die optimale Dose" chips={["Kursstufe 1", "Kap. I", "6 Animationen"]} Bild={DosenBild}
+            onZurueck={() => gehe({ ansicht: "gfs" })} />
           <GfsDoseSeite gehe={gehe} />
         </>
       ) : ansicht === "potenzregel" ? (

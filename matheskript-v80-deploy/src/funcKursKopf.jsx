@@ -238,12 +238,14 @@ export function Hinweis({ children }) {
   return <p className="ks-hinweis">{children}</p>;
 }
 
-export function KapitelKopf({ farben, marke, titel, voll }) {
+/* rechts = optionales Element am Ende der Zeile (z. B. ein Auswahlknopf) */
+export function KapitelKopf({ farben, marke, titel, voll, rechts }) {
   return (
     <div className="ks-kapitel" style={kursVars(farben)}>
       {marke && <span className="ks-kapitel-marke">{marke}</span>}
-      <h2 title={voll || titel}>{titel}</h2>
-      <span className="ks-kapitel-linie" aria-hidden="true" />
+      <h2 title={voll || titel} style={rechts ? { flex: "none" } : undefined}>{titel}</h2>
+      <span className="ks-kapitel-linie" aria-hidden="true" style={rechts ? { minWidth: 0 } : undefined} />
+      {rechts}
     </div>
   );
 }

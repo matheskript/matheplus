@@ -28,15 +28,17 @@ with sync_playwright() as p:
         def breite_ok(wo):
             sw = page.evaluate("document.documentElement.scrollWidth"); pruefe(sw <= breite, f"{breite}: Überbreite bei {wo}: {sw}")
 
-        # Kurs: Klasse 11 und 12 zeigen das Thema
+        # Kurs: Kursstufe 1 (G8 Klasse 11 · G9 Klasse 12) zeigt das Thema
         page.goto(BASE + "gfs-trainer"); page.wait_for_timeout(1000)
-        for k in (11, 12):
-            page.get_by_role("button", name=re.compile(rf"^Klasse {k}\b")).click(); page.wait_for_timeout(200)
-            pruefe(page.get_by_text("Die optimale Dose – Extremwertprobleme").count() == 1, f"{breite}: Thema fehlt in Klasse {k}")
+        page.locator(".gfs-stufe-knopf").click(); page.wait_for_timeout(150)
         pruefe(page.get_by_text("G8 Klasse 11 · G9 Klasse 12").count() >= 1, f"{breite}: Schulart-Zeile fehlt")
-        page.get_by_text("Die optimale Dose – Extremwertprobleme").click(); page.wait_for_timeout(1200)
+        page.get_by_role("option", name="Kursstufe 1").click(); page.wait_for_timeout(250)
+        dose = page.locator(".gfs-thema-fertig", has_text="Die optimale Dose")
+        pruefe(dose.count() == 1, f"{breite}: Thema fehlt in Kursstufe 1")
+        dose.click(); page.wait_for_timeout(1200)
         pruefe("optimale-dose" in page.url, f"{breite}: Themenseite nicht geöffnet ({page.url})")
-        pruefe(page.get_by_text("Wie muss eine Dose aussehen").count() >= 1, f"{breite}: Leitfrage fehlt")
+        pruefe(page.get_by_text("Welche Dose braucht am wenigsten Blech").count() >= 1, f"{breite}: Leitfrage fehlt")
+        pruefe(page.locator(".gtk-bild").count() == 1, f"{breite}: Dosenbild im Kopf fehlt")
         breite_ok("Seite")
         page.screenshot(path=f"{AUS}/{breite}-kopf.png")
 

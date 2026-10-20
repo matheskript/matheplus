@@ -1,6 +1,6 @@
 /* ============================================================
    Die vier Kurs-Kacheln der Startseite: Differentialrechnung, Vektoren/
-   Geraden/Ebenen, GFS in Mathe, Mathe mit KI lernen.
+   Geraden/Ebenen, GFS-Training, Mathe mit KI lernen.
 
    Gestaltung „Lack und Goldfolie“: jede Kachel ist eine tief lackierte Fläche
    in den Farben ihres Kurses, mit einem Motiv in Folienoptik (Verlauf mit
@@ -146,7 +146,7 @@ export function VekKursKachel({ onClick, module = 31 }) {
 export function GfsKursKachel({ onClick }) {
   const stand = sicher(gfsStand);
   return (
-    <KursKachel onClick={onClick} id="kk-gfs" label="Kurs GFS öffnen" titel="GFS in Mathe" farben={LACKSCHWARZ} Motiv={MotivBuehne}
+    <KursKachel onClick={onClick} id="kk-gfs" label="GFS-Training öffnen" titel="GFS-Training" farben={LACKSCHWARZ} Motiv={MotivBuehne}
       meta="7 Schritte zum Vortrag"
       zeile="Dein Thema aus dem Lambacher Schweizer – verstehen, vortragen, Fragen meistern." stand={stand} einheit="Schritten" />
   );

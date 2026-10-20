@@ -1,8 +1,10 @@
 /* ============================================================
-   KURS GFS (ansicht "gfs", Pfad /gfs-trainer)
+   GFS-TRAINING (ansicht "gfs", Pfad /gfs-trainer)
    Aufbau wie die Kurse Differentialrechnung und Vektoren:
-     1. Dein Thema: Klassenstufe wählen, GFS-Thema aus dem Lambacher
-        Schweizer auswählen → öffnet die Themenseite (z. B. gfs-pascal)
+     1. Dein Thema: Knopf „Klasse wählen“ rechts neben der Überschrift →
+        darunter klappt das Themenfenster der Stufe auf (5–8 GFS-Themen aus
+        dem Lambacher Schweizer); fertige Themen öffnen ihre Themenseite,
+        die anderen zeigen ihre Kurzbeschreibung („Seite folgt“)
      2. So gehst du eine GFS an: sieben Schritte mit Text, Video-Platz
         und Checkliste
      3. Zeitplaner: vom Termin aus rückwärts
@@ -10,10 +12,10 @@
    Fortschritt und Abschnittsköpfe aus funcKursKopf.jsx. Fortschritt im localStorage.
    Daten und Logik: gfsKurs.js
    ============================================================ */
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { C } from "./base1.jsx";
 import { ErklaerVideo } from "./func1.jsx";
-import { KLASSEN, klasseName, stufenText, THEMEN, themenFuer, LEITFADEN, zeitplan, datumSchreiben } from "./gfsKurs.js";
+import { STUFEN, stufeVon, stufeAusKlasse, stufenText, THEMEN, themenFuer, LEITFADEN, zeitplan, datumSchreiben } from "./gfsKurs.js";
 import { LACKSCHWARZ } from "./kursFarben.js";
 import { MotivBuehne } from "./funcKursMotive.jsx";
 import { KursKopf, FortschrittKarte, KapitelKopf, IconVideo, IconAufgabe, IconUhr } from "./funcKursKopf.jsx";
@@ -22,27 +24,34 @@ const K = { nacht: C.nachtschwarz, dunkel: C.golddunkel, gold: C.flaggold, goldW
 
 /* ---------- Fortschritt ---------- */
 const SPEICHER = "mm_gfskurs";
-const standLesen = () => { try { return { klasse: null, thema: null, haken: {}, offen: {}, termin: "", ...JSON.parse(localStorage.getItem(SPEICHER) || "{}") }; } catch (e) { return { klasse: null, thema: null, haken: {}, offen: {}, termin: "" }; } };
+const standLesen = () => {
+  const leer = { stufe: null, thema: null, haken: {}, offen: {}, termin: "" };
+  try {
+    const s = { ...leer, ...JSON.parse(localStorage.getItem(SPEICHER) || "{}") };
+    if (!s.stufe && typeof s.klasse === "number") s.stufe = stufeAusKlasse(s.klasse);   // Stand vor dem 21.10.
+    return s;
+  } catch (e) { return leer; }
+};
 const standSchreiben = (s) => { try { localStorage.setItem(SPEICHER, JSON.stringify(s)); } catch (e) { /* egal */ } };
 const schrittFertig = (s, stand) => s.check.every((_, i) => stand.haken[`${s.id}-${i}`]);
 
 /* ---------- Kopf ---------- */
 export function GfsKursKopf() {
   return (
-    <KursKopf farben={LACKSCHWARZ} Motiv={MotivBuehne} id="ks-gfs" titel="GFS in Mathe"
+    <KursKopf farben={LACKSCHWARZ} Motiv={MotivBuehne} id="ks-gfs" titel="GFS-Training"
       zeile="Dein Thema aus dem Lambacher Schweizer finden – und in sieben Schritten lernen, wie eine GFS gelingt."
       chips={[
         { icon: <IconAufgabe />, text: `${LEITFADEN.length} Schritte` },
-        { icon: <span style={{ display: "inline-flex", width: 14, height: 14, flex: "none" }}><IconVideo /></span>, text: `${THEMEN.length} ${THEMEN.length === 1 ? "Themenseite" : "Themenseiten"}` },
+        { icon: <span style={{ display: "inline-flex", width: 14, height: 14, flex: "none" }}><IconVideo /></span>, text: `${THEMEN.length} GFS-Themen` },
         { icon: <IconUhr />, text: "Zeitplan bis zum Termin" },
       ]} />
   );
 }
 
 /* ---------- Kleine Bausteine ---------- */
-const Abschnitt = ({ nr, titel, text, children }) => (
+const Abschnitt = ({ nr, titel, text, rechts, children }) => (
   <section style={{ marginBottom: 34 }}>
-    <KapitelKopf farben={LACKSCHWARZ} marke={`Teil ${nr}`} titel={titel} />
+    <KapitelKopf farben={LACKSCHWARZ} marke={`Teil ${nr}`} titel={titel} rechts={rechts} />
     {text && <p style={{ color: C.grau, fontSize: 14.5, lineHeight: 1.65, margin: "2px 4px 16px", maxWidth: "62ch" }}>{text}</p>}
     {children}
   </section>
@@ -56,62 +65,152 @@ const Haken = ({ an }) => (
 );
 
 /* ---------- Teil 1: Dein Thema ---------- */
-function ThemenWahl({ stand, setzen, gehe }) {
-  const klasse = stand.klasse;
-  const liste = klasse ? themenFuer(klasse) : [];
-  return (
-    <div>
-      <div className="flex flex-wrap" style={{ gap: 8, marginBottom: 16 }} role="group" aria-label="Klassenstufe">
-        {KLASSEN.map((k) => {
-          const aktiv = klasse === k, hat = themenFuer(k).length;
-          return (
-            <button key={k} type="button" onClick={() => setzen({ klasse: k })} aria-pressed={aktiv}
-              style={{ padding: "9px 14px", borderRadius: 999, border: `1.5px solid ${aktiv ? K.nacht : C.linie}`, background: aktiv ? K.nacht : K.weiss,
-                color: aktiv ? K.gold : C.tinte, fontSize: 14, fontWeight: 700, fontFamily: "inherit", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 7 }}>
-              Klasse {k}
-              {hat > 0 && <span style={{ fontSize: 10.5, fontWeight: 800, background: aktiv ? K.gold : K.hell, color: K.nacht, borderRadius: 999, padding: "1px 6px" }}>{hat}</span>}
-            </button>
-          );
-        })}
-      </div>
+const Pfeilchen = ({ offen }) => (
+  <svg width="12" height="12" viewBox="0 0 16 16" aria-hidden="true" style={{ flex: "none", transform: offen ? "rotate(180deg)" : "none", transition: "transform .2s" }}>
+    <path d="M3.5 6l4.5 4.5L12.5 6" stroke="currentColor" strokeWidth="2.4" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+const stufenMarke = (st) => (st.id.startsWith("k") ? `K${st.id.slice(1)}` : st.id);
 
-      {!klasse && (
-        <p style={{ color: C.grau, fontSize: 14, fontWeight: 300, lineHeight: 1.7, margin: "0 4px" }}>
-          Wähle deine Klassenstufe – dann siehst du die GFS-Themen aus deinem Buch.
-        </p>
-      )}
-      {klasse && liste.length === 0 && (
-        <div style={{ background: K.weiss, border: `1px dashed ${C.linie}`, borderRadius: 16, padding: "18px 18px" }}>
-          <p style={{ fontSize: 15, fontWeight: 600, color: K.nacht, margin: "0 0 6px" }}>{klasseName(klasse)}: Die Themen kommen gerade ins Buch.</p>
-          <p style={{ fontSize: 13.5, color: C.grau, fontWeight: 300, lineHeight: 1.65, margin: 0 }}>
-            Wir tragen die GFS-Themen Kapitel für Kapitel aus dem Lambacher Schweizer ein. Der Leitfaden unten gilt für jedes Thema – du kannst sofort anfangen.
-          </p>
+/* Knopf rechts neben „Dein Thema“: öffnet die Liste der Stufen */
+function StufenKnopf({ stufe, waehlen }) {
+  const [offen, setOffen] = useState(false);
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!offen) return undefined;
+    const weg = (e) => { if (ref.current && !ref.current.contains(e.target)) setOffen(false); };
+    const taste = (e) => { if (e.key === "Escape") setOffen(false); };
+    document.addEventListener("pointerdown", weg);
+    document.addEventListener("keydown", taste);
+    return () => { document.removeEventListener("pointerdown", weg); document.removeEventListener("keydown", taste); };
+  }, [offen]);
+  const st = stufeVon(stufe);
+  return (
+    <div ref={ref} className="gfs-stufe">
+      <button type="button" className={`gfs-stufe-knopf${st ? " gfs-stufe-an" : ""}`} onClick={() => setOffen(!offen)}
+        aria-haspopup="listbox" aria-expanded={offen} aria-label={st ? `Klasse wählen – gewählt: ${st.name}` : "Klasse wählen"}>
+        <span>{st ? st.name : "Klasse wählen"}</span><Pfeilchen offen={offen} />
+      </button>
+      {offen && (
+        <div className="gfs-stufe-menue" role="listbox" aria-label="Klassenstufe">
+          {STUFEN.map((x) => {
+            const an = x.id === stufe, zahl = themenFuer(x.id).length;
+            return (
+              <button key={x.id} type="button" role="option" aria-selected={an} className={`gfs-stufe-wahl${an ? " gfs-an" : ""}`}
+                onClick={() => { setOffen(false); waehlen(x.id); }}>
+                <span className="gfs-stufe-marke" aria-hidden="true">{stufenMarke(x)}</span>
+                <span style={{ flex: 1, minWidth: 0 }}>
+                  <span className="gfs-stufe-name">{x.name}</span>
+                  {x.zusatz && <span className="gfs-stufe-zusatz">{x.zusatz}</span>}
+                </span>
+                <span className="gfs-stufe-zahl">{zahl}</span>
+              </button>
+            );
+          })}
         </div>
       )}
-      {liste.map((t) => {
-        const gewaehlt = stand.thema === t.id;
-        return (
-          <div key={t.id} className="gfs-thema" onClick={() => { setzen({ thema: t.id }); gehe({ ansicht: t.ansicht }); }}
-            style={{ display: "flex", alignItems: "center", gap: 14, padding: "12px 14px 12px 12px", borderRadius: 18, cursor: "pointer", marginBottom: 10,
-              background: K.weiss, border: `1px solid ${gewaehlt ? K.gold : C.linie}`, boxShadow: "0 1px 2px rgba(15,26,51,0.04), 0 6px 18px -10px rgba(15,26,51,0.14)" }}>
-            <span aria-hidden="true" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", flex: "none", width: 46, height: 46, borderRadius: 14,
-              background: K.nacht, color: K.gold, fontWeight: 800, fontSize: 15, fontStyle: "italic" }}>{t.kapitel}</span>
-            <span style={{ flex: 1, minWidth: 0 }}>
-              <span style={{ display: "block", fontSize: 11.5, fontWeight: 700, color: K.text, letterSpacing: "0.02em", marginBottom: 3 }}>{t.kapitelName} · S. {t.seite}{t.schulart ? ` · ${stufenText(t)}` : ""}</span>
-              <span style={{ display: "block", fontWeight: 700, fontSize: 15.5, color: K.nacht, lineHeight: 1.3 }}>{t.titel}</span>
-              <span style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 12.5, color: C.grau, marginTop: 5, whiteSpace: "nowrap", overflow: "hidden" }}>
-                <span style={{ display: "inline-flex", alignItems: "center", gap: 4, flex: "none" }}><span style={{ display: "inline-flex", width: 14, height: 14, flex: "none" }}><IconVideo /></span>{t.animationen ? `${t.animationen} Animationen` : `${t.videos} ${t.videos === 1 ? "Video" : "Videos"}`}</span>
-                <span>Beweis · Übung · Kolloquium</span>
-              </span>
-            </span>
-            <span aria-hidden="true" style={{ flex: "none", color: K.gold, fontWeight: 800 }}>→</span>
-          </div>
-        );
-      })}
-      <style>{`.gfs-thema{transition:transform .15s ease, box-shadow .15s ease} @media (hover:hover){.gfs-thema:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(15,26,51,0.10)}}`}</style>
     </div>
   );
 }
+
+/* Das Fenster unter der Überschrift: alle GFS-Themen der gewählten Stufe */
+function ThemenFenster({ stufe, stand, setzen, gehe, schliessen }) {
+  const st = stufeVon(stufe);
+  const [auf, setAuf] = useState(null);   // aufgeklappte Kurzbeschreibung (Thema ohne Seite)
+  if (!st) return null;
+  const liste = themenFuer(st.id);
+  return (
+    <div className="gfs-fenster" data-gfs-fenster={st.id}>
+      <div className="gfs-fenster-kopf">
+        <span className="gfs-fenster-marke" aria-hidden="true">{stufenMarke(st)}</span>
+        <span style={{ flex: 1, minWidth: 0 }}>
+          <span className="gfs-fenster-titel">{st.name}</span>
+          <span className="gfs-fenster-zeile">{st.kurzZusatz ? `${st.kurzZusatz} · ${liste.length} Themen` : `${liste.length} GFS-Themen aus dem Buch`}</span>
+        </span>
+        <button type="button" className="gfs-fenster-zu" onClick={schliessen} aria-label="Themenliste schließen">
+          <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+        </button>
+      </div>
+      <ul className="gfs-fenster-liste">
+        {liste.map((t) => {
+          const fertigT = !!t.ansicht, offen = auf === t.id, gewaehlt = stand.thema === t.id;
+          const klick = () => {
+            if (fertigT) { setzen({ thema: t.id }); gehe({ ansicht: t.ansicht }); }
+            else setAuf(offen ? null : t.id);
+          };
+          return (
+            <li key={t.id}>
+              <button type="button" className={`gfs-thema${fertigT ? " gfs-thema-fertig" : ""}${gewaehlt ? " gfs-thema-gewaehlt" : ""}`} onClick={klick}
+                aria-expanded={fertigT ? undefined : offen}>
+                <span className="gfs-thema-kap" aria-hidden="true">{t.kapitel}</span>
+                <span style={{ flex: 1, minWidth: 0 }}>
+                  <span className="gfs-thema-titel">{t.kurz}</span>
+                  <span className="gfs-thema-meta">{t.kapitelName}</span>
+                </span>
+                {fertigT
+                  ? <span className="gfs-thema-los">Öffnen <span aria-hidden="true">→</span></span>
+                  : <span className="gfs-thema-bald"><Pfeilchen offen={offen} /></span>}
+              </button>
+              {!fertigT && offen && (
+                <div className="gfs-thema-mehr">
+                  <p>{t.zeile}</p>
+                  <span>Themenseite folgt – der Leitfaden unten gilt schon jetzt.</span>
+                </div>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+const THEMEN_STIL = `
+  .gfs-stufe{position:relative;flex:none}
+  .gfs-stufe-knopf{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 12px 0 14px;border-radius:999px;cursor:pointer;font-family:inherit;font-size:13.5px;font-weight:800;letter-spacing:-0.01em;white-space:nowrap;
+    border:none;color:${K.nacht};background:linear-gradient(135deg,#FFE9A0 0%,${K.gold} 55%,${K.goldWarm} 100%);box-shadow:0 1px 0 rgba(255,255,255,0.5) inset,0 8px 18px -10px rgba(166,124,0,0.9);transition:transform .15s ease}
+  .gfs-stufe-knopf.gfs-stufe-an{background:${K.nacht};color:${K.gold};box-shadow:0 0 0 1px rgba(237,187,0,0.45) inset,0 8px 18px -10px rgba(11,12,16,0.8)}
+  .gfs-stufe-knopf:active{transform:scale(0.97)}
+  .gfs-stufe-knopf:focus-visible,.gfs-stufe-wahl:focus-visible,.gfs-thema:focus-visible,.gfs-fenster-zu:focus-visible{outline:3px solid ${K.gold};outline-offset:2px}
+  .gfs-stufe-menue{position:absolute;right:0;top:calc(100% + 8px);z-index:30;width:264px;max-width:calc(100vw - 32px);padding:6px;border-radius:18px;background:${K.nacht};
+    border:1px solid rgba(237,187,0,0.35);box-shadow:0 24px 48px -16px rgba(8,10,16,0.65),0 2px 8px rgba(8,10,16,0.3);animation:gfsAuf .16s ease-out}
+  .gfs-stufe-wahl{display:flex;align-items:center;gap:11px;width:100%;padding:9px 10px;border:none;border-radius:12px;background:none;cursor:pointer;font-family:inherit;text-align:left;color:${K.weiss}}
+  .gfs-stufe-wahl:hover,.gfs-stufe-wahl.gfs-an{background:rgba(237,187,0,0.12)}
+  .gfs-stufe-marke{flex:none;display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:10px;font-weight:800;font-size:13px;color:${K.nacht};
+    background:linear-gradient(135deg,#FFE9A0 0%,${K.gold} 60%,${K.goldWarm} 100%)}
+  .gfs-stufe-name{display:block;font-size:14.5px;font-weight:700;line-height:1.25}
+  .gfs-stufe-zusatz{display:block;font-size:11.5px;color:rgba(255,255,255,0.62);margin-top:1px;white-space:nowrap}
+  .gfs-stufe-zahl{flex:none;min-width:24px;height:22px;padding:0 7px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:800;
+    background:rgba(255,255,255,0.1);color:${K.gold}}
+  .gfs-fenster{border-radius:22px;overflow:hidden;background:${K.weiss};border:1px solid rgba(237,187,0,0.55);
+    box-shadow:0 1px 2px rgba(15,26,51,0.05),0 18px 40px -22px rgba(15,26,51,0.35);animation:gfsAuf .22s ease-out}
+  .gfs-fenster-kopf{display:flex;align-items:center;gap:12px;padding:14px 12px 14px 14px;color:${K.weiss};
+    background:radial-gradient(70% 140% at 100% 0%,rgba(237,187,0,0.32) 0%,transparent 60%),linear-gradient(150deg,${K.nacht} 0%,#1A1608 70%,#2E2408 100%)}
+  .gfs-fenster-marke{flex:none;display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:13px;font-weight:800;font-size:16px;color:${K.nacht};
+    background:linear-gradient(135deg,#FFE9A0 0%,${K.gold} 60%,${K.goldWarm} 100%)}
+  .gfs-fenster-titel{display:block;font-size:17px;font-weight:800;letter-spacing:-0.02em;line-height:1.2}
+  .gfs-fenster-zeile{display:block;font-size:12px;color:rgba(255,255,255,0.7);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .gfs-fenster-zu{flex:none;display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:999px;border:1px solid rgba(255,255,255,0.18);
+    background:rgba(255,255,255,0.08);color:${K.weiss};cursor:pointer}
+  .gfs-fenster-liste{list-style:none;margin:0;padding:4px 0}
+  .gfs-fenster-liste li + li{border-top:1px solid ${C.linie}}
+  .gfs-thema{display:flex;align-items:center;gap:12px;width:100%;padding:11px 14px 11px 12px;border:none;background:none;cursor:pointer;font-family:inherit;text-align:left;color:${C.tinte};transition:background .15s ease}
+  @media (hover:hover){.gfs-thema:hover{background:#FFFBEB}}
+  .gfs-thema-kap{flex:none;display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:11px;font-weight:800;font-size:12.5px;font-style:italic;
+    background:${K.hell};color:${K.text}}
+  .gfs-thema-fertig .gfs-thema-kap{background:${K.nacht};color:${K.gold}}
+  .gfs-thema-titel{display:block;font-size:15px;font-weight:700;line-height:1.3}
+  .gfs-thema-meta{display:block;font-size:12px;color:${C.grau};margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .gfs-thema-los{flex:none;display:inline-flex;align-items:center;gap:5px;height:30px;padding:0 12px;border-radius:999px;font-size:12.5px;font-weight:800;color:${K.nacht};
+    background:linear-gradient(135deg,#FFE9A0 0%,${K.gold} 60%,${K.goldWarm} 100%)}
+  .gfs-thema-gewaehlt .gfs-thema-titel::after{content:" · dein Thema";font-size:11.5px;font-weight:700;color:${K.text}}
+  .gfs-thema-bald{flex:none;display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:999px;color:${C.grau};border:1px solid ${C.linie}}
+  .gfs-thema-mehr{padding:0 16px 14px 60px}
+  .gfs-thema-mehr p{margin:0 0 6px;font-size:14px;line-height:1.55;color:${C.tinte}}
+  .gfs-thema-mehr span{display:inline-block;font-size:11.5px;font-weight:700;color:${K.text};background:${K.hell};border-radius:999px;padding:3px 9px}
+  @keyframes gfsAuf{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){.gfs-fenster,.gfs-stufe-menue{animation:none}.gfs-thema,.gfs-stufe-knopf{transition:none}}
+`;
 
 /* ---------- Teil 2: Leitfaden ---------- */
 function Schritt({ s, stand, setzen }) {
@@ -204,6 +303,7 @@ export function GfsKursSeite({ gehe }) {
   /* Sofort speichern (nicht erst im Updater): beim Wechsel zur Themenseite wird die Seite
      abgebaut, bevor React den Updater ausführen würde */
   const setzen = (teil) => { const neu = { ...stand, ...teil }; standSchreiben(neu); setStand(neu); };
+  const [fensterZu, setFensterZu] = useState(false);
   const fertigZahl = LEITFADEN.filter((s) => schrittFertig(s, stand)).length;
   const thema = THEMEN.find((t) => t.id === stand.thema);
   const weiter = LEITFADEN.find((s) => !schrittFertig(s, stand));
@@ -213,12 +313,15 @@ export function GfsKursSeite({ gehe }) {
       <GfsKursKopf />
       <div className="mx-auto px-4 pb-16" style={{ maxWidth: 760 }}>
         <FortschrittKarte farben={LACKSCHWARZ} zahl={fertigZahl} gesamt={LEITFADEN.length} einheit="Schritte" einheitDativ="Schritten"
-          zusatz={thema ? <>Dein Thema: <b style={{ color: K.weiss }}>{thema.kurz}</b> ({stufenText(thema)})</> : "Noch kein Thema gewählt – Klassenstufe antippen und Thema aussuchen."}
+          zusatz={thema ? <>Dein Thema: <b style={{ color: K.weiss }}>{thema.kurz}</b> ({stufenText(thema)})</> : "Noch kein Thema gewählt – bei „Dein Thema“ die Klasse wählen."}
           knopf={weiter ? (fertigZahl === 0 ? "Kurs starten" : "Weiter mit") : null} ziel={weiter ? `${weiter.nr} ${weiter.titel}` : null}
           onKnopf={() => weiter && setzen({ offen: { ...stand.offen, [weiter.id]: true } })} />
 
-        <Abschnitt nr="1" titel="Dein Thema" text="Zu fast jedem Kapitel im Lambacher Schweizer gibt es ein GFS-Thema. Wähle deine Klassenstufe, dann dein Thema – jede Themenseite bringt Herleitung, Übung, roten Faden und Kolloquium-Training.">
-          <ThemenWahl stand={stand} setzen={setzen} gehe={gehe} />
+        <style>{THEMEN_STIL}</style>
+        <Abschnitt nr="1" titel="Dein Thema"
+          rechts={<StufenKnopf stufe={stand.stufe} waehlen={(id) => { setFensterZu(false); setzen({ stufe: id }); }} />}
+          text="Zu fast jedem Kapitel im Lambacher Schweizer gibt es ein GFS-Thema. Wähle oben rechts deine Klasse – darunter erscheinen die Themen.">
+          {stand.stufe && !fensterZu && <ThemenFenster stufe={stand.stufe} stand={stand} setzen={setzen} gehe={gehe} schliessen={() => setFensterZu(true)} />}
         </Abschnitt>
 
         <Abschnitt nr="2" titel="So gehst du eine GFS an" text="Sieben Schritte, die für jedes Thema gelten. Lies den Schritt, hake die Checkliste ab – ein Schritt gilt als geschafft, wenn alle Haken sitzen.">

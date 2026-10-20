@@ -1,25 +1,54 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { KLASSEN, THEMEN, themenFuer, stufenText, LEITFADEN, MEILENSTEINE, zeitplan } from "../src/gfsKurs.js";
+import { KLASSEN, STUFEN, THEMEN, themenFuer, stufenText, stufeAusKlasse, themenZahl, LEITFADEN, MEILENSTEINE, zeitplan } from "../src/gfsKurs.js";
 import { SEITEN } from "../src/pfade.js";
 
-test("Jedes gelistete Thema hat Klasse, Buchstelle und eine Seite mit Pfad", () => {
+test("Jedes Thema hat Stufe, Klassen, Kapitel und Kurzbeschreibung; gebaute Themen eine Seite mit Pfad", () => {
   const ansichten = new Set(SEITEN.map((s) => s.ansicht));
+  const ids = new Set();
   for (const t of THEMEN) {
+    assert.ok(!ids.has(t.id), `doppelte id ${t.id}`); ids.add(t.id);
+    assert.ok(STUFEN.some((s) => s.id === t.stufe), `${t.id}: Stufe ${t.stufe}`);
     assert.ok(KLASSEN.includes(t.klasse), t.id);
     assert.ok(t.klassen.every((k) => KLASSEN.includes(k)) && t.klassen[0] === t.klasse, t.id);
-    assert.ok(t.kapitel && t.seite > 0 && t.titel && t.kurz && t.frage, t.id);
-    assert.ok(ansichten.has(t.ansicht), `kein Pfad für ${t.ansicht}`);
-    assert.ok(t.videos > 0 || t.animationen > 0, `${t.id}: weder Video noch Animation`);
+    assert.ok(t.kapitel && t.kapitelName && t.titel && t.kurz && t.zeile, t.id);
+    assert.ok(t.zeile.length <= 90, `${t.id}: Kurzbeschreibung zu lang`);
+    if (t.ansicht) {
+      assert.ok(t.seite > 0 && t.frage, t.id);
+      assert.ok(ansichten.has(t.ansicht), `kein Pfad für ${t.ansicht}`);
+      assert.ok(t.videos > 0 || t.animationen > 0, `${t.id}: weder Video noch Animation`);
+    }
   }
-  assert.equal(themenFuer(10)[0].id, "pascal");
-  assert.deepEqual(themenFuer(8), []);
-  // Kursstufe: dieselbe Seite für G8 Klasse 11 und G9 Klasse 12
-  assert.equal(themenFuer(11)[0].id, "dose");
-  assert.equal(themenFuer(12)[0].id, "dose");
-  assert.deepEqual(themenFuer(13), []);
-  assert.equal(stufenText(themenFuer(11)[0]), "G8 Klasse 11 · G9 Klasse 12");
-  assert.equal(stufenText(themenFuer(10)[0]), "Klasse 10");
+  assert.equal(themenZahl(), 2);
+});
+
+test("Jede Stufe hat 5 bis 8 GFS-Themen", () => {
+  for (const s of STUFEN) {
+    const n = themenFuer(s.id).length;
+    assert.ok(n >= 5 && n <= 8, `${s.name}: ${n} Themen`);
+  }
+  assert.equal(THEMEN.length, STUFEN.reduce((a, s) => a + themenFuer(s.id).length, 0));
+});
+
+test("Gebaute Themen stehen in der richtigen Stufe; Kursstufe gilt für G8 und G9", () => {
+  assert.ok(themenFuer("10").some((t) => t.id === "pascal"));
+  assert.equal(themenFuer("k1")[0].id, "dose");
+  // als Klassenzahl: die Dose gehört zu G8 Klasse 11 und G9 Klasse 12
+  assert.ok(themenFuer(11).some((t) => t.id === "dose"));
+  assert.ok(themenFuer(12).some((t) => t.id === "dose"));
+  assert.ok(!themenFuer(13).some((t) => t.id === "dose"));
+  assert.equal(stufenText(THEMEN.find((t) => t.id === "dose")), "G8 Klasse 11 · G9 Klasse 12");
+  assert.equal(stufenText(THEMEN.find((t) => t.id === "pascal")), "Klasse 10");
+  assert.equal(stufenText(THEMEN.find((t) => t.id === "bayes")), "G8 Klasse 12 · G9 Klasse 13");
+});
+
+test("Alter Speicherstand (Klasse als Zahl) wird zur Stufe", () => {
+  assert.equal(stufeAusKlasse(8), "8");
+  assert.equal(stufeAusKlasse(10), "10");
+  assert.equal(stufeAusKlasse(11), "k1");
+  assert.equal(stufeAusKlasse(12), "k1");
+  assert.equal(stufeAusKlasse(13), "k2");
+  assert.equal(stufeAusKlasse(null), null);
 });
 
 test("Leitfaden: sieben Schritte, jeder mit Frage, drei Absätzen und Checkliste", () => {

@@ -1,7 +1,8 @@
-"""Browser-Test Kurs GFS (Startseiten-Kachel, Klassenwahl, Leitfaden, Zeitplan).
-Je Breite (360, 390, 1280): Kachel auf der Startseite öffnet /gfs-trainer; Klasse 10 zeigt das Pascal-Thema,
-Klasse 8 den Hinweis; Schritt 1 aufklappen, drei Haken → 1 von 7; Termin eintragen → Zeitplan mit 8 Zeilen;
-Thema öffnen → Pascal-Seite, zurück zum Kurs; keine Seitenfehler, keine Überbreite.
+"""Browser-Test GFS-Training (Startseiten-Kachel, Knopf „Klasse wählen“ mit Themenfenster, Leitfaden, Zeitplan).
+Je Breite (360, 390, 1280): Kachel auf der Startseite öffnet /gfs-trainer; „Klasse wählen“ → Klasse 8 zeigt
+sieben Themen im Fenster (Thema ohne Seite klappt seine Kurzbeschreibung auf), Klasse 10 das Pascal-Thema mit
+„Öffnen“; Schritt 1 aufklappen, drei Haken → 1 von 7; Termin eintragen → Zeitplan; Thema öffnen → Pascal-Seite,
+über den Rückweg-Chip im Kopf zurück zum Kurs; keine Seitenfehler, keine Überbreite.
   npx vite preview --port 4173 &   →   BASE_URL=http://localhost:4173/ python3 tests/ui/gfskurs.ui.py
 """
 import os, datetime
@@ -22,17 +23,25 @@ with sync_playwright() as p:
         ctx = b.new_context(viewport={"width": breite, "height": 900}); page = ctx.new_page()
         seitenfehler = []; page.on("pageerror", lambda e: seitenfehler.append(str(e)))
         page.goto(BASE); page.wait_for_timeout(1500)
-        kachel = page.locator("button[aria-label='Kurs GFS öffnen']")
+        kachel = page.locator("button[aria-label='GFS-Training öffnen']")
         pruefe(kachel.count() == 1, f"{breite}: Kachel auf der Startseite")
         kachel.scroll_into_view_if_needed(); kachel.screenshot(path=f"{AUS}/kachel-{breite}.png")
         kachel.click(); page.wait_for_timeout(1500)
         pruefe("/gfs-trainer" in page.url, f"{breite}: URL {page.url}")
         pruefe(page.locator("text=So gehst du eine GFS an").count() > 0, f"{breite}: Kursseite")
         breit_ok(page, breite, f"{breite} Kurs")
-        page.locator("button:has-text('Klasse 8')").click(); page.wait_for_timeout(80)
-        pruefe(page.locator("text=Die Themen kommen gerade ins Buch").count() > 0, f"{breite}: Hinweis Klasse 8")
-        page.locator("button:has-text('Klasse 10')").click(); page.wait_for_timeout(80)
-        pruefe(page.locator("text=Pascal’sches Dreieck und Binomialkoeffizienten").count() > 0, f"{breite}: Thema Klasse 10")
+        def stufe(name):
+            page.locator(".gfs-stufe-knopf").click(); page.wait_for_timeout(120)
+            page.get_by_role("option", name=name).click(); page.wait_for_timeout(250)
+        stufe("Klasse 8")
+        pruefe(page.locator("[data-gfs-fenster='8'] .gfs-thema").count() == 7, f"{breite}: sieben Themen in Klasse 8")
+        breit_ok(page, breite, f"{breite} Fenster Klasse 8")
+        page.locator(".gfs-thema", has_text="Efron-Würfel").click(); page.wait_for_timeout(120)
+        pruefe(page.locator("text=Themenseite folgt").count() == 1, f"{breite}: Kurzbeschreibung klappt auf")
+        page.locator(".gfs-fenster").screenshot(path=f"{AUS}/fenster-8-{breite}.png")
+        stufe("Klasse 10")
+        pruefe(page.locator(".gfs-thema-fertig", has_text="Pascal’sches Dreieck").count() == 1, f"{breite}: Thema Klasse 10")
+        pruefe(page.locator(".gfs-stufe-knopf", has_text="Klasse 10").count() == 1, f"{breite}: Knopf zeigt Klasse 10")
         # Leitfaden
         page.locator("button[aria-expanded]:has-text('Thema und Rahmen klären')").click(); page.wait_for_timeout(120)
         for t in ["abgesprochen", "Kriterien geklärt", "Zeitplan erstellt"]:
@@ -45,9 +54,9 @@ with sync_playwright() as p:
         breit_ok(page, breite, f"{breite} Kurs unten")
         page.screenshot(path=f"{AUS}/kurs-{breite}.png", full_page=True)
         # Thema öffnen und zurück
-        page.locator(".gfs-thema").first.click(); page.wait_for_timeout(1500)
+        page.locator(".gfs-thema-fertig").first.click(); page.wait_for_timeout(1500)
         pruefe("/gfs-trainer/pascalsches-dreieck" in page.url, f"{breite}: Themenseite {page.url}")
-        page.locator("button:has-text('Zurück zum Kurs GFS')").click(); page.wait_for_timeout(800)
+        page.get_by_role("button", name="Zurück zum GFS-Training").click(); page.wait_for_timeout(800)
         pruefe(page.locator("text=Dein Thema: Pascal’sches Dreieck").count() > 0, f"{breite}: Thema gemerkt")
         pruefe(not seitenfehler, f"{breite}: Seitenfehler {seitenfehler}")
         ctx.close()

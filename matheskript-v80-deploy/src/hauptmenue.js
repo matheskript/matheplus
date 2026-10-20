@@ -122,7 +122,7 @@ const KURSE_ALLE = [
   { id: "unterstufe", name: "Unterstufe", zeile: "Klasse 5 und 6: der ganze Stoff, lesen und gleich üben", ziel: { ansicht: "unterstufe" } },
   { id: "diffkurs", name: "Differentialrechnung", zeile: "Schulbuch lesen und direkt trainieren", ziel: { ansicht: "diffkurs" } },
   { id: "vekkurs", name: "Vektoren, Geraden und Ebenen", zeile: "Heftkapitel lesen und trainieren", ziel: { ansicht: "vekkurs" } },
-  { id: "gfs", name: "GFS in Mathe", zeile: "Thema wählen, verstehen, vortragen", ziel: { ansicht: "gfs" } },
+  { id: "gfs", name: "GFS-Training", zeile: "Thema wählen, verstehen, vortragen", ziel: { ansicht: "gfs" } },
   { id: "kiwahl", name: "Mathe mit KI lernen", zeile: "Mathilda AI für alle, Gemini ab 16, Claude ab 18", ziel: { ansicht: "kiwahl" } },
   { id: "penpaper", name: "Pen & Paper", zeile: "Sauber aufschreiben in neun Lektionen", ziel: { ansicht: "penpaperkurs" } },
   { id: "gleichkurs", name: "Gleichungen lernen", zeile: "Verstehen, rechnen, trainieren", ziel: { ansicht: "gleichkurs" } },
