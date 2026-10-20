@@ -2,10 +2,9 @@
    STARTSEITE – „Rechenblatt“ in drei Modi: dunkel (Nachtblau), hell (weiß)
    und mix (weißer Grund mit dunklen Inseln).
 
-   Idee: Die ganze Seite ist ein kariertes Rechenblatt. Dunkel: tiefes
-   Nachtblau, das Papierraster über die ganze Fläche, Gold als einziges Licht.
-   Hell: dasselbe Blatt bei Tag – weißer Grund, blaues Raster, die Bilder
-   der Kacheln in Blau. Oben zieht sich einmal eine Funktionskurve über das
+   Idee: Die ganze Seite ist ein Rechenblatt – bewusst ohne Karos (21.10.:
+   passt nicht zur Marke). Dunkel: tiefes Nachtblau, Gold als einziges Licht.
+   Hell: dasselbe Blatt bei Tag – weißer Grund, die Bilder der Kacheln in Blau. Oben zieht sich einmal eine Funktionskurve über das
    Blatt; darunter liegen die Inhalte als Kacheln. Alles, was selbst ein
    Werkzeug ist (Dein Training, Suche, Bereiche, Plan), liegt als weißes
    „Blatt“ auf dem Tisch.
@@ -14,8 +13,8 @@
    (Dein Training, Schulmathematik, Mathilda, Mathe entdecken) und zwei
    Streifen über die volle Breite (Das System, Mythen). Technisch: jede
    Insel trägt die Klasse sbb-insel und bekommt dort den dunklen Satz der
-   Variablen zurück; Streifen (sbb-streifen) malen Nacht und Raster selbst.
-   Modus: src/startModus.js (Pille unten links, Arbeitsmenü, Links
+   Variablen zurück; Streifen (sbb-streifen) malen ihre Nacht selbst.
+   Modus: src/startModus.js (Pille unten links, ☰-Menü ganz unten, Arbeitsmenü, Links
    /start-hell, /start-dunkel, /start-mix). Die Startseite vom 20.10. liegt
    eingefroren im Archiv „Biro-Edition (20.10.)“ (public/archiv/2026-10-20).
    ====================================================================== */
@@ -61,7 +60,7 @@ const CSS = `
   --karte-schatten: 0 30px 60px -36px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,0.08);
   --bild: radial-gradient(120% 140% at 50% 120%, rgba(0,77,152,0.55) 0%, rgba(0,77,152,0.08) 55%, rgba(0,0,0,0) 100%);
   --bild-rechts: radial-gradient(140% 120% at 100% 50%, rgba(0,77,152,0.55) 0%, rgba(0,77,152,0.08) 60%, rgba(0,0,0,0) 100%);
-  --akzent-text: ${NACHT}; --raster: rgba(255,255,255,0.05); --band: rgba(5,11,31,0.55);
+  --akzent-text: ${NACHT}; --band: rgba(5,11,31,0.55);
   --papier-schatten: 0 30px 60px -30px rgba(0,0,0,.9), 0 0 0 1px rgba(255,255,255,0.08);
   --zu-titel: #C9D2E6; --knopf-hg: #FFFFFF; --knopf-text: ${NACHT}; --pille-hg: rgba(237,187,0,0.08); --pille-text: ${GOLD_HELL};
   --mythos-hg: rgba(237,187,0,0.07); --schalter-hg: rgba(5,11,31,0.86); --schalter-rand: rgba(255,255,255,0.18);
@@ -72,7 +71,7 @@ const CSS = `
   --hg: #FFFFFF; --text: ${C.tinte}; --nebel: ${C.grau}; --titel: ${C.seeTief}; --linie: ${C.linie};
   --karte: #FFFFFF; --karte-schatten: 0 3px 16px rgba(15,26,51,0.07);
   --bild: linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%); --bild-rechts: linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%);
-  --akzent-text: ${C.seeTief}; --raster: rgba(0,77,152,0.075); --band: rgba(255,255,255,0.85);
+  --akzent-text: ${C.seeTief}; --band: rgba(255,255,255,0.85);
   --papier-schatten: 0 3px 16px rgba(15,26,51,0.08), 0 0 0 1px ${C.linie};
   --zu-titel: ${C.hellgrau}; --knopf-hg: ${C.seeTief}; --knopf-text: #FFFFFF; --pille-hg: #FFFBEA; --pille-text: ${C.gruenDunkel};
   --mythos-hg: #FFF7D6; --schalter-hg: rgba(255,255,255,0.94); --schalter-rand: ${C.linie};
@@ -81,9 +80,8 @@ const CSS = `
 }
 html[data-start-modus="dunkel"] .app-wurzel { background: ${NACHT} !important; }
 html[data-start-modus="hell"] .app-wurzel, html[data-start-modus="mix"] .app-wurzel { background: #FFFFFF !important; }
-/* Mix: Bühne und Streifen malen Nacht und Raster selbst (das feste Raster dahinter ist hell) */
-.sbb[data-modus="mix"] .sbb-held, .sbb[data-modus="mix"] .sbb-streifen { background-color: ${NACHT};
-  background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 28px 28px; }
+/* Mix: Bühne und Streifen malen ihre Nacht selbst (ohne Karos – passt nicht zur Marke) */
+.sbb[data-modus="mix"] .sbb-held, .sbb[data-modus="mix"] .sbb-streifen { background-color: ${NACHT}; }
 .sbb[data-modus="mix"] .sbb-held::before { content: ""; position: absolute; width: 60vw; max-width: 640px; height: 60vw; max-height: 640px; top: -22vw; right: -18vw; border-radius: 999px; pointer-events: none;
   background: radial-gradient(circle, rgba(237,187,0,0.38) 0%, rgba(237,187,0,0) 70%); filter: blur(50px); }
 .sbb[data-modus="mix"] .sbb-streifen { margin-top: 48px; padding: 4px 0 46px; }
@@ -97,10 +95,8 @@ html[data-start-modus="hell"] .app-wurzel, html[data-start-modus="mix"] .app-wur
 html[data-start-modus="dunkel"] .fuss-paar button { color: #EEF2FF !important; background: rgba(255,255,255,0.06) !important; border-color: rgba(255,255,255,0.11) !important; }
 .sbb { position: relative; color: var(--text); }
 .sbb *, .sbb *::before, .sbb *::after { box-sizing: border-box; }
-/* Das Rechenpapier und das Licht liegen hinter allem (negativer z-index: unter jedem Inhalt, über dem Seitenhintergrund) */
-.sbb-raster { position: fixed; inset: 0; z-index: -1; pointer-events: none;
-  background-image: linear-gradient(var(--raster) 1px, transparent 1px), linear-gradient(90deg, var(--raster) 1px, transparent 1px);
-  background-size: 28px 28px; }
+/* Das Licht liegt hinter allem (negativer z-index: unter jedem Inhalt, über dem Seitenhintergrund).
+   Das frühere Karo-Raster (Rechenpapier) ist raus: passt nicht zur Marke. */
 .sbb-licht { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
 .sbb-licht span { position: absolute; border-radius: 999px; filter: blur(60px); opacity: var(--licht); }
 .sbb-licht .l1 { width: 56vw; height: 56vw; max-width: 640px; max-height: 640px; top: -18vw; right: -14vw; background: radial-gradient(circle, rgba(237,187,0,0.45) 0%, rgba(237,187,0,0) 70%); }
@@ -626,7 +622,6 @@ export function Startseite({ gehe }) {
     <ModusKontext.Provider value={modus}>
     <div className="sbb" data-modus={modus}>
       <style>{CSS}</style>
-      <div className="sbb-raster" aria-hidden="true" />
       <div className="sbb-licht" aria-hidden="true"><span className="l1" /><span className="l2" /><span className="l3" /></div>
 
       {/* ---------- Bühne ---------- */}

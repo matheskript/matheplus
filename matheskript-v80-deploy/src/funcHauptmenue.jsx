@@ -10,7 +10,9 @@
      Mathe-Training ▾         – alle Werkzeuge wie auf der Startseite: Stufe → Bereich → Station → Werkzeug
      Meine Kurse              – Karten-Leiste zum Wischen (oder „Alle“ als Raster)
      Mein Training ▾ · Mathe entdecken ▾ · Formelsammlung ▾
-     Konto-Karte und ganz unten Abmelden (mit Bestätigung) bzw. Anmelden.
+     Konto-Karte, Abmelden (mit Bestätigung) bzw. Anmelden und ganz unten „Darstellung“:
+     Dunkel | Hell | Mix (dieselbe Wahl wie die Pille auf der Startseite, src/startModus.js).
+     Die Kopfleiste selbst hat keinen Modus-Knopf mehr.
    Immer nur ein Abschnitt offen; Klick daneben oder Esc schließt. Das Fenster liegt fest (position: fixed)
    unter dem ☰-Knopf und scrollt in sich.
    ====================================================================== */
@@ -22,6 +24,7 @@ import { SCHULARTEN, klassenBoxen } from "./schulbuch.js";
 import { MathildaName } from "./mathildaName.jsx";
 import { MathildaBild } from "./funcMathildaSeite.jsx";
 import { ETIKETTEN } from "./werkzeuge.js";
+import { EVENT_START_MODUS, START_MODI, startModus, startModusSetzen } from "./startModus.js";
 import {
   LEISTE, KI_MENUE, TRAINING, KURSE, BALD_KURSE, STUFEN, STUFE_SCHLUESSEL, istStufe, FORMELN, NACHSCHLAGEN,
   kontoEintraege, kontoArt, zugangEintrag, klasseErmitteln, klasseLabel, klassenInhalt, trainingsBereiche, werkzeugAnzahl,
@@ -62,6 +65,18 @@ const CSS = `
 .hm-chip{width:40px;height:40px;border-radius:999px;border:2px solid ${C.flaggold};background:${C.seeTief};color:${C.flaggold};cursor:pointer;
   display:inline-flex;align-items:center;justify-content:center;padding:0;font-family:inherit;font-size:17px;font-weight:800;line-height:1;position:relative;z-index:82}
 .hm-chip:hover{background:rgba(237,187,0,0.16)}
+
+/* Darstellung: Dunkel | Hell | Mix – ganz unten im Menü */
+.hm-darstellung{display:flex;align-items:center;gap:10px;padding:8px 8px 8px 14px}
+.hm-darstellung .lab{flex:1;min-width:0;font-size:13.5px;font-weight:700;color:${C.tinte}}
+.hm-modi{display:flex;gap:3px;padding:3px;border-radius:999px;background:#E8EEF8}
+.hm-modi button{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 11px;border-radius:999px;border:none;background:transparent;cursor:pointer;
+  font-size:12.5px;font-weight:700;color:${C.grau};transition:background .15s ease,color .15s ease}
+.hm-modi button:hover{color:${C.seeTief}}
+.hm-modi button[aria-pressed="true"]{background:${C.seeTief};color:#FFFFFF;box-shadow:0 4px 10px -4px rgba(14,30,74,0.5)}
+.hm-modi button[aria-pressed="true"] svg{color:${C.flaggold}}
+.hm-modi svg{width:14px;height:14px;flex:none}
+@media (max-width:360px){.hm-modi button{padding:0 8px;gap:4px}.hm-darstellung{padding-left:12px}}
 
 /* Suche */
 .hm-such{display:flex;width:100%;align-items:center;gap:10px;height:46px;padding:0 14px;border-radius:14px;border:1.5px solid ${C.linie};background:${C.weiss};
@@ -506,6 +521,40 @@ const HellIkon = ({ n, gold }) => (
   </span>
 );
 
+/* ---------- Darstellung: Dunkel | Hell | Mix (dieselbe Wahl wie die Pille auf der Startseite) ---------- */
+const MODUS_NAME = { dunkel: "Dunkel", hell: "Hell", mix: "Mix" };
+function ModusSymbol({ m }) {
+  if (m === "hell") return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="4" fill="currentColor" stroke="none" /><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8" />
+    </svg>
+  );
+  if (m === "mix") return (
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" strokeWidth="2.4" /><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor" /></svg>
+  );
+  return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="currentColor" /></svg>;
+}
+function DarstellungWahl() {
+  const [modus, setModus] = useState(startModus);
+  useEffect(() => {
+    const h = () => setModus(startModus());
+    window.addEventListener(EVENT_START_MODUS, h);
+    return () => window.removeEventListener(EVENT_START_MODUS, h);
+  }, []);
+  return (
+    <div className="hm-karte hm-darstellung" data-hm-darstellung data-kein-i18n>
+      <span className="lab">Darstellung</span>
+      <div className="hm-modi" role="group" aria-label="Darstellung: dunkel, hell oder mix">
+        {START_MODI.map((m) => (
+          <button key={m} type="button" aria-pressed={modus === m} onClick={() => startModusSetzen(m)} data-hm-modus={m} data-kein-scroll>
+            <ModusSymbol m={m} />{MODUS_NAME[m]}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /* ---------- Abmelden mit Bestätigung ---------- */
 function AbmeldenFrage({ ja, nein, laeuft }) {
   useEffect(() => {
@@ -828,6 +877,8 @@ export function HauptMenue({ gehe, ansicht, foto, seite, offen, setOffen }) {
               onClick={() => { if (zugang.aktion === "abmelden") { setOffen(null); setFrage(true); } else geh(zugang.ziel); }}>
               <Ikon n={angemeldet ? "raus" : "rein"} g={18} />{zugang.name}
             </button>
+            {/* 12 · Ganz unten: Darstellung dunkel | hell | mix (statt eines Knopfs in der Kopfleiste) */}
+            <DarstellungWahl />
             <p aria-hidden="true" data-kein-i18n style={{ margin: "2px 0 4px", textAlign: "center", fontSize: 11, fontWeight: 600, color: C.hellgrau, letterSpacing: "0.03em" }}>
               mythosmathe.de · System <span style={{ color: C.flaggold }}>+</span> Freude <span style={{ color: C.flaggold }}>=</span> Erfolg
             </p>

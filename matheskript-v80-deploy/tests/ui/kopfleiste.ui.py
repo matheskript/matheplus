@@ -81,36 +81,55 @@ with sync_playwright() as p:
                         pruefe(farbe == FARBE_WEISS, f"{tag}: Menüschrift nicht weiß ({farbe})")
                     ai = page.evaluate("getComputedStyle(document.querySelector('[data-besucher-menue=mathilda] > span > span + span')).color")
                     pruefe(ai in ("rgb(237, 187, 0)", "rgb(185, 138, 0)"), f"{tag}: AI nicht gold ({ai})")
-                    # Wortmarke: ab 1060 px voll (40 px) und bündig mit der Schlagzeile, darunter ein Drittel kleiner (höchstens 26,7 px)
-                    if breite >= 1060:
+                    # Wortmarke: ab 1000 px voll (40 px), ab 1060 px steht das T von MYTHOS über dem Anfang der Schlagzeile;
+                    # darunter ein Drittel kleiner (höchstens 26,7 px)
+                    if breite >= 1000:
                         pruefe(abs(logo - 40) < 0.6, f"{tag}: Wortmarke {logo}px statt 40px")
-                        if breite >= 1280 and page.locator("h1").count():
+                        if breite >= 1060 and page.locator("h1").count():
                             held = page.evaluate("document.querySelector('h1').getBoundingClientRect().left")
-                            marke = page.evaluate("document.querySelector('.kl-marke').getBoundingClientRect().left")
-                            pruefe(abs(held - marke) < 1.5, f"{tag}: Wortmarke ({marke:.1f}) nicht bündig mit der Schlagzeile ({held:.1f})")
+                            t = page.evaluate("""() => { const n = document.querySelector('.kl-marke > span > span').firstChild; const r = document.createRange();
+                              r.setStart(n, 2); r.setEnd(n, 3); return r.getBoundingClientRect().left; }""")
+                            pruefe(abs(held - t) < 1.5, f"{tag}: T der Wortmarke ({t:.1f}) steht nicht über der Schlagzeile ({held:.1f})")
                     else:
                         pruefe(logo <= 26.8, f"{tag}: Wortmarke {logo}px statt höchstens 26,7px")
                     pruefe(page.locator("[data-kl-anmelden]").is_visible() == (breite >= 700), f"{tag}: Anmelden ab 700 px")
-                    # ab 960 px eine Zeile, darunter zwei
+                    # ab 1000 px eine Zeile, darunter zwei
                     mitte = lambda bb: bb["y"] + bb["height"] / 2
                     m0 = mitte(page.locator(".kl-marke").bounding_box())
                     zeilen = 1 + int(any(abs(mitte(e.bounding_box()) - m0) > 12 for e in nav.all()))
-                    pruefe((zeilen == 1) == (breite >= 1060), f"{tag}: Menü sollte {'neben' if breite >= 1060 else 'unter'} der Wortmarke stehen")
+                    pruefe((zeilen == 1) == (breite >= 1000), f"{tag}: Menü sollte {'neben' if breite >= 1000 else 'unter'} der Wortmarke stehen")
                 if angemeldet and breite >= 1280:
                     pruefe(abs(logo - 40) < 0.6, f"{tag}: Wortmarke {logo}px statt 40px")
 
-                # Modus-Knopf: reihum, Leiste und Startseite ziehen mit
-                if breite == 390 and angemeldet:
-                    pruefe(not page.locator("[data-kl-modus]").is_visible(), f"{tag}: Modus-Knopf auf dem Handy angemeldet")
-                if not angemeldet and breite == 390:
+                # Kein Modus-Knopf in der Leiste, keine Karos in Leiste und Startseite
+                pruefe(page.locator("[data-kl-modus], .kl-modus").count() == 0, f"{tag}: Modus-Knopf steht noch in der Kopfleiste")
+                karos = page.evaluate("""() => [...document.querySelectorAll('.kl, .kl *, .sbb, .sbb *')].some(e =>
+                  /\\d+px \\d+px/.test(getComputedStyle(e).backgroundSize) || /\\d+px \\d+px/.test(getComputedStyle(e, '::before').backgroundSize))""")
+                pruefe(not karos, f"{tag}: Karo-Raster in Kopfleiste oder Startseite")
+                rechts = page.evaluate("[...document.querySelectorAll('.kl-rechts > *')].filter(e => e.offsetParent !== null).map(e => e.className)")
+                pruefe(not any("modus" in (c or "") for c in rechts), f"{tag}: rechts {rechts}")
+
+                # Darstellung ganz unten im ☰-Menü: dunkel | hell | mix, Leiste und Startseite ziehen mit
+                if breite in (390, 1280) and (not angemeldet or modus == "mix"):
                     reihe = {"dunkel": "hell", "hell": "mix", "mix": "dunkel"}
-                    page.locator("[data-kl-modus]").click(); page.wait_for_timeout(300)
-                    pruefe(kl.get_attribute("data-modus") == reihe[modus], f"{tag}: Modus-Knopf schaltet nicht weiter")
+                    page.locator("[data-hm-menue]").click(); page.wait_for_timeout(500)
+                    d = page.locator("[data-hm-darstellung]")
+                    pruefe(d.count() == 1, f"{tag}: Darstellung fehlt im Menü")
+                    letzte = page.evaluate("(() => { const k = [...document.querySelector('[data-hauptmenue]').children].filter(e => e.tagName !== 'P'); return k[k.length - 1].hasAttribute('data-hm-darstellung'); })()")
+                    pruefe(letzte, f"{tag}: Darstellung ist nicht der letzte Punkt im Menü")
+                    pruefe(page.locator(f"[data-hm-modus={modus}]").get_attribute("aria-pressed") == "true", f"{tag}: aktueller Modus nicht markiert")
+                    d.scroll_into_view_if_needed()
+                    page.locator(f"[data-hm-modus={reihe[modus]}]").click(); page.wait_for_timeout(300)
+                    pruefe(kl.get_attribute("data-modus") == reihe[modus], f"{tag}: Menü schaltet die Leiste nicht um")
                     pruefe(page.evaluate("document.documentElement.getAttribute('data-start-modus')") == reihe[modus], f"{tag}: Startseite zieht nicht mit")
-                    page.locator("[data-kl-modus]").click(); page.locator("[data-kl-modus]").click(); page.wait_for_timeout(300)
-                    pruefe(kl.get_attribute("data-modus") == modus, f"{tag}: Modus nach drei Klicks nicht zurück")
+                    pruefe(page.locator(f"[data-hm-modus={reihe[modus]}]").get_attribute("aria-pressed") == "true", f"{tag}: neue Wahl nicht markiert")
+                    pruefe(page.locator("[data-hauptmenue]").count() == 1, f"{tag}: Menü schließt beim Umschalten")
                     clip = page.evaluate("getComputedStyle(document.querySelector('.kl-marke > span > span:nth-child(2)')).backgroundClip")
                     pruefe(clip == "text", f"{tag}: Wortmarke nach Moduswechsel ohne Text-Clip ({clip}) – „mathe“ wird ein goldener Block")
+                    page.locator(f"[data-hm-modus={modus}]").click(); page.wait_for_timeout(300)
+                    pruefe(kl.get_attribute("data-modus") == modus, f"{tag}: zurückschalten geht nicht")
+                    foto(page, f"menue-{breite}-{'konto' if angemeldet else 'gast'}-{modus}", ganz=True)
+                    page.keyboard.press("Escape"); page.wait_for_timeout(400)
 
                 # Kleben + Zusammenziehen beim Scrollen
                 page.mouse.wheel(0, 900); page.wait_for_timeout(700)

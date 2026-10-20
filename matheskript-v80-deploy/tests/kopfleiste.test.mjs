@@ -29,7 +29,13 @@ test("Alle drei Modi der Startseite sind im Stil der Kopfleiste definiert; Mathi
   assert.ok(q.includes("<MathildaName dunkel={modus !== \"hell\"} />"), "Mathilda AI kommt aus mathildaName.jsx (AI in Gold)");
   assert.ok(q.includes("<MarkenLogo groesse={gast ? \"var(--kl-logo-gast)\" : \"clamp(21px, 6.5vw, 40px)\"}"), "Besucher: Größe über --kl-logo-gast");
   assert.ok(q.includes("--kl-logo-gast: clamp(14px, 4.33vw, 26.7px)") && q.includes("--kl-logo-gast: 40px"), "Besucher: unter 1060 px ein Drittel kleiner, darüber voll");
-  assert.ok(q.includes('HELD_KANTE = "calc(50% - 371.5px)"'), "Besucher am Desktop: Wortmarke bündig mit der Schlagzeile");
+  assert.ok(q.includes('HELD_KANTE = "calc(50% - 434.5px)"'), "Besucher am Desktop: T der Wortmarke über dem Anfang der Schlagzeile");
+  assert.ok(!q.includes("kl-modus") && !q.includes("startModusSetzen"), "Kein Modus-Knopf in der Kopfleiste");
+  const hm = quelle("funcHauptmenue.jsx");
+  assert.ok(hm.includes("function DarstellungWahl") && hm.includes("data-hm-darstellung") && hm.includes("START_MODI.map"), "Darstellung dunkel/hell/mix im ☰-Menü");
+  assert.ok(hm.indexOf("<DarstellungWahl />") > hm.indexOf("data-hm-zugang"), "Darstellung steht ganz unten, nach Anmelden/Abmelden");
+  const st = quelle("funcStartseite.jsx");
+  assert.ok(!st.includes("28px 28px") && !st.includes('className="sbb-raster"'), "Startseite ohne Karo-Raster");
   assert.ok(!/aria-expanded/.test(q.split("kl-nav")[1].split("</nav>")[0]), "Das Besuchermenü klappt nicht aus");
   assert.ok(q.includes("kl-fortschritt") && q.includes("data-kompakt"), "Lese-Fortschritt und Zusammenziehen beim Scrollen");
   assert.ok(!/background-size:\s*\d+px \d+px/.test(q) && !q.includes("kl-raster"), "Kein Karoraster im Header (passt nicht zur Marke)");

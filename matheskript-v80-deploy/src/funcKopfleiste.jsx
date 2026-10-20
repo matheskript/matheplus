@@ -12,17 +12,17 @@
    Alles hängt an CSS-Variablen (data-modus), die Kurve zeichnet sich einmal ein.
 
    Angemeldet:  Wortmarke + Slogan · „Weiter mit …“ (letztes Werkzeug, Desktop)
-                · Modus-Knopf (dunkel → hell → mix) · Konto-Chip · ☰
-   Besucher:    Wortmarke ein Drittel kleiner · festes Menü Vision · Mathe lernen
-                · Mathilda AI · Blog (nie zum Ausklappen) · Anmelden · Modus · ☰.
-                Ab 1060 px eine breite Zeile wie eine normale Website: Wortmarke
-                in voller Größe (40 px), linke Kante bündig mit der Schlagzeile
-                der Startseite („Mathe kann …“, 50 % − 371,5 px), Menü und
-                Anmelden rechts. Darunter steht das Menü in einer zweiten Zeile
-                und die Wortmarke ist ein Drittel kleiner (Handy: Menü über die
-                volle Breite verteilt).
-   Handy angemeldet: kein Modus-Knopf oben (Platz für die Wortmarke); die
-                Pille „Dunkel | Hell | Mix“ auf der Startseite bleibt.
+                · Konto-Chip · ☰
+   Besucher:    festes Menü Vision · Mathe lernen · Mathilda AI · Blog (nie zum
+                Ausklappen) · Anmelden · ☰.
+                Ab 1000 px eine breite Zeile wie eine normale Website: Wortmarke
+                in voller Größe (40 px), so gesetzt, dass das T von MYTHOS über
+                dem Anfang der Schlagzeile steht („Mathe kann …“: 50 % − 371,5 px,
+                das T liegt 63 px in der Wortmarke). Darunter steht das Menü in
+                einer zweiten Zeile und die Wortmarke ist ein Drittel kleiner
+                (Handy: Menü über die volle Breite verteilt).
+   Keinen Modus-Knopf in der Leiste: dunkel/hell/mix stellt man ganz unten im
+   ☰-Menü um („Darstellung“) oder über die Pille unten links auf der Startseite.
    Auf Seiten, die kein Werkzeug sind, klebt die Leiste oben, zieht sich beim
    Scrollen zusammen und zeigt unten eine goldene Lese-Fortschrittslinie.
    ====================================================================== */
@@ -34,7 +34,7 @@ import { useKonto } from "./konto.js";
 import { HauptMenue, KontoBereich } from "./funcHauptmenue.jsx";
 import { zuletztAus, ZULETZT_SCHLUESSEL } from "./hauptmenue.js";
 import { wo } from "./werkzeuge.js";
-import { EVENT_START_MODUS, startModus, startModusSetzen, naechsterModus } from "./startModus.js";
+import { EVENT_START_MODUS, startModus } from "./startModus.js";
 import { englisch } from "./i18n.js";
 import { springeZuId } from "./sprung.js";
 import { BESUCHER_MENUE, besucherAktiv } from "./kopfleiste.js";
@@ -44,13 +44,14 @@ const GOLD = C.flaggold;
 const GOLD_HELL = "#FFE58A";
 const DESKTOP = "(min-width: 840px)";
 const HANDY = "(max-width: 699px)";
-const ZWEIZEILIG = "(max-width: 1059px)";  // Besucher: Menü in einer zweiten Zeile
-const BREIT = "(min-width: 1060px)";       // Besucher: eine breite Zeile, Wortmarke voll und bündig mit der Schlagzeile
-/* Linke Kante der Schlagzeile auf der Startseite (Bühne in funcStartseite.jsx) */
-const HELD_KANTE = "calc(50% - 371.5px)";
-/* Platz ab der linken Kante der Wortmarke bis zum rechten Fensterrand (Wortmarke 395 + Abstand 28 + Menü + 16 + Knöpfe 199 + Rand 32,
-   gemessen ~1000, mit Reserve). Bündig mit der Schlagzeile also ab etwa 1275 px Fensterbreite, darunter rückt die Marke nach links. */
-const BREIT_BEDARF = "1008px";
+const ZWEIZEILIG = "(max-width: 999px)";   // Besucher: Menü in einer zweiten Zeile
+const BREIT = "(min-width: 1000px)";       // Besucher: eine breite Zeile, Wortmarke voll, T über der Schlagzeile
+/* Linke Kante der Schlagzeile auf der Startseite (Bühne in funcStartseite.jsx): 50 % − 371,5 px.
+   Die Wortmarke beginnt 63 px davor – dann steht das T von MYTHOS über dem M von „Mathe“. */
+const HELD_KANTE = "calc(50% - 434.5px)";
+/* Platz ab der linken Kante der Wortmarke bis zum rechten Fensterrand (Wortmarke 395 + Abstand 28 + Menü 329 + 16 + Anmelden/☰ 153
+   + Rand 32 = 953, mit Reserve). Die T-Ausrichtung hält also ab etwa 1055 px, darunter rückt die Marke nach links. */
+const BREIT_BEDARF = "962px";
 
 const CSS = `
 .kl { position: relative; z-index: 50; isolation: isolate; color: var(--kl-text); font-family: Montserrat, system-ui, sans-serif;
@@ -117,7 +118,7 @@ const CSS = `
 
 /* Besuchermenü: feste Punkte */
 .kl-nav { display: flex; align-items: center; gap: 24px; margin: 0 12px 0 auto; padding: 0; list-style: none; }
-/* Größe der Wortmarke für Besucher: unter 1060 px ein Drittel kleiner, darüber voll (siehe BREIT) */
+/* Größe der Wortmarke für Besucher: unter 1000 px ein Drittel kleiner, darüber voll (siehe BREIT) */
 .kl { --kl-logo-gast: clamp(14px, 4.33vw, 26.7px); }
 .kl-nav button { position: relative; background: none; border: none; padding: 8px 0; cursor: pointer; color: var(--kl-nav); font-size: 14.5px; font-weight: 700; letter-spacing: .005em; white-space: nowrap; line-height: 1; }
 .kl-nav button::after { content: ""; position: absolute; left: 0; right: 0; bottom: 2px; height: 2px; border-radius: 2px; background: ${GOLD}; transform: scaleX(0); transform-origin: left; transition: transform .22s cubic-bezier(.2,.7,.3,1); }
@@ -125,7 +126,7 @@ const CSS = `
 .kl-nav button[aria-current="page"] { color: var(--kl-nav); }
 /* „Mathilda AI“: die Marke schreibt beide Teile zusammen, im Menü steht ein schmaler Abstand davor (AI bleibt gold) */
 .kl-nav [data-besucher-menue="mathilda"] > span > span + span { margin-left: .26em; }
-/* Unter 1060 px: Menü in der zweiten Zeile, bündig mit der Wortmarke; Handy: über die volle Breite verteilt */
+/* Unter 1000 px: Menü in der zweiten Zeile, bündig mit der Wortmarke; Handy: über die volle Breite verteilt */
 @media ${ZWEIZEILIG} {
   .kl[data-gast] .kl-zeile { flex-wrap: wrap; row-gap: 0; }
   .kl[data-gast] .kl-rechts { margin-left: auto; }
@@ -135,10 +136,8 @@ const CSS = `
 @media ${HANDY} {
   .kl[data-gast] .kl-nav { justify-content: space-between; gap: 6px; padding-bottom: 6px; padding-right: 6px; }
   .kl[data-gast] .kl-nav button { font-size: 13px; padding: 6px 0 8px; }
-  /* Angemeldet: der Modus-Knopf weicht der Wortmarke (umschalten über die Pille der Startseite) */
-  .kl:not([data-gast]) .kl-modus { display: none; }
 }
-/* Ab 1060 px: Besucher bekommen eine breite Zeile wie eine normale Website. Die Wortmarke (voll, 40 px) beginnt
+/* Ab 1000 px: Besucher bekommen eine breite Zeile wie eine normale Website. Die Wortmarke (voll, 40 px) beginnt
    bündig mit der Schlagzeile; nur wenn rechts der Platz fehlt, rückt sie so weit wie nötig nach links.
    Rechts endet die Zeile 32 px vor dem Rand, auf sehr breiten Schirmen spätestens 1160 px nach der Schlagzeilenkante. */
 @media ${BREIT} {
@@ -151,7 +150,7 @@ const CSS = `
   .kl[data-gast] .kl-rechts { margin-left: 0; }
 }
 
-/* Rechts: Weiter-Pille, Anmelden, Modus, Chip, ☰ */
+/* Rechts: Weiter-Pille, Anmelden, Chip, ☰ (kein Modus-Knopf – der sitzt ganz unten im ☰-Menü) */
 .kl-rechts { display: flex; align-items: center; gap: 6px; flex-shrink: 0; margin-left: 6px; }
 .kl-pille { display: none; align-items: center; gap: 8px; height: 36px; padding: 0 14px 0 10px; border-radius: 999px; border: 1px solid var(--kl-pille-rand); background: var(--kl-pille-hg);
   color: var(--kl-text); font-size: 12.5px; font-weight: 700; cursor: pointer; white-space: nowrap; max-width: 260px; transition: background .15s ease, border-color .15s ease, transform .12s ease; }
@@ -166,11 +165,6 @@ const CSS = `
 .kl-anmelden:hover { filter: brightness(1.04); }
 .kl-anmelden:active { transform: scale(.97); }
 @media (min-width: 700px) { .kl-anmelden { display: inline-flex; } }
-.kl-modus { width: 40px; height: 40px; border-radius: 999px; border: 1.5px solid var(--kl-ring); background: transparent; color: var(--kl-text); cursor: pointer; padding: 0;
-  display: inline-flex; align-items: center; justify-content: center; position: relative; z-index: 82; transition: background .15s ease, border-color .15s ease; overflow: hidden; }
-.kl-modus:hover { background: var(--kl-ring-hover); border-color: ${GOLD}; }
-.kl-modus svg { width: 18px; height: 18px; animation: klDreh .38s cubic-bezier(.2,.7,.3,1) both; }
-@keyframes klDreh { from { transform: rotate(-70deg) scale(.6); opacity: 0; } to { transform: none; opacity: 1; } }
 /* Konto-Chip und ☰ aus funcHauptmenue.jsx folgen dem Modus */
 .kl .hm-menueknopf { border-color: var(--kl-ring); color: var(--kl-text); }
 .kl .hm-menueknopf:hover, .kl .hm-menueknopf[aria-expanded="true"] { background: var(--kl-ring-hover); border-color: ${GOLD}; }
@@ -179,7 +173,7 @@ const CSS = `
 /* Lese-Fortschritt (nur wenn die Leiste klebt) */
 .kl-fortschritt { position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; transform-origin: left; transform: scaleX(0); pointer-events: none;
   background: linear-gradient(90deg, ${GOLD} 0%, ${GOLD_HELL} 100%); box-shadow: 0 0 10px rgba(237,187,0,0.55); }
-@media (prefers-reduced-motion: reduce) { .kl-kurve, .kl-kurve path, .kl-punkt, .kl-modus svg { animation: none !important; } .kl-kurve { clip-path: none; } .kl-kurve path { opacity: var(--kl-kurve-ruhe); } .kl-punkt { opacity: .55; } .kl-zeile, .kl-slogan { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .kl-kurve, .kl-kurve path, .kl-punkt { animation: none !important; } .kl-kurve { clip-path: none; } .kl-kurve path { opacity: var(--kl-kurve-ruhe); } .kl-punkt { opacity: .55; } .kl-zeile, .kl-slogan { transition: none; } }
 `;
 
 /* ---------- Modus der Startseite als Hook (dieselbe Quelle wie die Pille unten links) ---------- */
@@ -191,26 +185,6 @@ export function useKopfModus() {
     return () => window.removeEventListener(EVENT_START_MODUS, h);
   }, []);
   return v;
-}
-
-/* Symbole des Modus-Knopfs: zeigen den NÄCHSTEN Modus (wie die Zeile im Arbeitsmenü) */
-function ModusZeichen({ modus }) {
-  const n = naechsterModus(modus);
-  if (n === "hell") return (
-    <svg key="hell" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
-      <circle cx="12" cy="12" r="4" fill="currentColor" stroke="none" /><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8" />
-    </svg>
-  );
-  if (n === "mix") return (
-    <svg key="mix" viewBox="0 0 24 24" aria-hidden="true">
-      <circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" strokeWidth="2.2" /><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor" />
-    </svg>
-  );
-  return (
-    <svg key="dunkel" viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="currentColor" />
-    </svg>
-  );
 }
 
 /* Die Funktionskurve im Hintergrund: einmal eingezeichnet, dann bleibt sie als feine Linie */
@@ -265,10 +239,6 @@ export function Kopfleiste({ ansicht, gehe, zurStartseite, hmOffen, setHmOffen, 
   }, [kompakt]);
 
   const aktiv = besucherAktiv(ansicht, fotoModus);
-  const naechster = naechsterModus(modus);
-  const modusTitel = en
-    ? { hell: "Light home page", mix: "Mixed home page", dunkel: "Dark home page" }[naechster]
-    : { hell: "Startseite hell", mix: "Startseite mix", dunkel: "Startseite dunkel" }[naechster];
   const menueZu = (eintrag) => {
     setHmOffen(null);
     gehe(eintrag.ziel);
@@ -329,9 +299,6 @@ export function Kopfleiste({ ansicht, gehe, zurStartseite, hmOffen, setHmOffen, 
           {gast && (
             <button type="button" className="kl-anmelden" onClick={() => { setHmOffen(null); gehe({ ansicht: "konto" }); }} data-kl-anmelden>{en ? "Sign in" : "Anmelden"}</button>
           )}
-          <button type="button" className="kl-modus" onClick={() => startModusSetzen(naechster)} aria-label={modusTitel} title={modusTitel} data-kein-scroll data-kein-i18n data-kl-modus={modus}>
-            <ModusZeichen modus={modus} />
-          </button>
           {/* Konto-Chip (angemeldet) + Menü-Knopf ☰ – das alte Kopfmenü ist als „Arbeitsmenü“ in der Fußzeile */}
           <KontoBereich offen={hmOffen} setOffen={setHmOffen} gehe={gehe} />
         </div>
