@@ -20,7 +20,7 @@ const BASIS = "mythosmathe.de";
 const ANZAHL = [4, 6, 8, 10];
 
 async function generator(band) {
-  return band === 2 ? import("./vekAufgaben.js") : import("./diffAufgaben.js");
+  return band === 3 ? import("./kurvAufgaben.js") : band === 2 ? import("./vekAufgaben.js") : import("./diffAufgaben.js");
 }
 const seedAusAdresse = () => { try { const s = Number(new URLSearchParams(window.location.search).get("s")); return Number.isInteger(s) && s > 0 ? s : null; } catch (e) { return null; } };
 const seedSetzen = (s) => { try { const u = new URL(window.location.href); u.searchParams.set("s", String(s)); window.history.replaceState({}, "", u.pathname + u.search); } catch (e) { /* ignorieren */ } };
@@ -45,6 +45,8 @@ const DRUCK_CSS = `
 
 export function BuchBlatt({ gehe, band = 1, seite, nr, kasten = false }) {
   const buch = BUECHER[band] || BUECHER[1];
+  // Weiterführender Link: der Kurs zum Buch, oder – solange ein Band keinen Kurs hat – sein Start-Werkzeug
+  const weiter = buch.kurs ? { vor: "Interaktiv mit Eingabe und Rückmeldung üben:", ziel: { ansicht: buch.kurs }, text: `im Kurs „${buch.titel}“`, knopf: `Zum Kurs „${buch.titel}“` } : { vor: "Graph und Ableitungen deiner Funktion ansehen:", ziel: { ansicht: buch.start }, text: `im Werkzeug „${buch.startName}“`, knopf: `Zum Werkzeug „${buch.startName}“` };
   const [stand, setStand] = React.useState({ lade: true });
   const [seed, setSeed] = React.useState(() => seedAusAdresse() || neuerSeed());
   const [anzahl, setAnzahl] = React.useState(6);
@@ -121,7 +123,7 @@ export function BuchBlatt({ gehe, band = 1, seite, nr, kasten = false }) {
                 </div>
               </div>
             )}
-            <p style={{ fontSize: 13, color: C.hellgrau, marginTop: 18, lineHeight: 1.5 }}>Interaktiv mit Eingabe und Rückmeldung üben: <button type="button" onClick={() => gehe({ ansicht: buch.kurs })} style={{ background: "none", border: "none", color: C.seeTief, fontWeight: 800, cursor: "pointer", fontFamily: "inherit", fontSize: 13, padding: 0 }}>im Kurs „{buch.titel}“ →</button></p>
+            <p style={{ fontSize: 13, color: C.hellgrau, marginTop: 18, lineHeight: 1.5 }}>{weiter.vor} <button type="button" onClick={() => gehe(weiter.ziel)} style={{ background: "none", border: "none", color: C.seeTief, fontWeight: 800, cursor: "pointer", fontFamily: "inherit", fontSize: 13, padding: 0 }}>{weiter.text} →</button></p>
           </>
         )}
       </div>
@@ -153,15 +155,15 @@ export function BuchBlatt({ gehe, band = 1, seite, nr, kasten = false }) {
         </div>
         <p style={{ fontSize: 12.5, color: "#C9D2DE", margin: "12px 0 0", lineHeight: 1.5 }}>
           Dieses Blatt: <span style={{ fontFamily: "ui-monospace, monospace" }}>{link}?s={seed}</span> – derselbe Link liefert dasselbe Blatt, „Neue Aufgaben“ ein anderes.
-          Interaktiv mit Eingabe und Rückmeldung üben: <button type="button" onClick={() => gehe({ ansicht: buch.kurs })} style={{ background: "none", border: "none", color: C.flaggold, fontWeight: 800, cursor: "pointer", fontFamily: "inherit", fontSize: 12.5, padding: 0 }}>im Kurs „{buch.titel}“ →</button>
+          {weiter.vor} <button type="button" onClick={() => gehe(weiter.ziel)} style={{ background: "none", border: "none", color: C.flaggold, fontWeight: 800, cursor: "pointer", fontFamily: "inherit", fontSize: 12.5, padding: 0 }}>{weiter.text} →</button>
         </p>
       </div>
 
       {stand.lade ? <p role="status" style={{ color: C.grau, fontSize: 15, textAlign: "center" }}>Aufgaben werden erzeugt …</p>
         : stand.fehler ? (
           <div style={{ background: C.sand, borderRadius: 16, padding: 18, color: C.tinte, fontSize: 15.5, lineHeight: 1.6 }}>
-            Zu dieser Aufgabe gibt es keine automatischen Varianten (Begründen, Zeichnen, Beweisen). Üben kannst du sie im Kurs – dort stehen Aufgabe und Lösung aus dem Buch.
-            <div><button type="button" onClick={() => gehe({ ansicht: buch.kurs })} style={{ ...knopf(true), marginTop: 12, color: C.seeTief }}>Zum Kurs „{buch.titel}“</button></div>
+            Zu dieser Aufgabe gibt es keine automatischen Varianten (Begründen, Zeichnen, Beweisen). {buch.kurs ? "Üben kannst du sie im Kurs – dort stehen Aufgabe und Lösung aus dem Buch." : "Die Lösung steht im Lösungsteil des Buchs."}
+            <div><button type="button" onClick={() => gehe(weiter.ziel)} style={{ ...knopf(true), marginTop: 12, color: C.seeTief }}>{weiter.knopf}</button></div>
           </div>
         ) : (
           <div id="mm-blatt" style={{ background: C.weiss, borderRadius: 18, padding: "22px 20px", boxShadow: "0 2px 16px rgba(14,30,74,0.08)" }}>

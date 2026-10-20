@@ -24,3 +24,11 @@ Unterkapitels, `{{T:stamm}}` Titel (stamm = Dateiname ohne Nummer).
 
 Weitere Kapitel: neue Kapitelnummer in `KAPFARBE`/`KAPNAME` (`build.mjs`) und in `loesungen-sammeln.py` ergänzen,
 `START` in `loesungen-verteilen.py` anpassen.
+
+QR-Codes (seit 21.10.2026, wie Band 1 und 2): `node build.mjs` misst den Platz je Seite und setzt die Codes
+(`../qr.mjs`). Aufgabentypen und Generatoren: `../../matheskript-v80-deploy/src/kurvAufgaben.js` (`BUCH_TYPEN`,
+Test `tests/kurvAufgaben.test.mjs`). Kurzlinks `/b3/<Seite>-<Nr>` und `/b3/s<Seite>`; `/b3` öffnet, solange es
+keinen Kurs gibt, das Werkzeug Kurvendiskussion (`BUECHER[3]` in `src/pfade.js`).
+Neue Buchaufgabe mit Typ: in `BUCH_TYPEN` eintragen, `node build.mjs`, Viewer neu kopieren.
+Gedruckte Seiten- und Aufgabennummern nie ändern – die Codes zeigen darauf.
+`QR=0 node build.mjs` baut ohne Codes. Druckausgabe (KDP) braucht noch eine `kdp.json` (Vorlage: `../vektoren/kdp.json`).

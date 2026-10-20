@@ -37,6 +37,12 @@ with sync_playwright() as p:
       }
       return out;
     })""")
+    if "--messen" in sys.argv:   # nur freien Platz je Seite messen (für die QR-Codes, build.mjs) – kein PDF
+        import json
+        json.dump({str(r["nr"]): {"haupt": r.get("frei_haupt"), "rand": r.get("frei_rand")} for r in res}, open(DIST / "platz.json", "w"))
+        b.close()
+        print(f"platz.json: {len(res)} Seiten gemessen.")
+        sys.exit(0)
     for r in res:
         flag = "  <-- " + "; ".join(r["probleme"]) if r["probleme"] else ""
         print(f"S.{r['nr']:>2} {r['datei']:<34} frei haupt {r.get('frei_haupt','-'):>5}px  rand {r.get('frei_rand','-'):>5}px{flag}")

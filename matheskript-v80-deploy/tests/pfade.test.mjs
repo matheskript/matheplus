@@ -134,19 +134,21 @@ test("Ansichten ohne Pfad liefern null (App nimmt dann /)", () => {
 import { buchLinkAufloesen, buchLink, BUECHER } from "../src/pfade.js";
 import { BUCH_TYPEN as DIFF_TYPEN } from "../src/diffAufgaben.js";
 import { BUCH_TYPEN as VEK_TYPEN } from "../src/vekAufgaben.js";
+import { BUCH_TYPEN as KURV_TYPEN } from "../src/kurvAufgaben.js";
 test("Kurzlinks der Schulbücher lösen auf und bleiben in sich stimmig", () => {
   assert.deepEqual(pfadAufloesen("/b1/25-1"), { ansicht: "blatt", band: 1, seite: 25, nr: "1", kanonisch: true });
   assert.deepEqual(pfadAufloesen("/B1/10-T3/"), { ansicht: "blatt", band: 1, seite: 10, nr: "T3", kanonisch: true });
   assert.deepEqual(pfadAufloesen("/b2/s17"), { ansicht: "blatt", band: 2, seite: 17, kasten: true, kanonisch: true });
   assert.equal(pfadAufloesen("/b2").ansicht, "vekkurs");
-  assert.equal(pfadAufloesen("/b3/1-1"), null);
+  assert.equal(pfadAufloesen("/b4/1-1"), null);
+  assert.equal(pfadAufloesen("/b3").ansicht, "plotter");   // Band 3 hat noch keinen Kurs
   assert.equal(buchLinkAufloesen("b1/25-1a").nr, "1a");
   assert.equal(pfadFuer({ ansicht: "blatt", band: 1, seite: 25, nr: "1" }), "/b1/25-1");
   assert.equal(pfadFuer({ ansicht: "blatt", band: 2, seite: 17, kasten: true }), "/b2/s17");
   for (const b of Object.keys(BUECHER)) assert.ok(pfadAufloesen(`/b${b}`), `Band ${b}`);
 });
 test("Jede Buchaufgabe mit Typ hat einen Kurzlink, der wieder auf Typ und Seite führt", () => {
-  for (const [band, typen] of [[1, DIFF_TYPEN], [2, VEK_TYPEN]]) {
+  for (const [band, typen] of [[1, DIFF_TYPEN], [2, VEK_TYPEN], [3, KURV_TYPEN]]) {
     for (const k of Object.keys(typen)) {
       const [seite, nr] = k.split("-");
       const z = pfadAufloesen(buchLink(band, Number(seite), nr));

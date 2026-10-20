@@ -20,7 +20,7 @@ const OEFFENTLICH = ["/impressum", "/datenschutz", "/agb", "/widerruf", "/einwil
 /* QR-Codes aus den gedruckten Schulbüchern (/b1/25-1, /b2/s17 – pfade.js): wer das Buch gekauft hat, braucht kein Passwort.
    Dazu nur die Daten, die das Aufgabenblatt braucht (Kurs-JSON, Kastenziele, KaTeX) – Reader und PDF der Bücher bleiben hinter dem Passwort. */
 const istOeffentlich = (p) => OEFFENTLICH.includes(p.replace(/\/$/, "")) || p.startsWith("/assets/")
-  || /^\/b[12](\/|$)/i.test(p) || /^\/buecher\/[a-z]+\/(kurs\/|kaesten\.json$|katex\.css$|fonts\/)/.test(p);
+  || /^\/b[123](\/|$)/i.test(p) || /^\/buecher\/[a-z]+\/(kurs\/|kaesten\.json$|katex\.css$|fonts\/)/.test(p);
 
 
 /* ---------- Masterclass-Zugangslinks (/masterclass/zugang?z=MC…) ----------

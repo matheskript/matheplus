@@ -254,14 +254,15 @@ export function pfadAufloesen(roh) {
 export const BUECHER = {
   1: { ordner: "ableitungen", titel: "Ableitungen", kurs: "diffkurs" },
   2: { ordner: "vektoren", titel: "Vektoren, Geraden und Ebenen", kurs: "vekkurs" },
+  3: { ordner: "kurvendiskussion", titel: "Kurvendiskussion", kurs: null, start: "plotter", startName: "Kurvendiskussion" },   // noch kein Kurs: /b3 öffnet das Werkzeug Kurvendiskussion
 };
 export function buchLinkAufloesen(p) {
-  const m = /^b([12])(?:\/(?:(\d{1,3})-([a-z]?\d{1,2}[a-z]?)|s(\d{1,3})))?$/.exec(p);
+  const m = /^b([123])(?:\/(?:(\d{1,3})-([a-z]?\d{1,2}[a-z]?)|s(\d{1,3})))?$/.exec(p);
   if (!m) return null;
   const band = Number(m[1]);
   if (m[2]) return { ansicht: "blatt", band, seite: Number(m[2]), nr: m[3].replace(/^t/, "T"), kanonisch: true };
   if (m[4]) return { ansicht: "blatt", band, seite: Number(m[4]), kasten: true, kanonisch: true };
-  return { ansicht: BUECHER[band].kurs, kanonisch: true };
+  return { ansicht: BUECHER[band].kurs || BUECHER[band].start, kanonisch: true };
 }
 /* Kurzlink in der Gegenrichtung (ohne Domain), z. B. buchLink(1, 25, "1") → "/b1/25-1", buchLink(1, 25) → "/b1/s25" */
 export const buchLink = (band, seite, nr) => (nr == null ? `/b${band}/s${seite}` : `/b${band}/${seite}-${String(nr).toLowerCase()}`);
