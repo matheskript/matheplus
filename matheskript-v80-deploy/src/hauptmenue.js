@@ -119,6 +119,7 @@ export function klassenInhalt(k) {
 /* Im Menü als Karten-Leiste (funcHauptmenue.jsx gibt jeder Karte Farbe und Zeichen über die id) */
 const KURSE_ALLE = [
   { id: "mckurs", name: "Mathe Abi Masterclass", zeile: "Kursbereich für Teilnehmer: Videos, Aufträge, Mathilda", ziel: { ansicht: "mckurs" } },
+  { id: "unterstufe", name: "Unterstufe", zeile: "Klasse 5 und 6: der ganze Stoff, lesen und gleich üben", ziel: { ansicht: "unterstufe" } },
   { id: "diffkurs", name: "Differentialrechnung", zeile: "Schulbuch lesen und direkt trainieren", ziel: { ansicht: "diffkurs" } },
   { id: "vekkurs", name: "Vektoren, Geraden und Ebenen", zeile: "Heftkapitel lesen und trainieren", ziel: { ansicht: "vekkurs" } },
   { id: "gfs", name: "GFS in Mathe", zeile: "Thema wählen, verstehen, vortragen", ziel: { ansicht: "gfs" } },

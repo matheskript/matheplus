@@ -99,3 +99,37 @@ export function MotivDialog({ id, klasse = "kk-motiv" }) {
     </svg>
   );
 }
+
+/* Unterstufe: das Geodreieck – Skala, Gradbogen, rechter Winkel – mit einem Würfel und einem Bruchkreis daneben */
+export function MotivGeodreieck({ id, klasse = "kk-motiv" }) {
+  const f = `url(#${id}-folie)`;
+  const ticks = [];
+  for (let i = 0; i <= 20; i++) { const x = 22 + i * 5.8; ticks.push(<line key={i} x1={x} y1="100" x2={x} y2={i % 5 ? 95.5 : 91} stroke="#3A0019" strokeOpacity="0.55" strokeWidth={i % 5 ? 1 : 1.5} />); }
+  return (
+    <svg className={klasse} viewBox="0 0 160 120" aria-hidden="true">
+      <Defs id={id} folie={FOLIE.gold} schein="#F2C14E" />
+      <circle cx="80" cy="66" r="58" fill={`url(#${id}-schein)`} />
+      {/* Geodreieck: Hypotenuse unten als Lineal, Spitze oben */}
+      <path d="M16 104 L80 24 L144 104 Z" fill={C.weiss} fillOpacity="0.92" stroke={f} strokeWidth="2.6" strokeLinejoin="round" />
+      <path d="M80 24 L80 104" stroke="#3A0019" strokeOpacity="0.35" strokeWidth="1.2" strokeDasharray="3 3" />
+      <path d="M40 104 A40 40 0 0 1 120 104" fill="none" stroke="#3A0019" strokeOpacity="0.45" strokeWidth="1.3" />
+      <path d="M52 104 A28 28 0 0 1 108 104" fill="none" stroke="#3A0019" strokeOpacity="0.3" strokeWidth="1" />
+      {ticks}
+      <path d="M80 104 L116 68" stroke={f} strokeWidth="3.4" strokeLinecap="round" />
+      <path d="M92 104 A12 12 0 0 0 88.5 95.5" fill="none" stroke={f} strokeWidth="2.4" />
+      <circle cx="80" cy="104" r="4.2" fill={f} />
+      {/* Würfel unten links */}
+      <g transform="translate(6 70)">
+        <path d="M0 10 L14 4 L28 10 L14 16 Z" fill={f} />
+        <path d="M0 10 L0 26 L14 32 L14 16 Z" fill="#5A0024" />
+        <path d="M14 16 L14 32 L28 26 L28 10 Z" fill="#7A0032" />
+      </g>
+      {/* Bruchkreis oben rechts: drei Viertel in Gold */}
+      <g transform="translate(130 30)">
+        <circle cx="0" cy="0" r="15" fill={C.weiss} fillOpacity="0.9" />
+        <path d="M0 0 L0 -15 A15 15 0 1 1 -15 0 Z" fill={f} />
+        <path d="M0 -15 V15 M-15 0 H15" stroke="#3A0019" strokeOpacity="0.45" strokeWidth="1.2" />
+      </g>
+    </svg>
+  );
+}

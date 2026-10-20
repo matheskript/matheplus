@@ -1,5 +1,5 @@
 /* ============================================================
-   Farbwelten der vier Kurse – „Lack und Goldfolie“. Eine Palette je Kurs,
+   Farbwelten der Kurse – „Lack und Goldfolie“. Eine Palette je Kurs,
    gemeinsam genutzt von den Startseiten-Kacheln (funcKursKachel.jsx) und den
    Kursseiten (funcKursKopf.jsx). Reine Daten, keine Importe aus func-Dateien.
 
@@ -71,4 +71,16 @@ export const NACHTBLAU = {
   knopf: GOLD_VERLAUF, knopftext: "#06102A", knopfschatten: "rgba(237,187,0,0.6)", spur: "rgba(255,255,255,0.16)", fuellung: GOLD_VERLAUF,
   dunkel: "linear-gradient(150deg, #06102A 0%, #0B1E4A 100%)", dunkelText: C.weiss, ring: C.flaggold, ringSpur: "rgba(255,255,255,0.14)", dunkelKnopf: GOLD_PILLE, dunkelKnopfText: "#06102A",
   medaille: "#EEF3FC", medailleText: "#06102A", fertig: C.flaggold, fertigText: "#06102A", badge: "#0B1E4A", badgeText: C.flaggold, linieFertig: C.flaggold,
+};
+
+/* Unterstufe (Klasse 5 und 6): Granat – das tiefe Weinrot der Marke (Grana) mit Gold */
+export const GRANAT = {
+  lack: `linear-gradient(150deg, #3A0019 0%, #7A0032 55%, ${C.gruen} 100%)`,
+  rand: "linear-gradient(135deg, rgba(255,233,160,0.9), rgba(242,193,78,0.28) 55%, rgba(255,180,205,0.35))",
+  glanz: "rgba(255,210,225,0.2)", schein: "rgba(242,193,78,0.35)", kante: "rgba(255,255,255,0.22)", schatten: "rgba(58,0,25,0.75)",
+  kopf: "linear-gradient(150deg, #24000F 0%, #3A0019 100%)", linie: GOLD_VERLAUF,
+  titel: C.weiss, text: "rgba(255,255,255,0.86)", akzent: "#FFD66B", chip: "rgba(255,255,255,0.1)", chipRand: "rgba(255,233,160,0.3)",
+  knopf: GOLD_VERLAUF, knopftext: "#3A0019", knopfschatten: "rgba(242,193,78,0.55)", spur: "rgba(255,255,255,0.16)", fuellung: GOLD_VERLAUF,
+  dunkel: "linear-gradient(150deg, #24000F 0%, #5A0024 100%)", dunkelText: C.weiss, ring: "#FFD66B", ringSpur: "rgba(255,255,255,0.14)", dunkelKnopf: GOLD_PILLE, dunkelKnopfText: "#3A0019",
+  medaille: "#FFE9EF", medailleText: "#5A0024", fertig: "#F2C14E", fertigText: "#3A0019", badge: "#5A0024", badgeText: "#FFD66B", linieFertig: "#F2C14E",
 };

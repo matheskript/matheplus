@@ -76,6 +76,7 @@ export const SPRUENGE = {
   "gleichkurs-runde":        { an: true,  art: "seite", wo: "Gleichungen lernen: Runde starten/beenden" },
   "videokurs-lektion":       { an: true,  art: "seite", wo: "Videokurse: andere Lektion" },
   "diffkurs-modul":          { an: true,  art: "seite", wo: "Kurs Differentialrechnung: Modul öffnen, „Nächstes Modul“, zurück zur Modulübersicht" },
+  "unterstufe-seite":        { an: true,  art: "seite", wo: "Modul Unterstufe: Lerneinheit öffnen, „Nächste Lerneinheit“, zurück zur Übersicht, Klasse wechseln" },
   "masterclass-modul":       { an: true,  art: "seite", wo: "Masterclass-Kursbereich: Lektion öffnen, „Nächste Lektion“, zurück zur Übersicht, Code eingelöst" },
   "claudekurs-lektion":      { an: true,  art: "seite", wo: "Kurse Mathe lernen mit Claude / mit Gemini: Lektion öffnen, „Nächste Lektion“, zurück zur Übersicht" },
   "vekkurs-modul":           { an: true,  art: "seite", wo: "Kurs Vektoren, Geraden und Ebenen: Modul öffnen, „Nächstes Modul“, zurück zur Modulübersicht" },

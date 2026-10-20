@@ -18,6 +18,7 @@ import { Auswahl, GrosserKnopf, hilfeKontext, hinweis, karte, kicker, zw } from 
 import { Aufklapp, ModusLeiste, Seite, SchrittFolge } from "./ui3.jsx";
 import { ggT, q, qAdd, qNum } from "./rechnen2.js";
 import { BRUCH_ARTEN, bruchAufgabe, bruchTex, kgV, rohTex } from "./bruchGen.js";
+import { uebenWunschHolen, uebenWunschLesen } from "./uebenWunsch.js";
 import { Merke, Regler, SCHRIFT } from "./geoUi.jsx";
 
 let zaehler = 0;
@@ -300,8 +301,9 @@ function hilfe(au) {
 }
 
 function Ueben() {
-  const [art, setArt] = useState("mix");
-  const [au, setAu] = useState(() => neueAufgabe());
+  // Wunsch einer Lernseite (uebenWunsch.js): gleich mit einem bestimmten Aufgabentyp starten
+  const [art, setArt] = useState(() => { const w = uebenWunschHolen("bruchrechnen"); return w && w.art && BRUCH_ARTEN.includes(w.art) ? w.art : "mix"; });
+  const [au, setAu] = useState(() => neueAufgabe(art === "mix" ? null : art));
   const [stand, setStand] = useState(0);
   const neu = (a = art) => { setAu(neueAufgabe(a === "mix" ? null : a)); setStand(0); };
   const schritte = useMemo(() => schritteVon(au), [au]);
@@ -332,7 +334,7 @@ function Ueben() {
 const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Üben", "Practise")]];
 
 export function Bruchrechnen() {
-  const [modus, setModus] = useState("ueben");
+  const [modus, setModus] = useState(() => { const w = uebenWunschLesen("bruchrechnen"); return w && w.modus ? w.modus : "ueben"; });
   return (
     <Seite titel={zw("Brüche rechnen", "Working with fractions")}
       text={zw("Kürzen, erweitern, plus, minus, mal und geteilt – mit Bruchstreifen zum Sehen und Aufgaben, die jeden typischen Fehler gezielt ansprechen.",

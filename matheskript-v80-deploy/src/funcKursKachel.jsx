@@ -16,9 +16,10 @@
    ============================================================ */
 import React from "react";
 import { C } from "./base1.jsx";
-import { diffStand, vekStand, gfsStand, kiStand } from "./kursStand.js";
-import { PORZELLAN, TIEFBLAU, LACKSCHWARZ, NACHTBLAU } from "./kursFarben.js";
-import { MotivTangente, MotivEbene, MotivBuehne, MotivDialog } from "./funcKursMotive.jsx";
+import { diffStand, vekStand, gfsStand, kiStand, unterStand } from "./kursStand.js";
+import { PORZELLAN, TIEFBLAU, LACKSCHWARZ, NACHTBLAU, GRANAT } from "./kursFarben.js";
+import { MotivTangente, MotivEbene, MotivBuehne, MotivDialog, MotivGeodreieck } from "./funcKursMotive.jsx";
+import { UNTERSTUFE_ZAHLEN } from "./unterstufeDaten.js";
 
 /* ---------- Gemeinsame Kachel ---------- */
 /* Die Stilregeln kommen einmal in den <head> (nicht in jede Kachel), bleiben also auch nach
@@ -159,5 +160,16 @@ export function ClaudeKursKachel({ onClick, kurs = "ki" }) {
       meta="Drei Wege nach Alter"
       zeile="Mathilda AI für alle, Gemini ab 16, Claude ab 18 – die KI erklärt, du rechnest." stand={stand} einheit="Lektionen"
       daten={{ "data-claudekurs-kachel": kurs }} />
+  );
+}
+
+/* Unterstufe: Klasse 5 und 6 – Granat mit Gold, das Geodreieck als Motiv */
+export function UnterstufeKachel({ onClick }) {
+  const stand = sicher(unterStand);
+  return (
+    <KursKachel onClick={onClick} id="kk-unter" label="Modul Unterstufe öffnen" titel="Unterstufe: Klasse 5 und 6" farben={GRANAT} Motiv={MotivGeodreieck}
+      meta={`${UNTERSTUFE_ZAHLEN.kapitel} Kapitel, ${UNTERSTUFE_ZAHLEN.einheiten} Lerneinheiten`}
+      zeile="Der ganze Stoff: lesen, Beispiel, Merksatz – und gleich üben, mit Kopfrechnen." stand={stand} einheit="Lerneinheiten"
+      daten={{ "data-unterstufe-kachel": "" }} />
   );
 }

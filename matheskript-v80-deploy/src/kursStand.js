@@ -9,6 +9,7 @@
 import { KURS_MODULE as DIFF } from "./diffKursDaten.js";
 import { KURS_MODULE as VEK, TITEL_KURZ as VEK_KURZ, BUCH_BEREIT } from "./vekKursDaten.js";
 import { LEITFADEN } from "./gfsKurs.js";
+import { unterstufeStand } from "./unterstufeDaten.js";
 
 const lies = (schluessel) => { try { return JSON.parse(localStorage.getItem(schluessel) || "{}") || {}; } catch (e) { return {}; } };
 
@@ -50,4 +51,10 @@ export function kiStand() {
   const fertig = Math.max(claude, gemini);
   const welcher = claude >= gemini ? "Claude" : "Gemini";
   return { fertig, gesamt: 10, weiter: fertig > 0 && fertig < 10 ? `Weiter mit Lektion ${fertig + 1} (${welcher})` : "" };
+}
+
+/* Modul Unterstufe (mm_unterstufe): eine Lerneinheit ist geschafft, wenn alle drei „Ich kann …“-Haken sitzen (unterstufeDaten.js) */
+export function unterStand() {
+  const st = unterstufeStand(lies("mm_unterstufe"));
+  return { fertig: st.fertig, gesamt: st.gesamt, jeKlasse: st.jeKlasse, weiter: st.weiter ? `Weiter mit: ${st.weiter.titel}` : "" };
 }

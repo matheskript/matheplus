@@ -13,6 +13,7 @@ import React, { useState } from "react";
 import { C } from "./base1.jsx";
 import { M } from "./func3.jsx";
 import { Auswahl, hilfeKontext, karte, kicker, zw } from "./ui2.jsx";
+import { uebenWunschLesen } from "./uebenWunsch.js";
 import { Aufklapp, ModusLeiste, Seite, zt } from "./ui3.jsx";
 import { WINKEL_ARTEN, lagenWert, winkelAufgabe } from "./geoMittel2.js";
 import { Merke, Regler, UebenRahmen, WertZeile, Zeichenblatt, add, mal, polar } from "./geoUi.jsx";
@@ -301,7 +302,7 @@ const hilfe = (au) => hilfeKontext({
 const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Üben", "Practise")]];
 
 export function Winkelsaetze() {
-  const [modus, setModus] = useState("entdecken");
+  const [modus, setModus] = useState(() => { const w = uebenWunschLesen("winkelsaetze"); return w && w.modus ? w.modus : "entdecken"; });   // Wunsch einer Lernseite (uebenWunsch.js)
   return (
     <Seite titel={zw("Winkel an Geraden und Winkelsummen", "Angles at lines and angle sums")}
       text={zw("Scheitel-, Neben-, Stufen- und Wechselwinkel, die Winkelsumme im Dreieck und im n-Eck: die Werkzeuge, mit denen man jeden fehlenden Winkel findet.",

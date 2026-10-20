@@ -117,6 +117,7 @@ export const NAV = [
     { name: "Potenzregel", kurz: "Beweis mit Produktregel und vollständiger Induktion", ansicht: "potenzregel" },
     { name: "Die e-Funktion", kurz: "Minikurs: Eulersche Zahl, Eigenschaften, Ableiten", ansicht: "efunktion" },
     { name: "Kurs GFS in Mathe", kurz: "Klassenstufe wählen, Thema trainieren, in sieben Schritten zur GFS", ansicht: "gfs" },
+    { name: "Unterstufe – Klasse 5 und 6", kurz: "Der ganze Stoff: lesen, Beispiel, Merksatz, gleich üben", ansicht: "unterstufe" },
     { name: "Kurs Differentialrechnung", kurz: "Jedes Buchkapitel lesen und direkt darunter trainieren", ansicht: "diffkurs" },
     { name: "Kurs Vektoren, Geraden und Ebenen", kurz: "Jedes Heftkapitel lesen und direkt darunter trainieren", ansicht: "vekkurs" },
     { name: "Schulbuch: Ableitungen", kurz: "50 Seiten zum Blättern – jede Regel hergeleitet", ansicht: "schulbuch" },

@@ -28,6 +28,7 @@ import { KapitelTrainingSeite } from "./funcKapitelTraining.jsx";
 import { MathildaChatSeite } from "./funcMathildaChat.jsx";
 import { MathildaKopf, FotoStart, SoArbeitetMathilda } from "./funcMathildaSeite.jsx";
 import { kameraWunschSetzen } from "./kameraWunsch.js";
+import { uebenWunschLesen, uebenWunschVerwerfen } from "./uebenWunsch.js";
 import { BlattScanner } from "./funcBlattScanner.jsx";
 import { mathildaSystem } from "./mathildaKontext.js";
 import { Operatoren, Wiederholen } from "./func7.jsx";
@@ -62,6 +63,7 @@ const ElternabendSeite = lazyLaden(() => import("./funcElternabend.jsx").then((m
 const SpendenSeite = lazyLaden(() => import("./funcSpendenSeite.jsx").then((m) => ({ default: m.SpendenSeite })));
 const DiffKursSeite = lazyLaden(() => import("./funcDiffKurs.jsx").then((m) => ({ default: m.DiffKursSeite })));
 const VekKursSeite = lazyLaden(() => import("./funcVekKurs.jsx").then((m) => ({ default: m.VekKursSeite })));
+const UnterstufeSeite = lazyLaden(() => import("./funcUnterstufe.jsx").then((m) => ({ default: m.UnterstufeSeite })));
 /* Mathe Abi Masterclass: Kursbereich für Teilnehmer und Zugang über den persönlichen Link */
 const MasterclassKursSeite = lazyLaden(() => import("./funcMasterclassKurs.jsx").then((m) => ({ default: m.MasterclassKursSeite })));
 const MasterclassZugangSeite = lazyLaden(() => import("./funcMasterclassKurs.jsx").then((m) => ({ default: m.MasterclassZugangSeite })));
@@ -164,7 +166,7 @@ export function Mathilda() {
       const a = u.searchParams.get("ansicht");
       if (u.searchParams.has("quelle") || a) {
         u.searchParams.delete("quelle"); u.searchParams.delete("ansicht"); window.history.replaceState({}, "", u.pathname + u.search + u.hash);
-        const erlaubt = ["trainingszentrum", "meintraining", "formeln", "lernpfad", "challenge", "konto", "kopf", "entdecken", "headnumbers", "gleichkurs", "ebbinghaus", "fehlertraining", "warmup"];
+        const erlaubt = ["trainingszentrum", "meintraining", "formeln", "lernpfad", "challenge", "konto", "kopf", "entdecken", "headnumbers", "gleichkurs", "ebbinghaus", "fehlertraining", "warmup", "unterstufe"];
         if (a && (erlaubt.includes(a) || istWzSeite(a) || wo(a))) setTimeout(() => gehe({ ansicht: a }), 0);
       }
       const f = u.searchParams.get("formel");
@@ -204,6 +206,7 @@ export function Mathilda() {
   const [gkSeite, setGkSeite] = useState(null);             // direkt geöffneter Reiter im Bereich Gleichungen
   const [wzSeite, setWzSeite] = useState(null);             // Reiter eines Werkzeugs mit Unterpfaden (Textaufgaben: verstehen | training | mathilda)
   const [hnModul, setHnModul] = useState(null);             // direkt geöffneter Bereich von Head & Numbers
+  const [usSeite, setUsSeite] = useState(null);             // Modul Unterstufe: klasse-5 | klasse-6 | Lerneinheit (Pfad /unterstufe/…)
   const [entdeckenStart, setEntdeckenStart] = useState(null);   // direkt geöffnetes Lernangebot in „Mathe entdecken“
   const [landWahl, setLandWahl] = useState("bw");
   const [formelBereich, setFormelBereich] = useState("analysis");
@@ -247,7 +250,7 @@ export function Mathilda() {
   const adressErsterLauf = useRef(true);
   const adressAusVerlauf = useRef(0);   // Zeitpunkt der letzten Zurück/Vor-Taste
   const adressZustand = {
-    ansicht, klasse: klasseAktiv, land: landWahl, trainer: kopfTrainer, seite: ansicht === "gleichkurs" ? gkSeite : ansicht === "textaufgaben" ? wzSeite : entdeckenStart, kurs: kursStart,
+    ansicht, klasse: klasseAktiv, land: landWahl, trainer: kopfTrainer, seite: ansicht === "gleichkurs" ? gkSeite : ansicht === "textaufgaben" ? wzSeite : ansicht === "unterstufe" ? usSeite : entdeckenStart, kurs: kursStart,
     ziel: ansicht === "training" ? trainZiel : ansicht === "ki" ? genZiel : undefined,
     foto: ansicht === "analyse" ? fotoModus : undefined,
   };
@@ -275,7 +278,7 @@ export function Mathilda() {
       if (erster || ausVerlauf) window.history.replaceState({}, "", soll + rest);
       else window.history.pushState({}, "", soll + rest);
     } catch (e) { /* ignorieren */ }
-  }, [ansicht, trainZiel, genZiel, fotoModus, klasseAktiv, kopfTrainer, entdeckenStart, kursStart, landWahl, wzSeite]);
+  }, [ansicht, trainZiel, genZiel, fotoModus, klasseAktiv, kopfTrainer, entdeckenStart, kursStart, landWahl, wzSeite, usSeite]);
   // Zurück/Vor-Taste des Browsers
   useEffect(() => {
     const f = () => {
@@ -292,6 +295,7 @@ export function Mathilda() {
       return;
     }
     if (!eintrag.uebergabe) hinweisVerwerfen();
+    { const w = uebenWunschLesen(); if (w && w.werkzeug !== eintrag.ansicht) uebenWunschVerwerfen(); }   // Üben-Wunsch gilt nur für das gewünschte Werkzeug
     setAnsicht(eintrag.ansicht);
     setSeitenOffen(false); setHmOffen(null);
     if (eintrag.ansicht === "training") setTrainZiel(eintrag.ziel ?? null);
@@ -305,6 +309,7 @@ export function Mathilda() {
     setKopfTrainer(eintrag.ansicht === "kopf" ? eintrag.trainer || null : null);
     setHnModul(eintrag.ansicht === "headnumbers" ? eintrag.modul || null : null);
     setGkSeite(eintrag.ansicht === "gleichkurs" ? eintrag.seite || null : null);
+    setUsSeite(eintrag.ansicht === "unterstufe" ? eintrag.seite || null : null);
     setWzSeite(eintrag.ansicht === "textaufgaben" ? eintrag.seite || null : null);
     setEntdeckenStart(eintrag.ansicht === "entdecken" ? eintrag.seite || null : null);
     setEntdeckenStart(eintrag.ansicht === "entdecken" ? eintrag.seite || null : null);
@@ -1052,6 +1057,10 @@ export function Mathilda() {
       ) : ansicht === "vekkurs" ? (
         <React.Suspense fallback={<p role="status" style={{ color: C.grau, fontSize: 15, fontWeight: 300, padding: "24px", textAlign: "center" }}>{englisch() ? "Loading …" : "Wird geladen …"}</p>}>
           <VekKursSeite gehe={gehe} />
+        </React.Suspense>
+      ) : ansicht === "unterstufe" ? (
+        <React.Suspense fallback={<p role="status" style={{ color: C.grau, fontSize: 15, fontWeight: 300, padding: "24px", textAlign: "center" }}>{englisch() ? "Loading …" : "Wird geladen …"}</p>}>
+          <UnterstufeSeite gehe={gehe} seite={usSeite} setSeite={setUsSeite} />
         </React.Suspense>
       ) : ansicht === "kiwahl" ? (
         <React.Suspense fallback={<p role="status" style={{ color: C.grau, fontSize: 15, fontWeight: 300, padding: "24px", textAlign: "center" }}>{englisch() ? "Loading …" : "Wird geladen …"}</p>}>

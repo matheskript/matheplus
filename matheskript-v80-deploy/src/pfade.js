@@ -18,6 +18,7 @@
    - /archiv/… und /api/… sind keine App-Seiten.
    ============================================================ */
 import { WERKZEUGE, BEREICHE, ansichtenVon } from "./werkzeuge.js";
+import { istUnterstufeSeite } from "./unterstufeDaten.js";
 
 /* Werkzeuge, deren Pfad vom Schlüssel abweicht */
 export const WZ_SLUG = {
@@ -77,6 +78,7 @@ export const SEITEN = [
   { pfad: "gfs-trainer", ansicht: "gfs", alias: ["gfs", "kurs-gfs", "gfs-kurs"] },
   { pfad: "gfs-trainer/pascalsches-dreieck", ansicht: "gfs-pascal", alias: ["gfs/pascalsches-dreieck"] },
   { pfad: "gfs-trainer/optimale-dose", ansicht: "gfs-dose", alias: ["gfs/optimale-dose", "optimale-dose", "gfs-dose"] },
+  { pfad: "unterstufe", ansicht: "unterstufe", alias: ["klasse-5-6", "kurs-unterstufe", "unterstufe-kurs", "klasse-5-und-6"] },
   { pfad: "differentialrechnung", ansicht: "diffkurs", alias: ["differenzialrechnung", "kurs-differentialrechnung", "diffkurs"] },
   { pfad: "vektoren-geraden-ebenen", ansicht: "vekkurs", alias: ["kurs-vektoren", "kurs-vektoren-geraden-ebenen", "vekkurs"] },
   { pfad: "mathe-mit-ki-lernen", ansicht: "kiwahl", alias: ["mathe-lernen-mit-ki", "mathe-mit-ki", "lernen-mit-ki", "ki-lernen", "ki-kurse", "kiwahl"] },
@@ -222,6 +224,11 @@ export function pfadAufloesen(roh) {
   if (k && KLASSEN.includes(Number(k[1]))) return { ansicht: "klasse", klasse: Number(k[1]), kanonisch: true };
   const l = /^landeswettbewerb\/([a-z]{2})$/.exec(p);
   if (l && LAND_IDS.includes(l[1])) return { ansicht: "landeswettbewerb", land: l[1], kanonisch: true };
+  /* Modul Unterstufe: /unterstufe/klasse-5, /unterstufe/<lerneinheit> (Ids aus unterstufeDaten.js); /klasse-5 und /klasse-6 als Kurzform */
+  const u = /^unterstufe\/([a-z0-9-]+)$/.exec(p);
+  if (u && istUnterstufeSeite(u[1])) return { ansicht: "unterstufe", seite: u[1], kanonisch: true };
+  const k56 = /^klasse-([56])$/.exec(p);
+  if (k56) return { ansicht: "unterstufe", seite: `klasse-${k56[1]}`, kanonisch: false };
   const e = NACH_PFAD.get(p);
   if (!e) return null;
   const { pfad, alias, werkzeug, bereich, ...ziel } = e;
@@ -237,6 +244,7 @@ export function pfadFuer(zustand) {
   const z = zustand || {};
   if (z.ansicht === "klasse" && KLASSEN.includes(Number(z.klasse))) return `/klasse-${Number(z.klasse)}`;
   if (z.ansicht === "landeswettbewerb" && LAND_IDS.includes(z.land) && z.land !== "bw") return `/landeswettbewerb/${z.land}`;
+  if (z.ansicht === "unterstufe" && z.seite && istUnterstufeSeite(z.seite)) return `/unterstufe/${z.seite}`;
   let beste = null, bestePunkte = -1;
   for (const e of PFADE) {
     if (e.ansicht !== z.ansicht) continue;

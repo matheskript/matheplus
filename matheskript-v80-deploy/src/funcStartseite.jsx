@@ -37,7 +37,7 @@ import { Quickfinder } from "./funcQuickfinder.jsx";
 import { AppAnleitung } from "./funcAnleitung.jsx";
 import { SuchBox } from "./funcSuche.jsx";
 import { MasterclassKachel, MatheCheckenKachel, MathCreatorKachel } from "./funcMasterclass.jsx";
-import { DiffKursKachel, VekKursKachel, GfsKursKachel, ClaudeKursKachel } from "./funcKursKachel.jsx";
+import { DiffKursKachel, VekKursKachel, GfsKursKachel, ClaudeKursKachel, UnterstufeKachel } from "./funcKursKachel.jsx";
 import { ElternabendKachel } from "./funcElternabend.jsx";
 import { SpendenBereich } from "./funcSpendenBereich.jsx";
 import { ANGEBOT } from "./angebot.js";
@@ -703,6 +703,7 @@ export function Startseite({ gehe }) {
             text="Analysis 1–5, Vektoren und Stochastik – mit Videolektionen und Checks." />
         </div>
         <div className="sbb-wieder">
+          <UnterstufeKachel onClick={() => gehe({ ansicht: "unterstufe" })} />
           <DiffKursKachel onClick={() => gehe({ ansicht: "diffkurs" })} />
           <VekKursKachel onClick={() => gehe({ ansicht: "vekkurs" })} />
           <GfsKursKachel onClick={() => gehe({ ansicht: "gfs" })} />

@@ -14,6 +14,7 @@ import { C } from "./base1.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
 import { GrosserKnopf, MS, hinweis, karte, kicker, zw } from "./ui2.jsx";
 import { Aufklapp, ModusLeiste, Seite, SchrittFolge, zt } from "./ui3.jsx";
+import { uebenWunschHolen, uebenWunschLesen } from "./uebenWunsch.js";
 
 export const SCHRIFT = "Montserrat, system-ui, sans-serif";
 
@@ -225,8 +226,9 @@ export function Merke({ children, farbe = C.see }) {
    titel: { art: [de, en] }, arten: Liste der Typen, neue(art | null) → Aufgabe mit id,
    schritte(au), text(au), skizze(au) → JSX oder null, hilfe(au) → hilfeKontext */
 export function UebenRahmen({ titel, arten, neue, schritte, text, skizze, hilfe, fertig }) {
-  const [art, setArt] = useState("mix");
-  const [au, setAu] = useState(() => neue(null));
+  // Wunsch einer Lernseite (uebenWunsch.js): gleich mit einem bestimmten Aufgabentyp starten
+  const [art, setArt] = useState(() => { const w = uebenWunschHolen(); return w && w.art && arten.includes(w.art) ? w.art : "mix"; });
+  const [au, setAu] = useState(() => neue(art === "mix" ? null : art));
   const [stand, setStand] = useState(0);
   const neu = (a = art) => { setAu(neue(a === "mix" ? null : a)); setStand(0); };
   const st = useMemo(() => schritte(au), [au]);
@@ -262,7 +264,8 @@ export const tolRund = (w) => Math.max(0.011, Math.abs(w) * 0.002);
 /* ---------- Seitenrahmen mit Entdecken | Üben ----------
    kurz: Inhalt für „Kurz erklärt“; entdecken, ueben: JSX der beiden Modi; start: Startmodus */
 export function ZweiModi({ titel, text, kurz, entdecken, ueben, start = "entdecken" }) {
-  const [modus, setModus] = useState(start);
+  // Wunsch einer Lernseite (uebenWunsch.js): gleich im Modus Üben (oder Entdecken) öffnen
+  const [modus, setModus] = useState(() => { const w = uebenWunschLesen(); return w && w.modus ? w.modus : start; });
   const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Üben", "Practise")]];
   return (
     <Seite titel={titel} text={text}>

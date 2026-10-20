@@ -988,6 +988,18 @@ export function KopfrechenZentrum({ start = null, gehe = null, eingebettet = fal
   );
 }
 
+/* Ein einzelner Trainer ohne Rahmen – zum Einbetten in Lernseiten (Modul Unterstufe) */
+export function KopfTrainer({ id }) {
+  const t = TRAINER.find((x) => x.id === (KOPF_ALT[id] || id));
+  if (!t) return null;
+  return t.id === "primzahlen" ? <PrimzahlTrainer />
+    : t.id === "primfaktoren" ? <Primfaktoren />
+    : t.id === "potenzen" ? <QuadratKubik />
+    : t.id === "bruchrechnen" ? <Bruchrechnen />
+    : t.id === "plusminus" ? <SchriftlichPlusMinus Zahlenfeld={Zahlenfeld} />
+    : t.id === "division" ? <SchriftlicheDivision Zahlenfeld={Zahlenfeld} /> : <Multiplizieren />;
+}
+
 /* Grafik für die Startseiten-Kachel: schwebende Rechenkärtchen. */
 export function KopfrechnenLogoKlein() {
   const W = 230, H = 190;

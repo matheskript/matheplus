@@ -180,6 +180,8 @@ export function klasseImBereich(stufe, klassen) {
    Ein Kurs wird empfohlen, wenn Kapitel der Klasse zu ihm passen. Je mehr Kapitel, desto weiter vorn (höchstens 3).
    Gesperrte Programme (Masterclass, Mathe checken, Videokurse) tauchen hier nicht auf. */
 export const KURS_EMPFEHLUNG = [
+  { id: "unterstufe", name: "Unterstufe – Klasse 5 und 6", zeile: "Der ganze Stoff: lesen, Beispiel, Merksatz, gleich üben", ziel: { ansicht: "unterstufe" },
+    kapitel: ["natzahlen", "rechnen", "groessen", "figuren", "flaechen", "ganze", "brueche", "bruchrechnen", "dezimal", "rational", "winkelkreis", "koerper", "daten", "teilbarkeit"] },
   { id: "diffkurs", name: "Kurs Differentialrechnung", zeile: "Jedes Buchkapitel lesen und direkt darunter trainieren", ziel: { ansicht: "diffkurs" },
     kapitel: ["diff1", "ablregeln", "ksDiff", "ksExp", "ganzrat"] },
   { id: "vekkurs", name: "Kurs Vektoren, Geraden und Ebenen", zeile: "Jedes Heftkapitel lesen und direkt darunter trainieren", ziel: { ansicht: "vekkurs" },
