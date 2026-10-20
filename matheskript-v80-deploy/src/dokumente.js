@@ -37,6 +37,16 @@ export const DOKUMENTE = [
     datei: "/buecher/vektoren/Vektoren.pdf",
   },
   {
+    id: "schulbuch-kurvendiskussion",
+    titel: "Schulbuch Band 3 – Kurvendiskussion (Probekapitel)",
+    art: "PDF · Schulbuch",
+    seiten: 12,
+    zwecke: ["Intern"],
+    zweck: "Probekapitel I „Extrempunkte“ (waagrechte Tangente, Vorzeichenwechsel, zweite Ableitung) – Test des Schulbuch-Agenten. Weitere Kapitel folgen, danach Amazon-Ausgabe.",
+    stand: "21.10.2026",
+    datei: "/buecher/kurvendiskussion/Kurvendiskussion.pdf",
+  },
+  {
     id: "druck-ableitungen-innenteil",
     titel: "Amazon-Druckausgabe Band 1 – Ableitungen (Innenteil)",
     art: "PDF · Druckvorlage KDP",

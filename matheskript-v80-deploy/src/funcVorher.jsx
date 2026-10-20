@@ -19,6 +19,7 @@ import React, { useEffect, useRef, useState } from "react";
 export const BUECHER = [
   { id: "ableitungen", titel: "Differentialrechnung", zeile: "Band 1 · Ableitungen", lesen: "/buecher/ableitungen/index.html", pdf: "/buecher/ableitungen/Ableitungen.pdf", bereit: true },
   { id: "vektoren", titel: "Vektoren, Geraden und Ebenen", zeile: "Band 2 · Analytische Geometrie", lesen: "/buecher/vektoren/index.html", pdf: "/buecher/vektoren/Vektoren.pdf", bereit: true },
+  { id: "kurvendiskussion", titel: "Kurvendiskussion", zeile: "Band 3 · Probekapitel Extrempunkte", lesen: "/buecher/kurvendiskussion/index.html", pdf: "/buecher/kurvendiskussion/Kurvendiskussion.pdf", bereit: true },
 ];
 
 function BuchKnopf({ b }) {

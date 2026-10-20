@@ -1,15 +1,15 @@
 <!-- kap: I -->
 <h3 style="margin-top:0">Die Abkürzung: die zweite Ableitung</h3>
-<p>Schneller geht es mit $f''$: $f''(x_0)$ ist die <b>Steigung des Graphen von $f'$</b>. Ist $f'(x_0) = 0$ und $f''(x_0) &lt; 0$, so <b>fällt</b> $f'$ bei $x_0$ durch null – von $+$ nach $-$: Hochpunkt. Bei $f''(x_0) &gt; 0$ steigt $f'$ durch null: Tiefpunkt.</p>
+<p>Schneller geht es mit $f''$: $f''(x_0)$ ist die <b>Steigung des Graphen von $f'$</b>. Ist $f''(x_0) &lt; 0$, <b>fällt</b> $f'$ bei $x_0$ durch null: VZW von $+$ nach $-$, Hochpunkt.</p>
 
 <div class="kasten merke">
   <div class="etikett">Merke · Hinreichende Bedingung mit der zweiten Ableitung</div>
-  <p style="text-align:left">$f'(x_0) = 0$ und $f''(x_0) &lt; 0$ &nbsp;⇒&nbsp; <b>Hochpunkt</b> bei $x_0$.<br>$f'(x_0) = 0$ und $f''(x_0) &gt; 0$ &nbsp;⇒&nbsp; <b>Tiefpunkt</b> bei $x_0$.<br>Bei $f''(x_0) = 0$ sagt es <b>nichts</b> – dann entscheidet der VZW.</p>
+  <p style="text-align:left">Ist $f$ zweimal differenzierbar und $f'(x_0) = 0$, so gilt:<br>$f''(x_0) &lt; 0$ &nbsp;⇒&nbsp; <b>Hochpunkt</b> bei $x_0$; &nbsp; $f''(x_0) &gt; 0$ &nbsp;⇒&nbsp; <b>Tiefpunkt</b> bei $x_0$.<br>Bei $f''(x_0) = 0$ sagt dieses Kriterium <b>nichts</b> – dann entscheidet der VZW.</p>
 </div>
 
 <div class="kasten achtung">
     <div class="etikett">Achtung · Grenzen bei $f''(x_0) = 0$</div>
-    <p style="text-align:left">Bei $x^4$ und $x^3$ ist $f'(0) = f''(0) = 0$. Aber $4x^3$ hat einen VZW (<b>Tiefpunkt</b>), $3x^2$ nicht (<b>Sattelpunkt</b>). „$f'' = 0$, also kein Extremum“ ist falsch.</p>
+    <p style="text-align:left">$x^4$ und $x^3$: beide $f'(0) = f''(0) = 0$, aber <b>Tiefpunkt</b> bzw. <b>Sattelpunkt</b>. „$f'' = 0$ ⇒ kein Extremum“ ist falsch.</p>
   </div>
 
 <div class="kasten beispiel">
@@ -19,7 +19,7 @@
 
 <div class="kasten vertiefung">
   <div class="etikett">★ Für Interessierte · Warum $f' &gt; 0$ wirklich „steigend“ heißt</div>
-  <p style="text-align:left"><b>Mittelwertsatz:</b> Ist $f$ auf $[a;\,b]$ differenzierbar, so gibt es ein $\xi$ zwischen $a$ und $b$ mit $f'(\xi) = \frac{f(b) - f(a)}{b - a}$: Tangente parallel zur Sekante. Ist $f' &gt; 0$ auf dem Intervall $I$ und sind $a &lt; b$ aus $I$, so gilt $f(b) - f(a) = f'(\xi) \cdot (b - a) &gt; 0$. Also $f(a) &lt; f(b)$: $f$ steigt streng monoton. Umgekehrt steigt $x^3$ streng, obwohl $f'(0) = 0$.</p>
+  <p style="text-align:left"><b>Mittelwertsatz:</b> Ist $f$ auf $[a;\,b]$ differenzierbar, gibt es ein $\xi$ zwischen $a$ und $b$ mit $f'(\xi) = \frac{f(b) - f(a)}{b - a}$. Ist $f' &gt; 0$ im Innern von $I$ und $a &lt; b$ in $I$, so ist $f(b) - f(a) = f'(\xi) \cdot (b - a) &gt; 0$: $f$ steigt streng monoton. Weil $\xi$ echt zwischen $a$ und $b$ liegt, gilt das auch bis $x_0$ heran – genau das braucht der VZW. Die Umkehrung gilt nicht: $x^3$ steigt streng, obwohl $f'(0) = 0$.</p>
 </div>
 
 <div class="aufgaben-kopf"><span>Aufgaben</span></div>
@@ -37,12 +37,13 @@
 <div class="auf"><div class="anr"><span class="z">3</span><span class="stufe">●●○</span></div><div class="text">
   <div class="zwei-bild" style="gap:4mm">
     <p>Der Graph zeigt die <b>Ableitung</b> $f'$. Gib alle Extremstellen von $f$ an: Hoch- oder Tiefpunkt? Was ist bei $x = 1$?</p>
-    <graph>{"b":40,"h":19,"x":[-2.6,3.6],"y":[-4.6,3],"gitter":[1,2],"tx":1,"ty":2,"yl":"","fn":[{"f":"0.25*(x+2)*(x-1)**2*(x-3)","c":"grana","w":1.8,"label":"f′","lx":-2.55,"ly":1.6}]}</graph>
+    <graph>{"b":40,"h":19,"x":[-2.6,3.6],"y":[-4.6,3],"gitter":[1,2],"tx":1,"ty":4,"yl":"","fn":[{"f":"0.25*(x+2)*(x-1)**2*(x-3)","c":"grana","w":1.8,"label":"f′","lx":-2.55,"ly":1.6}]}</graph>
   </div>
 </div></div>
 
 <div class="auf"><div class="anr"><span class="z">4</span><span class="stufe">●●○</span></div><div class="text">
-  <p>Hier ist $f''(0) = 0$. Bestimme mit dem VZW alle Extrempunkte. &nbsp;<b style="color:var(--kap)">a)</b> $x^5$ &nbsp; <b style="color:var(--kap)">b)</b> $2 - x^4$ &nbsp; <b style="color:var(--kap)">c)</b> $x^4 + 4x^3$</p>
+  <p>Hier ist $f''(0) = 0$: Entscheide bei 0 mit dem VZW, sonst frei.</p>
+  <div class="teil" style="--sp:3"><div><i>a)</i>$f(x) = x^5$</div><div><i>b)</i>$f(x) = 2 - x^4$</div><div><i>c)</i>$f(x) = x^4 + 4x^3$</div></div>
 </div></div>
 
 <div class="auf"><div class="anr"><span class="z">5</span><span class="stufe">●●○</span></div><div class="text">
@@ -72,4 +73,4 @@
 
 <div class="notiz"><span class="t">Zu Aufgabe 7</span>$f'(x) = n x^{n-1}$. Welches Vorzeichen hat eine gerade bzw. ungerade Potenz einer negativen Zahl?</div>
 
-<div class="notiz mathilda"><span class="t">In der App</span>Im <b>Ableitungstrainer</b> gibst du $f'$, $f''$ und $f'''$ ein und lässt sie sofort prüfen – so sitzt das Ableiten, bevor du die Kriterien anwendest.</div>
+<div class="notiz mathilda"><span class="t">In der App</span>Lass dir im Werkzeug <b>Kurvendiskussion</b> Graph und Ableitungen zeichnen und prüfe, ob deine Hoch-, Tief- und Sattelpunkte stimmen.</div>

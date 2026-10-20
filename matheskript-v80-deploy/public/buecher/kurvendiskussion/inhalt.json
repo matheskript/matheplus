@@ -1,0 +1,52 @@
+[
+ {
+  "titel": "Titel",
+  "seite": 1,
+  "kap": "0"
+ },
+ {
+  "titel": "Inhalt",
+  "seite": 2,
+  "kap": "0"
+ },
+ {
+  "titel": "Kapitel I · Auftakt",
+  "seite": 3,
+  "kap": "I"
+ },
+ {
+  "titel": "1 Die waagrechte Tangente",
+  "seite": 4,
+  "kap": "I"
+ },
+ {
+  "titel": "2 Vorzeichenwechsel und zweite Ableitung",
+  "seite": 6,
+  "kap": "I"
+ },
+ {
+  "titel": "Alles klar? Training I",
+  "seite": 8,
+  "kap": "I"
+ },
+ {
+  "titel": "Rückblick",
+  "seite": 9,
+  "kap": "L"
+ },
+ {
+  "titel": "Lösungen",
+  "seite": 10,
+  "kap": "L"
+ },
+ {
+  "titel": "Stichwortverzeichnis",
+  "seite": 11,
+  "kap": "L"
+ },
+ {
+  "titel": "Rückseite",
+  "seite": 12,
+  "kap": "0"
+ }
+]

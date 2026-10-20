@@ -1,6 +1,6 @@
 <!-- kap: I | uk: Vorzeichenwechsel und zweite Ableitung -->
 <div class="ukap-titel"><span class="nr">{{K:vzw-1}}</span><h2>Vorzeichenwechsel und zweite Ableitung</h2></div>
-<p class="leitfrage">Wie entscheidet man sicher, ob ein Kandidat ein Hochpunkt, ein Tiefpunkt oder keins von beiden ist?</p>
+<p class="leitfrage">Wie entscheidet man sicher, ob ein Kandidat ein Hochpunkt, ein Tiefpunkt oder keines von beiden ist?</p>
 
 <div class="kasten einstieg">
   <div class="etikett">Einstieg</div>
@@ -17,19 +17,19 @@
 
 <h3>Vom Vorzeichen der Steigung zum Verlauf</h3>
 <p>$f'(x)$ ist die Tangentensteigung (Band 1): positiv heißt bergauf, negativ bergab. Gilt $f'(x) > 0$ auf einem ganzen Intervall, ist $f$ dort <b>streng monoton steigend</b>, bei $f'(x) < 0$ <b>streng monoton fallend</b> (exakt: Seite {{S:vzw-2}}).</p>
-<p>Wechselt $f'$ bei $x_0$ das Vorzeichen <b>von $+$ nach $-$</b>, so steigt $f$ bis $x_0$ und fällt danach: ein Hochpunkt. Bei einem <b>Vorzeichenwechsel (VZW) von $-$ nach $+$</b> fällt $f$ erst und steigt dann: ein Tiefpunkt. Ohne VZW – wie bei $x^3$ – geht es auf beiden Seiten in dieselbe Richtung: kein Extremum.</p>
+<p>Wechselt $f'$ bei $x_0$ das Vorzeichen <b>von $+$ nach $-$</b>, so steigt $f$ bis $x_0$ und fällt danach: ein Hochpunkt. Bei einem <b>Vorzeichenwechsel (VZW) von $-$ nach $+$</b> fällt $f$ erst und steigt dann: ein Tiefpunkt. Ist $f'$ auf beiden Seiten positiv – wie bei $x^3$ –, geht es auf beiden Seiten bergauf: kein Extremum.</p>
 
 <div class="kasten merke">
   <div class="etikett">Merke · Hinreichende Bedingung mit Vorzeichenwechsel</div>
-  <p style="text-align:left">Ist $f'(x_0) = 0$ und wechselt $f'$ bei $x_0$ das Vorzeichen<br>• <b>von $+$ nach $-$</b>, so hat $f$ bei $x_0$ einen <b>Hochpunkt</b> $H(x_0 \mid f(x_0))$;<br>• <b>von $-$ nach $+$</b>, so hat $f$ bei $x_0$ einen <b>Tiefpunkt</b> $T(x_0 \mid f(x_0))$.</p>
-  <p style="text-align:left">Ist $f'(x_0) = 0$ und wechselt $f'$ das Vorzeichen <b>nicht</b>, so ist $(x_0 \mid f(x_0))$ ein <b>Sattelpunkt</b>.</p>
+  <p style="text-align:left">Ist $f$ differenzierbar, $f'(x_0) = 0$ und wechselt $f'$ bei $x_0$ das Vorzeichen<br>• <b>von $+$ nach $-$</b>, so hat $f$ bei $x_0$ einen <b>Hochpunkt</b> $H(x_0 \mid f(x_0))$;<br>• <b>von $-$ nach $+$</b>, so hat $f$ bei $x_0$ einen <b>Tiefpunkt</b> $T(x_0 \mid f(x_0))$.</p>
+  <p style="text-align:left">Ist $f'(x_0) = 0$ und $f'$ nahe $x_0$ links <b>und</b> rechts positiv (oder auf beiden Seiten negativ), so ist $(x_0 \mid f(x_0))$ ein <b>Sattelpunkt</b>.</p>
 </div>
 
 <div class="kasten beispiel">
   <div class="etikett">Beispiel 1 · Die Frage des Kapitels mit Vorzeichentabelle</div>
   <p style="text-align:left">Bestimme die Extrempunkte von $f(x) = x^3 - 6x^2 + 9x + 1$.</p>
   <div class="loesung"><span class="loesung-kopf">Lösung</span>
-  <p style="text-align:left"><b>Notwendig:</b> $f'(x) = 3x^2 - 12x + 9 = 3(x^2 - 4x + 3) = 0$. p-q-Formel: $x = 2 \pm \sqrt{4 - 3}$, also $x_1 = 1$, $x_2 = 3$.<br>
+  <p style="text-align:left"><b>Notwendig:</b> $f'(x) = 3x^2 - 12x + 9 = 3(x^2 - 4x + 3) = 0$. p-q-Formel: $x = 2 \pm \sqrt{4 - 3} = 2 \pm 1$, also $x_1 = 1$, $x_2 = 3$.<br>
   <b>Hinreichend:</b> Testwerte in $f'(x) = 3(x - 1)(x - 3)$ einsetzen: $f'(0) = 9$, $f'(2) = -3$, $f'(4) = 9$.</p>
   <table class="wt eng" style="margin:1mm 0 1.5mm"><tr><th class="l">$x$</th><td>$x &lt; 1$</td><td>$1$</td><td>$1 &lt; x &lt; 3$</td><td>$3$</td><td>$x &gt; 3$</td></tr>
     <tr><th class="l">Vorzeichen von $f'(x)$</th><td>$+$</td><td>$0$</td><td>$-$</td><td>$0$</td><td>$+$</td></tr>
@@ -41,7 +41,7 @@
 <ol><li>Einstieg: $f$ und $f'$ übereinander</li><li>Vorzeichen von $f'$ ↔ steigen/fallen</li><li>Merke: VZW</li><li>Beispiel 1 mit Tabelle</li><li>Abkürzung mit $f''$</li><li>Grenzen: $x^4$ und $x^3$</li><li>Aufgaben 1–5</li></ol>
 <p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 6 und 7</p></div>
 
-<div class="notiz"><span class="t">Wortspeicher</span><b>notwendig:</b> muss gelten, damit es ein Extremum sein <b>kann</b>.<br><b>hinreichend:</b> wenn es gilt, <b>ist</b> es sicher ein Extremum.<br><b>VZW:</b> Vorzeichenwechsel.</div>
+<div class="notiz"><span class="t">Wortspeicher</span><b>notwendig:</b> muss gelten, damit es ein Extremum sein <b>kann</b>.<br><b>hinreichend:</b> wenn es gilt, <b>ist</b> es sicher ein Extremum.<br><b>VZW von $+$ nach $-$:</b> $f'(x) &gt; 0$ nahe links von $x_0$, $f'(x) &lt; 0$ nahe rechts.</div>
 
 <div class="notiz gold"><span class="t">Testwerte geschickt wählen</span>Nimm in jedem Bereich eine bequeme Zahl, gern 0. Setze sie in die <b>faktorisierte</b> Form von $f'$ ein – dann siehst du das Vorzeichen fast ohne Rechnen.</div>
 
