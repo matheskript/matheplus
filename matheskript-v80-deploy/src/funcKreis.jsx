@@ -22,9 +22,11 @@ let zaehler = 0;
 const z2 = (v) => zt(v, 2);
 const PI = Math.PI;
 
-/* Kreis mit Sektor als SVG-Pfad (eigene Zeichnung, damit der Sektor > 180° richtig gefüllt wird) */
-function KreisBild({ r = 3, alpha = 90, hoehe = 230, beschr = {}, ring = null }) {
-  const W = 300, H = hoehe, cx = W / 2, cy = H / 2, s = (Math.min(W, H) / 2 - 22) / Math.max(r, ring || 0);
+/* Kreis mit Sektor als SVG-Pfad (eigene Zeichnung, damit der Sektor > 180° richtig gefüllt wird).
+   skalaMax: feste Skala (der größte Radius füllt das Bild) – damit der r-Regler den Kreis sichtbar wachsen lässt.
+   Ohne skalaMax füllt der Kreis immer das Bild (Skizzen in den Aufgaben). */
+function KreisBild({ r = 3, alpha = 90, hoehe = 230, beschr = {}, ring = null, skalaMax = null }) {
+  const W = 300, H = hoehe, cx = W / 2, cy = H / 2, s = (Math.min(W, H) / 2 - 22) / (skalaMax || Math.max(r, ring || 0));
   const R = r * s, a = Math.min(alpha, 359.999) * PI / 180;
   const ex = cx + R * Math.cos(-a), ey = cy + R * Math.sin(-a);
   const gross = alpha > 180 ? 1 : 0;
@@ -38,7 +40,7 @@ function KreisBild({ r = 3, alpha = 90, hoehe = 230, beschr = {}, ring = null })
       <line x1={cx} y1={cy} x2={cx + R} y2={cy} stroke={C.tinte} strokeWidth="1.8" />
       {ring && <line x1={cx} y1={cy} x2={cx} y2={cy - ring * s} stroke={C.tinte} strokeWidth="1.8" />}
       <circle cx={cx} cy={cy} r="3.4" fill={C.tinte} />
-      <text x={cx + R / 2} y={cy + 16} textAnchor="middle" style={{ ...t, fill: C.tinte }}>{beschr.r ?? "r"}</text>
+      <text x={cx + Math.max(R / 2, 22)} y={cy + 16} textAnchor="middle" style={{ ...t, fill: C.tinte }}>{beschr.r ?? "r"}</text>
       {ring && <text x={cx + 8} y={cy - ring * s / 2} style={{ ...t, fill: C.tinte }}>{beschr.R ?? "R"}</text>}
       {alpha > 0 && alpha < 360 && !ring && <text x={cx + 26 * Math.cos(-a / 2)} y={cy + 26 * Math.sin(-a / 2) + 4} textAnchor="middle" style={{ ...t, fill: "#8A6A00" }}>{beschr.alpha ?? `${zt(alpha, 0)}°`}</text>}
     </svg>
@@ -70,7 +72,7 @@ function Entdecken() {
         <WertZeile links={zw("Sektorfläche = A · α : 360°", "Sector area = A · α : 360°")} rechts={z2(A * anteil)} farbe="#8A6A00" />
           </>}
           bild={
-        <div style={{ background: C.sand, borderRadius: 14, padding: 6 }}><KreisBild r={3} alpha={alpha} beschr={{ r: `r = ${z2(r)}` }} /></div>
+        <div style={{ background: C.sand, borderRadius: 14, padding: 6 }}><KreisBild r={r} skalaMax={8} alpha={alpha} beschr={{ r: `r = ${z2(r)}` }} /></div>
           }
           unten={<>
         <Merke>{zw(`Jeder Kreis ist eine Vergrößerung jedes anderen. Darum ist Umfang : Durchmesser immer dieselbe Zahl: π ≈ 3,14159. Bogen und Sektor sind einfach der Anteil α : 360° vom Ganzen – hier ${zt(anteil * 100, 1)} %.`,
