@@ -108,32 +108,85 @@ export function KopfrechnenKopf({ kicker, titel, satz, zurueck, onZurueck, kinde
   );
 }
 
-/* Glas-Karte im Kopf (Trainer-Kachel): Symbol-Badge in der Trainerfarbe, Titel, Slogan */
+/* ======================================================================
+   TRAINER-KACHELN „Leuchtziffern“ (Stand 21.10.2026)
+
+   Dunkles Glas, oben links die Ziffer des Trainers groß im Farbverlauf
+   der Trainerfarbe (hell → kräftig) mit weichem Lichthof dahinter, oben
+   rechts ein runder Pfeil. Darunter Titel und ein beschreibender Satz.
+   Zwei Spalten; Titel und Sätze einer Reihe stehen per subgrid auf
+   derselben Höhe, auch wenn ein Titel zweizeilig wird. Die letzte Kachel
+   (breit) liegt quer: Ziffer links, Text, Pfeil rechts.
+   Farben je Trainer: { hell, kraeftig } (func14.jsx, KOPF_LOOK).
+   ====================================================================== */
 export const KARTEN_CSS = `
   .kr-karten{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .kr-karte{position:relative;min-height:112px;display:flex;flex-direction:column;justify-content:flex-end;text-align:left;color:#fff;border-radius:18px;padding:14px 14px 13px;overflow:hidden;cursor:pointer;font-family:inherit;
-    border:1.5px solid rgba(255,255,255,0.16);background:linear-gradient(135deg, rgba(10,22,54,0.85), rgba(29,71,144,0.55));box-shadow:inset 0 1px 0 rgba(255,255,255,0.08);
-    transition:transform .15s ease, border-color .15s ease;-webkit-tap-highlight-color:transparent;container-type:inline-size}
-  .kr-karte:hover{transform:translateY(-2px);border-color:rgba(237,187,0,0.6)}
-  .kr-karte:active{transform:scale(0.98)}
-  .kr-karte:focus-visible{outline:3px solid ${GOLD};outline-offset:-3px}
-  .kr-karte .kr-badge{position:absolute;top:12px;right:12px;height:34px;padding:0 10px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;letter-spacing:-0.01em;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.35)}
-  .kr-karte .kr-titel{display:block;font-size:clamp(12.5px, 8.6cqw, 18px);font-weight:800;letter-spacing:-0.02em;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:4px}
-  .kr-karte .kr-slogan{display:block;margin-top:4px;font-size:11.5px;font-weight:300;color:#C9D6EE;line-height:1.35}
-  .kr-karte.breit{min-height:96px;flex-direction:row;align-items:center;gap:14px;justify-content:flex-start}
-  .kr-karte.breit .kr-badge{position:static;flex:none;height:44px;font-size:16px;border-radius:13px}
+  /* Container ist die ganze Kachelfläche (nicht die Kachel: Layout-Containment verhindert subgrid) */
+  [data-kopf-kacheln]{container-type:inline-size}
+  .kr-karte{--hell:#fff;--kraeftig:#9fb4e0;position:relative;grid-row:span 3;display:grid;grid-template-rows:subgrid;row-gap:0;align-content:start;
+    text-align:left;color:#fff;border-radius:20px;padding:14px 14px 15px;overflow:hidden;cursor:pointer;font-family:inherit;isolation:isolate;
+    border:1px solid rgba(255,255,255,0.11);
+    background:
+      radial-gradient(120% 85% at 0% 0%, color-mix(in srgb, var(--kraeftig) 30%, transparent) 0%, transparent 58%),
+      linear-gradient(160deg, rgba(20,40,92,0.92) 0%, rgba(9,19,50,0.94) 100%);
+    box-shadow:0 10px 26px rgba(3,8,24,0.35), inset 0 1px 0 rgba(255,255,255,0.07);
+    transition:transform .2s ease, border-color .2s ease, box-shadow .2s ease;-webkit-tap-highlight-color:transparent}
+  .kr-karte::before{content:"";position:absolute;left:14px;right:14px;top:0;height:1.5px;border-radius:2px;
+    background:linear-gradient(90deg, var(--kraeftig), color-mix(in srgb, var(--hell) 60%, transparent) 45%, transparent 100%);opacity:.9}
+  .kr-karte::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:-1;opacity:0;transition:opacity .2s ease;
+    background:radial-gradient(90% 70% at 0% 0%, color-mix(in srgb, var(--kraeftig) 26%, transparent), transparent 70%)}
+  .kr-karte:hover{transform:translateY(-3px);border-color:color-mix(in srgb, var(--kraeftig) 65%, transparent);box-shadow:0 16px 34px rgba(3,8,24,0.45), 0 0 0 1px color-mix(in srgb, var(--kraeftig) 25%, transparent), inset 0 1px 0 rgba(255,255,255,0.09)}
+  .kr-karte:hover::after{opacity:1}
+  .kr-karte:active{transform:translateY(-1px) scale(0.985)}
+  .kr-karte:focus-visible{outline:3px solid ${GOLD};outline-offset:2px}
+
+  .kr-karte .kr-ziffer{display:block;justify-self:start;font-size:clamp(28px, 8.8cqw, 44px);font-weight:800;letter-spacing:-0.035em;line-height:1;white-space:nowrap;padding:4px 2px 12px 0;
+    background:linear-gradient(170deg, #fff 0%, var(--hell) 38%, var(--kraeftig) 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;
+    filter:drop-shadow(0 4px 14px color-mix(in srgb, var(--kraeftig) 55%, transparent))}
+  /* Reine Rechenzeichen (+−, ÷) sind dünner als Ziffern: größer setzen, Zeilenhöhe so, dass die Reihe gleich hoch bleibt */
+  .kr-karte .kr-ziffer.symbol{font-size:clamp(38px, 12cqw, 60px);line-height:.74;letter-spacing:.02em;padding-top:6px}
+  .kr-karte.breit .kr-ziffer.symbol{font-size:clamp(44px, 11.6cqw, 64px)}
+  .kr-karte .kr-pfeil{position:absolute;top:12px;right:12px;width:30px;height:30px;border-radius:999px;display:flex;align-items:center;justify-content:center;
+    background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);color:#E3EAF7;transition:background .2s ease, color .2s ease, border-color .2s ease, transform .2s ease}
+  .kr-karte:hover .kr-pfeil{background:${GOLD};border-color:${GOLD};color:${NACHT};transform:translateX(2px)}
+  .kr-karte .kr-titel{display:block;align-self:end;font-size:clamp(14.5px, 4.1cqw, 18px);font-weight:800;letter-spacing:-0.02em;line-height:1.15;text-wrap:balance;overflow-wrap:break-word}
+  .kr-karte .kr-slogan{display:block;margin-top:6px;font-size:clamp(12px, 2.8cqw, 13.5px);font-weight:400;color:#B9C7E4;line-height:1.4;text-wrap:pretty}
+
+  .kr-karte.breit{grid-column:1 / -1;grid-row:auto;display:flex;align-items:center;gap:16px;padding:16px 16px 16px 18px}
+  .kr-karte.breit .kr-ziffer{flex:none;width:clamp(52px, 14.5cqw, 76px);text-align:center;padding:2px 0 4px;font-size:clamp(34px, 9cqw, 48px)}
   .kr-karte.breit .kr-text{flex:1;min-width:0}
-  @media (max-width:340px){.kr-karten{grid-template-columns:1fr}.kr-karte{flex-direction:row;align-items:center;gap:14px;justify-content:flex-start;min-height:88px}.kr-karte .kr-badge{position:static;flex:none}.kr-karte .kr-text{flex:1;min-width:0}}
+  .kr-karte.breit .kr-pfeil{position:static;flex:none;margin-left:auto}
+  .kr-karte.breit .kr-titel{font-size:clamp(16px, 4.1cqw, 21px)}
+  .kr-karte.breit .kr-slogan{font-size:clamp(12.5px, 3.1cqw, 14px);margin-top:4px}
+
+  @supports not (grid-template-rows:subgrid){.kr-karte{grid-row:auto;grid-template-rows:auto 1fr auto}}
+  @media (max-width:330px){.kr-karten{grid-template-columns:1fr}.kr-karte{grid-row:auto;grid-template-rows:auto}}
+  @media (prefers-reduced-motion:reduce){.kr-karte,.kr-karte .kr-pfeil{transition:none}.kr-karte:hover{transform:none}}
 `;
 
-export function KopfKarte({ titel, slogan, zeichen, farbe, text = "#fff", breit = false, onClick, label }) {
+const PFEIL = <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>;
+
+export function KopfKarte({ titel, slogan, zeichen, hell, kraeftig, breit = false, onClick, label }) {
+  const stil = { "--hell": hell, "--kraeftig": kraeftig };
+  const zKlasse = "kr-ziffer" + (/\d/.test(String(zeichen)) ? "" : " symbol");
+  if (breit) {
+    return (
+      <button type="button" className="kr-karte breit" style={stil} onClick={onClick} aria-label={label || `${titel} öffnen`}>
+        <span className={zKlasse} aria-hidden="true">{zeichen}</span>
+        <span className="kr-text">
+          <span className="kr-titel">{titel}</span>
+          <span className="kr-slogan">{slogan}</span>
+        </span>
+        <span className="kr-pfeil" aria-hidden="true">{PFEIL}</span>
+      </button>
+    );
+  }
   return (
-    <button type="button" className={"kr-karte" + (breit ? " breit" : "")} onClick={onClick} aria-label={label || `${titel} öffnen`}>
-      <span className="kr-badge" aria-hidden="true" style={{ background: farbe, color: text }}>{zeichen}</span>
-      <span className="kr-text">
-        <span className="kr-titel">{titel}</span>
-        <span className="kr-slogan">{slogan}</span>
-      </span>
+    <button type="button" className="kr-karte" style={stil} onClick={onClick} aria-label={label || `${titel} öffnen`}>
+      <span className={zKlasse} aria-hidden="true">{zeichen}</span>
+      <span className="kr-titel">{titel}</span>
+      <span className="kr-slogan">{slogan}</span>
+      <span className="kr-pfeil" aria-hidden="true">{PFEIL}</span>
     </button>
   );
 }

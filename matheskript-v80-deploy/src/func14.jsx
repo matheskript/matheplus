@@ -905,30 +905,33 @@ export function PrimzahlTrainer() {
 /* Anordnung (Wunsch vom 18.10.2026): Plus und Minus | Multiplizieren · Quadrate und Wurzeln | Primzahlen ·
    Primfaktoren | Schriftlich teilen · Bruchrechnung. Kuben stehen im Text unter „Quadrate und Wurzeln“. */
 export const TRAINER = [
-  { id: "plusminus", titel: "Schriftlich Plus & Minus", kurzTitel: "Plus und Minus", slogan: "Schriftlich, mit Übertrag.", zeichen: "+ −", satz: "Schriftlich untereinander, mit Übertrag." },
-  { id: "multiplizieren", titel: "Multiplizieren", slogan: "Vom Einmaleins bis vierstellig.", zeichen: "7·8", satz: "Vom kleinen Einmaleins bis vierstellig." },
-  { id: "potenzen", titel: "Quadrate und Wurzeln", kurzTitel: "Quadrate & Wurzeln", slogan: "Quadrate, Wurzeln – und Kuben.", zeichen: "12²", satz: "Hoch zwei, hoch drei – und wieder zurück." },
-  { id: "primzahlen", titel: "Primzahlen", slogan: "Prim oder nicht prim?", zeichen: "13", satz: "Teilbar oder nicht – auf einen Blick." },
-  { id: "primfaktoren", titel: "Primfaktoren", slogan: "Zahlen in Primfaktoren zerlegen.", zeichen: "2·3·7", satz: "Zerlegen ohne Umweg, Teiler für Teiler." },
-  { id: "division", titel: "Schriftlich teilen", slogan: "Ziffer für Ziffer, mit Rest.", zeichen: "÷", satz: "Ziffer für Ziffer – Ergebnis und Rest." },
-  { id: "bruchrechnen", titel: "Bruchrechnung", slogan: "Kürzen, plus, minus, mal, geteilt – mit Lösungsweg.", zeichen: "¾", satz: "Kürzen und alle vier Grundrechenarten." },
+  { id: "plusminus", titel: "Schriftlich Plus & Minus", kurzTitel: "Plus und Minus", slogan: "Schriftlich untereinander, mit Übertrag.", zeichen: "+−" },
+  { id: "multiplizieren", titel: "Multiplizieren", slogan: "Vom kleinen Einmaleins bis vierstellig.", zeichen: "7·8" },
+  { id: "potenzen", titel: "Quadrate und Wurzeln", kurzTitel: "Quadrate & Wurzeln", slogan: "Hoch zwei, hoch drei – und wieder zurück.", zeichen: "12²" },
+  { id: "primzahlen", titel: "Primzahlen", slogan: "Teilbar oder nicht – auf einen Blick.", zeichen: "13" },
+  { id: "primfaktoren", titel: "Primfaktoren", slogan: "Zerlegen ohne Umweg, Teiler für Teiler.", zeichen: "2·3·7" },
+  { id: "division", titel: "Schriftlich teilen", slogan: "Ziffer für Ziffer – Ergebnis und Rest.", zeichen: "÷" },
+  { id: "bruchrechnen", titel: "Bruchrechnung", slogan: "Kürzen und alle vier Grundrechenarten.", zeichen: "¾" },
 ];
 const KOPF_REIHEN = [["plusminus", "multiplizieren"], ["potenzen", "primzahlen"], ["primfaktoren", "division"], ["bruchrechnen"]];
 /* Alte Kennungen (Links, Sprachwechsel) weiterhin öffnen */
 const KOPF_ALT = { plus: "plusminus", minus: "plusminus", quadrate: "potenzen", kuben: "potenzen", wurzeln: "potenzen", einmaleins: "multiplizieren" };
 
+/* Trainerfarben: hell (Lichtkante der Ziffer) und kräftig (Verlaufsende, Lichthof, Rand beim Hover).
+   bg/text = gefüllte Plakette im Seitenkopf der Trainerseite. Sieben klar unterscheidbare Töne. */
+const farbe = (hell, kraeftig, text = "#FFFFFF") => ({ hell, kraeftig, text, bg: `linear-gradient(150deg, ${hell} 0%, ${kraeftig} 100%)` });
 const KOPF_LOOK = {
-  plusminus: { bg: "linear-gradient(150deg, #7CC8FF 0%, #1D6FD6 100%)", schatten: "rgba(29,111,214,0.28)", akzent: "#14529E", text: "#FFFFFF", r: -6 },
-  multiplizieren: { bg: "linear-gradient(150deg, #FFE070 0%, #F59E0B 100%)", schatten: "rgba(245,158,11,0.30)", akzent: "#A15C00", text: "#3A2200", r: 8 },
-  potenzen: { bg: "linear-gradient(150deg, #B79CFF 0%, #6D28D9 100%)", schatten: "rgba(109,40,217,0.28)", akzent: "#5B21B6", text: "#FFFFFF", r: 6 },
-  primzahlen: { bg: "linear-gradient(150deg, #FF9F8E 0%, #D93A5E 100%)", schatten: "rgba(217,58,94,0.28)", akzent: "#A5223F", text: "#FFFFFF", r: -6 },
-  primfaktoren: { bg: "linear-gradient(150deg, #FFE08A 0%, #EDBB00 100%)", schatten: "rgba(237,187,0,0.28)", akzent: "#8A6500", text: "#3A2900", r: -7 },
-  division: { bg: "linear-gradient(150deg, #F5D36B 0%, #C99A00 100%)", schatten: "rgba(201,154,0,0.28)", akzent: "#7A5800", text: "#FFFFFF", r: 7 },
-  bruchrechnen: { bg: "linear-gradient(150deg, #4FE0CB 0%, #0F8A7E 100%)", schatten: "rgba(15,138,126,0.28)", akzent: "#0B6A61", text: "#FFFFFF", r: -5 },
+  plusminus: farbe("#9FD3FF", "#3B82F6"),
+  multiplizieren: farbe("#FFD49A", "#F97316", "#3A1A00"),
+  potenzen: farbe("#D6C8FF", "#8B5CF6"),
+  primzahlen: farbe("#FFB3BE", "#F43F5E"),
+  primfaktoren: farbe("#FFE89A", "#EDBB00", "#3A2900"),
+  division: farbe("#F5C2FF", "#C026D3"),
+  bruchrechnen: farbe("#9FF3E3", "#14B8A6", "#03322C"),
 };
 
-/* Trainer-Kacheln als Glas-Karten im Mathilda-Look (funcKopfrechnenKopf.jsx): zwei Spalten,
-   die letzte Karte über die volle Breite. Symbol-Badge in der Trainerfarbe. */
+/* Trainer-Kacheln „Leuchtziffern“ (funcKopfrechnenKopf.jsx): zwei Spalten, die letzte Kachel
+   quer über die volle Breite. Ziffer im Farbverlauf der Trainerfarbe. */
 export function KopfKacheln({ onWaehle }) {
   return (
     <div data-kopf-kacheln>
@@ -939,9 +942,7 @@ export function KopfKacheln({ onWaehle }) {
           const f = KOPF_LOOK[t.id] || KOPF_LOOK.multiplizieren;
           const breit = KOPF_REIHEN.find((r) => r.includes(id)).length === 1;
           return (
-            <span key={t.id} style={{ gridColumn: breit ? "1 / -1" : undefined, display: "grid" }}>
-              <KopfKarte titel={t.kurzTitel || t.titel} slogan={t.slogan} zeichen={t.zeichen} farbe={f.bg} text={f.text} breit={breit} onClick={() => onWaehle(t.id)} label={`${t.titel} öffnen`} />
-            </span>
+            <KopfKarte key={t.id} titel={t.kurzTitel || t.titel} slogan={t.slogan} zeichen={t.zeichen} hell={f.hell} kraeftig={f.kraeftig} breit={breit} onClick={() => onWaehle(t.id)} label={`${t.titel} öffnen`} />
           );
         })}
       </div>
@@ -998,7 +999,7 @@ export function KopfrechenZentrum({ start = null, gehe = null, eingebettet = fal
     return (
       <div data-kr-trainerseite>
         <KopfrechnenKopf kompakt kicker="Kopfrechnen · Training" zurueck="Alle Trainer" onZurueck={onZurueck}
-          badge={{ zeichen: t.zeichen, farbe: f.bg, text: f.text }} titel={t.kurzTitel || t.titel} satz={t.satz || t.slogan} />
+          badge={{ zeichen: t.zeichen, farbe: f.bg, text: f.text }} titel={t.kurzTitel || t.titel} satz={t.slogan} />
         <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 18 }}>
           <TrainerInhalt id={t.id} />
         </div>
