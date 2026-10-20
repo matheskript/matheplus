@@ -29,6 +29,8 @@ import { MatheFeld } from "./matheTastatur.jsx";
 import { springe } from "./sprung.js";
 export const EBB_VIDEO_ID = "otTSq-5PNsE";
 export const EBB_SLOGAN = "Beende Vergess kennenlernen und lerne wirklich Mathe. Mit einem klaren System.";
+/* Kurzfassung für die Startseiten-Kachel: genau zwei Zeilen */
+export const EBB_KURZ = "Schluss mit Vergessen: Mathe, die wirklich bleibt.";
 
 /* ---------- Speicher: im vorhandenen Lernstand ---------- */
 function ebbAendern(fn) {

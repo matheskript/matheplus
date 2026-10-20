@@ -29,7 +29,7 @@ import { UnterMenue, schulBereiche, blockEintraege, bereichInhalt, useStartStufe
 import { EtikettKnoepfe } from "./funcWerkzeuge.jsx";
 import { HeadNumbersLogoKlein } from "./funcHeadNumbersLogo.jsx";
 import { GleichKursLogoKlein } from "./funcGleichKursLogo.jsx";
-import { EBB_SLOGAN, EbbinghausBadge, EbbinghausLogoKlein } from "./funcEbbinghaus.jsx";
+import { EBB_KURZ, EbbinghausBadge, EbbinghausLogoKlein } from "./funcEbbinghaus.jsx";
 import { EntdeckenLogoKlein } from "./funcEntdeckenLogo.jsx";
 import { useLernpfad } from "./funcLernpfad.jsx";
 import { MeinTrainingKachel } from "./funcMeinTrainingKachel.jsx";
@@ -166,8 +166,9 @@ html[data-start-modus="dunkel"] .fuss-paar button { color: #EEF2FF !important; b
 .sbb-kachel p { margin: 0; font-size: 13.5px; font-weight: 400; line-height: 1.45; color: var(--nebel); overflow-wrap: anywhere; hyphens: auto; }
 /* Lernen-Kacheln: Überschrift, genau drei Zeilen Text, darunter der Knopf als Pille */
 .sbb-kachel p.drei { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; height: calc(3 * 1.45em); }
+.sbb-kachel p.drei.zwei { -webkit-line-clamp: 2; height: calc(2 * 1.45em); }
 .sbb-kachel .weiter { margin-top: 2px; padding-top: 6px; font-size: 13px; font-weight: 700; color: ${GOLD}; display: inline-flex; align-items: center; gap: 8px; }
-.sbb-kachel .weiter.pille { align-self: flex-start; margin-top: 6px; padding: 6px 14px; border-radius: 999px; border: 1.5px solid currentColor; background: rgba(237,187,0,0.08); line-height: 1.2; }
+.sbb-kachel .weiter.pille { align-self: flex-start; margin-top: 0; padding: 6px 14px; border-radius: 999px; border: 1.5px solid currentColor; background: rgba(237,187,0,0.08); line-height: 1.2; }
 .sbb-kachel .weiter.pille.zu { color: var(--zu-titel); background: transparent; border-style: dashed; }
 .sbb[data-modus="hell"] .sbb-kachel .weiter { color: ${C.gruenDunkel}; }
 .sbb-kachel .weiter i { font-style: normal; display: inline-block; transition: transform .18s ease; }
@@ -415,14 +416,14 @@ function Kopf({ titel }) {
 }
 
 /* Glaskachel: Text links, Bild rechts. gesperrt = ausgegraut mit Schloss. */
-function Kachel({ titel, text, logo, extra, ziel, label, gesperrt, keinI18n, gold, gehe, breit, weiter = "Öffnen", drei }) {
+function Kachel({ titel, text, logo, extra, ziel, label, gesperrt, keinI18n, gold, gehe, breit, weiter = "Öffnen", drei, zwei }) {
   return (
     <button type="button" onClick={gesperrt ? undefined : () => gehe(ziel)} disabled={gesperrt} aria-disabled={gesperrt || undefined}
       aria-label={gesperrt ? `${typeof titel === "string" ? titel : label} – noch gesperrt` : label} title={gesperrt ? "Noch gesperrt" : undefined}
       className={["sbb-karte", "sbb-kachel", gesperrt ? "zu" : null, gold ? "sbb-gold" : null, breit ? "sbb-breit" : null].filter(Boolean).join(" ")}>
       <div className="sbb-kachel-text">
         <h2 data-kein-i18n={keinI18n || undefined}>{titel}</h2>
-        <p className={drei ? "drei" : undefined}>{text}</p>
+        <p className={drei ? (zwei ? "drei zwei" : "drei") : undefined}>{text}</p>
         {drei ? (gesperrt ? <span className="weiter pille zu">Noch gesperrt</span> : <span className="weiter pille">{weiter} <i aria-hidden="true">→</i></span>)
           : !gesperrt && <span className="weiter">{weiter} <i aria-hidden="true">→</i></span>}
       </div>
@@ -721,8 +722,8 @@ export function Startseite({ gehe }) {
             text="Einmaleins, Quadrat- und Kubikzahlen, Brüche – trainieren, bis alles sitzt." />
           <Kachel gehe={gehe} titel="Gleichungen" label="Gleichungen öffnen" logo={<GleichKursLogoKlein />} ziel={{ ansicht: "gleichkurs" }} weiter="Üben" drei
             text="Eine Zahl finden, über die du etwas weißt: verstehen, rechnen, trainieren." />
-          <Kachel gehe={gehe} gesperrt keinI18n titel="Ebbinghaus" label="Ebbinghaus öffnen" logo={<EbbinghausLogoKlein />} extra={<EbbinghausBadge />} ziel={{ ansicht: "ebbinghaus" }} drei
-            text={EBB_SLOGAN} />
+          <Kachel gehe={gehe} gesperrt keinI18n titel="Ebbinghaus" label="Ebbinghaus öffnen" logo={<EbbinghausLogoKlein />} extra={<EbbinghausBadge />} ziel={{ ansicht: "ebbinghaus" }} drei zwei
+            text={EBB_KURZ} />
         </div>
 
         {/* ---------- 3 Entdecken ---------- */}
