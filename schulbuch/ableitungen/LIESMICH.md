@@ -24,3 +24,6 @@ App-Seite: `src/funcSchulbuch.jsx`, Pfad `/schulbuch/ableitungen`.
 und die Lösungen je Seite). `viewer.mjs` kopiert den Ordner mit; der Kurs in der App (`src/funcDiffKursUeben.jsx`)
 lädt daraus „Aufgaben“ und „Sätze und Definitionen“. Neue Aufgabe im Buch → in `src/diffAufgaben.js`
 (`BUCH_TYPEN`) einem Aufgabentyp zuordnen, damit es „Neue Aufgabe vom selben Typ“ gibt.
+
+QR-Codes und Druckausgabe (seit 20.10.2026): wie in `../vektoren/LIESMICH.md` beschrieben – `node build.mjs` misst
+den Platz und setzt die Codes (`../qr.mjs`, Typen aus `src/diffAufgaben.js`); Druckausgabe: `../kdp/LIESMICH.md`.

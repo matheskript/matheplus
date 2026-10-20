@@ -5,6 +5,11 @@
 // Grafik: <graph>{ JSON }</graph>
 import fs from "node:fs";
 import path from "node:path";
+import { execSync } from "node:child_process";
+import { qrEinbauen, QR_CSS, qrSvg } from "../qr.mjs";
+import { vorwortSeiten, KDP_CSS } from "../kdp/vorwort.mjs";
+// Druckausgabe für Amazon KDP: KDP=1 DIST=dist-kdp node build.mjs (Beschnitt, Vorspann I–VIII, kdp.json)
+const KDP = !!process.env.KDP;
 import katex from "katex";
 
 const ROOT = path.dirname(new URL(import.meta.url).pathname);
@@ -354,7 +359,7 @@ const KAPNAME = { I: "Geraden und Gleichungssysteme", II: "Vektoren im Raum", II
 function seite(s) {
   const typ = s.meta.typ || "normal";
   const kap = s.meta.kap || "0";
-  const seiteLR = s.nr % 2 === 1 ? "rechts" : "links";
+  const seiteLR = (s.roem ? s.roemIndex % 2 === 0 : s.nr % 2 === 1) ? "rechts" : "links";
   const col = KAPFARBE[kap] || FARBE.see;
   if (typ === "frei") return `<section class="page frei ${seiteLR} kap-${kap}" style="--kap:${col}" data-nr="${s.nr}" data-datei="${s.datei}">${s.haupt}</section>`;
   const kopf = typ === "auftakt" ? "" : `<header class="kopf"><span class="kopf-kap"><b>${kap === "L" || kap === "0" ? "" : "Kapitel " + kap}</b>${KAPNAME[kap] ?? ""}</span><span class="kopf-ukap">${s.meta.ukap ?? ""}</span></header>`;
@@ -362,16 +367,112 @@ function seite(s) {
   <div class="kapband"></div>
   ${kopf}
   <div class="koerper ${s.rand.trim() ? "" : "ohne-rand"}"><div class="haupt">${s.haupt}</div>${s.rand.trim() ? `<aside class="rand">${s.rand}</aside>` : ""}</div>
-  <footer class="fuss"><span class="snr">${s.nr}</span><span class="marke">Mythos Mathe · Vektoren, Geraden und Ebenen</span></footer>
+  <footer class="fuss"><span class="snr">${s.roem || s.nr}</span><span class="marke">Mythos Mathe · Vektoren, Geraden und Ebenen</span></footer>
 </section>`;
 }
 
-const css = fs.readFileSync(path.join(ROOT, "buch.css"), "utf8");
-const html = `<!doctype html><html lang="de"><head><meta charset="utf-8"><title>Vektoren, Geraden und Ebenen – Mythos Mathe</title>
+// ---------- Zusammenbauen, QR-Codes (qr.mjs), Druckausgabe (kdp/) ----------
+const APP = path.join(ROOT, "..", "..", "matheskript-v80-deploy");
+const { BUCH_TYPEN } = await import(path.join(APP, "src/vekAufgaben.js"));
+let alleSeiten = seiten;
+if (KDP) {
+  const konfig = JSON.parse(fs.readFileSync(path.join(ROOT, "kdp.json"), "utf8"));
+  const vor = await vorwortSeiten(konfig, { seiten, KAPNAME, qrSvg });
+  vor.forEach((v, i) => { v.roemIndex = i; });
+  alleSeiten = [...vor, ...seiten];
+  console.log(`KDP: Vorspann ${vor.length} Seiten (${vor.map((v) => v.roem).join(", ")}), Beschnitt 3,2 mm.`);
+}
+const css = fs.readFileSync(path.join(ROOT, "buch.css"), "utf8") + QR_CSS + (KDP ? KDP_CSS : "");
+function schreiben() {
+  const html = `<!doctype html><html lang="de"><head><meta charset="utf-8"><title>Vektoren, Geraden und Ebenen – Mythos Mathe</title>
 <link rel="stylesheet" href="katex.css"><style>${css}</style></head><body>
-${seiten.map(seite).join("\n")}
+${alleSeiten.map(seite).join("\n")}
 </body></html>`;
-fs.writeFileSync(path.join(DIST, "buch.html"), html);
+  fs.writeFileSync(path.join(DIST, "buch.html"), html);
+}
+// QR-Codes in zwei Durchgängen: erst ohne Codes bauen und den freien Platz je Seite messen (render.py --messen),
+// dann je Seite die passende Form einbauen. QR=0 überspringt die Codes (schneller Probebau).
+const QR_FORM = {};   // Form je Seite erzwingen, z. B. { 25: "eng" } – siehe qr.mjs
+if (process.env.QR !== "0") {
+  schreiben();
+  let platz = null;
+  try {
+    execSync("python3 render.py --messen", { cwd: ROOT, env: { ...process.env, DIST: path.basename(DIST) }, stdio: "pipe" });
+    platz = JSON.parse(fs.readFileSync(path.join(DIST, "platz.json"), "utf8"));
+  } catch (e) { console.warn("Platzmessung fehlgeschlagen – QR-Codes nur in den App-Kästen:", String(e.message || e).split("\n")[0]); }
+  const qrStat = await qrEinbauen(seiten, { band: 2, buchTypen: BUCH_TYPEN, platz, form: QR_FORM });
+  const formen = Object.values(qrStat.formen).reduce((m, f) => ({ ...m, [f]: (m[f] || 0) + 1 }), {});
+  console.log(`QR-Codes: ${qrStat.codes} Aufgaben, ${qrStat.kaesten} App-Kästen; Formen je Seite: ${JSON.stringify(formen)}.`);
+}
+schreiben();
 fs.writeFileSync(path.join(DIST, "seiten.json"), JSON.stringify(seiten.map((s) => ({ nr: s.nr, datei: s.datei, ...s.meta })), null, 1));
 fs.writeFileSync(path.join(DIST, "verzeichnis.json"), JSON.stringify(VERZ, null, 1));
 console.log(`${seiten.length} Seiten gebaut.`);
+
+// ---------- Inhalte für den Kurs in der App (dist/kurs/<seite>.json) ----------
+// Je Seite: alle Aufgaben (gerendertes HTML), die Kästen Merke/Achtung/Für Interessierte/Rückblick
+// und die Lösungen zu jeder Aufgabe aus loesungen.html. Die App (src/funcVekKursUeben.jsx) zeigt
+// sie im Kursmodul unter „Aufgaben“ bzw. „Sätze und Definitionen“.
+function bloecke(html, klasse) {
+  // alle <div class="klasse …">…</div> mit richtig gezählten verschachtelten divs
+  const out = [];
+  const re = new RegExp(`<div class="${klasse}[ "]`, "g");
+  let m;
+  while ((m = re.exec(html))) {
+    let i = m.index, tiefe = 0;
+    const tag = /<\/?div\b[^>]*>/g;
+    tag.lastIndex = i;
+    let t;
+    while ((t = tag.exec(html))) {
+      if (t[0][1] === "/") tiefe--; else tiefe++;
+      if (tiefe === 0) { out.push(html.slice(i, tag.lastIndex)); re.lastIndex = tag.lastIndex; break; }
+    }
+  }
+  return out;
+}
+const textOhneTags = (h) => h.replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
+const kursLoes = {};
+{
+  let l = verweise(fs.readFileSync(path.join(ROOT, "loesungen.html"), "utf8"), "loesungen.html");
+  l = mathe(l);
+  for (const abschnitt of l.split(/(?=<h3>)/)) {
+    const s = /\(Seite (\d+)\)<\/h3>/.exec(abschnitt);
+    if (!s) continue;
+    const nr = +s[1];
+    kursLoes[nr] = kursLoes[nr] || {};
+    for (const p of abschnitt.split(/(?=<p><span class="an">)/).slice(1)) {
+      const a = /^<p><span class="an">([^<]+)<\/span>\s*/.exec(p);
+      const ende = p.indexOf("</p>");
+      kursLoes[nr][a[1].trim()] = p.slice(a[0].length, ende).trim();
+    }
+  }
+}
+const kurs = { seiten: {} };
+for (const s of seiten) {
+  const haupt = s.haupt;
+  const aufgaben = bloecke(haupt, "auf").map((h) => {
+    const nr = /<span class="z[^"]*">([^<]+)<\/span>/.exec(h)[1].trim();
+    const stufe = (/<span class="stufe">([^<]*)<\/span>/.exec(h) || [])[1] || "";
+    const offen = /class="z offen"/.test(h);
+    const text = h.replace(/^<div class="auf">\s*<div class="anr">[\s\S]*?<\/div>\s*<div class="text">/, "").replace(/<\/div>\s*<\/div>\s*$/, "");
+    const erstes = /<p[^>]*>([\s\S]*?)<\/p>/.exec(text);
+    return { nr, stufe: (stufe.match(/●/g) || []).length, offen, html: text.trim(), kopf: erstes ? erstes[1].trim() : "", loesung: (kursLoes[s.nr] || {})[nr] || "" };
+  });
+  const kaesten = [];
+  for (const art of ["merke", "achtung", "vertiefung", "rueckblick"]) {
+    for (const h of bloecke(haupt, `kasten ${art}`)) {
+      const etikett = textOhneTags((/<div class="etikett">([\s\S]*?)<\/div>/.exec(h) || [])[1] || "");
+      const inhalt = h.replace(/^<div class="kasten [^"]*"[^>]*>\s*(<div class="etikett">[\s\S]*?<\/div>)?/, "").replace(/<\/div>\s*$/, "").trim();
+      kaesten.push({ art, etikett, html: inhalt, pos: haupt.indexOf(h) });
+    }
+  }
+  kaesten.sort((a, b) => a.pos - b.pos).forEach((k) => delete k.pos);
+  if (aufgaben.length || kaesten.length) kurs.seiten[s.nr] = { titel: s.meta.ukap || "", aufgaben, kaesten };
+}
+fs.rmSync(path.join(DIST, "kurs"), { recursive: true, force: true });
+fs.mkdirSync(path.join(DIST, "kurs"), { recursive: true });
+for (const [nr, inhalt] of Object.entries(kurs.seiten)) fs.writeFileSync(path.join(DIST, "kurs", `${nr}.json`), JSON.stringify(inhalt));
+fs.writeFileSync(path.join(DIST, "kurs", "seiten.json"), JSON.stringify(Object.keys(kurs.seiten).map(Number)));   // welche Seiten Inhalte haben
+const nA = Object.values(kurs.seiten).reduce((n, s) => n + s.aufgaben.length, 0);
+const nL = Object.values(kurs.seiten).reduce((n, s) => n + s.aufgaben.filter((a) => a.loesung).length, 0);
+console.log(`Kurs-Inhalte: ${nA} Aufgaben (${nL} mit Lösung), ${Object.values(kurs.seiten).reduce((n, s) => n + s.kaesten.length, 0)} Kästen.`);

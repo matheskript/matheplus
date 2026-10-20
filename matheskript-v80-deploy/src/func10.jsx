@@ -74,6 +74,7 @@ const KlausurBriefkasten = lazyLaden(() => import("./funcKlausurBriefkasten.jsx"
 /* Lehrer-Arbeitsblatt-Generator und Lehrkräfte-Seite: eigener Chunk */
 const ArbeitsblattSeite = lazyLaden(() => import("./funcArbeitsblatt.jsx").then((m) => ({ default: m.ArbeitsblattSeite })));
 const LehrkraefteSeite = lazyLaden(() => import("./funcLehrkraefte.jsx").then((m) => ({ default: m.LehrkraefteSeite })));
+const BuchBlatt = lazyLaden(() => import("./funcBlatt.jsx").then((m) => ({ default: m.BuchBlatt })));   // QR-Codes der Schulbücher: /b1/25-1
 const BundeswettbewerbSeite = lazyLaden(() => import("./funcWettbewerbe.jsx").then((m) => ({ default: m.BundeswettbewerbSeite })));
 const LandeswettbewerbeSeite = lazyLaden(() => import("./funcWettbewerbe.jsx").then((m) => ({ default: m.LandeswettbewerbeSeite })));
 const LandeswettbewerbSeite = lazyLaden(() => import("./funcWettbewerbe.jsx").then((m) => ({ default: m.LandeswettbewerbSeite })));
@@ -218,6 +219,8 @@ export function Mathilda() {
   const [kapitelZiel, setKapitelZiel] = useState(null);   // Formelauswahl zum Buchkapitel (Quickfinder)   // Deep-Link auf eine einzelne Formel   // Bereich der Formelsammlung          // Bundesland der Landeswettbewerb-Seite
   const [sprung, setSprung] = useState(null);
   const [fotoModus, setFotoModus] = useState("blatt");
+  /* Aufgabenblatt zu einem QR-Code aus dem Schulbuch (/b1/25-1, pfade.js → ansicht "blatt") */
+  const [blattZiel, setBlattZiel] = useState(() => { try { const pz = pfadAufloesen(window.location.pathname); return pz && pz.ansicht === "blatt" ? pz : {}; } catch (e) { return {}; } });
   const [terminStart, setTerminStart] = useState(null);
   const [klasseAktiv, setKlasseAktiv] = useState(8);
   const [kursStart, setKursStart] = useState(null);
@@ -255,6 +258,7 @@ export function Mathilda() {
     ansicht, klasse: klasseAktiv, land: landWahl, trainer: kopfTrainer, seite: ansicht === "gleichkurs" ? gkSeite : ansicht === "textaufgaben" ? wzSeite : ansicht === "unterstufe" ? usSeite : entdeckenStart, kurs: kursStart,
     ziel: ansicht === "training" ? trainZiel : ansicht === "ki" ? genZiel : undefined,
     foto: ansicht === "analyse" ? fotoModus : undefined,
+    ...(ansicht === "blatt" ? { band: blattZiel.band, seite: blattZiel.seite, nr: blattZiel.nr, kasten: blattZiel.kasten } : {}),
   };
   useEffect(() => {
     try {
@@ -291,7 +295,7 @@ export function Mathilda() {
   }, []);
   const gehe = (eintrag) => {
     // Gast ohne Passwort (nur Rechtsseiten freigegeben, middleware.js): alles andere über eine echte Seitenanfrage
-    if (!["impressum", "datenschutz", "agb", "widerruf", "einwilligung", "lehrkraefte", "lehrerblatt"].includes(eintrag.ansicht)
+    if (!["impressum", "datenschutz", "agb", "widerruf", "einwilligung", "lehrkraefte", "lehrerblatt", "blatt"].includes(eintrag.ansicht)
         && typeof document !== "undefined" && /(?:^|;\s*)mm_gast=1/.test(document.cookie)) {
       window.location.assign("/");
       return;
@@ -303,6 +307,7 @@ export function Mathilda() {
     if (eintrag.ansicht === "training") setTrainZiel(eintrag.ziel ?? null);
     if (eintrag.ansicht === "ki") setGenZiel(eintrag.ziel ?? null);
     if (eintrag.foto) setFotoModus(eintrag.foto);
+    if (eintrag.ansicht === "blatt") setBlattZiel(eintrag);
     if (eintrag.kompetenz) setEinheitId(eintrag.kompetenz);
     if (eintrag.ansicht === "lernpfad") setPfadStart(eintrag.einheit ? { einheit: eintrag.einheit, zeit: Date.now() } : null);
     if (eintrag.ansicht === "vorbereiten") setTerminStart(eintrag.termin || null);
@@ -1092,6 +1097,10 @@ export function Mathilda() {
             <KlausurBriefkasten gehe={gehe} />
           </React.Suspense>
         </div>
+      ) : ansicht === "blatt" ? (
+        <React.Suspense fallback={<p role="status" style={{ color: C.grau, fontSize: 15, fontWeight: 300, padding: "24px", textAlign: "center" }}>Wird geladen …</p>}>
+          <BuchBlatt gehe={gehe} band={blattZiel.band} seite={blattZiel.seite} nr={blattZiel.nr} kasten={!!blattZiel.kasten} />
+        </React.Suspense>
       ) : ansicht === "lehrerblatt" ? (
         <React.Suspense fallback={<p role="status" style={{ color: C.grau, fontSize: 15, fontWeight: 300, padding: "24px", textAlign: "center" }}>{englisch() ? "Loading …" : "Wird geladen …"}</p>}>
           <ArbeitsblattSeite gehe={gehe} />

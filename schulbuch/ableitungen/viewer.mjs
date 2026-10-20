@@ -25,7 +25,8 @@ const ZIELE = [
 ];
 let html = fs.readFileSync(path.join(DIST, "buch.html"), "utf8");
 let sprungZahl = 0;
-html = html.replace(/<div class="notiz mathilda">([\s\S]*?)<\/div>/g, (ganz, inhalt) => {
+const kaesten = {};   // Seite → Ziel des „In der App“-Kastens (für die Kurzlinks /b<Band>/s<Seite> aus dem gedruckten Buch, funcBlatt.jsx)
+html = html.replace(/<div class="notiz mathilda">([\s\S]*?)(?=<div class="qr-app">|<\/div>)/g, (ganz, inhalt, offset) => {
   const text = inhalt.replace(/<[^>]+>/g, " ");
   const treffer = ZIELE.find(([wort]) => text.includes(wort));
   if (!treffer) return ganz;
@@ -33,8 +34,11 @@ html = html.replace(/<div class="notiz mathilda">([\s\S]*?)<\/div>/g, (ganz, inh
   const pfad = pfadFuer(ziel);
   if (!pfad) throw new Error("Kein Pfad für " + JSON.stringify(ziel));
   sprungZahl++;
-  return `<div class="notiz mathilda">${inhalt}<a class="appsprung" href="${pfad}" data-ziel='${JSON.stringify(ziel)}' target="_top">In der App öffnen →</a></div>`;
+  const nr = [...html.slice(0, offset).matchAll(/data-nr="(\d+)"/g)].pop();
+  if (nr) kaesten[nr[1]] = ziel;
+  return `<div class="notiz mathilda">${inhalt}<a class="appsprung" href="${pfad}" data-ziel='${JSON.stringify(ziel)}' target="_top">In der App öffnen →</a>`;
 });
+fs.writeFileSync(path.join(OUT, "kaesten.json"), JSON.stringify(kaesten));
 
 // Inhaltsverzeichnis aus den Seiten
 const seiten = JSON.parse(fs.readFileSync(path.join(DIST, "seiten.json"), "utf8"));

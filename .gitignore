@@ -2,3 +2,6 @@ node_modules/
 dist/
 package-lock.json
 dist-ssr/
+
+# Druckausgabe für Amazon KDP (Bauanleitung: schulbuch/kdp/LIESMICH.md)
+schulbuch/*/dist-kdp/

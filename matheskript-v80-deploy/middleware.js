@@ -17,7 +17,10 @@ const OEFFENTLICH = ["/impressum", "/datenschutz", "/agb", "/widerruf", "/einwil
   /* Lehrkräfte: Arbeitsblatt-Generator und Infoseite – kostenlos und ohne Konto, also auch ohne Passwort (pfade.js) */
   "/lehrkraefte", "/lehrkraefte/arbeitsblatt", "/lehrer", "/fuer-lehrkraefte", "/fuer-lehrer", "/lehrerinnen",
   "/arbeitsblatt-generator", "/lehrer-arbeitsblatt", "/lehrer/arbeitsblatt", "/arbeitsblaetter"];
-const istOeffentlich = (p) => OEFFENTLICH.includes(p.replace(/\/$/, "")) || p.startsWith("/assets/");
+/* QR-Codes aus den gedruckten Schulbüchern (/b1/25-1, /b2/s17 – pfade.js): wer das Buch gekauft hat, braucht kein Passwort.
+   Dazu nur die Daten, die das Aufgabenblatt braucht (Kurs-JSON, Kastenziele, KaTeX) – Reader und PDF der Bücher bleiben hinter dem Passwort. */
+const istOeffentlich = (p) => OEFFENTLICH.includes(p.replace(/\/$/, "")) || p.startsWith("/assets/")
+  || /^\/b[12](\/|$)/i.test(p) || /^\/buecher\/[a-z]+\/(kurs\/|kaesten\.json$|katex\.css$|fonts\/)/.test(p);
 
 
 /* ---------- Masterclass-Zugangslinks (/masterclass/zugang?z=MC…) ----------
@@ -117,8 +120,13 @@ const html = (inhalt, status = 200) => new Response(inhalt, {
   headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "x-robots-tag": "noindex, nofollow" },
 });
 
+/* Druckvorlagen für Amazon (/druck/…) und die kompletten Buch-PDFs (/buecher/<band>/<Name>.pdf) bleiben immer
+   hinter dem Passwort – auch wenn SEITEN_SCHUTZ=aus die übrige Seite öffnet. Sonst wäre das Buch, das bei Amazon
+   verkauft wird, hier frei herunterladbar. Die Seite „Dokumente“ (Arbeitsmenü F) verlinkt sie. */
+export const istGeschuetzteDatei = (p) => p.startsWith("/druck/") || /^\/buecher\/[a-z]+\/[^/]+\.pdf$/i.test(p);
+
 export default async function middleware(request) {
-  if ((process.env.SEITEN_SCHUTZ || "").toLowerCase() === "aus") return next();
+  if ((process.env.SEITEN_SCHUTZ || "").toLowerCase() === "aus" && !istGeschuetzteDatei(new URL(request.url).pathname)) return next();
   // Öffentliche Formelseiten (scripts/formelseiten.mjs): nur mit FORMELN_OEFFENTLICH=ja ohne Passwort
   if ((process.env.FORMELN_OEFFENTLICH || "").toLowerCase() === "ja") {
     const p = new URL(request.url).pathname;

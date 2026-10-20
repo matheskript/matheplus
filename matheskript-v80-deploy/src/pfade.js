@@ -230,11 +230,36 @@ export function pfadAufloesen(roh) {
   if (u && istUnterstufeSeite(u[1])) return { ansicht: "unterstufe", seite: u[1], kanonisch: true };
   const k56 = /^klasse-([56])$/.exec(p);
   if (k56) return { ansicht: "unterstufe", seite: `klasse-${k56[1]}`, kanonisch: false };
+  const bl = buchLinkAufloesen(p);   // QR-Codes der gedruckten Schulbücher: /b1/25-1, /b2/s17
+  if (bl) return bl;
   const e = NACH_PFAD.get(p);
   if (!e) return null;
   const { pfad, alias, werkzeug, bereich, ...ziel } = e;
   return ziel;
 }
+
+/* ---------- Feste Kurzlinks der gedruckten Schulbücher (QR-Codes) ----------
+   /b1/25-1  Aufgabenblatt: Band 1, Seite 25, Aufgabe 1 – neue Aufgaben desselben Typs mit Lösungen (funcBlatt.jsx)
+   /b1/s25   der „In der App“-Kasten auf Seite 25 – Seitenübersicht: Werkzeug der Stunde und alle Aufgabentypen der Seite
+   /b1       der Kurs zum Buch
+   Die Seitenzahlen sind die gedruckten (der Vorspann der Druckausgabe zählt römisch), also bleiben die Links
+   auch bei späteren Auflagen gültig. NIE ändern: Die Adressen sind in gedruckte Bücher eingebrannt.
+   Werkzeug je Seite: public/buecher/<ordner>/kaesten.json (viewer.mjs), Aufgabentypen: BUCH_TYPEN der Kurse.
+   Öffentlich ohne Passwort: middleware.js (istOeffentlich). Test: tests/pfade.test.mjs. */
+export const BUECHER = {
+  1: { ordner: "ableitungen", titel: "Ableitungen", kurs: "diffkurs" },
+  2: { ordner: "vektoren", titel: "Vektoren, Geraden und Ebenen", kurs: "vekkurs" },
+};
+export function buchLinkAufloesen(p) {
+  const m = /^b([12])(?:\/(?:(\d{1,3})-([a-z]?\d{1,2}[a-z]?)|s(\d{1,3})))?$/.exec(p);
+  if (!m) return null;
+  const band = Number(m[1]);
+  if (m[2]) return { ansicht: "blatt", band, seite: Number(m[2]), nr: m[3].replace(/^t/, "T"), kanonisch: true };
+  if (m[4]) return { ansicht: "blatt", band, seite: Number(m[4]), kasten: true, kanonisch: true };
+  return { ansicht: BUECHER[band].kurs, kanonisch: true };
+}
+/* Kurzlink in der Gegenrichtung (ohne Domain), z. B. buchLink(1, 25, "1") → "/b1/25-1", buchLink(1, 25) → "/b1/s25" */
+export const buchLink = (band, seite, nr) => (nr == null ? `/b${band}/s${seite}` : `/b${band}/${seite}-${String(nr).toLowerCase()}`);
 
 /* ---------- Gegenrichtung: Zustand der App → Pfad ---------- */
 const UNTERZIELE = ["ziel", "foto", "trainer", "seite", "kurs"];
@@ -246,6 +271,7 @@ export function pfadFuer(zustand) {
   if (z.ansicht === "klasse" && KLASSEN.includes(Number(z.klasse))) return `/klasse-${Number(z.klasse)}`;
   if (z.ansicht === "landeswettbewerb" && LAND_IDS.includes(z.land) && z.land !== "bw") return `/landeswettbewerb/${z.land}`;
   if (z.ansicht === "unterstufe" && z.seite && istUnterstufeSeite(z.seite)) return `/unterstufe/${z.seite}`;
+  if (z.ansicht === "blatt" && BUECHER[z.band] && z.seite) return z.kasten ? buchLink(z.band, z.seite) : buchLink(z.band, z.seite, z.nr);
   let beste = null, bestePunkte = -1;
   for (const e of PFADE) {
     if (e.ansicht !== z.ansicht) continue;

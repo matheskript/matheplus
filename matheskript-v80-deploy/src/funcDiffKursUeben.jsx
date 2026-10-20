@@ -22,26 +22,33 @@ import { AufklappZeichen } from "./aufklappen.jsx";
 import { neueAufgabe, typVon, typTitel } from "./diffAufgaben.js";
 import { pruefeTerm, pruefeListe, pruefeStamm, termAus, aufX, alsQ, zT } from "./diffKern.js";
 
-const K = { baby: C.babyblau, hell: C.babyblauHell, tief: C.babyblauTief, schwarz: C.nachtschwarz, gold: C.golddunkel, weiss: C.weiss };
-const KURS = "/buecher/ableitungen/kurs";
+/* Farben als CSS-Variablen: der Kurs Differentialrechnung (Standard) ist babyblau, der Kurs
+   Vektoren/Geraden/Ebenen setzt über die Prop `buch.farben` seine dunkelblaue Palette. */
+const K = { baby: "var(--kt-baby)", hell: "var(--kt-hell)", tief: "var(--kt-tief)", schwarz: "var(--kt-schwarz)", gold: "var(--kt-gold)", weiss: "var(--kt-weiss)" };
+const K_DIFF = { "--kt-baby": C.babyblau, "--kt-hell": C.babyblauHell, "--kt-tief": C.babyblauTief, "--kt-schwarz": C.nachtschwarz, "--kt-gold": C.golddunkel, "--kt-weiss": C.weiss };
+
+/* Welches Buch: Band 1 (Standard) oder ein anderer Band mit eigenen Generatoren (funcVekKurs.jsx) */
+export const BUCH_DIFF = { pfad: "/buecher/ableitungen", gen: { neueAufgabe, typVon, typTitel }, farben: K_DIFF, speicher: "matheplus-diffkurs-reiter" };
 
 /* ---------- Buchinhalte laden (je Seite eine JSON-Datei) ---------- */
-let manifest = null;
+const manifeste = new Map();
 const cache = new Map();
-async function seitenLaden(von, bis) {
-  if (!manifest) manifest = fetch(`${KURS}/seiten.json`).then((r) => r.json()).catch(() => []);
-  const da = await manifest;
+async function seitenLaden(buch, von, bis) {
+  const KURS = `${buch.pfad}/kurs`;
+  if (!manifeste.has(KURS)) manifeste.set(KURS, fetch(`${KURS}/seiten.json`).then((r) => r.json()).catch(() => []));
+  const da = await manifeste.get(KURS);
   const nummern = [];
   for (let s = von; s <= bis; s++) if (da.includes(s)) nummern.push(s);
   return Promise.all(nummern.map((s) => {
-    if (!cache.has(s)) cache.set(s, fetch(`${KURS}/${s}.json`).then((r) => r.json()).then((d) => ({ seite: s, ...d })));
-    return cache.get(s);
+    const k = `${KURS}/${s}`;
+    if (!cache.has(k)) cache.set(k, fetch(`${k}.json`).then((r) => r.json()).then((d) => ({ seite: s, ...d })));
+    return cache.get(k);
   }));
 }
-function katexCss() {
+function katexCss(buch) {
   if (typeof document === "undefined" || document.getElementById("dk-katex")) return;
   const l = document.createElement("link");
-  l.id = "dk-katex"; l.rel = "stylesheet"; l.href = "/buecher/ableitungen/katex.css";
+  l.id = "dk-katex"; l.rel = "stylesheet"; l.href = `${buch.pfad}/katex.css`;
   document.head.appendChild(l);
 }
 
@@ -140,10 +147,10 @@ function schrittFuer(s, typ) {
 
 /* ---------- Reiter ---------- */
 const REITER = [["werkzeuge", "Werkzeuge"], ["aufgaben", "Aufgaben"], ["saetze", "Sätze und Definitionen"]];
-const reiterLesen = () => { try { const r = localStorage.getItem("matheplus-diffkurs-reiter"); return REITER.some(([id]) => id === r) ? r : "aufgaben"; } catch (e) { return "aufgaben"; } };
+const reiterLesen = (buch) => { try { const r = localStorage.getItem(buch.speicher); return REITER.some(([id]) => id === r) ? r : "aufgaben"; } catch (e) { return "aufgaben"; } };
 
-export function KursTraining({ modul, werkzeuge, onGeuebt, geuebt }) {
-  const [reiter, setReiter] = React.useState(reiterLesen);
+export function KursTraining({ modul, werkzeuge, onGeuebt, geuebt, buch = BUCH_DIFF }) {
+  const [reiter, setReiter] = React.useState(() => reiterLesen(buch));
   const [seiten, setSeiten] = React.useState(null);
   const [fehler, setFehler] = React.useState(false);
   const [typ, setTyp] = React.useState(null);        // aktiver Aufgabentyp im Aufgabentool
@@ -153,18 +160,18 @@ export function KursTraining({ modul, werkzeuge, onGeuebt, geuebt }) {
 
   React.useEffect(() => {
     let weg = false;
-    katexCss();
-    seitenLaden(modul.von, modul.bis).then((s) => { if (!weg) setSeiten(s); }).catch(() => { if (!weg) setFehler(true); });
+    katexCss(buch);
+    seitenLaden(buch, modul.von, modul.bis).then((s) => { if (!weg) setSeiten(s); }).catch(() => { if (!weg) setFehler(true); });
     return () => { weg = true; };
   }, [modul.von, modul.bis]);
 
-  const aufgaben = React.useMemo(() => (seiten || []).flatMap((s) => s.aufgaben.map((a) => ({ ...a, seite: s.seite, typ: typVon(s.seite, a.nr) }))), [seiten]);
+  const aufgaben = React.useMemo(() => (seiten || []).flatMap((s) => s.aufgaben.map((a) => ({ ...a, seite: s.seite, typ: buch.gen.typVon(s.seite, a.nr) }))), [seiten, buch]);
   const kaesten = React.useMemo(() => (seiten || []).flatMap((s) => s.kaesten.map((k, i) => ({ ...k, seite: s.seite, key: `${s.seite}-${i}` }))), [seiten]);
   /* Aufgabentypen des Kapitels in Buchreihenfolge, je Typ die Aufgaben, aus denen er stammt */
   const typen = React.useMemo(() => {
     const m = new Map();
     aufgaben.filter((a) => a.typ).forEach((a) => {
-      if (!m.has(a.typ)) m.set(a.typ, { schluessel: a.typ, titel: typTitel(a.typ), quellen: [] });
+      if (!m.has(a.typ)) m.set(a.typ, { schluessel: a.typ, titel: buch.gen.typTitel(a.typ), quellen: [] });
       m.get(a.typ).quellen.push(a);
     });
     return [...m.values()];
@@ -172,7 +179,7 @@ export function KursTraining({ modul, werkzeuge, onGeuebt, geuebt }) {
 
   const waehle = (id) => {
     setReiter(id);
-    try { localStorage.setItem("matheplus-diffkurs-reiter", id); } catch (e) { /* egal */ }
+    try { localStorage.setItem(buch.speicher, id); } catch (e) { /* egal */ }
   };
   const ueben = (a) => {
     setTyp(a.typ); setQuelle(a); setRunde((n) => n + 1);
@@ -181,7 +188,7 @@ export function KursTraining({ modul, werkzeuge, onGeuebt, geuebt }) {
   const zahl = { werkzeuge: modul.werkzeuge.length, aufgaben: seiten ? aufgaben.length : null, saetze: seiten ? kaesten.length : null };
 
   return (
-    <div style={{ margin: "30px 0 0" }}>
+    <div style={{ margin: "30px 0 0", ...buch.farben }}>
       <style>{BUCH_CSS}</style>
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
         <span style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.12em", color: K.weiss, background: K.schwarz, padding: "5px 10px", borderRadius: 7 }}>2 · TRAINIEREN</span>
@@ -216,11 +223,11 @@ export function KursTraining({ modul, werkzeuge, onGeuebt, geuebt }) {
             </p>
             {aufgaben.length === 0 && <p style={{ fontSize: 14, color: C.grau }}>In diesem Kapitel stehen keine Aufgaben.</p>}
             <div style={{ display: "grid", gap: 10 }}>
-              {aufgaben.map((a) => <AufgabeKarte key={`${a.seite}-${a.nr}`} a={a} ueben={ueben} aktiv={quelle && quelle.seite === a.seite && quelle.nr === a.nr} />)}
+              {aufgaben.map((a) => <AufgabeKarte key={`${a.seite}-${a.nr}`} a={a} ueben={ueben} aktiv={quelle && quelle.seite === a.seite && quelle.nr === a.nr} gen={buch.gen} />)}
             </div>
             {typen.length > 0 && (
               <div ref={toolRef} style={{ scrollMarginTop: 72 }}>
-                <Aufgabentool key={`${modul.id}`} typen={typen} typ={typ} setTyp={(t) => { setTyp(t); setQuelle(null); setRunde((n) => n + 1); }} quelle={quelle} runde={runde} modul={modul} onGeloest={onGeuebt} />
+                <Aufgabentool key={`${modul.id}`} typen={typen} typ={typ} setTyp={(t) => { setTyp(t); setQuelle(null); setRunde((n) => n + 1); }} quelle={quelle} runde={runde} modul={modul} onGeloest={onGeuebt} gen={buch.gen} />
               </div>
             )}
           </>
@@ -247,7 +254,7 @@ function Punkte({ n }) {
     </span>
   );
 }
-function AufgabeKarte({ a, ueben, aktiv }) {
+function AufgabeKarte({ a, ueben, aktiv, gen }) {
   const [auf, setAuf] = React.useState(false);
   const [loes, setLoes] = React.useState(false);
   const training = a.nr.startsWith("T");
@@ -267,7 +274,7 @@ function AufgabeKarte({ a, ueben, aktiv }) {
               : <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: "0.04em", color: C.grau, background: C.sand, padding: "2px 7px", borderRadius: 999 }}>BEGRÜNDEN</span>}
           </span>
           {!auf && <span className="dk-kopf dk-buch" style={{ fontSize: 14.5, lineHeight: 1.5 }} dangerouslySetInnerHTML={{ __html: a.kopf || "" }} />}
-          {auf && <span style={{ fontSize: 14.5, fontWeight: 700, color: K.schwarz }}>{a.typ ? typTitel(a.typ) : "Aufgabe aus dem Buch"}</span>}
+          {auf && <span style={{ fontSize: 14.5, fontWeight: 700, color: K.schwarz }}>{a.typ ? gen.typTitel(a.typ) : "Aufgabe aus dem Buch"}</span>}
         </span>
         <span style={{ flex: "none", marginTop: 6 }}><AufklappZeichen auf={auf} /></span>
       </button>
@@ -338,9 +345,9 @@ function Tabelle({ t }) {
   );
 }
 
-function Aufgabentool({ typen, typ, setTyp, quelle, runde, modul, onGeloest }) {
+function Aufgabentool({ typen, typ, setTyp, quelle, runde, modul, onGeloest, gen }) {
   const gemischt = !typ;
-  const ziehen = React.useCallback((t) => neueAufgabe(t || typen[Math.floor(Math.random() * typen.length)].schluessel), [typen]);
+  const ziehen = React.useCallback((t) => gen.neueAufgabe(t || typen[Math.floor(Math.random() * typen.length)].schluessel), [typen, gen]);
   const [au, setAu] = React.useState(() => ziehen(typ));
   const [stand, setStand] = React.useState(0);
   const [weg, setWeg] = React.useState(false);

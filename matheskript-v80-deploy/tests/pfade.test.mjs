@@ -38,7 +38,7 @@ test("Jedes Werkzeug (und jede Zweitansicht) hat einen Pfad", () => {
 test("Jede Ansicht aus func10.jsx hat einen Pfad (bis auf bewusste Ausnahmen)", () => {
   const src = quelle("func10.jsx");
   const ansichten = new Set([...src.matchAll(/ansicht === "([a-z0-9-]+)"/g)].map((m) => m[1]));
-  const ohnePfad = new Set(["einheit", "klasse"]);   // einheit braucht Zustand; klasse hat /klasse-N
+  const ohnePfad = new Set(["einheit", "klasse", "blatt"]);   // einheit braucht Zustand; klasse hat /klasse-N; blatt hat /b1/25-1 (Kurzlinks der Schulbücher)
   for (const a of ansichten) {
     if (ohnePfad.has(a)) continue;
     assert.ok(PFADE.some((e) => e.ansicht === a), `Ansicht "${a}" hat keinen Pfad – in pfade.js SEITEN eintragen`);
@@ -128,4 +128,29 @@ test("Schreibweisen: Großbuchstaben, Schrägstrich am Ende, Umlaute, Abfrage un
 test("Ansichten ohne Pfad liefern null (App nimmt dann /)", () => {
   assert.equal(pfadFuer({ ansicht: "einheit" }), null);
   assert.equal(pfadFuer({ ansicht: "gibtsnicht" }), null);
+});
+
+/* Feste Kurzlinks der gedruckten Schulbücher (QR-Codes): /b1/25-1, /b1/s25, /b1 */
+import { buchLinkAufloesen, buchLink, BUECHER } from "../src/pfade.js";
+import { BUCH_TYPEN as DIFF_TYPEN } from "../src/diffAufgaben.js";
+import { BUCH_TYPEN as VEK_TYPEN } from "../src/vekAufgaben.js";
+test("Kurzlinks der Schulbücher lösen auf und bleiben in sich stimmig", () => {
+  assert.deepEqual(pfadAufloesen("/b1/25-1"), { ansicht: "blatt", band: 1, seite: 25, nr: "1", kanonisch: true });
+  assert.deepEqual(pfadAufloesen("/B1/10-T3/"), { ansicht: "blatt", band: 1, seite: 10, nr: "T3", kanonisch: true });
+  assert.deepEqual(pfadAufloesen("/b2/s17"), { ansicht: "blatt", band: 2, seite: 17, kasten: true, kanonisch: true });
+  assert.equal(pfadAufloesen("/b2").ansicht, "vekkurs");
+  assert.equal(pfadAufloesen("/b3/1-1"), null);
+  assert.equal(buchLinkAufloesen("b1/25-1a").nr, "1a");
+  assert.equal(pfadFuer({ ansicht: "blatt", band: 1, seite: 25, nr: "1" }), "/b1/25-1");
+  assert.equal(pfadFuer({ ansicht: "blatt", band: 2, seite: 17, kasten: true }), "/b2/s17");
+  for (const b of Object.keys(BUECHER)) assert.ok(pfadAufloesen(`/b${b}`), `Band ${b}`);
+});
+test("Jede Buchaufgabe mit Typ hat einen Kurzlink, der wieder auf Typ und Seite führt", () => {
+  for (const [band, typen] of [[1, DIFF_TYPEN], [2, VEK_TYPEN]]) {
+    for (const k of Object.keys(typen)) {
+      const [seite, nr] = k.split("-");
+      const z = pfadAufloesen(buchLink(band, Number(seite), nr));
+      assert.ok(z && z.ansicht === "blatt" && z.seite === Number(seite) && z.nr === nr, `${band}: ${k} → ${JSON.stringify(z)}`);
+    }
+  }
 });

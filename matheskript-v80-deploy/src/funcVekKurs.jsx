@@ -28,6 +28,8 @@ import { KURS_MODULE, KAPITEL, TITEL_KURZ, KAPITEL_KURZ, BUCH_BEREIT } from "./v
 import { TIEFBLAU } from "./kursFarben.js";
 import { MotivEbene } from "./funcKursMotive.jsx";
 import { KursKopf, FortschrittKarte, Hinweis, KapitelKopf, ModulKarte, ModulListe, IconBuch, IconWerkzeug, IconVideo } from "./funcKursKopf.jsx";
+import { KursTraining } from "./funcDiffKursUeben.jsx";
+import { neueAufgabe, typVon, typTitel } from "./vekAufgaben.js";
 
 export { KURS_MODULE, KAPITEL, BUCH_BEREIT };
 
@@ -36,6 +38,9 @@ const BUCH = "/buecher/vektoren/index.html";
 /* Rollen wie im Differentialrechnungskurs: baby = Akzent auf Dunkel bzw. helle Fläche, hell = Nebel,
    tief = Linie/Fortschritt, schwarz = Nacht, gold = Akzentschrift auf Hell, leucht = Gold auf Dunkel */
 const K = { baby: C.vkHell, hell: C.vkNebel, tief: C.vkBlau, blau: C.vkBlau, schwarz: C.vkNacht, gold: C.vkTief, leucht: C.vkGold, weiss: C.weiss };
+/* Trainieren im Modul (Aufgaben aus dem Heft, Aufgabentool, Sätze und Definitionen) – Bausteine aus dem Kurs Differentialrechnung */
+const BUCH_VEK = { pfad: "/buecher/vektoren", gen: { neueAufgabe, typVon, typTitel }, speicher: "matheplus-vekkurs-reiter",
+  farben: { "--kt-baby": C.vkHell, "--kt-hell": C.vkNebel, "--kt-tief": C.vkBlau, "--kt-schwarz": C.vkNacht, "--kt-gold": C.vkTief, "--kt-weiss": C.weiss } };
 
 const lazy = (lader, name) => lazyLaden(() => lader().then((m) => ({ default: m[name] })));
 const Geradengleichung = lazy(() => import("./funcGeradengleichung.jsx"), "Geradengleichung");
@@ -374,21 +379,17 @@ function Modul({ modul, stand, setStand, oeffnen, zurUebersicht, gehe }) {
         </div>
       )}
 
-      {modul.werkzeuge.length > 0 && (
-        <div style={{ margin: "30px 0 0" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-            <span style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.12em", color: K.weiss, background: K.schwarz, padding: "5px 10px", borderRadius: 7 }}>2 · TRAINIEREN</span>
-            <span style={{ marginLeft: "auto", display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12.5, color: C.grau }}><Haken an={!!stand.geuebt[modul.id]} />geübt</span>
-          </div>
-          <h3 style={{ fontSize: 20, fontWeight: 700, color: K.schwarz, margin: "8px 0 4px" }}>Werkzeuge zu diesem Kapitel</h3>
-          <p style={{ fontSize: 14, color: C.grau, margin: "0 0 14px", lineHeight: 1.6 }}>Tippe auf ein Werkzeug – es öffnet sich als Fenster direkt hier im Modul.</p>
-          <KartenStil />
-          <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 16 }}>
-            {modul.werkzeuge.map((id) => (
-              <WerkzeugKarte key={id} id={id} t={KURS_WERKZEUGE[id]} an={offen === id} oeffnen={werkzeugOeffnen} schliessen={() => setOffen(null)} Zeichen={Zeichen} />
-            ))}
-          </div>
-        </div>
+      {modul.kap !== "L" && (
+        <KursTraining modul={modul} geuebt={!!stand.geuebt[modul.id]} onGeuebt={() => merken("geuebt")} buch={BUCH_VEK} werkzeuge={(
+          <>
+            <KartenStil />
+            <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 16 }}>
+              {modul.werkzeuge.map((id) => (
+                <WerkzeugKarte key={id} id={id} t={KURS_WERKZEUGE[id]} an={offen === id} oeffnen={werkzeugOeffnen} schliessen={() => setOffen(null)} Zeichen={Zeichen} />
+              ))}
+            </div>
+          </>
+        )} />
       )}
 
       {w && (

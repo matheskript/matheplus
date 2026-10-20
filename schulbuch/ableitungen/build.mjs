@@ -5,11 +5,16 @@
 // Grafik: <graph>{ JSON }</graph>
 import fs from "node:fs";
 import path from "node:path";
+import { execSync } from "node:child_process";
+import { qrEinbauen, QR_CSS, qrSvg } from "../qr.mjs";
+import { vorwortSeiten, KDP_CSS } from "../kdp/vorwort.mjs";
+// Druckausgabe für Amazon KDP: KDP=1 DIST=dist-kdp node build.mjs (Beschnitt, Vorspann I–VIII, kdp.json)
+const KDP = !!process.env.KDP;
 import katex from "katex";
 
 const ROOT = path.dirname(new URL(import.meta.url).pathname);
 const PAGES = path.join(ROOT, "pages");
-const DIST = path.join(ROOT, "dist");
+const DIST = path.join(ROOT, process.env.DIST || "dist");   // DIST=dist-kdp für die Druckausgabe
 fs.mkdirSync(path.join(DIST, "fonts"), { recursive: true });
 
 // ---------- Schriften kopieren ----------
@@ -219,7 +224,7 @@ const KAPNAME = { I: "Geraden und Änderungsraten", II: "Die Ableitung", III: "A
 function seite(s) {
   const typ = s.meta.typ || "normal";
   const kap = s.meta.kap || "0";
-  const seiteLR = s.nr % 2 === 1 ? "rechts" : "links";
+  const seiteLR = (s.roem ? s.roemIndex % 2 === 0 : s.nr % 2 === 1) ? "rechts" : "links";
   const col = KAPFARBE[kap] || FARBE.see;
   if (typ === "frei") return `<section class="page frei ${seiteLR} kap-${kap}" style="--kap:${col}" data-nr="${s.nr}" data-datei="${s.datei}">${s.haupt}</section>`;
   const kopf = typ === "auftakt" ? "" : `<header class="kopf"><span class="kopf-kap"><b>${kap === "L" || kap === "0" ? "" : "Kapitel " + kap}</b>${KAPNAME[kap] ?? ""}</span><span class="kopf-ukap">${s.meta.ukap ?? ""}</span></header>`;
@@ -227,16 +232,44 @@ function seite(s) {
   <div class="kapband"></div>
   ${kopf}
   <div class="koerper ${s.rand.trim() ? "" : "ohne-rand"}"><div class="haupt">${s.haupt}</div>${s.rand.trim() ? `<aside class="rand">${s.rand}</aside>` : ""}</div>
-  <footer class="fuss"><span class="snr">${s.nr}</span><span class="marke">Mythos Mathe · Ableitungen</span></footer>
+  <footer class="fuss"><span class="snr">${s.roem || s.nr}</span><span class="marke">Mythos Mathe · Ableitungen</span></footer>
 </section>`;
 }
 
-const css = fs.readFileSync(path.join(ROOT, "buch.css"), "utf8");
-const html = `<!doctype html><html lang="de"><head><meta charset="utf-8"><title>Ableitungen – Mythos Mathe</title>
+// ---------- Zusammenbauen, QR-Codes (qr.mjs), Druckausgabe (kdp/) ----------
+const APP = path.join(ROOT, "..", "..", "matheskript-v80-deploy");
+const { BUCH_TYPEN } = await import(path.join(APP, "src/diffAufgaben.js"));
+let alleSeiten = seiten;
+if (KDP) {
+  const konfig = JSON.parse(fs.readFileSync(path.join(ROOT, "kdp.json"), "utf8"));
+  const vor = await vorwortSeiten(konfig, { seiten, KAPNAME, qrSvg });
+  vor.forEach((v, i) => { v.roemIndex = i; });
+  alleSeiten = [...vor, ...seiten];
+  console.log(`KDP: Vorspann ${vor.length} Seiten (${vor.map((v) => v.roem).join(", ")}), Beschnitt 3,2 mm.`);
+}
+const css = fs.readFileSync(path.join(ROOT, "buch.css"), "utf8") + QR_CSS + (KDP ? KDP_CSS : "");
+function schreiben() {
+  const html = `<!doctype html><html lang="de"><head><meta charset="utf-8"><title>Ableitungen – Mythos Mathe</title>
 <link rel="stylesheet" href="katex.css"><style>${css}</style></head><body>
-${seiten.map(seite).join("\n")}
+${alleSeiten.map(seite).join("\n")}
 </body></html>`;
-fs.writeFileSync(path.join(DIST, "buch.html"), html);
+  fs.writeFileSync(path.join(DIST, "buch.html"), html);
+}
+// QR-Codes in zwei Durchgängen: erst ohne Codes bauen und den freien Platz je Seite messen (render.py --messen),
+// dann je Seite die passende Form einbauen. QR=0 überspringt die Codes (schneller Probebau).
+const QR_FORM = {};   // Form je Seite erzwingen, z. B. { 25: "eng" } – siehe qr.mjs
+if (process.env.QR !== "0") {
+  schreiben();
+  let platz = null;
+  try {
+    execSync("python3 render.py --messen", { cwd: ROOT, env: { ...process.env, DIST: path.basename(DIST) }, stdio: "pipe" });
+    platz = JSON.parse(fs.readFileSync(path.join(DIST, "platz.json"), "utf8"));
+  } catch (e) { console.warn("Platzmessung fehlgeschlagen – QR-Codes nur in den App-Kästen:", String(e.message || e).split("\n")[0]); }
+  const qrStat = await qrEinbauen(seiten, { band: 1, buchTypen: BUCH_TYPEN, platz, form: QR_FORM });
+  const formen = Object.values(qrStat.formen).reduce((m, f) => ({ ...m, [f]: (m[f] || 0) + 1 }), {});
+  console.log(`QR-Codes: ${qrStat.codes} Aufgaben, ${qrStat.kaesten} App-Kästen; Formen je Seite: ${JSON.stringify(formen)}.`);
+}
+schreiben();
 fs.writeFileSync(path.join(DIST, "seiten.json"), JSON.stringify(seiten.map((s) => ({ nr: s.nr, datei: s.datei, ...s.meta })), null, 1));
 fs.writeFileSync(path.join(DIST, "verzeichnis.json"), JSON.stringify(VERZ, null, 1));
 console.log(`${seiten.length} Seiten gebaut.`);
