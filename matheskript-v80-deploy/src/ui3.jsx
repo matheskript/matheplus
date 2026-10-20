@@ -17,6 +17,15 @@ import { Auswahl, GrosserKnopf, KleinerLink, MS, Rueck, ZahlFeld, hinweis, zw } 
 import { qLies, qNum } from "./rechnen2.js";
 import { istGekuerzt } from "./bruchGen.js";
 import { AufklappZeichen } from "./aufklappen.jsx";
+import { useBreite } from "./arbeitsflaeche.jsx";
+
+/* Grafiken in echten Pixeln (DESKTOP-STIL.md): gemessene Breite statt fester 360, Höhe wächst bis 1,6-fach mit.
+   Auf dem Handy (≈ 340–360 px) bleibt alles wie vorher. */
+function useMassstab(std = 360) {
+  const [ref, b] = useBreite();
+  const W = Math.max(280, b || std);
+  return [ref, W, Math.min(1.6, Math.max(1, W / std))];
+}
 
 /* ---------- Zahlen anzeigen ---------- */
 export const minusZ = (s) => String(s).replace(/-/g, "−");
@@ -221,8 +230,9 @@ export const teilung = (lo, hi, ziel = 6) => {
    punkte: [{ x, y, farbe, name, hohl }]   senkrechte/waagerechte: [{ x | y, farbe, text }]
    gleicheEinheit: y-Bereich so wählen, dass eine Einheit auf beiden Achsen gleich lang ist */
 export function FunktionsBild({ kurven = [], punkte = [], senkrechte = [], waagerechte = [], x0 = -5, x1 = 5, y0, y1, hoehe = 230, gleicheEinheit = false, einheitX = "", einheitY = "" }) {
-  const W = 360, L = 34, R = 10, T = 12, B = 22;
-  let H = hoehe, lo = y0, hi = y1;
+  const [massRef, W, f] = useMassstab();
+  const L = 34, R = 10, T = 12, B = 22;
+  let H = Math.round(hoehe * f), lo = y0, hi = y1;
   const pw = W - L - R;
   if (lo === undefined || hi === undefined) {
     let a = Infinity, b = -Infinity;
@@ -234,7 +244,7 @@ export function FunktionsBild({ kurven = [], punkte = [], senkrechte = [], waage
   }
   if (gleicheEinheit) {
     const proEinheit = pw / (x1 - x0);
-    H = Math.max(160, Math.min(320, (hi - lo) * proEinheit + T + B));
+    H = Math.max(160, Math.min(320 * f, (hi - lo) * proEinheit + T + B));
     const mitte = (hi + lo) / 2, halb = (H - T - B) / proEinheit / 2;
     lo = mitte - halb; hi = mitte + halb;
   }
@@ -258,7 +268,7 @@ export function FunktionsBild({ kurven = [], punkte = [], senkrechte = [], waage
   const klipp = useId().replace(/:/g, "k");
   const nullY = Math.max(T, Math.min(H - B, sy(0))), nullX = Math.max(L, Math.min(W - R, sx(0)));
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={zw("Schaubild", "Graph")} style={{ width: "100%", display: "block", background: C.weiss, borderRadius: 14, border: `1px solid ${C.linie}` }}>
+    <div ref={massRef}><svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={zw("Schaubild", "Graph")} style={{ width: "100%", display: "block", background: C.weiss, borderRadius: 14, border: `1px solid ${C.linie}` }}>
       <defs><clipPath id={klipp}><rect x={L} y={T} width={pw} height={H - T - B} /></clipPath></defs>
       {xt.map((v) => <line key={`gx${v}`} x1={sx(v)} x2={sx(v)} y1={T} y2={H - B} stroke="#E6EAF2" strokeWidth="1" />)}
       {yt.map((v) => <line key={`gy${v}`} y1={sy(v)} y2={sy(v)} x1={L} x2={W - R} stroke="#E6EAF2" strokeWidth="1" />)}
@@ -281,15 +291,17 @@ export function FunktionsBild({ kurven = [], punkte = [], senkrechte = [], waage
       ))}
       {waagerechte.filter((w) => w.text).map((w, i) => <text key={`wt${i}`} x={W - R - 4} y={sy(w.y) - 5} fontSize="11" fontWeight="700" textAnchor="end" fill={w.farbe || C.grau}>{w.text}</text>)}
       {kurven.filter((k) => k.name && !k.blass).map((k, i) => <text key={`n${i}`} x={L + 6} y={T + 12 + i * 14} fontSize="12" fontWeight="700" fill={k.farbe || C.see}>{k.name}</text>)}
-    </svg>
+    </svg></div>
   );
 }
 
 /* ---------- Histogramm ----------
    werte: [{ x, h, farbe? }]  markiert: (x) => Farbe | null  linien: [{ x, farbe, text }]
    werte2: zweite Verteilung als Umriss (z. B. unter der Alternative) */
-export function Balken({ werte, werte2, markiert, linien = [], hoehe = 200, yMax, xBeschriftung = "k", label, legende }) {
-  const W = 360, L = 38, R = 8, T = 12, B = 24;
+export function Balken({ werte, werte2, markiert, linien = [], hoehe: hoehe0 = 200, yMax, xBeschriftung = "k", label, legende }) {
+  const [massRef, W, f] = useMassstab();
+  const hoehe = Math.round(hoehe0 * f);
+  const L = 38, R = 8, T = 12, B = 24;
   const n = werte.length;
   const max = yMax ?? Math.max(...werte.map((w) => w.h), ...(werte2 || []).map((w) => w.h), 1e-9) * 1.1;
   const bw = (W - L - R) / n;
@@ -297,7 +309,7 @@ export function Balken({ werte, werte2, markiert, linien = [], hoehe = 200, yMax
   const yt = teilung(0, max, 4).filter((v) => v <= max);
   const schritt = Math.max(1, Math.ceil(n / 12));
   return (
-    <svg viewBox={`0 0 ${W} ${hoehe}`} role="img" aria-label={label || zw("Histogramm", "Histogram")} style={{ width: "100%", display: "block", background: C.weiss, borderRadius: 14, border: `1px solid ${C.linie}` }}>
+    <div ref={massRef}><svg viewBox={`0 0 ${W} ${hoehe}`} role="img" aria-label={label || zw("Histogramm", "Histogram")} style={{ width: "100%", display: "block", background: C.weiss, borderRadius: 14, border: `1px solid ${C.linie}` }}>
       {yt.map((v) => (
         <g key={v}>
           <line x1={L} x2={W - R} y1={sy(v)} y2={sy(v)} stroke="#E6EAF2" />
@@ -330,13 +342,15 @@ export function Balken({ werte, werte2, markiert, linien = [], hoehe = 200, yMax
         // enthält die Legende einen Bruch ($\frac{…}{…}$), wird sie als Formel gesetzt statt als SVG-Text
         ? <foreignObject x={W - R - 260} y={T - 8} width={256} height={34}><div style={{ display: "flex", justifyContent: "flex-end", alignItems: "flex-start", fontSize: 10.5, fontWeight: 700, color: C.grau, lineHeight: 1.2, whiteSpace: "nowrap" }}><MS s={legende} /></div></foreignObject>
         : <text x={W - R - 4} y={T + 10} fontSize="10.5" fontWeight="700" textAnchor="end" fill={C.grau}>{legende}</text>)}
-    </svg>
+    </svg></div>
   );
 }
 
 /* ---------- Laufender Mittelwert gegen exakten Wert ---------- */
-export function Verlauf({ werte, ziel, zielText, y0, y1, hoehe = 180, einheit = "" }) {
-  const W = 360, L = 42, R = 10, T = 12, B = 22;
+export function Verlauf({ werte, ziel, zielText, y0, y1, hoehe: hoehe0 = 180, einheit = "" }) {
+  const [massRef, W, f] = useMassstab();
+  const hoehe = Math.round(hoehe0 * f);
+  const L = 42, R = 10, T = 12, B = 22;
   const n = werte.length;
   let lo = y0, hi = y1;
   if (lo === undefined || hi === undefined) {
@@ -352,7 +366,7 @@ export function Verlauf({ werte, ziel, zielText, y0, y1, hoehe = 180, einheit = 
   if (n > 1) d += `L${sx(n - 1).toFixed(1)},${sy(werte[n - 1]).toFixed(1)}`;
   const yt = teilung(lo, hi, 4);
   return (
-    <svg viewBox={`0 0 ${W} ${hoehe}`} role="img" aria-label={zw("Verlauf des Mittelwerts", "Running mean")} style={{ width: "100%", display: "block", background: C.weiss, borderRadius: 14, border: `1px solid ${C.linie}` }}>
+    <div ref={massRef}><svg viewBox={`0 0 ${W} ${hoehe}`} role="img" aria-label={zw("Verlauf des Mittelwerts", "Running mean")} style={{ width: "100%", display: "block", background: C.weiss, borderRadius: 14, border: `1px solid ${C.linie}` }}>
       {yt.map((v) => (
         <g key={v}>
           <line x1={L} x2={W - R} y1={sy(v)} y2={sy(v)} stroke="#E6EAF2" />
@@ -365,7 +379,7 @@ export function Verlauf({ werte, ziel, zielText, y0, y1, hoehe = 180, einheit = 
       <line x1={L} x2={W - R} y1={hoehe - B} y2={hoehe - B} stroke={C.tinte} strokeWidth="1" />
       <text x={L} y={hoehe - 6} fontSize="10" fill={C.grau}>1</text>
       <text x={W - R} y={hoehe - 6} fontSize="10" textAnchor="end" fill={C.grau}>{n} {einheit}</text>
-    </svg>
+    </svg></div>
   );
 }
 

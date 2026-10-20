@@ -15,7 +15,7 @@ import { IchHaengeFest } from "./funcHilfe.jsx";
 import { GrosserKnopf, MS, hinweis, karte, kicker, zw } from "./ui2.jsx";
 import { Aufklapp, ModusLeiste, Seite, SchrittFolge, zt } from "./ui3.jsx";
 import { uebenWunschHolen, uebenWunschLesen } from "./uebenWunsch.js";
-import { Arbeitsflaeche, BildKarte, DESKTOP } from "./arbeitsflaeche.jsx";
+import { Arbeitsflaeche, BildKarte, DESKTOP, useBreite } from "./arbeitsflaeche.jsx";
 
 /* Animationen der Unterstufen-Werkzeuge: erst laden, wenn ein Werkzeug welche mitgibt (nur auf Deutsch) */
 const MotionAuswahl = React.lazy(() => import("./funcUnterstufeMotion.jsx").then((m) => ({ default: m.MotionAuswahl })));
@@ -88,7 +88,11 @@ export function winkelAn(S, P, Q) {
 /* ---------- Zeichenblatt ----------
    punkte: alle Punkte, die sichtbar sein müssen (Mathe-Koordinaten).
    kinder(z): Funktion, die mit dem Zeichen-Werkzeug z die SVG-Elemente liefert. */
-export function Zeichenblatt({ punkte, breite = 340, hoehe = 240, rand = 34, label, kinder }) {
+export function Zeichenblatt({ punkte, breite: breite0 = 340, hoehe: hoehe0 = 240, rand = 34, label, kinder }) {
+  // Echte Pixel (DESKTOP-STIL.md): gemessene Breite, Höhe wächst bis 1,6-fach mit – auf dem Handy wie vorher
+  const [massRef, gemessen] = useBreite();
+  const breite = Math.max(260, gemessen || breite0);
+  const hoehe = Math.round(hoehe0 * Math.min(1.6, Math.max(1, breite / breite0)));
   const xs = punkte.map((p) => p[0]), ys = punkte.map((p) => p[1]);
   const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
   const s = Math.min((breite - 2 * rand) / Math.max(x1 - x0, 0.01), (hoehe - 2 * rand) / Math.max(y1 - y0, 0.01));
@@ -167,9 +171,9 @@ export function Zeichenblatt({ punkte, breite = 340, hoehe = 240, rand = 34, lab
     },
   };
   return (
-    <svg viewBox={`0 0 ${breite} ${hoehe}`} style={{ width: "100%", height: "auto", display: "block" }} role="img" aria-label={label}>
+    <div ref={massRef}><svg viewBox={`0 0 ${breite} ${hoehe}`} style={{ width: "100%", height: "auto", display: "block" }} role="img" aria-label={label}>
       {kinder(z)}
-    </svg>
+    </svg></div>
   );
 }
 
