@@ -8,6 +8,8 @@
    glanz     = Lichtkante oben links, schein = Schein unten rechts hinter dem Motiv
    titel/text/akzent = Schrift auf dem Lack
    knopf/knopftext   = Pille „Kurs öffnen“ bzw. „Weiter mit …“
+   kopf/linie        = Kopfzeile der Kachel auf dem Handy: Streifen hinter dem Titel, Linie darunter
+   koerper           = Fläche unter der Kopfzeile auf dem Handy (optional, sonst lack)
    dunkel    = dunkle Karte „Dein Fortschritt“ auf der Kursseite, ring = Ring darauf
    medaille/medailleText = Nummernplakette eines Moduls, fertig = Plakette, wenn geschafft
    badge/badgeText       = Kapitel-Plakette
@@ -27,6 +29,8 @@ export const PORZELLAN = {
   lack: `linear-gradient(145deg, ${C.babyblauHell} 0%, ${C.babyblau} 58%, #8FCBEE 100%)`,
   rand: "linear-gradient(135deg, rgba(255,255,255,0.95), rgba(90,67,0,0.35) 60%, rgba(90,67,0,0.55))",
   glanz: "rgba(255,255,255,0.75)", schein: "rgba(255,255,255,0.55)", kante: "rgba(255,255,255,0.9)", schatten: "rgba(60,130,190,0.55)",
+  kopf: `linear-gradient(145deg, ${C.babyblau} 0%, #8FCBEE 100%)`, linie: `linear-gradient(90deg, ${C.golddunkel}, #8A6A00 60%, ${C.golddunkel})`,
+  koerper: `linear-gradient(160deg, ${C.weiss} 0%, ${C.babyblauHell} 100%)`,
   titel: C.nachtschwarz, text: "#1A2230", akzent: C.golddunkel, chip: "rgba(11,12,16,0.07)", chipRand: "rgba(11,12,16,0.14)",
   knopf: C.nachtschwarz, knopftext: C.weiss, knopfschatten: "rgba(11,12,16,0.6)", spur: "rgba(11,12,16,0.14)", fuellung: `linear-gradient(90deg, ${C.golddunkel}, #B98A00)`,
   dunkel: `linear-gradient(150deg, ${C.nachtschwarz} 0%, #16181F 100%)`, dunkelText: C.weiss, ring: C.babyblau, ringSpur: "rgba(255,255,255,0.14)", dunkelKnopf: C.babyblau, dunkelKnopfText: C.nachtschwarz,
@@ -38,6 +42,7 @@ export const TIEFBLAU = {
   lack: `linear-gradient(150deg, ${C.vkNacht} 0%, ${C.vkTief} 58%, #1A3E96 100%)`,
   rand: "linear-gradient(135deg, rgba(255,233,160,0.85), rgba(242,193,78,0.25) 55%, rgba(168,192,240,0.35))",
   glanz: "rgba(168,192,240,0.22)", schein: "rgba(36,87,197,0.55)", kante: "rgba(255,255,255,0.22)", schatten: "rgba(13,39,102,0.75)",
+  kopf: `linear-gradient(150deg, #040C20 0%, ${C.vkNacht} 100%)`, linie: GOLD_VERLAUF,
   titel: C.weiss, text: "rgba(255,255,255,0.84)", akzent: C.vkGold, chip: "rgba(255,255,255,0.1)", chipRand: "rgba(255,255,255,0.22)",
   knopf: GOLD_VERLAUF, knopftext: C.vkNacht, knopfschatten: "rgba(242,193,78,0.6)", spur: "rgba(255,255,255,0.16)", fuellung: GOLD_VERLAUF,
   dunkel: `linear-gradient(150deg, ${C.vkNacht} 0%, ${C.vkTief} 100%)`, dunkelText: C.weiss, ring: C.vkGold, ringSpur: "rgba(255,255,255,0.14)", dunkelKnopf: GOLD_PILLE, dunkelKnopfText: C.vkNacht,
@@ -49,6 +54,7 @@ export const LACKSCHWARZ = {
   lack: `linear-gradient(150deg, ${C.nachtschwarz} 0%, #1A1608 58%, #2E2408 100%)`,
   rand: "linear-gradient(135deg, rgba(255,233,160,0.9), rgba(237,187,0,0.3) 55%, rgba(237,187,0,0.55))",
   glanz: "rgba(255,246,214,0.14)", schein: "rgba(237,187,0,0.38)", kante: "rgba(255,255,255,0.2)", schatten: "rgba(11,12,16,0.8)",
+  kopf: "linear-gradient(150deg, #050608 0%, #0B0C10 100%)", linie: GOLD_VERLAUF,
   titel: C.weiss, text: "rgba(255,255,255,0.84)", akzent: C.flaggold, chip: "rgba(255,255,255,0.1)", chipRand: "rgba(237,187,0,0.3)",
   knopf: GOLD_VERLAUF, knopftext: C.nachtschwarz, knopfschatten: "rgba(237,187,0,0.6)", spur: "rgba(255,255,255,0.16)", fuellung: GOLD_VERLAUF,
   dunkel: `linear-gradient(150deg, ${C.nachtschwarz} 0%, #1E1A0E 100%)`, dunkelText: C.weiss, ring: C.flaggold, ringSpur: "rgba(255,255,255,0.14)", dunkelKnopf: GOLD_PILLE, dunkelKnopfText: C.nachtschwarz,
@@ -60,6 +66,7 @@ export const NACHTBLAU = {
   lack: "linear-gradient(150deg, #06102A 0%, #0B1E4A 56%, #12306E 100%)",
   rand: "linear-gradient(135deg, rgba(244,246,250,0.9), rgba(199,205,214,0.25) 55%, rgba(237,187,0,0.5))",
   glanz: "rgba(199,205,214,0.2)", schein: "rgba(237,187,0,0.3)", kante: "rgba(255,255,255,0.22)", schatten: "rgba(6,16,42,0.8)",
+  kopf: "linear-gradient(150deg, #030919 0%, #06102A 100%)", linie: GOLD_VERLAUF,
   titel: C.weiss, text: "rgba(255,255,255,0.84)", akzent: C.flaggold, chip: "rgba(255,255,255,0.1)", chipRand: "rgba(199,205,214,0.3)",
   knopf: GOLD_VERLAUF, knopftext: "#06102A", knopfschatten: "rgba(237,187,0,0.6)", spur: "rgba(255,255,255,0.16)", fuellung: GOLD_VERLAUF,
   dunkel: "linear-gradient(150deg, #06102A 0%, #0B1E4A 100%)", dunkelText: C.weiss, ring: C.flaggold, ringSpur: "rgba(255,255,255,0.14)", dunkelKnopf: GOLD_PILLE, dunkelKnopfText: "#06102A",

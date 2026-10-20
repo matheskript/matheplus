@@ -50,6 +50,15 @@ const STIL = `
         background:var(--kk-knopf);color:var(--kk-knopftext);box-shadow:0 8px 20px -8px var(--kk-knopfschatten),0 1px 0 rgba(255,255,255,0.35) inset}
       .kk-pfeil{transition:transform .18s ease}
       .kk-motiv{grid-column:2;grid-row:2;align-self:end;justify-self:end;width:calc(100% + 22px);height:auto;margin:4px -14px -16px 0;overflow:visible}
+      /* Handy: Kopfzeile – der Titel liegt auf einem eigenen Streifen (--kk-kopf) über die volle Breite,
+         darunter eine durchgezogene Folienlinie (--kk-linie); der Rest der Kachel ist der Lack. */
+      @media (max-width:839px){
+        .kk{background:var(--kk-koerper) padding-box,var(--kk-rand) border-box}
+        .kk-titel{margin:-18px -16px 0;padding:15px 16px 16px;font-size:clamp(20px,5.6vw,26px);
+          background:var(--kk-linie) bottom / 100% 3px no-repeat,var(--kk-kopf);
+          box-shadow:0 1px 0 var(--kk-kante) inset}
+        .kk-text{padding-top:12px}
+        .kk-motiv{margin-top:10px}}
       @media (min-width:840px){.kk{grid-template-columns:minmax(0,1fr) 36%;padding:26px 30px 24px;min-height:220px;column-gap:16px}
         .kk-titel{font-size:31px;margin-bottom:4px}.kk-text{padding-top:8px}.kk-meta{font-size:13.5px}.kk-zeile{font-size:15.5px;line-height:1.5;max-width:40ch}
         .kk-motiv{width:calc(100% + 30px);max-width:258px;margin:0 -24px -26px 0}}
@@ -70,13 +79,16 @@ function Pfeil({ farbe }) {
 }
 
 /* farben: lack = Hintergrund, rand = Folienkante, glanz = Lichtkante oben links, schein = Schein unten rechts,
-   titel/text/akzent = Schrift, knopf/knopftext = Pille, spur/fuellung = Fortschrittsbalken */
+   titel/text/akzent = Schrift, knopf/knopftext = Pille, spur/fuellung = Fortschrittsbalken,
+   kopf/linie = Kopfzeile auf dem Handy (Streifen hinter dem Titel, Linie darunter),
+   koerper = Fläche darunter auf dem Handy (fehlt sie, gilt lack) */
 function KursKachel({ onClick, label, titel, meta, zeile, stand, einheit, farben, Motiv, id, daten }) {
   const begonnen = stand && stand.fertig > 0;
   const anteil = begonnen ? Math.min(100, Math.round((stand.fertig / stand.gesamt) * 100)) : 0;
   const vars = {
     "--kk-lack": farben.lack, "--kk-rand": farben.rand, "--kk-glanz": farben.glanz, "--kk-schein": farben.schein, "--kk-kante": farben.kante,
     "--kk-schatten": farben.schatten, "--kk-titel": farben.titel, "--kk-text": farben.text, "--kk-akzent": farben.akzent,
+    "--kk-kopf": farben.kopf, "--kk-linie": farben.linie, "--kk-koerper": farben.koerper || farben.lack,
     "--kk-knopf": farben.knopf, "--kk-knopftext": farben.knopftext, "--kk-knopfschatten": farben.knopfschatten, "--kk-spur": farben.spur, "--kk-fuellung": farben.fuellung,
   };
   React.useInsertionEffect(stilSetzen, []);
