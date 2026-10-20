@@ -26,10 +26,61 @@ export const KOPF_CSS = `
   .kr-kopf .kr-k-modus[aria-pressed="true"]{background:${GOLD_PILLE};color:${NACHT};box-shadow:0 4px 14px rgba(237,187,0,0.35), inset 0 1px 0 rgba(255,255,255,0.5)}
   .kr-kopf .kr-k-ende{height:22px;background:${C.sand};border-radius:20px 20px 0 0}
   @media (max-width:420px){.kr-kopf .kr-k-innen,.kr-kopf .kr-k-unten{padding-left:18px;padding-right:18px}.kr-kopf .kr-k-ober{font-size:11px;letter-spacing:.1em}.kr-kopf .kr-k-modus{font-size:13px}}
+
+  /* Kompakt (Trainer- und Lernpfad-Seiten, Wunsch 21.10.): Kicker links + Zurück-Pille rechts in einer Zeile,
+     darunter Badge + Titel in EINER Zeile, darunter ein beschreibender Satz in EINER Zeile. Schriftgröße
+     passt sich per Containerbreite an (cqw), Ellipse nur als Sicherung. */
+  .kr-kopf.kompakt .kr-k-innen{padding-top:16px;padding-bottom:18px;container-type:inline-size}
+  .kr-kopf.kompakt .kr-k-zeile{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;min-height:32px}
+  .kr-kopf.kompakt .kr-k-ober{margin:0;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .kr-kopf.kompakt .kr-k-zurueck{flex:none;margin:0;height:32px;padding:0 13px 0 9px;border-radius:999px;background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.18);color:#E3EAF7;font-size:12.5px;white-space:nowrap;transition:background .15s,border-color .15s,color .15s}
+  .kr-kopf.kompakt .kr-k-zurueck:hover{background:rgba(255,255,255,0.14);border-color:rgba(237,187,0,0.6);color:#fff}
+  .kr-kopf.kompakt .kr-k-zurueck:focus-visible{outline:3px solid ${GOLD};outline-offset:2px}
+  .kr-kopf.kompakt .kr-k-titelzeile{display:flex;align-items:center;gap:12px;min-width:0}
+  .kr-kopf.kompakt .kr-k-badge{flex:none;display:inline-flex;align-items:center;justify-content:center;height:36px;padding:0 10px;border-radius:11px;font-size:15px;font-weight:800;letter-spacing:-0.01em;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.35)}
+  .kr-kopf.kompakt .kr-k-titel{flex:1;min-width:0;font-size:var(--kr-titel-gr);line-height:1.1;letter-spacing:-0.025em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .kr-kopf.kompakt .kr-k-satz{margin-top:7px;max-width:none;font-size:var(--kr-satz-gr);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 `;
 
+/* Schriftgröße so wählen, dass ein Text der Länge n in eine Zeile passt (Breite = Container minus abzug px).
+   faktor = mittlere Zeichenbreite in em für Montserrat im jeweiligen Schnitt. */
+const passend = (text, grund, min, faktor, abzug = 0) => {
+  const n = Math.max(1, String(text || "").length);
+  return `max(${min}px, min(${grund}, calc((100cqw - ${abzug}px) / ${(n * faktor).toFixed(2)})))`;
+};
+/* Grundgrößen: auf allen Trainerseiten gleich groß; nur ein ungewöhnlich langer Text wird kleiner */
+const TITEL_GRUND = "clamp(22px, 6.8cqw, 32px)";
+const SATZ_GRUND = "clamp(13.5px, 4.2cqw, 16.5px)";
+
 /* Der dunkle Kopf. kinder = Inhalt unter der Headline (Modus-Leiste, Karten …) */
-export function KopfrechnenKopf({ kicker, titel, satz, zurueck, onZurueck, kinder, modi, modus, setModus }) {
+export function KopfrechnenKopf({ kicker, titel, satz, zurueck, onZurueck, kinder, modi, modus, setModus, kompakt = false, badge = null }) {
+  if (kompakt) {
+    /* titel und satz sind hier reiner Text (für die Größenanpassung). badge = { zeichen, farbe, text } */
+    const titelGr = passend(titel, TITEL_GRUND, 17, 0.6, badge ? 64 : 0);
+    const satzGr = passend(satz, SATZ_GRUND, 12, 0.54);
+    return (
+      <div className="kr-kopf kompakt" data-kr-kopf data-kr-kompakt style={{ "--kr-titel-gr": titelGr, "--kr-satz-gr": satzGr }}>
+        <style>{KOPF_CSS}</style>
+        <div className="kr-k-innen">
+          <div className="kr-k-zeile">
+            <p className="kr-k-ober">{kicker}</p>
+            {zurueck && (
+              <button type="button" className="kr-k-zurueck" onClick={onZurueck} data-kr-zurueck>
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
+                {zurueck}
+              </button>
+            )}
+          </div>
+          <div className="kr-k-titelzeile">
+            {badge && <span className="kr-k-badge" aria-hidden="true" style={{ background: badge.farbe, color: badge.text || "#fff" }}>{badge.zeichen}</span>}
+            <h1 className="kr-k-titel" title={titel}>{titel}</h1>
+          </div>
+          {satz && <p className="kr-k-satz" title={satz}>{satz}</p>}
+        </div>
+        <div className="kr-k-ende" style={{ height: 16, borderRadius: "16px 16px 0 0" }} />
+      </div>
+    );
+  }
   return (
     <div className="kr-kopf" data-kr-kopf>
       <style>{KOPF_CSS}</style>

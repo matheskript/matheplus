@@ -338,7 +338,7 @@ export function HeadNumbersSeite({ gehe, start = null, unten = null }) {
 
   const wrap = (kinder) => <div className="mx-auto px-4 pb-16" style={{ maxWidth: 620, paddingTop: 18 }}>{kinder}</div>;
   const kleinerKopf = (titel, satz) => (
-    <KopfrechnenKopf kicker={L("Kopfrechnen · Lernpfad", "Mental Math · Learning path")} titel={titel} satz={satz} zurueck={L("Kopfrechnen", "Mental Math")} onZurueck={() => zu({ typ: "start" })} />
+    <KopfrechnenKopf kompakt kicker={L("Kopfrechnen · Lernpfad", "Mental Math · Learning path")} titel={titel} satz={satz} zurueck={L("Kopfrechnen", "Mental Math")} onZurueck={() => zu({ typ: "start" })} />
   );
 
   if (ansicht.typ === "start") return <><StartSeite onWaehle={bereich} onStart={starten} gehe={gehe} modus={modus} setModus={setModus} />{unten}</>;

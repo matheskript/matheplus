@@ -905,13 +905,13 @@ export function PrimzahlTrainer() {
 /* Anordnung (Wunsch vom 18.10.2026): Plus und Minus | Multiplizieren · Quadrate und Wurzeln | Primzahlen ·
    Primfaktoren | Schriftlich teilen · Bruchrechnung. Kuben stehen im Text unter „Quadrate und Wurzeln“. */
 export const TRAINER = [
-  { id: "plusminus", titel: "Schriftlich Plus & Minus", kurzTitel: "Plus und Minus", slogan: "Schriftlich, mit Übertrag.", zeichen: "+ −" },
-  { id: "multiplizieren", titel: "Multiplizieren", slogan: "Vom Einmaleins bis vierstellig.", zeichen: "7·8" },
-  { id: "potenzen", titel: "Quadrate und Wurzeln", kurzTitel: "Quadrate & Wurzeln", slogan: "Quadrate, Wurzeln – und Kuben.", zeichen: "12²" },
-  { id: "primzahlen", titel: "Primzahlen", slogan: "Prim oder nicht prim?", zeichen: "13" },
-  { id: "primfaktoren", titel: "Primfaktoren", slogan: "Zahlen in Primfaktoren zerlegen.", zeichen: "2·3·7" },
-  { id: "division", titel: "Schriftlich teilen", slogan: "Ziffer für Ziffer, mit Rest.", zeichen: "÷" },
-  { id: "bruchrechnen", titel: "Bruchrechnung", slogan: "Kürzen, plus, minus, mal, geteilt – mit Lösungsweg.", zeichen: "¾" },
+  { id: "plusminus", titel: "Schriftlich Plus & Minus", kurzTitel: "Plus und Minus", slogan: "Schriftlich, mit Übertrag.", zeichen: "+ −", satz: "Schriftlich untereinander, mit Übertrag." },
+  { id: "multiplizieren", titel: "Multiplizieren", slogan: "Vom Einmaleins bis vierstellig.", zeichen: "7·8", satz: "Vom kleinen Einmaleins bis vierstellig." },
+  { id: "potenzen", titel: "Quadrate und Wurzeln", kurzTitel: "Quadrate & Wurzeln", slogan: "Quadrate, Wurzeln – und Kuben.", zeichen: "12²", satz: "Hoch zwei, hoch drei – und wieder zurück." },
+  { id: "primzahlen", titel: "Primzahlen", slogan: "Prim oder nicht prim?", zeichen: "13", satz: "Teilbar oder nicht – auf einen Blick." },
+  { id: "primfaktoren", titel: "Primfaktoren", slogan: "Zahlen in Primfaktoren zerlegen.", zeichen: "2·3·7", satz: "Zerlegen ohne Umweg, Teiler für Teiler." },
+  { id: "division", titel: "Schriftlich teilen", slogan: "Ziffer für Ziffer, mit Rest.", zeichen: "÷", satz: "Ziffer für Ziffer – Ergebnis und Rest." },
+  { id: "bruchrechnen", titel: "Bruchrechnung", slogan: "Kürzen, plus, minus, mal, geteilt – mit Lösungsweg.", zeichen: "¾", satz: "Kürzen und alle vier Grundrechenarten." },
 ];
 const KOPF_REIHEN = [["plusminus", "multiplizieren"], ["potenzen", "primzahlen"], ["primfaktoren", "division"], ["bruchrechnen"]];
 /* Alte Kennungen (Links, Sprachwechsel) weiterhin öffnen */
@@ -997,12 +997,8 @@ export function KopfrechenZentrum({ start = null, gehe = null, eingebettet = fal
     const f = KOPF_LOOK[t.id] || KOPF_LOOK.multiplizieren;
     return (
       <div data-kr-trainerseite>
-        <KopfrechnenKopf kicker="Kopfrechnen · Training" zurueck="Alle Trainer" onZurueck={onZurueck}
-          titel={<span style={{ display: "inline-flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
-            <span aria-hidden="true" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", height: 44, padding: "0 12px", borderRadius: 13, background: f.bg, color: f.text, fontSize: 17, fontWeight: 800, letterSpacing: "-0.01em", boxShadow: "0 4px 12px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.35)", verticalAlign: "middle" }}>{t.zeichen}</span>
-            <span>{t.titel}</span>
-          </span>}
-          satz={t.slogan} />
+        <KopfrechnenKopf kompakt kicker="Kopfrechnen · Training" zurueck="Alle Trainer" onZurueck={onZurueck}
+          badge={{ zeichen: t.zeichen, farbe: f.bg, text: f.text }} titel={t.kurzTitel || t.titel} satz={t.satz || t.slogan} />
         <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 18 }}>
           <TrainerInhalt id={t.id} />
         </div>
