@@ -12,6 +12,7 @@ import { Auswahl, ZahlFeld, hilfeKontext, karte, kicker, zw } from "./ui2.jsx";
 import { liesZahl, zt } from "./ui3.jsx";
 import { EINHEITEN, GROESSEN_ARTEN, groessenAufgabe, umrechnen } from "./unterGen.js";
 import { Merke, UebenRahmen, WertZeile, ZweiModi, ws, zs } from "./geoUi.jsx";
+import { werkzeugAnimationen } from "./unterstufeMedien.js";
 
 let zaehler = 0;
 const z = (v) => zt(v, 7);
@@ -98,7 +99,7 @@ const hilfe = (a) => hilfeKontext({
 
 export function GroessenUmrechnen() {
   return (
-    <ZweiModi titel={zw("Größen umrechnen", "Converting units")}
+    <ZweiModi animationen={werkzeugAnimationen("groessen")} titel={zw("Größen umrechnen", "Converting units")}
       text={zw("Länge, Masse, Zeit, Fläche, Volumen und Liter: mit der Umrechnungstreppe sicher umrechnen – plus Maßstab auf Karten.", "Length, mass, time, area, volume and litres: convert safely with the conversion staircase – plus map scales.")}
       kurz={<p style={{ margin: 0 }}>{zw("1 km = 1000 m, 1 m = 10 dm = 100 cm = 1000 mm · 1 t = 1000 kg, 1 kg = 1000 g · 1 h = 60 min · 1 m² = 100 dm² · 1 m³ = 1000 dm³ · 1 dm³ = 1 l = 1000 ml.", "1 km = 1000 m, 1 m = 10 dm = 100 cm = 1000 mm · 1 t = 1000 kg, 1 kg = 1000 g · 1 h = 60 min · 1 m² = 100 dm² · 1 m³ = 1000 dm³ · 1 dm³ = 1 l = 1000 ml.")}</p>}
       entdecken={<Entdecken />}

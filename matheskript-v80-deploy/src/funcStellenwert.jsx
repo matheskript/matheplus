@@ -12,6 +12,7 @@ import { C } from "./base1.jsx";
 import { hilfeKontext, karte, kicker, zw } from "./ui2.jsx";
 import { STELLEN, ZAHL_ARTEN, roemisch, zahlAufgabe } from "./unterGen.js";
 import { Merke, UebenRahmen, WertZeile, ZweiModi, zs } from "./geoUi.jsx";
+import { werkzeugAnimationen } from "./unterstufeMedien.js";
 
 let zaehler = 0;
 const de = (n) => n.toLocaleString("de-DE");
@@ -112,7 +113,7 @@ const hilfe = (a) => hilfeKontext({
 
 export function Stellenwert() {
   return (
-    <ZweiModi titel={zw("Natürliche Zahlen und Stellenwert", "Whole numbers and place value")}
+    <ZweiModi animationen={werkzeugAnimationen("stellenwert")} titel={zw("Natürliche Zahlen und Stellenwert", "Whole numbers and place value")}
       text={zw("Große Zahlen lesen und schreiben, runden, am Zahlenstrahl ablesen – dazu römische Zahlen und Zehnerpotenzen.", "Read and write large numbers, round them, read them on the number line – plus Roman numerals and powers of ten.")}
       kurz={<p style={{ margin: 0 }}>{zw("Stellen von rechts: Einer, Zehner, Hunderter, Tausender, Zehntausender, Hunderttausender, Millionen. Jede Stelle ist das Zehnfache der rechten Nachbarstelle. Runden: 0–4 ab, 5–9 auf.", "Places from the right: ones, tens, hundreds, thousands, ten thousands, hundred thousands, millions. Each place is ten times its right neighbour. Rounding: 0–4 down, 5–9 up.")}</p>}
       entdecken={<Entdecken />}

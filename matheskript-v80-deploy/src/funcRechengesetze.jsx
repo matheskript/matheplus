@@ -12,6 +12,7 @@ import { C } from "./base1.jsx";
 import { Auswahl, GrosserKnopf, hilfeKontext, karte, kicker, zw } from "./ui2.jsx";
 import { RG_ARTEN, rgAufgabe } from "./unterGen.js";
 import { Merke, UebenRahmen, ZweiModi, misch, ws, zs } from "./geoUi.jsx";
+import { werkzeugAnimationen } from "./unterstufeMedien.js";
 
 let zaehler = 0;
 
@@ -119,7 +120,7 @@ const hilfe = (r) => hilfeKontext({
 
 export function Rechengesetze() {
   return (
-    <ZweiModi titel={zw("Rechengesetze und Rechenvorteile", "Laws of arithmetic and clever calculation")}
+    <ZweiModi animationen={werkzeugAnimationen("rechengesetze")} titel={zw("Rechengesetze und Rechenvorteile", "Laws of arithmetic and clever calculation")}
       text={zw("In welcher Reihenfolge wird gerechnet? Und wie rechnet man schwierige Aufgaben mit Vertauschen, Klammern und Ausmultiplizieren ganz leicht im Kopf?", "In what order do you calculate? And how do you make hard calculations easy in your head by swapping, bracketing and multiplying out?")}
       kurz={<p style={{ margin: 0 }}>{zw("Klammer vor Potenz vor Punkt vor Strich. Kommutativ: a + b = b + a. Assoziativ: (a + b) + c = a + (b + c). Distributiv: a · (b + c) = a · b + a · c.", "Brackets before powers before multiplication before addition. Commutative: a + b = b + a. Associative: (a + b) + c = a + (b + c). Distributive: a · (b + c) = a · b + a · c.")}</p>}
       entdecken={<Entdecken />}

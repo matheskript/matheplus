@@ -13,6 +13,7 @@ import { M } from "./func3.jsx";
 import { Auswahl, hilfeKontext, karte, kicker, zw } from "./ui2.jsx";
 import { NETZE, QUADER_ARTEN, netzFalten, quaderAufgabe } from "./unterGen.js";
 import { Merke, Regler, UebenRahmen, WertZeile, ZweiModi, ws, zs } from "./geoUi.jsx";
+import { werkzeugAnimationen } from "./unterstufeMedien.js";
 
 let zaehler = 0;
 const PAAR = { A: 0, B: 0, C: 1, D: 1, E: 2, F: 2 };
@@ -139,7 +140,7 @@ const hilfe = (q) => hilfeKontext({
 
 export function QuaderWuerfel() {
   return (
-    <ZweiModi titel={zw("Quader und Würfel", "Cuboids and cubes")}
+    <ZweiModi animationen={werkzeugAnimationen("quader")} titel={zw("Quader und Würfel", "Cuboids and cubes")}
       text={zw("Volumen aus Einheitswürfeln, Oberfläche aus sechs Rechtecken – und welche Netze sich wirklich zu einem Würfel falten lassen.", "Volume from unit cubes, surface from six rectangles – and which nets really fold into a cube.")}
       kurz={<p style={{ margin: 0 }}>{zw("Quader: V = a · b · c, O = 2 · (a · b + a · c + b · c), 12 Kanten. Würfel: V = a³, O = 6a². Es gibt genau 11 verschiedene Würfelnetze.", "Cuboid: V = a · b · c, S = 2 · (a · b + a · c + b · c), 12 edges. Cube: V = a³, S = 6a². There are exactly 11 different cube nets.")}</p>}
       entdecken={<Entdecken />}

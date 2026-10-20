@@ -12,6 +12,7 @@ import { Auswahl, hilfeKontext, karte, kicker, zw } from "./ui2.jsx";
 import { zt } from "./ui3.jsx";
 import { ZUORD_ARTEN, zuordAufgabe } from "./unterGen.js";
 import { Merke, Regler, UebenRahmen, ZweiModi, ws, zs } from "./geoUi.jsx";
+import { werkzeugAnimationen } from "./unterstufeMedien.js";
 
 let zaehler = 0;
 const z = (v) => zt(v, 2);
@@ -117,7 +118,7 @@ const hilfe = (a) => hilfeKontext({
 
 export function Zuordnungen() {
   return (
-    <ZweiModi titel={zw("Zuordnungen und Dreisatz", "Assignments and the rule of three")}
+    <ZweiModi animationen={werkzeugAnimationen("zuordnungen")} titel={zw("Zuordnungen und Dreisatz", "Assignments and the rule of three")}
       text={zw("Proportional oder antiproportional? An Tabelle und Graph erkennen, mit dem Dreisatz rechnen – und nie wieder falsch herum.", "Proportional or inverse? Spot it in tables and graphs, calculate with the rule of three – and never the wrong way round again.")}
       kurz={<p style={{ margin: 0 }}>{zw("Proportional: y = k · x, Quotientengleichheit, Ursprungsgerade. Antiproportional: y = k : x, Produktgleichheit, Hyperbel. Dreisatz: gegebene Menge → 1 → gesuchte Menge.", "Proportional: y = k · x, equal quotients, line through the origin. Inverse: y = k : x, equal products, hyperbola. Rule of three: given amount → 1 → wanted amount.")}</p>}
       entdecken={<Entdecken />}

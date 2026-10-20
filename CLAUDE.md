@@ -37,6 +37,7 @@ Jede Lerneinheit hat mindestens eine Animation und ein Video (`src/unterstufeMed
 - Kontaktbogen zum Ansehen ohne Browser-Klickerei: `node scripts/motion-blatt.mjs [filter] /tmp/mb` → PNGs.
 - Videos: Platzhalter ist ein Michael-Penn-Video; eigenes Video = Eintrag in `VIDEO_EIGEN` (YouTube-ID), dann verschwindet der Hinweis.
 - Üben in der Lerneinheit bleibt kompakt: ein Hauptknopf + Untermenü „Mehr“, keine Knopf-Reihen. Browser: `tests/ui/unterstufe-modul.ui.py`.
+- Die 13 Unterstufen-Werkzeuge zeigen oben in „Entdecken“ eine Animations-Auswahl (`ZweiModi` Prop `animationen`, Daten `src/motion/medienWerkzeuge.js`, Verweise `{ aus, nr }` auf Lerneinheiten; nur Deutsch). Browser: `tests/ui/unterstufe-werkzeug-motion.ui.py`.
 
 ## Logo: nur über `MarkenLogo`
 Die Wortmarke MYTHOSMATHE.DE kommt immer aus `src/markenLogo.jsx` (`<MarkenLogo groesse=… />`, auf hellem Grund `grund="hell"`, für PDF-Bilder `druck`): Schrift der Startseiten-Headline, Black, Laufweite −0,02 em, Weiß + Headline-Gold. Nie selbst nachbauen; die Wochenmail (`src/wochenmail.js`) setzt dieselben Werte als HTML.

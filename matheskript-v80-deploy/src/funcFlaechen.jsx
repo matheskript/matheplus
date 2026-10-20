@@ -14,6 +14,7 @@ import { Auswahl, hilfeKontext, karte, kicker, zw } from "./ui2.jsx";
 import { zt } from "./ui3.jsx";
 import { FLAECHE_ARTEN, flaecheAufgabe } from "./unterGen.js";
 import { Merke, Regler, UebenRahmen, WertZeile, Zeichenblatt, ZweiModi, ws, zs, EntdeckenZweispaltig } from "./geoUi.jsx";
+import { werkzeugAnimationen } from "./unterstufeMedien.js";
 
 let zaehler = 0;
 const z = (v) => zt(v, 2);
@@ -161,7 +162,7 @@ const hilfe = (a) => hilfeKontext({
 
 export function UmfangFlaeche() {
   return (
-    <ZweiModi titel={zw("Umfang und Flächeninhalt", "Perimeter and area")}
+    <ZweiModi animationen={werkzeugAnimationen("flaechen")} titel={zw("Umfang und Flächeninhalt", "Perimeter and area")}
       text={zw("Rechteck, Dreieck, Parallelogramm, Trapez und Drachen – jede Formel siehst du aus dem Rechteck entstehen. Dazu zusammengesetzte Figuren.", "Rectangle, triangle, parallelogram, trapezoid and kite – you see every formula emerge from the rectangle. Plus composite figures.")}
       kurz={<p style={{ margin: 0 }}>{zw("Rechteck A = a · b, u = 2a + 2b · Dreieck A = g · h : 2 · Parallelogramm A = g · h · Trapez A = (a + c) · h : 2 · Drachen A = e · f : 2. Die Höhe steht immer senkrecht auf der Grundseite.", "Rectangle A = a · b, u = 2a + 2b · triangle A = g · h : 2 · parallelogram A = g · h · trapezoid A = (a + c) · h : 2 · kite A = e · f : 2. The height is always perpendicular to the base.")}</p>}
       entdecken={<Entdecken />}

@@ -13,6 +13,7 @@ import { zt } from "./ui3.jsx";
 import { qNum } from "./rechnen2.js";
 import { ZUFALL_ARTEN, zufallAufgabe } from "./unterGen.js";
 import { Merke, UebenRahmen, WertZeile, ZweiModi, zs } from "./geoUi.jsx";
+import { werkzeugAnimationen } from "./unterstufeMedien.js";
 
 let zaehler = 0;
 const fr = (b) => (b.n === 1 ? String(b.z) : `$\\frac{${b.z}}{${b.n}}$`);
@@ -92,7 +93,7 @@ const hilfe = (a) => hilfeKontext({
 
 export function ZufallEinstieg() {
   return (
-    <ZweiModi titel={zw("Zufall und Wahrscheinlichkeit", "Chance and probability")}
+    <ZweiModi animationen={werkzeugAnimationen("zufall")} titel={zw("Zufall und Wahrscheinlichkeit", "Chance and probability")}
       text={zw("Würfel, Münzen und Urnen: Wahrscheinlichkeiten berechnen, mit Experimenten vergleichen und zweistufige Versuche mit der Pfadregel lösen.", "Dice, coins and urns: calculate probabilities, compare with experiments and solve two-stage experiments with the path rule.")}
       kurz={<p style={{ margin: 0 }}>{zw("Laplace-Experiment (alle Ergebnisse gleich wahrscheinlich): P(E) = Anzahl günstiger : Anzahl möglicher Ergebnisse. P(nicht E) = 1 − P(E). Zweistufig: entlang des Pfades multiplizieren.", "Laplace experiment (all outcomes equally likely): P(E) = favourable : possible outcomes. P(not E) = 1 − P(E). Two stages: multiply along the path.")}</p>}
       entdecken={<Entdecken />}

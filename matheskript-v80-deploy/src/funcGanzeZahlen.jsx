@@ -14,6 +14,7 @@ import { Auswahl, hilfeKontext, karte, kicker, zw } from "./ui2.jsx";
 import { GANZ_ARTEN, ganzAufgabe } from "./unterGen.js";
 import { qNum } from "./rechnen2.js";
 import { Merke, Regler, UebenRahmen, ZweiModi, ws, zs } from "./geoUi.jsx";
+import { werkzeugAnimationen } from "./unterstufeMedien.js";
 
 let zaehler = 0;
 const mz = (v) => String(v).replace("-", "−");
@@ -114,7 +115,7 @@ const hilfe = (g) => hilfeKontext({
 
 export function GanzeZahlen() {
   return (
-    <ZweiModi titel={zw("Ganze und rationale Zahlen", "Integers and rational numbers")}
+    <ZweiModi animationen={werkzeugAnimationen("ganzezahlen")} titel={zw("Ganze und rationale Zahlen", "Integers and rational numbers")}
       text={zw("Negative Zahlen auf der Zahlengeraden, Rechnen mit Vorzeichen, Vorzeichenregeln für mal und geteilt – bis zu negativen Brüchen.", "Negative numbers on the number line, calculating with signs, sign rules for multiplication and division – up to negative fractions.")}
       kurz={<p style={{ margin: 0 }}>{zw("a − (−b) = a + b · (+)·(+) = + · (−)·(−) = + · (+)·(−) = − · Bei Punkt vor Strich gelten die Vorzeichenregeln zuerst für die Produkte.", "a − (−b) = a + b · (+)·(+) = + · (−)·(−) = + · (+)·(−) = − · With order of operations, apply the sign rules to the products first.")}</p>}
       entdecken={<Entdecken />}

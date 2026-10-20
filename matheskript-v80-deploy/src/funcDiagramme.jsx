@@ -12,6 +12,7 @@ import { hilfeKontext, karte, kicker, zw } from "./ui2.jsx";
 import { zt } from "./ui3.jsx";
 import { DATEN_ARTEN, datenAufgabe, median, mittelwert } from "./unterGen.js";
 import { Merke, Regler, UebenRahmen, WertZeile, ZweiModi, zs } from "./geoUi.jsx";
+import { werkzeugAnimationen } from "./unterstufeMedien.js";
 
 let zaehler = 0;
 const z = (v) => zt(v, 2);
@@ -127,7 +128,7 @@ const hilfe = (d) => hilfeKontext({
 
 export function DatenDiagramme() {
   return (
-    <ZweiModi titel={zw("Daten und Diagramme", "Data and charts")}
+    <ZweiModi animationen={werkzeugAnimationen("diagramme")} titel={zw("Daten und Diagramme", "Data and charts")}
       text={zw("Säulen- und Kreisdiagramme, relative Häufigkeiten, Mittelwert, Median und Spannweite – mit einer Umfrage, die du selbst einstellst.", "Bar and pie charts, relative frequencies, mean, median and range – with a survey you set up yourself.")}
       kurz={<p style={{ margin: 0 }}>{zw("Mittelwert x̄ = Summe : Anzahl · Median: mittlerer Wert der sortierten Liste · Spannweite = größter − kleinster Wert · relative Häufigkeit = absolute Häufigkeit : Gesamtzahl · Kreiswinkel = Anteil · 360°.", "Mean x̄ = sum : count · median: middle value of the sorted list · range = largest − smallest · relative frequency = absolute frequency : total · pie angle = share · 360°.")}</p>}
       entdecken={<Entdecken />}

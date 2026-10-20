@@ -21,12 +21,13 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { SZENEN } from "./src/funcUnterstufeMotion.jsx";
 import { zeitplan, fortschritt, untertitel, B } from "./src/motion/kern.jsx";
-import { animationenFuer } from "./src/unterstufeMedien.js";
+import { animationenFuer, werkzeugAnimationen, WERKZEUGE_MIT_ANIMATION } from "./src/unterstufeMedien.js";
 import { UNTERSTUFE_EINHEITEN } from "./src/unterstufeDaten.js";
 export function lauf(filter) {
   const fehler = [], karten = [];
-  for (const e of UNTERSTUFE_EINHEITEN) {
-    const anims = animationenFuer(e.id);
+  const liste = [...UNTERSTUFE_EINHEITEN.map((e) => ({ id: e.id, anims: animationenFuer(e.id) })), ...WERKZEUGE_MIT_ANIMATION.map((w) => ({ id: "werkzeug:" + w, anims: werkzeugAnimationen(w) }))];
+  for (const e of liste) {
+    const anims = e.anims;
     if (!anims.length) { if (!filter) fehler.push(e.id + ": keine Animation"); continue; }
     for (const a of anims) {
       if (filter && !e.id.includes(filter) && a.szene !== filter) continue;
@@ -45,7 +46,7 @@ export function lauf(filter) {
           bilder.push({ q, svg, text: untertitel(plan, t) });
         } catch (x) { fehler.push(e.id + "/" + a.szene + " @" + q + ": " + x.message); }
       }
-      karten.push({ id: e.id, titel: e.titel, anim: a.titel || a.szene, szene: a.szene, dauer: plan.dauer, bilder });
+      karten.push({ id: e.id, anim: a.titel || a.szene, szene: a.szene, dauer: plan.dauer, bilder });
     }
   }
   return { fehler, karten };

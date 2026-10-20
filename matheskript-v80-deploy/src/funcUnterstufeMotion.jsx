@@ -12,8 +12,9 @@ import { SZENEN_ZAHLEN } from "./motion/szenenZahlen.jsx";
 import { SZENEN_GEOMETRIE } from "./motion/szenenGeometrie.jsx";
 import { SZENEN_BRUECHE } from "./motion/szenenBrueche.jsx";
 import { SZENEN_DATEN } from "./motion/szenenDaten.jsx";
+import { SZENEN_EXTRA } from "./motion/szenenExtra.jsx";
 
-export const SZENEN = { ...SZENEN_ZAHLEN, ...SZENEN_GEOMETRIE, ...SZENEN_BRUECHE, ...SZENEN_DATEN };
+export const SZENEN = { ...SZENEN_ZAHLEN, ...SZENEN_GEOMETRIE, ...SZENEN_BRUECHE, ...SZENEN_DATEN, ...SZENEN_EXTRA };
 
 const STIL_ID = "us-motion-stil";
 const STIL = `
@@ -31,6 +32,15 @@ const STIL = `
   .usm-leiste::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:999px;background:#7A0032;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.3)}
   .usm-leiste::-moz-range-thumb{width:12px;height:12px;border-radius:999px;background:#7A0032;border:2px solid #fff}
   .usm-leiste:focus-visible{outline:2px solid #EDBB00;outline-offset:3px}
+  .usm-auswahl{margin:14px 0 16px}
+  .usm-kopf{display:flex;align-items:center;gap:10px;margin:0 0 8px}
+  .usm-kopf b{font-size:11.5px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:#7A0032;white-space:nowrap}
+  .usm-chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:2px 0}
+  .usm-chips::-webkit-scrollbar{display:none}
+  .usm-chip{flex:none;padding:6px 12px;border-radius:999px;border:1.5px solid #EADCE3;background:#fff;color:#7A0032;font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap}
+  .usm-chip[aria-pressed="true"]{background:linear-gradient(150deg,#3A0019 0%,#7A0032 100%);border-color:transparent;color:#FFD66B}
+  .usm-chip:focus-visible{outline:3px solid #EDBB00;outline-offset:2px}
+  .usm-auswahl .usm{margin:0}
 `;
 function stilSetzen() {
   if (typeof document === "undefined" || document.getElementById(STIL_ID)) return;
@@ -117,5 +127,27 @@ export function Motion({ szene, p = {}, titel }) {
         </div>
       </figcaption>
     </figure>
+  );
+}
+
+/* Mehrere Animationen platzsparend: eine sichtbar, Wahl über eine Chip-Reihe („So geht's“).
+   Genutzt von den Unterstufen-Werkzeugen (ZweiModi in geoUi.jsx, Prop animationen). */
+export function MotionAuswahl({ liste, kopf = "So geht’s" }) {
+  React.useInsertionEffect(stilSetzen, []);
+  const [i, setI] = useState(0);
+  if (!liste || !liste.length) return null;
+  const a = liste[Math.min(i, liste.length - 1)];
+  return (
+    <section className="usm-auswahl" data-usm-auswahl={liste.length}>
+      <div className="usm-kopf">
+        <b>{kopf}</b>
+        {liste.length > 1 && (
+          <div className="usm-chips" role="group" aria-label="Animation wählen">
+            {liste.map((m, k) => <button key={k} type="button" className="usm-chip" aria-pressed={k === i} onClick={() => setI(k)} data-usm-chip={k}>{m.titel}</button>)}
+          </div>
+        )}
+      </div>
+      <Motion key={i} {...a} />
+    </section>
   );
 }

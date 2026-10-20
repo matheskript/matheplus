@@ -16,6 +16,9 @@ import { GrosserKnopf, MS, hinweis, karte, kicker, zw } from "./ui2.jsx";
 import { Aufklapp, ModusLeiste, Seite, SchrittFolge, zt } from "./ui3.jsx";
 import { uebenWunschHolen, uebenWunschLesen } from "./uebenWunsch.js";
 
+/* Animationen der Unterstufen-Werkzeuge: erst laden, wenn ein Werkzeug welche mitgibt (nur auf Deutsch) */
+const MotionAuswahl = React.lazy(() => import("./funcUnterstufeMotion.jsx").then((m) => ({ default: m.MotionAuswahl })));
+
 export const SCHRIFT = "Montserrat, system-ui, sans-serif";
 
 /* ---------- Regler ---------- */
@@ -263,7 +266,7 @@ export const tolRund = (w) => Math.max(0.011, Math.abs(w) * 0.002);
 
 /* ---------- Seitenrahmen mit Entdecken | Üben ----------
    kurz: Inhalt für „Kurz erklärt“; entdecken, ueben: JSX der beiden Modi; start: Startmodus */
-export function ZweiModi({ titel, text, kurz, entdecken, ueben, start = "entdecken" }) {
+export function ZweiModi({ titel, text, kurz, entdecken, ueben, start = "entdecken", animationen = null }) {
   // Wunsch einer Lernseite (uebenWunsch.js): gleich im Modus Üben (oder Entdecken) öffnen
   const [modus, setModus] = useState(() => { const w = uebenWunschLesen(); return w && w.modus ? w.modus : start; });
   const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Üben", "Practise")]];
@@ -271,7 +274,10 @@ export function ZweiModi({ titel, text, kurz, entdecken, ueben, start = "entdeck
     <Seite titel={titel} text={text}>
       <ModusLeiste modi={MODI} modus={modus} setModus={setModus} label={titel} />
       {kurz && <Aufklapp titel={zw("Kurz erklärt", "In short")}>{kurz}</Aufklapp>}
-      <div style={{ display: modus === "entdecken" ? "block" : "none" }}>{entdecken}</div>
+      <div style={{ display: modus === "entdecken" ? "block" : "none" }}>
+        {animationen && animationen.length > 0 && zw(true, false) && <React.Suspense fallback={null}><MotionAuswahl liste={animationen} /></React.Suspense>}
+        {entdecken}
+      </div>
       <div style={{ display: modus === "ueben" ? "block" : "none" }}>{ueben}</div>
     </Seite>
   );

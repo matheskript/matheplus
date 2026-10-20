@@ -8,7 +8,9 @@ import { rmSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { UNTERSTUFE_EINHEITEN } from "../src/unterstufeDaten.js";
-import { ANIMATIONEN, animationenFuer, videoFuer, VIDEO_EIGEN, VIDEO_PLATZHALTER } from "../src/unterstufeMedien.js";
+import { ANIMATIONEN, animationenFuer, videoFuer, VIDEO_EIGEN, VIDEO_PLATZHALTER, werkzeugAnimationen, WERKZEUGE_MIT_ANIMATION } from "../src/unterstufeMedien.js";
+import { ANIM_WERKZEUGE } from "../src/motion/medienWerkzeuge.js";
+import { WERKZEUGE } from "../src/werkzeuge.js";
 
 const wurzel = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const IDS = new Set(UNTERSTUFE_EINHEITEN.map((e) => e.id));
@@ -20,6 +22,16 @@ test("jede Lerneinheit hat mindestens eine Animation, keine fremden Schlüssel",
     assert.equal(typeof a.szene, "string", id);
     assert.ok(a.titel && a.titel.length <= 40, `${id}: Titel fehlt oder zu lang`);
   }
+});
+
+test("die 13 Unterstufen-Werkzeuge haben Animationen, alle Verweise lösen auf", () => {
+  const soll = ["stellenwert", "ganzezahlen", "primzahlen", "rechengesetze", "groessen", "dezimal", "koordinaten", "flaechen", "quader", "zuordnungen", "prozent", "diagramme", "zufall"];
+  for (const w of soll) {
+    assert.ok(WERKZEUGE[w], `Werkzeug ${w} unbekannt`);
+    assert.ok(werkzeugAnimationen(w).length >= 2, `${w}: weniger als zwei Animationen`);
+    assert.equal(werkzeugAnimationen(w).length, ANIM_WERKZEUGE[w].length, `${w}: Verweis löst nicht auf`);
+  }
+  assert.deepEqual([...WERKZEUGE_MIT_ANIMATION].sort(), [...soll].sort());
 });
 
 test("jede Lerneinheit hat ein Video (eigenes oder Platzhalter)", () => {
@@ -44,7 +56,8 @@ test("alle Szenen existieren und rendern zu jedem Zeitpunkt sauber", async () =>
   try {
     const { SZENEN, zeitplan, fortschritt, untertitel, B, React, renderToStaticMarkup } = await import(pathToFileURL(datei).href);
     let n = 0;
-    for (const [id, liste] of Object.entries(ANIMATIONEN)) for (const a of liste) {
+    const alle = [...Object.entries(ANIMATIONEN), ...WERKZEUGE_MIT_ANIMATION.map((w) => ["werkzeug:" + w, werkzeugAnimationen(w)])];
+    for (const [id, liste] of alle) for (const a of liste) {
       const S = SZENEN[a.szene];
       assert.ok(S, `${id}: Szene ${a.szene} fehlt`);
       const plan = zeitplan(S.ablauf(a.p || {}));
@@ -60,6 +73,6 @@ test("alle Szenen existieren und rendern zu jedem Zeitpunkt sauber", async () =>
       }
       n++;
     }
-    assert.ok(n >= 86, `nur ${n} Animationen`);
+    assert.ok(n >= 140, `nur ${n} Animationen`);
   } finally { rmSync(datei, { force: true }); }
 });

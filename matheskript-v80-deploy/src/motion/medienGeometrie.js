@@ -31,10 +31,12 @@ export const ANIM_GEOMETRIE = {
   ],
   "massstab": [
     { szene: "g_massstab", titel: "Karte und Wirklichkeit", p: { n: 25000, cm: 6 } },
+    { szene: "x_massstabGross", titel: "Vergrößern: 5 : 1", p: { n: 5, mm: 6, ding: "Marienkäfer" } },
   ],
   /* ---------- Klasse 5 · V Symmetrie und Figuren ---------- */
   "punkt-strecke-gerade": [
     { szene: "g_linien", titel: "Vom Punkt zur Geraden", p: {} },
+    { szene: "x_geradenPunkte", titel: "Durch zwei Punkte" },
   ],
   "senkrecht-und-parallel": [
     { szene: "g_lot", titel: "Senkrechte und Abstand", p: {} },
@@ -42,9 +44,11 @@ export const ANIM_GEOMETRIE = {
   ],
   "koordinatensystem": [
     { szene: "g_koordinaten", titel: "Erst rechts, dann hoch", p: { punkte: [["A", 1, 1], ["B", 5, 1], ["C", 5, 4]], gesucht: ["D", 1, 4], fuellen: true } },
+    { szene: "x_ablesen", titel: "Punkte ablesen", p: { punkte: [["P", 4, 3], ["Q", 1, 5], ["R", 6, 0]] } },
   ],
   "achsensymmetrie": [
     { szene: "g_spiegeln", titel: "An der y-Achse spiegeln", p: { fig: [["A", 1, 1], ["B", 4, 1], ["C", 2, 3]] } },
+    { szene: "x_falten", titel: "Falten an der Achse" },
   ],
   "punktsymmetrie": [
     { szene: "g_drehung", titel: "Halbe Drehung um Z", p: { fig: [["P", 2, 5], ["Q", 1, 3], ["R", 3, 2]], z: [4, 3], notiz: ["P(2 | 5)", "Z(4 | 3)", "P′(6 | 1)"] } },
@@ -74,6 +78,7 @@ export const ANIM_GEOMETRIE = {
   ],
   "zusammengesetzte-figuren": [
     { szene: "g_lfigur", titel: "Zerlegen und ergänzen", p: { A: 8, B: 6, c: 5, d: 4 } },
+    { szene: "x_treppe", titel: "Treppenfigur zerlegen", p: { stufen: [[6, 2], [4, 2], [2, 2]] } },
   ],
   "parallelogramm-und-dreieck": [
     { szene: "g_parallelogramm", titel: "Aus Schräg wird Rechteck", p: { g: 6, h: 3, v: 2 } },
