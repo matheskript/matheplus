@@ -1151,7 +1151,7 @@ const g_dreiecke = {
           </g>
         )}
         {[["A", A, -12, 16], ["B", Bp, 12, 16], ["C", C, 0, -10]].map(([t, P, dx, dy]) => <Tx key={t} x={P[0] + dx} y={P[1] + dy} g={12} f={F.granat} w={800} opacity={u0}>{t}</Tx>)}
-        <g opacity={u0}>
+        <g opacity={u0 * (ruhig ? 1 : 0.3)}>
           <Tx x={296} y={44} g={10} f={F.grau} w={700}>nach Seiten</Tx>
           <rect x={240} y={52} width={112} height={28} rx="14" fill={F.blauHell} />
           <Tx x={296} y={70} g={10.5} f={F.blau} w={800}>{fest.seiten}</Tx>
@@ -1678,24 +1678,6 @@ function Wuerfelchen({ x, y, k, d, f = F.goldHell, rand = F.goldDunkel, o = 1 })
     </g>
   );
 }
-/* Quader aus Einheitswürfeln (Schrägbild), gefüllt bis zu einer Anzahl Schichten; zeichnet von hinten nach vorn */
-function WuerfelQuader({ x0, y0, a, b, c, k, schichten, letzte = 1, reihen = b, fArt }) {
-  const d = k * 0.5 * Math.SQRT1_2 * 1.2;
-  const teile = [];
-  for (let h = 0; h < c; h++) {
-    const voll = h < Math.floor(schichten), o = voll ? 1 : h === Math.floor(schichten) ? letzte : 0;
-    if (o <= 0) continue;
-    for (let t = b - 1; t >= 0; t--) {
-      if (!voll && t >= b - Math.ceil(reihen)) {}
-      for (let i = 0; i < a; i++) {
-        const x = x0 + i * k + t * d, y = y0 - h * k - t * d - k;
-        const oo = voll ? 1 : o * (fArt ? fArt(i, t) : 1);
-        teile.push(<Wuerfelchen key={`${h}-${t}-${i}`} x={x} y={y} k={k} d={d} o={oo} f={h % 2 ? F.goldHell : F.weiss} />);
-      }
-    }
-  }
-  return <g>{teile}</g>;
-}
 const g_kubikdezimeter = {
   h: 226,
   label: () => "1 dm³ = 1000 cm³",
@@ -1950,7 +1932,6 @@ const g_geodreieck = {
     return (
       <>
         <WinkelBild sx={sx} sy={sy} w={p.grad} r1={165} rb={26} zahl={false} start={0} o={uw} />
-        <line x1={sx} y1={sy} x2={sx - 165} y2={sy} stroke={F.linie} strokeWidth="0" />
         <g opacity={ua * 0.95} transform={`translate(${dx} ${dy})`}>
           <path d={`M${sx - R} ${sy} L${sx + R} ${sy} L${sx} ${sy - R} Z`} fill={F.blauHell} fillOpacity="0.6" stroke={F.blau} strokeWidth="1.4" strokeLinejoin="round" />
           {tick}
@@ -2220,7 +2201,6 @@ const g_blume = {
   },
 };
 
-/* @@SZENEN-TEIL-2@@ */
 
 export const SZENEN_GEOMETRIE = {
   g_lineal, g_schritte, g_treppe, g_kommatafel, g_balken, g_zeitspanne, g_massstab,
@@ -2229,5 +2209,4 @@ export const SZENEN_GEOMETRIE = {
   g_dreiecke, g_zentimeterquadrat, g_rechteck, g_umfang, g_gleicherumfang, g_lfigur, g_parallelogramm, g_dreieckflaeche,
   g_wuerfelnetz, g_oberflaeche, g_kubikdezimeter, g_volumen,
   g_winkelteile, g_winkelarten, g_geodreieck, g_winkelzeichnen, g_ueberstumpf, g_scheitelwinkel, g_zirkel, g_blume,
-  /* @@EXPORT-2@@ */
 };

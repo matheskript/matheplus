@@ -256,12 +256,14 @@ const d_einsetzen = {
         {werte.map((w, i) => {
           const u = z(`e${i}`);
           if (u <= 0) return null;
-          const hin = sanft(teil(u, 0, 0.35)), runter = sanft(teil(u, 0.6, 0.95));
+          const hin = sanft(teil(u, 0, 0.35)), runter = raus(teil(u, 0.6, 0.9));
+          const spalte = u < 1 ? 1 - teil(u, 0.9, 1) : 0;
           return (
             <g key={"f" + i}>
+              {spalte > 0 && <rect x={cx(i) - cw / 2 + 4} y={yX - 17} width={cw - 8} height={yT - yX + 26} rx="8" fill={F.goldHell} opacity={spalte} />}
+              {spalte > 0 && <Tx x={cx(i)} y={yX + 1} g={15} f={F.tinte} w={800}>{de(w)}</Tx>}
               {u < 0.35 && <Tx x={mix(cx(i), xBox + wb / 2, hin)} y={mix(yX + 1, yR - 1, hin)} g={15} f={F.granat} w={800}>{de(w)}</Tx>}
-              {u >= 0.6 && u < 1 && <Tx x={mix(x3 + breite(`= ${de(erg[i])}`, g) * 0.6, cx(i), runter)} y={mix(yR, yT + 1, runter)} g={15} f={F.granat} w={800}>{de(erg[i])}</Tx>}
-              {u >= 1 && <Tx x={cx(i)} y={yT + 1} g={15} f={F.granat} w={800}>{de(erg[i])}</Tx>}
+              {u >= 0.6 && <Tx x={cx(i)} y={mix(yT - 12, yT + 1, runter)} g={15} f={F.granat} w={800} o={runter}>{de(erg[i])}</Tx>}
             </g>
           );
         })}
@@ -298,7 +300,7 @@ const d_streichhoelzer = {
     { k: "probe", ms: 1400, text: `Probe mit n = ${p.n}: 3 · ${p.n} + 1 = ${3 * p.n + 1} ✓` },
   ],
   bild: ({ Z, z, p }) => {
-    const N = p.n, s = 40, x0 = 26, yt = 44, yb = yt + s, ut = Z("term"), up = Z("probe");
+    const N = p.n, s = 46, x0 = 22, yt = 40, yb = yt + s, ut = Z("term"), up = Z("probe");
     const hoelzer = [];
     for (let k = 0; k < N; k++) {
       const u = z(`f${k}`), xl = x0 + k * s, xr = xl + s;

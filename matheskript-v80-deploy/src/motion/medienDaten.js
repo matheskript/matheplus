@@ -18,7 +18,7 @@ export const ANIM_DATEN = {
     { szene: "d_streichhoelzer", titel: "Streichholzmuster", p: { n: 4 } },
     { szene: "umformung4", titel: "Schwimmbad-Term", p: {
       zeilen: [
-        { t: "Kosten = 3 + 1,5 · h", n: "Eintritt + je Stunde" },
+        { t: "Kosten = 3 + 1,5 · h", n: "Term" },
         { t: "3 + 1,5 · 4", m: "1,5 · 4", n: "h = 4 einsetzen" },
         { t: "3 + 6", m: "3 + 6", n: "Punkt vor Strich" },
         { t: "9 €", n: "Kosten für 4 Stunden" },
