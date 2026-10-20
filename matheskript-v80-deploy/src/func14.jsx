@@ -450,10 +450,11 @@ export function bruchAufgabe(modus, stufe) {
     const hn = kgV(a.n, b.n);
     const za = a.z * (hn / a.n), zb = b.z * (hn / b.n);
     const loes = kuerze(minus ? za - zb : za + zb, hn);
-    const erw = a.n === b.n ? "Gleiche Nenner: nur die Zähler verrechnen." : `Hauptnenner ${hn}: $\\frac{${za}}{${hn}} ${minus ? "−" : "+"} \\frac{${zb}}{${hn}}$.`;
     const erg = (minus ? za - zb : za + zb);
-    const kz = ggT(erg, hn) > 1 ? ` = $\\frac{${erg}}{${hn}}$, gekürzt ${bT(loes.z, loes.n)}.` : ` = $\\frac{${erg}}{${hn}}$.`;
-    return { a, b, op: minus ? "−" : "+", loes, weg: erw + kz };
+    const kopf = a.n === b.n ? "Gleiche Nenner, nur die Zähler verrechnen: " : `Hauptnenner ${hn}: `;
+    const kette = `$\\frac{${za}}{${hn}} ${minus ? "−" : "+"} \\frac{${zb}}{${hn}}$ = $\\frac{${erg}}{${hn}}$`;
+    const weg = kopf + kette + (ggT(erg, hn) > 1 ? `, gekürzt ${bT(loes.z, loes.n)}.` : ".");
+    return { a, b, op: minus ? "−" : "+", loes, weg };
   }
   if (m === "mal") {
     const loes = kuerze(a.z * b.z, a.n * b.n);
@@ -465,14 +466,15 @@ export function bruchAufgabe(modus, stufe) {
   return { a, b, op: ":", loes, weg: `Mit dem Kehrwert multiplizieren: $\\frac{${a.z}}{${a.n}} \\cdot \\frac{${b.n}}{${b.z}}$ = ${roh}${roh === lt ? "" : ` → gekürzt ${lt}`}.` };
 }
 
-/* Gesetzter Bruch */
-function Bruch({ z, n, gross = 40, farbe = C.weiss }) {
+/* Gesetzter Bruch – Größe über CSS-Variable --bg (Standard 40 px), damit die Zeile am Handy mitschrumpft */
+function Bruch({ z, n, gross = null, farbe = C.weiss }) {
+  const g = gross ? `${gross}px` : "var(--bg, 40px)";
   return (
     <span style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", verticalAlign: "middle",
-      margin: "0 4px", lineHeight: 1.05, fontSize: gross, fontWeight: 800, color: farbe }}>
-      <span style={{ padding: "0 6px" }}>{z}</span>
-      <span style={{ alignSelf: "stretch", height: Math.max(3, gross / 13), background: farbe, borderRadius: 2, margin: "3px 0" }} />
-      <span style={{ padding: "0 6px" }}>{n}</span>
+      margin: "0 2px", lineHeight: 1.05, fontSize: g, fontWeight: 800, color: farbe, flex: "none" }}>
+      <span style={{ padding: "0 0.14em" }}>{z}</span>
+      <span style={{ alignSelf: "stretch", height: `max(3px, calc(${g} / 13))`, background: farbe, borderRadius: 2, margin: "0.07em 0" }} />
+      <span style={{ padding: "0 0.14em" }}>{n}</span>
     </span>
   );
 }
@@ -500,6 +502,24 @@ function BruchZahlenfeld({ onZiffer, onLoeschen, onWechsel, onOk, gesperrt, turb
     </div>
   );
 }
+
+/* Aufgabe und Eingabe in EINER Zeile: links die Aufgabe auf Nachtblau, rechts das
+   Ergebnis auf Weiß – liest sich wie eine Gleichung. Die Bruchgröße (--bg) folgt
+   der Bildschirmbreite, damit auch 360 px und dreistellige Zahlen in eine Zeile passen. */
+const BRUCH_ZEILE_CSS = `
+  .kr-bz{display:flex;align-items:stretch;gap:8px;--bg:clamp(26px, 9.2vw, 42px)}
+  .kr-bz-aufgabe{flex:1 1 auto;min-width:0;display:flex;align-items:center;justify-content:center;gap:4px;flex-wrap:nowrap;
+    background:${NACHT_VERLAUF};border-radius:18px;padding:14px 10px;color:#fff;box-shadow:0 8px 24px rgba(14,30,74,0.22)}
+  .kr-bz-op{color:${C.flaggold};font-size:calc(var(--bg) * 0.82);font-weight:800;margin:0 2px;line-height:1;flex:none}
+  .kr-bz-kuerze{color:${C.flaggold};font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-right:4px;flex:none}
+  .kr-bz-eingabe{flex:none;position:relative;display:flex;align-items:center;justify-content:center;border-radius:18px;padding:10px;transition:all .15s;box-shadow:0 2px 12px rgba(15,26,51,0.06)}
+  .kr-bz-feld{min-width:calc(var(--bg) * 1.55);height:calc(var(--bg) * 1.2);border-radius:10px;display:flex;align-items:center;justify-content:center;
+    font-size:calc(var(--bg) * 0.8);font-weight:800;color:${C.tinte};cursor:pointer;padding:0 6px;box-sizing:border-box;font-variant-numeric:tabular-nums}
+  .kr-bz-platz{color:${C.hellgrau};font-size:12px;font-weight:600}
+  .kr-bz-marke{position:absolute;top:-9px;right:-7px;width:24px;height:24px;border-radius:999px;color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.18)}
+  @media (min-width:561px){.kr-bz{--bg:46px;gap:12px}.kr-bz-aufgabe,.kr-bz-eingabe{padding:22px 18px}}
+  @media (max-height:700px){.kr-bz{--bg:clamp(24px, 8vw, 36px)}.kr-bz-aufgabe{padding:10px 8px}.kr-bz-eingabe{padding:8px}}
+`;
 
 function BruchRunde({ modus, stufe, titel, untertitel, onEnde }) {
   const [einst] = useKopfEinstellungen();
@@ -611,50 +631,53 @@ function BruchRunde({ modus, stufe, titel, untertitel, onEnde }) {
   }
 
   const rahmen = rueck === "richtig" ? C.smaragd : rueck === "falsch" ? C.signal : rueck ? C.flaggold : C.see;
+  const zu = rueck === "richtig" || rueck === "falsch";
   const feldStil = (aktiv) => ({
-    minWidth: 66, height: 50, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center",
-    fontSize: 30, fontWeight: 800, color: C.tinte, cursor: "pointer",
-    border: `2px ${aktiv && !(rueck === "richtig" || rueck === "falsch") ? "solid" : "dashed"} ${aktiv ? rahmen : C.linie}`,
-    background: aktiv ? C.weiss : C.sand, padding: "0 10px",
+    border: `2px ${aktiv && !zu ? "solid" : "dashed"} ${aktiv && !zu ? rahmen : C.linie}`,
+    background: aktiv && !zu ? C.weiss : "transparent",
+    color: rueck === "falsch" ? C.signal : C.tinte,
+    textDecoration: rueck === "falsch" ? "line-through" : "none",
   });
+  // Ganze Zahl (Nenner leer) nach dem Prüfen ohne Bruchstrich zeigen
+  const ganz = zu && n === "";
 
   return (
     <Vollbild titel={titel} untertitel={untertitel} nr={nr} gesamt={BRUCH_RUNDE} serie={serie} onEnde={onEnde} scrollbar>
-      <style>{GLEICHUNG_CSS}</style>
-      <div className="kr-gleichung" style={{ flex: "1 0 auto" }}>
-        {/* Aufgabe: endet mit „=“. Beide Blöcke vertikal zentriert, Bruchstriche auf gleicher Höhe. */}
-        <AufgabenKarte style={{ padding: "14px 16px", gap: 6, flexWrap: "nowrap", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          {!auf.op && <span style={{ color: C.flaggold, fontSize: 15, fontWeight: 600, marginRight: 6 }}>Kürze</span>}
+      <style>{BRUCH_ZEILE_CSS}</style>
+      {/* Eine Zeile: Aufgabe = Eingabe */}
+      <div className="kr-bz" data-kr-bruchzeile style={{ flex: "none" }}>
+        <div className="kr-bz-aufgabe" data-kr-aufgabe>
+          {!auf.op && <span className="kr-bz-kuerze">Kürze</span>}
           <Bruch z={auf.a.z} n={auf.a.n} />
-          {auf.op && <span style={{ color: C.flaggold, fontSize: 34, fontWeight: 800, margin: "0 4px" }}>{auf.op}</span>}
+          {auf.op && <span className="kr-bz-op">{auf.op}</span>}
           {auf.op && <Bruch z={auf.b.z} n={auf.b.n} />}
-          <span style={{ color: C.flaggold, fontSize: 34, fontWeight: 700, marginLeft: 6 }}>=</span>
-        </AufgabenKarte>
-
-        {/* Eingabe als Bruch */}
-        <div className="kr-eingabe" data-kr-eingabe style={{ border: `2.5px solid ${rahmen}`, borderRadius: 16, padding: "10px 14px",
-          display: "flex", alignItems: "center", justifyContent: "center", gap: 12, transition: "all .15s", boxShadow: "0 2px 12px rgba(15,26,51,0.06)",
-          background: rueck === "richtig" ? "#EEF8F2" : rueck === "falsch" ? "#FBEFEA" : C.weiss }}>
+          <span className="kr-bz-op" style={{ marginLeft: 6 }}>=</span>
+        </div>
+        <div className="kr-bz-eingabe" data-kr-eingabe
+          style={{ border: `2.5px solid ${rahmen}`, background: rueck === "richtig" ? "#EEF8F2" : rueck === "falsch" ? "#FBEFEA" : C.weiss }}>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-            <div className="kr-bruchfeld" onClick={() => setFeld("z")} style={feldStil(feld === "z")}>{z || <span style={{ color: C.hellgrau, fontSize: 18 }}>Zähler</span>}</div>
-            <div style={{ alignSelf: "stretch", height: 4, background: C.tinte, borderRadius: 2, margin: "6px 0" }} />
-            <div className="kr-bruchfeld" onClick={() => setFeld("n")} style={feldStil(feld === "n")}>{n || <span style={{ color: C.hellgrau, fontSize: 18 }}>Nenner</span>}</div>
+            <div className="kr-bz-feld" onClick={() => setFeld("z")} style={feldStil(feld === "z")}>{z || <span className="kr-bz-platz">Zähler</span>}</div>
+            {!ganz && <div style={{ alignSelf: "stretch", height: 4, background: rueck === "falsch" ? C.signal : C.tinte, borderRadius: 2, margin: "5px 0" }} />}
+            {!ganz && <div className="kr-bz-feld" onClick={() => setFeld("n")} style={feldStil(feld === "n")}>{n || <span className="kr-bz-platz">Nenner</span>}</div>}
           </div>
-          {rueck === "richtig" && <span style={{ fontSize: 30, color: C.smaragd, fontWeight: 800 }}>✓</span>}
-          {rueck === "falsch" && (
-            <span style={{ display: "flex", alignItems: "center", gap: 6, color: C.signal, fontWeight: 700 }}>
-              ✗ <Bruch z={auf.loes.z} n={auf.loes.n} gross={26} farbe={C.signal} />
-            </span>
-          )}
+          {zu && <span className="kr-bz-marke" style={{ background: rueck === "richtig" ? C.smaragd : C.signal }}>{rueck === "richtig" ? "✓" : "✗"}</span>}
         </div>
       </div>
 
-      <div className="kr-hinweis-box" style={{ minHeight: 20, margin: "8px 2px 10px", flex: "none" }}>
-        {rueck === "kuerzen" && <p style={{ fontSize: 13.5, color: C.gruenDunkel, fontWeight: 600 }}>Der Wert stimmt — aber noch nicht vollständig gekürzt.</p>}
-        {rueck === "null" && <p style={{ fontSize: 13.5, color: C.signal, fontWeight: 600 }}>Der Nenner darf nicht 0 sein.</p>}
-        {rueck === "falsch" && <p style={{ fontSize: 13.5, color: C.tinte, lineHeight: 1.55 }}><b>So geht’s:</b> <MS s={auf.weg} /></p>}
-        {!rueck && <p className="kr-hinweis" style={{ fontSize: 12, color: C.hellgrau, textAlign: "center" }}>
-          {best ? `Bestwert: ${best.richtig}/${BRUCH_RUNDE} in ${String(best.sek).replace(".", ",")} s · ` : ""}Ergebnis vollständig gekürzt eingeben. Ganze Zahl: Nenner leer lassen.
+      <div className="kr-hinweis-box" style={{ minHeight: 20, margin: "10px 2px", flex: "none" }}>
+        {rueck === "kuerzen" && <p style={{ fontSize: 13.5, color: C.gruenDunkel, fontWeight: 600, textAlign: "center" }}>Der Wert stimmt — aber noch nicht vollständig gekürzt.</p>}
+        {rueck === "null" && <p style={{ fontSize: 13.5, color: C.signal, fontWeight: 600, textAlign: "center" }}>Der Nenner darf nicht 0 sein.</p>}
+        {rueck === "falsch" && (
+          <div style={{ background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 14, padding: "10px 12px" }}>
+            <p style={{ fontSize: 14, color: C.tinte, lineHeight: 1.5, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+              <b style={{ color: C.smaragd }}>Richtig:</b> <MS s={bText(auf.loes)} />
+            </p>
+            <p style={{ fontSize: 13.5, color: C.tinte, lineHeight: 1.55, marginTop: 4 }}><b>So geht’s:</b> <MS s={auf.weg} /></p>
+          </div>
+        )}
+        {!rueck && <p className="kr-hinweis" style={{ fontSize: 12, color: C.hellgrau, textAlign: "center", lineHeight: 1.5 }}>
+          Gekürzt eingeben · ganze Zahl: Nenner leer
+          {best && <><br />Bestwert {best.richtig}/{BRUCH_RUNDE} in {String(best.sek).replace(".", ",")} s</>}
         </p>}
       </div>
 
