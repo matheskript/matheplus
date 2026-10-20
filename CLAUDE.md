@@ -50,6 +50,7 @@ Blog: Beiträge in `src/blogDaten.js` (neuester oben, `motiv` oder `bild`), Seit
 Die Seite „Dokumente“ (Arbeitsmenü F, Pfad `/dokumente`, hinter dem gemeinsamen Passwort) zeigt eine Box je Dokument mit Art, Seitenzahl und Zweck (Amazon · Hier auf der Seite · Investoren · Intern). Die Liste steht in `src/dokumente.js` (`DOKUMENTE`), die Seite in `src/funcDokumente.jsx`.
 - **Immer**, wenn in einer Sitzung ein PDF/Dokument entsteht (Schulbuch, Arbeitsheft, Businessplan, Finanzplan …): Eintrag in `DOKUMENTE` ergänzen (Titel, Art, echte Seitenzahl mit `pdfinfo`, Zweck, Stand). Test: `tests/dokumente.test.mjs`, Browser: `tests/ui/dokumente.ui.py`.
 - Datei nur dann unter `public/` legen und in `datei` eintragen, wenn sie öffentlich sein darf (alles in `public/` ist per Direktlink ohne Passwort abrufbar). **Vertrauliches** (Businessplan, Finanzplan, Investorenunterlagen) bleibt `datei: null`.
+- Umschläge/Cover bekommen **keine eigene Box**: Feld `cover` (Pfad unter `public/`) in der Box der Druckausgabe, die Karte zeigt dann den Knopf „Cover“ (Download). Die Begriffe „Innenteil“ und „Amazon-Umschlag“ nicht mehr verwenden.
 - Arbeitsmenü: A Startseite, B Landingpage, C Alle Bereiche (Aufklapp-Gruppe), D Entwürfe (Aufklapp-Gruppe), E Weitere Seiten (Aufklapp-Gruppe), F Dokumente. Neue Entwürfe/Seiten in `src/seitenKonstanten.js` eintragen.
 
 ## Sonst
