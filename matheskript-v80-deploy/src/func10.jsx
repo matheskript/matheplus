@@ -981,7 +981,8 @@ export function Mathilda() {
                   ) : ansicht === "geradengleichung" ? (
         <>
           <KompaktKopf ansicht={ansicht} gehe={gehe} menueOffen={hmOffen === "menue"} onMenue={() => setHmOffen(hmOffen === "menue" ? null : "menue")}
-            menue={kompaktMenue} />
+            menue={kompaktMenue}
+            testKnopf={<PruefungsLink ansicht={ansicht} gehe={gehe} pille />} />
           <Geradengleichung />
         </>
                               ) : ansicht === "bwm" ? (
