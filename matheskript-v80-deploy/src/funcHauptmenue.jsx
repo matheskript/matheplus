@@ -431,9 +431,10 @@ function DarstellungWahl() {
 
 
 /* ---------- Kopfzeile: Konto-Chip (nur angemeldet) + Menü-Knopf ☰ ---------- */
-export function KontoBereich({ offen, setOffen, gehe }) {
+/* ziel: was ☰ öffnet – "menue" (dieses Fenster) oder "besucher" (Besuchermenü der Kopfleiste, Handy/Tablet ohne Konto) */
+export function KontoBereich({ offen, setOffen, gehe, ziel = "menue" }) {
   const konto = useKonto();
-  const auf = offen === "menue";
+  const auf = offen === "menue" || offen === ziel;
   return (
     <>
       <style>{CSS}</style>
@@ -441,7 +442,7 @@ export function KontoBereich({ offen, setOffen, gehe }) {
         <button type="button" className="hm-chip" style={auf && typeof window !== "undefined" && window.innerWidth >= 900 ? { visibility: "hidden" } : undefined} onClick={() => { setOffen(null); gehe && gehe({ ansicht: "konto" }); }}
           aria-label="Mein Konto" title="Mein Konto" data-kein-scroll data-kein-i18n data-hm-chip>{anfangVon(konto)}</button>
       )}
-      <button type="button" className="hm-menueknopf" onClick={() => setOffen(auf ? null : "menue")} aria-expanded={auf} aria-haspopup="true"
+      <button type="button" className="hm-menueknopf" onClick={() => setOffen(auf ? null : ziel)} aria-expanded={auf} aria-haspopup="true"
         aria-label="Menü" title="Menü" data-kein-scroll data-hm-menue>
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
           {auf ? <><path d="M6 6l12 12" /><path d="M18 6L6 18" /></> : <><path d="M4 7h16" /><path d="M4 12h16" /><path d="M4 17h16" /></>}

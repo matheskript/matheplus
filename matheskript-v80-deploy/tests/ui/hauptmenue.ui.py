@@ -15,6 +15,13 @@ def pruefe(bed, text):
     if not bed:
         fehler.append(text); print("FEHLT:", text)
 
+# ☰ öffnen. Besucher unter 1000 px sehen zuerst das Besuchermenü (Vision · Mathe lernen · Mathilda AI · Blog,
+# seit 21.10.) – von dort führt „Alle Bereiche und Werkzeuge“ in dieses Fenster.
+def menue_auf(page):
+    page.locator("[data-hm-menue]").click(); page.wait_for_timeout(250)
+    if page.locator("[data-besuchermenue]").count():
+        page.locator("[data-kl-bm-alles]").click(); page.wait_for_timeout(250)
+
 DEMO = {"nutzer": {"id": "demo-1", "email": "lena@example.de"}, "profil": {"id": "demo-1", "name": "Lena", "rolle": "schueler", "geschlecht": "w", "schulform": "G9", "klasse": 10}}
 
 with sync_playwright() as p:
@@ -47,7 +54,7 @@ with sync_playwright() as p:
                 pruefe(page.locator("[data-hm-chip]").inner_text().strip() == "L", f"{tag}: Chip zeigt nicht den Anfangsbuchstaben")
                 pruefe(knopf["x"] > chip["x"] + chip["width"] - 1 and abs(knopf["y"] - chip["y"]) < 3, f"{tag}: ☰ steht nicht rechts neben dem Chip")
             # ☰-Menü öffnen: eine Liste mit Suche, fünf Abschnitten, Konto-Punkten und Zugang ganz unten
-            page.locator("[data-hm-menue]").click(); page.wait_for_timeout(250)
+            menue_auf(page)
             fm = page.locator(".hm-fenster.hm-menue")
             pruefe(fm.count() == 1, f"{tag}: Menü geht nicht auf")
             if fm.count():
@@ -79,7 +86,7 @@ with sync_playwright() as p:
             if not angemeldet:
                 import re
                 # Klasse wählen ohne Konto
-                page.locator("[data-hm-menue]").click(); page.wait_for_timeout(200)
+                menue_auf(page)
                 page.locator("[data-hm='klasse']").click(); page.wait_for_timeout(200)
                 page.locator(".hm-fenster button").filter(has_text=re.compile(r"^G8$")).click()
                 page.locator(".hm-fenster button").filter(has_text=re.compile(r"^9$")).click(); page.wait_for_timeout(250)
@@ -98,20 +105,20 @@ with sync_playwright() as p:
                 page.locator("[data-hm-bereich='vektoren'] .hm-wz", has_text="Kreuzprodukt").click(); page.wait_for_timeout(900)
                 pruefe(page.locator(".hm-fenster").count() == 0 and "kreuz" in page.url, f"{tag}: Werkzeug aus dem Menü öffnet nicht ({page.url})")
                 # Mein Training → 5 Minuten Mathe
-                page.locator("[data-hm-menue]").first.click(); page.wait_for_timeout(250)
+                menue_auf(page)
                 page.locator("[data-hm='training']").click(); page.locator(".hm-fenster button", has_text="5 Minuten Mathe").click(); page.wait_for_timeout(900)
                 pruefe("5-minuten-mathe" in page.url, f"{tag}: Menüpunkt navigiert nicht ({page.url})")
                 pruefe(page.locator(".hm-fenster").count() == 0, f"{tag}: Menü bleibt nach dem Navigieren offen")
             else:
-                page.locator("[data-hm-menue]").click(); page.wait_for_timeout(200)
+                menue_auf(page)
                 page.locator(".hm-fenster .hm-eintrag", has_text="Abmelden").click(); page.wait_for_timeout(200)
                 pruefe(page.locator("[role='alertdialog']").count() == 1, f"{tag}: Abmelden fragt nicht nach")
                 if BILDER: page.screenshot(path=f"{BILDER}/hm-{breite}-k-abmelden.png")
                 page.get_by_role("button", name="Abbrechen").click(); page.wait_for_timeout(200)
-                page.locator("[data-hm-menue]").click(); page.wait_for_timeout(200)
+                menue_auf(page)
                 pruefe(page.locator(".hm-fenster .hm-eintrag", has_text="Abmelden").count() == 1, f"{tag}: Abbrechen meldet trotzdem ab")
                 page.locator(".hm-fenster .hm-eintrag", has_text="Abmelden").click(); page.locator("[data-hm-abmelden-ja]").click(); page.wait_for_timeout(600)
-                page.locator("[data-hm-menue]").click(); page.wait_for_timeout(200)
+                menue_auf(page)
                 pruefe(page.locator(".hm-fenster .hm-eintrag", has_text="Anmelden").count() == 1, f"{tag}: Abmelden klappt nicht")
                 page.keyboard.press("Escape")
             # Arbeitsmenü in der Fußzeile

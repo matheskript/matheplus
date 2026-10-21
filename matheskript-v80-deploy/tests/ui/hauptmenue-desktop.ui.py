@@ -18,6 +18,12 @@ def pruefe(bed, text):
 
 DEMO = {"nutzer": {"id": "demo-1", "email": "lena@example.de"}, "profil": {"id": "demo-1", "name": "Lena", "rolle": "schueler", "geschlecht": "w", "schulform": "G9", "klasse": 12}}
 
+# ☰ öffnen. Besucher unter 1000 px sehen zuerst das Besuchermenü (seit 21.10.) – „Alle Bereiche und Werkzeuge“ führt weiter.
+def menue_auf(page, warten):
+    page.locator("[data-hm-menue]").click(); page.wait_for_timeout(warten)
+    if page.locator("[data-besuchermenue]").count():
+        page.locator("[data-kl-bm-alles]").click(); page.wait_for_timeout(warten)
+
 def oeffne(b, breite, hoehe, angemeldet, modus="dunkel"):
     ctx = b.new_context(viewport={"width": breite, "height": hoehe}, locale="de-DE")
     page = ctx.new_page()
@@ -38,7 +44,7 @@ with sync_playwright() as p:
     # Handy und schmale Fenster: weiter das ☰-Fenster
     for breite in (390, 860):
         ctx, page = oeffne(b, breite, 820, False)
-        page.locator("[data-hm-menue]").click(); page.wait_for_timeout(300)
+        menue_auf(page, 300)
         pruefe(page.locator("[data-hm-desktop]").count() == 0 and page.locator(".hm-fenster.hm-menue").count() == 1, f"{breite}: hier soll das ☰-Fenster aufgehen")
         ctx.close()
 
@@ -47,7 +53,7 @@ with sync_playwright() as p:
             for modus in (("dunkel", "hell", "mix") if breite == 1440 else ("dunkel",)):
                 tag = f"{breite}/{'konto' if angemeldet else 'gast'}/{modus}"
                 ctx, page = oeffne(b, breite, hoehe, angemeldet, modus)
-                page.locator("[data-hm-menue]").click(); page.wait_for_timeout(600)
+                menue_auf(page, 600)
                 m = page.locator("[data-hm-desktop]")
                 pruefe(m.count() == 1, f"{tag}: Desktop-Menü geht nicht auf")
                 pruefe(page.locator(".hm-fenster").count() == 0, f"{tag}: schmales ☰-Fenster ist zusätzlich offen")
@@ -108,7 +114,7 @@ with sync_playwright() as p:
                     pruefe(page.evaluate("document.activeElement && document.activeElement.hasAttribute('data-hm-menue')"), f"{tag}: Fokus nicht zurück auf ☰")
 
                     # Werkzeug aus dem Menü öffnen
-                    page.locator("[data-hm-menue]").click(); page.wait_for_timeout(500)
+                    menue_auf(page, 500)
                     m = page.locator("[data-hm-desktop]")
                     if not m.locator("[data-hmd-stationen='vektoren']").count():
                         m.locator("[data-hmd-bereich='vektoren']").click(); page.wait_for_timeout(200)
@@ -116,7 +122,7 @@ with sync_playwright() as p:
                     pruefe(page.locator("[data-hm-desktop]").count() == 0 and "kreuzprodukt" in page.url, f"{tag}: Kreuzprodukt öffnet nicht ({page.url})")
 
                     # Darstellung umschalten
-                    page.locator("[data-hm-menue]").click(); page.wait_for_timeout(500)
+                    menue_auf(page, 500)
                     m = page.locator("[data-hm-desktop]")
                     m.locator("[data-hmd-modus='hell']").click(); page.wait_for_timeout(250)
                     pruefe(m.get_attribute("data-modus") == "hell" and page.evaluate("localStorage.getItem('matheplus-start-modus')") == "hell", f"{tag}: Darstellung hell greift nicht")
@@ -139,7 +145,7 @@ with sync_playwright() as p:
 
     # Größe ändern, während das Menü offen ist: unter 900 px wird es zum ☰-Fenster
     ctx, page = oeffne(b, 1280, 860, True)
-    page.locator("[data-hm-menue]").click(); page.wait_for_timeout(400)
+    menue_auf(page, 400)
     page.set_viewport_size({"width": 800, "height": 860}); page.wait_for_timeout(400)
     pruefe(page.locator("[data-hm-desktop]").count() == 0 and page.locator(".hm-fenster.hm-menue").count() == 1, "Resize: Menü wechselt nicht aufs ☰-Fenster")
     pruefe(page.evaluate("getComputedStyle(document.documentElement).overflow") != "hidden", "Resize: Seite bleibt gesperrt")

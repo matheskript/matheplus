@@ -13,14 +13,13 @@
 
    Angemeldet:  Wortmarke + Slogan · „Weiter mit …“ (letztes Werkzeug, Desktop)
                 · Konto-Chip · ☰
-   Besucher:    festes Menü Vision · Mathe lernen · Mathilda AI · Blog (nie zum
-                Ausklappen) · Anmelden · ☰.
+   Besucher:    Menü Vision · Mathe lernen · Mathilda AI · Blog · Anmelden · ☰.
+                Unter 1000 px (seit 21.10.): große Wortmarke mit Slogan darunter wie
+                angemeldet, die vier Punkte liegen hinter ☰ (Besuchermenü, ein
+                kleines Fenster; von dort „Alle Bereiche“ ins große ☰-Menü).
                 Ab 1000 px eine breite Zeile wie eine normale Website: Wortmarke
-                in voller Größe (40 px), so gesetzt, dass das T von MYTHOS über
-                dem Anfang der Schlagzeile steht („Mathe kann …“: 50 % − 371,5 px,
-                das T liegt 63 px in der Wortmarke). Darunter steht das Menü in
-                einer zweiten Zeile und die Wortmarke ist ein Drittel kleiner
-                (Handy: Menü über die volle Breite verteilt).
+                in voller Größe (40 px), die vier Punkte fest daneben (nie zum
+                Ausklappen), kein Slogan.
    Keinen Modus-Knopf in der Leiste: dunkel/hell/mix stellt man ganz unten im
    ☰-Menü um („Darstellung“) oder über die Pille unten links auf der Startseite.
    Auf Seiten, die kein Werkzeug sind, klebt die Leiste oben, zieht sich beim
@@ -113,31 +112,50 @@ const CSS = `
 @media (min-width: 421px) { .kl-slogan { margin-top: 6px; } }
 @media ${DESKTOP} { .kl-slogan { margin-top: 1px; } }
 .kl[data-kompakt] .kl-slogan { opacity: 0; max-height: 0; margin-top: 0; }
-/* Besucher: Wortmarke ein Drittel kleiner, Slogan fällt weg */
-.kl[data-gast] .kl-marke { align-items: flex-start; }
+/* Besucher: unter 1000 px wie angemeldet (Wortmarke + Slogan, mittig untereinander); ab 1000 px Marke links, ohne Slogan (siehe BREIT) */
 @media (max-width: 420px) { .kl-zeile { padding-left: 14px; } }
 
 /* Besuchermenü: feste Punkte */
 .kl-nav { display: flex; align-items: center; gap: 24px; margin: 0 12px 0 auto; padding: 0; list-style: none; }
-/* Größe der Wortmarke für Besucher: unter 1000 px ein Drittel kleiner, darüber voll (siehe BREIT) */
-.kl { --kl-logo-gast: clamp(14px, 4.33vw, 26.7px); }
+/* Größe der Wortmarke für Besucher: unter 1000 px so groß wie angemeldet (Platz bis zum ☰), darüber voll (siehe BREIT) */
+.kl { --kl-logo-gast: min(40px, calc((100vw - 100px) / 10)); }
 .kl-nav button { position: relative; background: none; border: none; padding: 8px 0; cursor: pointer; color: var(--kl-nav); font-size: 14.5px; font-weight: 700; letter-spacing: .005em; white-space: nowrap; line-height: 1; }
 .kl-nav button::after { content: ""; position: absolute; left: 0; right: 0; bottom: 2px; height: 2px; border-radius: 2px; background: ${GOLD}; transform: scaleX(0); transform-origin: left; transition: transform .22s cubic-bezier(.2,.7,.3,1); }
 .kl-nav button:hover::after, .kl-nav button[aria-current="page"]::after { transform: scaleX(1); }
 .kl-nav button[aria-current="page"] { color: var(--kl-nav); }
 /* „Mathilda AI“: die Marke schreibt beide Teile zusammen, im Menü steht ein schmaler Abstand davor (AI bleibt gold) */
 .kl-nav [data-besucher-menue="mathilda"] > span > span + span { margin-left: .26em; }
-/* Unter 1000 px: Menü in der zweiten Zeile, bündig mit der Wortmarke; Handy: über die volle Breite verteilt */
+/* Unter 1000 px (seit 21.10.): keine Menüzeile – die vier Punkte liegen hinter ☰ (Besuchermenü .kl-bm) */
 @media ${ZWEIZEILIG} {
-  .kl[data-gast] .kl-zeile { flex-wrap: wrap; row-gap: 0; }
+  .kl[data-gast] .kl-nav { display: none; }
   .kl[data-gast] .kl-rechts { margin-left: auto; }
-  .kl[data-gast] .kl-nav { order: 3; flex: 1 1 100%; margin: 0; padding: 0 0 8px; justify-content: flex-start; }
-  .kl[data-gast] .kl-nav button { padding: 6px 0 9px; }
 }
-@media ${HANDY} {
-  .kl[data-gast] .kl-nav { justify-content: space-between; gap: 6px; padding-bottom: 6px; padding-right: 6px; }
-  .kl[data-gast] .kl-nav button { font-size: 13px; padding: 6px 0 8px; }
-}
+@media ${BREIT} { .kl[data-gast] .kl-slogan { display: none; } .kl[data-gast] .kl-marke { align-items: flex-start; } }
+
+/* Besuchermenü hinter ☰ (unter 1000 px): kleines Fenster rechts unter der Leiste, Schleier darunter */
+.kl-bm-schleier { position: fixed; left: 0; right: 0; bottom: 0; z-index: 1; background: rgba(8,20,52,0.34); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); animation: klBlende .2s ease both; }
+.kl[data-bm-offen] .kl-zeile { position: relative; z-index: 3; }
+.kl-bm { position: absolute; top: calc(100% + 8px); right: 12px; z-index: 4; width: min(340px, calc(100vw - 24px)); box-sizing: border-box; padding: 10px;
+  background: #FFFFFF; color: ${C.seeTief}; border-radius: 22px; box-shadow: 0 24px 60px -18px rgba(5,11,31,0.55), 0 0 0 1px rgba(14,30,74,0.08);
+  animation: klRein .22s cubic-bezier(.2,.7,.3,1) both; }
+.kl-bm-liste { list-style: none; margin: 0; padding: 0; }
+.kl-bm-liste button { position: relative; width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 15px 14px; border: none; border-radius: 14px;
+  background: none; cursor: pointer; color: ${C.seeTief}; font-size: 18px; font-weight: 800; letter-spacing: -0.01em; line-height: 1.1; text-align: left; }
+.kl-bm-liste li + li button { box-shadow: inset 0 1px 0 ${C.linie}; }
+.kl-bm-liste li + li button:hover, .kl-bm-liste button:hover { background: #F2F5FB; box-shadow: none; }
+.kl-bm-liste button::after { content: "→"; font-weight: 700; color: ${C.see}; transition: transform .18s ease; }
+.kl-bm-liste button:hover::after { transform: translateX(3px); }
+.kl-bm-liste button[aria-current="page"]::before { content: ""; position: absolute; left: 0; top: 12px; bottom: 12px; width: 3px; border-radius: 3px; background: ${GOLD}; }
+.kl-bm-liste [data-besucher-menue="mathilda"] > span > span + span { margin-left: .26em; }
+.kl-bm-fuss { display: grid; gap: 8px; margin-top: 8px; padding-top: 10px; border-top: 1px solid ${C.linie}; }
+.kl-bm-anmelden { height: 46px; border-radius: 999px; border: none; cursor: pointer; font-size: 15px; font-weight: 800; color: ${NACHT};
+  background: linear-gradient(180deg, ${GOLD_HELL} 0%, ${GOLD} 100%); box-shadow: 0 8px 20px -10px rgba(237,187,0,0.9), inset 0 1px 0 rgba(255,255,255,.6); }
+.kl-bm-alles { height: 42px; border-radius: 999px; border: 1.5px solid ${C.linie}; background: #FFFFFF; cursor: pointer; font-size: 13.5px; font-weight: 700; color: ${C.see}; }
+.kl-bm-alles:hover { border-color: ${C.see}; }
+.kl-bm button { font-family: inherit; }
+@keyframes klBlende { from { opacity: 0; } }
+@keyframes klRein { from { opacity: 0; transform: translateY(-6px) scale(.98); } }
+@media ${BREIT} { .kl-bm, .kl-bm-schleier { display: none; } }
 /* Ab 1000 px: Besucher bekommen eine breite Zeile wie eine normale Website. Die Wortmarke (voll, 40 px) beginnt
    bündig mit der Schlagzeile; nur wenn rechts der Platz fehlt, rückt sie so weit wie nötig nach links.
    Rechts endet die Zeile genauso weit vor dem Rand wie die Wortmarke links beginnt (symmetrisch, --kl-rand). */
@@ -174,15 +192,15 @@ const CSS = `
    Der freie Platz geht an Wortmarke, Slogan und einen größeren ☰-Knopf; die Zeile ist dafür etwas höher (--kopf-h). */
 @media (max-width: 839px) {
   .kl .hm-chip { display: none; }
-  .kl:not([data-gast]) .hm-menueknopf { width: 48px; height: 48px; border-width: 2px; }
-  .kl:not([data-gast]) .hm-menueknopf svg { width: 24px; height: 24px; }
-  .kl:not([data-gast]) .kl-slogan { font-size: clamp(13.5px, 4.25vw, 23.33px); }
+  .kl .hm-menueknopf { width: 48px; height: 48px; border-width: 2px; }
+  .kl .hm-menueknopf svg { width: 24px; height: 24px; }
+  .kl .kl-slogan { font-size: clamp(13.5px, 4.25vw, 23.33px); }
 }
 
 /* Lese-Fortschritt (nur wenn die Leiste klebt) */
 .kl-fortschritt { position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; transform-origin: left; transform: scaleX(0); pointer-events: none;
   background: linear-gradient(90deg, ${GOLD} 0%, ${GOLD_HELL} 100%); box-shadow: 0 0 10px rgba(237,187,0,0.55); }
-@media (prefers-reduced-motion: reduce) { .kl-kurve, .kl-kurve path, .kl-punkt { animation: none !important; } .kl-kurve { clip-path: none; } .kl-kurve path { opacity: var(--kl-kurve-ruhe); } .kl-punkt { opacity: .55; } .kl-zeile, .kl-slogan { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .kl-bm, .kl-bm-schleier { animation: none; } .kl-kurve, .kl-kurve path, .kl-punkt { animation: none !important; } .kl-kurve { clip-path: none; } .kl-kurve path { opacity: var(--kl-kurve-ruhe); } .kl-punkt { opacity: .55; } .kl-zeile, .kl-slogan { transition: none; } }
 `;
 
 /* ---------- Modus der Startseite als Hook (dieselbe Quelle wie die Pille unten links) ---------- */
@@ -211,6 +229,20 @@ function KopfKurve() {
 
 const lies = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
 
+/* Trifft eine Media-Query zu? (Besucher unter 1000 px: ☰ öffnet das Besuchermenü) */
+function useMedia(abfrage) {
+  const [an, setAn] = useState(() => typeof window !== "undefined" && !!window.matchMedia && window.matchMedia(abfrage).matches);
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return undefined;
+    const mq = window.matchMedia(abfrage);
+    const h = () => setAn(mq.matches);
+    h();
+    if (mq.addEventListener) mq.addEventListener("change", h); else mq.addListener(h);
+    return () => { if (mq.removeEventListener) mq.removeEventListener("change", h); else mq.removeListener(h); };
+  }, [abfrage]);
+  return an;
+}
+
 export function Kopfleiste({ ansicht, gehe, zurStartseite, hmOffen, setHmOffen, fotoModus, wzSeite, children }) {
   const konto = useKonto();
   const modus = useKopfModus();
@@ -220,6 +252,10 @@ export function Kopfleiste({ ansicht, gehe, zurStartseite, hmOffen, setHmOffen, 
   const [kompakt, setKompakt] = useState(false);
   const fortschritt = useRef(null);
   const zuletzt = !gast && klebrig ? zuletztAus(lies(ZULETZT_SCHLUESSEL)) : null;
+  const schmal = useMedia(ZWEIZEILIG);
+  const bmOffen = gast && schmal && hmOffen === "besucher";
+  const kopf = useRef(null);
+  const [schleierOben, setSchleierOben] = useState(0);
 
   /* Zusammenziehen und Lese-Fortschritt beim Scrollen – nur wenn die Leiste klebt */
   useEffect(() => {
@@ -247,6 +283,21 @@ export function Kopfleiste({ ansicht, gehe, zurStartseite, hmOffen, setHmOffen, 
     return () => { try { document.documentElement.style.removeProperty("--kopf-h"); } catch (e) { /* egal */ } };
   }, [kompakt]);
 
+  /* Besuchermenü: Schleier beginnt unter der Leiste, Escape schließt; ab 1000 px gibt es kein Besuchermenü */
+  useEffect(() => {
+    if (hmOffen === "besucher" && !(gast && schmal)) setHmOffen(null);
+  }, [hmOffen, gast, schmal]);
+  useEffect(() => {
+    if (!bmOffen) return undefined;
+    const miss = () => { const el = kopf.current; if (el) setSchleierOben(Math.max(0, el.getBoundingClientRect().bottom)); };
+    miss();
+    const t = (e) => { if (e.key === "Escape") setHmOffen(null); };
+    window.addEventListener("keydown", t);
+    window.addEventListener("resize", miss);
+    window.addEventListener("scroll", miss, { passive: true });
+    return () => { window.removeEventListener("keydown", t); window.removeEventListener("resize", miss); window.removeEventListener("scroll", miss); };
+  }, [bmOffen, kompakt]);
+
   const aktiv = besucherAktiv(ansicht, fotoModus);
   const menueZu = (eintrag) => {
     setHmOffen(null);
@@ -255,11 +306,11 @@ export function Kopfleiste({ ansicht, gehe, zurStartseite, hmOffen, setHmOffen, 
   };
 
   return (
-    <header data-kopfleiste className="kl" data-modus={modus} data-gast={gast ? "1" : undefined} data-kompakt={kompakt ? "1" : undefined} data-klebrig={klebrig ? "1" : undefined}>
+    <header ref={kopf} data-kopfleiste className="kl" data-bm-offen={bmOffen ? "1" : undefined} data-modus={modus} data-gast={gast ? "1" : undefined} data-kompakt={kompakt ? "1" : undefined} data-klebrig={klebrig ? "1" : undefined}>
       <style>{CSS}</style>
       <style>{`
-        :root{--kopf-h:${gast ? "56px" : "68px"}}
-        @media (min-width:421px){:root{--kopf-h:clamp(${gast ? "62px" : "74px"}, calc(11.1vw + 26px), 90px)}}
+        :root{--kopf-h:68px}
+        @media (min-width:421px){:root{--kopf-h:clamp(74px, calc(11.1vw + 26px), 90px)}}
         .titel-kurz{display:none}
         @media (max-width:520px){.held{padding-top:18px !important;padding-bottom:4px !important}.held h1{font-size:25px !important;line-height:1.1 !important}.held h1+div{margin-top:12px !important;margin-bottom:13px !important}.held-welle{height:12px !important}}
         .kopfblock{margin-bottom:-16px}
@@ -281,15 +332,13 @@ export function Kopfleiste({ ansicht, gehe, zurStartseite, hmOffen, setHmOffen, 
 
       <div className="mx-auto kopf-zeile kl-zeile" style={{ maxWidth: 620 }}>
         <button type="button" className="kl-marke" data-kein-i18n aria-label={en ? "Home" : "Zur Startseite"} title={en ? "Home" : "Zur Startseite"} onClick={zurStartseite}>
-          {/* Wortmarke in der Schrift der Startseiten-Headline (src/markenLogo.jsx); Besucher: ein Drittel kleiner.
-              Angemeldet: so groß, wie neben dem ☰ Platz ist (Breite ≈ 10 × Schriftgröße), höchstens 40 px */}
+          {/* Wortmarke in der Schrift der Startseiten-Headline (src/markenLogo.jsx): so groß, wie neben dem ☰ Platz ist
+              (Breite ≈ 10 × Schriftgröße), höchstens 40 px; darunter der Slogan (Besucher ab 1000 px ohne Slogan) */}
           <MarkenLogo groesse={gast ? "var(--kl-logo-gast)" : "min(40px, calc((100vw - 100px) / 10))"} grund={modus === "hell" ? "hell" : "dunkel"} />
-          {!gast && (
-            <span className="kl-slogan">System <b>+</b> Freude <b>=</b> Erfolg</span>
-          )}
+          <span className="kl-slogan">System <b>+</b> Freude <b>=</b> Erfolg</span>
         </button>
 
-        {gast && (
+        {gast && !schmal && (
           <nav className="kl-nav" aria-label={en ? "Main menu" : "Hauptmenü"}>
             {BESUCHER_MENUE.map((e) => (
               <button key={e.id} type="button" onClick={() => menueZu(e)} aria-current={aktiv === e.id ? "page" : undefined} data-besucher-menue={e.id}>
@@ -310,9 +359,31 @@ export function Kopfleiste({ ansicht, gehe, zurStartseite, hmOffen, setHmOffen, 
             <button type="button" className="kl-anmelden" onClick={() => { setHmOffen(null); gehe({ ansicht: "konto" }); }} data-kl-anmelden>{en ? "Sign in" : "Anmelden"}</button>
           )}
           {/* Konto-Chip (angemeldet, nur ab 840 px) + Menü-Knopf ☰ – das alte Kopfmenü ist als „Arbeitsmenü“ in der Fußzeile */}
-          <KontoBereich offen={hmOffen} setOffen={setHmOffen} gehe={gehe} />
+          <KontoBereich offen={hmOffen} setOffen={setHmOffen} gehe={gehe} ziel={gast && schmal ? "besucher" : "menue"} />
         </div>
       </div>
+
+      {/* Besuchermenü hinter ☰ (Besucher unter 1000 px): die vier Punkte, Anmelden, „Alle Bereiche“ ins große ☰-Menü */}
+      {bmOffen && (
+        <>
+          <div className="kl-bm-schleier" style={{ top: schleierOben }} onClick={() => setHmOffen(null)} aria-hidden="true" />
+          <div className="kl-bm" role="dialog" aria-label={en ? "Menu" : "Menü"} data-besuchermenue>
+            <ul className="kl-bm-liste">
+              {BESUCHER_MENUE.map((e) => (
+                <li key={e.id}>
+                  <button type="button" onClick={() => menueZu(e)} aria-current={aktiv === e.id ? "page" : undefined} data-besucher-menue={e.id}>
+                    {e.id === "mathilda" ? <MathildaName dunkel={false} /> : e.name}
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <div className="kl-bm-fuss">
+              <button type="button" className="kl-bm-anmelden" onClick={() => { setHmOffen(null); gehe({ ansicht: "konto" }); }} data-kl-bm-anmelden>{en ? "Sign in" : "Anmelden"}</button>
+              <button type="button" className="kl-bm-alles" onClick={() => setHmOffen("menue")} data-kl-bm-alles>{en ? "All areas and tools" : "Alle Bereiche und Werkzeuge"}</button>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* ☰-Menü (Fenster): Suche · Mathilda · Meine Kurse · Klasse · Mein Training · Mathematik · Konto · Abmelden/Anmelden */}
       <div className="mx-auto kopf-zeile" style={{ maxWidth: 620, paddingLeft: 12, paddingRight: 12 }}>

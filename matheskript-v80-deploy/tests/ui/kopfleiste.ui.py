@@ -4,8 +4,9 @@
 
 Geprüft je Modus (dunkel/hell/mix) × Gast/angemeldet × 390/1280 px:
   - Kopfleiste trägt den Modus der Startseite, keine Überbreite, keine Seitenfehler
-  - Gast: Wortmarke ein Drittel kleiner, festes Menü Vision · Mathe lernen · Mathilda AI · Blog
-    (weiß auf dunkel/mix, nicht zum Ausklappen), AI in Gold; angemeldet: kein Besuchermenü, Slogan, Chip
+  - Gast ab 1000 px: festes Menü Vision · Mathe lernen · Mathilda AI · Blog in der Zeile (weiß auf dunkel/mix,
+    nicht zum Ausklappen), AI in Gold; darunter Wortmarke + Slogan wie angemeldet, die vier Punkte hinter ☰
+    (Besuchermenü, „Alle Bereiche und Werkzeuge“ öffnet das große ☰-Menü); angemeldet: kein Besuchermenü, Slogan, Chip
   - Modus-Knopf schaltet reihum, Leiste klebt und zieht sich beim Scrollen zusammen
   - Menüpunkte führen zu /vision (eigene Seite, markiert), #lernen, Mathilda, /blog; Blog-Liste → Beitrag → nächster Beitrag → zurück
 """
@@ -73,12 +74,28 @@ with sync_playwright() as p:
                         pruefe(logo >= 25.9, f"{tag}: Wortmarke auf dem Handy nur {logo}px")
                     else:
                         pruefe(page.locator("[data-hm-chip]").is_visible(), f"{tag}: Konto-Chip am Desktop unsichtbar")
+                elif breite < 1000:
+                    # Besucher unter 1000 px: keine Menüzeile, Wortmarke groß mit Slogan, die vier Punkte hinter ☰
+                    pruefe(nav.count() == 0, f"{tag}: Menüzeile unter 1000 px")
+                    pruefe(page.locator(".kl-slogan").is_visible(), f"{tag}: Slogan fehlt beim Gast")
+                    pruefe(logo >= 25.9, f"{tag}: Wortmarke beim Gast nur {logo}px")
+                    pruefe(page.locator("[data-kl-anmelden]").is_visible() == (breite >= 700), f"{tag}: Anmelden ab 700 px")
+                    page.locator("[data-hm-menue]").click(); page.wait_for_timeout(400)
+                    bm = page.locator("[data-besuchermenue] [data-besucher-menue]")
+                    pruefe(bm.count() == 4, f"{tag}: Besuchermenü hinter ☰ hat nicht vier Punkte")
+                    texte = [t.replace(" ", " ").strip() for t in bm.all_inner_texts()]
+                    pruefe(texte[:2] == ["Vision", "Mathe lernen"] and texte[3] == "Blog" and texte[2].replace(" ", "") == "MathildaAI", f"{tag}: Menütexte {texte}")
+                    kasten = page.locator("[data-besuchermenue]").bounding_box()
+                    pruefe(kasten["x"] >= 0 and kasten["x"] + kasten["width"] <= breite + 0.5, f"{tag}: Besuchermenü ragt heraus")
+                    foto(page, f"besuchermenue-{breite}-{modus}", ganz=True)
+                    page.keyboard.press("Escape"); page.wait_for_timeout(300)
+                    pruefe(page.locator("[data-besuchermenue]").count() == 0, f"{tag}: Escape schließt das Besuchermenü nicht")
                 else:
                     pruefe(nav.count() == 4, f"{tag}: Besuchermenü hat nicht vier Punkte")
+                    pruefe(not page.locator(".kl-slogan").is_visible(), f"{tag}: Slogan in der breiten Besucherzeile")
                     texte = [t.replace(" ", " ").strip() for t in nav.all_inner_texts()]
                     pruefe(texte[:2] == ["Vision", "Mathe lernen"] and texte[3] == "Blog" and texte[2].replace(" ", "") == "MathildaAI", f"{tag}: Menütexte {texte}")
                     pruefe(page.locator(".kl-nav [aria-expanded]").count() == 0, f"{tag}: Menü klappt aus")
-                    pruefe(page.locator(".kl-slogan").count() == 0, f"{tag}: Slogan bei Gast")
                     for e in nav.all():
                         bb = e.bounding_box()
                         pruefe(bb and bb["x"] >= 0 and bb["x"] + bb["width"] <= breite + 1, f"{tag}: Menüpunkt ragt heraus")
@@ -88,20 +105,16 @@ with sync_playwright() as p:
                     ai = page.evaluate("getComputedStyle(document.querySelector('[data-besucher-menue=mathilda] > span > span + span')).color")
                     pruefe(ai in ("rgb(237, 187, 0)", "rgb(185, 138, 0)"), f"{tag}: AI nicht gold ({ai})")
                     # Wortmarke: ab 1000 px voll (40 px); die Zeile ist symmetrisch – das ☰ endet so weit vom rechten Rand
-                    # wie die Wortmarke vom linken beginnt (seit 21.10., statt T über der Schlagzeile); darunter ein Drittel kleiner
-                    if breite >= 1000:
-                        pruefe(abs(logo - 40) < 0.6, f"{tag}: Wortmarke {logo}px statt 40px")
-                        li, re = page.evaluate("""() => [document.querySelector('.kl-marke').getBoundingClientRect().left,
-                          window.innerWidth - document.querySelector('.kl-rechts').getBoundingClientRect().right]""")
-                        pruefe(abs(li - re) < 1.5, f"{tag}: Kopfzeile nicht symmetrisch (links {li:.1f}, rechts {re:.1f})")
-                    else:
-                        pruefe(logo <= 26.8, f"{tag}: Wortmarke {logo}px statt höchstens 26,7px")
-                    pruefe(page.locator("[data-kl-anmelden]").is_visible() == (breite >= 700), f"{tag}: Anmelden ab 700 px")
-                    # ab 1000 px eine Zeile, darunter zwei
+                    # wie die Wortmarke vom linken beginnt (seit 21.10., statt T über der Schlagzeile)
+                    pruefe(abs(logo - 40) < 0.6, f"{tag}: Wortmarke {logo}px statt 40px")
+                    li, re = page.evaluate("""() => [document.querySelector('.kl-marke').getBoundingClientRect().left,
+                      window.innerWidth - document.querySelector('.kl-rechts').getBoundingClientRect().right]""")
+                    pruefe(abs(li - re) < 1.5, f"{tag}: Kopfzeile nicht symmetrisch (links {li:.1f}, rechts {re:.1f})")
+                    pruefe(page.locator("[data-kl-anmelden]").is_visible(), f"{tag}: Anmelden fehlt")
+                    # ab 1000 px eine Zeile: Menü neben der Wortmarke
                     mitte = lambda bb: bb["y"] + bb["height"] / 2
                     m0 = mitte(page.locator(".kl-marke").bounding_box())
-                    zeilen = 1 + int(any(abs(mitte(e.bounding_box()) - m0) > 12 for e in nav.all()))
-                    pruefe((zeilen == 1) == (breite >= 1000), f"{tag}: Menü sollte {'neben' if breite >= 1000 else 'unter'} der Wortmarke stehen")
+                    pruefe(not any(abs(mitte(e.bounding_box()) - m0) > 12 for e in nav.all()), f"{tag}: Menü sollte neben der Wortmarke stehen")
                 if angemeldet and breite >= 1280:
                     pruefe(abs(logo - 40) < 0.6, f"{tag}: Wortmarke {logo}px statt 40px")
 
@@ -117,6 +130,8 @@ with sync_playwright() as p:
                 if breite in (390, 1280) and (not angemeldet or modus == "mix"):
                     reihe = {"dunkel": "hell", "hell": "mix", "mix": "dunkel"}
                     page.locator("[data-hm-menue]").click(); page.wait_for_timeout(500)
+                    if not angemeldet and breite < 1000:   # Besucher: erst das Besuchermenü, von dort ins große Menü
+                        page.locator("[data-kl-bm-alles]").click(); page.wait_for_timeout(500)
                     # ab 900 px: Desktop-Menü, Darstellung steht dort in der Fußzeile
                     hm = "hmd" if breite >= 900 else "hm"
                     d = page.locator(f"[data-{hm}-darstellung]")
@@ -150,19 +165,30 @@ with sync_playwright() as p:
 
                 # Menüpunkte (nur Gast, einmal je Breite im dunklen Modus reicht)
                 if not angemeldet and modus == "dunkel" and breite in (390, 1280):
-                    page.locator("[data-besucher-menue=vision]").click(); page.wait_for_timeout(1600)
+                    def punkt_klicken(punkt):   # unter 1000 px liegen die Punkte hinter ☰
+                        if breite < 1000 and page.locator("[data-besuchermenue]").count() == 0:
+                            page.locator("[data-hm-menue]").click(); page.wait_for_timeout(400)
+                        page.locator(f"[data-besucher-menue={punkt}]").click()
+                    def markiert(punkt):
+                        if breite < 1000:
+                            page.locator("[data-hm-menue]").click(); page.wait_for_timeout(400)
+                        a = page.locator(f"[data-besucher-menue={punkt}]").get_attribute("aria-current") == "page"
+                        if breite < 1000:
+                            page.keyboard.press("Escape"); page.wait_for_timeout(300)
+                        return a
+                    punkt_klicken("vision"); page.wait_for_timeout(1600)
                     pruefe(page.url.rstrip("/").endswith("/vision"), f"{tag}: Vision-Adresse {page.url}")
                     pruefe(page.locator("[data-vision]").count() == 1, f"{tag}: Vision-Seite fehlt")
-                    pruefe(page.locator("[data-besucher-menue=vision]").get_attribute("aria-current") == "page", f"{tag}: Vision nicht markiert")
-                    page.locator("[data-besucher-menue=lernen]").click(); page.wait_for_timeout(1600)
+                    pruefe(markiert("vision"), f"{tag}: Vision nicht markiert")
+                    punkt_klicken("lernen"); page.wait_for_timeout(1600)
                     y = page.evaluate("document.getElementById('lernen').getBoundingClientRect().top")
                     pruefe(-5 < y < 140, f"{tag}: lernen springt nicht zum Abschnitt (top={y})")
-                    page.locator("[data-besucher-menue=mathilda]").click(); page.wait_for_timeout(1500)
-                    pruefe(page.locator("[data-besucher-menue=mathilda]").get_attribute("aria-current") == "page", f"{tag}: Mathilda nicht markiert")
-                    page.locator("[data-besucher-menue=blog]").click(); page.wait_for_timeout(1500)
+                    punkt_klicken("mathilda"); page.wait_for_timeout(1500)
+                    pruefe(markiert("mathilda"), f"{tag}: Mathilda nicht markiert")
+                    punkt_klicken("blog"); page.wait_for_timeout(1500)
                     pruefe(page.url.rstrip("/").endswith("/blog"), f"{tag}: Blog-Adresse {page.url}")
                     pruefe(page.locator("[data-blog-liste] .bl-eintrag").count() == 6, f"{tag}: Blog zeigt nicht sechs Beiträge")
-                    pruefe(page.locator("[data-besucher-menue=blog]").get_attribute("aria-current") == "page", f"{tag}: Blog nicht markiert")
+                    pruefe(markiert("blog"), f"{tag}: Blog nicht markiert")
                     pruefe(not page.evaluate("document.documentElement.scrollWidth > window.innerWidth + 1"), f"{tag}: Blog Überbreite")
                     foto(page, f"blog-{breite}", ganz=True)
                     page.locator(".bl-box").nth(1).click(); page.wait_for_timeout(1200)

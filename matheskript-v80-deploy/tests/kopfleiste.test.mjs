@@ -1,6 +1,6 @@
 /* Kopfleiste (src/funcKopfleiste.jsx): folgt dem Modus der Startseite (dunkel/hell/mix), Besucher ohne Konto bekommen
-   das feste Menü Vision · Mathe lernen · Mathilda AI · Blog (nicht zum Ausklappen), angemeldet bleiben Slogan, Chip und ☰.
-   Vision ist seit 21.10. eine eigene Seite (/vision), Mathe lernen springt zum Abschnitt „lernen“ der Startseite. */
+   das Menü Vision · Mathe lernen · Mathilda AI · Blog – ab 1000 px fest in der Zeile, darunter hinter ☰ (Besuchermenü);
+   Wortmarke mit Slogan wie angemeldet. Vision ist seit 21.10. eine eigene Seite (/vision), Mathe lernen springt zum Abschnitt „lernen“ der Startseite. */
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -33,7 +33,9 @@ test("Alle drei Modi der Startseite sind im Stil der Kopfleiste definiert; Mathi
   assert.ok(q.includes("<MathildaName dunkel={modus !== \"hell\"} />"), "Mathilda AI kommt aus mathildaName.jsx (AI in Gold)");
   assert.ok(q.includes("<MarkenLogo groesse={gast ? \"var(--kl-logo-gast)\" : \"min(40px, calc((100vw - 100px) / 10))\"}"), "Besucher: Größe über --kl-logo-gast; angemeldet so groß, wie neben dem ☰ Platz ist");
   assert.ok(/max-width: 839px[\s\S]*\.kl \.hm-chip \{ display: none; \}/.test(q), "Handy: kein Konto-Chip in der Kopfleiste");
-  assert.ok(q.includes("--kl-logo-gast: clamp(14px, 4.33vw, 26.7px)") && q.includes("--kl-logo-gast: 40px"), "Besucher: unter 1060 px ein Drittel kleiner, darüber voll");
+  assert.ok(q.includes("--kl-logo-gast: min(40px, calc((100vw - 100px) / 10))") && q.includes("--kl-logo-gast: 40px"), "Besucher: unter 1000 px so groß wie angemeldet, darüber voll");
+  assert.ok(q.includes("{gast && !schmal && (") && q.includes("data-besuchermenue") && q.includes('ziel={gast && schmal ? "besucher" : "menue"}'), "Besucher unter 1000 px: die vier Punkte hinter ☰");
+  assert.ok(q.includes("data-kl-bm-alles") && q.includes('setHmOffen("menue")'), "Besuchermenü führt ins große ☰-Menü");
   assert.ok(q.includes('HELD_KANTE = "calc(50% - 434.5px)"'), "Besucher am Desktop: T der Wortmarke über dem Anfang der Schlagzeile");
   assert.ok(!q.includes("kl-modus") && !q.includes("startModusSetzen"), "Kein Modus-Knopf in der Kopfleiste");
   const hm = quelle("funcHauptmenue.jsx");
