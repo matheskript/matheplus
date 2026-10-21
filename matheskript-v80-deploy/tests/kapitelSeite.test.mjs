@@ -1,61 +1,81 @@
-/* Kapitelseite: jede Kapitel-Id aus schulbuch.js liefert eine vollständige Übersicht, Pfade hin und zurück */
+/* Kapitelseiten: jedes Buchkapitel hat Text, Pfad und eine vollständige Seite (src/kapitelSeite.js, kapitelSeiten.js, kapitelPfade.js) */
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { THEMEN, PLAN, klassenBoxen } from "../src/schulbuch.js";
-import { kapitelUebersicht, boxFuerKapitel, istKapitel } from "../src/kapitelSeite.js";
+import { KAPITEL_TEXT } from "../src/kapitelSeiten.js";
+import { KAPITEL_SLUG, kapitelAusSlug, kapitelPfad } from "../src/kapitelPfade.js";
+import { kapitelSeite, kapitelKontext, bautDaraufAuf } from "../src/kapitelSeite.js";
 import { pfadAufloesen, pfadFuer } from "../src/pfade.js";
 import { klassenInhalt } from "../src/hauptmenue.js";
-import { WERKZEUGE } from "../src/werkzeuge.js";
 
-test("jedes Kapitel jeder Schulart hat eine Kapitelseite", () => {
-  for (const sa of Object.keys(PLAN)) {
-    for (const [box, ids] of Object.entries(PLAN[sa])) {
-      ids.forEach((id, i) => {
-        const k = kapitelUebersicht(id, sa, box);
-        assert.ok(k, `${sa}/${box}/${id}`);
-        assert.equal(k.box, String(box));
-        assert.ok(k.nr, `${id}: römische Nummer`);
-        assert.equal(k.titel, THEMEN[id].titel);
-        assert.equal(!!k.vor, i > 0, `${id}: vorheriges Kapitel`);
-        assert.equal(!!k.nach, i < ids.length - 1, `${id}: nächstes Kapitel`);
-        assert.equal(k.trainieren.ansicht, "trainieren");
-        for (const w of k.werkzeuge) assert.ok(WERKZEUGE[w.id], w.id);
-        for (const t of k.teile) assert.match(t.id, new RegExp(`^${id}\\.\\d+$`));
-      });
+const ids = Object.keys(THEMEN);
+
+test("jedes Kapitel hat Einstieg und genau drei Ziele", () => {
+  for (const id of ids) {
+    const t = KAPITEL_TEXT[id];
+    assert.ok(t, `Text fehlt: ${id}`);
+    assert.ok(t.einstieg.length > 40, `Einstieg zu kurz: ${id}`);
+    assert.equal(t.ziele.length, 3, `drei Ziele: ${id}`);
+    for (const z of t.ziele) {
+      assert.ok(!/[.!]$/.test(z), `Ziel ohne Schlusspunkt (die Seite setzt ihn): ${id} – ${z}`);
+      assert.ok(!/^Am Ende/i.test(z), `Ziel ohne „Am Ende kannst du“: ${id}`);
     }
+    assert.ok(!/\*innen|:innen|Innen\b/.test(t.einstieg + t.ziele.join(" ")), `keine Gendersprache: ${id}`);
+  }
+  for (const id of Object.keys(KAPITEL_TEXT)) assert.ok(THEMEN[id], `Text zu unbekanntem Kapitel: ${id}`);
+});
+
+test("Pfade /kapitel/<slug> sind eindeutig und lösen auf", () => {
+  const slugs = Object.values(KAPITEL_SLUG);
+  assert.equal(new Set(slugs).size, slugs.length, "Slugs eindeutig");
+  for (const id of ids) {
+    assert.match(KAPITEL_SLUG[id], /^[a-z0-9-]+$/);
+    assert.equal(kapitelAusSlug(KAPITEL_SLUG[id]), id);
+    const z = pfadAufloesen(kapitelPfad(id));
+    assert.equal(z.ansicht, "kapitel"); assert.equal(z.kapitel, id);
+    assert.equal(pfadFuer({ ansicht: "kapitel", kapitel: id }), kapitelPfad(id));
+  }
+  assert.equal(pfadFuer({ ansicht: "kapitel" }), "/kapitel");
+  assert.equal(pfadAufloesen("/kapitel/gibt-es-nicht"), null);
+  assert.equal(KAPITEL_SLUG.ksLgs, "lineare-gleichungssysteme-oberstufe");
+  // ältere Links /kapitel/<id> (erste Fassung) führen weiter, werden aber umgeschrieben
+  for (const id of ids) {
+    const z = pfadAufloesen(`/kapitel/${id.toLowerCase()}`);
+    assert.equal(z && z.kapitel, id, `alter Link: ${id}`);
   }
 });
 
-test("Kapitelseite: Box wird gefunden, falsche Box korrigiert, Unsinn abgelehnt", () => {
-  assert.equal(boxFuerKapitel("ganzrat", "g9"), "11");
-  assert.equal(boxFuerKapitel("ganzrat", "g9", "8"), "11");
-  assert.equal(kapitelUebersicht("gibtsnicht", "g9"), null);
-  assert.equal(istKapitel("constructor"), false);
-  assert.ok(kapitelUebersicht("ganzrat", "quatsch"), "unbekannte Schulart fällt auf G9 zurück");
-});
-
-test("Pfad /kapitel/<id> hin und zurück, auch für gemischt geschriebene Ids", () => {
-  const klein = new Set();
-  for (const id of Object.keys(THEMEN)) {
-    const p = pfadFuer({ ansicht: "kapitel", kapitel: id });
-    assert.equal(p, `/kapitel/${id.toLowerCase()}`);
-    assert.ok(!klein.has(id.toLowerCase()), `Pfad doppelt: ${id}`);
-    klein.add(id.toLowerCase());
-    const z = pfadAufloesen(p);
-    assert.equal(z.ansicht, "kapitel");
-    assert.equal(z.kapitel, id);
-  }
-  assert.equal(pfadAufloesen("/kapitel/gibtsnicht"), null);
-  assert.equal(pfadAufloesen("/kapitel").ansicht, "kapitel");
-});
-
-test("Menü: jedes Kapitel hat neben „Trainieren“ ein Ziel für die Kapitelseite", () => {
-  for (const sa of ["g8", "g9", "gms"]) {
+test("jede Kapitelseite in jeder Klasse ist vollständig", () => {
+  for (const sa of Object.keys(PLAN)) {
     for (const b of klassenBoxen(sa)) {
-      for (const k of klassenInhalt({ schulart: sa, box: b.id }).kapitel) {
-        assert.deepEqual(k.seite, { ansicht: "kapitel", kapitel: k.id, schulart: sa, klasse: b.id });
-        assert.ok(kapitelUebersicht(k.seite.kapitel, sa, b.id));
+      for (const id of PLAN[sa][b.id] || []) {
+        const d = kapitelSeite(id, { schulart: sa, klasse: b.id });
+        assert.ok(d, `${sa}/${b.id}/${id}`);
+        assert.equal(d.kontext.klasse, b.id, `Klasse bleibt: ${id}`);
+        assert.ok(d.kontext.nr, `Nummer im Buch: ${id}`);
+        assert.ok(d.teile.length >= 3, `Unterthemen: ${id}`);
+        assert.equal(d.trainieren.ansicht, "trainieren");
+        for (const u of d.teile) if (u.wz) assert.ok(u.wz.ziel && u.wz.ziel.ansicht, `Werkzeug-Ziel: ${u.id}`);
+        for (const v of d.vorwissen) assert.ok(THEMEN[v.kapitel]);
+        for (const k of d.danach) assert.notEqual(k.kapitel, id);
       }
     }
+  }
+});
+
+test("Kontext: Nachbarkapitel und Kapitel aus anderer Schulart", () => {
+  const k = kapitelKontext("diff1", "g9", "11");
+  assert.equal(k.nr, "II"); assert.equal(k.vorher.id, "ganzrat"); assert.equal(k.nachher.id, "ablregeln");
+  const t = kapitelKontext("teilbarkeit", "g9");   // steht nur im G8-Plan
+  assert.equal(t.schulart, "g8"); assert.ok(t.nr);
+  assert.ok(bautDaraufAuf("ganzrat").some((x) => x.kapitel === "ksDiff"));
+});
+
+test("Menü: jedes Kapitel der Klasse hat Kapitelseite und Training", () => {
+  const inhalt = klassenInhalt({ schulart: "g9", box: "11" });
+  assert.equal(inhalt.kapitel.length, 6);
+  for (const k of inhalt.kapitel) {
+    assert.deepEqual(k.seite, { ansicht: "kapitel", kapitel: k.id, schulart: "g9", klasse: "11" });
+    assert.equal(k.trainieren.ansicht, "trainieren");
   }
 });

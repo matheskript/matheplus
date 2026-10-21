@@ -20,8 +20,8 @@
 import { WERKZEUGE, BEREICHE, ansichtenVon } from "./werkzeuge.js";
 import { istUnterstufeSeite } from "./unterstufeDaten.js";
 import { istBlogBeitrag } from "./blogDaten.js";
-import { istKapitel } from "./kapitelSeite.js";
 import { THEMEN as KAPITEL_THEMEN } from "./schulbuch.js";
+import { kapitelAusSlug, kapitelPfad } from "./kapitelPfade.js";
 
 /* Werkzeuge, deren Pfad vom Schlüssel abweicht */
 export const WZ_SLUG = {
@@ -240,9 +240,14 @@ export function pfadAufloesen(roh) {
   /* Modul Unterstufe: /unterstufe/klasse-5, /unterstufe/<lerneinheit> (Ids aus unterstufeDaten.js); /klasse-5 und /klasse-6 als Kurzform */
   const u = /^unterstufe\/([a-z0-9-]+)$/.exec(p);
   if (u && istUnterstufeSeite(u[1])) return { ansicht: "unterstufe", seite: u[1], kanonisch: true };
-  /* Kapitelseite: /kapitel/<id> (Ids aus schulbuch.js, THEMEN; Groß-/Kleinschreibung wie dort, z. B. ksDiff) */
-  const kap = /^kapitel\/([a-z0-9]{2,20})$/.exec(p);
-  if (kap) { const id = kapitelIdAusPfad(kap[1]); if (id) return { ansicht: "kapitel", kapitel: id, kanonisch: true }; }
+  /* Kapitelseite: /kapitel/<slug> (lesbar, kapitelPfade.js); ältere Links /kapitel/<id> (z. B. ksdiff) werden umgeschrieben */
+  const kap = /^kapitel\/([a-z0-9-]{2,80})$/.exec(p);
+  if (kap) {
+    const id = kapitelAusSlug(kap[1]);
+    if (id) return { ansicht: "kapitel", kapitel: id, kanonisch: true };
+    const alt = kapitelIdAusPfad(kap[1]);
+    if (alt) return { ansicht: "kapitel", kapitel: alt, kanonisch: false };
+  }
   /* Blog: /blog/<slug> (Slugs aus blogDaten.js) */
   const blog = /^blog\/([a-z0-9-]+)$/.exec(p);
   if (blog && istBlogBeitrag(blog[1])) return { ansicht: "blog", seite: blog[1], kanonisch: true };
@@ -292,7 +297,7 @@ export function pfadFuer(zustand) {
   if (z.ansicht === "unterstufe" && z.seite && istUnterstufeSeite(z.seite)) return `/unterstufe/${z.seite}`;
   if (z.ansicht === "blatt" && BUECHER[z.band] && z.seite) return z.kasten ? buchLink(z.band, z.seite) : buchLink(z.band, z.seite, z.nr);
   if (z.ansicht === "blog" && z.seite && istBlogBeitrag(z.seite)) return `/blog/${z.seite}`;
-  if (z.ansicht === "kapitel" && istKapitel(z.kapitel)) return `/kapitel/${z.kapitel.toLowerCase()}`;
+  if (z.ansicht === "kapitel" && z.kapitel && kapitelPfad(z.kapitel)) return kapitelPfad(z.kapitel);
   let beste = null, bestePunkte = -1;
   for (const e of PFADE) {
     if (e.ansicht !== z.ansicht) continue;

@@ -27,7 +27,6 @@ import { entdeckenSyncStarten } from "./entdeckenSync.js";
 import { penpaperSyncStarten } from "./penpaperSync.js";
 import { LernpfadSeite } from "./funcLernpfad.jsx";
 import { KapitelTrainingSeite } from "./funcKapitelTraining.jsx";
-import { KapitelSeite } from "./funcKapitelSeite.jsx";
 import { MathildaChatSeite } from "./funcMathildaChat.jsx";
 import { MathildaKopf, FotoStart, SoArbeitetMathilda } from "./funcMathildaSeite.jsx";
 import { kameraWunschSetzen } from "./kameraWunsch.js";
@@ -48,6 +47,7 @@ import { LAENDER } from "./funcWettbewerbe.jsx";
 import { ENTWUERFE, istEntwurf, LANDING, istFrei } from "./seitenKonstanten.js";
 import { ansichtErlaubt } from "./angebot.js";
 const EntwurfTor = lazyLaden(() => import("./funcEntwuerfe.jsx").then((m) => ({ default: m.EntwurfTor })));
+const KapitelSeite = lazyLaden(() => import("./funcKapitelSeite.jsx").then((m) => ({ default: m.KapitelSeite })));   // lädt die Formelsammlung mit
 const KapitelFormelnSeite = lazyLaden(() => import("./funcKapitelFormeln.jsx").then((m) => ({ default: m.KapitelFormelnSeite })));
 const ChallengeSeite = lazyLaden(() => import("./funcChallenge.jsx").then((m) => ({ default: m.ChallengeSeite })));
 const Landingpage = lazyLaden(() => import("./funcLandingpage.jsx").then((m) => ({ default: m.Landingpage })));
@@ -1284,7 +1284,9 @@ export function Mathilda() {
       ) : ansicht === "trainieren" ? (
         <KapitelTrainingSeite key={ansicht + (trainierenZiel ? `${trainierenZiel.kapitel}-${trainierenZiel.teil}-${trainierenZiel.zeit}` : "")} ansicht={ansicht} ziel={trainierenZiel} gehe={gehe} />
       ) : ansicht === "kapitel" ? (
-        <KapitelSeite key={kapitelSeiteZiel ? kapitelSeiteZiel.kapitel : "wahl"} ziel={kapitelSeiteZiel} gehe={gehe} />
+        <React.Suspense fallback={<p role="status" style={{ color: C.grau, fontSize: 15, fontWeight: 300, padding: "24px", textAlign: "center" }}>{englisch() ? "Loading …" : "Wird geladen …"}</p>}>
+          <KapitelSeite key={kapitelSeiteZiel ? kapitelSeiteZiel.kapitel : "wahl"} ziel={kapitelSeiteZiel} gehe={gehe} />
+        </React.Suspense>
       ) : ansicht === "kapitelformeln" ? (
         <React.Suspense fallback={<p role="status" style={{ color: C.grau, fontSize: 15, fontWeight: 300, padding: "24px", textAlign: "center" }}>{englisch() ? "Loading …" : "Wird geladen …"}</p>}>
           <KapitelFormelnSeite key={kapitelZiel ? kapitelZiel.kapitel + (kapitelZiel.modus || "") : "q"} ziel={kapitelZiel} gehe={gehe} />
