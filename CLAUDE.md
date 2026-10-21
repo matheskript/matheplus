@@ -65,3 +65,6 @@ Die Seite „Dokumente“ (Arbeitsmenü F, Pfad `/dokumente`, hinter dem gemeins
 
 ## Sonst
 Regel A5 (nichts unvereinfacht), generisches Maskulinum, Farben aus `C` in `base1.jsx`, `base*.jsx` importiert nie aus `func*.jsx`. Gesamtstand: Projekt-Dokument `claude/matheplus-stand.md`.
+
+## Trainings-Kurse im Werkzeug-Band
+Das dünne Band unter der Kopfleiste (`WerkzeugBand`, `funcWerkzeuge.jsx`) zeigt bei Werkzeugen eines Kurses links die Trainer des Kurses (aktiver mit Goldstrich), rechts „Test“ und den Kurs-Umschalter (Kursname statt „Tools“; Aufklappfeld: Deine Kurse + „Alle Werkzeuge“). Kurse in `src/trainingsKurse.js` (`KURSE`: Analysis/Vektoren/Stochastik Oberstufe, je 5–6 Trainer, `namen` = kürzere Reiter am Desktop); Werkzeuge außerhalb aller Kurse behalten Station + „Tools“. Kurs-Werkzeuge bekommen das Band statt des großen Seitenkopfs und am Desktop die Breite der Kopfleiste (`--tr-breite` in `index.css`, `data-training-breit` aus func10: höchstens 940 px, symmetrisch). Ableitungstrainer am Desktop: Einstellungen links (mitlaufend), Aufgabe rechts. „Gewählte Kurse“ liegen vorerst nur im Browser (`matheplus-trainingskurse`). Test: `tests/trainingsKurse.test.mjs`.
