@@ -41,7 +41,7 @@ export function vorigeEinheit(id) {
   return i > 0 ? UNTERSTUFE_EINHEITEN[i - 1] : null;
 }
 
-/* Seiten des Moduls für pfade.js: die Klassenseiten und jede Lerneinheit */
+/* Seiten des Moduls: die Klassenseiten und jede Lerneinheit (pfade.js liest die leichte Kopie unterstufeSeiten.js) */
 export const UNTERSTUFE_SEITEN = [
   ...UNTERSTUFE_KLASSEN.map((k) => `klasse-${k.id}`),
   ...UNTERSTUFE_EINHEITEN.map((e) => e.id),

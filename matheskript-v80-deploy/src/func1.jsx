@@ -5,16 +5,23 @@ import { MODUL_KATALOG } from "./base2.jsx";
 import { aktiv } from "./base3.jsx";
 import { kiKopf, kiAntwort } from "./base4.jsx";
 import { LernModul, M, RechenwegEditor } from "./func3.jsx";
-import { GraphZuordnung, Klausur, Kurvendiskussion } from "./func4.jsx";
-import { intervall } from "./func8.jsx";
-import { VideokursPlayer, VideokursVorschau, naechsteLektion, videoAnzahl } from "./func15.jsx";
+import { naechsteLektion, videoAnzahl } from "./func15.jsx";
 import { AufklappZeichen } from "./aufklappen.jsx";
 import { buchen } from "./buchung.jsx";
-import { IchHaengeFest } from "./funcHilfe.jsx";
 import { hilfeKontext } from "./ui2.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
 
 import { springe } from "./sprung.js";
+
+/* Große Teilseiten laden erst, wenn sie gebraucht werden (Startchunk, Trainingstools G, 21.10.2026) */
+import { lazyLaden } from "./chunkSchutz.jsx";
+const Klausur = lazyLaden(() => import("./func4.jsx").then((m) => ({ default: m.Klausur })));
+const Kurvendiskussion = lazyLaden(() => import("./func4.jsx").then((m) => ({ default: m.Kurvendiskussion })));
+const GraphZuordnung = lazyLaden(() => import("./func4.jsx").then((m) => ({ default: m.GraphZuordnung })));
+const IchHaengeFest = lazyLaden(() => import("./funcHilfe.jsx").then((m) => ({ default: m.IchHaengeFest })));
+const VideokursPlayer = lazyLaden(() => import("./func15.jsx").then((m) => ({ default: m.VideokursPlayer })));
+const VideokursVorschau = lazyLaden(() => import("./func15.jsx").then((m) => ({ default: m.VideokursVorschau })));
+const Nachladen = ({ children }) => <React.Suspense fallback={null}>{children}</React.Suspense>;
 export function useYouTubeApi() {
   const [bereit, setBereit] = useState(() => typeof window !== "undefined" && !!(window.YT && window.YT.Player));
   React.useEffect(() => {
@@ -292,7 +299,7 @@ export function Trainingsbereich({ sprung, setSprung, ziel, setZiel }) {
   if (klausurOffen) {
     return (
       <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
-        <Klausur onZurueck={() => setKlausurOffen(false)} />
+        <Nachladen><Klausur onZurueck={() => setKlausurOffen(false)} /></Nachladen>
       </div>
     );
   }
@@ -308,7 +315,7 @@ export function Trainingsbereich({ sprung, setSprung, ziel, setZiel }) {
   if (kdOffen) {
     return (
       <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
-        <Kurvendiskussion onZurueck={() => setKdOffen(false)} />
+        <Nachladen><Kurvendiskussion onZurueck={() => setKdOffen(false)} /></Nachladen>
       </div>
     );
   }
@@ -316,7 +323,7 @@ export function Trainingsbereich({ sprung, setSprung, ziel, setZiel }) {
   if (gzOffen) {
     return (
       <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
-        <GraphZuordnung onZurueck={() => setGzOffen(false)} />
+        <Nachladen><GraphZuordnung onZurueck={() => setGzOffen(false)} /></Nachladen>
       </div>
     );
   }
@@ -1069,7 +1076,7 @@ export function KIAufgaben({ eingebettet }) {
               </span>
             )}
           </div>
-          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfe} /></div>
+          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><Nachladen><IchHaengeFest kontext={hilfe} /></Nachladen></div>
         </>
       )}
     </div>
@@ -1301,8 +1308,8 @@ export function Kurse({ gehe, startKurs = null }) {
   if (offen && video !== null) {
     const k = KURSE.find((x) => x.id === offen);
     return (
-      <VideokursPlayer kursId={k.id} kursTitel={k.titel} start={video} gehe={gehe}
-        onZurueck={() => { setVideo(null); springe("kurse", () => window.scrollTo(0, 0)); }} />
+      <Nachladen><VideokursPlayer kursId={k.id} kursTitel={k.titel} start={video} gehe={gehe}
+        onZurueck={() => { setVideo(null); springe("kurse", () => window.scrollTo(0, 0)); }} /></Nachladen>
     );
   }
 
@@ -1327,7 +1334,7 @@ export function Kurse({ gehe, startKurs = null }) {
           ))}
         </div>
 
-        <VideokursVorschau kursId={k.id} onStart={(i) => { setVideo(i); springe("kurse", () => window.scrollTo(0, 0)); }} />
+        <Nachladen><VideokursVorschau kursId={k.id} onStart={(i) => { setVideo(i); springe("kurse", () => window.scrollTo(0, 0)); }} /></Nachladen>
 
         {k.text.map((t, i) => (
           <p key={i} style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.75, marginBottom: 14 }}>{t}</p>

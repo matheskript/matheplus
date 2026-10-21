@@ -11,7 +11,7 @@
    ====================================================================== */
 import { SCHULARTEN, klassenBoxen, kapitelFuer, hilfenFuer, kurseFuer, roemisch, stufeAusKlassenBox } from "./schulbuch.js";
 import { ANGEBOT } from "./angebot.js";
-import { startBloecke, passtStufe, werkzeug, wo } from "./werkzeuge.js";
+import { startBloecke, passtStufe, werkzeug, wo, istWerkzeugAnsicht } from "./werkzeuge.js";
 import { ABI_MENUE, ENTDECKEN_MENUE, FORMEL_MENUE } from "./startMenues.js";
 
 /* ---------- Konto ---------- */
@@ -225,6 +225,13 @@ export const NACHSCHLAGEN = [
 /* ---------- Weitermachen ---------- */
 /* Zuletzt benutztes Werkzeug (Startseite schreibt es bei jedem Seitenwechsel, func2.jsx werkzeugMerken) */
 export const ZULETZT_SCHLUESSEL = "matheplus-zuletzt-werkzeug";
+/* Ab dieser Breite öffnet ☰ das Desktop-Menü (funcHauptmenueDesktop.jsx) */
+export const DESKTOP_MENUE_AB = 900;
+/* Zuletzt benutztes Werkzeug merken (aufgerufen aus func10 bei jedem Ansichtswechsel) */
+export function werkzeugMerken(ansicht) {
+  if (!istWerkzeugAnsicht(ansicht)) return;
+  try { localStorage.setItem(ZULETZT_SCHLUESSEL, JSON.stringify({ ansicht, zeit: Date.now() })); } catch { /* privat/gesperrt */ }
+}
 export function zuletztAus(roh, jetzt = new Date()) {
   let z = null;
   try { z = typeof roh === "string" ? JSON.parse(roh) : roh; } catch (e) { return null; }

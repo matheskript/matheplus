@@ -17,7 +17,7 @@
    sind Deutsch; häufige englische Fachwörter stehen in SYN.
    ====================================================================== */
 import { WERKZEUGE, BEREICHE, ETIKETTEN } from "./werkzeuge.js";
-import { FS_ALLE, FS_BEREICHE } from "./fsIndex.js";
+import { FS_LEICHT as FS_ALLE, FS_BEREICHE_LEICHT as FS_BEREICHE } from "./fsLeicht.js";   // leichter Index (scripts/fs-leicht.mjs), nicht die ganze Formelsammlung
 import { ANGEBOT } from "./angebot.js";
 
 /* ---------- Text normalisieren ---------- */

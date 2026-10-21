@@ -4,15 +4,16 @@ import { C, KOEFF_FARBEN, KOEFF_HOCH } from "./base1.jsx";
 import { vz } from "./base2.jsx";
 import { Knopf, Satz, Titel, bruch, bruchLatex, bruchText } from "./func1.jsx";
 import { M } from "./func3.jsx";
-import { Kurvendiskussion } from "./func4.jsx";
 import { Mathilda } from "./func10.jsx";
-import { onboardingLesen, stufeAusKlasse } from "./funcOnboarding.jsx";
-import { Quickfinder, quickfinderLesen } from "./funcQuickfinder.jsx";
+import { onboardingLesen, stufeAusKlasse } from "./onboarding.js";
+import { quickfinderLesen } from "./quickfinder.js";
 import { kontoZustand, useKonto } from "./konto.js";
-import { klasseErmitteln } from "./hauptmenue.js";
+import { klasseErmitteln, werkzeugMerken } from "./hauptmenue.js";
+import { lazyLaden } from "./chunkSchutz.jsx";
+/* Bereichslogos der Vektoren/Stochastik laden mit ihren Stationen (func16/func17 sind groß) */
+const VektorenLogoKlein = lazyLaden(() => import("./func16.jsx").then((m) => ({ default: m.VektorenLogoKlein })));
+const StochastikLogoKlein = lazyLaden(() => import("./func17.jsx").then((m) => ({ default: m.StochastikLogoKlein })));
 import { klassenBoxen, stufeAusKlassenBox } from "./schulbuch.js";
-import { VektorenLogoKlein } from "./func16.jsx";
-import { StochastikLogoKlein } from "./func17.jsx";
 import { BruchrechnenLogoKlein, DatenLogoKlein, GeometrieLogoKlein, ProzentLogoKlein, ZahlenLogoKlein } from "./funcEntdeckenLogo.jsx";
 import { istFrei, entsperren, EVENT_FREI } from "./seitenKonstanten.js";
 import { AufklappZeichen } from "./aufklappen.jsx";
@@ -315,7 +316,7 @@ export const ZEIGE_GESPERRTE = false;
 
 /* Schulmathematik → Bereiche → Stationen → Werkzeuge. Die Daten stehen in werkzeuge.js (eine Liste für
    Startseite, Werkzeug-Menü, Kopfleiste und Übersichtsseiten); hier kommen nur die Logos dazu. */
-const BEREICH_LOGO = { fundament: <ZeichenLogo zeichen="a+0" platz />, analysis: <PlotterLogoKlein />, vektoren: <VektorenLogoKlein />, stochastik: <StochastikLogoKlein />, geometrie: <GeometrieLogoKlein />, bruchrechnen: <BruchrechnenLogoKlein />, zahlen: <ZahlenLogoKlein />, prozent: <ProzentLogoKlein />, daten: <DatenLogoKlein />, werkzeuge: <FormelLogoKlein />, abitur: <ZeichenLogo zeichen="Abi" platz /> };
+const BEREICH_LOGO = { fundament: <ZeichenLogo zeichen="a+0" platz />, analysis: <PlotterLogoKlein />, vektoren: <React.Suspense fallback={null}><VektorenLogoKlein /></React.Suspense>, stochastik: <React.Suspense fallback={null}><StochastikLogoKlein /></React.Suspense>, geometrie: <GeometrieLogoKlein />, bruchrechnen: <BruchrechnenLogoKlein />, zahlen: <ZahlenLogoKlein />, prozent: <ProzentLogoKlein />, daten: <DatenLogoKlein />, werkzeuge: <FormelLogoKlein />, abitur: <ZeichenLogo zeichen="Abi" platz /> };
 /* Liniennetz: jeder Bereich ist eine „Linie“ mit eigenem Strich, die Stationen sind ihre Halte */
 const LINIEN_MUSTER = { fundament: "4px solid", analysis: "4px solid", vektoren: "7px double", stochastik: "4px dashed", geometrie: "4px solid", bruchrechnen: "4px dashed", zahlen: "4px solid", prozent: "7px double", daten: "4px dashed", werkzeuge: "4px dotted" };
 
@@ -705,11 +706,7 @@ export function useStartStufe() {
   return { stufe, setzen, klasse: angegebeneKlasse(konto.profil) };
 }
 
-/* Zuletzt benutztes Werkzeug merken (aufgerufen aus func10 bei jedem Ansichtswechsel) */
-export function werkzeugMerken(ansicht) {
-  if (!istWerkzeugAnsicht(ansicht)) return;
-  try { localStorage.setItem(ZULETZT_SCHLUESSEL, JSON.stringify({ ansicht, zeit: Date.now() })); } catch { /* privat/gesperrt */ }
-}
+export { werkzeugMerken };   // liegt seit 21.10. in hauptmenue.js
 function zuletztWerkzeug() {
   try {
     const z = JSON.parse(localStorage.getItem(ZULETZT_SCHLUESSEL) || "null");

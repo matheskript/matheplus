@@ -42,7 +42,8 @@ import { MotivTangente, MotivEbene, MotivBuehne, MotivDialog, MotivGeodreieck, M
 import { UNTERSTUFE_ZAHLEN } from "./unterstufeDaten.js";
 
 /* Ab dieser Breite gilt das Desktop-Menü (dieselbe Grenze wie bisher im ☰-Fenster) */
-export const DESKTOP_MENUE_AB = 900;
+import { DESKTOP_MENUE_AB } from "./hauptmenue.js";
+export { DESKTOP_MENUE_AB };
 
 const CSS = `
 .hmd{position:fixed;inset:0;z-index:90;overflow-y:auto;overscroll-behavior:contain;outline:none;

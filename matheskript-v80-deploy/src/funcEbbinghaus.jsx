@@ -28,7 +28,8 @@ import { MatheFeld } from "./matheTastatur.jsx";
 
 import { springe } from "./sprung.js";
 export const EBB_VIDEO_ID = "otTSq-5PNsE";
-export const EBB_SLOGAN = "Beende Vergess kennenlernen und lerne wirklich Mathe. Mit einem klaren System.";
+import { EBB_SLOGAN } from "./ebbSlogan.js";
+export { EBB_SLOGAN };
 /* Kurzfassung für die Startseiten-Kachel: genau zwei Zeilen */
 export const EBB_KURZ = "Beende Vergess-Kennenlernen. Für immer.";
 

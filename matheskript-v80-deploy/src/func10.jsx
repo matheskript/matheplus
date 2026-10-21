@@ -5,8 +5,9 @@ import { API_URL, C, REGELN, VIDEO_URL, blattPrompt } from "./base1.jsx";
 import { KOMP } from "./base3.jsx";
 import { NAV, SCHULKLASSEN, kiKopf, kiAntwort } from "./base4.jsx";
 import { dekodieren, jsonLesen, rendern } from "./func1.jsx";
-import { ToolMenue, werkzeugMerken } from "./func2.jsx";
-import { Startseite } from "./funcStartseite.jsx";
+import { werkzeugMerken } from "./hauptmenue.js";
+const ToolMenue = lazyLaden(() => import("./func2.jsx").then((m) => ({ default: m.ToolMenue })));
+const Startseite = lazyLaden(() => import("./funcStartseite.jsx").then((m) => ({ default: m.Startseite })));   // Startchunk klein halten: jede Ansicht lädt ihren eigenen Teil (Trainingstools G, 21.10.)
 import { startModusSetzen, modusAusPfad } from "./startModus.js";
 import { WerkzeugLeiste, WerkzeugBand } from "./funcWerkzeuge.jsx";
 import { tabTitel } from "./seitenTitel.js";
@@ -20,31 +21,42 @@ import { hinweisVerwerfen } from "./uebergabe.js";
 import { FR } from "./funcRegistry.jsx";
 import { AufklappStil, AufklappZeichen, aufklappScrollStarten } from "./aufklappen.jsx";
 import { Text, Zeile } from "./func3.jsx";
-import { Klausur, Kurvendiskussion } from "./func4.jsx";
-import { Fortschritt, Kopfrechnen } from "./func5.jsx";
+const Klausur = lazyLaden(() => import("./func4.jsx").then((m) => ({ default: m.Klausur })));
+const Kurvendiskussion = lazyLaden(() => import("./func4.jsx").then((m) => ({ default: m.Kurvendiskussion })));
+const Fortschritt = lazyLaden(() => import("./func5.jsx").then((m) => ({ default: m.Fortschritt })));
+const Kopfrechnen = lazyLaden(() => import("./func5.jsx").then((m) => ({ default: m.Kopfrechnen })));
 import { Einstufung, Lernlandkarte, Liniennetz, Profil, lernLaden, lernLeer, lernSnapshot, lernVomKonto, useLern } from "./func6.jsx";
 import { syncStarten } from "./lernSync.js";
 import { entdeckenSyncStarten } from "./entdeckenSync.js";
 import { penpaperSyncStarten } from "./penpaperSync.js";
-import { LernpfadSeite } from "./funcLernpfad.jsx";
-import { KapitelTrainingSeite } from "./funcKapitelTraining.jsx";
-import { MathildaChatSeite } from "./funcMathildaChat.jsx";
-import { MathildaKopf, FotoStart, SoArbeitetMathilda } from "./funcMathildaSeite.jsx";
+const LernpfadSeite = lazyLaden(() => import("./funcLernpfad.jsx").then((m) => ({ default: m.LernpfadSeite })));
+const KapitelTrainingSeite = lazyLaden(() => import("./funcKapitelTraining.jsx").then((m) => ({ default: m.KapitelTrainingSeite })));
+const MathildaChatSeite = lazyLaden(() => import("./funcMathildaChat.jsx").then((m) => ({ default: m.MathildaChatSeite })));
+const MathildaKopf = lazyLaden(() => import("./funcMathildaSeite.jsx").then((m) => ({ default: m.MathildaKopf })));
+const FotoStart = lazyLaden(() => import("./funcMathildaSeite.jsx").then((m) => ({ default: m.FotoStart })));
+const SoArbeitetMathilda = lazyLaden(() => import("./funcMathildaSeite.jsx").then((m) => ({ default: m.SoArbeitetMathilda })));
 import { kameraWunschSetzen } from "./kameraWunsch.js";
 import { uebenWunschLesen, uebenWunschSetzen, uebenWunschVerwerfen } from "./uebenWunsch.js";
-import { BlattScanner } from "./funcBlattScanner.jsx";
+const BlattScanner = lazyLaden(() => import("./funcBlattScanner.jsx").then((m) => ({ default: m.BlattScanner })));
 import { mathildaSystem } from "./mathildaKontext.js";
-import { Operatoren, Wiederholen } from "./func7.jsx";
-import { Messbericht, Modellieren, Probeabitur, Wochenbericht } from "./func8.jsx";
-import { Auswertung, Einwilligung, KiEinwilligungFenster, einwilligungLesen } from "./func9.jsx";
-import { TrainingFortschritt } from "./funcTraining.jsx";
-import { Fusszeile } from "./funcRecht.jsx";
+const Operatoren = lazyLaden(() => import("./func7.jsx").then((m) => ({ default: m.Operatoren })));
+const Wiederholen = lazyLaden(() => import("./func7.jsx").then((m) => ({ default: m.Wiederholen })));
+const Messbericht = lazyLaden(() => import("./func8.jsx").then((m) => ({ default: m.Messbericht })));
+const Modellieren = lazyLaden(() => import("./func8.jsx").then((m) => ({ default: m.Modellieren })));
+const Probeabitur = lazyLaden(() => import("./func8.jsx").then((m) => ({ default: m.Probeabitur })));
+const Wochenbericht = lazyLaden(() => import("./func8.jsx").then((m) => ({ default: m.Wochenbericht })));
+import { einwilligungLesen } from "./einwilligung.js";
+const Auswertung = lazyLaden(() => import("./func9.jsx").then((m) => ({ default: m.Auswertung })));
+const Einwilligung = lazyLaden(() => import("./func9.jsx").then((m) => ({ default: m.Einwilligung })));
+const KiEinwilligungFenster = lazyLaden(() => import("./func9.jsx").then((m) => ({ default: m.KiEinwilligungFenster })));
+const TrainingFortschritt = lazyLaden(() => import("./funcTraining.jsx").then((m) => ({ default: m.TrainingFortschritt })));
+import { Fusszeile } from "./funcFusszeile.jsx";
 import { HauptMenue } from "./funcHauptmenue.jsx";
 import { Kopfleiste } from "./funcKopfleiste.jsx";
-import { Arbeitsmenue } from "./funcArbeitsmenue.jsx";
+const Arbeitsmenue = lazyLaden(() => import("./funcArbeitsmenue.jsx").then((m) => ({ default: m.Arbeitsmenue })));   // Bastis Arbeitsmenü (zieht die Kanalseiten-Daten mit)
 import { FeedbackKnopf } from "./funcFeedback.jsx";
 import { MatheTastaturHost } from "./matheTastatur.jsx";
-import { LAENDER } from "./funcWettbewerbe.jsx";
+import { LAENDER_KURZ as LAENDER } from "./laender.js";   // nur Name/Art – die Wettbewerbsseiten mit Karte laden lazy
 import { ENTWUERFE, istEntwurf, LANDING, istFrei } from "./seitenKonstanten.js";
 import { ansichtErlaubt } from "./angebot.js";
 const WerkzeugInfo = lazyLaden(() => import("./funcWerkzeugInfo.jsx").then((m) => ({ default: m.WerkzeugInfo })));   // „Was kann dieses Werkzeug?“ (SEO/KI-Text, src/seo)
@@ -148,7 +160,7 @@ const FormelsammlungNeu = lazyLaden(() => import("./funcFormelsammlung.jsx").the
 const HeadNumbersSeite = lazyLaden(() => import("./funcHeadNumbers.jsx").then((m) => ({ default: m.HeadNumbersSeite })));
 /* Bereich „Gleichungen“ (Verstehen · Rechnen · Training): eigener Chunk */
 const GleichungenSeite = lazyLaden(() => import("./funcGleichKurs.jsx").then((m) => ({ default: m.GleichungenSeite })));
-import { EBB_SLOGAN } from "./funcEbbinghaus.jsx";
+import { EBB_SLOGAN } from "./ebbSlogan.js";
 import { useKonto, kontoStarten } from "./konto.js";
 import { linkAusUrlMerken as masterclassLinkMerken, autoEinloesen as masterclassAutoEinloesen } from "./masterclassZugang.js";
 import { englisch, spracheWechseln } from "./i18n.js";
@@ -1695,8 +1707,8 @@ export function Mathilda() {
           }} />
         </div>
       )}
-      {!istEntwurf(ansicht) && <Fusszeile gehe={gehe} arbeitsmenue={(stil) => <Arbeitsmenue gehe={gehe} ansicht={ansicht} seite={ansicht === "kanal" ? kanalSeite : null} sprachKnopf={sprachKnopf} stil={stil} />} />}
-      <KiEinwilligungFenster />
+      {!istEntwurf(ansicht) && <Fusszeile gehe={gehe} arbeitsmenue={(stil) => <React.Suspense fallback={null}><Arbeitsmenue gehe={gehe} ansicht={ansicht} seite={ansicht === "kanal" ? kanalSeite : null} sprachKnopf={sprachKnopf} stil={stil} /></React.Suspense>} />}
+      <React.Suspense fallback={null}><KiEinwilligungFenster /></React.Suspense>
       <MatheTastaturHost />
     </div>
   );

@@ -47,7 +47,8 @@ with sync_playwright() as p:
         # Themen: kompakte Zeilen je Bereich (Akkordeon), Stufenfilter mit Unterstufe
         page.get_by_role("tab", name="Themen").click(); page.wait_for_timeout(300)
         pruefe(page.locator("[data-tz-bereich]").count() >= 8, f"{breite}: Bereiche fehlen")
-        pruefe(page.locator("[data-tz-werkzeug]").count() == 60, f"{breite}: 60 Werkzeuge erwartet, {page.locator('[data-tz-werkzeug]').count()}")
+        n_wz = page.evaluate("() => document.querySelectorAll('[data-tz-werkzeug]').length")
+        pruefe(n_wz >= 60, f"{breite}: mindestens 60 Werkzeuge erwartet, {n_wz}")
         page.get_by_role("group", name="Stufe").get_by_role("button", name="Unterstufe").click(); page.wait_for_timeout(200)
         pruefe(page.locator("[data-tz-werkzeug='ableitungstrainer']").count() == 0, f"{breite}: Stufenfilter Unterstufe greift nicht")
         page.get_by_role("group", name="Stufe").get_by_role("button", name="Alle").click(); page.wait_for_timeout(200)

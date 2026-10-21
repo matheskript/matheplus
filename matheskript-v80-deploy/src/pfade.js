@@ -18,7 +18,7 @@
    - /archiv/… und /api/… sind keine App-Seiten.
    ============================================================ */
 import { WERKZEUGE, BEREICHE, ansichtenVon } from "./werkzeuge.js";
-import { istUnterstufeSeite } from "./unterstufeDaten.js";
+import { istUnterstufeSeite } from "./unterstufeSeiten.js";   // nur die Ids (scripts/unterstufe-seiten.mjs), nicht die ganzen Lerneinheiten
 import { istBlogBeitrag } from "./blogDaten.js";
 import { THEMEN as KAPITEL_THEMEN } from "./schulbuch.js";
 import { kapitelAusSlug, kapitelPfad } from "./kapitelPfade.js";
@@ -263,7 +263,7 @@ export function pfadAufloesen(roh) {
   if (k && KLASSEN.includes(Number(k[1]))) return { ansicht: "klasse", klasse: Number(k[1]), kanonisch: true };
   const l = /^landeswettbewerb\/([a-z]{2})$/.exec(p);
   if (l && LAND_IDS.includes(l[1])) return { ansicht: "landeswettbewerb", land: l[1], kanonisch: true };
-  /* Modul Unterstufe: /unterstufe/klasse-5, /unterstufe/<lerneinheit> (Ids aus unterstufeDaten.js); /klasse-5 und /klasse-6 als Kurzform */
+  /* Modul Unterstufe: /unterstufe/klasse-5, /unterstufe/<lerneinheit> (Ids aus unterstufeSeiten.js); /klasse-5 und /klasse-6 als Kurzform */
   const u = /^unterstufe\/([a-z0-9-]+)$/.exec(p);
   if (u && istUnterstufeSeite(u[1])) return { ansicht: "unterstufe", seite: u[1], kanonisch: true };
   /* Kapitelseite: /kapitel/<slug> (lesbar, kapitelPfade.js); ältere Links /kapitel/<id> (z. B. ksdiff) werden umgeschrieben */

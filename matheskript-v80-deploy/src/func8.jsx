@@ -6,8 +6,9 @@ import { ABI_ZEIT, AKTIVE, COACHING, EINHEITEN, ICS_TAGE, KOMP, LERN, LINIEN, MO
 import { datumAus, datumKurz, mittel, pZweiseitig, pz, streuung, tageText } from "./base4.jsx";
 import { M, Text } from "./func3.jsx";
 import { Lernlandkarte, Profil, antwortPruefen, lernAendern, naechsteKompetenz, useLern, wiederholListe } from "./func6.jsx";
-import { AufgabeFeld, probeabiturErzeugen, pruefungsBefund, teilPruefen } from "./func7.jsx";
-import { aktiveTermine, terminPlan } from "./func9.jsx";
+import { AufgabeFeld, probeabiturErzeugen, teilPruefen } from "./func7.jsx";
+import { aktivitaetMelden, pruefungsBefund, tagVon } from "./lernMelden.js";
+import { aktiveTermine, terminPlan } from "./termine.js";
 import { FR } from "./funcRegistry.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
 
@@ -310,25 +311,9 @@ export function Modellieren() {
 /* Kontaktweg für das persönliche Coaching. Einmal eintragen, dann führen
    alle Eskalationsknöpfe der App dorthin. */
 
-export function tagVon(offset) { const d = new Date(); d.setDate(d.getDate() + offset); return d; }
+export { tagVon };   // liegt seit 21.10. in lernMelden.js
 
-/* Jede geprüfte Aufgabe irgendwo in der App landet hier. Die Lernzeit wird aus
-   den Abständen zwischen den Aufgaben geschätzt — Pausen über drei Minuten zählen nicht. */
-
-export function aktivitaetMelden({ ok = null, fehlerart = null, hilfe = false, anzahl = 1 } = {}) {
-  if (!LERN.profil && !(FR.kontoAngemeldet && FR.kontoAngemeldet())) return;
-  lernAendern((L) => {
-    const k = tagSchluessel();
-    const t = L.aktivitaet[k] || { sekunden: 0, aufgaben: 0, richtig: 0, hilfe: 0, fehler: {} };
-    const jetzt = Date.now(), luecke = jetzt - (L.letzteAktivitaet || 0);
-    t.sekunden += luecke < 30 * 60000 ? Math.min(luecke, 180000) / 1000 : 60;
-    if (ok !== null) { t.aufgaben += anzahl; if (ok) t.richtig += anzahl; }
-    if (hilfe) t.hilfe += 1;
-    if (fehlerart) t.fehler[fehlerart] = (t.fehler[fehlerart] || 0) + 1;
-    L.aktivitaet[k] = t;
-    L.letzteAktivitaet = jetzt;
-  });
-}
+export { aktivitaetMelden };   // liegt seit 21.10. in lernMelden.js
 
 
 export function verlaufMelden(typ, id) {

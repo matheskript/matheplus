@@ -5,13 +5,17 @@ import { AFB_FARBE, BEGRUENDEN, DIAG, KOMP, LEITIDEEN, LERN, LINIEN, OPERATOREN,
 import { kiKopf, kiAntwort } from "./base4.jsx";
 import { ErklaerVideo, Satz, jsonLesen } from "./func1.jsx";
 import { Formel, M, Text, alsFunktion, normieren, stimmtUeberein, zahlAus } from "./func3.jsx";
-import { TermTastatur, kubischErzeugen } from "./func4.jsx";
+import { kubischErzeugen } from "./kubischErzeugen.js";
+import { lazyLaden } from "./chunkSchutz.jsx";
+/* Große Bausteine erst laden, wenn sie gebraucht werden (func4/Erklär-Animationen sind groß) */
+const TermTastatur = lazyLaden(() => import("./func4.jsx").then((m) => ({ default: m.TermTastatur })));
+const ErklaerAnimation = lazyLaden(() => import("./funcErklaeranimation.jsx").then((m) => ({ default: m.ErklaerAnimation })));
 import { Lernlandkarte, antwortPruefen, brueckeErgebnis, einheitVon, lernAendern, testBestanden, testNichtBestanden, useLern, wannFaellig, wiederholListe, wiederholungErgebnis } from "./func6.jsx";
 import { ANGEBOT } from "./angebot.js";
-import { EskalationsKarte, aktivitaetMelden, coachingAnfragen, eskalationSignale, variantenFestschreiben, variantenVorschlag } from "./func8.jsx";
+import { EskalationsKarte, coachingAnfragen, eskalationSignale, variantenFestschreiben, variantenVorschlag } from "./func8.jsx";
+import { aktivitaetMelden, pruefungsBefund } from "./lernMelden.js";
 import { Mathilda } from "./func10.jsx";
 import { AufklappZeichen } from "./aufklappen.jsx";
-import { ErklaerAnimation } from "./funcErklaeranimation.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
 import { variablenAus, zahlModusAus } from "./matheTastaturLogik.js";
 import { kontoZustand } from "./konto.js";
@@ -150,7 +154,7 @@ export function AufgabeFeld({ aufgabe, wert, setWert, stand }) {
     <div>
       {aufgabe.praefix && <p style={{ fontSize: 15, fontWeight: 500, marginBottom: 6 }}><M t={aufgabe.praefix} /></p>}
       {aufgabe.art === "term" ? (
-        <TermTastatur wert={wert} setWert={setWert} stand={stand} placeholder="Term" variablen={variablenAus(aufgabe.loesung)} />
+        <React.Suspense fallback={null}><TermTastatur wert={wert} setWert={setWert} stand={stand} placeholder="Term" variablen={variablenAus(aufgabe.loesung)} /></React.Suspense>
       ) : (
         <MatheFeld modus={zahlModusAus(aufgabe.loesung)} value={wert} onChange={(e) => setWert(e.target.value)} placeholder="Ergebnis"
           style={{ width: "100%", boxSizing: "border-box", padding: "11px 14px", fontSize: 16.5, fontFamily: "inherit",
@@ -419,7 +423,7 @@ export function EinheitSpieler({ id, gehe }) {
           {id === "a-regeln" && <ErklaerVideo id={DEMO_VIDEO_ID} titel={k.titel} />}
           {e.verstehen.map((b, i) => {
             if (b.t === "formel") return <Formel key={i} titel={b.titel} zeilen={b.zeilen} />;
-            if (b.t === "anim") return <ErklaerAnimation key={i} art={b.art} />;
+            if (b.t === "anim") return <React.Suspense key={i} fallback={null}><ErklaerAnimation art={b.art} /></React.Suspense>;
             if (b.t === "merk") return (
               <div key={i} style={{ borderLeft: `3px solid ${C.gruen}`, paddingLeft: 16, margin: "18px 0" }}>
                 <Text s={b.s} style={{ fontSize: 14.5, lineHeight: 1.85, margin: 0 }} />
@@ -769,16 +773,7 @@ export function nahe(eingabe, soll) {
 
 /* Prüfungsergebnisse sind Belege für den Lernstand. */
 
-export function pruefungsBefund(id, ok) {
-  if (!id || !KOMP[id] || !LERN.profil) return;
-  lernAendern((L) => {
-    const alt = L.stand[id] || {};
-    if (!ok && ["sicher", "vermutet"].includes(alt.status))
-      L.stand[id] = { ...alt, status: "arbeit", faellig: Date.now(), zuletzt: Date.now() };
-    else if (!ok && !alt.status) L.stand[id] = { ...alt, status: "luecke", zuletzt: Date.now() };
-    else if (ok && !alt.status) L.stand[id] = { ...alt, status: "vermutet", zuletzt: Date.now() };
-  });
-}
+export { pruefungsBefund };   // liegt seit 21.10. in lernMelden.js
 
 
 export function OperatorMarke({ op, afb }) {

@@ -13,12 +13,8 @@ import { C } from "./base1.jsx";
 import { BEREICHE, WERKZEUGE, passtStufe } from "./werkzeuge.js";
 import { HeuteKarte } from "./funcHeuteKarte.jsx";
 
-const SCHLUESSEL = "mm-onboarding-v1";
-export function onboardingLesen() {
-  try { const v = JSON.parse(localStorage.getItem(SCHLUESSEL) || "null"); return v && typeof v === "object" ? v : null; } catch { return null; }
-}
-function onboardingSchreiben(v) { try { localStorage.setItem(SCHLUESSEL, JSON.stringify({ ...v, zeit: Date.now() })); } catch { /* privat */ } }
-export const stufeAusKlasse = (k) => (!k ? "alle" : k <= 6 ? "unter" : k <= 10 ? "mittel" : "ober");
+import { onboardingLesen, onboardingSchreiben, onboardingLoeschen, stufeAusKlasse } from "./onboarding.js";   // Speicher liegt seit 21.10. dort
+export { onboardingLesen, stufeAusKlasse };
 
 const karte = { background: C.weiss, borderRadius: 18, boxShadow: "0 3px 18px rgba(15,26,51,0.08)", padding: "20px 18px" };
 const kicker = { fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", color: C.gruenDunkel, margin: "0 0 8px" };
@@ -159,5 +155,5 @@ export function StartOnboarding({ gehe, setzeStufe, planDa }) {
   };
   if (!o) return <Fragen onFertig={fertig} onSpaeter={() => fertig({ uebersprungen: true })} />;
   if (o.uebersprungen) return null;
-  return <FuerDich o={o} gehe={gehe} planDa={planDa} neu={() => { try { localStorage.removeItem(SCHLUESSEL); } catch { /* egal */ } setO(null); }} />;
+  return <FuerDich o={o} gehe={gehe} planDa={planDa} neu={() => { onboardingLoeschen(); setO(null); }} />;
 }

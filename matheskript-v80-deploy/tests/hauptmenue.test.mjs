@@ -162,7 +162,9 @@ const datei = (n) => readFileSync(new URL(`../src/${n}`, import.meta.url), "utf-
 test("Desktop-Menü: ab 900 px statt des ☰-Fensters, Handy-Fenster bleibt", () => {
   const hm = datei("funcHauptmenue.jsx");
   const d = datei("funcHauptmenueDesktop.jsx");
-  assert.ok(d.includes("export const DESKTOP_MENUE_AB = 900;"));
+  assert.ok(datei("hauptmenue.js").includes("export const DESKTOP_MENUE_AB = 900;"), "Grenze liegt in hauptmenue.js (Daten)");
+  assert.ok(d.includes('import { DESKTOP_MENUE_AB } from "./hauptmenue.js";'));
+  assert.ok(hm.includes('lazyLaden(() => import("./funcHauptmenueDesktop.jsx")'), "Desktop-Menü lädt lazy (Startchunk)");
   assert.ok(hm.includes("{istOffen && desktop && (") && hm.includes("<DesktopMenue ") && hm.includes("{istOffen && !desktop && lage && ("), "HauptMenue wählt je nach Breite");
   assert.ok(hm.includes("function DarstellungWahl") && hm.includes("<DarstellungWahl />"), "Handy-Fenster unverändert mit Darstellung ganz unten");
 });

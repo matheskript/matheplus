@@ -1,12 +1,14 @@
 import React, { useState, useRef } from "react";
+import { lazyLaden } from "./chunkSchutz.jsx";
 import { C } from "./base1.jsx";
 import { BEREICHE, LW_FUNKTIONEN, LW_FX, LW_GRIECHISCH, LW_GROSS, LW_HOCH, LW_KLEIN, LW_ZAHLEN, PLATZ, PROTOKOLL, istLeer } from "./base2.jsx";
 import { AKTIVE, ANKER, DIAG, EINHEITEN, EINSTUFUNG_MAX, GEWICHT, GRUPPE_ZU_KOMPETENZ, KOMP, LEITIDEEN, LERN, LERN_SCHLUESSEL, LINIEN, RAM_SPEICHER, SR_ABSTAENDE, STATUS_STIL, STUFEN, STUFE_INDEX, TAG_MS, TIEFE, VORAUSBLICK, aktiv, alleVoraussetzungen, faelligIn, hatEinheit, komma, statusVon, stufeVonKlasse } from "./base3.jsx";
 import { bruch } from "./func1.jsx";
 import { M, Text, Zeile, alsFunktion, stimmtUeberein, wegPruefen, zahlAus, zeileSetzen } from "./func3.jsx";
 import { FR } from "./funcRegistry.jsx";
-import { FotoEinwilligungVerwalten, terminWiederholungenHeute } from "./func9.jsx";
-import { TermTastatur } from "./func4.jsx";
+import { terminWiederholungenHeute } from "./termine.js";
+const FotoEinwilligungVerwalten = lazyLaden(() => import("./func9.jsx").then((m) => ({ default: m.FotoEinwilligungVerwalten })));   // func9 ist groß – nur im Profil
+const TermTastatur = lazyLaden(() => import("./func4.jsx").then((m) => ({ default: m.TermTastatur })));   // func4 ist groß – erst beim Term-Feld laden
 import { syncErsetzen, syncMelden } from "./lernSync.js";
 import { MatheFeld } from "./matheTastatur.jsx";
 import { variablenAus, zahlModusAus } from "./matheTastaturLogik.js";
@@ -539,7 +541,7 @@ export function Profil({ gehe }) {
         </>
       )}
 
-      <FotoEinwilligungVerwalten />
+      <React.Suspense fallback={null}><FotoEinwilligungVerwalten /></React.Suspense>
 
       <p style={{ fontSize: 12, color: C.hellgrau, fontWeight: 300, lineHeight: 1.7, marginTop: 22 }}>
         Die Daten liegen auf diesem Gerät. Sobald Nutzerkonten verfügbar sind, wandern sie mit deiner Zustimmung
@@ -721,7 +723,7 @@ export function Einstufung({ gehe }) {
           <Text s={aufgabe.frage} style={{ fontSize: 17, lineHeight: 1.85, marginBottom: 16 }} />
 
           {aufgabe.art === "term" ? (
-            <TermTastatur wert={eingabe} setWert={setEingabe} placeholder="Term" variablen={variablenAus(aufgabe.loesung)} />
+            <React.Suspense fallback={null}><TermTastatur wert={eingabe} setWert={setEingabe} placeholder="Term" variablen={variablenAus(aufgabe.loesung)} /></React.Suspense>
           ) : (
             <MatheFeld modus={zahlModusAus(aufgabe.loesung)} value={eingabe} onChange={(e) => setEingabe(e.target.value)} placeholder="Ergebnis"
               style={{ width: "100%", boxSizing: "border-box", padding: "12px 14px", fontSize: 17, fontFamily: "inherit",

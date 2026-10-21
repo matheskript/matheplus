@@ -26,22 +26,8 @@ import { MAX_AKTIV, eigeneThemen, themaInfo } from "./meinTraining.js";
 import { Abschnitt, HauptthemaAnsicht, HauptthemaLeiste, HauptthemaWahl } from "./funcHauptthema.jsx";
 
 import { springe } from "./sprung.js";
-const SCHLUESSEL = "matheplus-quickfinder";
-function lesen() {
-  try {
-    const v = JSON.parse(localStorage.getItem(SCHLUESSEL) || "null");
-    if (!v || typeof v !== "object") return null;
-    if (!schulartVon(v.schulart)) return null;
-    const box = klassenBoxen(v.schulart).find((b) => b.id === v.klasse) ? v.klasse : null;
-    const kapitel = box && kapitelFuer(v.schulart, box).some((k) => k.id === v.kapitel) ? v.kapitel : null;
-    const teil = kapitel && v.teil && unterthema(v.teil) && unterthema(v.teil).kapitel === kapitel ? v.teil : null;
-    return { schulart: v.schulart, klasse: box, kapitel, teil, modus: v.modus === "plan" ? "plan" : "sache", auswahl: auswahlLesen(v), haupt: hauptthemaPruefen(v.haupt) };
-  } catch { return null; }
-}
-/* Angehakte Unterthemen für den Trainingsplan (nur gültige Ids, ohne Doppelte) */
-function auswahlLesen(v) { return Array.isArray(v && v.auswahl) ? [...new Set(v.auswahl.filter((id) => typeof id === "string" && unterthema(id)))] : []; }
-function schreiben(v) { try { localStorage.setItem(SCHLUESSEL, JSON.stringify(v)); } catch { /* privat */ } }
-export function quickfinderLesen() { return lesen(); }
+import { SCHLUESSEL, lesen, auswahlLesen, schreiben, quickfinderLesen } from "./quickfinder.js";   // Speicher liegt seit 21.10. dort
+export { quickfinderLesen };
 /* Modus vom Rücksprung (funcKapitelTraining: modusVormerken) – liegt ggf. ohne Schulart im Speicher */
 function modusLesen() { try { const v = JSON.parse(localStorage.getItem(SCHLUESSEL) || "null"); return v && v.modus === "plan" ? "plan" : "sache"; } catch { return "sache"; } }
 function auswahlOhneSchulart() { try { return auswahlLesen(JSON.parse(localStorage.getItem(SCHLUESSEL) || "null")); } catch { return []; } }

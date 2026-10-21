@@ -25,14 +25,16 @@ import { englisch, tr } from "./i18n.js";
 import { useKonto, abmelden, testkontoStarten } from "./konto.js";
 import { SuchBox } from "./funcSuche.jsx";
 import { MathildaName } from "./mathildaName.jsx";
-import { MathildaBild } from "./funcMathildaSeite.jsx";
+import { MathildaBild } from "./funcMathildaBild.jsx";
 import { ETIKETTEN } from "./werkzeuge.js";
 import {
   GOLD_VERLAUF, BLAU_VERLAUF, NACHT_VERLAUF, Ikon, TRAINING_IKON, KI_IKON, KONTO_IKON, Pfeil, GoldPlus, zeichenGroesse, Bald, istAktuell,
   BereichBild, KURS_STIL, TRENNUNG, KlasseWaehlen, ETIKETT_FARBE, ETIKETT_FARBE_HELL, MODUS_NAME, MODUS_NAME_EN, ModusSymbol, AbmeldenFrage, anfangVon,
 } from "./hauptmenueTeile.jsx";
 import { EVENT_START_MODUS, START_MODI, startModus, startModusSetzen } from "./startModus.js";
-import { DesktopMenue, DESKTOP_MENUE_AB } from "./funcHauptmenueDesktop.jsx";
+import { DESKTOP_MENUE_AB } from "./hauptmenue.js";
+import { lazyLaden } from "./chunkSchutz.jsx";
+const DesktopMenue = lazyLaden(() => import("./funcHauptmenueDesktop.jsx").then((m) => ({ default: m.DesktopMenue })));   // nur ab 900 px, lädt beim Öffnen
 import {
   LEISTE, KI_MENUE, TRAINING, KURSE, BALD_KURSE, WEITERE_ANGEBOTE, STUFEN, STUFE_SCHLUESSEL, istStufe, FORMELN, NACHSCHLAGEN,
   kontoEintraege, kontoArt, zugangEintrag, klasseErmitteln, klasseLabel, klassenInhalt, trainingsBereiche, werkzeugAnzahl,
@@ -553,10 +555,10 @@ export function HauptMenue({ gehe, ansicht, foto, seite, offen, setOffen }) {
     <div ref={anker} style={{ position: "relative", height: 0 }}>
       <style>{CSS}</style>
       {istOffen && desktop && (
-        <DesktopMenue geh={geh} schliessen={() => setOffen(null)} aktuell={aktuell} aktiv={aktiv} konto={konto} angemeldet={angemeldet}
+        <React.Suspense fallback={null}><DesktopMenue geh={geh} schliessen={() => setOffen(null)} aktuell={aktuell} aktiv={aktiv} konto={konto} angemeldet={angemeldet}
           kontoListe={kontoListe.filter((e) => e.id !== "konto")} zugang={zugang} klasse={klasse} ausProfil={ausProfil} waehlen={waehlen} setWaehlen={setWaehlen}
           klasseSetzen={klasseSetzen} stufe={stufe} stufeSetzen={stufeSetzen} zuletzt={zuletzt} testkonto={testkonto}
-          abmeldenFragen={() => { setOffen(null); setFrage(true); }} />
+          abmeldenFragen={() => { setOffen(null); setFrage(true); }} /></React.Suspense>
       )}
       {istOffen && !desktop && lage && (
         <>
