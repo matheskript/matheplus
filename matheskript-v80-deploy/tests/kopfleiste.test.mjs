@@ -27,7 +27,8 @@ test("Alle drei Modi der Startseite sind im Stil der Kopfleiste definiert; Mathi
   for (const m of START_MODI.filter((x) => x !== "dunkel")) assert.ok(q.includes(`.kl[data-modus="${m}"]`), m);
   assert.ok(q.includes("useKopfModus") && q.includes("EVENT_START_MODUS"));
   assert.ok(q.includes("<MathildaName dunkel={modus !== \"hell\"} />"), "Mathilda AI kommt aus mathildaName.jsx (AI in Gold)");
-  assert.ok(q.includes("<MarkenLogo groesse={gast ? \"var(--kl-logo-gast)\" : \"clamp(21px, 6.5vw, 40px)\"}"), "Besucher: Größe über --kl-logo-gast");
+  assert.ok(q.includes("<MarkenLogo groesse={gast ? \"var(--kl-logo-gast)\" : \"min(40px, calc((100vw - 100px) / 10))\"}"), "Besucher: Größe über --kl-logo-gast; angemeldet so groß, wie neben dem ☰ Platz ist");
+  assert.ok(/max-width: 839px[\s\S]*\.kl \.hm-chip \{ display: none; \}/.test(q), "Handy: kein Konto-Chip in der Kopfleiste");
   assert.ok(q.includes("--kl-logo-gast: clamp(14px, 4.33vw, 26.7px)") && q.includes("--kl-logo-gast: 40px"), "Besucher: unter 1060 px ein Drittel kleiner, darüber voll");
   assert.ok(q.includes('HELD_KANTE = "calc(50% - 434.5px)"'), "Besucher am Desktop: T der Wortmarke über dem Anfang der Schlagzeile");
   assert.ok(!q.includes("kl-modus") && !q.includes("startModusSetzen"), "Kein Modus-Knopf in der Kopfleiste");
