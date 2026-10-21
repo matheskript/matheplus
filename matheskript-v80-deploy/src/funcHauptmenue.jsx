@@ -226,7 +226,7 @@ function KursKarte({ k, gehe, aktuell }) {
   const an = istAktuell(k.ziel, aktuell);
   return (
     <button type="button" className="hm-kurs" data-hm-kurs={k.id} onClick={() => { if (!k.bald) gehe(k.ziel); }} aria-disabled={k.bald || undefined} aria-current={an ? "page" : undefined}
-      aria-label={k.name} style={{ background: st.hg, color: st.farbe, ...(st.rand ? { boxShadow: `inset 0 0 0 1px ${C.linie}, 0 8px 16px -12px rgba(8,26,72,0.4)` } : null), ...(k.bald ? { cursor: "default", opacity: 0.7 } : null) }}>
+      aria-label={k.name} data-kk-hell={st.hell ? "" : undefined} style={{ background: st.hg, color: st.farbe, ...(st.rand ? { boxShadow: `inset 0 0 0 1px ${C.linie}, 0 8px 16px -12px rgba(8,26,72,0.4)` } : null), ...(k.bald ? { cursor: "default", opacity: 0.7 } : null) }}>
       <span style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 6 }}>
         <span className="hm-kurs-zeichen" data-kein-i18n style={{ color: st.zFarbe, ...(st.gross ? { fontSize: 28 } : null) }}>{st.zeichen}</span>
         {k.bald && <Bald />}
@@ -583,7 +583,7 @@ export function HauptMenue({ gehe, ansicht, foto, seite, offen, setOffen }) {
                 <span style={{ flex: 1, minWidth: 0 }}>
                   <span style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                     <span style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1.1 }}><MathildaName dunkel /></span>
-                    <span style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", color: C.flaggold, border: "1px solid rgba(237,187,0,0.55)", borderRadius: 999, padding: "2px 7px" }}>Deine Tutorin</span>
+                    <span data-gold-bleibt style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", color: C.flaggold, border: "1px solid rgba(237,187,0,0.55)", borderRadius: 999, padding: "2px 7px" }}>Deine Tutorin</span>
                   </span>
                   <span style={{ display: "block", fontSize: 12.5, lineHeight: 1.4, color: "rgba(255,255,255,0.8)", marginTop: 4 }}>Foto vom Blatt – Mathilda prüft deinen Weg, nicht nur das Ergebnis.</span>
                 </span>

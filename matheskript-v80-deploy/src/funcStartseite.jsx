@@ -137,7 +137,7 @@ html[data-start-edition="stadion"] .app-wurzel { background: #FFFFFF !important;
   border-color: rgba(255,255,255,0.22); box-shadow: 0 10px 28px rgba(163,0,31,0.26), inset 0 1px 0 rgba(255,255,255,0.25); }
 .sbb[data-edition="stadion"] .sbb-karte.sbb-insel.sbb-gold { border-color: ${BLAU}; box-shadow: 0 0 0 2px ${BLAU}, 0 14px 34px rgba(163,0,31,0.3); }
 .sbb[data-edition="stadion"] .sbb-gold { border-color: ${ROT}; box-shadow: 0 0 0 1px rgba(220,5,45,0.35), 0 18px 40px -24px rgba(220,5,45,0.45); }
-.sbb[data-edition="stadion"] .sbb-held h1 .gold, .sbb[data-edition="stadion"] .sbb-zone .nr { background: none; color: #FFFFFF; -webkit-text-fill-color: currentColor; }
+.sbb[data-edition="stadion"] .sbb-held h1 .gold, .sbb[data-edition="stadion"] .sbb-zone .nr { background-image: none !important; color: #FFFFFF; -webkit-text-fill-color: currentColor; }
 .sbb[data-edition="stadion"] .sbb-zone .nr { color: ${ROT}; }
 .sbb[data-edition="stadion"] .sbb-schul h2 .gold { color: #FFFFFF; }
 .sbb[data-edition="stadion"] .sbb-kachel .weiter, .sbb[data-edition="stadion"] .sbb-schritt .nr, .sbb[data-edition="stadion"] .sbb-mythos .z { color: var(--st-akzent); }
@@ -709,9 +709,8 @@ export function Startseite({ gehe }) {
   /* Die ganze App-Fläche folgt dem Modus: Hintergrund und Fußknöpfe (Regeln oben in CSS) */
   useEffect(() => {
     const d = document.documentElement;
-    d.setAttribute("data-start-modus", basisModus(modus));
-    if (editionVon(modus)) d.setAttribute("data-start-edition", editionVon(modus)); else d.removeAttribute("data-start-edition");
-    return () => { d.removeAttribute("data-start-modus"); d.removeAttribute("data-start-edition"); };
+    d.setAttribute("data-start-modus", basisModus(modus));   /* data-start-edition setzt startModus.js app-weit */
+    return () => d.removeAttribute("data-start-modus");
   }, [modus]);
 
   const bereiche = schulBereiche(stufe);

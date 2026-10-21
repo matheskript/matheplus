@@ -6,7 +6,7 @@ import React from "react";
    Nie per text-transform: uppercase darüberlegen – Wächter: tests/markenname.test.mjs. */
 export function MathildaName({ dunkel }) {
   return (
-    <span data-kein-i18n style={{ textTransform: "none" }}>
+    <span data-kein-i18n data-gold-bleibt style={{ textTransform: "none" }}>
       <span style={dunkel ? { color: "#FFFFFF" } : undefined}>Mathilda</span>
       <span style={{ color: dunkel ? "#EDBB00" : "#B98A00" }}>AI</span>
     </span>
@@ -18,7 +18,7 @@ export function MathildaName({ dunkel }) {
    Die normale Wortmarke oben bleibt überall sonst unverändert. */
 export function MathildaKnopfSchrift() {
   return (
-    <span data-kein-i18n style={{ textTransform: "none", whiteSpace: "nowrap" }}>
+    <span data-kein-i18n data-gold-bleibt style={{ textTransform: "none", whiteSpace: "nowrap" }}>
       <span style={{ color: "#FFFFFF" }}>m</span>
       <span style={{ fontSize: "1.55em", lineHeight: 0, color: "#EDBB00" }}>A</span>
       <span style={{ color: "#FFFFFF" }}>th</span>

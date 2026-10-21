@@ -107,7 +107,7 @@ function KursKachel({ onClick, label, titel, meta, zeile, stand, einheit, farben
   };
   React.useInsertionEffect(stilSetzen, []);
   return (
-    <button type="button" onClick={onClick} className="kk" aria-label={label} style={vars} {...daten}>
+    <button type="button" onClick={onClick} className="kk" aria-label={label} style={vars} data-kk-hell={farben.hell ? "" : undefined} {...daten}>
       <h2 className="kk-titel">{titel}</h2>
       <div className="kk-text">
         <span className="kk-strich" aria-hidden="true" />

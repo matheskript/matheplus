@@ -333,7 +333,7 @@ function LackKarte({ k, gehe, aktuell, gross }) {
   };
   const { Motiv } = l;
   return (
-    <button type="button" className="hmd-lack" style={vars} data-hmd-kurs={k.id} data-gross={gross ? "" : undefined} onClick={() => gehe(k.ziel)}
+    <button type="button" className="hmd-lack" style={vars} data-kk-hell={f.hell ? "" : undefined} data-hmd-kurs={k.id} data-gross={gross ? "" : undefined} onClick={() => gehe(k.ziel)}
       aria-current={istAktuell(k.ziel, aktuell) ? "page" : undefined} title={begonnen && stand.weiter ? stand.weiter : k.zeile}>
       <span className="hmd-lack-titel">{k.name}</span>
       <span>
@@ -354,7 +354,7 @@ function MiniKurs({ k, gehe, aktuell }) {
     <button type="button" className="hmd-mini" data-hmd-kurs={k.id} onClick={() => { if (!k.bald) gehe(k.ziel); }} aria-disabled={k.bald || undefined}
       aria-current={istAktuell(k.ziel, aktuell) ? "page" : undefined} title={k.zeile}>
       <span className="hmd-mini-zeichen" data-kein-i18n aria-hidden="true"
-        style={{ background: st.hg, color: st.zFarbe, fontSize: zeichenGroesse(st.zeichen, st.gross ? 22 : 16), ...(st.rand ? { boxShadow: `inset 0 0 0 1px ${C.linie}` } : null) }}>{st.zeichen}</span>
+        data-kk-hell={st.hell ? "" : undefined} style={{ background: st.hg, color: st.zFarbe, fontSize: zeichenGroesse(st.zeichen, st.gross ? 22 : 16), ...(st.rand ? { boxShadow: `inset 0 0 0 1px ${C.linie}` } : null) }}>{st.zeichen}</span>
       <span style={{ flex: 1, minWidth: 0 }}>
         <span className="hmd-zwei" style={{ fontSize: 13, fontWeight: 800, lineHeight: 1.2 }}>{k.name}</span>
         <span className="hmd-zwei" style={{ fontSize: 11, fontWeight: 500, lineHeight: 1.3, color: "var(--t3)", WebkitLineClamp: 1, marginTop: 1 }}>{k.zeile}</span>
@@ -641,7 +641,7 @@ export function DesktopMenue({
                 <span style={{ flex: 1, minWidth: 0 }}>
                   <span style={{ display: "flex", alignItems: "center", gap: 9, flexWrap: "wrap" }}>
                     <span style={{ fontSize: 25, fontWeight: 900, letterSpacing: "-0.02em", lineHeight: 1 }}><MathildaName dunkel /></span>
-                    <span className="hmd-badge">Deine Tutorin</span>
+                    <span className="hmd-badge" data-gold-bleibt>Deine Tutorin</span>
                   </span>
                   <span style={{ display: "block", fontSize: 13, lineHeight: 1.45, color: "var(--t2)", marginTop: 6 }}>Foto vom Blatt – Mathilda prüft deinen Weg, nicht nur das Ergebnis.</span>
                 </span>

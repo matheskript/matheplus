@@ -38,6 +38,7 @@ export const SMARAGD = {
 
 /* Porzellan – Babyblau, Schwarz, Weiß, sehr dunkles Gold (früher Kurs Differentialrechnung; jetzt nur Umschlag/Dokumentkarte Band „Ableitungen“) */
 export const PORZELLAN = {
+  hell: true,   // heller Lack: in der Stadion-Ansicht wird Gold hier Rot statt Weiß (stadionGold.js)
   lack: `linear-gradient(145deg, ${C.babyblauHell} 0%, ${C.babyblau} 58%, #8FCBEE 100%)`,
   rand: "linear-gradient(135deg, rgba(255,255,255,0.95), rgba(90,67,0,0.35) 60%, rgba(90,67,0,0.55))",
   glanz: "rgba(255,255,255,0.75)", schein: "rgba(255,255,255,0.55)", kante: "rgba(255,255,255,0.9)", schatten: "rgba(60,130,190,0.55)",

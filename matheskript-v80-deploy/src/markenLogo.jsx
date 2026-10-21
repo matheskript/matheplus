@@ -32,7 +32,7 @@ export function MarkenLogo({ groesse, grund = "dunkel", druck = false, textFarbe
       fontFamily: "Montserrat, system-ui, sans-serif", fontSize: groesse, fontWeight: LOGO_GEWICHT, letterSpacing: LOGO_LAUFWEITE,
       textTransform: "uppercase", whiteSpace: "nowrap", lineHeight: 1, color: textFarbe || (hell ? C.seeTief : "#FFFFFF"), ...style,
     }}>
-      <span>mythos</span><span style={gold}>mathe</span><span>.de</span>
+      <span>mythos</span><span className="marke-mathe" style={gold}>mathe</span><span>.de</span>
     </span>
   );
 }

@@ -64,3 +64,20 @@ test("Stadion: Rot-Weiß-Blau auf Mix-Basis, ohne Vereinslogo und -namen", () =>
   assert.ok(quelle("funcKopfleiste.jsx").includes('.kl[data-edition="stadion"]'), "Kopfleiste ohne Stadion-Farben");
   for (const f of ["funcStartseite.jsx", "funcKopfleiste.jsx", "hauptmenueTeile.jsx"]) assert.ok(!/bayern/i.test(quelle(f)), `${f} nennt einen Verein`);
 });
+
+test("Stadion ohne Gold: Gold wird zur Variable mit altem Gold als Rückfall, Mathilda bleibt golden", async () => {
+  const { istGold, goldErsetzen, deklarationenUmfaerben, nurSchimmer, STADION_VARIABLEN } = await import("../src/stadionGold.js");
+  assert.ok(istGold(237, 187, 0) && istGold(138, 106, 0) && istGold(255, 229, 138));
+  assert.ok(!istGold(220, 5, 45) && !istGold(0, 102, 178) && !istGold(255, 255, 255) && !istGold(255, 247, 214));
+  assert.equal(goldErsetzen("rgb(237, 187, 0)"), "var(--st-gold, rgb(237, 187, 0))");
+  assert.equal(goldErsetzen("#EDBB00", "flaeche"), "var(--st-flaeche, #EDBB00)");
+  assert.match(goldErsetzen("rgba(237, 187, 0, 0.4)"), /color-mix\(in srgb, var\(--st-gold, rgb\(237, 187, 0\)\) 40%, transparent\)/);
+  assert.equal(goldErsetzen("rgb(220, 5, 45)"), "rgb(220, 5, 45)");
+  const d = deklarationenUmfaerben([["background-color", "rgb(237, 187, 0)", ""], ["color", "#050B1F", ""]]);
+  assert.equal(d[1][1], "var(--st-auf-flaeche, #050B1F)", "dunkler Text auf goldener Fläche wird lesbar");
+  assert.ok(nurSchimmer("radial-gradient(rgba(237, 187, 0, 0.1), rgba(237, 187, 0, 0))") && !nurSchimmer("linear-gradient(rgb(237, 187, 0), rgb(201, 147, 26))"));
+  assert.ok(STADION_VARIABLEN.includes("[data-gold-bleibt]"));
+  assert.ok(quelle("mathildaName.jsx").includes("data-gold-bleibt") && quelle("mathildaBild.jsx").includes("data-gold-bleibt"), "Mathildas Name und Haare bleiben golden");
+  assert.ok(quelle("markenLogo.jsx").includes('className="marke-mathe"'));
+  assert.ok(quelle("main.jsx").includes("stadionGoldStarten("));
+});

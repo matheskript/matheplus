@@ -43,3 +43,17 @@ export function modusAusPfad(pfad) {
   const m = /^\/?(?:start|startseite|frontpage)-(hell|dunkel|mix|stadion)\/?$/i.exec(String(pfad || "").split(/[?#]/)[0]);
   return m ? m[1].toLowerCase() : null;
 }
+
+/* Die Edition hängt app-weit am Dokument (html[data-start-edition="stadion"]), damit Logo, Menüs und Kacheln
+   auf jeder Seite umfärben können – nicht nur, solange die Startseite steht. */
+export function editionAmDokument() {
+  try {
+    const e = editionVon(startModus());
+    if (e) document.documentElement.setAttribute("data-start-edition", e);
+    else document.documentElement.removeAttribute("data-start-edition");
+  } catch { /* kein Dokument (Node) */ }
+}
+if (typeof window !== "undefined") {
+  editionAmDokument();
+  try { window.addEventListener(EVENT_START_MODUS, editionAmDokument); } catch { /* egal */ }
+}

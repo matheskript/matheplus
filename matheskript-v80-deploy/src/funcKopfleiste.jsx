@@ -200,13 +200,16 @@ const CSS = `
 /* Lese-Fortschritt (nur wenn die Leiste klebt) */
 .kl-fortschritt { position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; transform-origin: left; transform: scaleX(0); pointer-events: none;
   background: linear-gradient(90deg, ${GOLD} 0%, ${GOLD_HELL} 100%); box-shadow: 0 0 10px rgba(237,187,0,0.55); }
-/* Stadion (Rot-Weiß-Blau): Mix-Satz, Leiste in lackiertem Rot, Kurve und Akzente Weiß, Fortschritt Blau. Ohne Vereinslogo. */
-.kl[data-edition="stadion"] { --kl-hg: #DC052D; --kl-kurve: #FFFFFF; --kl-nebel: #FFD9E0; --kl-licht1: rgba(255,255,255,0.22); --kl-licht2: rgba(0,102,178,0.45);
-  --kl-pille-hg: rgba(0,68,122,0.30); --kl-pille-hover: rgba(0,68,122,0.5); --kl-chip-hg: #0066B2; --kl-plus: #FFFFFF; --kl-schatten: 0 18px 40px -22px rgba(163,0,31,.8); }
+/* Stadion (Rot-Weiß-Blau): Leiste in Blau mit roter Unterkante, Kurve und Akzente Weiß; Wortmarke rot-weiß
+   (MYTHOS und .DE Weiß, MATHE Weiß auf rotem Feld – Rot direkt auf Blau wäre kaum lesbar). Ohne Vereinslogo. */
+.kl[data-edition="stadion"] { --kl-hg: #0066B2; --kl-kurve: #FFFFFF; --kl-nebel: #CFE3F5; --kl-licht1: rgba(255,255,255,0.20); --kl-licht2: rgba(220,5,45,0.30);
+  --kl-pille-hg: rgba(0,40,80,0.30); --kl-pille-hover: rgba(0,40,80,0.5); --kl-chip-hg: #DC052D; --kl-plus: #FFFFFF; --kl-schatten: 0 18px 40px -22px rgba(0,50,100,.8); }
 .kl[data-edition="stadion"] .kl-hg { background: radial-gradient(120% 90% at 0% 0%, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0) 55%),
-  linear-gradient(155deg, #F0284A 0%, #DC052D 40%, #A3001F 100%); border-bottom: 3px solid #0066B2; box-shadow: inset 0 1px 0 rgba(255,255,255,0.25); }
-.kl[data-edition="stadion"] .kl-fortschritt { background: linear-gradient(90deg, #FFFFFF 0%, #0066B2 100%); box-shadow: none; }
+  linear-gradient(155deg, #0A78C9 0%, #0066B2 45%, #00447A 100%); border-bottom: 3px solid #DC052D; box-shadow: inset 0 1px 0 rgba(255,255,255,0.22); }
+.kl[data-edition="stadion"] .kl-fortschritt { background: linear-gradient(90deg, #FFFFFF 0%, #DC052D 100%); box-shadow: none; }
 .kl[data-edition="stadion"] .kl-marke:focus-visible, .kl[data-edition="stadion"] button:focus-visible { outline-color: #FFFFFF; }
+.kl[data-edition="stadion"] .marke-mathe { background-image: none !important; background-color: #DC052D !important; color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important;
+  -webkit-background-clip: border-box !important; background-clip: border-box !important; padding: 0.04em 0.1em 0.02em; margin: 0 0.04em; border-radius: 0.1em; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
 @media (prefers-reduced-motion: reduce) { .kl-bm, .kl-bm-schleier { animation: none; } .kl-kurve, .kl-kurve path, .kl-punkt { animation: none !important; } .kl-kurve { clip-path: none; } .kl-kurve path { opacity: var(--kl-kurve-ruhe); } .kl-punkt { opacity: .55; } .kl-zeile, .kl-slogan { transition: none; } }
 `;
 
