@@ -45,6 +45,20 @@ test("Pfade: /blog ist die Übersicht, /blog/<slug> der Beitrag, Unbekanntes ble
   assert.equal(pfadFuer({ ansicht: "blog", seite: "falsch" }), "/blog");
 });
 
+test("Ende der Übersicht: Dokumente-Karten mit allen Knöpfen, erst nach dem Passwort geladen", () => {
+  const b = quelle("funcBlog.jsx");
+  assert.ok(b.includes("data-blog-dokumente") && b.includes("data-blog-dokumente-tor"));
+  assert.match(b, /lazy\(\(\) => import\("\.\/funcDokumente\.jsx"\)/, "Karten müssen lazy hinter dem Passwort laden");
+  assert.match(b, /\{frei \? \(\s*<Suspense fallback=\{null\}><DokumenteKarten eins \/>/);
+  // der Abschnitt steht in der Übersicht nach „Alle Beiträge“, nicht im einzelnen Beitrag
+  const liste = b.slice(b.indexOf("data-blog-liste"));
+  assert.ok(liste.indexOf("bl-alle") < liste.indexOf("<BlogDokumente />"), "Dokumente stehen nicht unter „Alle Beiträge“");
+  assert.ok(!b.slice(b.indexOf("data-blog-beitrag"), b.indexOf("data-blog-liste")).includes("BlogDokumente"));
+  // dieselben Karten wie auf der Seite „Dokumente“ (keine zweite Liste)
+  const d = quelle("funcDokumente.jsx");
+  assert.ok(d.includes("export function DokumenteKarten") && /<DokumenteKarten \/>/.test(d));
+});
+
 test("Die Seite hängt in der App, ist öffentlich (kein EntwurfTor) und hat keinen Teilen-Knopf", () => {
   const q = quelle("func10.jsx");
   assert.ok(q.includes('ansicht === "blog" ? (') && q.includes("<BlogSeite gehe={gehe} seite={blogSeite} setSeite={setBlogSeite} />"));

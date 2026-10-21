@@ -13,10 +13,14 @@
    blau, Goldfolie); ein echtes Foto bekommt ein Beitrag, wenn er statt
    motiv ein bild (Pfad unter public/) trägt.
    ====================================================================== */
-import React, { useEffect } from "react";
+import React, { useEffect, useState, lazy, Suspense } from "react";
 import { C } from "./base1.jsx";
 import { BLOG, beitragVon, naechsterBeitrag, datumKurz } from "./blogDaten.js";
 import { springe } from "./sprung.js";
+import { istFrei, entsperren } from "./seitenKonstanten.js";
+
+/* Dokumente-Karten (Öffnen · Download · Cover) kommen erst nach dem Passwort in den Browser */
+const DokumenteKarten = lazy(() => import("./funcDokumente.jsx").then((m) => ({ default: m.DokumenteKarten })));
 
 const NACHT = "#050B1F";
 const GOLD = C.flaggold;
@@ -92,6 +96,17 @@ const CSS = `
 .bl-alle button span { font-size: 16px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.3; }
 .bl-alle button:hover span { color: ${C.see}; }
 .bl button:focus-visible { outline: 3px solid ${GOLD}; outline-offset: 3px; border-radius: 6px; }
+
+/* Ganz unten: die Dokumente der Seite „Dokumente“ (intern – deshalb hinter dem gemeinsamen Passwort) */
+.bl-dok { margin-top: 64px; }
+.bl-dok h3 { margin: 0 0 14px; font-size: 13px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: ${C.hellgrau}; }
+.bl-dok-tor { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 16px; border: 1px dashed ${C.linie}; border-radius: 16px; background: #fff; }
+.bl-dok-tor p { flex: 1 1 100%; margin: 0; font-size: 14px; line-height: 1.5; color: ${C.grau}; }
+.bl-dok-tor input { flex: 1 1 180px; min-width: 0; padding: 11px 13px; font: inherit; font-size: 16px; color: ${C.tinte}; background: #fff; border: 2px solid ${C.linie}; border-radius: 10px; outline: none; }
+.bl-dok-tor input:focus { border-color: ${GOLD}; }
+.bl-dok-tor input[aria-invalid="true"] { border-color: #E5484D; }
+.bl-dok-tor button { padding: 11px 18px; font-size: 14px; font-weight: 800; color: ${NACHT}; background: linear-gradient(180deg, ${GOLD_HELL} 0%, ${GOLD} 100%); border: none; border-radius: 999px; cursor: pointer; }
+.bl-dok-tor [role="alert"] { flex: 1 1 100%; font-size: 13px; color: #C0272D; }
 
 /* Beitrag */
 .bl-zurueck { display: inline-flex; align-items: center; gap: 6px; background: none; border: none; padding: 0; cursor: pointer; font-size: 13.5px; font-weight: 700; color: ${C.grau}; }
@@ -242,6 +257,35 @@ export function BlogMotiv({ beitrag }) {
   return MOTIVE[beitrag.motiv] || MOTIVE.raster;
 }
 
+/* Abschnitt am Ende der Übersicht: alle Dokumente mit ihren Knöpfen. Der Blog ist öffentlich, die Dokumente nicht –
+   darum zeigt der Abschnitt ohne Passwort nur ein kleines Feld (dasselbe Passwort wie die Seite „Dokumente“). */
+function BlogDokumente() {
+  const [frei, setFrei] = useState(istFrei);
+  const [pw, setPw] = useState("");
+  const [fehler, setFehler] = useState(false);
+  const pruefen = async (e) => {
+    e.preventDefault();
+    if (await entsperren(pw)) setFrei(true);
+    else { setFehler(true); setPw(""); }
+  };
+  return (
+    <section className="bl-dok" aria-label="Dokumente" data-blog-dokumente>
+      <h3>Dokumente</h3>
+      {frei ? (
+        <Suspense fallback={null}><DokumenteKarten eins /></Suspense>
+      ) : (
+        <form className="bl-dok-tor" onSubmit={pruefen} data-blog-dokumente-tor>
+          <p>Die Dokumente sind noch nicht öffentlich. Mit dem Passwort erscheinen sie hier.</p>
+          <input type="password" value={pw} autoComplete="off" aria-label="Passwort" placeholder="Passwort" aria-invalid={fehler}
+            onChange={(e) => { setPw(e.target.value); setFehler(false); }} />
+          <button type="submit">Entsperren</button>
+          {fehler && <div role="alert">Das Passwort stimmt nicht.</div>}
+        </form>
+      )}
+    </section>
+  );
+}
+
 /* ---------- Seite ---------- */
 export function BlogSeite({ gehe, seite, setSeite }) {
   const beitrag = seite ? beitragVon(seite) : null;
@@ -324,6 +368,7 @@ export function BlogSeite({ gehe, seite, setSeite }) {
           ))}
         </ol>
       </section>
+      <BlogDokumente />
     </div>
   );
 }

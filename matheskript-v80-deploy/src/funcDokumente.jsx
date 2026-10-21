@@ -33,7 +33,7 @@ const MARKE_PUNKT = { "Amazon": "#FF9900", "Hier auf der Seite": "#4FC3F7", "Inv
 const STIL_ID = "dk-stil";
 const STIL = `
   .dk-gitter{display:grid;gap:14px;grid-template-columns:minmax(0,1fr)}
-  @media (min-width:760px){.dk-gitter{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media (min-width:760px){.dk-gitter{grid-template-columns:repeat(2,minmax(0,1fr))}.dk-gitter--eins{grid-template-columns:minmax(0,1fr)}}
   .dk{position:relative;isolation:isolate;overflow:hidden;border:1px solid transparent;border-radius:22px;padding:14px 14px 13px;
     background:var(--dk-lack) padding-box,var(--dk-rand) border-box;color:var(--dk-text);
     box-shadow:0 1px 0 var(--dk-kante) inset,0 18px 36px -18px var(--dk-schatten),0 2px 6px rgba(8,14,32,0.12);
@@ -149,9 +149,19 @@ function Karte({ d }) {
   );
 }
 
+/* Das Kartenraster allein (Stil inklusive) – von der Seite „Dokumente“ und vom Ende der Blog-Übersicht genutzt.
+   eins = eine Spalte (im schmalen Blog-Streifen). */
+export function DokumenteKarten({ eins = false }) {
+  React.useInsertionEffect(stilSetzen, []);
+  return (
+    <div className={eins ? "dk-gitter dk-gitter--eins" : "dk-gitter"} data-dokumente-karten>
+      {DOKUMENTE.map((d) => <Karte key={d.id} d={d} />)}
+    </div>
+  );
+}
+
 export function DokumenteSeite() {
   const u = dokumenteUebersicht();
-  React.useInsertionEffect(stilSetzen, []);
   return (
     <>
       <div className="kopfblock" style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
@@ -165,9 +175,7 @@ export function DokumenteSeite() {
         <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
       </div>
       <div className="mx-auto px-4 pb-16" style={{ maxWidth: 920, paddingTop: 16 }}>
-        <div className="dk-gitter">
-          {DOKUMENTE.map((d) => <Karte key={d.id} d={d} />)}
-        </div>
+        <DokumenteKarten />
       </div>
     </>
   );
