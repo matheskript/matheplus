@@ -9,12 +9,14 @@
      in der Automatik steht alles da
    · Rechts das Schaubild: Jeder gelöste Schritt erscheint dort – F unten,
      F(a) und F(b) als Punkte, am Ende wächst die Fläche (funcIntegralBild.jsx)
-   Handy: Menü, Aufgabe, Bild, Rechenweg untereinander. Desktop ab 840 px:
-   Rechenweg links, Bild rechts mitlaufend.
+   Handy: Menü, Aufgabe, Rechenweg direkt darunter. Das Bild zeigt sich beim
+   Öffnen kurz und klappt dann zu; „Graph“ in der Aufgabenkarte klappt es
+   wieder auf (zwischen Aufgabe und Rechenweg). Die Erklärung zu jedem Schritt
+   liegt hinter ⓘ. Desktop ab 840 px: Rechenweg links, Bild rechts mitlaufend.
    Mathe-Kern: integralKern.js. Keine base-Datei darf diese Datei importieren.
    ============================================================ */
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { C } from "./base1.jsx";
 import { M, Text } from "./func3.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
@@ -37,6 +39,10 @@ const MENUE = [...TYPEN.map((t) => ({ id: t.id, name: t.name })), { id: "bestand
 const KURZ = { stamm: "Stammfunktion", anfang: "Durch Punkt P", bestimmt: "∫ von a bis b", flaeche: "Fläche + x-Achse", zwei: "Zwei Graphen", bestand: "Bestand" };
 const leer = () => ({ text: "", pos: 0, werte: [], status: null, hinweis: "", versuche: 0 });
 const fertigStatus = (s) => s === "richtig" || s === "gezeigt";
+const HANDY = "(max-width: 839px)";
+const istHandy = () => typeof window !== "undefined" && !!window.matchMedia && window.matchMedia(HANDY).matches;
+/* Das Bild öffnet sich auf dem Handy einmal je Besuch kurz von selbst */
+const BILD_KURZ_MS = 2600;
 
 function lesen() { try { return JSON.parse(window.localStorage.getItem(SPEICHER)) || {}; } catch (e) { return {}; } }
 function schreiben(w) { try { window.localStorage.setItem(SPEICHER, JSON.stringify(w)); } catch (e) { /* privat */ } }
@@ -90,7 +96,8 @@ function ZahlEingabe({ label, wert, setWert, onOk, status, anzahl, werte, setWer
 const bildOben = () => { const el = document.querySelector(".it-bild"); return el ? Math.max(0, el.getBoundingClientRect().top + window.scrollY - 52) : null; };
 const zumBild = () => { const y = bildOben(); if (y !== null) springe("integral-bild", () => window.scrollTo({ top: y, behavior: "smooth" })); };
 
-function Schritt({ nr, s, zustand, st, training, offen, setOffen, aendern, pruefen, zeigen, fokusSetzen, letzter }) {
+function Schritt({ nr, s, zustand, st, training, offen, setOffen, aendern, pruefen, zeigen, fokusSetzen, letzter, imBild }) {
+  const [infoAuf, setInfoAuf] = useState(false);
   const fertig = zustand === "fertig";
   const aktiv = zustand === "aktiv";
   const zeigeRechnung = !training || fertig || s.art === "info";
@@ -104,8 +111,17 @@ function Schritt({ nr, s, zustand, st, training, offen, setOffen, aendern, pruef
         {!letzter && <span className="it-strich" />}
       </div>
       <div className="it-inhalt">
-        <p className="it-titel">{s.titel}</p>
-        {zustand !== "gesperrt" && <Text s={s.frage} style={{ fontSize: 14, color: C.grau, lineHeight: 1.6, margin: "2px 0 0" }} />}
+        <div className="it-titelzeile">
+          <p className="it-titel">{s.titel}</p>
+          {zustand !== "gesperrt" && s.frage && (
+            <button type="button" className="it-info" aria-expanded={infoAuf} aria-label={`Erklärung zu „${s.titel}“`} onClick={() => setInfoAuf(!infoAuf)}>i</button>
+          )}
+        </div>
+        {zustand !== "gesperrt" && (
+          <div className="it-frage" data-auf={infoAuf ? "ja" : undefined}>
+            <Text s={s.frage} style={{ fontSize: 14, color: C.grau, lineHeight: 1.6, margin: "2px 0 0" }} />
+          </div>
+        )}
         {zustand === "gesperrt" && <p className="it-gesperrt">kommt nach dem vorigen Schritt</p>}
 
         {training && aktiv && s.art === "term" && (
@@ -141,7 +157,7 @@ function Schritt({ nr, s, zustand, st, training, offen, setOffen, aendern, pruef
           </div>
         )}
         {training && fertig && s.fokus && s.art !== "info" && (
-          <button type="button" className="it-zumbild" onClick={zumBild}><span aria-hidden="true">↑</span> Im Bild ansehen</button>
+          <button type="button" className="it-zumbild" onClick={imBild}><span aria-hidden="true">↑</span> Im Bild ansehen</button>
         )}
       </div>
     </li>
@@ -214,6 +230,18 @@ export function IntegralTrainer() {
   const [offen, setOffen] = useState(false);
   const [hover, setHover] = useState(null);
   const [bilanz, setBilanz] = useState({ richtig: 0, gesamt: 0 });
+  /* Handy: Bild einklappbar; beim ersten Öffnen kurz zeigen, dann zu */
+  const [bildAuf, setBildAuf] = useState(true);
+  const bildUhr = useRef(null);
+  useEffect(() => {
+    if (!istHandy()) return undefined;
+    bildUhr.current = setTimeout(() => { bildUhr.current = null; setBildAuf(false); }, BILD_KURZ_MS);
+    return () => { if (bildUhr.current) clearTimeout(bildUhr.current); };
+  }, []);
+  const bildSchalten = (auf) => { if (bildUhr.current) { clearTimeout(bildUhr.current); bildUhr.current = null; } setBildAuf(auf); };
+  const imBild = () => {
+    if (!bildAuf) { bildSchalten(true); setTimeout(zumBild, 380); } else zumBild();
+  };
   const [meldung, setMeldung] = useState(start && start.fehler ? `Die übergebene Funktion geht hier nicht: ${start.fehler}` : start ? "f und die Grenzen sind übernommen. Bilde jetzt die Stammfunktion." : "");
 
   useEffect(() => { schreiben({ typ, stufen, modus }); }, [typ, stufen, modus]);
@@ -362,6 +390,10 @@ export function IntegralTrainer() {
           </span>
         )}
         {kopf.punkt && <span className="it-punkt"><M t={kopf.punkt} /></span>}
+        <button type="button" className="it-graphknopf" aria-expanded={bildAuf} aria-controls="it-bild" onClick={() => bildSchalten(!bildAuf)}>
+          <span>Graph</span>
+          <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3.5 6l4.5 4.5L12.5 6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+        </button>
       </div>
       {training && bilanz.gesamt > 0 && <p className="it-bilanz">{bilanz.richtig} von {bilanz.gesamt} Eingaben richtig</p>}
     </div>
@@ -373,7 +405,7 @@ export function IntegralTrainer() {
         {schritte.map((s, i) => (
           <Schritt key={`${nr}-${s.id}`} nr={i + 1} s={s} zustand={zustandVon(i)} st={st(s.id)} training={training}
             offen={offen && aktivIndex === i} setOffen={setOffen} aendern={aendern(s.id)} pruefen={pruefen(s)} zeigen={zeigen(s)}
-            fokusSetzen={(f) => { if (!training) setHover(f); }} letzter={i === schritte.length - 1} />
+            fokusSetzen={(f) => { if (!training) setHover(f); }} letzter={i === schritte.length - 1} imBild={imBild} />
         ))}
       </ol>
       {alleFertig && (
@@ -405,8 +437,10 @@ export function IntegralTrainer() {
   );
 
   const bildTeil = aufgabe && !aufgabe.fehler && (
-    <div className="it-bild">
-      <IntegralBild bild={aufgabe.bild} sicht={sicht} fokus={fokus} aufgabeId={nr} />
+    <div className="it-bild" id="it-bild" data-zu={bildAuf ? undefined : "ja"} aria-hidden={bildAuf ? undefined : true}>
+      <div className="it-bild-innen">
+        <IntegralBild bild={aufgabe.bild} sicht={sicht} fokus={fokus} aufgabeId={nr} />
+      </div>
     </div>
   );
 
@@ -479,7 +513,18 @@ const IT_CSS = `
 .it-punkt{font-size:16px;font-weight:700;color:${C.seeTief};background:${C.flaggold};border-radius:999px;padding:2px 12px;white-space:nowrap}
 .it-bilanz{font-size:12px;color:${C.goldText};margin:6px 0 0}
 .it-raster{display:flex;flex-direction:column;gap:16px}
-.it-bild{min-width:0}
+.it-bild{min-width:0;display:grid;grid-template-rows:1fr;transition:grid-template-rows .45s ease,opacity .35s ease,margin .45s ease}
+.it-bild-innen{min-height:0;overflow:hidden}
+.it-bild[data-zu="ja"]{grid-template-rows:0fr;opacity:0;margin-bottom:-16px;visibility:hidden;transition:grid-template-rows .45s ease,opacity .3s ease,margin .45s ease,visibility 0s .45s}
+.it-graphknopf{margin-left:auto;align-self:flex-end;height:34px;padding:0 10px 0 13px;border-radius:999px;border:1.5px solid rgba(255,255,255,0.45);background:rgba(255,255,255,0.08);color:#fff;font-family:inherit;font-size:13.5px;font-weight:700;letter-spacing:.01em;cursor:pointer;display:inline-flex;align-items:center;gap:6px;line-height:1}
+.it-graphknopf svg{transition:transform .3s ease}
+.it-graphknopf[aria-expanded="true"] svg{transform:rotate(180deg)}
+.it-titelzeile{display:flex;align-items:center;gap:8px}
+.it-info{width:20px;height:20px;flex-shrink:0;border-radius:999px;border:1.5px solid ${C.see};background:#fff;color:${C.see};font-family:Georgia,"Times New Roman",serif;font-style:italic;font-size:12px;font-weight:700;line-height:1;padding:0;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+.it-info[aria-expanded="true"]{background:${C.see};color:#fff}
+.it-schritt[data-zustand="gesperrt"] .it-info{display:none}
+.it-frage{display:none}
+.it-frage[data-auf="ja"]{display:block}
 .it-weg{min-width:0}
 .it-liste{list-style:none;margin:0;padding:0}
 .it-schritt{display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px}
@@ -538,5 +583,8 @@ const IT_CSS = `
   .it-raster>.it-weg{grid-column:1;grid-row:1}
   .it-aufgabe{padding:16px 20px 18px}
   .it-zumbild{display:none}
+  .it-graphknopf,.it-info{display:none}
+  .it-frage{display:block}
+  .it-bild,.it-bild[data-zu="ja"]{grid-template-rows:1fr;opacity:1;margin:0;visibility:visible}
 }
 `;

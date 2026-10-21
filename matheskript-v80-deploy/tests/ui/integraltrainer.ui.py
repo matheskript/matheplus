@@ -53,13 +53,32 @@ with sync_playwright() as p:
         pruefe(page.locator(".ib-buehne svg").count() == 1, f"{breite}: Schaubild fehlt")
         pruefe(page.get_by_role("button", name="Fläche wachsen lassen").count() == 0, f"{breite}: Fläche schon vor dem Rechnen sichtbar")
 
+        # Handy: Bild zeigt sich kurz und klappt zu; Eingabe direkt unter der Aufgabe; Erklärung hinter ⓘ
+        if breite < 840:
+            page.wait_for_timeout(1800)
+            pruefe(page.locator('.it-bild[data-zu="ja"]').count() == 1, f"{breite}: Bild klappt nicht von selbst zu")
+            auf_y = page.locator(".it-aufgabe").bounding_box(); s1 = page.locator(".it-schritt").first.bounding_box()
+            pruefe(s1["y"] - (auf_y["y"] + auf_y["height"]) < 40, f"{breite}: Schritt 1 steht nicht direkt unter der Aufgabe")
+            frage = page.locator(".it-schritt").first.locator(".it-frage")
+            pruefe(not frage.is_visible(), f"{breite}: Erklärung sichtbar ohne ⓘ")
+            page.locator(".it-schritt").first.locator(".it-info").click(); page.wait_for_timeout(150)
+            pruefe(frage.is_visible(), f"{breite}: ⓘ zeigt die Erklärung nicht")
+            page.locator(".it-graphknopf").click(); page.wait_for_timeout(600)
+            pruefe(page.locator(".ib-buehne svg").is_visible() and page.locator('.it-bild[data-zu="ja"]').count() == 0, f"{breite}: „Graph“ klappt das Bild nicht auf")
+            page.screenshot(path=f"{AUS}/handy-graph-auf-{breite}.png")
+            page.locator(".it-graphknopf").click(); page.wait_for_timeout(600)
+            pruefe(page.locator('.it-bild[data-zu="ja"]').count() == 1, f"{breite}: „Graph“ klappt das Bild nicht zu")
+            page.screenshot(path=f"{AUS}/handy-kompakt-{breite}.png")
+        else:
+            pruefe(page.locator(".it-graphknopf").is_hidden(), f"{breite}: Graph-Knopf am Desktop sichtbar")
+
         # Training komplett durchgehen
         for _ in range(8):
             aktiv = page.locator('.it-schritt[data-zustand="aktiv"]')
             if not aktiv.count(): break
             schritt_durch(page, aktiv.first)
         pruefe(page.locator(".it-ergebnis").count() == 1, f"{breite}: Ergebnis nach dem Training fehlt")
-        pruefe(page.get_by_role("button", name="Fläche wachsen lassen").count() == 1, f"{breite}: „Fläche wachsen lassen“ fehlt nach dem Integral")
+        pruefe(page.locator("button", has_text="Fläche wachsen lassen").count() == 1, f"{breite}: „Fläche wachsen lassen“ fehlt nach dem Integral")
         page.wait_for_timeout(2900)
         page.screenshot(path=f"{AUS}/training-{breite}.png", full_page=True)
         if breite >= 840:
@@ -70,6 +89,8 @@ with sync_playwright() as p:
 
         # Automatik: alle Typen
         page.get_by_role("button", name="Rechnen", exact=True).click(); page.wait_for_timeout(300)
+        if breite < 840:
+            page.locator(".it-graphknopf").click(); page.wait_for_timeout(600)
         for typ in NAMEN:
             waehle(page, typ)
             if typ != "bestand":
