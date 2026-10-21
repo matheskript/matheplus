@@ -13,6 +13,7 @@ export const ANIM_BRUECHE = {
       { z: 3, gleich: [1, 2], y: 36, text: "Drei Sechstel: genau in der Mitte – das ist ein Halb." },
       { z: 8, gemischt: true, text: "Acht Sechstel: über die 1 hinaus – ein Ganzes und zwei Sechstel." },
     ] } },
+    { szene: "b2_strahlDoppel", titel: "Drittel und Sechstel", p: { bis: 2, n: 3, k: 2, ziele: [2, 5] } },
   ],
   "kuerzen-und-erweitern": [
     { szene: "b_verfeinern", titel: "Erweitern", p: { z: 2, n: 3, k: 4 } },
@@ -24,6 +25,7 @@ export const ANIM_BRUECHE = {
   ],
   "gemischte-zahlen": [
     { szene: "b_gemischt", titel: "Ganze und Rest", p: { z: 23, n: 6 } },
+    { szene: "b2_pizzaBuendeln", titel: "Pizzen bündeln und zerschneiden", p: { z: 11, n: 4, zurueck: [2, 1, 3] } },
   ],
   "brueche-und-prozente": [
     { szene: "b_prozent", titel: "Bruch wird Prozent", p: { z: 7, n: 25, raster: [5, 5] } },
@@ -55,6 +57,7 @@ export const ANIM_BRUECHE = {
   /* ---------- III Addieren und Subtrahieren ---------- */
   "gleichnamige-brueche-addieren": [
     { szene: "b_addStreifen", titel: "Achtel plus Achtel", p: { a: [3, 8], b: [2, 8] } },
+    { szene: "b2_sprungAdd", titel: "Fünftel springen", p: { a: [1, 5], b: [3, 5] } },
   ],
   "ungleichnamige-brueche-hauptnenner": [
     { szene: "b_addStreifen", titel: "Halbe plus Drittel", p: { a: [1, 2], b: [1, 3] } },
@@ -69,6 +72,7 @@ export const ANIM_BRUECHE = {
   ],
   "gemischte-zahlen-addieren": [
     { szene: "b_gemischtAdd", titel: "Ganze und Brüche getrennt", p: { a: [1, 3, 4], b: [2, 1, 2] } },
+    { szene: "b2_uebertrag", titel: "Übertrag: neues Ganzes", p: { a: [1, 3, 5], b: [2, 4, 5] } },
   ],
   "dezimalzahlen-addieren-subtrahieren": [
     { szene: "b_kommaUnterKomma", titel: "Komma unter Komma", p: { a: "45,08", b: "7,935", op: "+" } },

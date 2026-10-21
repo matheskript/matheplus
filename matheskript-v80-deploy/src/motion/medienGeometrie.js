@@ -87,9 +87,11 @@ export const ANIM_GEOMETRIE = {
 /* ---------- Klasse 5 · VII Körper ---------- */
   "netze-von-quader-und-wuerfel": [
     { szene: "g_wuerfelnetz", titel: "Netz falten", p: {} },
+    { szene: "g_netzwahl", titel: "Welches Netz wird ein Würfel?", p: {} },
   ],
   "oberflaeche-quader-wuerfel": [
     { szene: "g_oberflaeche", titel: "Quader aufklappen", p: { a: 5, b: 3, c: 2 } },
+    { szene: "g_flaechenpaare", titel: "Drei Flächenpaare", p: { a: 4, b: 3, c: 2 } },
   ],
   "volumeneinheiten": [
     { szene: "g_kubikdezimeter", titel: "1 dm³ = 1000 cm³", p: {} },
@@ -98,13 +100,16 @@ export const ANIM_GEOMETRIE = {
   ],
   "volumen-quader-wuerfel": [
     { szene: "g_volumen", titel: "Schicht für Schicht", p: { a: 4, b: 3, c: 2 } },
+    { szene: "g_kantedoppelt", titel: "Kante doppelt, Volumen doppelt", p: { a: 3, b: 2, c: 2 } },
   ],
 /* ---------- Klasse 6 · V Winkel und Kreis ---------- */
   "winkel-scheitel-schenkel": [
     { szene: "g_winkelteile", titel: "Scheitel und Schenkel", p: { grad: 50 } },
+    { szene: "g_winkeldrehung", titel: "Winkel als Drehung", p: {} },
   ],
   "winkelarten": [
     { szene: "g_winkelarten", titel: "Von spitz bis voll", p: {} },
+    { szene: "g_winkelschaetzen", titel: "Schätzen, messen, einordnen", p: { winkel: [65, 140, 250], schaetz: [60, 135, 240] } },
   ],
   "winkel-messen-und-zeichnen": [
     { szene: "g_geodreieck", titel: "Winkel messen", p: { grad: 125 } },
@@ -113,6 +118,7 @@ export const ANIM_GEOMETRIE = {
   ],
   "winkel-an-geraden": [
     { szene: "g_scheitelwinkel", titel: "Scheitel- und Nebenwinkel", p: { alpha: 40 } },
+    { szene: "g_stufenwinkel", titel: "Stufen- und Wechselwinkel", p: { alpha: 55 } },
   ],
   "kreis-und-kreisfiguren": [
     { szene: "g_zirkel", titel: "Mit dem Zirkel", p: { r: 3 } },

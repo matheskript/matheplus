@@ -24,6 +24,13 @@ test("jede Lerneinheit hat mindestens eine Animation, keine fremden Schlüssel",
   }
 });
 
+test("jede Lerneinheit hat mindestens zwei Animationen mit verschiedenen Szenen", () => {
+  for (const e of UNTERSTUFE_EINHEITEN) {
+    const l = animationenFuer(e.id);
+    assert.ok(l.length >= 2, `${e.id}: nur ${l.length} Animation`);
+  }
+});
+
 test("die 13 Unterstufen-Werkzeuge haben Animationen, alle Verweise lösen auf", () => {
   const soll = ["stellenwert", "ganzezahlen", "primzahlen", "rechengesetze", "groessen", "dezimal", "koordinaten", "flaechen", "quader", "zuordnungen", "prozent", "diagramme", "zufall"];
   for (const w of soll) {

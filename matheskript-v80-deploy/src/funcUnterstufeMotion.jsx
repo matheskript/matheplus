@@ -13,8 +13,14 @@ import { SZENEN_GEOMETRIE } from "./motion/szenenGeometrie.jsx";
 import { SZENEN_BRUECHE } from "./motion/szenenBrueche.jsx";
 import { SZENEN_DATEN } from "./motion/szenenDaten.jsx";
 import { SZENEN_EXTRA } from "./motion/szenenExtra.jsx";
+import { SZENEN_ZWEIT_ZAHLEN } from "./motion/szenenZweitZahlen.jsx";
+import { SZENEN_ZWEIT_GEOMETRIE } from "./motion/szenenZweitGeometrie.jsx";
+import { SZENEN_ZWEIT_BRUECHE } from "./motion/szenenZweitBrueche.jsx";
+import { SZENEN_ZWEIT_DATEN } from "./motion/szenenZweitDaten.jsx";
+import { SZENEN_ZWEIT_RECHNEN } from "./motion/szenenZweitRechnen.jsx";
 
-export const SZENEN = { ...SZENEN_ZAHLEN, ...SZENEN_GEOMETRIE, ...SZENEN_BRUECHE, ...SZENEN_DATEN, ...SZENEN_EXTRA };
+export const SZENEN = { ...SZENEN_ZAHLEN, ...SZENEN_GEOMETRIE, ...SZENEN_BRUECHE, ...SZENEN_DATEN, ...SZENEN_EXTRA,
+  ...SZENEN_ZWEIT_ZAHLEN, ...SZENEN_ZWEIT_GEOMETRIE, ...SZENEN_ZWEIT_BRUECHE, ...SZENEN_ZWEIT_DATEN, ...SZENEN_ZWEIT_RECHNEN };
 
 const STIL_ID = "us-motion-stil";
 const STIL = `

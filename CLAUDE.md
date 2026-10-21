@@ -44,6 +44,7 @@ Die neun Werkzeuge der Vektor-Stationen (Rechnen mit Vektoren, Kreuzprodukt, Win
 ## Unterstufe: Motion-Animationen und Videos
 Jede Lerneinheit hat mindestens eine Animation und ein Video (`src/unterstufeMedien.js`; Test `tests/unterstufeMedien.test.mjs`).
 - Szenen sind reine Funktionen des Fortschritts (Vertrag im Kopf von `src/motion/kern.jsx`), je Gruppe `src/motion/szenen*.jsx`, Zuordnung je Lerneinheit `src/motion/medien*.js`; Abspieler `src/funcUnterstufeMotion.jsx`. Das Schlussbild ist zugleich das Standbild.
+- Seit 21.10. hat jede Lerneinheit mindestens **zwei** Animationen mit verschiedenem Zugang; die zweiten der 26 früher einzelnen stehen in `src/motion/szenenZweit*.jsx` (Zahlen, Rechnen, Geometrie, Brueche, Daten).
 - Kontaktbogen zum Ansehen ohne Browser-Klickerei: `node scripts/motion-blatt.mjs [filter] /tmp/mb` → PNGs.
 - Videos: Platzhalter ist ein Michael-Penn-Video; eigenes Video = Eintrag in `VIDEO_EIGEN` (YouTube-ID), dann verschwindet der Hinweis.
 - Üben in der Lerneinheit bleibt kompakt: ein Hauptknopf + Untermenü „Mehr“, keine Knopf-Reihen. Browser: `tests/ui/unterstufe-modul.ui.py`.

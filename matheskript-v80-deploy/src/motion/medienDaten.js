@@ -7,7 +7,10 @@ export const ANIM_DATEN = {
     { szene: "d_ausgleich", titel: "Ausgleichen", p: { werte: [2, 3, 2, 4, 1], name: "Fünf Noten" } },
     { szene: "d_ausgleich", titel: "Lenas Noten", p: { werte: [3, 2, 4, 2], name: "Lenas Noten", schluss: "Summe 11 geteilt durch 4 Noten ergibt 2,75 – kein Wert aus der Liste, aber der Ausgleich." } },
   ],
-  "zahlenbereiche": [{ szene: "d_zahlenbereiche", titel: "ℕ, ℤ und ℚ", p: {} }],
+  "zahlenbereiche": [
+    { szene: "d_zahlenbereiche", titel: "ℕ, ℤ und ℚ", p: {} },
+    { szene: "dz_bereich_rechnen", titel: "Wenn die Rechnung nicht aufgeht", p: {} },
+  ],
 
   /* ---------- VI Terme und Gleichungen ---------- */
   "terme-mit-variablen": [
@@ -59,7 +62,10 @@ export const ANIM_DATEN = {
     { szene: "d_urliste", titel: "Von der Urliste zum Diagramm", p: { daten: [["zu Fuß", "F", 8], ["Rad", "R", 7], ["Bus", "B", 9], ["Auto", "A", 4]], seed: 7 } },
     { szene: "d_achse", titel: "Täuschende Achse", p: { a: ["Rad", 7], b: ["Bus", 9], ab: 6, max: 10 } },
   ],
-  "kreisdiagramm": [{ szene: "d_kreis", titel: "Winkel für Winkel", p: { gesamt: 40, teile: [["Fußball", 16], ["Basketball", 12], ["Schwimmen", 8], ["Leichtathletik", 4]] } }],
+  "kreisdiagramm": [
+    { szene: "d_kreis", titel: "Winkel für Winkel", p: { gesamt: 40, teile: [["Fußball", 16], ["Basketball", 12], ["Schwimmen", 8], ["Leichtathletik", 4]] } },
+    { szene: "dz_streifen_kreis", titel: "Vom Streifen zum Kreis", p: { gesamt: 40, teile: [["Fußball", 16], ["Basketball", 12], ["Schwimmen", 8], ["Leichtathletik", 4]] } },
+  ],
   "median-und-spannweite": [
     { szene: "d_median", titel: "Sortieren und Mitte", p: { werte: [3, 7, 2, 9, 5] } },
     { szene: "d_median", titel: "Gerade Anzahl", p: { werte: [1, 0, 2, 1, 3, 1, 0, 5, 1, 2] } },
@@ -78,7 +84,10 @@ export const ANIM_DATEN = {
     { szene: "d_wertegraph", titel: "Tabelle wird Graph", p: { xs: [0, 2, 4, 6], ys: [0, 30, 60, 90], weiter: [10, 150], xName: "Zeit", yName: "Wasser", ex: "min", ey: "l", xmax: 10, ymax: 150, xt: [0, 2, 4, 6, 8, 10], yt: [0, 50, 100, 150] } },
     { szene: "d_temperatur", titel: "Graph lesen", p: { punkte: [[6, 12], [8, 14], [10, 17], [12, 20], [14, 22], [16, 21], [18, 18], [20, 14]], ablesen: 10 } },
   ],
-  "proportionale-zuordnungen": [{ szene: "d_proportional", titel: "Doppelt so viel", p: { k: 0.45, n: 6, ding: "Brötchen" } }],
+  "proportionale-zuordnungen": [
+    { szene: "d_proportional", titel: "Doppelt so viel", p: { k: 0.45, n: 6, ding: "Brötchen" } },
+    { szene: "dz_ursprungsgerade", titel: "Gerade durch den Ursprung", p: { k: 2.5, n: 4, xE: "kg", yE: "€", ding: "Äpfel" } },
+  ],
   "dreisatz": [
     { szene: "d_dreisatz", titel: "Über die Eins", p: {
       kopf: ["Hefte", "Preis"], bild: "heft",
@@ -86,6 +95,7 @@ export const ANIM_DATEN = {
       ops: [[": 4", ": 4"], ["· 7", "· 7"]],
       texte: ["4 Hefte kosten 3,20 €. Was kosten 7 Hefte?", "Auf eins herunter: beide Seiten durch 4 – ein Heft kostet 0,80 €.", "Auf sieben hoch: beide Seiten mal 7.", "7 Hefte kosten 5,60 €. Beide Spalten wurden gleich behandelt."],
     } },
+    { szene: "dz_zwei_wege", titel: "Zwei Wege zum Ziel", p: { kopf: ["Hefte", "Preis"], a: [8, 1, 12], b: [8, 4, 12], k: 0.75, opsA: [": 8", "· 12"], opsB: [": 2", "· 3"], teiler: 4 } },
   ],
   "antiproportionale-zuordnungen": [
     { szene: "d_antiprop", titel: "Gleiche Arbeit", p: { produkt: 24, schritte: [2, 3, 4, 6, 8, 12], x: "Maler", y: "Stunden" } },
