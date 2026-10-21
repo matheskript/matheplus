@@ -64,8 +64,8 @@ with sync_playwright() as p:
 
                 nav = page.locator(".kl-nav [data-besucher-menue]")
                 logo = page.evaluate("parseFloat(getComputedStyle(document.querySelector('.kl-marke > span')).fontSize)")
-                seite = min(max(940, breite * 0.62), 1200)   # --seite aus index.css
-                erwartet = min(max(40, seite * 0.042), 50)    # --kl-logo ab 1000 px
+                seite = min(max(940, breite * 0.72), 1360)   # --seite aus index.css
+                erwartet = min(max(40, seite * 0.042), 56)    # --kl-logo ab 1000 px
                 if angemeldet:
                     pruefe(nav.count() == 0, f"{tag}: Besuchermenü trotz Anmeldung")
                     pruefe(page.locator(".kl-slogan").count() == 1, f"{tag}: Slogan fehlt")

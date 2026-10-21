@@ -259,9 +259,9 @@ html[data-start-edition="ger"] .app-wurzel { background: #FFFFFF !important; }
 /* Wiederkehrer (Klasse bekannt) am Handy: kompakte Bühne ohne Haken */
 .sbb-held.kompakt .sbb-held-suche { margin-top: 20px; }
 /* Breite Bühne (ab 1100 px): Text links, Start-Karte rechts – so breit wie die Kopfleiste (--seite, index.css).
-   Wächst die Seite (ab ~1516 px), wachsen Karte (420 → 480 px), Spaltenabstand und Schlagzeile (58 → 68 px) mit. */
-.sbb-held-raster { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 1fr) clamp(420px, calc(var(--seite, 940px) * .4), 480px);
-  column-gap: clamp(40px, calc(var(--seite, 940px) * .0425), 56px); align-items: start;
+   Wächst die Seite (ab ~1306 px), wachsen Karte (420 → 540 px), Spaltenabstand und Schlagzeile (58 → 76 px) mit. */
+.sbb-held-raster { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 1fr) clamp(420px, calc(var(--seite, 940px) * .4), 540px);
+  column-gap: clamp(40px, calc(var(--seite, 940px) * .0425), 60px); align-items: start;
   width: 100%; max-width: var(--seite, 940px); margin: 0 auto; padding: 0 0 36px; }
 .sbb-held-raster > .sbb-spalte { max-width: none; margin: 0; padding: 18px 0 0; }
 .sbb-held-karte { position: relative; z-index: 2; }
@@ -270,9 +270,9 @@ html[data-start-edition="ger"] .app-wurzel { background: #FFFFFF !important; }
 .sbb-held-karte .sk-konto { background: rgba(5,11,31,0.72); border-color: rgba(255,255,255,0.18); color: #FFFFFF; box-shadow: none; }
 .sbb-held-karte .sk-konto p { color: rgba(255,255,255,0.86); }
 .sbb-held-karte .sk-konto .k.hell { color: #FFFFFF; border-color: rgba(255,255,255,0.55); }
-.sbb-held.breit h1 { font-size: clamp(58px, calc(var(--seite, 940px) * .0575), 68px); }
-.sbb-held.breit .unter { font-size: clamp(30px, calc(var(--seite, 940px) * .0285), 34px); }
-.sbb-held.breit .sbb-held-suche { max-width: clamp(520px, calc(var(--seite, 940px) * .5), 600px); }
+.sbb-held.breit h1 { font-size: clamp(58px, calc(var(--seite, 940px) * .0575), 76px); }
+.sbb-held.breit .unter { font-size: clamp(30px, calc(var(--seite, 940px) * .0285), 38px); }
+.sbb-held.breit .sbb-held-suche { max-width: clamp(520px, calc(var(--seite, 940px) * .5), 660px); }
 .sbb-held-zone { margin: 0 0 10px; display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text); }
 .sbb-held-zone .nr { width: 26px; height: 26px; border-radius: 999px; display: inline-grid; place-items: center; font-size: 13px; letter-spacing: 0; color: ${NACHT}; background: ${GOLD}; }
 .sbb[data-modus="hell"] .sbb-held-suche .such-buehne-feld { box-shadow: 0 3px 16px rgba(15,26,51,0.07); }
@@ -362,9 +362,11 @@ html[data-start-edition="ger"] .app-wurzel { background: #FFFFFF !important; }
 .sbb-vision-knoepfe { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
 
 /* ---------- Spalte ---------- */
-/* Lesespalte 783 px; ab ~1516 px wächst sie mit der Seite (5/6 von --seite: 1680 px → 868 px, 1920 px → 992 px),
-   damit Karten, Navigator und Kursraster auf großen Bildschirmen nicht als schmaler Streifen in der Mitte stehen */
-.sbb-spalte { width: 100%; max-width: clamp(783px, calc(var(--seite, 940px) * .8333), 1000px); margin: 0 auto; padding: 0 20px; }
+/* Lesespalte 783 px (Handy/Tablet). In der breiten Bühne (ab 1100 px) so breit wie Kopfleiste und Bühne (--seite):
+   Karten, Navigator und Kursraster stehen dann auf derselben linken Kante wie Wortmarke und Schlagzeile, statt als
+   schmalerer, eingerückter Streifen darunter (Fließtexte behalten ihre Lesebreite über eigene max-width). */
+.sbb-spalte { width: 100%; max-width: 783px; margin: 0 auto; padding: 0 20px; }
+@media (min-width: 1100px) { .sbb-spalte { max-width: calc(var(--seite, 940px) + 40px); } }
 .sbb-teil.ende .sbb-spalte { padding-bottom: 70px; }
 .sbb-abschnitt { margin-top: 28px; }
 

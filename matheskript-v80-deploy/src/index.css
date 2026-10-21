@@ -37,8 +37,8 @@ html[data-kr-voll] .app-wurzel { min-height: 0 !important; height: 100%; overflo
    und --kl-rand in funcKopfleiste.jsx). Unter 840 px bleibt alles wie auf dem Handy. */
 :root { --tr-breite: 100%; --seite: 940px; }
 /* --seite (seit 21.10. nachts): die eine Seitenbreite ab 1000 px, an der sich Kopfleiste (Wortmarke bis ☰, --kl-rand),
-   Bühne und Band der Startseite ausrichten. Bis ~1516 px bleibt sie 940 px, darüber wächst sie mit 62 % der Fensterbreite
-   bis 1200 px (1680 px → 1042, 1920 px → 1190). Wortmarke und Schlagzeile wachsen daran gekoppelt mit.
+   Bühne, Band und Lesespalte der Startseite ausrichten. Bis ~1306 px bleibt sie 940 px, darüber wächst sie mit 72 % der
+   Fensterbreite bis 1360 px (1440 px → 1037, 1680 px → 1210, 1920 px → 1360). Wortmarke und Schlagzeile wachsen daran gekoppelt mit.
    Die Werkzeugseiten (--tr-breite) bleiben bewusst bei 940 px – ihre Arbeitsflächen sind dafür gebaut. */
 @media (min-width: 840px) {
   :root { --tr-breite: calc(100% - 48px); }
@@ -51,7 +51,7 @@ html[data-kr-voll] .app-wurzel { min-height: 0 !important; height: 100%; overflo
   html[data-training-breit] .mx-auto.px-6.pb-16 > div > p:not([style*="text-align: center"]) { max-width: 680px !important; }
 }
 @media (min-width: 1000px) {
-  :root { --tr-breite: min(calc(100% - 64px), 940px); --seite: clamp(940px, 62vw, 1200px); }
+  :root { --tr-breite: min(calc(100% - 64px), 940px); --seite: clamp(940px, 72vw, 1360px); }
 }
 .eve-knopf { transition: filter .12s ease, transform .08s ease; }
 .eve-knopf:hover { filter: brightness(0.94); }

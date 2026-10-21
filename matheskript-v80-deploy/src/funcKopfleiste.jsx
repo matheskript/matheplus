@@ -18,8 +18,8 @@
                 angemeldet, die vier Punkte liegen hinter ☰ (Besuchermenü, ein
                 kleines Fenster; von dort „Alle Bereiche“ ins große ☰-Menü).
                 Ab 1000 px eine breite Zeile wie eine normale Website: Wortmarke
-                in voller Größe (40 px; ab ~1516 px wächst sie mit der Seitenbreite
-                --seite aus index.css bis 50 px bei 1920 px, Zeile und Menüschrift
+                in voller Größe (40 px; ab ~1306 px wächst sie mit der Seitenbreite
+                --seite aus index.css bis 56 px bei 1920 px, Zeile und Menüschrift
                 mit), die vier Punkte fest daneben (nie zum Ausklappen), kein Slogan.
    Keinen Modus-Knopf in der Leiste: dunkel/hell/mix stellt man ganz unten im
    ☰-Menü um („Darstellung“) oder über die Pille unten links auf der Startseite.
@@ -173,10 +173,10 @@ const CSS = `
    Die Wortmarke beginnt bündig mit der Schlagzeile; nur wenn rechts der Platz fehlt, rückt sie so weit wie nötig
    nach links. Rechts endet die Zeile genauso weit vor dem Rand wie die Wortmarke links beginnt (symmetrisch, --kl-rand).
    Größe (seit 21.10. nachts): Wortmarke, Zeilenhöhe und Menüschrift hängen an der Seitenbreite --seite (index.css) –
-   940 px → 40 px Wortmarke, 1680 px → 44 px, 1920 px → 50 px; zusammengezogen (beim Scrollen) immer 40 px in 56 px.
+   940 px → 40 px Wortmarke, 1440 px → 44 px, 1680 px → 51 px, 1920 px → 56 px; zusammengezogen (beim Scrollen) immer 40 px in 56 px.
    Angemeldet: Slogan linksbündig unter der Wortmarke, seine Größe folgt der Wortmarke (halbe Höhe); Pille, Chip und ☰ rechts. */
 @media ${BREIT} {
-  .kl { --kl-logo-gast: clamp(40px, calc(var(--seite, 940px) * .042), 50px); --kl-logo: clamp(40px, calc(var(--seite, 940px) * .042), 50px);
+  .kl { --kl-logo-gast: clamp(40px, calc(var(--seite, 940px) * .042), 56px); --kl-logo: clamp(40px, calc(var(--seite, 940px) * .042), 56px);
     --kl-rand: max(32px, min(${HELD_KANTE}, calc((100% - ${BREIT_BEDARF}) / 2))); }
   .kl[data-kompakt] { --kl-logo-gast: 40px; --kl-logo: 40px; }
   .kl .kl-marke > span { transition: font-size .28s cubic-bezier(.2,.7,.3,1); }
@@ -187,7 +187,7 @@ const CSS = `
   /* gleiche Spezifität wie die Zeile darüber, deshalb hier noch einmal: zusammengezogen verschwindet der Slogan */
   .kl[data-kompakt]:not([data-gast]) .kl-slogan { max-height: 0; margin-top: 0; padding-bottom: 0; margin-bottom: 0; }
   .kl[data-gast] .kl-nav { gap: clamp(22px, calc(var(--seite, 940px) * .028), 34px); margin-right: 16px; }
-  .kl[data-gast] .kl-nav button { font-size: clamp(14px, calc(var(--seite, 940px) * .0135), 16px); }
+  .kl[data-gast] .kl-nav button { font-size: clamp(14px, calc(var(--seite, 940px) * .0135), 17px); }
   .kl .kl-rechts { margin-left: auto; gap: 8px; }
   .kl[data-gast] .kl-rechts { margin-left: 0; }
   .kl .kl-pille { height: 38px; font-size: 13px; max-width: 320px; }
@@ -366,7 +366,7 @@ export function Kopfleiste({ ansicht, gehe, zurStartseite, hmOffen, setHmOffen, 
       <style>{`
         :root{--kopf-h:68px}
         @media (min-width:421px){:root{--kopf-h:clamp(74px, calc(11.1vw + 26px), 90px)}}
-        @media (min-width:1000px){:root{--kopf-h:clamp(90px, calc(var(--seite, 940px) * .0935), 112px)}}
+        @media (min-width:1000px){:root{--kopf-h:clamp(90px, calc(var(--seite, 940px) * .0935), 120px)}}
         .titel-kurz{display:none}
         @media (max-width:520px){.held{padding-top:18px !important;padding-bottom:4px !important}.held h1{font-size:25px !important;line-height:1.1 !important}.held h1+div{margin-top:12px !important;margin-bottom:13px !important}.held-welle{height:12px !important}}
         .kopfblock{margin-bottom:-16px}
