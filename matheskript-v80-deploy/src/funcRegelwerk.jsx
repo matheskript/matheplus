@@ -303,7 +303,7 @@ export function TermEingabe({ wert, setWert, onOk, placeholder, stand, label = "
 export function ModusSchalter({ modus, setModus }) {
   return (
     <div className="wk-seg" role="group" aria-label="Modus">
-      {[["auto", "Automatik"], ["training", "Training"]].map(([id, name]) => (
+      {[["auto", "Rechnen"], ["training", "Trainieren"]].map(([id, name]) => (
         <button key={id} type="button" aria-pressed={modus === id} onClick={() => setModus(id)}>{name}</button>
       ))}
     </div>
@@ -424,14 +424,14 @@ const HER_TITEL = {
   linkette: ["Herleitung der linearen Kettenregel", "Warum der Faktor m vorne steht"],
   kette: ["Herleitung der Kettenregel", "Mit der Änderung der inneren Funktion erweitern"],
   kombo: ["So gehst du Kombinationen an", "Hauptregel zuerst, Bausteine in Nebenrechnungen"],
-  gold: ["Gold Level: alle Regeln kombiniert", "Hauptregel zuerst, Bausteine in Nebenrechnungen"],
+  gold: ["Stufe 3: alle Regeln kombiniert", "Hauptregel zuerst, Bausteine in Nebenrechnungen"],
 };
 
 /* ---------- Werkstatt ---------- */
 
 export const REGEL_CHIPS = [
   ["produkt", "Produktregel"], ["quotient", "Quotientenregel"], ["reziprok", "Reziprokenregel"],
-  ["linkette", "Lineare Kettenregel"], ["kette", "Kettenregel"], ["gold", "Gold Level"],
+  ["linkette", "Lineare Kettenregel"], ["kette", "Kettenregel"], ["gold", "Alle Regeln"],
 ];
 const leer = () => ({ text: "", status: null, hinweis: "", versuche: 0, pos: 0 });
 const leereFelder = () => ({ u1: leer(), uv: leer(), v1: leer(), f1: leer() });

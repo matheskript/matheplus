@@ -147,7 +147,7 @@ with sync_playwright() as pw:
         p.wait_for_timeout(300)
         pruefe(p.get_by_role("button", name="Ausmultiplizieren").count() == 1, f"{n}: Bedingungen nicht angenommen")
         ueberbreite(p, n + " Schritte")
-        p.get_by_role("button", name="Advanced", exact=True).click()
+        p.get_by_role("button", name="Beliebige Funktionen", exact=True).click()
         p.get_by_role("button", name="Neue Aufgabe").click()
         ueberbreite(p, n + " Advanced")
         foto(p, f"steckbrief-{w}")

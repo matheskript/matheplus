@@ -11,6 +11,7 @@
    Keine base-Datei darf diese Datei importieren.
    ============================================================ */
 
+import { startModus } from "./uebenWunsch.js";
 import React, { useState } from "react";
 import { C } from "./base1.jsx";
 import { M } from "./func3.jsx";
@@ -281,10 +282,10 @@ const hilfe = (au) => hilfeKontext({
   pruefen: [zw("Liegt dein Punkt plausibel (innen/außen)? Zeichne eine grobe Skizze.", "Is your point plausibly placed (inside/outside)? Make a rough sketch.")],
 });
 
-const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Üben", "Practise")]];
+const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Trainieren", "Train")]];
 
 export function Konstruktionen() {
-  const [modus, setModus] = useState("entdecken");
+  const [modus, setModus] = useState(() => startModus("konstruktion"));
   return (
     <Seite titel={zw("Besondere Linien im Dreieck", "Special lines in a triangle")}
       text={zw("Mittelsenkrechte, Winkelhalbierende, Höhe und Seitenhalbierende: Je drei davon treffen sich immer in einem Punkt – Umkreismittelpunkt, Inkreismittelpunkt, Höhenschnittpunkt und Schwerpunkt.",

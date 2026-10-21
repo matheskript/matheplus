@@ -9,6 +9,7 @@
    Keine base-Datei darf diese Datei importieren.
    ============================================================ */
 
+import { startModus } from "./uebenWunsch.js";
 import React, { useMemo, useState } from "react";
 import { C } from "./base1.jsx";
 import { M } from "./func3.jsx";
@@ -386,10 +387,10 @@ function Ueben() {
   );
 }
 
-const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Üben", "Practise")]];
+const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Trainieren", "Train")]];
 
 export function SatzDesThales() {
-  const [modus, setModus] = useState("entdecken");
+  const [modus, setModus] = useState(() => startModus("thales"));
   return (
     <Seite titel={zw("Satz des Thales", "Thales' theorem")}
       text={zw("Jeder Winkel im Halbkreis ist ein rechter. Damit erkennst du rechte Winkel, ohne sie zu messen, findest Umkreise und konstruierst Tangenten.",

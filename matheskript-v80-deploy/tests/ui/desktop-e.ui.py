@@ -54,7 +54,7 @@ def ueben(p, pfad, n):
     if pfad == "trigonometrie":
         p.locator("[data-kapitel=dreieck]").click()
     else:
-        p.get_by_role("tab", name="Üben").first.click()
+        p.get_by_role("tab", name="Trainieren").first.click()
     p.wait_for_timeout(250)
     typen = p.locator("[data-aufgabentyp]:visible button")
     pruefe(typen.count() >= 2 or pfad == "strahlensaetze", f"{n}: Aufgabentypen fehlen")   # Strahlensätze: ohne Typwahl

@@ -935,7 +935,7 @@ export function Geradengleichung({ start = "basics" }) {
   const [bildRef, bildBreite] = useBreite();
   const reiter = (
     <div className="ger-seg" role="group" aria-label={zw("Geraden", "Straight lines")}>
-      {[["basics", "Basics"], ["pq", "P & Q"], ["pm", "P & m"]].map(([id, name]) => (
+      {[["basics", "Grundlagen"], ["pq", "Zwei Punkte"], ["pm", "Punkt und Steigung"]].map(([id, name]) => (
         <button key={id} type="button" data-ger-tab={id} aria-pressed={tab === id} onClick={() => setTab(id)}>{name}</button>
       ))}
     </div>

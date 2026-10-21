@@ -185,7 +185,7 @@ const hilfe = (a) => hilfeKontext({
 
 export function UmfangFlaeche() {
   return (
-    <ZweiModi animationen={werkzeugAnimationen("flaechen")} titel={zw("Umfang und Flächeninhalt", "Perimeter and area")}
+    <ZweiModi werkzeug="flaechen" animationen={werkzeugAnimationen("flaechen")} titel={zw("Umfang und Flächeninhalt", "Perimeter and area")}
       text={zw("Rechteck, Dreieck, Parallelogramm, Trapez und Drachen – jede Formel siehst du aus dem Rechteck entstehen. Dazu zusammengesetzte Figuren.", "Rectangle, triangle, parallelogram, trapezoid and kite – you see every formula emerge from the rectangle. Plus composite figures.")}
       kurz={<p style={{ margin: 0 }}>{zw("Rechteck A = a · b, u = 2a + 2b · Dreieck A = g · h : 2 · Parallelogramm A = g · h · Trapez A = (a + c) · h : 2 · Drachen A = e · f : 2. Die Höhe steht immer senkrecht auf der Grundseite.", "Rectangle A = a · b, u = 2a + 2b · triangle A = g · h : 2 · parallelogram A = g · h · trapezoid A = (a + c) · h : 2 · kite A = e · f : 2. The height is always perpendicular to the base.")}</p>}
       entdecken={<Entdecken />}

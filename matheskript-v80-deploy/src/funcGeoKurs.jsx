@@ -145,7 +145,7 @@ function Uebersicht({ stand, setStand, oeffnen }) {
               const ok = fertig(m, stand);
               const seiten = m.bis - m.von + 1;
               const meta = [{ icon: <IconBuch />, text: `${seiten} S.`, label: `${seiten} ${seiten === 1 ? "Seite" : "Seiten"} lesen` }];
-              if (m.werkzeuge.length > 0) meta.push({ icon: <IconWerkzeug />, text: `${m.werkzeuge.length} ${m.werkzeuge.length === 1 ? "Tool" : "Tools"}`, label: `${m.werkzeuge.length} ${m.werkzeuge.length === 1 ? "Werkzeug" : "Werkzeuge"}` });
+              if (m.werkzeuge.length > 0) meta.push({ icon: <IconWerkzeug />, text: `${m.werkzeuge.length} ${m.werkzeuge.length === 1 ? "Werkzeug" : "Werkzeuge"}`, label: `${m.werkzeuge.length} ${m.werkzeuge.length === 1 ? "Werkzeug" : "Werkzeuge"}` });
               meta.push({ icon: <IconVideo />, text: `${videosVon(m)} ${videosVon(m) === 1 ? "Video" : "Videos"}`, label: `${videosVon(m)} Videos` });
               return (
                 <ModulKarte key={m.id} klasse="gk-modul" farben={AMETHYST} nr={m.nr} zeichen="T" titel={TITEL_KURZ[m.id] || m.titel} voll={m.titel}

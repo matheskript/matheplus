@@ -75,9 +75,9 @@ export function Schalter({ optionen, wert, setWert, farbe = C.see, label }) {
 /* ---------- Einführung in drei Stufen ---------- */
 const STUFEN_SPEICHER = "matheplus-einfuehrung-stufe";
 const STUFEN = () => [
-  { id: "einstieg", name: zw("Einstieg", "First steps"), zeile: zw("anschaulich, ohne Formeln", "visual, no formulas") },
-  { id: "standard", name: zw("Standard", "Standard"), zeile: zw("wie im Unterricht", "as in class") },
-  { id: "vertiefung", name: zw("Vertiefung", "Deeper"), zeile: zw("mit Begründung", "with reasons") },
+  { id: "einstieg", name: zw("Stufe 1", "Level 1"), zeile: zw("anschaulich, ohne Formeln", "visual, no formulas") },
+  { id: "standard", name: zw("Stufe 2", "Level 2"), zeile: zw("wie im Unterricht", "as in class") },
+  { id: "vertiefung", name: zw("Stufe 3", "Level 3"), zeile: zw("mit Begründung", "with reasons") },
 ];
 const ladeStufe = () => { try { const s = localStorage.getItem(STUFEN_SPEICHER); return ["einstieg", "standard", "vertiefung"].includes(s) ? s : "standard"; } catch (e) { return "standard"; } };
 /* Alle Einführungen der Seite folgen derselben Stufe (Ereignis zum Abgleich) */

@@ -568,7 +568,7 @@ const hilfe = (a) => hilfeKontext({
 
 export function Zahlenraeume({ gehe }) {
   return (
-    <ZweiModi titel={zw("Zahlenräume: von ℕ bis ℝ", "Number spaces: from ℕ to ℝ")}
+    <ZweiModi werkzeug="zahlenraeume" titel={zw("Zahlenräume: von ℕ bis ℝ", "Number spaces: from ℕ to ℝ")}
       text={zw("Warum gibt es negative Zahlen, Brüche und Wurzeln? Weil jede neue Rechenart den alten Zahlenraum sprengt. Du gehst den Weg ℕ → ℤ → ℚ → ℝ selbst und erkennst am Ende jede Zahl.", "Why are there negative numbers, fractions and roots? Because every new operation bursts the old number space. You walk the path ℕ → ℤ → ℚ → ℝ yourself and can classify every number at the end.")}
       kurz={<p style={{ margin: 0 }}><MS s={zw("ℕ = {1, 2, 3, …}: abgeschlossen bzgl. + und ·. ℤ: zusätzlich −. ℚ = $\\{\\frac{p}{q} \\mid p \\in \\mathbb{Z}, q \\in \\mathbb{N}\\}$: zusätzlich : (nicht durch 0). ℝ: zusätzlich irrationale Zahlen wie $\\sqrt{2}$ und $\\pi$. Es gilt ℕ ⊂ ℤ ⊂ ℚ ⊂ ℝ.", "ℕ = {1, 2, 3, …}: closed under + and ·. ℤ: also −. ℚ = $\\{\\frac{p}{q} \\mid p \\in \\mathbb{Z}, q \\in \\mathbb{N}\\}$: also : (not by 0). ℝ: also irrational numbers like $\\sqrt{2}$ and $\\pi$. ℕ ⊂ ℤ ⊂ ℚ ⊂ ℝ.")} /></p>}
       entdecken={<Entdecken gehe={gehe} />}

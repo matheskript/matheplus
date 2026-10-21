@@ -439,7 +439,7 @@ export function ParabelTrainer() {
   const desktop = useDesktop();
   const modusSeg = (
     <div className="pt-seg" role="group" aria-label={zw("Modus", "Mode")} data-aus={!kern || undefined}>
-      {[["entdecken", zw("Entdecken", "Explore")], ["training", zw("Training", "Training")]].map(([id, name]) => (
+      {[["entdecken", zw("Entdecken", "Explore")], ["training", zw("Trainieren", "Train")]].map(([id, name]) => (
         <button key={id} type="button" aria-pressed={kern ? modus === id : id === "entdecken"} disabled={!kern} onClick={() => festhalten(() => setModus(id))}>{name}</button>
       ))}
     </div>

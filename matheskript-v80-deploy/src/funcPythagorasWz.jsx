@@ -10,6 +10,7 @@
    Keine base-Datei darf diese Datei importieren.
    ============================================================ */
 
+import { startModus } from "./uebenWunsch.js";
 import React, { useMemo, useState } from "react";
 import { C } from "./base1.jsx";
 import { M } from "./func3.jsx";
@@ -420,10 +421,10 @@ function Ueben() {
   );
 }
 
-const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Üben", "Practise")]];
+const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Trainieren", "Train")]];
 
 export function SatzDesPythagoras() {
-  const [modus, setModus] = useState("entdecken");
+  const [modus, setModus] = useState(() => startModus("pythagoras"));
   return (
     <Seite titel={zw("Satz des Pythagoras", "Pythagoras' theorem")}
       text={zw("Im rechtwinkligen Dreieck sind die Quadrate über den Katheten zusammen so groß wie das Quadrat über der Hypotenuse. Damit berechnest du jede fehlende Seite – in der Ebene und im Raum.",

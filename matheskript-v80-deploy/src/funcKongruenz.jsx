@@ -11,6 +11,7 @@
    Keine base-Datei darf diese Datei importieren.
    ============================================================ */
 
+import { startModus } from "./uebenWunsch.js";
 import React, { useMemo, useState } from "react";
 import { C } from "./base1.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
@@ -517,10 +518,10 @@ function Ueben() {
   );
 }
 
-const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Üben", "Practise")]];
+const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Trainieren", "Train")]];
 
 export function Kongruenzsaetze() {
-  const [modus, setModus] = useState("entdecken");
+  const [modus, setModus] = useState(() => startModus("kongruenz"));
   return (
     <Seite titel={zw("Kongruenzsätze", "Congruence theorems")}
       text={zw("Wann legen drei Stücke ein Dreieck eindeutig fest? SSS, SWS, WSW und SsW – und warum SSW und WWW nicht reichen. Probiere die Konstruktionen aus und begründe Kongruenz an Figuren.",

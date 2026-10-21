@@ -158,7 +158,7 @@ const hilfe = (a) => hilfeKontext({
 
 export function Prozentrechnung() {
   return (
-    <ZweiModi animationen={werkzeugAnimationen("prozent")} titel={zw("Prozent- und Zinsrechnung", "Percentages and interest")}
+    <ZweiModi werkzeug="prozent" animationen={werkzeugAnimationen("prozent")} titel={zw("Prozent- und Zinsrechnung", "Percentages and interest")}
       text={zw("Grundwert, Prozentsatz, Prozentwert – mit Prozentstreifen und Dreisatz. Dazu Rabatt, Mehrwertsteuer und Zinsen, inklusive der klassischen Rückwärts-Falle.", "Base value, rate, percentage value – with a percentage bar and the rule of three. Plus discounts, VAT and interest, including the classic backwards trap.")}
       kurz={<>
         <p style={{ margin: "0 0 6px", textAlign: "center", fontSize: 16 }}><M t="W = G · \frac{p}{100}" /></p>

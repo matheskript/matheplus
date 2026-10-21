@@ -12,7 +12,7 @@ import React, { useState } from "react";
 import { C } from "./base1.jsx";
 import { M } from "./func3.jsx";
 import { hilfeKontext, karte, kicker, zw } from "./ui2.jsx";
-import { uebenWunschLesen } from "./uebenWunsch.js";
+import { startModus, uebenWunschLesen } from "./uebenWunsch.js";
 import { Aufklapp, ModusLeiste, Seite, zt } from "./ui3.jsx";
 import { KREIS_ARTEN, kreisAufgabe } from "./geoMittel2.js";
 import { Merke, Regler, UebenRahmen, WertZeile, tolRund, EntdeckenZweispaltig } from "./geoUi.jsx";
@@ -192,10 +192,10 @@ const hilfe = (au) => hilfeKontext({
   pruefen: [zw("Faustregel: Umfang ≈ 6 · r, Fläche ≈ 3 · r².", "Rule of thumb: circumference ≈ 6 · r, area ≈ 3 · r².")],
 });
 
-const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Üben", "Practise")]];
+const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Trainieren", "Train")]];
 
 export function KreisUndKreisteile() {
-  const [modus, setModus] = useState(() => { const w = uebenWunschLesen("kreis"); return w && w.modus ? w.modus : "entdecken"; });   // Wunsch einer Lernseite (uebenWunsch.js)
+  const [modus, setModus] = useState(() => startModus("kreis"));   // Wunsch einer Lernseite (uebenWunsch.js)
   return (
     <Seite titel={zw("Kreis und Kreisteile", "Circles and their parts")}
       text={zw("Umfang, Fläche, Bogen und Kreisausschnitt – und warum π in allem steckt. Mit Rückwärtsrechnen und Kreisring.", "Circumference, area, arc and sector – and why π is in all of them. Including working backwards and the annulus.")}>

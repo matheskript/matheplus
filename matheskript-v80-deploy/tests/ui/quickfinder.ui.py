@@ -80,7 +80,7 @@ with sync_playwright() as p:
         pruefe(menue - leiste["bottom"] < 20, f"{breite}: Menü-Inhalt rutscht nicht unter die Leiste ({leiste['bottom']} / {menue})")
         page.screenshot(path=f"{AUS}/{breite}-2a-leiste.png")
         # Die vier Bereiche: Tools (Werkzeuge nach Kapitel), Videos (Videokurse zur Klasse), Plan (Hinweis), Thema (Kapitel)
-        page.get_by_role("tab", name="Tools").click(); page.wait_for_timeout(250)
+        page.get_by_role("tab", name="Werkzeuge").click(); page.wait_for_timeout(250)
         pruefe(page.get_by_text("Werkzeuge nach Kapitel").count() == 1, f"{breite}: Tools-Bereich fehlt")
         pruefe(page.get_by_text("Themen der Klasse").count() == 0, f"{breite}: Kapitelliste im Tools-Bereich")
         page.get_by_role("button", name="Satz des Pythagoras").first.click(); page.wait_for_timeout(300)

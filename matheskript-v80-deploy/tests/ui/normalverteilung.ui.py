@@ -51,7 +51,7 @@ def schritte_durch(page, wo):
     pruefe(page.locator("text=/Richtig gelöst|Solved/").count() > 0, f"{wo}: Aufgabe nicht bis zum Ende")
 
 def ueben(page, breite, wo, sprache, shot=None):
-    page.get_by_role("tab", name="Üben" if sprache == "de" else "Practise").first.click(); page.wait_for_timeout(200)
+    page.get_by_role("tab", name="Trainieren" if sprache == "de" else "Train").first.click(); page.wait_for_timeout(200)
     typen = page.locator("[data-aufgabentyp]:visible button")
     namen = [typen.nth(i).inner_text() for i in range(typen.count())]
     for i, name in enumerate(namen):

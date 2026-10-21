@@ -165,7 +165,7 @@ const hilfe = (a) => hilfeKontext({
 
 export function Dezimalzahlen() {
   return (
-    <ZweiModi animationen={werkzeugAnimationen("dezimal")} titel={zw("Dezimalzahlen", "Decimals")}
+    <ZweiModi werkzeug="dezimal" animationen={werkzeugAnimationen("dezimal")} titel={zw("Dezimalzahlen", "Decimals")}
       text={zw("Stellenwerte hinter dem Komma, Umwandeln zwischen Bruch und Dezimalzahl, Runden und Rechnen mit Komma – und warum manche Brüche nie aufhören.", "Place values after the point, converting between fractions and decimals, rounding and calculating with decimals – and why some fractions never end.")}
       kurz={<p style={{ margin: 0 }}>{zw("0,1 = ein Zehntel, 0,01 = ein Hundertstel. Mal 10/100/1000: Komma 1/2/3 Stellen nach rechts. Multiplizieren: Kommastellen beider Faktoren addieren. Dividieren: Komma im Teiler durch Malnehmen beider Zahlen beseitigen.", "0.1 = one tenth, 0.01 = one hundredth. Times 10/100/1000: point 1/2/3 places to the right. Multiplying: add the decimal places of both factors. Dividing: remove the point in the divisor by multiplying both numbers.")}</p>}
       entdecken={<Entdecken />}

@@ -815,7 +815,7 @@ export function Operatoren() {
       </p>
 
       <div className="flex gap-2 mb-5">
-        {[["training", "Training"], ["liste", "Alle Operatoren"]].map(([id, n]) => (
+        {[["training", "Trainieren"], ["liste", "Alle Operatoren"]].map(([id, n]) => (
           <button key={id} onClick={() => setReiter(id)} className="px-4 py-2"
             style={{ flex: 1, background: reiter === id ? C.see : C.weiss, color: reiter === id ? C.weiss : C.grau,
               border: `1px solid ${reiter === id ? C.see : C.linie}`, borderRadius: 999, fontSize: 13.5, fontFamily: "inherit", cursor: "pointer" }}>

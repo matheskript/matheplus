@@ -1462,7 +1462,7 @@ export function Steckbriefaufgaben() {
   const typWahl = (
         <div className="flex" role="group" aria-label={zw("Funktionstyp", "Function type")} style={{ background: "#EEF2F8", borderRadius: 999, padding: 3 }}>
           <Pille aktiv={modus === "poly"} onClick={() => modusWaehlen("poly")}>{zw("Polynome", "Polynomials")}</Pille>
-          <Pille aktiv={modus === "adv"} onClick={() => modusWaehlen("adv")}>Advanced</Pille>
+          <Pille aktiv={modus === "adv"} onClick={() => modusWaehlen("adv")}>Beliebige Funktionen</Pille>
         </div>
   );
   const neuKnopf = (

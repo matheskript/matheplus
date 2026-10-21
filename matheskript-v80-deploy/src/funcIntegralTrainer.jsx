@@ -299,7 +299,7 @@ export function IntegralTrainer() {
     <div className="it-kopf">
       <div className="it-links">
         <div className="abl-seg" role="group" aria-label="Modus">
-          {[["auto", "Automatik"], ["training", "Training"]].map(([id, name]) => (
+          {[["auto", "Rechnen"], ["training", "Trainieren"]].map(([id, name]) => (
             <button key={id} type="button" aria-pressed={modus === id} disabled={typ === "bestand"} onClick={() => waehleModus(id)}>{name}</button>
           ))}
         </div>

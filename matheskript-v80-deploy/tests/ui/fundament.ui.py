@@ -45,7 +45,7 @@ def zeitleiste(page, wert):
     }""", wert)
 
 def ueben(page, breite, wo, sprache, shot=None):
-    page.get_by_role("tab", name="Üben" if sprache == "de" else "Practise").first.click(); page.wait_for_timeout(200)
+    page.get_by_role("tab", name="Trainieren" if sprache == "de" else "Train").first.click(); page.wait_for_timeout(200)
     typen = page.locator("[data-aufgabentyp]:visible button")
     namen = [typen.nth(i).inner_text() for i in range(typen.count())]
     for i, name in enumerate(namen):

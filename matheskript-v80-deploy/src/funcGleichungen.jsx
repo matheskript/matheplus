@@ -6,6 +6,10 @@ import { API_URL } from "./base1.jsx";
 import { kiKopf, kiAntwort } from "./base4.jsx";
 import { dekodieren, rendern } from "./func1.jsx";
 import * as G from "./gleichungen/engine.js";
+
+/* Stufenskala wie überall: Stufe 1 = Einstieg, 2 = wie im Unterricht, 3 = Klausur. Die Engine hat fünf Stufen (1–5). */
+const STUFEN_ANZEIGE = [{ id: 1, name: "Stufe 1" }, { id: 3, name: "Stufe 2" }, { id: 5, name: "Stufe 3" }];
+const stufeNaechste = (s) => (s <= 1 ? 1 : s <= 3 ? 3 : 5);
 import { IchHaengeFest } from "./funcHilfe.jsx";
 import { WurzelZeichen } from "./wurzelZeichen.jsx";
 
@@ -512,16 +516,19 @@ Steht keine Gleichung auf dem Foto, antworte {"aufgaben":[]}.`;
       {art !== "eigen" ? (
         <div className="flex items-center flex-wrap" style={{ gap: 10, marginTop: 14, marginBottom: 18 }}>
           <div className="flex" role="group" aria-label="Schwierigkeit" style={{ background: "#EEF2F8", borderRadius: 999, padding: 3 }}>
-            {G.STUFEN.map((s) => (
-              <button key={s.id} type="button" onClick={() => stufeWaehlen(s.id)}
+            {/* Eine Stufenskala für alle Werkzeuge (Stufe 1 · 2 · 3); die Engine kennt fünf Stufen, gezeigt werden 1, 3 und 5 */}
+            {STUFEN_ANZEIGE.map((s) => {
+              const an = stufeNaechste(stufe) === s.id;
+              return (
+              <button key={s.id} type="button" onClick={() => stufeWaehlen(s.id)} aria-pressed={an}
                 style={{ border: "none", borderRadius: 999, padding: "7px 11px", fontFamily: "inherit", cursor: "pointer", fontSize: 12.5, whiteSpace: "nowrap",
-                  fontWeight: stufe === s.id ? 600 : 400, background: stufe === s.id ? C.weiss : "transparent",
-                  color: stufe === s.id ? C.see : C.grau, boxShadow: stufe === s.id ? "0 1px 6px rgba(15,26,51,0.12)" : "none" }}>
+                  fontWeight: an ? 600 : 400, background: an ? C.weiss : "transparent",
+                  color: an ? C.see : C.grau, boxShadow: an ? "0 1px 6px rgba(15,26,51,0.12)" : "none" }}>
                 {s.name}
               </button>
-            ))}
+              );
+            })}
           </div>
-          <span style={{ fontSize: 13, color: C.hellgrau, fontWeight: 300 }}>{G.ARTEN.find((a) => a.id === art)?.kurz}</span>
         </div>
       ) : (
         <div data-gl-karte style={{ ...karte, padding: 16, marginTop: 14, marginBottom: 18 }}>

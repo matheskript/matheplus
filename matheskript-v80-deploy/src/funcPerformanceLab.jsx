@@ -23,7 +23,7 @@ import { Absatz, Balken, Chip, Formel, KANAL_FARBE, Karte, Kicker, Knopf, L, MUS
    Speicher: perfSpeicher.js · Bausteine: perfUi.jsx
    ====================================================================== */
 
-const TABS = [["uebersicht", "Übersicht"], ["profil", "Fehlerprofil"], ["verlauf", "Verlauf"], ["training", "Training"], ["badges", "Badges"], ["historie", "Historie"], ["quellen", "Quellen testen"]];
+const TABS = [["uebersicht", "Übersicht"], ["profil", "Fehlerprofil"], ["verlauf", "Verlauf"], ["training", "Trainieren"], ["badges", "Badges"], ["historie", "Historie"], ["quellen", "Quellen testen"]];
 
 export function PerformanceLab() {
   const konto = useKonto();

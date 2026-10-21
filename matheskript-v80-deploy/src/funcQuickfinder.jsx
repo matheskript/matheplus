@@ -123,7 +123,7 @@ function AuswahlChip({ schulart, klasse, oeffnen }) {
 const BEREICHE = [
   { id: "thema", name: "Thema" },
   { id: "plan", name: "Plan" },
-  { id: "tools", name: "Tools" },
+  { id: "tools", name: "Werkzeuge" },
   { id: "videos", name: "Videos" },
 ];
 const TAB_SCHLUESSEL = "matheplus-training-tab";

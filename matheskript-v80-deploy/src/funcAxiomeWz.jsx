@@ -361,7 +361,7 @@ const hilfe = (a) => hilfeKontext({
 
 export function AxiomeRechenregeln({ gehe }) {
   return (
-    <ZweiModi titel={zw("Axiome und Rechenregeln", "Axioms and rules of arithmetic")}
+    <ZweiModi werkzeug="axiome" titel={zw("Axiome und Rechenregeln", "Axioms and rules of arithmetic")}
       text={zw("Das Fundament für alles: neun Spielregeln für Plus und Mal. Hier erkennst du sie, begründest Rechenschritte damit und trainierst sie an Zahlen und Termen.", "The foundation of everything: nine rules for plus and times. Here you spot them, justify steps with them and train them on numbers and terms.")}
       kurz={<div style={{ display: "grid", gap: 4 }}>{KZ.map((k) => <div key={k} style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}><Chip kz={k} klein /><M t={KZ_FORMEL[k]} /></div>)}</div>}
       entdecken={<Entdecken gehe={gehe} />}

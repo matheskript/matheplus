@@ -51,7 +51,7 @@ with sync_playwright() as p:
                     if k.count(): k.first.click(); page.wait_for_timeout(60)
                 sw = page.evaluate("document.documentElement.scrollWidth"); pruefe(sw <= breite, f"{wo}: Überbreite Entdecken {sw}")
                 if breite == 390 and sprache == "de": page.screenshot(path=f"{AUS}/{pfad}-entdecken.png", full_page=True)
-                page.get_by_role("tab", name="Üben" if sprache == "de" else "Practise").first.click(); page.wait_for_timeout(200)
+                page.get_by_role("tab", name="Trainieren" if sprache == "de" else "Train").first.click(); page.wait_for_timeout(200)
                 typen = page.locator("[data-aufgabentyp]:visible button"); n = typen.count()
                 pruefe(n >= 5, f"{wo}: nur {n} Aufgabentypen")
                 for i in range(n):

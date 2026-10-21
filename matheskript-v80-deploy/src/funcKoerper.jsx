@@ -9,6 +9,7 @@
    Keine base-Datei darf diese Datei importieren.
    ============================================================ */
 
+import { startModus } from "./uebenWunsch.js";
 import React, { useState } from "react";
 import { C } from "./base1.jsx";
 import { M } from "./func3.jsx";
@@ -255,10 +256,10 @@ const hilfe = (au) => hilfeKontext({
   pruefen: [zw("Einheiten: Volumen in cm³, Flächen in cm².", "Units: volume in cm³, areas in cm².")],
 });
 
-const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Üben", "Practise")]];
+const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Trainieren", "Train")]];
 
 export function KoerperVolumen() {
-  const [modus, setModus] = useState("entdecken");
+  const [modus, setModus] = useState(() => startModus("koerper"));
   return (
     <Seite titel={zw("Körper: Volumen und Oberfläche", "Solids: volume and surface")}
       text={zw("Prisma, Zylinder, Pyramide, Kegel und Kugel – mit Schrägbild, den Formeln dahinter und Pythagoras für die schrägen Höhen.", "Prism, cylinder, pyramid, cone and sphere – with oblique drawings, the formulas behind them and Pythagoras for the slanted heights.")}>

@@ -160,7 +160,7 @@ const hilfe = (k) => hilfeKontext({
 
 export function Koordinaten() {
   return (
-    <ZweiModi animationen={werkzeugAnimationen("koordinaten")} titel={zw("Koordinatensystem und Symmetrie", "Coordinates and symmetry")}
+    <ZweiModi werkzeug="koordinaten" animationen={werkzeugAnimationen("koordinaten")} titel={zw("Koordinatensystem und Symmetrie", "Coordinates and symmetry")}
       text={zw("Punkte eintragen und ablesen, an Achsen und Punkten spiegeln, Vierecke ergänzen und Symmetrieachsen finden.", "Plot and read points, reflect in axes and points, complete quadrilaterals and find lines of symmetry.")}
       kurz={<p style={{ margin: 0 }}>{zw("Ein Punkt P(x | y): x ist der Rechtswert, y der Hochwert. Achsensymmetrisch: Falten bringt beide Hälften zur Deckung. Punktsymmetrisch: Eine halbe Drehung um das Zentrum bringt die Figur auf sich selbst.", "A point P(x | y): x is the horizontal value, y the vertical value. Line symmetry: folding makes both halves match. Point symmetry: a half turn about the centre maps the figure onto itself.")}</p>}
       entdecken={<Entdecken />}

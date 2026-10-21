@@ -8,6 +8,7 @@
    Keine base-Datei darf diese Datei importieren.
    ============================================================ */
 
+import { startModus } from "./uebenWunsch.js";
 import React, { useMemo, useState } from "react";
 import { C } from "./base1.jsx";
 import { M } from "./func3.jsx";
@@ -305,10 +306,10 @@ export function Ueben() {
   );
 }
 
-const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Üben", "Practise")]];
+const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Trainieren", "Train")]];
 
 export function Bruchterme() {
-  const [modus, setModus] = useState("entdecken");
+  const [modus, setModus] = useState(() => startModus("bruchterme"));
   return (
     <Seite titel={zw("Bruchterme und Bruchgleichungen", "Fraction terms and equations")}
       text={zw("Sobald x im Nenner steht, kommt eine neue Frage dazu: Wo ist der Term überhaupt definiert? Kürzen, zusammenfassen, Gleichungen lösen – und keine Scheinlösung durchrutschen lassen.",

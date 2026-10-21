@@ -14,7 +14,7 @@ import { C } from "./base1.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
 import { GrosserKnopf, MS, hinweis, karte, kicker, zw } from "./ui2.jsx";
 import { Aufklapp, ModusLeiste, Seite, SchrittFolge, zt } from "./ui3.jsx";
-import { uebenWunschHolen, uebenWunschLesen } from "./uebenWunsch.js";
+import { startModus, uebenWunschHolen, uebenWunschLesen } from "./uebenWunsch.js";
 import { Arbeitsflaeche, BildKarte, DESKTOP, feinKarte, useBreite } from "./arbeitsflaeche.jsx";
 
 /* Animationen der Unterstufen-Werkzeuge: erst laden, wenn ein Werkzeug welche mitgibt (nur auf Deutsch) */
@@ -287,10 +287,10 @@ export const tolRund = (w) => Math.max(0.011, Math.abs(w) * 0.002);
 
 /* ---------- Seitenrahmen mit Entdecken | Üben ----------
    kurz: Inhalt für „Kurz erklärt“; entdecken, ueben: JSX der beiden Modi; start: Startmodus */
-export function ZweiModi({ titel, text, kurz, entdecken, ueben, start = "entdecken", animationen = null }) {
-  // Wunsch einer Lernseite (uebenWunsch.js): gleich im Modus Üben (oder Entdecken) öffnen
-  const [modus, setModus] = useState(() => { const w = uebenWunschLesen(); return w && w.modus ? w.modus : start; });
-  const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Üben", "Practise")]];
+export function ZweiModi({ titel, text, kurz, entdecken, ueben, start = null, werkzeug = null, animationen = null }) {
+  // Startmodus: Wunsch einer Lernseite (uebenWunsch.js) > ausdrückliches start > Etikett des Werkzeugs (Trainieren → gleich die Aufgabe)
+  const [modus, setModus] = useState(() => (start ? (uebenWunschLesen()?.modus || start) : startModus(werkzeug || (typeof titel === "string" ? titel : ""))));
+  const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Trainieren", "Train")]];
   return (
     <Seite titel={titel} text={text}>
       <ModusLeiste modi={MODI} modus={modus} setModus={setModus} label={titel} />

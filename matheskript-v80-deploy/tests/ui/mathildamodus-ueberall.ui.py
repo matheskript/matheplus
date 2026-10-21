@@ -83,7 +83,7 @@ with sync_playwright() as p:
                             k.first.click(); page.wait_for_timeout(700)
                             if pille.count(): break
                 if not pille.count() and wz == "geradengleichung":
-                    k = page.get_by_role("button", name="P & Q")
+                    k = page.get_by_role("button", name="Zwei Punkte")
                     if k.count(): k.first.click(); page.wait_for_timeout(600)
                 if not pille.count() and wz == "sinus":
                     k = page.get_by_role("button", name=re.compile(r"^(Aufgabe lösen|Solve task|Solve a task)$"))

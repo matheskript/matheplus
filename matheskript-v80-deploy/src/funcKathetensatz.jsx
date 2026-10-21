@@ -10,6 +10,7 @@
    Keine base-Datei darf diese Datei importieren.
    ============================================================ */
 
+import { startModus } from "./uebenWunsch.js";
 import React, { useState } from "react";
 import { C } from "./base1.jsx";
 import { M } from "./func3.jsx";
@@ -210,10 +211,10 @@ const hilfe = (au) => hilfeKontext({
   pruefen: [zw("p + q = c? Die Höhe ist kürzer als beide Katheten.", "p + q = c? The altitude is shorter than both legs.")],
 });
 
-const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Üben", "Practise")]];
+const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Trainieren", "Train")]];
 
 export function Kathetensatz() {
-  const [modus, setModus] = useState("entdecken");
+  const [modus, setModus] = useState(() => startModus("kathetensatz"));
   return (
     <Seite titel={zw("Kathetensatz und Höhensatz", "Leg and altitude theorems")}
       text={zw("Die Höhe teilt jedes rechtwinklige Dreieck in zwei ähnliche Dreiecke. Daraus folgen zwei Flächensätze – und mit ihnen auch der Satz des Pythagoras.",

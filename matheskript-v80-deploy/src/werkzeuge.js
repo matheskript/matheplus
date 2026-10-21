@@ -47,7 +47,7 @@ export const WERKZEUGE = {
     zeichen: "T→f", bild: "textaufgaben", ziel: { ansicht: "textaufgaben" }, etikett: "trainieren", stufe: "beide", unter: true },
   /* ---------- Analysis ---------- */
   /* ---------- Geraden (Mittelstufe, Beispielkapitel: Basics, P & Q, P & m) ---------- */
-  geradengleichung: { name: "Geraden", kurz: "Geraden", zeile: "Basics, P & Q, P & m", slogan: "Was eine Gerade ist und wie du y = m·x + c aus zwei Punkten oder aus Punkt und Steigung findest.",
+  geradengleichung: { name: "Geraden", kurz: "Geraden", zeile: "Grundlagen, zwei Punkte, Punkt und Steigung", slogan: "Was eine Gerade ist und wie du y = m·x + c aus zwei Punkten oder aus Punkt und Steigung findest.",
     zeichen: "mx+c", bild: "gerade", ziel: { ansicht: "geradengleichung" }, etikett: "trainieren", stufe: "mittel" },
   /* ---------- Parabeln (Mittelstufe, eigenes Werkzeug wie Geraden) ---------- */
   parabeln: { name: "Parabeln", kurz: "Parabeln", zeile: "Normalform, Scheitelform, Nullstellen", slogan: "Normalform, Scheitelform und Nullstellen trainieren – plus Brennpunkt und Schnittpunkte.",
@@ -148,7 +148,7 @@ export const WERKZEUGE = {
     zeichen: "xⁿ", bild: "termkarte", ziel: { ansicht: "terme" }, etikett: "trainieren", stufe: "mittel" },
   gleichungen: { name: "Gleichungen lösen", kurz: "Lösen", zeile: "Umformen und verstehen", slogan: "Äquivalenzumformungen eintippen – linear bis Logarithmus, mit Verstehen-Modi.",
     zeichen: "x =", bild: "gleichung", ziel: { ansicht: "gleichungen" }, auch: ["gleichverstehen"], etikett: "trainieren", stufe: "beide", unter: true,
-    modi: [{ ansicht: "gleichungen", name: "Lösen" }, { ansicht: "gleichverstehen", name: "Verstehen" }] },
+    modi: [{ ansicht: "gleichverstehen", name: "Entdecken" }, { ansicht: "gleichungen", name: "Trainieren" }] },
   ungleichungen: { name: "Ungleichungen und Beträge", kurz: "Ungleichungen", zeile: "Linear, quadratisch, mit Betrag", slogan: "Lösungsmengen von Ungleichungen finden, Betragsgleichungen und -ungleichungen lösen, quadratische Ungleichungen an der Parabel ablesen.",
     zeichen: "x < 3", bild: "ungleichung", ziel: { ansicht: "ungleichungen" }, etikett: "trainieren", stufe: "beide" },
   lgs: { name: "Gleichungssysteme", kurz: "LGS", zeile: "Mit drei Variablen", slogan: "LGS mit drei Unbekannten – Gauß-Verfahren und direkter Weg.",
@@ -236,7 +236,7 @@ export const BEREICHE = [
       { id: "terme", titel: "Terme umformen", zeile: "Vereinfachen, ausklammern, Potenzen", werkzeuge: ["terme"] },
       { id: "loesen", titel: "Gleichungen lösen", zeile: "Einzelne Gleichungen und Systeme", werkzeuge: ["gleichungen", "lgs"] },
       { id: "ungleichungen", titel: "Ungleichungen und Beträge", zeile: "Lösungsmengen als Intervalle", werkzeuge: ["ungleichungen"] },
-      { id: "gerade", titel: "Geraden", zeile: "Basics, P & Q, P & m", werkzeuge: ["geradengleichung"] },
+      { id: "gerade", titel: "Geraden", zeile: "Grundlagen, zwei Punkte, Punkt und Steigung", werkzeuge: ["geradengleichung"] },
       { id: "parabel", titel: "Parabeln", zeile: "Normalform, Scheitelform, Nullstellen", werkzeuge: ["parabeln"] },
     ] },
   { id: "zahlen", titel: "Zahlen und Größen", uebersicht: null, text: "Drei Stationen: Zahlen, Rechnen, Größen.",

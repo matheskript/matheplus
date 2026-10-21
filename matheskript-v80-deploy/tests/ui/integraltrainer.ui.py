@@ -69,7 +69,7 @@ with sync_playwright() as p:
         pruefe(page.locator('.it-schritt[data-zustand="aktiv"]').count() == 1, f"{breite}: neue Aufgabe beginnt nicht bei Schritt 1")
 
         # Automatik: alle Typen
-        page.get_by_role("button", name="Automatik", exact=True).click(); page.wait_for_timeout(300)
+        page.get_by_role("button", name="Rechnen", exact=True).click(); page.wait_for_timeout(300)
         for typ in NAMEN:
             waehle(page, typ)
             if typ != "bestand":

@@ -692,7 +692,7 @@ function TrainingKachel({ gehe, setzeStufe }) {
         <div className="sbb-papier offen"><Quickfinder gehe={gehe} setzeStufe={setzeStufe} links={titel} /></div>
       ) : (
         <button type="button" className="kopfzeile" onClick={umschalten}>
-          <span><h2>Alles zu deiner Klasse</h2><p className="zeile">Thema · Plan · Tools · Videos</p></span>
+          <span><h2>Alles zu deiner Klasse</h2><p className="zeile">Thema · Plan · Werkzeuge · Videos</p></span>
         </button>
       )}
     </div>
@@ -939,7 +939,7 @@ export function Startseite({ gehe }) {
           <MathildaKachel gehe={gehe} />
           <Kachel gehe={gehe} titel="Kopfrechnen" label="Kopfrechnen öffnen" logo={<HeadNumbersLogoKlein />} ziel={{ ansicht: "headnumbers" }} weiter="Trainieren" drei
             text="Einmaleins, Quadrat- und Kubikzahlen, Brüche – trainieren, bis alles sitzt." />
-          <Kachel gehe={gehe} titel="Gleichungen" label="Gleichungen öffnen" logo={<GleichKursLogoKlein />} ziel={{ ansicht: "gleichkurs" }} weiter="Üben" drei
+          <Kachel gehe={gehe} titel="Gleichungen" label="Gleichungen öffnen" logo={<GleichKursLogoKlein />} ziel={{ ansicht: "gleichkurs" }} weiter="Trainieren" drei
             text="Eine Zahl finden, über die du etwas weißt: verstehen, rechnen, trainieren." />
         </div>
 

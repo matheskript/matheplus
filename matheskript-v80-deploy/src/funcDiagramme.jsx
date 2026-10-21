@@ -189,7 +189,7 @@ const hilfe = (d) => hilfeKontext({
 
 export function DatenDiagramme() {
   return (
-    <ZweiModi animationen={werkzeugAnimationen("diagramme")} titel={zw("Daten und Diagramme", "Data and charts")}
+    <ZweiModi werkzeug="diagramme" animationen={werkzeugAnimationen("diagramme")} titel={zw("Daten und Diagramme", "Data and charts")}
       text={zw("Säulen- und Kreisdiagramme, relative Häufigkeiten, Mittelwert, Median und Spannweite – mit einer Umfrage, die du selbst einstellst.", "Bar and pie charts, relative frequencies, mean, median and range – with a survey you set up yourself.")}
       kurz={<p style={{ margin: 0 }}>{zw("Mittelwert x̄ = Summe : Anzahl · Median: mittlerer Wert der sortierten Liste · Spannweite = größter − kleinster Wert · relative Häufigkeit = absolute Häufigkeit : Gesamtzahl · Kreiswinkel = Anteil · 360°.", "Mean x̄ = sum : count · median: middle value of the sorted list · range = largest − smallest · relative frequency = absolute frequency : total · pie angle = share · 360°.")}</p>}
       entdecken={<Entdecken />}

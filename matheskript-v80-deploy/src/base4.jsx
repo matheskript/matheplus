@@ -127,7 +127,7 @@ export const NAV = [
   ] },
   { id: "klassen", name: "Nach Klasse", kurz: "Der Stoff von Klasse 8 bis 13", eintraege:
     SCHULKLASSEN.map((k) => ({ name: `Klasse ${k}`, kurz: k >= 11 ? "Kursstufe" : "Nach dem Lambacher Schweizer", ansicht: "klasse", klasse: k })) },
-  { id: "ueben", name: "Üben", kurz: "Aufgaben und ganze Rechenwege", eintraege: [
+  { id: "ueben", name: "Trainieren", kurz: "Aufgaben und ganze Rechenwege", eintraege: [
     ...(ANGEBOT.kurse ? [{ name: "Mathe Abi Masterclass", kurz: "Das 6-Monats-Programm fürs Mathe-Abi", ansicht: "masterclass" }] : []),
     { name: "Trainingszentrum", kurz: "Alle Trainings an einem Ort – jedes im Vollbild", ansicht: "trainingszentrum" },
     { name: "Aufgabengenerator", kurz: "Geraden, Ableitungen, Kurvendiskussion", ansicht: "ki", ziel: null },

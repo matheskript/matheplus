@@ -73,7 +73,7 @@ with sync_playwright() as p:
         ansicht.scroll_into_view_if_needed()
         page.screenshot(path=f"{AUS}/{breite}-2-hauptthema.png", full_page=True)
         # Bereich Tools: alle Werkzeuge zum Kapitel, darunter die anderen Kapitel nur mit Werkzeugen
-        page.get_by_role("tab", name="Tools").click(); page.wait_for_timeout(250)
+        page.get_by_role("tab", name="Werkzeuge").click(); page.wait_for_timeout(250)
         pruefe(page.get_by_text("Alles zu diesem Kapitel").count() == 1, f"{breite}: Werkzeuge fehlen im Bereich Tools")
         pruefe(page.get_by_text("Werkzeuge anderer Kapitel").count() == 1, f"{breite}: andere Kapitel fehlen im Bereich Tools")
         pruefe(page.get_by_role("button", name="Quadratische Funktionen und Gleichungen").count() == 0, f"{breite}: Hauptthema doppelt im Bereich Tools")

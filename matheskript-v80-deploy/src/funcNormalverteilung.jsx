@@ -638,7 +638,7 @@ const hilfe = (au) => hilfeKontext({
 
 export function Normalverteilung({ gehe }) {
   return (
-    <ZweiModi titel={zw("Normalverteilung", "Normal distribution")}
+    <ZweiModi werkzeug="normalverteilung" titel={zw("Normalverteilung", "Normal distribution")}
       text={zw("Die Glockenkurve von Gauß: woher sie kommt, was μ und σ bedeuten und wie man mit ihr Wahrscheinlichkeiten als Flächen berechnet – vorwärts, rückwärts und als Näherung der Binomialverteilung.", "Gauss's bell curve: where it comes from, what μ and σ mean and how to use it to compute probabilities as areas – forwards, backwards and as an approximation of the binomial distribution.")}
       kurz={(
         <div style={{ display: "grid", gap: 6 }}>

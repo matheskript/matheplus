@@ -11,6 +11,7 @@
    Keine base-Datei darf diese Datei importieren.
    ============================================================ */
 
+import { startModus } from "./uebenWunsch.js";
 import React, { useMemo, useState } from "react";
 import { C } from "./base1.jsx";
 import { M } from "./func3.jsx";
@@ -431,10 +432,10 @@ function Ueben() {
   );
 }
 
-const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Üben", "Practise")]];
+const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Trainieren", "Train")]];
 
 export function Strahlensaetze() {
-  const [modus, setModus] = useState("entdecken");
+  const [modus, setModus] = useState(() => startModus("strahlensaetze"));
   return (
     <Seite titel={zw("Strahlensätze", "Intercept theorems")}
       text={zw("Zwei Strahlen, zwei Parallelen, ein Streckfaktor: Wer die Verhältnisse richtig aufstellt, berechnet jede fehlende Länge – auch Baumhöhen aus Schatten.", "Two rays, two parallels, one scale factor: set up the ratios correctly and you can find any missing length – even tree heights from shadows.")}>

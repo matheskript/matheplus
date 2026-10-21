@@ -240,7 +240,7 @@ with sync_playwright() as pw:
             ueberbreite(p, f"{n}/station{st + 1}")
             if st == 2:
                 foto(p, w, "normalverteilung-flaeche")
-        tab(p, "Üben")
+        tab(p, "Trainieren")
         for _ in range(3):
             schritt_loesen(p)
         klick(p, "Neue Aufgabe")
@@ -258,7 +258,7 @@ with sync_playwright() as pw:
         pruefe(p.get_by_text("1000", exact=True).count() >= 1, f"{n}: Würfe zählen nicht")
         ueberbreite(p, n)
         foto(p, w, "zufall")
-        tab(p, "Üben")
+        tab(p, "Trainieren")
         for _ in range(3):
             schritt_loesen(p)
         klick(p, "Neue Aufgabe")
@@ -277,7 +277,7 @@ with sync_playwright() as pw:
         klick(p, "E Lesen −")
         ueberbreite(p, n)
         foto(p, w, "diagramme")
-        tab(p, "Üben")
+        tab(p, "Trainieren")
         p.locator("[data-aufgabentyp]:visible button").filter(has_text="Diagramm ablesen").first.click(); p.wait_for_timeout(150)
         schritt_loesen(p)
         ueberbreite(p, n + " üben")

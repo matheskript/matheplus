@@ -181,7 +181,7 @@ const hilfe = (a) => hilfeKontext({
 
 export function Primzahlen() {
   return (
-    <ZweiModi animationen={werkzeugAnimationen("primzahlen")} titel={zw("Primzahlen, ggT und kgV", "Primes, gcd and lcm")}
+    <ZweiModi werkzeug="primzahlen" animationen={werkzeugAnimationen("primzahlen")} titel={zw("Primzahlen, ggT und kgV", "Primes, gcd and lcm")}
       text={zw("Primzahlen aussieben, Zahlen in Primfaktoren zerlegen und damit ggT und kgV finden – die Werkzeuge fürs Kürzen und den Hauptnenner.", "Sieve out primes, break numbers into prime factors and use them to find gcd and lcm – the tools for simplifying fractions and common denominators.")}
       kurz={<p style={{ margin: 0 }}>{zw("Primzahl: genau zwei Teiler (1 ist keine Primzahl). 60 = 2² · 3 · 5. ggT: größter Teiler beider Zahlen (zum Kürzen). kgV: kleinstes Vielfaches beider Zahlen (Hauptnenner).", "Prime: exactly two divisors (1 is not prime). 60 = 2² · 3 · 5. gcd: largest divisor of both numbers (for simplifying). lcm: smallest multiple of both numbers (common denominator).")}</p>}
       entdecken={<Entdecken />}

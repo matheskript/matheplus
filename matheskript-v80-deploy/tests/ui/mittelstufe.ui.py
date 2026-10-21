@@ -87,7 +87,7 @@ with sync_playwright() as p:
                 if breite == 390 and sprache == "de":
                     page.screenshot(path=f"{AUS}/{pfad}-entdecken.png", full_page=True)
                 # Üben
-                page.get_by_role("tab", name="Üben" if sprache == "de" else "Practise").first.click(); page.wait_for_timeout(200)
+                page.get_by_role("tab", name="Trainieren" if sprache == "de" else "Train").first.click(); page.wait_for_timeout(200)
                 typen = page.locator("[data-aufgabentyp]:visible button")
                 n = typen.count()
                 kn = [typen.nth(i).inner_text() for i in range(n)]

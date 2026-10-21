@@ -104,7 +104,7 @@ with sync_playwright() as pw:
                 k.click(); p.wait_for_timeout(50)
             ueberbreite(p, wo)
             # Üben: Modus-Wechsel und „Neue Aufgabe“
-            ub = p.get_by_role("tab", name="Üben", exact=True)
+            ub = p.get_by_role("tab", name="Trainieren", exact=True)
             if ub.count():
                 ub.first.click(); p.wait_for_timeout(250)
                 na = p.locator("button:has-text('Neue Aufgabe'):visible")

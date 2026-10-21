@@ -723,7 +723,7 @@ export function Textaufgaben({ gehe, seite, setSeite }) {
   const setModus = (m) => { setModusIntern(m); if (setSeite) setSeite(m); };
   const oben = useRef(null);
   const wechsel = (m) => { setModus(m); requestAnimationFrame(() => springe("textaufgaben-wechsel", () => oben.current?.scrollIntoView({ behavior: "smooth", block: "start" }))); };
-  const R = [["verstehen", zw("Verstehen", "Understand")], ["training", zw("Training", "Training")], ["mathilda", zw("Mathilda", "Mathilda")]];
+  const R = [["verstehen", zw("Entdecken", "Explore")], ["training", zw("Trainieren", "Train")], ["mathilda", zw("Mathilda", "Mathilda")]];
   return (
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 680, paddingTop: 22 }}>
       <div ref={oben} style={{ scrollMarginTop: 70 }} />

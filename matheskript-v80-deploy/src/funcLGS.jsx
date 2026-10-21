@@ -77,9 +77,9 @@ const zahlK = (v) => (v < 0 ? `(${minus(v)})` : String(v));   // in Klammern, we
 
 /* ---------- Aufgaben erzeugen ---------- */
 export const LGS_STUFEN = [
-  { id: 1, name: "Einfach" },
-  { id: 2, name: "Mittel" },
-  { id: 3, name: "Schwer" },
+  { id: 1, name: "Stufe 1" },
+  { id: 2, name: "Stufe 2" },
+  { id: 3, name: "Stufe 3" },
 ];
 
 export function lgsErzeugen(stufe) {

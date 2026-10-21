@@ -18,7 +18,7 @@ import { Auswahl, GrosserKnopf, hilfeKontext, hinweis, karte, kicker, zw } from 
 import { Aufklapp, ModusLeiste, Seite, SchrittFolge } from "./ui3.jsx";
 import { ggT, q, qAdd, qNum } from "./rechnen2.js";
 import { BRUCH_ARTEN, bruchAufgabe, bruchTex, kgV, rohTex } from "./bruchGen.js";
-import { uebenWunschHolen, uebenWunschLesen } from "./uebenWunsch.js";
+import { startModus, uebenWunschHolen, uebenWunschLesen } from "./uebenWunsch.js";
 import { Merke, Regler, SCHRIFT } from "./geoUi.jsx";
 import { Arbeitsflaeche, BildKarte, Werkzeugleiste, useBreite, useDesktop } from "./arbeitsflaeche.jsx";
 import { ChipAuswahl, ErklaerKarte, StellKarte, useKarte } from "./funcZahlenDesktop.jsx";
@@ -403,10 +403,10 @@ function Ueben() {
   );
 }
 
-const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Üben", "Practise")]];
+const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Trainieren", "Train")]];
 
 export function Bruchrechnen() {
-  const [modus, setModus] = useState(() => { const w = uebenWunschLesen("bruchrechnen"); return w && w.modus ? w.modus : "ueben"; });
+  const [modus, setModus] = useState(() => startModus("bruchrechnen"));
   return (
     <Seite titel={zw("Brüche rechnen", "Working with fractions")}
       text={zw("Kürzen, erweitern, plus, minus, mal und geteilt – mit Bruchstreifen zum Sehen und Aufgaben, die jeden typischen Fehler gezielt ansprechen.",

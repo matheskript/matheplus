@@ -13,7 +13,7 @@ import React, { useState } from "react";
 import { C } from "./base1.jsx";
 import { M } from "./func3.jsx";
 import { Auswahl, hilfeKontext, karte, kicker, zw } from "./ui2.jsx";
-import { uebenWunschLesen } from "./uebenWunsch.js";
+import { startModus, uebenWunschLesen } from "./uebenWunsch.js";
 import { Aufklapp, ModusLeiste, Seite, zt } from "./ui3.jsx";
 import { WINKEL_ARTEN, lagenWert, winkelAufgabe } from "./geoMittel2.js";
 import { Merke, Regler, UebenRahmen, WertZeile, Zeichenblatt, add, mal, polar } from "./geoUi.jsx";
@@ -392,10 +392,10 @@ const hilfe = (au) => hilfeKontext({
   pruefen: [zw("Spitzer Winkel sieht spitz aus, stumpfer stumpf – passt dein Ergebnis zur Skizze?", "Acute looks acute, obtuse looks obtuse – does your result match the sketch?")],
 });
 
-const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Üben", "Practise")]];
+const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Trainieren", "Train")]];
 
 export function Winkelsaetze() {
-  const [modus, setModus] = useState(() => { const w = uebenWunschLesen("winkelsaetze"); return w && w.modus ? w.modus : "entdecken"; });   // Wunsch einer Lernseite (uebenWunsch.js)
+  const [modus, setModus] = useState(() => startModus("winkelsaetze"));   // Wunsch einer Lernseite (uebenWunsch.js)
   return (
     <Seite titel={zw("Winkel und Winkelsummen", "Angles and angle sums")}
       text={zw("Scheitel-, Neben-, Stufen- und Wechselwinkel, die Winkelsumme im Dreieck und im n-Eck: die Werkzeuge, mit denen man jeden fehlenden Winkel findet.",

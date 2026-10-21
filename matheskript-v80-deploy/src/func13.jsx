@@ -305,7 +305,7 @@ export function Ableitungstrainer() {
         <div className="abl-kopf" style={bereich === "werkstatt" ? { marginBottom: 7 } : undefined}>
           <div className="abl-links">
             <div className="abl-seg" role="group" aria-label="Modus">
-              {[["auto", "Automatik"], ["training", "Training"]].map(([id, name]) => {
+              {[["auto", "Rechnen"], ["training", "Trainieren"]].map(([id, name]) => {
                 const aktuell = bereich === "werkstatt" ? werkModus : polyModus;
                 return <button key={id} type="button" aria-pressed={aktuell === id}
                   onClick={() => festhalten(() => (bereich === "werkstatt" ? setWerkModus(id) : setPolyModus(id)))}>{name}</button>;
@@ -335,7 +335,7 @@ export function Ableitungstrainer() {
           </div>
         </div>
         <button type="button" className="abl-wechsel" onClick={() => { setBereich("werkstatt"); nachOben(); }}>
-          <span><b>Regelwerkstatt</b><small>Produkt-, Quotienten-, Kettenregel · Gold Level</small></span><span aria-hidden="true">→</span>
+          <span><b>Regelwerkstatt</b><small>Produkt-, Quotienten-, Kettenregel · Stufe 3</small></span><span aria-hidden="true">→</span>
         </button>
         </>}
         {/* Regelwerkstatt: Regel wählen, zurück zu den Funktionsarten */}
