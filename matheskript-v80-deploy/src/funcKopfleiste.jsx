@@ -210,6 +210,18 @@ const CSS = `
 .kl[data-edition="stadion"] .kl-fortschritt { background: #FFFFFF; box-shadow: none; }
 .kl[data-edition="stadion"] .kl-marke:focus-visible, .kl[data-edition="stadion"] button:focus-visible { outline-color: #FFFFFF; }
 .kl[data-edition="stadion"] .kl-slogan b { font-weight: 900; color: #00447A; }
+/* GER (Schwarz-Rot-Gold + Weiß): Leiste Schwarz, unten ein Rot-Gold-Saum; Wortmarke wie im Original (Weiß + Gold),
+   + und = im Slogan Rot. Die Fußzeile (funcRecht.jsx, .seiten-fuss) sieht genauso aus – Regeln hier, weil die Kopfleiste auf jeder Seite steht. */
+.kl[data-edition="ger"] { --kl-hg: #0A0A0A; --kl-text: #FFFFFF; --kl-nebel: #D6D6D6; --kl-linie: rgba(255,255,255,0.12); --kl-kurve: #FFCE00; --kl-licht1: rgba(255,206,0,0.22); --kl-licht2: rgba(221,0,0,0.22);
+  --kl-pille-hg: rgba(255,255,255,0.08); --kl-pille-hover: rgba(255,255,255,0.15); --kl-chip-hg: #DD0000; --kl-plus: #FF2B2B; --kl-schatten: 0 18px 40px -22px rgba(0,0,0,.9); }
+.kl[data-edition="ger"] .kl-hg { background: radial-gradient(120% 90% at 0% 0%, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0) 55%), linear-gradient(155deg, #262626 0%, #0A0A0A 50%, #000000 100%);
+  border-bottom: 0; box-shadow: inset 0 -3px 0 #FFCE00, inset 0 -6px 0 #DD0000; }
+.kl[data-edition="ger"] .kl-slogan b { font-weight: 900; }
+.kl[data-edition="ger"] .kl-fortschritt { background: linear-gradient(90deg, #DD0000 0%, #FFCE00 100%); box-shadow: none; }
+html[data-start-edition="ger"] .seiten-fuss { background: radial-gradient(120% 90% at 0% 0%, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 55%), linear-gradient(155deg, #262626 0%, #0A0A0A 50%, #000000 100%) !important;
+  box-shadow: inset 0 3px 0 #DD0000, inset 0 6px 0 #FFCE00; }
+html[data-start-edition="ger"] .seiten-fuss button { color: #D6D6D6 !important; }
+html[data-start-edition="ger"] .seiten-fuss .fuss-zeichen { color: #FF2B2B !important; font-weight: 900; }
 @media (prefers-reduced-motion: reduce) { .kl-bm, .kl-bm-schleier { animation: none; } .kl-kurve, .kl-kurve path, .kl-punkt { animation: none !important; } .kl-kurve { clip-path: none; } .kl-kurve path { opacity: var(--kl-kurve-ruhe); } .kl-punkt { opacity: .55; } .kl-zeile, .kl-slogan { transition: none; } }
 `;
 

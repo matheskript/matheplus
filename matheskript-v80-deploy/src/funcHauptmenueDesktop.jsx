@@ -58,6 +58,9 @@ const CSS = `
   --licht1:rgba(255,229,138,0.22);--licht2:rgba(255,255,255,0.10);--karte:rgba(255,255,255,0.07);--rand:rgba(255,255,255,0.16);
   --kachel:rgba(5,11,31,0.22);--kachel-rand:rgba(255,255,255,0.16);--hover:rgba(5,11,31,0.3);
   --held:linear-gradient(155deg,#0B2560 0%,#081A46 60%,#06122F 100%)}
+.hmd[data-edition="ger"]{--grund:rgba(8,8,8,0.94);--kopf:rgba(8,8,8,0.78);--t2:#D6D6D6;--t3:#A8A8A8;--licht1:rgba(255,206,0,0.18);--licht2:rgba(221,0,0,0.22);
+  --karte:rgba(255,255,255,0.05);--rand:rgba(255,255,255,0.12);--kachel:rgba(255,255,255,0.05);--kachel-rand:rgba(255,255,255,0.12);--hover:rgba(255,255,255,0.08);
+  --held:linear-gradient(155deg,#E00000 0%,#C00000 55%,#8E0000 100%);--held-rand:rgba(255,206,0,0.55)}
 .hmd[data-edition="stadion"]{--grund:rgba(163,0,31,0.92);--kopf:rgba(163,0,31,0.75);--t2:#FFE0E6;--t3:#FFC2CD;--gold:#FFFFFF;--gold-hell:#FFFFFF;
   --licht1:rgba(255,255,255,0.18);--licht2:rgba(0,102,178,0.40);--kachel:rgba(0,68,122,0.28);--hover:rgba(0,68,122,0.38);
   --held:linear-gradient(155deg,#0A78C9 0%,#0066B2 55%,#00447A 100%);--held-rand:rgba(255,255,255,0.5)}

@@ -17,7 +17,7 @@ import { stadionGoldStarten } from "./stadionGold.js";
 import { EVENT_START_MODUS, startModus } from "./startModus.js";
 
 schutzStarten();
-stadionGoldStarten(() => startModus() === "stadion", EVENT_START_MODUS);   /* Stadion: Gold → Rot/Weiß/Blau */
+stadionGoldStarten(() => ["stadion", "ger"].includes(startModus()), EVENT_START_MODUS);   /* FCB: Gold → Rot/Weiß/Blau · GER: Marken-Blau → Schwarz */
 spracheStarten().finally(() => createRoot(document.getElementById("root")).render(<App />));
 
 /* PWA: Service Worker (Offline + Push), nur im gebauten Stand */

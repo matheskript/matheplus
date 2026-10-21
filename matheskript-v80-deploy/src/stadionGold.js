@@ -43,13 +43,24 @@ function hexZuRgb(h) {
   return [parseInt(s.slice(0, 2), 16), parseInt(s.slice(2, 4), 16), parseInt(s.slice(4, 6), 16)];
 }
 
+/* Marken-Blau (see, seeTief, Navy der Kacheln …)? Nur kräftige Blautöne – Hellblau und Nachtschwarz bleiben außen vor.
+   Wird in der GER-Ansicht über var(--gb-blau, <altes Blau>) zu Schwarz, aber nur in der App-Hülle
+   (Startseite, Kopfleiste, Menüs, Fußzeile) – in den Werkzeugen bleibt Blau Blau (Farbcodes!). */
+export function istBlau(r, g, b) {
+  return r <= 80 && b >= 90 && b - r >= 70 && b - g >= 30;
+}
+
 /* Ersetzt goldene Farben in einem CSS-Wert. art: "gold" (Linien, Text) oder "flaeche" (Hintergründe).
    Ergebnis behält das alte Gold als Rückfallwert, Transparenz über color-mix. */
-export function goldErsetzen(wert, art = "gold") {
-  if (!wert || wert.includes("--st-")) return wert;
-  const v = art === "flaeche" ? "--st-flaeche" : "--st-gold";
+export function goldErsetzen(wert, art = "gold", nur = null) {
+  if (!wert || wert.includes("--st-") || wert.includes("--gb-")) return wert;
+  const fl = art === "flaeche";
+  /* nur: "gold" oder "blau" – für Stylesheet-Regeln getrennt, weil jede Ersetzung nur in ihrer Ansicht gelten darf */
+  const varFuer = (r, g, b) => (nur !== "blau" && istGold(r, g, b) ? (fl ? "--st-flaeche" : "--st-gold")
+    : nur !== "gold" && istBlau(r, g, b) ? (fl ? "--gb-flaeche" : "--gb-blau") : null);
   let neu = String(wert).replace(RGB, (m, r, g, b, a) => {
-    if (!istGold(+r, +g, +b)) return m;
+    const v = varFuer(+r, +g, +b);
+    if (!v) return m;
     const alt = `rgb(${r}, ${g}, ${b})`;
     if (a === undefined) return `var(${v}, ${alt})`;
     const p = a.endsWith("%") ? parseFloat(a) : parseFloat(a) * 100;
@@ -58,7 +69,8 @@ export function goldErsetzen(wert, art = "gold") {
   });
   neu = neu.replace(HEX, (m) => {
     const [r, g, b] = hexZuRgb(m);
-    return istGold(r, g, b) ? `var(${v}, ${m})` : m;
+    const v = varFuer(r, g, b);
+    return v ? `var(${v}, ${m})` : m;
   });
   return neu;
 }
@@ -68,11 +80,11 @@ const DUNKLER_TEXT = /^(#050b1f|#0e1e4a|#0f1a33|rgb\(5, 11, 31\)|rgb\(14, 30, 74
 
 /* Eine Deklarationsliste (Eigenschaft → Wert) umfärben. Liegt eine goldene Fläche unter dunklem Text,
    wird der Text zu var(--st-auf-flaeche) – sonst stünde Nachtblau auf Rot. */
-export function deklarationenUmfaerben(paare) {
+export function deklarationenUmfaerben(paare, nur = null) {
   let geaendert = false, flaecheGold = false;
   const aus = paare.map(([p, w, wichtig]) => {
-    const n = goldErsetzen(w, FLAECHE.test(p) ? "flaeche" : "gold");
-    if (n !== w) { geaendert = true; if (FLAECHE.test(p)) flaecheGold = true; }
+    const n = goldErsetzen(w, FLAECHE.test(p) ? "flaeche" : "gold", nur);
+    if (n !== w) { geaendert = true; if (FLAECHE.test(p) && n.includes("--st-")) flaecheGold = true; }
     return [p, n, wichtig];
   });
   if (flaecheGold) {
@@ -88,6 +100,9 @@ const FARBIG = [
 ].join(", ");
 
 export const STADION_VARIABLEN = `
+/* GER: Marken-Blau wird Schwarz – nur in der App-Hülle; Kurs-Kacheln behalten ihren Lack */
+:root[data-start-edition="ger"] :is(.sbb, .kl, .hmd, .hm-fenster, .seiten-fuss, .fuss-paar) { --gb-blau: #0A0A0A; --gb-flaeche: #141414; }
+:root[data-start-edition="ger"] :is(.kk, .hmd-lack, [data-kurs-kachel]) { --gb-blau: initial; --gb-flaeche: initial; }
 :root[data-start-edition="stadion"] { --st-gold: ${ROT}; --st-flaeche: ${ROT}; --st-auf-flaeche: #FFFFFF; }
 :root[data-start-edition="stadion"] :is(${FARBIG}) { --st-gold: #FFFFFF; --st-flaeche: #FFFFFF; --st-auf-flaeche: ${ROT}; }
 :root[data-start-edition="stadion"] :is(.sbb-streifen) { --st-auf-flaeche: ${BLAU}; }
@@ -167,14 +182,21 @@ function regelnSammeln(liste, aus, rahmen) {
     if (r.type === 1 && r.selectorText) {
       const paare = [];
       for (let i = 0; i < r.style.length; i++) { const p = r.style[i]; paare.push([p, r.style.getPropertyValue(p), r.style.getPropertyPriority(p)]); }
-      const neu = deklarationenUmfaerben(paare.filter(([p, w]) => !(p === "background-image" && nurSchimmer(w))));
-      if (!neu) continue;
       const alt = Object.fromEntries(paare.map(([p, w]) => [p, w]));
-      const teile = neu.filter(([p, w]) => w !== alt[p]).map(([p, w]) => `${p}: ${w} !important;`);
-      if (!teile.length) continue;
-      /* :where() hält die Spezifität klein, :is(…) behält die des Originals; !important schlägt Original und inline */
-      const sel = `:is(${r.selectorText}):where(:root[data-start-edition="stadion"] *):not(${AUS}, ${AUS} *)`;
-      aus.push(rahmen ? `${rahmen} { ${sel} { ${teile.join(" ")} } }` : `${sel} { ${teile.join(" ")} }`);
+      /* Zwei getrennte Überschreibungen: Gold nur in FCB (stadion), Marken-Blau nur in GER. Regeln der Grund-Modi
+         (data-modus="mix"/"hell"/"dunkel") bekommen in GER keine Blau-Überschreibung – die färbt GER selbst um
+         (sonst schlüge das !important die eigenen GER-Regeln). */
+      for (const [nur, ed2] of [["gold", "stadion"], ["blau", "ger"]]) {
+        if (nur === "blau" && /data-(start-)?modus=/.test(r.selectorText)) continue;
+        const quelle = nur === "gold" ? paare.filter(([p, w]) => !(p === "background-image" && nurSchimmer(w))) : paare;
+        const neu = deklarationenUmfaerben(quelle, nur);
+        if (!neu) continue;
+        const teile = neu.filter(([p, w]) => w !== alt[p]).map(([p, w]) => `${p}: ${w} !important;`);
+        if (!teile.length) continue;
+        /* :where() hält die Spezifität klein, :is(…) behält die des Originals; !important schlägt Original und inline */
+        const sel = `:is(${r.selectorText}):where(:root[data-start-edition="${ed2}"] *):not(${AUS}, ${AUS} *)`;
+        aus.push(rahmen ? `${rahmen} { ${sel} { ${teile.join(" ")} } }` : `${sel} { ${teile.join(" ")} }`);
+      }
     } else if (r.cssRules && (r.type === 4 || r.type === 12)) {
       regelnSammeln(r.cssRules, aus, `${r.type === 4 ? "@media" : "@supports"} ${r.conditionText || (r.media && r.media.mediaText) || ""}`);
     }

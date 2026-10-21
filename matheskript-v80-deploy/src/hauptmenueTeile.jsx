@@ -153,10 +153,16 @@ export function KlasseWaehlen({ setze, schulartStart }) {
 export const ETIKETT_FARBE = { entdecken: "#FFE58A", rechnen: "#BFD6F5", trainieren: "#FF9EC2" };
 export const ETIKETT_FARBE_HELL = { entdecken: C.flaggold, rechnen: C.seeHell, trainieren: "#D14D85" };
 
-export const MODUS_NAME = { dunkel: "Dunkel", hell: "Hell", mix: "Mix", stadion: "Stadion" };
-export const MODUS_NAME_EN = { dunkel: "Dark", hell: "Light", mix: "Mix", stadion: "Stadium" };
+export const MODUS_NAME = { dunkel: "Dunkel", hell: "Hell", mix: "Mix", stadion: "FCB", ger: "GER" };
+export const MODUS_NAME_EN = { dunkel: "Dark", hell: "Light", mix: "Mix", stadion: "FCB", ger: "GER" };
 export function ModusSymbol({ m }) {
-  /* Stadion: Kreis oben Rot, unten Blau, weißer Streifen dazwischen (eigenes Motiv, kein Wappen) */
+  /* GER: Kreis in drei Streifen Schwarz, Rot, Gold */
+  if (m === "ger") return (
+    <svg viewBox="0 0 24 24" aria-hidden="true"><clipPath id="msGer"><circle cx="12" cy="12" r="8.5" /></clipPath>
+      <g clipPath="url(#msGer)"><rect x="0" y="3.5" width="24" height="5.7" fill="#000000" /><rect x="0" y="9.2" width="24" height="5.7" fill="#DD0000" /><rect x="0" y="14.9" width="24" height="5.7" fill="#FFCE00" /></g>
+      <circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" strokeOpacity=".25" strokeWidth="1" /></svg>
+  );
+  /* Stadion (FCB): Kreis oben Rot, unten Blau, weißer Streifen dazwischen (eigenes Motiv, kein Wappen) */
   if (m === "stadion") return (
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 12a8.5 8.5 0 0 1 17 0z" fill="#DC052D" /><path d="M3.5 12a8.5 8.5 0 0 0 17 0z" fill="#0066B2" /><path d="M3 12h18" stroke="#FFFFFF" strokeWidth="2.6" /></svg>
   );

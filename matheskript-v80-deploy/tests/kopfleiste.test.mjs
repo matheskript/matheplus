@@ -28,7 +28,7 @@ test("Besuchermenü: genau die vier Punkte, in dieser Reihenfolge, mit Zielen in
 
 test("Alle drei Modi der Startseite sind im Stil der Kopfleiste definiert; Mathilda AI mit goldenem AI", () => {
   const q = quelle("funcKopfleiste.jsx");
-  for (const m of START_MODI.filter((x) => x !== "dunkel")) assert.ok(q.includes(m === "stadion" ? `.kl[data-edition="stadion"]` : `.kl[data-modus="${m}"]`), m);
+  for (const m of START_MODI.filter((x) => x !== "dunkel")) assert.ok(q.includes(m === "stadion" || m === "ger" ? `.kl[data-edition="${m}"]` : `.kl[data-modus="${m}"]`), m);
   assert.ok(q.includes("useKopfModus") && q.includes("EVENT_START_MODUS"));
   assert.ok(q.includes("<MathildaName dunkel={modus !== \"hell\"} />"), "Mathilda AI kommt aus mathildaName.jsx (AI in Gold)");
   assert.ok(q.includes("<MarkenLogo groesse={gast ? \"var(--kl-logo-gast)\" : \"min(40px, calc((100vw - 100px) / 10))\"}"), "Besucher: Größe über --kl-logo-gast; angemeldet so groß, wie neben dem ☰ Platz ist");

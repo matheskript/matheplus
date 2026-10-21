@@ -11,13 +11,16 @@
 
 export const START_MODUS_SCHLUESSEL = "matheplus-start-modus";
 export const EVENT_START_MODUS = "mm-start-modus";
-export const START_MODI = ["dunkel", "hell", "mix", "stadion"];
+export const START_MODI = ["dunkel", "hell", "mix", "stadion", "ger"];
 
 /* „stadion“ (21.10.): Rot-Weiß-Blau. Baut auf dem Mix auf (helles Blatt, farbige Inseln) –
    die Komponenten setzen data-modus="mix" plus data-edition="stadion" und färben darüber um.
    Bewusst ohne Vereinslogo und Vereinsnamen: nur die Farben. */
-export const basisModus = (m) => (m === "stadion" ? "mix" : m);
-export const editionVon = (m) => (m === "stadion" ? "stadion" : undefined);
+/* „ger“ (21.10., angezeigt als „GER“): Schwarz-Rot-Gold mit Weiß, ebenfalls auf Mix-Basis (data-edition="ger").
+   „stadion“ wird angezeigt als „FCB“ (der Schlüssel bleibt, damit gespeicherte Wahl und Links weiter gelten). */
+export const EDITIONEN = ["stadion", "ger"];
+export const basisModus = (m) => (EDITIONEN.includes(m) ? "mix" : m);
+export const editionVon = (m) => (EDITIONEN.includes(m) ? m : undefined);
 const STANDARD = "mix";
 
 /* Gewählter Modus: "dunkel", "hell" oder "mix" (ohne Wahl: mix) */
@@ -34,14 +37,16 @@ export function startModusSetzen(v) {
   try { window.dispatchEvent(new Event(EVENT_START_MODUS)); } catch { /* kein Fenster */ }
 }
 
-/* Reihum: dunkel → hell → mix → stadion → dunkel */
+/* Reihum: dunkel → hell → mix → stadion (FCB) → ger → dunkel */
 export const naechsterModus = (m = startModus()) => START_MODI[(START_MODI.indexOf(m) + 1) % START_MODI.length];
 export const startModusWechseln = () => startModusSetzen(naechsterModus());
 
 /* Pfad wie "/start-hell" → "hell"; sonst null. Erkannt werden start-, startseite- und frontpage- mit hell, dunkel, mix oder stadion. */
 export function modusAusPfad(pfad) {
-  const m = /^\/?(?:start|startseite|frontpage)-(hell|dunkel|mix|stadion)\/?$/i.exec(String(pfad || "").split(/[?#]/)[0]);
-  return m ? m[1].toLowerCase() : null;
+  const m = /^\/?(?:start|startseite|frontpage)-(hell|dunkel|mix|stadion|fcb|ger|deutschland)\/?$/i.exec(String(pfad || "").split(/[?#]/)[0]);
+  if (!m) return null;
+  const k = m[1].toLowerCase();
+  return k === "fcb" ? "stadion" : k === "deutschland" ? "ger" : k;
 }
 
 /* Die Edition hängt app-weit am Dokument (html[data-start-edition="stadion"]), damit Logo, Menüs und Kacheln

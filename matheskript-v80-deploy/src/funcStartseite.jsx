@@ -52,6 +52,8 @@ const GOLD_HELL = "#FFE58A";
 const DESKTOP = "(min-width: 840px)";
 /* Stadion-Ansicht (Rot-Weiß-Blau): nur die Farben, kein Vereinslogo, kein Vereinsname */
 const ROT = "#DC052D", ROT_TIEF = "#A3001F", ROT_HELL = "#F0284A", BLAU = "#0066B2", BLAU_TIEF = "#00447A";
+/* GER-Ansicht (Schwarz-Rot-Gold + Weiß) */
+const SCHWARZ = "#0A0A0A", D_ROT = "#DD0000", D_ROT_TIEF = "#A50000", D_GOLD = "#FFCE00";
 
 /* Alle Farben hängen an Variablen; „hell“ und „mix“ setzen sie unten um (gleiche Fläche, weißer Grund).
    Im Mix bekommen die Inseln (sbb-insel) den dunklen Satz zurück. */
@@ -184,6 +186,47 @@ html[data-start-edition="stadion"] .app-wurzel { background: #FFFFFF !important;
   background-image: radial-gradient(110% 80% at 0% 0%, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0) 60%), linear-gradient(155deg, ${ROT_HELL} 0%, ${ROT} 40%, ${ROT_TIEF} 100%);
   --st-akzent: #FFFFFF; --st-akzent-text: ${ROT}; --akzent-text: ${ROT}; --nebel: #FFE0E6; }
 .sbb[data-edition="stadion"] .sbb-mythen-streifen .sbb-kopf .strich { background: linear-gradient(90deg, #FFFFFF 0%, #FFFFFF 50%, ${BLAU} 50%, ${BLAU} 100%); }
+/* ---------- GER (Schwarz-Rot-Gold + Weiß, 21.10.) ----------
+   Mix-Basis (data-modus="mix") + data-edition="ger": Bühne Weiß mit schwarzer Schrift und roter Akzentzeile,
+   Haken und Kurve Gold, Laufband Schwarz; Hauptkacheln schwarzer Lack mit Gold (das Gold des Mix bleibt);
+   Streifen „Das System“ Rot, Mythen Schwarz; weiße Kacheln schwarz umrandet. */
+.sbb[data-edition="ger"] { --titel: ${SCHWARZ}; --glyph: ${D_ROT}; --knopf-hg: ${SCHWARZ}; --pille-hg: #FFF6CC; --pille-text: #6B5600; --mythos-hg: #FFF6CC; }
+html[data-start-edition="ger"] .app-wurzel { background: #FFFFFF !important; }
+.sbb[data-edition="ger"], .sbb[data-edition="ger"] .sbb-insel { --bild: linear-gradient(155deg, #2A2A2A 0%, #0A0A0A 100%); --bild-rechts: linear-gradient(155deg, #2A2A2A 0%, #0A0A0A 100%); }
+.sbb[data-edition="ger"] .sbb-held { background: #FFFFFF; background-image: none;
+  --text: ${SCHWARZ}; --titel: ${SCHWARZ}; --nebel: #4A4A4A; --glyph: ${D_ROT}; --linie: rgba(0,0,0,0.12); --h1-schatten: none; --akzent-text: ${SCHWARZ};
+  --such-hg: #FFFFFF; --such-rand: rgba(0,0,0,0.25); --such-text: ${SCHWARZ}; --such-platz: #6B6B6B; }
+.sbb[data-edition="ger"] .sbb-held::before { background: radial-gradient(circle, rgba(255,206,0,0.22) 0%, rgba(255,206,0,0) 70%); }
+.sbb[data-edition="ger"] .sbb-held h1 .gold { background-image: none !important; color: ${D_ROT}; -webkit-text-fill-color: currentColor; }
+.sbb[data-edition="ger"] .sbb-held-suche .such-buehne-feld { box-shadow: 0 3px 16px rgba(0,0,0,0.08); }
+.sbb[data-edition="ger"] .sbb-held-suche .such-buehne-feld:focus-within { border-color: ${D_GOLD}; box-shadow: 0 0 0 3px rgba(255,206,0,0.35); }
+.sbb[data-edition="ger"] .sbb-haken { background: ${D_GOLD}; box-shadow: 0 0 0 4px rgba(255,206,0,0.22), 0 6px 16px rgba(0,0,0,0.15); }
+.sbb[data-edition="ger"] .sbb-held-kurve .kurve { animation-name: sbbVerblassenGer; }
+@keyframes sbbVerblassenGer { to { opacity: .7; } }
+.sbb[data-edition="ger"] .sbb-held-kurve .glyph { opacity: .06; }
+.sbb[data-edition="ger"] .sbb-held .sbb-band { background: ${SCHWARZ}; border-color: rgba(255,206,0,0.35); }
+.sbb[data-edition="ger"] .sbb-held .sbb-band span { color: #FFFFFF; }
+.sbb[data-edition="ger"] .sbb-band span::after { background: ${D_GOLD}; }
+.sbb[data-edition="ger"] .sbb-karte.sbb-insel { background: radial-gradient(120% 90% at 0% 0%, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0) 55%), linear-gradient(155deg, #2A2A2A 0%, #141414 45%, #000000 100%);
+  border-color: rgba(255,206,0,0.28); box-shadow: 0 10px 28px rgba(0,0,0,0.30), inset 0 1px 0 rgba(255,255,255,0.12); }
+.sbb[data-edition="ger"] .sbb-karte.sbb-insel.sbb-gold { border-color: ${D_GOLD}; box-shadow: 0 0 0 1px rgba(255,206,0,0.55), 0 14px 34px rgba(0,0,0,0.32); }
+.sbb[data-edition="ger"] .sbb-streifen { background-color: ${SCHWARZ};
+  background-image: radial-gradient(110% 80% at 0% 0%, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 60%), linear-gradient(155deg, #1E1E1E 0%, ${SCHWARZ} 60%, #000000 100%); }
+.sbb[data-edition="ger"] .sbb-streifen#system { background-color: ${D_ROT};
+  background-image: radial-gradient(110% 80% at 0% 0%, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0) 60%), linear-gradient(155deg, #F01A1A 0%, ${D_ROT} 45%, ${D_ROT_TIEF} 100%); --nebel: #FFE0E0; }
+.sbb[data-edition="ger"] .sbb-kopf .strich { background: linear-gradient(90deg, ${SCHWARZ} 0 33.3%, ${D_ROT} 33.3% 66.6%, ${D_GOLD} 66.6%); box-shadow: none; }
+.sbb[data-edition="ger"] .sbb-streifen .sbb-kopf .strich { background: linear-gradient(90deg, #FFFFFF 0 33.3%, ${D_ROT} 33.3% 66.6%, ${D_GOLD} 66.6%); }
+.sbb[data-edition="ger"] .sbb-streifen#system .sbb-kopf .strich { background: linear-gradient(90deg, ${SCHWARZ} 0 33.3%, #FFFFFF 33.3% 66.6%, ${D_GOLD} 66.6%); }
+.sbb[data-edition="ger"] .sbb-zone .nr { background-image: none; color: ${D_ROT}; -webkit-text-fill-color: currentColor; }
+.sbb[data-edition="ger"] .sbb-kachel:not(.sbb-insel) { border-color: ${SCHWARZ}; box-shadow: 0 6px 22px rgba(0,0,0,0.08); }
+.sbb[data-edition="ger"] .sbb-kachel:not(.sbb-insel) .sbb-kachel-bild { border-left-color: ${SCHWARZ}; }
+.sbb[data-edition="ger"] .sbb-kachel.zu:not(.sbb-insel), .sbb[data-edition="ger"] .sbb-kachel.zu:not(.sbb-insel) .sbb-kachel-bild { border-color: rgba(0,0,0,0.3); }
+.sbb[data-edition="ger"] .sbb-kachel:not(.sbb-insel) .weiter { border-color: ${SCHWARZ}; background: #FFF6CC; color: ${SCHWARZ}; }
+.sbb[data-edition="ger"] .sbb-kachel:not(.sbb-insel) .weiter.pille.zu { border-color: rgba(0,0,0,0.3); background: transparent; }
+@media (hover:hover) { .sbb[data-edition="ger"] .sbb-kachel:not(.sbb-insel):not(:disabled):hover { border-color: ${SCHWARZ}; box-shadow: 0 0 0 1px ${SCHWARZ}, 0 16px 36px rgba(0,0,0,0.16); }
+  .sbb[data-edition="ger"] .sbb-kachel:not(.sbb-insel):not(:disabled):hover .weiter { background: ${SCHWARZ}; color: ${D_GOLD}; } }
+.sbb[data-edition="ger"] button:focus-visible { outline-color: ${D_ROT}; }
+.sbb-schalter[data-edition="ger"] button[aria-pressed="true"] { background: ${SCHWARZ}; color: ${D_GOLD}; }
 .sbb { position: relative; color: var(--text); }
 .sbb *, .sbb *::before, .sbb *::after { box-sizing: border-box; }
 /* Das Licht liegt hinter allem (negativer z-index: unter jedem Inhalt, über dem Seitenhintergrund).
@@ -422,7 +465,7 @@ html[data-start-edition="stadion"] .app-wurzel { background: #FFFFFF !important;
 
 /* Umschalter Dunkel / Hell (unten links, wie die Sprachwahl im Arbeitsmenü) */
 .sbb-schalter { position: fixed; left: 14px; bottom: 14px; z-index: 40; display: inline-flex; align-items: center; gap: 2px; padding: 3px; border-radius: 999px; background: var(--schalter-hg); border: 1px solid var(--schalter-rand); box-shadow: 0 10px 30px rgba(0,0,0,.25); backdrop-filter: blur(8px); font-family: Montserrat, system-ui, sans-serif; }
-.sbb-schalter button { height: 30px; padding: 0 12px; border-radius: 999px; border: none; cursor: pointer; font-family: inherit; font-size: 12.5px; font-weight: 800; color: var(--nebel); background: transparent; display: inline-flex; align-items: center; gap: 6px; }
+.sbb-schalter button { height: 30px; padding: 0 9px; border-radius: 999px; border: none; cursor: pointer; font-family: inherit; font-size: 12.5px; font-weight: 800; color: var(--nebel); background: transparent; display: inline-flex; align-items: center; gap: 6px; }
 .sbb-schalter button[aria-pressed="true"] { background: ${GOLD}; color: ${NACHT}; }
 .sbb-schalter button:focus-visible { outline: 3px solid ${GOLD}; outline-offset: 2px; }
 
@@ -668,6 +711,14 @@ function Mythen() {
 
 /* ---------- Modus dunkel / hell ---------- */
 /* Zeichen der Stadion-Ansicht: ein Kreis, oben Rot, unten Blau, dazwischen ein weißer Streifen (eigenes Motiv, kein Vereinswappen) */
+export function GerZeichen({ g = 13 }) {
+  return (
+    <svg width={g} height={g} viewBox="0 0 24 24" aria-hidden="true">
+      <clipPath id="gerKreis"><circle cx="12" cy="12" r="9" /></clipPath>
+      <g clipPath="url(#gerKreis)"><rect x="0" y="3" width="24" height="6" fill="#000000" /><rect x="0" y="9" width="24" height="6" fill="#DD0000" /><rect x="0" y="15" width="24" height="6" fill="#FFCE00" /></g>
+    </svg>
+  );
+}
 export function StadionZeichen({ g = 13 }) {
   return (
     <svg width={g} height={g} viewBox="0 0 24 24" aria-hidden="true">
@@ -694,7 +745,7 @@ export function useStartModus() {
 export function StartModusSchalter() {
   const v = useStartModus();
   return (
-    <div className="sbb-schalter" data-modus={basisModus(v)} data-edition={editionVon(v)} role="group" aria-label="Startseite: dunkel, hell, mix oder Stadion">
+    <div className="sbb-schalter" data-modus={basisModus(v)} data-edition={editionVon(v)} role="group" aria-label="Startseite: dunkel, hell, mix, FCB oder GER">
       <style>{CSS}</style>
       <button type="button" aria-pressed={v === "dunkel"} onClick={() => startModusSetzen("dunkel")} aria-label="Dunkler Modus">
         <svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="currentColor" /></svg>Dunkel
@@ -705,8 +756,11 @@ export function StartModusSchalter() {
       <button type="button" aria-pressed={v === "mix"} onClick={() => startModusSetzen("mix")} aria-label="Mix: hell mit dunklen Inseln">
         <svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="2.4" /><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor" /></svg>Mix
       </button>
-      <button type="button" className="st" aria-pressed={v === "stadion"} onClick={() => startModusSetzen("stadion")} aria-label="Stadion: Rot, Weiß und Blau">
-        <StadionZeichen />Stadion
+      <button type="button" className="st" aria-pressed={v === "stadion"} onClick={() => startModusSetzen("stadion")} aria-label="FCB: Rot, Weiß und Blau">
+        <StadionZeichen />FCB
+      </button>
+      <button type="button" className="ger" aria-pressed={v === "ger"} onClick={() => startModusSetzen("ger")} aria-label="GER: Schwarz, Rot, Gold">
+        <GerZeichen />GER
       </button>
     </div>
   );

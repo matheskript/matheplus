@@ -17,11 +17,15 @@ test("Pfade /start-hell und /start-dunkel (auch startseite-, frontpage-) wählen
   assert.equal(modusAusPfad("/start-b"), null);
   assert.equal(modusAusPfad("/elternabend"), null);
   assert.equal(modusAusPfad("/start-stadion"), "stadion");
-  assert.deepEqual(START_MODI, ["dunkel", "hell", "mix", "stadion"]);
+  assert.equal(modusAusPfad("/start-fcb"), "stadion");
+  assert.equal(modusAusPfad("/start-ger"), "ger");
+  assert.equal(modusAusPfad("/start-deutschland"), "ger");
+  assert.deepEqual(START_MODI, ["dunkel", "hell", "mix", "stadion", "ger"]);
   assert.equal(naechsterModus("dunkel"), "hell");
   assert.equal(naechsterModus("hell"), "mix");
   assert.equal(naechsterModus("mix"), "stadion");
-  assert.equal(naechsterModus("stadion"), "dunkel");
+  assert.equal(naechsterModus("stadion"), "ger");
+  assert.equal(naechsterModus("ger"), "dunkel");
 });
 
 test("Ohne Browser-Speicher gilt der Mix-Modus", () => {
@@ -92,4 +96,23 @@ test("Stadion ohne Gold: Gold wird zur Variable mit altem Gold als Rückfall, Ma
   assert.ok(quelle("mathildaName.jsx").includes("data-gold-bleibt") && quelle("mathildaBild.jsx").includes("data-gold-bleibt"), "Mathildas Name und Haare bleiben golden");
   assert.ok(quelle("markenLogo.jsx").includes('className="marke-mathe"'));
   assert.ok(quelle("main.jsx").includes("stadionGoldStarten("));
+});
+
+test("GER: Schwarz-Rot-Gold auf Mix-Basis, Knopf GER, FCB heißt nur anders", () => {
+  assert.equal(basisModus("ger"), "mix");
+  assert.equal(editionVon("ger"), "ger");
+  const q = quelle("funcStartseite.jsx");
+  assert.ok(q.includes('.sbb[data-edition="ger"] .sbb-held') && q.includes('startModusSetzen("ger")') && q.includes("<GerZeichen />GER") && q.includes("<StadionZeichen />FCB"));
+  const k = quelle("funcKopfleiste.jsx");
+  assert.ok(k.includes('.kl[data-edition="ger"]') && k.includes('html[data-start-edition="ger"] .seiten-fuss'), "Kopf- und Fußzeile ohne GER-Farben");
+  assert.ok(quelle("hauptmenueTeile.jsx").includes('ger: "GER"'));
+});
+
+test("GER: Marken-Blau wird zur Variable (Schwarz nur in der App-Hülle), Hellblau bleibt", async () => {
+  const { istBlau, goldErsetzen, STADION_VARIABLEN } = await import("../src/stadionGold.js");
+  assert.ok(istBlau(0, 77, 152) && istBlau(11, 42, 99) && !istBlau(191, 214, 245) && !istBlau(5, 11, 31) && !istBlau(237, 187, 0));
+  assert.equal(goldErsetzen("#004D98"), "var(--gb-blau, #004D98)");
+  assert.equal(goldErsetzen("#004D98", "flaeche"), "var(--gb-flaeche, #004D98)");
+  assert.ok(STADION_VARIABLEN.includes('[data-start-edition="ger"] :is(.sbb, .kl'));
+  assert.ok(quelle("main.jsx").includes('["stadion", "ger"].includes(startModus())'));
 });
