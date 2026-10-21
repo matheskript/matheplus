@@ -1,5 +1,5 @@
 /* ======================================================================
-   Heute-Karte (Startseite, Zone 1 „Heute knackst du …“, Rolle Schüler)
+   Heute-Karte (Startseite, Zone 1 „Heute trainierst du …“, Rolle Schüler)
    Zeigt, was heute konkret ansteht – „Produktregel trainieren“, „Verkettungen bilden“ … –
    in der Optik der Kurs-Kacheln („Lack und Goldfolie“, Farbwelt NACHTBLAU).
 

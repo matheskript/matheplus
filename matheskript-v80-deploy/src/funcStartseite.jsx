@@ -759,7 +759,7 @@ export function Startseite({ gehe }) {
         </p>
 
         {/* ---------- 1 Heute ---------- */}
-        <Zone nr="1" titel={"Heute knackst du\u00A0…"} />
+        <Zone nr="1" titel={"Heute trainierst du\u00A0…"} />
         <div className="sbb-wieder">
           <StartOnboarding gehe={gehe} setzeStufe={stufeSetzen} planDa={!!lernpfad} />
           <WeitermachenZeile gehe={gehe} lack />

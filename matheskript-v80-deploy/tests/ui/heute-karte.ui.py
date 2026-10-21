@@ -1,4 +1,4 @@
-"""Browser-Test Heute-Karte (Startseite, Zone „1 Heute knackst du …“, Schüler Klasse 12, Thema Analysis).
+"""Browser-Test Heute-Karte (Startseite, Zone „1 Heute trainierst du …“, Schüler Klasse 12, Thema Analysis).
 Frischer Schüler und Schüler mit Lernstand (Protokoll + wiederkehrender Fehler): zugeklappt eine Kopfzeile
 („4 Runden · 32 Min“ / „Noch 3 Runden …“), vier Etappen-Kacheln mit Motiv, Goldknopf und „Details“;
 aufgeklappt konkrete Einheiten; Start (Kachel, Goldknopf, Karte) öffnet das Werkzeug im richtigen Modus.
