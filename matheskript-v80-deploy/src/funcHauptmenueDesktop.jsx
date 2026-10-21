@@ -247,8 +247,8 @@ const CSS = `
 
 /* Kurse */
 .hmd-lacke{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.hmd-lack{position:relative;isolation:isolate;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;gap:12px;min-height:122px;
-  padding:14px 14px 13px;border-radius:18px;border:1px solid transparent;text-align:left;color:var(--kk-text);
+.hmd-lack{position:relative;isolation:isolate;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;gap:6px;min-height:84px;
+  padding:11px 12px 10px;border-radius:18px;border:1px solid transparent;text-align:left;color:var(--kk-text);
   background:var(--kk-lack) padding-box,var(--kk-rand) border-box;
   box-shadow:0 1px 0 var(--kk-kante) inset,0 18px 34px -20px var(--kk-schatten);transition:transform .18s ease,box-shadow .18s ease}
 .hmd-lack::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:0;
@@ -256,13 +256,13 @@ const CSS = `
 .hmd-lack > *{position:relative;z-index:1}
 .hmd-lack:hover{transform:translateY(-2px);box-shadow:0 1px 0 var(--kk-kante) inset,0 24px 40px -18px var(--kk-schatten)}
 .hmd-lack[aria-current="page"]{box-shadow:0 0 0 2.5px ${C.flaggold},0 18px 34px -20px var(--kk-schatten)}
-.hmd-lack[data-gross]{grid-column:1 / -1;min-height:136px}
-.hmd-lack .hmd-motiv{position:absolute;right:-4px;bottom:-6px;width:42%;max-width:140px;height:auto;z-index:0;overflow:visible}
-.hmd-lack[data-gross] .hmd-motiv{width:36%;max-width:190px}
-.hmd-lack-titel{display:block;max-width:64%;font-size:15.5px;font-weight:800;letter-spacing:-0.02em;line-height:1.15;color:var(--kk-titel);text-wrap:balance}
-.hmd-lack[data-gross] .hmd-lack-titel{font-size:21px;max-width:60%}
-.hmd-lack-meta{display:block;max-width:56%;font-size:11.5px;font-weight:700;line-height:1.3;color:var(--kk-akzent)}
-.hmd-lack-balken{display:block;width:96px;max-width:100%;height:3px;margin-top:6px;border-radius:2px;background:var(--kk-spur);overflow:hidden}
+.hmd-lack[data-gross]{grid-column:1 / -1;min-height:96px;padding:13px 14px 12px}
+.hmd-lack .hmd-motiv{position:absolute;right:-4px;bottom:-6px;width:30%;max-width:78px;height:auto;z-index:0;overflow:visible}
+.hmd-lack[data-gross] .hmd-motiv{width:30%;max-width:150px}
+.hmd-lack-titel{display:block;max-width:100%;font-size:14px;font-weight:800;letter-spacing:-0.02em;line-height:1.15;color:var(--kk-titel);text-wrap:balance}
+.hmd-lack[data-gross] .hmd-lack-titel{font-size:18px;max-width:68%}
+.hmd-lack-meta{display:block;max-width:72%;font-size:11px;font-weight:700;line-height:1.3;color:var(--kk-akzent)}
+.hmd-lack-balken{display:block;width:96px;max-width:100%;height:3px;margin-top:5px;border-radius:2px;background:var(--kk-spur);overflow:hidden}
 .hmd-lack-balken i{display:block;height:100%;border-radius:2px;background:var(--kk-fuellung)}
 .hmd-minis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
 .hmd-mini{display:flex;align-items:center;gap:10px;min-height:52px;padding:6px 10px 6px 6px;border-radius:14px;border:1px solid var(--kachel-rand);background:var(--kachel);
@@ -312,13 +312,13 @@ const sicher = (f) => { try { return f(); } catch (e) { return null; } };
 /* Texte hier direkt zweisprachig (Zahlen stecken mitten im Satz – das Wörterbuch kennt diese Sätze nicht) */
 const LACK = {
   unterstufe: { farben: GRANAT, Motiv: MotivGeodreieck, stand: unterStand, einheit: ["Lerneinheiten", "units"],
-    meta: (s, en) => (en ? `${UNTERSTUFE_ZAHLEN.kapitel} chapters, ${UNTERSTUFE_ZAHLEN.einheiten} units` : `${UNTERSTUFE_ZAHLEN.kapitel} Kapitel, ${UNTERSTUFE_ZAHLEN.einheiten} Lerneinheiten`) },
+    meta: (s, en) => (en ? `${UNTERSTUFE_ZAHLEN.einheiten} learning units` : `${UNTERSTUFE_ZAHLEN.einheiten} Lerneinheiten`) },
   diffkurs: { farben: SMARAGD, Motiv: MotivTangente, stand: diffStand, einheit: ["Modulen", "modules"],
     meta: (s, en) => (en ? `${s ? s.gesamt : 21} modules in the textbook` : `${s ? s.gesamt : 21} Module im Schulbuch`) },
   vekkurs: { farben: TIEFBLAU, Motiv: MotivEbene, stand: vekStand, einheit: ["Modulen", "modules"],
     meta: (s, en) => (en ? `${s ? s.gesamt : 31} modules in the workbook` : `${s ? s.gesamt : 31} Module im Heft`) },
-  gfs: { farben: LACKSCHWARZ, Motiv: MotivBuehne, stand: gfsStand, einheit: ["Schritten", "steps"], meta: (s, en) => (en ? "7 steps to your talk" : "7 Schritte zum Vortrag") },
-  kiwahl: { farben: NACHTBLAU, Motiv: MotivDialog, stand: kiStand, einheit: ["Lektionen", "lessons"], meta: (s, en) => (en ? "Three paths by age" : "Drei Wege nach Alter") },
+  gfs: { farben: LACKSCHWARZ, Motiv: MotivBuehne, stand: gfsStand, einheit: ["Schritten", "steps"], meta: (s, en) => (en ? "7 steps to your talk" : "7 Schritte zur GFS") },
+  kiwahl: { farben: NACHTBLAU, Motiv: MotivDialog, stand: kiStand, einheit: ["Lektionen", "lessons"], meta: (s, en) => (en ? "3 paths by age" : "3 Wege nach Alter") },
 };
 /* Welcher große Kurs passt zur Stufe? Er steht als breite Karte oben. */
 const KURS_ZUR_STUFE = { unter: "unterstufe", mittel: "diffkurs", ober: "diffkurs", alle: "diffkurs" };
