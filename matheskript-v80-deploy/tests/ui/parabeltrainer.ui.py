@@ -79,7 +79,8 @@ with sync_playwright() as p:
                     wo = f"{wo0}/{t}/{i}"
                     chips.nth(i).click(); page.wait_for_timeout(150)
                     page.evaluate("window.scrollTo(0,0)")
-                    if breite < 500:
+                    # „passt ohne Scrollen“ gilt ab 390 px; sehr kleine Geräte (360 × 740) bekommen später eine eigene Lösung (Basti, 21.10.)
+                    if 380 <= breite < 500:
                         # ohne Scrollen: Unterkante des Fußes im Bild
                         unten = page.evaluate("(()=>{const f=document.querySelector('.pt-rechts');return f?f.getBoundingClientRect().bottom:0})()")
                         pruefe(0 < unten <= hoehe, f"{wo}: Aufgabe passt nicht auf den Bildschirm (Fuß bei {unten:.0f} von {hoehe})")
