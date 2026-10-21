@@ -1,4 +1,4 @@
-"""Browser-Tests Geraden (Basics, P & Q, P & m): alles auf einer Seite, Eingabe, Lösung. Siehe README.md."""
+"""Browser-Tests Geradentrainer (Grundlagen, Zwei Punkte, Punkt und Steigung; Rechnen | Trainieren): alles auf einer Seite, Eingabe, Lösung, Musterlösung. Siehe README.md."""
 import os, sys
 from playwright.sync_api import sync_playwright
 
@@ -53,7 +53,7 @@ with sync_playwright() as pw:
         # P & Q
         p.locator("[data-ger-tab=pq]").click()
         p.wait_for_timeout(300)
-        pruefe(p.get_by_text("Bestimme die Gerade durch").is_visible(), f"{n}: Aufgabentext fehlt")
+        pruefe(p.locator("[data-ger-modus=training]").get_attribute("aria-pressed") == "true", f"{n}: Standard ist nicht Trainieren")
         keine_ueberbreite(p, n + " pq")
         # alles auf einen Bildschirm (mobil)
         sh = p.evaluate("Math.round(document.querySelector('.ger-innen').getBoundingClientRect().bottom)")
@@ -90,6 +90,30 @@ with sync_playwright() as pw:
         p.get_by_role("button", name="Lösung zeigen").first.click()
         p.get_by_role("button", name="Weiter").click()
         pruefe(p.locator("[data-ger-ergebnis]").count() == 1, f"{n}: P&m Ergebnis fehlt")
+        # Rechnen (Automatik): Musterlösung sofort da, läuft beim Würfeln mit
+        p.locator("[data-ger-modus=auto]").click()
+        p.wait_for_timeout(200)
+        pruefe(p.locator("[data-ger-auto]").count() == 1 and p.locator("[data-ger-ergebnis]").count() == 1, f"{n}: Rechnen P&m ohne Musterlösung")
+        pruefe(p.get_by_role("button", name="Lösung zeigen").count() == 0, f"{n}: Rechnen zeigt Eingabe")
+        alt = p.locator("[data-ger-ergebnis]").inner_text()
+        for _ in range(4):
+            p.get_by_role("button", name="Zufälligen Punkt und Steigung würfeln").click()
+            if p.locator("[data-ger-ergebnis]").inner_text() != alt: break
+        pruefe(p.locator("[data-ger-ergebnis]").count() == 1, f"{n}: Rechnen nach Würfeln ohne Ergebnis")
+        p.locator("[data-ger-tab=pq]").click()
+        p.wait_for_timeout(200)
+        pruefe(p.locator("[data-ger-modus=auto]").get_attribute("aria-pressed") == "true", f"{n}: Modus geht beim Reiterwechsel verloren")
+        pruefe(p.locator("[data-ger-auto]").count() == 2 and p.locator("[data-ger-ergebnis]").count() == 1, f"{n}: Rechnen P&Q ohne Musterlösung")
+        keine_ueberbreite(p, n + " rechnen")
+        if w < 600:
+            sh = p.evaluate("Math.round(document.querySelector('.ger-innen').getBoundingClientRect().bottom)")
+            pruefe(sh <= h + 4, f"{n}: Rechnen P&Q scrollt ({sh} > {h})")
+        if w in (390, 1280):
+            p.screenshot(path=f"/tmp/ger_rechnen_{w}.png")
+        p.locator("[data-ger-modus=training]").click()
+        p.wait_for_timeout(200)
+        pruefe(p.locator("[data-ger-ergebnis]").count() == 0 and p.get_by_role("button", name="Lösung zeigen").count() == 1, f"{n}: Trainieren startet nicht neu")
+        p.locator("[data-ger-tab=pm]").click()
         if w == 390:
             p.screenshot(path="/tmp/ger_pm.png")
             p.locator("[data-ger-tab=pq]").click()

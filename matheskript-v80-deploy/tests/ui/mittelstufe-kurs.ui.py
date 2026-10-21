@@ -3,7 +3,7 @@ Je Breite (360, 390, 1280):
   · Geraden, Parabeln, Pythagoras, Gleichungen, Brüche und Wurzeln zeigen dasselbe Band mit fünf Reitern
     und dem Kurs-Umschalter „Mittelstufe“; Reiter „Brüche und √Wurzeln“ zeichnet die Wurzel als Linienzug (SVG)
   · Reiter wechseln das Werkzeug; keine Überbreite, keine Konsolenfehler
-  · Geraden am Desktop (ab 840 px): Eingaben/Schritte links, Schaubild rechts – in Basics, P & Q und P & m
+  · Geraden am Desktop (ab 840 px): Eingaben/Schritte links, Schaubild rechts (mind. 300 px) – in Grundlagen, Zwei Punkte, Punkt und Steigung
   · Brüche und Wurzeln: jeder Wurzel-Aufgabentyp erst falsch (gezielte Rückmeldung), dann richtig bis „Richtig gelöst.“;
     Modus Brüche zeigt die Bruchterm-Übungen
   npm run build && npx vite preview --port 4173 &   →   python3 -u tests/ui/mittelstufe-kurs.ui.py
@@ -71,9 +71,10 @@ with sync_playwright() as p:
         for tab in ["basics", "pq", "pm"]:
             page.locator(f"[data-ger-tab={tab}]").click(); page.wait_for_timeout(300)
             bild = page.locator(".ger-inhalt .ger-bild").bounding_box()
-            links = page.locator(".ger-inhalt > *:not(.ger-bild)").first.bounding_box()
+            links = page.locator(".ger-inhalt [data-arbeitsflaeche] > div" if breite >= 840 else ".ger-inhalt > *:not(.ger-bild)").first.bounding_box()
             if breite >= 840:
                 pruefe(bild["x"] > links["x"] + links["width"] - 1, f"{breite} Geraden {tab}: Schaubild rechts")
+                pruefe(bild["width"] >= 300, f"{breite} Geraden {tab}: Schaubild zu schmal ({round(bild['width'])} px)")
             else:
                 pruefe(abs(bild["x"] - links["x"]) < 40 or bild["y"] > links["y"], f"{breite} Geraden {tab}: Handy untereinander")
             page.screenshot(path=f"{AUS}/geraden-{tab}-{breite}.png")

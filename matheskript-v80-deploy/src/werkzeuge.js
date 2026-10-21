@@ -46,8 +46,8 @@ export const WERKZEUGE = {
   textaufgaben: { name: "Textaufgaben übersetzen", kurz: "Textaufgaben", zeile: "Text → Bedingungen, Klasse 5 bis Abi", slogan: "Erst übersetzen, dann rechnen: Jede Information im Text wird zur Bedingung – vom Zahlenrätsel bis zur Steckbriefaufgabe. Mit Mathilda für jedes Foto.",
     zeichen: "T→f", bild: "textaufgaben", ziel: { ansicht: "textaufgaben" }, etikett: "trainieren", stufe: "beide", unter: true },
   /* ---------- Analysis ---------- */
-  /* ---------- Geraden (Mittelstufe, Beispielkapitel: Basics, P & Q, P & m) ---------- */
-  geradengleichung: { name: "Geraden", kurz: "Geraden", zeile: "Grundlagen, zwei Punkte, Punkt und Steigung", slogan: "Was eine Gerade ist und wie du y = m·x + c aus zwei Punkten oder aus Punkt und Steigung findest.",
+  /* ---------- Geradentrainer (Mittelstufe: Grundlagen, Zwei Punkte, Punkt und Steigung; Rechnen | Trainieren) ---------- */
+  geradengleichung: { name: "Geradentrainer", kurz: "Geraden", zeile: "Grundlagen, zwei Punkte, Punkt und Steigung", slogan: "Was eine Gerade ist und wie du y = m·x + c aus zwei Punkten oder aus Punkt und Steigung findest.",
     zeichen: "mx+c", bild: "gerade", ziel: { ansicht: "geradengleichung" }, etikett: "trainieren", stufe: "mittel" },
   /* ---------- Parabeln (Mittelstufe, eigenes Werkzeug wie Geraden) ---------- */
   parabeln: { name: "Parabeln", kurz: "Parabeln", zeile: "Normalform, Scheitelform, Nullstellen", slogan: "Normalform, Scheitelform und Nullstellen trainieren – plus Brennpunkt und Schnittpunkte.",

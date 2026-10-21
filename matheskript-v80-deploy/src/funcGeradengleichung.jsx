@@ -1,16 +1,19 @@
 /* ============================================================
-   Geraden – Basics | P & Q | P & m  (Mittelstufe, Beispielkapitel)
+   Geradentrainer – Grundlagen | Zwei Punkte | Punkt und Steigung
+   (Mittelstufe, Beispielkapitel)
 
    Kompakt wie der Ableitungstrainer: eine Seite ohne Scrollen.
-   · Basics  – Gerade = Linie im Koordinatensystem, jeder Punkt erfüllt
+   · Grundlagen – Gerade = Linie im Koordinatensystem, jeder Punkt erfüllt
                y = m·x + c; Regler für m und c, Anleitung in vier Chips
                (Punkte, c, m, Gleichung) mit wandernder Probe-Zahl.
-   · P & Q   – Gerade durch zwei Punkte: Koordinaten antippen (kleines
+   · Zwei Punkte – Gerade durch zwei Punkte: Koordinaten antippen (kleines
                Zahlenfeld) oder Punkte im Schaubild ziehen, Würfel für
                Zufallspunkte, Steigungsdreieck; dann m, c und die Gleichung.
-   · P & m   – Gerade durch Punkt und Steigung: c berechnen, Gleichung.
-   Lösung gibt es nie automatisch: Jeder Schritt hat seinen Knopf
-   „Lösung zeigen“ (kein Automatik-/Trainingsmodus).
+   · Punkt und Steigung – Gerade durch Punkt und Steigung: c berechnen, Gleichung.
+   Zwei Modi wie im Ableitungstrainer (Rechnen | Trainieren):
+   · Rechnen (Automatik): alles steht als Musterlösung da, Punkte und
+     Steigung bleiben frei änderbar, Rechenweg und Bild laufen live mit.
+   · Trainieren: jeder Schritt selbst eintippen, „Lösung zeigen“ je Schritt.
    Mathematik in geradenLogik.js (getestet). Schaubild immer im goldenen
    Schnitt (Breite : Höhe = φ : 1), gleiche Einheit, Ursprung sichtbar.
    Keine base-Datei darf diese Datei importieren.
@@ -252,12 +255,33 @@ function Schritt({ nr, titel, label, formel, st, aktiv, gesperrt, soll, weg, pad
   );
 }
 
-function Ergebnis({ m, c, onNeu }) {
+/* Rechnen | Trainieren – dieselben Wörter wie im Ableitungstrainer */
+function ModusWahl({ modus, setModus }) {
+  return (
+    <div className="ger-seg ger-modus" role="group" aria-label={zw("Modus", "Mode")}>
+      {[["auto", zw("Rechnen", "Calculate")], ["training", zw("Trainieren", "Practise")]].map(([id, name]) => (
+        <button key={id} type="button" data-ger-modus={id} aria-pressed={modus === id} onClick={() => setModus(id)}>{name}</button>
+      ))}
+    </div>
+  );
+}
+
+/* Rechnen-Modus: ein Schritt als fertige Musterlösung */
+function AutoSchritt({ nr, titel, label, weg }) {
+  return (
+    <div className="ger-karte ger-auto" data-ger-schritt={label} data-ger-auto role="group" aria-label={titel} title={titel}>
+      <span className="ger-nr ok" aria-hidden="true">{nr}</span>
+      <div className="ger-weg" data-ger-weg><M t={weg} /></div>
+    </div>
+  );
+}
+
+function Ergebnis({ m, c, onNeu, auto }) {
   return (
     <div className="ger-ergebnis" data-ger-ergebnis>
       <span className="ger-nr ok" aria-hidden="true">✓</span>
       <span className="ger-gleichung"><M t={gleichungTex(m, c)} /></span>
-      <button type="button" className="ger-neu" onClick={onNeu}><span aria-hidden="true">🎲</span> {zw("Neue Aufgabe", "New task")}</button>
+      <button type="button" className="ger-neu" onClick={onNeu}><span aria-hidden="true">🎲</span> {auto ? zw("Neues Beispiel", "New example") : zw("Neue Aufgabe", "New task")}</button>
     </div>
   );
 }
@@ -482,7 +506,8 @@ function MiniRegler({ name, farbe, wert, setWert, min, max, schritt, format }) {
 }
 
 /* ---------------------------------------------------------------- P & Q */
-function PundQ() {
+function PundQ({ modus, setModus }) {
+  const auto = modus === "auto";
   const { W, H } = useMass();
   const desktop = useDesktop();
   const [{ P, Q }, setPQ] = useState({ P: [1, 3], Q: [3, 7] });
@@ -504,6 +529,7 @@ function PundQ() {
     return { ...a, [wer]: p };
   });
   const wuerfeln = () => { pad.schliessen(); reset(); setPQ(zufallPQ()); };
+  useEffect(() => { pad.schliessen(); setSm(LEER); setSc(LEER); }, [auto]);   // Moduswechsel: Schritte neu
 
   const oeffneKoord = (e, wer, ax) => {
     const p = wer === "P" ? P : Q;
@@ -547,11 +573,11 @@ function PundQ() {
     }, st.eing, false, e.currentTarget);
   };
 
-  const mFertig = sm.status === "richtig" || (sm.status === "gezeigt" && sm.weiter);
-  const cFertig = sc.status === "richtig" || (sc.status === "gezeigt" && sc.weiter);
+  const mFertig = auto || sm.status === "richtig" || (sm.status === "gezeigt" && sm.weiter);
+  const cFertig = auto || sc.status === "richtig" || (sc.status === "gezeigt" && sc.weiter);
   const fertig = mFertig && cFertig;
   const hilfe = useMemo(() => hilfePQ(P, Q, g, false), [P, Q, g]);
-  const zeigeZahlen = !g.senkrecht && (sm.status === "richtig" || sm.status === "gezeigt");
+  const zeigeZahlen = !g.senkrecht && (auto || sm.status === "richtig" || sm.status === "gezeigt");
   const linie = fertig && !g.senkrecht ? linieImFenster(bWert(g.m), bWert(g.c), f) : null;
   const dr = dreieck(P, Q);
   const entartet = g.senkrecht;
@@ -572,7 +598,7 @@ function PundQ() {
         <IchHaengeFest kontext={hilfe} />
       </div>
       <div className="ger-zeile2">
-        <span className="ger-frage">{zw("Bestimme die Gerade durch", "Find the line through")}</span>
+        <ModusWahl modus={modus} setModus={setModus} />
         {wuerfelKnopf}
       </div>
       {punkteZeile}
@@ -583,7 +609,7 @@ function PundQ() {
     <>
       <Kicker>{zw("Gerade durch zwei Punkte", "Line through two points")}</Kicker>
       <div className="ger-zeile2">
-        <span className="ger-frage">{zw("Bestimme die Gerade durch", "Find the line through")}</span>
+        <ModusWahl modus={modus} setModus={setModus} />
         {wuerfelKnopf}
       </div>
       {punkteZeile}
@@ -609,7 +635,7 @@ function PundQ() {
                 {dr.dy !== 0 && <Pille x={rb[0] + (dr.dx >= 0 ? 8 : -8)} y={(rb[1] + qb[1]) / 2} t={zeigeZahlen ? `Δy = ${mz(dr.dy)}` : "Δy"} farbe={C.see} anker={dr.dx >= 0 ? "start" : "end"} />}
               </>
             )}
-            {cImBild && sc.status && (sc.status === "richtig" || sc.weiter) && (() => { const [cx, cy] = zuBild([0, bWert(g.c)], f, W, H); return <circle cx={cx} cy={cy} r="5.5" fill={GOLD} stroke="#fff" strokeWidth="2" />; })()}
+            {cImBild && (auto || (sc.status && (sc.status === "richtig" || sc.weiter))) && (() => { const [cx, cy] = zuBild([0, bWert(g.c)], f, W, H); return <circle cx={cx} cy={cy} r="5.5" fill={GOLD} stroke="#fff" strokeWidth="2" />; })()}
             <Griff p={P} f={f} farbe={C.see} name="P" svgRef={svgRef} setzen={(p) => setzen("P", p)} start={start} ende={ende} label={zw("Punkt P verschieben", "Move point P")} />
             <Griff p={Q} f={f} farbe={GOLD} name="Q" svgRef={svgRef} setzen={(p) => setzen("Q", p)} start={start} ende={ende} label={zw("Punkt Q verschieben", "Move point Q")} />
             {!gezogen && <Pille x={10} y={H - 12} t={zw("Punkte ziehen", "Drag the points")} farbe={C.grau} anker="start" />}
@@ -627,6 +653,11 @@ function PundQ() {
           </div>
         ) : (
           <>
+            {auto ? <>
+              <AutoSchritt nr={1} titel={zw("Steigung berechnen", "Work out the slope")} label="m" weg={steigungWeg(P, Q)} />
+              <AutoSchritt nr={2} titel={zw("y-Achsenabschnitt berechnen", "Work out the y-intercept")} label="c" weg={achsenWeg(P, g.m)} />
+              <Ergebnis m={g.m} c={g.c} onNeu={wuerfeln} auto />
+            </> : <>
             <Schritt nr={1} titel={zw("Steigung berechnen", "Work out the slope")} label="m" formel="\frac{y_Q − y_P}{x_Q − x_P}" st={sm} aktiv={!mFertig}
               soll={g.m} weg={steigungWeg(P, Q)} padAktiv={pad.offen?.id === "m"}
               onFeld={(e) => oeffneAntwort(e, "m")} onZeigen={() => { pad.schliessen(); setSm((s) => ({ ...s, status: "gezeigt", hinweis: "", falsch: false })); }}
@@ -637,6 +668,7 @@ function PundQ() {
               onWeiter={() => setSc((s) => ({ ...s, weiter: true }))} />
             {fertig ? <Ergebnis m={g.m} c={g.c} onNeu={wuerfeln} />
               : <div className="ger-karte gesperrt" data-ger-schritt="y"><span className="ger-nr">3</span><span className="ger-karte-titel">{zw("Geradengleichung aufschreiben", "Write down the equation")}</span></div>}
+            </>}
           </>
         )}
       </div>
@@ -673,7 +705,8 @@ function PundQ() {
 const antwortAnzeige = (t) => mz(t).replace("/", " / ");
 
 /* ---------------------------------------------------------------- P & m */
-function PundM() {
+function PundM({ modus, setModus }) {
+  const auto = modus === "auto";
   const { W, H } = useMass();
   const desktop = useDesktop();
   const [{ P, m }, setAufg] = useState({ P: [2, 3], m: bruch(2) });
@@ -690,6 +723,7 @@ function PundM() {
   const reset = () => setSc(LEER);
   const setzeP = (p) => setAufg((a) => { if (a.P[0] === p[0] && a.P[1] === p[1]) return a; reset(); return { ...a, P: p }; });
   const wuerfeln = () => { pad.schliessen(); reset(); setAufg(zufallPm()); };
+  useEffect(() => { pad.schliessen(); setSc(LEER); }, [auto]);   // Moduswechsel: Schritt neu
 
   const oeffneKoord = (e, ax) => pad.oeffnen({
     id: `P${ax}`, max: 2,
@@ -726,7 +760,7 @@ function PundM() {
     ok: (t) => pruefe(t),
   }, sc.eing, false, e.currentTarget);
 
-  const fertig = sc.status === "richtig" || (sc.status === "gezeigt" && sc.weiter);
+  const fertig = auto || sc.status === "richtig" || (sc.status === "gezeigt" && sc.weiter);
   const hilfe = useMemo(() => hilfePQ(P, null, null, true, m), [P, m]);
   const linie = fertig ? linieImFenster(bWert(m), bWert(c), f) : null;
   const anzeigeText = pad.offen ? antwortAnzeige(pad.text) : "";
@@ -753,7 +787,7 @@ function PundM() {
         <IchHaengeFest kontext={hilfe} />
       </div>
       <div className="ger-zeile2">
-        <span className="ger-frage">{zw("Bestimme die Gerade durch", "Find the line through")}</span>
+        <ModusWahl modus={modus} setModus={setModus} />
         {wuerfelKnopf}
       </div>
       {punkteZeile}
@@ -764,7 +798,7 @@ function PundM() {
     <>
       <Kicker>{zw("Gerade durch Punkt und Steigung", "Line through a point and a slope")}</Kicker>
       <div className="ger-zeile2">
-        <span className="ger-frage">{zw("Bestimme die Gerade durch", "Find the line through")}</span>
+        <ModusWahl modus={modus} setModus={setModus} />
         {wuerfelKnopf}
       </div>
       {punkteZeile}
@@ -795,12 +829,17 @@ function PundM() {
   );
   const schritteListe = (
       <div className="ger-schritte">
+        {auto ? <>
+          <AutoSchritt nr={1} titel={zw("y-Achsenabschnitt berechnen", "Work out the y-intercept")} label="c" weg={achsenWeg(P, m)} />
+          <Ergebnis m={m} c={c} onNeu={wuerfeln} auto />
+        </> : <>
         <Schritt nr={1} titel={zw("y-Achsenabschnitt berechnen", "Work out the y-intercept")} label="c" formel="y_P − m · x_P" st={sc} aktiv={!fertig}
           soll={c} weg={achsenWeg(P, m)} padAktiv={pad.offen?.id === "c"}
           onFeld={oeffneAntwort} onZeigen={() => { pad.schliessen(); setSc((s) => ({ ...s, status: "gezeigt", hinweis: "", falsch: false })); }}
           onWeiter={() => setSc((s) => ({ ...s, weiter: true }))} />
         {fertig ? <Ergebnis m={m} c={c} onNeu={wuerfeln} />
           : <div className="ger-karte gesperrt" data-ger-schritt="y"><span className="ger-nr">2</span><span className="ger-karte-titel">{zw("Geradengleichung aufschreiben", "Write down the equation")}</span></div>}
+        </>}
       </div>
   );
   const zahlPad = pad.offen && <ZahlPad titel={pad.offen.titel} anzeige={anzeigeText || (pad.offen.id === "m" ? "" : mz(pad.text))} mitBruch={!!pad.offen.bruch} onTaste={pad.taste} />;
@@ -848,6 +887,10 @@ const CSS = `
 .ger-titel{font-size:14px;font-weight:800;color:${C.gruenDunkel};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .ger-zeile2{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:42px}
 .ger-frage{font-size:15px;font-weight:600;color:${C.tinte};white-space:nowrap}
+.ger-modus{flex:0 1 auto;min-height:40px}
+.ger-modus button{flex:0 0 auto;padding:0 14px;font-size:13.5px}
+.ger-karte.ger-auto{padding:4px 12px;min-height:46px}
+.ger-auto .ger-weg{flex:1;min-width:0;padding:2px 0}
 .ger-wuerfel{width:42px;height:42px;flex-shrink:0;padding:0;border-radius:999px;border:none;cursor:pointer;background:${C.flaggold};font-size:21px;line-height:1;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(15,26,51,0.14)}
 .ger-punkte{display:flex;align-items:center;justify-content:center;gap:10px;margin:2px 0 8px;white-space:nowrap;overflow-x:auto;scrollbar-width:none}
 .ger-punkte::-webkit-scrollbar{display:none}
@@ -907,6 +950,7 @@ const CSS = `
 .ger-rb:disabled{opacity:.35;cursor:default}
 .ger-rw{min-width:34px;text-align:right;font-size:15px;font-weight:800;color:${C.tinte};font-variant-numeric:tabular-nums}
 @media (max-width:440px){.ger-chipnr{display:none}}
+@media (max-width:440px){.ger-seg:not(.ger-modus) button{font-size:13px;padding:0 4px;white-space:normal;line-height:1.15}}
 @media (max-width:380px){.ger-frage{font-size:14px}.ger-seg button{font-size:13.5px}.ger-neu{padding:0 11px;font-size:12.5px}}
 @media (min-width:601px){
   .ger-seite{background:transparent}
@@ -916,7 +960,7 @@ const CSS = `
    Das Bild überspannt alle Zeilen; die letzte Zeile ist flexibel, damit links keine Lücken entstehen. */
 @media (min-width:840px){
   .ger-innen{max-width:none;width:var(--tr-breite);padding:18px 22px 24px}
-  .ger-seg{max-width:460px}
+  .ger-seg:not(.ger-modus){max-width:540px}
   .ger-inhalt{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1.3fr);grid-template-rows:repeat(5,auto) 1fr;column-gap:26px;align-items:start;margin-top:14px}
   .ger-inhalt > *{grid-column:1}
   .ger-inhalt > .ger-bild{grid-column:2;grid-row:1 / -1;width:100%;position:sticky;top:${38 + 14}px}
@@ -929,12 +973,13 @@ const CSS = `
 @media (prefers-reduced-motion:reduce){.ger-feld.an::after{animation:none}}
 `;
 
-export function Geradengleichung({ start = "basics" }) {
+export function Geradengleichung({ start = "basics", startModus = "training" }) {
   const [tab, setTab] = useState(start);
+  const [modus, setModus] = useState(startModus === "auto" ? "auto" : "training");   // Standard wie im Ableitungstrainer: Trainieren
   const desktop = useDesktop();
   const [bildRef, bildBreite] = useBreite();
   const reiter = (
-    <div className="ger-seg" role="group" aria-label={zw("Geraden", "Straight lines")}>
+    <div className="ger-seg" role="group" aria-label={zw("Geradentrainer", "Line trainer")}>
       {[["basics", "Grundlagen"], ["pq", "Zwei Punkte"], ["pm", "Punkt und Steigung"]].map(([id, name]) => (
         <button key={id} type="button" data-ger-tab={id} aria-pressed={tab === id} onClick={() => setTab(id)}>{name}</button>
       ))}
@@ -942,8 +987,8 @@ export function Geradengleichung({ start = "basics" }) {
   );
   const inhalt = <>
     {tab === "basics" && <Basics />}
-    {tab === "pq" && <PundQ />}
-    {tab === "pm" && <PundM />}
+    {tab === "pq" && <PundQ modus={modus} setModus={setModus} />}
+    {tab === "pm" && <PundM modus={modus} setModus={setModus} />}
   </>;
 
   /* Desktop: Spalte wie alle Werkzeugseiten, Schaubild in echten Pixeln (Breite der rechten Spalte, goldener Schnitt) */
@@ -980,7 +1025,7 @@ export function Geradengleichung({ start = "basics" }) {
 /* Desktop (ab 840 px): Spalte 783 px, Karten mit feinem Rahmen, Bild über die volle Breite der rechten Spalte */
 const GER_DESK_CSS = kompaktSpalteCss("ger-desk") + `
   .ger-desk .ger-innen{max-width:none;background:transparent;border-radius:0;padding:0;margin:0;box-shadow:none}
-  .ger-desk .ger-inhalt{margin-top:20px}
+  .ger-desk .ger-inhalt{margin-top:20px;display:block}   /* Arbeitsfläche regelt die Spalten selbst – das alte Raster (ab 840 px) quetschte sie samt Bild in die linke Spalte */
   .ger-desk .ger-bild{width:100%;border-radius:0}
   .ger-desk .ger-text{margin:0;font-size:14.5px;line-height:1.6}
   .ger-desk .ger-lesen{margin-top:0;background:#fff;border-radius:16px;padding:16px 18px}
