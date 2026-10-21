@@ -73,6 +73,9 @@ const STIL = `
         .kk-titel{max-width:66%}
         /* Motiv liegt frei rechts unten und bestimmt die Höhe der Kachel nicht mehr */
         .kk > .kk-motiv{position:absolute;grid-column:auto;grid-row:auto;right:4px;bottom:0;width:min(31%,236px);height:auto;margin:0;z-index:0}}
+      /* Abi-Kachel: Siegel oben neben dem Text statt unten in der Ecke */
+      .kk[data-abi-kachel] .kk-motiv{align-self:start;margin-top:-4px;margin-bottom:0}
+      @media (min-width:840px){.kk[data-abi-kachel] > .kk-motiv{top:14px;bottom:auto}}
       @media (prefers-reduced-motion:reduce){.kk,.kk-pfeil{transition:none}.kk:hover{transform:none}}
 `;
 function stilSetzen() {
@@ -112,7 +115,7 @@ function KursKachel({ onClick, label, titel, meta, zeile, stand, einheit, farben
         <span className="kk-fuss">
           <span className="kk-knopf"><span>{knopf || (begonnen ? "Weitermachen" : "Kurs öffnen")}<Pfeil farbe={farben.knopftext} /></span></span>
           <span className="kk-stand" title={begonnen && stand.weiter ? stand.weiter : undefined}>
-            <span className="kk-meta">{begonnen ? `${stand.fertig} von ${stand.gesamt} ${einheit} geschafft` : meta}</span>
+            {(begonnen || meta) && <span className="kk-meta">{begonnen ? `${stand.fertig} von ${stand.gesamt} ${einheit} geschafft` : meta}</span>}
             {begonnen && <span className="kk-balken" role="progressbar" aria-valuemin={0} aria-valuemax={stand.gesamt} aria-valuenow={stand.fertig}><i style={{ width: `${anteil}%` }} /></span>}
           </span>
         </span>
@@ -183,10 +186,10 @@ export function AbiZentrumKachel({ onClick }) {
   const abi = sicher(() => abiNormieren(LERN.training && LERN.training.abi));
   const ziel = abi && abi.profil ? sicher(() => zielTermin(abi.profil)) : null;
   const cd = ziel ? countdown(ziel) : null;
-  const meta = cd && !cd.vorbei ? (cd.heute ? "Heute ist Prüfung – viel Erfolg" : `Noch ${cd.tage} ${cd.tage === 1 ? "Tag" : "Tage"} bis zur Prüfung`) : "Format, Plan, Mia, Lernpartner";
+  const meta = cd && !cd.vorbei ? (cd.heute ? "Heute ist Prüfung – viel Erfolg" : `Noch ${cd.tage} ${cd.tage === 1 ? "Tag" : "Tage"} bis zur Prüfung`) : null;
   return (
-    <KursKachel onClick={onClick} id="kk-abi" label="Abi-Zentrum öffnen" titel="Abi-Zentrum" farben={GOLDLACK} Motiv={MotivAbi}
-      meta={meta} knopf={abi && abi.profil ? "Weiter" : "Abi starten"}
-      zeile="Dein Prüfungsformat, dein Plan bis zum Tag X – Mia trainiert dich, Lernpartner aus deiner Stadt rechnen mit." daten={{ "data-abi-kachel": "" }} />
+    <KursKachel onClick={onClick} id="kk-abi" label="Mathe-Abi-Masterclass öffnen" titel="Mathe-Abi-Masterclass" farben={GOLDLACK} Motiv={MotivAbi}
+      meta={meta} knopf={abi && abi.profil ? "Weiter" : "Abi-Kurs starten"}
+      zeile="Dein Abi-Plan, Prüfungsaufgaben und Mia als Trainerin." daten={{ "data-abi-kachel": "" }} />
   );
 }
