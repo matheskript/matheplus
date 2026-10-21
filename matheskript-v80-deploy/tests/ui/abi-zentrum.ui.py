@@ -36,7 +36,7 @@ def kontext(b, breite, extra=None):
     page.konsole = []
     page.on("pageerror", lambda e: page.konsole.append(f"pageerror: {e}"))
     page.goto(BASE + "/impressum")
-    page.evaluate("localStorage.clear(); sessionStorage.clear(); localStorage.setItem('mm-onboarding-v1', JSON.stringify({uebersprungen:true})); localStorage.setItem('matheskript-einwilligung-v1', '1');")
+    page.evaluate("localStorage.clear(); localStorage.setItem('mm-start-app','1'); sessionStorage.clear(); localStorage.setItem('mm-onboarding-v1', JSON.stringify({uebersprungen:true})); localStorage.setItem('matheskript-einwilligung-v1', '1');")
     if extra: page.evaluate(extra)
     return ctx, page
 

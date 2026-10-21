@@ -20,7 +20,7 @@ def neu(b, breite):
     konsole = []
     page.on("pageerror", lambda e: konsole.append(f"pageerror: {e}"))
     page.goto(BASE)
-    page.evaluate("localStorage.clear(); sessionStorage.clear(); localStorage.setItem('mm-onboarding-v1', JSON.stringify({uebersprungen:true}));")
+    page.evaluate("localStorage.clear(); localStorage.setItem('mm-start-app','1'); sessionStorage.clear(); localStorage.setItem('mm-onboarding-v1', JSON.stringify({uebersprungen:true}));")
     page.goto(BASE + "blog"); page.wait_for_timeout(1500)
     return ctx, page, konsole
 

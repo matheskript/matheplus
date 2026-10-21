@@ -31,7 +31,7 @@ with sync_playwright() as p:
         seite.on("console", lambda m: konsole.append(m.text) if m.type == "error" else None)
         seite.on("pageerror", lambda e: konsole.append(str(e)))
         seite.goto(BASE)
-        seite.evaluate("localStorage.clear(); localStorage.setItem('mm-onboarding-v1', JSON.stringify({uebersprungen:true}));")
+        seite.evaluate("localStorage.clear(); localStorage.setItem('mm-start-app','1'); localStorage.setItem('mm-onboarding-v1', JSON.stringify({uebersprungen:true}));")
         seite.goto(BASE)
         seite.wait_for_timeout(900)
 

@@ -22,7 +22,7 @@ with sync_playwright() as p:
         page.on("pageerror", lambda e: konsole.append(f"pageerror: {e}"))
         page.on("console", lambda m: konsole.append(m.text) if m.type == "error" and "supabase" not in m.text.lower() and "Failed to load resource" not in m.text else None)
         page.goto(BASE + "/")
-        page.evaluate(f"localStorage.clear(); localStorage.setItem('mm-onboarding-v1', JSON.stringify({{uebersprungen:true}})); localStorage.setItem('mm-demo-konto', {json.dumps(json.dumps(DEMO))})")
+        page.evaluate(f"localStorage.clear(); localStorage.setItem('mm-start-app','1'); localStorage.setItem('mm-onboarding-v1', JSON.stringify({{uebersprungen:true}})); localStorage.setItem('mm-demo-konto', {json.dumps(json.dumps(DEMO))})")
         page.goto(BASE + "/"); page.wait_for_timeout(1500)
 
         # ☰ → Klasse 11 (G9) → Kapitel I aufklappen → zwei Knöpfe nebeneinander

@@ -28,7 +28,7 @@ with sync_playwright() as p:
         konsole = []
         page.on("pageerror", lambda e: konsole.append(f"pageerror: {e}"))
         page.goto(BASE)
-        page.evaluate("(s) => { localStorage.clear(); sessionStorage.clear(); localStorage.setItem('mm-onboarding-v1', JSON.stringify({uebersprungen:true})); localStorage.setItem('matheplus-quickfinder', s); sessionStorage.setItem('matheplus-training-auf','1'); }", SPEICHER)
+        page.evaluate("(s) => { localStorage.clear(); localStorage.setItem('mm-start-app','1'); sessionStorage.clear(); localStorage.setItem('mm-onboarding-v1', JSON.stringify({uebersprungen:true})); localStorage.setItem('matheplus-quickfinder', s); sessionStorage.setItem('matheplus-training-auf','1'); }", SPEICHER)
         page.reload(); page.wait_for_timeout(900)
         schublade_auf(page)
 

@@ -70,7 +70,7 @@ with sync_playwright() as p:
             page.route("**/fonts.gstatic.com/local/*", lambda r, q: r.fulfill(status=200, content_type="font/woff2",
                 body=open(os.path.join(FONT_DIR, f"montserrat-latin-{q.url.rsplit('/m', 1)[1].split('.')[0]}-normal.woff2"), "rb").read()))
         page.goto(BASE)
-        page.evaluate("localStorage.clear(); sessionStorage.clear(); localStorage.setItem('mm-onboarding-v1', JSON.stringify({uebersprungen:true})); localStorage.setItem('matheskript-einwilligung-v1', JSON.stringify({am: Date.now()}));")
+        page.evaluate("localStorage.clear(); localStorage.setItem('mm-start-app','1'); sessionStorage.clear(); localStorage.setItem('mm-onboarding-v1', JSON.stringify({uebersprungen:true})); localStorage.setItem('matheskript-einwilligung-v1', JSON.stringify({am: Date.now()}));")
         page.reload(); page.wait_for_timeout(700)
 
         def breite_ok(wo):

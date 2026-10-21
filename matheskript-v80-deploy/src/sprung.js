@@ -112,6 +112,7 @@ export const SPRUENGE = {
   "konto-abschnitt":        { an: true,  art: "anker", wo: "Hauptmenü → Konto: „Meine Kinder“, „Meine Klassen“, „Meine Schüler“, „Mein Plan“ springen zum Abschnitt auf der Kontoseite" },
   "kopfmenue-anker":        { an: true,  art: "anker", wo: "Besuchermenü in der Kopfleiste (nicht angemeldet): „Mathe lernen“ springt zum Abschnitt auf der Startseite (id lernen); ebenso „Alle Werkzeuge ansehen“ auf der Vision-Seite" },
   "start-anker":            { an: true,  art: "anker", wo: "Startseite: Band unter der Kopfleiste (Heute · Lernen · Mathilda · Kurse · Entdecken) springt zum Abschnitt; „Zur Vision“ und „Alle Kurse“ sind Seitenwechsel" },
+  "start-gast":             { an: true,  art: "anker", wo: "Story-Startseite für Besucher ohne Konto (funcStartGast.jsx): „Kostenlos starten“ springt zur Start-Karte, „Wie es funktioniert“ zum Problem-Abschnitt, feste Handy-Leiste ebenso" },
   "vision-kapitel":         { an: true,  art: "anker", wo: "Vision-Seite (/vision): Kapitelübersicht unter der Bühne, Kapitel-Leiste links (ab 1360 px), „Die Vision lesen“ und die drei Schritt-Karten springen zum Abschnitt" },
 
   /* ---------------- Im Blick halten ---------------- */

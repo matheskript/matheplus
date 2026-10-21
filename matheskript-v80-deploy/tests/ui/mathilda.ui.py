@@ -31,7 +31,7 @@ with sync_playwright() as p:
     page.on("console", lambda m: konsole.append(m.text) if m.type == "error" and "net::" not in m.text and "Failed to load resource" not in m.text else None)
     page.route("**/api/claude", api)
     # Zustimmung vorab setzen (seit a0a0093 fragt der Chat vor der ersten Nachricht; die Abfrage selbst prüft recht.ui.py)
-    page.goto(BASE); page.evaluate("localStorage.clear(); localStorage.setItem('matheskript-einwilligung-v1', '1')"); page.reload(); page.wait_for_timeout(600)
+    page.goto(BASE); page.evaluate("localStorage.clear(); localStorage.setItem('mm-start-app','1'); localStorage.setItem('matheskript-einwilligung-v1', '1')"); page.reload(); page.wait_for_timeout(600)
 
     # Seite „Mathilda fragen“
     page.evaluate("window.__mmGehe({ ansicht: 'analyse', foto: 'chat' })"); page.wait_for_timeout(400)

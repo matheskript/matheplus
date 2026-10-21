@@ -195,8 +195,18 @@ export function testkontoStarten() {
   return nutzer;
 }
 
+/* Abmelden vergisst auch, was die Startseite nur auf dem Gerät gemerkt hat (Klasse, Thema, Stufe, zuletzt benutztes
+   Werkzeug, Schublade): Wer sich abmeldet, sieht die Seite danach wie ein neuer Besucher – nicht seine Klasse 12 mit
+   „Noch 6 Runden“. Den Lernstand selbst leert lernSync.vorAbmelden, sobald er im Konto gesichert ist. */
+export const GERAETE_SCHLUESSEL = ["matheplus-quickfinder", "mm-onboarding-v1", "matheplus-start-stufe", "matheplus-start-stufe-klasse", "matheplus-zuletzt-werkzeug"];
+export function geraetVergessen() {
+  for (const k of GERAETE_SCHLUESSEL) { try { localStorage.removeItem(k); } catch (e) { /* privat */ } }
+  try { sessionStorage.removeItem("matheplus-training-auf"); } catch (e) { /* egal */ }
+}
+
 export async function abmelden() {
   for (const f of vorAbmelden) { try { await f(); } catch (e) { /* Abmelden darf daran nicht scheitern */ } }
+  geraetVergessen();
   if (istTestkonto()) { schreib(TEST_SPEICHER, null); profilLaden(null); if (!DEMO) kontoStarten(); return; }
   if (DEMO) { schreib(DEMO_SPEICHER, null); profilLaden(null); return; }
   await sb.auth.signOut();

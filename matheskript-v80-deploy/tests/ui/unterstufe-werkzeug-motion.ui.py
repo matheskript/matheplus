@@ -26,7 +26,7 @@ with sync_playwright() as p:
         page.on("pageerror", lambda e: konsole.append(f"pageerror: {e}"))
         page.on("console", lambda m: konsole.append(m.text) if m.type == "error" and "net::" not in m.text and "Failed to load resource" not in m.text else None)
         page.goto(BASE)
-        page.evaluate("localStorage.clear(); localStorage.setItem('mm-onboarding-v1', JSON.stringify({uebersprungen:true}));")
+        page.evaluate("localStorage.clear(); localStorage.setItem('mm-start-app','1'); localStorage.setItem('mm-onboarding-v1', JSON.stringify({uebersprungen:true}));")
         for w, n in anzahl.items():
             wo = f"{breite}/{w}"
             page.goto(BASE + w); page.wait_for_selector("[data-usm-auswahl]", timeout=15000); page.wait_for_timeout(300)

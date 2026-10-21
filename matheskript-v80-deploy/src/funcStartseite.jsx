@@ -1,6 +1,8 @@
 /* ======================================================================
-   STARTSEITE – „Rechenblatt“ in drei Modi: dunkel (Nachtblau), hell (weiß)
+   STARTSEITE (Dashboard, angemeldet) – „Rechenblatt“ in drei Modi: dunkel (Nachtblau), hell (weiß)
    und mix (weißer Grund mit dunklen Inseln). Bewusst ohne Karos.
+   Seit 22.10. sehen Besucher ohne Konto stattdessen die Story-Startseite (funcStartGast.jsx, StartseiteWahl);
+   der LernNavigator (Block 3) und MathildaBlock/KursRaster/BlogAnriss sind exportiert und dort wiederverwendet.
 
    Sieben Blöcke (seit 21.10. abends, Projekt-Dokument claude/startseite-struktur.md):
      0 Band unter der Kopfleiste (StartBand: Heute · Lernen · Mathilda · Kurse · Entdecken, klebt mit)
@@ -563,7 +565,7 @@ function PlusKlein({ farbe = C.seeTief }) {
    Karte durch und hat Punkt und Tangente rechts neben der Karte (Karte endet bei Blattmitte + 470 = x 1230, in jeder
    Seitenbreite, weil der Kasten mit --seite skaliert; Punkt bei 1300|296); die Zeichen stehen links der Schlagzeile
    und rechts der Karte, nie im Text. */
-function HeldKurve({ breit }) {
+export function HeldKurve({ breit }) {
   if (breit) {
     return (
       <svg className="sbb-held-kurve breit" viewBox="0 0 1520 460" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
@@ -677,7 +679,7 @@ function StartBand({ oben = false }) {
   );
 }
 
-function Zone({ nr, titel, zeile, id }) {
+export function Zone({ nr, titel, zeile, id }) {
   return (
     <div className="sbb-zone" id={id} style={id ? { scrollMarginTop: 110 } : undefined}>
       <span className="nr" aria-hidden="true">{nr}</span>
@@ -689,7 +691,7 @@ function Zone({ nr, titel, zeile, id }) {
   );
 }
 
-function Kopf({ titel }) {
+export function Kopf({ titel }) {
   return (
     <div className="sbb-kopf">
       <h2>{titel}</h2>
@@ -726,7 +728,7 @@ function Kachel({ titel, text, logo, extra, ziel, label, gesperrt, keinI18n, gol
 
 /* ---------- Block Mathilda AI: EINE Karte wie im ☰-Menü (Goldknopf „Blatt scannen“, vier Chips), darunter der Zweischritt ----------
    Der Streifen „Das System“ mit vier Absätzen ist darin aufgegangen – ein Satz bleibt. */
-function MathildaBlock({ gehe }) {
+export function MathildaBlock({ gehe, ohneZwei = false }) {
   const hell = useHell();
   const en = englisch();
   const [blatt, ...chips] = KI_MENUE;
@@ -746,7 +748,7 @@ function MathildaBlock({ gehe }) {
         </div>
         <div className="sbb-ma-bild" aria-hidden="true"><svg viewBox="0 0 120 138"><MathildaPfade /></svg></div>
       </div>
-      <div className="sbb-zwei" role="group" aria-label="Zwei Schritte: Pen & Paper, dann Mathilda">
+      {!ohneZwei && <div className="sbb-zwei" role="group" aria-label="Zwei Schritte: Pen & Paper, dann Mathilda">
         <button type="button" className="sbb-karte sbb-zwei-schritt" onClick={() => gehe({ ansicht: "penpaperkurs" })} aria-label="Pen & Paper Kurs öffnen – Schritt 1">
           <span className="nr">1</span>
           <span className="t"><b>Pen & Paper</b><span>Sauber aufschreiben lernen · Kurs, kostenlos</span></span>
@@ -757,7 +759,7 @@ function MathildaBlock({ gehe }) {
           <span className="nr">2</span>
           <span className="t"><b><MathildaName dunkel={!hell} /></b><span>Blatt fotografieren, prüfen lassen, verbessern</span></span>
         </button>
-      </div>
+      </div>}
     </div>
   );
 }
@@ -795,7 +797,7 @@ export function KursRaster({ gehe, alle = false }) {
 }
 
 /* ---------- Block Entdecken: Mathe entdecken (aufklappbar) + der neueste Blog-Beitrag ---------- */
-function BlogAnriss({ gehe }) {
+export function BlogAnriss({ gehe }) {
   const b = BLOG[0];
   if (!b) return null;
   return (
@@ -900,7 +902,7 @@ export function StadionZeichen({ g = 13 }) {
     </svg>
   );
 }
-const ModusKontext = createContext("mix");
+export const ModusKontext = createContext("mix");
 const useHell = () => useContext(ModusKontext) === "hell";
 
 export function useStartModus() {
@@ -939,97 +941,25 @@ export function StartModusSchalter() {
   );
 }
 
-/* Breite Bühne (ab 1100 px): Start-Karte rechts in der Bühne, alles ohne Scrollen sichtbar */
-const BUEHNE_BREIT = "(min-width: 1100px)";
-function useBreiteBuehne() {
-  const lies = () => typeof window !== "undefined" && !!window.matchMedia && window.matchMedia(BUEHNE_BREIT).matches;
-  const [breit, setBreit] = useState(lies);
-  useEffect(() => {
-    if (!window.matchMedia) return undefined;
-    const m = window.matchMedia(BUEHNE_BREIT);
-    const h = () => setBreit(m.matches);
-    m.addEventListener ? m.addEventListener("change", h) : m.addListener(h);
-    return () => (m.removeEventListener ? m.removeEventListener("change", h) : m.removeListener(h));
-  }, []);
-  return breit;
-}
-
 /* ====================================================================== */
-/* Sieben Blöcke (21.10. abends): 0 Band · 1 Bühne · 2 Heute · 3 Lernen · 4 Mathilda · 5 Kurse · 6 Entdecken · 7 Vision-Anriss + Fuß.
-   Zwei Regeln: Jeder Block hat genau einen ☰-Abschnitt mit demselben Namen; Gesperrtes steht nie auf der Startseite. */
-export function Startseite({ gehe }) {
-  const modus = useStartModus();
-  const frei = useFrei();
+/* Block 3 „Lernen“: der Navigator „Der Weg zum Abi“ (Stufe → Bereich → Werkzeug). Eigenständig, damit ihn auch die
+   Story-Startseite für Besucher (funcStartGast.jsx) unter derselben Id „lernen“ zeigt – Kopfleiste „Mathe lernen“ springt dorthin. */
+export function LernNavigator({ gehe, stufe, stufeSetzen, klasse, zone = true }) {
   const [schulWahl, setSchulWahl] = useState(null);   // null | unter | mittel | ober | abi
   const schulAuf = schulWahl !== null;
-  const [entdAuf, setEntdAuf] = useState(false);
   const [bereichAuf, setBereichAuf] = useState(null);
   const [etikett, setEtikett] = useState(null);
-  const { stufe, setzen: stufeWaehlen, klasse } = useStartStufe();   // folgt der angegebenen Klasse (Konto, Quickfinder, Onboarding)
-  const stufeSetzen = (w) => { stufeWaehlen(w); setBereichAuf(null); };
-  const breit = useBreiteBuehne();
-  const schublade = <div className="sbb-abschnitt" style={{ marginTop: 0 }}><TrainingKachel gehe={gehe} setzeStufe={stufeSetzen} /></div>;
-  /* Die ganze App-Fläche folgt dem Modus: Hintergrund und Fußknöpfe (Regeln oben in CSS) */
-  useEffect(() => {
-    const d = document.documentElement;
-    d.setAttribute("data-start-modus", basisModus(modus));   /* data-start-edition setzt startModus.js app-weit */
-    return () => d.removeAttribute("data-start-modus");
-  }, [modus]);
-
   const bereiche = schulBereiche(stufe);
   /* Stufe auf der Kachel wählen: Abi zeigt die Abi-Vorbereitung der Oberstufe, die anderen setzen den Stufen-Filter */
   const schulWaehlen = (w) => {
-    setSchulWahl(w); setEntdAuf(false); setBereichAuf(null); setEtikett(null);
+    setSchulWahl(w); setBereichAuf(null); setEtikett(null);
     if (w) stufeSetzen(w === "abi" ? "ober" : w);
   };
   const schulStufe = SCHUL_STUFEN.find((s) => s.id === schulWahl);
   const abiBlock = schulWahl === "abi" ? bereiche.find((b) => b.id === "abitur") : null;
-  const oberstufe = !!klasse && stufe === "ober";
-
   return (
-    <ModusKontext.Provider value={modus}>
-    <div className="sbb" data-modus={basisModus(modus)} data-edition={editionVon(modus)}>
-      <style>{START_CSS}</style>
-      <div className="sbb-licht" aria-hidden="true"><span className="l1" /><span className="l2" /><span className="l3" /></div>
-
-      {/* ---------- 1 Bühne: Headline, Unterzeile, EINE Handlung (Pen & Paper, kostenlos), Suche ---------- */}
-      <section className={["sbb-held", "sbb-insel", klasse && !breit ? "kompakt" : null, breit ? "breit" : null].filter(Boolean).join(" ")} aria-label="Mythos Mathe" id={breit ? "heute" : undefined}>
-        <HeldKurve breit={breit} />
-        <div className={breit ? "sbb-held-raster" : undefined}>
-        <div className="sbb-spalte sbb-held-text" style={{ paddingBottom: 0 }}>
-          <h1>Mathe kann<span className="gold">jeder verstehen</span></h1>
-          <p className="unter">Hier lernst du wie!</p>
-          {/* Neuer Besucher: der erste Schritt der Marke (wie auf /vision). Mit bekannter Klasse ist der Goldknopf der Heute-Karte die Handlung – kein zweiter daneben. */}
-          {!klasse && (
-            <button type="button" className="sbb-los gold held" onClick={() => gehe({ ansicht: "penpaperkurs" })} aria-label="Pen & Paper starten – kostenlos" data-start-los>
-              Pen & Paper starten <span className="frei">· kostenlos</span>
-            </button>
-          )}
-          <div className="sbb-held-suche"><SuchBox gehe={gehe} buehne /></div>
-        </div>
-        {breit && (
-          <div className="sbb-held-karte">
-            <p className="sbb-held-zone"><span className="nr">1</span>Heute trainierst du&nbsp;…</p>
-            <StartKarte gehe={gehe} setzeStufe={stufeSetzen} klasse={klasse} />
-          </div>
-        )}
-        </div>
-      </section>
-      <StartBand />
-
-      <section className="sbb-teil"><div className="sbb-spalte">
-        {/* ---------- 2 Heute: EINE Start-Karte (Klasse fragen → Heute-Karte + Weitermachen + Konto-Zeile + Schublade „Deine Klasse“) ---------- */}
-        {breit ? (klasse ? <div className="sbb-abschnitt" style={{ marginTop: 18 }}>{schublade}</div> : null) : (
-          <>
-            <Zone nr="1" titel={"Heute trainierst du …"} id="heute" />
-            <StartKarte gehe={gehe} setzeStufe={stufeSetzen} klasse={klasse} schublade={schublade} />
-          </>
-        )}
-        {/* Die Masterclass nur für die Oberstufe (Klasse bekannt) – sonst nur als Stufenknopf „Abi“ und in den Kursen */}
-        {oberstufe && <div className="sbb-wieder"><AbiZentrumKachel onClick={() => gehe({ ansicht: "abi" })} /></div>}
-
-        {/* ---------- 3 Lernen = nur der Navigator „Der Weg zum Abi“ (Anker „lernen“: Besuchermenü in der Kopfleiste, Band) ---------- */}
-        <Zone nr="2" titel="Lernen" zeile="Alle Werkzeuge nach Stufe und Bereich." id="lernen" />
+    <>
+        {zone && <Zone nr="2" titel="Lernen" zeile="Alle Werkzeuge nach Stufe und Bereich." id="lernen" />}
         <SchulKachel wahl={schulWahl} waehle={schulWaehlen} deine={klasse ? stufe : null} />
         {schulAuf && (
           <div className="sbb-papier" data-aufklapp-inhalt data-sprung="start-schulmathe">
@@ -1083,6 +1013,88 @@ export function Startseite({ gehe }) {
             </div>
           </div>
         )}
+    </>
+  );
+}
+
+/* Breite Bühne (ab 1100 px): Start-Karte rechts in der Bühne, alles ohne Scrollen sichtbar */
+const BUEHNE_BREIT = "(min-width: 1100px)";
+function useBreiteBuehne() {
+  const lies = () => typeof window !== "undefined" && !!window.matchMedia && window.matchMedia(BUEHNE_BREIT).matches;
+  const [breit, setBreit] = useState(lies);
+  useEffect(() => {
+    if (!window.matchMedia) return undefined;
+    const m = window.matchMedia(BUEHNE_BREIT);
+    const h = () => setBreit(m.matches);
+    m.addEventListener ? m.addEventListener("change", h) : m.addListener(h);
+    return () => (m.removeEventListener ? m.removeEventListener("change", h) : m.removeListener(h));
+  }, []);
+  return breit;
+}
+
+/* ====================================================================== */
+/* Sieben Blöcke (21.10. abends): 0 Band · 1 Bühne · 2 Heute · 3 Lernen · 4 Mathilda · 5 Kurse · 6 Entdecken · 7 Vision-Anriss + Fuß.
+   Zwei Regeln: Jeder Block hat genau einen ☰-Abschnitt mit demselben Namen; Gesperrtes steht nie auf der Startseite. */
+export function Startseite({ gehe }) {
+  const modus = useStartModus();
+  const frei = useFrei();
+  const [entdAuf, setEntdAuf] = useState(false);
+  const { stufe, setzen: stufeWaehlen, klasse } = useStartStufe();   // folgt der angegebenen Klasse (Konto, Quickfinder, Onboarding)
+  const stufeSetzen = (w) => stufeWaehlen(w);
+  const breit = useBreiteBuehne();
+  const schublade = <div className="sbb-abschnitt" style={{ marginTop: 0 }}><TrainingKachel gehe={gehe} setzeStufe={stufeSetzen} /></div>;
+  /* Die ganze App-Fläche folgt dem Modus: Hintergrund und Fußknöpfe (Regeln oben in CSS) */
+  useEffect(() => {
+    const d = document.documentElement;
+    d.setAttribute("data-start-modus", basisModus(modus));   /* data-start-edition setzt startModus.js app-weit */
+    return () => d.removeAttribute("data-start-modus");
+  }, [modus]);
+
+  const oberstufe = !!klasse && stufe === "ober";
+
+  return (
+    <ModusKontext.Provider value={modus}>
+    <div className="sbb" data-modus={basisModus(modus)} data-edition={editionVon(modus)}>
+      <style>{START_CSS}</style>
+      <div className="sbb-licht" aria-hidden="true"><span className="l1" /><span className="l2" /><span className="l3" /></div>
+
+      {/* ---------- 1 Bühne: Headline, Unterzeile, EINE Handlung (Pen & Paper, kostenlos), Suche ---------- */}
+      <section className={["sbb-held", "sbb-insel", klasse && !breit ? "kompakt" : null, breit ? "breit" : null].filter(Boolean).join(" ")} aria-label="Mythos Mathe" id={breit ? "heute" : undefined}>
+        <HeldKurve breit={breit} />
+        <div className={breit ? "sbb-held-raster" : undefined}>
+        <div className="sbb-spalte sbb-held-text" style={{ paddingBottom: 0 }}>
+          <h1>Mathe kann<span className="gold">jeder verstehen</span></h1>
+          <p className="unter">Hier lernst du wie!</p>
+          {/* Neuer Besucher: der erste Schritt der Marke (wie auf /vision). Mit bekannter Klasse ist der Goldknopf der Heute-Karte die Handlung – kein zweiter daneben. */}
+          {!klasse && (
+            <button type="button" className="sbb-los gold held" onClick={() => gehe({ ansicht: "penpaperkurs" })} aria-label="Pen & Paper starten – kostenlos" data-start-los>
+              Pen & Paper starten <span className="frei">· kostenlos</span>
+            </button>
+          )}
+          <div className="sbb-held-suche"><SuchBox gehe={gehe} buehne /></div>
+        </div>
+        {breit && (
+          <div className="sbb-held-karte">
+            <p className="sbb-held-zone"><span className="nr">1</span>Heute trainierst du&nbsp;…</p>
+            <StartKarte gehe={gehe} setzeStufe={stufeSetzen} klasse={klasse} />
+          </div>
+        )}
+        </div>
+      </section>
+      <StartBand />
+
+      <section className="sbb-teil"><div className="sbb-spalte">
+        {/* ---------- 2 Heute: EINE Start-Karte (Klasse fragen → Heute-Karte + Weitermachen + Konto-Zeile + Schublade „Deine Klasse“) ---------- */}
+        {breit ? (klasse ? <div className="sbb-abschnitt" style={{ marginTop: 18 }}>{schublade}</div> : null) : (
+          <>
+            <Zone nr="1" titel={"Heute trainierst du …"} id="heute" />
+            <StartKarte gehe={gehe} setzeStufe={stufeSetzen} klasse={klasse} schublade={schublade} />
+          </>
+        )}
+        {/* Die Masterclass nur für die Oberstufe (Klasse bekannt) – sonst nur als Stufenknopf „Abi“ und in den Kursen */}
+        {oberstufe && <div className="sbb-wieder"><AbiZentrumKachel onClick={() => gehe({ ansicht: "abi" })} /></div>}
+
+        <LernNavigator gehe={gehe} stufe={stufe} stufeSetzen={stufeSetzen} klasse={klasse} />
         {ZEIGE_GESPERRTE && (
           <div className="sbb-raster2" style={{ marginTop: 14 }}>
             <Kachel gehe={gehe} gesperrt keinI18n titel="Ebbinghaus" label="Ebbinghaus öffnen" logo={<EbbinghausLogoKlein />} extra={<EbbinghausBadge />} ziel={{ ansicht: "ebbinghaus" }} drei zwei text={EBB_KURZ} />
@@ -1116,7 +1128,7 @@ export function Startseite({ gehe }) {
 
         {/* ---------- 6 Entdecken: Herleiten, Wettbewerbe – und der Blog ---------- */}
         <Zone nr="5" titel="Mathe entdecken" zeile="Herleiten, Wettbewerbe und der Blog." id="entdecken" />
-        <HauptKachel auf={entdAuf} onClick={() => { setEntdAuf(!entdAuf); setSchulWahl(null); setBereichAuf(null); }}
+        <HauptKachel auf={entdAuf} onClick={() => setEntdAuf(!entdAuf)}
           label={entdAuf ? "Mathe entdecken zuklappen" : "Mathe entdecken aufklappen"} logo={<EntdeckenLogoKlein />} titel="Mathe entdecken"
           text={entdAuf ? "Herleiten, entdecken, Wettbewerbe." : "Muster erkennen, Formeln selbst herleiten – und Mathe-Wettbewerbe."} />
         {entdAuf && <div className="sbb-papier" data-aufklapp-inhalt><UnterMenue eintraege={ENTDECKEN_MENUE} gehe={gehe} /></div>}

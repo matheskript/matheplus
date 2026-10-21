@@ -11,6 +11,8 @@
 
 export const START_MODUS_SCHLUESSEL = "matheplus-start-modus";
 export const EVENT_START_MODUS = "mm-start-modus";
+/* Dashboard auch ohne Konto (sonst sehen Besucher die Story-Startseite, funcStartGast.jsx): localStorage-Schlüssel, Adressen /start-app und /start-story */
+export const STARTAPP_SCHLUESSEL = "mm-start-app";
 export const START_MODI = ["dunkel", "hell", "mix", "stadion", "ger"];
 
 /* „stadion“ (21.10.): Rot-Weiß-Blau. Baut auf dem Mix auf (helles Blatt, farbige Inseln) –

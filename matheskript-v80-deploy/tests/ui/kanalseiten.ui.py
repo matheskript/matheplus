@@ -34,7 +34,7 @@ def oeffnen(b, breite, pfad):
     konsole = []
     page.on("pageerror", lambda e: konsole.append(f"pageerror: {e}"))
     page.goto(BASE)
-    page.evaluate(f"localStorage.clear(); sessionStorage.clear(); sessionStorage.setItem('mm-entwurf-frei', '{PW_HASH}'); localStorage.setItem('mm-onboarding-v1', JSON.stringify({{uebersprungen:true}}));")
+    page.evaluate(f"localStorage.clear(); localStorage.setItem('mm-start-app','1'); sessionStorage.clear(); sessionStorage.setItem('mm-entwurf-frei', '{PW_HASH}'); localStorage.setItem('mm-onboarding-v1', JSON.stringify({{uebersprungen:true}}));")
     page.goto(BASE + pfad); page.wait_for_timeout(2500)
     return ctx, page, konsole
 

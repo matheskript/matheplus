@@ -63,7 +63,7 @@ with sync_playwright() as p:
         page.on("console", lambda m: konsole.append(m.text) if m.type == "error" and "net::" not in m.text and "Failed to load resource" not in m.text else None)
         page.route("**/api/claude", ki)
         page.goto(BASE)
-        page.evaluate(f"""localStorage.clear(); localStorage.setItem('mm-onboarding-v1', JSON.stringify({{uebersprungen:true}}));
+        page.evaluate(f"""localStorage.clear(); localStorage.setItem('mm-start-app','1'); localStorage.setItem('mm-onboarding-v1', JSON.stringify({{uebersprungen:true}}));
           localStorage.setItem('mm-sprache', '{sprache}'); localStorage.setItem('matheskript-einwilligung-v1', '1');""")
         for wz in WERKZEUGE:
             konsole.clear()

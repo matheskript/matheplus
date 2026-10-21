@@ -7,8 +7,9 @@ import { NAV, SCHULKLASSEN, kiKopf, kiAntwort } from "./base4.jsx";
 import { dekodieren, jsonLesen, rendern } from "./func1.jsx";
 import { werkzeugMerken } from "./hauptmenue.js";
 const ToolMenue = lazyLaden(() => import("./func2.jsx").then((m) => ({ default: m.ToolMenue })));
-const Startseite = lazyLaden(() => import("./funcStartseite.jsx").then((m) => ({ default: m.Startseite })));   // Startchunk klein halten: jede Ansicht lädt ihren eigenen Teil (Trainingstools G, 21.10.)
-import { startModusSetzen, modusAusPfad } from "./startModus.js";
+// Startchunk klein halten: jede Ansicht lädt ihren eigenen Teil (Trainingstools G, 21.10.). Ohne Konto die Story-Startseite, mit Konto das Dashboard (funcStartGast.jsx → funcStartseite.jsx)
+const Startseite = lazyLaden(() => import("./funcStartGast.jsx").then((m) => ({ default: m.StartseiteWahl })));
+import { startModusSetzen, modusAusPfad, STARTAPP_SCHLUESSEL } from "./startModus.js";
 import { WerkzeugLeiste, WerkzeugBand } from "./funcWerkzeuge.jsx";
 import { tabTitel } from "./seitenTitel.js";
 import { kursAnsichten } from "./trainingsKurse.js";
@@ -183,6 +184,9 @@ export function Mathilda() {
       /* /start-hell und /start-dunkel wählen den Modus der Startseite (startModus.js) und landen auf "/" */
       const sm = modusAusPfad(window.location.pathname);
       if (sm) { startModusSetzen(sm); window.history.replaceState({}, "", "/" + window.location.search); return "start"; }
+      /* /start-app zeigt das Dashboard auch ohne Konto, /start-story wieder die Geschichte (funcStartGast.jsx) */
+      const sa = /^\/(?:start|startseite)-(app|story)\/?$/i.exec(window.location.pathname);
+      if (sa) { try { sa[1].toLowerCase() === "app" ? localStorage.setItem(STARTAPP_SCHLUESSEL, "1") : localStorage.removeItem(STARTAPP_SCHLUESSEL); } catch (e) { /* privat */ } window.history.replaceState({}, "", "/" + window.location.search); return "start"; }
       const pz = pfadAufloesen(window.location.pathname);   // Direct Links wie /elternabend (pfade.js)
       if (pz && pz.uebenArt) uebenWunschSetzen(pz.ansicht, { art: pz.uebenArt });   // zusammengelegte Werkzeuge (z. B. /stammfunktion → Integraltrainer)
       return pz ? pz.ansicht : "start";

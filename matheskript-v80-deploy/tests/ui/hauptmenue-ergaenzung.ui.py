@@ -29,7 +29,7 @@ def neu(b, breite, rolle=None, en=False):
     konsole = []
     page.on("pageerror", lambda e: konsole.append(f"pageerror: {e}"))
     page.goto(BASE)
-    page.evaluate("localStorage.clear(); localStorage.setItem('mm-onboarding-v1', JSON.stringify({uebersprungen:true}));" + ("localStorage.setItem('mm-sprache','en');" if en else ""))
+    page.evaluate("localStorage.clear(); localStorage.setItem('mm-start-app','1'); localStorage.setItem('mm-onboarding-v1', JSON.stringify({uebersprungen:true}));" + ("localStorage.setItem('mm-sprache','en');" if en else ""))
     if rolle:
         page.evaluate(f"localStorage.setItem('mm-demo-konto', {json.dumps(json.dumps(demo(rolle)))})")
     return ctx, page, konsole

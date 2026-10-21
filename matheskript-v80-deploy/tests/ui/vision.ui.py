@@ -36,7 +36,7 @@ def oeffnen(b, breite):
     konsole = []
     page.on("pageerror", lambda e: konsole.append(f"pageerror: {e}"))
     page.goto(BASE)
-    page.evaluate("localStorage.clear(); localStorage.setItem('mm-onboarding-v1', JSON.stringify({uebersprungen:true}));")
+    page.evaluate("localStorage.clear(); localStorage.setItem('mm-start-app','1'); localStorage.setItem('mm-onboarding-v1', JSON.stringify({uebersprungen:true}));")
     page.goto(BASE + "vision"); page.wait_for_timeout(4300)
     return ctx, page, konsole
 
@@ -135,7 +135,7 @@ with sync_playwright() as p:
     # Bewegung reduziert: alles sofort sichtbar, Strich ohne Aufdecken
     ctx = b.new_context(viewport={"width": 390, "height": 860}, locale="de-DE", reduced_motion="reduce")
     page = ctx.new_page()
-    page.goto(BASE); page.evaluate("localStorage.clear(); localStorage.setItem('mm-onboarding-v1', JSON.stringify({uebersprungen:true}));")
+    page.goto(BASE); page.evaluate("localStorage.clear(); localStorage.setItem('mm-start-app','1'); localStorage.setItem('mm-onboarding-v1', JSON.stringify({uebersprungen:true}));")
     page.goto(BASE + "vision"); page.wait_for_timeout(1200)
     pruefe(page.evaluate("getComputedStyle(document.querySelector('.vi-held .vi-weg svg')).clipPath") == "none", "reduziert: Strich verdeckt")
     pruefe(page.evaluate("getComputedStyle(document.querySelector('#kapitel-ort .vi-auf')).opacity") == "1", "reduziert: Abschnitt unsichtbar")

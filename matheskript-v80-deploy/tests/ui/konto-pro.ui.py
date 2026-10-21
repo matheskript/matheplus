@@ -18,7 +18,7 @@ with sync_playwright() as p:
     page = b.new_context(viewport={"width": 390, "height": 844}, locale="de-DE").new_page()
     konsole = []
     page.on("pageerror", lambda e: konsole.append(f"pageerror: {e}"))
-    page.goto(BASE); page.evaluate("localStorage.clear(); sessionStorage.clear()"); page.reload(); page.wait_for_timeout(600)
+    page.goto(BASE); page.evaluate("localStorage.clear(); localStorage.setItem('mm-start-app','1'); sessionStorage.clear()"); page.reload(); page.wait_for_timeout(600)
     # Demo-Anmeldung als Elternteil
     page.evaluate("window.__mmGehe({ ansicht: 'konto' })"); page.wait_for_timeout(400)
     page.get_by_role("button", name="Mit Google anmelden").click(); page.wait_for_timeout(500)

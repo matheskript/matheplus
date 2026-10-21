@@ -48,7 +48,7 @@ with sync_playwright() as p:
             # Speicher auf einer statischen Datei setzen (gleiche Herkunft, aber die App läuft nicht und schreibt nicht dazwischen –
             # die Heute-Karte sichert ihren Tagesplan sofort nach dem Laden in den Lernstand)
             page.goto(BASE + "buecher/vektoren/viewer.css")
-            js = f"localStorage.clear(); sessionStorage.clear(); localStorage.setItem('mm-onboarding-v1', {json.dumps(json.dumps(ONB))});"
+            js = f"localStorage.clear(); localStorage.setItem('mm-start-app','1'); sessionStorage.clear(); localStorage.setItem('mm-onboarding-v1', {json.dumps(json.dumps(ONB))});"
             if fall == "stand":
                 js += f"localStorage.setItem('matheskript-lernstand-v1', {json.dumps(json.dumps(LERNSTAND))}); localStorage.setItem('matheplus-funktionen-kapitel', 'verkettung');"
             page.evaluate(js)

@@ -33,7 +33,7 @@ with sync_playwright() as p:
         pg.on("pageerror", lambda e: konsole.append(str(e)))
         pg.on("console", lambda m: konsole.append(m.text) if m.type == "error" and "Failed to load resource" not in m.text else None)
         pg.goto(BASE)
-        pg.evaluate("localStorage.clear(); sessionStorage.clear(); localStorage.setItem('matheplus-start-modus','mix')")
+        pg.evaluate("localStorage.clear(); localStorage.setItem('mm-start-app','1'); sessionStorage.clear(); localStorage.setItem('matheplus-start-modus','mix')")
         pg.reload(); pg.wait_for_timeout(1800)
         tag = f"{breite}"
         breit = breite >= 1100

@@ -62,7 +62,7 @@ with sync_playwright() as pw:
             kw.update(has_touch=True, is_mobile=True, device_scale_factor=2)
         ctx = b.new_context(**kw)
         p0 = ctx.new_page(); p0.goto(BASE)
-        p0.evaluate("localStorage.clear(); localStorage.setItem('mm-onboarding-v1', JSON.stringify({uebersprungen:true}));"); p0.close()
+        p0.evaluate("localStorage.clear(); localStorage.setItem('mm-start-app','1'); localStorage.setItem('mm-onboarding-v1', JSON.stringify({uebersprungen:true}));"); p0.close()
         for pfad, (marker, echt) in SEITEN.items():
             wo = f"{w}/{pfad}"
             p = ctx.new_page(); konsole = []

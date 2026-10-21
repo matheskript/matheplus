@@ -28,7 +28,7 @@ with sync_playwright() as p:
         page.on("pageerror", lambda e: konsole.append(f"pageerror: {e}"))
         page.on("console", lambda m: konsole.append(m.text) if m.type == "error" and "net::" not in m.text and "Failed to load resource" not in m.text else None)
         page.goto(BASE)
-        page.evaluate("localStorage.clear(); sessionStorage.clear(); localStorage.setItem('mm-onboarding-v1', JSON.stringify({uebersprungen:true}));")
+        page.evaluate("localStorage.clear(); localStorage.setItem('mm-start-app','1'); sessionStorage.clear(); localStorage.setItem('mm-onboarding-v1', JSON.stringify({uebersprungen:true}));")
         page.goto(BASE + "trainingszentrum"); page.wait_for_timeout(900)
 
         def breite_ok(wo):

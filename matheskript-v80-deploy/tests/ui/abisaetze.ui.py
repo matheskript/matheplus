@@ -12,7 +12,7 @@ with sync_playwright() as p:
     page = b.new_context(viewport={"width": 390, "height": 844}, locale="de-DE").new_page()
     konsole = []
     page.on("pageerror", lambda e: konsole.append(f"pageerror: {e}"))
-    page.goto(BASE); page.evaluate("localStorage.clear()"); page.reload(); page.wait_for_timeout(600)
+    page.goto(BASE); page.evaluate("localStorage.clear(); localStorage.setItem('mm-start-app','1')"); page.reload(); page.wait_for_timeout(600)
     page.evaluate("window.__mmGehe({ ansicht: 'abisaetze' })"); page.wait_for_timeout(400)
     pruefe(page.get_by_role("button", name="Abi-Satz 3 öffnen").count() == 1, "Übersicht fehlt")
     page.get_by_role("button", name="Abi-Satz 3 öffnen").click(); page.wait_for_timeout(400)

@@ -52,7 +52,7 @@ with sync_playwright() as p:
             page.on("pageerror", lambda e: konsole.append(f"pageerror: {e}"))
             page.on("console", lambda m: konsole.append(m.text) if m.type == "error" and "net::" not in m.text and "Failed to load resource" not in m.text else None)
             page.goto(BASE)
-            page.evaluate("localStorage.clear(); localStorage.setItem('mm-onboarding-v1', JSON.stringify({uebersprungen:true}));" + ("localStorage.setItem('mm-sprache','en');" if sprache == "en" else ""))
+            page.evaluate("localStorage.clear(); localStorage.setItem('mm-start-app','1'); localStorage.setItem('mm-onboarding-v1', JSON.stringify({uebersprungen:true}));" + ("localStorage.setItem('mm-sprache','en');" if sprache == "en" else ""))
             for pfad, titel in WERKZEUGE:
                 wo = f"{sprache}/{breite}/{pfad}"
                 page.goto(BASE + pfad); page.wait_for_timeout(900)

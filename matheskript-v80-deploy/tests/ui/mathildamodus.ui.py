@@ -37,7 +37,7 @@ with sync_playwright() as p:
             page.route("**/api/claude", lambda r: r.fulfill(status=200, content_type="application/json",
                        body=json.dumps({"content": [{"type": "text", "text": json.dumps(ANTWORT, ensure_ascii=False)}]})))
             page.goto(BASE)
-            page.evaluate(f"""localStorage.clear(); localStorage.setItem('mm-onboarding-v1', JSON.stringify({{uebersprungen:true}}));
+            page.evaluate(f"""localStorage.clear(); localStorage.setItem('mm-start-app','1'); localStorage.setItem('mm-onboarding-v1', JSON.stringify({{uebersprungen:true}}));
               localStorage.setItem('mm-sprache', '{sprache}'); localStorage.setItem('matheskript-einwilligung-v1', '1');""")
             page.goto(BASE + "5-minuten-mathe"); page.wait_for_timeout(900)
             import re
