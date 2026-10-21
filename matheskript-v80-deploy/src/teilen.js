@@ -158,6 +158,7 @@ export const KEIN_TEILEN = [
   "bericht", "messung", "auswertung", "konto", "impressum", "datenschutz", "einwilligung", "agb", "widerruf",
   "entwurf-start", "entwurf-checken", "entwurf-pakete", "entwurf-werkzeuge", "entwurf-vorher", "entwurf-biro",
   "dokumente", "blog", "vision",
+  "kanal",   // Kanal-Landingpages (/poster …): Werbeseiten, eigene Eltern-Weiche statt Teilen-Knopf
 ];
 
 /* Infos zur Ansicht oder null, wenn die Seite kein Tool/Training ist (Startseite, Konto, Recht …) */

@@ -53,6 +53,7 @@ const KapitelSeite = lazyLaden(() => import("./funcKapitelSeite.jsx").then((m) =
 const KapitelFormelnSeite = lazyLaden(() => import("./funcKapitelFormeln.jsx").then((m) => ({ default: m.KapitelFormelnSeite })));
 const ChallengeSeite = lazyLaden(() => import("./funcChallenge.jsx").then((m) => ({ default: m.ChallengeSeite })));
 const Landingpage = lazyLaden(() => import("./funcLandingpage.jsx").then((m) => ({ default: m.Landingpage })));
+const KanalSeite = lazyLaden(() => import("./funcKanalSeite.jsx").then((m) => ({ default: m.KanalSeite })));
 import { Laden, SeitenKopf, WerkzeugSeite, istWzSeite } from "./funcWerkzeugSeite.jsx";
 /* Seiten werden erst beim Öffnen nachgeladen (je eigener Chunk) */
 const ElternkursSeite = lazyLaden(() => import("./funcElternkurs.jsx").then((m) => ({ default: m.ElternkursSeite })));
@@ -234,6 +235,7 @@ export function Mathilda() {
   const [hnModul, setHnModul] = useState(null);             // direkt geöffneter Bereich von Head & Numbers
   const [usSeite, setUsSeite] = useState(null);             // Modul Unterstufe: klasse-5 | klasse-6 | Lerneinheit (Pfad /unterstufe/…)
   const [blogSeite, setBlogSeite] = useState(null);         // Blog: Slug des offenen Beitrags (Pfad /blog/<slug>) oder null = Übersicht
+  const [kanalSeite, setKanalSeite] = useState(() => { try { const pz = pfadAufloesen(window.location.pathname); return pz && pz.ansicht === "kanal" ? pz.seite : null; } catch (e) { return null; } });   // Kanal-Landingpage: poster | thema | insta | eltern | abi-eltern
   const [entdeckenStart, setEntdeckenStart] = useState(null);   // direkt geöffnetes Lernangebot in „Mathe entdecken“
   const [landWahl, setLandWahl] = useState("bw");
   const [formelBereich, setFormelBereich] = useState("analysis");
@@ -301,7 +303,7 @@ export function Mathilda() {
   const adressErsterLauf = useRef(true);
   const adressAusVerlauf = useRef(0);   // Zeitpunkt der letzten Zurück/Vor-Taste
   const adressZustand = {
-    ansicht, klasse: klasseAktiv, land: landWahl, trainer: kopfTrainer, seite: ansicht === "gleichkurs" ? gkSeite : ansicht === "textaufgaben" ? wzSeite : ansicht === "unterstufe" ? usSeite : ansicht === "blog" ? blogSeite : entdeckenStart, kurs: kursStart,
+    ansicht, klasse: klasseAktiv, land: landWahl, trainer: kopfTrainer, seite: ansicht === "gleichkurs" ? gkSeite : ansicht === "textaufgaben" ? wzSeite : ansicht === "unterstufe" ? usSeite : ansicht === "blog" ? blogSeite : ansicht === "kanal" ? kanalSeite : entdeckenStart, kurs: kursStart,
     ziel: ansicht === "training" ? trainZiel : ansicht === "ki" ? genZiel : undefined,
     foto: ansicht === "analyse" ? fotoModus : undefined,
     ...(ansicht === "blatt" ? { band: blattZiel.band, seite: blattZiel.seite, nr: blattZiel.nr, kasten: blattZiel.kasten } : {}),
@@ -331,7 +333,7 @@ export function Mathilda() {
       if (erster || ausVerlauf) window.history.replaceState({}, "", soll + rest);
       else window.history.pushState({}, "", soll + rest);
     } catch (e) { /* ignorieren */ }
-  }, [ansicht, trainZiel, genZiel, fotoModus, klasseAktiv, kopfTrainer, entdeckenStart, kursStart, landWahl, wzSeite, usSeite, blogSeite, kapitelSeiteZiel]);
+  }, [ansicht, trainZiel, genZiel, fotoModus, klasseAktiv, kopfTrainer, entdeckenStart, kursStart, landWahl, wzSeite, usSeite, blogSeite, kanalSeite, kapitelSeiteZiel]);
   // Zurück/Vor-Taste des Browsers
   useEffect(() => {
     const f = () => {
@@ -366,6 +368,7 @@ export function Mathilda() {
     setGkSeite(eintrag.ansicht === "gleichkurs" ? eintrag.seite || null : null);
     setUsSeite(eintrag.ansicht === "unterstufe" ? eintrag.seite || null : null);
     setBlogSeite(eintrag.ansicht === "blog" ? eintrag.seite || null : null);
+    setKanalSeite(eintrag.ansicht === "kanal" ? eintrag.seite || null : null);
     setWzSeite(eintrag.ansicht === "textaufgaben" ? eintrag.seite || null : null);
     setEntdeckenStart(eintrag.ansicht === "entdecken" ? eintrag.seite || null : null);
     setEntdeckenStart(eintrag.ansicht === "entdecken" ? eintrag.seite || null : null);
@@ -932,6 +935,8 @@ export function Mathilda() {
         <><Startseite gehe={gehe} /><StartModusSchalter /></>
       ) : ansicht === LANDING ? (
         <Landingpage gehe={gehe} />
+      ) : ansicht === "kanal" ? (
+        <KanalSeite seite={kanalSeite} gehe={gehe} />
       ) : ansicht === "entwurf-start" ? (
         <EntwurfTor gehe={gehe}><EntwurfStart gehe={gehe} /></EntwurfTor>
       ) : ansicht === "entwurf-checken" ? (
@@ -1701,7 +1706,7 @@ export function Mathilda() {
           }} />
         </div>
       )}
-      {!istEntwurf(ansicht) && <Fusszeile gehe={gehe} arbeitsmenue={(stil) => <Arbeitsmenue gehe={gehe} ansicht={ansicht} sprachKnopf={sprachKnopf} stil={stil} />} />}
+      {!istEntwurf(ansicht) && <Fusszeile gehe={gehe} arbeitsmenue={(stil) => <Arbeitsmenue gehe={gehe} ansicht={ansicht} seite={ansicht === "kanal" ? kanalSeite : null} sprachKnopf={sprachKnopf} stil={stil} />} />}
       <KiEinwilligungFenster />
       <MatheTastaturHost />
     </div>

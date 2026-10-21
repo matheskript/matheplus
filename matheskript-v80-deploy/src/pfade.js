@@ -45,6 +45,12 @@ const WZ_MODUS_SLUG = {
 export const SEITEN = [
   { pfad: "", ansicht: "start" },
   { pfad: "landingpage", ansicht: "landingpage", alias: ["start-neu"] },
+  /* Kanal-Landingpages (kanalSeiten.js, funcKanalSeite.jsx): je Werbekanal eine Seite, Ansicht "kanal" + seite */
+  { pfad: "poster", ansicht: "kanal", seite: "poster", alias: ["plakat", "schule"] },
+  { pfad: "thema", ansicht: "kanal", seite: "thema", alias: ["youtube", "ableitungen-verstehen"] },
+  { pfad: "insta", ansicht: "kanal", seite: "insta", alias: ["bio", "instagram", "7-gruende"] },
+  { pfad: "eltern", ansicht: "kanal", seite: "eltern", alias: ["nachhilfe", "mathe-nachhilfe", "mathe-nachhilfe-konstanz", "fuer-eltern"] },
+  { pfad: "abi-eltern", ansicht: "kanal", seite: "abi-eltern", alias: ["linkedin", "masterclass-eltern", "abitur-eltern"] },
   { pfad: "spenden", ansicht: "spenden", alias: ["donate", "unterstuetzen"] },
   { pfad: "elternabend", ansicht: "elternabend", alias: ["eltern-abend", "infoabend"] },
   { pfad: "lehrkraefte", ansicht: "lehrkraefte", alias: ["lehrer", "fuer-lehrkraefte", "fuer-lehrer", "lehrerinnen"] },

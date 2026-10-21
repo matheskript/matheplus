@@ -416,16 +416,29 @@ export function TerminProbe({ termin, minuten, onFertig, onAbbruch }) {
 /* ---------- Termin anlegen ---------- */
 
 
+/* Vorbelegung von der Poster-Landingpage (/poster, funcKanalSeite.jsx): Datum und Thema aus sessionStorage, einmal gelesen */
+function terminVorbelegt() {
+  try {
+    const roh = sessionStorage.getItem("mm-klausur-vorbelegt");
+    if (!roh) return null;
+    sessionStorage.removeItem("mm-klausur-vorbelegt");
+    const v = JSON.parse(roh) || {};
+    return { datum: /^\d{4}-\d{2}-\d{2}$/.test(v.datum || "") ? v.datum : null, suche: String(v.suche || "").slice(0, 60) };
+  } catch (e) { return null; }
+}
+
 export function TerminFormular({ onFertig, onAbbruch }) {
+  const [vorbelegt] = useState(terminVorbelegt);
   const [art, setArt] = useState("Klassenarbeit");
   const morgen = tagSchluessel(tagVon(1));
-  const [datum, setDatum] = useState(tagSchluessel(tagVon(14)));
+  const [datum, setDatum] = useState(vorbelegt && vorbelegt.datum && vorbelegt.datum >= morgen ? vorbelegt.datum : tagSchluessel(tagVon(14)));
   const [auswahl, setAuswahl] = useState([]);
-  const [suche, setSuche] = useState("");
+  const [suche, setSuche] = useState((vorbelegt && vorbelegt.suche) || "");
 
   const q = suche.trim().toLowerCase();
-  const passt = (k) => !q || k.titel.toLowerCase().includes(q) || (k.buch || "").toLowerCase().includes(q)
-    || buchVerweis(k.buch).join(" ").toLowerCase().includes(q);
+  /* Jedes Suchwort ohne seine Endung („Ableitungen“ findet „Ableitung“, „Vektoren“ „Vektor“) muss vorkommen */
+  const stiele = q.split(/\s+/).filter(Boolean).map((w) => (w.length > 5 ? w.slice(0, w.length - 2) : w));
+  const passt = (k) => { const t = `${k.titel} ${k.buch || ""} ${buchVerweis(k.buch).join(" ")}`.toLowerCase(); return !q || stiele.every((w) => t.includes(w)); };
   const umschalten = (id) => setAuswahl(auswahl.includes(id) ? auswahl.filter((x) => x !== id) : [...auswahl, id]);
   const gueltig = auswahl.length > 0 && datum >= morgen;
 

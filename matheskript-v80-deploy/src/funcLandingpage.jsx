@@ -512,6 +512,9 @@ const Kreuz = () => (
   <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="11" fill="#F3D6D3" /><path d="M7.5 7.5l7 7M14.5 7.5l-7 7" stroke={F.rot} strokeWidth="2.2" strokeLinecap="round" /></svg>
 );
 
+/* Gestaltung und Bausteine auch für die Kanal-Landingpages (funcKanalSeite.jsx: /poster, /thema, /insta, /eltern, /abi-eltern) */
+export { CSS as LP_CSS, F as LP_FARBEN, Haken, Kreuz };
+
 /* ---------------------------------------------------------------- Seite */
 export function Landingpage({ gehe }) {
   const [hinweis, setHinweis] = useState(false);

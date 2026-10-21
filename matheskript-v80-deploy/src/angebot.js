@@ -10,6 +10,7 @@
      kurse        Mathe Abi Masterclass (+ Zugangslinks), Mathe checken, Nachhilfe-Kurs, „Bald“-Kurse
      elternabend  Elternabend (Kachel, Anmeldung)
      landingpage  Verkaufsseite /landingpage
+     kanalseiten  Kanal-Landingpages /poster /thema /insta /eltern /abi-eltern (kanalSeiten.js)
      coaching     „Mit Basti sprechen“ / Coaching-Kontakt (zusammen mit COACHING in base3.jsx)
      agb          AGB und Widerrufsbelehrung in der Fußzeile und bei der Anmeldung
    Mit dem Passwort „skript“ (Sitzung) bleiben die abgeschalteten Seiten für Basti erreichbar.
@@ -20,6 +21,7 @@ export const ANGEBOT = {
   kurse: false,
   elternabend: false,
   landingpage: false,
+  kanalseiten: false,
   coaching: false,
   agb: false,
 };
@@ -29,6 +31,7 @@ export const ANSICHTEN_JE_ANGEBOT = {
   kurse: ["masterclass", "mckurs", "mczugang", "mathecheck", "nachhilfekurs"],
   elternabend: ["elternabend"],
   landingpage: ["landingpage"],
+  kanalseiten: ["kanal"],
 };
 
 /* Ist diese Ansicht gerade abgeschaltet? `frei` = Basti hat das Passwort eingegeben. */

@@ -8,14 +8,16 @@ import { C } from "./base1.jsx";
 import { englisch } from "./i18n.js";
 import { ENTWUERFE, WEITERE_SEITEN, LANDING, DOKUMENTE_SEITE, istFrei, entsperren, EVENT_FREI } from "./seitenKonstanten.js";
 import { ANGEBOT } from "./angebot.js";
+import { KANAL_SEITEN, KANAL_ANSICHT } from "./kanalSeiten.js";
 import { ToolMenue } from "./func2.jsx";
 import { AufklappZeichen } from "./aufklappen.jsx";
 import { EVENT_START_MODUS, naechsterModus, startModus, startModusSetzen } from "./startModus.js";
 
-export function Arbeitsmenue({ gehe, ansicht, sprachKnopf, stil }) {
+export function Arbeitsmenue({ gehe, ansicht, seite = null, sprachKnopf, stil }) {
   const [offen, setOffen] = useState(false);
   const [baumAuf, setBaumAuf] = useState(false);
   const [entwuerfeAuf, setEntwuerfeAuf] = useState(false);   // D Entwürfe
+  const [kanalAuf, setKanalAuf] = useState(false);
   const [weitereAuf, setWeitereAuf] = useState(false);       // E Weitere Seiten
   const [frei, setFrei] = useState(istFrei);
   const [modus, setModus] = useState(startModus);   // Startseite dunkel / hell (startModus.js)
@@ -36,6 +38,7 @@ export function Arbeitsmenue({ gehe, ansicht, sprachKnopf, stil }) {
     if (!offen) {
       setBaumAuf(false); setPwZiel(null); setPw(""); setPwFehler(false);
       setEntwuerfeAuf(false); setWeitereAuf(WEITERE_SEITEN.some((e) => e.ansicht === ansicht));   // E offen, wenn man gerade auf einer dieser Seiten ist
+      setKanalAuf(ansicht === KANAL_ANSICHT);
       return;
     }
     const t = (e) => { if (e.key === "Escape") setOffen(false); };
@@ -44,14 +47,18 @@ export function Arbeitsmenue({ gehe, ansicht, sprachKnopf, stil }) {
   }, [offen, ansicht]);
   const geh = (z) => { setOffen(false); gehe(z); };
   /* Geschützte Seite: mit Passwort (Sitzung) direkt öffnen, sonst erst das Passwortfeld zeigen */
-  const gesperrt = (ansichtZiel) => {
-    if (frei || ANGEBOT.landingpage && ansichtZiel === LANDING) { geh({ ansicht: ansichtZiel }); return; }
-    setPwZiel(ansichtZiel); setPw(""); setPwFehler(false);
+  /* Ziel = Ansichtsname oder { ansicht, seite } (Kanal-Landingpages); der Schlüssel unterscheidet die Seiten einer Ansicht */
+  const zielObjekt = (z) => (typeof z === "string" ? { ansicht: z } : z);
+  const zielKey = (z) => { const o = zielObjekt(z); return o.ansicht + (o.seite ? ":" + o.seite : ""); };
+  const gesperrt = (ziel) => {
+    const z = zielObjekt(ziel);
+    if (frei || ANGEBOT.landingpage && z.ansicht === LANDING) { geh(z); return; }
+    setPwZiel(z); setPw(""); setPwFehler(false);
   };
   const pruefen = async (e) => {
     e.preventDefault();
     const ok = await entsperren(pw);
-    if (ok) { const z = pwZiel; setFrei(true); geh({ ansicht: z }); }
+    if (ok) { const z = pwZiel; setFrei(true); geh(z); }
     else { setPwFehler(true); setPw(""); }
   };
   const schloss = (
@@ -59,10 +66,11 @@ export function Arbeitsmenue({ gehe, ansicht, sprachKnopf, stil }) {
       <rect x="5" y="11" width="14" height="9.5" rx="2" />{frei ? <path d="M8 11V8a4 4 0 0 1 7.5-1.9" /> : <path d="M8 11V8a4 4 0 0 1 8 0v3" />}
     </svg>
   );
-  const geschuetzt = (a, name, nr, eingerueckt) => {
-    const an = ansicht === a;
+  const geschuetzt = (ziel, name, nr, eingerueckt) => {
+    const z = zielObjekt(ziel), a = z.ansicht;
+    const an = ansicht === a && (!z.seite || z.seite === seite);
     return (
-      <button key={a} type="button" onClick={() => gesperrt(a)} aria-current={an ? "page" : undefined} data-arbeitsmenue-seite={a}
+      <button key={zielKey(z)} type="button" onClick={() => gesperrt(z)} aria-current={an ? "page" : undefined} data-arbeitsmenue-seite={zielKey(z)}
         style={{ ...zeile, ...(eingerueckt ? { width: "calc(100% - 16px)", marginLeft: 16, marginTop: 4 } : null), background: an ? "rgba(237,187,0,0.18)" : eingerueckt ? "#EEF1F6" : "transparent" }}>
         <span style={kreis(an)}>{nr}</span>
         <span style={{ flex: 1, fontSize: 14.5, fontWeight: 700 }}>{name}</span>
@@ -73,7 +81,7 @@ export function Arbeitsmenue({ gehe, ansicht, sprachKnopf, stil }) {
   const zeile = { width: "100%", display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", borderRadius: 10, border: "none", cursor: "pointer", fontFamily: "inherit", textAlign: "left", color: C.tinte };
   const kreis = (an) => ({ width: 28, height: 28, borderRadius: 999, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12.5, fontWeight: 700, background: an ? C.flaggold : C.himmel, color: an ? C.seeTief : C.grau });
   /* Passwortfeld direkt unter der Gruppe, in der man geklickt hat – so liegt es immer im Blick (kein Scrollen nötig) */
-  const formular = (ziele) => pwZiel && ziele.includes(pwZiel) && (
+  const formular = (ziele) => pwZiel && ziele.map(zielKey).includes(zielKey(pwZiel)) && (
     <form onSubmit={pruefen} data-arbeitsmenue-passwort style={{ margin: "10px 4px 4px", padding: 12, borderRadius: 12, background: "#EEF1F6" }}>
       <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 8 }}>Passwort für diese Seite</label>
       <div style={{ display: "flex", gap: 8 }}>
@@ -155,6 +163,13 @@ export function Arbeitsmenue({ gehe, ansicht, sprachKnopf, stil }) {
             {/* F Dokumente: ganz unten, hinter demselben Passwort */}
             {geschuetzt(DOKUMENTE_SEITE, "Dokumente", "F")}
             {formular([DOKUMENTE_SEITE])}
+            {/* G Kanal-Landingpages: eine Seite je Werbekanal (kanalSeiten.js) */}
+            {gruppe("G", "Kanalseiten", kanalAuf, setKanalAuf, "data-arbeitsmenue-kanal", (
+              <>
+                {KANAL_SEITEN.map((k, i) => geschuetzt({ ansicht: KANAL_ANSICHT, seite: k.id }, k.name, i + 1, true))}
+                {formular(KANAL_SEITEN.map((k) => ({ ansicht: KANAL_ANSICHT, seite: k.id })))}
+              </>
+            ))}
           </div>
         </>
       )}

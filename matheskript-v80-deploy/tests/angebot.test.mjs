@@ -23,7 +23,7 @@ test("abgeschaltete Ansichten führen auf die Startseite, mit Passwort bleiben s
 });
 
 test("eingeschaltetes Angebot öffnet seine Ansichten wieder", () => {
-  const an = { ...ANGEBOT, kurse: true, elternabend: true, landingpage: true };
+  const an = { ...ANGEBOT, kurse: true, elternabend: true, landingpage: true, kanalseiten: true };
   for (const a of Object.values(ANSICHTEN_JE_ANGEBOT).flat()) assert.equal(ansichtErlaubt(a, false, an), a, a);
 });
 
