@@ -219,7 +219,9 @@ export function KursTraining({ modul, werkzeuge, onGeuebt, geuebt, buch = BUCH_D
         {reiter === "aufgaben" && seiten && (
           <>
             <p style={{ fontSize: 14, color: C.grau, margin: "0 0 14px", lineHeight: 1.6 }}>
-              Alle Aufgaben aus diesem Kapitel des Buchs. Tippe eine an, um sie aufzuklappen. Unten im <b style={{ color: K.schwarz }}>Aufgabentool</b> bekommst du zu jedem Aufgabentyp beliebig viele neue, gleichwertige Aufgaben – mit Rückmeldung zu jedem Schritt.
+              {buch.gen.ohneVarianten   /* Band ohne Aufgabentypen (Kurs Dreiecksgeometrie): neue Aufgaben gibt es in den Werkzeugen */
+                ? <>Alle Aufgaben aus diesem Kapitel des Buchs. Tippe eine an, um sie aufzuklappen, und vergleiche deine Rechnung mit der Lösung aus dem Buch. Immer neue Aufgaben bekommst du in den <b style={{ color: K.schwarz }}>Werkzeugen</b> dieses Moduls.</>
+                : <>Alle Aufgaben aus diesem Kapitel des Buchs. Tippe eine an, um sie aufzuklappen. Unten im <b style={{ color: K.schwarz }}>Aufgabentool</b> bekommst du zu jedem Aufgabentyp beliebig viele neue, gleichwertige Aufgaben – mit Rückmeldung zu jedem Schritt.</>}
             </p>
             {aufgaben.length === 0 && <p style={{ fontSize: 14, color: C.grau }}>In diesem Kapitel stehen keine Aufgaben.</p>}
             <div style={{ display: "grid", gap: 10 }}>
@@ -271,7 +273,7 @@ function AufgabeKarte({ a, ueben, aktiv, gen }) {
             <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", color: C.grau }}>{training ? "TRAINING" : "AUFGABE"} {a.nr} · S. {a.seite}</span>
             {a.typ
               ? <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "0.04em", color: K.schwarz, background: K.baby, padding: "2px 7px", borderRadius: 999 }}>NEUE AUFGABEN</span>
-              : <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: "0.04em", color: C.grau, background: C.sand, padding: "2px 7px", borderRadius: 999 }}>BEGRÜNDEN</span>}
+              : <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: "0.04em", color: C.grau, background: C.sand, padding: "2px 7px", borderRadius: 999 }}>{gen.ohneVarianten ? "AUS DEM BUCH" : "BEGRÜNDEN"}</span>}
           </span>
           {!auf && <span className="dk-kopf dk-buch" style={{ fontSize: 14.5, lineHeight: 1.5 }} dangerouslySetInnerHTML={{ __html: a.kopf || "" }} />}
           {auf && <span style={{ fontSize: 14.5, fontWeight: 700, color: K.schwarz }}>{a.typ ? gen.typTitel(a.typ) : "Aufgabe aus dem Buch"}</span>}
@@ -295,7 +297,9 @@ function AufgabeKarte({ a, ueben, aktiv, gen }) {
               </button>
             )}
           </div>
-          {!a.typ && <p style={{ fontSize: 13, color: C.grau, margin: "10px 0 0", lineHeight: 1.55 }}>Hier geht es ums Begründen, Skizzieren oder Beweisen – dazu gibt es keine Varianten. Vergleiche deine Lösung mit der aus dem Buch.</p>}
+          {!a.typ && <p style={{ fontSize: 13, color: C.grau, margin: "10px 0 0", lineHeight: 1.55 }}>{gen.ohneVarianten
+            ? "Rechne auf Papier und vergleiche mit der Lösung aus dem Buch. Neue Aufgaben dazu findest du im Reiter „Werkzeuge“."
+            : "Hier geht es ums Begründen, Skizzieren oder Beweisen – dazu gibt es keine Varianten. Vergleiche deine Lösung mit der aus dem Buch."}</p>}
           {loes && (
             <div style={{ marginTop: 12, padding: "12px 14px", borderRadius: 12, background: K.hell, borderLeft: `4px solid ${K.tief}` }}>
               <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.1em", color: K.gold, margin: "0 0 6px" }}>LÖSUNG AUS DEM BUCH</p>

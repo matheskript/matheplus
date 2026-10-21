@@ -62,6 +62,18 @@ export const TIEFBLAU = {
   medaille: C.vkHell, medailleText: C.vkNacht, fertig: C.vkGold, fertigText: C.vkNacht, badge: C.vkNacht, badgeText: C.vkGold, linieFertig: C.vkGold,
 };
 
+/* Dreiecksgeometrie (Band 4, Klasse 7–9): Amethyst – tiefes Violett mit warmem Gold */
+export const AMETHYST = {
+  lack: `linear-gradient(150deg, ${C.amNacht} 0%, ${C.amTief} 58%, #4E2290 100%)`,
+  rand: "linear-gradient(135deg, rgba(255,233,160,0.88), rgba(242,193,78,0.25) 55%, rgba(205,185,242,0.38))",
+  glanz: "rgba(205,185,242,0.2)", schein: "rgba(116,68,190,0.55)", kante: "rgba(255,255,255,0.22)", schatten: "rgba(23,11,46,0.78)",
+  kopf: `linear-gradient(150deg, #0C0519 0%, ${C.amNacht} 100%)`, linie: GOLD_VERLAUF,
+  titel: C.weiss, text: "rgba(255,255,255,0.85)", akzent: C.vkGold, chip: "rgba(255,255,255,0.1)", chipRand: "rgba(205,185,242,0.3)",
+  knopf: GOLD_VERLAUF, knopftext: C.amNacht, knopfschatten: "rgba(242,193,78,0.6)", spur: "rgba(255,255,255,0.16)", fuellung: GOLD_VERLAUF,
+  dunkel: `linear-gradient(150deg, ${C.amNacht} 0%, ${C.amTief} 100%)`, dunkelText: C.weiss, ring: C.vkGold, ringSpur: "rgba(255,255,255,0.14)", dunkelKnopf: GOLD_PILLE, dunkelKnopfText: C.amNacht,
+  medaille: C.amHell, medailleText: C.amNacht, fertig: C.vkGold, fertigText: C.amNacht, badge: C.amNacht, badgeText: C.vkGold, linieFertig: C.vkGold,
+};
+
 /* GFS: Lackschwarz mit Gold – die Bühne */
 export const LACKSCHWARZ = {
   lack: `linear-gradient(150deg, ${C.nachtschwarz} 0%, #1A1608 58%, #2E2408 100%)`,

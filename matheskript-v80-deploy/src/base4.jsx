@@ -120,6 +120,7 @@ export const NAV = [
     { name: "Unterstufe – Klasse 5 und 6", kurz: "Der ganze Stoff: lesen, Beispiel, Merksatz, gleich üben", ansicht: "unterstufe" },
     { name: "Kurs Differentialrechnung", kurz: "Jedes Buchkapitel lesen und direkt darunter trainieren", ansicht: "diffkurs" },
     { name: "Kurs Vektoren, Geraden und Ebenen", kurz: "Jedes Heftkapitel lesen und direkt darunter trainieren", ansicht: "vekkurs" },
+    { name: "Kurs Dreiecksgeometrie", kurz: "Jedes Buchkapitel lesen und direkt darunter trainieren", ansicht: "geokurs" },
     { name: "Schulbuch: Ableitungen", kurz: "50 Seiten zum Blättern – jede Regel hergeleitet", ansicht: "schulbuch" },
     { name: "Formelsammlung", kurz: "Alle Regeln zum Nachschlagen", ansicht: "formeln" },
     { name: "Operatoren", kurz: "Was „bestimmen“, „zeigen“, „begründen“ verlangen", ansicht: "operatoren" },

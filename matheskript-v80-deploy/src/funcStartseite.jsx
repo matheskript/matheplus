@@ -35,7 +35,7 @@ import { Quickfinder } from "./funcQuickfinder.jsx";
 import { AppAnleitung } from "./funcAnleitung.jsx";
 import { SuchBox } from "./funcSuche.jsx";
 import { MasterclassKachel, MatheCheckenKachel, MathCreatorKachel } from "./funcMasterclass.jsx";
-import { DiffKursKachel, VekKursKachel, GfsKursKachel, ClaudeKursKachel, UnterstufeKachel, AbiZentrumKachel } from "./funcKursKachel.jsx";
+import { DiffKursKachel, VekKursKachel, GeoKursKachel, GfsKursKachel, ClaudeKursKachel, UnterstufeKachel, AbiZentrumKachel } from "./funcKursKachel.jsx";
 import { ElternabendKachel } from "./funcElternabend.jsx";
 import { SpendenBereich } from "./funcSpendenBereich.jsx";
 import { ANGEBOT } from "./angebot.js";
@@ -994,8 +994,8 @@ export function Startseite({ gehe }) {
         {/* Nennt nur Kurse, die hier als Kachel stehen (21.10.); Videokurse erst, wenn ANGEBOT.kurse sie freischaltet */}
         <p className="sbb-text" style={{ marginBottom: 20 }}>
           {ANGEBOT.kurse
-            ? "Hinter den sieben Mathe-Mythen steckt dieselbe Lücke: Es fehlt nicht an Begabung, sondern an einer Arbeitsweise. Die Kurse unten schließen sie Stück für Stück. Der Mathe-Mindset-Kurs räumt das Denken auf, die Unterstufe legt das Fundament der Klassen 5 und 6, und die Kurse zur Differentialrechnung sowie zu Vektoren, Geraden und Ebenen führen dich durch den Stoff bis zum Abitur. Dazu kommen das GFS-Training für deine Präsentation, die Videokurse und Mathe mit KI lernen."
-            : "Hinter den sieben Mathe-Mythen steckt dieselbe Lücke: Es fehlt nicht an Begabung, sondern an einer Arbeitsweise. Die Kurse unten schließen sie Stück für Stück. Der Mathe-Mindset-Kurs räumt das Denken auf, die Unterstufe legt das Fundament der Klassen 5 und 6, und die Kurse zur Differentialrechnung sowie zu Vektoren, Geraden und Ebenen führen dich durch den Stoff bis zum Abitur. Dazu kommen das GFS-Training für deine Präsentation und Mathe mit KI lernen."}
+            ? "Hinter den sieben Mathe-Mythen steckt dieselbe Lücke: Es fehlt nicht an Begabung, sondern an einer Arbeitsweise. Die Kurse unten schließen sie Stück für Stück. Der Mathe-Mindset-Kurs räumt das Denken auf, die Unterstufe legt das Fundament der Klassen 5 und 6, die Dreiecksgeometrie führt durch die Klassen 7 bis 9, und die Kurse zur Differentialrechnung sowie zu Vektoren, Geraden und Ebenen führen dich durch den Stoff bis zum Abitur. Dazu kommen das GFS-Training für deine Präsentation, die Videokurse und Mathe mit KI lernen."
+            : "Hinter den sieben Mathe-Mythen steckt dieselbe Lücke: Es fehlt nicht an Begabung, sondern an einer Arbeitsweise. Die Kurse unten schließen sie Stück für Stück. Der Mathe-Mindset-Kurs räumt das Denken auf, die Unterstufe legt das Fundament der Klassen 5 und 6, die Dreiecksgeometrie führt durch die Klassen 7 bis 9, und die Kurse zur Differentialrechnung sowie zu Vektoren, Geraden und Ebenen führen dich durch den Stoff bis zum Abitur. Dazu kommen das GFS-Training für deine Präsentation und Mathe mit KI lernen."}
         </p>
         <div className="sbb-raster2">
           <Kachel gehe={gehe} titel="Mathe-Mindset-Kurs" label="Mathe-Mindset-Kurs öffnen" logo={<ElternkursLogoKlein />} ziel={{ ansicht: "elternkurs" }} weiter="Kurs öffnen"
@@ -1005,6 +1005,7 @@ export function Startseite({ gehe }) {
         </div>
         <div className="sbb-wieder">
           <UnterstufeKachel onClick={() => gehe({ ansicht: "unterstufe" })} />
+          <GeoKursKachel onClick={() => gehe({ ansicht: "geokurs" })} />
           <DiffKursKachel onClick={() => gehe({ ansicht: "diffkurs" })} />
           <VekKursKachel onClick={() => gehe({ ansicht: "vekkurs" })} />
           <GfsKursKachel onClick={() => gehe({ ansicht: "gfs" })} />

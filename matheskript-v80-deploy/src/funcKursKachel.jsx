@@ -16,9 +16,9 @@
    ============================================================ */
 import React from "react";
 import { C } from "./base1.jsx";
-import { diffStand, vekStand, gfsStand, kiStand, unterStand } from "./kursStand.js";
-import { SMARAGD, TIEFBLAU, LACKSCHWARZ, NACHTBLAU, GRANAT, GOLDLACK } from "./kursFarben.js";
-import { MotivTangente, MotivEbene, MotivBuehne, MotivDialog, MotivGeodreieck, MotivAbi } from "./funcKursMotive.jsx";
+import { diffStand, vekStand, geoStand, gfsStand, kiStand, unterStand } from "./kursStand.js";
+import { SMARAGD, TIEFBLAU, AMETHYST, LACKSCHWARZ, NACHTBLAU, GRANAT, GOLDLACK } from "./kursFarben.js";
+import { MotivTangente, MotivEbene, MotivBuehne, MotivDialog, MotivGeodreieck, MotivAbi, MotivDreieck } from "./funcKursMotive.jsx";
 import { LERN } from "./base3.jsx";
 import { abiNormieren, zielTermin, countdown } from "./abiZentrum.js";
 import { UNTERSTUFE_ZAHLEN } from "./unterstufeDaten.js";
@@ -145,6 +145,17 @@ export function VekKursKachel({ onClick, module = 31 }) {
     <KursKachel onClick={onClick} id="kk-vek" label="Kurs Vektoren, Geraden und Ebenen öffnen" titel="Vektoren, Geraden & Ebenen" farben={TIEFBLAU} Motiv={MotivEbene}
       meta={`${(stand && stand.gesamt) || module} Module im Heft`}
       zeile="Vom Gleichungssystem bis zum Abitur: lesen, dann trainieren." stand={stand} einheit="Modulen" />
+  );
+}
+
+/* Dreiecksgeometrie (Band 4, Klasse 7–9): Amethyst mit Gold; module = Zahl der Module in KURS_MODULE (geoKursDaten.js) */
+export function GeoKursKachel({ onClick, module = 25 }) {
+  const stand = sicher(geoStand);
+  return (
+    <KursKachel onClick={onClick} id="kk-geo" label="Kurs Dreiecksgeometrie öffnen" titel="Dreiecksgeometrie" farben={AMETHYST} Motiv={MotivDreieck}
+      meta={`${(stand && stand.gesamt) || module} Module im Schulbuch`}
+      zeile="Klasse 7 bis 9: vom Rechteck bis zum Sinus." stand={stand} einheit="Modulen"
+      daten={{ "data-geokurs-kachel": "" }} />
   );
 }
 

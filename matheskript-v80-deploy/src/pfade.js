@@ -90,6 +90,7 @@ export const SEITEN = [
   { pfad: "unterstufe", ansicht: "unterstufe", alias: ["klasse-5-6", "kurs-unterstufe", "unterstufe-kurs", "klasse-5-und-6"] },
   { pfad: "differentialrechnung", ansicht: "diffkurs", alias: ["differenzialrechnung", "kurs-differentialrechnung", "diffkurs"] },
   { pfad: "vektoren-geraden-ebenen", ansicht: "vekkurs", alias: ["kurs-vektoren", "kurs-vektoren-geraden-ebenen", "vekkurs"] },
+  { pfad: "dreiecksgeometrie", ansicht: "geokurs", alias: ["kurs-dreiecksgeometrie", "dreiecksgeometrie-kurs", "kurs/dreiecksgeometrie", "geokurs"] },
   { pfad: "mathe-mit-ki-lernen", ansicht: "kiwahl", alias: ["mathe-lernen-mit-ki", "mathe-mit-ki", "lernen-mit-ki", "ki-lernen", "ki-kurse", "kiwahl"] },
   { pfad: "mathe-lernen-mit-claude", ansicht: "claudekurs", alias: ["claude-kurs", "lernen-mit-claude", "claudekurs", "kurs-claude"]  },
   { pfad: "mathe-lernen-mit-gemini", ansicht: "geminikurs", alias: ["gemini-kurs", "lernen-mit-gemini", "geminikurs", "kurs-gemini"] },

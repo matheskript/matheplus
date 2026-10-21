@@ -117,6 +117,7 @@ export const SEITEN_SAETZE = {
   geminikurs: { de: "mit Gemini Mathe verstehen, statt sich Lösungen geben zu lassen (ab 16)", en: "use Gemini to understand maths instead of copying solutions (16+)" },
   diffkurs: { de: "die Differentialrechnung Schritt für Schritt lernen", en: "learn differential calculus step by step" },
   vekkurs: { de: "Vektoren, Geraden und Ebenen von Grund auf lernen", en: "learn vectors, lines and planes from the ground up" },
+  geokurs: { de: "Dreiecksgeometrie vom Rechteck bis zur Trigonometrie lernen", en: "learn triangle geometry from the rectangle to trigonometry" },
   schulbuch: { de: "das Buch Ableitungen mit Lösungen und Erklärungen durcharbeiten", en: "work through the derivatives book with solutions and explanations" },
   gleichkurs: { de: "Gleichungen verstehen, rechnen und trainieren", en: "understand, solve and train equations" },
   gfs: { de: "eine GFS mit Mathe-Themen vorbereiten", en: "prepare a school presentation on maths topics" },

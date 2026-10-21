@@ -173,7 +173,7 @@ test("Desktop-Menü: alle Abschnitte, Darstellung in der Fußzeile, kein Karoras
 test("Desktop-Menü: große Kurse gibt es alle, Stand nur aus kursStand.js", () => {
   const d = datei("funcHauptmenueDesktop.jsx");
   const lack = [...d.split("const LACK = {")[1].split("\n};")[0].matchAll(/^\s{2}(\w+): \{/gm)].map((m) => m[1]);
-  assert.deepEqual(lack.sort(), ["diffkurs", "gfs", "kiwahl", "unterstufe", "vekkurs"]);
+  assert.deepEqual(lack.sort(), ["diffkurs", "geokurs", "gfs", "kiwahl", "unterstufe", "vekkurs"]);
   for (const id of lack) assert.ok(KURSE.some((k) => k.id === id), `${id} steht nicht in KURSE`);
   const zurStufe = d.match(/KURS_ZUR_STUFE = \{([^}]+)\}/)[1];
   for (const s of STUFEN) assert.ok(zurStufe.includes(`${s.id}:`), `Stufe ${s.id} ohne passenden Kurs`);

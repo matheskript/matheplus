@@ -81,6 +81,7 @@ export const SPRUENGE = {
   "masterclass-modul":       { an: true,  art: "seite", wo: "Masterclass-Kursbereich: Lektion öffnen, „Nächste Lektion“, zurück zur Übersicht, Code eingelöst" },
   "claudekurs-lektion":      { an: true,  art: "seite", wo: "Kurse Mathe lernen mit Claude / mit Gemini: Lektion öffnen, „Nächste Lektion“, zurück zur Übersicht" },
   "vekkurs-modul":           { an: true,  art: "seite", wo: "Kurs Vektoren, Geraden und Ebenen: Modul öffnen, „Nächstes Modul“, zurück zur Modulübersicht" },
+  "geokurs-modul":           { an: true,  art: "seite", wo: "Kurs Dreiecksgeometrie: Modul öffnen, „Nächstes Modul“, zurück zur Modulübersicht" },
   "kopfmodi-thema":          { an: true,  art: "seite", wo: "Kopfrechnen → Entdecken: Thema aus der Liste öffnen, „Weiter: …“" },
   "headnumbers-ansicht":     { an: true,  art: "seite", wo: "Head & Numbers: Bereich/Trainer öffnen und zurück" },
   "kopf-vollbild":           { an: true,  art: "seite", wo: "Kopfrechnen: Runde im Vollbild startet – Seite nach oben, damit die Kopfleiste über dem Trainer steht" },

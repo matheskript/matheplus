@@ -8,6 +8,7 @@
    ============================================================ */
 import { KURS_MODULE as DIFF } from "./diffKursDaten.js";
 import { KURS_MODULE as VEK, TITEL_KURZ as VEK_KURZ, BUCH_BEREIT } from "./vekKursDaten.js";
+import { KURS_MODULE as GEO, TITEL_KURZ as GEO_KURZ, BUCH_BEREIT as GEO_BEREIT } from "./geoKursDaten.js";
 import { LEITFADEN } from "./gfsKurs.js";
 import { unterstufeStand } from "./unterstufeDaten.js";
 
@@ -32,6 +33,17 @@ export function vekStand() {
   const fertig = VEK.filter(ok).length;
   const weiter = VEK.find((m) => !ok(m)) || VEK[0];
   return { fertig, gesamt: VEK.length, weiter: `Nächstes Modul: ${VEK_KURZ[weiter.id] || weiter.titel}` };
+}
+
+/* Kurs Dreiecksgeometrie (mm_geokurs): dieselben Regeln wie Vektoren (funcGeoKurs.jsx) */
+export function geoStand() {
+  const s = lies("mm_geokurs");
+  const gelesen = s.gelesen || {}, geuebt = s.geuebt || {}, haken = s.haken || {};
+  const auto = (m) => (GEO_BEREIT ? !!gelesen[m.id] && (m.werkzeuge.length === 0 || !!geuebt[m.id]) : m.werkzeuge.length > 0 && !!geuebt[m.id]);
+  const ok = (m) => (typeof haken[m.id] === "boolean" ? haken[m.id] : auto(m));
+  const fertig = GEO.filter(ok).length;
+  const weiter = GEO.find((m) => !ok(m)) || GEO[0];
+  return { fertig, gesamt: GEO.length, weiter: `Nächstes Modul: ${GEO_KURZ[weiter.id] || weiter.titel}` };
 }
 
 /* Kurs GFS (mm_gfskurs): ein Schritt ist geschafft, wenn alle Haken seiner Checkliste sitzen */

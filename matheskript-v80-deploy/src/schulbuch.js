@@ -186,6 +186,8 @@ export const KURS_EMPFEHLUNG = [
     kapitel: ["diff1", "ablregeln", "ksDiff", "ksExp", "ganzrat"] },
   { id: "vekkurs", name: "Kurs Vektoren, Geraden und Ebenen", zeile: "Jedes Heftkapitel lesen und direkt darunter trainieren", ziel: { ansicht: "vekkurs" },
     kapitel: ["vek1", "ksLgs", "ksGeraden", "ksAbstand"] },
+  { id: "geokurs", name: "Kurs Dreiecksgeometrie", zeile: "Jedes Buchkapitel lesen und direkt darunter trainieren", ziel: { ansicht: "geokurs" },
+    kapitel: ["dreiecke", "pythagoras", "strahlen", "trig"] },
   { id: "gleichkurs", name: "Gleichungen", zeile: "Eine Zahl finden, über die du etwas weißt – verstehen, rechnen, trainieren", ziel: { ansicht: "gleichkurs" },
     kapitel: ["termegl", "binom", "lgs2", "quad", "bruchterme", "wurzeln", "potenzen", "explog", "linfkt"] },
   { id: "headnumbers", name: "Kopfrechnen", zeile: "Einmaleins, Quadrat- und Kubikzahlen – mit Lernpfad und Wiederholung", ziel: { ansicht: "headnumbers" },

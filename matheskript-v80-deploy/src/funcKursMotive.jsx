@@ -134,6 +134,42 @@ export function MotivGeodreieck({ id, klasse = "kk-motiv" }) {
   );
 }
 
+/* Dreiecksgeometrie: rechtwinkliges Dreieck 3-4-5 mit den Quadraten über allen drei Seiten (a² + b² = c²)
+   und dem Thaleskreis über der Hypotenuse, auf dem C liegt. Alles aus echten Koordinaten gerechnet:
+   A(0|0), B(5|0), C(3,2|2,4) – Höhenfußpunkt teilt c in q = 3,2 und p = 1,8, h = 2,4, |MC| = 2,5. */
+const DREIECK_S = 10.4, DREIECK_X = 80 - 2.5 * DREIECK_S, DREIECK_Y = 63;
+const dp = (x, y) => [+(DREIECK_X + DREIECK_S * x).toFixed(2), +(DREIECK_Y - DREIECK_S * y).toFixed(2)];
+const dPfad = (...pkte) => `M${pkte.map((p) => dp(...p).join(" ")).join(" L")} Z`;
+const D_A = [0, 0], D_B = [5, 0], D_C = [3.2, 2.4];
+/* Quadrate nach außen: über c nach unten, über b = AC nach links oben, über a = CB nach rechts oben */
+const D_QC = dPfad(D_A, D_B, [5, -5], [0, -5]);
+const D_QB = dPfad(D_A, D_C, [0.8, 5.6], [-2.4, 3.2]);
+const D_QA = dPfad(D_C, D_B, [7.4, 1.8], [5.6, 4.2]);
+/* rechter Winkel bei C: Einheitsvektoren nach A (−0,8|−0,6) und nach B (0,6|−0,8), Kantenlänge 0,62 */
+const D_W = 0.62, D_WA = [3.2 - 0.8 * D_W, 2.4 - 0.6 * D_W], D_WB = [3.2 + 0.6 * D_W, 2.4 - 0.8 * D_W], D_WM = [3.2 - 0.2 * D_W, 2.4 - 1.4 * D_W];
+export function MotivDreieck({ id, klasse = "kk-motiv" }) {
+  const f = `url(#${id}-folie)`;
+  const [ax, ay] = dp(...D_A), [bx, by] = dp(...D_B), [cx, cy] = dp(...D_C);
+  const r = 2.5 * DREIECK_S;
+  const t = (p, text, groesse) => { const [x, y] = dp(...p); return <text x={x} y={y + groesse * 0.36} textAnchor="middle" fontSize={groesse} fontStyle="italic" fontWeight="700" fill={f} fontFamily="Montserrat, sans-serif">{text}</text>; };
+  return (
+    <svg className={klasse} viewBox="0 0 160 120" aria-hidden="true">
+      <Defs id={id} folie={FOLIE.gold} schein={C.amViolett} />
+      <circle cx="80" cy="62" r="58" fill={`url(#${id}-schein)`} />
+      <path d={D_QC} fill={f} fillOpacity="0.2" stroke={f} strokeWidth="2.2" strokeLinejoin="round" />
+      <path d={D_QB} fill={C.amHell} fillOpacity="0.16" stroke={C.amHell} strokeOpacity="0.85" strokeWidth="1.8" strokeLinejoin="round" />
+      <path d={D_QA} fill={C.amHell} fillOpacity="0.16" stroke={C.amHell} strokeOpacity="0.85" strokeWidth="1.8" strokeLinejoin="round" />
+      <path d={`M${ax} ${ay} A${r} ${r} 0 0 1 ${bx} ${by}`} fill="none" stroke={C.weiss} strokeOpacity="0.55" strokeWidth="1.3" strokeDasharray="3 3" />
+      <path d={`M${ax} ${ay} L${cx} ${cy} L${bx} ${by} Z`} fill={C.weiss} fillOpacity="0.95" stroke={C.weiss} strokeWidth="2.4" strokeLinejoin="round" />
+      <path d={`M${dp(...D_WA).join(" ")} L${dp(...D_WM).join(" ")} L${dp(...D_WB).join(" ")}`} fill="none" stroke={C.amTief} strokeWidth="1.5" />
+      {/* waagrechte Hypotenuse: Folienverlauf über eine Box ohne Höhe wäre unsichtbar – daher Vollton-Gold */}
+      <line x1={ax} y1={ay} x2={bx} y2={by} stroke={C.vkGold} strokeWidth="3.4" strokeLinecap="round" />
+      <circle cx={cx} cy={cy} r="3.6" fill={f} stroke={C.amNacht} strokeWidth="1.6" />
+      {t([2.5, -2.5], "c²", 17)}{t([5.3, 2.1], "a²", 12.5)}{t([0.4, 2.8], "b²", 13.5)}
+    </svg>
+  );
+}
+
 /* Abi-Zentrum: Siegel mit Lorbeer und Bändern in Prägung (dunkles Gold auf Goldlack) */
 const LORBEER = Array.from({ length: 6 }, (_, i) => i);
 export function MotivAbi({ id, klasse = "kk-motiv" }) {

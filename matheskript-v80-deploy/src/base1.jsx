@@ -67,6 +67,12 @@ export const C = {
   vkHell: "#A8C0F0",
   vkNebel: "#EEF3FC",
   vkGold: "#F2C14E",
+  /* Kurs Dreiecksgeometrie: Amethyst – tiefes Violett (Nacht → Tief → Leuchtend → Hell → Nebel), Gold wie vkGold */
+  amNacht: "#170B2E",
+  amTief: "#35175F",
+  amViolett: "#7444BE",
+  amHell: "#CDB9F2",
+  amNebel: "#F4F0FC",
 };
 
 

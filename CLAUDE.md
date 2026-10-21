@@ -22,10 +22,11 @@ Die Seite scrollt nie „von selbst“, außer über `springe("schlüssel", () =
 Module über eine Person (z. B. Gauß) beginnen mit einer reinen Infoseite (Phase mit `info: true`, `schritte: []`): wer war er, Steckbrief, Lebensweg, passendes Bild (z. B. der Zehn-Mark-Schein). Erst danach kommen die Entdecken-Phasen. Neue Module stehen an **zwei** Stellen: `funcEntdecken.jsx` (Übersicht) und `ENTDECKEN_MENUE` in `src/startMenues.js` (Startseite und ☰-Hauptmenü lesen beide von dort; dort auch `zeichen` fürs Menü setzen).
 
 ## Kurs-Kacheln und Kursseiten: eine Gestaltung („Lack und Goldfolie“)
-Die Kurse (Unterstufe, Differentialrechnung, Vektoren/Geraden/Ebenen, GFS, Mathe mit KI lernen) teilen sich eine Optik: tief lackierte Fläche in den Kursfarben, Motiv in Folienoptik, Titel über die volle Breite, persönlicher Stand.
-- Farben je Kurs nur in `src/kursFarben.js` (GRANAT, SMARAGD = Differentialrechnung seit 21.10., TIEFBLAU, LACKSCHWARZ, NACHTBLAU; PORZELLAN nur noch für Umschlag/Dokumentkarte Band „Ableitungen“) – nicht in den Kursdateien nachbauen.
+Die Kurse (Unterstufe, Dreiecksgeometrie, Differentialrechnung, Vektoren/Geraden/Ebenen, GFS, Mathe mit KI lernen) teilen sich eine Optik: tief lackierte Fläche in den Kursfarben, Motiv in Folienoptik, Titel über die volle Breite, persönlicher Stand.
+- Farben je Kurs nur in `src/kursFarben.js` (GRANAT, AMETHYST = Dreiecksgeometrie, SMARAGD = Differentialrechnung seit 21.10., TIEFBLAU, LACKSCHWARZ, NACHTBLAU; PORZELLAN nur noch für Umschlag/Dokumentkarte Band „Ableitungen“) – nicht in den Kursdateien nachbauen.
 - Motive (viewBox 0 0 160 120) in `src/funcKursMotive.jsx`, Startseiten-Kacheln in `src/funcKursKachel.jsx`, Kursseiten-Bausteine (`KursKopf`, `FortschrittKarte`, `KapitelKopf`, `ModulKarte`) in `src/funcKursKopf.jsx`.
-- Der Stand auf den Kacheln kommt aus `src/kursStand.js` (nur localStorage + Datendateien `unterstufeDaten.js`, `diffKursDaten.js`, `vekKursDaten.js`, `gfsKurs.js`); die Regeln „wann ist ein Modul geschafft“ müssen dort und in der Kursseite gleich bleiben.
+- Der Stand auf den Kacheln kommt aus `src/kursStand.js` (nur localStorage + Datendateien `unterstufeDaten.js`, `diffKursDaten.js`, `vekKursDaten.js`, `geoKursDaten.js`, `gfsKurs.js`); die Regeln „wann ist ein Modul geschafft“ müssen dort und in der Kursseite gleich bleiben.
+- Kurs Dreiecksgeometrie (Band 4, `/dreiecksgeometrie`, Ansicht `geokurs`): `funcGeoKurs.jsx` + `geoKursDaten.js` wie der Vektorkurs; Werkzeuge der Unterkapitel = genau die „In der App“-Kästen der Buchseiten. Noch ohne Aufgabentypen (`gen.ohneVarianten` in `funcDiffKursUeben.jsx`). Tests: `tests/geoKurs.test.mjs`, Browser `tests/ui/geokurs.ui.py`.
 - Ein neuer Kurs: Palette in `kursFarben.js`, Motiv in `funcKursMotive.jsx`, Kachel in `funcKursKachel.jsx`, Kursseite mit den Bausteinen aus `funcKursKopf.jsx`, Stand in `kursStand.js`.
 
 ## Vektor-Werkzeuge: eine Gestaltung (`src/vekUi.jsx`)

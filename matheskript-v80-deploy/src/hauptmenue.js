@@ -121,6 +121,7 @@ export function klassenInhalt(k) {
 const KURSE_ALLE = [
   { id: "abizentrum", name: "Mathe-Abi-Masterclass", zeile: "Abi-Plan, Prüfungsaufgaben, Mia, Lernpartner – und der Kursbereich", ziel: { ansicht: "abi" } },
   { id: "unterstufe", name: "Unterstufe", zeile: "Klasse 5 und 6: der ganze Stoff, lesen und gleich üben", ziel: { ansicht: "unterstufe" } },
+  { id: "geokurs", name: "Dreiecksgeometrie", zeile: "Klasse 7–9: Schulbuch lesen und direkt trainieren", ziel: { ansicht: "geokurs" } },
   { id: "diffkurs", name: "Differentialrechnung", zeile: "Schulbuch lesen und direkt trainieren", ziel: { ansicht: "diffkurs" } },
   { id: "vekkurs", name: "Vektoren, Geraden & Ebenen", zeile: "Heftkapitel lesen und trainieren", ziel: { ansicht: "vekkurs" } },
   { id: "gfs", name: "GFS-Training", zeile: "Thema wählen, verstehen, vortragen", ziel: { ansicht: "gfs" } },

@@ -36,9 +36,9 @@ import {
   GOLD_VERLAUF, NACHT_VERLAUF, Ikon, TRAINING_IKON, KI_IKON, KONTO_IKON, Pfeil, zeichenGroesse, Bald, istAktuell,
   BereichBild, KURS_STIL, TRENNUNG, KlasseWaehlen, ETIKETT_FARBE, MODUS_NAME, MODUS_NAME_EN, ModusSymbol, anfangVon,
 } from "./hauptmenueTeile.jsx";
-import { diffStand, vekStand, gfsStand, kiStand, unterStand } from "./kursStand.js";
-import { SMARAGD, TIEFBLAU, LACKSCHWARZ, NACHTBLAU, GRANAT } from "./kursFarben.js";
-import { MotivTangente, MotivEbene, MotivBuehne, MotivDialog, MotivGeodreieck } from "./funcKursMotive.jsx";
+import { diffStand, vekStand, geoStand, gfsStand, kiStand, unterStand } from "./kursStand.js";
+import { SMARAGD, TIEFBLAU, AMETHYST, LACKSCHWARZ, NACHTBLAU, GRANAT } from "./kursFarben.js";
+import { MotivTangente, MotivEbene, MotivBuehne, MotivDialog, MotivGeodreieck, MotivDreieck } from "./funcKursMotive.jsx";
 import { UNTERSTUFE_ZAHLEN } from "./unterstufeDaten.js";
 
 /* Ab dieser Breite gilt das Desktop-Menü (dieselbe Grenze wie bisher im ☰-Fenster) */
@@ -317,6 +317,8 @@ const LACK = {
     meta: (s, en) => (en ? `${s ? s.gesamt : 21} modules in the textbook` : `${s ? s.gesamt : 21} Module im Schulbuch`) },
   vekkurs: { farben: TIEFBLAU, Motiv: MotivEbene, stand: vekStand, einheit: ["Modulen", "modules"],
     meta: (s, en) => (en ? `${s ? s.gesamt : 31} modules in the workbook` : `${s ? s.gesamt : 31} Module im Heft`) },
+  geokurs: { farben: AMETHYST, Motiv: MotivDreieck, stand: geoStand, einheit: ["Modulen", "modules"],
+    meta: (s, en) => (en ? `${s ? s.gesamt : 25} modules in the textbook` : `${s ? s.gesamt : 25} Module im Schulbuch`) },
   gfs: { farben: LACKSCHWARZ, Motiv: MotivBuehne, stand: gfsStand, einheit: ["Schritten", "steps"], meta: (s, en) => (en ? "7 steps to your talk" : "7 Schritte zur GFS") },
   kiwahl: { farben: NACHTBLAU, Motiv: MotivDialog, stand: kiStand, einheit: ["Lektionen", "lessons"], meta: (s, en) => (en ? "3 paths by age" : "3 Wege nach Alter") },
 };

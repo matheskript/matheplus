@@ -113,6 +113,7 @@ export const KURS_STIL = {
   unterstufe: { hg: `linear-gradient(155deg,#C4406A 0%,${C.gruen} 55%,#5A0024 100%)`, farbe: "#fff", zeichen: "5·6", zFarbe: "#FFE58A" },
   diffkurs: { hg: `linear-gradient(155deg,#11684F 0%,${C.smTief} 55%,${C.smNacht} 100%)`, farbe: "#fff", zeichen: "f′(x)", zFarbe: C.vkGold },
   vekkurs: { hg: `linear-gradient(155deg,${C.vkBlau} 0%,${C.vkTief} 60%,${C.vkNacht} 100%)`, farbe: "#fff", zeichen: "ℝ³", zFarbe: C.flaggold },
+  geokurs: { hg: `linear-gradient(155deg,${C.amViolett} 0%,${C.amTief} 60%,${C.amNacht} 100%)`, farbe: "#fff", zeichen: "△", zFarbe: C.flaggold },
   gfs: { hg: `linear-gradient(155deg,#17A2B4 0%,${C.tuerkis} 50%,#08606C 100%)`, farbe: "#fff", zeichen: "GFS", zFarbe: "#FFE58A" },
   kiwahl: { hg: `radial-gradient(90% 80% at 100% 0%,rgba(237,187,0,0.35),transparent 60%),${NACHT_VERLAUF}`, farbe: "#fff", zeichen: "AI", zFarbe: C.flaggold },
   penpaper: { hg: `repeating-linear-gradient(180deg,#FFFFFF 0 17px,#DCE6F5 17px 18px)`, farbe: C.seeTief, zeichen: "✎", zFarbe: C.see, rand: true, gross: true },
@@ -123,7 +124,7 @@ export const KURS_STIL = {
   mindset: { hg: `linear-gradient(155deg,${C.silberHell} 0%,${C.silber} 60%,${C.silberDunkel} 100%)`, farbe: C.seeTief, zeichen: "∞", zFarbe: C.see },
 };
 /* Weiche Trennstellen für lange Wörter auf den schmalen Karten */
-export const TRENNUNG = { "Differentialrechnung": "Differential\u00ADrechnung", "Prüfungsmodus": "Prüfungs\u00ADmodus", "Trainingsplan": "Trainings\u00ADplan",
+export const TRENNUNG = { "Differentialrechnung": "Differential\u00ADrechnung", "Dreiecksgeometrie": "Dreiecks\u00ADgeometrie", "Prüfungsmodus": "Prüfungs\u00ADmodus", "Trainingsplan": "Trainings\u00ADplan",
   "Wahrscheinlichkeitsrechnung": "Wahr\u00ADschein\u00ADlich\u00ADkeits\u00ADrechnung", "Trainingszentrum": "Trainings\u00ADzentrum" };
 
 /* ---------- Klasse: Auswahl, falls noch keine gewählt ist ---------- */

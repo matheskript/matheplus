@@ -316,7 +316,7 @@ function Hilfen({ d, gehe }) {
     </Abschnitt>
   );
 }
-const KURS_ZEICHEN = { unterstufe: "5·6", diffkurs: "f′", vekkurs: "ℝ³", gleichkurs: "x=?", headnumbers: "7·8" };
+const KURS_ZEICHEN = { unterstufe: "5·6", diffkurs: "f′", vekkurs: "ℝ³", geokurs: "△", gleichkurs: "x=?", headnumbers: "7·8" };
 function Kurse({ d, gehe }) {
   if (!d.kurse.length) return null;
   return (

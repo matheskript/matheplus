@@ -73,6 +73,7 @@ const ElternabendSeite = lazyLaden(() => import("./funcElternabend.jsx").then((m
 const SpendenSeite = lazyLaden(() => import("./funcSpendenSeite.jsx").then((m) => ({ default: m.SpendenSeite })));
 const DiffKursSeite = lazyLaden(() => import("./funcDiffKurs.jsx").then((m) => ({ default: m.DiffKursSeite })));
 const VekKursSeite = lazyLaden(() => import("./funcVekKurs.jsx").then((m) => ({ default: m.VekKursSeite })));
+const GeoKursSeite = lazyLaden(() => import("./funcGeoKurs.jsx").then((m) => ({ default: m.GeoKursSeite })));
 const UnterstufeSeite = lazyLaden(() => import("./funcUnterstufe.jsx").then((m) => ({ default: m.UnterstufeSeite })));
 /* Mathe Abi Masterclass: Kursbereich für Teilnehmer und Zugang über den persönlichen Link */
 const MasterclassKursSeite = lazyLaden(() => import("./funcMasterclassKurs.jsx").then((m) => ({ default: m.MasterclassKursSeite })));
@@ -1012,6 +1013,10 @@ export function Mathilda() {
       ) : ansicht === "vekkurs" ? (
         <React.Suspense fallback={<p role="status" style={{ color: C.grau, fontSize: 15, fontWeight: 300, padding: "24px", textAlign: "center" }}>{englisch() ? "Loading …" : "Wird geladen …"}</p>}>
           <VekKursSeite gehe={gehe} />
+        </React.Suspense>
+      ) : ansicht === "geokurs" ? (
+        <React.Suspense fallback={<p role="status" style={{ color: C.grau, fontSize: 15, fontWeight: 300, padding: "24px", textAlign: "center" }}>{englisch() ? "Loading …" : "Wird geladen …"}</p>}>
+          <GeoKursSeite gehe={gehe} />
         </React.Suspense>
       ) : ansicht === "unterstufe" ? (
         <React.Suspense fallback={<p role="status" style={{ color: C.grau, fontSize: 15, fontWeight: 300, padding: "24px", textAlign: "center" }}>{englisch() ? "Loading …" : "Wird geladen …"}</p>}>
