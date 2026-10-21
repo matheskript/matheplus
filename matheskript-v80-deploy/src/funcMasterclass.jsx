@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { C } from "./base1.jsx";
 import { SatzZeilen } from "./baseSatz.jsx";
+import { COACHING } from "./base3.jsx";
 
 /* ======================================================================
    MATHE ABI MASTERCLASS
@@ -302,15 +303,6 @@ const TAG = [
   { z: "15:45", t: "Abschluss", s: "Was nehme ich mit? Plan für die nächsten Wochen" },
 ];
 
-const WOCHE = [
-  { tag: "Mo", t: "Zoom-Call", farbe: THEMA },
-  { tag: "Di", t: "Pen & Paper · 20 min", farbe: PEN },
-  { tag: "Mi", t: "Trainingssession", farbe: THEMA },
-  { tag: "Do", t: "Pen & Paper · 20 min", farbe: PEN },
-  { tag: "Fr", t: "Kursmaterial", farbe: THEMA },
-  { tag: "Sa", t: "frei – oder Intensivtag", farbe: MIND },
-  { tag: "So", t: "Wochenreflexion", farbe: MIND },
-];
 
 function BausteinIcon({ art }) {
   const s = { stroke: NAVY, strokeWidth: 2, fill: "none", strokeLinecap: "round", strokeLinejoin: "round" };
@@ -379,240 +371,483 @@ function Legende() {
   );
 }
 
-const Kicker = ({ children }) => <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 8 }}>{children}</p>;
+/* Bausteine der Seite „Mathe checken“ */
 const H2 = ({ children }) => <h2 style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 12 }}>{children}</h2>;
 const Absatz = ({ children, style }) => <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.8, marginBottom: 16, ...style }}>{children}</p>;
 const karte = { background: C.weiss, borderRadius: 18, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" };
-const Trenner = () => <div style={{ height: 1, background: C.linie, margin: "34px 0 28px" }} />;
 
-export function MasterclassSeite() {
+/* ======================================================================
+   VERKAUFSSEITE „MATHE-ABI-MASTERCLASS“ (ansicht "masterclass", hinter ANGEBOT.kurse bzw. Passwort)
+
+   Dramaturgie: Blockbuster-StorySkript (Alexander Christiani). Der Schüler ist der Held, Basti der Mentor.
+     1. HELD      Identität · Wunsch · Einsatz                → Kopf (Goldlack) + Vertrauensleiste
+     2. PROBLEM   äußeres · inneres · Gegenspieler (Mythos)  → „Kennst du das?“, durchgestrichenes „Mathetalent“
+     3. MENTOR    Empathie · Autorität · Haltung              → Bastis Weg 2 → 1,0, Studium, System
+     4. LÖSUNG    3-Schritte-Plan · Versprechen · Werkzeuge   → Plan, kostenlose Werkzeuge vs. Programm,
+                                                                Monat für Monat, Intensivtag, Für wen, Vorher/Nachher
+     5. REISE     Handlung · Erfolg · Scheitern               → Zwei Wege, So geht es los, Fragen, Abschluss
+   Ein direkter Knopf („Platz vormerken“) im Kopf, nach der Lösung und am Schluss, auf dem Handy als feste
+   Leiste; ein Übergangs-Knopf („Kostenlos starten“) führt in die freie Masterclass (/abi).
+   Nur echte Fakten – keine Preise, keine erfundenen Stimmen, Zahlen oder Siegel. Kontakt: COACHING in base3.jsx.
+   ====================================================================== */
+const VK = {
+  schwarz: "#0B0C10", nacht: "#14120A", gold: "#EDBB00", praeg: "#5A4300", tinte: "#1B1606", papier: "#FFFDF6", creme: "#FBF5E3",
+  text: "#3A3010", still: "#6B5A26", linie: "rgba(90,67,0,0.16)", weiss: "#FFFFFF", hellText: "rgba(255,255,255,0.82)", rot: "#B3261E",
+  lack: "linear-gradient(150deg, #FFE9A0 0%, #F4CE4A 26%, #EDBB00 55%, #C99A0C 84%, #9C7400 100%)",
+};
+const VK_CSS = `
+.mcs{font-family:Montserrat,system-ui,sans-serif;color:${VK.tinte};background:${VK.creme};padding-bottom:40px}
+.mcs *,.mcs *::before,.mcs *::after{box-sizing:border-box}
+:where(.mcs) :where(h1,h2,h3,p,ul,ol,dl,dd){margin:0}
+.mcs ul,.mcs ol{list-style:none;padding:0}
+.mcs-innen{width:100%;max-width:1080px;margin:0 auto;padding:0 20px}
+@media (min-width:840px){.mcs-innen{padding:0 32px}}
+.mcs-schmal{max-width:780px}
+.mcs-sektion{padding:clamp(56px,8vw,104px) 0}
+.mcs-dunkel{background:linear-gradient(160deg,${VK.schwarz} 0%,${VK.nacht} 100%);color:${VK.weiss}}
+.mcs-eyebrow{display:block;font-size:12px;font-weight:800;letter-spacing:0.16em;text-transform:uppercase;color:#7A5C00;margin-bottom:12px}
+.mcs-dunkel .mcs-eyebrow{color:${VK.gold}}
+.mcs-h1{font-size:clamp(38px,7.4vw,74px);font-weight:900;letter-spacing:-0.045em;line-height:0.98;color:${VK.schwarz};text-wrap:balance;max-width:14ch}
+.mcs-h2{font-size:clamp(28px,4.6vw,46px);font-weight:800;letter-spacing:-0.035em;line-height:1.06;text-wrap:balance;max-width:20ch}
+.mcs-h3{font-size:19px;font-weight:800;letter-spacing:-0.02em;line-height:1.25}
+.mcs-lead{font-size:clamp(16px,2.1vw,19px);line-height:1.6;color:${VK.text};max-width:56ch}
+.mcs-dunkel .mcs-lead{color:${VK.hellText}}
+.mcs-text{font-size:15.5px;line-height:1.7;color:${VK.text}}
+.mcs-dunkel .mcs-text{color:${VK.hellText}}
+.mcs-klein{font-size:13px;line-height:1.55;color:${VK.still}}
+.mcs-dunkel .mcs-klein{color:rgba(255,255,255,0.6)}
+.mcs-strich{display:block;width:48px;height:4px;border-radius:2px;background:linear-gradient(90deg,${VK.praeg},${VK.gold});margin:18px 0 22px}
+.mcs-raster{display:grid;gap:16px}
+@media (min-width:840px){.mcs-raster.zwei{grid-template-columns:1fr 1fr}.mcs-raster.drei{grid-template-columns:repeat(3,1fr)}}
+.mcs-karte{border:1px solid transparent;border-radius:22px;padding:22px;background:${VK.papier} padding-box,linear-gradient(135deg,rgba(255,233,160,0.95),rgba(201,154,12,0.5) 50%,rgba(90,67,0,0.45)) border-box;
+  box-shadow:0 20px 40px -28px rgba(90,67,0,0.55)}
+.mcs-dunkel .mcs-karte{background:rgba(255,255,255,0.04) padding-box,linear-gradient(135deg,rgba(255,233,160,0.7),rgba(237,187,0,0.2) 55%,rgba(237,187,0,0.5)) border-box;box-shadow:none}
+.mcs-karte.gold{background:${VK.lack} padding-box,linear-gradient(135deg,#FFFFFF,rgba(90,67,0,0.5)) border-box;color:${VK.schwarz}}
+.mcs-karte.gold .mcs-text{color:#2A1F00}
+.mcs-knopf{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:54px;padding:0 26px;border:none;border-radius:999px;font:inherit;font-size:16px;font-weight:800;
+  letter-spacing:-0.01em;cursor:pointer;transition:transform .15s ease,filter .15s ease;text-align:center}
+.mcs-knopf.schwarz{background:${VK.schwarz};color:${VK.gold};box-shadow:0 14px 30px -14px rgba(11,12,16,0.8)}
+.mcs-knopf.gold{background:linear-gradient(150deg,#FFE9A0 0%,#F4CE4A 28%,#EDBB00 55%,#D9A520 78%,#B58612 100%);color:${VK.schwarz};box-shadow:0 14px 30px -14px rgba(237,187,0,0.9),inset 0 1px 0 rgba(255,255,255,0.6)}
+.mcs-knopf.rand{background:transparent;color:inherit;box-shadow:inset 0 0 0 1.5px currentColor}
+@media (hover:hover){.mcs-knopf:hover{transform:translateY(-1px);filter:brightness(1.06)}}
+.mcs-knopf:focus-visible{outline:3px solid ${VK.schwarz};outline-offset:3px}
+.mcs-dunkel .mcs-knopf:focus-visible{outline-color:${VK.gold}}
+.mcs-unter{display:block;margin-top:8px;font-size:12.5px;font-weight:600;color:${VK.still}}
+.mcs-dunkel .mcs-unter{color:rgba(255,255,255,0.6)}
+.mcs-knoepfe{display:flex;flex-wrap:wrap;gap:12px 16px;align-items:flex-start}
+/* Kopf */
+.mcs-kopf{position:relative;overflow:hidden;isolation:isolate;background:${VK.lack}}
+.mcs-kopf::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(118deg,rgba(255,255,255,0.55) 0%,transparent 40%),radial-gradient(60% 90% at 90% 110%,rgba(255,246,214,0.6),transparent 60%)}
+.mcs-kopf-innen{padding-top:clamp(40px,7vw,88px);padding-bottom:clamp(44px,7vw,92px);display:grid;gap:28px;align-items:center}
+@media (min-width:900px){.mcs-kopf-innen{grid-template-columns:minmax(0,1.35fr) minmax(0,0.65fr)}}
+.mcs-held{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 26px}
+.mcs-held span{display:inline-flex;align-items:center;min-height:34px;padding:0 14px;border-radius:999px;background:rgba(255,255,255,0.45);border:1px solid rgba(90,67,0,0.25);font-size:13.5px;font-weight:700;color:#2A1F00}
+.mcs-siegel{width:min(72vw,320px);justify-self:center}
+@media (max-width:899px){.mcs-siegel{display:none}}
+.mcs-vertrauen{background:${VK.schwarz};color:${VK.weiss}}
+.mcs-vertrauen ul{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 24px;padding:24px 0}
+@media (min-width:840px){.mcs-vertrauen ul{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.mcs-vertrauen b{display:block;font-size:15px;font-weight:800;color:${VK.gold}}
+.mcs-vertrauen span{display:block;margin-top:3px;font-size:12.5px;line-height:1.45;color:rgba(255,255,255,0.7)}
+/* Problem */
+.mcs-ebene{display:grid;grid-template-columns:44px 1fr;gap:14px;align-items:start}
+.mcs-ebene i{width:44px;height:44px;border-radius:999px;display:flex;align-items:center;justify-content:center;background:${VK.schwarz};color:${VK.gold};font-style:normal;font-weight:900;font-size:16px}
+.mcs-mythos{position:relative;display:inline-block;color:${VK.schwarz}}
+.mcs-mythos::after{content:"";position:absolute;left:-4%;right:-4%;top:52%;height:0.12em;border-radius:999px;background:${VK.rot};transform:rotate(-4deg);
+  clip-path:inset(0 100% 0 0);animation:mcsStreich 0.9s 0.6s cubic-bezier(.6,.1,.3,1) forwards}
+@keyframes mcsStreich{to{clip-path:inset(0 0 0 0)}}
+@media (prefers-reduced-motion:reduce){.mcs-mythos::after{animation:none;clip-path:none}.mcs-knopf{transition:none}}
+/* Mentor */
+.mcs-zahl{display:flex;align-items:baseline;gap:14px;margin-top:10px}
+.mcs-zahl b{font-size:clamp(46px,9vw,84px);font-weight:900;letter-spacing:-0.05em;line-height:1}
+.mcs-zahl .von{color:rgba(255,255,255,0.35);text-decoration:line-through;text-decoration-thickness:4px;text-decoration-color:${VK.rot}}
+.mcs-zahl .zu{color:${VK.gold}}
+/* Plan */
+.mcs-schritt{position:relative;padding-top:58px}
+.mcs-schritt .nr{position:absolute;top:18px;left:22px;font-size:13px;font-weight:900;letter-spacing:0.12em;color:#7A5C00}
+.mcs-schritt ul{margin-top:12px;display:grid;gap:8px}
+.mcs-schritt li,.mcs-haken li{display:grid;grid-template-columns:20px 1fr;gap:10px;font-size:14.5px;line-height:1.5;color:${VK.text}}
+.mcs-dunkel .mcs-haken li{color:${VK.hellText}}
+.mcs-haken{display:grid;gap:10px}
+/* Monate */
+.mcs-monate{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.mcs-monate button{min-height:56px;border-radius:14px;border:1.5px solid rgba(237,187,0,0.35);background:rgba(255,255,255,0.04);color:#fff;font:inherit;font-size:18px;font-weight:900;cursor:pointer;position:relative}
+.mcs-monate button[aria-pressed="true"]{background:${VK.gold};color:${VK.schwarz};border-color:${VK.gold}}
+.mcs-monate button i{position:absolute;top:6px;right:6px;width:8px;height:8px;transform:rotate(45deg);background:${VK.gold};border:1px solid ${VK.schwarz}}
+/* Vorher/Nachher */
+.mcs-vn{display:grid;grid-template-columns:1fr 1fr;border-radius:22px;overflow:hidden;border:1px solid ${VK.linie};background:${VK.papier}}
+.mcs-vn p{padding:14px 16px;font-size:14.5px;line-height:1.5;border-top:1px solid ${VK.linie}}
+.mcs-vn .k{border-top:none;font-size:12px;font-weight:800;letter-spacing:0.12em}
+.mcs-vn .n{border-left:1px solid ${VK.linie};font-weight:700;color:${VK.schwarz}}
+/* Wege */
+.mcs-weg{border-radius:22px;padding:24px}
+.mcs-weg.gut{background:${VK.lack};color:${VK.schwarz}}
+.mcs-weg.schlecht{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14)}
+/* Fragen */
+.mcs-frage{border-bottom:1px solid ${VK.linie}}
+.mcs-frage summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;gap:16px;padding:18px 0;font-size:16.5px;font-weight:800;letter-spacing:-0.01em}
+.mcs-frage summary::-webkit-details-marker{display:none}
+.mcs-frage summary::after{content:"+";flex:none;width:30px;height:30px;border-radius:999px;background:${VK.schwarz};color:${VK.gold};display:flex;align-items:center;justify-content:center;font-weight:900}
+.mcs-frage[open] summary::after{content:"−"}
+.mcs-frage p{padding:0 0 18px;font-size:15px;line-height:1.7;color:${VK.text};max-width:64ch}
+/* Leiste Handy */
+.mcs-leiste{position:fixed;left:0;right:0;bottom:0;z-index:60;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:rgba(11,12,16,0.94);backdrop-filter:blur(8px);
+  display:flex;gap:10px;align-items:center;transform:translateY(110%);transition:transform .25s ease}
+.mcs-leiste.an{transform:none}
+.mcs-leiste p{flex:1;min-width:0;font-size:13px;font-weight:700;color:#fff;line-height:1.3}
+.mcs-leiste .mcs-knopf{min-height:44px;padding:0 18px;font-size:14.5px}
+@media (min-width:840px){.mcs-leiste{display:none}}
+.mcs-hinweis{margin-top:14px;padding:12px 14px;border-radius:14px;background:rgba(237,187,0,0.14);border:1px solid rgba(237,187,0,0.45);font-size:14px;line-height:1.55;max-width:60ch}
+`;
+
+const HakenIcon = ({ dunkel }) => (
+  <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" style={{ marginTop: 1 }}><circle cx="10" cy="10" r="9" fill={VK.gold} /><path d="M6 10.2l2.6 2.6L14.2 7" stroke={dunkel ? VK.schwarz : VK.schwarz} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
+);
+const KreuzIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" style={{ marginTop: 1 }}><circle cx="10" cy="10" r="9" fill="rgba(255,255,255,0.12)" /><path d="M7 7l6 6M13 7l-6 6" stroke="#fff" strokeWidth="2" strokeLinecap="round" /></svg>
+);
+
+/* Siegel wie auf der Kachel der Masterclass (Lorbeer, Bänder, ABI) – hier als große Prägung */
+function SiegelGross() {
+  const blatt = (seite) => [0, 1, 2, 3, 4, 5].map((i) => {
+    const grad = seite < 0 ? 248 - i * 16 : 292 + i * 16;
+    const w = (grad * Math.PI) / 180, x = 84 + Math.cos(w) * 44, y = 56 - Math.sin(w) * 44;
+    return <ellipse key={`${seite}${i}`} cx={x.toFixed(1)} cy={y.toFixed(1)} rx="7.2" ry="3.2" transform={`rotate(${(-(grad + 90) + (seite < 0 ? -25 : 25)).toFixed(1)} ${x.toFixed(1)} ${y.toFixed(1)})`} fill="url(#mcs-p)" />;
+  });
+  return (
+    <svg className="mcs-siegel" viewBox="20 0 128 122" aria-hidden="true">
+      <defs><linearGradient id="mcs-p" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#2A1F00" /><stop offset="50%" stopColor="#8A6A00" /><stop offset="100%" stopColor="#2A1F00" /></linearGradient></defs>
+      <path d="M70 88 L60 118 L70 111 L77 119 L82 92 Z M98 88 L108 118 L98 111 L91 119 L86 92 Z" fill="url(#mcs-p)" />
+      {blatt(-1)}{blatt(1)}
+      <circle cx="84" cy="56" r="36" fill="rgba(255,255,255,0.32)" stroke="url(#mcs-p)" strokeWidth="3.4" />
+      <circle cx="84" cy="56" r="29" fill="none" stroke={VK.schwarz} strokeOpacity="0.55" strokeWidth="1.2" strokeDasharray="2 3" />
+      <text x="84" y="57" textAnchor="middle" fontSize="21" fontWeight="900" fill={VK.schwarz} fontFamily="Montserrat, sans-serif">ABI</text>
+      <path d="M66 70 C 74 70, 78 62, 84 64 S 94 72, 102 62" stroke="url(#mcs-p)" strokeWidth="2.6" fill="none" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+const PLAN = [
+  { nr: "Schritt 1", titel: "Standort und Plan", text: "Du sagst, wo du stehst und wann du schreibst. Daraus entsteht dein Weg bis zum Prüfungstag – rückwärts gerechnet, mit Probeabis und Generalprobe.",
+    punkte: ["Abi-Profil: Bundesland, Kurs, Prüfungsform, Termin", "Rückwärtsplan mit Phasen und Probeabis", "Jeden Tag ein klarer nächster Schritt"] },
+  { nr: "Schritt 2", titel: "Ein System, das trägt", text: "Pen & Paper als Fundament, die Themenblöcke Analysis, Geometrie und Stochastik – und durch alle Monate das Mindset-Training.",
+    punkte: ["Sauber aufschreiben: ein Schritt pro Zeile", "Jedes Abi-Thema verstehen, nicht auswendig lernen", "Routinen gegen Stress und Blackout"] },
+  { nr: "Schritt 3", titel: "Trainieren mit Feedback", text: "Aufgaben im Prüfungsformat, unter Zeit, mit Erwartungshorizont. Mia korrigiert dein Blatt nach BE – und sagt dir, wo die nächsten Punkte liegen.",
+    punkte: ["Abi-Aufgaben und Teil-A-Probe wie im Leistungsfach", "Mia: Korrektur, Aufgaben entschlüsseln, mündliche Prüfung", "Live-Calls und drei Intensivtage"] },
+];
+const FRAGEN = [
+  ["Was kostet die Masterclass?", "Preis und Starttermin stehen noch nicht fest. Vormerken ist unverbindlich – du erfährst als Erstes, wann es losgeht und was es kostet. Die Werkzeuge der Masterclass (Abi-Plan, Abi-Aufgaben, Teil-A-Probe, Mia, Lernpartner) kannst du schon jetzt kostenlos nutzen."],
+  ["Für welchen Kurs ist das – LK, GK, Basisfach?", "Für alle, die Mathe im Abi haben. Im Leistungsfach trainierst du die schriftliche Prüfung mit Teil A und Teil B, im Basisfach die mündliche Prüfung: Vortrag und Prüfungsgespräch – Mia simuliert beides."],
+  ["Gilt das auch außerhalb von Baden-Württemberg?", "Ausgearbeitet ist das Prüfungsformat für Baden-Württemberg. Die Aufgaben folgen dem IQB-Format, das alle Länder nutzen; deinen Termin und deinen Rechner trägst du selbst ein."],
+  ["Wie viel Zeit brauche ich pro Woche?", "Der Rhythmus ist bewusst klein: ein Live-Call, eine Trainingssession und zweimal 20 Minuten Pen & Paper pro Woche, dazu dein Tagesschritt im Abi-Plan. Dreimal im Programm kommt ein Intensivtag am Samstag dazu."],
+  ["Was macht Mia genau?", "Mia ist die Abi-Trainerin in der App. Sie korrigiert ein Foto deiner Lösung nach Erwartungshorizont (mit Folgefehlern und anderen Lösungswegen), zeigt bei einer fremden Aufgabe, was jeder Operator verlangt, und nimmt dich mündlich dran. Sie verrät Lösungen nur, wenn du ausdrücklich fragst."],
+  ["Ich bin eher schlecht in Mathe. Ist das trotzdem etwas für mich?", "Gerade dann. Die Masterclass setzt nicht auf Talent, sondern auf ein System. Wichtig ist nur eines: dass du sechs Monate dranbleibst."],
+];
+
+export function MasterclassSeite({ gehe }) {
   const [monat, setMonat] = useState(0);
   const [hinweis, setHinweis] = useState(false);
+  const [leiste, setLeiste] = useState(false);
+  const kopfRef = React.useRef(null), endeRef = React.useRef(null);
   const M = MONATE[monat];
+  const kontaktDa = !!(COACHING.termin || COACHING.mail);
+  React.useInsertionEffect(() => {
+    if (typeof document === "undefined" || document.getElementById("mcs-stil")) return;
+    const el = document.createElement("style"); el.id = "mcs-stil"; el.textContent = VK_CSS; document.head.appendChild(el);
+  }, []);
+  React.useEffect(() => {
+    if (typeof IntersectionObserver === "undefined") return undefined;
+    let kopf = true, ende = false;
+    const io = new IntersectionObserver((es) => { es.forEach((e) => { if (e.target === kopfRef.current) kopf = e.isIntersecting; if (e.target === endeRef.current) ende = e.isIntersecting; }); setLeiste(!kopf && !ende); }, { threshold: 0.05 });
+    if (kopfRef.current) io.observe(kopfRef.current); if (endeRef.current) io.observe(endeRef.current);
+    return () => io.disconnect();
+  }, []);
+  const vormerken = () => {
+    if (COACHING.termin) { window.open(COACHING.termin, "_blank", "noopener"); return; }
+    if (COACHING.mail) {
+      const betreff = encodeURIComponent("Mathe-Abi-Masterclass: Platz vormerken");
+      const text = encodeURIComponent("Hallo Basti,\n\nich möchte mir einen Platz in der Mathe-Abi-Masterclass vormerken.\n\nKlasse / Abi-Jahr:\nKurs (LK, GK, Basisfach):\n\nViele Grüße");
+      window.location.href = `mailto:${COACHING.mail}?subject=${betreff}&body=${text}`;
+      return;
+    }
+    setHinweis(true);
+  };
+  const frei = () => gehe && gehe({ ansicht: "abi" });
+  const Hinweis = () => (hinweis && !kontaktDa ? (
+    <p role="status" className="mcs-hinweis">Die Anmeldung öffnet in Kürze. Bis dahin nutzt du die Werkzeuge der Masterclass kostenlos – Abi-Plan, Abi-Aufgaben, Teil-A-Probe und Mia.</p>
+  ) : null);
+  const Knoepfe = ({ dunkel }) => (
+    <div>
+      <div className="mcs-knoepfe">
+        <span><button type="button" className={dunkel ? "mcs-knopf gold" : "mcs-knopf schwarz"} onClick={vormerken} data-mcs-vormerken>Platz vormerken</button><span className="mcs-unter">Unverbindlich · du erfährst als Erstes vom Start</span></span>
+        <span><button type="button" className="mcs-knopf rand" onClick={frei} data-mcs-frei>Kostenlos starten</button><span className="mcs-unter">Abi-Plan, Aufgaben und Mia – sofort</span></span>
+      </div>
+      <Hinweis />
+    </div>
+  );
 
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
-      {/* Versprechen */}
-      <H2>Sechs Monate, die dein Mathe-Abi verändern</H2>
-      <Absatz>
-        Die Mathe Abi Masterclass ist kein Nachhilfekurs. Sie ist ein Programm, in dem du lernst, in Mathe die beste Version
-        von dir zu werden: mit klarem Können, einer sauberen Arbeitsweise und einer Haltung, die dich auch in der Prüfung trägt.
-        Und das Beste daran – es macht richtig Freude.
-      </Absatz>
-
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8, margin: "4px 0 6px" }}>
-        {[["Können", "Jedes Abi-Thema verstehen und sicher rechnen", THEMA], ["Klarheit", "Pen & Paper: sauber, strukturiert, fehlerfest", PEN], ["Haltung", "Mindset, Fokus und Freude am Fach", MIND]].map(([t, s, f]) => (
-          <div key={t} style={{ ...karte, padding: "14px 12px", borderTop: `4px solid ${f}` }}>
-            <p style={{ fontSize: 15.5, fontWeight: 700, color: NAVY, marginBottom: 4 }}>{t}</p>
-            <p style={{ fontSize: 12.5, color: C.grau, fontWeight: 300, lineHeight: 1.45 }}>{s}</p>
+    <div className="mcs" data-masterclass-seite>
+      {/* ---------- 1 HELD: Identität · Wunsch · Einsatz ---------- */}
+      <header className="mcs-kopf" ref={kopfRef}>
+        <div className="mcs-innen mcs-kopf-innen">
+          <div>
+            <span className="mcs-eyebrow" style={{ color: VK.praeg }}>Mathe-Abi-Masterclass · Oberstufe</span>
+            <h1 className="mcs-h1">Ins Mathe-Abi mit einem Plan, der funktioniert.</h1>
+            <p className="mcs-lead" style={{ marginTop: 20, color: "#2A1F00" }}>
+              Du bist in der Oberstufe, das Abi rückt näher – und du willst nicht nur irgendwie bestehen. Du willst wissen, wie du an jede Aufgabe rangehst, und am Prüfungstag ruhig bleiben.
+            </p>
+            <div className="mcs-held" aria-label="Für wen">
+              <span>Leistungsfach, Grundkurs, Basisfach</span><span>Schriftlich und mündlich</span><span>Sechs Monate bis zum Abi-Finale</span>
+            </div>
+            <Knoepfe />
           </div>
-        ))}
-      </div>
-
-      <Trenner />
-
-      {/* Bausteine */}
-      <Kicker>Was dich erwartet</Kicker>
-      <H2>Vier Bausteine, ein Ziel</H2>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 10 }}>
-        {BAUSTEINE.map((b) => (
-          <div key={b.titel} style={{ ...karte, padding: 16, display: "flex", gap: 12 }}>
-            <span style={{ flexShrink: 0, width: 46, height: 46, borderRadius: 14, background: GOLD, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <BausteinIcon art={b.icon} />
-            </span>
-            <span style={{ minWidth: 0 }}>
-              <span style={{ display: "block", fontSize: 15.5, fontWeight: 700, color: C.tinte, lineHeight: 1.25 }}>{b.titel}</span>
-              <span style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#A67C00", marginTop: 2 }}>{b.kurz}</span>
-              <span style={{ display: "block", fontSize: 13.5, fontWeight: 300, color: C.grau, lineHeight: 1.55, marginTop: 6 }}>{b.text}</span>
-            </span>
-          </div>
-        ))}
-      </div>
-
-      <Trenner />
-
-      {/* Kurskonzept */}
-      <Kicker>Das Kurskonzept</Kicker>
-      <H2>Drei Stränge, die zusammenlaufen</H2>
-      <Absatz>
-        Pen & Paper ist das Fundament: Von Anfang an schreibst du jede Aufgabe so auf, dass du sie selbst verstehst und
-        Fehler sofort findest. Darauf bauen die Themenblöcke auf – Analysis, Vektoren, Stochastik. Und durch alle Monate zieht
-        sich das Mindset-Training. Am Ende laufen alle drei Stränge zusammen: in deinem Abi.
-      </Absatz>
-      <div style={{ ...karte, padding: "16px 14px 14px" }}>
-        <div className="mc-scroll" style={{ overflowX: "auto" }}>
-          <KonzeptGrafik />
+          <SiegelGross />
         </div>
-        <Legende />
+      </header>
+      <div className="mcs-vertrauen">
+        <div className="mcs-innen"><ul>
+          <li><b>Mathestudium</b><span>Universität Konstanz</span></li>
+          <li><b>Jahre als Mathecoach</b><span>Einzeln und in Gruppen, bis zum Abitur</span></li>
+          <li><b>Prüfungsformat 2027</b><span>Teil A und B, BE, Operatoren, Termine</span></li>
+          <li><b>Werkzeuge kostenlos</b><span>Abi-Plan, Aufgaben, Mia – ohne Anmeldung testen</span></li>
+        </ul></div>
       </div>
 
-      {/* Monat für Monat */}
-      <p style={{ fontSize: 13, fontWeight: 600, color: C.see, margin: "22px 0 10px" }}>Monat für Monat – tippe einen Monat an</p>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(6, minmax(0, 1fr))", gap: 6 }}>
-        {MONATE.map((x, i) => (
-          <button key={x.m} type="button" onClick={() => setMonat(i)}
-            style={{ height: 52, borderRadius: 12, cursor: "pointer", fontFamily: "inherit", padding: 0, position: "relative",
-              border: `1.5px solid ${monat === i ? NAVY : C.linie}`, background: monat === i ? NAVY : C.weiss,
-              color: monat === i ? MIND : C.tinte, fontSize: 17, fontWeight: 800 }}>
-            {x.m}
-            {x.intensiv && <span aria-hidden="true" style={{ position: "absolute", top: 5, right: 5, width: 8, height: 8, background: MIND, transform: "rotate(45deg)", border: `1px solid ${NAVY}` }} />}
-          </button>
-        ))}
-      </div>
-      <div key={monat} className="mc-neu" style={{ ...karte, padding: 18, marginTop: 10 }}>
-        <style>{`.mc-neu{animation:mcNeu .35s cubic-bezier(.2,.7,.3,1) both}@keyframes mcNeu{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}`}</style>
-        <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", color: C.hellgrau }}>MONAT {M.m}</p>
-        <p style={{ fontSize: 21, fontWeight: 700, color: NAVY, marginBottom: 12 }}>{M.titel}</p>
-        {[
-          [M.pen ? "Fundament" : "Themenblock", M.thema, M.pen ? PEN : THEMA],
-          ["Pen & Paper", M.pen ? "Die Methode im Detail – ab jetzt in jeder Aufgabe angewendet" : "Jede Aufgabe nach der Methode – 20-Minuten-Routinen zweimal pro Woche", PEN],
-          ["Mindset", M.mind, MIND],
-        ].map(([k, t, f]) => (
-          <div key={k} style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 10 }}>
-            <span style={{ flexShrink: 0, width: 6, alignSelf: "stretch", borderRadius: 3, background: f }} />
-            <span>
-              <span style={{ display: "block", fontSize: 12, fontWeight: 700, color: C.hellgrau, letterSpacing: "0.04em" }}>{k.toUpperCase()}</span>
-              <span style={{ display: "block", fontSize: 14.5, color: C.tinte, lineHeight: 1.55 }}>{t}</span>
-            </span>
+      {/* ---------- 2 PROBLEM: äußeres · inneres · Gegenspieler ---------- */}
+      <section className="mcs-sektion">
+        <div className="mcs-innen">
+          <span className="mcs-eyebrow">Kennst du das?</span>
+          <h2 className="mcs-h2">Drei Jahre Stoff, 300 Minuten Prüfung – und das Gefühl, dass es nicht reicht.</h2>
+          <span className="mcs-strich" />
+          <div className="mcs-raster drei">
+            <div className="mcs-karte mcs-ebene"><i>1</i><div><h3 className="mcs-h3">Die Lücken</h3><p className="mcs-text" style={{ marginTop: 6 }}>Ableitung, Vektoren, Binomialverteilung – irgendwo fehlt immer ein Stück. Teil A ohne Rechner, und der Stoff von vor zwei Jahren ist weg.</p></div></div>
+            <div className="mcs-karte mcs-ebene"><i>2</i><div><h3 className="mcs-h3">Das Gefühl</h3><p className="mcs-text" style={{ marginTop: 6 }}>„Ich bin halt kein Mathe-Typ.“ Vor jeder Klausur der gleiche Druck, in der Prüfung der Blackout – und zu Hause die Frage, warum es nicht klappt.</p></div></div>
+            <div className="mcs-karte mcs-ebene"><i>3</i><div><h3 className="mcs-h3">Der Gegenspieler</h3><p className="mcs-text" style={{ marginTop: 6 }}>Nicht Mathe ist das Problem, sondern ein Satz, den fast jeder glaubt: dass man dafür ein Talent braucht.</p></div></div>
           </div>
-        ))}
-        {M.intensiv && (
-          <div style={{ marginTop: 6, padding: "10px 12px", borderRadius: 12, background: GOLD, color: NAVY, fontSize: 14, fontWeight: 700, display: "flex", alignItems: "center", gap: 8 }}>
-            <BausteinIcon art="intensiv" /> {M.intensiv} – zwei Samstage zur Wahl
-          </div>
-        )}
-      </div>
-
-      <Trenner />
-
-      {/* Wochenrhythmus */}
-      <Kicker>Dein Wochenrhythmus</Kicker>
-      <H2>Klein, regelmäßig, wirksam</H2>
-      <Absatz>Große Veränderung entsteht aus kleinen Routinen. So könnte eine typische Woche aussehen:</Absatz>
-      <div style={{ ...karte, padding: "8px 16px" }}>
-        {WOCHE.map((w, i) => (
-          <div key={w.tag} style={{ display: "flex", alignItems: "center", gap: 14, padding: "10px 0", borderBottom: i < WOCHE.length - 1 ? `1px solid ${C.linie}` : "none" }}>
-            <span style={{ width: 30, fontSize: 14, fontWeight: 800, color: NAVY }}>{w.tag}</span>
-            <span style={{ width: 10, height: 10, borderRadius: 999, background: w.farbe, flexShrink: 0 }} />
-            <span style={{ fontSize: 14.5, color: C.tinte }}>{w.t}</span>
-          </div>
-        ))}
-      </div>
-
-      <Trenner />
-
-      {/* Intensivtage */}
-      <Kicker>Die Intensivtage</Kicker>
-      <H2>Sechs Stunden, die alles zusammenbringen</H2>
-      <Absatz>
-        Drei Mal im Programm kommt ihr einen ganzen Samstag zusammen. Jeder Intensivtag wird an zwei Terminen angeboten,
-        damit jeder dabei sein kann – du entscheidest, welcher Samstag besser passt.
-      </Absatz>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8, marginBottom: 12 }}>
-        {["Termin A", "Termin B"].map((t, i) => (
-          <div key={t} style={{ ...karte, padding: "12px 14px", border: `1.5px solid ${i === 0 ? MIND : C.linie}` }}>
-            <p style={{ fontSize: 12, fontWeight: 700, color: C.hellgrau, letterSpacing: "0.06em" }}>{t.toUpperCase()}</p>
-            <p style={{ fontSize: 15, fontWeight: 700, color: NAVY }}>Samstag</p>
-            <p style={{ fontSize: 13, color: C.grau, fontWeight: 300 }}>10:00 – 16:00 Uhr</p>
-          </div>
-        ))}
-      </div>
-      <div style={{ ...karte, padding: "14px 16px" }}>
-        {TAG.map((x, i) => (
-          <div key={x.z} style={{ display: "flex", gap: 14, position: "relative", paddingBottom: i < TAG.length - 1 ? 14 : 0 }}>
-            <span style={{ width: 46, flexShrink: 0, fontSize: 13.5, fontWeight: 700, color: NAVY, fontVariantNumeric: "tabular-nums" }}>{x.z}</span>
-            <span style={{ position: "relative", width: 12, flexShrink: 0 }}>
-              <span style={{ position: "absolute", top: 4, left: 1, width: 10, height: 10, borderRadius: 999, background: i === 2 ? C.linie : MIND, border: `2px solid ${NAVY}` }} />
-              {i < TAG.length - 1 && <span style={{ position: "absolute", top: 16, bottom: -4, left: 5, width: 2, background: C.linie }} />}
-            </span>
-            <span>
-              <span style={{ display: "block", fontSize: 14.5, fontWeight: 600, color: C.tinte }}>{x.t}</span>
-              <span style={{ display: "block", fontSize: 13, fontWeight: 300, color: C.grau }}>{x.s}</span>
-            </span>
-          </div>
-        ))}
-      </div>
-
-      <Trenner />
-
-      {/* Mindset */}
-      <Kicker>Mindset-Training</Kicker>
-      <H2>Mathe beginnt im Kopf</H2>
-      <Absatz>
-        Die meisten Schüler scheitern nicht an der Mathematik, sondern an Sätzen wie „Ich bin halt kein Mathe-Typ“.
-        Deshalb trainieren wir Haltung genauso konsequent wie Rechnen – mit kurzen, wirksamen Übungen.
-      </Absatz>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 8 }}>
-        {MINDSET.map((x, i) => (
-          <div key={x.t} style={{ ...karte, padding: "14px 16px", display: "flex", gap: 12 }}>
-            <span style={{ flexShrink: 0, width: 28, height: 28, borderRadius: 999, background: NAVY, color: MIND, fontSize: 13, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" }}>{i + 1}</span>
-            <span>
-              <span style={{ display: "block", fontSize: 15, fontWeight: 700, color: C.tinte }}>{x.t}</span>
-              <span style={{ display: "block", fontSize: 13.5, fontWeight: 300, color: C.grau, lineHeight: 1.55, marginTop: 3 }}>{x.s}</span>
-            </span>
-          </div>
-        ))}
-      </div>
-
-      <Trenner />
-
-      {/* Vorher / Nachher */}
-      <Kicker>Deine Verwandlung</Kicker>
-      <H2>Eine komplett andere Version von dir</H2>
-      <div style={{ ...karte, overflow: "hidden" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}>
-          <p style={{ padding: "10px 14px", fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", color: C.hellgrau, background: "#F4F6FA" }}>VORHER</p>
-          <p style={{ padding: "10px 14px", fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", color: NAVY, background: GOLD }}>NACHHER</p>
-          {[
-            ["„Ich bin halt kein Mathe-Typ.“", "„Ich weiß, wie ich an jede Aufgabe rangehe.“"],
-            ["Chaos auf dem Blatt, Fehler unauffindbar", "Saubere Rechenwege, Fehler sofort gefunden"],
-            ["Lernen auf den letzten Drücker", "Feste Routinen, entspannt vor der Klausur"],
-            ["Blackout in der Prüfung", "Ruhe, Plan und ein klarer Kopf"],
-            ["Mathe als Pflicht", "Mathe als Fach, das Spaß macht"],
-          ].map(([a, b], i) => (
-            <React.Fragment key={i}>
-              <p style={{ padding: "12px 14px", fontSize: 13.5, color: C.grau, fontWeight: 300, lineHeight: 1.5, borderTop: `1px solid ${C.linie}` }}>{a}</p>
-              <p style={{ padding: "12px 14px", fontSize: 13.5, color: C.tinte, fontWeight: 600, lineHeight: 1.5, borderTop: `1px solid ${C.linie}`, borderLeft: `1px solid ${C.linie}` }}>{b}</p>
-            </React.Fragment>
-          ))}
-        </div>
-      </div>
-
-      <Trenner />
-
-      {/* Für wen */}
-      <Kicker>Für wen</Kicker>
-      <H2>Für alle, die mehr wollen</H2>
-      <div style={{ ...karte, padding: "6px 16px" }}>
-        {[
-          "Du bist in der Oberstufe und hast Mathe im Abi – egal ob Basis- oder Leistungsfach.",
-          "Du willst nicht nur bestehen, sondern zeigen, was in dir steckt.",
-          "Du bist bereit, sechs Monate dranzubleiben – mit einer Gruppe, die dich mitzieht.",
-        ].map((t, i) => (
-          <div key={i} style={{ display: "flex", gap: 12, padding: "12px 0", borderBottom: i < 2 ? `1px solid ${C.linie}` : "none" }}>
-            <svg width="20" height="20" viewBox="0 0 20 20" style={{ flexShrink: 0, marginTop: 1 }} aria-hidden="true"><circle cx="10" cy="10" r="9" fill={MIND} /><path d="M6 10.2l2.6 2.6L14.2 7" stroke={NAVY} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
-            <span style={{ fontSize: 14.5, color: C.tinte, lineHeight: 1.55 }}>{t}</span>
-          </div>
-        ))}
-      </div>
-
-      {/* Abschluss */}
-      <div style={{ marginTop: 30, borderRadius: 22, padding: "24px 20px", background: `linear-gradient(155deg, ${C.see} 0%, ${NAVY} 100%)`, color: C.weiss, textAlign: "center" }}>
-        <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.12em", color: MIND }}>MATHE ABI MASTERCLASS</p>
-        <p style={{ fontSize: 22, fontWeight: 700, lineHeight: 1.3, margin: "8px 0 6px" }}>Bereit für deine beste Version?</p>
-        <p style={{ fontSize: 14, color: "#C9D6EE", fontWeight: 300, lineHeight: 1.6, marginBottom: 16 }}>
-          Die Plätze sind begrenzt, damit jeder persönlich betreut wird. Merk dich jetzt vor – du erfährst als Erstes, wann es losgeht.
-        </p>
-        <button type="button" onClick={() => setHinweis(true)} className="mc-kachel"
-          style={{ background: GOLD, color: NAVY, border: "none", borderRadius: 999, padding: "13px 26px", fontSize: 15.5, fontWeight: 800, fontFamily: "inherit", cursor: "pointer",
-            boxShadow: "0 6px 20px rgba(237,187,0,0.35)" }}>
-          Platz vormerken
-        </button>
-        {hinweis && (
-          <p style={{ fontSize: 13.5, color: MIND, marginTop: 12, lineHeight: 1.5 }}>
-            Die Anmeldung öffnet in Kürze – Termine und alle Details folgen hier.
+          <p className="mcs-h2" style={{ marginTop: 44, maxWidth: "none" }}>
+            <span className="mcs-mythos">Mathetalent</span> <span style={{ color: VK.praeg }}>ist ein Mythos.</span>
           </p>
-        )}
+          <p className="mcs-lead" style={{ marginTop: 12 }}>Wer Mathe kann, hat ein System: wie er aufschreibt, wie er übt, wie er mit Fehlern umgeht. Und ein System kann man lernen.</p>
+        </div>
+      </section>
+
+      {/* ---------- 3 MENTOR: Empathie · Autorität · Haltung ---------- */}
+      <section className="mcs-sektion mcs-dunkel">
+        <div className="mcs-innen mcs-raster zwei" style={{ alignItems: "center", gap: 40 }}>
+          <div>
+            <span className="mcs-eyebrow">Dein Mentor</span>
+            <h2 className="mcs-h2">Ich kenne das. Ich war selbst kein Überflieger.</h2>
+            <span className="mcs-strich" />
+            <p className="mcs-text">Ich bin Basti. In meinen ersten drei Jahren am Gymnasium stand in Mathe eine 2 – solide, aber nicht mehr. Ab Klasse 8 habe ich anders gelernt: sauber aufgeschrieben, mit System geübt, Fehler ernst genommen. Ab Klasse 10 stand da eine 1,0.</p>
+            <p className="mcs-text" style={{ marginTop: 14 }}>Heute studiere ich Mathematik an der Universität Konstanz und begleite seit Jahren Schüler bis zum Abitur. Aus der Frage, an welchen Stellschrauben es wirklich hängt, ist das Trainingssystem von Mythos Mathe entstanden – und daraus die Masterclass.</p>
+          </div>
+          <div className="mcs-karte">
+            <span className="mcs-eyebrow">Mathe am Gymnasium</span>
+            <div className="mcs-zahl"><b className="von">2</b><b className="zu">1,0</b></div>
+            <p className="mcs-text" style={{ marginTop: 16 }}>Kein Talent, das plötzlich aufgewacht ist – ein anderer Weg zu lernen.</p>
+            <ul className="mcs-haken" style={{ marginTop: 18 }}>
+              <li><HakenIcon /><span>Ich nehme dir das Rechnen nicht ab. Ich zeige dir, wie es geht.</span></li>
+              <li><HakenIcon /><span>Keine Abkürzungen, keine Notenversprechen – ein System und jemand, der dranbleibt.</span></li>
+              <li><HakenIcon /><span>Die Verantwortung bleibt bei dir. Das ist die gute Nachricht.</span></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* ---------- 4 LÖSUNG: Plan · Versprechen · Werkzeuge ---------- */}
+      <section className="mcs-sektion">
+        <div className="mcs-innen">
+          <span className="mcs-eyebrow">Der Plan</span>
+          <h2 className="mcs-h2">Drei Schritte bis zum Prüfungstag.</h2>
+          <span className="mcs-strich" />
+          <ol className="mcs-raster drei">
+            {PLAN.map((s) => (
+              <li key={s.nr} className="mcs-karte mcs-schritt">
+                <span className="nr">{s.nr.toUpperCase()}</span>
+                <h3 className="mcs-h3">{s.titel}</h3>
+                <p className="mcs-text" style={{ marginTop: 8 }}>{s.text}</p>
+                <ul>{s.punkte.map((x) => <li key={x}><HakenIcon /><span>{x}</span></li>)}</ul>
+              </li>
+            ))}
+          </ol>
+          <div className="mcs-karte" style={{ marginTop: 18 }}>
+            <div style={{ overflowX: "auto" }}><KonzeptGrafik /></div>
+            <Legende />
+          </div>
+        </div>
+      </section>
+
+      <section className="mcs-sektion" style={{ paddingTop: 0 }}>
+        <div className="mcs-innen">
+          <span className="mcs-eyebrow">Was du bekommst</span>
+          <h2 className="mcs-h2">Kostenlos anfangen. Mit der Masterclass durchziehen.</h2>
+          <span className="mcs-strich" />
+          <div className="mcs-raster zwei">
+            <div className="mcs-karte">
+              <span className="mcs-eyebrow">Sofort · kostenlos</span>
+              <h3 className="mcs-h3" style={{ fontSize: 22 }}>Die Werkzeuge der Masterclass</h3>
+              <p className="mcs-klein" style={{ marginTop: 6 }}>Für alle, die erst einmal selbst loslegen wollen.</p>
+              <ul className="mcs-haken" style={{ marginTop: 16 }}>
+                {["Abi-Profil, Countdown und Rückwärtsplan bis zum Prüfungstag", "Abi-Aufgaben im Prüfungsformat mit Erwartungshorizont", "Teil-A-Probe: zehn Aufgaben, sechs bearbeiten, 110 Minuten", "Mia: Korrektur, Aufgaben entschlüsseln, mündliche Prüfung", "Lernpartner aus deiner Stadt finden"].map((x) => <li key={x}><HakenIcon /><span>{x}</span></li>)}
+              </ul>
+              <button type="button" className="mcs-knopf rand" style={{ marginTop: 20 }} onClick={frei}>Kostenlos starten</button>
+            </div>
+            <div className="mcs-karte gold">
+              <span className="mcs-eyebrow" style={{ color: VK.praeg }}>Sechs Monate · begleitet</span>
+              <h3 className="mcs-h3" style={{ fontSize: 22 }}>Das Masterclass-Programm</h3>
+              <p className="mcs-text" style={{ marginTop: 6 }}>Für alle, die es nicht allein machen wollen – mit Gruppe, Coach und festen Terminen.</p>
+              <ul className="mcs-raster" style={{ marginTop: 16, gap: 12 }}>
+                {BAUSTEINE.map((b) => (
+                  <li key={b.titel} style={{ display: "grid", gridTemplateColumns: "44px 1fr", gap: 12, alignItems: "start" }}>
+                    <span style={{ width: 44, height: 44, borderRadius: 14, background: "rgba(255,255,255,0.55)", display: "flex", alignItems: "center", justifyContent: "center" }}><BausteinIcon art={b.icon} /></span>
+                    <span><b style={{ display: "block", fontSize: 15.5 }}>{b.titel}</b><span style={{ display: "block", fontSize: 13.5, lineHeight: 1.5, color: "#2A1F00", marginTop: 2 }}>{b.text}</span></span>
+                  </li>
+                ))}
+                <li style={{ display: "grid", gridTemplateColumns: "44px 1fr", gap: 12, alignItems: "start" }}>
+                  <span style={{ width: 44, height: 44, borderRadius: 14, background: "rgba(255,255,255,0.55)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, color: VK.schwarz }}>M</span>
+                  <span><b style={{ display: "block", fontSize: 15.5 }}>Alles aus der freien Masterclass</b><span style={{ display: "block", fontSize: 13.5, lineHeight: 1.5, color: "#2A1F00", marginTop: 2 }}>Abi-Plan, Abi-Aufgaben, Teil-A-Probe und Mia – plus Kursbereich mit Videolektionen und Aufträgen.</span></span>
+                </li>
+              </ul>
+              <button type="button" className="mcs-knopf schwarz" style={{ marginTop: 20 }} onClick={vormerken}>Platz vormerken</button>
+              <Hinweis />
+            </div>
+          </div>
+          <p className="mcs-klein" style={{ marginTop: 14 }}>Das Versprechen: Du testest alles Kostenlose ohne Anmeldung, bevor du dich entscheidest. Vormerken ist unverbindlich. Was das Programm kostet und wann es startet, steht hier, sobald es feststeht.</p>
+        </div>
+      </section>
+
+      <section className="mcs-sektion mcs-dunkel">
+        <div className="mcs-innen">
+          <span className="mcs-eyebrow">Monat für Monat</span>
+          <h2 className="mcs-h2">Sechs Monate, drei Stränge, ein Ziel.</h2>
+          <span className="mcs-strich" />
+          <div className="mcs-monate" role="group" aria-label="Monat wählen">
+            {MONATE.map((x, i) => <button key={x.m} type="button" aria-pressed={monat === i} onClick={() => setMonat(i)} aria-label={`Monat ${x.m}: ${x.titel}`}>{x.m}{x.intensiv && <i aria-hidden="true" />}</button>)}
+          </div>
+          <div className="mcs-karte" style={{ marginTop: 14 }} aria-live="polite">
+            <span className="mcs-eyebrow">Monat {M.m}</span>
+            <h3 className="mcs-h3" style={{ fontSize: 24, color: VK.gold }}>{M.titel}</h3>
+            <dl style={{ display: "grid", gap: 12, marginTop: 14 }}>
+              {[[M.pen ? "Fundament" : "Themenblock", M.thema], ["Pen & Paper", M.pen ? "Die Methode im Detail – ab jetzt in jeder Aufgabe" : "Jede Aufgabe nach der Methode – zweimal 20 Minuten pro Woche"], ["Mindset", M.mind]].map(([k, t]) => (
+                <div key={k} style={{ display: "grid", gridTemplateColumns: "minmax(0, 120px) 1fr", gap: 12 }}>
+                  <dt style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", paddingTop: 2 }}>{k}</dt>
+                  <dd className="mcs-text">{t}</dd>
+                </div>
+              ))}
+            </dl>
+            {M.intensiv && <p style={{ marginTop: 16, padding: "10px 14px", borderRadius: 12, background: VK.lack, color: VK.schwarz, fontWeight: 800, fontSize: 14 }}>{M.intensiv} – zwei Samstage zur Wahl</p>}
+          </div>
+          <div className="mcs-raster zwei" style={{ marginTop: 18 }}>
+            <div className="mcs-karte">
+              <span className="mcs-eyebrow">Ein Intensivtag</span>
+              <h3 className="mcs-h3">Samstag, 10 bis 16 Uhr</h3>
+              <ol style={{ marginTop: 14, display: "grid", gap: 10 }}>
+                {TAG.map((x) => (
+                  <li key={x.z} style={{ display: "grid", gridTemplateColumns: "54px 1fr", gap: 10 }}>
+                    <b style={{ color: VK.gold, fontVariantNumeric: "tabular-nums" }}>{x.z}</b>
+                    <span><span style={{ display: "block", fontWeight: 700 }}>{x.t}</span><span className="mcs-klein">{x.s}</span></span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+            <div className="mcs-karte">
+              <span className="mcs-eyebrow">Mindset-Training</span>
+              <h3 className="mcs-h3">Mathe beginnt im Kopf</h3>
+              <ul style={{ marginTop: 14, display: "grid", gap: 12 }}>
+                {MINDSET.map((x) => <li key={x.t}><b style={{ display: "block", fontSize: 15 }}>{x.t}</b><span className="mcs-klein">{x.s}</span></li>)}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="mcs-sektion">
+        <div className="mcs-innen mcs-raster zwei" style={{ gap: 32 }}>
+          <div>
+            <span className="mcs-eyebrow">Für wen</span>
+            <h2 className="mcs-h2" style={{ fontSize: "clamp(26px, 3.6vw, 36px)" }}>Passt zu dir, wenn …</h2>
+            <span className="mcs-strich" />
+            <ul className="mcs-haken">
+              {["du in der Oberstufe bist und Mathe im Abi hast – egal ob Leistungsfach, Grundkurs oder Basisfach,", "du nicht nur bestehen, sondern zeigen willst, was in dir steckt,", "du bereit bist, sechs Monate dranzubleiben – mit einer Gruppe, die dich mitzieht."].map((x) => <li key={x}><HakenIcon /><span>{x}</span></li>)}
+            </ul>
+          </div>
+          <div>
+            <span className="mcs-eyebrow">Ehrlich gesagt</span>
+            <h2 className="mcs-h2" style={{ fontSize: "clamp(26px, 3.6vw, 36px)" }}>Nichts für dich, wenn …</h2>
+            <span className="mcs-strich" />
+            <ul className="mcs-haken">
+              {["du jemanden suchst, der deine Hausaufgaben löst,", "du eine Abkürzung ohne eigenes Üben erwartest,", "du in zwei Wochen von 4 auf 1 willst."].map((x) => <li key={x} style={{ gridTemplateColumns: "20px 1fr" }}><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" style={{ marginTop: 1 }}><circle cx="10" cy="10" r="9" fill={VK.schwarz} /><path d="M7 7l6 6M13 7l-6 6" stroke={VK.gold} strokeWidth="2" strokeLinecap="round" /></svg><span>{x}</span></li>)}
+            </ul>
+          </div>
+        </div>
+        <div className="mcs-innen" style={{ marginTop: 48 }}>
+          <span className="mcs-eyebrow">Deine Verwandlung</span>
+          <h2 className="mcs-h2">Vorher und nachher.</h2>
+          <span className="mcs-strich" />
+          <div className="mcs-vn">
+            <p className="k" style={{ background: "#F1ECDD", color: VK.still }}>VORHER</p>
+            <p className="k n" style={{ background: VK.lack, color: VK.schwarz }}>NACHHER</p>
+            {[["„Ich bin halt kein Mathe-Typ.“", "„Ich weiß, wie ich an jede Aufgabe rangehe.“"], ["Chaos auf dem Blatt, Fehler unauffindbar", "Saubere Rechenwege, Fehler sofort gefunden"], ["Lernen auf den letzten Drücker", "Ein Plan bis zum Prüfungstag, jeden Tag ein Schritt"], ["Teil A ohne Rechner macht Angst", "Die Pflichttypen sitzen – in drei Minuten je BE"], ["Blackout in der Prüfung", "Ruhe, Zeitplan und ein klarer Kopf"]].map(([a, b], i) => (
+              <React.Fragment key={i}><p style={{ color: VK.still }}>{a}</p><p className="n">{b}</p></React.Fragment>
+            ))}
+          </div>
+          <div style={{ marginTop: 32 }}><Knoepfe /></div>
+        </div>
+      </section>
+
+      {/* ---------- 5 REISE: Handlung · Erfolg · Scheitern ---------- */}
+      <section className="mcs-sektion mcs-dunkel">
+        <div className="mcs-innen">
+          <span className="mcs-eyebrow">Zwei Wege</span>
+          <h2 className="mcs-h2">In sechs Monaten schreibst du Mathe-Abi. So oder so.</h2>
+          <span className="mcs-strich" />
+          <div className="mcs-raster zwei">
+            <div className="mcs-weg schlecht">
+              <h3 className="mcs-h3">Du machst weiter wie bisher</h3>
+              <ul className="mcs-haken" style={{ marginTop: 14 }}>
+                {["Die Lücken wachsen still mit jedem neuen Thema.", "Gelernt wird kurz vor der Klausur – und schnell wieder vergessen.", "Am Prüfungstag entscheidet das Gefühl, nicht der Plan."].map((x) => <li key={x}><KreuzIcon /><span>{x}</span></li>)}
+              </ul>
+            </div>
+            <div className="mcs-weg gut">
+              <h3 className="mcs-h3">Du gehst den Weg mit System</h3>
+              <ul className="mcs-haken" style={{ marginTop: 14 }}>
+                {["Du weißt jeden Tag, was dran ist – und warum.", "Jede Aufgabe steht sauber auf dem Blatt, Fehler findest du selbst.", "Du gehst in die Prüfung und denkst: Das kenne ich."].map((x) => <li key={x} style={{ color: VK.schwarz }}><HakenIcon /><span>{x}</span></li>)}
+              </ul>
+            </div>
+          </div>
+          <h3 className="mcs-h3" style={{ marginTop: 56, fontSize: 24 }}>So geht es los</h3>
+          <ol className="mcs-raster drei" style={{ marginTop: 16 }}>
+            {[["1", "Kostenlos starten", "Leg dein Abi-Profil an, rechne die erste Abi-Aufgabe, lass Mia drüberschauen."], ["2", "Platz vormerken", "Unverbindlich. Du erfährst als Erstes, wann das Programm startet und was es kostet."], ["3", "Gemeinsam loslegen", "Start mit der Standortbestimmung – danach jede Woche Live-Call, Training und dein Plan."]].map(([n, t, x]) => (
+              <li key={n} className="mcs-karte"><b style={{ display: "block", fontSize: 34, fontWeight: 900, color: VK.gold, lineHeight: 1 }}>{n}</b><h4 className="mcs-h3" style={{ marginTop: 10 }}>{t}</h4><p className="mcs-text" style={{ marginTop: 6 }}>{x}</p></li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <section className="mcs-sektion">
+        <div className="mcs-innen mcs-schmal">
+          <span className="mcs-eyebrow">Fragen</span>
+          <h2 className="mcs-h2">Was du wissen willst.</h2>
+          <span className="mcs-strich" />
+          <div>
+            {FRAGEN.map(([f, a]) => <details key={f} className="mcs-frage"><summary>{f}</summary><p>{a}</p></details>)}
+          </div>
+        </div>
+      </section>
+
+      <section className="mcs-innen" ref={endeRef}>
+        <div className="mcs-karte gold" style={{ padding: "clamp(28px, 5vw, 56px)", textAlign: "left" }} id="mcs-abschluss">
+          <span className="mcs-eyebrow" style={{ color: VK.praeg }}>Mathe-Abi-Masterclass</span>
+          <h2 className="mcs-h2">Mathetalent ist ein Mythos. Dein Abi ist es nicht.</h2>
+          <p className="mcs-lead" style={{ marginTop: 14, color: "#2A1F00" }}>System + Freude = Erfolg. Fang heute an – mit dem ersten Schritt, nicht mit dem perfekten Plan.</p>
+          <div style={{ marginTop: 24 }}><Knoepfe /></div>
+        </div>
+      </section>
+
+      <div className={leiste ? "mcs-leiste an" : "mcs-leiste"} aria-hidden={!leiste}>
+        <p>Mathe-Abi-Masterclass</p>
+        <button type="button" className="mcs-knopf gold" onClick={vormerken} tabIndex={leiste ? 0 : -1}>Platz vormerken</button>
       </div>
     </div>
   );
