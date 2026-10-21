@@ -34,6 +34,7 @@ IT = (".it-weg", ".it-bild")
 INT_MENUE = "document.querySelector('[aria-label=\"Welche Aufgabe möchtest du üben?\"]').click()"
 FAELLE = [
     ("ableiten", "/ableitungstrainer", [], (".abl-spalte-l", ".abl-spalte-r"), None),
+    ("ableiten-regel", "/ableitungstrainer", ["document.querySelector('.abl-wechsel').click()"], (".abl-spalte-l", ".abl-spalte-r"), None),
     ("hauptsatz-stamm", "/stammfunktion", [], AF, None),
     ("hauptsatz-integral", "/stammfunktion", ["document.querySelectorAll('.si-bereich button')[1].click()"], AF, "[data-si-integral] svg[role=img]"),
     # Integraltrainer (funcIntegralTrainer.jsx): Rechenweg links, Schaubild rechts – eigene Klassen statt data-trainer-raster

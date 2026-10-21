@@ -21,7 +21,7 @@ import {
   LiveFormel, Tastenfeld, ableitung, alsTex, hatBox, kompiliere, ohnePar, parse, zufallsFunktion,
 } from "./func12.jsx";
 import { IchHaengeFest, ableitRegeln, aussenTex, summanden } from "./funcHilfe.jsx";
-import { Eingabe, EingabePopup, POP_CSS, PopupWahl, RegelWerkstatt } from "./funcRegelwerk.jsx";
+import { Eingabe, EingabePopup, POP_CSS, PopupWahl, REGEL_CHIPS, RegelWerkstatt } from "./funcRegelwerk.jsx";
 
 import { springe } from "./sprung.js";
 /* Kontext für „Ich hänge fest“: Hinweise aus dem Term, der gerade abgeleitet wird */
@@ -260,13 +260,18 @@ export function Ableitungstrainer() {
         .abl-chip{flex:0 0 auto;scroll-snap-align:start;height:46px;padding:0 18px;border-radius:999px;font-family:inherit;font-size:15.5px;font-weight:600;cursor:pointer;white-space:nowrap;border:1.5px solid ${C.linie};background:#fff;color:${C.see}}
         .abl-chip[aria-pressed="true"]{background:${C.see};border-color:${C.see};color:#fff}
         .abl-karte{background:transparent}
+        .abl-wechsel{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:2px 0 14px;padding:10px 16px;min-height:52px;border-radius:14px;border:1.5px solid ${C.see};background:#fff;color:${C.see};font-family:inherit;cursor:pointer;text-align:left}
+        .abl-wechsel b{display:block;font-size:15px;font-weight:700;line-height:1.25}
+        .abl-wechsel small{display:block;font-size:12px;font-weight:500;color:${C.grau};line-height:1.3;margin-top:2px}
+        .abl-wechsel>span[aria-hidden]{font-size:20px;font-weight:700;flex-shrink:0}
+        .abl-wechsel.zurueck{justify-content:flex-start;border-color:${C.linie}}
         .abl-kopf{display:grid;grid-template-columns:1fr;gap:8px;align-items:stretch;margin-bottom:14px}
         .abl-links{display:flex;flex-direction:column;gap:8px;min-width:0}
         .abl-reihe{display:flex;gap:8px;align-items:stretch;flex:1;min-height:42px}
         .abl-seg{display:flex;padding:3px;border-radius:999px;background:#EEF2F8;gap:2px;flex:1;min-height:42px}
         .abl-seg button{flex:1;min-width:0;border-radius:999px;border:none;font-family:inherit;font-size:13.5px;font-weight:700;cursor:pointer;background:transparent;color:${C.grau};white-space:nowrap;padding:0 6px}
         .abl-seg button[aria-pressed="true"]{background:#fff;color:${C.see};box-shadow:0 1px 6px rgba(15,26,51,0.12)}
-        .abl-stufe{flex:1;min-width:0;display:flex}
+        .abl-stufe,.abl-reihe .wk-pop.abl-stufe{flex:1;min-width:0;display:flex}
         .abl-stufe .wk-pop-knopf{flex:1;min-width:0;height:auto;min-height:42px;justify-content:space-between;padding:0 12px 0 14px;font-size:14.5px}
         .abl-stufe.aus{opacity:.4;pointer-events:none}
         .abl-wuerfel{width:46px;flex-shrink:0;padding:0;border-radius:999px;border:none;cursor:pointer;background:${C.flaggold};font-size:22px;line-height:1;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(15,26,51,0.14)}
@@ -290,6 +295,7 @@ export function Ableitungstrainer() {
           .abl-chipwrap{margin:0}
           .abl-chips{flex-direction:column;flex-wrap:nowrap;gap:6px}
           .abl-chip{width:100%;height:40px;text-align:left;font-size:14px;padding:0 14px;border-radius:12px}
+          .abl-wechsel{margin:12px 0 0}
           .abl-karte{border:1px solid ${C.linie};box-shadow:none;padding:20px 22px}
         }`}</style>
       <div className="abl-innen">
@@ -328,6 +334,24 @@ export function Ableitungstrainer() {
             ))}
           </div>
         </div>
+        <button type="button" className="abl-wechsel" onClick={() => { setBereich("werkstatt"); nachOben(); }}>
+          <span><b>Regelwerkstatt</b><small>Produkt-, Quotienten-, Kettenregel · Gold Level</small></span><span aria-hidden="true">→</span>
+        </button>
+        </>}
+        {/* Regelwerkstatt: Regel wählen, zurück zu den Funktionsarten */}
+        {bereich === "werkstatt" && <>
+        <p className="abl-nur-desk" style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: C.grau, margin: "0 2px 8px" }}>Regelwerkstatt</p>
+        <div className="abl-chipwrap">
+          <div className="abl-chips" role="group" aria-label="Welche Regel möchtest du üben?">
+            {REGEL_CHIPS.map(([id, name]) => (
+              <button key={id} type="button" className="abl-chip" aria-pressed={werkRegel === id}
+                onClick={() => festhalten(() => { setWerkRegel(id); if (id !== "gold" && werkStufe > 3) setWerkStufe(3); })}>{name}</button>
+            ))}
+          </div>
+        </div>
+        <button type="button" className="abl-wechsel zurueck" onClick={() => { setBereich("trainer"); nachOben(); }}>
+          <span aria-hidden="true">←</span><span><b>Zurück zu den Funktionsarten</b></span>
+        </button>
         </>}
         </div>
         <div className="abl-spalte-r">
