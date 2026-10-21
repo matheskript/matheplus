@@ -83,10 +83,10 @@ with sync_playwright() as p:
                             k.first.click(); page.wait_for_timeout(700)
                             if pille.count(): break
                 if not pille.count() and wz == "geradengleichung":
-                    k = page.get_by_role("button", name="Zwei Punkte")
+                    k = page.locator("[data-ger-tab=pq]")
                     if k.count(): k.first.click(); page.wait_for_timeout(600)
                 if not pille.count() and wz == "sinus":
-                    k = page.get_by_role("button", name=re.compile(r"^(Aufgabe lösen|Solve task|Solve a task)$"))
+                    k = page.get_by_role("button", name=re.compile(r"^(Trainieren|Aufgabe lösen|Train|Solve task|Solve a task)$"))
                     if k.count(): k.first.click(); page.wait_for_timeout(600)
                 if not pille.count() and wz.startswith("gleichungen-lernen"):
                     k = page.get_by_role("button", name=re.compile(r"(Runde|round)", re.I))

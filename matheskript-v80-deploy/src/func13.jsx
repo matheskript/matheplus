@@ -24,6 +24,8 @@ import { IchHaengeFest, ableitRegeln, aussenTex, summanden } from "./funcHilfe.j
 import { Eingabe, EingabePopup, POP_CSS, PopupWahl, REGEL_CHIPS, RegelWerkstatt } from "./funcRegelwerk.jsx";
 
 import { springe } from "./sprung.js";
+import { EinstellungsPille } from "./ui3.jsx";
+import { DESKTOP, useMedien } from "./arbeitsflaeche.jsx";
 /* Kontext für „Ich hänge fest“: Hinweise aus dem Term, der gerade abgeleitet wird */
 const NAME_F = ["f", "f′", "f″", "f‴"];
 function ableitHilfe(kette, aktiv) {
@@ -144,6 +146,7 @@ function Zeile({ stufe, aktiv, eintrag, onKlick, pos, setPos }) {
 const leer = () => ({ text: "", status: null, hinweis: "", versuche: 0 });
 
 export function Ableitungstrainer() {
+  const desk = useMedien(DESKTOP);   // ab 840 px: Einstellungen als Spalte; darunter Einstellungs-Pille („Aufgabe zuerst“)
   // Übergabe aus einem anderen Werkzeug (z. B. Kurvendiskussion, Steckbrief): diese Funktion selbst ableiten
   const [mit] = useState(() => { const u = uebergabeLesen("ableitungstrainer"); return u && u.text && parse(u.text) ? u.text : null; });
   React.useEffect(() => { uebergabeErledigt("ableitungstrainer"); }, []);
@@ -301,6 +304,62 @@ export function Ableitungstrainer() {
       <div className="abl-innen">
        <div className="abl-raster">
         <div className="abl-spalte-l">
+        {/* Handy (unter 840 px, „Aufgabe zuerst“ 21.10.): nur der Modus und eine Einstellungs-Pille (Funktionsart · Stufe, Würfel rechts)
+            stehen vor der Aufgabe; Stufe, Funktionsarten und Regelwerkstatt liegen im aufklappbaren Feld. Desktop: Spalte wie bisher. */}
+        {!desk ? (
+          <>
+            <div className="abl-kopf" style={{ marginBottom: 0 }}><div className="abl-links">
+            <div className="abl-seg" role="group" aria-label="Modus">
+              {[["auto", "Rechnen"], ["training", "Trainieren"]].map(([id, name]) => {
+                const aktuell = bereich === "werkstatt" ? werkModus : polyModus;
+                return <button key={id} type="button" aria-pressed={aktuell === id}
+                  onClick={() => festhalten(() => (bereich === "werkstatt" ? setWerkModus(id) : setPolyModus(id)))}>{name}</button>;
+              })}
+            </div>
+            </div></div>
+            <EinstellungsPille kennung={`ableitungstrainer-${bereich}`}
+              teile={bereich === "werkstatt"
+                ? [["Regel", (REGEL_CHIPS.find(([id]) => id === werkRegel) || ["", ""])[1]], ["Stufe", String(werkStufe)]]
+                : [["Funktionsart", (arten.find((a) => a.an) || { name: "–" }).name], quelle === "typ" ? ["Stufe", String(stufeTyp)] : null]}
+              rechts={<button type="button" className="abl-wuerfel" onClick={() => festhalten(() => (bereich === "werkstatt" ? setWurf((w) => w + 1) : neueFunktion()))}
+                aria-label="Neue Aufgabe würfeln" title="Neue Aufgabe"><span aria-hidden="true">🎲</span></button>}>
+              <div className="abl-reihe" style={{ marginBottom: 10 }}>
+                {bereich === "werkstatt" ? (
+                  <PopupWahl className="abl-stufe" wert={werkStufe} label="Stufe wählen" optionen={(werkRegel === "gold" ? [1, 2, 3, 4, 5] : [1, 2, 3]).map((st) => ({ id: st, name: `Stufe ${st}` }))}
+                    kopf={(o) => (o ? o.name : "Stufe")} onWaehle={(st) => festhalten(() => setWerkStufe(st))} />
+                ) : (
+                  <PopupWahl className={`abl-stufe${quelle === "typ" ? "" : " aus"}`} wert={stufeTyp} label="Stufe wählen" optionen={[1, 2, 3, 4, 5].map((st) => ({ id: st, name: `Stufe ${st}` }))}
+                    kopf={(o) => (o ? o.name : "Stufe")} onWaehle={(st) => festhalten(() => { setStufeTyp(st); neueAufgabe(typ, st); })} />
+                )}
+              </div>
+              {bereich === "trainer" && <>
+                <div className="abl-chipwrap" style={{ margin: 0 }}>
+                  <div className="abl-chips" role="group" aria-label="Welche Funktionen möchtest du ableiten?" style={{ flexWrap: "wrap" }}>
+                    {arten.map((a) => (
+                      <button key={a.id} type="button" className="abl-chip" aria-pressed={a.an} onClick={() => festhalten(a.los)}>{a.name}</button>
+                    ))}
+                  </div>
+                </div>
+                <button type="button" className="abl-wechsel" onClick={() => { setBereich("werkstatt"); nachOben(); }}>
+                  <span><b>Regelwerkstatt</b><small>Produkt-, Quotienten-, Kettenregel · Stufe 3</small></span><span aria-hidden="true">→</span>
+                </button>
+              </>}
+              {bereich === "werkstatt" && <>
+                <div className="abl-chipwrap" style={{ margin: 0 }}>
+                  <div className="abl-chips" role="group" aria-label="Welche Regel möchtest du üben?" style={{ flexWrap: "wrap" }}>
+                    {REGEL_CHIPS.map(([id, name]) => (
+                      <button key={id} type="button" className="abl-chip" aria-pressed={werkRegel === id}
+                        onClick={() => festhalten(() => { setWerkRegel(id); if (id !== "gold" && werkStufe > 3) setWerkStufe(3); })}>{name}</button>
+                    ))}
+                  </div>
+                </div>
+                <button type="button" className="abl-wechsel zurueck" onClick={() => { setBereich("trainer"); nachOben(); }}>
+                  <span aria-hidden="true">←</span><span><b>Zurück zu den Funktionsarten</b></span>
+                </button>
+              </>}
+            </EinstellungsPille>
+          </>
+        ) : (<>
         {/* Kopf: links Automatik/Training sowie Stufe und Würfel, darunter die Funktionsarten (der Knopf „Ableiten üben“ ist am 21.10. entfallen) */}
         <div className="abl-kopf" style={bereich === "werkstatt" ? { marginBottom: 7 } : undefined}>
           <div className="abl-links">
@@ -353,6 +412,7 @@ export function Ableitungstrainer() {
           <span aria-hidden="true">←</span><span><b>Zurück zu den Funktionsarten</b></span>
         </button>
         </>}
+        </>)}
         </div>
         <div className="abl-spalte-r">
         {bereich === "werkstatt" && <RegelWerkstatt regel={werkRegel} stufe={werkStufe} modus={werkModus} wurf={wurf} ohneKopf />}

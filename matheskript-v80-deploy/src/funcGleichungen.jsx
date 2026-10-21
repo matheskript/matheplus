@@ -6,6 +6,7 @@ import { API_URL } from "./base1.jsx";
 import { kiKopf, kiAntwort } from "./base4.jsx";
 import { dekodieren, rendern } from "./func1.jsx";
 import * as G from "./gleichungen/engine.js";
+import { EinstellungsPille } from "./ui3.jsx";
 
 /* Stufenskala wie überall: Stufe 1 = Einstieg, 2 = wie im Unterricht, 3 = Klausur. Die Engine hat fünf Stufen (1–5). */
 const STUFEN_ANZEIGE = [{ id: 1, name: "Stufe 1" }, { id: 3, name: "Stufe 2" }, { id: 5, name: "Stufe 3" }];
@@ -503,8 +504,8 @@ Steht keine Gleichung auf dem Foto, antworte {"aufgaben":[]}.`;
   const artWahl = (
     <>
       {/* Auswahl: Art und Stufe */}
-      <div className="gl-scroll gl-auswahl" style={{ margin: "0 -24px", padding: "0 24px 4px" }}>
-        <div className="flex" style={{ gap: 8, width: "max-content" }}>
+      <div className="gl-auswahl" style={{ padding: "0 0 4px" }}>
+        <div className="flex" style={{ gap: 8, flexWrap: "wrap" }}>
           {G.ARTEN.map((a) => <Pille key={a.id} aktiv={art === a.id} onClick={() => artWaehlen(a.id)}>{a.name}</Pille>)}
           <Pille aktiv={art === "eigen"} onClick={() => artWaehlen("eigen")}>Eigene Gleichung</Pille>
         </div>
@@ -911,8 +912,13 @@ Steht keine Gleichung auf dem Foto, antworte {"aufgaben":[]}.`;
       <style>{GL_CSS}</style>
 
       {einleitung}
-      {artWahl}
-      {stufeOderEigen}
+      {/* Handy („Aufgabe zuerst“, 21.10.): Gleichungsart und Stufe hinter einer Einstellungs-Pille, „Neue Gleichung“ rechts daneben */}
+      <EinstellungsPille kennung="gleichungen"
+        teile={[["Gleichungsart", art === "eigen" ? "Eigene Gleichung" : (G.ARTEN.find((a) => a.id === art) || G.ARTEN[0]).name], art !== "eigen" ? ["Stufe", String(STUFEN_ANZEIGE.findIndex((x) => x.id === stufeNaechste(stufe)) + 1)] : null]}>
+
+        {artWahl}
+        {stufeOderEigen}
+      </EinstellungsPille>
       {heftKarte}
       {musterKarte}
 

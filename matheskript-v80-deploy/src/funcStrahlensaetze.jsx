@@ -436,18 +436,22 @@ const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Trainiere
 
 export function Strahlensaetze() {
   const [modus, setModus] = useState(() => startModus("strahlensaetze"));
+  const kurzErklaert = (
+      <Aufklapp titel={zw("Kurz erklärt", "In short")}>
+          <p style={{ margin: "0 0 6px" }}>{zw("Werden zwei Strahlen mit gemeinsamem Anfangspunkt S von zwei Parallelen geschnitten, gilt:", "If two rays with common starting point S are cut by two parallel lines:")}</p>
+          <p style={{ margin: "0 0 6px" }}><b>{zw("1. Strahlensatz", "1st theorem")}</b> <M t={`\\frac{${ob(SA2)}}{${ob("SA")}} = \\frac{${ob(SB2)}}{${ob("SB")}}`} /></p>
+          <p style={{ margin: "0 0 6px" }}><b>{zw("2. Strahlensatz", "2nd theorem")}</b> <M t={`\\frac{${ob(A2B2)}}{${ob("AB")}} = \\frac{${ob(SA2)}}{${ob("SA")}}`} /></p>
+          <p style={{ margin: 0 }}>{zw("Beides gilt auch für die X-Figur (Geraden kreuzen sich in S). Beim 2. Strahlensatz nur Strecken verwenden, die in S beginnen.", "Both also hold for the X figure (lines cross at S). In the 2nd theorem only use segments that start at S.")}</p>
+        </Aufklapp>
+  );
   return (
     <Seite titel={zw("Strahlensätze", "Intercept theorems")}
-      text={zw("Zwei Strahlen, zwei Parallelen, ein Streckfaktor: Wer die Verhältnisse richtig aufstellt, berechnet jede fehlende Länge – auch Baumhöhen aus Schatten.", "Two rays, two parallels, one scale factor: set up the ratios correctly and you can find any missing length – even tree heights from shadows.")}>
+      text={zw("Zwei Strahlen, zwei Parallelen, ein Streckfaktor: Wer die Verhältnisse richtig aufstellt, berechnet jede fehlende Länge – auch Baumhöhen aus Schatten.", "Two rays, two parallels, one scale factor: set up the ratios correctly and you can find any missing length – even tree heights from shadows.")} knapp={modus === "ueben"}>
       <ModusLeiste modi={MODI} modus={modus} setModus={setModus} label={zw("Strahlensätze", "Intercept theorems")} />
-      <Aufklapp titel={zw("Kurz erklärt", "In short")}>
-        <p style={{ margin: "0 0 6px" }}>{zw("Werden zwei Strahlen mit gemeinsamem Anfangspunkt S von zwei Parallelen geschnitten, gilt:", "If two rays with common starting point S are cut by two parallel lines:")}</p>
-        <p style={{ margin: "0 0 6px" }}><b>{zw("1. Strahlensatz", "1st theorem")}</b> <M t={`\\frac{${ob(SA2)}}{${ob("SA")}} = \\frac{${ob(SB2)}}{${ob("SB")}}`} /></p>
-        <p style={{ margin: "0 0 6px" }}><b>{zw("2. Strahlensatz", "2nd theorem")}</b> <M t={`\\frac{${ob(A2B2)}}{${ob("AB")}} = \\frac{${ob(SA2)}}{${ob("SA")}}`} /></p>
-        <p style={{ margin: 0 }}>{zw("Beides gilt auch für die X-Figur (Geraden kreuzen sich in S). Beim 2. Strahlensatz nur Strecken verwenden, die in S beginnen.", "Both also hold for the X figure (lines cross at S). In the 2nd theorem only use segments that start at S.")}</p>
-      </Aufklapp>
+      {modus === "entdecken" && kurzErklaert}
       <div style={{ display: modus === "entdecken" ? "block" : "none" }}><Entdecken /></div>
       <div style={{ display: modus === "ueben" ? "block" : "none" }}><Ueben /></div>
+      {modus === "ueben" && kurzErklaert}
     </Seite>
   );
 }

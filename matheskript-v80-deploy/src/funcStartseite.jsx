@@ -468,6 +468,11 @@ html[data-start-edition="ger"] .app-wurzel { background: #FFFFFF !important; }
 /* Wiederverwendete Kacheln (Kurse, Plan, Spenden …) laufen in ihrer eigenen Datei um 16 px über den Rand; hier füllen sie genau die Spalte */
 .sbb-wieder > [style*="calc(100% + 32px)"], .sbb-wieder > div > [style*="calc(100% + 32px)"] { width: 100% !important; margin-left: 0 !important; margin-right: 0 !important; }
 .sbb-wieder > * { margin-top: 14px !important; }
+@media (max-width: 839px) {
+  .sbb-kurse-leiste { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px 16px 14px; margin: 0 -16px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .sbb-kurse-leiste::-webkit-scrollbar { display: none; }
+  .sbb-kurse-leiste > * { flex: 0 0 min(82vw, 320px); scroll-snap-align: start; margin-top: 0 !important; }
+}
 
 /* Bereiche der Schulmathematik auf dem Blatt */
 .sbb-bereich { width: 100%; display: flex; align-items: center; gap: 12px; padding: 10px 10px 10px 8px; border: none; border-radius: 14px; background: transparent; cursor: pointer; font-family: inherit; text-align: left; color: ${C.tinte}; transition: background .15s ease; }

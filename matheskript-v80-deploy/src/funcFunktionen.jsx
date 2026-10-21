@@ -614,7 +614,7 @@ export function FunktionenGrundlagen({ gehe }) {
     ["mix", zw("Alles gemischt", "All mixed"), (p) => <KapitelMix {...p} gehe={gehe} />],
   ];
   return (
-    <LernwegSeite speicher="matheplus-funktionen-kapitel" kapitel={KAPITEL}
+    <LernwegSeite werkzeug="funktionen" speicher="matheplus-funktionen-kapitel" kapitel={KAPITEL}
       titel={zw("Funktionen: Grundlagen", "Functions: the basics")}
       text={zw("Was eine Funktion ist, wie Potenz- und Wurzelfunktionen aussehen, wie man sie umkehrt und verkettet – und wie man Definitions- und Wertebereich sicher bestimmt.",
         "What a function is, what power and root functions look like, how to invert and compose them – and how to determine domain and range reliably.")} />

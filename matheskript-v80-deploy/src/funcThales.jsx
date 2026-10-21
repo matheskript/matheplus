@@ -15,7 +15,7 @@ import { C } from "./base1.jsx";
 import { M } from "./func3.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
 import { Auswahl, GrosserKnopf, hilfeKontext, hinweis, karte, kicker, zw } from "./ui2.jsx";
-import { Aufklapp, ModusLeiste, Seite, SchrittFolge, zt } from "./ui3.jsx";
+import { Aufklapp, ModusLeiste, Seite, SchrittFolge, zt, EinstellungsPille } from "./ui3.jsx";
 import { THALES_ARTEN, thalesAufgabe, winkelBeiC } from "./geoMittel.js";
 import { Merke, Regler, WertZeile, Zeichenblatt, polar, winkelAn, EntdeckenZweispaltig } from "./geoUi.jsx";
 import { useDesktop } from "./arbeitsflaeche.jsx";
@@ -363,8 +363,8 @@ function Ueben() {
   const folge = <SchrittFolge schritte={schritte} stand={stand} setStand={setStand} fertigText={zw("Richtig gelöst.", "Solved.")} />;
   return (
     <>
-      <div style={{ ...karte, marginTop: 16 }}>
-        <p style={kicker}>{zw("Aufgabentyp", "Exercise type")}</p>
+      {/* Aufgabe zuerst (21.10.): Typ-Chips hinter der Einstellungs-Pille */}
+      <EinstellungsPille kennung="thales" teile={[[zw("Aufgabentyp", "Exercise type"), (ARTEN.find(([id]) => id === art) || ARTEN[0])[1]]]}>
         <div data-aufgabentyp style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
           {ARTEN.map(([id, t]) => (
             <button key={id} type="button" aria-pressed={art === id} onClick={() => { setArt(id); neu(id); }}
@@ -372,7 +372,7 @@ function Ueben() {
                 border: `1.5px solid ${art === id ? C.see : C.linie}`, background: art === id ? C.see : C.weiss, color: art === id ? C.weiss : C.see }}>{t}</button>
           ))}
         </div>
-      </div>
+      </EinstellungsPille>
       <div style={{ ...karte, marginTop: 12 }} key={au.id}>
         <p style={kicker}>{zw(TITEL[au.art][0], TITEL[au.art][1])}</p>
         {desktop && sk ? <AufgabeZweispaltig links={<>{aufgabe}{folge}</>} skizze={sk} /> : (<>
@@ -391,18 +391,22 @@ const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Trainiere
 
 export function SatzDesThales() {
   const [modus, setModus] = useState(() => startModus("thales"));
+  const kurzErklaert = (
+      <Aufklapp titel={zw("Kurz erklärt", "In short")}>
+          <p style={{ margin: "0 0 6px" }}>{zw("Liegt C auf dem Kreis mit dem Durchmesser AB, dann hat das Dreieck ABC bei C einen rechten Winkel:", "If C lies on the circle with diameter AB, triangle ABC has a right angle at C:")}</p>
+          <p style={{ margin: "0 0 6px", textAlign: "center", fontSize: 17 }}><M t="γ = 90°" /></p>
+          <p style={{ margin: 0 }}>{zw("Umkehrung: Hat ein Dreieck bei C einen rechten Winkel, liegt C auf dem Kreis über der Hypotenuse AB. Der Mittelpunkt des Umkreises ist dann die Mitte der Hypotenuse.", "Converse: if a triangle has a right angle at C, then C lies on the circle over the hypotenuse AB. The circumcentre is then the midpoint of the hypotenuse.")}</p>
+        </Aufklapp>
+  );
   return (
     <Seite titel={zw("Satz des Thales", "Thales' theorem")}
       text={zw("Jeder Winkel im Halbkreis ist ein rechter. Damit erkennst du rechte Winkel, ohne sie zu messen, findest Umkreise und konstruierst Tangenten.",
-        "Every angle in a semicircle is a right angle. With that you can spot right angles without measuring, find circumcircles and construct tangents.")}>
+        "Every angle in a semicircle is a right angle. With that you can spot right angles without measuring, find circumcircles and construct tangents.")} knapp={modus === "ueben"}>
       <ModusLeiste modi={MODI} modus={modus} setModus={setModus} label={zw("Satz des Thales", "Thales' theorem")} />
-      <Aufklapp titel={zw("Kurz erklärt", "In short")}>
-        <p style={{ margin: "0 0 6px" }}>{zw("Liegt C auf dem Kreis mit dem Durchmesser AB, dann hat das Dreieck ABC bei C einen rechten Winkel:", "If C lies on the circle with diameter AB, triangle ABC has a right angle at C:")}</p>
-        <p style={{ margin: "0 0 6px", textAlign: "center", fontSize: 17 }}><M t="γ = 90°" /></p>
-        <p style={{ margin: 0 }}>{zw("Umkehrung: Hat ein Dreieck bei C einen rechten Winkel, liegt C auf dem Kreis über der Hypotenuse AB. Der Mittelpunkt des Umkreises ist dann die Mitte der Hypotenuse.", "Converse: if a triangle has a right angle at C, then C lies on the circle over the hypotenuse AB. The circumcentre is then the midpoint of the hypotenuse.")}</p>
-      </Aufklapp>
+      {modus === "entdecken" && kurzErklaert}
       <div style={{ display: modus === "entdecken" ? "block" : "none" }}><Entdecken /></div>
       <div style={{ display: modus === "ueben" ? "block" : "none" }}><Ueben /></div>
+      {modus === "ueben" && kurzErklaert}
     </Seite>
   );
 }

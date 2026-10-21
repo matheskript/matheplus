@@ -15,7 +15,7 @@ import { C } from "./base1.jsx";
 import { M } from "./func3.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
 import { Auswahl, GrosserKnopf, hilfeKontext, hinweis, karte, kicker, zw } from "./ui2.jsx";
-import { Aufklapp, ModusLeiste, Seite, SchrittFolge } from "./ui3.jsx";
+import { Aufklapp, ModusLeiste, Seite, SchrittFolge, EinstellungsPille } from "./ui3.jsx";
 import { ggT, q, qAdd, qNum } from "./rechnen2.js";
 import { BRUCH_ARTEN, bruchAufgabe, bruchTex, kgV, rohTex } from "./bruchGen.js";
 import { startModus, uebenWunschHolen, uebenWunschLesen } from "./uebenWunsch.js";
@@ -382,8 +382,8 @@ function Ueben() {
   const karte = useKarte();   // Desktop: feiner Rahmen statt Schatten
   return (
     <>
-      <div style={{ ...karte, marginTop: 16 }}>
-        <p style={kicker}>{zw("Aufgabentyp", "Exercise type")}</p>
+      {/* Aufgabe zuerst (21.10.): Typ-Chips hinter der Einstellungs-Pille */}
+      <EinstellungsPille kennung="bruchrechnen" teile={[[zw("Aufgabentyp", "Exercise type"), (ARTEN.find(([id]) => id === art) || ARTEN[0])[1]]]}>
         <div data-aufgabentyp style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
           {ARTEN.map(([id, t]) => (
             <button key={id} type="button" aria-pressed={art === id} onClick={() => { setArt(id); neu(id); }}
@@ -391,7 +391,7 @@ function Ueben() {
                 border: `1.5px solid ${art === id ? C.see : C.linie}`, background: art === id ? C.see : C.weiss, color: art === id ? C.weiss : C.see }}>{t}</button>
           ))}
         </div>
-      </div>
+      </EinstellungsPille>
       <div style={{ ...karte, marginTop: 12 }} key={au.id}>
         <p style={kicker}>{zw(TITEL[au.art][0], TITEL[au.art][1])}</p>
         <p style={{ ...hinweis, color: C.tinte, fontSize: 15.5, marginBottom: 4 }}>{aufgabenText(au)}</p>
@@ -407,19 +407,23 @@ const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Trainiere
 
 export function Bruchrechnen() {
   const [modus, setModus] = useState(() => startModus("bruchrechnen"));
+  const kurzErklaert = (
+      <Aufklapp titel={zw("Kurz erklärt", "In short")}>
+          <p style={{ margin: "0 0 6px" }}><b>{zw("Plus und minus:", "Plus and minus:")}</b> {zw("erst auf den Hauptnenner bringen, dann die Zähler verrechnen.", "first bring to the common denominator, then combine the numerators.")}</p>
+          <p style={{ margin: "0 0 6px", textAlign: "center", fontSize: 16 }}>{T("\\frac{1}{3} + \\frac{1}{4} = \\frac{4}{12} + \\frac{3}{12} = \\frac{7}{12}")}</p>
+          <p style={{ margin: "0 0 6px" }}><b>{zw("Mal:", "Times:")}</b> {zw("Zähler mal Zähler, Nenner mal Nenner – vorher über Kreuz kürzen.", "numerator times numerator, denominator times denominator – simplify across first.")}</p>
+          <p style={{ margin: 0 }}><b>{zw("Geteilt:", "Divided:")}</b> {zw("mit dem Kehrwert des zweiten Bruchs malnehmen.", "multiply by the reciprocal of the second fraction.")} {T("\\frac{2}{3} : \\frac{4}{5} = \\frac{2}{3} · \\frac{5}{4} = \\frac{5}{6}")}</p>
+        </Aufklapp>
+  );
   return (
     <Seite titel={zw("Brüche rechnen", "Working with fractions")}
       text={zw("Kürzen, erweitern, plus, minus, mal und geteilt – mit Bruchstreifen zum Sehen und Aufgaben, die jeden typischen Fehler gezielt ansprechen.",
-        "Simplify, expand, add, subtract, multiply and divide – with fraction strips to see it and exercises that address every typical mistake.")}>
+        "Simplify, expand, add, subtract, multiply and divide – with fraction strips to see it and exercises that address every typical mistake.")} knapp={modus === "ueben"}>
       <ModusLeiste modi={MODI} modus={modus} setModus={setModus} label={zw("Brüche rechnen", "Working with fractions")} />
-      <Aufklapp titel={zw("Kurz erklärt", "In short")}>
-        <p style={{ margin: "0 0 6px" }}><b>{zw("Plus und minus:", "Plus and minus:")}</b> {zw("erst auf den Hauptnenner bringen, dann die Zähler verrechnen.", "first bring to the common denominator, then combine the numerators.")}</p>
-        <p style={{ margin: "0 0 6px", textAlign: "center", fontSize: 16 }}>{T("\\frac{1}{3} + \\frac{1}{4} = \\frac{4}{12} + \\frac{3}{12} = \\frac{7}{12}")}</p>
-        <p style={{ margin: "0 0 6px" }}><b>{zw("Mal:", "Times:")}</b> {zw("Zähler mal Zähler, Nenner mal Nenner – vorher über Kreuz kürzen.", "numerator times numerator, denominator times denominator – simplify across first.")}</p>
-        <p style={{ margin: 0 }}><b>{zw("Geteilt:", "Divided:")}</b> {zw("mit dem Kehrwert des zweiten Bruchs malnehmen.", "multiply by the reciprocal of the second fraction.")} {T("\\frac{2}{3} : \\frac{4}{5} = \\frac{2}{3} · \\frac{5}{4} = \\frac{5}{6}")}</p>
-      </Aufklapp>
+      {modus === "entdecken" && kurzErklaert}
       <div style={{ display: modus === "entdecken" ? "block" : "none" }}><Entdecken /></div>
       <div style={{ display: modus === "ueben" ? "block" : "none" }}><Ueben /></div>
+      {modus === "ueben" && kurzErklaert}
     </Seite>
   );
 }

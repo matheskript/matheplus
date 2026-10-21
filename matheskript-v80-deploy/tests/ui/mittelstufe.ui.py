@@ -8,6 +8,13 @@ im Üben-Modus über „Lösung dieses Schritts zeigen“ bis zum Ende durchlauf
 import os
 from playwright.sync_api import sync_playwright
 
+def _typen_auf(pg):
+    """Aufgabentyp-Chips liegen seit 21.10. hinter der Einstellungs-Pille: bei Bedarf aufklappen."""
+    if pg.locator("[data-einstellungen-feld]:visible").count() == 0:
+        pil = pg.locator("[data-einstellungen-pille]:visible")
+        if pil.count():
+            pil.first.click(); pg.wait_for_timeout(150)
+
 BASE = os.environ.get("BASE_URL", "http://localhost:4173/")
 AUS = os.environ.get("SCREENS", "/tmp/mittelstufe")
 os.makedirs(AUS, exist_ok=True)
@@ -88,10 +95,12 @@ with sync_playwright() as p:
                     page.screenshot(path=f"{AUS}/{pfad}-entdecken.png", full_page=True)
                 # Üben
                 page.get_by_role("tab", name="Trainieren" if sprache == "de" else "Train").first.click(); page.wait_for_timeout(200)
+                _typen_auf(page)
                 typen = page.locator("[data-aufgabentyp]:visible button")
                 n = typen.count()
                 kn = [typen.nth(i).inner_text() for i in range(n)]
                 for i, name in enumerate(kn):
+                    _typen_auf(page)
                     typen.nth(i).click(); page.wait_for_timeout(120)
                     for _ in range(3 if i else 8):
                         schritte_durch(page, f"{wo}/{name}")

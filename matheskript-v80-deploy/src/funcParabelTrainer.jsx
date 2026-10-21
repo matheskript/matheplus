@@ -27,6 +27,7 @@ import {
 } from "./parabelTrainer.js";
 import { Arbeitsflaeche, FeinKarte, Kicker, useDesktop } from "./arbeitsflaeche.jsx";
 import { kompaktSpalteCss } from "./trainerDesktop.jsx";
+import { EinstellungsPille } from "./ui3.jsx";
 
 const SPEICHER = "matheplus-parabeltrainer";
 const RUNDE = 10;
@@ -520,18 +521,20 @@ export function ParabelTrainer() {
       <style>{POP_CSS}</style>
       <style>{CSS}</style>
       <div className="pt-innen">
-        <div className="pt-kopf">
-          <div className="pt-kopflinks">
-            {modusSeg}
-            <div className="pt-reihe">
-              {stufeWahl}
-              {wuerfel}
-            </div>
-          </div>
-          {themaBox(true)}
+        {/* Handy („Aufgabe zuerst“, 21.10.): Modus-Schalter, darunter eine Einstellungs-Pille (Thema · Aufgabentyp · Stufe, Würfel rechts);
+            Thema-Wahl, Stufe und Typ-Chips liegen im aufklappbaren Feld */}
+        <div className="pt-kopf" style={{ marginBottom: 0 }}>
+          <div className="pt-kopflinks">{modusSeg}</div>
         </div>
-
-        {typChips}
+        <EinstellungsPille kennung="parabeln"
+          teile={[[zw("Thema", "Topic"), themaName(THEMEN.find((t) => t.id === thema) || THEMEN[0])],
+            training ? [zw("Aufgabentyp", "Task type"), typOk === "mix" ? zw("Gemischt", "Mixed") : typName(typen.find((t) => t.id === typOk) || typen[0])] : null,
+            training ? [zw("Stufe", "Level"), String(stufe)] : null]}
+          rechts={training ? wuerfel : null}>
+          {themaBox(false)}
+          {training && <div className="pt-reihe" style={{ margin: "10px 0" }}>{stufeWahl}</div>}
+          {typChips}
+        </EinstellungsPille>
 
         {trainer}
         {kern && modus === "entdecken" && (

@@ -52,8 +52,8 @@ with sync_playwright() as p:
                     dm = page.locator("[data-hm-desktop]")
                     pruefe(dm.count() == 1, f"{tag}: Desktop-Menü geht nicht auf")
                     if dm.count():
-                        dm.locator("[data-hmd-training='warmup']").click(); page.wait_for_timeout(900)
-                        pruefe("5-minuten-mathe" in page.url, f"{tag}: Menüpunkt navigiert nicht ({page.url})")
+                        dm.locator("[data-hmd-training='pruefung']").click(); page.wait_for_timeout(900)
+                        pruefe("trainingszentrum" in page.url, f"{tag}: Menüpunkt navigiert nicht ({page.url})")
                     continue
                 fm = page.locator(".hm-fenster.hm-menue")
                 pruefe(fm.count() == 1, f"{tag}: Hauptmenü geht nicht auf")
@@ -62,8 +62,8 @@ with sync_playwright() as p:
                     pruefe(bx["x"] >= 0 and bx["x"] + bx["width"] <= breite + 1 and bx["y"] >= 0, f"{tag}: Menü ragt hinaus ({bx})")
                     pruefe(fm.locator("[data-hm]").count() == 6, f"{tag}: {fm.locator('[data-hm]').count()} Abschnitte statt 6")
                     fm.locator("[data-hm='training']").click(); page.wait_for_timeout(200)
-                    page.locator(".hm-fenster button", has_text="5 Minuten Mathe").click(); page.wait_for_timeout(900)
-                    pruefe("5-minuten-mathe" in page.url, f"{tag}: Menüpunkt navigiert nicht ({page.url})")
+                    page.locator(".hm-fenster [data-hm-training='pruefung']").click(); page.wait_for_timeout(900)
+                    pruefe("trainingszentrum" in page.url, f"{tag}: Menüpunkt navigiert nicht ({page.url})")
         # 2) Werkzeugseite mit großem Kopf: nur ein ☰
         for pfad in ("formelsammlung", "kopfrechnen", "gleichungen-lernen"):
             page.goto(BASE + pfad); page.wait_for_timeout(1500)

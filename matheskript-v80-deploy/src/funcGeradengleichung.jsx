@@ -875,7 +875,8 @@ const CSS = `
 .ger-seite{background:#fff;overflow-anchor:none}[data-trainings-session] .ger-seite{min-height:calc(100dvh - 61px)}
 .ger-innen{max-width:620px;margin:0 auto;padding:10px 16px 24px}
 .ger-seg{display:flex;padding:3px;border-radius:999px;background:#EEF2F8;gap:2px;min-height:42px}
-.ger-seg button{flex:1;min-width:0;border-radius:999px;border:none;font-family:inherit;font-size:14.5px;font-weight:700;cursor:pointer;background:transparent;color:${C.grau};white-space:nowrap;padding:0 6px}
+.ger-seg button{flex:1;min-width:0;border-radius:999px;border:none;font-family:inherit;font-size:14.5px;font-weight:700;cursor:pointer;background:transparent;color:${C.grau};white-space:nowrap;padding:0 6px;overflow:hidden;text-overflow:ellipsis}
+.ger-seg .ger-lang{display:none}@media(min-width:420px){.ger-seg .ger-lang{display:inline}.ger-seg .ger-kurz{display:none}}
 .ger-seg button[aria-pressed="true"]{background:#fff;color:${C.see};box-shadow:0 1px 6px rgba(15,26,51,0.12)}
 .ger-seg-klein{min-height:38px;margin-top:8px}
 .ger-seg-klein{overflow:hidden}
@@ -980,8 +981,8 @@ export function Geradengleichung({ start = "basics", startModus = "training" }) 
   const [bildRef, bildBreite] = useBreite();
   const reiter = (
     <div className="ger-seg" role="group" aria-label={zw("Geradentrainer", "Line trainer")}>
-      {[["basics", "Grundlagen"], ["pq", "Zwei Punkte"], ["pm", "Punkt und Steigung"]].map(([id, name]) => (
-        <button key={id} type="button" data-ger-tab={id} aria-pressed={tab === id} onClick={() => setTab(id)}>{name}</button>
+      {[["basics", "Grundlagen", "Grundlagen"], ["pq", "Zwei Punkte", "P und Q"], ["pm", "Punkt und Steigung", "P und m"]].map(([id, name, kurz]) => (
+        <button key={id} type="button" data-ger-tab={id} aria-pressed={tab === id} onClick={() => setTab(id)} title={name}><span className="ger-lang">{name}</span><span className="ger-kurz">{kurz}</span></button>
       ))}
     </div>
   );

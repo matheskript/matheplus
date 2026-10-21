@@ -162,14 +162,12 @@ export const KI_MENUE = [
 /* Mein Mathe-Training ist die eine Trainingsseite (Tagesplan, Themen, Wiederholungen, Nachholen); Trainingsplan, Lernpfad-Wochenplan
    und der Ebbinghaus-Tagesplan sind darin aufgegangen. Die übrigen Punkte sind Werkzeuge, die der Tagesplan ebenfalls nutzt. */
 export const TRAINING = [
-  { id: "trainingszentrum", name: "Trainingszentrum", zeile: "Alle Trainings an einem Ort, jedes im Vollbild", ziel: { ansicht: "trainingszentrum" } },
-  { id: "meintraining", name: "Mein Mathe-Training", zeile: "Tagesplan, Themen, Wiederholungen", ziel: { ansicht: "meintraining" } },
-  { id: "warmup", name: "5 Minuten Mathe", zeile: "Fünf kurze Aufgaben zum Aufwärmen", ziel: { ansicht: "warmup" } },
-  { id: "fehler", name: "Meine Fehler üben", zeile: "Genau das, was bei dir öfter schiefgeht", ziel: { ansicht: "fehlertraining" } },
-  { id: "wiederholen", name: "Wiederholen", zeile: "Wie der Ebbinghaus-Rhythmus funktioniert", ziel: { ansicht: "ebbinghaus" } },
-  { id: "lernpfad", name: "Standortcheck", zeile: "Wo stehst du wirklich?", ziel: { ansicht: "lernpfad" } },
-  { id: "nachbereiten", name: "Klassenarbeit nachbereiten", zeile: "Aus Fehlern einen Plan machen", ziel: { ansicht: "klausurnach" } },
-  { id: "pruefung", name: "Prüfungsmodus", zeile: "Ohne Hilfen, mit Uhr", ziel: { ansicht: "pruefung" } },
+  /* Drei Ebenen seit 21.10.: Heute · Themen · Prüfung – alles im Trainingszentrum. 5 Minuten Mathe, Fehler üben, Wiederholen
+     liegen in „Heute“, Prüfungsmodus/Probeabitur/Nachbereiten in „Prüfung“, Eine Sache trainieren in „Themen“. */
+  { id: "heute", name: "Heute", zeile: "Dein Plan, Wiederholungen, Fehler üben", ziel: { ansicht: "trainingszentrum", reiter: "heute" } },
+  { id: "themen", name: "Themen", zeile: "Alle Werkzeuge nach Bereich", ziel: { ansicht: "trainingszentrum", reiter: "themen" } },
+  { id: "pruefung", name: "Prüfung", zeile: "Klassenarbeit und Abitur, mit Uhr", ziel: { ansicht: "trainingszentrum", reiter: "pruefung" } },
+  { id: "standort", name: "Standortcheck", zeile: "Wo stehst du wirklich?", ziel: { ansicht: "lernpfad" } },
 ];
 
 /* ---------- Mathe-Training: alle Werkzeuge wie auf der Startseite (Schulmathematik) ---------- */
@@ -256,7 +254,7 @@ export function aktiverPunkt(ansicht, foto) {
   if (ansicht === "analyse" || ansicht === "klausurbriefkasten") return "mathilda";
   if (ansicht === "textaufgaben" && foto === "mathilda") return "mathilda";
   if ([...KURSE_ALLE, ...WEITERE_ANGEBOTE].some((k) => k.ziel.ansicht === ansicht)) return "kurse";
-  if (TRAINING.some((k) => k.ziel.ansicht === ansicht) || ansicht === "trainieren" || ansicht === "trainingsplan" || ansicht === "vorbereiten") return "training";
+  if (TRAINING.some((k) => k.ziel.ansicht === ansicht) || ["trainieren", "trainingsplan", "vorbereiten", "meintraining", "warmup", "fehlertraining", "pruefung", "klausurnach", "ebbinghaus"].includes(ansicht)) return "training";
   if (ansicht === "entdecken" || ansicht === "bwm" || ansicht === "landeswettbewerbe" || ansicht === "landeswettbewerb") return "entdecken";
   if (ansicht === "formeln" || ansicht === "operatoren") return "mathematik";
   if (wo(ansicht) || ABI_MENUE.some((e) => e.ziel.ansicht === ansicht)) return "schultraining";

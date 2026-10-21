@@ -104,10 +104,11 @@ with sync_playwright() as p:
                 pruefe(page.locator("[data-hm-bereich='vektoren'] .hm-wz").count() >= 9, f"{tag}: Vektoren zeigt zu wenige Werkzeuge")
                 page.locator("[data-hm-bereich='vektoren'] .hm-wz", has_text="Kreuzprodukt").click(); page.wait_for_timeout(900)
                 pruefe(page.locator(".hm-fenster").count() == 0 and "kreuz" in page.url, f"{tag}: Werkzeug aus dem Menü öffnet nicht ({page.url})")
-                # Mein Training → 5 Minuten Mathe
+                # Mein Training → Prüfung (Trainingszentrum, drei Ebenen seit 21.10.)
                 menue_auf(page)
-                page.locator("[data-hm='training']").click(); page.locator(".hm-fenster button", has_text="5 Minuten Mathe").click(); page.wait_for_timeout(900)
-                pruefe("5-minuten-mathe" in page.url, f"{tag}: Menüpunkt navigiert nicht ({page.url})")
+                page.locator("[data-hm='training']").click(); page.locator(".hm-fenster [data-hm-training='pruefung']").click(); page.wait_for_timeout(900)
+                pruefe("trainingszentrum" in page.url, f"{tag}: Menüpunkt navigiert nicht ({page.url})")
+                pruefe(page.get_by_role("tab", name="Prüfung").get_attribute("aria-selected") == "true", f"{tag}: Reiter Prüfung nicht gewählt")
                 pruefe(page.locator(".hm-fenster").count() == 0, f"{tag}: Menü bleibt nach dem Navigieren offen")
             else:
                 menue_auf(page)

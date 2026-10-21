@@ -16,7 +16,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { C } from "./base1.jsx";
 import { M } from "./func3.jsx";
 import { MS, karte, kicker, zw } from "./ui2.jsx";
-import { Seite, liesZahl } from "./ui3.jsx";
+import { EinstellungsPille, ModusLeiste, Seite, liesZahl } from "./ui3.jsx";
+import { startModus } from "./uebenWunsch.js";
 import { UebenRahmen, ws, zs } from "./geoUi.jsx";
 import { enthaelt, zText } from "./mengenRechnen.js";
 
@@ -40,12 +41,39 @@ export const FormelBlock = ({ t }) => (
 );
 export const Aufforderung = ({ children }) => <p style={{ fontSize: 13, color: C.see, fontWeight: 600, margin: "0 0 10px" }}>{children}</p>;
 export const Trenner = () => <div style={{ height: 1, background: C.linie, margin: "30px 0 26px" }} />;
+/* Beginn des Übungsteils eines Kapitels. data-ueben-start: im Modus Trainieren zeigt die Seite nur ab hier (LernwegModus). */
 export const UebenKopf = ({ children }) => (
-  <>
+  <div data-ueben-start>
     <p style={{ fontSize: 13, fontWeight: 600, color: C.gruen, margin: "0 0 4px" }}>{zw("Jetzt selbst üben", "Practise now")}</p>
     <h3 style={{ fontSize: 21, fontWeight: 700, color: C.tinte, margin: "0 0 4px", letterSpacing: "-0.01em" }}>{children}</h3>
-  </>
+  </div>
 );
+
+/* ---------- Entdecken | Trainieren für Kapitel-Seiten („Aufgabe zuerst“, 21.10.) ----------
+   Trainieren zeigt vom Kapitel nur den Übungsteil (ab data-ueben-start); Lesestoff und Labore gehören zu Entdecken.
+   Kapitelwahl im Trainieren-Modus als Einstellungs-Pille statt der großen Kachel-Leiste. */
+export const LERNWEG_CSS = `
+.lw-trainieren > * { display: none !important; }
+.lw-trainieren > [data-ueben-start], .lw-trainieren > [data-ueben-start] ~ * { display: block !important; }
+.lw-trainieren > [data-ueben-start] > p:first-child { display: none; }`;
+
+export function useLernwegModus(werkzeug) {
+  const [modus, setModus] = useState(() => startModus(werkzeug));
+  const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Trainieren", "Train")]];
+  const leiste = <ModusLeiste modi={MODI} modus={modus} setModus={setModus} label={zw("Modus", "Mode")} />;
+  return { modus, setModus, leiste, trainieren: modus === "ueben" };
+}
+
+/* Kapitelwahl: große Kacheln (Entdecken) oder Einstellungs-Pille (Trainieren) */
+export function KapitelWahl({ kapitel, kap, setKap, trainieren, nav }) {
+  if (!trainieren) return nav;
+  const idx = Math.max(0, kapitel.findIndex(([id]) => id === kap));
+  return (
+    <EinstellungsPille kennung="lernweg-kapitel" teile={[[zw("Kapitel", "Chapter"), `${idx + 1} · ${String(kapitel[idx][1]).replace(/\u00AD/g, "")}`]]}>
+      {nav}
+    </EinstellungsPille>
+  );
+}
 /* Weiße Karte für ein interaktives Labor */
 export function Labor({ titel, aufforderung, children }) {
   return (
@@ -117,7 +145,8 @@ export function Einfuehrung({ einstieg, standard, vertiefung }) {
 }
 
 /* ---------- Lernweg-Seite ---------- */
-export function LernwegSeite({ titel, text, kapitel, speicher }) {
+export function LernwegSeite({ titel, text, kapitel, speicher, werkzeug = null }) {
+  const lw = useLernwegModus(werkzeug || (typeof titel === "string" ? titel : ""));
   const [kap, setKapRoh] = useState(() => {
     try { const k = localStorage.getItem(speicher); return kapitel.some(([id]) => id === k) ? k : kapitel[0][0]; } catch (e) { return kapitel[0][0]; }
   });
@@ -132,9 +161,7 @@ export function LernwegSeite({ titel, text, kapitel, speicher }) {
   const idx = Math.max(0, kapitel.findIndex(([id]) => id === kap));
   const Inhalt = kapitel[idx][2];
   const naechstes = kapitel[idx + 1];
-  return (
-    <Seite titel={titel} text={text}>
-      <div ref={oben} style={{ scrollMarginTop: 80 }} />
+  const nav = (
       <nav aria-label={zw("Kapitel", "Chapters")} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 8, marginTop: 4 }}>
         {kapitel.map(([id, name], i) => {
           const an = kap === id;
@@ -149,7 +176,14 @@ export function LernwegSeite({ titel, text, kapitel, speicher }) {
           );
         })}
       </nav>
-      <div key={kap}><Inhalt nr={idx + 1} von={kapitel.length} /></div>
+  );
+  return (
+    <Seite titel={titel} text={text}>
+      <style>{LERNWEG_CSS}</style>
+      <div ref={oben} style={{ scrollMarginTop: 80 }} />
+      {lw.leiste}
+      <KapitelWahl kapitel={kapitel} kap={kap} setKap={setKap} trainieren={lw.trainieren} nav={nav} />
+      <div key={kap} className={lw.trainieren ? "lw-trainieren" : undefined} data-lernweg-modus={lw.modus}><Inhalt nr={idx + 1} von={kapitel.length} /></div>
       {naechstes && (
         <button type="button" onClick={() => setKap(naechstes[0], "lernweg-weiter")} data-weiter-kapitel
           style={{ width: "100%", marginTop: 26, minHeight: 56, borderRadius: 16, border: "none", cursor: "pointer", fontFamily: "inherit", textAlign: "left", padding: "12px 18px",

@@ -215,18 +215,22 @@ const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Trainiere
 
 export function Kathetensatz() {
   const [modus, setModus] = useState(() => startModus("kathetensatz"));
+  const kurzErklaert = (
+      <Aufklapp titel={zw("Kurz erklärt", "In short")}>
+          <p style={{ margin: "0 0 6px" }}>{zw("Im rechtwinkligen Dreieck mit γ = 90° teilt die Höhe h die Hypotenuse c in die Abschnitte q (bei A) und p (bei B).", "In a right triangle with γ = 90°, the altitude h splits the hypotenuse c into segments q (at A) and p (at B).")}</p>
+          <p style={{ margin: "0 0 4px" }}><b>{zw("Kathetensatz:", "Leg theorem:")}</b> <M t="a² = c · p" />, <M t="b² = c · q" /></p>
+          <p style={{ margin: 0 }}><b>{zw("Höhensatz:", "Altitude theorem:")}</b> <M t="h² = p · q" /></p>
+        </Aufklapp>
+  );
   return (
     <Seite titel={zw("Kathetensatz und Höhensatz", "Leg and altitude theorems")}
       text={zw("Die Höhe teilt jedes rechtwinklige Dreieck in zwei ähnliche Dreiecke. Daraus folgen zwei Flächensätze – und mit ihnen auch der Satz des Pythagoras.",
-        "The altitude splits every right triangle into two similar triangles. Two area theorems follow from that – and with them Pythagoras' theorem too.")}>
+        "The altitude splits every right triangle into two similar triangles. Two area theorems follow from that – and with them Pythagoras' theorem too.")} knapp={modus === "ueben"}>
       <ModusLeiste modi={MODI} modus={modus} setModus={setModus} label={zw("Kathetensatz und Höhensatz", "Leg and altitude theorems")} />
-      <Aufklapp titel={zw("Kurz erklärt", "In short")}>
-        <p style={{ margin: "0 0 6px" }}>{zw("Im rechtwinkligen Dreieck mit γ = 90° teilt die Höhe h die Hypotenuse c in die Abschnitte q (bei A) und p (bei B).", "In a right triangle with γ = 90°, the altitude h splits the hypotenuse c into segments q (at A) and p (at B).")}</p>
-        <p style={{ margin: "0 0 4px" }}><b>{zw("Kathetensatz:", "Leg theorem:")}</b> <M t="a² = c · p" />, <M t="b² = c · q" /></p>
-        <p style={{ margin: 0 }}><b>{zw("Höhensatz:", "Altitude theorem:")}</b> <M t="h² = p · q" /></p>
-      </Aufklapp>
+      {modus === "entdecken" && kurzErklaert}
       <div style={{ display: modus === "entdecken" ? "block" : "none" }}><Entdecken /></div>
       <div style={{ display: modus === "ueben" ? "block" : "none" }}>
+      {modus === "ueben" && kurzErklaert}
         <UebenRahmen titel={TITEL} arten={KATH_ARTEN} neue={neue} schritte={schritte} text={text} skizze={skizze} hilfe={hilfe} />
       </div>
     </Seite>

@@ -66,7 +66,7 @@ with sync_playwright() as p:
                 pruefe(page.evaluate("getComputedStyle(document.documentElement).overflow") == "hidden", f"{tag}: Seite dahinter scrollt mit")
                 pruefe("Blatt scannen" in m.locator("[data-hm-mathilda]").inner_text() and m.locator("[data-hm-mathilda] .hmd-ki").count() == 4, f"{tag}: Mathilda-Karte unvollständig")
                 pruefe(m.locator("[data-hmd-kurs]").count() >= 11, f"{tag}: nur {m.locator('[data-hmd-kurs]').count()} Kurse")
-                pruefe(m.locator("[data-hmd-training]").count() == 8, f"{tag}: Mein Mathe-Training hat nicht 8 Kacheln")
+                pruefe(m.locator("[data-hmd-training]").count() == 4, f"{tag}: Mein Mathe-Training hat nicht 4 Kacheln (Heute · Themen · Prüfung · Standortcheck)")
                 pruefe(m.locator("[data-hmd-darstellung] button").count() == 5, f"{tag}: Darstellung fehlt (Dunkel, Hell, Mix, FCB, GER)")
                 pruefe((m.locator("[data-hm-weiter]").count() == 1) == angemeldet, f"{tag}: Weitermachen falsch")
                 fuss = m.locator("[data-hm-zugang]").inner_text()

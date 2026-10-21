@@ -15,7 +15,7 @@ import { C } from "./base1.jsx";
 import { M } from "./func3.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
 import { GrosserKnopf, hilfeKontext, hinweis, kicker, zw } from "./ui2.jsx";
-import { Aufklapp, ModusLeiste, Seite, SchrittFolge } from "./ui3.jsx";
+import { Aufklapp, ModusLeiste, Seite, SchrittFolge, EinstellungsPille } from "./ui3.jsx";
 import { WURZEL_ARTEN, wurzelAufgabe } from "./wurzelGen.js";
 import { wahlDrehen } from "./antwortReihenfolge.js";
 import { useKarte } from "./funcZahlenDesktop.jsx";
@@ -167,8 +167,8 @@ function WurzelUeben() {
   const karte = useKarte();
   return (
     <>
-      <div style={{ ...karte, marginTop: 16 }}>
-        <p style={kicker}>{zw("Aufgabentyp", "Exercise type")}</p>
+      {/* Aufgabe zuerst (21.10.): Typ-Chips hinter der Einstellungs-Pille */}
+      <EinstellungsPille kennung="bruchwurzel" teile={[[zw("Aufgabentyp", "Exercise type"), (ARTEN.find(([id]) => id === art) || ARTEN[0])[1]]]}>
         <div data-aufgabentyp style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
           {ARTEN.map(([id, t]) => (
             <button key={id} type="button" aria-pressed={art === id} onClick={() => { setArt(id); neu(id); }}
@@ -176,7 +176,7 @@ function WurzelUeben() {
                 border: `1.5px solid ${art === id ? C.see : C.linie}`, background: art === id ? C.see : C.weiss, color: art === id ? C.weiss : C.see }}>{t}</button>
           ))}
         </div>
-      </div>
+      </EinstellungsPille>
       <div style={{ ...karte, marginTop: 12 }} key={au.id} data-wurzel-aufgabe={au.art}>
         <p style={kicker}>{zw(TITEL[au.art][0], TITEL[au.art][1])}</p>
         <p style={{ ...hinweis, color: C.tinte, fontSize: 15.5, marginBottom: 4 }}>{aufgabenText(au)}</p>

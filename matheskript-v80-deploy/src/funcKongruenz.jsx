@@ -16,7 +16,7 @@ import React, { useMemo, useState } from "react";
 import { C } from "./base1.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
 import { Auswahl, GrosserKnopf, hilfeKontext, hinweis, karte, kicker, zw } from "./ui2.jsx";
-import { Aufklapp, ModusLeiste, Seite, SchrittFolge, zt } from "./ui3.jsx";
+import { Aufklapp, ModusLeiste, Seite, SchrittFolge, zt, EinstellungsPille } from "./ui3.jsx";
 import { GRAD, KONG_FIGUREN, kongruenzAufgabe, ssw, sssMoeglich } from "./geoMittel.js";
 import { Merke, Regler, Zeichenblatt, add, mitte, polar } from "./geoUi.jsx";
 import { GeoAnimation } from "./funcGeoAnimationen.jsx";
@@ -495,10 +495,9 @@ function Ueben() {
   const folge = <SchrittFolge schritte={schritte} stand={stand} setStand={setStand} fertigText={zw("Richtig – Stücke zugeordnet und den passenden Satz gefunden.", "Correct – parts matched and the right theorem found.")} />;
   return (
     <>
-      <div style={{ ...karte, marginTop: 16 }}>
-        <p style={kicker}>{zw("Aufgabentyp", "Exercise type")}</p>
+      <EinstellungsPille kennung="kongruenz" teile={[[zw("Aufgabentyp", "Exercise type"), (ARTEN_UI.find(([id]) => id === art) || ARTEN_UI[0])[1]]]}>
         <div data-aufgabentyp><Auswahl optionen={ARTEN_UI} wert={art} setWert={(a) => { setArt(a); neu(a); }} label={zw("Aufgabentyp", "Exercise type")} /></div>
-      </div>
+      </EinstellungsPille>
       <div style={{ ...karte, marginTop: 12 }} key={au.id}>
         <p style={kicker}>{au.art === "figur" ? zw(TITEL.figur[0], TITEL.figur[1]) : zw("Angaben prüfen", "Check the data")}</p>
         {desktop ? (
@@ -522,21 +521,25 @@ const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Trainiere
 
 export function Kongruenzsaetze() {
   const [modus, setModus] = useState(() => startModus("kongruenz"));
+  const kurzErklaert = (
+      <Aufklapp titel={zw("Kurz erklärt", "In short")}>
+          <p style={{ margin: "0 0 6px" }}>{zw("Zwei Dreiecke sind kongruent (deckungsgleich), wenn sie in diesen Stücken übereinstimmen:", "Two triangles are congruent if they match in these parts:")}</p>
+          <p style={{ margin: "0 0 4px" }}><b>SSS</b> – {zw("drei Seiten", "three sides")}</p>
+          <p style={{ margin: "0 0 4px" }}><b>SWS</b> – {zw("zwei Seiten und der eingeschlossene Winkel", "two sides and the included angle")}</p>
+          <p style={{ margin: "0 0 4px" }}><b>WSW</b> – {zw("eine Seite und die beiden anliegenden Winkel (SWW geht über die Winkelsumme genauso)", "one side and both adjacent angles (AAS works the same via the angle sum)")}</p>
+          <p style={{ margin: "0 0 6px" }}><b>SsW</b> – {zw("zwei Seiten und der Winkel, der der größeren Seite gegenüberliegt", "two sides and the angle opposite the larger side")}</p>
+          <p style={{ margin: 0 }}>{zw("Nicht eindeutig: WWW (nur ähnlich) und SSW mit dem Winkel gegenüber der kleineren Seite (null, ein oder zwei Dreiecke).", "Not unique: AAA (only similar) and SSA with the angle opposite the smaller side (zero, one or two triangles).")}</p>
+        </Aufklapp>
+  );
   return (
     <Seite titel={zw("Kongruenzsätze", "Congruence theorems")}
       text={zw("Wann legen drei Stücke ein Dreieck eindeutig fest? SSS, SWS, WSW und SsW – und warum SSW und WWW nicht reichen. Probiere die Konstruktionen aus und begründe Kongruenz an Figuren.",
-        "When do three parts fix a triangle uniquely? SSS, SAS, ASA and SsA – and why SSA and AAA are not enough. Try the constructions and justify congruence in figures.")}>
+        "When do three parts fix a triangle uniquely? SSS, SAS, ASA and SsA – and why SSA and AAA are not enough. Try the constructions and justify congruence in figures.")} knapp={modus === "ueben"}>
       <ModusLeiste modi={MODI} modus={modus} setModus={setModus} label={zw("Kongruenzsätze", "Congruence theorems")} />
-      <Aufklapp titel={zw("Kurz erklärt", "In short")}>
-        <p style={{ margin: "0 0 6px" }}>{zw("Zwei Dreiecke sind kongruent (deckungsgleich), wenn sie in diesen Stücken übereinstimmen:", "Two triangles are congruent if they match in these parts:")}</p>
-        <p style={{ margin: "0 0 4px" }}><b>SSS</b> – {zw("drei Seiten", "three sides")}</p>
-        <p style={{ margin: "0 0 4px" }}><b>SWS</b> – {zw("zwei Seiten und der eingeschlossene Winkel", "two sides and the included angle")}</p>
-        <p style={{ margin: "0 0 4px" }}><b>WSW</b> – {zw("eine Seite und die beiden anliegenden Winkel (SWW geht über die Winkelsumme genauso)", "one side and both adjacent angles (AAS works the same via the angle sum)")}</p>
-        <p style={{ margin: "0 0 6px" }}><b>SsW</b> – {zw("zwei Seiten und der Winkel, der der größeren Seite gegenüberliegt", "two sides and the angle opposite the larger side")}</p>
-        <p style={{ margin: 0 }}>{zw("Nicht eindeutig: WWW (nur ähnlich) und SSW mit dem Winkel gegenüber der kleineren Seite (null, ein oder zwei Dreiecke).", "Not unique: AAA (only similar) and SSA with the angle opposite the smaller side (zero, one or two triangles).")}</p>
-      </Aufklapp>
+      {modus === "entdecken" && kurzErklaert}
       <div style={{ display: modus === "entdecken" ? "block" : "none" }}><Entdecken /></div>
       <div style={{ display: modus === "ueben" ? "block" : "none" }}><Ueben /></div>
+      {modus === "ueben" && kurzErklaert}
     </Seite>
   );
 }

@@ -11,6 +11,13 @@ Je Breite (360, 390, 1280) und Sprache (DE, EN):
 import os
 from playwright.sync_api import sync_playwright
 
+def _typen_auf(pg):
+    """Aufgabentyp-Chips liegen seit 21.10. hinter der Einstellungs-Pille: bei Bedarf aufklappen."""
+    if pg.locator("[data-einstellungen-feld]:visible").count() == 0:
+        pil = pg.locator("[data-einstellungen-pille]:visible")
+        if pil.count():
+            pil.first.click(); pg.wait_for_timeout(150)
+
 BASE = os.environ.get("BASE_URL", "http://localhost:4173/")
 AUS = os.environ.get("SCREENS", "/tmp/fundament")
 os.makedirs(AUS, exist_ok=True)
@@ -46,9 +53,11 @@ def zeitleiste(page, wert):
 
 def ueben(page, breite, wo, sprache, shot=None):
     page.get_by_role("tab", name="Trainieren" if sprache == "de" else "Train").first.click(); page.wait_for_timeout(200)
+    _typen_auf(page)
     typen = page.locator("[data-aufgabentyp]:visible button")
     namen = [typen.nth(i).inner_text() for i in range(typen.count())]
     for i, name in enumerate(namen):
+        _typen_auf(page)
         typen.nth(i).click(); page.wait_for_timeout(100)
         for _ in range(6 if i else 12):
             schritte_durch(page, f"{wo}/{name}")
@@ -76,6 +85,8 @@ with sync_playwright() as p:
             page.goto(BASE + "axiome"); page.wait_for_timeout(1200)
             if sprache == "de":
                 pruefe(page.get_by_role("heading", name="Axiome und Rechenregeln").count() > 0, f"{wo}: Überschrift fehlt")
+            # Axiome (Etikett Trainieren) öffnet seit 21.10. bei der Aufgabe – für die Probe erst nach Entdecken wechseln
+            page.get_by_role("tab", name="Entdecken" if sprache == "de" else "Explore").first.click(); page.wait_for_timeout(200)
             probe = page.locator("[data-gesetzprobe]")
             pruefe(probe.count() == 1, f"{wo}: Gesetz-Probe fehlt")
             for kz in ["A1", "A2", "A3", "A4", "M1", "M2", "M3", "M4", "D"]:

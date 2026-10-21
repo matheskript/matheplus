@@ -11,6 +11,13 @@ Je Breite (1440, 1100, 860 = Desktop; 390, 360 = Handy):
 import os
 from playwright.sync_api import sync_playwright
 
+def _typen_auf(pg):
+    """Aufgabentyp-Chips liegen seit 21.10. hinter der Einstellungs-Pille: bei Bedarf aufklappen."""
+    if pg.locator("[data-einstellungen-feld]:visible").count() == 0:
+        pil = pg.locator("[data-einstellungen-pille]:visible")
+        if pil.count():
+            pil.first.click(); pg.wait_for_timeout(150)
+
 BASE = os.environ.get("BASE_URL", "http://localhost:4173/").rstrip("/")
 AUS = os.environ.get("SCREENSHOTS")
 fehler = []
@@ -278,6 +285,7 @@ with sync_playwright() as pw:
         ueberbreite(p, n)
         foto(p, w, "diagramme")
         tab(p, "Trainieren")
+        _typen_auf(p)
         p.locator("[data-aufgabentyp]:visible button").filter(has_text="Diagramm ablesen").first.click(); p.wait_for_timeout(150)
         schritt_loesen(p)
         ueberbreite(p, n + " üben")

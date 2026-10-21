@@ -7,7 +7,7 @@ import { GENERATOREN } from "../src/trainingDaten.js";
 import { WERKZEUGE } from "../src/werkzeuge.js";
 import {
   EXTRA, FILME, PROGRAMME, REITER_IDS, auswertung, programmeFuer, seitenTitel, sessionAusAufgaben, sessionAusProgramm, sessionAusWerkzeug, sessionVon,
-  trainierBereiche, trainierWerkzeuge, zuletztLesen, zuletztMerken,
+  trainierBereiche, trainierWerkzeuge, zuletztLesen, zuletztMerken, themenBereiche, PROGRAMME_SICHTBAR,
 } from "../src/trainingszentrum.js";
 
 const GEN_IDS = new Set(GENERATOREN.map((g) => g.id));
@@ -101,5 +101,9 @@ test("Zuletzt merken und lesen", () => {
   assert.equal(zuletztLesen(sp).kennung, "programm:ableiten-zehn");
   assert.equal(zuletztLesen(sp).seite, 2);
   assert.equal(zuletztLesen(sp).fertig, false);
-  assert.deepEqual(REITER_IDS, ["heute", "programme", "werkzeuge", "pruefung"]);
+  /* Drei Ebenen seit 21.10.: Heute · Themen · Prüfung; Programme bleiben ausgeblendet, bis sie fachlich abgenommen sind */
+  assert.deepEqual(REITER_IDS, PROGRAMME_SICHTBAR ? ["heute", "programme", "themen", "pruefung"] : ["heute", "themen", "pruefung"]);
+  const alleThemen = themenBereiche("alle").flatMap((b) => b.werkzeuge).map((w) => w.id);
+  assert.equal(new Set(alleThemen).size, Object.keys(WERKZEUGE).length, "Themen-Liste enthält jedes Werkzeug genau einmal");
+  assert.ok(themenBereiche("unter").flatMap((b) => b.werkzeuge).every((w) => w.unter), "Unterstufe-Filter");
 });

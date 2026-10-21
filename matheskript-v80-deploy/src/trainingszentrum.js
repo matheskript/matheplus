@@ -102,13 +102,24 @@ export const PROGRAMME = [
 ];
 
 /* ---------- Menü ---------- */
+/* Drei Ebenen (21.10.2026): Heute (dein Plan, Wiederholungen, Fehler, Weitermachen) · Themen (alle Werkzeuge, ein Ort)
+   · Prüfung (Klassenarbeit und Abitur). Programme (PROGRAMME) bleiben als Daten erhalten, sind aber ausgeblendet,
+   bis sie fachlich abgenommen sind (PROGRAMME_SICHTBAR). */
+export const PROGRAMME_SICHTBAR = false;
 export const REITER = [
-  { id: "heute", name: "Heute", zeile: "Kurz, passend, ohne Druck" },
-  { id: "programme", name: "Programme", zeile: "Film, Aufgaben, Trainer – in einer Session" },
-  { id: "werkzeuge", name: "Werkzeuge", zeile: "Du rechnest selbst, die App prüft" },
+  { id: "heute", name: "Heute", zeile: "Dein Plan, deine Wiederholungen, deine Fehler" },
+  ...(PROGRAMME_SICHTBAR ? [{ id: "programme", name: "Programme", zeile: "Film, Aufgaben, Trainer – in einer Session" }] : []),
+  { id: "themen", name: "Themen", zeile: "Alle Werkzeuge nach Bereich – du rechnest selbst, die App prüft" },
   { id: "pruefung", name: "Prüfung", zeile: "Klassenarbeit und Abitur" },
 ];
 export const REITER_IDS = REITER.map((r) => r.id);
+
+/* Alle Werkzeuge (nicht nur Trainieren) nach Bereich, für die Themen-Liste; etikett bleibt je Werkzeug sichtbar */
+export function themenBereiche(stufe = "alle") {
+  return BEREICHE
+    .map((b) => ({ id: b.id, titel: b.titel, werkzeuge: b.stationen.flatMap((s) => s.werkzeuge).filter((id, i, l) => l.indexOf(id) === i).map(werkzeug).filter((w) => w && passtStufe(w, stufe)) }))
+    .filter((b) => b.werkzeuge.length > 0);
+}
 
 /* Bereiche mit Trainier-Werkzeugen, in der Reihenfolge der Startseite */
 export function trainierBereiche(stufe = "alle") {

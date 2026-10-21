@@ -196,17 +196,21 @@ const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Trainiere
 
 export function KreisUndKreisteile() {
   const [modus, setModus] = useState(() => startModus("kreis"));   // Wunsch einer Lernseite (uebenWunsch.js)
+  const kurzErklaert = (
+      <Aufklapp titel={zw("Kurz erklärt", "In short")}>
+          <p style={{ margin: "0 0 6px", textAlign: "center", fontSize: 16 }}><M t="u = 2πr" />, <M t="A = πr²" /></p>
+          <p style={{ margin: "0 0 6px", textAlign: "center", fontSize: 16 }}><M t="b = 2πr · \frac{α}{360°}" />, <M t="A_S = πr² · \frac{α}{360°}" /></p>
+          <p style={{ margin: 0 }}>{zw("Kreisring: A = π(R² − r²). Ist der Durchmesser gegeben, erst halbieren.", "Annulus: A = π(R² − r²). If the diameter is given, halve it first.")}</p>
+        </Aufklapp>
+  );
   return (
     <Seite titel={zw("Kreis und Kreisteile", "Circles and their parts")}
-      text={zw("Umfang, Fläche, Bogen und Kreisausschnitt – und warum π in allem steckt. Mit Rückwärtsrechnen und Kreisring.", "Circumference, area, arc and sector – and why π is in all of them. Including working backwards and the annulus.")}>
+      text={zw("Umfang, Fläche, Bogen und Kreisausschnitt – und warum π in allem steckt. Mit Rückwärtsrechnen und Kreisring.", "Circumference, area, arc and sector – and why π is in all of them. Including working backwards and the annulus.")} knapp={modus === "ueben"}>
       <ModusLeiste modi={MODI} modus={modus} setModus={setModus} label={zw("Kreis", "Circle")} />
-      <Aufklapp titel={zw("Kurz erklärt", "In short")}>
-        <p style={{ margin: "0 0 6px", textAlign: "center", fontSize: 16 }}><M t="u = 2πr" />, <M t="A = πr²" /></p>
-        <p style={{ margin: "0 0 6px", textAlign: "center", fontSize: 16 }}><M t="b = 2πr · \frac{α}{360°}" />, <M t="A_S = πr² · \frac{α}{360°}" /></p>
-        <p style={{ margin: 0 }}>{zw("Kreisring: A = π(R² − r²). Ist der Durchmesser gegeben, erst halbieren.", "Annulus: A = π(R² − r²). If the diameter is given, halve it first.")}</p>
-      </Aufklapp>
+      {modus === "entdecken" && kurzErklaert}
       <div style={{ display: modus === "entdecken" ? "block" : "none" }}><Entdecken /></div>
       <div style={{ display: modus === "ueben" ? "block" : "none" }}>
+      {modus === "ueben" && kurzErklaert}
         <UebenRahmen titel={TITEL} arten={KREIS_ARTEN} neue={neue} schritte={schritte} text={text} skizze={skizze} hilfe={hilfe} />
       </div>
     </Seite>

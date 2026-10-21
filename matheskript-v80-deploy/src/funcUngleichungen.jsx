@@ -479,7 +479,7 @@ const KAPITEL = [
 
 export function Ungleichungen() {
   return (
-    <LernwegSeite speicher="matheplus-ungleichungen-kapitel" kapitel={KAPITEL}
+    <LernwegSeite werkzeug="ungleichungen" speicher="matheplus-ungleichungen-kapitel" kapitel={KAPITEL}
       titel={zw("Ungleichungen und Beträge", "Inequalities and absolute values")}
       text={zw("Von „höchstens 20 €“ bis zur Parabel über der x-Achse: Lösungsmengen finden, auf der Zahlengeraden sehen und als Intervall schreiben – linear, mit Betrag und quadratisch.",
         "From “at most €20” to the parabola above the x-axis: find solution sets, see them on the number line and write them as intervals – linear, with absolute values and quadratic.")} />

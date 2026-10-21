@@ -260,16 +260,20 @@ const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Trainiere
 
 export function KoerperVolumen() {
   const [modus, setModus] = useState(() => startModus("koerper"));
+  const kurzErklaert = (
+      <Aufklapp titel={zw("Kurz erklärt", "In short")}>
+          {Object.keys(FORMEL).map((k) => <p key={k} style={{ margin: "0 0 4px" }}><b>{NAMEN[k]}:</b> <M t={FORMEL[k][0]} />, <M t={FORMEL[k][1]} /></p>)}
+          <p style={{ margin: "6px 0 0" }}>{zw("Kegel: s = √(r² + h²). Pyramide: hₛ = √(h² + (a/2)²).", "Cone: s = √(r² + h²). Pyramid: hₛ = √(h² + (a/2)²).")}</p>
+        </Aufklapp>
+  );
   return (
     <Seite titel={zw("Körper: Volumen und Oberfläche", "Solids: volume and surface")}
-      text={zw("Prisma, Zylinder, Pyramide, Kegel und Kugel – mit Schrägbild, den Formeln dahinter und Pythagoras für die schrägen Höhen.", "Prism, cylinder, pyramid, cone and sphere – with oblique drawings, the formulas behind them and Pythagoras for the slanted heights.")}>
+      text={zw("Prisma, Zylinder, Pyramide, Kegel und Kugel – mit Schrägbild, den Formeln dahinter und Pythagoras für die schrägen Höhen.", "Prism, cylinder, pyramid, cone and sphere – with oblique drawings, the formulas behind them and Pythagoras for the slanted heights.")} knapp={modus === "ueben"}>
       <ModusLeiste modi={MODI} modus={modus} setModus={setModus} label={zw("Körper", "Solids")} />
-      <Aufklapp titel={zw("Kurz erklärt", "In short")}>
-        {Object.keys(FORMEL).map((k) => <p key={k} style={{ margin: "0 0 4px" }}><b>{NAMEN[k]}:</b> <M t={FORMEL[k][0]} />, <M t={FORMEL[k][1]} /></p>)}
-        <p style={{ margin: "6px 0 0" }}>{zw("Kegel: s = √(r² + h²). Pyramide: hₛ = √(h² + (a/2)²).", "Cone: s = √(r² + h²). Pyramid: hₛ = √(h² + (a/2)²).")}</p>
-      </Aufklapp>
+      {modus === "entdecken" && kurzErklaert}
       <div style={{ display: modus === "entdecken" ? "block" : "none" }}><Entdecken /></div>
       <div style={{ display: modus === "ueben" ? "block" : "none" }}>
+      {modus === "ueben" && kurzErklaert}
         <UebenRahmen titel={TITEL} arten={KOERPER_ARTEN} neue={neue} schritte={schritte} text={text} skizze={skizze} hilfe={hilfe} />
       </div>
     </Seite>

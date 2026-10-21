@@ -14,7 +14,7 @@ import { C } from "./base1.jsx";
 import { M } from "./func3.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
 import { GrosserKnopf, hilfeKontext, hinweis, karte, kicker, zw } from "./ui2.jsx";
-import { Aufklapp, ModusLeiste, Seite, SchrittFolge, zt } from "./ui3.jsx";
+import { Aufklapp, ModusLeiste, Seite, SchrittFolge, zt, EinstellungsPille } from "./ui3.jsx";
 import { TERM_ARTEN, termAufgabe, xMinus } from "./bruchGen.js";
 import { wahlDrehen } from "./antwortReihenfolge.js";
 import { Merke, Regler, SCHRIFT, WertZeile } from "./geoUi.jsx";
@@ -285,8 +285,8 @@ export function Ueben() {
   const karte = useKarte();   // Desktop: feiner Rahmen statt Schatten
   return (
     <>
-      <div style={{ ...karte, marginTop: 16 }}>
-        <p style={kicker}>{zw("Aufgabentyp", "Exercise type")}</p>
+      {/* Aufgabe zuerst (21.10.): Typ-Chips hinter der Einstellungs-Pille */}
+      <EinstellungsPille kennung="bruchterme" teile={[[zw("Aufgabentyp", "Exercise type"), (ARTEN.find(([id]) => id === art) || ARTEN[0])[1]]]}>
         <div data-aufgabentyp style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
           {ARTEN.map(([id, t]) => (
             <button key={id} type="button" aria-pressed={art === id} onClick={() => { setArt(id); neu(id); }}
@@ -294,7 +294,7 @@ export function Ueben() {
                 border: `1.5px solid ${art === id ? C.see : C.linie}`, background: art === id ? C.see : C.weiss, color: art === id ? C.weiss : C.see }}>{t}</button>
           ))}
         </div>
-      </div>
+      </EinstellungsPille>
       <div style={{ ...karte, marginTop: 12 }} key={au.id}>
         <p style={kicker}>{zw(TITEL[au.art][0], TITEL[au.art][1])}</p>
         <p style={{ ...hinweis, color: C.tinte, fontSize: 15.5, marginBottom: 4 }}>{aufgabenText(au)}</p>
@@ -310,18 +310,22 @@ const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Trainiere
 
 export function Bruchterme() {
   const [modus, setModus] = useState(() => startModus("bruchterme"));
+  const kurzErklaert = (
+      <Aufklapp titel={zw("Kurz erklärt", "In short")}>
+          <p style={{ margin: "0 0 6px" }}><b>{zw("Definitionsmenge:", "Domain:")}</b> {zw("alle Zahlen außer denen, für die ein Nenner 0 wird.", "all numbers except those that make a denominator 0.")}</p>
+          <p style={{ margin: "0 0 6px" }}><b>{zw("Kürzen:", "Simplifying:")}</b> {zw("nur gemeinsame Faktoren – erst faktorisieren.", "only common factors – factor first.")} {T("\\frac{x² − 9}{x − 3} = \\frac{(x − 3)(x + 3)}{x − 3} = x + 3")}</p>
+          <p style={{ margin: 0 }}><b>{zw("Gleichungen:", "Equations:")}</b> {zw("mit dem Hauptnenner malnehmen, lösen, dann jede Lösung mit D vergleichen.", "multiply by the common denominator, solve, then compare every solution with D.")}</p>
+        </Aufklapp>
+  );
   return (
     <Seite titel={zw("Bruchterme und Bruchgleichungen", "Fraction terms and equations")}
       text={zw("Sobald x im Nenner steht, kommt eine neue Frage dazu: Wo ist der Term überhaupt definiert? Kürzen, zusammenfassen, Gleichungen lösen – und keine Scheinlösung durchrutschen lassen.",
-        "As soon as x is in the denominator, a new question appears: where is the term defined at all? Simplify, combine, solve equations – and don't let a false solution slip through.")}>
+        "As soon as x is in the denominator, a new question appears: where is the term defined at all? Simplify, combine, solve equations – and don't let a false solution slip through.")} knapp={modus === "ueben"}>
       <ModusLeiste modi={MODI} modus={modus} setModus={setModus} label={zw("Bruchterme", "Fraction terms")} />
-      <Aufklapp titel={zw("Kurz erklärt", "In short")}>
-        <p style={{ margin: "0 0 6px" }}><b>{zw("Definitionsmenge:", "Domain:")}</b> {zw("alle Zahlen außer denen, für die ein Nenner 0 wird.", "all numbers except those that make a denominator 0.")}</p>
-        <p style={{ margin: "0 0 6px" }}><b>{zw("Kürzen:", "Simplifying:")}</b> {zw("nur gemeinsame Faktoren – erst faktorisieren.", "only common factors – factor first.")} {T("\\frac{x² − 9}{x − 3} = \\frac{(x − 3)(x + 3)}{x − 3} = x + 3")}</p>
-        <p style={{ margin: 0 }}><b>{zw("Gleichungen:", "Equations:")}</b> {zw("mit dem Hauptnenner malnehmen, lösen, dann jede Lösung mit D vergleichen.", "multiply by the common denominator, solve, then compare every solution with D.")}</p>
-      </Aufklapp>
+      {modus === "entdecken" && kurzErklaert}
       <div style={{ display: modus === "entdecken" ? "block" : "none" }}><Entdecken /></div>
       <div style={{ display: modus === "ueben" ? "block" : "none" }}><Ueben /></div>
+      {modus === "ueben" && kurzErklaert}
     </Seite>
   );
 }

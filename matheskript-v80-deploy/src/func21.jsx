@@ -420,7 +420,6 @@ export function Sinusfunktion({ gehe, ansicht = "sinus" }) {
     const knopfGross = { width: "100%", height: 44, borderRadius: 999, fontFamily: "inherit", cursor: "pointer" };
     return (
       <>
-      <SinusUebungen extra={menueExtra} />
       <div className="mx-auto px-6 pb-16" data-sinus="breit" style={{ maxWidth: 620, paddingTop: 30 }}>
         <h1 style={{ fontSize: "clamp(21px, 6.2vw, 26px)", fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1.15, marginBottom: 18 }}>
           Sinusfunktion
@@ -484,13 +483,14 @@ export function Sinusfunktion({ gehe, ansicht = "sinus" }) {
           <FeinKarte data-sinus-nullstellen>{nullstellenInhalt}</FeinKarte>
         </ErgebnisReihe>
       </div>
+      {/* „Zusätzlich üben“ unter dem Werkzeug (Aufgabe zuerst, 21.10.) */}
+      <SinusUebungen extra={menueExtra} />
       </>
     );
   }
 
   return (
     <>
-    <SinusUebungen extra={menueExtra} />
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
       <h1 style={{ fontSize: "clamp(21px, 6.2vw, 26px)", fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1.15, marginBottom: 18 }}>
         Sinusfunktion
@@ -561,6 +561,7 @@ export function Sinusfunktion({ gehe, ansicht = "sinus" }) {
 
       <div style={{ ...karte, marginTop: 16 }}>{nullstellenInhalt}</div>
     </div>
+    <SinusUebungen extra={menueExtra} />
     </>
   );
 }

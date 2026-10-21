@@ -115,6 +115,9 @@ with sync_playwright() as p:
             einheit.get_by_role("button").last.click(); page.wait_for_timeout(1500)
             pruefe("ableitungstrainer" in page.url, f"{breite}/{fall}: Ableitungstrainer nicht geöffnet ({page.url})")
             soll = "Polynome" if fall == "frisch" else "Produkte"
+            # Funktionsart liegt am Handy hinter der Einstellungs-Pille (21.10.): Pille zeigt die Art, Chips erst nach dem Aufklappen
+            pille = page.locator("[data-einstellungen-pille]")
+            if pille.count() and page.locator("[data-einstellungen-feld]").count() == 0: pille.first.click(); page.wait_for_timeout(200)
             chip = page.locator(f".abl-chip[aria-pressed='true']")
             pruefe(chip.count() >= 1 and soll in chip.first.inner_text(), f"{breite}/{fall}: Ableitungstrainer nicht in „{soll}“ ({chip.first.inner_text() if chip.count() else '–'})")
             if breite == 390:

@@ -17,7 +17,7 @@ import { M } from "./func3.jsx";
 import { FR } from "./funcRegistry.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
 import { GrosserKnopf, KleinerLink, hilfeKontext, hinweis, karte, kicker, zw } from "./ui2.jsx";
-import { Aufklapp, ModusLeiste, Seite, SchrittFolge, zt } from "./ui3.jsx";
+import { Aufklapp, ModusLeiste, Seite, SchrittFolge, zt, EinstellungsPille } from "./ui3.jsx";
 import { GRAD, PYTH_ARTEN, pythAufgabe } from "./geoMittel.js";
 import { Merke, Regler, WertZeile, Zeichenblatt, add, mal, mitte, sub, EntdeckenZweispaltig } from "./geoUi.jsx";
 import { useDesktop } from "./arbeitsflaeche.jsx";
@@ -397,8 +397,8 @@ function Ueben() {
   const folge = <SchrittFolge schritte={schritte} stand={stand} setStand={setStand} fertigText={zw("Richtig gelöst – rechter Winkel erkannt, Gleichung aufgestellt, berechnet.", "Solved – right angle spotted, equation set up, calculated.")} />;
   return (
     <>
-      <div style={{ ...karte, marginTop: 16 }}>
-        <p style={kicker}>{zw("Aufgabentyp", "Exercise type")}</p>
+      {/* Aufgabe zuerst (21.10.): Typ-Chips hinter der Einstellungs-Pille */}
+      <EinstellungsPille kennung="pythagoras" teile={[[zw("Aufgabentyp", "Exercise type"), (ARTEN.find(([id]) => id === art) || ARTEN[0])[1]]]}>
         <div data-aufgabentyp style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
           {ARTEN.map(([id, t]) => (
             <button key={id} type="button" aria-pressed={art === id} onClick={() => { setArt(id); neu(id); }}
@@ -406,7 +406,7 @@ function Ueben() {
                 border: `1.5px solid ${art === id ? C.see : C.linie}`, background: art === id ? C.see : C.weiss, color: art === id ? C.weiss : C.see }}>{t}</button>
           ))}
         </div>
-      </div>
+      </EinstellungsPille>
       <div style={{ ...karte, marginTop: 12 }} key={au.id}>
         <p style={kicker}>{zw(TITEL[au.art][0], TITEL[au.art][1])}</p>
         {desktop && au.art !== "umkehr" ? <AufgabeZweispaltig links={<>{aufgabe}{folge}</>} skizze={<Skizze au={au} />} /> : (<>
@@ -425,19 +425,23 @@ const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Trainiere
 
 export function SatzDesPythagoras() {
   const [modus, setModus] = useState(() => startModus("pythagoras"));
+  const kurzErklaert = (
+      <Aufklapp titel={zw("Kurz erklärt", "In short")}>
+          <p style={{ margin: "0 0 6px" }}>{zw("Hat ein Dreieck bei C einen rechten Winkel, heißen a und b Katheten und c Hypotenuse. Dann gilt:", "If a triangle has a right angle at C, a and b are called legs and c the hypotenuse. Then:")}</p>
+          <p style={{ margin: "0 0 6px", textAlign: "center", fontSize: 17 }}><M t="a² + b² = c²" /></p>
+          <p style={{ margin: "0 0 6px" }}>{zw("Kathete gesucht: b² = c² − a². Die Hypotenuse ist immer die längste Seite und liegt dem rechten Winkel gegenüber.", "Leg wanted: b² = c² − a². The hypotenuse is always the longest side and lies opposite the right angle.")}</p>
+          <p style={{ margin: 0 }}>{zw("Umkehrung: Gilt a² + b² = c², dann ist das Dreieck bei C rechtwinklig.", "Converse: if a² + b² = c², the triangle has a right angle at C.")}</p>
+        </Aufklapp>
+  );
   return (
     <Seite titel={zw("Satz des Pythagoras", "Pythagoras' theorem")}
       text={zw("Im rechtwinkligen Dreieck sind die Quadrate über den Katheten zusammen so groß wie das Quadrat über der Hypotenuse. Damit berechnest du jede fehlende Seite – in der Ebene und im Raum.",
-        "In a right triangle the squares on the legs together are as large as the square on the hypotenuse. With that you can find any missing side – in the plane and in space.")}>
+        "In a right triangle the squares on the legs together are as large as the square on the hypotenuse. With that you can find any missing side – in the plane and in space.")} knapp={modus === "ueben"}>
       <ModusLeiste modi={MODI} modus={modus} setModus={setModus} label={zw("Satz des Pythagoras", "Pythagoras' theorem")} />
-      <Aufklapp titel={zw("Kurz erklärt", "In short")}>
-        <p style={{ margin: "0 0 6px" }}>{zw("Hat ein Dreieck bei C einen rechten Winkel, heißen a und b Katheten und c Hypotenuse. Dann gilt:", "If a triangle has a right angle at C, a and b are called legs and c the hypotenuse. Then:")}</p>
-        <p style={{ margin: "0 0 6px", textAlign: "center", fontSize: 17 }}><M t="a² + b² = c²" /></p>
-        <p style={{ margin: "0 0 6px" }}>{zw("Kathete gesucht: b² = c² − a². Die Hypotenuse ist immer die längste Seite und liegt dem rechten Winkel gegenüber.", "Leg wanted: b² = c² − a². The hypotenuse is always the longest side and lies opposite the right angle.")}</p>
-        <p style={{ margin: 0 }}>{zw("Umkehrung: Gilt a² + b² = c², dann ist das Dreieck bei C rechtwinklig.", "Converse: if a² + b² = c², the triangle has a right angle at C.")}</p>
-      </Aufklapp>
+      {modus === "entdecken" && kurzErklaert}
       <div style={{ display: modus === "entdecken" ? "block" : "none" }}><Entdecken /></div>
       <div style={{ display: modus === "ueben" ? "block" : "none" }}><Ueben /></div>
+      {modus === "ueben" && kurzErklaert}
     </Seite>
   );
 }

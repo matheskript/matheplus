@@ -286,17 +286,21 @@ const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Trainiere
 
 export function Konstruktionen() {
   const [modus, setModus] = useState(() => startModus("konstruktion"));
+  const kurzErklaert = (
+      <Aufklapp titel={zw("Kurz erklärt", "In short")}>
+          {Object.keys(ART).map((k) => <p key={k} style={{ margin: "0 0 4px" }}><b>{ART[k].name}</b> → {ART[k].punkt}</p>)}
+          <p style={{ margin: "6px 0 0" }}>{zw("Konstruieren mit Zirkel: Mittelsenkrechte über zwei gleich große Kreisbögen um die Endpunkte; Winkelhalbierende über einen Bogen um den Scheitel und zwei gleiche Bögen um die Schnittpunkte.", "Constructing with compasses: perpendicular bisector via two equal arcs around the end points; angle bisector via one arc around the vertex and two equal arcs around the intersections.")} <M t="S = \frac{A + B + C}{3}" /></p>
+        </Aufklapp>
+  );
   return (
     <Seite titel={zw("Besondere Linien im Dreieck", "Special lines in a triangle")}
       text={zw("Mittelsenkrechte, Winkelhalbierende, Höhe und Seitenhalbierende: Je drei davon treffen sich immer in einem Punkt – Umkreismittelpunkt, Inkreismittelpunkt, Höhenschnittpunkt und Schwerpunkt.",
-        "Perpendicular bisectors, angle bisectors, altitudes and medians: each set of three always meets in one point – circumcentre, incentre, orthocentre and centroid.")}>
+        "Perpendicular bisectors, angle bisectors, altitudes and medians: each set of three always meets in one point – circumcentre, incentre, orthocentre and centroid.")} knapp={modus === "ueben"}>
       <ModusLeiste modi={MODI} modus={modus} setModus={setModus} label={zw("Konstruktionen", "Constructions")} />
-      <Aufklapp titel={zw("Kurz erklärt", "In short")}>
-        {Object.keys(ART).map((k) => <p key={k} style={{ margin: "0 0 4px" }}><b>{ART[k].name}</b> → {ART[k].punkt}</p>)}
-        <p style={{ margin: "6px 0 0" }}>{zw("Konstruieren mit Zirkel: Mittelsenkrechte über zwei gleich große Kreisbögen um die Endpunkte; Winkelhalbierende über einen Bogen um den Scheitel und zwei gleiche Bögen um die Schnittpunkte.", "Constructing with compasses: perpendicular bisector via two equal arcs around the end points; angle bisector via one arc around the vertex and two equal arcs around the intersections.")} <M t="S = \frac{A + B + C}{3}" /></p>
-      </Aufklapp>
+      {modus === "entdecken" && kurzErklaert}
       <div style={{ display: modus === "entdecken" ? "block" : "none" }}><Entdecken /></div>
       <div style={{ display: modus === "ueben" ? "block" : "none" }}>
+      {modus === "ueben" && kurzErklaert}
         <UebenRahmen titel={TITEL} arten={KONSTR_ARTEN} neue={neue} schritte={schritte} text={text} skizze={skizze} hilfe={hilfe} />
       </div>
     </Seite>

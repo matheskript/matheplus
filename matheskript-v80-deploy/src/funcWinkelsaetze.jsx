@@ -396,18 +396,22 @@ const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Trainiere
 
 export function Winkelsaetze() {
   const [modus, setModus] = useState(() => startModus("winkelsaetze"));   // Wunsch einer Lernseite (uebenWunsch.js)
+  const kurzErklaert = (
+      <Aufklapp titel={zw("Kurz erklärt", "In short")}>
+          <p style={{ margin: "0 0 6px" }}>{zw("Gleich groß: Scheitelwinkel, Stufenwinkel und Wechselwinkel (an Parallelen). Zusammen 180°: Nebenwinkel und Nachbarwinkel.", "Equal: vertical, corresponding and alternate angles (at parallels). Together 180°: adjacent and co-interior angles.")}</p>
+          <p style={{ margin: "0 0 6px", textAlign: "center", fontSize: 16 }}><M t="α + β + γ = 180°" /></p>
+          <p style={{ margin: 0 }}>{zw("Im n-Eck ist die Innenwinkelsumme (n − 2) · 180°, im regelmäßigen n-Eck ist jeder Innenwinkel (n − 2) · 180° : n.", "In an n-gon the interior angle sum is (n − 2) · 180°; in a regular n-gon each interior angle is (n − 2) · 180° : n.")}</p>
+        </Aufklapp>
+  );
   return (
     <Seite titel={zw("Winkel und Winkelsummen", "Angles and angle sums")}
       text={zw("Scheitel-, Neben-, Stufen- und Wechselwinkel, die Winkelsumme im Dreieck und im n-Eck: die Werkzeuge, mit denen man jeden fehlenden Winkel findet.",
-        "Vertical, adjacent, corresponding and alternate angles, the angle sum in triangles and polygons: the tools to find any missing angle.")}>
+        "Vertical, adjacent, corresponding and alternate angles, the angle sum in triangles and polygons: the tools to find any missing angle.")} knapp={modus === "ueben"}>
       <ModusLeiste modi={MODI} modus={modus} setModus={setModus} label={zw("Winkelsätze", "Angle theorems")} />
-      <Aufklapp titel={zw("Kurz erklärt", "In short")}>
-        <p style={{ margin: "0 0 6px" }}>{zw("Gleich groß: Scheitelwinkel, Stufenwinkel und Wechselwinkel (an Parallelen). Zusammen 180°: Nebenwinkel und Nachbarwinkel.", "Equal: vertical, corresponding and alternate angles (at parallels). Together 180°: adjacent and co-interior angles.")}</p>
-        <p style={{ margin: "0 0 6px", textAlign: "center", fontSize: 16 }}><M t="α + β + γ = 180°" /></p>
-        <p style={{ margin: 0 }}>{zw("Im n-Eck ist die Innenwinkelsumme (n − 2) · 180°, im regelmäßigen n-Eck ist jeder Innenwinkel (n − 2) · 180° : n.", "In an n-gon the interior angle sum is (n − 2) · 180°; in a regular n-gon each interior angle is (n − 2) · 180° : n.")}</p>
-      </Aufklapp>
+      {modus === "entdecken" && kurzErklaert}
       <div style={{ display: modus === "entdecken" ? "block" : "none" }}><Entdecken /></div>
       <div style={{ display: modus === "ueben" ? "block" : "none" }}>
+      {modus === "ueben" && kurzErklaert}
         <UebenRahmen titel={TITEL} arten={WINKEL_ARTEN} neue={neue} schritte={schritte} text={text} skizze={skizze} hilfe={hilfe} />
       </div>
     </Seite>

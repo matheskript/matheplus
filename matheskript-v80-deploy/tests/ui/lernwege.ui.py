@@ -11,6 +11,13 @@ Je Breite (360, 390, 1280) und Sprache (DE, EN):
 import os
 from playwright.sync_api import sync_playwright
 
+def _typen_auf(pg):
+    """Aufgabentyp-Chips liegen seit 21.10. hinter der Einstellungs-Pille: bei Bedarf aufklappen."""
+    if pg.locator("[data-einstellungen-feld]:visible").count() == 0:
+        pil = pg.locator("[data-einstellungen-pille]:visible")
+        if pil.count():
+            pil.first.click(); pg.wait_for_timeout(150)
+
 BASE = os.environ.get("BASE_URL", "http://localhost:4173/")
 AUS = os.environ.get("SCREENS", "/tmp/lernwege")
 os.makedirs(AUS, exist_ok=True)
@@ -70,6 +77,7 @@ def labore(page, breite, wo):
     return lab.count()
 
 def ueben(page, breite, wo, wdh):
+    _typen_auf(page)
     typen = page.locator("[data-aufgabentyp]:visible button")
     namen = [typen.nth(i).inner_text() for i in range(typen.count())]
     for i, name in enumerate(namen):

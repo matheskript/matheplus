@@ -98,7 +98,6 @@ const EntwurfWerkzeuge = lazyLaden(() => import("./funcStartArchiv.jsx").then((m
 const EbbinghausSeite = lazyLaden(() => import("./funcEbbinghaus.jsx").then((m) => ({ default: m.EbbinghausSeite })));
 const AbiKettenSeite = lazyLaden(() => import("./funcAbiKetten.jsx").then((m) => ({ default: m.AbiKettenSeite })));
 const AbiSaetzeSeite = lazyLaden(() => import("./funcAbiSaetze.jsx").then((m) => ({ default: m.AbiSaetzeSeite })));
-const MeinTrainingSeite = lazyLaden(() => import("./funcMeinTraining.jsx").then((m) => ({ default: m.MeinTrainingSeite })));
 const Geradengleichung = lazyLaden(() => import("./funcGeradengleichung.jsx").then((m) => ({ default: m.Geradengleichung })));
 const Ableitungstrainer = lazyLaden(() => import("./func13.jsx").then((m) => ({ default: m.Ableitungstrainer })));
 const ParabelTrainer = lazyLaden(() => import("./funcParabelTrainer.jsx").then((m) => ({ default: m.ParabelTrainer })));
@@ -243,6 +242,7 @@ export function Mathilda() {
   const [formelZiel, setFormelZiel] = useState(null);
   const [trainierenZiel, setTrainierenZiel] = useState(null);   // „Eine Sache trainieren“: { kapitel, teil, schulart, klasse }
   const [tzStart, setTzStart] = useState(null);   // Trainingszentrum: Session direkt starten, z. B. "programm:ableiten-zehn"
+  const [tzReiter, setTzReiter] = useState(null);  // Trainingszentrum: Reiter heute | themen | pruefung (aus dem Menü)
   const [kapitelSeiteZiel, setKapitelSeiteZiel] = useState(null);   // Kapitelseite: { kapitel, schulart, klasse }
   const [kapitelZiel, setKapitelZiel] = useState(null);   // Formelauswahl zum Buchkapitel (Quickfinder)   // Deep-Link auf eine einzelne Formel   // Bereich der Formelsammlung          // Bundesland der Landeswettbewerb-Seite
   const [sprung, setSprung] = useState(null);
@@ -375,7 +375,8 @@ export function Mathilda() {
     setEntdeckenStart(eintrag.ansicht === "entdecken" ? eintrag.seite || null : null);
     if (eintrag.land) setLandWahl(eintrag.land);
     if (eintrag.ansicht === "formeln") { setFormelBereich(eintrag.bereich || "analysis"); setFormelZiel(eintrag.formel || null); }
-    if (eintrag.ansicht === "trainingszentrum") setTzStart(eintrag.start ? { kennung: eintrag.start, zeit: Date.now() } : null);
+    if (eintrag.ansicht === "trainingszentrum") { setTzStart(eintrag.start ? { kennung: eintrag.start, zeit: Date.now() } : null); setTzReiter(eintrag.reiter || null); }
+    if (eintrag.ansicht === "meintraining" || eintrag.ansicht === "trainingsplan") setTzReiter("heute");
     if (eintrag.ansicht === "trainieren") setTrainierenZiel(eintrag.kapitel ? { kapitel: eintrag.kapitel, teil: eintrag.teil || null, schulart: eintrag.schulart, klasse: eintrag.klasse, zeit: Date.now() } : null);
     if (eintrag.ansicht === "kapitel") setKapitelSeiteZiel(eintrag.kapitel ? { kapitel: eintrag.kapitel, schulart: eintrag.schulart, klasse: eintrag.klasse } : null);
     if (eintrag.ansicht === "kapitelformeln") setKapitelZiel(eintrag.kapitel ? { kapitel: eintrag.kapitel, schulart: eintrag.schulart, klasse: eintrag.klasse, modus: eintrag.modus } : null);
@@ -832,8 +833,9 @@ export function Mathilda() {
           <Fortschritt />
           <TrainingFortschritt gehe={gehe} />
         </>
-      ) : ansicht === "trainingszentrum" ? (
-        <Trainingszentrum key={tzStart ? tzStart.zeit : "tz"} gehe={gehe} start={tzStart ? tzStart.kennung : null} />
+      ) : ansicht === "trainingszentrum" || ansicht === "meintraining" || ansicht === "trainingsplan" ? (
+        /* Mein Mathe-Training ist seit 21.10. der Reiter „Heute“ des Trainingszentrums (eine Heute-Seite statt drei Logiken) */
+        <Trainingszentrum key={tzStart ? tzStart.zeit : "tz"} gehe={gehe} start={tzStart ? tzStart.kennung : null} reiter={ansicht === "trainingszentrum" ? tzReiter : "heute"} />
       ) : ansicht === "warmup" ? (
         <>
           <SeitenKopf titel="5 Minuten Mathe" groesse="clamp(24px, 7vw, 34px)">
@@ -1205,13 +1207,6 @@ export function Mathilda() {
             <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
           </div>
           <LernpfadSeite key={pfadStart ? `${pfadStart.einheit}-${pfadStart.zeit}` : "plan"} gehe={gehe} start={pfadStart} />
-        </>
-      ) : ansicht === "meintraining" || ansicht === "trainingsplan" ? (
-        <>
-          <SeitenKopf titel="Mein Mathe-Training" groesse="clamp(26px, 7.6vw, 36px)" rund>
-              <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>Was mache ich heute? Wo stehe ich? Dein Tagesplan, deine Themen, deine Wiederholungen – an einem Ort.</p>
-          </SeitenKopf>
-          <MeinTrainingSeite gehe={gehe} />
         </>
       ) : ansicht === "ebbinghaus" ? (
         <>

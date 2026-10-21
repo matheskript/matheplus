@@ -20,6 +20,7 @@
    Keine base-Datei darf diese Datei importieren.
    ============================================================ */
 
+import { KapitelWahl, LERNWEG_CSS, useLernwegModus } from "./lernwegUi.jsx";
 import React, { useEffect, useRef, useState } from "react";
 import { C } from "./base1.jsx";
 import { M } from "./func3.jsx";
@@ -186,10 +187,10 @@ const FormelBlock = ({ t }) => (
 const Aufforderung = ({ children }) => <p style={{ fontSize: 13, color: C.see, fontWeight: 600, margin: "0 0 10px" }}>{children}</p>;
 const Trenner = () => <div style={{ height: 1, background: C.linie, margin: "30px 0 26px" }} />;
 const UebenKopf = ({ children }) => (
-  <>
+  <div data-ueben-start>
     <p style={{ fontSize: 13, fontWeight: 600, color: C.gruen, margin: "0 0 4px" }}>{zw("Jetzt selbst üben", "Practise now")}</p>
     <h3 style={{ fontSize: 21, fontWeight: 700, color: C.tinte, margin: "0 0 4px", letterSpacing: "-0.01em" }}>{children}</h3>
-  </>
+  </div>
 );
 
 function hilfeT(id, extra = {}) {
@@ -1300,17 +1301,20 @@ export function TrigonometrieDreieck() {
   const idx = KAPITEL.findIndex(([id]) => id === kap);
   const Inhalt = KAPITEL[idx][2];
   const naechstes = KAPITEL[idx + 1];
+  const lw = useLernwegModus("trigonometrie");   // Entdecken | Trainieren („Aufgabe zuerst“, 21.10.)
   return (
     <Seite titel={zw("Trigonometrie", "Trigonometry")}
       text={zw("Erst verstehen, was sin, cos und tan wirklich sind – dann damit rechnen: im Einheitskreis, im rechtwinkligen Dreieck und mit Sinus- und Kosinussatz in jedem Dreieck.",
         "First understand what sin, cos and tan really are – then calculate with them: in the unit circle, in right triangles and with the laws of sines and cosines in any triangle.")}>
+      <style>{LERNWEG_CSS}</style>
       <div ref={oben} style={{ scrollMarginTop: 80 }} />
-      <Lernweg kap={kap} setKap={setKap} />
+      {lw.leiste}
+      <KapitelWahl kapitel={KAPITEL} kap={kap} setKap={setKap} trainieren={lw.trainieren} nav={<Lernweg kap={kap} setKap={setKap} />} />
       <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 8, marginTop: 10 }}>
         <span style={{ fontSize: 12, fontWeight: 600, color: C.grau }}>{zw("Rechner:", "Calculator:")}</span>
         <WinkelSchalter klein />
       </div>
-      <div key={kap}><Inhalt /></div>
+      <div key={kap} className={lw.trainieren ? "lw-trainieren" : undefined} data-lernweg-modus={lw.modus}><Inhalt /></div>
       {naechstes && (
         <button type="button" onClick={() => setKap(naechstes[0], "lernweg-weiter")}
           style={{ width: "100%", marginTop: 26, minHeight: 56, borderRadius: 16, border: "none", cursor: "pointer", fontFamily: "inherit", textAlign: "left", padding: "12px 18px",

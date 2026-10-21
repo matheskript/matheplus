@@ -8,6 +8,13 @@ Aufruf: BASE_URL=http://localhost:4173/ python3 tests/ui/desktop-e.ui.py   (sieh
 import os, sys
 from playwright.sync_api import sync_playwright
 
+def _typen_auf(pg):
+    """Aufgabentyp-Chips liegen seit 21.10. hinter der Einstellungs-Pille: bei Bedarf aufklappen."""
+    if pg.locator("[data-einstellungen-feld]:visible").count() == 0:
+        pil = pg.locator("[data-einstellungen-pille]:visible")
+        if pil.count():
+            pil.first.click(); pg.wait_for_timeout(150)
+
 BASE = os.environ.get("BASE_URL", "http://localhost:4173/").rstrip("/")
 SEITEN = ["koordinaten", "flaechen", "quader", "winkelsaetze", "konstruktion", "kongruenz", "thales",
           "pythagoras", "kathetensatz", "kreis", "koerper", "strahlensaetze", "trigonometrie"]
@@ -56,10 +63,12 @@ def ueben(p, pfad, n):
     else:
         p.get_by_role("tab", name="Trainieren").first.click()
     p.wait_for_timeout(250)
+    _typen_auf(p)
     typen = p.locator("[data-aufgabentyp]:visible button")
     pruefe(typen.count() >= 2 or pfad == "strahlensaetze", f"{n}: Aufgabentypen fehlen")   # Strahlensätze: ohne Typwahl
     for i in range(max(1, typen.count())):
         if typen.count():
+            _typen_auf(p)
             typen.nth(i).click()
             p.wait_for_timeout(80)
         for _ in range(2):

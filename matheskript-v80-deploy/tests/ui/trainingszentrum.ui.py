@@ -39,24 +39,21 @@ with sync_playwright() as p:
         pruefe(tz.count() == 1, f"{breite}: Trainingszentrum fehlt")
         pruefe(page.get_by_role("heading", name="Trainingszentrum").count() == 1, f"{breite}: Titel fehlt")
         reiter = page.get_by_role("tab")
-        pruefe(reiter.count() == 4, f"{breite}: vier Reiter erwartet, {reiter.count()}")
+        pruefe(reiter.count() == 3, f"{breite}: drei Reiter (Heute · Themen · Prüfung) erwartet, {reiter.count()}")
+        pruefe(page.locator("[data-tz-plan]").count() == 1, f"{breite}: Mein Mathe-Training fehlt in Heute")
         breite_ok("Heute")
         page.screenshot(path=f"{AUS}/{breite}-1-heute.png", full_page=True)
 
-        # Programme
-        page.get_by_role("tab", name="Programme").click(); page.wait_for_timeout(300)
-        karten = page.locator("[data-tz-karte]")
-        pruefe(karten.count() >= 6, f"{breite}: Programme-Karten: {karten.count()}")
-        breite_ok("Programme")
-        page.screenshot(path=f"{AUS}/{breite}-2-programme.png", full_page=True)
-
-        # Werkzeuge mit Bereichs-Chips
-        page.get_by_role("tab", name="Werkzeuge").click(); page.wait_for_timeout(300)
-        pruefe(page.get_by_role("group", name="Bereich").get_by_role("button").count() >= 6, f"{breite}: Bereichs-Chips fehlen")
-        pruefe(page.locator("[data-tz-karte='Ableitungstrainer']").count() == 1, f"{breite}: Ableitungstrainer-Karte fehlt")
-        page.get_by_role("group", name="Bereich").get_by_role("button", name="Funktionen und Kurven").click(); page.wait_for_timeout(200)
-        pruefe(page.locator("[data-tz-karte='Brüche rechnen']").count() == 0, f"{breite}: Bereichsfilter greift nicht")
-        breite_ok("Werkzeuge")
+        # Themen: kompakte Zeilen je Bereich (Akkordeon), Stufenfilter mit Unterstufe
+        page.get_by_role("tab", name="Themen").click(); page.wait_for_timeout(300)
+        pruefe(page.locator("[data-tz-bereich]").count() >= 8, f"{breite}: Bereiche fehlen")
+        pruefe(page.locator("[data-tz-werkzeug]").count() == 60, f"{breite}: 60 Werkzeuge erwartet, {page.locator('[data-tz-werkzeug]').count()}")
+        page.get_by_role("group", name="Stufe").get_by_role("button", name="Unterstufe").click(); page.wait_for_timeout(200)
+        pruefe(page.locator("[data-tz-werkzeug='ableitungstrainer']").count() == 0, f"{breite}: Stufenfilter Unterstufe greift nicht")
+        page.get_by_role("group", name="Stufe").get_by_role("button", name="Alle").click(); page.wait_for_timeout(200)
+        page.locator("[data-tz-bereich='analysis'] summary").click(); page.wait_for_timeout(200)
+        pruefe(page.locator("[data-tz-werkzeug='ableitungstrainer']").is_visible(), f"{breite}: Ableitungstrainer nach Aufklappen nicht sichtbar")
+        breite_ok("Themen")
         page.screenshot(path=f"{AUS}/{breite}-3-werkzeuge.png", full_page=True)
 
         # Prüfung
@@ -65,49 +62,21 @@ with sync_playwright() as p:
         breite_ok("Prüfung")
         page.screenshot(path=f"{AUS}/{breite}-4-pruefung.png", full_page=True)
 
-        # Session aus Programm: Intro → Film → Aufgaben → Werkzeug
-        page.get_by_role("tab", name="Programme").click(); page.wait_for_timeout(200)
-        page.locator("[data-tz-karte='Ableiten in zehn Minuten']").click(); page.wait_for_timeout(600)
+        # Session aus dem Prüfungs-Reiter (Programme sind ausgeblendet): Klausurgenerator im Vollbild
+        page.get_by_role("tab", name="Prüfung").click(); page.wait_for_timeout(200)
+        page.locator("[data-tz-karte='Klausurgenerator']").click(); page.wait_for_timeout(800)
         sess = page.locator("[data-trainings-session]")
         pruefe(sess.count() == 1, f"{breite}: Session nicht geöffnet")
         pruefe(page.evaluate("getComputedStyle(document.body).overflow") == "hidden", f"{breite}: Seite dahinter scrollt noch")
-        pruefe(sess.get_by_text("1 / 5").count() == 1, f"{breite}: Zähler 1 / 5 fehlt")
-        pruefe(sess.locator(".ts-fortschritt .ts-segment").count() == 5, f"{breite}: fünf Fortschritts-Segmente erwartet")
-        page.screenshot(path=f"{AUS}/{breite}-5-session-intro.png")
-        sess.get_by_role("button", name="Los geht’s").click(); page.wait_for_timeout(700)
-        pruefe(sess.get_by_text("2 / 5").count() == 1, f"{breite}: Film-Seite nicht erreicht")
-        pruefe(sess.locator("[data-mm-film] svg").count() >= 1, f"{breite}: Film-SVG fehlt")
-        page.screenshot(path=f"{AUS}/{breite}-6-session-film.png")
-        sess.get_by_role("button", name="Weiter").click(); page.wait_for_timeout(700)
-        pruefe(sess.get_by_text("3 / 5").count() == 1, f"{breite}: Aufgaben-Seite nicht erreicht")
-        pruefe(sess.get_by_text("Aufgabe 1 von 3").count() == 1, f"{breite}: Aufgabenlauf fehlt")
-        pruefe(sess.get_by_role("button", name="Überspringen").count() == 1, f"{breite}: Überspringen fehlt")
-        # Fortschritts-Segment der Aufgaben-Seite: aktiv
-        pruefe(sess.locator(".ts-segment.aktiv").count() == 1, f"{breite}: aktives Segment fehlt")
-        page.screenshot(path=f"{AUS}/{breite}-7-session-aufgabe.png")
-        # Innenhöhe: Seite selbst darf nicht scrollen (Fenster), nur der Innenbereich
-        pruefe(page.evaluate("window.scrollY") == 0, f"{breite}: Fenster ist gescrollt")
-        sess.get_by_role("button", name="Überspringen").click(); page.wait_for_timeout(1200)
-        pruefe(sess.get_by_text("4 / 5").count() == 1, f"{breite}: Werkzeug-Seite nicht erreicht")
-        pruefe(sess.locator("[data-ts-werkzeug='ableitungstrainer']").count() == 1, f"{breite}: Ableitungstrainer nicht eingebettet")
-        pruefe(sess.get_by_text("Funktionsart").count() >= 1, f"{breite}: Ableitungstrainer-Inhalt fehlt")
+        pruefe(sess.locator("[data-ts-werkzeug='klausur']").count() == 1, f"{breite}: Klausurgenerator nicht eingebettet")
         breite_ok("Werkzeug in Session")
-        page.screenshot(path=f"{AUS}/{breite}-8-session-werkzeug.png")
-        # Zurück-Taste in der Fußleiste
-        sess.get_by_role("button", name="Vorherige Seite").click(); page.wait_for_timeout(500)
-        pruefe(sess.get_by_text("3 / 5").count() == 1, f"{breite}: Zurück funktioniert nicht")
+        page.screenshot(path=f"{AUS}/{breite}-5-session-klausur.png")
         # Escape schließt
         page.keyboard.press("Escape"); page.wait_for_timeout(400)
         pruefe(page.locator("[data-trainings-session]").count() == 0, f"{breite}: Escape schließt nicht")
         pruefe(page.evaluate("getComputedStyle(document.body).overflow") != "hidden", f"{breite}: Scroll nach Schließen nicht frei")
 
-        # Weitermachen-Karte unter Heute
         page.get_by_role("tab", name="Heute").click(); page.wait_for_timeout(300)
-        pruefe(page.get_by_text("Weitermachen").count() == 1, f"{breite}: Weitermachen fehlt")
-        page.locator("[data-tz-karte='Ableiten in zehn Minuten']").click(); page.wait_for_timeout(600)
-        pruefe(page.locator("[data-trainings-session]").get_by_text("3 / 5").count() == 1, f"{breite}: Fortsetzen landet nicht auf Seite 3")
-        page.locator("[data-trainings-session]").get_by_role("button", name="Training schließen").click(); page.wait_for_timeout(300)
-
         # 5 Minuten Mathe: Aufgaben-Session mit zwei Seiten
         page.locator("[data-tz-karte='5 Minuten Mathe']").click(); page.wait_for_timeout(600)
         s2 = page.locator("[data-trainings-session]")

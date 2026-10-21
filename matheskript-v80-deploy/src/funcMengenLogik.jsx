@@ -516,7 +516,7 @@ export function MengenLogik({ gehe }) {
     ["mix", zw("Alles gemischt", "All mixed"), (p) => <KapitelMix {...p} gehe={gehe} />],
   ];
   return (
-    <LernwegSeite speicher="matheplus-mengenlogik-kapitel" kapitel={KAPITEL}
+    <LernwegSeite werkzeug="mengenlogik" speicher="matheplus-mengenlogik-kapitel" kapitel={KAPITEL}
       titel={zw("Mengen und Logik", "Sets and logic")}
       text={zw("Die Sprache der Mathematik: Mengen bilden und verknüpfen, Intervalle lesen, Aussagen verbinden, richtig folgern und mit einem Gegenbeispiel widerlegen.",
         "The language of mathematics: build and combine sets, read intervals, connect statements, infer correctly and disprove with a counterexample.")} />

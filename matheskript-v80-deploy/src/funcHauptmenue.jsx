@@ -668,7 +668,7 @@ export function HauptMenue({ gehe, ansicht, foto, seite, offen, setOffen }) {
               </button>
               <div className="hm-raster">
                 {TRAINING.slice(1).map((e) => (
-                  <button key={e.id} type="button" className="hm-kachel" onClick={() => geh(e.ziel)} aria-current={istAktuell(e.ziel, aktuell) ? "page" : undefined}
+                  <button key={e.id} type="button" className="hm-kachel" data-hm-training={e.id} onClick={() => geh(e.ziel)} aria-current={istAktuell(e.ziel, aktuell) ? "page" : undefined}
                     title={e.zeile} style={{ flexDirection: "row", alignItems: "center", gap: 8, padding: "8px 9px", minHeight: 50 }}>
                     <Ikon n={TRAINING_IKON[e.id]} g={18} style={{ color: C.see }} />
                     <span className="hm-zwei" style={{ fontSize: 12.5, fontWeight: 800, lineHeight: 1.2, overflowWrap: "normal" }}>{TRENNUNG[e.name] || e.name}<span className="hm-unsichtbar"> – {e.zeile}</span></span>

@@ -11,6 +11,13 @@ Je Breite (360, 390, 1280):
 import os
 from playwright.sync_api import sync_playwright
 
+def _typen_auf(pg):
+    """Aufgabentyp-Chips liegen seit 21.10. hinter der Einstellungs-Pille: bei Bedarf aufklappen."""
+    if pg.locator("[data-einstellungen-feld]:visible").count() == 0:
+        pil = pg.locator("[data-einstellungen-pille]:visible")
+        if pil.count():
+            pil.first.click(); pg.wait_for_timeout(150)
+
 BASE = os.environ.get("BASE_URL", "http://localhost:4173/")
 AUS = os.environ.get("SCREENS", "/tmp/mittelstufe-kurs")
 os.makedirs(AUS, exist_ok=True)
@@ -83,6 +90,7 @@ with sync_playwright() as p:
         pruefe(page.get_by_text("Kürzen").count() >= 1, f"{breite}: Modus Brüche zeigt Bruchterm-Übungen")
         page.get_by_role("tab", name="Wurzeln").click(); page.wait_for_timeout(200)
         for art in ARTEN:
+            _typen_auf(page)
             page.locator("[data-aufgabentyp]").get_by_role("button", name=NAMEN[art], exact=True).click(); page.wait_for_timeout(150)
             wurzel_loesen(page, art)
         page.screenshot(path=f"{AUS}/wurzeln-{breite}.png", full_page=True)

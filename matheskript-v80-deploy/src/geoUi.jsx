@@ -13,7 +13,7 @@ import React, { createContext, useContext, useMemo, useState } from "react";
 import { C } from "./base1.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
 import { GrosserKnopf, MS, hinweis, karte, kicker, zw } from "./ui2.jsx";
-import { Aufklapp, ModusLeiste, Seite, SchrittFolge, zt } from "./ui3.jsx";
+import { Aufklapp, EinstellungsPille, ModusLeiste, Seite, SchrittFolge, zt } from "./ui3.jsx";
 import { startModus, uebenWunschHolen, uebenWunschLesen } from "./uebenWunsch.js";
 import { Arbeitsflaeche, BildKarte, DESKTOP, feinKarte, useBreite } from "./arbeitsflaeche.jsx";
 
@@ -246,10 +246,12 @@ export function UebenRahmen({ titel, arten, neue, schritte, text, skizze, hilfe,
   const desk = useZweiSpalten();
   const zwei = desk && !!sk;
   const aufgabenText = <div style={{ ...hinweis, color: C.tinte, fontSize: 15, marginBottom: 8 }}>{(() => { const t = text(au); return typeof t === "string" ? <MS s={t} /> : t; })()}</div>;
+  const artName = (liste.find(([id]) => id === art) || liste[0])[1];
   return (
     <>
-      <div style={{ ...(desk ? feinKarte : karte), marginTop: 16 }}>
-        <p style={kicker}>{zw("Aufgabentyp", "Exercise type")}</p>
+      {/* Aufgabe zuerst (21.10.): die Typ-Chips liegen hinter einer Pille statt als Reihe vor der Aufgabe */}
+      <EinstellungsPille teile={[[zw("Aufgabentyp", "Exercise type"), artName]]} kennung="ueben-rahmen"
+        rechts={<button type="button" onClick={() => neu()} style={{ minHeight: 36, padding: "0 12px", borderRadius: 999, fontFamily: "inherit", cursor: "pointer", fontSize: 13, fontWeight: 700, color: C.see, border: `1.5px solid ${C.linie}`, background: C.weiss }}>{zw("Neue Aufgabe", "New exercise")}</button>}>
         <div data-aufgabentyp style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
           {liste.map(([id, t]) => (
             <button key={id} type="button" aria-pressed={art === id} onClick={() => { setArt(id); neu(id); }}
@@ -257,7 +259,7 @@ export function UebenRahmen({ titel, arten, neue, schritte, text, skizze, hilfe,
                 border: `1.5px solid ${art === id ? C.see : C.linie}`, background: art === id ? C.see : C.weiss, color: art === id ? C.weiss : C.see }}>{t}</button>
           ))}
         </div>
-      </div>
+      </EinstellungsPille>
       <div style={{ ...(desk ? feinKarte : karte), marginTop: 12 }} key={au.id}>
         <p style={kicker}>{zw(titel[au.art][0], titel[au.art][1])}</p>
         {zwei ? (
@@ -292,14 +294,16 @@ export function ZweiModi({ titel, text, kurz, entdecken, ueben, start = null, we
   const [modus, setModus] = useState(() => (start ? (uebenWunschLesen()?.modus || start) : startModus(werkzeug || (typeof titel === "string" ? titel : ""))));
   const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Trainieren", "Train")]];
   return (
-    <Seite titel={titel} text={text}>
+    <Seite titel={titel} text={text} knapp={modus === "ueben"}>
       <ModusLeiste modi={MODI} modus={modus} setModus={setModus} label={titel} />
-      {kurz && <Aufklapp titel={zw("Kurz erklärt", "In short")}>{kurz}</Aufklapp>}
+      {/* Entdecken: „Kurz erklärt“ über dem Inhalt; Trainieren: Aufgabe zuerst, „Kurz erklärt“ darunter */}
+      {kurz && modus === "entdecken" && <Aufklapp titel={zw("Kurz erklärt", "In short")}>{kurz}</Aufklapp>}
       <div style={{ display: modus === "entdecken" ? "block" : "none" }}>
         {animationen && animationen.length > 0 && zw(true, false) && <React.Suspense fallback={null}><MotionAuswahl liste={animationen} /></React.Suspense>}
         {entdecken}
       </div>
       <div style={{ display: modus === "ueben" ? "block" : "none" }}>{ueben}</div>
+      {kurz && modus === "ueben" && <Aufklapp titel={zw("Kurz erklärt", "In short")}>{kurz}</Aufklapp>}
     </Seite>
   );
 }

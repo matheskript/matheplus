@@ -52,7 +52,7 @@ export function Ikon({ n, g = 20, dicke = 1.9, style }) {
     </svg>
   );
 }
-export const TRAINING_IKON = { meintraining: "play", warmup: "blitz", fehler: "fehler", plan: "kalender", lernpfad: "pfad", wiederholen: "wiederholen", vorbereiten: "vorbereiten", nachbereiten: "nachbereiten", pruefung: "uhr" };
+export const TRAINING_IKON = { heute: "play", themen: "pfad", pruefung: "uhr", standort: "ziel", meintraining: "play", warmup: "blitz", fehler: "fehler", plan: "kalender", lernpfad: "pfad", wiederholen: "wiederholen", vorbereiten: "vorbereiten", nachbereiten: "nachbereiten" };
 export const KI_IKON = { blatt: "kamera", chat: "chat", weg: "weg", text: "text", briefkasten: "klausur" };
 export const KONTO_IKON = { konto: "konto", fortschritt: "fortschritt", bericht: "bericht", datenschutz: "schild", kinder: "kinder", klassen: "kinder", schueler: "kinder",
   arbeitsblatt: "blatt", spenden: "herz", impressum: "info", pro: "stern", plan: "stern" };

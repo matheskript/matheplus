@@ -10,6 +10,13 @@ auf RAD kommt die Bogenmaß-Rückmeldung; das Tastenfeld zeigt sin⁻¹ und kein
 import os, re
 from playwright.sync_api import sync_playwright
 
+def _typen_auf(pg):
+    """Aufgabentyp-Chips liegen seit 21.10. hinter der Einstellungs-Pille: bei Bedarf aufklappen."""
+    if pg.locator("[data-einstellungen-feld]:visible").count() == 0:
+        pil = pg.locator("[data-einstellungen-pille]:visible")
+        if pil.count():
+            pil.first.click(); pg.wait_for_timeout(150)
+
 BASE = os.environ.get("BASE_URL", "http://localhost:4317/")
 AUS = os.environ.get("SCREENS", "/tmp/trigonometrie")
 os.makedirs(AUS, exist_ok=True)
@@ -69,10 +76,12 @@ with sync_playwright() as p:
                         continue
                     r.focus(); page.keyboard.press("End"); page.wait_for_timeout(30); page.keyboard.press("Home"); page.wait_for_timeout(30)
                 # alle Aufgabentypen
+                _typen_auf(page)
                 typen = page.locator("[data-aufgabentyp] button")
                 n = typen.count()
                 pruefe(n >= 3, f"{wo}: zu wenige Aufgabentypen ({n})")
                 for i in range(n):
+                    _typen_auf(page)
                     typen.nth(i).click(); page.wait_for_timeout(120)
                     for wdh in range(2 if i == 0 else 1):
                         schritte_durch(page, f"{wo}/typ{i}")
@@ -84,6 +93,7 @@ with sync_playwright() as p:
             # echte Eingabe mit dem Trig-Rechner
             if sprache == "de" and breite == 390:
                 page.locator("[data-kapitel=dreieck]").click(); page.wait_for_timeout(400)
+                _typen_auf(page)
                 page.locator("[data-aufgabentyp] button:has-text('Seite berechnen')").click(); page.wait_for_timeout(200)
                 # Schritt 1 über die Lösung, Schritt 2 selbst rechnen
                 page.locator("button:has-text('Lösung dieses Schritts zeigen'):visible").first.click()

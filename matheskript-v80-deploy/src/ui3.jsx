@@ -166,12 +166,13 @@ export function SchrittFolge({ schritte, stand, setStand, fertigText }) {
 }
 
 /* ---------- Seitenrahmen und Modusleiste ---------- */
-export function Seite({ titel, text, children }) {
+export function Seite({ titel, text, children, knapp = false }) {
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 24 }}>
-      {/* Seit 21.10. die einzige Überschrift des Werkzeugs (der blaue Seitenkopf ist weg) – darum h1 */}
-      <h1 style={{ fontSize: "clamp(21px, 6.2vw, 26px)", fontWeight: 800, color: C.tinte, letterSpacing: "-0.02em", lineHeight: 1.15, marginBottom: 8 }}>{titel}</h1>
-      <p style={{ ...hinweis, marginBottom: 14 }}>{text}</p>
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 18 }}>
+      {/* Seit 21.10. die einzige Überschrift des Werkzeugs (der blaue Seitenkopf ist weg) – darum h1.
+          knapp (Modus Trainieren): der Einleitungstext entfällt, damit die Aufgabe im ersten Bildschirm steht */}
+      <h1 style={{ fontSize: "clamp(21px, 6.2vw, 26px)", fontWeight: 800, color: C.tinte, letterSpacing: "-0.02em", lineHeight: 1.15, marginBottom: knapp ? 10 : 8 }}>{titel}</h1>
+      {!knapp && text && <p style={{ ...hinweis, marginBottom: 14 }}>{text}</p>}
       {children}
     </div>
   );
@@ -184,10 +185,40 @@ export function ModusLeiste({ modi, modus, setModus, label }) {
         const an = modus === id;
         return (
           <button key={id} type="button" role="tab" aria-selected={an} onClick={() => setModus(id)}
-            style={{ minHeight: 52, padding: "8px 6px", borderRadius: 14, fontFamily: "inherit", cursor: "pointer", fontSize: 13.5, fontWeight: 700, lineHeight: 1.25, textAlign: "center", hyphens: "manual", overflowWrap: "break-word",
+            style={{ minHeight: 44, padding: "6px 6px", borderRadius: 999, fontFamily: "inherit", cursor: "pointer", fontSize: 13.5, fontWeight: 700, lineHeight: 1.25, textAlign: "center", hyphens: "manual", overflowWrap: "break-word",
               border: `1.5px solid ${an ? C.see : C.linie}`, background: an ? C.see : C.weiss, color: an ? C.weiss : C.see }}>{text}</button>
         );
       })}
+    </div>
+  );
+}
+
+/* ---------- Einstellungs-Pille („Aufgabe zuerst“, 21.10.) ----------
+   Eine Zeile statt Chip-Reihen vor der Aufgabe: links eine Pille mit der Zusammenfassung
+   („Aufgabentyp · Gemischt“, „Stufe 2“), die das Einstellungsfeld (children: die Chips) auf- und zuklappt,
+   rechts Platz für Würfel oder „Neue Aufgabe“ (rechts). Zustand bleibt je Werkzeug im Browser (sessionStorage). */
+export function EinstellungsPille({ teile, children, rechts = null, kennung = "", startOffen = false }) {
+  const schluessel = `matheplus-einstellungen-${kennung}`;
+  const [auf, setAuf] = useState(() => { try { const v = sessionStorage.getItem(schluessel); return v === null ? startOffen : v === "1"; } catch (e) { return startOffen; } });
+  const umschalten = () => { const n = !auf; setAuf(n); try { sessionStorage.setItem(schluessel, n ? "1" : "0"); } catch (e) { /* privat */ } };
+  return (
+    <div data-einstellungen={kennung || undefined} style={{ marginTop: 12 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+        <button type="button" onClick={umschalten} aria-expanded={auf} data-einstellungen-pille
+          style={{ display: "inline-flex", alignItems: "center", gap: 8, minHeight: 36, padding: "0 12px 0 13px", borderRadius: 999, fontFamily: "inherit", cursor: "pointer",
+            fontSize: 13, fontWeight: 600, color: C.seeTief, border: `1.5px solid ${auf ? C.see : C.linie}`, background: auf ? "#EEF3FB" : C.weiss, maxWidth: "100%" }}>
+          {teile.filter(Boolean).map(([name, wert], i) => (
+            <span key={name} style={{ display: "inline-flex", alignItems: "center", gap: 5, minWidth: 0 }}>
+              {i > 0 && <span aria-hidden="true" style={{ color: C.linie, marginRight: 3 }}>|</span>}
+              <span style={{ color: C.grau, fontWeight: 500 }}>{name}</span>
+              <span style={{ fontWeight: 800, color: C.see, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{wert}</span>
+            </span>
+          ))}
+          <AufklappZeichen auf={auf} groesse={12} abstand={2} />
+        </button>
+        {rechts && <div style={{ marginLeft: "auto", display: "flex", gap: 6, alignItems: "center" }}>{rechts}</div>}
+      </div>
+      {auf && <div data-einstellungen-feld style={{ marginTop: 10, padding: 14, borderRadius: 14, background: C.weiss, border: `1px solid ${C.linie}` }}>{children}</div>}
     </div>
   );
 }

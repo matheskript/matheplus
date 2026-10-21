@@ -17,7 +17,7 @@ import { M } from "./func3.jsx";
 import { buchen } from "./buchung.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
 import { GrosserKnopf, MS, Rueck, hilfeKontext, kicker, zw } from "./ui2.jsx";
-import { Aufklapp } from "./ui3.jsx";
+import { Aufklapp, EinstellungsPille } from "./ui3.jsx";
 import { MathildaIcon } from "./funcMathildaSeite.jsx";
 import { TextMathilda } from "./funcTextMathilda.jsx";
 import { alsTex, pruefeEingabe } from "./bedingungen.js";
@@ -635,10 +635,22 @@ function Aufgabe({ a, stufe, gehe, neu, zaehle }) {
   );
 }
 
+/* Klassenstufe aus der Start-Karte/dem Quickfinder: Box-Id „10“ oder „5-6“ → Bucket „9-10“ bzw. „5-6“ */
+function klasseAusQuickfinder() {
+  try {
+    const q = JSON.parse(localStorage.getItem("matheplus-quickfinder") || "null");
+    const nr = q && q.klasse ? parseInt(String(q.klasse).split("-")[0], 10) : NaN;
+    if (!Number.isInteger(nr)) return null;
+    const k = KLASSEN_STUFEN.find((x) => nr >= x.von && nr <= x.bis);
+    return k ? k.id : null;
+  } catch (e) { return null; }
+}
+
 function Training({ gehe, zuMathilda }) {
   const karte = useKarte();   // Desktop: feiner Rahmen statt Schatten
   const start = useMemo(() => lesen(), []);
-  const [klasse, setKlasse] = useState(start.klasse || "alle");
+  // Klasse vorbelegen (Norm 21.10.): gespeicherte Wahl > Klasse aus Quickfinder/Start-Karte (matheplus-quickfinder) > alle
+  const [klasse, setKlasse] = useState(() => start.klasse || klasseAusQuickfinder() || "alle");
   const themen = themenFuer(klasse);
   const [thema, setThema] = useState(start.thema && THEMEN.some((t) => t.id === start.thema) ? start.thema : "steckbrief");
   const t = THEMEN.find((x) => x.id === thema) || THEMEN[0];
@@ -674,9 +686,9 @@ function Training({ gehe, zuMathilda }) {
       {t.nurWahl ? zw("Vektor-Bedingungen werden ausgewählt, nicht getippt.", "Vector conditions are chosen, not typed.") : zw(STUFEN[stufeEcht - 1].zeile[0], STUFEN[stufeEcht - 1].zeile[1])}
     </p>
   </>;
-  return (
-    <div>
-      <div style={{ ...karte, marginTop: 16 }}>
+  const klasseName = (KLASSEN_STUFEN.find((k) => k.id === klasse) || { name: ["Alle", "All"] }).name;
+  const einstellungen = (
+    <>
         {desktop
           ? <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)", columnGap: 28, alignItems: "start", marginBottom: 16 }}><div>{klasseWahl}</div><div>{stufeWahl}</div></div>
           : klasseWahl}
@@ -699,7 +711,16 @@ function Training({ gehe, zuMathilda }) {
           })}
         </div>
         {!desktop && stufeWahl}
-      </div>
+    </>
+  );
+  return (
+    <div>
+      {/* Aufgabe zuerst (21.10.): am Handy liegen Klasse, Thema und Stufe hinter einer Einstellungs-Pille; am Desktop als Karte */}
+      {desktop ? <div style={{ ...karte, marginTop: 16 }}>{einstellungen}</div> : (
+        <EinstellungsPille kennung="textaufgaben" teile={[[zw("Thema", "Topic"), themaName(t)], [zw("Klasse", "Year"), zw(klasseName[0], klasseName[1])], [zw("Stufe", "Level"), String(stufeEcht)]]}>
+          {einstellungen}
+        </EinstellungsPille>
+      )}
       <div ref={anker} style={{ scrollMarginTop: 80 }} />
       <Aufgabe key={`${a.id}-${stufeEcht}`} a={a} stufe={stufeEcht} gehe={gehe} neu={() => neu()}
         zaehle={(e, g) => setBilanz((b) => ({ erste: b.erste + e, gesamt: b.gesamt + g, aufgaben: b.aufgaben + 1 }))} />
