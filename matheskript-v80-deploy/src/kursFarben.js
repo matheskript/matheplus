@@ -84,3 +84,16 @@ export const GRANAT = {
   dunkel: "linear-gradient(150deg, #24000F 0%, #5A0024 100%)", dunkelText: C.weiss, ring: "#FFD66B", ringSpur: "rgba(255,255,255,0.14)", dunkelKnopf: GOLD_PILLE, dunkelKnopfText: "#3A0019",
   medaille: "#FFE9EF", medailleText: "#5A0024", fertig: "#F2C14E", fertigText: "#3A0019", badge: "#5A0024", badgeText: "#FFD66B", linieFertig: "#F2C14E",
 };
+
+/* Abi-Zentrum: Goldlack – die ganze Fläche Gold, Schrift und Knöpfe in Nachtschwarz, Prägung in Dunkelgold */
+export const GOLDLACK = {
+  lack: "linear-gradient(150deg, #FFE9A0 0%, #F4CE4A 26%, #EDBB00 55%, #C99A0C 84%, #9C7400 100%)",
+  rand: "linear-gradient(135deg, rgba(255,255,255,0.95), rgba(90,67,0,0.4) 55%, rgba(42,31,0,0.65))",
+  glanz: "rgba(255,255,255,0.55)", schein: "rgba(255,246,214,0.75)", kante: "rgba(255,255,255,0.75)", schatten: "rgba(154,116,0,0.55)",
+  kopf: "linear-gradient(150deg, #F8D23A 0%, #EDBB00 60%, #D9A520 100%)", linie: "linear-gradient(90deg, #2A1F00, #5A4300 50%, #2A1F00)",
+  koerper: "linear-gradient(160deg, #FFF8DC 0%, #FFE9A0 100%)",
+  titel: C.nachtschwarz, text: "#2A1F00", akzent: C.golddunkel, chip: "rgba(42,31,0,0.08)", chipRand: "rgba(42,31,0,0.22)",
+  knopf: C.nachtschwarz, knopftext: C.flaggold, knopfschatten: "rgba(11,12,16,0.55)", spur: "rgba(42,31,0,0.16)", fuellung: "linear-gradient(90deg, #2A1F00, #5A4300)",
+  dunkel: `linear-gradient(150deg, ${C.nachtschwarz} 0%, #1E1A0E 100%)`, dunkelText: C.weiss, ring: C.flaggold, ringSpur: "rgba(255,255,255,0.14)", dunkelKnopf: GOLD_PILLE, dunkelKnopfText: C.nachtschwarz,
+  medaille: C.nachtschwarz, medailleText: C.flaggold, fertig: C.golddunkel, fertigText: "#FFF6D6", badge: C.nachtschwarz, badgeText: C.flaggold, linieFertig: C.golddunkel,
+};

@@ -108,6 +108,7 @@ export function BereichBild({ id }) {
 
 /* ---------- Farben und Zeichen der Kurs-Karten ---------- */
 export const KURS_STIL = {
+  abizentrum: { hg: "linear-gradient(150deg,#FFE9A0 0%,#F4CE4A 26%,#EDBB00 55%,#C99A0C 84%,#9C7400 100%)", farbe: C.nachtschwarz, zeichen: "ABI", zFarbe: C.nachtschwarz },
   mckurs: { hg: GOLD_VERLAUF, farbe: C.seeTief, zeichen: "Abi", zFarbe: C.seeTief },
   unterstufe: { hg: `linear-gradient(155deg,#C4406A 0%,${C.gruen} 55%,#5A0024 100%)`, farbe: "#fff", zeichen: "5·6", zFarbe: "#FFE58A" },
   diffkurs: { hg: `linear-gradient(155deg,${C.babyblauHell} 0%,${C.babyblau} 55%,${C.babyblauTief} 100%)`, farbe: C.nachtschwarz, zeichen: "f′(x)", zFarbe: C.golddunkel },

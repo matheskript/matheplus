@@ -133,3 +133,28 @@ export function MotivGeodreieck({ id, klasse = "kk-motiv" }) {
     </svg>
   );
 }
+
+/* Abi-Zentrum: Siegel mit Lorbeer und Bändern in Prägung (dunkles Gold auf Goldlack) */
+const LORBEER = Array.from({ length: 6 }, (_, i) => i);
+export function MotivAbi({ id, klasse = "kk-motiv" }) {
+  const f = `url(#${id}-folie)`;
+  const blatt = (seite) => LORBEER.map((i) => {
+    const grad = seite < 0 ? 248 - i * 16 : 292 + i * 16;   // links von unten nach oben, rechts ebenso
+    const w = (grad * Math.PI) / 180;
+    const x = 84 + Math.cos(w) * 44, y = 56 - Math.sin(w) * 44;
+    const dreh = -(grad + 90) + (seite < 0 ? -25 : 25);
+    return <ellipse key={`${seite}${i}`} cx={x.toFixed(1)} cy={y.toFixed(1)} rx="7.2" ry="3.2" transform={`rotate(${dreh.toFixed(1)} ${x.toFixed(1)} ${y.toFixed(1)})`} fill={f} />;
+  });
+  return (
+    <svg className={klasse} viewBox="0 0 160 120" aria-hidden="true">
+      <Defs id={id} folie={FOLIE.praegung} schein="#FFFFFF" />
+      <circle cx="84" cy="58" r="58" fill={`url(#${id}-schein)`} />
+      <path d="M70 88 L60 118 L70 111 L77 119 L82 92 Z M98 88 L108 118 L98 111 L91 119 L86 92 Z" fill={f} />
+      {blatt(-1)}{blatt(1)}
+      <circle cx="84" cy="56" r="36" fill="rgba(255,255,255,0.28)" stroke={f} strokeWidth="3.4" />
+      <circle cx="84" cy="56" r="29" fill="none" stroke={C.nachtschwarz} strokeOpacity="0.55" strokeWidth="1.2" strokeDasharray="2 3" />
+      <text x="84" y="57" textAnchor="middle" fontSize="21" fontWeight="900" letterSpacing="-0.5" fill={C.nachtschwarz} fontFamily="Montserrat, sans-serif">ABI</text>
+      <path d="M66 70 C 74 70, 78 62, 84 64 S 94 72, 102 62" stroke={f} strokeWidth="2.6" fill="none" strokeLinecap="round" />
+    </svg>
+  );
+}

@@ -108,6 +108,11 @@ const GfsPascalSeite = lazyLaden(() => import("./funcGfs.jsx").then((m) => ({ de
 const GfsDoseSeite = lazyLaden(() => import("./funcGfsDose.jsx").then((m) => ({ default: m.GfsDoseSeite })));
 const PotenzregelSeite = lazyLaden(() => import("./func22.jsx").then((m) => ({ default: m.PotenzregelSeite })));
 const EFunktionSeite = lazyLaden(() => import("./funcEFunktion.jsx").then((m) => ({ default: m.EFunktionSeite })));
+const AbiZentrumSeite = lazyLaden(() => import("./funcAbiZentrum.jsx").then((m) => ({ default: m.AbiZentrumSeite })));
+const AbiAufgabenSeite = lazyLaden(() => import("./funcAbiTraining.jsx").then((m) => ({ default: m.AbiAufgabenSeite })));
+const AbiTeilASeite = lazyLaden(() => import("./funcAbiTraining.jsx").then((m) => ({ default: m.AbiTeilASeite })));
+const MiaSeite = lazyLaden(() => import("./funcMia.jsx").then((m) => ({ default: m.MiaSeite })));
+const LernpartnerSeite = lazyLaden(() => import("./funcLernpartner.jsx").then((m) => ({ default: m.LernpartnerSeite })));
 const AnalysisZentrum = lazyLaden(() => import("./func14.jsx").then((m) => ({ default: m.AnalysisZentrum })));
 const KopfrechenZentrum = lazyLaden(() => import("./func14.jsx").then((m) => ({ default: m.KopfrechenZentrum })));
 const Begruenden = lazyLaden(() => import("./func7.jsx").then((m) => ({ default: m.Begruenden })));
@@ -1019,6 +1024,14 @@ export function Mathilda() {
       ) : ansicht === "mckurs" ? (
         <React.Suspense fallback={<p role="status" style={{ color: C.grau, fontSize: 15, fontWeight: 300, padding: "24px", textAlign: "center" }}>{englisch() ? "Loading …" : "Wird geladen …"}</p>}>
           <MasterclassKursSeite gehe={gehe} />
+        </React.Suspense>
+      ) : ansicht === "abi" || ansicht === "abiaufgaben" || ansicht === "abiteila" || ansicht === "mia" || ansicht === "lernpartner" ? (
+        <React.Suspense fallback={<p role="status" style={{ color: C.grau, fontSize: 15, fontWeight: 300, padding: "24px", textAlign: "center" }}>{englisch() ? "Loading …" : "Wird geladen …"}</p>}>
+          {ansicht === "abi" ? <AbiZentrumSeite gehe={gehe} />
+            : ansicht === "abiaufgaben" ? <AbiAufgabenSeite gehe={gehe} />
+              : ansicht === "abiteila" ? <AbiTeilASeite gehe={gehe} />
+                : ansicht === "mia" ? <MiaSeite gehe={gehe} />
+                  : <LernpartnerSeite gehe={gehe} />}
         </React.Suspense>
       ) : ansicht === "mczugang" ? (
         <React.Suspense fallback={<p role="status" style={{ color: C.grau, fontSize: 15, fontWeight: 300, padding: "24px", textAlign: "center" }}>{englisch() ? "Loading …" : "Wird geladen …"}</p>}>

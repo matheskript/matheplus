@@ -67,6 +67,13 @@ Die Seite „Dokumente“ (Arbeitsmenü F, Pfad `/dokumente`, hinter dem gemeins
 - Umschläge/Cover bekommen **keine eigene Box**: Feld `cover` (Pfad unter `public/`) in der Box der Druckausgabe, die Karte zeigt dann den Knopf „Cover“ (Download). Die Begriffe „Innenteil“ und „Amazon-Umschlag“ nicht mehr verwenden.
 - Arbeitsmenü: A Startseite, B Landingpage, C Alle Bereiche (Aufklapp-Gruppe), D Entwürfe (Aufklapp-Gruppe), E Weitere Seiten (Aufklapp-Gruppe), F Dokumente. Neue Entwürfe/Seiten in `src/seitenKonstanten.js` eintragen.
 
+## Abi-Zentrum (Gold): eigener Bereich, eigene Gestaltung
+Pfade `/abi` (Zentrum), `/abi/aufgaben`, `/abi/teil-a`, `/abi/mia`, `/abi/lernpartner`. Ganz in Gold (Palette `GOLDLACK` in `kursFarben.js`, Siegel `MotivAbi`), gemeinsame Bausteine nur aus `src/abiStil.jsx` (AbiKopf, Abschnitt, Karten `abi-karte`/`dunkel`/`gold`, MiaEmblem) – nicht nachbauen.
+- Logik rein und getestet: `abiZentrum.js` (Profil, Prüfungsprofile BW/IQB, Rückwärtsplan, Generalprobe vor Beginn der schriftlichen Prüfungen), `abiGeneratoren.js` (10 Teil-A-Typen à 5 BE, Erwartungshorizont, Operatoren im Prüfungswortlaut „Zeigen Sie“), `miaKontext.js` (Mia: Korrektur nach Erwartungshorizont mit Folgefehlern und anderen Wegen, Entschlüsseln, mündliche Prüfung), `lernpartner.js` + `supabase/lernpartner.sql` (PGlite-Test).
+- Stand im Lernstand unter `training.abi` (mit `zuletzt`), Lesen/Schreiben nur über `funcAbiDaten.jsx`; Übergaben zwischen den Seiten per sessionStorage (`UEBERGABE`).
+- Lernpartner-Börse: kein Chat, keine Kontaktdaten (`lp_text_ok`), nur Schülerkonten ab 16, Minderjährige mit Eltern-Freigabe; ohne Konto oder ohne eingespieltes SQL läuft der Beispielmodus.
+- Browser: `tests/ui/abi-zentrum.ui.py`. Projekt-Dokument: `claude/abi-zentrum.md`.
+
 ## Sonst
 Regel A5 (nichts unvereinfacht), generisches Maskulinum, Farben aus `C` in `base1.jsx`, `base*.jsx` importiert nie aus `func*.jsx`. Gesamtstand: Projekt-Dokument `claude/matheplus-stand.md`.
 

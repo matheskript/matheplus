@@ -37,7 +37,7 @@ import { Quickfinder } from "./funcQuickfinder.jsx";
 import { AppAnleitung } from "./funcAnleitung.jsx";
 import { SuchBox } from "./funcSuche.jsx";
 import { MasterclassKachel, MatheCheckenKachel, MathCreatorKachel } from "./funcMasterclass.jsx";
-import { DiffKursKachel, VekKursKachel, GfsKursKachel, ClaudeKursKachel, UnterstufeKachel } from "./funcKursKachel.jsx";
+import { DiffKursKachel, VekKursKachel, GfsKursKachel, ClaudeKursKachel, UnterstufeKachel, AbiZentrumKachel } from "./funcKursKachel.jsx";
 import { ElternabendKachel } from "./funcElternabend.jsx";
 import { SpendenBereich } from "./funcSpendenBereich.jsx";
 import { ANGEBOT } from "./angebot.js";
@@ -740,6 +740,7 @@ export function Startseite({ gehe }) {
         {/* ---------- Mein Mathe-Training (Tagesplan, Themen) · Dein Training startet hier · Suche ---------- */}
         <div className="sbb-abschnitt sbb-wieder" style={{ marginTop: 16 }}><MeinTrainingKachel gehe={gehe} /></div>
         <div className="sbb-abschnitt" style={{ marginTop: 14 }}><TrainingKachel gehe={gehe} setzeStufe={stufeSetzen} /></div>
+        <div className="sbb-wieder"><AbiZentrumKachel onClick={() => gehe({ ansicht: "abi" })} /></div>
         <div className="sbb-papier eng" style={{ marginTop: 14 }}><SuchBox gehe={gehe} einzeilig /></div>
         <p className="sbb-einleitung">
           Hier wird Oberstufenmathe <b>sichtbar</b>: Graphen live plotten, Ebenen im Raum drehen, Wahrscheinlichkeiten in Tafeln und Bäumen sehen.
@@ -765,7 +766,14 @@ export function Startseite({ gehe }) {
                 {schulWahl !== "abi" && <div style={{ marginTop: 10 }}><EtikettKnoepfe wert={etikett} setze={(e) => { setEtikett(e); setBereichAuf(null); }} /></div>}
                 <div style={{ marginTop: 12 }}>
                   {abiBlock ? (
-                    <UnterMenue eintraege={blockEintraege(abiBlock, "ober", null)} gehe={gehe} linie={abiBlock.linie} />
+                    <>
+                      <button type="button" className="sbb-bereich gold" onClick={() => gehe({ ansicht: "abi" })} aria-label="Abi-Zentrum öffnen" data-start-abizentrum>
+                        <span className="logo" aria-hidden="true" style={{ fontWeight: 900, fontSize: 13, letterSpacing: "-0.02em" }}>ABI</span>
+                        <span className="t"><b>Abi-Zentrum</b><span>Dein Format, dein Plan, Mia als Trainerin, Lernpartner in deiner Stadt.</span></span>
+                        <span className="pf" aria-hidden="true">→</span>
+                      </button>
+                      <UnterMenue eintraege={blockEintraege(abiBlock, "ober", null)} gehe={gehe} linie={abiBlock.linie} />
+                    </>
                   ) : etikett ? (
                     bereiche.map((b) => {
                       const ws = blockEintraege(b, stufe, etikett).filter((e) => !e.kopf);

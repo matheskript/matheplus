@@ -17,8 +17,10 @@
 import React from "react";
 import { C } from "./base1.jsx";
 import { diffStand, vekStand, gfsStand, kiStand, unterStand } from "./kursStand.js";
-import { PORZELLAN, TIEFBLAU, LACKSCHWARZ, NACHTBLAU, GRANAT } from "./kursFarben.js";
-import { MotivTangente, MotivEbene, MotivBuehne, MotivDialog, MotivGeodreieck } from "./funcKursMotive.jsx";
+import { PORZELLAN, TIEFBLAU, LACKSCHWARZ, NACHTBLAU, GRANAT, GOLDLACK } from "./kursFarben.js";
+import { MotivTangente, MotivEbene, MotivBuehne, MotivDialog, MotivGeodreieck, MotivAbi } from "./funcKursMotive.jsx";
+import { LERN } from "./base3.jsx";
+import { abiNormieren, zielTermin, countdown } from "./abiZentrum.js";
 import { UNTERSTUFE_ZAHLEN } from "./unterstufeDaten.js";
 
 /* ---------- Gemeinsame Kachel ---------- */
@@ -91,7 +93,7 @@ function Pfeil({ farbe }) {
    titel/text/akzent = Schrift, knopf/knopftext = Pille, spur/fuellung = Fortschrittsbalken,
    kopf/linie = Kopfzeile auf dem Handy (Streifen hinter dem Titel, Linie darunter),
    koerper = Fläche darunter auf dem Handy (fehlt sie, gilt lack) */
-function KursKachel({ onClick, label, titel, meta, zeile, stand, einheit, farben, Motiv, id, daten }) {
+function KursKachel({ onClick, label, titel, meta, zeile, stand, einheit, farben, Motiv, id, daten, knopf }) {
   const begonnen = stand && stand.fertig > 0;
   const anteil = begonnen ? Math.min(100, Math.round((stand.fertig / stand.gesamt) * 100)) : 0;
   const vars = {
@@ -108,7 +110,7 @@ function KursKachel({ onClick, label, titel, meta, zeile, stand, einheit, farben
         <span className="kk-strich" aria-hidden="true" />
         <p className="kk-zeile">{zeile}</p>
         <span className="kk-fuss">
-          <span className="kk-knopf"><span>{begonnen ? "Weitermachen" : "Kurs öffnen"}<Pfeil farbe={farben.knopftext} /></span></span>
+          <span className="kk-knopf"><span>{knopf || (begonnen ? "Weitermachen" : "Kurs öffnen")}<Pfeil farbe={farben.knopftext} /></span></span>
           <span className="kk-stand" title={begonnen && stand.weiter ? stand.weiter : undefined}>
             <span className="kk-meta">{begonnen ? `${stand.fertig} von ${stand.gesamt} ${einheit} geschafft` : meta}</span>
             {begonnen && <span className="kk-balken" role="progressbar" aria-valuemin={0} aria-valuemax={stand.gesamt} aria-valuenow={stand.fertig}><i style={{ width: `${anteil}%` }} /></span>}
@@ -171,5 +173,20 @@ export function UnterstufeKachel({ onClick }) {
       meta={`${UNTERSTUFE_ZAHLEN.kapitel} Kapitel, ${UNTERSTUFE_ZAHLEN.einheiten} Lerneinheiten`}
       zeile="Der ganze Stoff: lesen, Beispiel, Merksatz – und gleich üben, mit Kopfrechnen." stand={stand} einheit="Lerneinheiten"
       daten={{ "data-unterstufe-kachel": "" }} />
+  );
+}
+
+/* Abi-Zentrum: Goldlack mit Siegel; mit Abi-Profil zählt die Kachel die Tage bis zur Prüfung */
+export function AbiZentrumKachel({ onClick }) {
+  const [, neu] = React.useState(0);   // Lernstand lädt nach: Kachel hört mit (wie useLern, ohne func6 zu laden)
+  React.useEffect(() => { const h = () => neu((z) => z + 1); LERN.hoerer.add(h); return () => LERN.hoerer.delete(h); }, []);
+  const abi = sicher(() => abiNormieren(LERN.training && LERN.training.abi));
+  const ziel = abi && abi.profil ? sicher(() => zielTermin(abi.profil)) : null;
+  const cd = ziel ? countdown(ziel) : null;
+  const meta = cd && !cd.vorbei ? (cd.heute ? "Heute ist Prüfung – viel Erfolg" : `Noch ${cd.tage} ${cd.tage === 1 ? "Tag" : "Tage"} bis zur Prüfung`) : "Format, Plan, Mia, Lernpartner";
+  return (
+    <KursKachel onClick={onClick} id="kk-abi" label="Abi-Zentrum öffnen" titel="Abi-Zentrum" farben={GOLDLACK} Motiv={MotivAbi}
+      meta={meta} knopf={abi && abi.profil ? "Weiter" : "Abi starten"}
+      zeile="Dein Prüfungsformat, dein Plan bis zum Tag X – Mia trainiert dich, Lernpartner aus deiner Stadt rechnen mit." daten={{ "data-abi-kachel": "" }} />
   );
 }

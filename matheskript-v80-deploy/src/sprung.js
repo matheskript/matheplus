@@ -100,6 +100,9 @@ export const SPRUENGE = {
   "formelsammlung-detail":   { an: true,  art: "seite", wo: "Formelsammlung: Formel/Roten Faden öffnen und zurück" },
   "erklaerung-schritte":     { an: true,  art: "seite", wo: "Erklär-Ansichten mit Phasen (func7): nächste Phase" },
   "ansicht-schalter":        { an: true,  art: "seite", wo: "Startseite unten: Testknopf „Ansicht: Erstbesuch/Wiederkehrer“; Entwürfe nach Passwort" },
+  "abi-aufgabe":             { an: true,  art: "seite", wo: "Abi-Zentrum → Abi-Aufgaben: „Nächste Aufgabe“ / „Andere Aufgabe“ beginnt oben (Reiter und Chips springen nicht)" },
+  "abi-probe":               { an: true,  art: "seite", wo: "Abi-Zentrum → Teil-A-Probe: Start, Abgabe, Auswertung, neue Probe" },
+  "mia-schritt":             { an: true,  art: "seite", wo: "Mia, die Abi-Trainerin: Modus wechseln, nächster Abschnitt der mündlichen Prüfung, Korrektur fertig" },
 
   /* ---------------- Sprungmarken ---------------- */
   "diffkurs-aufgabentool":   { an: true,  art: "anker", wo: "Kurs Differentialrechnung → Aufgaben: „Neue Aufgaben dieses Typs üben“ an einer Buchaufgabe führt zum Aufgabentool darunter" },

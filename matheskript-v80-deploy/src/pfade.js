@@ -138,6 +138,11 @@ export const SEITEN = [
   { pfad: "probeabitur", ansicht: "abitur", alias: ["abitur"] },
   { pfad: "abi-ketten", ansicht: "abiketten" },
   { pfad: "abi-saetze", ansicht: "abisaetze" },
+  { pfad: "abi", ansicht: "abi", alias: ["abi-zentrum", "abitur-vorbereitung", "abi-vorbereitung", "mathe-abi"] },
+  { pfad: "abi/aufgaben", ansicht: "abiaufgaben", alias: ["abi-aufgaben", "abituraufgaben"] },
+  { pfad: "abi/teil-a", ansicht: "abiteila", alias: ["teil-a-probe", "abi-teil-a"] },
+  { pfad: "abi/mia", ansicht: "mia", alias: ["mia", "abi-trainerin"] },
+  { pfad: "abi/lernpartner", ansicht: "lernpartner", alias: ["lernpartner", "lerngruppe", "abi-lerngruppe"] },
   { pfad: "begruenden", ansicht: "begruenden", alias: ["beweisen"] },
   { pfad: "modellieren", ansicht: "modellieren" },
 
