@@ -143,7 +143,21 @@ export function springeZuId(schluessel, elementId, maxMs = 3000) {
   const start = Date.now();
   const versuch = () => {
     const el = document.getElementById(elementId);
-    if (el) { springe(schluessel, () => el.scrollIntoView({ block: "start", behavior: "smooth" })); return; }
+    if (el) {
+      springe(schluessel, () => {
+        el.scrollIntoView({ block: "start", behavior: "smooth" });
+        // Die klebende Kopfleiste (funcKopfleiste.jsx, .kl[data-klebrig]) wird beim Scrollen flacher – der Inhalt rückt
+        // danach nach oben, und das Ziel landete unter bzw. über der Leiste (Konto-Abschnitte am Desktop: y = −21).
+        // Nach dem Scrollen einmal nachjustieren: Ziel 12 px unter der Leiste. Gehört zum selben Sprung (gleicher Schlüssel).
+        setTimeout(() => {
+          const kopf = document.querySelector(".kl[data-klebrig]");
+          const h = kopf ? kopf.getBoundingClientRect().bottom : 0;
+          const oben = el.getBoundingClientRect().top;
+          if (oben < h || oben > h + 40) window.scrollBy({ top: oben - h - 12, behavior: "auto" });
+        }, 700);
+      });
+      return;
+    }
     if (Date.now() - start < maxMs) setTimeout(versuch, 120);
   };
   setTimeout(versuch, 150);
