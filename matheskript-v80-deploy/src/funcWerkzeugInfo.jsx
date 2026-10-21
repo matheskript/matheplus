@@ -7,7 +7,8 @@
 import React from "react";
 import { C } from "./base1.jsx";
 import { wo } from "./werkzeuge.js";
-import { seoText, AUTOR } from "./seo/index.js";
+import { FR } from "./funcRegistry.jsx";
+import { seoText, entitaet, steckbrief, AUTOR } from "./seo/index.js";
 
 const CSS = `
 .wi{max-width:940px;margin:28px auto 8px;padding:0 16px;font-family:Montserrat,system-ui,sans-serif}
@@ -26,6 +27,10 @@ const CSS = `
 .wi-autor b{color:${C.tinte}}
 .wi-autor ul{margin:6px 0 0;padding-left:18px;list-style:disc}
 .wi-autor li{margin-top:3px}
+.wi-autor a{color:${C.see};font-weight:700}
+.wi-steck{display:grid;grid-template-columns:max-content 1fr;gap:3px 12px;margin:0 0 12px;font-size:13.5px}
+.wi-steck dt{font-weight:700;color:${C.seeTief}}
+.wi-steck dd{margin:0;color:${C.tinte}}
 `;
 
 export function WerkzeugInfo({ ansicht }) {
@@ -41,6 +46,9 @@ export function WerkzeugInfo({ ansicht }) {
           <span className="t">Was kann dieses Werkzeug?<small>{t.kurz}</small></span>
         </summary>
         <div className="wi-inhalt">
+          {/* Entitätssatz und Steckbrief zuerst – derselbe Block wie auf der vorgerenderten Seite */}
+          <p><strong>{entitaet(t)}</strong></p>
+          <dl className="wi-steck">{steckbrief(t).map(([k, v]) => <React.Fragment key={k}><dt>{k}</dt><dd>{v}</dd></React.Fragment>)}</dl>
           {t.text.map((a, i) => <p key={i}>{a}</p>)}
           {t.faq && t.faq.length > 0 && (
             <>
@@ -49,8 +57,8 @@ export function WerkzeugInfo({ ansicht }) {
             </>
           )}
           <div className="wi-autor">
-            <b>{AUTOR.name}</b>, {AUTOR.rolle}: {AUTOR.kurz}
-            <ul>{AUTOR.preise.map((p) => <li key={p}>{p}</li>)}</ul>
+            <b>{AUTOR.name}</b>, {AUTOR.rolle}: {AUTOR.kurz}{" "}
+            <a href="/vision" onClick={(e) => { if (FR.gehe) { e.preventDefault(); FR.gehe({ ansicht: "vision" }); } }}>Mehr über Mythos Mathe</a>
           </div>
         </div>
       </details>

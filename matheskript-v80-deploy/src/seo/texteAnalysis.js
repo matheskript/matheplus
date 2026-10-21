@@ -42,7 +42,7 @@ export const TEXTE_ANALYSIS = {
   },
 
   kurvendiskussion: {
-    titel: "Kurvendiskussion online: Graph, Ableitungen, Rechenweg",
+    titel: "Kurvendiskussion Rechner mit Rechenweg und Graph",
     beschreibung: "Kurvendiskussion mit Rechenweg: Nullstellen, Extrem- und Wendepunkte, Symmetrie und Verhalten im Unendlichen – für Polynome und beliebige Funktionen, mit Graph.",
     kurz: "Funktion eingeben – du bekommst Graph, f′ und f″ und die komplette Kurvendiskussion mit Rechenweg.",
     text: [

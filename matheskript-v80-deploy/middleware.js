@@ -5,7 +5,7 @@
    Zum Abschalten: SEITEN_SCHUTZ=aus in Vercel setzen (oder Datei löschen).
    ====================================================================== */
 import { next, rewrite } from "@vercel/functions";
-import { SEO_PFADE } from "./src/seo/pfade.js";
+import { SEO_PFADE, HUB_PFADE } from "./src/seo/pfade.js";
 
 const COOKIE = "mm_zugang";
 const COOKIE_WILLKOMMEN = "mm_willkommen";   // kurzes Cookie: die App zeigt danach 7 Sekunden die Willkommensseite (src/funcWillkommen.jsx)
@@ -134,7 +134,7 @@ async function zugang(request) {
     if (p === "/formeln" || p.startsWith("/formeln/") || p === "/sitemap.xml" || p === "/robots.txt") return next();
   }
   // Sitemap, robots.txt und llms.txt für Suchmaschinen und KI, sobald die Werkzeug-Seiten öffentlich sind (scripts/werkzeugseiten.mjs)
-  if ((process.env.SEO_OEFFENTLICH || "").toLowerCase() === "ja" && ["/sitemap.xml", "/robots.txt", "/llms.txt"].includes(new URL(request.url).pathname)) return next();
+  if ((process.env.SEO_OEFFENTLICH || "").toLowerCase() === "ja" && ["/sitemap.xml", "/robots.txt", "/llms.txt", "/llms-full.txt"].includes(new URL(request.url).pathname)) return next();
   // Stripe ruft den Webhook ohne Cookie auf; die Signatur prüft die Funktion selbst
   if (new URL(request.url).pathname === "/api/stripe/webhook") return next();
   // Vercel Cron (prüft CRON_SECRET selbst) und der Abmelde-Link aus der Eltern-Wochenmail
@@ -201,7 +201,8 @@ async function zugang(request) {
 const NOINDEX = "noindex, nofollow, noarchive, nosnippet, noimageindex";
 const seoAn = () => (process.env.SEO_OEFFENTLICH || "").toLowerCase() === "ja";
 const formelnAn = () => (process.env.FORMELN_OEFFENTLICH || "").toLowerCase() === "ja";
-export const werkzeugSeite = (pfad) => { const p = pfad.replace(/^\/+|\/+$/g, ""); return SEO_PFADE.has(p) ? p : null; };
+/* Vorgerenderte Seite zu einem Pfad: Werkzeug (/ableitungstrainer) oder Hub (/, /trainingszentrum, /vision, /analysis …) */
+export const werkzeugSeite = (pfad) => { const p = pfad.replace(/^\/+|\/+$/g, ""); return SEO_PFADE.has(p) ? p : HUB_PFADE.has(p || "start") ? (p || "start") : null; };
 
 export default async function middleware(request) {
   const antwort = await zugang(request);

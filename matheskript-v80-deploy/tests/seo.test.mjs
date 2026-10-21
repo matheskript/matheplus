@@ -3,8 +3,9 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { WERKZEUGE } from "../src/werkzeuge.js";
-import { SEO_TEXTE, SEO_SEITEN, seoText, seiteHtml, jsonLd, verwandteVon, BASIS_URL } from "../src/seo/index.js";
-import { SEO_PFADE } from "../src/seo/pfade.js";
+import { SEO_TEXTE, SEO_SEITEN, HUB_SEITEN, HUBS, seoText, seiteHtml, hubHtml, jsonLd, hubJsonLd, verwandteVon, hubBereiche, entitaet, steckbrief, BASIS_URL } from "../src/seo/index.js";
+import { SEO_PFADE, HUB_PFADE } from "../src/seo/pfade.js";
+import { WZ_SLUG } from "../src/pfade.js";
 
 const woerter = (t) => t.join(" ").split(/\s+/).filter(Boolean).length;
 
@@ -40,11 +41,54 @@ test("Statisches HTML und JSON-LD", () => {
   const t = seoText("ableitungstrainer");
   const h = seiteHtml(t, verwandteVon("ableitungstrainer"));
   assert.ok(h.includes("<h1") && h.includes("Was kann dieses Werkzeug?") && h.includes("Häufige Fragen") && h.includes("Basti Blumenröther"));
-  const ld = JSON.parse(jsonLd(t, `${BASIS_URL}/ableitungstrainer`));
+  assert.ok(h.includes("/analysis") && h.includes("/vision"), "Hub-Link und Autor-Seite verlinkt");
+  const e = entitaet(t);
+  assert.ok(e.startsWith("Ableitungstrainer von Mythos Mathe ist ein kostenloses Online-Werkzeug"), e);
+  assert.ok(steckbrief(t).some(([k]) => k === "Kosten") && h.includes("<dl"), "Steckbrief auf der Seite");
+  const ld = JSON.parse(jsonLd(t, `${BASIS_URL}/ableitungstrainer`, { datum: "2026-10-21" }));
   assert.equal(ld[0]["@type"], "LearningResource");
+  assert.equal(ld[0].dateModified, "2026-10-21");
+  assert.ok(ld[0].teaches.length >= 1 && ld[0].typicalAgeRange === "16-19");
   assert.equal(ld[1]["@type"], "FAQPage");
   assert.equal(ld[1].mainEntity.length, 3);
+  assert.equal(ld[2]["@type"], "BreadcrumbList");
   assert.ok(ld[0].author.award.length === 3);
+});
+
+test("Hub-Seiten: Start, Trainingszentrum, Vision, Analysis, Vektoren, Stochastik – mit Werkzeuglisten und Texten", () => {
+  assert.deepEqual(HUB_SEITEN().map((h) => h.id).sort(), ["analysis", "start", "stochastik", "trainingszentrum", "vektoren", "vision"]);
+  assert.deepEqual([...HUB_PFADE].sort(), HUB_SEITEN().map((h) => h.pfad || "start").sort(), "src/seo/pfade.js veraltet: node scripts/werkzeugseiten.mjs --pfade");
+  const n = Object.keys(WERKZEUGE).length;
+  for (const [id, h] of Object.entries(HUBS)) {
+    assert.ok(h.titel.length <= 62 && h.beschreibung.length >= 110 && h.beschreibung.length <= 165, `${id}: Titel/Beschreibung (${h.titel.length}/${h.beschreibung.length})`);
+    assert.ok(h.text.length >= 2 && h.faq.length === 3, id);
+    const alles = [h.titel, h.beschreibung, h.kurz, ...h.text, ...h.faq.flatMap((q) => [q.f, q.a])].join(" ");
+    assert.ok(!/:innen|\*innen|Schüler:in/.test(alles), `${id}: Gendersprache`);
+    for (const m of alles.matchAll(/(\d+) (?:interaktive )?Werkzeuge?n?\b/g)) assert.equal(Number(m[1]), n, `${id}: Zahl der Werkzeuge veraltet (${m[1]} statt ${n})`);
+  }
+  const start = hubBereiche(HUBS.start);
+  assert.equal(start.flatMap((b) => b.werkzeuge).length, n, "Startseite verlinkt jedes Werkzeug");
+  assert.equal(hubBereiche(HUBS.analysis).length, 1);
+  const html = hubHtml(HUBS.analysis, hubBereiche(HUBS.analysis));
+  assert.ok(html.includes("/ableitungstrainer") && html.includes("<h1"));
+  const ld = JSON.parse(hubJsonLd(HUBS.start, `${BASIS_URL}/`, []));
+  assert.equal(ld[0]["@type"], "WebSite");
+  assert.equal(ld[0].publisher.founder.name, "Basti Blumenröther");
+  const ld2 = JSON.parse(hubJsonLd(HUBS.analysis, `${BASIS_URL}/analysis`, hubBereiche(HUBS.analysis).flatMap((b) => b.werkzeuge)));
+  assert.equal(ld2[0]["@type"], "CollectionPage");
+  assert.ok(ld2[0].hasPart.length >= 9);
+});
+
+test("Pfade sind Suchwörter, Titel folgen der Suchabsicht", () => {
+  for (const [id, slug] of Object.entries({ lgs: "gleichungssysteme", zufall: "wahrscheinlichkeit", winkel: "vektorwinkel", groessen: "einheiten-umrechnen", zuordnungen: "dreisatz", ganzezahlen: "negative-zahlen", terme: "terme-vereinfachen", flaechen: "flaecheninhalt" })) assert.equal(WZ_SLUG[id], slug);
+  for (const id of ["kurvendiskussion", "kreuzprodukt", "abstaende", "ebenevsebene", "vierfelder", "vektorgenerator"]) assert.match(SEO_TEXTE[id].titel, /Rechner/, `${id}: Rechnen-Werkzeug ohne „Rechner“ im Titel`);
+  for (const [id, t] of Object.entries(SEO_TEXTE)) assert.ok(!/Visualizer|vs\. Ebene|Basics|Advanced/.test([t.titel, t.kurz, ...t.text].join(" ")), `${id}: alter Name im Text`);
+});
+
+test("Vorschaubilder: ein PNG je Werkzeug und Hub (public/og)", async () => {
+  const { existsSync } = await import("node:fs");
+  for (const s of SEO_SEITEN()) assert.ok(existsSync(new URL(`../public/og/${s.pfad}.png`, import.meta.url)), `public/og/${s.pfad}.png fehlt – python3 scripts/og-bilder.py`);
+  for (const h of HUB_SEITEN()) assert.ok(existsSync(new URL(`../public/og/${h.pfad || "start"}.png`, import.meta.url)), `public/og/${h.pfad || "start"}.png fehlt`);
 });
 
 test("Middleware: Werkzeug-Seiten vorgerendert, noindex bis SEO_OEFFENTLICH=ja", () => {

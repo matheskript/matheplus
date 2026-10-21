@@ -1,5 +1,5 @@
 /* Erzeugt von scripts/werkzeugseiten.mjs --pfade – nicht von Hand ändern (Test: tests/seo.test.mjs).
-   Pfade, für die es eine vorgerenderte Werkzeug-Seite gibt (dist/werkzeug-seiten/<pfad>.html). */
+   Pfade, für die es eine vorgerenderte Seite gibt (dist/werkzeug-seiten/<pfad>.html); die Startseite heißt "start". */
 export const SEO_PFADE = new Set([
   "ableitungstrainer",
   "abstaende",
@@ -12,16 +12,17 @@ export const SEO_PFADE = new Set([
   "diagramme",
   "differenzenquotient",
   "drei-punkte",
+  "dreisatz",
   "ebene-vs-ebene",
   "ebenen",
+  "einheiten-umrechnen",
   "erwartungswert",
-  "flaechen",
+  "flaecheninhalt",
   "funktionen",
-  "ganzezahlen",
   "geraden-im-raum",
   "geradengleichung",
   "gleichungen",
-  "groessen",
+  "gleichungssysteme",
   "hypothesentest",
   "integrale",
   "kathetensatz",
@@ -33,8 +34,8 @@ export const SEO_PFADE = new Set([
   "kreis",
   "kreuzprodukt",
   "kurvendiskussion",
-  "lgs",
   "mengenlogik",
+  "negative-zahlen",
   "normalverteilung",
   "optimierung",
   "parabeln",
@@ -48,18 +49,25 @@ export const SEO_PFADE = new Set([
   "steckbrief",
   "stellenwert",
   "strahlensaetze",
-  "terme",
+  "terme-vereinfachen",
   "textaufgaben",
   "thales",
   "trigonometrie",
   "ungleichungen",
   "vektorrechnen",
+  "vektorwinkel",
   "vierfeldertafel",
   "wachstum",
-  "winkel",
+  "wahrscheinlichkeit",
   "winkelsaetze",
   "zahlenraeume",
-  "zufall",
-  "zuordnungen",
   "zwei-punkte"
+]);
+export const HUB_PFADE = new Set([
+  "analysis",
+  "start",
+  "stochastik",
+  "trainingszentrum",
+  "vektoren",
+  "vision"
 ]);

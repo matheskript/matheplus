@@ -13,7 +13,7 @@ export const TEXTE_VEKTOREN_STOCHASTIK = {
   /* ---------- Vektoren ---------- */
 
   vektorgenerator: {
-    titel: "Rechnen mit Vektoren: Beispiele mit Rechenweg",
+    titel: "Vektoren Rechner: Addition, Skalarprodukt mit Rechenweg",
     beschreibung: "Vektoren addieren, subtrahieren, mit Zahlen multiplizieren, Linearkombination und Skalarprodukt – unbegrenzt neue Beispiele, jedes mit Rechenweg.",
     kurz: "Du wählst eine Rechenart und bekommst so viele Beispiele, wie du willst – jedes mit vollständigem Rechenweg.",
     text: [
@@ -29,7 +29,7 @@ export const TEXTE_VEKTOREN_STOCHASTIK = {
   },
 
   kreuzprodukt: {
-    titel: "Kreuzprodukt berechnen: Formel, Einsetzen, Ergebnis",
+    titel: "Kreuzprodukt Rechner mit Rechenweg: Formel, Einsetzen",
     beschreibung: "Kreuzprodukt zweier Vektoren mit Rechenweg: Formel, eingesetzte Zahlen, Ergebnis – dazu Probe per Skalarprodukt und Flächeninhalt des Parallelogramms.",
     kurz: "Zwei Vektoren eingeben – du siehst die Formel, die eingesetzten Zahlen und den Vektor, der auf beiden senkrecht steht.",
     text: [
@@ -83,7 +83,7 @@ export const TEXTE_VEKTOREN_STOCHASTIK = {
     text: [
       "Drei Punkte, die nicht auf einer Geraden liegen, legen genau eine Ebene fest. Die Parameterform liest du direkt ab: ein Punkt als Stützvektor, die Wege zu den beiden anderen als Spannvektoren. Für die Koordinatenform n₁x₁ + n₂x₂ + n₃x₃ = d brauchst du einen Normalenvektor – und genau dieser Schritt mit dem Kreuzprodukt kostet in Klausuren viele Punkte.",
       "Du gibst A, B und C ein und siehst die Punkte und die Ebene im drehbaren 3D-Bild. Das Werkzeug prüft zuerst, ob die Punkte überhaupt eine Ebene festlegen. Dann rechnet es drei Wege, je mit A, B oder C als Stützpunkt: Spannvektoren, Parameterform, Normalenvektor als Kreuzprodukt, Ansatz und Koordinatengleichung. Ein Vergleich zeigt, dass die drei Gleichungen Vielfache voneinander sind. Im Teil „Jetzt selbst“ trägst du deine eigene Koordinatengleichung ein; das Werkzeug erkennt auch Vielfache als richtig und sagt, ob der Normalenvektor oder d nicht stimmt.",
-      "Mit der fertigen Ebene geht es direkt weiter in den Ebenen-Visualizer oder zu den Abständen.",
+      "Mit der fertigen Ebene geht es direkt weiter zu „Ebenen im Raum“ oder zu den Abständen.",
     ],
     faq: [
       { f: "Wie bestimmt man die Koordinatenform aus drei Punkten?", a: "Spannvektoren AB und AC bilden, Normalenvektor n = AB × AC berechnen, dann d = n · a mit dem Ortsvektor von A. Die Gleichung lautet n₁x₁ + n₂x₂ + n₃x₃ = d." },
@@ -93,13 +93,13 @@ export const TEXTE_VEKTOREN_STOCHASTIK = {
   },
 
   ebenen: {
-    titel: "Ebenen-Visualizer: Koordinatenform im 3D-Bild",
+    titel: "Ebenen im Raum verstehen: Koordinatenform im 3D-Bild",
     beschreibung: "Ebenen in Koordinatenform im Raum drehen: a, b, c und d einstellen, Spurpunkte, Spurgeraden, Normalenvektor und Abstand zum Ursprung direkt ablesen.",
     kurz: "Stell a, b, c und d ein und sieh, wie sich die Ebene ax₁ + bx₂ + cx₃ = d im Raum kippt und verschiebt.",
     text: [
       "Eine Ebene in Koordinatenform ax₁ + bx₂ + cx₃ = d ist nur eine Gleichung – sie im Kopf als Fläche im Raum zu sehen, fällt vielen schwer. Dabei ist der Zusammenhang klar: a, b und c bilden den Normalenvektor und bestimmen die Neigung, d verschiebt die Ebene parallel.",
-      "Im Ebenen-Visualizer stellst du a, b, c und d ein und drehst den Raum mit Finger oder Maus, zoomst hinein oder wählst eine feste Ansicht. Spurgeraden, Normalenvektor und ein Würfel zur Orientierung lassen sich einblenden. Daneben stehen die Eigenschaften der Ebene: Normalenvektor, Spurpunkte, Achsenabschnittsform, Abstand zum Ursprung und Winkel zur x₁x₂-Ebene. Ein Hinweis nennt besondere Lagen, etwa „parallel zur x₃-Achse“ oder „durch den Ursprung“. Beispiele und eine Zufallsebene laden typische Fälle.",
-      "Mit derselben Ebene geht es weiter zu „Ebene vs. Ebene“ oder zu den Abständen. So übst du das räumliche Vorstellungsvermögen, das du für jede Aufgabe zur analytischen Geometrie in der Kursstufe brauchst.",
+      "In „Ebenen im Raum“ stellst du a, b, c und d ein und drehst den Raum mit Finger oder Maus, zoomst hinein oder wählst eine feste Ansicht. Spurgeraden, Normalenvektor und ein Würfel zur Orientierung lassen sich einblenden. Daneben stehen die Eigenschaften der Ebene: Normalenvektor, Spurpunkte, Achsenabschnittsform, Abstand zum Ursprung und Winkel zur x₁x₂-Ebene. Ein Hinweis nennt besondere Lagen, etwa „parallel zur x₃-Achse“ oder „durch den Ursprung“. Beispiele und eine Zufallsebene laden typische Fälle.",
+      "Mit derselben Ebene geht es weiter zu „Zwei Ebenen“ oder zu den Abständen. So übst du das räumliche Vorstellungsvermögen, das du für jede Aufgabe zur analytischen Geometrie in der Kursstufe brauchst.",
     ],
     faq: [
       { f: "Wie berechnet man die Spurpunkte einer Ebene?", a: "Zwei Koordinaten null setzen und die dritte ausrechnen: S₁(d/a | 0 | 0), S₂(0 | d/b | 0), S₃(0 | 0 | d/c). Ist ein Koeffizient 0, gibt es auf dieser Achse keinen Spurpunkt." },
@@ -125,13 +125,13 @@ export const TEXTE_VEKTOREN_STOCHASTIK = {
   },
 
   ebenevsebene: {
-    titel: "Schnittgerade zweier Ebenen und Schnittwinkel",
+    titel: "Schnittgerade zweier Ebenen: Rechner mit Rechenweg",
     beschreibung: "Zwei Ebenen in Koordinatenform: Lage bestimmen (schneidend, parallel, identisch), Schnittgerade und Schnittwinkel berechnen – mit drehbarem 3D-Bild.",
     kurz: "Stell zwei Ebenen ein und sieh sofort, ob sie sich schneiden – mit Schnittgerade, Schnittwinkel und 3D-Bild.",
     text: [
       "Zwei Ebenen im Raum schneiden sich in einer Geraden, sind echt parallel oder identisch. Entscheidend sind die Normalenvektoren: Sind sie Vielfache voneinander, sind die Ebenen parallel oder gleich, sonst schneiden sie sich. Die Schnittgerade zu berechnen ist dann echte Rechenarbeit mit einem unterbestimmten Gleichungssystem.",
       "Du stellst beide Ebenen in Koordinatenform ein und siehst sie im 3D-Bild, das du drehen und zoomen kannst; die Grundebenen lassen sich einblenden. Das Werkzeug nennt die Lage und begründet sie über die Normalenvektoren. Schneiden sich die Ebenen, bekommst du die Schnittgerade: Die Richtung ist das Kreuzprodukt n₁ × n₂, der Stützpunkt entsteht, indem eine Koordinate 0 gesetzt und das übrige Gleichungssystem gelöst wird. Darunter steht der Schnittwinkel mit vollständiger Rechnung über die Normalenvektoren.",
-      "Beispiele für jede Lage, auch eine senkrechte Ebene und die x₁x₂-Ebene, lassen sich mit einem Tipp laden. Aus dem Ebenen-Visualizer kannst du eine Ebene direkt als E₁ übernehmen. So vergleichst du deine eigene Rechnung aus dem Heft Schritt für Schritt.",
+      "Beispiele für jede Lage, auch eine senkrechte Ebene und die x₁x₂-Ebene, lassen sich mit einem Tipp laden. Aus „Ebenen im Raum“ kannst du eine Ebene direkt als E₁ übernehmen. So vergleichst du deine eigene Rechnung aus dem Heft Schritt für Schritt.",
     ],
     faq: [
       { f: "Wie berechnet man die Schnittgerade zweier Ebenen?", a: "Eine Möglichkeit: Richtungsvektor u = n₁ × n₂ bilden, dann einen gemeinsamen Punkt suchen, indem man eine Koordinate 0 setzt und das restliche Gleichungssystem löst. Alternativ löst man das System mit einem Parameter." },
@@ -141,7 +141,7 @@ export const TEXTE_VEKTOREN_STOCHASTIK = {
   },
 
   abstaende: {
-    titel: "Abstand Punkt–Ebene, Punkt–Gerade, windschiefe Geraden",
+    titel: "Abstand Punkt Ebene, Punkt Gerade: Rechner mit Rechenweg",
     beschreibung: "Abstände im Raum berechnen: Punkt, Gerade und Ebene in jeder Kombination – mit Hessescher Normalform, Lotfußpunkt, 3D-Bild und vollständigem Rechenweg.",
     kurz: "Wähle zwei Objekte – Punkt, Gerade oder Ebene – und du bekommst den Abstand mit 3D-Bild und Rechenweg.",
     text: [
@@ -175,7 +175,7 @@ export const TEXTE_VEKTOREN_STOCHASTIK = {
   },
 
   vierfelder: {
-    titel: "Vierfeldertafel und bedingte Wahrscheinlichkeit",
+    titel: "Vierfeldertafel Rechner: bedingte Wahrscheinlichkeit, Baum",
     beschreibung: "Vierfeldertafel mit Anzahlen oder Prozent: bedingte Wahrscheinlichkeit mit Rechenweg, Baumdiagramm, umgekehrter Baum und Prüfung auf Unabhängigkeit.",
     kurz: "Du stellst die vier inneren Felder ein – Randsummen, Baumdiagramme und alle bedingten Wahrscheinlichkeiten rechnen sich live mit.",
     text: [
