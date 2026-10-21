@@ -314,7 +314,7 @@ export function Ableitungstrainer() {
             </div>
             <div className="abl-reihe">
               {bereich === "werkstatt" ? (
-                <PopupWahl className="abl-stufe" wert={werkStufe} label="Stufe wählen" optionen={[1, 2, 3].map((st) => ({ id: st, name: `Stufe ${st}` }))}
+                <PopupWahl className="abl-stufe" wert={werkStufe} label="Stufe wählen" optionen={(werkRegel === "gold" ? [1, 2, 3, 4, 5] : [1, 2, 3]).map((st) => ({ id: st, name: `Stufe ${st}` }))}
                   kopf={(o) => (o ? o.name : "Stufe")} onWaehle={(st) => festhalten(() => setWerkStufe(st))} />
               ) : (
                 <PopupWahl className={`abl-stufe${quelle === "typ" ? "" : " aus"}`} wert={stufeTyp} label="Stufe wählen" optionen={[1, 2, 3, 4, 5].map((st) => ({ id: st, name: `Stufe ${st}` }))}
@@ -328,7 +328,7 @@ export function Ableitungstrainer() {
             <span>Ableiten üben</span>
             <PopupWahl className="abl-regelmenue" knopfClass="abl-regelknopf" rechts wert={bereich === "trainer" ? "polynome" : werkRegel} label="Was möchtest du ableiten?"
               optionen={[{ id: "polynome", name: "Polynome" }, ...REGEL_CHIPS.map(([id, name]) => ({ id, name }))]}
-              onWaehle={(id) => { if (id === "polynome") setBereich("trainer"); else { setWerkRegel(id); setBereich("werkstatt"); } nachOben(); }} />
+              onWaehle={(id) => { if (id === "polynome") setBereich("trainer"); else { setWerkRegel(id); if (id !== "gold" && werkStufe > 3) setWerkStufe(3); setBereich("werkstatt"); } nachOben(); }} />
           </div>
         </div>
         {/* Funktionsart: direkt wählen, alles in einer Reihe (Desktop: Liste in der linken Spalte) */}

@@ -19,9 +19,9 @@ import { uebergabeErledigt, uebergabeLesen } from "./uebergabe.js";
 import { WeiterKnopf, WeiterMit } from "./funcWerkzeuge.jsx";
 import { C } from "./base1.jsx";
 import { PLATZ } from "./base2.jsx";
-import { loeseGanzrational, polyTextPdf, schoenerSchritt } from "./func2.jsx";
-import { M } from "./func3.jsx";
-import { AufklappZeichen } from "./aufklappen.jsx";
+import { loeseGanzrational, polyTextPdf, schoenerSchritt, zahl as zahl2 } from "./func2.jsx";
+import { M, Zeile } from "./func3.jsx";
+import { Arbeitsflaeche, BildKarte, FeinKarte, useBreite, useDesktop } from "./arbeitsflaeche.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
 
 /* ---------- 1. Formel-Engine ---------- */
@@ -530,10 +530,10 @@ export function Tastenfeld({ wert: text, setWert, pos, setPos, kompakt, onOk, fu
   );
 }
 
-function Eingabe({ text, setText }) {
+function Eingabe({ text, setText, onFertig, bereit }) {
   const [pos, setPos] = useState(text.length);
   const [tippen, setTippen] = useState(false);
-  const [offen, setOffen] = useState(true);
+  const offen = true;   // Eingabe-Phase: Tastenfeld immer da; „Fertig“ zeigt Ableitungen, Punkte und Schaubild
   const baum = useMemo(() => parse(text), [text]);
   // Auch ein unvollständiger Term wird beim Tippen als Formel gesetzt (nie als Rohtext)
   const tex = useMemo(() => liveTex(text), [text]);
@@ -564,12 +564,11 @@ function Eingabe({ text, setText }) {
           {!baum && text && <span style={{ color: C.signal, marginLeft: offen ? 8 : 0 }}>{offen ? "· " : ""}noch nicht vollständig</span>}
           {unfertig && <span style={{ color: C.gruenDunkel, marginLeft: offen ? 8 : 0 }}>{offen ? "· " : ""}Platzhalter ▯ füllen</span>}
         </p>
-        <button type="button" onClick={() => setOffen(!offen)} aria-expanded={offen} aria-controls="adv-eingabe"
-          style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: 6, height: 30, padding: "0 12px", borderRadius: 999, fontFamily: "inherit",
-            cursor: "pointer", fontSize: 12.5, fontWeight: 700, border: `1px solid ${offen ? C.linie : C.see}`,
-            background: offen ? C.weiss : `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, color: offen ? C.see : C.weiss }}>
-          {offen ? "Eingabe einklappen" : "Funktion eingeben"}
-          <AufklappZeichen auf={offen} groesse={14} />
+        <button type="button" onClick={() => bereit && onFertig()} disabled={!bereit} data-kd-fertig
+          style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: 6, height: 32, padding: "0 16px", borderRadius: 999, fontFamily: "inherit",
+            cursor: bereit ? "pointer" : "not-allowed", fontSize: 13, fontWeight: 700, border: "none", opacity: bereit ? 1 : 0.45,
+            background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, color: C.weiss }}>
+          Fertig <span aria-hidden="true" style={{ color: C.flaggold }}>✓</span>
         </button>
       </div>
 
@@ -587,7 +586,7 @@ function Eingabe({ text, setText }) {
           </p>
         </div>
       ) : (
-        <Tastenfeld wert={text} setWert={setText} pos={pos} setPos={setPos} />
+        <Tastenfeld wert={text} setWert={setText} pos={pos} setPos={setPos} onOk={() => bereit && onFertig()} />
       )}
 
       {/* Spielerische Schnellstarts */}
@@ -616,10 +615,11 @@ function Eingabe({ text, setText }) {
   );
 }
 
-/* Plot mit f, f′, f″, Polen, markanten Punkten und Nullstellenintegralen. */
-function AdvPlot({ A, zeigen }) {
+/* Schaubild wie im Polynom-Plotter (gleiche Farben, Punkte, Zoom unten rechts):
+   f, f′ und f″, Nullstellen, Extrem- und Wendepunkte, y-Achsenabschnitt, Polstellen gestrichelt.
+   Der Ausschnitt richtet sich nach den markanten Punkten (beliebige Funktionen haben kein festes Zentrum). */
+function KdBild({ A, Sx, Sy, desktop }) {
   const [zoom, setZoom] = useState(1);
-  const Sx = 340, Sy = 250;
   const ok = endlich;
   const punkte = [...A.ns.map((x) => ({ x, y: 0 })), ...A.ext, ...A.wende];
   const xs = [...(A.yAchse !== null ? [0] : []), ...punkte.map((p) => p.x), ...A.pole.map((p) => p.x)];
@@ -657,63 +657,44 @@ function AdvPlot({ A, zeigen }) {
     }
     return d;
   };
-  const flaeche = (x1, x2) => {
-    let d = `M ${px(x1).toFixed(1)} ${py(0).toFixed(1)} `;
-    for (let i = 0; i <= 80; i++) {
-      const x = x1 + ((x2 - x1) * i) / 80, y = A.f(x);
-      if (ok(y)) d += `L ${px(x).toFixed(1)} ${py(Math.min(Math.max(y, yMin), yMax)).toFixed(1)} `;
-    }
-    return d + `L ${px(x2).toFixed(1)} ${py(0).toFixed(1)} Z`;
-  };
   const sX = schoenerSchritt((xMax - xMin) / 2), sY = schoenerSchritt((yMax - yMin) / 2);
   const gx = []; for (let v = Math.ceil(xMin / sX) * sX; v <= xMax; v += sX) gx.push(Math.round(v * 1000) / 1000);
   const gy = []; for (let v = Math.ceil(yMin / sY) * sY; v <= yMax; v += sY) gy.push(Math.round(v * 1000) / 1000);
-  const farben = [C.see, C.gruen, C.tuerkis, C.smaragd, C.lila];
+  const farbe = (art) => (art === "Wendepunkt" ? C.tinte : art === "Sattelpunkt" ? C.hellgrau : C.gruenDunkel);
   const knopf = { width: 34, height: 34, background: C.weiss, border: "none", fontSize: 18, color: C.see,
     cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "center" };
 
   return (
-    <div style={{ position: "relative" }}>
-      <svg viewBox={`0 0 ${Sx} ${Sy}`} style={{ width: "100%", display: "block", background: C.weiss, borderRadius: 12 }}>
-        <defs><clipPath id="advfeld"><rect x="0" y="0" width={Sx} height={Sy} /></clipPath></defs>
+    <div style={{ position: "relative", marginTop: desktop ? 0 : 14 }}>
+      <svg viewBox={`0 0 ${Sx} ${Sy}`} data-kd-bild style={{ width: "100%", maxWidth: desktop ? "none" : 360, display: "block", margin: "0 auto" }}>
+        <defs><clipPath id="kdfeld"><rect x="0" y="0" width={Sx} height={Sy} /></clipPath></defs>
         {gx.map((v) => <line key={`gx${v}`} x1={px(v)} y1={0} x2={px(v)} y2={Sy} stroke={C.linie} strokeWidth="1" />)}
         {gy.map((v) => <line key={`gy${v}`} x1={0} y1={py(v)} x2={Sx} y2={py(v)} stroke={C.linie} strokeWidth="1" />)}
-        <g clipPath="url(#advfeld)">
-          {zeigen.integrale && A.integrale.map((iv, i) => (
-            <path key={`i${i}`} d={flaeche(iv.x1, iv.x2)} fill={farben[i % farben.length]} opacity="0.2" />
-          ))}
-        </g>
-        {yMin <= 0 && yMax >= 0 && <line x1={0} y1={py(0)} x2={Sx} y2={py(0)} stroke={C.hellgrau} strokeWidth="1.4" />}
-        {xMin <= 0 && xMax >= 0 && <line x1={px(0)} y1={0} x2={px(0)} y2={Sy} stroke={C.hellgrau} strokeWidth="1.4" />}
+        {yMin <= 0 && yMax >= 0 && <line x1={0} y1={py(0)} x2={Sx} y2={py(0)} stroke={C.hellgrau} strokeWidth="1.5" />}
+        {xMin <= 0 && xMax >= 0 && <line x1={px(0)} y1={0} x2={px(0)} y2={Sy} stroke={C.hellgrau} strokeWidth="1.5" />}
         {gx.filter((v) => Math.abs(v) > 1e-9).map((v) => (
-          <text key={`lx${v}`} x={px(v)} y={Math.min(Math.max(py(0) + 12, 10), Sy - 3)} fontSize="9" fill={C.hellgrau} textAnchor="middle">{wert(v)}</text>
+          <text key={`lx${v}`} x={px(v)} y={Math.min(Math.max(py(0) + 13, 10), Sy - 3)} fontSize="9" fill={C.hellgrau} textAnchor="middle">{wert(v)}</text>
         ))}
         {gy.filter((v) => Math.abs(v) > 1e-9).map((v) => (
-          <text key={`ly${v}`} x={Math.min(Math.max(px(0) - 4, 16), Sx - 2)} y={py(v) + 3} fontSize="9" fill={C.hellgrau} textAnchor="end">{wert(v)}</text>
+          <text key={`ly${v}`} x={Math.min(Math.max(px(0) - 6, 16), Sx - 2)} y={py(v) + 3} fontSize="9" fill={C.hellgrau} textAnchor="end">{wert(v)}</text>
         ))}
-        <g clipPath="url(#advfeld)">
+        <g clipPath="url(#kdfeld)">
           {A.pole.map((p, i) => (
-            <line key={`p${i}`} x1={px(p.x)} y1={0} x2={px(p.x)} y2={Sy} stroke={C.gruen} strokeWidth="1.2" strokeDasharray="4 4" opacity="0.7" />
+            <line key={`p${i}`} x1={px(p.x)} y1={0} x2={px(p.x)} y2={Sy} stroke={C.hellgrau} strokeWidth="1.2" strokeDasharray="4 4" opacity="0.8" />
           ))}
-          {[A.plus, A.minus].map((g, i) => g.art === "wert" && (
-            <line key={`a${i}`} x1={0} y1={py(g.wert)} x2={Sx} y2={py(g.wert)} stroke={C.gruen} strokeWidth="1" strokeDasharray="4 4" opacity="0.45" />
-          ))}
-          {zeigen.f2 && <path d={pfad(A.fss)} stroke={C.granaHell} strokeWidth="1.7" fill="none" strokeDasharray="5 4" opacity="0.75" />}
-          {zeigen.f1 && <path d={pfad(A.fs)} stroke={C.ablGrau} strokeWidth="2" fill="none" opacity="0.95" />}
-          <path d={pfad(A.f)} stroke={C.see} strokeWidth="2.6" fill="none" strokeLinejoin="round" />
-          {A.ns.map((x, i) => <circle key={`n${i}`} cx={px(x)} cy={py(0)} r="4.2" fill={C.weiss} stroke={C.see} strokeWidth="2.3" />)}
-          {A.ext.map((p, i) => ok(p.y) && <circle key={`e${i}`} cx={px(p.x)} cy={py(p.y)} r="5" fill={C.gruen} />)}
-          {A.wende.filter((p) => p.art === "Wendepunkt").map((p, i) => <circle key={`w${i}`} cx={px(p.x)} cy={py(p.y)} r="4.6" fill={C.flaggold} stroke={C.seeTief} strokeWidth="0.8" />)}
-          {A.yAchse !== null && <circle cx={px(0)} cy={py(A.yAchse)} r="3.6" fill={C.seeHell} />}
-          {A.hebbar.filter((p) => p.li.art === "wert").map((p, i) => (
-            <circle key={`h${i}`} cx={px(p.x)} cy={py(p.li.wert)} r="4" fill={C.weiss} stroke={C.gruen} strokeWidth="2" />
-          ))}
+          <path d={pfad(A.fss)} stroke={C.ablGrau} strokeWidth="1.8" fill="none" opacity="0.55" strokeDasharray="5 4" strokeLinejoin="round" />
+          <path d={pfad(A.fs)} stroke={C.seeHell} strokeWidth="2" fill="none" opacity="0.7" strokeLinejoin="round" />
+          <path d={pfad(A.f)} stroke={C.see} strokeWidth="2.5" fill="none" strokeLinejoin="round" />
+          {A.ns.map((x, i) => <circle key={`n${i}`} cx={px(x)} cy={py(0)} r="4.5" fill={C.weiss} stroke={C.see} strokeWidth="2.5" />)}
+          {A.ext.map((p, i) => ok(p.y) && <circle key={`e${i}`} cx={px(p.x)} cy={py(p.y)} r="5.5" fill={farbe(p.art)} />)}
+          {A.wende.filter((p) => p.art === "Wendepunkt").map((p, i) => <circle key={`w${i}`} cx={px(p.x)} cy={py(p.y)} r="5.5" fill={farbe(p.art)} />)}
+          {A.yAchse !== null && <circle cx={px(0)} cy={py(A.yAchse)} r="4" fill={C.see} opacity="0.45" />}
         </g>
       </svg>
-      <div style={{ position: "absolute", right: 8, top: 8, display: "flex", flexDirection: "column", borderRadius: 10,
-        overflow: "hidden", boxShadow: "0 2px 8px rgba(15,26,51,0.15)" }}>
-        <button style={knopf} onClick={() => setZoom((z) => Math.min(z * 1.6, 20))} aria-label="Hineinzoomen">+</button>
-        <button style={{ ...knopf, borderTop: `1px solid ${C.linie}` }} onClick={() => setZoom((z) => Math.max(z / 1.6, 0.3))} aria-label="Herauszoomen">−</button>
+      <div style={{ position: "absolute", right: 8, bottom: 8, display: "flex", flexDirection: "column",
+        borderRadius: 10, overflow: "hidden", border: `1px solid ${C.linie}`, boxShadow: "0 2px 8px rgba(15,26,51,0.18)" }}>
+        <button onClick={() => setZoom((z) => Math.min(z * 1.3, 20))} style={{ ...knopf, borderBottom: `1px solid ${C.linie}` }} aria-label="Hineinzoomen">+</button>
+        <button onClick={() => setZoom((z) => Math.max(z / 1.3, 0.3))} style={knopf} aria-label="Herauszoomen">−</button>
       </div>
     </div>
   );
@@ -771,19 +752,27 @@ export async function diskussionPdfAusText(text, fenster, untertitel = "Kurvendi
   });
 }
 
+/* Kurvendiskussion · Beliebige Funktionen – aufgebaut wie der Polynom-Plotter:
+   erst die Funktion eingeben (Tastenfeld), nach „Fertig“ links f, f′, f″ und die markanten Punkte,
+   rechts das Schaubild; darunter der Knopf zur ausführlichen Kurvendiskussion. */
+const LISTE_KURZ = 6;
 export function AdvancedPlotter() {
   const [text, setText] = useState(() => (uebergabeLesen("advplotter") || {}).text || "x*e^(-x)");
   useEffect(() => { uebergabeErledigt("advplotter"); }, []);
   const fenster = 10;
-  const [zeigen, setZeigen] = useState({ f1: true, f2: false, integrale: true });
+  const [eingabe, setEingabe] = useState(false);   // Startfunktion steht: gleich Ergebnis zeigen
+  const [offen, setOffen] = useState(false);
   const [pdfStatus, setPdfStatus] = useState("bereit");
+  const ergebnisRef = useRef(null);
+  const desktop = useDesktop();
+  const [bildRef, bildBreite] = useBreite();
   const baum = useMemo(() => parse(text), [text]);
   const bereit = !!baum && !hatBox(baum);
   const A = useMemo(() => {
     if (!bereit) return null;
     try { return analysiere(baum, -fenster, fenster); } catch (e) { console.error(e); return null; }
   }, [baum, bereit, fenster]);
-  const inhalt = useMemo(() => (A ? baueAllgemeineDiskussion(baum, A) : null), [A, baum]);
+  const inhalt = useMemo(() => (A && offen ? baueAllgemeineDiskussion(baum, A) : null), [A, baum, offen]);
 
   const pdf = async () => {
     if (!A || pdfStatus === "laeuft") return;
@@ -791,74 +780,162 @@ export function AdvancedPlotter() {
     try { await diskussionPdfAusText(text, fenster); setPdfStatus("bereit"); }
     catch (err) { console.error(err); setPdfStatus("fehler"); }
   };
+  const fertig = () => { setEingabe(false); setOffen(false); };
+  const aendern = () => { setEingabe(true); setOffen(false); };
+  const diskussionUmschalten = () => {
+    const neu = !offen;
+    setOffen(neu);
+    if (neu) setTimeout(() => { try { ergebnisRef.current && springe("kurvendiskussion-ergebnis", () => ergebnisRef.current.scrollIntoView({ behavior: "smooth", block: "start" })); } catch (err) { /* egal */ } }, 80);
+  };
 
-  const karte = { background: C.weiss, borderRadius: 16, padding: 18, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" };
-  const schalter = (schl, label, farbe) => (
-    <button key={schl} onClick={() => setZeigen({ ...zeigen, [schl]: !zeigen[schl] })}
-      style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 10px", borderRadius: 999,
-        border: `1px solid ${zeigen[schl] ? farbe : C.linie}`, background: zeigen[schl] ? C.himmel : C.weiss,
-        color: C.tinte, fontSize: 12.5, fontFamily: "inherit", cursor: "pointer" }}>
-      <span style={{ width: 14, height: 3, borderRadius: 2, background: farbe, opacity: zeigen[schl] ? 1 : 0.35 }} />{label}
+  const karte = { background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" };
+  const rahmen = (kinder) => <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>{kinder}</div>;
+
+  /* 1. Eingabe-Phase */
+  if (eingabe || !A) return rahmen(
+    <div style={karte}>
+      <Eingabe text={text} setText={setText} onFertig={fertig} bereit={!!A} />
+    </div>
+  );
+
+  /* 2. Ergebnis: Kopf (f, f′, f″), markante Punkte, Schaubild – wie bei den Polynomen */
+  const kopf = (
+    <div data-kd-kopf>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 12 }}>
+        <p style={{ fontSize: 13, fontWeight: 600, color: C.see, margin: 0 }}>Beliebige Funktion</p>
+        <button type="button" onClick={aendern}
+          style={{ display: "flex", alignItems: "center", gap: 6, height: 30, padding: "0 12px", borderRadius: 999, fontFamily: "inherit",
+            cursor: "pointer", fontSize: 12.5, fontWeight: 700, border: `1px solid ${C.see}`, color: C.weiss,
+            background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
+          <span aria-hidden="true" style={{ color: C.flaggold }}>✎</span>Funktion eingeben
+        </button>
+      </div>
+      <div style={{ background: "#F4F7FC", borderRadius: 12, padding: "10px 12px", overflowX: "auto" }}>
+        <p style={{ fontSize: 22, fontWeight: 700, color: C.tinte, whiteSpace: "nowrap", margin: 0 }}><M t={`f(x) = ${alsTex(baum)}`} /></p>
+      </div>
+      <div style={{ padding: "8px 12px 0", overflowX: "auto" }}>
+        <p style={{ fontSize: 15, color: C.grau, whiteSpace: "nowrap", margin: "0 0 4px" }}><M t={`f′(x) = ${alsTex(A.d1)}`} /></p>
+        <p style={{ fontSize: 15, color: C.grau, whiteSpace: "nowrap", margin: 0 }}><M t={`f″(x) = ${alsTex(A.d2)}`} /></p>
+      </div>
+    </div>
+  );
+
+  const liste = (werte, fmt) => (werte.length > LISTE_KURZ ? `${werte.slice(0, LISTE_KURZ).map(fmt).join("   ")}   …` : werte.map(fmt).join("   "));
+  const tief = (i, n) => (n > 1 ? (i < 9 ? "₁₂₃₄₅₆₇₈₉"[i] : String(i + 1)) : "");
+  const farbe = (art) => (art === "Wendepunkt" ? C.tinte : art === "Sattelpunkt" ? C.hellgrau : C.gruenDunkel);
+  const wendepunkte = A.wende.filter((p) => p.art === "Wendepunkt");
+  const punkte = (<>
+    <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 14 }}>Markante Punkte</p>
+    <Zeile marke={<circle cx="7" cy="7" r="4.5" fill={C.weiss} stroke={C.see} strokeWidth="2.5" />}
+      titel="Nullstellen" wert={A.ns.length ? liste(A.ns, (x, i) => `x${tief(i, A.ns.length)} = ${zahl2(x)}`) : "keine Nullstellen"} />
+    {A.ext.slice(0, LISTE_KURZ).map((p, i) => (
+      <Zeile key={`e${i}`} marke={<circle cx="7" cy="7" r="5" fill={farbe(p.art)} />} titel={p.art} wert={`(${zahl2(p.x)} | ${zahl2(p.y)})`} />
+    ))}
+    {wendepunkte.slice(0, LISTE_KURZ).map((p, i) => (
+      <Zeile key={`w${i}`} marke={<circle cx="7" cy="7" r="5" fill={farbe(p.art)} />} titel={p.art} wert={`(${zahl2(p.x)} | ${zahl2(p.y)})`} />
+    ))}
+    {!A.ext.length && !wendepunkte.length && (
+      <Zeile marke={<circle cx="7" cy="7" r="5" fill={C.linie} />} titel="Extrem- und Wendepunkte" wert="keine" />
+    )}
+    {(A.ext.length > LISTE_KURZ || wendepunkte.length > LISTE_KURZ) && (
+      <p style={{ fontSize: 12.5, color: C.grau, fontWeight: 300, margin: "-4px 0 10px 24px" }}>… weitere im Bereich −10 bis 10 (periodisch)</p>
+    )}
+    {A.yAchse !== null && (
+      <Zeile marke={<circle cx="7" cy="7" r="4" fill={C.see} opacity="0.45" />} titel="y-Achsenabschnitt" wert={`(0 | ${zahl2(A.yAchse)})`} />
+    )}
+    {A.pole.length > 0 && (
+      <Zeile marke={<line x1="7" y1="0" x2="7" y2="14" stroke={C.hellgrau} strokeWidth="1.6" strokeDasharray="3 2" />}
+        titel="Polstellen" wert={liste(A.pole.map((p) => p.x), (x) => `x = ${zahl2(x)}`)} />
+    )}
+  </>);
+
+  const legende = (
+    <div className="flex flex-wrap justify-center" style={{ gap: 18, marginTop: 8 }}>
+      {[["f", C.see, false], ["f′", C.seeHell, false], ["f″", C.ablGrau, true]].map(([n, f, gestrichelt]) => (
+        <span key={n} className="flex items-center" style={{ gap: 7, fontSize: 12.5, color: C.grau }}>
+          <svg width="22" height="6"><line x1="0" y1="3" x2="22" y2="3" stroke={f} strokeWidth="2.5" strokeDasharray={gestrichelt ? "5 4" : "0"} /></svg>
+          {n}
+        </span>
+      ))}
+    </div>
+  );
+
+  const Sx = desktop && bildBreite ? bildBreite : 320, Sy = desktop && bildBreite ? Math.round(bildBreite * 0.86) : 224;
+  const schaubild = <KdBild key={text} A={A} Sx={Sx} Sy={Sy} desktop={desktop} />;
+
+  const diskKnopf = (
+    <button type="button" className="kd-knopf" aria-expanded={offen} onClick={diskussionUmschalten}
+      style={{ marginTop: 18, width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
+        padding: "15px 18px", border: "none", borderRadius: 14, cursor: "pointer", fontFamily: "inherit", fontSize: 15.5, fontWeight: 700,
+        color: C.weiss, background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, boxShadow: "0 6px 20px rgba(0,77,152,0.25)" }}>
+      {offen ? (desktop ? "Rechenweg ausblenden" : "Kurvendiskussion ausblenden") : (desktop ? "Kurvendiskussion mit Rechenweg" : "Kurvendiskussion")}
     </button>
   );
 
-  return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 22 }}>
-      <div style={karte}>
-        <Eingabe text={text} setText={setText} />
-      </div>
-
-      {A && (
-        <div style={{ ...karte, marginTop: 16 }}>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>
-            {schalter("f1", "f′", C.ablGrau)}
-            {schalter("f2", "f″", C.granaHell)}
-            {schalter("integrale", "Integrale", C.see)}
-          </div>
-          <AdvPlot A={A} zeigen={zeigen} />
-        </div>
+  const ausfuehrlich = inhalt && (
+    <div style={{ ...karte, marginTop: 18 }}>
+      <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 12 }}>Kurvendiskussion</p>
+      <Diskussion inhalt={inhalt} />
+      <button onClick={pdf} disabled={pdfStatus === "laeuft"}
+        style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginTop: 8,
+          padding: "15px 18px", border: "none", borderRadius: 14, cursor: pdfStatus === "laeuft" ? "wait" : "pointer",
+          fontFamily: "inherit", fontSize: 15.5, fontWeight: 700, color: C.weiss,
+          background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, boxShadow: "0 6px 20px rgba(0,77,152,0.25)",
+          opacity: pdfStatus === "laeuft" ? 0.75 : 1 }}>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={C.flaggold} strokeWidth="2.4"
+          strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M12 3v12" /><path d="M7 10l5 5 5-5" /><path d="M5 20h14" />
+        </svg>
+        {pdfStatus === "laeuft" ? "PDF wird erstellt …" : "Kurvendiskussion als PDF herunterladen"}
+      </button>
+      {pdfStatus === "fehler" && (
+        <p style={{ fontSize: 12.5, color: C.signal, marginTop: 8, textAlign: "center" }}>
+          Das PDF konnte nicht erstellt werden. Bitte noch einmal versuchen.
+        </p>
       )}
-
-      {inhalt && (
-        <div style={{ ...karte, marginTop: 16 }}>
-          <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 6 }}>Kurvendiskussion</p>
-          <div style={{ marginBottom: 14, overflowX: "auto" }}>
-            <p style={{ fontSize: 19, fontWeight: 700, whiteSpace: "nowrap" }}><M t={`f(x) = ${alsTex(baum)}`} /></p>
-            <p style={{ fontSize: 13.5, color: C.grau, whiteSpace: "nowrap", marginTop: 4 }}><M t={`f′(x) = ${alsTex(A.d1)}`} /></p>
-            <p style={{ fontSize: 13.5, color: C.grau, whiteSpace: "nowrap", marginTop: 2 }}><M t={`f″(x) = ${alsTex(A.d2)}`} /></p>
-          </div>
-          <Diskussion inhalt={inhalt} />
-          <button onClick={pdf} disabled={pdfStatus === "laeuft"}
-            style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginTop: 8,
-              padding: "15px 18px", border: "none", borderRadius: 14, cursor: pdfStatus === "laeuft" ? "wait" : "pointer",
-              fontFamily: "inherit", fontSize: 15.5, fontWeight: 700, color: C.weiss,
-              background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, boxShadow: "0 6px 20px rgba(0,77,152,0.25)",
-              opacity: pdfStatus === "laeuft" ? 0.75 : 1 }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={C.flaggold} strokeWidth="2.4"
-              strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M12 3v12" /><path d="M7 10l5 5 5-5" /><path d="M5 20h14" />
-            </svg>
-            {pdfStatus === "laeuft" ? "PDF wird erstellt …" : "Kurvendiskussion als PDF herunterladen"}
-          </button>
-          {pdfStatus === "fehler" && (
-            <p style={{ fontSize: 12.5, color: C.signal, marginTop: 8, textAlign: "center" }}>
-              Das PDF konnte nicht erstellt werden. Bitte noch einmal versuchen.
-            </p>
-          )}
-          <WeiterMit titel="Weiter mit dieser Funktion">
-            <WeiterKnopf ziel="ableitungstrainer" von="Kurvendiskussion" daten={{ text }}
-              zeile="f′, f″ und f‴ dieser Funktion selbst bilden und prüfen lassen" />
-            {A && (() => {
-              const iv = A.integrale && A.integrale[0];
-              const t = (v) => String(Math.round(v * 1e4) / 1e4);
-              return <WeiterKnopf ziel="integrale" von="Kurvendiskussion" daten={{ f: text, a: iv ? t(iv.x1) : "0", b: iv ? t(iv.x2) : "1" }}
-                zeile={iv ? "Erstes Nullstellenintegral – Stammfunktion selbst finden" : "Bestimmtes Integral von 0 bis 1 – Stammfunktion selbst finden"} />;
-            })()}
-          </WeiterMit>
-        </div>
-      )}
+      <WeiterMit titel="Weiter mit dieser Funktion">
+        <WeiterKnopf ziel="ableitungstrainer" von="Kurvendiskussion" daten={{ text }}
+          zeile="f′, f″ und f‴ dieser Funktion selbst bilden und prüfen lassen" />
+        {(() => {
+          const iv = A.integrale && A.integrale[0];
+          const t = (v) => String(Math.round(v * 1e4) / 1e4);
+          return <WeiterKnopf ziel="integrale" von="Kurvendiskussion" daten={{ f: text, a: iv ? t(iv.x1) : "0", b: iv ? t(iv.x2) : "1" }}
+            zeile={iv ? "Erstes Nullstellenintegral – Stammfunktion selbst finden" : "Bestimmtes Integral von 0 bis 1 – Stammfunktion selbst finden"} />;
+        })()}
+      </WeiterMit>
     </div>
   );
+
+  if (desktop) return rahmen(<>
+    <Arbeitsflaeche linksBreite={400} gap={24}
+      links={<>
+        <FeinKarte>{kopf}</FeinKarte>
+        <FeinKarte data-kd-punkte>{punkte}</FeinKarte>
+      </>}
+      rechts={<>
+        <BildKarte style={{ padding: 0 }}>
+          <div ref={bildRef}>{schaubild}</div>
+        </BildKarte>
+        {legende}
+      </>} />
+    {diskKnopf}
+    {offen && <div ref={ergebnisRef} style={{ scrollMarginTop: 12 }}>{ausfuehrlich}</div>}
+  </>);
+
+  return rahmen(<>
+    <div style={karte}>
+      {kopf}
+      {schaubild}
+      {legende}
+    </div>
+    {diskKnopf}
+    {offen && (
+      <div ref={ergebnisRef} style={{ scrollMarginTop: 12 }}>
+        <div style={{ ...karte, marginTop: 18 }} data-kd-punkte>{punkte}</div>
+        {ausfuehrlich}
+      </div>
+    )}
+  </>);
 }
 
 /* Hochformat-Grafik für die Startseiten-Kachel. */

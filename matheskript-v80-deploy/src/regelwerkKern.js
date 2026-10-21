@@ -669,14 +669,59 @@ const GEN = {
       () => ({ art: "kette", u: `x^${ganz(2, 3)}`, v: wahl(["x*e^x", "x*sin(x)"]) }),
     ])(),
   ],
+  /* Gold Level: Kombinationen aus allen Regeln (Produkt, Quotient, Reziproke, lineare Kette, Kette), Stufe 1–5.
+     1: Hauptregel + ein Baustein mit linearer Kette · 2: Hauptregel + ein Baustein mit Kettenregel
+     3: beide Bausteine brauchen eine Regel · 4: drei Regeln, auch Verkettung außen · 5: doppelt verschachtelt */
+  gold: [
+    () => wahl([
+      () => ({ art: "produkt", u: mon(wahl([1, 2, -1]), ganz(1, 3)), v: `e^(${k1(ohneNull(-3, 3))}x)` }),
+      () => ({ art: "produkt", u: wahl(["x", "x^2", linTxt(1, ohneNull(-3, 3))]), v: `${wahl(["sin", "cos"])}(${ganz(2, 4)}x)` }),
+      () => ({ art: "quotient", u: wahl([`e^(${ganz(2, 3)}x)`, `sin(${ganz(2, 3)}x)`]), v: wahl(["x", "x^2+1"]) }),
+      () => ({ art: "quotient", u: wahl(["x", "x^2"]), v: `e^(${ganz(2, 3)}x)` }),
+      () => ({ art: "reziprok", v: wahl([`e^(${ganz(2, 3)}x)+1`, `sin(${ganz(2, 3)}x)+2`, `cos(${ganz(2, 3)}x)+2`]) }),
+      () => ({ art: "kette", u: `x^${ganz(2, 4)}`, v: wahl([`e^(${ganz(2, 3)}x)+1`, `sin(${ganz(2, 3)}x)+2`]) }),
+    ])(),
+    () => wahl([
+      () => ({ art: "produkt", u: wahl(["x", "x^2", "2x"]), v: wahl(["e^(-x^2)", "e^(x^2)", "sqrt(x^2+1)", "ln(x^2+1)", "sin(x^2)", "cos(x^2)"]) }),
+      () => ({ art: "quotient", u: wahl(["ln(x^2+1)", "e^(x^2)", "sin(x^2)"]), v: wahl(["x", "x^2+1"]) }),
+      () => ({ art: "quotient", u: wahl(["x", "x^2", "2x"]), v: wahl(["sqrt(x^2+1)", "e^(x^2)"]) }),
+      () => ({ art: "reziprok", v: wahl(["sqrt(x^2+1)", "e^(x^2)+1", "ln(x^2+1)+1", "sin(x^2)+2"]) }),
+      () => ({ art: "kette", u: wahl(["sqrt(x)", `x^${ganz(2, 3)}`]), v: wahl(["e^(x^2)+1", "sin(x^2)+2", "ln(x^2+1)+1"]) }),
+    ])(),
+    () => wahl([
+      () => ({ art: "produkt", u: wahl(["e^(-x^2)", "sin(x^2)", "ln(x^2+1)"]), v: `${wahl(["sin", "cos"])}(${ganz(2, 3)}x)` }),
+      () => ({ art: "produkt", u: `(${linTxt(2, ohneNull(-3, 3))})^3`, v: wahl(["e^(-x)", "e^(2x)"]) }),
+      () => ({ art: "produkt", u: wahl(["e^(2x)", "e^(-x)"]), v: wahl(["cos(x^2)", "sqrt(x^2+1)", "ln(x^2+1)"]) }),
+      () => ({ art: "quotient", u: wahl(["e^(2x)", `sin(${ganz(2, 3)}x)`]), v: wahl(["sqrt(x^2+1)", "e^(x^2)"]) }),
+      () => ({ art: "quotient", u: wahl(["ln(x^2+1)", "sin(x^2)"]), v: wahl(["e^(2x)", "e^(-x)"]) }),
+      () => ({ art: "reziprok", v: wahl(["x*e^x", "x^2*e^(-x)+1", "x*sin(x)+2"]) }),
+    ])(),
+    () => wahl([
+      () => ({ art: "kette", u: "e^x", v: wahl(["x*sin(x)", "x*cos(x)", "x^2*e^(-x)"]) }),
+      () => ({ art: "kette", u: wahl(["sin(x)", "cos(x)"]), v: wahl(["x*e^x", "x^2*e^(-x)"]) }),
+      () => ({ art: "kette", u: `x^${ganz(2, 3)}`, v: wahl(["x*e^x", "x*sin(x)", "x/(x^2+1)"]) }),
+      () => ({ art: "produkt", u: wahl(["x", "x^2"]), v: wahl(["e^(sin(2x))", "sin(e^(2x))", "sqrt(e^(2x)+1)", "ln(sin(x)+2)"]) }),
+      () => ({ art: "quotient", u: wahl(["x*e^x", "x*sin(x)", "x^2*e^(-x)"]), v: wahl(["x^2+1", "e^(2x)"]) }),
+      () => ({ art: "reziprok", v: wahl(["sqrt(x)*e^(2x)", "x*e^(x^2)", "x^2*sin(x)+3"]) }),
+    ])(),
+    () => wahl([
+      () => ({ art: "kette", u: "e^x", v: wahl(["x^2*sin(2x)", "x*cos(3x)", "x*e^(-x^2)"]) }),
+      () => ({ art: "kette", u: wahl(["sin(x)", "sqrt(x)"]), v: wahl(["x^2*e^(2x)+1", "e^(-x^2)*sin(x)+2"]) }),
+      () => ({ art: "kette", u: `x^${ganz(2, 3)}`, v: wahl(["e^(2x)/(x^2+1)", "sin(2x)*e^(-x)"]) }),
+      () => ({ art: "produkt", u: wahl(["x*e^(-x)", "x^2*sin(x)"]), v: wahl(["sin(x^2)", "e^(2x)", "ln(x^2+1)"]) }),
+      () => ({ art: "produkt", u: wahl(["e^(-x^2)", "sin(2x)"]), v: wahl(["sqrt(x^2+1)*e^x", "e^(sin(x))"]) }),
+      () => ({ art: "quotient", u: wahl(["x*e^(2x)", "e^(x^2)*sin(x)"]), v: wahl(["sqrt(x^2+1)", "e^(x)+x^2"]) }),
+      () => ({ art: "reziprok", v: wahl(["x*e^(sin(x))+3", "e^(x^2)*cos(x)+2", "sqrt(x^2+1)*e^(-x)"]) }),
+    ])(),
+  ],
 };
 
-/* Neue Aufgabe zu einer Regel und Stufe 1–3: { regel, u, v } (Texte) */
+/* Neue Aufgabe zu einer Regel und Stufe (1–3, Gold Level 1–5): { regel, u, v } (Texte) */
 export function neueAufgabe(regel, stufe = 1) {
   const g = GEN[regel] || GEN.produkt;
   for (let i = 0; i < 40; i++) {
-    const a = g[Math.max(0, Math.min(2, stufe - 1))]();
-    const r = regel === "kombo" ? a.art : regel;
+    const a = g[Math.max(0, Math.min(g.length - 1, stufe - 1))]();
+    const r = regel === "kombo" || regel === "gold" ? a.art : regel;
     const u = r === "reziprok" ? null : lies(a.u), v = lies(a.v);
     if (r !== "reziprok" && !u) continue;
     if (!v) continue;

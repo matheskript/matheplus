@@ -371,6 +371,7 @@ const HER_TITEL = {
   linkette: ["Herleitung der linearen Kettenregel", "Warum der Faktor m vorne steht"],
   kette: ["Herleitung der Kettenregel", "Mit der Änderung der inneren Funktion erweitern"],
   kombo: ["So gehst du Kombinationen an", "Hauptregel zuerst, Bausteine in Nebenrechnungen"],
+  gold: ["Gold Level: alle Regeln kombiniert", "Hauptregel zuerst, Bausteine in Nebenrechnungen"],
 };
 
 /* ---------- Werkstatt ---------- */
@@ -378,6 +379,7 @@ const HER_TITEL = {
 export const REGEL_CHIPS = [
   ["produkt", "Produktregel"], ["quotient", "Quotientenregel"], ["reziprok", "Reziprokenregel"],
   ["linkette", "Lineare Kettenregel"], ["kette", "Kettenregel"], ["kombo", "15-Punkte-Kombo"],
+  ["gold", "Gold Level"],
 ];
 const leer = () => ({ text: "", status: null, hinweis: "", versuche: 0, pos: 0 });
 const leereFelder = () => ({ u1: leer(), uv: leer(), v1: leer(), f1: leer() });
@@ -879,7 +881,7 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
       <style>{WERK_CSS}</style>
       {/* Stufe als Pop-up, daneben Automatik | Training und der Würfel für ein neues Beispiel */}
       {!ohneKopf && <div className="wk-kopfzeile" style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
-        <PopupWahl wert={stufe} label="Stufe wählen" optionen={[1, 2, 3].map((st) => ({ id: st, name: `Stufe ${st}` }))}
+        <PopupWahl wert={stufe} label="Stufe wählen" optionen={(regel === "gold" ? [1, 2, 3, 4, 5] : [1, 2, 3]).map((st) => ({ id: st, name: `Stufe ${st}` }))}
           kopf={(o) => (o ? o.name : "Stufe")} onWaehle={waehleStufe} />
         <ModusSchalter modus={modus} setModus={waehleModus} />
         <button type="button" onClick={() => starte()} className="wk-wuerfel"
