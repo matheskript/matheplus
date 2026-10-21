@@ -28,6 +28,8 @@ html[data-kr-voll] .app-wurzel { min-height: 0 !important; height: 100%; overflo
   html[data-wz-voll] .mx-auto.px-6.pb-16 > div:first-child { margin-top: 24px !important; }
   html[data-wz-voll] .mx-auto.px-6.pb-16 > div[style*="background: rgb(255, 255, 255)"] { border: 1px solid #E3E8F2 !important; border-radius: 16px !important; box-shadow: none !important; }
   html[data-wz-voll] .mx-auto.px-6.pb-16 > div + div[style*="background: rgb(255, 255, 255)"]:not([style*="margin-top"]) { margin-top: 16px !important; }
+  /* Erklär-Animationen der Unterstufe (funcUnterstufeMotion.jsx): Szenen skalieren mit der Breite – am Desktop auf Handygröße begrenzen */
+  html[data-wz-voll] .usm-auswahl > .usm { max-width: 540px; margin-left: auto !important; margin-right: auto !important; }
   html[data-wz-voll] .mx-auto.px-6.pb-16 > .kd-knopf { margin-left: 24px !important; margin-right: 24px !important; width: calc(100% - 48px) !important; }
 }
 .eve-knopf { transition: filter .12s ease, transform .08s ease; }

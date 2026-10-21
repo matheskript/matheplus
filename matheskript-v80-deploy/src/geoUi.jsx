@@ -15,7 +15,7 @@ import { IchHaengeFest } from "./funcHilfe.jsx";
 import { GrosserKnopf, MS, hinweis, karte, kicker, zw } from "./ui2.jsx";
 import { Aufklapp, ModusLeiste, Seite, SchrittFolge, zt } from "./ui3.jsx";
 import { uebenWunschHolen, uebenWunschLesen } from "./uebenWunsch.js";
-import { Arbeitsflaeche, BildKarte, DESKTOP, useBreite } from "./arbeitsflaeche.jsx";
+import { Arbeitsflaeche, BildKarte, DESKTOP, feinKarte, useBreite } from "./arbeitsflaeche.jsx";
 
 /* Animationen der Unterstufen-Werkzeuge: erst laden, wenn ein Werkzeug welche mitgibt (nur auf Deutsch) */
 const MotionAuswahl = React.lazy(() => import("./funcUnterstufeMotion.jsx").then((m) => ({ default: m.MotionAuswahl })));
@@ -242,11 +242,12 @@ export function UebenRahmen({ titel, arten, neue, schritte, text, skizze, hilfe,
   const st = useMemo(() => schritte(au), [au]);
   const liste = [["mix", zw("Gemischt", "Mixed")], ...arten.map((a) => [a, zw(titel[a][0], titel[a][1])])];
   const sk = skizze ? skizze(au) : null;
-  const zwei = useZweiSpalten() && !!sk;
+  const desk = useZweiSpalten();
+  const zwei = desk && !!sk;
   const aufgabenText = <div style={{ ...hinweis, color: C.tinte, fontSize: 15, marginBottom: 8 }}>{(() => { const t = text(au); return typeof t === "string" ? <MS s={t} /> : t; })()}</div>;
   return (
     <>
-      <div style={{ ...karte, marginTop: 16 }}>
+      <div style={{ ...(desk ? feinKarte : karte), marginTop: 16 }}>
         <p style={kicker}>{zw("Aufgabentyp", "Exercise type")}</p>
         <div data-aufgabentyp style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
           {liste.map(([id, t]) => (
@@ -256,7 +257,7 @@ export function UebenRahmen({ titel, arten, neue, schritte, text, skizze, hilfe,
           ))}
         </div>
       </div>
-      <div style={{ ...karte, marginTop: 12 }} key={au.id}>
+      <div style={{ ...(desk ? feinKarte : karte), marginTop: 12 }} key={au.id}>
         <p style={kicker}>{zw(titel[au.art][0], titel[au.art][1])}</p>
         {zwei ? (
           <div data-ueben-zweispaltig style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 300px)", gap: 20, alignItems: "start" }}>
