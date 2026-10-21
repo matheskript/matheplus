@@ -7,8 +7,10 @@
    Tests (Node) und Mathilda (api/claude.js, Tool Use) dieselbe
    Mathematik nutzen wie der Advanced Plotter.
    Keine Importe aus der App; PLATZ, zahl und tiefZiffer sind hier kopiert
-   (gleich wie in base2.jsx / func2.jsx halten).
+   (gleich wie in base2.jsx / func2.jsx halten). Einziger Import: die
+   reine Normalform termNormal.js (ebenfalls ohne App-Importe).
    ============================================================ */
+import { normalBaum } from "./termNormal.js";
 
 export const PLATZ = "▯";   // Platzhalter im Tastenfeld (base2.jsx)
 
@@ -503,7 +505,24 @@ export function vereinfache(n) {
   return akt;
 }
 
-export const ableitung = (n) => vereinfache(ableiten(ohnePar(n)));
+/* Ableitung in Normalform (termNormal.js, Regel A5): ausmultipliziert, zusammengefasst, Nenner gekürzt.
+   Sicherheitsnetz: Weicht die Normalform irgendwo numerisch vom alten Ergebnis ab, bleibt das alte. */
+const PRUEF_X = [-2.73, -1.91, -1.17, -0.61, -0.29, 0.37, 0.83, 1.29, 1.77, 2.41, 3.13, 4.07];
+export function schoenerTerm(alt) {
+  const neu = normalBaum(alt);
+  if (!neu) return alt;
+  const fa = kompiliere(alt), fb = kompiliere(neu);
+  let treffer = 0;
+  for (const x of PRUEF_X) {
+    const a = fa(x);
+    if (!Number.isFinite(a)) continue;
+    const b = fb(x);
+    if (!Number.isFinite(b) || Math.abs(a - b) > 1e-7 * (1 + Math.abs(a))) return alt;
+    treffer++;
+  }
+  return treffer >= 3 ? neu : alt;
+}
+export const ableitung = (n) => schoenerTerm(vereinfache(ableiten(ohnePar(n))));
 
 /* --- Ausgabe --- */
 
