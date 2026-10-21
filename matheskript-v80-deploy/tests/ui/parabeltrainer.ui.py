@@ -64,14 +64,12 @@ with sync_playwright() as p:
             page.evaluate("localStorage.clear(); localStorage.setItem('mm-onboarding-v1', JSON.stringify({uebersprungen:true}));" + ("localStorage.setItem('mm-sprache','en');" if sprache == "en" else ""))
             page.goto(BASE + "parabeln"); page.wait_for_timeout(1200)
             wo0 = f"{sprache}/{breite}"
-            pruefe(page.locator("[data-kompakt-kopf]").count() == 1, f"{wo0}: kein Kompaktkopf")
+            pruefe(page.locator("[data-werkzeug-band]").count() == 1, f"{wo0}: kein Werkzeug-Band")
             pruefe(page.locator(".pt-kopf").count() == 1, f"{wo0}: Trainer nicht geladen")
 
             # Station: Parabeln allein
-            page.locator("[data-kompakt-kopf] button[aria-haspopup=listbox]").click(); page.wait_for_timeout(100)
-            opts = page.locator("[data-kompakt-kopf] [role=option]")
+            opts = page.locator("[data-werkzeug-band] .wb-tab")
             pruefe(opts.count() == 1, f"{wo0}: Station Parabeln hat {opts.count()} Werkzeuge statt 1")
-            page.keyboard.press("Escape"); page.wait_for_timeout(80)
 
             for t, nchips in THEMEN.items():
                 thema_waehlen(page, sprache, t)
@@ -124,8 +122,8 @@ with sync_playwright() as p:
     pruefe(not any("Parabel" in c for c in chips) and len(chips) >= 2, f"Station Kennen zeigt noch Parabeln: {chips!r}")
     # Gleichungen: Geraden → Weiter → Parabeln
     page.goto(BASE + "geradengleichung"); page.wait_for_timeout(1000)
-    page.locator("[data-kompakt-kopf] button[aria-haspopup=listbox]").click(); page.wait_for_timeout(100)
-    pruefe(page.locator("[data-kompakt-kopf] button", has_text="Weiter: Parabeln").count() == 1, "Geraden: kein „Weiter: Parabeln“")
+    page.locator("[data-wb-tools]").click(); page.wait_for_timeout(100)
+    pruefe(page.locator("[data-wb-panel] button", has_text="Weiter: Parabeln").count() == 1, "Geraden: kein „Weiter: Parabeln“")
     b.close()
 
 print("\n".join(fehler) if fehler else "Alles in Ordnung.")

@@ -1,6 +1,6 @@
 /* ======================================================================
-   KOPFLEISTE – die Zeile ganz oben auf jeder Seite (außer den Trainings-
-   werkzeugen mit eigener schlanker Leiste, siehe KompaktKopf).
+   KOPFLEISTE – die Zeile ganz oben auf jeder Seite (auch in den Trainings-
+   werkzeuge: dort steht darunter das dünne WerkzeugBand).
 
    Sie folgt dem Modus der Startseite (src/startModus.js) und trägt dieselben
    Farben wie das Rechenblatt darunter:

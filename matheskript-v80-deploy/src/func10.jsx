@@ -8,7 +8,7 @@ import { dekodieren, jsonLesen, rendern } from "./func1.jsx";
 import { ToolMenue, werkzeugMerken } from "./func2.jsx";
 import { Startseite, StartModusSchalter } from "./funcStartseite.jsx";
 import { startModusSetzen, modusAusPfad } from "./startModus.js";
-import { WerkzeugLeiste, KompaktKopf } from "./funcWerkzeuge.jsx";
+import { WerkzeugLeiste, WerkzeugBand } from "./funcWerkzeuge.jsx";
 import { wo } from "./werkzeuge.js";
 import { pfadAufloesen, pfadFuer } from "./pfade.js";
 import { TeilenKnopf } from "./funcTeilen.jsx";
@@ -461,15 +461,9 @@ export function Mathilda() {
     </>);
   };
 
-  /* Hauptmenü unter der schlanken Kopfleiste (KompaktKopf): gleiches ☰-Fenster wie in der großen Kopfzeile */
-  const kompaktMenue = (
-    <div style={{ position: "absolute", left: 0, right: 0, top: 56, height: 0 }}>
-      <HauptMenue gehe={gehe} ansicht={ansicht} foto={fotoModus} seite={wzSeite} offen={hmOffen} setOffen={setHmOffen} />
-    </div>
-  );
-
-  /* Trainingswerkzeuge mit eigener schlanker Kopfleiste (KompaktKopf): der große Seitenkopf entfällt */
-  const ohneKopf = ansicht === "ableitungstrainer" || ansicht === "geradengleichung" || ansicht === "parabeln" || ansicht === "stammintegral";
+  /* Trainingswerkzeuge (Ableitungstrainer, Geraden, Parabeln, Stammfunktion & Integral): Kopfleiste wie überall,
+     darunter nur das dünne Werkzeug-Band (WerkzeugBand) statt des großen Seitenkopfs */
+  const band = <WerkzeugBand ansicht={ansicht} gehe={gehe} testKnopf={<PruefungsLink ansicht={ansicht} gehe={gehe} band />} />;
 
   return (
     <div className="app-wurzel" style={{ background: C.sand, color: C.tinte, fontFamily: "Montserrat, system-ui, sans-serif", minHeight: "100vh" }}>
@@ -512,7 +506,6 @@ export function Mathilda() {
       }`}</style>
 
       {/* Kopfleiste mit Menü (src/funcKopfleiste.jsx): folgt dem Modus der Startseite, Besucher bekommen das feste Menü */}
-      {!ohneKopf && (
       <Kopfleiste ansicht={ansicht} gehe={gehe} hmOffen={hmOffen} setHmOffen={setHmOffen} fotoModus={fotoModus} wzSeite={wzSeite}
         zurStartseite={() => { setAnsicht("start"); setMenuOffen(false); setGruppeOffen(null); setSeitenOffen(false); springe("seitenwechsel", () => window.scrollTo(0, 0)); }}>
         {menuOffen && (
@@ -558,7 +551,6 @@ export function Mathilda() {
           </div>
         )}
       </Kopfleiste>
-      )}
 
       <ChunkGrenze key={ansicht}>
       <React.Suspense fallback={<Laden />}>
@@ -888,23 +880,17 @@ export function Mathilda() {
         </>
       ) : ansicht === "ableitungstrainer" ? (
         <>
-          <KompaktKopf ansicht={ansicht} gehe={gehe} menueOffen={hmOffen === "menue"} onMenue={() => setHmOffen(hmOffen === "menue" ? null : "menue")}
-            menue={kompaktMenue}
-            testKnopf={<PruefungsLink ansicht={ansicht} gehe={gehe} pille />} />
+          {band}
           <Ableitungstrainer />
         </>
       ) : ansicht === "parabeln" ? (
         <>
-          <KompaktKopf ansicht={ansicht} gehe={gehe} menueOffen={hmOffen === "menue"} onMenue={() => setHmOffen(hmOffen === "menue" ? null : "menue")}
-            menue={kompaktMenue}
-            testKnopf={<PruefungsLink ansicht={ansicht} gehe={gehe} pille />} />
+          {band}
           <ParabelTrainer />
         </>
       ) : ansicht === "stammintegral" ? (
         <>
-          <KompaktKopf ansicht={ansicht} gehe={gehe} menueOffen={hmOffen === "menue"} onMenue={() => setHmOffen(hmOffen === "menue" ? null : "menue")}
-            menue={kompaktMenue}
-            testKnopf={<PruefungsLink ansicht={ansicht} gehe={gehe} pille />} />
+          {band}
           <StammIntegral />
         </>
       ) : ansicht === "advplotter" ? (
@@ -980,9 +966,7 @@ export function Mathilda() {
         </>
                   ) : ansicht === "geradengleichung" ? (
         <>
-          <KompaktKopf ansicht={ansicht} gehe={gehe} menueOffen={hmOffen === "menue"} onMenue={() => setHmOffen(hmOffen === "menue" ? null : "menue")}
-            menue={kompaktMenue}
-            testKnopf={<PruefungsLink ansicht={ansicht} gehe={gehe} pille />} />
+          {band}
           <Geradengleichung />
         </>
                               ) : ansicht === "bwm" ? (

@@ -222,13 +222,14 @@ export function WerkzeugLeiste({ ansicht, gehe }) {
   );
 }
 
-/* ---------- Schlanke Kopfleiste für Trainingswerkzeuge (Handy zuerst) ----------
-   Ersetzt auf diesen Seiten den großen Seitenkopf: eine einzige weiße Zeile mit
-   ‹ Zurück (zur Übersicht des Bereichs), der Stations-Auswahl (die Werkzeuge der
-   Station, „Weiter“ zur nächsten Station, Startseite) sowie Test und Menü.
-   Alles, was früher als Überschrift, Bereichszeile und Chip-Leiste Platz brauchte,
-   steckt in dieser Zeile bzw. im Aufklappfeld der Stations-Auswahl. */
-export function KompaktKopf({ ansicht, gehe, menueOffen, onMenue, menue, testKnopf }) {
+/* ---------- Werkzeug-Band: die dünne Menüleiste innerhalb eines Werkzeugs ----------
+   Steht direkt unter der Kopfleiste (Mythos-Mathe-Header) und klebt beim Scrollen oben.
+   Links die Werkzeuge der Station als Reiter (aktives Werkzeug mit Goldstrich),
+   rechts „Test“ (Prüfungsmodus) und „Tools“: Aufklappfeld mit allen Werkzeugen
+   aller Bereiche zum direkten Umschalten. Ersetzt die frühere KompaktKopf-Zeile
+   (‹ · Werkzeug-Auswahl · Test · ☰) – das ☰-Menü steckt jetzt in der Kopfleiste. */
+export const BAND_HOEHE = 38;
+export function WerkzeugBand({ ansicht, gehe, testKnopf }) {
   const ort = wo(ansicht);
   const [auf, setAuf] = useState(false);
   const wurzel = useRef(null);
@@ -245,61 +246,69 @@ export function KompaktKopf({ ansicht, gehe, menueOffen, onMenue, menue, testKno
   const { bereich, station, werkzeug: wAktiv, sNr } = ort;
   const naechste = bereich.stationen[sNr];
   const weiter = naechste ? werkzeug(naechste.werkzeuge[0]) : null;
-  const rund = { height: 44, minWidth: 44, borderRadius: 999, border: `1.5px solid ${C.linie}`, background: C.weiss, color: C.see, cursor: "pointer",
-    fontFamily: "inherit", display: "inline-flex", alignItems: "center", justifyContent: "center", padding: 0, flexShrink: 0 };
-  const zeile = (aktiv) => ({ display: "flex", alignItems: "center", gap: 10, width: "100%", minHeight: 48, padding: "0 14px", border: "none", borderRadius: 12, textAlign: "left",
-    fontFamily: "inherit", fontSize: 15.5, fontWeight: aktiv ? 700 : 500, cursor: "pointer", color: aktiv ? C.seeTief : C.tinte, background: aktiv ? "rgba(237,187,0,0.16)" : "transparent" });
+  const H = BAND_HOEHE;
+  const zeile = (aktiv) => ({ display: "flex", alignItems: "center", gap: 10, width: "100%", minHeight: 40, padding: "0 12px", border: "none", borderRadius: 10, textAlign: "left",
+    fontFamily: "inherit", fontSize: 14, fontWeight: aktiv ? 700 : 500, cursor: "pointer", color: aktiv ? C.seeTief : C.tinte, background: aktiv ? "rgba(237,187,0,0.16)" : "transparent" });
   return (
-    <div data-kompakt-kopf style={{ position: "sticky", top: 0, zIndex: 50, background: C.weiss, borderBottom: `1px solid ${C.linie}` }}>
-      <div ref={wurzel} className="mx-auto" style={{ position: "relative", maxWidth: 620, height: 60, padding: "0 12px", display: "flex", alignItems: "center", gap: 8 }}>
-        <button type="button" onClick={() => gehe(bereich.uebersicht ? { ansicht: bereich.uebersicht } : { ansicht: "start" })} style={rund}
-          aria-label={`Zurück zu ${bereich.titel}`} title={`Zurück zu ${bereich.titel}`}>
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
-        </button>
-        <button type="button" onClick={() => setAuf(!auf)} aria-expanded={auf} aria-haspopup="listbox"
-          style={{ ...rund, flex: "1 1 auto", minWidth: 0, justifyContent: "space-between", gap: 8, padding: "0 16px", fontSize: 16.5, fontWeight: 700, color: C.seeTief,
-            borderColor: auf ? C.flaggold : C.linie, background: auf ? "rgba(237,187,0,0.12)" : C.weiss }}>
-          <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{wAktiv.kurz || wAktiv.name}</span>
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"
-            style={{ flexShrink: 0, transform: auf ? "rotate(180deg)" : "none", transition: "transform .15s" }}><path d="M6 9l6 6 6-6" /></svg>
-        </button>
+    <nav data-werkzeug-band aria-label={`${bereich.titel}: Werkzeuge`}
+      style={{ position: "sticky", top: 0, zIndex: 45, background: "rgba(255,255,255,0.96)", backdropFilter: "saturate(1.4) blur(8px)", WebkitBackdropFilter: "saturate(1.4) blur(8px)",
+        borderBottom: `1px solid ${C.linie}`, boxShadow: "0 6px 18px -14px rgba(15,26,51,0.35)" }}>
+      <style>{`.wb-reiter{scrollbar-width:none}.wb-reiter::-webkit-scrollbar{display:none}
+        .wb-tab::after{content:"";position:absolute;left:10px;right:10px;bottom:0;height:2px;border-radius:2px;background:${C.flaggold};transform:scaleX(0);transition:transform .2s cubic-bezier(.2,.7,.3,1)}
+        .wb-tab[aria-current="page"]::after{transform:scaleX(1)}
+        .wb-tab:hover{color:${C.seeTief} !important}
+        @media (max-width:374px){.wb-tools-text{display:none}}`}</style>
+      <div ref={wurzel} className="mx-auto" style={{ position: "relative", maxWidth: 620, height: H, padding: "0 8px 0 4px", display: "flex", alignItems: "center", gap: 6 }}>
+        <div className="wb-reiter" style={{ flex: "1 1 auto", minWidth: 0, display: "flex", alignItems: "stretch", height: "100%", overflowX: "auto" }}>
+          {station.werkzeuge.map((id) => {
+            const w = werkzeug(id);
+            const an = w.id === wAktiv.id;
+            return (
+              <button key={id} type="button" className="wb-tab" aria-current={an ? "page" : undefined} onClick={() => !an && gehe(w.ziel)} title={w.name}
+                style={{ position: "relative", flexShrink: 0, height: "100%", padding: "0 10px", border: "none", background: "none", fontFamily: "inherit", cursor: an ? "default" : "pointer",
+                  fontSize: 13, fontWeight: an ? 700 : 500, color: an ? C.seeTief : C.grau, whiteSpace: "nowrap", letterSpacing: "-0.005em" }}>
+                <span className="titel-lang">{w.name}</span><span className="titel-kurz">{w.kurz || w.name}</span>
+              </button>
+            );
+          })}
+        </div>
         {testKnopf}
-        <button type="button" onClick={onMenue} aria-haspopup="dialog" aria-expanded={menueOffen} aria-label={menueOffen ? "Menü schließen" : "Menü öffnen"} title="Menü" data-hm-menue
-          style={{ ...rund, borderColor: menueOffen ? C.flaggold : C.linie, background: menueOffen ? "rgba(237,187,0,0.12)" : C.weiss }}>
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
-            {menueOffen ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
-          </svg>
+        <button type="button" onClick={() => setAuf(!auf)} aria-expanded={auf} aria-haspopup="dialog" data-wb-tools title="Alle Werkzeuge"
+          style={{ flexShrink: 0, height: 26, display: "inline-flex", alignItems: "center", gap: 5, padding: "0 9px", borderRadius: 999, fontFamily: "inherit", cursor: "pointer",
+            fontSize: 12.5, fontWeight: 700, color: C.see, border: `1px solid ${auf ? C.flaggold : C.linie}`, background: auf ? "rgba(237,187,0,0.14)" : C.weiss }}>
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden="true"><rect x="3" y="3" width="7.5" height="7.5" rx="2" /><rect x="13.5" y="3" width="7.5" height="7.5" rx="2" /><rect x="3" y="13.5" width="7.5" height="7.5" rx="2" /><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2" /></svg>
+          <span className="wb-tools-text">Tools</span>
+          <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"
+            style={{ transform: auf ? "rotate(180deg)" : "none", transition: "transform .15s" }}><path d="M6 9l6 6 6-6" /></svg>
         </button>
-        {menueOffen && menue}
         {auf && (
-          <div role="listbox" aria-label={`${bereich.titel}: Station ${sNr}`}
-            style={{ position: "absolute", top: 58, left: 12, right: 12, zIndex: 51, background: C.weiss, borderRadius: 16, padding: 8,
-              boxShadow: "0 14px 40px rgba(8,23,59,0.28)", border: `1px solid ${C.linie}` }}>
-            <p style={{ margin: "6px 14px 6px", fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: C.grau }}>
-              {bereich.titel}{` · Station ${sNr} von ${bereich.stationen.length} · `}<span style={{ color: C.goldDunkel || "#8A6A00" }}>{station.titel}</span>
-            </p>
-            {station.werkzeuge.map((id) => {
-              const w = werkzeug(id);
-              const aktiv = w.id === wAktiv.id;
-              return (
-                <button key={id} type="button" role="option" aria-selected={aktiv} onClick={() => (aktiv ? setAuf(false) : gehe(w.ziel))} style={zeile(aktiv)}>
-                  <span style={{ flex: 1 }}>{w.name}</span>{aktiv && <span aria-hidden="true" style={{ color: C.flaggold, fontWeight: 800 }}>●</span>}
-                </button>
-              );
-            })}
+          <div role="dialog" aria-label="Alle Werkzeuge" data-wb-panel
+            style={{ position: "absolute", top: H + 4, right: 8, zIndex: 46, width: "min(340px, calc(100vw - 16px))", maxHeight: "min(70vh, 560px)", overflowY: "auto",
+              background: C.weiss, borderRadius: 14, padding: 6, boxShadow: "0 14px 40px rgba(8,23,59,0.28)", border: `1px solid ${C.linie}` }}>
             {weiter && (
-              <button type="button" onClick={() => gehe(weiter.ziel)} style={{ ...zeile(false), color: C.see, fontWeight: 700, borderTop: `1px solid ${C.linie}`, borderRadius: 0, marginTop: 4 }}>
-                {`Weiter: ${naechste.titel}`}<span aria-hidden="true">›</span>
+              <button type="button" onClick={() => gehe(weiter.ziel)} style={{ ...zeile(false), color: C.see, fontWeight: 700, justifyContent: "space-between" }}>
+                <span>{`Weiter: ${naechste.titel}`}</span><span aria-hidden="true">›</span>
               </button>
             )}
-            <div style={{ borderTop: `1px solid ${C.linie}`, marginTop: 4, paddingTop: 4, display: "flex", gap: 4 }}>
-              <button type="button" onClick={() => gehe(bereich.uebersicht ? { ansicht: bereich.uebersicht } : { ansicht: "start" })} style={{ ...zeile(false), fontSize: 14, color: C.grau, flex: 1 }}>{`‹ ${bereich.titel}`}</button>
-              <button type="button" onClick={() => gehe({ ansicht: "start" })} style={{ ...zeile(false), fontSize: 14, color: C.grau, flex: 1 }}>Startseite</button>
-            </div>
+            {BEREICHE.map((b) => (
+              <div key={b.id} style={{ borderTop: `1px solid ${C.linie}`, marginTop: 4, paddingTop: 4 }}>
+                <p style={{ margin: "6px 12px 2px", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: b.id === bereich.id ? "#8A6A00" : C.grau }}>{b.titel}</p>
+                {b.stationen.flatMap((s) => s.werkzeuge).filter((id, i, l) => l.indexOf(id) === i).map((id) => {
+                  const w = werkzeug(id);
+                  if (!w) return null;
+                  const an = w.id === wAktiv.id;
+                  return (
+                    <button key={id} type="button" aria-current={an ? "page" : undefined} onClick={() => (an ? setAuf(false) : gehe(w.ziel))} style={zeile(an)}>
+                      <span style={{ flex: 1 }}>{w.name}</span>{an && <span aria-hidden="true" style={{ color: C.flaggold, fontWeight: 800 }}>●</span>}
+                    </button>
+                  );
+                })}
+              </div>
+            ))}
           </div>
         )}
       </div>
-    </div>
+    </nav>
   );
 }
 
