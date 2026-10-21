@@ -158,15 +158,32 @@ html[data-start-edition="stadion"] .app-wurzel { background: #FFFFFF !important;
 .sbb[data-edition="stadion"] .sbb-bereich.gold .logo { box-shadow: 0 0 0 2px ${ROT}; }
 .sbb[data-edition="stadion"] .sbb-kopf .strich { background: linear-gradient(90deg, ${ROT} 0%, ${ROT} 50%, ${BLAU} 50%, ${BLAU} 100%); box-shadow: none; }
 .sbb[data-edition="stadion"] .sbb-streifen .sbb-kopf .strich { background: linear-gradient(90deg, ${ROT} 0%, ${ROT} 50%, #FFFFFF 50%, #FFFFFF 100%); }
-.sbb[data-edition="stadion"] .sbb-held-kurve [stroke] { stroke: #FFFFFF; }
-.sbb[data-edition="stadion"] .sbb-held-kurve stop { stop-color: #FFFFFF; }
-.sbb[data-edition="stadion"] .sbb-held-kurve circle[fill]:not([fill="none"]) { fill: #FFFFFF; }
+.sbb[data-edition="stadion"] .sbb-held-kurve [stroke] { stroke: ${ROT}; }
+.sbb[data-edition="stadion"] .sbb-held-kurve stop { stop-color: ${ROT}; }
+.sbb[data-edition="stadion"] .sbb-held-kurve circle[fill]:not([fill="none"]) { fill: ${ROT}; }
 .sbb[data-edition="stadion"] .sbb-licht .l1 { background: radial-gradient(circle, rgba(220,5,45,0.30) 0%, rgba(220,5,45,0) 70%); }
 .sbb[data-edition="stadion"] .sbb-licht .l2, .sbb[data-edition="stadion"] .sbb-licht .l3 { background: radial-gradient(circle, rgba(0,102,178,0.35) 0%, rgba(0,102,178,0) 70%); }
 .sbb[data-edition="stadion"] button:focus-visible { outline-color: ${BLAU}; }
 .sbb-schalter[data-edition="stadion"] button[aria-pressed="true"] { background: ${ROT}; color: #FFFFFF; }
 .sbb-schalter button.st[aria-pressed="false"] svg .rot { fill: ${ROT}; }
 .sbb-schalter button.st[aria-pressed="false"] svg .blau { fill: ${BLAU}; }
+/* Stadion, Stand 21.10. mittags: Bühne WEISS mit dunkelblauer Schrift und roten Zeichen (Haken, Kurve);
+   der Mythen-Streifen unten ROT statt Blau („Das System“ bleibt Blau). Steht am Ende, damit es die Insel-Regeln schlägt. */
+.sbb[data-edition="stadion"] .sbb-held { background: #FFFFFF; background-image: none;
+  --text: ${BLAU_TIEF}; --titel: ${BLAU_TIEF}; --nebel: #46557A; --glyph: ${ROT}; --linie: rgba(0,68,122,0.14); --h1-schatten: none;
+  --st-akzent: ${ROT}; --st-akzent-text: #FFFFFF; --akzent-text: #FFFFFF;
+  --such-hg: #FFFFFF; --such-rand: rgba(0,68,122,0.28); --such-text: ${BLAU_TIEF}; --such-platz: #6B7A99; }
+.sbb[data-edition="stadion"] .sbb-held::before { background: radial-gradient(circle, rgba(220,5,45,0.10) 0%, rgba(220,5,45,0) 70%); }
+.sbb[data-edition="stadion"] .sbb-held h1 .gold { color: ${BLAU_TIEF}; }
+.sbb[data-edition="stadion"] .sbb-held-suche .such-buehne-feld { box-shadow: 0 3px 16px rgba(0,68,122,0.10); }
+.sbb[data-edition="stadion"] .sbb-held-suche .such-buehne-feld:focus-within { border-color: ${ROT}; box-shadow: 0 0 0 3px rgba(220,5,45,0.18); }
+.sbb[data-edition="stadion"] .sbb-held-kurve .glyph { opacity: .06; }
+.sbb[data-edition="stadion"] .sbb-held-kurve .kurve { animation-name: sbbVerblassenStadion; }
+@keyframes sbbVerblassenStadion { to { opacity: .45; } }
+.sbb[data-edition="stadion"] .sbb-mythen-streifen { background-color: ${ROT};
+  background-image: radial-gradient(110% 80% at 0% 0%, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0) 60%), linear-gradient(155deg, ${ROT_HELL} 0%, ${ROT} 40%, ${ROT_TIEF} 100%);
+  --st-akzent: #FFFFFF; --st-akzent-text: ${ROT}; --akzent-text: ${ROT}; --nebel: #FFE0E6; }
+.sbb[data-edition="stadion"] .sbb-mythen-streifen .sbb-kopf .strich { background: linear-gradient(90deg, #FFFFFF 0%, #FFFFFF 50%, ${BLAU} 50%, ${BLAU} 100%); }
 .sbb { position: relative; color: var(--text); }
 .sbb *, .sbb *::before, .sbb *::after { box-sizing: border-box; }
 /* Das Licht liegt hinter allem (negativer z-index: unter jedem Inhalt, über dem Seitenhintergrund).
@@ -910,7 +927,7 @@ export function Startseite({ gehe }) {
       </div></section>
 
       {/* Mythen – im Mix der zweite dunkle Streifen */}
-      <section className="sbb-teil sbb-streifen sbb-insel"><div className="sbb-spalte">
+      <section className="sbb-teil sbb-streifen sbb-insel sbb-mythen-streifen"><div className="sbb-spalte">
         <Kopf titel="Mathetalent ist ein Mythos. Ein System kann man lernen." />
         <p className="sbb-text">Hinter guten Mathenoten steckt kein besonderes Gehirn, sondern eine Arbeitsweise. Die Kurse bauen sie Schritt für Schritt auf: wie du denkst, wie du rechnest, wie du schreibst und wie du Gelerntes behältst.</p>
         <p className="sbb-text">Jeder Kurs ist für sich nutzbar. Zusammen ergeben sie das System, mit dem Mythos Mathe Gymnasiasten von Klasse 8 bis zum Abitur begleitet.</p>

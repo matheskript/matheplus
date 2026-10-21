@@ -200,20 +200,16 @@ const CSS = `
 /* Lese-Fortschritt (nur wenn die Leiste klebt) */
 .kl-fortschritt { position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; transform-origin: left; transform: scaleX(0); pointer-events: none;
   background: linear-gradient(90deg, ${GOLD} 0%, ${GOLD_HELL} 100%); box-shadow: 0 0 10px rgba(237,187,0,0.55); }
-/* Stadion (Rot-Weiß-Blau): die ganze Leiste Blau (auch die Unterkante), Kurve und Akzente Weiß.
-   Wortmarke: MYTHOS und .DE Rot, MATHE Weiß – ohne Feld dahinter. Ohne Vereinslogo. */
-.kl[data-edition="stadion"] { --kl-hg: #0066B2; --kl-kurve: #FFFFFF; --kl-nebel: #CFE3F5; --kl-linie: rgba(255,255,255,0.14); --kl-licht1: rgba(255,255,255,0.20); --kl-licht2: rgba(255,255,255,0.10);
-  --kl-pille-hg: rgba(0,40,80,0.30); --kl-pille-hover: rgba(0,40,80,0.5); --kl-chip-hg: #00447A; --kl-plus: #DC052D; --kl-schatten: 0 18px 40px -22px rgba(0,50,100,.8); }
+/* Stadion (Rot-Weiß-Blau, Stand 21.10. mittags): die ganze Leiste Rot, Schrift Weiß, Kurve Weiß.
+   Wortmarke: MYTHOS und .DE Blau mit weißem Rand, MATHE Weiß (Regeln für Kopfleiste und Fußzeile in stadionGold.js).
+   + und = im Slogan Blau. Ohne Vereinslogo. */
+.kl[data-edition="stadion"] { --kl-hg: #DC052D; --kl-kurve: #FFFFFF; --kl-nebel: #FFE0E6; --kl-linie: rgba(255,255,255,0.16); --kl-licht1: rgba(255,255,255,0.20); --kl-licht2: rgba(255,255,255,0.10);
+  --kl-pille-hg: rgba(90,0,18,0.25); --kl-pille-hover: rgba(90,0,18,0.42); --kl-chip-hg: #00447A; --kl-plus: #00447A; --kl-schatten: 0 18px 40px -22px rgba(120,0,25,.8); }
 .kl[data-edition="stadion"] .kl-hg { background: radial-gradient(120% 90% at 0% 0%, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0) 55%),
-  linear-gradient(155deg, #0A78C9 0%, #0066B2 45%, #00447A 100%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.22); }
+  linear-gradient(155deg, #F0284A 0%, #DC052D 45%, #A3001F 100%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.22); }
 .kl[data-edition="stadion"] .kl-fortschritt { background: #FFFFFF; box-shadow: none; }
 .kl[data-edition="stadion"] .kl-marke:focus-visible, .kl[data-edition="stadion"] button:focus-visible { outline-color: #FFFFFF; }
-.kl[data-edition="stadion"] .marke-mythos, .kl[data-edition="stadion"] .marke-de { color: #DC052D;
-  text-shadow: 1px 0 0 #FFFFFF, -1px 0 0 #FFFFFF, 0 1px 0 #FFFFFF, 0 -1px 0 #FFFFFF, 0.7px 0.7px 0 #FFFFFF, -0.7px 0.7px 0 #FFFFFF, 0.7px -0.7px 0 #FFFFFF, -0.7px -0.7px 0 #FFFFFF; }
-/* Slogan: + und = in Rot, kräftiger geschnitten (ein weißer Rand würde die kleinen Zeichen weiß wirken lassen) */
-.kl[data-edition="stadion"] .kl-slogan b { font-weight: 900; color: #FF1F45; }
-.kl[data-edition="stadion"] .marke-mathe { background-image: none !important; -webkit-background-clip: border-box !important; background-clip: border-box !important;
-  color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; }
+.kl[data-edition="stadion"] .kl-slogan b { font-weight: 900; color: #00447A; }
 @media (prefers-reduced-motion: reduce) { .kl-bm, .kl-bm-schleier { animation: none; } .kl-kurve, .kl-kurve path, .kl-punkt { animation: none !important; } .kl-kurve { clip-path: none; } .kl-kurve path { opacity: var(--kl-kurve-ruhe); } .kl-punkt { opacity: .55; } .kl-zeile, .kl-slogan { transition: none; } }
 `;
 

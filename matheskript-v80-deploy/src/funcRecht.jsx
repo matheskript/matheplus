@@ -55,12 +55,12 @@ export function Fusszeile({ gehe, arbeitsmenue }) {
     </button>
   );
   return (
-    <footer style={{ background: C.seeTief, marginTop: 24 }}>
+    <footer className="seiten-fuss" style={{ background: C.seeTief, marginTop: 24 }}>
       <div className="mx-auto px-6" style={{ maxWidth: 620, padding: "26px 24px 30px" }}>
         <div style={{ display: "inline-flex", flexDirection: "column", alignItems: "center" }}>
           <p style={{ lineHeight: 1 }}><MarkenLogo groesse="min(36px, 8.4vw)" /></p>
           <p style={{ fontSize: "min(21px, 4.9vw)", fontWeight: 600, marginTop: 2, lineHeight: 1, letterSpacing: "0.03em", color: "#FFFFFF", whiteSpace: "nowrap" }}>
-            System <span style={{ color: C.flaggold }}>+</span> Freude <span style={{ color: C.flaggold }}>=</span> Erfolg
+            System <span className="fuss-zeichen" style={{ color: C.flaggold }}>+</span> Freude <span className="fuss-zeichen" style={{ color: C.flaggold }}>=</span> Erfolg
           </p>
         </div>
         <div style={{ height: 1, background: "rgba(255,255,255,0.12)", margin: "16px 0 12px" }} />

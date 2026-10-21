@@ -98,7 +98,18 @@ export const STADION_VARIABLEN = `
 :root[data-start-edition="stadion"] .hmd-stufen button[aria-pressed="true"] { color: ${ROT} !important; }
 :root[data-start-edition="stadion"] :is([data-kk-hell]) { --st-gold: ${ROT}; --st-flaeche: ${ROT}; --st-auf-flaeche: #FFFFFF; }
 :root[data-start-edition="stadion"] [data-gold-bleibt] { --st-gold: initial; --st-flaeche: initial; --st-auf-flaeche: initial; }
-/* Wortmarke: MATHE in Weiß (auf Farbe) bzw. Rot (auf Weiß), ohne Verlauf */
+/* Weiße Bühne der Startseite: Gold wird dort Rot (sie ist Insel, aber hell) */
+:root[data-start-edition="stadion"] .sbb-held { --st-gold: ${ROT}; --st-flaeche: ${ROT}; --st-auf-flaeche: #FFFFFF; }
+:root[data-start-edition="stadion"] .sbb-mythen-streifen { --st-auf-flaeche: ${ROT}; }
+/* Kopfleiste und Fußzeile gleich: Rot, MYTHOS und .DE Blau mit weißem Rand, MATHE Weiß, + und = Blau */
+:root[data-start-edition="stadion"] .seiten-fuss { background: radial-gradient(120% 90% at 0% 0%, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0) 55%),
+  linear-gradient(155deg, #F0284A 0%, ${ROT} 45%, ${ROT_TIEF} 100%) !important; }
+:root[data-start-edition="stadion"] .seiten-fuss button { color: #FFE0E6 !important; }
+:root[data-start-edition="stadion"] .seiten-fuss .fuss-zeichen { color: ${BLAU_TIEF} !important; font-weight: 900; }
+:root[data-start-edition="stadion"] :is(.kl, .seiten-fuss) :is(.marke-mythos, .marke-de) { color: ${BLAU};
+  text-shadow: 1px 0 0 #FFFFFF, -1px 0 0 #FFFFFF, 0 1px 0 #FFFFFF, 0 -1px 0 #FFFFFF, 0.7px 0.7px 0 #FFFFFF, -0.7px 0.7px 0 #FFFFFF, 0.7px -0.7px 0 #FFFFFF, -0.7px -0.7px 0 #FFFFFF; }
+:root[data-start-edition="stadion"] :is(.kl, .seiten-fuss) .marke-mathe { color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; }
+/* Wortmarke sonst: MATHE in Weiß (auf Farbe) bzw. Rot (auf Weiß), ohne Verlauf */
 :root[data-start-edition="stadion"] .marke-mathe { background-image: none !important; -webkit-background-clip: border-box !important; background-clip: border-box !important; color: var(--st-gold) !important; -webkit-text-fill-color: currentColor !important; }
 `;
 
