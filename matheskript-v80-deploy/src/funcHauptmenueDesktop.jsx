@@ -519,7 +519,7 @@ function Schulbuch({ klasse, ausProfil, waehlen, setWaehlen, klasseSetzen, gehe,
   );
 }
 
-/* ---------- Darstellung: Dunkel | Hell | Mix ---------- */
+/* ---------- Darstellung: Dunkel | Hell | Mix | FCB | GER ---------- */
 function Darstellung({ modus }) {
   const en = englisch();
   return (

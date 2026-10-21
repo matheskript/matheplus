@@ -320,9 +320,9 @@ export function Kurvendiskussion({ onZurueck }) {
     const wert = eingabe[schritt];
     let ok = false;
     if (s.typ === "wahl") ok = wert === s.richtig;
-    else if (s.typ === "zahl") ok = parseZahl(wert) !== null && Math.abs(parseZahl(wert) - s.richtig) < 1e-6;
+    else if (s.typ === "zahl") { const v = zahlWert(wert); ok = v !== null && Math.abs(v - s.richtig) < 1e-6; }
     else if (s.typ === "nullstelle") {
-      const v = parseZahl(wert);
+      const v = zahlWert(wert);
       ok = v !== null && Math.abs(f(v)) < 1e-6;
     } else if (s.typ === "term") {
       const meins = alsFunktion(wert);
@@ -639,6 +639,23 @@ export function GraphZuordnung({ onZurueck }) {
   );
 }
 
+/* Zahl-Antwort lesen: Dezimalzahl/Bruch wie bisher, dazu exakte Werte wie sqrt(3), 2√3, √3/2, π/2, e^2, ln(2).
+   Ohne Variable – Buchstaben nur als Funktions- bzw. Konstantennamen. */
+const ZAHL_NAMEN = /sqrt|wurzel|pi|ln|log|exp|sin|cos|tan|e/gi;
+export function zahlWert(wert) {
+  const v = parseZahl(wert);
+  if (v !== null) return v;
+  let t = String(wert ?? "").trim();
+  if (!t) return null;
+  t = t.replace(/√\s*(\d+(?:[.,]\d+)?)/g, "sqrt($1)").replace(/√/g, "sqrt");
+  if (/[a-z]/i.test(t.replace(ZAHL_NAMEN, ""))) return null;
+  const f = alsFunktion(t);
+  if (!f) return null;
+  let a, b;
+  try { a = f(0.37); b = f(1.91); } catch (e) { return null; }
+  return Number.isFinite(a) && Math.abs(a - b) < 1e-12 ? a : null;
+}
+
 /* ---------- Klausurgenerator ---------- */
 
 /* Erzeugt eine vollständige Klausur im Abiturformat. Während der Bearbeitung
@@ -714,7 +731,7 @@ export function Klausur({ onZurueck }) {
   const bewerten = (p, wert) => {
     if (wert === undefined || String(wert).trim() === "") return false;
     if (p.typ === "zahl") {
-      const v = parseZahl(wert);
+      const v = zahlWert(wert);
       return v !== null && Math.abs(v - p.loesung) < 1e-4;
     }
     const meins = alsFunktion(wert), soll = alsFunktion(String(p.loesung));

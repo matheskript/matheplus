@@ -389,6 +389,7 @@ export function wegBruch(art, z1, n1, z2 = 1, n2 = 1) {
     let zz2 = z2, nn2 = n2;
     if (art === "geteilt") {
       if (z2 === 0) return nein("Durch 0 kannst du nicht teilen.");
+      if (z1 === 0) return ok("0", [{ text: `Null geteilt durch eine Zahl, die nicht 0 ist, ergibt 0.`, rechnung: `0 : ${bruchText(z2, n2)} = 0` }], { z: 0, n: 1 });
       schritte.push({ text: `Teilen durch einen Bruch heißt: mal den Kehrwert. Vertausche Zähler und Nenner des zweiten Bruchs.`, rechnung: `${bruchText(z1, n1)} : ${bruchText(z2, n2)} = ${bruchText(z1, n1)} ${MAL} ${bruchText(n2, z2)}` });
       zz2 = n2; nn2 = z2;
     }

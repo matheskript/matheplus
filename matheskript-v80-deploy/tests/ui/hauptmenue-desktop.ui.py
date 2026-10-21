@@ -67,7 +67,7 @@ with sync_playwright() as p:
                 pruefe("Blatt scannen" in m.locator("[data-hm-mathilda]").inner_text() and m.locator("[data-hm-mathilda] .hmd-ki").count() == 4, f"{tag}: Mathilda-Karte unvollständig")
                 pruefe(m.locator("[data-hmd-kurs]").count() >= 11, f"{tag}: nur {m.locator('[data-hmd-kurs]').count()} Kurse")
                 pruefe(m.locator("[data-hmd-training]").count() == 8, f"{tag}: Mein Mathe-Training hat nicht 8 Kacheln")
-                pruefe(m.locator("[data-hmd-darstellung] button").count() == 3, f"{tag}: Darstellung fehlt")
+                pruefe(m.locator("[data-hmd-darstellung] button").count() == 5, f"{tag}: Darstellung fehlt (Dunkel, Hell, Mix, FCB, GER)")
                 pruefe((m.locator("[data-hm-weiter]").count() == 1) == angemeldet, f"{tag}: Weitermachen falsch")
                 fuss = m.locator("[data-hm-zugang]").inner_text()
                 pruefe(("Abmelden" if angemeldet else "Anmelden") in fuss, f"{tag}: Zugang unten zeigt {fuss!r}")

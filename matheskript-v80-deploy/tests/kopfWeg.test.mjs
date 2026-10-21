@@ -135,6 +135,8 @@ test("Brüche: Ergebnis stimmt, ist vollständig gekürzt und hält A5", () => {
   assert.equal(wegBruch("kuerzen", 8, 4).ergebnis, "2");
   assert.equal(wegBruch("plus", 3, 4, 3, 4).gemischt, "1 {1|2}");
   assert.equal(wegBruch("geteilt", 1, 2, 0, 3).ok, false);
+  a5(wegBruch("geteilt", 0, 1, 1, 1), "0 : 1");                 // früher Zufallsfehler: Kehrwert-Zeile „0 · 1“
+  assert.equal(wegBruch("geteilt", 0, 5, 2, 3).ergebnis, "0");
   assert.equal(wegBruch("plus", 1, 0, 1, 2).ok, false);
 });
 

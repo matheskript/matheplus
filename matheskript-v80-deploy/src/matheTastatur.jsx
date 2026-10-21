@@ -70,9 +70,10 @@ export function useDesktopTastatur() {
 }
 
 /* ---------------------------------------------------------------- das Eingabefeld */
-/* ohneHost: Das Feld hat ein eigenes Tastenfeld daneben – dann öffnet der Fokus keine zweite Tastatur. */
+/* ohneHost: Das Feld hat ein eigenes Tastenfeld daneben – dann öffnet der Fokus keine zweite Tastatur.
+   mehrzeilig: <textarea> statt <input> (z. B. Bedingungen in Textaufgaben); die Tastatur schreibt dort genauso. */
 let zaehler = 0;
-export const MatheFeld = forwardRef(function MatheFeld({ modus = "formel", inputMode, onFocus, onBlur, onKeyDown, disabled, ohneHost, ...rest }, ref) {
+export const MatheFeld = forwardRef(function MatheFeld({ modus = "formel", inputMode, onFocus, onBlur, onKeyDown, disabled, ohneHost, mehrzeilig, ...rest }, ref) {
   const knoten = useRef(null);
   const eintrag = useRef(null);
   const tasteRef = useRef(onKeyDown);
@@ -101,6 +102,10 @@ export const MatheFeld = forwardRef(function MatheFeld({ modus = "formel", input
       if (aktiv && aktiv.el === el && f !== el && !(f && f.closest && f.closest("[data-mathe-tastatur]"))) aktivSetzen(null);
     }, 160);
   };
+  if (mehrzeilig) return (
+    <textarea autoComplete="off" autoCapitalize="off" autoCorrect="off" spellCheck={false}
+      {...rest} ref={setRef} disabled={disabled} inputMode="none" data-mathe-modus={modus} onFocus={fokus} onBlur={verlassen} onKeyDown={onKeyDown} />
+  );
   return (
     <input autoComplete="off" autoCapitalize="off" autoCorrect="off" spellCheck={false} enterKeyHint="done"
       {...rest} ref={setRef} disabled={disabled} inputMode="none" data-mathe-modus={modus} onFocus={fokus} onBlur={verlassen} onKeyDown={onKeyDown} />

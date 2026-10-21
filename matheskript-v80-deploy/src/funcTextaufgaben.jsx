@@ -323,10 +323,14 @@ function BedingungsFeld({ wert, setWert, tasten, onEnter, mehrzeilig, label, pla
   return (
     <div>
       {mehrzeilig
-        ? <textarea ref={ref} value={wert} onChange={(e) => setWert(e.target.value.slice(0, 400))} rows={4} aria-label={label} placeholder={platzhalter} spellCheck={false} autoCapitalize="off" autoCorrect="off" style={{ ...stil, resize: "vertical" }} />
+        ? <MatheFeld mehrzeilig modus="formel" ref={ref} value={wert} onChange={(e) => setWert(e.target.value.slice(0, 400))} rows={4} aria-label={label} placeholder={platzhalter} style={{ ...stil, resize: "vertical" }} />
         : <MatheFeld modus="formel" ref={ref} value={wert} onChange={(e) => setWert(e.target.value.slice(0, 160))} onKeyDown={(e) => { if (e.key === "Enter" && onEnter) onEnter(); }} aria-label={label} placeholder={platzhalter}
             spellCheck={false} autoCapitalize="off" autoCorrect="off" autoComplete="off" style={{ ...stil, height: 46 }} />}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6 }}>
+        {mehrzeilig && (
+          <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => einfuegen("\n")} aria-label={zw("Neue Zeile", "New line")} data-neue-zeile
+            style={{ minWidth: 40, height: 34, padding: "0 12px", borderRadius: 9, border: `1px solid ${C.see}`, background: C.weiss, color: C.see, fontSize: 14, fontWeight: 800, fontFamily: "inherit", cursor: "pointer" }}>↵ {zw("Zeile", "Line")}</button>
+        )}
         {tasten.map((t) => (
           <button key={t} type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => einfuegen(t === "−" ? "-" : t === "f′(" ? "f'(" : t === "f″(" ? "f''(" : t.replace("′(", "'(").replace("″(", "''("))}
             style={{ minWidth: 40, height: 34, padding: "0 10px", borderRadius: 9, border: `1px solid ${C.linie}`, background: C.sand, color: C.see, fontSize: 14, fontWeight: 700, fontFamily: "ui-monospace, Menlo, monospace", cursor: "pointer" }}>{t}</button>
