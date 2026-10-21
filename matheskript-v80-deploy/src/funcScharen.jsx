@@ -11,7 +11,7 @@
    Keine base-Datei darf diese Datei importieren.
    ============================================================ */
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { WeiterKnopf, WeiterMit } from "./funcWerkzeuge.jsx";
 import { C } from "./base1.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
@@ -20,8 +20,23 @@ import { wahl } from "./rechnen2.js";
 import { Aufklapp, FunktionsBild, ModusLeiste, Seite, SchrittFolge, zt } from "./ui3.jsx";
 import { klartextWurzeln } from "./wurzelGeometrie.js";
 import { WurzelZeichen } from "./wurzelZeichen.jsx";
+import { Arbeitsflaeche, FeinKarte, Kicker, Werkzeugleiste, chipStil, hinweisStil, titelStil, toenKarte, useBreite, useDesktop } from "./arbeitsflaeche.jsx";
 
 let zaehler = 0;
+/* Höhe eines Elements in Pixeln (Desktop: Bild so hoch wie die Einstellungsspalte daneben) */
+function useHoehe() {
+  const [el, setEl] = useState(null);
+  const [h, setH] = useState(0);
+  useEffect(() => {
+    if (!el) return undefined;
+    const f = () => setH(Math.round(el.getBoundingClientRect().height));
+    f();
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(f) : null;
+    if (ro) ro.observe(el);
+    return () => { if (ro) ro.disconnect(); };
+  }, [el]);
+  return [setEl, h];
+}
 const PARAM = C.gruen;   // Farbe des Parameters a
 const E = Math.E;
 const DE = zw(true, false);   // im Englischen wäre der Artikel „a“ sonst farbig
@@ -96,14 +111,14 @@ const SCHAR_WAHL = [["kubisch", "x³ − 3ax"], ["parabel", "ax² − 4x"], ["ex
 const FARBE = { N: C.see, H: "#0F7A4D", T: "#0F7A4D", W: "#B58A00" };
 const NAME = { N: "N", H: "H", T: "T", W: "W" };
 
-function ScharBild({ sid, a, ortskurve, zeigeSchar = true }) {
+function ScharBild({ sid, a, ortskurve, zeigeSchar = true, hoehe = 250 }) {
   const s = SCHAREN[sid];
   const [x0, x1, y0, y1] = s.bereich;
   const andere = zeigeSchar ? [-2, -1, 1, 2].filter((v) => Math.abs(v - a) > 0.05).map((v) => ({ f: s.f(v), farbe: C.see, blass: true, breite: 1.6 })) : [];
   const kurven = [...andere, { f: s.f(a), farbe: C.see, name: `a = ${zt(a, 2)}`, breite: 2.8 }];
   if (ortskurve) kurven.push({ f: s.orts, farbe: PARAM, gestrichelt: true, breite: 1.8 });
   const punkte = s.punkte(a).map((p) => ({ ...p, farbe: FARBE[p.art], name: NAME[p.art] }));
-  return <FunktionsBild kurven={kurven} punkte={punkte} x0={x0} x1={x1} y0={y0} y1={y1} hoehe={250} />;
+  return <FunktionsBild kurven={kurven} punkte={punkte} x0={x0} x1={x1} y0={y0} y1={y1} hoehe={hoehe} />;
 }
 
 function hilfeS(id) {
@@ -153,47 +168,119 @@ function Entdecken() {
   const [sid, setSid] = useState("kubisch");
   const [a, setA] = useState(1);
   const [orts, setOrts] = useState(false);
+  const desktop = useDesktop();
+  const [linksRef, linksHoehe] = useHoehe();
+  const [unterRef, unterHoehe] = useHoehe();
+  const [bildRef, bildBreite] = useBreite();
   const s = SCHAREN[sid];
   const pkt = s.punkte(a).filter((p, i, l) => l.findIndex((q) => q.art === p.art && Math.abs(q.x - p.x) < 1e-9) === i);
+  const waehle = (v) => { setSid(v); setOrts(false); };
+  const regler = <input type="range" min={-3} max={3} step={0.1} value={a} onChange={(e) => setA(Math.round(Number(e.target.value) * 10) / 10)} aria-label={zw("Parameter a", "Parameter a")} style={{ width: "100%", accentColor: PARAM, height: 32 }} />;
+  const ortsText = <>{zw("Ortskurve der", "Locus of the")} {sid === "parabel" ? zw("Scheitelpunkte", "vertices") : zw("Extrempunkte", "extrema")} {zw("anzeigen", "")} ({s.ortsName})</>;
+  const punktListe = pkt.length ? pkt.map((p, i) => (
+    <p key={i} style={{ fontSize: 14, color: C.tinte, margin: "2px 0" }}>
+      <b style={{ color: FARBE[p.art] }}>{p.art === "N" ? zw("Nullstelle", "Zero") : p.art === "H" ? zw("Hochpunkt", "Maximum") : p.art === "T" ? zw("Tiefpunkt", "Minimum") : zw("Wendepunkt", "Inflection point")}</b>{" "}
+      ({zt(p.x, 3)} | {zt(p.y, 3)})
+    </p>
+  )) : null;
+  const rechnung = (
+    <>
+      <p style={{ margin: "0 0 4px" }}><PT t={s.ableitung} /></p>
+      <p style={{ margin: "0 0 8px" }}><PT t={s.zweite} /></p>
+      {s.formeln.map(([k, v]) => <p key={k} style={{ margin: "2px 0" }}><b>{k}:</b> <PT t={v} /></p>)}
+      <p style={{ margin: "8px 0 0", color: C.grau }}>{zw("Der Regler zeigt Beispiele – begründet wird mit der Rechnung.", "The slider shows examples – the reasoning comes from the calculation.")}</p>
+    </>
+  );
+  const weiter = (
+    <WeiterMit titel={zw(`Weiter mit a = ${zt(a, 2)}`, `Continue with a = ${zt(a, 2)}`)}>
+      <WeiterKnopf ziel="advplotter" von="Funktionsscharen" daten={{ text: scharText(sid, a) }} titel={zw("Kurvendiskussion", "Curve sketching")}
+        zeile={zw("Diese eine Kurve der Schar vollständig untersuchen", "Fully analyse this one curve of the family")} />
+    </WeiterMit>
+  );
+
+  /* Desktop: Schar und Regler links, Schaubild rechts, Werkzeugleiste darunter; Rechnung über die volle Breite */
+  if (desktop) {
+    // FunktionsBild (ui3) rechnet in echten Pixeln und skaliert hoehe mit f = Breite / 360 (1 … 1,6);
+    // die Bildhöhe soll die Spalte links ausfüllen.
+    const f = Math.min(1.6, Math.max(1, (bildBreite || 440) / 360));
+    const ziel = linksHoehe && unterHoehe ? linksHoehe - unterHoehe - 14 : 300 * f;
+    const hoehe = Math.max(220, Math.min(380, ziel / f));
+    return (
+      <div data-scharen="breit" style={{ marginTop: 16 }}>
+        <Arbeitsflaeche
+          links={<div ref={linksRef} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div data-scharen-regler style={toenKarte(PARAM)}>
+              <Kicker style={{ paddingLeft: 4 }}>{zw("Schar", "Family")}</Kicker>
+              <p style={{ fontSize: 16, fontWeight: 700, color: C.tinte, margin: "0 4px 12px" }}><PT t={s.name} /></p>
+              <label style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", fontSize: 14, fontWeight: 700, color: C.tinte, padding: "0 4px" }}>
+                <span>{zw("Parameter", "Parameter")} <b style={{ color: PARAM, fontStyle: "italic" }}>a</b></span><b style={{ color: PARAM, fontSize: 19 }}>{zt(a, 2)}</b>
+              </label>
+              <div style={{ padding: "0 4px" }}>{regler}</div>
+            </div>
+            <FeinKarte data-scharen-punkte>
+              <p style={titelStil}>{zw(`Für a = ${zt(a, 2)}`, `For a = ${zt(a, 2)}`)}</p>
+              {punktListe}
+              <p style={{ ...hinweisStil, marginTop: 8 }}>{s.faelle(a)}</p>
+            </FeinKarte>
+          </div>}
+          rechts={<>
+            {/* FunktionsBild bringt den feinen Rahmen (Rundung 14) schon mit – keine zweite Bildkarte */}
+            <div ref={bildRef}><ScharBild sid={sid} a={a} ortskurve={orts} hoehe={hoehe} /></div>
+            <div ref={unterRef} style={{ display: "grid", gap: 12 }}>
+            <p style={{ ...hinweisStil, margin: "-4px 2px 0" }}>{zw("Blass im Hintergrund: die Scharkurven für a = −2, −1, 1, 2.", "Faint in the background: the curves for a = −2, −1, 1, 2.")}</p>
+            <Werkzeugleiste gruppen={[
+              { titel: zw("Schar wählen", "Choose family"), inhalt: (
+                <div role="group" aria-label={zw("Schar", "Family")} style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                  {SCHAR_WAHL.map(([id, t]) => <button key={id} type="button" aria-pressed={sid === id} onClick={() => waehle(id)} style={chipStil(sid === id)}>{t}</button>)}
+                </div>
+              ) },
+              { titel: zw("Einblenden", "Show"), inhalt: (
+                <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13.5, color: C.tinte, minHeight: 32, cursor: "pointer" }}>
+                  <input type="checkbox" checked={orts} onChange={(e) => setOrts(e.target.checked)} style={{ width: 18, height: 18, accentColor: PARAM }} />
+                  {ortsText}
+                </label>
+              ) },
+            ]} />
+            </div>
+          </>} />
+        <FeinKarte data-scharen-rechnung style={{ marginTop: 20 }}>
+          <p style={titelStil}>{zw("Die Rechnung dahinter – allgemein für jedes a", "The calculation behind it – for every a")}</p>
+          <div style={{ fontSize: 14, lineHeight: 1.65, color: C.tinte }}>{rechnung}</div>
+          {weiter}
+          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfeS(`sch-e-${sid}`)} /></div>
+        </FeinKarte>
+      </div>
+    );
+  }
+
   return (
     <div style={{ ...karte, marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
         <p style={kicker}>{zw("Parameter entdecken", "Explore the parameter")}</p>
       </div>
-      <Auswahl optionen={SCHAR_WAHL} wert={sid} setWert={(v) => { setSid(v); setOrts(false); }} label={zw("Schar", "Family")} />
+      <Auswahl optionen={SCHAR_WAHL} wert={sid} setWert={waehle} label={zw("Schar", "Family")} />
       <p style={{ fontSize: 16, fontWeight: 700, color: C.tinte, margin: "12px 0 4px" }}><PT t={s.name} /></p>
       <div style={{ background: C.sand, borderRadius: 14, padding: "10px 14px", margin: "6px 0 10px" }}>
         <label style={{ display: "flex", justifyContent: "space-between", fontSize: 14, fontWeight: 700, color: C.tinte }}>
           <span>{zw("Parameter", "Parameter")} <b style={{ color: PARAM, fontStyle: "italic" }}>a</b></span><b style={{ color: PARAM, fontSize: 17 }}>{zt(a, 2)}</b>
         </label>
-        <input type="range" min={-3} max={3} step={0.1} value={a} onChange={(e) => setA(Math.round(Number(e.target.value) * 10) / 10)} aria-label={zw("Parameter a", "Parameter a")} style={{ width: "100%", accentColor: PARAM, height: 32 }} />
+        {regler}
       </div>
       <ScharBild sid={sid} a={a} ortskurve={orts} />
       <p style={{ fontSize: 12.5, color: C.grau, margin: "6px 0 0" }}>{zw("Blass im Hintergrund: die Scharkurven für a = −2, −1, 1, 2.", "Faint in the background: the curves for a = −2, −1, 1, 2.")}</p>
       <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: C.tinte, margin: "8px 0", minHeight: 44, cursor: "pointer" }}>
         <input type="checkbox" checked={orts} onChange={(e) => setOrts(e.target.checked)} style={{ width: 20, height: 20, accentColor: PARAM }} />
-        {zw("Ortskurve der", "Locus of the")} {sid === "parabel" ? zw("Scheitelpunkte", "vertices") : zw("Extrempunkte", "extrema")} {zw("anzeigen", "")} ({s.ortsName})
+        {ortsText}
       </label>
       <div style={{ border: `1px solid ${C.linie}`, borderRadius: 14, padding: "10px 12px" }}>
         <p style={{ fontSize: 12, fontWeight: 700, color: C.grau, margin: "0 0 6px" }}>{zw(`Für a = ${zt(a, 2)}`, `For a = ${zt(a, 2)}`)}</p>
-        {pkt.length ? pkt.map((p, i) => (
-          <p key={i} style={{ fontSize: 14, color: C.tinte, margin: "2px 0" }}>
-            <b style={{ color: FARBE[p.art] }}>{p.art === "N" ? zw("Nullstelle", "Zero") : p.art === "H" ? zw("Hochpunkt", "Maximum") : p.art === "T" ? zw("Tiefpunkt", "Minimum") : zw("Wendepunkt", "Inflection point")}</b>{" "}
-            ({zt(p.x, 3)} | {zt(p.y, 3)})
-          </p>
-        )) : null}
+        {punktListe}
         <p style={{ fontSize: 13, color: C.grau, margin: "6px 0 0", lineHeight: 1.55 }}>{s.faelle(a)}</p>
       </div>
       <Aufklapp titel={zw("Die Rechnung dahinter – allgemein für jedes a", "The calculation behind it – for every a")}>
-        <p style={{ margin: "0 0 4px" }}><PT t={s.ableitung} /></p>
-        <p style={{ margin: "0 0 8px" }}><PT t={s.zweite} /></p>
-        {s.formeln.map(([k, v]) => <p key={k} style={{ margin: "2px 0" }}><b>{k}:</b> <PT t={v} /></p>)}
-        <p style={{ margin: "8px 0 0", color: C.grau }}>{zw("Der Regler zeigt Beispiele – begründet wird mit der Rechnung.", "The slider shows examples – the reasoning comes from the calculation.")}</p>
+        {rechnung}
       </Aufklapp>
-      <WeiterMit titel={zw(`Weiter mit a = ${zt(a, 2)}`, `Continue with a = ${zt(a, 2)}`)}>
-        <WeiterKnopf ziel="advplotter" von="Funktionsscharen" daten={{ text: scharText(sid, a) }} titel={zw("Kurvendiskussion", "Curve sketching")}
-          zeile={zw("Diese eine Kurve der Schar vollständig untersuchen", "Fully analyse this one curve of the family")} />
-      </WeiterMit>
+      {weiter}
       <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfeS(`sch-e-${sid}`)} /></div>
     </div>
   );
@@ -272,8 +359,43 @@ function BesonderePunkte() {
   const [nr, setNr] = useState(0);
   const [stand, setStand] = useState(0);
   const [a, setA] = useState(1);
+  const desktop = useDesktop();
   const schritte = useMemo(() => punkteSchritte(sid), [sid, nr]);
   const wechsel = (v) => { setSid(v); setStand(0); setNr((n) => n + 1); };
+  const kontrolle = stand >= 2 && (
+    <>
+      <p style={{ fontSize: 13, color: C.grau, margin: "0 0 4px" }}>{zw("Kontrolle am Graphen: Regler bewegen und prüfen, ob die Punkte wandern wie berechnet.", "Check on the graph: move the slider and see whether the points move as computed.")}</p>
+      <input type="range" min={-3} max={3} step={0.1} value={a} onChange={(e) => setA(Math.round(Number(e.target.value) * 10) / 10)} aria-label={zw("Parameter a", "Parameter a")} style={{ width: "100%", accentColor: PARAM, height: 32 }} />
+      <ScharBild sid={sid} a={a} ortskurve={stand >= schritte.length} zeigeSchar={false} />
+    </>
+  );
+
+  /* Desktop: Schritte links breit, rechts (300 px) die Kontrolle am Graphen – erst wenn es sie gibt */
+  if (desktop) {
+    const links = (
+      <>
+        <p style={{ ...hinweis, color: C.tinte, margin: "10px 0 4px" }}>{zw("Bestimme die besonderen Punkte allgemein in Abhängigkeit von", "Determine the special points in general, depending on")} <b style={{ color: PARAM }}>a</b>: <PT t={SCHAREN[sid].name} /></p>
+        <SchrittFolge key={`${sid}-${nr}`} schritte={schritte} stand={stand} setStand={setStand} fertigText={zw("Alle besonderen Punkte allgemein bestimmt – inklusive der Fälle, in denen es sie nicht gibt.", "All special points found in general – including the cases where they don't exist.")} />
+      </>
+    );
+    return (
+      <FeinKarte data-scharen-punkte-modus style={{ marginTop: 16 }}>
+        <p style={kicker}>{zw("Besondere Punkte", "Special points")}</p>
+        <Auswahl optionen={SCHAR_WAHL} wert={sid} setWert={wechsel} label={zw("Schar", "Family")} />
+        {kontrolle ? (
+          <div data-ueben-zweispaltig style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 300px)", gap: 20, alignItems: "start" }}>
+            <div style={{ minWidth: 0 }}>{links}</div>
+            <div style={{ position: "sticky", top: 76, marginTop: 10, background: C.sand, borderRadius: 14, padding: "10px 8px 8px" }}>{kontrolle}</div>
+          </div>
+        ) : links}
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 4 }}>
+          <div style={{ flex: 1 }}><GrosserKnopf ghost onClick={() => { setStand(0); setNr((n) => n + 1); }}>{zw("Von vorn", "Start again")}</GrosserKnopf></div>
+          <div style={{ marginTop: 12 }}><IchHaengeFest kontext={hilfeS(`sch-p-${sid}`)} /></div>
+        </div>
+      </FeinKarte>
+    );
+  }
+
   return (
     <div style={{ ...karte, marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
@@ -282,11 +404,9 @@ function BesonderePunkte() {
       <Auswahl optionen={SCHAR_WAHL} wert={sid} setWert={wechsel} label={zw("Schar", "Family")} />
       <p style={{ ...hinweis, color: C.tinte, margin: "10px 0 4px" }}>{zw("Bestimme die besonderen Punkte allgemein in Abhängigkeit von", "Determine the special points in general, depending on")} <b style={{ color: PARAM }}>a</b>: <PT t={SCHAREN[sid].name} /></p>
       <SchrittFolge key={`${sid}-${nr}`} schritte={schritte} stand={stand} setStand={setStand} fertigText={zw("Alle besonderen Punkte allgemein bestimmt – inklusive der Fälle, in denen es sie nicht gibt.", "All special points found in general – including the cases where they don't exist.")} />
-      {stand >= 2 && (
+      {kontrolle && (
         <div style={{ marginTop: 12 }}>
-          <p style={{ fontSize: 13, color: C.grau, margin: "0 0 4px" }}>{zw("Kontrolle am Graphen: Regler bewegen und prüfen, ob die Punkte wandern wie berechnet.", "Check on the graph: move the slider and see whether the points move as computed.")}</p>
-          <input type="range" min={-3} max={3} step={0.1} value={a} onChange={(e) => setA(Math.round(Number(e.target.value) * 10) / 10)} aria-label={zw("Parameter a", "Parameter a")} style={{ width: "100%", accentColor: PARAM, height: 32 }} />
-          <ScharBild sid={sid} a={a} ortskurve={stand >= schritte.length} zeigeSchar={false} />
+          {kontrolle}
         </div>
       )}
       <GrosserKnopf ghost onClick={() => { setStand(0); setNr((n) => n + 1); }}>{zw("Von vorn", "Start again")}</GrosserKnopf>
@@ -368,7 +488,35 @@ function fallAufgabe(vorher) {
 function Parameterfaelle() {
   const [au, setAu] = useState(() => fallAufgabe());
   const [stand, setStand] = useState(0);
+  const desktop = useDesktop();
   const neu = () => { setAu(fallAufgabe(au)); setStand(0); };
+  const fertig = stand >= au.schritte.length;
+
+  /* Desktop: Aufgabe und Schritte links breit; nach dem Lösen rechts (300 px) die passende Scharkurve */
+  if (desktop) {
+    const links = (
+      <>
+        <p style={{ ...hinweis, color: C.tinte, marginBottom: 4 }}>{DE ? <PT t={au.text.replace("f_a", "fₐ")} /> : au.text.replace("f_a", "fₐ")}</p>
+        <SchrittFolge key={au.id} schritte={au.schritte} stand={stand} setStand={setStand} fertigText={zw("Gelöst – mit Probe und Blick auf die Sonderfälle.", "Solved – with a check and an eye on the special cases.")} />
+      </>
+    );
+    return (
+      <FeinKarte data-scharen-faelle style={{ marginTop: 16 }}>
+        <p style={kicker}>{zw("Parameterfälle", "Parameter cases")}</p>
+        {fertig ? (
+          <div data-ueben-zweispaltig style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 300px)", gap: 20, alignItems: "start" }}>
+            <div style={{ minWidth: 0 }}>{links}</div>
+            <div style={{ position: "sticky", top: 76, background: C.sand, borderRadius: 14, padding: 6 }}><ScharBild sid={au.sid} a={au.aWert} ortskurve={false} /></div>
+          </div>
+        ) : links}
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 4 }}>
+          <div style={{ flex: 1 }}><GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf></div>
+          <div style={{ marginTop: 12 }}><IchHaengeFest kontext={hilfeS(`sch-f-${au.id}`)} /></div>
+        </div>
+      </FeinKarte>
+    );
+  }
+
   return (
     <div style={{ ...karte, marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>

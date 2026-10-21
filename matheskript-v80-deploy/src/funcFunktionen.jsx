@@ -17,8 +17,9 @@ import { C } from "./base1.jsx";
 import { M } from "./func3.jsx";
 import { GrosserKnopf, MS, hilfeKontext, karte, kicker, zw } from "./ui2.jsx";
 import { Aufklapp, FunktionsBild, zt } from "./ui3.jsx";
-import { Merke, Regler } from "./geoUi.jsx";
-import { Absatz, Einfuehrung, FormelBlock, Labor, Leitfrage, LernwegSeite, MengenStrahl, Schalter, Trenner, UebenDaten, UebenKopf } from "./lernwegUi.jsx";
+import { KompaktCtx, Merke, Regler } from "./geoUi.jsx";
+import { Absatz, Aufforderung, Einfuehrung, FormelBlock, Labor, Leitfrage, LernwegSeite, MengenStrahl, Schalter, Trenner, UebenDaten, UebenKopf } from "./lernwegUi.jsx";
+import { Arbeitsflaeche, ErgebnisReihe, FeinKarte, Kicker, Werkzeugleiste, useDesktop } from "./arbeitsflaeche.jsx";
 import { R, iv, linTex, mengeTex, ohne, zTex } from "./mengenRechnen.js";
 import { AUSSEN, FK_KAPITEL_ARTEN, FK_TITEL, INNEN, fkAufgabe } from "./funktionenGen.js";
 
@@ -38,6 +39,23 @@ const hilfe = (au) => hilfeKontext({
 const ueben = (arten) => <UebenDaten titel={FK_TITEL} arten={arten} erzeuge={(a) => fkAufgabe(a)} hilfe={hilfe} />;
 const zeile = { fontSize: 17, color: C.tinte, overflowX: "auto" };
 
+/* Desktop-Labor (DESKTOP-STIL.md): feine Karte; links die Einstellungen (Regler zweizeilig wie in EntdeckenZweispaltig),
+   rechts das Schaubild, darunter die Werkzeugleiste; unten optional Ergebnisse über die volle Breite. */
+function LaborBreit({ titel, aufforderung, links, rechts, leiste, unten }) {
+  return (
+    <FeinKarte data-labor data-labor-breit style={{ marginTop: 14 }}>
+      {titel && <Kicker style={{ color: C.gruenDunkel }}>{titel}</Kicker>}
+      {aufforderung && <Aufforderung>{aufforderung}</Aufforderung>}
+      <Arbeitsflaeche style={{ marginTop: 6 }}
+        links={<KompaktCtx.Provider value={true}><div style={{ display: "grid", gap: 12, minWidth: 0 }}>{links}</div></KompaktCtx.Provider>}
+        rechts={<>{rechts}{leiste && <Werkzeugleiste gruppen={leiste} />}</>} />
+      {unten && <div style={{ marginTop: 18 }}>{unten}</div>}
+    </FeinKarte>
+  );
+}
+/* Kleine getönte Ergebniskachel (links in der Arbeitsfläche) */
+const ergebnisKachel = { background: C.sand, borderRadius: 12, padding: "10px 12px", display: "grid", gap: 4, fontSize: 15, color: C.tinte, overflowX: "auto" };
+
 /* ============================================================
    LABOR: Funktion mit D und W (Kapitel 1 und 6)
    ============================================================ */
@@ -56,17 +74,43 @@ function FunktionsLabor({ start = "w" }) {
   const B = BEISPIELE.find((b) => b.id === id);
   const y = B.f(x);
   const ok = Number.isFinite(y);
-  return (
-    <Labor titel={zw("Labor: Definitions- und Wertebereich", "Lab: domain and range")} aufforderung={zw("Wähle eine Funktion und schiebe x – wo ist f nicht definiert?", "Pick a function and slide x – where is f undefined?")}>
-      <Schalter optionen={BEISPIELE.map((b) => [b.id, `$${b.tex}$`])} wert={id} setWert={setId} label={zw("Funktion", "Function")} />
-      <div style={{ marginTop: 10 }}>
-        <FunktionsBild x0={-8} x1={8} y0={-5} y1={6} kurven={[{ f: B.f, farbe: C.see }]} punkte={ok ? [{ x, y, farbe: C.flaggold }] : []} senkrechte={[{ x, farbe: ok ? `${C.flaggold}` : C.signal }]} />
-      </div>
-      <MengenStrahl lo={-8} hi={8} mengen={[{ menge: B.D, farbe: C.see, name: "D" }, { menge: B.W, farbe: C.gold, name: "W" }]} />
-      <Regler name="x" wert={x} setWert={setX} min={-8} max={8} schritt={0.5} format={(v) => zt(v)} farbe={C.flaggold} />
-      <div style={{ marginTop: 8, padding: "8px 12px", borderRadius: 12, background: ok ? "#E6F6EF" : "#FCEFE8", color: ok ? GRUEN : C.signal, fontSize: 15, fontWeight: 600 }}>
+  const desktop = useDesktop();
+  const titel = zw("Labor: Definitions- und Wertebereich", "Lab: domain and range");
+  const aufforderung = zw("Wähle eine Funktion und schiebe x – wo ist f nicht definiert?", "Pick a function and slide x – where is f undefined?");
+  const wahl = <Schalter optionen={BEISPIELE.map((b) => [b.id, `$${b.tex}$`])} wert={id} setWert={setId} label={zw("Funktion", "Function")} />;
+  const bild = <FunktionsBild x0={-8} x1={8} y0={-5} y1={6} kurven={[{ f: B.f, farbe: C.see }]} punkte={ok ? [{ x, y, farbe: C.flaggold }] : []} senkrechte={[{ x, farbe: ok ? `${C.flaggold}` : C.signal }]} />;
+  const strahl = <MengenStrahl lo={-8} hi={8} mengen={[{ menge: B.D, farbe: C.see, name: "D" }, { menge: B.W, farbe: C.gold, name: "W" }]} />;
+  const regler = <Regler name="x" wert={x} setWert={setX} min={-8} max={8} schritt={0.5} format={(v) => zt(v)} farbe={C.flaggold} />;
+  const wertBox = (
+      <div style={{ marginTop: desktop ? 0 : 8, padding: "8px 12px", borderRadius: 12, background: ok ? "#E6F6EF" : "#FCEFE8", color: ok ? GRUEN : C.signal, fontSize: 15, fontWeight: 600 }}>
         {ok ? <M t={`f(${zTex(x)}) \\approx ${zt(y, 3)}`} /> : <>{<M t={`f(${zTex(x)})`} />} {zw("ist nicht definiert – x liegt nicht in D.", "is undefined – x is not in D.")}</>}
       </div>
+  );
+  if (desktop) {
+    return (
+      <LaborBreit titel={titel} aufforderung={aufforderung}
+        links={<>
+          <div><Kicker style={{ marginBottom: 6 }}>{zw("Funktion", "Function")}</Kicker>{wahl}</div>
+          {regler}
+          {wertBox}
+          <div style={ergebnisKachel}>
+            <M t={`f(x) = ${B.tex}`} />
+            <M t={`D = ${mengeTex(B.D)}`} />
+            <M t={`W = ${mengeTex(B.W)}`} />
+          </div>
+        </>}
+        rechts={<>{bild}<div style={{ maxWidth: 432, width: "100%", alignSelf: "center" }}>{strahl}</div></>} />
+    );
+  }
+  return (
+    <Labor titel={zw("Labor: Definitions- und Wertebereich", "Lab: domain and range")} aufforderung={zw("Wähle eine Funktion und schiebe x – wo ist f nicht definiert?", "Pick a function and slide x – where is f undefined?")}>
+      {wahl}
+      <div style={{ marginTop: 10 }}>
+        {bild}
+      </div>
+      {strahl}
+      {regler}
+      {wertBox}
       <div style={{ ...zeile, display: "grid", gap: 4, marginTop: 10 }}>
         <M t={`f(x) = ${B.tex}`} />
         <M t={`D = ${mengeTex(B.D)}, \\quad W = ${mengeTex(B.W)}`} />
@@ -119,28 +163,52 @@ function PotenzLabor() {
   const unendlich = (s) => (s > 0 ? "+\\infty" : "−\\infty");
   const verhalten = n > 0 ? `x \\to +\\infty: ${unendlich(a)}, \\quad x \\to −\\infty: ${unendlich(gerade ? a : -a)}` : n < 0 ? zw("x \\to \\pm\\infty: f(x) \\to 0", "x \\to \\pm\\infty: f(x) \\to 0") : `f(x) = ${zTex(a)}`;
   const fTex = n === 0 ? zTex(a) : n === 1 ? linTex(a, 0) : `${a === 1 ? "" : a === -1 ? "−" : zTex(a)}x^{${zTex(n)}}`;
-  return (
-    <Labor titel={zw("Labor: Potenzfunktionen", "Lab: power functions")} aufforderung={zw("Ändere die Hochzahl n: gerade und ungerade, positiv und negativ.", "Change the exponent n: even and odd, positive and negative.")}>
-      <Regler name="n" wert={n} setWert={setN} min={-4} max={6} schritt={1} format={(v) => zt(v)} />
-      <div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 8, flexWrap: "wrap" }}>
-        <span style={{ fontSize: 14, fontWeight: 800, color: C.see }}>a</span>
-        <Schalter optionen={[[1, "1"], [2, "2"], [0.5, "$\\frac{1}{2}$"], [-1, "−1"]]} wert={a} setWert={setA} label="a" />
-      </div>
-      <div style={{ ...zeile, textAlign: "center", fontWeight: 700, margin: "10px 0 6px" }}><M t={`f(x) = ${fTex}`} /></div>
+  const desktop = useDesktop();
+  const reglerN = <Regler name="n" wert={n} setWert={setN} min={-4} max={6} schritt={1} format={(v) => zt(v)} />;
+  const aWahl = <Schalter optionen={[[1, "1"], [2, "2"], [0.5, "$\\frac{1}{2}$"], [-1, "−1"]]} wert={a} setWert={setA} label="a" />;
+  const bild = (
       <FunktionsBild x0={-3} x1={3} y0={-6} y1={6} kurven={[{ f, farbe: C.see }]}
         punkte={n !== 0 ? [{ x: 1, y: f(1), farbe: C.gold, name: `(1|${zt(f(1))})` }, { x: -1, y: f(-1), farbe: C.gold }] : []} />
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 8, marginTop: 10 }}>
-        {[
+  );
+  const eigenschaften = [
           [zw("Symmetrie", "Symmetry"), n === 0 || gerade ? zw("zur y-Achse", "about the y-axis") : zw("zum Ursprung", "about the origin")],
           [zw("Definitionsbereich", "Domain"), <M key="d" t={`D = ${mengeTex(D)}`} />],
           [zw("Wertebereich", "Range"), <M key="w" t={`W = ${mengeTex(W)}`} />],
           [zw("Verhalten", "End behaviour"), <M key="v" t={verhalten} />],
-        ].map(([t, w]) => (
+  ];
+  const kachel = ([t, w]) => (
           <div key={t} style={{ background: C.sand, borderRadius: 12, padding: "8px 10px" }}>
             <p style={{ margin: 0, fontSize: 11.5, fontWeight: 700, color: C.grau }}>{t}</p>
             <div style={{ fontSize: 14, color: C.tinte, fontWeight: 600, overflowX: "auto" }}>{w}</div>
           </div>
-        ))}
+  );
+  if (desktop) {
+    return (
+      <LaborBreit titel={zw("Labor: Potenzfunktionen", "Lab: power functions")} aufforderung={zw("Ändere die Hochzahl n: gerade und ungerade, positiv und negativ.", "Change the exponent n: even and odd, positive and negative.")}
+        links={<>
+          {reglerN}
+          <div>
+            <Kicker style={{ marginBottom: 6 }}>{zw("Faktor a", "Factor a")}</Kicker>
+            {aWahl}
+          </div>
+          <div style={{ ...ergebnisKachel, fontWeight: 700, fontSize: 17 }}><M t={`f(x) = ${fTex}`} /></div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8 }}>{eigenschaften.slice(0, 3).map(kachel)}</div>
+          {kachel(eigenschaften[3])}
+        </>}
+        rechts={bild} />
+    );
+  }
+  return (
+    <Labor titel={zw("Labor: Potenzfunktionen", "Lab: power functions")} aufforderung={zw("Ändere die Hochzahl n: gerade und ungerade, positiv und negativ.", "Change the exponent n: even and odd, positive and negative.")}>
+      {reglerN}
+      <div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 8, flexWrap: "wrap" }}>
+        <span style={{ fontSize: 14, fontWeight: 800, color: C.see }}>a</span>
+        {aWahl}
+      </div>
+      <div style={{ ...zeile, textAlign: "center", fontWeight: 700, margin: "10px 0 6px" }}><M t={`f(x) = ${fTex}`} /></div>
+      {bild}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 8, marginTop: 10 }}>
+        {eigenschaften.map(kachel)}
       </div>
     </Labor>
   );
@@ -185,19 +253,42 @@ function WurzelLabor() {
   const tex = `${a === 1 ? "" : a === -1 ? "−" : zTex(a)}\\sqrt{${innen}}${c > 0 ? ` + ${c}` : c < 0 ? ` − ${-c}` : ""}`;
   const kurven = [{ f, farbe: C.see }];
   if (spiegel) kurven.push({ f: (x) => x * x, farbe: C.gold, a: 0, b: 6, gestrichelt: true }, { f: (x) => x, farbe: C.hellgrau, breite: 1.2 });
+  const desktop = useDesktop();
+  const reglerA = <Regler name="a" wert={a} setWert={setA} min={-3} max={3} schritt={0.5} format={(v) => zt(v)} />;
+  const reglerB = <Regler name="b" wert={b} setWert={setB} min={-5} max={5} schritt={1} format={(v) => zt(v)} farbe={C.gold} />;
+  const reglerC = <Regler name="c" wert={c} setWert={setC} min={-4} max={4} schritt={1} format={(v) => zt(v)} farbe={C.smaragd} />;
+  const spiegelWahl = <Schalter optionen={[[true, zw("mit x² und y = x", "with x² and y = x")], [false, zw("nur f", "only f")]]} wert={spiegel} setWert={setSpiegel} farbe={C.gold} label={zw("Spiegelung", "Reflection")} />;
+  const bild = <FunktionsBild x0={-6} x1={9} y0={-5} y1={7} kurven={kurven} punkte={a !== 0 ? [{ x: b, y: c, farbe: C.flaggold, name: zw("Start", "start") }] : []} />;
+  const dTex = `D = [${zTex(b)}; \\infty[`;
+  const wTex = `W = ${a > 0 ? `[${zTex(c)}; \\infty[` : a < 0 ? `]−\\infty; ${zTex(c)}]` : `\\{${zTex(c)}\\}`}`;
+  if (desktop) {
+    return (
+      <LaborBreit titel={zw("Labor: Wurzelfunktion", "Lab: root function")} aufforderung={zw("Verschiebe und strecke – und sieh, wie √x aus der halben Parabel entsteht.", "Shift and stretch – and see how √x arises from half a parabola.")}
+        links={<>
+          {reglerA}{reglerB}{reglerC}
+          <div style={ergebnisKachel}>
+            <span style={{ fontWeight: 700 }}><M t={`f(x) = ${tex}`} /></span>
+            <M t={dTex} />
+            <M t={wTex} />
+          </div>
+        </>}
+        rechts={bild}
+        leiste={[{ titel: zw("Spiegelung", "Reflection"), inhalt: spiegelWahl }]} />
+    );
+  }
   return (
     <Labor titel={zw("Labor: Wurzelfunktion", "Lab: root function")} aufforderung={zw("Verschiebe und strecke – und sieh, wie √x aus der halben Parabel entsteht.", "Shift and stretch – and see how √x arises from half a parabola.")}>
       <div style={{ display: "grid", gap: 8 }}>
-        <Regler name="a" wert={a} setWert={setA} min={-3} max={3} schritt={0.5} format={(v) => zt(v)} />
-        <Regler name="b" wert={b} setWert={setB} min={-5} max={5} schritt={1} format={(v) => zt(v)} farbe={C.gold} />
-        <Regler name="c" wert={c} setWert={setC} min={-4} max={4} schritt={1} format={(v) => zt(v)} farbe={C.smaragd} />
-        <Schalter optionen={[[true, zw("mit x² und y = x", "with x² and y = x")], [false, zw("nur f", "only f")]]} wert={spiegel} setWert={setSpiegel} farbe={C.gold} label={zw("Spiegelung", "Reflection")} />
+        {reglerA}
+        {reglerB}
+        {reglerC}
+        {spiegelWahl}
       </div>
       <div style={{ ...zeile, textAlign: "center", fontWeight: 700, margin: "10px 0 6px" }}><M t={`f(x) = ${tex}`} /></div>
-      <FunktionsBild x0={-6} x1={9} y0={-5} y1={7} kurven={kurven} punkte={a !== 0 ? [{ x: b, y: c, farbe: C.flaggold, name: zw("Start", "start") }] : []} />
+      {bild}
       <div style={{ ...zeile, display: "grid", gap: 4, marginTop: 8 }}>
-        <M t={`D = [${zTex(b)}; \\infty[`} />
-        <M t={`W = ${a > 0 ? `[${zTex(c)}; \\infty[` : a < 0 ? `]−\\infty; ${zTex(c)}]` : `\\{${zTex(c)}\\}`}`} />
+        <M t={dTex} />
+        <M t={wTex} />
       </div>
     </Labor>
   );
@@ -252,22 +343,46 @@ function UmkehrLabor() {
   }
   const y0 = f(x0);
   const ok = Number.isFinite(y0);
-  return (
-    <Labor titel={zw("Labor: Spiegeln an y = x", "Lab: reflect in y = x")} aufforderung={zw("Bewege den Punkt P auf f. Sein Spiegelbild P' liegt auf f⁻¹ – x und y sind vertauscht.", "Move the point P on f. Its mirror image P' lies on f⁻¹ – x and y are swapped.")}>
-      <Schalter optionen={[["lin", "$mx + c$"], ["quad", "$x^2, x \\ge 0$"], ["kub", "$x^3$"], ["exp", "$e^x$"], ["zwei", "$2^x$"]]} wert={art} setWert={(a) => { setArt(a); setX0(a === "quad" ? 1.5 : 1); }} label={zw("Funktion", "Function")} />
-      {art === "lin" && (
-        <div style={{ display: "grid", gap: 8, marginTop: 8 }}>
+  const desktop = useDesktop();
+  const wahl = <Schalter optionen={[["lin", "$mx + c$"], ["quad", "$x^2, x \\ge 0$"], ["kub", "$x^3$"], ["exp", "$e^x$"], ["zwei", "$2^x$"]]} wert={art} setWert={(a) => { setArt(a); setX0(a === "quad" ? 1.5 : 1); }} label={zw("Funktion", "Function")} />;
+  const linRegler = art === "lin" && (
+        <div style={{ display: "grid", gap: desktop ? 12 : 8, marginTop: desktop ? 0 : 8 }}>
           <Regler name="m" wert={m} setWert={(v) => setMm(v === 0 ? 0.5 : v)} min={-3} max={3} schritt={0.5} format={(v) => zt(v)} />
           <Regler name="c" wert={c} setWert={setC} min={-4} max={4} schritt={1} format={(v) => zt(v)} farbe={C.smaragd} />
         </div>
-      )}
+  );
+  const bild = (
       <FunktionsBild x0={-6} x1={6} gleicheEinheit kurven={[{ f: (x) => x, farbe: C.hellgrau, breite: 1.2 }, { f, farbe: C.see }, { f: g, farbe: C.gold, gestrichelt: true }]}
         punkte={ok ? [{ x: x0, y: y0, farbe: C.see, name: "P" }, { x: y0, y: x0, farbe: C.gold, name: "P'" }] : []} />
-      <Regler name={zw("x von P", "x of P")} wert={x0} setWert={setX0} min={art === "quad" ? 0 : -3} max={art === "exp" || art === "zwei" ? 1.6 : 2.5} schritt={0.1} format={(v) => zt(v, 1)} farbe={C.flaggold} breiteName={64} />
-      <div style={{ ...zeile, display: "grid", gap: 4, marginTop: 10 }}>
+  );
+  const pRegler = <Regler name={zw("x von P", "x of P")} wert={x0} setWert={setX0} min={art === "quad" ? 0 : -3} max={art === "exp" || art === "zwei" ? 1.6 : 2.5} schritt={0.1} format={(v) => zt(v, 1)} farbe={C.flaggold} breiteName={64} />;
+  const formeln = (
+    <>
         <span style={{ color: C.see }}><M t={`f(x) = ${fTex}`} /></span>
         <span style={{ color: C.gold }}><M t={`f^{−1}(x) = ${gTex}`} /></span>
         {ok && <span style={{ fontSize: 14 }}><M t={`P(${zt(x0, 2)} \\mid ${zt(y0, 2)}) \\;\\to\\; P'(${zt(y0, 2)} \\mid ${zt(x0, 2)})`} /></span>}
+    </>
+  );
+  if (desktop) {
+    return (
+      <LaborBreit titel={zw("Labor: Spiegeln an y = x", "Lab: reflect in y = x")} aufforderung={zw("Bewege den Punkt P auf f. Sein Spiegelbild P' liegt auf f⁻¹ – x und y sind vertauscht.", "Move the point P on f. Its mirror image P' lies on f⁻¹ – x and y are swapped.")}
+        links={<>
+          <div><Kicker style={{ marginBottom: 6 }}>{zw("Funktion", "Function")}</Kicker>{wahl}</div>
+          {linRegler}
+          {pRegler}
+          <div style={ergebnisKachel}>{formeln}</div>
+        </>}
+        rechts={bild} />
+    );
+  }
+  return (
+    <Labor titel={zw("Labor: Spiegeln an y = x", "Lab: reflect in y = x")} aufforderung={zw("Bewege den Punkt P auf f. Sein Spiegelbild P' liegt auf f⁻¹ – x und y sind vertauscht.", "Move the point P on f. Its mirror image P' lies on f⁻¹ – x and y are swapped.")}>
+      {wahl}
+      {linRegler}
+      {bild}
+      {pRegler}
+      <div style={{ ...zeile, display: "grid", gap: 4, marginTop: 10 }}>
+        {formeln}
       </div>
     </Labor>
   );
@@ -321,25 +436,55 @@ function VerkettungLabor() {
   const fx = F.tex("x");
   const term = rf === "fg" ? F.tex(G.tex) : G.tex.replace(/x/g, /^[a-z0-9]+$/i.test(fx) ? fx : `(${fx})`);
   const Kasten = ({ t, farbe }) => <div style={{ minWidth: 0, padding: "8px 10px", borderRadius: 12, background: `${farbe}14`, border: `1.5px solid ${farbe}55`, textAlign: "center", fontSize: 14, fontWeight: 700, color: C.tinte, overflowX: "auto" }}>{t}</div>;
-  return (
-    <Labor titel={zw("Labor: Verkettungsmaschine", "Lab: composition machine")} aufforderung={zw("x läuft erst durch die innere, dann durch die äußere Maschine. Tausche die Reihenfolge!", "x first runs through the inner machine, then the outer one. Swap the order!")}>
-      <p style={{ ...kicker, color: C.see, marginBottom: 4 }}>f</p>
-      <Schalter optionen={A_WAHL.map((k) => [k, `$${AUSSEN[k].tex("x")}$`])} wert={a} setWert={setA} label="f" />
-      <p style={{ ...kicker, color: C.gold, margin: "10px 0 4px" }}>g</p>
-      <Schalter optionen={I_WAHL.map((k) => [k, `$${INNEN[k].tex}$`])} wert={g} setWert={setG} farbe={C.gold} label="g" />
-      <div style={{ marginTop: 10 }}><Schalter optionen={[["fg", "$f \\,∘\\, g$"], ["gf", "$g \\,∘\\, f$"]]} wert={rf} setWert={setRf} farbe={C.smaragd} label={zw("Reihenfolge", "Order")} /></div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr auto 1fr", alignItems: "center", gap: 6, marginTop: 12 }}>
+  const desktop = useDesktop();
+  const fWahl = <Schalter optionen={A_WAHL.map((k) => [k, `$${AUSSEN[k].tex("x")}$`])} wert={a} setWert={setA} label="f" />;
+  const gWahl = <Schalter optionen={I_WAHL.map((k) => [k, `$${INNEN[k].tex}$`])} wert={g} setWert={setG} farbe={C.gold} label="g" />;
+  const rfWahl = <Schalter optionen={[["fg", "$f \\,∘\\, g$"], ["gf", "$g \\,∘\\, f$"]]} wert={rf} setWert={setRf} farbe={C.smaragd} label={zw("Reihenfolge", "Order")} />;
+  const maschine = (
+      <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr auto 1fr", alignItems: "center", gap: 6, marginTop: desktop ? 0 : 12 }}>
         <Kasten t={<>x = {zt(x)}</>} farbe={C.grau} />
         <span aria-hidden="true" style={{ color: C.grau }}>→</span>
         <Kasten t={<>{rf === "fg" ? "g" : "f"}: {fmt(u)}</>} farbe={rf === "fg" ? C.gold : C.see} />
         <span aria-hidden="true" style={{ color: C.grau }}>→</span>
         <Kasten t={<>{rf === "fg" ? "f" : "g"}: {fmt(w)}</>} farbe={rf === "fg" ? C.see : C.gold} />
       </div>
-      <Regler name="x" wert={x} setWert={setX} min={-4} max={4} schritt={0.5} format={(v) => zt(v)} farbe={C.flaggold} />
-      <div style={{ ...zeile, textAlign: "center", fontWeight: 700, margin: "8px 0" }}><M t={`(${rf === "fg" ? "f \\,∘\\, g" : "g \\,∘\\, f"})(x) = ${term}`} /></div>
+  );
+  const xRegler = <Regler name="x" wert={x} setWert={setX} min={-4} max={4} schritt={0.5} format={(v) => zt(v)} farbe={C.flaggold} />;
+  const termZeile = <M t={`(${rf === "fg" ? "f \\,∘\\, g" : "g \\,∘\\, f"})(x) = ${term}`} />;
+  const bild = (
       <FunktionsBild x0={-5} x1={5} y0={-4} y1={8} kurven={[{ f: (t) => F.f(G.f(t)), farbe: C.see, blass: rf !== "fg" }, { f: (t) => G.f(F.f(t)), farbe: C.gold, gestrichelt: true, blass: rf !== "gf" }]}
         punkte={Number.isFinite(w) ? [{ x, y: w, farbe: C.flaggold }] : []} />
-      <p style={{ fontSize: 12.5, color: C.grau, margin: "6px 2px 0" }}>{zw("Blau: f ∘ g, gold gestrichelt: g ∘ f – meist zwei verschiedene Graphen.", "Blue: f ∘ g, gold dashed: g ∘ f – usually two different graphs.")}</p>
+  );
+  const legende = zw("Blau: f ∘ g, gold gestrichelt: g ∘ f – meist zwei verschiedene Graphen.", "Blue: f ∘ g, gold dashed: g ∘ f – usually two different graphs.");
+  if (desktop) {
+    return (
+      <LaborBreit titel={zw("Labor: Verkettungsmaschine", "Lab: composition machine")} aufforderung={zw("x läuft erst durch die innere, dann durch die äußere Maschine. Tausche die Reihenfolge!", "x first runs through the inner machine, then the outer one. Swap the order!")}
+        links={<>
+          <div><p style={{ ...kicker, color: C.see, marginBottom: 6 }}>f</p>{fWahl}</div>
+          <div><p style={{ ...kicker, color: C.gold, marginBottom: 6 }}>g</p>{gWahl}</div>
+          {xRegler}
+          {maschine}
+        </>}
+        rechts={<>
+          <div style={{ ...ergebnisKachel, fontWeight: 700, textAlign: "center" }}>{termZeile}</div>
+          {bild}
+          <p style={{ fontSize: 12.5, color: C.grau, margin: "-4px 2px 0" }}>{legende}</p>
+        </>}
+        leiste={[{ titel: zw("Reihenfolge", "Order"), inhalt: rfWahl }]} />
+    );
+  }
+  return (
+    <Labor titel={zw("Labor: Verkettungsmaschine", "Lab: composition machine")} aufforderung={zw("x läuft erst durch die innere, dann durch die äußere Maschine. Tausche die Reihenfolge!", "x first runs through the inner machine, then the outer one. Swap the order!")}>
+      <p style={{ ...kicker, color: C.see, marginBottom: 4 }}>f</p>
+      {fWahl}
+      <p style={{ ...kicker, color: C.gold, margin: "10px 0 4px" }}>g</p>
+      {gWahl}
+      <div style={{ marginTop: 10 }}>{rfWahl}</div>
+      {maschine}
+      {xRegler}
+      <div style={{ ...zeile, textAlign: "center", fontWeight: 700, margin: "8px 0" }}>{termZeile}</div>
+      {bild}
+      <p style={{ fontSize: 12.5, color: C.grau, margin: "6px 2px 0" }}>{legende}</p>
     </Labor>
   );
 }

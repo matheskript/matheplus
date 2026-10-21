@@ -13,6 +13,7 @@ const zw = (de, en) => (EN ? en : de);
 import { NeueZeile } from "./funcLGS.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
 import { springe } from "./sprung.js";
+import { FeinKarte, Kicker, feinKarte, useDesktop } from "./arbeitsflaeche.jsx";
 const LGS_ZEILE_CSS = ".lgs-blink{animation:sbBlink 1s step-end infinite}";
 
 /* ======================================================================
@@ -554,11 +555,12 @@ const Knopf = ({ onClick, children, leise }) => (
 
 function Schritt({ nr, titel, fertig, scrollen, children }) {
   const ref = useRef(null);
+  const desktop = useDesktop();
   useEffect(() => {
     if (scrollen && ref.current) { try { springe("steckbrief-schritt", () => ref.current.scrollIntoView({ behavior: "smooth", block: "start" })); } catch (e) { /* egal */ } }
   }, []);
   return (
-    <div ref={ref} className="sb-neu" style={{ ...karte, padding: "18px 20px 20px", marginTop: 16, scrollMarginTop: 72 }}>
+    <div ref={ref} className="sb-neu" style={desktop ? { ...feinKarte, padding: "18px 20px 20px", marginTop: 16, scrollMarginTop: 72 } : { ...karte, padding: "18px 20px 20px", marginTop: 16, scrollMarginTop: 72 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 11, marginBottom: 14 }}>
         <span aria-hidden="true" style={{ flexShrink: 0, width: 28, height: 28, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center",
           background: fertig ? C.smaragd : blauVerlauf, color: fertig ? C.weiss : C.flaggold, fontSize: 13.5, fontWeight: 700 }}>
@@ -1455,46 +1457,42 @@ export function Steckbriefaufgaben() {
   const rows = bedZeilen && istPoly ? bedZeilen.map((b) => zeileAus(ans, b)) : null;
   let k = 0;
   const num = () => ++k;
+  const desktop = useDesktop();
 
-  return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
-      <style>{SB_CSS}</style>
-
-      <div className="flex items-center flex-wrap" style={{ gap: 8, marginBottom: 10 }}>
+  const typWahl = (
         <div className="flex" role="group" aria-label={zw("Funktionstyp", "Function type")} style={{ background: "#EEF2F8", borderRadius: 999, padding: 3 }}>
           <Pille aktiv={modus === "poly"} onClick={() => modusWaehlen("poly")}>{zw("Polynome", "Polynomials")}</Pille>
           <Pille aktiv={modus === "adv"} onClick={() => modusWaehlen("adv")}>Advanced</Pille>
         </div>
+  );
+  const neuKnopf = (
         <button type="button" onClick={() => neu()}
           style={{ marginLeft: "auto", background: "none", border: "none", color: C.see, fontSize: 13, fontWeight: 500, fontFamily: "inherit", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: 6 }}>
           <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 2.5v3h-3" stroke="currentColor" strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
           {zw("Neue Aufgabe", "New task")}
         </button>
-      </div>
-      <div className="flex items-center flex-wrap" style={{ gap: 10, marginBottom: 16 }}>
+  );
+  const artWahl = (
         <div className="flex" role="group" aria-label={zw("Aufgabenart", "Task type")} style={{ background: "#EEF2F8", borderRadius: 999, padding: 3 }}>
           {SUB[modus].map((s) => <Pille key={s.id} aktiv={sub === s.id} onClick={() => subWaehlen(s.id)}>{s.name}</Pille>)}
         </div>
-      </div>
-
-      <div key={`s${nr}`}>
-        {/* Steckbrief: zwischen Aufgabenart-Menü und „Ansatz wählen“ */}
-        <div key={`a${nr}`} className="sb-neu" style={{ ...karte, padding: "18px 20px", marginTop: 0, borderLeft: `4px solid ${C.flaggold}` }}>
-          <p style={{ ...kicker, marginBottom: 8 }}>{zw("STECKBRIEF", "WANTED")}</p>
+  );
+  const steckbriefText = (
+    <>
           <Text s={auf.satz} style={{ fontSize: 16, lineHeight: 1.85, color: C.tinte, fontWeight: 400 }} />
           <p style={{ fontSize: 13, color: C.grau, fontWeight: 300, marginTop: 8 }}>{zw("Bestimme den Funktionsterm von f.", "Determine the equation of f.")}</p>
-        </div>
+    </>
+  );
+  const hilfeKnopf = !ergebnis && <IchHaengeFest kontext={steckbriefHilfe(auf, !ansatz ? "ansatz" : !bedZeilen ? "bedingungen" : !loesen ? "einsetzen" : "loesen", rows)} />;
 
+  /* Die Arbeitsschritte (gleich in beiden Zweigen). Reihenfolge der num()-Aufrufe = Nummerierung: erst der Ansatz, dann die übrigen. */
+  const ansatzSchritt = (
         <Schritt nr={num()} titel={zw("Ansatz wählen", "Choose the general form")} fertig={!!ansatz}>
           <AnsatzSchritt auf={auf} gewaehlt={ansatz} setGewaehlt={setAnsatz} />
         </Schritt>
-
-        {!ergebnis && (
-          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 12 }}>
-            <IchHaengeFest kontext={steckbriefHilfe(auf, !ansatz ? "ansatz" : !bedZeilen ? "bedingungen" : !loesen ? "einsetzen" : "loesen", rows)} />
-          </div>
-        )}
-
+  );
+  const weitereSchritte = (
+    <>
         {ansatz && (
           <Schritt nr={num()} titel={zw("Bedingungen aufstellen", "Set up the conditions")} fertig={!!bedZeilen}>
             <BedingungsSchritt auf={auf} fertig={bedZeilen} onFertig={setBedZeilen} />
@@ -1537,6 +1535,86 @@ export function Steckbriefaufgaben() {
             <ErgebnisSchritt auf={auf} L={ergebnis.L} weg={ergebnis.weg} neu={() => neu()} />
           </Schritt>
         )}
+    </>
+  );
+
+  /* ---------- Desktop: Aufgabentyp oben in einer Zeile; links die Arbeitsschritte, rechts (300 px) der Steckbrief mit Stand und Hilfe ---------- */
+  if (desktop) {
+    const schritteListe = [
+      [zw("Ansatz wählen", "Choose the general form"), !!ansatz],
+      [zw("Bedingungen aufstellen", "Set up the conditions"), !!bedZeilen],
+      [zw("Einsetzen", "Substitute"), istPoly ? ausmult : loesen],
+      ...(istPoly ? [[zw("Ausmultiplizieren", "Expand"), loesen]] : []),
+      [istPoly ? zw("Gleichungssystem lösen", "Solve the system of equations") : zw("Parameter bestimmen", "Determine the parameters"), !!ergebnis],
+      [zw("Die Funktion im Schaubild", "The function in the graph"), !!ergebnis],
+    ];
+    const aktuell = schritteListe.findIndex(([, f]) => !f);
+    return (
+      <div className="mx-auto px-6 pb-16" data-steckbrief="breit" style={{ maxWidth: 620, paddingTop: 30 }}>
+        <style>{SB_CSS}</style>
+        <div className="flex items-center flex-wrap" style={{ gap: 10 }}>
+          {typWahl}
+          {artWahl}
+          {neuKnopf}
+        </div>
+
+        <div key={`s${nr}`} data-ueben-zweispaltig style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 300px)", gap: 20, alignItems: "start", marginTop: 16 }}>
+          <div style={{ minWidth: 0, marginTop: -16 }}>
+            {ansatzSchritt}
+            {weitereSchritte}
+          </div>
+          <div style={{ position: "sticky", top: 76, display: "flex", flexDirection: "column", gap: 12, minWidth: 0 }}>
+            <FeinKarte key={`a${nr}`} className="sb-neu" data-steckbrief-aufgabe style={{ borderLeft: `4px solid ${C.flaggold}` }}>
+              <Kicker>{zw("Steckbrief", "Wanted")}</Kicker>
+              {steckbriefText}
+            </FeinKarte>
+            <FeinKarte data-steckbrief-stand>
+              <Kicker>{zw("Dein Weg", "Your path")}</Kicker>
+              <ol style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 8 }}>
+                {schritteListe.map(([t, f], i) => (
+                  <li key={t} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13.5, fontWeight: i === aktuell ? 600 : 400, color: f ? C.grau : i === aktuell ? C.tinte : C.grau }}>
+                    <span aria-hidden="true" style={{ flexShrink: 0, width: 22, height: 22, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11.5, fontWeight: 700,
+                      background: f ? C.smaragd : i === aktuell ? blauVerlauf : "#EEF2F8", color: f ? C.weiss : i === aktuell ? C.flaggold : C.grau }}>{f ? "✓" : i + 1}</span>
+                    {t}
+                  </li>
+                ))}
+              </ol>
+              {hilfeKnopf && <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}>{hilfeKnopf}</div>}
+            </FeinKarte>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
+      <style>{SB_CSS}</style>
+
+      <div className="flex items-center flex-wrap" style={{ gap: 8, marginBottom: 10 }}>
+        {typWahl}
+        {neuKnopf}
+      </div>
+      <div className="flex items-center flex-wrap" style={{ gap: 10, marginBottom: 16 }}>
+        {artWahl}
+      </div>
+
+      <div key={`s${nr}`}>
+        {/* Steckbrief: zwischen Aufgabenart-Menü und „Ansatz wählen“ */}
+        <div key={`a${nr}`} className="sb-neu" style={{ ...karte, padding: "18px 20px", marginTop: 0, borderLeft: `4px solid ${C.flaggold}` }}>
+          <p style={{ ...kicker, marginBottom: 8 }}>{zw("STECKBRIEF", "WANTED")}</p>
+          {steckbriefText}
+        </div>
+
+        {ansatzSchritt}
+
+        {hilfeKnopf && (
+          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 12 }}>
+            {hilfeKnopf}
+          </div>
+        )}
+
+        {weitereSchritte}
       </div>
     </div>
   );

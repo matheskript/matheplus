@@ -1692,14 +1692,18 @@ export function polyReihen(K6) {
   return { grad, spalten, zeileF, zeileF1, zeileF2 };
 }
 
-export function KurvendiskussionAnzeige({ k, e, a, b, c, d }) {
+export function KurvendiskussionAnzeige({ k, e, a, b, c, d, fein = false }) {
   const K6 = k || [0, e, a, b, c, d];
   const schluessel = K6.join(",");
   const inhalt = React.useMemo(() => baueKurvendiskussionInhaltK(K6), [schluessel]);
   const { zeileF, zeileF1, zeileF2 } = polyReihen(K6);
   const alleLeer = zeileF.every((t) => !t);
+  // fein: Desktop-Stil (feiner Rahmen statt Schatten, DESKTOP-STIL.md)
+  const kartenStil = fein
+    ? { background: C.weiss, borderRadius: 16, padding: "20px 24px", border: `1px solid ${C.linie}`, marginTop: 16 }
+    : { background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", marginTop: 18 };
   return (
-    <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", marginTop: 18 }}>
+    <div style={kartenStil}>
       <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 6 }}>Kurvendiskussion</p>
       <div style={{ marginBottom: 16 }}>
         {alleLeer ? (
@@ -1749,7 +1753,7 @@ export function KurvendiskussionAnzeige({ k, e, a, b, c, d }) {
           )}
         </div>
       ))}
-      <IntegralSchaubild k={K6} />
+      <IntegralSchaubild k={K6} fein={fein} />
       <PdfKnopf k={K6} />
     </div>
   );
@@ -1798,7 +1802,7 @@ function PdfKnopf({ k }) {
    Flächen zwischen den Nullstellen sind farbig markiert und mit I₁, I₂, …
    beschriftet, passend zum Abschnitt "Integrale zwischen den Nullstellen". */
 
-export function IntegralSchaubild({ k: kListe, e, a, b, c, d }) {
+export function IntegralSchaubild({ k: kListe, e, a, b, c, d, fein = false }) {
   const K6 = kListe || [0, e, a, b, c, d];
   const f = (x) => horner(K6, x);
   const ersterIdx = K6.findIndex((v) => v !== 0);
@@ -1939,7 +1943,7 @@ export function IntegralSchaubild({ k: kListe, e, a, b, c, d }) {
   });
 
   return (
-    <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", marginTop: 18 }}>
+    <div style={fein ? { background: C.weiss, borderRadius: 14, padding: "16px 18px", border: `1px solid ${C.linie}`, marginTop: 18 } : { background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", marginTop: 18 }}>
       <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 14 }}>Nullstellenintegrale</p>
       <svg viewBox={`0 0 ${Sx} ${Sy}`} style={{ width: "100%", maxWidth: 360, display: "block", margin: "0 auto" }}>
         <defs><clipPath id="integralfeld"><rect x="0" y="0" width={Sx} height={Sy} /></clipPath></defs>

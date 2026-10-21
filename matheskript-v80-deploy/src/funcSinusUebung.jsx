@@ -19,6 +19,7 @@ import { FunktionsBild, SchrittFolge, liesZahl, zt } from "./ui3.jsx";
 import { wahl } from "./rechnen2.js";
 import { AufklappZeichen } from "./aufklappen.jsx";
 import { MathildaModusKnopf } from "./funcMathildaModusKnopf.jsx";
+import { Arbeitsflaeche, feinKarte, useDesktop } from "./arbeitsflaeche.jsx";
 
 const PI = Math.PI;
 let zaehler = 0;
@@ -39,7 +40,7 @@ const termTex = (s) => {
 };
 const bereich = (s) => { const p = 2 * PI / s.b; return [-0.5 * PI, Math.max(2 * PI, p * 1.7) - 0.2]; };
 const kurve = (s, farbe, name, extra = {}) => ({ f: f(s), farbe, name, ...extra });
-const Bild = ({ kurven, s, hoehe = 200 }) => {
+const Bild = ({ kurven, s, hoehe = 200 }) => {   // FunktionsBild (ui3) rechnet bereits in echten Pixeln
   const [x0, x1] = bereich(s);
   return <FunktionsBild kurven={kurven} x0={x0} x1={x1} y0={Math.min(-3.5, s.d - Math.abs(s.a) - 0.7)} y1={Math.max(3.5, s.d + Math.abs(s.a) + 0.7)} hoehe={hoehe} einheitX={zw("x im Bogenmaß", "x in radians")} />;
 };
@@ -88,13 +89,34 @@ function ParameterBestimmen() {
   }, [s, c0, p]);
   const wahlFormen = schritte.find((x) => x.id === "term");
   void wahlFormen;
+  const desktop = useDesktop();
+  const folge = (
+      <SchrittFolge schritte={schritte.map((st) => (st.id === "term" ? { ...st, optionen: st.optionen.map(([id, t]) => [id, t]) } : st))} stand={stand} setStand={setStand}
+        fertigText={zw("Geschafft: Alle vier Parameter bestimmt und den Term aufgestellt.", "Done: all four parameters found and the term set up.")} />
+  );
+  /* Desktop: Schritte links breit, der Graph rechts (300 px) bleibt beim Arbeiten im Blick */
+  if (desktop) {
+    return (
+      <div style={{ ...feinKarte, marginTop: 16 }} data-sinus-bestimmen>
+        <p style={kicker}>{zw("Parameter bestimmen", "Determine the parameters")}</p>
+        <p style={hinweis}>{zw("Lies am Graphen ab und bestimme a, b, c und d in f(x) = a · sin(b · (x − c)) + d.", "Read off the graph and find a, b, c and d in f(x) = a · sin(b · (x − c)) + d.")}</p>
+        <div data-ueben-zweispaltig style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 300px)", gap: 20, alignItems: "start" }}>
+          <div style={{ minWidth: 0 }}>
+            {folge}
+            {stand >= schritte.length && <div style={{ textAlign: "center", fontSize: 18, padding: "6px 0" }}><M t={termTex(s)} /></div>}
+          </div>
+          <div style={{ position: "sticky", top: 76 }}><Bild kurven={[kurve(s, C.see, "f")]} s={s} /></div>
+        </div>
+        <GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>
+      </div>
+    );
+  }
   return (
     <div style={{ ...karte, marginTop: 16 }}>
       <p style={kicker}>{zw("Parameter bestimmen", "Determine the parameters")}</p>
       <p style={hinweis}>{zw("Lies am Graphen ab und bestimme a, b, c und d in f(x) = a · sin(b · (x − c)) + d.", "Read off the graph and find a, b, c and d in f(x) = a · sin(b · (x − c)) + d.")}</p>
       <Bild kurven={[kurve(s, C.see, "f")]} s={s} />
-      <SchrittFolge schritte={schritte.map((st) => (st.id === "term" ? { ...st, optionen: st.optionen.map(([id, t]) => [id, t]) } : st))} stand={stand} setStand={setStand}
-        fertigText={zw("Geschafft: Alle vier Parameter bestimmt und den Term aufgestellt.", "Done: all four parameters found and the term set up.")} />
+      {folge}
       {stand >= schritte.length && <div style={{ textAlign: "center", fontSize: 18, padding: "6px 0" }}><M t={termTex(s)} /></div>}
       <GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>
     </div>
@@ -125,30 +147,59 @@ function Zielgraph() {
     else text = zw("Mittellinie, Amplitude und Periode stimmen. Es fehlt noch die Verschiebung nach rechts (c) – oder das Vorzeichen von a.", "Midline, amplitude and period match. The shift to the right (c) – or the sign of a – is still missing.");
     setRueck({ art: "schlecht", text });
   };
+  const desktop = useDesktop();
   const hilfen = [
     zw("Beginne mit der Mittellinie d: In der Mitte zwischen Hoch- und Tiefpunkt des Zielgraphen.", "Start with the midline d: halfway between high and low point of the target graph."),
     zw("Dann |a| als Abstand von der Mittellinie zum Hochpunkt, danach die Periode und b = 2π / p.", "Then |a| as the distance from the midline to the high point, then the period and b = 2π / p."),
     zw("Zuletzt c: Suche, wo der Zielgraph auf der Mittellinie durchläuft (steigend bei a > 0) und teile durch π.", "Finally c: find where the target crosses the midline (rising if a > 0) and divide by π."),
   ];
-  return (
-    <div style={{ ...karte, marginTop: 16 }}>
-      <p style={kicker}>{zw("Zielgraph treffen", "Hit the target graph")}</p>
-      <p style={hinweis}>{zw("Der goldene Graph ist das Ziel. Tippe a, b, c und d so ein, dass dein blauer Graph genau darauf liegt. c gibst du in Vielfachen von π an.", "The gold graph is the target. Enter a, b, c and d so your blue graph lies exactly on it. Give c as a multiple of π.")}</p>
-      <Bild s={ziel} kurven={[kurve(ziel, C.flaggold, zw("Ziel", "Target"), { breite: 3.4 }), ...(eigen ? [kurve(eigen, C.see, zw("dein Graph", "your graph"))] : [])]} />
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10, marginTop: 12 }}>
-        {[["a", "a ="], ["b", "b ="], ["c", zw("c = (in π)", "c = (in π)")], ["d", "d ="]].map(([k, l]) => (
+  const bild = <Bild hoehe={desktop ? 290 : 200} s={ziel} kurven={[kurve(ziel, C.flaggold, zw("Ziel", "Target"), { breite: 3.4 }), ...(eigen ? [kurve(eigen, C.see, zw("dein Graph", "your graph"))] : [])]} />;
+  const feld = ([k, l]) => (
           <label key={k} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 15, fontWeight: 700, color: C.tinte }}>
             <span style={{ minWidth: 62 }}>{l}</span>
             <ZahlFeld wert={v[k]} setWert={setF(k)} label={k} breite={86} onEnter={pruefen} />
           </label>
-        ))}
-      </div>
-      <GrosserKnopf onClick={pruefen}>{zw("Prüfen", "Check")}</GrosserKnopf>
-      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 10 }}><MathildaModusKnopf kompakt /></div>
+  );
+  const felder = [["a", "a ="], ["b", "b ="], ["c", zw("c = (in π)", "c = (in π)")], ["d", "d ="]];
+  const rueckUndHilfe = (
+    <>
       {rueck && <Rueck art={rueck.art}>{rueck.text}</Rueck>}
       {hilfe > 0 && <Rueck art="info">{hilfen.slice(0, hilfe).map((h, i) => <span key={i} style={{ display: "block" }}>{i + 1}. {h}</span>)}</Rueck>}
       {hilfe < hilfen.length && <KleinerLink onClick={() => setHilfe(hilfe + 1)}>{zw("Hinweis zeigen", "Show a hint")}</KleinerLink>}
       {hilfe >= hilfen.length && rueck?.art !== "gut" && <KleinerLink onClick={() => { setHilfe(hilfen.length); setRueck({ art: "info", text: `${zw("Lösung", "Solution")}: a = ${zt(ziel.a, 3)}, b = ${zt(ziel.b, 3)}, c = ${pis(ziel.cPi)}, d = ${zt(ziel.d, 3)}` }); }}>{zw("Lösung zeigen", "Show solution")}</KleinerLink>}
+    </>
+  );
+  /* Desktop: Eingaben, Prüfen und Rückmeldung links, Zielgraph rechts */
+  if (desktop) {
+    return (
+      <div style={{ ...feinKarte, marginTop: 16 }} data-sinus-ziel>
+        <p style={kicker}>{zw("Zielgraph treffen", "Hit the target graph")}</p>
+        <p style={hinweis}>{zw("Der goldene Graph ist das Ziel. Tippe a, b, c und d so ein, dass dein blauer Graph genau darauf liegt. c gibst du in Vielfachen von π an.", "The gold graph is the target. Enter a, b, c and d so your blue graph lies exactly on it. Give c as a multiple of π.")}</p>
+        <Arbeitsflaeche
+          links={<>
+            <div style={{ display: "grid", gap: 10 }}>{felder.map(feld)}</div>
+            <div style={{ marginTop: -12 }}><GrosserKnopf onClick={pruefen}>{zw("Prüfen", "Check")}</GrosserKnopf></div>
+            <div>{rueckUndHilfe}</div>
+          </>}
+          rechts={<>
+            {bild}
+            <div style={{ display: "flex", justifyContent: "flex-end" }}><MathildaModusKnopf kompakt /></div>
+          </>} />
+        <GrosserKnopf ghost onClick={neu}>{zw("Neues Ziel", "New target")}</GrosserKnopf>
+      </div>
+    );
+  }
+  return (
+    <div style={{ ...karte, marginTop: 16 }}>
+      <p style={kicker}>{zw("Zielgraph treffen", "Hit the target graph")}</p>
+      <p style={hinweis}>{zw("Der goldene Graph ist das Ziel. Tippe a, b, c und d so ein, dass dein blauer Graph genau darauf liegt. c gibst du in Vielfachen von π an.", "The gold graph is the target. Enter a, b, c and d so your blue graph lies exactly on it. Give c as a multiple of π.")}</p>
+      {bild}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10, marginTop: 12 }}>
+        {felder.map(feld)}
+      </div>
+      <GrosserKnopf onClick={pruefen}>{zw("Prüfen", "Check")}</GrosserKnopf>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 10 }}><MathildaModusKnopf kompakt /></div>
+      {rueckUndHilfe}
       <GrosserKnopf ghost onClick={neu}>{zw("Neues Ziel", "New target")}</GrosserKnopf>
     </div>
   );
@@ -159,8 +210,9 @@ const MODI = [["bestimmen", "Parameter bestimmen", "Determine parameters"], ["zi
 export function SinusUebungen({ extra = null }) {
   const [auf, setAuf] = useState(false);
   const [modus, setModus] = useState(null);
+  const desktop = useDesktop();
   return (
-    <div className="mx-auto px-6" style={{ maxWidth: 620, paddingTop: 18 }}>
+    <div className="mx-auto px-6" style={desktop ? { maxWidth: 620, paddingTop: 18, paddingLeft: 16, paddingRight: 16 } : { maxWidth: 620, paddingTop: 18 }}>
       <button type="button" aria-expanded={auf} onClick={() => setAuf(!auf)}
         style={{ width: "100%", minHeight: 48, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 16px", borderRadius: 14, cursor: "pointer", fontFamily: "inherit", background: C.weiss, border: `1.5px solid ${C.linie}`, fontSize: 15, fontWeight: 700, color: C.see }}>
         <span>{zw("Zusätzlich üben", "Practise more")}</span><AufklappZeichen auf={auf} />

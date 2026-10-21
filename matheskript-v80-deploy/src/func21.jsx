@@ -14,6 +14,7 @@ import { IchHaengeFest } from "./funcHilfe.jsx";
 import { PruefungsLink } from "./funcTraining.jsx";
 import { SinusUebungen } from "./funcSinusUebung.jsx";
 import { MathildaModusKnopf } from "./funcMathildaModusKnopf.jsx";
+import { Arbeitsflaeche, BildKarte, ErgebnisReihe, FeinKarte, Werkzeugleiste, chipStil, hinweisStil, titelStil, toenKarte, useBreite, useDesktop } from "./arbeitsflaeche.jsx";
 
 const kz = (v) => String(Math.round(v * 100) / 100).replace(".", ",").replace("-", "−");
 function sinusHilfe(z) {
@@ -170,8 +171,10 @@ function XWert({ x }) {
 
 /* ---------- Schaubild ---------- */
 
-function Schaubild({ ziel, p, zeigeAbl, ns }) {
-  const W = 360, H = 250, rl = 26, rr = 10, ro = 12, ru = 22;
+/* Handy: viewBox 360 × 250 wie bisher. Desktop: W × H in echten Pixeln (gemessen), ohne eigenen Rahmen (liegt in der BildKarte). */
+function Schaubild({ ziel, p, zeigeAbl, ns, W = 360, H = 250, breit = false }) {
+  const rl = breit ? 34 : 26, rr = breit ? 14 : 10, ro = breit ? 16 : 12, ru = breit ? 28 : 22;
+  const fs = breit ? 12 : 10.5, fsY = breit ? 11.5 : 10, fsL = breit ? 12.5 : 11;
   const yMax = Math.max(2.5, ...[ziel, p].filter(Boolean).map((q) => Math.abs(q.a) + Math.abs(q.d))) + 0.5;
   const X = (x) => rl + ((x + 2 * PI) / (4 * PI)) * (W - rl - rr);
   const Y = (y) => ro + ((yMax - y) / (2 * yMax)) * (H - ro - ru);
@@ -190,20 +193,20 @@ function Schaubild({ ziel, p, zeigeAbl, ns }) {
   for (let y = -Math.floor(yMax); y <= Math.floor(yMax); y++) if (y !== 0) yTicks.push(y);
   const piLabel = { "-4": "−2π", "-2": "−π", 2: "π", 4: "2π" };
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", display: "block", background: C.weiss, borderRadius: 14, border: `1px solid ${C.linie}` }}>
+    <svg viewBox={`0 0 ${W} ${H}`} style={breit ? { width: "100%", display: "block", background: C.weiss } : { width: "100%", display: "block", background: C.weiss, borderRadius: 14, border: `1px solid ${C.linie}` }}>
       {piTicks.map((t) => <line key={`gx${t}`} x1={X((t * PI) / 2)} y1={ro} x2={X((t * PI) / 2)} y2={H - ru} stroke={C.linie} strokeWidth="1" />)}
       {yTicks.map((y) => <line key={`gy${y}`} x1={rl} y1={Y(y)} x2={W - rr} y2={Y(y)} stroke={C.linie} strokeWidth="1" />)}
       <line x1={rl} y1={Y(0)} x2={W - rr} y2={Y(0)} stroke={C.grau} strokeWidth="1.3" />
       <line x1={X(0)} y1={ro} x2={X(0)} y2={H - ru} stroke={C.grau} strokeWidth="1.3" />
       {piTicks.filter((t) => t % 2 === 0).map((t) => (
-        <text key={`lx${t}`} x={X((t * PI) / 2)} y={H - 6} textAnchor="middle" fontSize="10.5" fill={C.grau}>{piLabel[t]}</text>
+        <text key={`lx${t}`} x={X((t * PI) / 2)} y={H - (breit ? 9 : 6)} textAnchor="middle" fontSize={fs} fill={C.grau}>{piLabel[t]}</text>
       ))}
-      {yTicks.map((y) => <text key={`ly${y}`} x={rl - 5} y={Y(y) + 3.5} textAnchor="end" fontSize="10" fill={C.grau}>{String(y).replace("-", "−")}</text>)}
+      {yTicks.map((y) => <text key={`ly${y}`} x={rl - 5} y={Y(y) + 3.5} textAnchor="end" fontSize={fsY} fill={C.grau}>{String(y).replace("-", "−")}</text>)}
       {ziel && <path d={pfad((x) => wert(ziel, x))} stroke={C.flaggold} strokeWidth="6" strokeOpacity="0.55" fill="none" strokeLinejoin="round" />}
       {zeigeAbl && <path d={pfad(abl)} stroke={FARBE.a} strokeWidth="1.6" strokeDasharray="5 4" fill="none" />}
       <path d={pfad((x) => wert(p, x))} stroke={C.see} strokeWidth="2.4" fill="none" strokeLinejoin="round" />
       {ns.map((x, i) => <circle key={i} cx={X(x)} cy={Y(0)} r="3.6" fill={C.gruen} stroke={C.weiss} strokeWidth="1.2" />)}
-      <g fontSize="11" fontWeight="700">
+      <g fontSize={fsL} fontWeight="700">
         {ziel && <><rect x={rl + 6} y={ro + 4} width="16" height="5" rx="2.5" fill={C.flaggold} opacity="0.7" /><text x={rl + 26} y={ro + 10} fill="#8A6D00">Ziel</text></>}
         <rect x={rl + (ziel ? 58 : 6)} y={ro + 4} width="16" height="4" rx="2" fill={C.see} /><text x={rl + (ziel ? 78 : 26)} y={ro + 10} fill={C.see}>f</text>
         {zeigeAbl && <><line x1={rl + (ziel ? 94 : 42)} y1={ro + 6} x2={rl + (ziel ? 110 : 58)} y2={ro + 6} stroke={FARBE.a} strokeWidth="2" strokeDasharray="4 3" /><text x={rl + (ziel ? 114 : 62)} y={ro + 10} fill={FARBE.a}>f′</text></>}
@@ -227,6 +230,21 @@ function Regler({ name, farbe, children, plus, minus, extra }) {
       {extra}
     </div>
   );
+}
+
+/* Höhe eines Elements in Pixeln (Desktop: Schaubild so hoch wie die Einstellungsspalte) */
+function useHoehe() {
+  const [el, setEl] = useState(null);
+  const [h, setH] = useState(0);
+  useEffect(() => {
+    if (!el) return undefined;
+    const f = () => setH(Math.round(el.getBoundingClientRect().height));
+    f();
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(f) : null;
+    if (ro) ro.observe(el);
+    return () => { if (ro) ro.disconnect(); };
+  }, [el]);
+  return [setEl, h];
 }
 
 // Mehrere Formelzeilen in gleicher Schriftgröße; die Größe passt sich der Breite an
@@ -291,12 +309,188 @@ export function Sinusfunktion({ gehe, ansicht = "sinus" }) {
     </div>
   );
   const ab = p.a * p.b;
+  const plusMinus = {
+    a: [() => setze("a", grenz(p.a + 0.5, -5, 5)), () => setze("a", grenz(p.a - 0.5, -5, 5))],
+    b: [() => setze("b", grenz(p.b + 0.5, 0.5, 5)), () => setze("b", grenz(p.b - 0.5, 0.5, 5))],
+    c: [() => setze("c", grenz(p.c + cSchritt, -4, 4)), () => setze("c", grenz(p.c - cSchritt, -4, 4))],
+    d: [() => setze("d", grenz(p.d + 0.5, -4, 4)), () => setze("d", grenz(p.d - 0.5, -4, 4))],
+  };
+  const piUmschalten = () => setP((q) => ({ ...q, cPi: !q.cPi, c: !q.cPi ? Math.round(q.c * 4) / 4 : Math.round(q.c * 2) / 2 }));
+  const desktop = useDesktop();
+  const [plotRef, plotBreite] = useBreite();
+  const [linksRef, linksHoehe] = useHoehe();
+  const [leisteRef, leisteHoehe] = useHoehe();
+
+  /* Rückmeldung zur Aufgabe (Passt / mögliche Lösung) */
+  const rueckmeldung = richtig ? (
+    <div style={{ borderLeft: `4px solid ${C.smaragd}`, background: "#EAF7F0", borderRadius: "0 12px 12px 0", padding: "10px 14px", marginBottom: 10 }}>
+      <p style={{ fontSize: 15, fontWeight: 800, color: C.smaragd }}>Passt! Dein Graph liegt genau auf dem Ziel.</p>
+    </div>
+  ) : loesung ? (
+    <div style={{ borderLeft: `4px solid ${C.flaggold}`, background: "#FFF9E5", borderRadius: "0 12px 12px 0", padding: "10px 14px", marginBottom: 10, overflowX: "auto" }}>
+      <p style={{ fontSize: 12.5, fontWeight: 700, color: "#8A6D00", marginBottom: 4 }}>Eine mögliche Lösung</p>
+      <span style={{ fontSize: "clamp(12px, 3.8vw, 16px)" }}><Term p={ziel} /></span>
+    </div>
+  ) : null;
+
+  /* Deine Funktion im Detail */
+  const detailInhalt = (
+    <>
+      <p style={titel}>Deine Funktion im Detail</p>
+      {zeile("Amplitude", <>|a| = {zahl(Math.abs(p.a))}</>)}
+      {zeile("Periode", <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>p = <Bruch oben="2π" unten={<span style={{ color: FARBE.b }}>{zahl(p.b)}</span>} /> = <PiZahl q={periodeQ} /></span>)}
+      {zeile("Verschiebung x", <>um <span style={{ color: "#8A6D00" }}><Wert v={p.c} pi={p.cPi} /></span> {p.c === 0 ? "(keine)" : p.c > 0 ? "nach rechts" : "nach links"}</>)}
+      {zeile("Verschiebung y", <>um <span style={{ color: FARBE.d }}>{zahl(p.d)}</span> {p.d === 0 ? "(keine)" : p.d > 0 ? "nach oben" : "nach unten"}</>)}
+      {zeile("Wertebereich", <>[{zahl(p.d - Math.abs(p.a))}; {zahl(p.d + Math.abs(p.a))}]</>)}
+      {zeile("Ableitung", <span style={{ whiteSpace: "nowrap" }}>f′(x) = {ab === 1 ? "" : ab === -1 ? "−" : `${zahl(ab)} · `}cos({p.b === 1 ? "" : `${zahl(p.b)} · `}{p.c === 0 ? "x" : <>{p.b !== 1 && "("}x {p.c > 0 ? "−" : "+"} <Wert v={p.c} pi={p.cPi} betrag />{p.b !== 1 && ")"}</>})</span>)}
+    </>
+  );
+  const kettenregel = <>Kettenregel: äußere Ableitung a · cos(…) mal innere Ableitung b – also a · b = {zahl(p.a)} · {zahl(p.b)} = {zahl(ab)}.</>;
+
+  /* Nullstellen */
+  const nullstellenInhalt = (
+    <>
+      <p style={titel}>Nullstellen</p>
+      <p style={{ fontSize: 14, color: C.tinte, lineHeight: 1.65, marginBottom: 8 }}>
+        f(x) = 0 ⇔ sin(b · (x − c)) = <Bruch oben="−d" unten="a" /> = {zahl(-p.d / p.a)}
+      </p>
+      {ns.art === "keine" ? (
+        <p style={{ fontSize: 14, color: C.signal || C.gruen, lineHeight: 1.6 }}>
+          |−d / a| = {zahl(Math.abs(p.d / p.a))} &gt; 1 – der Sinus erreicht diesen Wert nie. f hat <b>keine Nullstellen</b>: Der Graph liegt komplett {p.d > 0 ? "über" : "unter"} der x-Achse.
+        </p>
+      ) : (
+        <>
+          <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, marginBottom: 8 }}>
+            {ns.art === "d0" && <>Wegen d = 0 liegen die Nullstellen genau eine halbe Periode auseinander: x = c + k · <Bruch oben="π" unten="b" />, k ∈ ℤ.</>}
+            {ns.art === "beruehrung" && <>Der Sinus erreicht hier genau seinen Extremwert – der Graph berührt die x-Achse nur, einmal pro Periode.</>}
+            {ns.art === "zwei" && <>Pro Periode gibt es zwei Lösungen: x = c + <Bruch oben={<>arcsin({zahl(ns.r)}) + 2kπ</>} unten="b" /> und x = c + <Bruch oben={<>π − arcsin({zahl(ns.r)}) + 2kπ</>} unten="b" />, k ∈ ℤ.</>}
+          </p>
+          <p style={{ fontSize: 12.5, fontWeight: 600, color: C.grau, marginBottom: 4 }}>Im Bereich −2π ≤ x ≤ 2π ({ns.liste.length} Stück):</p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+            {ns.liste.map((x, i) => (
+              <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 3, padding: "4px 10px", borderRadius: 999, background: C.himmel, fontSize: 14, fontWeight: 700, color: C.tinte }}>
+                x<sub style={{ fontSize: "0.7em" }}>{i + 1}</sub> = <XWert x={x} />
+              </span>
+            ))}
+          </div>
+        </>
+      )}
+    </>
+  );
 
   /* „Ich hänge fest“ und „Prüfungsmodus“ liegen im Aufklappmenü „Zusätzlich üben“ */
   const menueExtra = (modus === "aufgabe" || gehe) ? (<>
     {modus === "aufgabe" && <IchHaengeFest mathilda={false} kontext={sinusHilfe(ziel)} />}
     {gehe && <PruefungsLink ansicht={ansicht} gehe={gehe} hell />}
   </>) : null;
+
+  const modusLeiste = (
+      <div style={{ display: "flex", gap: 6, marginBottom: 12, background: C.weiss, borderRadius: 14, padding: 5, ...(desktop ? { border: `1px solid ${C.linie}` } : { boxShadow: "0 2px 12px rgba(15,26,51,0.06)" }) }}>
+        {[["aufgabe", "Aufgabe lösen"], ["frei", "Frei erkunden"]].map(([id, t]) => (
+          <button key={id} onClick={() => { setModus(id); setLoesung(false); }}
+            style={{ flex: 1, height: 40, borderRadius: 10, border: "none", fontFamily: "inherit", cursor: "pointer", fontSize: 14, fontWeight: 700,
+              background: modus === id ? `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)` : "transparent",
+              color: modus === id ? C.weiss : C.see }}>{t}</button>
+        ))}
+      </div>
+  );
+
+  /* ---------- Desktop: Arbeitsfläche – Parameter links, Schaubild rechts, Details darunter ---------- */
+  if (desktop) {
+    // Schaubild in echten Pixeln; die Höhe füllt die Spalte neben den Einstellungen (Rahmen 2 px, Abstand 14 px)
+    const W = plotBreite || 440;
+    const frei = linksHoehe && leisteHoehe ? linksHoehe - leisteHoehe - 16 : 0;
+    const H = Math.round(Math.max(W * 0.6, Math.min(W, frei || W * 0.72)));
+    const knopf = (f) => ({
+      width: "100%", maxWidth: 54, height: 30, borderRadius: 9, border: `1.5px solid ${f}55`, background: `${f}12`,
+      color: f, fontSize: 18, fontWeight: 700, fontFamily: "inherit", cursor: "pointer", padding: 0, lineHeight: 1,
+      display: "flex", alignItems: "center", justifyContent: "center", touchAction: "manipulation",
+    });
+    const spalte = (k, inhalt, extra) => (
+      <div key={k} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, minWidth: 0 }}>
+        <button className="eve-knopf" aria-label={`${k} erhöhen`} style={knopf(FARBE[k])} onClick={plusMinus[k][0]}>+</button>
+        <span style={{ minHeight: 34, display: "flex", alignItems: "center", gap: 3, fontSize: 15, fontWeight: 800, color: FARBE[k], fontVariantNumeric: "tabular-nums", lineHeight: 1.2, whiteSpace: "nowrap" }}>
+          <span>{k} =</span>{inhalt}
+        </span>
+        <button className="eve-knopf" aria-label={`${k} verringern`} style={knopf(FARBE[k])} onClick={plusMinus[k][1]}>−</button>
+        {extra}
+      </div>
+    );
+    const piKnopf = (
+      <button className="eve-knopf" aria-label={p.cPi ? "c als Zahl" : "c als Vielfaches von π"} title="c als Vielfaches von π" onClick={piUmschalten}
+        style={{ width: "100%", maxWidth: 54, height: 26, borderRadius: 8, fontSize: 14, fontWeight: 800, fontFamily: "inherit", cursor: "pointer", padding: 0,
+          border: `1.5px solid ${p.cPi ? FARBE.c : C.linie}`, background: p.cPi ? FARBE.c : C.weiss, color: p.cPi ? C.weiss : "#8A6D00" }}>π</button>
+    );
+    const knopfGross = { width: "100%", height: 44, borderRadius: 999, fontFamily: "inherit", cursor: "pointer" };
+    return (
+      <>
+      <SinusUebungen extra={menueExtra} />
+      <div className="mx-auto px-6 pb-16" data-sinus="breit" style={{ maxWidth: 620, paddingTop: 30 }}>
+        <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 18 }}>
+          Finde die Parameter
+        </h2>
+        <div>{modusLeiste}</div>
+
+        <Arbeitsflaeche style={{ marginTop: 8 }}
+          links={<div ref={linksRef} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div data-sinus-parameter style={toenKarte(C.see)}>
+              <FormelBlock max={18} min={11}>
+                <Allgemein />
+                <span style={{ paddingLeft: "calc(0.45em + 1px)" }}><Term p={p} /></span>
+              </FormelBlock>
+              <div style={{ height: 1, background: `${C.see}22`, margin: "12px 4px 12px" }} />
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 6, alignItems: "start" }}>
+                {spalte("a", <span>{zahl(p.a)}</span>)}
+                {spalte("b", <span>{zahl(p.b)}</span>)}
+                {spalte("c", <Wert v={p.c} pi={p.cPi} />, piKnopf)}
+                {spalte("d", <span>{zahl(p.d)}</span>)}
+              </div>
+            </div>
+            {modus === "aufgabe" && (
+              <FeinKarte data-sinus-aufgabe>
+                <p style={titelStil}>Aufgabe lösen</p>
+                {rueckmeldung}
+                <div style={{ display: "grid", gap: 8 }}>
+                  <button onClick={neu}
+                    style={{ ...knopfGross, border: "none", background: C.flaggold, color: C.seeTief, fontSize: 15, fontWeight: 800 }}>🎲 Neue Aufgabe</button>
+                  {!richtig && !loesung && (
+                    <button onClick={() => setLoesung(true)}
+                      style={{ ...knopfGross, border: `1px solid ${C.linie}`, background: C.weiss, color: C.see, fontSize: 14, fontWeight: 600 }}>Lösung zeigen</button>
+                  )}
+                </div>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: geschafft > 0 ? "space-between" : "flex-end", gap: 8, marginTop: 12 }}>
+                  {geschafft > 0 && <p style={{ fontSize: 12.5, color: C.grau }}>Gelöst: {geschafft}</p>}
+                  <MathildaModusKnopf kompakt />
+                </div>
+              </FeinKarte>
+            )}
+          </div>}
+          rechts={<>
+            <BildKarte>
+              <div ref={plotRef}><Schaubild ziel={aktivesZiel} p={p} zeigeAbl={zeigeAbl} ns={ns.liste} W={W} H={H} breit /></div>
+            </BildKarte>
+            <div ref={leisteRef}><Werkzeugleiste gruppen={[
+              { titel: "Anzeige", inhalt: (
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                  <button onClick={() => setZeigeAbl(!zeigeAbl)} aria-pressed={zeigeAbl}
+                    style={{ ...chipStil(zeigeAbl, FARBE.a), ...(zeigeAbl ? {} : { color: "#8A6D00" }) }}>f′ einblenden</button>
+                  <button onClick={() => setP(START)} style={chipStil()}>↺ Zurück auf sin(x)</button>
+                </div>
+              ) },
+            ]} /></div>
+          </>} />
+
+        <ErgebnisReihe style={{ marginTop: 20 }}>
+          <FeinKarte data-sinus-detail>
+            {detailInhalt}
+            <p style={{ ...hinweisStil, marginTop: 10 }}>{kettenregel}</p>
+          </FeinKarte>
+          <FeinKarte data-sinus-nullstellen>{nullstellenInhalt}</FeinKarte>
+        </ErgebnisReihe>
+      </div>
+      </>
+    );
+  }
 
   return (
     <>
@@ -306,14 +500,7 @@ export function Sinusfunktion({ gehe, ansicht = "sinus" }) {
         Finde die Parameter
       </h2>
 
-      <div style={{ display: "flex", gap: 6, marginBottom: 12, background: C.weiss, borderRadius: 14, padding: 5, boxShadow: "0 2px 12px rgba(15,26,51,0.06)" }}>
-        {[["aufgabe", "Aufgabe lösen"], ["frei", "Frei erkunden"]].map(([id, t]) => (
-          <button key={id} onClick={() => { setModus(id); setLoesung(false); }}
-            style={{ flex: 1, height: 40, borderRadius: 10, border: "none", fontFamily: "inherit", cursor: "pointer", fontSize: 14, fontWeight: 700,
-              background: modus === id ? `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)` : "transparent",
-              color: modus === id ? C.weiss : C.see }}>{t}</button>
-        ))}
-      </div>
+      {modusLeiste}
 
       <div style={karte}>
         {/* links die Formeln (allgemein und eingesetzt, gleich groß), rechts die Regler */}
@@ -325,18 +512,18 @@ export function Sinusfunktion({ gehe, ansicht = "sinus" }) {
             <span style={{ paddingLeft: "calc(0.45em + 1px)" }}><Term p={p} /></span>
           </FormelBlock>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 44px)", gap: 4, justifyContent: "center", alignItems: "start" }}>
-            <Regler name="a" farbe={FARBE.a} plus={() => setze("a", grenz(p.a + 0.5, -5, 5))} minus={() => setze("a", grenz(p.a - 0.5, -5, 5))}>{zahl(p.a)}</Regler>
-            <Regler name="b" farbe={FARBE.b} plus={() => setze("b", grenz(p.b + 0.5, 0.5, 5))} minus={() => setze("b", grenz(p.b - 0.5, 0.5, 5))}>{zahl(p.b)}</Regler>
-            <Regler name="c" farbe={FARBE.c} plus={() => setze("c", grenz(p.c + cSchritt, -4, 4))} minus={() => setze("c", grenz(p.c - cSchritt, -4, 4))}
+            <Regler name="a" farbe={FARBE.a} plus={plusMinus.a[0]} minus={plusMinus.a[1]}>{zahl(p.a)}</Regler>
+            <Regler name="b" farbe={FARBE.b} plus={plusMinus.b[0]} minus={plusMinus.b[1]}>{zahl(p.b)}</Regler>
+            <Regler name="c" farbe={FARBE.c} plus={plusMinus.c[0]} minus={plusMinus.c[1]}
               extra={
                 <button aria-label={p.cPi ? "c als Zahl" : "c als Vielfaches von π"} title="c als Vielfaches von π"
-                  onClick={() => setP((q) => ({ ...q, cPi: !q.cPi, c: !q.cPi ? Math.round(q.c * 4) / 4 : Math.round(q.c * 2) / 2 }))}
+                  onClick={piUmschalten}
                   style={{ width: 34, height: 22, borderRadius: 7, fontSize: 14, fontWeight: 800, fontFamily: "inherit", cursor: "pointer", padding: 0,
                     border: `1.5px solid ${p.cPi ? FARBE.c : C.linie}`, background: p.cPi ? FARBE.c : C.weiss, color: p.cPi ? C.weiss : "#8A6D00" }}>π</button>
               }>
               <Wert v={p.c} pi={p.cPi} />
             </Regler>
-            <Regler name="d" farbe={FARBE.d} plus={() => setze("d", grenz(p.d + 0.5, -4, 4))} minus={() => setze("d", grenz(p.d - 0.5, -4, 4))}>{zahl(p.d)}</Regler>
+            <Regler name="d" farbe={FARBE.d} plus={plusMinus.d[0]} minus={plusMinus.d[1]}>{zahl(p.d)}</Regler>
           </div>
         </div>
 
@@ -355,16 +542,7 @@ export function Sinusfunktion({ gehe, ansicht = "sinus" }) {
         )}
         {modus === "aufgabe" && (
           <div style={{ marginTop: 14 }}>
-            {richtig ? (
-              <div style={{ borderLeft: `4px solid ${C.smaragd}`, background: "#EAF7F0", borderRadius: "0 12px 12px 0", padding: "10px 14px", marginBottom: 10 }}>
-                <p style={{ fontSize: 15, fontWeight: 800, color: C.smaragd }}>Passt! Dein Graph liegt genau auf dem Ziel.</p>
-              </div>
-            ) : loesung ? (
-              <div style={{ borderLeft: `4px solid ${C.flaggold}`, background: "#FFF9E5", borderRadius: "0 12px 12px 0", padding: "10px 14px", marginBottom: 10, overflowX: "auto" }}>
-                <p style={{ fontSize: 12.5, fontWeight: 700, color: "#8A6D00", marginBottom: 4 }}>Eine mögliche Lösung</p>
-                <span style={{ fontSize: "clamp(12px, 3.8vw, 16px)" }}><Term p={ziel} /></span>
-              </div>
-            ) : null}
+            {rueckmeldung}
             <div style={{ display: "flex", gap: 8 }}>
               {!richtig && !loesung && (
                 <button onClick={() => setLoesung(true)}
@@ -379,45 +557,13 @@ export function Sinusfunktion({ gehe, ansicht = "sinus" }) {
       </div>
 
       <div style={{ ...karte, marginTop: 16 }}>
-        <p style={titel}>Deine Funktion im Detail</p>
-        {zeile("Amplitude", <>|a| = {zahl(Math.abs(p.a))}</>)}
-        {zeile("Periode", <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>p = <Bruch oben="2π" unten={<span style={{ color: FARBE.b }}>{zahl(p.b)}</span>} /> = <PiZahl q={periodeQ} /></span>)}
-        {zeile("Verschiebung x", <>um <span style={{ color: "#8A6D00" }}><Wert v={p.c} pi={p.cPi} /></span> {p.c === 0 ? "(keine)" : p.c > 0 ? "nach rechts" : "nach links"}</>)}
-        {zeile("Verschiebung y", <>um <span style={{ color: FARBE.d }}>{zahl(p.d)}</span> {p.d === 0 ? "(keine)" : p.d > 0 ? "nach oben" : "nach unten"}</>)}
-        {zeile("Wertebereich", <>[{zahl(p.d - Math.abs(p.a))}; {zahl(p.d + Math.abs(p.a))}]</>)}
-        {zeile("Ableitung", <span style={{ whiteSpace: "nowrap" }}>f′(x) = {ab === 1 ? "" : ab === -1 ? "−" : `${zahl(ab)} · `}cos({p.b === 1 ? "" : `${zahl(p.b)} · `}{p.c === 0 ? "x" : <>{p.b !== 1 && "("}x {p.c > 0 ? "−" : "+"} <Wert v={p.c} pi={p.cPi} betrag />{p.b !== 1 && ")"}</>})</span>)}
+        {detailInhalt}
         <p style={{ fontSize: 12.5, color: C.hellgrau, lineHeight: 1.5, marginTop: 6 }}>
-          Kettenregel: äußere Ableitung a · cos(…) mal innere Ableitung b – also a · b = {zahl(p.a)} · {zahl(p.b)} = {zahl(ab)}.
+          {kettenregel}
         </p>
       </div>
 
-      <div style={{ ...karte, marginTop: 16 }}>
-        <p style={titel}>Nullstellen</p>
-        <p style={{ fontSize: 14, color: C.tinte, lineHeight: 1.65, marginBottom: 8 }}>
-          f(x) = 0 ⇔ sin(b · (x − c)) = <Bruch oben="−d" unten="a" /> = {zahl(-p.d / p.a)}
-        </p>
-        {ns.art === "keine" ? (
-          <p style={{ fontSize: 14, color: C.signal || C.gruen, lineHeight: 1.6 }}>
-            |−d / a| = {zahl(Math.abs(p.d / p.a))} &gt; 1 – der Sinus erreicht diesen Wert nie. f hat <b>keine Nullstellen</b>: Der Graph liegt komplett {p.d > 0 ? "über" : "unter"} der x-Achse.
-          </p>
-        ) : (
-          <>
-            <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, marginBottom: 8 }}>
-              {ns.art === "d0" && <>Wegen d = 0 liegen die Nullstellen genau eine halbe Periode auseinander: x = c + k · <Bruch oben="π" unten="b" />, k ∈ ℤ.</>}
-              {ns.art === "beruehrung" && <>Der Sinus erreicht hier genau seinen Extremwert – der Graph berührt die x-Achse nur, einmal pro Periode.</>}
-              {ns.art === "zwei" && <>Pro Periode gibt es zwei Lösungen: x = c + <Bruch oben={<>arcsin({zahl(ns.r)}) + 2kπ</>} unten="b" /> und x = c + <Bruch oben={<>π − arcsin({zahl(ns.r)}) + 2kπ</>} unten="b" />, k ∈ ℤ.</>}
-            </p>
-            <p style={{ fontSize: 12.5, fontWeight: 600, color: C.grau, marginBottom: 4 }}>Im Bereich −2π ≤ x ≤ 2π ({ns.liste.length} Stück):</p>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-              {ns.liste.map((x, i) => (
-                <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 3, padding: "4px 10px", borderRadius: 999, background: C.himmel, fontSize: 14, fontWeight: 700, color: C.tinte }}>
-                  x<sub style={{ fontSize: "0.7em" }}>{i + 1}</sub> = <XWert x={x} />
-                </span>
-              ))}
-            </div>
-          </>
-        )}
-      </div>
+      <div style={{ ...karte, marginTop: 16 }}>{nullstellenInhalt}</div>
     </div>
     </>
   );
