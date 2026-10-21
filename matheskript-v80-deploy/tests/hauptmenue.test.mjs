@@ -80,7 +80,7 @@ test("Klasse: Profil vor Quickfinder, Beschriftung", () => {
   assert.equal(klasseErmitteln(null, { schulart: "g8", klasse: "13" }), null);
   assert.equal(klasseErmitteln(null, null), null);
   assert.equal(klasseLabel({ schulart: "g9", box: "10" }), "Klasse 10 (G9)");
-  assert.equal(klasseLabel(null), "Meine Klasse");
+  assert.equal(klasseLabel(null), "Deine Klasse");   // wie die Schublade „Deine Klasse“ auf der Startseite
 });
 
 test("Klassen-Inhalt: Kapitel mit Trainieren-Ziel", () => {
@@ -186,4 +186,14 @@ test("Desktop-Menü: große Kurse gibt es alle, Stand nur aus kursStand.js", () 
   for (const s of STUFEN) assert.ok(zurStufe.includes(`${s.id}:`), `Stufe ${s.id} ohne passenden Kurs`);
   assert.ok(d.includes('from "./kursStand.js"'), "Fortschritt kommt aus kursStand.js");
   assert.ok(!/\d+\s*%/.test(d.split("export function DesktopMenue")[1].replace(/\d+%\)/g, "")), "Keine erfundenen Prozentwerte im Menü");
+});
+
+test("Namen des ☰-Menüs = Blöcke der Startseite (21.10. abends): Der Weg zum Abi, Mein Training, Kurse, Deine Klasse", () => {
+  assert.equal(LEISTE.find((p) => p.id === "schultraining").name, "Der Weg zum Abi");
+  assert.equal(LEISTE.find((p) => p.id === "training").name, "Mein Training");
+  const st = datei("funcStartseite.jsx");
+  assert.ok(st.includes("Der Weg <span") && st.includes('<h2>Deine Klasse</h2>'), "Startseite nennt Navigator oder Schublade anders");
+  for (const f of ["funcHauptmenue.jsx", "funcHauptmenueDesktop.jsx"]) assert.ok(!datei(f).includes(">Meine Kurse <") && !datei(f).includes("<span>Meine Kurse</span>"), `${f}: noch „Meine Kurse“`);
+  /* Pen & Paper als erster Schritt der Marke gleich nach der Masterclass – Startseite zeigt die ersten sechs */
+  assert.deepEqual(KURSE.slice(0, 2).map((k) => k.id), ["abizentrum", "penpaper"]);
 });

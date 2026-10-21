@@ -1,45 +1,52 @@
 /* ======================================================================
    STARTSEITE – „Rechenblatt“ in drei Modi: dunkel (Nachtblau), hell (weiß)
-   und mix (weißer Grund mit dunklen Inseln).
+   und mix (weißer Grund mit dunklen Inseln). Bewusst ohne Karos.
 
-   Idee: Die ganze Seite ist ein Rechenblatt – bewusst ohne Karos (21.10.:
-   passt nicht zur Marke). Dunkel: tiefes Nachtblau, Gold als einziges Licht.
-   Hell: dasselbe Blatt bei Tag – weißer Grund, die Bilder der Kacheln in Blau. Oben zieht sich einmal eine Funktionskurve über das
-   Blatt; darunter liegen die Inhalte als Kacheln. Alles, was selbst ein
-   Werkzeug ist (Dein Training, Suche, Bereiche, Plan), liegt als weißes
-   „Blatt“ auf dem Tisch.
+   Sieben Blöcke (seit 21.10. abends, Projekt-Dokument claude/startseite-struktur.md):
+     0 Band unter der Kopfleiste (StartBand: Heute · Lernen · Mathilda · Kurse · Entdecken, klebt mit)
+     1 Bühne: Headline, Unterzeile, Goldknopf „Pen & Paper starten · kostenlos“ (nur ohne Klasse), Suche
+     2 Heute: die eine Start-Karte (funcStartKarte.jsx); Masterclass-Kachel nur für die Oberstufe
+     3 Lernen: nur der Navigator „Der Weg zum Abi“ (Stufe → Bereich → Werkzeug)
+     4 Mathilda AI: eine Karte wie im ☰ (Blatt scannen + Chips) und der Zweischritt Pen & Paper → Mathilda
+     5 Kurse: dieselbe Liste wie ☰ „Kurse“ (KURSE), sechs kompakte Karten, „Alle Kurse“ → /kurse
+     6 Mathe entdecken (aufklappbar) + der neueste Blog-Beitrag
+     7 Vision-Anriss (ein Satz, „Die Vision lesen“, „Die 7 Mathe-Mythen“ im Blog), Anleitung, Spenden
+   Zwei Regeln: jeder Block hat genau einen ☰-Abschnitt mit demselben Namen; Gesperrtes steht nie auf der
+   Startseite (Ebbinghaus, Videokurse, Mathe checken … nur hinter ZEIGE_GESPERRTE).
 
-   Mix: die Seite ist hell, dunkel bleiben die Bühne, die Hauptkacheln
-   (Dein Training, Schulmathematik, Mathilda, Mathe entdecken) und zwei
-   Streifen über die volle Breite (Das System, Mythen). Technisch: jede
-   Insel trägt die Klasse sbb-insel und bekommt dort den dunklen Satz der
-   Variablen zurück; Streifen (sbb-streifen) malen ihre Nacht selbst.
-   Modus: src/startModus.js (Pille unten links, ☰-Menü ganz unten, Arbeitsmenü, Links
-   /start-hell, /start-dunkel, /start-mix). Die Startseite vom 20.10. liegt
+   Mix: die Seite ist hell, dunkel bleiben die Bühne, die Inseln (Start-Karte, Navigator, Mathe entdecken)
+   und zwei Streifen über die volle Breite (Mathilda, Vision). Technisch: jede Insel trägt die Klasse
+   sbb-insel und bekommt dort den dunklen Satz der Variablen zurück; Streifen (sbb-streifen) malen ihre Nacht selbst.
+   Modus: src/startModus.js (☰-Menü ganz unten, Arbeitsmenü, Links /start-hell, /start-dunkel, /start-mix) –
+   die Pille StartModusSchalter steht nicht mehr auf der Startseite. Die Startseite vom 20.10. liegt
    eingefroren im Archiv „Biro-Edition (20.10.)“ (public/archiv/2026-10-20).
    ====================================================================== */
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 import { C } from "./base1.jsx";
 import { PenPaperBlatt } from "./func1.jsx";
 import { MathildaName } from "./mathildaName.jsx";
 import { MathildaPfade } from "./mathildaBild.jsx";
-import { UnterMenue, schulBereiche, blockEintraege, bereichInhalt, useStartStufe, MYTHEN, useFrei, PasswortFeld,
-  SchlossZeichen, SchulkurseLogoKlein, ZEIGE_GESPERRTE, WeitermachenZeile, SchulmatheLogoKlein, ElternkursLogoKlein, MathildaLogoKlein } from "./func2.jsx";
+import { UnterMenue, schulBereiche, blockEintraege, bereichInhalt, useStartStufe, useFrei,
+  SchlossZeichen, SchulkurseLogoKlein, ZEIGE_GESPERRTE, SchulmatheLogoKlein } from "./func2.jsx";
 import { EtikettKnoepfe } from "./funcWerkzeuge.jsx";
-import { HeadNumbersLogoKlein } from "./funcHeadNumbersLogo.jsx";
-import { GleichKursLogoKlein } from "./funcGleichKursLogo.jsx";
+import { EBB_KURZ, EbbinghausBadge, EbbinghausLogoKlein } from "./funcEbbinghaus.jsx";
 import { EntdeckenLogoKlein } from "./funcEntdeckenLogo.jsx";
 import { StartKarte } from "./funcStartKarte.jsx";
 import { Quickfinder } from "./funcQuickfinder.jsx";
 import { AppAnleitung } from "./funcAnleitung.jsx";
 import { SuchBox } from "./funcSuche.jsx";
 import { MasterclassKachel, MatheCheckenKachel, MathCreatorKachel } from "./funcMasterclass.jsx";
-import { DiffKursKachel, VekKursKachel, GeoKursKachel, GfsKursKachel, ClaudeKursKachel, UnterstufeKachel, AbiZentrumKachel } from "./funcKursKachel.jsx";
+import { AbiZentrumKachel } from "./funcKursKachel.jsx";
+import { KURSE, WEITERE_ANGEBOTE, KI_MENUE } from "./hauptmenue.js";
+import { KURS_STIL, TRENNUNG } from "./hauptmenueTeile.jsx";
+import { diffStand, vekStand, gfsStand, kiStand, unterStand } from "./kursStand.js";
+import { BLOG, MYTHEN_SLUG, datumKurz } from "./blogDaten.js";
+import { englisch } from "./i18n.js";
+import { springe } from "./sprung.js";
 import { ElternabendKachel } from "./funcElternabend.jsx";
 import { SpendenBereich } from "./funcSpendenBereich.jsx";
 import { ANGEBOT } from "./angebot.js";
-import { BEREICHE } from "./werkzeuge.js";
-import { ENTDECKEN_MENUE } from "./startMenues.js";
+import { ENTDECKEN_MENUE, START_ANKER } from "./startMenues.js";
 import { EVENT_START_MODUS, startModus, startModusSetzen, basisModus, editionVon } from "./startModus.js";
 
 /* ---------- Farben ---------- */
@@ -54,7 +61,7 @@ const SCHWARZ = "#0A0A0A", D_ROT = "#DD0000", D_ROT_TIEF = "#A50000", D_GOLD = "
 
 /* Alle Farben hängen an Variablen; „hell“ und „mix“ setzen sie unten um (gleiche Fläche, weißer Grund).
    Im Mix bekommen die Inseln (sbb-insel) den dunklen Satz zurück. */
-const CSS = `
+export const START_CSS = `
 .sbb, .sbb-schalter, .sbb[data-modus="mix"] .sbb-insel {
   --hg: ${NACHT}; --text: #EEF2FF; --nebel: #AEBCDD; --titel: #FFFFFF; --linie: rgba(255,255,255,0.11);
   --karte: linear-gradient(160deg, rgba(255,255,255,0.085) 0%, rgba(255,255,255,0.035) 60%, rgba(255,255,255,0.02) 100%);
@@ -96,7 +103,6 @@ html[data-start-modus="hell"] .app-wurzel, html[data-start-modus="mix"] .app-wur
 @keyframes sbbVerblassenMix { to { opacity: .62; } }
 .sbb[data-modus="mix"] .sbb-held::before { content: ""; position: absolute; width: 60vw; max-width: 640px; height: 60vw; max-height: 640px; top: -22vw; right: -18vw; border-radius: 999px; pointer-events: none;
   background: radial-gradient(circle, rgba(255,229,138,0.30) 0%, rgba(255,229,138,0) 70%); filter: blur(50px); }
-.sbb[data-modus="mix"] .sbb-held .sbb-band { background: rgba(5,11,31,0.32); }
 .sbb[data-modus="mix"] .sbb-streifen { margin-top: 48px; padding: 4px 0 46px; }
 .sbb[data-modus="mix"] .sbb-streifen .sbb-kopf { margin-top: 36px; }
 .sbb[data-modus="mix"] .sbb-streifen + .sbb-teil .sbb-kopf { margin-top: 40px; }
@@ -129,9 +135,6 @@ html[data-start-edition="stadion"] .app-wurzel { background: #FFFFFF !important;
   background-image: radial-gradient(110% 70% at 0% 0%, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0) 60%),
     linear-gradient(155deg, ${ROT_HELL} 0%, ${ROT} 30%, #C10328 62%, ${ROT_TIEF} 100%); }
 .sbb[data-edition="stadion"] .sbb-held::before { background: radial-gradient(circle, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 70%); }
-.sbb[data-edition="stadion"] .sbb-held .sbb-band { background: ${BLAU}; border-color: rgba(255,255,255,0.25); }
-.sbb[data-edition="stadion"] .sbb-held .sbb-band span { color: #FFFFFF; }
-.sbb[data-edition="stadion"] .sbb-band span::after { background: #FFFFFF; }
 .sbb[data-edition="stadion"] .sbb-streifen { background-color: ${BLAU};
   background-image: radial-gradient(110% 80% at 0% 0%, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 60%), linear-gradient(155deg, #0A78C9 0%, ${BLAU} 45%, ${BLAU_TIEF} 100%); }
 .sbb[data-edition="stadion"] .sbb-karte.sbb-insel { background: radial-gradient(120% 90% at 0% 0%, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0) 55%), linear-gradient(155deg, ${ROT_HELL} 0%, ${ROT} 40%, ${ROT_TIEF} 100%);
@@ -141,15 +144,12 @@ html[data-start-edition="stadion"] .app-wurzel { background: #FFFFFF !important;
 .sbb[data-edition="stadion"] .sbb-held h1 .gold, .sbb[data-edition="stadion"] .sbb-zone .nr { background-image: none !important; color: #FFFFFF; -webkit-text-fill-color: currentColor; }
 .sbb[data-edition="stadion"] .sbb-zone .nr { color: ${ROT}; }
 .sbb[data-edition="stadion"] .sbb-schul h2 .gold { color: #FFFFFF; }
-.sbb[data-edition="stadion"] .sbb-kachel .weiter, .sbb[data-edition="stadion"] .sbb-schritt .nr, .sbb[data-edition="stadion"] .sbb-mythos .z { color: var(--st-akzent); }
+.sbb[data-edition="stadion"] .sbb-kachel .weiter { color: var(--st-akzent); }
 .sbb[data-edition="stadion"] .sbb-kachel:not(.sbb-insel) .weiter { color: ${ROT}; }
-.sbb[data-edition="stadion"] .sbb-mythos .z { background: rgba(220,5,45,0.10); }
-.sbb[data-edition="stadion"] .sbb-streifen .sbb-mythos .z { background: rgba(255,255,255,0.14); }
-.sbb[data-edition="stadion"] .sbb-haken, .sbb[data-edition="stadion"] .sbb-haupt .plus,
-.sbb[data-edition="stadion"] .sbb-bereich .pf, .sbb[data-edition="stadion"] .sbb-verbinder, .sbb[data-edition="stadion"] .sbb-training .pfeil,
-.sbb[data-edition="stadion"] .sbb-stufe .p, .sbb[data-edition="stadion"] .sbb-pille button i, .sbb[data-edition="stadion"] .sbb-schritt .knopf.gold {
+.sbb[data-edition="stadion"] .sbb-haupt .plus,
+.sbb[data-edition="stadion"] .sbb-bereich .pf, .sbb[data-edition="stadion"] .sbb-training .pfeil,
+.sbb[data-edition="stadion"] .sbb-stufe .p, .sbb[data-edition="stadion"] .sbb-los.gold, .sbb[data-edition="stadion"] .sbb-zwei-schritt .nr, .sbb[data-edition="stadion"] .sbb-navi button[aria-current] {
   background: var(--st-akzent); color: var(--st-akzent-text); box-shadow: 0 8px 22px rgba(0,0,0,0.18); }
-.sbb[data-edition="stadion"] .sbb-haken svg, .sbb[data-edition="stadion"] .sbb-haken svg * { stroke: var(--st-akzent-text); }
 .sbb[data-edition="stadion"] .sbb-stufe.abi { background: ${BLAU}; border-color: ${BLAU}; color: #FFFFFF; box-shadow: 0 8px 22px -6px rgba(0,102,178,0.5); }
 .sbb[data-edition="stadion"] .sbb-stufe.abi .p { background: #FFFFFF; color: ${BLAU}; }
 .sbb[data-edition="stadion"] .sbb-stufe[aria-expanded="true"] { background: #FFFFFF; border-color: #FFFFFF; color: ${ROT}; }
@@ -197,13 +197,10 @@ html[data-start-edition="ger"] .app-wurzel { background: #FFFFFF !important; }
 .sbb[data-edition="ger"] .sbb-held h1 .gold { background-image: none !important; color: ${D_ROT}; -webkit-text-fill-color: currentColor; }
 .sbb[data-edition="ger"] .sbb-held-suche .such-buehne-feld { box-shadow: 0 3px 16px rgba(0,0,0,0.08); }
 .sbb[data-edition="ger"] .sbb-held-suche .such-buehne-feld:focus-within { border-color: ${D_GOLD}; box-shadow: 0 0 0 3px rgba(255,206,0,0.35); }
-.sbb[data-edition="ger"] .sbb-haken { background: ${D_GOLD}; box-shadow: 0 0 0 4px rgba(255,206,0,0.22), 0 6px 16px rgba(0,0,0,0.15); }
+.sbb[data-edition="ger"] .sbb-los.gold, .sbb[data-edition="ger"] .sbb-navi button[aria-current] { background: ${D_GOLD}; color: ${SCHWARZ}; }
 .sbb[data-edition="ger"] .sbb-held-kurve .kurve { animation-name: sbbVerblassenGer; }
 @keyframes sbbVerblassenGer { to { opacity: .7; } }
 .sbb[data-edition="ger"] .sbb-held-kurve .glyph { opacity: .06; }
-.sbb[data-edition="ger"] .sbb-held .sbb-band { background: ${SCHWARZ}; border-color: rgba(255,206,0,0.35); }
-.sbb[data-edition="ger"] .sbb-held .sbb-band span { color: #FFFFFF; }
-.sbb[data-edition="ger"] .sbb-band span::after { background: ${D_GOLD}; }
 .sbb[data-edition="ger"] .sbb-karte.sbb-insel { background: radial-gradient(120% 90% at 0% 0%, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0) 55%), linear-gradient(155deg, #2A2A2A 0%, #141414 45%, #000000 100%);
   border-color: rgba(255,206,0,0.28); box-shadow: 0 10px 28px rgba(0,0,0,0.30), inset 0 1px 0 rgba(255,255,255,0.12); }
 .sbb[data-edition="ger"] .sbb-karte.sbb-insel.sbb-gold { border-color: ${D_GOLD}; box-shadow: 0 0 0 1px rgba(255,206,0,0.55), 0 14px 34px rgba(0,0,0,0.32); }
@@ -252,21 +249,14 @@ html[data-start-edition="ger"] .app-wurzel { background: #FFFFFF !important; }
 .sbb-held h1 .gold { display: block; background: linear-gradient(180deg, ${GOLD_HELL} 0%, ${GOLD} 55%, #C9931A 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .sbb[data-modus="hell"] .sbb-held h1 .gold { background: linear-gradient(180deg, ${GOLD} 0%, #D9A400 60%, #B8860B 100%); -webkit-background-clip: text; background-clip: text; }
 .sbb-held .unter { margin: 14px 0 0; font-weight: 300; font-size: clamp(20px, 4.6vw, 30px); line-height: 1.15; color: var(--text); }
-.sbb-held ul { list-style: none; margin: 26px 0 0; padding: 0; display: grid; gap: 10px; }
-@media ${DESKTOP} { .sbb-held ul { grid-template-columns: 1fr 1fr; column-gap: 24px; } }
-.sbb-held li { display: flex; align-items: center; gap: 12px; font-size: 15px; font-weight: 500; color: var(--text); }
-.sbb-haken { flex: none; width: 26px; height: 26px; border-radius: 50%; background: ${GOLD}; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 0 0 4px rgba(237,187,0,0.18), 0 6px 16px rgba(237,187,0,0.35); }
-.sbb-haken svg { width: 56%; height: 56%; }
 /* Suche als Pille in der Bühne (seit 21.10. statt des Knopfs „Jetzt eine Aufgabe rechnen“ und der eigenen Suchbox darunter) */
 .sbb-held-suche { margin-top: 26px; max-width: 520px; }
 /* Wiederkehrer (Klasse bekannt) am Handy: kompakte Bühne ohne Haken */
-.sbb-held.kompakt ul { display: none; }
 .sbb-held.kompakt .sbb-held-suche { margin-top: 20px; }
 /* Breite Bühne (ab 1100 px): Text links, Start-Karte rechts – so breit wie die Kopfleiste */
 .sbb-held-raster { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 1fr) 420px; column-gap: 40px; align-items: start;
   width: 100%; max-width: 940px; margin: 0 auto; padding: 0 0 36px; }
 .sbb-held-raster > .sbb-spalte { max-width: none; margin: 0; padding: 18px 0 0; }
-.sbb-held.breit ul { grid-template-columns: 1fr; }
 .sbb-held-karte { position: relative; z-index: 2; }
 .sbb-held-karte .sk { margin-top: 0; }
 .sbb-held-karte [data-heute-karte] { margin-top: 0; background-color: #0A1838; }
@@ -279,12 +269,88 @@ html[data-start-edition="ger"] .app-wurzel { background: #FFFFFF !important; }
 .sbb[data-modus="hell"] .sbb-held-suche .such-buehne-feld { box-shadow: 0 3px 16px rgba(15,26,51,0.07); }
 .sbb button:focus-visible { outline: 3px solid ${GOLD}; outline-offset: 3px; }
 
-/* Laufband mit den Bereichen – langsam, nur Deko mit Inhalt */
-.sbb-band { margin-top: clamp(26px, 6vw, 44px); border-top: 1px solid var(--linie); border-bottom: 1px solid var(--linie); overflow: hidden; background: var(--band); backdrop-filter: blur(6px); }
-.sbb-band-spur { display: flex; width: max-content; animation: sbbBand 48s linear infinite; }
-.sbb-band span { display: inline-flex; align-items: center; gap: 18px; padding: 11px 18px 11px 0; font-size: 13px; font-weight: 700; letter-spacing: .01em; color: var(--nebel); white-space: nowrap; }
-.sbb-band span::after { content: ""; width: 6px; height: 6px; border-radius: 50%; background: ${GOLD}; }
-@keyframes sbbBand { to { transform: translateX(-50%); } }
+
+/* Goldknopf: die eine Handlung eines Blocks (Bühne: Pen & Paper; Mathilda: Blatt scannen; Vision: Die Vision lesen) */
+.sbb-los { display: inline-flex; align-items: center; gap: 9px; min-height: 46px; padding: 0 20px; border-radius: 999px; border: 1.5px solid transparent; cursor: pointer; font-family: inherit; font-size: 15px; font-weight: 800; letter-spacing: -0.01em; white-space: nowrap; transition: transform .15s ease, box-shadow .15s ease; }
+.sbb-los.gold { background: linear-gradient(180deg, ${GOLD_HELL} 0%, ${GOLD} 100%); color: ${NACHT}; box-shadow: 0 10px 26px -8px rgba(237,187,0,0.55), 0 1px 0 rgba(255,255,255,0.35) inset; }
+.sbb-los.gold .frei { font-weight: 600; opacity: .75; }
+.sbb-los.held { margin-top: 24px; }
+.sbb-los.leise { background: transparent; color: var(--text); border-color: var(--linie); }
+.sbb-los i { font-style: normal; display: inline-block; transition: transform .18s ease; }
+@media (hover:hover) { .sbb-los:hover { transform: translateY(-2px); } .sbb-los:hover i { transform: translateX(3px); } }
+.sbb-los:active { transform: scale(.98); }
+
+/* Band unter der Kopfleiste: fünf Chips, klebt mit (top wird gemessen), aktiver Chip gold */
+.sbb-navi { position: sticky; top: 56px; z-index: 30; margin: 0; padding: 8px 0; background: var(--hg); border-bottom: 1px solid var(--linie); box-shadow: 0 10px 30px -22px rgba(0,0,0,.6); }
+.sbb[data-modus="mix"] .sbb-navi, .sbb[data-modus="hell"] .sbb-navi { background: rgba(255,255,255,0.92); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.sbb[data-modus="dunkel"] .sbb-navi { background: rgba(5,11,31,0.88); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.sbb-navi-spur { display: flex; gap: 6px; max-width: 940px; margin: 0 auto; padding: 0 16px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.sbb-navi-spur::-webkit-scrollbar { display: none; }
+.sbb-navi button { flex: none; min-height: 32px; padding: 0 13px; border-radius: 999px; border: 1px solid var(--linie); background: transparent; color: var(--text); font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: background .15s ease, color .15s ease; }
+.sbb-navi button[aria-current] { background: ${GOLD}; border-color: ${GOLD}; color: ${NACHT}; }
+@media (hover:hover) { .sbb-navi button:not([aria-current]):hover { border-color: rgba(237,187,0,0.6); } }
+@media ${DESKTOP} { .sbb-navi-spur { justify-content: center; gap: 8px; } .sbb-navi button { padding: 0 18px; font-size: 13.5px; } }
+
+/* Block Mathilda: eine Karte (Text links, Porträt rechts unten angeschnitten), darunter der Zweischritt */
+.sbb-ma-karte { display: flex; flex-direction: row; align-items: stretch; overflow: hidden; }
+.sbb-ma-text { flex: 1 1 auto; min-width: 0; padding: 20px 8px 20px 20px; display: flex; flex-direction: column; gap: 10px; }
+.sbb-ma-text h2 { margin: 0; font-size: clamp(26px, 7vw, 34px); font-weight: 800; letter-spacing: -0.035em; line-height: 1; color: var(--titel); }
+.sbb-ma-text p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--nebel); max-width: 42ch; }
+.sbb-ma-text .sbb-los { align-self: flex-start; margin-top: 4px; }
+.sbb-ma-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
+.sbb-ma-chips button { min-height: 30px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--linie); background: rgba(255,255,255,0.06); color: var(--text); font-family: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; }
+@media (hover:hover) { .sbb-ma-chips button:hover { border-color: rgba(237,187,0,0.6); } }
+.sbb-ma-bild { position: relative; flex: none; width: 118px; overflow: hidden; }
+.sbb-ma-bild > svg { position: absolute; left: 50%; transform: translateX(-50%); bottom: -14px; width: 132px; height: auto; filter: drop-shadow(0 10px 24px rgba(0,0,0,.4)); }
+@media ${DESKTOP} { .sbb-ma-text { padding: 26px 16px 26px 26px; } .sbb-ma-bild { width: 190px; } .sbb-ma-bild > svg { width: 196px; bottom: -22px; } }
+.sbb-zwei { position: relative; margin-top: 12px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+@media ${DESKTOP} { .sbb-zwei { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; } }
+.sbb-zwei-schritt { display: flex; align-items: center; gap: 12px; padding: 12px 14px; cursor: pointer; font-family: inherit; text-align: left; transition: border-color .18s ease, transform .18s ease; }
+@media (hover:hover) { .sbb-zwei-schritt:hover { border-color: rgba(237,187,0,0.55); transform: translateY(-2px); } }
+.sbb-zwei-schritt .nr { flex: none; width: 30px; height: 30px; border-radius: 999px; background: ${GOLD}; color: ${NACHT}; font-size: 14px; font-weight: 900; display: inline-flex; align-items: center; justify-content: center; }
+.sbb-zwei-schritt .t { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.sbb-zwei-schritt .t b { font-size: 16px; font-weight: 800; letter-spacing: -0.02em; color: var(--titel); }
+.sbb-zwei-schritt .t span { font-size: 12.5px; color: var(--nebel); line-height: 1.35; }
+.sbb-zwei-schritt .bild { flex: none; width: 56px; height: 44px; display: flex; align-items: center; justify-content: center; }
+.sbb-zwei-schritt .bild > svg { height: 100%; width: auto; }
+.sbb-zwei-pfeil { display: none; }
+@media ${DESKTOP} { .sbb-zwei-pfeil { display: flex; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 2; width: 30px; height: 30px; border-radius: 999px; background: ${GOLD}; color: ${NACHT}; align-items: center; justify-content: center; font-weight: 900; box-shadow: 0 0 0 5px var(--hg); } }
+
+/* Block Kurse: kompakte Lack-Karten in zwei Spalten (ab 840 px drei), dieselben Farben und Zeichen wie im ☰ (KURS_STIL) */
+.sbb-kursraster { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+@media ${DESKTOP} { .sbb-kursraster { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; } }
+.sbb-kk { position: relative; display: flex; flex-direction: column; justify-content: space-between; gap: 12px; min-height: 124px; padding: 13px 13px 12px; border-radius: 18px; border: none; cursor: pointer; text-align: left; font-family: inherit; overflow: hidden;
+  box-shadow: 0 10px 22px -12px rgba(8,26,72,0.55), inset 0 1px 0 rgba(255,255,255,0.22), inset 0 0 0 1px rgba(255,255,255,0.06); transition: transform .15s ease, box-shadow .15s ease; }
+@media (hover:hover) { .sbb-kk:hover { transform: translateY(-2px); } }
+.sbb-kk:active { transform: scale(.985); }
+.sbb-kk .z { font-size: 24px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
+.sbb-kk .t { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.sbb-kk .t b { font-size: 14.5px; font-weight: 800; line-height: 1.2; letter-spacing: -0.01em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; hyphens: auto; }
+.sbb-kk .t > span { font-size: 11.5px; font-weight: 500; line-height: 1.3; opacity: .85; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.sbb-kk .balken { display: block; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.22); overflow: hidden; }
+.sbb-kk .balken i { display: block; height: 100%; border-radius: 2px; background: ${GOLD}; }
+.sbb-kk:focus-visible { outline: 3px solid ${GOLD}; outline-offset: 3px; }
+@media ${DESKTOP} { .sbb-kk { min-height: 140px; padding: 16px; } .sbb-kk .z { font-size: 28px; } .sbb-kk .t b { font-size: 16px; } .sbb-kk .t > span { font-size: 12.5px; } }
+.sbb-mehr { margin-top: 14px; display: flex; justify-content: center; }
+.sbb-mehr button { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 18px; border-radius: 999px; border: 1.5px solid var(--linie); background: transparent; color: var(--titel); font-family: inherit; font-size: 14px; font-weight: 800; cursor: pointer; }
+.sbb-mehr button i { font-style: normal; }
+@media (hover:hover) { .sbb-mehr button:hover { border-color: rgba(237,187,0,0.6); } }
+.sbb[data-modus="mix"] .sbb-mehr button, .sbb[data-modus="hell"] .sbb-mehr button { border-color: ${C.see}; color: ${C.seeTief}; }
+
+/* Blog-Anriss (neuester Beitrag) */
+.sbb-blog { display: flex; flex-direction: column; gap: 6px; margin-top: 14px; padding: 16px 18px; cursor: pointer; font-family: inherit; text-align: left; transition: border-color .18s ease, transform .18s ease; }
+@media (hover:hover) { .sbb-blog:hover { border-color: rgba(237,187,0,0.55); transform: translateY(-2px); } }
+.sbb-blog .kicker { font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: ${GOLD}; }
+.sbb[data-modus="hell"] .sbb-blog .kicker, .sbb[data-modus="mix"] .sbb-blog .kicker { color: ${C.gruenDunkel}; }
+.sbb-blog b { font-size: 18px; font-weight: 800; letter-spacing: -0.025em; line-height: 1.2; color: var(--titel); }
+.sbb-blog .kurz { font-size: 13.5px; line-height: 1.45; color: var(--nebel); }
+.sbb-blog .weiter { margin-top: 4px; font-size: 13px; font-weight: 700; color: ${GOLD}; display: inline-flex; gap: 8px; }
+.sbb[data-modus="hell"] .sbb-blog .weiter, .sbb[data-modus="mix"] .sbb-blog .weiter { color: ${C.gruenDunkel}; }
+.sbb-blog .weiter i { font-style: normal; }
+.sbb[data-modus="mix"] .sbb-blog { border: 1.5px solid ${C.see}; }
+
+/* Vision-Anriss: zwei Knöpfe */
+.sbb-vision-knoepfe { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
 
 /* ---------- Spalte ---------- */
 .sbb-spalte { width: 100%; max-width: 783px; margin: 0 auto; padding: 0 20px; }
@@ -295,7 +361,7 @@ html[data-start-edition="ger"] .app-wurzel { background: #FFFFFF !important; }
 .sbb-zone { margin: 44px 0 14px; display: flex; align-items: flex-end; gap: 14px; }
 .sbb-zone .nr { font-size: 60px; font-weight: 900; line-height: .8; letter-spacing: -0.04em; background: linear-gradient(180deg, ${GOLD_HELL} 0%, ${GOLD} 60%, #C9931A 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .sbb-zone h2 { margin: 0; font-size: clamp(26px, 6.4vw, 34px); font-weight: 800; letter-spacing: -0.03em; line-height: .78; color: var(--titel); }
-.sbb-zone p { margin: 2px 0 0; font-size: 14px; color: var(--nebel); line-height: 1.4; white-space: nowrap; }
+.sbb-zone p { margin: 2px 0 0; font-size: 14px; color: var(--nebel); line-height: 1.4; text-wrap: pretty; }
 @media (max-width: 340px) { .sbb-zone h2 { font-size: 22px; } }
 
 /* Kachel (dunkel: Glas, hell: weiß mit Rand): Text links, rechts eine schmale Bildspalte über die ganze Höhe */
@@ -419,24 +485,6 @@ html[data-start-edition="ger"] .app-wurzel { background: #FFFFFF !important; }
 .sbb .bereich-lang { display: none; }
 @media ${DESKTOP} { .sbb .bereich-kurz { display: none; } .sbb .bereich-lang { display: inline; } }
 
-/* Das System: zwei Schritte, verbunden */
-.sbb-system { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; position: relative; margin-top: 20px; }
-.sbb-system > * { min-width: 0; }
-@media ${DESKTOP} { .sbb-system { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; } }
-.sbb-schritt { display: flex; flex-direction: column; padding: 20px 20px 18px; cursor: pointer; font-family: inherit; text-align: left; transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
-@media (hover:hover) { .sbb-schritt:hover { transform: translateY(-3px); border-color: rgba(237,187,0,0.55); } }
-.sbb-schritt .nr { font-size: 12.5px; font-weight: 700; color: ${GOLD}; }
-.sbb[data-modus="hell"] .sbb-schritt .nr { color: ${C.gruenDunkel}; }
-.sbb-schritt h3 { margin: 8px 0 0; font-size: 28px; font-weight: 800; letter-spacing: -0.035em; line-height: 1; color: var(--titel); }
-.sbb-schritt p { margin: 10px 0 0; font-size: 14px; line-height: 1.5; color: var(--nebel); }
-.sbb-schritt .bild { height: 118px; margin: 14px 0 0; padding: 6px 10px; border-radius: 14px; background: var(--bild); display: flex; align-items: center; justify-content: center; }
-.sbb-schritt .bild > svg { height: 100%; width: auto; max-width: 100%; }
-.sbb-schritt .knopf { margin-top: 16px; align-self: flex-start; padding: 10px 16px; border-radius: 999px; font-size: 13.5px; font-weight: 800; color: var(--knopf-text); background: var(--knopf-hg); }
-.sbb-schritt .knopf.gold { background: linear-gradient(180deg, ${GOLD_HELL} 0%, ${GOLD} 100%); color: ${NACHT}; }
-.sbb-verbinder { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 2; width: 40px; height: 40px; border-radius: 999px; background: ${GOLD}; color: ${NACHT}; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 5px var(--hg), 0 8px 20px rgba(237,187,0,0.45); }
-.sbb-verbinder svg { transform: rotate(90deg); }
-@media ${DESKTOP} { .sbb-verbinder svg { transform: none; } }
-
 /* Abschnittsköpfe */
 .sbb-kopf { margin-top: 48px; }
 .sbb-kopf h2 { margin: 0; font-size: clamp(26px, 6.8vw, 40px); font-weight: 800; letter-spacing: -0.035em; line-height: 1.05; color: var(--titel); max-width: 680px; }
@@ -444,24 +492,6 @@ html[data-start-edition="ger"] .app-wurzel { background: #FFFFFF !important; }
 .sbb-text { margin: 0 0 12px; font-size: 15.5px; font-weight: 300; line-height: 1.7; color: var(--nebel); max-width: 660px; }
 .sbb-text b { color: var(--titel); font-weight: 600; }
 .sbb-text.stark { color: var(--text); font-weight: 500; }
-
-/* Minikurs-Pille */
-.sbb-pille { margin: 18px auto 0; display: flex; justify-content: center; }
-.sbb-pille button { display: inline-flex; align-items: center; gap: 10px; padding: 10px 18px; border-radius: 999px; border: 1px solid rgba(237,187,0,0.5); background: var(--pille-hg); color: var(--pille-text); font-size: 13.5px; font-weight: 700; font-family: inherit; cursor: pointer; }
-.sbb-pille button i { width: 8px; height: 8px; border-radius: 999px; background: ${GOLD}; box-shadow: 0 0 10px ${GOLD}; display: inline-block; }
-
-/* Mythen */
-.sbb-mythen-kopf { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 18px 20px; cursor: pointer; font-family: inherit; text-align: left; color: var(--titel); }
-.sbb-mythen-kopf b { display: block; font-size: 22px; font-weight: 800; letter-spacing: -0.03em; }
-.sbb-mythen-kopf span { display: block; font-size: 13.5px; color: var(--nebel); margin-top: 4px; }
-.sbb-mythos { border-top: 1px solid var(--linie); }
-.sbb-mythos button { width: 100%; display: flex; align-items: center; gap: 14px; padding: 13px 18px; background: transparent; border: none; cursor: pointer; font-family: inherit; text-align: left; color: var(--titel); }
-.sbb-mythos button[aria-expanded="true"] { background: var(--mythos-hg); }
-.sbb-mythos .z { flex: none; width: 36px; height: 36px; border-radius: 10px; background: rgba(237,187,0,0.14); color: ${GOLD}; font-size: 17px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
-.sbb[data-modus="hell"] .sbb-mythos .z { color: ${C.gruenDunkel}; }
-.sbb-mythos .n { color: var(--nebel); font-weight: 600; margin-right: 8px; }
-.sbb-mythos b { flex: 1; font-size: 15px; font-weight: 700; line-height: 1.35; }
-.sbb-mythos p { margin: 0; padding: 0 18px 16px 68px; font-size: 14px; line-height: 1.65; color: var(--nebel); background: var(--mythos-hg); }
 
 /* Dein Training */
 .sbb-training { position: relative; }
@@ -492,20 +522,11 @@ html[data-start-edition="ger"] .app-wurzel { background: #FFFFFF !important; }
   .sbb-held-kurve .kurve { animation: none; opacity: .36; }
   .sbb[data-modus="hell"] .sbb-held-kurve .kurve { opacity: .5; }
   .sbb[data-modus="mix"] .sbb-held-kurve .kurve { opacity: .62; }
-  .sbb-band-spur { animation: none; }
-  .sbb-kachel, .sbb-schritt { transition: none; }
+  .sbb-kachel { transition: none; }
 }
 `;
 
 /* ---------- kleine Bausteine ---------- */
-
-function Haken() {
-  return (
-    <span className="sbb-haken" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none" stroke={NACHT} strokeWidth="3.6" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12.8l4.4 4.4L19 7.4" /></svg>
-    </span>
-  );
-}
 
 function Plus() {
   return <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M9 2.5v13M2.5 9h13" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" /></svg>;
@@ -548,22 +569,62 @@ function HeldKurve() {
   );
 }
 
-/* Laufband: die Bereiche der Schulmathematik, zweimal hintereinander für die Endlosschleife */
-function Band() {
-  const namen = BEREICHE.map((b) => b.titel);
-  const reihe = [...namen, "Kopfrechnen", "Mathe entdecken", "Pen & Paper", "Formelsammlung"];
+/* ---------- Band unter der Kopfleiste: ein Chip je Block (Heute · Lernen · Mathilda · Kurse · Entdecken) ----------
+   Klebt unter der Kopfleiste (deren Höhe wird gemessen, weil sie sich beim Scrollen zusammenzieht) und markiert den
+   Block, der gerade im Bild ist. Ersetzt das frühere Laufband, das aussah wie Navigation, aber keine war. */
+/* Zum Abschnitt springen: Ziel 12 px unter dem Band. Die Kopfleiste zieht sich beim Scrollen auf 56 px zusammen (funcKopfleiste.jsx),
+   also wird mit 56 gerechnet und nach dem weichen Scrollen einmal nachjustiert (gleicher Schlüssel, gleicher Sprung). */
+const KOPF_KOMPAKT = 56;
+function zumAnker(id, band) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const bandH = band ? band.getBoundingClientRect().height : 0;
+  const ziel = () => Math.max(0, el.getBoundingClientRect().top + window.scrollY - KOPF_KOMPAKT - bandH - 12);
+  springe("start-anker", () => window.scrollTo({ top: ziel(), behavior: "smooth" }));
+  setTimeout(() => springe("start-anker", () => { if (Math.abs(window.scrollY - ziel()) > 4) window.scrollTo({ top: ziel(), behavior: "auto" }); }), 900);
+}
+
+function StartBand({ oben = false }) {
+  const [aktiv, setAktiv] = useState(START_ANKER[0].id);
+  const navi = useRef(null);
+  const en = englisch();
+  useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+    let tick = false;
+    const lauf = () => {
+      tick = false;
+      const kopf = document.querySelector(".kl[data-klebrig]");
+      const h = kopf ? Math.round(kopf.getBoundingClientRect().height) : 0;
+      if (navi.current) navi.current.style.top = `${h}px`;
+      const grenze = h + 70;
+      let akt = START_ANKER[0].id;
+      for (const a of START_ANKER) {
+        const el = document.getElementById(a.id);
+        if (el && el.getBoundingClientRect().top <= grenze) akt = a.id;
+      }
+      setAktiv(akt);
+    };
+    const h = () => { if (!tick) { tick = true; window.requestAnimationFrame(lauf); } };
+    lauf();
+    window.addEventListener("scroll", h, { passive: true });
+    window.addEventListener("resize", h);
+    return () => { window.removeEventListener("scroll", h); window.removeEventListener("resize", h); };
+  }, []);
   return (
-    <div className="sbb-band" aria-hidden="true">
-      <div className="sbb-band-spur">
-        {[0, 1].map((k) => <React.Fragment key={k}>{reihe.map((n, i) => <span key={`${k}-${i}`}>{n}</span>)}</React.Fragment>)}
+    <nav ref={navi} className={oben ? "sbb-navi oben" : "sbb-navi"} aria-label="Abschnitte der Startseite" data-start-band>
+      <div className="sbb-navi-spur">
+        {START_ANKER.map((a) => (
+          <button type="button" key={a.id} data-start-chip={a.id} aria-current={aktiv === a.id ? "true" : undefined}
+            onClick={() => zumAnker(a.id, navi.current)}>{en ? a.en : a.name}</button>
+        ))}
       </div>
-    </div>
+    </nav>
   );
 }
 
-function Zone({ nr, titel, zeile }) {
+function Zone({ nr, titel, zeile, id }) {
   return (
-    <div className="sbb-zone">
+    <div className="sbb-zone" id={id} style={id ? { scrollMarginTop: 110 } : undefined}>
       <span className="nr" aria-hidden="true">{nr}</span>
       <div>
         <h2>{titel}</h2>
@@ -582,12 +643,12 @@ function Kopf({ titel }) {
   );
 }
 
-/* Glaskachel: Text links, Bild rechts. gesperrt = ausgegraut mit Schloss. */
 /* Lange zusammengesetzte Wörter bekommen weiche Trennstellen (U+00AD), damit sie am Handy an der Wortfuge brechen
    und nicht mitten im Wort („Wahrschei nlichkeitsrechnung“). Nur Anzeige – Daten in werkzeuge.js bleiben ohne Trennzeichen. */
 const WEICH = { Wahrscheinlichkeitsrechnung: "Wahrscheinlichkeits\u00ADrechnung", Formelsammlung: "Formel\u00ADsammlung", Gleichungssysteme: "Gleichungs\u00ADsysteme", Dezimalzahlen: "Dezimal\u00ADzahlen" };
 export const weichTrennen = (t) => (typeof t === "string" ? t.replace(/[A-Za-zÄÖÜäöüß]{14,}/g, (w) => WEICH[w] || w) : t);
 
+/* Glaskachel: Text links, Bild rechts. gesperrt = ausgegraut mit Schloss. Nur noch hinter ZEIGE_GESPERRTE (Ebbinghaus, Videokurse). */
 function Kachel({ titel, text, logo, extra, ziel, label, gesperrt, keinI18n, gold, gehe, breit, weiter = "Öffnen", drei, zwei }) {
   return (
     <button type="button" onClick={gesperrt ? undefined : () => gehe(ziel)} disabled={gesperrt} aria-disabled={gesperrt || undefined}
@@ -608,26 +669,91 @@ function Kachel({ titel, text, logo, extra, ziel, label, gesperrt, keinI18n, gol
   );
 }
 
-/* Mathilda-Kachel: Text links, rechts das Porträt, unten angeschnitten */
-function MathildaKachel({ gehe }) {
+/* ---------- Block Mathilda AI: EINE Karte wie im ☰-Menü (Goldknopf „Blatt scannen“, vier Chips), darunter der Zweischritt ----------
+   Der Streifen „Das System“ mit vier Absätzen ist darin aufgegangen – ein Satz bleibt. */
+function MathildaBlock({ gehe }) {
   const hell = useHell();
+  const en = englisch();
+  const [blatt, ...chips] = KI_MENUE;
   return (
-    <button type="button" onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })} aria-label="Mathilda AI öffnen" className="sbb-karte sbb-kachel sbb-gold sbb-insel">
-      <div className="sbb-kachel-text">
-        <h2><MathildaName dunkel={!hell} /></h2>
-        <p className="drei">Foto vom Blatt – Mathilda prüft deinen Weg, nicht nur das Ergebnis.</p>
-        <span className="weiter pille">Mit KI lernen <i aria-hidden="true">→</i></span>
+    <div className="sbb-ma" data-start-mathilda>
+      <div className="sbb-karte sbb-ma-karte sbb-insel sbb-gold">
+        <div className="sbb-ma-text">
+          <h2><MathildaName dunkel={!hell} /></h2>
+          <p>Die meisten Fehler entstehen auf dem Blatt, nicht im Kopf. Mathilda prüft deinen Weg, nicht nur das Ergebnis.</p>
+          <button type="button" className="sbb-los gold" onClick={() => gehe(blatt.ziel)} aria-label={blatt.name} data-start-mathilda-los>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z" /><circle cx="12" cy="13" r="3.2" /></svg>
+            {blatt.name}
+          </button>
+          <div className="sbb-ma-chips" role="group" aria-label="Weitere Wege mit Mathilda">
+            {chips.map((k) => <button type="button" key={k.id} onClick={() => gehe(k.ziel)} aria-label={k.name} title={k.zeile}>{k.kurz}</button>)}
+          </div>
+        </div>
+        <div className="sbb-ma-bild" aria-hidden="true"><svg viewBox="0 0 120 138"><MathildaPfade /></svg></div>
       </div>
-      {/* Das vereinfachte Schablonen-Gesicht (dieselben Pfade wie Hauptmenü und Archiv-Startseite). Haaroberkante (y = 22 von 138)
-          liegt etwa auf Höhe der Oberkante von „MathildaAI“. */}
-      <div className="sbb-kachel-bild sbb-mathilda-bild" aria-hidden="true">
-        <svg viewBox="0 0 120 138"><MathildaPfade /></svg>
+      <div className="sbb-zwei" role="group" aria-label="Zwei Schritte: Pen & Paper, dann Mathilda">
+        <button type="button" className="sbb-karte sbb-zwei-schritt" onClick={() => gehe({ ansicht: "penpaperkurs" })} aria-label="Pen & Paper Kurs öffnen – Schritt 1">
+          <span className="nr">1</span>
+          <span className="t"><b>Pen & Paper</b><span>Sauber aufschreiben lernen · Kurs, kostenlos</span></span>
+          <span className="bild"><PenPaperBlatt /></span>
+        </button>
+        <span className="sbb-zwei-pfeil" aria-hidden="true">→</span>
+        <button type="button" className="sbb-karte sbb-zwei-schritt" onClick={() => gehe(blatt.ziel)} aria-label="Mathilda AI öffnen – Schritt 2">
+          <span className="nr">2</span>
+          <span className="t"><b><MathildaName dunkel={!hell} /></b><span>Blatt fotografieren, prüfen lassen, verbessern</span></span>
+        </button>
       </div>
+    </div>
+  );
+}
+
+/* ---------- Block Kurse: dieselbe Liste wie ☰ „Kurse“ (KURSE in hauptmenue.js), kompakte Lack-Karten ---------- */
+const STAND = { unterstufe: unterStand, diffkurs: diffStand, vekkurs: vekStand, gfs: gfsStand, kiwahl: kiStand };
+const sicher = (f) => { try { return f(); } catch (e) { return null; } };
+export function KursKarteKlein({ k, gehe, daten }) {
+  const st = KURS_STIL[k.id] || { hg: "linear-gradient(155deg,#F1F4F9 0%,#E3E8F2 100%)", farbe: C.grau, zeichen: "…", zFarbe: C.hellgrau };
+  const stand = STAND[k.id] ? sicher(STAND[k.id]) : null;
+  const begonnen = stand && stand.fertig > 0;
+  return (
+    <button type="button" className="sbb-kk" data-start-kurs={k.id} onClick={() => gehe(k.ziel)} aria-label={k.name} {...daten}
+      style={{ background: st.hg, color: st.farbe, ...(st.rand ? { boxShadow: `inset 0 0 0 1px ${C.linie}, 0 8px 16px -12px rgba(8,26,72,0.4)` } : null) }}>
+      <span className="z" data-kein-i18n style={{ color: st.zFarbe, ...(st.gross ? { fontSize: 30 } : null) }}>{st.zeichen}</span>
+      <span className="t">
+        <b>{TRENNUNG[k.name] || k.name}</b>
+        <span>{begonnen ? `${stand.fertig} von ${stand.gesamt} geschafft` : k.zeile}</span>
+      </span>
+      {begonnen && <span className="balken" aria-hidden="true"><i style={{ width: `${Math.min(100, Math.round((stand.fertig / stand.gesamt) * 100))}%` }} /></span>}
     </button>
   );
 }
 
-/* Aufklappbare Hauptkachel (Schulmathematik, Mathe entdecken): Text links, rechts Bild und Plus */
+/* Auf der Startseite die ersten sechs Kurse, der Rest über „Alle Kurse“ (/kurse: alle Kurse und die weiteren Lernangebote);
+   daten-Attribute für Browser-Tests (e-Funktion) */
+export const START_KURSE_ANZAHL = 6;
+export function KursRaster({ gehe, alle = false }) {
+  const liste = alle ? [...KURSE, ...WEITERE_ANGEBOTE] : KURSE.slice(0, START_KURSE_ANZAHL);
+  return (
+    <div className="sbb-kursraster">
+      {liste.map((k) => <KursKarteKlein key={k.id} k={k} gehe={gehe} daten={k.id === "efunktion" ? { "data-start-efunktion": "" } : undefined} />)}
+    </div>
+  );
+}
+
+/* ---------- Block Entdecken: Mathe entdecken (aufklappbar) + der neueste Blog-Beitrag ---------- */
+function BlogAnriss({ gehe }) {
+  const b = BLOG[0];
+  if (!b) return null;
+  return (
+    <button type="button" className="sbb-karte sbb-blog" onClick={() => gehe({ ansicht: "blog", seite: b.slug })} aria-label={`Blog: ${b.titel}`} data-start-blog>
+      <span className="kicker">Aus dem Blog · <span data-kein-i18n>{datumKurz(b.datum).text}</span></span>
+      <b>{b.titel}</b>
+      <span className="kurz">{b.kurz}</span>
+      <span className="weiter">Lesen <i aria-hidden="true">→</i></span>
+    </button>
+  );
+}
+
+/* Aufklappbare Hauptkachel (Mathe entdecken): Text links, rechts Bild und Plus */
 function HauptKachel({ titel, text, logo, auf, onClick, label }) {
   return (
     <button type="button" onClick={onClick} aria-expanded={auf} aria-label={label} className="sbb-karte sbb-haupt sbb-insel">
@@ -641,24 +767,25 @@ function HauptKachel({ titel, text, logo, auf, onClick, label }) {
 }
 
 /* Schulmathematik: großer Titel über die volle Breite; links je Stufe ein Knopf mit Plus (Abi als Quadrat neben Oberstufe),
-   rechts die Grafik. Ein Knopf klappt darunter das Menü genau dieser Stufe auf, ein zweiter Tipp klappt es wieder zu. */
+   rechts die Grafik. Ein Knopf klappt darunter das Menü genau dieser Stufe auf, ein zweiter Tipp klappt es wieder zu.
+   Die Stufe der angegebenen Klasse trägt „Deine Stufe“ (wird nicht von selbst aufgeklappt). */
 export const SCHUL_STUFEN = [
   { id: "unter", name: "Unterstufe", kl: "Klasse 5–6" },
   { id: "mittel", name: "Mittelstufe", kl: "Klasse 7–10" },
   { id: "ober", name: "Oberstufe", kl: "Klasse 11–13" },
   { id: "abi", name: "Abi", kl: "Abitur-Vorbereitung", knopf: "Prüfung üben" },
 ];
-function StufenKnopf({ s, wahl, waehle, abi }) {
+function StufenKnopf({ s, wahl, waehle, abi, deine }) {
   const auf = wahl === s.id;
   return (
-    <button type="button" className={abi ? "sbb-stufe abi" : "sbb-stufe"} aria-expanded={auf} onClick={() => waehle(auf ? null : s.id)}
-      aria-label={`${abi ? "Abitur" : s.name} ${auf ? "zuklappen" : "aufklappen"}`}>
-      <span className="t"><span className="n">{s.name}</span><span className="k">{s.knopf || s.kl}</span></span>
+    <button type="button" className={abi ? "sbb-stufe abi" : "sbb-stufe"} aria-expanded={auf} onClick={() => waehle(auf ? null : s.id)} data-deine-stufe={deine ? "" : undefined}
+      aria-label={`${abi ? "Abitur" : s.name} ${auf ? "zuklappen" : "aufklappen"}${deine ? " – deine Stufe" : ""}`}>
+      <span className="t"><span className="n">{s.name}</span><span className="k">{deine ? "Deine Stufe" : (s.knopf || s.kl)}</span></span>
       <span className="p" aria-hidden="true"><PlusKlein farbe="currentColor" /></span>
     </button>
   );
 }
-function SchulKachel({ wahl, waehle }) {
+function SchulKachel({ wahl, waehle, deine }) {
   return (
     <div className="sbb-karte sbb-schul sbb-insel">
       <div className="sbb-schul-kopf">
@@ -667,66 +794,34 @@ function SchulKachel({ wahl, waehle }) {
         <div className="sbb-schul-bild" aria-hidden="true"><SchulmatheLogoKlein eng /></div>
       </div>
       <div className="sbb-stufen" role="group" aria-label="Der Weg zum Abi nach Stufe">
-        {SCHUL_STUFEN.map((s) => <StufenKnopf key={s.id} s={s} wahl={wahl} waehle={waehle} abi={s.id === "abi"} />)}
+        {SCHUL_STUFEN.map((s) => <StufenKnopf key={s.id} s={s} wahl={wahl} waehle={waehle} abi={s.id === "abi"} deine={deine === s.id} />)}
       </div>
     </div>
   );
 }
 
-/* Schublade der Start-Karte (21.10.): Kopfzeile „Thema · Plan · Tools · Videos“ mit Pfeil, aufgeklappt der Quickfinder auf einem weißen Blatt */
+/* Schublade der Start-Karte: Kopfzeile „Deine Klasse“ (Thema · Plan · Tools · Videos) mit Pfeil, aufgeklappt der Quickfinder auf einem weißen Blatt */
 function TrainingKachel({ gehe, setzeStufe }) {
   const [auf, setAuf] = useState(() => { try { return sessionStorage.getItem("matheplus-training-auf") === "1"; } catch { return false; } });
   const umschalten = () => setAuf((a) => { try { sessionStorage.setItem("matheplus-training-auf", a ? "0" : "1"); } catch { /* egal */ } return !a; });
   const titel = (
     <>
-      <h2 style={{ margin: 0, fontSize: "clamp(19px, 5.2vw, 25px)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.12, color: C.see }}>Alles zu deiner Klasse</h2>
+      <h2 style={{ margin: 0, fontSize: "clamp(19px, 5.2vw, 25px)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.12, color: C.see }}>Deine Klasse</h2>
       <span aria-hidden="true" style={{ display: "block", width: 40, height: 3, borderRadius: 2, marginTop: 9, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${GOLD} 100%)` }} />
     </>
   );
   return (
     <div className={auf ? "sbb-karte sbb-training sbb-gold sbb-insel auf" : "sbb-karte sbb-training sbb-gold sbb-insel"}>
-      <button type="button" className="pfeil" onClick={umschalten} aria-expanded={auf} aria-label={auf ? "Alles zu deiner Klasse zuklappen" : "Alles zu deiner Klasse aufklappen"}>
+      <button type="button" className="pfeil" onClick={umschalten} aria-expanded={auf} aria-label={auf ? "Deine Klasse zuklappen" : "Deine Klasse aufklappen"}>
         <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 6 L8 10.5 L12.5 6" stroke={NACHT} strokeWidth="2.6" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
       </button>
       {auf ? (
         <div className="sbb-papier offen"><Quickfinder gehe={gehe} setzeStufe={setzeStufe} links={titel} /></div>
       ) : (
         <button type="button" className="kopfzeile" onClick={umschalten}>
-          <span><h2>Alles zu deiner Klasse</h2><p className="zeile">Thema · Plan · Werkzeuge · Videos</p></span>
+          <span><h2>Deine Klasse</h2><p className="zeile">Thema · Plan · Werkzeuge · Videos</p></span>
         </button>
       )}
-    </div>
-  );
-}
-
-/* Die 7 Mathe-Mythen: wie in A (Passwort „skript“), hier als Glasliste */
-function Mythen() {
-  const frei = useFrei();
-  const [auf, setAuf] = useState(false);
-  const [offen, setOffen] = useState(null);
-  const [fragen, setFragen] = useState(false);
-  const zu = !frei;
-  return (
-    <div className="sbb-karte" style={{ marginTop: 20, overflow: "hidden" }}>
-      <button type="button" className="sbb-mythen-kopf" onClick={() => { if (zu) { setFragen(!fragen); return; } setAuf(!auf); if (auf) setOffen(null); }} aria-expanded={zu ? fragen : auf}
-        aria-label={zu ? "Die 7 Mathe-Mythen – noch gesperrt, Passwort nötig" : undefined}>
-        <span><b>Die 7 Mathe-Mythen</b><span>Sieben Sätze, die dich bremsen – und warum sie nicht stimmen.</span></span>
-        {zu ? <SchlossZeichen /> : <span className="plus" aria-hidden="true" style={{ width: 40, height: 40, borderRadius: 999, background: `var(--st-akzent, ${GOLD})`, color: `var(--st-akzent-text, ${NACHT})`, display: "flex", alignItems: "center", justifyContent: "center", transform: auf ? "rotate(45deg)" : "none", transition: "transform .22s ease", flex: "none" }}><Plus /></span>}
-      </button>
-      {zu && fragen && <div style={{ padding: "0 14px 14px" }}><PasswortFeld onFrei={() => { setFragen(false); setAuf(true); }} /></div>}
-      {!zu && auf && MYTHEN.map(([zeichen, titel, text], i) => {
-        const o = offen === i;
-        return (
-          <div key={titel} className="sbb-mythos">
-            <button type="button" onClick={() => setOffen(o ? null : i)} aria-expanded={o}>
-              <span className="z" aria-hidden="true">{zeichen}</span>
-              <b><span className="n">{i + 1}</span>{titel}</b>
-              <span aria-hidden="true" style={{ color: `var(--st-akzent, ${GOLD})`, fontSize: 22, lineHeight: 1, transform: o ? "rotate(45deg)" : "none", transition: "transform .2s ease" }}>+</span>
-            </button>
-            {o && <p>{text}</p>}
-          </div>
-        );
-      })}
     </div>
   );
 }
@@ -763,12 +858,13 @@ export function useStartModus() {
   return v;
 }
 
-/* Pille unten links auf der Startseite: Dunkel | Hell (dieselbe Wahl auch im Arbeitsmenü, wie die Sprache) */
+/* Pille Dunkel | Hell | Mix | FCB | GER. Seit 21.10. (abends) nicht mehr auf der Startseite – die Wahl steht im ☰-Menü unter
+   „Darstellung“ und im Arbeitsmenü; die Pille bleibt als Baustein für das Arbeitsmenü/Entwürfe erhalten. */
 export function StartModusSchalter() {
   const v = useStartModus();
   return (
     <div className="sbb-schalter" data-modus={basisModus(v)} data-edition={editionVon(v)} role="group" aria-label="Startseite: dunkel, hell, mix, FCB oder GER">
-      <style>{CSS}</style>
+      <style>{START_CSS}</style>
       <button type="button" aria-pressed={v === "dunkel"} onClick={() => startModusSetzen("dunkel")} aria-label="Dunkler Modus">
         <svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="currentColor" /></svg>Dunkel
       </button>
@@ -804,10 +900,10 @@ function useBreiteBuehne() {
 }
 
 /* ====================================================================== */
-
+/* Sieben Blöcke (21.10. abends): 0 Band · 1 Bühne · 2 Heute · 3 Lernen · 4 Mathilda · 5 Kurse · 6 Entdecken · 7 Vision-Anriss + Fuß.
+   Zwei Regeln: Jeder Block hat genau einen ☰-Abschnitt mit demselben Namen; Gesperrtes steht nie auf der Startseite. */
 export function Startseite({ gehe }) {
   const modus = useStartModus();
-  const hell = modus === "hell";
   const frei = useFrei();
   const [schulWahl, setSchulWahl] = useState(null);   // null | unter | mittel | ober | abi
   const schulAuf = schulWahl !== null;
@@ -833,26 +929,27 @@ export function Startseite({ gehe }) {
   };
   const schulStufe = SCHUL_STUFEN.find((s) => s.id === schulWahl);
   const abiBlock = schulWahl === "abi" ? bereiche.find((b) => b.id === "abitur") : null;
+  const oberstufe = !!klasse && stufe === "ober";
 
   return (
     <ModusKontext.Provider value={modus}>
     <div className="sbb" data-modus={basisModus(modus)} data-edition={editionVon(modus)}>
-      <style>{CSS}</style>
+      <style>{START_CSS}</style>
       <div className="sbb-licht" aria-hidden="true"><span className="l1" /><span className="l2" /><span className="l3" /></div>
 
-      {/* ---------- Bühne ---------- */}
-      <section className={["sbb-held", "sbb-insel", klasse && !breit ? "kompakt" : null, breit ? "breit" : null].filter(Boolean).join(" ")} aria-label="Mythos Mathe">
+      {/* ---------- 1 Bühne: Headline, Unterzeile, EINE Handlung (Pen & Paper, kostenlos), Suche ---------- */}
+      <section className={["sbb-held", "sbb-insel", klasse && !breit ? "kompakt" : null, breit ? "breit" : null].filter(Boolean).join(" ")} aria-label="Mythos Mathe" id={breit ? "heute" : undefined}>
         <HeldKurve />
         <div className={breit ? "sbb-held-raster" : undefined}>
         <div className="sbb-spalte sbb-held-text" style={{ paddingBottom: 0 }}>
           <h1>Mathe kann<span className="gold">jeder verstehen</span></h1>
           <p className="unter">Hier lernst du wie!</p>
-          <ul>
-            {["Mathe sichtbar machen", "Gezielt Aufgaben trainieren", "Rechenwege Schritt für Schritt", "In deinem Tempo lernen"].map((p) => (
-              <li key={p}><Haken /><span>{p}</span></li>
-            ))}
-          </ul>
-          {/* Kein Knopf „Jetzt eine Aufgabe rechnen“ mehr (21.10.): Mathilda bleibt über Menü und Kachel erreichbar; die Suche ist die Handlung der Bühne */}
+          {/* Neuer Besucher: der erste Schritt der Marke (wie auf /vision). Mit bekannter Klasse ist der Goldknopf der Heute-Karte die Handlung – kein zweiter daneben. */}
+          {!klasse && (
+            <button type="button" className="sbb-los gold held" onClick={() => gehe({ ansicht: "penpaperkurs" })} aria-label="Pen & Paper starten – kostenlos" data-start-los>
+              Pen & Paper starten <span className="frei">· kostenlos</span>
+            </button>
+          )}
           <div className="sbb-held-suche"><SuchBox gehe={gehe} buehne /></div>
         </div>
         {breit && (
@@ -862,123 +959,97 @@ export function Startseite({ gehe }) {
           </div>
         )}
         </div>
-        <Band />
       </section>
+      <StartBand />
 
       <section className="sbb-teil"><div className="sbb-spalte">
-        {/* ---------- Mein Mathe-Training (Tagesplan, Themen) · Dein Training startet hier (die Suche sitzt seit 21.10. in der Bühne) ---------- */}
-        {/* ---------- 1 Heute: EINE Start-Karte (21.10.) statt „Mein Mathe-Training“ + „Dein Training startet hier.“ + Onboarding ---------- */}
+        {/* ---------- 2 Heute: EINE Start-Karte (Klasse fragen → Heute-Karte + Weitermachen + Konto-Zeile + Schublade „Deine Klasse“) ---------- */}
         {breit ? (klasse ? <div className="sbb-abschnitt" style={{ marginTop: 18 }}>{schublade}</div> : null) : (
           <>
-            <Zone nr="1" titel={"Heute trainierst du\u00A0…"} />
+            <Zone nr="1" titel={"Heute trainierst du …"} id="heute" />
             <StartKarte gehe={gehe} setzeStufe={stufeSetzen} klasse={klasse} schublade={schublade} />
           </>
         )}
-        <div className="sbb-wieder"><AbiZentrumKachel onClick={() => gehe({ ansicht: "abi" })} /></div>
+        {/* Die Masterclass nur für die Oberstufe (Klasse bekannt) – sonst nur als Stufenknopf „Abi“ und in den Kursen */}
+        {oberstufe && <div className="sbb-wieder"><AbiZentrumKachel onClick={() => gehe({ ansicht: "abi" })} /></div>}
 
-
-        {/* ---------- 2 Lernen (Anker „lernen“: Besuchermenü in der Kopfleiste) ---------- */}
-        <div id="lernen" style={{ scrollMarginTop: 64 }} />
-        <Zone nr="2" titel="Lernen" zeile="Alle Werkzeuge nach Bereich und Stufe." />
-        <div className="sbb-raster2">
-          <div className="sbb-breit">
-            <SchulKachel wahl={schulWahl} waehle={schulWaehlen} />
-            {schulAuf && (
-              <div className="sbb-papier" data-aufklapp-inhalt data-sprung="start-schulmathe">
-                <div className="sbb-schul-panel-kopf"><b>{schulStufe.id === "abi" ? "Abitur-Vorbereitung" : schulStufe.name}</b><span>{schulStufe.id === "abi" ? "Oberstufe" : schulStufe.kl}</span></div>
-                {schulWahl !== "abi" && <div style={{ marginTop: 10 }}><EtikettKnoepfe wert={etikett} setze={(e) => { setEtikett(e); setBereichAuf(null); }} /></div>}
-                <div style={{ marginTop: 12 }}>
-                  {abiBlock ? (
-                    <>
-                      <button type="button" className="sbb-bereich gold" onClick={() => gehe({ ansicht: "abi" })} aria-label="Mathe-Abi-Masterclass öffnen" data-start-abizentrum>
-                        <span className="logo" aria-hidden="true" style={{ fontWeight: 900, fontSize: 13, letterSpacing: "-0.02em" }}>ABI</span>
-                        <span className="t"><b>Mathe-Abi-Masterclass</b><span>Dein Plan, Prüfungsaufgaben, Mia als Trainerin, Lernpartner in deiner Stadt.</span></span>
-                        <span className="pf" aria-hidden="true">→</span>
-                      </button>
-                      <UnterMenue eintraege={blockEintraege(abiBlock, "ober", null)} gehe={gehe} linie={abiBlock.linie} />
-                    </>
-                  ) : etikett ? (
-                    bereiche.map((b) => {
-                      const ws = blockEintraege(b, stufe, etikett).filter((e) => !e.kopf);
-                      if (!ws.length) return null;
-                      return (
-                        <div key={b.id} style={{ marginTop: 14 }}>
-                          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", padding: "0 2px 2px" }}>
-                            <span style={{ fontSize: 15, fontWeight: 800, color: C.seeTief }}>{b.titel}</span>
-                            <span style={{ fontSize: 12, fontWeight: 600, color: C.grau }}>{ws.length === 1 ? "1 Werkzeug" : `${ws.length} Werkzeuge`}</span>
-                          </div>
-                          <UnterMenue eintraege={ws} gehe={gehe} />
-                        </div>
-                      );
-                    })
-                  ) : bereiche.map((b) => {
-                    const eintraege = blockEintraege(b, stufe, null);
-                    if (!eintraege.length || (!b.eintraege && !b.kiste && !eintraege.some((e) => !e.kopf))) return null;
-                    const offen = bereichAuf === b.id;
-                    const text = bereichInhalt(b.id, stufe) || b.text;
-                    return (
-                      <React.Fragment key={b.id}>
-                        <button type="button" className={b.gold ? "sbb-bereich gold" : "sbb-bereich"} onClick={() => setBereichAuf(offen ? null : b.id)} aria-expanded={offen}
-                          aria-label={offen ? `${b.titel} zuklappen` : `${b.titel} aufklappen`}>
-                          <span className="logo" aria-hidden="true">{b.logo}</span>
-                          <span className="t"><b>{b.vorTitel && <span style={{ display: "inline", color: C.gruenDunkel, marginRight: 6 }}>{b.vorTitel}</span>}{weichTrennen(b.titel)}</b><span>{text}</span></span>
-                          <span className="pf" aria-hidden="true"><PlusKlein /></span>
-                        </button>
-                        {offen && (
-                          <div className="sbb-bereich-inhalt">
-                            <UnterMenue eintraege={eintraege} gehe={gehe} linie={b.linie} />
-                          </div>
-                        )}
-                      </React.Fragment>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
+        {/* ---------- 3 Lernen = nur der Navigator „Der Weg zum Abi“ (Anker „lernen“: Besuchermenü in der Kopfleiste, Band) ---------- */}
+        <Zone nr="2" titel="Lernen" zeile="Alle Werkzeuge nach Stufe und Bereich." id="lernen" />
+        <SchulKachel wahl={schulWahl} waehle={schulWaehlen} deine={klasse ? stufe : null} />
+        {schulAuf && (
+          <div className="sbb-papier" data-aufklapp-inhalt data-sprung="start-schulmathe">
+            <div className="sbb-schul-panel-kopf"><b>{schulStufe.id === "abi" ? "Abitur-Vorbereitung" : schulStufe.name}</b><span>{schulStufe.id === "abi" ? "Oberstufe" : schulStufe.kl}</span></div>
+            {schulWahl !== "abi" && <div style={{ marginTop: 10 }}><EtikettKnoepfe wert={etikett} setze={(e) => { setEtikett(e); setBereichAuf(null); }} /></div>}
+            <div style={{ marginTop: 12 }}>
+              {abiBlock ? (
+                <>
+                  <button type="button" className="sbb-bereich gold" onClick={() => gehe({ ansicht: "abi" })} aria-label="Mathe-Abi-Masterclass öffnen" data-start-abizentrum>
+                    <span className="logo" aria-hidden="true" style={{ fontWeight: 900, fontSize: 13, letterSpacing: "-0.02em" }}>ABI</span>
+                    <span className="t"><b>Mathe-Abi-Masterclass</b><span>Dein Plan, Prüfungsaufgaben, Mia als Trainerin, Lernpartner in deiner Stadt.</span></span>
+                    <span className="pf" aria-hidden="true">→</span>
+                  </button>
+                  <UnterMenue eintraege={blockEintraege(abiBlock, "ober", null)} gehe={gehe} linie={abiBlock.linie} />
+                </>
+              ) : etikett ? (
+                bereiche.map((b) => {
+                  const ws = blockEintraege(b, stufe, etikett).filter((e) => !e.kopf);
+                  if (!ws.length) return null;
+                  return (
+                    <div key={b.id} style={{ marginTop: 14 }}>
+                      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", padding: "0 2px 2px" }}>
+                        <span style={{ fontSize: 15, fontWeight: 800, color: C.seeTief }}>{b.titel}</span>
+                        <span style={{ fontSize: 12, fontWeight: 600, color: C.grau }}>{ws.length === 1 ? "1 Werkzeug" : `${ws.length} Werkzeuge`}</span>
+                      </div>
+                      <UnterMenue eintraege={ws} gehe={gehe} />
+                    </div>
+                  );
+                })
+              ) : bereiche.map((b) => {
+                const eintraege = blockEintraege(b, stufe, null);
+                if (!eintraege.length || (!b.eintraege && !b.kiste && !eintraege.some((e) => !e.kopf))) return null;
+                const offen = bereichAuf === b.id;
+                const text = bereichInhalt(b.id, stufe) || b.text;
+                return (
+                  <React.Fragment key={b.id}>
+                    <button type="button" className={b.gold ? "sbb-bereich gold" : "sbb-bereich"} onClick={() => setBereichAuf(offen ? null : b.id)} aria-expanded={offen}
+                      aria-label={offen ? `${b.titel} zuklappen` : `${b.titel} aufklappen`}>
+                      <span className="logo" aria-hidden="true">{b.logo}</span>
+                      <span className="t"><b>{b.vorTitel && <span style={{ display: "inline", color: C.gruenDunkel, marginRight: 6 }}>{b.vorTitel}</span>}{weichTrennen(b.titel)}</b><span>{text}</span></span>
+                      <span className="pf" aria-hidden="true"><PlusKlein /></span>
+                    </button>
+                    {offen && (
+                      <div className="sbb-bereich-inhalt">
+                        <UnterMenue eintraege={eintraege} gehe={gehe} linie={b.linie} />
+                      </div>
+                    )}
+                  </React.Fragment>
+                );
+              })}
+            </div>
           </div>
-          <MathildaKachel gehe={gehe} />
-          <Kachel gehe={gehe} titel="Kopfrechnen" label="Kopfrechnen öffnen" logo={<HeadNumbersLogoKlein />} ziel={{ ansicht: "headnumbers" }} weiter="Trainieren" drei
-            text="Einmaleins, Quadrat- und Kubikzahlen, Brüche – trainieren, bis alles sitzt." />
-          <Kachel gehe={gehe} titel="Gleichungen" label="Gleichungen öffnen" logo={<GleichKursLogoKlein />} ziel={{ ansicht: "gleichkurs" }} weiter="Trainieren" drei
-            text="Eine Zahl finden, über die du etwas weißt: verstehen, rechnen, trainieren." />
-        </div>
-
-        {/* ---------- 3 Entdecken ---------- */}
-        <Zone nr="3" titel="Entdecken" zeile="Herleiten, Kurse und Pen & Paper." />
-        <HauptKachel auf={entdAuf} onClick={() => { setEntdAuf(!entdAuf); setSchulWahl(null); setBereichAuf(null); }}
-          label={entdAuf ? "Mathe entdecken zuklappen" : "Mathe entdecken aufklappen"} logo={<EntdeckenLogoKlein />} titel="Mathe entdecken"
-          text={entdAuf ? "Herleiten, entdecken, Wettbewerbe." : "Muster erkennen, Formeln selbst herleiten – und Mathe-Wettbewerbe."} />
-        {entdAuf && <div className="sbb-papier" data-aufklapp-inhalt><UnterMenue eintraege={ENTDECKEN_MENUE} gehe={gehe} /></div>}
+        )}
+        {ZEIGE_GESPERRTE && (
+          <div className="sbb-raster2" style={{ marginTop: 14 }}>
+            <Kachel gehe={gehe} gesperrt keinI18n titel="Ebbinghaus" label="Ebbinghaus öffnen" logo={<EbbinghausLogoKlein />} extra={<EbbinghausBadge />} ziel={{ ansicht: "ebbinghaus" }} drei zwei text={EBB_KURZ} />
+            <Kachel gehe={gehe} gesperrt titel="Videokurse" label="Videokurse öffnen" logo={<SchulkurseLogoKlein />} ziel={{ ansicht: "kurse" }} text="Analysis 1–5, Vektoren und Stochastik – mit Videolektionen und Checks." />
+          </div>
+        )}
       </div></section>
 
-      {/* Das System – im Mix ein dunkler Streifen über die volle Breite (die Vision hat seit 21.10. eine eigene Seite: /vision) */}
-      <section className="sbb-teil sbb-streifen sbb-insel" id="system" style={{ scrollMarginTop: 56 }}><div className="sbb-spalte">
-        <Kopf titel="Erst sauber schreiben lernen. Dann trainieren, bis es sitzt." />
-        <p className="sbb-text">Die meisten Fehler in Klausuren entstehen nicht im Kopf, sondern auf dem Blatt.</p>
-        <p className="sbb-text">Pen & Paper ist der Kurs dazu: ein Schritt pro Zeile, Gleichheitszeichen untereinander.</p>
-        <p className="sbb-text"><MathildaName dunkel={!hell} /> ist das Training dazu: Du fotografierst dein Blatt, Mathilda prüft die Rechnung und zeigt dir die Stelle, an der dein Weg bricht.</p>
-        <p className="sbb-text stark">So entsteht ein Kreislauf: lernen, schreiben, prüfen lassen, verbessern. Aus einer Regel wird eine Gewohnheit – und aus der Gewohnheit Sicherheit in der Klausur.</p>
-        <div className="sbb-system">
-          <button type="button" className="sbb-karte sbb-schritt" onClick={() => gehe({ ansicht: "penpaperkurs" })} aria-label="Pen & Paper Kurs öffnen">
-            <span className="nr">Schritt 1: Lernen</span>
-            <h3>Pen & Paper</h3>
-            <p>Klar aufschreiben, strukturiert arbeiten, sicher mit Fehlern umgehen.</p>
-            <span className="bild" aria-hidden="true"><PenPaperBlatt /></span>
-            <span className="knopf">Kurs öffnen</span>
-          </button>
-          <button type="button" className="sbb-karte sbb-schritt sbb-gold" onClick={() => gehe({ ansicht: "analyse", foto: "blatt" })} aria-label="Mathilda AI öffnen – mit KI lernen">
-            <span className="nr">Schritt 2: Trainieren</span>
-            <h3><MathildaName dunkel={!hell} /></h3>
-            <p>Foto vom Blatt – Mathilda prüft deinen Weg und zeigt dir den nächsten Hebel.</p>
-            <span className="bild" aria-hidden="true"><MathildaLogoKlein /></span>
-            <span className="knopf gold">Mit KI lernen</span>
-          </button>
-          <span className="sbb-verbinder" aria-hidden="true">
-            <svg width="18" height="18" viewBox="0 0 16 16"><path d="M3 8 H12.5 M8.5 4 L12.5 8 L8.5 12" stroke={NACHT} strokeWidth="2.4" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
-          </span>
-        </div>
+      {/* ---------- 4 Mathilda AI – im Mix der erste dunkle Streifen ---------- */}
+      <section className="sbb-teil sbb-streifen sbb-insel" id="mathilda" style={{ scrollMarginTop: 96 }}><div className="sbb-spalte">
+        <Zone nr="3" titel="Mathilda AI" zeile="Deine KI-Tutorin prüft den Rechenweg." />
+        <MathildaBlock gehe={gehe} />
+      </div></section>
 
-        {/* Elternabend (wie in A: ohne Angebot nur nach Passwort) */}
+      {/* ---------- 5 Kurse: dieselbe Liste wie im ☰ ---------- */}
+      <section className="sbb-teil"><div className="sbb-spalte">
+        <Zone nr="4" titel="Kurse" zeile="Jeder Kurs ein Baustein." id="kurse" />
+        <KursRaster gehe={gehe} />
+        <div className="sbb-mehr">
+          <button type="button" onClick={() => gehe({ ansicht: "kursliste" })} data-start-alle-kurse>Alle {KURSE.length} Kurse und weitere Lernangebote <i aria-hidden="true">→</i></button>
+        </div>
+        {/* Elternabend: ohne Angebot nur nach Passwort */}
         {(ANGEBOT.elternabend || frei) && <div className="sbb-wieder"><ElternabendKachel gesperrt={!frei} onClick={() => gehe({ ansicht: "elternabend" })} /></div>}
         {ZEIGE_GESPERRTE && (
           <div className="sbb-wieder">
@@ -988,48 +1059,26 @@ export function Startseite({ gehe }) {
           </div>
         )}
 
+        {/* ---------- 6 Entdecken: Herleiten, Wettbewerbe – und der Blog ---------- */}
+        <Zone nr="5" titel="Mathe entdecken" zeile="Herleiten, Wettbewerbe und der Blog." id="entdecken" />
+        <HauptKachel auf={entdAuf} onClick={() => { setEntdAuf(!entdAuf); setSchulWahl(null); setBereichAuf(null); }}
+          label={entdAuf ? "Mathe entdecken zuklappen" : "Mathe entdecken aufklappen"} logo={<EntdeckenLogoKlein />} titel="Mathe entdecken"
+          text={entdAuf ? "Herleiten, entdecken, Wettbewerbe." : "Muster erkennen, Formeln selbst herleiten – und Mathe-Wettbewerbe."} />
+        {entdAuf && <div className="sbb-papier" data-aufklapp-inhalt><UnterMenue eintraege={ENTDECKEN_MENUE} gehe={gehe} /></div>}
+        <BlogAnriss gehe={gehe} />
       </div></section>
 
-      {/* Kurse */}
-      <section className="sbb-teil"><div className="sbb-spalte">
-        <Kopf titel="Jeder Kurs ein Baustein, zusammen ein System" />
-        {/* Nennt nur Kurse, die hier als Kachel stehen (21.10.); Videokurse erst, wenn ANGEBOT.kurse sie freischaltet */}
-        <p className="sbb-text" style={{ marginBottom: 20 }}>
-          {ANGEBOT.kurse
-            ? "Hinter den sieben Mathe-Mythen steckt dieselbe Lücke: Es fehlt nicht an Begabung, sondern an einer Arbeitsweise. Die Kurse unten schließen sie Stück für Stück. Der Mathe-Mindset-Kurs räumt das Denken auf, die Unterstufe legt das Fundament der Klassen 5 und 6, die Dreiecksgeometrie führt durch die Klassen 7 bis 9, und die Kurse zur Differentialrechnung sowie zu Vektoren, Geraden und Ebenen führen dich durch den Stoff bis zum Abitur. Dazu kommen das GFS-Training für deine Präsentation, die Videokurse und Mathe mit KI lernen."
-            : "Hinter den sieben Mathe-Mythen steckt dieselbe Lücke: Es fehlt nicht an Begabung, sondern an einer Arbeitsweise. Die Kurse unten schließen sie Stück für Stück. Der Mathe-Mindset-Kurs räumt das Denken auf, die Unterstufe legt das Fundament der Klassen 5 und 6, die Dreiecksgeometrie führt durch die Klassen 7 bis 9, und die Kurse zur Differentialrechnung sowie zu Vektoren, Geraden und Ebenen führen dich durch den Stoff bis zum Abitur. Dazu kommen das GFS-Training für deine Präsentation und Mathe mit KI lernen."}
-        </p>
-        <div className="sbb-raster2">
-          <Kachel gehe={gehe} titel="Mathe-Mindset-Kurs" label="Mathe-Mindset-Kurs öffnen" logo={<ElternkursLogoKlein />} ziel={{ ansicht: "elternkurs" }} weiter="Kurs öffnen"
-            text="6 TED-Talks und 2 Bücher, die inspirieren, wie Mathe auch funktionieren kann." />
-          <Kachel gehe={gehe} gesperrt titel="Videokurse" label="Videokurse öffnen" logo={<SchulkurseLogoKlein />} ziel={{ ansicht: "kurse" }}
-            text="Analysis 1–5, Vektoren und Stochastik – mit Videolektionen und Checks." />
-        </div>
-        <div className="sbb-wieder">
-          <UnterstufeKachel onClick={() => gehe({ ansicht: "unterstufe" })} />
-          <GeoKursKachel onClick={() => gehe({ ansicht: "geokurs" })} />
-          <DiffKursKachel onClick={() => gehe({ ansicht: "diffkurs" })} />
-          <VekKursKachel onClick={() => gehe({ ansicht: "vekkurs" })} />
-          <GfsKursKachel onClick={() => gehe({ ansicht: "gfs" })} />
-          <ClaudeKursKachel kurs="ki" onClick={() => gehe({ ansicht: "kiwahl" })} />
-        </div>
-        <div className="sbb-pille">
-          <button type="button" data-start-efunktion onClick={() => gehe({ ansicht: "efunktion" })}>
-            <i aria-hidden="true" />Minikurs: Die e-Funktion<span aria-hidden="true">→</span>
-          </button>
-        </div>
-
-      </div></section>
-
-      {/* Mythen – im Mix der zweite dunkle Streifen */}
-      <section className="sbb-teil sbb-streifen sbb-insel sbb-mythen-streifen"><div className="sbb-spalte">
+      {/* ---------- 7 Vision-Anriss – im Mix der zweite dunkle Streifen (die Geschichte steht auf /vision, die 7 Mythen im Blog) ---------- */}
+      <section className="sbb-teil sbb-streifen sbb-insel sbb-mythen-streifen" id="system" style={{ scrollMarginTop: 56 }}><div className="sbb-spalte">
         <Kopf titel="Mathetalent ist ein Mythos. Ein System kann man lernen." />
-        <p className="sbb-text">Hinter guten Mathenoten steckt kein besonderes Gehirn, sondern eine Arbeitsweise. Die Kurse bauen sie Schritt für Schritt auf: wie du denkst, wie du rechnest, wie du schreibst und wie du Gelerntes behältst.</p>
-        <p className="sbb-text">Jeder Kurs ist für sich nutzbar. Zusammen ergeben sie das System, mit dem Mythos Mathe Gymnasiasten von Klasse 8 bis zum Abitur begleitet.</p>
-        <Mythen />
+        <p className="sbb-text">Hinter guten Mathenoten steckt kein besonderes Gehirn, sondern eine Arbeitsweise – wie du denkst, rechnest, schreibst und Gelerntes behältst.</p>
+        <div className="sbb-vision-knoepfe">
+          <button type="button" className="sbb-los gold" onClick={() => gehe({ ansicht: "vision" })} aria-label="Die Vision lesen" data-start-vision>Die Vision lesen <i aria-hidden="true">→</i></button>
+          <button type="button" className="sbb-los leise" onClick={() => gehe({ ansicht: "blog", seite: MYTHEN_SLUG })} aria-label="Die 7 Mathe-Mythen im Blog" data-start-mythen>Die 7 Mathe-Mythen</button>
+        </div>
       </div></section>
 
-      {/* Anleitung, Spenden – auf weißen Blättern bzw. in Blau (der Plan lebt oben in Mein Mathe-Training) */}
+      {/* Anleitung, Spenden */}
       <section className="sbb-teil ende"><div className="sbb-spalte">
         <div className="sbb-wieder" style={{ marginTop: 22 }}><AppAnleitung /></div>
         <div className="sbb-wieder"><SpendenBereich gehe={gehe} /></div>

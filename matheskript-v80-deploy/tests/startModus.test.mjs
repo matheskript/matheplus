@@ -1,9 +1,12 @@
 /* Startseite dunkel / hell (src/startModus.js): Pfade /start-hell und /start-dunkel (und Aliasse) wählen den Modus;
-   ohne Wahl gilt mix (seit 21.10.). Die Startseite (funcStartseite.jsx) kennt beide Modi und führt zu allen Angeboten (Mein Mathe-Training ganz oben). */
+   ohne Wahl gilt mix (seit 21.10.). Die Startseite (funcStartseite.jsx) kennt beide Modi und führt zu allen Angeboten – in sieben Blöcken
+   (Band · Bühne · Heute · Lernen · Mathilda · Kurse · Entdecken · Vision-Anriss), Gesperrtes nur hinter ZEIGE_GESPERRTE. */
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { START_MODI, basisModus, editionVon, modusAusPfad, naechsterModus, startModus } from "../src/startModus.js";
+import { START_ANKER } from "../src/startMenues.js";
+import { KURSE, WEITERE_ANGEBOTE } from "../src/hauptmenue.js";
 
 const quelle = (f) => readFileSync(new URL(`../src/${f}`, import.meta.url), "utf8");
 
@@ -32,17 +35,28 @@ test("Ohne Browser-Speicher gilt der Mix-Modus", () => {
   assert.equal(startModus(), "mix");
 });
 
-test("Die Startseite führt zu allen Angeboten", () => {
+test("Die Startseite führt zu allen Angeboten – über sieben Blöcke und das Band", () => {
   const q = quelle("funcStartseite.jsx");
-  /* „ki“ (Mathilda-Chat) hing am Knopf „Jetzt eine Aufgabe rechnen“ – der ist seit 21.10. aus der Bühne raus; Mathilda bleibt über die Kachel („analyse“) */
-  /* Masterclass = Abi-Zentrum (/abi) seit 21.10.; ihr Kursbereich „mckurs“ liegt im Zentrum */
-  /* „ebbinghaus“ stand als gesperrte Kachel auf der Startseite – seit 21.10. weg (totes Element für jeden Besucher) */
-  for (const z of ["headnumbers", "gleichkurs", "analyse", "penpaperkurs", "elternkurs", "kurse", "diffkurs", "vekkurs", "gfs", "kiwahl", "efunktion", "abi", "elternabend"]) {
-    assert.ok(q.includes(`ansicht: "${z}"`), `Startseite kennt das Ziel „${z}“ nicht`);
-  }
-  for (const b of ["<Quickfinder", "<SuchBox", "<StartKarte", "<UnterMenue", "<SchulKachel", "<EtikettKnoepfe", "ENTDECKEN_MENUE", "MYTHEN", "<AppAnleitung", "<SpendenBereich"]) {
+  /* Direkt im Code: Abi, Pen & Paper, Mathilda, Vision, Blog, /kurse, Elternabend (nach Passwort); die Kurse kommen aus KURSE (hauptmenue.js) */
+  for (const z of ["penpaperkurs", "abi", "elternabend", "vision", "blog", "kursliste"]) assert.ok(q.includes(`ansicht: "${z}"`), `Startseite kennt das Ziel „${z}“ nicht`);
+  for (const z of ["penpaperkurs", "unterstufe", "geokurs", "diffkurs", "vekkurs", "gfs", "kiwahl"]) assert.ok(KURSE.some((k) => k.ziel.ansicht === z), `KURSE ohne „${z}“`);
+  for (const z of ["gleichkurs", "headnumbers", "efunktion", "elternkurs"]) assert.ok(WEITERE_ANGEBOTE.some((k) => k.ziel.ansicht === z), `WEITERE_ANGEBOTE ohne „${z}“`);
+  for (const b of ["<Quickfinder", "<SuchBox", "<StartKarte", "<UnterMenue", "<SchulKachel", "<EtikettKnoepfe", "ENTDECKEN_MENUE", "<AppAnleitung", "<SpendenBereich", "<StartBand", "<MathildaBlock", "<KursRaster", "<BlogAnriss", "KI_MENUE"]) {
     assert.ok(q.includes(b), `Startseite ohne ${b}`);
   }
+  /* Band: fünf Anker, jeder ein Abschnitt der Seite; Besuchermenü „Mathe lernen“ zielt auf „lernen“ */
+  assert.deepEqual(START_ANKER.map((a) => a.id), ["heute", "lernen", "mathilda", "kurse", "entdecken"]);
+  for (const a of START_ANKER) assert.ok(q.includes(`id="${a.id}"`), `Anker ${a.id} fehlt`);
+  assert.ok(q.includes('springe("start-anker"'), "Band springt nicht über den Sprung-Schalter");
+  /* Gesperrtes nie auf der Startseite: Ebbinghaus, Videokurse, Mathe checken, Masterclass-Kachel, Mythen-Schloss nur hinter ZEIGE_GESPERRTE bzw. weg */
+  for (const z of ["ebbinghaus", "kurse", "mathecheck"]) {
+    const i = q.indexOf(`ansicht: "${z}"`);
+    assert.ok(i > 0 && q.lastIndexOf("ZEIGE_GESPERRTE && (", i) > q.lastIndexOf("</section>", i), `„${z}“ steht nicht hinter ZEIGE_GESPERRTE`);
+  }
+  assert.ok(!q.includes("<Mythen") && !q.includes("<PasswortFeld") && !q.includes("<Band />"), "Mythen-Schloss oder Laufband sind zurück");
+  /* Mathilda genau einmal als Block, die Masterclass-Kachel nur für die Oberstufe */
+  assert.equal((q.match(/<MathildaBlock /g) || []).length, 1);
+  assert.ok(/\{oberstufe && <div className="sbb-wieder"><AbiZentrumKachel/.test(q), "Masterclass-Kachel hängt nicht an der Oberstufe");
 });
 
 test("Start-Karte: ein Einstieg statt drei Boxen, Klasse nur einmal gefragt", () => {
@@ -63,7 +77,9 @@ test("Bühne: Suche als Pille statt Knopf „Jetzt eine Aufgabe rechnen“, kein
   assert.ok(q.includes("<SuchBox gehe={gehe} buehne />"), "Suche fehlt in der Bühne");
   assert.equal((q.match(/<SuchBox /g) || []).length, 1, "Suche steht mehr als einmal auf der Startseite");
   assert.ok(!q.includes("sbb-start-knopf") && !q.includes('ansicht: "ki"'), "Knopf „Jetzt eine Aufgabe rechnen“ ist zurück");
-  assert.ok(q.includes('"Mathe sichtbar machen"'));
+  /* Seit 21.10. abends: keine Haken-Liste, dafür der Goldknopf „Pen & Paper starten · kostenlos“ – nur ohne bekannte Klasse */
+  assert.ok(!q.includes('"Mathe sichtbar machen"') && !q.includes("<Haken />"), "Haken-Liste ist zurück");
+  assert.ok(/\{!klasse && \(\s*<button type="button" className="sbb-los gold held"/.test(q), "Goldknopf fehlt oder hängt nicht an der Klasse");
   const s = quelle("funcSuche.jsx");
   assert.ok(s.includes("data-such-buehne") && s.includes("--such-hg"), "Bühnen-Variante der Suche fehlt");
 });
@@ -78,7 +94,9 @@ test("Alle drei Modi sind im Stil definiert, die Wahl hängt am Wurzelelement un
   assert.ok(q.includes('["sbb-held", "sbb-insel",'), "Bühne ist keine Insel");
   assert.ok(q.includes('data-modus={basisModus(modus)} data-edition={editionVon(modus)}'));
   const r = quelle("func10.jsx");
-  assert.ok(r.includes("<StartModusSchalter />"), "Pille zum Umschalten fehlt");
+  /* Die Pille steht seit 21.10. abends nicht mehr auf der Startseite: Darstellung nur im ☰-Menü und im Arbeitsmenü */
+  assert.ok(!r.includes("<StartModusSchalter />"), "Pille steht wieder auf der Startseite");
+  assert.ok(quelle("funcHauptmenue.jsx").includes("Darstellung"), "☰-Menü ohne Darstellung");
   assert.ok(r.includes("modusAusPfad("));
   const m = quelle("funcArbeitsmenue.jsx");
   assert.ok(m.includes("data-arbeitsmenue-modus"), "Umschalter im Arbeitsmenü fehlt");

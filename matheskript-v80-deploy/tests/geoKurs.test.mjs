@@ -156,7 +156,9 @@ test("Einbindung wie der Vektorkurs: Pfad, Ansicht, Menü, Kachel, Suche, Teilen
   assert.ok(KURSE.some((k) => k.id === "geokurs" && k.ziel.ansicht === "geokurs"), "☰-Menü");
   assert.ok(src("hauptmenueTeile.jsx").includes("  geokurs: { hg:"), "KURS_STIL");
   assert.ok(/^  geokurs: \{ farben: AMETHYST, Motiv: MotivDreieck, stand: geoStand/m.test(src("funcHauptmenueDesktop.jsx")), "Desktop-Menü (Lack)");
-  for (const d of ["funcStartseite.jsx", "funcVision.jsx"]) assert.ok(src(d).includes('<GeoKursKachel onClick={() => gehe({ ansicht: "geokurs" })} />'), d);
+  /* Startseite seit 21.10. abends: Kurs-Karten aus KURSE (erste sechs, geokurs ist dabei), die Lack-Kachel steht auf /kurse (funcKurseSeite.jsx) */
+  for (const d of ["funcKurseSeite.jsx", "funcVision.jsx"]) assert.ok(src(d).includes('<GeoKursKachel onClick={() => gehe({ ansicht: "geokurs" })} />'), d);
+  assert.ok(KURSE.slice(0, 6).some((k) => k.id === "geokurs"), "Dreiecksgeometrie nicht unter den sechs Kursen der Startseite");
   assert.ok(src("suche.js").includes('{ ansicht: "geokurs" }, "Kurs"]'), "Suche");
   assert.ok(teilenInfo("geokurs"), "Teilen-Knopf");
   /* Palette: dieselben Schlüssel wie TIEFBLAU, Motiv im gemeinsamen Raster */

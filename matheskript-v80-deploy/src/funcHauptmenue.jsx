@@ -7,8 +7,8 @@
      Mathilda-Karte (dunkelblau, immer offen): Blatt scannen + Chat, Rechenweg, Textaufgabe, Klausur
      Weitermachen (zuletzt benutztes Werkzeug)
      Klasse 13 (G9) ▾        – Schulbuch-Kapitel und unsere Kurse dazu
-     Mathe-Training ▾         – alle Werkzeuge wie auf der Startseite: Stufe → Bereich → Station → Werkzeug
-     Meine Kurse              – Karten-Leiste zum Wischen (oder „Alle“ als Raster)
+     Der Weg zum Abi ▾        – alle Werkzeuge wie auf der Startseite: Stufe → Bereich → Station → Werkzeug
+     Kurse                    – Karten-Leiste zum Wischen (oder „Alle“ als Raster)
      Mein Training ▾ · Mathe entdecken ▾ · Formelsammlung ▾
      Konto-Karte, Abmelden (mit Bestätigung) bzw. Anmelden und ganz unten „Darstellung“:
      Dunkel | Hell | Mix (dieselbe Wahl wie die Pille auf der Startseite, src/startModus.js).
@@ -638,7 +638,7 @@ export function HauptMenue({ gehe, ansicht, foto, seite, offen, setOffen }) {
             <div className="hm-karte" data-hm-kurse style={{ padding: "2px 10px 0" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <Kicker style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                  Meine Kurse <span className="hm-zahl" data-kein-i18n style={{ letterSpacing: 0 }}>{KURSE.length}</span>
+                  Kurse <span className="hm-zahl" data-kein-i18n style={{ letterSpacing: 0 }}>{KURSE.length}</span>
                   {aktiv === "kurse" && <span aria-hidden="true" style={{ width: 7, height: 7, borderRadius: 999, background: C.flaggold }} />}
                 </Kicker>
                 <button type="button" className="hm-kopf-link" onClick={() => setAlleKurse(!alleKurse)} aria-pressed={alleKurse} data-hm-kurse-alle>

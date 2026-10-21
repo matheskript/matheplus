@@ -69,18 +69,18 @@ with sync_playwright() as pw:
         pruefe(page.locator("[data-efunktion-masterclass]").count() == 0, f"{breite}: Masterclass-Button trotz Sperre sichtbar")
         pruefe(not konsole, f"{breite}: Konsole {konsole[:3]}")
         ctx.close()
-    # Startseite: Mini-Button zur e-Funktion über der Masterclass
+    # Kurse-Seite (/kurse, seit 21.10. abends): der Minikurs ist eine Kurs-Karte unter „Alle Kurse“ (die Startseite zeigt nur die ersten sechs Kurse)
     for breite in [390, 1280]:
         ctx = b.new_context(viewport={"width": breite, "height": 860}, locale="de-DE")
         page = ctx.new_page()
-        page.goto(BASE + "/"); page.wait_for_timeout(1500)
+        page.goto(BASE + "/kurse"); page.wait_for_timeout(1500)
         k = page.locator("[data-start-efunktion]")
-        pruefe(k.count() == 1, f"Start {breite}: e-Funktion-Button fehlt")
+        pruefe(k.count() == 1, f"Kurse {breite}: e-Funktion-Karte fehlt")
         if k.count():
             k.scroll_into_view_if_needed(); page.wait_for_timeout(300)
             page.screenshot(path=f"{AUS}/start-{breite}-knopf.png")
             k.click(); page.wait_for_timeout(1200)
-            pruefe("e-funktion" in page.url, f"Start {breite}: Button führt nicht zur e-Funktion ({page.url})")
+            pruefe("e-funktion" in page.url, f"Kurse {breite}: Karte führt nicht zur e-Funktion ({page.url})")
         ctx.close()
     b.close()
 

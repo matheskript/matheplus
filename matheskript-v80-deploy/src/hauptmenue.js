@@ -3,8 +3,8 @@
    Getestet in tests/hauptmenue.test.mjs. Oberfläche: funcHauptmenue.jsx.
 
    Aufbau oben: eine Kopfzeile mit Logo, Konto-Chip und ☰-Knopf. Das ☰-Menü enthält alles, was die App hat:
-   Suche · Mathilda-Karte · Weitermachen · Klasse ▾ · Mathe-Training ▾ (alle Werkzeuge nach Stufe) ·
-   Meine Kurse (Karten-Leiste) · Mein Training ▾ · Mathe entdecken ▾ · Formelsammlung ▾,
+   Suche · Mathilda-Karte · Weitermachen · Klasse ▾ · Der Weg zum Abi ▾ (alle Werkzeuge nach Stufe) ·
+   Kurse (Karten-Leiste) · Mein Training ▾ · Mathe entdecken ▾ · Formelsammlung ▾ – dieselben Namen wie die Blöcke der Startseite,
    darunter die Konto-Karte und ganz unten Abmelden bzw. Anmelden.
    Das frühere Kopfmenü (Startseite, Landingpage, Sprache, Entwürfe) ist als
    „Arbeitsmenü“ in die Fußzeile gewandert (funcArbeitsmenue.jsx).
@@ -93,9 +93,9 @@ export function klasseErmitteln(profil, quickfinder) {
   return null;
 }
 
-/* Beschriftung des Knopfs: „Klasse 10 (G9)“, „Klasse 5/6 (G8)“, ohne Wahl „Meine Klasse“ */
+/* Beschriftung des Knopfs: „Klasse 10 (G9)“, „Klasse 5/6 (G8)“, ohne Wahl „Deine Klasse“ (wie die Schublade der Startseite) */
 export function klasseLabel(k) {
-  if (!k) return "Meine Klasse";
+  if (!k) return "Deine Klasse";
   const s = SCHULARTEN.find((x) => x.id === k.schulart);
   const box = klassenBoxen(k.schulart).find((b) => b.id === k.box);
   return `Klasse ${box ? box.label : k.box} (${s ? s.name : "?"})`;
@@ -116,19 +116,19 @@ export function klassenInhalt(k) {
   return { kapitel, kurse: kurseFuer(k.schulart, k.box, 4), bald: BALD_KURSE, stufe: stufeAusKlassenBox(box) };
 }
 
-/* ---------- Meine Kurse ---------- */
+/* ---------- Kurse (☰ „Kurse“, Startseite Block „Kurse“ und Seite /kurse lesen alle von hier; Pen & Paper als erster Schritt vorn) ---------- */
 /* Im Menü als Karten-Leiste (funcHauptmenue.jsx gibt jeder Karte Farbe und Zeichen über die id).
    „Kurs“ heißt nur das, was eine Lack-Kachel hat (Sprachregelung 21.10.); kleinere Angebote stehen unter „Weitere Lernangebote“.
    Werkzeuge (z. B. Textaufgaben übersetzen) sind nie Kurse – sie stehen im Mathe-Training. */
 const KURSE_ALLE = [
   { id: "abizentrum", name: "Mathe-Abi-Masterclass", zeile: "Abi-Plan, Prüfungsaufgaben, Mia, Lernpartner – und der Kursbereich", ziel: { ansicht: "abi" } },
+  { id: "penpaper", name: "Pen & Paper", zeile: "Sauber aufschreiben in neun Lektionen – kostenlos", ziel: { ansicht: "penpaperkurs" } },
   { id: "unterstufe", name: "Unterstufe", zeile: "Klasse 5 und 6: der ganze Stoff, lesen und gleich üben", ziel: { ansicht: "unterstufe" } },
   { id: "geokurs", name: "Dreiecksgeometrie", zeile: "Klasse 7–9: Schulbuch lesen und direkt trainieren", ziel: { ansicht: "geokurs" } },
   { id: "diffkurs", name: "Differentialrechnung", zeile: "Schulbuch lesen und direkt trainieren", ziel: { ansicht: "diffkurs" } },
   { id: "vekkurs", name: "Vektoren, Geraden & Ebenen", zeile: "Heftkapitel lesen und trainieren", ziel: { ansicht: "vekkurs" } },
   { id: "gfs", name: "GFS-Training", zeile: "Thema wählen, verstehen, vortragen", ziel: { ansicht: "gfs" } },
   { id: "kiwahl", name: "Mathe mit KI lernen", zeile: "Mathilda AI für alle, Gemini ab 16, Claude ab 18", ziel: { ansicht: "kiwahl" } },
-  { id: "penpaper", name: "Pen & Paper", zeile: "Sauber aufschreiben in neun Lektionen", ziel: { ansicht: "penpaperkurs" } },
 ];
 /* Weitere Lernangebote (kleine Karten unter den Kursen) */
 export const WEITERE_ANGEBOTE = [
@@ -245,8 +245,8 @@ export function zuletztAus(roh, jetzt = new Date()) {
    „Meine Kurse“ ist eine Karten-Leiste (immer sichtbar) zwischen Mathe-Training und Mein Training. */
 export const LEISTE = [
   { id: "klasse", name: null },          // Beschriftung aus klasseLabel()
-  { id: "schultraining", name: "Mathe-Training" },
-  { id: "training", name: "Mein Mathe-Training" },
+  { id: "schultraining", name: "Der Weg zum Abi" },   // heißt auf der Startseite genauso (Block „Lernen“)
+  { id: "training", name: "Mein Training" },            // Startseite: Block „Heute“; die Seite „Mein Mathe-Training“ ist ein Punkt darin
   { id: "entdecken", name: "Mathe entdecken" },
   { id: "mathematik", name: "Formelsammlung" },
 ];

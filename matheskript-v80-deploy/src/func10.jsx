@@ -6,7 +6,7 @@ import { KOMP } from "./base3.jsx";
 import { NAV, SCHULKLASSEN, kiKopf, kiAntwort } from "./base4.jsx";
 import { dekodieren, jsonLesen, rendern } from "./func1.jsx";
 import { ToolMenue, werkzeugMerken } from "./func2.jsx";
-import { Startseite, StartModusSchalter } from "./funcStartseite.jsx";
+import { Startseite } from "./funcStartseite.jsx";
 import { startModusSetzen, modusAusPfad } from "./startModus.js";
 import { WerkzeugLeiste, WerkzeugBand } from "./funcWerkzeuge.jsx";
 import { tabTitel } from "./seitenTitel.js";
@@ -63,6 +63,7 @@ const DokumenteSeite = lazyLaden(() => import("./funcDokumente.jsx").then((m) =>
 const BlogSeite = lazyLaden(() => import("./funcBlog.jsx").then((m) => ({ default: m.BlogSeite })));
 /* Vision (öffentlich): /vision – Menüpunkt „Vision“ im Besuchermenü, endet mit den Angeboten (Pen & Paper zuerst) */
 const VisionSeite = lazyLaden(() => import("./funcVision.jsx").then((m) => ({ default: m.VisionSeite })));
+const KurseSeite = lazyLaden(() => import("./funcKurseSeite.jsx").then((m) => ({ default: m.KurseSeite })));
 const EntdeckenSeite = lazyLaden(() => import("./funcEntdecken.jsx").then((m) => ({ default: m.EntdeckenSeite })));
 const PenPaperKursSeite = lazyLaden(() => import("./funcPenPaperKurs.jsx").then((m) => ({ default: m.PenPaperKursSeite })));
 const KontoSeite = lazyLaden(() => import("./funcKonto.jsx").then((m) => ({ default: m.KontoSeite })));
@@ -932,7 +933,7 @@ export function Mathilda() {
           <AdvancedPlotter />
         </>
       ) : ansicht === "start" ? (
-        <><Startseite gehe={gehe} /><StartModusSchalter /></>
+        <Startseite gehe={gehe} />
       ) : ansicht === LANDING ? (
         <Landingpage gehe={gehe} />
       ) : ansicht === "kanal" ? (
@@ -1104,6 +1105,8 @@ export function Mathilda() {
         <EntwurfTor gehe={gehe}><DokumenteSeite /></EntwurfTor>
       ) : ansicht === "blog" ? (
         <BlogSeite gehe={gehe} seite={blogSeite} setSeite={setBlogSeite} />
+      ) : ansicht === "kursliste" ? (
+        <KurseSeite gehe={gehe} />
       ) : ansicht === "vision" ? (
         <VisionSeite gehe={gehe} />
       ) : ansicht === "challenge" ? (

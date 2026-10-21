@@ -81,6 +81,7 @@ export const TOOL_SAETZE = {
 
 /* Trainings- und Lernseiten, die kein Eintrag in werkzeuge.js sind (Schlüssel = Ansicht) */
 export const SEITEN_SAETZE = {
+  kursliste: { de: "alle Mathe-Kurse von Pen & Paper bis zur Abi-Masterclass", en: "all maths courses from Pen & Paper to the Abi masterclass" },
   unterstufe: { de: "den ganzen Stoff von Klasse 5 und 6 lernen und üben", en: "learn and practise everything from grades 5 and 6" },
   warmup: { de: "fünf Minuten Mathe am Tag trainieren", en: "train maths for five minutes a day" },
   headnumbers: { de: "Kopfrechnen trainieren", en: "train mental arithmetic" },

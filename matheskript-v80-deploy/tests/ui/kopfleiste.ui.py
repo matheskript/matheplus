@@ -189,11 +189,11 @@ with sync_playwright() as p:
                     pruefe(markiert("mathilda"), f"{tag}: Mathilda nicht markiert")
                     punkt_klicken("blog"); page.wait_for_timeout(1500)
                     pruefe(page.url.rstrip("/").endswith("/blog"), f"{tag}: Blog-Adresse {page.url}")
-                    pruefe(page.locator("[data-blog-liste] .bl-eintrag").count() == 6, f"{tag}: Blog zeigt nicht sechs Beiträge")
+                    pruefe(page.locator("[data-blog-liste] .bl-eintrag").count() == 7, f"{tag}: Blog zeigt nicht sieben Beiträge")
                     pruefe(markiert("blog"), f"{tag}: Blog nicht markiert")
                     pruefe(not page.evaluate("document.documentElement.scrollWidth > window.innerWidth + 1"), f"{tag}: Blog Überbreite")
                     foto(page, f"blog-{breite}", ganz=True)
-                    page.locator(".bl-box").nth(1).click(); page.wait_for_timeout(1200)
+                    page.locator(".bl-box").nth(2).click(); page.wait_for_timeout(1200)   # 0 = die 7 Mathe-Mythen (seit 21.10. abends), 1 = Klausurzeit
                     pruefe("/blog/vektoren-sind-pfeile" in page.url, f"{tag}: Beitragsadresse {page.url}")
                     pruefe(page.locator("[data-blog-beitrag] .bl-text p").count() >= 3, f"{tag}: Beitragstext fehlt")
                     foto(page, f"beitrag-{breite}", ganz=True)

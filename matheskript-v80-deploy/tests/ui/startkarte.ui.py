@@ -3,7 +3,7 @@
   Schulsystem G8 → 7 Klassen-Knöpfe. Klasse 11 wählen → Heute-Karte, Quickfinder UND Onboarding gespeichert.
 · Klassen-Chip der Heute-Karte → Klassenwahl mit „Abbrechen“.
 · Elternteil → Eltern-Zeilen, „Ändern“ → zurück zur Klassenwahl.
-· Wiederkehrer am Handy: kompakte Bühne (Haken ausgeblendet); ab 1100 px: Karte rechts in der Bühne.
+· Wiederkehrer am Handy: kompakte Bühne (kein Goldknopf); ab 1100 px: Karte rechts in der Bühne. Neue Besucher: Goldknopf „Pen & Paper starten“.
 · Kopfleiste, Pille, keine Seitenüberbreite, keine Konsolenfehler bei 360, 390 und 1280 px.
   npx vite build && npx vite preview --port 4173 &   →   python3 tests/ui/startkarte.ui.py
 """
@@ -43,13 +43,14 @@ with sync_playwright() as p:
         pruefe(wahl.count() == 1, f"{tag}: Klassenwahl fehlt")
         pruefe(pg.locator("text=In welcher Klasse bist du?").count() == 1, f"{tag}: Frage fehlt")
         pruefe(pg.locator("[data-start-meintraining]").count() == 0, f"{tag}: alte Kachel „Mein Mathe-Training“ steht noch da")
-        pruefe(pg.locator("text=Alles zu deiner Klasse").count() == 0, f"{tag}: Schublade vor der Klassenwahl")
+        pruefe(pg.locator("[aria-label='Deine Klasse aufklappen']").count() == 0, f"{tag}: Schublade vor der Klassenwahl")
         pruefe(pg.locator("text=Wer bist du?").count() == 0, f"{tag}: altes Onboarding fragt noch")
         pruefe(pg.locator("[data-sk-schulart='g9'][aria-pressed='true']").count() == 1, f"{tag}: G9 nicht vorbelegt")
         pruefe(pg.locator("[data-sk-klasse]").count() == 8, f"{tag}: G9 hat nicht 8 Klassen-Knöpfe")
         if breit:
             pruefe(pg.locator(".sbb-held-karte [data-startkarte='wahl']").count() == 1, f"{tag}: Karte nicht in der Bühne")
             pruefe(wahl.bounding_box()["y"] + wahl.bounding_box()["height"] <= hoehe, f"{tag}: Klassenwahl nicht ohne Scrollen sichtbar")
+        pruefe(pg.locator("[data-start-los]").count() == 1, f"{tag}: Goldknopf „Pen & Paper starten“ fehlt für neue Besucher")
         pg.screenshot(path=f"{AUS}/neu-{tag}.png")
         pg.locator("[data-sk-schulart='g8']").click(); pg.wait_for_timeout(150)
         pruefe(pg.locator("[data-sk-klasse]").count() == 7, f"{tag}: G8 hat nicht 7 Klassen-Knöpfe")
@@ -63,17 +64,19 @@ with sync_playwright() as p:
         pruefe(q.get("schulart") == "g9" and q.get("klasse") == "11", f"{tag}: Quickfinder nicht gespeichert ({q})")
         pruefe(o.get("rolle") == "schueler" and o.get("klasse") == 11 and o.get("thema") == "analysis", f"{tag}: Onboarding nicht gespeichert ({o})")
         pruefe(pg.locator("[data-startkarte='gast']").count() == 1, f"{tag}: Konto-Zeile (Gast) fehlt")
-        pruefe(pg.locator("text=Alles zu deiner Klasse").count() == 1, f"{tag}: Schublade fehlt")
+        pruefe(pg.locator("[aria-label='Deine Klasse aufklappen']").count() == 1, f"{tag}: Schublade „Deine Klasse“ fehlt")
         # Schublade auf: der Quickfinder fragt die Klasse NICHT noch einmal (Chip statt Auswahl)
-        pg.locator("[aria-label='Alles zu deiner Klasse aufklappen']").click(); pg.wait_for_timeout(500)
+        pg.locator("[aria-label='Deine Klasse aufklappen']").click(); pg.wait_for_timeout(500)
         pruefe(pg.locator("text=Wähle dein Schulsystem und deine Klasse").count() == 0, f"{tag}: Schublade fragt die Klasse noch einmal")
-        pg.locator("[aria-label='Alles zu deiner Klasse zuklappen']").click(); pg.wait_for_timeout(300)
+        pg.locator("[aria-label='Deine Klasse zuklappen']").click(); pg.wait_for_timeout(300)
         pg.reload(); pg.wait_for_timeout(1500)
-        ul = pg.locator(".sbb-held ul")
+        # Wiederkehrer: kompakte Bühne, kein Goldknopf „Pen & Paper starten“ mehr (die Heute-Karte hat den Goldknopf); Masterclass-Kachel für Klasse 11
+        pruefe(pg.locator("[data-start-los]").count() == 0, f"{tag}: Goldknopf der Bühne trotz bekannter Klasse")
+        pruefe(pg.locator(".kk[data-abi-kachel]").count() == 1, f"{tag}: Masterclass-Kachel fehlt für die Oberstufe")
         if breit:
             pruefe(pg.locator(".sbb-held-karte [data-heute-karte]").count() == 1, f"{tag}: Heute-Karte nicht in der Bühne")
         else:
-            pruefe(not ul.is_visible(), f"{tag}: Bühne für Wiederkehrer nicht kompakt")
+            pruefe("kompakt" in (pg.locator(".sbb-held").get_attribute("class") or ""), f"{tag}: Bühne für Wiederkehrer nicht kompakt")
         pg.screenshot(path=f"{AUS}/heute-{tag}.png")
         # Klassen-Chip → Klassenwahl mit Abbrechen
         pg.locator("[data-heute-karte] .hk-klasse").click(); pg.wait_for_timeout(300)
@@ -89,7 +92,7 @@ with sync_playwright() as p:
         pruefe(pg.locator("[data-startkarte='wahl']").count() == 1, f"{tag}: „Ändern“ führt nicht zur Klassenwahl")
 
         pruefe(pg.evaluate("document.documentElement.scrollWidth - innerWidth") <= 0, f"{tag}: Seite breiter als der Bildschirm")
-        pruefe(pg.evaluate("getComputedStyle(document.querySelector('.sbb-schalter')).position") == "static", f"{tag}: Modus-Pille schwebt noch")
+        pruefe(pg.locator(".sbb-schalter").count() == 0, f"{tag}: Modus-Pille steht wieder auf der Startseite")
         pruefe(not konsole, f"{tag}: Konsolenfehler {konsole[:2]}")
         ctx.close()
     b.close()

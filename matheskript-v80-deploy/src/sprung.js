@@ -111,6 +111,7 @@ export const SPRUENGE = {
 
   "konto-abschnitt":        { an: true,  art: "anker", wo: "Hauptmenü → Konto: „Meine Kinder“, „Meine Klassen“, „Meine Schüler“, „Mein Plan“ springen zum Abschnitt auf der Kontoseite" },
   "kopfmenue-anker":        { an: true,  art: "anker", wo: "Besuchermenü in der Kopfleiste (nicht angemeldet): „Mathe lernen“ springt zum Abschnitt auf der Startseite (id lernen); ebenso „Alle Werkzeuge ansehen“ auf der Vision-Seite" },
+  "start-anker":            { an: true,  art: "anker", wo: "Startseite: Band unter der Kopfleiste (Heute · Lernen · Mathilda · Kurse · Entdecken) springt zum Abschnitt; „Zur Vision“ und „Alle Kurse“ sind Seitenwechsel" },
   "vision-kapitel":         { an: true,  art: "anker", wo: "Vision-Seite (/vision): Kapitelübersicht unter der Bühne, Kapitel-Leiste links (ab 1360 px), „Die Vision lesen“ und die drei Schritt-Karten springen zum Abschnitt" },
 
   /* ---------------- Im Blick halten ---------------- */
@@ -157,7 +158,8 @@ export function springeZuId(schluessel, elementId, maxMs = 3000) {
         // Nach dem Scrollen einmal nachjustieren: Ziel 12 px unter der Leiste. Gehört zum selben Sprung (gleicher Schlüssel).
         setTimeout(() => {
           const kopf = document.querySelector(".kl[data-klebrig]");
-          const h = kopf ? kopf.getBoundingClientRect().bottom : 0;
+          const band = document.querySelector("[data-start-band]");   // Band der Startseite klebt unter der Kopfleiste und zählt dazu
+          const h = Math.max(kopf ? kopf.getBoundingClientRect().bottom : 0, band ? band.getBoundingClientRect().bottom : 0);
           const oben = el.getBoundingClientRect().top;
           if (oben < h || oben > h + 40) window.scrollBy({ top: oben - h - 12, behavior: "auto" });
         }, 700);

@@ -9,9 +9,9 @@
      Drei Spalten (ab 1280 px; darunter zwei: links Mathilda-Spalte, rechts B über C)
        A  Mathilda-Karte (Blatt scannen + Chat, Rechenweg, Textaufgabe, Klausur, Pen & Paper)
           · Weitermachen (zuletzt benutztes Werkzeug) · Dein Schulbuch (Klasse, Kapitel, Kurs dazu) · Formelsammlung
-       B  Mathe-Training (Stufe → Bereiche als Kacheln → Stationen → Werkzeuge)
-          · Mein Mathe-Training (8 Kacheln)
-       C  Meine Kurse (Lack-Karten mit echtem Stand aus kursStand.js + kleine Kurse) · Mathe entdecken
+       B  Der Weg zum Abi (Stufe → Bereiche als Kacheln → Stationen → Werkzeuge)
+          · Mein Training (8 Kacheln)
+       C  Kurse (Lack-Karten mit echtem Stand aus kursStand.js + kleine Kurse) · Mathe entdecken
      Fußzeile: Konto-Punkte bzw. Test-Account · Darstellung Dunkel | Hell | Mix · Abmelden/Anmelden
 
    Nur echte Daten: Fortschritt steht nur dort, wo es ihn gibt (Kursstand, zuletzt benutztes Werkzeug).
@@ -381,7 +381,7 @@ function MatheTrainingDesktop({ gehe, aktuell, stufe, setzeStufe, zuletzt, aktiv
   const offenerBereich = offenIndex >= 0 ? bereiche[offenIndex] : null;
   const stufeInfo = STUFEN.find((s) => s.id === stufe);
   return (
-    <section className="hmd-karte hmd-held hmd-dunkel" data-hmd-abschnitt="schultraining" aria-label={tr("Mathe-Training")}>
+    <section className="hmd-karte hmd-held hmd-dunkel" data-hmd-abschnitt="schultraining" aria-label={tr("Der Weg zum Abi")}>
       <div className="hmd-kopf-zeile" style={{ alignItems: "flex-end", flexWrap: "wrap", marginBottom: 0 }}>
         <div style={{ minWidth: 0 }}>
           <p className="hmd-kicker">{LEISTE.find((p) => p.id === "schultraining").name}{aktiv && <span className="hmd-punkt" title="Hier bist du gerade" />}</p>
@@ -732,9 +732,9 @@ export function DesktopMenue({
 
           {/* ===== C · Meine Kurse, Mathe entdecken ===== */}
           <div className="hmd-sp c">
-            <section className="hmd-karte" data-hm-kurse aria-label={tr("Meine Kurse")}>
+            <section className="hmd-karte" data-hm-kurse aria-label={tr("Kurse")}>
               <div className="hmd-kopf-zeile">
-                <p className="hmd-kicker"><span>Meine Kurse</span><span className="zahl" data-kein-i18n>{KURSE.length}</span>{aktiv === "kurse" && <span className="hmd-punkt" title="Hier bist du gerade" />}</p>
+                <p className="hmd-kicker"><span>Kurse</span><span className="zahl" data-kein-i18n>{KURSE.length}</span>{aktiv === "kurse" && <span className="hmd-punkt" title="Hier bist du gerade" />}</p>
               </div>
               <div className="hmd-lacke">
                 {grossSortiert.map((k) => <LackKarte key={k.id} k={k} gehe={geh} aktuell={aktuell} gross={k.id === breitId} />)}

@@ -72,7 +72,8 @@ export const SEITEN = [
 
   /* Lernen */
   { pfad: "arbeitsheft", ansicht: "training", ziel: "module", alias: ["module"] },
-  { pfad: "videokurse", ansicht: "kurse", alias: ["kurse"] },
+  { pfad: "kurse", ansicht: "kursliste", alias: ["alle-kurse", "kursliste"] },
+  { pfad: "videokurse", ansicht: "kurse", alias: ["video-kurse"] },
   { pfad: "videokurse/pen-und-paper", ansicht: "kurse", kurs: "penpaper", alias: ["pen-und-paper"] },
   { pfad: "mathe-entdecken", ansicht: "entdecken", alias: ["entdecken"] },
   { pfad: "mathe-entdecken/axiome", ansicht: "entdecken", seite: "axiome" },

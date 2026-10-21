@@ -9,7 +9,28 @@
    Die sechs Texte hier sind Beispiele zum Austauschen.
    ====================================================================== */
 
+/* Die 7 Mathe-Mythen (früher hinter Passwort auf der Startseite, seit 21.10. abends öffentlich hier; die Startseite verlinkt den Beitrag) */
+export const MYTHEN_SLUG = "sieben-mathe-mythen";
+
 export const BLOG = [
+  {
+    slug: MYTHEN_SLUG,
+    titel: "Die 7 Mathe-Mythen – und warum sie nicht stimmen",
+    datum: "2026-10-21",
+    kurz: "Sieben Sätze, die Schüler bremsen. Keiner davon hält einer genauen Prüfung stand.",
+    motiv: "raster",
+    absaetze: [
+      "Hinter schlechten Mathenoten steckt fast nie ein schlechtes Gehirn, sondern ein Satz, den man irgendwann geglaubt hat. Sieben davon höre ich seit Jahren immer wieder. Hier sind sie – und was tatsächlich dahintersteckt.",
+      "1 · „Mathe ist Talent.“ Es gibt kein Mathe-Gen. Gute Noten entstehen aus Methode, Wiederholung und Übung – genau wie beim Klavier oder beim Fußball. Wer früh Erfolg hatte, hat meist früher ein gutes System gefunden, kein besseres Gehirn.",
+      "2 · „Ich bin kein Mathe-Typ.“ Der Satz beschreibt einen Zustand, kein Urteil. „Ich verstehe das noch nicht“ stimmt – „ich kann das nicht“ nie. Sobald die Lücke gefunden ist, lässt sie sich schließen.",
+      "3 · „Gute Schüler rechnen schnell.“ Tempo ist ein Ergebnis von Sicherheit, nicht ihre Ursache. Wer sauber und in kleinen Schritten arbeitet, wird von allein schneller – wer hetzt, macht Flüchtigkeitsfehler.",
+      "4 · „Fehler zeigen, dass ich es nicht kann.“ Fehler sind Information. Sie zeigen genau die Stelle, an der der Weg bricht. Wer seine Fehlerarten kennt, hat den größten Teil der Arbeit schon getan.",
+      "5 · „Wenn ich die Lösung verstehe, kann ich es.“ Eine Musterlösung nachzuvollziehen ist etwas anderes, als selbst auf die Idee zu kommen. Verstanden ist eine Aufgabe erst, wenn du sie ein paar Tage später ohne Hilfe löst.",
+      "6 · „Viel auf einmal üben bringt am meisten.“ Das Gehirn vergisst schnell – und behält, was im richtigen Abstand wiederkommt. Kurz und regelmäßig schlägt den Marathon am Abend vor der Klausur.",
+      "7 · „Im Kopf rechnen ist besser als aufschreiben.“ Der Kopf hat wenig Arbeitsspeicher. Ein klarer Rechenweg auf dem Papier entlastet ihn, macht Fehler sichtbar und ist zugleich dein Beweis in der Klausur.",
+      "Jeder dieser Sätze fühlt sich wie eine Beobachtung an. Alle sieben sind Gewohnheiten, die man ablegen kann – und genau dafür ist das System da: wie du denkst, wie du rechnest, wie du schreibst und wie du Gelerntes behältst.",
+    ],
+  },
   {
     slug: "klausurzeit",
     titel: "Klausurzeit: drei Dinge, die mehr bringen als eine Nachtschicht",

@@ -7,6 +7,16 @@
    Felder: name, zeile, bild (Motiv MiniBild auf der Startseite), zeichen (Kurzsymbol im Menü), ziel, etikett.
    ====================================================================== */
 
+/* Das Band unter der Kopfleiste der Startseite (funcStartseite.jsx, StartBand): ein Chip je Block,
+   die Ids sind die Anker der Abschnitte (Besuchermenü „Mathe lernen“ springt ebenfalls zu „lernen“). */
+export const START_ANKER = [
+  { id: "heute", name: "Heute", en: "Today" },
+  { id: "lernen", name: "Lernen", en: "Learn" },
+  { id: "mathilda", name: "Mathilda", en: "Mathilda" },
+  { id: "kurse", name: "Kurse", en: "Courses" },
+  { id: "entdecken", name: "Entdecken", en: "Explore" },
+];
+
 /* Abi-Vorbereitung: gehört nur zur Oberstufe (und „Alle“) und besteht aus Seiten, nicht aus Werkzeugen des Registers */
 export const ABI_MENUE = [
   { name: "Abi-Ketten", zeile: "Eine Abi-Aufgabe durch mehrere Werkzeuge", bild: "abikette", zeichen: "⛓", ziel: { ansicht: "abiketten" }, etikett: "trainieren" },

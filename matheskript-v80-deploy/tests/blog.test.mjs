@@ -3,14 +3,16 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { BLOG, beitragVon, istBlogBeitrag, naechsterBeitrag, datumLang, lesezeit } from "../src/blogDaten.js";
+import { BLOG, MYTHEN_SLUG, beitragVon, istBlogBeitrag, naechsterBeitrag, datumLang, lesezeit } from "../src/blogDaten.js";
 import { pfadAufloesen, pfadFuer } from "../src/pfade.js";
 import { KEIN_TEILEN } from "../src/teilen.js";
 
 const quelle = (f) => readFileSync(new URL(`../src/${f}`, import.meta.url), "utf8");
 
-test("Sechs Beiträge, jeder vollständig, Slugs eindeutig und pfadtauglich, neueste zuerst", () => {
-  assert.equal(BLOG.length, 6);
+test("Sieben Beiträge (seit 21.10. die 7 Mathe-Mythen vorn), jeder vollständig, Slugs eindeutig und pfadtauglich, neueste zuerst", () => {
+  assert.equal(BLOG.length, 7);
+  assert.equal(BLOG[0].slug, MYTHEN_SLUG, "die 7 Mathe-Mythen stehen nicht vorn");
+  assert.equal((BLOG[0].absaetze.join(" ").match(/\d · „/g) || []).length, 7, "nicht sieben Mythen");
   const slugs = new Set();
   for (const b of BLOG) {
     assert.match(b.slug, /^[a-z0-9-]+$/, b.slug);
