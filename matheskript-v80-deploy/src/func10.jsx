@@ -949,17 +949,8 @@ export function Mathilda() {
         </>
       ) : ansicht === "gleichungen" ? (
         <>
-          <div className="kopfblock" style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 31, letterSpacing: "-0.03em", lineHeight: 1.05 }}>Gleichungen lösen</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
-              <SektionsMenue />
-              <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
-                Gleichung lösen heißt, die Rechnung rückwärts zu gehen — Schritt für Schritt, auf beiden Seiten.
-              </p>
-            </div>
-            <div style={{ height: 24, background: C.sand, borderRadius: "20px 20px 0 0" }} />
-          </div>
+          {band}
+          <div aria-hidden="true" style={{ height: 18 }} />
           <Gleichungsloeser />
         </>
                   ) : ansicht === "geradengleichung" ? (

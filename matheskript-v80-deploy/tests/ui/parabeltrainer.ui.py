@@ -4,7 +4,7 @@ Je Breite (360, 390, 1280) und Sprache (DE, EN):
   · jedes Kernthema, jeder Aufgabentyp: Aufgabe mit falscher Eingabe → Rückmeldung → „Lösung zeigen“ bis zum Ende
   · eine ganze Runde (10 Aufgaben) bis zur Auswertung
   · Entdecken-Modus und die Extra-Themen Brennpunkt und Schnittpunkte öffnen
-  · Parabeln ist eine eigene Station (nicht mehr bei Geraden, Sinus, Wachstum)
+  · Parabeln ist eine eigene Station (nicht bei Sinus, Wachstum) und im Band des Kurses Mittelstufe
   npm run build && npx vite preview --port 4173 &   →   python3 -u tests/ui/parabeltrainer.ui.py
 """
 import os
@@ -67,9 +67,9 @@ with sync_playwright() as p:
             pruefe(page.locator("[data-werkzeug-band]").count() == 1, f"{wo0}: kein Werkzeug-Band")
             pruefe(page.locator(".pt-kopf").count() == 1, f"{wo0}: Trainer nicht geladen")
 
-            # Station: Parabeln allein
+            # Kurs Mittelstufe (trainingsKurse.js): Geraden · Parabeln · Pythagoras · Gleichungen · Brüche und Wurzeln
             opts = page.locator("[data-werkzeug-band] .wb-tab")
-            pruefe(opts.count() == 1, f"{wo0}: Station Parabeln hat {opts.count()} Werkzeuge statt 1")
+            pruefe(opts.count() == 5, f"{wo0}: Kurs Mittelstufe hat {opts.count()} Reiter statt 5")
 
             for t, nchips in THEMEN.items():
                 thema_waehlen(page, sprache, t)
@@ -120,10 +120,9 @@ with sync_playwright() as p:
     page.locator("[data-werkzeug-leiste] button[aria-haspopup=listbox]").click(); page.wait_for_timeout(100)
     chips = [c.inner_text() for c in page.locator("[data-werkzeug-leiste] [role=option]").all()]
     pruefe(not any("Parabel" in c for c in chips) and len(chips) >= 2, f"Station Kennen zeigt noch Parabeln: {chips!r}")
-    # Gleichungen: Geraden → Weiter → Parabeln
+    # Geraden → Parabeln: Reiter im Kurs Mittelstufe (früher „Weiter: Parabeln“ im Tools-Feld)
     page.goto(BASE + "geradengleichung"); page.wait_for_timeout(1000)
-    page.locator("[data-wb-tools]").click(); page.wait_for_timeout(100)
-    pruefe(page.locator("[data-wb-panel] button", has_text="Weiter: Parabeln").count() == 1, "Geraden: kein „Weiter: Parabeln“")
+    pruefe(page.locator("[data-werkzeug-band] .wb-tab", has_text="Parabeln").count() == 1, "Geraden: kein Reiter Parabeln")
     b.close()
 
 print("\n".join(fehler) if fehler else "Alles in Ordnung.")

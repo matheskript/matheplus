@@ -71,6 +71,7 @@ export const TOOL_SAETZE = {
   thales: { de: "den Satz des Thales anwenden", en: "apply Thales' theorem" },
   pythagoras: { de: "mit dem Satz des Pythagoras rechnen", en: "calculate with Pythagoras' theorem" },
   bruchrechnen: { de: "mit Brüchen rechnen", en: "calculate with fractions" },
+  bruchwurzel: { de: "mit Brüchen und Wurzeln rechnen", en: "work with fractions and roots" },
   bruchterme: { de: "Bruchterme und Bruchgleichungen lösen", en: "work with fraction terms and equations" },
   strahlensaetze: { de: "Strahlensätze anwenden", en: "apply the intercept theorems" },
   trigonometrie: { de: "Trigonometrie vom Einheitskreis bis zum Kosinussatz verstehen", en: "understand trigonometry from the unit circle to the law of cosines" },

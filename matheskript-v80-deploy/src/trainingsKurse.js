@@ -17,6 +17,13 @@
 import { WERKZEUGE, ansichtenVon, werkzeug } from "./werkzeuge.js";
 
 export const KURSE = [
+  /* Mittelstufe: ein allgemeiner Kurs statt je Gebiet – dort hat jedes Thema nur einen Trainer.
+     gruppen = Gebiete aus Mein Mathe-Training, bei denen dieser Kurs unter „Deine Kurse“ erscheint.
+     „√(…)“ in namen/kurzNamen setzt das Band mit MitWurzeln (Haken + Überstrich als ein Linienzug). */
+  { id: "mittel", gruppe: "Mittelstufe", gruppen: ["Bruchrechnen", "Geometrie"], titel: "Mittelstufe", stufe: "", zeile: "Geraden, Parabeln, Pythagoras, Gleichungen, Brüche und Wurzeln",
+    werkzeuge: ["geradengleichung", "parabeln", "pythagoras", "gleichungen", "bruchwurzel"],
+    namen: { pythagoras: "Pythagoras", gleichungen: "Gleichungen", bruchwurzel: "Brüche und √(Wurzeln)" },
+    kurzNamen: { gleichungen: "Gleichungen", bruchwurzel: "Brüche und √(Wurzeln)" } },
   { id: "analysis-ober", gruppe: "Analysis", titel: "Analysis", stufe: "Oberstufe", zeile: "Ableiten, Kurven, Integrale",
     werkzeuge: ["ableitungstrainer", "kurvendiskussion", "scharen", "steckbrief", "optimierung", "integrale"],
     namen: { steckbrief: "Steckbrief", optimierung: "Optimierung" } },
@@ -31,6 +38,8 @@ export const KURSE = [
 /* Reiter-Name im Band am Desktop (ab 1000 px): eigener Kurzname des Kurses, sonst der volle Werkzeugname.
    Darunter steht der kurze Name aus werkzeuge.js (kurz). */
 export const reiterName = (k, id, w) => (k && k.namen && k.namen[id]) || w.name;
+/* Reiter-Name unter 1000 px: eigener Kurzname des Kurses, sonst kurz aus werkzeuge.js */
+export const reiterKurz = (k, id, w) => (k && k.kurzNamen && k.kurzNamen[id]) || w.kurz || w.name;
 
 export const SPEICHER = "matheplus-trainingskurse";   // { gewaehlt: [id …], zuletzt: id }
 
@@ -54,7 +63,7 @@ export function meineKurse(training, gebietVon = () => null) {
   const MT = training && training.meinTraining;
   const themen = MT ? [...(MT.aktiv || []), ...(MT.danach || [])] : [];
   const gebiete = new Set(themen.map((t) => { try { return gebietVon(t.id, t.teile || null); } catch { return null; } }).filter(Boolean));
-  const aus = KURSE.filter((k) => gebiete.has(k.gruppe));
+  const aus = KURSE.filter((k) => (k.gruppen || [k.gruppe]).some((g) => gebiete.has(g)));
   if (aus.length) return { kurse: aus, quelle: "training" };
   return { kurse: KURSE.slice(), quelle: "alle" };
 }

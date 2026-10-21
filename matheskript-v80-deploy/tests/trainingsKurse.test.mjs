@@ -13,7 +13,10 @@ test("jeder Kurs hat 5–6 Trainer, alle existieren", () => {
 test("Ableitungstrainer und Kurvendiskussion (auch Beliebige) gehören zu Analysis", () => {
   assert.equal(aktuellerKurs("ableitungstrainer", {}).id, "analysis-ober");
   assert.equal(aktuellerKurs("advplotter", {}).id, "analysis-ober");
-  assert.equal(aktuellerKurs("parabeln", {}), null);
+  assert.equal(aktuellerKurs("parabeln", {}).id, "mittel");
+  assert.equal(aktuellerKurs("geradengleichung", {}).id, "mittel");
+  assert.equal(aktuellerKurs("gleichverstehen", {}).id, "mittel");
+  assert.equal(aktuellerKurs("kreis", {}), null);
   assert.deepEqual(kurseZu("bernoulli").map((k) => k.id), ["stochastik-ober"]);
 });
 
@@ -24,10 +27,19 @@ test("Wahl und Reiter", () => {
   assert.deepEqual([w.quelle, w.kurse.map((k) => k.id)], ["wahl", ["vektoren-ober"]]);
   const t = meineKurse({ meinTraining: { aktiv: [{ id: "k1" }], danach: [{ id: "k2" }] } }, (id) => ({ k1: "Stochastik", k2: "Grundlagen" })[id]);
   assert.deepEqual([t.quelle, t.kurse.map((k) => k.id)], ["training", ["stochastik-ober"]]);
-  assert.deepEqual(wahlUmschalten([KURSE[2]], "analysis-ober"), ["analysis-ober", "stochastik-ober"]);
-  assert.deepEqual(wahlUmschalten([KURSE[2]], "stochastik-ober"), []);
-  const a = KURSE[0];
+  assert.deepEqual(wahlUmschalten([KURSE[3]], "analysis-ober"), ["analysis-ober", "stochastik-ober"]);
+  assert.deepEqual(wahlUmschalten([KURSE[3]], "stochastik-ober"), []);
+  const a = KURSE.find((k) => k.id === "analysis-ober");
   assert.deepEqual(reiterFuer(a, "ableitungstrainer"), a.werkzeuge);
   assert.equal(reiterFuer(a, "stammintegral").at(-1), "stammintegral");
   assert.ok(kursAnsichten().has("plotter"));
+});
+
+test("Mittelstufe: ein Kurs mit Geraden, Parabeln, Pythagoras, Gleichungen, Brüche und Wurzeln", () => {
+  const m = KURSE.find((k) => k.id === "mittel");
+  assert.deepEqual(m.werkzeuge, ["geradengleichung", "parabeln", "pythagoras", "gleichungen", "bruchwurzel"]);
+  assert.match(m.namen.bruchwurzel, /√\(Wurzeln\)/, "Wurzelzeichen über „Wurzeln“");
+  const g = meineKurse({ meinTraining: { aktiv: [{ id: "k1" }] } }, () => "Bruchrechnen");
+  assert.deepEqual([g.quelle, g.kurse.map((k) => k.id)], ["training", ["mittel"]]);
+  assert.ok(kursAnsichten().has("bruchwurzel") && kursAnsichten().has("geradengleichung"));
 });

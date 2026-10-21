@@ -273,7 +273,7 @@ function hilfe(au) {
   });
 }
 
-function Ueben() {
+export function Ueben() {
   const [art, setArt] = useState("mix");
   const [au, setAu] = useState(() => neueAufgabe());
   const [stand, setStand] = useState(0);

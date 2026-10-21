@@ -912,6 +912,20 @@ const CSS = `
   .ger-seite{background:transparent}
   .ger-innen{background:#fff;border-radius:16px;padding:16px 18px 22px;margin-top:14px;box-shadow:0 2px 16px rgba(15,26,51,0.07)}
 }
+/* Desktop (Kurs Mittelstufe, Breite der Kopfleiste): Eingaben und Schritte links, Schaubild rechts (mitlaufend).
+   Das Bild überspannt alle Zeilen; die letzte Zeile ist flexibel, damit links keine Lücken entstehen. */
+@media (min-width:840px){
+  .ger-innen{max-width:none;width:var(--tr-breite);padding:18px 22px 24px}
+  .ger-seg{max-width:460px}
+  .ger-inhalt{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1.3fr);grid-template-rows:repeat(5,auto) 1fr;column-gap:26px;align-items:start;margin-top:14px}
+  .ger-inhalt > *{grid-column:1}
+  .ger-inhalt > .ger-bild{grid-column:2;grid-row:1 / -1;width:100%;position:sticky;top:${38 + 14}px}
+  .ger-inhalt .ger-punkte{justify-content:flex-start}
+  .ger-zeile1{flex-wrap:wrap;row-gap:6px;justify-content:flex-start}
+  .ger-zeile1 > .ger-titel{flex:1 0 100%;white-space:normal}
+  .ger-inhalt > .ger-text,.ger-inhalt > .ger-lesen{margin-top:0}
+  .ger-inhalt > .ger-lesen{margin-bottom:8px}
+}
 @media (prefers-reduced-motion:reduce){.ger-feld.an::after{animation:none}}
 `;
 

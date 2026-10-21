@@ -105,6 +105,7 @@ export const WZ_SEITEN = {
   pythagoras: { titel: "Satz des Pythagoras", groesse: "clamp(24px, 7vw, 34px)", Komp: lazy(() => import("./funcPythagorasWz.jsx"), "SatzDesPythagoras") },
   /* Bruchrechnen (Mittelstufe) */
   bruchrechnen: { titel: "Brüche rechnen", groesse: "clamp(26px, 7.6vw, 34px)", Komp: lazy(() => import("./funcBruchrechnen.jsx"), "Bruchrechnen") },
+  bruchwurzel: { titel: "Brüche und Wurzeln", groesse: "clamp(26px, 7.6vw, 34px)", Komp: lazy(() => import("./funcBruchWurzeln.jsx"), "BruchWurzeln") },
   bruchterme: { titel: "Bruchterme", groesse: "clamp(26px, 7.6vw, 34px)", Komp: lazy(() => import("./funcBruchterme.jsx"), "Bruchterme") },
   strahlensaetze: { titel: "Strahlensätze", groesse: "clamp(26px, 7.6vw, 34px)", Komp: lazy(() => import("./funcStrahlensaetze.jsx"), "Strahlensaetze") },
   trigonometrie: { titel: "Trigonometrie", groesse: "clamp(24px, 7vw, 34px)", Komp: lazy(() => import("./funcTrigonometrie.jsx"), "TrigonometrieDreieck") },

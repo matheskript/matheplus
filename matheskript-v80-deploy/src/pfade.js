@@ -27,6 +27,7 @@ import { kapitelAusSlug, kapitelPfad } from "./kapitelPfade.js";
 export const WZ_SLUG = {
   vektorgenerator: "vektorrechnen",
   zweipunkte: "zwei-punkte",
+  bruchwurzel: "brueche-und-wurzeln",
   dreipunkte: "drei-punkte",
   geraden: "geraden-im-raum",
   ebenevsebene: "ebene-vs-ebene",

@@ -118,6 +118,7 @@ const WZ_WOERTER = {
   thales: "thales satz des thales thaleskreis halbkreis rechter winkel durchmesser umkreis umkreismittelpunkt tangente berührradius",
   kongruenz: "kongruenz kongruenzsätze kongruent deckungsgleich sss sws wsw sww ssw ssw dreieck konstruieren konstruktion eindeutig dreiecksungleichung",
   bruchrechnen: "bruch brüche bruchrechnung bruchrechnen kürzen erweitern hauptnenner gleichnamig kehrwert zähler nenner gemischte zahl doppelbruch anteil ggt kgv",
+  bruchwurzel: "brüche und wurzeln wurzel wurzeln quadratwurzel quadratwurzeln wurzel ziehen teilweise wurzel ziehen wurzelgesetze nenner rational wurzelfrei",
   bruchterme: "bruchterm bruchterme bruchgleichung bruchgleichungen definitionsmenge definitionsbereich nenner null kürzen hauptnenner scheinlösung",
   geradengleichung: "lineare funktion gerade steigung achsenabschnitt y-achsenabschnitt punkt-steigungs-form zwei punkte m n y=mx+b",
   strahlensaetze: "strahlensatz strahlensätze vierstreckensatz v-figur x-figur parallelen streckfaktor zentrische streckung ähnlichkeit ähnliche dreiecke schatten baumhöhe verhältnis",

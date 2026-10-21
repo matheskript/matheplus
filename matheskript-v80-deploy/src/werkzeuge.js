@@ -140,6 +140,8 @@ export const WERKZEUGE = {
     zeichen: "0,5", bild: "dezimal", ziel: { ansicht: "dezimal" }, etikett: "trainieren", stufe: "unter", unter: true },
   bruchrechnen: { name: "Brüche rechnen", kurz: "Brüche", zeile: "Kürzen, plus, minus, mal, geteilt", slogan: "Kürzen, erweitern und alle Grundrechenarten – mit Bruchstreifen und gezielter Fehlerrückmeldung.",
     zeichen: "¾", bild: "bruch", ziel: { ansicht: "bruchrechnen" }, etikett: "trainieren", stufe: "unter", unter: true },
+  bruchwurzel: { name: "Brüche und Wurzeln", kurz: "Brüche & Wurzeln", zeile: "Bruchterme, Quadratwurzeln, Fallen", slogan: "Bruchterme kürzen und lösen, Quadratwurzeln ziehen und vereinfachen – mit den typischen Fallen.",
+    zeichen: "√x", bild: "bruchterm", ziel: { ansicht: "bruchwurzel" }, etikett: "trainieren", stufe: "mittel" },
   bruchterme: { name: "Bruchterme und -gleichungen", kurz: "Bruchterme", zeile: "Definitionsmenge, kürzen, lösen", slogan: "x im Nenner: Definitionsmenge, Kürzen nur von Faktoren, Bruchgleichungen ohne Scheinlösung.",
     zeichen: "1/x", bild: "bruchterm", ziel: { ansicht: "bruchterme" }, etikett: "trainieren", stufe: "mittel" },
 
@@ -228,7 +230,7 @@ export const BEREICHE = [
   { id: "bruchrechnen", titel: "Brüche und Dezimalzahlen", uebersicht: null, text: "Zwei Stationen: Brüche und Dezimalzahlen, Bruchterme und Bruchgleichungen.",
     stationen: [
       { id: "brueche", titel: "Brüche und Dezimalzahlen", zeile: "Kürzen, Grundrechenarten, Komma", werkzeuge: ["bruchrechnen", "dezimal"] },
-      { id: "bruchterme", titel: "Bruchterme", zeile: "x im Nenner: kürzen und lösen", werkzeuge: ["bruchterme"] },
+      { id: "bruchterme", titel: "Bruchterme", zeile: "x im Nenner: kürzen und lösen", werkzeuge: ["bruchterme", "bruchwurzel"] },
     ] },
   { id: "gleichungen", titel: "Gleichungen", uebersicht: null, text: "Fünf Stationen: Terme umformen, Gleichungen lösen, Ungleichungen und Beträge, Geraden, Parabeln.",
     video: { name: "Videokurs Gleichungen", zeile: "Umformen, Gleichungssysteme, Musterlösungen" },

@@ -15,7 +15,8 @@ import { BEREICHE, ETIKETTEN, werkzeug, wo } from "./werkzeuge.js";
 import { FR } from "./funcRegistry.jsx";
 import { MS } from "./mathText.jsx";
 import { uebergabeHinweis, uebergabeSetzen, uebergabeZurueck } from "./uebergabe.js";
-import { KURSE, aktuellerKurs, kurs, kursMerken, meineKurse, reiterFuer, reiterName, wahlUmschalten } from "./trainingsKurse.js";
+import { KURSE, aktuellerKurs, kurs, kursMerken, meineKurse, reiterFuer, reiterKurz, reiterName, wahlUmschalten } from "./trainingsKurse.js";
+import { MitWurzeln } from "./wurzelZeichen.jsx";
 import { LERN } from "./base3.jsx";
 import { themaBereich } from "./meinTraining.js";
 import { THEMEN as TRAINING_THEMEN } from "./trainingDaten.js";
@@ -327,7 +328,7 @@ export function WerkzeugBand({ ansicht, gehe, testKnopf }) {
           {werkzeug(k.werkzeuge[0]).zeichen.slice(0, 3)}
         </span>
         <span style={{ flex: 1, minWidth: 0 }}>
-          <span style={{ display: "block", lineHeight: 1.25 }}>{`${k.titel} `}<span style={{ fontWeight: 500, color: C.grau }}>{k.stufe}</span></span>
+          <span style={{ display: "block", lineHeight: 1.25 }}>{k.titel}{k.stufe && <span style={{ fontWeight: 500, color: C.grau }}>{` ${k.stufe}`}</span>}</span>
           <span style={{ display: "block", fontSize: 12, fontWeight: 400, color: C.grau, lineHeight: 1.35 }}>{`${k.werkzeuge.length} Trainer · ${k.zeile}`}</span>
         </span>
         {bearbeiten
@@ -357,10 +358,10 @@ export function WerkzeugBand({ ansicht, gehe, testKnopf }) {
             const w = werkzeug(id);
             const an = w.id === wAktiv.id;
             return (
-              <button key={id} type="button" className="wb-tab" aria-current={an ? "page" : undefined} onClick={() => !an && gehe(w.ziel)} title={w.name}
+              <button key={id} type="button" className="wb-tab" aria-current={an ? "page" : undefined} onClick={() => !an && gehe(w.ziel)} title={aktKurs ? reiterName(aktKurs, id, w).replace(/√\((.*?)\)/g, "$1") : w.name}
                 style={{ position: "relative", flexShrink: 0, height: "100%", padding: "0 10px", border: "none", background: "none", fontFamily: "inherit", cursor: an ? "default" : "pointer",
                   fontSize: 13, fontWeight: an ? 700 : 500, color: an ? C.seeTief : C.grau, whiteSpace: "nowrap", letterSpacing: "-0.005em" }}>
-                {aktKurs ? <><span className="wb-lang">{reiterName(aktKurs, id, w)}</span><span className="wb-kurz">{w.kurz || w.name}</span></>
+                {aktKurs ? <><span className="wb-lang"><MitWurzeln text={reiterName(aktKurs, id, w)} /></span><span className="wb-kurz"><MitWurzeln text={reiterKurz(aktKurs, id, w)} /></span></>
                   : <><span className="titel-lang">{w.name}</span><span className="titel-kurz">{w.kurz || w.name}</span></>}
               </button>
             );
@@ -371,7 +372,7 @@ export function WerkzeugBand({ ansicht, gehe, testKnopf }) {
           style={{ flexShrink: 0, height: 26, display: "inline-flex", alignItems: "center", gap: 5, padding: "0 9px", borderRadius: 999, fontFamily: "inherit", cursor: "pointer",
             fontSize: 12.5, fontWeight: 700, color: C.see, border: `1px solid ${auf ? C.flaggold : C.linie}`, background: auf ? "rgba(237,187,0,0.14)" : C.weiss }}>
           <KachelZeichen />
-          <span className="wb-tools-text">{aktKurs ? <>{aktKurs.titel}<span className="wb-kurs-stufe">{` ${aktKurs.stufe}`}</span></> : "Tools"}</span>
+          <span className="wb-tools-text">{aktKurs ? <>{aktKurs.titel}{aktKurs.stufe && <span className="wb-kurs-stufe">{` ${aktKurs.stufe}`}</span>}</> : "Tools"}</span>
           <Pfeil auf={auf} />
         </button>
         {auf && (
