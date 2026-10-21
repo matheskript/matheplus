@@ -172,6 +172,13 @@ export function hubJsonLd(h, url, werkzeuge = [], { datum = null } = {}) {
 
 const STIL = `max-width:720px;margin:0 auto;padding:28px 20px 48px;font-family:Montserrat,system-ui,sans-serif;color:#0E1E4A;line-height:1.6`;
 const H2 = `font-size:20px;margin:24px 0 8px`;
+/* Beispiel mit Lösungsweg (Top-Werkzeuge, Trainingstools H): Aufgabe, nummerierte Schritte, Ergebnis – derselbe Block in der App (funcWerkzeugInfo) */
+export const beispielText = (t) => t.beispiel ? [t.beispiel.aufgabe, ...t.beispiel.schritte, t.beispiel.ergebnis] : [];
+const beispielHtml = (t) => t.beispiel ? `<section><h2 style="${H2}">Beispiel mit Lösungsweg</h2>
+<p><strong>Aufgabe:</strong> ${esc(t.beispiel.aufgabe)}</p>
+<ol style="list-style:decimal;padding-left:22px">${t.beispiel.schritte.map((z) => `<li style="margin:0 0 6px">${esc(z)}</li>`).join("")}</ol>
+<p><strong>Ergebnis:</strong> ${esc(t.beispiel.ergebnis)}</p></section>
+` : "";
 const autorZeile = () => `<p style="margin-top:28px;font-size:14px;color:#4B5A7A"><strong>${esc(AUTOR.name)}</strong>, ${esc(AUTOR.rolle)} – ${esc(AUTOR.kurz)} <a href="/vision">Mehr über Mythos Mathe</a></p>`;
 const fuss = () => `<p style="margin-top:20px"><a href="/">mythosmathe.de</a> · Mathe-Coaching und Lern-App für Gymnasiasten · <a href="/trainingszentrum">Alle Werkzeuge</a> · <a href="/impressum">Impressum</a> · <a href="/datenschutz">Datenschutz</a></p>`;
 
@@ -187,7 +194,7 @@ export function seiteHtml(t, verwandte = [], { hub = null } = {}) {
 <dl style="display:grid;grid-template-columns:max-content 1fr;gap:4px 14px;margin:0 0 20px;font-size:14.5px">${steckbrief(t).map(([k, v]) => `<dt style="font-weight:700">${esc(k)}</dt><dd style="margin:0">${esc(v)}</dd>`).join("")}</dl>
 <section><h2 style="${H2}">Was kann dieses Werkzeug?</h2>
 ${t.text.map((a) => `<p>${esc(a)}</p>`).join("\n")}</section>
-${t.faq && t.faq.length ? `<section><h2 style="${H2}">Häufige Fragen</h2>
+${beispielHtml(t)}${t.faq && t.faq.length ? `<section><h2 style="${H2}">Häufige Fragen</h2>
 ${t.faq.map((q) => `<h3 style="font-size:16px;margin:16px 0 4px">${esc(q.f)}</h3><p style="margin:0">${esc(q.a)}</p>`).join("\n")}</section>` : ""}
 ${verwandte.length ? `<nav aria-label="Weitere Werkzeuge"><h2 style="${H2}">Weitere Werkzeuge: ${esc(hubLink.name)}</h2><ul>${verwandte.map((v) => `<li><a href="/${esc(v.pfad)}">${esc(v.name)}</a></li>`).join("")}</ul><p><a href="/${esc(hubLink.pfad)}">Alle Werkzeuge zu ${esc(hubLink.name)}</a></p></nav>` : ""}
 ${autorZeile()}

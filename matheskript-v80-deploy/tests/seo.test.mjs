@@ -3,7 +3,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { WERKZEUGE } from "../src/werkzeuge.js";
-import { SEO_TEXTE, SEO_SEITEN, HUB_SEITEN, HUBS, seoText, seiteHtml, hubHtml, jsonLd, hubJsonLd, verwandteVon, hubBereiche, entitaet, steckbrief, BASIS_URL } from "../src/seo/index.js";
+import { SEO_TEXTE, SEO_SEITEN, HUB_SEITEN, HUBS, seoText, seiteHtml, hubHtml, jsonLd, hubJsonLd, verwandteVon, hubBereiche, entitaet, steckbrief, beispielText, BASIS_URL } from "../src/seo/index.js";
 import { SEO_PFADE, HUB_PFADE } from "../src/seo/pfade.js";
 import { WZ_SLUG } from "../src/pfade.js";
 
@@ -15,12 +15,16 @@ test("Jeder handgeschriebene Text gehört zu einem Werkzeug und hält die Form e
     assert.ok(t.titel && t.titel.length <= 60, `${id}: Titel fehlt oder länger als 60 Zeichen (${t.titel && t.titel.length})`);
     assert.ok(t.beschreibung && t.beschreibung.length >= 110 && t.beschreibung.length <= 160, `${id}: Beschreibung nicht 110–160 Zeichen (${t.beschreibung && t.beschreibung.length})`);
     assert.ok(t.kurz && t.kurz.length <= 160, `${id}: kurz fehlt oder zu lang`);
-    assert.ok(Array.isArray(t.text) && t.text.length >= 2 && t.text.length <= 4, `${id}: text braucht 2–4 Absätze`);
-    const n = woerter(t.text);
-    assert.ok(n >= 140 && n <= 270, `${id}: Text hat ${n} Wörter (soll 150–250)`);
+    assert.ok(Array.isArray(t.text) && t.text.length >= 2 && t.text.length <= 5, `${id}: text braucht 2–5 Absätze`);
+    const n = woerter([...t.text, ...beispielText(t)]);
+    if (t.beispiel) {
+      /* Top-Werkzeuge (Trainingstools H): 400–650 Wörter mit Beispiel und Lösungsweg */
+      assert.ok(t.beispiel.aufgabe && t.beispiel.schritte.length >= 4 && t.beispiel.schritte.length <= 7 && t.beispiel.ergebnis, `${id}: Beispiel braucht Aufgabe, 4–7 Schritte, Ergebnis`);
+      assert.ok(n >= 400 && n <= 650, `${id}: Text mit Beispiel hat ${n} Wörter (soll 400–600)`);
+    } else assert.ok(n >= 140 && n <= 270, `${id}: Text hat ${n} Wörter (soll 150–250)`);
     assert.equal(t.faq && t.faq.length, 3, `${id}: genau 3 FAQ`);
     for (const q of t.faq) assert.ok(q.f.endsWith("?") && q.a.length >= 40, `${id}: FAQ unvollständig`);
-    const alles = [t.titel, t.beschreibung, t.kurz, ...t.text, ...t.faq.flatMap((q) => [q.f, q.a])].join(" ");
+    const alles = [t.titel, t.beschreibung, t.kurz, ...t.text, ...beispielText(t), ...t.faq.flatMap((q) => [q.f, q.a])].join(" ");
     assert.ok(!/:innen|\*innen|Innen\b|Schüler:in/.test(alles), `${id}: Gendersprache`);
     assert.ok(!/\$|\\frac|\\sqrt/.test(alles), `${id}: TeX im Klartext`);
   }
@@ -98,4 +102,15 @@ test("Middleware: Werkzeug-Seiten vorgerendert, noindex bis SEO_OEFFENTLICH=ja",
   assert.ok(!JSON.stringify(v.headers || []).includes("X-Robots-Tag"), "noindex steht jetzt in der Middleware (abschaltbar), nicht fest in vercel.json");
   const pkg = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
   assert.ok(pkg.scripts.build.includes("scripts/werkzeugseiten.mjs"));
+});
+
+test("Top-10-Werkzeuge haben ein Beispiel mit Lösungsweg, das auf der Seite und in der App erscheint", () => {
+  const top = ["ableitungstrainer", "kurvendiskussion", "integrale", "bruchrechnen", "prozent", "gleichungen", "pythagoras", "lgs", "kreuzprodukt", "vierfelder"];
+  for (const id of top) {
+    const t = seoText(id);
+    assert.ok(t.beispiel, `${id}: Beispiel fehlt`);
+    const html = seiteHtml(t, verwandteVon(id));
+    assert.ok(html.includes("Beispiel mit Lösungsweg") && html.includes("<ol") && html.includes(t.beispiel.schritte[0].slice(0, 30).replace(/&/g, "&amp;")), `${id}: Beispiel nicht in der vorgerenderten Seite`);
+  }
+  assert.ok(readFileSync(new URL("../src/funcWerkzeugInfo.jsx", import.meta.url), "utf8").includes("data-werkzeug-beispiel"), "App zeigt das Beispiel");
 });

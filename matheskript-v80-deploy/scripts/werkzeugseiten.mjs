@@ -134,7 +134,7 @@ ${seiten.map((s) => { const t = seoText(s.id); return `- [${WERKZEUGE[s.id].name
 writeFileSync(resolve(DIST, "llms-full.txt"), `${kopfText}
 ${hubs.map((h) => { const H = HUBS[h.id]; return `## ${H.h1} (${h.pfad ? `${BASIS}/${h.pfad}` : `${BASIS}/`})\n\n${H.kurz}\n\n${H.text.join("\n\n")}\n\n${H.faq.map((q) => `**${q.f}** ${q.a}`).join("\n\n")}`; }).join("\n\n")}
 
-${seiten.map((s) => { const t = seoText(s.id); return `## ${WERKZEUGE[s.id].name} (${BASIS}/${s.pfad})\n\n${entitaet(t)}\n\n${steckbrief(t).map(([k, v]) => `- ${k}: ${v}`).join("\n")}\n\n${t.text.join("\n\n")}\n\n${t.faq.map((q) => `**${q.f}** ${q.a}`).join("\n\n")}`; }).join("\n\n")}
+${seiten.map((s) => { const t = seoText(s.id); return `## ${WERKZEUGE[s.id].name} (${BASIS}/${s.pfad})\n\n${entitaet(t)}\n\n${steckbrief(t).map(([k, v]) => `- ${k}: ${v}`).join("\n")}\n\n${t.text.join("\n\n")}${t.beispiel ? `\n\n### Beispiel mit Lösungsweg\n\nAufgabe: ${t.beispiel.aufgabe}\n\n${t.beispiel.schritte.map((z, i) => `${i + 1}. ${z}`).join("\n")}\n\nErgebnis: ${t.beispiel.ergebnis}` : ""}\n\n${t.faq.map((q) => `**${q.f}** ${q.a}`).join("\n\n")}`; }).join("\n\n")}
 `);
 
 console.log(`Vorgerendert: ${seiten.length} Werkzeug-Seiten + ${hubs.length} Hubs, Sitemap (${sitemap.length} URLs), robots.txt, llms.txt, llms-full.txt – ${OEFFENTLICH ? "ÖFFENTLICH" : "geschützt (noindex)"}`);

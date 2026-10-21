@@ -16,7 +16,7 @@ export const TEXTE_GEOMETRIE = {
     text: [
       "Ein Punkt P(x | y) im Koordinatensystem: erst der Rechtswert, dann der Hochwert. Das klingt einfach, doch beim Spiegeln geraten die Vorzeichen schnell durcheinander. Welche Koordinate ändert sich an der x-Achse, welche an der y-Achse, und was passiert am Ursprung?",
       "Im Modus „Entdecken“ stellst du x und y mit Reglern ein und wählst die Spiegelung: an der x-Achse, an der y-Achse oder am Ursprung. Der Bildpunkt P′ erscheint sofort im Gitter, daneben stehen beide Koordinaten und die Regel dazu. Kurze Animationen zeigen, wie man Punkte einträgt, abliest und was Achsen- und Punktsymmetrie bedeuten.",
-      "Im Modus „Üben“ wählst du einen Aufgabentyp oder „Gemischt“: Punkt ablesen, Spiegeln an den Achsen und am Ursprung, Punktspiegelung an einem Punkt Z, Parallelogramm ergänzen und Symmetrieachsen zählen – vom Quadrat bis zum regelmäßigen Sechseck. Du gibst Zahlen ein, und typische Fehler werden gezielt benannt, etwa wenn du statt an Z am Ursprung gespiegelt hast. Über „Ich hänge fest“ bekommst du gestufte Hilfe.",
+      "Im Modus „Trainieren“ wählst du einen Aufgabentyp oder „Gemischt“: Punkt ablesen, Spiegeln an den Achsen und am Ursprung, Punktspiegelung an einem Punkt Z, Parallelogramm ergänzen und Symmetrieachsen zählen – vom Quadrat bis zum regelmäßigen Sechseck. Du gibst Zahlen ein, und typische Fehler werden gezielt benannt, etwa wenn du statt an Z am Ursprung gespiegelt hast. Über „Ich hänge fest“ bekommst du gestufte Hilfe.",
     ],
     faq: [
       { f: "Was passiert mit den Koordinaten beim Spiegeln an der x-Achse?", a: "Die x-Koordinate bleibt gleich, die y-Koordinate wechselt das Vorzeichen: Aus P(3 | 2) wird P′(3 | −2). An der y-Achse ist es umgekehrt, am Ursprung wechseln beide Vorzeichen." },
@@ -32,7 +32,7 @@ export const TEXTE_GEOMETRIE = {
     text: [
       "Fünf Figuren, fünf Formeln – wer sie nur auswendig lernt, verwechselt sie schnell. Dabei kommt jede Formel vom Rechteck: Das Dreieck ist ein halbes Rechteck, das Parallelogramm wird umgelegt, das Trapez verdoppelt, der Drachen passt in ein Rechteck aus seinen Diagonalen. Dazu kommt die zweite Falle: Umfang und Fläche werden gern vertauscht.",
       "Im Modus „Entdecken“ wählst du Rechteck, Dreieck, Parallelogramm, Trapez oder Drachen und veränderst die Maße mit Reglern. Der Flächeninhalt rechnet live mit, und unter „Woher kommt die Formel?“ steht, wie die Figur aus dem Rechteck entsteht. Kurze Animationen zeigen das Zerlegen und Umlegen in Bewegung.",
-      "Im Modus „Üben“ rechnest du Umfang und Fläche von Rechtecken, eine fehlende Seite aus der Fläche, Flächen von Dreieck, Parallelogramm, Trapez und Drachen sowie eine zusammengesetzte L-Figur. Jede Aufgabe hat eine Skizze mit Maßen und ist in Schritte geteilt. Typische Fehler werden erkannt, zum Beispiel wenn du beim Parallelogramm die schräge Seite statt der Höhe nimmst.",
+      "Im Modus „Trainieren“ rechnest du Umfang und Fläche von Rechtecken, eine fehlende Seite aus der Fläche, Flächen von Dreieck, Parallelogramm, Trapez und Drachen sowie eine zusammengesetzte L-Figur. Jede Aufgabe hat eine Skizze mit Maßen und ist in Schritte geteilt. Typische Fehler werden erkannt, zum Beispiel wenn du beim Parallelogramm die schräge Seite statt der Höhe nimmst.",
     ],
     faq: [
       { f: "Wie berechnet man den Flächeninhalt eines Trapezes?", a: "Mit A = (a + c) · h : 2. Dabei sind a und c die beiden parallelen Seiten und h ihr senkrechter Abstand. Zwei gleiche Trapeze ergeben zusammen ein Parallelogramm – daher das „: 2“." },
@@ -48,7 +48,7 @@ export const TEXTE_GEOMETRIE = {
     text: [
       "Volumen, Oberfläche, Kantenlänge – drei Größen am selben Quader, drei verschiedene Formeln. Das Volumen zählt die Einheitswürfel: V = a · b · c. Die Oberfläche besteht aus drei Paaren gleicher Rechtecke. Und bei Würfelnetzen hilft nur räumliches Vorstellen: Welche Flächen liegen nach dem Falten gegenüber?",
       "Im Modus „Entdecken“ wählst du zwischen „Quader aus Würfeln“ und „Würfelnetze falten“. Beim Quader stellst du Länge, Breite und Höhe mit Reglern ein und siehst Volumen, Oberfläche oder Kanten. Bei den Netzen wählst du eines aus und erfährst, ob es ein Würfelnetz ist. Gleiche Farben zeigen gegenüberliegende Flächen. Kurze Animationen erklären Volumen, Oberfläche und Netze.",
-      "Im Modus „Üben“ berechnest du Volumen, Oberfläche und Kantenlänge, die Höhe aus dem Volumen und Aufgaben am Würfel. Außerdem erkennst du unter mehreren Figuren das echte Würfelnetz. Jede Aufgabe ist in Schritte geteilt. Rechnest du bei der Oberfläche nur drei statt sechs Flächen, sagt dir die Rückmeldung genau das. Über „Ich hänge fest“ bekommst du gestufte Hilfe.",
+      "Im Modus „Trainieren“ berechnest du Volumen, Oberfläche und Kantenlänge, die Höhe aus dem Volumen und Aufgaben am Würfel. Außerdem erkennst du unter mehreren Figuren das echte Würfelnetz. Jede Aufgabe ist in Schritte geteilt. Rechnest du bei der Oberfläche nur drei statt sechs Flächen, sagt dir die Rückmeldung genau das. Über „Ich hänge fest“ bekommst du gestufte Hilfe.",
     ],
     faq: [
       { f: "Wie berechnet man die Oberfläche eines Quaders?", a: "Mit O = 2 · (ab + ac + bc). Jede der drei verschiedenen Rechteckflächen kommt zweimal vor: oben und unten, vorn und hinten, links und rechts." },
@@ -64,7 +64,7 @@ export const TEXTE_GEOMETRIE = {
     text: [
       "Fehlende Winkel findest du mit wenigen Werkzeugen: Scheitel-, Stufen- und Wechselwinkel sind gleich groß, Neben- und Nachbarwinkel ergänzen sich zu 180°. Im Dreieck ist die Winkelsumme 180°, im n-Eck (n − 2) · 180°. Schwierig ist meist nicht das Rechnen, sondern das Erkennen: Welche Beziehung haben die beiden Winkel überhaupt?",
       "Im Modus „Entdecken“ wählst du ein Thema. Bei „Winkel an Parallelen“ veränderst du den Schnittwinkel und siehst, welche Winkel gleich sind. Bei der Winkelsumme im Dreieck verschiebst du Punkt C – die Parallele durch C zeigt, warum immer 180° herauskommen. Beim n-Eck stellst du die Eckenzahl ein und siehst die Zerlegung in n − 2 Dreiecke.",
-      "Im Modus „Üben“ gibt es Winkel an Parallelen, den dritten Winkel im Dreieck, gleichschenklige Dreiecke, Außenwinkel, die Winkelsumme im n-Eck und regelmäßige n-Ecke. Bei Parallelen benennst du zuerst die Beziehung und rechnest dann. Verwechselst du gleich große mit sich ergänzenden Winkeln, sagt dir die Rückmeldung genau das.",
+      "Im Modus „Trainieren“ gibt es Winkel an Parallelen, den dritten Winkel im Dreieck, gleichschenklige Dreiecke, Außenwinkel, die Winkelsumme im n-Eck und regelmäßige n-Ecke. Bei Parallelen benennst du zuerst die Beziehung und rechnest dann. Verwechselst du gleich große mit sich ergänzenden Winkeln, sagt dir die Rückmeldung genau das.",
     ],
     faq: [
       { f: "Was ist der Unterschied zwischen Stufenwinkeln und Wechselwinkeln?", a: "Stufenwinkel haben an beiden Parallelen die gleiche Lage. Wechselwinkel liegen zwischen den Parallelen auf verschiedenen Seiten der Schnittgeraden. An Parallelen sind beide gleich groß." },
@@ -80,7 +80,7 @@ export const TEXTE_GEOMETRIE = {
     text: [
       "Jedes Dreieck hat vier Sorten besonderer Linien, und je drei davon treffen sich in einem Punkt: Mittelsenkrechten im Umkreismittelpunkt, Winkelhalbierende im Inkreismittelpunkt, Höhen im Höhenschnittpunkt, Seitenhalbierende im Schwerpunkt. Leicht verwechselt man, welcher Punkt zu welcher Linie gehört und was er bedeutet.",
       "Im Modus „Entdecken“ wählst du die Linienart und verschiebst Punkt C. Du siehst, wie die Linien mitwandern, und liest an der Erklärung ab, was jeden Schnittpunkt ausmacht. Ein Hinweis zeigt, wo der Umkreismittelpunkt bei spitz-, recht- und stumpfwinkligen Dreiecken liegt. Auf Wunsch blendest du die Euler-Gerade ein, auf der Umkreismittelpunkt, Schwerpunkt und Höhenschnittpunkt liegen.",
-      "Im Modus „Üben“ ordnest du Linien und Schnittpunkte ihren Eigenschaften zu, bestimmst die Lage des Umkreismittelpunkts, berechnest einen Schwerpunkt aus Koordinaten, den Umkreismittelpunkt eines rechtwinkligen Dreiecks, einen Inkreisradius und die Teilung 2 : 1 der Seitenhalbierenden. Jede Aufgabe ist in Schritte geteilt, mit Hinweisen und gezielter Rückmeldung – zum Beispiel, wenn du beim Schwerpunkt durch 2 statt durch 3 teilst.",
+      "Im Modus „Trainieren“ ordnest du Linien und Schnittpunkte ihren Eigenschaften zu, bestimmst die Lage des Umkreismittelpunkts, berechnest einen Schwerpunkt aus Koordinaten, den Umkreismittelpunkt eines rechtwinkligen Dreiecks, einen Inkreisradius und die Teilung 2 : 1 der Seitenhalbierenden. Jede Aufgabe ist in Schritte geteilt, mit Hinweisen und gezielter Rückmeldung – zum Beispiel, wenn du beim Schwerpunkt durch 2 statt durch 3 teilst.",
     ],
     faq: [
       { f: "Wie konstruiert man den Umkreis eines Dreiecks?", a: "Man zeichnet zwei Mittelsenkrechten der Seiten. Ihr Schnittpunkt ist der Umkreismittelpunkt U, der Abstand von U zu einer Ecke ist der Radius. Die dritte Mittelsenkrechte geht ebenfalls durch U." },
@@ -96,7 +96,7 @@ export const TEXTE_GEOMETRIE = {
     text: [
       "Zwei Dreiecke sind kongruent, wenn sie deckungsgleich sind. Dafür reicht es, drei passende Stücke zu vergleichen – aber nicht irgendwelche drei. SSS, SWS, WSW und SsW legen ein Dreieck eindeutig fest. Bei drei Winkeln oder bei zwei Seiten mit dem Winkel gegenüber der kleineren Seite klappt das nicht. Genau dieser Unterschied ist in Klassenarbeiten gefragt.",
       "Im Modus „Entdecken“ wählst du einen Fall: SSS, SWS, WSW, SsW / SSW oder WWW. Du veränderst die Stücke mit Reglern und siehst die Konstruktion, bei SSS zum Beispiel mit zwei Kreisen. Das Werkzeug zeigt, ob genau ein Dreieck, zwei verschiedene, keines oder unendlich viele entstehen – und warum.",
-      "Im Modus „Üben“ gibt es zwei Aufgabentypen. Bei „Angaben prüfen“ entscheidest du, welcher Kongruenzsatz passt und wie viele Dreiecke es gibt. Bei „An Figuren begründen“ suchst du in einer Figur die übereinstimmenden Stücke und nennst den passenden Satz. Fehler werden gezielt erklärt, etwa wenn der Winkel nicht zwischen den beiden Seiten liegt.",
+      "Im Modus „Trainieren“ gibt es zwei Aufgabentypen. Bei „Angaben prüfen“ entscheidest du, welcher Kongruenzsatz passt und wie viele Dreiecke es gibt. Bei „An Figuren begründen“ suchst du in einer Figur die übereinstimmenden Stücke und nennst den passenden Satz. Fehler werden gezielt erklärt, etwa wenn der Winkel nicht zwischen den beiden Seiten liegt.",
     ],
     faq: [
       { f: "Was ist der Unterschied zwischen SsW und SSW?", a: "Bei beiden sind zwei Seiten und ein Winkel gegeben, der nicht zwischen ihnen liegt. Liegt der Winkel der größeren Seite gegenüber (SsW), ist das Dreieck eindeutig. Liegt er der kleineren gegenüber, kann es null, ein oder zwei Dreiecke geben." },
@@ -112,7 +112,7 @@ export const TEXTE_GEOMETRIE = {
     text: [
       "Liegt C auf einem Kreis über dem Durchmesser AB, ist der Winkel bei C immer ein rechter – egal wo C liegt. Umgekehrt ist in jedem rechtwinkligen Dreieck die Hypotenuse Durchmesser des Umkreises. Der Satz ist kurz, doch viele erkennen in Aufgaben nicht, dass er gerade gebraucht wird.",
       "Im Modus „Entdecken“ verschiebst du C mit einem Regler auf dem Kreis und siehst, dass der Winkel bei C immer 90° beträgt. Mit dem Regler „Abstand“ ziehst du C nach innen oder außen: Dann wird der Winkel stumpf oder spitz. Auf Wunsch blendest du die Beweisidee mit den beiden gleichschenkligen Dreiecken ein.",
-      "Im Modus „Üben“ berechnest du Winkel im Thaleskreis und führst den Beweis in Schritten selbst. Weitere Aufgabentypen sind der Radius des Thaleskreises, die Lage eines Punktes innen, auf oder außerhalb des Kreises, die Tangente von einem Punkt an einen Kreis und der Umkreis eines rechtwinkligen Dreiecks. Dabei kommt auch der Satz des Pythagoras zum Einsatz.",
+      "Im Modus „Trainieren“ berechnest du Winkel im Thaleskreis und führst den Beweis in Schritten selbst. Weitere Aufgabentypen sind der Radius des Thaleskreises, die Lage eines Punktes innen, auf oder außerhalb des Kreises, die Tangente von einem Punkt an einen Kreis und der Umkreis eines rechtwinkligen Dreiecks. Dabei kommt auch der Satz des Pythagoras zum Einsatz.",
     ],
     faq: [
       { f: "Was besagt der Satz des Thales?", a: "Liegt der Punkt C auf einem Kreis mit dem Durchmesser AB, dann ist der Winkel ∠ACB ein rechter Winkel. Der Kreis heißt Thaleskreis über AB." },
@@ -128,8 +128,21 @@ export const TEXTE_GEOMETRIE = {
     text: [
       "Im rechtwinkligen Dreieck gilt a² + b² = c². Die Formel kennen fast alle – die Fehler passieren woanders: Die Hypotenuse wird nicht erkannt, bei der Kathete wird addiert statt subtrahiert, oder man rechnet (a + b)² statt a² + b².",
       "Im Modus „Entdecken“ stellst du die Seiten a und b und den Winkel γ mit Reglern ein. Über allen drei Seiten stehen Quadrate, und du vergleichst a² + b² mit c². Nur bei γ = 90° sind beide gleich. Bei spitzem Winkel ist c² kleiner, bei stumpfem größer – so wird auch die Umkehrung des Satzes sichtbar.",
-      "Im Modus „Üben“ gibt es sechs Aufgabentypen: Hypotenuse berechnen, Kathete berechnen, Seiten benennen, Umkehrung prüfen, eine Sachaufgabe mit Leiter und die Raumdiagonale im Quader. Jede Aufgabe ist in Schritte geteilt: Gleichung aufstellen, quadrieren, addieren oder subtrahieren, Wurzel ziehen. Typische Fehler werden erkannt und erklärt, etwa wenn du (a + b)² rechnest oder am Ende die Wurzel vergisst.",
+      "Im Modus „Trainieren“ gibt es sechs Aufgabentypen: Hypotenuse berechnen, Kathete berechnen, Seiten benennen, Umkehrung prüfen, eine Sachaufgabe mit Leiter und die Raumdiagonale im Quader. Jede Aufgabe ist in Schritte geteilt: Gleichung aufstellen, quadrieren, addieren oder subtrahieren, Wurzel ziehen. Typische Fehler werden erkannt und erklärt, etwa wenn du (a + b)² rechnest oder am Ende die Wurzel vergisst.",
+      "Für Klassenarbeiten lohnt sich eine Routine: Zuerst den rechten Winkel markieren, dann die Hypotenuse benennen (sie liegt dem rechten Winkel gegenüber und ist die längste Seite), dann erst die Gleichung aufstellen. Wer die Hypotenuse sucht, addiert die Quadrate; wer eine Kathete sucht, subtrahiert. Am Ende die Wurzel ziehen und das Ergebnis mit Einheit und sinnvoll gerundet hinschreiben.",
+      "Übe die Typen in dieser Reihenfolge: Seiten benennen, Hypotenuse berechnen, Kathete berechnen, dann Sachaufgaben und Raumdiagonale. Die Raumdiagonale im Quader braucht den Satz zweimal – erst die Flächendiagonale, dann die Raumdiagonale – und ist die häufigste Transferaufgabe in Klassenarbeiten. Danach geht es weiter mit Kathetensatz und Höhensatz sowie der Trigonometrie im rechtwinkligen Dreieck.",
     ],
+    beispiel: {
+      aufgabe: "Eine 5 m lange Leiter lehnt an einer Wand. Ihr Fuß steht 1,5 m von der Wand entfernt. Wie hoch reicht die Leiter?",
+      schritte: [
+        "Skizze: Wand, Boden und Leiter bilden ein rechtwinkliges Dreieck. Der rechte Winkel liegt zwischen Wand und Boden, die Leiter ist die Hypotenuse c = 5 m.",
+        "Gesucht ist die Kathete h an der Wand, bekannt die Kathete 1,5 m am Boden: h² + 1,5² = 5².",
+        "Nach h² auflösen (Kathete gesucht, also subtrahieren): h² = 25 − 2,25 = 22,75.",
+        "Wurzel ziehen: h = √22,75 ≈ 4,77 m.",
+        "Plausibilität: Die Höhe muss kleiner als die Leiter sein – 4,77 m < 5 m, passt. Der typische Fehler wäre h² = 25 + 2,25, also 5,22 m, länger als die Leiter selbst.",
+      ],
+      ergebnis: "Die Leiter reicht etwa 4,77 m hoch. Im Werkzeug ist diese Aufgabe der Typ „Sachaufgabe mit Leiter“; die Schritte Gleichung aufstellen, umstellen und Wurzel ziehen werden einzeln geprüft.",
+    },
     faq: [
       { f: "Wie berechnet man eine Kathete mit dem Satz des Pythagoras?", a: "Man stellt a² + b² = c² um: b² = c² − a². Erst quadrieren, dann subtrahieren, ganz am Ende die Wurzel ziehen. Die Kathete ist immer kürzer als die Hypotenuse." },
       { f: "Wie berechnet man die Raumdiagonale eines Quaders?", a: "Zweimal mit Pythagoras: Zuerst die Diagonale der Grundfläche, e² = a² + b². Dann bilden e, die Höhe h und die Raumdiagonale d ein rechtwinkliges Dreieck: d² = e² + h²." },
@@ -144,7 +157,7 @@ export const TEXTE_GEOMETRIE = {
     text: [
       "Die Höhe auf die Hypotenuse teilt das rechtwinklige Dreieck in zwei kleinere, ähnliche Dreiecke und die Hypotenuse c in die Abschnitte p und q. Daraus folgen zwei Flächensätze: der Kathetensatz a² = c · p und der Höhensatz h² = p · q. Schwierig ist vor allem die Wahl: Welcher Satz passt zu den gegebenen Größen?",
       "Im Modus „Entdecken“ wählst du Kathetensatz oder Höhensatz, stellst die Hypotenuse c ein und verschiebst den Fußpunkt der Höhe. Das Bild zeigt das Quadrat und das flächengleiche Rechteck, die Werte darunter rechnen mit. So siehst du, dass die Gleichheit für jede Lage des Fußpunkts gilt.",
-      "Im Modus „Üben“ berechnest du die Höhe aus p und q, eine Kathete aus c und p, einen Abschnitt aus a und c oder aus h und p sowie die Höhe über die Fläche des Dreiecks. Bei vielen Aufgaben wählst du zuerst den passenden Satz und rechnest dann. Vergisst du die Wurzel oder stellst falsch um, bekommst du einen gezielten Hinweis.",
+      "Im Modus „Trainieren“ berechnest du die Höhe aus p und q, eine Kathete aus c und p, einen Abschnitt aus a und c oder aus h und p sowie die Höhe über die Fläche des Dreiecks. Bei vielen Aufgaben wählst du zuerst den passenden Satz und rechnest dann. Vergisst du die Wurzel oder stellst falsch um, bekommst du einen gezielten Hinweis.",
     ],
     faq: [
       { f: "Was ist der Unterschied zwischen Kathetensatz und Höhensatz?", a: "Der Kathetensatz verbindet eine Kathete mit der Hypotenuse und dem anliegenden Abschnitt: a² = c · p. Der Höhensatz verbindet die Höhe mit beiden Abschnitten: h² = p · q." },
@@ -160,7 +173,7 @@ export const TEXTE_GEOMETRIE = {
     text: [
       "Am Kreis hängt alles an zwei Formeln: u = 2πr und A = πr². Fehler entstehen trotzdem: Durchmesser und Radius werden vertauscht, π wird mitquadriert, oder beim Rückwärtsrechnen fehlt die Wurzel. Kreisbogen und Kreisausschnitt sind dann nur noch der Anteil α : 360° vom Ganzen.",
       "Im Modus „Entdecken“ stellst du den Radius r und den Mittelpunktswinkel α mit Reglern ein. Du siehst den Kreis mit Ausschnitt und alle Werte auf einen Blick: Durchmesser, Umfang, Fläche, Anteil, Bogenlänge und Sektorfläche. Unter „Warum π?“ steht, weshalb das Verhältnis von Umfang zu Durchmesser bei jedem Kreis gleich ist.",
-      "Im Modus „Üben“ gibt es acht Aufgabentypen: Umfang, Flächeninhalt, Radius aus dem Umfang, Radius aus der Fläche, Kreisbogen, Kreisausschnitt, Kreisring und Fläche aus dem Durchmesser. Du rundest auf zwei Nachkommastellen. Typische Fehler, etwa der halbe Umfang oder d statt r in der Flächenformel, werden erkannt und erklärt. Bleibst du hängen, hilft dir „Ich hänge fest“ Schritt für Schritt weiter.",
+      "Im Modus „Trainieren“ gibt es acht Aufgabentypen: Umfang, Flächeninhalt, Radius aus dem Umfang, Radius aus der Fläche, Kreisbogen, Kreisausschnitt, Kreisring und Fläche aus dem Durchmesser. Du rundest auf zwei Nachkommastellen. Typische Fehler, etwa der halbe Umfang oder d statt r in der Flächenformel, werden erkannt und erklärt. Bleibst du hängen, hilft dir „Ich hänge fest“ Schritt für Schritt weiter.",
     ],
     faq: [
       { f: "Wie berechnet man den Radius aus der Kreisfläche?", a: "Man stellt A = πr² nach r um: erst durch π teilen, dann die Wurzel ziehen, also r = √(A : π). Bei A = 50 cm² ergibt das r ≈ 3,99 cm." },
@@ -176,7 +189,7 @@ export const TEXTE_GEOMETRIE = {
     text: [
       "Bei Körpern hilft eine Unterscheidung: Gerade Körper wie Prisma und Zylinder haben das Volumen V = G · h, spitze Körper wie Pyramide und Kegel nur ein Drittel davon. Bei der Oberfläche wird es schwieriger: Für Kegel und Pyramide brauchst du die schräge Höhe, und die liefert der Satz des Pythagoras.",
       "Im Modus „Entdecken“ wählst du Prisma, Zylinder, Pyramide, Kegel oder Kugel und stellst die Maße mit Reglern ein. Das Schrägbild ändert sich mit, daneben stehen Grundfläche, Volumen und Oberfläche. Bei Kegel und Pyramide siehst du, wie Mantellinie und Seitenhöhe mit Pythagoras berechnet werden.",
-      "Im Modus „Üben“ berechnest du Volumen und Oberfläche von Zylinder, Pyramide, Kegel und Kugel, das Volumen eines Prismas und die Höhe aus dem Volumen. Die Aufgaben sind in Schritte geteilt, zum Beispiel erst Grundfläche, dann Mantellinie, dann Oberfläche. Vergisst du beim Kegel das Drittel oder rechnest den Mantel mit h statt mit s, wird genau das angesprochen.",
+      "Im Modus „Trainieren“ berechnest du Volumen und Oberfläche von Zylinder, Pyramide, Kegel und Kugel, das Volumen eines Prismas und die Höhe aus dem Volumen. Die Aufgaben sind in Schritte geteilt, zum Beispiel erst Grundfläche, dann Mantellinie, dann Oberfläche. Vergisst du beim Kegel das Drittel oder rechnest den Mantel mit h statt mit s, wird genau das angesprochen.",
     ],
     faq: [
       { f: "Wie berechnet man die Oberfläche eines Kegels?", a: "O = πr² + πrs. Dabei ist s die Mantellinie, die man mit Pythagoras bestimmt: s = √(r² + h²). Mit der Höhe h statt s wird der Mantel zu klein." },
@@ -192,7 +205,7 @@ export const TEXTE_GEOMETRIE = {
     text: [
       "Zwei Strahlen mit gemeinsamem Anfangspunkt S, geschnitten von zwei Parallelen: Alle zugehörigen Strecken stehen im selben Verhältnis k. Die häufigste Falle steckt im 2. Strahlensatz. Dort zählen nur Strecken, die in S beginnen – nicht der Abschnitt AA′. Dazu kommt der Kehrwert, der beim Aufstellen leicht hineinrutscht.",
       "Im Modus „Entdecken“ wählst du V-Figur oder X-Figur und veränderst die Längen und den Streckfaktor k mit Reglern. Alle Strecken und Verhältnisse rechnen live mit. Ein eigener Abschnitt zeigt die häufigste Falle: Das Verhältnis mit AA′ passt beim 2. Strahlensatz nicht zu k.",
-      "Im Modus „Üben“ gibt es Aufgaben zum 1. Strahlensatz, zum 2. Strahlensatz, mit gegebenem Abschnitt, rückwärts gerechnet und als Sachaufgabe, bei der du eine Baumhöhe aus Schatten bestimmst. Du wählst zuerst die richtige Verhältnisgleichung und rechnest dann. Erwischst du den Kehrwert oder rechnest mit Differenzen statt Verhältnissen, sagt dir die Rückmeldung genau das. Zur Probe hilft immer: Die große Figur hat die längeren Strecken.",
+      "Im Modus „Trainieren“ gibt es Aufgaben zum 1. Strahlensatz, zum 2. Strahlensatz, mit gegebenem Abschnitt, rückwärts gerechnet und als Sachaufgabe, bei der du eine Baumhöhe aus Schatten bestimmst. Du wählst zuerst die richtige Verhältnisgleichung und rechnest dann. Erwischst du den Kehrwert oder rechnest mit Differenzen statt Verhältnissen, sagt dir die Rückmeldung genau das. Zur Probe hilft immer: Die große Figur hat die längeren Strecken.",
     ],
     faq: [
       { f: "Was ist der Unterschied zwischen dem 1. und 2. Strahlensatz?", a: "Der 1. Strahlensatz vergleicht Strecken auf den beiden Strahlen: SA′ : SA = SB′ : SB. Der 2. Strahlensatz vergleicht die parallelen Strecken mit Strecken ab S: A′B′ : AB = SA′ : SA." },

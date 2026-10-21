@@ -49,7 +49,7 @@ export const TEXTE_GRUNDLAGEN = {
     kurz: "Du lernst die Sprache der Mathematik: Mengen, Intervalle, Aussagen und richtiges Folgern.",
     text: [
       "Lösungsmengen, Definitionsbereiche, „genau dann, wenn“: Mathematik spricht in Mengen und Aussagen. Wer ∩ und ∪ verwechselt oder nicht weiß, wann eine Folgerung gilt, verliert Punkte, obwohl die Rechnung stimmt. Das Werkzeug macht diese Sprache sicher, Schritt für Schritt und mit vielen kleinen Beispielen.",
-      "Der Lernweg hat sechs Kapitel: Mengen und Elemente, Mengenoperationen, Intervalle, Aussagen und Verknüpfungen, Folgern und Beweisen sowie ein gemischtes Kapitel. Jede Einführung gibt es in drei Stufen – Einstieg, Standard und Vertiefung. In Laboren baust du eine Menge, verknüpfst zwei Mengen im Mengenbild, ziehst Intervallgrenzen auf der Zahlengeraden, füllst Wahrheitstafeln und prüfst Folgerungen.",
+      "Der Lernweg hat sechs Kapitel: Mengen und Elemente, Mengenoperationen, Intervalle, Aussagen und Verknüpfungen, Folgern und Beweisen sowie ein gemischtes Kapitel. Jede Einführung gibt es in drei Stufen – Stufe 1 zum Einstieg, Stufe 2 wie im Unterricht, Stufe 3 zur Vertiefung. In Laboren baust du eine Menge, verknüpfst zwei Mengen im Mengenbild, ziehst Intervallgrenzen auf der Zahlengeraden, füllst Wahrheitstafeln und prüfst Folgerungen.",
       "In den Übungen entscheidest du über Element oder nicht, schreibst Mengen aufzählend und beschreibend, bildest Schnitt, Vereinigung, Differenz und Komplement, schreibst Intervalle und schneidest sie. Dazu kommen Wahrheitswerte, Umkehrungen, notwendige und hinreichende Bedingungen, Verneinungen und Quantoren. Jede Antwort wird sofort geprüft. Liegst du daneben, zeigt dir eine kurze Erklärung, woran es lag – zum Beispiel, dass für eine Allaussage schon ein einziges Gegenbeispiel genügt.",
     ],
     faq: [
@@ -81,7 +81,7 @@ export const TEXTE_GRUNDLAGEN = {
     kurz: "Erst übersetzen, dann rechnen: Du verwandelst jede Information im Text in eine mathematische Bedingung.",
     text: [
       "Bei Textaufgaben scheitern die meisten nicht am Rechnen, sondern am Übersetzen. „Das Dreifache, vermindert um 4“, „höchstens drei Treffer“, „Hochpunkt bei H(6 | 4)“ – jede dieser Stellen ist eine Bedingung. Wer sie sauber aufschreibt, hat die halbe Aufgabe gelöst.",
-      "Das Werkzeug hat drei Reiter. In „Verstehen“ findest du die Leitidee, ein Beispiel zum Antippen, die Übersetzungskette, die häufigsten Übersetzungsfallen und ein Übersetzungs-Wörterbuch. In „Training“ wählst du eines von acht Themen, von Rechenwörtern und Sachaufgaben über Gleichungssysteme und Funktionen bis zu Stochastik-Signalwörtern, Steckbriefaufgaben, Analysis im Sachkontext und Vektoren. Dazu kommen drei Stufen: Erkennen (Übersetzung auswählen), Übersetzen (Bedingung selbst tippen) und Ganze Aufgabe (alle Bedingungen selbst finden). Deine Eingabe wird mathematisch geprüft.",
+      "Das Werkzeug hat die Modi „Entdecken“ und „Trainieren“. In „Entdecken“ findest du die Leitidee, ein Beispiel zum Antippen, die Übersetzungskette, die häufigsten Übersetzungsfallen und ein Übersetzungs-Wörterbuch. In „Trainieren“ wählst du eines von acht Themen, von Rechenwörtern und Sachaufgaben über Gleichungssysteme und Funktionen bis zu Stochastik-Signalwörtern, Steckbriefaufgaben, Analysis im Sachkontext und Vektoren. Dazu kommen drei Stufen: Erkennen (Übersetzung auswählen), Übersetzen (Bedingung selbst tippen) und Ganze Aufgabe (alle Bedingungen selbst finden). Deine Eingabe wird mathematisch geprüft.",
       "Im Reiter „Mathilda“ fotografierst du eine Aufgabe aus deinem Buch oder tippst sie ab. Mathilda, die KI der App, übersetzt jede Stelle und erklärt, warum. Im Modus „Erst selbst versuchen“ bleiben die Übersetzungen verdeckt, bis du es probiert hast.",
     ],
     faq: [
@@ -113,7 +113,7 @@ export const TEXTE_GRUNDLAGEN = {
     kurz: "Du trainierst Normalform, Scheitelform und Nullstellen – mit Graph und Aufgabe auf einem Bildschirm.",
     text: [
       "Eine Parabel lässt sich auf verschiedene Arten schreiben, und jede Form verrät etwas anderes: Die Normalform ax² + bx + c zeigt den y-Achsenabschnitt, die Scheitelform a(x − d)² + e den Scheitel, die Produktform die Nullstellen. Schwierig wird es beim Wechseln zwischen den Formen.",
-      "Der Parabel-Trainer hat die Modi „Entdecken“ und „Training“. Im Training wählst du ein Thema und einen Aufgabentyp. Bei der Normalform findest du den passenden Graphen, liest ab oder setzt ein. Bei der Scheitelform liest du den Scheitel ab und rechnest zwischen Normal- und Scheitelform um. Bei den Nullstellen bestimmst du die Anzahl und nutzt die Produktform, die abc-Formel oder Wege ohne Formel. Es gibt drei Stufen und Runden zu zehn Aufgaben mit Punkten. Beim Zielgraph stellst du die Parameter so ein, dass deine Parabel auf dem vorgegebenen Graphen liegt.",
+      "Der Parabeltrainer hat die Modi „Entdecken“ und „Trainieren“. Im Trainieren wählst du ein Thema und einen Aufgabentyp. Bei der Normalform findest du den passenden Graphen, liest ab oder setzt ein. Bei der Scheitelform liest du den Scheitel ab und rechnest zwischen Normal- und Scheitelform um. Bei den Nullstellen bestimmst du die Anzahl und nutzt die Produktform, die abc-Formel oder Wege ohne Formel. Es gibt drei Stufen und Runden zu zehn Aufgaben mit Punkten. Beim Zielgraph stellst du die Parameter so ein, dass deine Parabel auf dem vorgegebenen Graphen liegt.",
       "Als Ausblick gibt es zwei weitere Themen: den Brennpunkt der Parabel mit Tangente und Normale sowie die Schnittpunkte von Parabel und Gerade.",
     ],
     faq: [
@@ -178,7 +178,7 @@ export const TEXTE_GRUNDLAGEN = {
     text: [
       "Sobald x im Nenner steht, gelten zwei neue Regeln: Der Nenner darf nie 0 werden, und gekürzt werden nur Faktoren, niemals einzelne Summanden. Wer das vergisst, bekommt Scheinlösungen, also Zahlen, die beim Rechnen herauskommen, aber gar nicht eingesetzt werden dürfen.",
       "Im Modus „Entdecken“ vergleichst du den Bruchterm (x² − p²) / (x − p) mit dem gekürzten Term x + p. Für fast jedes x stimmen die Werte überein. Nur bei x = p ist der Bruchterm nicht definiert, und im Graphen entsteht eine Lücke. So siehst du, warum die Definitionsmenge auch nach dem Kürzen wichtig bleibt.",
-      "Im Modus „Üben“ gibt es sechs Aufgabentypen: Definitionsmenge, Definitionsmenge mit x², Kürzen, Addieren mit Hauptnenner, Bruchgleichung lösen und die Falle „Lösung prüfen“. Jede Aufgabe ist in Schritte zerlegt, etwa Nenner zerlegen, ausgeschlossene Zahl bestimmen, Nenner beseitigen und lösen. Bei falschen Antworten bekommst du einen Hinweis auf den typischen Fehler, zum Beispiel wenn aus einer Summe gekürzt wurde.",
+      "Im Modus „Trainieren“ gibt es sechs Aufgabentypen: Definitionsmenge, Definitionsmenge mit x², Kürzen, Addieren mit Hauptnenner, Bruchgleichung lösen und die Falle „Lösung prüfen“. Jede Aufgabe ist in Schritte zerlegt, etwa Nenner zerlegen, ausgeschlossene Zahl bestimmen, Nenner beseitigen und lösen. Bei falschen Antworten bekommst du einen Hinweis auf den typischen Fehler, zum Beispiel wenn aus einer Summe gekürzt wurde.",
     ],
     faq: [
       { f: "Wie bestimmt man die Definitionsmenge eines Bruchterms?", a: "Du setzt jeden Nenner gleich 0 und löst. Diese Zahlen schließt du aus. Bei 3 / (x² − 4) sind das x = 2 und x = −2, also D = ℝ \\ {−2; 2}." },
@@ -209,9 +209,22 @@ export const TEXTE_GRUNDLAGEN = {
     kurz: "Du sagst, welche Umformung passiert, und die App führt sie auf beiden Seiten aus – bis x allein steht.",
     text: [
       "Eine Gleichung zu lösen heißt, sie so lange gleichwertig umzuformen, bis x allein dasteht. Die Rechnung selbst ist selten das Problem. Schwierig ist die Entscheidung, welcher Schritt als Nächstes sinnvoll ist. Genau diese Entscheidung übernimmst hier du.",
-      "Im Modus „Lösen“ wählst du die Gleichungsart – linear, quadratisch, exponentiell, mit Logarithmus oder Bruchgleichung – und eine von fünf Stufen von „Einstieg“ bis „Profi“. Du tippst eine Äquivalenzumformung ein, zum Beispiel −5, :3 oder ln. Die App führt sie auf beiden Seiten aus und schreibt die neue Zeile darunter. Dazu kommen Werkzeuge wie Wurzel ziehen, Mitternachtsformel und Substitution. Bei Bruchgleichungen steht die Definitionsmenge oben. Am Ende siehst du Lösungsmenge und Probe, auf Wunsch auch einen Musterweg. Eigene Gleichungen aus Heft oder Buch kannst du eintippen oder fotografieren; das Foto liest Mathilda, die KI der App.",
-      "Im Modus „Verstehen“ gibt es fünf Übungen: Umformungen trainieren, Methode wählen, Fehler finden, Lösungsmenge verstehen und geometrisch deuten, also f(x) = g(x) als Schnittpunkte von Graphen.",
+      "Im Modus „Trainieren“ wählst du die Gleichungsart – linear, quadratisch, exponentiell, mit Logarithmus oder Bruchgleichung – und eine von drei Stufen. Du tippst eine Äquivalenzumformung ein, zum Beispiel −5, :3 oder ln. Die App führt sie auf beiden Seiten aus und schreibt die neue Zeile darunter. Dazu kommen Werkzeuge wie Wurzel ziehen, Mitternachtsformel und Substitution. Bei Bruchgleichungen steht die Definitionsmenge oben. Am Ende siehst du Lösungsmenge und Probe, auf Wunsch auch einen Musterweg. Eigene Gleichungen aus Heft oder Buch kannst du eintippen oder fotografieren; das Foto liest Mathilda, die KI der App.",
+      "Im Modus „Entdecken“ gibt es fünf Übungen: Umformungen trainieren, Methode wählen, Fehler finden, Lösungsmenge verstehen und geometrisch deuten, also f(x) = g(x) als Schnittpunkte von Graphen.",
+      "Was das Werkzeug dir beibringt, ist die Entscheidung, nicht das Ausrechnen: Erst Klammern auflösen und zusammenfassen, dann alle x auf eine Seite, dann die Zahlen, zum Schluss durch den Faktor vor x teilen. Bei quadratischen Gleichungen zuerst in die Form x² + px + q = 0 bringen, dann pq-Formel oder Mitternachtsformel. Die Probe am Ende ist kein Zusatz, sondern der Schritt, der dir in der Klausur den Punkt rettet.",
+      "Beginne auf Stufe 1 mit linearen Gleichungen und arbeite dich zu Bruch- und Exponentialgleichungen vor. Nutze die Übung „Fehler finden“ im Modus „Entdecken“, um typische Umformungsfehler zu erkennen, bevor du sie selbst machst. Gleichungen mit mehreren Unbekannten löst du anschließend im Werkzeug Gleichungssysteme; die Deutung als Schnittpunkt zweier Graphen führt direkt zu den Geraden und Parabeln.",
     ],
+    beispiel: {
+      aufgabe: "Löse die Gleichung 2x² − 8x = −6.",
+      schritte: [
+        "Durch 2 teilen, damit vor x² eine 1 steht: x² − 4x = −3.",
+        "+3 auf beiden Seiten, damit rechts 0 steht: x² − 4x + 3 = 0. Jetzt ist p = −4 und q = 3.",
+        "pq-Formel: x = 2 ± √(4 − 3) = 2 ± √1 = 2 ± 1.",
+        "Beide Lösungen: x₁ = 1 und x₂ = 3.",
+        "Probe mit x = 1: 2·1 − 8·1 = −6 ✓. Probe mit x = 3: 2·9 − 8·3 = 18 − 24 = −6 ✓.",
+      ],
+      ergebnis: "L = {1; 3}. Im Werkzeug tippst du nacheinander „:2“, „+3“ und „pq-Formel“ – die App führt jeden Schritt auf beiden Seiten aus.",
+    },
     faq: [
       { f: "Was ist eine Äquivalenzumformung?", a: "Eine Umformung, die die Lösungsmenge nicht verändert, zum Beispiel auf beiden Seiten dieselbe Zahl addieren oder durch dieselbe Zahl ungleich 0 teilen. Mit x malnehmen ist keine sichere Äquivalenzumformung." },
       { f: "Wie löst man eine Exponentialgleichung?", a: "Zuerst die Potenz isolieren, dann beide Seiten logarithmieren. Beispiel: 3 · 2ˣ = 48 ⇒ 2ˣ = 16 ⇒ x = ln 16 / ln 2 = 4." },
@@ -243,7 +256,20 @@ export const TEXTE_GRUNDLAGEN = {
       "Ein lineares Gleichungssystem mit drei Unbekannten wirkt zuerst unübersichtlich. Das Prinzip ist aber immer gleich: Du kombinierst Gleichungen so, dass eine Unbekannte verschwindet, bis nur noch eine übrig ist. Schwer ist die Wahl der richtigen Kombination – und das saubere Rechnen Spalte für Spalte.",
       "Hier entscheidest du, und die App rechnet. Du baust aus I, II und III ein neues System. Dabei übernimmst du eine Gleichung unverändert oder gibst eine Kombination ein wie II − I, 2·I + 3·III oder (II − I) : 2. Die App prüft, dass keine Information verloren geht, und lehnt zum Beispiel Kombinationen ab, die nur 0 = 0 liefern. Es gibt drei Schwierigkeitsstufen. Zum Vergleich kannst du zwei Musterlösungen aufrufen: das Gauß-Verfahren mit Treppenform und Rückwärtseinsetzen sowie den direkten Weg.",
       "Zum Schluss siehst du die Lösung geometrisch: Jede Gleichung beschreibt eine Ebene im Raum, und die Lösung ist ihr gemeinsamer Schnittpunkt S. Das Bild kannst du durch Ziehen drehen.",
+      "Zwei Dinge entscheiden in der Klausur: die Wahl der Kombinationen und die Buchführung. Schreibe jede neue Gleichung mit Namen (II′, III′) und notiere daneben, woraus sie entstand – genau so zeigt es das Werkzeug. Prüfe am Ende alle drei Ausgangsgleichungen mit der Lösung; wer nur eine prüft, übersieht Rechenfehler in den anderen.",
+      "Starte auf Stufe 1 mit Systemen, bei denen eine Unbekannte schon fehlt, und steigere dich zu Systemen mit Brüchen. Vergleiche deinen Weg anschließend mit dem Gauß-Verfahren – es ist nicht immer der kürzeste, aber der sicherste, weil er immer gleich abläuft. In der Oberstufe brauchst du das Verfahren bei Ebenen und bei Steckbriefaufgaben, wo aus Bedingungen an eine Funktion ein Gleichungssystem für die Koeffizienten entsteht.",
     ],
+    beispiel: {
+      aufgabe: "Löse das Gleichungssystem I: x + y + z = 6, II: 2x − y + z = 3, III: x + 2y − z = 2.",
+      schritte: [
+        "x eliminieren: II − 2·I ergibt −3y − z = −9, also II′: 3y + z = 9. III − I ergibt III′: y − 2z = −4.",
+        "Aus III′ folgt y = 2z − 4. In II′ einsetzen: 3·(2z − 4) + z = 9, also 7z − 12 = 9 und z = 3.",
+        "Rückwärts einsetzen: y = 2·3 − 4 = 2.",
+        "In I: x = 6 − y − z = 6 − 2 − 3 = 1.",
+        "Probe in allen drei Gleichungen: I: 1 + 2 + 3 = 6 ✓, II: 2 − 2 + 3 = 3 ✓, III: 1 + 4 − 3 = 2 ✓.",
+      ],
+      ergebnis: "x = 1, y = 2, z = 3 – geometrisch der Schnittpunkt S(1|2|3) der drei Ebenen.",
+    },
     faq: [
       { f: "Wie funktioniert das Gauß-Verfahren?", a: "Du bringst das System durch Addieren von Vielfachen der Gleichungen auf Treppenform: unten nur noch eine Unbekannte, darüber zwei, oben drei. Dann löst du von unten nach oben durch Einsetzen." },
       { f: "Welche Umformungen sind bei einem Gleichungssystem erlaubt?", a: "Gleichungen vertauschen, eine Gleichung mit einer Zahl ungleich 0 multiplizieren und das Vielfache einer Gleichung zu einer anderen addieren. Diese Umformungen ändern die Lösungsmenge nicht." },

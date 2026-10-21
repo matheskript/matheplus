@@ -36,7 +36,21 @@ export const TEXTE_VEKTOREN_STOCHASTIK = {
       "Das Kreuzprodukt a × b liefert einen Vektor, der auf a und auf b senkrecht steht. In der analytischen Geometrie brauchst du es ständig, vor allem für den Normalenvektor einer Ebene. Die Formel ist kurz, aber unübersichtlich: Die Indizes laufen im Kreis, und ein vertauschtes Minus macht das ganze Ergebnis falsch.",
       "Du gibst die beiden Vektoren ein, mit Plus- und Minus-Knöpfen oder direkt als ganze Zahl, Bruch, Kommazahl oder Wurzel wie √5. Das Werkzeug zeigt zuerst die allgemeine Formel, dann die eingesetzten Zahlen und das Ergebnis. Darunter steht die Probe: Beide Skalarprodukte mit dem Ergebnis sind 0. Außerdem berechnet es die Länge des Kreuzprodukts, also den Flächeninhalt des Parallelogramms, das a und b aufspannen. Sind die Vektoren parallel, erklärt es, warum der Nullvektor herauskommt.",
       "Merkregeln zu zyklischen Indizes, „über Kreuz“ und zur Reihenfolge helfen dir, die Formel ohne Formelsammlung zu können. Fertige Beispiele, etwa mit Einheitsvektoren oder Wurzeln, lassen sich mit einem Tipp laden.",
+      "Im Abitur brauchst du das Kreuzprodukt vor allem für den Normalenvektor einer Ebene aus zwei Spannvektoren und für Flächeninhalte von Dreiecken (halbes Parallelogramm). Rechne es in der Klausur immer mit der Probe über das Skalarprodukt – zwei kurze Rechnungen, die jeden Vorzeichenfehler aufdecken. Die zyklische Merkregel (1-2-3, 2-3-1, 3-1-2) ersetzt die Formelsammlung.",
+      "Übe das Kreuzprodukt zusammen mit seinen Anwendungen: Normalenvektor einer Ebene aus zwei Spannvektoren, Koordinatengleichung einer Ebene, Flächeninhalt eines Dreiecks als halbes Parallelogramm, Abstand eines Punktes von einer Geraden. Die Werkzeuge Drei Punkte – eine Ebene und Abstände rechnen genau damit weiter. Wer die drei Komponenten zehnmal fehlerfrei bestimmt hat, braucht die Formel nicht mehr nachzuschlagen.",
     ],
+    beispiel: {
+      aufgabe: "Berechne a × b für a = (1; 2; 3) und b = (4; 5; 6) und prüfe das Ergebnis.",
+      schritte: [
+        "Erste Komponente (zyklisch 2-3): a₂b₃ − a₃b₂ = 2·6 − 3·5 = 12 − 15 = −3.",
+        "Zweite Komponente (zyklisch 3-1): a₃b₁ − a₁b₃ = 3·4 − 1·6 = 12 − 6 = 6.",
+        "Dritte Komponente (zyklisch 1-2): a₁b₂ − a₂b₁ = 1·5 − 2·4 = 5 − 8 = −3.",
+        "Ergebnis: n = a × b = (−3; 6; −3).",
+        "Probe mit dem Skalarprodukt: a·n = −3 + 12 − 9 = 0 ✓ und b·n = −12 + 30 − 18 = 0 ✓. n steht also auf beiden senkrecht.",
+        "Flächeninhalt des Parallelogramms: |n| = √(9 + 36 + 9) = √54 = 3√6 ≈ 7,35.",
+      ],
+      ergebnis: "a × b = (−3; 6; −3); das von a und b aufgespannte Parallelogramm hat den Flächeninhalt 3√6 ≈ 7,35.",
+    },
     faq: [
       { f: "Wie berechnet man das Kreuzprodukt?", a: "a × b = (a₂b₃ − a₃b₂ | a₃b₁ − a₁b₃ | a₁b₂ − a₂b₁). Jede Zeile benutzt die beiden anderen Indizes: überkreuz multiplizieren, dann abziehen." },
       { f: "Wofür braucht man das Kreuzprodukt?", a: "Vor allem für den Normalenvektor einer Ebene aus zwei Spannvektoren. Seine Länge ist außerdem der Flächeninhalt des Parallelogramms aus a und b, das Dreieck hat die Hälfte." },
@@ -182,7 +196,21 @@ export const TEXTE_VEKTOREN_STOCHASTIK = {
       "Die Vier-Felder-Tafel ordnet zwei Merkmale, etwa „krank – gesund“ und „Test positiv – negativ“. Schwierig ist nicht die Tafel selbst, sondern die bedingte Wahrscheinlichkeit: P_A(B) bezieht sich nur auf die Gruppe A, nicht auf alle. Genau hier passieren die meisten Fehler, besonders beim berühmten medizinischen Test.",
       "Du arbeitest wahlweise mit absoluten Häufigkeiten oder mit Wahrscheinlichkeiten in Prozent und stellst die inneren Felder ein. Die Randsummen ergänzen sich automatisch, und alle Werte rechnen sich live mit, sobald du ein Feld änderst. Für jede bedingte Wahrscheinlichkeit wählst du Ereignis und Bedingung; das Werkzeug markiert Schnittfeld und Randsumme in der Tafel und zeigt die Rechnung. Dazu siehst du das Einheitsquadrat, das Baumdiagramm und den umgekehrten Baum, der zum Satz von Bayes führt. Außerdem prüft es, ob die Merkmale stochastisch unabhängig sind.",
       "Fertige Beispiele wie Medizinischer Test, Sportverein oder Münze und Würfel lassen sich laden, die Merkmale kannst du umbenennen. „Ich hänge fest“ gibt gestufte Hinweise. Von hier geht es weiter zum Baumdiagramm-Training.",
+      "Der Rechenweg ist in der Klausur immer gleich: Tafel mit absoluten Zahlen füllen (bei Prozentangaben eine runde Gesamtzahl wie 10 000 wählen), Randsummen bilden, dann die bedingte Wahrscheinlichkeit als Schnittfeld geteilt durch die Randsumme der Bedingung. Wer stattdessen durch die Gesamtzahl teilt, berechnet P(A ∩ B) statt P_A(B). Das Werkzeug markiert beide Felder farbig, damit der Unterschied sichtbar bleibt.",
+      "Übe mit den fertigen Beispielen und baue dann eigene Tafeln aus Textaufgaben deines Buches: Zuerst entscheiden, welche beiden Merkmale es sind, dann die gegebenen Zahlen eintragen, dann die Lücken ergänzen. Wechsle anschließend zwischen Tafel und Baumdiagramm – beide zeigen dieselben Zahlen, aber die bedingten Wahrscheinlichkeiten stehen im Baum auf den Ästen. Der umgekehrte Baum ist der Weg zum Satz von Bayes im Abitur.",
     ],
+    beispiel: {
+      aufgabe: "1 % einer Bevölkerung hat eine Krankheit. Ein Test erkennt 90 % der Kranken und schlägt bei 5 % der Gesunden fälschlich an. Wie wahrscheinlich ist es, dass eine positiv getestete Person wirklich krank ist?",
+      schritte: [
+        "Gesamtzahl wählen: 10 000 Personen. Davon krank: 1 % = 100, gesund: 9 900.",
+        "Kranke aufteilen: 90 % von 100 = 90 positiv, 10 negativ.",
+        "Gesunde aufteilen: 5 % von 9 900 = 495 positiv, 9 405 negativ.",
+        "Randsumme „positiv“: 90 + 495 = 585. Randsumme „negativ“: 10 + 9 405 = 9 415.",
+        "Bedingte Wahrscheinlichkeit: P_positiv(krank) = 90 : 585 ≈ 0,154, also rund 15 %.",
+        "Einordnung: Von 585 positiven Tests sind 495 Fehlalarme – bei seltenen Krankheiten überwiegen sie, obwohl der Test 90 % der Kranken findet.",
+      ],
+      ergebnis: "Nur etwa 15 % der positiv Getesteten sind wirklich krank. Im Werkzeug ist das Beispiel „Medizinischer Test“ fertig geladen.",
+    },
     faq: [
       { f: "Wie berechnet man eine bedingte Wahrscheinlichkeit mit der Vierfeldertafel?", a: "P_A(B) = P(A ∩ B) / P(A): den Wert im Schnittfeld durch die Randsumme der Bedingung teilen. Man rechnet nur noch in der Zeile oder Spalte der Bedingung." },
       { f: "Woran erkennt man, ob zwei Ereignisse unabhängig sind?", a: "A und B sind stochastisch unabhängig, wenn P(A ∩ B) = P(A) · P(B) gilt – gleichwertig: P_A(B) = P(B). Das Wissen über A ändert dann nichts an B." },
@@ -244,7 +272,7 @@ export const TEXTE_VEKTOREN_STOCHASTIK = {
     kurz: "Entdecke in fünf Stationen, woher die Glockenkurve kommt, und übe dann zehn Aufgabentypen von Φ(z) bis zum Rückwärtsrechnen.",
     text: [
       "Bei stetigen Zufallsgrößen wie Körpergröße oder Füllmenge sind Wahrscheinlichkeiten Flächen unter der Glockenkurve. Ein einzelner Wert hat die Wahrscheinlichkeit 0. Gerechnet wird mit Standardisieren: z = (x − μ) / σ, dann Φ(z) ablesen. Viele verwechseln dabei die Höhe der Kurve mit einer Wahrscheinlichkeit oder teilen durch σ² statt durch σ.",
-      "Im Modus „Entdecken“ gehst du fünf Stationen durch: vom Histogramm der Binomialverteilung zur Glocke, die Gaußsche Dichtefunktion mit Hochpunkt und Wendestellen bei μ ± σ, Wahrscheinlichkeit als Fläche, die Sigma-Regeln und das Rückwärtsrechnen mit Quantilen samt Näherung der Binomialverteilung. Jede Station hat eine Animation und ein Labor mit Reglern. Im Modus „Üben“ gibt es zehn Aufgabentypen, darunter Ablesen, Standardisieren, P(X ≤ x), P(X ≥ x), Intervalle, Quantile, σ bestimmen und Binomial ≈ Normal. Die Aufgaben sind in Schritte zerlegt, und typische Denkfehler bekommen eine eigene Rückmeldung.",
+      "Im Modus „Entdecken“ gehst du fünf Stationen durch: vom Histogramm der Binomialverteilung zur Glocke, die Gaußsche Dichtefunktion mit Hochpunkt und Wendestellen bei μ ± σ, Wahrscheinlichkeit als Fläche, die Sigma-Regeln und das Rückwärtsrechnen mit Quantilen samt Näherung der Binomialverteilung. Jede Station hat eine Animation und ein Labor mit Reglern. Im Modus „Trainieren“ gibt es zehn Aufgabentypen, darunter Ablesen, Standardisieren, P(X ≤ x), P(X ≥ x), Intervalle, Quantile, σ bestimmen und Binomial ≈ Normal. Die Aufgaben sind in Schritte zerlegt, und typische Denkfehler bekommen eine eigene Rückmeldung.",
       "Auch die Taschenrechner-Befehle normalcdf und invNorm werden erklärt. Die Normalverteilung ist Stoff der Kursstufe und verbindet Binomialverteilung und Hypothesentest.",
     ],
     faq: [

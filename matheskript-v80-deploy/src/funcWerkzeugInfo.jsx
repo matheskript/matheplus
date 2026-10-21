@@ -20,6 +20,8 @@ const CSS = `
 .wi summary .t small{display:block;margin-top:2px;font-size:12.5px;font-weight:500;color:${C.grau};line-height:1.4}
 .wi-inhalt{padding:0 18px 18px;font-size:14.5px;line-height:1.65;color:${C.tinte}}
 .wi-inhalt p{margin:0 0 10px}
+.wi-beispiel ol{list-style:decimal;margin:0 0 10px;padding-left:22px}
+.wi-beispiel li{margin:0 0 6px}
 .wi-inhalt h3{margin:18px 0 6px;font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#8A6A00}
 .wi-inhalt dt{margin-top:10px;font-weight:700}
 .wi-inhalt dd{margin:2px 0 0}
@@ -50,6 +52,14 @@ export function WerkzeugInfo({ ansicht }) {
           <p><strong>{entitaet(t)}</strong></p>
           <dl className="wi-steck">{steckbrief(t).map(([k, v]) => <React.Fragment key={k}><dt>{k}</dt><dd>{v}</dd></React.Fragment>)}</dl>
           {t.text.map((a, i) => <p key={i}>{a}</p>)}
+          {t.beispiel && (
+            <div className="wi-beispiel" data-werkzeug-beispiel>
+              <h3>Beispiel mit Lösungsweg</h3>
+              <p><b>Aufgabe:</b> {t.beispiel.aufgabe}</p>
+              <ol>{t.beispiel.schritte.map((z, i) => <li key={i}>{z}</li>)}</ol>
+              <p><b>Ergebnis:</b> {t.beispiel.ergebnis}</p>
+            </div>
+          )}
           {t.faq && t.faq.length > 0 && (
             <>
               <h3>Häufige Fragen</h3>
