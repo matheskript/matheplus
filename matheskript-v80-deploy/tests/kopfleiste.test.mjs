@@ -1,5 +1,6 @@
 /* Kopfleiste (src/funcKopfleiste.jsx): folgt dem Modus der Startseite (dunkel/hell/mix), Besucher ohne Konto bekommen
-   das feste Menü Vision · Mathe lernen · Mathilda AI · Blog (nicht zum Ausklappen), angemeldet bleiben Slogan, Chip und ☰. */
+   das feste Menü Vision · Mathe lernen · Mathilda AI · Blog (nicht zum Ausklappen), angemeldet bleiben Slogan, Chip und ☰.
+   Vision ist seit 21.10. eine eigene Seite (/vision), Mathe lernen springt zum Abschnitt „lernen“ der Startseite. */
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -11,13 +12,16 @@ const quelle = (f) => readFileSync(new URL(`../src/${f}`, import.meta.url), "utf
 
 test("Besuchermenü: genau die vier Punkte, in dieser Reihenfolge, mit Zielen in der App", () => {
   assert.deepEqual(BESUCHER_MENUE.map((e) => e.name), ["Vision", "Mathe lernen", "Mathilda AI", "Blog"]);
-  assert.deepEqual(BESUCHER_MENUE.map((e) => e.ziel.ansicht), ["start", "start", "analyse", "blog"]);
+  assert.deepEqual(BESUCHER_MENUE.map((e) => e.ziel.ansicht), ["vision", "start", "analyse", "blog"]);
+  assert.ok(!BESUCHER_MENUE[0].anker, "Vision ist eine eigene Seite, kein Abschnitt der Startseite");
+  assert.equal(BESUCHER_MENUE[1].anker, "lernen");
   assert.equal(BESUCHER_MENUE[2].ziel.foto, "blatt");
   for (const e of BESUCHER_MENUE.filter((x) => x.anker)) {
     assert.ok(quelle("funcStartseite.jsx").includes(`id="${e.anker}"`), `Anker ${e.anker} fehlt auf der Startseite`);
   }
   assert.ok(SPRUENGE["kopfmenue-anker"] && SPRUENGE["kopfmenue-anker"].an && SPRUENGE["kopfmenue-anker"].art === "anker");
   assert.equal(besucherAktiv("blog"), "blog");
+  assert.equal(besucherAktiv("vision"), "vision");
   assert.equal(besucherAktiv("analyse", "blatt"), "mathilda");
   assert.equal(besucherAktiv("start"), null);
 });

@@ -755,8 +755,8 @@ export function Startseite({ gehe }) {
         {entdAuf && <div className="sbb-papier" data-aufklapp-inhalt><UnterMenue eintraege={ENTDECKEN_MENUE} gehe={gehe} /></div>}
       </div></section>
 
-      {/* Das System – im Mix ein dunkler Streifen über die volle Breite; Anker „vision“ für das Besuchermenü in der Kopfleiste */}
-      <section className="sbb-teil sbb-streifen sbb-insel" id="vision" style={{ scrollMarginTop: 56 }}><div className="sbb-spalte">
+      {/* Das System – im Mix ein dunkler Streifen über die volle Breite (die Vision hat seit 21.10. eine eigene Seite: /vision) */}
+      <section className="sbb-teil sbb-streifen sbb-insel" id="system" style={{ scrollMarginTop: 56 }}><div className="sbb-spalte">
         <Kopf titel="Erst sauber schreiben lernen. Dann trainieren, bis es sitzt." />
         <p className="sbb-text">Die meisten Fehler in Klausuren entstehen nicht im Kopf, sondern auf dem Blatt.</p>
         <p className="sbb-text">Pen & Paper ist der Kurs dazu: ein Schritt pro Zeile, Gleichheitszeichen untereinander.</p>

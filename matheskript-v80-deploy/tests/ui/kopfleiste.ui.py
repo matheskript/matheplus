@@ -7,7 +7,7 @@ Geprüft je Modus (dunkel/hell/mix) × Gast/angemeldet × 390/1280 px:
   - Gast: Wortmarke ein Drittel kleiner, festes Menü Vision · Mathe lernen · Mathilda AI · Blog
     (weiß auf dunkel/mix, nicht zum Ausklappen), AI in Gold; angemeldet: kein Besuchermenü, Slogan, Chip
   - Modus-Knopf schaltet reihum, Leiste klebt und zieht sich beim Scrollen zusammen
-  - Menüpunkte führen zu #vision, #lernen, Mathilda, /blog; Blog-Liste → Beitrag → nächster Beitrag → zurück
+  - Menüpunkte führen zu /vision (eigene Seite, markiert), #lernen, Mathilda, /blog; Blog-Liste → Beitrag → nächster Beitrag → zurück
 """
 import os, json
 from playwright.sync_api import sync_playwright
@@ -150,10 +150,13 @@ with sync_playwright() as p:
 
                 # Menüpunkte (nur Gast, einmal je Breite im dunklen Modus reicht)
                 if not angemeldet and modus == "dunkel" and breite in (390, 1280):
-                    for punkt, anker in (("vision", "vision"), ("lernen", "lernen")):
-                        page.locator(f"[data-besucher-menue={punkt}]").click(); page.wait_for_timeout(1600)
-                        y = page.evaluate(f"document.getElementById('{anker}').getBoundingClientRect().top")
-                        pruefe(-5 < y < 140, f"{tag}: {punkt} springt nicht zum Abschnitt (top={y})")
+                    page.locator("[data-besucher-menue=vision]").click(); page.wait_for_timeout(1600)
+                    pruefe(page.url.rstrip("/").endswith("/vision"), f"{tag}: Vision-Adresse {page.url}")
+                    pruefe(page.locator("[data-vision]").count() == 1, f"{tag}: Vision-Seite fehlt")
+                    pruefe(page.locator("[data-besucher-menue=vision]").get_attribute("aria-current") == "page", f"{tag}: Vision nicht markiert")
+                    page.locator("[data-besucher-menue=lernen]").click(); page.wait_for_timeout(1600)
+                    y = page.evaluate("document.getElementById('lernen').getBoundingClientRect().top")
+                    pruefe(-5 < y < 140, f"{tag}: lernen springt nicht zum Abschnitt (top={y})")
                     page.locator("[data-besucher-menue=mathilda]").click(); page.wait_for_timeout(1500)
                     pruefe(page.locator("[data-besucher-menue=mathilda]").get_attribute("aria-current") == "page", f"{tag}: Mathilda nicht markiert")
                     page.locator("[data-besucher-menue=blog]").click(); page.wait_for_timeout(1500)

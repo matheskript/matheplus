@@ -58,6 +58,8 @@ const NachhilfekursSeite = lazyLaden(() => import("./funcNachhilfekurs.jsx").the
 const DokumenteSeite = lazyLaden(() => import("./funcDokumente.jsx").then((m) => ({ default: m.DokumenteSeite })));
 /* Blog (öffentlich): /blog und /blog/<slug>, Daten in blogDaten.js */
 const BlogSeite = lazyLaden(() => import("./funcBlog.jsx").then((m) => ({ default: m.BlogSeite })));
+/* Vision (öffentlich): /vision – Menüpunkt „Vision“ im Besuchermenü, endet mit den Angeboten (Pen & Paper zuerst) */
+const VisionSeite = lazyLaden(() => import("./funcVision.jsx").then((m) => ({ default: m.VisionSeite })));
 const EntdeckenSeite = lazyLaden(() => import("./funcEntdecken.jsx").then((m) => ({ default: m.EntdeckenSeite })));
 const PenPaperKursSeite = lazyLaden(() => import("./funcPenPaperKurs.jsx").then((m) => ({ default: m.PenPaperKursSeite })));
 const KontoSeite = lazyLaden(() => import("./funcKonto.jsx").then((m) => ({ default: m.KontoSeite })));
@@ -1062,6 +1064,8 @@ export function Mathilda() {
         <EntwurfTor gehe={gehe}><DokumenteSeite /></EntwurfTor>
       ) : ansicht === "blog" ? (
         <BlogSeite gehe={gehe} seite={blogSeite} setSeite={setBlogSeite} />
+      ) : ansicht === "vision" ? (
+        <VisionSeite gehe={gehe} />
       ) : ansicht === "challenge" ? (
         <>
           <SeitenKopf titel="Klassen-Challenge" groesse="clamp(26px, 7.6vw, 31px)" rund>

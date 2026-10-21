@@ -149,7 +149,7 @@ export const KEIN_TEILEN = [
   "lehrkraefte", "lehrerblatt", "plan", "wiederholen", "profil", "profil2", "einstufung",
   "bericht", "messung", "auswertung", "konto", "impressum", "datenschutz", "einwilligung", "agb", "widerruf",
   "entwurf-start", "entwurf-checken", "entwurf-pakete", "entwurf-werkzeuge", "entwurf-vorher", "entwurf-biro",
-  "dokumente", "blog",
+  "dokumente", "blog", "vision",
 ];
 
 /* Infos zur Ansicht oder null, wenn die Seite kein Tool/Training ist (Startseite, Konto, Recht …) */
