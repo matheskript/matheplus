@@ -32,6 +32,7 @@ import { useFrei } from "./func2.jsx";
 import { DiffKursKachel, VekKursKachel, UnterstufeKachel } from "./funcKursKachel.jsx";
 import { MasterclassKachel } from "./funcMasterclass.jsx";
 import { VISION_KAPITEL, VISION_ZIELE, TANGENTE, tangente, zahlDe, VERGESSEN, behalten } from "./vision.js";
+import { EVENT_START_MODUS, startModus } from "./startModus.js";
 
 const NACHT = "#050B1F";
 const NACHT2 = "#0B1A44";
@@ -104,6 +105,14 @@ html[data-vision-seite] .fuss-paar button { color: ${TEXT} !important; backgroun
 
 /* ---------- Bühne ---------- */
 .vi-held { position: relative; overflow: hidden; padding: clamp(44px, 8vw, 100px) 0 clamp(64px, 10vw, 128px); background: ${NACHT}; }
+/* Mix und hell (Kopfleiste blau bzw. weiß): die Bühne beginnt im Blau der Kopfleiste und läuft in die Nacht der Seite aus */
+.vi[data-modus="mix"] .vi-held, .vi[data-modus="hell"] .vi-held { background-color: ${NACHT};
+  background-image: radial-gradient(110% 60% at 0% 0%, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0) 60%),
+    linear-gradient(176deg, #0656A7 0%, ${C.see} 16%, #0A3A80 42%, #0B2A63 66%, ${NACHT} 100%); }
+.vi[data-modus="mix"] .vi-licht.b, .vi[data-modus="hell"] .vi-licht.b { display: none; }
+/* Auf Blau wirkt halbdurchsichtiges Gold oliv: Licht in hellem Gold, Kurve kräftiger */
+.vi[data-modus="mix"] .vi-licht.a, .vi[data-modus="hell"] .vi-licht.a { background: radial-gradient(circle, rgba(255,229,138,0.26) 0%, rgba(255,229,138,0) 70%); }
+.vi[data-modus="mix"] .vi-held-kurve, .vi[data-modus="hell"] .vi-held-kurve { opacity: .8; }
 .vi-licht { position: absolute; border-radius: 999px; filter: blur(70px); pointer-events: none; }
 .vi-licht.a { width: 62vw; height: 62vw; max-width: 720px; max-height: 720px; top: -24vw; right: -18vw; background: radial-gradient(circle, rgba(237,187,0,0.36) 0%, rgba(237,187,0,0) 70%); }
 .vi-licht.b { width: 70vw; height: 70vw; max-width: 800px; max-height: 800px; top: 8%; left: -38vw; background: radial-gradient(circle, rgba(0,77,152,0.5) 0%, rgba(0,77,152,0) 70%); }
@@ -689,6 +698,12 @@ export function VisionSeite({ gehe }) {
   const [aktiv, setAktiv] = useState(null);
   const [leisteL, setLeisteL] = useState(false);
   const [leisteU, setLeisteU] = useState(false);
+  const [modus, setModus] = useState(startModus);
+  useEffect(() => {
+    const h = () => setModus(startModus());
+    window.addEventListener(EVENT_START_MODUS, h);
+    return () => window.removeEventListener(EVENT_START_MODUS, h);
+  }, []);
 
   const springZu = (id) => springeZuId("vision-kapitel", id);
   const penPaper = () => gehe(VISION_ZIELE.penpaper);
@@ -744,7 +759,7 @@ export function VisionSeite({ gehe }) {
   const aktivHell = aktiv && (VISION_KAPITEL.find((k) => k.id === aktiv) || {}).hell;
 
   return (
-    <div className={js ? "vi vi-js" : "vi"} ref={wurzel} data-vision>
+    <div className={js ? "vi vi-js" : "vi"} ref={wurzel} data-vision data-modus={modus}>
       <style>{CSS}</style>
 
       {/* Kapitel-Leiste links (ab 1360 px) */}
