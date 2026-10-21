@@ -11,7 +11,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { C } from "./base1.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
-import { PruefungsLink } from "./funcTraining.jsx";
 import { SinusUebungen } from "./funcSinusUebung.jsx";
 import { MathildaModusKnopf } from "./funcMathildaModusKnopf.jsx";
 import { Arbeitsflaeche, BildKarte, ErgebnisReihe, FeinKarte, Werkzeugleiste, chipStil, hinweisStil, titelStil, toenKarte, useBreite, useDesktop } from "./arbeitsflaeche.jsx";
@@ -378,11 +377,8 @@ export function Sinusfunktion({ gehe, ansicht = "sinus" }) {
     </>
   );
 
-  /* „Ich hänge fest“ und „Prüfungsmodus“ liegen im Aufklappmenü „Zusätzlich üben“ */
-  const menueExtra = (modus === "aufgabe" || gehe) ? (<>
-    {modus === "aufgabe" && <IchHaengeFest mathilda={false} kontext={sinusHilfe(ziel)} />}
-    {gehe && <PruefungsLink ansicht={ansicht} gehe={gehe} hell />}
-  </>) : null;
+  /* „Ich hänge fest“ liegt im Aufklappmenü „Zusätzlich üben“ */
+  const menueExtra = modus === "aufgabe" ? <IchHaengeFest mathilda={false} kontext={sinusHilfe(ziel)} /> : null;
 
   const modusLeiste = (
       <div style={{ display: "flex", gap: 6, marginBottom: 12, background: C.weiss, borderRadius: 14, padding: 5, ...(desktop ? { border: `1px solid ${C.linie}` } : { boxShadow: "0 2px 12px rgba(15,26,51,0.06)" }) }}>

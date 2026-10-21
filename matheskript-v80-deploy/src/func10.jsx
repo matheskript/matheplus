@@ -36,7 +36,7 @@ import { mathildaSystem } from "./mathildaKontext.js";
 import { Operatoren, Wiederholen } from "./func7.jsx";
 import { Messbericht, Modellieren, Probeabitur, Wochenbericht } from "./func8.jsx";
 import { Auswertung, Einwilligung, KiEinwilligungFenster, einwilligungLesen } from "./func9.jsx";
-import { TrainingFortschritt, PruefungsLink } from "./funcTraining.jsx";
+import { TrainingFortschritt } from "./funcTraining.jsx";
 import { Fusszeile } from "./funcRecht.jsx";
 import { HauptMenue } from "./funcHauptmenue.jsx";
 import { Kopfleiste } from "./funcKopfleiste.jsx";
@@ -471,14 +471,13 @@ export function Mathilda() {
     if (!ort) return null;
     return (<>
       <WerkzeugLeiste ansicht={ansicht} gehe={gehe} />
-      {ansicht !== "sinus" && ansicht !== "steckbrief" && <PruefungsLink ansicht={ansicht} gehe={gehe} klein />}
     </>);
   };
 
   /* Trainingswerkzeuge (alle Werkzeuge der Trainings-Kurse aus trainingsKurse.js, dazu Geraden, Parabeln,
      Stammfunktion & Integral): Kopfleiste wie überall, darunter nur das dünne Werkzeug-Band (WerkzeugBand)
      statt des großen Seitenkopfs */
-  const band = <WerkzeugBand ansicht={ansicht} gehe={gehe} testKnopf={<PruefungsLink ansicht={ansicht} gehe={gehe} band />} />;
+  const band = <WerkzeugBand ansicht={ansicht} gehe={gehe} />;
 
   return (
     <div className="app-wurzel" style={{ background: C.sand, color: C.tinte, fontFamily: "Montserrat, system-ui, sans-serif", minHeight: "100vh" }}>
@@ -486,9 +485,6 @@ export function Mathilda() {
       <style>{`/* Schriften: lokal über @fontsource (main.jsx) */
       .kachel { transition: transform .16s ease, box-shadow .16s ease; }
       .held { position: relative; }
-      .test-knopf-klein { position: absolute; top: 41px; right: 24px; }
-      .held:has(.test-knopf-klein) h1 { padding-right: 70px; }
-      @media (max-width:520px){ .test-knopf-klein { top: 14px; } }
       .kachel:hover { transform: translateY(-2px); }
       .kachel:active { transform: scale(.988); }
       .zeichnen { stroke-dasharray: 560; stroke-dashoffset: 560; animation: malen 1.9s cubic-bezier(.4,0,.2,1) forwards; }
