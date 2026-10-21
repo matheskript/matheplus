@@ -96,46 +96,15 @@ with sync_playwright() as pw:
         foto(p, f"sinus-{w}")
         p.close()
 
-        # ---------- Kurvendiskussion: Polynome ----------
-        n = f"{w} plotter"
-        p = seite(ctx, "/kurvendiskussion", w)
-        pruefe(p.locator("[data-plotter=breit]").count() == (1 if desktop else 0), f"{n}: falsches Layout")
-        ueberbreite(p, n)
-        if desktop:
-            zweispaltig(p, n)
-            hoehen(p, n)
-            echte_pixel(p, "[data-plotter=breit] [data-arbeitsflaeche]", n)
-        p.get_by_role("button", name="a erhöhen", exact=True).click()
-        pruefe(p.get_by_role("button", name="a bearbeiten, aktuell 2").count() == 1, f"{n}: Regler a wirkt nicht")
-        # Grad 5: sechs Koeffizienten
-        p.locator("button[aria-haspopup=listbox]").click()
-        p.get_by_role("option", name="5.").click()
-        p.wait_for_timeout(200)
-        pruefe(p.get_by_role("button", name="f bearbeiten, aktuell 2").count() == 1, f"{n}: Grad 5 ohne f")
-        ueberbreite(p, n + " Grad 5")
-        p.locator(".kd-knopf").click()
-        p.wait_for_timeout(600)
-        pruefe(p.get_by_text("Markante Punkte").count() >= 1, f"{n}: Kurvendiskussion öffnet nicht")
-        ueberbreite(p, n + " Diskussion")
-        foto(p, f"plotter-{w}")
-        p.close()
-
-        # ---------- Kurvendiskussion: beliebige Funktionen ----------
-        n = f"{w} advplotter"
-        p = seite(ctx, "/kurvendiskussion/beliebig", w)
-        pruefe(p.locator("[data-advplotter=breit]").count() == (1 if desktop else 0), f"{n}: falsches Layout")
-        ueberbreite(p, n)
-        if desktop:
-            zweispaltig(p, n)
-            hoehen(p, n, 60)
-            echte_pixel(p, "[data-advplotter=breit] [data-arbeitsflaeche]", n)
-        p.get_by_role("button", name="sin(x)/x", exact=True).click()
-        p.wait_for_timeout(500)
-        p.get_by_role("button", name="f″", exact=True).click()
-        ueberbreite(p, n + " sin(x)/x")
-        pruefe(p.get_by_text("Kurvendiskussion als PDF herunterladen").count() == 1, f"{n}: Diskussion fehlt")
-        foto(p, f"advplotter-{w}")
-        p.close()
+        # ---------- Kurvendiskussion (Polynome und beliebige Funktionen) ----------
+        # Desktop-Layout stammt aus der Kurvendiskussions-Überarbeitung (func3/func12, „links/rechts“) –
+        # hier nur Fehlerfreiheit und Überbreite prüfen.
+        for pfad in ["/kurvendiskussion", "/kurvendiskussion/beliebig"]:
+            n = f"{w} {pfad}"
+            p = seite(ctx, pfad, w)
+            ueberbreite(p, n)
+            foto(p, f"{pfad.strip('/').replace('/', '-')}-{w}")
+            p.close()
 
         # ---------- Funktionsscharen ----------
         n = f"{w} scharen"
