@@ -1,15 +1,16 @@
 import React from "react";
 import { C } from "./base1.jsx";
 import { englisch } from "./i18n.js";
-import { DOKUMENTE, dokumenteUebersicht } from "./dokumente.js";
+import { DOKUMENTE, dokumenteUebersicht, vollTitel } from "./dokumente.js";
 import { PORZELLAN, TIEFBLAU, GRANAT, LACKSCHWARZ, NACHTBLAU, GOLD_PILLE } from "./kursFarben.js";
 import { DokumentMotiv } from "./funcDokumentMotive.jsx";
 
 /* ======================================================================
    SEITE „DOKUMENTE“ (Ansicht "dokumente", hinter dem gemeinsamen Passwort).
    Eine kompakte Karte je Dokument in der Optik der Kurs-Kacheln („Lack und Goldfolie“):
-   Marken, Titel, Art · Seiten, Motiv rechts oben, drei Knöpfe
-   (Öffnen · Download · bei Druckausgaben Cover · Pfeil). Der Pfeil klappt Zweck und Stand auf – sonst kein Fließtext.
+   Oben die Reihe klein in Gold („Schulbuch Band 2“), darunter der Titel groß in Weiß, Motiv rechts oben;
+   darunter Art · Seiten, ganz unten die Knöpfe (Öffnen · Download · bei Druckausgaben Cover),
+   daneben die Zweck-Marken (Amazon · Hier auf der Seite · Intern …) und der Pfeil. Der Pfeil klappt Zweck und Stand auf – sonst kein Fließtext.
    Die Liste steht in src/dokumente.js.
    ====================================================================== */
 
@@ -44,12 +45,13 @@ const STIL = `
   @media (hover:hover){.dk:hover{transform:translateY(-2px);box-shadow:0 1px 0 var(--dk-kante) inset,0 26px 44px -18px var(--dk-schatten),0 4px 10px rgba(8,14,32,0.14)}}
   .dk-motiv{position:absolute;z-index:0;top:4px;right:-6px;width:112px;height:auto;pointer-events:none}
   .dk-kopf{padding-right:98px;min-height:84px}
-  .dk-marken{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+  .dk-reihe{margin:2px 0 6px;font-size:11px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;line-height:1.35;color:var(--dk-akzent)}
+  .dk-marken{display:flex;flex-wrap:wrap;gap:5px}
   .dk-marke{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:700;letter-spacing:0.03em;padding:3px 8px 3px 7px;border-radius:999px;
     background:var(--dk-chip);border:1px solid var(--dk-chiprand);color:var(--dk-titel);white-space:nowrap}
   .dk-marke i{width:6px;height:6px;border-radius:50%;flex:none}
-  .dk-titel{margin:0;font-size:16.5px;font-weight:800;letter-spacing:-0.02em;line-height:1.22;color:var(--dk-titel);text-wrap:balance}
-  .dk-meta{margin:6px 0 0;font-size:12.5px;font-weight:600;color:var(--dk-text);display:flex;flex-wrap:wrap;gap:2px 10px}
+  .dk-titel{margin:0;font-size:36px;font-weight:800;letter-spacing:-0.035em;line-height:1.04;color:var(--dk-titel);text-wrap:balance}
+  .dk-meta{margin:12px 0 0;font-size:12.5px;font-weight:600;color:var(--dk-text);display:flex;flex-wrap:wrap;gap:2px 10px}
   .dk-meta b{color:var(--dk-akzent);font-weight:800}
   .dk-knoepfe{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px}
   .dk-k{position:relative;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;gap:6px;height:34px;padding:0 13px 0 11px;border-radius:999px;border:0;
@@ -71,6 +73,7 @@ const STIL = `
   .dk-mehr p{margin:0;font-size:13px;line-height:1.6;font-weight:400;color:var(--dk-text)}
   .dk-mehr .dk-stand{margin-top:8px;font-size:11.5px;font-weight:700;color:var(--dk-akzent)}
   @media (max-width:440px){.dk-knoepfe--cover{gap:6px}.dk-knoepfe--cover .dk-k:not(.dk-pfeil){padding:0 10px 0 8px;gap:4px;font-size:12.5px}}
+  @media (max-width:440px){.dk-titel{font-size:31px}}
   @media (max-width:380px){.dk-k{padding:0 11px 0 9px;font-size:12.5px}.dk-kopf{padding-right:86px}.dk-motiv{width:100px}}
   @media (prefers-reduced-motion:reduce){.dk,.dk-k,.dk-k::after,.dk-pfeil svg{transition:none}}
 `;
@@ -92,10 +95,32 @@ const IconPfeil = () => (
   <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
 );
 
+/* Titel groß lassen, aber kein Wort über den Rand: Schrift Pixel für Pixel verkleinern (höchstens bis 20 px). */
+function useTitelPasst() {
+  const ref = React.useRef(null);
+  React.useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return undefined;
+    const passen = () => {
+      el.style.fontSize = "";
+      let g = parseFloat(getComputedStyle(el).fontSize) || 36;
+      while (el.scrollWidth > el.clientWidth + 1 && g > 20) { g -= 1; el.style.fontSize = `${g}px`; }
+    };
+    passen();
+    if (typeof ResizeObserver === "undefined") return undefined;
+    const ro = new ResizeObserver(passen);
+    ro.observe(el.parentElement || el);
+    return () => ro.disconnect();
+  }, []);
+  return ref;
+}
+
 const dateiName = (pfad) => decodeURIComponent(pfad.split("/").pop() || "dokument.pdf");
 
 function Karte({ d }) {
   const [offen, setOffen] = React.useState(false);
+  const titelRef = useTitelPasst();
+  const name = vollTitel(d);
   const f = PALETTE[d.farbe] || NACHTBLAU;
   const ton = MOTIV_TON[d.farbe] || MOTIV_TON.nachtblau;
   const vars = {
@@ -110,23 +135,21 @@ function Karte({ d }) {
     <article data-dokument={d.id} className="dk" style={vars}>
       <DokumentMotiv name={d.motiv} id={`dkm-${d.id}`} klasse="dk-motiv" linie={ton.linie} tief={ton.tief} />
       <div className="dk-kopf">
-        <div className="dk-marken">
-          {d.zwecke.map((z) => <span key={z} className="dk-marke"><i style={{ background: MARKE_PUNKT[z] || MARKE_PUNKT.Intern }} />{z}</span>)}
-        </div>
-        <h3 className="dk-titel">{d.titel}</h3>
-        <p className="dk-meta"><span>{d.art}</span><b data-dokument-seiten>{seiten}</b></p>
+        {d.reihe ? <div className="dk-reihe" data-dokument-reihe>{d.reihe}</div> : null}
+        <h3 className="dk-titel" ref={titelRef} data-dokument-titel aria-label={name}>{d.titel}</h3>
       </div>
+      <p className="dk-meta"><span>{d.art}</span><b data-dokument-seiten>{seiten}</b></p>
       <div className={d.cover ? "dk-knoepfe dk-knoepfe--cover" : "dk-knoepfe"}>
         {d.datei ? (
           <>
-            <a className="dk-k dk-oeffnen" href={d.datei} target="_blank" rel="noopener noreferrer" data-dokument-oeffnen aria-label={`${d.titel} öffnen`}>
+            <a className="dk-k dk-oeffnen" href={d.datei} target="_blank" rel="noopener noreferrer" data-dokument-oeffnen aria-label={`${name} öffnen`}>
               <IconAuge />Öffnen
             </a>
-            <a className="dk-k dk-laden" href={d.datei} download={dateiName(d.datei)} data-dokument-laden aria-label={`${d.titel} herunterladen`}>
+            <a className="dk-k dk-laden" href={d.datei} download={dateiName(d.datei)} data-dokument-laden aria-label={`${name} herunterladen`}>
               <IconLaden />Download
             </a>
             {d.cover ? (
-              <a className="dk-k dk-laden" href={d.cover} download={dateiName(d.cover)} data-dokument-cover aria-label={`Cover zu ${d.titel} herunterladen`}>
+              <a className="dk-k dk-laden" href={d.cover} download={dateiName(d.cover)} data-dokument-cover aria-label={`Cover zu ${name} herunterladen`}>
                 <IconLaden />Cover
               </a>
             ) : null}
@@ -134,6 +157,9 @@ function Karte({ d }) {
         ) : (
           <span className="dk-fehlt" data-dokument-ohne-datei>Datei noch nicht hier</span>
         )}
+        <span className="dk-marken" data-dokument-marken>
+          {d.zwecke.map((z) => <span key={z} className="dk-marke"><i style={{ background: MARKE_PUNKT[z] || MARKE_PUNKT.Intern }} />{z}</span>)}
+        </span>
         <button type="button" className="dk-k dk-pfeil" aria-expanded={offen} aria-controls={mehrId} aria-label={offen ? "Infos zuklappen" : "Infos aufklappen"}
           data-dokument-mehr onClick={() => setOffen((o) => !o)}>
           <IconPfeil />

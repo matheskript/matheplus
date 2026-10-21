@@ -99,7 +99,7 @@ const CSS = `
 
 /* Ganz unten: die Dokumente der Seite „Dokumente“ (intern – deshalb hinter dem gemeinsamen Passwort) */
 .bl-dok { margin-top: 64px; }
-.bl-dok h3 { margin: 0 0 14px; font-size: 13px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: ${C.hellgrau}; }
+.bl-dok > h3 { margin: 0 0 14px; font-size: 13px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: ${C.hellgrau}; }
 .bl-dok-tor { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 16px; border: 1px dashed ${C.linie}; border-radius: 16px; background: #fff; }
 .bl-dok-tor p { flex: 1 1 100%; margin: 0; font-size: 14px; line-height: 1.5; color: ${C.grau}; }
 .bl-dok-tor input { flex: 1 1 180px; min-width: 0; padding: 11px 13px; font: inherit; font-size: 16px; color: ${C.tinte}; background: #fff; border: 2px solid ${C.linie}; border-radius: 10px; outline: none; }

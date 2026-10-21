@@ -7,6 +7,7 @@
      - datei: Pfad unter public/ (z. B. "/dokumente/xyz.pdf"), oder null, solange die Datei
        noch nicht im Projekt liegt (dann zeigt die Box „Datei noch nicht hier abgelegt“).
      - cover: optional, Pfad des Covers (Rückseite + Rücken + Vorderseite) unter public/; die Karte zeigt dann den Knopf „Cover“ (Download).
+     - reihe: kleine Goldzeile über dem Titel (Reihe/Band, z. B. „Schulbuch Band 2“); titel: nur der eigentliche Titel, groß in Weiß.
      - seiten: Zahl, oder null, wenn die Seitenzahl noch offen ist.
      - zwecke: Kurzmarken, jede aus ZWECK_MARKEN.
      - farbe: Lack der Karte (eine aus FARBEN, Paletten in kursFarben.js), motiv: Bild rechts oben (funcDokumentMotive.jsx).
@@ -24,7 +25,8 @@ export const DOKUMENTE = [
     id: "schulbuch-ableitungen",
     farbe: "porzellan",
     motiv: "tangente",
-    titel: "Schulbuch Band 1 – Ableitungen",
+    reihe: "Schulbuch Band 1",
+    titel: "Ableitungen",
     art: "PDF · Schulbuch",
     seiten: 50,
     zwecke: ["Amazon", "Hier auf der Seite"],
@@ -36,7 +38,8 @@ export const DOKUMENTE = [
     id: "schulbuch-vektoren",
     farbe: "tiefblau",
     motiv: "ebene",
-    titel: "Schulbuch Band 2 – Vektoren, Geraden und Ebenen",
+    reihe: "Schulbuch Band 2",
+    titel: "Vektoren, Geraden und Ebenen",
     art: "PDF · Schulbuch",
     seiten: 70,
     zwecke: ["Amazon", "Hier auf der Seite"],
@@ -48,7 +51,8 @@ export const DOKUMENTE = [
     id: "schulbuch-kurvendiskussion",
     farbe: "granat",
     motiv: "extrem",
-    titel: "Schulbuch Band 3 – Kurvendiskussion (Probekapitel)",
+    reihe: "Schulbuch Band 3 · Probekapitel",
+    titel: "Kurvendiskussion",
     art: "PDF · Schulbuch",
     seiten: 12,
     zwecke: ["Intern"],
@@ -60,7 +64,8 @@ export const DOKUMENTE = [
     id: "druck-ableitungen-innenteil",
     farbe: "porzellan",
     motiv: "druck",
-    titel: "Amazon-Druckausgabe Band 1 – Ableitungen",
+    reihe: "Amazon-Druckausgabe Band 1",
+    titel: "Ableitungen",
     art: "PDF · Druckausgabe KDP",
     seiten: 58,
     zwecke: ["Amazon"],
@@ -73,7 +78,8 @@ export const DOKUMENTE = [
     id: "druck-vektoren-innenteil",
     farbe: "tiefblau",
     motiv: "druck",
-    titel: "Amazon-Druckausgabe Band 2 – Vektoren, Geraden und Ebenen",
+    reihe: "Amazon-Druckausgabe Band 2",
+    titel: "Vektoren, Geraden und Ebenen",
     art: "PDF · Druckausgabe KDP",
     seiten: 78,
     zwecke: ["Amazon"],
@@ -86,7 +92,8 @@ export const DOKUMENTE = [
     id: "businessplan",
     farbe: "lackschwarz",
     motiv: "diagramm",
-    titel: "Businessplan Mythos Mathe 2027–2029",
+    reihe: "Businessplan 2027–2029",
+    titel: "Mythos Mathe",
     art: "PDF · Investoren-Dossier",
     seiten: 8,
     zwecke: ["Investoren"],
@@ -98,7 +105,8 @@ export const DOKUMENTE = [
     id: "arbeitsheft-penpaper",
     farbe: "nachtblau",
     motiv: "heft",
-    titel: "Arbeitsheft Pen & Paper (Matheskript Band 2)",
+    reihe: "Arbeitsheft · Matheskript Band 2",
+    titel: "Pen & Paper",
     art: "PDF · Arbeitsheft",
     seiten: 10,
     zwecke: ["Hier auf der Seite"],
@@ -110,7 +118,8 @@ export const DOKUMENTE = [
     id: "arbeitsheft-analysis-01",
     farbe: "nachtblau",
     motiv: "heft",
-    titel: "Arbeitsheft Analysis 01 – Von der Geraden zur Kurvendiskussion",
+    reihe: "Arbeitsheft Analysis 01",
+    titel: "Von der Geraden zur Kurvendiskussion",
     art: "PDF · Arbeitsheft",
     seiten: null,
     zwecke: ["Intern"],
@@ -122,7 +131,8 @@ export const DOKUMENTE = [
     id: "matheskript-bibel",
     farbe: "granat",
     motiv: "buch",
-    titel: "Die Matheskript Bibel (Version 1.0)",
+    reihe: "Grundlagendokument · Version 1.0",
+    titel: "Die Matheskript Bibel",
     art: "PDF · Grundlagendokument",
     seiten: 23,
     zwecke: ["Intern"],
@@ -138,3 +148,6 @@ export function dokumenteUebersicht(liste = DOKUMENTE) {
   const ohneDatei = liste.filter((d) => !d.datei).length;
   return { anzahl: liste.length, seiten, ohneDatei };
 }
+
+/* Voller Name für Vorlese-Texte und Suche: kleine Goldzeile + Haupttitel („Schulbuch Band 2 – Vektoren, Geraden und Ebenen“). */
+export const vollTitel = (d) => (d.reihe ? `${d.reihe} – ${d.titel}` : d.titel);
