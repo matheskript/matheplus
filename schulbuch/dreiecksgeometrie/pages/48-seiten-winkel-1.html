@@ -1,0 +1,68 @@
+<!-- kap: VI | uk: Seiten und Winkel berechnen -->
+<div class="ukap-titel"><span class="nr">{{K:seiten-winkel-1}}</span><h2>Seiten und Winkel berechnen</h2></div>
+<p class="leitfrage">Wie berechnet man aus einem Winkel und einer Seite die anderen Seiten?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <div class="zwei-bild" style="gap:5mm">
+    <div>
+      <p style="text-align:left">Eine $6\,\text{m}$ lange Leiter lehnt an einer Hauswand. Mit dem Boden bildet sie einen Winkel von $70^\circ$.</p>
+      <p style="text-align:left"><b>a)</b> Zeichne die Situation im Maßstab $1 : 100$ und miss, wie hoch die Leiter reicht.<br><b>b)</b> Welches Verhältnis aus Unterkapitel {{K:sinus-kosinus-1}} verbindet die Höhe $h$ mit der Leiterlänge?<br><b>c)</b> Was müsstest du wissen, um $h$ ohne Zeichnung zu berechnen?</p>
+    </div>
+    <figur>{"b":32,"h":38,"rand":16,
+      "flaeche":[{"pkte":[[-0.6,0],[0,0],[0,6.3],[-0.6,6.3]],"c":"grau","o":0.25,"rand":false}],
+      "strecke":[{"p":[-0.6,0],"q":[3.2,0],"c":"seeTief","w":1.4},{"p":[0,0],"q":[0,6.3],"c":"seeTief","w":1.4},
+        {"p":[2.052,0],"q":[0,5.638],"c":"goldDunkel","w":3},{"p":[0,0],"q":[0,5.638],"c":"lila","w":2.6}],
+      "winkel":[{"s":[2.052,0],"a":[0,0],"b":[0,5.638],"r":0.9,"c":"gold"},{"s":[0,0],"a":[2.052,0],"b":[0,5.638],"recht":true,"r":0.5,"c":"goldDunkel"}],
+      "text":[{"p":[1.15,3.1],"t":"6 m","pos":"r","c":"goldDunkel"},{"p":[0,2.8],"t":"h","pos":"l","c":"lila"},{"p":[2.3,0.55],"t":"70°","pos":"r","c":"goldDunkel","g":11}]}</figur>
+  </div>
+</div>
+
+<p>Die Höhe ist die Gegenkathete des $70^\circ$-Winkels, die Leiter die Hypotenuse. Also ist $h : 6\,\text{m} = \sin 70^\circ$. Für $30^\circ$, $45^\circ$ und $60^\circ$ kennen wir die Werte exakt. Für alle anderen Winkel liefert sie der <b>Taschenrechner</b> – er hat die Seitenverhältnisse gespeichert. Er muss dazu auf <b>Grad</b> stehen (Anzeige <b>D</b> oder <b>DEG</b>). Dann gibt <span class="nw">sin 70</span> den Wert $0{,}9397…$, und</p>
+$$h = 6\,\text{m} \cdot \sin 70^\circ \approx 6\,\text{m} \cdot 0{,}9397 \approx 5{,}64\,\text{m}.$$
+<p>Deine Zeichnung aus a) liefert ungefähr dasselbe – nur ungenauer. Auch der umgekehrte Weg geht: Kennt man das <b>Verhältnis</b>, findet die Taste $\sin^{-1}$ (meist über <span class="nw">SHIFT</span> oder <span class="nw">2nd</span>) den passenden <b>Winkel</b>. So ist $\sin^{-1}(0{,}5) = 30^\circ$ – genau wie in der Tabelle von Seite {{S:sinus-kosinus-2}}. Ebenso gibt es $\cos^{-1}$ und $\tan^{-1}$.</p>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Rechnen im rechtwinkligen Dreieck</div>
+  <ol style="margin:0 0 1.6mm;padding-left:5mm">
+    <li><b>Skizze</b> zeichnen, rechten Winkel markieren, Gegebenes und Gesuchtes kennzeichnen.</li>
+    <li>Die Seiten aus der Sicht des bekannten Winkels benennen: Gegenkathete, Ankathete, Hypotenuse.</li>
+    <li>Das Verhältnis wählen, in dem die <b>gesuchte</b> und <b>zwei bekannte</b> Größen vorkommen, und nach der gesuchten Größe umstellen.</li>
+  </ol>
+  <p style="text-align:left;margin:0">Zum Beispiel: $\sin\alpha = \frac{a}{c}$ ergibt $a = c \cdot \sin\alpha$ und $c = \frac{a}{\sin\alpha}$. Ein Winkel folgt aus dem Verhältnis zweier Seiten: $\alpha = \sin^{-1}\!\big(\frac{a}{c}\big)$, $\alpha = \cos^{-1}\!\big(\frac{b}{c}\big)$ oder $\alpha = \tan^{-1}\!\big(\frac{a}{b}\big)$. Der Taschenrechner steht dabei auf <b>DEG</b>.</p>
+</div>
+
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 1 · Zwei Seiten aus Winkel und Hypotenuse</div>
+  <div class="zwei-bild" style="gap:5mm">
+    <div>
+      <p style="text-align:left">Im Dreieck $ABC$ ist $\gamma = 90^\circ$, $\alpha = 35^\circ$ und $c = 8\,\text{cm}$. Berechne $\beta$, $a$ und $b$.</p>
+      <div class="loesung"><span class="loesung-kopf">Lösung</span>
+      <div class="schritte" style="margin:1mm 0">
+        <span class="sl">Winkelsumme</span><span>$\beta = 90^\circ - 35^\circ = 55^\circ$</span>
+        <span class="sl">$a$ ist Gegenkathete</span><span>$a = 8\,\text{cm} \cdot \sin 35^\circ \approx 4{,}6\,\text{cm}$</span>
+        <span class="sl">$b$ ist Ankathete</span><span>$b = 8\,\text{cm} \cdot \cos 35^\circ \approx 6{,}6\,\text{cm}$</span>
+      </div>
+      <p style="text-align:left;margin:0"><b>Probe</b> mit Pythagoras: $4{,}589^2 + 6{,}553^2 \approx 21{,}06 + 42{,}94 = 64 = 8^2$ ✓</p></div>
+    </div>
+    <figur>{"b":44,"h":30,"rand":16,
+      "flaeche":[{"pkte":[[0,0],[8,0],[5.368,3.759]],"c":"lila","o":0.1}],
+      "punkt":[{"p":[0,0],"t":"A","pos":"ul"},{"p":[8,0],"t":"B","pos":"ur"},{"p":[5.368,3.759],"t":"C","pos":"o"}],
+      "winkel":[{"s":[0,0],"a":[8,0],"b":[5.368,3.759],"r":1.4,"c":"gold"},{"s":[5.368,3.759],"a":[0,0],"b":[8,0],"recht":true,"r":0.7,"c":"goldDunkel"}],
+      "text":[{"p":[4,0],"t":"c = 8 cm","pos":"u","c":"lila"},{"p":[6.75,1.9],"t":"a","pos":"r","c":"grana"},{"p":[2.65,1.95],"t":"b","pos":"ol","c":"see"},{"p":[1.65,0.5],"t":"35°","pos":"r","c":"goldDunkel","g":10}]}</figur>
+  </div>
+</div>
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: Leiter zeichnen</li><li>sin 70° mit dem Taschenrechner</li><li>Umkehrtaste $\sin^{-1}$</li><li>Merke: Fahrplan</li><li>Beispiele 1–3</li><li>Aufgaben 1–5</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 6 und 7</p></div>
+
+<div class="notiz"><span class="t">Wortspeicher</span><b>DEG</b> (englisch <i>degree</i>): Winkel in Grad.<br><b>$\sin^{-1}$</b>: die Umkehrung von sin. Sie sucht zu einem Verhältnis den Winkel. Gelesen „Sinus hoch minus eins“, auch <b>Arkussinus</b>.<br><b>Probe</b>: Kontrolle mit einem zweiten Weg.</div>
+
+<div class="notiz gold"><span class="t">Taschenrechner-Test</span>Tippe sin 30. Steht da $0{,}5$, ist alles richtig. Steht da $-0{,}988…$, rechnet er im Bogenmaß (RAD) – stell ihn auf DEG um.</div>
+
+<div class="notiz"><span class="t">Runden</span>Zwischenergebnisse nicht runden, sondern im Rechner weiterverwenden. Erst das Ergebnis runden: Längen auf mm, Winkel auf eine Nachkommastelle.</div>
+
+<div class="notiz"><span class="t">Welches Verhältnis?</span>Gegenkathete und Hypotenuse → sin<br>Ankathete und Hypotenuse → cos<br>Gegenkathete und Ankathete → tan<br>Die dritte Seite liefert Pythagoras.</div>
+
+<div class="notiz"><span class="t">Vorsicht</span>$\sin^{-1}(x)$ ist <b>nicht</b> $\frac{1}{\sin x}$. Die hochgestellte $-1$ heißt hier „Umkehrung“.</div>

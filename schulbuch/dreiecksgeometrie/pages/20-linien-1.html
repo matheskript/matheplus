@@ -1,0 +1,60 @@
+<!-- kap: II | uk: Besondere Linien im Dreieck -->
+<div class="ukap-titel"><span class="nr">{{K:linien-1}}</span><h2>Besondere Linien im Dreieck</h2></div>
+<p class="leitfrage">Wo liegt der Punkt, der von drei Orten gleich weit entfernt ist?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <p style="text-align:left">Drei Dörfer $A$, $B$, $C$ wollen einen Funkmast, der von allen dreien <b>gleich weit</b> entfernt ist. Zeichne drei Punkte ins Heft.</p>
+  <p style="text-align:left"><b>a)</b> Suche mit dem Zirkel fünf Punkte, die von $A$ und $B$ gleich weit entfernt sind. Was fällt dir auf?<br><b>b)</b> Ebenso für $B$ und $C$. &nbsp;<b>c)</b> Wo steht der Mast? Geht das immer?</p>
+</div>
+
+<p><b>Mittelsenkrechte.</b> Die Gerade $m$ durch die Mitte $M$ von $\overline{AB}$, die senkrecht auf $AB$ steht, heißt Mittelsenkrechte. Für jeden Punkt $P$ auf $m$ sind die Dreiecke $AMP$ und $BMP$ kongruent (SWS: $|\overline{AM}| = |\overline{BM}|$, rechter Winkel, $\overline{MP}$ gemeinsam). Also ist $|\overline{PA}| = |\overline{PB}|$. Umgekehrt liegt jeder Punkt mit $|\overline{PA}| = |\overline{PB}|$ auf $m$ – das hast du in Aufgabe 7 auf Seite {{S:kongruenz-2}} begründet.<br><b>Konstruktion</b> (Rand): Kreise um $A$ und $B$ mit gleichem Radius, größer als $\frac{1}{2}|\overline{AB}|$. Ihre zwei Schnittpunkte sind von $A$ und $B$ gleich weit entfernt, liegen also auf $m$.</p>
+<p><b>Winkelhalbierende.</b> Sie teilt einen Winkel mit Scheitel $S$ in zwei gleiche Hälften. Fällt man von einem Punkt $P$ auf ihr die Lote auf die Schenkel, entstehen zwei rechtwinklige Dreiecke mit der gemeinsamen Seite $\overline{SP}$ und gleichen Winkeln – kongruent nach WSW. Also hat $P$ von beiden Schenkeln <b>denselben Abstand</b>. Umgekehrt folgt aus gleichem Abstand mit SsW ($\overline{SP}$ liegt dem rechten Winkel gegenüber und ist die größte Seite), dass $P$ auf der Winkelhalbierenden liegt.<br><b>Konstruktion</b> (Rand): Ein Kreisbogen um $S$ trifft die Schenkel in $X$ und $Y$. Kreise um $X$ und $Y$ mit gleichem Radius schneiden sich in $Z$. Die Gerade $SZ$ halbiert den Winkel, denn $SXZ \cong SYZ$ (SSS).</p>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Orte gleichen Abstands</div>
+  <p style="text-align:left">Die <b>Mittelsenkrechte</b> von $\overline{AB}$ besteht genau aus den Punkten, die von $A$ und $B$ gleich weit entfernt sind. Die <b>Winkelhalbierende</b> eines Winkels besteht genau aus den Punkten des Winkelfelds, die von beiden Schenkeln gleich weit entfernt sind.</p>
+</div>
+
+<p>Genauso treffen sich die Winkelhalbierenden: Der Schnittpunkt $I$ von $w_\alpha$ und $w_\beta$ ist von $b$ und $c$ und von $a$ und $c$ gleich weit entfernt – also auch von $a$ und $b$. Damit liegt $I$ auf $w_\gamma$.</p>
+
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 1 · Der Funkmast</div>
+  <div class="zwei-bild" style="gap:5mm">
+    <div>
+      <p style="text-align:left">Dörfer $A(1 \mid 1)$, $B(7 \mid 1)$, $C(5 \mid 5)$, 1&nbsp;Einheit = 1&nbsp;km. Wo steht der Mast?</p>
+      <div class="loesung"><span class="loesung-kopf">Lösung</span>
+      <p style="text-align:left">Mittelsenkrechte von $\overline{AB}$: die Gerade $x = 4$. Die konstruierte Mittelsenkrechte von $\overline{BC}$ schneidet sie in $U(4 \mid 2)$. Wegen $|\overline{UA}| = |\overline{UB}| = |\overline{UC}|$ liegt $U$ auch auf der dritten. Der Kreis um $U$ durch alle Ecken ist der <b>Umkreis</b> (Unterkapitel {{K:umkreis-inkreis-1}}), $r \approx 3{,}2\,\text{km}$.</p></div>
+    </div>
+    <figur>{"b":44,"h":37,"rand":6,"gitter":1,"fenster":[0,-1.3,8,5.9],
+      "kreis":[{"m":[4,2],"r":3.1623,"c":"grana","w":1.2,"d":"4 3"}],
+      "flaeche":[{"pkte":[[1,1],[7,1],[5,5]],"c":"see","o":0.1}],
+      "gerade":[{"p":[4,0],"q":[4,1],"c":"goldDunkel","w":1.2},{"p":[6,3],"q":[8,4],"c":"goldDunkel","w":1.2},{"p":[3,3],"q":[4,2],"c":"goldDunkel","w":1.2,"d":"3 2"}],
+      "punkt":[{"p":[1,1],"t":"A","pos":"l"},{"p":[7,1],"t":"B","pos":"r"},{"p":[5,5],"t":"C","pos":"o"},{"p":[4,2],"t":"U","pos":"or","c":"grana"}]}</figur>
+  </div>
+</div>
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: Funkmast</li><li>Mittelsenkrechte</li><li>Winkelhalbierende</li><li>Merke, Beispiel 1</li><li>Höhe, Seitenhalbierende</li><li>Aufgaben 1–5</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 6 und 7</p></div>
+
+<div class="notiz"><span class="t">Wortspeicher</span><b>Lot:</b> senkrechte Strecke von einem Punkt auf eine Gerade; ihre Länge ist der <b>Abstand</b>.<br><b>Bezeichnung:</b> $m_c$ zur Seite $c$, $w_\alpha$ zum Winkel $\alpha$.</div>
+
+<div class="notiz"><span class="t">Konstruktion: Mittelsenkrechte</span>
+<figur>{"b":36,"h":40,"rand":12,"fenster":[-0.3,-2.3,4.3,2.6],
+    "gerade":[{"p":[2,0],"q":[2,1],"c":"see","w":1.6}],
+    "strecke":[{"p":[2.425,1.4],"q":[2.303,1.593],"c":"goldDunkel","w":1.1},{"p":[2.303,1.593],"q":[2.166,1.775],"c":"goldDunkel","w":1.1},{"p":[2.166,1.775],"q":[2.014,1.945],"c":"goldDunkel","w":1.1},{"p":[2.014,1.945],"q":[1.849,2.102],"c":"goldDunkel","w":1.1},{"p":[1.849,2.102],"q":[1.672,2.246],"c":"goldDunkel","w":1.1},{"p":[1.672,2.246],"q":[1.484,2.375],"c":"goldDunkel","w":1.1},{"p":[1.484,-2.375],"q":[1.672,-2.246],"c":"goldDunkel","w":1.1},{"p":[1.672,-2.246],"q":[1.849,-2.102],"c":"goldDunkel","w":1.1},{"p":[1.849,-2.102],"q":[2.014,-1.945],"c":"goldDunkel","w":1.1},{"p":[2.014,-1.945],"q":[2.166,-1.775],"c":"goldDunkel","w":1.1},{"p":[2.166,-1.775],"q":[2.303,-1.593],"c":"goldDunkel","w":1.1},{"p":[2.303,-1.593],"q":[2.425,-1.4],"c":"goldDunkel","w":1.1},{"p":[2.516,2.375],"q":[2.328,2.246],"c":"goldDunkel","w":1.1},{"p":[2.328,2.246],"q":[2.151,2.102],"c":"goldDunkel","w":1.1},{"p":[2.151,2.102],"q":[1.986,1.945],"c":"goldDunkel","w":1.1},{"p":[1.986,1.945],"q":[1.834,1.775],"c":"goldDunkel","w":1.1},{"p":[1.834,1.775],"q":[1.697,1.593],"c":"goldDunkel","w":1.1},{"p":[1.697,1.593],"q":[1.575,1.4],"c":"goldDunkel","w":1.1},{"p":[1.575,-1.4],"q":[1.697,-1.593],"c":"goldDunkel","w":1.1},{"p":[1.697,-1.593],"q":[1.834,-1.775],"c":"goldDunkel","w":1.1},{"p":[1.834,-1.775],"q":[1.986,-1.945],"c":"goldDunkel","w":1.1},{"p":[1.986,-1.945],"q":[2.151,-2.102],"c":"goldDunkel","w":1.1},{"p":[2.151,-2.102],"q":[2.328,-2.246],"c":"goldDunkel","w":1.1},{"p":[2.328,-2.246],"q":[2.516,-2.375],"c":"goldDunkel","w":1.1},{"p":[0,0],"q":[4,0],"c":"seeTief","w":1.8},{"p":[0,0],"q":[2,1.96],"c":"grana","w":1.2,"d":"3 2"},{"p":[4,0],"q":[2,1.96],"c":"grana","w":1.2,"d":"3 2"}],
+    "winkel":[{"s":[2,0],"a":[4,0],"b":[2,1],"recht":true,"r":0.45,"c":"see"}],
+    "punkt":[{"p":[0,0],"t":"A","pos":"l"},{"p":[4,0],"t":"B","pos":"r"},{"p":[2,0],"t":"M","pos":"ul","r":2},{"p":[2,1.96],"t":"P","pos":"r","c":"grana"},{"p":[2,-1.96],"r":2,"c":"goldDunkel"}],
+    "text":[{"p":[2.3,-0.85],"t":"m","c":"see"}]}</figur></div>
+
+<div class="notiz"><span class="t">Konstruktion: Winkelhalbierende</span>
+<figur>{"b":36,"h":36,"rand":8,"fenster":[-0.3,-0.5,3.9,3.4],
+    "gerade":[{"p":[0,0],"q":[2.455,1.534],"c":"see","w":1.4}],
+    "strecke":[{"p":[1.989,-0.209],"q":[2.0,0.012],"c":"goldDunkel","w":1.1},{"p":[2.0,0.012],"q":[1.986,0.232],"c":"goldDunkel","w":1.1},{"p":[1.986,0.232],"q":[1.949,0.45],"c":"goldDunkel","w":1.1},{"p":[1.949,0.45],"q":[1.887,0.662],"c":"goldDunkel","w":1.1},{"p":[1.887,0.662],"q":[1.803,0.866],"c":"goldDunkel","w":1.1},{"p":[1.803,0.866],"q":[1.696,1.06],"c":"goldDunkel","w":1.1},{"p":[1.696,1.06],"q":[1.569,1.24],"c":"goldDunkel","w":1.1},{"p":[1.569,1.24],"q":[1.422,1.406],"c":"goldDunkel","w":1.1},{"p":[1.422,1.406],"q":[1.259,1.554],"c":"goldDunkel","w":1.1},{"p":[1.259,1.554],"q":[1.08,1.684],"c":"goldDunkel","w":1.1},{"p":[1.08,1.684],"q":[0.887,1.792],"c":"goldDunkel","w":1.1},{"p":[0.887,1.792],"q":[0.684,1.879],"c":"goldDunkel","w":1.1},{"p":[2.8,1.386],"q":[2.661,1.457],"c":"goldDunkel","w":1.1},{"p":[2.661,1.457],"q":[2.516,1.515],"c":"goldDunkel","w":1.1},{"p":[2.516,1.515],"q":[2.365,1.558],"c":"goldDunkel","w":1.1},{"p":[2.365,1.558],"q":[2.212,1.586],"c":"goldDunkel","w":1.1},{"p":[2.212,1.586],"q":[2.056,1.599],"c":"goldDunkel","w":1.1},{"p":[2.36,1.198],"q":[2.408,1.335],"c":"goldDunkel","w":1.1},{"p":[2.408,1.335],"q":[2.444,1.476],"c":"goldDunkel","w":1.1},{"p":[2.444,1.476],"q":[2.467,1.619],"c":"goldDunkel","w":1.1},{"p":[2.467,1.619],"q":[2.476,1.764],"c":"goldDunkel","w":1.1},{"p":[2.476,1.764],"q":[2.473,1.909],"c":"goldDunkel","w":1.1},{"p":[0,0],"q":[3.6,0],"c":"seeTief","w":1.8},{"p":[0,0],"q":[1.534,3.145],"c":"seeTief","w":1.8},{"p":[3.053,1.908],"q":[3.053,0],"c":"grana","w":1.2,"d":"3 2"},{"p":[3.053,1.908],"q":[1.3385,2.7443],"c":"grana","w":1.2,"d":"3 2"}],
+    "winkel":[{"s":[3.053,0],"a":[0,0],"b":[3.053,1],"recht":true,"r":0.32,"c":"grana"},{"s":[1.3385,2.7443],"a":[0,0],"b":[3.053,1.908],"recht":true,"r":0.32,"c":"grana"}],
+    "punkt":[{"p":[0,0],"t":"S","pos":"l"},{"p":[2,0],"t":"X","pos":"u","r":2},{"p":[0.877,1.798],"t":"Y","pos":"l","r":2},{"p":[2.455,1.534],"t":"Z","pos":"ur","r":2,"c":"goldDunkel"},{"p":[3.053,1.908],"t":"P","pos":"r","c":"grana"}],
+    "text":[{"p":[3.7,2.6],"t":"w","c":"see"}]}</figur></div>
+
+<div class="notiz gold"><span class="t">Zirkel offen lassen</span>Bei beiden Konstruktionen den Zirkel zwischen den zwei Kreisen <b>nicht</b> verstellen – sonst stimmt die Kongruenz nicht mehr.</div>
+

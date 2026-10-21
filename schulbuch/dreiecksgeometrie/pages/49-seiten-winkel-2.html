@@ -1,0 +1,76 @@
+<!-- kap: VI -->
+<div class="kasten beispiel" style="margin-top:0">
+  <div class="etikett">Beispiel 2 · Winkel aus zwei Seiten</div>
+  <p style="text-align:left">Im Dreieck $ABC$ ist $\gamma = 90^\circ$, $a = 20\,\text{cm}$ und $b = 21\,\text{cm}$. Berechne die Winkel und $c$.</p>
+  <div class="loesung"><span class="loesung-kopf">Lösung</span>
+  <p style="text-align:left">Gegen- und Ankathete von $\alpha$ sind bekannt: $\tan\alpha = \frac{20}{21}$, also $\alpha = \tan^{-1}\!\big(\frac{20}{21}\big) \approx 43{,}6^\circ$ und $\beta \approx 46{,}4^\circ$. Pythagoras: $c = \sqrt{20^2 + 21^2} = \sqrt{841} = 29\,\text{cm}$.</p></div>
+</div>
+
+<h3>Gleichschenklige Dreiecke: Die Höhe hilft</h3>
+<p>Sinus, Kosinus und Tangens gelten nur im rechtwinkligen Dreieck. Ein gleichschenkliges Dreieck ist aber symmetrisch: Die Höhe auf die Basis halbiert die Basis und zerlegt das Dreieck in <b>zwei kongruente rechtwinklige Dreiecke</b> (Unterkapitel {{K:kongruenz-1}}). In jedem davon kann man rechnen.</p>
+<div class="zwei-bild">
+  <div class="kasten beispiel" style="margin:0">
+    <div class="etikett">Beispiel 3 · Basis 12 cm, Schenkel 10 cm</div>
+    <p style="text-align:left;margin:0">Im halben Dreieck ist $6\,\text{cm}$ die Ankathete von $\alpha$ und $10\,\text{cm}$ die Hypotenuse: $\cos\alpha = \frac{6}{10}$, also $\alpha = \beta \approx 53{,}1^\circ$ und $\gamma \approx 180^\circ - 2 \cdot 53{,}13^\circ \approx 73{,}7^\circ$. Pythagoras: $h_c = \sqrt{10^2 - 6^2} = 8\,\text{cm}$, also $A_\triangle = \frac{1}{2} \cdot 12 \cdot 8 = 48\,\text{cm}^2$.</p>
+  </div>
+  <figur>{"b":38,"h":34,"rand":16,
+    "flaeche":[{"pkte":[[0,0],[12,0],[6,8]],"c":"lila","o":0.08},{"pkte":[[0,0],[6,0],[6,8]],"c":"lila","o":0.14,"rand":false}],
+    "strecke":[{"p":[6,8],"q":[6,0],"c":"grana","w":1.6,"d":"5 3"}],
+    "punkt":[{"p":[0,0],"t":"A","pos":"ul"},{"p":[12,0],"t":"B","pos":"ur"},{"p":[6,8],"t":"C","pos":"o"}],
+    "winkel":[{"s":[0,0],"a":[12,0],"b":[6,8],"r":1.5,"t":"α","c":"gold"},{"s":[12,0],"a":[0,0],"b":[6,8],"r":1.5,"t":"β","c":"gold"},{"s":[6,0],"a":[0,0],"b":[6,8],"recht":true,"r":0.9,"c":"goldDunkel"}],
+    "text":[{"p":[3,0],"t":"6","pos":"u","c":"seeTief"},{"p":[9,0],"t":"6","pos":"u","c":"seeTief"},{"p":[2.7,4.3],"t":"10","pos":"ol","c":"lila"},{"p":[9.3,4.3],"t":"10","pos":"or","c":"lila"},{"p":[6,3.2],"t":"h_c","pos":"r","c":"grana"}]}</figur>
+</div>
+
+<div class="kasten achtung" style="margin-top:3mm">
+  <div class="etikett">Achtung</div>
+  <p style="text-align:left;margin:0">Meldet der Rechner bei $\sin^{-1}$ oder $\cos^{-1}$ einen Fehler, hast du durch die kürzere Seite geteilt. Bei sin und cos steht die Hypotenuse <b>immer im Nenner</b> – das Verhältnis ist kleiner als 1.</p>
+</div>
+
+<div class="aufgaben-kopf"><span>Aufgaben</span></div>
+
+<div class="auf"><div class="anr"><span class="z">1</span><span class="stufe">●○○</span></div><div class="text">
+  <p>Im Dreieck $ABC$ ist $\gamma = 90^\circ$. Berechne $\beta$ und die fehlenden Seiten (Längen in cm).</p>
+  <div class="teil" style="--sp:4"><div><i>a)</i>$\alpha = 40^\circ$, $c = 10$</div><div><i>b)</i>$\alpha = 25^\circ$, $b = 6$</div><div><i>c)</i>$\alpha = 62^\circ$, $b = 4$</div><div><i>d)</i>$\alpha = 18^\circ$, $c = 7{,}5$</div></div>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">2</span><span class="stufe">●○○</span></div><div class="text">
+  <p>Bestimme den spitzen Winkel $\alpha$ auf eine Nachkommastelle.</p>
+  <div class="teil" style="--sp:4"><div><i>a)</i>$\sin\alpha = \frac{3}{7}$</div><div><i>b)</i>$\cos\alpha = \frac{9}{11}$</div><div><i>c)</i>$\tan\alpha = \frac{8}{5}$</div><div><i>d)</i>$\sin\alpha = 0{,}25$</div><div><i>e)</i>$\cos\alpha = 0{,}5$</div><div><i>f)</i>$\tan\alpha = 1$</div><div><i>g)</i>$\sin\alpha = 0{,}9$</div><div><i>h)</i>$\tan\alpha = 0{,}3$</div></div>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">3</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Ein gleichschenkliges Dreieck hat die Basis $c = 8\,\text{cm}$ und die Basiswinkel $\alpha = \beta = 50^\circ$. Berechne $\gamma$, die Höhe $h_c$, die Schenkellänge und den Flächeninhalt.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">4</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Ein $4{,}5\,\text{m}$ langes Brett liegt als Rampe auf einer Mauer und steigt unter $20^\circ$ an. Wie hoch ist die Mauer, und wie weit reicht das Brett waagrecht?</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">5</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Finde den Fehler: <b>Tim</b> rechnet mit $\gamma = 90^\circ$, $\alpha = 30^\circ$, $a = 5\,\text{cm}$: &nbsp;$c = 5 \cdot \sin 30^\circ = 2{,}5\,\text{cm}$. Woran siehst du sofort, dass das falsch ist?</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">6</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Eine Raute hat die Diagonalen $e = 12\,\text{cm}$ und $f = 8\,\text{cm}$. Die Diagonalen halbieren sich und stehen senkrecht aufeinander. Berechne die Innenwinkel und die Seitenlänge der Raute.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z offen">7</span><span class="stufe">●●●</span></div><div class="text">
+  <p>Zeige mit der Höhe $h_c$: Ist $\alpha$ spitz, so gilt $A_\triangle = \frac{1}{2} \cdot b \cdot c \cdot \sin\alpha$. Berechne damit $A_\triangle$ für $b = 6\,\text{cm}$, $c = 10\,\text{cm}$, $\alpha = 30^\circ$. Warum ist es egal, ob $\beta$ stumpf ist?</p>
+</div></div>
+<!--rand-->
+<div class="notiz"><span class="t">Kurz gesagt</span>Kein rechter Winkel? Dann erst eine Höhe einzeichnen – sie erzeugt einen.</div>
+
+<div class="notiz gold"><span class="t">Zu Aufgabe 1 a)</span>Vergleiche mit deinen Messwerten aus Aufgabe 4 auf Seite {{S:sinus-kosinus-2}}.</div>
+
+<div class="notiz"><span class="t">Zu Aufgabe 1 b) und c)</span>Gegeben ist die Ankathete $b$. Für $a$ hilft der Tangens, für $c$ der Kosinus.</div>
+
+<div class="notiz"><span class="t">Zu Aufgabe 6</span>Die Diagonalen zerlegen die Raute in vier kongruente rechtwinklige Dreiecke mit den Katheten $6\,\text{cm}$ und $4\,\text{cm}$.
+<figur>{"b":36,"h":24,"rand":10,
+  "flaeche":[{"pkte":[[-6,0],[0,-4],[6,0],[0,4]],"c":"lila","o":0.08},{"pkte":[[0,0],[6,0],[0,4]],"c":"lila","o":0.16,"rand":false}],
+  "strecke":[{"p":[-6,0],"q":[6,0],"c":"grana","w":1.2,"d":"4 3"},{"p":[0,-4],"q":[0,4],"c":"grana","w":1.2,"d":"4 3"}],
+  "winkel":[{"s":[0,0],"a":[6,0],"b":[0,4],"recht":true,"r":0.9,"c":"goldDunkel"},{"s":[6,0],"a":[0,0],"b":[0,4],"r":1.4,"c":"gold"}],
+  "text":[{"p":[3,0],"t":"6","pos":"u","c":"grana","g":10},{"p":[0,2],"t":"4","pos":"l","c":"grana","g":10}]}</figur></div>
+
+<div class="notiz"><span class="t">Zu Aufgabe 7</span>Im rechtwinkligen Dreieck aus $A$, dem Höhenfußpunkt und $C$ ist $b$ die Hypotenuse. Flächenformel: Seite {{S:dreieck-flaeche-1}}.</div>
+
+<div class="notiz mathilda"><span class="t">In der App</span>Im Werkzeug <b>Trigonometrie</b>, Kapitel „Rechtwinkliges Dreieck“, übst du Seiten und Winkel mit immer neuen Aufgaben. Der eingebaute Rechner lässt sich zwischen DEG und RAD umschalten. Rechnest du versehentlich im Bogenmaß, sagt dir die Rückmeldung genau das.</div>

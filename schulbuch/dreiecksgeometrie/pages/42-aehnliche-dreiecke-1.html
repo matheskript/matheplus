@@ -1,0 +1,55 @@
+<!-- kap: V | uk: Ähnliche Dreiecke -->
+<div class="ukap-titel"><span class="nr">{{K:aehnliche-dreiecke-1}}</span><h2>Ähnliche Dreiecke</h2></div>
+<p class="leitfrage">Woran erkennt man ähnliche Dreiecke, ohne alle Seiten zu messen?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <div class="zwei-bild" style="gap:5mm">
+    <div>
+      <p style="text-align:left">Konstruiere zwei Dreiecke mit $\alpha = 40^\circ$ und $\beta = 60^\circ$: eines mit $c = 4\,\text{cm}$, eines mit $c = 6\,\text{cm}$ (Kongruenzsatz WSW). Schneide beide aus.</p>
+      <p style="text-align:left"><b>a)</b> Wie groß ist jeweils der dritte Winkel?<br><b>b)</b> Miss $a$ und $b$ und berechne $a' : a$, $\;b' : b$, $\;c' : c$.<br><b>c)</b> Lege das kleine Dreieck so in die Ecke $A$ des großen, dass die Winkel $\alpha$ aufeinanderliegen. Was fällt an den Seiten $a$ und $a'$ auf?</p>
+    </div>
+    <figur>{"b":40,"h":30,"rand":6,"fenster":[-0.5,-0.7,6.5,4.3],
+      "flaeche":[{"pkte":[[0,0],[6,0],[4.0419,3.3915]],"c":"smaragd","o":0.1},{"pkte":[[0,0],[4,0],[2.6946,2.261]],"c":"see","o":0.18}],
+      "winkel":[{"s":[0,0],"a":[6,0],"b":[4.0419,3.3915],"t":"40°","r":0.9},{"s":[4,0],"a":[0,0],"b":[2.6946,2.261],"c":"see","r":0.55},{"s":[6,0],"a":[0,0],"b":[4.0419,3.3915],"t":"60°","r":0.55}],
+      "punkt":[{"p":[0,0],"t":"A","pos":"l","r":2},{"p":[4,0],"t":"B","pos":"u","r":2},{"p":[2.6946,2.261],"t":"C","pos":"ol","r":2},{"p":[6,0],"t":"B'","pos":"u","r":2,"c":"smaragd"},{"p":[4.0419,3.3915],"t":"C'","pos":"o","r":2,"c":"smaragd"}]}</figur>
+  </div>
+</div>
+
+<p>Zwei Dreiecke heißen <b>ähnlich</b>, wenn sie in allen Winkeln übereinstimmen und ihre entsprechenden Seiten im selben Verhältnis $k$ stehen. Erstaunlich: Man muss gar nicht alles prüfen. <b>Zwei</b> gleiche Winkel genügen.</p>
+<p>Warum? Stimmen zwei Winkel überein, dann wegen der Winkelsumme $180^\circ$ (Unterkapitel {{K:winkelsumme-1}}) auch der dritte. Nun legt man das Dreieck $A'B'C'$ so auf $ABC$ (verschieben, drehen, eventuell umklappen), dass $A'$ auf $A$ fällt, $B'$ auf dem Strahl $AB$ und $C'$ auf dem Strahl $AC$ liegt – das geht, weil $\alpha' = \alpha$. Die Seiten $\overline{BC}$ und $\overline{B'C'}$ bilden mit der Geraden $AB$ denselben Winkel $\beta$. Gleiche Stufenwinkel bedeuten parallele Geraden (Unterkapitel {{K:winkel-geraden-1}}). Also entsteht eine V-Figur mit dem Scheitel $A$, und die Strahlensätze liefern</p>
+$$\frac{|\overline{AB'}|}{|\overline{AB}|} = \frac{|\overline{AC'}|}{|\overline{AC}|} = \frac{|\overline{B'C'}|}{|\overline{BC}|} = k, \quad\text{also}\quad \frac{c'}{c} = \frac{b'}{b} = \frac{a'}{a} = k.$$
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Ähnlichkeitssatz WW</div>
+  <p style="text-align:left">Zwei Dreiecke $ABC$ und $A'B'C'$ sind <b>ähnlich</b> ($\triangle ABC \sim \triangle A'B'C'$), wenn $\alpha' = \alpha$, $\beta' = \beta$, $\gamma' = \gamma$ und</p>
+  $$\frac{a'}{a} = \frac{b'}{b} = \frac{c'}{c} = k.$$
+  <p style="text-align:left;margin:0"><b>Ähnlichkeitssatz WW:</b> Stimmen zwei Dreiecke in <b>zwei</b> Winkeln überein, so sind sie ähnlich. Entsprechende Seiten liegen dabei gleichen Winkeln gegenüber.</p>
+</div>
+
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 1 · Die Höhe im rechtwinkligen Dreieck</div>
+  <p style="text-align:left">Im Dreieck $ABC$ ist $\gamma = 90^\circ$, $a = 3\,\text{cm}$, $b = 4\,\text{cm}$, $c = 5\,\text{cm}$. Die Höhe $h_c$ trifft $\overline{AB}$ in $D$ (Bild am Rand). Berechne $q = |\overline{AD}|$ und $h_c$.</p>
+  <div class="loesung"><span class="loesung-kopf">Lösung</span>
+  <p style="text-align:left">Die Dreiecke $ADC$ und $ACB$ haben den Winkel $\alpha$ gemeinsam und je einen rechten Winkel (bei $D$ und bei $C$). Nach WW ist $\triangle ADC \sim \triangle ACB$ mit $A \leftrightarrow A$, $D \leftrightarrow C$, $C \leftrightarrow B$. Also gilt</p>
+  $$\frac{q}{b} = \frac{b}{c} \;\Rightarrow\; q = \frac{16}{5} = 3{,}2\,\text{cm}, \qquad \frac{h_c}{a} = \frac{b}{c} \;\Rightarrow\; h_c = \frac{12}{5} = 2{,}4\,\text{cm}.$$</div>
+</div>
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: zwei Dreiecke, gleiche Winkel</li><li>Warum zwei Winkel genügen</li><li>Merke: Ähnlichkeitssatz WW</li><li>Beispiele 1 und 2</li><li>Ausblick: gleicher Winkel, gleiches Verhältnis</li><li>Aufgaben 1–5</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 6 und 7</p></div>
+
+<div class="notiz"><span class="t">Wortspeicher</span><b>Ähnlich</b> ($\sim$): gleiche Winkel, Seiten im gleichen Verhältnis.<br><b>Entsprechende Seiten:</b> Seiten, die gleich großen Winkeln gegenüberliegen.<br><b>WW:</b> „Winkel – Winkel“, wie WSW bei den Kongruenzsätzen.</div>
+
+<div class="notiz gold"><span class="t">Ähnlich oder kongruent?</span>Kongruente Dreiecke sind ähnlich mit $k = 1$. Ähnliche Dreiecke dürfen verschieden groß sein.</div>
+
+<div class="notiz"><span class="t">Zu Beispiel 1</span>
+<figur>{"b":38,"h":26,"rand":6,"fenster":[-0.9,-0.6,5.9,2.9],
+      "flaeche":[{"pkte":[[0,0],[3.2,0],[3.2,2.4]],"c":"smaragd","o":0.18}],
+      "strecke":[{"p":[0,0],"q":[5,0],"c":"seeTief","w":1.6},{"p":[5,0],"q":[3.2,2.4],"c":"seeTief","w":1.6,"t":"a","ab":9},{"p":[0,0],"q":[3.2,2.4],"c":"seeTief","w":1.6,"t":"b","seite":"innen","ab":9},
+        {"p":[3.2,2.4],"q":[3.2,0],"c":"grana","w":1.4,"d":"4 3"}],
+      "winkel":[{"s":[3.2,0],"a":[5,0],"b":[3.2,2.4],"recht":true,"c":"grana","r":0.5},{"s":[3.2,2.4],"a":[0,0],"b":[5,0],"recht":true,"r":0.5},{"s":[0,0],"a":[5,0],"b":[3.2,2.4],"t":"α","r":0.8}],
+      "punkt":[{"p":[0,0],"t":"A","pos":"l","r":2},{"p":[5,0],"t":"B","pos":"r","r":2},{"p":[3.2,2.4],"t":"C","pos":"o","r":2},{"p":[3.2,0],"t":"D","pos":"u","r":2}],
+      "text":[{"p":[1.6,0],"t":"q","pos":"u","c":"smaragd"},{"p":[3.25,1.1],"t":"h_c","pos":"l","c":"grana","g":11}]}</figur></div>
+
+<div class="notiz"><span class="t">Der rote Faden</span>Im Beispiel steckt der <b>Kathetensatz</b>: Aus $\frac{q}{b} = \frac{b}{c}$ folgt $b^2 = c \cdot q$ (Unterkapitel {{K:kathetensatz-1}}).</div>

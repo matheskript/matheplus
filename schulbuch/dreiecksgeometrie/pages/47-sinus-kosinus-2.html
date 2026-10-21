@@ -1,0 +1,96 @@
+<!-- kap: VI -->
+<div class="kasten beispiel" style="margin-top:0">
+  <div class="etikett">Beispiel 2 · Exakte Werte für 45°, 30° und 60°</div>
+  <div class="zwei-bild" style="gap:4mm">
+    <div>
+      <p style="text-align:left"><b>Halbes Quadrat</b> mit Seitenlänge 1: Die Diagonale halbiert den rechten Winkel, also $45^\circ$. Pythagoras: $d^2 = 1^2 + 1^2 = 2$, also $d = \sqrt{2}$. Damit ist $\sin 45^\circ = \cos 45^\circ = \frac{1}{\sqrt{2}} = \frac{\sqrt{2}}{2}$ und $\tan 45^\circ = \frac{1}{1} = 1$.</p>
+      <p style="text-align:left;margin:0"><b>Halbes gleichseitiges Dreieck</b> mit Seitenlänge 2: Winkel $60^\circ$ und $30^\circ$, kurze Kathete 1. Pythagoras: $h^2 = 2^2 - 1^2 = 3$, also $h = \sqrt{3}$. Damit ist $\sin 60^\circ = \cos 30^\circ = \frac{\sqrt{3}}{2}$ und $\sin 30^\circ = \cos 60^\circ = \frac{1}{2}$.</p>
+    </div>
+    <div style="display:flex;gap:2mm;align-items:flex-end">
+      <figur>{"b":24,"h":25,"rand":16,
+        "flaeche":[{"pkte":[[0,0],[1,0],[1,1],[0,1]],"c":"grau","o":0,"d":"3 3","w":1.1},{"pkte":[[0,0],[1,0],[1,1]],"c":"lila","o":0.16}],
+        "winkel":[{"s":[0,0],"a":[1,0],"b":[1,1],"r":0.28,"c":"gold"},{"s":[1,0],"a":[0,0],"b":[1,1],"recht":true,"r":0.22,"c":"goldDunkel"}],
+        "text":[{"p":[0.5,0],"t":"1","pos":"u","c":"lila"},{"p":[1,0.5],"t":"1","pos":"r","c":"lila"},{"p":[0.48,0.52],"t":"d","pos":"ol","c":"lila"}]}</figur>
+      <figur>{"b":22,"h":30,"rand":12,
+        "flaeche":[{"pkte":[[0,0],[2,0],[1,1.732]],"c":"grau","o":0,"d":"3 3","w":1.1},{"pkte":[[0,0],[1,0],[1,1.732]],"c":"lila","o":0.16}],
+        "winkel":[{"s":[0,0],"a":[1,0],"b":[1,1.732],"r":0.4,"c":"gold"},{"s":[1,1.732],"a":[0,0],"b":[1,0],"r":0.45,"c":"see"},{"s":[1,0],"a":[0,0],"b":[1,1.732],"recht":true,"r":0.26,"c":"goldDunkel"}],
+        "text":[{"p":[0.5,0],"t":"1","pos":"u","c":"lila"},{"p":[1,0.75],"t":"h","pos":"r","c":"lila"},{"p":[0.48,0.9],"t":"2","pos":"ol","c":"lila"}]}</figur>
+    </div>
+  </div>
+</div>
+
+<p>Zwischen den drei Verhältnissen gibt es feste Beziehungen. Teilt man $a^2 + b^2 = c^2$ (Unterkapitel {{K:pythagoras-1}}) durch $c^2$, so entsteht $\big(\frac{a}{c}\big)^2 + \big(\frac{b}{c}\big)^2 = 1$. Außerdem ist $\frac{a}{c} : \frac{b}{c} = \frac{a}{b}$, und aus der Sicht von $\beta = 90^\circ - \alpha$ ist $a$ die Ankathete.</p>
+
+<div class="zwei-bild" style="grid-template-columns:auto 1fr;gap:5mm">
+  <table class="wt eng" style="margin:0">
+    <tr><th class="l">$\alpha$</th><th>$30^\circ$</th><th>$45^\circ$</th><th>$60^\circ$</th></tr>
+    <tr><th class="l">$\sin\alpha$</th><td>$\frac{1}{2}$</td><td>$\frac{\sqrt{2}}{2}$</td><td>$\frac{\sqrt{3}}{2}$</td></tr>
+    <tr><th class="l">$\cos\alpha$</th><td>$\frac{\sqrt{3}}{2}$</td><td>$\frac{\sqrt{2}}{2}$</td><td>$\frac{1}{2}$</td></tr>
+    <tr><th class="l">$\tan\alpha$</th><td>$\frac{\sqrt{3}}{3}$</td><td>$1$</td><td>$\sqrt{3}$</td></tr>
+  </table>
+  <div class="kasten merke" style="margin:0">
+    <div class="etikett">Merke · Beziehungen</div>
+    <p style="text-align:left;margin:0">Für jeden Winkel $\alpha$ mit $0^\circ < \alpha < 90^\circ$ gilt</p>
+    $$(\sin\alpha)^2 + (\cos\alpha)^2 = 1, \qquad \tan\alpha = \frac{\sin\alpha}{\cos\alpha},$$
+    $$\sin(90^\circ - \alpha) = \cos\alpha.$$
+  </div>
+</div>
+
+<div class="aufgaben-kopf"><span>Aufgaben</span></div>
+
+<div class="auf"><div class="anr"><span class="z">1</span><span class="stufe">●○○</span></div><div class="text">
+  <p>Im Dreieck $ABC$ ist $\gamma = 90^\circ$. Gib $\sin\alpha$, $\cos\alpha$, $\tan\alpha$ und $\sin\beta$ als gekürzte Brüche an.</p>
+  <div class="teil" style="--sp:3"><div><i>a)</i>$a = 3$, $b = 4$, $c = 5$</div><div><i>b)</i>$a = 8$, $b = 15$, $c = 17$</div><div><i>c)</i>$a = 12$, $b = 9$, $c = 15$</div></div>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">2</span><span class="stufe">●○○</span></div><div class="text">
+  <div class="zwei-bild" style="gap:4mm">
+    <p>Im Dreieck $RST$ ist der Winkel bei $S$ ein rechter. Benenne Gegenkathete, Ankathete und Hypotenuse für $\varphi$ und für $\psi$. Gib dann Sinus, Kosinus und Tangens beider Winkel mit den Buchstaben $r$, $s$, $t$ an.</p>
+    <figur>{"b":34,"h":22,"rand":16,
+      "strecke":[{"p":[0,0],"q":[5,0],"c":"seeTief","w":1.6},{"p":[5,0],"q":[5,3],"c":"seeTief","w":1.6},{"p":[5,3],"q":[0,0],"c":"seeTief","w":1.6}],
+      "text":[{"p":[2.5,0],"t":"t","pos":"u"},{"p":[5,1.5],"t":"r","pos":"r"},{"p":[2.4,1.5],"t":"s","pos":"ol"}],
+      "punkt":[{"p":[0,0],"t":"R","pos":"l"},{"p":[5,0],"t":"S","pos":"r"},{"p":[5,3],"t":"T","pos":"r"}],
+      "winkel":[{"s":[0,0],"a":[5,0],"b":[5,3],"r":1.1,"t":"φ","c":"gold"},{"s":[5,3],"a":[0,0],"b":[5,0],"r":0.8,"t":"ψ","c":"see"},{"s":[5,0],"a":[0,0],"b":[5,3],"recht":true,"r":0.5,"c":"goldDunkel"}]}</figur>
+  </div>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">3</span><span class="stufe">●○○</span></div><div class="text">
+  <p>Berechne exakt mit der Tabelle aus Beispiel 2.</p>
+  <div class="teil" style="--sp:3"><div><i>a)</i>$\sin 30^\circ + \cos 60^\circ$</div><div><i>b)</i>$\tan 45^\circ \cdot \sin 60^\circ$</div><div><i>c)</i>$(\cos 30^\circ)^2$</div><div><i>d)</i>$\tan 60^\circ \cdot \tan 30^\circ$</div><div><i>e)</i>$\sin 60^\circ : \cos 60^\circ$</div><div><i>f)</i>$2 \cdot \sin 30^\circ \cdot \cos 30^\circ$</div></div>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">4</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Zeichne ein Dreieck $ABC$ mit $\gamma = 90^\circ$, $\alpha = 40^\circ$ und $c = 10\,\text{cm}$. Miss $a$ und $b$ und bestimme damit $\sin 40^\circ$ und $\cos 40^\circ$ auf zwei Nachkommastellen. Wie lang ist $a$ ungefähr in einem Dreieck mit $\alpha = 40^\circ$, $\gamma = 90^\circ$ und $c = 25\,\text{cm}$?</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">5</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Für einen spitzen Winkel $\alpha$ ist $\sin\alpha = 0{,}6$. Berechne $\cos\alpha$ und $\tan\alpha$ ohne Taschenrechner.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">6</span><span class="stufe">●●○</span></div><div class="text">
+  <p>Eine $4\,\text{m}$ lange Leiter lehnt an einer Wand und bildet mit dem Boden einen Winkel von $60^\circ$. Wie weit steht ihr Fuß von der Wand entfernt? Wie hoch reicht sie? Gib die Höhe exakt und gerundet an.</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z">7</span><span class="stufe">●●●</span></div><div class="text">
+  <p>Begründe für jeden spitzen Winkel $\alpha$: &nbsp;<b>a)</b> $0 < \sin\alpha < 1$ &nbsp;<b>b)</b> $\sin\alpha < \tan\alpha$</p>
+</div></div>
+
+<div class="auf"><div class="anr"><span class="z offen">8</span><span class="stufe">●●●</span></div><div class="text">
+  <p>Halte die Hypotenuse fest bei $c = 1$ und lass $\alpha$ immer kleiner, dann immer größer werden. Was passiert mit $a$ und $b$? Welche Werte sollte man $\sin 0^\circ$, $\cos 0^\circ$, $\sin 90^\circ$ und $\cos 90^\circ$ geben? Warum gibt es $\tan 90^\circ$ nicht?</p>
+</div></div>
+<!--rand-->
+<div class="notiz"><span class="t">Kurz gesagt</span>Gleicher Winkel → ähnliche Dreiecke → gleiches Seitenverhältnis.</div>
+
+<div class="notiz gold"><span class="t">Schreibweise</span>Statt $(\sin\alpha)^2$ schreibt man oft kurz $\sin^2\alpha$. Gemeint ist das Quadrat der Zahl $\sin\alpha$.</div>
+
+<div class="notiz"><span class="t">Wurzel im Nenner</span>Mit $\sqrt{2}$ erweitern:<br>$\dfrac{1}{\sqrt{2}} = \dfrac{\sqrt{2}}{\sqrt{2} \cdot \sqrt{2}} = \dfrac{\sqrt{2}}{2}$</div>
+
+<div class="notiz"><span class="t">Zu Aufgabe 2</span>Erst den rechten Winkel suchen: Ihm gegenüber liegt die Hypotenuse. Seite $r$ liegt $R$ gegenüber.</div>
+
+<div class="notiz"><span class="t">Zu Aufgabe 4</span>Lege an $A$ den Winkel $40^\circ$ an, trage $c$ ab und fälle von $B$ das Lot auf den anderen Schenkel.</div>
+
+<div class="notiz gold"><span class="t">Zu Aufgabe 5</span>Mit Skizze: $\sin\alpha = 0{,}6 = \frac{3}{5}$. Nimm $a = 3$ und $c = 5$ und berechne $b$ mit Pythagoras.</div>
+
+<div class="notiz"><span class="t">Zu Aufgabe 7</span>Die Hypotenuse ist die längste Seite. Vergleiche die Nenner in $\sin\alpha = \frac{a}{c}$ und $\tan\alpha = \frac{a}{b}$.</div>
+
+<div class="notiz mathilda"><span class="t">In der App</span>Im Werkzeug <b>Trigonometrie</b>, Kapitel „Rechtwinkliges Dreieck“, ziehst du an der Hypotenuse $c$: Die Seiten wachsen, die Verhältnisse bleiben. Ziehst du an $\alpha$, ändern sie sich.</div>

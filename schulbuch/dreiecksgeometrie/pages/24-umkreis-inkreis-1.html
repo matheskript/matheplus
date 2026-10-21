@@ -1,0 +1,87 @@
+<!-- kap: III | uk: Umkreis und Inkreis -->
+<div class="ukap-titel"><span class="nr">{{K:umkreis-inkreis-1}}</span><h2>Umkreis und Inkreis</h2></div>
+<p class="leitfrage">Welcher Kreis geht durch alle drei Ecken – und welcher berührt alle drei Seiten?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <div class="zwei-bild" style="gap:5mm">
+    <div>
+      <p style="text-align:left"><b>a)</b> Zeichne $A$ und $B$ im Abstand $4\,\text{cm}$ und drei verschiedene Kreise durch $A$ und $B$. Wo liegen ihre Mittelpunkte?<br><b>b)</b> Nimm einen dritten Punkt $C$ dazu. Wie viele Kreise gehen jetzt durch $A$, $B$ und $C$?<br><b>c)</b> Gibt es einen Kreis durch drei Punkte, die auf einer Geraden liegen?</p>
+    </div>
+    <figur>{"b":34,"h":32,"rand":10,
+      "kreis":[{"m":[0,0],"r":2,"c":"see","w":1.1},{"m":[0,1.5],"r":2.5,"c":"goldDunkel","w":1.1},{"m":[0,-1],"r":2.2361,"c":"smaragd","w":1.1}],
+      "strecke":[{"p":[0,-3.2],"q":[0,4],"c":"grau","w":1,"d":"4 3"}],
+      "punkt":[{"p":[-2,0],"t":"A","pos":"l","c":"grana","r":2.6},{"p":[2,0],"t":"B","pos":"r","c":"grana","r":2.6},{"p":[0,0],"r":1.8,"c":"see"},{"p":[0,1.5],"r":1.8,"c":"goldDunkel"},{"p":[0,-1],"r":1.8,"c":"smaragd"}]}</figur>
+  </div>
+</div>
+
+<h3 style="margin-top:2mm">Der Umkreis</h3>
+<div class="zwei-bild" style="grid-template-columns:1fr auto">
+  <div>
+    <p style="margin-top:0">Der Mittelpunkt jedes Kreises durch $A$ und $B$ ist von $A$ und $B$ gleich weit entfernt. Er liegt also auf der <b>Mittelsenkrechten</b> $m_c$ von $\overline{AB}$ (Unterkapitel {{K:linien-1}}). Soll der Kreis auch durch $C$ gehen, muss sein Mittelpunkt zusätzlich auf $m_a$ liegen.</p>
+    <p>Liegen $A$, $B$, $C$ nicht auf einer Geraden, sind $\overline{AB}$ und $\overline{BC}$ nicht parallel, also auch $m_c$ und $m_a$ nicht. Sie schneiden sich in genau einem Punkt $U$ mit $|\overline{UA}| = |\overline{UB}| = |\overline{UC}|$ – er liegt auch auf $m_b$. Es gibt also genau einen Kreis durch $A$, $B$ und $C$. Liegen die drei Punkte auf einer Geraden, sind $m_c$ und $m_a$ parallel: kein Kreis.</p>
+  </div>
+  <figur>{"b":46,"h":44,"rand":12,
+    "kreis":[{"m":[3.5,0.75],"r":3.5795,"c":"grana","w":1.6}],
+    "strecke":[{"p":[3.5,-2.75],"q":[3.5,4.25],"c":"see","w":1.1,"d":"5 3"},{"p":[6.3,4.25],"q":[0.7,-2.75],"c":"see","w":1.1,"d":"5 3"},{"p":[-0.3,2.65],"q":[7.3,-1.15],"c":"see","w":1.1,"d":"5 3"}],
+    "flaeche":[{"pkte":[[0,0],[7,0],[2,4]],"c":"see","o":0.1,"w":1.8}],
+    "winkel":[{"s":[3.5,0],"a":[7,0],"b":[3.5,0.75],"recht":true,"c":"see","r":0.6},{"s":[4.5,2],"a":[2,4],"b":[3.5,0.75],"recht":true,"c":"see","r":0.6},{"s":[1,2],"a":[0,0],"b":[3.5,0.75],"recht":true,"c":"see","r":0.6}],
+    "punkt":[{"p":[0,0],"t":"A","pos":"ul"},{"p":[7,0],"t":"B","pos":"ur"},{"p":[2,4],"t":"C","pos":"ol"},{"p":[3.5,0.75],"t":"U","pos":"or","c":"grana"}],
+    "text":[{"p":[3.5,-2.3],"t":"m_c","pos":"r","c":"see"},{"p":[5.6,3.3],"t":"m_a","pos":"r","c":"see"},{"p":[0.4,2.55],"t":"m_b","pos":"o","c":"see"}]}</figur>
+</div>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Umkreis</div>
+  <p style="text-align:left">Durch drei Punkte, die nicht auf einer Geraden liegen, geht genau ein Kreis. Beim Dreieck heißt er <b>Umkreis</b>; sein Mittelpunkt, der <b>Umkreismittelpunkt</b> $U$, ist der Schnittpunkt der Mittelsenkrechten. Zum Konstruieren genügen zwei davon.</p>
+</div>
+
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 1 · Wo liegt der Umkreismittelpunkt?</div>
+  <p style="text-align:left;margin-bottom:0">Umkreis eines spitz-, recht- und stumpfwinkligen Dreiecks (vgl. Aufgabe 5, S. {{S:linien-2}}).</p>
+  <div class="loesung"><span class="loesung-kopf">Lösung</span>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2mm;margin-top:1mm">
+    <div><figur>{"b":36,"h":31,"rand":16,
+      "kreis":[{"m":[3,1],"r":3.1623,"c":"grana","w":1.3}],
+      "strecke":[{"p":[3,-1.962],"q":[3,3.962],"c":"see","w":0.9,"d":"4 3"},{"p":[5.962,3.962],"q":[0.038,-1.962],"c":"see","w":0.9,"d":"4 3"}],
+      "flaeche":[{"pkte":[[0,0],[6,0],[2,4]],"c":"see","o":0.1,"w":1.5}],
+      "punkt":[{"p":[0,0],"t":"A","pos":"ul","r":2},{"p":[6,0],"t":"B","pos":"ur","r":2},{"p":[2,4],"t":"C","pos":"ol","r":2},{"p":[3,1],"t":"U","pos":"r","c":"grana","r":2.4}]}</figur>
+      <p class="bildunterschrift"><b>spitzwinklig:</b> $U$ liegt innen</p></div>
+    <div><figur>{"b":36,"h":31,"rand":16,
+      "kreis":[{"m":[3,0],"r":3,"c":"grana","w":1.3}],
+      "strecke":[{"p":[3,-2.8],"q":[3,2.8],"c":"see","w":0.9,"d":"4 3"},{"p":[4.617,2.8],"q":[1.383,-2.8],"c":"see","w":0.9,"d":"4 3"}],
+      "flaeche":[{"pkte":[[0,0],[6,0],[1.5,2.5981]],"c":"see","o":0.1,"w":1.5}],
+      "winkel":[{"s":[1.5,2.5981],"a":[0,0],"b":[6,0],"recht":true,"c":"seeTief","r":0.7}],
+      "punkt":[{"p":[0,0],"t":"A","pos":"ul","r":2},{"p":[6,0],"t":"B","pos":"ur","r":2},{"p":[1.5,2.5981],"t":"C","pos":"ol","r":2},{"p":[3,0],"t":"U","pos":"ur","c":"grana","r":2.4}]}</figur>
+      <p class="bildunterschrift"><b>rechtwinklig:</b> $U$ halbiert $c$</p></div>
+    <div><figur>{"b":36,"h":31,"rand":16,
+      "kreis":[{"m":[3,-1],"r":3.1623,"c":"grana","w":1.3}],
+      "strecke":[{"p":[3,1.962],"q":[3,-3.962],"c":"see","w":0.9,"d":"4 3"},{"p":[4.481,1.962],"q":[1.519,-3.962],"c":"see","w":0.9,"d":"4 3"}],
+      "flaeche":[{"pkte":[[0,0],[6,0],[2,2]],"c":"see","o":0.1,"w":1.5}],
+      "punkt":[{"p":[0,0],"t":"A","pos":"ul","r":2},{"p":[6,0],"t":"B","pos":"ur","r":2},{"p":[2,2],"t":"C","pos":"o","r":2},{"p":[3,-1],"t":"U","pos":"r","c":"grana","r":2.4}]}</figur>
+      <p class="bildunterschrift"><b>stumpfwinklig:</b> $U$ liegt außen</p></div>
+  </div>
+  <p style="text-align:left;margin-top:1.2mm">Beim stumpfwinkligen Dreieck liegt $U$ jenseits der längsten Seite, gegenüber dem stumpfen Winkel.</p></div>
+</div>
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: Kreise durch Punkte</li><li>Wörter zum Kreis</li><li>Umkreis, Merke</li><li>Beispiel 1: Lage von $U$</li><li>Inkreis (S. {{S:umkreis-inkreis-2}})</li><li>Aufgaben 1–5</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 6 und 7</p></div>
+
+<div class="notiz"><span class="t">Wortspeicher</span>
+<figur>{"b":36,"h":30,"rand":8,
+    "kreis":[{"m":[0,0],"r":3,"c":"seeTief","w":1.5}],
+    "strecke":[{"p":[-3,0],"q":[3,0],"c":"see","w":1.5},
+      {"p":[0,0],"q":[1.5,2.5981],"c":"grana","w":1.5},
+      {"p":[-1.5,2.5981],"q":[-2.8191,-1.0261],"c":"goldDunkel","w":1.5},
+      {"p":[0,0],"q":[1.9284,-2.2981],"c":"grau","w":1,"d":"3 3"},
+      {"p":[0.2432,-3.7124],"q":[3.6136,-0.8838],"c":"smaragd","w":1.5}],
+    "winkel":[{"s":[1.9284,-2.2981],"a":[0,0],"b":[3.6136,-0.8838],"recht":true,"c":"smaragd","r":0.75}],
+    "punkt":[{"p":[0,0],"t":"M","pos":"u","r":2},{"p":[1.9284,-2.2981],"r":2,"c":"smaragd"}],
+    "text":[{"p":[-1.5,0],"t":"d","pos":"u","c":"see"},{"p":[0.75,1.3],"t":"r","pos":"l","c":"grana"},{"p":[-2.16,0.79],"t":"s","pos":"l","c":"goldDunkel"},{"p":[3.6136,-0.8838],"t":"t","pos":"r","c":"smaragd"}]}</figur>
+<b>Kreis</b> um $M$ mit Radius $r$: alle Punkte, die von $M$ den Abstand $r$ haben.<br><b>Sehne</b> $s$: Strecke zwischen zwei Kreispunkten; die längste ist der <b>Durchmesser</b> $d = 2r$.<br><b>Tangente</b> $t$ (lat. <i>tangere</i>, berühren): ein gemeinsamer Punkt; $t$ steht senkrecht auf dem Radius (S. {{S:umkreis-inkreis-2}}).<br><b>Sekante</b> (lat. <i>secare</i>, schneiden): zwei gemeinsame Punkte.<br><b>Passante:</b> geht vorbei.</div>
+
+<div class="notiz gold"><span class="t">Probe beim Konstruieren</span>Zeichne auch die dritte Mittelsenkrechte. Geht sie nicht durch $U$, war die Zeichnung ungenau.</div>
+
+<div class="notiz gold"><span class="t">Ausblick</span>Beim rechtwinkligen Dreieck fällt $U$ genau auf die Mitte der Hypotenuse. Dass das <b>immer</b> so ist, beweist Unterkapitel {{K:thales-1}}.</div>
+
+<div class="notiz"><span class="t">Warum ist $d$ die längste Sehne?</span>Für jede Sehne gilt $|\overline{PQ}| \le |\overline{PM}| + |\overline{MQ}| = 2r$: Der Umweg über $M$ ist nie kürzer.</div>

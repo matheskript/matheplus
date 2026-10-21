@@ -1,0 +1,65 @@
+<!-- kap: III | uk: Der Satz des Thales -->
+<div class="ukap-titel"><span class="nr">{{K:thales-1}}</span><h2>Der Satz des Thales</h2></div>
+<p class="leitfrage">Welcher Winkel entsteht, wenn man einen Kreispunkt mit den Enden eines Durchmessers verbindet?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <div class="zwei-bild" style="gap:5mm">
+    <div>
+      <p style="text-align:left">Zeichne einen Kreis mit $r = 4\,\text{cm}$ und einen Durchmesser $\overline{AB}$.</p>
+      <p style="text-align:left"><b>a)</b> Wähle fünf Punkte $C$ auf dem Kreis. Verbinde jeden mit $A$ und $B$ und miss den Winkel bei $C$.<br><b>b)</b> Vergleiche mit deinem Nachbarn. Was fällt auf?<br><b>c)</b> Was passiert, wenn $C$ ganz nah an $B$ heranrückt?</p>
+    </div>
+    <figur>{"b":36,"h":30,"rand":18,
+      "kreis":[{"m":[0,0],"r":2,"c":"grau","w":1.2}],
+      "strecke":[{"p":[-2,0],"q":[2,0],"c":"seeTief","w":1.3},
+        {"p":[-2,0],"q":[1.6383,1.1472],"c":"see","w":1.1},{"p":[2,0],"q":[1.6383,1.1472],"c":"see","w":1.1},
+        {"p":[-2,0],"q":[0.3473,1.9696],"c":"goldDunkel","w":1.1},{"p":[2,0],"q":[0.3473,1.9696],"c":"goldDunkel","w":1.1},
+        {"p":[-2,0],"q":[-1.5321,1.2856],"c":"smaragd","w":1.1},{"p":[2,0],"q":[-1.5321,1.2856],"c":"smaragd","w":1.1}],
+      "punkt":[{"p":[-2,0],"t":"A","pos":"l","r":2},{"p":[2,0],"t":"B","pos":"r","r":2},{"p":[0,0],"r":1.6},
+        {"p":[1.6383,1.1472],"t":"?","pos":"or","c":"see","r":2},{"p":[0.3473,1.9696],"t":"?","pos":"o","c":"goldDunkel","r":2},{"p":[-1.5321,1.2856],"t":"?","pos":"ol","c":"smaragd","r":2}]}</figur>
+  </div>
+</div>
+
+<div class="zwei-bild" style="grid-template-columns:1fr auto;align-items:center">
+  <div><p style="margin:0">Die Messungen deuten alle auf $90^\circ$ – aber Messen ist kein Beweis, denn jede Messung ist ungenau. Der Trick: Verbinde $C$ mit dem Mittelpunkt $M$ von $\overline{AB}$. Die Strecken $\overline{MA}$, $\overline{MB}$ und $\overline{MC}$ sind Radien, also gleich lang. Damit <b>zerfällt</b> das Dreieck $ABC$ in zwei gleichschenklige Dreiecke.</p></div>
+  <figur>{"b":56,"h":42,"rand":20,
+    "flaeche":[{"pkte":[[3.0,0.0],[2.9836,0.3136],[2.9344,0.6237],[2.8532,0.9271],[2.7406,1.2202],[2.5981,1.5],[2.4271,1.7634],[2.2294,2.0074],[2.0074,2.2294],[1.7634,2.4271],[1.5,2.5981],[1.2202,2.7406],[0.9271,2.8532],[0.6237,2.9344],[0.3136,2.9836],[0.0,3.0],[-0.3136,2.9836],[-0.6237,2.9344],[-0.9271,2.8532],[-1.2202,2.7406],[-1.5,2.5981],[-1.7634,2.4271],[-2.0074,2.2294],[-2.2294,2.0074],[-2.4271,1.7634],[-2.5981,1.5],[-2.7406,1.2202],[-2.8532,0.9271],[-2.9344,0.6237],[-2.9836,0.3136],[-3.0,0.0]],"c":"grana","o":0,"d":"5 4","w":1.3},
+      {"pkte":[[-3,0],[0,0],[1.2679,2.7189]],"c":"gold","o":0.25,"rand":false},{"pkte":[[0,0],[3,0],[1.2679,2.7189]],"c":"see","o":0.14,"rand":false},
+      {"pkte":[[-3,0],[3,0],[1.2679,2.7189]],"c":"seeTief","o":0,"w":1.8}],
+    "strecke":[{"p":[0,0],"q":[1.2679,2.7189],"c":"grana","w":1.4,"d":"4 3"}],
+    "winkel":[{"s":[-3,0],"a":[3,0],"b":[1.2679,2.7189],"r":1.1,"c":"goldDunkel","t":"α"},{"s":[1.2679,2.7189],"a":[-3,0],"b":[0,0],"r":0.8,"c":"goldDunkel","t":"α"},
+      {"s":[3,0],"a":[-3,0],"b":[1.2679,2.7189],"r":0.7,"c":"see","t":"β"},{"s":[1.2679,2.7189],"a":[0,0],"b":[3,0],"r":0.8,"c":"see","t":"β"}],
+    "punkt":[{"p":[-3,0],"t":"A","pos":"ul"},{"p":[3,0],"t":"B","pos":"ur"},{"p":[0,0],"t":"M","pos":"u","c":"grana"},{"p":[1.2679,2.7189],"t":"C","pos":"o"}]}</figur>
+</div>
+<div class="schritte" style="margin:1mm 0 3mm">
+    <span class="sl"><b>①</b> $AMC$ gleichschenklig</span><span>$|\overline{MA}| = |\overline{MC}|$, Basiswinkel: $\sphericalangle MCA = \alpha$</span>
+    <span class="sl"><b>②</b> $MBC$ gleichschenklig</span><span>$|\overline{MB}| = |\overline{MC}|$, Basiswinkel: $\sphericalangle MCB = \beta$</span>
+    <span class="sl"><b>③</b> Winkel bei $C$</span><span>$M$ liegt auf $\overline{AB}$, also $\gamma = \alpha + \beta$</span>
+    <span class="sl"><b>④</b> Winkelsumme</span><span>$\alpha + \beta + (\alpha + \beta) = 180^\circ$</span>
+    <span class="sl"><b>⑤</b> halbieren</span><span>$\alpha + \beta = 90^\circ$, also $\gamma = 90^\circ$</span>
+  </div>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Satz des Thales</div>
+  <p style="text-align:left">Liegt der Punkt $C$ auf einem Kreis mit dem Durchmesser $\overline{AB}$ und ist $C \neq A$, $C \neq B$, dann hat das Dreieck $ABC$ bei $C$ einen rechten Winkel: $\gamma = 90^\circ$.</p>
+  <p style="text-align:left">Der Kreis um die Mitte von $\overline{AB}$ mit dem Radius $\frac{1}{2}|\overline{AB}|$ heißt <b>Thaleskreis</b> über $\overline{AB}$. Kurz: <b>Jeder Winkel im Halbkreis ist ein rechter.</b></p>
+</div>
+
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 1 · Winkel im Thaleskreis berechnen</div>
+  <p style="text-align:left">$C$ liegt auf dem Thaleskreis über $\overline{AB}$ mit Mittelpunkt $M$, und es ist $\sphericalangle AMC = 110^\circ$. Berechne die Winkel des Dreiecks $ABC$.</p>
+  <div class="loesung"><span class="loesung-kopf">Lösung</span>
+  <p style="text-align:left">Dreieck $AMC$ ist gleichschenklig, seine Basiswinkel sind gleich: $\alpha = (180^\circ - 110^\circ) : 2 = 35^\circ$.<br>Nach Thales ist $\gamma = 90^\circ$, also $\beta = 180^\circ - 90^\circ - 35^\circ = 55^\circ$.<br>Probe im Dreieck $MBC$: $\sphericalangle BMC = 180^\circ - 110^\circ = 70^\circ$, Basiswinkel $(180^\circ - 70^\circ) : 2 = 55^\circ$. ✓</p></div>
+</div>
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: Messen im Halbkreis</li><li>Beweis: zwei gleichschenklige Dreiecke</li><li>Merke: Satz des Thales</li><li>Beispiel 1</li><li>Umkehrung, Tangenten (S. {{S:thales-2}})</li><li>Aufgaben 1–5</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 6 und 7</p></div>
+
+<div class="notiz"><span class="t">Wortspeicher</span><b>Thaleskreis:</b> Kreis, dessen Durchmesser die Strecke $\overline{AB}$ ist.<br><b>Basiswinkel:</b> die beiden gleich großen Winkel an der Basis eines gleichschenkligen Dreiecks.</div>
+
+<div class="notiz gold"><span class="t">Erinnerung</span>Im gleichschenkligen Dreieck liegen den gleich langen Schenkeln gleich große Winkel gegenüber (Unterkapitel {{K:winkelsumme-1}}).</div>
+
+<div class="notiz"><span class="t">Wer war Thales?</span>Thales von Milet lebte um 600 v. Chr. in Kleinasien. Spätere griechische Autoren berichten, er habe als Erster geometrische Sätze bewiesen.</div>
+
+<div class="notiz"><span class="t">Zerlegen</span>Wie bei den Flächen in Kapitel I hilft ein Hilfsstrich: Die Strecke $\overline{MC}$ zerlegt das schwierige Dreieck in zwei einfache.</div>

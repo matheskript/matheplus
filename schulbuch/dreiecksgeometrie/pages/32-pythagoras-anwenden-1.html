@@ -1,0 +1,68 @@
+<!-- kap: IV | uk: Pythagoras anwenden und umkehren -->
+<div class="ukap-titel"><span class="nr">{{K:pythagoras-anwenden-1}}</span><h2>Pythagoras anwenden und umkehren</h2></div>
+<p class="leitfrage">Wo versteckt sich ein rechtwinkliges Dreieck – und wie weist man einen rechten Winkel nach?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <div class="zwei-bild" style="gap:5mm">
+    <div>
+      <p style="text-align:left">Eine 5 m lange Leiter lehnt an einer senkrechten Hauswand. Ihr Fuß steht 1,4 m von der Wand entfernt.</p>
+      <p style="text-align:left"><b>a)</b> Wo ist der rechte Winkel? Welche Strecke ist die Hypotenuse?<br><b>b)</b> Wie hoch reicht die Leiter an der Wand?<br><b>c)</b> Der Fuß rutscht 1,6 m weiter weg, auf 3 m Abstand. Rutscht die Spitze auch um 1,6 m nach unten?</p>
+    </div>
+    <figur>{"b":36,"h":40,"rand":8,
+      "flaeche":[{"pkte":[[-0.6,0],[0,0],[0,5.3],[-0.6,5.3]],"c":"grau","o":0.22,"rand":false},{"pkte":[[0,0],[1.4,0],[0,4.8]],"c":"see","o":0.1,"rand":false}],
+      "strecke":[{"p":[0,0],"q":[0,5.3],"c":"seeTief","w":1.6},{"p":[-0.6,0],"q":[2.8,0],"c":"seeTief","w":1.6},
+        {"p":[1.4,0],"q":[0,4.8],"c":"goldDunkel","w":3}],
+      "winkel":[{"s":[0,0],"a":[1.4,0],"b":[0,4.8],"recht":true,"c":"seeTief","r":0.55}],
+      "text":[{"p":[0.32,1.7],"t":"?","c":"grana","g":15},{"p":[1.55,3.1],"t":"5 m","c":"goldDunkel"},{"p":[0.7,-0.5],"t":"1,4 m","c":"see"}]}</figur>
+  </div>
+</div>
+
+<p>Pythagoras gilt nur im rechtwinkligen Dreieck. Oft muss man es erst finden – oder mit einer Hilfslinie erzeugen. Eine <b>Diagonale</b> zerlegt ein Rechteck in zwei rechtwinklige Dreiecke, die <b>Höhe</b> zerlegt ein gleichseitiges Dreieck in zwei. Wie in Kapitel I gilt: Höhen erzeugen rechte Winkel.</p>
+
+<figur>{"b":122,"h":30,"rand":10,
+  "flaeche":[{"pkte":[[0,0],[4,0],[4,2.5],[0,2.5]],"c":"see","o":0.1,"w":1.5},{"pkte":[[5.5,0],[8,0],[8,2.5],[5.5,2.5]],"c":"see","o":0.1,"w":1.5},{"pkte":[[9.5,0],[12.5,0],[11,2.598]],"c":"see","o":0.1,"w":1.5},{"pkte":[[9.5,0],[11,0],[11,2.598]],"c":"gold","o":0.28,"rand":false},{"pkte":[[0,0],[4,0],[4,2.5]],"c":"gold","o":0.28,"rand":false},{"pkte":[[5.5,0],[8,0],[8,2.5]],"c":"gold","o":0.28,"rand":false}],
+  "strecke":[{"p":[0,0],"q":[4,2.5],"c":"grana","w":2.2},{"p":[5.5,0],"q":[8,2.5],"c":"grana","w":2.2},{"p":[11,0],"q":[11,2.598],"c":"grana","w":2.2,"d":"5 3"}],
+  "winkel":[{"s":[4,0],"a":[0,0],"b":[4,2.5],"recht":true,"c":"seeTief","r":0.5},{"s":[8,0],"a":[5.5,0],"b":[8,2.5],"recht":true,"c":"seeTief","r":0.5},{"s":[11,0],"a":[9.5,0],"b":[11,2.598],"recht":true,"c":"seeTief","r":0.5}],
+  "text":[{"p":[2,-0.42],"t":"a"},{"p":[4.35,1.25],"t":"b"},{"p":[1.75,1.55],"t":"d","c":"grana"},{"p":[6.75,-0.42],"t":"a"},{"p":[8.35,1.25],"t":"a"},{"p":[6.5,1.55],"t":"d","c":"grana"},{"p":[10.25,-0.42],"t":"a/2"},{"p":[11.35,1.0],"t":"h","c":"grana"},{"p":[9.95,1.55],"t":"a"},{"p":[12.05,1.55],"t":"a"},
+    {"p":[2,3.0],"t":"Rechteck","g":11},{"p":[6.75,3.0],"t":"Quadrat","g":11},{"p":[11,3.0],"t":"gleichseitiges Dreieck","g":11}]}</figur>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Diagonale und Höhe</div>
+  <div class="regelzeile" style="margin:0.6mm 0 1.4mm">
+    <div>Rechteck<br>$d = \sqrt{a^2 + b^2}$</div>
+    <div>Quadrat<br>$d = a\sqrt{2}$</div>
+    <div>gleichseitiges Dreieck<br>$h = \frac{a}{2}\sqrt{3}$</div>
+  </div>
+  <p style="text-align:left">Im Quadrat ist $d^2 = a^2 + a^2 = 2a^2$, also $d = \sqrt{2a^2} = a\sqrt{2}$. Im gleichseitigen Dreieck haben die beiden Teildreiecke die Hypotenuse $a$ und die gemeinsame Kathete $h$; nach Pythagoras sind auch ihre unteren Katheten gleich: Die Höhe halbiert die Seite. Aus $h^2 + \big(\frac{a}{2}\big)^2 = a^2$ folgt $h^2 = \frac{3}{4}a^2$ und $h = \frac{a}{2}\sqrt{3}$.</p>
+</div>
+
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 1 · Abstand zweier Punkte</div>
+  <div class="zwei-bild" style="gap:5mm">
+    <div>
+      <p style="text-align:left">Wie weit sind $A(1 \mid 2)$ und $B(7 \mid 10)$ voneinander entfernt?</p>
+      <div class="loesung"><span class="loesung-kopf">Lösung</span>
+      <p style="text-align:left">Das Steigungsdreieck ist rechtwinklig: 6 nach rechts, 8 nach oben. Die Strecke $\overline{AB}$ ist seine Hypotenuse:<br>$|\overline{AB}| = \sqrt{6^2 + 8^2} = \sqrt{100} = 10$.</p>
+      <p style="text-align:left"><b>Allgemein:</b> Für $A(x_A \mid y_A)$ und $B(x_B \mid y_B)$ ist<br>$|\overline{AB}| = \sqrt{(x_B - x_A)^2 + (y_B - y_A)^2}$.</p></div>
+    </div>
+    <graph>{"b":40,"h":48,"x":[-1.3,8.6],"y":[-1.5,11.4],"gitter":1,"tx":2,"ty":2,
+      "strecke":[{"p":[1,2],"q":[7,2],"c":"goldDunkel","w":1.6},{"p":[7,2],"q":[7,10],"c":"goldDunkel","w":1.6},{"p":[1,2],"q":[7,10],"c":"grana","w":2.2}],
+      "punkt":[{"x":1,"y":2,"c":"seeTief","t":"A","pos":"ol"},{"x":7,"y":10,"c":"seeTief","t":"B","pos":"l"}],
+      "text":[{"x":4,"y":2,"t":"6","pos":"u","c":"goldDunkel"},{"x":7,"y":6,"t":"8","pos":"r","c":"goldDunkel"}]}</graph>
+  </div>
+</div>
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: Leiter an der Wand</li><li>Rechtwinklige Dreiecke finden</li><li>Merke: Diagonale und Höhe</li><li>Beispiel 1: Abstand</li><li>Umkehrung mit Beweis</li><li>Beispiel 2, Tripel</li><li>Aufgaben 1–5</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 6 und 7</p></div>
+
+<div class="notiz"><span class="t">Wortspeicher</span><b>Diagonale:</b> Strecke zwischen zwei gegenüberliegenden Ecken.<br><b>gleichseitig:</b> alle drei Seiten gleich lang.<br><b>Abstand</b> zweier Punkte: Länge ihrer Verbindungsstrecke.</div>
+
+<div class="notiz gold"><span class="t">Immer zuerst</span>Eine Skizze zeichnen, den rechten Winkel markieren, die Hypotenuse farbig nachziehen. Dann erst rechnen.</div>
+
+<div class="notiz"><span class="t">Wurzel aus $2a^2$</span>Für $a > 0$ ist $\sqrt{2a^2} = a\sqrt{2}$, denn $\big(a\sqrt{2}\,\big)^2 = a^2 \cdot 2$.<br>Gut zu wissen:<br>$\sqrt{2} \approx 1{,}41$, $\sqrt{3} \approx 1{,}73$</div>
+
+<div class="notiz gold"><span class="t">Zum Einstieg c)</span>Rechne beide Höhen aus und vergleiche – nicht raten.</div>
+
+<div class="notiz"><span class="t">Erinnerung</span>Das Steigungsdreieck kennst du von den Geraden: waagrecht $\Delta x$, senkrecht $\Delta y$ – dazwischen ein rechter Winkel.</div>

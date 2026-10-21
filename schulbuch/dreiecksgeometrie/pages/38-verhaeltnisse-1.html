@@ -1,0 +1,53 @@
+<!-- kap: V | uk: Vergrößern und Verkleinern -->
+<div class="ukap-titel"><span class="nr">{{K:verhaeltnisse-1}}</span><h2>Vergrößern und Verkleinern</h2></div>
+<p class="leitfrage">Was passiert mit Längen, Winkeln und Flächen, wenn man eine Figur vergrößert?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <div class="zwei-bild" style="gap:5mm">
+    <div>
+      <p style="text-align:left">Zeichne auf Karopapier das Dreieck $A(2 \mid 1)$, $B(3 \mid 2)$, $C(2 \mid 3)$ und den Punkt $Z(0 \mid 2)$. Ziehe Strahlen von $Z$ durch die Ecken und trage auf jedem die <b>doppelte</b> Entfernung von $Z$ ab: Das gibt $A'$, $B'$, $C'$.</p>
+      <p style="text-align:left"><b>a)</b> Miss die Seiten beider Dreiecke.<br><b>b)</b> Vergleiche die Winkel mit dem Geodreieck.<br><b>c)</b> Wie oft passt das kleine Dreieck ins große?</p>
+    </div>
+    <figur>{"b":40,"h":30,"gitter":1,"rand":6,"fenster":[-0.9,-0.9,6.9,4.9],
+      "flaeche":[{"pkte":[[4,0],[6,2],[4,4]],"c":"smaragd","o":0.12},{"pkte":[[2,1],[3,2],[2,3]],"c":"see","o":0.2}],
+      "strecke":[{"p":[0,2],"q":[4,0],"c":"grau","w":1,"d":"3 3"},{"p":[0,2],"q":[6,2],"c":"grau","w":1,"d":"3 3"},{"p":[0,2],"q":[4,4],"c":"grau","w":1,"d":"3 3"}],
+      "punkt":[{"p":[0,2],"t":"Z","pos":"l","r":2.2},{"p":[2,1],"t":"A","pos":"u","r":2},{"p":[3,2],"t":"B","pos":"o","r":2},{"p":[2,3],"t":"C","pos":"o","r":2},
+        {"p":[4,0],"t":"A'","pos":"u","r":2,"c":"smaragd"},{"p":[6,2],"t":"B'","pos":"r","r":2,"c":"smaragd"},{"p":[4,4],"t":"C'","pos":"o","r":2,"c":"smaragd"}]}</figur>
+  </div>
+</div>
+
+<p>Die Vorschrift aus dem Einstieg heißt <b>zentrische Streckung</b>: Jeder Punkt $P$ wandert auf dem Strahl von $Z$ durch $P$, bis er $k$-mal so weit von $Z$ entfernt ist. Legt man den Ursprung nach $Z$, wird aus $P(x \mid y)$ der Punkt $P'(kx \mid ky)$: Er liegt auf demselben Strahl, und nach Pythagoras ist $|\overline{ZP'}| = \sqrt{k^2x^2 + k^2y^2} = k\sqrt{x^2 + y^2} = k \cdot |\overline{ZP}|$.</p>
+<p><b>Längen.</b> Zu jeder Strecke $\overline{PQ}$ gehört ein Steigungsdreieck mit den Katheten $\Delta x$ und $\Delta y$. Beide werden $k$-mal so lang, nach Pythagoras also auch $\overline{P'Q'}$. Die <b>Steigung</b> $\frac{k\,\Delta y}{k\,\Delta x} = \frac{\Delta y}{\Delta x}$ bleibt gleich (senkrechte Strecken bleiben senkrecht): Bild und Original sind <b>parallel</b>.</p>
+<p><b>Winkel.</b> Jede Bildseite ist parallel zur Originalseite, und Winkel mit parallelen Schenkeln sind gleich groß (Stufenwinkel, Unterkapitel {{K:winkel-geraden-1}}).</p>
+<p><b>Flächen.</b> Alles beginnt beim Rechteck: Aus $a \cdot b$ wird $ka \cdot kb = k^2 \cdot ab$. Beim Dreieck werden Grundseite und Höhe $k$-mal so lang (der rechte Winkel bleibt), also $\frac{1}{2} \cdot kg \cdot kh = k^2 \cdot \frac{1}{2}gh$. Im Einstieg: $k = 2$, Fläche 4-mal so groß.</p>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Zentrische Streckung</div>
+  <p style="text-align:left">Gegeben sind ein <b>Streckzentrum</b> $Z$ und ein <b>Streckfaktor</b> $k > 0$. Der Bildpunkt $P'$ eines Punktes $P \neq Z$ liegt auf dem Strahl von $Z$ durch $P$ mit $\;|\overline{ZP'}| = k \cdot |\overline{ZP}|$; $Z$ selbst bleibt fest. Dann gilt:</p>
+  <p style="text-align:left;margin:0">· Jede Bildstrecke ist $k$-mal so lang und parallel zur Originalstrecke (oder liegt auf derselben Geraden durch $Z$).<br>· Winkel bleiben gleich groß.<br>· Flächeninhalte werden mit $k^2$ multipliziert.</p>
+  <p class="klein" style="text-align:left;margin:1mm 0 0">$k > 1$ vergrößert, $0 < k < 1$ verkleinert, $k = 1$ ändert nichts.</p>
+</div>
+
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 1 · Ein Dreieck strecken</div>
+  <p style="text-align:left">Strecke $A(2 \mid 2)$, $B(6 \mid 2)$, $C(2 \mid 5)$ von $Z(0 \mid 0)$ aus mit $k = 1{,}5$. Vergleiche.</p>
+  <div class="loesung"><span class="loesung-kopf">Lösung</span>
+  <p style="text-align:left">Koordinaten mal $1{,}5$: $\;A'(3 \mid 3)$, $B'(9 \mid 3)$, $C'(3 \mid 7{,}5)$.<br>Seiten: $4$; $3$; $5$ werden zu $6$; $4{,}5$; $7{,}5$ – jeweils mal $1{,}5$.<br>Fläche: $\frac{1}{2} \cdot 4 \cdot 3 = 6$ wird zu $\frac{1}{2} \cdot 6 \cdot 4{,}5 = 13{,}5 = 1{,}5^2 \cdot 6$.</p></div>
+</div>
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: Dreieck verdoppeln</li><li>Längen, Winkel, Flächen</li><li>Merke: zentrische Streckung</li><li>Beispiele 1 und 2</li><li>Aufgaben 1–5</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 6 und 7</p></div>
+
+<div class="notiz"><span class="t">Wortspeicher</span><b>Zentrisch:</b> von einem Zentrum, einem Mittelpunkt, aus.<br><b>Streckzentrum</b> $Z$: der feste Punkt, von dem aus gestreckt wird.<br><b>Streckfaktor</b> $k$: „wie viel mal so weit weg“.<br><b>$P'$</b> (lies „P Strich“): der Bildpunkt von $P$.</div>
+
+<div class="notiz gold"><span class="t">Warum $k^2$?</span>Eine Fläche hat zwei Richtungen: Länge <b>und</b> Breite. Beide wachsen mit $k$ – also wächst die Fläche mit $k \cdot k$.</div>
+
+<div class="notiz"><span class="t">Zu Beispiel 1</span>
+<figur>{"b":36,"h":30,"gitter":1,"rand":4,"fenster":[-0.8,-0.8,10,8.4],
+  "flaeche":[{"pkte":[[3,3],[9,3],[3,7.5]],"c":"smaragd","o":0.12},{"pkte":[[2,2],[6,2],[2,5]],"c":"see","o":0.2}],
+  "strecke":[{"p":[0,0],"q":[9,3],"c":"grau","w":0.9,"d":"3 3"},{"p":[0,0],"q":[3,7.5],"c":"grau","w":0.9,"d":"3 3"},{"p":[0,0],"q":[3,3],"c":"grau","w":0.9,"d":"3 3"}],
+  "punkt":[{"p":[0,0],"t":"Z","pos":"l","r":2},{"p":[2,2],"r":1.8},{"p":[6,2],"r":1.8},{"p":[2,5],"r":1.8},{"p":[3,3],"r":1.8,"c":"smaragd"},{"p":[9,3],"r":1.8,"c":"smaragd"},{"p":[3,7.5],"r":1.8,"c":"smaragd"}]}</figur></div>
+
+<div class="notiz"><span class="t">Erinnerung</span>Pythagoras (Kapitel IV):<br>$c^2 = a^2 + b^2$, also<br>$|\overline{PQ}| = \sqrt{\Delta x^2 + \Delta y^2}$</div>

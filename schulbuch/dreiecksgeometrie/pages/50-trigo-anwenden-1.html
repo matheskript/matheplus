@@ -1,0 +1,61 @@
+<!-- kap: VI | uk: Trigonometrie anwenden -->
+<div class="ukap-titel"><span class="nr">{{K:trigo-anwenden-1}}</span><h2>Trigonometrie anwenden</h2></div>
+<p class="leitfrage">Wie misst man Höhen und Steigungen, an die man nicht herankommt?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <div class="zwei-bild" style="gap:5mm">
+    <div>
+      <p style="text-align:left">Förster schätzen Baumhöhen mit einem <b>Försterdreieck</b>: einem gleichschenklig-rechtwinkligen Dreieck aus Holz. Sie halten eine Kathete waagrecht vor das Auge und gehen so weit zurück, bis sie über die Hypotenuse genau die Baumspitze sehen.</p>
+      <p style="text-align:left"><b>a)</b> Unter welchem Winkel steigt die Sichtlinie? Warum ist der Baum über Augenhöhe dann so hoch wie der Abstand zum Baum?<br><b>b)</b> Was muss man noch addieren?<br><b>c)</b> Was tun, wenn man nicht weit genug zurückgehen kann?</p>
+    </div>
+    <figur>{"b":36,"h":38,"rand":12,"fenster":[-6,-1,23,22],
+      "strecke":[{"p":[-2,0],"q":[23,0],"c":"seeTief","w":1.4},{"p":[0,0],"q":[0,1.6],"c":"seeTief","w":2.4},
+        {"p":[20,0],"q":[20,21.6],"c":"smaragd","w":3},
+        {"p":[0,1.6],"q":[20,1.6],"c":"grau","w":1.2,"d":"4 3"},{"p":[0,1.6],"q":[20,21.6],"c":"grana","w":1.4,"d":"5 3"}],
+      "flaeche":[{"pkte":[[0,1.6],[3.2,1.6],[3.2,4.8]],"c":"goldDunkel","o":0.35}],
+      "winkel":[{"s":[20,1.6],"a":[0,1.6],"b":[20,21.6],"recht":true,"r":1.8,"c":"goldDunkel"}],
+      "text":[{"p":[10,0],"t":"Abstand","pos":"u","c":"grau","g":10},{"p":[20,11],"t":"?","pos":"r","c":"smaragd"},{"p":[0,1.6],"t":"Auge","pos":"ol","c":"seeTief","g":9}]}</figur>
+  </div>
+</div>
+
+<p>Die Höhe des Baums über Augenhöhe ist die <b>Gegenkathete</b> des Peilwinkels $\alpha$, der Abstand die <b>Ankathete</b>. Also ist $\tan\alpha = \frac{h_1}{d}$ und $h_1 = d \cdot \tan\alpha$. Beim Försterdreieck ist $\alpha = 45^\circ$ und $\tan 45^\circ = 1$ (Seite {{S:sinus-kosinus-2}}): Höhe und Abstand sind gleich – deshalb funktioniert der Trick. Mit dem Tangens geht es aber für <b>jeden</b> Winkel.</p>
+
+<p>Bei solchen Messungen misst man den Winkel immer gegen die <b>Waagrechte</b>. Schaut man nach oben, heißt er <b>Höhenwinkel</b>, schaut man nach unten, <b>Tiefenwinkel</b>. Auch die Steigung einer Straße ist ein Seitenverhältnis im rechtwinkligen Dreieck: Höhenunterschied durch waagrechte Strecke – also der Tangens des <b>Steigungswinkels</b>.</p>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Winkel in Sachaufgaben</div>
+  <p style="text-align:left"><b>Höhenwinkel</b> und <b>Tiefenwinkel</b> werden zwischen der Waagrechten und der Sichtlinie gemessen. Zwischen zwei Punkten sind sie gleich groß – es sind Wechselwinkel an den parallelen Waagrechten (Unterkapitel {{K:winkel-geraden-1}}).</p>
+  <div class="zwei-bild" style="grid-template-columns:1fr auto;gap:4mm;align-items:center">
+    <p style="text-align:left;margin:0">Eine Straße oder Rampe mit dem <b>Steigungswinkel</b> $\alpha$ ($0^\circ < \alpha < 90^\circ$) hat die Steigung $m = \tan\alpha$. Eine Steigung von $p\,\%$ bedeutet $\tan\alpha = \frac{p}{100}$.</p>
+    <div>$$m = \frac{\text{Höhenunterschied}}{\text{waagrechte Strecke}} = \tan\alpha$$</div>
+  </div>
+</div>
+
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 1 · Die Baumhöhe</div>
+  <p style="text-align:left">Du stehst $20\,\text{m}$ vom Baum entfernt und peilst seine Spitze unter einem Höhenwinkel von $35^\circ$ an. Deine Augen sind $1{,}6\,\text{m}$ über dem Boden. Wie hoch ist der Baum?</p>
+  <div class="loesung"><span class="loesung-kopf">Lösung</span>
+  <div class="schritte" style="margin:1mm 0">
+    <span class="sl">über Augenhöhe</span><span>$h_1 = 20\,\text{m} \cdot \tan 35^\circ \approx 14{,}0\,\text{m}$</span>
+    <span class="sl">Augenhöhe dazu</span><span>$h \approx 14{,}0\,\text{m} + 1{,}6\,\text{m} = 15{,}6\,\text{m}$</span>
+  </div>
+  <p style="text-align:left;margin:0">Damit ist auch die Frage von Seite {{S:auftakt-trigo}} beantwortet: Dort wurde vom Boden aus gepeilt, der Turm ist also etwa $14{,}0\,\text{m}$ hoch.</p></div>
+</div>
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: Försterdreieck</li><li>Höhe mit dem Tangens</li><li>Höhen- und Tiefenwinkel</li><li>Merke: Steigungswinkel</li><li>Beispiele 1–3</li><li>Aufgaben 1–5</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 6 und 7</p></div>
+
+<div class="notiz"><span class="t">Wortspeicher</span><b>Höhenwinkel:</b> Blick nach oben, gemessen ab der Waagrechten.<br><b>Tiefenwinkel:</b> Blick nach unten, ebenso gemessen.<br><b>Steigungswinkel:</b> Winkel zwischen Straße und Waagrechter.</div>
+
+<div class="notiz"><span class="t">Höhen- und Tiefenwinkel</span>
+<figur>{"b":36,"h":28,"rand":10,"fenster":[-1.6,-1.6,11,6],
+  "strecke":[{"p":[0,0],"q":[11,0],"c":"seeTief","w":1.3},{"p":[0,0],"q":[0,5],"c":"smaragd","w":2.4},
+    {"p":[0,5],"q":[10,5],"c":"grau","w":1,"d":"3 3"},{"p":[0,5],"q":[9,0],"c":"grana","w":1.3}],
+  "punkt":[{"p":[0,5],"t":"T","pos":"l"},{"p":[9,0],"t":"B","pos":"or"}],
+  "winkel":[{"s":[0,5],"a":[10,5],"b":[9,0],"r":2.4,"c":"gold"},{"s":[9,0],"a":[0,0],"b":[0,5],"r":2.4,"c":"see"}],
+  "text":[{"p":[3.2,5],"t":"Tiefenwinkel","pos":"o","c":"goldDunkel","g":9},{"p":[4.6,0],"t":"Höhenwinkel","pos":"u","c":"see","g":9}]}</figur>
+Vom Turm $T$ aus blickt man unter dem Tiefenwinkel zum Boot $B$, vom Boot aus unter dem gleich großen Höhenwinkel nach oben.</div>
+
+<div class="notiz gold"><span class="t">Augenhöhe nicht vergessen</span>Die Sichtlinie beginnt am Auge, nicht am Boden. Der Tangens liefert nur die Höhe <b>über</b> dem Auge.</div>

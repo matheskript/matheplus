@@ -1,0 +1,67 @@
+<!-- kap: II | uk: Die Winkelsumme im Dreieck -->
+<div class="ukap-titel"><span class="nr">{{K:winkelsumme-1}}</span><h2>Die Winkelsumme im Dreieck</h2></div>
+<p class="leitfrage">Warum haben die drei Winkel jedes Dreiecks zusammen genau 180°?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <p style="text-align:left">Zeichne ein spitzwinkliges, ein rechtwinkliges und ein stumpfwinkliges Dreieck.</p>
+  <p style="text-align:left"><b>a)</b> Miss in jedem Dreieck die drei Winkel und addiere sie. Vergleicht eure Summen in der Klasse.<br><b>b)</b> Schneide eines der Dreiecke aus, reiße die Ecken ab und lege sie an einer Linie aneinander.<br><b>c)</b> Warum beweist Messen nicht, dass die Summe <b>immer</b> gleich ist – auch bei einem Dreieck, das niemand gezeichnet hat?</p>
+</div>
+
+<p>Messen ist nie ganz genau, und niemand kann alle Dreiecke ausprobieren. Wir brauchen eine Begründung, die für <b>jedes</b> Dreieck passt. Das Werkzeug dafür kennst du aus Unterkapitel {{K:winkel-geraden-1}}: Wechselwinkel an Parallelen.</p>
+
+<div class="zwei-bild" style="grid-template-columns:1fr auto">
+  <div>
+    <p>Zeichne durch $C$ die Parallele $p$ zur Seite $c = \overline{AB}$. An $C$ liegen jetzt drei Winkel nebeneinander auf $p$:</p>
+    <ul style="margin-bottom:1.4mm">
+      <li>Links: Die Gerade $AC$ schneidet die Parallelen $AB$ und $p$. Der linke Winkel ist Wechselwinkel zu $\alpha$, also gleich $\alpha$.</li>
+      <li>Rechts: Ebenso mit der Geraden $BC$ – der rechte Winkel ist gleich $\beta$.</li>
+      <li>In der Mitte liegt $\gamma$.</li>
+    </ul>
+    <p>Die drei Winkel füllen zusammen den gestreckten Winkel auf $p$ – genau wie die abgerissenen Ecken im Einstieg.</p>
+  </div>
+  <figur>{"b":56,"h":40,"rand":12,"fenster":[-0.3,-0.4,6.3,3.6],
+    "flaeche":[{"pkte":[[0,0],[6,0],[4,3]],"c":"see","o":0.08}],
+    "gerade":[{"p":[0,3],"q":[1,3],"c":"grana","w":1.4}],
+    "winkel":[{"s":[0,0],"a":[6,0],"b":[4,3],"r":0.9,"t":"α","c":"see","o":0.35},{"s":[6,0],"a":[0,0],"b":[4,3],"r":0.8,"t":"β","c":"grana","o":0.3},{"s":[4,3],"a":[0,0],"b":[6,0],"r":0.6,"t":"γ","c":"gold","o":0.5},
+      {"s":[4,3],"a":[3,3],"b":[0,0],"r":0.9,"t":"α","c":"see","o":0.35},{"s":[4,3],"a":[5,3],"b":[6,0],"r":0.8,"t":"β","c":"grana","o":0.3}],
+    "punkt":[{"p":[0,0],"t":"A","pos":"ul"},{"p":[6,0],"t":"B","pos":"ur"},{"p":[4,3],"t":"C","pos":"o"}],
+    "text":[{"p":[0.3,3.25],"t":"p","c":"grana"},{"p":[3,-0.4],"t":"c","c":"seeTief"}]}</figur>
+</div>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Winkelsumme im Dreieck</div>
+  <p style="text-align:left">In jedem Dreieck ergeben die drei Innenwinkel zusammen $180^\circ$:</p>
+  $$\alpha + \beta + \gamma = 180^\circ$$
+  <p style="text-align:left">Deshalb hat ein Dreieck höchstens einen rechten oder stumpfen Winkel. Im rechtwinkligen Dreieck mit $\gamma = 90^\circ$ gilt $\alpha + \beta = 90^\circ$.</p>
+</div>
+
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 1 · Gleichschenklige Dreiecke</div>
+  <div class="zwei-bild" style="gap:5mm">
+    <div>
+      <p style="text-align:left">Im gleichschenkligen Dreieck mit der Basis $c$ sind die Basiswinkel gleich groß: $\alpha = \beta$ (die Symmetrieachse spiegelt $A$ auf $B$). Berechne<br><b>a)</b> die Basiswinkel für $\gamma = 40^\circ$, &nbsp;<b>b)</b> $\gamma$ für $\alpha = 52^\circ$.</p>
+      <div class="loesung"><span class="loesung-kopf">Lösung</span>
+      <p style="text-align:left"><b>a)</b> $2\alpha + 40^\circ = 180^\circ$, also $2\alpha = 140^\circ$ und $\alpha = \beta = 70^\circ$.<br><b>b)</b> $\gamma = 180^\circ - 2 \cdot 52^\circ = 76^\circ$.</p></div>
+    </div>
+    <figur>{"b":32,"h":32,"rand":16,
+      "flaeche":[{"pkte":[[0,0],[3,0],[1.5,4.12]],"c":"see","o":0.08}],
+      "gerade":[{"p":[1.5,0],"q":[1.5,1],"c":"grau","w":1,"d":"3 2"}],
+      "winkel":[{"s":[0,0],"a":[3,0],"b":[1.5,4.12],"r":0.55,"t":"α","c":"see","o":0.35},{"s":[3,0],"a":[0,0],"b":[1.5,4.12],"r":0.55,"t":"β","c":"see","o":0.35},{"s":[1.5,4.12],"a":[0,0],"b":[3,0],"r":0.6,"t":"γ","c":"gold","o":0.5}],
+      "punkt":[{"p":[0,0],"t":"A","pos":"ul"},{"p":[3,0],"t":"B","pos":"ur"},{"p":[1.5,4.12],"t":"C","pos":"r"}]}</figur>
+  </div>
+</div>
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: messen und abreißen</li><li>Begründung mit der Parallelen durch $C$</li><li>Merke: Winkelsumme</li><li>Beispiele 1 und 2</li><li>Außenwinkel, n-Eck</li><li>Aufgaben 1–5</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 6 und 7</p></div>
+
+<div class="notiz"><span class="t">Wortspeicher</span><b>Innenwinkel:</b> die Winkel $\alpha$, $\beta$, $\gamma$ im Inneren des Dreiecks.<br><b>Gleichschenklig:</b> zwei gleich lange Seiten, die <b>Schenkel</b>. Die dritte Seite heißt <b>Basis</b>, die Winkel an ihr <b>Basiswinkel</b>.<br><b>Gleichseitig:</b> alle drei Seiten gleich lang.</div>
+
+<div class="notiz gold"><span class="t">Warum die Parallele?</span>Sie bringt alle drei Winkel an <b>einen</b> Punkt. Dort sieht man sofort: zusammen ein gestreckter Winkel.</div>
+
+<div class="notiz"><span class="t">Gleichseitig</span>Ein gleichseitiges Dreieck ist gleichschenklig – mit jeder Seite als Basis. Also sind alle drei Winkel gleich groß, je $180^\circ : 3 = 60^\circ$.</div>
+
+<div class="notiz"><span class="t">Aus Klasse 5</span>Eine <b>Symmetrieachse</b> teilt eine Figur in zwei spiegelbildliche Hälften. Gespiegelte Winkel sind gleich groß.</div>
+
+<div class="notiz gold"><span class="t">Probe</span>Rechne nach jeder Winkelaufgabe die Summe nach: Kommt $180^\circ$ heraus?</div>

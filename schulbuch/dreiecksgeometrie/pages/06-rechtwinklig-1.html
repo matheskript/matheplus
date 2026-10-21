@@ -1,0 +1,56 @@
+<!-- kap: I | uk: Das rechtwinklige Dreieck – ein halbes Rechteck -->
+<div class="ukap-titel"><span class="nr">{{K:rechtwinklig-1}}</span><h2>Das rechtwinklige Dreieck – ein halbes Rechteck</h2></div>
+<p class="leitfrage">Wie groß ist ein Dreieck mit einem rechten Winkel?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <div class="zwei-bild" style="gap:5mm">
+    <div>
+      <p style="text-align:left">Schneide aus Papier ein Rechteck mit 8 cm Länge und 5 cm Breite aus. Zerschneide es entlang einer Diagonale.</p>
+      <p style="text-align:left"><b>a)</b> Lege die beiden Dreiecke aufeinander. Was stellst du fest?<br><b>b)</b> Wie groß ist eines der Dreiecke?<br><b>c)</b> Schneide zwei gleiche rechtwinklige Dreiecke aus. Kannst du sie immer zu einem Rechteck zusammenlegen? Wie?</p>
+    </div>
+    <figur>{"b":38,"h":28,"rand":10,
+      "flaeche":[{"pkte":[[0,0],[8,0],[0,5]],"c":"see","o":0.18,"w":1.6},{"pkte":[[8,0],[8,5],[0,5]],"c":"gold","o":0.3,"w":1.6}],
+      "strecke":[{"p":[8,0],"q":[0,5],"c":"grana","w":1.6,"d":"5 4"}],
+      "text":[{"p":[6.8,4.1],"t":"✂","c":"grana","g":14}]}</figur>
+  </div>
+</div>
+
+<p>Ein Dreieck mit einem rechten Winkel heißt <b>rechtwinklig</b>. Die beiden Seiten am rechten Winkel heißen <b>Katheten</b>, die Seite gegenüber heißt <b>Hypotenuse</b>. Liegt der rechte Winkel bei $C$, sind $a$ und $b$ die Katheten und $c$ ist die Hypotenuse.</p>
+
+<div class="zwei-bild" style="grid-template-columns:1fr auto">
+  <div>
+    <p>Wir <b>ergänzen</b> das Dreieck mit einem Punkt $D$ zum Rechteck $CADB$ mit den Seiten $a$ und $b$. Seine Diagonale ist die Hypotenuse $\overline{AB}$; sie teilt das Rechteck in die Dreiecke $ABC$ und $ABD$.</p>
+    <p>Dreht man das Rechteck um $180^\circ$ um den Mittelpunkt $M$ der Diagonale, passt es wieder genau auf sich: $A$ und $B$ tauschen die Plätze, ebenso $C$ und $D$. Das blaue Dreieck landet genau auf dem goldenen. Beide sind <b>deckungsgleich</b>, also gleich groß, und jedes ist die Hälfte des Rechtecks:</p>
+  </div>
+  <figur>{"b":52,"h":34,"rand":17,
+    "flaeche":[{"pkte":[[8,0],[0,5],[0,0]],"c":"see","o":0.18},{"pkte":[[8,0],[8,5],[0,5]],"c":"gold","o":0.3,"w":1.4,"d":"5 3"}],
+    "strecke":[{"p":[0,0],"q":[8,0],"c":"see","w":0.01,"t":"b","ab":8},{"p":[0,5],"q":[0,0],"c":"see","w":0.01,"t":"a","ab":11},{"p":[8,0],"q":[0,5],"c":"see","w":0.01,"t":"c","seite":"innen","ab":12}],
+    "winkel":[{"s":[0,0],"a":[8,0],"b":[0,5],"recht":true,"c":"see","r":1.3}],
+    "punkt":[{"p":[8,0],"t":"A","pos":"ur"},{"p":[0,5],"t":"B","pos":"ol"},{"p":[0,0],"t":"C","pos":"ul"},{"p":[8,5],"t":"D","pos":"or","c":"goldTief"},{"p":[4,2.5],"t":"M","pos":"o","c":"grana","r":2.2}]}</figur>
+</div>
+$$A_\triangle = \frac{1}{2} \cdot A_\text{Rechteck} = \frac{1}{2} \cdot a \cdot b.$$
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Rechtwinkliges Dreieck</div>
+  <p style="text-align:left">Ein rechtwinkliges Dreieck mit den Katheten $a$ und $b$ ist ein halbes Rechteck mit den Seiten $a$ und $b$. Es hat den Flächeninhalt</p>
+  $$A = \frac{1}{2} \cdot a \cdot b.$$
+  <p style="text-align:left">Der Umfang ist, wie bei jeder Figur, die Summe der Seitenlängen: $u = a + b + c$.</p>
+</div>
+
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 1 · Fläche und Umfang</div>
+  <p style="text-align:left">Ein rechtwinkliges Dreieck hat die Katheten $a = 3\,\text{cm}$, $b = 4\,\text{cm}$ und die Hypotenuse $c = 5\,\text{cm}$.<br><b>Lösung:</b> $A = \frac{1}{2} \cdot 3\,\text{cm} \cdot 4\,\text{cm} = 6\,\text{cm}^2$, &nbsp;$u = 3\,\text{cm} + 4\,\text{cm} + 5\,\text{cm} = 12\,\text{cm}$. Die Hypotenuse brauchst du nur für den Umfang.</p>
+</div>
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: Rechteck zerschneiden</li><li>Katheten und Hypotenuse</li><li>Ergänzen zum Rechteck</li><li>Drehung um $M$</li><li>Merke: halbes Rechteck</li><li>Beispiele 1 und 2</li><li>Aufgaben 1–5</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 6 und 7</p></div>
+
+<div class="notiz"><span class="t">Wortspeicher</span><b>rechtwinklig:</b> mit einem rechten Winkel ($90^\circ$).<br><b>Katheten:</b> die beiden Seiten am rechten Winkel.<br><b>Hypotenuse:</b> die Seite gegenüber dem rechten Winkel.<br><b>Diagonale:</b> Strecke zwischen zwei gegenüberliegenden Ecken.<br><b>deckungsgleich</b> (kongruent, $\cong$): genau aufeinander passend.</div>
+
+<div class="notiz gold"><span class="t">Hypotenuse finden</span>Sie berührt den rechten Winkel nicht – sie liegt ihm gegenüber. Die beiden anderen Seiten sind die Katheten.</div>
+
+<div class="notiz"><span class="t">Der rote Faden</span>Wieder das Rechteck: Wir haben das Dreieck zum Rechteck <b>ergänzt</b> und die Hälfte genommen.</div>
+
+<div class="notiz"><span class="t">Drehung um 180°</span>Man nennt sie auch <b>Punktspiegelung</b> an $M$. Längen, Winkel und Flächeninhalte bleiben dabei gleich.</div>

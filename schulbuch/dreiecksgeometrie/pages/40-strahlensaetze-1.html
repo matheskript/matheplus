@@ -1,0 +1,65 @@
+<!-- kap: V | uk: Die Strahlensätze -->
+<div class="ukap-titel"><span class="nr">{{K:strahlensaetze-1}}</span><h2>Die Strahlensätze</h2></div>
+<p class="leitfrage">Wie berechnet man Längen, die man nicht messen kann?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <div class="zwei-bild" style="gap:5mm">
+    <div>
+      <p style="text-align:left">Zeichne zwei Strahlen mit gemeinsamem Anfangspunkt $S$. Zeichne zwei parallele Geraden, die beide Strahlen schneiden, und benenne die Schnittpunkte wie im Bild.</p>
+      <p style="text-align:left"><b>a)</b> Miss $\overline{SA}$, $\overline{SA'}$, $\overline{SB}$, $\overline{SB'}$, $\overline{AB}$ und $\overline{A'B'}$.<br><b>b)</b> Berechne $|\overline{SA'}| : |\overline{SA}|$, $\;|\overline{SB'}| : |\overline{SB}|$ und $|\overline{A'B'}| : |\overline{AB}|$. Was fällt auf?<br><b>c)</b> Ist auch $|\overline{A'B'}| : |\overline{AB}| = |\overline{SA'}| : |\overline{AA'}|$?</p>
+    </div>
+    <figur>{"b":40,"h":32,"rand":8,"fenster":[-0.6,-0.9,9.9,7.4],
+      "flaeche":[{"pkte":[[0,0],[7.5,0],[8,6]],"c":"smaragd","o":0.08,"rand":false},{"pkte":[[0,0],[3,0],[3.2,2.4]],"c":"smaragd","o":0.16,"rand":false}],
+      "strecke":[{"p":[0,0],"q":[9.6,0],"c":"seeTief","w":1.5,"pfeil":true},{"p":[0,0],"q":[9.2,6.9],"c":"seeTief","w":1.5,"pfeil":true},
+        {"p":[2.925,-0.9],"q":[3.27,3.24],"c":"smaragd","w":1.8},{"p":[7.425,-0.9],"q":[8.075,6.9],"c":"smaragd","w":1.8}],
+      "punkt":[{"p":[0,0],"t":"S","pos":"l","r":2.2},{"p":[3,0],"t":"A","pos":"ur","r":2},{"p":[7.5,0],"t":"A'","pos":"ur","r":2},{"p":[3.2,2.4],"t":"B","pos":"ur","r":2},{"p":[8,6],"t":"B'","pos":"ur","r":2}]}</figur>
+  </div>
+</div>
+
+<p>Die Figur aus dem Einstieg heißt <b>V-Figur</b>. Sie ist eine zentrische Streckung mit dem Zentrum $S$ – das zeigt dieser Gedanke: Strecke das Dreieck $SAB$ von $S$ aus mit $k = |\overline{SA'}| : |\overline{SA}|$. Dann landet $A$ genau auf $A'$. Der Punkt $B$ landet auf einem Punkt $B^*$ des Strahls $SB$, und nach dem Merke auf Seite {{S:verhaeltnisse-1}} ist $\overline{A'B^*}$ parallel zu $\overline{AB}$.</p>
+<p>Durch $A'$ gibt es aber nur <b>eine</b> Parallele zu $AB$: die Gerade durch $A'$ und $B'$. Sie trifft den Strahl $SB$ nur in $B'$. Also ist $B^* = B'$, und die Streckung bildet das Dreieck $SAB$ auf das Dreieck $SA'B'$ ab. Darum ist <b>jede</b> Strecke ab $S$ und auch die Parallele $k$-mal so lang.</p>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Die Strahlensätze</div>
+  <p style="text-align:left">Zwei Strahlen mit dem Anfangspunkt $S$ werden von zwei <b>parallelen</b> Geraden geschnitten, die nicht durch $S$ gehen: die eine in $A$ und $B$, die andere in $A'$ und $B'$ ($A$ und $A'$ auf demselben Strahl). Dann gilt</p>
+  <div class="zwei" style="gap:3mm">
+    <div><p style="text-align:left;margin:0"><b>1. Strahlensatz</b> (nur Strahlen):</p>$$\frac{|\overline{SA'}|}{|\overline{SA}|} = \frac{|\overline{SB'}|}{|\overline{SB}|}$$</div>
+    <div><p style="text-align:left;margin:0"><b>2. Strahlensatz</b> (mit Parallelen):</p>$$\frac{|\overline{A'B'}|}{|\overline{AB}|} = \frac{|\overline{SA'}|}{|\overline{SA}|}$$</div>
+  </div>
+  <p style="text-align:left;margin:0">Alle diese Verhältnisse sind gleich dem Streckfaktor $k$. Beide Sätze gelten auch in der <b>X-Figur</b>: Dort schneiden sich zwei Geraden in $S$, und $A$, $A'$ liegen auf verschiedenen Seiten von $S$.</p>
+</div>
+
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 1 · Die Frage des Kapitels: der Baum</div>
+  <div class="zwei-bild" style="gap:5mm">
+    <div>
+      <p style="text-align:left">Ein $1{,}5\,\text{m}$ langer Stab wirft einen $2\,\text{m}$ langen Schatten, der Baum einen $12\,\text{m}$ langen; beide Schatten enden in $S$ (Seite {{S:auftakt-aehnlichkeit}}). Wie hoch ist der Baum?</p>
+      <div class="loesung"><span class="loesung-kopf">Lösung</span>
+      <p style="text-align:left">Stab und Baum stehen senkrecht, sind also parallel. Boden und Sonnenstrahl bilden die beiden Strahlen ab $S$ – eine V-Figur. Nach dem 2. Strahlensatz ist</p>
+      $$\frac{h}{1{,}5\,\text{m}} = \frac{12\,\text{m}}{2\,\text{m}} = 6, \quad\text{also}\quad h = 6 \cdot 1{,}5\,\text{m} = 9\,\text{m}.$$</div>
+    </div>
+    <figur>{"b":40,"h":34,"rand":8,"fenster":[-0.8,-3.6,13.4,10],
+      "flaeche":[{"pkte":[[0,0],[12,0],[12,9]],"c":"smaragd","o":0.08,"rand":false}],
+      "strecke":[{"p":[0,0],"q":[13.2,0],"c":"seeTief","w":1.5,"pfeil":true},{"p":[0,0],"q":[12.8,9.6],"c":"goldDunkel","w":1.4,"d":"4 3","pfeil":true},
+        {"p":[2,0],"q":[2,1.5],"c":"grana","w":2.4},{"p":[12,0],"q":[12,9],"c":"smaragd","w":2.4},
+        {"p":[0,-2.2],"q":[12,-2.2],"c":"grau","w":0.9},{"p":[0,-1.7],"q":[0,-2.7],"c":"grau","w":0.9},{"p":[12,-1.7],"q":[12,-2.7],"c":"grau","w":0.9}],
+      "winkel":[{"s":[12,0],"a":[0,0],"b":[12,9],"recht":true,"c":"grau","r":1.4},{"s":[2,0],"a":[0,0],"b":[2,1.5],"recht":true,"c":"grau","r":0.9}],
+      "punkt":[{"p":[0,0],"t":"S","pos":"l","r":2.2}],
+      "text":[{"p":[1,0],"t":"2","pos":"u","c":"seeTief","g":10},{"p":[6,-2.2],"t":"12","pos":"u","c":"seeTief","g":10},{"p":[2,1.5],"t":"1,5","pos":"ol","c":"grana","g":10},{"p":[12,4.5],"t":"h","pos":"r","c":"smaragd"}]}</figur>
+  </div>
+</div>
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: messen in der V-Figur</li><li>Die V-Figur als Streckung</li><li>Merke: Strahlensätze</li><li>Beispiel 1: der Baum</li><li>Beispiel 2: X-Figur, Fluss</li><li>Aufgaben 1–5</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 6 und 7</p></div>
+
+<div class="notiz"><span class="t">Wortspeicher</span><b>Strahl:</b> beginnt in einem Punkt und geht in eine Richtung unendlich weiter.<br><b>Scheitel</b> $S$: gemeinsamer Anfangspunkt der Strahlen.<br><b>V-Figur, X-Figur:</b> so sehen die beiden Lagen aus.</div>
+
+<div class="notiz gold"><span class="t">Tipp</span>Schreib die <b>gesuchte</b> Länge in den Zähler links. Dann musst du nur noch mit dem Nenner malnehmen.</div>
+
+<div class="notiz"><span class="t">Warum „nicht durch S“?</span>Geht eine der Parallelen durch $S$, entsteht kein Dreieck – dann gibt es nichts zu vergleichen.</div>
+
+<div class="notiz"><span class="t">Zu Beispiel 1</span>Die Vermutung aus dem Auftakt stimmt: 6-mal so weit von $S$ heißt 6-mal so hoch – aber nur, weil Stab und Baum parallel sind.</div>
+
+<div class="notiz"><span class="t">Merkhilfe</span>1. Satz: nur Strecken auf den Strahlen.<br>2. Satz: die Parallelen <b>und</b> Strecken ab $S$.</div>

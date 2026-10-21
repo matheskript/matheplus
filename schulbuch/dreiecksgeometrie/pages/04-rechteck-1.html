@@ -1,0 +1,60 @@
+<!-- kap: I | uk: Rechteck und Quadrat -->
+<div class="ukap-titel"><span class="nr">{{K:rechteck-1}}</span><h2>Rechteck und Quadrat</h2></div>
+<p class="leitfrage">Was misst der Flächeninhalt – und warum ist er beim Rechteck „Länge mal Breite“?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <div class="zwei-bild" style="gap:5mm">
+    <div>
+      <p style="text-align:left">Die drei Figuren sind aus Kästchen gelegt.</p>
+      <p style="text-align:left"><b>a)</b> Welche Figur bedeckt am meisten Fläche? Zähle die Kästchen.<br><b>b)</b> Fahre mit dem Finger einmal am Rand entlang. Welche Figur hat den längsten Rand? Zähle Kästchenlängen.<br><b>c)</b> Lege aus 12 Kästchen ein Rechteck mit möglichst langem Rand. Und eines mit möglichst kurzem.</p>
+    </div>
+    <figur>{"b":40,"h":30,"gitter":1,"rand":10,
+      "flaeche":[{"pkte":[[0,0],[6,0],[6,2],[0,2]],"c":"goldTief","o":0.2},
+        {"pkte":[[7,0],[10,0],[10,4],[7,4]],"c":"see","o":0.16},
+        {"pkte":[[0,3],[4,3],[4,5],[2,5],[2,7],[0,7]],"c":"grana","o":0.14}],
+      "text":[{"p":[3,1],"t":"F_1","c":"goldTief"},{"p":[8.5,2],"t":"F_2","c":"see"},{"p":[1,5],"t":"F_3","c":"grana"}]}</figur>
+  </div>
+</div>
+
+<p>Um eine Länge zu messen, legt man ein Lineal an und zählt Zentimeter. Um eine <b>Fläche</b> zu messen, braucht man ebenfalls eine Einheit: das <b>Einheitsquadrat</b>. Ein Quadrat mit der Seitenlänge 1 cm hat den Flächeninhalt $1\,\text{cm}^2$ („ein Quadratzentimeter“). Der <b>Flächeninhalt</b> $A$ einer Figur gibt an, wie viele Einheitsquadrate sie lückenlos und ohne Überlappen bedecken.</p>
+
+<div class="zwei-bild" style="grid-template-columns:1fr auto">
+  <div>
+    <p>Beim Rechteck muss man nicht einzeln zählen. Ein Rechteck mit $a = 5\,\text{cm}$ und $b = 3\,\text{cm}$ besteht aus 3 Reihen mit je 5 Einheitsquadraten. Das sind $3 \cdot 5 = 15$ Stück, also $A = 15\,\text{cm}^2$.</p>
+    <p>Keine ganzen Zahlen? Dann nimm kleinere Einheitsquadrate. Bei $2{,}5\,\text{cm}$ mal $1{,}2\,\text{cm}$ sind das 12 Reihen mit je 25 Quadratmillimetern: $300\,\text{mm}^2 = 3\,\text{cm}^2$, denn in $1\,\text{cm}^2$ passen $10 \cdot 10 = 100\,\text{mm}^2$. Und tatsächlich: $2{,}5 \cdot 1{,}2 = 3$.</p>
+  </div>
+  <figur>{"b":46,"h":28,"gitter":1,"rand":14,
+    "flaeche":[{"pkte":[[0,0],[5,0],[5,3],[0,3]],"c":"goldTief","o":0.14,"w":2},{"pkte":[[0,2],[1,2],[1,3],[0,3]],"c":"gold","o":0.55,"w":1.2}],
+    "strecke":[{"p":[0,0],"q":[5,0],"c":"goldTief","w":2,"t":"a = 5 cm","ab":11,"tc":"seeTief"},{"p":[5,0],"q":[5,3],"c":"goldTief","w":2,"t":"b = 3 cm","ab":30,"tc":"seeTief"}],
+    "fenster":[0,0,7.2,3],
+    "text":[{"p":[0.5,2.5],"t":"1","c":"goldTief","g":10}]}</figur>
+</div>
+
+<p>Der <b>Umfang</b> $u$ ist die Länge des Randes, einmal ringsherum: $u = a + b + a + b$.</p>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Rechteck und Quadrat</div>
+  <p style="text-align:left">Ein Rechteck mit den Seitenlängen $a$ und $b$ (in derselben Längeneinheit) hat den Flächeninhalt und den Umfang</p>
+  $$A = a \cdot b \qquad\qquad u = 2a + 2b = 2 \cdot (a + b).$$
+  <p style="text-align:left">Ein <b>Quadrat</b> ist ein Rechteck mit $a = b$: $\;A = a^2$, $\;u = 4a$. Flächen misst man in Flächeneinheiten ($\text{cm}^2$, $\text{m}^2$, …), Umfänge in Längeneinheiten ($\text{cm}$, $\text{m}$, …). Rückwärts: $b = A : a$.</p>
+</div>
+
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 1 · Ein Zimmer bekommt neuen Boden</div>
+  <p style="text-align:left">Ein rechteckiges Zimmer ist 4,5 m lang und 3,2 m breit. Wie viel Parkett braucht man? Wie lang wird die Fußleiste ringsherum (die Tür nicht abgezogen)?</p>
+  <div class="loesung"><span class="loesung-kopf">Lösung</span>
+  <p style="text-align:left">$A = 4{,}5\,\text{m} \cdot 3{,}2\,\text{m} = 14{,}4\,\text{m}^2$ &nbsp;und&nbsp; $u = 2 \cdot 4{,}5\,\text{m} + 2 \cdot 3{,}2\,\text{m} = 9\,\text{m} + 6{,}4\,\text{m} = 15{,}4\,\text{m}$.<br>Man braucht $14{,}4\,\text{m}^2$ Parkett und $15{,}4\,\text{m}$ Fußleiste.</p></div>
+</div>
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: Kästchen zählen</li><li>Einheitsquadrat</li><li>Rechteck: Reihen mal Spalten</li><li>Dezimalzahlen: kleinere Quadrate</li><li>Merke: Rechteck und Quadrat</li><li>Beispiele 1 und 2</li><li>Aufgaben 1–5</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 6 und 7</p></div>
+
+<div class="notiz"><span class="t">Wortspeicher</span><b>Flächeninhalt</b> $A$: wie viel Fläche eine Figur bedeckt.<br><b>Einheitsquadrat:</b> Quadrat mit der Seitenlänge 1 (1 mm, 1 cm, 1 m …).<br><b>Umfang</b> $u$: Länge des Randes.<br><b>Rechteck:</b> Viereck mit vier rechten Winkeln.<br><b>Quadrat:</b> Rechteck mit vier gleich langen Seiten.</div>
+
+<div class="notiz gold"><span class="t">Gleiche Einheit!</span>Erst alle Längen in dieselbe Einheit umrechnen, dann multiplizieren:<br>$2\,\text{m} \cdot 50\,\text{cm}$<br>$= 200\,\text{cm} \cdot 50\,\text{cm}$<br>$= 10\,000\,\text{cm}^2 = 1\,\text{m}^2$</div>
+
+<div class="notiz"><span class="t">Sprechweise</span>$\text{cm}^2$: „Quadratzentimeter“<br>$\text{m}^2$: „Quadratmeter“<br>Die kleine 2 erinnert daran: Länge mal Länge.</div>
+
+<div class="notiz"><span class="t">Aus Klasse 5/6</span>Im Rechteck sind gegenüberliegende Seiten parallel und gleich lang. Die beiden <b>Diagonalen</b> sind gleich lang und halbieren sich. Ein Rechteck ist <b>punktsymmetrisch</b> zu ihrem Schnittpunkt.</div>

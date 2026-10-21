@@ -1,0 +1,70 @@
+<!-- kap: I | uk: Parallelogramm, Trapez und Drachen -->
+<div class="ukap-titel"><span class="nr">{{K:vierecke-1}}</span><h2>Parallelogramm, Trapez und Drachen</h2></div>
+<p class="leitfrage">Wie führt man diese Vierecke auf Rechteck und Dreieck zurück?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <div class="zwei-bild" style="gap:5mm">
+    <div>
+      <p style="text-align:left">Zeichne das Parallelogramm auf Karopapier und schneide es aus.</p>
+      <p style="text-align:left"><b>a)</b> Schneide links entlang der gestrichelten Höhe das Dreieck ab und lege es rechts an. Welche Figur entsteht? Wie groß ist sie?<br><b>b)</b> Zerschneide ein zweites Parallelogramm entlang einer Diagonale. Was erhältst du?<br><b>c)</b> Welche Maße braucht man also für die Fläche?</p>
+    </div>
+    <figur>{"b":40,"h":24,"gitter":1,"rand":8,
+      "flaeche":[{"pkte":[[0,0],[6,0],[8,4],[2,4]],"c":"goldTief","o":0.18},{"pkte":[[6,0],[8,0],[8,4]],"c":"grana","o":0.12,"w":1.2,"d":"4 3"}],
+      "strecke":[{"p":[2,4],"q":[2,0],"c":"grana","w":1.6,"d":"4 3"}],
+      "text":[{"p":[1.2,1.2],"t":"✂","c":"grana","g":12}]}</figur>
+  </div>
+</div>
+
+<div class="zwei-bild" style="grid-template-columns:1fr auto">
+  <div>
+    <h3 style="margin-top:0">Parallelogramm: zum Rechteck umlegen</h3>
+    <p style="margin:0">Ein <b>Parallelogramm</b> hat zwei Paare paralleler Seiten. Die Höhe $h$ ist der Abstand der Grundseite $g$ von der Gegenseite. Das umgelegte Dreieck macht daraus ein Rechteck mit $g$ und $h$: $A = g \cdot h$. Bei sehr schiefen Parallelogrammen hilft die <b>Diagonale</b>: Sie zerlegt es in zwei Dreiecke mit Grundseite $g$ und Höhe $h$ (Unterkapitel {{K:dreieck-flaeche-1}}, auch mit Höhe außen): $2 \cdot \frac{1}{2}\,g\,h = g\,h$.</p>
+  </div>
+  <figur>{"b":40,"h":22,"rand":12,
+    "flaeche":[{"pkte":[[0,0],[4,0],[9,3]],"c":"see","o":0.16,"w":1.4},{"pkte":[[0,0],[9,3],[5,3]],"c":"gold","o":0.3,"w":1.4}],
+    "strecke":[{"p":[0,0],"q":[4,0],"c":"see","w":0.01,"t":"g","ab":9},{"p":[9,3],"q":[9,0],"c":"grana","w":1.4,"d":"4 3","t":"h","ab":8,"seite":"innen"},{"p":[4,0],"q":[9,0],"c":"grau","w":1,"d":"3 3"}],
+    "winkel":[{"s":[9,0],"a":[4,0],"b":[9,3],"recht":true,"c":"grana","r":0.6}]}</figur>
+</div>
+
+<div class="zwei" style="margin-top:3mm">
+  <div>
+    <h3 style="margin-top:0">Trapez: zwei Dreiecke</h3>
+    <figur>{"b":40,"h":23,"rand":18,
+      "flaeche":[{"pkte":[[0,0],[9,0],[6,4]],"c":"see","o":0.16,"w":1.4},{"pkte":[[0,0],[6,4],[2,4]],"c":"gold","o":0.3,"w":1.4}],
+      "strecke":[{"p":[0,0],"q":[9,0],"c":"see","w":0.01,"t":"a","ab":9},{"p":[6,4],"q":[2,4],"c":"goldTief","w":0.01,"t":"c","ab":9},{"p":[2,4],"q":[2,0],"c":"grana","w":1.4,"d":"4 3","t":"h","ab":8}]}</figur>
+    <p style="margin:1.5mm 0 0">Ein <b>Trapez</b> hat zwei parallele Seiten $a$ und $c$; ihr Abstand ist $h$. Die Diagonale teilt es in ein Dreieck mit Grundseite $a$ und eines mit Grundseite $c$, beide mit Höhe $h$: $\;A = \frac{1}{2}\,a\,h + \frac{1}{2}\,c\,h = \frac{1}{2}\,(a + c)\,h$.</p>
+  </div>
+  <div>
+    <h3 style="margin-top:0">Drachen: an der Achse teilen</h3>
+    <figur>{"b":40,"h":23,"rand":10,
+      "flaeche":[{"pkte":[[0,0],[7,0],[2,3]],"c":"see","o":0.16,"w":1.4},{"pkte":[[0,0],[2,-3],[7,0]],"c":"gold","o":0.3,"w":1.4}],
+      "strecke":[{"p":[0,0],"q":[7,0],"c":"seeTief","w":1.2},{"p":[2,-3],"q":[2,3],"c":"grana","w":1.2,"d":"4 3"}],
+      "winkel":[{"s":[2,0],"a":[7,0],"b":[2,3],"recht":true,"c":"grana","r":0.6}],
+      "text":[{"p":[7,0],"t":"e","pos":"r","c":"seeTief"},{"p":[2,-2],"t":"f","pos":"r","c":"grana"}]}</figur>
+    <p style="margin:1.5mm 0 0">Im <b>Drachen</b> ist die Diagonale $e$ Symmetrieachse: Sie steht senkrecht auf $f$ und halbiert $f$. Zwei Dreiecke mit Grundseite $e$ und Höhe $\frac{f}{2}$: $\;A = 2 \cdot \frac{1}{2} \cdot e \cdot \frac{f}{2} = \frac{1}{2}\,e\,f$.</p>
+  </div>
+</div>
+
+<div class="kasten merke" style="margin-top:3mm">
+  <div class="etikett">Merke · Vierecke</div>
+  <div class="regelzeile" style="margin:0.5mm 0 1.6mm"><div><b>Parallelogramm</b><br>$A = g \cdot h$</div><div><b>Trapez</b> ($a \parallel c$)<br>$A = \frac{1}{2}\,(a + c) \cdot h$</div><div><b>Drachen und Raute</b><br>$A = \frac{1}{2}\,e \cdot f$</div></div>
+  <p style="text-align:left">$h$ ist immer ein <b>senkrechter</b> Abstand, $e$ und $f$ sind die Diagonalen. Die <b>Raute</b> ist Drachen und Parallelogramm zugleich. Umfang: Summe der Seiten; Parallelogramm und Drachen $u = 2a + 2b$, Raute $u = 4a$.</p>
+</div>
+
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 1 · Trapez</div>
+  <p style="text-align:left">Ein Trapez hat die parallelen Seiten $a = 7\,\text{cm}$ und $c = 3\,\text{cm}$ und die Höhe $h = 5\,\text{cm}$. &nbsp;<b>Lösung:</b> $A = \frac{1}{2} \cdot (7\,\text{cm} + 3\,\text{cm}) \cdot 5\,\text{cm} = \frac{1}{2} \cdot 10\,\text{cm} \cdot 5\,\text{cm} = 25\,\text{cm}^2$.</p>
+</div>
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: Parallelogramm umlegen</li><li>Parallelogramm</li><li>Trapez</li><li>Drachen und Raute</li><li>Merke: Vierecke</li><li>Beispiele 1 und 2</li><li>Aufgaben 1–5</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 6 und 7</p></div>
+
+<div class="notiz"><span class="t">Wortspeicher</span><b>Parallelogramm:</b> gegenüberliegende Seiten parallel (und gleich lang).<br><b>Trapez:</b> mindestens ein Paar paralleler Seiten.<br><b>Drachen:</b> achsensymmetrisch zu einer Diagonale.<br><b>Raute:</b> vier gleich lange Seiten.<br><b>Schenkel</b> des Trapezes: die beiden nicht parallelen Seiten.</div>
+
+<div class="notiz gold"><span class="t">Trapez anders gelesen</span>$A = \frac{a + c}{2} \cdot h$: Mittelwert der parallelen Seiten mal Höhe. Genau so lang ist die <b>Mittellinie</b> – siehe ★ auf Seite {{S:vierecke-2}}.</div>
+
+<div class="notiz"><span class="t">Der rote Faden</span>Parallelogramm: <b>umlegen</b> zum Rechteck. Trapez und Drachen: <b>zerlegen</b> in Dreiecke.</div>
+
+<div class="notiz"><span class="t">Zwei Höhen</span>Beim Parallelogramm kann jede Seite Grundseite sein: $A = a \cdot h_a = b \cdot h_b$.</div>

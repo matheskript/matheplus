@@ -1,0 +1,67 @@
+<!-- kap: I | uk: Jedes Dreieck: Grundseite mal Höhe durch 2 -->
+<div class="ukap-titel"><span class="nr">{{K:dreieck-flaeche-1}}</span><h2>Jedes Dreieck: Grundseite mal Höhe durch 2</h2></div>
+<p class="leitfrage">Wie groß ist ein Dreieck ohne rechten Winkel?</p>
+
+<div class="kasten einstieg">
+  <div class="etikett">Einstieg</div>
+  <div class="zwei-bild" style="gap:5mm">
+    <div>
+      <p style="text-align:left">Übertrage das Dreieck ins Heft (1 Kästchen = 1 cm).</p>
+      <p style="text-align:left"><b>a)</b> Zeichne von $C$ aus die Senkrechte auf $\overline{AB}$. In welche Figuren zerfällt das Dreieck?<br><b>b)</b> Berechne beide Teilflächen und addiere.<br><b>c)</b> Vergleiche mit dem Rechteck (6 × 4 Kästchen) um das Dreieck.</p>
+    </div>
+    <figur>{"b":35,"h":26,"gitter":1,"rand":19,
+      "flaeche":[{"pkte":[[0,0],[6,0],[2,4]],"c":"goldTief","o":0.18}],
+      "punkt":[{"p":[0,0],"t":"A","pos":"ul"},{"p":[6,0],"t":"B","pos":"ur"},{"p":[2,4],"t":"C","pos":"o"}]}</figur>
+  </div>
+</div>
+
+<p>Das Lot von $C$ auf die Gerade $AB$ heißt <b>Höhe</b> $h_c$, sein Fußpunkt $H_c$. Die Länge $h_c$ ist der <b>senkrechte Abstand</b> von $C$ zur Geraden $AB$.</p>
+
+<div class="zwei-bild" style="grid-template-columns:1fr auto">
+  <div>
+    <p>Sind die Winkel bei $A$ und $B$ spitz, liegt $H_c$ zwischen $A$ und $B$. Die Höhe zerlegt das Dreieck in <b>zwei rechtwinklige Dreiecke</b> mit der gemeinsamen Kathete $h_c$; die Seite $c$ zerfällt in $c_1$ und $c_2$. Beide Teile sind halbe Rechtecke (Unterkapitel {{K:rechtwinklig-1}}). Ihre <b>Summe</b>:</p>
+  </div>
+  <figur>{"b":44,"h":25,"rand":19,
+    "flaeche":[{"pkte":[[0,0],[2,0],[2,4]],"c":"see","o":0.18,"w":1.4},{"pkte":[[2,0],[7,0],[2,4]],"c":"gold","o":0.3,"w":1.4}],
+    "strecke":[{"p":[2,4],"q":[2,0],"c":"grana","w":1.6,"d":"4 3","t":"h_c","ab":10},{"p":[0,0],"q":[2,0],"c":"see","w":0.01,"t":"c_1","ab":9},{"p":[2,0],"q":[7,0],"c":"see","w":0.01,"t":"c_2","ab":9}],
+    "winkel":[{"s":[2,0],"a":[7,0],"b":[2,4],"recht":true,"c":"grana","r":0.8}],
+    "punkt":[{"p":[0,0],"t":"A","pos":"l"},{"p":[7,0],"t":"B","pos":"r"},{"p":[2,4],"t":"C","pos":"o"},{"p":[2,0],"r":1.8,"c":"grana"}]}</figur>
+</div>
+$$A = \frac{1}{2}\,c_1\,h_c + \frac{1}{2}\,c_2\,h_c = \frac{1}{2}\,(c_1 + c_2)\,h_c = \frac{1}{2}\,c\,h_c.$$
+
+<div class="kasten" style="background:#F3F6FB">
+  <div class="etikett" style="background:var(--kap);color:#fff">Und wenn die Höhe außen liegt?</div>
+  <div class="zwei-bild" style="gap:4mm">
+    <p style="text-align:left;margin:0">Ist der Winkel bei $B$ <b>stumpf</b> (größer als $90^\circ$), trifft das Lot die Verlängerung von $\overline{AB}$ <b>hinter</b> $B$. Sei $x = |\overline{BH_c}|$. Das Dreieck ist jetzt ein <b>Rest</b>: großes rechtwinkliges Dreieck $AH_cC$ minus kleines $BH_cC$. Die <b>Differenz</b>:</p>
+    <figur>{"b":42,"h":24,"rand":19,
+      "flaeche":[{"pkte":[[0,0],[6,0],[6,3]],"c":"grau","o":0.08,"w":1,"d":"3 3"},{"pkte":[[4,0],[6,0],[6,3]],"c":"grana","o":0.16,"w":1.2},{"pkte":[[0,0],[4,0],[6,3]],"c":"goldTief","o":0.22,"w":1.8}],
+      "strecke":[{"p":[6,3],"q":[6,0],"c":"grana","w":1.6,"d":"4 3","t":"h_c","ab":10,"seite":"innen"},{"p":[0,0],"q":[4,0],"c":"goldTief","w":0.01,"t":"c","ab":9},{"p":[4,0],"q":[6,0],"c":"grana","w":0.01,"t":"x","ab":9}],
+      "winkel":[{"s":[6,0],"a":[0,0],"b":[6,3],"recht":true,"c":"grana","r":0.7}],
+      "punkt":[{"p":[0,0],"t":"A","pos":"l"},{"p":[4,0],"t":"B","pos":"o"},{"p":[6,3],"t":"C","pos":"o"},{"p":[6,0],"t":"H_c","pos":"r","c":"grana","r":1.8}]}</figur>
+  </div>
+  $$A = \frac{1}{2}\,(c + x)\,h_c - \frac{1}{2}\,x\,h_c = \frac{1}{2}\,c\,h_c.$$
+  <p style="text-align:left;margin:0">Das $x$ fällt heraus – dieselbe Formel. Bei stumpfem Winkel an $A$ genauso; bei $90^\circ$ an $A$ oder $B$ ist $H_c$ diese Ecke (halbes Rechteck, Unterkapitel {{K:rechtwinklig-1}}).</p>
+</div>
+
+<div class="kasten merke">
+  <div class="etikett">Merke · Flächeninhalt jedes Dreiecks</div>
+  <p style="text-align:left">Für <b>jedes</b> Dreieck gilt $\;A = \frac{1}{2} \cdot g \cdot h$. Dabei ist $g$ eine beliebige Seite (<b>Grundseite</b>) und $h$ die zugehörige <b>Höhe</b>, der Abstand der gegenüberliegenden Ecke von der Geraden durch $g$:</p>
+  $$A = \frac{1}{2}\,a\,h_a = \frac{1}{2}\,b\,h_b = \frac{1}{2}\,c\,h_c.$$
+</div>
+
+<div class="kasten beispiel">
+  <div class="etikett">Beispiel 1 · Im Koordinatensystem</div>
+  <p style="text-align:left">Dreieck $A(1 \mid 1)$, $B(8 \mid 1)$, $C(3 \mid 5)$, Einheit 1 cm. &nbsp;<b>Lösung:</b> $\overline{AB}$ ist waagrecht, $c = 8 - 1 = 7$. Abstand von $C$ zur Geraden $y = 1$: $h_c = 5 - 1 = 4$. $\;A = \frac{1}{2} \cdot 7\,\text{cm} \cdot 4\,\text{cm} = 14\,\text{cm}^2$.</p>
+</div>
+<!--rand-->
+<div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
+<ol><li>Einstieg: Höhe einzeichnen</li><li>Zerlegen: Summe</li><li>Höhe außen: Differenz</li><li>Merke: $\frac{1}{2} \cdot g \cdot h$</li><li>Beispiele 1 und 2</li><li>Aufgaben 1–5</li></ol>
+<p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 6 und 7</p></div>
+
+<div class="notiz"><span class="t">Wortspeicher</span><b>Lot:</b> Senkrechte von einem Punkt auf eine Gerade.<br><b>Höhe</b> $h_c$: Lot von $C$ auf die Gerade $AB$; ihre Länge ist der Abstand.<br><b>Fußpunkt</b> $H_c$: wo das Lot die Gerade trifft.<br><b>Grundseite:</b> die Seite, zu der man die Höhe nimmt.<br><b>spitz / stumpf:</b> Winkel kleiner / größer als $90^\circ$.</div>
+
+<div class="notiz gold"><span class="t">Höhe zeichnen</span>Die Mittellinie des Geodreiecks auf die Grundseite (oder ihre Verlängerung) legen, bis an die Ecke schieben, Linie ziehen.</div>
+
+<div class="notiz"><span class="t">Drei Höhen</span>Jede Seite kann Grundseite sein. Jedes Dreieck hat daher drei Höhen $h_a$, $h_b$, $h_c$ – und dreimal dieselbe Fläche.</div>
+
+<div class="notiz"><span class="t">Der rote Faden</span>Zerlegen gibt eine <b>Summe</b>, Ergänzen eine <b>Differenz</b> – beide Male aus halben Rechtecken.</div>

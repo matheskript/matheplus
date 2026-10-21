@@ -1,0 +1,57 @@
+<!-- kap: VI | typ: auftakt -->
+<div class="auftakt-kopf">
+  <div class="knr">Kapitel VI</div>
+  <h1>Trigonometrie</h1>
+  <p>Wie hoch ist ein Turm, auf den du nicht steigen kannst? Wie steil ist eine Straße mit „12 %“? In diesem Kapitel lernst du, aus <b style="color:#FFE9A0">einem Winkel und einer Seite</b> alle anderen Seiten eines rechtwinkligen Dreiecks zu berechnen. Der Schlüssel dazu ist die Ähnlichkeit aus Kapitel V.</p>
+  <div class="goldlinie" style="background:#fff"></div>
+</div>
+<div class="auftakt-inhalt">
+  <div class="zwei-bild" style="grid-template-columns:auto 1fr;gap:6mm">
+    <figur>{"b":80,"h":54,"rand":18,
+      "flaeche":[{"pkte":[[20,0],[23,0],[23,14],[20,14]],"c":"lila","o":0.22}],
+      "strecke":[{"p":[-1.5,0],"q":[25,0],"c":"seeTief","w":1.6},
+        {"p":[0,0],"q":[20,14],"c":"grana","w":1.6,"d":"6 4"},
+        {"p":[0,0],"q":[20,0],"c":"see","w":2.6,"t":"20 m","seite":"innen","ab":14},
+        {"p":[20,0],"q":[20,14],"c":"lila","w":2.6}],
+      "punkt":[{"p":[0,0],"t":"Du","pos":"ul","c":"seeTief"}],
+      "winkel":[{"s":[0,0],"a":[20,0],"b":[20,14],"r":3.6,"c":"gold"},{"s":[20,0],"a":[0,0],"b":[20,14],"recht":true,"r":2,"c":"goldDunkel"}],
+      "text":[{"p":[7,5.6],"t":"Sichtlinie","c":"grana","g":11,"pos":"ol"},{"p":[4.1,1.2],"t":"35°","c":"goldDunkel","pos":"r"},{"p":[23.4,7],"t":"h = ?","c":"lila","pos":"r"}]}</figur>
+    <div>
+      <h3 style="margin-top:0">Die Frage des Kapitels</h3>
+      <p style="text-align:left">Du stehst 20 m vor einem Turm und peilst seine Spitze an. Mit einem Geodreieck misst du: Die Sichtlinie steigt um 35° gegenüber dem Boden. Mehr weißt du nicht. Wie hoch ist der Turm?</p>
+      <p style="text-align:left">Zeichnen und messen geht – aber ungenau. Gesucht ist eine Rechnung. Sie beruht auf einer einfachen Beobachtung: <b>Alle rechtwinkligen Dreiecke mit demselben Winkel sind ähnlich.</b> Ihre Seiten stehen also immer im gleichen Verhältnis. Die Antwort steht in Unterkapitel {{K:trigo-anwenden-1}}.</p>
+    </div>
+  </div>
+
+  <h3>Das kannst du schon – kurzer Check</h3>
+  <table class="check-tab">
+    <tr style="font-size:7.6pt;color:#5B6478;text-transform:uppercase;letter-spacing:0.06em"><td><b style="color:#5B6478">Vorwissen</b></td><td><b style="color:#5B6478">Mini-Check</b></td><td style="white-space:nowrap">sicher · geht so · nein</td></tr>
+    <tr><td>Satz des Pythagoras</td><td>Katheten $5\,\text{cm}$ und $12\,\text{cm}$: Hypotenuse $= \,?$</td><td><span class="kreis"></span><span class="kreis"></span><span class="kreis"></span></td></tr>
+    <tr><td>Winkelsumme im Dreieck</td><td>$\gamma = 90^\circ$, $\alpha = 35^\circ$: $\beta = \,?$</td><td><span class="kreis"></span><span class="kreis"></span><span class="kreis"></span></td></tr>
+    <tr><td>Ähnliche Dreiecke</td><td>$3$, $4$, $5\,\text{cm}$ mit $k = 2{,}5$ vergrößern</td><td><span class="kreis"></span><span class="kreis"></span><span class="kreis"></span></td></tr>
+    <tr><td>Gleichungen mit Brüchen</td><td>$\dfrac{x}{8} = 0{,}6$ &nbsp;und&nbsp; $\dfrac{12}{x} = 0{,}8$: $x = \,?$</td><td><span class="kreis"></span><span class="kreis"></span><span class="kreis"></span></td></tr>
+  </table>
+  <p class="klein mild" style="margin-top:1.5mm;text-align:left">Lösungen auf Seite {{S:loesungen-1}}. Wo du „geht so“ oder „nein“ angekreuzt hast: Pythagoras auf Seite {{S:pythagoras-1}}, Winkelsumme auf Seite {{S:winkelsumme-1}}, ähnliche Dreiecke auf Seite {{S:aehnliche-dreiecke-1}} wiederholen – oder in der App unter <b>Satz des Pythagoras</b> und <b>Strahlensätze</b> nachüben.</p>
+
+  <div class="lernziele" style="margin-top:4mm">
+    <div>
+      <h3 style="margin-top:0">Das lernst du in diesem Kapitel</h3>
+      <ul>
+        <li>begründen, warum Seitenverhältnisse nur vom Winkel abhängen</li>
+        <li>Sinus, Kosinus und Tangens angeben – und für 30°, 45°, 60° exakt herleiten</li>
+        <li>mit dem Taschenrechner Seiten und Winkel berechnen</li>
+        <li>Höhen, Steigungen und Sehwinkel berechnen – auch im gleichschenkligen Dreieck</li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="margin-top:0">Unterkapitel</h3>
+      <ol class="ukap-liste" style="margin:0">
+        <li><span class="n">{{K:sinus-kosinus-1}}</span>Sinus, Kosinus und Tangens<span class="s">{{S:sinus-kosinus-1}}</span></li>
+        <li><span class="n">{{K:seiten-winkel-1}}</span>Seiten und Winkel berechnen<span class="s">{{S:seiten-winkel-1}}</span></li>
+        <li><span class="n">{{K:trigo-anwenden-1}}</span>Trigonometrie anwenden<span class="s">{{S:trigo-anwenden-1}}</span></li>
+        <li><span class="n"></span>Alles klar? Training VI<span class="s">{{S:training-trigo}}</span></li>
+      </ol>
+    </div>
+  </div>
+</div>
+<div style="position:absolute;right:20mm;top:16mm;font-size:76pt;font-weight:800;color:rgba(255,255,255,0.10);line-height:1">sin</div>
