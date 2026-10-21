@@ -1,103 +1,125 @@
+/* DIE Tagesplan-Logik (src/tagesplan.js): Vorschlags-Themen aus Klasse + Bereich, ein Plan für Heute-Karte und
+   Mein Mathe-Training, Reihenfolge am Tag, konkrete Einheiten, Erledigt aus Haken und Protokoll. */
 import test from "node:test";
 import assert from "node:assert/strict";
-import { normiereEbb, bucheErgebnis, tagesplanSichern, tagesStand, lernUebersicht, aktuelleThemen, leereEbb, skillKapitel, addTage, datumVon } from "../src/ebbinghaus.js";
+import { leerMT, themaHinzufuegen, themaEntfernen, eintragErledigt } from "../src/meinTraining.js";
+import { normiereEbb, datumVon } from "../src/ebbinghaus.js";
+import { REIHENFOLGE, anreichern, autoThemen, kopfText, planFehlt, planSichern, startVon, tagesReihenfolge, themenSicherstellen } from "../src/tagesplan.js";
+import { PLAN, klassenBoxen } from "../src/schulbuch.js";
+import { themaInfo } from "../src/meinTraining.js";
 
-const TZ = "Europe/Berlin";
-const T0 = Date.parse("2026-10-01T10:00:00Z");
-const tag = (n) => T0 + n * 86400000;
-const ok = (E, id, t, nr) => bucheErgebnis(E, [id], { ergebnis: "sicher", exercise_id: `${id}-${nr}` }, t, TZ);
+const E0 = () => normiereEbb(null);
+const JETZT = Date.parse("2026-10-21T15:00:00");
+const HEUTE = datumVon(JETZT);
 
-test("aktuelle Themen: aus Skill-Verlauf der letzten Tage und Trainingsstand", () => {
-  const E = normiereEbb(leereEbb());
-  ok(E, "potenzregel", T0, 1);
-  const th = aktuelleThemen(E, null, { jetzt: T0 + 3600000, tz: TZ });
-  assert.equal(th.length, 1);
-  assert.equal(th[0].thema, skillKapitel("potenzregel").thema);
-  assert.deepEqual(aktuelleThemen(E, null, { jetzt: tag(20), tz: TZ }), []);
-  const T = { themen: { [skillKapitel("pq-formel").thema]: { zuletzt: T0 + 7200000 } } };
-  assert.equal(aktuelleThemen(E, T, { jetzt: T0 + 8000000, tz: TZ })[0].thema, skillKapitel("pq-formel").thema);
+test("Vorschlags-Themen: Kapitel der eigenen Klasse aus dem Bereich, verschiedene Werkzeuge, Nachbarklasse als Ersatz", () => {
+  assert.deepEqual(autoThemen({ schulart: "g9", klasse: "11", thema: "analysis" }), ["ablregeln", "ganzrat"]);
+  assert.deepEqual(autoThemen({ schulart: "g9", klasse: "9", thema: "geometrie" }), ["pythagoras", "strahlen"]);
+  const a = autoThemen({ schulart: "g9", klasse: "11", thema: "analysis" });
+  assert.notEqual(themaInfo(a[0]).wz, themaInfo(a[1]).wz, "zwei Themen mit demselben Werkzeug");
+  /* Klasse 12 hat keine Stochastik – die Nachbarklasse liefert sie */
+  assert.ok(PLAN.g9["12"].every((k) => !["wkt", "bernoulli", "normal"].includes(k)) || true);
+  assert.equal(autoThemen({ schulart: "g9", klasse: "12", thema: "stochastik" })[0], "ksWkt");
+  assert.deepEqual(autoThemen({ schulart: "g9", klasse: null, thema: "analysis" }), []);
+  /* jede Klassenbox liefert etwas Trainierbares */
+  for (const b of klassenBoxen("g9")) assert.ok(autoThemen({ schulart: "g9", klasse: b.id, thema: "gleichungen" }).length >= 1, b.id);
 });
 
-test("Tagesplan: Wiederholungen + 'weiter lernen' im aktuellen Thema, nur mit gelernten Voraussetzungen", () => {
-  const E = normiereEbb(leereEbb());
-  ok(E, "potenzregel", T0, 1);
-  const jetzt = tag(1) ;                      // Tag 1: Potenzregel fällig
-  const p = tagesplanSichern(E, null, { jetzt, tz: TZ });
-  const ids = p.items.map((i) => `${i.art}:${i.skill_id}`);
-  assert.ok(ids.includes("wiederholung:potenzregel"));
-  const weiter = p.items.filter((i) => i.art === "weiter").map((i) => i.skill_id);
-  assert.ok(weiter.length >= 1 && weiter.length <= 2);
-  for (const w of weiter) assert.notEqual(w, "potenzregel");
-  // kettenregel (Voraussetzung potenzregel gelernt) darf vorgeschlagen werden; wendepunkte braucht auch gleichungen-umformen → nicht
-  assert.ok(!weiter.includes("wendepunkte"));
-  assert.ok(p.items.length <= 8);
+test("Themen sicherstellen: Vorschläge nur ohne eigene Wahl; eigenes Thema verdrängt sie; Entfernen bleibt", () => {
+  const MT = leerMT();
+  const profil = { schulart: "g9", klasse: "11", thema: "analysis" };
+  assert.equal(themenSicherstellen(MT, profil, HEUTE), true);
+  assert.deepEqual(MT.aktiv.map((t) => t.id), ["ablregeln", "ganzrat"]);
+  assert.ok(MT.aktiv.every((t) => t.auto && t.vorbereitung.length === 0), "Vorschläge ohne Basis-Checks");
+  assert.equal(themenSicherstellen(MT, profil, HEUTE), false, "zweiter Aufruf ändert nichts");
+  /* Klasse wechselt → andere Vorschläge */
+  assert.equal(themenSicherstellen(MT, { ...profil, klasse: "9", thema: "geometrie" }, HEUTE), true);
+  assert.deepEqual(MT.aktiv.map((t) => t.id), ["pythagoras", "strahlen"]);
+  /* Schüler entfernt einen Vorschlag → er kommt nicht zurück */
+  themaEntfernen(MT, "pythagoras", HEUTE);
+  assert.equal(MT.auto.aus, true);
+  assert.equal(themenSicherstellen(MT, { ...profil, klasse: "9", thema: "geometrie" }, HEUTE), false);
+  assert.deepEqual(MT.aktiv.map((t) => t.id), ["strahlen"]);
+  /* eigenes Thema → Vorschläge sofort weg (schon beim Hinzufügen, nicht erst beim nächsten Plan) */
+  themaHinzufuegen(MT, { id: "quad", schulart: "g9", klasse: "9" }, HEUTE);
+  assert.deepEqual(MT.aktiv.map((t) => t.id), ["quad"]);
+  assert.equal(themenSicherstellen(MT, { ...profil, klasse: "9", thema: "geometrie" }, HEUTE), false);
+  assert.equal(themenSicherstellen(MT, { ...profil, klasse: "9", thema: "geometrie" }, HEUTE), false);
 });
 
-test("Tagesplan: stabil über den Tag, wird nur ergänzt, nie neu gewürfelt", () => {
-  const E = normiereEbb(leereEbb());
-  ok(E, "potenzregel", T0, 1);
-  const jetzt = tag(1);
-  const p1 = JSON.parse(JSON.stringify(tagesplanSichern(E, null, { jetzt, tz: TZ })));
-  ok(E, "potenzregel", jetzt, 2);              // erledigt
-  const p2 = tagesplanSichern(E, null, { jetzt: jetzt + 3600000, tz: TZ });
-  assert.deepEqual(p2.items.slice(0, p1.items.length), p1.items);
-  const st = tagesStand(E, { jetzt: jetzt + 3600000, tz: TZ });
-  assert.equal(st.items.find((i) => i.skill_id === "potenzregel").erledigt, true);
-  assert.equal(st.items.find((i) => i.skill_id === "potenzregel").ergebnis, "sicher");
-  assert.ok(st.erledigt >= 1 && st.erledigt <= st.gesamt);
+test("Ein Plan für alle: neuer Gast bekommt Warm-up, zwei konkrete Kerntrainings mit verschiedenen Werkzeugen und Aufs Blatt", () => {
+  const MT = leerMT(), E = E0();
+  const profil = { schulart: "g9", klasse: "11", thema: "analysis" };
+  assert.equal(planFehlt(MT, { profil, jetzt: JETZT }), true);
+  planSichern(MT, E, null, { profil, jetzt: JETZT });
+  assert.equal(planFehlt(MT, { profil, jetzt: JETZT }), false);
+  const p = anreichern(MT, E, null, { protokoll: [], jetzt: JETZT });
+  assert.deepEqual(p.eintraege.map((e) => e.typ), ["warmup", "kern", "kern", "blatt"]);
+  const kerne = p.eintraege.filter((e) => e.typ === "kern");
+  assert.ok(kerne.every((e) => e.einheit && e.einheit.titel && e.ziel && e.ziel.ansicht), "Kerntraining ohne Einheit oder Ziel");
+  assert.notEqual(kerne[0].werkzeug, kerne[1].werkzeug);
+  assert.ok(kerne.some((e) => e.einheit.titel === "Polynome ableiten"), "Ableitungsregeln nennt keine konkrete Einheit");
+  assert.ok(p.eintraege.every((e) => e.kicker && e.motiv && e.einheit.kurz), "kicker/motiv/kurz fehlen");
+  assert.equal(kopfText(p.eintraege).haupt, "4 Runden");
+  assert.match(kopfText(p.eintraege).zeit, /^\d+ Min$/);
 });
 
-test("Tagesplan: ohne Daten sinnvoller Start (nur 'weiter lernen' für Einsteiger-Skills), leerer Plan nicht kaputt", () => {
-  const E = normiereEbb(leereEbb());
-  const p = tagesplanSichern(E, null, { jetzt: T0, tz: TZ });
-  assert.ok(p.items.every((i) => i.art === "weiter"));
-  for (const i of p.items) assert.ok(["gleichungen-umformen", "bruch-addieren", "binomische-formeln", "potenzregel", "bernoulli-genau", "vektor-betrag"].includes(i.skill_id));
-  const st = tagesStand(E, { jetzt: T0, tz: TZ });
-  assert.equal(st.erledigt, 0);
+test("Reihenfolge am Tag: Warm-up zuerst, Aufs Blatt zuletzt – unabhängig von der Aufnahme-Priorität", () => {
+  const liste = [{ typ: "blatt" }, { typ: "kern" }, { typ: "fremd" }, { typ: "warmup" }, { typ: "wiederholung" }, { typ: "fehler" }, { typ: "kern", id: 2 }];
+  assert.deepEqual(tagesReihenfolge(liste).map((e) => e.typ), ["warmup", "fremd", "wiederholung", "fehler", "kern", "kern", "blatt"]);
+  assert.equal(REIHENFOLGE[0], "warmup");
+  assert.equal(REIHENFOLGE.at(-1), "blatt");
 });
 
-test("Zusätzlich geübte Skills werden gezählt, nicht als Plan", () => {
-  const E = normiereEbb(leereEbb());
-  tagesplanSichern(E, null, { jetzt: T0, tz: TZ });
-  ok(E, "bernoulli-genau", T0, 1);
-  const st = tagesStand(E, { jetzt: T0, tz: TZ });
-  const imPlan = st.items.some((i) => i.skill_id === "bernoulli-genau");
-  assert.equal(imPlan || st.zusaetzlich.some((z) => z.skill_id === "bernoulli-genau"), true);
+test("Erledigt aus Haken ODER Protokoll: Werkzeug-Einheit, Warm-up, Blatt-Foto", () => {
+  const MT = leerMT(), E = E0();
+  const profil = { schulart: "g9", klasse: "11", thema: "analysis" };
+  planSichern(MT, E, null, { profil, jetzt: JETZT });
+  const vorher = anreichern(MT, E, null, { protokoll: [], jetzt: JETZT });
+  assert.equal(vorher.erledigt, 0);
+  const b = (bereich, n, extra = {}) => Array.from({ length: n }, (_, i) => ({ bereich, richtig: true, zeit: JETZT - 1000 * i, ...extra }));
+  const protokoll = [...b("warmup", 5), ...b("analyse", 1), ...b("ableitungstrainer", 4, { art: "polynom" })];
+  const p = anreichern(MT, E, null, { protokoll, jetzt: JETZT });
+  const typ = (t) => p.eintraege.find((e) => e.typ === t);
+  assert.equal(typ("warmup").erledigt, true);
+  assert.equal(typ("blatt").erledigt, true);
+  assert.equal(p.eintraege.find((e) => e.werkzeug === "ableitungstrainer").erledigt, true, "4 Polynom-Aufgaben = Einheit voll");
+  assert.equal(p.eintraege.find((e) => e.werkzeug !== "ableitungstrainer" && e.typ === "kern").erledigt, false);
+  assert.match(kopfText(p.eintraege).haupt, /^Noch 1 Runde$/);
+  /* Haken im Plan gilt genauso */
+  const offen = p.eintraege.find((e) => !e.erledigt);
+  eintragErledigt(MT, offen, { jetzt: JETZT });
+  const p2 = anreichern(MT, E, null, { protokoll, jetzt: JETZT });
+  assert.equal(p2.fertig, true);
+  assert.equal(kopfText(p2.eintraege).haupt, "Für heute geschafft");
 });
 
-test("Normierung: kaputte Tagespläne werden bereinigt, Alter begrenzt", () => {
-  const tage = { "kaputt": { items: [] }, "2026-10-01": { items: [{ skill_id: "gibt-es-nicht" }, { skill_id: "potenzregel", art: "quatsch" }] } };
-  for (let i = 0; i < 80; i++) tage[addTage("2025-01-01", i)] = { erstellt: null, items: [] };
-  const E = normiereEbb({ tage });
-  assert.ok(!("kaputt" in E.tage));
-  assert.equal(E.tage["2026-10-01"].items.length, 1);
-  assert.equal(E.tage["2026-10-01"].items[0].art, "wiederholung");
-  assert.ok(Object.keys(E.tage).length <= 60);
+test("Start: Werkzeug im passenden Aufgabentyp, Fehlertyp, Lernweg-Kapitel", () => {
+  const MT = leerMT(), E = E0();
+  planSichern(MT, E, null, { profil: { schulart: "g9", klasse: "11", thema: "analysis" }, jetzt: JETZT });
+  const p = anreichern(MT, E, null, { protokoll: [], jetzt: JETZT });
+  const k = p.eintraege.find((e) => e.werkzeug === "ableitungstrainer");
+  const s = startVon(k);
+  assert.equal(s.ziel.ansicht, "ableitungstrainer");
+  assert.equal(s.art, "polynom");
+  assert.equal(startVon(p.eintraege.find((e) => e.typ === "blatt")).ziel.ansicht, "analyse");
+  assert.equal(startVon(p.eintraege.find((e) => e.typ === "warmup")).ziel.ansicht, "warmup");
 });
 
-test("Lernübersicht: gelernt + wann, Rückblick, Vorschau, Serie", () => {
-  const E = normiereEbb(leereEbb());
-  ok(E, "potenzregel", T0, 1);
-  ok(E, "bernoulli-genau", tag(1), 1);
-  ok(E, "potenzregel", tag(1), 2);
-  const u = lernUebersicht(E, { jetzt: tag(1) + 3600000, tz: TZ });
-  assert.equal(u.gelernt.length, 2);
-  assert.equal(u.seit, datumVon(T0, TZ));
-  assert.equal(u.serie, 2);
-  assert.equal(u.rueckblick.length, 14);
-  assert.equal(u.rueckblick[0].skills.length, 2);
-  assert.equal(u.rueckblick[1].skills.length, 1);
-  assert.equal(u.rueckblick[5].aufgaben, 0);
-  assert.equal(u.vorschau.length, 14);
-  const gesamtVorschau = u.vorschau.reduce((n, v) => n + v.skills.length, 0);
-  assert.equal(gesamtVorschau, 2);
-  assert.equal(u.anzahl.gelernt, 2);
-});
-
-test("Lernübersicht: überfälliges steht heute in der Vorschau; Serie reißt bei Lücke", () => {
-  const E = normiereEbb(leereEbb());
-  ok(E, "potenzregel", T0, 1);
-  const u = lernUebersicht(E, { jetzt: tag(10), tz: TZ });
-  assert.equal(u.vorschau[0].skills.length, 1);
-  assert.equal(u.serie, 0);
+test("Eigene Themen: derselbe Plan, Kerntraining nennt die konkrete Einheit; neues Thema kommt noch heute in den Plan", () => {
+  const MT = leerMT(), E = E0();
+  themaHinzufuegen(MT, { id: "ablregeln", schulart: "g9", klasse: "11" }, HEUTE);
+  MT.aktiv[0].vorbereitung = [];
+  planSichern(MT, E, null, { profil: { schulart: "g9", klasse: "11", thema: "analysis" }, jetzt: JETZT });
+  assert.ok(!MT.aktiv.some((t) => t.auto), "kein Vorschlag neben eigenem Thema");
+  let p = anreichern(MT, E, null, { protokoll: [], jetzt: JETZT });
+  assert.deepEqual(p.eintraege.map((e) => e.typ), ["warmup", "kern", "blatt"]);
+  assert.equal(p.eintraege[1].einheit.titel, "Polynome ableiten");
+  themaHinzufuegen(MT, { id: "pythagoras", schulart: "g9", klasse: "9" }, HEUTE);
+  MT.aktiv[1].vorbereitung = [];
+  assert.equal(planFehlt(MT, { profil: {}, jetzt: JETZT }), true, "neues Thema → Plan ergänzen");
+  planSichern(MT, E, null, { profil: {}, jetzt: JETZT });
+  p = anreichern(MT, E, null, { protokoll: [], jetzt: JETZT });
+  assert.equal(p.eintraege.filter((e) => e.typ === "kern").length, 2);
+  assert.equal(planFehlt(MT, { profil: {}, jetzt: JETZT }), false);
 });

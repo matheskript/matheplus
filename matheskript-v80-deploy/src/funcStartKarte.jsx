@@ -19,7 +19,7 @@
 import React, { useEffect, useState } from "react";
 import { C } from "./base1.jsx";
 import { HeuteKarte } from "./funcHeuteKarte.jsx";
-import { onboardingLesen, empfehlungen, FuerDich } from "./funcOnboarding.jsx";
+import { onboardingLesen, FuerDich } from "./funcOnboarding.jsx";
 import { WeitermachenZeile } from "./func2.jsx";
 import { SCHULARTEN, SCHULART_STANDARD, klassenBoxen, stufeAusKlassenBox } from "./schulbuch.js";
 import { testkontoStarten, useKonto } from "./konto.js";
@@ -32,10 +32,21 @@ const Q_SCHLUESSEL = "matheplus-quickfinder";
 const O_SCHLUESSEL = "mm-onboarding-v1";
 
 /* Thema der Heute-Karte, wenn im Onboarding keins gewählt wurde: passend zur Stufe */
-export const themaAusStufe = (stufe) => (stufe === "unter" ? "zahlen" : stufe === "mittel" ? "gleichungen" : "analysis");
+export { themaAusStufe } from "./funcTagesplan.jsx";
+import { themaAusStufe } from "./funcTagesplan.jsx";
 
 function lies(k) { try { const v = JSON.parse(localStorage.getItem(k) || "null"); return v && typeof v === "object" ? v : null; } catch { return null; } }
 function schreib(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* privat */ } }
+
+/* Profil für den Tagesplan: aus der Klassen-Id („g9:11“ bzw. „onboarding:11“) Schulart und Klassenbox */
+function profilVon(klasse, thema) {
+  const [art, rest] = String(klasse.id).split(":");
+  if (art === "onboarding") {
+    const box = klassenBoxen(SCHULART_STANDARD).find((b) => b.klassen.includes(Number(rest)));
+    return { schulart: SCHULART_STANDARD, klasse: box ? box.id : null, thema };
+  }
+  return { schulart: SCHULARTEN.some((s) => s.id === art) ? art : SCHULART_STANDARD, klasse: rest || null, thema };
+}
 
 /* Klassenwahl schreibt Quickfinder UND Onboarding (eine Frage, ein Ergebnis) */
 export function klasseSpeichern(schulart, box) {
@@ -183,7 +194,7 @@ export function StartKarte({ gehe, setzeStufe, klasse, schublade }) {
   const oHeute = { ...o, rolle: "schueler", klasse: klasse.label, thema };
   return (
     <div className="sk" data-startkarte="heute">
-      <HeuteKarte o={oHeute} empfehlungen={empfehlungen(thema, st)} gehe={gehe} neu={() => setWahl(true)} />
+      <HeuteKarte o={oHeute} profil={profilVon(klasse, thema)} gehe={gehe} neu={() => setWahl(true)} />
       <WeitermachenZeile gehe={gehe} lack />
       <KontoZeile gehe={gehe} />
       {schublade}

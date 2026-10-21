@@ -30,6 +30,7 @@ import {
   tagInfo, tagesStand, tagesplanNeu, tagesplanSichern, testThemen, themaAbschliessen, themaEntfernen, themaHinzufuegen, themaInfo, themaStand, themaVorziehen, vorschlaege,
 } from "./meinTraining.js";
 import { auftragErledigt, lehrerFreigabe, lehrerFreigeben, meineAuftraege } from "./trainingAuftraege.js";
+import { eintragStarten, useTagesplan } from "./funcTagesplan.jsx";
 
 /* Beispiel-Lernstand für den Test-Account (nur, wenn noch nichts geübt wurde) */
 export function testdatenEinspielen(jetzt = Date.now()) {
@@ -206,29 +207,16 @@ function Heute({ MT, E, T, geladen, gehe, auftraege, planAendern }) {
   const [ergebnis, setErgebnis] = useState(null);
   const anker = useRef(null);
   const fremd = useMemo(() => auftraege.map((a) => ({ id: a.id, titel: a.titel, zeile: a.zeile, ziel: a.ziel, absender: a.absender, erledigt: !!a.erledigt })), [auftraege]);
-  const fremdKey = fremd.filter((f) => !f.erledigt).map((f) => f.id).join("|");
-  /* Plan von heute anlegen (einmal pro Tag), neue Aufträge ergänzen */
-  const gesichert = useRef("");
-  useEffect(() => {
-    if (!geladen) return;
-    const key = `${heute}|${fremdKey}|${MT.aktiv.map((t) => t.id).join(",")}`;
-    if (gesichert.current === key) return;
-    const plan = MT.tage[heute];
-    const daAuftrag = new Set(((plan && plan.eintraege) || []).filter((e) => e.typ === "fremd").map((e) => e.auftrag));
-    const themenImPlan = new Set(((plan && plan.eintraege) || []).map((e) => e.thema).filter(Boolean));
-    const neuesThema = MT.aktiv.some((t) => !themenImPlan.has(t.id) && !MT.nachholen.some((n) => n.thema === t.id));
-    if (!plan || fremd.some((f) => !f.erledigt && !daAuftrag.has(f.id)) || (neuesThema && plan.eintraege.length < 12)) {
-      gesichert.current = key;
-      mtAendern((M, X, Tr) => { if (!M.tage[heute] || !neuesThema) tagesplanSichern(M, X, Tr, { jetzt: Date.now(), fremd }); else tagesplanNeu(M, X, Tr, { jetzt: Date.now(), fremd }); });
-    } else gesichert.current = key;
-  }, [geladen, heute, fremdKey, MT, fremd]);
-
-  const stand = useMemo(() => tagesStand(MT, E, { jetzt }), [MT, E, jetzt]);
+  /* DER Tagesplan (tagesplan.js): anlegen, Aufträge ergänzen, anreichern – derselbe wie auf der Heute-Karte der Startseite */
+  const stand = useTagesplan({ fremd });
   const fk = useMemo(() => { const wk = wiederkehrende(normiere(T || {}))[0]; return wk ? fehlerKarte(wk) : null; }, [T]);
   const planHeute = MT.tage[heute];
   const text = mathildaRueckkehr({ verpasst: stand.verpasst, neustart: stand.neustart, nachgeholt: stand.nachgeholt, offen: stand.gesamt - stand.erledigt, fertig: stand.fertig, minuten: stand.minutenRest, erster: !MT.aktiv.length && !planHeute });
   const anteil = stand.gesamt ? (stand.erledigt / stand.gesamt) * 100 : 0;
-  const starten = (e) => { setErgebnis(null); setLaeuft({ key: Date.now(), e }); springe("meintraining", () => anker.current && anker.current.scrollIntoView({ block: "start" })); };
+  const starten = (e) => {
+    if (!(e.typ === "wiederholung" || (e.gen && e.gen.length))) { eintragStarten(e, gehe); return; }
+    setErgebnis(null); setLaeuft({ key: Date.now(), e }); springe("meintraining", () => anker.current && anker.current.scrollIntoView({ block: "start" }));
+  };
   const abhaken = (e, zurueck) => {
     mtAendern((M) => eintragErledigt(M, e, { jetzt: Date.now(), zurueck }));
     if (e.typ === "fremd" && e.auftrag) { auftragErledigt(e.auftrag, zurueck).then(planAendern).catch(() => {}); }
@@ -285,7 +273,7 @@ function Heute({ MT, E, T, geladen, gehe, auftraege, planAendern }) {
               {stand.offenNachholen > 0 && <p style={{ fontSize: 12.5, color: C.grau, lineHeight: 1.6, marginTop: 8 }}>Auf dem Nachhol-Stapel: {stand.offenNachholen}. Mehr als die Hälfte des Tages wird nie nachgeholt – der Rest kommt an den nächsten Tagen.</p>}
             </>
           )}
-          <p style={{ fontSize: 12.5, color: C.grau, lineHeight: 1.65, marginTop: 12 }}>Reihenfolge: Aufträge · fällige Wiederholungen · Fehler üben · Nachholen · ein Schritt je Thema · aufs Blatt. Der Plan wird einmal am Tag gebaut und nur ergänzt.</p>
+          <p style={{ fontSize: 12.5, color: C.grau, lineHeight: 1.65, marginTop: 12 }}>In den Tag kommen: Aufträge · fällige Wiederholungen · Fehler üben · Nachholen · ein Schritt je Thema · aufs Blatt · Warm-up bei Platz. Reihenfolge: Warm-up → Aufträge → Wiederholen → Fehler → Thema → aufs Blatt. Der Plan wird einmal am Tag gebaut und nur ergänzt – derselbe wie auf der Startseite.</p>
         </div>
       )}
     </div>
@@ -305,7 +293,7 @@ function ThemaKarte({ t, E, heute, wo, aktion }) {
           <p style={{ fontSize: 15.5, fontWeight: 700, color: C.tinte, lineHeight: 1.3 }}>{info.titel}</p>
           <p style={{ fontSize: 12.5, color: C.grau, lineHeight: 1.5 }}>{info.art === "unterthema" ? `${info.kapitelTitel} · Unterthema ${info.nr} von ${info.anzahl}` : `${t.teile.length === info.teile.length ? "Ganzes Kapitel" : `${t.teile.length} von ${info.teile.length} Unterthemen`}`}{t.vorbereitung.length ? ` · ${t.vorbereitung.length} Basis-Check${t.vorbereitung.length > 1 ? "s" : ""} offen` : ""}</p>
         </div>
-        <span style={{ fontSize: 11.5, fontWeight: 800, color: st.farbe, whiteSpace: "nowrap" }}>{wo === "aktiv" ? st.name : "Wartet"}</span>
+        <span style={{ fontSize: 11.5, fontWeight: 800, color: st.farbe, whiteSpace: "nowrap" }}>{t.auto ? "Vorschlag aus deiner Klasse" : wo === "aktiv" ? st.name : "Wartet"}</span>
       </div>
       {wo === "aktiv" && !s.ohneAufgaben && (
         <>

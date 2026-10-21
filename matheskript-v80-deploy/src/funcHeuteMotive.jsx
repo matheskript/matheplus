@@ -49,6 +49,67 @@ const MOTIVE = {
     <path d="M61 43 l7.5 7.5 l14 -15" stroke={W} strokeWidth="5.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
   </>),
 
+  /* ---------- Einträge des Tagesplans (tagesplan.js) ---------- */
+  /* Warm-up: Stoppuhr mit goldenem Zeiger und Blitz */
+  warmup: (f) => (<>
+    <circle cx="60" cy="48" r="38" fill={f.h} />
+    <rect x="52" y="6" width="16" height="8" rx="3" fill={f.s} />
+    <circle cx="60" cy="50" r="30" fill="rgba(6,16,42,0.72)" stroke={f.s} strokeWidth="5" />
+    <path d="M60 50 L60 30" stroke={f.g} strokeWidth="5" strokeLinecap="round" />
+    <path d="M60 50 L74 58" stroke={W} strokeWidth="4" strokeLinecap="round" />
+    <circle cx="60" cy="50" r="4" fill={f.g} />
+    <path d="M92 10 l-8 16 h10 l-10 18" stroke={f.g} strokeWidth="5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+  </>),
+  /* Wiederholen: Kreispfeil (Ebbinghaus) um ein Blatt mit drei Zeilen */
+  wiederholung: (f) => (<>
+    <circle cx="60" cy="46" r="38" fill={f.h} />
+    <path d="M30 56 A32 32 0 1 1 42 74" stroke={f.g} strokeWidth="7" fill="none" strokeLinecap="round" />
+    <polygon points={spitze(30, 70, 40, 76, 12, 9)} fill={f.g} />
+    <rect x="46" y="28" width="30" height="36" rx="5" fill="rgba(6,16,42,0.72)" stroke={f.s} strokeWidth="3.5" />
+    <path d="M53 40 h16 M53 48 h16 M53 56 h10" stroke={W} strokeWidth="3.5" strokeLinecap="round" />
+  </>),
+  /* Aufs Blatt: Papier mit Stift, goldene Rechenzeile */
+  blatt: (f) => (<>
+    <circle cx="58" cy="46" r="38" fill={f.h} />
+    <path d="M30 14 h46 l12 12 v52 h-58 z" fill="rgba(6,16,42,0.72)" stroke={f.s} strokeWidth="4" strokeLinejoin="round" />
+    <path d="M76 14 v12 h12" stroke={f.s} strokeWidth="4" fill="none" strokeLinejoin="round" />
+    <path d="M40 36 h28 M40 48 h22" stroke={BLASS} strokeWidth="4" strokeLinecap="round" />
+    <path d="M40 60 h30" stroke={f.gl} strokeWidth="5" strokeLinecap="round" />
+    <path d="M96 40 l12 12 l-28 28 l-16 4 l4 -16 z" fill={f.g} stroke={TINTE} strokeWidth="2" strokeLinejoin="round" />
+    <path d="M80 56 l12 12" stroke={TINTE} strokeWidth="2.5" />
+  </>),
+  /* Auftrag: Umschlag mit goldenem Siegel */
+  auftrag: (f) => (<>
+    <circle cx="60" cy="46" r="38" fill={f.h} />
+    <rect x="18" y="24" width="84" height="50" rx="6" fill="rgba(6,16,42,0.72)" stroke={f.s} strokeWidth="4" />
+    <path d="M20 28 L60 56 L100 28" stroke={f.s} strokeWidth="4" fill="none" strokeLinejoin="round" />
+    <circle cx="60" cy="58" r="11" fill={f.g} stroke={TINTE} strokeWidth="2" />
+    <path d="M55 58 l3.5 3.5 l7 -7" stroke={TINTE} strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+  </>),
+  /* Kerntraining ohne eigenes Werkzeug: aufgeschlagenes Buch mit goldener Seite */
+  kern: (f) => (<>
+    <circle cx="60" cy="46" r="38" fill={f.h} />
+    <path d="M14 22 Q38 16 58 26 V74 Q38 64 14 70 Z" fill="rgba(6,16,42,0.72)" stroke={f.s} strokeWidth="4" strokeLinejoin="round" />
+    <path d="M106 22 Q82 16 62 26 V74 Q82 64 106 70 Z" fill="rgba(6,16,42,0.72)" stroke={f.g} strokeWidth="4" strokeLinejoin="round" />
+    <path d="M72 36 h22 M72 46 h22 M72 56 h14" stroke={f.g} strokeWidth="3.5" strokeLinecap="round" />
+    <path d="M24 36 h22 M24 46 h22 M24 56 h14" stroke={BLASS} strokeWidth="3.5" strokeLinecap="round" />
+  </>),
+  /* Basis-Check: Fundament aus drei Steinen, oberster in Gold */
+  basis: (f) => (<>
+    <circle cx="60" cy="48" r="38" fill={f.h} />
+    <rect x="18" y="58" width="84" height="18" rx="4" fill="rgba(6,16,42,0.72)" stroke={f.s} strokeWidth="4" />
+    <rect x="28" y="38" width="64" height="18" rx="4" fill="rgba(6,16,42,0.72)" stroke={f.s} strokeWidth="4" />
+    <rect x="40" y="18" width="40" height="18" rx="4" fill={f.g} stroke={TINTE} strokeWidth="2" />
+    <path d="M52 27 l5 5 l10 -10" stroke={TINTE} strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+  </>),
+  /* Neustart-Check: Kreispfeil mit Haken */
+  check: (f) => (<>
+    <circle cx="60" cy="46" r="38" fill={f.h} />
+    <path d="M86 32 A32 32 0 1 0 90 56" stroke={f.g} strokeWidth="7" fill="none" strokeLinecap="round" />
+    <polygon points={spitze(92, 20, 88, 34, 12, 9)} fill={f.g} />
+    <path d="M46 48 l10 10 l20 -22" stroke={W} strokeWidth="6" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+  </>),
+
   /* ---------- Analysis ---------- */
   /* Funktionen: Graph und Umkehrfunktion, gespiegelt an y = x */
   funktionen: (f) => (<>

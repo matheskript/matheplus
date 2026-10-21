@@ -9,7 +9,7 @@ import { useEbb, useJetzt } from "./funcEbbinghaus.jsx";
 import { testkontoStarten, useKonto } from "./konto.js";
 import { useMT } from "./meinTrainingSpeicher.js";
 import { kommendeArbeiten, tageText } from "./ebbinghaus.js";
-import { MAX_AKTIV, tagesStand } from "./meinTraining.js";
+import { MAX_AKTIV, eigeneThemen, tagesStand } from "./meinTraining.js";
 
 const knopf = { minHeight: 42, padding: "8px 16px", borderRadius: 999, border: `1.5px solid ${C.see}`, background: C.see, color: C.weiss, fontSize: 14, fontWeight: 700, fontFamily: "inherit", cursor: "pointer" };
 const knopfHell = { ...knopf, background: C.weiss, color: C.see };
@@ -30,7 +30,7 @@ export function useOffenHeute() {
   const jetzt = useJetzt();
   const stand = useMemo(() => tagesStand(MT, E, { jetzt }), [MT, E, jetzt]);
   const arbeit = kommendeArbeiten(E, { jetzt })[0] || null;
-  return { offen: stand.gesamt - stand.erledigt, gesamt: stand.gesamt, fertig: stand.fertig, hatSkills: MT.aktiv.length > 0 || Object.keys(E.skills).length > 0, geladen, arbeit: arbeit && arbeit.tage <= 14 ? { art: arbeit.art, tage: arbeit.tage } : null, themen: MT.aktiv.length };
+  return { offen: stand.gesamt - stand.erledigt, gesamt: stand.gesamt, fertig: stand.fertig, hatSkills: eigeneThemen(MT).length > 0 || Object.keys(E.skills).length > 0, geladen, arbeit: arbeit && arbeit.tage <= 14 ? { art: arbeit.art, tage: arbeit.tage } : null, themen: eigeneThemen(MT).length };
 }
 export function meinTrainingText(s) {
   if (s.geladen && s.arbeit) return `${s.arbeit.art} ${tageText(s.arbeit.tage)}. ${s.fertig ? "Tagesplan geschafft." : s.offen > 0 ? `Heute ${s.offen === 1 ? "wartet 1 Eintrag" : `warten ${s.offen} Einträge`} auf dich.` : "Dein Tagesplan und deine Themen."}`;
@@ -69,15 +69,15 @@ export function MeinTrainingKachel({ gehe }) {
       ) : (
         <>
           <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, margin: "10px 0 0" }}>
-            {!geladen ? "Dein Lernstand wird geladen …" : MT.aktiv.length === 0 ? "Noch kein Thema in Arbeit. Wähl eins – ab dann steht hier jeden Tag dein Plan." : stand.fertig ? "Tagesplan geschafft. Mehr ist heute nicht nötig." : offen > 0 ? `Heute ${offen === 1 ? "wartet 1 Eintrag" : `warten ${offen} Einträge`} auf dich.` : "Heute ist nichts fällig."}
+            {!geladen ? "Dein Lernstand wird geladen …" : eigeneThemen(MT).length === 0 ? "Noch kein Thema in Arbeit. Wähl eins – ab dann steht hier jeden Tag dein Plan." : stand.fertig ? "Tagesplan geschafft. Mehr ist heute nicht nötig." : offen > 0 ? `Heute ${offen === 1 ? "wartet 1 Eintrag" : `warten ${offen} Einträge`} auf dich.` : "Heute ist nichts fällig."}
           </p>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10 }}>
             <Zahl wert={geladen ? `${stand.erledigt}/${stand.gesamt}` : "–"} text="heute erledigt" farbe={stand.fertig && stand.gesamt ? C.smaragd : C.see} />
-            <Zahl wert={`${MT.aktiv.length}/${MAX_AKTIV}`} text="Themen in Arbeit" />
+            <Zahl wert={`${eigeneThemen(MT).length}/${MAX_AKTIV}`} text="Themen in Arbeit" />
             <Zahl wert={arbeit ? tageText(arbeit.tage) : "–"} text={arbeit ? arbeit.art : "keine Arbeit eingetragen"} farbe={arbeit && arbeit.tage <= 3 ? C.signal : undefined} />
           </div>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
-            <button type="button" onClick={() => gehe({ ansicht: "meintraining" })} style={knopf}>{MT.aktiv.length ? "Zum Tagesplan ›" : "Thema wählen ›"}</button>
+            <button type="button" onClick={() => gehe({ ansicht: "meintraining" })} style={knopf}>{eigeneThemen(MT).length ? "Zum Tagesplan ›" : "Thema wählen ›"}</button>
           </div>
         </>
       )}

@@ -1,7 +1,8 @@
 """Browser-Test Heute-Karte (Startseite, Zone „1 Heute trainierst du …“, Schüler Klasse 12, Thema Analysis).
-Frischer Schüler und Schüler mit Lernstand (Protokoll + wiederkehrender Fehler): zugeklappt eine Kopfzeile
-(„4 Runden · 32 Min“ / „Noch 3 Runden …“), vier Etappen-Kacheln mit Motiv, Goldknopf und „Details“;
-aufgeklappt konkrete Einheiten; Start (Kachel, Goldknopf, Karte) öffnet das Werkzeug im richtigen Modus.
+Seit 21.10. zeigt die Karte DEN Tagesplan (tagesplan.js): Vorschlags-Themen aus der Klasse (ksExp → Ableitungstrainer,
+ksInt → Integrale), Warm-up zuerst, Aufs Blatt zuletzt; mit Lernstand dazu „Fehler üben“ (wiederkehrende Kettenregel) und
+die konkrete Einheit „Produktregel trainieren“ (zuletzt wackelig). Frisch: 4 Etappen, mit Stand: 5.
+Start (Kachel, Goldknopf, Karte) öffnet das Werkzeug im richtigen Modus; Blatt/Warm-up lassen sich abhaken.
 Prüft bei 360, 390 und 1280 px: keine Seitenüberbreite, keine Konsolenfehler, Screenshots.
   npm run build && npx vite preview --port 4173 &   →   python3 tests/ui/heute-karte.ui.py
 """
@@ -44,12 +45,14 @@ with sync_playwright() as p:
             konsole = []
             page.on("pageerror", lambda er: konsole.append(f"pageerror: {er}"))
             page.on("console", lambda m: konsole.append(m.text) if m.type == "error" and "net::" not in m.text and "Failed to load resource" not in m.text else None)
-            page.goto(BASE)
+            # Speicher auf einer statischen Datei setzen (gleiche Herkunft, aber die App läuft nicht und schreibt nicht dazwischen –
+            # die Heute-Karte sichert ihren Tagesplan sofort nach dem Laden in den Lernstand)
+            page.goto(BASE + "buecher/vektoren/viewer.css")
             js = f"localStorage.clear(); sessionStorage.clear(); localStorage.setItem('mm-onboarding-v1', {json.dumps(json.dumps(ONB))});"
             if fall == "stand":
                 js += f"localStorage.setItem('matheskript-lernstand-v1', {json.dumps(json.dumps(LERNSTAND))}); localStorage.setItem('matheplus-funktionen-kapitel', 'verkettung');"
             page.evaluate(js)
-            page.reload(); page.wait_for_timeout(1200)
+            page.goto(BASE); page.wait_for_timeout(1500)
 
             karte = page.locator("[data-heute-karte]")
             pruefe(karte.count() == 1, f"{breite}/{fall}: Heute-Karte fehlt")
@@ -61,16 +64,20 @@ with sync_playwright() as p:
             pruefe("Einheiten" not in text and "Für dich" not in text, f"{breite}/{fall}: alte Kopfzeilen noch da")
             pruefe(page.locator("[data-heute-vorschau]").count() == 1, f"{breite}/{fall}: Details-Knopf fehlt")
             etappen = page.locator("[data-heute-etappe]")
-            pruefe(etappen.count() == 4, f"{breite}/{fall}: erwartet 4 Etappen, gefunden {etappen.count()}")
-            pruefe(page.locator("[data-heute-etappe] svg.hk-motiv").count() == 4, f"{breite}/{fall}: Etappen ohne Motiv")
+            soll_n = 4 if fall == "frisch" else 5
+            pruefe(etappen.count() == soll_n, f"{breite}/{fall}: erwartet {soll_n} Etappen, gefunden {etappen.count()}")
+            pruefe(page.locator("[data-heute-etappe] svg.hk-motiv").count() == soll_n, f"{breite}/{fall}: Etappen ohne Motiv")
+            reihe = etappen.evaluate_all("els => els.map(e => e.getAttribute('data-typ'))")
+            pruefe(reihe[0] == "warmup" and reihe[-1] == "blatt", f"{breite}/{fall}: Reihenfolge {reihe} (Warm-up zuerst, Blatt zuletzt)")
+            pruefe(page.locator("[data-heute-etappe='ableitungstrainer']").count() == 1 and page.locator("[data-heute-etappe='integrale']").count() == 1, f"{breite}/{fall}: Vorschlags-Themen der Klasse 12 fehlen ({reihe})")
             pruefe(page.locator("[data-heute-etappe][data-zustand='jetzt']").count() == 1, f"{breite}/{fall}: keine Etappe als nächste markiert")
             pruefe(page.locator("[data-heute-los]").count() == 1, f"{breite}/{fall}: Goldknopf fehlt")
             # Kopf in einer Zeile: Titel und Klassen-Knopf auf gleicher Höhe, Kopf höchstens zwei Zeilen hoch
             kh = page.evaluate("document.querySelector('.hk-kopf').getBoundingClientRect().height")
             pruefe(kh <= 64, f"{breite}/{fall}: Kopf zu hoch ({kh:.0f} px)")
             if fall == "stand":
-                pruefe(page.locator("[data-heute-etappe='steckbrief'][data-zustand='fertig']").count() == 1, f"{breite}/stand: Grad 2 nicht als geschafft markiert")
-                pruefe("Noch 3 Runden" in titel, f"{breite}/stand: Kopf sagt nicht „Noch 3 Runden“ ({titel})")
+                pruefe(page.locator("[data-heute-etappe='fehler']").count() == 1, f"{breite}/stand: Fehler-Etappe fehlt")
+                pruefe("5 Runden" in titel, f"{breite}/stand: Kopf sagt nicht „5 Runden“ ({titel})")
             sw = page.evaluate("document.documentElement.scrollWidth")
             pruefe(sw <= breite, f"{breite}/{fall}: Überbreite zugeklappt: {sw}")
             karte.screenshot(path=f"{AUS}/{breite}-{fall}-zu.png")
@@ -85,15 +92,20 @@ with sync_playwright() as p:
             pruefe(karte.get_attribute("data-offen") == "1", f"{breite}/{fall}: Aufklappen klappt nicht")
             text = karte.inner_text()
             einheiten = page.locator("[data-heute-einheit]")
-            pruefe(einheiten.count() == 4, f"{breite}/{fall}: erwartet 4 Einheiten, gefunden {einheiten.count()}")
+            pruefe(einheiten.count() == soll_n, f"{breite}/{fall}: erwartet {soll_n} Einheiten, gefunden {einheiten.count()}")
             if fall == "frisch":
-                for t in ("Funktionsbegriff klären", "Polynome ableiten", "Parabel aus Eigenschaften", "Kettenregel"):
+                for t in ("5 Minuten Mathe", "Polynome ableiten", "Aufs Blatt", "Neu für dich", "Zum Aufwärmen"):
                     pruefe(t in text, f"{breite}/frisch: „{t}“ fehlt")
-                pruefe("Vorbeugend" in text, f"{breite}/frisch: Fehler-Einheit nicht als vorbeugend markiert")
             else:
-                for t in ("Verkettungen bilden", "Produktregel trainieren", "Kapitel 5 von 7", "Wiederkehrender Fehler", "3× bei dir beobachtet"):
+                for t in ("Produktregel trainieren", "Nochmal – zuletzt wackelig", "Wiederkehrender Fehler", "3× bei dir beobachtet", "Kettenregel"):
                     pruefe(t in text, f"{breite}/stand: „{t}“ fehlt")
-                pruefe("Heute geschafft" in text or "heute 2 von 2" in text.lower() or "Nochmal" in text, f"{breite}/stand: Steckbrief Grad 2 nicht als geschafft")
+            # Aufs Blatt abhaken → Kopf zählt runter, Haken sichtbar; zurücknehmen
+            blatt = page.locator("[data-heute-einheit='blatt']")
+            blatt.locator("[data-heute-haken]").click(); page.wait_for_timeout(500)
+            pruefe(page.locator("[data-heute-etappe='blatt'][data-zustand='fertig']").count() == 1, f"{breite}/{fall}: Blatt nicht als erledigt markiert")
+            pruefe(f"Noch {soll_n - 1} Runden" in karte.locator(".hk-titel").inner_text(), f"{breite}/{fall}: Kopf zählt nach dem Haken nicht runter ({karte.locator('.hk-titel').inner_text()})")
+            blatt.locator("[data-heute-haken]").click(); page.wait_for_timeout(400)
+            pruefe(page.locator("[data-heute-etappe='blatt'][data-zustand='fertig']").count() == 0, f"{breite}/{fall}: Haken lässt sich nicht zurücknehmen")
             sw = page.evaluate("document.documentElement.scrollWidth")
             pruefe(sw <= breite, f"{breite}/{fall}: Überbreite aufgeklappt: {sw}")
             karte.screenshot(path=f"{AUS}/{breite}-{fall}-auf.png")
@@ -112,8 +124,8 @@ with sync_playwright() as p:
             page.go_back(); page.wait_for_timeout(1000)
             pruefe(page.locator("[data-heute-karte]").get_attribute("data-offen") == "1", f"{breite}/{fall}: Aufklapp-Zustand nicht gemerkt")
             if fall == "stand":
-                page.locator("[data-heute-einheit='steckbrief']").get_by_role("button").last.click(); page.wait_for_timeout(1500)
-                pruefe("steckbrief" in page.url, f"{breite}: Steckbrief nicht geöffnet")
+                page.locator("[data-heute-einheit='integrale']").get_by_role("button").last.click(); page.wait_for_timeout(1500)
+                pruefe("integrale" in page.url, f"{breite}: Integraltrainer nicht geöffnet ({page.url})")
                 page.go_back(); page.wait_for_timeout(800)
                 page.locator("[data-heute-einheit='fehler']").get_by_role("button").last.click(); page.wait_for_timeout(1200)
                 pruefe("Sechs neue Aufgaben zum Fehlertyp „Kettenregel" in page.inner_text("body"), f"{breite}: Fehlertraining startet nicht mit Kettenregel")

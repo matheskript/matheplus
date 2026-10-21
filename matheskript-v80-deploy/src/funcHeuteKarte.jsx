@@ -12,38 +12,21 @@
    · Aufgeklappt: je Einheit eine Karte mit Station, Auftrag, Inhalten, Grund („Neu für dich“,
      „Nochmal – zuletzt wackelig“ …), Umfang, Stand und Start-Knopf.
    Ein Start öffnet die Einheit gleich im passenden Modus (uebenWunsch, Lernweg-Kapitel, Fehlerziel).
-   Logik in heuteFokus.js; Stand aus dem Protokoll (base2 PROTOKOLL), Fehler aus dem Trainingsstand.
+   Seit 21.10.: Die Einträge kommen aus DEM Tagesplan (tagesplan.js über useTagesplan) – derselbe Plan wie auf der Seite
+   „Mein Mathe-Training“ (Themen, Wiederholungen, Fehler, Blatt, Warm-up). Einträge ohne Werkzeug werden hier abgehakt.
    Auf-/Zu-Zustand je Gerät: localStorage „mm-heute-auf“. Browser: tests/ui/heute-karte.ui.py
    ====================================================================== */
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useState } from "react";
 import { C } from "./base1.jsx";
-import { PROTOKOLL } from "./base2.jsx";
-import { LERN } from "./base3.jsx";
 import { Text } from "./func3.jsx";
-import { normiere } from "./trainingDaten.js";
-import { WERKZEUGE } from "./werkzeuge.js";
-import { uebenWunschSetzen } from "./uebenWunsch.js";
 import { NACHTBLAU, GOLD_VERLAUF, GOLD_PILLE } from "./kursFarben.js";
 import { HeuteMotiv } from "./funcHeuteMotive.jsx";
-import {
-  FEHLER_ZIEL_SPEICHER, FUNKTIONEN_SPEICHER, GRUENDE, buchtJeEinheit, einheitWahl, erledigtHeute, fehlerFokus, heuteAnteil, tagesSumme, wannText,
-} from "./heuteFokus.js";
+import { GRUENDE, buchtJeEinheit, wannText } from "./heuteFokus.js";
+import { eintragAbhaken, eintragStarten, useTagesplan } from "./funcTagesplan.jsx";
 
 const AUF_SCHLUESSEL = "mm-heute-auf";
 const lies = (k) => { try { return localStorage.getItem(k); } catch { return null; } };
 const N = NACHTBLAU;
-
-/* Lernstand abonnieren (wie useLern in func6, ohne dessen Abhängigkeiten) */
-function useLernstand() {
-  const [, setZ] = useState(0);
-  useEffect(() => {
-    const h = () => setZ((z) => z + 1);
-    if (LERN.hoerer) LERN.hoerer.add(h);
-    window.addEventListener("matheplus:buchung", h);
-    return () => { if (LERN.hoerer) LERN.hoerer.delete(h); window.removeEventListener("matheplus:buchung", h); };
-  }, []);
-  return LERN;
-}
 
 /* ---------- Stil (einmal in den <head>, wie die Kurs-Kacheln) ---------- */
 const STIL_ID = "hk-stil";
@@ -76,7 +59,7 @@ const STIL = `
 .hk-haken svg{width:56%;height:auto}
 .hk-spur{position:absolute;left:9px;right:9px;bottom:6px;height:3px;border-radius:2px;background:rgba(255,255,255,0.14);overflow:hidden}
 .hk-spur i{display:block;height:100%;border-radius:2px;background:${GOLD_VERLAUF};transition:width .5s ease}
-.hk-name{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;font-size:clamp(10.5px,3vw,12px);font-weight:700;letter-spacing:-0.01em;line-height:1.15;color:rgba(255,255,255,0.62);hyphens:auto;-webkit-hyphens:auto}
+.hk-name{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere;font-size:clamp(10.5px,3vw,12px);font-weight:700;letter-spacing:-0.01em;line-height:1.15;color:rgba(255,255,255,0.62);hyphens:auto;-webkit-hyphens:auto}
 .hk-etappe[data-zustand="jetzt"] .hk-name{color:#fff}
 .hk-etappe[data-zustand="fertig"] .hk-name{color:#F2C14E}
 .hk-etappe:focus-visible{outline:none}.hk-etappe:focus-visible .hk-bild{outline:3px solid ${C.flaggold};outline-offset:2px}
@@ -132,7 +115,9 @@ function HakenZeichen({ farbe = N.knopftext }) {
 function Chevron() {
   return <svg width="13" height="13" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" /></svg>;
 }
-const motivId = (x) => (x.art === "fehler" ? "fehler" : x.id);
+const motivId = (x) => x.motiv || x.typ;
+/* Kennung für Tests und Zustände: Werkzeug, sonst Art des Eintrags */
+const kennung = (x) => x.werkzeug || x.typ;
 
 /* Kleine Motivkachel für die aufgeklappten Karten */
 function MiniMotiv({ x }) {
@@ -176,15 +161,20 @@ const prozent = (q) => `${Math.round(q * 100)} %`;
 
 /* Stand-Zeile unter einer Einheit: was ist schon geschafft? */
 function standText(x) {
-  if (x.art === "fehler") {
+  if (x.typ === "fehler" && x.fehler) {
     const f = x.fehler;
     if (f.grund === "vorsorge") return { text: "Bisher kein Fehlermuster – gut so. Sechs Aufgaben halten es so.", anteil: null };
     const weitere = f.weitere.length ? ` · außerdem: ${f.weitere.join(", ")}` : "";
     return { text: `${f.anzahl.beobachtet}× bei dir beobachtet${weitere}`, anteil: null };
   }
+  if (x.typ === "wiederholung") return { text: x.zeile || "Fällig nach dem Ebbinghaus-Rhythmus", anteil: null };
+  if (x.typ === "blatt") return { text: "Eine Aufgabe von Hand – Mathilda prüft deinen Rechenweg.", anteil: null };
+  if (x.typ === "warmup") return { text: x.heuteN ? `heute ${x.heuteN} von ${x.einheit.aufgaben}` : "Fünf kurze Aufgaben zum Reinkommen.", anteil: null };
+  if (x.typ === "fremd") return { text: x.zeile || "Auftrag von Coach oder Lehrkraft", anteil: null };
   const w = x.wahl;
+  if (!w) return { text: x.nachholenVon ? `Blieb am ${x.nachholenVon.slice(8, 10)}.${x.nachholenVon.slice(5, 7)}. liegen – heute nachholen.` : x.zeile || "", anteil: null };
   if (w.einheit.kapitel) return { text: `Kapitel ${w.index + 1} von ${w.anzahl} im Lernweg`, anteil: w.index / w.anzahl };
-  if (buchtJeEinheit(x.id)) {
+  if (buchtJeEinheit(x.werkzeug)) {
     const geuebt = Math.round(w.fortschritt * w.anzahl);
     const s = w.stand;
     const zuletzt = s && s.n ? ` · zuletzt ${prozent(s.quote)} richtig` : "";
@@ -196,13 +186,14 @@ function standText(x) {
 }
 
 /* ---------- Eine Einheit, aufgeklappt ---------- */
-function EinheitKarte({ x, erste, starten }) {
+function EinheitKarte({ x, erste, starten, abhaken }) {
   const e = x.einheit;
   const st = standText(x);
   const heute = x.anteil;
   const knopfText = x.erledigt ? "Nochmal" : heute > 0 ? "Weiter" : erste ? "Starten" : "Los";
+  const hakbar = ["blatt", "warmup", "fremd"].includes(x.typ) || (!x.wahl && x.typ !== "wiederholung" && x.typ !== "fehler");
   return (
-    <article data-heute-einheit={x.key}
+    <article data-heute-einheit={kennung(x)} data-typ={x.typ}
       style={{ position: "relative", display: "flex", flexDirection: "column", borderRadius: 16, padding: "12px 14px 12px 12px", background: x.erledigt ? "#F7FBF8" : C.weiss, color: C.tinte,
         border: `1.5px solid ${erste && !x.erledigt ? C.flaggold : "transparent"}`, boxShadow: erste && !x.erledigt ? "0 8px 22px rgba(237,187,0,0.22)" : "0 2px 10px rgba(6,16,42,0.25)" }}>
       <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
@@ -217,7 +208,7 @@ function EinheitKarte({ x, erste, starten }) {
         </div>
       </div>
 
-      {x.art === "fehler" ? (
+      {x.typ === "fehler" && e.tipp ? (
         <div style={{ marginTop: 10, fontSize: 13, lineHeight: 1.5 }}>
           <p style={{ margin: 0, color: C.tinte }}><Text s={e.inhalt[0]} /></p>
           <p style={{ margin: "6px 0 0", padding: "8px 10px", borderRadius: 10, background: C.sand, color: C.grau }}>
@@ -239,6 +230,12 @@ function EinheitKarte({ x, erste, starten }) {
           <p style={{ margin: "0 0 5px", fontSize: 11.5, color: C.grau, lineHeight: 1.35 }}>{st.text}</p>
           {st.anteil !== null && <Balken anteil={st.anteil} farbe={x.erledigt ? C.smaragd : C.see} />}
         </div>
+        {hakbar && (
+          <button type="button" onClick={() => abhaken(x, x.erledigt)} aria-label={x.erledigt ? `${e.titel} als offen markieren` : `${e.titel} abhaken`} data-heute-haken
+            style={{ flexShrink: 0, minHeight: 40, padding: "8px 12px", borderRadius: 999, fontFamily: "inherit", fontSize: 13.5, fontWeight: 700, cursor: "pointer", border: `1.5px solid ${C.linie}`, background: C.weiss, color: x.erledigt ? C.grau : C.smaragd }}>
+            {x.erledigt ? "Offen" : "Erledigt ✓"}
+          </button>
+        )}
         <button type="button" onClick={() => starten(x)} aria-label={`${knopfText}: ${e.titel}`}
           style={{ flexShrink: 0, minHeight: 40, padding: "8px 16px", borderRadius: 999, fontFamily: "inherit", fontSize: 14, fontWeight: 700, cursor: "pointer",
             border: `1.5px solid ${erste && !x.erledigt ? C.flaggold : C.see}`, background: erste && !x.erledigt ? C.flaggold : C.weiss,
@@ -257,7 +254,7 @@ function Etappe({ x, jetzt, starten }) {
   const label = `${x.einheit.titel}, ${x.einheit.aufgaben} ${x.einheit.aufgaben === 1 ? "Aufgabe" : "Aufgaben"}, etwa ${x.einheit.min} Minuten${x.erledigt ? " – heute geschafft" : ""}`;
   return (
     <li>
-      <button type="button" className="hk-etappe" data-heute-etappe={x.key} data-zustand={zustand} onClick={() => starten(x)} aria-label={label} title={x.einheit.titel}>
+      <button type="button" className="hk-etappe" data-heute-etappe={kennung(x)} data-typ={x.typ} data-zustand={zustand} onClick={() => starten(x)} aria-label={label} title={x.einheit.titel}>
         <span className="hk-bild">
           <HeuteMotiv id={motivId(x)} className="hk-motiv" />
           {x.erledigt && <span className="hk-haken"><HakenZeichen /></span>}
@@ -269,66 +266,22 @@ function Etappe({ x, jetzt, starten }) {
   );
 }
 
-/* Kopfzeile: Umfang als Ansage, ohne Zahlensalat */
-function kopfText(eintraege) {
-  const summe = tagesSumme(eintraege);
-  const offen = eintraege.filter((x) => !x.erledigt);
-  const runden = (n) => `${n} ${n === 1 ? "Runde" : "Runden"}`;
-  if (!offen.length) return { haupt: "Für heute geschafft", zeit: null, summe };
-  if (offen.length === eintraege.length) return { haupt: runden(summe.anzahl), zeit: `${summe.min} Min`, summe };
-  const rest = offen.reduce((s, x) => s + Math.max(1, Math.round(x.einheit.min * (1 - (x.anteil || 0)))), 0);
-  return { haupt: `Noch ${runden(offen.length)}`, zeit: `${rest} Min`, summe };
-}
-
 /* ---------- Die Karte ---------- */
-export function HeuteKarte({ o, empfehlungen, gehe, neu }) {
-  const lern = useLernstand();
+/* profil: { schulart, klasse (Klassenbox-Id), thema (Bereich) } – daraus entstehen die Vorschlags-Themen, solange nichts gewählt ist */
+export function HeuteKarte({ o, profil, gehe, neu }) {
   const [auf, setAufRoh] = useState(() => lies(AUF_SCHLUESSEL) === "1");
   const setAuf = (v) => { setAufRoh(v); try { localStorage.setItem(AUF_SCHLUESSEL, v ? "1" : "0"); } catch { /* privat */ } };
-  const jetzt = Date.now();
-  const kapitel = lies(FUNKTIONEN_SPEICHER);
-  const T = normiere(lern.training);
   React.useInsertionEffect(stilSetzen, []);
-
-  const eintraege = useMemo(() => {
-    const protokoll = PROTOKOLL.slice();
-    const f = fehlerFokus(T, o.thema, { protokoll, jetzt });
-    const fehlerAnteil = Math.min(1, f.stand.heute / f.einheit.aufgaben);
-    const liste = [{
-      key: "fehler", art: "fehler", fehler: f, einheit: f.einheit, grund: f.grund, kicker: "Meine Fehler üben",
-      zeichen: null, anteil: fehlerAnteil, heuteN: f.stand.heute, erledigt: f.stand.heute >= f.einheit.aufgaben,
-    }];
-    for (const w of empfehlungen) {
-      const wahl = einheitWahl(w.id, { protokoll, jetzt, kapitel });
-      if (!wahl) continue;
-      const anteil = heuteAnteil(wahl);
-      liste.push({
-        key: w.id, id: w.id, art: "werkzeug", wahl, werkzeug: w, einheit: wahl.einheit, grund: wahl.grund,
-        kicker: `${w.station} · ${w.name}`, zeichen: (WERKZEUGE[w.id] || w).zeichen, anteil: anteil || 0,
-        heuteN: (wahl.stand || wahl.werkzeug).heute, erledigt: erledigtHeute(wahl),
-      });
-    }
-    return liste;
-  }, [empfehlungen, kapitel, o.thema, PROTOKOLL.length, lern.zeit, lern.geladen, T.beobachtungen && T.beobachtungen.length]);   // eslint-disable-line react-hooks/exhaustive-deps
-
-  const kopf = kopfText(eintraege);
+  const plan = useTagesplan({ profil: profil || null });
+  const eintraege = plan.eintraege;
+  const kopf = plan.geladen ? plan.kopf : { haupt: "Dein Plan wird geladen", zeit: null };
   const erstesOffen = eintraege.findIndex((x) => !x.erledigt);
   const naechste = erstesOffen >= 0 ? eintraege[erstesOffen] : null;
-
-  const starten = (x) => {
-    if (x.art === "fehler") {
-      try { sessionStorage.setItem(FEHLER_ZIEL_SPEICHER, x.fehler.id); } catch { /* egal */ }
-      gehe({ ansicht: "fehlertraining" });
-      return;
-    }
-    const e = x.einheit, ziel = x.werkzeug.ziel;
-    if (e.kapitel) { try { localStorage.setItem(FUNKTIONEN_SPEICHER, e.kapitel); } catch { /* egal */ } }
-    if (e.art) uebenWunschSetzen(ziel.ansicht, { art: e.art });
-    gehe(ziel);
-  };
+  const starten = (x) => eintragStarten(x, gehe);
+  const abhaken = (x, zurueck) => eintragAbhaken(x, zurueck);
 
   return (
-    <section className="hk auftauchen" data-heute-karte data-offen={auf ? "1" : "0"} aria-label="Dein Training für heute">
+    <section className="hk auftauchen" data-heute-karte data-offen={auf ? "1" : "0"} data-geladen={plan.geladen ? "1" : "0"} aria-label="Dein Training für heute">
       <div className="hk-kopf">
         <h3 className="hk-titel">
           <span className="haupt">{kopf.haupt}</span>{kopf.zeit && <span className="zeit"> · {kopf.zeit}</span>}
@@ -351,11 +304,16 @@ export function HeuteKarte({ o, empfehlungen, gehe, neu }) {
             <span className="hk-los-text">{naechste.einheit.titel.replace(/\s*\(.*\)\s*/, "")}</span>
             <span className="hk-min">{naechste.einheit.min} Min</span>
           </button>
-        ) : (
+        ) : eintraege.length ? (
           <p className="hk-fertig">
             <span className="hk-haken" style={{ position: "static", transform: "none", width: 34, flex: "none" }}><HakenZeichen /></span>
             Stark. Morgen geht’s weiter.
           </p>
+        ) : (
+          <button type="button" className="hk-los" onClick={() => gehe({ ansicht: "meintraining" })} data-heute-los aria-label="Ein Thema ins Mathe-Training aufnehmen">
+            <span className="hk-play" aria-hidden="true"><svg width="14" height="16" viewBox="0 0 14 16"><path d="M3 2 L12.5 8 L3 14 Z" fill={C.flaggold} /></svg></span>
+            <span className="hk-los-text">Thema wählen</span>
+          </button>
         )}
         <button type="button" className="hk-mehr" onClick={() => setAuf(!auf)} aria-expanded={auf ? "true" : "false"} aria-controls="heute-liste" aria-label="Aufgaben im Detail" data-heute-vorschau>
           <span className="txt">Details</span><Chevron />
@@ -364,7 +322,7 @@ export function HeuteKarte({ o, empfehlungen, gehe, neu }) {
 
       {auf && (
         <div id="heute-liste" className="hk-liste auftauchen">
-          {eintraege.map((x, i) => <EinheitKarte key={x.key} x={x} erste={i === erstesOffen} starten={starten} />)}
+          {eintraege.map((x, i) => <EinheitKarte key={x.key} x={x} erste={i === erstesOffen} starten={starten} abhaken={abhaken} />)}
           <button type="button" className="hk-zu" onClick={() => setAuf(false)} aria-expanded="true" aria-controls="heute-liste">
             Zuklappen
             <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 7.5L6 4l3.5 3.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>

@@ -22,7 +22,7 @@ import { PHASEN, auswahlNachKapitel, vorbereitungFuer } from "./trainingsplan.js
 import { PhasenPille, heuteText, sacheGeneratoren } from "./funcKapitelTraining.jsx";
 import { hauptthemaPruefen } from "./hauptthema.js";
 import { themenUebernehmen, useMT } from "./meinTrainingSpeicher.js";
-import { MAX_AKTIV, themaInfo } from "./meinTraining.js";
+import { MAX_AKTIV, eigeneThemen, themaInfo } from "./meinTraining.js";
 import { Abschnitt, HauptthemaAnsicht, HauptthemaLeiste, HauptthemaWahl } from "./funcHauptthema.jsx";
 
 import { springe } from "./sprung.js";
@@ -559,14 +559,14 @@ function EmpfohleneKurse({ schulart, klasse, gehe }) {
 /* ---------- Mein Mathe-Training: Themen übernehmen ---------- */
 /* Kleiner Hinweis, wenn schon Themen im Training sind */
 function MeinTrainingLink({ MT, gehe }) {
-  if (!MT.aktiv.length) return null;
-  const titel = MT.aktiv.map((t) => (themaInfo(t.id) || {}).titel).filter(Boolean);
+  if (!eigeneThemen(MT).length) return null;
+  const titel = eigeneThemen(MT).map((t) => (themaInfo(t.id) || {}).titel).filter(Boolean);
   return (
     <button type="button" onClick={() => gehe({ ansicht: "meintraining" })}
       style={{ ...knopfBasis, width: "100%", display: "flex", alignItems: "center", gap: 10, textAlign: "left", marginTop: 12, padding: "10px 12px", borderRadius: 12,
         border: `1.5px solid ${C.flaggold}`, background: "#FFFBEA", color: C.tinte }}>
       <span style={{ flex: 1, minWidth: 0 }}>
-        <span style={{ display: "block", fontSize: 11, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "#8A6A00" }}>Mein Mathe-Training · {MT.aktiv.length} von {MAX_AKTIV} Themen</span>
+        <span style={{ display: "block", fontSize: 11, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "#8A6A00" }}>Mein Mathe-Training · {eigeneThemen(MT).length} von {MAX_AKTIV} Themen</span>
         <span style={{ display: "block", fontSize: 14.5, fontWeight: 700, marginTop: 2, lineHeight: 1.25 }}>{titel.join(" · ")}</span>
         <span style={{ display: "block", fontSize: 12, fontWeight: 500, color: C.grau, marginTop: 2 }}>Zum Tagesplan ›</span>
       </span>
@@ -582,7 +582,7 @@ function PlanKarte({ q, auswahl, gehe, MT }) {
   const vb = useMemo(() => vorbereitungFuer(auswahl, q.schulart), [auswahl, q.schulart]);
   const gruppen = useMemo(() => auswahlNachKapitel(auswahl, q.schulart), [auswahl, q.schulart]);
   if (!gruppen.length) return null;
-  const frei = Math.max(0, MAX_AKTIV - MT.aktiv.length) + Math.max(0, 3 - MT.danach.length);
+  const frei = Math.max(0, MAX_AKTIV - eigeneThemen(MT).length) + Math.max(0, 3 - MT.danach.length);
   const umschalten = (id) => setOhne(ohne.includes(id) ? ohne.filter((x) => x !== id) : [...ohne, id]);
   const uebernehmen = () => {
     const r = themenUebernehmen({ teile: auswahl, schulart: q.schulart, klasse: q.klasse, termin: termin || null, ohne });
@@ -707,7 +707,7 @@ export function Quickfinder({ gehe, setzeStufe, links }) {
   const haupt = q.haupt || null;
   const [liste, setListe] = useState(false);   // Kapitelliste trotz Hauptthema offen („Thema wechseln“)
   /* Hauptthema = Kapitel, das der Schüler gerade in der Schule hat. Der Plan dazu lebt in Mein Mathe-Training (ein Thema je Kapitel). */
-  const imTraining = (kapitelId) => [...MT.aktiv, ...MT.danach].some((t) => (themaInfo(t.id) || {}).kapitel === kapitelId);
+  const imTraining = (kapitelId) => [...MT.aktiv, ...MT.danach].some((t) => !t.auto && (themaInfo(t.id) || {}).kapitel === kapitelId);
   const hauptWaehlen = (kapitelId, termin, schulart = q.schulart, klasse = q.klasse) => {
     setze({ ...q, modus: "sache", kapitel: kapitelId, teil: null,
       haupt: { kapitel: kapitelId, schulart, klasse, termin: termin || null, seit: heuteText(), planId: imTraining(kapitelId) ? "meintraining" : null, note: null } });
@@ -797,7 +797,7 @@ export function Quickfinder({ gehe, setzeStufe, links }) {
           <AuswahlChip schulart={q.schulart} klasse={q.klasse} oeffnen={() => setWaehlen(true)} />
         </div>
       )}
-      {gewaehlt || MT.aktiv.length || haupt ? (
+      {gewaehlt || eigeneThemen(MT).length || haupt ? (
         <div className="qf-menue" ref={menueRef} data-bereich={tab}>
           {tab === "thema" && (
             <>
@@ -809,7 +809,7 @@ export function Quickfinder({ gehe, setzeStufe, links }) {
           )}
           {tab === "plan" && (
             <>
-              {MT.aktiv.length > 0 && !hauptImTraining && <MeinTrainingLink MT={MT} gehe={gehe} />}
+              {eigeneThemen(MT).length > 0 && !hauptImTraining && <MeinTrainingLink MT={MT} gehe={gehe} />}
               {gewaehlt && plan ? (
                 <>
                   <button type="button" onClick={zurueck}
@@ -819,7 +819,7 @@ export function Quickfinder({ gehe, setzeStufe, links }) {
                   <PlanAuswahl key={q.schulart + q.klasse} schulart={q.schulart} klasse={q.klasse} auswahl={auswahl} setzeAuswahl={(a) => setze({ ...q, auswahl: a })} />
                   {auswahl.length > 0 && <PlanKarte q={q} auswahl={auswahl} gehe={gehe} MT={MT} />}
                 </>
-              ) : haupt ? hauptAnsicht("plan") : !MT.aktiv.length && (
+              ) : haupt ? hauptAnsicht("plan") : !eigeneThemen(MT).length && (
                 <PlanHinweis zumThema={() => setTab("thema")} anhaken={gewaehlt && !handy ? () => setze({ ...q, modus: "plan" }) : null} />
               )}
             </>

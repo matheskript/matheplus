@@ -154,8 +154,10 @@ export function wannText(tageHer) {
 }
 
 /* ---------- Welche Einheit ist heute dran? ---------- */
-export function einheitWahl(werkzeugId, { protokoll = [], jetzt = Date.now(), kapitel = null } = {}) {
-  const liste = einheitenVon(werkzeugId);
+/* ohne: Einheiten-Ids, die heute schon ein anderer Eintrag belegt (tagesplan.js) */
+export function einheitWahl(werkzeugId, { protokoll = [], jetzt = Date.now(), kapitel = null, ohne = [] } = {}) {
+  const alleEinheiten = einheitenVon(werkzeugId);
+  const liste = ohne.length && alleEinheiten.some((e) => !ohne.includes(e.id)) ? alleEinheiten.filter((e) => !ohne.includes(e.id)) : alleEinheiten;
   if (!liste.length) return null;
   const alle = eintraegeVon(protokoll, werkzeugId);
   const werkzeug = standVon(alle, jetzt);
@@ -168,9 +170,9 @@ export function einheitWahl(werkzeugId, { protokoll = [], jetzt = Date.now(), ka
 
   if (buchtJeEinheit(werkzeugId)) {
     const staende = liste.map((e) => standVon(alle.filter(e.passt), jetzt));
-    const geuebt = staende.filter((s) => s.n > 0).length;
-    const fortschritt = geuebt / liste.length;
-    const wahl = (i, grund) => ({ einheit: liste[i], index: i, anzahl: liste.length, grund, stand: staende[i], werkzeug, fortschritt });
+    const geuebt = alleEinheiten.filter((e) => standVon(alle.filter(e.passt), jetzt).n > 0).length;
+    const fortschritt = geuebt / alleEinheiten.length;
+    const wahl = (i, grund) => ({ einheit: liste[i], index: alleEinheiten.indexOf(liste[i]), anzahl: alleEinheiten.length, grund, stand: staende[i], werkzeug, fortschritt });
     const idx = staende.map((s, i) => ({ s, i, e: liste[i] }));
     // heute angefangen bleibt stehen (sonst springt die Karte nach jeder Aufgabe), heute geschafft bleibt sichtbar
     const angefangen = idx.find(({ s, e }) => s.heute > 0 && s.heute < e.aufgaben);
@@ -189,7 +191,7 @@ export function einheitWahl(werkzeugId, { protokoll = [], jetzt = Date.now(), ka
 
   // Werkzeug bucht nur im Ganzen: Einheit wechselt täglich reihum
   const i = ((tagNr(jetzt) % liste.length) + liste.length) % liste.length;
-  return { einheit: liste[i], index: i, anzahl: liste.length, grund: werkzeug.n ? "tag" : "neu", stand: null, werkzeug, fortschritt: null };
+  return { einheit: liste[i], index: alleEinheiten.indexOf(liste[i]), anzahl: alleEinheiten.length, grund: werkzeug.n ? "tag" : "neu", stand: null, werkzeug, fortschritt: null };
 }
 
 export const GRUENDE = {
@@ -203,6 +205,15 @@ export const GRUENDE = {
   fehler: { text: "Wiederkehrender Fehler", ton: "warn" },
   einzeln: { text: "Schon einmal passiert", ton: "warn" },
   vorsorge: { text: "Vorbeugend – kein Muster bisher", ton: "neu" },
+  /* Einträge des Tagesplans (tagesplan.js) */
+  nachholen: { text: "Nachgeholt – blieb liegen", ton: "warn" },
+  wiederholung: { text: "Wiederholung fällig", ton: "ruhig" },
+  warmup: { text: "Zum Aufwärmen", ton: "ruhig" },
+  blatt: { text: "Jeden Tag von Hand", ton: "gold" },
+  auftrag: { text: "Auftrag von Coach oder Lehrkraft", ton: "gold" },
+  basis: { text: "Grundlage prüfen", ton: "neu" },
+  check: { text: "Neustart nach Pause", ton: "warn" },
+  kern: { text: "Dein Thema", ton: "ruhig" },
 };
 
 /* Erledigt heute? (nur wenn das Werkzeug bucht; Lernweg-Kapitel sind nicht messbar) */

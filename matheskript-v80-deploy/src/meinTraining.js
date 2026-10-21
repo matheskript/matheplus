@@ -14,6 +14,8 @@
      nachholen  – Stapel verpasster Kerntrainings/Basis-Checks (je Thema höchstens eins)
      freigabe   – { lehrer: bool } Darf die Lehrkraft Einträge in den Plan legen? (Coach darf immer)
      letzterBesuch – Kalendertag des letzten Plans (daraus ergeben sich „verpasste Tage“)
+     auto       – { schluessel, aus } Vorschlags-Themen aus Klasse + Bereich (tagesplan.js), solange der Schüler
+                  nichts selbst gewählt hat; Themen tragen dann auto: true. aus = Schüler hat den Vorschlag entfernt.
 
    Regeln (Stand 20.10.2026):
      · Fehler setzen nichts zurück (ebbinghaus.js); wiederkehrender Fehlertyp → enger Rhythmus + Video-Karte
@@ -129,7 +131,7 @@ export function themaStand(E, id, { teile = null, heute = datumVon(Date.now()) }
 
 /* ---------- Zustand ---------- */
 export function leerMT() {
-  return { version: 1, zuletzt: 0, aktiv: [], danach: [], fertig: [], budget: { art: "eintraege", wert: 8 }, tage: {}, nachholen: [], freigabe: { lehrer: false }, letzterBesuch: null, neustart: null };
+  return { version: 1, zuletzt: 0, aktiv: [], danach: [], fertig: [], budget: { art: "eintraege", wert: 8 }, tage: {}, nachholen: [], freigabe: { lehrer: false }, letzterBesuch: null, neustart: null, auto: null };
 }
 function normiereThema(t, heute) {
   if (!t || typeof t !== "object" || !themaInfo(t.id)) return null;
@@ -140,6 +142,7 @@ function normiereThema(t, heute) {
     schulart: PLAN[t.schulart] ? t.schulart : SCHULART_STANDARD, klasse: typeof t.klasse === "string" ? t.klasse : null,
     seit: istDatum(t.seit) ? t.seit : heute, kern: Number.isFinite(t.kern) ? Math.max(0, Math.trunc(t.kern)) : 0,
     vorbereitung: (Array.isArray(t.vorbereitung) ? t.vorbereitung : []).filter((k) => KAPITEL[k]),
+    ...(t.auto === true ? { auto: true } : {}),
   };
 }
 function normiereEintrag(e) {
@@ -170,22 +173,31 @@ export function normiereMT(roh, heute = datumVon(Date.now())) {
   d.freigabe = { lehrer: !!(d.freigabe && d.freigabe.lehrer) };
   d.letzterBesuch = istDatum(d.letzterBesuch) ? d.letzterBesuch : null;
   d.neustart = d.neustart && istDatum(d.neustart.am) ? { am: d.neustart.am } : null;
+  d.auto = d.auto && typeof d.auto.schluessel === "string" ? { schluessel: d.auto.schluessel, aus: d.auto.aus === true } : null;
   return d;
 }
 
 /* ---------- Themen verwalten ---------- */
 const kapitelVon = (id) => (themaInfo(id) || {}).kapitel;
-export const istDabei = (MT, id) => [...MT.aktiv, ...MT.danach].some((t) => t.id === id || kapitelVon(t.id) === kapitelVon(id));
+/* Vorschlags-Themen (auto, tagesplan.js) zählen für Quickfinder, Hauptthema und „Noch kein Thema“ nicht als Wahl des Schülers */
+export const eigeneThemen = (MT) => MT.aktiv.filter((t) => !t.auto);
+export const istDabei = (MT, id) => [...MT.aktiv, ...MT.danach].some((t) => !t.auto && (t.id === id || kapitelVon(t.id) === kapitelVon(id)));
 
-export function themaHinzufuegen(MT, { id, teile = null, schulart = SCHULART_STANDARD, klasse = null } = {}, heute = datumVon(Date.now())) {
+/* auto: Vorschlag aus Klasse + Bereich (tagesplan.js) – ohne Basis-Checks, der Schüler hat nichts bestellt, er soll sofort trainieren */
+export function themaHinzufuegen(MT, { id, teile = null, schulart = SCHULART_STANDARD, klasse = null, auto = false } = {}, heute = datumVon(Date.now())) {
   const info = themaInfo(id);
   if (!info) return { ok: false, grund: "unbekannt" };
   if (istDabei(MT, id)) return { ok: false, grund: "schon" };
+  /* eigene Wahl verdrängt alle Vorschläge (tagesplan.js) – sofort, nicht erst beim nächsten Plan */
+  if (!auto && [...MT.aktiv, ...MT.danach].some((t) => t.auto)) {
+    MT.aktiv = MT.aktiv.filter((t) => !t.auto); MT.danach = MT.danach.filter((t) => !t.auto);
+    MT.nachholen = MT.nachholen.filter((e) => [...MT.aktiv, ...MT.danach].some((t) => t.id === e.thema));
+  }
   if (MT.aktiv.length >= MAX_AKTIV && MT.danach.length >= MAX_DANACH) return { ok: false, grund: "voll" };
   const gew = (teile || info.teile.map((t) => t.id)).filter((x) => info.teile.some((y) => y.id === x));
   const vb = vorbereitungFuer(gew.length ? gew : info.teile.map((t) => t.id), PLAN[schulart] ? schulart : SCHULART_STANDARD);
   const t = { id, teile: gew.length ? gew : info.teile.map((x) => x.id), schulart: PLAN[schulart] ? schulart : SCHULART_STANDARD, klasse, seit: heute, kern: 0,
-    vorbereitung: [...vb.basis, ...vb.zwischen].filter((k) => kapitelGeneratoren(k).length).slice(0, 3) };
+    vorbereitung: auto ? [] : [...vb.basis, ...vb.zwischen].filter((k) => kapitelGeneratoren(k).length).slice(0, 3), ...(auto ? { auto: true } : {}) };
   MT.fertig = MT.fertig.filter((f) => f.id !== id);
   if (MT.aktiv.length < MAX_AKTIV) { MT.aktiv.push(t); MT.zuletzt = Date.now(); return { ok: true, wo: "aktiv" }; }
   MT.danach.push(t); MT.zuletzt = Date.now();
@@ -198,6 +210,7 @@ export function nachruecken(MT, heute = datumVon(Date.now())) {
 }
 export function themaEntfernen(MT, id, heute = datumVon(Date.now())) {
   const vorher = MT.aktiv.length + MT.danach.length;
+  if (MT.auto && [...MT.aktiv, ...MT.danach].some((t) => t.id === id && t.auto)) MT.auto.aus = true;   // Vorschlag bewusst entfernt – kommt nicht zurück
   MT.aktiv = MT.aktiv.filter((t) => t.id !== id);
   MT.danach = MT.danach.filter((t) => t.id !== id);
   MT.nachholen = MT.nachholen.filter((e) => e.thema !== id);
