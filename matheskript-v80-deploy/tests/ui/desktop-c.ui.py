@@ -30,16 +30,19 @@ REITER = lambda t: f"[...document.querySelectorAll('[role=tab]')].find(b => b.te
 # (Name, Pfad, Aktionen, zweispaltig am Desktop: Selektor links, Selektor rechts | None, SVG in echten Pixeln: Selektor | None)
 AF = ("[data-arbeitsflaeche]:visible > div:first-child", "[data-arbeitsflaeche]:visible > div:last-child")
 TR = ("[data-trainer-raster]:visible > div:first-child", "[data-trainer-raster]:visible > div:last-child")
+IT = (".it-weg", ".it-bild")
+INT_MENUE = "document.querySelector('[aria-label=\"Welche Aufgabe möchtest du üben?\"]').click()"
 FAELLE = [
     ("ableiten", "/ableitungstrainer", [], (".abl-spalte-l", ".abl-spalte-r"), None),
     ("ableiten-regel", "/ableitungstrainer", ["document.querySelector('.abl-regelknopf').click()", WAHL("Produktregel")], (".abl-spalte-l", ".abl-spalte-r"), None),
     ("hauptsatz-stamm", "/stammfunktion", [], AF, None),
     ("hauptsatz-integral", "/stammfunktion", ["document.querySelectorAll('.si-bereich button')[1].click()"], AF, "[data-si-integral] svg[role=img]"),
-    ("integrale-stamm", "/integrale", [], TR, None),
-    ("integrale-bestimmt", "/integrale", [MENUE, OPTION("dx"), "document.querySelectorAll('[role=dialog] button').forEach(b => b.textContent === 'Verstanden' && b.click())"], TR, None),
-    ("integrale-bilanz", "/integrale", [MENUE, OPTION("Fläche und Bilanz")], AF, None),
-    ("integrale-zwei", "/integrale", [MENUE, OPTION("Zwischen zwei")], AF, None),
-    ("integrale-bestand", "/integrale", [MENUE, OPTION("Bestand")], AF, None),
+    # Integraltrainer (funcIntegralTrainer.jsx): Rechenweg links, Schaubild rechts – eigene Klassen statt data-trainer-raster
+    ("integrale-bestimmt", "/integrale", [], IT, ".ib-buehne svg"),
+    ("integrale-stamm", "/integrale", [INT_MENUE, OPTION("Stammfunktion bilden")], IT, ".ib-buehne svg"),
+    ("integrale-flaeche", "/integrale", [INT_MENUE, OPTION("Fläche mit der x-Achse")], IT, ".ib-buehne svg"),
+    ("integrale-zwei", "/integrale", [INT_MENUE, OPTION("zwischen zwei Graphen")], IT, ".ib-buehne svg"),
+    ("integrale-bestand", "/integrale", [INT_MENUE, OPTION("Bestand")], None, None),
     ("optimierung", "/optimierung", [], TR, None),
     ("optimierung-eigen", "/optimierung", [REITER("Eigener")], TR, None),
     ("wachstum", "/wachstum", [], TR, None),
@@ -157,12 +160,11 @@ with sync_playwright() as pw:
             if name == "parabeln-brenn":
                 p.get_by_role("button", name="d +1", exact=True).first.click(); p.wait_for_timeout(120)
                 pruefe(p.locator("text=d = 0").count() >= 1 or not desktop, f"{n}: Regler d wirkt nicht")
-            if name == "integrale-bilanz":
-                p.get_by_role("button", name="Untere Grenze +1", exact=True).first.click(); p.wait_for_timeout(120)
-                ueberbreite(p, n + " regler")
             if name == "integrale-bestimmt":
-                klick_text(p, "Beispiel laden"); klick_text(p, "Integral berechnen")
-                pruefe(p.locator("text=/= 19/").count() >= 1, f"{n}: Integral nicht berechnet")
+                p.locator(".abl-seg button", has_text="Automatik").first.click(); p.wait_for_timeout(300)
+                pruefe(p.locator(".it-ergebnis").count() == 1, f"{n}: Automatik zeigt kein Ergebnis")
+                p.get_by_role("button", name="16", exact=True).click(); p.wait_for_timeout(150)
+                ueberbreite(p, n + " streifen")
             if name in ("optimierung", "wachstum", "verstehen"):
                 klick_text(p, "Lösung dieses Schritts zeigen"); klick_text(p, "Weiter zum nächsten Schritt")
                 pruefe(p.locator("text=/✓/").count() >= 1, f"{n}: Schritt nicht abgeschlossen")

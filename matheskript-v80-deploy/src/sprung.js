@@ -53,6 +53,7 @@ export const SPRUENGE = {
   "gleichungen-foto":        { an: false, art: "auswahl", wo: "Gleichungslöser: Aufgabe aus dem Foto gewählt → Heft in die Mitte" },
   "kurvendiskussion-ergebnis": { an: false, art: "auswahl", wo: "Polynomplotter: Kurvendiskussion aufklappen → zum Ergebnis" },
   "kurvendiskussion-feld":   { an: false, art: "auswahl", wo: "Polynomplotter: Pop-up zum Bearbeiten eines Werts (Cursor ins Feld)" },
+  "integral-bild":           { an: true,  art: "anker",   wo: "Integraltrainer (Handy): „Im Bild ansehen“ unter einem gelösten Schritt holt das Schaubild nach oben" },
   "regelwerk-popup":         { an: false, art: "auswahl", wo: "Regelwerk/Formel-Werkzeuge: Eingabe-Pop-up unter dem angetippten Feld" },
   "regelwerk-feld":          { an: false, art: "auswahl", wo: "Regelwerk: Feld antippen → Eingabe-Pop-up ins Bild" },
   "geraden-pad":             { an: false, art: "auswahl", wo: "Geradengleichung: Zahlenfeld-Pop-up ins Bild" },

@@ -1080,7 +1080,7 @@ const STAMM_GEN = {
 STAMM_GEN.gemischt = [
   () => `${potMon()}${wahl(["+", "-"])}${wahl(["sin(x)", "cos(x)", "e^x", "2/x"])}`,
   () => `${potMon()}+${wahl([`e^(${ganz(2, 3)}x)`, `cos(${ganz(2, 3)}x)`, `sin(${ganz(2, 3)}x)`])}`,
-  () => `${wahl([`${ganz(2, 4)}/x^2`, "sqrt(x)", `1/(${linTxt(2, 1)})`])}+${wahl([`e^(${ohneNull(-2, 2)}x)`, `${ganz(2, 4)}cos(2x)`])}-${ganz(2, 5)}`,
+  () => `${wahl([`${ganz(2, 4)}/x^2`, "sqrt(x)", `1/(${linTxt(2, 1)})`])}+${wahl([wahl(["e^(-2x)", "e^(-x)", "e^x", "e^(2x)"]), `${ganz(2, 4)}cos(2x)`])}-${ganz(2, 5)}`,
 ];
 
 export function neueStammAufgabe(art = "potenz", stufe = 1) {
