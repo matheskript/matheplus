@@ -1,6 +1,7 @@
-"""Browser-Test Heute-Karte (Startseite, Zone „1 Heute“, Schüler Klasse 12, Thema Analysis).
-Frischer Schüler und Schüler mit Lernstand (Protokoll + wiederkehrender Fehler): zugeklappt Vorschau mit
-Medaillons, aufgeklappt konkrete Einheiten; Start öffnet das Werkzeug im richtigen Modus.
+"""Browser-Test Heute-Karte (Startseite, Zone „1 Heute zählt“, Schüler Klasse 12, Thema Analysis).
+Frischer Schüler und Schüler mit Lernstand (Protokoll + wiederkehrender Fehler): zugeklappt eine Kopfzeile
+(„4 Runden · 32 Min“ / „Noch 3 Runden …“), vier Etappen-Kacheln mit Motiv, Goldknopf und „Details“;
+aufgeklappt konkrete Einheiten; Start (Kachel, Goldknopf, Karte) öffnet das Werkzeug im richtigen Modus.
 Prüft bei 360, 390 und 1280 px: keine Seitenüberbreite, keine Konsolenfehler, Screenshots.
   npm run build && npx vite preview --port 4173 &   →   python3 tests/ui/heute-karte.ui.py
 """
@@ -55,12 +56,31 @@ with sync_playwright() as p:
             karte.scroll_into_view_if_needed(); page.wait_for_timeout(300)
             pruefe(karte.get_attribute("data-offen") == "0", f"{breite}/{fall}: Karte startet nicht zugeklappt")
             text = karte.inner_text()
-            pruefe("Einheiten für heute" in text or "Für heute geschafft" in text, f"{breite}/{fall}: Kopf ohne Umfang")
-            pruefe("Aufgaben im Detail" in text, f"{breite}/{fall}: Aufklapp-Knopf fehlt")
+            titel = karte.locator(".hk-titel").inner_text()
+            pruefe(("Runden" in titel and "Min" in titel) or "Für heute geschafft" in titel, f"{breite}/{fall}: Kopf ohne Umfang ({titel})")
+            pruefe("Einheiten" not in text and "Für dich" not in text, f"{breite}/{fall}: alte Kopfzeilen noch da")
+            pruefe(page.locator("[data-heute-vorschau]").count() == 1, f"{breite}/{fall}: Details-Knopf fehlt")
+            etappen = page.locator("[data-heute-etappe]")
+            pruefe(etappen.count() == 4, f"{breite}/{fall}: erwartet 4 Etappen, gefunden {etappen.count()}")
+            pruefe(page.locator("[data-heute-etappe] svg.hk-motiv").count() == 4, f"{breite}/{fall}: Etappen ohne Motiv")
+            pruefe(page.locator("[data-heute-etappe][data-zustand='jetzt']").count() == 1, f"{breite}/{fall}: keine Etappe als nächste markiert")
+            pruefe(page.locator("[data-heute-los]").count() == 1, f"{breite}/{fall}: Goldknopf fehlt")
+            # Kopf in einer Zeile: Titel und Klassen-Knopf auf gleicher Höhe, Kopf höchstens zwei Zeilen hoch
+            kh = page.evaluate("document.querySelector('.hk-kopf').getBoundingClientRect().height")
+            pruefe(kh <= 64, f"{breite}/{fall}: Kopf zu hoch ({kh:.0f} px)")
+            if fall == "stand":
+                pruefe(page.locator("[data-heute-etappe='steckbrief'][data-zustand='fertig']").count() == 1, f"{breite}/stand: Grad 2 nicht als geschafft markiert")
+                pruefe("Noch 3 Runden" in titel, f"{breite}/stand: Kopf sagt nicht „Noch 3 Runden“ ({titel})")
             sw = page.evaluate("document.documentElement.scrollWidth")
             pruefe(sw <= breite, f"{breite}/{fall}: Überbreite zugeklappt: {sw}")
             karte.screenshot(path=f"{AUS}/{breite}-{fall}-zu.png")
 
+            if fall == "frisch":
+                page.locator("[data-heute-etappe='ableitungstrainer']").click(); page.wait_for_timeout(1500)
+                pruefe("ableitungstrainer" in page.url, f"{breite}/frisch: Etappen-Kachel startet den Ableitungstrainer nicht ({page.url})")
+                page.go_back(); page.wait_for_timeout(1000)
+                karte = page.locator("[data-heute-karte]")
+                karte.scroll_into_view_if_needed(); page.wait_for_timeout(200)
             page.locator("[data-heute-vorschau]").click(); page.wait_for_timeout(400)
             pruefe(karte.get_attribute("data-offen") == "1", f"{breite}/{fall}: Aufklappen klappt nicht")
             text = karte.inner_text()

@@ -721,9 +721,27 @@ function zuletztWerkzeug() {
   } catch { return null; }
 }
 
-export function WeitermachenZeile({ gehe, neben = false }) {
+/* lack: schlanke Zeile in der Optik der Heute-Karte (Startseite, Zone 1) – eine Zeile statt Kicker + Name + Bereich */
+export function WeitermachenZeile({ gehe, neben = false, lack = false }) {
   const z = zuletztWerkzeug();
   if (!z) return null;
+  if (lack) return (
+    <button type="button" onClick={() => gehe({ ansicht: z.ansicht })} aria-label={`Weitermachen mit ${z.werkzeug.name}`} data-weitermachen
+      style={{ width: "100%", marginTop: 10, display: "flex", alignItems: "center", gap: 12, minHeight: 52, padding: "7px 16px 7px 7px", borderRadius: 999, cursor: "pointer",
+        fontFamily: "inherit", textAlign: "left", border: "1px solid transparent", color: C.weiss,
+        background: "linear-gradient(150deg, #06102A 0%, #0B1E4A 60%, #12306E 100%) padding-box, linear-gradient(135deg, rgba(255,233,160,0.75), rgba(199,205,214,0.2) 55%, rgba(237,187,0,0.45)) border-box",
+        boxShadow: "0 1px 0 rgba(255,255,255,0.18) inset, 0 12px 26px -16px rgba(6,16,42,0.8)" }}>
+      <span aria-hidden="true" style={{ flexShrink: 0, width: 38, height: 38, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center",
+        border: "1.5px solid rgba(237,187,0,0.75)", background: "rgba(237,187,0,0.1)" }}>
+        <svg width="12" height="14" viewBox="0 0 14 16"><path d="M3 2 L12.5 8 L3 14 Z" fill={C.flaggold} /></svg>
+      </span>
+      <span style={{ flex: 1, minWidth: 0, fontSize: 14.5, lineHeight: 1.25, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+        <span style={{ color: "rgba(255,255,255,0.65)", fontWeight: 600 }}>Weiter mit </span><b style={{ fontWeight: 800 }}>{z.werkzeug.name}</b>
+      </span>
+      <span style={{ flexShrink: 0, fontSize: 12.5, fontWeight: 700, color: "rgba(255,255,255,0.55)" }}>{z.wann}</span>
+      <span aria-hidden="true" style={{ flexShrink: 0, fontSize: 20, lineHeight: 1, color: C.flaggold }}>›</span>
+    </button>
+  );
   return (
     <button type="button" onClick={() => gehe({ ansicht: z.ansicht })} aria-label={`Weitermachen mit ${z.werkzeug.name}`}
       style={{ width: "100%", marginTop: neben ? 0 : 12, height: neben ? "100%" : undefined, display: "flex", alignItems: "center", gap: 12, padding: "11px 14px", borderRadius: 14, cursor: "pointer",
