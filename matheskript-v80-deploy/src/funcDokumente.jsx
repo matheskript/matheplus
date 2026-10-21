@@ -1,5 +1,6 @@
 import React from "react";
 import { C } from "./base1.jsx";
+import { englisch } from "./i18n.js";
 import { DOKUMENTE, dokumenteUebersicht } from "./dokumente.js";
 import { PORZELLAN, TIEFBLAU, GRANAT, LACKSCHWARZ, NACHTBLAU, GOLD_PILLE } from "./kursFarben.js";
 import { DokumentMotiv } from "./funcDokumentMotive.jsx";
@@ -102,7 +103,8 @@ function Karte({ d }) {
     "--dk-titel": f.titel, "--dk-text": f.text, "--dk-akzent": f.akzent, "--dk-chip": f.chip, "--dk-chiprand": f.chipRand,
     "--dk-laden": (LADEN[d.farbe] || LADEN.standard)[0], "--dk-ladenschatten": (LADEN[d.farbe] || LADEN.standard)[1],
   };
-  const seiten = d.seiten ? `${d.seiten} ${d.seiten === 1 ? "Seite" : "Seiten"}` : "Seitenzahl offen";
+  // Seitenzahl nicht über das Wörterbuch („Seiten“ sind in der Geometrie „sides“)
+  const seiten = d.seiten ? (englisch() ? `${d.seiten} ${d.seiten === 1 ? "page" : "pages"}` : `${d.seiten} ${d.seiten === 1 ? "Seite" : "Seiten"}`) : (englisch() ? "Page count open" : "Seitenzahl offen");
   const mehrId = `dk-mehr-${d.id}`;
   return (
     <article data-dokument={d.id} className="dk" style={vars}>

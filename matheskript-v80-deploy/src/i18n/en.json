@@ -11436,7 +11436,93 @@
   "Funktionsklassen, Ableiten mit allen Regeln, Kurvendiskussion und Scharen, Steckbriefaufgaben, Optimierung, Integrale": "Function types, derivatives with every rule, curve sketching and families, modelling tasks, optimisation, integrals",
   "Rechnen mit Vektoren, Skalar- und Kreuzprodukt, Geraden und Ebenen aufstellen, Lage, Winkel, Abstände, Gleichungssysteme": "Calculating with vectors, dot and cross product, setting up lines and planes, positions, angles, distances, linear systems",
   "Formelsammlung, Terme und Potenzgesetze, Gleichungen und Gleichungssysteme, Ungleichungen, Bruchterme, Textaufgaben": "Formula collection, terms and power laws, equations and linear systems, inequalities, rational terms, word problems",
-  "Formelsammlung, Terme und Potenzgesetze, Gleichungen, Ungleichungen und Beträge, Bruchterme, Textaufgaben übersetzen": "Formula collection, terms and power laws, equations, inequalities and absolute values, rational terms, word problems"
+  "Formelsammlung, Terme und Potenzgesetze, Gleichungen, Ungleichungen und Beträge, Bruchterme, Textaufgaben übersetzen": "Formula collection, terms and power laws, equations, inequalities and absolute values, rational terms, word problems",
+  "Mathe-Training": "Math training",
+  "Mein Mathe-Training": "My math training",
+  "Tagesplan, Themen, Wiederholungen": "Daily plan, topics, reviews",
+  "Meine Klasse": "My grade",
+  "Thema wählen, verstehen, vortragen": "Pick a topic, understand it, present it",
+  "Mathe mit KI lernen": "Learn maths with AI",
+  "Mathilda AI für alle, Gemini ab 16, Claude ab 18": "Mathilda AI for everyone, Gemini from 16, Claude from 18",
+  "Test-Account": "Test account",
+  "Ohne Login ausprobieren – Mein Mathe-Training mit Beispieldaten": "Try it without signing in – My math training with sample data",
+  "Darstellung": "Appearance",
+  "Dunkel": "Dark",
+  "Hell": "Light",
+  "Mathe lernen": "Learn maths",
+  "Was mache ich heute? Wo stehe ich? Mit Konto bekommst du jeden Tag einen Plan aus deinen Themen, Wiederholungen und Fehlern.": "What do I do today? Where do I stand? With an account you get a daily plan from your topics, reviews and mistakes.",
+  "Test-Account starten": "Start test account",
+  "Dein Lernstand wird geladen …": "Loading your progress …",
+  "Noch kein Thema in Arbeit. Wähl eins – ab dann steht hier jeden Tag dein Plan.": "No topic in progress yet. Pick one – from then on your plan is here every day.",
+  "Tagesplan geschafft. Mehr ist heute nicht nötig.": "Daily plan done. That's all for today.",
+  "Heute ist nichts fällig.": "Nothing due today.",
+  "Themen in Arbeit": "Topics in progress",
+  "keine Arbeit eingetragen": "no test entered",
+  "Zum Tagesplan ›": "To the daily plan ›",
+  "Thema wählen ›": "Pick a topic ›",
+  "Tagesplan, Fortschritt, Übungsmodi. Alles an einem Ort.": "Daily plan, progress, practice modes. All in one place.",
+  "Mit KI lernen": "Learn with AI",
+  "ist das Training dazu: Du fotografierst dein Blatt, Mathilda prüft die Rechnung und zeigt dir die Stelle, an der dein Weg bricht.": "is the training for it: you photograph your sheet, Mathilda checks the working and shows you the exact spot where your solution goes wrong.",
+  "Jeder Kurs ein Baustein, zusammen ein System": "Each course a building block, together a system",
+  "Hinter den sieben Mathe-Mythen steckt dieselbe Lücke: Es fehlt nicht an Begabung, sondern an einer Arbeitsweise. Die Kurse unten schließen sie Stück für Stück. Der Mathe-Mindset-Kurs räumt das Denken auf, Kopfrechnen macht Zahlen schnell und sicher, und Ebbinghaus sorgt dafür, dass Gelerntes im richtigen Abstand wiederkommt und bleibt. Die Kurse zur Differentialrechnung sowie zu Vektoren, Geraden und Ebenen führen dich danach Schritt für Schritt durch den Stoff bis zum Abitur.": "Behind the seven maths myths lies the same gap: it isn't talent that's missing, it's a way of working. The courses below close it piece by piece. The math mindset course clears up your thinking, mental maths makes numbers fast and reliable, and Ebbinghaus makes sure what you've learned comes back at the right interval and sticks. The courses on differential calculus and on vectors, lines and planes then take you through the material step by step, all the way to the Abitur.",
+  "Hinter den sieben Mathe-Mythen steckt dieselbe Lücke: Es fehlt nicht an Begabung, sondern an einer Arbeitsweise. Die Kurse unten schließen sie Stück für Stück. Der Mathe-Mindset-Kurs räumt das Denken auf, Kopfrechnen macht Zahlen schnell und sicher, und Ebbinghaus sorgt dafür, dass Gelerntes im richtigen Abstand wiederkommt und bleibt. Die Videokurse und die Masterclass führen dich danach Schritt für Schritt durch den Stoff bis zum Abitur.": "Behind the seven maths myths lies the same gap: it isn't talent that's missing, it's a way of working. The courses below close it piece by piece. The math mindset course clears up your thinking, mental maths makes numbers fast and reliable, and Ebbinghaus makes sure what you've learned comes back at the right interval and sticks. The video courses and the Masterclass then take you through the material step by step, all the way to the Abitur.",
+  "Der ganze Stoff: lesen, Beispiel, Merksatz – und gleich üben, mit Kopfrechnen.": "Everything in the syllabus: read, example, key rule – and practise right away, with mental maths.",
+  "Jedes Kapitel lesen – und direkt darunter trainieren.": "Read each chapter – and train right below it.",
+  "Vom Gleichungssystem bis zum Abitur: lesen, dann trainieren.": "From linear systems to the Abitur: read, then train.",
+  "Dein Thema aus dem Lambacher Schweizer – verstehen, vortragen, Fragen meistern.": "Your topic from the Lambacher Schweizer – understand it, present it, handle the questions.",
+  "7 Schritte zum Vortrag": "7 steps to your presentation",
+  "Mathilda AI für alle, Gemini ab 16, Claude ab 18 – die KI erklärt, du rechnest.": "Mathilda AI for everyone, Gemini from 16, Claude from 18 – the AI explains, you do the maths.",
+  "Sieben Sätze, die dich bremsen – und warum sie nicht stimmen.": "Seven sentences that hold you back – and why they aren't true.",
+  "Mathilda AI öffnen – mit KI lernen": "Open Mathilda AI – learn with AI",
+  "Die 7 Mathe-Mythen – noch gesperrt, Passwort nötig": "The 7 maths myths – still locked, password required",
+  "Mix: hell mit dunklen Inseln": "Mix: light with dark islands",
+  "Hilf mit, Mythos Mathe und": "Help develop Mythos Mathe and",
+  "zu entwickeln": "",
+  "Mythos Mathe wächst jede Woche: neue Kurse, neue Werkzeuge, eine immer stärkere": "Mythos Mathe grows every week: new courses, new tools, an ever stronger",
+  ". Dein Beitrag fließt direkt in KI-Credits und Entwicklung und bringt das nächste Feature schneller an den Start.": ". Your contribution goes straight into AI credits and development and brings the next feature out sooner.",
+  "Grundlagen zum Warmwerden": "basics to warm up",
+  "Noch kein Muster erkannt. Ein Fehler zählt erst, wenn er dreimal an zwei Tagen vorkommt – rechne ein paar Runden, dann erscheint er hier.": "No pattern found yet. A mistake only counts once it shows up three times on two days – do a few rounds, then it appears here.",
+  "Meine Fehler": "My mistakes",
+  "Tagesplan, deine Themen, Wiederholungen nach Ebbinghaus – an einem Ort.": "Daily plan, your topics, reviews after Ebbinghaus – in one place.",
+  "Genau ein Buchkapitel oder Unterthema: fünf Aufgaben, Hinweise, Lösungsweg, Auswertung.": "Exactly one textbook chapter or subtopic: five tasks, hints, worked solution, review.",
+  "Was mache ich heute? Wo stehe ich? Dein Tagesplan, deine Themen, deine Wiederholungen – an einem Ort.": "What do I do today? Where do I stand? Your daily plan, your topics, your reviews – in one place.",
+  "Dein Training braucht ein Konto – damit dein Plan auf jedem Gerät derselbe ist.": "Your training needs an account – so your plan is the same on every device.",
+  "Du bekommst jeden Tag einen Plan aus deinen Themen, fälligen Wiederholungen und deinen Fehlern. Zum Ausprobieren reicht der Test-Account – ein Klick, kein Login.": "Every day you get a plan from your topics, due reviews and your mistakes. To try it out, the test account is enough – one click, no sign-in.",
+  "Einträge": "Entries",
+  "Aufs Blatt: eine Aufgabe von Hand": "On paper: one task by hand",
+  "Rechne eine Aufgabe auf Papier und schick Mathilda das Foto.": "Solve one task on paper and send Mathilda the photo.",
+  "Reihenfolge: Aufträge · fällige Wiederholungen · Fehler üben · Nachholen · ein Schritt je Thema · aufs Blatt. Der Plan wird einmal am Tag gebaut und nur ergänzt.": "Order: assignments · due reviews · practise mistakes · catch up · one step per topic · on paper. The plan is built once a day and only added to.",
+  "Meine Themen": "My topics",
+  "Noch kein Thema in Arbeit. Füg unten eins hinzu – ein Kapitel aus deinem Buch oder nur ein Unterthema.": "No topic in progress yet. Add one below – a chapter from your textbook or just a subtopic.",
+  "Thema hinzufügen": "Add topic",
+  "Vorschläge für dein Training": "Suggestions for your training",
+  "Tagesplan:": "Daily plan:",
+  "✓ erledigt · ○ offen · ↺ Wiederholung geplant · grau = Tag ohne Erledigtes": "✓ done · ○ open · ↺ review planned · grey = day with nothing done",
+  "Stand": "Progress",
+  "Thema abgeschlossen": "topic completed",
+  "Themen abgeschlossen": "topics completed",
+  "aktive Themen sicher": "active topics secure",
+  "Meine Lehrkraft darf Einträge in meinen Tagesplan legen.": "My teacher may add entries to my daily plan.",
+  "Dein Coach (Nachhilfe) darf das immer. Aufträge stehen oben im Plan und verfallen nicht.": "Your coach (tutoring) may always do this. Assignments sit at the top of the plan and don't expire.",
+  "Wie der Rhythmus funktioniert ›": "How the rhythm works ›",
+  "Prüfungsmodus ›": "Exam mode ›",
+  "Klasse 5 und 6 – der ganze Stoff, Kapitel für Kapitel: lesen, Beispiel, Merksatz, dann gleich üben.": "Grades 5 and 6 – everything in the syllabus, chapter by chapter: read, example, key rule, then practise right away.",
+  "Animationen und Videos": "Animations and videos",
+  "Jede Einheit: lesen, ein Beispiel Schritt für Schritt, der Merksatz – dann gleich üben. Nach dem Bildungsplan Baden-Württemberg; die Reihenfolge ist je Schule etwas anders.": "Every unit: read, one example step by step, the key rule – then practise right away. Follows the Baden-Württemberg curriculum; the order differs a little from school to school.",
+  "Kurs auf einen Blick": "Course at a glance",
+  "Kurs": "Course",
+  "Typischer Fehler": "Typical mistake",
+  "Kann ich das?": "Can I do this?",
+  "Hake ehrlich ab. Mit drei Haken gilt die Lerneinheit als geschafft – und zählt auf der Kachel.": "Tick honestly. With three ticks the unit counts as done – and shows on the tile.",
+  "Nächste Einheit:": "Next unit:",
+  "Weiter mit": "Continue with",
+  "Dokumente": "Documents",
+  "Dokumente ·": "documents ·",
+  "Seiten": "pages",
+  "Hier auf der Seite": "On this site",
+  "Intern": "Internal",
+  "Investoren": "Investors",
+  "Datei noch nicht hier": "File not here yet"
  },
  "muster": [
   [
@@ -13274,6 +13360,98 @@
   [
    "{0} Themen in einem Plan",
    "{0} topics in one plan"
+  ],
+  [
+   "{0} Seiten",
+   "{0} pages"
+  ],
+  [
+   "· {0} ohne Datei",
+   "· {0} without file"
+  ],
+  [
+   "{0} herunterladen",
+   "Download {0}"
+  ],
+  [
+   "Cover zu {0} herunterladen",
+   "Download cover for {0}"
+  ],
+  [
+   "{0} Kapitel, {1} Lerneinheiten",
+   "{0} chapters, {1} learning units"
+  ],
+  [
+   "{0} Module im Schulbuch",
+   "{0} modules in the textbook"
+  ],
+  [
+   "{0} Module im Heft",
+   "{0} modules in the booklet"
+  ],
+  [
+   "{0} {1} liegen vor dir",
+   "{0} {1} ahead of you"
+  ],
+  [
+   "{0} starten",
+   "Start {0}"
+  ],
+  [
+   "{0}: {1} Einheiten, {2} geschafft",
+   "{0}: {1} units, {2} done"
+  ],
+  [
+   "{0} Einheiten · {1} geschafft",
+   "{0} units · {1} done"
+  ],
+  [
+   "Klasse {0} · {1} · Einheit {2}/{3}",
+   "Grade {0} · {1} · Unit {2}/{3}"
+  ],
+  [
+   "Alle Einheiten der Klasse {0}",
+   "All units of grade {0}"
+  ],
+  [
+   "Für Klasse {0} steht „{1}“ in deinem Buch. Fang damit an.",
+   "Your grade {0} textbook covers “{1}”. Start with that."
+  ],
+  [
+   "Heute {0} Einträge, etwa {1} Minuten. Fang oben an.",
+   "Today {0} entries, about {1} minutes. Start at the top."
+  ],
+  [
+   "Heute ein Eintrag, etwa {0} Minuten. Fang oben an.",
+   "Today one entry, about {0} minutes. Start at the top."
+  ],
+  [
+   "Heute warten {0} Einträge auf dich.",
+   "{0} entries are waiting for you today."
+  ],
+  [
+   "Heute wartet 1 Eintrag auf dich.",
+   "1 entry is waiting for you today."
+  ],
+  [
+   "In Arbeit · {0} von {1}",
+   "In progress · {0} of {1}"
+  ],
+  [
+   "{0} abhaken",
+   "Tick off {0}"
+  ],
+  [
+   "{0} als offen markieren",
+   "Mark {0} as open"
+  ],
+  [
+   "Fünf kurze Aufgaben: {0}. Kein Zwang, keine Serie.",
+   "Five short tasks: {0}. No pressure, no streak."
+  ],
+  [
+   "{0} Kapitel",
+   "{0} chapters"
   ]
  ],
  "Das ist dein persönlicher Link. Wer sich darüber anmeldet, wird automatisch dir zugeordnet.": "This is your personal link. Anyone who signs up through it is automatically linked to you.",

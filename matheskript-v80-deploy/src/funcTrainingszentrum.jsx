@@ -8,11 +8,15 @@
    ====================================================================== */
 import React, { useEffect, useMemo, useState } from "react";
 import { C } from "./base1.jsx";
+import { englisch } from "./i18n.js";
 import { useStartStufe } from "./func2.jsx";
 import { useTraining } from "./funcTraining.jsx";
 import { TrainingsSession } from "./funcTrainingsSession.jsx";
 import { FEHLERTYPEN, THEMEN, generatorenFuerFehler, neueAufgabe, warmupAuswahl, wiederkehrende } from "./trainingDaten.js";
 import { EXTRA, PROGRAMME, REITER, programmeFuer, sessionAusAufgaben, sessionAusProgramm, sessionAusWerkzeug, sessionVon, trainierBereiche, zuletztLesen } from "./trainingszentrum.js";
+
+/* Pille „Seite“ (= eigene Seite). Nicht über das Wörterbuch: „Seite“ heißt in den Geometrie-Aufgaben „side“. */
+const SEITE = () => (englisch() ? "Page" : "Seite");
 
 const REITER_SPEICHER = "matheplus-tz-reiter";
 const STUFEN = [["alle", "Alle"], ["mittel", "Mittelstufe"], ["ober", "Oberstufe"]];
@@ -139,8 +143,8 @@ function Heute({ T, starten, gehe, zuletzt }) {
       </div>
       <p className="tz-abschnitt">Dein Plan</p>
       <div className="tz-raster">
-        <Karte zeichen="Tag" titel="Mein Mathe-Training" text="Tagesplan, deine Themen, Wiederholungen nach Ebbinghaus – an einem Ort." pillen={["Seite"]} ziel onClick={() => gehe({ ansicht: "meintraining" })} />
-        <Karte zeichen="1" titel="Eine Sache trainieren" text="Genau ein Buchkapitel oder Unterthema: fünf Aufgaben, Hinweise, Lösungsweg, Auswertung." pillen={["Seite"]} ziel onClick={() => gehe({ ansicht: "trainieren" })} />
+        <Karte zeichen="Tag" titel="Mein Mathe-Training" text="Tagesplan, deine Themen, Wiederholungen nach Ebbinghaus – an einem Ort." pillen={[SEITE()]} ziel onClick={() => gehe({ ansicht: "meintraining" })} />
+        <Karte zeichen="1" titel="Eine Sache trainieren" text="Genau ein Buchkapitel oder Unterthema: fünf Aufgaben, Hinweise, Lösungsweg, Auswertung." pillen={[SEITE()]} ziel onClick={() => gehe({ ansicht: "trainieren" })} />
       </div>
     </>
   );
@@ -199,9 +203,9 @@ function Pruefung({ starten, gehe }) {
         {Object.entries(EXTRA).map(([id, e]) => (
           <Karte key={id} zeichen={e.zeichen} titel={e.name} text={e.zeile} pillen={["Prüfung", `≈ ${e.dauer} Min`]} onClick={() => starten(sessionAusWerkzeug(id), "pruefung")} />
         ))}
-        <Karte zeichen="⏳" titel="Prüfungsmodus" text="Themen, Dauer und Schwierigkeit wählen – mit Timer und automatischer Abgabe." pillen={["Seite"]} ziel onClick={() => gehe({ ansicht: "pruefung" })} />
-        <Karte zeichen="Abi" titel="Probeabitur" text="Teil A und B mit Uhr und Notenpunkten." pillen={["Seite"]} ziel onClick={() => gehe({ ansicht: "abitur" })} />
-        <Karte zeichen="↩" titel="Klausur nachbereiten" text="Verlorene Punkte erfassen und daraus einen Plan machen." pillen={["Seite"]} ziel onClick={() => gehe({ ansicht: "klausurnach" })} />
+        <Karte zeichen="⏳" titel="Prüfungsmodus" text="Themen, Dauer und Schwierigkeit wählen – mit Timer und automatischer Abgabe." pillen={[SEITE()]} ziel onClick={() => gehe({ ansicht: "pruefung" })} />
+        <Karte zeichen="Abi" titel="Probeabitur" text="Teil A und B mit Uhr und Notenpunkten." pillen={[SEITE()]} ziel onClick={() => gehe({ ansicht: "abitur" })} />
+        <Karte zeichen="↩" titel="Klausur nachbereiten" text="Verlorene Punkte erfassen und daraus einen Plan machen." pillen={[SEITE()]} ziel onClick={() => gehe({ ansicht: "klausurnach" })} />
       </div>
     </>
   );

@@ -18,6 +18,7 @@
    ====================================================================== */
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { C } from "./base1.jsx";
+import { englisch, tr } from "./i18n.js";
 import { useKonto, abmelden, testkontoStarten } from "./konto.js";
 import { SuchBox } from "./funcSuche.jsx";
 import { SCHULARTEN, klassenBoxen } from "./schulbuch.js";
@@ -522,7 +523,9 @@ const HellIkon = ({ n, gold }) => (
 );
 
 /* ---------- Darstellung: Dunkel | Hell | Mix (dieselbe Wahl wie die Pille auf der Startseite) ---------- */
+/* Der Block ist data-kein-i18n (die Knöpfe sollen beim Umschalten nicht flackern) – deshalb Englisch direkt hier */
 const MODUS_NAME = { dunkel: "Dunkel", hell: "Hell", mix: "Mix" };
+const MODUS_NAME_EN = { dunkel: "Dark", hell: "Light", mix: "Mix" };
 function ModusSymbol({ m }) {
   if (m === "hell") return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
@@ -543,11 +546,11 @@ function DarstellungWahl() {
   }, []);
   return (
     <div className="hm-karte hm-darstellung" data-hm-darstellung data-kein-i18n>
-      <span className="lab">Darstellung</span>
-      <div className="hm-modi" role="group" aria-label="Darstellung: dunkel, hell oder mix">
+      <span className="lab">{englisch() ? "Appearance" : "Darstellung"}</span>
+      <div className="hm-modi" role="group" aria-label={englisch() ? "Appearance: dark, light or mix" : "Darstellung: dunkel, hell oder mix"}>
         {START_MODI.map((m) => (
           <button key={m} type="button" aria-pressed={modus === m} onClick={() => startModusSetzen(m)} data-hm-modus={m} data-kein-scroll>
-            <ModusSymbol m={m} />{MODUS_NAME[m]}
+            <ModusSymbol m={m} />{(englisch() ? MODUS_NAME_EN : MODUS_NAME)[m]}
           </button>
         ))}
       </div>
@@ -746,7 +749,7 @@ export function HauptMenue({ gehe, ansicht, foto, seite, offen, setOffen }) {
             )}
 
             {/* 4 · Klasse */}
-            <Abschnitt id="klasse" art="gold" titel={klasseLabel(klasse)} zeile={klasse ? <><span>Dein Schulbuch</span> · {klassenInhalt(klasse).kapitel.length} <span>Kapitel</span></> : "Klasse wählen – dann passt alles"}
+            <Abschnitt id="klasse" art="gold" titel={tr(klasseLabel(klasse))} zeile={klasse ? <><span>Dein Schulbuch</span> · {klassenInhalt(klasse).kapitel.length} <span>Kapitel</span></> : "Klasse wählen – dann passt alles"}
               ikon={<HellIkon n="buch" gold />}
               offen={abschnitt} setze={setAbschnitt} titelFest>
               {(!klasse || waehlen)
