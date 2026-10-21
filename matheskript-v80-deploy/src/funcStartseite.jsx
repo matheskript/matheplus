@@ -184,27 +184,45 @@ html[data-start-modus="dunkel"] .fuss-paar button { color: #EEF2FF !important; b
 .sbb-mathilda-bild > svg { position: absolute; left: 50%; transform: translateX(-50%); top: -8px; width: 124px; height: auto; max-width: none; max-height: none; filter: drop-shadow(0 10px 24px rgba(0,0,0,.4)); }
 @media ${DESKTOP} { .sbb-mathilda-bild > svg { width: 136px; top: -10px; } }
 
-/* Schulmathematik: Titel über die volle Breite, links schmale Stufen-Knöpfe nur mit Namen (Abi ganz gold, ohne Plus, neben Oberstufe), rechts die Grafik – sie nimmt den Rest der Breite */
-.sbb-schul { padding: 16px 16px 16px; }
-.sbb-schul h2 { margin: 0; font-size: clamp(25px, 7.6vw, 40px); font-weight: 900; letter-spacing: -0.04em; line-height: 1; color: var(--titel); white-space: nowrap; }
-.sbb-schul-unten { margin-top: 14px; display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 8px; align-items: stretch; }
-.sbb-stufen { display: grid; gap: 7px; min-width: 0; align-content: center; }
-.sbb-stufen .reihe { display: flex; gap: 5px; min-width: 0; }
-.sbb-stufe { flex: 1 1 auto; min-width: 0; min-height: 40px; display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 6px 7px 6px 11px; border-radius: 12px;
-  border: 1px solid var(--stufe-rand); background: var(--stufe-hg); cursor: pointer; font-family: inherit; text-align: left; color: var(--titel); transition: background .15s ease, border-color .15s ease, box-shadow .15s ease; }
-.sbb-stufe .n { display: block; font-size: clamp(13.5px, 3.7vw, 14.5px); font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; white-space: nowrap; }
-.sbb-stufe .p { flex: none; width: 17px; height: 17px; border-radius: 999px; background: ${GOLD}; color: ${NACHT}; display: flex; align-items: center; justify-content: center; transition: transform .2s ease; }
-.sbb-stufe .p svg { width: 10px; height: 10px; }
-.sbb-stufe.abi { flex: none; padding: 6px 10px; justify-content: center; background: ${GOLD}; border-color: ${GOLD}; color: ${NACHT}; box-shadow: 0 4px 14px rgba(237,187,0,0.28); }
-.sbb-stufe.abi .n { font-size: clamp(14px, 3.9vw, 15px); font-weight: 900; color: ${NACHT}; }
+/* „Der Weg zum Abi“ (Schulmathematik): oben Titel + zwei Zeilen Text, rechts daneben die Grafik klein;
+   darunter die vier Stufen-Knöpfe über die volle Breite (Handy 2 × 2, ab 840 px in einer Reihe) – Name groß, Klassen klein, Plus rechts */
+.sbb-schul { padding: 18px 16px 16px; background-image: radial-gradient(120% 90% at 100% 0%, rgba(237,187,0,0.10) 0%, rgba(237,187,0,0) 55%); }
+.sbb-schul-kopf { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "titel bild" "text text"; column-gap: 14px; row-gap: 8px; align-items: center; }
+.sbb-schul h2 { grid-area: titel; margin: 0; font-size: clamp(27px, 8vw, 40px); font-weight: 900; letter-spacing: -0.04em; line-height: 1; color: var(--titel); }
+.sbb-schul h2 .gold { color: ${GOLD}; }
+.sbb[data-modus="hell"] .sbb-schul h2 .gold { color: #B07F00; }
+.sbb-schul-kopf p { grid-area: text; margin: 0; font-size: 14px; line-height: 1.5; color: var(--nebel); text-wrap: pretty; }
+.sbb-schul-bild { grid-area: bild; flex: none; width: 76px; height: 62px; border-radius: 12px; background: var(--bild-rechts); display: flex; align-items: center; justify-content: center; padding: 3px; overflow: hidden; }
+.sbb-schul-bild > svg { width: 100%; height: 100%; }
+.sbb-stufen { margin-top: 16px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+.sbb-stufe { min-width: 0; min-height: 60px; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 10px 10px 14px; border-radius: 14px;
+  border: 1px solid var(--stufe-rand); background: var(--stufe-hg); cursor: pointer; font-family: inherit; text-align: left; color: var(--titel);
+  transition: background .15s ease, border-color .15s ease, box-shadow .15s ease, transform .15s ease; }
+.sbb-stufe .t { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.sbb-stufe .n { display: block; font-size: clamp(14.5px, 4vw, 16px); font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; white-space: nowrap; }
+.sbb-stufe .k { display: block; font-size: 12px; font-weight: 600; line-height: 1.2; color: var(--stufe-zeile); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sbb-stufe .p { flex: none; width: 24px; height: 24px; border-radius: 999px; background: ${GOLD}; color: ${NACHT}; display: flex; align-items: center; justify-content: center; transition: transform .2s ease; }
+.sbb-stufe .p svg { width: 12px; height: 12px; }
+.sbb-stufe.abi { background: linear-gradient(135deg, #F6D24A 0%, ${GOLD} 55%, #D9A300 100%); border-color: ${GOLD}; color: ${NACHT}; box-shadow: 0 8px 22px -6px rgba(237,187,0,0.5); }
+.sbb-stufe.abi .n { font-weight: 900; color: ${NACHT}; }
+.sbb-stufe.abi .k { color: rgba(10,22,58,0.72); }
+.sbb-stufe.abi .p { background: ${NACHT}; color: ${GOLD}; }
 .sbb-stufe[aria-expanded="true"] { background: ${GOLD}; border-color: ${GOLD}; color: ${NACHT}; }
 .sbb-stufe[aria-expanded="true"] .n { color: ${NACHT}; }
+.sbb-stufe[aria-expanded="true"] .k { color: rgba(10,22,58,0.72); }
 .sbb-stufe[aria-expanded="true"] .p { background: ${NACHT}; color: ${GOLD}; transform: rotate(45deg); }
 .sbb-stufe.abi[aria-expanded="true"] { box-shadow: 0 0 0 2px var(--titel); }
-@media (hover:hover) { .sbb-stufe:not([aria-expanded="true"]):not(.abi):hover { border-color: rgba(237,187,0,0.6); } .sbb-stufe.abi:hover { filter: brightness(1.06); } }
-.sbb-schul-bild { border-radius: 16px; background: var(--bild-rechts); display: flex; align-items: center; justify-content: center; padding: 2px; min-height: 0; overflow: hidden; }
-.sbb-schul-bild > svg { width: 100%; height: auto; max-height: 100%; }
-@media ${DESKTOP} { .sbb-schul { padding: 22px 24px 24px; } .sbb-schul-unten { gap: 18px; } .sbb-stufe { min-height: 46px; padding: 8px 12px 8px 16px; } .sbb-stufe .n { font-size: 16px; } .sbb-stufe.abi { padding: 8px 16px; } .sbb-stufe.abi .n { font-size: 16px; } .sbb-schul-bild > svg { max-width: 280px; } }
+@media (hover:hover) { .sbb-stufe:not([aria-expanded="true"]):not(.abi):hover { border-color: rgba(237,187,0,0.6); transform: translateY(-1px); } .sbb-stufe.abi:hover { filter: brightness(1.06); transform: translateY(-1px); } }
+@media ${DESKTOP} {
+  .sbb-schul { padding: 24px 24px 22px; }
+  .sbb-schul-kopf { grid-template-areas: "titel bild" "text bild"; column-gap: 24px; row-gap: 10px; }
+  .sbb-schul-kopf p { font-size: 15px; max-width: 46ch; }
+  .sbb-schul-bild { width: 132px; height: 104px; border-radius: 16px; }
+  .sbb-stufen { margin-top: 20px; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+  .sbb-stufe { min-height: 68px; padding: 12px 12px 12px 18px; }
+  .sbb-stufe .n { font-size: 17px; }
+  .sbb-stufe .k { font-size: 12.5px; }
+}
 .sbb-schul-panel-kopf { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 2px 4px 0; }
 .sbb-schul-panel-kopf b { font-size: 16px; font-weight: 800; letter-spacing: -0.02em; color: ${C.seeTief}; }
 .sbb-schul-panel-kopf span { font-size: 12px; font-weight: 600; color: ${C.grau}; }
@@ -469,30 +487,28 @@ export const SCHUL_STUFEN = [
   { id: "unter", name: "Unterstufe", kl: "Klasse 5–6" },
   { id: "mittel", name: "Mittelstufe", kl: "Klasse 7–9/10" },
   { id: "ober", name: "Oberstufe", kl: "Klasse 10–13" },
-  { id: "abi", name: "Abi", kl: "Abitur-Vorbereitung" },
+  { id: "abi", name: "Abi", kl: "Abitur-Vorbereitung", knopf: "Prüfung üben" },
 ];
 function StufenKnopf({ s, wahl, waehle, abi }) {
   const auf = wahl === s.id;
   return (
     <button type="button" className={abi ? "sbb-stufe abi" : "sbb-stufe"} aria-expanded={auf} onClick={() => waehle(auf ? null : s.id)}
       aria-label={`${abi ? "Abitur" : s.name} ${auf ? "zuklappen" : "aufklappen"}`}>
-      <span className="n">{s.name}</span>
-      {!abi && <span className="p" aria-hidden="true"><PlusKlein farbe="currentColor" /></span>}
+      <span className="t"><span className="n">{s.name}</span><span className="k">{s.knopf || s.kl}</span></span>
+      <span className="p" aria-hidden="true"><PlusKlein farbe="currentColor" /></span>
     </button>
   );
 }
 function SchulKachel({ wahl, waehle }) {
-  const [u, m, o, a] = SCHUL_STUFEN;
   return (
     <div className="sbb-karte sbb-schul sbb-insel">
-      <h2>Schulmathematik</h2>
-      <div className="sbb-schul-unten">
-        <div className="sbb-stufen" role="group" aria-label="Schulmathematik nach Stufe">
-          <StufenKnopf s={u} wahl={wahl} waehle={waehle} />
-          <StufenKnopf s={m} wahl={wahl} waehle={waehle} />
-          <div className="reihe"><StufenKnopf s={o} wahl={wahl} waehle={waehle} /><StufenKnopf s={a} wahl={wahl} waehle={waehle} abi /></div>
-        </div>
+      <div className="sbb-schul-kopf">
+        <h2>Der Weg <span style={{ whiteSpace: "nowrap" }}>zum <span className="gold">Abi</span></span></h2>
+        <p>Jedes Thema von Klasse 5 bis zum Abitur – sichtbar gemacht, erklärt und trainiert. Wähl deine Stufe und leg los.</p>
         <div className="sbb-schul-bild" aria-hidden="true"><SchulmatheLogoKlein eng /></div>
+      </div>
+      <div className="sbb-stufen" role="group" aria-label="Der Weg zum Abi nach Stufe">
+        {SCHUL_STUFEN.map((s) => <StufenKnopf key={s.id} s={s} wahl={wahl} waehle={waehle} abi={s.id === "abi"} />)}
       </div>
     </div>
   );
@@ -666,7 +682,7 @@ export function Startseite({ gehe }) {
           <div className="sbb-breit">
             <SchulKachel wahl={schulWahl} waehle={schulWaehlen} />
             {schulAuf && (
-              <div className="sbb-papier" data-aufklapp-inhalt>
+              <div className="sbb-papier" data-aufklapp-inhalt data-sprung="start-schulmathe">
                 <div className="sbb-schul-panel-kopf"><b>{schulStufe.id === "abi" ? "Abitur-Vorbereitung" : schulStufe.name}</b><span>{schulStufe.id === "abi" ? "Oberstufe" : schulStufe.kl}</span></div>
                 {schulWahl !== "abi" && <div style={{ marginTop: 10 }}><EtikettKnoepfe wert={etikett} setze={(e) => { setEtikett(e); setBereichAuf(null); }} /></div>}
                 <div style={{ marginTop: 12 }}>
