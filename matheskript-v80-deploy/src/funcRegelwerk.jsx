@@ -378,8 +378,7 @@ const HER_TITEL = {
 
 export const REGEL_CHIPS = [
   ["produkt", "Produktregel"], ["quotient", "Quotientenregel"], ["reziprok", "Reziprokenregel"],
-  ["linkette", "Lineare Kettenregel"], ["kette", "Kettenregel"], ["kombo", "15-Punkte-Kombo"],
-  ["gold", "Gold Level"],
+  ["linkette", "Lineare Kettenregel"], ["kette", "Kettenregel"], ["gold", "Gold Level"],
 ];
 const leer = () => ({ text: "", status: null, hinweis: "", versuche: 0, pos: 0 });
 const leereFelder = () => ({ u1: leer(), uv: leer(), v1: leer(), f1: leer() });

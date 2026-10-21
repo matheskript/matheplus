@@ -791,12 +791,32 @@ export function AdvancedPlotter() {
   const karte = { background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" };
   const rahmen = (kinder) => <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>{kinder}</div>;
 
-  /* 1. Eingabe-Phase */
-  if (eingabe || !A) return rahmen(
-    <div style={karte}>
-      <Eingabe text={text} setText={setText} onFertig={fertig} bereit={!!A} />
-    </div>
-  );
+  const SxE = desktop && bildBreite ? bildBreite : 320, SyE = desktop && bildBreite ? Math.round(bildBreite * 0.86) : 224;
+
+  /* 1. Eingabe-Phase. Desktop: dasselbe Raster wie danach – links Eingabe, rechts eine blasse Vorschau,
+     damit beim „Fertig“ nichts springt. Handy: eine Karte über die volle Breite. */
+  if (eingabe || !A) {
+    if (desktop) return rahmen(
+      <Arbeitsflaeche linksBreite={400} gap={24}
+        links={<FeinKarte data-kd-eingabe><Eingabe text={text} setText={setText} onFertig={fertig} bereit={!!A} /></FeinKarte>}
+        rechts={<>
+          <BildKarte style={{ padding: 0 }}>
+            <div ref={bildRef} style={{ opacity: A ? 0.5 : 1, transition: "opacity .2s" }}>
+              {A ? <KdBild key={text} A={A} Sx={SxE} Sy={SyE} desktop />
+                : <div style={{ height: SyE || 300, display: "flex", alignItems: "center", justifyContent: "center", color: C.hellgrau, fontSize: 14, fontWeight: 300 }}>Gib links eine Funktion ein …</div>}
+            </div>
+          </BildKarte>
+          <p style={{ fontSize: 12.5, color: C.grau, fontWeight: 300, textAlign: "center", margin: 0 }}>
+            {A ? "Vorschau – mit „Fertig“ kommen f′, f″ und die markanten Punkte." : "Das Schaubild erscheint, sobald die Funktion vollständig ist."}
+          </p>
+        </>} />
+    );
+    return rahmen(
+      <div style={karte}>
+        <Eingabe text={text} setText={setText} onFertig={fertig} bereit={!!A} />
+      </div>
+    );
+  }
 
   /* 2. Ergebnis: Kopf (f, f′, f″), markante Punkte, Schaubild – wie bei den Polynomen */
   const kopf = (
@@ -824,28 +844,28 @@ export function AdvancedPlotter() {
   const tief = (i, n) => (n > 1 ? (i < 9 ? "₁₂₃₄₅₆₇₈₉"[i] : String(i + 1)) : "");
   const farbe = (art) => (art === "Wendepunkt" ? C.tinte : art === "Sattelpunkt" ? C.hellgrau : C.gruenDunkel);
   const wendepunkte = A.wende.filter((p) => p.art === "Wendepunkt");
+  // Gleichartige Punkte in einer Zeile (bei periodischen Funktionen sonst endlose Liste), Reihenfolge wie bei den Polynomen
+  const MEHRZAHL = { Hochpunkt: "Hochpunkte", Tiefpunkt: "Tiefpunkte", Sattelpunkt: "Sattelpunkte", Wendepunkt: "Wendepunkte" };
+  const gruppen = ["Hochpunkt", "Tiefpunkt", "Sattelpunkt", "Wendepunkt"]
+    .map((art) => [art, [...A.ext, ...wendepunkte].filter((p) => p.art === art && endlich(p.y)).sort((p, q) => p.x - q.x)])
+    .filter(([, ps]) => ps.length);
   const punkte = (<>
     <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 14 }}>Markante Punkte</p>
     <Zeile marke={<circle cx="7" cy="7" r="4.5" fill={C.weiss} stroke={C.see} strokeWidth="2.5" />}
-      titel="Nullstellen" wert={A.ns.length ? liste(A.ns, (x, i) => `x${tief(i, A.ns.length)} = ${zahl2(x)}`) : "keine Nullstellen"} />
-    {A.ext.slice(0, LISTE_KURZ).map((p, i) => (
-      <Zeile key={`e${i}`} marke={<circle cx="7" cy="7" r="5" fill={farbe(p.art)} />} titel={p.art} wert={`(${zahl2(p.x)} | ${zahl2(p.y)})`} />
+      titel="Nullstellen" wert={A.ns.length ? liste(A.ns, (x, i) => `x${tief(i, A.ns.length)}\u00a0=\u00a0${zahl2(x)}`) : "keine Nullstellen"} />
+    {gruppen.map(([art, ps]) => (
+      <Zeile key={art} marke={<circle cx="7" cy="7" r="5" fill={farbe(art)} />} titel={ps.length > 1 ? MEHRZAHL[art] : art}
+        wert={liste(ps, (p) => `(${zahl2(p.x)}\u00a0|\u00a0${zahl2(p.y)})`)} />
     ))}
-    {wendepunkte.slice(0, LISTE_KURZ).map((p, i) => (
-      <Zeile key={`w${i}`} marke={<circle cx="7" cy="7" r="5" fill={farbe(p.art)} />} titel={p.art} wert={`(${zahl2(p.x)} | ${zahl2(p.y)})`} />
-    ))}
-    {!A.ext.length && !wendepunkte.length && (
+    {!gruppen.length && (
       <Zeile marke={<circle cx="7" cy="7" r="5" fill={C.linie} />} titel="Extrem- und Wendepunkte" wert="keine" />
     )}
-    {(A.ext.length > LISTE_KURZ || wendepunkte.length > LISTE_KURZ) && (
-      <p style={{ fontSize: 12.5, color: C.grau, fontWeight: 300, margin: "-4px 0 10px 24px" }}>… weitere im Bereich −10 bis 10 (periodisch)</p>
-    )}
     {A.yAchse !== null && (
-      <Zeile marke={<circle cx="7" cy="7" r="4" fill={C.see} opacity="0.45" />} titel="y-Achsenabschnitt" wert={`(0 | ${zahl2(A.yAchse)})`} />
+      <Zeile marke={<circle cx="7" cy="7" r="4" fill={C.see} opacity="0.45" />} titel="y-Achsenabschnitt" wert={`(0\u00a0|\u00a0${zahl2(A.yAchse)})`} />
     )}
     {A.pole.length > 0 && (
       <Zeile marke={<line x1="7" y1="0" x2="7" y2="14" stroke={C.hellgrau} strokeWidth="1.6" strokeDasharray="3 2" />}
-        titel="Polstellen" wert={liste(A.pole.map((p) => p.x), (x) => `x = ${zahl2(x)}`)} />
+        titel="Polstellen" wert={liste(A.pole.map((p) => p.x), (x) => `x\u00a0=\u00a0${zahl2(x)}`)} />
     )}
   </>);
 
