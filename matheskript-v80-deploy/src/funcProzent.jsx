@@ -14,26 +14,34 @@ import { zt } from "./ui3.jsx";
 import { PROZENT_ARTEN, prozentAufgabe } from "./unterGen.js";
 import { Merke, Regler, UebenRahmen, WertZeile, ZweiModi, ws, zs } from "./geoUi.jsx";
 import { werkzeugAnimationen } from "./unterstufeMedien.js";
+import { Arbeitsflaeche, BildKarte, useBreite, useDesktop } from "./arbeitsflaeche.jsx";
+import { ErgebnisKarte, ErklaerKarte, StellKarte } from "./funcZahlenDesktop.jsx";
 
 let zaehler = 0;
 const z2 = (v) => zt(v, 2);
 const eu = (v) => `${zt(v, 2)} €`;
 
 function Streifen({ G, p }) {
-  const W = 320, x = (W - 20) * Math.min(p, 100) / 100 + 10;
-  const t = { fontFamily: "Montserrat, system-ui, sans-serif", fontWeight: 700, fontSize: 11.5 };
+  // Echte Pixel am Desktop (DESKTOP-STIL.md): gemessene Breite, Streifen höher; Handy unverändert 320 × 96
+  const [ref, breite] = useBreite();
+  const desktop = useDesktop();
+  const gr = desktop && breite;
+  const W = gr ? breite : 320, x = (W - 20) * Math.min(p, 100) / 100 + 10;
+  const H = gr ? 200 : 96, oben = gr ? 52 : 22, hb = gr ? 52 : 30;            // Höhe, Streifen oben, Streifenhöhe
+  const yo = oben - 8, yu = oben + hb + 20, yw = gr ? oben + hb + 58 : 90, yp = oben + hb / 2 + (gr ? 5 : 0) + (gr ? 0 : 0);
+  const t = { fontFamily: "Montserrat, system-ui, sans-serif", fontWeight: 700, fontSize: gr ? 13 : 11.5 };
   return (
-    <svg viewBox={`0 0 ${W} 96`} style={{ width: "100%", height: "auto", display: "block" }} role="img" aria-label={zw("Prozentstreifen", "Percentage bar")}>
-      <text x="10" y="14" style={{ ...t, fill: C.grau }}>0 %</text>
-      <text x={W - 10} y="14" textAnchor="end" style={{ ...t, fill: C.grau }}>100 %</text>
-      <rect x="10" y="22" width={W - 20} height="30" rx="6" fill={C.weiss} stroke={C.tinte} strokeWidth="1.5" />
-      {Array.from({ length: 9 }, (_, i) => <line key={i} x1={10 + (W - 20) * (i + 1) / 10} y1="22" x2={10 + (W - 20) * (i + 1) / 10} y2="52" stroke={`${C.tinte}33`} />)}
-      <rect x="10" y="22" width={x - 10} height="30" rx="6" fill={`${C.flaggold}AA`} />
-      <text x={x} y="44" textAnchor={p > 85 ? "end" : "start"} dx={p > 85 ? -6 : 6} style={{ ...t, fill: C.seeTief }}>{zt(p, 0)} %</text>
-      <text x="10" y="72" style={{ ...t, fill: C.grau }}>0 €</text>
-      <text x={W - 10} y="72" textAnchor="end" style={{ ...t, fill: C.see }}>G = {eu(G)}</text>
-      <text x={x} y="90" textAnchor="middle" style={{ ...t, fill: "#8A6A00" }}>W = {eu(G * p / 100)}</text>
-    </svg>
+    <div ref={ref}><svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }} role="img" aria-label={zw("Prozentstreifen", "Percentage bar")}>
+      <text x="10" y={gr ? yo : 14} style={{ ...t, fill: C.grau }}>0 %</text>
+      <text x={W - 10} y={gr ? yo : 14} textAnchor="end" style={{ ...t, fill: C.grau }}>100 %</text>
+      <rect x="10" y={oben} width={W - 20} height={hb} rx="6" fill={C.weiss} stroke={C.tinte} strokeWidth="1.5" />
+      {Array.from({ length: 9 }, (_, i) => <line key={i} x1={10 + (W - 20) * (i + 1) / 10} y1={oben} x2={10 + (W - 20) * (i + 1) / 10} y2={oben + hb} stroke={`${C.tinte}33`} />)}
+      <rect x="10" y={oben} width={x - 10} height={hb} rx="6" fill={`${C.flaggold}AA`} />
+      <text x={x} y={gr ? yp : 44} textAnchor={p > 85 ? "end" : "start"} dx={p > 85 ? -6 : 6} style={{ ...t, fill: C.seeTief }}>{zt(p, 0)} %</text>
+      <text x="10" y={gr ? yu : 72} style={{ ...t, fill: C.grau }}>0 €</text>
+      <text x={W - 10} y={gr ? yu : 72} textAnchor="end" style={{ ...t, fill: C.see }}>G = {eu(G)}</text>
+      <text x={x} y={gr ? yw : 90} textAnchor="middle" style={{ ...t, fill: "#8A6A00", ...(gr ? { fontSize: 15 } : {}) }}>W = {eu(G * p / 100)}</text>
+    </svg></div>
   );
 }
 
@@ -41,6 +49,32 @@ function Entdecken() {
   const [G, setG] = useState(80);
   const [p, setP] = useState(25);
   const W = G * p / 100;
+  const desktop = useDesktop();
+  const wege = <>
+    <WertZeile links={zw("Dreisatz: 100 % ≙", "Rule of three: 100 % ≙")} rechts={eu(G)} />
+    <WertZeile links={zw("1 % ≙", "1 % ≙")} rechts={eu(G / 100)} />
+    <WertZeile links={`${p} % ≙`} rechts={eu(W)} farbe="#8A6A00" />
+    <WertZeile links={<M t={`W = G · \\frac{p}{100} = ${zt(G, 0)} · ${zt(p / 100, 2)}`} />} rechts={eu(W)} farbe="#8A6A00" />
+  </>;
+  const merkeText = zw("Prozent heißt „von Hundert“: p % sind p Hundertstel. Der Grundwert G ist immer das Ganze (100 %), der Prozentwert W der Teil davon.", "Percent means “per hundred”: p % are p hundredths. The base value G is always the whole (100 %), the percentage value W the part of it.");
+  if (desktop) {
+    return (
+      <div style={{ marginTop: 16 }} data-prozent="breit">
+        <Arbeitsflaeche
+          links={<>
+            <StellKarte titel={zw("Prozentstreifen", "Percentage bar")} werte={[
+              { name: "G", wert: G, setWert: setG, min: 10, max: 500, schritt: 10, format: (v) => `${v} €`, regler: true },
+              { name: "p %", wert: p, setWert: setP, min: 0, max: 100, schritt: 5, farbe: C.gruen, format: (v) => `${v} %`, regler: true },
+            ]} />
+            <ErgebnisKarte titel={zw("Prozentwert", "Percentage value")}>
+              <p style={{ margin: 0, fontSize: 24, fontWeight: 800, color: "#8A6A00", textAlign: "center", fontVariantNumeric: "tabular-nums" }}>W = {eu(W)}</p>
+            </ErgebnisKarte>
+          </>}
+          rechts={<BildKarte style={{ padding: "22px 14px 14px" }}><Streifen G={G} p={p} /></BildKarte>} />
+        <ErklaerKarte style={{ marginTop: 20 }} titel={zw("Zwei Wege zum Prozentwert", "Two ways to the percentage value")} links={wege} rechts={merkeText} />
+      </div>
+    );
+  }
   return (
     <>
       <div style={{ ...karte, marginTop: 16 }}>
@@ -53,11 +87,8 @@ function Entdecken() {
       </div>
       <div style={{ ...karte, marginTop: 12 }}>
         <p style={kicker}>{zw("Zwei Wege zum Prozentwert", "Two ways to the percentage value")}</p>
-        <WertZeile links={zw("Dreisatz: 100 % ≙", "Rule of three: 100 % ≙")} rechts={eu(G)} />
-        <WertZeile links={zw("1 % ≙", "1 % ≙")} rechts={eu(G / 100)} />
-        <WertZeile links={`${p} % ≙`} rechts={eu(W)} farbe="#8A6A00" />
-        <WertZeile links={<M t={`W = G · \\frac{p}{100} = ${zt(G, 0)} · ${zt(p / 100, 2)}`} />} rechts={eu(W)} farbe="#8A6A00" />
-        <Merke>{zw("Prozent heißt „von Hundert“: p % sind p Hundertstel. Der Grundwert G ist immer das Ganze (100 %), der Prozentwert W der Teil davon.", "Percent means “per hundred”: p % are p hundredths. The base value G is always the whole (100 %), the percentage value W the part of it.")}</Merke>
+        {wege}
+        <Merke>{merkeText}</Merke>
       </div>
     </>
   );

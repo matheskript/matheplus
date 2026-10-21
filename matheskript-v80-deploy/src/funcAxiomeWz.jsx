@@ -20,6 +20,8 @@ import { Merke, UebenRahmen, ZweiModi, misch, ws, zs } from "./geoUi.jsx";
 import { AX_ARTEN, KETTEN, KZ, KZ_FORMEL, KZ_NAME, axAufgabe, axBeispiel } from "./axiomeGen.js";
 import { AXIOM_PHASEN_ANZAHL, entdeckenHoeren, entdeckenStand, statusAxiome } from "./entdeckenSpeicher.js";
 import { qNum, qTex } from "./rechnen2.js";
+import { Arbeitsflaeche, BildKarte, ErgebnisReihe, FeinKarte, Werkzeugleiste, feinKarte, titelStil, useDesktop } from "./arbeitsflaeche.jsx";
+import { AktionsKnopf, ChipAuswahl } from "./funcZahlenDesktop.jsx";
 
 /* Farbcode wie im Lernmodul: Addition blau, Multiplikation Grana, Distributivgesetz Gold */
 const FAMILIE = { A: { f: C.see, bg: "#D6E4F7", t: C.seeTief }, M: { f: C.gruen, bg: "#F7D3E0", t: "#6E0F30" }, D: { f: C.flaggold, bg: "#FFF1BF", t: "#6B5200" } };
@@ -39,34 +41,54 @@ function GesetzProbe() {
   const F = fam(kz);
   const gruppen = [["A", zw("Addition", "Addition"), ["A1", "A2", "A3", "A4"]], ["M", zw("Multiplikation", "Multiplication"), ["M1", "M2", "M3", "M4"]], ["D", zw("Brücke", "Bridge"), ["D"]]];
   const zahl = (v) => (Number.isInteger(v) ? String(v) : String(Math.round(v * 1e6) / 1e6).replace(".", ",")).replace("-", "−");
+  const desktop = useDesktop();
+  const knoepfe = (
+    <div style={{ display: "grid", gap: 10 }}>
+      {gruppen.map(([g, titel, liste]) => (
+        <div key={g} style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+          <span style={{ fontSize: 12, fontWeight: 700, color: FAMILIE[g].t, minWidth: desktop ? "100%" : 104 }}>{titel}</span>
+          {liste.map((k) => {
+            const an = k === kz, Fk = fam(k);
+            return (
+              <button key={k} type="button" aria-pressed={an} onClick={() => waehle(k)} title={kzName(k)} className={desktop ? "eve-knopf" : undefined}
+                style={{ minWidth: 46, height: 38, borderRadius: 10, fontFamily: "inherit", fontSize: 14, fontWeight: 800, cursor: "pointer",
+                  border: `1.5px solid ${Fk.f}`, background: an ? Fk.f : Fk.bg, color: an ? (g === "D" ? C.tinte : C.weiss) : Fk.t }}>{k}</button>
+            );
+          })}
+        </div>
+      ))}
+    </div>
+  );
+  const erklaerung = (
+    <div style={{ marginTop: desktop ? 0 : 14, borderRadius: 14, padding: desktop ? "20px 20px 16px" : "14px 14px 12px", background: F.bg, borderLeft: `4px solid ${F.f}` }}>
+      <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: F.t }}>{kz} · {kzName(kz)}</p>
+      <div style={{ fontSize: desktop ? 24 : 21, color: C.tinte, margin: desktop ? "10px 0 6px" : "6px 0 2px", overflowX: "auto" }}><M t={KZ_FORMEL[kz]} /></div>
+      <p style={{ margin: "0 0 8px", fontSize: 13.5, lineHeight: 1.6, color: C.tinte }}>{ERKLAERT[kz]()}</p>
+      <div style={{ background: C.weiss, borderRadius: 10, padding: "8px 10px" }}>
+        <p style={{ margin: 0, fontSize: 11.5, fontWeight: 700, color: C.grau, textTransform: "uppercase", letterSpacing: "0.08em" }}>{zw("Probe mit Zahlen", "Check with numbers")}</p>
+        <div style={{ fontSize: 17, color: C.tinte, overflowX: "auto", margin: "4px 0" }}><M t={b.tex} /></div>
+        <p style={{ margin: 0, fontSize: 13.5, fontWeight: 700, color: "#0F7A4D" }}>{zw("links", "left")} = {zahl(b.l)} · {zw("rechts", "right")} = {zahl(b.r)} ✓</p>
+      </div>
+    </div>
+  );
+  if (desktop) {
+    return (
+      <div style={{ marginTop: 20 }} data-gesetzprobe>
+        <Arbeitsflaeche
+          links={<FeinKarte>
+            <p style={titelStil}>{zw("Die neun Axiome – tippe eins an", "The nine axioms – tap one")}</p>
+            {knoepfe}
+            <div style={{ marginTop: 16 }}><AktionsKnopf onClick={() => setB(axBeispiel(kz))}>{zw("Andere Zahlen", "Other numbers")}</AktionsKnopf></div>
+          </FeinKarte>}
+          rechts={<BildKarte style={{ padding: 0, border: "none", background: "transparent" }}>{erklaerung}</BildKarte>} />
+      </div>
+    );
+  }
   return (
     <div style={{ ...karte, marginTop: 16 }} data-gesetzprobe>
       <p style={kicker}>{zw("Die neun Axiome – tippe eins an", "The nine axioms – tap one")}</p>
-      <div style={{ display: "grid", gap: 10 }}>
-        {gruppen.map(([g, titel, liste]) => (
-          <div key={g} style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-            <span style={{ fontSize: 12, fontWeight: 700, color: FAMILIE[g].t, minWidth: 104 }}>{titel}</span>
-            {liste.map((k) => {
-              const an = k === kz, Fk = fam(k);
-              return (
-                <button key={k} type="button" aria-pressed={an} onClick={() => waehle(k)} title={kzName(k)}
-                  style={{ minWidth: 46, height: 38, borderRadius: 10, fontFamily: "inherit", fontSize: 14, fontWeight: 800, cursor: "pointer",
-                    border: `1.5px solid ${Fk.f}`, background: an ? Fk.f : Fk.bg, color: an ? (g === "D" ? C.tinte : C.weiss) : Fk.t }}>{k}</button>
-              );
-            })}
-          </div>
-        ))}
-      </div>
-      <div style={{ marginTop: 14, borderRadius: 14, padding: "14px 14px 12px", background: F.bg, borderLeft: `4px solid ${F.f}` }}>
-        <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: F.t }}>{kz} · {kzName(kz)}</p>
-        <div style={{ fontSize: 21, color: C.tinte, margin: "6px 0 2px", overflowX: "auto" }}><M t={KZ_FORMEL[kz]} /></div>
-        <p style={{ margin: "0 0 8px", fontSize: 13.5, lineHeight: 1.6, color: C.tinte }}>{ERKLAERT[kz]()}</p>
-        <div style={{ background: C.weiss, borderRadius: 10, padding: "8px 10px" }}>
-          <p style={{ margin: 0, fontSize: 11.5, fontWeight: 700, color: C.grau, textTransform: "uppercase", letterSpacing: "0.08em" }}>{zw("Probe mit Zahlen", "Check with numbers")}</p>
-          <div style={{ fontSize: 17, color: C.tinte, overflowX: "auto", margin: "4px 0" }}><M t={b.tex} /></div>
-          <p style={{ margin: 0, fontSize: 13.5, fontWeight: 700, color: "#0F7A4D" }}>{zw("links", "left")} = {zahl(b.l)} · {zw("rechts", "right")} = {zahl(b.r)} ✓</p>
-        </div>
-      </div>
+      {knoepfe}
+      {erklaerung}
       <GrosserKnopf ghost onClick={() => setB(axBeispiel(kz))}>{zw("Andere Zahlen", "Other numbers")}</GrosserKnopf>
     </div>
   );
@@ -89,27 +111,51 @@ function Rechenwege() {
   const [n, setN] = useState(1);
   const k = KETTEN.find((x) => x.id === id);
   useEffect(() => { setN(1); }, [id]);
+  const desktop = useDesktop();
+  const optionen = KETTEN.map((x) => [x.id, zw(x.titel[0], x.titel[1])]);
+  const einleitung = zw("Was du sonst „einfach so“ machst, wird hier sichtbar: Hinter jeder Umformung steht genau eine Spielregel.", "What you usually do “just like that” becomes visible here: behind every step there is exactly one rule.");
+  const zeilen = k.zeilen.slice(0, n).map((z, i) => (
+    <div key={i} style={{ padding: "8px 0", borderTop: i ? `1px solid ${C.linie}` : "none" }}>
+      <div style={{ fontSize: 18, color: i === n - 1 ? C.tinte : C.grau, overflowX: "auto", paddingBottom: 1 }}><M t={z.tex} /></div>
+      {i > 0 && (
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 3, flexWrap: "wrap" }}>
+          {z.kz ? <><Chip kz={z.kz} klein /><span style={{ fontSize: 12.5, color: C.grau }}>{kzName(z.kz)}</span></>
+            : <span style={{ fontSize: 12.5, color: C.grau }}>{z.schritt ? zw(z.schritt[0], z.schritt[1]) : zw("ausrechnen", "calculate")}</span>}
+        </div>
+      )}
+    </div>
+  ));
+  const ende = n >= k.zeilen.length;
+  if (desktop) {
+    return (
+      <div style={{ marginTop: 20 }} data-rechenwege>
+        <Arbeitsflaeche
+          links={<FeinKarte>
+            <p style={titelStil}>{zw("Jeder Rechenschritt ist ein Axiom", "Every step is an axiom")}</p>
+            <p style={{ fontSize: 13, color: C.grau, lineHeight: 1.6, margin: "0 0 14px" }}>{einleitung}</p>
+            <div style={{ display: "grid", gap: 8 }}>
+              <AktionsKnopf haupt farbe={C.smaragd} onClick={() => setN(n + 1)} disabled={ende}>{zw("Nächster Schritt", "Next step")}</AktionsKnopf>
+              <AktionsKnopf onClick={() => setN(ende ? 1 : k.zeilen.length)}>{ende ? zw("Von vorn", "Restart") : zw("Alles zeigen", "Show all")}</AktionsKnopf>
+            </div>
+          </FeinKarte>}
+          rechts={<>
+            <BildKarte style={{ padding: "8px 20px", minHeight: 200 }}>{zeilen}</BildKarte>
+            <Werkzeugleiste gruppen={[{ titel: zw("Rechnung", "Calculation"), inhalt: <ChipAuswahl optionen={optionen} wert={id} setWert={setId} label={zw("Rechnung", "Calculation")} /> }]} />
+          </>} />
+      </div>
+    );
+  }
   return (
     <div style={{ ...karte, marginTop: 16 }} data-rechenwege>
       <p style={kicker}>{zw("Jeder Rechenschritt ist ein Axiom", "Every step is an axiom")}</p>
-      <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, margin: "0 0 10px" }}>{zw("Was du sonst „einfach so“ machst, wird hier sichtbar: Hinter jeder Umformung steht genau eine Spielregel.", "What you usually do “just like that” becomes visible here: behind every step there is exactly one rule.")}</p>
-      <Auswahl optionen={KETTEN.map((x) => [x.id, zw(x.titel[0], x.titel[1])])} wert={id} setWert={setId} label={zw("Rechnung", "Calculation")} />
+      <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, margin: "0 0 10px" }}>{einleitung}</p>
+      <Auswahl optionen={optionen} wert={id} setWert={setId} label={zw("Rechnung", "Calculation")} />
       <div style={{ marginTop: 12, background: C.sand, borderRadius: 14, padding: "6px 12px" }}>
-        {k.zeilen.slice(0, n).map((z, i) => (
-          <div key={i} style={{ padding: "8px 0", borderTop: i ? `1px solid ${C.linie}` : "none" }}>
-            <div style={{ fontSize: 18, color: i === n - 1 ? C.tinte : C.grau, overflowX: "auto", paddingBottom: 1 }}><M t={z.tex} /></div>
-            {i > 0 && (
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 3, flexWrap: "wrap" }}>
-                {z.kz ? <><Chip kz={z.kz} klein /><span style={{ fontSize: 12.5, color: C.grau }}>{kzName(z.kz)}</span></>
-                  : <span style={{ fontSize: 12.5, color: C.grau }}>{z.schritt ? zw(z.schritt[0], z.schritt[1]) : zw("ausrechnen", "calculate")}</span>}
-              </div>
-            )}
-          </div>
-        ))}
+        {zeilen}
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-        <GrosserKnopf onClick={() => setN(n + 1)} disabled={n >= k.zeilen.length}>{zw("Nächster Schritt", "Next step")}</GrosserKnopf>
-        <GrosserKnopf ghost onClick={() => setN(n >= k.zeilen.length ? 1 : k.zeilen.length)}>{n >= k.zeilen.length ? zw("Von vorn", "Restart") : zw("Alles zeigen", "Show all")}</GrosserKnopf>
+        <GrosserKnopf onClick={() => setN(n + 1)} disabled={ende}>{zw("Nächster Schritt", "Next step")}</GrosserKnopf>
+        <GrosserKnopf ghost onClick={() => setN(ende ? 1 : k.zeilen.length)}>{ende ? zw("Von vorn", "Restart") : zw("Alles zeigen", "Show all")}</GrosserKnopf>
       </div>
     </div>
   );
@@ -121,12 +167,12 @@ function useAxStand() {
   useEffect(() => entdeckenHoeren(() => setZ((z) => z + 1)), []);
   return { status: statusAxiome(), phase: Math.min((entdeckenStand().axiome.phase || 0) + 1, AXIOM_PHASEN_ANZAHL) };
 }
-function ModulKarte({ gehe }) {
+function ModulKarte({ gehe, style }) {
   const { status, phase } = useAxStand();
   const zeile = status === "fertig" ? zw("Abgeschlossen – du kannst es jederzeit wiederholen.", "Completed – you can repeat it any time.")
     : status === "arbeit" ? zw(`Du bist bei Phase ${phase} von ${AXIOM_PHASEN_ANZAHL}.`, `You are at phase ${phase} of ${AXIOM_PHASEN_ANZAHL}.`) : zw("Zehn Phasen, etwa 45 Minuten.", "Ten phases, about 45 minutes.");
   return (
-    <div style={{ ...karte, marginTop: 16, background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, color: C.weiss }} data-axiom-modul>
+    <div style={{ ...karte, marginTop: 16, background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, color: C.weiss, ...style }} data-axiom-modul>
       <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: C.flaggold, margin: "0 0 6px" }}>{zw("Lernmodul", "Learning module")}</p>
       <p style={{ fontSize: 18, fontWeight: 700, margin: "0 0 6px", lineHeight: 1.3 }}>{zw("Axiome – das Fundament der Mathematik", "Axioms – the foundation of mathematics")}</p>
       <p style={{ fontSize: 14, fontWeight: 300, lineHeight: 1.65, margin: "0 0 4px", color: "#C9D6EE" }}>{zw("Von den Spielregeln zu deinen ersten eigenen Beweisen: a · 0 = 0, warum es kein 1/0 gibt, und alle drei binomischen Formeln – nur aus den Axiomen.", "From the rules to your first own proofs: a · 0 = 0, why there is no 1/0, and all three binomial formulas – from the axioms alone.")}</p>
@@ -137,41 +183,71 @@ function ModulKarte({ gehe }) {
 }
 
 function Entdecken({ gehe }) {
+  const desktop = useDesktop();
+  const k = desktop ? feinKarte : karte;   // Desktop: feiner Rahmen statt Schatten
+  const warum = (
+    <div style={{ ...k, marginTop: desktop ? 20 : 16, borderLeft: `4px solid ${C.flaggold}` }}>
+      <p style={kicker}>{zw("Warum das Fundament?", "Why the foundation?")}</p>
+      <p style={{ margin: 0, fontSize: 15, lineHeight: 1.75, color: C.tinte }}>
+        {zw("Brüche kürzen, Gleichungen lösen, ausmultiplizieren, ableiten: Alles beruht auf neun Spielregeln für nur zwei Rechenarten. Wer sie kennt, muss nichts mehr auswendig lernen – er kann jeden Rechenschritt begründen und Fehler selbst finden.", "Reducing fractions, solving equations, multiplying out, differentiating: everything rests on nine rules for just two operations. Whoever knows them no longer has to memorise – they can justify every step and find mistakes themselves.")}
+      </p>
+    </div>
+  );
+  const zweiArten = [[C.see, "#D6E4F7", "a − b = a + (−b)", zw("Minus ist Plus mit der Gegenzahl (A4).", "Minus is plus with the opposite (A4).")],
+    [C.gruen, "#F7D3E0", "a : b = a \\cdot \\frac{1}{b} \\quad (b \\neq 0)", zw("Geteilt ist Mal mit dem Kehrwert (M4).", "Divided is times the reciprocal (M4).")]].map(([f, bg, t, sz]) => (
+    <div key={t} style={{ background: bg, borderLeft: `4px solid ${f}`, borderRadius: 12, padding: "10px 12px" }}>
+      <div style={{ fontSize: 19, color: C.tinte, overflowX: "auto" }}><M t={t} /></div>
+      <p style={{ margin: "2px 0 0", fontSize: 13, color: C.tinte }}>{sz}</p>
+    </div>
+  ));
+  const zweiMerke = <Merke><MS s={zw("Darum gelten Kommutativ- und Assoziativgesetz nicht für − und : ($8 − 3 \\neq 3 − 8$). Schreibst du Minus als Plus und Geteilt als Mal, darfst du wieder tauschen und Klammern versetzen.", "That is why the commutative and associative laws do not hold for − and : ($8 − 3 \\neq 3 − 8$). If you write minus as plus and divided as times, you may swap and regroup again.")} /></Merke>;
+  const weiter = (
+    <button type="button" onClick={() => gehe && gehe({ ansicht: "zahlenraeume" })} data-weiter-zahlenraeume
+      style={{ ...k, marginTop: desktop ? 0 : 16, width: "100%", display: "flex", alignItems: "center", gap: 14, textAlign: "left", ...(desktop ? { height: "100%", boxSizing: "border-box" } : { border: "none" }), cursor: "pointer", fontFamily: "inherit" }}>
+      <span aria-hidden="true" style={{ flexShrink: 0, width: 50, height: 50, borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 800, color: C.weiss,
+        background: `linear-gradient(135deg, ${C.see}, ${C.lila} 45%, ${C.gold} 75%, ${C.smaragd})` }}>ℕℝ</span>
+      <span style={{ flex: 1, minWidth: 0 }}>
+        <span style={{ display: "block", fontSize: 11.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: C.gruenDunkel }}>{zw("Aufbaukurs · Station 2", "Next course · Station 2")}</span>
+        <span style={{ display: "block", fontSize: 16, fontWeight: 700, color: C.tinte, lineHeight: 1.3 }}>{zw("Zahlenräume: von ℕ bis ℝ", "Number spaces: from ℕ to ℝ")}</span>
+        <span style={{ display: "block", fontSize: 13, color: C.grau, lineHeight: 1.45, marginTop: 2 }}>{zw("Wo fehlen Inverse? Warum entstehen ℤ, ℚ und ℝ?", "Where are inverses missing? Why do ℤ, ℚ and ℝ arise?")}</span>
+      </span>
+      <span aria-hidden="true" style={{ color: C.see, fontSize: 20, fontWeight: 700 }}>→</span>
+    </button>
+  );
+  if (desktop) {
+    return (
+      <div>
+        {warum}
+        <GesetzProbe />
+        <FeinKarte style={{ marginTop: 20 }}>
+          <p style={titelStil}>{zw("Es gibt nur zwei Rechenarten", "There are only two operations")}</p>
+          <ErgebnisReihe gap={12}>{zweiArten}</ErgebnisReihe>
+          {zweiMerke}
+        </FeinKarte>
+        <Rechenwege />
+        <div style={{ marginTop: 20 }}>
+          <ErgebnisReihe style={{ alignItems: "stretch" }}>
+            <ModulKarte gehe={gehe} style={{ marginTop: 0, height: "100%", boxSizing: "border-box", border: "none" }} />
+            {weiter}
+          </ErgebnisReihe>
+        </div>
+      </div>
+    );
+  }
   return (
     <div>
-      <div style={{ ...karte, marginTop: 16, borderLeft: `4px solid ${C.flaggold}` }}>
-        <p style={kicker}>{zw("Warum das Fundament?", "Why the foundation?")}</p>
-        <p style={{ margin: 0, fontSize: 15, lineHeight: 1.75, color: C.tinte }}>
-          {zw("Brüche kürzen, Gleichungen lösen, ausmultiplizieren, ableiten: Alles beruht auf neun Spielregeln für nur zwei Rechenarten. Wer sie kennt, muss nichts mehr auswendig lernen – er kann jeden Rechenschritt begründen und Fehler selbst finden.", "Reducing fractions, solving equations, multiplying out, differentiating: everything rests on nine rules for just two operations. Whoever knows them no longer has to memorise – they can justify every step and find mistakes themselves.")}
-        </p>
-      </div>
+      {warum}
       <GesetzProbe />
       <div style={{ ...karte, marginTop: 16 }}>
         <p style={kicker}>{zw("Es gibt nur zwei Rechenarten", "There are only two operations")}</p>
         <div style={{ display: "grid", gap: 10 }}>
-          {[[C.see, "#D6E4F7", "a − b = a + (−b)", zw("Minus ist Plus mit der Gegenzahl (A4).", "Minus is plus with the opposite (A4).")],
-            [C.gruen, "#F7D3E0", "a : b = a \\cdot \\frac{1}{b} \\quad (b \\neq 0)", zw("Geteilt ist Mal mit dem Kehrwert (M4).", "Divided is times the reciprocal (M4).")]].map(([f, bg, t, s]) => (
-            <div key={t} style={{ background: bg, borderLeft: `4px solid ${f}`, borderRadius: 12, padding: "10px 12px" }}>
-              <div style={{ fontSize: 19, color: C.tinte, overflowX: "auto" }}><M t={t} /></div>
-              <p style={{ margin: "2px 0 0", fontSize: 13, color: C.tinte }}>{s}</p>
-            </div>
-          ))}
+          {zweiArten}
         </div>
-        <Merke><MS s={zw("Darum gelten Kommutativ- und Assoziativgesetz nicht für − und : ($8 − 3 \\neq 3 − 8$). Schreibst du Minus als Plus und Geteilt als Mal, darfst du wieder tauschen und Klammern versetzen.", "That is why the commutative and associative laws do not hold for − and : ($8 − 3 \\neq 3 − 8$). If you write minus as plus and divided as times, you may swap and regroup again.")} /></Merke>
+        {zweiMerke}
       </div>
       <Rechenwege />
       <ModulKarte gehe={gehe} />
-      <button type="button" onClick={() => gehe && gehe({ ansicht: "zahlenraeume" })} data-weiter-zahlenraeume
-        style={{ ...karte, marginTop: 16, width: "100%", display: "flex", alignItems: "center", gap: 14, textAlign: "left", border: "none", cursor: "pointer", fontFamily: "inherit" }}>
-        <span aria-hidden="true" style={{ flexShrink: 0, width: 50, height: 50, borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 800, color: C.weiss,
-          background: `linear-gradient(135deg, ${C.see}, ${C.lila} 45%, ${C.gold} 75%, ${C.smaragd})` }}>ℕℝ</span>
-        <span style={{ flex: 1, minWidth: 0 }}>
-          <span style={{ display: "block", fontSize: 11.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: C.gruenDunkel }}>{zw("Aufbaukurs · Station 2", "Next course · Station 2")}</span>
-          <span style={{ display: "block", fontSize: 16, fontWeight: 700, color: C.tinte, lineHeight: 1.3 }}>{zw("Zahlenräume: von ℕ bis ℝ", "Number spaces: from ℕ to ℝ")}</span>
-          <span style={{ display: "block", fontSize: 13, color: C.grau, lineHeight: 1.45, marginTop: 2 }}>{zw("Wo fehlen Inverse? Warum entstehen ℤ, ℚ und ℝ?", "Where are inverses missing? Why do ℤ, ℚ and ℝ arise?")}</span>
-        </span>
-        <span aria-hidden="true" style={{ color: C.see, fontSize: 20, fontWeight: 700 }}>→</span>
-      </button>
+      {weiter}
     </div>
   );
 }

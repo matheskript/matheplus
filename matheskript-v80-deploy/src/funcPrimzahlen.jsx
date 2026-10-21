@@ -13,15 +13,54 @@ import { PRIM_ARTEN, primAufgabe, primfaktoren } from "./unterGen.js";
 import { ggT } from "./rechnen2.js";
 import { Merke, Regler, UebenRahmen, ZweiModi, ws, zs } from "./geoUi.jsx";
 import { werkzeugAnimationen } from "./unterstufeMedien.js";
+import { Arbeitsflaeche, BildKarte, Werkzeugleiste, hinweisStil, useDesktop } from "./arbeitsflaeche.jsx";
+import { AktionsKnopf, ChipAuswahl, ErgebnisKarte, StellKarte } from "./funcZahlenDesktop.jsx";
 
 let zaehler = 0;
 const SIEB_PRIM = [2, 3, 5, 7];
 
-function Sieb() {
+/* leiste: nur Desktop – Werkzeugleiste unter dem Bild (Themenwahl); dann Arbeitsfläche statt Karte */
+function Sieb({ leiste }) {
   const [schritt, setSchritt] = useState(0);
   const aktiv = SIEB_PRIM.slice(0, schritt);
   const gestrichen = (n) => n === 1 || aktiv.some((p) => n !== p && n % p === 0);
   const fertig = schritt >= SIEB_PRIM.length;
+  const merkeText = fertig
+    ? zw("Übrig bleiben die 25 Primzahlen bis 100. Warum reicht es, bis 7 zu streichen? Jede zusammengesetzte Zahl bis 100 hat einen Teiler ≤ 10 – und 10² = 100.", "The 25 primes up to 100 remain. Why is crossing out up to 7 enough? Every composite number up to 100 has a divisor ≤ 10 – and 10² = 100.")
+    : zw("Eine Primzahl hat genau zwei Teiler: 1 und sich selbst. Streiche nacheinander die Vielfachen von 2, 3, 5 und 7.", "A prime has exactly two divisors: 1 and itself. Cross out the multiples of 2, 3, 5 and 7 one after another.");
+  const knopfText = fertig ? zw("Fertig", "Done") : zw(`Vielfache von ${SIEB_PRIM[schritt]} streichen`, `Cross out multiples of ${SIEB_PRIM[schritt]}`);
+  if (leiste) {
+    return (
+      <Arbeitsflaeche
+        links={<>
+          <ErgebnisKarte titel={zw("Sieb des Eratosthenes", "Sieve of Eratosthenes")}>
+            <div style={{ display: "grid", gap: 8 }}>
+              <AktionsKnopf haupt farbe={C.smaragd} onClick={() => setSchritt(schritt + 1)} disabled={fertig}>{knopfText}</AktionsKnopf>
+              <AktionsKnopf onClick={() => setSchritt(0)}>{zw("Von vorn", "Restart")}</AktionsKnopf>
+            </div>
+            <div style={{ display: "flex", gap: 6, marginTop: 14 }}>
+              {SIEB_PRIM.map((p, i) => (
+                <span key={p} style={{ flex: 1, textAlign: "center", padding: "5px 0", borderRadius: 8, fontSize: 13, fontWeight: 800,
+                  background: i < schritt ? C.flaggold : `${C.see}10`, color: i < schritt ? C.seeTief : C.grau }}>{p}</span>
+              ))}
+            </div>
+          </ErgebnisKarte>
+          <ErgebnisKarte><p style={{ ...hinweisStil, color: C.tinte, margin: 0 }}>{merkeText}</p></ErgebnisKarte>
+        </>}
+        rechts={<>
+          <BildKarte style={{ padding: 14 }}>
+            <div data-sieb style={{ display: "grid", gridTemplateColumns: "repeat(10, minmax(0, 1fr))", gap: 4 }}>
+              {Array.from({ length: 100 }, (_, i) => i + 1).map((n) => {
+                const weg = gestrichen(n), prim = (fertig && !weg) || aktiv.includes(n);
+                return <div key={n} style={{ textAlign: "center", fontSize: 13.5, fontWeight: 700, padding: "8px 0", borderRadius: 7, fontVariantNumeric: "tabular-nums",
+                  background: prim ? C.flaggold : weg ? C.sand : `${C.see}10`, color: weg ? C.hellgrau : C.tinte, textDecoration: weg ? "line-through" : "none", transition: "all .2s" }}>{n}</div>;
+              })}
+            </div>
+          </BildKarte>
+          {leiste}
+        </>} />
+    );
+  }
   return (
     <>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(10, 1fr)", gap: 3, marginTop: 12 }}>
@@ -32,44 +71,67 @@ function Sieb() {
         })}
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 10 }}>
-        <GrosserKnopf onClick={() => setSchritt(schritt + 1)} disabled={fertig}>{fertig ? zw("Fertig", "Done") : zw(`Vielfache von ${SIEB_PRIM[schritt]} streichen`, `Cross out multiples of ${SIEB_PRIM[schritt]}`)}</GrosserKnopf>
+        <GrosserKnopf onClick={() => setSchritt(schritt + 1)} disabled={fertig}>{knopfText}</GrosserKnopf>
         <GrosserKnopf ghost onClick={() => setSchritt(0)}>{zw("Von vorn", "Restart")}</GrosserKnopf>
       </div>
-      <Merke>{fertig
-        ? zw("Übrig bleiben die 25 Primzahlen bis 100. Warum reicht es, bis 7 zu streichen? Jede zusammengesetzte Zahl bis 100 hat einen Teiler ≤ 10 – und 10² = 100.", "The 25 primes up to 100 remain. Why is crossing out up to 7 enough? Every composite number up to 100 has a divisor ≤ 10 – and 10² = 100.")
-        : zw("Eine Primzahl hat genau zwei Teiler: 1 und sich selbst. Streiche nacheinander die Vielfachen von 2, 3, 5 und 7.", "A prime has exactly two divisors: 1 and itself. Cross out the multiples of 2, 3, 5 and 7 one after another.")}</Merke>
+      <Merke>{merkeText}</Merke>
     </>
   );
 }
 
-function Faktorbaum() {
+function Faktorbaum({ leiste }) {
   const [n, setN] = useState(360);
   const f = primfaktoren(n);
   const zeilen = []; let rest = n;
   for (const p of f.slice(0, -1)) { zeilen.push([rest, p, rest / p]); rest /= p; }
   const gruppen = {}; f.forEach((p) => { gruppen[p] = (gruppen[p] || 0) + 1; });
+  const ergebnis = <>{n} = {Object.entries(gruppen).map(([p, k], i) => <span key={p}>{i ? " · " : ""}{p}{k > 1 ? <sup>{k}</sup> : null}</span>)}</>;
+  const merkeText = zw("Immer mit dem kleinsten Primfaktor teilen, bis 1 übrig bleibt. Jede Zahl hat genau eine Primfaktorzerlegung.", "Always divide by the smallest prime factor until 1 remains. Every number has exactly one prime factorisation.");
+  const kette = f.length === 1 ? <b>{zw(`${n} ist eine Primzahl.`, `${n} is prime.`)}</b> : zeilen.map(([a, p, b], i) => (
+    <div key={i} style={{ paddingLeft: i * 16 }}><b>{a}</b> = <span style={{ color: "#8A6A00", fontWeight: 800 }}>{p}</span> · {b}</div>
+  ));
+  if (leiste) {
+    return (
+      <Arbeitsflaeche
+        links={<>
+          <StellKarte titel={zw("Zahl wählen", "Choose a number")} werte={[{ name: "n", wert: n, setWert: setN, min: 4, max: 500, regler: true }]} />
+          <ErgebnisKarte titel={zw("Primfaktorzerlegung", "Prime factorisation")}>
+            <div style={{ textAlign: "center", fontSize: 20, fontWeight: 700, color: C.tinte }}>{ergebnis}</div>
+          </ErgebnisKarte>
+        </>}
+        rechts={<>
+          <BildKarte style={{ padding: "16px 20px", fontSize: 18, lineHeight: 1.9, fontVariantNumeric: "tabular-nums", color: C.tinte, minHeight: 200 }}>{kette}</BildKarte>
+          {leiste}
+          <p style={{ ...hinweisStil, margin: 0 }}>{merkeText}</p>
+        </>} />
+    );
+  }
   return (
     <>
       <div style={{ marginTop: 12 }}><Regler name="n" wert={n} setWert={setN} min={4} max={500} schritt={1} format={(v) => String(v)} /></div>
       <div style={{ marginTop: 12, background: C.sand, borderRadius: 14, padding: "12px 14px", fontSize: 16, lineHeight: 1.9, fontVariantNumeric: "tabular-nums" }}>
-        {f.length === 1 ? <b>{zw(`${n} ist eine Primzahl.`, `${n} is prime.`)}</b> : zeilen.map(([a, p, b], i) => (
-          <div key={i} style={{ paddingLeft: i * 16 }}><b>{a}</b> = <span style={{ color: "#8A6A00", fontWeight: 800 }}>{p}</span> · {b}</div>
-        ))}
+        {kette}
       </div>
       <div style={{ textAlign: "center", fontSize: 19, fontWeight: 700, margin: "12px 0 4px" }}>
-        {n} = {Object.entries(gruppen).map(([p, k], i) => <span key={p}>{i ? " · " : ""}{p}{k > 1 ? <sup>{k}</sup> : null}</span>)}
+        {ergebnis}
       </div>
-      <Merke>{zw("Immer mit dem kleinsten Primfaktor teilen, bis 1 übrig bleibt. Jede Zahl hat genau eine Primfaktorzerlegung.", "Always divide by the smallest prime factor until 1 remains. Every number has exactly one prime factorisation.")}</Merke>
+      <Merke>{merkeText}</Merke>
     </>
   );
 }
 
 function Entdecken() {
   const [teil, setTeil] = useState("sieb");
+  const desktop = useDesktop();
+  const THEMEN = [["sieb", zw("Sieb des Eratosthenes", "Sieve of Eratosthenes")], ["baum", zw("Faktorbaum", "Factor tree")]];
+  if (desktop) {
+    const leiste = <Werkzeugleiste gruppen={[{ titel: zw("Was willst du sehen?", "What do you want to see?"), inhalt: <ChipAuswahl optionen={THEMEN} wert={teil} setWert={setTeil} label={zw("Thema", "Topic")} /> }]} />;
+    return <div style={{ marginTop: 16 }} data-prim="breit">{teil === "sieb" ? <Sieb leiste={leiste} /> : <Faktorbaum leiste={leiste} />}</div>;
+  }
   return (
     <div style={{ ...karte, marginTop: 16 }}>
       <p style={kicker}>{zw("Was willst du sehen?", "What do you want to see?")}</p>
-      <Auswahl optionen={[["sieb", zw("Sieb des Eratosthenes", "Sieve of Eratosthenes")], ["baum", zw("Faktorbaum", "Factor tree")]]} wert={teil} setWert={setTeil} label={zw("Thema", "Topic")} />
+      <Auswahl optionen={THEMEN} wert={teil} setWert={setTeil} label={zw("Thema", "Topic")} />
       {teil === "sieb" ? <Sieb /> : <Faktorbaum />}
     </div>
   );

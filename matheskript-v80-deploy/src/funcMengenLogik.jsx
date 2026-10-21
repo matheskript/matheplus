@@ -20,6 +20,8 @@ import { Merke, Regler } from "./geoUi.jsx";
 import { Absatz, Einfuehrung, FormelBlock, Labor, Leitfrage, LernwegSeite, MengenStrahl, Schalter, Trenner, UebenDaten, UebenKopf, VennBild } from "./lernwegUi.jsx";
 import { iv, mengeTex, ver } from "./mengenRechnen.js";
 import { ML_KAPITEL_ARTEN, ML_TITEL, P, VERKN, gegenbeispiel, ivSchnitt, ivVereinigung, listeTex, mlAufgabe, ungleichungTex } from "./mengenLogik.js";
+import { Kicker, Werkzeugleiste, useDesktop } from "./arbeitsflaeche.jsx";
+import { LaborFlaeche, StellKarte, useKarte } from "./funcZahlenDesktop.jsx";
 
 const GRUEN = "#0F7A4D";
 const pName = (id) => zw(P[id].de, P[id].en);
@@ -69,23 +71,40 @@ function Zahlenfeld({ bis, ist, farbe = C.see, rot, onTipp, gewaehlt }) {
 function MengenLabor() {
   const [id, setId] = useState("gerade"), [bis, setBis] = useState(20), [n, setN] = useState(null);
   const liste = Array.from({ length: bis }, (_, i) => i + 1).filter(P[id].f);
+  const desktop = useDesktop();
+  const titel = zw("Labor: eine Menge bauen", "Lab: build a set"), auff = zw("Wähle eine Eigenschaft – und tippe Zahlen an, um ∈ oder ∉ zu prüfen.", "Choose a property – and tap numbers to check ∈ or ∉.");
+  const eigenschaft = <Schalter optionen={EIGENSCHAFTEN.map((e) => [e, pName(e)])} wert={id} setWert={(e) => { setId(e); setN(null); }} label={zw("Eigenschaft", "Property")} />;
+  const grundmenge = <Schalter optionen={[[20, "G = {1; …; 20}"], [30, "G = {1; …; 30}"]]} wert={bis} setWert={setBis} farbe={C.grau} label={zw("Grundmenge", "Universe")} />;
+  const feld = <Zahlenfeld bis={bis} ist={P[id].f} onTipp={setN} gewaehlt={n} />;
+  const menge = (
+    <div style={{ background: C.sand, borderRadius: 14, padding: "10px 14px", marginTop: 12, display: "grid", gap: 6, fontSize: 15, color: C.tinte, overflowX: "auto" }}>
+      <span style={{ fontSize: 12, fontWeight: 700, color: C.grau }}>{zw("beschreibend", "set-builder")}</span>
+      <span><M t={`A = \\{x \\in G \\mid`} /> {pName(id)}<M t="\}" /></span>
+      <span style={{ fontSize: 12, fontWeight: 700, color: C.grau, marginTop: 4 }}>{zw("aufzählend", "listing")}</span>
+      <M t={`A = ${listeTex(liste)}`} />
+      <M t={`|A| = ${liste.length}`} />
+    </div>
+  );
+  const pruefung = n !== null && (
+    <p style={{ margin: "10px 2px 0", fontSize: 15, fontWeight: 700, color: P[id].f(n) ? GRUEN : C.signal }}>
+      <M t={`${n} ${P[id].f(n) ? "\\in" : "\\notin"} A`} /> – „{zw(P[id].de, P[id].en).replace(/\bx\b/, String(n))}“ {P[id].f(n) ? zw("ist wahr.", "is true.") : zw("ist falsch.", "is false.")}
+    </p>
+  );
+  if (desktop) {
+    return (
+      <LaborFlaeche titel={titel} aufforderung={auff}
+        links={<div style={{ marginTop: -12 }}>{menge}{pruefung}</div>}
+        bild={<div style={{ marginTop: -10 }}>{feld}</div>}
+        rechts={<Werkzeugleiste gruppen={[{ titel: zw("Eigenschaft", "Property"), inhalt: eigenschaft }, { titel: zw("Grundmenge", "Universe"), inhalt: grundmenge }]} />} />
+    );
+  }
   return (
-    <Labor titel={zw("Labor: eine Menge bauen", "Lab: build a set")} aufforderung={zw("Wähle eine Eigenschaft – und tippe Zahlen an, um ∈ oder ∉ zu prüfen.", "Choose a property – and tap numbers to check ∈ or ∉.")}>
-      <Schalter optionen={EIGENSCHAFTEN.map((e) => [e, pName(e)])} wert={id} setWert={(e) => { setId(e); setN(null); }} label={zw("Eigenschaft", "Property")} />
-      <div style={{ marginTop: 8 }}><Schalter optionen={[[20, "G = {1; …; 20}"], [30, "G = {1; …; 30}"]]} wert={bis} setWert={setBis} farbe={C.grau} label={zw("Grundmenge", "Universe")} /></div>
-      <Zahlenfeld bis={bis} ist={P[id].f} onTipp={setN} gewaehlt={n} />
-      <div style={{ background: C.sand, borderRadius: 14, padding: "10px 14px", marginTop: 12, display: "grid", gap: 6, fontSize: 15, color: C.tinte, overflowX: "auto" }}>
-        <span style={{ fontSize: 12, fontWeight: 700, color: C.grau }}>{zw("beschreibend", "set-builder")}</span>
-        <span><M t={`A = \\{x \\in G \\mid`} /> {pName(id)}<M t="\}" /></span>
-        <span style={{ fontSize: 12, fontWeight: 700, color: C.grau, marginTop: 4 }}>{zw("aufzählend", "listing")}</span>
-        <M t={`A = ${listeTex(liste)}`} />
-        <M t={`|A| = ${liste.length}`} />
-      </div>
-      {n !== null && (
-        <p style={{ margin: "10px 2px 0", fontSize: 15, fontWeight: 700, color: P[id].f(n) ? GRUEN : C.signal }}>
-          <M t={`${n} ${P[id].f(n) ? "\\in" : "\\notin"} A`} /> – „{zw(P[id].de, P[id].en).replace(/\bx\b/, String(n))}“ {P[id].f(n) ? zw("ist wahr.", "is true.") : zw("ist falsch.", "is false.")}
-        </p>
-      )}
+    <Labor titel={titel} aufforderung={auff}>
+      {eigenschaft}
+      <div style={{ marginTop: 8 }}>{grundmenge}</div>
+      {feld}
+      {menge}
+      {pruefung}
     </Labor>
   );
 }
@@ -137,18 +156,35 @@ function VennLabor() {
   const o = ops.find((x) => x[0] === op);
   const zahlen = Array.from({ length: 20 }, (_, i) => ({ n: i + 1, a: P[a].f(i + 1), b: P[b].f(i + 1) }));
   const erg = zahlen.filter((z) => o[2](z.a, z.b)).map((z) => z.n);
+  const desktop = useDesktop();
+  const titel = zw("Labor: Mengenbild", "Lab: Venn diagram"), auff = zw("Wähle zwei Eigenschaften und eine Operation. Gold markiert das Ergebnis.", "Choose two properties and an operation. Gold marks the result.");
+  const wahlA = <Schalter optionen={EIGENSCHAFTEN.map((e) => [e, pName(e)])} wert={a} setWert={setA} label="A" />;
+  const wahlB = <Schalter optionen={EIGENSCHAFTEN.map((e) => [e, pName(e)])} wert={b} setWert={setB} farbe={C.gold} label="B" />;
+  const wahlOp = <Schalter optionen={ops.map((x) => [x[0], x[1]])} wert={op} setWert={setOp} farbe={C.tinte} label={zw("Operation", "Operation")} />;
+  const venn = <VennBild zahlen={zahlen} markiert={(ina, inb) => o[2](ina, inb)} />;
+  const ergebnis = (
+    <div style={{ background: C.sand, borderRadius: 14, padding: "10px 14px", marginTop: 8, fontSize: 15, color: C.tinte, overflowX: "auto" }}>
+      <p style={{ margin: "0 0 4px", fontSize: 13, color: C.grau }}>{o[1]}: {o[3]} {zw("(Grundmenge 1 bis 20)", "(universe 1 to 20)")}</p>
+      <M t={`${o[1].replace("\\", "\\setminus").replace("Ā", "\\overline{A}")} = ${listeTex(erg)}`} />
+    </div>
+  );
+  if (desktop) {
+    return (
+      <LaborFlaeche titel={titel} aufforderung={auff}
+        links={<><Kicker>{zw("Operation", "Operation")}</Kicker>{wahlOp}<div style={{ marginTop: 6 }}>{ergebnis}</div></>}
+        bild={venn}
+        rechts={<Werkzeugleiste gruppen={[{ titel: zw("Menge A", "Set A"), inhalt: wahlA }, { titel: zw("Menge B", "Set B"), inhalt: wahlB }]} />} />
+    );
+  }
   return (
-    <Labor titel={zw("Labor: Mengenbild", "Lab: Venn diagram")} aufforderung={zw("Wähle zwei Eigenschaften und eine Operation. Gold markiert das Ergebnis.", "Choose two properties and an operation. Gold marks the result.")}>
+    <Labor titel={titel} aufforderung={auff}>
       <p style={{ ...kicker, color: C.see, marginBottom: 4 }}>A</p>
-      <Schalter optionen={EIGENSCHAFTEN.map((e) => [e, pName(e)])} wert={a} setWert={setA} label="A" />
+      {wahlA}
       <p style={{ ...kicker, color: C.gold, margin: "10px 0 4px" }}>B</p>
-      <Schalter optionen={EIGENSCHAFTEN.map((e) => [e, pName(e)])} wert={b} setWert={setB} farbe={C.gold} label="B" />
-      <div style={{ marginTop: 10 }}><Schalter optionen={ops.map((x) => [x[0], x[1]])} wert={op} setWert={setOp} farbe={C.tinte} label={zw("Operation", "Operation")} /></div>
-      <div style={{ marginTop: 10 }}><VennBild zahlen={zahlen} markiert={(ina, inb) => o[2](ina, inb)} /></div>
-      <div style={{ background: C.sand, borderRadius: 14, padding: "10px 14px", marginTop: 8, fontSize: 15, color: C.tinte, overflowX: "auto" }}>
-        <p style={{ margin: "0 0 4px", fontSize: 13, color: C.grau }}>{o[1]}: {o[3]} {zw("(Grundmenge 1 bis 20)", "(universe 1 to 20)")}</p>
-        <M t={`${o[1].replace("\\", "\\setminus").replace("Ā", "\\overline{A}")} = ${listeTex(erg)}`} />
-      </div>
+      {wahlB}
+      <div style={{ marginTop: 10 }}>{wahlOp}</div>
+      <div style={{ marginTop: 10 }}>{venn}</div>
+      {ergebnis}
     </Labor>
   );
 }
@@ -194,6 +230,35 @@ function IntervallLabor() {
   if (op === "schnitt") E = ivSchnitt(I, J);
   if (op === "ver") E = ivSchnitt(I, J).art !== "leer" || I.hi === J.lo || J.hi === I.lo ? ivVereinigung(I, J) : (I.lo < J.lo ? ver(I, J) : ver(J, I));
   const zeilen = op === "nur" ? [{ menge: I, farbe: C.see, name: "I" }] : [{ menge: I, farbe: C.see, name: "I" }, { menge: J, farbe: C.gold, name: "J" }, { menge: E, farbe: C.smaragd, name: op === "schnitt" ? "I ∩ J" : "I ∪ J" }];
+  const desktop = useDesktop();
+  if (desktop) {
+    const zt0 = (v) => zt(v);
+    return (
+      <LaborFlaeche titel={zw("Labor: Intervalle", "Lab: intervals")} aufforderung={zw("Ziehe die Grenzen und schalte um, ob sie dazugehören. Dann schneide oder vereinige mit J.", "Drag the bounds and toggle whether they are included. Then intersect or unite with J.")}
+          links={<div style={{ display: "grid", gap: 12 }}>
+            <StellKarte titel="I" werte={[
+              { name: "a", wert: a, setWert: setA, min: -8, max: 8, format: zt0 },
+              { name: "b", wert: b, setWert: setB, min: -8, max: 8, format: zt0 },
+            ]}>
+              <div style={{ display: "grid", gap: 6, marginTop: 12 }}>
+                <Schalter optionen={[[true, zw("a gehört dazu", "a included")], [false, zw("a nicht", "a excluded")]]} wert={az} setWert={setAz} label="a" />
+                <Schalter optionen={[[true, zw("b gehört dazu", "b included")], [false, zw("b nicht", "b excluded")]]} wert={bz} setWert={setBz} label="b" />
+              </div>
+            </StellKarte>
+            <div><Kicker>{zw("Operation", "Operation")}</Kicker><Schalter optionen={[["nur", zw("nur I", "only I")], ["schnitt", "I ∩ J"], ["ver", "I ∪ J"]]} wert={op} setWert={setOp} farbe={C.smaragd} label={zw("Operation", "Operation")} /></div>
+            {op !== "nur" && <StellKarte titel="J" farbe={C.gold} werte={[
+              { name: "c", wert: c, setWert: setC, min: -8, max: 8, format: zt0 },
+              { name: "d", wert: d, setWert: setD, min: -8, max: 8, format: zt0 },
+            ]} />}
+          </div>}
+          bild={<MengenStrahl mengen={zeilen} lo={-9} hi={9} />} bildStil={{ padding: "12px 16px" }}
+          rechts={<div style={{ background: C.sand, borderRadius: 14, padding: "12px 16px", display: "grid", gap: 8, fontSize: 16, color: C.tinte, overflowX: "auto" }}>
+            <M t={`I = ${mengeTex(I)}`} />
+            <M t={`I = \\{x \\in \\mathbb{R} \\mid ${ungleichungTex(I)}\\}`} />
+            {op !== "nur" && <div style={{ fontWeight: 700 }}><M t={`I ${op === "schnitt" ? "\\cap" : "\\cup"} J = ${mengeTex(E)}`} /></div>}
+          </div>} />
+    );
+  }
   return (
     <Labor titel={zw("Labor: Intervalle", "Lab: intervals")} aufforderung={zw("Ziehe die Grenzen und schalte um, ob sie dazugehören. Dann schneide oder vereinige mit J.", "Drag the bounds and toggle whether they are included. Then intersect or unite with J.")}>
       <div style={{ display: "grid", gap: 8 }}>
@@ -262,10 +327,11 @@ function TafelLabor() {
   const [op, setOp] = useState("folgt"), [zeile, setZeile] = useState(1);
   const reihen = [[true, true], [true, false], [false, true], [false, false]];
   const wf = (x) => (x ? zw("w", "t") : zw("f", "f"));
-  return (
-    <Labor titel={zw("Labor: Wahrheitstafel", "Lab: truth table")} aufforderung={zw("Wähle eine Verknüpfung und tippe eine Zeile an.", "Choose a connective and tap a row.")}>
-      <Schalter optionen={[["und", "$A \\land B$"], ["oder", "$A \\lor B$"], ["folgt", "$A \\Rightarrow B$"], ["aequ", "$A \\Leftrightarrow B$"]]} wert={op} setWert={setOp} label={zw("Verknüpfung", "Connective")} />
-      <table style={{ width: "100%", borderCollapse: "collapse", marginTop: 12, fontSize: 16, textAlign: "center", color: C.tinte }}>
+  const desktop = useDesktop();
+  const titel = zw("Labor: Wahrheitstafel", "Lab: truth table"), auff = zw("Wähle eine Verknüpfung und tippe eine Zeile an.", "Choose a connective and tap a row.");
+  const wahl = <Schalter optionen={[["und", "$A \\land B$"], ["oder", "$A \\lor B$"], ["folgt", "$A \\Rightarrow B$"], ["aequ", "$A \\Leftrightarrow B$"]]} wert={op} setWert={setOp} label={zw("Verknüpfung", "Connective")} />;
+  const tafel = (
+      <table style={{ width: "100%", borderCollapse: "collapse", marginTop: desktop ? 0 : 12, fontSize: 16, textAlign: "center", color: C.tinte }}>
         <thead><tr style={{ background: C.sand }}>{["A", "B", ""].map((h, i) => <th key={i} style={{ padding: 8, fontSize: 14 }}>{i < 2 ? h : <M t={`A ${VERKN[op].tex} B`} />}</th>)}</tr></thead>
         <tbody>
           {reihen.map(([a, b], i) => {
@@ -280,8 +346,18 @@ function TafelLabor() {
           })}
         </tbody>
       </table>
-      <p style={{ margin: "10px 2px 0", fontSize: 13.5, color: C.grau, lineHeight: 1.6 }}>{zw(BEISPIEL[op][0], BEISPIEL[op][1])}</p>
-      {op === "folgt" && zeile >= 2 && <p style={{ margin: "6px 2px 0", fontSize: 13.5, color: C.see, fontWeight: 600, lineHeight: 1.6 }}>{zw("Ist A falsch, ist das Versprechen nicht gebrochen – A ⇒ B ist dann wahr, egal was B ist.", "If A is false, the promise isn't broken – A ⇒ B is then true, whatever B is.")}</p>}
+  );
+  const beispiel = <p style={{ margin: "10px 2px 0", fontSize: 13.5, color: C.grau, lineHeight: 1.6 }}>{zw(BEISPIEL[op][0], BEISPIEL[op][1])}</p>;
+  const versprechen = op === "folgt" && zeile >= 2 && <p style={{ margin: "6px 2px 0", fontSize: 13.5, color: C.see, fontWeight: 600, lineHeight: 1.6 }}>{zw("Ist A falsch, ist das Versprechen nicht gebrochen – A ⇒ B ist dann wahr, egal was B ist.", "If A is false, the promise isn't broken – A ⇒ B is then true, whatever B is.")}</p>;
+  if (desktop) {
+    return <LaborFlaeche titel={titel} aufforderung={auff} links={<>{wahl}{beispiel}</>} bild={tafel} bildStil={{ padding: "8px 12px" }} rechts={versprechen} />;
+  }
+  return (
+    <Labor titel={titel} aufforderung={auff}>
+      {wahl}
+      {tafel}
+      {beispiel}
+      {versprechen}
     </Labor>
   );
 }
@@ -323,14 +399,14 @@ function FolgernLabor() {
   const [a, setA] = useState("v6"), [b, setB] = useState("v3");
   const g1 = gegenbeispiel(a, b), g2 = gegenbeispiel(b, a);
   const bis = 40;
-  return (
-    <Labor titel={zw("Labor: Folgerung prüfen", "Lab: check an implication")} aufforderung={zw("Wähle A und B. Rot markiert Gegenbeispiele zu A ⇒ B: Zahlen mit A, aber ohne B.", "Choose A and B. Red marks counterexamples to A ⇒ B: numbers with A but without B.")}>
-      <p style={{ ...kicker, color: C.see, marginBottom: 4 }}>A</p>
-      <Schalter optionen={FOLGER_EIGENSCHAFTEN.map((e) => [e, pName(e)])} wert={a} setWert={setA} label="A" />
-      <p style={{ ...kicker, color: C.gold, margin: "10px 0 4px" }}>B</p>
-      <Schalter optionen={FOLGER_EIGENSCHAFTEN.map((e) => [e, pName(e)])} wert={b} setWert={setB} farbe={C.gold} label="B" />
-      <Zahlenfeld bis={bis} ist={P[a].f} rot={(n) => P[a].f(n) && !P[b].f(n)} />
-      <div style={{ display: "grid", gap: 8, marginTop: 12 }}>
+  const desktop = useDesktop();
+  const titel = zw("Labor: Folgerung prüfen", "Lab: check an implication"), auff = zw("Wähle A und B. Rot markiert Gegenbeispiele zu A ⇒ B: Zahlen mit A, aber ohne B.", "Choose A and B. Red marks counterexamples to A ⇒ B: numbers with A but without B.");
+  const wahlA = <Schalter optionen={FOLGER_EIGENSCHAFTEN.map((e) => [e, pName(e)])} wert={a} setWert={setA} label="A" />;
+  const wahlB = <Schalter optionen={FOLGER_EIGENSCHAFTEN.map((e) => [e, pName(e)])} wert={b} setWert={setB} farbe={C.gold} label="B" />;
+  const feld = <Zahlenfeld bis={bis} ist={P[a].f} rot={(n) => P[a].f(n) && !P[b].f(n)} />;
+  const auswertung = (
+    <>
+      <div style={{ display: "grid", gap: 8, marginTop: desktop ? 0 : 12 }}>
         {[[a, b, g1], [b, a, g2]].map(([x, y, g], i) => (
           <div key={i} style={{ padding: "10px 12px", borderRadius: 12, background: g === null ? "#E6F6EF" : "#FCEFE8", color: g === null ? GRUEN : C.signal, fontSize: 14, lineHeight: 1.55, fontWeight: 600 }}>
             <MS s={zw(`„Wenn ${P[x].wenn}, dann ${P[y].dann}.“`, `“If ${P[x].en}, then ${P[y].en}.”`)} /> {g === null ? zw("– wahr (kein Gegenbeispiel bis 400).", "– true (no counterexample up to 400).") : zw(`– falsch, z. B. ${g}.`, `– false, e.g. ${g}.`)}
@@ -343,7 +419,26 @@ function FolgernLabor() {
             : g2 === null ? zw("A ist notwendig für B (ohne A kein B), aber nicht hinreichend.", "A is necessary for B (no B without A), but not sufficient.")
               : zw("A ist für B weder notwendig noch hinreichend.", "A is neither necessary nor sufficient for B.")}
       </p>
-      <p style={{ margin: "4px 2px 0", fontSize: 12, color: C.grau }}>{zw("Blau: Zahlen mit Eigenschaft A (1 bis 40). Ein Zahlenfeld beweist nichts – aber ein rotes Feld widerlegt.", "Blue: numbers with property A (1 to 40). A grid proves nothing – but a red square disproves.")}</p>
+    </>
+  );
+  const fussnote = <p style={{ margin: "4px 2px 0", fontSize: 12, color: C.grau }}>{zw("Blau: Zahlen mit Eigenschaft A (1 bis 40). Ein Zahlenfeld beweist nichts – aber ein rotes Feld widerlegt.", "Blue: numbers with property A (1 to 40). A grid proves nothing – but a red square disproves.")}</p>;
+  if (desktop) {
+    return (
+      <LaborFlaeche titel={titel} aufforderung={auff}
+        links={auswertung}
+        bild={<div style={{ marginTop: -10 }}>{feld}{fussnote}</div>}
+        rechts={<Werkzeugleiste gruppen={[{ titel: zw("Eigenschaft A", "Property A"), inhalt: wahlA }, { titel: zw("Eigenschaft B", "Property B"), inhalt: wahlB }]} />} />
+    );
+  }
+  return (
+    <Labor titel={titel} aufforderung={auff}>
+      <p style={{ ...kicker, color: C.see, marginBottom: 4 }}>A</p>
+      {wahlA}
+      <p style={{ ...kicker, color: C.gold, margin: "10px 0 4px" }}>B</p>
+      {wahlB}
+      {feld}
+      {auswertung}
+      {fussnote}
     </Labor>
   );
 }
@@ -385,6 +480,7 @@ function KapitelFolgern({ nr, von }) {
    KAPITEL 6 · ALLES GEMISCHT
    ============================================================ */
 function KapitelMix({ nr, von, gehe }) {
+  const karte = useKarte();   // Desktop: feiner Rahmen statt Schatten
   return (
     <>
       <Leitfrage nr={nr} von={von}>{zw("Alles gemischt", "Everything mixed")}</Leitfrage>

@@ -19,6 +19,8 @@ import { Merke, Pille, UebenRahmen, ZweiModi, misch, ws, zs } from "./geoUi.jsx"
 import { RAUM_FARBE, ZahlraumAnimation } from "./funcZahlenraumAnimation.jsx";
 import { q, qNum, qTex } from "./rechnen2.js";
 import { springe } from "./sprung.js";
+import { Arbeitsflaeche, BildKarte, ErgebnisReihe, FeinKarte, Werkzeugleiste, hinweisStil, titelStil, useDesktop } from "./arbeitsflaeche.jsx";
+import { AktionsKnopf, useKarte } from "./funcZahlenDesktop.jsx";
 import {
   ABGESCHLOSSEN, NAMEN, OPS, RAEUME, ZEICHEN, ZR_ARTEN, ergebnisRaum, kleinsterRaum, naeherungenWurzel2, rechne, stufe, wurzelVon, zrAufgabe, zufallAus,
 } from "./zahlraum.js";
@@ -57,33 +59,62 @@ function Tester({ raum }) {
     }
   };
   const farbe = RAUM_FARBE[raum];
+  const desktop = useDesktop();
+  const karte = useKarte();
+  const pillen = (
+    <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }} role="group" aria-label={zw("Rechenart", "Operation")}>
+      {ops.map((o) => <Pille key={o} an={op === o} onClick={() => setOp(o)} farbe={farbe}>{OPS[o]}</Pille>)}
+    </div>
+  );
+  const rechnung = <>
+    <div style={{ fontSize: desktop ? 30 : 24, color: C.tinte, overflowX: "auto" }}><M t={`${tq(a)} ${OPS[op]} ${tq(b, true)} = ${tq(r)}`} /></div>
+    <p style={{ margin: "8px 0 0", fontSize: 15, fontWeight: 700, color: drin ? farbe : ROT }} aria-live="polite">
+      {drin
+        ? <>{zw("Das Ergebnis liegt in", "The result is in")} {ZEICHEN[raum]} ✓</>
+        : <>{zw("Das Ergebnis liegt nicht in", "The result is not in")} {ZEICHEN[raum]} – {zw("erst in", "only in")} <span style={{ color: RAUM_FARBE[rr] }}>{ZEICHEN[rr]}</span></>}
+    </p>
+  </>;
+  const tafel = (spalten) => (
+    <div style={{ display: "grid", gridTemplateColumns: `repeat(${spalten}, minmax(0, 1fr))`, gap: 6, marginTop: 12 }}>
+      {ops.map((o) => {
+        const ok = ABGESCHLOSSEN[raum][o];
+        return (
+          <div key={o} style={{ textAlign: "center", borderRadius: 10, padding: "6px 2px", background: ok ? `${farbe}12` : `${ROT}10`, border: `1px solid ${ok ? farbe : ROT}44` }}>
+            <div style={{ fontSize: 18, fontWeight: 800, color: C.tinte }}>{OPS[o]}</div>
+            <div style={{ fontSize: 11.5, fontWeight: 700, color: ok ? farbe : ROT }}>{ok ? zw("bleibt drin", "stays in") : zw("führt raus", "leads out")}</div>
+          </div>
+        );
+      })}
+    </div>
+  );
+  const erkl = zw("„Bleibt drin“ heißt: für alle Zahlen aus dem Zahlenraum (beim Teilen außer durch 0). Ein einziges Gegenbeispiel genügt für „führt raus“.", "“Stays in” means: for all numbers of the space (when dividing, except by 0). A single counterexample is enough for “leads out”.");
+  if (desktop) {
+    return (
+      <div style={{ marginTop: 20 }} data-tester={raum}>
+        <Arbeitsflaeche
+          links={<FeinKarte>
+            <p style={titelStil}>{zw("Probier selbst: Bleibt das Ergebnis drin?", "Try it: does the result stay inside?")}</p>
+            {pillen}
+            <AktionsKnopf onClick={neu}>{zw("Neue Zahlen aus", "New numbers from")} {ZEICHEN[raum]}</AktionsKnopf>
+            {tafel(2)}
+          </FeinKarte>}
+          rechts={<>
+            <BildKarte style={{ padding: "36px 20px", textAlign: "center", background: C.sand, minHeight: 150, display: "flex", flexDirection: "column", justifyContent: "center" }}>{rechnung}</BildKarte>
+            <p style={{ ...hinweisStil, margin: "0 2px" }}>{erkl}</p>
+          </>} />
+      </div>
+    );
+  }
   return (
     <div style={{ ...karte, marginTop: 14 }} data-tester={raum}>
       <p style={kicker}>{zw("Probier selbst: Bleibt das Ergebnis drin?", "Try it: does the result stay inside?")}</p>
-      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }} role="group" aria-label={zw("Rechenart", "Operation")}>
-        {ops.map((o) => <Pille key={o} an={op === o} onClick={() => setOp(o)} farbe={farbe}>{OPS[o]}</Pille>)}
-      </div>
+      {pillen}
       <div style={{ background: C.sand, borderRadius: 14, padding: "14px 12px", textAlign: "center" }}>
-        <div style={{ fontSize: 24, color: C.tinte, overflowX: "auto" }}><M t={`${tq(a)} ${OPS[op]} ${tq(b, true)} = ${tq(r)}`} /></div>
-        <p style={{ margin: "8px 0 0", fontSize: 15, fontWeight: 700, color: drin ? farbe : ROT }} aria-live="polite">
-          {drin
-            ? <>{zw("Das Ergebnis liegt in", "The result is in")} {ZEICHEN[raum]} ✓</>
-            : <>{zw("Das Ergebnis liegt nicht in", "The result is not in")} {ZEICHEN[raum]} – {zw("erst in", "only in")} <span style={{ color: RAUM_FARBE[rr] }}>{ZEICHEN[rr]}</span></>}
-        </p>
+        {rechnung}
       </div>
       <GrosserKnopf ghost onClick={neu}>{zw("Neue Zahlen aus", "New numbers from")} {ZEICHEN[raum]}</GrosserKnopf>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 6, marginTop: 12 }}>
-        {ops.map((o) => {
-          const ok = ABGESCHLOSSEN[raum][o];
-          return (
-            <div key={o} style={{ textAlign: "center", borderRadius: 10, padding: "6px 2px", background: ok ? `${farbe}12` : `${ROT}10`, border: `1px solid ${ok ? farbe : ROT}44` }}>
-              <div style={{ fontSize: 18, fontWeight: 800, color: C.tinte }}>{OPS[o]}</div>
-              <div style={{ fontSize: 11.5, fontWeight: 700, color: ok ? farbe : ROT }}>{ok ? zw("bleibt drin", "stays in") : zw("führt raus", "leads out")}</div>
-            </div>
-          );
-        })}
-      </div>
-      <p style={{ fontSize: 12, color: C.grau, margin: "8px 2px 0", lineHeight: 1.5 }}>{zw("„Bleibt drin“ heißt: für alle Zahlen aus dem Zahlenraum (beim Teilen außer durch 0). Ein einziges Gegenbeispiel genügt für „führt raus“.", "“Stays in” means: for all numbers of the space (when dividing, except by 0). A single counterexample is enough for “leads out”.")}</p>
+      {tafel(4)}
+      <p style={{ fontSize: 12, color: C.grau, margin: "8px 2px 0", lineHeight: 1.5 }}>{erkl}</p>
     </div>
   );
 }
@@ -100,32 +131,64 @@ const BEWEIS = () => [
 function Beweis() {
   const [n, setN] = useState(1);
   const zeilen = BEWEIS();
+  const desktop = useDesktop();
+  const karte = useKarte();
+  const satz = <p style={{ fontSize: 17, fontWeight: 700, color: C.tinte, margin: "0 0 4px" }}>{zw("Es gibt keine rationale Zahl, deren Quadrat 2 ist.", "There is no rational number whose square is 2.")}</p>;
+  const idee = zw("Idee: Wir nehmen das Gegenteil an und rechnen so lange, bis etwas Unmögliches herauskommt. Dann muss die Annahme falsch gewesen sein.", "Idea: we assume the opposite and calculate until something impossible comes out. Then the assumption must have been wrong.");
+  const liste = (
+    <ol style={{ listStyle: "none", margin: 0, padding: 0 }}>
+      {zeilen.slice(0, n).map((z, i) => (
+        <li key={i} style={{ display: "flex", gap: 10, padding: "10px 0", borderTop: i ? `1px solid ${C.linie}` : "none" }}>
+          <span aria-hidden="true" style={{ flexShrink: 0, width: 24, height: 24, borderRadius: 999, background: i === zeilen.length - 1 ? ROT : C.smaragd, color: C.weiss, fontSize: 12, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" }}>{i + 1}</span>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontSize: 18, color: i === zeilen.length - 1 ? ROT : C.tinte, overflowX: "auto", paddingBottom: 2 }}><M t={z.tex} /></div>
+            <p style={{ margin: "2px 0 0", fontSize: 13.5, color: C.grau, lineHeight: 1.6 }}>{z.text}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+  );
+  const ende = n >= zeilen.length;
+  const aufklapp1 = (
+    <Aufklapp titel={zw("Warum ist p gerade, wenn p² gerade ist?", "Why is p even if p² is even?")}>
+      <MS s={zw("Wäre p ungerade, also $p = 2m + 1$, dann wäre $p^2 = 4m^2 + 4m + 1 = 2 \\cdot (2m^2 + 2m) + 1$ – eine ungerade Zahl. Ein gerades p² kann also nur von einem geraden p kommen.", "If p were odd, i.e. $p = 2m + 1$, then $p^2 = 4m^2 + 4m + 1 = 2 \\cdot (2m^2 + 2m) + 1$ – an odd number. So an even p² can only come from an even p.")} />
+    </Aufklapp>
+  );
+  const aufklapp2 = (
+    <Aufklapp titel={zw("Geht das auch mit √3, √5, …?", "Does this work for √3, √5, …?")}>
+      <MS s={zw("Ja. Für jede Primzahl p läuft der Beweis genauso, nur mit „durch p teilbar“ statt „gerade“. Allgemein gilt: $\\sqrt{n}$ ist genau dann rational, wenn n eine Quadratzahl ist. $\\sqrt{9} = 3$ ist rational, $\\sqrt{8}$ nicht.", "Yes. For every prime p the proof works the same way, with “divisible by p” instead of “even”. In general: $\\sqrt{n}$ is rational exactly when n is a perfect square. $\\sqrt{9} = 3$ is rational, $\\sqrt{8}$ is not.")} />
+    </Aufklapp>
+  );
+  if (desktop) {
+    return (
+      <div style={{ marginTop: 20 }} data-beweis>
+        <Arbeitsflaeche
+          links={<FeinKarte>
+            <p style={titelStil}>{zw("Beweis durch Widerspruch", "Proof by contradiction")}</p>
+            {satz}
+            <p style={{ fontSize: 13, color: C.grau, lineHeight: 1.6, margin: "6px 0 14px" }}>{idee}</p>
+            <div style={{ display: "grid", gap: 8 }}>
+              <AktionsKnopf haupt farbe={C.smaragd} onClick={() => setN(n + 1)} disabled={ende}>{zw("Nächster Schritt", "Next step")}</AktionsKnopf>
+              <AktionsKnopf onClick={() => setN(ende ? 1 : zeilen.length)}>{ende ? zw("Von vorn", "Restart") : zw("Alles zeigen", "Show all")}</AktionsKnopf>
+            </div>
+          </FeinKarte>}
+          rechts={<BildKarte style={{ padding: "6px 20px", minHeight: 220 }}>{liste}</BildKarte>} />
+        <ErgebnisReihe style={{ marginTop: 4 }}>{aufklapp1}{aufklapp2}</ErgebnisReihe>
+      </div>
+    );
+  }
   return (
     <div style={{ ...karte, marginTop: 14 }} data-beweis>
       <p style={kicker}>{zw("Beweis durch Widerspruch", "Proof by contradiction")}</p>
-      <p style={{ fontSize: 17, fontWeight: 700, color: C.tinte, margin: "0 0 4px" }}>{zw("Es gibt keine rationale Zahl, deren Quadrat 2 ist.", "There is no rational number whose square is 2.")}</p>
-      <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, margin: "0 0 10px" }}>{zw("Idee: Wir nehmen das Gegenteil an und rechnen so lange, bis etwas Unmögliches herauskommt. Dann muss die Annahme falsch gewesen sein.", "Idea: we assume the opposite and calculate until something impossible comes out. Then the assumption must have been wrong.")}</p>
-      <ol style={{ listStyle: "none", margin: 0, padding: 0 }}>
-        {zeilen.slice(0, n).map((z, i) => (
-          <li key={i} style={{ display: "flex", gap: 10, padding: "10px 0", borderTop: i ? `1px solid ${C.linie}` : "none" }}>
-            <span aria-hidden="true" style={{ flexShrink: 0, width: 24, height: 24, borderRadius: 999, background: i === zeilen.length - 1 ? ROT : C.smaragd, color: C.weiss, fontSize: 12, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" }}>{i + 1}</span>
-            <div style={{ minWidth: 0 }}>
-              <div style={{ fontSize: 18, color: i === zeilen.length - 1 ? ROT : C.tinte, overflowX: "auto", paddingBottom: 2 }}><M t={z.tex} /></div>
-              <p style={{ margin: "2px 0 0", fontSize: 13.5, color: C.grau, lineHeight: 1.6 }}>{z.text}</p>
-            </div>
-          </li>
-        ))}
-      </ol>
+      {satz}
+      <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, margin: "0 0 10px" }}>{idee}</p>
+      {liste}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-        <GrosserKnopf onClick={() => setN(n + 1)} disabled={n >= zeilen.length}>{zw("Nächster Schritt", "Next step")}</GrosserKnopf>
-        <GrosserKnopf ghost onClick={() => setN(n >= zeilen.length ? 1 : zeilen.length)}>{n >= zeilen.length ? zw("Von vorn", "Restart") : zw("Alles zeigen", "Show all")}</GrosserKnopf>
+        <GrosserKnopf onClick={() => setN(n + 1)} disabled={ende}>{zw("Nächster Schritt", "Next step")}</GrosserKnopf>
+        <GrosserKnopf ghost onClick={() => setN(ende ? 1 : zeilen.length)}>{ende ? zw("Von vorn", "Restart") : zw("Alles zeigen", "Show all")}</GrosserKnopf>
       </div>
-      <Aufklapp titel={zw("Warum ist p gerade, wenn p² gerade ist?", "Why is p even if p² is even?")}>
-        <MS s={zw("Wäre p ungerade, also $p = 2m + 1$, dann wäre $p^2 = 4m^2 + 4m + 1 = 2 \\cdot (2m^2 + 2m) + 1$ – eine ungerade Zahl. Ein gerades p² kann also nur von einem geraden p kommen.", "If p were odd, i.e. $p = 2m + 1$, then $p^2 = 4m^2 + 4m + 1 = 2 \\cdot (2m^2 + 2m) + 1$ – an odd number. So an even p² can only come from an even p.")} />
-      </Aufklapp>
-      <Aufklapp titel={zw("Geht das auch mit √3, √5, …?", "Does this work for √3, √5, …?")}>
-        <MS s={zw("Ja. Für jede Primzahl p läuft der Beweis genauso, nur mit „durch p teilbar“ statt „gerade“. Allgemein gilt: $\\sqrt{n}$ ist genau dann rational, wenn n eine Quadratzahl ist. $\\sqrt{9} = 3$ ist rational, $\\sqrt{8}$ nicht.", "Yes. For every prime p the proof works the same way, with “divisible by p” instead of “even”. In general: $\\sqrt{n}$ is rational exactly when n is a perfect square. $\\sqrt{9} = 3$ is rational, $\\sqrt{8}$ is not.")} />
-      </Aufklapp>
+      {aufklapp1}
+      {aufklapp2}
     </div>
   );
 }
@@ -137,18 +200,42 @@ function Naeherung() {
   const [p, qq] = l[k];
   const quad = (p * p) / (qq * qq);
   const fmt = (v, st) => v.toFixed(st).replace(".", ",");
+  const desktop = useDesktop();
+  const karte = useKarte();
+  const text = zw("Jeder Bruch ist näher an √2 als der vorige. Trotzdem ist das Quadrat nie genau 2: Es liegt immer um genau 1/q² daneben.", "Each fraction is closer to √2 than the one before. Still the square is never exactly 2: it is always off by exactly 1/q².");
+  const pillen = (
+    <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+      {l.map(([a, b], i) => <Pille key={i} an={i === k} onClick={() => setK(i)} farbe={C.gold}>{a}/{b}</Pille>)}
+    </div>
+  );
+  const formel = <>
+    <M t={`\\left(\\frac{${p}}{${qq}}\\right)^2 = \\frac{${p * p}}{${qq * qq}} \\approx ${fmt(quad, 8)}`} />
+    <span style={{ fontSize: 14, fontWeight: 700, color: quad < 2 ? C.see : ROT }}>
+      {quad < 2 ? zw("etwas zu klein", "slightly too small") : zw("etwas zu groß", "slightly too big")} · {zw("Abstand zu 2:", "distance to 2:")} <M t={`\\frac{1}{${qq * qq}}`} />
+    </span>
+  </>;
+  if (desktop) {
+    return (
+      <div style={{ marginTop: 20 }}>
+        <Arbeitsflaeche
+          links={<FeinKarte>
+            <p style={titelStil}>{zw("Immer näher – nie genau", "Ever closer – never exact")}</p>
+            <p style={{ fontSize: 13, color: C.grau, lineHeight: 1.6, margin: 0 }}>{text}</p>
+          </FeinKarte>}
+          rechts={<>
+            <BildKarte style={{ padding: "24px 20px", background: C.sand, fontSize: 21, color: C.tinte, display: "grid", gap: 8, textAlign: "center" }}>{formel}</BildKarte>
+            <Werkzeugleiste gruppen={[{ titel: zw("Näherungsbruch", "Approximation"), inhalt: pillen }]} />
+          </>} />
+      </div>
+    );
+  }
   return (
     <div style={{ ...karte, marginTop: 14 }}>
       <p style={kicker}>{zw("Immer näher – nie genau", "Ever closer – never exact")}</p>
-      <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, margin: "0 0 10px" }}>{zw("Jeder Bruch ist näher an √2 als der vorige. Trotzdem ist das Quadrat nie genau 2: Es liegt immer um genau 1/q² daneben.", "Each fraction is closer to √2 than the one before. Still the square is never exactly 2: it is always off by exactly 1/q².")}</p>
-      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-        {l.map(([a, b], i) => <Pille key={i} an={i === k} onClick={() => setK(i)} farbe={C.gold}>{a}/{b}</Pille>)}
-      </div>
+      <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, margin: "0 0 10px" }}>{text}</p>
+      {pillen}
       <div style={{ background: C.sand, borderRadius: 14, padding: "12px 14px", marginTop: 12, fontSize: 18, color: C.tinte, display: "grid", gap: 4 }}>
-        <M t={`\\left(\\frac{${p}}{${qq}}\\right)^2 = \\frac{${p * p}}{${qq * qq}} \\approx ${fmt(quad, 8)}`} />
-        <span style={{ fontSize: 14, fontWeight: 700, color: quad < 2 ? C.see : ROT }}>
-          {quad < 2 ? zw("etwas zu klein", "slightly too small") : zw("etwas zu groß", "slightly too big")} · {zw("Abstand zu 2:", "distance to 2:")} <M t={`\\frac{1}{${qq * qq}}`} />
-        </span>
+        {formel}
       </div>
     </div>
   );
@@ -165,32 +252,56 @@ function Mengenbild() {
   const r = kleinsterRaum(x);
   const S = [["R", 180, 92, 168, 82], ["Q", 158, 98, 128, 64], ["Z", 136, 104, 88, 46], ["N", 114, 110, 50, 28]];
   const pos = { N: [108, 114], Z: [174, 112], Q: [242, 104], R: [312, 92] }[r];
+  const desktop = useDesktop();
+  const karte = useKarte();
+  const knoepfe = (
+    <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+      {BEISPIELE.map(([t], i) => (
+        <button key={i} type="button" aria-pressed={i === w} onClick={() => setW(i)}
+          style={{ minHeight: 40, minWidth: 48, padding: "4px 10px", borderRadius: 12, fontFamily: "inherit", fontSize: 15, cursor: "pointer",
+            border: `1.5px solid ${i === w ? C.see : C.linie}`, background: i === w ? C.himmel : C.weiss, color: C.tinte }}><M t={t} /></button>
+      ))}
+    </div>
+  );
+  /* Mengenbild mit fester Geometrie: am Desktop auf natürliche Größe begrenzt (DESKTOP-STIL.md) */
+  const bild = (
+    <svg viewBox="0 0 360 190" width="100%" style={{ display: "block", maxWidth: 440, margin: desktop ? "0 auto" : "12px auto 0" }} role="img" aria-label={zw("Mengenbild ℕ ⊂ ℤ ⊂ ℚ ⊂ ℝ", "Set diagram ℕ ⊂ ℤ ⊂ ℚ ⊂ ℝ")}>
+      {S.map(([kk, cx, cy, rx, ry]) => {
+        const an = stufe(kk) >= stufe(r);
+        return (
+          <g key={kk}>
+            <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill={RAUM_FARBE[kk]} opacity={an ? 0.13 : 0.03} stroke={RAUM_FARBE[kk]} strokeWidth={kk === r ? 3 : 1.6} />
+            <text x={cx + rx - 18} y={cy - ry + 26} textAnchor="middle" fontSize="17" fontWeight="800" fill={RAUM_FARBE[kk]} fontFamily="inherit">{ZEICHEN[kk]}</text>
+          </g>
+        );
+      })}
+      <circle cx={pos[0]} cy={pos[1]} r="7" fill={C.flaggold} stroke={C.tinte} strokeWidth="1.5" />
+    </svg>
+  );
+  const satz = (
+    <p style={{ margin: "6px 0 0", fontSize: 14.5, lineHeight: 1.6, color: C.tinte, textAlign: "center" }}>
+      <M t={tex} /> {zw("liegt in", "is in")} {RAEUME.filter((kk) => stufe(kk) >= stufe(r)).map((kk, i) => <span key={kk}>{i ? ", " : " "}<b style={{ color: RAUM_FARBE[kk] }}>{ZEICHEN[kk]}</b></span>)}
+      {r !== "N" && <> – {zw("nicht in", "not in")} {RAEUME.filter((kk) => stufe(kk) < stufe(r)).map((kk, i) => <span key={kk}>{i ? ", " : " "}<b style={{ color: C.grau }}>{ZEICHEN[kk]}</b></span>)}</>}
+    </p>
+  );
+  if (desktop) {
+    return (
+      <div style={{ marginTop: 20 }} data-mengenbild>
+        <Arbeitsflaeche
+          links={<FeinKarte>
+            <p style={titelStil}>{zw("Wo wohnt die Zahl?", "Where does the number live?")}</p>
+            {knoepfe}
+          </FeinKarte>}
+          rechts={<BildKarte style={{ padding: "16px 16px 14px" }}>{bild}{satz}</BildKarte>} />
+      </div>
+    );
+  }
   return (
     <div style={{ ...karte, marginTop: 14 }} data-mengenbild>
       <p style={kicker}>{zw("Wo wohnt die Zahl?", "Where does the number live?")}</p>
-      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-        {BEISPIELE.map(([t], i) => (
-          <button key={i} type="button" aria-pressed={i === w} onClick={() => setW(i)}
-            style={{ minHeight: 40, minWidth: 48, padding: "4px 10px", borderRadius: 12, fontFamily: "inherit", fontSize: 15, cursor: "pointer",
-              border: `1.5px solid ${i === w ? C.see : C.linie}`, background: i === w ? C.himmel : C.weiss, color: C.tinte }}><M t={t} /></button>
-        ))}
-      </div>
-      <svg viewBox="0 0 360 190" width="100%" style={{ display: "block", maxWidth: 440, margin: "12px auto 0" }} role="img" aria-label={zw("Mengenbild ℕ ⊂ ℤ ⊂ ℚ ⊂ ℝ", "Set diagram ℕ ⊂ ℤ ⊂ ℚ ⊂ ℝ")}>
-        {S.map(([k, cx, cy, rx, ry]) => {
-          const an = stufe(k) >= stufe(r);
-          return (
-            <g key={k}>
-              <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill={RAUM_FARBE[k]} opacity={an ? 0.13 : 0.03} stroke={RAUM_FARBE[k]} strokeWidth={k === r ? 3 : 1.6} />
-              <text x={cx + rx - 18} y={cy - ry + 26} textAnchor="middle" fontSize="17" fontWeight="800" fill={RAUM_FARBE[k]} fontFamily="inherit">{ZEICHEN[k]}</text>
-            </g>
-          );
-        })}
-        <circle cx={pos[0]} cy={pos[1]} r="7" fill={C.flaggold} stroke={C.tinte} strokeWidth="1.5" />
-      </svg>
-      <p style={{ margin: "6px 0 0", fontSize: 14.5, lineHeight: 1.6, color: C.tinte, textAlign: "center" }}>
-        <M t={tex} /> {zw("liegt in", "is in")} {RAEUME.filter((k) => stufe(k) >= stufe(r)).map((k, i) => <span key={k}>{i ? ", " : " "}<b style={{ color: RAUM_FARBE[k] }}>{ZEICHEN[k]}</b></span>)}
-        {r !== "N" && <> – {zw("nicht in", "not in")} {RAEUME.filter((k) => stufe(k) < stufe(r)).map((k, i) => <span key={k}>{i ? ", " : " "}<b style={{ color: C.grau }}>{ZEICHEN[k]}</b></span>)}</>}
-      </p>
+      {knoepfe}
+      {bild}
+      {satz}
     </div>
   );
 }
@@ -213,6 +324,7 @@ const P = ({ children }) => <p style={{ fontSize: 15, fontWeight: 300, color: C.
 
 function Entdecken({ gehe }) {
   const [s, setS] = useState(0);
+  const karte = useKarte();   // Desktop: feiner Rahmen statt Schatten
   const st = STATIONEN[s];
   const weiter = (
     <div style={{ display: "flex", gap: 10, marginTop: 16 }}>

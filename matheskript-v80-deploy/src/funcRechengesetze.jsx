@@ -13,6 +13,8 @@ import { Auswahl, GrosserKnopf, hilfeKontext, karte, kicker, zw } from "./ui2.js
 import { RG_ARTEN, rgAufgabe } from "./unterGen.js";
 import { Merke, UebenRahmen, ZweiModi, misch, ws, zs } from "./geoUi.jsx";
 import { werkzeugAnimationen } from "./unterstufeMedien.js";
+import { Arbeitsflaeche, BildKarte, Werkzeugleiste, useDesktop } from "./arbeitsflaeche.jsx";
+import { AktionsKnopf, ChipAuswahl, ErgebnisKarte } from "./funcZahlenDesktop.jsx";
 
 let zaehler = 0;
 
@@ -40,23 +42,52 @@ function Entdecken() {
   const [nr, setNr] = useState(0);
   const [s, setS] = useState(0);
   const B = BEISPIELE[nr];
+  const desktop = useDesktop();
+  const optionen = BEISPIELE.map((b, i) => [String(i), b.titel]);
+  const waehle = (v) => { setNr(Number(v)); setS(0); };
+  const zeilen = B.schritte.slice(0, s + 1).map((t, i) => (
+    <div key={i}>
+      <Zeile t={(i ? "= " : "") + t} aktiv={i === s} />
+      {i < s && <div style={{ fontSize: 12, color: C.gruen, fontWeight: 700, marginTop: -4 }}>↳ {B.warum[i]}</div>}
+    </div>
+  ));
+  const ende = s >= B.schritte.length - 1;
+  const merkeText = zw("Reihenfolge: Klammern → Potenzen → Punktrechnung (· und :) → Strichrechnung (+ und −). Innerhalb einer Stufe von links nach rechts. Rechengesetze helfen, geschickt umzustellen.", "Order: brackets → powers → multiplication and division → addition and subtraction. Within a level, left to right. The laws of arithmetic help you rearrange cleverly.");
+  if (desktop) {
+    return (
+      <div style={{ marginTop: 16 }} data-rg="breit">
+        <Arbeitsflaeche
+          links={<>
+            <ErgebnisKarte titel={zw("Schritt für Schritt", "Step by step")}>
+              <p style={{ margin: "0 0 12px", fontSize: 13, color: C.grau }}>{zw(`Schritt ${s} von ${B.schritte.length - 1}`, `Step ${s} of ${B.schritte.length - 1}`)}</p>
+              <div style={{ display: "grid", gap: 8 }}>
+                <AktionsKnopf haupt farbe={C.smaragd} onClick={() => setS(s + 1)} disabled={ende}>{zw("Nächster Schritt", "Next step")}</AktionsKnopf>
+                <AktionsKnopf onClick={() => setS(0)}>{zw("Von vorn", "Restart")}</AktionsKnopf>
+              </div>
+            </ErgebnisKarte>
+            <ErgebnisKarte titel={zw("Reihenfolge", "Order")}>
+              <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.6, color: C.tinte }}>{merkeText}</p>
+            </ErgebnisKarte>
+          </>}
+          rechts={<>
+            <BildKarte style={{ padding: "14px 20px", minHeight: 210 }}>{zeilen}</BildKarte>
+            <Werkzeugleiste gruppen={[{ titel: zw("Rechnung wählen", "Choose a calculation"), inhalt: <ChipAuswahl optionen={optionen} wert={String(nr)} setWert={waehle} label={zw("Rechnung", "Calculation")} /> }]} />
+          </>} />
+      </div>
+    );
+  }
   return (
     <div style={{ ...karte, marginTop: 16 }}>
       <p style={kicker}>{zw("Rechnung wählen", "Choose a calculation")}</p>
-      <Auswahl optionen={BEISPIELE.map((b, i) => [String(i), b.titel])} wert={String(nr)} setWert={(v) => { setNr(Number(v)); setS(0); }} label={zw("Rechnung", "Calculation")} />
+      <Auswahl optionen={optionen} wert={String(nr)} setWert={waehle} label={zw("Rechnung", "Calculation")} />
       <div style={{ marginTop: 12, background: C.sand, borderRadius: 14, padding: "10px 14px" }}>
-        {B.schritte.slice(0, s + 1).map((t, i) => (
-          <div key={i}>
-            <Zeile t={(i ? "= " : "") + t} aktiv={i === s} />
-            {i < s && <div style={{ fontSize: 12, color: C.gruen, fontWeight: 700, marginTop: -4 }}>↳ {B.warum[i]}</div>}
-          </div>
-        ))}
+        {zeilen}
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 10 }}>
-        <GrosserKnopf onClick={() => setS(s + 1)} disabled={s >= B.schritte.length - 1}>{zw("Nächster Schritt", "Next step")}</GrosserKnopf>
+        <GrosserKnopf onClick={() => setS(s + 1)} disabled={ende}>{zw("Nächster Schritt", "Next step")}</GrosserKnopf>
         <GrosserKnopf ghost onClick={() => setS(0)}>{zw("Von vorn", "Restart")}</GrosserKnopf>
       </div>
-      <Merke>{zw("Reihenfolge: Klammern → Potenzen → Punktrechnung (· und :) → Strichrechnung (+ und −). Innerhalb einer Stufe von links nach rechts. Rechengesetze helfen, geschickt umzustellen.", "Order: brackets → powers → multiplication and division → addition and subtraction. Within a level, left to right. The laws of arithmetic help you rearrange cleverly.")}</Merke>
+      <Merke>{merkeText}</Merke>
     </div>
   );
 }

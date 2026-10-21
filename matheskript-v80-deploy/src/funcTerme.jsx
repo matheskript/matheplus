@@ -15,9 +15,11 @@ import { C } from "./base1.jsx";
 import { M } from "./func3.jsx";
 import { parse, kompiliere, hatX, hatBox, alsTex } from "./func12.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
-import { Auswahl, GrosserKnopf, KleinerLink, Rueck, TextFeld, hilfeKontext, hinweis, karte, kicker, zw } from "./ui2.jsx";
+import { Auswahl, GrosserKnopf, KleinerLink, Rueck, TextFeld, hilfeKontext, hinweis, kicker, zw } from "./ui2.jsx";
 import { qLies, qNum } from "./rechnen2.js";
 import { neuAusklammern, neuBinomisch, neuBruch, neuPotenz, neuTerme } from "./termgen.js";
+import { useDesktop } from "./arbeitsflaeche.jsx";
+import { useKarte } from "./funcZahlenDesktop.jsx";
 
 const loesungBox = { background: C.sand, borderRadius: 14, padding: "10px 14px", marginTop: 10 };
 const zeile = { display: "flex", alignItems: "center", gap: 6, fontSize: 17, lineHeight: 1.9, whiteSpace: "nowrap", overflowX: "auto", color: C.tinte };
@@ -180,6 +182,8 @@ function Aufgabe({ au, neu, titel, kopf, platzhalter, hilfeText, einleitung }) {
     regeln: [{ name: "Binomische Formeln", bereich: "terme" }, { name: "Potenzgesetze", bereich: "terme" }],
   });
 
+  const desktop = useDesktop();
+  const karte = useKarte();   // Desktop: feiner Rahmen statt Schatten
   return (
     <div style={{ ...karte, marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
@@ -187,7 +191,7 @@ function Aufgabe({ au, neu, titel, kopf, platzhalter, hilfeText, einleitung }) {
       </div>
       <p style={hinweis}>{einleitung}</p>
       <p style={{ fontSize: 14.5, color: C.tinte, fontWeight: 600, margin: "0 0 4px" }}>{kopf}</p>
-      <div style={{ ...zeile, justifyContent: "center", fontSize: 20, padding: "6px 0" }}><M t={au.tex} /></div>
+      <div style={{ ...zeile, justifyContent: "center", fontSize: desktop ? 24 : 20, padding: desktop ? "14px 0" : "6px 0", ...(desktop ? { background: C.sand, borderRadius: 14, margin: "8px 0 4px" } : {}) }}><M t={au.tex} /></div>
 
       {imVor && (
         <div>
@@ -254,11 +258,12 @@ function BinomischKarte() {
 const MODI = [["terme", "Terme vereinfachen", "Simplify terms"], ["klammer", "Ausklammern", "Factor out"], ["binom", "Binomische Formeln", "Binomial formulas"], ["potenz", "Potenzgesetze", "Power laws"], ["bruch", "Bruchterme", "Rational terms"]];
 export function TermeUndPotenzgesetze() {
   const [modus, setModus] = useState("terme");
+  const desktop = useDesktop();   // Desktop: alle fünf Übungen in einer Reihe
   return (
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 24 }}>
       <h2 className="intro-h2" style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 8 }}>{zw("Terme und Potenzgesetze", "Terms and power laws")}</h2>
       <p style={{ ...hinweis, marginBottom: 14 }}>{zw("Das Handwerkszeug unter allen Gleichungen: vereinfachen, ausklammern, binomische Formeln, Potenzen und Brüche. Du tippst den Term, die App prüft Wert und Form.", "The toolkit under every equation: simplify, factor, binomial formulas, powers and fractions. You type the term, the app checks value and form.")}</p>
-      <div role="tablist" aria-label={zw("Übungen", "Exercises")} style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8 }}>
+      <div role="tablist" aria-label={zw("Übungen", "Exercises")} style={{ display: "grid", gridTemplateColumns: `repeat(${desktop ? MODI.length : 2}, minmax(0, 1fr))`, gap: 8 }}>
         {MODI.map(([id, de, en]) => {
           const an = modus === id;
           return (

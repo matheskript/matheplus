@@ -13,6 +13,8 @@ import { zt } from "./ui3.jsx";
 import { ZUORD_ARTEN, zuordAufgabe } from "./unterGen.js";
 import { Merke, Regler, UebenRahmen, ZweiModi, ws, zs } from "./geoUi.jsx";
 import { werkzeugAnimationen } from "./unterstufeMedien.js";
+import { Arbeitsflaeche, BildKarte, FeinKarte, Werkzeugleiste, titelStil, useBreite, useDesktop } from "./arbeitsflaeche.jsx";
+import { ChipAuswahl, StellKarte } from "./funcZahlenDesktop.jsx";
 
 let zaehler = 0;
 const z = (v) => zt(v, 2);
@@ -33,17 +35,21 @@ export function WerteTabelle({ xs, ys, kx = "x", ky = "y", luecke = -1, extra = 
 }
 
 function Graph({ xs, ys, kurve, hoehe = 200 }) {
-  const W = 320, H = hoehe, x1 = Math.max(...xs) + 1, y1 = Math.max(...ys) * 1.15 || 1;
+  // Echte Pixel am Desktop (DESKTOP-STIL.md): gemessene Breite, Höhe ≈ 0,62 · W; Handy unverändert 320 × hoehe
+  const [ref, breite] = useBreite();
+  const desktop = useDesktop();
+  const fs = desktop && breite ? 12.5 : 11;
+  const W = desktop && breite ? breite : 320, H = desktop && breite ? Math.round(Math.max(hoehe, breite * 0.62)) : hoehe, x1 = Math.max(...xs) + 1, y1 = Math.max(...ys) * 1.15 || 1;
   const X = (x) => 30 + (x / x1) * (W - 40), Y = (y) => H - 24 - (y / y1) * (H - 40);
   const pfad = kurve ? Array.from({ length: 80 }, (_, i) => { const x = 0.15 + (x1 - 0.15) * i / 79; const y = kurve(x); return y > y1 * 1.05 ? null : `${X(x)},${Y(y)}`; }).filter(Boolean).join(" ") : null;
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }} role="img" aria-label={zw("Graph der Zuordnung", "Graph of the assignment")}>
+    <div ref={ref}><svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }} role="img" aria-label={zw("Graph der Zuordnung", "Graph of the assignment")}>
       <line x1="30" y1={H - 24} x2={W - 6} y2={H - 24} stroke={C.hellgrau} /><line x1="30" y1={H - 24} x2="30" y2="8" stroke={C.hellgrau} />
       {pfad && <polyline points={pfad} fill="none" stroke={`${C.see}88`} strokeWidth="2" />}
       {xs.map((x, i) => <circle key={i} cx={X(x)} cy={Y(ys[i])} r="5" fill={C.flaggold} stroke={C.seeTief} strokeWidth="1.2" />)}
-      {xs.map((x, i) => <text key={`t${i}`} x={X(x)} y={H - 8} textAnchor="middle" style={{ fontSize: 11, fill: C.grau, fontFamily: "inherit" }}>{z(x)}</text>)}
-      <text x="24" y="16" textAnchor="end" style={{ fontSize: 11, fill: C.grau }}>y</text><text x={W - 8} y={H - 30} textAnchor="end" style={{ fontSize: 11, fill: C.grau }}>x</text>
-    </svg>
+      {xs.map((x, i) => <text key={`t${i}`} x={X(x)} y={H - 8} textAnchor="middle" style={{ fontSize: fs, fill: C.grau, fontFamily: "inherit" }}>{z(x)}</text>)}
+      <text x="24" y="16" textAnchor="end" style={{ fontSize: fs, fill: C.grau }}>y</text><text x={W - 8} y={H - 30} textAnchor="end" style={{ fontSize: fs, fill: C.grau }}>x</text>
+    </svg></div>
   );
 }
 
@@ -52,18 +58,46 @@ function Entdecken() {
   const [k, setK] = useState(typ === "prop" ? 2 : 12);
   const xs = [1, 2, 3, 4, 6];
   const ys = xs.map((x) => (typ === "prop" ? k * x : k / x));
+  const desktop = useDesktop();
+  const arten = [["prop", zw("proportional", "proportional")], ["anti", zw("antiproportional", "inversely proportional")]];
+  const waehleTyp = (t) => { setTyp(t); setK(t === "prop" ? 2 : 12); };
+  const extra = typ === "prop" ? { name: "y : x", werte: ys.map((y, i) => y / xs[i]) } : { name: "x · y", werte: ys.map((y, i) => y * xs[i]) };
+  const kurve = (x) => (typ === "prop" ? k * x : k / x);
+  const merke = <Merke>{typ === "prop"
+    ? zw("Proportional: Doppelt so viel x → doppelt so viel y. Der Quotient y : x ist immer gleich (k). Der Graph ist eine Gerade durch den Ursprung.", "Proportional: twice as much x → twice as much y. The quotient y : x is always the same (k). The graph is a straight line through the origin.")
+    : zw("Antiproportional: Doppelt so viel x → halb so viel y. Das Produkt x · y ist immer gleich (k). Der Graph ist eine Hyperbel.", "Inversely proportional: twice as much x → half as much y. The product x · y is always the same (k). The graph is a hyperbola.")}</Merke>;
+  if (desktop) {
+    return (
+      <div style={{ marginTop: 16 }} data-zuord="breit">
+        <Arbeitsflaeche
+          links={<>
+            <StellKarte titel={zw("Faktor", "Factor")} kopf={typ === "prop" ? "y = k · x" : "y = k : x"} werte={[{ name: "k", wert: k, setWert: setK, min: typ === "prop" ? 0.5 : 6, max: typ === "prop" ? 5 : 24, schritt: typ === "prop" ? 0.5 : 1, format: (v) => zt(v, 1), regler: true }]} />
+            <FeinKarte><p style={titelStil}>{typ === "prop" ? zw("Quotient bleibt gleich", "Quotient stays the same") : zw("Produkt bleibt gleich", "Product stays the same")}</p>
+              <p style={{ margin: 0, fontSize: 22, fontWeight: 800, color: C.gruen, textAlign: "center" }}>{extra.name} = {z(extra.werte[0])}</p>
+            </FeinKarte>
+          </>}
+          rechts={<>
+            <BildKarte style={{ padding: "8px 8px 4px" }}><Graph xs={xs} ys={ys} kurve={kurve} /></BildKarte>
+            <Werkzeugleiste gruppen={[{ titel: zw("Art der Zuordnung", "Kind of assignment"), inhalt: <ChipAuswahl optionen={arten} wert={typ} setWert={waehleTyp} label={zw("Art", "Kind")} /> }]} />
+          </>} />
+        <FeinKarte style={{ marginTop: 20 }}>
+          <p style={titelStil}>{zw("Wertetabelle", "Table of values")}</p>
+          <WerteTabelle xs={xs} ys={ys} extra={extra} />
+          {merke}
+        </FeinKarte>
+      </div>
+    );
+  }
   return (
     <div style={{ ...karte, marginTop: 16 }}>
       <p style={kicker}>{zw("Art der Zuordnung", "Kind of assignment")}</p>
-      <Auswahl optionen={[["prop", zw("proportional", "proportional")], ["anti", zw("antiproportional", "inversely proportional")]]} wert={typ} setWert={(t) => { setTyp(t); setK(t === "prop" ? 2 : 12); }} label={zw("Art", "Kind")} />
+      <Auswahl optionen={arten} wert={typ} setWert={waehleTyp} label={zw("Art", "Kind")} />
       <div style={{ marginTop: 12 }}><Regler name="k" wert={k} setWert={setK} min={typ === "prop" ? 0.5 : 6} max={typ === "prop" ? 5 : 24} schritt={typ === "prop" ? 0.5 : 1} /></div>
       <div style={{ marginTop: 12 }}>
-        <WerteTabelle xs={xs} ys={ys} extra={typ === "prop" ? { name: "y : x", werte: ys.map((y, i) => y / xs[i]) } : { name: "x · y", werte: ys.map((y, i) => y * xs[i]) }} />
+        <WerteTabelle xs={xs} ys={ys} extra={extra} />
       </div>
-      <div style={{ marginTop: 12, background: C.sand, borderRadius: 14, padding: 6 }}><Graph xs={xs} ys={ys} kurve={(x) => (typ === "prop" ? k * x : k / x)} /></div>
-      <Merke>{typ === "prop"
-        ? zw("Proportional: Doppelt so viel x → doppelt so viel y. Der Quotient y : x ist immer gleich (k). Der Graph ist eine Gerade durch den Ursprung.", "Proportional: twice as much x → twice as much y. The quotient y : x is always the same (k). The graph is a straight line through the origin.")
-        : zw("Antiproportional: Doppelt so viel x → halb so viel y. Das Produkt x · y ist immer gleich (k). Der Graph ist eine Hyperbel.", "Inversely proportional: twice as much x → half as much y. The product x · y is always the same (k). The graph is a hyperbola.")}</Merke>
+      <div style={{ marginTop: 12, background: C.sand, borderRadius: 14, padding: 6 }}><Graph xs={xs} ys={ys} kurve={kurve} /></div>
+      {merke}
     </div>
   );
 }

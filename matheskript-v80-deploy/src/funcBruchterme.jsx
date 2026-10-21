@@ -16,6 +16,8 @@ import { GrosserKnopf, hilfeKontext, hinweis, karte, kicker, zw } from "./ui2.js
 import { Aufklapp, ModusLeiste, Seite, SchrittFolge, zt } from "./ui3.jsx";
 import { TERM_ARTEN, termAufgabe, xMinus } from "./bruchGen.js";
 import { Merke, Regler, SCHRIFT, WertZeile } from "./geoUi.jsx";
+import { Arbeitsflaeche, BildKarte, useBreite, useDesktop } from "./arbeitsflaeche.jsx";
+import { ErgebnisKarte, StellKarte, useKarte } from "./funcZahlenDesktop.jsx";
 
 let zaehler = 0;
 const T = (t) => <M t={t} />;
@@ -29,9 +31,50 @@ function Entdecken() {
   const [x, setX] = useState(0);
   const loch = Math.abs(x - p) < 1e-9;
   const wert = loch ? null : (x * x - p * p) / (x - p);
-  /* Graph y = x + p mit Loch bei x = p */
-  const W = 320, H = 220, x0 = -6, x1 = 6, y0 = -4, y1 = 11;
+  /* Graph y = x + p mit Loch bei x = p – am Desktop in echten Pixeln (DESKTOP-STIL.md), Handy unverändert 320 × 220 */
+  const desktop = useDesktop();
+  const [plotRef, plotBreite] = useBreite();
+  const gr = desktop && plotBreite;
+  const W = gr ? plotBreite : 320, H = gr ? Math.round(plotBreite * 0.72) : 220, x0 = -6, x1 = 6, y0 = -4, y1 = 11;
   const sx = (v) => ((v - x0) / (x1 - x0)) * W, sy = (v) => H - ((v - y0) / (y1 - y0)) * H;
+  const graph = (
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }} role="img" aria-label={zw("Graph mit Lücke", "Graph with a hole")}>
+      {Array.from({ length: 13 }, (_, i) => <line key={`v${i}`} x1={sx(x0 + i)} y1={0} x2={sx(x0 + i)} y2={H} stroke={`${C.see}14`} />)}
+      {Array.from({ length: 16 }, (_, i) => <line key={`h${i}`} x1={0} y1={sy(y0 + i)} x2={W} y2={sy(y0 + i)} stroke={`${C.see}14`} />)}
+      <line x1={0} y1={sy(0)} x2={W} y2={sy(0)} stroke={C.hellgrau} />
+      <line x1={sx(0)} y1={0} x2={sx(0)} y2={H} stroke={C.hellgrau} />
+      <line x1={sx(x0)} y1={sy(x0 + p)} x2={sx(x1)} y2={sy(x1 + p)} stroke={C.see} strokeWidth="2.6" />
+      <circle cx={sx(p)} cy={sy(2 * p)} r="5.5" fill={C.weiss} stroke={C.gruen} strokeWidth="2.2" />
+      <line x1={sx(p)} y1={sy(2 * p)} x2={sx(p)} y2={sy(0)} stroke={C.gruen} strokeDasharray="3 3" />
+      <text x={sx(p) + 8} y={sy(2 * p) - 8} style={{ fontSize: gr ? 12.5 : 11.5, fontWeight: 800, fill: C.gruen, fontFamily: SCHRIFT }}>{zw("Lücke", "hole")}</text>
+      {!loch && x >= x0 && x <= x1 && wert <= y1 && wert >= y0 && <circle cx={sx(x)} cy={sy(wert)} r="5" fill={C.flaggold} stroke={C.seeTief} strokeWidth="1.2" />}
+    </svg>
+  );
+  const werte = <>
+    <WertZeile links={T(`\\frac{x² − ${p * p}}{x − ${p}}`)} rechts={loch ? zw("nicht definiert", "undefined") : zt(wert, 2)} farbe={loch ? C.gruen : C.see} />
+    <WertZeile links={T(`x + ${p}`)} rechts={zt(x + p, 2)} />
+  </>;
+  const merkeText = loch
+    ? zw(`Bei x = ${p} wird der Nenner 0 – durch 0 teilt man nicht. Der gekürzte Term x + ${p} hätte hier den Wert ${2 * p}, der Bruchterm hat dort gar keinen. Deshalb gehört zum Kürzen immer die Definitionsmenge: D = ℝ ∖ {${p}}.`,
+      `At x = ${p} the denominator is 0 – you can't divide by 0. The simplified term x + ${p} would be ${2 * p} here, the fraction term has no value at all. That is why simplifying always comes with the domain: D = ℝ ∖ {${p}}.`)
+    : zw(`Zähler mit der 3. binomischen Formel zerlegen: x² − ${p * p} = (x − ${p})(x + ${p}). Dann den gemeinsamen Faktor (x − ${p}) kürzen. Beide Terme liefern denselben Wert – außer bei x = ${p}. Stell x auf ${p}.`,
+      `Factor the numerator with the difference of squares: x² − ${p * p} = (x − ${p})(x + ${p}). Then cancel the common factor (x − ${p}). Both terms give the same value – except at x = ${p}. Set x to ${p}.`);
+  if (desktop) {
+    return (
+      <div style={{ marginTop: 16 }} data-bruchterm="breit">
+        <Arbeitsflaeche
+          links={<>
+            <StellKarte titel={zw("Bruchterm gegen gekürzten Term", "Fraction term vs. simplified term")} kopf={T(`\\frac{x² − ${p * p}}{x − ${p}}`)} werte={[
+              { name: "p", wert: p, setWert: setP, min: 1, max: 5, farbe: C.gruen },
+              { name: "x", wert: x, setWert: setX, min: -6, max: 6, schritt: 0.5, format: (v) => zt(v, 1), regler: true },
+            ]} />
+            <ErgebnisKarte titel={zw("Werte an der Stelle x", "Values at x")}>{werte}</ErgebnisKarte>
+          </>}
+          rechts={<BildKarte><div ref={plotRef}>{graph}</div></BildKarte>} />
+        <div style={{ marginTop: 8 }}><Merke farbe={loch ? C.gruen : C.see}>{merkeText}</Merke></div>
+      </div>
+    );
+  }
   return (
     <>
       <div style={{ ...karte, marginTop: 16 }}>
@@ -41,29 +84,14 @@ function Entdecken() {
           <Regler name="x" wert={x} setWert={setX} min={-6} max={6} schritt={0.5} format={(v) => zt(v, 1)} />
         </div>
         <div style={{ marginTop: 12, background: C.sand, borderRadius: 14, padding: 8 }}>
-          <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }} role="img" aria-label={zw("Graph mit Lücke", "Graph with a hole")}>
-            {Array.from({ length: 13 }, (_, i) => <line key={`v${i}`} x1={sx(x0 + i)} y1={0} x2={sx(x0 + i)} y2={H} stroke={`${C.see}14`} />)}
-            {Array.from({ length: 16 }, (_, i) => <line key={`h${i}`} x1={0} y1={sy(y0 + i)} x2={W} y2={sy(y0 + i)} stroke={`${C.see}14`} />)}
-            <line x1={0} y1={sy(0)} x2={W} y2={sy(0)} stroke={C.hellgrau} />
-            <line x1={sx(0)} y1={0} x2={sx(0)} y2={H} stroke={C.hellgrau} />
-            <line x1={sx(x0)} y1={sy(x0 + p)} x2={sx(x1)} y2={sy(x1 + p)} stroke={C.see} strokeWidth="2.6" />
-            <circle cx={sx(p)} cy={sy(2 * p)} r="5.5" fill={C.weiss} stroke={C.gruen} strokeWidth="2.2" />
-            <line x1={sx(p)} y1={sy(2 * p)} x2={sx(p)} y2={sy(0)} stroke={C.gruen} strokeDasharray="3 3" />
-            <text x={sx(p) + 8} y={sy(2 * p) - 8} style={{ fontSize: 11.5, fontWeight: 800, fill: C.gruen, fontFamily: SCHRIFT }}>{zw("Lücke", "hole")}</text>
-            {!loch && x >= x0 && x <= x1 && wert <= y1 && wert >= y0 && <circle cx={sx(x)} cy={sy(wert)} r="5" fill={C.flaggold} stroke={C.seeTief} strokeWidth="1.2" />}
-          </svg>
+          {graph}
         </div>
       </div>
       <div style={{ ...karte, marginTop: 12 }}>
         <p style={kicker}>{zw("Werte an der Stelle x", "Values at x")}</p>
-        <WertZeile links={T(`\\frac{x² − ${p * p}}{x − ${p}}`)} rechts={loch ? zw("nicht definiert", "undefined") : zt(wert, 2)} farbe={loch ? C.gruen : C.see} />
-        <WertZeile links={T(`x + ${p}`)} rechts={zt(x + p, 2)} />
+        {werte}
         <Merke farbe={loch ? C.gruen : C.see}>
-          {loch
-            ? zw(`Bei x = ${p} wird der Nenner 0 – durch 0 teilt man nicht. Der gekürzte Term x + ${p} hätte hier den Wert ${2 * p}, der Bruchterm hat dort gar keinen. Deshalb gehört zum Kürzen immer die Definitionsmenge: D = ℝ ∖ {${p}}.`,
-              `At x = ${p} the denominator is 0 – you can't divide by 0. The simplified term x + ${p} would be ${2 * p} here, the fraction term has no value at all. That is why simplifying always comes with the domain: D = ℝ ∖ {${p}}.`)
-            : zw(`Zähler mit der 3. binomischen Formel zerlegen: x² − ${p * p} = (x − ${p})(x + ${p}). Dann den gemeinsamen Faktor (x − ${p}) kürzen. Beide Terme liefern denselben Wert – außer bei x = ${p}. Stell x auf ${p}.`,
-              `Factor the numerator with the difference of squares: x² − ${p * p} = (x − ${p})(x + ${p}). Then cancel the common factor (x − ${p}). Both terms give the same value – except at x = ${p}. Set x to ${p}.`)}
+          {merkeText}
         </Merke>
       </div>
     </>
@@ -252,6 +280,7 @@ function Ueben() {
   const neu = (a = art) => { setAu(neueAufgabe(a === "mix" ? null : a)); setStand(0); };
   const schritte = useMemo(() => schritteVon(au), [au]);
   const ARTEN = [["mix", zw("Gemischt", "Mixed")], ...TERM_ARTEN.map((a) => [a, zw(TITEL[a][0], TITEL[a][1])])];
+  const karte = useKarte();   // Desktop: feiner Rahmen statt Schatten
   return (
     <>
       <div style={{ ...karte, marginTop: 16 }}>

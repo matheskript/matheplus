@@ -15,12 +15,14 @@ import { C } from "./base1.jsx";
 import { M } from "./func3.jsx";
 import { buchen } from "./buchung.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
-import { GrosserKnopf, MS, Rueck, hilfeKontext, karte, kicker, zw } from "./ui2.jsx";
+import { GrosserKnopf, MS, Rueck, hilfeKontext, kicker, zw } from "./ui2.jsx";
 import { Aufklapp } from "./ui3.jsx";
 import { MathildaIcon } from "./funcMathildaSeite.jsx";
 import { TextMathilda } from "./funcTextMathilda.jsx";
 import { alsTex, pruefeEingabe } from "./bedingungen.js";
 import { springe } from "./sprung.js";
+import { ErgebnisReihe, useDesktop } from "./arbeitsflaeche.jsx";
+import { useKarte } from "./funcZahlenDesktop.jsx";
 import {
   KLASSEN_STUFEN, STUFEN, THEMEN, WB_GRUPPEN, alleZiele, anzahlBedingungen, beispielSteckbrief, klasseText, neueTextaufgabe,
   pruefeAuswahl, schnelltasten, stellenOptionen, themaName, themaZeile, themenFuer, woerterbuch,
@@ -88,6 +90,7 @@ function MathildaTeaser({ onOeffnen }) {
    VERSTEHEN
    ====================================================================== */
 function Leitidee() {
+  const karte = useKarte();   // Desktop: feiner Rahmen statt Schatten
   const schritte = [
     [zw("Gesucht und Ansatz", "Unknown and general form"), zw("Was ist gesucht? Nenne die Unbekannte x – oder wähle den Funktionsansatz. Er sagt dir, wie viele Unbekannte es gibt.", "What is asked for? Name the unknown x – or choose the general form. It tells you how many unknowns there are.")],
     [zw("Jede Information = eine Bedingung", "Every piece of information = a condition"), zw("Markiere im Text jede Information und übersetze sie einzeln: „Hochpunkt H(6|4)“ → $f(6) = 4$ und $f′(6) = 0$.", "Mark every piece of information and translate it on its own: “maximum H(6|4)” → $f(6) = 4$ and $f′(6) = 0$.")],
@@ -118,6 +121,7 @@ function Leitidee() {
 }
 
 function BeispielAntippen() {
+  const karte = useKarte();   // Desktop: feiner Rahmen statt Schatten
   const b = useMemo(() => beispielSteckbrief(), []);
   const [auf, setAuf] = useState(new Set());
   const [ansatzAuf, setAnsatzAuf] = useState(false);
@@ -168,6 +172,7 @@ function BeispielAntippen() {
 }
 
 function Kette() {
+  const karte = useKarte();   // Desktop: feiner Rahmen statt Schatten
   const z = [["Das Dreifache einer Zahl", "Three times a number", "3x"], [", vermindert um 4", ", decreased by 4", "3x − 4"], [", ergibt 11.", ", gives 11.", "3x − 4 = 11"]];
   const [n, setN] = useState(1);
   return (
@@ -190,6 +195,7 @@ function Kette() {
 }
 
 function Fallen() {
+  const karte = useKarte();   // Desktop: feiner Rahmen statt Schatten
   const f = [
     [zw("„um 5 größer als“", "“5 more than”"), "A = B + 5", zw("Die 5 kommt zur kleineren Seite – Probe mit Zahlen!", "The 5 goes with the smaller side – check with numbers!")],
     [zw("„Länge ist dreimal so groß wie Breite“", "“length is three times the width”"), "x = 3y", zw("Nicht y = 3x – setze zur Probe Zahlen ein.", "Not y = 3x – check with numbers.")],
@@ -218,6 +224,7 @@ function Fallen() {
 }
 
 function Woerterbuch() {
+  const karte = useKarte();   // Desktop: feiner Rahmen statt Schatten
   const alle = useMemo(() => woerterbuch(), []);
   const [gruppe, setGruppe] = useState("steckbrief");
   const [suche, setSuche] = useState("");
@@ -255,6 +262,21 @@ function Woerterbuch() {
 }
 
 function Verstehen({ zuMathilda, zuTraining }) {
+  const desktop = useDesktop();
+  if (desktop) {
+    /* Desktop: Leitidee und Kette nebeneinander, Beispiel breit, Fallen und Wörterbuch nebeneinander */
+    return (
+      <div data-verstehen="breit">
+        <ErgebnisReihe spalten="minmax(0, 1fr) minmax(0, 1fr)" style={{ alignItems: "start" }}>
+          <div><Leitidee /><BeispielAntippen /></div>
+          <div><Kette /><Fallen /></div>
+        </ErgebnisReihe>
+        <Woerterbuch />
+        <div style={{ maxWidth: 360, margin: "0 auto" }}><GrosserKnopf onClick={zuTraining}>{zw("Jetzt selbst übersetzen", "Now translate yourself")}</GrosserKnopf></div>
+        <MathildaTeaser onOeffnen={zuMathilda} />
+      </div>
+    );
+  }
   return (
     <div>
       <Leitidee />
@@ -554,6 +576,7 @@ function Zusammenfassung({ a, gehe, neu, erste }) {
 }
 
 function Aufgabe({ a, stufe, gehe, neu, zaehle }) {
+  const karte = useKarte();   // Desktop: feiner Rahmen statt Schatten
   const [ansatzOk, setAnsatzOk] = useState(!a.ansatz);
   const [fertig, setFertig] = useState(new Map());   // Stelle → beim ersten Versuch?
   const [gold, setGold] = useState(new Set());
@@ -608,6 +631,7 @@ function Aufgabe({ a, stufe, gehe, neu, zaehle }) {
 }
 
 function Training({ gehe, zuMathilda }) {
+  const karte = useKarte();   // Desktop: feiner Rahmen statt Schatten
   const start = useMemo(() => lesen(), []);
   const [klasse, setKlasse] = useState(start.klasse || "alle");
   const themen = themenFuer(klasse);
@@ -622,12 +646,36 @@ function Training({ gehe, zuMathilda }) {
   useEffect(() => { if (!themen.some((x) => x.id === thema)) { const n = themen[0].id; setThema(n); neu(n); } }, [klasse]);
   const anker = useRef(null);
   const waehleThema = (id) => { setThema(id); neu(id); requestAnimationFrame(() => springe("textaufgaben-thema", () => anker.current?.scrollIntoView({ behavior: "smooth", block: "start" }))); };
+  const desktop = useDesktop();
+  const klasseWahl = <>
+    <p style={kicker}>{zw("Deine Klasse", "Your year")}</p>
+    <Chips liste={KLASSEN_STUFEN.map((k) => [k.id, zw(k.name[0], k.name[1])])} wert={klasse} setWert={setKlasse} label={zw("Klasse", "Year")} klein />
+  </>;
+  const stufeWahl = <>
+    <p style={{ ...kicker, marginTop: desktop ? 0 : 14 }}>{zw("Stufe", "Level")}</p>
+    <div role="radiogroup" aria-label={zw("Stufe", "Level")} style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 6 }}>
+      {STUFEN.map((st) => {
+        const an = stufeEcht === st.id, aus = t.nurWahl && st.id > 1;
+        return (
+          <button key={st.id} type="button" role="radio" aria-checked={an} disabled={aus} onClick={() => { setStufe(st.id); neu(); }} data-stufe={st.id}
+            style={{ padding: "8px 6px", borderRadius: 12, cursor: aus ? "default" : "pointer", fontFamily: "inherit", textAlign: "center", opacity: aus ? 0.4 : 1,
+              border: `1.5px solid ${an ? C.see : C.linie}`, background: an ? C.see : C.weiss, color: an ? C.weiss : C.see }}>
+            <span style={{ display: "block", fontSize: 13, fontWeight: 800 }}>{st.id} · {zw(st.name[0], st.name[1])}</span>
+          </button>
+        );
+      })}
+    </div>
+    <p style={{ fontSize: 12.5, color: C.grau, margin: "6px 0 0", lineHeight: 1.5 }}>
+      {t.nurWahl ? zw("Vektor-Bedingungen werden ausgewählt, nicht getippt.", "Vector conditions are chosen, not typed.") : zw(STUFEN[stufeEcht - 1].zeile[0], STUFEN[stufeEcht - 1].zeile[1])}
+    </p>
+  </>;
   return (
     <div>
       <div style={{ ...karte, marginTop: 16 }}>
-        <p style={kicker}>{zw("Deine Klasse", "Your year")}</p>
-        <Chips liste={KLASSEN_STUFEN.map((k) => [k.id, zw(k.name[0], k.name[1])])} wert={klasse} setWert={setKlasse} label={zw("Klasse", "Year")} klein />
-        <p style={{ ...kicker, marginTop: 14 }}>{zw("Thema", "Topic")}</p>
+        {desktop
+          ? <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)", columnGap: 28, alignItems: "start", marginBottom: 16 }}><div>{klasseWahl}</div><div>{stufeWahl}</div></div>
+          : klasseWahl}
+        <p style={{ ...kicker, marginTop: desktop ? 0 : 14 }}>{zw("Thema", "Topic")}</p>
         <div data-themen style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 230px), 1fr))", gap: 8 }}>
           {themen.map((x) => {
             const an = x.id === thema;
@@ -645,22 +693,7 @@ function Training({ gehe, zuMathilda }) {
             );
           })}
         </div>
-        <p style={{ ...kicker, marginTop: 14 }}>{zw("Stufe", "Level")}</p>
-        <div role="radiogroup" aria-label={zw("Stufe", "Level")} style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 6 }}>
-          {STUFEN.map((s) => {
-            const an = stufeEcht === s.id, aus = t.nurWahl && s.id > 1;
-            return (
-              <button key={s.id} type="button" role="radio" aria-checked={an} disabled={aus} onClick={() => { setStufe(s.id); neu(); }} data-stufe={s.id}
-                style={{ padding: "8px 6px", borderRadius: 12, cursor: aus ? "default" : "pointer", fontFamily: "inherit", textAlign: "center", opacity: aus ? 0.4 : 1,
-                  border: `1.5px solid ${an ? C.see : C.linie}`, background: an ? C.see : C.weiss, color: an ? C.weiss : C.see }}>
-                <span style={{ display: "block", fontSize: 13, fontWeight: 800 }}>{s.id} · {zw(s.name[0], s.name[1])}</span>
-              </button>
-            );
-          })}
-        </div>
-        <p style={{ fontSize: 12.5, color: C.grau, margin: "6px 0 0", lineHeight: 1.5 }}>
-          {t.nurWahl ? zw("Vektor-Bedingungen werden ausgewählt, nicht getippt.", "Vector conditions are chosen, not typed.") : zw(STUFEN[stufeEcht - 1].zeile[0], STUFEN[stufeEcht - 1].zeile[1])}
-        </p>
+        {!desktop && stufeWahl}
       </div>
       <div ref={anker} style={{ scrollMarginTop: 80 }} />
       <Aufgabe key={`${a.id}-${stufeEcht}`} a={a} stufe={stufeEcht} gehe={gehe} neu={() => neu()}

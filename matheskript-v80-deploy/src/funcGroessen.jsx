@@ -13,6 +13,8 @@ import { liesZahl, zt } from "./ui3.jsx";
 import { EINHEITEN, GROESSEN_ARTEN, groessenAufgabe, umrechnen } from "./unterGen.js";
 import { Merke, UebenRahmen, WertZeile, ZweiModi, ws, zs } from "./geoUi.jsx";
 import { werkzeugAnimationen } from "./unterstufeMedien.js";
+import { Arbeitsflaeche, BildKarte, FeinKarte, Werkzeugleiste, titelStil, useBreite, useDesktop } from "./arbeitsflaeche.jsx";
+import { ChipAuswahl, ErgebnisKarte } from "./funcZahlenDesktop.jsx";
 
 let zaehler = 0;
 const z = (v) => zt(v, 7);
@@ -22,20 +24,25 @@ const NAME = { laenge: zw("Länge", "Length"), masse: zw("Masse", "Mass"), zeit:
 
 function Treppe({ art }) {
   const E = EINHEITEN[art];
-  const W = 320, n = E.namen.length, b = (W - 20) / n, H = 40 + n * 14;
+  // Echte Pixel am Desktop (DESKTOP-STIL.md): gemessene Breite, Stufen höher; Handy unverändert 320
+  const [ref, breite] = useBreite();
+  const desktop = useDesktop();
+  const gr = desktop && breite;
+  const W = gr ? breite : 320, n = E.namen.length, b = (W - 20) / n, st = gr ? Math.round(Math.min(44, Math.max(24, 190 / n))) : 14, H = (gr ? 56 : 40) + n * st;
+  const fu = gr ? 14 : 12, ff = gr ? 12 : 10;   // Schrift Einheit / Faktor
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }} role="img" aria-label={zw("Umrechnungstreppe", "Conversion staircase")}>
+    <div ref={ref}><svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }} role="img" aria-label={zw("Umrechnungstreppe", "Conversion staircase")}>
       {E.namen.map((u, i) => {
-        const x = 10 + i * b, y = H - 18 - i * 14;
+        const x = 10 + i * b, y = H - (gr ? 40 : 18) - i * st;
         return (
           <g key={u}>
             <rect x={x} y={y} width={b - 4} height={H - y - 6} rx="5" fill={`${C.see}${(20 + i * 12).toString(16)}`} stroke={C.see} strokeWidth="1" />
-            <text x={x + (b - 4) / 2} y={y + 15} textAnchor="middle" style={{ fontSize: 12, fontWeight: 800, fill: C.seeTief, fontFamily: "inherit" }}>{u}</text>
-            {i > 0 && <text x={x - 2} y={y - 4} textAnchor="middle" style={{ fontSize: 10, fontWeight: 700, fill: "#8A6A00", fontFamily: "inherit" }}>·{zt(E.faktor[i] / E.faktor[i - 1], 0)}</text>}
+            <text x={x + (b - 4) / 2} y={y + (gr ? 22 : 15)} textAnchor="middle" style={{ fontSize: fu, fontWeight: 800, fill: C.seeTief, fontFamily: "inherit" }}>{u}</text>
+            {i > 0 && <text x={x - 2} y={y - (gr ? 8 : 4)} textAnchor="middle" style={{ fontSize: ff, fontWeight: 700, fill: "#8A6A00", fontFamily: "inherit" }}>·{zt(E.faktor[i] / E.faktor[i - 1], 0)}</text>}
           </g>
         );
       })}
-    </svg>
+    </svg></div>
   );
 }
 
@@ -46,18 +53,51 @@ function Entdecken() {
   const E = EINHEITEN[art];
   const v = liesZahl(eing) ?? 0;
   const einheit = E.namen.includes(von) ? von : E.namen[Math.min(2, E.namen.length - 1)];
+  const desktop = useDesktop();
+  const arten = Object.keys(EINHEITEN).map((k) => [k, NAME[k]]);
+  const waehleArt = (k) => { setArt(k); setVon(EINHEITEN[k].namen[Math.min(2, EINHEITEN[k].namen.length - 1)]); };
+  const tabelle = E.namen.map((u) => <WertZeile key={u} links={u} rechts={`${zg(umrechnen(v, art, einheit, u))} ${u}`} farbe={u === einheit ? "#8A6A00" : C.see} />);
+  const merkeText = zw("Eine Stufe hinunter (zur kleineren Einheit): mal die Umrechnungszahl – die Zahl wird größer. Eine Stufe hinauf: geteilt – die Zahl wird kleiner. Bei Fläche ist die Umrechnungszahl das Quadrat (100), bei Volumen der Würfel (1000) der Längen-Zahl 10.",
+    "One step down (to the smaller unit): times the conversion number – the number gets bigger. One step up: divided – the number gets smaller. For area the conversion number is the square (100), for volume the cube (1000) of the length number 10.");
+  if (desktop) {
+    const haelfte = Math.ceil(E.namen.length / 2);
+    return (
+      <div style={{ marginTop: 16 }} data-groessen="breit">
+        <Arbeitsflaeche
+          links={<>
+            <ErgebnisKarte titel={zw("Ausgangswert", "Starting value")}>
+              <div style={{ display: "grid", gap: 10 }}>
+                <ZahlFeld wert={eing} setWert={setEing} label={zw("Zahl", "Number")} breite="100%" />
+                <ChipAuswahl optionen={E.namen.map((u) => [u, u])} wert={einheit} setWert={setVon} label={zw("Einheit", "Unit")} />
+              </div>
+            </ErgebnisKarte>
+            <ErgebnisKarte><p style={{ margin: 0, fontSize: 13, lineHeight: 1.6, color: C.tinte }}>{merkeText}</p></ErgebnisKarte>
+          </>}
+          rechts={<>
+            <BildKarte style={{ padding: "14px 10px 6px" }}><Treppe art={art} /></BildKarte>
+            <Werkzeugleiste gruppen={[{ titel: zw("Größe wählen", "Choose a quantity"), inhalt: <ChipAuswahl optionen={arten} wert={art} setWert={waehleArt} label={zw("Größe", "Quantity")} /> }]} />
+          </>} />
+        <FeinKarte style={{ marginTop: 20 }}>
+          <p style={titelStil}>{zw("In allen Einheiten", "In all units")}</p>
+          <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)", columnGap: 32 }}>
+            <div>{tabelle.slice(0, haelfte)}</div>
+            <div>{tabelle.slice(haelfte)}</div>
+          </div>
+        </FeinKarte>
+      </div>
+    );
+  }
   return (
     <div style={{ ...karte, marginTop: 16 }}>
       <p style={kicker}>{zw("Größe wählen", "Choose a quantity")}</p>
-      <Auswahl optionen={Object.keys(EINHEITEN).map((k) => [k, NAME[k]])} wert={art} setWert={(k) => { setArt(k); setVon(EINHEITEN[k].namen[Math.min(2, EINHEITEN[k].namen.length - 1)]); }} label={zw("Größe", "Quantity")} />
+      <Auswahl optionen={arten} wert={art} setWert={waehleArt} label={zw("Größe", "Quantity")} />
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
         <ZahlFeld wert={eing} setWert={setEing} label={zw("Zahl", "Number")} breite={110} />
         <Auswahl optionen={E.namen.map((u) => [u, u])} wert={einheit} setWert={setVon} label={zw("Einheit", "Unit")} />
       </div>
       <div style={{ marginTop: 12, background: C.sand, borderRadius: 14, padding: 8 }}><Treppe art={art} /></div>
-      {E.namen.map((u) => <WertZeile key={u} links={u} rechts={`${zg(umrechnen(v, art, einheit, u))} ${u}`} farbe={u === einheit ? "#8A6A00" : C.see} />)}
-      <Merke>{zw("Eine Stufe hinunter (zur kleineren Einheit): mal die Umrechnungszahl – die Zahl wird größer. Eine Stufe hinauf: geteilt – die Zahl wird kleiner. Bei Fläche ist die Umrechnungszahl das Quadrat (100), bei Volumen der Würfel (1000) der Längen-Zahl 10.",
-        "One step down (to the smaller unit): times the conversion number – the number gets bigger. One step up: divided – the number gets smaller. For area the conversion number is the square (100), for volume the cube (1000) of the length number 10.")}</Merke>
+      {tabelle}
+      <Merke>{merkeText}</Merke>
     </div>
   );
 }

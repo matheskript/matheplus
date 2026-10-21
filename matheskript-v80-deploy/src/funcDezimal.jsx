@@ -16,15 +16,29 @@ import { ggT } from "./rechnen2.js";
 import { DEZ_ARTEN, dezAufgabe } from "./unterGen.js";
 import { Merke, UebenRahmen, ZweiModi, ws, zs } from "./geoUi.jsx";
 import { werkzeugAnimationen } from "./unterstufeMedien.js";
+import { Arbeitsflaeche, BildKarte, Werkzeugleiste, useDesktop } from "./arbeitsflaeche.jsx";
+import { AktionsKnopf, ChipAuswahl, ErgebnisKarte } from "./funcZahlenDesktop.jsx";
 
 let zaehler = 0;
 const z = (v) => zt(v, 6);
 const SP = [["T", 1000], ["H", 100], ["Z", 10], ["E", 1], ["z", 0.1], ["h", 0.01], ["t", 0.001]];
 
-function Tafel({ mill }) {
-  /* mill: Zahl in Tausendsteln (ganzzahlig) */
+function Tafel({ mill, gross }) {
+  /* mill: Zahl in Tausendsteln (ganzzahlig); gross: Desktop-Bild (höhere Zellen, größere Ziffern) */
   const ziffer = (stelle) => Math.floor(mill / (stelle * 1000) + 1e-9) % 10;
   const fuehrend = (i) => SP.slice(0, i + 1).every(([, s]) => s > 1 && ziffer(s) === 0) && SP[i][1] > 1;
+  if (gross) {
+    return (
+      <div data-dez-tafel style={{ display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", gap: 6 }}>
+        {SP.map(([n, s], i) => (
+          <div key={n} style={{ textAlign: "center", borderRadius: 12, padding: "12px 0 14px", background: s >= 1 ? `${C.see}10` : `${C.flaggold}1C`, borderLeft: s === 0.1 ? `3px solid ${C.gruen}` : "none" }}>
+            <div style={{ fontSize: 12.5, fontWeight: 800, color: s >= 1 ? C.see : "#8A6A00" }}>{n}</div>
+            <div style={{ fontSize: 34, fontWeight: 800, lineHeight: 1.25, color: fuehrend(i) ? C.hellgrau : C.tinte, transition: "all .25s", fontVariantNumeric: "tabular-nums" }}>{ziffer(s)}</div>
+          </div>
+        ))}
+      </div>
+    );
+  }
   return (
     <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 4 }}>
       {SP.map(([n, s], i) => (
@@ -42,6 +56,32 @@ function Entdecken() {
   const [mill, setMill] = useState(3750);
   const g = ggT(mill, 1000) || 1;
   const fehlerGross = mill * 10 >= 10000000, fehlerKlein = mill % 10 !== 0;
+  const desktop = useDesktop();
+  const bruch = <M t={`${z(mill / 1000)} = \\frac{${mill}}{1000}${g > 1 && mill ? ` = \\frac{${mill / g}}{${1000 / g}}` : ""}`} />;
+  const merkeText = zw("Mal 10: Jede Ziffer rückt eine Stelle nach links – das Komma scheinbar nach rechts. Geteilt durch 10: eine Stelle nach rechts. Die Ziffern selbst ändern sich nie.", "Times 10: every digit moves one place to the left – the decimal point seemingly to the right. Divided by 10: one place to the right. The digits themselves never change.");
+  if (desktop) {
+    return (
+      <div style={{ marginTop: 16 }} data-dez="breit">
+        <Arbeitsflaeche
+          links={<>
+            <ErgebnisKarte titel={zw("Komma verschieben", "Move the point")}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                <AktionsKnopf haupt farbe={C.smaragd} onClick={() => setMill(mill * 10)} disabled={fehlerGross}>· 10</AktionsKnopf>
+                <AktionsKnopf haupt farbe={C.smaragd} onClick={() => setMill(mill / 10)} disabled={fehlerKlein}>: 10</AktionsKnopf>
+              </div>
+            </ErgebnisKarte>
+            <ErgebnisKarte titel={zw("Als Bruch", "As a fraction")}>
+              <div style={{ fontSize: 19, textAlign: "center", overflowX: "auto" }}>{bruch}</div>
+            </ErgebnisKarte>
+          </>}
+          rechts={<>
+            <BildKarte style={{ padding: 16 }}><Tafel mill={mill} gross /></BildKarte>
+            <Werkzeugleiste gruppen={[{ titel: zw("Startzahl", "Start number"), inhalt: <ChipAuswahl optionen={START.map(([m, t]) => [String(m), t])} wert={String(mill)} setWert={(v) => setMill(Number(v))} label={zw("Startzahl", "Start number")} /> }]} />
+          </>} />
+        <div style={{ marginTop: 8 }}><Merke>{merkeText}</Merke></div>
+      </div>
+    );
+  }
   return (
     <div style={{ ...karte, marginTop: 16 }}>
       <p style={kicker}>{zw("Stellenwerttafel", "Place value chart")}</p>
@@ -51,8 +91,8 @@ function Entdecken() {
         <GrosserKnopf onClick={() => setMill(mill * 10)} disabled={fehlerGross}>· 10</GrosserKnopf>
         <GrosserKnopf onClick={() => setMill(mill / 10)} disabled={fehlerKlein}>: 10</GrosserKnopf>
       </div>
-      <div style={{ textAlign: "center", fontSize: 20, margin: "14px 0 4px" }}><M t={`${z(mill / 1000)} = \\frac{${mill}}{1000}${g > 1 && mill ? ` = \\frac{${mill / g}}{${1000 / g}}` : ""}`} /></div>
-      <Merke>{zw("Mal 10: Jede Ziffer rückt eine Stelle nach links – das Komma scheinbar nach rechts. Geteilt durch 10: eine Stelle nach rechts. Die Ziffern selbst ändern sich nie.", "Times 10: every digit moves one place to the left – the decimal point seemingly to the right. Divided by 10: one place to the right. The digits themselves never change.")}</Merke>
+      <div style={{ textAlign: "center", fontSize: 20, margin: "14px 0 4px" }}>{bruch}</div>
+      <Merke>{merkeText}</Merke>
     </div>
   );
 }

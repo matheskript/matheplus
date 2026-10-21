@@ -15,6 +15,8 @@ import { GANZ_ARTEN, ganzAufgabe } from "./unterGen.js";
 import { qNum } from "./rechnen2.js";
 import { Merke, Regler, UebenRahmen, ZweiModi, ws, zs } from "./geoUi.jsx";
 import { werkzeugAnimationen } from "./unterstufeMedien.js";
+import { Arbeitsflaeche, BildKarte, Werkzeugleiste, useBreite, useDesktop } from "./arbeitsflaeche.jsx";
+import { ChipAuswahl, ErgebnisKarte, StellKarte } from "./funcZahlenDesktop.jsx";
 
 let zaehler = 0;
 const mz = (v) => String(v).replace("-", "−");
@@ -22,18 +24,22 @@ const kl = (v) => (v < 0 ? `(${mz(v)})` : String(v));
 const fr = (b) => `$${b.z < 0 ? "−" : ""}\\frac{${Math.abs(b.z)}}{${b.n}}$`;
 
 export function Zahlengerade({ a, b, op = "+", lo = -15, hi = 15, hoehe = 110 }) {
-  const W = 330, X = (v) => 15 + ((v - lo) / (hi - lo)) * (W - 30);
+  // Echte Pixel am Desktop (DESKTOP-STIL.md): gemessene Breite; Handy unverändert 330
+  const [ref, breite] = useBreite();
+  const desktop = useDesktop();
+  const W = desktop && breite ? breite : 330, X = (v) => 15 + ((v - lo) / (hi - lo)) * (W - 30);
   const ziel = op === "+" ? a + b : a - b;
   const schritt = op === "+" ? b : -b;
-  const y = 52;
+  const y = desktop && breite ? Math.round(hoehe / 2) - 12 : 52;
+  const gs = desktop && breite ? 12.5 : 11;   // Zahlen an der Achse
   return (
-    <svg viewBox={`0 0 ${W} ${hoehe}`} style={{ width: "100%", height: "auto", display: "block" }} role="img" aria-label={zw("Zahlengerade mit Pfeil", "Number line with arrow")}>
+    <div ref={ref}><svg viewBox={`0 0 ${W} ${hoehe}`} style={{ width: "100%", height: "auto", display: "block" }} role="img" aria-label={zw("Zahlengerade mit Pfeil", "Number line with arrow")}>
       <defs><marker id="pfeilZG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill={C.gruen} /></marker></defs>
       <line x1="10" y1={y + 18} x2={W - 10} y2={y + 18} stroke={C.tinte} strokeWidth="1.6" />
       {Array.from({ length: hi - lo + 1 }, (_, i) => lo + i).map((v) => (
         <g key={v}>
           <line x1={X(v)} y1={y + 14} x2={X(v)} y2={y + 22} stroke={v === 0 ? C.tinte : `${C.tinte}88`} strokeWidth={v === 0 ? 2 : 1} />
-          {(v % 5 === 0) && <text x={X(v)} y={y + 36} textAnchor="middle" style={{ fontSize: 11, fill: C.grau, fontFamily: "inherit" }}>{mz(v)}</text>}
+          {(v % 5 === 0) && <text x={X(v)} y={y + 36} textAnchor="middle" style={{ fontSize: gs, fill: C.grau, fontFamily: "inherit" }}>{mz(v)}</text>}
         </g>
       ))}
       <circle cx={X(a)} cy={y + 18} r="5" fill={C.see} />
@@ -41,7 +47,7 @@ export function Zahlengerade({ a, b, op = "+", lo = -15, hi = 15, hoehe = 110 })
       {schritt !== 0 && <path d={`M ${X(a)} ${y + 8} Q ${(X(a) + X(ziel)) / 2} ${y - 28} ${X(ziel)} ${y + 8}`} fill="none" stroke={C.gruen} strokeWidth="2.4" markerEnd="url(#pfeilZG)" />}
       {schritt !== 0 && <text x={(X(a) + X(ziel)) / 2} y={y - 18} textAnchor="middle" style={{ fontSize: 12, fontWeight: 800, fill: C.gruen, fontFamily: "inherit" }}>{schritt > 0 ? `+${schritt}` : mz(schritt)}</text>}
       <circle cx={X(ziel)} cy={y + 18} r="5" fill={C.flaggold} stroke={C.seeTief} />
-    </svg>
+    </svg></div>
   );
 }
 
@@ -50,6 +56,32 @@ function Entdecken() {
   const [b, setB] = useState(-5);
   const [op, setOp] = useState("−");
   const e = op === "+" ? a + b : a - b;
+  const desktop = useDesktop();
+  const rechnung = <>{mz(a)} {op} {kl(b)} = {mz(e)}</>;
+  const merke = <Merke>{op === "−" && b < 0
+    ? zw(`Minus eine negative Zahl: Der Pfeil zeigt nach rechts. ${mz(a)} − (${mz(b)}) ist dasselbe wie ${mz(a)} + ${-b}.`, `Minus a negative number: the arrow points right. ${mz(a)} − (${mz(b)}) is the same as ${mz(a)} + ${-b}.`)
+    : zw("Plus einer positiven Zahl geht nach rechts, plus einer negativen nach links. Minus dreht die Richtung um.", "Plus a positive number goes right, plus a negative goes left. Minus reverses the direction.")}</Merke>;
+  if (desktop) {
+    return (
+      <div style={{ marginTop: 16 }} data-ganz="breit">
+        <Arbeitsflaeche
+          links={<>
+            <StellKarte titel={zw("Pfeilmodell", "Arrow model")} werte={[
+              { name: zw("Start", "Start"), wert: a, setWert: setA, min: -10, max: 10, format: mz, regler: true },
+              { name: zw("Zahl", "Number"), wert: b, setWert: setB, min: -10, max: 10, format: mz, farbe: C.gruen, regler: true },
+            ]} />
+            <ErgebnisKarte titel={zw("Ergebnis", "Result")}>
+              <div style={{ textAlign: "center", fontSize: 22, fontWeight: 700, color: C.tinte }}>{rechnung}</div>
+            </ErgebnisKarte>
+          </>}
+          rechts={<>
+            <BildKarte style={{ padding: "8px 10px" }}><Zahlengerade a={a} b={b} op={op === "+" ? "+" : "-"} hoehe={236} /></BildKarte>
+            <Werkzeugleiste gruppen={[{ titel: zw("Rechenart", "Operation"), inhalt: <ChipAuswahl optionen={[["+", "plus"], ["−", "minus"]]} wert={op} setWert={setOp} label={zw("Rechenart", "Operation")} /> }]} />
+          </>} />
+        <div style={{ marginTop: 8 }}>{merke}</div>
+      </div>
+    );
+  }
   return (
     <div style={{ ...karte, marginTop: 16 }}>
       <p style={kicker}>{zw("Pfeilmodell", "Arrow model")}</p>
@@ -59,10 +91,8 @@ function Entdecken() {
       </div>
       <div style={{ marginTop: 10 }}><Auswahl optionen={[["+", "plus"], ["−", "minus"]]} wert={op} setWert={setOp} label={zw("Rechenart", "Operation")} /></div>
       <div style={{ marginTop: 12, background: C.sand, borderRadius: 14, padding: 6 }}><Zahlengerade a={a} b={b} op={op === "+" ? "+" : "-"} /></div>
-      <div style={{ textAlign: "center", fontSize: 20, fontWeight: 700, margin: "12px 0 4px" }}>{mz(a)} {op} {kl(b)} = {mz(e)}</div>
-      <Merke>{op === "−" && b < 0
-        ? zw(`Minus eine negative Zahl: Der Pfeil zeigt nach rechts. ${mz(a)} − (${mz(b)}) ist dasselbe wie ${mz(a)} + ${-b}.`, `Minus a negative number: the arrow points right. ${mz(a)} − (${mz(b)}) is the same as ${mz(a)} + ${-b}.`)
-        : zw("Plus einer positiven Zahl geht nach rechts, plus einer negativen nach links. Minus dreht die Richtung um.", "Plus a positive number goes right, plus a negative goes left. Minus reverses the direction.")}</Merke>
+      <div style={{ textAlign: "center", fontSize: 20, fontWeight: 700, margin: "12px 0 4px" }}>{rechnung}</div>
+      {merke}
     </div>
   );
 }

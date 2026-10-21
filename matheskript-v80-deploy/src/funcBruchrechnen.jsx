@@ -20,15 +20,20 @@ import { ggT, q, qAdd, qNum } from "./rechnen2.js";
 import { BRUCH_ARTEN, bruchAufgabe, bruchTex, kgV, rohTex } from "./bruchGen.js";
 import { uebenWunschHolen, uebenWunschLesen } from "./uebenWunsch.js";
 import { Merke, Regler, SCHRIFT } from "./geoUi.jsx";
+import { Arbeitsflaeche, BildKarte, Werkzeugleiste, useBreite, useDesktop } from "./arbeitsflaeche.jsx";
+import { ChipAuswahl, ErklaerKarte, StellKarte, useKarte } from "./funcZahlenDesktop.jsx";
 
 let zaehler = 0;
 const T = (t) => <M t={t} />;
 const bt = (b) => bruchTex(b);
 
 /* ---------- Bruchstreifen ---------- */
-function Streifen({ z, n, farbe = C.see, zweit = null, beschriftung, hoehe = 34 }) {
+function Streifen({ z, n, farbe = C.see, zweit = null, beschriftung, hoehe: hoehe0 = 34 }) {
   /* zweit: { z, farbe } – weitere Teile im Anschluss (für Summen) */
-  const W = 320, rand = 10;
+  // Echte Pixel am Desktop (DESKTOP-STIL.md): gemessene Breite, Streifen 44 px hoch; Handy unverändert 320
+  const [ref, gemessen] = useBreite();
+  const desktop = useDesktop();
+  const W = desktop && gemessen ? gemessen : 320, rand = 10, hoehe = desktop && gemessen ? 44 : hoehe0;
   const ganze = Math.max(1, Math.ceil((z + (zweit ? zweit.z : 0)) / n));
   const breite = (W - 2 * rand) / ganze;
   const teil = breite / n;
@@ -39,20 +44,59 @@ function Streifen({ z, n, farbe = C.see, zweit = null, beschriftung, hoehe = 34 
     zellen.push(<rect key={k} x={rand + g * breite + i * teil} y={4} width={teil} height={hoehe} fill={f ? `${f}CC` : C.weiss} stroke={`${C.tinte}55`} strokeWidth="1" />);
   }
   return (
-    <svg viewBox={`0 0 ${W} ${hoehe + (beschriftung ? 26 : 10)}`} style={{ width: "100%", height: "auto", display: "block" }} role="img" aria-label={beschriftung || `${z}/${n}`}>
+    <div ref={ref}><svg viewBox={`0 0 ${W} ${hoehe + (beschriftung ? 26 : 10)}`} style={{ width: "100%", height: "auto", display: "block" }} role="img" aria-label={beschriftung || `${z}/${n}`}>
       {zellen}
       {Array.from({ length: ganze }, (_, g) => <rect key={`g${g}`} x={rand + g * breite} y={4} width={breite} height={hoehe} fill="none" stroke={C.tinte} strokeWidth="2" rx="3" />)}
       {beschriftung && <text x={W / 2} y={hoehe + 22} textAnchor="middle" style={{ fontSize: 12.5, fontWeight: 700, fill: C.grau, fontFamily: SCHRIFT }}>{beschriftung}</text>}
-    </svg>
+    </svg></div>
   );
 }
 
-function ErweiternKuerzen() {
+/* leiste: nur Desktop – Werkzeugleiste (Themenwahl) unter dem Bild; dann Arbeitsfläche */
+function ErweiternKuerzen({ leiste }) {
   const [n, setN] = useState(4);
   const [z, setZ] = useState(3);
   const [k, setK] = useState(2);
   const zz = Math.min(z, n);
   const g = ggT(zz, n) || 1;
+  const formel = T(`\\frac{${zz}}{${n}} = \\frac{${zz} · ${k}}{${n} · ${k}} = \\frac{${zz * k}}{${n * k}}`);
+  const erklaerung = <>
+    {zw(`Erweitern mit ${k}: Jeder Teil wird in ${k} Stücke zerschnitten. Die gefärbte Fläche bleibt gleich – der Bruch hat denselben Wert.`, `Expanding by ${k}: every part is cut into ${k} pieces. The coloured area stays the same – the fraction has the same value.`)}
+    {zz > 0 && zz < n && (
+      <div style={{ marginTop: 6 }}>
+        {g > 1
+          ? <>{zw(`Kürzen ist der Rückweg: ggT(${zz}; ${n}) = ${g}, also `, `Simplifying is the way back: gcd(${zz}, ${n}) = ${g}, so `)}{T(`\\frac{${zz}}{${n}} = \\frac{${zz / g}}{${n / g}}`)}.</>
+          : <>{zw(`ggT(${zz}; ${n}) = 1: `, `gcd(${zz}, ${n}) = 1: `)}{T(`\\frac{${zz}}{${n}}`)}{zw(" ist schon vollständig gekürzt.", " is already fully simplified.")}</>}
+      </div>
+    )}
+  </>;
+  if (leiste) {
+    const zeile = (bruch, streifen) => (
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <span style={{ fontSize: 21, minWidth: 64, textAlign: "center" }}>{bruch}</span>
+        <div style={{ flex: 1, minWidth: 0 }}>{streifen}</div>
+      </div>
+    );
+    return (
+      <>
+        <Arbeitsflaeche
+          links={<StellKarte titel={zw("Bruch und Faktor", "Fraction and factor")} kopf={T(`\\frac{${zz}}{${n}}`)} werte={[
+            { name: zw("Zähler", "Numerator"), wert: zz, setWert: setZ, min: 0, max: n },
+            { name: zw("Nenner", "Denominator"), wert: n, setWert: (v) => { setN(v); if (z > v) setZ(v); }, min: 2, max: 12 },
+            { name: zw("Faktor", "Factor"), wert: k, setWert: setK, min: 1, max: 5, farbe: C.gruen, format: (v) => `· ${v}` },
+          ]} />}
+          rechts={<>
+            <BildKarte style={{ padding: "22px 16px", display: "grid", gap: 18 }}>
+              {zeile(T(`\\frac{${zz}}{${n}}`), <Streifen z={zz} n={n} />)}
+              {zeile(T(`\\frac{${zz * k}}{${n * k}}`), <Streifen z={zz * k} n={n * k} farbe={C.gruen} />)}
+            </BildKarte>
+            {leiste}
+          </>} />
+        <ErklaerKarte style={{ marginTop: 20 }} titel={zw("Erweitern und Kürzen", "Expand and simplify")}
+          links={<div style={{ fontSize: 19, overflowX: "auto" }}>{formel}</div>} rechts={erklaerung} />
+      </>
+    );
+  }
   return (
     <>
       <div style={{ display: "grid", gap: 8 }}>
@@ -71,21 +115,14 @@ function ErweiternKuerzen() {
         </div>
       </div>
       <Merke>
-        <div style={{ fontSize: 17, marginBottom: 6 }}>{T(`\\frac{${zz}}{${n}} = \\frac{${zz} · ${k}}{${n} · ${k}} = \\frac{${zz * k}}{${n * k}}`)}</div>
-        {zw(`Erweitern mit ${k}: Jeder Teil wird in ${k} Stücke zerschnitten. Die gefärbte Fläche bleibt gleich – der Bruch hat denselben Wert.`, `Expanding by ${k}: every part is cut into ${k} pieces. The coloured area stays the same – the fraction has the same value.`)}
-        {zz > 0 && zz < n && (
-          <div style={{ marginTop: 6 }}>
-            {g > 1
-              ? <>{zw(`Kürzen ist der Rückweg: ggT(${zz}; ${n}) = ${g}, also `, `Simplifying is the way back: gcd(${zz}, ${n}) = ${g}, so `)}{T(`\\frac{${zz}}{${n}} = \\frac{${zz / g}}{${n / g}}`)}.</>
-              : <>{zw(`ggT(${zz}; ${n}) = 1: `, `gcd(${zz}, ${n}) = 1: `)}{T(`\\frac{${zz}}{${n}}`)}{zw(" ist schon vollständig gekürzt.", " is already fully simplified.")}</>}
-          </div>
-        )}
+        <div style={{ fontSize: 17, marginBottom: 6 }}>{formel}</div>
+        {erklaerung}
       </Merke>
     </>
   );
 }
 
-function Gleichnamig() {
+function Gleichnamig({ leiste }) {
   const [n1, setN1] = useState(3);
   const [z1, setZ1] = useState(1);
   const [n2, setN2] = useState(4);
@@ -95,6 +132,36 @@ function Gleichnamig() {
   const za = a.z * (hn / a.n), zb = b.z * (hn / b.n);
   const s = qAdd(q(a.z, a.n), q(b.z, b.n));
   const sumTex = za + zb === 0 ? "0" : `\\frac{${za + zb}}{${hn}}${(s.z !== za + zb || s.n !== hn) ? ` = ${bt(s)}` : ""}`;
+  const formel = T(`\\frac{${a.z}}{${a.n}} + \\frac{${b.z}}{${b.n}} = \\frac{${za}}{${hn}} + \\frac{${zb}}{${hn}} = ${sumTex}`);
+  const erklaerung = zw(`Teile verschiedener Größe kann man nicht direkt zusammenzählen – erst müssen alle Teile gleich groß sein. Der kleinste gemeinsame Nenner ist kgV(${a.n}; ${b.n}) = ${hn}.`, `You can't add parts of different sizes directly – first all parts must be the same size. The lowest common denominator is lcm(${a.n}, ${b.n}) = ${hn}.`);
+  const streifen = <>
+    <Streifen z={a.z} n={a.n} beschriftung={zw(`${a.z} von ${a.n} Teilen`, `${a.z} of ${a.n} parts`)} />
+    <Streifen z={b.z} n={b.n} farbe={C.gruen} beschriftung={zw(`${b.z} von ${b.n} Teilen`, `${b.z} of ${b.n} parts`)} />
+    <Streifen z={za} n={hn} zweit={{ z: zb, farbe: C.gruen }} beschriftung={zw(`zusammen: ${za + zb} von ${hn} Teilen (Hauptnenner ${hn})`, `together: ${za + zb} of ${hn} parts (common denominator ${hn})`)} />
+  </>;
+  if (leiste) {
+    return (
+      <>
+        <Arbeitsflaeche
+          links={<>
+            <StellKarte titel={zw("1. Bruch", "1st fraction")} kopf={T(`\\frac{${a.z}}{${a.n}}`)} werte={[
+              { name: zw("Zähler", "Numerator"), wert: a.z, setWert: setZ1, min: 0, max: n1 },
+              { name: zw("Nenner", "Denominator"), wert: n1, setWert: (v) => { setN1(v); if (z1 > v) setZ1(v); }, min: 2, max: 8 },
+            ]} />
+            <StellKarte titel={zw("2. Bruch", "2nd fraction")} farbe={C.gruen} kopf={T(`\\frac{${b.z}}{${b.n}}`)} werte={[
+              { name: zw("Zähler", "Numerator"), wert: b.z, setWert: setZ2, min: 0, max: n2 },
+              { name: zw("Nenner", "Denominator"), wert: n2, setWert: (v) => { setN2(v); if (z2 > v) setZ2(v); }, min: 2, max: 8 },
+            ]} />
+          </>}
+          rechts={<>
+            <BildKarte style={{ padding: "20px 12px 12px", display: "grid", gap: 10 }}>{streifen}</BildKarte>
+            {leiste}
+          </>} />
+        <ErklaerKarte style={{ marginTop: 20 }} titel={zw("Gleichnamig machen", "Common denominator")}
+          links={<div style={{ fontSize: 19, overflowX: "auto" }}>{formel}</div>} rechts={erklaerung} />
+      </>
+    );
+  }
   return (
     <>
       <div style={{ display: "grid", gap: 8 }}>
@@ -104,13 +171,11 @@ function Gleichnamig() {
         <Regler name={zw("2. Zähler", "2nd numer.")} wert={b.z} setWert={setZ2} min={0} max={n2} schritt={1} farbe={C.gruen} format={(v) => String(v)} breiteName={92} />
       </div>
       <div style={{ marginTop: 12, background: C.sand, borderRadius: 14, padding: "10px 6px", display: "grid", gap: 4 }}>
-        <Streifen z={a.z} n={a.n} beschriftung={zw(`${a.z} von ${a.n} Teilen`, `${a.z} of ${a.n} parts`)} />
-        <Streifen z={b.z} n={b.n} farbe={C.gruen} beschriftung={zw(`${b.z} von ${b.n} Teilen`, `${b.z} of ${b.n} parts`)} />
-        <Streifen z={za} n={hn} zweit={{ z: zb, farbe: C.gruen }} beschriftung={zw(`zusammen: ${za + zb} von ${hn} Teilen (Hauptnenner ${hn})`, `together: ${za + zb} of ${hn} parts (common denominator ${hn})`)} />
+        {streifen}
       </div>
       <Merke>
-        <div style={{ fontSize: 17, marginBottom: 6, overflowX: "auto" }}>{T(`\\frac{${a.z}}{${a.n}} + \\frac{${b.z}}{${b.n}} = \\frac{${za}}{${hn}} + \\frac{${zb}}{${hn}} = ${sumTex}`)}</div>
-        {zw(`Teile verschiedener Größe kann man nicht direkt zusammenzählen – erst müssen alle Teile gleich groß sein. Der kleinste gemeinsame Nenner ist kgV(${a.n}; ${b.n}) = ${hn}.`, `You can't add parts of different sizes directly – first all parts must be the same size. The lowest common denominator is lcm(${a.n}, ${b.n}) = ${hn}.`)}
+        <div style={{ fontSize: 17, marginBottom: 6, overflowX: "auto" }}>{formel}</div>
+        {erklaerung}
       </Merke>
     </>
   );
@@ -118,10 +183,16 @@ function Gleichnamig() {
 
 function Entdecken() {
   const [teil, setTeil] = useState("ek");
+  const desktop = useDesktop();
+  const THEMEN = [["ek", zw("Erweitern und Kürzen", "Expand and simplify")], ["gn", zw("Gleichnamig machen", "Common denominator")]];
+  if (desktop) {
+    const leiste = <Werkzeugleiste gruppen={[{ titel: zw("Bruchstreifen", "Fraction strips"), inhalt: <ChipAuswahl optionen={THEMEN} wert={teil} setWert={setTeil} label={zw("Thema", "Topic")} /> }]} />;
+    return <div style={{ marginTop: 16 }} data-bruch="breit">{teil === "ek" ? <ErweiternKuerzen leiste={leiste} /> : <Gleichnamig leiste={leiste} />}</div>;
+  }
   return (
     <div style={{ ...karte, marginTop: 16 }}>
       <p style={kicker}>{zw("Bruchstreifen", "Fraction strips")}</p>
-      <Auswahl optionen={[["ek", zw("Erweitern und Kürzen", "Expand and simplify")], ["gn", zw("Gleichnamig machen", "Common denominator")]]} wert={teil} setWert={setTeil} label={zw("Thema", "Topic")} />
+      <Auswahl optionen={THEMEN} wert={teil} setWert={setTeil} label={zw("Thema", "Topic")} />
       <div style={{ marginTop: 14 }}>{teil === "ek" ? <ErweiternKuerzen /> : <Gleichnamig />}</div>
     </div>
   );
@@ -308,6 +379,7 @@ function Ueben() {
   const neu = (a = art) => { setAu(neueAufgabe(a === "mix" ? null : a)); setStand(0); };
   const schritte = useMemo(() => schritteVon(au), [au]);
   const ARTEN = [["mix", zw("Gemischt", "Mixed")], ...BRUCH_ARTEN.map((a) => [a, zw(TITEL[a][0], TITEL[a][1])])];
+  const karte = useKarte();   // Desktop: feiner Rahmen statt Schatten
   return (
     <>
       <div style={{ ...karte, marginTop: 16 }}>

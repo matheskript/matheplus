@@ -13,6 +13,8 @@ import { hilfeKontext, karte, kicker, zw } from "./ui2.jsx";
 import { STELLEN, ZAHL_ARTEN, roemisch, zahlAufgabe } from "./unterGen.js";
 import { Merke, UebenRahmen, WertZeile, ZweiModi, zs } from "./geoUi.jsx";
 import { werkzeugAnimationen } from "./unterstufeMedien.js";
+import { Arbeitsflaeche, BildKarte, useBreite, useDesktop } from "./arbeitsflaeche.jsx";
+import { ErgebnisKarte } from "./funcZahlenDesktop.jsx";
 
 let zaehler = 0;
 const de = (n) => n.toLocaleString("de-DE");
@@ -24,6 +26,42 @@ function Entdecken() {
   const ziffer = (i) => Math.floor(n / 10 ** i) % 10;
   const aendern = (i, d) => { const z = ziffer(i); const neu = (z + d + 10) % 10; setN(n + (neu - z) * 10 ** i); };
   const knopf = (t, f) => <button type="button" onClick={f} style={{ width: "100%", height: 26, border: `1px solid ${C.linie}`, borderRadius: 7, background: C.weiss, color: C.see, fontWeight: 800, cursor: "pointer", fontFamily: "inherit", padding: 0 }}>{t}</button>;
+  const desktop = useDesktop();
+  const zerlegung = [6, 5, 4, 3, 2, 1, 0].filter((i) => ziffer(i)).map((i) => `${ziffer(i)} ${KURZ[i]}`).join(" + ") || "0";
+  const rundung = <>
+    {[1, 2, 3, 4, 5].map((i) => <WertZeile key={i} links={zw(`auf ${STELLEN[i]}`, `to ${STELLEN_EN[i]}`)} rechts={de(Math.round(n / 10 ** i) * 10 ** i)} />)}
+    {n > 0 && n < 4000 && <WertZeile links={zw("Römisch", "Roman")} rechts={roemisch(n)} farbe="#8A6A00" />}
+  </>;
+  const merkeText = zw("Jede Stelle ist zehnmal so viel wert wie die rechts daneben. Beim Runden entscheidet nur die Ziffer rechts von der Rundungsstelle: 0–4 abrunden, 5–9 aufrunden.", "Each place is worth ten times the place to its right. When rounding, only the digit right of the rounding place decides: 0–4 round down, 5–9 round up.");
+  if (desktop) {
+    /* Desktop: Stellenwerttafel als Bild rechts (+ oben, Ziffer Mitte, − unten), Runden links */
+    const dk = (f) => ({ width: "100%", maxWidth: 56, height: 30, borderRadius: 9, border: `1.5px solid ${f}55`, background: `${f}12`, color: f, fontSize: 18, fontWeight: 700,
+      fontFamily: "inherit", cursor: "pointer", padding: 0, lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center" });
+    return (
+      <div style={{ marginTop: 16 }} data-stellenwert="breit">
+        <Arbeitsflaeche
+          links={<ErgebnisKarte titel={zw("Runden", "Rounding")}>{rundung}</ErgebnisKarte>}
+          rechts={<BildKarte style={{ padding: "18px 16px 16px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", gap: 6 }}>
+              {[6, 5, 4, 3, 2, 1, 0].map((i) => {
+                const f = i >= 3 ? "#8A6A00" : C.see;
+                return (
+                  <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+                    <div style={{ fontSize: 12, fontWeight: 800, color: f }}>{KURZ[i]}</div>
+                    <button type="button" className="eve-knopf" aria-label={`${KURZ[i]} +`} style={dk(f)} onClick={() => aendern(i, 1)}>+</button>
+                    <div style={{ width: "100%", textAlign: "center", fontSize: 28, fontWeight: 800, borderRadius: 10, padding: "6px 0", background: i >= 6 ? `${C.flaggold}33` : i >= 3 ? `${C.flaggold}18` : `${C.see}12`, fontVariantNumeric: "tabular-nums" }}>{ziffer(i)}</div>
+                    <button type="button" className="eve-knopf" aria-label={`${KURZ[i]} −`} style={dk(f)} onClick={() => aendern(i, -1)}>−</button>
+                  </div>
+                );
+              })}
+            </div>
+            <div style={{ textAlign: "center", fontSize: 30, fontWeight: 800, margin: "18px 0 4px", letterSpacing: "0.02em" }}>{de(n)}</div>
+            <p style={{ textAlign: "center", fontSize: 13, color: C.grau, margin: 0 }}>{zerlegung}</p>
+          </BildKarte>} />
+        <div style={{ marginTop: 8 }}><Merke>{merkeText}</Merke></div>
+      </div>
+    );
+  }
   return (
     <>
       <div style={{ ...karte, marginTop: 16 }}>
@@ -39,22 +77,24 @@ function Entdecken() {
           ))}
         </div>
         <div style={{ textAlign: "center", fontSize: 24, fontWeight: 800, margin: "12px 0 2px", letterSpacing: "0.02em" }}>{de(n)}</div>
-        <p style={{ textAlign: "center", fontSize: 13, color: C.grau, margin: 0 }}>{[6, 5, 4, 3, 2, 1, 0].filter((i) => ziffer(i)).map((i) => `${ziffer(i)} ${KURZ[i]}`).join(" + ") || "0"}</p>
+        <p style={{ textAlign: "center", fontSize: 13, color: C.grau, margin: 0 }}>{zerlegung}</p>
       </div>
       <div style={{ ...karte, marginTop: 12 }}>
         <p style={kicker}>{zw("Runden", "Rounding")}</p>
-        {[1, 2, 3, 4, 5].map((i) => <WertZeile key={i} links={zw(`auf ${STELLEN[i]}`, `to ${STELLEN_EN[i]}`)} rechts={de(Math.round(n / 10 ** i) * 10 ** i)} />)}
-        {n > 0 && n < 4000 && <WertZeile links={zw("Römisch", "Roman")} rechts={roemisch(n)} farbe="#8A6A00" />}
-        <Merke>{zw("Jede Stelle ist zehnmal so viel wert wie die rechts daneben. Beim Runden entscheidet nur die Ziffer rechts von der Rundungsstelle: 0–4 abrunden, 5–9 aufrunden.", "Each place is worth ten times the place to its right. When rounding, only the digit right of the rounding place decides: 0–4 round down, 5–9 round up.")}</Merke>
+        {rundung}
+        <Merke>{merkeText}</Merke>
       </div>
     </>
   );
 }
 
 function Zahlenstrahl({ start, schritt, k }) {
-  const W = 320, X = (i) => 16 + i * ((W - 32) / 10);
+  // Echte Pixel am Desktop (DESKTOP-STIL.md): gemessene Breite; Handy unverändert 320
+  const [ref, breite] = useBreite();
+  const desktop = useDesktop();
+  const W = desktop && breite ? breite : 320, X = (i) => 16 + i * ((W - 32) / 10);
   return (
-    <svg viewBox={`0 0 ${W} 90`} style={{ width: "100%", height: "auto", display: "block" }} role="img" aria-label={zw("Zahlenstrahl", "Number line")}>
+    <div ref={ref}><svg viewBox={`0 0 ${W} 90`} style={{ width: "100%", height: "auto", display: "block" }} role="img" aria-label={zw("Zahlenstrahl", "Number line")}>
       <line x1="10" y1="44" x2={W - 6} y2="44" stroke={C.tinte} strokeWidth="1.6" />
       {Array.from({ length: 11 }, (_, i) => <line key={i} x1={X(i)} y1={i % 5 ? 38 : 34} x2={X(i)} y2={i % 5 ? 50 : 54} stroke={C.tinte} strokeWidth={i % 5 ? 1 : 1.6} />)}
       <text x={X(0)} y="72" textAnchor="middle" style={{ fontSize: 12, fontWeight: 700, fill: C.tinte }}>{de(start)}</text>
@@ -62,7 +102,7 @@ function Zahlenstrahl({ start, schritt, k }) {
       <path d={`M ${X(k)} 14 L ${X(k)} 32`} stroke={C.flaggold} strokeWidth="3" />
       <path d={`M ${X(k) - 6} 26 L ${X(k)} 34 L ${X(k) + 6} 26`} fill="none" stroke={C.flaggold} strokeWidth="3" />
       <text x={X(k)} y="11" textAnchor="middle" style={{ fontSize: 12, fontWeight: 800, fill: "#8A6A00" }}>?</text>
-    </svg>
+    </svg></div>
   );
 }
 
