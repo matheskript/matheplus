@@ -2,6 +2,7 @@
    Reine Darstellung: die Foto-Logik (Kamera, Galerie, Analyse) bleibt in func10.jsx. */
 import React, { useRef } from "react";
 import { C } from "./base1.jsx";
+import { englisch } from "./i18n.js";
 import { MathildaZyklus } from "./funcMathildaZyklus.jsx";
 import { MathildaName } from "./mathildaName.jsx";
 import "@fontsource/caveat/600.css";
@@ -169,7 +170,8 @@ export function MathildaKopf({ modus, setModus, onScan, onText, onBriefkasten, o
                 <path d="M4 8h3l2-3h6l2 3h3v11H4z" /><circle cx="12" cy="13" r="3.5" />
               </svg>
             </span>
-            Scan dein<br className="mk-umbruch" /> Blatt
+            {/* Umbruch teilt den Text in zwei Knoten – deshalb Englisch hier statt im Wörterbuch */}
+            <span data-kein-i18n>{englisch() ? <>Scan your<br className="mk-umbruch" /> sheet</> : <>Scan dein<br className="mk-umbruch" /> Blatt</>}</span>
           </button>
         </div>
       </div>

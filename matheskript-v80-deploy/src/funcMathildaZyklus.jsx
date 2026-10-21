@@ -5,6 +5,7 @@
    Der Pfad wird aus den echten Positionen der Knoten berechnet, damit er auf jedem Bildschirm sitzt. */
 import React, { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { C } from "./base1.jsx";
+import { englisch } from "./i18n.js";
 import { mitMathildaAI, MathildaKnopfSchrift } from "./mathildaName.jsx";
 
 const GOLD = C.flaggold;
@@ -96,7 +97,8 @@ function HinweisPfeile() {
 function Beschriftung({ titel, text, links, refT }) {
   return (
     <span ref={refT} className={`mz-text${links ? " mz-text-l" : ""}`}>
-      <b>{mitMathildaAI(titel, true)}</b>
+      {/* „MathildaAI arbeitet“: der Name wird als Element eingesetzt, der Rest stünde allein im Wörterbuch → Englisch hier */}
+      <b data-kein-i18n={titel === "MathildaAI arbeitet" ? "" : undefined}>{mitMathildaAI(englisch() && titel === "MathildaAI arbeitet" ? "MathildaAI at work" : titel, true)}</b>
       <span>{text}</span>
     </span>
   );
@@ -295,7 +297,7 @@ export function MathildaZyklus({ scanRef, modus, setModus, weitere }) {
                 <span className="mz-form mz-scan-gross" ref={r2}>
                   <HinweisPfeile />
                   <span className="mz-sg-kam"><KameraGross /></span>
-                  <span className="mz-sg-text">Blatt<br /> scannen</span>
+                  <span className="mz-sg-text" data-kein-i18n>{englisch() ? <>Scan<br /> sheet</> : <>Blatt<br /> scannen</>}</span>
                   <span className="mz-nr">2</span>
                 </span>
               </span>
