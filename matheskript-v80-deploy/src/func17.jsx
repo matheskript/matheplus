@@ -793,13 +793,13 @@ export function BernoulliBingo() {
     </>
   );
   const kacheln = (
-    <div style={{ display: "grid", gridTemplateColumns: `repeat(${n <= 10 ? n : n <= 40 ? 10 : 20}, 1fr)`, gap: n > 40 ? 3 : 5, marginBottom: 12 }}>
+    <div style={{ display: "grid", gridTemplateColumns: `repeat(${n <= 10 ? n : n <= 40 ? 10 : 20}, minmax(0, 1fr))`, gap: n > 40 ? 2 : 5, marginBottom: 12 }}>
       {Array.from({ length: n }, (_, i) => {
         const offen = ergebnis && i < sichtbar;
         const t = offen && ergebnis[i];
         return (
-          <div key={i} style={{ aspectRatio: "1 / 1", borderRadius: n > 40 ? 5 : 9, display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: n > 40 ? 10 : 15, fontWeight: 800, transition: "all .15s",
+          <div key={i} style={{ aspectRatio: "1 / 1", minWidth: 0, overflow: "hidden", borderRadius: n > 40 ? 4 : 9, display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: n > 40 ? "clamp(7px, 2.2vw, 10px)" : 15, letterSpacing: n > 40 ? "-0.04em" : undefined, fontWeight: 800, transition: "all .15s",
             background: !offen ? C.sand : t ? C.flaggold : "#E6EAF2", color: t ? C.seeTief : C.hellgrau,
             border: `1.5px solid ${!offen ? C.linie : t ? "#B38D00" : C.linie}`, transform: offen ? "scale(1)" : "scale(0.94)" }}>
             {offen ? (t ? "✓" : "·") : i + 1}

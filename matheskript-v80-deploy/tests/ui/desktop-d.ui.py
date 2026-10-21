@@ -45,7 +45,7 @@ def seite(b, w, h, pfad):
 
 # Bekannte Überläufe am Handy, schon vor dem Desktop-Umbau vorhanden (Handy-Zweig bleibt unverändert):
 #   360/diagramme – Animations-Chips der MotionAuswahl (geoUi.jsx), 390/bernoulli nach „n = 50“ – Handy-Layout
-BEKANNT_HANDY = {"360/diagramme", "390/bernoulli bedient", "360/bernoulli bedient"}
+BEKANNT_HANDY = set()
 
 
 def ueberbreite(p, n):

@@ -45,7 +45,7 @@ SEITEN = {
 
 # Bekannt und schon vor dem Desktop-Umbau vorhanden (Handy-Zweig bleibt unverändert):
 # /bruchrechnen, Entdecken bei 360 px – 9 px Überlauf durch eine leere Span-Zeile im Handy-Layout.
-BEKANNT = {"360/bruchrechnen": 9}
+BEKANNT = {}
 
 
 def ueberbreite(p, wo):

@@ -41,7 +41,7 @@ def oeffnen(b, w, h, pfad):
 
 
 # Bekannt, schon vor dem Desktop-Umbau (Handy-Zweig bleibt unverändert): Quader bei 360 px, Regler-Zeile 3 px zu breit.
-BEKANNT = {"360/quader": 3}
+BEKANNT = {}
 
 
 def ueberbreite(p, n):

@@ -59,8 +59,9 @@ export function Regler({ name, wert, setWert, min, max, schritt, farbe = C.see, 
       </div>
     );
   }
+  // minWidth 0: in einem Raster ohne Spaltenangabe darf die Zeile schmaler werden als der Regler „von Natur aus“ (sonst Überlauf bei 360 px)
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
       <span style={{ fontSize: 14, fontWeight: 800, color: farbe, minWidth: breiteName }}>{name}</span>
       <input type="range" min={min} max={max} step={schritt} value={wert} onChange={(e) => setze(Number(e.target.value))} aria-label={name}
         style={{ flex: 1, minWidth: 0, accentColor: farbe }} />

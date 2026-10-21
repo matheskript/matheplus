@@ -260,9 +260,10 @@ export function Mathilda() {
     if (wz) document.documentElement.setAttribute("data-wz-voll", "1"); else document.documentElement.removeAttribute("data-wz-voll");
     return () => document.documentElement.removeAttribute("data-wz-voll");
   }, [ansicht]);
-  // Trainings-Kurse (Band mit Kurs-Umschalter): am Desktop breit und symmetrisch wie die Kopfleiste (--tr-breite, index.css)
+  // Alle Werkzeugseiten (Trainings-Kurse mit Band und übrige mit Seitenkopf): am Desktop breit und symmetrisch wie die Kopfleiste
+  // (--tr-breite, höchstens 940 px, index.css). Fließtext bleibt dort auf Lesebreite begrenzt.
   useEffect(() => {
-    if (KURS_ANSICHTEN.has(ansicht)) document.documentElement.setAttribute("data-training-breit", "1"); else document.documentElement.removeAttribute("data-training-breit");
+    if (KURS_ANSICHTEN.has(ansicht) || (wo(ansicht) && wo(ansicht).werkzeug)) document.documentElement.setAttribute("data-training-breit", "1"); else document.documentElement.removeAttribute("data-training-breit");
     return () => document.documentElement.removeAttribute("data-training-breit");
   }, [ansicht]);
   // Adresszeile folgt der Seite: /elternabend, /ableitungstrainer, /klasse-10 … (Pfade: pfade.js).
