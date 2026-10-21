@@ -66,3 +66,8 @@ button, [role="button"], [role="tab"], [role="menuitem"] {
 :is(header, nav, .kl, .held, .kopfblock, .sbb-held, .lp-kopf) :is(input, textarea, select, [contenteditable="true"]) {
   -webkit-user-select: text; user-select: text; -webkit-touch-callout: default;
 }
+
+/* Hauptthema-Wahl: Datumsfeld in der halben Breite – Kalenderzeichen ohne Extra-Abstand */
+.ht-datum::-webkit-calendar-picker-indicator { margin: 0 0 0 2px; padding: 0; }
+.ht-datum::-webkit-datetime-edit, .ht-datum::-webkit-datetime-edit-fields-wrapper { padding: 0; }
+@media (max-width: 380px) { .ht-datum { font-size: 12.5px !important; } }

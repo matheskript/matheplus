@@ -54,14 +54,21 @@ export function HauptthemaWahl({ titel, ersetzt, waehle }) {
           ? <>Mach „{titel}“ zu deinem neuen Hauptthema. Es ersetzt „{ersetzt}“ ganz oben.</>
           : "Mach dieses Kapitel zu deinem Hauptthema. Dann steht es ganz oben, du bekommst jeden Tag eine Einheit – und vor der Arbeit die Generalprobe."}
       </p>
-      <DatumFeld wert={termin} setze={setTermin} />
       <p style={{ margin: 0, fontSize: 11, lineHeight: 1.4, color: NACHT_TEXT }}>
         {termin ? "Der Plan verdichtet die Wiederholungen bis zur Arbeit, am Vortag kommt die Generalprobe." : "Optional. Ohne Datum: Wiederholungen nach Ebbinghaus nach 1, 3, 7, 14 und 30 Tagen."}
       </p>
-      <button type="button" onClick={() => waehle(termin || null)} className="ht-gold"
-        style={{ ...knopf, width: "100%", minHeight: 46, border: "none", borderRadius: 12, background: C.flaggold, color: C.seeTief, fontSize: 15, fontWeight: 800, boxShadow: "0 4px 14px rgba(237,187,0,0.3)" }}>
-        Als mein Hauptthema wählen ›
-      </button>
+      {/* unten: Datum links, Knopf rechts – je die Hälfte */}
+      <div data-ht-wahl-zeile style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)", gap: 8, alignItems: "end", marginTop: 2 }}>
+        <label style={{ display: "grid", gap: 4, minWidth: 0, fontSize: 11.5, fontWeight: 700, color: C.weiss }}>
+          <span>Klassenarbeit am</span>
+          <input type="date" className="ht-datum" value={termin} min={heuteText()} onChange={(e) => setTermin(e.target.value)} aria-label="Datum der Klassenarbeit (optional)"
+            style={{ fontFamily: "inherit", width: "100%", minWidth: 0, boxSizing: "border-box", fontSize: 13, padding: "6px 6px", borderRadius: 10, border: "none", minHeight: 44, color: C.tinte, background: C.weiss }} />
+        </label>
+        <button type="button" onClick={() => waehle(termin || null)} className="ht-gold"
+          style={{ ...knopf, width: "100%", minWidth: 0, minHeight: 44, border: "none", borderRadius: 10, padding: "6px 8px", background: C.flaggold, color: C.seeTief, fontSize: 13, fontWeight: 800, boxShadow: "0 4px 14px rgba(237,187,0,0.3)" }}>
+          Als mein Hauptthema wählen ›
+        </button>
+      </div>
     </div>
   );
 }
