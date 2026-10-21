@@ -64,6 +64,8 @@ with sync_playwright() as p:
 
                 nav = page.locator(".kl-nav [data-besucher-menue]")
                 logo = page.evaluate("parseFloat(getComputedStyle(document.querySelector('.kl-marke > span')).fontSize)")
+                seite = min(max(940, breite * 0.62), 1200)   # --seite aus index.css
+                erwartet = min(max(40, seite * 0.042), 50)    # --kl-logo ab 1000 px
                 if angemeldet:
                     pruefe(nav.count() == 0, f"{tag}: Besuchermenü trotz Anmeldung")
                     pruefe(page.locator(".kl-slogan").count() == 1, f"{tag}: Slogan fehlt")
@@ -106,9 +108,9 @@ with sync_playwright() as p:
                         pruefe(farbe == FARBE_WEISS, f"{tag}: Menüschrift nicht weiß ({farbe})")
                     ai = page.evaluate("getComputedStyle(document.querySelector('[data-besucher-menue=mathilda] > span > span + span')).color")
                     pruefe(ai in ("rgb(237, 187, 0)", "rgb(185, 138, 0)"), f"{tag}: AI nicht gold ({ai})")
-                    # Wortmarke: ab 1000 px voll (40 px); die Zeile ist symmetrisch – das ☰ endet so weit vom rechten Rand
-                    # wie die Wortmarke vom linken beginnt (seit 21.10., statt T über der Schlagzeile)
-                    pruefe(abs(logo - 40) < 0.6, f"{tag}: Wortmarke {logo}px statt 40px")
+                    # Wortmarke: ab 1000 px voll (40 px, ab ~1516 px mit der Seitenbreite --seite wachsend bis 50 px bei 1920);
+                    # die Zeile ist symmetrisch – das ☰ endet so weit vom rechten Rand wie die Wortmarke vom linken beginnt
+                    pruefe(abs(logo - erwartet) < 0.6, f"{tag}: Wortmarke {logo}px statt {erwartet:.1f}px")
                     li, re = page.evaluate("""() => [document.querySelector('.kl-marke').getBoundingClientRect().left,
                       window.innerWidth - document.querySelector('.kl-rechts').getBoundingClientRect().right]""")
                     pruefe(abs(li - re) < 1.5, f"{tag}: Kopfzeile nicht symmetrisch (links {li:.1f}, rechts {re:.1f})")
@@ -117,8 +119,17 @@ with sync_playwright() as p:
                     mitte = lambda bb: bb["y"] + bb["height"] / 2
                     m0 = mitte(page.locator(".kl-marke").bounding_box())
                     pruefe(not any(abs(mitte(e.bounding_box()) - m0) > 12 for e in nav.all()), f"{tag}: Menü sollte neben der Wortmarke stehen")
-                if angemeldet and breite >= 1280:
-                    pruefe(abs(logo - 40) < 0.6, f"{tag}: Wortmarke {logo}px statt 40px")
+                if angemeldet and breite >= 1000:
+                    # seit 21.10. abends auch angemeldet eine breite Zeile: Wortmarke 40–50 px links (an --seite), Slogan darunter, symmetrischer Rand
+                    pruefe(abs(logo - erwartet) < 0.6, f"{tag}: Wortmarke {logo}px statt {erwartet:.1f}px")
+                    li, re = page.evaluate("""() => [document.querySelector('.kl-marke').getBoundingClientRect().left,
+                      window.innerWidth - document.querySelector('.kl-rechts').getBoundingClientRect().right]""")
+                    pruefe(abs(li - re) < 1.5, f"{tag}: Kopfzeile nicht symmetrisch (links {li:.1f}, rechts {re:.1f})")
+                    pruefe(li >= 32, f"{tag}: Rand nur {li:.0f}px")
+                if angemeldet:
+                    # Slogan: Unterlänge (g von „Erfolg“) darf nicht abgeschnitten sein – Zeilenhöhe ≥ 1,25 × Schrift
+                    fs, lh, mh = page.evaluate("(()=>{const c=getComputedStyle(document.querySelector('.kl-slogan'));return [parseFloat(c.fontSize), parseFloat(c.lineHeight), parseFloat(c.maxHeight)]})()")
+                    pruefe(lh >= fs * 1.24 and mh >= lh, f"{tag}: Slogan beschnitten (Schrift {fs}, Zeile {lh}, max {mh})")
 
                 # Kein Modus-Knopf in der Leiste, keine Karos in Leiste und Startseite
                 pruefe(page.locator("[data-kl-modus], .kl-modus").count() == 0, f"{tag}: Modus-Knopf steht noch in der Kopfleiste")

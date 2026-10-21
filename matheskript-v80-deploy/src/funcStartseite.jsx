@@ -234,6 +234,11 @@ html[data-start-edition="ger"] .app-wurzel { background: #FFFFFF !important; }
 /* ---------- Bühne oben ---------- */
 .sbb-held { position: relative; overflow: hidden; padding: clamp(28px, 6vw, 56px) 0 0; }
 .sbb-held-kurve { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+/* Breites Blatt (zweispaltige Bühne): Kasten mindestens 1,617 × --seite breit (940 px → 1520 px), mittig – so liegen
+   Scheitel, Punkt und Zeichen relativ zu Schlagzeile und Karte immer an derselben Stelle, auch wenn die Seite ab
+   ~1516 px mitwächst; der Maßstab folgt sonst nur der Höhe */
+.sbb-held-kurve.breit { left: 50%; right: auto; width: max(100%, calc(var(--seite, 940px) * 1.617)); transform: translateX(-50%); }
+.sbb-held-kurve.breit .weg { stroke-dasharray: 2600; stroke-dashoffset: 2600; }
 .sbb-held-kurve .glyph { fill: var(--glyph); opacity: .07; }
 .sbb-held-kurve .weg { stroke-dasharray: 1400; stroke-dashoffset: 1400; animation: sbbWeg 2.6s cubic-bezier(.4,0,.2,1) .2s forwards; }
 .sbb-held-kurve .punkt { opacity: 0; animation: sbbPunkt .6s ease 2.4s forwards; }
@@ -253,9 +258,11 @@ html[data-start-edition="ger"] .app-wurzel { background: #FFFFFF !important; }
 .sbb-held-suche { margin-top: 26px; max-width: 520px; }
 /* Wiederkehrer (Klasse bekannt) am Handy: kompakte Bühne ohne Haken */
 .sbb-held.kompakt .sbb-held-suche { margin-top: 20px; }
-/* Breite Bühne (ab 1100 px): Text links, Start-Karte rechts – so breit wie die Kopfleiste */
-.sbb-held-raster { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 1fr) 420px; column-gap: 40px; align-items: start;
-  width: 100%; max-width: 940px; margin: 0 auto; padding: 0 0 36px; }
+/* Breite Bühne (ab 1100 px): Text links, Start-Karte rechts – so breit wie die Kopfleiste (--seite, index.css).
+   Wächst die Seite (ab ~1516 px), wachsen Karte (420 → 480 px), Spaltenabstand und Schlagzeile (58 → 68 px) mit. */
+.sbb-held-raster { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 1fr) clamp(420px, calc(var(--seite, 940px) * .4), 480px);
+  column-gap: clamp(40px, calc(var(--seite, 940px) * .0425), 56px); align-items: start;
+  width: 100%; max-width: var(--seite, 940px); margin: 0 auto; padding: 0 0 36px; }
 .sbb-held-raster > .sbb-spalte { max-width: none; margin: 0; padding: 18px 0 0; }
 .sbb-held-karte { position: relative; z-index: 2; }
 .sbb-held-karte .sk { margin-top: 0; }
@@ -263,7 +270,9 @@ html[data-start-edition="ger"] .app-wurzel { background: #FFFFFF !important; }
 .sbb-held-karte .sk-konto { background: rgba(5,11,31,0.72); border-color: rgba(255,255,255,0.18); color: #FFFFFF; box-shadow: none; }
 .sbb-held-karte .sk-konto p { color: rgba(255,255,255,0.86); }
 .sbb-held-karte .sk-konto .k.hell { color: #FFFFFF; border-color: rgba(255,255,255,0.55); }
-.sbb-held.breit h1 { font-size: 58px; }
+.sbb-held.breit h1 { font-size: clamp(58px, calc(var(--seite, 940px) * .0575), 68px); }
+.sbb-held.breit .unter { font-size: clamp(30px, calc(var(--seite, 940px) * .0285), 34px); }
+.sbb-held.breit .sbb-held-suche { max-width: clamp(520px, calc(var(--seite, 940px) * .5), 600px); }
 .sbb-held-zone { margin: 0 0 10px; display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text); }
 .sbb-held-zone .nr { width: 26px; height: 26px; border-radius: 999px; display: inline-grid; place-items: center; font-size: 13px; letter-spacing: 0; color: ${NACHT}; background: ${GOLD}; }
 .sbb[data-modus="hell"] .sbb-held-suche .such-buehne-feld { box-shadow: 0 3px 16px rgba(15,26,51,0.07); }
@@ -284,7 +293,7 @@ html[data-start-edition="ger"] .app-wurzel { background: #FFFFFF !important; }
 .sbb-navi { position: sticky; top: 56px; z-index: 30; margin: 0; padding: 8px 0; background: var(--hg); border-bottom: 1px solid var(--linie); box-shadow: 0 10px 30px -22px rgba(0,0,0,.6); }
 .sbb[data-modus="mix"] .sbb-navi, .sbb[data-modus="hell"] .sbb-navi { background: rgba(255,255,255,0.92); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
 .sbb[data-modus="dunkel"] .sbb-navi { background: rgba(5,11,31,0.88); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
-.sbb-navi-spur { display: flex; gap: 6px; max-width: 940px; margin: 0 auto; padding: 0 16px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.sbb-navi-spur { display: flex; gap: 6px; max-width: var(--seite, 940px); margin: 0 auto; padding: 0 16px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
 .sbb-navi-spur::-webkit-scrollbar { display: none; }
 .sbb-navi button { flex: none; min-height: 32px; padding: 0 13px; border-radius: 999px; border: 1px solid var(--linie); background: transparent; color: var(--text); font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: background .15s ease, color .15s ease; }
 .sbb-navi button[aria-current] { background: ${GOLD}; border-color: ${GOLD}; color: ${NACHT}; }
@@ -353,7 +362,9 @@ html[data-start-edition="ger"] .app-wurzel { background: #FFFFFF !important; }
 .sbb-vision-knoepfe { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
 
 /* ---------- Spalte ---------- */
-.sbb-spalte { width: 100%; max-width: 783px; margin: 0 auto; padding: 0 20px; }
+/* Lesespalte 783 px; ab ~1516 px wächst sie mit der Seite (5/6 von --seite: 1680 px → 868 px, 1920 px → 992 px),
+   damit Karten, Navigator und Kursraster auf großen Bildschirmen nicht als schmaler Streifen in der Mitte stehen */
+.sbb-spalte { width: 100%; max-width: clamp(783px, calc(var(--seite, 940px) * .8333), 1000px); margin: 0 auto; padding: 0 20px; }
 .sbb-teil.ende .sbb-spalte { padding-bottom: 70px; }
 .sbb-abschnitt { margin-top: 28px; }
 
@@ -541,8 +552,45 @@ function PlusKlein({ farbe = C.seeTief }) {
   return <svg width="13" height="13" viewBox="0 0 18 18" aria-hidden="true"><path d="M9 2.5v13M2.5 9h13" stroke={farbe} strokeWidth="3" strokeLinecap="round" /></svg>;
 }
 
-/* Die Kurve über der Bühne: ein Funktionsgraph, der sich einmal über das Blatt zeichnet, dazu ein Punkt mit Tangente. */
-function HeldKurve() {
+/* Die Kurve über der Bühne: ein Funktionsgraph, der sich einmal über das Blatt zeichnet, dazu ein Punkt mit Tangente.
+   Handy/Tablet: Blatt 760 × 460, füllt die Bühne („slice“). Breite Bühne (ab 1100 px, zweispaltig): eigenes Blatt
+   1520 × 460 in einem Kasten von mindestens 1520 px Breite, mittig – so hängt der Maßstab nur noch von der Höhe der
+   Bühne ab (≈ 1,2) und nicht von der Bildschirmbreite. Vorher wurde das Handy-Blatt auf 1920 px um das 2,5-Fache
+   vergrößert: Σ so groß wie die Heute-Karte, die Kurve als dicker Balken quer durch die Karte.
+   Auf dem breiten Blatt bogt die Kurve über die Schlagzeile (Scheitel bei 600|40, über „Mathe kann“), läuft hinter der
+   Karte durch und hat Punkt und Tangente rechts neben der Karte (Karte endet bei Blattmitte + 470 = x 1230, in jeder
+   Seitenbreite, weil der Kasten mit --seite skaliert; Punkt bei 1300|296); die Zeichen stehen links der Schlagzeile
+   und rechts der Karte, nie im Text. */
+function HeldKurve({ breit }) {
+  if (breit) {
+    return (
+      <svg className="sbb-held-kurve breit" viewBox="0 0 1520 460" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <defs>
+          <linearGradient id="sbbGoldB" x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0" stopColor={GOLD} stopOpacity="0.25" /><stop offset="0.55" stopColor={GOLD} /><stop offset="1" stopColor={GOLD_HELL} />
+          </linearGradient>
+          <filter id="sbbGlowB" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="6" /></filter>
+        </defs>
+        <g fontFamily="Montserrat, system-ui, sans-serif" fontWeight="700">
+          <text x="1290" y="118" fontSize="56" className="glyph schweben">∫</text>
+          <text x="1270" y="210" fontSize="26" className="glyph">f′(x)</text>
+          <text x="1330" y="372" fontSize="46" className="glyph pulsieren">∑</text>
+          <text x="1440" y="440" fontSize="30" className="glyph">√</text>
+          <text x="150" y="400" fontSize="34" className="glyph">π</text>
+          <text x="110" y="250" fontSize="22" className="glyph">lim</text>
+        </g>
+        <g className="kurve">
+        <path className="weg" d="M -60 420 C 150 420, 300 20, 600 40 C 860 58, 1000 330, 1300 296 C 1420 282, 1480 140, 1600 50" fill="none" stroke={GOLD} strokeWidth="14" opacity="0.22" filter="url(#sbbGlowB)" strokeLinecap="round" />
+        <path className="weg" d="M -60 420 C 150 420, 300 20, 600 40 C 860 58, 1000 330, 1300 296 C 1420 282, 1480 140, 1600 50" fill="none" stroke="url(#sbbGoldB)" strokeWidth="3.5" strokeLinecap="round" />
+        <g className="punkt">
+          <line x1="1180" y1="310" x2="1420" y2="283" stroke="#fff" strokeWidth="1.4" opacity="0.55" strokeDasharray="5 4" />
+          <circle cx="1300" cy="296" r="7" fill={GOLD_HELL} />
+          <circle cx="1300" cy="296" r="14" fill="none" stroke={GOLD} strokeWidth="1.2" opacity="0.6" className="pulsieren" />
+        </g>
+        </g>
+      </svg>
+    );
+  }
   return (
     <svg className="sbb-held-kurve" viewBox="0 0 760 460" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
       <defs>
@@ -944,7 +992,7 @@ export function Startseite({ gehe }) {
 
       {/* ---------- 1 Bühne: Headline, Unterzeile, EINE Handlung (Pen & Paper, kostenlos), Suche ---------- */}
       <section className={["sbb-held", "sbb-insel", klasse && !breit ? "kompakt" : null, breit ? "breit" : null].filter(Boolean).join(" ")} aria-label="Mythos Mathe" id={breit ? "heute" : undefined}>
-        <HeldKurve />
+        <HeldKurve breit={breit} />
         <div className={breit ? "sbb-held-raster" : undefined}>
         <div className="sbb-spalte sbb-held-text" style={{ paddingBottom: 0 }}>
           <h1>Mathe kann<span className="gold">jeder verstehen</span></h1>

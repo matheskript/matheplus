@@ -18,8 +18,9 @@
                 angemeldet, die vier Punkte liegen hinter ☰ (Besuchermenü, ein
                 kleines Fenster; von dort „Alle Bereiche“ ins große ☰-Menü).
                 Ab 1000 px eine breite Zeile wie eine normale Website: Wortmarke
-                in voller Größe (40 px), die vier Punkte fest daneben (nie zum
-                Ausklappen), kein Slogan.
+                in voller Größe (40 px; ab ~1516 px wächst sie mit der Seitenbreite
+                --seite aus index.css bis 50 px bei 1920 px, Zeile und Menüschrift
+                mit), die vier Punkte fest daneben (nie zum Ausklappen), kein Slogan.
    Keinen Modus-Knopf in der Leiste: dunkel/hell/mix stellt man ganz unten im
    ☰-Menü um („Darstellung“) oder über die Pille unten links auf der Startseite.
    Auf Seiten, die kein Werkzeug sind, klebt die Leiste oben, zieht sich beim
@@ -44,14 +45,15 @@ const GOLD_HELL = "#FFE58A";
 const DESKTOP = "(min-width: 840px)";
 const HANDY = "(max-width: 699px)";
 const ZWEIZEILIG = "(max-width: 999px)";   // Besucher: Menü in einer zweiten Zeile
-const BREIT = "(min-width: 1000px)";       // Besucher: eine breite Zeile, Wortmarke voll, T über der Schlagzeile
+const BREIT = "(min-width: 1000px)";       // Alle: eine breite Zeile (symmetrischer Rand), Wortmarke voll – angemeldet mit Slogan links darunter
 /* Linke Kante der Schlagzeile auf der Startseite (Bühne in funcStartseite.jsx): 50 % − 371,5 px.
    Die Wortmarke beginnt 63 px davor – dann steht das T von MYTHOS über dem M von „Mathe“. */
 const HELD_KANTE = "calc(50% - 434.5px)";
-/* Breite des Inhalts von der Wortmarke bis zum ☰ (gemessen 930 px, mit Reserve). Seit 21.10. symmetrisch:
-   links und rechts derselbe Rand (--kl-rand), höchstens bis zur Schlagzeilenkante – das Menü endet also so weit
-   vom rechten Rand wie die Wortmarke vom linken. Passt beides nicht, rückt die Marke ein Stück vor die T-Kante. */
-const BREIT_BEDARF = "940px";
+/* Breite des Inhalts von der Wortmarke bis zum ☰: die Seitenbreite --seite (index.css; 940 px, ab ~1516 px wachsend
+   bis 1200 px – gemessen braucht die Zeile bei 40-px-Wortmarke 930 px). Seit 21.10. symmetrisch: links und rechts
+   derselbe Rand (--kl-rand), höchstens bis zur Schlagzeilenkante – das Menü endet also so weit vom rechten Rand wie
+   die Wortmarke vom linken. Passt beides nicht, rückt die Marke ein Stück vor die T-Kante. */
+const BREIT_BEDARF = "var(--seite, 940px)";
 
 const CSS = `
 .kl { position: relative; z-index: 50; isolation: isolate; color: var(--kl-text); font-family: Montserrat, system-ui, sans-serif;
@@ -106,19 +108,24 @@ const CSS = `
 .kl[data-kompakt] .kl-zeile { min-height: 56px; }
 .kl-marke { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; background: none; border: none; padding: 0; margin: 0; cursor: pointer; text-align: center; color: inherit; }
 .kl-marke:focus-visible, .kl button:focus-visible { outline: 3px solid ${GOLD}; outline-offset: 3px; border-radius: 6px; }
-.kl-slogan { font-size: clamp(12.25px, 3.79vw, 23.33px); font-weight: 600; letter-spacing: .03em; white-space: nowrap; line-height: 1; margin-top: 0; color: var(--kl-text);
-  transition: opacity .22s ease, max-height .28s ease, margin .28s ease; max-height: 30px; overflow: hidden; }
+.kl-slogan { font-size: clamp(12.25px, 3.79vw, 23.33px); font-weight: 600; letter-spacing: .03em; white-space: nowrap; line-height: 1.25; margin-top: 0; color: var(--kl-text);
+  padding-bottom: .14em; margin-bottom: -.14em;
+  transition: opacity .22s ease, max-height .28s ease, margin .28s ease, padding .28s ease, font-size .28s ease; max-height: 40px; overflow: hidden; }
+/* Das g von „Erfolg“: Montserrat ragt 0,25 em unter die Grundlinie, die Unterlänge des g 0,21 em. Mit line-height 1
+   + overflow hidden war es abgeschnitten (Fehler bis 21.10.). Deshalb Zeilenhöhe 1,25 UND ein Innenabstand unten
+   (.14 em, per negativem Außenabstand aus der Zeilenhöhe herausgerechnet): der Clip-Kasten reicht sicher unter die
+   Unterlängen, egal wie die Schriftgröße rundet. */
 .kl-slogan b { font-weight: 600; color: var(--kl-plus); }
-@media (min-width: 421px) { .kl-slogan { margin-top: 6px; } }
-@media ${DESKTOP} { .kl-slogan { margin-top: 1px; } }
-.kl[data-kompakt] .kl-slogan { opacity: 0; max-height: 0; margin-top: 0; }
+@media (min-width: 421px) { .kl-slogan { margin-top: 3px; } }
+@media ${DESKTOP} { .kl-slogan { margin-top: 0; } }
+.kl[data-kompakt] .kl-slogan { opacity: 0; max-height: 0; margin-top: 0; padding-bottom: 0; margin-bottom: 0; }
 /* Besucher: unter 1000 px wie angemeldet (Wortmarke + Slogan, mittig untereinander); ab 1000 px Marke links, ohne Slogan (siehe BREIT) */
 @media (max-width: 420px) { .kl-zeile { padding-left: 14px; } }
 
 /* Besuchermenü: feste Punkte */
 .kl-nav { display: flex; align-items: center; gap: 24px; margin: 0 12px 0 auto; padding: 0; list-style: none; }
 /* Größe der Wortmarke für Besucher: unter 1000 px so groß wie angemeldet (Platz bis zum ☰), darüber voll (siehe BREIT) */
-.kl { --kl-logo-gast: min(40px, calc((100vw - 100px) / 10)); }
+.kl { --kl-logo-gast: min(40px, calc((100vw - 100px) / 10)); --kl-logo: min(40px, calc((100vw - 100px) / 10)); }
 .kl-nav button { position: relative; background: none; border: none; padding: 8px 0; cursor: pointer; color: var(--kl-nav); font-size: 14.5px; font-weight: 700; letter-spacing: .005em; white-space: nowrap; line-height: 1; }
 .kl-nav button::after { content: ""; position: absolute; left: 0; right: 0; bottom: 2px; height: 2px; border-radius: 2px; background: ${GOLD}; transform: scaleX(0); transform-origin: left; transition: transform .22s cubic-bezier(.2,.7,.3,1); }
 .kl-nav button:hover::after, .kl-nav button[aria-current="page"]::after { transform: scaleX(1); }
@@ -162,17 +169,28 @@ const CSS = `
 @keyframes klBlende { from { opacity: 0; } }
 @keyframes klRein { from { opacity: 0; transform: translateY(-6px) scale(.98); } }
 @media ${BREIT} { .kl-bm, .kl-bm-schleier { display: none; } }
-/* Ab 1000 px: Besucher bekommen eine breite Zeile wie eine normale Website. Die Wortmarke (voll, 40 px) beginnt
-   bündig mit der Schlagzeile; nur wenn rechts der Platz fehlt, rückt sie so weit wie nötig nach links.
-   Rechts endet die Zeile genauso weit vor dem Rand wie die Wortmarke links beginnt (symmetrisch, --kl-rand). */
+/* Ab 1000 px (seit 21.10. abends für ALLE, vorher nur Besucher): eine breite Zeile wie eine normale Website.
+   Die Wortmarke beginnt bündig mit der Schlagzeile; nur wenn rechts der Platz fehlt, rückt sie so weit wie nötig
+   nach links. Rechts endet die Zeile genauso weit vor dem Rand wie die Wortmarke links beginnt (symmetrisch, --kl-rand).
+   Größe (seit 21.10. nachts): Wortmarke, Zeilenhöhe und Menüschrift hängen an der Seitenbreite --seite (index.css) –
+   940 px → 40 px Wortmarke, 1680 px → 44 px, 1920 px → 50 px; zusammengezogen (beim Scrollen) immer 40 px in 56 px.
+   Angemeldet: Slogan linksbündig unter der Wortmarke, seine Größe folgt der Wortmarke (halbe Höhe); Pille, Chip und ☰ rechts. */
 @media ${BREIT} {
-  .kl { --kl-logo-gast: 40px; --kl-rand: max(32px, min(${HELD_KANTE}, calc((100% - ${BREIT_BEDARF}) / 2))); }
-  .kl[data-gast] .mx-auto.kopf-zeile.kl-zeile { width: 100% !important; max-width: none !important; margin-left: 0 !important; margin-right: 0 !important;
+  .kl { --kl-logo-gast: clamp(40px, calc(var(--seite, 940px) * .042), 50px); --kl-logo: clamp(40px, calc(var(--seite, 940px) * .042), 50px);
+    --kl-rand: max(32px, min(${HELD_KANTE}, calc((100% - ${BREIT_BEDARF}) / 2))); }
+  .kl[data-kompakt] { --kl-logo-gast: 40px; --kl-logo: 40px; }
+  .kl .kl-marke > span { transition: font-size .28s cubic-bezier(.2,.7,.3,1); }
+  .kl .mx-auto.kopf-zeile.kl-zeile { width: 100% !important; max-width: none !important; margin-left: 0 !important; margin-right: 0 !important;
     padding: 0 var(--kl-rand) !important; gap: 0; }
-  .kl[data-gast] .kl-marke { margin-right: 28px; }
-  .kl[data-gast] .kl-nav { gap: 22px; margin-right: 16px; }
-  .kl[data-gast] .kl-nav button { font-size: 14px; }
+  .kl .kl-marke { align-items: flex-start; text-align: left; margin-right: 28px; }
+  .kl:not([data-gast]) .kl-slogan { font-size: calc(var(--kl-logo) * .5); margin-top: 2px; max-height: 44px; }
+  /* gleiche Spezifität wie die Zeile darüber, deshalb hier noch einmal: zusammengezogen verschwindet der Slogan */
+  .kl[data-kompakt]:not([data-gast]) .kl-slogan { max-height: 0; margin-top: 0; padding-bottom: 0; margin-bottom: 0; }
+  .kl[data-gast] .kl-nav { gap: clamp(22px, calc(var(--seite, 940px) * .028), 34px); margin-right: 16px; }
+  .kl[data-gast] .kl-nav button { font-size: clamp(14px, calc(var(--seite, 940px) * .0135), 16px); }
+  .kl .kl-rechts { margin-left: auto; gap: 8px; }
   .kl[data-gast] .kl-rechts { margin-left: 0; }
+  .kl .kl-pille { height: 38px; font-size: 13px; max-width: 320px; }
 }
 
 /* Rechts: Weiter-Pille, Anmelden, Chip, ☰ (kein Modus-Knopf – der sitzt ganz unten im ☰-Menü) */
@@ -348,6 +366,7 @@ export function Kopfleiste({ ansicht, gehe, zurStartseite, hmOffen, setHmOffen, 
       <style>{`
         :root{--kopf-h:68px}
         @media (min-width:421px){:root{--kopf-h:clamp(74px, calc(11.1vw + 26px), 90px)}}
+        @media (min-width:1000px){:root{--kopf-h:clamp(90px, calc(var(--seite, 940px) * .0935), 112px)}}
         .titel-kurz{display:none}
         @media (max-width:520px){.held{padding-top:18px !important;padding-bottom:4px !important}.held h1{font-size:25px !important;line-height:1.1 !important}.held h1+div{margin-top:12px !important;margin-bottom:13px !important}.held-welle{height:12px !important}}
         .kopfblock{margin-bottom:-16px}
@@ -369,9 +388,10 @@ export function Kopfleiste({ ansicht, gehe, zurStartseite, hmOffen, setHmOffen, 
 
       <div className="mx-auto kopf-zeile kl-zeile" style={{ maxWidth: 620 }}>
         <button type="button" className="kl-marke" data-kein-i18n aria-label={en ? "Home" : "Zur Startseite"} title={en ? "Home" : "Zur Startseite"} onClick={zurStartseite}>
-          {/* Wortmarke in der Schrift der Startseiten-Headline (src/markenLogo.jsx): so groß, wie neben dem ☰ Platz ist
-              (Breite ≈ 10 × Schriftgröße), höchstens 40 px; darunter der Slogan (Besucher ab 1000 px ohne Slogan) */}
-          <MarkenLogo groesse={gast ? "var(--kl-logo-gast)" : "min(40px, calc((100vw - 100px) / 10))"} grund={modus === "hell" ? "hell" : "dunkel"} />
+          {/* Wortmarke in der Schrift der Startseiten-Headline (src/markenLogo.jsx): unter 1000 px so groß, wie neben dem ☰
+              Platz ist (Breite ≈ 10 × Schriftgröße, höchstens 40 px), ab 1000 px 40–46 px (--kl-logo / --kl-logo-gast);
+              darunter der Slogan (Besucher ab 1000 px ohne Slogan) */}
+          <MarkenLogo groesse={gast ? "var(--kl-logo-gast)" : "var(--kl-logo)"} grund={modus === "hell" ? "hell" : "dunkel"} />
           <span className="kl-slogan">System <b>+</b> Freude <b>=</b> Erfolg</span>
         </button>
 
