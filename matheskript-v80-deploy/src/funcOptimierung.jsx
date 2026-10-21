@@ -19,6 +19,8 @@ import { parse, kompiliere, hatX, hatBox } from "./func12.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
 import { Auswahl, GrosserKnopf, KleinerLink, Rueck, Schaubild, TextFeld, ZahlFeld, hilfeKontext, hinweis, karte, kicker, zw } from "./ui2.jsx";
 import { mischen, pVonZahlen, qLies, qNum, wahl } from "./rechnen2.js";
+import { FeinKarte, Kicker, feinKarte, hinweisStil, useDesktop } from "./arbeitsflaeche.jsx";
+import { TrainerRaster } from "./trainerDesktop.jsx";
 
 const sym = (z) => String(z).replace(/-/g, "−");
 const dk = (z) => sym(String(z).replace(".", ","));
@@ -252,6 +254,7 @@ function Schritt({ st, nr, aktiv, fertig, onFertig, au }) {
 }
 
 function Werkstatt({ au, neu, titel }) {
+  const desktop = useDesktop();
   const schritte = React.useMemo(() => baueSchritte(au), [au]);
   const [stand, setStand] = useState(0);
   const fertig = stand >= schritte.length;
@@ -282,6 +285,33 @@ function Werkstatt({ au, neu, titel }) {
     regeln: [{ name: "Extremwertaufgaben", bereich: "analysis" }],
   });
   const pkt = xE !== null ? [{ ...au.punktAus(au.x), farbe: C.smaragd, name: zw("Max.", "Max.") }] : [];
+  const schritteListe = schritte.map((st, i) => (
+    <Schritt key={st.id} st={st} nr={i + 1} au={au} aktiv={i === stand} fertig={i < stand} onFertig={() => setStand((n) => Math.max(n, i + 1))} />
+  ));
+  const geschafft = fertig && <Rueck art="gut">{zw("Geschafft: Du hast die Aufgabe vollständig gelöst – von der Zielgröße bis zum Antwortsatz.", "Done: you solved the problem completely – from target quantity to answer sentence.")}</Rueck>;
+  const neuKnopf = <GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>;
+  const hilfeKnopf = <IchHaengeFest kontext={hilfe} />;
+
+  /* Desktop: Aufgabe und Schritte links breit, rechts Schaubild (ab Schritt 4) und Hilfe */
+  if (desktop) {
+    return (
+      <TrainerRaster breiteRechts={340} style={{ marginTop: 20 }}
+        links={<div style={feinKarte}>
+          <p style={kicker}>{titel}</p>
+          <p style={{ ...hinweis, color: C.tinte, marginBottom: 6, fontSize: 14.5 }}>{au.kopf}</p>
+          {schritteListe}
+          {geschafft}
+          {neuKnopf}
+        </div>}
+        rechts={<>
+          {stand >= 3
+            ? <Schaubild kurven={au.kurven} punkte={pkt} x0={au.bereich[0]} x1={au.bereich[1]} yMin={0} yMax={au.yMax} hoehe={190} />
+            : <FeinKarte><Kicker>{zw("Schaubild", "Graph")}</Kicker><p style={hinweisStil}>{zw("Sobald die Zielfunktion steht, erscheint hier ihr Graph – mit dem Maximum, wenn du es gefunden hast.", "As soon as the target function is set up, its graph appears here – with the maximum once you have found it.")}</p></FeinKarte>}
+          <div style={{ display: "flex", justifyContent: "flex-end" }}>{hilfeKnopf}</div>
+        </>} />
+    );
+  }
+
   return (
     <div style={{ ...karte, marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
@@ -293,12 +323,10 @@ function Werkstatt({ au, neu, titel }) {
           <Schaubild kurven={au.kurven} punkte={pkt} x0={au.bereich[0]} x1={au.bereich[1]} yMin={0} yMax={au.yMax} hoehe={190} />
         </div>
       )}
-      {schritte.map((st, i) => (
-        <Schritt key={st.id} st={st} nr={i + 1} au={au} aktiv={i === stand} fertig={i < stand} onFertig={() => setStand((n) => Math.max(n, i + 1))} />
-      ))}
-      {fertig && <Rueck art="gut">{zw("Geschafft: Du hast die Aufgabe vollständig gelöst – von der Zielgröße bis zum Antwortsatz.", "Done: you solved the problem completely – from target quantity to answer sentence.")}</Rueck>}
-      <GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>
-      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfe} /></div>
+      {schritteListe}
+      {geschafft}
+      {neuKnopf}
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}>{hilfeKnopf}</div>
     </div>
   );
 }

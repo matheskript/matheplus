@@ -17,6 +17,8 @@ import { GrosserKnopf, hilfeKontext, hinweis, karte, kicker, zw } from "./ui2.js
 import { FunktionsBild, Seite, SchrittFolge } from "./ui3.jsx";
 import { METHODEN, bruchTex, kT, neueLoesungsmenge, neueMethode, neuFehler, neuGeometrisch, neuUmformung, pl } from "./gleichgen.js";
 import { mischen } from "./rechnen2.js";
+import { feinKarte, useDesktop } from "./arbeitsflaeche.jsx";
+import { TrainerRaster } from "./trainerDesktop.jsx";
 
 const sym = (v) => String(v).replace(/-/g, "−");
 const zeile = { display: "flex", alignItems: "center", gap: 6, fontSize: 18, lineHeight: 1.9, whiteSpace: "nowrap", overflowX: "auto", color: C.tinte };
@@ -29,16 +31,33 @@ const hilfe = (id, aufgabe) => hilfeKontext({
   pruefen: [zw("Probe: Linke und rechte Seite einzeln ausrechnen.", "Check: compute left and right side separately."), zw("Kommt auf beiden Seiten dasselbe heraus?", "Same value on both sides?"), zw("Bei Brüchen: Nenner darf nie null werden.", "With fractions: the denominator must never be zero.")],
   regeln: [{ name: "Äquivalenzumformung", bereich: "terme" }],
 });
-const Karte = ({ titel, hilfeId, aufgabe, neu, children }) => (
-  <div style={{ ...karte, marginTop: 16 }}>
+/* Desktop (DESKTOP-STIL.md, Trainer): mit Bild → Aufgabe links breit, Graph rechts (340 px);
+   ohne Bild → eine Spalte in einer feinen Karte (keine leere rechte Spalte). Handy wie bisher. */
+function Karte({ titel, hilfeId, aufgabe, neu, bild, children }) {
+  const desktop = useDesktop();
+  const kopf = (
     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
       <p style={kicker}>{titel}</p>
     </div>
-    {children}
-    <GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>
-    <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfe(hilfeId, aufgabe)} /></div>
-  </div>
-);
+  );
+  const neuKnopf = <GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>;
+  const hilfeZeile = <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfe(hilfeId, aufgabe)} /></div>;
+  if (desktop && bild) {
+    return (
+      <TrainerRaster breiteRechts={340} style={{ marginTop: 16 }}
+        links={<div style={feinKarte}>{kopf}{children}{neuKnopf}</div>}
+        rechts={<>{bild}<div style={{ display: "flex", justifyContent: "flex-end", marginTop: -14 }}>{hilfeZeile}</div></>} />
+    );
+  }
+  return (
+    <div style={desktop ? { ...feinKarte, marginTop: 16 } : { ...karte, marginTop: 16 }}>
+      {kopf}
+      {children}
+      {neuKnopf}
+      {hilfeZeile}
+    </div>
+  );
+}
 const Zeile = ({ t }) => <div style={{ ...zeile, justifyContent: "center" }}><M t={t} /></div>;
 
 /* ---------- 1) Umformungen trainieren ---------- */
@@ -199,6 +218,8 @@ function Geometrisch() {
   const { anzahl, loes, f, g } = au;
   const lo = Math.min(...(loes.length ? loes : [au.p]), au.p) - 3, hi = Math.max(...(loes.length ? loes : [au.p]), au.p) + 3.5;
   const pkt = stand >= 1 ? loes.map((x) => ({ x, y: g(x), farbe: C.signal, hohl: false })) : [];
+  const desktop = useDesktop();
+  const bild = <FunktionsBild kurven={[{ f, farbe: C.see, name: "f" }, { f: g, farbe: C.flaggold, name: "g" }]} punkte={pkt} x0={lo} x1={hi} hoehe={210} />;
   const s = useMemo(() => {
     const out = [
       { id: "n", titel: zw("Anzahl der Lösungen", "Number of solutions"), typ: "wahl", frage: zw("Die Gleichung f(x) = g(x) fragt, wo beide Graphen denselben Funktionswert haben. Wie viele Lösungen hat sie?", "The equation f(x) = g(x) asks where both graphs have the same value. How many solutions does it have?"),
@@ -216,9 +237,10 @@ function Geometrisch() {
     return out;
   }, [au]);
   return (
-    <Karte titel={zw("Geometrisch deuten", "Interpret geometrically")} hilfeId={`gg-${au.id}`} aufgabe="Gleichung geometrisch Schnittpunkte Graphen f(x)=g(x)" neu={neu}>
+    <Karte titel={zw("Geometrisch deuten", "Interpret geometrically")} hilfeId={`gg-${au.id}`} aufgabe="Gleichung geometrisch Schnittpunkte Graphen f(x)=g(x)" neu={neu}
+      bild={desktop ? bild : null}>
       <p style={hinweis}>{zw("Eine Gleichung f(x) = g(x) lösen heißt: Schnittpunkte der Graphen finden.", "Solving f(x) = g(x) means finding the intersection points of the graphs.")}</p>
-      <FunktionsBild kurven={[{ f, farbe: C.see, name: "f" }, { f: g, farbe: C.flaggold, name: "g" }]} punkte={pkt} x0={lo} x1={hi} hoehe={210} />
+      {!desktop && bild}
       <SchrittFolge schritte={s} stand={stand} setStand={setStand} fertigText={zw("Richtig – Gleichung und Graph passen zusammen.", "Correct – equation and graph fit together.")} />
     </Karte>
   );
@@ -227,9 +249,10 @@ function Geometrisch() {
 const MODI = [["umf", "Umformungen trainieren", "Practise transformations"], ["meth", "Methode wählen", "Choose a method"], ["fehl", "Fehler finden", "Find the mistake"], ["lm", "Lösungsmenge verstehen", "Solution set"], ["geo", "Geometrisch deuten", "Geometric view"]];
 export function GleichungenVerstehen() {
   const [modus, setModus] = useState("umf");
+  const desktop = useDesktop();
   return (
     <Seite titel={zw("Gleichungen verstehen", "Understanding equations")} text={zw("Fünf Wege, Gleichungen wirklich zu durchschauen: Umformen, Methode wählen, Fehler finden, Lösungsmengen und der Blick auf den Graphen.", "Five ways to really understand equations: transforming, choosing a method, finding mistakes, solution sets and the graph view.")}>
-      <div role="tablist" aria-label={zw("Übungen", "Exercises")} style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8 }}>
+      <div role="tablist" aria-label={zw("Übungen", "Exercises")} style={{ display: "grid", gridTemplateColumns: `repeat(${desktop ? 5 : 2}, minmax(0, 1fr))`, gap: 8 }}>
         {MODI.map(([id, de, en]) => {
           const an = modus === id;
           return (

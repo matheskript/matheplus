@@ -10,6 +10,8 @@ import { IchHaengeFest } from "./funcHilfe.jsx";
 import { WurzelZeichen } from "./wurzelZeichen.jsx";
 
 import { springe } from "./sprung.js";
+import { FeinKarte, Kicker, useDesktop } from "./arbeitsflaeche.jsx";
+import { TrainerRaster } from "./trainerDesktop.jsx";
 /* Kontext für „Ich hänge fest“ – nutzt den vorhandenen Tipp-Mechanismus der Engine */
 const METHODE = {
   linear: "Bring alle x-Terme auf eine Seite und alle Zahlen auf die andere. Teile zum Schluss durch den Faktor vor x.",
@@ -480,11 +482,9 @@ Steht keine Gleichung auf dem Foto, antworte {"aufgaben":[]}.`;
   };
 
   const karte = { background: C.weiss, borderRadius: 18, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" };
-
-  return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
-      <style>{GL_CSS}</style>
-
+  const desktop = useDesktop();
+  const einleitung = (
+    <>
       <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
         Du sagst, was passiert. Die App rechnet.
       </h2>
@@ -494,15 +494,21 @@ Steht keine Gleichung auf dem Foto, antworte {"aufgaben":[]}.`;
         <b style={{ fontWeight: 600, color: C.tinte }}>ln</b>. Sie wird auf beiden Seiten ausgeführt, die neue Zeile erscheint
         darunter. Welche Umformung die richtige ist, entscheidest du.
       </p>
-
+    </>
+  );
+  const artWahl = (
+    <>
       {/* Auswahl: Art und Stufe */}
-      <div className="gl-scroll" style={{ margin: "0 -24px", padding: "0 24px 4px" }}>
+      <div className="gl-scroll gl-auswahl" style={{ margin: "0 -24px", padding: "0 24px 4px" }}>
         <div className="flex" style={{ gap: 8, width: "max-content" }}>
           {G.ARTEN.map((a) => <Pille key={a.id} aktiv={art === a.id} onClick={() => artWaehlen(a.id)}>{a.name}</Pille>)}
           <Pille aktiv={art === "eigen"} onClick={() => artWaehlen("eigen")}>Eigene Gleichung</Pille>
         </div>
       </div>
-
+    </>
+  );
+  const stufeOderEigen = (
+    <>
       {art !== "eigen" ? (
         <div className="flex items-center flex-wrap" style={{ gap: 10, marginTop: 14, marginBottom: 18 }}>
           <div className="flex" role="group" aria-label="Schwierigkeit" style={{ background: "#EEF2F8", borderRadius: 999, padding: 3 }}>
@@ -518,7 +524,7 @@ Steht keine Gleichung auf dem Foto, antworte {"aufgaben":[]}.`;
           <span style={{ fontSize: 13, color: C.hellgrau, fontWeight: 300 }}>{G.ARTEN.find((a) => a.id === art)?.kurz}</span>
         </div>
       ) : (
-        <div style={{ ...karte, padding: 16, marginTop: 14, marginBottom: 18 }}>
+        <div data-gl-karte style={{ ...karte, padding: 16, marginTop: 14, marginBottom: 18 }}>
           <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 10 }}>Deine Gleichung aus Heft oder Buch</p>
 
           {/* Foto: ganzer Aufgabenblock */}
@@ -622,9 +628,12 @@ Steht keine Gleichung auf dem Foto, antworte {"aufgaben":[]}.`;
           </div>
         </div>
       )}
-
+    </>
+  );
+  const heftKarte = (
+    <>
       {/* Das Heft */}
-      <div style={{ ...karte, padding: "18px 0 20px", position: "relative", overflow: "hidden" }}>
+      <div data-gl-karte style={{ ...karte, padding: "18px 0 20px", position: "relative", overflow: "hidden" }}>
         <div className="flex justify-between items-center" style={{ padding: "0 20px", marginBottom: 14 }}>
           <span style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.08em", color: C.hellgrau }}>
             {schritte === 0 ? "AUSGANGSGLEICHUNG" : `${schritte} ${schritte === 1 ? "SCHRITT" : "SCHRITTE"}`}
@@ -703,9 +712,12 @@ Steht keine Gleichung auf dem Foto, antworte {"aufgaben":[]}.`;
           </div>
         )}
       </div>
-
+    </>
+  );
+  const musterKarte = (
+    <>
       {muster && (
-        <div className="gl-zeile-neu" style={{ ...karte, padding: "16px 0 18px", marginTop: 14 }}>
+        <div data-gl-karte className="gl-zeile-neu" style={{ ...karte, padding: "16px 0 18px", marginTop: 14 }}>
           <p style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.08em", color: C.hellgrau, padding: "0 20px", marginBottom: 12 }}>
             MUSTERWEG · {muster.schritte.length} {muster.schritte.length === 1 ? "SCHRITT" : "SCHRITTE"}
           </p>
@@ -714,11 +726,11 @@ Steht keine Gleichung auf dem Foto, antworte {"aufgaben":[]}.`;
           </div>
         </div>
       )}
-
-      {/* Eingabe */}
-      {!L && (
-        <div style={{ marginTop: 16 }}>
-          <div style={{ ...karte, padding: 14 }}>
+    </>
+  );
+  const tastenfeld = (
+    <>
+          <div data-gl-karte style={{ ...karte, padding: 14 }}>
             <div className="flex items-center" style={{ gap: 10, background: C.sand, border: `1.5px solid ${meldung?.art === "fehler" ? C.signal : C.linie}`, borderRadius: 14, padding: "4px 6px 4px 14px" }}>
               <span aria-hidden="true" style={{ fontSize: 22, color: C.hellgrau, fontWeight: 300 }}>|</span>
               <input ref={feldRef} value={eingabe} inputMode="none" autoComplete="off" spellCheck={false} aria-label="Umformung"
@@ -768,9 +780,12 @@ Steht keine Gleichung auf dem Foto, antworte {"aufgaben":[]}.`;
               <Taste tippe={tippe} ton="aktion" breit label="Ausführen" onClick={eingabeAusfuehren} />
             </div>
           </div>
-
+    </>
+  );
+  const werkzeuge = (
+    <>
           {/* Werkzeuge */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8, marginTop: 12 }}>
+          <div data-gl-werkzeuge style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8, marginTop: 12 }}>
             {werkzeugeSichtbar.map((w) => (
               <button key={w.id} type="button" className="gl-taste" onClick={() => ausfuehren({ art: w.id })}
                 style={{ gridColumn: w.haupt || w.breit ? "1 / -1" : "auto", textAlign: "left", cursor: "pointer", fontFamily: "inherit",
@@ -786,9 +801,12 @@ Steht keine Gleichung auf dem Foto, antworte {"aufgaben":[]}.`;
               </button>
             ))}
           </div>
-
+    </>
+  );
+  const tippZeile = (
+    <>
           {/* Tipp und Rückgängig */}
-          <div className="flex items-center flex-wrap" style={{ gap: 10, marginTop: 14 }}>
+          <div data-gl-tipp className="flex items-center flex-wrap" style={{ gap: 10, marginTop: 14 }}>
             <button type="button" onClick={tippKnopf} disabled={!tipp || tippStufe >= 2}
               style={{ display: "flex", alignItems: "center", gap: 8, background: C.weiss, border: `1px solid ${C.goldWarm}`, color: C.tinte,
                 borderRadius: 999, padding: "9px 16px", fontSize: 13.5, fontWeight: 500, fontFamily: "inherit",
@@ -804,7 +822,10 @@ Steht keine Gleichung auf dem Foto, antworte {"aufgaben":[]}.`;
               Rückgängig
             </button>
           </div>
-
+    </>
+  );
+  const tippKasten = (
+    <>
           {tipp && tippStufe > 0 && (
             <div className="gl-zeile-neu" style={{ marginTop: 12, padding: "14px 16px", borderRadius: 14, background: "#FDF8EA", border: `1px solid ${C.goldWarm}55` }}>
               <p style={{ fontSize: 14, color: C.tinte, lineHeight: 1.65, fontWeight: 400 }}>{tipp.text}</p>
@@ -827,7 +848,10 @@ Steht keine Gleichung auf dem Foto, antworte {"aufgaben":[]}.`;
               )}
             </div>
           )}
-
+    </>
+  );
+  const eintippHilfe = (
+    <>
           <details style={{ marginTop: 22 }}>
             <summary style={{ fontSize: 13.5, color: C.see, cursor: "pointer", fontWeight: 500 }}>Was kann ich eintippen?</summary>
             <div style={{ fontSize: 13.5, color: C.grau, fontWeight: 300, lineHeight: 1.8, marginTop: 10 }}>
@@ -840,10 +864,75 @@ Steht keine Gleichung auf dem Foto, antworte {"aufgaben":[]}.`;
               <p><b style={{ color: C.tinte, fontWeight: 600 }}>Bruchgleichungen</b>: Oben steht die Definitionsmenge D. Multipliziere mit dem Hauptnenner (Knopf oder z. B. ·(x − 2)). Lösungen, die nicht in D liegen, entfallen.</p>
             </div>
           </details>
+    </>
+  );
+
+  /* ---------- Desktop (DESKTOP-STIL.md, Trainer): Heft und Eingabe links breit,
+     rechts (300 px) die Werkzeuge, Tipp und Rückgängig ---------- */
+  if (desktop) {
+    return (
+      <div className="mx-auto px-6 pb-16" data-gl="breit" style={{ maxWidth: 620, paddingTop: 30 }}>
+        <style>{GL_CSS}</style>
+        <style>{GL_DESK_CSS}</style>
+        <div>
+          {einleitung}
+          <FeinKarte style={{ marginBottom: 20 }}>
+            <Kicker>Gleichungsart</Kicker>
+            {artWahl}
+            {stufeOderEigen}
+          </FeinKarte>
+          <TrainerRaster
+            links={<>
+              {heftKarte}
+              {musterKarte}
+              {!L && tastenfeld}
+              {!L && eintippHilfe}
+            </>}
+            rechts={!L ? <>
+              <Kicker style={{ margin: "4px 2px -4px" }}>Werkzeuge</Kicker>
+              {werkzeuge}
+              {tippZeile}
+              {tippKasten}
+            </> : <FeinKarte><Kicker>Geschafft</Kicker><p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6 }}>Die Lösungsmenge steht links. „Musterweg ansehen“ zeigt einen kurzen Lösungsweg zum Vergleich.</p></FeinKarte>} />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
+      <style>{GL_CSS}</style>
+
+      {einleitung}
+      {artWahl}
+      {stufeOderEigen}
+      {heftKarte}
+      {musterKarte}
+
+      {/* Eingabe */}
+      {!L && (
+        <div style={{ marginTop: 16 }}>
+          {tastenfeld}
+          {werkzeuge}
+          {tippZeile}
+          {tippKasten}
+          {eintippHilfe}
         </div>
       )}
     </div>
   );
 }
+
+/* Desktop (ab 840 px): Karten mit feinem Rahmen statt Schatten, Werkzeuge rechts untereinander */
+const GL_DESK_CSS = `
+  [data-gl="breit"] [data-gl-karte]{border:1px solid ${C.linie} !important;box-shadow:none !important;border-radius:16px !important}
+  [data-gl="breit"] [data-gl-werkzeuge]{grid-template-columns:minmax(0,1fr) !important;margin-top:0 !important}
+  [data-gl="breit"] [data-gl-werkzeuge] > button{grid-column:auto !important}
+  [data-gl="breit"] [data-gl-tipp]{margin-top:0 !important}
+  [data-gl="breit"] .gl-auswahl{margin:0 !important;padding:0 !important;overflow:visible}
+  [data-gl="breit"] .gl-auswahl > .flex{width:auto !important;flex-wrap:wrap}
+  [data-gl="breit"] [data-gl-tipp]{flex-direction:column;align-items:stretch !important;gap:8px !important}
+  [data-gl="breit"] [data-gl-tipp] > *{justify-content:center}
+`;
 
 export { GleichungenLogoKlein } from "./funcEntdeckenLogo.jsx";

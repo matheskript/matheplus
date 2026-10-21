@@ -17,6 +17,43 @@ import { IchHaengeFest } from "./funcHilfe.jsx";
 import { GrosserKnopf, hilfeKontext, hinweis, karte, kicker, zw } from "./ui2.jsx";
 import { wahl } from "./rechnen2.js";
 import { Aufklapp, FunktionsBild, ModusLeiste, Seite, SchrittFolge, zt } from "./ui3.jsx";
+import { FeinKarte, Kicker, feinKarte, hinweisStil, useDesktop } from "./arbeitsflaeche.jsx";
+import { TrainerRaster } from "./trainerDesktop.jsx";
+
+/* Desktop (DESKTOP-STIL.md, Trainer): Aufgabe, Messwerte und Schritte links breit, rechts der Graph
+   (sobald er in der Schrittfolge erscheint) und „Ich hänge fest“. Handy: eine Karte wie bisher. */
+function WachstumKarte({ kicker: titel, text, tabelle, graph, schritte, neu, hilfe }) {
+  const desktop = useDesktop();
+  if (desktop) {
+    return (
+      <TrainerRaster breiteRechts={340} style={{ marginTop: 16 }}
+        links={<div style={feinKarte}>
+          <p style={kicker}>{titel}</p>
+          {text}
+          {tabelle}
+          {schritte}
+          {neu}
+        </div>}
+        rechts={<>
+          {graph || <FeinKarte><Kicker>{zw("Graph", "Graph")}</Kicker><p style={hinweisStil}>{zw("Der Graph erscheint hier, sobald du die ersten Schritte gelöst hast.", "The graph appears here once you have solved the first steps.")}</p></FeinKarte>}
+          <div style={{ display: "flex", justifyContent: "flex-end" }}>{hilfe}</div>
+        </>} />
+    );
+  }
+  return (
+    <div style={{ ...karte, marginTop: 16 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
+        <p style={kicker}>{titel}</p>
+      </div>
+      {text}
+      {tabelle}
+      {graph}
+      {schritte}
+      {neu}
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}>{hilfe}</div>
+    </div>
+  );
+}
 
 let zaehler = 0;
 
@@ -128,27 +165,23 @@ function MesswertModell() {
   ], [au]);
   const zelle = { padding: "6px 8px", borderBottom: `1px solid ${C.linie}`, textAlign: "center", fontSize: 14, fontVariantNumeric: "tabular-nums" };
   return (
-    <div style={{ ...karte, marginTop: 16 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
-        <p style={kicker}>{zw("Modell aus Messwerten", "Model from data")}</p>
-      </div>
-      <p style={{ ...hinweis, color: C.tinte, marginBottom: 4 }}>
+    <WachstumKarte kicker={zw("Modell aus Messwerten", "Model from data")}
+      text={<p style={{ ...hinweis, color: C.tinte, marginBottom: 4 }}>
         {au.id === "kapital" ? zw("Ein Kapital wird jährlich verzinst; die Zinsen werden am Jahresende gutgeschrieben. Kontostand:", "A capital earns yearly interest, credited at the end of each year. Balance:")
           : au.id === "bakterien" ? zw("In einer Nährlösung wird die Zahl der Bakterien stündlich gezählt:", "The number of bacteria in a nutrient solution is counted every hour:")
             : au.id === "wirkstoff" ? zw("Die Wirkstoffmenge im Blut eines Patienten wird stündlich gemessen:", "The amount of a drug in a patient's blood is measured every hour:")
               : zw("Die Masse einer radioaktiven Substanz wird täglich gemessen:", "The mass of a radioactive substance is measured daily:")}
-      </p>
-      <table style={{ borderCollapse: "collapse", width: "100%", tableLayout: "fixed", color: C.tinte, margin: "6px 0 10px" }}>
+      </p>}
+      tabelle={<table style={{ borderCollapse: "collapse", width: "100%", tableLayout: "fixed", color: C.tinte, margin: "6px 0 10px" }}>
         <tbody>
           <tr><td style={{ ...zelle, fontWeight: 700, color: C.grau, textAlign: "left", fontSize: 12.5 }}>t in {au.t}</td>{[0, 1, 2, 3].map((t) => <td key={t} style={{ ...zelle, fontWeight: 700 }}>{t}</td>)}</tr>
           <tr><td style={{ ...zelle, fontWeight: 700, color: C.grau, textAlign: "left", fontSize: 12.5 }}>N in {au.g}</td>{werte.map((v, i) => <td key={i} style={zelle}>{zt(v, 2)}</td>)}</tr>
         </tbody>
-      </table>
-      {stand >= 3 && <Graph au={au} bis={au.diskret ? 10 : 6} punkte={stand >= 7 ? [{ x: tP, y: NP, farbe: C.gruen, name: `N(${tP})` }] : werte.map((v, t) => ({ x: t, y: v, farbe: C.gruen }))} />}
-      <SchrittFolge schritte={schritte} stand={stand} setStand={setStand} fertigText={zw("Modell vollständig: Faktor, Prozentsatz, e-Form, Modelltyp und Prognose.", "Model complete: factor, percentage, e-form, model type and forecast.")} />
-      <GrosserKnopf ghost onClick={neu}>{zw("Neue Messreihe", "New data")}</GrosserKnopf>
-      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfeW(`w1-${au.id}`, au)} /></div>
-    </div>
+      </table>}
+      graph={stand >= 3 && <Graph au={au} bis={au.diskret ? 10 : 6} punkte={stand >= 7 ? [{ x: tP, y: NP, farbe: C.gruen, name: `N(${tP})` }] : werte.map((v, t) => ({ x: t, y: v, farbe: C.gruen }))} />}
+      schritte={<SchrittFolge schritte={schritte} stand={stand} setStand={setStand} fertigText={zw("Modell vollständig: Faktor, Prozentsatz, e-Form, Modelltyp und Prognose.", "Model complete: factor, percentage, e-form, model type and forecast.")} />}
+      neu={<GrosserKnopf ghost onClick={neu}>{zw("Neue Messreihe", "New data")}</GrosserKnopf>}
+      hilfe={<IchHaengeFest kontext={hilfeW(`w1-${au.id}`, au)} />} />
   );
 }
 
@@ -211,19 +244,15 @@ function Verdopplung() {
   const gAu = { ...au, ...(au.art === "rueck" ? { t: kx.t, g: kx.g, diskret: false } : {}) };
   const marken = [1, 2, 3].map((i) => ({ x: i * T, y: N(gAu, i * T), farbe: C.gruen, name: au.art === "dopp" ? `${2 ** i}·N₀` : `N₀/${2 ** i}` }));
   return (
-    <div style={{ ...karte, marginTop: 16 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
-        <p style={kicker}>{zw("Verdopplung und Halbwertszeit", "Doubling and half-life")}</p>
-      </div>
-      <p style={{ ...hinweis, color: C.tinte, marginBottom: 4 }}>
+    <WachstumKarte kicker={zw("Verdopplung und Halbwertszeit", "Doubling and half-life")}
+      text={<p style={{ ...hinweis, color: C.tinte, marginBottom: 4 }}>
         {au.art === "rueck" ? zw(`Ein radioaktives Isotop hat eine Halbwertszeit von ${au.T} Tagen. Bestimme den Faktor, mit dem die Menge pro Tag multipliziert wird.`, `A radioactive isotope has a half-life of ${au.T} days. Find the factor by which the amount is multiplied each day.`)
           : <>{au.text(au.N0, au.a)} {au.art === "dopp" ? zw("Nach welcher Zeit hat sich die Anzahl verdoppelt?", "After what time has the number doubled?") : zw("Nach welcher Zeit ist nur noch die Hälfte vorhanden?", "After what time is only half left?")}</>}
-      </p>
-      {stand >= 3 && <Graph au={gAu} bis={Math.min(60, 3.4 * T)} punkte={marken} />}
-      <SchrittFolge schritte={schritte} stand={stand} setStand={setStand} fertigText={zw("Gelöst – mit Logarithmus statt Probieren.", "Solved – with logarithms instead of trial and error.")} />
-      <GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>
-      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfeW(`w2-${au.id}`, au.art === "rueck" ? { ...kx, wachstum: false } : au)} /></div>
-    </div>
+      </p>}
+      graph={stand >= 3 && <Graph au={gAu} bis={Math.min(60, 3.4 * T)} punkte={marken} />}
+      schritte={<SchrittFolge schritte={schritte} stand={stand} setStand={setStand} fertigText={zw("Gelöst – mit Logarithmus statt Probieren.", "Solved – with logarithms instead of trial and error.")} />}
+      neu={<GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>}
+      hilfe={<IchHaengeFest kontext={hilfeW(`w2-${au.id}`, au.art === "rueck" ? { ...kx, wachstum: false } : au)} />} />
   );
 }
 
@@ -273,21 +302,17 @@ function Zielwert() {
   ], [au]);
   const bis = Math.max(2, Math.min(60, (au.vergangen ? 3 : Math.abs(t)) * 1.3));
   return (
-    <div style={{ ...karte, marginTop: 16 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
-        <p style={kicker}>{zw("Zielwert erreichen", "Reach a target")}</p>
-      </div>
-      <p style={{ ...hinweis, color: C.tinte, marginBottom: 4 }}>
+    <WachstumKarte kicker={zw("Zielwert erreichen", "Reach a target")}
+      text={<p style={{ ...hinweis, color: C.tinte, marginBottom: 4 }}>
         {au.text(au.N0, au.a)}{" "}
         {au.vergangen ? zw(`Die Messung beginnt mit ${au.N0} ${au.g}. Wann waren es ${zt(au.Z, 2)} ${au.g}?`, `The measurement starts with ${au.N0} ${au.g}. When were there ${zt(au.Z, 2)} ${au.g}?`)
           : au.diskret ? zw(`Nach wie vielen Jahren sind erstmals mindestens ${zt(au.Z, 2)} € auf dem Konto?`, `After how many years is there at least €${zt(au.Z, 2)} in the account for the first time?`)
             : zw(`Wann sind ${zt(au.Z, 2)} ${au.g} erreicht?`, `When is ${zt(au.Z, 2)} ${au.g} reached?`)}
-      </p>
-      {stand >= 4 && !au.vergangen && <Graph au={au} bis={au.diskret ? Math.ceil(bis) : bis} waagerechte={[{ y: au.Z, farbe: C.gruen, text: zt(au.Z, 2) }]} zusatz={[{ x: t, farbe: C.gruen }]} />}
-      <SchrittFolge schritte={schritte} stand={stand} setStand={setStand} fertigText={zw("Zielwert berechnet und richtig gedeutet.", "Target computed and interpreted correctly.")} />
-      <GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>
-      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfeW(`w3-${au.id}`, au)} /></div>
-    </div>
+      </p>}
+      graph={stand >= 4 && !au.vergangen && <Graph au={au} bis={au.diskret ? Math.ceil(bis) : bis} waagerechte={[{ y: au.Z, farbe: C.gruen, text: zt(au.Z, 2) }]} zusatz={[{ x: t, farbe: C.gruen }]} />}
+      schritte={<SchrittFolge schritte={schritte} stand={stand} setStand={setStand} fertigText={zw("Zielwert berechnet und richtig gedeutet.", "Target computed and interpreted correctly.")} />}
+      neu={<GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>}
+      hilfe={<IchHaengeFest kontext={hilfeW(`w3-${au.id}`, au)} />} />
   );
 }
 

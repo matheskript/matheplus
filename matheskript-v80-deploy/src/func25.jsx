@@ -23,6 +23,8 @@ import { Anfangsbedingung, BestandAenderungsrate, FlaecheBilanz, ZwischenZweiGra
 import { MatheFeld } from "./matheTastatur.jsx";
 import { Eingabe, EingabePopup } from "./funcRegelwerk.jsx";
 import { ErklaerAnimation } from "./funcErklaeranimation.jsx";
+import { FeinKarte, Kicker, feinKarte, useDesktop } from "./arbeitsflaeche.jsx";
+import { TrainerRaster } from "./trainerDesktop.jsx";
 
 const endlich = (y) => typeof y === "number" && isFinite(y);
 const zz = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
@@ -324,7 +326,7 @@ function integralHilfe(felder) {
 
 /* ---------- Stammfunktion bilden (drei Varianten) ---------- */
 
-function StammTrainer({ art }) {
+function StammTrainer({ art, desk }) {
   const [fText, setFText] = useState(() => ERZEUGER[art]());
   const [eingabe, setEingabe] = useState("");
   const [pos, setPos] = useState(0);
@@ -352,7 +354,7 @@ function StammTrainer({ art }) {
   const eingabeBaum = eingabe ? parse(ohneC(eingabe)) : null;
 
   return (
-    <div style={{ ...karte, marginTop: 16 }}>
+    <div style={desk ? feinKarte : { ...karte, marginTop: 16 }}>
       {bilanz.gesamt > 0 && <p style={{ fontSize: 12.5, color: C.grau, textAlign: "right", margin: "0 2px 6px" }}>{`${bilanz.richtig} von ${bilanz.gesamt} richtig`}</p>}
       <div style={{ background: blau, borderRadius: 14, padding: "8px 16px", marginBottom: 10, overflowX: "auto" }}>
         <span style={{ color: C.weiss, fontSize: 21, fontWeight: 700, whiteSpace: "nowrap", lineHeight: 1.7 }}>{fBaum && <M t={`f(x) = ${tx(fBaum)}`} />}</span>
@@ -474,7 +476,7 @@ const grenzeLesen = (t) => {
   return endlich(v) ? { v, tex: tx(baum), baum: einfach ? baum : { k: "par", a: baum } } : null;
 };
 
-function BestimmtesIntegral({ zeigeHauptsatz, start }) {
+function BestimmtesIntegral({ zeigeHauptsatz, start, desk }) {
   const [felder, setFelder] = useState(() => (start ? { f: start.f, F: "", a: start.a, b: start.b } : { f: "", F: "", a: "", b: "" }));
   const [aktiv, setAktiv] = useState(null);             // null = Eingabe zu; öffnet beim Antippen eines Feldes
   const [pos, setPos] = useState(0);
@@ -565,7 +567,7 @@ function BestimmtesIntegral({ zeigeHauptsatz, start }) {
   }
 
   return (
-    <div style={{ ...karte, marginTop: 16 }}>
+    <div style={desk ? feinKarte : { ...karte, marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 12 }}>
         <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel }}>Bestimmtes Integral mit dem Hauptsatz</p>
       </div>
@@ -671,6 +673,73 @@ export function Integrale() {
     setModus(id);
     if (id === "bestimmt" && !hauptsatzGesehen.current) { hauptsatzGesehen.current = true; setDialog("hauptsatz"); }
   };
+
+  const desktop = useDesktop();
+  const dialoge = <>
+    {dialog === "c" && <CErklaerung onClose={() => setDialog(null)} />}
+    {dialog === "hauptsatz" && <HauptsatzDialog onClose={() => setDialog(null)} />}
+  </>;
+  const regelListe = (
+    <>
+      {REGELN.map(([f, F]) => (
+        <div key={f} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 17, lineHeight: 2 }}>
+          <span style={{ minWidth: 70 }}><M t={f} /></span><span style={{ color: C.hellgrau }}>→</span><M t={F} />
+        </div>
+      ))}
+      <p style={{ fontSize: 12.5, color: C.grau, lineHeight: 1.55, marginTop: 6 }}>ln|x| gilt auf Intervallen ohne 0; für x &gt; 0 ist das ln(x).</p>
+    </>
+  );
+
+  /* ---------- Desktop (DESKTOP-STIL.md): Übungswahl oben, Trainer links breit, Hilfen rechts;
+     Übungen mit Schaubild (Bilanz, zwei Graphen, Bestand) als Arbeitsfläche ---------- */
+  if (desktop) {
+    const sichtbar = (id) => ({ display: modus === id ? "block" : "none" });
+    return (
+      <div className="mx-auto px-6 pb-16" data-int="breit" style={{ maxWidth: 620, paddingTop: 18 }}>
+        <div>
+          <ModusAuswahl modus={modus} onWahl={waehle} />
+          <div style={{ marginTop: 20 }}>
+            {["stamm", "speziell", "advanced"].map((id) => (
+              <div key={id} style={sichtbar(id)}>
+                <TrainerRaster
+                  links={<>
+                    <StammTrainer art={id} desk />
+                    {id === "stamm" && <Anfangsbedingung desk />}
+                  </>}
+                  rechts={<>
+                    {id === "stamm" && <ErklaerAnimation key="stamm" art="stamm" kompakt style={{ margin: 0 }} />}
+                    <FeinKarte>
+                      <Kicker>{id === "stamm" ? "Potenzregel rückwärts" : "Die vier speziellen Stammfunktionen"}</Kicker>
+                      {id === "stamm"
+                        ? <div style={{ fontSize: 17, lineHeight: 2 }}><M t="x^{n} \to \frac{1}{n+1} x^{n+1}" /><p style={{ fontSize: 12.5, color: C.grau, lineHeight: 1.55, marginTop: 6 }}>Eine Konstante c hat die Stammfunktion c·x.</p></div>
+                        : regelListe}
+                    </FeinKarte>
+                  </>} />
+              </div>
+            ))}
+            <div style={sichtbar("bestimmt")}>
+              <TrainerRaster
+                links={<BestimmtesIntegral zeigeHauptsatz={() => setDialog("hauptsatz")} start={start} desk />}
+                rechts={<>
+                  <ErklaerAnimation key="integral" art="integral" kompakt style={{ margin: 0 }} />
+                  <FeinKarte>
+                    <Kicker>Hauptsatz</Kicker>
+                    <HauptsatzBild />
+                    <div style={{ fontSize: 17, display: "flex", justifyContent: "center", alignItems: "center", gap: 6, color: C.tinte, fontWeight: 600 }}>
+                      <IntZ a="a" b="b" gross /><M t="f(x)\,dx = F(b) - F(a)" />
+                    </div>
+                  </FeinKarte>
+                </>} />
+            </div>
+            <div style={sichtbar("bilanz")}><FlaecheBilanz desk /></div>
+            <div style={sichtbar("zwei")}><ZwischenZweiGraphen desk /></div>
+            <div style={sichtbar("bestand")}><BestandAenderungsrate desk /></div>
+          </div>
+          {dialoge}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 18 }}>

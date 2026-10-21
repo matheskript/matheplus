@@ -21,6 +21,29 @@ import {
   DREH, LEER, R, REL_TEX, abstandTex, gilt, halbIntervall, istStreng, iv, linTex, loesTex, mengeTex, ohne, pktMenge, quadTex, ver, zTex,
 } from "./mengenRechnen.js";
 import { KAPITEL_ARTEN, UG_TITEL, ugAufgabe } from "./ungleichGen.js";
+import { Arbeitsflaeche, FeinKarte, Werkzeugleiste, toenKarte, useDesktop } from "./arbeitsflaeche.jsx";
+import { ReglerReihe, SenkrechtRegler } from "./trainerDesktop.jsx";
+
+/* Desktop-Labor (DESKTOP-STIL.md): Einstellungen links (Regler + oben / − unten), Bild rechts mit Werkzeugleiste,
+   Rechnung darunter. data-labor wie beim Handy-Labor (lernwegUi.jsx), damit Tests beide finden. */
+function DeskLabor({ titel, aufforderung, regler, leiste, links, bild, unten }) {
+  return (
+    <FeinKarte data-labor style={{ marginTop: 14 }}>
+      <p style={kicker}>{titel}</p>
+      <p style={{ fontSize: 13, color: C.see, fontWeight: 600, margin: "0 0 14px" }}>{aufforderung}</p>
+      <Arbeitsflaeche linksBreite={270}
+        links={<>
+          <div style={toenKarte(C.see)}><ReglerReihe spalten={React.Children.toArray(regler.props.children).length}>{regler}</ReglerReihe></div>
+          {links}
+        </>}
+        rechts={<>
+          <div style={{ minWidth: 0 }}>{bild}</div>
+          {leiste && <Werkzeugleiste gruppen={leiste} />}
+        </>} />
+      {unten && <div style={{ marginTop: 16 }}>{unten}</div>}
+    </FeinKarte>
+  );
+}
 
 const GRUEN = "#0F7A4D";
 const REL_OPT = [["<", "$<$"], ["<=", "$\\le$"], [">", "$>$"], [">=", "$\\ge$"]];
@@ -74,6 +97,37 @@ function LinLabor() {
     if (a !== 1) schritte.push(loesTex(rel2, g));
   }
   const ok = gilt(a * t + b, rel, c);
+  const desktop = useDesktop();
+  const titel = zw("Labor: Ungleichung lösen", "Lab: solve an inequality");
+  const aufforderung = zw("Stell a auf eine negative Zahl und beobachte das Zeichen in der letzten Zeile.", "Set a to a negative number and watch the sign in the last line.");
+  const rechnung = (
+    <div style={{ background: C.sand, borderRadius: 14, padding: "8px 14px", marginTop: desktop ? 0 : 12 }}>
+      {schritte.map((s, i) => (
+        <div key={i} style={{ ...zeile, display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+          <M t={s} />
+          {i === schritte.length - 1 && a < 0 && schritte.length > 1 && <span style={{ fontSize: 11.5, fontWeight: 800, color: C.signal, background: `${C.signal}14`, padding: "3px 8px", borderRadius: 999 }}>{zw("Zeichen gedreht!", "sign flipped!")}</span>}
+        </div>
+      ))}
+      {a === 0 && <p style={{ fontSize: 13.5, color: C.grau, margin: "4px 0 0" }}>{zw("Ohne x bleibt eine Aussage übrig: Sie ist für alle x wahr (L = ℝ) oder für keines (L = ∅).", "Without x a statement remains: true for all x (L = ℝ) or for none (L = ∅).")}</p>}
+      <div style={{ ...zeile, fontWeight: 700, color: C.see }}><M t={`L = ${mengeTex(L)}`} /></div>
+    </div>
+  );
+  const strahl = <MengenStrahl mengen={[{ menge: L, farbe: C.see, name: "L" }]} lo={-10} hi={10} punkte={[{ x: t, farbe: ok ? GRUEN : C.signal }]} />;
+  const probe = <Probe ok={ok}><M t={`${probeTerm(a, b, t)} = ${zTex(a * t + b)} ${REL_TEX[rel]} ${zTex(c)}`} /></Probe>;
+  const relSchalter = <Schalter optionen={REL_OPT} wert={rel} setWert={setRel} label={zw("Zeichen", "Sign")} />;
+  if (desktop) {
+    return (
+      <DeskLabor titel={titel} aufforderung={aufforderung}
+        regler={<>
+          <SenkrechtRegler name="a" wert={a} setze={setA} min={-5} max={5} plusLabel="a +" minusLabel="a −" />
+          <SenkrechtRegler name="b" wert={b} setze={setB} min={-10} max={10} farbe={C.gold} plusLabel="b +" minusLabel="b −" />
+          <SenkrechtRegler name="c" wert={c} setze={setC} min={-10} max={10} farbe={C.smaragd} plusLabel="c +" minusLabel="c −" />
+        </>}
+        links={rechnung}
+        bild={<>{strahl}<div style={{ marginTop: 6 }}><Regler name={zw("Probe x", "Test x")} wert={t} setWert={setT} min={-10} max={10} schritt={0.5} format={(v) => zt(v)} farbe={C.flaggold} breiteName={64} /></div>{probe}</>}
+        leiste={[{ titel: zw("Zeichen", "Sign"), inhalt: relSchalter }]} />
+    );
+  }
   return (
     <Labor titel={zw("Labor: Ungleichung lösen", "Lab: solve an inequality")} aufforderung={zw("Stell a auf eine negative Zahl und beobachte das Zeichen in der letzten Zeile.", "Set a to a negative number and watch the sign in the last line.")}>
       <div style={{ display: "grid", gap: 8 }}>
@@ -145,6 +199,35 @@ function BetragLabor({ start = "=" }) {
   const [m, setM] = useState(2), [r, setR] = useState(3), [rel, setRel] = useState(start);
   const Lm = betragLoesung(m, r, rel);
   const relTex = rel === "=" ? "=" : REL_TEX[rel];
+  const desktop = useDesktop();
+  if (desktop) {
+    return (
+      <DeskLabor titel={zw("Labor: Betrag als Abstand", "Lab: absolute value as distance")} aufforderung={zw("Verschiebe den Mittelpunkt m und den Abstand r – und wechsle das Zeichen.", "Move the centre m and the distance r – and switch the sign.")}
+        regler={<>
+          <SenkrechtRegler name="m" wert={m} setze={setM} min={-5} max={5} plusLabel="m +" minusLabel="m −" />
+          <SenkrechtRegler name="r" wert={r} setze={setR} min={-2} max={6} farbe={C.gold} plusLabel="r +" minusLabel="r −" />
+        </>}
+        links={<FeinKarte style={{ padding: "14px 16px" }}>
+          <div style={{ ...zeile, textAlign: "center", fontWeight: 700 }}><M t={`|${abstandTex(m)}| ${relTex} ${zTex(r)}`} /></div>
+          <p style={{ fontSize: 13.5, color: C.grau, margin: "0 0 6px", textAlign: "center", lineHeight: 1.55 }}>
+            {r < 0 ? zw("Ein Abstand ist nie negativ.", "A distance is never negative.")
+              : zw(`Abstand von x zu ${zt(m)} ${rel === "=" ? "genau" : rel === "<" ? "kleiner als" : rel === "<=" ? "höchstens" : rel === ">" ? "größer als" : "mindestens"} ${zt(r)}`, `Distance from x to ${zt(m)} ${rel === "=" ? "exactly" : rel === "<" ? "less than" : rel === "<=" ? "at most" : rel === ">" ? "greater than" : "at least"} ${zt(r)}`)}
+          </p>
+          <div style={{ ...zeile, fontWeight: 700, color: C.see, textAlign: "center" }}><M t={`L = ${mengeTex(Lm)}`} /></div>
+        </FeinKarte>}
+        bild={<>
+          <MengenStrahl mengen={[{ menge: Lm, farbe: C.see, name: "L" }]} lo={-10} hi={10} punkte={[{ x: m, farbe: C.flaggold }]} />
+          <div style={{ marginTop: 8 }}>
+            <FunktionsBild x0={-10} x1={10} y0={-3} y1={10}
+              kurven={[{ f: (x) => Math.abs(x - m), farbe: C.see, name: `y = |${abstandTex(m).replace(/−/g, "−")}|` }]}
+              waagerechte={[{ y: r, farbe: C.gold, text: `y = ${zt(r)}` }]}
+              punkte={r > 0 ? [{ x: m - r, y: r, farbe: C.gold }, { x: m + r, y: r, farbe: C.gold }] : r === 0 ? [{ x: m, y: 0, farbe: C.gold }] : []} />
+          </div>
+          <p style={{ fontSize: 12.5, color: C.grau, margin: "6px 2px 0", lineHeight: 1.55 }}>{zw("Der Graph von |x − m| ist ein V mit der Spitze bei m. Wo das V unter der goldenen Linie liegt, ist der Abstand kleiner als r.", "The graph of |x − m| is a V with its tip at m. Where the V lies below the gold line, the distance is less than r.")}</p>
+        </>}
+        leiste={[{ titel: zw("Zeichen", "Sign"), inhalt: <Schalter optionen={BET_REL} wert={rel} setWert={setRel} label={zw("Zeichen", "Sign")} /> }]} />
+    );
+  }
   return (
     <Labor titel={zw("Labor: Betrag als Abstand", "Lab: absolute value as distance")} aufforderung={zw("Verschiebe den Mittelpunkt m und den Abstand r – und wechsle das Zeichen.", "Move the centre m and the distance r – and switch the sign.")}>
       <div style={{ display: "grid", gap: 8 }}>
@@ -249,6 +332,33 @@ function QuadLabor() {
   const Lq = quadLoesung(a, x1, x2, rel);
   const b = -a * (x1 + x2), c = a * x1 * x2;
   const lo = Math.min(x1, x2), hi = Math.max(x1, x2);
+  const desktop = useDesktop();
+  if (desktop) {
+    return (
+      <DeskLabor titel={zw("Labor: Parabel lesen", "Lab: read the parabola")} aufforderung={zw("Verschiebe die Nullstellen, öffne die Parabel nach unten – und lies ab, wo sie über bzw. unter der x-Achse liegt.", "Move the roots, open the parabola downwards – and read off where it lies above or below the x-axis.")}
+        regler={<>
+          <SenkrechtRegler name="x₁" wert={x1} setze={setX1} min={-6} max={6} plusLabel="x₁ +" minusLabel="x₁ −" />
+          <SenkrechtRegler name="x₂" wert={x2} setze={setX2} min={-6} max={6} plusLabel="x₂ +" minusLabel="x₂ −" />
+        </>}
+        links={<FeinKarte style={{ padding: "14px 16px" }}>
+          <div style={{ ...zeile, textAlign: "center", fontWeight: 700 }}><M t={`${quadTex(a, b, c)} ${REL_TEX[rel]} 0`} /></div>
+          <div style={{ ...zeile, fontWeight: 700, color: C.see, textAlign: "center" }}><M t={`L = ${mengeTex(Lq)}`} /></div>
+          <p style={{ fontSize: 12.5, color: C.grau, margin: "4px 2px 0", lineHeight: 1.55 }}>
+            {lo === hi ? zw("Doppelte Nullstelle: Die Parabel berührt die x-Achse nur.", "Double root: the parabola only touches the x-axis.")
+              : zw(`Nach ${a > 0 ? "oben" : "unten"} geöffnet: zwischen den Nullstellen ${a > 0 ? "unter" : "über"}, außerhalb ${a > 0 ? "über" : "unter"} der x-Achse.`, `Opening ${a > 0 ? "up" : "down"}: between the roots ${a > 0 ? "below" : "above"}, outside ${a > 0 ? "above" : "below"} the x-axis.`)}
+          </p>
+        </FeinKarte>}
+        bild={<>
+          <FunktionsBild x0={-8} x1={8} y0={-10} y1={12} kurven={[{ f, farbe: C.see }]} punkte={[{ x: lo, y: 0, farbe: C.gold }, { x: hi, y: 0, farbe: C.gold }]}
+            senkrechte={[{ x: lo, farbe: `${C.gold}88` }, { x: hi, farbe: `${C.gold}88` }]} />
+          <MengenStrahl mengen={[{ menge: Lq, farbe: C.see, name: "L" }]} lo={-8} hi={8} />
+        </>}
+        leiste={[
+          { titel: "a", inhalt: <Schalter optionen={[[1, "1"], [2, "2"], [-1, "−1"], [-0.5, "$−\\frac{1}{2}$"]]} wert={a} setWert={setA} label="a" /> },
+          { titel: zw("Zeichen", "Sign"), inhalt: <Schalter optionen={REL_OPT} wert={rel} setWert={setRel} label={zw("Zeichen", "Sign")} /> },
+        ]} />
+    );
+  }
   return (
     <Labor titel={zw("Labor: Parabel lesen", "Lab: read the parabola")} aufforderung={zw("Verschiebe die Nullstellen, öffne die Parabel nach unten – und lies ab, wo sie über bzw. unter der x-Achse liegt.", "Move the roots, open the parabola downwards – and read off where it lies above or below the x-axis.")}>
       <div style={{ display: "grid", gap: 8 }}>

@@ -23,6 +23,8 @@ import {
   STAMM_ARTEN, auswerter, dez, grenzeLesen, hauptsatz, lies, neueIntegralAufgabe, neueStammAufgabe, probe, pruefeIntegralStamm, pruefeIntegralWert, pruefeStamm, stammfunktion, tex, zahlTex,
 } from "./regelwerkKern.js";
 import { MathildaModusKnopf } from "./funcMathildaModusKnopf.jsx";
+import { Arbeitsflaeche, BildKarte, ErgebnisReihe, FeinKarte, Kicker, chipStil, useBreite, useDesktop } from "./arbeitsflaeche.jsx";
+import { kompaktSpalteCss } from "./trainerDesktop.jsx";
 
 const T = ({ s }) => <Text s={s} style={{ fontSize: 14.5, fontWeight: 300, color: C.grau, lineHeight: 1.8, margin: "12px 0 0" }} />;
 const blau = `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`;
@@ -33,8 +35,8 @@ const intTex = (a, b, inner = "f(x)") => `\\int_{${a}}^{${b}} ${inner} \\, dx`;
 
 /* ---------- Schaubild: f mit Fläche zwischen a und b ---------- */
 
-function Flaechenbild({ f, a, b }) {
-  const W = 360, H = 190, L = 30, R = 12, T0 = 10, B = 24;
+function Flaechenbild({ f, a, b, W = 360, H = 190, rahmenlos = false }) {
+  const L = 30, R = 12, T0 = 10, B = 24;
   const fn = useMemo(() => auswerter(f), [f]);
   const lo = Math.min(a, b), hi = Math.max(a, b);
   const pad = Math.max(1, (hi - lo) * 0.6);
@@ -62,7 +64,7 @@ function Flaechenbild({ f, a, b }) {
   const xt = []; for (let v = Math.ceil(x0); v <= x1; v += schritt) xt.push(v);
   return (
     <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Schaubild von f mit der Fläche zwischen a und b"
-      style={{ width: "100%", display: "block", background: C.weiss, borderRadius: 14, border: `1px solid ${C.linie}` }}>
+      style={{ width: "100%", display: "block", background: C.weiss, borderRadius: 14, border: rahmenlos ? "none" : `1px solid ${C.linie}` }}>
       <path d={flaeche} fill={C.flaggold} fillOpacity="0.38" />
       <line x1={L} x2={W - R} y1={sy(0)} y2={sy(0)} stroke={C.tinte} strokeWidth="1.3" />
       {x0 < 0 && x1 > 0 && <line x1={sx(0)} x2={sx(0)} y1={T0} y2={H - B} stroke={C.tinte} strokeWidth="1.3" />}
@@ -131,7 +133,7 @@ function HauptsatzText() {
 
 /* ---------- Stammfunktion bilden ---------- */
 
-function StammTeil({ modus }) {
+function StammTeil({ modus, desktop, kopf }) {
   const [art, setArt] = useState("potenz");
   const [stufe, setStufe] = useState(1);
   const [fText, setFText] = useState(() => neueStammAufgabe("potenz", 1).text);
@@ -173,8 +175,7 @@ function StammTeil({ modus }) {
   const setText = (t) => (aktiv === "f" ? setFText(t) : setF((e) => ({ ...e, text: t, status: null, hinweis: "" })));
   const setPos = (p) => (aktiv === "f" ? setPosF(p) : setF((e) => ({ ...e, pos: p })));
 
-  return (
-    <>
+  const artChips = (
       <div className="wk-chipwrap">
         <div className="wk-chips" role="group" aria-label="Welche Stammfunktionen möchtest du üben?">
           {STAMM_ARTEN.map((a) => (
@@ -182,11 +183,14 @@ function StammTeil({ modus }) {
           ))}
         </div>
       </div>
+  );
+  const stufenWahl = (
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
         <span style={{ fontSize: 14, fontWeight: 600, color: C.grau, marginRight: 2 }}>Stufe</span>
         {[1, 2, 3].map((s) => <button key={s} type="button" className="wk-stufe" aria-pressed={stufe === s} onClick={() => { setStufe(s); starte(art, s); }}>{s}</button>)}
       </div>
-
+  );
+  const aufgabe = (
       <div className="wk-karte">
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10, marginBottom: 12 }}>
           <div style={{ minWidth: 0 }}>
@@ -271,6 +275,29 @@ function StammTeil({ modus }) {
           <Merke kopf="Die Probe ist immer möglich" s="Leite dein $F$ ab. Kommt $f$ heraus, ist $F$ richtig – egal, wie es aussieht. Beim bestimmten Integral hebt sich das $C$ weg: $(F(b) + C) - (F(a) + C) = F(b) - F(a)$." />
         </Herleitung>
       </div>
+  );
+
+  /* Desktop: Einstellungen links, Aufgabe rechts (DESKTOP-STIL.md) */
+  if (desktop) {
+    return (
+      <Arbeitsflaeche
+        links={<>
+          {kopf}
+          <FeinKarte>
+            <Kicker>Funktionsart</Kicker>
+            <div className="si-desk-chips">{artChips}</div>
+            <div style={{ marginTop: 14 }}>{stufenWahl}</div>
+          </FeinKarte>
+        </>}
+        rechts={aufgabe} />
+    );
+  }
+
+  return (
+    <>
+      {artChips}
+      {stufenWahl}
+      {aufgabe}
     </>
   );
 }
@@ -289,7 +316,7 @@ function Grenze({ label, wert, setWert, onEnter }) {
   );
 }
 
-function IntegralTeil({ modus, start }) {
+function IntegralTeil({ modus, start, desktop, kopf }) {
   const [stufe, setStufe] = useState(1);
   const [auf, setAuf] = useState(() => start || neueIntegralAufgabe(1));
   const [fText, setFText] = useState(auf.fText);
@@ -345,15 +372,15 @@ function IntegralTeil({ modus, start }) {
   const aTex = a ? (zahlTex(a.v) || tex(a.baum)) : "a", bTex = b ? (zahlTex(b.v) || tex(b.baum)) : "b";
   const zeigRechnung = gueltig && (!training || FFertig);
   const wertAnzeige = gueltig ? (hs.wertTex || dez(hs.wert, 4)) : "";
+  const [bildRef, bildBreite] = useBreite();
 
-  return (
-    <>
+  const stufenWahl = (
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
         <span style={{ fontSize: 14, fontWeight: 600, color: C.grau, marginRight: 2 }}>Stufe</span>
         {[1, 2, 3].map((s) => <button key={s} type="button" className="wk-stufe" aria-pressed={stufe === s} onClick={() => { setStufe(s); starte(s); }}>{s}</button>)}
       </div>
-
-      <div className="wk-karte">
+  );
+  const kopfZeile = (
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10, marginBottom: 12 }}>
           <div style={{ minWidth: 0 }}>
             <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.1em", color: C.gruenDunkel, textTransform: "uppercase" }}>Integral mit dem Hauptsatz</p>
@@ -372,21 +399,25 @@ function IntegralTeil({ modus, start }) {
             {training && <MathildaModusKnopf kompakt />}
           </div>
         </div>
-
+  );
+  const hauptsatzBanner = (
         <div style={{ background: blau, borderRadius: 16, padding: "12px 16px", marginBottom: 12, color: C.weiss, display: "flex", flexWrap: "wrap", alignItems: "center", gap: "4px 18px" }}>
           <span style={{ fontSize: 12.5, fontWeight: 600, color: C.goldText, whiteSpace: "nowrap", lineHeight: 1.6 }}>Hauptsatz</span>
           <span style={{ fontSize: 19, fontWeight: 700, whiteSpace: "nowrap", lineHeight: 1.9 }}><M t={`${intTex("a", "b")} = F(b) - F(a)`} /></span>
         </div>
-
+  );
+  const herleitung = (
         <Herleitung titel="Der Hauptsatz – hergeleitet" untertitel="Warum eine Stammfunktion die Fläche liefert">
           <HauptsatzText />
         </Herleitung>
-
+  );
+  const eingabe = (
+    <>
         {/* Aufgabe: f, a, b */}
         <div style={{ marginTop: 14 }}>
           <Feld label="f(x) =" labelFarbe={FARBE.u} text={fText} aktiv={!training && aktiv === "f"} still={training} onClick={() => { if (aktiv !== "f") setPosF(fText.length); setAktiv((a) => (a === "f" ? null : "f")); }} platzhalter="f eingeben …"
             pos={posF} setPos={setPosF} />
-          <div style={{ display: "flex", alignItems: "center", gap: 14, margin: "10px 2px 0", flexWrap: "wrap" }}>
+          <div className="si-grenzen" style={{ display: "flex", alignItems: "center", gap: 14, margin: "10px 2px 0", flexWrap: "wrap" }}>
             <span style={{ fontSize: 13.5, color: C.grau, fontWeight: 600 }}>Grenzen</span>
             {training ? (
               <span style={{ fontSize: 16, fontWeight: 700, color: C.tinte }}>a = <M t={aTex} />, b = <M t={bTex} /></span>
@@ -398,7 +429,10 @@ function IntegralTeil({ modus, start }) {
             </EingabePopup>
           )}
         </div>
-
+    </>
+  );
+  const formelUndHinweise = (
+    <>
         {/* Die Aufgabe als Formel + Bild */}
         <div style={{ background: blau, borderRadius: 16, padding: "12px 16px", margin: "12px 0 0", overflowX: "auto" }}>
           <span style={{ color: C.weiss, fontSize: 22, fontWeight: 700, whiteSpace: "nowrap", lineHeight: 1.9 }}>
@@ -408,8 +442,10 @@ function IntegralTeil({ modus, start }) {
         {hs && hs.fehler === "stamm" && <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, margin: "8px 4px 0" }}>Für diese Funktion kennt die Werkstatt keine Stammfunktionsregel (Schulstoff: Potenzen, sin, cos, eˣ, 1/x, lineare Substitution).</p>}
         {hs && hs.fehler === "stetig" && <p style={{ fontSize: 13.5, color: C.signal, lineHeight: 1.6, margin: "8px 4px 0" }}>
           f ist auf [{dez(Math.min(a.v, b.v), 2)}; {dez(Math.max(a.v, b.v), 2)}] nicht überall definiert oder nicht stetig (Problem bei x ≈ {dez(hs.stelle, 2)}). Der Hauptsatz darf hier nicht angewendet werden.</p>}
-        {gueltig && <div style={{ marginTop: 12 }}><Flaechenbild f={f} a={a.v} b={b.v} /></div>}
-
+    </>
+  );
+  const nebenrechnung = (
+    <>
         {/* Nebenrechnung: Stammfunktion */}
         {gueltig && (
           <div className="wk-rechnung">
@@ -434,7 +470,10 @@ function IntegralTeil({ modus, start }) {
             {F.hinweis && <p style={{ fontSize: 13.5, color: C.signal, lineHeight: 1.6, margin: "8px 4px 0" }}>{F.hinweis}</p>}
           </div>
         )}
-
+    </>
+  );
+  const rechnung = (
+    <>
         {/* Die Rechnung */}
         {gueltig && (
           <div className="wk-rechnung">
@@ -471,7 +510,10 @@ function IntegralTeil({ modus, start }) {
             ) : <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6 }}>Bilde zuerst oben die Stammfunktion – dann geht es hier mit F(b) − F(a) weiter.</p>}
           </div>
         )}
-
+    </>
+  );
+  const geschafft = (
+    <>
         {training && fertig && (
           <div style={{ textAlign: "center", padding: "16px 0 4px" }}>
             <p style={{ fontSize: 19, fontWeight: 700, color: C.smaragd, marginBottom: 4 }}>{F.status === "richtig" && wertStatus.status === "richtig" ? "Alles richtig! 🎉" : "Geschafft – die Rechnung steht."}</p>
@@ -479,21 +521,74 @@ function IntegralTeil({ modus, start }) {
               style={{ width: "100%", height: 54, marginTop: 10, borderRadius: 14, border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 17, fontWeight: 700, color: C.weiss, background: blau }}>Neue Aufgabe</button>
           </div>
         )}
+    </>
+  );
+
+  /* Desktop: Eingaben links, Schaubild rechts, Rechenweg darunter (DESKTOP-STIL.md) */
+  if (desktop) {
+    const bW = bildBreite || 460;
+    return (
+      <div data-si-integral="breit">
+        <Arbeitsflaeche
+          links={<>
+            {kopf}
+            <FeinKarte>
+              {stufenWahl}
+              <div style={{ height: 1, background: C.linie, margin: "2px 0 0" }} />
+              {eingabe}
+            </FeinKarte>
+            <div className="si-desk-satz">{hauptsatzBanner}</div>
+          </>}
+          rechts={<>
+            <FeinKarte>
+              {kopfZeile}
+              <div className="si-desk-formel">{formelUndHinweise}</div>
+            </FeinKarte>
+            {gueltig && (
+              <BildKarte>
+                <div ref={bildRef}><Flaechenbild f={f} a={a.v} b={b.v} W={bW} H={Math.round(bW * 0.6)} rahmenlos /></div>
+              </BildKarte>
+            )}
+            {herleitung}
+          </>} />
+        {gueltig && (
+          <ErgebnisReihe style={{ marginTop: 20 }} spalten="minmax(0, 5fr) minmax(0, 7fr)">
+            <FeinKarte className="si-desk-rechnung">{nebenrechnung}</FeinKarte>
+            <FeinKarte className="si-desk-rechnung">{rechnung}{geschafft}</FeinKarte>
+          </ErgebnisReihe>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <>
+      {stufenWahl}
+
+      <div className="wk-karte">
+        {kopfZeile}
+
+        {hauptsatzBanner}
+
+        {herleitung}
+
+        {eingabe}
+
+        {formelUndHinweise}
+        {gueltig && <div style={{ marginTop: 12 }}><Flaechenbild f={f} a={a.v} b={b.v} /></div>}
+
+        {nebenrechnung}
+
+        {rechnung}
+
+        {geschafft}
       </div>
     </>
   );
 }
 
-/* ---------- Seite ---------- */
-
-export function StammIntegral() {
-  const [start] = useState(() => { const u = uebergabeLesen("stammintegral"); return u && u.f ? { fText: u.f, aText: String(u.a ?? "0"), bText: String(u.b ?? "1") } : null; });
-  useEffect(() => { uebergabeErledigt("stammintegral"); }, []);
-  const [teil, setTeil] = useState(start ? "integral" : "stamm");
-  const [modus, setModus] = useState("auto");
-  return (
-    <div className="abl-seite">
-      <style>{`
+/* ---------- Aussehen ---------- */
+const SI_CSS = `
         .abl-seite{background:#fff;min-height:calc(100dvh - 61px)}
         .abl-innen{max-width:620px;margin:0 auto;padding:14px 16px 48px}
         .si-bereich{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:4px;border-radius:18px;background:#EEF2F8;margin-bottom:14px}
@@ -503,15 +598,74 @@ export function StammIntegral() {
         .si-bereich button[aria-selected="true"]{background:${blau};color:#fff;box-shadow:0 4px 12px rgba(0,77,152,0.25)}
         .si-bereich button[aria-selected="true"] small{color:${C.goldText}}
         @media (min-width:601px){ .abl-seite{background:transparent} }
-        ${WERK_CSS}`}</style>
+        ${WERK_CSS}`;
+
+/* Desktop (ab 840 px): Spalte 783 px wie alle Werkzeugseiten, Kopfleiste darüber in derselben Breite,
+   Karten mit feinem Rahmen statt Schatten (DESKTOP-STIL.md) */
+const SI_DESK_CSS = kompaktSpalteCss("si-desk") + `
+  .si-desk .si-bereich{grid-template-columns:1fr;margin-bottom:0}
+  .si-desk .si-bereich button{height:52px}
+  .si-desk .si-desk-modus .wk-seg{display:flex}
+  .si-desk .si-desk-modus .wk-seg button{flex:1}
+  .si-desk .wk-chipwrap{margin:0}
+  .si-desk .wk-chipwrap::after{display:none}
+  .si-desk .wk-chips{flex-wrap:wrap;overflow:visible;padding:0;gap:6px}
+  .si-desk .wk-chip{height:34px;padding:0 13px;font-size:13px}
+  .si-desk .wk-karte{background:#fff;border:1px solid ${C.linie};border-radius:16px;padding:18px 20px;box-shadow:none}
+  .si-desk .si-desk-rechnung .wk-rechnung{background:transparent;padding:0;margin-top:0;border-radius:0}
+  .si-desk .si-desk-formel > div:first-child{margin-top:0 !important}
+  .si-desk .si-grenzen{row-gap:8px !important}
+  .si-desk .si-grenzen > span:first-child{flex-basis:100%}
+  .si-desk .si-desk-satz > div{margin-bottom:0 !important}
+`;
+
+/* ---------- Seite ---------- */
+
+export function StammIntegral() {
+  const [start] = useState(() => { const u = uebergabeLesen("stammintegral"); return u && u.f ? { fText: u.f, aText: String(u.a ?? "0"), bText: String(u.b ?? "1") } : null; });
+  useEffect(() => { uebergabeErledigt("stammintegral"); }, []);
+  const [teil, setTeil] = useState(start ? "integral" : "stamm");
+  const [modus, setModus] = useState("auto");
+  const desktop = useDesktop();
+  const bereichWahl = (
+    <div className="si-bereich" role="tablist" aria-label="Bereich">
+      {[["stamm", "Stammfunktion bilden", "F mit F′ = f"], ["integral", "Integral ∫ₐᵇ", "mit dem Hauptsatz"]].map(([id, name, unter]) => (
+        <button key={id} type="button" role="tab" aria-selected={teil === id} onClick={() => setTeil(id)}><span>{name}</span><small>{unter}</small></button>
+      ))}
+    </div>
+  );
+  const animation = <ErklaerAnimation key={teil} art={teil === "stamm" ? "stamm" : "integral"} kompakt />;
+  const modusSchalter = <ModusSchalter modus={modus} setModus={setModus} />;
+
+  /* Desktop: Bereich, Modus und Erkläranimation stehen links über den Einstellungen des Teils */
+  if (desktop) {
+    const kopf = (
+      <>
+        {bereichWahl}
+        <FeinKarte>
+          <Kicker>Modus</Kicker>
+          <div className="si-desk-modus">{modusSchalter}</div>
+          <div style={{ marginTop: 14 }}>{animation}</div>
+        </FeinKarte>
+      </>
+    );
+    return (
+      <div className="abl-seite si-desk" data-si="breit">
+        <style>{SI_CSS}</style>
+        <style>{SI_DESK_CSS}</style>
+        <div style={{ display: teil === "stamm" ? "block" : "none" }}><StammTeil modus={modus} desktop kopf={teil === "stamm" ? kopf : null} /></div>
+        <div style={{ display: teil === "integral" ? "block" : "none" }}><IntegralTeil modus={modus} start={start} desktop kopf={teil === "integral" ? kopf : null} /></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="abl-seite">
+      <style>{SI_CSS}</style>
       <div className="abl-innen">
-        <div className="si-bereich" role="tablist" aria-label="Bereich">
-          {[["stamm", "Stammfunktion bilden", "F mit F′ = f"], ["integral", "Integral ∫ₐᵇ", "mit dem Hauptsatz"]].map(([id, name, unter]) => (
-            <button key={id} type="button" role="tab" aria-selected={teil === id} onClick={() => setTeil(id)}><span>{name}</span><small>{unter}</small></button>
-          ))}
-        </div>
-        <ErklaerAnimation key={teil} art={teil === "stamm" ? "stamm" : "integral"} kompakt />
-        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}><ModusSchalter modus={modus} setModus={setModus} /></div>
+        {bereichWahl}
+        {animation}
+        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>{modusSchalter}</div>
         <div style={{ display: teil === "stamm" ? "block" : "none" }}><StammTeil modus={modus} /></div>
         <div style={{ display: teil === "integral" ? "block" : "none" }}><IntegralTeil modus={modus} start={start} /></div>
       </div>

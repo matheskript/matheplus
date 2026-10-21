@@ -15,7 +15,7 @@
    Schnitt (Breite : Höhe = φ : 1), gleiche Einheit, Ursprung sichtbar.
    Keine base-Datei darf diese Datei importieren.
    ============================================================ */
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { C } from "./base1.jsx";
 import { M } from "./func3.jsx";
@@ -29,9 +29,14 @@ import {
   leseAntwort, linieImFenster, probeText, steigungWeg, tasteAnwenden, zahlText, zufallPQ, zufallPm,
   zuBild, zuMathe,
 } from "./geradenLogik.js";
+import { Arbeitsflaeche, BildKarte, FeinKarte, Kicker, Werkzeugleiste, chipStil, toenKarte, useBreite, useDesktop } from "./arbeitsflaeche.jsx";
+import { ReglerReihe, SenkrechtRegler, kompaktSpalteCss } from "./trainerDesktop.jsx";
 
-const W = 360;
-const H = Math.round((W / PHI) * 10) / 10;   // 222,5 – goldener Schnitt
+const W0 = 360;
+const H0 = Math.round((W0 / PHI) * 10) / 10;   // 222,5 – goldener Schnitt
+/* Maße des Schaubilds: Handy wie bisher 360 × 222,5 (skaliert per CSS), Desktop in echten Pixeln (gemessene Breite) */
+const MassCtx = React.createContext({ W: W0, H: H0, desk: false });
+const useMass = () => useContext(MassCtx);
 const GOLD = C.gruen;                          // im Farbschema heißt das Gold „gruen“
 const mz = (v) => String(v).replace("-", "−");
 const LEER = { eing: "", status: null, hinweis: "", falsch: false, versuche: 0, weiter: false };
@@ -109,18 +114,22 @@ function Zahl({ wert, aktiv, buf, onKlick, label }) {
 }
 
 function Pille({ x, y, t, farbe = C.see, anker = "middle" }) {
-  const w = String(t).length * 6.4 + 11;
+  const { desk } = useMass();
+  const fs = desk ? 11.5 : 10.5;
+  const w = String(t).length * (desk ? 7.1 : 6.4) + 11;
   const x0 = anker === "start" ? x : anker === "end" ? x - w : x - w / 2;
   return (
     <g pointerEvents="none">
-      <rect x={x0} y={y - 9} width={w} height="17" rx="8.5" fill="#fff" fillOpacity="0.93" stroke={`${farbe}66`} />
-      <text x={x0 + w / 2} y={y + 3.7} textAnchor="middle" style={{ fontSize: 10.5, fontWeight: 800, fill: farbe, fontFamily: "inherit" }}>{t}</text>
+      <rect x={x0} y={y - 9} width={w} height={desk ? 18 : 17} rx="8.5" fill="#fff" fillOpacity="0.93" stroke={`${farbe}66`} />
+      <text x={x0 + w / 2} y={y + (desk ? 4.1 : 3.7)} textAnchor="middle" style={{ fontSize: fs, fontWeight: 800, fill: farbe, fontFamily: "inherit" }}>{t}</text>
     </g>
   );
 }
 
 /* Schaubild: Gitter, Achsen, Beschriftung; f = Fenster (goldener Schnitt, gleiche Einheit) */
 function Schaubild({ f, svgRef, label, kinder }) {
+  const { W, H, desk } = useMass();
+  const fsT = desk ? 10.5 : 9, fsA = desk ? 12.5 : 11;
   const X = (x) => ((x - f.x0) / (f.x1 - f.x0)) * W;
   const Y = (y) => ((f.y1 - y) / (f.y1 - f.y0)) * H;
   const st = f.schritt;
@@ -135,16 +144,16 @@ function Schaubild({ f, svgRef, label, kinder }) {
     <div className="ger-bild">
       <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} role="img" aria-label={label} style={{ display: "block", width: "100%", height: "100%", userSelect: "none" }}>
         <defs><clipPath id="ger-clip"><rect x="0" y="0" width={W} height={H} rx="12" /></clipPath></defs>
-        <rect x="0.5" y="0.5" width={W - 1} height={H - 1} rx="12" fill="#fff" stroke={C.linie} />
+        <rect x="0.5" y="0.5" width={W - 1} height={H - 1} rx="12" fill="#fff" stroke={desk ? "none" : C.linie} />
         <g clipPath="url(#ger-clip)">
           {xs.map((k) => k !== 0 && <line key={`gx${k}`} x1={X(k * st)} y1="0" x2={X(k * st)} y2={H} stroke={C.see} strokeOpacity="0.10" />)}
           {ys.map((k) => k !== 0 && <line key={`gy${k}`} x1="0" y1={Y(k * st)} x2={W} y2={Y(k * st)} stroke={C.see} strokeOpacity="0.10" />)}
           <line x1="0" y1={ay} x2={W} y2={ay} stroke={C.tinte} strokeWidth="1.3" />
           <line x1={ax} y1="0" x2={ax} y2={H} stroke={C.tinte} strokeWidth="1.3" />
-          {xs.map((k) => k !== 0 && Math.abs(k) % jede === 0 && <text key={`tx${k}`} x={X(k * st)} y={xLabelY} textAnchor="middle" style={{ fontSize: 9, fill: C.grau, fontFamily: "inherit" }}>{mz(k * st)}</text>)}
-          {ys.map((k) => k !== 0 && <text key={`ty${k}`} x={yLabelLinks ? ax - 4 : ax + 4} y={Y(k * st) + 3} textAnchor={yLabelLinks ? "end" : "start"} style={{ fontSize: 9, fill: C.grau, fontFamily: "inherit" }}>{mz(k * st)}</text>)}
-          <text x={W - 8} y={Math.min(Math.max(ay - 5, 10), H - 4)} textAnchor="end" style={{ fontSize: 11, fontWeight: 700, fill: C.tinte, fontFamily: "inherit" }}>x</text>
-          <text x={Math.min(Math.max(ax + 6, 4), W - 12)} y="12" style={{ fontSize: 11, fontWeight: 700, fill: C.tinte, fontFamily: "inherit" }}>y</text>
+          {xs.map((k) => k !== 0 && Math.abs(k) % jede === 0 && <text key={`tx${k}`} x={X(k * st)} y={xLabelY} textAnchor="middle" style={{ fontSize: fsT, fill: C.grau, fontFamily: "inherit" }}>{mz(k * st)}</text>)}
+          {ys.map((k) => k !== 0 && <text key={`ty${k}`} x={yLabelLinks ? ax - 4 : ax + 4} y={Y(k * st) + 3} textAnchor={yLabelLinks ? "end" : "start"} style={{ fontSize: fsT, fill: C.grau, fontFamily: "inherit" }}>{mz(k * st)}</text>)}
+          <text x={W - 8} y={Math.min(Math.max(ay - 5, 10), H - 4)} textAnchor="end" style={{ fontSize: fsA, fontWeight: 700, fill: C.tinte, fontFamily: "inherit" }}>x</text>
+          <text x={Math.min(Math.max(ax + 6, 4), W - 12)} y="12" style={{ fontSize: fsA, fontWeight: 700, fill: C.tinte, fontFamily: "inherit" }}>y</text>
           {kinder({ X, Y })}
         </g>
       </svg>
@@ -154,6 +163,7 @@ function Schaubild({ f, svgRef, label, kinder }) {
 
 /* Ziehbarer Punkt im Schaubild (rastet auf ganze Zahlen ein) */
 function Griff({ p, f, farbe, name, svgRef, setzen, start, ende, label }) {
+  const { W, H } = useMass();
   const [bx, by] = zuBild(p, f, W, H);
   const ziehen = (e) => {
     const svg = svgRef.current;
@@ -285,6 +295,8 @@ function hilfePQ(P, Q, g, istPm, m) {
 
 /* ---------------------------------------------------------------- Basics */
 function Basics() {
+  const { W, H } = useMass();
+  const desktop = useDesktop();
   const [m2, setM2] = useState(4);     // m = m2 / 2  →  Steigung in Halbschritten
   const [c, setC] = useState(-1);
   const [guide, setGuide] = useState("punkte");
@@ -336,12 +348,13 @@ function Basics() {
   const T = zuBild([tx, ty], f, W, H);
   const tLinks = T[0] > W - 70;
 
-  return (
-    <div className="ger-inhalt" data-ger-basics>
+  const einleitung = (
       <p className="ger-text">
         {zw("Jede Gerade ist eine Linie im Koordinatensystem – und jeder Punkt auf ihr erfüllt dieselbe Gleichung: ", "Every straight line is a line in the coordinate system – and every point on it satisfies the same equation: ")}
         <span className="ger-formel"><M t="y = m · x + c" /></span>
       </p>
+  );
+  const bild = (
       <Schaubild f={f} svgRef={svgRef} label={zw("Gerade im Koordinatensystem", "Straight line in the coordinate system")} kinder={({ X, Y }) => (
         <>
           {linie && <line x1={X(linie[0][0])} y1={Y(linie[0][1])} x2={X(linie[1][0])} y2={Y(linie[1][1])} stroke={GOLD} strokeWidth="3.2" strokeLinecap="round" />}
@@ -379,6 +392,8 @@ function Basics() {
           {guide === "gleichung" && <Pille x={W - 10} y={H - 12} t={gleichungText(mB, cB)} farbe={C.gruenDunkel} anker="end" />}
         </>
       )} />
+  );
+  const lesenKasten = (
       <div className="ger-lesen" aria-live="polite">
         <p className="ger-lesen-text">{text}</p>
         <div className="ger-lesen-rechnung" data-ger-lesen={guide}>
@@ -391,15 +406,60 @@ function Basics() {
           {guide === "gleichung" && <span className="ger-gr"><M t={`y = m · x + c \\;→\\; ${gl}`} /></span>}
         </div>
       </div>
+  );
+  const reglerBlock = (
       <div className="ger-regler-block">
         <MiniRegler name="m" farbe={C.see} wert={m} setWert={(v) => setM2(Math.round(v * 2))} min={-4} max={4} schritt={0.5} format={zahlText} />
         <MiniRegler name="c" farbe={GOLD} wert={c} setWert={setC} min={-4} max={4} schritt={1} format={zahlText} />
       </div>
+  );
+  const leitfaden = [["punkte", zw("Punkte", "Points")], ["c", "c"], ["m", "m"], ["gleichung", zw("Gleichung", "Equation")]];
+  const leitSeg = (
       <div className="ger-seg ger-seg-klein" role="group" aria-label={zw("So findest du m und c selbst", "How to find m and c yourself")}>
-        {[["punkte", zw("Punkte", "Points")], ["c", "c"], ["m", "m"], ["gleichung", zw("Gleichung", "Equation")]].map(([id, name], i) => (
+        {leitfaden.map(([id, name], i) => (
           <button key={id} type="button" aria-pressed={guide === id} onClick={() => wahl(id)}><span className="ger-chipnr">{i + 1}</span> {name}</button>
         ))}
       </div>
+  );
+
+  /* Desktop: Gleichung und Regler links, Schaubild rechts, Leitfaden als Chips darunter */
+  if (desktop) {
+    return (
+      <div className="ger-inhalt" data-ger-basics>
+        <Arbeitsflaeche
+          links={<>
+            <FeinKarte>{einleitung}</FeinKarte>
+            <div style={toenKarte(C.see)} data-ger-regler-desk>
+              <ReglerReihe>
+                <SenkrechtRegler name="m" farbe={C.see} wert={m} setze={(v) => setM2(Math.round(v * 2))} min={-4} max={4} schritt={0.5} format={zahlText} plusLabel="m +" minusLabel="m −" />
+                <SenkrechtRegler name="c" farbe={GOLD} wert={c} setze={setC} min={-4} max={4} schritt={1} format={zahlText} plusLabel="c +" minusLabel="c −" />
+              </ReglerReihe>
+            </div>
+            {lesenKasten}
+          </>}
+          rechts={<>
+            <BildKarte>{bild}</BildKarte>
+            <Werkzeugleiste gruppen={[{ titel: zw("So findest du m und c selbst", "How to find m and c yourself"), inhalt: (
+              <div className="ger-seg-klein ger-chips" role="group" aria-label={zw("So findest du m und c selbst", "How to find m and c yourself")}>
+                {leitfaden.map(([id, name], i) => (
+                  <button key={id} type="button" aria-pressed={guide === id} onClick={() => wahl(id)} style={{ ...chipStil(guide === id), flex: "0 0 auto", fontWeight: 600, boxShadow: "none" }}>
+                    <span className="ger-chipnr">{i + 1}</span> {name}
+                  </button>
+                ))}
+              </div>
+            ) }]} />
+          </>} />
+      </div>
+    );
+  }
+
+  return (
+    <div className="ger-inhalt" data-ger-basics>
+      {einleitung}
+      {bild}
+      {lesenKasten}
+      {reglerBlock}
+      {leitSeg}
     </div>
   );
 }
@@ -423,6 +483,8 @@ function MiniRegler({ name, farbe, wert, setWert, min, max, schritt, format }) {
 
 /* ---------------------------------------------------------------- P & Q */
 function PundQ() {
+  const { W, H } = useMass();
+  const desktop = useDesktop();
   const [{ P, Q }, setPQ] = useState({ P: [1, 3], Q: [3, 7] });
   const [einfrieren, setEinfrieren] = useState(null);
   const [sm, setSm] = useState(LEER);
@@ -495,21 +557,40 @@ function PundQ() {
   const entartet = g.senkrecht;
   const anzeigeText = pad.offen && (pad.offen.id === "m" || pad.offen.id === "c") ? (antwortAnzeige(pad.text)) : mz(pad.text);
 
-  return (
-    <div className="ger-inhalt" data-ger-pq style={{ paddingBottom: pad.offen ? 232 : 0 }}>
+  const wuerfelKnopf = <button type="button" className="ger-wuerfel" onClick={wuerfeln} aria-label={zw("Zufällige Punkte würfeln", "Roll random points")} title={zw("Zufällige Punkte", "Random points")}><span aria-hidden="true">🎲</span></button>;
+  const punkteZeile = (
+      <div className="ger-punkte">
+        <span className="ger-pt"><b>P</b>({feld("P", 0)}|{feld("P", 1)})</span>
+        <span className="ger-und">{zw("und", "and")}</span>
+        <span className="ger-pt"><b>Q</b>({feld("Q", 0)}|{feld("Q", 1)})</span>
+      </div>
+  );
+  const aufgabeKopf = (
+    <>
       <div className="ger-zeile1">
         <span className="ger-titel">{zw("Gerade durch zwei Punkte", "Line through two points")}</span>
         <IchHaengeFest kontext={hilfe} />
       </div>
       <div className="ger-zeile2">
         <span className="ger-frage">{zw("Bestimme die Gerade durch", "Find the line through")}</span>
-        <button type="button" className="ger-wuerfel" onClick={wuerfeln} aria-label={zw("Zufällige Punkte würfeln", "Roll random points")} title={zw("Zufällige Punkte", "Random points")}><span aria-hidden="true">🎲</span></button>
+        {wuerfelKnopf}
       </div>
-      <div className="ger-punkte">
-        <span className="ger-pt"><b>P</b>({feld("P", 0)}|{feld("P", 1)})</span>
-        <span className="ger-und">{zw("und", "and")}</span>
-        <span className="ger-pt"><b>Q</b>({feld("Q", 0)}|{feld("Q", 1)})</span>
+      {punkteZeile}
+    </>
+  );
+  /* Desktop: Titel als Kicker, Frage mit Würfel, Punkte groß, Hilfe unten rechts */
+  const aufgabeDesk = (
+    <>
+      <Kicker>{zw("Gerade durch zwei Punkte", "Line through two points")}</Kicker>
+      <div className="ger-zeile2">
+        <span className="ger-frage">{zw("Bestimme die Gerade durch", "Find the line through")}</span>
+        {wuerfelKnopf}
       </div>
+      {punkteZeile}
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfe} /></div>
+    </>
+  );
+  const bild = (
       <Schaubild f={f} svgRef={svgRef} label={zw("Koordinatensystem mit den Punkten P und Q und dem Steigungsdreieck", "Coordinate system with points P and Q and the slope triangle")} kinder={({ X, Y }) => {
         const [pb, qb, rb] = [zuBild(P, f, W, H), zuBild(Q, f, W, H), zuBild(dr.R, f, W, H)];
         const start = () => setEinfrieren(fFrei);
@@ -535,6 +616,8 @@ function PundQ() {
           </>
         );
       }} />
+  );
+  const schritteListe = (
       <div className="ger-schritte">
         {entartet ? (
           <div className="ger-karte hinweis" role="status" data-ger-senkrecht>
@@ -557,7 +640,31 @@ function PundQ() {
           </>
         )}
       </div>
-      {pad.offen && <ZahlPad titel={pad.offen.titel} anzeige={anzeigeText} mitBruch={!!pad.offen.bruch} onTaste={pad.taste} />}
+  );
+  const zahlPad = pad.offen && <ZahlPad titel={pad.offen.titel} anzeige={anzeigeText} mitBruch={!!pad.offen.bruch} onTaste={pad.taste} />;
+
+  /* Desktop: Aufgabe links, Schaubild rechts, Rechenschritte darunter */
+  if (desktop) {
+    return (
+      <div className="ger-inhalt" data-ger-pq style={{ paddingBottom: pad.offen ? 232 : 0 }}>
+        <Arbeitsflaeche
+          links={<FeinKarte className="ger-aufgabe-desk">{aufgabeDesk}</FeinKarte>}
+          rechts={<BildKarte>{bild}</BildKarte>} />
+        <FeinKarte style={{ marginTop: 20 }}>
+          <Kicker>{zw("Rechenweg", "Working")}</Kicker>
+          {schritteListe}
+        </FeinKarte>
+        {zahlPad}
+      </div>
+    );
+  }
+
+  return (
+    <div className="ger-inhalt" data-ger-pq style={{ paddingBottom: pad.offen ? 232 : 0 }}>
+      {aufgabeKopf}
+      {bild}
+      {schritteListe}
+      {zahlPad}
     </div>
   );
 }
@@ -567,6 +674,8 @@ const antwortAnzeige = (t) => mz(t).replace("/", " / ");
 
 /* ---------------------------------------------------------------- P & m */
 function PundM() {
+  const { W, H } = useMass();
+  const desktop = useDesktop();
   const [{ P, m }, setAufg] = useState({ P: [2, 3], m: bruch(2) });
   const [einfrieren, setEinfrieren] = useState(null);
   const [sc, setSc] = useState(LEER);
@@ -623,16 +732,8 @@ function PundM() {
   const anzeigeText = pad.offen ? antwortAnzeige(pad.text) : "";
   const mTexAnzeige = pad.offen?.id === "m" ? null : bruchTex(m);
 
-  return (
-    <div className="ger-inhalt" data-ger-pm style={{ paddingBottom: pad.offen ? 232 : 0 }}>
-      <div className="ger-zeile1">
-        <span className="ger-titel">{zw("Gerade durch Punkt und Steigung", "Line through a point and a slope")}</span>
-        <IchHaengeFest kontext={hilfe} />
-      </div>
-      <div className="ger-zeile2">
-        <span className="ger-frage">{zw("Bestimme die Gerade durch", "Find the line through")}</span>
-        <button type="button" className="ger-wuerfel" onClick={wuerfeln} aria-label={zw("Zufälligen Punkt und Steigung würfeln", "Roll a random point and slope")} title={zw("Zufällige Aufgabe", "Random task")}><span aria-hidden="true">🎲</span></button>
-      </div>
+  const wuerfelKnopf = <button type="button" className="ger-wuerfel" onClick={wuerfeln} aria-label={zw("Zufälligen Punkt und Steigung würfeln", "Roll a random point and slope")} title={zw("Zufällige Aufgabe", "Random task")}><span aria-hidden="true">🎲</span></button>;
+  const punkteZeile = (
       <div className="ger-punkte">
         <span className="ger-pt"><b>P</b>(
           <Zahl wert={P[0]} aktiv={pad.offen?.id === "P0"} buf={pad.offen?.id === "P0" ? pad.text : null} onKlick={(e) => oeffneKoord(e, 0)} label={zw(`x-Koordinate von P: ${P[0]}, ändern`, `x-coordinate of P: ${P[0]}, change`)} />|
@@ -644,6 +745,33 @@ function PundM() {
           </button>
         </span>
       </div>
+  );
+  const aufgabeKopf = (
+    <>
+      <div className="ger-zeile1">
+        <span className="ger-titel">{zw("Gerade durch Punkt und Steigung", "Line through a point and a slope")}</span>
+        <IchHaengeFest kontext={hilfe} />
+      </div>
+      <div className="ger-zeile2">
+        <span className="ger-frage">{zw("Bestimme die Gerade durch", "Find the line through")}</span>
+        {wuerfelKnopf}
+      </div>
+      {punkteZeile}
+    </>
+  );
+  /* Desktop: Titel als Kicker, Frage mit Würfel, Punkte groß, Hilfe unten rechts */
+  const aufgabeDesk = (
+    <>
+      <Kicker>{zw("Gerade durch Punkt und Steigung", "Line through a point and a slope")}</Kicker>
+      <div className="ger-zeile2">
+        <span className="ger-frage">{zw("Bestimme die Gerade durch", "Find the line through")}</span>
+        {wuerfelKnopf}
+      </div>
+      {punkteZeile}
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfe} /></div>
+    </>
+  );
+  const bild = (
       <Schaubild f={f} svgRef={svgRef} label={zw("Koordinatensystem mit dem Punkt P und dem Steigungsdreieck", "Coordinate system with point P and the slope triangle")} kinder={({ X, Y }) => {
         const [pb, qb, rb] = [zuBild(P, f, W, H), zuBild(dr.Q, f, W, H), zuBild(dr.R, f, W, H)];
         const start = () => setEinfrieren(fFrei);
@@ -664,6 +792,8 @@ function PundM() {
           </>
         );
       }} />
+  );
+  const schritteListe = (
       <div className="ger-schritte">
         <Schritt nr={1} titel={zw("y-Achsenabschnitt berechnen", "Work out the y-intercept")} label="c" formel="y_P − m · x_P" st={sc} aktiv={!fertig}
           soll={c} weg={achsenWeg(P, m)} padAktiv={pad.offen?.id === "c"}
@@ -672,7 +802,31 @@ function PundM() {
         {fertig ? <Ergebnis m={m} c={c} onNeu={wuerfeln} />
           : <div className="ger-karte gesperrt" data-ger-schritt="y"><span className="ger-nr">2</span><span className="ger-karte-titel">{zw("Geradengleichung aufschreiben", "Write down the equation")}</span></div>}
       </div>
-      {pad.offen && <ZahlPad titel={pad.offen.titel} anzeige={anzeigeText || (pad.offen.id === "m" ? "" : mz(pad.text))} mitBruch={!!pad.offen.bruch} onTaste={pad.taste} />}
+  );
+  const zahlPad = pad.offen && <ZahlPad titel={pad.offen.titel} anzeige={anzeigeText || (pad.offen.id === "m" ? "" : mz(pad.text))} mitBruch={!!pad.offen.bruch} onTaste={pad.taste} />;
+
+  /* Desktop: Aufgabe links, Schaubild rechts, Rechenschritte darunter */
+  if (desktop) {
+    return (
+      <div className="ger-inhalt" data-ger-pm style={{ paddingBottom: pad.offen ? 232 : 0 }}>
+        <Arbeitsflaeche
+          links={<FeinKarte className="ger-aufgabe-desk">{aufgabeDesk}</FeinKarte>}
+          rechts={<BildKarte>{bild}</BildKarte>} />
+        <FeinKarte style={{ marginTop: 20 }}>
+          <Kicker>{zw("Rechenweg", "Working")}</Kicker>
+          {schritteListe}
+        </FeinKarte>
+        {zahlPad}
+      </div>
+    );
+  }
+
+  return (
+    <div className="ger-inhalt" data-ger-pm style={{ paddingBottom: pad.offen ? 232 : 0 }}>
+      {aufgabeKopf}
+      {bild}
+      {schritteListe}
+      {zahlPad}
     </div>
   );
 }
@@ -763,19 +917,63 @@ const CSS = `
 
 export function Geradengleichung({ start = "basics" }) {
   const [tab, setTab] = useState(start);
+  const desktop = useDesktop();
+  const [bildRef, bildBreite] = useBreite();
+  const reiter = (
+    <div className="ger-seg" role="group" aria-label={zw("Geraden", "Straight lines")}>
+      {[["basics", "Basics"], ["pq", "P & Q"], ["pm", "P & m"]].map(([id, name]) => (
+        <button key={id} type="button" data-ger-tab={id} aria-pressed={tab === id} onClick={() => setTab(id)}>{name}</button>
+      ))}
+    </div>
+  );
+  const inhalt = <>
+    {tab === "basics" && <Basics />}
+    {tab === "pq" && <PundQ />}
+    {tab === "pm" && <PundM />}
+  </>;
+
+  /* Desktop: Spalte wie alle Werkzeugseiten, Schaubild in echten Pixeln (Breite der rechten Spalte, goldener Schnitt) */
+  if (desktop) {
+    const W = Math.max(300, (bildBreite || 442) - 2);   // minus Rahmen der Bildkarte
+    const H = Math.round((W / PHI) * 10) / 10;
+    return (
+      <div className="ger-seite ger-desk" data-ger="breit">
+        <style>{CSS}</style>
+        <style>{GER_DESK_CSS}</style>
+        <div className="ger-innen">
+          {reiter}
+          {/* Messleiste: so breit wie die rechte Spalte der Arbeitsfläche */}
+          <div aria-hidden="true" style={{ display: "grid", gridTemplateColumns: "minmax(0, 290px) minmax(0, 1fr)", columnGap: 20, height: 0, overflow: "hidden" }}>
+            <div /><div ref={bildRef} />
+          </div>
+          <MassCtx.Provider value={{ W, H, desk: true }}>{inhalt}</MassCtx.Provider>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="ger-seite">
       <style>{CSS}</style>
       <div className="ger-innen">
-        <div className="ger-seg" role="group" aria-label={zw("Geraden", "Straight lines")}>
-          {[["basics", "Basics"], ["pq", "P & Q"], ["pm", "P & m"]].map(([id, name]) => (
-            <button key={id} type="button" data-ger-tab={id} aria-pressed={tab === id} onClick={() => setTab(id)}>{name}</button>
-          ))}
-        </div>
-        {tab === "basics" && <Basics />}
-        {tab === "pq" && <PundQ />}
-        {tab === "pm" && <PundM />}
+        {reiter}
+        {inhalt}
       </div>
     </div>
   );
 }
+
+/* Desktop (ab 840 px): Spalte 783 px, Karten mit feinem Rahmen, Bild über die volle Breite der rechten Spalte */
+const GER_DESK_CSS = kompaktSpalteCss("ger-desk") + `
+  .ger-desk .ger-innen{max-width:none;background:transparent;border-radius:0;padding:0;margin:0;box-shadow:none}
+  .ger-desk .ger-inhalt{margin-top:20px}
+  .ger-desk .ger-bild{width:100%;border-radius:0}
+  .ger-desk .ger-text{margin:0;font-size:14.5px;line-height:1.6}
+  .ger-desk .ger-lesen{margin-top:0;background:#fff;border-radius:16px;padding:16px 18px}
+  .ger-desk .ger-chips{display:flex;flex-wrap:wrap;gap:6px;min-height:0;margin:0;overflow:visible}
+  .ger-desk .ger-chips .ger-chipnr{display:inline-flex}
+  .ger-desk .ger-aufgabe-desk .ger-frage{white-space:normal;font-size:14.5px}
+  .ger-desk .ger-aufgabe-desk .ger-punkte{flex-direction:column;align-items:flex-start;gap:2px;margin:10px 0 0}
+  .ger-desk .ger-aufgabe-desk .ger-pt{font-size:26px}
+  .ger-desk .ger-schritte{margin-top:0;gap:8px}
+`;

@@ -14,6 +14,7 @@ import { IchHaengeFest } from "./funcHilfe.jsx";
 import { GrosserKnopf, hilfeKontext, hinweis, karte, kicker, zw } from "./ui2.jsx";
 import { wahl } from "./rechnen2.js";
 import { FunktionsBild, SchrittFolge, zt } from "./ui3.jsx";
+import { Arbeitsflaeche, FeinKarte } from "./arbeitsflaeche.jsx";
 
 let zaehler = 0;
 const zufall = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
@@ -123,7 +124,7 @@ function hilfeP(au) {
   });
 }
 
-export function ParabelSchnitt() {
+export function ParabelSchnitt({ kopf } = {}) {
   const [au, setAu] = useState(neueAufgabe);
   const [stand, setStand] = useState(0);
   const neu = () => { setAu(neueAufgabe()); setStand(0); };
@@ -137,22 +138,54 @@ export function ParabelSchnitt() {
   const yWerte = [];
   for (let x = x0; x <= x1; x += 0.25) { yWerte.push(f(au, x), g(au, x)); }
   const y0 = Math.max(-12, Math.min(...yWerte, -2)), y1 = Math.min(12, Math.max(...yWerte, 2));
-  return (
-    <div style={{ ...karte, marginTop: 16 }} key={au.id}>
+  const aufgabe = (
+    <>
       <p style={kicker}>{zw("Parabel trifft Gerade", "Parabola meets line")}</p>
       <p style={{ ...hinweis, color: C.tinte, marginBottom: 4 }}>{zw("Berechne die gemeinsamen Punkte von", "Find the common points of")}</p>
       <div style={{ fontSize: 17, color: C.tinte, display: "grid", gap: 4, margin: "2px 0 10px" }}>
         <M t={`f(x) = ${polyTex(au.f)}`} />
         <M t={`g(x) = ${polyTex([au.m, au.n])}`} />
       </div>
-      {stand >= 4 && (
-        <FunktionsBild x0={x0} x1={x1} y0={y0} y1={y1} hoehe={220}
-          kurven={[{ f: (x) => f(au, x), farbe: C.see, name: "f" }, { f: (x) => g(au, x), farbe: C.smaragd, name: "g" }]} punkte={punkte} />
-      )}
-      <SchrittFolge schritte={schritte} stand={stand} setStand={setStand}
-        fertigText={au.art === "keine" ? zw("Richtig: Die Gerade verläuft an der Parabel vorbei.", "Correct: the line misses the parabola.") : zw("Alle Schnittpunkte bestimmt – Probe: f und g liefern dort denselben y-Wert.", "All intersections found – check: f and g give the same y-value there.")} />
-      <GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New exercise")}</GrosserKnopf>
-      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfeP(au)} /></div>
+    </>
+  );
+  const bild = (hoehe) => (
+    <FunktionsBild x0={x0} x1={x1} y0={y0} y1={y1} hoehe={hoehe}
+      kurven={[{ f: (x) => f(au, x), farbe: C.see, name: "f" }, { f: (x) => g(au, x), farbe: C.smaragd, name: "g" }]} punkte={punkte} />
+  );
+  const schritteListe = (
+    <SchrittFolge schritte={schritte} stand={stand} setStand={setStand}
+      fertigText={au.art === "keine" ? zw("Richtig: Die Gerade verläuft an der Parabel vorbei.", "Correct: the line misses the parabola.") : zw("Alle Schnittpunkte bestimmt – Probe: f und g liefern dort denselben y-Wert.", "All intersections found – check: f and g give the same y-value there.")} />
+  );
+  const neuKnopf = <GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New exercise")}</GrosserKnopf>;
+  const hilfeZeile = <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfeP(au)} /></div>;
+
+  /* Desktop: links die Einstellungen des Trainers und „Neue Aufgabe“, rechts die Aufgabe mit f und g –
+     ab Schritt 4 (Anzahl der Schnittpunkte) darunter das Schaubild, Rechenweg unter der Arbeitsfläche */
+  if (kopf) {
+    return (
+      <div key={au.id}>
+        <Arbeitsflaeche
+          links={<>{kopf}<FeinKarte style={{ paddingTop: 6 }}>{neuKnopf}</FeinKarte></>}
+          rechts={<>
+            <FeinKarte>{aufgabe}</FeinKarte>
+            {stand >= 4 && bild(240)}
+          </>} />
+        <FeinKarte style={{ marginTop: 20 }}>
+          <p style={kicker}>{zw("Rechenweg", "Working")}</p>
+          {schritteListe}
+          {hilfeZeile}
+        </FeinKarte>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ ...karte, marginTop: 16 }} key={au.id}>
+      {aufgabe}
+      {stand >= 4 && bild(220)}
+      {schritteListe}
+      {neuKnopf}
+      {hilfeZeile}
     </div>
   );
 }

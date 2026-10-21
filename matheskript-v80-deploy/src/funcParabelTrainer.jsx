@@ -25,6 +25,8 @@ import { fokus, springe } from "./sprung.js";
 import {
   THEMEN, TYPEN, loesungText, neueAufgabe, pruefeTeil, reglerKurve, reglerTex, themaName, typName,
 } from "./parabelTrainer.js";
+import { Arbeitsflaeche, FeinKarte, Kicker, useDesktop } from "./arbeitsflaeche.jsx";
+import { kompaktSpalteCss } from "./trainerDesktop.jsx";
 
 const SPEICHER = "matheplus-parabeltrainer";
 const RUNDE = 10;
@@ -406,6 +408,72 @@ export function ParabelTrainer() {
   const themaWahl = (id) => { setThema(id); setTyp("mix"); springe("parabel-thema", () => window.scrollTo(0, 0)); };
   const optionen = THEMEN.map((t) => ({ id: t.id, name: t.kern ? themaName(t) : `${themaName(t)} · ${zw("Extra", "Extra")}` }));
 
+  const desktop = useDesktop();
+  const modusSeg = (
+    <div className="pt-seg" role="group" aria-label={zw("Modus", "Mode")} data-aus={!kern || undefined}>
+      {[["entdecken", zw("Entdecken", "Explore")], ["training", zw("Training", "Training")]].map(([id, name]) => (
+        <button key={id} type="button" aria-pressed={kern ? modus === id : id === "entdecken"} disabled={!kern} onClick={() => festhalten(() => setModus(id))}>{name}</button>
+      ))}
+    </div>
+  );
+  const stufeWahl = (
+    <PopupWahl className={`pt-stufe${kern && modus === "training" ? "" : " aus"}`} wert={stufe} label={zw("Stufe wählen", "Choose level")}
+      optionen={[1, 2, 3].map((s) => ({ id: s, name: `${zw("Stufe", "Level")} ${s}` }))} kopf={(o) => (o ? o.name : "")}
+      onWaehle={(s) => festhalten(() => setStufe(s))} />
+  );
+  const wuerfel = (
+    <button type="button" className="pt-wuerfel" aria-label={zw("Neue Aufgabe würfeln", "Roll a new task")} title={zw("Neue Aufgabe", "New task")}
+      disabled={!(kern && modus === "training")} onClick={() => festhalten(() => setWurf((w) => w + 1))}><span aria-hidden="true">🎲</span></button>
+  );
+  const themaBox = (rechts) => (
+    <div className="pt-thema">
+      <span>{zw("Parabeln üben", "Practise parabolas")}</span>
+      <PopupWahl className="pt-themamenue" knopfClass="pt-themaknopf" rechts={rechts} wert={thema} label={zw("Was möchtest du üben?", "What do you want to practise?")}
+        optionen={optionen} onWaehle={themaWahl} />
+    </div>
+  );
+  const training = kern && modus === "training";
+  const typChips = training && (
+    <div className="pt-chipwrap">
+      <div className="pt-chips" role="group" aria-label={zw("Aufgabentyp", "Task type")} data-aufgabentyp>
+        {[{ id: "mix", name: zw("🔀 Gemischt", "🔀 Mixed") }, ...typen.map((t) => ({ id: t.id, name: typName(t) }))].map((t) => (
+          <button key={t.id} type="button" className="pt-chip" aria-pressed={typOk === t.id} onClick={() => festhalten(() => setTyp(t.id))}>{t.name}</button>
+        ))}
+      </div>
+    </div>
+  );
+  const trainer = training && <Training key={`${thema}`} thema={thema} typ={typOk} stufe={stufe} wurf={wurf} />;
+
+  /* ---------- Desktop: Einstellungen links, Aufgabe bzw. Schaubild rechts (DESKTOP-STIL.md) ---------- */
+  if (desktop) {
+    const kopf = (
+      <div className="pt-kopf">
+        {themaBox(false)}
+        <FeinKarte>
+          <Kicker>{zw("Modus", "Mode")}</Kicker>
+          {modusSeg}
+          {training && <>
+            <Kicker style={{ marginTop: 14 }}>{zw("Stufe", "Level")}</Kicker>
+            <div className="pt-reihe">{stufeWahl}{wuerfel}</div>
+          </>}
+        </FeinKarte>
+        {training && <FeinKarte><Kicker>{zw("Aufgabentyp", "Task type")}</Kicker>{typChips}</FeinKarte>}
+      </div>
+    );
+    return (
+      <div className="pt-seite pt-desk" data-pt="breit">
+        <style>{POP_CSS}</style>
+        <style>{CSS}</style>
+        <style>{PT_DESK_CSS}</style>
+        {training && <Arbeitsflaeche links={kopf} rechts={trainer} />}
+        {kern && modus === "entdecken" && (
+          <div className="pt-entdecken">{thema === "null" ? <NullstellenSeite kopf={kopf} /> : <ScheitelErkunden kopf={kopf} />}</div>
+        )}
+        {!kern && <div className="pt-entdecken">{thema === "brenn" ? <BrennpunktSeite kopf={kopf} /> : <ParabelSchnitt kopf={kopf} />}</div>}
+      </div>
+    );
+  }
+
   return (
     <div className="pt-seite">
       <style>{POP_CSS}</style>
@@ -413,37 +481,18 @@ export function ParabelTrainer() {
       <div className="pt-innen">
         <div className="pt-kopf">
           <div className="pt-kopflinks">
-            <div className="pt-seg" role="group" aria-label={zw("Modus", "Mode")} data-aus={!kern || undefined}>
-              {[["entdecken", zw("Entdecken", "Explore")], ["training", zw("Training", "Training")]].map(([id, name]) => (
-                <button key={id} type="button" aria-pressed={kern ? modus === id : id === "entdecken"} disabled={!kern} onClick={() => festhalten(() => setModus(id))}>{name}</button>
-              ))}
-            </div>
+            {modusSeg}
             <div className="pt-reihe">
-              <PopupWahl className={`pt-stufe${kern && modus === "training" ? "" : " aus"}`} wert={stufe} label={zw("Stufe wählen", "Choose level")}
-                optionen={[1, 2, 3].map((s) => ({ id: s, name: `${zw("Stufe", "Level")} ${s}` }))} kopf={(o) => (o ? o.name : "")}
-                onWaehle={(s) => festhalten(() => setStufe(s))} />
-              <button type="button" className="pt-wuerfel" aria-label={zw("Neue Aufgabe würfeln", "Roll a new task")} title={zw("Neue Aufgabe", "New task")}
-                disabled={!(kern && modus === "training")} onClick={() => festhalten(() => setWurf((w) => w + 1))}><span aria-hidden="true">🎲</span></button>
+              {stufeWahl}
+              {wuerfel}
             </div>
           </div>
-          <div className="pt-thema">
-            <span>{zw("Parabeln üben", "Practise parabolas")}</span>
-            <PopupWahl className="pt-themamenue" knopfClass="pt-themaknopf" rechts wert={thema} label={zw("Was möchtest du üben?", "What do you want to practise?")}
-              optionen={optionen} onWaehle={themaWahl} />
-          </div>
+          {themaBox(true)}
         </div>
 
-        {kern && modus === "training" && (
-          <div className="pt-chipwrap">
-            <div className="pt-chips" role="group" aria-label={zw("Aufgabentyp", "Task type")} data-aufgabentyp>
-              {[{ id: "mix", name: zw("🔀 Gemischt", "🔀 Mixed") }, ...typen.map((t) => ({ id: t.id, name: typName(t) }))].map((t) => (
-                <button key={t.id} type="button" className="pt-chip" aria-pressed={typOk === t.id} onClick={() => festhalten(() => setTyp(t.id))}>{t.name}</button>
-              ))}
-            </div>
-          </div>
-        )}
+        {typChips}
 
-        {kern && modus === "training" && <Training key={`${thema}`} thema={thema} typ={typOk} stufe={stufe} wurf={wurf} />}
+        {trainer}
         {kern && modus === "entdecken" && (
           <div className="pt-entdecken">{thema === "null" ? <NullstellenSeite /> : <ScheitelErkunden />}</div>
         )}
@@ -452,6 +501,24 @@ export function ParabelTrainer() {
     </div>
   );
 }
+
+/* Desktop (ab 840 px): Spalte 783 px, linke Spalte 290 px mit Thema, Modus, Stufe und Aufgabentyp,
+   Trainingskarte rechts als eine Spalte (Formel, Schaubild, Aufgabe), Karten mit feinem Rahmen */
+const PT_DESK_CSS = kompaktSpalteCss("pt-desk") + `
+  .pt-desk .pt-kopf{display:flex;flex-direction:column;gap:12px;margin:0;max-width:none}
+  .pt-desk .pt-thema{min-height:84px;box-shadow:none}
+  .pt-desk .pt-seg{flex:none;min-height:40px}
+  .pt-desk .pt-reihe{flex:none;min-height:40px}
+  .pt-desk .pt-chipwrap{margin:0}
+  .pt-desk .pt-chipwrap::after{display:none}
+  .pt-desk .pt-chips{flex-wrap:wrap;overflow:visible;padding:0;gap:6px;justify-content:flex-start}
+  .pt-desk .pt-chip{height:34px;padding:0 13px;font-size:13px}
+  .pt-desk .pt-karte{background:#fff;border:1px solid ${C.linie};border-radius:16px;padding:18px 20px;box-shadow:none}
+  .pt-desk .pt-raster{display:flex;flex-direction:column;gap:14px}
+  .pt-desk .pt-bild,.pt-desk .pt-bild-gross{height:320px}
+  .pt-desk .pt-kacheln .pt-minibild{height:170px}
+  .pt-desk .pt-entdecken{max-width:none;margin:0}
+`;
 
 /* ---------- Aussehen (wie Ableitungstrainer: weiß auf dem Handy, Karte am Desktop) ---------- */
 const CSS = `

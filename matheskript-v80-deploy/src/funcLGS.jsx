@@ -4,6 +4,8 @@ import { C } from "./base1.jsx";
 import { merken } from "./func5.jsx";
 import { DrehKnoepfe, ebenenPolygon, kamera } from "./func16.jsx";
 import { IchHaengeFest, naechsteKombination } from "./funcHilfe.jsx";
+import { Arbeitsflaeche, BildKarte, FeinKarte, Kicker, hinweisStil, useBreite, useDesktop } from "./arbeitsflaeche.jsx";
+import { TrainerRaster } from "./trainerDesktop.jsx";
 
 /* Kontext für „Ich hänge fest“ aus dem aktuellen System */
 function lgsHilfe(aktuell, loesung, start) {
@@ -437,8 +439,7 @@ function strahlImQuader(p, r, M, L) {
   return [p.map((v, k) => v + t0 * r[k]), p.map((v, k) => v + t1 * r[k])];
 }
 
-function DreiEbenenRaum({ rows, S, zeigeS, phi, theta, setPhi, setTheta }) {
-  const W = 360, H = 330;
+function DreiEbenenRaum({ rows, S, zeigeS, phi, theta, setPhi, setTheta, W = 360, H = 330 }) {
   const M = S.map((v) => v / 2);
   const L = Math.max(5, Math.ceil(Math.max(...S.map(Math.abs)) / 2 + 3));
   const sk = (Math.min(W, H) / 2 - 16) / (L * 1.55);
@@ -532,15 +533,15 @@ function DreiEbenenRaum({ rows, S, zeigeS, phi, theta, setPhi, setTheta }) {
   );
 }
 
-function EbenenDeutung({ rows, loesung, aufgedeckt }) {
+function EbenenDeutung({ rows, loesung, aufgedeckt, desk }) {
   const [phi, setPhi] = useState(0.62);
   const [theta, setTheta] = useState(0.42);
   const [zeigen, setZeigen] = useState(false);
   const zeigeS = aufgedeckt || zeigen;
   const karte = { background: C.weiss, borderRadius: 18, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" };
-  return (
-    <div style={{ marginTop: 30 }}>
-      <div style={{ height: 1, background: C.linie, marginBottom: 26 }} />
+  const [raumRef, raumBreite] = useBreite();
+  const ueberschrift = (
+    <>
       <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 8 }}>Geometrisch gedeutet</p>
       <h3 style={{ fontSize: 21, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.25, marginBottom: 10 }}>
         Die Lösung ist der Schnittpunkt dreier Ebenen
@@ -550,8 +551,9 @@ function EbenenDeutung({ rows, loesung, aufgedeckt }) {
         eine Gleichung genau dann, wenn er auf dieser Ebene liegt. Die Lösung des Systems erfüllt alle drei
         Gleichungen — sie ist also der Punkt <b style={{ color: C.tinte, fontWeight: 600 }}>S</b>, den alle drei Ebenen gemeinsam haben.
       </p>
-
-      <div style={{ ...karte, padding: "16px 20px", marginBottom: 14 }}>
+    </>
+  );
+  const gleichungen = (
         <div className="lgs-scroll">
           <div style={{ display: "grid", gridTemplateColumns: "auto auto", columnGap: 12, rowGap: 8, alignItems: "baseline", fontSize: "clamp(15px, 4.4vw, 18px)", color: C.tinte, fontWeight: 500, width: "max-content" }}>
             {rows.map((r, i) => (
@@ -565,20 +567,14 @@ function EbenenDeutung({ rows, loesung, aufgedeckt }) {
             ))}
           </div>
         </div>
-      </div>
-
-      <div style={{ ...karte, padding: 12, position: "relative", userSelect: "none", WebkitUserSelect: "none" }}>
-        <p style={{ fontSize: 13, fontWeight: 600, color: C.see, margin: "4px 6px 8px" }}>Zieh am Bild, um die Ebenen im Raum zu drehen</p>
-        <div style={{ position: "relative" }}>
-          <DreiEbenenRaum rows={rows} S={loesung} zeigeS={zeigeS} phi={phi} theta={theta} setPhi={setPhi} setTheta={setTheta} />
-          <DrehKnoepfe setPhi={setPhi} setTheta={setTheta} zuruecksetzen={() => { setPhi(0.62); setTheta(0.42); }} />
-        </div>
+  );
+  const raumHinweis = (
         <p style={{ fontSize: 12.5, color: C.grau, fontWeight: 300, lineHeight: 1.6, margin: "10px 6px 2px" }}>
           Gestrichelt: Je zwei Ebenen schneiden sich in einer Geraden. Alle drei Schnittgeraden laufen durch denselben Punkt — das ist S.
         </p>
-      </div>
-
-      <div className="lgs-neu" style={{ ...karte, padding: "14px 18px", marginTop: 14, display: "flex", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+  );
+  const ergebnis = (
+    <>
         {zeigeS ? (
           <>
             <span style={{ fontSize: 18, fontWeight: 700, color: C.seeTief }}>
@@ -600,6 +596,57 @@ function EbenenDeutung({ rows, loesung, aufgedeckt }) {
             </button>
           </>
         )}
+    </>
+  );
+
+  /* Desktop: Gleichungen und Ergebnis links, drehbares Schaubild rechts (echte Pixel, quadratisch) */
+  if (desk) {
+    const W = raumBreite || 440;
+    return (
+      <div style={{ marginTop: 30 }} data-lgs-ebenen>
+        <div style={{ height: 1, background: C.linie, marginBottom: 26 }} />
+        {ueberschrift}
+        <Arbeitsflaeche
+          links={<>
+            <FeinKarte>{gleichungen}</FeinKarte>
+            <FeinKarte style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 12 }}>{ergebnis}</FeinKarte>
+          </>}
+          rechts={<>
+            <BildKarte style={{ userSelect: "none", WebkitUserSelect: "none" }}>
+              <div ref={raumRef} style={{ position: "relative" }}>
+                <DreiEbenenRaum rows={rows} S={loesung} zeigeS={zeigeS} phi={phi} theta={theta} setPhi={setPhi} setTheta={setTheta} W={W} H={Math.round(W * 0.86)} />
+                <DrehKnoepfe setPhi={setPhi} setTheta={setTheta} zuruecksetzen={() => { setPhi(0.62); setTheta(0.42); }} />
+              </div>
+            </BildKarte>
+            <div style={{ padding: "0 4px" }}>
+              <Kicker style={{ marginBottom: 4 }}>Zieh am Bild, um die Ebenen im Raum zu drehen</Kicker>
+              <p style={hinweisStil}>Gestrichelt: Je zwei Ebenen schneiden sich in einer Geraden. Alle drei Schnittgeraden laufen durch denselben Punkt — das ist S.</p>
+            </div>
+          </>} />
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ marginTop: 30 }}>
+      <div style={{ height: 1, background: C.linie, marginBottom: 26 }} />
+      {ueberschrift}
+
+      <div style={{ ...karte, padding: "16px 20px", marginBottom: 14 }}>
+        {gleichungen}
+      </div>
+
+      <div style={{ ...karte, padding: 12, position: "relative", userSelect: "none", WebkitUserSelect: "none" }}>
+        <p style={{ fontSize: 13, fontWeight: 600, color: C.see, margin: "4px 6px 8px" }}>Zieh am Bild, um die Ebenen im Raum zu drehen</p>
+        <div style={{ position: "relative" }}>
+          <DreiEbenenRaum rows={rows} S={loesung} zeigeS={zeigeS} phi={phi} theta={theta} setPhi={setPhi} setTheta={setTheta} />
+          <DrehKnoepfe setPhi={setPhi} setTheta={setTheta} zuruecksetzen={() => { setPhi(0.62); setTheta(0.42); }} />
+        </div>
+        {raumHinweis}
+      </div>
+
+      <div className="lgs-neu" style={{ ...karte, padding: "14px 18px", marginTop: 14, display: "flex", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+        {ergebnis}
       </div>
     </div>
   );
@@ -744,10 +791,8 @@ export function LGSLoeser() {
   const direkt = muster === "direkt" ? direkterWeg(bloecke[0].rows) : null;
   const L = fertig ? [0, 1, 2].map((v) => { const i = fertig.indexOf(v); return aktuell[i][3] / aktuell[i][v]; }) : null;
 
-  return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
-      <style>{LGS_CSS}</style>
-
+  const einleitung = (
+    <>
       <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
         <span className="titel-lang">Drei Gleichungen, drei Unbekannte</span><span className="titel-kurz">Knack das System!</span>
       </h2>
@@ -761,7 +806,10 @@ export function LGSLoeser() {
           Kombiniere die Gleichungen geschickt, z. B. <b style={{ fontWeight: 600, color: C.tinte }}>II − I</b>, bis x, y und z einzeln dastehen. Du entscheidest, die App rechnet.
         </span>
       </p>
-
+    </>
+  );
+  const stufenZeile = (
+    <>
       <div className="flex items-center flex-wrap" style={{ gap: 10, marginBottom: 16 }}>
         <div className="flex" role="group" aria-label="Schwierigkeit" style={{ background: "#EEF2F8", borderRadius: 999, padding: 3 }}>
           {LGS_STUFEN.map((s) => <Pille key={s.id} aktiv={stufe === s.id} onClick={() => stufeWaehlen(s.id)}>{s.name}</Pille>)}
@@ -772,9 +820,12 @@ export function LGSLoeser() {
           Neues System
         </button>
       </div>
-
+    </>
+  );
+  const heftKarte = (
+    <>
       {/* Das Heft */}
-      <div style={{ ...karte, padding: "18px 0 18px" }}>
+      <div data-lgs-karte style={{ ...karte, padding: "18px 0 18px" }}>
         <p style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.08em", color: C.hellgrau, padding: "0 20px", marginBottom: 12 }}>
           {schritte === 0 ? "AUSGANGSSYSTEM" : `${schritte} ${schritte === 1 ? "SCHRITT" : "SCHRITTE"}`}
         </p>
@@ -809,10 +860,13 @@ export function LGSLoeser() {
           </div>
         )}
       </div>
-
+    </>
+  );
+  const bildenKarte = (
+    <>
       {/* Neues System bilden */}
       {!fertig && (
-        <div style={{ ...karte, padding: 14, marginTop: 16 }}>
+        <div data-lgs-karte style={{ ...karte, padding: 14, marginTop: 16 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexWrap: "wrap", margin: "2px 4px 10px" }}>
             <p style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.08em", color: C.hellgrau }}>NEUES SYSTEM BILDEN</p>
           </div>
@@ -861,10 +915,10 @@ export function LGSLoeser() {
           <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={lgsHilfe(aktuell, aufgabe.loesung, bloecke[0].rows)} /></div>
         </div>
       )}
-
-      {/* Musterlösungen */}
-      <div style={{ marginTop: 22 }}>
-        <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 8 }}>Musterlösung</p>
+    </>
+  );
+  const musterKnoepfe = (
+    <>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8 }}>
           {[["gauss", "Gauß-Verfahren", "Treppenform, dann rückwärts einsetzen"], ["direkt", "Direkter Weg", "Paare kombinieren, eliminieren, einsetzen"]].map(([id, n, k]) => (
             <button key={id} type="button" className="lgs-taste" onClick={() => setMuster(muster === id ? null : id)}
@@ -876,7 +930,10 @@ export function LGSLoeser() {
             </button>
           ))}
         </div>
-
+    </>
+  );
+  const musterWege = (
+    <>
         {gauss && (
           <div className="lgs-neu" style={{ ...karte, padding: "16px 20px 14px", marginTop: 12 }}>
             <p style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.08em", color: C.hellgrau, marginBottom: 10 }}>GAUSS-VERFAHREN</p>
@@ -916,11 +973,10 @@ export function LGSLoeser() {
             </div>
           </div>
         )}
-      </div>
-
-      <EbenenDeutung key={bloecke[0].rows.flat().join(",")} rows={bloecke[0].rows} loesung={cramer(bloecke[0].rows)}
-        aufgedeckt={!!fertig || !!muster} />
-
+    </>
+  );
+  const eingabeHilfe = (
+    <>
       <details style={{ marginTop: 22 }}>
         <summary style={{ fontSize: 13.5, color: C.see, cursor: "pointer", fontWeight: 500 }}>Was kann ich eingeben?</summary>
         <div style={{ fontSize: 13.5, color: C.grau, fontWeight: 300, lineHeight: 1.8, marginTop: 10 }}>
@@ -930,9 +986,69 @@ export function LGSLoeser() {
           <p>Damit nichts verloren geht, müssen die drei neuen Gleichungen zusammen wieder das ganze System enthalten — sonst lehnt die App ab.</p>
         </div>
       </details>
+    </>
+  );
+  const desktop = useDesktop();
+
+  /* ---------- Desktop (DESKTOP-STIL.md, Trainer): Heft und Eingabe links breit, rechts Musterlösungen;
+     darunter die geometrische Deutung als Arbeitsfläche ---------- */
+  if (desktop) {
+    return (
+      <div className="mx-auto px-6 pb-16" data-lgs="breit" style={{ maxWidth: 620, paddingTop: 30 }}>
+        <style>{LGS_CSS}</style>
+        <style>{LGS_DESK_CSS}</style>
+        <div>
+          {einleitung}
+          {stufenZeile}
+          <TrainerRaster
+            links={<>
+              {heftKarte}
+              {bildenKarte}
+              {eingabeHilfe}
+            </>}
+            rechts={<>
+              <Kicker style={{ margin: "4px 2px -4px" }}>Musterlösung</Kicker>
+              <div data-lgs-muster>{musterKnoepfe}</div>
+            </>} />
+          {(gauss || direkt) && <div data-lgs-musterweg style={{ marginTop: 8 }}>{musterWege}</div>}
+          <EbenenDeutung key={bloecke[0].rows.flat().join(",")} rows={bloecke[0].rows} loesung={cramer(bloecke[0].rows)}
+            aufgedeckt={!!fertig || !!muster} desk />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
+      <style>{LGS_CSS}</style>
+
+      {einleitung}
+      {stufenZeile}
+      {heftKarte}
+      {bildenKarte}
+
+      {/* Musterlösungen */}
+      <div style={{ marginTop: 22 }}>
+        <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 8 }}>Musterlösung</p>
+        {musterKnoepfe}
+        {musterWege}
+      </div>
+
+      <EbenenDeutung key={bloecke[0].rows.flat().join(",")} rows={bloecke[0].rows} loesung={cramer(bloecke[0].rows)}
+        aufgedeckt={!!fertig || !!muster} />
+
+      {eingabeHilfe}
     </div>
   );
 }
+
+/* Desktop (ab 840 px): Karten mit feinem Rahmen statt Schatten, Musterlösungs-Knöpfe untereinander */
+const LGS_DESK_CSS = `
+  [data-lgs="breit"] [data-lgs-karte]{border:1px solid ${C.linie} !important;box-shadow:none !important;border-radius:16px !important}
+  [data-lgs="breit"] [data-lgs-karte] + [data-lgs-karte]{margin-top:0 !important}
+  [data-lgs="breit"] [data-lgs-muster] > div{grid-template-columns:minmax(0,1fr) !important}
+  [data-lgs="breit"] [data-lgs-musterweg] > div{border:1px solid ${C.linie};box-shadow:none !important;border-radius:16px !important}
+`;
 
 /* Grafik für die Startseiten-Kachel: drei Gleichungen mit I, II, III und Klammer */
 export function LGSLogoKlein() {

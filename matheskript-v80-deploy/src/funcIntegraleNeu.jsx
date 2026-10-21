@@ -22,6 +22,8 @@ import {
   teilIntervalle, wahl, zz,
 } from "./rechnen2.js";
 import { neuUmgekehrt, neueFlaechenAufgabe, neueZweiGraphen, neuerAnfangswert, neuerBestand } from "./aufgaben2.js";
+import { Arbeitsflaeche, FeinKarte, Werkzeugleiste, feinKarte, toenKarte } from "./arbeitsflaeche.jsx";
+import { ReglerReihe, SenkrechtRegler } from "./trainerDesktop.jsx";
 
 const GR = C.smaragd, ROT = C.signal;
 const sym = (z) => String(z).replace("-", "−");
@@ -40,7 +42,7 @@ const mitKlammer = (a) => (a.z < 0 ? `(${qTex(a)})` : qTex(a));
    Fläche und Bilanz
    ====================================================================== */
 
-export function FlaecheBilanz() {
+export function FlaecheBilanz({ desk } = {}) {
   const [aufg, setAufg] = useState(neueFlaechenAufgabe);
   const [a, setA] = useState(aufg.a);
   const [b, setB] = useState(aufg.b);
@@ -105,20 +107,26 @@ export function FlaecheBilanz() {
     regeln: [{ name: "Hauptsatz der Differential- und Integralrechnung", bereich: "analysis" }],
   });
 
-  return (
-    <div style={{ ...karte, marginTop: 16 }}>
+  const kopfTeil = (
+    <>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
         <p style={kicker}>{zw("Fläche und Bilanz", "Area and net change")}</p>
       </div>
       <p style={hinweis}>{zw("Das Integral ist eine Bilanz, der Flächeninhalt zählt alles positiv. Verschiebe die Grenzen, schätze – und rechne dann.", "The integral is a net total, the area counts everything as positive. Move the limits, estimate – then compute.")}</p>
       <div style={{ ...zeile, fontSize: 19, marginBottom: 6 }}><M t={`f(x) = ${pTex(aufg.p)}`} /></div>
-
+    </>
+  );
+  const bild = (
       <Schaubild kurven={[{ p: aufg.p, farbe: C.see, name: "f" }]} flaechen={flaechen} balken={balken} senkrechte={[{ x: a, farbe: C.tinte }, { x: b, farbe: C.tinte }]}
         yBereichX={[Math.max(-4, Math.min(a, qn(aufg.nst[0])) - 0.3), Math.min(4, Math.max(b, qn(aufg.nst[aufg.nst.length - 1])) + 0.3)]} />
+  );
+  const grenzenStufen = (
       <div style={{ display: "flex", flexWrap: "wrap", gap: 14, alignItems: "center", marginTop: 12 }}>
         <Stufe wert={a} setWert={setzeA} min={-4} max={3} label={zw("Untere Grenze", "Lower limit")} text="a" />
         <Stufe wert={b} setWert={setzeB} min={-3} max={4} label={zw("Obere Grenze", "Upper limit")} text="b" />
       </div>
+  );
+  const rechteckSchalter = (
       <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 12, marginTop: 10 }}>
         <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: C.tinte, cursor: "pointer", minHeight: 40 }}>
           <input type="checkbox" checked={rechtecke} onChange={(e) => setRechtecke(e.target.checked)} style={{ width: 18, height: 18 }} />
@@ -126,16 +134,24 @@ export function FlaecheBilanz() {
         </label>
         {rechtecke && <Stufe wert={nR} setWert={setNR} min={2} max={24} label={zw("Anzahl Rechtecke", "Number of rectangles")} text="n" />}
       </div>
+  );
+  const naeherung = (
+    <>
       {rechtecke && (
         <p style={{ fontSize: 13, color: C.grau, lineHeight: 1.6, marginTop: 6 }}>
           {zw("Näherung mit mittlerer Höhe", "Approximation with mid-point heights")}: <b style={{ color: C.tinte }}>{sym(Math.round(rsumme * 100) / 100).replace(".", ",")}</b>
           {fertig && <> · {zw("exakt", "exact")}: <b style={{ color: C.tinte }}>{qText(erg.I)}</b></>}
         </p>
       )}
+    </>
+  );
+  const legende = (
       <p style={{ fontSize: 12.5, color: C.hellgrau, marginTop: 6 }}>
         <span style={{ color: GR, fontWeight: 700 }}>■</span> {zw("oberhalb der x-Achse (positiv)", "above the x-axis (positive)")} · <span style={{ color: ROT, fontWeight: 700 }}>■</span> {zw("unterhalb (negativ)", "below (negative)")}
       </p>
-
+  );
+  const aufgabenTeil = (
+    <>
       {schritt(1, zw("Prognose: Vorzeichen und Größe des Integrals", "Prediction: sign and size of the integral"))}
       <Auswahl label={zw("Vorzeichen des Integrals", "Sign of the integral")} wert={vz} setWert={(v) => { setVz(v); setPruef(null); }}
         optionen={[["pos", zw("positiv", "positive")], ["neg", zw("negativ", "negative")], ["null", zw("genau 0", "exactly 0")]]}
@@ -200,8 +216,54 @@ export function FlaecheBilanz() {
           </p>
         </div>
       )}
+    </>
+  );
+  const abschluss = (
+    <>
       <GrosserKnopf ghost onClick={() => neu()}>{zw("Neue Funktion", "New function")}</GrosserKnopf>
       <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfe} /></div>
+    </>
+  );
+
+  /* Desktop: Funktion und Grenzen links (Regler senkrecht), Schaubild rechts, Prognose und Rechnung darunter */
+  if (desk) {
+    return (
+      <>
+        <Arbeitsflaeche
+          links={<>
+            <FeinKarte>{kopfTeil}</FeinKarte>
+            <div style={toenKarte(C.see)}>
+              <ReglerReihe spalten={rechtecke ? 3 : 2}>
+                <SenkrechtRegler name="a" wert={a} setze={setzeA} min={-4} max={3} plusLabel={`${zw("Untere Grenze", "Lower limit")} +1`} minusLabel={`${zw("Untere Grenze", "Lower limit")} −1`} />
+                <SenkrechtRegler name="b" wert={b} setze={setzeB} min={-3} max={4} plusLabel={`${zw("Obere Grenze", "Upper limit")} +1`} minusLabel={`${zw("Obere Grenze", "Upper limit")} −1`} />
+                {rechtecke && <SenkrechtRegler name="n" wert={nR} setze={setNR} min={2} max={24} farbe={C.goldWarm} plusLabel={`${zw("Anzahl Rechtecke", "Number of rectangles")} +1`} minusLabel={`${zw("Anzahl Rechtecke", "Number of rectangles")} −1`} />}
+              </ReglerReihe>
+            </div>
+          </>}
+          rechts={<>
+            <div data-bild>{bild}</div>
+            <Werkzeugleiste gruppen={[{ titel: zw("Rechtecksummen", "Rectangle sums"), inhalt: <>{rechteckSchalter}{naeherung}{legende}</> }]} />
+          </>} />
+        <FeinKarte style={{ marginTop: 20 }}>
+          {aufgabenTeil}
+          {abschluss}
+        </FeinKarte>
+      </>
+    );
+  }
+
+  return (
+    <div style={{ ...karte, marginTop: 16 }}>
+      {kopfTeil}
+
+      {bild}
+      {grenzenStufen}
+      {rechteckSchalter}
+      {naeherung}
+      {legende}
+
+      {aufgabenTeil}
+      {abschluss}
     </div>
   );
 }
@@ -210,7 +272,7 @@ export function FlaecheBilanz() {
    Zwischen zwei Graphen
    ====================================================================== */
 
-export function ZwischenZweiGraphen() {
+export function ZwischenZweiGraphen({ desk } = {}) {
   const [au, setAu] = useState(neueZweiGraphen);
   const [liste, setListe] = useState("");
   const [s1, setS1] = useState(null);         // { ok, text }
@@ -281,18 +343,19 @@ export function ZwischenZweiGraphen() {
   const punkte = s1 && s1.ok ? au.nst.map((r, i) => ({ x: r, y: pNum(au.f, r), farbe: C.tinte, name: `S${["₁", "₂", "₃"][i]}` })) : [];
   const flaechen = s2 && s2.ok ? au.teile.map((t) => ({ f: au.oben[au.teile.indexOf(t)] === "f" ? au.f : au.g, g: au.oben[au.teile.indexOf(t)] === "f" ? au.g : au.f, a: qn(t.von), b: qn(t.bis), farbe: C.flaggold })) : [];
 
-  return (
-    <div style={{ ...karte, marginTop: 16 }}>
+  const kopfTeil = (
+    <>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
         <p style={kicker}>{zw("Fläche zwischen zwei Graphen", "Area between two graphs")}</p>
       </div>
       <p style={hinweis}>{zw("Erst die Schnittpunkte, dann wer oben liegt, dann die Fläche – jeweils einzeln geprüft.", "First the intersection points, then who is on top, then the area – each checked separately.")}</p>
       <div style={zeile}><M t={`f(x) = ${pTex(au.f)}`} /></div>
       <div style={zeile}><M t={`g(x) = ${pTex(au.g)}`} /></div>
-      <div style={{ marginTop: 8 }}>
-        <Schaubild kurven={[{ p: au.f, farbe: C.see, name: "f" }, { p: au.g, farbe: C.gruen, name: "g" }]} flaechen={flaechen} punkte={punkte} />
-      </div>
-
+    </>
+  );
+  const bild = <Schaubild kurven={[{ p: au.f, farbe: C.see, name: "f" }, { p: au.g, farbe: C.gruen, name: "g" }]} flaechen={flaechen} punkte={punkte} />;
+  const aufgabenTeil = (
+    <>
       {schritt(1, zw("Schnittpunkte: x-Werte bestimmen", "Intersection points: find the x-values"))}
       <TextFeld wert={liste} setWert={(v) => { setListe(v); setS1(null); }} label={zw("x-Werte der Schnittpunkte", "x-values of the intersection points")} platzhalter={zw("z. B. −1; 2", "e.g. −1; 2")} onEnter={pruefe1} />
       <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
@@ -341,8 +404,39 @@ export function ZwischenZweiGraphen() {
           )}
         </>
       )}
+    </>
+  );
+  const abschluss = (
+    <>
       <GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>
       <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfe} /></div>
+    </>
+  );
+
+  /* Desktop: f und g links, Schaubild rechts, die drei Schritte darunter */
+  if (desk) {
+    return (
+      <>
+        <Arbeitsflaeche
+          links={<FeinKarte>{kopfTeil}</FeinKarte>}
+          rechts={<div data-bild>{bild}</div>} />
+        <FeinKarte style={{ marginTop: 20 }}>
+          {aufgabenTeil}
+          {abschluss}
+        </FeinKarte>
+      </>
+    );
+  }
+
+  return (
+    <div style={{ ...karte, marginTop: 16 }}>
+      {kopfTeil}
+      <div style={{ marginTop: 8 }}>
+        {bild}
+      </div>
+
+      {aufgabenTeil}
+      {abschluss}
     </div>
   );
 }
@@ -351,7 +445,7 @@ export function ZwischenZweiGraphen() {
    Bestand und Änderungsrate
    ====================================================================== */
 
-function BestandAus() {
+function BestandAus({ desk }) {
   const [au, setAu] = useState(neuerBestand);
   const [prog, setProg] = useState(null);
   const [antB, setAntB] = useState("");
@@ -392,11 +486,15 @@ function BestandAus() {
     regeln: [{ name: "Hauptsatz der Differential- und Integralrechnung", bereich: "analysis" }],
   });
   const F = pInt(au.r);
-  return (
+  const kopfTeil = (
     <>
       <p style={hinweis}>{zw(`Ein Tank wird befüllt und entleert. Die Änderungsrate r(t) in Liter pro Minute ist gegeben, t in Minuten. Anfangsbestand: ${au.B0} Liter.`, `A tank is filled and emptied. The rate of change r(t) in litres per minute is given, t in minutes. Initial stock: ${au.B0} litres.`)}</p>
       <div style={zeile}><M t={`r(t) = ${pTex(au.r, "t")}`} /><span style={{ fontSize: 13, color: C.grau }}>{zw("l/min, 0 ≤ t ≤", "l/min, 0 ≤ t ≤")} {au.T}</span></div>
-      <Schaubild kurven={[{ p: au.r, farbe: C.see, name: "r" }]} flaechen={flaechen} x0={0} x1={au.T + 0.5} einheitX="t (min)" einheitY="r (l/min)" hoehe={200} />
+    </>
+  );
+  const bild = <Schaubild kurven={[{ p: au.r, farbe: C.see, name: "r" }]} flaechen={flaechen} x0={0} x1={au.T + 0.5} einheitX="t (min)" einheitY="r (l/min)" hoehe={200} />;
+  const aufgabenTeil = (
+    <>
 
       {schritt(1, zw("Prognose: Wie steht der Tank nach der Zeit?", "Prediction: how is the tank after the time?"))}
       <Auswahl label={zw("Prognose Bestand", "Stock prediction")} wert={prog} setWert={(v) => { setProg(v); setPr(null); }}
@@ -438,9 +536,24 @@ function BestandAus() {
       <GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>
     </>
   );
+  if (desk) {
+    return (
+      <>
+        <Arbeitsflaeche links={<FeinKarte>{kopfTeil}</FeinKarte>} rechts={<div data-bild>{bild}</div>} />
+        <FeinKarte style={{ marginTop: 20 }}>{aufgabenTeil}</FeinKarte>
+      </>
+    );
+  }
+  return (
+    <>
+      {kopfTeil}
+      {bild}
+      {aufgabenTeil}
+    </>
+  );
 }
 
-function RateAus() {
+function RateAus({ desk }) {
   const [au, setAu] = useState(neuUmgekehrt);
   const [vz, setVz] = useState(null);
   const [antR, setAntR] = useState("");
@@ -468,11 +581,15 @@ function RateAus() {
     regel: [zw("Welche Regel leitet B ab?", "Which rule differentiates B?"), zw("(a·tⁿ)′ = a·n·tⁿ⁻¹.", "(a·tⁿ)′ = a·n·tⁿ⁻¹."), zw("Konstanten fallen beim Ableiten weg.", "Constants vanish when differentiating.")],
     pruefen: [zw("Passt das Vorzeichen zum Graphen?", "Does the sign match the graph?"), zw("Einheit: Liter pro Minute.", "Unit: litres per minute."), zw("Am Hochpunkt von B ist die Rate 0.", "At the maximum of B the rate is 0.")],
   });
-  return (
+  const kopfTeil = (
     <>
       <p style={hinweis}>{zw(`Gegeben ist der Bestand B(t) in Litern. Deute die Änderungsrate zum Zeitpunkt t = ${au.t0} Minuten.`, `The stock B(t) in litres is given. Interpret the rate of change at time t = ${au.t0} minutes.`)}</p>
       <div style={zeile}><M t={`B(t) = ${bTex}`} /><span style={{ fontSize: 13, color: C.grau }}>{zw("Liter", "litres")}, 0 ≤ t ≤ {au.T}</span></div>
-      <Schaubild kurven={[{ p: au.Bf, farbe: C.gruen, name: "B" }, ...(fertig ? [{ p: tangente, farbe: C.flaggold, name: zw("Tangente", "tangent") }] : [])]} punkte={[{ x: au.t0, y: au.Bt0, farbe: C.tinte, name: `t = ${au.t0}` }]} x0={0} x1={au.T + 0.5} yMin={0} einheitX="t (min)" einheitY="B (l)" hoehe={210} />
+    </>
+  );
+  const bild = <Schaubild kurven={[{ p: au.Bf, farbe: C.gruen, name: "B" }, ...(fertig ? [{ p: tangente, farbe: C.flaggold, name: zw("Tangente", "tangent") }] : [])]} punkte={[{ x: au.t0, y: au.Bt0, farbe: C.tinte, name: `t = ${au.t0}` }]} x0={0} x1={au.T + 0.5} yMin={0} einheitX="t (min)" einheitY="B (l)" hoehe={210} />;
+  const aufgabenTeil = (
+    <>
 
       {schritt(1, zw(`Was passiert bei t = ${au.t0}?`, `What happens at t = ${au.t0}?`))}
       <Auswahl label={zw("Entwicklung des Bestands", "Development of the stock")} wert={vz} setWert={(v) => { setVz(v); setPr(null); }}
@@ -512,10 +629,38 @@ function RateAus() {
       <GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New problem")}</GrosserKnopf>
     </>
   );
+  if (desk) {
+    return (
+      <>
+        <Arbeitsflaeche links={<FeinKarte>{kopfTeil}</FeinKarte>} rechts={<div data-bild>{bild}</div>} />
+        <FeinKarte style={{ marginTop: 20 }}>{aufgabenTeil}</FeinKarte>
+      </>
+    );
+  }
+  return (
+    <>
+      {kopfTeil}
+      {bild}
+      {aufgabenTeil}
+    </>
+  );
 }
 
-export function BestandAenderungsrate() {
+export function BestandAenderungsrate({ desk } = {}) {
   const [art, setArt] = useState("rekonstruieren");
+  const artWahl = (
+    <Auswahl label={zw("Aufgabenart", "Task type")} wert={art} setWert={setArt}
+      optionen={[["rekonstruieren", zw("Bestand rekonstruieren", "Rebuild the stock")], ["deuten", zw("Rate aus Bestand deuten", "Read the rate from the stock")]]} />
+  );
+  /* Desktop: Aufgabenart als Werkzeugleiste oben, darunter Arbeitsfläche der gewählten Aufgabe */
+  if (desk) {
+    return (
+      <>
+        <div style={{ marginBottom: 16 }}><Werkzeugleiste gruppen={[{ titel: zw("Bestand und Änderungsrate", "Stock and rate of change"), inhalt: artWahl }]} /></div>
+        {art === "rekonstruieren" ? <BestandAus key="a" desk /> : <RateAus key="b" desk />}
+      </>
+    );
+  }
   return (
     <div style={{ ...karte, marginTop: 16 }}>
       <p style={kicker}>{zw("Bestand und Änderungsrate", "Stock and rate of change")}</p>
@@ -532,7 +677,7 @@ export function BestandAenderungsrate() {
    Anfangsbedingung: Konstante C bestimmen (unter „Stammfunktion bilden“)
    ====================================================================== */
 
-export function Anfangsbedingung() {
+export function Anfangsbedingung({ desk } = {}) {
   const [au, setAu] = useState(neuerAnfangswert);
   const [ant, setAnt] = useState("");
   const [pr, setPr] = useState(null);
@@ -544,7 +689,7 @@ export function Anfangsbedingung() {
       : { ok: false, text: zw(`Nicht ganz. Setze x = ${au.x0} in F(x) ein, setze das Ergebnis gleich ${au.y0} und löse nach C.`, `Not quite. Put x = ${au.x0} into F(x), set the result equal to ${au.y0} and solve for C.`) });
   };
   return (
-    <div style={{ ...karte, marginTop: 16 }}>
+    <div style={desk ? feinKarte : { ...karte, marginTop: 16 }}>
       <p style={kicker}>{zw("Anfangsbedingung: C bestimmen", "Initial condition: find C")}</p>
       <p style={hinweis}>{zw("Eine Stammfunktion ist nur bis auf die Konstante C festgelegt. Eine Anfangsbedingung wählt genau eine davon aus.", "An antiderivative is only fixed up to the constant C. An initial condition picks exactly one of them.")}</p>
       <div style={zeile}><M t={`f(x) = ${pTex(au.f)}`} /></div>

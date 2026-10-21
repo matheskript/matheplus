@@ -30,6 +30,8 @@ import { ausScheitelW, fW, normalTexW, parabelW, scheitelTexW, vorfaktorTex } fr
 import {
   wAnh, wBetrag, wBetragTex, wDiv, wGanz, wIstEins, wIstMinusEins, wIstNull, wIstRational, wLies, wMul, wNegativ, wNum, wTeile, wTex, wTexKl, wText, wZ,
 } from "./wzahl.js";
+import { Arbeitsflaeche, BildKarte, FeinKarte, toenKarte, useBreite } from "./arbeitsflaeche.jsx";
+import { ReglerReihe, SenkrechtRegler, reglerKnopf } from "./trainerDesktop.jsx";
 
 const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
 const wahl = (l) => l[Math.floor(Math.random() * l.length)];
@@ -64,8 +66,11 @@ const fehlerListe = (korrekt, liste) => {
 /* ============================================================
    Schaubild: gleiche Einheit auf beiden Achsen (1 : 1), Fenster −10 … 10
    ============================================================ */
-function ParabelBild({ kurven = [], punkte = [], linien = [], senkrechte = [], waagerechte = [], legende = [], beschr }) {
-  const W = 380, L = 28, R = 12, T = 14, B = 26;
+function ParabelBild({ kurven = [], punkte = [], linien = [], senkrechte = [], waagerechte = [], legende = [], beschr, desk = false }) {
+  // Handy: feste Entwurfsbreite 380 (skaliert per CSS). Desktop: gemessene Breite – Beschriftungen bleiben in echten Pixeln.
+  const [massRef, gemessen] = useBreite();
+  const W = desk ? Math.max(300, gemessen || 440) : 380, L = desk ? 32 : 28, R = 12, T = 14, B = desk ? 28 : 26;
+  const fT = desk ? 10.5 : 8.6, fA = desk ? 13 : 11, fN = desk ? 13 : 11.5;
   const pw = W - L - R, H = T + pw + B, E = pw / (2 * FENSTER);          // E = Pixel je Einheit – für x UND y gleich
   const sx = (x) => L + (x + FENSTER) * E, sy = (y) => T + (FENSTER - y) * E;
   const ticks = Array.from({ length: 2 * FENSTER + 1 }, (_, i) => i - FENSTER);
@@ -85,9 +90,9 @@ function ParabelBild({ kurven = [], punkte = [], linien = [], senkrechte = [], w
     return <polygon points={`${px},${py} ${px - ux * g - uy * br},${py - uy * g + ux * br} ${px - ux * g + uy * br},${py - uy * g - ux * br}`} fill={farbe} />;
   };
   return (
-    <div>
+    <div ref={massRef}>
       <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={beschr || zw("Schaubild mit gleich skalierten Achsen (1 : 1)", "Graph with equally scaled axes (1 : 1)")}
-        style={{ width: "100%", display: "block", background: C.weiss, borderRadius: 14, border: `1px solid ${C.linie}` }}>
+        style={{ width: "100%", display: "block", background: C.weiss, borderRadius: 14, border: desk ? "none" : `1px solid ${C.linie}` }}>
         <defs><clipPath id={klipp}><rect x={L} y={T} width={pw} height={pw} /></clipPath></defs>
         {ticks.map((v) => (
           <g key={`g${v}`}>
@@ -101,12 +106,12 @@ function ParabelBild({ kurven = [], punkte = [], linien = [], senkrechte = [], w
           <g key={`t${v}`}>
             <line x1={sx(v)} x2={sx(v)} y1={sy(0) - 3} y2={sy(0) + 3} stroke={C.tinte} strokeWidth="1" />
             <line y1={sy(v)} y2={sy(v)} x1={sx(0) - 3} x2={sx(0) + 3} stroke={C.tinte} strokeWidth="1" />
-            <text x={sx(v)} y={sy(0) + 14} fontSize="8.6" textAnchor="middle" fill={C.grau}>{String(v).replace("-", "−")}</text>
-            <text x={sx(0) - 6} y={sy(v) + 3} fontSize="8.6" textAnchor="end" fill={C.grau}>{String(v).replace("-", "−")}</text>
+            <text x={sx(v)} y={sy(0) + (desk ? 15 : 14)} fontSize={fT} textAnchor="middle" fill={C.grau}>{String(v).replace("-", "−")}</text>
+            <text x={sx(0) - 6} y={sy(v) + (desk ? 3.5 : 3)} fontSize={fT} textAnchor="end" fill={C.grau}>{String(v).replace("-", "−")}</text>
           </g>
         ))}
-        <text x={L + pw - 2} y={sy(0) - 6} fontSize="11" fontStyle="italic" fontWeight="700" textAnchor="end" fill={C.tinte}>x</text>
-        <text x={sx(0) + 7} y={T + 10} fontSize="11" fontStyle="italic" fontWeight="700" fill={C.tinte}>y</text>
+        <text x={L + pw - 2} y={sy(0) - 6} fontSize={fA} fontStyle="italic" fontWeight="700" textAnchor="end" fill={C.tinte}>x</text>
+        <text x={sx(0) + 7} y={T + 10} fontSize={fA} fontStyle="italic" fontWeight="700" fill={C.tinte}>y</text>
         <g clipPath={`url(#${klipp})`}>
           {senkrechte.map((s, i) => <line key={`s${i}`} x1={sx(s.x)} x2={sx(s.x)} y1={T} y2={T + pw} stroke={s.farbe || C.hellgrau} strokeWidth="1.5" strokeDasharray="6 4" />)}
           {waagerechte.map((w, i) => <line key={`w${i}`} x1={L} x2={L + pw} y1={sy(w.y)} y2={sy(w.y)} stroke={w.farbe || C.hellgrau} strokeWidth="1.5" strokeDasharray="6 4" />)}
@@ -128,11 +133,11 @@ function ParabelBild({ kurven = [], punkte = [], linien = [], senkrechte = [], w
         </g>
         {punkte.filter((p) => p.name && Math.abs(p.x) <= FENSTER && Math.abs(p.y) <= FENSTER).map((p, i) => (
           <text key={`n${i}`} x={Math.max(L + 2, Math.min(L + pw - 4, sx(p.x) + (p.links ? -8 : 8)))} y={Math.max(T + 11, Math.min(T + pw - 3, sy(p.y) + (p.unten ? 16 : -8)))}
-            fontSize="11.5" fontWeight="800" textAnchor={p.links ? "end" : "start"} fill={p.farbe || C.tinte} stroke="#fff" strokeWidth="3" paintOrder="stroke">{p.name}</text>
+            fontSize={fN} fontWeight="800" textAnchor={p.links ? "end" : "start"} fill={p.farbe || C.tinte} stroke="#fff" strokeWidth="3" paintOrder="stroke">{p.name}</text>
         ))}
       </svg>
       {legende.length > 0 && (
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "4px 14px", marginTop: 8, fontSize: 12, color: C.grau, fontWeight: 600 }}>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "4px 14px", marginTop: 8, fontSize: 12, color: C.grau, fontWeight: 600, ...(desk ? { padding: "0 16px" } : {}) }}>
           {legende.map(([farbe, text, gestrichelt, punkt]) => (
             <span key={text} style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
               {punkt
@@ -143,14 +148,14 @@ function ParabelBild({ kurven = [], punkte = [], linien = [], senkrechte = [], w
           ))}
         </div>
       )}
-      <p style={{ fontSize: 11.5, color: C.hellgrau, margin: "6px 0 0" }}>{zw("Beide Achsen im Maßstab 1 : 1 – eine Einheit ist auf x- und y-Achse gleich lang.", "Both axes use a 1 : 1 scale – one unit is equally long on the x- and the y-axis.")}</p>
+      <p style={{ fontSize: 11.5, color: desk ? C.grau : C.hellgrau, margin: "6px 0 0", ...(desk ? { padding: "0 16px 14px" } : {}) }}>{zw("Beide Achsen im Maßstab 1 : 1 – eine Einheit ist auf x- und y-Achse gleich lang.", "Both axes use a 1 : 1 scale – one unit is equally long on the x- and the y-axis.")}</p>
     </div>
   );
 }
 
 const Formel = ({ t, gross }) => <div style={{ fontSize: gross ? 19 : 16.5, color: C.tinte, margin: "4px 0", overflowX: "auto", whiteSpace: "nowrap" }}><M t={t} /></div>;
-const Rechenschritt = ({ nr, titel, children }) => (
-  <div style={{ ...karte, marginTop: 12, padding: 16 }}>
+const Rechenschritt = ({ nr, titel, children, fein }) => (
+  <div style={fein ? { background: C.weiss, borderRadius: 16, padding: "16px 20px", border: `1px solid ${C.linie}` } : { ...karte, marginTop: 12, padding: 16 }}>
     <p style={{ ...kicker, color: C.see, display: "flex", alignItems: "center", gap: 8 }}>
       <span style={{ width: 22, height: 22, borderRadius: 99, background: C.see, color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 12, letterSpacing: 0 }}>{nr}</span>{titel}
     </p>
@@ -191,7 +196,7 @@ function ZKnopf({ farbe, label, onClick, children }) {
   );
 }
 
-function ZahlFeld({ k, wert, setWert, einzeln, nichtNull }) {
+function ZahlFeld({ k, wert, setWert, einzeln, nichtNull, senkrecht }) {
   const farbe = PARAM_FARBE[k];
   const text = wText(wert);
   const [entwurf, setEntwurf] = useState(null);                         // null: das Feld zeigt den Wert
@@ -227,9 +232,8 @@ function ZahlFeld({ k, wert, setWert, einzeln, nichtNull }) {
     if (fehler) setZeigeFehler(true); else setEntwurf(null);
   };
   const rot = zeigeFehler && fehler;
-  return (
-    <div style={{ minWidth: 0 }}>
-      <label style={{ display: "flex", alignItems: "center", gap: 5, minWidth: 0 }}>
+  const feld = (
+      <label style={{ display: "flex", alignItems: "center", gap: 5, minWidth: 0, ...(senkrecht ? { width: "100%" } : {}) }}>
         <span style={{ fontSize: 15, fontWeight: 800, color: farbe, whiteSpace: "nowrap" }}><Buchstabe k={k} /> =</span>
         <MatheFeld modus="wurzel" value={entwurf ?? text} onChange={aendern} onBlur={verlassen}
           onFocus={(e) => { setFokus(true); e.target.select(); }}
@@ -240,11 +244,27 @@ function ZahlFeld({ k, wert, setWert, einzeln, nichtNull }) {
             border: `1.5px solid ${rot ? C.signal : fokus ? farbe : `${farbe}66`}`, background: rot ? "#FCE8EE" : `${farbe}10`,
             boxShadow: fokus ? `0 0 0 3px ${farbe}26` : "none" }} />
       </label>
+  );
+  const fehlerText = rot && <p role="alert" style={{ fontSize: 11.5, lineHeight: 1.35, color: C.signal, fontWeight: 600, margin: "6px 0 0" }}>{fehler}</p>;
+  /* Desktop: + oben, Feld in der Mitte, − unten (wie die EbenenKarte) */
+  if (senkrecht) {
+    return (
+      <div style={{ minWidth: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+        <button type="button" className="eve-knopf" aria-label={`${k} +`} onClick={() => setWert(naechsteGanze(wert, 1, nichtNull))} style={reglerKnopf(farbe)}>+</button>
+        {feld}
+        <button type="button" className="eve-knopf" aria-label={`${k} −`} onClick={() => setWert(naechsteGanze(wert, -1, nichtNull))} style={reglerKnopf(farbe)}>−</button>
+        {fehlerText}
+      </div>
+    );
+  }
+  return (
+    <div style={{ minWidth: 0 }}>
+      {feld}
       <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
         <ZKnopf farbe={farbe} label={`${k} −`} onClick={() => setWert(naechsteGanze(wert, -1, nichtNull))}>−</ZKnopf>
         <ZKnopf farbe={farbe} label={`${k} +`} onClick={() => setWert(naechsteGanze(wert, 1, nichtNull))}>+</ZKnopf>
       </div>
-      {rot && <p role="alert" style={{ fontSize: 11.5, lineHeight: 1.35, color: C.signal, fontWeight: 600, margin: "6px 0 0" }}>{fehler}</p>}
+      {fehlerText}
     </div>
   );
 }
@@ -262,17 +282,17 @@ function FormelZeile({ items, groesse, gewicht = 800, grau }) {
   );
 }
 
-function ParamKopf({ spalten, kopf, funktion }) {
+function ParamKopf({ spalten, kopf, funktion, senkrecht }) {
   return (
     <div style={{ minWidth: 0 }}>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", columnGap: 8, alignItems: "start", marginBottom: 12 }}>
-        {spalten.map((s) => <ZahlFeld key={s.k} {...s} />)}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", columnGap: senkrecht ? 6 : 8, alignItems: "start", marginBottom: 12 }}>
+        {spalten.map((s) => <ZahlFeld key={s.k} {...s} senkrecht={senkrecht} />)}
       </div>
       <div style={{ background: "#EEF1F5", border: `1px solid ${C.linie}`, borderRadius: 10, padding: "8px 6px", marginBottom: 6 }}>
-        <FormelZeile items={kopf} groesse="clamp(12px, 3.6vw, 16px)" />
+        <FormelZeile items={kopf} groesse={senkrecht ? 14.5 : "clamp(12px, 3.6vw, 16px)"} />
       </div>
       <div style={{ padding: "6px 0 2px" }}>
-        <FormelZeile items={funktion} groesse="clamp(14px, 4.4vw, 21px)" />
+        <FormelZeile items={funktion} groesse={senkrecht ? 19 : "clamp(14px, 4.4vw, 21px)"} />
       </div>
     </div>
   );
@@ -317,7 +337,7 @@ function zufallKoeff() {
 
 const imRahmen = (z) => Math.abs(wNum(z)) <= WZ_GRENZE;
 
-export function ScheitelErkunden() {
+export function ScheitelErkunden({ kopf } = {}) {
   const [eingabe, setEingabe] = useState("koeff");            // "koeff" = ax² + bx + c, "scheitel" = a(x − xₛ)² + yₛ
   const [a, setA] = useState(wZ(1));
   const [b, setB] = useState(wZ(-4));
@@ -359,7 +379,7 @@ export function ScheitelErkunden() {
 
   /* Kopfzeile (allgemeine Form) und eingesetzte Funktion – Terme in der Farbe ihres Feldes */
   const op = (z) => ({ t: wNegativ(z) ? "−" : "+" });
-  const kopf = koeff
+  const kopf_ = koeff
     ? [{ t: "a", k: "a" }, { t: "\\cdot x^2", eng: true }, { t: "+" }, { t: "b", k: "b" }, { t: "\\cdot x", eng: true }, { t: "+" }, { t: "c", k: "c" }]
     : [{ t: "a", k: "a" }, { t: "\\cdot (x −" }, { t: "x_s", k: "xs" }, { t: ")^2", eng: true }, { t: "+" }, { t: "y_s", k: "ys" }];
   const betragOhne1 = (z) => (wIstEins(wBetrag(z)) ? "" : wBetragTex(z));
@@ -378,42 +398,94 @@ export function ScheitelErkunden() {
   }
 
   const scheitelName = exakt ? `S(${wText(p.d)}|${wText(p.e)})` : `S(${dez(dN)}|${dez(eN)})`;
+  const eingabeWahl = (
+    <Auswahl optionen={[["koeff", zw("Koeffizienten", "Coefficients")], ["scheitel", zw("Scheitelform", "Vertex form")]]}
+      wert={eingabe} setWert={wechseln} label={zw("Eingabe der Parabel", "Input of the parabola")} />
+  );
+  const erklaerText = koeff
+    ? <Text>{zw("Mit a drehst du die Öffnung und stauchst oder streckst, b und c verschieben die Parabel – c ist der y-Achsenabschnitt.", "a flips the opening and stretches or squashes; b and c move the parabola – c is the y-intercept.")}</Text>
+    : <Text>{zw("Mit a drehst du die Öffnung und stauchst oder streckst, ", "a flips the opening and stretches or squashes, ")}<Buchstabe k="xs" />{zw(" schiebt nach rechts, ", " shifts to the right, ")}<Buchstabe k="ys" />{zw(" nach oben.", " upwards.")}</Text>;
+  const tipp = (
+    <p style={{ fontSize: 12.5, lineHeight: 1.5, color: C.grau, margin: "10px 0 0" }}>
+      {zw("Tipp: Tippe auf eine Zahl und gib sie direkt ein – auch als Bruch (1/2), Kommazahl (0,5) oder Wurzel (√5, −√7).", "Tip: tap a number and type it directly – also as a fraction (1/2), decimal (0.5) or root (√5, −√7).")}
+    </p>
+  );
+  const zufallKnopf = <GrosserKnopf ghost onClick={zufall}>🎲 {zw("Zufällige Parabel", "Random parabola")}</GrosserKnopf>;
+  const ausserhalbHinweis = ausserhalb && <Rueck art="info">{zw("Der Scheitel liegt außerhalb des Bildausschnitts (−10 bis 10) – das Schaubild zeigt nur einen Teil der Parabel.", "The vertex lies outside the graph window (−10 to 10) – the graph shows only part of the parabola.")}</Rueck>;
+  const bild = (desk) => (
+    <ParabelBild desk={desk} kurven={[{ f: fW(p), farbe: C.see }]} senkrechte={[{ x: dN }]}
+      punkte={[{ x: dN, y: eN, farbe: C.flaggold, name: scheitelName, unten: aN < 0 ? false : true }]}
+      legende={[[C.see, "f"], [C.hellgrau, zw("Symmetrieachse", "axis of symmetry"), true], [C.flaggold, zw("Scheitelpunkt", "vertex"), false, true]]} />
+  );
+  const formeln = (
+    <>
+      {koeff
+        ? <><Formel gross t={`f(x) = ${normalTexW(p)}`} /><Formel gross t={`f(x) = ${scheitelTexW(p.a, p.d, p.e)}`} /></>
+        : <><Formel gross t={`f(x) = ${scheitelTexW(p.a, p.d, p.e)}`} /><Formel gross t={`f(x) = ${normalTexW(p)}`} /></>}
+      <Text>{zw("Scheitelpunkt", "Vertex")} <b>S({wText(p.d)} | {wText(p.e)})</b>{!exakt && <> ≈ ({dez(dN)} | {dez(eN)})</>} · {aN > 0 ? zw("nach oben geöffnet (a > 0): Tiefpunkt", "opens upwards (a > 0): minimum") : zw("nach unten geöffnet (a < 0): Hochpunkt", "opens downwards (a < 0): maximum")}</Text>
+    </>
+  );
+  const rechenweg = (
+    <Aufklapp titel={zw("Von der Normalform zum Scheitelpunkt – so rechnest du", "From normal form to the vertex – how to calculate it")}>
+      <Rechenweg p={p} />
+    </Aufklapp>
+  );
+
+  /* Desktop (kopf vom Parabel-Trainer): Einstellungen links, Schaubild rechts, Formeln und Rechenweg darunter */
+  if (kopf) {
+    return (
+      <>
+        <Arbeitsflaeche
+          links={<>
+            {kopf}
+            <FeinKarte>
+              <p style={kicker}>{zw("Stelle die Parabel ein", "Set up the parabola")}</p>
+              <div style={{ margin: "4px 0 10px" }}>{eingabeWahl}</div>
+              {erklaerText}
+            </FeinKarte>
+            <div style={toenKarte(C.see)}>
+              <ParamKopf spalten={spalten} kopf={kopf_} funktion={funktion} senkrecht />
+            </div>
+            <FeinKarte>{tipp}<div style={{ marginTop: -2 }}>{zufallKnopf}</div></FeinKarte>
+          </>}
+          rechts={<>
+            {ausserhalbHinweis}
+            <BildKarte>{bild(true)}</BildKarte>
+          </>} />
+        <FeinKarte style={{ marginTop: 20 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)", columnGap: 32, alignItems: "start" }}>
+            <div style={{ minWidth: 0 }}>{formeln}</div>
+            <div style={{ minWidth: 0, marginTop: -10 }}>{rechenweg}</div>
+          </div>
+        </FeinKarte>
+      </>
+    );
+  }
+
   return (
     <>
       <div style={karte}>
         <p style={kicker}>{zw("Stelle die Parabel ein", "Set up the parabola")}</p>
         <div style={{ margin: "4px 0 12px" }}>
-          <Auswahl optionen={[["koeff", zw("Koeffizienten", "Coefficients")], ["scheitel", zw("Scheitelform", "Vertex form")]]}
-            wert={eingabe} setWert={wechseln} label={zw("Eingabe der Parabel", "Input of the parabola")} />
+          {eingabeWahl}
         </div>
-        {koeff
-          ? <Text>{zw("Mit a drehst du die Öffnung und stauchst oder streckst, b und c verschieben die Parabel – c ist der y-Achsenabschnitt.", "a flips the opening and stretches or squashes; b and c move the parabola – c is the y-intercept.")}</Text>
-          : <Text>{zw("Mit a drehst du die Öffnung und stauchst oder streckst, ", "a flips the opening and stretches or squashes, ")}<Buchstabe k="xs" />{zw(" schiebt nach rechts, ", " shifts to the right, ")}<Buchstabe k="ys" />{zw(" nach oben.", " upwards.")}</Text>}
+        {erklaerText}
         <div style={{ margin: "12px 0 4px" }}>
-          <ParamKopf spalten={spalten} kopf={kopf} funktion={funktion} />
+          <ParamKopf spalten={spalten} kopf={kopf_} funktion={funktion} />
         </div>
-        <p style={{ fontSize: 12.5, lineHeight: 1.5, color: C.grau, margin: "10px 0 0" }}>
-          {zw("Tipp: Tippe auf eine Zahl und gib sie direkt ein – auch als Bruch (1/2), Kommazahl (0,5) oder Wurzel (√5, −√7).", "Tip: tap a number and type it directly – also as a fraction (1/2), decimal (0.5) or root (√5, −√7).")}
-        </p>
-        <GrosserKnopf ghost onClick={zufall}>🎲 {zw("Zufällige Parabel", "Random parabola")}</GrosserKnopf>
+        {tipp}
+        {zufallKnopf}
       </div>
 
       <div style={{ ...karte, marginTop: 12 }}>
-        {ausserhalb && <Rueck art="info">{zw("Der Scheitel liegt außerhalb des Bildausschnitts (−10 bis 10) – das Schaubild zeigt nur einen Teil der Parabel.", "The vertex lies outside the graph window (−10 to 10) – the graph shows only part of the parabola.")}</Rueck>}
+        {ausserhalbHinweis}
         <div style={{ marginTop: ausserhalb ? 12 : 0 }}>
-          <ParabelBild kurven={[{ f: fW(p), farbe: C.see }]} senkrechte={[{ x: dN }]}
-            punkte={[{ x: dN, y: eN, farbe: C.flaggold, name: scheitelName, unten: aN < 0 ? false : true }]}
-            legende={[[C.see, "f"], [C.hellgrau, zw("Symmetrieachse", "axis of symmetry"), true], [C.flaggold, zw("Scheitelpunkt", "vertex"), false, true]]} />
+          {bild(false)}
         </div>
         <div style={{ marginTop: 12 }}>
-          {koeff
-            ? <><Formel gross t={`f(x) = ${normalTexW(p)}`} /><Formel gross t={`f(x) = ${scheitelTexW(p.a, p.d, p.e)}`} /></>
-            : <><Formel gross t={`f(x) = ${scheitelTexW(p.a, p.d, p.e)}`} /><Formel gross t={`f(x) = ${normalTexW(p)}`} /></>}
-          <Text>{zw("Scheitelpunkt", "Vertex")} <b>S({wText(p.d)} | {wText(p.e)})</b>{!exakt && <> ≈ ({dez(dN)} | {dez(eN)})</>} · {aN > 0 ? zw("nach oben geöffnet (a > 0): Tiefpunkt", "opens upwards (a > 0): minimum") : zw("nach unten geöffnet (a < 0): Hochpunkt", "opens downwards (a < 0): maximum")}</Text>
+          {formeln}
         </div>
-        <Aufklapp titel={zw("Von der Normalform zum Scheitelpunkt – so rechnest du", "From normal form to the vertex – how to calculate it")}>
-          <Rechenweg p={p} />
-        </Aufklapp>
+        {rechenweg}
       </div>
     </>
   );
@@ -686,7 +758,7 @@ function nullGleichungText(p) {
   return teile.map((z, i) => (i === 0 ? (z.neg ? "-" : "") + z.t : ` ${z.neg ? "-" : "+"} ${z.t}`)).join("") + " = 0";
 }
 
-export function NullstellenSeite() {
+export function NullstellenSeite({ kopf } = {}) {
   const [verf, setVerf] = useState("mitternacht");
   const [aufg, setAufg] = useState(() => neueNullAufgabe("mitternacht"));
   const [stand, setStand] = useState(0);
@@ -709,49 +781,96 @@ export function NullstellenSeite() {
     return zw("Fertig.", "Done.");
   })();
   const roots = fertig ? n.xs.map((x, i) => ({ x, y: 0, farbe: C.gruen, name: n.anzahl === 1 ? "N" : `N${i === 0 ? "₁" : "₂"}`, links: n.anzahl === 2 && i === 0, unten: true })) : [];
+  const verfahrenWahl = <Auswahl optionen={[["mitternacht", zw("Mitternachtsformel", "Quadratic formula")], ["vieta", zw("Satz von Vieta", "Vieta's theorem")]]} wert={verf} setWert={wechsel} label={zw("Verfahren", "Method")} />;
+  const verfahrenText = <Text>{verf === "vieta"
+    ? zw("Vieta ist der schnelle Weg, wenn die Nullstellen ganze Zahlen sind: Summe und Produkt verraten sie.", "Vieta is the quick way when the roots are integers: sum and product reveal them.")
+    : zw("Die Mitternachtsformel funktioniert immer – D verrät vorher, wie viele Nullstellen es gibt.", "The quadratic formula always works – D tells you beforehand how many roots there are.")}</Text>;
+  const aufgabeBox = (
+    <div style={{ background: C.sand, borderRadius: 12, padding: "6px 12px", margin: "8px 0" }}>
+      <Formel gross t={`f(x) = ${normalTex(p)}`} />
+      <div style={{ fontSize: 13, color: C.grau }}><MS s={`a = ${qt(p.a)}, b = ${qt(p.b)}, c = ${qt(p.c)}`} /></div>
+    </div>
+  );
+  const schritteListe = <SchrittFolge key={aufg.id} schritte={schritte} stand={stand} setStand={setStand} fertigText={probe} />;
+  const weiter = fertig && (
+    <WeiterMit titel={zw("Weiter mit dieser Gleichung", "Continue with this equation")}>
+      <WeiterKnopf ziel="gleichungen" von="Parabeln" daten={{ text: nullGleichungText(p) }}
+        zeile={zw("f(x) = 0 Schritt für Schritt selbst umformen – ohne Formel", "Rearrange f(x) = 0 step by step yourself – without the formula")} />
+    </WeiterMit>
+  );
+  const neuKnopf = <GrosserKnopf gold onClick={() => neu()}>{zw("Neue Aufgabe", "New exercise")}</GrosserKnopf>;
+  const kurz = (
+    <Aufklapp titel={zw("Kurz erklärt", "In short")}>
+      {verf === "vieta" ? (
+        <>
+          <Text>{zw("Hat die Gleichung die Form x² + px + q = 0 und die Nullstellen x₁, x₂, dann gilt:", "If the equation has the form x² + px + q = 0 and the roots x₁, x₂, then:")}</Text>
+          <Formel t="x_1 + x_2 = −p \quad\text{und}\quad x_1 \cdot x_2 = q" />
+          <Text>{zw("Gilt a ≠ 1, teile zuerst durch a. Dann suchst du ganze Zahlen mit dem Produkt q und der Summe −p.", "If a ≠ 1, divide by a first. Then look for integers with product q and sum −p.")}</Text>
+        </>
+      ) : (
+        <>
+          <Formel t="x_{1,2} = \frac{−b \pm \sqrt{b^2 − 4ac}}{2a}" />
+          <Text>{zw("Unter der Wurzel steht die Diskriminante D = b² − 4ac: D > 0 zwei Nullstellen, D = 0 eine, D < 0 keine.", "Under the root is the discriminant D = b² − 4ac: D > 0 two roots, D = 0 one, D < 0 none.")}</Text>
+        </>
+      )}
+    </Aufklapp>
+  );
+  const hilfeZeile = <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfeNull(aufg)} /></div>;
+  const bild = (desk) => (
+    <ParabelBild desk={desk} kurven={[{ f: fVon(p), farbe: C.see }]}
+      punkte={[{ x: qNum(p.d), y: qNum(p.e), farbe: C.flaggold, hohl: true, name: "S", unten: qNum(p.a) < 0 ? false : true }, ...roots]}
+      legende={[[C.see, "f"], [C.flaggold, zw("Scheitelpunkt", "vertex"), false, true], ...(fertig && n.anzahl > 0 ? [[C.gruen, zw("Nullstellen", "roots"), false, true]] : [])]} />
+  );
+  const bildHinweis = !fertig && <Text>{zw("Die Nullstellen erscheinen im Schaubild, sobald du sie gefunden hast.", "The roots appear in the graph as soon as you have found them.")}</Text>;
+
+  /* Desktop: Verfahren und Funktion links, Schaubild rechts, Rechenschritte darunter */
+  if (kopf) {
+    return (
+      <>
+        <Arbeitsflaeche
+          links={<>
+            {kopf}
+            <FeinKarte>
+              <p style={kicker}>{zw("Nullstellen bestimmen", "Find the roots")}</p>
+              {verfahrenWahl}
+              {verfahrenText}
+              {aufgabeBox}
+              {neuKnopf}
+            </FeinKarte>
+          </>}
+          rechts={<>
+            <BildKarte>{bild(true)}</BildKarte>
+            {bildHinweis && <div style={{ padding: "0 4px" }}>{bildHinweis}</div>}
+          </>} />
+        <FeinKarte style={{ marginTop: 20 }}>
+          <p style={kicker}>{zw("Rechenweg", "Working")}</p>
+          {schritteListe}
+          {weiter}
+          {kurz}
+          {hilfeZeile}
+        </FeinKarte>
+      </>
+    );
+  }
+
   return (
     <>
       <div style={karte}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8, flexWrap: "wrap" }}>
           <p style={kicker}>{zw("Nullstellen bestimmen", "Find the roots")}</p>
         </div>
-        <Auswahl optionen={[["mitternacht", zw("Mitternachtsformel", "Quadratic formula")], ["vieta", zw("Satz von Vieta", "Vieta's theorem")]]} wert={verf} setWert={wechsel} label={zw("Verfahren", "Method")} />
-        <Text>{verf === "vieta"
-          ? zw("Vieta ist der schnelle Weg, wenn die Nullstellen ganze Zahlen sind: Summe und Produkt verraten sie.", "Vieta is the quick way when the roots are integers: sum and product reveal them.")
-          : zw("Die Mitternachtsformel funktioniert immer – D verrät vorher, wie viele Nullstellen es gibt.", "The quadratic formula always works – D tells you beforehand how many roots there are.")}</Text>
-        <div style={{ background: C.sand, borderRadius: 12, padding: "6px 12px", margin: "8px 0" }}>
-          <Formel gross t={`f(x) = ${normalTex(p)}`} />
-          <div style={{ fontSize: 13, color: C.grau }}><MS s={`a = ${qt(p.a)}, b = ${qt(p.b)}, c = ${qt(p.c)}`} /></div>
-        </div>
-        <SchrittFolge key={aufg.id} schritte={schritte} stand={stand} setStand={setStand} fertigText={probe} />
-        {fertig && (
-          <WeiterMit titel={zw("Weiter mit dieser Gleichung", "Continue with this equation")}>
-            <WeiterKnopf ziel="gleichungen" von="Parabeln" daten={{ text: nullGleichungText(p) }}
-              zeile={zw("f(x) = 0 Schritt für Schritt selbst umformen – ohne Formel", "Rearrange f(x) = 0 step by step yourself – without the formula")} />
-          </WeiterMit>
-        )}
-        <GrosserKnopf gold onClick={() => neu()}>{zw("Neue Aufgabe", "New exercise")}</GrosserKnopf>
-        <Aufklapp titel={zw("Kurz erklärt", "In short")}>
-          {verf === "vieta" ? (
-            <>
-              <Text>{zw("Hat die Gleichung die Form x² + px + q = 0 und die Nullstellen x₁, x₂, dann gilt:", "If the equation has the form x² + px + q = 0 and the roots x₁, x₂, then:")}</Text>
-              <Formel t="x_1 + x_2 = −p \quad\text{und}\quad x_1 \cdot x_2 = q" />
-              <Text>{zw("Gilt a ≠ 1, teile zuerst durch a. Dann suchst du ganze Zahlen mit dem Produkt q und der Summe −p.", "If a ≠ 1, divide by a first. Then look for integers with product q and sum −p.")}</Text>
-            </>
-          ) : (
-            <>
-              <Formel t="x_{1,2} = \frac{−b \pm \sqrt{b^2 − 4ac}}{2a}" />
-              <Text>{zw("Unter der Wurzel steht die Diskriminante D = b² − 4ac: D > 0 zwei Nullstellen, D = 0 eine, D < 0 keine.", "Under the root is the discriminant D = b² − 4ac: D > 0 two roots, D = 0 one, D < 0 none.")}</Text>
-            </>
-          )}
-        </Aufklapp>
-        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfeNull(aufg)} /></div>
+        {verfahrenWahl}
+        {verfahrenText}
+        {aufgabeBox}
+        {schritteListe}
+        {weiter}
+        {neuKnopf}
+        {kurz}
+        {hilfeZeile}
       </div>
       <div style={{ ...karte, marginTop: 12 }}>
-        <ParabelBild kurven={[{ f: fVon(p), farbe: C.see }]}
-          punkte={[{ x: qNum(p.d), y: qNum(p.e), farbe: C.flaggold, hohl: true, name: "S", unten: qNum(p.a) < 0 ? false : true }, ...roots]}
-          legende={[[C.see, "f"], [C.flaggold, zw("Scheitelpunkt", "vertex"), false, true], ...(fertig && n.anzahl > 0 ? [[C.gruen, zw("Nullstellen", "roots"), false, true]] : [])]} />
-        {!fertig && <Text>{zw("Die Nullstellen erscheinen im Schaubild, sobald du sie gefunden hast.", "The roots appear in the graph as soon as you have found them.")}</Text>}
+        {bild(false)}
+        {bildHinweis}
       </div>
     </>
   );
@@ -763,7 +882,7 @@ export function NullstellenSeite() {
 const A_BRENN = [["1/4", "¼"], ["1/2", "½"], ["1", "1"], ["2", "2"]];
 const vTex = (v) => `(${qTex(v.x)} \\,|\\, ${qTex(v.y)})`;
 
-export function BrennpunktSeite() {
+export function BrennpunktSeite({ kopf } = {}) {
   const [aId, setAId] = useState("1/2");
   const [d, setD] = useState(-1);
   const [e, setE] = useState(-2);
@@ -782,35 +901,118 @@ export function BrennpunktSeite() {
   const mN = qNum(b.m);
   const tText = `y = ${qNull(b.m) ? "" : `${qTex(b.m)} \\cdot x`}${qNull(b.m) ? qTex(b.t0) : qNull(b.t0) ? "" : ` ${vz(b.t0)} ${qTex(betrag(b.t0))}`}`;
   const nText = b.nQ ? `y = ${qTex(b.nQ)} \\cdot x${qNull(b.n0) ? "" : ` ${vz(b.n0)} ${qTex(betrag(b.n0))}`}` : `x = ${qTex(b.P.x)}`;
+  const textOben = <Text>{zw("Eine Lampe im Brennpunkt F: Jeder Strahl, der von F auf die Parabel trifft, wird so gespiegelt, dass er parallel zur Symmetrieachse nach oben läuft – so funktioniert ein Scheinwerfer.", "A lamp at the focus F: every ray from F that hits the parabola is reflected so that it travels upwards, parallel to the axis of symmetry – this is how a headlight works.")}</Text>;
+  const aWahl = <Auswahl optionen={A_BRENN} wert={aId} setWert={setAId} label="a" />;
+  const zufallKnopf = <GrosserKnopf ghost onClick={zufall}>🎲 {zw("Zufällige Parabel und Punkt", "Random parabola and point")}</GrosserKnopf>;
+  const bild = (desk) => (
+    <ParabelBild desk={desk} kurven={[{ f: fVon(p), farbe: C.see }]}
+            senkrechte={[{ x: d }]} waagerechte={[{ y: qNum(b.leit), farbe: C.signal }]}
+            linien={[
+              { von: [u, yP], nach: [u + 1, yP + mN], farbe: C.see, gestrichelt: true, unendlich: true, breite: 1.8 },
+              ...(b.nQ ? [{ von: [u, yP], nach: [u + 1, yP + qNum(b.nQ)], farbe: C.grau, gestrichelt: true, unendlich: true, breite: 1.8 }]
+                : [{ von: [u, yP], nach: [u, yP + 1], farbe: C.grau, gestrichelt: true, unendlich: true, breite: 1.8 }]),
+              { von: [d, Fy], nach: [u, yP], farbe: C.gruen, pfeil: true, breite: 2.6 },
+              { von: [u, yP], nach: [u, FENSTER - 0.2], farbe: C.goldWarm, pfeil: true, breite: 2.8 },
+            ]}
+            punkte={[
+              { x: d, y: Fy, farbe: C.gruen, name: `F(${qtp(b.F.x)}|${qtp(b.F.y)})`, unten: false, links: u > d },
+              { x: u, y: yP, farbe: C.flaggold, name: "P", links: u < d, unten: true },
+            ]}
+            legende={[[C.see, "f"], [C.gruen, zw("Strahl F → P", "ray F → P")], [C.goldWarm, zw("gespiegelter Strahl", "reflected ray")], [C.see, zw("Tangente", "tangent"), true], [C.grau, zw("Normale", "normal"), true], [C.signal, zw("Leitlinie", "directrix"), true], [C.hellgrau, zw("Symmetrieachse", "axis"), true]]} />
+  );
+
+  /* Desktop: Parabel und Punkt links (Regler senkrecht), Schaubild rechts, Rechenschritte darunter paarweise */
+  if (kopf) {
+    return (
+      <>
+        <Arbeitsflaeche
+          links={<>
+            {kopf}
+            <FeinKarte>
+              <p style={kicker}>{zw("Parabel und Lichtpunkt wählen", "Choose parabola and point")}</p>
+              {textOben}
+              <div style={{ margin: "8px 0 0" }}>{aWahl}</div>
+            </FeinKarte>
+            <div style={toenKarte(C.see)}>
+              <ReglerReihe>
+                <SenkrechtRegler name="d" wert={d} setze={setD} min={-5} max={5} plusLabel="d +1" minusLabel="d −1" />
+                <SenkrechtRegler name="e" wert={e} setze={setE} min={-5} max={5} plusLabel="e +1" minusLabel="e −1" />
+                <SenkrechtRegler name="P" wert={sK} setze={setS} min={-mx} max={mx} farbe={C.goldWarm}
+                  plusLabel={`${zw("Abstand von P zur Achse", "Distance of P from the axis")} +1`} minusLabel={`${zw("Abstand von P zur Achse", "Distance of P from the axis")} −1`} />
+              </ReglerReihe>
+              <div style={{ marginTop: -2 }}>{zufallKnopf}</div>
+            </div>
+          </>}
+          rechts={<BildKarte>{bild(true)}</BildKarte>} />
+        <div data-brenn-schritte style={{ marginTop: 20, display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 16, alignItems: "stretch" }}>
+        <Rechenschritt fein nr="1" titel={zw("Brennpunkt und Leitlinie", "Focus and directrix")}>
+          <Text>{zw("Für f(x) = a(x − d)² + e liegt der Brennpunkt senkrecht über dem Scheitel, im Abstand $p = \\frac{1}{4a}$:", "For f(x) = a(x − d)² + e the focus lies directly above the vertex at distance $p = \\frac{1}{4a}$:")}</Text>
+          <Formel gross t="F\left(d \,|\, e + \frac{1}{4a}\right)" />
+          <Formel t={`p = \\frac{1}{4a} = \\frac{1}{4 \\cdot ${kl(a)}} = ${qTex(b.p)}`} />
+          <Formel t={`F(${qTex(b.F.x)} \\,|\\, ${kl(q(e))} + ${qTex(b.p)}) = F(${qTex(b.F.x)} \\,|\\, ${qTex(b.F.y)})`} />
+          <Text>{zw("Die Leitlinie liegt ebenso weit unter dem Scheitel:", "The directrix lies just as far below the vertex:")} <M t={`y = e − p = ${qTex(b.leit)}`} /></Text>
+        </Rechenschritt>
+
+        <Rechenschritt fein nr="2" titel={zw("Der Punkt P auf der Parabel", "The point P on the parabola")}>
+          <Formel t={`f(${qTex(q(u))}) = ${kl(a)} \\cdot (${qTex(q(u))} − ${kl(q(d))})^2 + ${kl(q(e))} = ${qTex(b.P.y)}`} />
+          <Text>→ <b><MS s={`P(${minusZ(u)} | ${qt(b.P.y)})`} /></b></Text>
+        </Rechenschritt>
+
+        <Rechenschritt fein nr="3" titel={zw("Tangente und Normale – hier kommt die Ableitung", "Tangent and normal – here the derivative comes in")}>
+          <Formel t="f′(x) = 2a(x − d)" />
+          <Formel t={`m = f′(${qTex(q(u))}) = 2 \\cdot ${kl(a)} \\cdot (${qTex(q(u))} − ${kl(q(d))}) = ${qTex(b.m)}`} />
+          <Text>{zw("Tangente in P (Steigung m):", "Tangent at P (slope m):")} <M t={`t:\\; ${tText}`} /></Text>
+          <Text>{qNull(b.m) ? zw("Die Tangente ist waagerecht, die Normale steht senkrecht darauf:", "The tangent is horizontal, the normal is vertical:") : zw("Die Normale steht senkrecht auf der Tangente (Steigung −1/m):", "The normal is perpendicular to the tangent (slope −1/m):")} <M t={`n:\\; ${nText}`} /></Text>
+        </Rechenschritt>
+
+        <Rechenschritt fein nr="4" titel={zw("Die Linie von P zum Brennpunkt", "The line from P to the focus")}>
+          <Formel t={`\\vec{w} = \\vec{PF} = F − P = ${vTex(b.w)}`} />
+        </Rechenschritt>
+
+        <Rechenschritt fein nr="5" titel={zw("An der Normalen spiegeln", "Reflect in the normal")}>
+          <Text>{zw("Die Normale hat den Richtungsvektor n = (−m | 1). Spiegelt man w an der Geraden mit Richtung n, erhält man:", "The normal has direction vector n = (−m | 1). Reflecting w in the line with direction n gives:")}</Text>
+          <Formel t="\vec{r} = 2 \cdot \frac{\vec{w} \cdot \vec{n}}{\vec{n} \cdot \vec{n}} \cdot \vec{n} − \vec{w}" />
+          <Formel t={`\\vec{n} = ${vTex(b.n)}`} />
+          <Formel t={`\\vec{w} \\cdot \\vec{n} = ${kl(b.w.x)} \\cdot ${kl(b.n.x)} + ${kl(b.w.y)} \\cdot 1 = ${qTex(b.wn)}`} />
+          <Formel t={`\\vec{n} \\cdot \\vec{n} = ${qTex(b.nn)}`} />
+          <Formel t={`\\vec{r} = 2 \\cdot \\frac{${qTex(b.wn)}}{${qTex(b.nn)}} \\cdot ${vTex(b.n)} − ${vTex(b.w)}`} />
+          <Formel t={`\\vec{r} = ${vTex(b.r)}`} />
+        </Rechenschritt>
+
+        <Rechenschritt fein nr="6" titel={zw("Ergebnis: Der Strahl läuft senkrecht nach oben", "Result: the ray runs straight upwards")}>
+          <Rueck art="gut">{zw("Die x-Komponente von r ist 0: Der gespiegelte Strahl ist senkrecht und damit parallel zur Symmetrieachse x = ", "The x-component of r is 0: the reflected ray is vertical and therefore parallel to the axis x = ")}<MS s={qt(q(d))} />{zw(". Die y-Komponente ist positiv: Er läuft nach oben.", ". The y-component is positive: it runs upwards.")}</Rueck>
+          <Text>{zw("Bonus: Die Länge bleibt beim Spiegeln gleich – |r| = |w| =", "Bonus: reflecting keeps the length – |r| = |w| =")} <b><MS s={qt(b.laenge)} /></b> {zw("= Abstand von P zur Leitlinie.", "= distance of P from the directrix.")}</Text>
+          <Aufklapp titel={zw("Gilt das für jeden Punkt? Beweis mit s = u − d", "Does it hold for every point? Proof with s = u − d")}>
+            <Formel t="P(d + s \,|\, e + as^2),\quad F\left(d \,|\, e + \frac{1}{4a}\right)" />
+            <Formel t="\vec{w} = \left(−s \,|\, \frac{1}{4a} − as^2\right),\quad \vec{n} = (−2as \,|\, 1)" />
+            <Formel t="\vec{w} \cdot \vec{n} = 2as^2 + \frac{1}{4a} − as^2 = as^2 + \frac{1}{4a}" />
+            <Formel t="\vec{n} \cdot \vec{n} = 4a^2s^2 + 1 = 4a\left(as^2 + \frac{1}{4a}\right)" />
+            <Formel t="\Rightarrow\; 2 \cdot \frac{\vec{w} \cdot \vec{n}}{\vec{n} \cdot \vec{n}} = \frac{1}{2a}" />
+            <Formel t="\vec{r} = \frac{1}{2a}(−2as \,|\, 1) − \vec{w} = \left(0 \,|\, as^2 + \frac{1}{4a}\right)" />
+            <Text>{zw("Für jedes s ist die x-Komponente 0 und die y-Komponente positiv (a > 0): Alle Strahlen aus dem Brennpunkt laufen parallel nach oben. Umgekehrt bündelt eine Satellitenschüssel parallel einfallende Signale im Brennpunkt.", "For every s the x-component is 0 and the y-component positive (a > 0): all rays from the focus run upwards in parallel. Conversely, a satellite dish gathers parallel incoming signals at the focus.")}</Text>
+          </Aufklapp>
+        </Rechenschritt>
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
       <div style={karte}>
         <p style={kicker}>{zw("Parabel und Lichtpunkt wählen", "Choose parabola and point")}</p>
-        <Text>{zw("Eine Lampe im Brennpunkt F: Jeder Strahl, der von F auf die Parabel trifft, wird so gespiegelt, dass er parallel zur Symmetrieachse nach oben läuft – so funktioniert ein Scheinwerfer.", "A lamp at the focus F: every ray from F that hits the parabola is reflected so that it travels upwards, parallel to the axis of symmetry – this is how a headlight works.")}</Text>
-        <div style={{ margin: "8px 0 12px" }}><Auswahl optionen={A_BRENN} wert={aId} setWert={setAId} label="a" /></div>
+        {textOben}
+        <div style={{ margin: "8px 0 12px" }}>{aWahl}</div>
         <div style={{ display: "flex", gap: 18, flexWrap: "wrap", alignItems: "center" }}>
           <Stufe wert={d} setWert={setD} min={-5} max={5} label="d" text="d" />
           <Stufe wert={e} setWert={setE} min={-5} max={5} label="e" text="e" />
           <Stufe wert={sK} setWert={setS} min={-mx} max={mx} label={zw("Abstand von P zur Achse", "Distance of P from the axis")} text="P" />
         </div>
-        <GrosserKnopf ghost onClick={zufall}>🎲 {zw("Zufällige Parabel und Punkt", "Random parabola and point")}</GrosserKnopf>
+        {zufallKnopf}
       </div>
 
       <div style={{ ...karte, marginTop: 12 }}>
-        <ParabelBild kurven={[{ f: fVon(p), farbe: C.see }]}
-          senkrechte={[{ x: d }]} waagerechte={[{ y: qNum(b.leit), farbe: C.signal }]}
-          linien={[
-            { von: [u, yP], nach: [u + 1, yP + mN], farbe: C.see, gestrichelt: true, unendlich: true, breite: 1.8 },
-            ...(b.nQ ? [{ von: [u, yP], nach: [u + 1, yP + qNum(b.nQ)], farbe: C.grau, gestrichelt: true, unendlich: true, breite: 1.8 }]
-              : [{ von: [u, yP], nach: [u, yP + 1], farbe: C.grau, gestrichelt: true, unendlich: true, breite: 1.8 }]),
-            { von: [d, Fy], nach: [u, yP], farbe: C.gruen, pfeil: true, breite: 2.6 },
-            { von: [u, yP], nach: [u, FENSTER - 0.2], farbe: C.goldWarm, pfeil: true, breite: 2.8 },
-          ]}
-          punkte={[
-            { x: d, y: Fy, farbe: C.gruen, name: `F(${qtp(b.F.x)}|${qtp(b.F.y)})`, unten: false, links: u > d },
-            { x: u, y: yP, farbe: C.flaggold, name: "P", links: u < d, unten: true },
-          ]}
-          legende={[[C.see, "f"], [C.gruen, zw("Strahl F → P", "ray F → P")], [C.goldWarm, zw("gespiegelter Strahl", "reflected ray")], [C.see, zw("Tangente", "tangent"), true], [C.grau, zw("Normale", "normal"), true], [C.signal, zw("Leitlinie", "directrix"), true], [C.hellgrau, zw("Symmetrieachse", "axis"), true]]} />
+        {bild(false)}
       </div>
 
       <Rechenschritt nr="1" titel={zw("Brennpunkt und Leitlinie", "Focus and directrix")}>
