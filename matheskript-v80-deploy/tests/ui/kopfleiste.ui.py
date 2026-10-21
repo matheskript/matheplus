@@ -83,7 +83,9 @@ with sync_playwright() as p:
                     page.locator("[data-hm-menue]").click(); page.wait_for_timeout(400)
                     bm = page.locator("[data-besuchermenue] [data-besucher-menue]")
                     pruefe(bm.count() == 4, f"{tag}: Besuchermenü hinter ☰ hat nicht vier Punkte")
-                    texte = [t.replace(" ", " ").strip() for t in bm.all_inner_texts()]
+                    texte = [t.replace(" ", " ").strip() for t in page.locator("[data-besuchermenue] .kl-bm-name").all_inner_texts()]
+                    kurz = page.locator("[data-besuchermenue] .kl-bm-kurz")
+                    pruefe(kurz.count() == 4 and all(h <= 20 for h in kurz.evaluate_all("es => es.map(e => e.getBoundingClientRect().height)")), f"{tag}: Kurzbeschreibung fehlt oder bricht um")
                     pruefe(texte[:2] == ["Vision", "Mathe lernen"] and texte[3] == "Blog" and texte[2].replace(" ", "") == "MathildaAI", f"{tag}: Menütexte {texte}")
                     kasten = page.locator("[data-besuchermenue]").bounding_box()
                     pruefe(kasten["x"] >= 0 and kasten["x"] + kasten["width"] <= breite + 0.5, f"{tag}: Besuchermenü ragt heraus")

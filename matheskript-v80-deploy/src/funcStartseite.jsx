@@ -276,8 +276,6 @@ html[data-start-edition="ger"] .app-wurzel { background: #FFFFFF !important; }
 .sbb-spalte { width: 100%; max-width: 783px; margin: 0 auto; padding: 0 20px; }
 .sbb-teil.ende .sbb-spalte { padding-bottom: 70px; }
 .sbb-abschnitt { margin-top: 28px; }
-.sbb-einleitung { margin: 26px 0 0; font-size: clamp(17px, 4.4vw, 22px); font-weight: 300; line-height: 1.5; color: var(--nebel); max-width: 640px; }
-.sbb-einleitung b { color: var(--titel); font-weight: 700; }
 
 /* Zonen: Heute · Lernen · Entdecken – ein Weg in drei Etappen, daher die großen Ziffern */
 .sbb-zone { margin: 44px 0 14px; display: flex; align-items: flex-end; gap: 14px; }
@@ -468,6 +466,11 @@ html[data-start-edition="ger"] .app-wurzel { background: #FFFFFF !important; }
 .sbb-schalter button { height: 30px; padding: 0 9px; border-radius: 999px; border: none; cursor: pointer; font-family: inherit; font-size: 12.5px; font-weight: 800; color: var(--nebel); background: transparent; display: inline-flex; align-items: center; gap: 6px; }
 .sbb-schalter button[aria-pressed="true"] { background: ${GOLD}; color: ${NACHT}; }
 .sbb-schalter button:focus-visible { outline: 3px solid ${GOLD}; outline-offset: 2px; }
+/* Handy (21.10.): die Pille schwebt nicht mehr über dem Inhalt, sondern steht am Ende der Startseite */
+@media (max-width: 839px) {
+  .sbb-schalter { position: static; display: flex; width: max-content; max-width: calc(100vw - 24px); margin: 6px auto 22px; box-shadow: none; backdrop-filter: none; }
+  .sbb-schalter button { padding: 0 8px; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .sbb-held-kurve .weg { animation: none; stroke-dashoffset: 0; }
@@ -824,10 +827,6 @@ export function Startseite({ gehe }) {
         <div className="sbb-abschnitt sbb-wieder" style={{ marginTop: 16 }}><MeinTrainingKachel gehe={gehe} /></div>
         <div className="sbb-abschnitt" style={{ marginTop: 14 }}><TrainingKachel gehe={gehe} setzeStufe={stufeSetzen} /></div>
         <div className="sbb-wieder"><AbiZentrumKachel onClick={() => gehe({ ansicht: "abi" })} /></div>
-        <p className="sbb-einleitung">
-          Hier wird Oberstufenmathe <b>sichtbar</b>: Graphen live plotten, Ebenen im Raum drehen, Wahrscheinlichkeiten in Tafeln und Bäumen sehen.
-          Dazu Videokurse mit Kurz-Checks und schnelle Kopfrechenrunden. Such dir einen Bereich aus und leg los.
-        </p>
 
         {/* ---------- 1 Heute ---------- */}
         <Zone nr="1" titel={"Heute trainierst du\u00A0…"} />

@@ -44,7 +44,7 @@ function Chip({ an, onClick, children, breit }) {
   );
 }
 
-const ROLLEN = [["schueler", "Ich bin Schüler:in"], ["eltern", "Ich bin Elternteil"], ["lehrkraft", "Ich unterrichte"]];
+const ROLLEN = [["schueler", "Ich bin Schüler"], ["eltern", "Ich bin Elternteil"], ["lehrkraft", "Ich unterrichte"]];
 const ZIELE = [["klausur", "Bald steht eine Klausur an"], ["abi", "Ich bereite mich aufs Abi vor"], ["luecken", "Ich will Lücken schließen"], ["ueben", "Einfach üben"]];
 const THEMEN = [["zahlen", "Zahlen und Größen"], ["bruchrechnen", "Brüche und Dezimalzahlen"], ["prozent", "Zuordnungen und Prozent"], ["daten", "Daten und Zufall"], ["gleichungen", "Terme und Gleichungen"], ["geometrie", "Geometrie"], ["analysis", "Analysis"], ["vektoren", "Vektoren"], ["stochastik", "Stochastik"]];
 

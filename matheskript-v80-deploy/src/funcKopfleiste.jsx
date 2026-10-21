@@ -136,22 +136,28 @@ const CSS = `
 .kl-bm-schleier { position: fixed; left: 0; right: 0; bottom: 0; z-index: 1; background: rgba(8,20,52,0.34); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); animation: klBlende .2s ease both; }
 .kl[data-bm-offen] .kl-zeile { position: relative; z-index: 3; }
 .kl-bm { position: absolute; top: calc(100% + 8px); right: 12px; z-index: 4; width: min(340px, calc(100vw - 24px)); box-sizing: border-box; padding: 10px;
-  background: #FFFFFF; color: ${C.seeTief}; border-radius: 22px; box-shadow: 0 24px 60px -18px rgba(5,11,31,0.55), 0 0 0 1px rgba(14,30,74,0.08);
+  background-color: #0B2763; background-image: radial-gradient(120% 60% at 100% 0%, rgba(255,229,138,0.16) 0%, rgba(255,229,138,0) 60%), linear-gradient(165deg, #0A3A80 0%, #0B2763 55%, ${NACHT} 100%);
+  color: #FFFFFF; border-radius: 22px; box-shadow: 0 24px 60px -18px rgba(5,11,31,0.75), 0 0 0 1px rgba(237,187,0,0.28), inset 0 1px 0 rgba(255,255,255,0.12);
   animation: klRein .22s cubic-bezier(.2,.7,.3,1) both; }
 .kl-bm-liste { list-style: none; margin: 0; padding: 0; }
-.kl-bm-liste button { position: relative; width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 15px 14px; border: none; border-radius: 14px;
-  background: none; cursor: pointer; color: ${C.seeTief}; font-size: 18px; font-weight: 800; letter-spacing: -0.01em; line-height: 1.1; text-align: left; }
-.kl-bm-liste li + li button { box-shadow: inset 0 1px 0 ${C.linie}; }
-.kl-bm-liste li + li button:hover, .kl-bm-liste button:hover { background: #F2F5FB; box-shadow: none; }
-.kl-bm-liste button::after { content: "→"; font-weight: 700; color: ${C.see}; transition: transform .18s ease; }
+.kl-bm-liste button { position: relative; width: 100%; display: flex; align-items: center; gap: 13px; padding: 12px 12px; border: none; border-radius: 14px;
+  background: none; cursor: pointer; color: #FFFFFF; text-align: left; }
+.kl-bm-liste li + li button { box-shadow: inset 0 1px 0 rgba(255,255,255,0.09); }
+.kl-bm-liste li + li button:hover, .kl-bm-liste button:hover { background: rgba(255,255,255,0.07); box-shadow: none; }
+.kl-bm-zeichen { flex: 0 0 auto; width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; color: ${GOLD};
+  background: linear-gradient(160deg, rgba(255,255,255,0.12), rgba(255,255,255,0.03)); box-shadow: inset 0 0 0 1px rgba(237,187,0,0.35); }
+.kl-bm-text { flex: 1 1 auto; min-width: 0; display: grid; gap: 3px; }
+.kl-bm-name { font-size: 17px; font-weight: 800; letter-spacing: -0.01em; line-height: 1.1; }
+.kl-bm-kurz { font-size: 12.5px; font-weight: 500; line-height: 1.3; color: rgba(255,255,255,0.68); }
+.kl-bm-liste button::after { content: "›"; flex: 0 0 auto; font-size: 22px; font-weight: 700; line-height: 1; color: ${GOLD}; transition: transform .18s ease; }
 .kl-bm-liste button:hover::after { transform: translateX(3px); }
-.kl-bm-liste button[aria-current="page"]::before { content: ""; position: absolute; left: 0; top: 12px; bottom: 12px; width: 3px; border-radius: 3px; background: ${GOLD}; }
-.kl-bm-liste [data-besucher-menue="mathilda"] > span > span + span { margin-left: .26em; }
-.kl-bm-fuss { display: grid; gap: 8px; margin-top: 8px; padding-top: 10px; border-top: 1px solid ${C.linie}; }
+.kl-bm-liste button[aria-current="page"]::before { content: ""; position: absolute; left: 0; top: 14px; bottom: 14px; width: 3px; border-radius: 3px; background: ${GOLD}; }
+.kl-bm-liste [data-besucher-menue="mathilda"] .kl-bm-name > span > span + span { margin-left: .26em; }
+.kl-bm-fuss { display: grid; gap: 8px; margin-top: 8px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.12); }
 .kl-bm-anmelden { height: 46px; border-radius: 999px; border: none; cursor: pointer; font-size: 15px; font-weight: 800; color: ${NACHT};
   background: linear-gradient(180deg, ${GOLD_HELL} 0%, ${GOLD} 100%); box-shadow: 0 8px 20px -10px rgba(237,187,0,0.9), inset 0 1px 0 rgba(255,255,255,.6); }
-.kl-bm-alles { height: 42px; border-radius: 999px; border: 1.5px solid ${C.linie}; background: #FFFFFF; cursor: pointer; font-size: 13.5px; font-weight: 700; color: ${C.see}; }
-.kl-bm-alles:hover { border-color: ${C.see}; }
+.kl-bm-alles { height: 42px; border-radius: 999px; border: 1.5px solid rgba(255,255,255,0.28); background: rgba(255,255,255,0.06); cursor: pointer; font-size: 13.5px; font-weight: 700; color: #FFFFFF; }
+.kl-bm-alles:hover { border-color: ${GOLD}; }
 .kl-bm button { font-family: inherit; }
 @keyframes klBlende { from { opacity: 0; } }
 @keyframes klRein { from { opacity: 0; transform: translateY(-6px) scale(.98); } }
@@ -226,6 +232,15 @@ html[data-start-edition="ger"] .seiten-fuss .fuss-zeichen { color: #FF2B2B !impo
 `;
 
 /* ---------- Modus der Startseite als Hook (dieselbe Quelle wie die Pille unten links) ---------- */
+/* Zeichen im Besuchermenü (Gold auf Dunkelblau, 22 px) */
+function BesucherZeichen({ id }) {
+  const g = { width: 22, height: 22, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.9, strokeLinecap: "round", strokeLinejoin: "round" };
+  if (id === "vision") return <svg {...g}><path d="M3 18 L9 9 L13 14 L16 10 L21 18 Z" /><circle cx="17" cy="5.5" r="2" fill="currentColor" stroke="none" /></svg>;
+  if (id === "lernen") return <svg {...g}><path d="M3 20 C7 20 9 7 13 7 S19 12 21 4" /><path d="M3 4 V20 H21" opacity=".55" /></svg>;
+  if (id === "mathilda") return <svg {...g}><rect x="4" y="3" width="13" height="18" rx="2" /><path d="M7.5 8h6M7.5 11.5h6M7.5 15h3" /><path d="M14.5 16.5 l2 2 l4 -4.5" /></svg>;
+  return <svg {...g}><path d="M5 4 h10 l4 4 v12 H5 Z" /><path d="M8.5 11h7M8.5 14.5h7M8.5 18h4" /></svg>;
+}
+
 export function useKopfModus() {
   const [v, setV] = useState(startModus);
   useEffect(() => {
@@ -394,7 +409,11 @@ export function Kopfleiste({ ansicht, gehe, zurStartseite, hmOffen, setHmOffen, 
               {BESUCHER_MENUE.map((e) => (
                 <li key={e.id}>
                   <button type="button" onClick={() => menueZu(e)} aria-current={aktiv === e.id ? "page" : undefined} data-besucher-menue={e.id}>
-                    {e.id === "mathilda" ? <MathildaName dunkel={false} /> : e.name}
+                    <span className="kl-bm-zeichen" aria-hidden="true"><BesucherZeichen id={e.id} /></span>
+                    <span className="kl-bm-text">
+                      <span className="kl-bm-name">{e.id === "mathilda" ? <MathildaName dunkel /> : e.name}</span>
+                      <span className="kl-bm-kurz" data-kein-i18n>{en ? e.kurzEn : e.kurz}</span>
+                    </span>
                   </button>
                 </li>
               ))}

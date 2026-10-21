@@ -1,7 +1,7 @@
 /* ======================================================================
    Klassen-Challenge (Ansicht „challenge“)
    Lehrkraft: Klasse wählen, Challenge einschalten, Code teilen, Rangliste sehen.
-   Schüler:in: mit Code beitreten, Spitzname setzen, Wochenrangliste sehen.
+   Schüler: mit Code beitreten, Spitzname setzen, Wochenrangliste sehen.
    Punkte = richtig gelöste Aufgaben in der laufenden Kalenderwoche.
    Datenbank: supabase/challenge.sql (Klassen aus rollen.sql).
    ====================================================================== */
@@ -113,7 +113,7 @@ function KlasseKarte({ k, neuKlassen }) {
         : r.status === "aus" ? <p style={text}>Deine Lehrkraft hat die Challenge für diese Klasse noch nicht gestartet.</p>
           : r.status !== "ok" ? <p style={text}>Die Rangliste lässt sich gerade nicht laden.</p>
             : <>
-              {k.lehrkraft && !k.an && <p style={{ ...text, fontSize: 13, marginBottom: 10 }}>Vorschau – die Schüler:innen sehen die Liste erst, wenn die Challenge läuft.</p>}
+              {k.lehrkraft && !k.an && <p style={{ ...text, fontSize: 13, marginBottom: 10 }}>Vorschau – die Schüler sehen die Liste erst, wenn die Challenge läuft.</p>}
               <Rangliste r={r} />
               {!k.lehrkraft && <MeinAuftritt k={k} r={r} neu={laden} />}
             </>}
@@ -167,7 +167,7 @@ export function ChallengeSeite({ gehe }) {
         ) : (
           <>
             {klassen === null ? <p style={text}>Einen Moment …</p> : klassen.map((k) => <KlasseKarte key={k.id} k={k} neuKlassen={neu} />)}
-            {rolle === "eltern" && <div style={karte}><p style={text}>Die Klassen-Challenge ist für Schüler:innen und Lehrkräfte. Die Woche Ihres Kindes sehen Sie im Konto und in der Wochenmail.</p></div>}
+            {rolle === "eltern" && <div style={karte}><p style={text}>Die Klassen-Challenge ist für Schüler und Lehrkräfte. Die Woche Ihres Kindes sehen Sie im Konto und in der Wochenmail.</p></div>}
             {klassen && klassen.length === 0 && (rolle === "lehrkraft" || rolle === "nachhilfe") && (
               <div style={karte}>
                 <p style={kicker}>Noch keine Klasse</p>
