@@ -21,13 +21,14 @@ export function Formeln({ titel, zeilen, max = 17, min = 10.5, farbe = C.tinte }
     const anpassen = () => {
       if (!rahmen.current || !innen.current) return;
       const breite = innen.current.scrollWidth * (max / parseFloat(getComputedStyle(innen.current).fontSize));
-      setGr(Math.max(min, Math.min(max, Math.floor((max * (rahmen.current.clientWidth - 4) / breite) * 10) / 10)));
+      const neu = Math.max(min, Math.min(max, Math.floor((max * (rahmen.current.clientWidth - 4) / breite) * 10) / 10));
+      setGr((alt) => (Math.abs(alt - neu) < 0.25 ? alt : neu));   // kleine Rundungssprünge ignorieren – sonst Pendeln 12 ↔ 11,9 px
     };
     anpassen();
     const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(anpassen) : null;
     if (ro && rahmen.current) ro.observe(rahmen.current);
     return () => { if (ro) ro.disconnect(); };
-  });
+  }, [zeilen.join("\n"), max, min]);
   return (
     <div style={{ margin: "14px 0 18px" }}>
       {titel && <p style={{ fontSize: 12.5, fontWeight: 600, color: C.gruenDunkel, marginBottom: 8, letterSpacing: "0.01em" }}>{titel}</p>}

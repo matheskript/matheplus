@@ -14,12 +14,13 @@ test("Jedes Thema hat Stufe, Klassen, Kapitel und Kurzbeschreibung; gebaute Them
     assert.ok(t.kapitel && t.kapitelName && t.titel && t.kurz && t.zeile, t.id);
     assert.ok(t.zeile.length <= 90, `${t.id}: Kurzbeschreibung zu lang`);
     if (t.ansicht) {
-      assert.ok(t.seite > 0 && t.frage, t.id);
+      assert.ok(t.frage, t.id);
+      assert.ok(t.seite === undefined || t.seite > 0, `${t.id}: Buchseite ungültig`);   // Buchseite nur, wenn bekannt – nie geraten
       assert.ok(ansichten.has(t.ansicht), `kein Pfad für ${t.ansicht}`);
       assert.ok(t.videos > 0 || t.animationen > 0, `${t.id}: weder Video noch Animation`);
     }
   }
-  assert.equal(themenZahl(), 2);
+  assert.equal(themenZahl(), 5);   // Pascal, Dose, Ziegenproblem, Bayes, Platonische Körper
 });
 
 test("Jede Stufe hat 5 bis 8 GFS-Themen", () => {

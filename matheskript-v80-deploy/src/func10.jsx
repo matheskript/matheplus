@@ -106,6 +106,13 @@ const KiWahlSeite = lazyLaden(() => import("./funcKiWahl.jsx").then((m) => ({ de
 const ClaudeKursSeite = lazyLaden(() => import("./funcClaudeKurs.jsx").then((m) => ({ default: m.ClaudeKursSeite })));
 const GfsPascalSeite = lazyLaden(() => import("./funcGfs.jsx").then((m) => ({ default: m.GfsPascalSeite })));
 const GfsDoseSeite = lazyLaden(() => import("./funcGfsDose.jsx").then((m) => ({ default: m.GfsDoseSeite })));
+// Neue GFS-Seiten: Kopfbild und Seite aus demselben Modul, beide lazy (sonst landet die Seite im Hauptbündel)
+const GfsZiegenSeite = lazyLaden(() => import("./funcGfsZiegen.jsx").then((m) => ({ default: m.GfsZiegenSeite })));
+const ZiegenBild = lazyLaden(() => import("./funcGfsZiegen.jsx").then((m) => ({ default: m.ZiegenBild })));
+const GfsBayesSeite = lazyLaden(() => import("./funcGfsBayes.jsx").then((m) => ({ default: m.GfsBayesSeite })));
+const BayesBild = lazyLaden(() => import("./funcGfsBayes.jsx").then((m) => ({ default: m.BayesBild })));
+const GfsPlatonischSeite = lazyLaden(() => import("./funcGfsPlatonisch.jsx").then((m) => ({ default: m.GfsPlatonischSeite })));
+const PlatonischBild = lazyLaden(() => import("./funcGfsPlatonisch.jsx").then((m) => ({ default: m.PlatonischBild })));
 const PotenzregelSeite = lazyLaden(() => import("./func22.jsx").then((m) => ({ default: m.PotenzregelSeite })));
 const EFunktionSeite = lazyLaden(() => import("./funcEFunktion.jsx").then((m) => ({ default: m.EFunktionSeite })));
 const AbiZentrumSeite = lazyLaden(() => import("./funcAbiZentrum.jsx").then((m) => ({ default: m.AbiZentrumSeite })));
@@ -1307,6 +1314,24 @@ export function Mathilda() {
           <GfsThemenKopf titel="Die optimale Dose" chips={["Kursstufe 1", "Kap. I", "6 Animationen"]} Bild={DosenBild}
             onZurueck={() => gehe({ ansicht: "gfs" })} />
           <GfsDoseSeite gehe={gehe} />
+        </>
+      ) : ansicht === "gfs-ziegen" ? (
+        <>
+          <GfsThemenKopf titel="Das Ziegenproblem" chips={["Klasse 9", "Kap. VI", "5 Animationen"]} Bild={ZiegenBild}
+            onZurueck={() => gehe({ ansicht: "gfs" })} />
+          <GfsZiegenSeite gehe={gehe} />
+        </>
+      ) : ansicht === "gfs-bayes" ? (
+        <>
+          <GfsThemenKopf titel="Der Satz von Bayes" chips={["Kursstufe 2", "Kap. VIII", "4 Animationen"]} Bild={BayesBild}
+            onZurueck={() => gehe({ ansicht: "gfs" })} />
+          <GfsBayesSeite gehe={gehe} />
+        </>
+      ) : ansicht === "gfs-platonisch" ? (
+        <>
+          <GfsThemenKopf titel="Platonische Körper" chips={["Klasse 9", "Kap. VII", "5 Animationen"]} Bild={PlatonischBild}
+            onZurueck={() => gehe({ ansicht: "gfs" })} />
+          <GfsPlatonischSeite gehe={gehe} />
         </>
       ) : ansicht === "potenzregel" ? (
         <>

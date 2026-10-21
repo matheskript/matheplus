@@ -54,9 +54,9 @@ export const THEMEN = [
   T("9", "IV", "Berechnungen in rechtwinkligen Dreiecken", "Weitere Beweise für den Satz des Pythagoras", "Zerlegen, ergänzen, ähnliche Dreiecke – verschiedene Wege zu a² + b² = c².", { id: "pythagoras-beweise", kurz: "Pythagoras-Beweise" }),
   T("9", "IV", "Berechnungen in rechtwinkligen Dreiecken", "Der Sinus- und der Kosinussatz", "Seiten und Winkel in beliebigen Dreiecken berechnen.", { id: "sinussatz", kurz: "Sinus- und Kosinussatz" }),
   T("9", "V", "Kreise", "Das Reuleaux’sche Dreieck – Gleichdicks", "Nicht rund und trotzdem in jeder Richtung gleich breit.", { id: "reuleaux", kurz: "Reuleaux-Dreieck" }),
-  T("9", "VI", "Wahrscheinlichkeit", "Das Ziegenproblem", "Bleiben oder wechseln? Warum Wechseln mit 2/3 gewinnt.", { id: "ziegenproblem" }),
+  T("9", "VI", "Wahrscheinlichkeit", "Das Ziegenproblem", "Bleiben oder wechseln? Warum Wechseln mit 2/3 gewinnt.", { id: "ziegenproblem", kurz: "Das Ziegenproblem", frage: "Bleiben oder wechseln – warum gewinnt Wechseln mit 2/3?", ansicht: "gfs-ziegen", videos: 0, animationen: 5 }),
   T("9", "VI", "Wahrscheinlichkeit", "Dunkelfeldforschung", "Wie schätzt man, was niemand offen zugibt? Befragungen mit Zufall.", { id: "dunkelfeld" }),
-  T("9", "VII", "Körper", "Platonische Körper", "Warum es genau fünf regelmäßige Körper gibt.", { id: "platonisch" }),
+  T("9", "VII", "Körper", "Platonische Körper", "Warum es genau fünf regelmäßige Körper gibt.", { id: "platonisch", kurz: "Platonische Körper", frage: "Warum gibt es genau fünf regelmäßige Körper?", ansicht: "gfs-platonisch", videos: 0, animationen: 5 }),
 
   /* Klasse 10 – Lambacher Schweizer 10 BW */
   T("10", "I", "Funktionen und ihre Graphen", "Polynomdivision", "Ganzrationale Funktionen in Faktoren zerlegen.", { id: "polynomdivision" }),
@@ -82,7 +82,7 @@ export const THEMEN = [
   T("k2", "VII", "Abstände und Winkel", "Orthogonale Projektion – Skalarprodukt", "Was das Skalarprodukt geometrisch misst: den Schatten eines Vektors.", { id: "projektion", kurz: "Orthogonale Projektion" }),
   T("k2", "VII", "Abstände und Winkel", "Skalar- und Vektorprodukt in der Physik", "Arbeit, Drehmoment und Lorentzkraft mit Vektoren.", { id: "physik", kurz: "Vektoren in der Physik" }),
   T("k2", "VIII", "Grundlagen der Wahrscheinlichkeitsrechnung", "Die geometrische Verteilung", "Wie lange dauert es bis zum ersten Treffer?", { id: "geometrisch" }),
-  T("k2", "VIII", "Grundlagen der Wahrscheinlichkeitsrechnung", "Der Satz von Bayes", "Positiv getestet – wie wahrscheinlich ist man wirklich krank?", { id: "bayes" }),
+  T("k2", "VIII", "Grundlagen der Wahrscheinlichkeitsrechnung", "Der Satz von Bayes", "Positiv getestet – wie wahrscheinlich ist man wirklich krank?", { id: "bayes", kurz: "Der Satz von Bayes", frage: "Positiv getestet – wie wahrscheinlich ist man wirklich krank?", ansicht: "gfs-bayes", videos: 0, animationen: 4 }),
   T("k2", "IX", "Testen mit der Binomialverteilung", "Der Chi-Quadrat-Test", "Ist ein Würfel fair? Viele Häufigkeiten auf einmal testen.", { id: "chiquadrat" }),
   T("k2", "X", "Normalverteilung", "Der Satz von de Moivre-Laplace", "Warum die Binomialverteilung für große n zur Glockenkurve wird.", { id: "moivre", kurz: "de Moivre-Laplace" }),
 ];
