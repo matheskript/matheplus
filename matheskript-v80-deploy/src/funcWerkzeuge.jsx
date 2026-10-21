@@ -15,7 +15,10 @@ import { BEREICHE, ETIKETTEN, werkzeug, wo } from "./werkzeuge.js";
 import { FR } from "./funcRegistry.jsx";
 import { MS } from "./mathText.jsx";
 import { uebergabeHinweis, uebergabeSetzen, uebergabeZurueck } from "./uebergabe.js";
-import { aktuellerKurs, gewaehlteKurse, kurs, kursMerken, reiterFuer, reiterName } from "./trainingsKurse.js";
+import { KURSE, aktuellerKurs, kurs, kursMerken, meineKurse, reiterFuer, reiterName, wahlUmschalten } from "./trainingsKurse.js";
+import { LERN } from "./base3.jsx";
+import { themaBereich } from "./meinTraining.js";
+import { THEMEN as TRAINING_THEMEN } from "./trainingDaten.js";
 
 /* ---------- Etikett ---------- */
 const ETIKETT_FARBE = {
@@ -233,6 +236,24 @@ export function WerkzeugLeiste({ ansicht, gehe }) {
    (‹ · Werkzeug-Auswahl · Test · ☰) – das ☰-Menü steckt jetzt in der Kopfleiste. */
 export const BAND_HOEHE = 38;
 
+/* Lernstand lesen, ohne func6 zu importieren (func6 → func3 → diese Datei wäre ein Kreis):
+   LERN liegt in base3, Änderungen melden sich über LERN.hoerer. Schreiben lädt func6 erst beim Klick. */
+function useLernstand() {
+  const [, setZ] = useState(0);
+  useEffect(() => { const h = () => setZ((z) => z + 1); LERN.hoerer.add(h); return () => { LERN.hoerer.delete(h); }; }, []);
+  return LERN;
+}
+const kursWahlSetzen = (ids) => import("./func6.jsx").then((m) => m.lernAendern((L) => {
+  L.training = { ...(L.training || {}), kurse: { gewaehlt: ids, zeit: Date.now() } };
+}));
+/* Gebiet eines Themas aus Mein Mathe-Training („Analysis“, „Vektoren“, „Stochastik“ …) */
+const gebietVon = (id, teile) => { const t = themaBereich(id, teile); return t && TRAINING_THEMEN[t] ? TRAINING_THEMEN[t].gruppe : null; };
+const QUELLE_TEXT = {
+  wahl: "Von dir ausgewählt.",
+  training: "Aus deinen Themen in Mein Mathe-Training.",
+  alle: "Alle Kurse – wähle aus, welche du belegst.",
+};
+
 /* Kurs-Zeichen im Umschalter: vier Kacheln (wie früher „Tools“) */
 const KachelZeichen = () => (
   <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden="true"><rect x="3" y="3" width="7.5" height="7.5" rx="2" /><rect x="13.5" y="3" width="7.5" height="7.5" rx="2" /><rect x="3" y="13.5" width="7.5" height="7.5" rx="2" /><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2" /></svg>
@@ -246,10 +267,13 @@ export function WerkzeugBand({ ansicht, gehe, testKnopf }) {
   const ort = wo(ansicht);
   const [auf, setAuf] = useState(false);
   const [alleAuf, setAlleAuf] = useState(false);
+  const [bearbeiten, setBearbeiten] = useState(false);
+  const lern = useLernstand();
   const [kursId, setKursId] = useState(() => { const k = aktuellerKurs(ansicht); return k ? k.id : null; });
   const wurzel = useRef(null);
   const reiterRef = useRef(null);
   const [mehr, setMehr] = useState(false);   // Reiter laufen über den Rand → rechts weich ausblenden (Handy)
+  useEffect(() => { if (!auf) setBearbeiten(false); }, [auf]);
   useEffect(() => { setAuf(false); const k = aktuellerKurs(ansicht); setKursId(k ? k.id : null); }, [ansicht]);
   /* Aktiven Reiter waagerecht ins Bild holen (nur innerhalb der Reiterzeile, die Seite scrollt nicht) */
   useEffect(() => {
@@ -278,7 +302,8 @@ export function WerkzeugBand({ ansicht, gehe, testKnopf }) {
   const reiter = aktKurs ? reiterFuer(aktKurs, wAktiv.id) : station.werkzeuge;
   const naechste = aktKurs ? null : bereich.stationen[sNr];
   const weiter = naechste ? werkzeug(naechste.werkzeuge[0]) : null;
-  const meine = gewaehlteKurse();
+  const { kurse: meine, quelle } = meineKurse(lern.training, gebietVon);
+  const weitere = KURSE.filter((k) => !meine.some((m) => m.id === k.id));
   const H = BAND_HOEHE;
   const zeile = (aktiv) => ({ display: "flex", alignItems: "center", gap: 10, width: "100%", minHeight: 40, padding: "0 12px", border: "none", borderRadius: 10, textAlign: "left",
     fontFamily: "inherit", fontSize: 14, fontWeight: aktiv ? 700 : 500, cursor: "pointer", color: aktiv ? C.seeTief : C.tinte, background: aktiv ? "rgba(237,187,0,0.16)" : "transparent" });
@@ -289,6 +314,28 @@ export function WerkzeugBand({ ansicht, gehe, testKnopf }) {
     if (k.werkzeuge.includes(wAktiv.id)) { setKursId(k.id); return; }
     const erst = werkzeug(k.werkzeuge[0]);
     if (erst) gehe(erst.ziel);
+  };
+  const KursZeile = ({ k }) => {
+    const an = aktKurs && aktKurs.id === k.id;
+    const drin = meine.some((m) => m.id === k.id);
+    const klick = bearbeiten ? () => kursWahlSetzen(wahlUmschalten(meine, k.id)) : an ? () => setAuf(false) : () => kursWaehlen(k);
+    return (
+      <button type="button" data-wb-kurs={k.id} aria-current={!bearbeiten && an ? "true" : undefined} aria-pressed={bearbeiten ? drin : undefined} onClick={klick}
+        style={{ ...zeile(!bearbeiten && an), minHeight: 52, alignItems: "center" }}>
+        <span aria-hidden="true" style={{ flexShrink: 0, width: 32, height: 32, borderRadius: 9, display: "inline-flex", alignItems: "center", justifyContent: "center",
+          background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, color: C.flaggold, fontSize: 13, fontWeight: 800, fontStyle: "italic", opacity: bearbeiten && !drin ? 0.45 : 1 }}>
+          {werkzeug(k.werkzeuge[0]).zeichen.slice(0, 3)}
+        </span>
+        <span style={{ flex: 1, minWidth: 0 }}>
+          <span style={{ display: "block", lineHeight: 1.25 }}>{`${k.titel} `}<span style={{ fontWeight: 500, color: C.grau }}>{k.stufe}</span></span>
+          <span style={{ display: "block", fontSize: 12, fontWeight: 400, color: C.grau, lineHeight: 1.35 }}>{`${k.werkzeuge.length} Trainer · ${k.zeile}`}</span>
+        </span>
+        {bearbeiten
+          ? <span aria-hidden="true" style={{ flexShrink: 0, width: 22, height: 22, borderRadius: 6, border: `1.5px solid ${drin ? C.see : C.linie}`, background: drin ? C.see : C.weiss,
+              color: C.weiss, fontSize: 13, fontWeight: 800, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{drin ? "✓" : ""}</span>
+          : an && <span aria-hidden="true" style={{ color: C.flaggold, fontWeight: 800 }}>●</span>}
+      </button>
+    );
   };
   return (
     <nav data-werkzeug-band data-kurs={aktKurs ? aktKurs.id : undefined} aria-label={aktKurs ? `${aktKurs.titel} ${aktKurs.stufe}: Trainer` : `${bereich.titel}: Werkzeuge`}
@@ -336,24 +383,21 @@ export function WerkzeugBand({ ansicht, gehe, testKnopf }) {
                 <span>{`Weiter: ${naechste.titel}`}</span><span aria-hidden="true">›</span>
               </button>
             )}
-            <p style={kicker()}>Deine Kurse</p>
-            {meine.map((k) => {
-              const an = aktKurs && aktKurs.id === k.id;
-              return (
-                <button key={k.id} type="button" data-wb-kurs={k.id} aria-current={an ? "true" : undefined} onClick={() => (an ? setAuf(false) : kursWaehlen(k))}
-                  style={{ ...zeile(an), minHeight: 52, alignItems: "center" }}>
-                  <span aria-hidden="true" style={{ flexShrink: 0, width: 32, height: 32, borderRadius: 9, display: "inline-flex", alignItems: "center", justifyContent: "center",
-                    background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, color: C.flaggold, fontSize: 13, fontWeight: 800, fontStyle: "italic" }}>
-                    {werkzeug(k.werkzeuge[0]).zeichen.slice(0, 3)}
-                  </span>
-                  <span style={{ flex: 1, minWidth: 0 }}>
-                    <span style={{ display: "block", lineHeight: 1.25 }}>{`${k.titel} `}<span style={{ fontWeight: 500, color: C.grau }}>{k.stufe}</span></span>
-                    <span style={{ display: "block", fontSize: 12, fontWeight: 400, color: C.grau, lineHeight: 1.35 }}>{`${k.werkzeuge.length} Trainer · ${k.zeile}`}</span>
-                  </span>
-                  {an && <span aria-hidden="true" style={{ color: C.flaggold, fontWeight: 800 }}>●</span>}
-                </button>
-              );
-            })}
+            <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8 }}>
+              <p style={kicker()}>Deine Kurse</p>
+              <button type="button" data-wb-bearbeiten aria-pressed={bearbeiten} onClick={() => setBearbeiten(!bearbeiten)}
+                style={{ margin: "0 12px 0 0", background: "none", border: "none", padding: 0, cursor: "pointer", fontFamily: "inherit", fontSize: 12, fontWeight: 700, color: C.see }}>
+                {bearbeiten ? "Fertig" : "Auswählen"}
+              </button>
+            </div>
+            <p data-wb-quelle style={{ margin: "-2px 12px 6px", fontSize: 11.5, color: C.grau, lineHeight: 1.4 }}>
+              {bearbeiten ? "Tippe an, welche Kurse du belegst." : QUELLE_TEXT[quelle]}
+            </p>
+            {(bearbeiten ? KURSE : meine).map((k) => <KursZeile key={k.id} k={k} />)}
+            {!bearbeiten && weitere.length > 0 && (<>
+              <p style={kicker()}>Weitere Kurse</p>
+              {weitere.map((k) => <KursZeile key={k.id} k={k} />)}
+            </>)}
             <div style={{ borderTop: `1px solid ${C.linie}`, marginTop: 6, paddingTop: 4 }}>
               <button type="button" aria-expanded={alleAuf || !aktKurs} onClick={() => setAlleAuf(!alleAuf)} disabled={!aktKurs}
                 style={{ ...zeile(false), minHeight: 36, fontSize: 12.5, fontWeight: 700, color: C.grau, justifyContent: "space-between", cursor: aktKurs ? "pointer" : "default" }}>

@@ -14,6 +14,7 @@ import { merken } from "./func5.jsx";
 import { termAlsTex } from "./func4.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
 import { MitWurzeln, WurzelZeichen } from "./wurzelZeichen.jsx";
+import { Arbeitsflaeche, BildKarte, FeinKarte, titelStil, useBreite, useDesktop } from "./arbeitsflaeche.jsx";
 
 import { fokus, springe } from "./sprung.js";
 /* Kopf des Polynomplotters im Stil der Sinusfunktion: ein gemeinsames Raster mit einer Spalte je Koeffizient.
@@ -366,6 +367,9 @@ export function Plotter() {
   const [zoom, setZoom] = useState(1);
   const [offen, setOffen] = useState(false);
   const ergebnisRef = useRef(null);
+  // Desktop (DESKTOP-STIL.md): Funktion und markante Punkte links, Schaubild rechts in echten Pixeln
+  const desktop = useDesktop();
+  const [bildRef, bildBreite] = useBreite();
 
   const K6 = [5, 4, 3, 2, 1, 0].map((p) => (p <= grad ? wNum(kw[p]) : 0));
   const ganzAlle = K6.every((v) => Number.isInteger(v));   // die ausführliche Rechnung gibt es nur für ganze Zahlen
@@ -410,7 +414,7 @@ export function Plotter() {
 
   // Gleiche Skala für x und y — dafür bestimmt die enger begrenzende Richtung
   // den Maßstab, die andere zeigt dann entsprechend mehr Kontext.
-  const Sx = 320, Sy = 224, rand = 14;
+  const Sx = desktop && bildBreite ? bildBreite : 320, Sy = desktop && bildBreite ? Math.round(bildBreite * 0.86) : 224, rand = 14;
   const pxX = Sx / 2 - rand, pxY = Sy / 2 - rand;
   const kAuto = Math.min(pxX / noetigX, pxY / noetigY);
   const k = Math.min(Math.max(kAuto * zoom, 3), 400);
@@ -452,92 +456,74 @@ export function Plotter() {
     if (neu) setTimeout(() => { try { ergebnisRef.current && springe("kurvendiskussion-ergebnis", () => ergebnisRef.current.scrollIntoView({ behavior: "smooth", block: "start" })); } catch (err) { /* egal */ } }, 80);
   };
 
-  return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
-      <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" }}>
-        {/* Grad wählen: „Polynom [dritten ▾] Grades“ */}
-        <GradWahl grad={grad} setGrad={waehleGrad} />
+  const schaubild = (
+        <div style={{ position: "relative", marginTop: desktop ? 0 : 14 }}>
+      <svg viewBox={`0 0 ${Sx} ${Sy}`} style={{ width: "100%", maxWidth: desktop ? "none" : 360, display: "block", margin: "0 auto" }}>
+        <defs><clipPath id="plotfeld"><rect x="0" y="0" width={Sx} height={Sy} /></clipPath></defs>
+        {linienX.map((v) => (
+          <React.Fragment key={`vx${v}`}>
+            <line x1={px(v)} y1={0} x2={px(v)} y2={Sy} stroke={C.linie} strokeWidth="1" />
+            <line x1={px(-v)} y1={0} x2={px(-v)} y2={Sy} stroke={C.linie} strokeWidth="1" />
+          </React.Fragment>
+        ))}
+        {linienY.map((v) => (
+          <React.Fragment key={`vy${v}`}>
+            <line x1={0} y1={py(v)} x2={Sx} y2={py(v)} stroke={C.linie} strokeWidth="1" />
+            <line x1={0} y1={py(-v)} x2={Sx} y2={py(-v)} stroke={C.linie} strokeWidth="1" />
+          </React.Fragment>
+        ))}
+        <line x1={0} y1={py(0)} x2={Sx} y2={py(0)} stroke={C.hellgrau} strokeWidth="1.5" />
+        <line x1={px(0)} y1={0} x2={px(0)} y2={Sy} stroke={C.hellgrau} strokeWidth="1.5" />
+        {linienX.map((v) => (
+          <React.Fragment key={`lx${v}`}>
+            <text x={px(v)} y={py(0) + 13} fontSize="9" fill={C.hellgrau} textAnchor="middle">{zahl(v)}</text>
+            <text x={px(-v)} y={py(0) + 13} fontSize="9" fill={C.hellgrau} textAnchor="middle">−{zahl(v)}</text>
+          </React.Fragment>
+        ))}
+        {linienY.map((v) => (
+          <React.Fragment key={`ly${v}`}>
+            <text x={px(0) - 6} y={py(v) + 3} fontSize="9" fill={C.hellgrau} textAnchor="end">{zahl(v)}</text>
+            <text x={px(0) - 6} y={py(-v) + 3} fontSize="9" fill={C.hellgrau} textAnchor="end">−{zahl(v)}</text>
+          </React.Fragment>
+        ))}
 
-        <PolyKopf koeff={koeff} zeilen={zeilen} />
-
-        <div style={{ position: "relative", marginTop: 14 }}>
-          <svg viewBox={`0 0 ${Sx} ${Sy}`} style={{ width: "100%", maxWidth: 360, display: "block", margin: "0 auto" }}>
-            <defs><clipPath id="plotfeld"><rect x="0" y="0" width={Sx} height={Sy} /></clipPath></defs>
-            {linienX.map((v) => (
-              <React.Fragment key={`vx${v}`}>
-                <line x1={px(v)} y1={0} x2={px(v)} y2={Sy} stroke={C.linie} strokeWidth="1" />
-                <line x1={px(-v)} y1={0} x2={px(-v)} y2={Sy} stroke={C.linie} strokeWidth="1" />
-              </React.Fragment>
-            ))}
-            {linienY.map((v) => (
-              <React.Fragment key={`vy${v}`}>
-                <line x1={0} y1={py(v)} x2={Sx} y2={py(v)} stroke={C.linie} strokeWidth="1" />
-                <line x1={0} y1={py(-v)} x2={Sx} y2={py(-v)} stroke={C.linie} strokeWidth="1" />
-              </React.Fragment>
-            ))}
-            <line x1={0} y1={py(0)} x2={Sx} y2={py(0)} stroke={C.hellgrau} strokeWidth="1.5" />
-            <line x1={px(0)} y1={0} x2={px(0)} y2={Sy} stroke={C.hellgrau} strokeWidth="1.5" />
-            {linienX.map((v) => (
-              <React.Fragment key={`lx${v}`}>
-                <text x={px(v)} y={py(0) + 13} fontSize="9" fill={C.hellgrau} textAnchor="middle">{zahl(v)}</text>
-                <text x={px(-v)} y={py(0) + 13} fontSize="9" fill={C.hellgrau} textAnchor="middle">−{zahl(v)}</text>
-              </React.Fragment>
-            ))}
-            {linienY.map((v) => (
-              <React.Fragment key={`ly${v}`}>
-                <text x={px(0) - 6} y={py(v) + 3} fontSize="9" fill={C.hellgrau} textAnchor="end">{zahl(v)}</text>
-                <text x={px(0) - 6} y={py(-v) + 3} fontSize="9" fill={C.hellgrau} textAnchor="end">−{zahl(v)}</text>
-              </React.Fragment>
-            ))}
-
-            <g clipPath="url(#plotfeld)">
-              <path d={pfadFuer(fss)} stroke={C.ablGrau} strokeWidth="1.8" fill="none" opacity="0.55"
-                strokeDasharray="5 4" strokeLinejoin="round" />
-              <path d={pfadFuer(fs)} stroke={C.seeHell} strokeWidth="2" fill="none" opacity="0.7" strokeLinejoin="round" />
-              <path d={pfad} stroke={C.see} strokeWidth="2.5" fill="none" strokeLinejoin="round" />
-              {ns.map((x, i) => (
-                <circle key={`n${i}`} cx={px(x)} cy={py(0)} r="4.5" fill={C.weiss} stroke={C.see} strokeWidth="2.5" />
-              ))}
-              {markante.map((p, i) => (
-                <circle key={`p${i}`} cx={px(p.x)} cy={py(p.y)} r="5.5" fill={farbe(p.art)} />
-              ))}
-              <circle cx={px(0)} cy={py(d)} r="4" fill={C.see} opacity="0.45" />
-            </g>
-          </svg>
-
-          <div style={{
-            position: "absolute", right: 8, bottom: 8, display: "flex", flexDirection: "column",
-            borderRadius: 10, overflow: "hidden", border: `1px solid ${C.linie}`,
-            boxShadow: "0 2px 8px rgba(15,26,51,0.18)",
-          }}>
-            <button onClick={() => zoomen(1.3)} style={{ ...knopfZoom, borderBottom: `1px solid ${C.linie}` }}>+</button>
-            <button onClick={() => zoomen(1 / 1.3)} style={knopfZoom}>−</button>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap justify-center" style={{ gap: 18, marginTop: 8 }}>
-          {[["f", C.see, false], ["f′", C.seeHell, false], ["f″", C.ablGrau, true]].map(([n, farbe, gestrichelt]) => (
-            <span key={n} className="flex items-center" style={{ gap: 7, fontSize: 12.5, color: C.grau }}>
-              <svg width="22" height="6"><line x1="0" y1="3" x2="22" y2="3" stroke={farbe} strokeWidth="2.5"
-                strokeDasharray={gestrichelt ? "5 4" : "0"} /></svg>
-              {n}
-            </span>
+        <g clipPath="url(#plotfeld)">
+          <path d={pfadFuer(fss)} stroke={C.ablGrau} strokeWidth="1.8" fill="none" opacity="0.55"
+            strokeDasharray="5 4" strokeLinejoin="round" />
+          <path d={pfadFuer(fs)} stroke={C.seeHell} strokeWidth="2" fill="none" opacity="0.7" strokeLinejoin="round" />
+          <path d={pfad} stroke={C.see} strokeWidth="2.5" fill="none" strokeLinejoin="round" />
+          {ns.map((x, i) => (
+            <circle key={`n${i}`} cx={px(x)} cy={py(0)} r="4.5" fill={C.weiss} stroke={C.see} strokeWidth="2.5" />
           ))}
-        </div>
+          {markante.map((p, i) => (
+            <circle key={`p${i}`} cx={px(p.x)} cy={py(p.y)} r="5.5" fill={farbe(p.art)} />
+          ))}
+          <circle cx={px(0)} cy={py(d)} r="4" fill={C.see} opacity="0.45" />
+        </g>
+      </svg>
 
+      <div style={{
+        position: "absolute", right: 8, bottom: 8, display: "flex", flexDirection: "column",
+        borderRadius: 10, overflow: "hidden", border: `1px solid ${C.linie}`,
+        boxShadow: "0 2px 8px rgba(15,26,51,0.18)",
+      }}>
+        <button onClick={() => zoomen(1.3)} style={{ ...knopfZoom, borderBottom: `1px solid ${C.linie}` }}>+</button>
+        <button onClick={() => zoomen(1 / 1.3)} style={knopfZoom}>−</button>
       </div>
-
-      {/* Erst auf Knopfdruck kommt die ganze Kurvendiskussion */}
-      <button type="button" className="kd-knopf" aria-expanded={offen} onClick={diskussionUmschalten}
-        style={{ marginTop: 18, width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
-          padding: "15px 18px", border: "none", borderRadius: 14, cursor: "pointer", fontFamily: "inherit", fontSize: 15.5, fontWeight: 700,
-          color: C.weiss, background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, boxShadow: "0 6px 20px rgba(0,77,152,0.25)" }}>
-        {offen ? "Kurvendiskussion ausblenden" : "Kurvendiskussion"}
-      </button>
-
-      {offen && (
-        <div ref={ergebnisRef} style={{ scrollMarginTop: 12 }}>
-          <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", marginTop: 18 }}>
+    </div>
+  );
+  const legende = (
+        <div className="flex flex-wrap justify-center" style={{ gap: 18, marginTop: 8 }}>
+      {[["f", C.see, false], ["f′", C.seeHell, false], ["f″", C.ablGrau, true]].map(([n, farbe, gestrichelt]) => (
+        <span key={n} className="flex items-center" style={{ gap: 7, fontSize: 12.5, color: C.grau }}>
+          <svg width="22" height="6"><line x1="0" y1="3" x2="22" y2="3" stroke={farbe} strokeWidth="2.5"
+            strokeDasharray={gestrichelt ? "5 4" : "0"} /></svg>
+          {n}
+        </span>
+      ))}
+    </div>
+  );
+  const punkte = (<>
             <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 14 }}>Markante Punkte</p>
 
             <Zeile marke={<circle cx="7" cy="7" r="4.5" fill={C.weiss} stroke={C.see} strokeWidth="2.5" />}
@@ -560,9 +546,16 @@ export function Plotter() {
               {grad === 1 && "Eine Gerade: überall dieselbe Steigung, also weder Extrem- noch Wendepunkt."}
               {grad === 0 && "Eine Konstante: waagerecht, ohne jede Steigung."}
             </p>
-          </div>
-
-          {ganzAlle ? (
+  </>);
+  const diskKnopf = (
+      <button type="button" className="kd-knopf" aria-expanded={offen} onClick={diskussionUmschalten}
+        style={{ marginTop: 18, width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
+          padding: "15px 18px", border: "none", borderRadius: 14, cursor: "pointer", fontFamily: "inherit", fontSize: 15.5, fontWeight: 700,
+          color: C.weiss, background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, boxShadow: "0 6px 20px rgba(0,77,152,0.25)" }}>
+        {offen ? (desktop ? "Rechenweg ausblenden" : "Kurvendiskussion ausblenden") : (desktop ? "Kurvendiskussion mit Rechenweg" : "Kurvendiskussion")}
+      </button>
+  );
+  const ausfuehrlich = ganzAlle ? (
             <>
             <KurvendiskussionAnzeige k={K6} />
             <WeiterMit titel="Weiter mit dieser Funktion">
@@ -586,7 +579,53 @@ export function Plotter() {
                 )}
               </p>
             </div>
-          )}
+          );
+
+  /* Desktop: links Grad, Koeffizienten (f, f′, f″) und die markanten Punkte, rechts das Schaubild;
+     darunter über die volle Breite der Knopf und der ausführliche Rechenweg */
+  if (desktop) return (
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
+      <Arbeitsflaeche linksBreite={400} gap={24}
+        links={<>
+          <FeinKarte>
+            <GradWahl grad={grad} setGrad={waehleGrad} />
+            <PolyKopf koeff={koeff} zeilen={zeilen} />
+          </FeinKarte>
+          <FeinKarte data-kd-punkte>{punkte}</FeinKarte>
+        </>}
+        rechts={<>
+          <BildKarte style={{ padding: 0 }}>
+            <div ref={bildRef}>{schaubild}</div>
+          </BildKarte>
+          {legende}
+        </>} />
+      {diskKnopf}
+      {offen && <div ref={ergebnisRef} style={{ scrollMarginTop: 12 }}>{ausfuehrlich}</div>}
+    </div>
+  );
+
+  return (
+    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
+      <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" }}>
+        {/* Grad wählen: „Polynom [dritten ▾] Grades“ */}
+        <GradWahl grad={grad} setGrad={waehleGrad} />
+
+        <PolyKopf koeff={koeff} zeilen={zeilen} />
+
+        {schaubild}
+        {legende}
+      </div>
+
+      {/* Erst auf Knopfdruck kommt die ganze Kurvendiskussion */}
+      {diskKnopf}
+
+      {offen && (
+        <div ref={ergebnisRef} style={{ scrollMarginTop: 12 }}>
+          <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", marginTop: 18 }}>
+            {punkte}
+          </div>
+
+          {ausfuehrlich}
         </div>
       )}
     </div>

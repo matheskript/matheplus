@@ -7,19 +7,23 @@
    (Werkzeuge der Station + „Tools“).
 
    Ein Kurs = Eintrag in KURSE (Werkzeug-IDs aus werkzeuge.js).
-   „Gewählte Kurse“ liegen vorerst nur im Browser (SPEICHER); ohne Wahl
-   stehen alle Kurse im Umschalter. Reine Logik, ohne React – testbar mit Node.
+   „Deine Kurse“ im Umschalter (meineKurse):
+     1. selbst gewählt – im Lernstand unter training.kurse (Konto-Abgleich wie Mein Mathe-Training)
+     2. sonst aus Mein Mathe-Training: Kurse, deren Gebiet (gruppe) ein Thema in Arbeit/danach hat
+     3. sonst alle Kurse
+   Nur der zuletzt benutzte Kurs liegt pro Gerät im Browser (SPEICHER).
+   Reine Logik, ohne React – testbar mit Node.
    ============================================================ */
 import { WERKZEUGE, ansichtenVon, werkzeug } from "./werkzeuge.js";
 
 export const KURSE = [
-  { id: "analysis-ober", titel: "Analysis", stufe: "Oberstufe", zeile: "Ableiten, Kurven, Integrale",
+  { id: "analysis-ober", gruppe: "Analysis", titel: "Analysis", stufe: "Oberstufe", zeile: "Ableiten, Kurven, Integrale",
     werkzeuge: ["ableitungstrainer", "kurvendiskussion", "scharen", "steckbrief", "optimierung", "integrale"],
     namen: { steckbrief: "Steckbrief", optimierung: "Optimierung" } },
-  { id: "vektoren-ober", titel: "Vektoren", stufe: "Oberstufe", zeile: "Geraden, Ebenen, Abstände",
+  { id: "vektoren-ober", gruppe: "Vektoren", titel: "Vektoren", stufe: "Oberstufe", zeile: "Geraden, Ebenen, Abstände",
     werkzeuge: ["vektorgenerator", "geraden", "dreipunkte", "ebenevsebene", "abstaende"],
     namen: { dreipunkte: "Drei Punkte" } },
-  { id: "stochastik-ober", titel: "Stochastik", stufe: "Oberstufe", zeile: "Bäume, Binomial, Tests",
+  { id: "stochastik-ober", gruppe: "Stochastik", titel: "Stochastik", stufe: "Oberstufe", zeile: "Bäume, Binomial, Tests",
     werkzeuge: ["kombinatorik", "vierfelder", "bernoulli", "hypothesentest", "normalverteilung"],
     namen: { kombinatorik: "Kombinatorik" } },
 ];
@@ -42,15 +46,24 @@ function lies() {
 }
 function schreib(s) { try { localStorage.setItem(SPEICHER, JSON.stringify(s)); } catch { /* ignorieren */ } }
 
-/* Die Kurse im Umschalter: gewählte (gültige) Kurse in KURSE-Reihenfolge, ohne Wahl alle */
-export function gewaehlteKurse(stand = lies()) {
-  const g = Array.isArray(stand.gewaehlt) ? stand.gewaehlt.filter((id) => kurs(id)) : [];
-  return g.length ? KURSE.filter((k) => g.includes(k.id)) : KURSE.slice();
+/* Deine Kurse. training = Lernstand.training; gebietVon(themaId, teile) → Gebiet („Analysis“ …) eines Themas
+   aus Mein Mathe-Training. Liefert { kurse, quelle: "wahl" | "training" | "alle" } in KURSE-Reihenfolge. */
+export function meineKurse(training, gebietVon = () => null) {
+  const wahl = training && training.kurse && Array.isArray(training.kurse.gewaehlt) ? training.kurse.gewaehlt.filter((id) => kurs(id)) : [];
+  if (wahl.length) return { kurse: KURSE.filter((k) => wahl.includes(k.id)), quelle: "wahl" };
+  const MT = training && training.meinTraining;
+  const themen = MT ? [...(MT.aktiv || []), ...(MT.danach || [])] : [];
+  const gebiete = new Set(themen.map((t) => { try { return gebietVon(t.id, t.teile || null); } catch { return null; } }).filter(Boolean));
+  const aus = KURSE.filter((k) => gebiete.has(k.gruppe));
+  if (aus.length) return { kurse: aus, quelle: "training" };
+  return { kurse: KURSE.slice(), quelle: "alle" };
 }
 
-export function kurseWaehlen(ids) {
-  const s = lies();
-  schreib({ ...s, gewaehlt: ids.filter((id) => kurs(id)) });
+/* Wahl umschalten (für training.kurse.gewaehlt): ausgehend von der aktuellen Liste */
+export function wahlUmschalten(aktuell, id) {
+  const ids = aktuell.map((k) => k.id);
+  const neu = ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id];
+  return KURSE.map((k) => k.id).filter((x) => neu.includes(x));
 }
 
 export function kursMerken(id) {
