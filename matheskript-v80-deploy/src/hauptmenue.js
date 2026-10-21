@@ -111,6 +111,7 @@ export function klassenInhalt(k) {
     titel: c.titel,
     hilfen: hilfenFuer(c.id).slice(0, 6),
     trainieren: { ansicht: "trainieren", kapitel: c.id, schulart: k.schulart, klasse: k.box },
+    seite: { ansicht: "kapitel", kapitel: c.id, schulart: k.schulart, klasse: k.box },
   }));
   return { kapitel, kurse: kurseFuer(k.schulart, k.box, 4), bald: BALD_KURSE, stufe: stufeAusKlassenBox(box) };
 }

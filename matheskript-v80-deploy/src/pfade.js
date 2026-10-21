@@ -20,6 +20,8 @@
 import { WERKZEUGE, BEREICHE, ansichtenVon } from "./werkzeuge.js";
 import { istUnterstufeSeite } from "./unterstufeDaten.js";
 import { istBlogBeitrag } from "./blogDaten.js";
+import { istKapitel } from "./kapitelSeite.js";
+import { THEMEN as KAPITEL_THEMEN } from "./schulbuch.js";
 
 /* Werkzeuge, deren Pfad vom Schlüssel abweicht */
 export const WZ_SLUG = {
@@ -58,6 +60,7 @@ export const SEITEN = [
   { pfad: "profil", ansicht: "profil2" },
   { pfad: "lernpfad", ansicht: "lernpfad" },
   { pfad: "trainieren", ansicht: "trainieren", alias: ["eine-sache-trainieren", "kapiteltraining"] },
+  { pfad: "kapitel", ansicht: "kapitel", alias: ["kapitelseite", "buchkapitel"] },
   { pfad: "trainingsplan", ansicht: "trainingsplan", alias: ["trainingsplan-erstellen"] },
 
   /* Lernen */
@@ -202,6 +205,13 @@ function bauen() {
 
 export const PFADE = bauen();
 
+/* Kapitel-Ids sind teils gemischt geschrieben (ksDiff), Pfade immer klein */
+function kapitelIdAusPfad(klein) {
+  for (const id of KAPITEL_IDS) if (id.toLowerCase() === klein) return id;
+  return null;
+}
+const KAPITEL_IDS = Object.keys(KAPITEL_THEMEN);
+
 /* ---------- Auflösen: Pfad → Eintrag ---------- */
 const NACH_PFAD = new Map();
 for (const e of PFADE) {
@@ -230,6 +240,9 @@ export function pfadAufloesen(roh) {
   /* Modul Unterstufe: /unterstufe/klasse-5, /unterstufe/<lerneinheit> (Ids aus unterstufeDaten.js); /klasse-5 und /klasse-6 als Kurzform */
   const u = /^unterstufe\/([a-z0-9-]+)$/.exec(p);
   if (u && istUnterstufeSeite(u[1])) return { ansicht: "unterstufe", seite: u[1], kanonisch: true };
+  /* Kapitelseite: /kapitel/<id> (Ids aus schulbuch.js, THEMEN; Groß-/Kleinschreibung wie dort, z. B. ksDiff) */
+  const kap = /^kapitel\/([a-z0-9]{2,20})$/.exec(p);
+  if (kap) { const id = kapitelIdAusPfad(kap[1]); if (id) return { ansicht: "kapitel", kapitel: id, kanonisch: true }; }
   /* Blog: /blog/<slug> (Slugs aus blogDaten.js) */
   const blog = /^blog\/([a-z0-9-]+)$/.exec(p);
   if (blog && istBlogBeitrag(blog[1])) return { ansicht: "blog", seite: blog[1], kanonisch: true };
@@ -279,6 +292,7 @@ export function pfadFuer(zustand) {
   if (z.ansicht === "unterstufe" && z.seite && istUnterstufeSeite(z.seite)) return `/unterstufe/${z.seite}`;
   if (z.ansicht === "blatt" && BUECHER[z.band] && z.seite) return z.kasten ? buchLink(z.band, z.seite) : buchLink(z.band, z.seite, z.nr);
   if (z.ansicht === "blog" && z.seite && istBlogBeitrag(z.seite)) return `/blog/${z.seite}`;
+  if (z.ansicht === "kapitel" && istKapitel(z.kapitel)) return `/kapitel/${z.kapitel.toLowerCase()}`;
   let beste = null, bestePunkte = -1;
   for (const e of PFADE) {
     if (e.ansicht !== z.ansicht) continue;

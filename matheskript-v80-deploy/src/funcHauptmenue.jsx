@@ -123,6 +123,15 @@ const CSS = `
   background:${GOLD_VERLAUF};color:${C.seeTief};font-size:15px;font-weight:800;letter-spacing:-0.005em;
   box-shadow:0 8px 18px -8px rgba(237,187,0,0.8),inset 0 1px 0 rgba(255,255,255,0.6),inset 0 -2px 0 rgba(122,88,0,0.25);transition:transform .12s ease,filter .12s ease}
 .hm-gold-knopf:hover{filter:brightness(1.04)}
+.hm-kapitel-knoepfe{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:4px 0 4px;container-type:inline-size}
+.hm-kapitel-knoepfe > button{min-width:0;padding:0 6px;white-space:nowrap;font-size:12.5px !important;gap:5px !important;letter-spacing:-0.01em}
+.hm-kapitel-knoepfe .hm-kurz{display:none}
+@container (max-width:330px){.hm-kapitel-knoepfe svg{display:none}}
+@container (max-width:300px){.hm-kapitel-knoepfe .hm-lang{display:none}.hm-kapitel-knoepfe .hm-kurz{display:inline}.hm-kapitel-knoepfe svg{display:block}}
+.hm-kapitel-seite{display:flex;align-items:center;justify-content:center;gap:6px;height:40px;border-radius:14px;cursor:pointer;font-size:13px;font-weight:800;
+  background:#fff;color:${C.seeTief};border:1.5px solid ${C.flaggold};transition:background .12s ease,transform .12s ease}
+.hm-kapitel-seite:hover{background:rgba(237,187,0,0.08)}
+.hm-kapitel-seite:active{transform:scale(.975)}
 .hm-gold-knopf:active,.hm-ki:active,.hm-kurs:active,.hm-wz:active,.hm-kachel:active{transform:scale(.975)}
 .hm-ki{display:flex;align-items:center;gap:9px;min-height:44px;padding:6px 10px;border-radius:12px;cursor:pointer;text-align:left;min-width:0;
   border:1px solid rgba(255,255,255,0.14);background:rgba(255,255,255,0.07);color:#fff;font-size:13px;font-weight:700;transition:background .15s ease,transform .12s ease}
@@ -378,9 +387,14 @@ function KlassenFenster({ klasse, ausProfil, gehe, aendern, aktuell }) {
             </button>
             {auf && (
               <div className="hm-rein" style={{ margin: "0 2px 6px 22px", paddingLeft: 8, borderLeft: `3px solid ${C.flaggold}` }}>
-                <button type="button" className="hm-gold-knopf" style={{ height: 40, fontSize: 13.5, margin: "4px 0 4px" }} onClick={() => gehe(k.trainieren)}>
-                  <Ikon n="play" g={14} /> Dieses Kapitel trainieren
-                </button>
+                <div className="hm-kapitel-knoepfe" data-hm-kapitel={k.id}>
+                  <button type="button" className="hm-kapitel-seite" onClick={() => gehe(k.seite)} data-hm-kapitelseite>
+                    <Ikon n="buch" g={15} /> <span className="hm-lang">Kapitelseite öffnen</span><span className="hm-kurz">Kapitelseite</span>
+                  </button>
+                  <button type="button" className="hm-gold-knopf" style={{ height: 40, fontSize: 13, gap: 6 }} onClick={() => gehe(k.trainieren)} data-hm-trainieren>
+                    <Ikon n="play" g={13} /> <span className="hm-lang">Kapitel trainieren</span><span className="hm-kurz">Trainieren</span>
+                  </button>
+                </div>
                 {k.hilfen.map((h) => <Eintrag key={h.id} e={h} gehe={gehe} aktuell={aktuell} />)}
               </div>
             )}
