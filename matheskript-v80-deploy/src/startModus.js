@@ -1,7 +1,7 @@
 /* ======================================================================
    STARTSEITE – Dunkel / Hell / Mix: der Modus der Startseite (funcStartseite.jsx).
-   „dunkel“ = Nachtblau mit Rechenpapier (Standard), „hell“ = weißer Grund,
-   „mix“ = weißer Grund mit dunklen Inseln (Bühne, Hauptkacheln, zwei Streifen).
+   „dunkel“ = Nachtblau, „hell“ = weißer Grund, „mix“ = weißer Grund mit
+   dunklen Inseln (blaue Bühne, Hauptkacheln, zwei Streifen) – Standard seit 21.10.
 
    Gewählt wird je Browser (localStorage); umschalten über die Pille unten
    links auf der Startseite, das Arbeitsmenü (wie „Switch to English“) oder
@@ -12,9 +12,9 @@
 export const START_MODUS_SCHLUESSEL = "matheplus-start-modus";
 export const EVENT_START_MODUS = "mm-start-modus";
 export const START_MODI = ["dunkel", "hell", "mix"];
-const STANDARD = "dunkel";
+const STANDARD = "mix";
 
-/* Gewählter Modus: "dunkel", "hell" oder "mix" (ohne Wahl: dunkel) */
+/* Gewählter Modus: "dunkel", "hell" oder "mix" (ohne Wahl: mix) */
 export function startModus() {
   try {
     const v = localStorage.getItem(START_MODUS_SCHLUESSEL);

@@ -80,10 +80,20 @@ const CSS = `
 }
 html[data-start-modus="dunkel"] .app-wurzel { background: ${NACHT} !important; }
 html[data-start-modus="hell"] .app-wurzel, html[data-start-modus="mix"] .app-wurzel { background: #FFFFFF !important; }
-/* Mix: Bühne und Streifen malen ihre Nacht selbst (ohne Karos – passt nicht zur Marke) */
-.sbb[data-modus="mix"] .sbb-held, .sbb[data-modus="mix"] .sbb-streifen { background-color: ${NACHT}; }
+/* Mix: Streifen malen ihre Nacht selbst (ohne Karos – passt nicht zur Marke).
+   Die Bühne ist dagegen lackiertes Blau (21.10.): Sie schließt direkt an die Kopfleiste an, die im Mix
+   ebenfalls blau ist (155°-Verlauf #0A5AB0 → see → seeTief). Oben hell wie deren Unterkante, nach unten
+   tiefer, aber klar blau – Gold und Weiß behalten ihren Kontrast. */
+.sbb[data-modus="mix"] .sbb-streifen { background-color: ${NACHT}; }
+.sbb[data-modus="mix"] .sbb-held { background-color: ${C.seeTief};
+  background-image: radial-gradient(110% 70% at 0% 0%, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0) 60%),
+    linear-gradient(155deg, #0656A7 0%, ${C.see} 22%, #0A3A80 58%, #0B2A63 100%); }
+/* Auf Blau wirkt halbdurchsichtiges Gold oliv – die Kurve tritt im Mix daher nur bis 0,62 zurück */
+.sbb[data-modus="mix"] .sbb-held-kurve .kurve { animation-name: sbbVerblassenMix; }
+@keyframes sbbVerblassenMix { to { opacity: .62; } }
 .sbb[data-modus="mix"] .sbb-held::before { content: ""; position: absolute; width: 60vw; max-width: 640px; height: 60vw; max-height: 640px; top: -22vw; right: -18vw; border-radius: 999px; pointer-events: none;
-  background: radial-gradient(circle, rgba(237,187,0,0.38) 0%, rgba(237,187,0,0) 70%); filter: blur(50px); }
+  background: radial-gradient(circle, rgba(255,229,138,0.30) 0%, rgba(255,229,138,0) 70%); filter: blur(50px); }
+.sbb[data-modus="mix"] .sbb-held .sbb-band { background: rgba(5,11,31,0.32); }
 .sbb[data-modus="mix"] .sbb-streifen { margin-top: 48px; padding: 4px 0 46px; }
 .sbb[data-modus="mix"] .sbb-streifen .sbb-kopf { margin-top: 36px; }
 .sbb[data-modus="mix"] .sbb-streifen + .sbb-teil .sbb-kopf { margin-top: 40px; }
@@ -338,6 +348,7 @@ html[data-start-modus="dunkel"] .fuss-paar button { color: #EEF2FF !important; b
   .sbb-held-kurve .punkt { animation: none; opacity: 1; }
   .sbb-held-kurve .kurve { animation: none; opacity: .36; }
   .sbb[data-modus="hell"] .sbb-held-kurve .kurve { opacity: .5; }
+  .sbb[data-modus="mix"] .sbb-held-kurve .kurve { opacity: .62; }
   .sbb-band-spur { animation: none; }
   .sbb-kachel, .sbb-schritt { transition: none; }
 }
@@ -573,7 +584,7 @@ function Mythen() {
 }
 
 /* ---------- Modus dunkel / hell ---------- */
-const ModusKontext = createContext("dunkel");
+const ModusKontext = createContext("mix");
 const useHell = () => useContext(ModusKontext) === "hell";
 
 export function useStartModus() {

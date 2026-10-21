@@ -1,5 +1,5 @@
 /* Startseite dunkel / hell (src/startModus.js): Pfade /start-hell und /start-dunkel (und Aliasse) wählen den Modus;
-   ohne Wahl gilt dunkel. Die Startseite (funcStartseite.jsx) kennt beide Modi und führt zu allen Angeboten (Mein Mathe-Training ganz oben). */
+   ohne Wahl gilt mix (seit 21.10.). Die Startseite (funcStartseite.jsx) kennt beide Modi und führt zu allen Angeboten (Mein Mathe-Training ganz oben). */
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -22,8 +22,8 @@ test("Pfade /start-hell und /start-dunkel (auch startseite-, frontpage-) wählen
   assert.equal(naechsterModus("mix"), "dunkel");
 });
 
-test("Ohne Browser-Speicher gilt der dunkle Modus", () => {
-  assert.equal(startModus(), "dunkel");
+test("Ohne Browser-Speicher gilt der Mix-Modus", () => {
+  assert.equal(startModus(), "mix");
 });
 
 test("Die Startseite führt zu allen Angeboten", () => {
