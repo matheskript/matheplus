@@ -49,8 +49,9 @@ test("Reihenfolge: grüne Station schrumpft auf eine Einheit, Rest in Stationsre
   assert.deepEqual(alle, pfadEinheiten("analysis").map((e) => e.id));
   const kurz = reihenfolgeBauen("analysis", { "analysis.untersuchen": { ampel: "gruen" } });
   assert.equal(kurz.filter((id) => id.startsWith("analysis.untersuchen.")).length, 1);
-  assert.equal(kurz.length, alle.length - 2);
-  assert.ok(kurz.includes("analysis.untersuchen.ableitungstrainer"));
+  const nUntersuchen = alle.filter((id) => id.startsWith("analysis.untersuchen.")).length;
+  assert.equal(kurz.length, alle.length - (nUntersuchen - 1));
+  assert.ok(kurz.includes("analysis.untersuchen.diffq"));   // erste Trainier-Einheit der Station (Differenzenquotient steht seit 21.10. vor dem Ableitungstrainer)
 });
 
 test("Termin: Einheiten pro Woche steigen, bis der Plan passt", () => {

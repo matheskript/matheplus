@@ -24,6 +24,7 @@ const lazy = (lader, name) => lazyLaden(() => lader().then((m) => ({ default: m[
 
 /* Trainings, die in func10 ohne WZ_SEITEN laufen – hier eingebettet */
 const EINGEBETTET = {
+  diffq: lazy(() => import("./funcDiffqTrainer.jsx"), "DifferenzenquotientTrainer"),
   ableitungstrainer: lazy(() => import("./func13.jsx"), "Ableitungstrainer"),
   parabeln: lazy(() => import("./funcParabelTrainer.jsx"), "ParabelTrainer"),
   integrale: lazy(() => import("./funcIntegralTrainer.jsx"), "IntegralTrainer"),

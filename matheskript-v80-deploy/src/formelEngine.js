@@ -26,6 +26,11 @@ export function tiefZiffer(n) {
 }
 
 const FUNKTIONEN = ["sqrt", "sin", "cos", "tan", "ln", "log"];
+/* Weitere Variablen neben x (Knoten {k: "var", n}): h beim Differenzenquotienten, a/t/k/n in Lerneinheiten.
+   Beim Auswerten bekommen sie ihren Wert aus dem zweiten Argument: kompiliere(baum)(x, { h: 0.5 }); fehlt er, ist der Wert NaN.
+   Beim Ableiten nach x gelten sie als Konstanten. */
+export const VARIABLEN = "abchkmnt";
+export const hatVar = (n, name) => !!n && ((n.k === "var" && (!name || n.n === name)) || ["a", "b"].some((s) => n[s] && hatVar(n[s], name)));
 const CURSOR = "‸", FELD_AUF = "⟦", FELD_ZU = "⟧";
 
 /* Anzeige-Text mit Schreibmarke: ‸ an der Position, und die innerste Klammer,
@@ -86,6 +91,7 @@ export function tokenisiere(s) {
       if (ch === "π") { push({ k: "pi" }, i, i + 1); i++; continue; }
       if (ch === "x" || ch === "X") { push({ k: "x" }, i, i + 1); i++; continue; }
       if (ch === "e") { push({ k: "e" }, i, i + 1); i++; continue; }
+      if (VARIABLEN.includes(ch)) { push({ k: "var", n: ch }, i, i + 1); i++; continue; }
       return null;
     }
     if ("+-−*·×/:^()[]".includes(ch)) {
@@ -127,7 +133,7 @@ export function parse(text) {
         p++;
         const r = vorz(); if (!r) return null;
         n = mit({ k: s.k, a: n, b: r }, { s: S(n), e: E(r), os: s.s, oe: s.e });
-      } else if (s && ["num", "x", "e", "pi", "box", "fn", "(", "cur", FELD_AUF].includes(s.k)) {
+      } else if (s && ["num", "x", "var", "e", "pi", "box", "fn", "(", "cur", FELD_AUF].includes(s.k)) {
         const r = potenz(); if (!r) return null;
         n = mit({ k: "*", a: n, b: r, still: true }, { s: S(n), e: E(r) });
       } else return n;
@@ -149,6 +155,7 @@ export function parse(text) {
     const s = schau(); if (!s) return null;
     if (s.k === "num") { p++; return mit({ k: "num", v: s.v }, { s: s.s, e: s.e, roh: s.roh }); }
     if (s.k === "x" || s.k === "e" || s.k === "pi" || s.k === "box" || s.k === "cur") { p++; return mit({ k: s.k }, { s: s.s, e: s.e }); }
+    if (s.k === "var") { p++; return mit({ k: "var", n: s.n }, { s: s.s, e: s.e }); }
     if (s.k === FELD_AUF) { p++; const n = summe(); if (!n || !nimm(FELD_ZU)) return null; return { k: "feld", a: n }; }
     if (s.k === "(") {
       p++;
@@ -201,46 +208,47 @@ export function kompiliere(n) {
   switch (n.k) {
     case "num": { const v = n.v; return () => v; }
     case "x": return (x) => x;
+    case "var": { const name = n.n; return (x, v) => (v && typeof v[name] === "number" ? v[name] : NaN); }
     case "e": return () => Math.E;
     case "pi": return () => Math.PI;
     case "par": return kompiliere(n.a);
-    case "neg": { const a = kompiliere(n.a); return (x) => -a(x); }
-    case "+": { const a = kompiliere(n.a), b = kompiliere(n.b); return (x) => a(x) + b(x); }
-    case "-": { const a = kompiliere(n.a), b = kompiliere(n.b); return (x) => a(x) - b(x); }
-    case "*": { const a = kompiliere(n.a), b = kompiliere(n.b); return (x) => a(x) * b(x); }
+    case "neg": { const a = kompiliere(n.a); return (x, v) => -a(x, v); }
+    case "+": { const a = kompiliere(n.a), b = kompiliere(n.b); return (x, v) => a(x, v) + b(x, v); }
+    case "-": { const a = kompiliere(n.a), b = kompiliere(n.b); return (x, v) => a(x, v) - b(x, v); }
+    case "*": { const a = kompiliere(n.a), b = kompiliere(n.b); return (x, v) => a(x, v) * b(x, v); }
     case "/": {
       const a = kompiliere(n.a), b = kompiliere(n.b);
-      return (x) => { const q = b(x); return q === 0 ? NaN : a(x) / q; };
+      return (x, v) => { const q = b(x, v); return q === 0 ? NaN : a(x, v) / q; };
     }
     case "^": {
       const a = kompiliere(n.a), b = kompiliere(n.b);
-      return (x) => {
-        const u = a(x), v = b(x);
-        if (u === 0 && v < 0) return NaN;
-        if (u < 0 && !Number.isInteger(v)) {
+      return (x, v) => {
+        const u = a(x, v), w = b(x, v);
+        if (u === 0 && w < 0) return NaN;
+        if (u < 0 && !Number.isInteger(w)) {
           // ungerade Wurzeln negativer Zahlen (z. B. x^(1/3)) zulassen
-          const inv = 1 / v, ni = Math.round(inv);
-          if (Math.abs(inv - ni) < 1e-12 && ni % 2 !== 0) return -Math.pow(-u, v);
+          const inv = 1 / w, ni = Math.round(inv);
+          if (Math.abs(inv - ni) < 1e-12 && ni % 2 !== 0) return -Math.pow(-u, w);
           return NaN;
         }
-        return Math.pow(u, v);
+        return Math.pow(u, w);
       };
     }
     case "fn": {
       const a = kompiliere(n.a);
       switch (n.n) {
-        case "sin": return (x) => Math.sin(a(x));
-        case "cos": return (x) => Math.cos(a(x));
-        case "tan": return (x) => { const u = a(x); return Math.abs(Math.cos(u)) < 1e-13 ? NaN : Math.tan(u); };
-        case "ln": return (x) => { const u = a(x); return u > 0 ? Math.log(u) : NaN; };
-        case "sqrt": return (x) => { const u = a(x); return u >= 0 ? Math.sqrt(u) : NaN; };
+        case "sin": return (x, v) => Math.sin(a(x, v));
+        case "cos": return (x, v) => Math.cos(a(x, v));
+        case "tan": return (x, v) => { const u = a(x, v); return Math.abs(Math.cos(u)) < 1e-13 ? NaN : Math.tan(u); };
+        case "ln": return (x, v) => { const u = a(x, v); return u > 0 ? Math.log(u) : NaN; };
+        case "sqrt": return (x, v) => { const u = a(x, v); return u >= 0 ? Math.sqrt(u) : NaN; };
         default: return () => NaN;
       }
     }
     case "log": {
       const a = kompiliere(n.a), b = kompiliere(n.b);
-      return (x) => {
-        const u = a(x), g = b(x);
+      return (x, v) => {
+        const u = a(x, v), g = b(x, v);
         return u > 0 && g > 0 && g !== 1 ? Math.log(u) / Math.log(g) : NaN;
       };
     }
@@ -263,7 +271,7 @@ const gleich = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
 function ableiten(n) {
   switch (n.k) {
-    case "num": case "e": case "pi": return num(0);
+    case "num": case "e": case "pi": case "var": return num(0);
     case "x": return num(1);
     case "par": return ableiten(n.a);
     case "neg": return neg(ableiten(n.a));
@@ -625,6 +633,7 @@ export function alsTex(n, aussen = 0, rechts = false) {
       return blatt(o.s, o.e, t);
     }
     case "x": return L("x");
+    case "var": return L(n.n);
     case "e": return L("e");
     case "pi": return L("π");
     case "box": {
@@ -656,7 +665,7 @@ export function alsTex(n, aussen = 0, rechts = false) {
     }
     case "*": {
       // Faktor 1 wird nicht geschrieben: 1·x → x, x·1 → x (nur vor Variable, Funktion, Potenz oder Klammer)
-      const FOLGT = ["x", "e", "pi", "par", "fn", "log", "^", "*"];
+      const FOLGT = ["x", "var", "e", "pi", "par", "fn", "log", "^", "*"];
       if (n.a.k === "num" && n.a.v === 1 && FOLGT.includes(n.b.k)) return alsTex(n.b, aussen, rechts);
       if (n.b.k === "num" && n.b.v === 1 && FOLGT.includes(n.a.k)) return alsTex(n.a, aussen, rechts);
       const l = alsTex(n.a, 2), r = alsTex(n.b, 2, n.b.k !== "*");
@@ -664,7 +673,8 @@ export function alsTex(n, aussen = 0, rechts = false) {
       if (PX) { const alt = PX; PX = null; lt = alsTex(n.a, 2); rt = alsTex(n.b, 2, n.b.k !== "*"); PX = alt; }
       const punkt = /[0-9}]$/.test(lt) && /^[0-9−-]/.test(rt);
       // Nähe = Priorität (Pen & Paper): Zahl vor Variable, Funktion oder Klammer ohne Abstand („2x⁵“, „3\\sin(x)“), sonst ein Abstand
-      const eng = !punkt && /[0-9}]$/.test(lt) && /^[a-zA-Z\\(]/.test(rt);
+      // Variablen aneinander ebenfalls eng („2xh“, „3x²h“), eine Funktion dahinter behält den Abstand („x \sin(x)“)
+      const eng = !punkt && ((/[0-9}]$/.test(lt) && /^[a-zA-Z\\(]/.test(rt)) || (/([a-df-zA-Z]|\})$/.test(lt) && /^[a-df-z](\^\{[^}]*\})?$/.test(rt)));
       return klam(`${l}${opb(n, punkt ? " \\cdot " : eng ? "" : " ")}${r}`, 2);
     }
     case "/": return klam(`\\frac{${gr(n.a)}}{${gr(n.b)}}`, 3);
@@ -805,6 +815,7 @@ export function alsText(n, aussen = 0, rechts = false) {
   switch (n.k) {
     case "num": return n.v < 0 ? klam(`−${wert(-n.v)}`, 2) : wert(n.v);
     case "x": return "x";
+    case "var": return n.n;
     case "e": return "e";
     case "pi": return "π";
     case "box": return "▯";

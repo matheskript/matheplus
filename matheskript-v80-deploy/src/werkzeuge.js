@@ -57,6 +57,8 @@ export const WERKZEUGE = {
     zeichen: "∿", bild: "sinus", ziel: { ansicht: "sinus" }, etikett: "entdecken", stufe: "beide" },
   wachstum: { name: "Wachstum und Logarithmen", kurz: "Wachstum", zeile: "Messwerte, Halbwertszeit, Zielwert", slogan: "Exponentielle Modelle, Halbwertszeiten und Logarithmen.",
     zeichen: "aᵗ", bild: "wachstum", ziel: { ansicht: "wachstum" }, etikett: "trainieren", stufe: "beide" },
+  diffq: { name: "Differenzenquotient", kurz: "h-Methode", zeile: "Einsetzen, kürzen, Grenzwert bilden", slogan: "Den Bruch des Differenzenquotienten Zeile für Zeile selbst aufbauen – bis zur Ableitung.",
+    zeichen: "Δy/Δx", bild: "diffq", ziel: { ansicht: "diffq" }, etikett: "trainieren", stufe: "ober" },
   ableitungstrainer: { name: "Ableitungstrainer", kurz: "Ableiten", zeile: "f′, f″ und f‴ eingeben und prüfen", slogan: "f′, f″ und f‴ eingeben und sofort prüfen lassen.",
     zeichen: "f′", bild: "ableitung", ziel: { ansicht: "ableitungstrainer" }, etikett: "trainieren", stufe: "ober" },
   kurvendiskussion: { name: "Kurvendiskussion", kurz: "Kurven", zeile: "Graph, Ableitungen und PDF", slogan: "Graph, Ableitungen und die komplette Kurvendiskussion – für Polynome und beliebige Funktionen.",
@@ -197,7 +199,7 @@ export const BEREICHE = [
     video: { name: "Videokurse Analysis", zeile: "Analysis 1–5 mit Videolektionen und Checks" },
     stationen: [
       { id: "kennen", titel: "Kennen", zeile: "Die wichtigsten Funktionsklassen", werkzeuge: ["funktionen", "sinus", "wachstum"] },
-      { id: "untersuchen", titel: "Untersuchen", zeile: "Ableiten und Kurven diskutieren", werkzeuge: ["ableitungstrainer", "kurvendiskussion", "scharen"] },
+      { id: "untersuchen", titel: "Untersuchen", zeile: "Ableiten und Kurven diskutieren", werkzeuge: ["diffq", "ableitungstrainer", "kurvendiskussion", "scharen"] },
       { id: "bestimmen", titel: "Bestimmen", zeile: "Funktionen aufstellen und anwenden", werkzeuge: ["steckbrief", "optimierung"] },
       { id: "integrieren", titel: "Integrieren", zeile: "Stammfunktionen, Flächen, Bestand", werkzeuge: ["integrale"] },
     ] },

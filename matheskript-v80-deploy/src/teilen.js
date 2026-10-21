@@ -21,6 +21,7 @@ export const TOOL_SAETZE = {
   parabeln: { de: "Parabeln verstehen und rechnen", en: "understand and work with parabolas" },
   sinus: { de: "Sinusfunktionen einstellen und verstehen", en: "tune and understand sine functions" },
   wachstum: { de: "Wachstum und Logarithmen rechnen", en: "work with growth and logarithms" },
+  diffq: { de: "den Differenzenquotienten Zeile für Zeile aufbauen", en: "build the difference quotient line by line" },
   ableitungstrainer: { de: "Ableitungen trainieren", en: "practise derivatives" },
   kurvendiskussion: { de: "Kurvendiskussionen durchrechnen – mit Graph und PDF", en: "work through curve sketching – with graph and PDF" },
   scharen: { de: "Funktionsscharen erkunden", en: "explore families of functions" },
@@ -108,7 +109,6 @@ export const SEITEN_SAETZE = {
   lernpfad: { de: "mit einem persönlichen Lernplan lernen", en: "learn with a personal study plan" },
   vorbereiten: { de: "sich auf die nächste Klausur vorbereiten", en: "prepare for the next exam" },
   analyse: { de: "Rechenwege per Foto prüfen lassen", en: "get your working checked from a photo" },
-  diffq: { de: "den Differenzenquotienten verstehen", en: "understand the difference quotient" },
   potenzregel: { de: "die Potenzregel verstehen und beweisen", en: "understand and prove the power rule" },
   efunktion: { de: "die natürliche Exponentialfunktion verstehen", en: "understand the natural exponential function" },
 

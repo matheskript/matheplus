@@ -49,7 +49,7 @@ const E_PYTH = z("Satz des Pythagoras entdecken", "Entdecke, warum a² + b² = c
 const E_BINOM = z("Binomische Formeln entdecken", "Drei Formeln aus Flächen gebaut", { ansicht: "entdecken", seite: "binomisch" });
 const E_GRENZ = z("Ableitung als Grenzwert", "Von der Sekante zur Tangente", { ansicht: "entdecken", seite: "grenzwert" });
 const E_PASCAL = z("Pascalsches Dreieck", "Vom Zahlenmuster zur Potenzregel", { ansicht: "entdecken", seite: "praxis" });
-const DIFFQ = z("Differenzenquotient", "Vom Tangentenproblem zur Ableitung", { ansicht: "diffq" });
+const DIFFQ = w("diffq");   // Werkzeug Differenzenquotient (seit 21.10. mit Band, Pfad /differenzenquotient)
 const KURS_DIFF = z("Kurs Differentialrechnung", "Jedes Buchkapitel lesen und direkt darunter trainieren", { ansicht: "diffkurs" });
 const KURS_VEK = z("Kurs Vektoren, Geraden und Ebenen", "Jedes Heftkapitel lesen und direkt darunter trainieren", { ansicht: "vekkurs" });
 const BUCH_ABL = z("Schulbuch: Ableitungen", "50 Seiten zum Blättern – jede Regel hergeleitet", { ansicht: "schulbuch" });

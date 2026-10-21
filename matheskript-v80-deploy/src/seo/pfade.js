@@ -10,6 +10,7 @@ export const SEO_PFADE = new Set([
   "brueche-und-wurzeln",
   "dezimal",
   "diagramme",
+  "differenzenquotient",
   "drei-punkte",
   "ebene-vs-ebene",
   "ebenen",

@@ -9,6 +9,22 @@
    Nur beschreiben, was das Werkzeug wirklich kann. Keine erfundenen Zahlen, Stimmen oder Siegel.
    ====================================================================== */
 export const TEXTE_ANALYSIS = {
+  diffq: {
+    titel: "Differenzenquotient üben: h-Methode Schritt für Schritt",
+    beschreibung: "Differenzenquotient selbst aufbauen: f(x+h) und f(x) einsetzen, den Bruch Zeile für Zeile umformen, h kürzen, Grenzwert bilden – jede Zeile wird geprüft.",
+    kurz: "Du baust den Bruch des Differenzenquotienten selbst auf – Zeile für Zeile, jede Umformung wird sofort geprüft.",
+    text: [
+      "Der Differenzenquotient ist der Weg zur Ableitung, den jede Klausur zur Einführung der Differentialrechnung verlangt: f(x+h) und f(x) einsetzen, den Bruch umformen, h kürzen und h gegen 0 laufen lassen. Genau diesen Weg gehst du hier selbst. Der Bruch ist interaktiv: Unten steht immer h, oben setzt du zuerst f(x+h) und f(x) in zwei Felder ein, danach schreibst du die nächste Zeile – ausmultiplizieren, zusammenfassen, h ausklammern.",
+      "Jede neue Zeile übernimmt die Zeile darüber, sodass du sie wie auf dem Papier weiter bearbeitest. Das Werkzeug prüft jede Zeile mathematisch: Es rechnet mit x und h und vergleicht deine Zeile mit der Zeile darüber. Eine andere, aber gleichwertige Schreibweise zählt deshalb als richtig. Fehlt ein Minus, fehlt das gemischte Glied der binomischen Formel oder steht h noch im Nenner, bekommst du genau diesen Hinweis.",
+      "Du kannst die Ableitungsfunktion f′(x) herleiten oder die Steigung an einer festen Stelle x₀ berechnen. Es gibt lineare, quadratische und kubische Funktionen, Potenzen, Brüche wie 1/(x+2) und Wurzeln – oder du gibst eine eigene Funktion ein. Der Modus Rechnen zeigt den vollständigen Musterweg vom Einsetzen bis zum Grenzwert, wenn du eine Herleitung nachlesen willst.",
+    ],
+    faq: [
+      { f: "Muss ich den Bruch genauso umformen wie in der Musterlösung?", a: "Nein. Das Werkzeug prüft jede Zeile rechnerisch gegen die Zeile darüber. Du kannst mehr oder weniger Zwischenschritte schreiben, solange jede Zeile gleichwertig bleibt." },
+      { f: "Was ist der Unterschied zwischen Ableitungsfunktion und an einer Stelle?", a: "Bei der Ableitungsfunktion bleibt x stehen und am Ende kommt f′(x) heraus. An einer Stelle setzt du von Anfang an die Zahl x₀ ein und erhältst die Steigung f′(x₀) als Zahl." },
+      { f: "Hilft das Werkzeug meinem Kind bei der ersten Klausur zur Differentialrechnung?", a: "Ja. Die h-Methode ist dort Standard, und hier übt Ihr Kind genau das Aufschreiben Zeile für Zeile. Jeder Fehler wird an der Stelle erklärt, an der er entsteht, nicht erst am Ergebnis." },
+    ],
+  },
+
   ableitungstrainer: {
     titel: "Ableitungstrainer: Ableitungen üben mit Rechenweg",
     beschreibung: "Ableiten üben bis zum Abitur: f′, f″ und f‴ selbst eingeben und sofort prüfen lassen – mit Produkt-, Quotienten- und Kettenregel und vollständigem Rechenweg.",

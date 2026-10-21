@@ -1,19 +1,20 @@
 import { FotoStart } from "./funcMathildaSeite.jsx";
 import React, { useState, useRef, useEffect } from "react";
 import { FR } from "./funcRegistry.jsx";
-import { API_URL, C, DEMO_VIDEO_ID, DIFFQ_TESTPAARE, DIFFQ_VIDEO_ID, Regler, ganz } from "./base1.jsx";
+import { API_URL, C, DEMO_VIDEO_ID, DIFFQ_VIDEO_ID, Regler, ganz } from "./base1.jsx";
 import { ABL_TYPEN, FEHLERARTEN, GEN_MODULE, KOPF_WERKZEUGE, PF_STUFEN, PRIMLISTE, PROTOKOLL, WEG_TYPEN } from "./base2.jsx";
 import { LERN } from "./base3.jsx";
 import { kiKopf, kiAntwort } from "./base4.jsx";
 import { ErklaerVideo, KIAufgaben, dekodieren, jsonLesen, parseZahl, rendern } from "./func1.jsx";
 import { hoch, termText } from "./func2.jsx";
-import { Formel, M, Text, Zeile, alsFunktion, alsFunktionXH, diffqAufgabe, diffqLoesung1, diffqLoesung2, diffqStimmtVorLimes, diffqX0, numAbleitung, stimmtUeberein, wegPruefen, zeileSetzen, zerlegen } from "./func3.jsx";
-import { AbleitungsGenerator, MiniGraph, TermTastatur, kubischErzeugen } from "./func4.jsx";
+import { Formel, M, Text, Zeile, alsFunktion, stimmtUeberein, wegPruefen, zeileSetzen, zerlegen } from "./func3.jsx";
+import { AbleitungsGenerator, MiniGraph, kubischErzeugen } from "./func4.jsx";
 import { LoesungsWeg, VisSekante, lernAusUebung, lernSpeichern } from "./func6.jsx";
 import { aktivitaetMelden } from "./func8.jsx";
 import { Auswertung } from "./func9.jsx";
 import { Mathilda } from "./func10.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
+import { DifferenzenquotientTrainer } from "./funcDiffqTrainer.jsx";
 import { useKopfEinstellungen, RundenStart, Vollbild, Ergebnis, StartKnopf, useTimer } from "./kopfTraining.jsx";
 
 export function KurvenGenerator() {
@@ -188,279 +189,42 @@ export function DiffqStufenknopf({ zeichen, onClick }) {
 }
 
 
-export function DifferenzenquotientGenerator() {
-  const [stufe, setStufe] = useState(2);
-  const [modus, setModus] = useState("funktion"); // "funktion" | "stelle"
-  const [auf, setAuf] = useState(() => diffqAufgabe(2));
-  const [x0, setX0] = useState(() => diffqX0(diffqAufgabe(2)));
-  const [phase, setPhase] = useState("vereinfachen"); // "vereinfachen" | "grenzwert" | "fertig"
-  const [e1, setE1] = useState("");
-  const [e2, setE2] = useState("");
-  const [stand1, setStand1] = useState(null);
-  const [stand2, setStand2] = useState(null);
-  const [hinweis, setHinweis] = useState("");
-  const [zeigen1, setZeigen1] = useState(false);
-  const [zeigen2, setZeigen2] = useState(false);
-  const [serie, setSerie] = useState({ n: 0, ok: 0 });
-  const [start, setStart] = useState(() => Date.now());
-
-  const neu = (s, m) => {
-    const stufeNeu = s ?? stufe, modusNeu = m ?? modus;
-    const a = diffqAufgabe(stufeNeu);
-    setAuf(a);
-    if (modusNeu === "stelle") setX0(diffqX0(a));
-    setPhase("vereinfachen");
-    setE1(""); setE2(""); setStand1(null); setStand2(null); setHinweis("");
-    setZeigen1(false); setZeigen2(false); setStart(Date.now());
-  };
-  const stufeSetzen = (s) => { const v = Math.max(1, Math.min(5, s)); setStufe(v); neu(v); };
-  const modusSetzen = (m) => { setModus(m); neu(stufe, m); };
-  const x0Setzen = (delta) => {
-    let v = x0 + delta;
-    if (auf.bruch) { let schutz = 0; while (v === -auf.c && schutz < 12) { v += delta || 1; schutz++; } }
-    setX0(v); setPhase("vereinfachen"); setE1(""); setE2(""); setStand1(null); setStand2(null); setHinweis("");
-    setZeigen1(false); setZeigen2(false); setStart(Date.now());
-  };
-
-  const stelle = modus === "stelle" ? x0 : null;
-  const fFun = React.useMemo(() => alsFunktion(auf.f), [auf]);
-  const abl = React.useMemo(() => numAbleitung(fFun), [fFun]);
-
-  const pruefen1 = () => {
-    const meins = alsFunktionXH(e1);
-    if (!meins) {
-      setStand1("nein");
-      setHinweis("Der Term lässt sich nicht lesen — achte auf die Klammern und darauf, dass h wirklich vorkommt.");
-      return;
-    }
-    const soll = (x, h) => (fFun(x + h) - fFun(x)) / h;
-    const paare = stelle !== null ? DIFFQ_TESTPAARE.map((t) => ({ x: stelle, h: t.h })) : DIFFQ_TESTPAARE;
-    const ok = diffqStimmtVorLimes((x, h) => meins(x, h), soll, paare);
-    setStand1(ok ? "ok" : "nein");
-    if (!ok) {
-      const beiNull = meins(stelle ?? 1.23, 0);
-      setHinweis(isFinite(beiNull)
-        ? "Rechnerisch stimmt der Term noch nicht mit dem Differenzenquotienten überein. Setz f(x+h) und f(x) noch einmal sauber ein."
-        : "Der Term steht noch nicht gekürzt da — bei h = 0 stünde h weiterhin im Nenner. Kürze, bis h nur noch außerhalb eines Bruchs vorkommt.");
-    } else {
-      setHinweis("");
-      setPhase("grenzwert");
-    }
-  };
-
-  const pruefen2 = () => {
-    let ok;
-    if (stelle !== null) {
-      const wert = parseZahl(e2);
-      const soll = abl(stelle);
-      ok = wert !== null && isFinite(soll) && Math.abs(wert - soll) < 1e-3 * (1 + Math.abs(soll));
-      if (!ok) setHinweis(wert === null ? "Trag eine einzelne Zahl ein — den Wert von f′ an dieser Stelle." : "Setz in deinem Term aus Stufe 1 einfach h = 0 ein, das ist schon die Lösung.");
-    } else {
-      const meins = alsFunktion(e2);
-      ok = !!meins && stimmtUeberein(meins, abl, 1e-3);
-      if (!ok) setHinweis(meins ? "Das ist noch nicht f′(x). Setz in deinem Term aus Stufe 1 einfach h = 0 ein." : "Der Term lässt sich nicht lesen. Er darf jetzt kein h mehr enthalten.");
-    }
-    setStand2(ok ? "ok" : "nein");
-    if (ok) setPhase("fertig");
-    setSerie((s) => ({ n: s.n + 1, ok: s.ok + (ok ? 1 : 0) }));
-    merken({
-      bereich: "diffquotient", gruppe: modus, stufe, richtig: ok,
-      sekunden: Math.max(1, Math.round((Date.now() - start) / 1000)),
-      fehlerart: ok ? null : "grenzuebergang",
-    });
-  };
-
-  const stelleTxt = stelle !== null ? String(stelle) : "x";
-  const templateTex = `\\lim_{h \\to 0} \\frac{f(${stelleTxt}+h) - f(${stelleTxt})}{h}`;
-
-  return (
-    <div>
-      <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 18 }}>
-        Wähle eine Funktionsfamilie und ob du allgemein ableitest oder an einer festen Stelle. Erst wird
-        gekürzt, dann der Grenzwert gebildet — genau wie auf dem Klausurblatt.
-      </p>
-
-      <div className="flex gap-2 mb-4">
-        {[["funktion", "Ableitungsfunktion"], ["stelle", "An einer Stelle"]].map(([id, n]) => (
-          <button key={id} onClick={() => modusSetzen(id)} className="px-4 py-2"
-            style={{ background: modus === id ? C.see : C.weiss, color: modus === id ? C.weiss : C.grau,
-              border: `1px solid ${modus === id ? C.see : C.linie}`, borderRadius: 999, fontSize: 13.5, fontFamily: "inherit", cursor: "pointer" }}>
-            {n}
-          </button>
-        ))}
-      </div>
-
-      <div className="flex items-center flex-wrap" style={{ gap: 10, marginBottom: 16 }}>
-        <span style={{ fontSize: 13.5, color: C.grau, fontWeight: 300 }}>Schwierigkeit</span>
-        <DiffqStufenknopf zeichen="−" onClick={() => stufeSetzen(stufe - 1)} />
-        <div className="flex" style={{ gap: 4 }}>
-          {[1, 2, 3, 4, 5].map((k) => (
-            <span key={k} style={{ width: 9, height: 9, borderRadius: 999,
-              background: k <= stufe ? C.see : C.linie, display: "inline-block" }} />
-          ))}
-        </div>
-        <DiffqStufenknopf zeichen="+" onClick={() => stufeSetzen(stufe + 1)} />
-        <span style={{ fontSize: 13.5, color: C.gruenDunkel, fontWeight: 600 }}>{stufe} / 5</span>
-
-        {modus === "stelle" && (
-          <div className="flex items-center" style={{ gap: 8, marginLeft: 8 }}>
-            <span style={{ fontSize: 13.5, color: C.grau, fontWeight: 300 }}>Stelle x₀ =</span>
-            <DiffqStufenknopf zeichen="−" onClick={() => x0Setzen(-1)} />
-            <span style={{ fontSize: 14, fontWeight: 600, color: C.tinte, minWidth: 18, textAlign: "center" }}>{x0}</span>
-            <DiffqStufenknopf zeichen="+" onClick={() => x0Setzen(1)} />
-          </div>
-        )}
-      </div>
-
-      <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" }}>
-        <div style={{ fontSize: 19, lineHeight: 2.1, marginBottom: 6 }}>
-          f(x) = <M t={auf.tex} />
-        </div>
-
-        <Formel titel="Differenzenquotient" zeilen={[templateTex]} />
-
-        {phase === "vereinfachen" && (
-          <>
-            <p style={{ fontSize: 15, fontWeight: 500, marginBottom: 8 }}>
-              1. Kürze den Bruch, bis h nicht mehr im Nenner steht:
-            </p>
-            <TermTastatur wert={e1} setWert={(w) => { setE1(w); setStand1(null); }} stand={stand1}
-              placeholder={stelle !== null ? "Term mit h" : "Term mit x und h"} variablen={["h"]} onOk={() => { if (e1.trim()) pruefen1(); }} />
-            <div style={{ height: 12 }} />
-
-            {stand1 === "nein" && (
-              <div style={{ borderLeft: `4px solid ${C.signal}`, paddingLeft: 16, marginBottom: 14 }}>
-                <p style={{ fontSize: 15, fontWeight: 600, color: C.signal, marginBottom: 6 }}>Stimmt noch nicht.</p>
-                <p style={{ fontSize: 14, color: C.tinte, fontWeight: 300, lineHeight: 1.75 }}>{hinweis}</p>
-                {!zeigen1 && (
-                  <button onClick={() => setZeigen1(true)} className="mt-3"
-                    style={{ background: "none", border: "none", color: C.see, fontSize: 13, fontFamily: "inherit", cursor: "pointer", padding: 0, textDecoration: "underline" }}>
-                    Lösung zeigen
-                  </button>
-                )}
-                {zeigen1 && (
-                  <p style={{ fontSize: 17, color: C.see, fontWeight: 600, marginTop: 12, lineHeight: 2 }}>
-                    = <M t={diffqLoesung1(auf, stelle)} />
-                  </p>
-                )}
-              </div>
-            )}
-            <button onClick={pruefen1} disabled={!e1.trim()} className="px-6 py-3"
-              style={{ background: e1.trim() ? C.see : C.hellgrau, color: C.weiss, border: "none",
-                borderRadius: 999, fontSize: 15, fontWeight: 600, fontFamily: "inherit", cursor: "pointer" }}>
-              Prüfen
-            </button>
-          </>
-        )}
-
-        {phase !== "vereinfachen" && (
-          <div style={{ borderLeft: `4px solid ${C.see}`, paddingLeft: 16, marginBottom: 18 }}>
-            <p style={{ fontSize: 13, color: C.grau, fontWeight: 300, marginBottom: 4 }}>Gekürzt:</p>
-            <p style={{ fontSize: 16, color: C.see, fontWeight: 600 }}><M t={e1} /></p>
-          </div>
-        )}
-
-        {phase !== "vereinfachen" && (
-          <>
-            <p style={{ fontSize: 15, fontWeight: 500, marginBottom: 8 }}>
-              2. Bilde jetzt den Grenzwert für h → 0:
-            </p>
-            {stelle !== null ? (
-              <MatheFeld modus="bruch" value={e2} onChange={(e) => { setE2(e.target.value); setStand2(null); }}
-                placeholder="f′(x₀) als Zahl"
-                style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", fontSize: 16, fontFamily: "inherit",
-                  border: `1.5px solid ${stand2 === "ok" ? C.see : stand2 ? C.signal : C.linie}`,
-                  borderRadius: 12, outline: "none", background: stand2 === "ok" ? C.himmel : C.weiss, color: C.tinte, marginBottom: 8 }} />
-            ) : (
-              <TermTastatur wert={e2} setWert={(w) => { setE2(w); setStand2(null); }} stand={stand2}
-                placeholder="f′(x)" onOk={() => { if (e2.trim() && stand2 === null) pruefen2(); }} />
-            )}
-            <div style={{ height: 12 }} />
-
-            {stand2 === null ? (
-              <button onClick={pruefen2} disabled={!e2.trim()} className="px-6 py-3"
-                style={{ background: e2.trim() ? C.see : C.hellgrau, color: C.weiss, border: "none",
-                  borderRadius: 999, fontSize: 15, fontWeight: 600, fontFamily: "inherit", cursor: "pointer" }}>
-                Prüfen
-              </button>
-            ) : stand2 === "ok" ? (
-              <div style={{ borderLeft: `4px solid ${C.see}`, paddingLeft: 16 }}>
-                <p style={{ fontSize: 16, fontWeight: 600, color: C.see }}>
-                  Stimmt — {stelle !== null ? `f′(${stelle})` : "f′(x)"} = <M t={e2} />
-                </p>
-              </div>
-            ) : (
-              <div style={{ borderLeft: `4px solid ${C.signal}`, paddingLeft: 16 }}>
-                <p style={{ fontSize: 15, fontWeight: 600, color: C.signal, marginBottom: 6 }}>Stimmt noch nicht.</p>
-                <p style={{ fontSize: 14, color: C.tinte, fontWeight: 300, lineHeight: 1.75 }}>{hinweis}</p>
-                {!zeigen2 && (
-                  <button onClick={() => setZeigen2(true)} className="mt-3"
-                    style={{ background: "none", border: "none", color: C.see, fontSize: 13, fontFamily: "inherit", cursor: "pointer", padding: 0, textDecoration: "underline" }}>
-                    Lösung zeigen
-                  </button>
-                )}
-                {zeigen2 && (
-                  <p style={{ fontSize: 17, color: C.see, fontWeight: 600, marginTop: 12, lineHeight: 2 }}>
-                    {stelle !== null ? `f′(${stelle})` : "f′(x)"} = <M t={diffqLoesung2(auf, stelle)} />
-                  </p>
-                )}
-              </div>
-            )}
-          </>
-        )}
-      </div>
-
-      <div className="flex flex-wrap gap-3 mt-5">
-        <button onClick={() => neu()} className="px-6 py-3"
-          style={{ background: C.gruenDunkel, color: C.weiss, border: "none", borderRadius: 999, fontSize: 15, fontWeight: 600, fontFamily: "inherit", cursor: "pointer" }}>
-          Nächste Aufgabe
-        </button>
-        {serie.n > 0 && (
-          <span className="flex items-center" style={{ fontSize: 13, color: C.grau }}>{serie.ok} von {serie.n} richtig</span>
-        )}
-      </div>
-    </div>
-  );
-}
-
-/* Die vollständige Einleitungsseite: Video, Tangentenproblem mit Sekanten-Visualisierung,
-   danach direkt das Werkzeug. Über NAV ("Üben") und die Startseite ("Werkzeuge") erreichbar. */
+/* Die Seite Differenzenquotient (/differenzenquotient): zuerst das Werkzeug (funcDiffqTrainer.jsx,
+   Band wie beim Ableitungstrainer), darunter zum Nachlesen Video, Tangentenproblem und die
+   Sekanten-Visualisierung. Auch das Modul „Differenzenquotient“ im Kurs Differentialrechnung zeigt sie. */
 
 export function DifferenzenquotientSeite() {
   return (
-    <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
-      <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 14 }}>
-        Vom Tangentenproblem zum Differenzenquotienten
-      </h2>
+    <div>
+      <DifferenzenquotientTrainer />
+      <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 10 }}>
+        <div style={{ height: 1, background: C.linie, margin: "0 0 26px" }} />
+        <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 8 }}>Woher der Bruch kommt</p>
+        <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 14 }}>
+          Vom Tangentenproblem zum Differenzenquotienten
+        </h2>
 
-      <ErklaerVideo id={DIFFQ_VIDEO_ID} titel="Differenzenquotient — Einführung" />
+        <ErklaerVideo id={DIFFQ_VIDEO_ID} titel="Differenzenquotient — Einführung" />
 
-      <div style={{ marginTop: 20 }}>
-        <Text s="Eine Gerade lässt sich immer durch zwei Punkte legen — ihre Steigung ist dann nur noch
-          Dreiecksrechnung. Eine Tangente an einen Funktionsgraphen kennt aber von Anfang an nur
-          einen einzigen Punkt. Ihre Steigung ist genau die Zahl, die wir suchen, und wir haben zunächst
-          keine Möglichkeit, sie direkt auszurechnen." style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.8, marginBottom: 16 }} />
-        <Text s="Der Ausweg: Man nimmt trotzdem zwei Punkte — den interessierenden Punkt $P(x_0 \, | \, f(x_0))$
-          und einen zweiten, der um $h$ daneben liegt. Die Gerade durch beide heißt Sekante, ihre Steigung
-          ist der Differenzenquotient." style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.8, marginBottom: 16 }} />
-        <Formel zeilen={["m_S = \\frac{f(x_0+h) - f(x_0)}{h}"]} />
-        <Text s="Lässt man $h$ immer kleiner werden, rückt der zweite Punkt an den ersten heran — aus der
-          Sekante wird die Tangente. Ihre Steigung, der Grenzwert für $h \to 0$, ist die gesuchte Ableitung."
-          style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.8, marginBottom: 4 }} />
+        <div style={{ marginTop: 20 }}>
+          <Text s="Eine Gerade lässt sich immer durch zwei Punkte legen — ihre Steigung ist dann nur noch
+            Dreiecksrechnung. Eine Tangente an einen Funktionsgraphen kennt aber von Anfang an nur
+            einen einzigen Punkt. Ihre Steigung ist genau die Zahl, die wir suchen, und wir haben zunächst
+            keine Möglichkeit, sie direkt auszurechnen." style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.8, marginBottom: 16 }} />
+          <Text s="Der Ausweg: Man nimmt trotzdem zwei Punkte — den interessierenden Punkt $P(x_0 \, | \, f(x_0))$
+            und einen zweiten, der um $h$ daneben liegt. Die Gerade durch beide heißt Sekante, ihre Steigung
+            ist der Differenzenquotient." style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.8, marginBottom: 16 }} />
+          <Formel zeilen={["m_S = \\frac{f(x_0+h) - f(x_0)}{h}"]} />
+          <Text s="Lässt man $h$ immer kleiner werden, rückt der zweite Punkt an den ersten heran — aus der
+            Sekante wird die Tangente. Ihre Steigung, der Grenzwert für $h \to 0$, ist die gesuchte Ableitung."
+            style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.8, marginBottom: 4 }} />
+        </div>
+
+        <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", margin: "22px 0" }}>
+          <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 10 }}>Zieh am Regler und beobachte, wie aus der Sekante die Tangente wird</p>
+          <VisSekante />
+        </div>
       </div>
-
-      <div style={{ background: C.weiss, borderRadius: 16, padding: 20, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", margin: "22px 0" }}>
-        <p style={{ fontSize: 13, fontWeight: 600, color: C.see, marginBottom: 10 }}>Zieh am Regler und beobachte, wie aus der Sekante die Tangente wird</p>
-        <VisSekante />
-      </div>
-
-      <div style={{ height: 1, background: C.linie, margin: "30px 0 26px" }} />
-
-      <p style={{ fontSize: 13, fontWeight: 600, color: C.gruenDunkel, marginBottom: 8 }}>Jetzt selbst üben</p>
-      <h3 style={{ fontSize: 21, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.25, marginBottom: 14 }}>
-        Differenzenquotient bilden und kürzen
-      </h3>
-      <DifferenzenquotientGenerator />
     </div>
   );
 }

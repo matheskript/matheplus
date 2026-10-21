@@ -25,6 +25,7 @@ import { kapitelAusSlug, kapitelPfad } from "./kapitelPfade.js";
 
 /* Werkzeuge, deren Pfad vom Schlüssel abweicht */
 export const WZ_SLUG = {
+  diffq: "differenzenquotient",
   vektorgenerator: "vektorrechnen",
   zweipunkte: "zwei-punkte",
   bruchwurzel: "brueche-und-wurzeln",
@@ -84,7 +85,6 @@ export const SEITEN = [
   { pfad: "mathe-entdecken/binomische-formeln", ansicht: "entdecken", seite: "binomisch" },
   { pfad: "mathe-entdecken/grenzwert", ansicht: "entdecken", seite: "grenzwert" },
   { pfad: "mathe-entdecken/gauss", ansicht: "entdecken", seite: "gauss", alias: ["gauss"] },
-  { pfad: "differenzenquotient", ansicht: "diffq" },
   { pfad: "formeln-zum-kapitel", ansicht: "kapitelformeln", alias: ["kapitel-formeln", "testklausur"] },
   { pfad: "potenzregel", ansicht: "potenzregel" },
   { pfad: "e-funktion", ansicht: "efunktion", alias: ["natuerliche-exponentialfunktion", "exponentialfunktion"] },
