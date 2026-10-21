@@ -30,3 +30,9 @@ Bausteine: `src/arbeitsflaeche.jsx`. Globale Regeln: `src/index.css` (Block „D
 - `npx vite build`, dann Playwright bei 1440, 1100, 860 (Desktop) und 390, 360 (Handy): keine `pageerror`, `scrollWidth` = Viewport-Breite, Screenshots ansehen.
 - Handy-Screenshot vorher/nachher vergleichen: muss gleich aussehen.
 - Bedienen: mindestens einen Regler/Knopf, einen Modus-Wechsel und (falls vorhanden) „Neue Aufgabe“ am Desktop durchklicken.
+
+## Stand und Ablage (21.10.2026)
+- Alle 62 Werkzeugansichten haben einen Desktop-Zweig. Gruppen-Bausteine: `vekUi.jsx` (Vektoren: `VekArbeit`, `VekBild`, `ReglerSpalten`), `geoDesktop.jsx` (Geometrie), `funcZahlenDesktop.jsx` (Zahlen/Terme: `StellKarte`, `ChipAuswahl`), `trainerDesktop.jsx` (Analysis-Trainer: `SenkrechtRegler`, `TrainerRaster`), in `func17.jsx` `TrainerSpalten` (Stochastik). Neue Werkzeuge nutzen zuerst diese Bausteine.
+- Trainings-Werkzeuge (Kurse in `trainingsKurse.js`, `data-training-breit`) sind ab 1000 px bis 940 px breit, die übrigen 783 px – die Arbeitsfläche passt sich an; Bildhöhen nie mit fester Untergrenze an die linke Spalte koppeln.
+- Direkte Kinder von `.mx-auto.px-6.pb-16` bekommen am Desktop per CSS 24 px Rand und (weiß) einen Rahmen – `Arbeitsflaeche`/`FeinKarte` deshalb in ein schlichtes `<div>` packen.
+- Browser-Tests je Gruppe: `tests/ui/desktop-a.ui.py` … `desktop-f.ui.py`, dazu `ebenevsebene.ui.py`.

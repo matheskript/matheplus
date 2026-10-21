@@ -204,7 +204,7 @@ function Entdecken() {
     // die Bildhöhe soll die Spalte links ausfüllen.
     const f = Math.min(1.6, Math.max(1, (bildBreite || 440) / 360));
     const ziel = linksHoehe && unterHoehe ? linksHoehe - unterHoehe - 14 : 300 * f;
-    const hoehe = Math.max(220, Math.min(380, ziel / f));
+    const hoehe = Math.max(160, Math.min(380, ziel / f));   // Untergrenze klein genug, damit auch die breite Trainingsspalte (bis 940 px) bündig wird
     return (
       <div data-scharen="breit" style={{ marginTop: 16 }}>
         <Arbeitsflaeche
