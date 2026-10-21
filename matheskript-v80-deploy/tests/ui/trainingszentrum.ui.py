@@ -90,7 +90,7 @@ with sync_playwright() as p:
         sess.get_by_role("button", name="Überspringen").click(); page.wait_for_timeout(1200)
         pruefe(sess.get_by_text("4 / 5").count() == 1, f"{breite}: Werkzeug-Seite nicht erreicht")
         pruefe(sess.locator("[data-ts-werkzeug='ableitungstrainer']").count() == 1, f"{breite}: Ableitungstrainer nicht eingebettet")
-        pruefe(sess.get_by_text("Ableiten üben").count() >= 1, f"{breite}: Ableitungstrainer-Inhalt fehlt")
+        pruefe(sess.get_by_text("Funktionsart").count() >= 1, f"{breite}: Ableitungstrainer-Inhalt fehlt")
         breite_ok("Werkzeug in Session")
         page.screenshot(path=f"{AUS}/{breite}-8-session-werkzeug.png")
         # Zurück-Taste in der Fußleiste

@@ -21,7 +21,7 @@ import {
   LiveFormel, Tastenfeld, ableitung, alsTex, hatBox, kompiliere, ohnePar, parse, zufallsFunktion,
 } from "./func12.jsx";
 import { IchHaengeFest, ableitRegeln, aussenTex, summanden } from "./funcHilfe.jsx";
-import { Eingabe, EingabePopup, POP_CSS, PopupWahl, REGEL_CHIPS, RegelWerkstatt } from "./funcRegelwerk.jsx";
+import { Eingabe, EingabePopup, POP_CSS, PopupWahl, RegelWerkstatt } from "./funcRegelwerk.jsx";
 
 import { springe } from "./sprung.js";
 /* Kontext für „Ich hänge fest“: Hinweise aus dem Term, der gerade abgeleitet wird */
@@ -260,7 +260,7 @@ export function Ableitungstrainer() {
         .abl-chip{flex:0 0 auto;scroll-snap-align:start;height:46px;padding:0 18px;border-radius:999px;font-family:inherit;font-size:15.5px;font-weight:600;cursor:pointer;white-space:nowrap;border:1.5px solid ${C.linie};background:#fff;color:${C.see}}
         .abl-chip[aria-pressed="true"]{background:${C.see};border-color:${C.see};color:#fff}
         .abl-karte{background:transparent}
-        .abl-kopf{display:grid;grid-template-columns:1.18fr 1fr;gap:8px;align-items:stretch;margin-bottom:14px}
+        .abl-kopf{display:grid;grid-template-columns:1fr;gap:8px;align-items:stretch;margin-bottom:14px}
         .abl-links{display:flex;flex-direction:column;gap:8px;min-width:0}
         .abl-reihe{display:flex;gap:8px;align-items:stretch;flex:1;min-height:42px}
         .abl-seg{display:flex;padding:3px;border-radius:999px;background:#EEF2F8;gap:2px;flex:1;min-height:42px}
@@ -270,12 +270,6 @@ export function Ableitungstrainer() {
         .abl-stufe .wk-pop-knopf{flex:1;min-width:0;height:auto;min-height:42px;justify-content:space-between;padding:0 12px 0 14px;font-size:14.5px}
         .abl-stufe.aus{opacity:.4;pointer-events:none}
         .abl-wuerfel{width:46px;flex-shrink:0;padding:0;border-radius:999px;border:none;cursor:pointer;background:${C.flaggold};font-size:22px;line-height:1;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(15,26,51,0.14)}
-        .abl-wahl{min-width:0;border-radius:18px;background:linear-gradient(155deg,${C.see} 0%,${C.seeTief} 100%);color:#fff;box-shadow:0 4px 12px rgba(0,77,152,0.25);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px;text-align:center}
-        .abl-wahl>span{font-size:15.5px;font-weight:700;line-height:1.2}
-        .abl-regelmenue{max-width:100%}
-        .abl-wahl .abl-regelknopf{height:34px;padding:0 6px 0 10px;gap:6px;border:none;background:transparent;color:${C.goldText};font-size:13.5px;font-weight:600;max-width:100%}
-        .abl-wahl .abl-regelknopf span{overflow:hidden;text-overflow:ellipsis}
-        @media (max-width:380px){.abl-seg button{font-size:12.5px}.abl-wahl>span{font-size:14.5px}}
         @media (min-width:601px){
           .abl-seite{background:transparent}
           .abl-chipwrap{margin:0 0 12px}
@@ -293,7 +287,6 @@ export function Ableitungstrainer() {
           .abl-spalte-r{min-width:0}
           .abl-nur-desk{display:block}
           .abl-kopf{grid-template-columns:1fr;gap:10px;margin-bottom:16px !important}
-          .abl-wahl{order:-1;min-height:84px}
           .abl-chipwrap{margin:0}
           .abl-chips{flex-direction:column;flex-wrap:nowrap;gap:6px}
           .abl-chip{width:100%;height:40px;text-align:left;font-size:14px;padding:0 14px;border-radius:12px}
@@ -302,7 +295,7 @@ export function Ableitungstrainer() {
       <div className="abl-innen">
        <div className="abl-raster">
         <div className="abl-spalte-l">
-        {/* Kopf: links Automatik/Training sowie Stufe und Würfel, rechts der große Knopf „Ableiten üben“ mit Auswahl (Polynome oder Regel) */}
+        {/* Kopf: links Automatik/Training sowie Stufe und Würfel, darunter die Funktionsarten (der Knopf „Ableiten üben“ ist am 21.10. entfallen) */}
         <div className="abl-kopf" style={bereich === "werkstatt" ? { marginBottom: 7 } : undefined}>
           <div className="abl-links">
             <div className="abl-seg" role="group" aria-label="Modus">
@@ -323,12 +316,6 @@ export function Ableitungstrainer() {
               <button type="button" className="abl-wuerfel" onClick={() => festhalten(() => (bereich === "werkstatt" ? setWurf((w) => w + 1) : neueFunktion()))}
                 aria-label="Neue Aufgabe würfeln" title="Neue Aufgabe"><span aria-hidden="true">🎲</span></button>
             </div>
-          </div>
-          <div className="abl-wahl">
-            <span>Ableiten üben</span>
-            <PopupWahl className="abl-regelmenue" knopfClass="abl-regelknopf" rechts wert={bereich === "trainer" ? "polynome" : werkRegel} label="Was möchtest du ableiten?"
-              optionen={[{ id: "polynome", name: "Polynome" }, ...REGEL_CHIPS.map(([id, name]) => ({ id, name }))]}
-              onWaehle={(id) => { if (id === "polynome") setBereich("trainer"); else { setWerkRegel(id); if (id !== "gold" && werkStufe > 3) setWerkStufe(3); setBereich("werkstatt"); } nachOben(); }} />
           </div>
         </div>
         {/* Funktionsart: direkt wählen, alles in einer Reihe (Desktop: Liste in der linken Spalte) */}
