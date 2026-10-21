@@ -335,7 +335,18 @@ function differenzPruefer(dn, dBaum) {
 
 const z = (k, notiz) => ({ k: Array.isArray(k) ? k : [k], ...(notiz ? { notiz } : {}) });
 const intTex = (a, b, inner) => `\\int_{${a}}^{${b}} ${inner}\\,dx`;
-const klammerInner = (t) => (/\s[+−]\s/.test(t) || /^−/.test(t) ? `(${t})` : t);
+/* Klammer um den Integranden nur, wenn auf oberster Ebene ein + oder − steht: x² + 1 → (x² + 1), aber (2x − 1)³ bleibt. */
+const klammerInner = (t) => {
+  if (/^−/.test(t)) return `(${t})`;
+  let tiefe = 0;
+  for (let i = 0; i < t.length; i++) {
+    const c = t[i];
+    if (c === "(" || c === "{") tiefe++;
+    else if (c === ")" || c === "}") tiefe--;
+    else if (tiefe === 0 && (c === "+" || c === "−") && t[i - 1] === " " && t[i + 1] === " ") return `(${t})`;
+  }
+  return t;
+};
 
 /* Teilintegral über ein Polynom P = Stammfunktion: ∫ₓᵧ name(x) dx = [P]ₓʸ = P(y) − P(x) = … */
 function teilZeilen(name, NAME, Ptex, P, x, y) {
@@ -427,6 +438,16 @@ export function baueStamm(fText, stufe = 1, eigen = false) {
   };
 }
 
+/* Potenz einer linearen Klammer, z. B. 3(2x − 1)², (x + 4)³ – bleibt verkettet stehen */
+function kettenPotenz() {
+  const m = wahl([1, 2, 2, 3]), n = wahl([2, 2, 3, 3, 4]);
+  let c = ohne0(-4, 4);
+  while (m > 1 && c % m === 0) c = ohne0(-4, 4);                       // nicht 2x + 4 = 2(x + 2)
+  const k = wahl([1, 1, m * (n + 1), 2]);
+  const innen = `${m === 1 ? "" : m}x${c < 0 ? "-" : "+"}${Math.abs(c)}`;
+  return `${k === 1 ? "" : k}(${innen})^${n}`;
+}
+
 function stammAufgabe(stufe) {
   for (let i = 0; i < 30; i++) {
     let text;
@@ -438,6 +459,7 @@ function stammAufgabe(stufe) {
       text = pEingabe(p);
     } else if (stufe === 2) text = neueStammAufgabe("potenz", 3).text;
     else if (stufe === 3) text = neueStammAufgabe("speziell", wahl([1, 2, 3])).text;
+    else if (Math.random() < 0.35) text = kettenPotenz();
     else text = neueStammAufgabe(wahl(["linear", "linear", "gemischt"]), wahl([1, 2, 3])).text;
     const a = baueStamm(text, stufe);
     if (!a.fehler) return a;
@@ -642,9 +664,11 @@ export function baueBestimmtTerm(fText, aText, bText, stufe = 3, eigen = false) 
   if (!f) return { fehler: "Der Term ist noch nicht vollständig." };
   if (!aG || !bG) return { fehler: "Die Grenzen a und b müssen Zahlen sein (auch π, e oder Brüche)." };
   if (Math.abs(aG.v - bG.v) < 1e-12) return { fehler: "a und b sind gleich – das Integral ist 0." };
-  // Polynom mit rationalen Grenzen: exakt rechnen
+  // Polynom mit rationalen Grenzen: exakt rechnen – außer bei Potenzen einer Klammer wie (2x − 1)³:
+  // die bleiben verkettet (Kettenregel rückwärts), sonst wäre die Stufe „Verkettet“ ein ausmultipliziertes Polynom.
+  const verkettet = /\)\s*\^/.test(fText);
   const pk = polyKoef(f), qa = qVonZahl(aG.v), qb = qVonZahl(bG.v);
-  if (pk && qa && qb && pk.every((c) => qVonZahl(c))) {
+  if (!verkettet && pk && qa && qb && pk.every((c) => qVonZahl(c))) {
     const fq = pTrim(pk.map((c) => qVonZahl(c)));
     if (fq.length > 1 || !qNull(fq[0])) return baueBestimmtPoly(fq, qa, qb, stufe, eigen);
   }

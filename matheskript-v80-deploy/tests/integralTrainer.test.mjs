@@ -267,3 +267,16 @@ test("„Stammfunktion & Integral“ ist im Integraltrainer aufgegangen (21.10.)
   const { WERKZEUGE } = await import("../src/werkzeuge.js");
   assert.ok(!WERKZEUGE.stammintegral, "altes Werkzeug steht noch in der Liste");
 });
+
+test("Stufe „Verkettet“: Potenzen einer Klammer bleiben verkettet (Kettenregel rückwärts), keine Doppelklammer", () => {
+  const r = K.baueBestimmtTerm("(2x-1)^3", "1", "2", 4);
+  assert.equal(r.f.tex, "(2x − 1)^{3}");
+  assert.equal(r.F.tex, "\\frac{1}{8}(2x − 1)^{4}");
+  assert.equal(r.ergebnis.wert, 10);
+  assert.ok(!r.schritte.at(-1).zeilen[0].k[0].includes("(("), "Integrand doppelt geklammert");
+  const s = K.baueStamm("3(x-2)^2", 4);
+  assert.equal(s.F.tex, "(x − 2)^{3}");
+  let ketten = 0;
+  for (let i = 0; i < 120; i++) if (/\)\^/.test(K.neueAufgabe("stamm", 4).f.text)) ketten++;
+  assert.ok(ketten >= 15, `Stammfunktion Stufe 4 stellt zu selten Klammer-Potenzen (${ketten}/120)`);
+});
