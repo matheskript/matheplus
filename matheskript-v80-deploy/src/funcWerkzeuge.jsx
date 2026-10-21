@@ -15,6 +15,7 @@ import { BEREICHE, ETIKETTEN, werkzeug, wo } from "./werkzeuge.js";
 import { FR } from "./funcRegistry.jsx";
 import { MS } from "./mathText.jsx";
 import { uebergabeHinweis, uebergabeSetzen, uebergabeZurueck } from "./uebergabe.js";
+import { aktuellerKurs, gewaehlteKurse, kurs, kursMerken, reiterFuer, reiterName } from "./trainingsKurse.js";
 
 /* ---------- Etikett ---------- */
 const ETIKETT_FARBE = {
@@ -225,15 +226,43 @@ export function WerkzeugLeiste({ ansicht, gehe }) {
 /* ---------- Werkzeug-Band: die dünne Menüleiste innerhalb eines Werkzeugs ----------
    Steht direkt unter der Kopfleiste (Mythos-Mathe-Header) und klebt beim Scrollen oben.
    Links die Werkzeuge der Station als Reiter (aktives Werkzeug mit Goldstrich),
-   rechts „Test“ (Prüfungsmodus) und „Tools“: Aufklappfeld mit allen Werkzeugen
-   aller Bereiche zum direkten Umschalten. Ersetzt die frühere KompaktKopf-Zeile
+   rechts „Test“ (Prüfungsmodus) und der Kurs-Umschalter: Gehört das Werkzeug zu einem
+   Kurs (trainingsKurse.js, z. B. Analysis Oberstufe), stehen links die Trainer dieses
+   Kurses und der Knopf trägt den Kursnamen; das Aufklappfeld wechselt den Kurs und
+   zeigt darunter alle Werkzeuge. Sonst wie früher: Station + „Tools“. Ersetzt die frühere KompaktKopf-Zeile
    (‹ · Werkzeug-Auswahl · Test · ☰) – das ☰-Menü steckt jetzt in der Kopfleiste. */
 export const BAND_HOEHE = 38;
+
+/* Kurs-Zeichen im Umschalter: vier Kacheln (wie früher „Tools“) */
+const KachelZeichen = () => (
+  <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden="true"><rect x="3" y="3" width="7.5" height="7.5" rx="2" /><rect x="13.5" y="3" width="7.5" height="7.5" rx="2" /><rect x="3" y="13.5" width="7.5" height="7.5" rx="2" /><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2" /></svg>
+);
+const Pfeil = ({ auf, g = 11 }) => (
+  <svg viewBox="0 0 24 24" width={g} height={g} fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"
+    style={{ flexShrink: 0, transform: auf ? "rotate(180deg)" : "none", transition: "transform .15s" }}><path d="M6 9l6 6 6-6" /></svg>
+);
+
 export function WerkzeugBand({ ansicht, gehe, testKnopf }) {
   const ort = wo(ansicht);
   const [auf, setAuf] = useState(false);
+  const [alleAuf, setAlleAuf] = useState(false);
+  const [kursId, setKursId] = useState(() => { const k = aktuellerKurs(ansicht); return k ? k.id : null; });
   const wurzel = useRef(null);
-  useEffect(() => { setAuf(false); }, [ansicht]);
+  const reiterRef = useRef(null);
+  const [mehr, setMehr] = useState(false);   // Reiter laufen über den Rand → rechts weich ausblenden (Handy)
+  useEffect(() => { setAuf(false); const k = aktuellerKurs(ansicht); setKursId(k ? k.id : null); }, [ansicht]);
+  /* Aktiven Reiter waagerecht ins Bild holen (nur innerhalb der Reiterzeile, die Seite scrollt nicht) */
+  useEffect(() => {
+    const el = reiterRef.current;
+    if (!el) return undefined;
+    const pruefe = () => setMehr(el.scrollWidth - el.scrollLeft - el.clientWidth > 4);
+    const a = el.querySelector('[aria-current="page"]');
+    if (a && (a.offsetLeft + a.offsetWidth > el.scrollLeft + el.clientWidth || a.offsetLeft < el.scrollLeft)) el.scrollLeft = Math.max(0, a.offsetLeft - 12);
+    pruefe();
+    el.addEventListener("scroll", pruefe, { passive: true });
+    window.addEventListener("resize", pruefe);
+    return () => { el.removeEventListener("scroll", pruefe); window.removeEventListener("resize", pruefe); };
+  }, [ansicht, kursId]);
   useEffect(() => {
     if (!auf) return undefined;
     const taste = (e) => { if (e.key === "Escape") setAuf(false); };
@@ -242,72 +271,131 @@ export function WerkzeugBand({ ansicht, gehe, testKnopf }) {
     document.addEventListener("pointerdown", aussen);
     return () => { window.removeEventListener("keydown", taste); document.removeEventListener("pointerdown", aussen); };
   }, [auf]);
-  if (!ort || !ort.station) return null;
+  if (!ort || !ort.werkzeug) return null;
   const { bereich, station, werkzeug: wAktiv, sNr } = ort;
-  const naechste = bereich.stationen[sNr];
+  const aktKurs = kurs(kursId);
+  /* Kurs-Modus: Reiter = Trainer des Kurses. Sonst wie bisher: Werkzeuge der Station + „Weiter“. */
+  const reiter = aktKurs ? reiterFuer(aktKurs, wAktiv.id) : station.werkzeuge;
+  const naechste = aktKurs ? null : bereich.stationen[sNr];
   const weiter = naechste ? werkzeug(naechste.werkzeuge[0]) : null;
+  const meine = gewaehlteKurse();
   const H = BAND_HOEHE;
   const zeile = (aktiv) => ({ display: "flex", alignItems: "center", gap: 10, width: "100%", minHeight: 40, padding: "0 12px", border: "none", borderRadius: 10, textAlign: "left",
     fontFamily: "inherit", fontSize: 14, fontWeight: aktiv ? 700 : 500, cursor: "pointer", color: aktiv ? C.seeTief : C.tinte, background: aktiv ? "rgba(237,187,0,0.16)" : "transparent" });
+  const kicker = (farbe = C.grau) => ({ margin: "8px 12px 4px", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: farbe });
+  const kursWaehlen = (k) => {
+    kursMerken(k.id);
+    setAuf(false);
+    if (k.werkzeuge.includes(wAktiv.id)) { setKursId(k.id); return; }
+    const erst = werkzeug(k.werkzeuge[0]);
+    if (erst) gehe(erst.ziel);
+  };
   return (
-    <nav data-werkzeug-band aria-label={`${bereich.titel}: Werkzeuge`}
+    <nav data-werkzeug-band data-kurs={aktKurs ? aktKurs.id : undefined} aria-label={aktKurs ? `${aktKurs.titel} ${aktKurs.stufe}: Trainer` : `${bereich.titel}: Werkzeuge`}
       style={{ position: "sticky", top: 0, zIndex: 45, background: "rgba(255,255,255,0.96)", backdropFilter: "saturate(1.4) blur(8px)", WebkitBackdropFilter: "saturate(1.4) blur(8px)",
         borderBottom: `1px solid ${C.linie}`, boxShadow: "0 6px 18px -14px rgba(15,26,51,0.35)" }}>
       <style>{`.wb-reiter{scrollbar-width:none}.wb-reiter::-webkit-scrollbar{display:none}
         .wb-tab::after{content:"";position:absolute;left:10px;right:10px;bottom:0;height:2px;border-radius:2px;background:${C.flaggold};transform:scaleX(0);transition:transform .2s cubic-bezier(.2,.7,.3,1)}
         .wb-tab[aria-current="page"]::after{transform:scaleX(1)}
         .wb-tab:hover{color:${C.seeTief} !important}
+        .wb-innen{max-width:620px}
+        .wb-kurs-stufe,.wb-lang{display:none}
+        @media (min-width:840px){.wb-innen{max-width:none;width:var(--tr-breite);padding:0 0 0 8px !important}.wb-tab{padding:0 12px !important;font-size:13.5px !important}.wb-tab::after{left:12px;right:12px}}
+        @media (min-width:1000px){.wb-kurs-stufe,.wb-lang{display:inline}.wb-kurz{display:none}.wb-tab{padding:0 10px !important;font-size:13px !important}.wb-tab::after{left:10px;right:10px}}
+        @media (max-width:839px){.wb-reiter[data-mehr]{-webkit-mask-image:linear-gradient(90deg,#000 82%,transparent);mask-image:linear-gradient(90deg,#000 82%,transparent)}}
         @media (max-width:374px){.wb-tools-text{display:none}}`}</style>
-      <div ref={wurzel} className="mx-auto" style={{ position: "relative", maxWidth: 620, height: H, padding: "0 8px 0 4px", display: "flex", alignItems: "center", gap: 6 }}>
-        <div className="wb-reiter" style={{ flex: "1 1 auto", minWidth: 0, display: "flex", alignItems: "stretch", height: "100%", overflowX: "auto" }}>
-          {station.werkzeuge.map((id) => {
+      <div ref={wurzel} className="mx-auto wb-innen" style={{ position: "relative", height: H, padding: "0 8px 0 4px", display: "flex", alignItems: "center", gap: 6 }}>
+        <div ref={reiterRef} className="wb-reiter" data-mehr={mehr ? "" : undefined} style={{ flex: "1 1 auto", minWidth: 0, display: "flex", alignItems: "stretch", height: "100%", overflowX: "auto" }}>
+          {reiter.map((id) => {
             const w = werkzeug(id);
             const an = w.id === wAktiv.id;
             return (
               <button key={id} type="button" className="wb-tab" aria-current={an ? "page" : undefined} onClick={() => !an && gehe(w.ziel)} title={w.name}
                 style={{ position: "relative", flexShrink: 0, height: "100%", padding: "0 10px", border: "none", background: "none", fontFamily: "inherit", cursor: an ? "default" : "pointer",
                   fontSize: 13, fontWeight: an ? 700 : 500, color: an ? C.seeTief : C.grau, whiteSpace: "nowrap", letterSpacing: "-0.005em" }}>
-                <span className="titel-lang">{w.name}</span><span className="titel-kurz">{w.kurz || w.name}</span>
+                {aktKurs ? <><span className="wb-lang">{reiterName(aktKurs, id, w)}</span><span className="wb-kurz">{w.kurz || w.name}</span></>
+                  : <><span className="titel-lang">{w.name}</span><span className="titel-kurz">{w.kurz || w.name}</span></>}
               </button>
             );
           })}
         </div>
         {testKnopf}
-        <button type="button" onClick={() => setAuf(!auf)} aria-expanded={auf} aria-haspopup="dialog" data-wb-tools title="Alle Werkzeuge"
+        <button type="button" onClick={() => setAuf(!auf)} aria-expanded={auf} aria-haspopup="dialog" data-wb-tools title={aktKurs ? "Kurs wechseln" : "Alle Werkzeuge"}
           style={{ flexShrink: 0, height: 26, display: "inline-flex", alignItems: "center", gap: 5, padding: "0 9px", borderRadius: 999, fontFamily: "inherit", cursor: "pointer",
             fontSize: 12.5, fontWeight: 700, color: C.see, border: `1px solid ${auf ? C.flaggold : C.linie}`, background: auf ? "rgba(237,187,0,0.14)" : C.weiss }}>
-          <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden="true"><rect x="3" y="3" width="7.5" height="7.5" rx="2" /><rect x="13.5" y="3" width="7.5" height="7.5" rx="2" /><rect x="3" y="13.5" width="7.5" height="7.5" rx="2" /><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2" /></svg>
-          <span className="wb-tools-text">Tools</span>
-          <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"
-            style={{ transform: auf ? "rotate(180deg)" : "none", transition: "transform .15s" }}><path d="M6 9l6 6 6-6" /></svg>
+          <KachelZeichen />
+          <span className="wb-tools-text">{aktKurs ? <>{aktKurs.titel}<span className="wb-kurs-stufe">{` ${aktKurs.stufe}`}</span></> : "Tools"}</span>
+          <Pfeil auf={auf} />
         </button>
         {auf && (
-          <div role="dialog" aria-label="Alle Werkzeuge" data-wb-panel
-            style={{ position: "absolute", top: H + 4, right: 8, zIndex: 46, width: "min(340px, calc(100vw - 16px))", maxHeight: "min(70vh, 560px)", overflowY: "auto",
+          <div role="dialog" aria-label={aktKurs ? "Kurs wechseln" : "Alle Werkzeuge"} data-wb-panel
+            style={{ position: "absolute", top: H + 4, right: 8, zIndex: 46, width: "min(340px, calc(100vw - 16px))", maxHeight: "min(72vh, 600px)", overflowY: "auto",
               background: C.weiss, borderRadius: 14, padding: 6, boxShadow: "0 14px 40px rgba(8,23,59,0.28)", border: `1px solid ${C.linie}` }}>
             {weiter && (
               <button type="button" onClick={() => gehe(weiter.ziel)} style={{ ...zeile(false), color: C.see, fontWeight: 700, justifyContent: "space-between" }}>
                 <span>{`Weiter: ${naechste.titel}`}</span><span aria-hidden="true">›</span>
               </button>
             )}
-            {BEREICHE.map((b) => (
-              <div key={b.id} style={{ borderTop: `1px solid ${C.linie}`, marginTop: 4, paddingTop: 4 }}>
-                <p style={{ margin: "6px 12px 2px", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: b.id === bereich.id ? "#8A6A00" : C.grau }}>{b.titel}</p>
-                {b.stationen.flatMap((s) => s.werkzeuge).filter((id, i, l) => l.indexOf(id) === i).map((id) => {
-                  const w = werkzeug(id);
-                  if (!w) return null;
-                  const an = w.id === wAktiv.id;
-                  return (
-                    <button key={id} type="button" aria-current={an ? "page" : undefined} onClick={() => (an ? setAuf(false) : gehe(w.ziel))} style={zeile(an)}>
-                      <span style={{ flex: 1 }}>{w.name}</span>{an && <span aria-hidden="true" style={{ color: C.flaggold, fontWeight: 800 }}>●</span>}
-                    </button>
-                  );
-                })}
-              </div>
-            ))}
+            <p style={kicker()}>Deine Kurse</p>
+            {meine.map((k) => {
+              const an = aktKurs && aktKurs.id === k.id;
+              return (
+                <button key={k.id} type="button" data-wb-kurs={k.id} aria-current={an ? "true" : undefined} onClick={() => (an ? setAuf(false) : kursWaehlen(k))}
+                  style={{ ...zeile(an), minHeight: 52, alignItems: "center" }}>
+                  <span aria-hidden="true" style={{ flexShrink: 0, width: 32, height: 32, borderRadius: 9, display: "inline-flex", alignItems: "center", justifyContent: "center",
+                    background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, color: C.flaggold, fontSize: 13, fontWeight: 800, fontStyle: "italic" }}>
+                    {werkzeug(k.werkzeuge[0]).zeichen.slice(0, 3)}
+                  </span>
+                  <span style={{ flex: 1, minWidth: 0 }}>
+                    <span style={{ display: "block", lineHeight: 1.25 }}>{`${k.titel} `}<span style={{ fontWeight: 500, color: C.grau }}>{k.stufe}</span></span>
+                    <span style={{ display: "block", fontSize: 12, fontWeight: 400, color: C.grau, lineHeight: 1.35 }}>{`${k.werkzeuge.length} Trainer · ${k.zeile}`}</span>
+                  </span>
+                  {an && <span aria-hidden="true" style={{ color: C.flaggold, fontWeight: 800 }}>●</span>}
+                </button>
+              );
+            })}
+            <div style={{ borderTop: `1px solid ${C.linie}`, marginTop: 6, paddingTop: 4 }}>
+              <button type="button" aria-expanded={alleAuf || !aktKurs} onClick={() => setAlleAuf(!alleAuf)} disabled={!aktKurs}
+                style={{ ...zeile(false), minHeight: 36, fontSize: 12.5, fontWeight: 700, color: C.grau, justifyContent: "space-between", cursor: aktKurs ? "pointer" : "default" }}>
+                <span>Alle Werkzeuge</span>{aktKurs && <Pfeil auf={alleAuf} />}
+              </button>
+              {(alleAuf || !aktKurs) && BEREICHE.map((b) => (
+                <div key={b.id} style={{ marginTop: 2 }}>
+                  <p style={kicker(b.id === bereich.id ? "#8A6A00" : C.grau)}>{b.titel}</p>
+                  {b.stationen.flatMap((s) => s.werkzeuge).filter((id, i, l) => l.indexOf(id) === i).map((id) => {
+                    const w = werkzeug(id);
+                    if (!w) return null;
+                    const an = w.id === wAktiv.id;
+                    return (
+                      <button key={id} type="button" aria-current={an ? "page" : undefined} onClick={() => (an ? setAuf(false) : gehe(w.ziel))} style={zeile(an)}>
+                        <span style={{ flex: 1 }}>{w.name}</span>{an && <span aria-hidden="true" style={{ color: C.flaggold, fontWeight: 800 }}>●</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>
+      {aktKurs && wAktiv.modi && (
+        /* Werkzeug mit mehreren Ansichten (Kurvendiskussion: Polynome | Beliebige Funktionen): zweite, flache Zeile */
+        <div className="mx-auto wb-innen" style={{ padding: "0 8px 8px 12px" }}>
+          <div role="tablist" aria-label={`${wAktiv.name}: Ansicht wählen`}
+            style={{ display: "inline-flex", height: 32, boxSizing: "border-box", padding: 3, borderRadius: 999, background: "#EEF2F8" }}>
+            {wAktiv.modi.map((m) => {
+              const an = m.ansicht === ansicht;
+              return (
+                <button key={m.ansicht} type="button" role="tab" aria-selected={an} onClick={() => !an && gehe({ ansicht: m.ansicht })}
+                  style={{ padding: "0 14px", borderRadius: 999, border: "none", fontFamily: "inherit", fontSize: 12.5, fontWeight: an ? 700 : 500, cursor: an ? "default" : "pointer",
+                    background: an ? C.weiss : "transparent", color: an ? C.see : C.grau, boxShadow: an ? "0 1px 6px rgba(15,26,51,0.12)" : "none", whiteSpace: "nowrap" }}>
+                  {m.name}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

@@ -9,6 +9,8 @@ import { ToolMenue, werkzeugMerken } from "./func2.jsx";
 import { Startseite, StartModusSchalter } from "./funcStartseite.jsx";
 import { startModusSetzen, modusAusPfad } from "./startModus.js";
 import { WerkzeugLeiste, WerkzeugBand } from "./funcWerkzeuge.jsx";
+import { kursAnsichten } from "./trainingsKurse.js";
+const KURS_ANSICHTEN = kursAnsichten();   // Werkzeuge eines Trainings-Kurses: Band statt großem Seitenkopf
 import { wo } from "./werkzeuge.js";
 import { pfadAufloesen, pfadFuer } from "./pfade.js";
 import { TeilenKnopf } from "./funcTeilen.jsx";
@@ -256,6 +258,11 @@ export function Mathilda() {
     if (wz) document.documentElement.setAttribute("data-wz-voll", "1"); else document.documentElement.removeAttribute("data-wz-voll");
     return () => document.documentElement.removeAttribute("data-wz-voll");
   }, [ansicht]);
+  // Trainings-Kurse (Band mit Kurs-Umschalter): am Desktop breit und symmetrisch wie die Kopfleiste (--tr-breite, index.css)
+  useEffect(() => {
+    if (KURS_ANSICHTEN.has(ansicht)) document.documentElement.setAttribute("data-training-breit", "1"); else document.documentElement.removeAttribute("data-training-breit");
+    return () => document.documentElement.removeAttribute("data-training-breit");
+  }, [ansicht]);
   // Adresszeile folgt der Seite: /elternabend, /ableitungstrainer, /klasse-10 … (Pfade: pfade.js).
   // Erster Lauf und Zurück/Vor-Taste ersetzen die Adresse, jede eigene Navigation legt einen Verlaufseintrag an.
   const adressErsterLauf = useRef(true);
@@ -465,8 +472,9 @@ export function Mathilda() {
     </>);
   };
 
-  /* Trainingswerkzeuge (Ableitungstrainer, Geraden, Parabeln, Stammfunktion & Integral): Kopfleiste wie überall,
-     darunter nur das dünne Werkzeug-Band (WerkzeugBand) statt des großen Seitenkopfs */
+  /* Trainingswerkzeuge (alle Werkzeuge der Trainings-Kurse aus trainingsKurse.js, dazu Geraden, Parabeln,
+     Stammfunktion & Integral): Kopfleiste wie überall, darunter nur das dünne Werkzeug-Band (WerkzeugBand)
+     statt des großen Seitenkopfs */
   const band = <WerkzeugBand ansicht={ansicht} gehe={gehe} testKnopf={<PruefungsLink ansicht={ansicht} gehe={gehe} band />} />;
 
   return (
@@ -840,7 +848,7 @@ export function Mathilda() {
           <TrainingSeite modus="klausurnach" gehe={gehe} />
         </>
       ) : istWzSeite(ansicht) ? (
-        <WerkzeugSeite ansicht={ansicht} gehe={gehe} menue={<SektionsMenue />} seite={ansicht === "textaufgaben" ? wzSeite : null} setSeite={setWzSeite} />
+        <WerkzeugSeite ansicht={ansicht} gehe={gehe} menue={<SektionsMenue />} band={KURS_ANSICHTEN.has(ansicht) ? band : null} seite={ansicht === "textaufgaben" ? wzSeite : null} setSeite={setWzSeite} />
                                                                                                 ) : ansicht === "analysis" ? (
         <>
           <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
@@ -872,14 +880,7 @@ export function Mathilda() {
         </>
       ) : ansicht === "plotter" ? (
         <>
-          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 33, letterSpacing: "-0.03em", lineHeight: 1.05 }}>Kurvendiskussion</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
-              <SektionsMenue />
-            </div>
-            <Welle fill={C.sand} />
-          </div>
+          {band}
           <Plotter />
         </>
       ) : ansicht === "ableitungstrainer" ? (
@@ -899,14 +900,7 @@ export function Mathilda() {
         </>
       ) : ansicht === "advplotter" ? (
         <>
-          <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
-            <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 620 }}>
-              <h1 className="titel-silber" style={{ fontWeight: 700, fontSize: 33, letterSpacing: "-0.03em", lineHeight: 1.05 }}>Kurvendiskussion</h1>
-              <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
-              <SektionsMenue />
-            </div>
-            <Welle fill={C.sand} />
-          </div>
+          {band}
           <AdvancedPlotter />
         </>
       ) : ansicht === "start" ? (

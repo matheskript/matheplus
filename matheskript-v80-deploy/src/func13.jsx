@@ -279,8 +279,26 @@ export function Ableitungstrainer() {
           .abl-chipwrap::after{display:none}
           .abl-chips{flex-wrap:wrap;overflow:visible;padding:0}
           .abl-karte{background:#fff;border-radius:16px;padding:18px;box-shadow:0 2px 16px rgba(15,26,51,0.07)}
+        }
+        .abl-nur-desk{display:none}
+        /* Desktop (ab 840 px, DESKTOP-STIL.md): links die Einstellungen (Modus, Stufe, Regel, Funktionsart) als ruhige,
+           mitlaufende Spalte, rechts die Aufgabe mit allen Ableitungen – alles auf einen Blick. Handy unverändert. */
+        @media (min-width:840px){
+          .abl-innen{max-width:none;width:var(--tr-breite);padding:24px 0 56px}
+          .abl-raster{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:24px;align-items:start}
+          .abl-spalte-l{position:sticky;top:${38 + 18}px;background:#fff;border:1px solid ${C.linie};border-radius:16px;padding:16px}
+          .abl-spalte-r{min-width:0}
+          .abl-nur-desk{display:block}
+          .abl-kopf{grid-template-columns:1fr;gap:10px;margin-bottom:16px !important}
+          .abl-wahl{order:-1;min-height:84px}
+          .abl-chipwrap{margin:0}
+          .abl-chips{flex-direction:column;flex-wrap:nowrap;gap:6px}
+          .abl-chip{width:100%;height:40px;text-align:left;font-size:14px;padding:0 14px;border-radius:12px}
+          .abl-karte{border:1px solid ${C.linie};box-shadow:none;padding:20px 22px}
         }`}</style>
       <div className="abl-innen">
+       <div className="abl-raster">
+        <div className="abl-spalte-l">
         {/* Kopf: links Automatik/Training sowie Stufe und Würfel, rechts der große Knopf „Ableiten üben“ mit Auswahl (Polynome oder Regel) */}
         <div className="abl-kopf" style={bereich === "werkstatt" ? { marginBottom: 7 } : undefined}>
           <div className="abl-links">
@@ -310,9 +328,9 @@ export function Ableitungstrainer() {
               onWaehle={(id) => { if (id === "polynome") setBereich("trainer"); else { setWerkRegel(id); setBereich("werkstatt"); } nachOben(); }} />
           </div>
         </div>
-        {bereich === "werkstatt" && <RegelWerkstatt regel={werkRegel} stufe={werkStufe} modus={werkModus} wurf={wurf} ohneKopf />}
+        {/* Funktionsart: direkt wählen, alles in einer Reihe (Desktop: Liste in der linken Spalte) */}
         {bereich === "trainer" && <>
-        {/* Funktionsart: direkt wählen, alles in einer Reihe */}
+        <p className="abl-nur-desk" style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: C.grau, margin: "0 2px 8px" }}>Funktionsart</p>
         <div className="abl-chipwrap">
           <div className="abl-chips" role="group" aria-label="Welche Funktionen möchtest du ableiten?">
             {arten.map((a) => (
@@ -320,7 +338,11 @@ export function Ableitungstrainer() {
             ))}
           </div>
         </div>
-
+        </>}
+        </div>
+        <div className="abl-spalte-r">
+        {bereich === "werkstatt" && <RegelWerkstatt regel={werkRegel} stufe={werkStufe} modus={werkModus} wurf={wurf} ohneKopf />}
+        {bereich === "trainer" && <>
         {quelle === "eigen" && eigenOffen && (
           <div className="abl-karte" style={{ marginBottom: 14 }}>
             <p style={{ fontSize: 14, color: C.grau, marginBottom: 8 }}>Gib deine Funktion ein und tippe auf „Übernehmen“.</p>
@@ -418,6 +440,8 @@ export function Ableitungstrainer() {
           </div>
         )}
         </>}
+        </div>
+       </div>
       </div>
     </div>
   );

@@ -114,13 +114,14 @@ export const WZ_SEITEN = {
 export const istWzSeite = (ansicht) => Object.prototype.hasOwnProperty.call(WZ_SEITEN, ansicht);
 
 /* menue = das Sektionsmenü aus func10 (braucht dort den Zustand des Werkzeug-Menüs) */
-export function WerkzeugSeite({ ansicht, gehe, menue, seite, setSeite }) {
+/* band = dünnes Werkzeug-Band (Werkzeuge eines Trainings-Kurses): ersetzt den großen Seitenkopf */
+export function WerkzeugSeite({ ansicht, gehe, menue, band = null, seite, setSeite }) {
   const s = WZ_SEITEN[ansicht];
   if (!s) return null;
   const { Komp } = s;
   return (
     <>
-      <SeitenKopf titel={s.titel} groesse={s.groesse} rund={s.rund}>{menue}</SeitenKopf>
+      {band || <SeitenKopf titel={s.titel} groesse={s.groesse} rund={s.rund}>{menue}</SeitenKopf>}
       <ChunkGrenze key={ansicht}>
         <React.Suspense fallback={<Laden />}>
           <Komp gehe={gehe} ansicht={ansicht} seite={seite} setSeite={setSeite} />

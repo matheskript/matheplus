@@ -32,6 +32,18 @@ html[data-kr-voll] .app-wurzel { min-height: 0 !important; height: 100%; overflo
   html[data-wz-voll] .usm-auswahl > .usm { max-width: 540px; margin-left: auto !important; margin-right: auto !important; }
   html[data-wz-voll] .mx-auto.px-6.pb-16 > .kd-knopf { margin-left: 24px !important; margin-right: 24px !important; width: calc(100% - 48px) !important; }
 }
+/* Trainingsbereich am Desktop (Werkzeuge der Trainings-Kurse, data-training-breit aus func10.jsx; Band in funcWerkzeuge.jsx):
+   so breit wie die Kopfleiste – von der Wortmarke bis zum ☰, links und rechts derselbe Rand (vgl. BREIT_BEDARF 940 px
+   und --kl-rand in funcKopfleiste.jsx). Unter 840 px bleibt alles wie auf dem Handy. */
+:root { --tr-breite: 100%; }
+@media (min-width: 840px) {
+  :root { --tr-breite: calc(100% - 48px); }
+  html[data-training-breit] .mx-auto[style*="max-width: 620px"].px-6,
+  html[data-training-breit] .mx-auto[style*="max-width: 680px"].px-6 { width: var(--tr-breite) !important; max-width: none !important; margin-left: auto !important; margin-right: auto !important; }
+}
+@media (min-width: 1000px) {
+  :root { --tr-breite: min(calc(100% - 64px), 940px); }
+}
 .eve-knopf { transition: filter .12s ease, transform .08s ease; }
 .eve-knopf:hover { filter: brightness(0.94); }
 .eve-knopf:active { transform: scale(0.95); }
