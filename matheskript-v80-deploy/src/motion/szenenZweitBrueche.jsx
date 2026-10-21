@@ -200,7 +200,7 @@ const b2_pizzaBuendeln = {
         const nr = k + 1, an = zaehl(k), a0 = (i * 360) / Rn, a1 = ((i + 1) * 360) / Rn, am = ((a0 + a1) / 2) * PI / 180;
         stueckeB.push(
           <g key={`b${k}`}>
-            <path d={sektor(px(j), yb, R, a0, a1)} fill={an ? F.gold : F.blau} />
+            <path d={sektor(px(j), yb, R, a0, a1)} fill={an ? F.gold : F.blau} stroke={an ? F.gold : F.blau} strokeWidth="0.8" />
             {an && <Tx x={px(j) + R * 0.58 * Math.sin(am)} y={yb - R * 0.58 * Math.cos(am) + 4} g={11} f={F.tinte} w={800}>{nr}</Tx>}
           </g>
         );
@@ -223,14 +223,14 @@ const b2_pizzaBuendeln = {
         <line x1={16} y1={114} x2={B - 16} y2={114} stroke={F.linie} strokeWidth="1.5" opacity={uzb} />
         {/* Zeile B */}
         <g opacity={uzb}>
+          {Array.from({ length: G }, (_, j) => <circle key={`v${j}`} cx={px(j)} cy={yb} r={R} fill={F.blau} />)}
           {stueckeB}
           {Array.from({ length: G + 1 }, (_, j) => {
             const teile = j < G ? Rn : Rz;
-            return Array.from({ length: teile + (j < G ? 0 : 1) }, (_, i) => {
-              if (j < G && i === 0 && false) return null;
+            return <g key={j}>{Array.from({ length: teile + (j < G ? 0 : 1) }, (_, i) => {
               const a = ((i * 360) / Rn) * PI / 180, u = j < G ? staffel(us, j * Rn + i, G * Rn, 0.5) : 1;
               return <Strich key={`${j}-${i}`} x1={px(j)} y1={yb} x2={px(j) + R * Math.sin(a)} y2={yb - R * Math.cos(a)} u={u} f={F.weiss} b={1.6} />;
-            });
+            })}</g>;
           })}
           {Array.from({ length: G + 1 }, (_, j) => <circle key={j} cx={px(j)} cy={yb} r={R} fill="none" stroke={j < G ? F.tinte : F.hell} strokeWidth={j < G ? 1.6 : 1.3} strokeDasharray={j < G ? undefined : "3 3"} />)}
           <Reihe x={imBild(px(G) + R + 70, zeileB, 16)} y={yb - 14} g={16} teile={zeileB.slice(0, 1)} o={1 - ue} />
@@ -248,7 +248,7 @@ const b2_pizzaBuendeln = {
    p: { a: [1, 5], b: [3, 5] }   (gleicher Nenner, Summe ≤ 1)
    ============================================================ */
 const b2_sprungAdd = {
-  h: 188,
+  h: 194,
   label: (p) => `${gross(bw(...p.a))} plus ${bw(...p.b)} am Zahlenstrahl`,
   ablauf: (p) => {
     const n = p.a[1], A = p.a[0], Bz = p.b[0], S = A + Bz;
@@ -262,7 +262,7 @@ const b2_sprungAdd = {
   },
   bild: ({ Z, z, p }) => {
     const n = p.a[1], A = p.a[0], Bz = p.b[0], S = A + Bz;
-    const x = (v) => 34 + v * 290, ya = 118;
+    const x = (v) => 34 + v * 290, ya = 140;
     const us = Z("strahl"), ua = z("a"), ub = z("b"), uz = Z("zaehlen"), ue = Z("ergebnis");
     const hopsA = teil(ua, 0, 0.9) * A, hopsB = teil(ub, 0, 0.9) * Bz;
     const pos = (hopsA + hopsB) / n;
@@ -281,7 +281,7 @@ const b2_sprungAdd = {
           <g key={i} opacity={t.o}><Tok t={t.t ? t.t : { ...t, o: 1 }} x={B / 2 + L.xs[i]} y={34} g={19} f={t.f || F.tinte} /></g>
         ))}
         {/* Nenner bleibt: Markierung unter den drei Nennern */}
-        <Pille x={B / 2} y={78} text={`Nenner bleibt ${n} · Zähler: ${A} + ${Bz} = ${S}`} f={F.blauHell} tf={F.blau} o={ue} />
+        <Pille x={B / 2} y={76} text={`Nenner bleibt ${n} · Zähler: ${A} + ${Bz} = ${S}`} f={F.blauHell} tf={F.blau} o={ue} />
         {/* Strahl */}
         <g opacity={us}>
           <Strich x1={20} y1={ya} x2={340} y2={ya} u={us} b={1.6} />
@@ -320,7 +320,7 @@ const b2_sprungAdd = {
    p: { a: [1, 3, 5], b: [2, 4, 5] }   (gleicher Nenner, Zähler-Summe > Nenner)
    ============================================================ */
 const b2_uebertrag = {
-  h: 216,
+  h: 226,
   label: (p) => `${gross(gw(...p.a))} plus ${gw(...p.b)} mit Übertrag`,
   ablauf: (p) => {
     const n = p.a[2], G = p.a[0] + p.b[0], S = p.a[1] + p.b[1], r = S - n;
@@ -378,12 +378,12 @@ const b2_uebertrag = {
           <g key={zi} opacity={staffel(uz, zi, 2, 0.5)}>
             <Tok t={{ gm: zl.m, f: zi === 0 ? F.granat : F.goldDunkel }} x={44} y={zl.y + h / 2} g={15} />
             {zi === 1 && <Tx x={14} y={zl.y + h / 2 + 7} g={18} f={F.grau}>+</Tx>}
-            {balken(xq(zl.m[0]), zl.y, null, 1 - teil(ut, 0.8, 1) * 0.6)}
+            {balken(xq(zl.m[0]), zl.y, null, 1 - teil(ut, 0.8, 1))}
           </g>
         ))}
         <line x1={16} y1={102} x2={B - 16} y2={102} stroke={F.linie} strokeWidth="1.5" opacity={ug} />
         {/* unten: leere Balken für die Stücke */}
-        {[0, 1].map((j) => balken(xr(G + j), yr, null, teil(ut, 0, 0.15), j === 0 && ubn > 0 ? F.gold : F.tinte, j === 0 && ubn > 0 ? 2.6 : 1.6))}
+        {[0, 1].map((j) => <g key={j}>{balken(xr(G + j), yr, null, teil(ut, 0, 0.15), j === 0 && ubn > 0 ? F.gold : F.tinte, j === 0 && ubn > 0 ? 2.6 : 1.6)}</g>)}
         {ganze}
         {stuecke}
         <Puls x={xr(G) + w / 2} y={yr + h / 2} u={ubn} r={30} />
@@ -396,7 +396,7 @@ const b2_uebertrag = {
         <Pille x={xr(G) + w + gap / 2} y={yr - 12} text={`${S} ${nennerPl(n)}`} o={teil(ut, 0.85, 1) * (1 - ubn)} />
         <Pille x={xr(G) + w / 2} y={yr - 12} text={`${n} ${nennerPl(n)} = 1`} o={ubn} />
         {/* Rechnung */}
-        {zeileE.map((t, i) => (i < 3 ? uz : sicht[i]) > 0 && <g key={i} opacity={i < 3 ? uz : sicht[i]}><Tok t={t} x={B / 2 + Le.xs[i]} y={196} g={13} /></g>)}
+        {zeileE.map((t, i) => (i < 3 ? uz : sicht[i]) > 0 && <g key={i} opacity={i < 3 ? uz : sicht[i]}><Tok t={t} x={B / 2 + Le.xs[i]} y={204} g={13} /></g>)}
       </>
     );
   },
