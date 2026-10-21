@@ -1,8 +1,9 @@
 /* ======================================================================
    Onboarding und Zonen der Handy-Startseite
    · StartOnboarding – beim ersten Besuch vier kurze Fragen (Rolle, Klasse,
-     Ziel, Thema) direkt auf der Startseite; danach die Karte „Für dich“
-     mit passenden Werkzeugen und, bei Klausur/Abi, dem Weg zum Lernplan.
+     Ziel, Thema) direkt auf der Startseite; danach die Karte „Für dich“:
+     Schüler bekommen die Heute-Karte (funcHeuteKarte.jsx: konkrete Einheiten,
+     Inhalte, Stand, auf- und zuklappbar), Eltern und Lehrkräfte ihre Zeilen.
      Die Klasse stellt den Stufen-Schalter (Mittel-/Oberstufe) ein.
    · ZonenKopf – Überschrift der drei Zonen Heute · Lernen · Entdecken.
    Gespeichert in localStorage („mm-onboarding-v1“); nichts geht ans Konto.
@@ -10,6 +11,7 @@
 import React, { useState } from "react";
 import { C } from "./base1.jsx";
 import { BEREICHE, WERKZEUGE, passtStufe } from "./werkzeuge.js";
+import { HeuteKarte } from "./funcHeuteKarte.jsx";
 
 const SCHLUESSEL = "mm-onboarding-v1";
 export function onboardingLesen() {
@@ -125,14 +127,16 @@ function FuerDich({ o, gehe, neu, planDa }) {
     <Zeile titel="Formelsammlung" unter="Alle Formeln mit Herleitung – für den Unterricht" onClick={() => gehe({ ansicht: "formeln", bereich: "analysis" })} />
   </>);
   else {
-    const stufe = stufeAusKlasse(o.klasse);
-    const ws = empfehlungen(o.thema, stufe);
-    const bereich = BEREICHE.find((b) => b.id === o.thema);
-    inhalt = (<>
-      {(o.ziel === "klausur" || o.ziel === "abi") && planDa && <Zeile gold titel="Weiter im Plan" unter="Deine Einheit für heute" onClick={() => gehe({ ansicht: "lernpfad" })} />}
-      {o.ziel === "luecken" && <Zeile gold titel="Meine Fehler üben" unter="Genau die Aufgaben, die zuletzt schiefgingen" onClick={() => gehe({ ansicht: "fehlertraining" })} />}
-      {ws.map((w) => <Zeile key={w.id} titel={w.name} unter={`${bereich ? bereich.titel : ""} · ${w.station}`} onClick={() => gehe(w.ziel)} />)}
-    </>);
+    /* Schüler: die Heute-Karte zeigt konkret, was ansteht (Einheiten, Inhalte, Stand) – zugeklappt als Vorschau */
+    const ws = empfehlungen(o.thema, stufeAusKlasse(o.klasse));
+    return (
+      <>
+        <HeuteKarte o={o} empfehlungen={ws} gehe={gehe} name={name} neu={neu} />
+        {(o.ziel === "klausur" || o.ziel === "abi") && planDa && (
+          <div style={{ marginTop: 10 }}><Zeile gold titel="Weiter im Plan" unter="Deine Einheit für heute" onClick={() => gehe({ ansicht: "lernpfad" })} /></div>
+        )}
+      </>
+    );
   }
   return (
     <div className="auftauchen" style={{ ...karte, marginTop: 12 }}>

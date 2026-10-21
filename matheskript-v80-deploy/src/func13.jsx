@@ -12,6 +12,7 @@
 
 import React, { useMemo, useState } from "react";
 import { buchen } from "./buchung.jsx";
+import { uebenWunschHolen } from "./uebenWunsch.js";
 import { uebergabeErledigt, uebergabeLesen } from "./uebergabe.js";
 import { C } from "./base1.jsx";
 import { ABL_TYPEN } from "./base2.jsx";
@@ -146,10 +147,12 @@ export function Ableitungstrainer() {
   // Übergabe aus einem anderen Werkzeug (z. B. Kurvendiskussion, Steckbrief): diese Funktion selbst ableiten
   const [mit] = useState(() => { const u = uebergabeLesen("ableitungstrainer"); return u && u.text && parse(u.text) ? u.text : null; });
   React.useEffect(() => { uebergabeErledigt("ableitungstrainer"); }, []);
+  // Wunsch der Heute-Karte (uebenWunsch.js): gleich mit einer Funktionsart starten, z. B. Produkte
+  const [startTyp] = useState(() => { const w = mit ? null : uebenWunschHolen("ableitungstrainer"); return (w && ABL_TYPEN.find((t) => t.id === w.art)) || ABL_TYPEN[0]; });
   const [quelle, setQuelle] = useState(mit ? "eigen" : "typ");            // typ | zufall | eigen
-  const [typ, setTyp] = useState(ABL_TYPEN[0]);
+  const [typ, setTyp] = useState(startTyp);
   const [stufeTyp, setStufeTyp] = useState(2);
-  const [fText, setFText] = useState(() => mit || ABL_TYPEN[0].mach(2).f);
+  const [fText, setFText] = useState(() => mit || startTyp.mach(2).f);
   const [eigenText, setEigenText] = useState(mit || "");
   const [eigenPos, setEigenPos] = useState(mit ? mit.length : 0);
   const [eigenOffen, setEigenOffen] = useState(!mit);
@@ -206,7 +209,7 @@ export function Ableitungstrainer() {
     const soll = kette[stufe].fn, vorher = kette[stufe - 1].fn;
     const erg = vergleich(g, soll);
     setBilanz((bz) => ({ richtig: bz.richtig + (erg.ok ? 1 : 0), gesamt: bz.gesamt + 1 }));
-    buchen({ richtig: !!erg.ok, gruppe: `ableitung-${stufe}`, stufe });
+    buchen({ richtig: !!erg.ok, gruppe: `ableitung-${stufe}`, stufe, art: quelle === "typ" ? typ.id : null });
     if (erg.ok) {
       const neu = zeilen.map((z, i) => (i === aktiv ? { ...z, status: "richtig", hinweis: "" } : z));
       if (stufe < 3) { neu.push(leer()); setAktiv(aktiv + 1); setPos(0); }

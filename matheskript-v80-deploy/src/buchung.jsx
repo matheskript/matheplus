@@ -2,7 +2,7 @@
    Buchung von Übungsergebnissen ins Fortschrittsprotokoll
    Jeder Trainer meldet richtig/falsch an merken() (func5.jsx) –
    daraus entstehen Fehlerprofil, Tagesaktivität und Lernstand.
-   · buchen({ richtig, gruppe, fehlerart })  – direkt melden
+   · buchen({ richtig, gruppe, fehlerart, art })  – direkt melden
    · useStateGebucht(init) – Ersatz für useState bei Rückmelde-Zuständen:
        Setzt ein Trainer { art: "gut" | "schlecht", … } oder
        "richtig" | "falsch", wird das automatisch gebucht.
@@ -12,10 +12,11 @@
 import { useCallback, useState } from "react";
 import { FR } from "./funcRegistry.jsx";
 
-export function buchen({ richtig, gruppe, fehlerart = null, stufe } = {}) {
+export function buchen({ richtig, gruppe, fehlerart = null, stufe, art } = {}) {
   if (typeof richtig !== "boolean" || !FR.merken) return;
   const bereich = (FR.ansicht && FR.ansicht()) || "werkzeug";
-  const eintrag = { bereich, gruppe: gruppe || bereich, richtig, fehlerart, ...(stufe ? { stufe } : null) };
+  // art: Aufgabentyp innerhalb des Werkzeugs (z. B. Produktregel) – daraus liest die Heute-Karte den Stand je Einheit
+  const eintrag = { bereich, gruppe: gruppe || bereich, richtig, fehlerart, ...(stufe ? { stufe } : null), ...(art ? { art } : null) };
   try { FR.merken(eintrag); } catch (e) { /* Protokoll ist optional */ }
   try { window.dispatchEvent(new CustomEvent("matheplus:buchung", { detail: eintrag })); } catch (e) { /* egal */ }
 }

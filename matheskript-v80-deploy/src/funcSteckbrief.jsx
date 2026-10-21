@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { uebenWunschHolen } from "./uebenWunsch.js";
 import { WeiterKnopf, WeiterMit } from "./funcWerkzeuge.jsx";
 import { polyEingabe } from "./uebergabe.js";
 import { C } from "./base1.jsx";
@@ -1413,10 +1414,19 @@ const SUB = {
   adv: [{ id: "exp", name: "c·aˣ" }, { id: "ek", name: zw("e-Funktion", "eˣ") }, { id: "sin", name: zw("Sinus", "Sine") }],
 };
 
+/* Wunsch der Heute-Karte (uebenWunsch.js): „poly-4“, „adv-ek“ … → gleich mit diesem Aufgabentyp starten */
+function startWahl() {
+  const w = uebenWunschHolen("steckbrief");
+  const [m, roh] = String((w && w.art) || "").split("-");
+  const s = m === "poly" ? Number(roh) : roh;
+  return SUB[m] && SUB[m].some((x) => x.id === s) ? { modus: m, sub: s } : { modus: "poly", sub: 3 };
+}
+
 export function Steckbriefaufgaben() {
-  const [modus, setModus] = useState("poly");
-  const [sub, setSub] = useState(3);
-  const [auf, setAuf] = useState(() => aufgabeErzeugen("poly", 3));
+  const [start] = useState(startWahl);
+  const [modus, setModus] = useState(start.modus);
+  const [sub, setSub] = useState(start.sub);
+  const [auf, setAuf] = useState(() => aufgabeErzeugen(start.modus, start.sub));
   const [nr, setNr] = useState(0);
   const [ansatz, setAnsatz] = useState(null);
   const [bedZeilen, setBedZeilen] = useState(null);
