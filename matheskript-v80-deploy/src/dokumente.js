@@ -20,7 +20,7 @@
 
 export const ZWECK_MARKEN = ["Amazon", "Hier auf der Seite", "Investoren", "Intern"];
 
-export const FARBEN = ["porzellan", "tiefblau", "granat", "lackschwarz", "nachtblau"];
+export const FARBEN = ["porzellan", "tiefblau", "granat", "lackschwarz", "nachtblau", "amethyst"];
 
 export const DOKUMENTE = [
   {
@@ -91,7 +91,20 @@ export const DOKUMENTE = [
     zweck: "Probekapitel I „Extrempunkte“ (waagrechte Tangente, Vorzeichenwechsel, zweite Ableitung) – Test des Schulbuch-Agenten. Weitere Kapitel folgen, danach Amazon-Ausgabe.",
     stand: "21.10.2026",
     datei: "/buecher/kurvendiskussion/Kurvendiskussion.pdf",
+  },  {
+    id: "schulbuch-dreiecksgeometrie",
+    farbe: "amethyst",
+    motiv: "dreieck",
+    reihe: "Schulbuch Band 4",
+    titel: "Dreiecksgeometrie",
+    art: "PDF · Schulbuch",
+    seiten: 65,
+    zwecke: ["Amazon", "Hier auf der Seite"],
+    zweck: "Klasse 7–9: Flächen, Winkel und Konstruktionen, Dreieck und Kreis, Pythagoras, Ähnlichkeit, Trigonometrie – mit Klassenarbeits-Training und Lösungen. Auf der Seite Grundlage des Kurses Dreiecksgeometrie; Amazon-Ausgabe folgt (noch ohne QR-Codes).",
+    stand: "21.10.2026",
+    datei: "/buecher/dreiecksgeometrie/Dreiecksgeometrie.pdf",
   },
+
   {
     id: "druck-ableitungen-innenteil",
     farbe: "porzellan",

@@ -7,7 +7,7 @@
    ============================================================ */
 import React from "react";
 import { FOLIE } from "./kursFarben.js";
-import { MotivTangente, MotivEbene } from "./funcKursMotive.jsx";
+import { MotivTangente, MotivEbene, MotivDreieck } from "./funcKursMotive.jsx";
 
 function Verlaeufe({ id, schein = "#F2C14E" }) {
   return (
@@ -157,11 +157,12 @@ const MOTIVE = {
   heft: MotivHeft,
   buch: MotivBuch,
 };
-export const MOTIV_NAMEN = ["tangente", "ebene", ...Object.keys(MOTIVE)];
+export const MOTIV_NAMEN = ["tangente", "ebene", "dreieck", ...Object.keys(MOTIVE)];
 
 export function DokumentMotiv({ name, id, klasse, linie, tief }) {
   if (name === "tangente") return <MotivTangente id={id} klasse={klasse} />;
   if (name === "ebene") return <MotivEbene id={id} klasse={klasse} />;
+  if (name === "dreieck") return <MotivDreieck id={id} klasse={klasse} />;
   const M = MOTIVE[name] || MotivBuch;
   return <M id={id} klasse={klasse} linie={linie} tief={tief} />;
 }

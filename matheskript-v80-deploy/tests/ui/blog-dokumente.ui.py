@@ -48,8 +48,8 @@ with sync_playwright() as p:
         # richtiges Passwort
         tor.locator("input").fill(PW); tor.locator("button[type=submit]").click(); page.wait_for_timeout(1500)
         pruefe(page.locator("[data-blog-dokumente-tor]").count() == 0, f"{tag}: Passwortfeld bleibt stehen")
-        pruefe(page.locator("[data-blog-dokumente] [data-dokument]").count() == 11, f"{tag}: {page.locator('[data-dokument]').count()} Karten statt 2 + 9")
-        pruefe(page.locator("[data-dokument-oeffnen]").count() == 7 and page.locator("[data-dokument-laden]").count() == 7, f"{tag}: Öffnen/Download-Knöpfe")
+        pruefe(page.locator("[data-blog-dokumente] [data-dokument]").count() == 12, f"{tag}: {page.locator('[data-dokument]').count()} Karten statt 2 + 10")
+        pruefe(page.locator("[data-dokument-oeffnen]").count() == 8 and page.locator("[data-dokument-laden]").count() == 8, f"{tag}: Öffnen/Download-Knöpfe")
         cov = page.locator("[data-dokument-cover]")
         pruefe(cov.count() == 2, f"{tag}: {cov.count()} Cover-Knöpfe statt 2")
         pruefe(page.locator("[data-dokument='schulbuch-ableitungen'] [data-dokument-laden]").get_attribute("download") == "Ableitungen.pdf", f"{tag}: Download-Name")

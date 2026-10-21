@@ -2,7 +2,7 @@ import React from "react";
 import { C } from "./base1.jsx";
 import { englisch } from "./i18n.js";
 import { DOKUMENTE, dokumenteUebersicht, vollTitel } from "./dokumente.js";
-import { PORZELLAN, TIEFBLAU, GRANAT, LACKSCHWARZ, NACHTBLAU, GOLD_PILLE } from "./kursFarben.js";
+import { PORZELLAN, TIEFBLAU, GRANAT, LACKSCHWARZ, NACHTBLAU, AMETHYST, GOLD_PILLE } from "./kursFarben.js";
 import { DokumentMotiv } from "./funcDokumentMotive.jsx";
 
 /* ======================================================================
@@ -14,7 +14,7 @@ import { DokumentMotiv } from "./funcDokumentMotive.jsx";
    Die Liste steht in src/dokumente.js.
    ====================================================================== */
 
-const PALETTE = { porzellan: PORZELLAN, tiefblau: TIEFBLAU, granat: GRANAT, lackschwarz: LACKSCHWARZ, nachtblau: NACHTBLAU };
+const PALETTE = { porzellan: PORZELLAN, tiefblau: TIEFBLAU, granat: GRANAT, lackschwarz: LACKSCHWARZ, nachtblau: NACHTBLAU, amethyst: AMETHYST };
 /* Strichfarbe und dunkle Füllung der Motive passend zum Lack */
 const MOTIV_TON = {
   porzellan: { linie: C.nachtschwarz, tief: C.nachtschwarz },
@@ -22,6 +22,7 @@ const MOTIV_TON = {
   granat: { linie: "#FFFFFF", tief: "#3A0019" },
   lackschwarz: { linie: "#FFFFFF", tief: "#141005" },
   nachtblau: { linie: "#FFFFFF", tief: "#06102A" },
+  amethyst: { linie: "#FFFFFF", tief: "#1E0A33" },
 };
 /* Download-Knopf: Granat-Pink, auf dem Granat-Lack Blau-Violett (sonst verschwindet er) */
 const LADEN = {

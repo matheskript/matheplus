@@ -78,7 +78,7 @@ test("Jede Karte hat einen Lack (FARBEN) und ein Motiv, das es gibt", () => {
   const motive = quelle("funcDokumentMotive.jsx");
   for (const d of DOKUMENTE) {
     assert.ok(FARBEN.includes(d.farbe), `${d.id}: Farbe ${d.farbe}`);
-    assert.ok(["tangente", "ebene"].includes(d.motiv) || new RegExp(`\\b${d.motiv}: Motiv`).test(motive), `${d.id}: Motiv ${d.motiv}`);
+    assert.ok(["tangente", "ebene", "dreieck"].includes(d.motiv) || new RegExp(`\\b${d.motiv}: Motiv`).test(motive), `${d.id}: Motiv ${d.motiv}`);
   }
 });
 
