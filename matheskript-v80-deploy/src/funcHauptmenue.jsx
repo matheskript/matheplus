@@ -122,6 +122,12 @@ const CSS = `
 .hm-gold-knopf{display:flex;width:100%;align-items:center;justify-content:center;gap:9px;height:46px;border:none;border-radius:14px;cursor:pointer;
   background:${GOLD_VERLAUF};color:${C.seeTief};font-size:15px;font-weight:800;letter-spacing:-0.005em;
   box-shadow:0 8px 18px -8px rgba(237,187,0,0.8),inset 0 1px 0 rgba(255,255,255,0.6),inset 0 -2px 0 rgba(122,88,0,0.25);transition:transform .12s ease,filter .12s ease}
+.hm-kapitel-knoepfe{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:4px 0}
+.hm-kapitel-knoepfe .hm-gold-knopf,.hm-kapitel-seite{height:auto;min-height:40px;padding:6px 8px;font-size:12.5px;line-height:1.15;gap:6px;text-align:center}
+.hm-kapitel-seite{display:flex;align-items:center;justify-content:center;border-radius:14px;cursor:pointer;font-family:inherit;font-weight:800;
+  background:#FFFFFF;color:${C.see};border:1.5px solid ${C.see}}
+.hm-kapitel-seite:hover{background:${C.himmel}}
+.hm-kapitel-seite:active{transform:scale(.975)}
 .hm-gold-knopf:hover{filter:brightness(1.04)}
 .hm-gold-knopf:active,.hm-ki:active,.hm-kurs:active,.hm-wz:active,.hm-kachel:active{transform:scale(.975)}
 .hm-ki{display:flex;align-items:center;gap:9px;min-height:44px;padding:6px 10px;border-radius:12px;cursor:pointer;text-align:left;min-width:0;
@@ -378,9 +384,14 @@ function KlassenFenster({ klasse, ausProfil, gehe, aendern, aktuell }) {
             </button>
             {auf && (
               <div className="hm-rein" style={{ margin: "0 2px 6px 22px", paddingLeft: 8, borderLeft: `3px solid ${C.flaggold}` }}>
-                <button type="button" className="hm-gold-knopf" style={{ height: 40, fontSize: 13.5, margin: "4px 0 4px" }} onClick={() => gehe(k.trainieren)}>
-                  <Ikon n="play" g={14} /> Dieses Kapitel trainieren
-                </button>
+                <div className="hm-kapitel-knoepfe">
+                  <button type="button" className="hm-kapitel-seite" onClick={() => gehe(k.seite)}>
+                    <Ikon n="buch" g={15} /> <span>Kapitelseite öffnen</span>
+                  </button>
+                  <button type="button" className="hm-gold-knopf" onClick={() => gehe(k.trainieren)}>
+                    <Ikon n="play" g={14} /> <span>Kapitel trainieren</span>
+                  </button>
+                </div>
                 {k.hilfen.map((h) => <Eintrag key={h.id} e={h} gehe={gehe} aktuell={aktuell} />)}
               </div>
             )}

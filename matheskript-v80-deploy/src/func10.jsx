@@ -45,6 +45,7 @@ import { LAENDER } from "./funcWettbewerbe.jsx";
 import { ENTWUERFE, istEntwurf, LANDING, istFrei } from "./seitenKonstanten.js";
 import { ansichtErlaubt } from "./angebot.js";
 const EntwurfTor = lazyLaden(() => import("./funcEntwuerfe.jsx").then((m) => ({ default: m.EntwurfTor })));
+const KapitelSeite = lazyLaden(() => import("./funcKapitelSeite.jsx").then((m) => ({ default: m.KapitelSeite })));
 const KapitelFormelnSeite = lazyLaden(() => import("./funcKapitelFormeln.jsx").then((m) => ({ default: m.KapitelFormelnSeite })));
 const ChallengeSeite = lazyLaden(() => import("./funcChallenge.jsx").then((m) => ({ default: m.ChallengeSeite })));
 const Landingpage = lazyLaden(() => import("./funcLandingpage.jsx").then((m) => ({ default: m.Landingpage })));
@@ -220,6 +221,7 @@ export function Mathilda() {
   const [formelZiel, setFormelZiel] = useState(null);
   const [trainierenZiel, setTrainierenZiel] = useState(null);   // „Eine Sache trainieren“: { kapitel, teil, schulart, klasse }
   const [tzStart, setTzStart] = useState(null);   // Trainingszentrum: Session direkt starten, z. B. "programm:ableiten-zehn"
+  const [kapitelSeiteZiel, setKapitelSeiteZiel] = useState(null);   // Kapitelseite eines Buchkapitels (/kapitel/<slug>)
   const [kapitelZiel, setKapitelZiel] = useState(null);   // Formelauswahl zum Buchkapitel (Quickfinder)   // Deep-Link auf eine einzelne Formel   // Bereich der Formelsammlung          // Bundesland der Landeswettbewerb-Seite
   const [sprung, setSprung] = useState(null);
   const [fotoModus, setFotoModus] = useState("blatt");
@@ -262,6 +264,7 @@ export function Mathilda() {
     ansicht, klasse: klasseAktiv, land: landWahl, trainer: kopfTrainer, seite: ansicht === "gleichkurs" ? gkSeite : ansicht === "textaufgaben" ? wzSeite : ansicht === "unterstufe" ? usSeite : ansicht === "blog" ? blogSeite : entdeckenStart, kurs: kursStart,
     ziel: ansicht === "training" ? trainZiel : ansicht === "ki" ? genZiel : undefined,
     foto: ansicht === "analyse" ? fotoModus : undefined,
+    kapitel: ansicht === "kapitel" && kapitelSeiteZiel ? kapitelSeiteZiel.kapitel : undefined,
     ...(ansicht === "blatt" ? { band: blattZiel.band, seite: blattZiel.seite, nr: blattZiel.nr, kasten: blattZiel.kasten } : {}),
   };
   useEffect(() => {
@@ -288,7 +291,7 @@ export function Mathilda() {
       if (erster || ausVerlauf) window.history.replaceState({}, "", soll + rest);
       else window.history.pushState({}, "", soll + rest);
     } catch (e) { /* ignorieren */ }
-  }, [ansicht, trainZiel, genZiel, fotoModus, klasseAktiv, kopfTrainer, entdeckenStart, kursStart, landWahl, wzSeite, usSeite, blogSeite]);
+  }, [ansicht, trainZiel, genZiel, fotoModus, klasseAktiv, kopfTrainer, entdeckenStart, kursStart, landWahl, wzSeite, usSeite, blogSeite, kapitelSeiteZiel]);
   // Zurück/Vor-Taste des Browsers
   useEffect(() => {
     const f = () => {
@@ -329,6 +332,7 @@ export function Mathilda() {
     if (eintrag.ansicht === "formeln") { setFormelBereich(eintrag.bereich || "analysis"); setFormelZiel(eintrag.formel || null); }
     if (eintrag.ansicht === "trainingszentrum") setTzStart(eintrag.start ? { kennung: eintrag.start, zeit: Date.now() } : null);
     if (eintrag.ansicht === "trainieren") setTrainierenZiel(eintrag.kapitel ? { kapitel: eintrag.kapitel, teil: eintrag.teil || null, schulart: eintrag.schulart, klasse: eintrag.klasse, zeit: Date.now() } : null);
+    if (eintrag.ansicht === "kapitel") setKapitelSeiteZiel(eintrag.kapitel ? { kapitel: eintrag.kapitel, schulart: eintrag.schulart, klasse: eintrag.klasse } : null);
     if (eintrag.ansicht === "kapitelformeln") setKapitelZiel(eintrag.kapitel ? { kapitel: eintrag.kapitel, schulart: eintrag.schulart, klasse: eintrag.klasse, modus: eintrag.modus } : null);
     setMenuOffen(false); setGruppeOffen(null);
     springe("seitenwechsel", () => window.scrollTo(0, 0));
@@ -1285,6 +1289,10 @@ export function Mathilda() {
         </>
       ) : ansicht === "trainieren" ? (
         <KapitelTrainingSeite key={ansicht + (trainierenZiel ? `${trainierenZiel.kapitel}-${trainierenZiel.teil}-${trainierenZiel.zeit}` : "")} ansicht={ansicht} ziel={trainierenZiel} gehe={gehe} />
+      ) : ansicht === "kapitel" ? (
+        <React.Suspense fallback={<p role="status" style={{ color: C.grau, fontSize: 15, fontWeight: 300, padding: "24px", textAlign: "center" }}>{englisch() ? "Loading …" : "Wird geladen …"}</p>}>
+          <KapitelSeite key={kapitelSeiteZiel ? kapitelSeiteZiel.kapitel : "auswahl"} ziel={kapitelSeiteZiel} gehe={gehe} />
+        </React.Suspense>
       ) : ansicht === "kapitelformeln" ? (
         <React.Suspense fallback={<p role="status" style={{ color: C.grau, fontSize: 15, fontWeight: 300, padding: "24px", textAlign: "center" }}>{englisch() ? "Loading …" : "Wird geladen …"}</p>}>
           <KapitelFormelnSeite key={kapitelZiel ? kapitelZiel.kapitel + (kapitelZiel.modus || "") : "q"} ziel={kapitelZiel} gehe={gehe} />

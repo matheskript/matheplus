@@ -20,6 +20,7 @@
 import { WERKZEUGE, BEREICHE, ansichtenVon } from "./werkzeuge.js";
 import { istUnterstufeSeite } from "./unterstufeDaten.js";
 import { istBlogBeitrag } from "./blogDaten.js";
+import { kapitelAusSlug, kapitelPfad } from "./kapitelPfade.js";
 
 /* Werkzeuge, deren Pfad vom Schlüssel abweicht */
 export const WZ_SLUG = {
@@ -57,6 +58,7 @@ export const SEITEN = [
   { pfad: "einstufung", ansicht: "einstufung" },
   { pfad: "profil", ansicht: "profil2" },
   { pfad: "lernpfad", ansicht: "lernpfad" },
+  { pfad: "kapitel", ansicht: "kapitel", alias: ["kapitelseite"] },   // Kapitelseite eines Buchkapitels: /kapitel/<slug> (kapitelPfade.js)
   { pfad: "trainieren", ansicht: "trainieren", alias: ["eine-sache-trainieren", "kapiteltraining"] },
   { pfad: "trainingsplan", ansicht: "trainingsplan", alias: ["trainingsplan-erstellen"] },
 
@@ -233,6 +235,9 @@ export function pfadAufloesen(roh) {
   /* Blog: /blog/<slug> (Slugs aus blogDaten.js) */
   const blog = /^blog\/([a-z0-9-]+)$/.exec(p);
   if (blog && istBlogBeitrag(blog[1])) return { ansicht: "blog", seite: blog[1], kanonisch: true };
+  /* Kapitelseite eines Buchkapitels: /kapitel/<slug> (Slugs aus kapitelPfade.js) */
+  const kap = /^kapitel\/([a-z0-9-]+)$/.exec(p);
+  if (kap && kapitelAusSlug(kap[1])) return { ansicht: "kapitel", kapitel: kapitelAusSlug(kap[1]), kanonisch: true };
   const k56 = /^klasse-([56])$/.exec(p);
   if (k56) return { ansicht: "unterstufe", seite: `klasse-${k56[1]}`, kanonisch: false };
   const bl = buchLinkAufloesen(p);   // QR-Codes der gedruckten Schulbücher: /b1/25-1, /b2/s17
@@ -279,6 +284,7 @@ export function pfadFuer(zustand) {
   if (z.ansicht === "unterstufe" && z.seite && istUnterstufeSeite(z.seite)) return `/unterstufe/${z.seite}`;
   if (z.ansicht === "blatt" && BUECHER[z.band] && z.seite) return z.kasten ? buchLink(z.band, z.seite) : buchLink(z.band, z.seite, z.nr);
   if (z.ansicht === "blog" && z.seite && istBlogBeitrag(z.seite)) return `/blog/${z.seite}`;
+  if (z.ansicht === "kapitel" && z.kapitel && kapitelPfad(z.kapitel)) return kapitelPfad(z.kapitel);
   let beste = null, bestePunkte = -1;
   for (const e of PFADE) {
     if (e.ansicht !== z.ansicht) continue;

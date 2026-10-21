@@ -122,6 +122,7 @@ export const SEITEN_SAETZE = {
   elternkurs: { de: "mit dem richtigen Mindset an Mathe herangehen", en: "approach maths with the right mindset" },
   nachhilfekurs: { de: "Nachhilfe sinnvoll nutzen und Mathe gezielt aufholen", en: "make the most of tutoring and catch up on maths" },
   operatoren: { de: "Operatoren wie „berechne“, „zeige“ und „begründe“ verstehen", en: "understand command words like “calculate”, “show” and “justify”" },
+  kapitel: { de: "die Übersicht zu einem Kapitel aus dem Schulbuch ansehen", en: "look at the overview of a textbook chapter" },
   kapitelformeln: { de: "die Formeln zum Kapitel für die Klausur durchgehen", en: "go through the chapter formulas for the exam" },
   trainieren: { de: "ein einzelnes Kapitel gezielt trainieren", en: "train a single chapter in a targeted way" },
   trainingsplan: { de: "sich einen Trainingsplan zusammenstellen", en: "put together a training plan" },
