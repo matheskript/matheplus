@@ -19,6 +19,8 @@ import { Auswahl, GrosserKnopf, hilfeKontext, hinweis, karte, kicker, zw } from 
 import { wahl } from "./rechnen2.js";
 import { Aufklapp, ModusLeiste, Seite, SchrittFolge, zt } from "./ui3.jsx";
 import { GeoAnimation } from "./funcGeoAnimationen.jsx";
+import { FeinKarte, titelStil, useBreite, useDesktop } from "./arbeitsflaeche.jsx";
+import { AufgabeZweispaltig, ErklaerKarte, GeoDesktop, ReglerD, ReglerKarte, ThemenLeiste } from "./geoDesktop.jsx";
 
 let zaehler = 0;
 const STRICH = "′";
@@ -36,7 +38,7 @@ function figur({ sa, sb, k, x }) {
 const abst = (p, q) => Math.hypot(p[0] - q[0], p[1] - q[1]);
 
 /* SVG-Skizze. werte: Beschriftungen je Strecke { sa, sa2, aa2, sb, sb2, bb2, ab, a2b2 } (Text oder null) */
-function Skizze({ sa, sb, k, x, werte = {}, gesucht = null, hoehe = 230 }) {
+function Skizze({ sa, sb, k, x, werte = {}, gesucht = null, hoehe = 230, W = 340 }) {
   const f = figur({ sa, sb, k, x });
   const pts = [f.S, f.A, f.B, f.A2, f.B2];
   /* Strahlen etwas über die äußeren Punkte hinaus verlängern */
@@ -45,7 +47,7 @@ function Skizze({ sa, sb, k, x, werte = {}, gesucht = null, hoehe = 230 }) {
   const ende2 = x ? [weit(f.u2, -(k * sb) - 0.8), weit(f.u2, sb + 0.8)] : [f.S, weit(f.u2, Math.max(sb, k * sb) + 0.9)];
   const alle = [...pts, ...ende1, ...ende2];
   const xs = alle.map((p) => p[0]), ys = alle.map((p) => p[1]);
-  const W = 340, rand = 44;
+  const rand = 44;
   const breite = Math.max(...xs) - Math.min(...xs), hoeheM = Math.max(...ys) - Math.min(...ys);
   const s = Math.min((W - 2 * rand) / breite, (hoehe - 2 * rand) / Math.max(hoeheM, 0.5));
   const ox = rand - Math.min(...xs) * s + ((W - 2 * rand) - breite * s) / 2;
@@ -114,6 +116,12 @@ function Skizze({ sa, sb, k, x, werte = {}, gesucht = null, hoehe = 230 }) {
   );
 }
 
+/* Desktop: Skizze in echten Pixeln (gemessene Breite) */
+function SkizzeEcht(props) {
+  const [ref, b] = useBreite();
+  return <div ref={ref}><Skizze {...props} W={b || 340} /></div>;
+}
+
 /* ---------- Regler im Stil der App ---------- */
 function Regler({ name, wert, setWert, min, max, schritt, farbe = C.see, format = (v) => zt(v, 1) }) {
   const knopf = (d, z) => (
@@ -149,23 +157,10 @@ function Entdecken() {
     </div>
   );
   const ob = (s) => `\\overline{${s}}`;
-  return (
-    <>
-      <GeoAnimation art="strahlen" offen />
-      <div style={{ ...karte, marginTop: 16 }}>
-        <p style={kicker}>{zw("Figur einstellen", "Set up the figure")}</p>
-        <Auswahl optionen={[["v", zw("V-Figur", "V figure")], ["x", zw("X-Figur", "X figure")]]} wert={x ? "x" : "v"} setWert={(v) => setX(v === "x")} label={zw("Art der Figur", "Type of figure")} />
-        <p style={{ fontSize: 13, color: C.see, fontWeight: 600, margin: "14px 0 6px" }}>{zw("Zieh an den Reglern und beobachte die Verhältnisse.", "Move the sliders and watch the ratios.")}</p>
-        <div style={{ display: "grid", gap: 10 }}>
-          <Regler name="SA" wert={sa} setWert={setSa} min={1} max={5} schritt={0.5} />
-          <Regler name="SB" wert={sb} setWert={setSb} min={1} max={5} schritt={0.5} />
-          <Regler name="k" wert={k} setWert={setK} min={x ? 0.5 : 1.2} max={3} schritt={0.1} farbe={C.smaragd} />
-        </div>
-        <div style={{ marginTop: 12, background: C.sand, borderRadius: 14, padding: 8 }}>
-          <Skizze hoehe={260} sa={sa} sb={sb} k={k} x={x} werte={{ sa: z(L.sa), sb: z(L.sb), sa2: z(L.sa2), sb2: z(L.sb2), ab: z(L.ab), a2b2: z(L.a2b2) }} />
-        </div>
-      </div>
-      <div style={{ ...karte, marginTop: 12 }}>
+  const desktop = useDesktop();
+  const FIGUR = [["v", zw("V-Figur", "V figure")], ["x", zw("X-Figur", "X figure")]];
+  const skizzeWerte = { sa: z(L.sa), sb: z(L.sb), sa2: z(L.sa2), sb2: z(L.sb2), ab: z(L.ab), a2b2: z(L.a2b2) };
+  const verhaeltnisse = (<>
         <p style={kicker}>{zw("Verhältnisse", "Ratios")}</p>
         {zeile(ob(`SA${STRICH}`), ob("SA"), L.sa2 / L.sa)}
         {zeile(ob(`SB${STRICH}`), ob("SB"), L.sb2 / L.sb)}
@@ -173,6 +168,8 @@ function Entdecken() {
         <p style={{ fontSize: 13.5, color: C.tinte, lineHeight: 1.6, margin: "10px 0 0" }}>
           {zw(`Alle drei Verhältnisse sind gleich dem Streckfaktor k = ${zt(k, 2)}. Das ist der Kern beider Strahlensätze.`, `All three ratios equal the scale factor k = ${zt(k, 2)}. That is the core of both intercept theorems.`)}
         </p>
+  </>);
+  const falle = (<>
         {!x && (
           <>
             <p style={{ ...kicker, marginTop: 16, color: C.gruenDunkel }}>{zw("Die häufigste Falle", "The most common trap")}</p>
@@ -183,6 +180,50 @@ function Entdecken() {
             </p>
           </>
         )}
+        </>);
+  if (desktop) {
+    return (
+      <>
+        <GeoAnimation art="strahlen" offen />
+        <GeoDesktop
+          thema={<ThemenLeiste titel={zw("Figur einstellen", "Set up the figure")} optionen={FIGUR} wert={x ? "x" : "v"} setWert={(v) => setX(v === "x")} label={zw("Art der Figur", "Type of figure")}
+            unter={zw("Zieh an den Reglern und beobachte die Verhältnisse.", "Move the sliders and watch the ratios.")} />}
+          links={<>
+            <ReglerKarte titel={zw("Strecken und Streckfaktor", "Segments and scale factor")}>
+              <ReglerD name="SA" wert={sa} setWert={setSa} min={1} max={5} schritt={0.5} stellen={100} />
+              <ReglerD name="SB" wert={sb} setWert={setSb} min={1} max={5} schritt={0.5} stellen={100} />
+              <ReglerD name="k" wert={k} setWert={setK} min={x ? 0.5 : 1.2} max={3} schritt={0.1} farbe={C.smaragd} stellen={100} />
+            </ReglerKarte>
+          </>}
+          bild={<SkizzeEcht hoehe={340} sa={sa} sb={sb} k={k} x={x} werte={skizzeWerte} />}
+          unten={x ? <FeinKarte data-strahlen-verhaeltnisse>{verhaeltnisse}</FeinKarte> : (
+            <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)", gap: 20, alignItems: "stretch" }}>
+              <FeinKarte data-strahlen-verhaeltnisse>{verhaeltnisse}</FeinKarte>
+              <FeinKarte data-strahlen-falle style={{ background: `${C.gruen}08`, borderColor: `${C.gruen}33` }}>{falle}</FeinKarte>
+            </div>
+          )} />
+      </>
+    );
+  }
+  return (
+    <>
+      <GeoAnimation art="strahlen" offen />
+      <div style={{ ...karte, marginTop: 16 }}>
+        <p style={kicker}>{zw("Figur einstellen", "Set up the figure")}</p>
+        <Auswahl optionen={FIGUR} wert={x ? "x" : "v"} setWert={(v) => setX(v === "x")} label={zw("Art der Figur", "Type of figure")} />
+        <p style={{ fontSize: 13, color: C.see, fontWeight: 600, margin: "14px 0 6px" }}>{zw("Zieh an den Reglern und beobachte die Verhältnisse.", "Move the sliders and watch the ratios.")}</p>
+        <div style={{ display: "grid", gap: 10 }}>
+          <Regler name="SA" wert={sa} setWert={setSa} min={1} max={5} schritt={0.5} />
+          <Regler name="SB" wert={sb} setWert={setSb} min={1} max={5} schritt={0.5} />
+          <Regler name="k" wert={k} setWert={setK} min={x ? 0.5 : 1.2} max={3} schritt={0.1} farbe={C.smaragd} />
+        </div>
+        <div style={{ marginTop: 12, background: C.sand, borderRadius: 14, padding: 8 }}>
+          <Skizze hoehe={260} sa={sa} sb={sb} k={k} x={x} werte={skizzeWerte} />
+        </div>
+      </div>
+      <div style={{ ...karte, marginTop: 12 }}>
+        {verhaeltnisse}
+        {falle}
       </div>
     </>
   );
@@ -369,15 +410,21 @@ function Ueben() {
   }[au.art];
   const gesucht = { sb2: "sb2", a2b2: "a2b2", xfigur: "a2b2", abschnitt: "a2b2", rueck: "ab" }[au.art];
   const titel = { sb2: zw("1. Strahlensatz", "1st theorem"), a2b2: zw("2. Strahlensatz", "2nd theorem"), xfigur: zw("X-Figur", "X figure"), abschnitt: zw("Abschnitt gegeben", "Piece given"), rueck: zw("Rückwärts", "Backwards"), schatten: zw("Sachaufgabe", "Word problem") }[au.art];
+  const desktop = useDesktop();
+  const aufgabe = <p style={{ ...hinweis, color: C.tinte, marginBottom: 8 }}>{aufgabenText(au)}</p>;
+  const skizze = au.art === "schatten" ? <SchattenSkizze au={au} />
+          : <Skizze sa={au.sa} sb={au.sb} k={au.k} x={au.x} werte={werte} gesucht={gesucht} hoehe={210} />;
+  const folge = <SchrittFolge schritte={schritte} stand={stand} setStand={setStand} fertigText={zw("Richtig gelöst – Verhältnis aufgestellt und berechnet.", "Solved – ratio set up and calculated.")} />;
   return (
     <div style={{ ...karte, marginTop: 16 }} key={au.id}>
       <p style={kicker}>{titel}</p>
-      <p style={{ ...hinweis, color: C.tinte, marginBottom: 8 }}>{aufgabenText(au)}</p>
+      {desktop ? <AufgabeZweispaltig links={<>{aufgabe}{folge}</>} skizze={skizze} /> : (<>
+      {aufgabe}
       <div style={{ background: C.sand, borderRadius: 14, padding: 8 }}>
-        {au.art === "schatten" ? <SchattenSkizze au={au} />
-          : <Skizze sa={au.sa} sb={au.sb} k={au.k} x={au.x} werte={werte} gesucht={gesucht} hoehe={210} />}
+        {skizze}
       </div>
-      <SchrittFolge schritte={schritte} stand={stand} setStand={setStand} fertigText={zw("Richtig gelöst – Verhältnis aufgestellt und berechnet.", "Solved – ratio set up and calculated.")} />
+      {folge}
+      </>)}
       <GrosserKnopf ghost onClick={neu}>{zw("Neue Aufgabe", "New exercise")}</GrosserKnopf>
       <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfeS(au)} /></div>
     </div>

@@ -17,6 +17,8 @@ import { Aufklapp, ModusLeiste, Seite, zt } from "./ui3.jsx";
 import { KOERPER_ARTEN, koerper, koerperAufgabe } from "./geoMittel2.js";
 import { Merke, Regler, UebenRahmen, WertZeile, Zeichenblatt, tolRund, EntdeckenZweispaltig } from "./geoUi.jsx";
 import { GeoAnimation } from "./funcGeoAnimationen.jsx";
+import { useDesktop } from "./arbeitsflaeche.jsx";
+import { ErklaerKarte, GeoDesktop, ReglerD, ReglerKarte, ThemenLeiste, WerteKarte } from "./geoDesktop.jsx";
 
 let zaehler = 0;
 const z2 = (v) => zt(v, 2);
@@ -114,6 +116,43 @@ function Entdecken() {
   const [h, setH] = useState(5);
   const m = k === "pyramide" ? { a: x, h } : k === "prisma" ? { a: x, b: x * 0.75 + 1, h } : { r: x, h };
   const w = koerper[k](m);
+  const desktop = useDesktop();
+  const KOERPER = Object.keys(NAMEN).map((id) => [id, NAMEN[id]]);
+  const merkText = k === "pyramide" || k === "kegel"
+          ? zw("Spitze Körper haben ein Drittel des Volumens des passenden Prismas bzw. Zylinders – drei Pyramiden füllen genau einen Quader mit gleicher Grundfläche und Höhe. Für die Oberfläche brauchst du die schräge Höhe: Pythagoras im Inneren des Körpers.",
+            "Pointed solids have a third of the volume of the matching prism or cylinder – three pyramids exactly fill a box with the same base and height. For the surface you need the slanted height: Pythagoras inside the solid.")
+          : k === "kugel"
+            ? zw("Die Kugel ist der einzige Körper hier ohne Grundfläche. Ihre Oberfläche ist genau viermal so groß wie ein Kreis mit demselben Radius.", "The sphere is the only solid here without a base. Its surface is exactly four times a circle with the same radius.")
+            : zw("Gerade Körper: Volumen = Grundfläche mal Höhe. Die Oberfläche besteht aus zwei Grundflächen und dem Mantel, der abgerollt ein Rechteck ist.", "Straight solids: volume = base times height. The surface consists of two bases and the lateral surface, which unrolls into a rectangle.");
+  const werte = <>
+        {w.G !== undefined && <WertZeile links={zw("Grundfläche G", "Base G")} rechts={z2(w.G)} />}
+        {w.s !== undefined && <WertZeile links={zw("Mantellinie s = √(r² + h²)", "Slant height s = √(r² + h²)")} rechts={z2(w.s)} farbe="#8A6A00" />}
+        {w.hs !== undefined && <WertZeile links={zw("Seitenhöhe hₛ = √(h² + (a/2)²)", "Face height hₛ = √(h² + (a/2)²)")} rechts={z2(w.hs)} farbe="#8A6A00" />}
+        <WertZeile links={<><M t={FORMEL[k][0]} /></>} rechts={z2(w.V)} farbe={C.gruen} />
+        <WertZeile links={<><M t={FORMEL[k][1]} /></>} rechts={z2(w.O)} />
+  </>;
+  const bild = (hoehe) => (
+          <KoerperBild k={k} m={m} hoehe={hoehe}
+            beschr={{ r: "r", h: "h", a: "a", b: "b", s: k === "kegel" ? "s" : null, hs: k === "pyramide" ? "hₛ" : null }} />
+  );
+  if (desktop) {
+    return (
+      <>
+        <GeoAnimation art="koerper" offen />
+        <GeoDesktop
+          thema={<ThemenLeiste titel={zw("Körper wählen", "Choose a solid")} optionen={KOERPER} wert={k} setWert={setK} label={zw("Körper", "Solid")} />}
+          links={<>
+            <ReglerKarte titel={zw("Maße", "Measurements")}>
+              <ReglerD name={k === "pyramide" || k === "prisma" ? "a" : "r"} wert={x} setWert={setX} min={1} max={6} schritt={0.5} />
+              {k !== "kugel" && <ReglerD name="h" wert={h} setWert={setH} min={1} max={10} schritt={0.5} farbe={C.gruen} />}
+            </ReglerKarte>
+            <WerteKarte titel={NAMEN[k]}>{werte}</WerteKarte>
+          </>}
+          bild={bild(340)}
+          unten={<ErklaerKarte>{merkText}</ErklaerKarte>} />
+      </>
+    );
+  }
   return (
     <>
       <GeoAnimation art="koerper" offen />
@@ -121,32 +160,22 @@ function Entdecken() {
         <EntdeckenZweispaltig
           steuerung={<>
         <p style={kicker}>{zw("Körper wählen", "Choose a solid")}</p>
-        <Auswahl optionen={Object.keys(NAMEN).map((id) => [id, NAMEN[id]])} wert={k} setWert={setK} label={zw("Körper", "Solid")} />
+        <Auswahl optionen={KOERPER} wert={k} setWert={setK} label={zw("Körper", "Solid")} />
         <div style={{ display: "grid", gap: 8, marginTop: 12 }}>
           <Regler name={k === "pyramide" || k === "prisma" ? "a" : "r"} wert={x} setWert={setX} min={1} max={6} schritt={0.5} />
           {k !== "kugel" && <Regler name="h" wert={h} setWert={setH} min={1} max={10} schritt={0.5} farbe={C.gruen} />}
         </div>
           <div style={{ marginTop: 12 }} />
         <p style={kicker}>{NAMEN[k]}</p>
-        {w.G !== undefined && <WertZeile links={zw("Grundfläche G", "Base G")} rechts={z2(w.G)} />}
-        {w.s !== undefined && <WertZeile links={zw("Mantellinie s = √(r² + h²)", "Slant height s = √(r² + h²)")} rechts={z2(w.s)} farbe="#8A6A00" />}
-        {w.hs !== undefined && <WertZeile links={zw("Seitenhöhe hₛ = √(h² + (a/2)²)", "Face height hₛ = √(h² + (a/2)²)")} rechts={z2(w.hs)} farbe="#8A6A00" />}
-        <WertZeile links={<><M t={FORMEL[k][0]} /></>} rechts={z2(w.V)} farbe={C.gruen} />
-        <WertZeile links={<><M t={FORMEL[k][1]} /></>} rechts={z2(w.O)} />
+        {werte}
           </>}
           bild={
         <div style={{ background: C.sand, borderRadius: 14, padding: 6 }}>
-          <KoerperBild k={k} m={m} hoehe={240}
-            beschr={{ r: "r", h: "h", a: "a", b: "b", s: k === "kegel" ? "s" : null, hs: k === "pyramide" ? "hₛ" : null }} />
+          {bild(240)}
         </div>
           }
           unten={<>
-        <Merke>{k === "pyramide" || k === "kegel"
-          ? zw("Spitze Körper haben ein Drittel des Volumens des passenden Prismas bzw. Zylinders – drei Pyramiden füllen genau einen Quader mit gleicher Grundfläche und Höhe. Für die Oberfläche brauchst du die schräge Höhe: Pythagoras im Inneren des Körpers.",
-            "Pointed solids have a third of the volume of the matching prism or cylinder – three pyramids exactly fill a box with the same base and height. For the surface you need the slanted height: Pythagoras inside the solid.")
-          : k === "kugel"
-            ? zw("Die Kugel ist der einzige Körper hier ohne Grundfläche. Ihre Oberfläche ist genau viermal so groß wie ein Kreis mit demselben Radius.", "The sphere is the only solid here without a base. Its surface is exactly four times a circle with the same radius.")
-            : zw("Gerade Körper: Volumen = Grundfläche mal Höhe. Die Oberfläche besteht aus zwei Grundflächen und dem Mantel, der abgerollt ein Rechteck ist.", "Straight solids: volume = base times height. The surface consists of two bases and the lateral surface, which unrolls into a rectangle.")}</Merke>
+        <Merke>{merkText}</Merke>
           </>}
         />
       </div>

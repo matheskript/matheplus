@@ -13,44 +13,76 @@ import { Auswahl, hilfeKontext, karte, kicker, zw } from "./ui2.jsx";
 import { KOORD_ARTEN, koordAufgabe } from "./unterGen.js";
 import { Merke, Regler, UebenRahmen, WertZeile, ZweiModi, zs, EntdeckenZweispaltig } from "./geoUi.jsx";
 import { werkzeugAnimationen } from "./unterstufeMedien.js";
+import { useBreite, useDesktop } from "./arbeitsflaeche.jsx";
+import { ChipWahl, ErklaerKarte, GeoDesktop, ReglerD, ReglerKarte, WerteKarte } from "./geoDesktop.jsx";
 
 let zaehler = 0;
 const mz = (v) => String(v).replace("-", "−");
 const pt = (P) => `(${mz(P[0])} | ${mz(P[1])})`;
 
-export function Gitter({ punkte = [], linien = [], polygone = [], achse = null, hoehe = 260, n = 6 }) {
-  const W = 300, s = (W - 20) / (2 * n), X = (x) => W / 2 + x * s, Y = (y) => W / 2 - y * s;
+/* echt: Desktop in echten Pixeln (W = gemessene Breite), Beschriftungen in normaler Größe */
+export function Gitter({ punkte = [], linien = [], polygone = [], achse = null, hoehe = 260, n = 6, W = 300, echt = false }) {
+  const s = (W - (echt ? 44 : 20)) / (2 * n), X = (x) => W / 2 + x * s, Y = (y) => W / 2 - y * s;
+  const fz = echt ? 11 : 9.5, fa = echt ? 12.5 : 11, fp = echt ? 13.5 : 12.5;
   return (
-    <svg viewBox={`0 0 ${W} ${W}`} style={{ width: "100%", maxWidth: hoehe, height: "auto", display: "block", margin: "0 auto" }} role="img" aria-label={zw("Koordinatensystem", "Coordinate system")}>
+    <svg viewBox={`0 0 ${W} ${W}`} style={{ width: "100%", maxWidth: echt ? "none" : hoehe, height: "auto", display: "block", margin: "0 auto" }} role="img" aria-label={zw("Koordinatensystem", "Coordinate system")}>
       {Array.from({ length: 2 * n + 1 }, (_, i) => i - n).map((k) => (
         <g key={k}>
           <line x1={X(k)} y1={Y(-n)} x2={X(k)} y2={Y(n)} stroke={`${C.see}${k ? "18" : "00"}`} />
           <line x1={X(-n)} y1={Y(k)} x2={X(n)} y2={Y(k)} stroke={`${C.see}${k ? "18" : "00"}`} />
-          {k && k % 2 === 0 ? <text x={X(k)} y={Y(0) + 13} textAnchor="middle" style={{ fontSize: 9.5, fill: C.grau }}>{mz(k)}</text> : null}
-          {k && k % 2 === 0 ? <text x={X(0) - 5} y={Y(k) + 3} textAnchor="end" style={{ fontSize: 9.5, fill: C.grau }}>{mz(k)}</text> : null}
+          {k && k % 2 === 0 ? <text x={X(k)} y={Y(0) + 13} textAnchor="middle" style={{ fontSize: fz, fill: C.grau }}>{mz(k)}</text> : null}
+          {k && k % 2 === 0 ? <text x={X(0) - 5} y={Y(k) + 3} textAnchor="end" style={{ fontSize: fz, fill: C.grau }}>{mz(k)}</text> : null}
         </g>
       ))}
       <line x1={X(-n)} y1={Y(0)} x2={X(n)} y2={Y(0)} stroke={achse === "x" ? C.gruen : C.tinte} strokeWidth={achse === "x" ? 2.6 : 1.4} />
       <line x1={X(0)} y1={Y(-n)} x2={X(0)} y2={Y(n)} stroke={achse === "y" ? C.gruen : C.tinte} strokeWidth={achse === "y" ? 2.6 : 1.4} />
-      <text x={X(n) - 4} y={Y(0) - 6} textAnchor="end" style={{ fontSize: 11, fill: C.tinte, fontWeight: 700 }}>x</text>
-      <text x={X(0) + 6} y={Y(n) + 10} style={{ fontSize: 11, fill: C.tinte, fontWeight: 700 }}>y</text>
+      <text x={X(n) - 4} y={Y(0) - 6} textAnchor="end" style={{ fontSize: fa, fill: C.tinte, fontWeight: 700 }}>x</text>
+      <text x={X(0) + 6} y={Y(n) + 10} style={{ fontSize: fa, fill: C.tinte, fontWeight: 700 }}>y</text>
       {polygone.map((p, i) => <polygon key={i} points={p.pts.map(([x, y]) => `${X(x)},${Y(y)}`).join(" ")} fill={p.fill || `${C.see}18`} stroke={p.farbe || C.see} strokeWidth="1.8" strokeDasharray={p.strich} />)}
       {linien.map((l, i) => <line key={i} x1={X(l[0][0])} y1={Y(l[0][1])} x2={X(l[1][0])} y2={Y(l[1][1])} stroke={l[2] || C.hellgrau} strokeWidth="1.4" strokeDasharray="4 3" />)}
       {punkte.map((p, i) => (
         <g key={i}>
           <circle cx={X(p.P[0])} cy={Y(p.P[1])} r="5" fill={p.farbe || C.see} stroke={C.weiss} strokeWidth="1.2" />
-          {p.name && <text x={X(p.P[0]) + 8} y={Y(p.P[1]) - 7} style={{ fontSize: 12.5, fontWeight: 800, fill: p.farbe || C.see }}>{p.name}</text>}
+          {p.name && <text x={X(p.P[0]) + 8} y={Y(p.P[1]) - 7} style={{ fontSize: fp, fontWeight: 800, fill: p.farbe || C.see }}>{p.name}</text>}
         </g>
       ))}
     </svg>
   );
 }
 
+/* Gitter in echten Pixeln: Breite messen, quadratisch zeichnen */
+export function GitterEcht(props) {
+  const [ref, b] = useBreite();
+  return <div ref={ref}><Gitter {...props} W={b || 300} echt /></div>;
+}
+
 function Entdecken() {
   const [x, setX] = useState(3);
   const [y, setY] = useState(2);
   const [art, setArt] = useState("x");
+  const desktop = useDesktop();
   const B = art === "x" ? [x, -y] : art === "y" ? [-x, y] : [-x, -y];
+  const SPIEGEL = [["x", zw("an der x-Achse", "in the x-axis")], ["y", zw("an der y-Achse", "in the y-axis")], ["o", zw("am Ursprung", "in the origin")]];
+  const merkText = { x: zw("An der x-Achse: x bleibt, y wechselt das Vorzeichen.", "In the x-axis: x stays, y changes sign."), y: zw("An der y-Achse: y bleibt, x wechselt das Vorzeichen.", "In the y-axis: y stays, x changes sign."), o: zw("Am Ursprung: beide Koordinaten wechseln das Vorzeichen. O ist die Mitte von PP′.", "In the origin: both coordinates change sign. O is the midpoint of PP′.") }[art];
+  const gitter = { achse: art === "o" ? null : art, linien: [[[x, y], B, C.gruen]], punkte: [{ P: [x, y], name: "P" }, { P: B, name: "P′", farbe: "#8A6A00" }, ...(art === "o" ? [{ P: [0, 0], farbe: C.gruen }] : [])] };
+  if (desktop) {
+    return (
+      <GeoDesktop
+        links={<>
+          <ReglerKarte titel={zw("Punkt spiegeln", "Reflect a point")}>
+            <ReglerD name="x" wert={x} setWert={setX} min={-5} max={5} schritt={1} format={mz} />
+            <ReglerD name="y" wert={y} setWert={setY} min={-5} max={5} schritt={1} format={mz} farbe={C.gruen} />
+          </ReglerKarte>
+          <WerteKarte>
+            <WertZeile links="P" rechts={pt([x, y])} />
+            <WertZeile links="P′" rechts={pt(B)} farbe="#8A6A00" />
+          </WerteKarte>
+          <ErklaerKarte>{merkText}</ErklaerKarte>
+        </>}
+        bild={<GitterEcht {...gitter} />}
+        werkzeuge={[{ titel: zw("Spiegelung", "Reflection"), inhalt: <ChipWahl optionen={SPIEGEL} wert={art} setWert={setArt} label={zw("Spiegelung", "Reflection")} /> }]} />
+    );
+  }
   return (
     <div style={{ ...karte, marginTop: 16 }}>
       <EntdeckenZweispaltig
@@ -60,17 +92,17 @@ function Entdecken() {
         <Regler name="x" wert={x} setWert={setX} min={-5} max={5} schritt={1} format={mz} />
         <Regler name="y" wert={y} setWert={setY} min={-5} max={5} schritt={1} format={mz} farbe={C.gruen} />
       </div>
-      <div style={{ marginTop: 10 }}><Auswahl optionen={[["x", zw("an der x-Achse", "in the x-axis")], ["y", zw("an der y-Achse", "in the y-axis")], ["o", zw("am Ursprung", "in the origin")]]} wert={art} setWert={setArt} label={zw("Spiegelung", "Reflection")} /></div>
+      <div style={{ marginTop: 10 }}><Auswahl optionen={SPIEGEL} wert={art} setWert={setArt} label={zw("Spiegelung", "Reflection")} /></div>
       <WertZeile links="P" rechts={pt([x, y])} />
       <WertZeile links="P′" rechts={pt(B)} farbe="#8A6A00" />
         </>}
         bild={
       <div style={{ background: C.sand, borderRadius: 14, padding: 8 }}>
-        <Gitter achse={art === "o" ? null : art} linien={[[[x, y], B, C.gruen]]} punkte={[{ P: [x, y], name: "P" }, { P: B, name: "P′", farbe: "#8A6A00" }, ...(art === "o" ? [{ P: [0, 0], farbe: C.gruen }] : [])]} />
+        <Gitter {...gitter} />
       </div>
         }
         unten={<>
-      <Merke>{{ x: zw("An der x-Achse: x bleibt, y wechselt das Vorzeichen.", "In the x-axis: x stays, y changes sign."), y: zw("An der y-Achse: y bleibt, x wechselt das Vorzeichen.", "In the y-axis: y stays, x changes sign."), o: zw("Am Ursprung: beide Koordinaten wechseln das Vorzeichen. O ist die Mitte von PP′.", "In the origin: both coordinates change sign. O is the midpoint of PP′.") }[art]}</Merke>
+      <Merke>{merkText}</Merke>
         </>}
       />
     </div>

@@ -17,6 +17,8 @@ import { Auswahl, hilfeKontext, karte, kicker, zw } from "./ui2.jsx";
 import { Aufklapp, ModusLeiste, Seite, zt } from "./ui3.jsx";
 import { KATH_ARTEN, kathAufgabe } from "./geoMittel2.js";
 import { EntdeckenZweispaltig, Merke, Regler, UebenRahmen, WertZeile, Zeichenblatt, tolRund } from "./geoUi.jsx";
+import { useDesktop } from "./arbeitsflaeche.jsx";
+import { ErklaerKarte, GeoDesktop, ReglerD, ReglerKarte, ThemenLeiste, WerteKarte } from "./geoDesktop.jsx";
 
 let zaehler = 0;
 const z2 = (v) => zt(v, 2);
@@ -40,22 +42,10 @@ function Entdecken() {
   const rechteckPQ = [[q, 0], [c, 0], [c, -q], [q, -q]];             // p × q unter dem Abschnitt p
   const kath = satz === "kathete";
   const pts = kath ? [...qa, ...rechteckP, A] : [...qh, ...rechteckPQ, A, B];
-  return (
-    <div style={{ ...karte, marginTop: 16 }}>
-      <EntdeckenZweispaltig
-        steuerung={<>
-      <p style={kicker}>{zw("Satz wählen", "Choose a theorem")}</p>
-      <Auswahl optionen={[["kathete", zw("Kathetensatz", "Leg theorem")], ["hoehe", zw("Höhensatz", "Altitude theorem")]]} wert={satz} setWert={setSatz} label={zw("Satz", "Theorem")} />
-      <div style={{ display: "grid", gap: 8, marginTop: 12 }}>
-        <Regler name="c" wert={c} setWert={setC} min={4} max={8} schritt={0.5} />
-        <Regler name={zw("Fußpunkt", "Foot")} wert={t} setWert={setT} min={0.15} max={0.85} schritt={0.01} farbe={C.gruen} format={(v) => `p = ${zt(c * v, 2)}`} breiteName={66} />
-      </div>
-      <WertZeile links="a, b, c" rechts={`${z2(a)} | ${z2(b)} | ${z2(c)}`} />
-      <WertZeile links="p, q, h" rechts={`${z2(p)} | ${z2(q)} | ${z2(h)}`} />
-        </>}
-        bild={
-      <div style={{ background: C.sand, borderRadius: 14, padding: 6 }}>
-        <Zeichenblatt punkte={pts} hoehe={300} rand={14} label={zw("Rechtwinkliges Dreieck mit flächengleichem Quadrat und Rechteck", "Right triangle with a square and a rectangle of equal area")}
+  const desktop = useDesktop();
+  const SAETZE = [["kathete", zw("Kathetensatz", "Leg theorem")], ["hoehe", zw("Höhensatz", "Altitude theorem")]];
+  const bild = (hoehe) => (
+        <Zeichenblatt punkte={pts} hoehe={hoehe} rand={14} label={zw("Rechtwinkliges Dreieck mit flächengleichem Quadrat und Rechteck", "Right triangle with a square and a rectangle of equal area")}
           kinder={(zz) => (
             <>
               {kath ? <>{zz.vieleck(qa, `${C.flaggold}55`, C.flaggold, 1.4)}{zz.vieleck(rechteckP, `${C.flaggold}55`, C.flaggold, 1.4)}
@@ -71,16 +61,50 @@ function Entdecken() {
               {zz.punkt(A, "A", -8, 14)}{zz.punkt(B, "B", 8, 14)}{zz.punkt(Cp, "C", 0, -10)}
             </>
           )} />
-      </div>
-        }
-        unten={
-      <Merke farbe={kath ? C.flaggold : C.see}>
-        {kath
+  );
+  const merkText = kath
           ? zw("Kathetensatz: Das Quadrat über der Kathete a ist so groß wie das Rechteck aus der Hypotenuse c und dem anliegenden Abschnitt p: a² = c · p (ebenso b² = c · q). Addiert man beide, entsteht a² + b² = c · (p + q) = c² – Pythagoras.",
             "Leg theorem: the square on leg a has the same area as the rectangle from hypotenuse c and the adjacent segment p: a² = c · p (likewise b² = c · q). Adding both gives a² + b² = c · (p + q) = c² – Pythagoras.")
           : zw("Höhensatz: Das Quadrat über der Höhe h ist so groß wie das Rechteck aus den beiden Hypotenusenabschnitten: h² = p · q.",
-            "Altitude theorem: the square on the altitude h has the same area as the rectangle from the two hypotenuse segments: h² = p · q.")}
-      </Merke>
+            "Altitude theorem: the square on the altitude h has the same area as the rectangle from the two hypotenuse segments: h² = p · q.");
+  const werte = <>
+      <WertZeile links="a, b, c" rechts={`${z2(a)} | ${z2(b)} | ${z2(c)}`} />
+      <WertZeile links="p, q, h" rechts={`${z2(p)} | ${z2(q)} | ${z2(h)}`} />
+  </>;
+  if (desktop) {
+    return (
+      <GeoDesktop
+        thema={<ThemenLeiste titel={zw("Satz wählen", "Choose a theorem")} optionen={SAETZE} wert={satz} setWert={setSatz} label={zw("Satz", "Theorem")} />}
+        links={<>
+          <ReglerKarte titel={zw("Dreieck einstellen", "Set up the triangle")}>
+            <ReglerD name="c" wert={c} setWert={setC} min={4} max={8} schritt={0.5} />
+            <ReglerD name={zw("Fußpunkt", "Foot")} wert={t} setWert={setT} min={0.15} max={0.85} schritt={0.01} farbe={C.gruen} format={(v) => `p = ${zt(c * v, 2)}`} />
+          </ReglerKarte>
+          <WerteKarte titel={zw("Seiten und Abschnitte", "Sides and segments")}>{werte}</WerteKarte>
+        </>}
+        bild={bild(380)}
+        unten={<ErklaerKarte farbe={kath ? C.flaggold : C.see} titel={kath ? zw("Kathetensatz", "Leg theorem") : zw("Höhensatz", "Altitude theorem")}>{merkText}</ErklaerKarte>} />
+    );
+  }
+  return (
+    <div style={{ ...karte, marginTop: 16 }}>
+      <EntdeckenZweispaltig
+        steuerung={<>
+      <p style={kicker}>{zw("Satz wählen", "Choose a theorem")}</p>
+      <Auswahl optionen={SAETZE} wert={satz} setWert={setSatz} label={zw("Satz", "Theorem")} />
+      <div style={{ display: "grid", gap: 8, marginTop: 12 }}>
+        <Regler name="c" wert={c} setWert={setC} min={4} max={8} schritt={0.5} />
+        <Regler name={zw("Fußpunkt", "Foot")} wert={t} setWert={setT} min={0.15} max={0.85} schritt={0.01} farbe={C.gruen} format={(v) => `p = ${zt(c * v, 2)}`} breiteName={66} />
+      </div>
+      {werte}
+        </>}
+        bild={
+      <div style={{ background: C.sand, borderRadius: 14, padding: 6 }}>
+        {bild(300)}
+      </div>
+        }
+        unten={
+      <Merke farbe={kath ? C.flaggold : C.see}>{merkText}</Merke>
         }
       />
     </div>

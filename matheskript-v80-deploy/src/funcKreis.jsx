@@ -17,6 +17,8 @@ import { Aufklapp, ModusLeiste, Seite, zt } from "./ui3.jsx";
 import { KREIS_ARTEN, kreisAufgabe } from "./geoMittel2.js";
 import { Merke, Regler, UebenRahmen, WertZeile, tolRund, EntdeckenZweispaltig } from "./geoUi.jsx";
 import { GeoAnimation } from "./funcGeoAnimationen.jsx";
+import { ErgebnisReihe, useBreite, useDesktop } from "./arbeitsflaeche.jsx";
+import { ErklaerKarte, GeoDesktop, ReglerD, ReglerKarte, WerteKarte } from "./geoDesktop.jsx";
 
 let zaehler = 0;
 const z2 = (v) => zt(v, 2);
@@ -24,9 +26,9 @@ const PI = Math.PI;
 
 /* Kreis mit Sektor als SVG-Pfad (eigene Zeichnung, damit der Sektor > 180° richtig gefüllt wird).
    skalaMax: feste Skala (der größte Radius füllt das Bild) – damit der r-Regler den Kreis sichtbar wachsen lässt.
-   Ohne skalaMax füllt der Kreis immer das Bild (Skizzen in den Aufgaben). */
-function KreisBild({ r = 3, alpha = 90, hoehe = 230, beschr = {}, ring = null, skalaMax = null }) {
-  const W = 300, H = hoehe, cx = W / 2, cy = H / 2, s = (Math.min(W, H) / 2 - 22) / (skalaMax || Math.max(r, ring || 0));
+   Ohne skalaMax füllt der Kreis immer das Bild (Skizzen in den Aufgaben). W: Breite in echten Pixeln (Desktop). */
+function KreisBild({ r = 3, alpha = 90, hoehe = 230, beschr = {}, ring = null, skalaMax = null, W = 300 }) {
+  const H = hoehe, cx = W / 2, cy = H / 2, s = (Math.min(W, H) / 2 - 22) / (skalaMax || Math.max(r, ring || 0));
   const R = r * s, a = Math.min(alpha, 359.999) * PI / 180;
   const ex = cx + R * Math.cos(-a), ey = cy + R * Math.sin(-a);
   const gross = alpha > 180 ? 1 : 0;
@@ -47,10 +49,46 @@ function KreisBild({ r = 3, alpha = 90, hoehe = 230, beschr = {}, ring = null, s
   );
 }
 
+/* Desktop: Kreis in echten Pixeln (gemessene Breite, Höhe fest) */
+function KreisBildEcht(props) {
+  const [ref, b] = useBreite();
+  return <div ref={ref}><KreisBild {...props} W={b || 300} /></div>;
+}
+
 function Entdecken() {
   const [r, setR] = useState(3);
   const [alpha, setAlpha] = useState(120);
   const u = 2 * PI * r, A = PI * r * r, anteil = alpha / 360;
+  const desktop = useDesktop();
+  const merkText = zw(`Jeder Kreis ist eine Vergrößerung jedes anderen. Darum ist Umfang : Durchmesser immer dieselbe Zahl: π ≈ 3,14159. Bogen und Sektor sind einfach der Anteil α : 360° vom Ganzen – hier ${zt(anteil * 100, 1)} %.`,
+          `Every circle is an enlargement of every other. So circumference : diameter is always the same number: π ≈ 3.14159. Arc and sector are just the share α : 360° of the whole – here ${zt(anteil * 100, 1)} %.`);
+  const werte = <>
+        <WertZeile links={zw("Durchmesser d = 2r", "Diameter d = 2r")} rechts={z2(2 * r)} />
+        <WertZeile links={zw("Umfang u = 2πr", "Circumference u = 2πr")} rechts={z2(u)} />
+        <WertZeile links={zw("Fläche A = πr²", "Area A = πr²")} rechts={z2(A)} />
+        <WertZeile links={zw("Anteil α : 360°", "Share α : 360°")} rechts={`${zt(anteil * 100, 1)} %`} farbe={C.gruen} />
+        <WertZeile links={zw("Bogen b = u · α : 360°", "Arc b = u · α : 360°")} rechts={z2(u * anteil)} farbe={C.gruen} />
+        <WertZeile links={zw("Sektorfläche = A · α : 360°", "Sector area = A · α : 360°")} rechts={z2(A * anteil)} farbe="#8A6A00" />
+  </>;
+  if (desktop) {
+    return (
+      <>
+        <GeoAnimation art="kreis" offen />
+        <GeoDesktop
+          links={<>
+            <ReglerKarte titel={zw("Kreis einstellen", "Set up the circle")}>
+              <ReglerD name="r" wert={r} setWert={setR} min={1} max={8} schritt={0.5} />
+              <ReglerD name="α" wert={alpha} setWert={setAlpha} min={0} max={360} schritt={5} farbe={C.gruen} format={(v) => `${zt(v, 0)}°`} />
+            </ReglerKarte>
+          </>}
+          bild={<KreisBildEcht r={r} skalaMax={8} alpha={alpha} hoehe={270} beschr={{ r: `r = ${z2(r)}` }} />}
+          unten={<ErgebnisReihe spalten="minmax(0, 7fr) minmax(0, 5fr)" gap={20}>
+            <WerteKarte titel={zw("Werte", "Values")}>{werte}</WerteKarte>
+            <ErklaerKarte titel={zw("Warum π?", "Why π?")}>{merkText}</ErklaerKarte>
+          </ErgebnisReihe>} />
+      </>
+    );
+  }
   return (
     <>
       <GeoAnimation art="kreis" offen />
@@ -64,19 +102,13 @@ function Entdecken() {
         </div>
           <div style={{ marginTop: 12 }} />
         <p style={kicker}>{zw("Werte", "Values")}</p>
-        <WertZeile links={zw("Durchmesser d = 2r", "Diameter d = 2r")} rechts={z2(2 * r)} />
-        <WertZeile links={zw("Umfang u = 2πr", "Circumference u = 2πr")} rechts={z2(u)} />
-        <WertZeile links={zw("Fläche A = πr²", "Area A = πr²")} rechts={z2(A)} />
-        <WertZeile links={zw("Anteil α : 360°", "Share α : 360°")} rechts={`${zt(anteil * 100, 1)} %`} farbe={C.gruen} />
-        <WertZeile links={zw("Bogen b = u · α : 360°", "Arc b = u · α : 360°")} rechts={z2(u * anteil)} farbe={C.gruen} />
-        <WertZeile links={zw("Sektorfläche = A · α : 360°", "Sector area = A · α : 360°")} rechts={z2(A * anteil)} farbe="#8A6A00" />
+        {werte}
           </>}
           bild={
         <div style={{ background: C.sand, borderRadius: 14, padding: 6 }}><KreisBild r={r} skalaMax={8} alpha={alpha} beschr={{ r: `r = ${z2(r)}` }} /></div>
           }
           unten={<>
-        <Merke>{zw(`Jeder Kreis ist eine Vergrößerung jedes anderen. Darum ist Umfang : Durchmesser immer dieselbe Zahl: π ≈ 3,14159. Bogen und Sektor sind einfach der Anteil α : 360° vom Ganzen – hier ${zt(anteil * 100, 1)} %.`,
-          `Every circle is an enlargement of every other. So circumference : diameter is always the same number: π ≈ 3.14159. Arc and sector are just the share α : 360° of the whole – here ${zt(anteil * 100, 1)} %.`)}</Merke>
+        <Merke>{merkText}</Merke>
           </>}
         />
       </div>

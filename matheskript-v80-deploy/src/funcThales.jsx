@@ -17,6 +17,8 @@ import { Auswahl, GrosserKnopf, hilfeKontext, hinweis, karte, kicker, zw } from 
 import { Aufklapp, ModusLeiste, Seite, SchrittFolge, zt } from "./ui3.jsx";
 import { THALES_ARTEN, thalesAufgabe, winkelBeiC } from "./geoMittel.js";
 import { Merke, Regler, WertZeile, Zeichenblatt, polar, winkelAn, EntdeckenZweispaltig } from "./geoUi.jsx";
+import { useDesktop } from "./arbeitsflaeche.jsx";
+import { AufgabeZweispaltig, ChipWahl, ErklaerKarte, GeoDesktop, ReglerD, ReglerKarte, WerteKarte } from "./geoDesktop.jsx";
 
 let zaehler = 0;
 const z2 = (v) => zt(v, 2);
@@ -33,28 +35,9 @@ function Entdecken() {
   const alpha = winkelAn(A, B, Cp), beta = winkelAn(B, A, Cp);
   const auf = Math.abs(f - 1) < 1e-9;
   const imKreis = f < 1;
-  return (
-    <>
-      <div style={{ ...karte, marginTop: 16 }}>
-        <EntdeckenZweispaltig
-          steuerung={<>
-        <p style={kicker}>{zw("Punkt C bewegen", "Move point C")}</p>
-        <div style={{ display: "grid", gap: 10 }}>
-          <Regler name={zw("Lage", "Position")} wert={t} setWert={setT} min={12} max={168} schritt={1} format={(v) => `${zt(v, 0)}°`} breiteName={58} />
-          <Regler name={zw("Abstand", "Distance")} wert={f} setWert={setF} min={0.5} max={1.6} schritt={0.05} farbe={C.gruen} format={(v) => (Math.abs(v - 1) < 1e-9 ? "r" : `${zt(v, 2)} r`)} breiteName={58} />
-        </div>
-        <div style={{ marginTop: 10 }}>
-          <Auswahl optionen={[["ohne", zw("Nur Winkel", "Angles only")], ["mit", zw("Beweisidee zeigen", "Show the proof idea")]]} wert={beweis ? "mit" : "ohne"} setWert={(v) => setBeweis(v === "mit")} label={zw("Ansicht", "View")} />
-        </div>
-          <div style={{ marginTop: 12 }} />
-        <p style={kicker}>{zw("Winkel im Dreieck", "Angles in the triangle")}</p>
-        <WertZeile links="α" rechts={g0(alpha)} farbe="#8A6A00" />
-        <WertZeile links="β" rechts={g0(beta)} farbe="#0B5E43" />
-        <WertZeile links={zw("γ (bei C)", "γ (at C)")} rechts={g0(gamma)} farbe={C.gruen} />
-          </>}
-          bild={
-        <div style={{ background: C.sand, borderRadius: 14, padding: 6 }}>
-          <Zeichenblatt punkte={[[-r, -r], [r, r], [0, 1.6 * r]]} hoehe={beweis ? 290 : 270} rand={18}
+  const desktop = useDesktop();
+  const bild = (hoehe) => (
+          <Zeichenblatt punkte={[[-r, -r], [r, r], [0, 1.6 * r]]} hoehe={hoehe} rand={18}
             label={zw("Thaleskreis über AB mit Punkt C", "Thales circle over AB with point C")}
             kinder={(zz) => (
               <>
@@ -78,24 +61,65 @@ function Entdecken() {
                 {beweis && auf && zz.mass(Mi, B, "r", -1, C.see, 12)}
               </>
             )} />
+  );
+  const beweisZeigen = beweis && auf;
+  const merkFarbe = beweisZeigen ? C.see : auf ? C.smaragd : C.gruen;
+  const merkInhalt = beweisZeigen ? (
+    <>
+      <b>{zw("Beweisidee:", "Proof idea:")}</b>{" "}
+      {zw("MA, MB und MC sind Radien, also gleich lang. Darum sind die Dreiecke AMC und MBC gleichschenklig, und ihre Basiswinkel sind gleich: Bei C steckt einmal α und einmal β. Also γ = α + β. Mit der Winkelsumme α + β + γ = 180° folgt 2γ = 180°, also γ = 90°.",
+        "MA, MB and MC are radii, so they are equal. Hence triangles AMC and MBC are isosceles and their base angles are equal: at C there is one α and one β. So γ = α + β. With the angle sum α + β + γ = 180° we get 2γ = 180°, so γ = 90°.")}
+    </>
+  ) : auf
+    ? zw("C liegt auf dem Kreis über dem Durchmesser AB: Egal wo – der Winkel bei C ist immer 90°. Das ist der Satz des Thales.", "C lies on the circle over the diameter AB: wherever it is, the angle at C is always 90°. That is Thales' theorem.")
+    : imKreis
+      ? zw("C liegt innerhalb des Kreises: Der Winkel bei C ist größer als 90° (stumpf).", "C lies inside the circle: the angle at C is greater than 90° (obtuse).")
+      : zw("C liegt außerhalb des Kreises: Der Winkel bei C ist kleiner als 90° (spitz). Nur auf dem Kreis ist er genau 90° – das ist die Umkehrung.", "C lies outside the circle: the angle at C is less than 90° (acute). Only on the circle is it exactly 90° – that is the converse.");
+  const ANSICHT = [["ohne", zw("Nur Winkel", "Angles only")], ["mit", zw("Beweisidee zeigen", "Show the proof idea")]];
+  const werte = <>
+    <WertZeile links="α" rechts={g0(alpha)} farbe="#8A6A00" />
+    <WertZeile links="β" rechts={g0(beta)} farbe="#0B5E43" />
+    <WertZeile links={zw("γ (bei C)", "γ (at C)")} rechts={g0(gamma)} farbe={C.gruen} />
+  </>;
+  if (desktop) {
+    return (
+      <GeoDesktop
+        links={<>
+          <ReglerKarte titel={zw("Punkt C bewegen", "Move point C")}>
+            <ReglerD name={zw("Lage", "Position")} wert={t} setWert={setT} min={12} max={168} schritt={1} format={(v) => `${zt(v, 0)}°`} />
+            <ReglerD name={zw("Abstand", "Distance")} wert={f} setWert={setF} min={0.5} max={1.6} schritt={0.05} farbe={C.gruen} format={(v) => (Math.abs(v - 1) < 1e-9 ? "r" : `${zt(v, 2)} r`)} />
+          </ReglerKarte>
+          <WerteKarte titel={zw("Winkel im Dreieck", "Angles in the triangle")}>{werte}</WerteKarte>
+        </>}
+        bild={bild(300)}
+        werkzeuge={[{ titel: zw("Ansicht", "View"), inhalt: <ChipWahl optionen={ANSICHT} wert={beweis ? "mit" : "ohne"} setWert={(v) => setBeweis(v === "mit")} label={zw("Ansicht", "View")} /> }]}
+        unten={<ErklaerKarte farbe={merkFarbe}>{merkInhalt}</ErklaerKarte>} />
+    );
+  }
+  return (
+    <>
+      <div style={{ ...karte, marginTop: 16 }}>
+        <EntdeckenZweispaltig
+          steuerung={<>
+        <p style={kicker}>{zw("Punkt C bewegen", "Move point C")}</p>
+        <div style={{ display: "grid", gap: 10 }}>
+          <Regler name={zw("Lage", "Position")} wert={t} setWert={setT} min={12} max={168} schritt={1} format={(v) => `${zt(v, 0)}°`} breiteName={58} />
+          <Regler name={zw("Abstand", "Distance")} wert={f} setWert={setF} min={0.5} max={1.6} schritt={0.05} farbe={C.gruen} format={(v) => (Math.abs(v - 1) < 1e-9 ? "r" : `${zt(v, 2)} r`)} breiteName={58} />
+        </div>
+        <div style={{ marginTop: 10 }}>
+          <Auswahl optionen={ANSICHT} wert={beweis ? "mit" : "ohne"} setWert={(v) => setBeweis(v === "mit")} label={zw("Ansicht", "View")} />
+        </div>
+          <div style={{ marginTop: 12 }} />
+        <p style={kicker}>{zw("Winkel im Dreieck", "Angles in the triangle")}</p>
+        {werte}
+          </>}
+          bild={
+        <div style={{ background: C.sand, borderRadius: 14, padding: 6 }}>
+          {bild(beweis ? 290 : 270)}
         </div>
           }
           unten={<>
-        {beweis && auf ? (
-          <Merke farbe={C.see}>
-            <b>{zw("Beweisidee:", "Proof idea:")}</b>{" "}
-            {zw("MA, MB und MC sind Radien, also gleich lang. Darum sind die Dreiecke AMC und MBC gleichschenklig, und ihre Basiswinkel sind gleich: Bei C steckt einmal α und einmal β. Also γ = α + β. Mit der Winkelsumme α + β + γ = 180° folgt 2γ = 180°, also γ = 90°.",
-              "MA, MB and MC are radii, so they are equal. Hence triangles AMC and MBC are isosceles and their base angles are equal: at C there is one α and one β. So γ = α + β. With the angle sum α + β + γ = 180° we get 2γ = 180°, so γ = 90°.")}
-          </Merke>
-        ) : (
-          <Merke farbe={auf ? C.smaragd : C.gruen}>
-            {auf
-              ? zw("C liegt auf dem Kreis über dem Durchmesser AB: Egal wo – der Winkel bei C ist immer 90°. Das ist der Satz des Thales.", "C lies on the circle over the diameter AB: wherever it is, the angle at C is always 90°. That is Thales' theorem.")
-              : imKreis
-                ? zw("C liegt innerhalb des Kreises: Der Winkel bei C ist größer als 90° (stumpf).", "C lies inside the circle: the angle at C is greater than 90° (obtuse).")
-                : zw("C liegt außerhalb des Kreises: Der Winkel bei C ist kleiner als 90° (spitz). Nur auf dem Kreis ist er genau 90° – das ist die Umkehrung.", "C lies outside the circle: the angle at C is less than 90° (acute). Only on the circle is it exactly 90° – that is the converse.")}
-          </Merke>
-        )}
+        <Merke farbe={merkFarbe}>{merkInhalt}</Merke>
           </>}
         />
       </div>
@@ -333,6 +357,9 @@ function Ueben() {
   const schritte = useMemo(() => schritteVon(au), [au]);
   const ARTEN = [["mix", zw("Gemischt", "Mixed")], ...THALES_ARTEN.map((a) => [a, zw(TITEL[a][0], TITEL[a][1])])];
   const sk = Skizze({ au });
+  const desktop = useDesktop();
+  const aufgabe = <p style={{ ...hinweis, color: C.tinte, marginBottom: 8 }}>{aufgabenText(au)}</p>;
+  const folge = <SchrittFolge schritte={schritte} stand={stand} setStand={setStand} fertigText={zw("Richtig gelöst.", "Solved.")} />;
   return (
     <>
       <div style={{ ...karte, marginTop: 16 }}>
@@ -347,9 +374,11 @@ function Ueben() {
       </div>
       <div style={{ ...karte, marginTop: 12 }} key={au.id}>
         <p style={kicker}>{zw(TITEL[au.art][0], TITEL[au.art][1])}</p>
-        <p style={{ ...hinweis, color: C.tinte, marginBottom: 8 }}>{aufgabenText(au)}</p>
+        {desktop && sk ? <AufgabeZweispaltig links={<>{aufgabe}{folge}</>} skizze={sk} /> : (<>
+        {aufgabe}
         {sk && <div style={{ background: C.sand, borderRadius: 14, padding: 6 }}>{sk}</div>}
-        <SchrittFolge schritte={schritte} stand={stand} setStand={setStand} fertigText={zw("Richtig gelöst.", "Solved.")} />
+        {folge}
+        </>)}
         <GrosserKnopf ghost onClick={() => neu()}>{zw("Neue Aufgabe", "New exercise")}</GrosserKnopf>
         <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfe(au)} /></div>
       </div>

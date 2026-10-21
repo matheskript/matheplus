@@ -19,6 +19,8 @@ import { GrosserKnopf, KleinerLink, hilfeKontext, hinweis, karte, kicker, zw } f
 import { Aufklapp, ModusLeiste, Seite, SchrittFolge, zt } from "./ui3.jsx";
 import { GRAD, PYTH_ARTEN, pythAufgabe } from "./geoMittel.js";
 import { Merke, Regler, WertZeile, Zeichenblatt, add, mal, mitte, sub, EntdeckenZweispaltig } from "./geoUi.jsx";
+import { useDesktop } from "./arbeitsflaeche.jsx";
+import { AufgabeZweispaltig, ErklaerKarte, GeoDesktop, ReglerD, ReglerKarte, WerteKarte } from "./geoDesktop.jsx";
 
 let zaehler = 0;
 const z2 = (v) => zt(v, 2);
@@ -47,25 +49,9 @@ function Entdecken() {
   const summe = a * a + b * b, c2 = c * c;
   const recht = Math.abs(g - 90) < 0.01;
   const zeichen = recht ? "=" : c2 < summe ? "<" : ">";
-  return (
-    <>
-      <div style={{ ...karte, marginTop: 16 }}>
-        <EntdeckenZweispaltig
-          steuerung={<>
-        <p style={kicker}>{zw("Dreieck einstellen", "Set up the triangle")}</p>
-        <div style={{ display: "grid", gap: 10 }}>
-          <Regler name="a" wert={a} setWert={setA} min={1} max={6} schritt={0.5} farbe="#8A6A00" />
-          <Regler name="b" wert={b} setWert={setB} min={1} max={6} schritt={0.5} farbe={FB} />
-          <Regler name="γ" wert={g} setWert={setG} min={50} max={130} schritt={1} farbe={C.gruen} format={(v) => `${zt(v, 0)}°`} />
-        </div>
-          <div style={{ marginTop: 12 }} />
-        <p style={kicker}>{zw("Vergleich der Flächen", "Comparing the areas")}</p>
-        <WertZeile links={<M t="a² + b²" />} rechts={z2(summe)} />
-        <WertZeile links={<M t="c²" />} rechts={z2(c2)} farbe="#0B5E43" />
-          </>}
-          bild={
-        <div style={{ background: C.sand, borderRadius: 14, padding: 6 }}>
-          <Zeichenblatt punkte={[...qa, ...qb, ...qc]} hoehe={300} rand={14}
+  const desktop = useDesktop();
+  const bild = (hoehe) => (
+          <Zeichenblatt punkte={[...qa, ...qb, ...qc]} hoehe={hoehe} rand={14}
             label={zw("Dreieck mit Quadraten über allen drei Seiten", "Triangle with squares on all three sides")}
             kinder={(zz) => (
               <>
@@ -82,24 +68,73 @@ function Entdecken() {
                 {zz.punkt(B, "B", 10, 14)}
               </>
             )} />
-        </div>
-          }
-          unten={<>
-        <div style={{ textAlign: "center", fontSize: 26, fontWeight: 800, color: recht ? C.smaragd : C.gruen, margin: "10px 0 2px" }}>
-          <M t={`a² + b² ${zeichen === "<" ? ">" : zeichen === ">" ? "<" : "="} c²`} />
-        </div>
-        <Merke farbe={recht ? C.smaragd : C.gruen}>
-          {recht
+  );
+  const gleichung = <M t={`a² + b² ${zeichen === "<" ? ">" : zeichen === ">" ? "<" : "="} c²`} />;
+  const merkText = recht
             ? zw("Rechter Winkel bei C: Die beiden Kathetenquadrate zusammen sind genau so groß wie das Hypotenusenquadrat. Das ist der Satz des Pythagoras.",
               "Right angle at C: the two squares on the legs together are exactly as large as the square on the hypotenuse. That is Pythagoras' theorem.")
             : g < 90
               ? zw(`γ = ${zt(g, 0)}° ist spitz: c² ist kleiner als a² + b². Stell γ auf 90° – erst dann gilt die Gleichheit.`, `γ = ${zt(g, 0)}° is acute: c² is smaller than a² + b². Set γ to 90° – only then do they match.`)
-              : zw(`γ = ${zt(g, 0)}° ist stumpf: c² ist größer als a² + b². Umgekehrt heißt das: Gilt a² + b² = c², dann ist der Winkel genau 90° (Umkehrung).`, `γ = ${zt(g, 0)}° is obtuse: c² is larger than a² + b². Conversely: if a² + b² = c², the angle is exactly 90° (converse).`)}
-        </Merke>
-        <div style={{ marginTop: 10 }}>
+              : zw(`γ = ${zt(g, 0)}° ist stumpf: c² ist größer als a² + b². Umgekehrt heißt das: Gilt a² + b² = c², dann ist der Winkel genau 90° (Umkehrung).`, `γ = ${zt(g, 0)}° is obtuse: c² is larger than a² + b². Conversely: if a² + b² = c², the angle is exactly 90° (converse).`);
+  const beweisLink = (
           <KleinerLink onClick={() => FR.gehe && FR.gehe({ ansicht: "entdecken", seite: "pythagoras" })}>
             {zw("Warum gilt das? Beweis selbst herleiten in Mathe entdecken ›", "Why is that true? Derive the proof yourself in Discover maths ›")}
           </KleinerLink>
+  );
+  const werte = <>
+    <WertZeile links={<M t="a² + b²" />} rechts={z2(summe)} />
+    <WertZeile links={<M t="c²" />} rechts={z2(c2)} farbe="#0B5E43" />
+  </>;
+  if (desktop) {
+    return (
+      <GeoDesktop
+        links={<>
+          <ReglerKarte titel={zw("Dreieck einstellen", "Set up the triangle")}>
+            <ReglerD name="a" wert={a} setWert={setA} min={1} max={6} schritt={0.5} farbe="#8A6A00" />
+            <ReglerD name="b" wert={b} setWert={setB} min={1} max={6} schritt={0.5} farbe={FB} />
+            <ReglerD name="γ" wert={g} setWert={setG} min={50} max={130} schritt={1} farbe={C.gruen} format={(v) => `${zt(v, 0)}°`} />
+          </ReglerKarte>
+          <WerteKarte titel={zw("Vergleich der Flächen", "Comparing the areas")}>
+            {werte}
+            <div data-pyth-gleichung style={{ textAlign: "center", fontSize: 22, fontWeight: 800, color: recht ? C.smaragd : C.gruen, padding: "12px 0 6px" }}>{gleichung}</div>
+          </WerteKarte>
+        </>}
+        bild={bild(380)}
+        unten={<ErklaerKarte farbe={recht ? C.smaragd : C.gruen}>
+          {merkText}
+          <div style={{ marginTop: 10 }}>{beweisLink}</div>
+        </ErklaerKarte>} />
+    );
+  }
+  return (
+    <>
+      <div style={{ ...karte, marginTop: 16 }}>
+        <EntdeckenZweispaltig
+          steuerung={<>
+        <p style={kicker}>{zw("Dreieck einstellen", "Set up the triangle")}</p>
+        <div style={{ display: "grid", gap: 10 }}>
+          <Regler name="a" wert={a} setWert={setA} min={1} max={6} schritt={0.5} farbe="#8A6A00" />
+          <Regler name="b" wert={b} setWert={setB} min={1} max={6} schritt={0.5} farbe={FB} />
+          <Regler name="γ" wert={g} setWert={setG} min={50} max={130} schritt={1} farbe={C.gruen} format={(v) => `${zt(v, 0)}°`} />
+        </div>
+          <div style={{ marginTop: 12 }} />
+        <p style={kicker}>{zw("Vergleich der Flächen", "Comparing the areas")}</p>
+        {werte}
+          </>}
+          bild={
+        <div style={{ background: C.sand, borderRadius: 14, padding: 6 }}>
+          {bild(300)}
+        </div>
+          }
+          unten={<>
+        <div style={{ textAlign: "center", fontSize: 26, fontWeight: 800, color: recht ? C.smaragd : C.gruen, margin: "10px 0 2px" }}>
+          {gleichung}
+        </div>
+        <Merke farbe={recht ? C.smaragd : C.gruen}>
+          {merkText}
+        </Merke>
+        <div style={{ marginTop: 10 }}>
+          {beweisLink}
         </div>
           </>}
         />
@@ -356,6 +391,9 @@ function Ueben() {
   const neu = (a = art) => { setAu(neueAufgabe(a === "mix" ? null : a)); setStand(0); };
   const schritte = useMemo(() => schritteVon(au), [au]);
   const ARTEN = [["mix", zw("Gemischt", "Mixed")], ...PYTH_ARTEN.map((a) => [a, zw(TITEL[a][0], TITEL[a][1])])];
+  const desktop = useDesktop();
+  const aufgabe = <p style={{ ...hinweis, color: C.tinte, marginBottom: 8 }}>{aufgabenText(au)}</p>;
+  const folge = <SchrittFolge schritte={schritte} stand={stand} setStand={setStand} fertigText={zw("Richtig gelöst – rechter Winkel erkannt, Gleichung aufgestellt, berechnet.", "Solved – right angle spotted, equation set up, calculated.")} />;
   return (
     <>
       <div style={{ ...karte, marginTop: 16 }}>
@@ -370,9 +408,11 @@ function Ueben() {
       </div>
       <div style={{ ...karte, marginTop: 12 }} key={au.id}>
         <p style={kicker}>{zw(TITEL[au.art][0], TITEL[au.art][1])}</p>
-        <p style={{ ...hinweis, color: C.tinte, marginBottom: 8 }}>{aufgabenText(au)}</p>
+        {desktop && au.art !== "umkehr" ? <AufgabeZweispaltig links={<>{aufgabe}{folge}</>} skizze={<Skizze au={au} />} /> : (<>
+        {aufgabe}
         {au.art !== "umkehr" && <div style={{ background: C.sand, borderRadius: 14, padding: 6 }}><Skizze au={au} /></div>}
-        <SchrittFolge schritte={schritte} stand={stand} setStand={setStand} fertigText={zw("Richtig gelöst – rechter Winkel erkannt, Gleichung aufgestellt, berechnet.", "Solved – right angle spotted, equation set up, calculated.")} />
+        {folge}
+        </>)}
         <GrosserKnopf ghost onClick={() => neu()}>{zw("Neue Aufgabe", "New exercise")}</GrosserKnopf>
         <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfe(au)} /></div>
       </div>

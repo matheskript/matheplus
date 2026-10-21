@@ -19,20 +19,41 @@ import { Aufklapp, ModusLeiste, Seite, SchrittFolge, zt } from "./ui3.jsx";
 import { GRAD, KONG_FIGUREN, kongruenzAufgabe, ssw, sssMoeglich } from "./geoMittel.js";
 import { Merke, Regler, Zeichenblatt, add, mitte, polar } from "./geoUi.jsx";
 import { GeoAnimation } from "./funcGeoAnimationen.jsx";
+import { useDesktop } from "./arbeitsflaeche.jsx";
+import { AufgabeZweispaltig, ErklaerKarte, GeoDesktop, ReglerD, ReglerKarte, ThemenLeiste } from "./geoDesktop.jsx";
 
 let zaehler = 0;
 const z1 = (v) => zt(v, 1);
 const G = "#8A6A00";   // Gold als Textfarbe (lesbar auf Weiß)
 
 /* ---------- Entdecken ---------- */
+/* Desktop: Ergebnis als Karte mit Überschrift (wie viele Dreiecke?) */
+function ErgebnisD({ anzahl, text }) {
+  const { farbe, t } = ergebnisArt(anzahl);
+  return <ErklaerKarte data-kong-ergebnis farbe={farbe} titel={<span style={{ color: farbe, textTransform: "none" }}>{t[0].toUpperCase() + t.slice(1)}</span>}>{text}</ErklaerKarte>;
+}
+/* Desktop-Aufbau eines Falls: Regler links, Konstruktion rechts */
+function FallDesktop({ thema, regler, hinweis, bild, ergebnis }) {
+  return (
+    <GeoDesktop thema={thema}
+      links={<>
+        <ReglerKarte titel={zw("Gegebene Stücke", "Given parts")} hinweis={hinweis}>{regler}</ReglerKarte>
+        <ErgebnisD {...ergebnis} />
+      </>}
+      bild={bild} />
+  );
+}
 const FAELLE = [
   ["sss", "SSS"], ["sws", "SWS"], ["wsw", "WSW"], ["ssw", zw("SsW / SSW", "SsW / SSW")], ["www", "WWW"],
 ];
 
+const ergebnisArt = (anzahl) => ({
+  farbe: anzahl === 1 ? C.smaragd : anzahl === 0 ? C.gruen : C.see,
+  t: anzahl === 1 ? zw("genau ein Dreieck", "exactly one triangle") : anzahl === 0 ? zw("kein Dreieck", "no triangle")
+    : anzahl === 2 ? zw("zwei verschiedene Dreiecke", "two different triangles") : zw("unendlich viele Dreiecke", "infinitely many triangles"),
+});
 function Ergebnis({ anzahl, text }) {
-  const farbe = anzahl === 1 ? C.smaragd : anzahl === 0 ? C.gruen : C.see;
-  const t = anzahl === 1 ? zw("genau ein Dreieck", "exactly one triangle") : anzahl === 0 ? zw("kein Dreieck", "no triangle")
-    : anzahl === 2 ? zw("zwei verschiedene Dreiecke", "two different triangles") : zw("unendlich viele Dreiecke", "infinitely many triangles");
+  const { farbe, t } = ergebnisArt(anzahl);
   return (
     <Merke farbe={farbe}>
       <b style={{ color: farbe }}>{t}</b>{text ? <> – {text}</> : null}
@@ -40,7 +61,7 @@ function Ergebnis({ anzahl, text }) {
   );
 }
 
-function FallSSS() {
+function FallSSS({ thema }) {
   const [a, setA] = useState(4);
   const [c, setC] = useState(6);
   const b = 5;
@@ -48,14 +69,9 @@ function FallSSS() {
   const ok = sssMoeglich(a, b, c);
   const x = (b * b - a * a + c * c) / (2 * c);
   const Cp = ok ? [x, Math.sqrt(Math.max(0, b * b - x * x))] : null;
-  return (
-    <>
-      <Regler name="a" wert={a} setWert={setA} min={1} max={9} schritt={0.5} />
-      <div style={{ height: 8 }} />
-      <Regler name="c" wert={c} setWert={setC} min={1} max={10} schritt={0.5} farbe={C.gruen} />
-      <p style={{ fontSize: 12.5, color: C.grau, margin: "8px 0 0" }}>{zw("b = 5 bleibt fest. Kreis um A mit Radius b, Kreis um B mit Radius a – C liegt auf beiden.", "b = 5 stays fixed. Circle around A with radius b, circle around B with radius a – C lies on both.")}</p>
-      <div style={{ marginTop: 10, background: C.sand, borderRadius: 14, padding: 6 }}>
-        <Zeichenblatt punkte={[[-b, -b], [Math.max(c + a, b), b]]} hoehe={260} rand={14} label={zw("Konstruktion SSS mit zwei Kreisen", "SSS construction with two circles")}
+  const desktop = useDesktop();
+  const bild = (hoehe) => (
+        <Zeichenblatt punkte={[[-b, -b], [Math.max(c + a, b), b]]} hoehe={hoehe} rand={14} label={zw("Konstruktion SSS mit zwei Kreisen", "SSS construction with two circles")}
           kinder={(zz) => (
             <>
               {zz.kreis(A, b, `${C.see}88`, 1.3, "none", "5 4")}
@@ -70,28 +86,38 @@ function FallSSS() {
               {Cp && zz.punkt(Cp, "C", 0, -10)}
             </>
           )} />
+  );
+  const hinweis = zw("b = 5 bleibt fest. Kreis um A mit Radius b, Kreis um B mit Radius a – C liegt auf beiden.", "b = 5 stays fixed. Circle around A with radius b, circle around B with radius a – C lies on both.");
+  const ergebnis = { anzahl: ok ? 1 : 0, text: ok
+    ? zw("Das gespiegelte Dreieck unten ist deckungsgleich (kongruent). Drei Seiten legen das Dreieck fest: SSS.", "The mirrored triangle below is congruent. Three sides fix the triangle: SSS.")
+    : zw("Die Kreise treffen sich nicht. Jede Seite muss kürzer sein als die beiden anderen zusammen (Dreiecksungleichung).", "The circles don't meet. Each side must be shorter than the other two together (triangle inequality).") };
+  if (desktop) {
+    return <FallDesktop thema={thema} hinweis={hinweis} ergebnis={ergebnis} bild={bild(320)} regler={[
+      <ReglerD key="a" name="a" wert={a} setWert={setA} min={1} max={9} schritt={0.5} />,
+      <ReglerD key="c" name="c" wert={c} setWert={setC} min={1} max={10} schritt={0.5} farbe={C.gruen} />]} />;
+  }
+  return (
+    <>
+      <Regler name="a" wert={a} setWert={setA} min={1} max={9} schritt={0.5} />
+      <div style={{ height: 8 }} />
+      <Regler name="c" wert={c} setWert={setC} min={1} max={10} schritt={0.5} farbe={C.gruen} />
+      <p style={{ fontSize: 12.5, color: C.grau, margin: "8px 0 0" }}>{hinweis}</p>
+      <div style={{ marginTop: 10, background: C.sand, borderRadius: 14, padding: 6 }}>
+        {bild(260)}
       </div>
-      <Ergebnis anzahl={ok ? 1 : 0} text={ok
-        ? zw("Das gespiegelte Dreieck unten ist deckungsgleich (kongruent). Drei Seiten legen das Dreieck fest: SSS.", "The mirrored triangle below is congruent. Three sides fix the triangle: SSS.")
-        : zw("Die Kreise treffen sich nicht. Jede Seite muss kürzer sein als die beiden anderen zusammen (Dreiecksungleichung).", "The circles don't meet. Each side must be shorter than the other two together (triangle inequality).")} />
+      <Ergebnis {...ergebnis} />
     </>
   );
 }
 
-function FallSWS() {
+function FallSWS({ thema }) {
   const [b, setB] = useState(4);
   const [c, setC] = useState(6);
   const [al, setAl] = useState(50);
   const A = [0, 0], B = [c, 0], Cp = polar(b, al);
-  return (
-    <>
-      <div style={{ display: "grid", gap: 8 }}>
-        <Regler name="b" wert={b} setWert={setB} min={1} max={8} schritt={0.5} />
-        <Regler name="c" wert={c} setWert={setC} min={1} max={9} schritt={0.5} farbe={C.gruen} />
-        <Regler name="α" wert={al} setWert={setAl} min={10} max={170} schritt={5} farbe={G} format={(v) => `${zt(v, 0)}°`} />
-      </div>
-      <div style={{ marginTop: 10, background: C.sand, borderRadius: 14, padding: 6 }}>
-        <Zeichenblatt punkte={[[-3, 0], [9, 7.5], A, B, Cp]} hoehe={230} rand={18} label={zw("Konstruktion SWS", "SWS construction")}
+  const desktop = useDesktop();
+  const bild = (hoehe) => (
+        <Zeichenblatt punkte={[[-3, 0], [9, 7.5], A, B, Cp]} hoehe={hoehe} rand={18} label={zw("Konstruktion SWS", "SWS construction")}
           kinder={(zz) => (
             <>
               {zz.vieleck([A, B, Cp], `${C.see}14`, C.tinte, 1.6)}
@@ -102,13 +128,30 @@ function FallSWS() {
               {zz.punkt(A, "A", -8, 14)}{zz.punkt(B, "B", 8, 14)}{zz.punkt(Cp, "C", 0, -10)}
             </>
           )} />
+  );
+  const ergebnis = { anzahl: 1, text: zw("Der Winkel liegt zwischen den beiden Seiten (eingeschlossen). Dann gibt es nur eine Verbindung von B nach C: SWS.", "The angle lies between the two sides (included). Then there is only one way to join B and C: SWS.") };
+  if (desktop) {
+    return <FallDesktop thema={thema} ergebnis={ergebnis} bild={bild(320)} regler={[
+      <ReglerD key="b" name="b" wert={b} setWert={setB} min={1} max={8} schritt={0.5} />,
+      <ReglerD key="c" name="c" wert={c} setWert={setC} min={1} max={9} schritt={0.5} farbe={C.gruen} />,
+      <ReglerD key="al" name="α" wert={al} setWert={setAl} min={10} max={170} schritt={5} farbe={G} format={(v) => `${zt(v, 0)}°`} />]} />;
+  }
+  return (
+    <>
+      <div style={{ display: "grid", gap: 8 }}>
+        <Regler name="b" wert={b} setWert={setB} min={1} max={8} schritt={0.5} />
+        <Regler name="c" wert={c} setWert={setC} min={1} max={9} schritt={0.5} farbe={C.gruen} />
+        <Regler name="α" wert={al} setWert={setAl} min={10} max={170} schritt={5} farbe={G} format={(v) => `${zt(v, 0)}°`} />
       </div>
-      <Ergebnis anzahl={1} text={zw("Der Winkel liegt zwischen den beiden Seiten (eingeschlossen). Dann gibt es nur eine Verbindung von B nach C: SWS.", "The angle lies between the two sides (included). Then there is only one way to join B and C: SWS.")} />
+      <div style={{ marginTop: 10, background: C.sand, borderRadius: 14, padding: 6 }}>
+        {bild(230)}
+      </div>
+      <Ergebnis {...ergebnis} />
     </>
   );
 }
 
-function FallWSW() {
+function FallWSW({ thema }) {
   const [c, setC] = useState(6);
   const [al, setAl] = useState(50);
   const [be, setBe] = useState(60);
@@ -117,15 +160,9 @@ function FallWSW() {
   const t = ok ? (c * Math.sin(be * GRAD)) / Math.sin((al + be) * GRAD) : 0;
   const Cp = ok ? polar(t, al) : null;
   const strahl = (P, w) => add(P, polar(Math.max(4, c * 0.9), w));
-  return (
-    <>
-      <div style={{ display: "grid", gap: 8 }}>
-        <Regler name="c" wert={c} setWert={setC} min={2} max={9} schritt={0.5} farbe={C.gruen} />
-        <Regler name="α" wert={al} setWert={setAl} min={10} max={160} schritt={5} farbe={G} format={(v) => `${zt(v, 0)}°`} />
-        <Regler name="β" wert={be} setWert={setBe} min={10} max={160} schritt={5} farbe={G} format={(v) => `${zt(v, 0)}°`} />
-      </div>
-      <div style={{ marginTop: 10, background: C.sand, borderRadius: 14, padding: 6 }}>
-        <Zeichenblatt punkte={[[-1, 0], [c + 1, 0], ...(Cp && t < 14 ? [Cp] : [[0, 5]]), strahl(A, al), strahl(B, 180 - be)]} hoehe={230} rand={18} label={zw("Konstruktion WSW", "ASA construction")}
+  const desktop = useDesktop();
+  const bild = (hoehe) => (
+        <Zeichenblatt punkte={[[-1, 0], [c + 1, 0], ...(Cp && t < 14 ? [Cp] : [[0, 5]]), strahl(A, al), strahl(B, 180 - be)]} hoehe={hoehe} rand={18} label={zw("Konstruktion WSW", "ASA construction")}
           kinder={(zz) => (
             <>
               {zz.linie(A, strahl(A, al), C.hellgrau, 1.2, "5 4")}
@@ -139,15 +176,32 @@ function FallWSW() {
               {Cp && t < 14 && zz.punkt(Cp, "C", 0, -10)}
             </>
           )} />
+  );
+  const ergebnis = { anzahl: ok ? 1 : 0, text: ok
+    ? zw("Die beiden freien Schenkel schneiden sich in genau einem Punkt C: WSW. Kennst du statt eines anliegenden den gegenüberliegenden Winkel (SWW), rechnest du den dritten mit der Winkelsumme aus – und bist wieder bei WSW.", "The two free arms meet in exactly one point C: ASA. If you know the opposite angle instead of an adjacent one (AAS), work out the third with the angle sum – and you are back at ASA.")
+    : zw(`α + β = ${zt(al + be, 0)}° – die Schenkel laufen nicht aufeinander zu. Zwei Winkel im Dreieck müssen zusammen kleiner als 180° sein.`, `α + β = ${zt(al + be, 0)}° – the arms don't meet. Two angles in a triangle must add up to less than 180°.`) };
+  if (desktop) {
+    return <FallDesktop thema={thema} ergebnis={ergebnis} bild={bild(320)} regler={[
+      <ReglerD key="c" name="c" wert={c} setWert={setC} min={2} max={9} schritt={0.5} farbe={C.gruen} />,
+      <ReglerD key="al" name="α" wert={al} setWert={setAl} min={10} max={160} schritt={5} farbe={G} format={(v) => `${zt(v, 0)}°`} />,
+      <ReglerD key="be" name="β" wert={be} setWert={setBe} min={10} max={160} schritt={5} farbe={G} format={(v) => `${zt(v, 0)}°`} />]} />;
+  }
+  return (
+    <>
+      <div style={{ display: "grid", gap: 8 }}>
+        <Regler name="c" wert={c} setWert={setC} min={2} max={9} schritt={0.5} farbe={C.gruen} />
+        <Regler name="α" wert={al} setWert={setAl} min={10} max={160} schritt={5} farbe={G} format={(v) => `${zt(v, 0)}°`} />
+        <Regler name="β" wert={be} setWert={setBe} min={10} max={160} schritt={5} farbe={G} format={(v) => `${zt(v, 0)}°`} />
       </div>
-      <Ergebnis anzahl={ok ? 1 : 0} text={ok
-        ? zw("Die beiden freien Schenkel schneiden sich in genau einem Punkt C: WSW. Kennst du statt eines anliegenden den gegenüberliegenden Winkel (SWW), rechnest du den dritten mit der Winkelsumme aus – und bist wieder bei WSW.", "The two free arms meet in exactly one point C: ASA. If you know the opposite angle instead of an adjacent one (AAS), work out the third with the angle sum – and you are back at ASA.")
-        : zw(`α + β = ${zt(al + be, 0)}° – die Schenkel laufen nicht aufeinander zu. Zwei Winkel im Dreieck müssen zusammen kleiner als 180° sein.`, `α + β = ${zt(al + be, 0)}° – the arms don't meet. Two angles in a triangle must add up to less than 180°.`)} />
+      <div style={{ marginTop: 10, background: C.sand, borderRadius: 14, padding: 6 }}>
+        {bild(230)}
+      </div>
+      <Ergebnis {...ergebnis} />
     </>
   );
 }
 
-function FallSSW() {
+function FallSSW({ thema }) {
   const [a, setA] = useState(4.5);
   const [al, setAl] = useState(40);
   const b = 6;
@@ -162,15 +216,9 @@ function FallSSW() {
       : gross
         ? zw("Der Winkel liegt der größeren Seite gegenüber (a > b): Der zweite Schnittpunkt liegt hinter A, es bleibt genau ein Dreieck. Das ist SsW.", "The angle is opposite the larger side (a > b): the second intersection lies behind A, so exactly one triangle remains. That is SsA.")
         : zw("Genau ein Schnittpunkt – Sonderfall. Sicher eindeutig ist es erst, wenn der Winkel der größeren Seite gegenüberliegt (SsW).", "Exactly one intersection – a special case. It is only guaranteed unique if the angle is opposite the larger side (SsA).");
-  return (
-    <>
-      <div style={{ display: "grid", gap: 8 }}>
-        <Regler name={zw("a (gegenüber)", "a (opposite)")} wert={a} setWert={setA} min={1} max={9} schritt={0.25} farbe={G} breiteName={96} />
-        <Regler name="α" wert={al} setWert={setAl} min={20} max={80} schritt={5} farbe={C.gruen} format={(v) => `${zt(v, 0)}°`} breiteName={96} />
-      </div>
-      <p style={{ fontSize: 12.5, color: C.grau, margin: "8px 0 0" }}>{zw("b = 6 bleibt fest. α liegt an b an und der Seite a gegenüber. B muss auf dem Schenkel liegen und von C den Abstand a haben.", "b = 6 stays fixed. α is adjacent to b and opposite side a. B must lie on the arm at distance a from C.")}</p>
-      <div style={{ marginTop: 10, background: C.sand, borderRadius: 14, padding: 6 }}>
-        <Zeichenblatt punkte={[[-1.5, -1], [12, 6.5]]} hoehe={230} rand={14} label={zw("Konstruktion SSW mit einem Kreis um C", "SSA construction with a circle around C")}
+  const desktop = useDesktop();
+  const bild = (hoehe) => (
+        <Zeichenblatt punkte={[[-1.5, -1], [12, 6.5]]} hoehe={hoehe} rand={14} label={zw("Konstruktion SSW mit einem Kreis um C", "SSA construction with a circle around C")}
           kinder={(zz) => (
             <>
               {zz.linie(A, [12, 0], C.hellgrau, 1.3)}
@@ -183,13 +231,29 @@ function FallSSW() {
               {Bs.map((B, i) => zz.punkt(B, Bs.length > 1 ? `B${i ? "₂" : "₁"}` : "B", 0, 16, i ? C.smaragd : C.tinte, 3.6, `b${i}`))}
             </>
           )} />
+  );
+  const hinweis = zw("b = 6 bleibt fest. α liegt an b an und der Seite a gegenüber. B muss auf dem Schenkel liegen und von C den Abstand a haben.", "b = 6 stays fixed. α is adjacent to b and opposite side a. B must lie on the arm at distance a from C.");
+  if (desktop) {
+    return <FallDesktop thema={thema} hinweis={hinweis} ergebnis={{ anzahl: r.anzahl, text }} bild={bild(300)} regler={[
+      <ReglerD key="a" name={zw("a (gegenüber)", "a (opposite)")} wert={a} setWert={setA} min={1} max={9} schritt={0.25} farbe={G} format={(v) => zt(v, 2)} />,
+      <ReglerD key="al" name="α" wert={al} setWert={setAl} min={20} max={80} schritt={5} farbe={C.gruen} format={(v) => `${zt(v, 0)}°`} />]} />;
+  }
+  return (
+    <>
+      <div style={{ display: "grid", gap: 8 }}>
+        <Regler name={zw("a (gegenüber)", "a (opposite)")} wert={a} setWert={setA} min={1} max={9} schritt={0.25} farbe={G} breiteName={96} />
+        <Regler name="α" wert={al} setWert={setAl} min={20} max={80} schritt={5} farbe={C.gruen} format={(v) => `${zt(v, 0)}°`} breiteName={96} />
+      </div>
+      <p style={{ fontSize: 12.5, color: C.grau, margin: "8px 0 0" }}>{hinweis}</p>
+      <div style={{ marginTop: 10, background: C.sand, borderRadius: 14, padding: 6 }}>
+        {bild(230)}
       </div>
       <Ergebnis anzahl={r.anzahl} text={text} />
     </>
   );
 }
 
-function FallWWW() {
+function FallWWW({ thema }) {
   const [k, setK] = useState(1.6);
   const al = 50, be = 65;
   const dreieck = (c, x0) => {
@@ -197,11 +261,9 @@ function FallWWW() {
     return [[x0, 0], [x0 + c, 0], add([x0, 0], polar(t, al))];
   };
   const d1 = dreieck(3, 0), d2 = dreieck(3 * k, 4);
-  return (
-    <>
-      <Regler name={zw("Größe", "Size")} wert={k} setWert={setK} min={0.6} max={2.2} schritt={0.1} format={(v) => `${zt(v, 1)} ×`} breiteName={58} />
-      <div style={{ marginTop: 10, background: C.sand, borderRadius: 14, padding: 6 }}>
-        <Zeichenblatt punkte={[...d1, ...d2, [11, 0]]} hoehe={200} rand={18} label={zw("Zwei Dreiecke mit gleichen Winkeln", "Two triangles with equal angles")}
+  const desktop = useDesktop();
+  const bild = (hoehe) => (
+        <Zeichenblatt punkte={[...d1, ...d2, [11, 0]]} hoehe={hoehe} rand={18} label={zw("Zwei Dreiecke mit gleichen Winkeln", "Two triangles with equal angles")}
           kinder={(zz) => (
             <>
               {zz.vieleck(d1, `${C.see}14`, C.tinte, 1.8)}
@@ -211,8 +273,19 @@ function FallWWW() {
               ))}
             </>
           )} />
+  );
+  const ergebnis = { anzahl: "unendlich", text: zw("Gleiche Winkel, aber beliebige Größe: Die Dreiecke sind ähnlich, nicht kongruent. Drei Winkel legen nur die Form fest, nicht die Größe.", "Equal angles but any size: the triangles are similar, not congruent. Three angles fix only the shape, not the size.") };
+  if (desktop) {
+    return <FallDesktop thema={thema} ergebnis={ergebnis} bild={bild(280)} regler={[
+      <ReglerD key="k" name={zw("Größe", "Size")} wert={k} setWert={setK} min={0.6} max={2.2} schritt={0.1} format={(v) => `${zt(v, 1)} ×`} />]} />;
+  }
+  return (
+    <>
+      <Regler name={zw("Größe", "Size")} wert={k} setWert={setK} min={0.6} max={2.2} schritt={0.1} format={(v) => `${zt(v, 1)} ×`} breiteName={58} />
+      <div style={{ marginTop: 10, background: C.sand, borderRadius: 14, padding: 6 }}>
+        {bild(200)}
       </div>
-      <Ergebnis anzahl="unendlich" text={zw("Gleiche Winkel, aber beliebige Größe: Die Dreiecke sind ähnlich, nicht kongruent. Drei Winkel legen nur die Form fest, nicht die Größe.", "Equal angles but any size: the triangles are similar, not congruent. Three angles fix only the shape, not the size.")} />
+      <Ergebnis {...ergebnis} />
     </>
   );
 }
@@ -226,6 +299,20 @@ function Entdecken() {
     ssw: zw("Zwei Seiten und ein Winkel, der nicht dazwischen liegt.", "Two sides and an angle that is not between them."),
     www: zw("Nur drei Winkel.", "Only three angles."),
   };
+  const desktop = useDesktop();
+  if (desktop) {
+    const thema = <ThemenLeiste titel={zw("Was ist gegeben?", "What is given?")} optionen={FAELLE} wert={fall} setWert={setFall} label={zw("Fall wählen", "Choose a case")} unter={INFO[fall]} />;
+    return (
+      <>
+        <GeoAnimation art="kongruenz" offen />
+        {fall === "sss" && <FallSSS thema={thema} />}
+        {fall === "sws" && <FallSWS thema={thema} />}
+        {fall === "wsw" && <FallWSW thema={thema} />}
+        {fall === "ssw" && <FallSSW thema={thema} />}
+        {fall === "www" && <FallWWW thema={thema} />}
+      </>
+    );
+  }
   return (
     <>
       <GeoAnimation art="kongruenz" offen />
@@ -396,6 +483,15 @@ function Ueben() {
   const [stand, setStand] = useState(0);
   const neu = (a = art) => { setAu(neuAus(a)); setStand(0); };
   const schritte = useMemo(() => schritteVon(au), [au]);
+  const desktop = useDesktop();
+  const aufgabeText = (
+        <p style={{ ...hinweis, color: C.tinte, marginBottom: 8 }}>
+          {au.art === "figur" ? au.figur.text : zw(`Von einem Dreieck ABC kennst du: ${angabe(au.stuecke)}.`, `For a triangle ABC you know: ${angabe(au.stuecke)}.`)}
+        </p>
+  );
+  const skizze = au.art === "figur" ? <FigurSkizze id={au.figur.id} /> : <ReferenzDreieck stuecke={au.stuecke} />;
+  const massstab = au.art !== "figur" && <p style={{ fontSize: 12, color: C.hellgrau, margin: "6px 2px 0" }}>{zw("Skizze nicht maßstabsgetreu – sie zeigt nur, wo die gegebenen Stücke liegen.", "Sketch not to scale – it only shows where the given parts are.")}</p>;
+  const folge = <SchrittFolge schritte={schritte} stand={stand} setStand={setStand} fertigText={zw("Richtig – Stücke zugeordnet und den passenden Satz gefunden.", "Correct – parts matched and the right theorem found.")} />;
   return (
     <>
       <div style={{ ...karte, marginTop: 16 }}>
@@ -404,14 +500,16 @@ function Ueben() {
       </div>
       <div style={{ ...karte, marginTop: 12 }} key={au.id}>
         <p style={kicker}>{au.art === "figur" ? zw(TITEL.figur[0], TITEL.figur[1]) : zw("Angaben prüfen", "Check the data")}</p>
-        <p style={{ ...hinweis, color: C.tinte, marginBottom: 8 }}>
-          {au.art === "figur" ? au.figur.text : zw(`Von einem Dreieck ABC kennst du: ${angabe(au.stuecke)}.`, `For a triangle ABC you know: ${angabe(au.stuecke)}.`)}
-        </p>
+        {desktop ? (
+          <AufgabeZweispaltig links={<>{aufgabeText}{folge}</>} skizze={<>{skizze}{massstab}</>} />
+        ) : (<>
+        {aufgabeText}
         <div style={{ background: C.sand, borderRadius: 14, padding: 6 }}>
-          {au.art === "figur" ? <FigurSkizze id={au.figur.id} /> : <ReferenzDreieck stuecke={au.stuecke} />}
+          {skizze}
         </div>
-        {au.art !== "figur" && <p style={{ fontSize: 12, color: C.hellgrau, margin: "6px 2px 0" }}>{zw("Skizze nicht maßstabsgetreu – sie zeigt nur, wo die gegebenen Stücke liegen.", "Sketch not to scale – it only shows where the given parts are.")}</p>}
-        <SchrittFolge schritte={schritte} stand={stand} setStand={setStand} fertigText={zw("Richtig – Stücke zugeordnet und den passenden Satz gefunden.", "Correct – parts matched and the right theorem found.")} />
+        {massstab}
+        {folge}
+        </>)}
         <GrosserKnopf ghost onClick={() => neu()}>{zw("Neue Aufgabe", "New exercise")}</GrosserKnopf>
         <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfe(au)} /></div>
       </div>

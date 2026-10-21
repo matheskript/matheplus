@@ -17,6 +17,8 @@ import { uebenWunschLesen } from "./uebenWunsch.js";
 import { Aufklapp, ModusLeiste, Seite, zt } from "./ui3.jsx";
 import { WINKEL_ARTEN, lagenWert, winkelAufgabe } from "./geoMittel2.js";
 import { Merke, Regler, UebenRahmen, WertZeile, Zeichenblatt, add, mal, polar } from "./geoUi.jsx";
+import { ErgebnisReihe, useDesktop } from "./arbeitsflaeche.jsx";
+import { ChipWahl, ErklaerKarte, GeoDesktop, ReglerD, ReglerKarte, ThemenLeiste, WerteKarte } from "./geoDesktop.jsx";
 
 let zaehler = 0;
 const g0 = (v) => `${zt(v, 1)}°`;
@@ -66,22 +68,43 @@ function ParallelFigur({ phi, marken = [], hoehe = 250 }) {
   );
 }
 
-function EntdeckenParallelen() {
+function EntdeckenParallelen({ thema }) {
   const [phi, setPhi] = useState(58);
   const [bez, setBez] = useState("wechsel");
   const [[s1, l1], [s2, l2]] = PAARE[bez];
   const w1 = lagenWert(l1, phi), w2 = lagenWert(l2, phi);
+  const desktop = useDesktop();
+  const PAAR_OPT = Object.keys(BEZ).map((k) => [k, BEZ[k][0]]);
+  const figur = (hoehe) => <ParallelFigur phi={phi} hoehe={hoehe} marken={[{ s: s1, lage: l1, text: g0(w1) }, { s: s2, lage: l2, text: g0(w2), farbe: C.smaragd }]} />;
+  const merke = <><b>{BEZ[bez][0]}:</b> {BEZ[bez][1]}. {w1 === w2 ? `${g0(w1)} = ${g0(w2)}` : `${g0(w1)} + ${g0(w2)} = 180°`}</>;
+  if (desktop) {
+    return (
+      <GeoDesktop thema={thema}
+        links={<>
+          <ReglerKarte titel={zw("Schnittwinkel", "Angle of intersection")}>
+            <ReglerD name={zw("Winkel", "Angle")} wert={phi} setWert={setPhi} min={25} max={155} schritt={1} format={(v) => `${zt(v, 0)}°`} />
+          </ReglerKarte>
+          <WerteKarte titel={BEZ[bez][0]}>
+            <WertZeile links={zw("goldener Winkel", "gold angle")} rechts={g0(w1)} farbe="#8A6A00" />
+            <WertZeile links={zw("grüner Winkel", "green angle")} rechts={g0(w2)} farbe="#0B5E43" />
+          </WerteKarte>
+          <ErklaerKarte farbe={w1 === w2 ? C.smaragd : C.gruen}>{merke}</ErklaerKarte>
+        </>}
+        bild={figur(300)}
+        werkzeuge={[{ titel: zw("Winkelpaar", "Angle pair"), inhalt: <ChipWahl optionen={PAAR_OPT} wert={bez} setWert={setBez} label={zw("Winkelpaar", "Angle pair")} /> }]} />
+    );
+  }
   return (
     <>
       <Regler name={zw("Winkel", "Angle")} wert={phi} setWert={setPhi} min={25} max={155} schritt={1} format={(v) => `${zt(v, 0)}°`} breiteName={58} />
       <div style={{ marginTop: 10 }}>
-        <Auswahl optionen={Object.keys(BEZ).map((k) => [k, BEZ[k][0]])} wert={bez} setWert={setBez} label={zw("Winkelpaar", "Angle pair")} />
+        <Auswahl optionen={PAAR_OPT} wert={bez} setWert={setBez} label={zw("Winkelpaar", "Angle pair")} />
       </div>
       <div style={{ marginTop: 12, background: C.sand, borderRadius: 14, padding: 6 }}>
-        <ParallelFigur phi={phi} marken={[{ s: s1, lage: l1, text: g0(w1) }, { s: s2, lage: l2, text: g0(w2), farbe: C.smaragd }]} />
+        {figur(250)}
       </div>
       <Merke farbe={w1 === w2 ? C.smaragd : C.gruen}>
-        <b>{BEZ[bez][0]}:</b> {BEZ[bez][1]}. {w1 === w2 ? `${g0(w1)} = ${g0(w2)}` : `${g0(w1)} + ${g0(w2)} = 180°`}
+        {merke}
       </Merke>
     </>
   );
@@ -96,7 +119,7 @@ function zehntelMitSumme(werte) {
   return unten.map((v) => v / 10);
 }
 
-function EntdeckenDreieck() {
+function EntdeckenDreieck({ thema }) {
   const [cx, setCx] = useState(2.2);
   const [cy, setCy] = useState(3.2);
   const A = [0, 0], B = [6, 0], Cp = [cx, cy];
@@ -109,6 +132,47 @@ function EntdeckenDreieck() {
   const [al, be, ga] = zehntelMitSumme([w(A, B, Cp), w(B, A, Cp), w(Cp, A, B)]);
   const summe = (Math.round(al * 10) + Math.round(be * 10) + Math.round(ga * 10)) / 10;
   const P1 = [cx - 3, cy], P2 = [cx + 3, cy];
+  const desktop = useDesktop();
+  /* Desktop: Parallele etwas kürzer, damit das Dreieck die Breite besser nutzt */
+  const bild = (hoehe, eng = false) => (
+    <Zeichenblatt punkte={eng ? [[-1.5, -0.6], [7.5, 5.4]] : [[-4, -0.8], [10, 5.6], P1, P2]} hoehe={hoehe} rand={14} label={zw("Dreieck mit Parallele durch C", "Triangle with a parallel through C")}
+      kinder={(zz) => (
+        <>
+          {zz.linie(eng ? [Math.max(-1.5, cx - 2.2), cy] : P1, eng ? [Math.min(7.5, cx + 2.2), cy] : P2, C.hellgrau, 1.6, "6 4")}
+          {zz.vieleck([A, B, Cp], `${C.see}10`, C.tinte, 2)}
+          {zz.bogen(A, B, Cp, "α", C.flaggold, 24)}
+          {zz.bogen(B, Cp, A, "β", C.smaragd, 24)}
+          {zz.bogen(Cp, A, B, "γ", C.see, 20)}
+          {zz.bogen(Cp, P1, A, "α", C.flaggold, 30)}
+          {zz.bogen(Cp, B, P2, "β", C.smaragd, 30)}
+          {zz.punkt(A, "A", -8, 14)}{zz.punkt(B, "B", 8, 14)}{zz.punkt(Cp, "C", 0, -10)}
+        </>
+      )} />
+  );
+  const werte = <>
+    <WertZeile links="α" rechts={g0(al)} farbe="#8A6A00" />
+    <WertZeile links="β" rechts={g0(be)} farbe="#0B5E43" />
+    <WertZeile links="γ" rechts={g0(ga)} />
+    <WertZeile links="α + β + γ" rechts={g0(summe)} farbe={C.gruen} />
+  </>;
+  const merke = zw("Zieh durch C die Parallele zu AB. Links von C liegt α noch einmal (Wechselwinkel), rechts β. Zusammen mit γ bilden sie einen gestreckten Winkel: α + β + γ = 180°.",
+    "Draw the parallel to AB through C. To the left of C you find α again (alternate angle), to the right β. Together with γ they form a straight angle: α + β + γ = 180°.");
+  if (desktop) {
+    return (
+      <GeoDesktop thema={thema}
+        links={<>
+          <ReglerKarte titel={zw("Punkt C verschieben", "Move point C")}>
+            <ReglerD name="C → x" wert={cx} setWert={setCx} min={-1} max={7} schritt={0.2} />
+            <ReglerD name="C → y" wert={cy} setWert={setCy} min={1} max={5} schritt={0.2} />
+          </ReglerKarte>
+        </>}
+        bild={bild(226, true)}
+        unten={<ErgebnisReihe spalten="minmax(0, 290px) minmax(0, 1fr)" gap={20}>
+          <WerteKarte titel={zw("Winkel im Dreieck", "Angles in the triangle")}>{werte}</WerteKarte>
+          <ErklaerKarte titel={zw("Warum 180°?", "Why 180°?")}>{merke}</ErklaerKarte>
+        </ErgebnisReihe>} />
+    );
+  }
   return (
     <>
       <div style={{ display: "grid", gap: 8 }}>
@@ -116,26 +180,10 @@ function EntdeckenDreieck() {
         <Regler name="C → y" wert={cy} setWert={setCy} min={1} max={5} schritt={0.2} breiteName={58} />
       </div>
       <div style={{ marginTop: 12, background: C.sand, borderRadius: 14, padding: 6 }}>
-        <Zeichenblatt punkte={[[-4, -0.8], [10, 5.6], P1, P2]} hoehe={220} rand={14} label={zw("Dreieck mit Parallele durch C", "Triangle with a parallel through C")}
-          kinder={(zz) => (
-            <>
-              {zz.linie(P1, P2, C.hellgrau, 1.6, "6 4")}
-              {zz.vieleck([A, B, Cp], `${C.see}10`, C.tinte, 2)}
-              {zz.bogen(A, B, Cp, "α", C.flaggold, 24)}
-              {zz.bogen(B, Cp, A, "β", C.smaragd, 24)}
-              {zz.bogen(Cp, A, B, "γ", C.see, 20)}
-              {zz.bogen(Cp, P1, A, "α", C.flaggold, 30)}
-              {zz.bogen(Cp, B, P2, "β", C.smaragd, 30)}
-              {zz.punkt(A, "A", -8, 14)}{zz.punkt(B, "B", 8, 14)}{zz.punkt(Cp, "C", 0, -10)}
-            </>
-          )} />
+        {bild(220)}
       </div>
-      <WertZeile links="α" rechts={g0(al)} farbe="#8A6A00" />
-      <WertZeile links="β" rechts={g0(be)} farbe="#0B5E43" />
-      <WertZeile links="γ" rechts={g0(ga)} />
-      <WertZeile links="α + β + γ" rechts={g0(summe)} farbe={C.gruen} />
-      <Merke>{zw("Zieh durch C die Parallele zu AB. Links von C liegt α noch einmal (Wechselwinkel), rechts β. Zusammen mit γ bilden sie einen gestreckten Winkel: α + β + γ = 180°.",
-        "Draw the parallel to AB through C. To the left of C you find α again (alternate angle), to the right β. Together with γ they form a straight angle: α + β + γ = 180°.")}</Merke>
+      {werte}
+      <Merke>{merke}</Merke>
     </>
   );
 }
@@ -144,38 +192,71 @@ function regelVieleck(n, r = 3) {
   return Array.from({ length: n }, (_, i) => polar(r, 90 + (360 * i) / n));
 }
 
-function EntdeckenNEck() {
+function EntdeckenNEck({ thema }) {
   const [n, setN] = useState(6);
   const pts = regelVieleck(n);
+  const desktop = useDesktop();
+  const bild = (hoehe) => (
+    <Zeichenblatt punkte={[[-3.3, -3.3], [3.3, 3.3]]} hoehe={hoehe} rand={12} label={zw("n-Eck, von einer Ecke aus in Dreiecke zerlegt", "Polygon split into triangles from one corner")}
+      kinder={(zz) => (
+        <>
+          {pts.slice(1, -1).map((p, i) => zz.vieleck([pts[0], p, pts[i + 2]], i % 2 ? `${C.flaggold}33` : `${C.see}22`, "none", 1, `d${i}`))}
+          {zz.vieleck(pts, "none", C.tinte, 2)}
+          {pts.slice(2, -1).map((p, i) => zz.linie(pts[0], p, C.see, 1.4, "5 4", `l${i}`))}
+          {zz.punkt(pts[0], null, 0, 0, C.gruen, 4.5)}
+        </>
+      )} />
+  );
+  const werte = <>
+    <WertZeile links={zw("Dreiecke", "Triangles")} rechts={`${n} − 2 = ${n - 2}`} />
+    <WertZeile links={zw("Innenwinkelsumme", "Interior angle sum")} rechts={`${n - 2} · 180° = ${(n - 2) * 180}°`} farbe={C.gruen} />
+    <WertZeile links={zw("Ein Innenwinkel (regelmäßig)", "One interior angle (regular)")} rechts={g0(((n - 2) * 180) / n)} />
+  </>;
+  const merke = zw("Von einer Ecke aus zerfällt jedes n-Eck in n − 2 Dreiecke. Jedes bringt 180° mit: Winkelsumme (n − 2) · 180°.",
+    "From one corner, every n-gon splits into n − 2 triangles. Each contributes 180°: angle sum (n − 2) · 180°.");
+  if (desktop) {
+    return (
+      <GeoDesktop thema={thema}
+        links={<>
+          <ReglerKarte titel={zw("Vieleck", "Polygon")}>
+            <ReglerD name={zw("Ecken n", "Corners n")} wert={n} setWert={setN} min={3} max={12} schritt={1} format={(v) => String(v)} />
+          </ReglerKarte>
+          <WerteKarte titel={zw("Winkelsumme", "Angle sum")}>{werte}</WerteKarte>
+          <ErklaerKarte>{merke}</ErklaerKarte>
+        </>}
+        bild={bild(300)} />
+    );
+  }
   return (
     <>
       <Regler name={zw("Ecken n", "Corners n")} wert={n} setWert={setN} min={3} max={12} schritt={1} format={(v) => String(v)} breiteName={70} />
       <div style={{ marginTop: 12, background: C.sand, borderRadius: 14, padding: 6 }}>
-        <Zeichenblatt punkte={[[-3.3, -3.3], [3.3, 3.3]]} hoehe={230} rand={12} label={zw("n-Eck, von einer Ecke aus in Dreiecke zerlegt", "Polygon split into triangles from one corner")}
-          kinder={(zz) => (
-            <>
-              {pts.slice(1, -1).map((p, i) => zz.vieleck([pts[0], p, pts[i + 2]], i % 2 ? `${C.flaggold}33` : `${C.see}22`, "none", 1, `d${i}`))}
-              {zz.vieleck(pts, "none", C.tinte, 2)}
-              {pts.slice(2, -1).map((p, i) => zz.linie(pts[0], p, C.see, 1.4, "5 4", `l${i}`))}
-              {zz.punkt(pts[0], null, 0, 0, C.gruen, 4.5)}
-            </>
-          )} />
+        {bild(230)}
       </div>
-      <WertZeile links={zw("Dreiecke", "Triangles")} rechts={`${n} − 2 = ${n - 2}`} />
-      <WertZeile links={zw("Innenwinkelsumme", "Interior angle sum")} rechts={`${n - 2} · 180° = ${(n - 2) * 180}°`} farbe={C.gruen} />
-      <WertZeile links={zw("Ein Innenwinkel (regelmäßig)", "One interior angle (regular)")} rechts={g0(((n - 2) * 180) / n)} />
-      <Merke>{zw("Von einer Ecke aus zerfällt jedes n-Eck in n − 2 Dreiecke. Jedes bringt 180° mit: Winkelsumme (n − 2) · 180°.",
-        "From one corner, every n-gon splits into n − 2 triangles. Each contributes 180°: angle sum (n − 2) · 180°.")}</Merke>
+      {werte}
+      <Merke>{merke}</Merke>
     </>
   );
 }
 
 function Entdecken() {
   const [teil, setTeil] = useState("parallel");
+  const desktop = useDesktop();
+  const TEILE = [["parallel", zw("Winkel an Parallelen", "Angles at parallels")], ["dreieck", zw("Winkelsumme im Dreieck", "Angle sum in a triangle")], ["neck", zw("Winkelsumme im n-Eck", "Angle sum in a polygon")]];
+  if (desktop) {
+    const thema = <ThemenLeiste titel={zw("Was willst du sehen?", "What do you want to see?")} optionen={TEILE} wert={teil} setWert={setTeil} label={zw("Thema", "Topic")} />;
+    return (
+      <>
+        {teil === "parallel" && <EntdeckenParallelen thema={thema} />}
+        {teil === "dreieck" && <EntdeckenDreieck thema={thema} />}
+        {teil === "neck" && <EntdeckenNEck thema={thema} />}
+      </>
+    );
+  }
   return (
     <div style={{ ...karte, marginTop: 16 }}>
       <p style={kicker}>{zw("Was willst du sehen?", "What do you want to see?")}</p>
-      <Auswahl optionen={[["parallel", zw("Winkel an Parallelen", "Angles at parallels")], ["dreieck", zw("Winkelsumme im Dreieck", "Angle sum in a triangle")], ["neck", zw("Winkelsumme im n-Eck", "Angle sum in a polygon")]]}
+      <Auswahl optionen={TEILE}
         wert={teil} setWert={setTeil} label={zw("Thema", "Topic")} />
       <div style={{ marginTop: 14 }}>
         {teil === "parallel" && <EntdeckenParallelen />}

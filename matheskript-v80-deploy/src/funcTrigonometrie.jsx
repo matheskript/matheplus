@@ -30,6 +30,8 @@ import { Merke, Pille, Regler, UebenRahmen, WertZeile, misch, tolRund, ws, zs } 
 import { TrigFeld, TrigRechnerKarte, WinkelSchalter, trigLies } from "./funcTrigRechner.jsx";
 import { COS, HYP, SIN, TAN, TrigFilm } from "./funcTrigAnimationen.jsx";
 import { springe } from "./sprung.js";
+import { FeinKarte, Kicker, chipStil, hinweisStil, titelStil, useDesktop } from "./arbeitsflaeche.jsx";
+import { ChipWahl, ErklaerKarte, GeoDesktop, ReglerD, ReglerKarte, WerteKarte } from "./geoDesktop.jsx";
 import {
   BM_ARTEN, EK_ARTEN, SACHEN, TAN_ARTEN, acosG, asinG, atanG, bmAufgabe, cosG, ekAufgabe, piBruch, piTex,
   quadrant, sachAufgabe, sinG, tanAufgabe, tanG, verhaeltnisAufgabe,
@@ -53,10 +55,11 @@ const radFehler = (wert, tol = 0.02) => ({ wert, toleranz: tol, text: zw("Dein R
    ============================================================ */
 
 /* Dreiecksskizze: A, B, C (Einheiten, y nach oben). beschr: { a, b, c, al, be, ga } (Text, "?" oder null). */
-function Dreieck({ A, B, Cc, beschr = {}, farben = {}, recht = false, hoehe = 220, winkelBogen = ["al"], namen = ["A", "B", "C"] }) {
+/* W: Breite der Zeichenfläche (Desktop breiter, damit Seitenbeschriftungen neben den Seiten Platz haben) */
+function Dreieck({ A, B, Cc, beschr = {}, farben = {}, recht = false, hoehe = 220, winkelBogen = ["al"], namen = ["A", "B", "C"], W = 340 }) {
   const pts = [A, B, Cc];
   const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
-  const W = 340, rand = 34;
+  const rand = 34;
   const br = Math.max(...xs) - Math.min(...xs), ho = Math.max(...ys) - Math.min(...ys);
   const s = Math.min((W - 2 * rand) / br, (hoehe - 2 * rand) / Math.max(ho, 0.3));
   const ox = rand - Math.min(...xs) * s + ((W - 2 * rand) - br * s) / 2;
@@ -157,6 +160,16 @@ function KreisSkizze({ al, zeigeWinkel = true, punktText = "P", xText = null, yT
   );
 }
 
+/* Desktop: Labor-Bilder haben feste Geometrie (Ziehen rechnet in viewBox-Einheiten) –
+   darum nicht strecken, sondern auf höchstens 1,2 × Entwurfsbreite begrenzen und zentrieren */
+const laborBild = (svg, w = 340) => <div style={{ maxWidth: Math.round(w * 1.2), margin: "0 auto" }}>{svg}</div>;
+/* Chips für Winkel (Desktop-Werkzeugleiste) */
+const WinkelChips = ({ liste, wert, setWert, farbe = C.see }) => (
+  <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+    {liste.map((b) => <button key={b} type="button" aria-pressed={wert === b} onClick={() => setWert(b)} style={{ ...chipStil(wert === b, farbe), minWidth: 48, padding: "6px 10px" }}>{b}°</button>)}
+  </div>
+);
+
 /* Kapitelkopf, Herleitung, Übungskopf */
 const Leitfrage = ({ nr, children }) => (
   <>
@@ -231,10 +244,8 @@ function EinheitskreisLabor() {
   const q = quadrant(al);
   const bogenD = al > 0.5 ? `M${cx + 28} ${cy} A28 28 0 ${al > 180 ? 1 : 0} 0 ${cx + 28 * c} ${cy - 28 * s}` : "";
   const winkelText = mass === "grad" ? `${al}°` : al % 15 === 0 ? piText(piBruch(al)) : `≈ ${zt(al * RAD, 3)}`;
-  return (
-    <div style={{ ...karte, marginTop: 16 }}>
-      <p style={kicker}>{zw("Einheitskreis zum Anfassen", "Hands-on unit circle")}</p>
-      <Aufforderung>{zw("Zieh P über den Kreis (oder nimm den Regler) und beobachte die Koordinaten.", "Drag P around the circle (or use the slider) and watch the coordinates.")}</Aufforderung>
+  const desktop = useDesktop();
+  const svg = (
       <svg ref={ref} viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block", touchAction: "pan-y", cursor: "pointer", userSelect: "none" }}
         role="img" aria-label={zw(`Einheitskreis mit α = ${al}°`, `Unit circle with α = ${al}°`)}
         onPointerDown={(e) => { try { e.currentTarget.setPointerCapture(e.pointerId); } catch (x) { /* egal */ } zieh(e); }}
@@ -271,6 +282,45 @@ function EinheitskreisLabor() {
         {Math.abs(s) > 0.2 && <text x={P[0] + (c >= 0 ? 7 : -7)} y={(cy + P[1]) / 2 + 4} textAnchor={c >= 0 ? "start" : "end"} style={{ ...T, fontSize: 12, fill: SIN }}>sin α</text>}
         <text x="12" y="22" style={{ ...T, fontSize: 13, fill: C.tinte }}>{mass === "grad" ? "α" : "x"} = {winkelText}</text>
       </svg>
+  );
+  const werte = <>
+        <WertZeile links={<span>P = (cos α | sin α)</span>} rechts={`(${zt(c, 3)} | ${zt(s, 3)})`} farbe={C.seeTief} />
+        <WertZeile links={<span style={{ color: COS }}>cos α</span>} rechts={zt(c, 4)} farbe={COS} />
+        <WertZeile links={<span style={{ color: SIN }}>sin α</span>} rechts={zt(s, 4)} farbe={SIN} />
+        <WertZeile links={<span>{zw("Quadrant", "Quadrant")}</span>} rechts={q ? `${ROEM[q]} · cos ${c > 0 ? ">" : "<"} 0 · sin ${s > 0 ? ">" : "<"} 0` : zw("auf einer Achse", "on an axis")} farbe={C.see} />
+        <WertZeile links={<M t="\sin^2 α + \cos^2 α" />} rechts={zt(c * c + s * s, 4)} farbe={C.grau} />
+  </>;
+  const spiegelText = spiegel === "sin"
+            ? zw(`Spiegelung an der y-Achse: Der Punkt bei ${sp}° hat dieselbe Höhe wie P. Also sin ${sp}° = sin ${al}°. Allgemein: sin(180° − α) = sin α.`, `Reflection in the y-axis: the point at ${sp}° has the same height as P. So sin ${sp}° = sin ${al}°. In general: sin(180° − α) = sin α.`)
+            : zw(`Spiegelung an der x-Achse: Der Punkt bei ${sp}° liegt genauso weit rechts bzw. links wie P. Also cos ${sp}° = cos ${al}°. Allgemein: cos(360° − α) = cos α.`, `Reflection in the x-axis: the point at ${sp}° is as far right or left as P. So cos ${sp}° = cos ${al}°. In general: cos(360° − α) = cos α.`);
+  if (desktop) {
+    return (
+      <GeoDesktop data-trig-labor="einheitskreis"
+        links={<>
+          <ReglerKarte titel={zw("Einheitskreis zum Anfassen", "Hands-on unit circle")} hinweis={zw("Zieh P über den Kreis (oder nimm den Regler) und beobachte die Koordinaten.", "Drag P around the circle (or use the slider) and watch the coordinates.")}>
+            <ReglerD name="α" wert={al} setWert={(v) => setAl(Math.round(v))} min={0} max={360} schritt={1} format={(v) => `${Math.round(v)}°`} />
+          </ReglerKarte>
+          <WerteKarte titel={zw("Koordinaten von P", "Coordinates of P")}>{werte}</WerteKarte>
+        </>}
+        bild={laborBild(svg)}
+        bildStil={{ padding: 0, background: C.sand }}
+        werkzeuge={[
+          { titel: zw("Besondere Winkel", "Special angles"), inhalt: <WinkelChips liste={BESONDERE} wert={al} setWert={setAl} /> },
+          { titel: zw("Winkel in", "Angle in"), inhalt: <ChipWahl optionen={[["grad", zw("Grad", "degrees")], ["bogen", zw("Bogenmaß", "radians")]]} wert={mass} setWert={setMass} label={zw("Winkel in", "Angle in")} /> },
+          { titel: zw("Symmetrie", "Symmetry"), inhalt: (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+              <button type="button" aria-pressed={spiegel === "sin"} onClick={() => setSpiegel(spiegel === "sin" ? null : "sin")} style={chipStil(spiegel === "sin", SIN)}>{zw("gleicher Sinus", "same sine")}</button>
+              <button type="button" aria-pressed={spiegel === "cos"} onClick={() => setSpiegel(spiegel === "cos" ? null : "cos")} style={chipStil(spiegel === "cos", COS)}>{zw("gleicher Kosinus", "same cosine")}</button>
+            </div>) },
+        ]}
+        unten={spiegel && <ErklaerKarte farbe={spiegel === "sin" ? SIN : COS}>{spiegelText}</ErklaerKarte>} />
+    );
+  }
+  return (
+    <div style={{ ...karte, marginTop: 16 }}>
+      <p style={kicker}>{zw("Einheitskreis zum Anfassen", "Hands-on unit circle")}</p>
+      <Aufforderung>{zw("Zieh P über den Kreis (oder nimm den Regler) und beobachte die Koordinaten.", "Drag P around the circle (or use the slider) and watch the coordinates.")}</Aufforderung>
+      {svg}
       <div style={{ marginTop: 10 }}>
         <Regler name="α" wert={al} setWert={(v) => setAl(Math.round(v))} min={0} max={360} schritt={1} format={(v) => `${Math.round(v)}°`} breiteName={20} />
       </div>
@@ -278,11 +328,7 @@ function EinheitskreisLabor() {
         {BESONDERE.map((b) => <Pille key={b} an={al === b} onClick={() => setAl(b)}>{b}°</Pille>)}
       </div>
       <div style={{ marginTop: 12 }}>
-        <WertZeile links={<span>P = (cos α | sin α)</span>} rechts={`(${zt(c, 3)} | ${zt(s, 3)})`} farbe={C.seeTief} />
-        <WertZeile links={<span style={{ color: COS }}>cos α</span>} rechts={zt(c, 4)} farbe={COS} />
-        <WertZeile links={<span style={{ color: SIN }}>sin α</span>} rechts={zt(s, 4)} farbe={SIN} />
-        <WertZeile links={<span>{zw("Quadrant", "Quadrant")}</span>} rechts={q ? `${ROEM[q]} · cos ${c > 0 ? ">" : "<"} 0 · sin ${s > 0 ? ">" : "<"} 0` : zw("auf einer Achse", "on an axis")} farbe={C.see} />
-        <WertZeile links={<M t="\sin^2 α + \cos^2 α" />} rechts={zt(c * c + s * s, 4)} farbe={C.grau} />
+        {werte}
       </div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 14, alignItems: "center" }}>
         <span style={{ fontSize: 12.5, fontWeight: 700, color: C.grau }}>{zw("Winkel in", "Angle in")}</span>
@@ -296,9 +342,7 @@ function EinheitskreisLabor() {
       </div>
       {spiegel && (
         <p style={{ fontSize: 13.5, color: C.tinte, lineHeight: 1.6, margin: "10px 0 0" }}>
-          {spiegel === "sin"
-            ? zw(`Spiegelung an der y-Achse: Der Punkt bei ${sp}° hat dieselbe Höhe wie P. Also sin ${sp}° = sin ${al}°. Allgemein: sin(180° − α) = sin α.`, `Reflection in the y-axis: the point at ${sp}° has the same height as P. So sin ${sp}° = sin ${al}°. In general: sin(180° − α) = sin α.`)
-            : zw(`Spiegelung an der x-Achse: Der Punkt bei ${sp}° liegt genauso weit rechts bzw. links wie P. Also cos ${sp}° = cos ${al}°. Allgemein: cos(360° − α) = cos α.`, `Reflection in the x-axis: the point at ${sp}° is as far right or left as P. So cos ${sp}° = cos ${al}°. In general: cos(360° − α) = cos α.`)}
+          {spiegelText}
         </p>
       )}
     </div>
@@ -436,10 +480,8 @@ function BogenLabor() {
   const schoen = al % 15 === 0;
   const arc = al > 0.5 ? `M${cx + R} ${cy} A${R} ${R} 0 ${al > 180 ? 1 : 0} 0 ${P[0]} ${P[1]}` : "";
   const sDeg = sinG(al), sRad = Math.sin(al);
-  return (
-    <div style={{ ...karte, marginTop: 16 }}>
-      <p style={kicker}>{zw("Eine Drehung – zwei Maße", "One turn – two measures")}</p>
-      <Aufforderung>{zw("Dreh am Regler: Die goldene Bogenlänge auf dem Einheitskreis ist das Bogenmaß.", "Move the slider: the golden arc length on the unit circle is the radian measure.")}</Aufforderung>
+  const desktop = useDesktop();
+  const svg = (
       <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }} role="img" aria-label={zw(`Winkel ${al}° gleich ${zt(x, 3)} im Bogenmaß`, `Angle ${al}° equals ${zt(x, 3)} radians`)}>
         <rect x="0" y="0" width={W} height={H} rx="14" fill={C.sand} />
         <line x1={cx - R - 14} x2={cx + R + 14} y1={cy} y2={cy} stroke={C.hellgrau} />
@@ -456,14 +498,13 @@ function BogenLabor() {
         <text x="228" y="130" style={{ ...T, fontSize: 11, fill: C.grau }}>{zw("Anteil am Kreis", "share of circle")}</text>
         <text x="228" y="150" style={{ ...T, fontSize: 13, fill: C.tinte }}>{zt((al / 360) * 100, 1)} %</text>
       </svg>
-      <div style={{ marginTop: 10 }}>
-        <Regler name="α" wert={al} setWert={(v) => setAl(Math.round(v))} min={0} max={360} schritt={5} format={(v) => `${Math.round(v)}°`} breiteName={20} />
-      </div>
-      <div style={{ marginTop: 12 }}>
+  );
+  const werte = <>
         <WertZeile links={zw("Gradmaß", "Degrees")} rechts={`${al}°`} />
         <WertZeile links={zw("Bogenmaß exakt", "Radians, exact")} rechts={schoen ? <M t={piTex(piBruch(al))} /> : <M t={`\\frac{${al}π}{180}`} />} />
         <WertZeile links={zw("Bogenmaß als Zahl", "Radians as a number")} rechts={zt(x, 4)} farbe="#8A6A00" />
-      </div>
+  </>;
+  const probe = (
       <div style={{ marginTop: 14, padding: "12px 14px", borderRadius: 12, background: C.himmel }}>
         <p style={{ fontSize: 12.5, fontWeight: 700, color: C.see, margin: "0 0 6px", letterSpacing: "0.04em", textTransform: "uppercase" }}>{zw("Die Taschenrechner-Probe", "The calculator test")}</p>
         <WertZeile links={<span>sin({al}) {zw("auf", "on")} <b style={{ color: C.see }}>DEG</b></span>} rechts={zt(sDeg, 4)} />
@@ -474,6 +515,33 @@ function BogenLabor() {
             `Same turn, same sine – whether you enter ${al}° or ${zt(x, 3)}. It only goes wrong if the calculator reads ${al} as radians: that would be ${zt(al / (2 * Math.PI), 1)} turns.`)}
         </p>
       </div>
+  );
+  if (desktop) {
+    return (
+      <GeoDesktop data-trig-labor="bogenmass"
+        links={<>
+          <ReglerKarte titel={zw("Eine Drehung – zwei Maße", "One turn – two measures")} hinweis={zw("Dreh am Regler: Die goldene Bogenlänge auf dem Einheitskreis ist das Bogenmaß.", "Move the slider: the golden arc length on the unit circle is the radian measure.")}>
+            <ReglerD name="α" wert={al} setWert={(v) => setAl(Math.round(v))} min={0} max={360} schritt={5} format={(v) => `${Math.round(v)}°`} />
+          </ReglerKarte>
+          <WerteKarte titel={zw("Umrechnung", "Conversion")}>{werte}</WerteKarte>
+        </>}
+        bild={laborBild(svg)}
+        bildStil={{ padding: 0, background: C.sand }}
+        unten={probe} />
+    );
+  }
+  return (
+    <div style={{ ...karte, marginTop: 16 }}>
+      <p style={kicker}>{zw("Eine Drehung – zwei Maße", "One turn – two measures")}</p>
+      <Aufforderung>{zw("Dreh am Regler: Die goldene Bogenlänge auf dem Einheitskreis ist das Bogenmaß.", "Move the slider: the golden arc length on the unit circle is the radian measure.")}</Aufforderung>
+      {svg}
+      <div style={{ marginTop: 10 }}>
+        <Regler name="α" wert={al} setWert={(v) => setAl(Math.round(v))} min={0} max={360} schritt={5} format={(v) => `${Math.round(v)}°`} breiteName={20} />
+      </div>
+      <div style={{ marginTop: 12 }}>
+        {werte}
+      </div>
+      {probe}
     </div>
   );
 }
@@ -567,34 +635,69 @@ function RechtEntdecken() {
     </div>
   );
   const GKt = zw("GK", "opp"), AKt = zw("AK", "adj"), HYt = zw("H", "hyp");
+  const desktop = useDesktop();
+  const SICHT = [["al", zw("Sicht von α", "Seen from α")], ["be", zw("Sicht von β", "Seen from β")]];
+  const dreieck = (hoehe, W) => (
+          <Dreieck A={A} B={B} Cc={Cc} recht farben={farben} winkelBogen={[sicht]} hoehe={hoehe} W={W}
+            beschr={{ a: `a = ${z2(a)}`, b: `b = ${z2(b)}`, c: `c = ${z2(c)}`, al: sicht === "al" ? grad(al, 0) : null, be: sicht === "be" ? grad(90 - al, 0) : null }} />
+  );
+  const legende = (
+        <div style={{ display: "flex", gap: 14, flexWrap: "wrap", marginTop: 8, fontSize: 12.5, fontWeight: 700 }}>
+          <span style={{ color: SIN }}>■ {zw("Gegenkathete", "opposite")} ({gk})</span>
+          <span style={{ color: COS }}>■ {zw("Ankathete", "adjacent")} ({ak})</span>
+          <span style={{ color: HYP }}>■ {zw("Hypotenuse", "hypotenuse")} (c)</span>
+        </div>
+  );
+  const verhaeltnisKopf = <>{zw("Seitenverhältnisse für ", "Side ratios for ")}<span style={{ textTransform: "none" }}>{wn} = {zt(w, 0)}°</span></>;
+  const verhaeltnisZeilen = <>
+        {zeile("sin", [GKt, gk], [HYt, "c"], gkW / c)}
+        {zeile("cos", [AKt, ak], [HYt, "c"], akW / c)}
+        {zeile("tan", [GKt, gk], [AKt, ak], gkW / akW)}
+  </>;
+  const verhaeltnisText = zw("Die Hypotenuse liegt immer gegenüber dem rechten Winkel. Welche Kathete „Gegen-“ und welche „An-“kathete ist, hängt vom Winkel ab: Für α ist a die Gegenkathete, für β ist es b. Darum gilt sin α = cos β.",
+            "The hypotenuse is always opposite the right angle. Which leg is “opposite” and which is “adjacent” depends on the angle: for α, a is opposite; for β, it is b. That is why sin α = cos β.");
+  if (desktop) {
+    return (
+      <GeoDesktop data-trig-labor="dreieck"
+        links={<>
+          <ReglerKarte titel={zw("Rechtwinkliges Dreieck", "Right triangle")} hinweis={zw("Zieh an c: Die Seiten wachsen, die Verhältnisse bleiben. Zieh an α: Die Verhältnisse ändern sich.", "Move c: the sides grow, the ratios stay. Move α: the ratios change.")}>
+            <ReglerD name="α" wert={al} setWert={setAl} min={5} max={85} schritt={1} format={(v) => grad(v, 0)} />
+            <ReglerD name="c" wert={c} setWert={setC} min={2} max={9} schritt={0.5} farbe={HYP} format={(v) => zt(v, 1)} />
+          </ReglerKarte>
+        </>}
+        bild={<div style={{ padding: "8px 8px 4px" }}>{laborBild(dreieck(270, 420), 350)}{legende}</div>}
+        werkzeuge={[{ titel: zw("Bezugswinkel", "Reference angle"), inhalt: <ChipWahl optionen={SICHT} wert={sicht} setWert={setSicht} label={zw("Bezugswinkel", "Reference angle")} /> }]}
+        unten={
+          <FeinKarte data-trig-verhaeltnisse style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 240px)", columnGap: 32, alignItems: "center" }}>
+            <div style={{ minWidth: 0 }}>
+              <p style={titelStil}>{verhaeltnisKopf}</p>
+              {verhaeltnisZeilen}
+            </div>
+            <div style={{ borderLeft: `2px solid ${C.linie}`, paddingLeft: 18 }}><p style={hinweisStil}>{verhaeltnisText}</p></div>
+          </FeinKarte>
+        } />
+    );
+  }
   return (
     <>
       <div style={{ ...karte, marginTop: 16 }}>
         <p style={kicker}>{zw("Rechtwinkliges Dreieck", "Right triangle")}</p>
-        <Auswahl optionen={[["al", zw("Sicht von α", "Seen from α")], ["be", zw("Sicht von β", "Seen from β")]]} wert={sicht} setWert={setSicht} label={zw("Bezugswinkel", "Reference angle")} />
+        <Auswahl optionen={SICHT} wert={sicht} setWert={setSicht} label={zw("Bezugswinkel", "Reference angle")} />
         <Aufforderung><span style={{ display: "block", marginTop: 12 }}>{zw("Zieh an c: Die Seiten wachsen, die Verhältnisse bleiben. Zieh an α: Die Verhältnisse ändern sich.", "Move c: the sides grow, the ratios stay. Move α: the ratios change.")}</span></Aufforderung>
         <div style={{ display: "grid", gap: 10 }}>
           <Regler name="α" wert={al} setWert={setAl} min={5} max={85} schritt={1} format={(v) => grad(v, 0)} breiteName={20} />
           <Regler name="c" wert={c} setWert={setC} min={2} max={9} schritt={0.5} farbe={HYP} format={(v) => zt(v, 1)} breiteName={20} />
         </div>
         <div style={{ marginTop: 12, background: C.sand, borderRadius: 14, padding: 8 }}>
-          <Dreieck A={A} B={B} Cc={Cc} recht farben={farben} winkelBogen={[sicht]}
-            beschr={{ a: `a = ${z2(a)}`, b: `b = ${z2(b)}`, c: `c = ${z2(c)}`, al: sicht === "al" ? grad(al, 0) : null, be: sicht === "be" ? grad(90 - al, 0) : null }} />
+          {dreieck(220)}
         </div>
-        <div style={{ display: "flex", gap: 14, flexWrap: "wrap", marginTop: 8, fontSize: 12.5, fontWeight: 700 }}>
-          <span style={{ color: SIN }}>■ {zw("Gegenkathete", "opposite")} ({gk})</span>
-          <span style={{ color: COS }}>■ {zw("Ankathete", "adjacent")} ({ak})</span>
-          <span style={{ color: HYP }}>■ {zw("Hypotenuse", "hypotenuse")} (c)</span>
-        </div>
+        {legende}
       </div>
       <div style={{ ...karte, marginTop: 12 }}>
-        <p style={kicker}>{zw("Seitenverhältnisse für ", "Side ratios for ")}<span style={{ textTransform: "none" }}>{wn} = {zt(w, 0)}°</span></p>
-        {zeile("sin", [GKt, gk], [HYt, "c"], gkW / c)}
-        {zeile("cos", [AKt, ak], [HYt, "c"], akW / c)}
-        {zeile("tan", [GKt, gk], [AKt, ak], gkW / akW)}
+        <p style={kicker}>{verhaeltnisKopf}</p>
+        {verhaeltnisZeilen}
         <p style={{ fontSize: 13.5, color: C.tinte, lineHeight: 1.6, margin: "10px 0 0" }}>
-          {zw("Die Hypotenuse liegt immer gegenüber dem rechten Winkel. Welche Kathete „Gegen-“ und welche „An-“kathete ist, hängt vom Winkel ab: Für α ist a die Gegenkathete, für β ist es b. Darum gilt sin α = cos β.",
-            "The hypotenuse is always opposite the right angle. Which leg is “opposite” and which is “adjacent” depends on the angle: for α, a is opposite; for β, it is b. That is why sin α = cos β.")}
+          {verhaeltnisText}
         </p>
       </div>
     </>
@@ -819,10 +922,9 @@ function TangensLabor() {
   }
   const Ty = def ? cy - R * t : null;
   const Tsicht = def && Ty > 8 && Ty < H - 8;
-  return (
-    <div style={{ ...karte, marginTop: 16 }}>
-      <p style={kicker}>{zw("Tangens am Einheitskreis", "Tangent on the unit circle")}</p>
-      <Aufforderung>{zw("Dreh α und beobachte, wo die Gerade durch O und P die Tangente trifft.", "Turn α and watch where the line through O and P meets the tangent.")}</Aufforderung>
+  const desktop = useDesktop();
+  const TAN_W = [0, 30, 45, 60, 80, 90, 135, 180, 225, 270];
+  const svg = (
       <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }} role="img" aria-label={zw(`Tangens von ${al}°`, `Tangent of ${al}°`)}>
         <rect x="0" y="0" width={W} height={H} rx="14" fill={C.sand} />
         <line x1={cx - R - 30} x2={W - 8} y1={cy} y2={cy} stroke={C.hellgrau} />
@@ -842,17 +944,40 @@ function TangensLabor() {
         {def && Tsicht && Math.abs(Ty - cy) > 22 && <text x={tx - 7} y={(cy + Ty) / 2 + 4} textAnchor="end" style={{ ...T, fontSize: 12, fill: TAN }}>tan α</text>}
         <text x="12" y="22" style={{ ...T, fontSize: 13, fill: C.tinte }}>α = {al}°</text>
       </svg>
-      <div style={{ marginTop: 10 }}>
-        <Regler name="α" wert={al} setWert={(v) => setAl(Math.round(v))} min={0} max={360} schritt={1} format={(v) => `${Math.round(v)}°`} breiteName={20} />
-      </div>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 10 }}>
-        {[0, 30, 45, 60, 80, 90, 135, 180, 225, 270].map((b) => <Pille key={b} an={al === b} onClick={() => setAl(b)} farbe={TAN}>{b}°</Pille>)}
-      </div>
-      <div style={{ marginTop: 12 }}>
+  );
+  const werte = <>
         <WertZeile links={<span style={{ color: SIN }}>sin α</span>} rechts={zt(s, 4)} farbe={SIN} />
         <WertZeile links={<span style={{ color: COS }}>cos α</span>} rechts={zt(c, 4)} farbe={COS} />
         <WertZeile links={<M t="\tan α = \frac{\sin α}{\cos α}" />} rechts={def ? zt(t, 4) : zw("nicht definiert", "undefined")} farbe={TAN} />
         <WertZeile links={zw("Steigung der Geraden durch O und P", "Slope of the line through O and P")} rechts={def ? zt(t, 4) : zw("senkrecht", "vertical")} farbe={C.see} />
+  </>;
+  if (desktop) {
+    return (
+      <GeoDesktop data-trig-labor="tangens"
+        links={<>
+          <ReglerKarte titel={zw("Tangens am Einheitskreis", "Tangent on the unit circle")} hinweis={zw("Dreh α und beobachte, wo die Gerade durch O und P die Tangente trifft.", "Turn α and watch where the line through O and P meets the tangent.")}>
+            <ReglerD name="α" wert={al} setWert={(v) => setAl(Math.round(v))} min={0} max={360} schritt={1} format={(v) => `${Math.round(v)}°`} />
+          </ReglerKarte>
+          <WerteKarte titel={zw("Werte", "Values")}>{werte}</WerteKarte>
+        </>}
+        bild={laborBild(svg)}
+        bildStil={{ padding: 0, background: C.sand }}
+        werkzeuge={[{ titel: zw("Winkel wählen", "Choose an angle"), inhalt: <WinkelChips liste={TAN_W} wert={al} setWert={setAl} farbe={TAN} /> }]} />
+    );
+  }
+  return (
+    <div style={{ ...karte, marginTop: 16 }}>
+      <p style={kicker}>{zw("Tangens am Einheitskreis", "Tangent on the unit circle")}</p>
+      <Aufforderung>{zw("Dreh α und beobachte, wo die Gerade durch O und P die Tangente trifft.", "Turn α and watch where the line through O and P meets the tangent.")}</Aufforderung>
+      {svg}
+      <div style={{ marginTop: 10 }}>
+        <Regler name="α" wert={al} setWert={(v) => setAl(Math.round(v))} min={0} max={360} schritt={1} format={(v) => `${Math.round(v)}°`} breiteName={20} />
+      </div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 10 }}>
+        {TAN_W.map((b) => <Pille key={b} an={al === b} onClick={() => setAl(b)} farbe={TAN}>{b}°</Pille>)}
+      </div>
+      <div style={{ marginTop: 12 }}>
+        {werte}
       </div>
     </div>
   );
@@ -1141,8 +1266,9 @@ const KAPITEL = [
 const SPEICHER = "matheplus-trig-kapitel";
 
 function Lernweg({ kap, setKap }) {
+  const desktop = useDesktop();
   return (
-    <nav aria-label={zw("Kapitel", "Chapters")} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 8, marginTop: 4 }}>
+    <nav aria-label={zw("Kapitel", "Chapters")} style={{ display: "grid", gridTemplateColumns: desktop ? "repeat(3, minmax(0, 1fr))" : "repeat(auto-fit, minmax(140px, 1fr))", gap: 8, marginTop: 4 }}>
       {KAPITEL.map(([id, name], i) => {
         const an = kap === id;
         return (

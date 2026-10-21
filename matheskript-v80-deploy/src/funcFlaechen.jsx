@@ -15,6 +15,8 @@ import { zt } from "./ui3.jsx";
 import { FLAECHE_ARTEN, flaecheAufgabe } from "./unterGen.js";
 import { Merke, Regler, UebenRahmen, WertZeile, Zeichenblatt, ZweiModi, ws, zs, EntdeckenZweispaltig } from "./geoUi.jsx";
 import { werkzeugAnimationen } from "./unterstufeMedien.js";
+import { useDesktop } from "./arbeitsflaeche.jsx";
+import { ErklaerKarte, GeoDesktop, ReglerD, ReglerKarte, ThemenLeiste, WerteKarte } from "./geoDesktop.jsx";
 
 let zaehler = 0;
 const z = (v) => zt(v, 2);
@@ -75,12 +77,33 @@ function Entdecken() {
   const A = { rechteck: x * h, dreieck: x * h / 2, parallelogramm: x * h, trapez: (x + Math.min(c, x - 0.5)) * h / 2, drachen: x * h / 2 }[art];
   const F = { rechteck: "A = a · b", dreieck: "A = \\frac{g · h}{2}", parallelogramm: "A = g · h", trapez: "A = \\frac{(a + c) · h}{2}", drachen: "A = \\frac{e · f}{2}" }[art];
   const n = { rechteck: ["a", "b"], dreieck: ["g", "h"], parallelogramm: ["g", "h"], trapez: ["a", "h"], drachen: ["e", "f"] }[art];
+  const desktop = useDesktop();
+  const FIGUREN = [["rechteck", zw("Rechteck", "Rectangle")], ["dreieck", zw("Dreieck", "Triangle")], ["parallelogramm", zw("Parallelogramm", "Parallelogram")], ["trapez", zw("Trapez", "Trapezoid")], ["drachen", zw("Drachen", "Kite")]];
+  const figur = (hoehe) => <Figur art={art} m={m} idee hoehe={hoehe} beschr={{ a: "a", b: "b", g: "g", h: "h", c: "c", e: "e", f: "f", s: null }} />;
+  if (desktop) {
+    return (
+      <GeoDesktop
+        thema={<ThemenLeiste titel={zw("Figur wählen", "Choose a figure")} optionen={FIGUREN} wert={art} setWert={setArt} label={zw("Figur", "Figure")} />}
+        links={<>
+          <ReglerKarte titel={zw("Maße", "Measurements")}>
+            <ReglerD name={n[0]} wert={x} setWert={setX} min={2} max={10} schritt={0.5} />
+            <ReglerD name={n[1]} wert={h} setWert={setH} min={1} max={8} schritt={0.5} farbe={C.gruen} />
+            {art === "trapez" && <ReglerD name="c" wert={c} setWert={setC} min={0.5} max={9} schritt={0.5} farbe={G} />}
+          </ReglerKarte>
+          <WerteKarte titel={zw("Flächeninhalt", "Area")}>
+            <WertZeile links={<M t={F} />} rechts={z(A)} farbe={C.gruen} />
+          </WerteKarte>
+        </>}
+        bild={figur(300)}
+        unten={<ErklaerKarte titel={zw("Woher kommt die Formel?", "Where does the formula come from?")}>{IDEE[art]}</ErklaerKarte>} />
+    );
+  }
   return (
     <div style={{ ...karte, marginTop: 16 }}>
       <EntdeckenZweispaltig
         steuerung={<>
       <p style={kicker}>{zw("Figur wählen", "Choose a figure")}</p>
-      <Auswahl optionen={[["rechteck", zw("Rechteck", "Rectangle")], ["dreieck", zw("Dreieck", "Triangle")], ["parallelogramm", zw("Parallelogramm", "Parallelogram")], ["trapez", zw("Trapez", "Trapezoid")], ["drachen", zw("Drachen", "Kite")]]} wert={art} setWert={setArt} label={zw("Figur", "Figure")} />
+      <Auswahl optionen={FIGUREN} wert={art} setWert={setArt} label={zw("Figur", "Figure")} />
       <div style={{ display: "grid", gap: 8, marginTop: 12 }}>
         <Regler name={n[0]} wert={x} setWert={setX} min={2} max={10} schritt={0.5} />
         <Regler name={n[1]} wert={h} setWert={setH} min={1} max={8} schritt={0.5} farbe={C.gruen} />
@@ -90,7 +113,7 @@ function Entdecken() {
         </>}
         bild={
       <div style={{ background: C.sand, borderRadius: 14, padding: 6 }}>
-        <Figur art={art} m={m} idee hoehe={220} beschr={{ a: "a", b: "b", g: "g", h: "h", c: "c", e: "e", f: "f", s: null }} />
+        {figur(220)}
       </div>
         }
         unten={<>
