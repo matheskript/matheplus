@@ -170,6 +170,14 @@ const CSS = `
 .kl .hm-menueknopf { border-color: var(--kl-ring); color: var(--kl-text); }
 .kl .hm-menueknopf:hover, .kl .hm-menueknopf[aria-expanded="true"] { background: var(--kl-ring-hover); border-color: ${GOLD}; }
 .kl .hm-chip { background: var(--kl-chip-hg); }
+/* Handy (unter 840 px, angemeldet): kein Konto-Chip – das Konto ist über ☰ erreichbar (seit 21.10.).
+   Der freie Platz geht an Wortmarke, Slogan und einen größeren ☰-Knopf; die Zeile ist dafür etwas höher (--kopf-h). */
+@media (max-width: 839px) {
+  .kl .hm-chip { display: none; }
+  .kl:not([data-gast]) .hm-menueknopf { width: 48px; height: 48px; border-width: 2px; }
+  .kl:not([data-gast]) .hm-menueknopf svg { width: 24px; height: 24px; }
+  .kl:not([data-gast]) .kl-slogan { font-size: clamp(13.5px, 4.25vw, 23.33px); }
+}
 
 /* Lese-Fortschritt (nur wenn die Leiste klebt) */
 .kl-fortschritt { position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; transform-origin: left; transform: scaleX(0); pointer-events: none;
@@ -250,8 +258,8 @@ export function Kopfleiste({ ansicht, gehe, zurStartseite, hmOffen, setHmOffen, 
     <header data-kopfleiste className="kl" data-modus={modus} data-gast={gast ? "1" : undefined} data-kompakt={kompakt ? "1" : undefined} data-klebrig={klebrig ? "1" : undefined}>
       <style>{CSS}</style>
       <style>{`
-        :root{--kopf-h:56px}
-        @media (min-width:421px){:root{--kopf-h:clamp(62px, calc(11.1vw + 26px), 90px)}}
+        :root{--kopf-h:${gast ? "56px" : "68px"}}
+        @media (min-width:421px){:root{--kopf-h:clamp(${gast ? "62px" : "74px"}, calc(11.1vw + 26px), 90px)}}
         .titel-kurz{display:none}
         @media (max-width:520px){.held{padding-top:18px !important;padding-bottom:4px !important}.held h1{font-size:25px !important;line-height:1.1 !important}.held h1+div{margin-top:12px !important;margin-bottom:13px !important}.held-welle{height:12px !important}}
         .kopfblock{margin-bottom:-16px}
@@ -273,8 +281,9 @@ export function Kopfleiste({ ansicht, gehe, zurStartseite, hmOffen, setHmOffen, 
 
       <div className="mx-auto kopf-zeile kl-zeile" style={{ maxWidth: 620 }}>
         <button type="button" className="kl-marke" data-kein-i18n aria-label={en ? "Home" : "Zur Startseite"} title={en ? "Home" : "Zur Startseite"} onClick={zurStartseite}>
-          {/* Wortmarke in der Schrift der Startseiten-Headline (src/markenLogo.jsx); Besucher: ein Drittel kleiner */}
-          <MarkenLogo groesse={gast ? "var(--kl-logo-gast)" : "clamp(21px, 6.5vw, 40px)"} grund={modus === "hell" ? "hell" : "dunkel"} />
+          {/* Wortmarke in der Schrift der Startseiten-Headline (src/markenLogo.jsx); Besucher: ein Drittel kleiner.
+              Angemeldet: so groß, wie neben dem ☰ Platz ist (Breite ≈ 10 × Schriftgröße), höchstens 40 px */}
+          <MarkenLogo groesse={gast ? "var(--kl-logo-gast)" : "min(40px, calc((100vw - 100px) / 10))"} grund={modus === "hell" ? "hell" : "dunkel"} />
           {!gast && (
             <span className="kl-slogan">System <b>+</b> Freude <b>=</b> Erfolg</span>
           )}
@@ -300,7 +309,7 @@ export function Kopfleiste({ ansicht, gehe, zurStartseite, hmOffen, setHmOffen, 
           {gast && (
             <button type="button" className="kl-anmelden" onClick={() => { setHmOffen(null); gehe({ ansicht: "konto" }); }} data-kl-anmelden>{en ? "Sign in" : "Anmelden"}</button>
           )}
-          {/* Konto-Chip (angemeldet) + Menü-Knopf ☰ – das alte Kopfmenü ist als „Arbeitsmenü“ in der Fußzeile */}
+          {/* Konto-Chip (angemeldet, nur ab 840 px) + Menü-Knopf ☰ – das alte Kopfmenü ist als „Arbeitsmenü“ in der Fußzeile */}
           <KontoBereich offen={hmOffen} setOffen={setHmOffen} gehe={gehe} />
         </div>
       </div>

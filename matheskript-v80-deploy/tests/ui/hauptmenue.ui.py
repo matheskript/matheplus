@@ -37,9 +37,12 @@ with sync_playwright() as p:
             pruefe(page.locator("[data-hm-menue]").count() == 1, f"{tag}: Menü-Knopf fehlt")
             pruefe(page.locator("[data-hauptmenue] [data-hm]").count() == 0, f"{tag}: Menü ist ohne Klick schon offen")
             pruefe(page.locator("[data-hm='mathilda']").count() == 0, f"{tag}: Leiste unter dem Kopf existiert noch")
-            # Konto-Chip nur angemeldet, ☰ steht rechts daneben
+            # Konto-Chip nur angemeldet und erst ab 840 px (Handy: Konto über ☰, seit 21.10.), ☰ steht rechts daneben
             pruefe(page.locator("[data-hm-chip]").count() == (1 if angemeldet else 0), f"{tag}: Konto-Chip falsch")
-            if angemeldet:
+            if angemeldet and breite < 840:
+                pruefe(not page.locator("[data-hm-chip]").is_visible(), f"{tag}: Konto-Chip auf dem Handy sichtbar")
+                pruefe(page.locator("[data-hm-menue]").bounding_box()["width"] >= 47, f"{tag}: ☰ auf dem Handy nicht vergrößert")
+            if angemeldet and breite >= 840:
                 chip = page.locator("[data-hm-chip]").bounding_box(); knopf = page.locator("[data-hm-menue]").bounding_box()
                 pruefe(page.locator("[data-hm-chip]").inner_text().strip() == "L", f"{tag}: Chip zeigt nicht den Anfangsbuchstaben")
                 pruefe(knopf["x"] > chip["x"] + chip["width"] - 1 and abs(knopf["y"] - chip["y"]) < 3, f"{tag}: ☰ steht nicht rechts neben dem Chip")

@@ -67,6 +67,12 @@ with sync_playwright() as p:
                     pruefe(nav.count() == 0, f"{tag}: Besuchermenü trotz Anmeldung")
                     pruefe(page.locator(".kl-slogan").count() == 1, f"{tag}: Slogan fehlt")
                     pruefe(page.locator("[data-hm-chip]").count() == 1, f"{tag}: Konto-Chip fehlt")
+                    # Handy: Chip ausgeblendet, Wortmarke füllt den Platz bis kurz vor dem ☰ (≥ 26 px), Zeile höher
+                    if breite < 840:
+                        pruefe(not page.locator("[data-hm-chip]").is_visible(), f"{tag}: Konto-Chip auf dem Handy sichtbar")
+                        pruefe(logo >= 25.9, f"{tag}: Wortmarke auf dem Handy nur {logo}px")
+                    else:
+                        pruefe(page.locator("[data-hm-chip]").is_visible(), f"{tag}: Konto-Chip am Desktop unsichtbar")
                 else:
                     pruefe(nav.count() == 4, f"{tag}: Besuchermenü hat nicht vier Punkte")
                     texte = [t.replace(" ", " ").strip() for t in nav.all_inner_texts()]
