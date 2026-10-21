@@ -31,8 +31,8 @@ REITER = lambda t: f"[...document.querySelectorAll('[role=tab]')].find(b => b.te
 AF = ("[data-arbeitsflaeche]:visible > div:first-child", "[data-arbeitsflaeche]:visible > div:last-child")
 TR = ("[data-trainer-raster]:visible > div:first-child", "[data-trainer-raster]:visible > div:last-child")
 FAELLE = [
-    ("ableiten", "/ableitungstrainer", [], AF, None),
-    ("ableiten-regel", "/ableitungstrainer", ["document.querySelector('.abl-regelknopf').click()", WAHL("Produktregel")], AF, None),
+    ("ableiten", "/ableitungstrainer", [], (".abl-spalte-l", ".abl-spalte-r"), None),
+    ("ableiten-regel", "/ableitungstrainer", ["document.querySelector('.abl-regelknopf').click()", WAHL("Produktregel")], (".abl-spalte-l", ".abl-spalte-r"), None),
     ("hauptsatz-stamm", "/stammfunktion", [], AF, None),
     ("hauptsatz-integral", "/stammfunktion", ["document.querySelectorAll('.si-bereich button')[1].click()"], AF, "[data-si-integral] svg[role=img]"),
     ("integrale-stamm", "/integrale", [], TR, None),
@@ -126,12 +126,12 @@ with sync_playwright() as pw:
                     pruefe(abs(vb - bw) <= 3, f"{n}: Schaubild skaliert ({vb} statt {bw})")
                 else:
                     fehler.append(f"{n}: Schaubild {svg} fehlt")
-            # Desktop-Inhaltsspalte: nicht breiter als 783 px, linke Kante wie die Werkzeugseiten
+            # Desktop-Inhaltsspalte: Trainings-Werkzeuge laufen bis 940 px breit (index.css, data-training-breit) – nur Rand prüfen
             if desktop:
                 af = p.locator("[data-arbeitsflaeche]:visible, [data-trainer-raster]:visible").first
                 if af.count():
                     bx = af.bounding_box()
-                    pruefe(bx is not None and bx["width"] <= 752, f"{n}: Arbeitsfläche zu breit ({bx and bx['width']})")
+                    pruefe(bx is not None and bx["x"] >= 20 and bx["x"] + bx["width"] <= w - 20, f"{n}: Arbeitsfläche ohne Rand ({bx})")
             # Bedienung
             if name == "ableiten" and desktop:
                 vorher = p.locator(".abl-karte").first.inner_text()
