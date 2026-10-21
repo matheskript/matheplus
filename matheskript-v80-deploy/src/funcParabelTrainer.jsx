@@ -193,7 +193,7 @@ function ReglerTeil({ teil, werte, setWerte, aus }) {
    ============================================================ */
 const leerTeil = (t) => ({ werte: t.art === "zahl" ? t.felder.map(() => "") : t.art === "regler" ? { ...t.start } : null, versuche: 0, falsch: [], text: "", fertig: false, gezeigt: false });
 
-function Training({ thema, typ, stufe, wurf }) {
+function Training({ thema, typ, stufe, wurf, links = null, desktop = false }) {
   const [aufg, setAufg] = useState(() => neueAufgabe(thema, typ, stufe));
   const [nr, setNr] = useState(0);
   const [teile, setTeile] = useState(() => aufg.teile.map(leerTeil));
@@ -304,80 +304,108 @@ function Training({ thema, typ, stufe, wurf }) {
 
   const sterne = runde.filter((r) => r === "perfekt").length >= 9 ? 3 : runde.filter((r) => r === "perfekt").length >= 6 ? 2 : runde.filter((r) => r !== "gezeigt").length >= 5 ? 1 : 0;
 
+  /* ---------- Gemeinsame Teile (Handy und Desktop, DESKTOP-STIL.md) ---------- */
+  const rundenKopf = (
+    <div className="pt-runde">
+      <div className="pt-punkte" aria-label={zw(`Aufgabe ${Math.min(runde.length + (fertig ? 0 : 1), RUNDE)} von ${RUNDE}`, `Task ${Math.min(runde.length + (fertig ? 0 : 1), RUNDE)} of ${RUNDE}`)}>
+        {Array.from({ length: RUNDE }, (_, i) => <i key={i} data-r={runde[i] || (i === runde.length && !fertig ? "jetzt" : undefined)} />)}
+      </div>
+      <div className="pt-stand">
+        {serie >= 2 && <span className="pt-serie" title={zw("Serie ohne Fehler", "Streak without mistakes")}>🔥 {serie}</span>}
+        <span>{stand} {zw("P.", "pts")}</span>
+      </div>
+    </div>
+  );
+  const ende = (
+    <div className="pt-ende">
+      <div className="pt-sterne" aria-label={`${sterne} ${zw("von 3 Sternen", "of 3 stars")}`}>{[0, 1, 2].map((i) => <span key={i} data-an={i < sterne || undefined}>★</span>)}</div>
+      <p className="pt-endetitel">{sterne === 3 ? zw("Meisterhaft!", "Masterful!") : sterne === 2 ? zw("Stark gemacht!", "Strong work!") : sterne === 1 ? zw("Runde geschafft!", "Round complete!") : zw("Runde beendet", "Round finished")}</p>
+      <p className="pt-endetext">{zw(`${runde.filter((r) => r === "perfekt").length} von ${RUNDE} ohne Fehler · ${stand} Punkte`, `${runde.filter((r) => r === "perfekt").length} of ${RUNDE} without mistakes · ${stand} points`)}</p>
+      <button type="button" className="pt-weiter" onClick={() => neu(true)}>{zw("Neue Runde", "New round")} <span aria-hidden="true">↻</span></button>
+    </div>
+  );
+  const formel = aufg.formel && <div className="pt-formel"><M t={aufg.formel} /></div>;
+  const bild = kacheln
+    ? <GraphKacheln teil={aufg.teile[0]} gewaehlt={st.werte} falsch={st.falsch} onWahl={(id) => pruefen(id)} aus={st.fertig} geloest={fertig} />
+    : <TrainerBild kurven={kurven} punkte={sichtbar ? punkte : []} verdeckt={!sichtbar} wichtig={wichtig} klasse={aufg.formel ? "" : "pt-bild-gross"} />;
+  const aufgabe = (
+    <>
+      <p className="pt-frage"><MS s={aufg.frage} /></p>
+      {!fertig && (
+        <div className="pt-leiste">
+          <div className="pt-teile">
+            {aufg.teile.length > 1 && aufg.teile.map((t, i) => <span key={i} data-z={teile[i].fertig ? (teile[i].gezeigt ? "gezeigt" : "ok") : i === nr ? "jetzt" : undefined}>{teile[i].fertig ? (teile[i].gezeigt ? "•" : "✓") : i + 1}</span>)}
+          </div>
+          <div className="pt-hilfen">
+            {(st.versuche > 0 || (st.klicks || 0) >= 8) && <button type="button" className="pt-zeigen" onClick={zeigen}>{zw("Lösung zeigen", "Show solution")}</button>}
+            <IchHaengeFest kontext={kontext} />
+          </div>
+        </div>
+      )}
+
+      {!fertig && teil && (
+        <div className="pt-teil" key={`${aufg.id}-${nr}`}>
+          {teil.art !== "regler" && <p className="pt-teilfrage"><MS s={teil.frage} /></p>}
+          {teil.art === "zahl" && (
+            <div className="pt-eingabe">
+              <ZahlZeile teil={teil} werte={st.werte} setWerte={(w) => setSt({ werte: w, text: "" })} onEnter={() => pruefen()} aus={st.fertig} status={st.text && st.versuche ? "falsch" : null} />
+              <button type="button" className="pt-pruefen" onClick={() => pruefen()}>{zw("Prüfen", "Check")}</button>
+            </div>
+          )}
+          {teil.art === "wahl" && !teil.kacheln && <WahlKnoepfe teil={teil} gewaehlt={st.werte} falsch={st.falsch} onWahl={(id) => pruefen(id)} aus={st.fertig} />}
+          {teil.art === "regler" && <ReglerTeil teil={teil} werte={st.werte} setWerte={(w) => setSt({ werte: w, klicks: (st.klicks || 0) + 1 })} aus={st.fertig} />}
+          {st.text && <p className="pt-rueck" role="status"><MS s={st.text} /></p>}
+        </div>
+      )}
+
+      {fertig && (
+        <div className="pt-geschafft">
+          <p className="pt-jubel" data-art={runde[runde.length - 1]}>
+            {runde[runde.length - 1] === "perfekt" ? zw("Perfekt! ", "Perfect! ") : runde[runde.length - 1] === "geschafft" ? zw("Richtig! ", "Correct! ") : zw("Lösung angesehen. ", "Solution shown. ")}
+            {plus ? <b>+{plus}</b> : null}
+          </p>
+          <button type="button" className="pt-weglink" aria-expanded={weg} onClick={() => setWeg(!weg)}>{weg ? zw("Rechenweg ausblenden", "Hide working") : zw("Rechenweg ansehen", "Show working")}</button>
+          {weg && <div className="pt-weg">{aufg.loesung.map((l, i) => <div key={i}><M t={l} /></div>)}</div>}
+          <button type="button" className="pt-weiter" onClick={weiterKlick}>
+            {runde.length >= RUNDE ? zw("Zur Auswertung", "See results") : zw("Nächste Aufgabe", "Next task")} <span aria-hidden="true">→</span>
+          </button>
+        </div>
+      )}
+    </>
+  );
+
+  /* Desktop (ab 840 px): links Modus, Stufe, Thema, Aufgabentyp und die ganze Aufgabe mit allen Eingaben,
+     rechts das Schaubild (bzw. die vier Graph-Kacheln) groß in echten Pixeln */
+  if (desktop) {
+    return (
+      <Arbeitsflaeche linksBreite={352}
+        links={<>
+          {links}
+          <div className="pt-karte" data-pt-aufgabe>
+            {rundenKopf}
+            {rundeVorbei ? ende : <div className="pt-rechts">{formel}{aufgabe}</div>}
+          </div>
+        </>}
+        rechts={<div className="pt-desk-bild" data-kacheln={kacheln || undefined}>{bild}</div>} />
+    );
+  }
+
   return (
     <div className="pt-karte">
       {/* Kopfzeile der Runde */}
-      <div className="pt-runde">
-        <div className="pt-punkte" aria-label={zw(`Aufgabe ${Math.min(runde.length + (fertig ? 0 : 1), RUNDE)} von ${RUNDE}`, `Task ${Math.min(runde.length + (fertig ? 0 : 1), RUNDE)} of ${RUNDE}`)}>
-          {Array.from({ length: RUNDE }, (_, i) => <i key={i} data-r={runde[i] || (i === runde.length && !fertig ? "jetzt" : undefined)} />)}
-        </div>
-        <div className="pt-stand">
-          {serie >= 2 && <span className="pt-serie" title={zw("Serie ohne Fehler", "Streak without mistakes")}>🔥 {serie}</span>}
-          <span>{stand} {zw("P.", "pts")}</span>
-        </div>
-      </div>
+      {rundenKopf}
 
-      {rundeVorbei ? (
-        <div className="pt-ende">
-          <div className="pt-sterne" aria-label={`${sterne} ${zw("von 3 Sternen", "of 3 stars")}`}>{[0, 1, 2].map((i) => <span key={i} data-an={i < sterne || undefined}>★</span>)}</div>
-          <p className="pt-endetitel">{sterne === 3 ? zw("Meisterhaft!", "Masterful!") : sterne === 2 ? zw("Stark gemacht!", "Strong work!") : sterne === 1 ? zw("Runde geschafft!", "Round complete!") : zw("Runde beendet", "Round finished")}</p>
-          <p className="pt-endetext">{zw(`${runde.filter((r) => r === "perfekt").length} von ${RUNDE} ohne Fehler · ${stand} Punkte`, `${runde.filter((r) => r === "perfekt").length} of ${RUNDE} without mistakes · ${stand} points`)}</p>
-          <button type="button" className="pt-weiter" onClick={() => neu(true)}>{zw("Neue Runde", "New round")} <span aria-hidden="true">↻</span></button>
-        </div>
-      ) : (
+      {rundeVorbei ? ende : (
         <div className="pt-raster" data-kacheln={kacheln || undefined}>
           {/* Links (Handy: oben): Formel und Graph */}
           <div className="pt-links">
-            {aufg.formel && <div className="pt-formel"><M t={aufg.formel} /></div>}
-            {kacheln
-              ? <GraphKacheln teil={aufg.teile[0]} gewaehlt={st.werte} falsch={st.falsch} onWahl={(id) => pruefen(id)} aus={st.fertig} geloest={fertig} />
-              : <TrainerBild kurven={kurven} punkte={sichtbar ? punkte : []} verdeckt={!sichtbar} wichtig={wichtig} klasse={aufg.formel ? "" : "pt-bild-gross"} />}
+            {formel}
+            {bild}
           </div>
 
           {/* Rechts (Handy: unten): Aufgabe */}
           <div className="pt-rechts">
-            <p className="pt-frage"><MS s={aufg.frage} /></p>
-            {!fertig && (
-              <div className="pt-leiste">
-                <div className="pt-teile">
-                  {aufg.teile.length > 1 && aufg.teile.map((t, i) => <span key={i} data-z={teile[i].fertig ? (teile[i].gezeigt ? "gezeigt" : "ok") : i === nr ? "jetzt" : undefined}>{teile[i].fertig ? (teile[i].gezeigt ? "•" : "✓") : i + 1}</span>)}
-                </div>
-                <div className="pt-hilfen">
-                  {(st.versuche > 0 || (st.klicks || 0) >= 8) && <button type="button" className="pt-zeigen" onClick={zeigen}>{zw("Lösung zeigen", "Show solution")}</button>}
-                  <IchHaengeFest kontext={kontext} />
-                </div>
-              </div>
-            )}
-
-            {!fertig && teil && (
-              <div className="pt-teil" key={`${aufg.id}-${nr}`}>
-                {teil.art !== "regler" && <p className="pt-teilfrage"><MS s={teil.frage} /></p>}
-                {teil.art === "zahl" && (
-                  <div className="pt-eingabe">
-                    <ZahlZeile teil={teil} werte={st.werte} setWerte={(w) => setSt({ werte: w, text: "" })} onEnter={() => pruefen()} aus={st.fertig} status={st.text && st.versuche ? "falsch" : null} />
-                    <button type="button" className="pt-pruefen" onClick={() => pruefen()}>{zw("Prüfen", "Check")}</button>
-                  </div>
-                )}
-                {teil.art === "wahl" && !teil.kacheln && <WahlKnoepfe teil={teil} gewaehlt={st.werte} falsch={st.falsch} onWahl={(id) => pruefen(id)} aus={st.fertig} />}
-                {teil.art === "regler" && <ReglerTeil teil={teil} werte={st.werte} setWerte={(w) => setSt({ werte: w, klicks: (st.klicks || 0) + 1 })} aus={st.fertig} />}
-                {st.text && <p className="pt-rueck" role="status"><MS s={st.text} /></p>}
-              </div>
-            )}
-
-            {fertig && (
-              <div className="pt-geschafft">
-                <p className="pt-jubel" data-art={runde[runde.length - 1]}>
-                  {runde[runde.length - 1] === "perfekt" ? zw("Perfekt! ", "Perfect! ") : runde[runde.length - 1] === "geschafft" ? zw("Richtig! ", "Correct! ") : zw("Lösung angesehen. ", "Solution shown. ")}
-                  {plus ? <b>+{plus}</b> : null}
-                </p>
-                <button type="button" className="pt-weglink" aria-expanded={weg} onClick={() => setWeg(!weg)}>{weg ? zw("Rechenweg ausblenden", "Hide working") : zw("Rechenweg ansehen", "Show working")}</button>
-                {weg && <div className="pt-weg">{aufg.loesung.map((l, i) => <div key={i}><M t={l} /></div>)}</div>}
-                <button type="button" className="pt-weiter" onClick={weiterKlick}>
-                  {runde.length >= RUNDE ? zw("Zur Auswertung", "See results") : zw("Nächste Aufgabe", "Next task")} <span aria-hidden="true">→</span>
-                </button>
-              </div>
-            )}
-
+            {aufgabe}
           </div>
         </div>
       )}
@@ -460,12 +488,25 @@ export function ParabelTrainer() {
         {training && <FeinKarte><Kicker>{zw("Aufgabentyp", "Task type")}</Kicker>{typChips}</FeinKarte>}
       </div>
     );
+    /* Im Training stehen links auch Aufgabe und Eingaben – deshalb Modus, Stufe und Aufgabentyp in EINER kompakten Karte,
+       damit die Aufgabe ohne Scrollen im Bild ist */
+    const kopfTraining = (
+      <div className="pt-kopf">
+        {themaBox(false)}
+        <FeinKarte className="pt-einst">
+          {modusSeg}
+          <div className="pt-reihe">{stufeWahl}{wuerfel}</div>
+          {typChips}
+        </FeinKarte>
+      </div>
+    );
     return (
       <div className="pt-seite pt-desk" data-pt="breit">
         <style>{POP_CSS}</style>
         <style>{CSS}</style>
         <style>{PT_DESK_CSS}</style>
-        {training && <Arbeitsflaeche links={kopf} rechts={trainer} />}
+        {/* Training: links Kopf (Thema, Modus, Stufe, Aufgabentyp) und die ganze Aufgabe mit allen Eingaben, rechts das Schaubild */}
+        {training && <Training key={`${thema}`} thema={thema} typ={typOk} stufe={stufe} wurf={wurf} desktop links={kopfTraining} />}
         {kern && modus === "entdecken" && (
           <div className="pt-entdecken">{thema === "null" ? <NullstellenSeite kopf={kopf} /> : <ScheitelErkunden kopf={kopf} />}</div>
         )}
@@ -514,9 +555,13 @@ const PT_DESK_CSS = kompaktSpalteCss("pt-desk") + `
   .pt-desk .pt-chips{flex-wrap:wrap;overflow:visible;padding:0;gap:6px;justify-content:flex-start}
   .pt-desk .pt-chip{height:34px;padding:0 13px;font-size:13px}
   .pt-desk .pt-karte{background:#fff;border:1px solid ${C.linie};border-radius:16px;padding:18px 20px;box-shadow:none}
-  .pt-desk .pt-raster{display:flex;flex-direction:column;gap:14px}
-  .pt-desk .pt-bild,.pt-desk .pt-bild-gross{height:320px}
-  .pt-desk .pt-kacheln .pt-minibild{height:170px}
+  .pt-desk [data-pt-aufgabe]{padding:16px 18px}
+  .pt-desk .pt-einst{display:flex;flex-direction:column;gap:10px;padding:14px 16px}
+  .pt-desk .pt-kopf:has(.pt-einst) .pt-thema{min-height:64px;padding:6px}
+  .pt-desk-bild{position:sticky;top:76px}
+  .pt-desk .pt-desk-bild .pt-bild,.pt-desk .pt-desk-bild .pt-bild-gross{height:clamp(340px,calc(100dvh - 190px),520px);border-radius:16px}
+  .pt-desk .pt-kacheln{gap:10px}
+  .pt-desk .pt-kacheln .pt-minibild{height:clamp(160px,calc(50dvh - 100px),250px)}
   .pt-desk .pt-entdecken{max-width:none;margin:0}
 `;
 
