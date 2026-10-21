@@ -7,6 +7,7 @@ Prüft bei 360, 390 und 1280 px: keine Seitenüberbreite, keine Konsolenfehler, 
 """
 import os, json, datetime
 from playwright.sync_api import sync_playwright
+from startkarte_hilfe import schublade_auf
 
 BASE = os.environ.get("BASE_URL", "http://localhost:4173/")
 AUS = os.environ.get("SCREENS", "/tmp/ht")
@@ -38,8 +39,7 @@ with sync_playwright() as p:
             sw = page.evaluate("document.documentElement.scrollWidth")
             pruefe(sw <= breite, f"{breite}: Überbreite bei {wo}: {sw}")
 
-        page.get_by_role("heading", name="Dein Training startet hier.").scroll_into_view_if_needed()
-        if page.get_by_role("button", name="Dein Training aufklappen").count(): page.get_by_role("button", name="Dein Training aufklappen").click(); page.wait_for_timeout(200)
+        schublade_auf(page)
         page.get_by_role("button", name="G9").first.click(); page.wait_for_timeout(150)
         page.get_by_role("button", name="Klasse 9", exact=True).click(); page.wait_for_timeout(300)
 

@@ -131,17 +131,20 @@ function kopfleiste(doc, gross, untertitel = "Kurvendiskussion · Polynomplotter
   doc.rect(0, h, SEITE_B / 2, 1.1, "F");
   setzeFuell(doc, C.flaggold);
   doc.rect(SEITE_B / 2, h, SEITE_B / 2, 1.1, "F");
-  // Logo MATHESKRIPT.DE
+  // Wortmarke MYTHOSMATHE.DE (wie MarkenLogo: Weiß + Gold, Laufweite −0,02 em; im PDF volles Gold statt Verlauf)
   const gr = gross ? 17 : 12;
   doc.setFont("Sans", "bold");
   doc.setFontSize(gr);
   const y = gross ? 13 : 8.8;
+  const lauf = -0.02 * gr * 0.3528;   // em in mm
+  if (doc.setCharSpace) doc.setCharSpace(lauf);
   let x = RAND;
-  [["MATHE", C.granaHell], ["SKRIPT", C.weiss], [".DE", C.flaggold]].forEach(([t, f]) => {
+  [["MYTHOS", C.weiss], ["MATHE", C.flaggold], [".DE", C.weiss]].forEach(([t, f]) => {
     setzeText(doc, f);
     doc.text(t, x, y);
-    x += doc.getTextWidth(t);
+    x += doc.getTextWidth(t) + lauf * t.length;
   });
+  if (doc.setCharSpace) doc.setCharSpace(0);
   doc.setFont("Sans", "normal");
   doc.setFontSize(gross ? 9 : 8);
   setzeText(doc, C.goldText);

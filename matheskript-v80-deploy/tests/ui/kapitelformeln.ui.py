@@ -5,6 +5,7 @@ Prüft bei 360, 390 und 1280 px: keine Seitenüberbreite, keine Konsolenfehler, 
 """
 import json, os
 from playwright.sync_api import sync_playwright
+from startkarte_hilfe import schublade_auf
 
 BASE = os.environ.get("BASE_URL", "http://localhost:4173/")
 AUS = os.environ.get("SCREENS", "/tmp/kf")
@@ -76,9 +77,9 @@ with sync_playwright() as p:
             sw = page.evaluate("document.documentElement.scrollWidth")
             pruefe(sw <= breite, f"{breite}: Überbreite bei {wo}: {sw}")
 
-        # Der Quickfinder steckt in der Startkachel „Dein Training startet hier.“ – ggf. erst aufklappen
+        # Der Quickfinder steckt seit 21.10. in der Schublade der Start-Karte
         if page.get_by_role("group", name="Schulsystem wählen").count() == 0:
-            page.get_by_text("Dein Training startet hier.").first.click(); page.wait_for_timeout(600)
+            schublade_auf(page)
         g9 = page.get_by_role("group", name="Schulsystem wählen").get_by_role("button", name="G9")
         g9.scroll_into_view_if_needed(); g9.click(); page.wait_for_timeout(200)
         page.get_by_role("button", name="Klasse 12", exact=True).click(); page.wait_for_timeout(250)

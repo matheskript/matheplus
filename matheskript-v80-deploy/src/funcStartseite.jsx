@@ -30,9 +30,7 @@ import { HeadNumbersLogoKlein } from "./funcHeadNumbersLogo.jsx";
 import { GleichKursLogoKlein } from "./funcGleichKursLogo.jsx";
 import { EBB_KURZ, EbbinghausBadge, EbbinghausLogoKlein } from "./funcEbbinghaus.jsx";
 import { EntdeckenLogoKlein } from "./funcEntdeckenLogo.jsx";
-import { useLernpfad } from "./funcLernpfad.jsx";
-import { MeinTrainingKachel } from "./funcMeinTrainingKachel.jsx";
-import { StartOnboarding } from "./funcOnboarding.jsx";
+import { StartKarte } from "./funcStartKarte.jsx";
 import { Quickfinder } from "./funcQuickfinder.jsx";
 import { AppAnleitung } from "./funcAnleitung.jsx";
 import { SuchBox } from "./funcSuche.jsx";
@@ -262,6 +260,23 @@ html[data-start-edition="ger"] .app-wurzel { background: #FFFFFF !important; }
 .sbb-haken svg { width: 56%; height: 56%; }
 /* Suche als Pille in der Bühne (seit 21.10. statt des Knopfs „Jetzt eine Aufgabe rechnen“ und der eigenen Suchbox darunter) */
 .sbb-held-suche { margin-top: 26px; max-width: 520px; }
+/* Wiederkehrer (Klasse bekannt) am Handy: kompakte Bühne ohne Haken */
+.sbb-held.kompakt ul { display: none; }
+.sbb-held.kompakt .sbb-held-suche { margin-top: 20px; }
+/* Breite Bühne (ab 1100 px): Text links, Start-Karte rechts – so breit wie die Kopfleiste */
+.sbb-held-raster { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 1fr) 420px; column-gap: 40px; align-items: start;
+  width: 100%; max-width: 940px; margin: 0 auto; padding: 0 0 36px; }
+.sbb-held-raster > .sbb-spalte { max-width: none; margin: 0; padding: 18px 0 0; }
+.sbb-held.breit ul { grid-template-columns: 1fr; }
+.sbb-held-karte { position: relative; z-index: 2; }
+.sbb-held-karte .sk { margin-top: 0; }
+.sbb-held-karte [data-heute-karte] { margin-top: 0; background-color: #0A1838; }
+.sbb-held-karte .sk-konto { background: rgba(5,11,31,0.72); border-color: rgba(255,255,255,0.18); color: #FFFFFF; box-shadow: none; }
+.sbb-held-karte .sk-konto p { color: rgba(255,255,255,0.86); }
+.sbb-held-karte .sk-konto .k.hell { color: #FFFFFF; border-color: rgba(255,255,255,0.55); }
+.sbb-held.breit h1 { font-size: 58px; }
+.sbb-held-zone { margin: 0 0 10px; display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text); }
+.sbb-held-zone .nr { width: 26px; height: 26px; border-radius: 999px; display: inline-grid; place-items: center; font-size: 13px; letter-spacing: 0; color: ${NACHT}; background: ${GOLD}; }
 .sbb[data-modus="hell"] .sbb-held-suche .such-buehne-feld { box-shadow: 0 3px 16px rgba(15,26,51,0.07); }
 .sbb button:focus-visible { outline: 3px solid ${GOLD}; outline-offset: 3px; }
 
@@ -466,8 +481,8 @@ html[data-start-edition="ger"] .app-wurzel { background: #FFFFFF !important; }
 .sbb-schalter button { height: 30px; padding: 0 9px; border-radius: 999px; border: none; cursor: pointer; font-family: inherit; font-size: 12.5px; font-weight: 800; color: var(--nebel); background: transparent; display: inline-flex; align-items: center; gap: 6px; }
 .sbb-schalter button[aria-pressed="true"] { background: ${GOLD}; color: ${NACHT}; }
 .sbb-schalter button:focus-visible { outline: 3px solid ${GOLD}; outline-offset: 2px; }
-/* Handy (21.10.): die Pille schwebt nicht mehr über dem Inhalt, sondern steht am Ende der Startseite */
-@media (max-width: 839px) {
+/* Bis 1449 px (21.10.): die Pille schwebt nicht mehr über dem Inhalt (Handy und Laptop), sondern steht am Ende der Startseite */
+@media (max-width: 1449px) {
   .sbb-schalter { position: static; display: flex; width: max-content; max-width: calc(100vw - 24px); margin: 6px auto 22px; box-shadow: none; backdrop-filter: none; }
   .sbb-schalter button { padding: 0 8px; }
 }
@@ -654,26 +669,26 @@ function SchulKachel({ wahl, waehle }) {
   );
 }
 
-/* Dein Training: Kopfzeile mit Pfeil, aufgeklappt der Quickfinder auf einem weißen Blatt (wie in A, gleicher Sitzungsschlüssel) */
+/* Schublade der Start-Karte (21.10.): Kopfzeile „Thema · Plan · Tools · Videos“ mit Pfeil, aufgeklappt der Quickfinder auf einem weißen Blatt */
 function TrainingKachel({ gehe, setzeStufe }) {
   const [auf, setAuf] = useState(() => { try { return sessionStorage.getItem("matheplus-training-auf") === "1"; } catch { return false; } });
   const umschalten = () => setAuf((a) => { try { sessionStorage.setItem("matheplus-training-auf", a ? "0" : "1"); } catch { /* egal */ } return !a; });
   const titel = (
     <>
-      <h2 style={{ margin: 0, fontSize: "clamp(19px, 5.2vw, 25px)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.12, color: C.see }}>Dein Training startet hier.</h2>
+      <h2 style={{ margin: 0, fontSize: "clamp(19px, 5.2vw, 25px)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.12, color: C.see }}>Alles zu deiner Klasse</h2>
       <span aria-hidden="true" style={{ display: "block", width: 40, height: 3, borderRadius: 2, marginTop: 9, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${GOLD} 100%)` }} />
     </>
   );
   return (
     <div className={auf ? "sbb-karte sbb-training sbb-gold sbb-insel auf" : "sbb-karte sbb-training sbb-gold sbb-insel"}>
-      <button type="button" className="pfeil" onClick={umschalten} aria-expanded={auf} aria-label={auf ? "Dein Training zuklappen" : "Dein Training aufklappen"}>
+      <button type="button" className="pfeil" onClick={umschalten} aria-expanded={auf} aria-label={auf ? "Alles zu deiner Klasse zuklappen" : "Alles zu deiner Klasse aufklappen"}>
         <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 6 L8 10.5 L12.5 6" stroke={NACHT} strokeWidth="2.6" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
       </button>
       {auf ? (
         <div className="sbb-papier offen"><Quickfinder gehe={gehe} setzeStufe={setzeStufe} links={titel} /></div>
       ) : (
         <button type="button" className="kopfzeile" onClick={umschalten}>
-          <span><h2>Dein Training startet hier.</h2><p className="zeile">Tagesplan, Fortschritt, Übungsmodi. Alles an einem Ort.</p></span>
+          <span><h2>Alles zu deiner Klasse</h2><p className="zeile">Thema · Plan · Tools · Videos</p></span>
         </button>
       )}
     </div>
@@ -769,12 +784,26 @@ export function StartModusSchalter() {
   );
 }
 
+/* Breite Bühne (ab 1100 px): Start-Karte rechts in der Bühne, alles ohne Scrollen sichtbar */
+const BUEHNE_BREIT = "(min-width: 1100px)";
+function useBreiteBuehne() {
+  const lies = () => typeof window !== "undefined" && !!window.matchMedia && window.matchMedia(BUEHNE_BREIT).matches;
+  const [breit, setBreit] = useState(lies);
+  useEffect(() => {
+    if (!window.matchMedia) return undefined;
+    const m = window.matchMedia(BUEHNE_BREIT);
+    const h = () => setBreit(m.matches);
+    m.addEventListener ? m.addEventListener("change", h) : m.addListener(h);
+    return () => (m.removeEventListener ? m.removeEventListener("change", h) : m.removeListener(h));
+  }, []);
+  return breit;
+}
+
 /* ====================================================================== */
 
 export function Startseite({ gehe }) {
   const modus = useStartModus();
   const hell = modus === "hell";
-  const lernpfad = useLernpfad();
   const frei = useFrei();
   const [schulWahl, setSchulWahl] = useState(null);   // null | unter | mittel | ober | abi
   const schulAuf = schulWahl !== null;
@@ -783,6 +812,8 @@ export function Startseite({ gehe }) {
   const [etikett, setEtikett] = useState(null);
   const { stufe, setzen: stufeWaehlen, klasse } = useStartStufe();   // folgt der angegebenen Klasse (Konto, Quickfinder, Onboarding)
   const stufeSetzen = (w) => { stufeWaehlen(w); setBereichAuf(null); };
+  const breit = useBreiteBuehne();
+  const schublade = <div className="sbb-abschnitt" style={{ marginTop: 0 }}><TrainingKachel gehe={gehe} setzeStufe={stufeSetzen} /></div>;
   /* Die ganze App-Fläche folgt dem Modus: Hintergrund und Fußknöpfe (Regeln oben in CSS) */
   useEffect(() => {
     const d = document.documentElement;
@@ -806,8 +837,9 @@ export function Startseite({ gehe }) {
       <div className="sbb-licht" aria-hidden="true"><span className="l1" /><span className="l2" /><span className="l3" /></div>
 
       {/* ---------- Bühne ---------- */}
-      <section className="sbb-held sbb-insel" aria-label="Mythos Mathe">
+      <section className={["sbb-held", "sbb-insel", klasse && !breit ? "kompakt" : null, breit ? "breit" : null].filter(Boolean).join(" ")} aria-label="Mythos Mathe">
         <HeldKurve />
+        <div className={breit ? "sbb-held-raster" : undefined}>
         <div className="sbb-spalte sbb-held-text" style={{ paddingBottom: 0 }}>
           <h1>Mathe kann<span className="gold">jeder verstehen</span></h1>
           <p className="unter">Hier lernst du wie!</p>
@@ -819,21 +851,27 @@ export function Startseite({ gehe }) {
           {/* Kein Knopf „Jetzt eine Aufgabe rechnen“ mehr (21.10.): Mathilda bleibt über Menü und Kachel erreichbar; die Suche ist die Handlung der Bühne */}
           <div className="sbb-held-suche"><SuchBox gehe={gehe} buehne /></div>
         </div>
+        {breit && (
+          <div className="sbb-held-karte">
+            <p className="sbb-held-zone"><span className="nr">1</span>Heute trainierst du&nbsp;…</p>
+            <StartKarte gehe={gehe} setzeStufe={stufeSetzen} klasse={klasse} />
+          </div>
+        )}
+        </div>
         <Band />
       </section>
 
       <section className="sbb-teil"><div className="sbb-spalte">
         {/* ---------- Mein Mathe-Training (Tagesplan, Themen) · Dein Training startet hier (die Suche sitzt seit 21.10. in der Bühne) ---------- */}
-        <div className="sbb-abschnitt sbb-wieder" style={{ marginTop: 16 }}><MeinTrainingKachel gehe={gehe} /></div>
-        <div className="sbb-abschnitt" style={{ marginTop: 14 }}><TrainingKachel gehe={gehe} setzeStufe={stufeSetzen} /></div>
+        {/* ---------- 1 Heute: EINE Start-Karte (21.10.) statt „Mein Mathe-Training“ + „Dein Training startet hier.“ + Onboarding ---------- */}
+        {breit ? (klasse ? <div className="sbb-abschnitt" style={{ marginTop: 18 }}>{schublade}</div> : null) : (
+          <>
+            <Zone nr="1" titel={"Heute trainierst du\u00A0…"} />
+            <StartKarte gehe={gehe} setzeStufe={stufeSetzen} klasse={klasse} schublade={schublade} />
+          </>
+        )}
         <div className="sbb-wieder"><AbiZentrumKachel onClick={() => gehe({ ansicht: "abi" })} /></div>
 
-        {/* ---------- 1 Heute ---------- */}
-        <Zone nr="1" titel={"Heute trainierst du\u00A0…"} />
-        <div className="sbb-wieder">
-          <StartOnboarding gehe={gehe} setzeStufe={stufeSetzen} planDa={!!lernpfad} />
-          <WeitermachenZeile gehe={gehe} lack />
-        </div>
 
         {/* ---------- 2 Lernen (Anker „lernen“: Besuchermenü in der Kopfleiste) ---------- */}
         <div id="lernen" style={{ scrollMarginTop: 64 }} />
@@ -953,10 +991,11 @@ export function Startseite({ gehe }) {
       {/* Kurse */}
       <section className="sbb-teil"><div className="sbb-spalte">
         <Kopf titel="Jeder Kurs ein Baustein, zusammen ein System" />
+        {/* Nennt nur Kurse, die hier als Kachel stehen (21.10.); Videokurse erst, wenn ANGEBOT.kurse sie freischaltet */}
         <p className="sbb-text" style={{ marginBottom: 20 }}>
           {ANGEBOT.kurse
-            ? "Hinter den sieben Mathe-Mythen steckt dieselbe Lücke: Es fehlt nicht an Begabung, sondern an einer Arbeitsweise. Die Kurse unten schließen sie Stück für Stück. Der Mathe-Mindset-Kurs räumt das Denken auf, Kopfrechnen macht Zahlen schnell und sicher, und Ebbinghaus sorgt dafür, dass Gelerntes im richtigen Abstand wiederkommt und bleibt. Die Videokurse und die Masterclass führen dich danach Schritt für Schritt durch den Stoff bis zum Abitur."
-            : "Hinter den sieben Mathe-Mythen steckt dieselbe Lücke: Es fehlt nicht an Begabung, sondern an einer Arbeitsweise. Die Kurse unten schließen sie Stück für Stück. Der Mathe-Mindset-Kurs räumt das Denken auf, Kopfrechnen macht Zahlen schnell und sicher, und Ebbinghaus sorgt dafür, dass Gelerntes im richtigen Abstand wiederkommt und bleibt. Die Kurse zur Differentialrechnung sowie zu Vektoren, Geraden und Ebenen führen dich danach Schritt für Schritt durch den Stoff bis zum Abitur."}
+            ? "Hinter den sieben Mathe-Mythen steckt dieselbe Lücke: Es fehlt nicht an Begabung, sondern an einer Arbeitsweise. Die Kurse unten schließen sie Stück für Stück. Der Mathe-Mindset-Kurs räumt das Denken auf, die Unterstufe legt das Fundament der Klassen 5 und 6, und die Kurse zur Differentialrechnung sowie zu Vektoren, Geraden und Ebenen führen dich durch den Stoff bis zum Abitur. Dazu kommen das GFS-Training für deine Präsentation, die Videokurse und Mathe mit KI lernen."
+            : "Hinter den sieben Mathe-Mythen steckt dieselbe Lücke: Es fehlt nicht an Begabung, sondern an einer Arbeitsweise. Die Kurse unten schließen sie Stück für Stück. Der Mathe-Mindset-Kurs räumt das Denken auf, die Unterstufe legt das Fundament der Klassen 5 und 6, und die Kurse zur Differentialrechnung sowie zu Vektoren, Geraden und Ebenen führen dich durch den Stoff bis zum Abitur. Dazu kommen das GFS-Training für deine Präsentation und Mathe mit KI lernen."}
         </p>
         <div className="sbb-raster2">
           <Kachel gehe={gehe} titel="Mathe-Mindset-Kurs" label="Mathe-Mindset-Kurs öffnen" logo={<ElternkursLogoKlein />} ziel={{ ansicht: "elternkurs" }} weiter="Kurs öffnen"

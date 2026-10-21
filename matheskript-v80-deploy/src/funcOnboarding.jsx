@@ -114,7 +114,7 @@ function Zeile({ titel, unter, onClick, gold }) {
   );
 }
 
-function FuerDich({ o, gehe, neu, planDa }) {
+export function FuerDich({ o, gehe, neu, planDa }) {
   const name = { eltern: "Für Eltern", lehrkraft: "Für Lehrkräfte" }[o.rolle] || "Für dich";
   let inhalt;
   if (o.rolle === "eltern") inhalt = (<>

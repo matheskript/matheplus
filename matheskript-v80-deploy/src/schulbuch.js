@@ -111,7 +111,7 @@ export const THEMEN = {
   /* Kursstufe (Kapitel I–X wie im Lambacher Schweizer Kursstufe) */
   ksDiff: { titel: "Grundlagen der Differenzialrechnung", zeile: "Ketten- und Produktregel, Monotonie, Extrem- und Wendepunkte, Tangente", hilfen: [w("ableitungstrainer"), KURS_DIFF, BUCH_ABL, w("kurvendiskussion"), w("optimierung"), POTREGEL, FS_ANA] },
   ksExp: { titel: "Exponential- und Logarithmusfunktionen", zeile: "e-Funktion, ln, Umkehrfunktion, Wachstum", hilfen: [w("wachstum"), w("funktionen"), w("kurvendiskussion"), w("gleichungen"), FS_FKT] },
-  ksInt: { titel: "Integralrechnung", zeile: "Stammfunktion, Hauptsatz, Flächen, Rotationskörper", hilfen: [w("stammintegral"), w("integrale"), FS_ANA] },
+  ksInt: { titel: "Integralrechnung", zeile: "Stammfunktion, Hauptsatz, Flächen, Rotationskörper", hilfen: [w("integrale"), FS_ANA] },
   ksFkt: { titel: "Funktionen und ihre Graphen", zeile: "Transformationen, Asymptoten, trigonometrische Funktionen, Scharen", hilfen: [w("funktionen"), w("scharen"), w("kurvendiskussion"), w("sinus"), FS_FKT] },
   ksLgs: { titel: "Lineare Gleichungssysteme", zeile: "Gauß-Verfahren, Lösungsmengen, Funktionen bestimmen", hilfen: [w("lgs"), w("steckbrief"), KURS_VEK, FS_TERME] },
   ksGeraden: { titel: "Geraden und Ebenen", zeile: "Vektoren, Parameter- und Koordinatenform, Lagebeziehungen", hilfen: [w("vektorgenerator"), w("zweipunkte"), w("dreipunkte"), w("ebenen"), w("geraden"), w("ebenevsebene"), w("kreuzprodukt"), KURS_VEK, FS_VEK] },

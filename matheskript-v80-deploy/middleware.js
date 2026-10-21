@@ -4,7 +4,8 @@
    kommt aus der Umgebungsvariablen SEITEN_PASSWORT, sonst gilt "mathe".
    Zum Abschalten: SEITEN_SCHUTZ=aus in Vercel setzen (oder Datei löschen).
    ====================================================================== */
-import { next } from "@vercel/functions";
+import { next, rewrite } from "@vercel/functions";
+import { SEO_PFADE } from "./src/seo/pfade.js";
 
 const COOKIE = "mm_zugang";
 const COOKIE_WILLKOMMEN = "mm_willkommen";   // kurzes Cookie: die App zeigt danach 7 Sekunden die Willkommensseite (src/funcWillkommen.jsx)
@@ -125,13 +126,15 @@ const html = (inhalt, status = 200) => new Response(inhalt, {
    verkauft wird, hier frei herunterladbar. Die Seite „Dokumente“ (Arbeitsmenü F) verlinkt sie. */
 export const istGeschuetzteDatei = (p) => p.startsWith("/druck/") || /^\/buecher\/[a-z]+\/[^/]+\.pdf$/i.test(p);
 
-export default async function middleware(request) {
+async function zugang(request) {
   if ((process.env.SEITEN_SCHUTZ || "").toLowerCase() === "aus" && !istGeschuetzteDatei(new URL(request.url).pathname)) return next();
   // Öffentliche Formelseiten (scripts/formelseiten.mjs): nur mit FORMELN_OEFFENTLICH=ja ohne Passwort
   if ((process.env.FORMELN_OEFFENTLICH || "").toLowerCase() === "ja") {
     const p = new URL(request.url).pathname;
     if (p === "/formeln" || p.startsWith("/formeln/") || p === "/sitemap.xml" || p === "/robots.txt") return next();
   }
+  // Sitemap, robots.txt und llms.txt für Suchmaschinen und KI, sobald die Werkzeug-Seiten öffentlich sind (scripts/werkzeugseiten.mjs)
+  if ((process.env.SEO_OEFFENTLICH || "").toLowerCase() === "ja" && ["/sitemap.xml", "/robots.txt", "/llms.txt"].includes(new URL(request.url).pathname)) return next();
   // Stripe ruft den Webhook ohne Cookie auf; die Signatur prüft die Funktion selbst
   if (new URL(request.url).pathname === "/api/stripe/webhook") return next();
   // Vercel Cron (prüft CRON_SECRET selbst) und der Abmelde-Link aus der Eltern-Wochenmail
@@ -186,4 +189,31 @@ export default async function middleware(request) {
     return new Response(JSON.stringify({ error: { message: "Kein Zugang." } }), { status: 401, headers: { "content-type": "application/json" } });
   }
   return html(seite(url.pathname + url.search, false), 401);
+}
+
+
+/* ---------- Werkzeug-Seiten für Google und KI-Crawler (21.10.2026) ----------
+   · Freigegebene Seitenaufrufe auf /<werkzeug> bekommen die vorgerenderte Datei
+     dist/werkzeug-seiten/<pfad>.html (scripts/werkzeugseiten.mjs): dieselbe App, aber mit
+     Titel, Beschreibung, JSON-LD und dem Text als HTML – lesbar auch ohne JavaScript.
+   · Bis SEO_OEFFENTLICH=ja steht auf jeder Antwort X-Robots-Tag: noindex (früher fest in
+     vercel.json). Ausnahme wie bisher: Formelseiten mit FORMELN_OEFFENTLICH=ja. */
+const NOINDEX = "noindex, nofollow, noarchive, nosnippet, noimageindex";
+const seoAn = () => (process.env.SEO_OEFFENTLICH || "").toLowerCase() === "ja";
+const formelnAn = () => (process.env.FORMELN_OEFFENTLICH || "").toLowerCase() === "ja";
+export const werkzeugSeite = (pfad) => { const p = pfad.replace(/^\/+|\/+$/g, ""); return SEO_PFADE.has(p) ? p : null; };
+
+export default async function middleware(request) {
+  const antwort = await zugang(request);
+  const url = new URL(request.url);
+  let ergebnis = antwort;
+  const seite = request.method === "GET" && antwort.headers.get("x-middleware-next") === "1" ? werkzeugSeite(url.pathname) : null;
+  if (seite) {
+    const kopf = new Headers();
+    for (const [k, v] of antwort.headers) if (!k.startsWith("x-middleware-")) kopf.append(k, v);
+    ergebnis = rewrite(new URL(`/werkzeug-seiten/${seite}.html${url.search}`, request.url), { headers: kopf });
+  }
+  const formelSeite = url.pathname === "/formeln" || url.pathname.startsWith("/formeln/") || url.pathname === "/sitemap.xml" || url.pathname === "/robots.txt";
+  if (!seoAn() && !(formelnAn() && formelSeite) && !ergebnis.headers.has("x-robots-tag")) ergebnis.headers.set("x-robots-tag", NOINDEX);
+  return ergebnis;
 }

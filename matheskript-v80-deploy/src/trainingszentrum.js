@@ -59,7 +59,7 @@ export const PROGRAMME = [
       { art: "film", film: "stamm" },
       { art: "film", film: "integral" },
       { art: "aufgaben", gen: ["int-grenzen", "int-flaeche"] },
-      { art: "werkzeug", ansicht: "stammintegral" },
+      { art: "werkzeug", ansicht: "integrale" },
       { art: "auswertung" },
     ] },
   { id: "pen-paper", titel: "Auf Papier mit Mathilda", zeile: "Film zum Mathilda-Modus, dann drei Aufgaben aufs Blatt", bereich: "alle", stufe: "beide", dauer: 12, zeichen: "✎",

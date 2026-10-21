@@ -31,7 +31,6 @@ export const WZ_SLUG = {
   dreipunkte: "drei-punkte",
   geraden: "geraden-im-raum",
   ebenevsebene: "ebene-vs-ebene",
-  stammintegral: "stammfunktion",
   vierfelder: "vierfeldertafel",
 };
 
@@ -260,6 +259,8 @@ export function pfadAufloesen(roh) {
   if (blog && istBlogBeitrag(blog[1])) return { ansicht: "blog", seite: blog[1], kanonisch: true };
   const k56 = /^klasse-([56])$/.exec(p);
   if (k56) return { ansicht: "unterstufe", seite: `klasse-${k56[1]}`, kanonisch: false };
+  /* Zusammengelegt (21.10.): „Stammfunktion & Integral“ ist Teil des Integraltrainers – alte Links öffnen ihn bei „Stammfunktion“ */
+  if (p === "stammfunktion" || p === "stammintegral") return { ansicht: "integrale", uebenArt: "stamm", kanonisch: false };
   const bl = buchLinkAufloesen(p);   // QR-Codes der gedruckten Schulbücher: /b1/25-1, /b2/s17
   if (bl) return bl;
   const e = NACH_PFAD.get(p);

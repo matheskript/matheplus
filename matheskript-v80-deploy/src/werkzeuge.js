@@ -68,8 +68,6 @@ export const WERKZEUGE = {
     zeichen: "f(?)", bild: "steckbrief", ziel: { ansicht: "steckbrief" }, etikett: "trainieren", stufe: "ober" },
   optimierung: { name: "Optimierungswerkstatt", kurz: "Optimierung", zeile: "Schachtel, Fläche, eigener Ansatz", slogan: "Vom Text zur Zielfunktion – Schachtel, Fläche, eigener Ansatz.",
     zeichen: "max", bild: "optimierung", ziel: { ansicht: "optimierung" }, etikett: "trainieren", stufe: "ober" },
-  stammintegral: { name: "Stammfunktion & Integral", kurz: "Hauptsatz", zeile: "F bilden, ∫ₐᵇ mit dem Hauptsatz", slogan: "Stammfunktion bilden und Integrale mit dem Hauptsatz berechnen – Schritt für Schritt.",
-    zeichen: "F(b) − F(a)", bild: "hauptsatz", ziel: { ansicht: "stammintegral" }, etikett: "trainieren", stufe: "ober" },
   integrale: { name: "Integrale", kurz: "Integrale", zeile: "Stammfunktionen, Flächen, Bestand", slogan: "Stammfunktionen bilden, Flächen und Bestände berechnen.",
     zeichen: "∫", bild: "integral", ziel: { ansicht: "integrale" }, etikett: "trainieren", stufe: "ober" },
 
@@ -201,7 +199,7 @@ export const BEREICHE = [
       { id: "kennen", titel: "Kennen", zeile: "Die wichtigsten Funktionsklassen", werkzeuge: ["funktionen", "sinus", "wachstum"] },
       { id: "untersuchen", titel: "Untersuchen", zeile: "Ableiten und Kurven diskutieren", werkzeuge: ["ableitungstrainer", "kurvendiskussion", "scharen"] },
       { id: "bestimmen", titel: "Bestimmen", zeile: "Funktionen aufstellen und anwenden", werkzeuge: ["steckbrief", "optimierung"] },
-      { id: "integrieren", titel: "Integrieren", zeile: "Stammfunktionen, Flächen, Bestand", werkzeuge: ["stammintegral", "integrale"] },
+      { id: "integrieren", titel: "Integrieren", zeile: "Stammfunktionen, Flächen, Bestand", werkzeuge: ["integrale"] },
     ] },
   { id: "vektoren", titel: "Vektoren, Geraden und Ebenen", uebersicht: "vektoren", text: "Drei Stationen: rechnen, Geraden und Ebenen aufstellen, Lage und Abstand.",
     video: { name: "Videokurs Vektoren", zeile: "Fünf Lektionen mit Kurz-Checks" },

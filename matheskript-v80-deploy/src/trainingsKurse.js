@@ -89,7 +89,7 @@ export function aktuellerKurs(ansicht, stand = lies()) {
 }
 
 /* Reiter des Bands: die Trainer des Kurses; ist das aktive Werkzeug nicht dabei
-   (z. B. Stammfunktion & Integral), steht es zusätzlich am Ende. */
+   (z. B. ein Vektor-Werkzeug), steht es zusätzlich am Ende. */
 export function reiterFuer(k, aktivId) {
   const ids = k.werkzeuge.filter((id) => WERKZEUGE[id]);
   return aktivId && !ids.includes(aktivId) && WERKZEUGE[aktivId] ? [...ids, aktivId] : ids;

@@ -99,3 +99,13 @@ test("Jedes PDF unter public/buecher und public/druck steht in der Liste", async
   const eingetragen = new Set(DOKUMENTE.flatMap((d) => [d.datei, d.cover]).filter(Boolean));
   for (const p of pdfs) assert.ok(eingetragen.has(p), `${p} fehlt in DOKUMENTE`);
 });
+
+test("Öffentlich sind nur Leseproben – nie die ganzen Bücher", () => {
+  const offen = DOKUMENTE.filter((d) => d.oeffentlich);
+  assert.ok(offen.length >= 2, "Leseproben fehlen");
+  for (const d of offen) {
+    assert.ok(d.datei && d.datei.startsWith("/leseprobe/"), `${d.id}: öffentliche Datei liegt nicht unter /leseprobe/`);
+    assert.ok(d.seiten && d.seiten <= 12, `${d.id}: Leseprobe zu lang`);
+    assert.ok(existsSync(new URL(`../public${d.datei}`, import.meta.url)), `${d.id}: Datei fehlt`);
+  }
+});

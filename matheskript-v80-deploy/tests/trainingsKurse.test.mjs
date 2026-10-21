@@ -31,7 +31,7 @@ test("Wahl und Reiter", () => {
   assert.deepEqual(wahlUmschalten([KURSE[3]], "stochastik-ober"), []);
   const a = KURSE.find((k) => k.id === "analysis-ober");
   assert.deepEqual(reiterFuer(a, "ableitungstrainer"), a.werkzeuge);
-  assert.equal(reiterFuer(a, "stammintegral").at(-1), "stammintegral");
+  assert.equal(reiterFuer(a, "vektorgenerator").at(-1), "vektorgenerator");
   assert.ok(kursAnsichten().has("plotter"));
 });
 

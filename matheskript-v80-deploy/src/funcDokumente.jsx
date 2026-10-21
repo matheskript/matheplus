@@ -63,6 +63,8 @@ const STIL = `
   .dk-k:active{transform:scale(0.96)}
   .dk-k:focus-visible{outline:3px solid ${C.flaggold};outline-offset:2px}
   .dk-oeffnen{background:${GOLD_PILLE};color:#2A1F00;box-shadow:0 6px 16px -6px rgba(237,187,0,0.75),0 1px 0 rgba(255,255,255,0.6) inset}
+  .dk-bald{background:rgba(255,255,255,0.08);color:var(--dk-text);box-shadow:inset 0 0 0 1px rgba(255,153,0,0.55);cursor:default;white-space:nowrap}
+  .dk-amazon{background:#FF9900;color:#111;font-weight:800}
   .dk-laden{background:var(--dk-laden);color:#fff;box-shadow:0 6px 16px -6px var(--dk-ladenschatten),0 1px 0 rgba(255,255,255,0.35) inset}
   .dk-pfeil{margin-left:auto;width:34px;padding:0;flex:none;background:var(--dk-chip);border:1px solid var(--dk-chiprand);color:var(--dk-titel)}
   .dk-pfeil svg{transition:transform .25s ease}
@@ -148,6 +150,9 @@ function Karte({ d }) {
             <a className="dk-k dk-laden" href={d.datei} download={dateiName(d.datei)} data-dokument-laden aria-label={`${name} herunterladen`}>
               <IconLaden />Download
             </a>
+            {d.oeffentlich ? (d.amazon
+              ? <a className="dk-k dk-amazon" href={d.amazon} target="_blank" rel="noopener noreferrer" data-dokument-amazon>Bei Amazon</a>
+              : <span className="dk-k dk-bald" data-dokument-amazon>Bald auf Amazon</span>) : null}
             {d.cover ? (
               <a className="dk-k dk-laden" href={d.cover} download={dateiName(d.cover)} data-dokument-cover aria-label={`Cover zu ${name} herunterladen`}>
                 <IconLaden />Cover
@@ -177,11 +182,13 @@ function Karte({ d }) {
 
 /* Das Kartenraster allein (Stil inklusive) – von der Seite „Dokumente“ und vom Ende der Blog-Übersicht genutzt.
    eins = eine Spalte (im schmalen Blog-Streifen). */
-export function DokumenteKarten({ eins = false }) {
+export function DokumenteKarten({ eins = false, nur = null }) {
   React.useInsertionEffect(stilSetzen, []);
+  /* nur: "oeffentlich" = Leseproben (Blog ohne Passwort), "intern" = alles andere (Blog hinter dem Passwort), null = alle */
+  const liste = nur === "oeffentlich" ? DOKUMENTE.filter((d) => d.oeffentlich) : nur === "intern" ? DOKUMENTE.filter((d) => !d.oeffentlich) : DOKUMENTE;
   return (
-    <div className={eins ? "dk-gitter dk-gitter--eins" : "dk-gitter"} data-dokumente-karten>
-      {DOKUMENTE.map((d) => <Karte key={d.id} d={d} />)}
+    <div className={eins ? "dk-gitter dk-gitter--eins" : "dk-gitter"} data-dokumente-karten={nur || "alle"}>
+      {liste.map((d) => <Karte key={d.id} d={d} />)}
     </div>
   );
 }

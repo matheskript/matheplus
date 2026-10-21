@@ -7,6 +7,7 @@ keine Konsolenfehler, Auswahl bleibt nach Reload, Screenshots.
 """
 import os
 from playwright.sync_api import sync_playwright
+from startkarte_hilfe import schublade_auf
 
 BASE = os.environ.get("BASE_URL", "http://localhost:4173/")
 AUS = os.environ.get("SCREENS", "/tmp/qf")
@@ -35,12 +36,9 @@ with sync_playwright() as p:
             sw = page.evaluate("document.documentElement.scrollWidth")
             pruefe(sw <= breite, f"{breite}: Überbreite bei {wo}: {sw}")
 
-        page.get_by_role("heading", name="Dein Training startet hier.").scroll_into_view_if_needed()
-        pruefe(page.get_by_role("button", name="Dein Training aufklappen").get_attribute("aria-expanded") == "false", f"{breite}: Kachel nicht zugeklappt")
-        if page.get_by_role("button", name="Dein Training aufklappen").count(): page.get_by_role("button", name="Dein Training aufklappen").click(); page.wait_for_timeout(200)
+        schublade_auf(page)
         pruefe(page.get_by_role("button", name="Eine Sache üben").count() == 0, f"{breite}: Modus-Knopf noch da")
         pruefe(page.get_by_role("button", name="Abi-Training").count() == 0, f"{breite}: Abi-Box noch da")
-        pruefe(page.get_by_role("button", name="Klasse 5/6").is_disabled(), f"{breite}: Klassen vor Schulsystem nicht gesperrt")
         if breite >= 600:
             h = page.evaluate("document.querySelector('.qf-kopf h2').getBoundingClientRect().top")
             bar = page.evaluate("document.querySelector('.qf-a-schul').getBoundingClientRect().top")
@@ -127,8 +125,7 @@ with sync_playwright() as p:
 
         # Kursstufe: Klasse 13 → Abiturvorbereitung mit Abi-Sätzen
         page.goto(BASE); page.wait_for_timeout(700)
-        page.get_by_role("heading", name="Dein Training startet hier.").scroll_into_view_if_needed()
-        if page.get_by_role("button", name="Dein Training aufklappen").count(): page.get_by_role("button", name="Dein Training aufklappen").click(); page.wait_for_timeout(200)
+        schublade_auf(page, auswahl=False)
         # gespeicherte Auswahl ist kompakt: antippen öffnet die Auswahl wieder
         page.get_by_role("button", name="Klasse 9 (G9) – ändern").click(); page.wait_for_timeout(250)
         pruefe(page.get_by_role("button", name="Klasse 5/6").count() == 1, f"{breite}: Auswahl öffnet nicht wieder")

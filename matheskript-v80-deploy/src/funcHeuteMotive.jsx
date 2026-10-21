@@ -371,7 +371,7 @@ const MOTIVE = {
 
 /* Zusammenlegungen und Varianten auf dasselbe Motiv */
 const GLEICH = {
-  advplotter: "kurvendiskussion", plotter: "kurvendiskussion", stammintegral: "integrale", gleichverstehen: "gleichungen",
+  advplotter: "kurvendiskussion", plotter: "kurvendiskussion", gleichverstehen: "gleichungen",
   scharen: "kurvendiskussion", optimierung: "integrale", dreipunkteebene: "dreipunkte",
 };
 

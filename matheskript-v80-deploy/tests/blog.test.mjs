@@ -49,7 +49,9 @@ test("Ende der Übersicht: Dokumente-Karten mit allen Knöpfen, erst nach dem Pa
   const b = quelle("funcBlog.jsx");
   assert.ok(b.includes("data-blog-dokumente") && b.includes("data-blog-dokumente-tor"));
   assert.match(b, /lazy\(\(\) => import\("\.\/funcDokumente\.jsx"\)/, "Karten müssen lazy hinter dem Passwort laden");
-  assert.match(b, /\{frei \? \(\s*<Suspense fallback=\{null\}><DokumenteKarten eins \/>/);
+  assert.match(b, /\{frei \? \(\s*<Suspense fallback=\{null\}><DokumenteKarten eins nur="intern" \/>/);
+  // Leseproben stehen ohne Passwort davor – nie ganze Bücher (die gibt es nur auf Amazon)
+  assert.ok(b.indexOf('nur="oeffentlich"') < b.indexOf("{frei ?"), "Leseproben fehlen vor dem Passwort");
   // der Abschnitt steht in der Übersicht nach „Alle Beiträge“, nicht im einzelnen Beitrag
   const liste = b.slice(b.indexOf("data-blog-liste"));
   assert.ok(liste.indexOf("bl-alle") < liste.indexOf("<BlogDokumente />"), "Dokumente stehen nicht unter „Alle Beiträge“");

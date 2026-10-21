@@ -260,3 +260,10 @@ test("Bestimmtes Integral: Grenzen meist nicht bei 0 und f an den Rändern meist
     assert.ok(Fa0 < N * 0.4, `bestimmt/${stufe}: zu oft F(a) = 0 (${Fa0}/${N})`);
   }
 });
+
+test("„Stammfunktion & Integral“ ist im Integraltrainer aufgegangen (21.10.)", async () => {
+  const { pfadAufloesen } = await import("../src/pfade.js");
+  for (const alt of ["/stammfunktion", "/stammintegral"]) assert.deepEqual(pfadAufloesen(alt), { ansicht: "integrale", uebenArt: "stamm", kanonisch: false });
+  const { WERKZEUGE } = await import("../src/werkzeuge.js");
+  assert.ok(!WERKZEUGE.stammintegral, "altes Werkzeug steht noch in der Liste");
+});

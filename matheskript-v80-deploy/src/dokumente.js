@@ -10,6 +10,8 @@
      - reihe: kleine Goldzeile über dem Titel (Reihe/Band, z. B. „Schulbuch Band 2“); titel: nur der eigentliche Titel, groß in Weiß.
      - seiten: Zahl, oder null, wenn die Seitenzahl noch offen ist.
      - zwecke: Kurzmarken, jede aus ZWECK_MARKEN.
+     - oeffentlich: true = steht auf dem Blog auch ohne Passwort (nur Leseproben – nie ganze Bücher, sie werden auf Amazon verkauft).
+     - amazon: Link zur Amazon-Seite; bei Leseproben ohne Link zeigt die Karte „Bald auf Amazon“.
      - farbe: Lack der Karte (eine aus FARBEN, Paletten in kursFarben.js), motiv: Bild rechts oben (funcDokumentMotive.jsx).
    VERTRAULICHE Dokumente (Businessplan, Finanzplan) nicht unter public/ legen:
    alles in public/ ist für jeden mit dem direkten Link abrufbar, sobald der Seitenschutz aus ist.
@@ -21,6 +23,36 @@ export const ZWECK_MARKEN = ["Amazon", "Hier auf der Seite", "Investoren", "Inte
 export const FARBEN = ["porzellan", "tiefblau", "granat", "lackschwarz", "nachtblau"];
 
 export const DOKUMENTE = [
+  {
+    id: "leseprobe-ableitungen",
+    farbe: "nachtblau",
+    motiv: "tangente",
+    reihe: "Leseprobe · Schulbuch Band 1",
+    titel: "Ableitungen",
+    art: "PDF · Inhalt und Kapitel I",
+    seiten: 10,
+    zwecke: ["Hier auf der Seite"],
+    zweck: "Öffentliche Leseprobe für den Blog: Titel, Inhalt und Kapitel I „Geraden und Änderungsraten“ samt Training I (Seiten 1–10 des Schulbuchs). Das ganze Buch gibt es nur auf Amazon.",
+    stand: "21.10.2026",
+    datei: "/leseprobe/Ableitungen-Leseprobe.pdf",
+    oeffentlich: true,
+    amazon: null,
+  },
+  {
+    id: "leseprobe-vektoren",
+    farbe: "tiefblau",
+    motiv: "ebene",
+    reihe: "Leseprobe · Schulbuch Band 2",
+    titel: "Vektoren, Geraden und Ebenen",
+    art: "PDF · Inhalt und Kapitel I",
+    seiten: 10,
+    zwecke: ["Hier auf der Seite"],
+    zweck: "Öffentliche Leseprobe für den Blog: Titel, Inhalt und Kapitel I „Geraden und Gleichungssysteme“ samt Training I (Seiten 1–10 des Schulbuchs). Das ganze Buch gibt es nur auf Amazon.",
+    stand: "21.10.2026",
+    datei: "/leseprobe/Vektoren-Leseprobe.pdf",
+    oeffentlich: true,
+    amazon: null,
+  },
   {
     id: "schulbuch-ableitungen",
     farbe: "porzellan",

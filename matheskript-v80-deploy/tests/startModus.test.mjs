@@ -39,9 +39,22 @@ test("Die Startseite führt zu allen Angeboten", () => {
   for (const z of ["headnumbers", "gleichkurs", "ebbinghaus", "analyse", "penpaperkurs", "elternkurs", "kurse", "diffkurs", "vekkurs", "gfs", "kiwahl", "efunktion", "abi", "elternabend"]) {
     assert.ok(q.includes(`ansicht: "${z}"`), `Startseite kennt das Ziel „${z}“ nicht`);
   }
-  for (const b of ["<Quickfinder", "<SuchBox", "<StartOnboarding", "<WeitermachenZeile", "<UnterMenue", "<SchulKachel", "<EtikettKnoepfe", "ENTDECKEN_MENUE", "MYTHEN", "<MeinTrainingKachel", "<AppAnleitung", "<SpendenBereich"]) {
+  for (const b of ["<Quickfinder", "<SuchBox", "<StartKarte", "<UnterMenue", "<SchulKachel", "<EtikettKnoepfe", "ENTDECKEN_MENUE", "MYTHEN", "<AppAnleitung", "<SpendenBereich"]) {
     assert.ok(q.includes(b), `Startseite ohne ${b}`);
   }
+});
+
+test("Start-Karte: ein Einstieg statt drei Boxen, Klasse nur einmal gefragt", () => {
+  const q = quelle("funcStartseite.jsx");
+  /* Zwei Stellen, nie beide zugleich: ab 1100 px in der Bühne, darunter unter Zone 1 */
+  assert.equal((q.match(/<StartKarte /g) || []).length, 2, "Start-Karte an zwei Stellen (Bühne breit / Zone 1 schmal)");
+  assert.ok(/\{breit && \(\s*<div className="sbb-held-karte">/.test(q) && q.includes("{breit ? (klasse ?"), "Start-Karte hängt nicht an der Breite");
+  for (const alt of ["<MeinTrainingKachel", "<StartOnboarding", "Dein Training startet hier.</h2>", "sbb-einleitung"]) assert.ok(!q.includes(alt), `Startseite enthält noch ${alt}`);
+  const k = quelle("funcStartKarte.jsx");
+  for (const b of ["<HeuteKarte", "<WeitermachenZeile", "<KontoZeile", "<FuerDich", "In welcher Klasse bist du?", "data-testkonto"]) assert.ok(k.includes(b), `Start-Karte ohne ${b}`);
+  /* Die Klassenwahl schreibt Quickfinder UND Onboarding – sonst fragt einer von beiden noch einmal */
+  assert.ok(/function klasseSpeichern[\s\S]*Q_SCHLUESSEL[\s\S]*O_SCHLUESSEL/.test(k), "klasseSpeichern schreibt nicht beide Speicher");
+  assert.ok(!quelle("funcOnboarding.jsx").includes("Schüler:in"), "Gendersprache im Onboarding");
 });
 
 test("Bühne: Suche als Pille statt Knopf „Jetzt eine Aufgabe rechnen“, keine zweite Suchbox", () => {
@@ -61,7 +74,7 @@ test("Alle drei Modi sind im Stil definiert, die Wahl hängt am Wurzelelement un
   /* Mix: Inseln und Streifen tragen ihre Klassen */
   assert.ok(q.includes('.sbb[data-modus="mix"] .sbb-insel'), "Inseln ohne dunklen Variablensatz");
   assert.ok((q.match(/sbb-streifen sbb-insel/g) || []).length >= 2, "weniger als zwei dunkle Streifen");
-  assert.ok(q.includes('className="sbb-held sbb-insel"'), "Bühne ist keine Insel");
+  assert.ok(q.includes('["sbb-held", "sbb-insel",'), "Bühne ist keine Insel");
   assert.ok(q.includes('data-modus={basisModus(modus)} data-edition={editionVon(modus)}'));
   const r = quelle("func10.jsx");
   assert.ok(r.includes("<StartModusSchalter />"), "Pille zum Umschalten fehlt");

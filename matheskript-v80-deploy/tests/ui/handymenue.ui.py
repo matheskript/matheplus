@@ -6,6 +6,7 @@ Bei 1280 bleibt der Plan-Modus wie bisher.
 """
 import os, json
 from playwright.sync_api import sync_playwright
+from startkarte_hilfe import schublade_auf
 
 BASE = os.environ.get("BASE_URL", "http://localhost:4173/")
 AUS = os.environ.get("SCREENS", "/tmp/hm")
@@ -29,7 +30,7 @@ with sync_playwright() as p:
         page.goto(BASE)
         page.evaluate("(s) => { localStorage.clear(); sessionStorage.clear(); localStorage.setItem('mm-onboarding-v1', JSON.stringify({uebersprungen:true})); localStorage.setItem('matheplus-quickfinder', s); sessionStorage.setItem('matheplus-training-auf','1'); }", SPEICHER)
         page.reload(); page.wait_for_timeout(900)
-        page.get_by_role("heading", name="Dein Training startet hier.").scroll_into_view_if_needed()
+        schublade_auf(page)
 
         if handy:
             pruefe(page.get_by_text("Themen für deinen Plan").count() == 0, f"{breite}: Plan-Auswahl noch da")

@@ -26,7 +26,6 @@ export const TOOL_SAETZE = {
   scharen: { de: "Funktionsscharen erkunden", en: "explore families of functions" },
   steckbrief: { de: "Steckbriefaufgaben lösen", en: "solve “find the function” problems" },
   optimierung: { de: "Extremwertaufgaben lösen", en: "solve optimisation problems" },
-  stammintegral: { de: "Stammfunktionen und Integrale üben", en: "practise antiderivatives and integrals" },
   integrale: { de: "Integrale und Flächen berechnen", en: "calculate integrals and areas" },
   vektorgenerator: { de: "mit Vektoren rechnen", en: "calculate with vectors" },
   kreuzprodukt: { de: "das Kreuzprodukt rechnen", en: "calculate the cross product" },

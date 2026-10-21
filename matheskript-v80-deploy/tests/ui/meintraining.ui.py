@@ -5,6 +5,7 @@ Woche, Stand. Prüft bei 360, 390 und 1280 px: keine Seitenüberbreite, keine Ko
 """
 import os, sys
 from playwright.sync_api import sync_playwright
+from startkarte_hilfe import schublade_auf
 
 BASE = os.environ.get("BASE_URL", "http://localhost:4173/")
 AUS = os.environ.get("SCREENS", "/tmp/mt")
@@ -33,10 +34,11 @@ with sync_playwright() as p:
             sw = page.evaluate("document.documentElement.scrollWidth")
             pruefe(sw <= breite, f"{breite}: Überbreite bei {wo}: {sw}")
 
-        # Startseite: Kachel ganz oben, ohne Konto mit Anmelden und Test-Account
-        kachel = page.locator("[data-start-meintraining]")
-        pruefe(kachel.count() == 1, f"{breite}: Kachel „Mein Mathe-Training“ fehlt")
-        pruefe(kachel.get_by_role("button", name="Test-Account starten").count() == 1, f"{breite}: Test-Account-Knopf fehlt")
+        # Startseite (seit 21.10. Start-Karte): nach der Klassenwahl ohne Konto die Zeile mit Anmelden und Test-Account
+        schublade_auf(page, auswahl=False)
+        kachel = page.locator("[data-startkarte='gast']")
+        pruefe(kachel.count() == 1, f"{breite}: Konto-Zeile der Start-Karte fehlt")
+        pruefe(kachel.locator("[data-testkonto]").count() == 1, f"{breite}: Test-Account-Knopf fehlt")
         breite_ok("Startseite")
         page.screenshot(path=f"{AUS}/{breite}-1-start.png")
 
@@ -106,8 +108,9 @@ with sync_playwright() as p:
 
         # Startseite angemeldet: Kachel zeigt Stand; Hauptmenü hat „Mein Mathe-Training“
         page.goto(BASE); page.wait_for_timeout(900)
-        pruefe(page.locator("[data-start-meintraining]").get_by_text("Themen in Arbeit").count() == 1, f"{breite}: Kachel zeigt keinen Stand")
-        pruefe(page.locator("[data-start-meintraining]").get_by_role("button", name="Zum Tagesplan ›").count() == 1, f"{breite}: Knopf zum Tagesplan fehlt")
+        konto = page.locator("[data-startkarte='konto']")
+        pruefe(konto.get_by_text("Mein Mathe-Training").count() == 1, f"{breite}: Start-Karte zeigt keinen Stand")
+        pruefe(konto.get_by_role("button", name="Tagesplan ›").count() == 1, f"{breite}: Knopf zum Tagesplan fehlt")
         breite_ok("Startseite angemeldet")
         page.screenshot(path=f"{AUS}/{breite}-6-start-angemeldet.png")
 

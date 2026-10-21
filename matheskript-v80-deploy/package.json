@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && node scripts/formelseiten.mjs",
+    "build": "vite build && node scripts/formelseiten.mjs && node scripts/werkzeugseiten.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

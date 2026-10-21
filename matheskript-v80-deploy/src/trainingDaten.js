@@ -51,7 +51,7 @@ export const THEMEN = {
   brueche:    { name: "Bruchrechnen", gruppe: "Grundlagen", grund: true, tools: [{ ansicht: "kopf", trainer: "bruchrechnen", name: "Bruchrechnen (Kopfrechnen)" }] },
   terme:      { name: "Terme und binomische Formeln", gruppe: "Grundlagen", grund: true, tools: [{ ansicht: "terme", name: "Terme und Potenzgesetze" }] },
   kurven:     { name: "Kurvendiskussion", gruppe: "Analysis", grund: false, tools: [{ ansicht: "plotter", name: "Polynomplotter" }] },
-  integrale:  { name: "Integrale", gruppe: "Analysis", grund: false, tools: [{ ansicht: "stammintegral", name: "Stammfunktion & Integral" }, { ansicht: "integrale", name: "Integrale" }] },
+  integrale:  { name: "Integrale", gruppe: "Analysis", grund: false, tools: [{ ansicht: "integrale", name: "Integrale" }] },
   bernoulli:  { name: "Bernoulli-Ketten", gruppe: "Stochastik", grund: false, tools: [{ ansicht: "bernoulli", name: "Bernoulli-Kette" }] },
   vektoren:   { name: "Vektoren und Winkel", gruppe: "Vektoren", grund: false, tools: [{ ansicht: "winkel", name: "Winkel und Skalarprodukt" }, { ansicht: "vektorgenerator", name: "Rechnen mit Vektoren" }] },
   /* Grundlagen der Mittelstufe (Basisübungen für Quickfinder und Trainingsplan) */
@@ -1449,7 +1449,7 @@ export function klausurPlan(auswertung) {
 }
 
 /* ---------- Prüfungsmodus von einer Fachseite aus: passende Themen zur Ansicht ---------- */
-const ANSICHT_THEMA = { ableitungstrainer: "ableiten", plotter: "kurven", advplotter: "kurven", integrale: "integrale", stammintegral: "integrale", gleichungen: "gleichungen", lgs: "gleichungen", gleichverstehen: "gleichungen", terme: "terme", bernoulli: "bernoulli" };
+const ANSICHT_THEMA = { ableitungstrainer: "ableiten", plotter: "kurven", advplotter: "kurven", integrale: "integrale", gleichungen: "gleichungen", lgs: "gleichungen", gleichverstehen: "gleichungen", terme: "terme", bernoulli: "bernoulli" };
 const VEKTOR_ANSICHTEN = ["vektoren", "ebenen", "ebenevsebene", "kreuzprodukt", "vektorgenerator", "zweipunkte", "dreipunkte", "abstaende", "geraden", "winkel"];
 export function pruefungsThemen(ansicht) {
   if (ANSICHT_THEMA[ansicht]) return [ANSICHT_THEMA[ansicht]];

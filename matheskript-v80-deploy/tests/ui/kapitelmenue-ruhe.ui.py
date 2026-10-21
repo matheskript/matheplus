@@ -5,6 +5,7 @@ Prüft bei 360, 390 und 1280 px, auch mit Kapitel-Wechsel nach oben und nach unt
 """
 import os, sys
 from playwright.sync_api import sync_playwright
+from startkarte_hilfe import schublade_auf
 
 BASE = os.environ.get("BASE_URL", "http://localhost:4173/")
 fehler = []
@@ -25,9 +26,7 @@ with sync_playwright() as p:
         page.evaluate("localStorage.clear(); sessionStorage.clear(); localStorage.setItem('mm-onboarding-v1', JSON.stringify({uebersprungen:true}));")
         page.reload(); page.wait_for_timeout(800)
 
-        page.get_by_role("heading", name="Dein Training startet hier.").scroll_into_view_if_needed()
-        if page.get_by_role("button", name="Dein Training aufklappen").count():
-            page.get_by_role("button", name="Dein Training aufklappen").click(); page.wait_for_timeout(200)
+        schublade_auf(page)
         page.get_by_role("button", name="G9").first.click(); page.wait_for_timeout(150)
         page.get_by_role("button", name="Klasse 7", exact=True).click(); page.wait_for_timeout(400)
 

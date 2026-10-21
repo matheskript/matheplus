@@ -33,24 +33,27 @@ with sync_playwright() as p:
         # ohne Passwort: nur das kleine Feld, keine Karte, keine Datei-Links
         pruefe(page.locator("[data-blog-dokumente]").count() == 1, f"{tag}: Dokumente-Abschnitt fehlt")
         pruefe(page.locator("[data-blog-dokumente-tor]").count() == 1, f"{tag}: Passwortfeld fehlt")
-        pruefe(page.locator("[data-dokument]").count() == 0, f"{tag}: Karten ohne Passwort sichtbar")
-        pruefe(page.locator("a[href*='/druck/'], a[href*='.pdf']").count() == 0, f"{tag}: PDF-Links ohne Passwort im DOM")
+        # Ohne Passwort (seit 21.10.): nur die zwei Leseproben mit „Bald auf Amazon“ – nie die ganzen Bücher
+        pruefe(page.locator("[data-dokument]").count() == 2, f"{tag}: ohne Passwort {page.locator('[data-dokument]').count()} Karten statt 2 Leseproben")
+        pruefe(page.locator("[data-dokument-amazon]").count() == 2, f"{tag}: „Bald auf Amazon“ fehlt")
+        pruefe(page.locator("a[href*='/druck/'], a[href*='/buecher/']").count() == 0, f"{tag}: Buch-PDF-Links ohne Passwort im DOM")
+        pruefe(all(h.startswith("/leseprobe/") for h in page.locator("a[href*='.pdf']").evaluate_all("as => as.map(a => a.getAttribute('href'))")), f"{tag}: öffentliche PDF-Links außerhalb /leseprobe/")
         # steht unter „Alle Beiträge“
         pruefe(page.evaluate("document.querySelector('[data-blog-dokumente]').getBoundingClientRect().top > document.querySelector('.bl-alle').getBoundingClientRect().bottom - 1"), f"{tag}: Dokumente nicht unter „Alle Beiträge“")
         # falsches Passwort
         tor = page.locator("[data-blog-dokumente-tor]")
         tor.locator("input").fill("falsch"); tor.locator("button[type=submit]").click(); page.wait_for_timeout(300)
         pruefe(page.locator("[data-blog-dokumente-tor] [role=alert]").count() == 1, f"{tag}: kein Hinweis bei falschem Passwort")
-        pruefe(page.locator("[data-dokument]").count() == 0, f"{tag}: Karten trotz falschem Passwort")
+        pruefe(page.locator("[data-dokument]").count() == 2, f"{tag}: Karten trotz falschem Passwort")
         # richtiges Passwort
         tor.locator("input").fill(PW); tor.locator("button[type=submit]").click(); page.wait_for_timeout(1500)
         pruefe(page.locator("[data-blog-dokumente-tor]").count() == 0, f"{tag}: Passwortfeld bleibt stehen")
-        pruefe(page.locator("[data-blog-dokumente] [data-dokument]").count() == 9, f"{tag}: {page.locator('[data-dokument]').count()} Karten statt 9")
-        pruefe(page.locator("[data-dokument-oeffnen]").count() == 5 and page.locator("[data-dokument-laden]").count() == 5, f"{tag}: Öffnen/Download-Knöpfe")
+        pruefe(page.locator("[data-blog-dokumente] [data-dokument]").count() == 11, f"{tag}: {page.locator('[data-dokument]').count()} Karten statt 2 + 9")
+        pruefe(page.locator("[data-dokument-oeffnen]").count() == 7 and page.locator("[data-dokument-laden]").count() == 7, f"{tag}: Öffnen/Download-Knöpfe")
         cov = page.locator("[data-dokument-cover]")
         pruefe(cov.count() == 2, f"{tag}: {cov.count()} Cover-Knöpfe statt 2")
-        pruefe(page.locator("[data-dokument-laden]").first.get_attribute("download") == "Ableitungen.pdf", f"{tag}: Download-Name")
-        pruefe(page.locator("[data-dokument-oeffnen]").first.get_attribute("href") == "/buecher/ableitungen/Ableitungen.pdf", f"{tag}: PDF-Link")
+        pruefe(page.locator("[data-dokument='schulbuch-ableitungen'] [data-dokument-laden]").get_attribute("download") == "Ableitungen.pdf", f"{tag}: Download-Name")
+        pruefe(page.locator("[data-dokument='schulbuch-ableitungen'] [data-dokument-oeffnen]").get_attribute("href") == "/buecher/ableitungen/Ableitungen.pdf", f"{tag}: PDF-Link")
         # alle Knöpfe aller Karten liegen im Kartenrahmen
         pruefe(page.evaluate("[...document.querySelectorAll('[data-dokument]')].every(k => { const r = k.getBoundingClientRect(); return [...k.querySelectorAll('.dk-k')].every(x => { const q = x.getBoundingClientRect(); return q.left >= r.left - 1 && q.right <= r.right + 1; }); })"), f"{tag}: Knöpfe ragen aus der Karte")
         # Karten liegen innerhalb des Blog-Streifens, eine Spalte

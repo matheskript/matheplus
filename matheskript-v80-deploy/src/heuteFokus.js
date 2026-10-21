@@ -65,11 +65,9 @@ export const EINHEITEN = {
     { id: "extrem", titel: "Hoch- und Tiefpunkte", kurz: "Extrempunkte", inhalt: ["$f′(x) = 0$", "$f″$ entscheidet", "y-Wert einsetzen"], aufgaben: 1, min: 10 },
     { id: "wende", titel: "Wendepunkte und Krümmung", kurz: "Wendepunkte", inhalt: ["$f″(x) = 0$", "$f‴ ≠ 0$", "Wendetangente"], aufgaben: 1, min: 10 },
   ],
-  stammintegral: [
-    { id: "stamm", titel: "Stammfunktionen bilden", kurz: "Stammfkt.", inhalt: ["Hochzahl plus 1", "durch neue Hochzahl", "$+ C$"], aufgaben: 4, min: 8 },
-    { id: "hauptsatz", titel: "Integral mit dem Hauptsatz", kurz: "Hauptsatz", inhalt: ["$F$ bilden", "$F(b) − F(a)$", "sauber einsetzen"], aufgaben: 3, min: 10 },
-  ],
   integrale: [
+    { id: "stamm", art: "stamm", titel: "Stammfunktionen bilden", kurz: "Stammfkt.", inhalt: ["Hochzahl plus 1", "durch neue Hochzahl", "$+ C$"], aufgaben: 4, min: 8 },
+    { id: "hauptsatz", art: "bestimmt", titel: "Integral mit dem Hauptsatz", kurz: "Hauptsatz", inhalt: ["$F$ bilden", "$F(b) − F(a)$", "sauber einsetzen"], aufgaben: 3, min: 10 },
     { id: "flaeche", titel: "Flächen mit Vorzeichenwechsel", kurz: "Flächen", inhalt: ["Nullstellen zuerst", "Teilflächen", "Beträge addieren"], aufgaben: 3, min: 10 },
     { id: "zwischen", titel: "Fläche zwischen zwei Graphen", kurz: "Zwischen", inhalt: ["Schnittstellen", "$\\int (f − g)\\,dx$", "oben minus unten"], aufgaben: 3, min: 10 },
     { id: "bestand", titel: "Bestand aus Änderungsrate", kurz: "Bestand", inhalt: ["Anfangsbestand", "+ Integral", "Einheiten lesen"], aufgaben: 3, min: 10 },

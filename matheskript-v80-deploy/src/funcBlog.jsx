@@ -270,9 +270,12 @@ function BlogDokumente() {
   };
   return (
     <section className="bl-dok" aria-label="Dokumente" data-blog-dokumente>
-      <h3>Dokumente</h3>
+      <h3>Leseproben</h3>
+      {/* Öffentlich: nur Leseproben (Titel, Inhalt, Kapitel I) – die ganzen Bücher gibt es nur auf Amazon */}
+      <Suspense fallback={null}><DokumenteKarten eins nur="oeffentlich" /></Suspense>
+      <h3 style={{ marginTop: 26 }}>Dokumente</h3>
       {frei ? (
-        <Suspense fallback={null}><DokumenteKarten eins /></Suspense>
+        <Suspense fallback={null}><DokumenteKarten eins nur="intern" /></Suspense>
       ) : (
         <form className="bl-dok-tor" onSubmit={pruefen} data-blog-dokumente-tor>
           <p>Die Dokumente sind noch nicht öffentlich. Mit dem Passwort erscheinen sie hier.</p>

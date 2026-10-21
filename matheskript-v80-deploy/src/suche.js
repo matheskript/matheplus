@@ -127,7 +127,6 @@ const WZ_WOERTER = {
   sinus: "sinus kosinus cosinus trigonometrie periode amplitude schwingung winkelfunktion bogenmaß sin cos",
   wachstum: "exponentielles wachstum zerfall halbwertszeit verdopplungszeit logarithmus log ln e-funktion exponentialfunktion zinsen prozent",
   ableitungstrainer: "ableiten ableitung differenzieren kettenregel produktregel quotientenregel reziprokenregel potenzregel summenregel faktorregel regel-werkstatt werkstatt kombo kombination gold level",
-  stammintegral: "stammfunktion aufleiten integrieren integral hauptsatz bestimmtes integral grenzen F(b) F(a) substitution",
   kurvendiskussion: "funktionsuntersuchung nullstellen extrempunkte extremstellen extremwerte hochpunkt tiefpunkt wendepunkt monotonie krümmung symmetrie grenzverhalten asymptote polynom ganzrationale funktion graph plotter ableitungen definitionsbereich polstelle polynomdivision",
   scharen: "parameter funktionenschar ortskurve ortslinie schar ft fa",
   steckbrief: "steckbriefaufgabe funktion bestimmen rekonstruktion lgs bedingungen punkt hochpunkt wendepunkt",

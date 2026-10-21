@@ -39,7 +39,7 @@ with sync_playwright() as p:
     for breite in (390, 1280):
         # 1) Trainingswerkzeuge: Kopfleiste (☰) + dünnes Werkzeug-Band
         ctx, page, konsole = neu(b, breite, "schueler")
-        for pfad in ("ableitungstrainer", "geradengleichung", "parabeln", "stammintegral"):
+        for pfad in ("ableitungstrainer", "geradengleichung", "parabeln", "integrale"):
             page.goto(BASE + pfad); page.wait_for_timeout(1500)
             tag = f"{breite}/{pfad}"
             pruefe(page.locator("[data-werkzeug-band]").count() == 1, f"{tag}: Werkzeug-Band fehlt")

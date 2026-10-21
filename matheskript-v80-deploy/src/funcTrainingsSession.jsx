@@ -26,7 +26,7 @@ const lazy = (lader, name) => lazyLaden(() => lader().then((m) => ({ default: m[
 const EINGEBETTET = {
   ableitungstrainer: lazy(() => import("./func13.jsx"), "Ableitungstrainer"),
   parabeln: lazy(() => import("./funcParabelTrainer.jsx"), "ParabelTrainer"),
-  stammintegral: lazy(() => import("./funcStammIntegral.jsx"), "StammIntegral"),
+  integrale: lazy(() => import("./funcIntegralTrainer.jsx"), "IntegralTrainer"),
   geradengleichung: lazy(() => import("./funcGeradengleichung.jsx"), "Geradengleichung"),
   gleichungen: lazy(() => import("./funcGleichungen.jsx"), "Gleichungsloeser"),
   lgs: lazy(() => import("./funcLGS.jsx"), "LGSLoeser"),

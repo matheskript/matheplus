@@ -11,7 +11,7 @@ import { startModusSetzen, modusAusPfad } from "./startModus.js";
 import { WerkzeugLeiste, WerkzeugBand } from "./funcWerkzeuge.jsx";
 import { kursAnsichten } from "./trainingsKurse.js";
 const KURS_ANSICHTEN = kursAnsichten();   // Werkzeuge eines Trainings-Kurses: Band statt großem Seitenkopf
-import { wo } from "./werkzeuge.js";
+import { wo, istWerkzeugAnsicht } from "./werkzeuge.js";
 import { pfadAufloesen, pfadFuer } from "./pfade.js";
 import { TeilenKnopf } from "./funcTeilen.jsx";
 import { teilenInfo } from "./teilen.js";
@@ -30,7 +30,7 @@ import { KapitelTrainingSeite } from "./funcKapitelTraining.jsx";
 import { MathildaChatSeite } from "./funcMathildaChat.jsx";
 import { MathildaKopf, FotoStart, SoArbeitetMathilda } from "./funcMathildaSeite.jsx";
 import { kameraWunschSetzen } from "./kameraWunsch.js";
-import { uebenWunschLesen, uebenWunschVerwerfen } from "./uebenWunsch.js";
+import { uebenWunschLesen, uebenWunschSetzen, uebenWunschVerwerfen } from "./uebenWunsch.js";
 import { BlattScanner } from "./funcBlattScanner.jsx";
 import { mathildaSystem } from "./mathildaKontext.js";
 import { Operatoren, Wiederholen } from "./func7.jsx";
@@ -46,6 +46,7 @@ import { MatheTastaturHost } from "./matheTastatur.jsx";
 import { LAENDER } from "./funcWettbewerbe.jsx";
 import { ENTWUERFE, istEntwurf, LANDING, istFrei } from "./seitenKonstanten.js";
 import { ansichtErlaubt } from "./angebot.js";
+const WerkzeugInfo = lazyLaden(() => import("./funcWerkzeugInfo.jsx").then((m) => ({ default: m.WerkzeugInfo })));   // „Was kann dieses Werkzeug?“ (SEO/KI-Text, src/seo)
 const EntwurfTor = lazyLaden(() => import("./funcEntwuerfe.jsx").then((m) => ({ default: m.EntwurfTor })));
 const KapitelSeite = lazyLaden(() => import("./funcKapitelSeite.jsx").then((m) => ({ default: m.KapitelSeite })));   // lädt die Formelsammlung mit
 const KapitelFormelnSeite = lazyLaden(() => import("./funcKapitelFormeln.jsx").then((m) => ({ default: m.KapitelFormelnSeite })));
@@ -97,7 +98,6 @@ const MeinTrainingSeite = lazyLaden(() => import("./funcMeinTraining.jsx").then(
 const Geradengleichung = lazyLaden(() => import("./funcGeradengleichung.jsx").then((m) => ({ default: m.Geradengleichung })));
 const Ableitungstrainer = lazyLaden(() => import("./func13.jsx").then((m) => ({ default: m.Ableitungstrainer })));
 const ParabelTrainer = lazyLaden(() => import("./funcParabelTrainer.jsx").then((m) => ({ default: m.ParabelTrainer })));
-const StammIntegral = lazyLaden(() => import("./funcStammIntegral.jsx").then((m) => ({ default: m.StammIntegral })));
 const AdvancedPlotter = lazyLaden(() => import("./func12.jsx").then((m) => ({ default: m.AdvancedPlotter })));
 const LGSLoeser = lazyLaden(() => import("./funcLGS.jsx").then((m) => ({ default: m.LGSLoeser })));
 const Gleichungsloeser = lazyLaden(() => import("./funcGleichungen.jsx").then((m) => ({ default: m.Gleichungsloeser })));
@@ -162,6 +162,7 @@ export function Mathilda() {
       const sm = modusAusPfad(window.location.pathname);
       if (sm) { startModusSetzen(sm); window.history.replaceState({}, "", "/" + window.location.search); return "start"; }
       const pz = pfadAufloesen(window.location.pathname);   // Direct Links wie /elternabend (pfade.js)
+      if (pz && pz.uebenArt) uebenWunschSetzen(pz.ansicht, { art: pz.uebenArt });   // zusammengelegte Werkzeuge (z. B. /stammfunktion → Integraltrainer)
       return pz ? pz.ansicht : "start";
     } catch (e) { return "start"; }
   });
@@ -322,6 +323,7 @@ export function Mathilda() {
       window.location.assign("/");
       return;
     }
+    if (eintrag.uebenArt) uebenWunschSetzen(eintrag.ansicht, { art: eintrag.uebenArt });
     if (!eintrag.uebergabe) hinweisVerwerfen();
     { const w = uebenWunschLesen(); if (w && w.werkzeug !== eintrag.ansicht) uebenWunschVerwerfen(); }   // Üben-Wunsch gilt nur für das gewünschte Werkzeug
     setAnsicht(eintrag.ansicht);
@@ -896,11 +898,6 @@ export function Mathilda() {
         <>
           {band}
           <ParabelTrainer />
-        </>
-      ) : ansicht === "stammintegral" ? (
-        <>
-          {band}
-          <StammIntegral />
         </>
       ) : ansicht === "advplotter" ? (
         <>
@@ -1646,6 +1643,7 @@ export function Mathilda() {
       )}
       </React.Suspense>
       </ChunkGrenze>
+      {istWerkzeugAnsicht(ansicht) && <React.Suspense fallback={null}><WerkzeugInfo ansicht={ansicht} /></React.Suspense>}
       {!istEntwurf(ansicht) && (
         <div className={"fuss-paar" + (teilenInfo(ansicht) ? " zwei" : "")}>
           <TeilenKnopf ansicht={ansicht} pfad={pfadFuer(adressZustand) || "/"} />
