@@ -15,7 +15,7 @@ import { BEREICHE, ETIKETTEN, werkzeug, wo } from "./werkzeuge.js";
 import { FR } from "./funcRegistry.jsx";
 import { MS } from "./mathText.jsx";
 import { uebergabeHinweis, uebergabeSetzen, uebergabeZurueck } from "./uebergabe.js";
-import { KURSE, aktuellerKurs, kurs, kursMerken, meineKurse, reiterFuer, reiterKurz, reiterName, wahlUmschalten } from "./trainingsKurse.js";
+import { KURSE, aktuellerKurs, bandReiter, kurs, kursMerken, meineKurse, wahlUmschalten } from "./trainingsKurse.js";
 import { MitWurzeln } from "./wurzelZeichen.jsx";
 import { LERN } from "./base3.jsx";
 import { themaBereich } from "./meinTraining.js";
@@ -282,8 +282,13 @@ export function WerkzeugBand({ ansicht, gehe, testKnopf }) {
     if (!el) return undefined;
     const pruefe = () => setMehr(el.scrollWidth - el.scrollLeft - el.clientWidth > 4);
     const a = el.querySelector('[aria-current="page"]');
-    /* Aktiver Reiter immer an den linken Rand: so ist er am Handy nie am rechten Rand abgeschnitten („Integra…“) */
-    if (a) el.scrollLeft = Math.max(0, a.offsetLeft - 4);
+    /* Aktiver Reiter nur dann verschieben, wenn er abgeschnitten ist – sonst verschwinden die Reiter davor
+       (früher sprang „Rechnen“ aus dem Bild, sobald man auf den zweiten Reiter ging) */
+    if (a) {
+      const l = a.offsetLeft, r = l + a.offsetWidth;
+      if (l < el.scrollLeft) el.scrollLeft = Math.max(0, l - 4);
+      else if (r > el.scrollLeft + el.clientWidth) el.scrollLeft = Math.max(0, r - el.clientWidth + 4);
+    }
     pruefe();
     el.addEventListener("scroll", pruefe, { passive: true });
     window.addEventListener("resize", pruefe);
@@ -300,8 +305,10 @@ export function WerkzeugBand({ ansicht, gehe, testKnopf }) {
   if (!ort || !ort.werkzeug) return null;
   const { bereich, station, werkzeug: wAktiv, sNr } = ort;
   const aktKurs = kurs(kursId);
-  /* Kurs-Modus: Reiter = Trainer des Kurses. Sonst wie bisher: Werkzeuge der Station + „Weiter“. */
-  const reiter = aktKurs ? reiterFuer(aktKurs, wAktiv.id) : station.werkzeuge;
+  /* Kurs-Modus: Reiter = Werkzeuge (oder Bündel) des Kurses. Sonst wie bisher: Werkzeuge der Station + „Weiter“. */
+  const reiter = aktKurs
+    ? bandReiter(aktKurs, wAktiv.id)
+    : station.werkzeuge.map((id) => { const w = werkzeug(id); return { id, werkzeuge: [id], an: id === wAktiv.id, oeffnen: id, name: w.name, kurz: w.kurz || w.name }; });
   const naechste = aktKurs ? null : bereich.stationen[sNr];
   const weiter = naechste ? werkzeug(naechste.werkzeuge[0]) : null;
   const { kurse: meine, quelle } = meineKurse(lern.training, gebietVon);
@@ -355,15 +362,15 @@ export function WerkzeugBand({ ansicht, gehe, testKnopf }) {
         @media (max-width:374px){.wb-tools-text{display:none}}`}</style>
       <div ref={wurzel} className="mx-auto wb-innen" style={{ position: "relative", height: H, padding: "0 8px 0 4px", display: "flex", alignItems: "center", gap: 6 }}>
         <div ref={reiterRef} className="wb-reiter" data-mehr={mehr ? "" : undefined} style={{ flex: "1 1 auto", minWidth: 0, display: "flex", alignItems: "stretch", height: "100%", overflowX: "auto" }}>
-          {reiter.map((id) => {
-            const w = werkzeug(id);
-            const an = w.id === wAktiv.id;
+          {reiter.map((r) => {
+            const w = werkzeug(r.oeffnen);
+            const an = r.an;
             return (
-              <button key={id} type="button" className="wb-tab" aria-current={an ? "page" : undefined} onClick={() => !an && gehe(w.ziel)} title={aktKurs ? reiterName(aktKurs, id, w).replace(/√\((.*?)\)/g, "$1") : w.name}
+              <button key={r.id} type="button" className="wb-tab" data-wb-reiter={r.id} aria-current={an ? "page" : undefined} onClick={() => !an && gehe(w.ziel)} title={r.name.replace(/√\((.*?)\)/g, "$1")}
                 style={{ position: "relative", flexShrink: 0, height: "100%", padding: "0 10px", border: "none", background: "none", fontFamily: "inherit", cursor: an ? "default" : "pointer",
                   fontSize: 13, fontWeight: an ? 700 : 500, color: an ? C.seeTief : C.grau, whiteSpace: "nowrap", letterSpacing: "-0.005em" }}>
-                {aktKurs ? <><span className="wb-lang"><MitWurzeln text={reiterName(aktKurs, id, w)} /></span><span className="wb-kurz"><MitWurzeln text={reiterKurz(aktKurs, id, w)} /></span></>
-                  : <><span className="titel-lang">{w.name}</span><span className="titel-kurz">{w.kurz || w.name}</span></>}
+                {aktKurs ? <><span className="wb-lang"><MitWurzeln text={r.name} /></span><span className="wb-kurz"><MitWurzeln text={r.kurz} /></span></>
+                  : <><span className="titel-lang">{r.name}</span><span className="titel-kurz">{r.kurz}</span></>}
               </button>
             );
           })}

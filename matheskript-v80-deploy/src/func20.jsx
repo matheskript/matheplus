@@ -562,10 +562,11 @@ const ARTEN = [
   { id: "addsub", name: "Vektoraddition", kurz: "Addition", bild: "summe", formel: <>{va} ± {vb}</>, haupt: true, info: "Komponentenweise addieren oder subtrahieren – oben mit oben, Mitte mit Mitte, unten mit unten." },
   { id: "skalar", name: "Skalarmultiplikation", kurz: "Skalar\u00ADmulti\u00ADplikation", bild: "vielfaches", formel: <>k · {va}</>, titel: "Skalarmultiplikation", haupt: true, info: "Die Zahl vor dem Vektor wird mit jeder Komponente multipliziert. Der Vektor wird gestreckt, gestaucht oder umgedreht." },
   { id: "linear", name: "Linearkombination", kurz: "Linear\u00ADkombination", bild: "linear", formel: <>k · {va} + j · {vb}</>, titel: "Linearkombination", haupt: true, info: "Erst jeden Vektor mit seinem Skalar multiplizieren, dann komponentenweise zusammenfassen." },
-  { id: "skalarprodukt", name: "Skalarprodukt", info: "Komponenten paarweise multiplizieren und alles addieren – das Ergebnis ist eine Zahl. Ist sie 0, stehen die Vektoren senkrecht." },
-  /* Kreuzprodukt und Abstände haben eigene Werkzeuge (Stationen „Rechnen“ und „Lage und Abstand“) –
-     hier nur noch als Verweis, damit es dieselbe Rechnung nicht zweimal gibt. */
-  { id: "kreuzprodukt", name: "Kreuzprodukt", link: "kreuzprodukt" },
+  /* Seit 22.10. stehen Skalar- und Kreuzprodukt als eigene Rechenarten im Menü (das Band hat dafür keinen eigenen Reiter mehr) */
+  { id: "skalarprodukt", name: "Skalarprodukt", kurz: "Skalar\u00ADprodukt", bild: "skalar", formel: <>{va} · {vb}</>, titel: "Skalarprodukt", haupt: true, info: "Komponenten paarweise multiplizieren und alles addieren – das Ergebnis ist eine Zahl. Ist sie 0, stehen die Vektoren senkrecht." },
+  { id: "kreuzprodukt", name: "Kreuzprodukt", kurz: "Kreuz\u00ADprodukt", bild: "kreuz", formel: <>{va} × {vb}</>, titel: "Kreuzprodukt", haupt: true, info: "Das Kreuzprodukt ist ein Vektor, der auf beiden Vektoren senkrecht steht – über Kreuz multiplizieren, Zeile für Zeile." },
+  /* Eigene Vektoren eingeben (Kreuzprodukt-Rechner) und Abstände: eigene Werkzeuge, hier als Verweis */
+  { id: "kreuzrechner", name: "Kreuzprodukt-Rechner", link: "kreuzprodukt" },
   { id: "abstaende", name: "Abstände", link: "abstaende" },
 ];
 
@@ -583,7 +584,7 @@ export function VektorGenerator({ gehe }) {
   const desktop = useDesktop();
 
   const reiter = (stapel) => (
-    <ModusReiter label="Rechenart" wert={ARTEN.find((x) => x.id === art && x.haupt) ? art : null} setWert={wechsle} stapel={stapel}
+    <ModusReiter label="Rechenart" wert={ARTEN.find((x) => x.id === art && x.haupt) ? art : null} setWert={wechsle} stapel={stapel} spalten="auto"
       modi={ARTEN.filter((x) => x.haupt).map((x) => ({ id: x.id, name: stapel ? x.name : x.kurz, bild: x.bild }))} />
   );
   const rechnungTafel = (stil) => (
@@ -604,9 +605,9 @@ export function VektorGenerator({ gehe }) {
   );
   /* Weitere Beispiele – Kreuzprodukt und Abstände führen in ihre eigenen Werkzeuge */
   const weitere = (
-    <FallWahl titel="Weitere Beispiele" wert={ARTEN.find((x) => x.id === art && !x.haupt) ? art : null}
+    <FallWahl titel="Weiter" wert={ARTEN.find((x) => x.id === art && !x.haupt) ? art : null}
       setWert={(id) => { const x = ARTEN.find((y) => y.id === id); if (x.link) { if (gehe) gehe({ ansicht: x.link }); } else wechsleUnten(id); }}
-      optionen={ARTEN.filter((x) => !x.haupt).map((x) => [x.id, x.link ? (x.id === "kreuzprodukt" ? "Zum Kreuzprodukt" : "Zu den Abständen") : x.name, x.id === "skalarprodukt" ? "skalar" : x.id === "kreuzprodukt" ? "kreuz" : "punkt"])} />
+      optionen={ARTEN.filter((x) => !x.haupt).map((x) => [x.id, x.id === "kreuzrechner" ? "Eigene Vektoren: Kreuzprodukt-Rechner" : "Zu den Abständen", x.id === "kreuzrechner" ? "kreuz" : "lot"])} />
   );
   const seitenText = "Wähle eine Rechenart und lass dir so viele Beispiele zeigen, wie du willst – jedes mit vollständigem Rechenweg. Alle Koordinaten liegen zwischen −7 und 7.";
 

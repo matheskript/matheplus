@@ -37,6 +37,7 @@ export const TOOL_SAETZE = {
   geraden: { de: "die Lage von Geraden im Raum bestimmen", en: "determine the position of lines in space" },
   ebenevsebene: { de: "Schnittgeraden und Schnittwinkel von Ebenen berechnen", en: "calculate the intersection and angle of two planes" },
   abstaende: { de: "Abstände im Raum berechnen", en: "calculate distances in space" },
+  hesse: { de: "die Normalenform und die Hessesche Normalenform verstehen", en: "understand the normal form and Hesse normal form" },
   kombinatorik: { de: "Kombinatorik und Urnenaufgaben üben", en: "practise combinatorics and urn problems" },
   vierfelder: { de: "mit der Vier-Felder-Tafel rechnen", en: "work with the four-field table" },
   erwartungswert: { de: "Erwartungswert und faire Spiele verstehen", en: "understand expected value and fair games" },

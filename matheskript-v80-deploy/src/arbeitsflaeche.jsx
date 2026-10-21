@@ -27,7 +27,12 @@ export function useMedien(q) {
   return an;
 }
 
-export const useDesktop = () => useMedien(DESKTOP);
+/* Schmal-Kontext (seit 22.10.): Ein Werkzeug, das rechts neben einem linken Menü steht (Hubs „Geraden“ und „Ebenen“,
+   funcVekHub.jsx), bekommt nur ≈ 580 px. Innerhalb von <SchmalKontext.Provider value={true}> liefert useDesktop() false –
+   das Werkzeug zeigt dann seinen Handy-Zweig (für 360–620 px gebaut), ohne dass es sich selbst umbauen muss. */
+export const SchmalKontext = React.createContext(false);
+export const useSchmal = () => React.useContext(SchmalKontext);
+export const useDesktop = () => { const breit = useMedien(DESKTOP); const schmal = React.useContext(SchmalKontext); return breit && !schmal; };
 
 /* Breite eines Elements in Pixeln. Callback-Ref: auch ein neu gemountetes Element wird gemessen.
    const [ref, breite] = useBreite();  <div ref={ref}>…</div>  (breite = 0 vor der ersten Messung) */

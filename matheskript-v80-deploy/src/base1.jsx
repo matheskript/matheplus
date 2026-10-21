@@ -150,6 +150,8 @@ export const POTENZREGEL_VIDEO_ID = "2f_TkmDkz2E";
 export const EFUNKTION_VIDEO_ID = "xRftyh3kC_Q";
 /* GFS-Trainer: Pascal’sches Dreieck — Fremdvideo als Platzhalter (oEmbed geprüft), bis Basti ein eigenes aufnimmt */
 export const PASCAL_VIDEO_ID = "G9GiNWtRlhY";
+/* Themenseite Normalenform/Hesse (22.10.) — dasselbe Video wie Lektion v5 „Ebenen in drei Formen“ im Videokurs Vektoren, bis Basti ein eigenes aufnimmt */
+export const HESSE_VIDEO_ID = "RoTFK0Wb6vg";
 
 /* Lädt die YouTube-IFrame-API genau einmal, egal wie viele Videos auf der
    Seite stehen. Läuft nur in einem echten Browser — in Claudes eigener
