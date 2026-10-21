@@ -32,6 +32,20 @@ const CSS = `
 .such-eingabe:focus-within { border-color: #004D98 !important; box-shadow: 0 0 0 3px rgba(0,77,152,0.14); }
 .such-eingabe input::placeholder { color: #A3ACC2; font-weight: 300; }
 .such-eingabe input::-webkit-search-cancel-button { display: none; }
+/* Variante „buehne“ (Startseite, seit 21.10.): Pille auf der Bühne, Farben über Variablen der Startseite
+   (--such-hg, --such-rand, --such-text, --such-platz); die Treffer erscheinen als weißes Blatt darunter */
+.such-buehne-feld { display: flex; align-items: center; gap: 4px; height: 52px; padding: 0 4px; border-radius: 999px; box-sizing: border-box;
+  background: var(--such-hg, rgba(255,255,255,0.12)); border: 1px solid var(--such-rand, rgba(255,255,255,0.30)); color: var(--such-text, #FFFFFF);
+  transition: border-color .15s ease, box-shadow .15s ease; }
+.such-buehne-feld:focus-within { border-color: #EDBB00; box-shadow: 0 0 0 3px rgba(237,187,0,0.22); }
+.such-buehne-feld input { flex: 1; min-width: 0; height: 44px; border: none; outline: none; background: transparent; font-family: inherit; font-size: 16px; font-weight: 500; color: inherit; padding: 0; }
+.such-buehne-feld input::placeholder { color: var(--such-platz, rgba(255,255,255,0.78)); font-weight: 500; opacity: 1; }
+.such-buehne-feld input::-webkit-search-cancel-button { display: none; }
+.such-buehne-knopf { flex: none; width: 44px; height: 44px; border-radius: 999px; border: none; background: transparent; color: inherit; cursor: pointer; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center; font-family: inherit; font-size: 22px; line-height: 1; }
+.such-buehne-knopf:focus-visible { outline: 3px solid #EDBB00; outline-offset: 1px; }
+.such-buehne-ergebnis { margin-top: 10px; background: #FFFFFF; color: #0F1A33; border-radius: 18px; padding: 16px 14px 20px;
+  box-shadow: 0 24px 50px -24px rgba(5,11,31,0.55), 0 0 0 1px rgba(14,30,74,0.08); }
 @media (prefers-reduced-motion: reduce) { .such-koerper { transition: none; } }
 `;
 
@@ -155,7 +169,7 @@ function Ergebnis({ erg, onWaehle, onAlle, gehe }) {
   );
 }
 
-export function SuchBox({ gehe, einzeilig }) {
+export function SuchBox({ gehe, einzeilig, buehne }) {
   const [eingabe, setEingabe] = useState("");
   const [abfrage, setAbfrage] = useState(null);       // { text, erzwingen } nach Enter
   const feld = useRef(null);
@@ -181,6 +195,29 @@ export function SuchBox({ gehe, einzeilig }) {
     }, 120);
     return () => clearTimeout(id);
   }, [abfrage]);
+
+  /* Startseite: nur die Pille (Lupe = Suchen), ohne Überschrift; Treffer als weißes Blatt darunter */
+  if (buehne) return (
+    <div role="search" data-such-box data-such-buehne>
+      <style>{CSS}</style>
+      <form onSubmit={(ev) => { ev.preventDefault(); absenden(eingabe); }} className="such-buehne-feld">
+        <button type="submit" className="such-buehne-knopf" aria-label={L("Suchen", "Search")}><Lupe groesse={20} farbe="currentColor" /></button>
+        <input ref={feld} type="search" value={eingabe} onChange={(ev) => setEingabe(ev.target.value)}
+          onKeyDown={(ev) => { if (ev.key === "Escape") leeren(); }}
+          placeholder={L("Was möchtest du lernen?", "What would you like to learn?")}
+          aria-label={L("Was möchtest du lernen oder wobei brauchst du Hilfe?", "What would you like to learn or what do you need help with?")}
+          enterKeyHint="search" autoComplete="off" autoCapitalize="off" spellCheck={false} data-kein-i18n />
+        {eingabe && <button type="button" onClick={leeren} className="such-buehne-knopf" aria-label={L("Eingabe löschen", "Clear input")}>×</button>}
+      </form>
+      <div className={`such-koerper${auf ? " auf" : ""}`} aria-hidden={!auf}>
+        <div>
+          <div ref={ergebnisRef} aria-live="polite" className="such-buehne-ergebnis" style={{ display: auf ? "block" : "none" }}>
+            {auf && <Ergebnis erg={erg} onWaehle={(a) => absenden(a)} onAlle={() => absenden(abfrage.text, true)} gehe={gehe} />}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div role="search" data-such-box style={{ background: C.weiss, borderRadius: 16, boxShadow: "0 2px 16px rgba(15,26,51,0.07)", margin: "6px 0 12px", overflow: "hidden",

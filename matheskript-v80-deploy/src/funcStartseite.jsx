@@ -68,6 +68,7 @@ const CSS = `
   --mythos-hg: rgba(237,187,0,0.07); --schalter-hg: rgba(5,11,31,0.86); --schalter-rand: rgba(255,255,255,0.18);
   --h1-schatten: 0 12px 50px rgba(0,0,0,.45); --glyph: #FFFFFF; --licht: .55;
   --stufe-hg: rgba(255,255,255,0.07); --stufe-rand: rgba(255,255,255,0.16); --stufe-zeile: #AEBCDD;
+  --such-hg: rgba(255,255,255,0.12); --such-rand: rgba(255,255,255,0.30); --such-text: #FFFFFF; --such-platz: rgba(255,255,255,0.78);
 }
 .sbb[data-modus="hell"], .sbb-schalter[data-modus="hell"], .sbb[data-modus="mix"], .sbb-schalter[data-modus="mix"] {
   --hg: #FFFFFF; --text: ${C.tinte}; --nebel: ${C.grau}; --titel: ${C.seeTief}; --linie: ${C.linie};
@@ -79,6 +80,7 @@ const CSS = `
   --mythos-hg: #FFF7D6; --schalter-hg: rgba(255,255,255,0.94); --schalter-rand: ${C.linie};
   --h1-schatten: none; --glyph: ${C.see}; --licht: .28;
   --stufe-hg: #F3F6FB; --stufe-rand: ${C.linie}; --stufe-zeile: ${C.grau};
+  --such-hg: #FFFFFF; --such-rand: ${C.linie}; --such-text: ${C.tinte}; --such-platz: ${C.grau};
 }
 html[data-start-modus="dunkel"] .app-wurzel { background: ${NACHT} !important; }
 html[data-start-modus="hell"] .app-wurzel, html[data-start-modus="mix"] .app-wurzel { background: #FFFFFF !important; }
@@ -144,7 +146,7 @@ html[data-start-edition="stadion"] .app-wurzel { background: #FFFFFF !important;
 .sbb[data-edition="stadion"] .sbb-kachel:not(.sbb-insel) .weiter { color: ${ROT}; }
 .sbb[data-edition="stadion"] .sbb-mythos .z { background: rgba(220,5,45,0.10); }
 .sbb[data-edition="stadion"] .sbb-streifen .sbb-mythos .z { background: rgba(255,255,255,0.14); }
-.sbb[data-edition="stadion"] .sbb-haken, .sbb[data-edition="stadion"] .sbb-start-knopf, .sbb[data-edition="stadion"] .sbb-haupt .plus,
+.sbb[data-edition="stadion"] .sbb-haken, .sbb[data-edition="stadion"] .sbb-haupt .plus,
 .sbb[data-edition="stadion"] .sbb-bereich .pf, .sbb[data-edition="stadion"] .sbb-verbinder, .sbb[data-edition="stadion"] .sbb-training .pfeil,
 .sbb[data-edition="stadion"] .sbb-stufe .p, .sbb[data-edition="stadion"] .sbb-pille button i, .sbb[data-edition="stadion"] .sbb-schritt .knopf.gold {
   background: var(--st-akzent); color: var(--st-akzent-text); box-shadow: 0 8px 22px rgba(0,0,0,0.18); }
@@ -198,9 +200,10 @@ html[data-start-edition="stadion"] .app-wurzel { background: #FFFFFF !important;
 .sbb-held li { display: flex; align-items: center; gap: 12px; font-size: 15px; font-weight: 500; color: var(--text); }
 .sbb-haken { flex: none; width: 26px; height: 26px; border-radius: 50%; background: ${GOLD}; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 0 0 4px rgba(237,187,0,0.18), 0 6px 16px rgba(237,187,0,0.35); }
 .sbb-haken svg { width: 56%; height: 56%; }
-.sbb-start-knopf { margin-top: 28px; display: inline-flex; align-items: center; gap: 10px; padding: 15px 22px; border-radius: 999px; border: none; cursor: pointer; font-family: inherit;
-  font-size: 15.5px; font-weight: 800; color: var(--akzent-text); background: linear-gradient(180deg, ${GOLD_HELL} 0%, ${GOLD} 100%); box-shadow: 0 12px 34px rgba(237,187,0,0.35), inset 0 1px 0 rgba(255,255,255,.6); }
-.sbb-start-knopf:focus-visible, .sbb button:focus-visible { outline: 3px solid ${GOLD}; outline-offset: 3px; }
+/* Suche als Pille in der Bühne (seit 21.10. statt des Knopfs „Jetzt eine Aufgabe rechnen“ und der eigenen Suchbox darunter) */
+.sbb-held-suche { margin-top: 26px; max-width: 520px; }
+.sbb[data-modus="hell"] .sbb-held-suche .such-buehne-feld { box-shadow: 0 3px 16px rgba(15,26,51,0.07); }
+.sbb button:focus-visible { outline: 3px solid ${GOLD}; outline-offset: 3px; }
 
 /* Laufband mit den Bereichen – langsam, nur Deko mit Inhalt */
 .sbb-band { margin-top: clamp(26px, 6vw, 44px); border-top: 1px solid var(--linie); border-bottom: 1px solid var(--linie); overflow: hidden; background: var(--band); backdrop-filter: blur(6px); }
@@ -735,23 +738,21 @@ export function Startseite({ gehe }) {
           <h1>Mathe kann<span className="gold">jeder verstehen</span></h1>
           <p className="unter">Hier lernst du wie!</p>
           <ul>
-            {["Mathe interaktiv entdecken", "Gezielt Aufgaben trainieren", "Rechenwege Schritt für Schritt", "In deinem Tempo lernen"].map((p) => (
+            {["Mathe sichtbar machen", "Gezielt Aufgaben trainieren", "Rechenwege Schritt für Schritt", "In deinem Tempo lernen"].map((p) => (
               <li key={p}><Haken /><span>{p}</span></li>
             ))}
           </ul>
-          <button type="button" className="sbb-start-knopf" onClick={() => gehe({ ansicht: "ki", ziel: null })}>
-            Jetzt eine Aufgabe rechnen <span aria-hidden="true">→</span>
-          </button>
+          {/* Kein Knopf „Jetzt eine Aufgabe rechnen“ mehr (21.10.): Mathilda bleibt über Menü und Kachel erreichbar; die Suche ist die Handlung der Bühne */}
+          <div className="sbb-held-suche"><SuchBox gehe={gehe} buehne /></div>
         </div>
         <Band />
       </section>
 
       <section className="sbb-teil"><div className="sbb-spalte">
-        {/* ---------- Mein Mathe-Training (Tagesplan, Themen) · Dein Training startet hier · Suche ---------- */}
+        {/* ---------- Mein Mathe-Training (Tagesplan, Themen) · Dein Training startet hier (die Suche sitzt seit 21.10. in der Bühne) ---------- */}
         <div className="sbb-abschnitt sbb-wieder" style={{ marginTop: 16 }}><MeinTrainingKachel gehe={gehe} /></div>
         <div className="sbb-abschnitt" style={{ marginTop: 14 }}><TrainingKachel gehe={gehe} setzeStufe={stufeSetzen} /></div>
         <div className="sbb-wieder"><AbiZentrumKachel onClick={() => gehe({ ansicht: "abi" })} /></div>
-        <div className="sbb-papier eng" style={{ marginTop: 14 }}><SuchBox gehe={gehe} einzeilig /></div>
         <p className="sbb-einleitung">
           Hier wird Oberstufenmathe <b>sichtbar</b>: Graphen live plotten, Ebenen im Raum drehen, Wahrscheinlichkeiten in Tafeln und Bäumen sehen.
           Dazu Videokurse mit Kurz-Checks und schnelle Kopfrechenrunden. Such dir einen Bereich aus und leg los.

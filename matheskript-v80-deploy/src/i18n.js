@@ -47,6 +47,8 @@ function musterBauen(liste) {
 /* Ergänzungen, die im Wörterbuch fehlen */
 const ZUSATZ = {
   ...MINDSET_EN,
+  /* Startseite, Bühne (21.10.) */
+  "Mathe sichtbar machen": "Make maths visible",
   /* ☰-Hauptmenü (funcHauptmenue.jsx) */
   "Mathe-Training": "Math training",
   "Deine Tutorin": "Your tutor",

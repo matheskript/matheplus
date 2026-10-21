@@ -30,12 +30,23 @@ test("Ohne Browser-Speicher gilt der Mix-Modus", () => {
 
 test("Die Startseite führt zu allen Angeboten", () => {
   const q = quelle("funcStartseite.jsx");
-  for (const z of ["ki", "headnumbers", "gleichkurs", "ebbinghaus", "analyse", "penpaperkurs", "elternkurs", "kurse", "diffkurs", "vekkurs", "gfs", "kiwahl", "efunktion", "mckurs", "elternabend"]) {
+  /* „ki“ (Mathilda-Chat) hing am Knopf „Jetzt eine Aufgabe rechnen“ – der ist seit 21.10. aus der Bühne raus; Mathilda bleibt über die Kachel („analyse“) */
+  for (const z of ["headnumbers", "gleichkurs", "ebbinghaus", "analyse", "penpaperkurs", "elternkurs", "kurse", "diffkurs", "vekkurs", "gfs", "kiwahl", "efunktion", "mckurs", "elternabend"]) {
     assert.ok(q.includes(`ansicht: "${z}"`), `Startseite kennt das Ziel „${z}“ nicht`);
   }
   for (const b of ["<Quickfinder", "<SuchBox", "<StartOnboarding", "<WeitermachenZeile", "<UnterMenue", "<SchulKachel", "<EtikettKnoepfe", "ENTDECKEN_MENUE", "MYTHEN", "<MeinTrainingKachel", "<AppAnleitung", "<SpendenBereich"]) {
     assert.ok(q.includes(b), `Startseite ohne ${b}`);
   }
+});
+
+test("Bühne: Suche als Pille statt Knopf „Jetzt eine Aufgabe rechnen“, keine zweite Suchbox", () => {
+  const q = quelle("funcStartseite.jsx");
+  assert.ok(q.includes("<SuchBox gehe={gehe} buehne />"), "Suche fehlt in der Bühne");
+  assert.equal((q.match(/<SuchBox /g) || []).length, 1, "Suche steht mehr als einmal auf der Startseite");
+  assert.ok(!q.includes("sbb-start-knopf") && !q.includes('ansicht: "ki"'), "Knopf „Jetzt eine Aufgabe rechnen“ ist zurück");
+  assert.ok(q.includes('"Mathe sichtbar machen"'));
+  const s = quelle("funcSuche.jsx");
+  assert.ok(s.includes("data-such-buehne") && s.includes("--such-hg"), "Bühnen-Variante der Suche fehlt");
 });
 
 test("Alle drei Modi sind im Stil definiert, die Wahl hängt am Wurzelelement und am Dokument", () => {
