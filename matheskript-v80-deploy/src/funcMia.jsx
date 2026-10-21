@@ -539,7 +539,7 @@ function MiaKopf({ modus, setModus, gehe }) {
       <div style={{ position: "absolute", right: "max(-60px, calc((100vw - 820px) / 2 - 220px))", top: -40, opacity: 0.12, zIndex: -1, pointerEvents: "none" }} className="mia-kopf-deko"><MiaEmblem groesse={360} id="mia-deko" /></div>
       <div className="abi-innen" style={{ paddingTop: 16, paddingBottom: 18, maxWidth: 820 }}>
         <button type="button" className="abi-zurueck" onClick={() => gehe({ ansicht: "abi" })} style={{ background: "rgba(237,187,0,0.14)", color: GOLD }}>
-          <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M13 8H4M7.5 4L3.5 8l4 4" stroke="currentColor" strokeWidth="2.4" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>Abi-Zentrum
+          <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M13 8H4M7.5 4L3.5 8l4 4" stroke="currentColor" strokeWidth="2.4" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>Masterclass
         </button>
         <div style={{ display: "flex", alignItems: "center", gap: 18, marginTop: 16 }}>
           <MiaEmblem groesse={86} id="mia-kopf" />

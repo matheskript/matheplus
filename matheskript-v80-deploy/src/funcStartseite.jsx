@@ -778,9 +778,9 @@ export function Startseite({ gehe }) {
                 <div style={{ marginTop: 12 }}>
                   {abiBlock ? (
                     <>
-                      <button type="button" className="sbb-bereich gold" onClick={() => gehe({ ansicht: "abi" })} aria-label="Abi-Zentrum öffnen" data-start-abizentrum>
+                      <button type="button" className="sbb-bereich gold" onClick={() => gehe({ ansicht: "abi" })} aria-label="Mathe-Abi-Masterclass öffnen" data-start-abizentrum>
                         <span className="logo" aria-hidden="true" style={{ fontWeight: 900, fontSize: 13, letterSpacing: "-0.02em" }}>ABI</span>
-                        <span className="t"><b>Abi-Zentrum</b><span>Dein Format, dein Plan, Mia als Trainerin, Lernpartner in deiner Stadt.</span></span>
+                        <span className="t"><b>Mathe-Abi-Masterclass</b><span>Dein Plan, Prüfungsaufgaben, Mia als Trainerin, Lernpartner in deiner Stadt.</span></span>
                         <span className="pf" aria-hidden="true">→</span>
                       </button>
                       <UnterMenue eintraege={blockEintraege(abiBlock, "ober", null)} gehe={gehe} linie={abiBlock.linie} />
@@ -906,7 +906,6 @@ export function Startseite({ gehe }) {
             <i aria-hidden="true" />Minikurs: Die e-Funktion<span aria-hidden="true">→</span>
           </button>
         </div>
-        {(ANGEBOT.kurse || frei) && <div className="sbb-wieder"><MasterclassKachel name="Mathe Masterclass" monate="3 MONATE" knopf="Zum Kursbereich" onClick={() => gehe({ ansicht: "mckurs" })} /></div>}
 
       </div></section>
 

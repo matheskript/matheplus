@@ -116,3 +116,10 @@ test("Profil: drittes Niveau Basisfach und Abi-Jahre zum Antippen", async () => 
   assert.deepEqual(abiJahre(new Date("2026-10-21")), [2027, 2028, 2029, 2030, 2031]);
   assert.deepEqual(abiJahre(new Date("2027-03-01")), [2027, 2028, 2029, 2030, 2031]);
 });
+
+test("Masterclass und Abi-Zentrum sind eins: Kursbereich im Zentrum, nur mit Angebot „Kurse“ oder Passwort", () => {
+  const z = readFileSync(new URL("../src/funcAbiZentrum.jsx", import.meta.url), "utf8");
+  assert.ok(z.includes('titel="Mathe-Abi-Masterclass"'));
+  assert.ok(/\(ANGEBOT\.kurse \|\| frei\) && \(\s*<Abschnitt[^>]*data-abi-kursbereich/.test(z));
+  assert.ok(!KURSE.some((k) => k.ziel.ansicht === "mckurs"), "Kursbereich nicht doppelt in der Kursliste");
+});

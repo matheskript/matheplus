@@ -51,8 +51,8 @@ test("Angebote erst am Ende (aus der Vision heraus), Pen & Paper zuerst und als 
   /* direkter Knopf: Bühne, Angebot, Abschluss, Handy-Leiste */
   assert.ok((seite.match(/onClick=\{penPaper\}/g) || []).length >= 4);
   assert.ok(seite.includes("data-vision-direkt") && seite.includes("data-vision-leiste"));
-  /* Kommerzielles nur hinter dem Schalter bzw. Passwort, wie überall */
-  assert.ok(/\(ANGEBOT\.kurse \|\| frei\) && \(\s*<div className="vi-wieder"><MasterclassKachel/.test(seite));
+  /* Mathe-Abi-Masterclass = Abi-Zentrum (frei); der bezahlte Kursbereich liegt im Zentrum hinter ANGEBOT.kurse bzw. Passwort */
+  assert.ok(seite.includes("<AbiZentrumKachel") && !seite.includes("mckurs"));
   assert.ok(!/Erstgespräch|€/.test(seite), "Kein Coaching-Verkauf und keine Preise auf der Vision-Seite");
 });
 

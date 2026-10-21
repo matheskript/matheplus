@@ -356,7 +356,7 @@ function Zugang({ grund, gehe, neuLaden }) {
           {grund === "freigabe" && <button type="button" className="abi-knopf dunkel" onClick={async () => { const ok = await volljaehrigErklaeren(); setMsg(ok ? "" : "Das hat nicht geklappt."); neuLaden(); }}>Ich bin 18 oder älter</button>}
           {["kein_konto", "alter", "freigabe"].includes(grund) && <button type="button" className={grund === "freigabe" ? "abi-knopf rand" : "abi-knopf dunkel"} onClick={() => gehe({ ansicht: "konto" })}>{grund === "kein_konto" ? "Anmelden" : grund === "freigabe" ? "Eltern verbinden (Konto)" : "Zum Konto"}</button>}
         </div>
-        {grund === "freigabe" && <p className="abi-klein" style={{ marginTop: 10, color: "#2A1F00" }}>So geht’s: Im Konto den Eltern-Link teilen. Dein Elternteil meldet sich an, öffnet Abi-Zentrum → Lernpartner und tippt auf „Freigeben“.</p>}
+        {grund === "freigabe" && <p className="abi-klein" style={{ marginTop: 10, color: "#2A1F00" }}>So geht’s: Im Konto den Eltern-Link teilen. Dein Elternteil meldet sich an, öffnet Mathe-Abi-Masterclass → Lernpartner und tippt auf „Freigeben“.</p>}
         {msg && <p className="abi-warn" style={{ marginTop: 10 }}>{msg}</p>}
       </div>
       <SicherKarte />
@@ -435,7 +435,7 @@ export function LernpartnerSeite({ gehe }) {
 
   return (
     <AbiSeite kennung={{ "data-lernpartner": stand.beispiel ? "beispiel" : "echt" }}>
-      <AbiKopf kompakt zurueck={{ text: "Abi-Zentrum", onClick: () => gehe({ ansicht: "abi" }) }} eyebrow="Gemeinsam aufs Abi" titel="Lernpartner finden" id="abi-kopf-lp"
+      <AbiKopf kompakt zurueck={{ text: "Masterclass", onClick: () => gehe({ ansicht: "abi" }) }} eyebrow="Gemeinsam aufs Abi" titel="Lernpartner finden" id="abi-kopf-lp"
         zeile="Abiturienten aus deiner Stadt – auch von anderen Schulen –, die mit Mythos Mathe lernen. Steckbrief statt Chat, Treffen an öffentlichen Orten."
         rechts={profil && zugangOk && !eltern ? <span className="abi-pille">{profil.stadt || "Stadt fehlt"} · Abi {profil.abi_jahr}</span> : null} />
       <div className="abi-innen">

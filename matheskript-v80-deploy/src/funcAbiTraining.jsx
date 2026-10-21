@@ -17,7 +17,7 @@ import { AUFGABEN_TYPEN, SACHGEBIETE, aufgabeErzeugen, neuerSeed, teilAProbe, ty
 import { schwaechstesGebiet, minutenFuer, PRUEFUNGEN } from "./abiZentrum.js";
 
 const GEBIETE = ["analysis", "geometrie", "stochastik"];
-const zurueckZentrum = (gehe) => ({ text: "Abi-Zentrum", onClick: () => gehe({ ansicht: "abi" }) });
+const zurueckZentrum = (gehe) => ({ text: "Masterclass", onClick: () => gehe({ ansicht: "abi" }) });
 
 /* ---------- Bausteine ---------- */
 export function AufgabeKarte({ a, nr, rechts, kennung }) {

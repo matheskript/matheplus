@@ -31,7 +31,8 @@ test("Ohne Browser-Speicher gilt der Mix-Modus", () => {
 test("Die Startseite führt zu allen Angeboten", () => {
   const q = quelle("funcStartseite.jsx");
   /* „ki“ (Mathilda-Chat) hing am Knopf „Jetzt eine Aufgabe rechnen“ – der ist seit 21.10. aus der Bühne raus; Mathilda bleibt über die Kachel („analyse“) */
-  for (const z of ["headnumbers", "gleichkurs", "ebbinghaus", "analyse", "penpaperkurs", "elternkurs", "kurse", "diffkurs", "vekkurs", "gfs", "kiwahl", "efunktion", "mckurs", "elternabend"]) {
+  /* Masterclass = Abi-Zentrum (/abi) seit 21.10.; ihr Kursbereich „mckurs“ liegt im Zentrum */
+  for (const z of ["headnumbers", "gleichkurs", "ebbinghaus", "analyse", "penpaperkurs", "elternkurs", "kurse", "diffkurs", "vekkurs", "gfs", "kiwahl", "efunktion", "abi", "elternabend"]) {
     assert.ok(q.includes(`ansicht: "${z}"`), `Startseite kennt das Ziel „${z}“ nicht`);
   }
   for (const b of ["<Quickfinder", "<SuchBox", "<StartOnboarding", "<WeitermachenZeile", "<UnterMenue", "<SchulKachel", "<EtikettKnoepfe", "ENTDECKEN_MENUE", "MYTHEN", "<MeinTrainingKachel", "<AppAnleitung", "<SpendenBereich"]) {

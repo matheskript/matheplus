@@ -119,8 +119,7 @@ export function klassenInhalt(k) {
 /* ---------- Meine Kurse ---------- */
 /* Im Menü als Karten-Leiste (funcHauptmenue.jsx gibt jeder Karte Farbe und Zeichen über die id) */
 const KURSE_ALLE = [
-  { id: "abizentrum", name: "Abi-Zentrum", zeile: "Prüfungsformat, Plan, Mia und Lernpartner", ziel: { ansicht: "abi" } },
-  { id: "mckurs", name: "Mathe Abi Masterclass", zeile: "Kursbereich für Teilnehmer: Videos, Aufträge, Mathilda", ziel: { ansicht: "mckurs" } },
+  { id: "abizentrum", name: "Mathe-Abi-Masterclass", zeile: "Abi-Plan, Prüfungsaufgaben, Mia, Lernpartner – und der Kursbereich", ziel: { ansicht: "abi" } },
   { id: "unterstufe", name: "Unterstufe", zeile: "Klasse 5 und 6: der ganze Stoff, lesen und gleich üben", ziel: { ansicht: "unterstufe" } },
   { id: "diffkurs", name: "Differentialrechnung", zeile: "Schulbuch lesen und direkt trainieren", ziel: { ansicht: "diffkurs" } },
   { id: "vekkurs", name: "Vektoren, Geraden und Ebenen", zeile: "Heftkapitel lesen und trainieren", ziel: { ansicht: "vekkurs" } },
@@ -138,6 +137,7 @@ const BALD_KURSE_ALLE = [
   { id: "geometrie", name: "Kurs Geometrie", zeile: "Mittelstufe vom Winkel bis zum Körper", bald: true },
 ];
 /* Ohne Angebot „Kurse“ (angebot.js): keine Masterclass und keine „Bald“-Platzhalter im Menü */
+/* Die Mathe-Abi-Masterclass ist EIN Eintrag (Abi-Zentrum); ihr Kursbereich (mckurs) liegt im Zentrum hinter dem Angebot „Kurse“ */
 export const kurseListe = (cfg = ANGEBOT) => KURSE_ALLE.filter((k) => k.id !== "mckurs" || cfg.kurse);
 export const baldListe = (cfg = ANGEBOT) => (cfg.kurse ? BALD_KURSE_ALLE : []);
 export const KURSE = kurseListe();

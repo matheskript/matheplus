@@ -48,7 +48,13 @@ test("Blog-Start: weder „Pro werden“ noch „Mein Plan“ im Menü, dafür �
 test("Meine Kurse: Masterclass und „Bald“-Platzhalter nur mit Angebot „Kurse“", () => {
   assert.ok(!KURSE.some((k) => k.id === "mckurs") && KURSE.length > 0);
   assert.deepEqual(baldListe(), []);
-  assert.ok(kurseListe(MIT_PRO).some((k) => k.id === "mckurs"));
+  // Masterclass und Abi-Zentrum sind ein Eintrag: „Mathe-Abi-Masterclass“ → /abi, der Kursbereich liegt im Zentrum
+  for (const cfg of [undefined, MIT_PRO]) {
+    const l = kurseListe(cfg);
+    assert.ok(!l.some((k) => k.id === "mckurs"));
+    assert.equal(l.filter((k) => /masterclass/i.test(k.name)).length, 1);
+    assert.equal(l.find((k) => /masterclass/i.test(k.name)).ziel.ansicht, "abi");
+  }
   assert.ok(baldListe(MIT_PRO).length > 0);
   assert.deepEqual(klassenInhalt({ schulart: "g9", box: "10" }).bald, []);
 });

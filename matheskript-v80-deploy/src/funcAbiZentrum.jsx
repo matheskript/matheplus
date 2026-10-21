@@ -17,6 +17,8 @@ import {
 } from "./abiZentrum.js";
 import { SACHGEBIETE, typenIn } from "./abiGeneratoren.js";
 import { MIA_MODI, OPERATOREN } from "./miaKontext.js";
+import { ANGEBOT } from "./angebot.js";
+import { useFrei } from "./func2.jsx";
 
 const GEBIETE = ["analysis", "geometrie", "stochastik"];
 const FORM_TEXT = { schriftlich: "schriftlich", muendlich: "mündlich", beides: "schriftlich und mündlich" };
@@ -221,7 +223,7 @@ function Format({ profil }) {
     <div className="abi-karte" data-abi-format>
       <h3>{pr.titel}</h3>
       <p className="abi-text" style={{ marginTop: 8 }}>{pr.hinweis}</p>
-      <p className="abi-klein" style={{ marginTop: 10 }}>Die Aufgaben im Abi-Zentrum folgen dem Format der IQB-Poolaufgaben (Teil A ohne Hilfsmittel, je Aufgabe 5 BE). Ausgearbeitet ist bisher Baden-Württemberg.</p>
+      <p className="abi-klein" style={{ marginTop: 10 }}>Die Abi-Aufgaben der Masterclass folgen dem Format der IQB-Poolaufgaben (Teil A ohne Hilfsmittel, je Aufgabe 5 BE). Ausgearbeitet ist bisher Baden-Württemberg.</p>
     </div>
   );
 }
@@ -229,6 +231,7 @@ function Format({ profil }) {
 /* ---------- Seite ---------- */
 export function AbiZentrumSeite({ gehe }) {
   const abi = useAbi();
+  const frei = useFrei();
   const profil = abi.profil;
   const heute = datum(Date.now());
   const [bearbeiten, setBearbeiten] = useState(false);
@@ -249,7 +252,7 @@ export function AbiZentrumSeite({ gehe }) {
     <AbiSeite kennung={{ "data-abi-zentrum": "" }}>
       <AbiKopf
         eyebrow={p ? `Mythos Mathe · Abitur ${p.jahr}` : "Mythos Mathe · Abitur"}
-        titel="Abi-Zentrum"
+        titel="Mathe-Abi-Masterclass"
         zeile={p ? `${worte[p.niveau]} · ${landName(p.land)} · ${FORM_TEXT[p.form]}` : "Dein Prüfungsformat, dein Plan bis zum Tag X, Mia als Trainerin – und Lernpartner aus deiner Stadt."}
         rechts={p && (
           <>
@@ -362,6 +365,19 @@ export function AbiZentrumSeite({ gehe }) {
             )}
           </div>
         </Abschnitt>
+
+        {/* Kursbereich der Masterclass (Videolektionen, Aufträge, Live-Calls) – nur mit Angebot „Kurse“ oder Passwort */}
+        {(ANGEBOT.kurse || frei) && (
+          <Abschnitt eyebrow="Für Teilnehmer" titel="Dein Kursbereich" kennung={{ "data-abi-kursbereich": "" }}>
+            <div className="abi-karte dunkel" style={{ display: "grid", gap: 12 }}>
+              <p className="abi-text">Zehn Videolektionen in sechs Monaten, zu jeder Lektion die passenden Werkzeuge, ein Auftrag bis zum nächsten Live-Call und Mathilda zur Lektion.</p>
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                <button type="button" className="abi-knopf gold" onClick={() => gehe({ ansicht: "mckurs" })} data-abi-zum-kursbereich>Zum Kursbereich<Pfeil /></button>
+                <button type="button" className="abi-knopf rand" onClick={() => gehe({ ansicht: "mczugang" })}>Zugangscode einlösen</button>
+              </div>
+            </div>
+          </Abschnitt>
+        )}
 
         {/* Lernpartner */}
         <Abschnitt eyebrow="Gemeinsam statt allein" titel="Lernpartner in deiner Stadt">

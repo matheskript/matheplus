@@ -92,7 +92,7 @@ export const SEITEN_SAETZE = {
   ebbinghaus: { de: "Mathe so wiederholen, dass es hängen bleibt", en: "review maths so that it sticks" },
   abiketten: { de: "Abi-Aufgaben Schritt für Schritt üben", en: "practise Abitur problems step by step" },
   abisaetze: { de: "komplette Abi-Sätze üben", en: "practise complete Abitur papers" },
-  abi: { de: "dich gezielt aufs Mathe-Abi vorbereiten – mit Plan, Abi-Aufgaben und Mia als Trainerin", en: "prepare for the maths Abitur – with a plan, exam problems and Mia as your coach" },
+  abi: { de: "dich in der Mathe-Abi-Masterclass gezielt aufs Abi vorbereiten – mit Plan, Abi-Aufgaben und Mia als Trainerin", en: "prepare for the maths Abitur in the Mathe-Abi-Masterclass – with a plan, exam problems and Mia as your coach" },
   abiaufgaben: { de: "Abi-Aufgaben im Prüfungsformat trainieren", en: "practise Abitur problems in exam format" },
   abiteila: { de: "eine komplette Teil-A-Probe fürs Mathe-Abi schreiben", en: "sit a full Part A mock for the maths Abitur" },
   mia: { de: "dich von Mia, der Abi-Trainerin, korrigieren und prüfen lassen", en: "get corrected and examined by Mia, the Abitur coach" },

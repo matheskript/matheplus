@@ -302,7 +302,6 @@ export const KURSE = [
   { id: "vekkurs", titel: "Vektoren, Geraden und Ebenen", zeile: "Heftkapitel lesen und trainieren", ziel: { ansicht: "vekkurs" }, gebiet: "geometrie" },
   { id: "efunktion", titel: "Minikurs e-Funktion", zeile: "Die wichtigste Funktion der Oberstufe", ziel: { ansicht: "efunktion" }, gebiet: "analysis" },
   { id: "penpaper", titel: "Pen & Paper", zeile: "Sauber aufschreiben – BE sichern", ziel: { ansicht: "penpaperkurs" } },
-  { id: "mckurs", titel: "Mathe Abi Masterclass", zeile: "Kursbereich mit Videos und Live-Calls", ziel: { ansicht: "mckurs" } },
   { id: "kiwahl", titel: "Mathe mit KI lernen", zeile: "Mathilda, Gemini, Claude richtig nutzen", ziel: { ansicht: "kiwahl" } },
   { id: "headnumbers", titel: "Kopfrechnen", zeile: "Teil A heißt: ohne Rechner", ziel: { ansicht: "headnumbers" } },
   { id: "formeln", titel: "Formelsammlung", zeile: "238 Formeln mit Herleitung", ziel: { ansicht: "formeln" } },

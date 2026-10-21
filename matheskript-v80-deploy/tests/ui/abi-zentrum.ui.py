@@ -69,7 +69,7 @@ with sync_playwright() as pw:
         pruefe(page.get_by_text("Generalprobe zur Prüfungszeit").count() >= 1, f"{breite}: Generalprobe fehlt")
         pruefe(page.locator("[data-abi-format]").count() == 1, f"{breite}: Prüfungsformat fehlt")
         pruefe(page.locator("[data-abi-typ]").count() == 10, f"{breite}: nicht alle 10 Aufgabentypen verlinkt")
-        pruefe(page.locator("[data-abi-kurs]").count() >= 8, f"{breite}: Kurse fehlen")
+        pruefe(page.locator("[data-abi-kurs]").count() >= 7, f"{breite}: Kurse fehlen")
         pruefe(page.locator("[data-mia-modus]").count() == 4, f"{breite}: Mia-Modi fehlen")
         breite_ok(page, breite, "Zentrum")
         page.screenshot(path=f"{AUS}/{breite}-zentrum.png", full_page=True)

@@ -314,17 +314,23 @@ function WerkzeugFenster({ w, v, gehe, schliessen }) {
 }
 
 /* ---------- Kopf ---------- */
-function Kopf({ status, untertitel }) {
+function Kopf({ status, untertitel, gehe }) {
   const vorname = status.name ? String(status.name).split(" ")[0] : null;
   return (
     <div style={{ background: NACHT, color: K.weiss, position: "relative", overflow: "hidden" }}>
       <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "radial-gradient(90% 70% at 100% 0%, rgba(237,187,0,0.22) 0%, transparent 60%)" }} />
       <div aria-hidden="true" className="mck-kopfbild" style={{ position: "absolute", right: 16, top: 26, width: 150, height: 150, opacity: 0.9 }}><Treppe hell /></div>
       <div className="held mx-auto px-6 pt-10 pb-5" style={{ maxWidth: 620, position: "relative" }}>
+        {gehe && (
+          <button type="button" onClick={() => gehe({ ansicht: "abi" })} data-mck-zur-masterclass
+            style={{ display: "inline-flex", alignItems: "center", gap: 6, minHeight: 38, padding: "0 14px 0 10px", margin: "-18px 0 16px -6px", border: "none", borderRadius: 999, background: "rgba(237,187,0,0.14)", color: GOLD, font: "inherit", fontSize: 13.5, fontWeight: 800, cursor: "pointer" }}>
+            ← Plan, Abi-Aufgaben, Mia
+          </button>
+        )}
         <Kicker hell>{status.vorschau ? "VORSCHAU · KURSBEREICH" : "DEIN KURSBEREICH"}</Kicker>
         <h1 style={{ fontWeight: 800, fontSize: "clamp(28px, 8vw, 40px)", letterSpacing: "-0.03em", lineHeight: 1.05, margin: 0,
           background: "linear-gradient(180deg, #FFF 0%, #E3E8EF 45%, #B9C2CE 100%)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>
-          Mathe Abi<br />Masterclass
+          Mathe-Abi-<br />Masterclass
         </h1>
         <div style={{ width: 54, height: 4, background: GOLD, borderRadius: 2, marginTop: 16, marginBottom: 14 }} />
         <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.6, margin: 0, maxWidth: 400 }}>
@@ -693,7 +699,7 @@ export function MasterclassKursSeite({ gehe }) {
   if (!status.offen) {
     return (
       <>
-        <Kopf status={{ ...status, name: null }} untertitel="Der Kursbereich für Teilnehmer: Videolektionen, Werkzeuge, Aufträge und MathildaAI." />
+        <Kopf gehe={gehe} status={{ ...status, name: null }} untertitel="Der Kursbereich für Teilnehmer: Videolektionen, Werkzeuge, Aufträge und MathildaAI." />
         <Schaufenster gehe={gehe} />
       </>
     );
@@ -701,7 +707,7 @@ export function MasterclassKursSeite({ gehe }) {
   return (
     <>
       <style>{CSS}</style>
-      <Kopf status={status} untertitel={v ? `Lektion ${videoNummer(v.id)} · Video ansehen, dann trainieren.` : "Sechs Monate, zehn Lektionen, ein Ziel: dein Mathe-Abi."} />
+      <Kopf gehe={gehe} status={status} untertitel={v ? `Lektion ${videoNummer(v.id)} · Video ansehen, dann trainieren.` : "Sechs Monate, zehn Lektionen, ein Ziel: dein Mathe-Abi."} />
       {v
         ? <Modul key={v.id} v={v} stand={stand} setStand={setStand} oeffnen={oeffnen} zurUebersicht={zurUebersicht} gehe={gehe} />
         : <Uebersicht stand={stand} oeffnen={oeffnen} status={status} gehe={gehe} />}

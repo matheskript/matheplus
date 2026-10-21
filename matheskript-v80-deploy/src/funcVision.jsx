@@ -29,8 +29,7 @@ import { MathildaPfade } from "./mathildaBild.jsx";
 import { springeZuId } from "./sprung.js";
 import { ANGEBOT } from "./angebot.js";
 import { useFrei } from "./func2.jsx";
-import { DiffKursKachel, VekKursKachel, UnterstufeKachel } from "./funcKursKachel.jsx";
-import { MasterclassKachel } from "./funcMasterclass.jsx";
+import { DiffKursKachel, VekKursKachel, UnterstufeKachel, AbiZentrumKachel } from "./funcKursKachel.jsx";
 import { VISION_KAPITEL, VISION_ZIELE, TANGENTE, tangente, zahlDe, VERGESSEN, behalten } from "./vision.js";
 import { basisModus, editionVon, EVENT_START_MODUS, startModus } from "./startModus.js";
 
@@ -1148,9 +1147,7 @@ export function VisionSeite({ gehe }) {
             <DiffKursKachel onClick={() => gehe({ ansicht: "diffkurs" })} />
             <VekKursKachel onClick={() => gehe({ ansicht: "vekkurs" })} />
           </div>
-          {(ANGEBOT.kurse || frei) && (
-            <div className="vi-wieder"><MasterclassKachel name="Mathe Masterclass" monate="3 MONATE" knopf="Zum Kursbereich" onClick={() => gehe({ ansicht: "mckurs" })} /></div>
-          )}
+          <div className="vi-wieder"><AbiZentrumKachel onClick={() => gehe({ ansicht: "abi" })} /></div>
 
           <div className="vi-spende vi-auf">
             <div>
