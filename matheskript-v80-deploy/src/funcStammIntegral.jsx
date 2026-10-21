@@ -309,7 +309,7 @@ function Grenze({ label, wert, setWert, onEnter }) {
   return (
     <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 15, fontWeight: 700, color: C.tinte }}>
       {label}
-      <MatheFeld modus="zahl" value={wert} onChange={(e) => setWert(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && onEnter) onEnter(); }}
+      <MatheFeld modus="formel" value={wert} onChange={(e) => setWert(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && onEnter) onEnter(); }}
         placeholder="0" autoCapitalize="off" autoCorrect="off" spellCheck="false" aria-label={`Grenze ${label}`}
         style={{ width: 74, height: 44, borderRadius: 12, border: `1.5px solid ${ok ? C.linie : C.signal}`, padding: "0 10px", fontSize: 16, fontWeight: 600, fontFamily: "inherit", color: C.tinte, textAlign: "center" }} />
     </label>
@@ -490,7 +490,7 @@ function IntegralTeil({ modus, start, desktop, kopf }) {
                   <div style={{ marginTop: 8 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
                       <span style={{ fontWeight: 700, fontSize: 17, color: C.hellgrau, minWidth: 62, textAlign: "right" }}>=</span>
-                      <MatheFeld modus="zahl" value={wertText} onChange={(e) => { setWertText(e.target.value); setWertStatus((s) => ({ ...s, status: null, hinweis: "" })); }}
+                      <MatheFeld modus="formel" value={wertText} onChange={(e) => { setWertText(e.target.value); setWertStatus((s) => ({ ...s, status: null, hinweis: "" })); }}
                         onKeyDown={(e) => { if (e.key === "Enter") pruefenWert(); }} placeholder="Ergebnis" aria-label="Wert des Integrals" autoCapitalize="off" autoCorrect="off" spellCheck="false"
                         style={{ width: 150, height: 50, borderRadius: 12, border: `1.5px solid ${wertStatus.status === "falsch" ? C.signal : C.linie}`, padding: "0 12px", fontSize: 18, fontWeight: 700, fontFamily: "inherit", color: C.tinte }} />
                       <button type="button" onClick={pruefenWert}

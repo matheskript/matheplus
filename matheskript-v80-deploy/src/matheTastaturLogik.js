@@ -45,7 +45,7 @@ export const FORMEL_FUNKTION = [
   { id: "ehoch", anz: "eˣ", text: "e^()", zurueck: 1, label: "e hoch" }, { id: "kub", anz: "x³", text: "^3", label: "hoch 3" }, { id: "hochn", anz: "xⁿ", text: "^()", zurueck: 1, label: "hoch n" },
   { id: "wurzel", anz: "√", text: "sqrt()", zurueck: 1, label: "Wurzel" }, { id: "kehr", anz: "1/x", text: "1/()", zurueck: 1, label: "Kehrwert" }, { id: "e", anz: "e", text: "e", label: "Eulersche Zahl" },
   { id: "fx", anz: "f(x)", text: "f(x)", label: "f von x" }, { id: "fs", anz: "f′(x)", text: "f'(x)", label: "f Strich von x" }, { id: "gx", anz: "g(x)", text: "g(x)", label: "g von x" },
-  { id: "gleich", anz: "=", text: "=", label: "Gleichheitszeichen" }, { id: "komma", anz: ",", text: ",", label: "Komma" }, { id: "ok", anz: "OK", aktion: "ok", label: "Fertig" },
+  { id: "gleich", anz: "=", text: "=", label: "Gleichheitszeichen" }, { id: "semi", anz: ";", text: ";", label: "Semikolon" }, { id: "ok", anz: "OK", aktion: "ok", label: "Fertig" },
 ];
 /* Trig-Rechner: eine Ebene, 6 Spalten × 5 Reihen. Umkehrfunktionen stehen so im Feld, wie sie im Heft stehen: sin⁻¹( … ) */
 export const TRIG_TASTEN = [
@@ -99,3 +99,36 @@ export function loeschen(wert, von, bis) {
 /* Zeigt die Tastatur in diesem Modus auf diesem Gerät automatisch? Auf Geräten mit Maus nur für Formeln. */
 /* Der Trig-Rechner zeigt sein Tastenfeld auch mit Maus: sin⁻¹ oder π tippt man auf der Computertastatur nicht. */
 export const zeigeAutomatisch = (modus, grobZeiger) => (grobZeiger ? istModus(modus) : modus === "formel" || modus === "trig");
+
+/* Am Desktop steht das Tastenfeld neben dem Feld, nicht als Leiste unten.
+   feld = getBoundingClientRect() des Feldes, vb/vh = Fenstergröße, b/h = Größe des Tastenfelds.
+   Reihenfolge: rechts daneben → links daneben → darunter → darüber. Immer ganz im Fenster. */
+export const DESKTOP_TASTATUR_AB = 840;
+export function tastaturPlatz(feld, vb, vh, b, h, abstand = 12, oben = 72) {
+  const rand = 12;
+  const klemme = (v, lo, hi) => Math.max(lo, Math.min(v, Math.max(lo, hi)));
+  const topNeben = klemme(feld.top - 8, oben, vh - h - rand);
+  if (vb - feld.right - abstand - rand >= b) return { seite: "rechts", left: feld.right + abstand, top: topNeben };
+  if (feld.left - abstand - rand >= b) return { seite: "links", left: feld.left - abstand - b, top: topNeben };
+  const left = klemme(feld.right - b, rand, vb - b - rand);
+  if (feld.bottom + abstand + h <= vh - rand) return { seite: "unten", left, top: feld.bottom + abstand };
+  if (feld.top - abstand - h >= oben) return { seite: "oben", left, top: Math.min(feld.top - abstand - h, vh - h - rand) };
+  return { seite: "unten", left, top: klemme(feld.bottom + abstand, oben, vh - h - rand) };
+}
+
+/* Welche Buchstaben außer x, e und π braucht eine Lösung? (Für die Variablen-Tasten des Formel-Tastenfelds.)
+   Funktionsnamen (sin, cos, tan, ln, log, sqrt, exp) und pi zählen nicht. */
+export function variablenAus(loesung) {
+  const t = String(loesung || "").replace(/\\[a-zA-Z]+/g, " ").replace(/sqrt|sin|cos|tan|exp|log|ln|pi/gi, " ");
+  const v = new Set();
+  for (const ch of t) if (/[a-zA-Z]/.test(ch) && ch !== "x" && ch !== "e") v.add(ch);
+  return [...v].sort();
+}
+
+/* Zahl-Aufgabe: Welcher Modus passt zur Lösung? Mit π, e, ln, sin … → formel; mit Wurzel → wurzel; sonst bruch. */
+export function zahlModusAus(loesung) {
+  const t = String(loesung ?? "");
+  if (/pi|π|\be\b|e\^|ln|log|sin|cos|tan|[a-df-wyz]/i.test(t.replace(/sqrt/gi, ""))) return "formel";
+  if (/sqrt|√/.test(t)) return "wurzel";
+  return "bruch";
+}

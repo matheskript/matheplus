@@ -1,7 +1,7 @@
 import { FotoStart } from "./funcMathildaSeite.jsx";
 import React, { useState, useRef } from "react";
 import { API_URL, C, ganz, zuf } from "./base1.jsx";
-import { ABL_TYPEN, GZ_FAMILIEN, PLATZ, TASTEN_FUNK, TASTEN_PARAM, TASTEN_ZAHL, W, ohneKlammer } from "./base2.jsx";
+import { ABL_TYPEN, GZ_FAMILIEN, PLATZ, W, ohneKlammer } from "./base2.jsx";
 import { kiKopf, kiAntwort } from "./base4.jsx";
 import { Trainingsbereich, dekodieren, jsonLesen, parseZahl, rendern } from "./func1.jsx";
 import { hoch, termText, zahl } from "./func2.jsx";
@@ -13,6 +13,7 @@ import { Mathilda } from "./func10.jsx";
 import { FR } from "./funcRegistry.jsx";
 import { GraphenUebungen, ZusaetzlichUeben } from "./funcGraphenUebung.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
+import { TermEingabe } from "./funcRegelwerk.jsx";
 
 export function FotoAufgaben() {
   const [bild, setBild] = useState(null);
@@ -994,118 +995,13 @@ export function termAlsTex(text) {
 /* --- Die Tastatur --- */
 
 
-export function TermTastatur({ wert, setWert }) {
-  const [pos, setPos] = useState(wert.length);
-  const [feld, setFeld] = useState("zahl");
-
-  const setzen = (t, p) => { setWert(t); setPos(Math.max(0, Math.min(p, t.length))); };
-
-  const einfuegen = (s) => {
-    let t = wert, p = pos;
-    if (t[p] === PLATZ) t = t.slice(0, p) + s + t.slice(p + 1);
-    else t = t.slice(0, p) + s + t.slice(p);
-    const rel = s.indexOf(PLATZ);
-    setzen(t, rel >= 0 ? p + rel : p + s.length);
-  };
-
-  const zurueck = () => {
-    if (pos === 0) return;
-    setzen(wert.slice(0, pos - 1) + wert.slice(pos), pos - 1);
-  };
-
-  const naechsterPlatz = () => {
-    const ab = wert.indexOf(PLATZ, pos + 1);
-    const idx = ab >= 0 ? ab : wert.indexOf(PLATZ);
-    if (idx >= 0) setPos(idx);
-    else setPos(wert.length);
-  };
-
-  const tex = termAlsTex(wert);
-
-  const Taste = ({ kind, onClick, ton, quadrat, klein }) => (
-    <button onClick={onClick}
-      style={{ width: "100%", aspectRatio: quadrat ? "1 / 1" : "auto", height: quadrat ? "auto" : 50,
-        background: ton === "aktion" ? C.see : ton === "hell" ? C.himmel : C.weiss,
-        color: ton === "aktion" ? C.weiss : C.tinte,
-        border: `1px solid ${ton === "aktion" ? C.see : C.linie}`, borderRadius: 16,
-        fontSize: klein ? 15 : 19, fontWeight: 500, fontFamily: "inherit", cursor: "pointer", padding: 0,
-        display: "flex", alignItems: "center", justifyContent: "center" }}>
-      {kind}
-    </button>
-  );
-
-  return (
-    <div>
-      {/* Anzeige */}
-      <div style={{ background: C.weiss, border: `1.5px solid ${C.linie}`, borderRadius: 12,
-        padding: "12px 14px", minHeight: 54, marginBottom: 6, overflowX: "auto" }}>
-        {wert ? (
-          tex ? <span style={{ fontSize: 19, lineHeight: 1.9 }}><M t={tex} /></span>
-              : <span style={{ fontSize: 17, color: C.grau }}>{wert}</span>
-        ) : (
-          <span style={{ fontSize: 15, color: C.hellgrau, fontWeight: 300 }}>noch nichts eingegeben</span>
-        )}
-      </div>
-
-      {/* Lineare Fassung mit Schreibmarke */}
-      <p style={{ fontSize: 12.5, color: C.hellgrau, fontWeight: 300, marginBottom: 12, wordBreak: "break-all" }}>
-        {wert.slice(0, pos)}<span style={{ color: C.gruenDunkel, fontWeight: 700 }}>|</span>{wert.slice(pos)}
-      </p>
-
-      {/* Umschalter */}
-      <div className="flex gap-2 mb-2">
-        {[["zahl", "Zahlen"], ["funk", "Funktionen"], ["param", "Parameter"]].map(([id, n]) => (
-          <button key={id} onClick={() => setFeld(id)} className="px-3 py-2"
-            style={{ flex: 1, background: feld === id ? C.see : C.weiss, color: feld === id ? C.weiss : C.grau,
-              border: `1px solid ${feld === id ? C.see : C.linie}`, borderRadius: 999, fontSize: 13, fontFamily: "inherit", cursor: "pointer" }}>
-            {n}
-          </button>
-        ))}
-      </div>
-
-      {/* Tastenfelder */}
-      {feld === "zahl" && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
-          {TASTEN_ZAHL.map((t, i) => (
-            <Taste key={i} kind={t} quadrat ton={/[0-9.]/.test(t) ? "weiss" : "hell"} onClick={() => einfuegen(t)} />
-          ))}
-        </div>
-      )}
-
-      {feld === "funk" && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
-          {TASTEN_FUNK.map((t, i) => (
-            <div key={i} style={t.breit ? { gridColumn: "span 2" } : {}}>
-              <Taste kind={t.z} quadrat={!t.breit} ton="hell" klein={t.z.length > 3} onClick={() => einfuegen(t.e)} />
-            </div>
-          ))}
-        </div>
-      )}
-
-      {feld === "param" && (
-        <>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
-            {TASTEN_PARAM.map((t, i) => (
-              <Taste key={i} kind={t === "pi" ? "π" : t} quadrat ton="hell" onClick={() => einfuegen(t)} />
-            ))}
-          </div>
-          <p style={{ color: C.hellgrau, fontSize: 12, fontWeight: 300, lineHeight: 1.6, marginTop: 8 }}>
-            Parameter sind feste, aber unbekannte Zahlen. Beim Ableiten nach x werden sie wie Konstanten behandelt.
-          </p>
-        </>
-      )}
-
-      {/* Steuerung */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 8, marginTop: 10 }}>
-        <Taste kind="←" ton="aktion" onClick={() => setPos(Math.max(0, pos - 1))} />
-        <Taste kind="→" ton="aktion" onClick={() => setPos(Math.min(wert.length, pos + 1))} />
-        <Taste kind={PLATZ} ton="aktion" onClick={naechsterPlatz} />
-        <Taste kind="⌫" ton="hell" onClick={zurueck} />
-        <Taste kind="C" ton="hell" klein onClick={() => setzen("", 0)} />
-      </div>
-    </div>
-  );
+/* Termeingabe in den Übungen: Anzeige mit Schreibmarke + Formel-Tastenfeld des Ableitungstrainers
+   (TermEingabe in funcRegelwerk.jsx; Desktop daneben, Handy darunter). Das alte Tastenfeld
+   „Zahlen | Funktionen | Parameter“ ist abgelöst. */
+export function TermTastatur(props) {
+  return <TermEingabe {...props} />;
 }
+
 
 /* ---------- Generator: Ableitungen bilden ---------- */
 
@@ -1217,7 +1113,6 @@ export function AbleitungsGenerator() {
   const [laedt, setLaedt] = useState(false);
   const [quelle, setQuelle] = useState("");
   const [serie, setSerie] = useState({ n: 0, ok: 0 });
-  const [tippen, setTippen] = useState(false);
   const [start, setStart] = useState(() => Date.now());
   const [wegOffen, setWegOffen] = useState(false);
 
@@ -1316,19 +1211,8 @@ Maschinenschreibweise: ^ für Potenzen, * für Produkte, sin(x), cos(x), ln(x), 
         </div>
 
         <p style={{ fontSize: 15, fontWeight: 500, marginBottom: 8 }}>f′(x) =</p>
-        {tippen ? (
-          <MatheFeld modus="formel" value={eingabe} onChange={(e) => { setEingabe(e.target.value); setStand(null); }}
-            placeholder="deine Lösung"
-            style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", fontSize: 16, fontFamily: "inherit",
-              border: `1.5px solid ${stand === "ok" ? C.see : stand ? C.signal : C.linie}`,
-              borderRadius: 12, outline: "none", background: stand === "ok" ? C.himmel : C.weiss, color: C.tinte, marginBottom: 8 }} />
-        ) : (
-          <TermTastatur wert={eingabe} setWert={(w) => { setEingabe(w); setStand(null); }} />
-        )}
-        <button onClick={() => setTippen(!tippen)} className="mt-2"
-          style={{ background: "none", border: "none", color: C.see, fontSize: 12.5, fontFamily: "inherit", cursor: "pointer", padding: 0, textDecoration: "underline" }}>
-          {tippen ? "Tastenfeld benutzen" : "Lieber selbst tippen"}
-        </button>
+        <TermTastatur wert={eingabe} setWert={(w) => { setEingabe(w); setStand(null); }} stand={stand}
+          onOk={() => { if (eingabe.trim() && stand === null) pruefen(); }} />
         <div style={{ height: 12 }} />
         {quelle && <p style={{ color: C.hellgrau, fontSize: 12, fontWeight: 300, marginBottom: 10 }}>{quelle}</p>}
 

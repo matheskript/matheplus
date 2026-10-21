@@ -612,22 +612,6 @@ export const PLATZ = "▯";
 export const ohneKlammer = (n) => (n && n.op === "klammer" ? ohneKlammer(n.l) : n);
 
 
-export const TASTEN_ZAHL = ["7", "8", "9", "(", "4", "5", "6", ")", "1", "2", "3", "+", "0", ".", "x", "-", "^", "*", "/", PLATZ];
-
-
-export const TASTEN_FUNK = [
-  { z: "x²", e: "x^2" }, { z: "x³", e: "x^3" }, { z: "xⁿ", e: `x^(${PLATZ})` },
-  { z: "√▯", e: `sqrt(${PLATZ})` }, { z: "√x", e: "sqrt(x)" },
-  { z: "1/▯", e: `1/(${PLATZ})` }, { z: "▯/▯", e: `(${PLATZ})/(${PLATZ})` },
-  { z: "sin", e: `sin(${PLATZ})` }, { z: "cos", e: `cos(${PLATZ})` }, { z: "tan", e: `tan(${PLATZ})` },
-  { z: "ln", e: `ln(${PLATZ})` }, { z: "eˣ", e: "e^x" }, { z: "e▯", e: `e^(${PLATZ})` },
-  { z: "sin x", e: "sin(x)" }, { z: "cos x", e: "cos(x)" }, { z: "ln x", e: "ln(x)" },
-];
-
-
-export const TASTEN_PARAM = ["a", "b", "c", "d", "h", "k", "t", "n", "pi"];
-
-
 export const vz = (k) => (k < 0 ? `- ${Math.abs(k)}` : `+ ${k}`);
 
 export const vzm = (k) => (k < 0 ? `${k}` : `+${k}`);

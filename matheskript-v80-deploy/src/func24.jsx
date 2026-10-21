@@ -560,7 +560,7 @@ function LotUeben({ art }) {
         {[0, 1, 2].map((i) => (
           <React.Fragment key={i}>
             {i > 0 && <span style={{ color: C.hellgrau, fontWeight: 400 }}>|</span>}
-            <MatheFeld modus="zahl" value={w[i]} aria-label={`F Koordinate x${i + 1}`}
+            <MatheFeld modus="bruch" value={w[i]} aria-label={`F Koordinate x${i + 1}`}
               onChange={(e) => { const x = [...w]; x[i] = e.target.value.slice(0, 7); setW(x); setErg(null); }}
               style={{ width: 52, height: 36, textAlign: "center", fontSize: 15, fontWeight: 800, fontFamily: "inherit", color: C.see,
                 border: `1.5px solid ${C.see}55`, borderRadius: 9, background: `${C.see}0D`, outline: "none" }} />

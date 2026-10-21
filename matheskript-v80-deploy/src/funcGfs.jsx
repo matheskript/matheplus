@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { MatheFeld } from "./matheTastatur.jsx";
 import { C, PASCAL_VIDEO_ID } from "./base1.jsx";
 import { ErklaerVideo } from "./func1.jsx";
 import { M, Text } from "./func3.jsx";
@@ -202,8 +203,8 @@ function PascalTrainer() {
   };
 
   const feld = (wert, setzen, platz, breite) => (
-    <input value={wert} onChange={(ev) => { setzen(ev.target.value); setStand(null); }} onKeyDown={(ev) => { if (ev.key === "Enter" && !leer) pruefen(); }}
-      inputMode="numeric" placeholder={platz} aria-label={platz}
+    <MatheFeld modus="ganz" value={wert} onChange={(ev) => { setzen(ev.target.value); setStand(null); }} onKeyDown={(ev) => { if (ev.key === "Enter" && !leer) pruefen(); }}
+      placeholder={platz} aria-label={platz}
       style={{ width: breite, boxSizing: "border-box", padding: "10px 12px", fontSize: 17, fontFamily: "inherit", textAlign: "center",
         border: `1.5px solid ${stand === "ok" ? C.see : stand && stand !== "ok" ? C.signal : C.linie}`, borderRadius: 12, outline: "none",
         background: stand === "ok" ? C.himmel : C.weiss, color: C.tinte }} />
@@ -377,8 +378,8 @@ function BuchUebungen() {
   };
   const stand = (i) => (erg ? erg.felder[i] : null);
   const feld = (key, i, platz, breite = 64) => (
-    <input key={key} value={ein[key] ?? ""} onChange={(ev) => setze(key, ev.target.value)} onKeyDown={(ev) => { if (ev.key === "Enter" && !leer) pruefen(); }}
-      inputMode={auf.art === "ausmulti" ? "text" : "numeric"} aria-label={platz} placeholder={platz} style={{ ...ZELLE(stand(i)), width: breite }} />
+    <MatheFeld key={key} modus={auf.art === "ausmulti" ? "ganzvz" : "ganz"} value={ein[key] ?? ""} onChange={(ev) => setze(key, ev.target.value)} onKeyDown={(ev) => { if (ev.key === "Enter" && !leer) pruefen(); }}
+      aria-label={platz} placeholder={platz} style={{ ...ZELLE(stand(i)), width: breite }} />
   );
   const zahl = (w, gold, key) => (
     <span key={key} style={{ minWidth: 34, padding: "6px 6px", textAlign: "center", borderRadius: 8, fontSize: 14, fontWeight: 600,

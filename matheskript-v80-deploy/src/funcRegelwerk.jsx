@@ -10,14 +10,14 @@
    Mathe-Kern: regelwerkKern.js. Keine base-Datei darf diese Datei importieren.
    ============================================================ */
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { buchen } from "./buchung.jsx";
 import { C } from "./base1.jsx";
 import { Formel, M, Text } from "./func3.jsx";
 import { LiveFormel, Tastenfeld, ableitung, hatX } from "./func12.jsx";
 import { AufklappZeichen } from "./aufklappen.jsx";
-import { MatheFeld } from "./matheTastatur.jsx";
+import { MatheFeld, useDesktopTastatur } from "./matheTastatur.jsx";
 import { ErklaerAnimation } from "./funcErklaeranimation.jsx";
 import { springe } from "./sprung.js";
 import { FR } from "./funcRegistry.jsx";
@@ -216,7 +216,7 @@ export function EingabePopup({ children, style }) {
 }
 
 /* Tastenfeld oder Textfeld für das aktive Feld */
-export function Eingabe({ text, setText, pos, setPos, onEnter, platzhalter, voll }) {
+export function Eingabe({ text, setText, pos, setPos, onEnter, platzhalter, voll, variablen }) {
   const [tippen, setTippen] = useState(false);
   // Vollbild: nur das Tastenfeld, genau so hoch wie der freie Platz bis zum unteren Bildschirmrand
   if (voll) return <Tastenfeld wert={text} setWert={setText} pos={pos} setPos={setPos} onOk={onEnter} fuellen />;
@@ -229,7 +229,7 @@ export function Eingabe({ text, setText, pos, setPos, onEnter, platzhalter, voll
           style={{ width: "100%", boxSizing: "border-box", height: 54, borderRadius: 14, border: `1.5px solid ${C.linie}`,
             padding: "0 14px", fontSize: 17, fontFamily: "ui-monospace, Menlo, monospace" }} />
       ) : (
-        <Tastenfeld wert={text} setWert={setText} pos={pos} setPos={setPos} onOk={onEnter} />
+        <Tastenfeld wert={text} setWert={setText} pos={pos} setPos={setPos} onOk={onEnter} variablen={variablen} />
       )}
       {tippen && onEnter && (
         <button type="button" onClick={onEnter}
@@ -242,6 +242,59 @@ export function Eingabe({ text, setText, pos, setPos, onEnter, platzhalter, voll
         style={{ background: "none", border: "none", color: C.see, fontSize: 14, fontFamily: "inherit", cursor: "pointer", padding: "10px 0 0" }}>
         {tippen ? "Tastenfeld benutzen" : "Lieber selbst tippen"}
       </button>
+    </div>
+  );
+}
+
+/* Termeingabe für Übungsaufgaben (Ableiten, e-Funktion, Differenzenquotient, Lerneinheiten …):
+   Anzeige mit Schreibmarke (Feld) + Formel-Tastenfeld des Ableitungstrainers (Eingabe).
+   Desktop (Maus, ≥ 840 px) und Container ≥ 920 px: Anzeige links, Tastenfeld daneben rechts.
+   Sonst steht das Tastenfeld direkt darunter – am Desktop selbst zweispaltig (Funktionen | Zahlen), auf dem Handy gestapelt.
+   wert/setWert wie ein Textfeld; onOk = OK-Taste (Prüfen); stand: null | "ok" | sonst falsch. */
+export const TERM_DANEBEN_AB = 920;   // darunter wäre das Tastenfeld neben dem Feld schmaler als seine Desktop-Anordnung (500 px)
+export function TermEingabe({ wert, setWert, onOk, placeholder, stand, label = "", variablen }) {
+  const text = wert || "";
+  const [pos, setPos] = useState(text.length);
+  useEffect(() => {
+    // Neue Aufgabe (Feld geleert) oder Text von außen: Schreibmarke ans Ende
+    if (text === "" || pos > text.length) setPos(text.length);
+  }, [text]); // eslint-disable-line react-hooks/exhaustive-deps
+  const desktop = useDesktopTastatur();
+  const huelle = useRef(null);
+  const [breit, setBreit] = useState(false);
+  useLayoutEffect(() => {
+    const h = huelle.current;
+    if (!h) return undefined;
+    const miss = () => setBreit(h.getBoundingClientRect().width >= TERM_DANEBEN_AB);
+    miss();
+    if (typeof ResizeObserver === "undefined") return undefined;
+    const ro = new ResizeObserver(miss);
+    ro.observe(h);
+    return () => ro.disconnect();
+  }, []);
+  const daneben = desktop && breit;
+  const status = stand === "ok" ? "richtig" : stand ? "falsch" : null;
+  const anzeige = (
+    <Feld label={label} text={text} aktiv status={status} pos={pos} setPos={setPos} platzhalter={placeholder || "hier eingeben …"} onClick={() => {}} />
+  );
+  const tasten = <Eingabe text={text} setText={setWert} pos={pos} setPos={setPos} onEnter={onOk} platzhalter={placeholder} variablen={variablen} />;
+  return (
+    <div ref={huelle} data-term-eingabe={daneben ? "daneben" : "darunter"}
+      style={daneben ? { display: "grid", gridTemplateColumns: "minmax(0, 1fr) 540px", gap: 20, alignItems: "start" } : undefined}>
+      <style>{WERK_CSS}</style>
+      {daneben ? (
+        <>
+          <div style={{ position: "sticky", top: 84, paddingTop: 12 }}>
+            {anzeige}
+            <p style={{ fontSize: 12.5, color: C.hellgrau, fontWeight: 300, margin: "10px 4px 0", lineHeight: 1.6 }}>
+              Tastenfeld rechts – oder in die Formel klicken, um die Schreibmarke zu setzen.
+            </p>
+          </div>
+          {tasten}
+        </>
+      ) : (
+        <>{anzeige}{tasten}</>
+      )}
     </div>
   );
 }

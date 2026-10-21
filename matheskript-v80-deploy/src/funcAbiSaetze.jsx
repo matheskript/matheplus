@@ -8,6 +8,7 @@
    Keine base-Datei darf diese Datei importieren.
    ============================================================ */
 import React, { useEffect, useState } from "react";
+import { MatheFeld } from "./matheTastatur.jsx";
 import { C } from "./base1.jsx";
 import { merken } from "./func5.jsx";
 import { ANZAHL_SAETZE, BUNDESLAND, abiSatz, feldLoesung, pruefeAbiTeil } from "./abiSaetze.js";
@@ -80,7 +81,7 @@ function Teilaufgabe({ teil, key_, eingaben, ergebnis, setEingabe, pruefen, zeig
               return (
                 <label key={f.name} style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 15, fontWeight: 600, color: C.tinte, flex: breit ? "1 1 100%" : "0 1 auto" }}>
                   <span style={{ fontStyle: "italic", whiteSpace: "nowrap" }}>{f.name} =</span>
-                  <input value={eingaben[i]} disabled={fertig} inputMode={breit ? "text" : "decimal"} aria-label={`${teil.titel}: ${f.name}`} placeholder={breit ? "z. B. 2x*e^(2x)" : ""}
+                  <MatheFeld modus={breit ? "formel" : "bruch"} value={eingaben[i]} disabled={fertig} aria-label={`${teil.titel}: ${f.name}`} placeholder={breit ? "z. B. 2x*e^(2x)" : ""}
                     onChange={(e) => setEingabe(i, e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && !fertig) pruefen(); }}
                     style={{ width: breit ? "100%" : teil.felder.length > 2 ? 72 : 100, minWidth: 0, height: 40, borderRadius: 10, padding: "0 10px", fontSize: 15, fontFamily: "inherit", textAlign: breit ? "left" : "center",
                       border: `1.5px solid ${ok === null ? C.linie : ok ? "#0F7A4D" : C.gruenDunkel}`, background: ok === null ? C.weiss : ok ? "#E6F6EF" : "#FCE8EE", color: C.tinte }} />

@@ -201,7 +201,6 @@ export function DifferenzenquotientGenerator() {
   const [hinweis, setHinweis] = useState("");
   const [zeigen1, setZeigen1] = useState(false);
   const [zeigen2, setZeigen2] = useState(false);
-  const [tippen, setTippen] = useState(false);
   const [serie, setSerie] = useState({ n: 0, ok: 0 });
   const [start, setStart] = useState(() => Date.now());
 
@@ -325,19 +324,8 @@ export function DifferenzenquotientGenerator() {
             <p style={{ fontSize: 15, fontWeight: 500, marginBottom: 8 }}>
               1. Kürze den Bruch, bis h nicht mehr im Nenner steht:
             </p>
-            {tippen ? (
-              <MatheFeld modus="formel" value={e1} onChange={(e) => { setE1(e.target.value); setStand1(null); }}
-                placeholder={stelle !== null ? "Term mit h" : "Term mit x und h"}
-                style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", fontSize: 16, fontFamily: "inherit",
-                  border: `1.5px solid ${stand1 === "ok" ? C.see : stand1 ? C.signal : C.linie}`,
-                  borderRadius: 12, outline: "none", background: stand1 === "ok" ? C.himmel : C.weiss, color: C.tinte, marginBottom: 8 }} />
-            ) : (
-              <TermTastatur wert={e1} setWert={(w) => { setE1(w); setStand1(null); }} />
-            )}
-            <button onClick={() => setTippen(!tippen)} className="mt-2"
-              style={{ background: "none", border: "none", color: C.see, fontSize: 12.5, fontFamily: "inherit", cursor: "pointer", padding: 0, textDecoration: "underline" }}>
-              {tippen ? "Tastenfeld benutzen" : "Lieber selbst tippen"}
-            </button>
+            <TermTastatur wert={e1} setWert={(w) => { setE1(w); setStand1(null); }} stand={stand1}
+              placeholder={stelle !== null ? "Term mit h" : "Term mit x und h"} variablen={["h"]} onOk={() => { if (e1.trim()) pruefen1(); }} />
             <div style={{ height: 12 }} />
 
             {stand1 === "nein" && (
@@ -383,14 +371,9 @@ export function DifferenzenquotientGenerator() {
                 style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", fontSize: 16, fontFamily: "inherit",
                   border: `1.5px solid ${stand2 === "ok" ? C.see : stand2 ? C.signal : C.linie}`,
                   borderRadius: 12, outline: "none", background: stand2 === "ok" ? C.himmel : C.weiss, color: C.tinte, marginBottom: 8 }} />
-            ) : tippen ? (
-              <MatheFeld modus="bruch" value={e2} onChange={(e) => { setE2(e.target.value); setStand2(null); }}
-                placeholder="f′(x)"
-                style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", fontSize: 16, fontFamily: "inherit",
-                  border: `1.5px solid ${stand2 === "ok" ? C.see : stand2 ? C.signal : C.linie}`,
-                  borderRadius: 12, outline: "none", background: stand2 === "ok" ? C.himmel : C.weiss, color: C.tinte, marginBottom: 8 }} />
             ) : (
-              <TermTastatur wert={e2} setWert={(w) => { setE2(w); setStand2(null); }} />
+              <TermTastatur wert={e2} setWert={(w) => { setE2(w); setStand2(null); }} stand={stand2}
+                placeholder="f′(x)" onOk={() => { if (e2.trim() && stand2 === null) pruefen2(); }} />
             )}
             <div style={{ height: 12 }} />
 

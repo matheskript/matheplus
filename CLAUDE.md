@@ -95,3 +95,11 @@ Werkzeug „Integrale“ = Kombination aus Ableitungstrainer und Polynomplotter:
 
 ## Startseite Zone 1 „Heute trainierst du …“: Heute-Karte
 `src/funcHeuteKarte.jsx` (Logik `heuteFokus.js`) in der Lack-Optik der Kurs-Kacheln (NACHTBLAU): eine Kopfzeile („4 Runden · 32 Min“ / „Noch 3 Runden …“ + Klassen-Knopf), je Einheit eine Etappen-Kachel mit großem Motiv (Tipp startet die Einheit), ein Goldknopf für die nächste offene Einheit, „Details“ klappt die Einheitenkarten auf. Keine Kicker-Zeilen, kein Zahlensalat. Motive (viewBox 0 0 120 90) in `src/funcHeuteMotive.jsx` – neues Werkzeug: Eintrag in `MOTIVE` (sonst erscheint sein Zeichen in Folie). Waagrechte/senkrechte Goldlinien dort mit `f.gl` zeichnen (Verlauf über die eigene Box ist bei einer Linie ohne Höhe unsichtbar). „Weitermachen“ darunter: `WeitermachenZeile lack`. Browser: `tests/ui/heute-karte.ui.py`.
+
+## Eingabefelder: immer das passende Tastenfeld
+Das alte Tastenfeld „Zahlen | Funktionen | Parameter“ (frühere `TermTastatur`) gibt es nicht mehr – nirgendwo neu bauen (Wächter `tests/eingabeFelder.test.mjs`).
+- **Terme in Übungen** (f′(x), Differenzenquotient, Lerneinheiten …): `TermEingabe` aus `funcRegelwerk.jsx` (bzw. `TermTastatur` in func4 als Hülle) = Anzeige mit Schreibmarke + Formel-Tastenfeld des Ableitungstrainers. Desktop (Maus, ≥ 840 px) und Container ≥ 920 px: Tastenfeld **daneben**, sonst **darunter** (am Desktop selbst zweispaltig Funktionen | Zahlen). OK-Taste = Prüfen (`onOk`). Weitere Buchstaben über `variablen` (z. B. `["h"]`, oder `variablenAus(loesung)`).
+- **Alle anderen Felder**: `<MatheFeld modus="…">` statt `<input>`; Modus nach Inhalt wählen: ganz · ganzvz · zahl · bruch · wurzel · formel (alles mit π, e, ln, Variablen, Listen mit „;“) · trig. Bei Zahl-Aufgaben aus Generatoren `zahlModusAus(loesung)`. Kein `inputMode="decimal"` (iOS ohne Minus).
+- Lage der Mathe-Tastatur (`MatheTastaturHost`): Handy unten als Leiste, Desktop schwebend neben dem Feld (rechts → links → darunter → darüber, `tastaturPlatz` in `matheTastaturLogik.js`).
+- Bewusst eigene Tastenfelder (Spezialwerkzeuge): Lösungsweg-Editor (func6 `LoesungsWeg`), Rechenweg-Editor (func3), Kopfrechnen-Ziffernblöcke, Gleichungen, Geraden-`ZahlPad`, Steckbrief.
+

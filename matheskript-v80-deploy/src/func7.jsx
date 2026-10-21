@@ -13,6 +13,7 @@ import { Mathilda } from "./func10.jsx";
 import { AufklappZeichen } from "./aufklappen.jsx";
 import { ErklaerAnimation } from "./funcErklaeranimation.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
+import { variablenAus, zahlModusAus } from "./matheTastaturLogik.js";
 import { kontoZustand } from "./konto.js";
 import { anredeHinweis } from "./rollenLogik.js";
 
@@ -144,23 +145,16 @@ Antworte auf Deutsch, ohne Vorrede.`;
 
 
 export function AufgabeFeld({ aufgabe, wert, setWert, stand }) {
-  const [tastatur, setTastatur] = useState(false);
   const rand = stand === "ok" ? C.see : stand === "nein" ? C.signal : C.linie;
   return (
     <div>
       {aufgabe.praefix && <p style={{ fontSize: 15, fontWeight: 500, marginBottom: 6 }}><M t={aufgabe.praefix} /></p>}
-      {tastatur && aufgabe.art === "term" ? (
-        <TermTastatur wert={wert} setWert={setWert} />
+      {aufgabe.art === "term" ? (
+        <TermTastatur wert={wert} setWert={setWert} stand={stand} placeholder="Term" variablen={variablenAus(aufgabe.loesung)} />
       ) : (
-        <MatheFeld modus="bruch" value={wert} onChange={(e) => setWert(e.target.value)} placeholder="Ergebnis"
+        <MatheFeld modus={zahlModusAus(aufgabe.loesung)} value={wert} onChange={(e) => setWert(e.target.value)} placeholder="Ergebnis"
           style={{ width: "100%", boxSizing: "border-box", padding: "11px 14px", fontSize: 16.5, fontFamily: "inherit",
             border: `1.5px solid ${rand}`, borderRadius: 12, outline: "none", background: stand === "ok" ? C.himmel : C.weiss }} />
-      )}
-      {aufgabe.art === "term" && (
-        <button onClick={() => setTastatur(!tastatur)} className="mt-2"
-          style={{ background: "none", border: "none", color: C.see, fontSize: 12.5, fontFamily: "inherit", cursor: "pointer", padding: 0, textDecoration: "underline" }}>
-          {tastatur ? "Lieber selbst tippen" : "Tastenfeld benutzen"}
-        </button>
       )}
       {aufgabe.hinweis && <p style={{ fontSize: 12.5, color: C.hellgrau, fontWeight: 300, marginTop: 6 }}>{aufgabe.hinweis}</p>}
     </div>

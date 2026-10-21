@@ -347,7 +347,8 @@ export function hinterFertigemExponenten(t, p) {
   return p;
 }
 
-export function Tastenfeld({ wert: text, setWert, pos, setPos, kompakt, onOk, fuellen }) {
+/* variablen: zusätzliche Buchstaben als eigene Tastenreihe (z. B. ["h"] beim Differenzenquotienten, ["a"] bei Funktionenscharen). */
+export function Tastenfeld({ wert: text, setWert, pos, setPos, kompakt, onOk, fuellen, variablen }) {
   // fuellen: das Tastenfeld füllt die Höhe seines Eltern-Elements genau aus (Vollbild-Eingabe auf dem Handy).
   // Alle acht Tastenreihen sind dann gleich hoch: Rahmen (3 Reihen + Innenabstand 6 + Rand 1,5) und Grundtasten (5 Reihen).
   const TH = kompakt ? 34 : 46, TG = kompakt ? 5 : 6;
@@ -411,11 +412,17 @@ export function Tastenfeld({ wert: text, setWert, pos, setPos, kompakt, onOk, fu
           fontWeight: t.art === "op" || t.art === "nav" || t.art === "ok" ? 700 : 600, fontFamily: "inherit", cursor: "pointer",
           letterSpacing: t.art === "ok" ? "0.04em" : undefined,
           padding: 0, display: "flex", alignItems: "center", justifyContent: "center",
-          fontStyle: t.art === "var" && t.z === "x" ? "italic" : "normal", boxShadow: "0 1px 0 rgba(15,26,51,0.06)" }}>
+          fontStyle: t.art === "var" && (t.z === "x" || t.variable) ? "italic" : "normal", boxShadow: "0 1px 0 rgba(15,26,51,0.06)" }}>
         {z}
       </button>
     );
   };
+  const varZeile = variablen && variablen.length && !fuellen ? (
+    <div data-variablen style={{ display: "grid", gridTemplateColumns: `auto repeat(${Math.max(variablen.length, 3)}, minmax(0, 1fr))`, gap: TG, alignItems: "center", marginBottom: kompakt ? 6 : 8 }}>
+      <span style={{ fontSize: 12.5, fontWeight: 600, color: C.grau, padding: "0 4px" }}>Variable</span>
+      {variablen.map((v) => <Taste key={v} t={{ z: v, e: v, art: "var", variable: true, titel: `Variable ${v}` }} />)}
+    </div>
+  ) : null;
   /* Desktop: links die Funktionsbox (Umschalter f(x) | f(…) oben, 4 × 3 Funktionstasten) mit ←, →, ⌫, Clear, OK darunter;
      rechts Zahlenblock in vier Spalten (7 8 9 + / 4 5 6 − / 1 2 3 × / 0 , x ÷) und darunter die übrigen Tasten. */
   if (breit) {
@@ -437,6 +444,7 @@ export function Tastenfeld({ wert: text, setWert, pos, setPos, kompakt, onOk, fu
       <div ref={wurzel} style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)", columnGap: 12, alignItems: "stretch" }}>
         <style>{`.adv-taste{transition:transform .08s ease, filter .12s ease}
           .adv-taste:active{transform:scale(0.93);filter:brightness(0.93)}`}</style>
+        {varZeile && <div style={{ gridColumn: "1 / -1" }}>{varZeile}</div>}
         <div style={{ display: "flex", flexDirection: "column", gap: TG, minWidth: 0 }}>
           <div style={{ padding: 6, borderRadius: 16, background: "#F1F5FB", border: "1.5px solid rgba(0,77,152,0.28)", display: "flex", flexDirection: "column", gap: TG }}>
             <div role="group" aria-label="Funktionstasten einfügen als" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: TG }}>
@@ -487,6 +495,7 @@ export function Tastenfeld({ wert: text, setWert, pos, setPos, kompakt, onOk, fu
       gridTemplateRows: `calc((100% - ${6 * TG + 15 + 8}px) * 3 / 8 + ${2 * TG + 15}px) minmax(0, 1fr)` } : undefined}>
       <style>{`.adv-taste{transition:transform .08s ease, filter .12s ease}
         .adv-taste:active{transform:scale(0.93);filter:brightness(0.93)}`}</style>
+      {varZeile}
       {/* Box: alle Funktionstasten, auf die „von x / von ?“ wirkt — der Umschalter steht links als Teil der Box */}
       <div style={{ display: "grid", gridTemplateColumns: "minmax(58px, 0.95fr) repeat(4, minmax(0, 1fr))", gridTemplateRows: fuellen ? "repeat(3, minmax(0, 1fr))" : `repeat(3, ${TH}px)`, gap: TG, minHeight: 0,
         padding: kompakt ? 5 : 6, marginBottom: fuellen ? 0 : kompakt ? 6 : 8, borderRadius: 16, background: "#F1F5FB", border: "1.5px solid rgba(0,77,152,0.28)" }}>

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { MatheFeld } from "./matheTastatur.jsx";
 import { C } from "./base1.jsx";
 import { ModusLeiste } from "./ui3.jsx";
 import { karte, Kicker, Zurueck, Knopf } from "./funcHeadNumbersBasis.jsx";
@@ -159,7 +160,7 @@ export function KopfRechnen({ thema, setThema }) {
             ) : (
               <label key={f.id} style={{ display: "grid", gap: 4 }}>
                 <span style={{ fontSize: 12.5, fontWeight: 700, color: C.grau }}>{f.label}</span>
-                <input type="text" inputMode="numeric" autoComplete="off" value={werte[f.id]} maxLength={f.stellen}
+                <MatheFeld modus="ganz" value={werte[f.id]} maxLength={f.stellen}
                   onChange={(ev) => setze(f.id, ev.target.value.replace(/\D/g, "").slice(0, f.stellen))}
                   style={{ minHeight: 48, padding: "8px 12px", borderRadius: 12, border: `1.5px solid ${C.linie}`, fontFamily: "inherit", fontSize: 20, fontWeight: 800, color: C.tinte, background: C.sand, width: "100%", boxSizing: "border-box" }} />
               </label>

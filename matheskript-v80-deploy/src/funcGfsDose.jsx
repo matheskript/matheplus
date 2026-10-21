@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { MatheFeld } from "./matheTastatur.jsx";
 import { C } from "./base1.jsx";
 import { M, Text } from "./func3.jsx";
 import { FLIESS, KARTE, ZELLE, Formeln, Schritt, Kasten, Chip, PlusMinus, Kicker, H3, Trenner, Inline, RoterFaden, Kolloquium } from "./funcGfsBausteine.jsx";
@@ -32,8 +33,8 @@ function Feld({ k, label, einheit, wert, setzen, stand, onEnter, breite = 92 }) 
   return (
     <label style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 16, fontWeight: 500, color: C.tinte }}>
       <span>{label} =</span>
-      <input value={wert} onChange={(e) => setzen(k, e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") onEnter(); }}
-        inputMode="decimal" aria-label={label} placeholder="?" style={{ ...ZELLE(stand), width: breite }} />
+      <MatheFeld modus="zahl" value={wert} onChange={(e) => setzen(k, e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") onEnter(); }}
+        aria-label={label} placeholder="?" style={{ ...ZELLE(stand), width: breite }} />
       <span style={{ fontSize: 13.5, color: C.grau }}>{einheit}</span>
     </label>
   );

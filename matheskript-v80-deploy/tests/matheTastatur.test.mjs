@@ -55,7 +55,7 @@ test("alle Zahlentasten passen zum erlaubten Zeichensatz des Modus", () => {
   }
 });
 test("Formeltasten fügen nur Wörter ein, die der Term-Parser kennt; Tasten-IDs eindeutig je Ebene", () => {
-  const gueltig = /^(?:[0-9]|[x+\-*/^(),=e.]|pi|sin\(\)|cos\(\)|tan\(\)|ln\(\)|log\(\)|sqrt\(\)|e\^\(\)|\^[23]|\^\(\)|1\/\(\)|[fg]\(x\)|f'\(x\))$/;
+  const gueltig = /^(?:[0-9]|[x+\-*/^(),;=e.]|pi|sin\(\)|cos\(\)|tan\(\)|ln\(\)|log\(\)|sqrt\(\)|e\^\(\)|\^[23]|\^\(\)|1\/\(\)|[fg]\(x\)|f'\(x\))$/;
   for (const ebene of [FORMEL_HAUPT, FORMEL_FUNKTION]) {
     const ids = ebene.map((k) => k.id);
     assert.equal(new Set(ids).size, ids.length);
@@ -64,7 +64,7 @@ test("Formeltasten fügen nur Wörter ein, die der Term-Parser kennt; Tasten-IDs
     assert.ok(ebene.some((k) => k.aktion === "weg"));
   }
   const alle = [...FORMEL_HAUPT, ...FORMEL_FUNKTION].map((k) => k.text);
-  for (const w of ["sin()", "f(x)", "^2", "^()", "sqrt()", "pi"]) assert.ok(alle.includes(w), w);
+  for (const w of ["sin()", "f(x)", "^2", "^()", "sqrt()", "pi", ";"]) assert.ok(alle.includes(w), w);
 });
 
 test("Trig-Rechner: 30 Tasten, eindeutige IDs, alles Eingefügte versteht der Rechner", () => {
@@ -83,4 +83,43 @@ test("Trig-Rechner: 30 Tasten, eindeutige IDs, alles Eingefügte versteht der Re
   }
   assert.deepEqual(loeschen("2·sin⁻¹()", 8, 8), { wert: "2·", pos: 2 });
   assert.deepEqual(loeschen("√()", 2, 2), { wert: "", pos: 0 });
+});
+
+test("Desktop: Tastenfeld neben dem Feld – rechts, sonst links, sonst darunter, sonst darüber", async () => {
+  const { tastaturPlatz } = await import("../src/matheTastaturLogik.js");
+  const r = (left, top, right, bottom) => ({ left, top, right, bottom });
+  // schmales Feld links: rechts daneben, oben bündig mit dem Feld
+  assert.deepEqual(tastaturPlatz(r(100, 300, 400, 350), 1280, 860, 372, 260), { seite: "rechts", left: 412, top: 292 });
+  // Feld rechts am Rand: links daneben
+  assert.equal(tastaturPlatz(r(800, 300, 1200, 350), 1280, 860, 372, 260).seite, "links");
+  // breites Feld: darunter, rechtsbündig mit dem Feld
+  const u = tastaturPlatz(r(305, 300, 1000, 350), 1280, 860, 372, 260);
+  assert.deepEqual(u, { seite: "unten", left: 628, top: 362 });
+  // breites Feld weit unten: darüber
+  assert.equal(tastaturPlatz(r(305, 700, 1000, 750), 1280, 860, 372, 260).seite, "oben");
+  // nie aus dem Fenster
+  for (const f of [r(0, 0, 1280, 40), r(-50, 900, 1300, 950), r(10, 70, 20, 80)]) {
+    const p = tastaturPlatz(f, 1280, 860, 372, 260);
+    assert.ok(p.left >= 12 && p.left + 372 <= 1268, JSON.stringify(p));
+    assert.ok(p.top >= 0 && p.top + 260 <= 860, JSON.stringify(p));
+  }
+});
+
+test("Variablen-Tasten aus der Lösung", async () => {
+  const { variablenAus } = await import("../src/matheTastaturLogik.js");
+  assert.deepEqual(variablenAus("3x^2+2*sin(x)-e^(2x)+pi"), []);
+  assert.deepEqual(variablenAus("2x+h"), ["h"]);
+  assert.deepEqual(variablenAus("a*x^2+t*sqrt(x)"), ["a", "t"]);
+  assert.deepEqual(variablenAus(undefined), []);
+});
+
+test("Zahlaufgaben: Modus passend zur Lösung", async () => {
+  const { zahlModusAus } = await import("../src/matheTastaturLogik.js");
+  assert.equal(zahlModusAus("9*pi"), "formel");
+  assert.equal(zahlModusAus("e^2"), "formel");
+  assert.equal(zahlModusAus("ln(2)"), "formel");
+  assert.equal(zahlModusAus("2*sqrt(3)"), "wurzel");
+  assert.equal(zahlModusAus("3/4"), "bruch");
+  assert.equal(zahlModusAus(-12), "bruch");
+  assert.equal(zahlModusAus(undefined), "bruch");
 });

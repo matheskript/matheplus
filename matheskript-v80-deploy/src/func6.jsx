@@ -9,6 +9,7 @@ import { FotoEinwilligungVerwalten, terminWiederholungenHeute } from "./func9.js
 import { TermTastatur } from "./func4.jsx";
 import { syncErsetzen, syncMelden } from "./lernSync.js";
 import { MatheFeld } from "./matheTastatur.jsx";
+import { variablenAus, zahlModusAus } from "./matheTastaturLogik.js";
 
 import { springe } from "./sprung.js";
 export function LoesungsWeg({ titelTex, aufgabeText, typ, auf, onSchliessen }) {
@@ -612,7 +613,6 @@ export function Einstufung({ gehe }) {
   const [aufgabe, setAufgabe] = useState(null);
   const [eingabe, setEingabe] = useState("");
   const [ergebnisse, setErgebnisse] = useState({});
-  const [tastatur, setTastatur] = useState(false);
 
   const klasse = L.profil?.klasse || 11;
 
@@ -720,18 +720,12 @@ export function Einstufung({ gehe }) {
           <p style={{ fontSize: 12, color: C.hellgrau, marginBottom: 8 }}>{STUFEN.find((s) => s.id === k.stufe).name}</p>
           <Text s={aufgabe.frage} style={{ fontSize: 17, lineHeight: 1.85, marginBottom: 16 }} />
 
-          {tastatur && aufgabe.art === "term" ? (
-            <TermTastatur wert={eingabe} setWert={setEingabe} />
+          {aufgabe.art === "term" ? (
+            <TermTastatur wert={eingabe} setWert={setEingabe} placeholder="Term" variablen={variablenAus(aufgabe.loesung)} />
           ) : (
-            <MatheFeld modus="bruch" value={eingabe} onChange={(e) => setEingabe(e.target.value)} placeholder="Ergebnis"
+            <MatheFeld modus={zahlModusAus(aufgabe.loesung)} value={eingabe} onChange={(e) => setEingabe(e.target.value)} placeholder="Ergebnis"
               style={{ width: "100%", boxSizing: "border-box", padding: "12px 14px", fontSize: 17, fontFamily: "inherit",
                 border: `1.5px solid ${C.linie}`, borderRadius: 12, outline: "none" }} />
-          )}
-          {aufgabe.art === "term" && (
-            <button onClick={() => setTastatur(!tastatur)} className="mt-2"
-              style={{ background: "none", border: "none", color: C.see, fontSize: 12.5, fontFamily: "inherit", cursor: "pointer", padding: 0, textDecoration: "underline" }}>
-              {tastatur ? "Lieber selbst tippen" : "Tastenfeld benutzen"}
-            </button>
           )}
           {aufgabe.hinweis && (
             <p style={{ fontSize: 12.5, color: C.hellgrau, fontWeight: 300, marginTop: 8 }}>{aufgabe.hinweis}</p>

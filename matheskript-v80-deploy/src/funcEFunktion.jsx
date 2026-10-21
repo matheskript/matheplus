@@ -179,7 +179,6 @@ export function EFunktionTrainer() {
   const [wahlen, setWahlen] = useState({});
   const [stand, setStand] = useState(null);
   const [zeigen, setZeigen] = useState(false);
-  const [tippen, setTippen] = useState(false);
   const [serie, setSerie] = useState({ n: 0, ok: 0 });
   const [start, setStart] = useState(() => Date.now());
 
@@ -273,16 +272,8 @@ export function EFunktionTrainer() {
         ) : (
           <>
             <p style={{ fontSize: 15, fontWeight: 500, marginBottom: 8 }}>{aufgabeText}</p>
-            {tippen ? (
-              <MatheFeld modus="formel" value={eingabe} onChange={(e) => { setEingabe(e.target.value); setStand(null); }}
-                placeholder={modus === "tangente" ? "y = …" : "f′(x)"} style={feldStil} />
-            ) : (
-              <TermTastatur wert={eingabe} setWert={(w) => { setEingabe(w); setStand(null); }} />
-            )}
-            <button onClick={() => setTippen(!tippen)} className="mt-2"
-              style={{ background: "none", border: "none", color: C.see, fontSize: 12.5, fontFamily: "inherit", cursor: "pointer", padding: 0, textDecoration: "underline" }}>
-              {tippen ? "Tastenfeld benutzen" : "Lieber selbst tippen"}
-            </button>
+            <TermTastatur wert={eingabe} setWert={(w) => { setEingabe(w); setStand(null); }} stand={stand}
+              placeholder={modus === "tangente" ? "y = …" : "f′(x)"} onOk={() => { if (bereit && stand !== "ok") pruefen(); }} />
           </>
         )}
         <div style={{ height: 12 }} />

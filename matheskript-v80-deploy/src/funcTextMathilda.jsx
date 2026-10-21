@@ -12,6 +12,7 @@
    Logik: textMathilda.js. Keine base-Datei darf diese Datei importieren.
    ============================================================ */
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { MatheFeld } from "./matheTastatur.jsx";
 import { API_URL, C } from "./base1.jsx";
 import { LERN } from "./base3.jsx";
 import { kiAntwort, kiEinwilligungDa, kiKopf } from "./base4.jsx";
@@ -211,7 +212,7 @@ function StelleKarte({ s, i, zeigen, versuch, setVersuch, funktionen, gesehen, s
         <>
           {pruefbar.length > 0 ? (
             <>
-              <input value={versuch || ""} onChange={(e) => { setVersuch(e.target.value.slice(0, 200)); setR(null); }} onKeyDown={(e) => { if (e.key === "Enter") pruefen(); }}
+              <MatheFeld modus="formel" value={versuch || ""} onChange={(e) => { setVersuch(e.target.value.slice(0, 200)); setR(null); }} onKeyDown={(e) => { if (e.key === "Enter") pruefen(); }}
                 aria-label={zw(`Deine Übersetzung zu Stelle ${i + 1}`, `Your translation of phrase ${i + 1}`)} placeholder={zw("Deine Bedingung(en), z. B. f(2) = 5; f'(2) = 0", "Your condition(s), e.g. f(2) = 5; f'(2) = 0")}
                 spellCheck={false} autoCapitalize="off" autoCorrect="off" autoComplete="off"
                 style={{ width: "100%", boxSizing: "border-box", height: 46, padding: "0 12px", borderRadius: 12, border: `1.5px solid ${C.linie}`, fontFamily: "ui-monospace, Menlo, monospace", fontSize: 15.5, color: C.tinte, outline: "none" }} />

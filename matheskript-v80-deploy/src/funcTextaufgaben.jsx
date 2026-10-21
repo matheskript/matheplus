@@ -11,6 +11,7 @@
    Logik: textaufgaben.js (Generatoren), bedingungen.js (Prüfung).
    ============================================================ */
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { MatheFeld } from "./matheTastatur.jsx";
 import { C } from "./base1.jsx";
 import { M } from "./func3.jsx";
 import { buchen } from "./buchung.jsx";
@@ -323,7 +324,7 @@ function BedingungsFeld({ wert, setWert, tasten, onEnter, mehrzeilig, label, pla
     <div>
       {mehrzeilig
         ? <textarea ref={ref} value={wert} onChange={(e) => setWert(e.target.value.slice(0, 400))} rows={4} aria-label={label} placeholder={platzhalter} spellCheck={false} autoCapitalize="off" autoCorrect="off" style={{ ...stil, resize: "vertical" }} />
-        : <input ref={ref} value={wert} onChange={(e) => setWert(e.target.value.slice(0, 160))} onKeyDown={(e) => { if (e.key === "Enter" && onEnter) onEnter(); }} aria-label={label} placeholder={platzhalter}
+        : <MatheFeld modus="formel" ref={ref} value={wert} onChange={(e) => setWert(e.target.value.slice(0, 160))} onKeyDown={(e) => { if (e.key === "Enter" && onEnter) onEnter(); }} aria-label={label} placeholder={platzhalter}
             spellCheck={false} autoCapitalize="off" autoCorrect="off" autoComplete="off" style={{ ...stil, height: 46 }} />}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6 }}>
         {tasten.map((t) => (
