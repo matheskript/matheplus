@@ -673,36 +673,45 @@ export function baueBestimmtTerm(fText, aText, bText, stufe = 3, eigen = false) 
   };
 }
 
+/* Grenzen bewusst gemischt: nicht nur ab 0 oder ab einer Nullstelle von f,
+   sondern oft Intervalle, an deren Rändern f ≠ 0 und F(a) ≠ 0 ist (z. B. ln 2 … ln 3, π/3 … 2π/3). */
+const k1 = (k, t) => (k === 1 ? t : `${k}${t}`);
 const B3 = [
-  () => { const k = wahl([1, 2, 3]); return { f: k === 1 ? "sin(x)" : `${k}sin(x)`, a: "0", b: "pi" }; },
-  () => { const k = wahl([1, 2, 3]); return { f: k === 1 ? "cos(x)" : `${k}cos(x)`, a: "0", b: "pi/2" }; },
-  () => { const k = wahl([1, 2]); return { f: k === 1 ? "cos(x)" : `${k}cos(x)`, a: "-pi/2", b: "pi/2" }; },
-  () => { const k = wahl([1, 2, 3]); return { f: k === 1 ? "e^x" : `${k}e^x`, a: "0", b: "1" }; },
-  () => { const k = wahl([1, 2, 4]); return { f: k === 1 ? "e^x" : `${k}e^x`, a: "0", b: "ln(2)" }; },
-  () => { const k = wahl([1, 2, 3]); return { f: k === 1 ? "1/x" : `${k}/x`, a: "1", b: wahl(["e", "e^2"]) }; },
-  () => ({ f: wahl(["1/x^2", "2/x^2", "x+1/x^2"]), a: "1", b: "2" }),
-  () => ({ f: wahl(["sqrt(x)", "3sqrt(x)"]), a: wahl(["0", "1"]), b: "4" }),
-  () => wahl([{ f: "e^x+2x", a: "0", b: "1" }, { f: "e^x-1", a: "0", b: "ln(2)" }, { f: "1/x+2x", a: "1", b: "e" }, { f: "sin(x)+1", a: "0", b: "pi" }]),
+  () => { const k = wahl([1, 2, 3]); return { f: k1(k, "sin(x)"), ...wahl([{ a: "pi/3", b: "2pi/3" }, { a: "pi/3", b: "3pi/2" }, { a: "pi/3", b: "pi" }, { a: "0", b: "pi" }]) }; },
+  () => { const k = wahl([1, 2, 3]); return { f: k1(k, "cos(x)"), ...wahl([{ a: "-pi/6", b: "pi/6" }, { a: "pi/6", b: "pi" }, { a: "pi/6", b: "pi/2" }, { a: "0", b: "pi/2" }]) }; },
+  () => { const k = wahl([1, 2, 3]); return { f: k1(k, "e^x"), ...wahl([{ a: "ln(2)", b: "ln(3)" }, { a: "ln(2)", b: "1" }, { a: "-1", b: "0" }, { a: "0", b: "ln(3)" }]) }; },
+  () => { const k = wahl([1, 2, 3]); return { f: k === 1 ? "1/x" : `${k}/x`, ...wahl([{ a: "2", b: "4" }, { a: "2", b: "6" }, { a: "e", b: "e^2" }, { a: "1", b: wahl(["e", "3"]) }]) }; },
+  () => ({ f: wahl(["1/x^2", "2/x^2", "x+1/x^2"]), ...wahl([{ a: "1", b: "2" }, { a: "2", b: "4" }]) }),
+  () => ({ f: wahl(["sqrt(x)", "3sqrt(x)"]), ...wahl([{ a: "1", b: "4" }, { a: "4", b: "9" }, { a: "1", b: "9" }, { a: "0", b: "4" }]) }),
+  () => wahl([
+    { f: "e^x+2x", a: "-1", b: "0" }, { f: "e^x-x", a: "-1", b: "0" }, { f: "1/x+2x", a: "1", b: "e" },
+    { f: "sin(x)+1", a: "pi/3", b: "2pi/3" }, { f: "cos(x)+1", a: "pi/6", b: "pi/2" }, { f: "2x-1/x", a: "2", b: "4" },
+  ]),
 ];
 const B4 = [
-  () => ({ f: wahl(["e^(2x)", "2e^(2x)"]), a: "0", b: "1" }),
-  () => ({ f: "e^(-x)", a: "0", b: wahl(["1", "ln(2)"]) }),
-  () => ({ f: wahl(["sin(2x)", "2sin(2x)"]), a: "0", b: "pi/2" }),
-  () => ({ f: wahl(["cos(2x)", "3cos(3x)"]), a: "0", b: wahl(["pi/4", "pi/6"]) }),
-  () => ({ f: "(2x-1)^3", a: "1", b: "2" }),
-  () => ({ f: wahl(["(x+1)^2", "3(x-1)^2"]), a: "-1", b: "2" }),
-  () => ({ f: "sqrt(2x+1)", a: "0", b: "4" }),
-  () => ({ f: wahl(["1/(2x+1)", "2/(2x+1)"]), a: "0", b: "1" }),
-  () => ({ f: "4/(2x+1)^2", a: "0", b: "1" }),
+  () => ({ f: wahl(["e^(2x)", "2e^(2x)"]), ...wahl([{ a: "ln(2)", b: "ln(3)" }, { a: "-1/2", b: "0" }, { a: "0", b: "ln(2)" }]) }),
+  () => ({ f: wahl(["e^(-x)", "2e^(-x)"]), ...wahl([{ a: "-ln(2)", b: "ln(2)" }, { a: "-1", b: "0" }, { a: "0", b: "ln(2)" }]) }),
+  () => ({ f: wahl(["sin(2x)", "2sin(2x)"]), ...wahl([{ a: "pi/6", b: "pi/3" }, { a: "pi/6", b: "pi/2" }, { a: "0", b: "pi/2" }]) }),
+  () => ({ f: wahl(["cos(2x)", "2cos(2x)"]), ...wahl([{ a: "pi/12", b: "pi/4" }, { a: "-pi/12", b: "pi/12" }, { a: "0", b: "pi/4" }]) }),
+  () => wahl([{ f: "(2x-1)^3", a: "1", b: "2" }, { f: "(2x-1)^2", a: "1", b: "2" }]),
+  () => wahl([{ f: "(x+1)^2", a: "1", b: "2" }, { f: "3(x-1)^2", a: "-1", b: "2" }, { f: "(x+1)^3", a: "-2", b: "1" }]),
+  () => ({ f: "sqrt(2x+1)", ...wahl([{ a: "4", b: "12" }, { a: "0", b: "4" }]) }),
+  () => ({ f: wahl(["1/(2x+1)", "2/(2x+1)"]), ...wahl([{ a: "1", b: "4" }, { a: "1", b: "13" }, { a: "0", b: "1" }]) }),
+  () => ({ f: "4/(2x+1)^2", ...wahl([{ a: "1", b: "2" }, { a: "0", b: "1" }]) }),
 ];
 
+/* Ränder: Liegt a auf 0 oder ist f(a) bzw. f(b) gleich 0, wird meistens neu gewürfelt. */
+const randLangweilig = (fn, a, b) => a === 0 || Math.abs(fn(a)) < 1e-12 || Math.abs(fn(b)) < 1e-12;
+
 function bestimmtAufgabe(stufe) {
-  for (let i = 0; i < 60; i++) {
+  for (let i = 0; i < 80; i++) {
+    const streng = i < 60 && Math.random() < 0.85;
     if (stufe === 1) {
-      // F mit ganzen Koeffizienten → f = F′, Grenzen 0 … 3
+      // F mit ganzen Koeffizienten → f = F′, Grenzen meist 1 … 3
       const F = pTrim([q(0), q(zz(0, 4)), q(zz(0, 2)), q(wahl([0, 0, 1]))]);
       if (F.length < 3) continue;
-      const f = pDer(F), a = zz(0, 1), b = a + zz(1, 2);
+      const f = pDer(F), a = wahl([0, 1, 1, 1, 2]), b = Math.min(3, a + zz(1, 2));
+      if (b <= a || (streng && randLangweilig((x) => pNum(f, x), a, b))) continue;
       return baueBestimmtPoly(f, q(a), q(b), stufe);
     }
     if (stufe === 2) {
@@ -712,15 +721,18 @@ function bestimmtAufgabe(stufe) {
       f[grad] = q(ohne0(-2, 2));
       const a = zz(-2, 1), b = a + zz(1, 3);
       const fp = pTrim(f);
+      if (streng && randLangweilig((x) => pNum(fp, x), a, b)) continue;
       const mx = Math.max(...[0, 0.25, 0.5, 0.75, 1].map((t) => Math.abs(pNum(fp, a + t * (b - a)))));
       if (mx > 16 || mx < 1) continue;
       return baueBestimmtPoly(fp, q(a), q(b), stufe);
     }
     const t = wahl(stufe === 3 ? B3 : B4)();
     const r = baueBestimmtTerm(t.f, t.a, t.b, stufe);
-    if (!r.fehler) return r;
+    if (r.fehler) continue;
+    if (streng && randLangweilig(r.bild.fn, r.bild.a, r.bild.b)) continue;
+    return r;
   }
-  return baueBestimmtPoly([q(0), q(0), q(3)], q(0), q(2), stufe);
+  return baueBestimmtPoly([q(1), q(0), q(3)], q(1), q(2), stufe);
 }
 
 /* ---------- Typ 4: Fläche mit der x-Achse ---------- */

@@ -243,3 +243,20 @@ test("Hilfe-Kontext für „Ich hänge fest“ passt zur Aufgabe", () => {
     }
   }
 });
+
+test("Bestimmtes Integral: Grenzen meist nicht bei 0 und f an den Rändern meist ≠ 0", () => {
+  for (const stufe of [1, 2, 3, 4]) {
+    let null0 = 0, rand0 = 0, Fa0 = 0;
+    const N = 300;
+    for (let i = 0; i < N; i++) {
+      const a = K.neueAufgabe("bestimmt", stufe), B = a.bild;
+      if (B.a === 0) null0++;
+      if (Math.abs(B.fn(B.a)) < 1e-12 || Math.abs(B.fn(B.b)) < 1e-12) rand0++;
+      if (Math.abs(B.Fn(B.a)) < 1e-12) Fa0++;
+      assert.ok(!/≈/.test(a.ergebnis.tex), `bestimmt/${stufe}: ${a.f.tex} von ${B.a} bis ${B.b} nicht exakt`);
+    }
+    assert.ok(null0 < N * 0.2, `bestimmt/${stufe}: zu oft a = 0 (${null0}/${N})`);
+    assert.ok(rand0 < N * 0.2, `bestimmt/${stufe}: zu oft f(a) = 0 oder f(b) = 0 (${rand0}/${N})`);
+    assert.ok(Fa0 < N * 0.4, `bestimmt/${stufe}: zu oft F(a) = 0 (${Fa0}/${N})`);
+  }
+});
