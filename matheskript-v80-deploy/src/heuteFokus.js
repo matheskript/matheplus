@@ -45,13 +45,13 @@ export const EINHEITEN = {
     { id: "dw", kapitel: "dw", titel: "D und W bestimmen", kurz: "D und W", inhalt: ["Nenner $≠ 0$", "unter der Wurzel $≥ 0$", "$\\ln$ braucht $> 0$"], aufgaben: 6, min: 10 },
     { id: "mix", kapitel: "mix", titel: "Alles gemischt", kurz: "Gemischt", inhalt: ["alle Aufgabentypen", "ohne Spickzettel", "Abi-Niveau"], aufgaben: 6, min: 12 },
   ],
-  ableitungstrainer: [
-    { id: "polynom", art: "polynom", titel: "Polynome ableiten", kurz: "Polynome", inhalt: ["Potenzregel", "Faktorregel", "Summenregel"], aufgaben: 4, min: 6, passt: art("polynom") },
-    { id: "wurzel", art: "wurzel", titel: "Wurzeln und Brüche ableiten", kurz: "Wurzeln", inhalt: ["$\\sqrt{x} = x^{\\frac{1}{2}}$", "$\\frac{1}{x} = x^{−1}$", "Hochzahl minus 1"], aufgaben: 4, min: 7, passt: art("wurzel") },
-    { id: "produkt", art: "produkt", titel: "Produktregel trainieren", kurz: "Produkt", inhalt: ["$u′·v + u·v′$", "Polynom mal e-Funktion", "$f′$ und $f″$"], aufgaben: 4, min: 8, passt: art("produkt") },
-    { id: "kette", art: "kette", titel: "Kettenregel trainieren", kurz: "Kette", inhalt: ["äußere mal innere Ableitung", "$e^{2x + 3}$", "$(ax + b)^n$"], aufgaben: 4, min: 8, passt: art("kette") },
+  ableitungstrainer: [   // = die Regeln des Ableitungstrainers (REGEL_CHIPS in funcRegelwerk.jsx), seit 22.10.
+    { id: "produkt", art: "produkt", titel: "Produktregel trainieren", kurz: "Produkt", inhalt: ["$u′·v + u·v′$", "Bausteine $u$ und $v$", "$f′$ zusammensetzen"], aufgaben: 4, min: 8, passt: art("produkt") },
     { id: "quotient", art: "quotient", titel: "Quotientenregel trainieren", kurz: "Quotient", inhalt: ["$\\frac{u′v − uv′}{v^2}$", "Nenner quadrieren", "Zähler vereinfachen"], aufgaben: 4, min: 9, passt: art("quotient") },
-    { id: "speziell", art: "speziell", titel: "e, ln, sin, cos ableiten", kurz: "e · ln · sin", inhalt: ["$(e^x)′ = e^x$", "$(\\ln x)′ = \\frac{1}{x}$", "$\\sin → \\cos → −\\sin$"], aufgaben: 4, min: 7, passt: art("speziell") },
+    { id: "reziprok", art: "reziprok", titel: "Reziprokenregel trainieren", kurz: "Reziprok", inhalt: ["$\\left(\\frac{1}{v}\\right)′ = −\\frac{v′}{v^2}$", "Nenner ableiten", "Vorzeichen beachten"], aufgaben: 4, min: 7, passt: art("reziprok") },
+    { id: "linkette", art: "linkette", titel: "Lineare Kettenregel trainieren", kurz: "Lin. Kette", inhalt: ["$u(mx + c)$", "außen ableiten", "mal $m$"], aufgaben: 4, min: 7, passt: art("linkette") },
+    { id: "kette", art: "kette", titel: "Kettenregel trainieren", kurz: "Kette", inhalt: ["äußere mal innere Ableitung", "$e^{2x + 3}$", "$(ax + b)^n$"], aufgaben: 4, min: 8, passt: art("kette") },
+    { id: "gold", art: "gold", titel: "Alle Ableitungsregeln gemischt", kurz: "Alle Regeln", inhalt: ["Regel erkennen", "Regeln kombinieren", "Abi-Niveau"], aufgaben: 4, min: 10, passt: art("gold") },
   ],
   steckbrief: [
     { id: "p2", art: "poly-2", titel: "Parabel aus Eigenschaften", kurz: "Grad 2", inhalt: ["Scheitelpunkt", "Punktprobe", "3 Bedingungen"], aufgaben: 2, min: 8, passt: gruppe("poly-p2") },

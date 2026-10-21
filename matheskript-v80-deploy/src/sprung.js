@@ -46,7 +46,7 @@ export const SPRUENGE = {
   "parabel-thema":           { an: false, art: "auswahl", wo: "Parabeltrainer: Thema im Auswahlfeld wechseln" },
   "parabel-geloest":         { an: false, art: "auswahl", wo: "Parabeltrainer: nach dem Lösen nach oben zum aufgedeckten Graphen" },
   "parabel-fokus":           { an: false, art: "auswahl", wo: "Parabeltrainer (Maus/Trackpad): erstes Eingabefeld bekommt den Cursor und wird dabei ins Bild geholt" },
-  "ableitung-regel":         { an: false, art: "auswahl", wo: "Ableitungstrainer: zwischen Funktionsarten und Regelwerkstatt wechseln" },
+  "ableitung-regel":         { an: false, art: "auswahl", wo: "Ableitungstrainer: (seit 22.10. ungenutzt, die Regelwerkstatt ist der Trainer)" },
   "bruch-beispiele":         { an: false, art: "auswahl", wo: "Bruchrechnen: Auswahl unter „Weitere Beispiele“ holt die Rechenkarte nach oben" },
   "gleichkurs-reiter":       { an: false, art: "auswahl", wo: "Gleichungen lernen: Reiter Verstehen/Rechnen/Training" },
   "gleichkurs-fertig":       { an: false, art: "auswahl", wo: "Gleichungen lernen: nach dem Lösen zur Fertig-Meldung" },

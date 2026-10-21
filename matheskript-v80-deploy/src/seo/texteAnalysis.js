@@ -30,12 +30,12 @@ export const TEXTE_ANALYSIS = {
     beschreibung: "Ableiten üben bis zum Abitur: f′, f″ und f‴ selbst eingeben und sofort prüfen lassen – mit Produkt-, Quotienten- und Kettenregel und vollständigem Rechenweg.",
     kurz: "Du gibst f′, f″ und f‴ selbst ein, der Trainer prüft sofort und zeigt den Rechenweg Schritt für Schritt.",
     text: [
-      "Ableiten ist Handwerk: Potenz-, Faktor- und Summenregel, dazu Produkt-, Quotienten- und Kettenregel. Sicher wirst du nur, wenn du die Regeln oft und richtig anwendest. Genau dafür ist der Ableitungstrainer da. Du wählst einen Aufgabentyp, zum Beispiel Polynome, Wurzeln, e-Funktionen oder verkettete Funktionen, und tippst die Ableitung selbst ein.",
+      "Ableiten ist Handwerk: Produkt-, Quotienten-, Reziproken- und Kettenregel sicher anwenden. Sicher wirst du nur, wenn du die Regeln oft und richtig anwendest. Genau dafür ist der Ableitungstrainer da. Du wählst eine Regel, bestimmst die Bausteine u und v, ihre Ableitungen und setzt daraus f′ zusammen. Unter „Eigene Funktion“ gibst du jede beliebige Funktion ein und leitest f′, f″ und f‴ selbst ab.",
       "Der Trainer prüft deine Eingabe mathematisch, nicht als Text: Auch eine anders geschriebene, aber gleichwertige Lösung zählt als richtig. Ist sie falsch, siehst du den Rechenweg mit der passenden Regel und dem Ergebnis in vereinfachter Form. So erkennst du, ob dir die Regel fehlt oder ob nur beim Zusammenfassen etwas schiefgegangen ist.",
       "Die Aufgaben passen zum Stoff der Kursstufe in Baden-Württemberg und zum Abitur. Höhere Ableitungen bis f‴ brauchst du später für Wendepunkte und Kurvendiskussionen – hier übst du sie gleich mit. Am meisten bringt der Trainer, wenn du jede Aufgabe zuerst auf Papier löst und erst dann eintippst: So trainierst du genau das, was in der Klausur zählt, nämlich sauberes Aufschreiben ohne Hilfe.",
     ],
     faq: [
-      { f: "Welche Ableitungsregeln kann ich mit dem Ableitungstrainer üben?", a: "Potenz-, Faktor- und Summenregel sowie Produkt-, Quotienten- und Kettenregel – an Polynomen, Wurzeln, Brüchen, e-Funktionen und verketteten Funktionen." },
+      { f: "Welche Ableitungsregeln kann ich mit dem Ableitungstrainer üben?", a: "Produkt-, Quotienten- und Reziprokenregel, die lineare Kettenregel und die Kettenregel, jeweils in drei Stufen, dazu alle Regeln gemischt. Unter „Eigene Funktion“ leitest du jede eingegebene Funktion bis f‴ ab." },
       { f: "Was passiert, wenn meine Ableitung anders aussieht als die Musterlösung?", a: "Der Trainer vergleicht mathematisch. Eine gleichwertige Schreibweise wird als richtig erkannt; nur wirklich falsche Ergebnisse werden markiert und mit Rechenweg erklärt." },
       { f: "Kann mein Kind damit allein für die Klausur üben?", a: "Ja. Jede Eingabe wird sofort geprüft und bei Fehlern mit Rechenweg erklärt. Ihr Kind sieht dadurch selbst, welche Regel noch unsicher ist, und braucht dafür keine Lösungshefte." },
     ],

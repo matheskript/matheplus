@@ -19,10 +19,10 @@ test("jede Einheit hat Titel, Kurzwort, Inhalt und Umfang", () => {
   }
 });
 
-test("Ableitungstrainer: Einheiten entsprechen den Funktionsarten des Trainers", () => {
-  const quelle = readFileSync(new URL("../src/base2.jsx", import.meta.url), "utf8");
-  const roh = quelle.slice(quelle.indexOf("ABL_ROH"), quelle.indexOf("export const ABL_TYPEN"));
-  const ids = [...roh.matchAll(/^\s{4}id: "([a-z]+)", name:/gm)].map((m) => m[1]);
+test("Ableitungstrainer: Einheiten entsprechen den Regeln des Trainers", () => {
+  const quelle = readFileSync(new URL("../src/funcRegelwerk.jsx", import.meta.url), "utf8");
+  const roh = quelle.slice(quelle.indexOf("export const REGEL_CHIPS"), quelle.indexOf("];", quelle.indexOf("export const REGEL_CHIPS")));
+  const ids = [...roh.matchAll(/\["([a-z]+)", "/g)].map((m) => m[1]);
   assert.deepEqual(EINHEITEN.ableitungstrainer.map((x) => x.art), ids);
 });
 
@@ -44,13 +44,13 @@ test("Werkzeuge ohne Liste: Einheiten aus der Zeile", () => {
 
 test("Wahl: nie geübt → erste Einheit, neu", () => {
   const w = einheitWahl("ableitungstrainer", { protokoll: [], jetzt: JETZT });
-  assert.equal(w.einheit.id, "polynom");
+  assert.equal(w.einheit.id, "produkt");
   assert.equal(w.grund, "neu");
   assert.equal(w.fortschritt, 0);
 });
 
 test("Wahl: schwache Einheit geht vor neuer", () => {
-  const protokoll = [e(2, true, { art: "polynom" }), e(2, false, { art: "produkt" }), e(2, false, { art: "produkt" }), e(1, true, { art: "produkt" })];
+  const protokoll = [e(2, true, { art: "quotient" }), e(2, false, { art: "produkt" }), e(2, false, { art: "produkt" }), e(1, true, { art: "produkt" })];
   const w = einheitWahl("ableitungstrainer", { protokoll, jetzt: JETZT });
   assert.equal(w.einheit.id, "produkt");
   assert.equal(w.grund, "schwach");
@@ -60,7 +60,7 @@ test("Wahl: schwache Einheit geht vor neuer", () => {
 test("Wahl: nach den neuen kommt die am längsten nicht geübte", () => {
   const protokoll = EINHEITEN.ableitungstrainer.map((x, i) => e(10 - i, true, { art: x.id }));
   const w = einheitWahl("ableitungstrainer", { protokoll, jetzt: JETZT });
-  assert.equal(w.einheit.id, "polynom");
+  assert.equal(w.einheit.id, "produkt");
   assert.equal(w.grund, "dran");
   assert.equal(w.fortschritt, 1);
 });

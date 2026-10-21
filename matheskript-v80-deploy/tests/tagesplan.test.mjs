@@ -58,7 +58,7 @@ test("Ein Plan für alle: neuer Gast bekommt Warm-up, zwei konkrete Kerntraining
   const kerne = p.eintraege.filter((e) => e.typ === "kern");
   assert.ok(kerne.every((e) => e.einheit && e.einheit.titel && e.ziel && e.ziel.ansicht), "Kerntraining ohne Einheit oder Ziel");
   assert.notEqual(kerne[0].werkzeug, kerne[1].werkzeug);
-  assert.ok(kerne.some((e) => e.einheit.titel === "Polynome ableiten"), "Ableitungsregeln nennt keine konkrete Einheit");
+  assert.ok(kerne.some((e) => e.einheit.titel === "Produktregel trainieren"), "Ableitungsregeln nennt keine konkrete Einheit");
   assert.ok(p.eintraege.every((e) => e.kicker && e.motiv && e.einheit.kurz), "kicker/motiv/kurz fehlen");
   assert.equal(kopfText(p.eintraege).haupt, "4 Runden");
   assert.match(kopfText(p.eintraege).zeit, /^\d+ Min$/);
@@ -78,12 +78,12 @@ test("Erledigt aus Haken ODER Protokoll: Werkzeug-Einheit, Warm-up, Blatt-Foto",
   const vorher = anreichern(MT, E, null, { protokoll: [], jetzt: JETZT });
   assert.equal(vorher.erledigt, 0);
   const b = (bereich, n, extra = {}) => Array.from({ length: n }, (_, i) => ({ bereich, richtig: true, zeit: JETZT - 1000 * i, ...extra }));
-  const protokoll = [...b("warmup", 5), ...b("analyse", 1), ...b("ableitungstrainer", 4, { art: "polynom" })];
+  const protokoll = [...b("warmup", 5), ...b("analyse", 1), ...b("ableitungstrainer", 4, { art: "produkt" })];
   const p = anreichern(MT, E, null, { protokoll, jetzt: JETZT });
   const typ = (t) => p.eintraege.find((e) => e.typ === t);
   assert.equal(typ("warmup").erledigt, true);
   assert.equal(typ("blatt").erledigt, true);
-  assert.equal(p.eintraege.find((e) => e.werkzeug === "ableitungstrainer").erledigt, true, "4 Polynom-Aufgaben = Einheit voll");
+  assert.equal(p.eintraege.find((e) => e.werkzeug === "ableitungstrainer").erledigt, true, "4 Produktregel-Aufgaben = Einheit voll");
   assert.equal(p.eintraege.find((e) => e.werkzeug !== "ableitungstrainer" && e.typ === "kern").erledigt, false);
   assert.match(kopfText(p.eintraege).haupt, /^Noch 1 Runde$/);
   /* Haken im Plan gilt genauso */
@@ -101,7 +101,7 @@ test("Start: Werkzeug im passenden Aufgabentyp, Fehlertyp, Lernweg-Kapitel", () 
   const k = p.eintraege.find((e) => e.werkzeug === "ableitungstrainer");
   const s = startVon(k);
   assert.equal(s.ziel.ansicht, "ableitungstrainer");
-  assert.equal(s.art, "polynom");
+  assert.equal(s.art, "produkt");
   assert.equal(startVon(p.eintraege.find((e) => e.typ === "blatt")).ziel.ansicht, "analyse");
   assert.equal(startVon(p.eintraege.find((e) => e.typ === "warmup")).ziel.ansicht, "warmup");
 });
@@ -114,7 +114,7 @@ test("Eigene Themen: derselbe Plan, Kerntraining nennt die konkrete Einheit; neu
   assert.ok(!MT.aktiv.some((t) => t.auto), "kein Vorschlag neben eigenem Thema");
   let p = anreichern(MT, E, null, { protokoll: [], jetzt: JETZT });
   assert.deepEqual(p.eintraege.map((e) => e.typ), ["warmup", "kern", "blatt"]);
-  assert.equal(p.eintraege[1].einheit.titel, "Polynome ableiten");
+  assert.equal(p.eintraege[1].einheit.titel, "Produktregel trainieren");
   themaHinzufuegen(MT, { id: "pythagoras", schulart: "g9", klasse: "9" }, HEUTE);
   MT.aktiv[1].vorbereitung = [];
   assert.equal(planFehlt(MT, { profil: {}, jetzt: JETZT }), true, "neues Thema → Plan ergänzen");

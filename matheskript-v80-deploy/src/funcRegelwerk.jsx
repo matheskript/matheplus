@@ -701,7 +701,7 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
     if (!b) return null;
     const s = soll(id);
     const ok = gleichwertig(b, s);
-    buchen({ richtig: ok, gruppe: `werkstatt-${art}`, stufe });
+    buchen({ richtig: ok, gruppe: `werkstatt-${art}`, stufe, art: regel });
     if (ok) {
       setFeld(id, { status: "richtig", hinweis: "" });
     } else {

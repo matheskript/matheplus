@@ -1,9 +1,9 @@
 /* ============================================================
-   Ableitungstrainer — Variante von „Ableitungen bilden“.
-   Eine Funktion f wird vorgegeben (Aufgabentyp je Ableitungsregel,
-   Zufallsfunktion oder eigene Funktion). Die Ableitungen werden mit
-   demselben Tastenfeld wie im Advanced Plotter eingegeben. Nach OK
-   wird geprüft; ist f′ geschafft, öffnet sich automatisch f″, dann f‴.
+   Ableitungstrainer (seit 22.10. = die frühere Regelwerkstatt).
+   Regeln: Produkt-, Quotienten-, Reziproken-, lineare Kettenregel,
+   Kettenregel, Alle Regeln (RegelWerkstatt aus funcRegelwerk.jsx).
+   Dazu „Eigene Funktion“: f eingeben, f′, f″, f‴ selbst ableiten;
+   ist f′ geschafft, öffnet sich automatisch f″, dann f‴.
 
    Die Prüfung vergleicht die Eingabe numerisch mit der symbolisch
    gebildeten Ableitung — jede gleichwertige Schreibweise zählt.
@@ -15,15 +15,13 @@ import { buchen } from "./buchung.jsx";
 import { uebenWunschHolen } from "./uebenWunsch.js";
 import { uebergabeErledigt, uebergabeLesen } from "./uebergabe.js";
 import { C } from "./base1.jsx";
-import { ABL_TYPEN } from "./base2.jsx";
 import { M } from "./func3.jsx";
 import {
-  LiveFormel, Tastenfeld, ableitung, alsTex, hatBox, kompiliere, ohnePar, parse, zufallsFunktion,
+  LiveFormel, Tastenfeld, ableitung, alsTex, hatBox, kompiliere, ohnePar, parse,
 } from "./func12.jsx";
 import { IchHaengeFest, ableitRegeln, aussenTex, summanden } from "./funcHilfe.jsx";
 import { Eingabe, EingabePopup, POP_CSS, PopupWahl, REGEL_CHIPS, RegelWerkstatt } from "./funcRegelwerk.jsx";
 
-import { springe } from "./sprung.js";
 import { EinstellungsPille } from "./ui3.jsx";
 import { DESKTOP, useMedien } from "./arbeitsflaeche.jsx";
 /* Kontext für „Ich hänge fest“: Hinweise aus dem Term, der gerade abgeleitet wird */
@@ -147,15 +145,24 @@ const leer = () => ({ text: "", status: null, hinweis: "", versuche: 0 });
 
 export function Ableitungstrainer() {
   const desk = useMedien(DESKTOP);   // ab 840 px: Einstellungen als Spalte; darunter Einstellungs-Pille („Aufgabe zuerst“)
-  // Übergabe aus einem anderen Werkzeug (z. B. Kurvendiskussion, Steckbrief): diese Funktion selbst ableiten
+  // Übergabe aus einem anderen Werkzeug (z. B. Kurvendiskussion, Steckbrief): diese Funktion selbst ableiten → „Eigene Funktion“
   const [mit] = useState(() => { const u = uebergabeLesen("ableitungstrainer"); return u && u.text && parse(u.text) ? u.text : null; });
   React.useEffect(() => { uebergabeErledigt("ableitungstrainer"); }, []);
-  // Wunsch der Heute-Karte (uebenWunsch.js): gleich mit einer Funktionsart starten, z. B. Produkte
-  const [startTyp] = useState(() => { const w = mit ? null : uebenWunschHolen("ableitungstrainer"); return (w && ABL_TYPEN.find((t) => t.id === w.art)) || ABL_TYPEN[0]; });
-  const [quelle, setQuelle] = useState(mit ? "eigen" : "typ");            // typ | zufall | eigen
-  const [typ, setTyp] = useState(startTyp);
-  const [stufeTyp, setStufeTyp] = useState(2);
-  const [fText, setFText] = useState(() => mit || startTyp.mach(2).f);
+  // Wunsch der Heute-Karte (uebenWunsch.js): gleich mit einer Regel starten, z. B. Produktregel
+  const [startRegel] = useState(() => {
+    if (mit) return "eigen";
+    const w = uebenWunschHolen("ableitungstrainer");
+    return (w && REGEL_CHIPS.some(([id]) => id === w.art)) ? w.art : "produkt";
+  });
+  // Seit 22.10.: der Ableitungstrainer IST die Regelwerkstatt. Dazu kommt nur „Eigene Funktion“ (f′, f″, f‴ selbst ableiten).
+  const [regel, setRegel] = useState(startRegel);   // produkt | quotient | reziprok | linkette | kette | gold | eigen
+  const eigen = regel === "eigen";
+  const [stufe, setStufe] = useState(1);
+  const [modus, setModus] = useState("training");   // Standard: Trainieren (selbst eintippen), Rechnen zeigt die Musterlösung
+  const [wurf, setWurf] = useState(0);
+
+  // Eigene Funktion
+  const [fText, setFText] = useState(mit || "");
   const [eigenText, setEigenText] = useState(mit || "");
   const [eigenPos, setEigenPos] = useState(mit ? mit.length : 0);
   const [eigenOffen, setEigenOffen] = useState(!mit);
@@ -164,13 +171,6 @@ export function Ableitungstrainer() {
   const [pos, setPos] = useState(0);
   const [offen, setOffen] = useState(false);          // Eingabe-Pop-up: öffnet erst beim Antippen des Feldes
   const [bilanz, setBilanz] = useState({ richtig: 0, gesamt: 0 });
-  const [bereich, setBereich] = useState(mit ? "trainer" : "trainer");   // trainer | werkstatt
-  const [werkRegel, setWerkRegel] = useState("produkt");
-  // Kopfzeile: Stufe, Automatik/Training und Würfel steuern die Regel-Werkstatt von hier aus
-  const [werkStufe, setWerkStufe] = useState(1);
-  const [werkModus, setWerkModus] = useState("training");   // Standard: Training (selbst eintippen), Automatik zeigt die Musterlösung
-  const [polyModus, setPolyModus] = useState("training");   // Polynome & Co.: Automatik = Ableitungen werden gezeigt, Training = selbst eintippen
-  const [wurf, setWurf] = useState(0);
 
   const fBaum = useMemo(() => {
     const b = parse(fText);
@@ -184,7 +184,7 @@ export function Ableitungstrainer() {
     return l.map((b) => ({ baum: b, fn: kompiliere(b) }));
   }, [fBaum]);
 
-  // Auswahlfelder (Modus, Stufe, Würfel, Funktionsart) lassen die Seitenposition, wie sie ist; nur ein Regelwechsel springt nach oben.
+  // Auswahlfelder (Modus, Stufe, Würfel, Regel) lassen die Seitenposition, wie sie ist.
   const festhalten = (fn) => {
     const y = window.scrollY;
     fn();
@@ -192,40 +192,38 @@ export function Ableitungstrainer() {
     requestAnimationFrame(() => { zurueck(); requestAnimationFrame(zurueck); });
     setTimeout(zurueck, 80);
   };
-  const nachOben = () => { springe("ableitung-regel", () => window.scrollTo(0, 0)); requestAnimationFrame(() => springe("ableitung-regel", () => window.scrollTo(0, 0))); };
 
   const neustart = (text) => { setFText(text); setZeilen([leer()]); setAktiv(0); setPos(0); setOffen(false); };
-  const neueAufgabe = (t = typ, st = stufeTyp) => neustart(t.mach(st).f);
 
   const eintrag = zeilen[aktiv];
   const setEintragText = (t) => setZeilen(zeilen.map((z, i) => (i === aktiv ? { ...z, text: t, status: null, hinweis: "" } : z)));
 
   const pruefen = () => {
     if (!kette || !eintrag) return;
-    const stufe = aktiv + 1;
+    const st = aktiv + 1;
     const b = parse(eintrag.text);
     if (!b || hatBox(b)) {
       setZeilen(zeilen.map((z, i) => (i === aktiv ? { ...z, status: "falsch", hinweis: "Der Term ist noch nicht vollständig — fülle alle Platzhalter ▯ und schließe die Klammern." } : z)));
       return;
     }
     const g = kompiliere(ohnePar(b));
-    const soll = kette[stufe].fn, vorher = kette[stufe - 1].fn;
+    const soll = kette[st].fn, vorher = kette[st - 1].fn;
     const erg = vergleich(g, soll);
     setBilanz((bz) => ({ richtig: bz.richtig + (erg.ok ? 1 : 0), gesamt: bz.gesamt + 1 }));
-    buchen({ richtig: !!erg.ok, gruppe: `ableitung-${stufe}`, stufe, art: quelle === "typ" ? typ.id : null });
+    buchen({ richtig: !!erg.ok, gruppe: `ableitung-${st}`, stufe: st, art: "eigen" });
     if (erg.ok) {
       const neu = zeilen.map((z, i) => (i === aktiv ? { ...z, status: "richtig", hinweis: "" } : z));
-      if (stufe < 3) { neu.push(leer()); setAktiv(aktiv + 1); setPos(0); }
+      if (st < 3) { neu.push(leer()); setAktiv(aktiv + 1); setPos(0); }
       setZeilen(neu);
     } else {
-      setZeilen(zeilen.map((z, i) => (i === aktiv ? { ...z, status: "falsch", hinweis: diagnose(g, soll, vorher, stufe), versuche: z.versuche + 1 } : z)));
+      setZeilen(zeilen.map((z, i) => (i === aktiv ? { ...z, status: "falsch", hinweis: diagnose(g, soll, vorher, st), versuche: z.versuche + 1 } : z)));
     }
   };
 
   const loesungZeigen = () => {
-    const stufe = aktiv + 1;
-    const neu = zeilen.map((z, i) => (i === aktiv ? { ...z, status: "gezeigt", zeig: alsTex(kette[stufe].baum), hinweis: "" } : z));
-    if (stufe < 3) { neu.push(leer()); setAktiv(aktiv + 1); setPos(0); }
+    const st = aktiv + 1;
+    const neu = zeilen.map((z, i) => (i === aktiv ? { ...z, status: "gezeigt", zeig: alsTex(kette[st].baum), hinweis: "" } : z));
+    if (st < 3) { neu.push(leer()); setAktiv(aktiv + 1); setPos(0); }
     setZeilen(neu);
   };
 
@@ -233,21 +231,40 @@ export function Ableitungstrainer() {
 
   const fertig = zeilen.length === 3 && ["richtig", "gezeigt"].includes(zeilen[2].status);
 
-  // Funktionsart wählen: die Regel-Typen, Zufall und eigene Funktion in einer Reihe
-  const waehleTyp = (t) => { setQuelle("typ"); setTyp(t); neueAufgabe(t, stufeTyp); };
-  const waehleZufall = () => { setQuelle("zufall"); neustart(zufallsFunktion()); };
-  const waehleEigen = () => { setQuelle("eigen"); setEigenOffen(true); };
-  const neueFunktion = () => {
-    if (quelle === "zufall") neustart(zufallsFunktion());
-    else if (quelle === "typ") neueAufgabe();
-    else setEigenOffen(true);
+  const regeln = [...REGEL_CHIPS, ["eigen", "Eigene Funktion"]];
+  const waehleRegel = (id) => {
+    setRegel(id);
+    if (id === "eigen") { if (!kette) setEigenOffen(true); return; }
+    if (id !== "gold" && stufe > 3) setStufe(3);
   };
-  const arten = [
-    ...ABL_TYPEN.map((t) => ({ id: t.id, name: t.name, an: quelle === "typ" && typ.id === t.id, los: () => waehleTyp(t) })),
-    { id: "zufall", name: "🎲 Zufall", an: quelle === "zufall", los: waehleZufall },
-    { id: "eigen", name: "Eigene Funktion", an: quelle === "eigen", los: waehleEigen },
-  ];
-  const regelText = quelle === "typ" ? typ.regel : quelle === "zufall" ? "Zufallsfunktion" : "Eigene Funktion";
+  const wuerfeln = () => (eigen ? setEigenOffen(true) : setWurf((w) => w + 1));
+  const stufen = (regel === "gold" ? [1, 2, 3, 4, 5] : [1, 2, 3]).map((st) => ({ id: st, name: `Stufe ${st}` }));
+  const regelName = (regeln.find(([id]) => id === regel) || ["", ""])[1];
+
+  const modusSchalter = (
+    <div className="abl-seg" role="group" aria-label="Modus">
+      {[["auto", "Rechnen"], ["training", "Trainieren"]].map(([id, name]) => (
+        <button key={id} type="button" aria-pressed={modus === id} onClick={() => festhalten(() => setModus(id))}>{name}</button>
+      ))}
+    </div>
+  );
+  const stufeWahl = (
+    <PopupWahl className={`abl-stufe${eigen ? " aus" : ""}`} wert={stufe} label="Stufe wählen" optionen={stufen}
+      kopf={(o) => (o ? o.name : "Stufe")} onWaehle={(st) => festhalten(() => setStufe(st))} />
+  );
+  const wuerfel = (
+    <button type="button" className="abl-wuerfel" onClick={() => festhalten(wuerfeln)}
+      aria-label={eigen ? "Funktion ändern" : "Neue Aufgabe würfeln"} title={eigen ? "Funktion ändern" : "Neue Aufgabe"}><span aria-hidden="true">🎲</span></button>
+  );
+  const regelChips = (umbruch) => (
+    <div className="abl-chipwrap" style={umbruch ? { margin: 0 } : undefined}>
+      <div className="abl-chips" role="group" aria-label="Was möchtest du ableiten?" style={umbruch ? { flexWrap: "wrap" } : undefined}>
+        {regeln.map(([id, name]) => (
+          <button key={id} type="button" className="abl-chip" aria-pressed={regel === id} onClick={() => festhalten(() => waehleRegel(id))}>{name}</button>
+        ))}
+      </div>
+    </div>
+  );
 
   return (
     <div className="abl-seite">
@@ -263,11 +280,6 @@ export function Ableitungstrainer() {
         .abl-chip{flex:0 0 auto;scroll-snap-align:start;height:46px;padding:0 18px;border-radius:999px;font-family:inherit;font-size:15.5px;font-weight:600;cursor:pointer;white-space:nowrap;border:1.5px solid ${C.linie};background:#fff;color:${C.see}}
         .abl-chip[aria-pressed="true"]{background:${C.see};border-color:${C.see};color:#fff}
         .abl-karte{background:transparent}
-        .abl-wechsel{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:2px 0 14px;padding:10px 16px;min-height:52px;border-radius:14px;border:1.5px solid ${C.see};background:#fff;color:${C.see};font-family:inherit;cursor:pointer;text-align:left}
-        .abl-wechsel b{display:block;font-size:15px;font-weight:700;line-height:1.25}
-        .abl-wechsel small{display:block;font-size:12px;font-weight:500;color:${C.grau};line-height:1.3;margin-top:2px}
-        .abl-wechsel>span[aria-hidden]{font-size:20px;font-weight:700;flex-shrink:0}
-        .abl-wechsel.zurueck{justify-content:flex-start;border-color:${C.linie}}
         .abl-kopf{display:grid;grid-template-columns:1fr;gap:8px;align-items:stretch;margin-bottom:14px}
         .abl-links{display:flex;flex-direction:column;gap:8px;min-width:0}
         .abl-reihe{display:flex;gap:8px;align-items:stretch;flex:1;min-height:42px}
@@ -286,8 +298,8 @@ export function Ableitungstrainer() {
           .abl-karte{background:#fff;border-radius:16px;padding:18px;box-shadow:0 2px 16px rgba(15,26,51,0.07)}
         }
         .abl-nur-desk{display:none}
-        /* Desktop (ab 840 px, DESKTOP-STIL.md): links die Einstellungen (Modus, Stufe, Regel, Funktionsart) als ruhige,
-           mitlaufende Spalte, rechts die Aufgabe mit allen Ableitungen – alles auf einen Blick. Handy unverändert. */
+        /* Desktop (ab 840 px, DESKTOP-STIL.md): links die Einstellungen (Modus, Stufe, Regel) als ruhige,
+           mitlaufende Spalte, rechts die Aufgabe – alles auf einen Blick. Handy unverändert. */
         @media (min-width:840px){
           .abl-innen{max-width:none;width:var(--tr-breite);padding:24px 0 56px}
           .abl-raster{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:24px;align-items:start}
@@ -298,126 +310,38 @@ export function Ableitungstrainer() {
           .abl-chipwrap{margin:0}
           .abl-chips{flex-direction:column;flex-wrap:nowrap;gap:6px}
           .abl-chip{width:100%;height:40px;text-align:left;font-size:14px;padding:0 14px;border-radius:12px}
-          .abl-wechsel{margin:12px 0 0}
           .abl-karte{border:1px solid ${C.linie};box-shadow:none;padding:20px 22px}
         }`}</style>
       <div className="abl-innen">
        <div className="abl-raster">
         <div className="abl-spalte-l">
-        {/* Handy (unter 840 px, „Aufgabe zuerst“ 21.10.): nur der Modus und eine Einstellungs-Pille (Funktionsart · Stufe, Würfel rechts)
-            stehen vor der Aufgabe; Stufe, Funktionsarten und Regelwerkstatt liegen im aufklappbaren Feld. Desktop: Spalte wie bisher. */}
+        {/* Handy (unter 840 px, „Aufgabe zuerst“): Modus und eine Einstellungs-Pille (Regel · Stufe, Würfel rechts) vor der Aufgabe.
+            Desktop: Spalte mit Modus, Stufe + Würfel und der Regelliste. */}
         {!desk ? (
           <>
-            <div className="abl-kopf" style={{ marginBottom: 0 }}><div className="abl-links">
-            <div className="abl-seg" role="group" aria-label="Modus">
-              {[["auto", "Rechnen"], ["training", "Trainieren"]].map(([id, name]) => {
-                const aktuell = bereich === "werkstatt" ? werkModus : polyModus;
-                return <button key={id} type="button" aria-pressed={aktuell === id}
-                  onClick={() => festhalten(() => (bereich === "werkstatt" ? setWerkModus(id) : setPolyModus(id)))}>{name}</button>;
-              })}
-            </div>
-            </div></div>
-            <EinstellungsPille kennung={`ableitungstrainer-${bereich}`}
-              teile={bereich === "werkstatt"
-                ? [["Regel", (REGEL_CHIPS.find(([id]) => id === werkRegel) || ["", ""])[1]], ["Stufe", String(werkStufe)]]
-                : [["Funktionsart", (arten.find((a) => a.an) || { name: "–" }).name], quelle === "typ" ? ["Stufe", String(stufeTyp)] : null]}
-              rechts={<button type="button" className="abl-wuerfel" onClick={() => festhalten(() => (bereich === "werkstatt" ? setWurf((w) => w + 1) : neueFunktion()))}
-                aria-label="Neue Aufgabe würfeln" title="Neue Aufgabe"><span aria-hidden="true">🎲</span></button>}>
-              <div className="abl-reihe" style={{ marginBottom: 10 }}>
-                {bereich === "werkstatt" ? (
-                  <PopupWahl className="abl-stufe" wert={werkStufe} label="Stufe wählen" optionen={(werkRegel === "gold" ? [1, 2, 3, 4, 5] : [1, 2, 3]).map((st) => ({ id: st, name: `Stufe ${st}` }))}
-                    kopf={(o) => (o ? o.name : "Stufe")} onWaehle={(st) => festhalten(() => setWerkStufe(st))} />
-                ) : (
-                  <PopupWahl className={`abl-stufe${quelle === "typ" ? "" : " aus"}`} wert={stufeTyp} label="Stufe wählen" optionen={[1, 2, 3, 4, 5].map((st) => ({ id: st, name: `Stufe ${st}` }))}
-                    kopf={(o) => (o ? o.name : "Stufe")} onWaehle={(st) => festhalten(() => { setStufeTyp(st); neueAufgabe(typ, st); })} />
-                )}
-              </div>
-              {bereich === "trainer" && <>
-                <div className="abl-chipwrap" style={{ margin: 0 }}>
-                  <div className="abl-chips" role="group" aria-label="Welche Funktionen möchtest du ableiten?" style={{ flexWrap: "wrap" }}>
-                    {arten.map((a) => (
-                      <button key={a.id} type="button" className="abl-chip" aria-pressed={a.an} onClick={() => festhalten(a.los)}>{a.name}</button>
-                    ))}
-                  </div>
-                </div>
-                <button type="button" className="abl-wechsel" onClick={() => { setBereich("werkstatt"); nachOben(); }}>
-                  <span><b>Regelwerkstatt</b><small>Produkt-, Quotienten-, Kettenregel · Stufe 3</small></span><span aria-hidden="true">→</span>
-                </button>
-              </>}
-              {bereich === "werkstatt" && <>
-                <div className="abl-chipwrap" style={{ margin: 0 }}>
-                  <div className="abl-chips" role="group" aria-label="Welche Regel möchtest du üben?" style={{ flexWrap: "wrap" }}>
-                    {REGEL_CHIPS.map(([id, name]) => (
-                      <button key={id} type="button" className="abl-chip" aria-pressed={werkRegel === id}
-                        onClick={() => festhalten(() => { setWerkRegel(id); if (id !== "gold" && werkStufe > 3) setWerkStufe(3); })}>{name}</button>
-                    ))}
-                  </div>
-                </div>
-                <button type="button" className="abl-wechsel zurueck" onClick={() => { setBereich("trainer"); nachOben(); }}>
-                  <span aria-hidden="true">←</span><span><b>Zurück zu den Funktionsarten</b></span>
-                </button>
-              </>}
+            <div className="abl-kopf" style={{ marginBottom: 0 }}><div className="abl-links">{modusSchalter}</div></div>
+            <EinstellungsPille kennung="ableitungstrainer"
+              teile={[["Regel", regelName], eigen ? null : ["Stufe", String(stufe)]]}
+              rechts={wuerfel}>
+              {!eigen && <div className="abl-reihe" style={{ marginBottom: 10 }}>{stufeWahl}</div>}
+              {regelChips(true)}
             </EinstellungsPille>
           </>
         ) : (<>
-        {/* Kopf: links Automatik/Training sowie Stufe und Würfel, darunter die Funktionsarten (der Knopf „Ableiten üben“ ist am 21.10. entfallen) */}
-        <div className="abl-kopf" style={bereich === "werkstatt" ? { marginBottom: 7 } : undefined}>
-          <div className="abl-links">
-            <div className="abl-seg" role="group" aria-label="Modus">
-              {[["auto", "Rechnen"], ["training", "Trainieren"]].map(([id, name]) => {
-                const aktuell = bereich === "werkstatt" ? werkModus : polyModus;
-                return <button key={id} type="button" aria-pressed={aktuell === id}
-                  onClick={() => festhalten(() => (bereich === "werkstatt" ? setWerkModus(id) : setPolyModus(id)))}>{name}</button>;
-              })}
-            </div>
-            <div className="abl-reihe">
-              {bereich === "werkstatt" ? (
-                <PopupWahl className="abl-stufe" wert={werkStufe} label="Stufe wählen" optionen={(werkRegel === "gold" ? [1, 2, 3, 4, 5] : [1, 2, 3]).map((st) => ({ id: st, name: `Stufe ${st}` }))}
-                  kopf={(o) => (o ? o.name : "Stufe")} onWaehle={(st) => festhalten(() => setWerkStufe(st))} />
-              ) : (
-                <PopupWahl className={`abl-stufe${quelle === "typ" ? "" : " aus"}`} wert={stufeTyp} label="Stufe wählen" optionen={[1, 2, 3, 4, 5].map((st) => ({ id: st, name: `Stufe ${st}` }))}
-                  kopf={(o) => (o ? o.name : "Stufe")} onWaehle={(st) => festhalten(() => { setStufeTyp(st); neueAufgabe(typ, st); })} />
-              )}
-              <button type="button" className="abl-wuerfel" onClick={() => festhalten(() => (bereich === "werkstatt" ? setWurf((w) => w + 1) : neueFunktion()))}
-                aria-label="Neue Aufgabe würfeln" title="Neue Aufgabe"><span aria-hidden="true">🎲</span></button>
+          <div className="abl-kopf">
+            <div className="abl-links">
+              {modusSchalter}
+              <div className="abl-reihe">{stufeWahl}{wuerfel}</div>
             </div>
           </div>
-        </div>
-        {/* Funktionsart: direkt wählen, alles in einer Reihe (Desktop: Liste in der linken Spalte) */}
-        {bereich === "trainer" && <>
-        <p className="abl-nur-desk" style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: C.grau, margin: "0 2px 8px" }}>Funktionsart</p>
-        <div className="abl-chipwrap">
-          <div className="abl-chips" role="group" aria-label="Welche Funktionen möchtest du ableiten?">
-            {arten.map((a) => (
-              <button key={a.id} type="button" className="abl-chip" aria-pressed={a.an} onClick={() => festhalten(a.los)}>{a.name}</button>
-            ))}
-          </div>
-        </div>
-        <button type="button" className="abl-wechsel" onClick={() => { setBereich("werkstatt"); nachOben(); }}>
-          <span><b>Regelwerkstatt</b><small>Produkt-, Quotienten-, Kettenregel · Stufe 3</small></span><span aria-hidden="true">→</span>
-        </button>
-        </>}
-        {/* Regelwerkstatt: Regel wählen, zurück zu den Funktionsarten */}
-        {bereich === "werkstatt" && <>
-        <p className="abl-nur-desk" style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: C.grau, margin: "0 2px 8px" }}>Regelwerkstatt</p>
-        <div className="abl-chipwrap">
-          <div className="abl-chips" role="group" aria-label="Welche Regel möchtest du üben?">
-            {REGEL_CHIPS.map(([id, name]) => (
-              <button key={id} type="button" className="abl-chip" aria-pressed={werkRegel === id}
-                onClick={() => festhalten(() => { setWerkRegel(id); if (id !== "gold" && werkStufe > 3) setWerkStufe(3); })}>{name}</button>
-            ))}
-          </div>
-        </div>
-        <button type="button" className="abl-wechsel zurueck" onClick={() => { setBereich("trainer"); nachOben(); }}>
-          <span aria-hidden="true">←</span><span><b>Zurück zu den Funktionsarten</b></span>
-        </button>
-        </>}
+          <p className="abl-nur-desk" style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: C.grau, margin: "0 2px 8px" }}>Regel</p>
+          {regelChips(false)}
         </>)}
         </div>
         <div className="abl-spalte-r">
-        {bereich === "werkstatt" && <RegelWerkstatt regel={werkRegel} stufe={werkStufe} modus={werkModus} wurf={wurf} ohneKopf />}
-        {bereich === "trainer" && <>
-        {quelle === "eigen" && eigenOffen && (
+        {!eigen && <RegelWerkstatt regel={regel} stufe={stufe} modus={modus} wurf={wurf} ohneKopf />}
+        {eigen && <>
+        {eigenOffen && (
           <div className="abl-karte" style={{ marginBottom: 14 }}>
             <p style={{ fontSize: 14, color: C.grau, marginBottom: 8 }}>Gib deine Funktion ein und tippe auf „Übernehmen“.</p>
             <div style={{ border: `1.5px solid ${C.linie}`, borderRadius: 14, padding: "8px 14px", minHeight: 56,
@@ -437,19 +361,19 @@ export function Ableitungstrainer() {
         )}
 
         {/* Aufgabe und Ableitungszeilen */}
-        {kette && !(quelle === "eigen" && eigenOffen) && (
+        {kette && !eigenOffen && (
           <div className="abl-karte">
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 12 }}>
               <div style={{ minWidth: 0 }}>
                 <p style={{ fontSize: 16, fontWeight: 700, color: C.tinte, lineHeight: 1.25 }}>Leite ab</p>
                 <p style={{ fontSize: 12.5, color: C.grau, lineHeight: 1.35 }}>
-                  {regelText}{bilanz.gesamt ? ` · ${bilanz.richtig} von ${bilanz.gesamt} richtig` : ""}
+                  Eigene Funktion{bilanz.gesamt ? ` · ${bilanz.richtig} von ${bilanz.gesamt} richtig` : ""}
                 </p>
               </div>
-              <button type="button" onClick={neueFunktion}
+              <button type="button" onClick={() => setEigenOffen(true)}
                 style={{ flexShrink: 0, height: 46, padding: "0 18px", borderRadius: 999, border: "none", cursor: "pointer", fontFamily: "inherit",
                   fontSize: 15, fontWeight: 700, color: C.seeTief, background: C.flaggold, display: "inline-flex", alignItems: "center", gap: 8 }}>
-                <span aria-hidden="true" style={{ fontSize: 18, lineHeight: 1 }}>↻</span>{quelle === "eigen" ? "Funktion ändern" : "Neue Funktion"}
+                <span aria-hidden="true" style={{ fontSize: 18, lineHeight: 1 }}>↻</span>Funktion ändern
               </button>
             </div>
             <div style={{ background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`, borderRadius: 16,
@@ -459,8 +383,8 @@ export function Ableitungstrainer() {
               </span>
             </div>
 
-            {polyModus === "auto" ? (
-              /* Automatik: die drei Ableitungen stehen sofort da, nichts zu tippen */
+            {modus === "auto" ? (
+              /* Rechnen: die drei Ableitungen stehen sofort da, nichts zu tippen */
               <div className="abl-auto" style={{ background: C.sand, borderRadius: 16, padding: "10px 16px 12px" }}>
                 {[1, 2, 3].map((i) => (
                   <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, minHeight: 52, borderTop: i > 1 ? `1px solid ${C.linie}` : "none", overflowX: "auto", whiteSpace: "nowrap" }}>
@@ -497,20 +421,20 @@ export function Ableitungstrainer() {
               </div>
             ))}
 
-            {polyModus === "training" && fertig && (
+            {modus === "training" && fertig && (
               <div style={{ textAlign: "center", padding: "10px 0 4px" }}>
                 <p style={{ fontSize: 20, fontWeight: 700, color: C.smaragd, marginBottom: 4 }}>
                   {zeilen.every((z) => z.status === "richtig") ? "Alle drei Ableitungen richtig! 🎉" : "Geschafft — alle drei Ableitungen stehen."}
                 </p>
-                <p style={{ fontSize: 14, color: C.grau, marginBottom: 14 }}>Weiter mit einer neuen Funktion?</p>
-                <button onClick={() => (quelle === "zufall" ? neustart(zufallsFunktion()) : quelle === "typ" ? neueAufgabe() : neustart(fText))}
+                <p style={{ fontSize: 14, color: C.grau, marginBottom: 14 }}>Nochmal mit dieser oder einer neuen Funktion?</p>
+                <button onClick={() => neustart(fText)}
                   style={{ width: "100%", height: 56, borderRadius: 14, border: "none", cursor: "pointer", fontFamily: "inherit",
                     fontSize: 17, fontWeight: 700, color: C.weiss, background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
-                  {quelle === "eigen" ? "Nochmal von vorn" : "Neue Funktion"}
+                  Nochmal von vorn
                 </button>
               </div>
             )}
-            {polyModus === "training" && !fertig && <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 6 }}><IchHaengeFest kontext={ableitHilfe(kette, aktiv)} /></div>}
+            {modus === "training" && !fertig && <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 6 }}><IchHaengeFest kontext={ableitHilfe(kette, aktiv)} /></div>}
           </div>
         )}
         </>}
