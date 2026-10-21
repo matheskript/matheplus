@@ -143,8 +143,11 @@ with sync_playwright() as p:
             if sprache == "de":
                 page.goto(BASE); page.wait_for_timeout(1000)
                 page.get_by_role("button", name="Oberstufe aufklappen").first.click(); page.wait_for_timeout(300)
-                haupt = [k.get_attribute("aria-label") for k in page.locator("button[data-aufklapp-haupt]").all() if k.is_visible()]
-                pruefe(haupt and haupt[0] == "Fundament aufklappen", f"{breite}: Fundament ist nicht der erste Bereich ({haupt[:3]})")
+                # Seit der neuen Startseite (6518764) und 7ca9e1f steht „Mathematisches Fundament“ in der Oberstufen-Liste
+                # nach Analysis, Vektoren und Stochastik, direkt vor „Formelsammlung und Werkzeuge“ – nicht mehr als erster Bereich
+                haupt = [k.get_attribute("aria-label") for k in page.locator("[aria-label$=' aufklappen']").all() if k.is_visible()]
+                fu, fo = "Mathematisches Fundament aufklappen", "Formelsammlung und Werkzeuge aufklappen"
+                pruefe(fu in haupt and (fo not in haupt or haupt.index(fu) < haupt.index(fo)), f"{breite}: Fundament fehlt oder steht nicht vor der Formelsammlung ({haupt})")
                 page.get_by_role("button", name="Fundament aufklappen").first.click(); page.wait_for_timeout(400)
                 for t in ["Axiome und Rechenregeln", "Zahlenräume: von ℕ bis ℝ"]:
                     pruefe(page.locator(f"button:has-text('{t}')").count() > 0, f"{breite}: {t} fehlt unter Fundament")

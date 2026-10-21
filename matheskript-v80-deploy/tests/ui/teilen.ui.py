@@ -1,7 +1,7 @@
 """Browser-Test „Dieses Tool teilen“: Knopf auf jeder Tool-/Trainingsseite, Link kopieren, WhatsApp-Link mit Text, kein Knopf auf Start/Konto.
   npx vite build && npx vite preview --port 4173 &   →   python3 tests/ui/teilen.ui.py
 """
-import os, json, subprocess, sys, urllib.parse
+import os, re, json, subprocess, sys, urllib.parse
 from playwright.sync_api import sync_playwright
 
 BASE = os.environ.get("BASE_URL", "http://localhost:4173").rstrip("/")
@@ -23,6 +23,11 @@ with sync_playwright() as pw:
     page.on("pageerror", lambda e: konsole.append(f"pageerror: {e}"))
     page.on("console", lambda m: konsole.append(m.text) if m.type == "error" and "net::" not in m.text and "Failed to load resource" not in m.text else None)
 
+    # Abgeschaltete Angebote (src/angebot.js, z. B. /nachhilfe-kurs) leiten ohne Passwort auf / um –
+    # mit dem gemeinsamen Passwort (Sitzung, wie Basti) bleiben sie erreichbar und behalten ihren Teilen-Knopf
+    _sk = open(os.path.join(WURZEL, "src", "seitenKonstanten.js"), encoding="utf-8").read()
+    page.goto(BASE + "/")
+    page.evaluate("sessionStorage.setItem('%s', '%s')" % (re.search(r'FREI_KEY = "([^"]+)"', _sk).group(1), re.search(r'PW_HASH = "([0-9a-f]+)"', _sk).group(1)))
     # 1. Knopf auf jeder Tool-/Trainingsseite
     for p in pfade:
         page.goto("about:blank"); page.goto(BASE + p); page.wait_for_timeout(450)

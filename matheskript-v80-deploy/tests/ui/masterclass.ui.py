@@ -14,6 +14,10 @@ HIER = os.path.dirname(os.path.abspath(__file__))
 TOKEN = os.environ.get("MC_TOKEN") or subprocess.check_output(
     ["node", "-e", 'import("./src/masterclassToken.js").then(async m => console.log(await m.tokenErzeugen()))'],
     cwd=os.path.join(HIER, "..", ".."), text=True).strip()
+import re as _re
+_sk = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "src", "seitenKonstanten.js"), encoding="utf-8").read()
+PW_HASH = _re.search(r'PW_HASH = "([0-9a-f]+)"', _sk).group(1)
+FREI_KEY = _re.search(r'FREI_KEY = "([^"]+)"', _sk).group(1)
 fehler = []
 
 with sync_playwright() as p:
@@ -25,6 +29,10 @@ with sync_playwright() as p:
         seite.on("console", lambda m: konsole.append(m.text) if m.type == "error" else None)
         seite.on("pageerror", lambda e: konsole.append(str(e)))
 
+        # Masterclass ist über ANGEBOT.kurse (src/angebot.js) gerade abgeschaltet und leitet auf / um –
+        # mit dem gemeinsamen Passwort (Sitzung, wie Basti) bleibt sie erreichbar; so prüft der Test weiter den Kurs selbst
+        seite.goto(BASE + "/")
+        seite.evaluate(f"sessionStorage.setItem('{FREI_KEY}', '{PW_HASH}')")
         # 1. Ohne Zugang: Schaufenster
         seite.goto(f"{BASE}/masterclass/kurs")
         seite.wait_for_timeout(1200)

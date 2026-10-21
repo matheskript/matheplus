@@ -30,7 +30,8 @@ with sync_playwright() as p:
     page.on("pageerror", lambda e: konsole.append(f"pageerror: {e}"))
     page.on("console", lambda m: konsole.append(m.text) if m.type == "error" and "net::" not in m.text and "Failed to load resource" not in m.text else None)
     page.route("**/api/claude", api)
-    page.goto(BASE); page.evaluate("localStorage.clear()"); page.reload(); page.wait_for_timeout(600)
+    # Zustimmung vorab setzen (seit a0a0093 fragt der Chat vor der ersten Nachricht; die Abfrage selbst prüft recht.ui.py)
+    page.goto(BASE); page.evaluate("localStorage.clear(); localStorage.setItem('matheskript-einwilligung-v1', '1')"); page.reload(); page.wait_for_timeout(600)
 
     # Seite „Mathilda fragen“
     page.evaluate("window.__mmGehe({ ansicht: 'analyse', foto: 'chat' })"); page.wait_for_timeout(400)
@@ -71,8 +72,11 @@ with sync_playwright() as p:
     # Englisch: neue Texte übersetzt
     page.evaluate("localStorage.setItem('mm-sprache','en')"); page.reload(); page.wait_for_timeout(900)
     page.evaluate("window.__i18nFehlt.clear(); window.__mmGehe({ ansicht: 'analyse', foto: 'chat' })"); page.wait_for_timeout(500)
-    en = json.load(open("src/i18n/en.json"))["exakt"]
-    fehlt = [f for f in page.evaluate("Array.from(window.__i18nFehlt)") if len(f.strip()) > 5 and f not in ("DEMO", "Mathilda") and f not in en.values() and not re.search(r"[=^]|\d", f)]
+    en = set(json.load(open("src/i18n/en.json"))["exakt"].values())
+    import glob   # im Code per zw()/L() gesetztes Englisch (z. B. „Share this tool“) ist kein fehlender Eintrag
+    for _d in glob.glob("src/*.jsx"):
+        en.update(re.findall(r'\b(?:zw|L)\("(?:[^"\\]|\\.)*",\s*"((?:[^"\\]|\\.)*)"', open(_d, encoding="utf-8").read()))
+    fehlt = [f for f in page.evaluate("Array.from(window.__i18nFehlt)") if len(f.strip()) > 5 and f not in ("DEMO", "Mathilda") and f not in en and not re.search(r"[=^]|\d", f)]
     pruefe(not fehlt, f"Englisch, fehlende Texte: {fehlt[:20]}")
     page.evaluate("localStorage.setItem('mm-sprache','de')")
     pruefe(not konsole, f"Konsolenfehler: {konsole[:5]}")

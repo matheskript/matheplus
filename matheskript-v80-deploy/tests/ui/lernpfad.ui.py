@@ -2,7 +2,7 @@
 Prüft bei 390 px: keine Seitenüberbreite, keine Konsolenfehler, Speicherung über Reload, Rückweg aus dem Werkzeug.
   npm run build && npx vite preview --port 4173 &   →   python3 tests/ui/lernpfad.ui.py
 """
-import os, sys, json
+import os, sys, json, re
 from playwright.sync_api import sync_playwright
 
 BASE = os.environ.get("BASE_URL", "http://localhost:4173/")
@@ -29,9 +29,8 @@ with sync_playwright() as p:
         sw = page.evaluate("document.documentElement.scrollWidth")
         pruefe(sw <= 390, f"Überbreite bei {wo}: {sw}")
 
-    # Startseite: Block „Dein Plan“ mit Standortcheck-Knopf
-    pruefe(page.get_by_text("Wo stehst du wirklich?").count() == 1, "Startseiten-Block „Dein Plan“ fehlt")
-    page.get_by_role("button", name="Standortcheck starten").first.click()
+    # Die neue Startseite (6518764, 20.10.) hat keinen Block „Dein Plan“ mehr – Einstieg über den Direktlink /lernpfad
+    page.goto(BASE.rstrip("/") + "/lernpfad"); page.wait_for_timeout(800)
     page.wait_for_timeout(400)
     pruefe(page.get_by_text("1 · Welcher Bereich?").count() == 1, "Einrichtung fehlt")
     breite_ok("Einrichtung")
@@ -82,11 +81,16 @@ with sync_playwright() as p:
     gespeichert = page.evaluate("JSON.parse(localStorage.getItem('matheskript-lernstand-v1')).pfad")
     pruefe(gespeichert and gespeichert["pfad"] == "analysis" and gespeichert["proWoche"] >= 2, f"Lernstand ohne Pfad: {gespeichert}")
     # Einheit öffnen
-    page.get_by_role("button", name="Geradengleichung öffnen").click(); page.wait_for_timeout(300)
+    # Reihenfolge des Analysis-Pfads kommt aus src/lernpfade.js (seit dem Umbau: Funktionen: Grundlagen, Sinusfunktion, …)
+    einheiten = [k.get_attribute("aria-label")[:-len(" öffnen")] for k in page.locator("button[aria-label$=' öffnen']").all()]
+    pruefe(len(einheiten) >= 2, f"Wochenplan zeigt keine Einheiten ({einheiten})")
+    erste, zweite = einheiten[0], einheiten[1]
+    page.get_by_role("button", name=f"{erste} öffnen").first.click(); page.wait_for_timeout(300)
     pruefe(page.get_by_text("Worum es geht").count() == 1, "Schritt Entdecken fehlt")
     breite_ok("Einheit Entdecken")
     # Rückweg: Werkzeug öffnen → „zurück“ in der Werkzeugleiste
-    page.get_by_role("button", name="Parabeln öffnen").click(); page.wait_for_timeout(500)
+    # das Werkzeug der Einheit (Entdecken-Knopf „<Werkzeug> öffnen“, ohne aria-label)
+    page.locator("button:not([aria-label])", has_text=re.compile(r" öffnen$")).first.click(); page.wait_for_timeout(500)
     pruefe(page.locator("[data-uebergabe-hinweis]").count() == 1, "Hinweis „Übernommen aus Lernpfad“ fehlt")
     page.get_by_role("button", name="zurück").first.click(); page.wait_for_timeout(400)
     pruefe(page.get_by_text("Worum es geht").count() == 1, "Rückweg aus dem Werkzeug landet nicht in der Einheit")
@@ -99,17 +103,19 @@ with sync_playwright() as p:
     pruefe(page.get_by_text("Als Nächstes").count() == 1, "Nächste Einheit fehlt")
     breite_ok("Rückmeldung")
     page.get_by_role("button", name="Nächste Einheit starten").click(); page.wait_for_timeout(400)
-    pruefe(page.get_by_text("Parabeln").first.count() >= 1 and page.get_by_text("Worum es geht").count() == 1, "Sprung in die nächste Einheit fehlt")
+    pruefe(page.get_by_text(zweite).first.count() >= 1 and page.get_by_text("Worum es geht").count() == 1, "Sprung in die nächste Einheit fehlt")
     page.get_by_role("button", name="Verstanden – weiter zum Rechnen").click(); page.wait_for_timeout(150)
     page.get_by_role("button", name="Erledigt – weiter zum Trainieren").click(); page.wait_for_timeout(150)
-    pruefe(page.get_by_text("Fünf Aufgaben").count() == 1, "Trainieren mit Generator fehlt")
-    page.get_by_role("button", name="Los geht’s").click(); page.wait_for_timeout(300)
-    pruefe(page.get_by_text("Aufgabe 1 von 5").count() == 1, "Fünf Aufgaben starten nicht")
+    # Ob die zweite Einheit einen Aufgabengenerator hat, hängt von src/lernpfade.js ab (seit dem Umbau: Sinusfunktion, ohne Generator)
+    if page.get_by_text("Fünf Aufgaben").count() == 1:
+        page.get_by_role("button", name="Los geht’s").click(); page.wait_for_timeout(300)
+        pruefe(page.get_by_text("Aufgabe 1 von 5").count() == 1, "Fünf Aufgaben starten nicht")
+    else:
+        pruefe(page.get_by_text("Trainieren im Werkzeug").count() == 1, "Schritt Trainieren fehlt (weder mit noch ohne Generator)")
     breite_ok("Trainieren")
-    # Startseite zeigt Ring und nächste Einheit
+    # Startseite: der Block „Dein Plan“ (Ring, „Einheit starten“) ist mit der neuen Startseite (6518764) entfallen –
+    # der Tagesplan lebt in Mein Mathe-Training. Hier nur noch: Startseite lädt ohne Überbreite.
     page.evaluate("window.__mmGehe({ ansicht: 'start' })"); page.wait_for_timeout(500)
-    pruefe(page.get_by_text("Dein Plan · Analysis").count() == 1, "Startseiten-Block mit Plan fehlt")
-    pruefe(page.get_by_role("button", name="Einheit starten").count() == 1, "Knopf „Einheit starten“ fehlt")
     breite_ok("Startseite mit Plan")
     # Englisch: keine fehlenden Texte in den neuen Seiten
     page.evaluate("localStorage.setItem('mm-sprache','en')"); page.reload(); page.wait_for_timeout(900)
@@ -120,6 +126,12 @@ with sync_playwright() as p:
     fehlt = page.evaluate("Array.from(window.__i18nFehlt || [])")
     import re
     fehlt = [f for f in fehlt if len(f.strip()) > 3 and not re.search(r"[=^]|\d", f) and not f.startswith(".")]   # Aufgabentexte der Generatoren sind nur deutsch
+    _en = set(json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "src", "i18n", "en.json"), encoding="utf-8"))["exakt"].values())
+    # schon englisch – per zw()/L() im Code gesetzt oder als Übersetzung im Wörterbuch – ist kein fehlender Eintrag
+    import glob
+    for _d in glob.glob(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "src", "*.jsx")):
+        _en.update(re.findall(r'\b(?:zw|L)\("(?:[^"\\]|\\.)*",\s*"((?:[^"\\]|\\.)*)"', open(_d, encoding="utf-8").read()))
+    fehlt = [f for f in fehlt if f not in _en]
     pruefe(not fehlt, f"Englisch, fehlende Texte: {fehlt[:30]}")
     page.evaluate("localStorage.setItem('mm-sprache','de')")
 

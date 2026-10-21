@@ -109,9 +109,11 @@ with sync_playwright() as p:
     page.locator("[data-hm-menue]").click(); page.wait_for_timeout(300)
     text = page.locator(".hm-fenster.hm-menue").inner_text()
     low = text.lower()   # Überschriften sind per CSS in Großbuchstaben
-    for wort in ("My courses", "Math training", "My Training", "Discover math", "Formula collection", "My account", "Sign out", "Scan sheet"):
+    # Menütexte wie in src/i18n/en.json (Punkt 6, 21.10.): „Mein Mathe-Training“ → „My math training“, Darstellung → Appearance
+    for wort in ("My courses", "Math training", "My math training", "Daily plan, topics, reviews", "Discover math", "Formula collection", "My account", "Sign out", "Scan sheet",
+                 "Appearance", "Dark", "Light", "Grade 10"):
         pruefe(wort.lower() in low, f"en: „{wort}“ fehlt im Menü")
-    for de in ("Meine Kurse", "Mathe-Training", "Konto", "Abmelden", "Blatt scannen"):
+    for de in ("Meine Kurse", "Mathe-Training", "Mein Mathe-Training", "Konto", "Abmelden", "Blatt scannen", "Darstellung", "Dunkel", "Hell", "Klasse 10", "Meine Klasse"):
         pruefe(de.lower() not in low, f"en: „{de}“ ist noch deutsch")
     page.locator("[data-hm='klasse']").click(); page.wait_for_timeout(300)
     t2 = page.locator(".hm-fenster.hm-menue").inner_text().lower()

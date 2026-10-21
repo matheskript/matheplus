@@ -123,7 +123,13 @@ with sync_playwright() as p:
                     dlg.get_by_text("Landingpage").click(); page.wait_for_timeout(900)
                     pruefe("landingpage" in page.url, f"{tag}: Arbeitsmenü → Landingpage geht nicht")
                 else:
-                    pruefe("Landingpage" not in dlg.inner_text(), f"{tag}: Landingpage steht im Arbeitsmenü, obwohl abgeschaltet")
+                    # seit 344696a gewollt: abgeschaltete Landingpage bleibt im Arbeitsmenü – mit Schloss, Klick zeigt das Passwortfeld
+                    lp = dlg.locator("[data-arbeitsmenue-seite='landingpage']")
+                    pruefe(lp.count() == 1 and "Landingpage" in lp.inner_text(), f"{tag}: Landingpage fehlt im Arbeitsmenü")
+                    if lp.count():
+                        pruefe(lp.locator("svg[aria-label='Passwortgeschützt']").count() == 1, f"{tag}: Landingpage ohne Schloss, obwohl abgeschaltet")
+                        lp.click(); page.wait_for_timeout(300)
+                        pruefe(page.locator("[data-arbeitsmenue-passwort]").count() == 1 and "landingpage" not in page.url, f"{tag}: Landingpage öffnet ohne Passwort")
             pruefe(not konsole, f"{tag}: Konsolenfehler {konsole}")
             ctx.close()
     b.close()

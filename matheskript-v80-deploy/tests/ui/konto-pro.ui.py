@@ -6,6 +6,10 @@ import os, sys, re, json
 from playwright.sync_api import sync_playwright
 BASE = os.environ.get("BASE_URL", "http://localhost:4173/")
 fehler = []
+# Pro ist über den Angebots-Schalter (src/angebot.js, ANGEBOT.pro) abgeschaltet → Plan-Karte und Buchung gibt es gewollt nicht
+_a = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "src", "angebot.js"), encoding="utf-8").read().split("export const ANGEBOT")[1].split("};")[0]
+if not dict(re.findall(r"^\s+(\w+): (true|false),", _a, re.M)).get("pro") == "true":
+    print("übersprungen: ANGEBOT.pro ist aus (src/angebot.js)"); sys.exit(0)
 def pruefe(bed, text):
     if not bed: fehler.append(text); print("FEHLT:", text)
 

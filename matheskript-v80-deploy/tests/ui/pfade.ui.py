@@ -14,8 +14,11 @@ def pruefe(bed, text):
         fehler.append(text)
         print("FEHLT:", text)
 
-js = "import {PFADE} from './src/pfade.js'; console.log(JSON.stringify(PFADE.map(e=>({p:'/'+e.pfad,a:e.alias.map(x=>'/'+x)}))));"
+# zu = Ansicht ist über einen Angebots-Schalter (src/angebot.js, ANGEBOT) abgeschaltet → Direktlink leitet gewollt auf / um
+js = "import {PFADE} from './src/pfade.js'; import {ansichtGesperrt} from './src/angebot.js'; console.log(JSON.stringify(PFADE.map(e=>({p:'/'+e.pfad,a:e.alias.map(x=>'/'+x),zu:ansichtGesperrt(e.ansicht)}))));"
 liste = json.loads(subprocess.check_output(["node", "--input-type=module", "-e", js], cwd=WURZEL, text=True))
+ZU = {e["p"] for e in liste if e.get("zu")}
+print("abgeschaltet (→ /):", ", ".join(sorted(ZU)) or "–")
 liste += [{"p": f"/klasse-{k}", "a": []} for k in (8, 10, 13)] + [{"p": "/landeswettbewerb/by", "a": []}]
 
 with sync_playwright() as pw:
@@ -38,7 +41,7 @@ with sync_playwright() as pw:
     for e in liste:
         konsole.clear()
         offen(e["p"], 450)
-        soll = e["p"] if e["p"] != "/" else "/"
+        soll = "/" if e.get("zu") else e["p"]
         pruefe(pfad() == soll, f"{e['p']}: Adresse wurde zu {pfad()}")
         pruefe(not konsole, f"{e['p']}: Konsolenfehler {konsole[:2]}")
         w = page.evaluate("document.documentElement.scrollWidth - window.innerWidth")
@@ -50,15 +53,19 @@ with sync_playwright() as pw:
     for url, text in [("/elternabend", "Elternabend"), ("/ableitungstrainer", "Leite ab"), ("/klasse-10", "Klasse 10"),
                       ("/kurvendiskussion", "Kurvendiskussion"), ("/kurvendiskussion/beliebig", "Kurvendiskussion"), ("/landingpage", "Mythos"),
                       ("/gleichungen/verstehen", "Gleichungen")]:
+        if url in ZU:
+            continue   # abgeschaltet: Umleitung auf / prüft Schritt 1
         offen(url)
         pruefe(text.lower() in page.inner_text("body").lower(), f"{url}: Text '{text}' fehlt")
 
     # 3. Aliasse, Schreibweisen, alte Links
-    offen("/infoabend"); pruefe(pfad() == "/elternabend", f"Alias /infoabend → {pfad()}")
-    offen("/Elternabend/"); pruefe(pfad() == "/elternabend", f"/Elternabend/ → {pfad()}")
+    ea = "/" if "/elternabend" in ZU else "/elternabend"
+    offen("/infoabend"); pruefe(pfad() == ea, f"Alias /infoabend → {pfad()}")
+    offen("/Elternabend/"); pruefe(pfad() == ea, f"/Elternabend/ → {pfad()}")
     offen("/123456"); pruefe(pfad() == "/", f"Ref-Zahl → {pfad()}")
     offen("/gibtsnicht"); pruefe(pfad() == "/", f"Unbekannt → {pfad()}")
-    offen("/#landingpage"); pruefe(pfad() == "/landingpage" and page.evaluate("location.hash") == "", f"#landingpage → {pfad()}{page.evaluate('location.hash')}")
+    lp = "/" if "/landingpage" in ZU else "/landingpage"
+    offen("/#landingpage"); pruefe(pfad() == lp and page.evaluate("location.hash") == "", f"#landingpage → {pfad()}{page.evaluate('location.hash')}")
     offen("/#entwurf-pakete"); pruefe(pfad() == "/entwurf/pakete", f"#entwurf-pakete → {pfad()}")
     offen("/?ansicht=ableitungstrainer"); pruefe(pfad() == "/ableitungstrainer", f"?ansicht= → {pfad()}")
 

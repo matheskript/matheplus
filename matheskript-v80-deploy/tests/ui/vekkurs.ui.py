@@ -28,6 +28,9 @@ with sync_playwright() as p:
         seite.locator(".ks-weiter").first.click()
         seite.wait_for_timeout(800)
         if seite.locator("iframe[title*='lesen']").count() == 0: fehler.append(f"{breite}: Lesefunktion (Heft) fehlt")
+        # seit dem Umbau des Trainingsteils (Reiter Werkzeuge · Aufgaben · Sätze, Start auf „Aufgaben“): erst den Werkzeug-Reiter wählen
+        reiter = seite.locator("[data-dk-reiter=werkzeuge]")
+        if reiter.count(): reiter.first.click(); seite.wait_for_timeout(400)
         seite.get_by_role("button", name="Jetzt öffnen").first.click()
         seite.wait_for_timeout(1500)
         if seite.get_by_role("dialog").count() == 0: fehler.append(f"{breite}: Werkzeug-Fenster fehlt")
