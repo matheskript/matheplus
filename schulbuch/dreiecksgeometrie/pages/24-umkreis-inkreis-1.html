@@ -27,7 +27,7 @@
     "flaeche":[{"pkte":[[0,0],[7,0],[2,4]],"c":"see","o":0.1,"w":1.8}],
     "winkel":[{"s":[3.5,0],"a":[7,0],"b":[3.5,0.75],"recht":true,"c":"see","r":0.6},{"s":[4.5,2],"a":[2,4],"b":[3.5,0.75],"recht":true,"c":"see","r":0.6},{"s":[1,2],"a":[0,0],"b":[3.5,0.75],"recht":true,"c":"see","r":0.6}],
     "punkt":[{"p":[0,0],"t":"A","pos":"ul"},{"p":[7,0],"t":"B","pos":"ur"},{"p":[2,4],"t":"C","pos":"ol"},{"p":[3.5,0.75],"t":"U","pos":"or","c":"grana"}],
-    "text":[{"p":[3.5,-2.3],"t":"m_c","pos":"r","c":"see"},{"p":[5.6,3.3],"t":"m_a","pos":"r","c":"see"},{"p":[0.4,2.55],"t":"m_b","pos":"o","c":"see"}]}</figur>
+    "text":[{"p":[3.5,-2.3],"t":"m_c","pos":"r","c":"see"},{"p":[5.6,3.3],"t":"m_a","pos":"r","c":"see"},{"p":[0.14,2.7],"t":"m_b","pos":"o","c":"see"}]}</figur>
 </div>
 
 <div class="kasten merke">
@@ -60,11 +60,11 @@
       "punkt":[{"p":[0,0],"t":"A","pos":"ul","r":2},{"p":[6,0],"t":"B","pos":"ur","r":2},{"p":[2,2],"t":"C","pos":"o","r":2},{"p":[3,-1],"t":"U","pos":"r","c":"grana","r":2.4}]}</figur>
       <p class="bildunterschrift"><b>stumpfwinklig:</b> $U$ liegt außen</p></div>
   </div>
-  <p style="text-align:left;margin-top:1.2mm">Beim stumpfwinkligen Dreieck liegt $U$ jenseits der längsten Seite, gegenüber dem stumpfen Winkel.</p></div>
+  <p style="text-align:left;margin-top:1.2mm">Beim stumpfwinkligen Dreieck liegt $U$ jenseits der Seite, die dem stumpfen Winkel gegenüberliegt. Warum das so ist, steht am Rand.</p></div>
 </div>
 <!--rand-->
 <div class="notiz stunde"><span class="t">Ablauf der Stunde</span>
-<ol><li>Einstieg: Kreise durch Punkte</li><li>Wörter zum Kreis</li><li>Umkreis, Merke</li><li>Beispiel 1: Lage von $U$</li><li>Inkreis (S. {{S:umkreis-inkreis-2}})</li><li>Aufgaben 1–5</li></ol>
+<ol><li>Einstieg: Kreise</li><li>Wörter zum Kreis</li><li>Umkreis, Merke</li><li>Lage von $U$</li><li>Inkreis (S. {{S:umkreis-inkreis-2}})</li><li>Aufgaben 1–5</li></ol>
 <p style="margin:1.4mm 0 0;text-align:left"><b>Hausaufgabe:</b> 6 und 7</p></div>
 
 <div class="notiz"><span class="t">Wortspeicher</span>
@@ -77,11 +77,9 @@
       {"p":[0.2432,-3.7124],"q":[3.6136,-0.8838],"c":"smaragd","w":1.5}],
     "winkel":[{"s":[1.9284,-2.2981],"a":[0,0],"b":[3.6136,-0.8838],"recht":true,"c":"smaragd","r":0.75}],
     "punkt":[{"p":[0,0],"t":"M","pos":"u","r":2},{"p":[1.9284,-2.2981],"r":2,"c":"smaragd"}],
-    "text":[{"p":[-1.5,0],"t":"d","pos":"u","c":"see"},{"p":[0.75,1.3],"t":"r","pos":"l","c":"grana"},{"p":[-2.16,0.79],"t":"s","pos":"l","c":"goldDunkel"},{"p":[3.6136,-0.8838],"t":"t","pos":"r","c":"smaragd"}]}</figur>
+    "text":[{"p":[-1.5,0],"t":"d","pos":"u","c":"see"},{"p":[0.75,1.3],"t":"r","pos":"l","c":"grana"},{"p":[-2.16,0.79],"t":"s","pos":"r","c":"goldDunkel"},{"p":[3.6136,-0.8838],"t":"t","pos":"r","c":"smaragd"}]}</figur>
 <b>Kreis</b> um $M$ mit Radius $r$: alle Punkte, die von $M$ den Abstand $r$ haben.<br><b>Sehne</b> $s$: Strecke zwischen zwei Kreispunkten; die längste ist der <b>Durchmesser</b> $d = 2r$.<br><b>Tangente</b> $t$ (lat. <i>tangere</i>, berühren): ein gemeinsamer Punkt; $t$ steht senkrecht auf dem Radius (S. {{S:umkreis-inkreis-2}}).<br><b>Sekante</b> (lat. <i>secare</i>, schneiden): zwei gemeinsame Punkte.<br><b>Passante:</b> geht vorbei.</div>
 
-<div class="notiz gold"><span class="t">Probe beim Konstruieren</span>Zeichne auch die dritte Mittelsenkrechte. Geht sie nicht durch $U$, war die Zeichnung ungenau.</div>
-
-<div class="notiz gold"><span class="t">Ausblick</span>Beim rechtwinkligen Dreieck fällt $U$ genau auf die Mitte der Hypotenuse. Dass das <b>immer</b> so ist, beweist Unterkapitel {{K:thales-1}}.</div>
+<div class="notiz gold"><span class="t">Warum innen oder außen?</span>$ABU$, $BCU$, $CAU$ sind gleichschenklig (Schenkel $r$), Basiswinkel $x$, $y$, $z$.<br><b>$U$ innen:</b> $\alpha = x + z$, $\beta = x + y$, $\gamma = y + z$. Winkelsumme: $x + y + z = 90^\circ$, also $\gamma = 90^\circ - x$, ebenso $\alpha$, $\beta$ spitz.<br><b>$U$ auf $c$:</b> $\gamma = y + z = \alpha + \beta = 90^\circ$.<br><b>$U$ jenseits von $c$:</b> $\alpha = z - x$, $\beta = y - x$, also $\gamma = 90^\circ + x$.<br>Ebenso für $a$, $b$. Jede Lage gibt eine andere Dreiecksart – darum gilt auch die Umkehrung.</div>
 
 <div class="notiz"><span class="t">Warum ist $d$ die längste Sehne?</span>Für jede Sehne gilt $|\overline{PQ}| \le |\overline{PM}| + |\overline{MQ}| = 2r$: Der Umweg über $M$ ist nie kürzer.</div>

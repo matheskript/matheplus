@@ -468,7 +468,7 @@ function seite(s) {
   const seiteLR = (s.roem ? s.roemIndex % 2 === 0 : s.nr % 2 === 1) ? "rechts" : "links";
   const col = KAPFARBE[kap] || FARBE.see;
   if (typ === "frei") return `<section class="page frei ${seiteLR} kap-${kap}" style="--kap:${col}" data-nr="${s.nr}" data-datei="${s.datei}">${s.haupt}</section>`;
-  const kopf = typ === "auftakt" ? "" : `<header class="kopf"><span class="kopf-kap"><b>${kap === "L" || kap === "0" ? "" : "Kapitel " + kap}</b>${KAPNAME[kap] ?? ""}</span><span class="kopf-ukap">${s.meta.ukap ?? ""}</span></header>`;
+  const kopf = typ === "auftakt" ? "" : `<header class="kopf"><span class="kopf-kap"><b>${kap === "L" || kap === "A" || kap === "0" ? "" : "Kapitel " + kap}</b>${KAPNAME[kap] ?? ""}</span><span class="kopf-ukap">${s.meta.ukap ?? ""}</span></header>`;
   return `<section class="page ${typ} ${seiteLR} kap-${kap}" style="--kap:${col}" data-nr="${s.nr}" data-datei="${s.datei}">
   <div class="kapband"></div>
   ${kopf}
