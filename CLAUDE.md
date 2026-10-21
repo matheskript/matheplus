@@ -23,7 +23,7 @@ Module über eine Person (z. B. Gauß) beginnen mit einer reinen Infoseite (Phas
 
 ## Kurs-Kacheln und Kursseiten: eine Gestaltung („Lack und Goldfolie“)
 Die Kurse (Unterstufe, Differentialrechnung, Vektoren/Geraden/Ebenen, GFS, Mathe mit KI lernen) teilen sich eine Optik: tief lackierte Fläche in den Kursfarben, Motiv in Folienoptik, Titel über die volle Breite, persönlicher Stand.
-- Farben je Kurs nur in `src/kursFarben.js` (GRANAT, PORZELLAN, TIEFBLAU, LACKSCHWARZ, NACHTBLAU) – nicht in den Kursdateien nachbauen.
+- Farben je Kurs nur in `src/kursFarben.js` (GRANAT, SMARAGD = Differentialrechnung seit 21.10., TIEFBLAU, LACKSCHWARZ, NACHTBLAU; PORZELLAN nur noch für Umschlag/Dokumentkarte Band „Ableitungen“) – nicht in den Kursdateien nachbauen.
 - Motive (viewBox 0 0 160 120) in `src/funcKursMotive.jsx`, Startseiten-Kacheln in `src/funcKursKachel.jsx`, Kursseiten-Bausteine (`KursKopf`, `FortschrittKarte`, `KapitelKopf`, `ModulKarte`) in `src/funcKursKopf.jsx`.
 - Der Stand auf den Kacheln kommt aus `src/kursStand.js` (nur localStorage + Datendateien `unterstufeDaten.js`, `diffKursDaten.js`, `vekKursDaten.js`, `gfsKurs.js`); die Regeln „wann ist ein Modul geschafft“ müssen dort und in der Kursseite gleich bleiben.
 - Ein neuer Kurs: Palette in `kursFarben.js`, Motiv in `funcKursMotive.jsx`, Kachel in `funcKursKachel.jsx`, Kursseite mit den Bausteinen aus `funcKursKopf.jsx`, Stand in `kursStand.js`.

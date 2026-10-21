@@ -22,10 +22,10 @@ import { AufklappZeichen } from "./aufklappen.jsx";
 import { neueAufgabe, typVon, typTitel } from "./diffAufgaben.js";
 import { pruefeTerm, pruefeListe, pruefeStamm, termAus, aufX, alsQ, zT } from "./diffKern.js";
 
-/* Farben als CSS-Variablen: der Kurs Differentialrechnung (Standard) ist babyblau, der Kurs
+/* Farben als CSS-Variablen: der Kurs Differentialrechnung (Standard) ist smaragdgrün, der Kurs
    Vektoren/Geraden/Ebenen setzt über die Prop `buch.farben` seine dunkelblaue Palette. */
 const K = { baby: "var(--kt-baby)", hell: "var(--kt-hell)", tief: "var(--kt-tief)", schwarz: "var(--kt-schwarz)", gold: "var(--kt-gold)", weiss: "var(--kt-weiss)" };
-const K_DIFF = { "--kt-baby": C.babyblau, "--kt-hell": C.babyblauHell, "--kt-tief": C.babyblauTief, "--kt-schwarz": C.nachtschwarz, "--kt-gold": C.golddunkel, "--kt-weiss": C.weiss };
+const K_DIFF = { "--kt-baby": C.smHell, "--kt-hell": C.smNebel, "--kt-tief": C.smGruen, "--kt-schwarz": C.smNacht, "--kt-gold": C.smGoldDunkel, "--kt-weiss": C.weiss };
 
 /* Welches Buch: Band 1 (Standard) oder ein anderer Band mit eigenen Generatoren (funcVekKurs.jsx) */
 export const BUCH_DIFF = { pfad: "/buecher/ableitungen", gen: { neueAufgabe, typVon, typTitel }, farben: K_DIFF, speicher: "matheplus-diffkurs-reiter" };

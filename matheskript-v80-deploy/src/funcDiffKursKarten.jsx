@@ -9,7 +9,7 @@
 import React from "react";
 import { C } from "./base1.jsx";
 
-const I = C.nachtschwarz, B1 = C.babyblau, B2 = C.babyblauTief, BH = C.babyblauHell, G = C.flaggold, S = C.see;
+const I = C.smNacht, B1 = C.smHell, B2 = C.smGruen, BH = C.smNebel, G = C.flaggold, S = C.see;
 const FONT = "Montserrat, sans-serif";
 
 /* ---------- Texte: was bekommt man in der Übung? ---------- */
@@ -449,17 +449,17 @@ const CSS = `
 @media (hover:hover){.dkk:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(15,26,51,.13);border-color:${B2}}}
 .dkk-kopf{grid-area:kopf;display:flex;align-items:flex-start;gap:12px;min-width:0}
 .dkk-titel{font-size:15.5px;font-weight:800;letter-spacing:-0.01em;line-height:1.22;color:${I};margin:0;overflow-wrap:break-word}
-.dkk-art{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:${C.golddunkel};margin:0 0 3px}
+.dkk-art{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:${C.smGoldDunkel};margin:0 0 3px}
 .dkk-text{grid-area:text;align-self:center;margin:0;font-size:13.5px;line-height:1.55;color:#2B3A4F}
 .dkk-knopf-feld{grid-area:knopf;display:flex;align-items:flex-end}
 .dkk-bild{grid-area:bild;align-self:stretch;min-height:108px;border-radius:16px;overflow:hidden;border:1.5px solid ${B1};
-  background-image:linear-gradient(rgba(127,194,236,.3) 1px,transparent 1px),linear-gradient(90deg,rgba(127,194,236,.3) 1px,transparent 1px),linear-gradient(150deg,${BH} 0%,${B1} 100%);
+  background-image:linear-gradient(rgba(30,154,114,.18) 1px,transparent 1px),linear-gradient(90deg,rgba(30,154,114,.18) 1px,transparent 1px),linear-gradient(150deg,${BH} 0%,${B1} 100%);
   background-size:18px 18px,18px 18px,auto}
 .dkk-knopf{position:relative;display:inline-flex;align-items:center;gap:12px;padding:6px 6px 6px 18px;border:0;border-radius:999px;cursor:pointer;font-family:inherit;font-weight:800;font-size:14px;letter-spacing:.01em;color:${I};
-  background:linear-gradient(135deg,${B1} 0%,${B2} 100%);box-shadow:0 8px 18px rgba(127,194,236,.6), inset 0 1px 0 rgba(255,255,255,.75);
+  background:linear-gradient(135deg,${B1} 0%,${B2} 100%);box-shadow:0 8px 18px rgba(30,154,114,.35), inset 0 1px 0 rgba(255,255,255,.75);
   transition:transform .16s ease, box-shadow .16s ease, background .2s ease, color .2s ease}
 .dkk-knopf .dkk-pfeil{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:${I};color:${B1};transition:transform .2s ease, background .2s ease}
-@media (hover:hover){.dkk-knopf:hover{transform:translateY(-2px);box-shadow:0 12px 24px rgba(127,194,236,.75), inset 0 1px 0 rgba(255,255,255,.8)}
+@media (hover:hover){.dkk-knopf:hover{transform:translateY(-2px);box-shadow:0 12px 24px rgba(30,154,114,.45), inset 0 1px 0 rgba(255,255,255,.8)}
   .dkk-knopf:hover .dkk-pfeil{transform:translateX(3px) rotate(-8deg)}}
 .dkk-knopf:active{transform:scale(.96)}
 .dkk-knopf:focus-visible{outline:3px solid ${G};outline-offset:3px}

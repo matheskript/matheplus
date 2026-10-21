@@ -111,7 +111,7 @@ export const KURS_STIL = {
   abizentrum: { hg: "linear-gradient(150deg,#FFE9A0 0%,#F4CE4A 26%,#EDBB00 55%,#C99A0C 84%,#9C7400 100%)", farbe: C.nachtschwarz, zeichen: "ABI", zFarbe: C.nachtschwarz },
   mckurs: { hg: GOLD_VERLAUF, farbe: C.seeTief, zeichen: "Abi", zFarbe: C.seeTief },
   unterstufe: { hg: `linear-gradient(155deg,#C4406A 0%,${C.gruen} 55%,#5A0024 100%)`, farbe: "#fff", zeichen: "5·6", zFarbe: "#FFE58A" },
-  diffkurs: { hg: `linear-gradient(155deg,${C.babyblauHell} 0%,${C.babyblau} 55%,${C.babyblauTief} 100%)`, farbe: C.nachtschwarz, zeichen: "f′(x)", zFarbe: C.golddunkel },
+  diffkurs: { hg: `linear-gradient(155deg,#11684F 0%,${C.smTief} 55%,${C.smNacht} 100%)`, farbe: "#fff", zeichen: "f′(x)", zFarbe: C.vkGold },
   vekkurs: { hg: `linear-gradient(155deg,${C.vkBlau} 0%,${C.vkTief} 60%,${C.vkNacht} 100%)`, farbe: "#fff", zeichen: "ℝ³", zFarbe: C.flaggold },
   gfs: { hg: `linear-gradient(155deg,#17A2B4 0%,${C.tuerkis} 50%,#08606C 100%)`, farbe: "#fff", zeichen: "GFS", zFarbe: "#FFE58A" },
   kiwahl: { hg: `radial-gradient(90% 80% at 100% 0%,rgba(237,187,0,0.35),transparent 60%),${NACHT_VERLAUF}`, farbe: "#fff", zeichen: "AI", zFarbe: C.flaggold },

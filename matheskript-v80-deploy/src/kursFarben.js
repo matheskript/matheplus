@@ -24,7 +24,19 @@ export const FOLIE = {
 export const GOLD_VERLAUF = "linear-gradient(90deg, #FFE9A0, #F2C14E 55%, #B58612)";
 export const GOLD_PILLE = "linear-gradient(150deg, #FFE9A0 0%, #F4CE4A 28%, #EDBB00 55%, #D9A520 78%, #B58612 100%)";
 
-/* Differentialrechnung: Porzellan – Babyblau, Schwarz, Weiß, sehr dunkles Gold */
+/* Differentialrechnung (seit 21.10.): Smaragd – tiefes Grün mit warmem Gold */
+export const SMARAGD = {
+  lack: `linear-gradient(150deg, ${C.smNacht} 0%, ${C.smTief} 58%, #11684F 100%)`,
+  rand: "linear-gradient(135deg, rgba(255,233,160,0.88), rgba(242,193,78,0.25) 55%, rgba(185,230,210,0.35))",
+  glanz: "rgba(185,230,210,0.2)", schein: "rgba(30,154,114,0.55)", kante: "rgba(255,255,255,0.22)", schatten: "rgba(3,35,26,0.75)",
+  kopf: `linear-gradient(150deg, #01150F 0%, ${C.smNacht} 100%)`, linie: GOLD_VERLAUF,
+  titel: C.weiss, text: "rgba(255,255,255,0.85)", akzent: C.vkGold, chip: "rgba(255,255,255,0.1)", chipRand: "rgba(185,230,210,0.28)",
+  knopf: GOLD_VERLAUF, knopftext: C.smNacht, knopfschatten: "rgba(242,193,78,0.6)", spur: "rgba(255,255,255,0.16)", fuellung: GOLD_VERLAUF,
+  dunkel: `linear-gradient(150deg, ${C.smNacht} 0%, ${C.smTief} 100%)`, dunkelText: C.weiss, ring: C.vkGold, ringSpur: "rgba(255,255,255,0.14)", dunkelKnopf: GOLD_PILLE, dunkelKnopfText: C.smNacht,
+  medaille: C.smNebel, medailleText: C.smNacht, fertig: C.vkGold, fertigText: C.smNacht, badge: C.smTief, badgeText: C.vkGold, linieFertig: C.vkGold,
+};
+
+/* Porzellan – Babyblau, Schwarz, Weiß, sehr dunkles Gold (früher Kurs Differentialrechnung; jetzt nur Umschlag/Dokumentkarte Band „Ableitungen“) */
 export const PORZELLAN = {
   lack: `linear-gradient(145deg, ${C.babyblauHell} 0%, ${C.babyblau} 58%, #8FCBEE 100%)`,
   rand: "linear-gradient(135deg, rgba(255,255,255,0.95), rgba(90,67,0,0.35) 60%, rgba(90,67,0,0.55))",

@@ -47,7 +47,14 @@ export const C = {
   smaragd: "#2F8F5B",
   lila: "#7B4FA0",
   tuerkis: "#0E8A9B",
-  /* Kurs Differentialrechnung: Babyblau, Schwarz, Weiß und sehr dunkles Gold */
+  /* Kurs Differentialrechnung (seit 21.10.): Smaragd (Nacht → Tief → Leuchtend → Hell → Nebel) mit warmem Gold */
+  smNacht: "#03231A",
+  smTief: "#0B4A38",
+  smGruen: "#1E9A72",
+  smHell: "#B9E6D2",
+  smNebel: "#ECF8F2",
+  smGoldDunkel: "#7A5800",
+  /* Porzellan (Babyblau, Schwarz, Weiß, sehr dunkles Gold): nur noch Umschlag/Dokumentkarte des Bandes „Ableitungen“ */
   babyblau: "#BFE3F8",
   babyblauHell: "#EAF6FD",
   babyblauTief: "#7FC2EC",

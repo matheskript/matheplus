@@ -7,7 +7,7 @@
         Werkzeuge (öffnen sich als Pop-up-Fenster im Modul), Aufgaben (alle
         Buchaufgaben zum Aufklappen + Aufgabentool mit neuen Aufgaben vom selben
         Typ) und Sätze und Definitionen (Merke-/Achtung-Kästen des Kapitels).
-   Farben: Babyblau, Schwarz, Weiß und sehr dunkles Gold (PORZELLAN in kursFarben.js);
+   Farben: Smaragd mit warmem Gold (SMARAGD in kursFarben.js);
    Kopf, Fortschritt und Modulliste aus funcKursKopf.jsx (wie bei allen Kursen).
    Fortschritt (gelesen/geübt) liegt im localStorage dieses Geräts.
    ============================================================ */
@@ -21,14 +21,14 @@ import { springe } from "./sprung.js";
 import { WerkzeugKarte, KartenStil } from "./funcDiffKursKarten.jsx";
 import { KURS_MODULE, KAPITEL } from "./diffKursDaten.js";
 import { KursTraining } from "./funcDiffKursUeben.jsx";
-import { PORZELLAN } from "./kursFarben.js";
+import { SMARAGD } from "./kursFarben.js";
 import { MotivTangente } from "./funcKursMotive.jsx";
 import { KursKopf, FortschrittKarte, Hinweis, KapitelKopf, ModulKarte, ModulListe, IconBuch, IconWerkzeug, IconAufgabe } from "./funcKursKopf.jsx";
 
 export { KURS_MODULE, KAPITEL };
 
 const BUCH = "/buecher/ableitungen/index.html";
-const K = { baby: C.babyblau, hell: C.babyblauHell, tief: C.babyblauTief, schwarz: C.nachtschwarz, gold: C.golddunkel, weiss: C.weiss };
+const K = { baby: C.smHell, hell: C.smNebel, tief: C.smGruen, schwarz: C.smNacht, gold: C.smGoldDunkel, weiss: C.weiss };
 
 const lazy = (lader, name) => lazyLaden(() => lader().then((m) => ({ default: m[name] })));
 const Diffq = lazy(() => import("./func5.jsx"), "DifferenzenquotientSeite");
@@ -99,7 +99,7 @@ function Zeichen({ text, gross }) {
 const KAPITEL_ZAHL = Object.keys(KAPITEL).filter((k) => k !== "L").length;
 export function DiffKursKopf({ untertitel, kompakt }) {
   return (
-    <KursKopf farben={PORZELLAN} Motiv={MotivTangente} id="ks-diff" titel="Differentialrechnung" zeile={untertitel} kompakt={kompakt}
+    <KursKopf farben={SMARAGD} Motiv={MotivTangente} id="ks-diff" titel="Differentialrechnung" zeile={untertitel} kompakt={kompakt}
       chips={[
         { icon: <IconBuch />, text: `${KURS_MODULE.length} Module` },
         { icon: <IconAufgabe />, text: `${KAPITEL_ZAHL} Kapitel` },
@@ -115,7 +115,7 @@ function Uebersicht({ stand, oeffnen }) {
   const kapitel = ["I", "II", "III", "IV", "L"];
   return (
     <div className="mx-auto px-4 pb-16" style={{ maxWidth: 760 }}>
-      <FortschrittKarte farben={PORZELLAN} zahl={zahl} gesamt={KURS_MODULE.length} einheit="Module" einheitDativ="Modulen" onKnopf={() => oeffnen(weiterMit.id)}
+      <FortschrittKarte farben={SMARAGD} zahl={zahl} gesamt={KURS_MODULE.length} einheit="Module" einheitDativ="Modulen" onKnopf={() => oeffnen(weiterMit.id)}
         knopf={zahl === 0 ? "Kurs starten" : "Weiter mit"} ziel={`${weiterMit.nr ? weiterMit.nr + " " : ""}${weiterMit.titel}`} />
 
       <Hinweis>
@@ -125,7 +125,7 @@ function Uebersicht({ stand, oeffnen }) {
 
       {kapitel.map((k) => (
         <section key={k}>
-          <KapitelKopf farben={PORZELLAN} marke={k !== "L" ? k : null} titel={KAPITEL[k]} />
+          <KapitelKopf farben={SMARAGD} marke={k !== "L" ? k : null} titel={KAPITEL[k]} />
           <ModulListe>
             {KURS_MODULE.filter((m) => m.kap === k).map((m) => {
               const seiten = m.bis - m.von + 1;
@@ -135,7 +135,7 @@ function Uebersicht({ stand, oeffnen }) {
                 meta.push({ icon: <IconWerkzeug />, text: `${m.werkzeuge.length} Tools`, label: `${m.werkzeuge.length} Werkzeuge` });
               }
               return (
-                <ModulKarte key={m.id} klasse="dk-modul" farben={PORZELLAN} nr={m.nr} zeichen={m.id === "loes" ? "✓" : "T"} titel={m.titel} meta={meta} ok={fertig(m, stand)} onClick={() => oeffnen(m.id)} />
+                <ModulKarte key={m.id} klasse="dk-modul" farben={SMARAGD} nr={m.nr} zeichen={m.id === "loes" ? "✓" : "T"} titel={m.titel} meta={meta} ok={fertig(m, stand)} onClick={() => oeffnen(m.id)} />
               );
             })}
           </ModulListe>

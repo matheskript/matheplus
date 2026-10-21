@@ -103,7 +103,17 @@ html[data-start-modus="hell"] .app-wurzel, html[data-start-modus="mix"] .app-wur
 .sbb[data-modus="mix"] .sbb-karte.sbb-insel { background: radial-gradient(120% 90% at 0% 0%, rgba(255,255,255,0.13) 0%, rgba(255,255,255,0) 55%), linear-gradient(155deg, #0A5AB0 0%, ${C.see} 38%, ${C.seeTief} 100%);
   border-color: rgba(255,255,255,0.16); box-shadow: 0 10px 28px rgba(0,47,110,0.28), inset 0 1px 0 rgba(255,255,255,0.22); }
 .sbb[data-modus="mix"] .sbb-karte.sbb-insel.sbb-gold { border-color: rgba(237,187,0,0.8); box-shadow: 0 0 0 1px rgba(237,187,0,0.45), 0 14px 34px rgba(0,47,110,0.3); }
-.sbb[data-modus="mix"] .sbb-kachel:not(.sbb-insel) .weiter { color: ${C.gruenDunkel}; }
+/* Mix (21.10.): weiße Kacheln (Kopfrechnen, Gleichungen, Ebbinghaus, Mindset, Videokurse …) stehen sonst
+   weiß auf weiß – daher blauer Rand und der Öffnen-Knopf als Pille mit blauem Rand. Gesperrte halb so kräftig. */
+.sbb[data-modus="mix"] .sbb-kachel:not(.sbb-insel) { border: 1.5px solid ${C.see}; box-shadow: 0 6px 22px rgba(0,47,110,0.10); }
+.sbb[data-modus="mix"] .sbb-kachel:not(.sbb-insel) .sbb-kachel-bild { border-left-color: ${C.see}; }
+.sbb[data-modus="mix"] .sbb-kachel.zu:not(.sbb-insel), .sbb[data-modus="mix"] .sbb-kachel.zu:not(.sbb-insel) .sbb-kachel-bild { border-color: rgba(0,77,152,0.42); }
+.sbb[data-modus="mix"] .sbb-kachel:not(.sbb-insel) .weiter { align-self: flex-start; margin-top: 4px; padding: 6px 14px; border-radius: 999px; border: 1.5px solid ${C.see};
+  background: #EEF4FB; color: ${C.seeTief}; line-height: 1.2; transition: background .18s ease, color .18s ease; }
+.sbb[data-modus="mix"] .sbb-kachel:not(.sbb-insel) .weiter.pille { margin-top: 0; }
+.sbb[data-modus="mix"] .sbb-kachel:not(.sbb-insel) .weiter.pille.zu { border-style: dashed; border-color: rgba(0,77,152,0.42); background: transparent; color: var(--zu-titel); }
+@media (hover:hover) { .sbb[data-modus="mix"] .sbb-kachel:not(.sbb-insel):not(:disabled):hover { border-color: ${C.see}; box-shadow: 0 0 0 1px ${C.see}, 0 16px 36px rgba(0,47,110,0.18); }
+  .sbb[data-modus="mix"] .sbb-kachel:not(.sbb-insel):not(:disabled):hover .weiter { background: ${C.see}; color: #FFFFFF; } }
 html[data-start-modus="dunkel"] .fuss-paar button { color: #EEF2FF !important; background: rgba(255,255,255,0.06) !important; border-color: rgba(255,255,255,0.11) !important; }
 /* ---------- Stadion (Rot-Weiß-Blau) ----------
    Baut auf dem Mix auf (data-modus="mix") und färbt über data-edition="stadion" um:

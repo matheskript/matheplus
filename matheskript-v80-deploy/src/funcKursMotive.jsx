@@ -24,18 +24,18 @@ function Defs({ id, folie, schein }) {
 }
 
 /* ---------- Die vier Motive (viewBox 0 0 160 120) ---------- */
-/* Differentialrechnung: Kurve, Tangente als dunkle Prägung, Berührpunkt */
+/* Differentialrechnung: Kurve in Weiß, Tangente in Goldfolie, Berührpunkt (auf Smaragd) */
 export function MotivTangente({ id, klasse = "kk-motiv" }) {
   const f = `url(#${id}-folie)`;
   return (
     <svg className={klasse} viewBox="0 0 160 120" aria-hidden="true">
-      <Defs id={id} folie={FOLIE.praegung} schein="#FFFFFF" />
+      <Defs id={id} folie={FOLIE.gold} schein={C.smGruen} />
       <circle cx="84" cy="62" r="56" fill={`url(#${id}-schein)`} />
-      <path d="M14 104 H150 M30 12 V108" stroke={C.nachtschwarz} strokeOpacity="0.18" strokeWidth="1.4" strokeLinecap="round" />
-      <path d="M10 98 C 40 98, 52 26, 82 30 S 122 86, 152 20" stroke={C.nachtschwarz} strokeWidth="4.4" fill="none" strokeLinecap="round" />
+      <path d="M14 104 H150 M30 12 V108" stroke={C.smHell} strokeOpacity="0.4" strokeWidth="1.4" strokeLinecap="round" />
+      <path d="M10 98 C 40 98, 52 26, 82 30 S 122 86, 152 20" stroke={C.weiss} strokeWidth="4.4" fill="none" strokeLinecap="round" />
       <line x1="30" y1="100" x2="98" y2="18" stroke={f} strokeWidth="3.6" strokeLinecap="round" />
-      <circle cx="58" cy="66.2" r="7" fill={f} stroke={C.weiss} strokeWidth="2.4" />
-      <text x="126" y="108" fontSize="17" fontStyle="italic" fontWeight="700" fill={C.babyblauTief} fontFamily="Montserrat, sans-serif">f′</text>
+      <circle cx="58" cy="66.2" r="7" fill={f} stroke={C.smNacht} strokeWidth="2.4" />
+      <text x="126" y="108" fontSize="17" fontStyle="italic" fontWeight="700" fill={f} fontFamily="Montserrat, sans-serif">f′</text>
     </svg>
   );
 }

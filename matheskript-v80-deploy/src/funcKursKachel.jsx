@@ -17,7 +17,7 @@
 import React from "react";
 import { C } from "./base1.jsx";
 import { diffStand, vekStand, gfsStand, kiStand, unterStand } from "./kursStand.js";
-import { PORZELLAN, TIEFBLAU, LACKSCHWARZ, NACHTBLAU, GRANAT, GOLDLACK } from "./kursFarben.js";
+import { SMARAGD, TIEFBLAU, LACKSCHWARZ, NACHTBLAU, GRANAT, GOLDLACK } from "./kursFarben.js";
 import { MotivTangente, MotivEbene, MotivBuehne, MotivDialog, MotivGeodreieck, MotivAbi } from "./funcKursMotive.jsx";
 import { LERN } from "./base3.jsx";
 import { abiNormieren, zielTermin, countdown } from "./abiZentrum.js";
@@ -129,7 +129,7 @@ const sicher = (f) => { try { return f(); } catch (e) { return null; } };
 export function DiffKursKachel({ onClick, module = 21 }) {
   const stand = sicher(diffStand);
   return (
-    <KursKachel onClick={onClick} id="kk-diff" label="Kurs Differentialrechnung öffnen" titel="Differentialrechnung" farben={PORZELLAN} Motiv={MotivTangente}
+    <KursKachel onClick={onClick} id="kk-diff" label="Kurs Differentialrechnung öffnen" titel="Differentialrechnung" farben={SMARAGD} Motiv={MotivTangente}
       meta={`${(stand && stand.gesamt) || module} Module im Schulbuch`}
       zeile="Jedes Kapitel lesen – und direkt darunter trainieren." stand={stand} einheit="Modulen" />
   );

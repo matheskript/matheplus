@@ -37,7 +37,7 @@ import {
   BereichBild, KURS_STIL, TRENNUNG, KlasseWaehlen, ETIKETT_FARBE, MODUS_NAME, MODUS_NAME_EN, ModusSymbol, anfangVon,
 } from "./hauptmenueTeile.jsx";
 import { diffStand, vekStand, gfsStand, kiStand, unterStand } from "./kursStand.js";
-import { PORZELLAN, TIEFBLAU, LACKSCHWARZ, NACHTBLAU, GRANAT } from "./kursFarben.js";
+import { SMARAGD, TIEFBLAU, LACKSCHWARZ, NACHTBLAU, GRANAT } from "./kursFarben.js";
 import { MotivTangente, MotivEbene, MotivBuehne, MotivDialog, MotivGeodreieck } from "./funcKursMotive.jsx";
 import { UNTERSTUFE_ZAHLEN } from "./unterstufeDaten.js";
 
@@ -310,7 +310,7 @@ const sicher = (f) => { try { return f(); } catch (e) { return null; } };
 const LACK = {
   unterstufe: { farben: GRANAT, Motiv: MotivGeodreieck, stand: unterStand, einheit: ["Lerneinheiten", "units"],
     meta: (s, en) => (en ? `${UNTERSTUFE_ZAHLEN.kapitel} chapters, ${UNTERSTUFE_ZAHLEN.einheiten} units` : `${UNTERSTUFE_ZAHLEN.kapitel} Kapitel, ${UNTERSTUFE_ZAHLEN.einheiten} Lerneinheiten`) },
-  diffkurs: { farben: PORZELLAN, Motiv: MotivTangente, stand: diffStand, einheit: ["Modulen", "modules"],
+  diffkurs: { farben: SMARAGD, Motiv: MotivTangente, stand: diffStand, einheit: ["Modulen", "modules"],
     meta: (s, en) => (en ? `${s ? s.gesamt : 21} modules in the textbook` : `${s ? s.gesamt : 21} Module im Schulbuch`) },
   vekkurs: { farben: TIEFBLAU, Motiv: MotivEbene, stand: vekStand, einheit: ["Modulen", "modules"],
     meta: (s, en) => (en ? `${s ? s.gesamt : 31} modules in the workbook` : `${s ? s.gesamt : 31} Module im Heft`) },
