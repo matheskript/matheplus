@@ -27,7 +27,7 @@ import { MatheFeld } from "./matheTastatur.jsx";
 /* ---------- 1. Formel-Engine ---------- */
 
 import { MAX_LISTE, ableitung, alsTex, alsText, analysiere, biquadratischeKoeffizienten, div, endlich, fn, grenzeTxt, hatBox, hatX, kompiliere, liveTex, liveTexPos, mitSchreibmarke, ohnePar, parse, rund, tiefZiffer, tokenisiere, vereinfache, wert, zahl } from "./formelEngine.js";
-import { naechsterPlatz, stelleAusKlick, stelleLinks, stelleRechts } from "./formelCursor.js";
+import { loescheVor, loescheZurueck, naechsterPlatz, stelleAusKlick, stelleLinks, stelleRechts } from "./formelCursor.js";
 import { springe } from "./sprung.js";
 export { ableitung, alsTex, alsText, analysiere, biquadratischeKoeffizienten, hatBox, hatX, kompiliere, liveTex, mitSchreibmarke, ohnePar, parse, tokenisiere, vereinfache, wert };
 
@@ -276,6 +276,11 @@ const FN_TASTEN = [
   { z: "1/?", zx: "x⁻¹", e: `1/(${PLATZ})`, ex: "x^(-1)", art: "fn" }, { z: "?ⁿ", zx: "xⁿ", e: `(${PLATZ})^(${PLATZ})`, ex: `x^(${PLATZ})`, art: "fn" },
 ];
 
+/* Potenz-Leiste: ▯², ▯³, ▯⁴ setzen das Hoch direkt hinter das, was vor der Schreibmarke steht (x → x², (x+h) → (x+h)³). */
+const POTENZ_TASTEN = [
+  { z: "▯²", e: "^2", art: "op", titel: "hoch 2" }, { z: "▯³", e: "^3", art: "op", titel: "hoch 3" }, { z: "▯⁴", e: "^4", art: "op", titel: "hoch 4" },
+];
+
 const TASTEN = [
   { z: "7", e: "7" }, { z: "8", e: "8" }, { z: "9", e: "9" },
   { z: "▯/▯", e: `(${PLATZ})/(${PLATZ})`, art: "op", titel: "Bruch" },
@@ -289,9 +294,15 @@ const TASTEN = [
 
   { z: "0", e: "0" }, { z: ",", e: "," }, { z: "x", e: "x", art: "var" },
   { z: "+", e: "+", art: "op" }, { z: "▯ →", e: null, art: "nav", aktion: "platz", titel: "Nächster Platzhalter – danach aus der Klammer heraus", span: 2 },
+
+  ...POTENZ_TASTEN.map((t) => ({ ...t, span: 2 })),
 ];
 
-const LOESCH_EINHEITEN = ["sqrt(", "sin(", "cos(", "tan(", "log[", "log(", "ln(", "pi", "e^("];
+/* Computertastatur: Zeichen, die das Tastenfeld direkt übernimmt (Ziffern, Buchstaben für x, e, sin …, Rechenzeichen) */
+const TASTATUR_ZEICHEN = { "·": "*", "×": "*", "−": "-", "÷": "/", ":": "/", "π": "pi", ".": "," };
+const TASTATUR_DIREKT = /^[0-9a-z+\-*/^(),\[\]]$/;
+/* Mehrere Tastenfelder zugleich (z. B. Pop-up über einer Seite mit Tastenfeld): das zuletzt eingehängte bekommt die Tasten */
+const TASTENFELDER = [];
 
 const BEISPIELE = [
   ["x · e⁻ˣ", "x*e^(-x)"], ["sin(x)/x", "sin(x)/x"], ["ln(x)/x", "ln(x)/x"],
@@ -350,7 +361,7 @@ export function hinterFertigemExponenten(t, p) {
 /* variablen: zusätzliche Buchstaben als eigene Tastenreihe (z. B. ["h"] beim Differenzenquotienten, ["a"] bei Funktionenscharen). */
 export function Tastenfeld({ wert: text, setWert, pos, setPos, kompakt, onOk, fuellen, variablen }) {
   // fuellen: das Tastenfeld füllt die Höhe seines Eltern-Elements genau aus (Vollbild-Eingabe auf dem Handy).
-  // Alle acht Tastenreihen sind dann gleich hoch: Rahmen (3 Reihen + Innenabstand 6 + Rand 1,5) und Grundtasten (5 Reihen).
+  // Alle neun Tastenreihen sind dann gleich hoch: Rahmen (3 Reihen + Innenabstand 6 + Rand 1,5) und Grundtasten (6 Reihen).
   const TH = kompakt ? 34 : 46, TG = kompakt ? 5 : 6;
   const [vonX, setVonX] = useState(true);
   // Desktop-Anordnung: ist das Tastenfeld mindestens BREIT_AB px breit (und nicht im Handy-Vollbild), steht es zweispaltig –
@@ -378,13 +389,9 @@ export function Tastenfeld({ wert: text, setWert, pos, setPos, kompakt, onOk, fu
     const rel = s.indexOf(PLATZ);
     setzen(t, rel >= 0 ? p + rel : p + s.length);
   };
-  const zurueck = () => {
-    if (pos === 0) return;
-    const vorne = text.slice(0, pos);
-    const einheit = LOESCH_EINHEITEN.find((e) => vorne.endsWith(e));
-    const n = einheit ? einheit.length : 1;
-    setzen(text.slice(0, pos - n) + text.slice(pos), pos - n);
-  };
+  // ⌫ löscht nie eine halbe Gruppe (formelCursor.js: leeres ^(▯) ganz weg, sin(2x) → 2x, hinter ) hinein)
+  const zurueck = () => { const r = loescheZurueck(text, pos); setzen(r.text, r.pos); };
+  const vor = () => { const r = loescheVor(text, pos); setzen(r.text, r.pos); };
   const klick = (t) => {
     if (t.aktion === "platz") return setPos(naechsterPlatz(text, pos));
     if (t.aktion === "leer") return setzen("", 0);
@@ -394,6 +401,39 @@ export function Tastenfeld({ wert: text, setWert, pos, setPos, kompakt, onOk, fu
     if (t.aktion === "ok") return onOk && onOk();
     einfuegen(vonX && t.ex ? t.ex : t.e);
   };
+  /* Computertastatur: ← → bewegen die Schreibmarke (und führen aus Klammern und Exponenten heraus), ⌫ und Entf löschen,
+     Enter = OK, Tab springt zum nächsten Platzhalter, Ziffern/Buchstaben/Rechenzeichen werden eingefügt.
+     Nicht, wenn gerade in einem Textfeld getippt wird, bei Tastenkürzeln (⌘/Strg/Alt) oder in einem fremden Dialog. */
+  const aktuell = useRef(null);
+  aktuell.current = { text, pos, setPos, einfuegen, zurueck, vor, onOk };
+  useEffect(() => {
+    const marke = {};
+    TASTENFELDER.push(marke);
+    const taste = (e) => {
+      if (TASTENFELDER[TASTENFELDER.length - 1] !== marke) return;
+      if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey || e.isComposing) return;
+      const ziel = e.target;
+      if (ziel && ziel.closest) {
+        if (ziel.closest("input, textarea, select, [contenteditable=''], [contenteditable='true']")) return;
+        const dialog = ziel.closest("[role='dialog'], [aria-modal='true']");
+        if (dialog && wurzel.current && !dialog.contains(wurzel.current)) return;
+      }
+      const a = aktuell.current, setPos = a.setPos;
+      const k = e.key === "X" ? "x" : e.key;
+      if (k === "ArrowLeft") { e.preventDefault(); setPos(stelleLinks(a.text, a.pos)); }
+      else if (k === "ArrowRight") { e.preventDefault(); setPos(stelleRechts(a.text, a.pos)); }
+      else if (k === "Home") { e.preventDefault(); setPos(0); }
+      else if (k === "End") { e.preventDefault(); setPos(a.text.length); }
+      else if (k === "Backspace") { e.preventDefault(); a.zurueck(); }
+      else if (k === "Delete") { e.preventDefault(); a.vor(); }
+      else if (k === "Enter") { if (a.onOk) { e.preventDefault(); a.onOk(); } }
+      else if (k === "Tab") { if (a.text.includes(PLATZ)) { e.preventDefault(); setPos(naechsterPlatz(a.text, a.pos)); } }
+      else if (TASTATUR_ZEICHEN[k]) { e.preventDefault(); a.einfuegen(TASTATUR_ZEICHEN[k]); }
+      else if (TASTATUR_DIREKT.test(k)) { e.preventDefault(); a.einfuegen(k); }
+    };
+    window.addEventListener("keydown", taste);
+    return () => { window.removeEventListener("keydown", taste); const i = TASTENFELDER.indexOf(marke); if (i >= 0) TASTENFELDER.splice(i, 1); };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const stil = (art) => {
     if (art === "fn") return { bg: C.weiss, fg: C.see, rand: "#C7D8EF" };
     if (art === "op") return { bg: C.gruen, fg: C.weiss, rand: C.gruen };
@@ -423,8 +463,8 @@ export function Tastenfeld({ wert: text, setWert, pos, setPos, kompakt, onOk, fu
       {variablen.map((v) => <Taste key={v} t={{ z: v, e: v, art: "var", variable: true, titel: `Variable ${v}` }} />)}
     </div>
   ) : null;
-  /* Desktop: links die Funktionsbox (Umschalter f(x) | f(…) oben, 4 × 3 Funktionstasten) mit ←, →, ⌫, Clear, OK darunter;
-     rechts Zahlenblock in vier Spalten (7 8 9 + / 4 5 6 − / 1 2 3 × / 0 , x ÷) und darunter die übrigen Tasten. */
+  /* Desktop: links die Funktionsbox (Umschalter f(x) | f(…) oben, 4 × 3 Funktionstasten) mit ← → ⌫ / Clear OK darunter;
+     rechts Zahlenblock in vier Spalten (7 8 9 + / 4 5 6 − / 1 2 3 × / 0 , x ÷) und darunter zwei Reihen zu fünf Tasten. */
   if (breit) {
     const zahl = (z, e) => ({ z, e });
     // vier Spalten: 7 8 9 + / 4 5 6 − / 1 2 3 × / 0 , x ÷
@@ -434,8 +474,10 @@ export function Tastenfeld({ wert: text, setWert, pos, setPos, kompakt, onOk, fu
       zahl("1", "1"), zahl("2", "2"), zahl("3", "3"), { z: "×", e: "*", art: "op" },
       zahl("0", "0"), zahl(",", ","), { z: "x", e: "x", art: "var" }, { z: "÷", e: "/", art: "op" },
     ];
+    // unter dem Zahlenblock zwei Reihen zu fünf Tasten: Bruch, hoch, ▯², ▯³, ▯⁴ / ( ) e π ▯→
     const uebrige = [
       { z: "▯/▯", e: `(${PLATZ})/(${PLATZ})`, art: "op", titel: "Bruch" }, { z: "▯ⁿ", e: `^(${PLATZ})`, art: "op", titel: "hoch" },
+      ...POTENZ_TASTEN,
       { z: "(", e: "(", art: "op" }, { z: ")", e: ")", art: "op" },
       { z: "e", e: "e", art: "var" }, { z: "π", e: "pi", art: "var" },
       { z: "▯ →", e: null, art: "nav", aktion: "platz", titel: "Nächster Platzhalter – danach aus der Klammer heraus" },
@@ -466,25 +508,23 @@ export function Tastenfeld({ wert: text, setWert, pos, setPos, kompakt, onOk, fu
               {FN_TASTEN.map((t, i) => <Taste key={i} t={t} />)}
             </div>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", gap: TG, flex: 1, minHeight: TH }}>
-            <Taste auto t={{ z: "←", art: "nav", aktion: "links", titel: "Schreibmarke nach links" }} />
-            <Taste auto t={{ z: "→", art: "nav", aktion: "rechts", titel: "Schreibmarke nach rechts" }} />
+          {/* zwei Reihen, so hoch wie die zwei Reihen unter dem Zahlenblock: ← → ⌫ / Clear OK */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(6, minmax(0, 1fr))", gridTemplateRows: "repeat(2, minmax(0, 1fr))", gap: TG, flex: 1, minHeight: 2 * TH + TG }}>
+            <Taste auto t={{ z: "←", art: "nav", aktion: "links", titel: "Schreibmarke nach links" }} span={2} />
+            <Taste auto t={{ z: "→", art: "nav", aktion: "rechts", titel: "Schreibmarke nach rechts" }} span={2} />
+            <Taste auto t={{ z: "⌫", art: "nav", aktion: "zurueck", titel: "Löschen" }} span={2} />
             {onOk ? (
               <>
-                <Taste auto t={{ z: "⌫", art: "nav", aktion: "zurueck", titel: "Löschen" }} />
-                <Taste auto t={{ z: "Clear", art: "nav", aktion: "leer", titel: "Clear – alles löschen" }} span={2} />
-                <Taste auto t={{ z: "OK", art: "ok", aktion: "ok", titel: "OK – Eingabe prüfen" }} span={2} />
+                <Taste auto t={{ z: "Clear", art: "nav", aktion: "leer", titel: "Clear – alles löschen" }} span={3} />
+                <Taste auto t={{ z: "OK", art: "ok", aktion: "ok", titel: "OK – Eingabe prüfen" }} span={3} />
               </>
             ) : (
-              <>
-                <Taste auto t={{ z: "⌫", art: "nav", aktion: "zurueck", titel: "Löschen" }} span={2} />
-                <Taste auto t={{ z: "Clear", art: "nav", aktion: "leer", titel: "Clear – alles löschen" }} span={3} />
-              </>
+              <Taste auto t={{ z: "Clear", art: "nav", aktion: "leer", titel: "Clear – alles löschen" }} span={6} />
             )}
           </div>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(28, minmax(0, 1fr))", gridTemplateRows: `repeat(5, minmax(${TH}px, 1fr))`, gap: TG, minWidth: 0 }}>
-          {zahlenblock.map((t, i) => <Taste auto key={"z" + i} t={t} span={7} />)}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(20, minmax(0, 1fr))", gridTemplateRows: `repeat(6, minmax(${TH}px, 1fr))`, gap: TG, minWidth: 0 }}>
+          {zahlenblock.map((t, i) => <Taste auto key={"z" + i} t={t} span={5} />)}
           {uebrige.map((t, i) => <Taste auto key={"u" + i} t={t} span={4} />)}
         </div>
       </div>
@@ -492,7 +532,7 @@ export function Tastenfeld({ wert: text, setWert, pos, setPos, kompakt, onOk, fu
   }
   return (
     <div ref={wurzel} style={fuellen ? { height: "100%", minHeight: 0, display: "grid", rowGap: 8,
-      gridTemplateRows: `calc((100% - ${6 * TG + 15 + 8}px) * 3 / 8 + ${2 * TG + 15}px) minmax(0, 1fr)` } : undefined}>
+      gridTemplateRows: `calc((100% - ${7 * TG + 15 + 8}px) * 3 / 9 + ${2 * TG + 15}px) minmax(0, 1fr)` } : undefined}>
       <style>{`.adv-taste{transition:transform .08s ease, filter .12s ease}
         .adv-taste:active{transform:scale(0.93);filter:brightness(0.93)}`}</style>
       {varZeile}
@@ -518,7 +558,7 @@ export function Tastenfeld({ wert: text, setWert, pos, setPos, kompakt, onOk, fu
         {FN_TASTEN.map((t, i) => <Taste key={i} t={t} />)}
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(6, minmax(0, 1fr))", gap: TG, minHeight: 0,
-        gridTemplateRows: fuellen ? "repeat(5, minmax(0, 1fr))" : undefined }}>
+        gridTemplateRows: fuellen ? "repeat(6, minmax(0, 1fr))" : undefined }}>
         {TASTEN.map((t, i) => <Taste key={i} t={t} span={t.span} />)}
         <Taste t={{ z: "←", art: "nav", aktion: "links", titel: "Schreibmarke nach links" }} />
         <Taste t={{ z: "→", art: "nav", aktion: "rechts", titel: "Schreibmarke nach rechts" }} />

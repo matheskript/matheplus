@@ -287,7 +287,7 @@ export function TermEingabe({ wert, setWert, onOk, placeholder, stand, label = "
           <div style={{ position: "sticky", top: 84, paddingTop: 12 }}>
             {anzeige}
             <p style={{ fontSize: 12.5, color: C.hellgrau, fontWeight: 300, margin: "10px 4px 0", lineHeight: 1.6 }}>
-              Tastenfeld rechts – oder in die Formel klicken, um die Schreibmarke zu setzen.
+              Tastenfeld rechts oder Computertastatur: ← → bewegen die Schreibmarke (auch aus einer Klammer heraus), ein Klick in die Formel setzt sie.
             </p>
           </div>
           {tasten}

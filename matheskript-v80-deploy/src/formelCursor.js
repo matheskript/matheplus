@@ -61,6 +61,105 @@ export function naechsterPlatz(text, pos) {
   return raus >= 0 ? raus : text.length;
 }
 
+/* ---------- Löschen: nie eine halbe Gruppe stehen lassen ----------
+   Ein Tastenfeld fügt ganze Gruppen ein: ^(▯), sqrt(▯), (▯)/(▯), log[▯](▯) … Löscht man davon nur das ^( oder nur das ),
+   bleibt Schrott wie „(x+h)▯)“ zurück. Darum:
+   · ⌫ direkt hinter einem Öffner (^(, sin(, (, … ) nimmt die ganze Gruppe bis zur schließenden Klammer weg.
+     Leere Gruppe (nur ▯ oder nichts): komplett weg, bei einem Bruch auch die leere andere Hälfte.
+     Gruppe mit Inhalt: Klammern und Funktionsname weg, der Inhalt bleibt (sin(2x) → 2x) – nur beim Exponenten ^( … )
+     verschwindet der Inhalt mit, denn „x2x“ wäre sinnlos.
+   · ⌫ direkt hinter einer schließenden Klammer: leere Gruppe → ganz weg; sonst springt die Marke in die Gruppe hinein.
+   · Sonst wie gewohnt ein Zeichen (pi, e^( usw. als Einheit). */
+const OEFFNER = ["sqrt(", "sin(", "cos(", "tan(", "log[", "log(", "ln(", "e^(", "1/(", "^(", "](", "(", "["];
+const PAAR = { "(": ")", "[": "]" };
+const istLeer = (s) => s === "" || s === PLATZ;
+
+/* Stelle der passenden schließenden Klammer zu der öffnenden an Stelle i (−1: keine) */
+export function schliesser(text, i) {
+  const zu = PAAR[text[i]];
+  if (!zu) return -1;
+  let tiefe = 0;
+  for (let j = i + 1; j < text.length; j++) {
+    const c = text[j];
+    if (c === "(" || c === "[") tiefe++;
+    else if (c === ")" || c === "]") { if (tiefe === 0) return c === zu ? j : -1; tiefe--; }
+  }
+  return -1;
+}
+/* Stelle der passenden öffnenden Klammer zu der schließenden an Stelle j (−1: keine) */
+export function oeffner(text, j) {
+  const zu = text[j];
+  const auf = zu === ")" ? "(" : zu === "]" ? "[" : null;
+  if (!auf) return -1;
+  let tiefe = 0;
+  for (let i = j - 1; i >= 0; i--) {
+    const c = text[i];
+    if (c === ")" || c === "]") tiefe++;
+    else if (c === "(" || c === "[") { if (tiefe === 0) return c === auf ? i : -1; tiefe--; }
+  }
+  return -1;
+}
+
+/* Gruppe, deren öffnende Klammer an Stelle auf steht, entfernen (siehe oben). */
+function gruppeEntfernen(text, auf) {
+  const davor = text.slice(0, auf + 1);
+  const u = OEFFNER.find((o) => davor.endsWith(o)) || text[auf];
+  const zu = schliesser(text, auf);
+  if (zu < 0) {   // noch keine schließende Klammer: nur den Öffner weg
+    const start = auf + 1 - u.length;
+    return { text: text.slice(0, start) + text.slice(auf + 1), pos: start };
+  }
+  let start = auf + 1 - u.length, ende = zu + 1;
+  const inhalt = text.slice(auf + 1, zu);
+  let mitte = istLeer(inhalt) || u === "^(" ? "" : inhalt;
+  if (u === "log[") {   // Basis von log[…](…): das Argument gehört dazu
+    if (text[zu + 1] === "(") {
+      const argZu = schliesser(text, zu + 1);
+      if (argZu >= 0) { const arg = text.slice(zu + 2, argZu); ende = argZu + 1; mitte = istLeer(arg) ? "" : arg; }
+    }
+  } else if (u === "](") {   // Argument von log[…](…): die Basis gehört dazu
+    const basisAuf = oeffner(text, auf - 1);
+    if (basisAuf >= 3 && text.slice(basisAuf - 3, basisAuf) === "log") start = basisAuf - 3;
+  }
+  if (mitte === "") {   // leere Gruppe: beim Bruch auch die leere andere Hälfte mitnehmen
+    if (text.startsWith("/(", ende)) {
+      const z2 = schliesser(text, ende + 1);
+      if (z2 >= 0 && istLeer(text.slice(ende + 2, z2))) ende = z2 + 1;
+    } else if (text[start - 1] === "/" && text[start - 2] === ")") {
+      const a2 = oeffner(text, start - 2);
+      if (a2 >= 0 && istLeer(text.slice(a2 + 1, start - 2))) start = a2;
+    }
+  }
+  return { text: text.slice(0, start) + mitte + text.slice(ende), pos: start };
+}
+
+/* Taste ⌫ bzw. Rücktaste: ein Schritt nach links löschen */
+export function loescheZurueck(text, pos) {
+  const p = klemm(text, pos);
+  if (p === 0) return { text, pos: 0 };
+  const vorne = text.slice(0, p);
+  const c = text[p - 1];
+  if (c === "(" || c === "[") return gruppeEntfernen(text, p - 1);
+  if (c === ")" || c === "]") {
+    const auf = oeffner(text, p - 1);
+    if (auf >= 0) {
+      if (istLeer(text.slice(auf + 1, p - 1))) return gruppeEntfernen(text, auf);
+      return { text, pos: p - 1 };   // Gruppe mit Inhalt: hinein, nicht kaputt machen
+    }
+  }
+  const n = vorne.endsWith("pi") ? 2 : 1;
+  return { text: text.slice(0, p - n) + text.slice(p), pos: p - n };
+}
+
+/* Entf-Taste: ein Schritt nach rechts löschen (gleiche Regeln) */
+export function loescheVor(text, pos) {
+  const p = klemm(text, pos);
+  if (p >= text.length) return { text, pos: p };
+  const q = stelleRechts(text, p);
+  const r = loescheZurueck(text, q);
+  return r.text === text ? { text, pos: p } : r;
+}
+
 /* Klick in die Formel → Stelle im Text.
    blaetter: sichtbare Stücke { s, e (Stellen im Text), l, r, t, b (Rechteck auf dem Bildschirm),
    gruppen: [{ ge, r }] (umgebende Gruppen wie Exponent oder Wurzelinhalt, innerste zuerst; ge = Stelle hinter der Klammer) }.
