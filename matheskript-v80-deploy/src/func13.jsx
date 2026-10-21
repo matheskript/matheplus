@@ -250,7 +250,7 @@ export function Ableitungstrainer() {
     <div className="abl-seite">
       <style>{POP_CSS}</style>
       <style>{`
-        .abl-seite{background:#fff;min-height:calc(100dvh - 61px)}
+        .abl-seite{background:#fff}[data-trainings-session] .abl-seite{min-height:calc(100dvh - 61px)}
         .abl-seite,.abl-seite *{overflow-anchor:none}
         .abl-innen{max-width:620px;margin:0 auto;padding:14px 16px 48px}
         .abl-chipwrap{position:relative;margin:0 -16px 10px}

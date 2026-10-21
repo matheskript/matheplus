@@ -460,7 +460,7 @@ export function EbeneVsEbene() {
   /* ---------- Desktop: Arbeitsfläche wie die Geschwister-Seiten (vekUi) – E₁/E₂ links, Schaubild rechts, Winkel darunter ---------- */
   if (breit) {
     return (
-      <VekSeite titel="Zwei Ebenen im Raum" text="Stell beide Ebenen ein und sieh sofort, ob sie sich schneiden, parallel oder identisch sind – mit Schnittgerade und Schnittwinkel.">
+      <VekSeite titel="Zwei Ebenen" text="Stell beide Ebenen ein und sieh sofort, ob sie sich schneiden, parallel oder identisch sind – mit Schnittgerade und Schnittwinkel.">
         <div data-eve="breit">
           <VekArbeit
             links={<>
@@ -498,7 +498,7 @@ export function EbeneVsEbene() {
 
   /* ---------- Handy und Tablet: eine Spalte ---------- */
   return (
-    <VekSeite titel="Zwei Ebenen im Raum" text="Stell beide Ebenen ein und sieh sofort, ob sie sich schneiden, parallel oder identisch sind – mit Schnittgerade und Schnittwinkel.">
+    <VekSeite titel="Zwei Ebenen" text="Stell beide Ebenen ein und sieh sofort, ob sie sich schneiden, parallel oder identisch sind – mit Schnittgerade und Schnittwinkel.">
       <EbenenPaar k1={k1} setK1={setK1} k2={k2} setK2={setK2} />
       <div style={{ margin: "12px 0" }}>
         <FallWahl titel="Beispiele" wert={beispielAn ? beispielAn.name : null} setWert={(name) => { const x = BEISPIELE.find((y) => y.name === name); setK1(x.k1); setK2(x.k2); }}
@@ -692,7 +692,7 @@ export function KreuzproduktRechner() {
   const textFarbeB = "#8A6D00";
 
   const desktop = useDesktop();
-  const seitenTitel = "Kreuzprodukt auf einen Blick";
+  const seitenTitel = "Kreuzprodukt";
   const seitenText = "Gib zwei Vektoren ein. Du siehst die Formel, die eingesetzten Zahlen und das Ergebnis – einen Vektor, der auf beiden senkrecht steht.";
   const boxen = (
     <ObjektReihe min={150}>

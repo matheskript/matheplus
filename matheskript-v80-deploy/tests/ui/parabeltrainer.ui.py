@@ -114,13 +114,13 @@ with sync_playwright() as p:
             pruefe(not konsole, f"{wo0}: Konsole: {konsole[:3]}")
             ctx.close()
 
-    # Kennen-Station enthält keine Parabeln mehr
+    # Bereich „Funktionen kennen“ (Band bei Sinus) enthält keine Parabeln (seit 21.10. hat jedes Werkzeug das Band)
     ctx = b.new_context(viewport={"width": 1280, "height": 900}); page = ctx.new_page()
     page.goto(BASE); page.evaluate("localStorage.setItem('mm-onboarding-v1', JSON.stringify({uebersprungen:true}))")
     page.goto(BASE + "sinus"); page.wait_for_timeout(1000)
-    page.locator("[data-werkzeug-leiste] button[aria-haspopup=listbox]").click(); page.wait_for_timeout(100)
-    chips = [c.inner_text() for c in page.locator("[data-werkzeug-leiste] [role=option]").all()]
-    pruefe(not any("Parabel" in c for c in chips) and len(chips) >= 2, f"Station Kennen zeigt noch Parabeln: {chips!r}")
+    chips = [c.inner_text() for c in page.locator("[data-werkzeug-band] .wb-tab").all()]
+    pruefe(not any("Parabel" in c for c in chips) and len(chips) >= 2, f"Band bei Sinus zeigt Parabeln: {chips!r}")
+    pruefe(page.locator("[data-werkzeug-leiste]").count() == 0, "Sinus hat noch die alte Stations-Pille")
     # Geraden → Parabeln: Reiter im Kurs Mittelstufe (früher „Weiter: Parabeln“ im Tools-Feld)
     page.goto(BASE + "geradengleichung"); page.wait_for_timeout(1000)
     pruefe(page.locator("[data-werkzeug-band] .wb-tab", has_text="Parabeln").count() == 1, "Geraden: kein Reiter Parabeln")

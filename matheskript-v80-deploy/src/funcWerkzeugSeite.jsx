@@ -47,8 +47,8 @@ const lazy = (lader, name) => lazyLaden(() => lader().then((m) => ({ default: m[
 
 /* Ansicht → { titel, groesse, rund, Komp } */
 export const WZ_SEITEN = {
-  ebenen: { titel: "Ebenen-Visualizer", groesse: "clamp(28px, 8vw, 34px)", Komp: lazy(() => import("./func16.jsx"), "EbenenVisualizer") },
-  ebenevsebene: { titel: "Ebene vs. Ebene", groesse: "clamp(28px, 8vw, 34px)", Komp: lazy(() => import("./func19.jsx"), "EbeneVsEbene") },
+  ebenen: { titel: "Ebenen im Raum", groesse: "clamp(28px, 8vw, 34px)", Komp: lazy(() => import("./func16.jsx"), "EbenenVisualizer") },
+  ebenevsebene: { titel: "Zwei Ebenen", groesse: "clamp(28px, 8vw, 34px)", Komp: lazy(() => import("./func19.jsx"), "EbeneVsEbene") },
   kreuzprodukt: { titel: "Kreuzprodukt", groesse: "clamp(28px, 8vw, 34px)", Komp: lazy(() => import("./func19.jsx"), "KreuzproduktRechner") },
   vektorgenerator: { titel: "Rechnen mit Vektoren", groesse: "clamp(28px, 8vw, 34px)", Komp: lazy(() => import("./func20.jsx"), "VektorGenerator") },
   zweipunkte: { titel: "Zwei Punkte – eine Gerade", groesse: "clamp(26px, 7.6vw, 34px)", Komp: lazy(() => import("./func23.jsx"), "ZweiPunkteGerade") },
@@ -90,16 +90,16 @@ export const WZ_SEITEN = {
   ganzezahlen: { titel: "Ganze und rationale Zahlen", groesse: "clamp(24px, 7vw, 34px)", Komp: lazy(() => import("./funcGanzeZahlen.jsx"), "GanzeZahlen") },
   diagramme: { titel: "Daten und Diagramme", groesse: "clamp(26px, 7.6vw, 34px)", Komp: lazy(() => import("./funcDiagramme.jsx"), "DatenDiagramme") },
   primzahlen: { titel: "Primzahlen, ggT und kgV", groesse: "clamp(24px, 7vw, 34px)", Komp: lazy(() => import("./funcPrimzahlen.jsx"), "Primzahlen") },
-  rechengesetze: { titel: "Rechengesetze", groesse: "clamp(26px, 7.6vw, 34px)", Komp: lazy(() => import("./funcRechengesetze.jsx"), "Rechengesetze") },
+  rechengesetze: { titel: "Rechengesetze und Rechenvorteile", groesse: "clamp(26px, 7.6vw, 34px)", Komp: lazy(() => import("./funcRechengesetze.jsx"), "Rechengesetze") },
   koordinaten: { titel: "Koordinaten und Symmetrie", groesse: "clamp(24px, 7vw, 34px)", Komp: lazy(() => import("./funcKoordinaten.jsx"), "Koordinaten") },
   zufall: { titel: "Zufall und Wahrscheinlichkeit", groesse: "clamp(24px, 7vw, 34px)", Komp: lazy(() => import("./funcZufall.jsx"), "ZufallEinstieg") },
-  stellenwert: { titel: "Natürliche Zahlen", groesse: "clamp(26px, 7.6vw, 34px)", Komp: lazy(() => import("./funcStellenwert.jsx"), "Stellenwert") },
+  stellenwert: { titel: "Natürliche Zahlen und Stellenwert", groesse: "clamp(26px, 7.6vw, 34px)", Komp: lazy(() => import("./funcStellenwert.jsx"), "Stellenwert") },
   /* Geometrie (Mittelstufe) */
   winkelsaetze: { titel: "Winkel und Winkelsummen", groesse: "clamp(24px, 7vw, 34px)", Komp: lazy(() => import("./funcWinkelsaetze.jsx"), "Winkelsaetze") },
   konstruktion: { titel: "Besondere Linien im Dreieck", groesse: "clamp(24px, 7vw, 34px)", Komp: lazy(() => import("./funcKonstruktion.jsx"), "Konstruktionen") },
   kathetensatz: { titel: "Kathetensatz und Höhensatz", groesse: "clamp(24px, 7vw, 34px)", Komp: lazy(() => import("./funcKathetensatz.jsx"), "Kathetensatz") },
   kreis: { titel: "Kreis und Kreisteile", groesse: "clamp(26px, 7.6vw, 34px)", Komp: lazy(() => import("./funcKreis.jsx"), "KreisUndKreisteile") },
-  koerper: { titel: "Körper", groesse: "clamp(26px, 7.6vw, 34px)", Komp: lazy(() => import("./funcKoerper.jsx"), "KoerperVolumen") },
+  koerper: { titel: "Körper: Volumen und Oberfläche", groesse: "clamp(26px, 7.6vw, 34px)", Komp: lazy(() => import("./funcKoerper.jsx"), "KoerperVolumen") },
   kongruenz: { titel: "Kongruenzsätze", groesse: "clamp(26px, 7.6vw, 34px)", Komp: lazy(() => import("./funcKongruenz.jsx"), "Kongruenzsaetze") },
   thales: { titel: "Satz des Thales", groesse: "clamp(26px, 7.6vw, 34px)", Komp: lazy(() => import("./funcThales.jsx"), "SatzDesThales") },
   pythagoras: { titel: "Satz des Pythagoras", groesse: "clamp(24px, 7vw, 34px)", Komp: lazy(() => import("./funcPythagorasWz.jsx"), "SatzDesPythagoras") },

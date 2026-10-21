@@ -393,7 +393,7 @@ const WERKZEUGE = [
     ["Ableitungstrainer", "f′, f″ und f‴ prüfen", { ansicht: "ableitungstrainer" }],
   ] },
   { bereich: "Vektoren", logo: VektorenLogoKlein, liste: [
-    ["Ebenen-Visualizer", "Ebenen live im Raum drehen", { ansicht: "ebenen" }],
+    ["Ebenen im Raum", "Ebenen live im Raum drehen", { ansicht: "ebenen" }],
     ["Abstände", "Punkt, Gerade, Ebene", { ansicht: "abstaende" }],
     ["Kreuzprodukt", "Formel, eingesetzt, Ergebnis", { ansicht: "kreuzprodukt" }],
   ] },

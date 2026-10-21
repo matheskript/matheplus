@@ -274,9 +274,9 @@ export function Vierfeldertafel() {
   // Gemeinsame Teile für Handy und Desktop
   const einleitung = (
     <>
-      <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
-        Zwei Merkmale, vier Felder
-      </h2>
+      <h1 style={{ fontSize: "clamp(21px, 6.2vw, 26px)", fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1.15, marginBottom: 10 }}>
+        Vier-Felder-Tafel
+      </h1>
       <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.7, marginBottom: 18 }}>
         Stell die vier inneren Felder ein – Randsummen, Baumdiagramme und alle bedingten Wahrscheinlichkeiten
         rechnen sich live mit. Wahlweise mit <b>absoluten Häufigkeiten</b> oder mit <b>Wahrscheinlichkeiten</b>, die sich zu 100 % ergänzen.

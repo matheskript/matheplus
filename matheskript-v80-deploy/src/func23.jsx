@@ -255,7 +255,7 @@ export function ZweiPunkteGerade() {
 
   const fG = VF.drei;   // die Gerade ist das Ergebnis
   const desktop = useDesktop();
-  const seitenTitel = "Durch zwei Punkte geht genau eine Gerade";
+  const seitenTitel = "Zwei Punkte – eine Gerade";
   const seitenText = "Ein Punkt liefert den Stützvektor, der Weg zum anderen Punkt den Richtungsvektor. Welchen Punkt du als Stützpunkt nimmst, ist egal.";
   const boxen = (
     <ObjektReihe>
@@ -475,7 +475,7 @@ export function DreiPunkteEbene() {
   }) : [];
 
   const desktop = useDesktop();
-  const seitenTitel = "Drei Punkte, eine Ebene – drei Wege";
+  const seitenTitel = "Drei Punkte – eine Ebene";
   const seitenText = "Ein Punkt wird Stützpunkt, die Wege zu den beiden anderen werden Spannvektoren. Danach rechnest du die Parameterform in die Koordinatenform um.";
   const punktBoxen = [
     <PunktBox key="A" name="A" farbe={FA} werte={Aw} setWerte={setAw} />,

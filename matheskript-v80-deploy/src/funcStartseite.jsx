@@ -28,7 +28,6 @@ import { UnterMenue, schulBereiche, blockEintraege, bereichInhalt, useStartStufe
 import { EtikettKnoepfe } from "./funcWerkzeuge.jsx";
 import { HeadNumbersLogoKlein } from "./funcHeadNumbersLogo.jsx";
 import { GleichKursLogoKlein } from "./funcGleichKursLogo.jsx";
-import { EBB_KURZ, EbbinghausBadge, EbbinghausLogoKlein } from "./funcEbbinghaus.jsx";
 import { EntdeckenLogoKlein } from "./funcEntdeckenLogo.jsx";
 import { StartKarte } from "./funcStartKarte.jsx";
 import { Quickfinder } from "./funcQuickfinder.jsx";
@@ -411,7 +410,7 @@ html[data-start-edition="ger"] .app-wurzel { background: #FFFFFF !important; }
 .sbb-bereich .logo { flex: none; width: 64px; height: 50px; border-radius: 12px; overflow: hidden; background: linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%); display: flex; align-items: center; justify-content: center; padding: 4px; }
 .sbb-bereich.gold .logo { box-shadow: 0 0 0 2px ${GOLD}; }
 .sbb-bereich .t { flex: 1 1 auto; min-width: 0; }
-.sbb-bereich .t b { display: block; font-size: 15.5px; font-weight: 800; letter-spacing: -0.02em; color: ${C.seeTief}; line-height: 1.15; overflow-wrap: anywhere; hyphens: auto; }
+.sbb-bereich .t b { display: block; font-size: 15.5px; font-weight: 800; letter-spacing: -0.02em; color: ${C.seeTief}; line-height: 1.15; overflow-wrap: break-word; hyphens: manual; }
 .sbb-bereich .t > span { display: block; font-size: 12.5px; color: ${C.grau}; line-height: 1.35; margin-top: 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .sbb-bereich .pf { flex: none; width: 30px; height: 30px; border-radius: 999px; background: ${GOLD}; display: flex; align-items: center; justify-content: center; transition: transform .2s ease; }
 .sbb-bereich[aria-expanded="true"] .pf { transform: rotate(45deg); }
@@ -584,6 +583,11 @@ function Kopf({ titel }) {
 }
 
 /* Glaskachel: Text links, Bild rechts. gesperrt = ausgegraut mit Schloss. */
+/* Lange zusammengesetzte Wörter bekommen weiche Trennstellen (U+00AD), damit sie am Handy an der Wortfuge brechen
+   und nicht mitten im Wort („Wahrschei nlichkeitsrechnung“). Nur Anzeige – Daten in werkzeuge.js bleiben ohne Trennzeichen. */
+const WEICH = { Wahrscheinlichkeitsrechnung: "Wahrscheinlichkeits\u00ADrechnung", Formelsammlung: "Formel\u00ADsammlung", Gleichungssysteme: "Gleichungs\u00ADsysteme", Dezimalzahlen: "Dezimal\u00ADzahlen" };
+export const weichTrennen = (t) => (typeof t === "string" ? t.replace(/[A-Za-zÄÖÜäöüß]{14,}/g, (w) => WEICH[w] || w) : t);
+
 function Kachel({ titel, text, logo, extra, ziel, label, gesperrt, keinI18n, gold, gehe, breit, weiter = "Öffnen", drei, zwei }) {
   return (
     <button type="button" onClick={gesperrt ? undefined : () => gehe(ziel)} disabled={gesperrt} aria-disabled={gesperrt || undefined}
@@ -640,8 +644,8 @@ function HauptKachel({ titel, text, logo, auf, onClick, label }) {
    rechts die Grafik. Ein Knopf klappt darunter das Menü genau dieser Stufe auf, ein zweiter Tipp klappt es wieder zu. */
 export const SCHUL_STUFEN = [
   { id: "unter", name: "Unterstufe", kl: "Klasse 5–6" },
-  { id: "mittel", name: "Mittelstufe", kl: "Klasse 7–9/10" },
-  { id: "ober", name: "Oberstufe", kl: "Klasse 10–13" },
+  { id: "mittel", name: "Mittelstufe", kl: "Klasse 7–10" },
+  { id: "ober", name: "Oberstufe", kl: "Klasse 11–13" },
   { id: "abi", name: "Abi", kl: "Abitur-Vorbereitung", knopf: "Prüfung üben" },
 ];
 function StufenKnopf({ s, wahl, waehle, abi }) {
@@ -917,7 +921,7 @@ export function Startseite({ gehe }) {
                         <button type="button" className={b.gold ? "sbb-bereich gold" : "sbb-bereich"} onClick={() => setBereichAuf(offen ? null : b.id)} aria-expanded={offen}
                           aria-label={offen ? `${b.titel} zuklappen` : `${b.titel} aufklappen`}>
                           <span className="logo" aria-hidden="true">{b.logo}</span>
-                          <span className="t"><b>{b.vorTitel && <span style={{ display: "inline", color: C.gruenDunkel, marginRight: 6 }}>{b.vorTitel}</span>}{b.titel}</b><span>{text}</span></span>
+                          <span className="t"><b>{b.vorTitel && <span style={{ display: "inline", color: C.gruenDunkel, marginRight: 6 }}>{b.vorTitel}</span>}{weichTrennen(b.titel)}</b><span>{text}</span></span>
                           <span className="pf" aria-hidden="true"><PlusKlein /></span>
                         </button>
                         {offen && (
@@ -937,8 +941,6 @@ export function Startseite({ gehe }) {
             text="Einmaleins, Quadrat- und Kubikzahlen, Brüche – trainieren, bis alles sitzt." />
           <Kachel gehe={gehe} titel="Gleichungen" label="Gleichungen öffnen" logo={<GleichKursLogoKlein />} ziel={{ ansicht: "gleichkurs" }} weiter="Üben" drei
             text="Eine Zahl finden, über die du etwas weißt: verstehen, rechnen, trainieren." />
-          <Kachel gehe={gehe} gesperrt keinI18n titel="Ebbinghaus" label="Ebbinghaus öffnen" logo={<EbbinghausLogoKlein />} extra={<EbbinghausBadge />} ziel={{ ansicht: "ebbinghaus" }} drei zwei
-            text={EBB_KURZ} />
         </div>
 
         {/* ---------- 3 Entdecken ---------- */}

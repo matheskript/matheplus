@@ -34,7 +34,7 @@ import {
 import { EVENT_START_MODUS, START_MODI, startModus, startModusSetzen } from "./startModus.js";
 import { DesktopMenue, DESKTOP_MENUE_AB } from "./funcHauptmenueDesktop.jsx";
 import {
-  LEISTE, KI_MENUE, TRAINING, KURSE, BALD_KURSE, STUFEN, STUFE_SCHLUESSEL, istStufe, FORMELN, NACHSCHLAGEN,
+  LEISTE, KI_MENUE, TRAINING, KURSE, BALD_KURSE, WEITERE_ANGEBOTE, STUFEN, STUFE_SCHLUESSEL, istStufe, FORMELN, NACHSCHLAGEN,
   kontoEintraege, kontoArt, zugangEintrag, klasseErmitteln, klasseLabel, klassenInhalt, trainingsBereiche, werkzeugAnzahl,
   entdeckenGruppen, zuletztAus, ZULETZT_SCHLUESSEL, aktiverPunkt,
 } from "./hauptmenue.js";
@@ -647,6 +647,10 @@ export function HauptMenue({ gehe, ansicht, foto, seite, offen, setOffen }) {
               </div>
               <div className={alleKurse ? "hm-kurse-raster" : "hm-kurse"}>
                 {kurse.map((k) => <KursKarte key={k.id} k={k} gehe={geh} aktuell={aktuell} />)}
+              </div>
+              <Kicker style={{ marginTop: 2 }}>Weitere Lernangebote</Kicker>
+              <div className="hm-kurse-raster" data-hm-weitere>
+                {WEITERE_ANGEBOTE.map((k) => <KursKarte key={k.id} k={k} gehe={geh} aktuell={aktuell} />)}
               </div>
             </div>
 

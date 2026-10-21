@@ -485,9 +485,9 @@ Steht keine Gleichung auf dem Foto, antworte {"aufgaben":[]}.`;
   const desktop = useDesktop();
   const einleitung = (
     <>
-      <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
-        Du sagst, was passiert. Die App rechnet.
-      </h2>
+      <h1 style={{ fontSize: "clamp(21px, 6.2vw, 26px)", fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1.15, marginBottom: 10 }}>
+        Gleichungen lösen
+      </h1>
       <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.8, marginBottom: 20 }}>
         Tippe unten eine Äquivalenzumformung ein — zum Beispiel <b style={{ fontWeight: 600, color: C.tinte }}>−5</b>,{" "}
         <b style={{ fontWeight: 600, color: C.tinte }}>+6x</b>, <b style={{ fontWeight: 600, color: C.tinte }}>:3</b> oder{" "}

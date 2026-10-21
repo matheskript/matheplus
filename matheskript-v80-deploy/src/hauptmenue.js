@@ -117,7 +117,9 @@ export function klassenInhalt(k) {
 }
 
 /* ---------- Meine Kurse ---------- */
-/* Im Menü als Karten-Leiste (funcHauptmenue.jsx gibt jeder Karte Farbe und Zeichen über die id) */
+/* Im Menü als Karten-Leiste (funcHauptmenue.jsx gibt jeder Karte Farbe und Zeichen über die id).
+   „Kurs“ heißt nur das, was eine Lack-Kachel hat (Sprachregelung 21.10.); kleinere Angebote stehen unter „Weitere Lernangebote“.
+   Werkzeuge (z. B. Textaufgaben übersetzen) sind nie Kurse – sie stehen im Mathe-Training. */
 const KURSE_ALLE = [
   { id: "abizentrum", name: "Mathe-Abi-Masterclass", zeile: "Abi-Plan, Prüfungsaufgaben, Mia, Lernpartner – und der Kursbereich", ziel: { ansicht: "abi" } },
   { id: "unterstufe", name: "Unterstufe", zeile: "Klasse 5 und 6: der ganze Stoff, lesen und gleich üben", ziel: { ansicht: "unterstufe" } },
@@ -127,9 +129,11 @@ const KURSE_ALLE = [
   { id: "gfs", name: "GFS-Training", zeile: "Thema wählen, verstehen, vortragen", ziel: { ansicht: "gfs" } },
   { id: "kiwahl", name: "Mathe mit KI lernen", zeile: "Mathilda AI für alle, Gemini ab 16, Claude ab 18", ziel: { ansicht: "kiwahl" } },
   { id: "penpaper", name: "Pen & Paper", zeile: "Sauber aufschreiben in neun Lektionen", ziel: { ansicht: "penpaperkurs" } },
+];
+/* Weitere Lernangebote (kleine Karten unter den Kursen) */
+export const WEITERE_ANGEBOTE = [
   { id: "gleichkurs", name: "Gleichungen lernen", zeile: "Verstehen, rechnen, trainieren", ziel: { ansicht: "gleichkurs" } },
-  { id: "headnumbers", name: "Head & Numbers", zeile: "Kopfrechnen mit Lernpfad", ziel: { ansicht: "headnumbers" } },
-  { id: "textaufgaben", name: "Textaufgaben übersetzen", zeile: "Aus dem Text die Gleichung machen", ziel: { ansicht: "textaufgaben" } },
+  { id: "headnumbers", name: "Kopfrechnen", zeile: "Einmaleins, Quadrat- und Kubikzahlen", ziel: { ansicht: "headnumbers" } },
   { id: "efunktion", name: "Minikurs e-Funktion", zeile: "Die wichtigste Funktion der Oberstufe", ziel: { ansicht: "efunktion" } },
   { id: "mindset", name: "Mathe-Mindset-Kurs", zeile: "6 TED-Talks und 2 Bücher, die inspirieren", ziel: { ansicht: "elternkurs" } },
 ];
@@ -251,7 +255,7 @@ export const LEISTE = [
 export function aktiverPunkt(ansicht, foto) {
   if (ansicht === "analyse" || ansicht === "klausurbriefkasten") return "mathilda";
   if (ansicht === "textaufgaben" && foto === "mathilda") return "mathilda";
-  if (KURSE_ALLE.some((k) => k.ziel.ansicht === ansicht)) return "kurse";
+  if ([...KURSE_ALLE, ...WEITERE_ANGEBOTE].some((k) => k.ziel.ansicht === ansicht)) return "kurse";
   if (TRAINING.some((k) => k.ziel.ansicht === ansicht) || ansicht === "trainieren" || ansicht === "trainingsplan" || ansicht === "vorbereiten") return "training";
   if (ansicht === "entdecken" || ansicht === "bwm" || ansicht === "landeswettbewerbe" || ansicht === "landeswettbewerb") return "entdecken";
   if (ansicht === "formeln" || ansicht === "operatoren") return "mathematik";

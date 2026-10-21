@@ -252,7 +252,7 @@ const gebietVon = (id, teile) => { const t = themaBereich(id, teile); return t &
 const QUELLE_TEXT = {
   wahl: "Von dir ausgewählt.",
   training: "Aus deinen Themen in Mein Mathe-Training.",
-  alle: "Alle Kurse – wähle aus, welche du belegst.",
+  alle: "Alle Bereiche – wähle aus, welche du gerade brauchst.",
 };
 
 /* Kurs-Zeichen im Umschalter: vier Kacheln (wie früher „Tools“) */
@@ -282,7 +282,8 @@ export function WerkzeugBand({ ansicht, gehe, testKnopf }) {
     if (!el) return undefined;
     const pruefe = () => setMehr(el.scrollWidth - el.scrollLeft - el.clientWidth > 4);
     const a = el.querySelector('[aria-current="page"]');
-    if (a && (a.offsetLeft + a.offsetWidth > el.scrollLeft + el.clientWidth || a.offsetLeft < el.scrollLeft)) el.scrollLeft = Math.max(0, a.offsetLeft - 12);
+    /* Aktiver Reiter immer an den linken Rand: so ist er am Handy nie am rechten Rand abgeschnitten („Integra…“) */
+    if (a) el.scrollLeft = Math.max(0, a.offsetLeft - 4);
     pruefe();
     el.addEventListener("scroll", pruefe, { passive: true });
     window.addEventListener("resize", pruefe);
@@ -329,7 +330,7 @@ export function WerkzeugBand({ ansicht, gehe, testKnopf }) {
         </span>
         <span style={{ flex: 1, minWidth: 0 }}>
           <span style={{ display: "block", lineHeight: 1.25 }}>{k.titel}{k.stufe && <span style={{ fontWeight: 500, color: C.grau }}>{` ${k.stufe}`}</span>}</span>
-          <span style={{ display: "block", fontSize: 12, fontWeight: 400, color: C.grau, lineHeight: 1.35 }}>{`${k.werkzeuge.length} Trainer · ${k.zeile}`}</span>
+          <span style={{ display: "block", fontSize: 12, fontWeight: 400, color: C.grau, lineHeight: 1.35 }}>{`${k.werkzeuge.length} Werkzeuge · ${k.zeile}`}</span>
         </span>
         {bearbeiten
           ? <span aria-hidden="true" style={{ flexShrink: 0, width: 22, height: 22, borderRadius: 6, border: `1.5px solid ${drin ? C.see : C.linie}`, background: drin ? C.see : C.weiss,
@@ -339,7 +340,7 @@ export function WerkzeugBand({ ansicht, gehe, testKnopf }) {
     );
   };
   return (
-    <nav data-werkzeug-band data-kurs={aktKurs ? aktKurs.id : undefined} aria-label={aktKurs ? `${aktKurs.titel} ${aktKurs.stufe}: Trainer` : `${bereich.titel}: Werkzeuge`}
+    <nav data-werkzeug-band data-kurs={aktKurs ? aktKurs.id : undefined} aria-label={aktKurs ? `${aktKurs.titel} ${aktKurs.stufe}: Werkzeuge`.trim() : `${bereich.titel}: Werkzeuge`}
       style={{ position: "sticky", top: 0, zIndex: 45, background: "rgba(255,255,255,0.96)", backdropFilter: "saturate(1.4) blur(8px)", WebkitBackdropFilter: "saturate(1.4) blur(8px)",
         borderBottom: `1px solid ${C.linie}`, boxShadow: "0 6px 18px -14px rgba(15,26,51,0.35)" }}>
       <style>{`.wb-reiter{scrollbar-width:none}.wb-reiter::-webkit-scrollbar{display:none}
@@ -368,15 +369,15 @@ export function WerkzeugBand({ ansicht, gehe, testKnopf }) {
           })}
         </div>
         {testKnopf}
-        <button type="button" onClick={() => setAuf(!auf)} aria-expanded={auf} aria-haspopup="dialog" data-wb-tools title={aktKurs ? "Kurs wechseln" : "Alle Werkzeuge"}
+        <button type="button" onClick={() => setAuf(!auf)} aria-expanded={auf} aria-haspopup="dialog" data-wb-tools title={aktKurs ? "Bereich wechseln" : "Alle Werkzeuge"}
           style={{ flexShrink: 0, height: 26, display: "inline-flex", alignItems: "center", gap: 5, padding: "0 9px", borderRadius: 999, fontFamily: "inherit", cursor: "pointer",
             fontSize: 12.5, fontWeight: 700, color: C.see, border: `1px solid ${auf ? C.flaggold : C.linie}`, background: auf ? "rgba(237,187,0,0.14)" : C.weiss }}>
           <KachelZeichen />
-          <span className="wb-tools-text">{aktKurs ? <>{aktKurs.titel}{aktKurs.stufe && <span className="wb-kurs-stufe">{` ${aktKurs.stufe}`}</span>}</> : "Tools"}</span>
+          <span className="wb-tools-text">{aktKurs ? <>{aktKurs.titel}{aktKurs.stufe && <span className="wb-kurs-stufe">{` ${aktKurs.stufe}`}</span>}</> : "Werkzeuge"}</span>
           <Pfeil auf={auf} />
         </button>
         {auf && (
-          <div role="dialog" aria-label={aktKurs ? "Kurs wechseln" : "Alle Werkzeuge"} data-wb-panel
+          <div role="dialog" aria-label={aktKurs ? "Bereich wechseln" : "Alle Werkzeuge"} data-wb-panel
             style={{ position: "absolute", top: H + 4, right: 8, zIndex: 46, width: "min(340px, calc(100vw - 16px))", maxHeight: "min(72vh, 600px)", overflowY: "auto",
               background: C.weiss, borderRadius: 14, padding: 6, boxShadow: "0 14px 40px rgba(8,23,59,0.28)", border: `1px solid ${C.linie}` }}>
             {weiter && (
@@ -385,18 +386,18 @@ export function WerkzeugBand({ ansicht, gehe, testKnopf }) {
               </button>
             )}
             <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8 }}>
-              <p style={kicker()}>Deine Kurse</p>
+              <p style={kicker()}>Deine Bereiche</p>
               <button type="button" data-wb-bearbeiten aria-pressed={bearbeiten} onClick={() => setBearbeiten(!bearbeiten)}
                 style={{ margin: "0 12px 0 0", background: "none", border: "none", padding: 0, cursor: "pointer", fontFamily: "inherit", fontSize: 12, fontWeight: 700, color: C.see }}>
                 {bearbeiten ? "Fertig" : "Auswählen"}
               </button>
             </div>
             <p data-wb-quelle style={{ margin: "-2px 12px 6px", fontSize: 11.5, color: C.grau, lineHeight: 1.4 }}>
-              {bearbeiten ? "Tippe an, welche Kurse du belegst." : QUELLE_TEXT[quelle]}
+              {bearbeiten ? "Tippe an, welche Bereiche du gerade brauchst." : QUELLE_TEXT[quelle]}
             </p>
             {(bearbeiten ? KURSE : meine).map((k) => <KursZeile key={k.id} k={k} />)}
             {!bearbeiten && weitere.length > 0 && (<>
-              <p style={kicker()}>Weitere Kurse</p>
+              <p style={kicker()}>Weitere Bereiche</p>
               {weitere.map((k) => <KursZeile key={k.id} k={k} />)}
             </>)}
             <div style={{ borderTop: `1px solid ${C.linie}`, marginTop: 6, paddingTop: 4 }}>

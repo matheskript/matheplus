@@ -1,10 +1,10 @@
 /* ============================================================
-   TRAININGS-KURSE – welche Trainer im Werkzeug-Band nebeneinander stehen
+   BEREICHE IM BAND – welche Werkzeuge im Werkzeug-Band nebeneinander stehen
    Das Band unter der Kopfleiste (WerkzeugBand in funcWerkzeuge.jsx) zeigt
-   links die Trainer des aktuellen Kurses als Reiter (aktiver mit Goldstrich)
-   und rechts den Kurs-Umschalter (früher „Tools“). Je Kurs etwa fünf bis
-   sechs Trainer; Werkzeuge außerhalb aller Kurse behalten das alte Band
-   (Werkzeuge der Station + „Tools“).
+   links die Werkzeuge des aktuellen Bereichs als Reiter (aktiver mit Goldstrich)
+   und rechts den Bereichs-Umschalter. Seit 21.10. gehört jedes Werkzeug zu
+   einem Bereich – es gibt keinen Seitenkopf mit Stations-Pille mehr.
+   (Die Exporte heißen aus historischen Gründen weiter KURSE/kurs/…)
 
    Ein Kurs = Eintrag in KURSE (Werkzeug-IDs aus werkzeuge.js).
    „Deine Kurse“ im Umschalter (meineKurse):
@@ -17,8 +17,9 @@
 import { WERKZEUGE, ansichtenVon, werkzeug } from "./werkzeuge.js";
 
 export const KURSE = [
-  /* Mittelstufe: ein allgemeiner Kurs statt je Gebiet – dort hat jedes Thema nur einen Trainer.
-     gruppen = Gebiete aus Mein Mathe-Training, bei denen dieser Kurs unter „Deine Kurse“ erscheint.
+  /* Jedes der 60 Werkzeuge gehört zu mindestens einem Bereich – seit 21.10. hat jedes Werkzeug das Band (ein Kopf für alle).
+     Im Band heißen diese Gruppen „Bereiche“ (Panel: „Deine Bereiche“); „Kurs“ ist nur noch das, was eine Lack-Kachel hat.
+     gruppen = Gebiete aus Mein Mathe-Training, bei denen dieser Bereich unter „Deine Bereiche“ erscheint.
      „√(…)“ in namen/kurzNamen setzt das Band mit MitWurzeln (Haken + Überstrich als ein Linienzug). */
   { id: "mittel", gruppe: "Mittelstufe", gruppen: ["Bruchrechnen", "Geometrie"], titel: "Mittelstufe", stufe: "", zeile: "Geraden, Parabeln, Pythagoras, Gleichungen, Brüche und Wurzeln",
     werkzeuge: ["geradengleichung", "parabeln", "pythagoras", "gleichungen", "bruchwurzel"],
@@ -27,12 +28,35 @@ export const KURSE = [
   { id: "analysis-ober", gruppe: "Analysis", titel: "Analysis", stufe: "Oberstufe", zeile: "Ableiten, Kurven, Integrale",
     werkzeuge: ["ableitungstrainer", "kurvendiskussion", "scharen", "steckbrief", "optimierung", "integrale"],
     namen: { steckbrief: "Steckbrief", optimierung: "Optimierung" } },
-  { id: "vektoren-ober", gruppe: "Vektoren", titel: "Vektoren", stufe: "Oberstufe", zeile: "Geraden, Ebenen, Abstände",
-    werkzeuge: ["vektorgenerator", "geraden", "dreipunkte", "ebenevsebene", "abstaende"],
-    namen: { dreipunkte: "Drei Punkte" } },
-  { id: "stochastik-ober", gruppe: "Stochastik", titel: "Stochastik", stufe: "Oberstufe", zeile: "Bäume, Binomial, Tests",
-    werkzeuge: ["kombinatorik", "vierfelder", "bernoulli", "hypothesentest", "normalverteilung"],
-    namen: { kombinatorik: "Kombinatorik" } },
+  { id: "funktionen-kennen", gruppe: "Analysis", titel: "Funktionen kennen", stufe: "", zeile: "Grundlagen, Sinus, Wachstum",
+    werkzeuge: ["funktionen", "sinus", "wachstum"],
+    namen: { funktionen: "Grundlagen", sinus: "Sinus", wachstum: "Wachstum" } },
+  { id: "vektoren-ober", gruppe: "Vektoren", titel: "Vektoren", stufe: "Oberstufe", zeile: "Rechnen, Geraden, Ebenen, Abstände",
+    werkzeuge: ["vektorgenerator", "kreuzprodukt", "winkel", "zweipunkte", "dreipunkte", "ebenen", "geraden", "ebenevsebene", "abstaende"],
+    namen: { vektorgenerator: "Rechnen", kreuzprodukt: "Kreuzprodukt", winkel: "Winkel", zweipunkte: "Zwei Punkte", dreipunkte: "Drei Punkte", ebenen: "Ebenen im Raum", geraden: "Lage", ebenevsebene: "Zwei Ebenen", abstaende: "Abstände" },
+    kurzNamen: { ebenen: "Ebenen", ebenevsebene: "E vs. E" } },
+  { id: "stochastik-ober", gruppe: "Stochastik", titel: "Stochastik", stufe: "Oberstufe", zeile: "Bäume, Erwartungswert, Binomial, Tests",
+    werkzeuge: ["kombinatorik", "vierfelder", "erwartungswert", "bernoulli", "hypothesentest", "normalverteilung"],
+    namen: { kombinatorik: "Kombinatorik", erwartungswert: "Erwartungswert" } },
+  { id: "fundament", gruppe: "Grundlagen", titel: "Fundament", stufe: "", zeile: "Axiome, Zahlenräume, Mengen und Logik, Textaufgaben",
+    werkzeuge: ["axiome", "zahlenraeume", "mengenlogik", "textaufgaben"],
+    namen: { axiome: "Axiome", zahlenraeume: "Zahlenräume", mengenlogik: "Mengen und Logik", textaufgaben: "Textaufgaben" } },
+  { id: "gleichungen", gruppe: "Grundlagen", titel: "Terme und Gleichungen", stufe: "", zeile: "Terme, Gleichungen, Ungleichungen, Bruchterme, Gleichungssysteme",
+    werkzeuge: ["terme", "gleichungen", "ungleichungen", "bruchterme", "lgs"],
+    namen: { terme: "Terme", gleichungen: "Gleichungen", ungleichungen: "Ungleichungen", bruchterme: "Bruchterme", lgs: "Gleichungssysteme" },
+    kurzNamen: { gleichungen: "Gleichungen", lgs: "LGS" } },
+  { id: "geometrie-figuren", gruppe: "Geometrie", titel: "Geometrie", stufe: "Figuren und Winkel", zeile: "Koordinaten, Flächen, Quader, Winkel, Kongruenz, Konstruktionen",
+    werkzeuge: ["koordinaten", "flaechen", "quader", "winkelsaetze", "kongruenz", "konstruktion"],
+    namen: { koordinaten: "Koordinaten", flaechen: "Flächen", quader: "Quader", winkelsaetze: "Winkel", kongruenz: "Kongruenz", konstruktion: "Linien im Dreieck" } },
+  { id: "geometrie-dreiecke", gruppe: "Geometrie", titel: "Geometrie", stufe: "Dreiecke und Körper", zeile: "Thales, Pythagoras, Höhensatz, Strahlensätze, Trigonometrie, Kreis, Körper",
+    werkzeuge: ["thales", "pythagoras", "kathetensatz", "strahlensaetze", "trigonometrie", "kreis", "koerper"],
+    namen: { thales: "Thales", pythagoras: "Pythagoras", kathetensatz: "Höhensatz", strahlensaetze: "Strahlensätze", trigonometrie: "Trigonometrie", kreis: "Kreis", koerper: "Körper" } },
+  { id: "unterstufe-zahlen", gruppe: "Unterstufe", gruppen: ["Bruchrechnen", "Grundlagen"], titel: "Zahlen und Rechnen", stufe: "Klasse 5–6", zeile: "Stellenwert, ganze Zahlen, Primzahlen, Rechengesetze, Größen, Brüche, Dezimalzahlen",
+    werkzeuge: ["stellenwert", "ganzezahlen", "primzahlen", "rechengesetze", "groessen", "bruchrechnen", "dezimal"],
+    namen: { stellenwert: "Stellenwert", ganzezahlen: "Ganze Zahlen", primzahlen: "Primzahlen", rechengesetze: "Rechengesetze", groessen: "Größen", bruchrechnen: "Brüche", dezimal: "Dezimalzahlen" } },
+  { id: "unterstufe-anwenden", gruppe: "Unterstufe", titel: "Zuordnungen, Prozent, Daten", stufe: "Klasse 5–6", zeile: "Dreisatz, Prozent und Zinsen, Diagramme, Zufall",
+    werkzeuge: ["zuordnungen", "prozent", "diagramme", "zufall"],
+    namen: { zuordnungen: "Dreisatz", prozent: "Prozent", diagramme: "Diagramme", zufall: "Zufall" } },
 ];
 
 /* Reiter-Name im Band am Desktop (ab 1000 px): eigener Kurzname des Kurses, sonst der volle Werkzeugname.

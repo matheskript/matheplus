@@ -1301,7 +1301,7 @@ export function TrigonometrieDreieck() {
   const Inhalt = KAPITEL[idx][2];
   const naechstes = KAPITEL[idx + 1];
   return (
-    <Seite titel={zw("Trigonometrie vom Einheitskreis aus", "Trigonometry from the unit circle")}
+    <Seite titel={zw("Trigonometrie", "Trigonometry")}
       text={zw("Erst verstehen, was sin, cos und tan wirklich sind – dann damit rechnen: im Einheitskreis, im rechtwinkligen Dreieck und mit Sinus- und Kosinussatz in jedem Dreieck.",
         "First understand what sin, cos and tan really are – then calculate with them: in the unit circle, in right triangles and with the laws of sines and cosines in any triangle.")}>
       <div ref={oben} style={{ scrollMarginTop: 80 }} />

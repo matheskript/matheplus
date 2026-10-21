@@ -397,7 +397,7 @@ const MODI = [["entdecken", zw("Entdecken", "Explore")], ["ueben", zw("Üben", "
 export function Winkelsaetze() {
   const [modus, setModus] = useState(() => { const w = uebenWunschLesen("winkelsaetze"); return w && w.modus ? w.modus : "entdecken"; });   // Wunsch einer Lernseite (uebenWunsch.js)
   return (
-    <Seite titel={zw("Winkel an Geraden und Winkelsummen", "Angles at lines and angle sums")}
+    <Seite titel={zw("Winkel und Winkelsummen", "Angles and angle sums")}
       text={zw("Scheitel-, Neben-, Stufen- und Wechselwinkel, die Winkelsumme im Dreieck und im n-Eck: die Werkzeuge, mit denen man jeden fehlenden Winkel findet.",
         "Vertical, adjacent, corresponding and alternate angles, the angle sum in triangles and polygons: the tools to find any missing angle.")}>
       <ModusLeiste modi={MODI} modus={modus} setModus={setModus} label={zw("Winkelsätze", "Angle theorems")} />

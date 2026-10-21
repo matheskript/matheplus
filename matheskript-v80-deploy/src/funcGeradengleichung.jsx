@@ -833,7 +833,7 @@ function PundM() {
 
 /* ---------------------------------------------------------------- Seite */
 const CSS = `
-.ger-seite{background:#fff;min-height:calc(100dvh - 61px);overflow-anchor:none}
+.ger-seite{background:#fff;overflow-anchor:none}[data-trainings-session] .ger-seite{min-height:calc(100dvh - 61px)}
 .ger-innen{max-width:620px;margin:0 auto;padding:10px 16px 24px}
 .ger-seg{display:flex;padding:3px;border-radius:999px;background:#EEF2F8;gap:2px;min-height:42px}
 .ger-seg button{flex:1;min-width:0;border-radius:999px;border:none;font-family:inherit;font-size:14.5px;font-weight:700;cursor:pointer;background:transparent;color:${C.grau};white-space:nowrap;padding:0 6px}

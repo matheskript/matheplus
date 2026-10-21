@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { istPro, kontoArt, kontoEintraege, zugangEintrag, klasseErmitteln, klasseLabel, klassenInhalt, aktiverPunkt, KI_MENUE, TRAINING, KURSE, LEISTE, kurseListe, baldListe,
+import { istPro, kontoArt, kontoEintraege, zugangEintrag, klasseErmitteln, klasseLabel, klassenInhalt, aktiverPunkt, KI_MENUE, TRAINING, KURSE, WEITERE_ANGEBOTE, LEISTE, kurseListe, baldListe,
   trainingsBereiche, werkzeugAnzahl, entdeckenGruppen, FORMELN, NACHSCHLAGEN, zuletztAus, STUFEN } from "../src/hauptmenue.js";
 import { WERKZEUGE, passtStufe } from "../src/werkzeuge.js";
 import { ENTDECKEN_MENUE } from "../src/startMenues.js";
@@ -130,10 +130,17 @@ test("Weitermachen: nur echte Werkzeuge, mit Bereich und Tag", () => {
 
 test("Jedes Menü-Ziel hat eine Seite mit Pfad", () => {
   const ansichten = new Set(SEITEN.map((s) => s.ansicht));
-  const ziele = [...KI_MENUE, ...TRAINING, ...kurseListe({ kurse: true }), ...FORMELN, ...NACHSCHLAGEN, ...entdeckenGruppen().flatMap((g) => g.eintraege),
+  const ziele = [...KI_MENUE, ...TRAINING, ...kurseListe({ kurse: true }), ...WEITERE_ANGEBOTE, ...FORMELN, ...NACHSCHLAGEN, ...entdeckenGruppen().flatMap((g) => g.eintraege),
     ...trainingsBereiche("alle").filter((b) => b.abi).flatMap((b) => b.stationen[0].werkzeuge), ...kontoEintraege({ rolle: "eltern" }), ...kontoEintraege({ rolle: "schueler" }), ...kontoEintraege({ rolle: "lehrkraft" }), ...kontoEintraege(null, false), zugangEintrag(false)].filter((e) => e.ziel).map((e) => e.ziel.ansicht);
   for (const a of ziele) assert.ok(ansichten.has(a), "kein Pfad für " + a);
   assert.deepEqual(LEISTE.map((p) => p.id), ["klasse", "schultraining", "training", "entdecken", "mathematik"]);
+});
+
+test("Sprachregelung: Kurse sind nur Lack-Kacheln, Werkzeuge nie Kurse, Kopfrechnen heißt Kopfrechnen", () => {
+  assert.ok(!KURSE.some((k) => k.id === "textaufgaben") && !WEITERE_ANGEBOTE.some((k) => k.id === "textaufgaben"), "Textaufgaben übersetzen ist ein Werkzeug, kein Kurs");
+  assert.ok(WEITERE_ANGEBOTE.some((k) => k.id === "headnumbers" && k.name === "Kopfrechnen"), "Kopfrechnen unter den weiteren Angeboten");
+  assert.ok(!JSON.stringify([...KURSE, ...WEITERE_ANGEBOTE]).includes("Head & Numbers"));
+  assert.ok(KURSE.length <= 8, "Kurse im Menü: höchstens acht");
 });
 
 test("Aktiver Punkt", () => {

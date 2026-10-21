@@ -669,7 +669,7 @@ export const VIDEOKURSE = {
           richtig: 0,
           erklaerung: "Die Koeffizienten vor x₁, x₂, x₃ – also 2, −1 und 4 – bilden einen Normalenvektor.",
         },
-        ueben: { label: "Ebenen-Visualizer", ansicht: "ebenen" },
+        ueben: { label: "Ebenen im Raum", ansicht: "ebenen" },
       },
     ],
   },

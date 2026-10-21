@@ -567,7 +567,7 @@ const PT_DESK_CSS = kompaktSpalteCss("pt-desk") + `
 
 /* ---------- Aussehen (wie Ableitungstrainer: weiß auf dem Handy, Karte am Desktop) ---------- */
 const CSS = `
-.pt-seite{background:#fff;min-height:calc(100dvh - 61px)}
+.pt-seite{background:#fff}[data-trainings-session] .pt-seite{min-height:calc(100dvh - 61px)}
 .pt-seite,.pt-seite *{overflow-anchor:none}
 .pt-innen{max-width:620px;margin:0 auto;padding:12px 16px 32px}
 .pt-kopf{display:grid;grid-template-columns:1.18fr 1fr;gap:8px;align-items:stretch;margin-bottom:10px}

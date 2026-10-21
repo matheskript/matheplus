@@ -422,9 +422,9 @@ export function Sinusfunktion({ gehe, ansicht = "sinus" }) {
       <>
       <SinusUebungen extra={menueExtra} />
       <div className="mx-auto px-6 pb-16" data-sinus="breit" style={{ maxWidth: 620, paddingTop: 30 }}>
-        <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 18 }}>
-          Finde die Parameter
-        </h2>
+        <h1 style={{ fontSize: "clamp(21px, 6.2vw, 26px)", fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1.15, marginBottom: 18 }}>
+          Sinusfunktion
+        </h1>
         <div>{modusLeiste}</div>
 
         <Arbeitsflaeche style={{ marginTop: 8 }}
@@ -492,9 +492,9 @@ export function Sinusfunktion({ gehe, ansicht = "sinus" }) {
     <>
     <SinusUebungen extra={menueExtra} />
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 30 }}>
-      <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 18 }}>
-        Finde die Parameter
-      </h2>
+      <h1 style={{ fontSize: "clamp(21px, 6.2vw, 26px)", fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1.15, marginBottom: 18 }}>
+        Sinusfunktion
+      </h1>
 
       {modusLeiste}
 

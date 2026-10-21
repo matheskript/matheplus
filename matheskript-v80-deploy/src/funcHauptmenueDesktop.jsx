@@ -29,7 +29,7 @@ import { MarkenLogo } from "./markenLogo.jsx";
 import { ETIKETTEN } from "./werkzeuge.js";
 import { basisModus, editionVon, EVENT_START_MODUS, START_MODI, startModus, startModusSetzen } from "./startModus.js";
 import {
-  LEISTE, KI_MENUE, TRAINING, KURSE, BALD_KURSE, STUFEN, FORMELN, NACHSCHLAGEN,
+  LEISTE, KI_MENUE, TRAINING, KURSE, BALD_KURSE, WEITERE_ANGEBOTE, STUFEN, FORMELN, NACHSCHLAGEN,
   kontoArt, klasseLabel, klassenInhalt, trainingsBereiche, werkzeugAnzahl, entdeckenGruppen,
 } from "./hauptmenue.js";
 import {
@@ -558,6 +558,7 @@ export function DesktopMenue({
   const en = englisch();
   const kurse = [...KURSE, ...BALD_KURSE];
   const gross = kurse.filter((k) => LACK[k.id]);
+  /* Kurse ohne Lack-Kachel (Abi-Zentrum, Pen & Paper, „Bald“) als kleine Karten; darunter die weiteren Lernangebote */
   const klein = kurse.filter((k) => !LACK[k.id]);
   /* Der passende große Kurs steht als breite Karte oben – nur, wenn die Zahl ungerade ist (sonst geht das Raster glatt auf) */
   const breitId = gross.length % 2 === 1 ? (gross.find((k) => k.id === KURS_ZUR_STUFE[stufe]) || gross[0]).id : null;
@@ -740,6 +741,12 @@ export function DesktopMenue({
               </div>
               <div className="hmd-minis">
                 {klein.map((k) => <MiniKurs key={k.id} k={k} gehe={geh} aktuell={aktuell} />)}
+              </div>
+              <div className="hmd-kopf-zeile" style={{ marginTop: 14 }}>
+                <p className="hmd-kicker"><span>Weitere Lernangebote</span></p>
+              </div>
+              <div className="hmd-minis" data-hm-weitere style={{ marginTop: 6 }}>
+                {WEITERE_ANGEBOTE.map((k) => <MiniKurs key={k.id} k={k} gehe={geh} aktuell={aktuell} />)}
               </div>
             </section>
 

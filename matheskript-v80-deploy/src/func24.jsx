@@ -658,7 +658,7 @@ export function Abstaende() {
   );
   const fehlerMeldung = (oL.fehler || oR.fehler) && <Meldung art="warn">{oL.fehler || oR.fehler}</Meldung>;
   const hilfe = <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={lotModus ? lotHilfe(lotArt) : abstandHilfe(kombi)} /></div>;
-  const seitenTitel = "Wie weit ist es von … bis …?";
+  const seitenTitel = "Abstände";
   const seitenText = "Wähle zwei Objekte und trag ihre Werte ein. Schneiden sie sich oder liegt eines im anderen, ist der Abstand 0.";
 
   /* ---------- Desktop: „von“- und „bis“-Box links untereinander, 3D-Bild rechts, Rechnung darunter ---------- */

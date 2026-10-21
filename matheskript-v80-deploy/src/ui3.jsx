@@ -169,7 +169,8 @@ export function SchrittFolge({ schritte, stand, setStand, fertigText }) {
 export function Seite({ titel, text, children }) {
   return (
     <div className="mx-auto px-6 pb-16" style={{ maxWidth: 620, paddingTop: 24 }}>
-      <h2 style={{ fontSize: "clamp(20px, 6.2vw, 24px)", fontWeight: 700, color: C.tinte, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 8 }}>{titel}</h2>
+      {/* Seit 21.10. die einzige Überschrift des Werkzeugs (der blaue Seitenkopf ist weg) – darum h1 */}
+      <h1 style={{ fontSize: "clamp(21px, 6.2vw, 26px)", fontWeight: 800, color: C.tinte, letterSpacing: "-0.02em", lineHeight: 1.15, marginBottom: 8 }}>{titel}</h1>
       <p style={{ ...hinweis, marginBottom: 14 }}>{text}</p>
       {children}
     </div>

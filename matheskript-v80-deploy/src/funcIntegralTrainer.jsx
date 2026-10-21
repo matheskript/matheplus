@@ -440,7 +440,7 @@ export function IntegralTrainer() {
 
 /* Stile: Kopf wie im Ableitungstrainer (abl-*), dazu die Zeitleiste und das Raster */
 const IT_CSS = `
-.abl-seite{background:#fff;min-height:calc(100dvh - 61px)}
+.abl-seite{background:#fff}[data-trainings-session] .abl-seite{min-height:calc(100dvh - 61px)}
 .abl-seite,.abl-seite *{overflow-anchor:none}
 .abl-innen{max-width:620px;margin:0 auto;padding:14px 16px 48px}
 .abl-reihe{display:flex;gap:8px;align-items:stretch;flex:1;min-height:42px}

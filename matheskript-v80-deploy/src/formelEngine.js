@@ -663,7 +663,9 @@ export function alsTex(n, aussen = 0, rechts = false) {
       let lt = l, rt = r;
       if (PX) { const alt = PX; PX = null; lt = alsTex(n.a, 2); rt = alsTex(n.b, 2, n.b.k !== "*"); PX = alt; }
       const punkt = /[0-9}]$/.test(lt) && /^[0-9−-]/.test(rt);
-      return klam(`${l}${opb(n, punkt ? " \\cdot " : " ")}${r}`, 2);
+      // Nähe = Priorität (Pen & Paper): Zahl vor Variable, Funktion oder Klammer ohne Abstand („2x⁵“, „3\\sin(x)“), sonst ein Abstand
+      const eng = !punkt && /[0-9}]$/.test(lt) && /^[a-zA-Z\\(]/.test(rt);
+      return klam(`${l}${opb(n, punkt ? " \\cdot " : eng ? "" : " ")}${r}`, 2);
     }
     case "/": return klam(`\\frac{${gr(n.a)}}{${gr(n.b)}}`, 3);
     case "^": {

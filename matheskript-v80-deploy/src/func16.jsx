@@ -605,8 +605,8 @@ export function EbenenVisualizer() {
   );
   const weiter = (a !== 0 || b !== 0 || c !== 0) && (
     <WeiterMit titel="Weiter mit dieser Ebene">
-      <WeiterKnopf ziel="ebenevsebene" von="Ebenen-Visualizer" daten={{ k: [a, b, c, d] }} zeile="Als E₁ mit einer zweiten Ebene schneiden – Schnittgerade und Schnittwinkel" />
-      <WeiterKnopf ziel="abstaende" von="Ebenen-Visualizer" daten={{ ebene: [a, b, c, d] }} zeile="Abstand eines Punktes zu genau dieser Ebene berechnen" />
+      <WeiterKnopf ziel="ebenevsebene" von="Ebenen im Raum" daten={{ k: [a, b, c, d] }} zeile="Als E₁ mit einer zweiten Ebene schneiden – Schnittgerade und Schnittwinkel" />
+      <WeiterKnopf ziel="abstaende" von="Ebenen im Raum" daten={{ ebene: [a, b, c, d] }} zeile="Abstand eines Punktes zu genau dieser Ebene berechnen" />
     </WeiterMit>
   );
   const lesehilfe = [
@@ -619,7 +619,7 @@ export function EbenenVisualizer() {
       <b style={{ color: C.tinte }}>{t}:</b> {x}
     </p>
   ));
-  const seitenTitel = "Sieh, was die Koeffizienten mit der Ebene tun";
+  const seitenTitel = "Ebenen im Raum";
   const seitenText = "Stell a, b, c und d ein: a, b und c kippen die Ebene (Normalenvektor), d schiebt sie parallel. Mit Finger oder Maus drehst du den Raum.";
 
   /* ---------- Desktop: Ebene + Eigenschaften links, 3D-Bild rechts (wie „Ebene vs. Ebene“) ---------- */

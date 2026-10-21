@@ -613,7 +613,7 @@ export function VektorGenerator({ gehe }) {
   /* ---------- Desktop: Rechenarten links untereinander, Rechnung rechts (kein Bild – die Rechnung ist das Bild) ---------- */
   if (desktop) {
     return (
-      <VekSeite titel="Beispiele ohne Ende" text={seitenText}>
+      <VekSeite titel="Rechnen mit Vektoren" text={seitenText}>
         <div data-vg="breit" ref={karteRef} style={{ scrollMarginTop: 80 }}>
           <VekArbeit
             links={<>
@@ -627,7 +627,7 @@ export function VektorGenerator({ gehe }) {
   }
 
   return (
-    <VekSeite titel="Beispiele ohne Ende" text={seitenText}>
+    <VekSeite titel="Rechnen mit Vektoren" text={seitenText}>
       {reiter(false)}
 
       <div ref={karteRef} style={{ scrollMarginTop: 80 }}>

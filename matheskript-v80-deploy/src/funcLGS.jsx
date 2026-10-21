@@ -793,9 +793,9 @@ export function LGSLoeser() {
 
   const einleitung = (
     <>
-      <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 10 }}>
-        <span className="titel-lang">Drei Gleichungen, drei Unbekannte</span><span className="titel-kurz">Knack das System!</span>
-      </h2>
+      <h1 style={{ fontSize: "clamp(21px, 6.2vw, 26px)", fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1.15, marginBottom: 10 }}>
+        Gleichungssysteme
+      </h1>
       <p style={{ color: C.grau, fontSize: 15, fontWeight: 300, lineHeight: 1.8, marginBottom: 20 }}>
         <span className="titel-lang">
           Bilde aus I, II und III ein neues System: Übernimm eine Gleichung unverändert oder kombiniere sie,

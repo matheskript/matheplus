@@ -9,6 +9,7 @@ import { ToolMenue, werkzeugMerken } from "./func2.jsx";
 import { Startseite, StartModusSchalter } from "./funcStartseite.jsx";
 import { startModusSetzen, modusAusPfad } from "./startModus.js";
 import { WerkzeugLeiste, WerkzeugBand } from "./funcWerkzeuge.jsx";
+import { tabTitel } from "./seitenTitel.js";
 import { kursAnsichten } from "./trainingsKurse.js";
 const KURS_ANSICHTEN = kursAnsichten();   // Werkzeuge eines Trainings-Kurses: Band statt großem Seitenkopf
 import { wo, istWerkzeugAnsicht } from "./werkzeuge.js";
@@ -273,6 +274,21 @@ export function Mathilda() {
     const wz = !!(wo(ansicht) && wo(ansicht).werkzeug);
     if (wz) document.documentElement.setAttribute("data-wz-voll", "1"); else document.documentElement.removeAttribute("data-wz-voll");
     return () => document.documentElement.removeAttribute("data-wz-voll");
+  }, [ansicht]);
+  // Tab-Titel und Beschreibung folgen der Seite (seitenTitel.js); bei Werkzeugen kommt die Beschreibung aus den SEO-Texten (nachgeladen)
+  useEffect(() => {
+    let aktiv = true;
+    document.title = tabTitel(ansicht);
+    const ort = wo(ansicht);
+    const meta = document.querySelector('meta[name="description"]');
+    if (ort && ort.werkzeug) {
+      import("./seo/index.js").then((m) => {
+        if (!aktiv) return;
+        const t = m.seoText(ort.werkzeug.id);
+        if (t && meta) meta.setAttribute("content", t.beschreibung);
+      }).catch(() => {});
+    }
+    return () => { aktiv = false; };
   }, [ansicht]);
   // Alle Werkzeugseiten (Trainings-Kurse mit Band und übrige mit Seitenkopf): am Desktop breit und symmetrisch wie die Kopfleiste
   // (--tr-breite, höchstens 940 px, index.css). Fließtext bleibt dort auf Lesebreite begrenzt.
@@ -862,7 +878,7 @@ export function Mathilda() {
           <TrainingSeite modus="klausurnach" gehe={gehe} />
         </>
       ) : istWzSeite(ansicht) ? (
-        <WerkzeugSeite ansicht={ansicht} gehe={gehe} menue={<SektionsMenue />} band={KURS_ANSICHTEN.has(ansicht) ? band : null} seite={ansicht === "textaufgaben" ? wzSeite : null} setSeite={setWzSeite} />
+        <WerkzeugSeite ansicht={ansicht} gehe={gehe} menue={<SektionsMenue />} band={wo(ansicht) && wo(ansicht).werkzeug ? band : null} seite={ansicht === "textaufgaben" ? wzSeite : null} setSeite={setWzSeite} />
                                                                                                 ) : ansicht === "analysis" ? (
         <>
           <div style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
@@ -1232,12 +1248,7 @@ export function Mathilda() {
         </>
       ) : ansicht === "lgs" ? (
         <>
-          <SeitenKopf titel="Gleichungssysteme" groesse="clamp(26px, 7.6vw, 31px)" rund>
-              <SektionsMenue />
-              <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>
-                Drei Unbekannte, drei Gleichungen — und du bestimmst jeden Schritt.
-              </p>
-          </SeitenKopf>
+          {band}
           <LGSLoeser />
         </>
       ) : ansicht === "entdecken" ? (

@@ -147,7 +147,7 @@ export function VekSeite({ titel, text, children, oben = 28 }) {
       {/* Titel in einem div: die Desktop-Regel in index.css (… > div) rückt ihn dann genauso ein wie die Boxen */}
       {(titel || text) && (
         <div>
-          {titel && <h2 style={{ fontSize: "clamp(23px, 6.2vw, 28px)", fontWeight: 800, letterSpacing: "-0.025em", lineHeight: 1.15, color: C.tinte, margin: "0 0 8px" }}>{titel}</h2>}
+          {titel && <h1 style={{ fontSize: "clamp(23px, 6.2vw, 28px)", fontWeight: 800, letterSpacing: "-0.025em", lineHeight: 1.15, color: C.tinte, margin: "0 0 8px" }}>{titel}</h1>}
           {text && <p style={{ color: C.grau, fontSize: 15, lineHeight: 1.6, margin: "0 0 20px", maxWidth: 540 }}>{text}</p>}
         </div>
       )}
