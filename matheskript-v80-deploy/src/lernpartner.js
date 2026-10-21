@@ -103,7 +103,7 @@ export function steckbriefVorlage(abiProfil, kontoName = "") {
   const p = abiProfil || {};
   return {
     anzeigename: String(kontoName || "").split(" ")[0].replace(/[^A-Za-zÄÖÜäöüßéèçñ .-]/g, "").slice(0, 20),
-    stadt: "", abi_jahr: p.jahr || 2027, niveau: p.niveau || "erhoeht", schule: "", schule_zeigen: false,
+    stadt: "", abi_jahr: p.jahr || 2027, niveau: p.niveau === "basis" ? "grundlegend" : p.niveau || "erhoeht", schule: "", schule_zeigen: false,
     helfen: [], suchen: [], zeiten: ["wt-nachmittag"], orte: ["bibliothek"], aktiv: true,
   };
 }

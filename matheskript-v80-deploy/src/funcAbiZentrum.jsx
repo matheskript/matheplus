@@ -12,7 +12,7 @@ import { WERKZEUGE } from "./werkzeuge.js";
 import { AbiSeite, AbiKopf, Abschnitt, BeBalken, MiaEmblem, Pfeil, GOLD, SCHWARZ, PRAEG } from "./abiStil.jsx";
 import { useAbi, abiProfilSpeichern, uebergabeSetzen, UEBERGABE } from "./funcAbiDaten.jsx";
 import {
-  LAENDER, landName, niveauWorte, profilNormieren, pruefungFuer, schriftlichAm, muendlichAm, pruefungenAb, zielTermin, countdown,
+  LAENDER, landName, niveauWorte, NIVEAU_WAHL, abiJahre, profilNormieren, pruefungFuer, schriftlichAm, muendlichAm, pruefungenAb, zielTermin, countdown,
   planFuer, phaseAm, naechsterMeilenstein, heuteVorschlaege, statistik, TRAINER, KURSE, SIMULATION, datum, datumLang, datumKurz, tageZwischen, PRUEFUNGEN,
 } from "./abiZentrum.js";
 import { SACHGEBIETE, typenIn } from "./abiGeneratoren.js";
@@ -22,12 +22,26 @@ const GEBIETE = ["analysis", "geometrie", "stochastik"];
 const FORM_TEXT = { schriftlich: "schriftlich", muendlich: "mündlich", beides: "schriftlich und mündlich" };
 
 /* ---------- Profil ---------- */
-function Wahl({ werte, wert, setze, name }) {
+function Wahl({ werte, wert, setze, name, zeile, aus = [] }) {
   return (
-    <div className="abi-chips" role="radiogroup" aria-label={name}>
+    <div className={zeile ? "abi-chips zeile" : "abi-chips"} role="radiogroup" aria-label={name}>
       {werte.map(([id, text]) => (
-        <button key={id} type="button" role="radio" aria-checked={wert === id} className="abi-chip" onClick={() => setze(id)}>{text}</button>
+        <button key={id} type="button" role="radio" aria-checked={wert === id} className="abi-chip" disabled={aus.includes(id)} onClick={() => setze(id)}>{text}</button>
       ))}
+    </div>
+  );
+}
+
+/* Abi-Jahr: drei Jahre zum Antippen, ein Pfeil blättert zu den letzten drei von fünf */
+function JahrWahl({ jahr, setze }) {
+  const jahre = abiJahre();
+  const [hinten, setHinten] = useState(() => jahre.indexOf(jahr) >= 3);
+  const sicht = hinten ? jahre.slice(2) : jahre.slice(0, 3);
+  return (
+    <div className="abi-jahre" data-abi-jahre>
+      {hinten && <button type="button" className="abi-pfeil" aria-label="Frühere Jahre" onClick={() => setHinten(false)}>‹</button>}
+      <Wahl name="Abitur im Jahr" zeile werte={sicht.map((j) => [j, String(j)])} wert={jahr} setze={setze} />
+      {!hinten && <button type="button" className="abi-pfeil" aria-label="Spätere Jahre" onClick={() => setHinten(true)}>›</button>}
     </div>
   );
 }
@@ -36,36 +50,33 @@ function ProfilKarte({ profil, fertig, abbrechen }) {
   const [p, setP] = useState(() => profilNormieren(profil || {}));
   const setze = (feld, wert) => setP((alt) => profilNormieren({ ...alt, [feld]: wert }));
   const bw = p.land === "BW";
-  const worte = niveauWorte(p.land);
   const pr = pruefungFuer(p);
   const ohneTermin = p.form !== "muendlich" && !schriftlichAm(p);
-  const jahre = [2026, 2027, 2028, 2029, 2030];
   const punkte = [["", "–"], ...Array.from({ length: 16 }, (_, i) => [String(15 - i), `${15 - i} Punkte`])];
   return (
     <div className="abi-karte" data-abi-profil>
       <span className="abi-eyebrow">Schritt 1</span>
       <h3 style={{ marginTop: 4 }}>Dein Abi-Profil</h3>
       <p className="abi-text" style={{ marginTop: 6 }}>Damit Plan, Aufgaben und Mia genau zu deiner Prüfung passen. Dauert eine Minute, später jederzeit änderbar.</p>
-      <div className="abi-raster zwei" style={{ marginTop: 16 }}>
+      <div style={{ marginTop: 16 }}>
         <label className="abi-feld"><span>Bundesland</span>
           <select value={p.land} onChange={(e) => setze("land", e.target.value)}>{LAENDER.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}</select>
         </label>
-        <label className="abi-feld"><span>Abitur im Jahr</span>
-          <select value={p.jahr} onChange={(e) => setze("jahr", Number(e.target.value))}>{jahre.map((j) => <option key={j} value={j}>{j}</option>)}</select>
-        </label>
+      </div>
+      <div style={{ marginTop: 16 }}>
+        <span className="abi-feld"><span>Abitur im Jahr</span></span>
+        <JahrWahl jahr={p.jahr} setze={(v) => setze("jahr", v)} />
       </div>
       <div style={{ marginTop: 16 }}>
         <span className="abi-feld"><span>Dein Kurs</span></span>
-        <Wahl name="Kurs" werte={[["erhoeht", worte.erhoeht], ["grundlegend", worte.grundlegend]]} wert={p.niveau} setze={(v) => setze("niveau", v)} />
+        <Wahl name="Kurs" zeile werte={NIVEAU_WAHL} wert={p.niveau} setze={(v) => setze("niveau", v)} />
       </div>
       <div style={{ marginTop: 16 }}>
         <span className="abi-feld"><span>Prüfung in Mathe</span></span>
-        {bw && p.niveau === "grundlegend" ? (
-          <p className="abi-hinweis">Im Basisfach legst du Mathe mündlich ab: 20 Minuten Vorbereitung, dann etwa 10 Minuten Vortrag und 10 Minuten Prüfungsgespräch.</p>
-        ) : bw ? (
-          <Wahl name="Prüfungsform" werte={[["schriftlich", "Schriftlich"], ["beides", "Schriftlich und mündlich"]]} wert={p.form} setze={(v) => setze("form", v)} />
-        ) : (
-          <Wahl name="Prüfungsform" werte={[["schriftlich", "Schriftlich"], ["muendlich", "Mündlich"], ["beides", "Beides"]]} wert={p.form} setze={(v) => setze("form", v)} />
+        <Wahl name="Prüfungsform" zeile werte={[["schriftlich", "Schriftlich"], ["muendlich", "Mündlich"], ["beides", "Beides"]]} wert={p.form} setze={(v) => setze("form", v)}
+          aus={bw ? (p.niveau === "erhoeht" ? ["muendlich"] : ["schriftlich", "beides"]) : []} />
+        {bw && p.niveau !== "erhoeht" && (
+          <p className="abi-hinweis" style={{ marginTop: 10 }}>Im Basisfach legst du Mathe mündlich ab: 20 Minuten Vorbereitung, dann etwa 10 Minuten Vortrag und 10 Minuten Prüfungsgespräch.</p>
         )}
       </div>
       {!bw && p.form !== "muendlich" && (

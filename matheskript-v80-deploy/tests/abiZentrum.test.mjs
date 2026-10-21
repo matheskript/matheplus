@@ -105,3 +105,14 @@ test("Ergebnisse: Quote je Gebiet, schwächstes Gebiet, Vorschläge zeigen auf e
   for (const k of [...KURSE, ...SIMULATION]) assert.ok(ansichten.has(k.ziel.ansicht), `${k.id} → ${k.ziel.ansicht}`);
   for (const liste of Object.values(TRAINER)) for (const t of liste) assert.ok(WERKZEUGE[t], `Trainer ${t}`);
 });
+
+test("Profil: drittes Niveau Basisfach und Abi-Jahre zum Antippen", async () => {
+  const { profilNormieren, pruefungFuer, abiJahre, NIVEAU_WAHL } = await import("../src/abiZentrum.js");
+  assert.deepEqual(NIVEAU_WAHL.map(([, t]) => t), ["LK", "GK", "Basisfach"]);
+  assert.equal(profilNormieren({ niveau: "basis" }).niveau, "basis");
+  assert.equal(pruefungFuer({ land: "BW", niveau: "basis" }).id, "bw-bf");
+  assert.equal(pruefungFuer({ land: "BY", niveau: "basis" }).id, "iqb-ga");
+  assert.equal(profilNormieren({ land: "BW", niveau: "basis", form: "schriftlich" }).form, "muendlich");
+  assert.deepEqual(abiJahre(new Date("2026-10-21")), [2027, 2028, 2029, 2030, 2031]);
+  assert.deepEqual(abiJahre(new Date("2027-03-01")), [2027, 2028, 2029, 2030, 2031]);
+});

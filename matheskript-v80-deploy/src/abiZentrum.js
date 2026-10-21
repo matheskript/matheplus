@@ -26,11 +26,21 @@ export const LAENDER = [
 ];
 export const landName = (id) => (LAENDER.find((l) => l.id === id) || { name: id }).name;
 
-/* Wörter je Land: BW sagt Leistungsfach/Basisfach, die meisten anderen LK/GK */
+/* Wörter je Land: BW sagt Leistungsfach/Basisfach, die meisten anderen LK/GK.
+   Drittes Niveau „basis“ (Basisfach) für Länder ohne Wahl LK/GK; rechnet wie grundlegend. */
 export function niveauWorte(land) {
   return land === "BW"
-    ? { erhoeht: "Leistungsfach", grundlegend: "Basisfach" }
-    : { erhoeht: "Leistungskurs (LK)", grundlegend: "Grundkurs (GK)" };
+    ? { erhoeht: "Leistungsfach", grundlegend: "Basisfach", basis: "Basisfach" }
+    : { erhoeht: "Leistungskurs (LK)", grundlegend: "Grundkurs (GK)", basis: "Basisfach" };
+}
+/* Kurzwahl im Profil: immer diese drei */
+export const NIVEAU_WAHL = [["erhoeht", "LK"], ["grundlegend", "GK"], ["basis", "Basisfach"]];
+
+/* Abi-Jahre zum Antippen: fünf Jahre ab dem nächsten Abitur (nach Juli zählt das Folgejahr) */
+export function abiJahre(heute = new Date(), anzahl = 5) {
+  const d = typeof heute === "string" ? new Date(heute) : heute;
+  const start = d.getFullYear() + (d.getMonth() >= 7 ? 1 : 0);
+  return Array.from({ length: anzahl }, (_, i) => start + i);
 }
 
 /* ---------- Prüfungsprofile ---------- */
@@ -71,7 +81,7 @@ export const PROFIL_LEER = {
   land: "BW", jahr: 2027, niveau: "erhoeht", form: "schriftlich", hilfsmittel: "WTR",
   termin: null, muendlich: null, pruefungenAb: null, punkte: null, ziel: null, minuten: 20, ferien: true, fertig: false,
 };
-const NIVEAUS = ["erhoeht", "grundlegend"], FORMEN = ["schriftlich", "muendlich", "beides"], HILFSMITTEL = ["WTR", "CAS", "GTR"];
+const NIVEAUS = ["erhoeht", "grundlegend", "basis"], FORMEN = ["schriftlich", "muendlich", "beides"], HILFSMITTEL = ["WTR", "CAS", "GTR"];
 const istDatum = (d) => typeof d === "string" && /^\d{4}-\d{2}-\d{2}$/.test(d) && !Number.isNaN(Date.parse(d));
 const punkteWert = (p) => (p === null || p === undefined || p === "" ? null : Math.max(0, Math.min(15, Math.round(Number(p)))));
 

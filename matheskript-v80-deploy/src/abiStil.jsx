@@ -84,6 +84,13 @@ const STIL = `
 .abi-chip{display:inline-flex;align-items:center;gap:6px;min-height:38px;padding:0 14px;border-radius:999px;border:1px solid rgba(90,67,0,0.25);background:#FFF8DC;
   color:#2A1F00;font:inherit;font-size:13.5px;font-weight:700;cursor:pointer;text-align:left}
 .abi-chip[aria-pressed="true"],.abi-chip[aria-checked="true"]{background:${SCHWARZ};border-color:${SCHWARZ};color:${GOLD}}
+.abi-chips.zeile{flex-wrap:nowrap}
+.abi-chips.zeile .abi-chip{flex:1 1 0;min-width:0;justify-content:center;padding:0 8px;white-space:nowrap;text-align:center}
+.abi-chip:disabled{opacity:0.38;cursor:default}
+.abi-jahre{display:flex;align-items:center;gap:8px}
+.abi-jahre .abi-chips{flex:1;min-width:0}
+.abi-pfeil{flex:0 0 38px;height:38px;display:inline-flex;align-items:center;justify-content:center;border-radius:999px;border:1px solid rgba(90,67,0,0.25);background:transparent;color:#2A1F00;font:inherit;font-size:18px;font-weight:800;cursor:pointer;padding:0}
+.abi-pfeil:focus-visible{outline:3px solid ${SCHWARZ};outline-offset:2px}
 .abi-karte.dunkel .abi-chip{background:rgba(255,255,255,0.06);border-color:rgba(237,187,0,0.3);color:#fff}
 .abi-karte.dunkel .abi-chip[aria-pressed="true"]{background:${GOLD};color:${SCHWARZ};border-color:${GOLD}}
 .abi-zeile{display:flex;align-items:center;gap:12px;width:100%;min-height:56px;padding:12px 2px;border:none;border-bottom:1px solid var(--abi-linie);background:none;
