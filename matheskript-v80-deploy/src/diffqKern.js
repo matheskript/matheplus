@@ -309,11 +309,10 @@ export function neueAufgabe(artId, stufe = 1) {
 export function stelleZu(auf) {
   for (let i = 0; i < 30; i++) {
     const x0 = ganz(-3, 4);
-    if (auf.familie === "bruch" && x0 + auf.form.c === 0) continue;
-    if (auf.familie === "wurzel" && x0 + auf.form.c <= 0) continue;
-    const v = auf.fn(x0);
-    if (endlich(v) && endlich(auf.fn(x0 + 0.5)) && endlich(auf.fn(x0 - 0.25))) return x0;
+    if (stelleOk(auf, x0)) return x0;
   }
+  // Zufall ohne Treffer (z. B. √(x − 3)): die erste gültige Stelle nahe null
+  for (let d = 0; d <= 12; d++) for (const x0 of [d, -d]) if (stelleOk(auf, x0)) return x0;
   return 1;
 }
 export function stelleOk(auf, x0) {
@@ -456,21 +455,36 @@ function lesen(text, x0, bezeichnung) {
 }
 
 /* Einsetzen: beide Felder getrennt. Ergebnis { a: { ok, hinweis }, b: { ok, hinweis } } */
+/* Vorbereitung: f(x+h) ausrechnen (vor dem Bruch). wo = "Das Feld" | "Das erste Feld" (im Bruch) */
+export function pruefeFxh(auf, x0, text, wo = "Das Feld") {
+  const fxh = (x, h) => auf.fn(x + h), fx = (x) => auf.fn(x);
+  const A = lesen(text, x0, wo);
+  if (A.fehler) return { ok: false, hinweis: A.fehler };
+  if (istGleich(A.g, fxh, x0)) return { ok: true, hinweis: "" };
+  const name = x0 === null ? "f(x+h)" : `f(${zahlText(x0)}+h)`, ersatz = x0 === null ? "(x+h)" : `(${zahlText(x0)}+h)`;
+  let hinweis = x0 === null ? "Das ist noch nicht f(x+h). Nimm den Term von f und ersetze jedes x durch (x+h) – mit Klammer."
+    : `Das ist noch nicht ${name}. Setz in f für x überall ${ersatz} ein – mit Klammer.`;
+  if (istGleich(A.g, (x) => fx(x), x0)) hinweis = x0 === null ? `Das ist f(x) selbst. Gesucht ist ${name}: Ersetze jedes x durch (x+h).` : `Das ist f(${zahlText(x0)}). Gesucht ist ${name}: Setz ${ersatz} für x ein.`;
+  else if (istGleich(A.g, (x, h) => fx(x) + h, x0)) hinweis = "Das h gehört in die Klammer zu x – f(x+h), nicht f(x) + h.";
+  else if (auf.familie === "poly" && auf.koef.length > 2 && istGleich(A.g, (x, h) => fx(x) + fx(h) - fx(0), x0)) hinweis = "Binomische Formel: (x+h)² ist x² + 2xh + h² – das gemischte Glied fehlt. Potenzen von (x+h) nie gliedweise.";
+  else if (istGleich(A.g, (x, h) => -fxh(x, h), x0)) hinweis = "Fast – alle Vorzeichen sind gedreht.";
+  return { ok: false, hinweis };
+}
+
+/* Musterweg der Vorbereitung: f(x+h) eingesetzt, bei Polynomen zusätzlich ausmultipliziert */
+export function fxhWeg(auf, x0 = null) {
+  const stelle = x0 !== null;
+  const erst = musterweg(auf, x0)[0].a;
+  if (auf.familie !== "poly") return [erst];
+  let P = entwickelt(auf.koef);
+  if (stelle) P = zusammengefasst(P.map(({ c, i, j }) => ({ c: c * x0 ** i, i: 0, j })));
+  const aus = gliederText(P, !stelle);
+  return aus === erst ? [erst] : [erst, aus];
+}
+
 export function pruefeEinsetzen(auf, x0, aText, bText) {
   const fxh = (x, h) => auf.fn(x + h), fx = (x) => auf.fn(x);
-  const erg = { a: null, b: null };
-  const A = lesen(aText, x0, "Das erste Feld");
-  if (A.fehler) erg.a = { ok: false, hinweis: A.fehler };
-  else if (istGleich(A.g, fxh, x0)) erg.a = { ok: true, hinweis: "" };
-  else {
-    let hinweis = "Das ist noch nicht f(x+h). Nimm den Term von f und ersetze jedes x durch (x+h) – mit Klammer.";
-    if (x0 !== null) hinweis = `Das ist noch nicht f(${zahlText(x0)}+h). Setz in f für x überall (${zahlText(x0)}+h) ein – mit Klammer.`;
-    if (istGleich(A.g, (x) => fx(x), x0)) hinweis = x0 === null ? "Das ist f(x). Ins erste Feld gehört f(x+h): Ersetze jedes x durch (x+h)." : `Das ist f(${zahlText(x0)}). Ins erste Feld gehört f(${zahlText(x0)}+h): Setz (${zahlText(x0)}+h) ein.`;
-    else if (istGleich(A.g, (x, h) => fx(x) + h, x0)) hinweis = "Das h gehört in die Klammer zu x – f(x+h), nicht f(x) + h.";
-    else if (auf.familie === "poly" && auf.koef.length > 2 && istGleich(A.g, (x, h) => fx(x) + fx(h) - fx(0), x0)) hinweis = "Binomische Formel: (x+h)² ist x² + 2xh + h² – das gemischte Glied fehlt. Potenzen von (x+h) nie gliedweise.";
-    else if (istGleich(A.g, (x, h) => -fxh(x, h), x0)) hinweis = "Fast – alle Vorzeichen sind gedreht.";
-    erg.a = { ok: false, hinweis };
-  }
+  const erg = { a: pruefeFxh(auf, x0, aText, "Das erste Feld"), b: null };
   const B = lesen(bText, x0, "Das zweite Feld");
   if (B.fehler) erg.b = { ok: false, hinweis: B.fehler };
   else if (istGleich(B.g, (x) => fx(x), x0)) erg.b = { ok: true, hinweis: "" };

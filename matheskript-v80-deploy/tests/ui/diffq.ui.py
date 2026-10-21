@@ -1,6 +1,7 @@
 """Browser-Test Differenzenquotient (/differenzenquotient, src/funcDiffqTrainer.jsx):
-- Band statt Seitenkopf, Vorlage-Zeile, interaktiver Bruch mit zwei Feldern (f(x+h), f(x)) über h.
-- Trainieren: Einsetzen (beide Felder, OK prüft), falsches Feld → Hinweis am Feld, dann „Zähler umformen“,
+- Band statt Seitenkopf, Vorbereitung „f(x+h) = …“, Vorlage-Zeile, interaktiver Bruch mit zwei Feldern (f(x+h), f(x)) über h.
+- Trainieren: Vorbereitung (f(x+h) ausrechnen, falsch → Hinweis, richtig → Bruch öffnet sich mit vorbelegtem erstem Feld),
+  Einsetzen (beide Felder, OK prüft), dann „Zähler umformen“,
   „h kürzen“, „Grenzwert h → 0“ – jede neue Zeile übernimmt die Zeile darüber; am Ende „Neue Funktion“.
 - „An einer Stelle“: x₀ sichtbar, Terme nur mit h, Ergebnis eine Zahl. „Lösung zeigen“ füllt die Zeile.
 - Rechnen: Musterweg vom Einsetzen bis zum Grenzwert mit Schrittnamen.
@@ -45,7 +46,9 @@ with sync_playwright() as p:
 
         pruefe(page.locator(".dq-karte").count() == 1, f"{breite}: Aufgabenkarte fehlt")
         pruefe(page.locator('.dq-zeile[data-vorlage="true"]').count() == 1, f"{breite}: Vorlage-Zeile fehlt")
-        pruefe(page.locator('.dq-zeile[data-aktiv="true"] .dq-feld').count() == 2, f"{breite}: zwei Felder im Bruch erwartet")
+        pruefe(page.locator('.dq-zeile[data-aktiv="true"][data-art="fxh"] .dq-feld').count() == 1, f"{breite}: Vorbereitung f(x+h) fehlt")
+        vb = page.locator('.dq-zeile[data-art="fxh"]').bounding_box(); vl = page.locator('.dq-zeile[data-vorlage="true"]').bounding_box()
+        pruefe(vb and vl and vb["y"] < vl["y"], f"{breite}: Vorbereitung steht nicht über der Vorlage")
         pruefe(page.get_by_role("tab", name="Differenzenquotient").count() + page.get_by_text("h-Methode").count() >= 1, f"{breite}: Band ohne Reiter")
         if breite == 1280:
             l = page.locator(".dq-spalte-l").bounding_box(); r = page.locator(".dq-spalte-r").bounding_box()
@@ -59,12 +62,17 @@ with sync_playwright() as p:
         pruefe(page.locator('[data-diffq-aufgabe="x^2"]').count() == 1, f"{breite}: eigene Funktion x^2 nicht übernommen")
         page.screenshot(path=f"{AUS}/{breite}-1-start.png", full_page=True)
 
-        # Einsetzen: erst falsch (x^2+h^2), dann richtig
+        # Vorbereitung: erst falsch (x^2+h^2), dann richtig → Bruch öffnet sich, erstes Feld vorbelegt
         feld_oeffnen(page, 0); tippen(page, "x^2+h^2")
-        pruefe(page.locator(".dq-hinweis").count() >= 1, f"{breite}: kein Hinweis nach falschem Einsetzen")
+        pruefe(page.locator(".dq-hinweis").count() >= 1, f"{breite}: kein Hinweis nach falscher Vorbereitung")
         pruefe("gemischte" in page.locator(".dq-hinweis").first.inner_text(), f"{breite}: Binomi-Hinweis fehlt")
-        tippen(page, "(x+h)^2")
-        feld_oeffnen(page, 1); tippen(page, "x^2")
+        tippen(page, "x^2+2xh+h^2")
+        pruefe(page.locator('.dq-zeile[data-art="fxh"][data-fertig="true"]').count() == 1, f"{breite}: Vorbereitung nicht als richtig erkannt")
+        pruefe(page.locator('.dq-zeile[data-aktiv="true"][data-art="einsetzen"] .dq-feld').count() == 2, f"{breite}: Bruch nach Vorbereitung fehlt")
+        vorbelegt = page.locator('.dq-zeile[data-aktiv="true"] .dq-feld').first.inner_text().replace(" ", "").replace("\n", "")
+        pruefe("2xh" in vorbelegt, f"{breite}: erstes Feld nicht vorbelegt ({vorbelegt!r})")
+        # Einsetzen: zweites Feld (Pop-up ist schon offen)
+        tippen(page, "x^2")
         pruefe(page.locator("[data-diffq-weiter]").count() == 1, f"{breite}: nach richtigem Einsetzen keine Weiter-Knöpfe")
         page.screenshot(path=f"{AUS}/{breite}-2-eingesetzt.png", full_page=True)
 
@@ -73,7 +81,7 @@ with sync_playwright() as p:
         pruefe(page.locator('.dq-zeile[data-aktiv="true"][data-art="bruch"]').count() == 1, f"{breite}: Bruch-Zeile fehlt")
         wert = page.locator(".wk-popup").last
         wert.get_by_role("button", name="Lieber selbst tippen").click(); page.wait_for_timeout(150)
-        pruefe(wert.locator("input").first.input_value() == "(x+h)^2-x^2", f"{breite}: neue Zeile übernimmt nicht die Zeile darüber ({wert.locator('input').first.input_value()})")
+        pruefe(wert.locator("input").first.input_value() == "x^2+2xh+h^2-x^2", f"{breite}: neue Zeile übernimmt nicht die Zeile darüber ({wert.locator('input').first.input_value()})")
         tippen(page, "2xh+h^2")
         pruefe(page.locator('.dq-zeile[data-art="bruch"][data-fertig="true"]').count() == 1, f"{breite}: Zusammenfassen nicht als richtig erkannt")
         page.get_by_role("button", name="h kürzen").click(); page.wait_for_timeout(300)
@@ -86,7 +94,7 @@ with sync_playwright() as p:
         page.get_by_role("button", name="Lösung zeigen").click(); page.wait_for_timeout(300)
         pruefe(page.locator("[data-diffq-fertig]").count() == 1, f"{breite}: Abschluss fehlt")
         page.get_by_role("button", name="Musterweg ansehen").click(); page.wait_for_timeout(300)
-        pruefe(page.locator(".dq-schritt").count() >= 5, f"{breite}: Musterweg ohne Schrittnamen")
+        pruefe(page.locator(".dq-schritt.rechts").count() >= 7, f"{breite}: Musterweg ohne Vorbereitung/Schrittnamen ({page.locator('.dq-schritt.rechts').count()})")
         page.screenshot(path=f"{AUS}/{breite}-3-fertig.png", full_page=True)
         pruefe(breit() == breite, f"{breite}: Überbreite {breit()}")
 
@@ -97,7 +105,7 @@ with sync_playwright() as p:
         feld_oeffnen(page, 0); tippen(page, "(x+h)^2")
         pruefe("kein x" in page.locator(".dq-hinweis").first.inner_text(), f"{breite}: Hinweis „kein x“ fehlt")
         tippen(page, f"({x0}+h)^2")
-        feld_oeffnen(page, 1); tippen(page, str(int(x0) ** 2))
+        tippen(page, str(int(x0) ** 2))
         pruefe(page.locator("[data-diffq-weiter]").count() == 1, f"{breite}: Stelle: Einsetzen nicht erkannt")
         page.get_by_role("button", name="h kürzen").click(); page.wait_for_timeout(300)
         tippen(page, f"{2 * int(x0)}+h")
@@ -108,7 +116,8 @@ with sync_playwright() as p:
 
         # Rechnen: Musterweg mit Schritten
         page.get_by_role("button", name="Rechnen").click(); page.wait_for_timeout(300)
-        pruefe(page.locator("[data-diffq-muster] .dq-schritt").count() >= 4, f"{breite}: Rechnen ohne Musterweg")
+        pruefe(page.locator('[data-diffq-muster] .dq-zeile[data-art="fxh"]').count() >= 1, f"{breite}: Rechnen ohne Vorbereitung")
+        pruefe(page.locator("[data-diffq-muster] .dq-schritt.rechts").count() >= 5, f"{breite}: Rechnen ohne Musterweg")
         page.screenshot(path=f"{AUS}/{breite}-5-rechnen.png", full_page=True)
         pruefe(breit() == breite, f"{breite}: Überbreite {breit()}")
         pruefe(not konsole, f"{breite}: Konsole {konsole[:3]}")

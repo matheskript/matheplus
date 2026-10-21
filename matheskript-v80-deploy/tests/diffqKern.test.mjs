@@ -4,7 +4,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { parse, kompiliere, alsTex, hatVar, ableitung } from "../src/formelEngine.js";
 import {
-  ARTEN, aufgabeAus, musterweg, neueAufgabe, pruefeEinsetzen, pruefeZeile, naechsterText, stelleZu, stelleOk, polyText, gliederText, bruchText, alsEingabe,
+  ARTEN, aufgabeAus, fxhWeg, musterweg, neueAufgabe, pruefeEinsetzen, pruefeFxh, pruefeZeile, naechsterText, stelleZu, stelleOk, polyText, gliederText, bruchText, alsEingabe,
 } from "../src/diffqKern.js";
 
 test("Formel-Engine: h ist eine Variable – lesen, setzen, auswerten, ableiten", () => {
@@ -114,4 +114,23 @@ test("Nächste Zeile übernimmt die Zeile darüber", () => {
   assert.equal(naechsterText({ art: "einsetzen", a: "(3+h)^2", b: "9" }), "(3+h)^2-9");
   assert.equal(naechsterText({ art: "einsetzen", a: "3(-2+h)+2", b: "-4" }), "3(-2+h)+2-(-4)");
   assert.equal(naechsterText({ art: "bruch", text: "2xh+h^2" }), "2xh+h^2");
+});
+
+test("Vorbereitung f(x+h): Musterweg und Prüfung", () => {
+  assert.deepEqual(fxhWeg(aufgabeAus("x")), ["(x+h)", "x+h"]);
+  assert.deepEqual(fxhWeg(aufgabeAus("x^2")), ["(x+h)^2", "x^2+2xh+h^2"]);
+  assert.deepEqual(fxhWeg(aufgabeAus("x^2-1"), 3), ["(3+h)^2-1", "8+6h+h^2"]);
+  assert.deepEqual(fxhWeg(aufgabeAus("1/(x+2)")), ["1/(x+h+2)"]);
+  assert.deepEqual(fxhWeg(aufgabeAus("sqrt(x)"), 2), ["sqrt(2+h)"]);
+  for (const f of ["x", "x^2", "2x^3-x", "1/(x+2)", "sqrt(x+1)", "x*sin(x)"]) {
+    const auf = aufgabeAus(f);
+    for (const x0 of [null, stelleZu(auf)]) for (const t of fxhWeg(auf, x0)) assert.ok(pruefeFxh(auf, x0, t).ok, `${f} (x0=${x0}): ${t}`);
+  }
+  const a = aufgabeAus("x^2");
+  assert.ok(pruefeFxh(a, null, "x^2+2xh+h^2").ok && pruefeFxh(a, null, "(x+h)(x+h)").ok);
+  assert.match(pruefeFxh(a, null, "x^2").hinweis, /f\(x\) selbst/);
+  assert.match(pruefeFxh(a, null, "x^2+h^2").hinweis, /gemischte Glied/);
+  assert.match(pruefeFxh(a, null, "x^2+h").hinweis, /in die Klammer/);
+  assert.match(pruefeFxh(a, 2, "(x+h)^2").hinweis, /kein x mehr/);
+  assert.match(pruefeFxh(a, null, "").hinweis, /leer/);
 });

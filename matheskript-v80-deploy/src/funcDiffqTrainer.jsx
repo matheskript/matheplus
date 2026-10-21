@@ -30,17 +30,21 @@ import { EingabeFormel, LiveFormel, Tastenfeld, parse, hatBox } from "./func12.j
 import { Eingabe, EingabePopup, POP_CSS, PopupWahl } from "./funcRegelwerk.jsx";
 import { MitWurzeln } from "./wurzelZeichen.jsx";
 import {
-  ARTEN, aufgabeAus, musterweg, naechsterText, neueAufgabe, pruefeEinsetzen, pruefeZeile, stelleOk, stelleZu, texVon, zahlText,
+  ARTEN, aufgabeAus, fxhWeg, musterweg, naechsterText, neueAufgabe, pruefeEinsetzen, pruefeFxh, pruefeZeile, stelleOk, stelleZu, texVon, zahlText,
 } from "./diffqKern.js";
 
 /* ---------- Zeilen-Zustand ---------- */
-const leerEinsetzen = () => ({ art: "einsetzen", a: "", b: "", sa: null, sb: null, ha: "", hb: "", versuche: 0 });
+const leerEinsetzen = (a = "") => ({ art: "einsetzen", a, b: "", sa: null, sb: null, ha: "", hb: "", versuche: 0 });
+/* Vorbereitung vor dem Bruch: f(x+h) konkret ausrechnen (x → x+h, x² → (x+h)² = x² + 2xh + h²) */
+const leerFxh = () => ({ art: "fxh", text: "", status: null, hinweis: "", versuche: 0 });
+const START = () => [leerFxh()];
 const leerZeile = (art, text = "") => ({ art, text, status: null, hinweis: "", versuche: 0 });
 const erledigt = (s) => s === "richtig" || s === "gezeigt";
 const zeileFertig = (z) => (z.art === "einsetzen" ? erledigt(z.sa) && erledigt(z.sb) : erledigt(z.status));
 
 /* Welche Zeile darf auf diese folgen? */
 const WEITER = {
+  fxh: [],   // nach richtigem f(x+h) folgt der Bruch von selbst (erstes Feld vorbelegt)
   einsetzen: [{ art: "bruch", name: "Zähler umformen", zeile: "ausmultiplizieren, zusammenfassen" }, { art: "frei", name: "h kürzen", zeile: "der Bruch verschwindet" }],
   bruch: [{ art: "bruch", name: "Weiter umformen", zeile: "noch eine Zeile über h" }, { art: "frei", name: "h kürzen", zeile: "der Bruch verschwindet" }],
   frei: [{ art: "frei", name: "Weiter umformen", zeile: "noch eine Zeile mit h" }, { art: "limes", name: "Grenzwert h → 0", zeile: "h = 0 einsetzen" }],
@@ -80,6 +84,7 @@ const CSS = `
 .dq-zeile[data-fertig="true"][data-gezeigt="true"]{background:#F3F5F9;border-color:${C.linie}}
 .dq-zeile[data-vorlage="true"]{background:${C.sand};color:${C.grau};border-color:transparent}
 .dq-label{font-weight:700;color:${C.tinte};min-width:62px;text-align:right;flex-shrink:0;font-size:19px}
+@media (max-width:600px){.dq-zeile:not([data-vorlage="true"]):not([data-art="fxh"]) .dq-label{min-width:18px}}
 .dq-zeile[data-vorlage="true"] .dq-label{color:${C.grau}}
 .dq-rechts{display:inline-flex;align-items:center;gap:8px;flex:1 0 auto;min-width:0}
 .dq-feld>span,.dq-feld>span>span{flex-wrap:nowrap !important;white-space:nowrap}
@@ -165,6 +170,7 @@ function Status({ s }) {
 }
 
 const labelF = (x0) => (x0 === null ? "f′(x) =" : `f′(${zahlText(x0)}) =`);
+const labelFxh = (x0) => (x0 === null ? "f(x+h) =" : `f(${zahlText(x0)}+h) =`);
 
 /* Vorlage-Zeile (steht fest) */
 function Vorlage({ x0 }) {
@@ -177,6 +183,14 @@ function Vorlage({ x0 }) {
       </span>
     </div>
   );
+}
+
+/* Vorbereitung im Musterweg: f(x+h) eingesetzt, bei Polynomen darunter ausmultipliziert */
+function VorWeg({ zeilen, x0 }) {
+  return zeilen.map((t, i) => (
+    <Zeile key={`v${i}`} z={{ ...leerFxh(), text: t, status: "richtig" }} x0={x0} aktiv={false} feld="" setFeld={() => {}} pos={0} setPos={() => {}} onKlick={() => {}}
+      label={i === 0 ? labelFxh(x0) : "="} schritt={i === 0 ? "Einsetzen" : "Ausmultiplizieren"} />
+  ));
 }
 
 /* Eine Rechenzeile. aktiv = letzte, noch offene Zeile; feld = welches Feld die Marke hat */
@@ -194,6 +208,8 @@ function Zeile({ z, x0, aktiv, offen = false, feld, setFeld, pos, setPos, onKlic
     </Bruch>
   ) : z.art === "bruch" ? (
     <Bruch><Feld text={z.text} aktiv={aktiv} status={z.status} platz="Zähler" onClick={feldKlick("text")} pos={pos} setPos={aktiv && offen ? setPos : undefined} /></Bruch>
+  ) : z.art === "fxh" ? (
+    <Feld text={z.text} aktiv={aktiv} status={z.status} platz={x0 === null ? "jedes x durch (x+h) ersetzen" : `(${xs}+h) für x einsetzen`} onClick={feldKlick("text")} pos={pos} setPos={aktiv && offen ? setPos : undefined} />
   ) : (
     <Feld text={z.text} aktiv={aktiv} status={z.status} platz={z.art === "limes" ? (x0 === null ? "f′(x)" : "Zahl") : "Term mit h"} onClick={feldKlick("text")} pos={pos} setPos={aktiv && offen ? setPos : undefined} />
   );
@@ -202,7 +218,7 @@ function Zeile({ z, x0, aktiv, offen = false, feld, setFeld, pos, setPos, onKlic
       {schritt && <span className="dq-schritt oben"><MitWurzeln text={schritt} /></span>}
       <span className="dq-label">{label}</span>
       <span className="dq-rechts">
-        {z.art !== "limes" && <Lim />}
+        {z.art !== "limes" && z.art !== "fxh" && <Lim />}
         {inhalt}
       </span>
       {schritt ? <span className="dq-schritt rechts"><MitWurzeln text={schritt} /></span> : <Status s={status} />}
@@ -223,8 +239,8 @@ export function DifferenzenquotientTrainer({ ohneKopf = false }) {
   const [eigenPos, setEigenPos] = useState(0);
   const [eigenOffen, setEigenOffen] = useState(false);
   const [eigenFehler, setEigenFehler] = useState("");
-  const [zeilen, setZeilen] = useState([leerEinsetzen()]);
-  const [feld, setFeld] = useState("a");
+  const [zeilen, setZeilen] = useState(START);
+  const [feld, setFeld] = useState("text");
   const [pos, setPos] = useState(0);
   const [offen, setOffen] = useState(false);
   const [bilanz, setBilanz] = useState({ richtig: 0, gesamt: 0 });
@@ -232,6 +248,9 @@ export function DifferenzenquotientTrainer({ ohneKopf = false }) {
 
   const stelle = form === "stelle" ? x0 : null;
   const weg = useMemo(() => musterweg(auf, stelle), [auf, stelle]);
+  const vorWeg = useMemo(() => fxhWeg(auf, stelle), [auf, stelle]);
+  // Musterweg nach der Vorbereitung: ins erste Feld kommt das fertig ausgerechnete f(x+h), das Ausmultiplizieren im Bruch entfällt
+  const musterZeilen = useMemo(() => weg.map((m, i) => (i === 0 ? { ...m, a: vorWeg[vorWeg.length - 1] } : m)).filter((m) => m.label !== "Ausmultiplizieren"), [weg, vorWeg]);
 
   // Auswahlfelder lassen die Seitenposition, wie sie ist (wie im Ableitungstrainer)
   const festhalten = (fn) => {
@@ -245,7 +264,7 @@ export function DifferenzenquotientTrainer({ ohneKopf = false }) {
   const neustart = (a, x) => {
     setAuf(a);
     if (x !== undefined) setX0(x);
-    setZeilen([leerEinsetzen()]); setFeld("a"); setPos(0); setOffen(false); setMusterAuf(false);
+    setZeilen(START()); setFeld("text"); setPos(0); setOffen(false); setMusterAuf(false);
   };
   const neueFunktion = (t = typ, st = stufe, q = quelle) => {
     const a = q === "zufall" ? neueAufgabe(null, st) : q === "eigen" ? auf : neueAufgabe(t.id, st);
@@ -263,11 +282,11 @@ export function DifferenzenquotientTrainer({ ohneKopf = false }) {
     neustart({ ...a, art: "eigen" }, stelleOk(a, x0) ? undefined : stelleZu(a));
     setEigenOffen(false);
   };
-  const formSetzen = (f) => { setForm(f); setZeilen([leerEinsetzen()]); setFeld("a"); setPos(0); setOffen(false); setMusterAuf(false); };
+  const formSetzen = (f) => { setForm(f); setZeilen(START()); setFeld("text"); setPos(0); setOffen(false); setMusterAuf(false); };
   const x0Setzen = (delta) => {
     let v = x0 + delta, schutz = 0;
     while (!stelleOk(auf, v) && schutz++ < 12) v += delta || 1;
-    setX0(v); setZeilen([leerEinsetzen()]); setFeld("a"); setPos(0); setOffen(false); setMusterAuf(false);
+    setX0(v); setZeilen(START()); setFeld("text"); setPos(0); setOffen(false); setMusterAuf(false);
   };
 
   const aktiv = zeilen.length - 1;
@@ -288,8 +307,21 @@ export function DifferenzenquotientTrainer({ ohneKopf = false }) {
     if (!offen || (name && name !== feld)) { setPos(textVon(letzte, f).length); setOffen(true); } else if (!name) setOffen(false);
   };
 
+  /* Nach der Vorbereitung öffnet sich der Bruch: erstes Feld = das ausgerechnete f(x+h), zweites Feld wartet */
+  const bruchOeffnen = (basis, fxhText) => {
+    setZeilen([...basis, leerEinsetzen(fxhText)]);
+    setFeld("b"); setPos(0); setOffen(true);
+  };
+
   const pruefen = () => {
     if (letzteFertig) return;
+    if (letzte.art === "fxh") {
+      const r = pruefeFxh(auf, stelle, letzte.text);
+      const neu = zeilen.map((z, i) => (i === aktiv ? { ...z, status: r.ok ? "richtig" : "falsch", hinweis: r.hinweis, versuche: z.versuche + 1 } : z));
+      buchen({ richtig: !!r.ok, gruppe: "diffq-fxh", stufe, art: auf.art });
+      if (r.ok) bruchOeffnen(neu, letzte.text); else setZeilen(neu);
+      return;
+    }
     if (letzte.art === "einsetzen") {
       const r = pruefeEinsetzen(auf, stelle, letzte.a, letzte.b);
       const neu = { ...letzte, sa: r.a.ok ? "richtig" : "falsch", sb: r.b.ok ? "richtig" : "falsch", ha: r.a.hinweis, hb: r.b.hinweis, versuche: letzte.versuche + 1 };
@@ -314,11 +346,16 @@ export function DifferenzenquotientTrainer({ ohneKopf = false }) {
     setFeld("text"); setPos(t.length); setOffen(true);
   };
   const zeileEntfernen = () => {
-    if (zeilen.length < 2) return;
+    if (zeilen.length < 3) return;   // Vorbereitung und Bruch bleiben
     setZeilen(zeilen.slice(0, -1)); setOffen(false);
   };
   const loesungZeigen = () => {
     const mw = weg;
+    if (letzte.art === "fxh") {
+      const text = vorWeg[vorWeg.length - 1];
+      bruchOeffnen(zeilen.map((z, i) => (i === aktiv ? { ...z, text, status: "gezeigt", hinweis: "" } : z)), text);
+      return;
+    }
     if (letzte.art === "einsetzen") {
       const m = mw[0];
       setZeilen(zeilen.map((z, i) => (i === aktiv ? { ...z, a: m.a, b: m.b, sa: "gezeigt", sb: "gezeigt", ha: "", hb: "" } : z)));
@@ -343,7 +380,7 @@ export function DifferenzenquotientTrainer({ ohneKopf = false }) {
   ];
   const regelText = quelle === "typ" ? typ.regel : quelle === "zufall" ? "Zufallsfunktion" : "Eigene Funktion";
   const schritte = letzteFertig && !fertig ? WEITER[letzte.art] : [];
-  const platzhalter = letzte.art === "einsetzen" ? (feld === "a" ? `f(${stelle === null ? "x" : zahlText(stelle)}+h) eingeben` : `f(${stelle === null ? "x" : zahlText(stelle)}) eingeben`)
+  const platzhalter = letzte.art === "fxh" ? (stelle === null ? "f(x+h): jedes x durch (x+h) ersetzen" : `(${zahlText(stelle)}+h) für x einsetzen`) : letzte.art === "einsetzen" ? (feld === "a" ? `f(${stelle === null ? "x" : zahlText(stelle)}+h) eingeben` : `f(${stelle === null ? "x" : zahlText(stelle)}) eingeben`)
     : letzte.art === "limes" ? "h = 0 einsetzen und vereinfachen" : "Term mit x und h";
 
   return (
@@ -435,20 +472,22 @@ export function DifferenzenquotientTrainer({ ohneKopf = false }) {
 
               {modus === "auto" ? (
                 <div className="dq-rechnung" data-diffq-muster>
+                  <VorWeg zeilen={vorWeg} x0={stelle} />
                   <Vorlage x0={stelle} />
-                  {weg.map((m, i) => (
+                  {musterZeilen.map((m, i) => (
                     <Zeile key={i} z={m.art === "einsetzen" ? { ...leerEinsetzen(), a: m.a, b: m.b, sa: "richtig", sb: "richtig" } : { ...leerZeile(m.art, m.text), status: "richtig" }}
                       x0={stelle} aktiv={false} feld="" setFeld={() => {}} pos={0} setPos={() => {}} onKlick={() => {}} label="=" schritt={m.label} />
                   ))}
-                  {weg.length <= 2 && <p style={{ fontSize: 13.5, color: C.grau, margin: "6px 12px 0", lineHeight: 1.6 }}>Für diese Funktion zeigt die App nur das Einsetzen und das Ergebnis – die Umformung dazwischen ist dein Teil.</p>}
+                  {musterZeilen.length <= 2 && <p style={{ fontSize: 13.5, color: C.grau, margin: "6px 12px 0", lineHeight: 1.6 }}>Für diese Funktion zeigt die App nur das Einsetzen und das Ergebnis – die Umformung dazwischen ist dein Teil.</p>}
                 </div>
               ) : (
                 <div className="dq-rechnung" data-diffq-rechnung>
-                  <Vorlage x0={stelle} />
                   {zeilen.map((z, i) => (
                     <div key={i}>
+                      {/* Die Vorbereitung (f(x+h) ausrechnen) steht über der Vorlage, der Bruch darunter */}
+                      {i === 1 && <Vorlage x0={stelle} />}
                       <Zeile z={z} x0={stelle} aktiv={i === aktiv && !letzteFertig} offen={offen} feld={feld} setFeld={setFeld} pos={pos} setPos={setPos}
-                        onKlick={(name) => oeffnen(name)} label="=" />
+                        onKlick={(name) => oeffnen(name)} label={z.art === "fxh" ? labelFxh(stelle) : "="} />
                       {z.art === "einsetzen" && z.ha && <p className="dq-hinweis">1. Feld: {z.ha}</p>}
                       {z.art === "einsetzen" && z.hb && <p className="dq-hinweis">2. Feld: {z.hb}</p>}
                       {z.art !== "einsetzen" && z.hinweis && <p className="dq-hinweis">{z.hinweis}</p>}
@@ -461,11 +500,12 @@ export function DifferenzenquotientTrainer({ ohneKopf = false }) {
                                 Lösung zeigen
                               </button>
                             )}
-                            {i > 0 && <button type="button" className="dq-nebenknopf" onClick={zeileEntfernen}>Zeile entfernen</button>}
+                            {i > 1 && <button type="button" className="dq-nebenknopf" onClick={zeileEntfernen}>Zeile entfernen</button>}
                           </div>
                           <Eingabe text={aktText} setText={setAktText} pos={pos} setPos={setPos} onEnter={pruefen} platzhalter={platzhalter} variablen={["h"]} />
                         </EingabePopup>
                       )}
+                      {i === 0 && zeilen.length === 1 && <Vorlage x0={stelle} />}
                       {i === aktiv && schritte.length > 0 && (
                         <div className="dq-weiter" data-diffq-weiter>
                           <span>Nächste Zeile:</span>
@@ -493,7 +533,9 @@ export function DifferenzenquotientTrainer({ ohneKopf = false }) {
                       </div>
                       {musterAuf && (
                         <div className="dq-rechnung" style={{ marginTop: 14, textAlign: "left" }}>
-                          {weg.map((m, i) => (
+                          <VorWeg zeilen={vorWeg} x0={stelle} />
+                          <Vorlage x0={stelle} />
+                          {musterZeilen.map((m, i) => (
                             <Zeile key={i} z={m.art === "einsetzen" ? { ...leerEinsetzen(), a: m.a, b: m.b, sa: "richtig", sb: "richtig" } : { ...leerZeile(m.art, m.text), status: "richtig" }}
                               x0={stelle} aktiv={false} feld="" setFeld={() => {}} pos={0} setPos={() => {}} onKlick={() => {}} label="=" schritt={m.label} />
                           ))}
@@ -503,7 +545,7 @@ export function DifferenzenquotientTrainer({ ohneKopf = false }) {
                   )}
                   {!fertig && !letzteFertig && !offen && (
                     <p style={{ fontSize: 13, color: C.grau, margin: "4px 12px 0", lineHeight: 1.6 }}>
-                      {letzte.art === "einsetzen" ? "Tipp auf ein Feld im Bruch und setze ein. OK prüft beide Felder." : letzte.art === "limes" ? "Setz h = 0 ein und vereinfache – OK prüft." : "Bearbeite die Zeile – OK prüft, ob sie zur Zeile darüber gleichwertig ist."}
+                      {letzte.art === "fxh" ? "Erst die Vorbereitung: Rechne f(x+h) aus – tipp auf das Feld. Danach baust du den Bruch." : letzte.art === "einsetzen" ? "Tipp auf ein Feld im Bruch und setze ein. OK prüft beide Felder." : letzte.art === "limes" ? "Setz h = 0 ein und vereinfache – OK prüft." : "Bearbeite die Zeile – OK prüft, ob sie zur Zeile darüber gleichwertig ist."}
                     </p>
                   )}
                 </div>
