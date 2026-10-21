@@ -17,6 +17,7 @@ import { IchHaengeFest } from "./funcHilfe.jsx";
 import { GrosserKnopf, hilfeKontext, hinweis, kicker, zw } from "./ui2.jsx";
 import { Aufklapp, ModusLeiste, Seite, SchrittFolge } from "./ui3.jsx";
 import { WURZEL_ARTEN, wurzelAufgabe } from "./wurzelGen.js";
+import { wahlDrehen } from "./antwortReihenfolge.js";
 import { useKarte } from "./funcZahlenDesktop.jsx";
 import { Ueben as BruchtermeUeben } from "./funcBruchterme.jsx";
 
@@ -28,13 +29,11 @@ export function neueWurzelAufgabe(art) {
   return { id: ++zaehler, ...wurzelAufgabe(art) };
 }
 
-/* Reihenfolge der Antworten je Aufgabe drehen, damit die richtige nicht immer vorn steht */
-const drehe = (l, n) => { const k = ((n % l.length) + l.length) % l.length; return [...l.slice(k), ...l.slice(0, k)]; };
 
 export function wurzelSchritte(au) {
   const schritte = wurzelSchritteRoh(au);
   const s0 = (au.id || 0) + (au.k || 0) + (au.p || 0) + (au.a || 0);
-  return schritte.map((st, i) => (st.typ === "wahl" ? { ...st, optionen: drehe(st.optionen, s0 + i) } : st));
+  return wahlDrehen(schritte, s0);   // richtige Antwort nicht immer vorn
 }
 
 function wurzelSchritteRoh(au) {

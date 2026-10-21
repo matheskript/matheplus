@@ -15,6 +15,7 @@ import { IchHaengeFest } from "./funcHilfe.jsx";
 import { GrosserKnopf, hilfeKontext, hinweis, karte, kicker, zw } from "./ui2.jsx";
 import { Aufklapp, ModusLeiste, Seite, SchrittFolge, zt } from "./ui3.jsx";
 import { TERM_ARTEN, termAufgabe, xMinus } from "./bruchGen.js";
+import { wahlDrehen } from "./antwortReihenfolge.js";
 import { Merke, Regler, SCHRIFT, WertZeile } from "./geoUi.jsx";
 import { Arbeitsflaeche, BildKarte, useBreite, useDesktop } from "./arbeitsflaeche.jsx";
 import { ErgebnisKarte, StellKarte, useKarte } from "./funcZahlenDesktop.jsx";
@@ -278,7 +279,7 @@ export function Ueben() {
   const [au, setAu] = useState(() => neueAufgabe());
   const [stand, setStand] = useState(0);
   const neu = (a = art) => { setAu(neueAufgabe(a === "mix" ? null : a)); setStand(0); };
-  const schritte = useMemo(() => schritteVon(au), [au]);
+  const schritte = useMemo(() => wahlDrehen(schritteVon(au), au.id + (au.p || 0)), [au]);   // richtige Antwort nicht immer vorn
   const ARTEN = [["mix", zw("Gemischt", "Mixed")], ...TERM_ARTEN.map((a) => [a, zw(TITEL[a][0], TITEL[a][1])])];
   const karte = useKarte();   // Desktop: feiner Rahmen statt Schatten
   return (
