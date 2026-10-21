@@ -25,7 +25,8 @@ import { neueLageGE, neueLageGG, neuePunktprobe, neuesVektorPaar } from "./aufga
 import {
   dez, laenge, lageGE, lageGG, nullVek, punktprobe, q, qAdd, qGleich, qLies, qMul, qNum, qTex, skalar, winkelGeradeEbene, winkelZwischen,
 } from "./rechnen2.js";
-import { Bild, Ergebnis, FallWahl, Fusszeile, HauptKnopf, Hinweis, ModusReiter, ObjektBox, ObjektReihe, RSchritt, Rechenweg, Tafel, TippKacheln, VF, VekSeite } from "./vekUi.jsx";
+import { Bild, Ergebnis, FallWahl, Fusszeile, HauptKnopf, Hinweis, ModusReiter, ObjektBox, ObjektReihe, RSchritt, Rechenweg, Tafel, TippKacheln, VF, VekArbeit, VekBild, VekSeite } from "./vekUi.jsx";
+import { useDesktop } from "./arbeitsflaeche.jsx";
 
 /* Objektfarben: g (erstes Objekt) Blau, h / E / P (zweites Objekt) Gold, Ergebnis Smaragd */
 const F1 = VF.eins, F2 = VF.zwei, F2T = VF.zweiText;
@@ -50,6 +51,20 @@ const mk = (x) => (x.z < 0 ? `(${qTex(x)})` : qTex(x));
 const punktQ = (S) => `(${S.map((x) => qTex(x)).join(" | ")})`;
 const numPunkt = (S) => S.map(qNum);
 const mkI = (x) => (x < 0 ? `(${n(x)})` : n(x));
+
+/* ---------- Desktop (ab 840 px, DESKTOP-STIL.md) ----------
+   Ein Modus: Boxen und Vermutung links (VekArbeit), Bild rechts mit Werkzeugleiste, Rechnung darunter über die volle Breite.
+   Tafeln in der Arbeitsfläche ohne Abstand oben und ohne Schatten (feine Karten wie die Geschwister-Seiten). */
+const TAFEL_BREIT = { marginTop: 0, boxShadow: "none" };
+function ModusBreit({ id, links, rechts, unten, fuss }) {
+  return (
+    <div data-vek-modus={id} data-ger-breit={id}>
+      <VekArbeit linksBreite={360} links={links} rechts={rechts} />
+      {unten && <div data-ger-rechnung="" style={{ marginTop: 6 }}>{unten}</div>}
+      {fuss}
+    </div>
+  );
+}
 
 /* ---------- Objekt-Boxen ---------- */
 
@@ -128,18 +143,20 @@ function Punktprobe() {
     pruefen: [zw("Haben alle Zeilen dasselbe t?", "Do all rows have the same t?"), zw("Setze das t in die Gerade ein: Kommt P heraus?", "Plug t into the line: does P come out?"), zw("Ein einziger Widerspruch genügt für „nicht auf g“.", "A single contradiction is enough for “not on g”.")],
     regeln: [],
   });
-  return (
-    <div data-vek-modus="probe">
-      <ObjektReihe>
-        <GeradeBox name="g" A={au.A} u={au.u} farbe={F1} />
-        <PunktBox name="P" P={au.P} farbe={F2} />
-      </ObjektReihe>
-      <div style={{ marginTop: 12 }}>
-        <Raum3 key={[...au.A, ...au.u, ...au.P].join()} gerade={{ p: au.A, r: au.u, farbe: F1 }}
-          punkte={[{ p: au.A, label: "A", farbe: F1 }, { p: au.P, label: "P", farbe: F2T }, { p: pt, label: "Aₜ", farbe: FS }]}
-          legende={[{ text: "g", farbe: F1 }, { text: "P", farbe: F2, art: "punkt" }, { text: "Aₜ", farbe: FS, art: "punkt" }]} />
-      </div>
-      <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "6px 12px", marginTop: 10, background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 14, padding: "10px 12px" }}>
+  const desktop = useDesktop();
+  const boxen = (
+    <ObjektReihe>
+      <GeradeBox name="g" A={au.A} u={au.u} farbe={F1} />
+      <PunktBox name="P" P={au.P} farbe={F2} />
+    </ObjektReihe>
+  );
+  const raum = (breit) => (
+    <Raum3 key={[...au.A, ...au.u, ...au.P].join()} gerade={{ p: au.A, r: au.u, farbe: F1 }}
+      punkte={[{ p: au.A, label: "A", farbe: F1 }, { p: au.P, label: "P", farbe: F2T }, { p: pt, label: "Aₜ", farbe: FS }]}
+      legende={[{ text: "g", farbe: F1 }, { text: "P", farbe: F2, art: "punkt" }, { text: "Aₜ", farbe: FS, art: "punkt" }]} arbeitsflaeche={breit} />
+  );
+  const regler = (
+      <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "6px 12px", marginTop: desktop ? 0 : 10, background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 14, padding: "10px 12px" }}>
         <label style={{ display: "flex", alignItems: "center", gap: 10, flex: "1 1 220px", fontSize: 14, fontWeight: 700, color: C.tinte }}>
           <span style={{ whiteSpace: "nowrap" }}>{zw("Parameter", "Parameter")} t</span>
           <span style={{ minWidth: 42, height: 28, borderRadius: 8, background: VF.dreiHell, color: "#1F6E44", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>{kurz(t)}</span>
@@ -147,8 +164,9 @@ function Punktprobe() {
         </label>
         <span style={{ fontSize: 13.5, fontWeight: 600, color: C.grau, whiteSpace: "nowrap" }}>Aₜ({pt.map(kurz).join(" | ")})</span>
       </div>
-
-      <Tafel nr={1} titel={zw("Deine Vermutung", "Your guess")} text={zw("Liegt P auf der Geraden g? Bewege t und schau, ob Aₜ den Punkt P trifft.", "Is P on the line g? Move t and see whether Aₜ hits P.")}>
+  );
+  const vermutung = (stil) => (
+      <Tafel nr={1} titel={zw("Deine Vermutung", "Your guess")} text={zw("Liegt P auf der Geraden g? Bewege t und schau, ob Aₜ den Punkt P trifft.", "Is P on the line g? Move t and see whether Aₜ hits P.")} stil={stil}>
         <TippKacheln label={zw("Vermutung", "Guess")} wert={vm} setWert={setVm} loesung={vm !== null ? loesung : undefined}
           optionen={[["auf", zw("P liegt auf g", "P is on g"), "auf"], ["nicht", zw("P liegt nicht auf g", "P is not on g"), "nicht-auf"]]} />
         {vm !== null && (
@@ -157,8 +175,8 @@ function Punktprobe() {
           </Hinweis>
         )}
       </Tafel>
-
-      {vm !== null && (
+  );
+  const rechnung = vm !== null && (
         <Tafel nr={2} titel={zw("Rechnung", "Calculation")}>
           <Rechenweg>
             <RSchritt nr="1" titel={zw("Ansatz: P = A + t · u", "Set up: P = A + t · u")}>
@@ -172,8 +190,25 @@ function Punktprobe() {
             </Ergebnis>
           </Rechenweg>
         </Tafel>
-      )}
-      <Fusszeile neu={neu} hilfe={<IchHaengeFest kontext={hilfe} />} />
+  );
+  const fuss = <Fusszeile neu={neu} hilfe={<IchHaengeFest kontext={hilfe} />} />;
+
+  if (desktop) {
+    return <ModusBreit id="probe" links={<>{boxen}{regler}{vermutung(TAFEL_BREIT)}</>} rechts={raum(true)} unten={rechnung} fuss={fuss} />;
+  }
+
+  return (
+    <div data-vek-modus="probe">
+      {boxen}
+      <div style={{ marginTop: 12 }}>
+        {raum(false)}
+      </div>
+      {regler}
+
+      {vermutung()}
+
+      {rechnung}
+      {fuss}
     </div>
   );
 }
@@ -222,24 +257,26 @@ function GeradeVsGerade() {
   const dritteLinks = L.t ? qAdd(q(A[L.dritte]), qMul(L.t, q(u[L.dritte]))) : null;
   const dritteRechts = L.s ? qAdd(q(B[L.dritte]), qMul(L.s, q(v[L.dritte]))) : null;
   const ab = Object.keys(ART_GG);
-  return (
-    <div data-vek-modus="gg">
-      <div style={{ marginBottom: 12 }}>
-        <FallWahl titel={zw("Übungsfall", "Practice case")} label={zw("Fall wählen", "Choose a case")} wert={fall} setWert={waehleFall}
-          optionen={[["zufall", zw("Zufall", "Random"), "zufall"], ...ab.map((id) => [id, zw(ART_GG[id][0], ART_GG[id][1]), id])]} />
-      </div>
-      <ObjektReihe>
-        <GeradeBox name="g" A={A} u={u} farbe={F1} par="t" />
-        <GeradeBox name="h" A={B} u={v} farbe={F2} par="s" />
-      </ObjektReihe>
-      <div style={{ marginTop: 12 }}>
-        <Raum3 key={[...A, ...u, ...B, ...v].join()}
-          punkte={[{ p: A, label: "A", farbe: F1 }, { p: B, label: "B", farbe: F2T }, ...(L.S && vm ? [{ p: numPunkt(L.S), label: "S", farbe: FS }] : [])]}
-          gerade={{ p: A, r: u, farbe: F1, ohnePfeil: true }} gerade2={{ p: B, r: v, farbe: F2 }}
-          legende={[{ text: "g", farbe: F1 }, { text: "h", farbe: F2 }, L.S && vm ? { text: "S", farbe: FS, art: "punkt" } : null]} />
-      </div>
-
-      <Tafel nr={1} titel={zw("Deine Vermutung", "Your guess")} text={zw("Wie liegen g und h zueinander? Dreh das Bild, bevor du dich festlegst.", "How are g and h positioned? Rotate the picture before you decide.")}>
+  const desktop = useDesktop();
+  const fallWahl = (titel) => (
+    <FallWahl titel={titel} label={zw("Fall wählen", "Choose a case")} wert={fall} setWert={waehleFall}
+      optionen={[["zufall", zw("Zufall", "Random"), "zufall"], ...ab.map((id) => [id, zw(ART_GG[id][0], ART_GG[id][1]), id])]} />
+  );
+  const boxen = (
+    <ObjektReihe>
+      <GeradeBox name="g" A={A} u={u} farbe={F1} par="t" />
+      <GeradeBox name="h" A={B} u={v} farbe={F2} par="s" />
+    </ObjektReihe>
+  );
+  const raum = (breit) => (
+    <Raum3 key={[...A, ...u, ...B, ...v].join()}
+      punkte={[{ p: A, label: "A", farbe: F1 }, { p: B, label: "B", farbe: F2T }, ...(L.S && vm ? [{ p: numPunkt(L.S), label: "S", farbe: FS }] : [])]}
+      gerade={{ p: A, r: u, farbe: F1, ohnePfeil: true }} gerade2={{ p: B, r: v, farbe: F2 }}
+      legende={[{ text: "g", farbe: F1 }, { text: "h", farbe: F2 }, L.S && vm ? { text: "S", farbe: FS, art: "punkt" } : null]}
+      arbeitsflaeche={breit} gruppen={breit ? [{ titel: zw("Übungsfall", "Practice case"), inhalt: fallWahl(null) }] : []} />
+  );
+  const vermutung = (stil) => (
+      <Tafel nr={1} titel={zw("Deine Vermutung", "Your guess")} text={zw("Wie liegen g und h zueinander? Dreh das Bild, bevor du dich festlegst.", "How are g and h positioned? Rotate the picture before you decide.")} stil={stil}>
         <TippKacheln label={zw("Vermutung", "Guess")} wert={vm} setWert={setVm} loesung={vm ? au.art : undefined}
           optionen={ab.map((id) => [id, zw(TIPP_GG[id][0], TIPP_GG[id][1]), id])} />
         {vm && (
@@ -249,8 +286,8 @@ function GeradeVsGerade() {
           </Hinweis>
         )}
       </Tafel>
-
-      {vm && (
+  );
+  const rechnung = vm && (
         <Tafel nr={2} titel={zw("Rechnung", "Calculation")}>
           <Rechenweg>
             {pk ? (
@@ -293,8 +330,27 @@ function GeradeVsGerade() {
             </Ergebnis>
           </Rechenweg>
         </Tafel>
-      )}
-      <Fusszeile neu={() => neu()} hilfe={<IchHaengeFest kontext={hilfe} />} />
+  );
+  const fuss = <Fusszeile neu={() => neu()} hilfe={<IchHaengeFest kontext={hilfe} />} />;
+
+  if (desktop) {
+    return <ModusBreit id="gg" links={<>{boxen}{vermutung(TAFEL_BREIT)}</>} rechts={raum(true)} unten={rechnung} fuss={fuss} />;
+  }
+
+  return (
+    <div data-vek-modus="gg">
+      <div style={{ marginBottom: 12 }}>
+        {fallWahl(zw("Übungsfall", "Practice case"))}
+      </div>
+      {boxen}
+      <div style={{ marginTop: 12 }}>
+        {raum(false)}
+      </div>
+
+      {vermutung()}
+
+      {rechnung}
+      {fuss}
     </div>
   );
 }
@@ -332,23 +388,25 @@ function GeradeVsEbene() {
     pruefen: [zw("Erfüllt der Schnittpunkt die Ebenengleichung?", "Does the intersection point satisfy the plane equation?"), zw("Liegt er auf der Geraden (mit dem t)?", "Is it on the line (with that t)?"), zw("Bei 0 = 0 ist die Gerade enthalten, bei 0 = Zahl ≠ 0 parallel.", "0 = 0 means contained, 0 = non-zero number means parallel.")],
     regeln: [{ name: "Orthogonalität", bereich: "vektoren" }],
   });
-  return (
-    <div data-vek-modus="ge">
-      <div style={{ marginBottom: 12 }}>
-        <FallWahl titel={zw("Übungsfall", "Practice case")} label={zw("Fall wählen", "Choose a case")} wert={fall} setWert={waehleFall}
-          optionen={[["zufall", zw("Zufall", "Random"), "zufall"], ["schneidend", zw("schneidend", "intersecting"), "ge-schneidend"], ["parallel", zw("parallel", "parallel"), "ge-parallel"], ["enthalten", zw("enthalten", "contained"), "ge-enthalten"]]} />
-      </div>
-      <ObjektReihe>
-        <GeradeBox name="g" A={A} u={u} farbe={F1} par="t" />
-        <EbeneBox name="E" nv={nv} d={d} farbe={F2} />
-      </ObjektReihe>
-      <div style={{ marginTop: 12 }}>
-        <Raum3 key={[...A, ...u, ...nv, d].join()} punkte={[{ p: A, label: "A", farbe: F1 }, ...(L.S && vm ? [{ p: numPunkt(L.S), label: "S", farbe: FS }] : [])]}
-          gerade={{ p: A, r: u, farbe: F1 }} ebene={{ n: nv, d, farbe: F2 }}
-          legende={[{ text: "g", farbe: F1 }, { text: "E", farbe: F2, art: "flaeche" }, L.S && vm ? { text: "S", farbe: FS, art: "punkt" } : null]} />
-      </div>
-
-      <Tafel nr={1} titel={zw("Deine Vermutung", "Your guess")} text={zw("Wie liegt die Gerade g zur Ebene E?", "How does the line g lie relative to the plane E?")}>
+  const desktop = useDesktop();
+  const fallWahl = (titel) => (
+    <FallWahl titel={titel} label={zw("Fall wählen", "Choose a case")} wert={fall} setWert={waehleFall}
+      optionen={[["zufall", zw("Zufall", "Random"), "zufall"], ["schneidend", zw("schneidend", "intersecting"), "ge-schneidend"], ["parallel", zw("parallel", "parallel"), "ge-parallel"], ["enthalten", zw("enthalten", "contained"), "ge-enthalten"]]} />
+  );
+  const boxen = (
+    <ObjektReihe>
+      <GeradeBox name="g" A={A} u={u} farbe={F1} par="t" />
+      <EbeneBox name="E" nv={nv} d={d} farbe={F2} />
+    </ObjektReihe>
+  );
+  const raum = (breit) => (
+    <Raum3 key={[...A, ...u, ...nv, d].join()} punkte={[{ p: A, label: "A", farbe: F1 }, ...(L.S && vm ? [{ p: numPunkt(L.S), label: "S", farbe: FS }] : [])]}
+      gerade={{ p: A, r: u, farbe: F1 }} ebene={{ n: nv, d, farbe: F2 }}
+      legende={[{ text: "g", farbe: F1 }, { text: "E", farbe: F2, art: "flaeche" }, L.S && vm ? { text: "S", farbe: FS, art: "punkt" } : null]}
+      arbeitsflaeche={breit} gruppen={breit ? [{ titel: zw("Übungsfall", "Practice case"), inhalt: fallWahl(null) }] : []} />
+  );
+  const vermutung = (stil) => (
+      <Tafel nr={1} titel={zw("Deine Vermutung", "Your guess")} text={zw("Wie liegt die Gerade g zur Ebene E?", "How does the line g lie relative to the plane E?")} stil={stil}>
         <TippKacheln spalten={3} label={zw("Vermutung", "Guess")} wert={vm} setWert={setVm} loesung={vm ? au.art : undefined}
           optionen={Object.keys(ART_GE).map((id) => [id, zw(TIPP_GE[id][0], TIPP_GE[id][1]), `ge-${id}`])} />
         {vm && (
@@ -357,8 +415,8 @@ function GeradeVsEbene() {
           </Hinweis>
         )}
       </Tafel>
-
-      {vm && (
+  );
+  const rechnung = vm && (
         <Tafel nr={2} titel={zw("Rechnung", "Calculation")}>
           <Rechenweg>
             <RSchritt nr="1" titel={zw("Richtung u gegen Normalenvektor n", "Direction u versus normal vector n")}>
@@ -390,8 +448,27 @@ function GeradeVsEbene() {
             </Ergebnis>
           </Rechenweg>
         </Tafel>
-      )}
-      <Fusszeile neu={() => neu()} hilfe={<IchHaengeFest kontext={hilfe} />} />
+  );
+  const fuss = <Fusszeile neu={() => neu()} hilfe={<IchHaengeFest kontext={hilfe} />} />;
+
+  if (desktop) {
+    return <ModusBreit id="ge" links={<>{boxen}{vermutung(TAFEL_BREIT)}</>} rechts={raum(true)} unten={rechnung} fuss={fuss} />;
+  }
+
+  return (
+    <div data-vek-modus="ge">
+      <div style={{ marginBottom: 12 }}>
+        {fallWahl(zw("Übungsfall", "Practice case"))}
+      </div>
+      {boxen}
+      <div style={{ marginTop: 12 }}>
+        {raum(false)}
+      </div>
+
+      {vermutung()}
+
+      {rechnung}
+      {fuss}
     </div>
   );
 }
@@ -430,10 +507,12 @@ const bildRahmen = { width: "100%", display: "block", background: "radial-gradie
 const BildRahmen = ({ children }) => <div style={{ ...bildRahmen, display: "flex", justifyContent: "center" }}><div style={{ width: "100%", maxWidth: 460 }}>{children}</div></div>;
 
 /* Der Winkel zwischen a und b in ihrer gemeinsamen Ebene gezeichnet (Längen im richtigen Verhältnis) */
-function WinkelBild({ a, b, projektion = false, namen = ["a", "b"] }) {
+/* breite (Desktop): gemessene Breite in echten Pixeln – die Zeichnung wächst mit (Faktor f), Schrift und Striche bleiben gleich */
+function WinkelBild({ a, b, projektion = false, namen = ["a", "b"], breite = 0 }) {
   const la = laenge(a), lb = laenge(b);
   const phi = (winkelZwischen(a, b) * Math.PI) / 180;
-  const W = 300, H = 170, O = [150, 150], s = 110 / Math.max(la, lb);
+  const f = breite ? breite / 300 : 1;
+  const W = 300 * f, H = 170 * f, O = [150 * f, 150 * f], s = (110 * f) / Math.max(la, lb);
   const Ea = [O[0] + s * la, O[1]];
   const Eb = [O[0] + s * lb * Math.cos(phi), O[1] - s * lb * Math.sin(phi)];
   const Fuss = [Eb[0], O[1]];
@@ -461,19 +540,20 @@ function WinkelBild({ a, b, projektion = false, namen = ["a", "b"] }) {
 }
 
 /* Gerade und Ebene im Querschnitt: Winkel α zur Ebene, Normale dazu */
-function GeBild({ u, nv }) {
+function GeBild({ u, nv, breite = 0 }) {
   const alpha = (winkelGeradeEbene(u, nv) * Math.PI) / 180;
-  const W = 300, H = 160, O = [120, 120], L = 100;
+  const f = breite ? breite / 300 : 1;          // Desktop: echte Pixel, Schrift bleibt gleich groß
+  const W = 300 * f, H = 160 * f, O = [120 * f, 120 * f], L = 100 * f;
   const E = [O[0] + L * Math.cos(alpha), O[1] - L * Math.sin(alpha)];
   const R = 30;
   const grad = Math.round((alpha * 180) / Math.PI * 10) / 10;
   return (
     <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={zw("Winkel zwischen Gerade und Ebene", "Angle between line and plane")} style={{ width: "100%", display: "block" }}>
-      <rect x={20} y={O[1]} width={260} height={14} fill={VF.zweiHell} />
-      <line x1={20} y1={O[1]} x2={280} y2={O[1]} stroke={VF.zwei} strokeWidth="2.4" />
-      <text x={276} y={O[1] + 30} fontSize="12" fontWeight="700" textAnchor="end" fill={VF.zweiText}>E</text>
-      <line x1={O[0]} y1={O[1]} x2={O[0]} y2={20} stroke={VF.zwei} strokeWidth="1.6" strokeDasharray="4 3" />
-      <text x={O[0] + 6} y={26} fontSize="12" fontWeight="700" fill={VF.zweiText}>n</text>
+      <rect x={20 * f} y={O[1]} width={260 * f} height={14} fill={VF.zweiHell} />
+      <line x1={20 * f} y1={O[1]} x2={280 * f} y2={O[1]} stroke={VF.zwei} strokeWidth="2.4" />
+      <text x={276 * f} y={O[1] + 30} fontSize="12" fontWeight="700" textAnchor="end" fill={VF.zweiText}>E</text>
+      <line x1={O[0]} y1={O[1]} x2={O[0]} y2={20 * f} stroke={VF.zwei} strokeWidth="1.6" strokeDasharray="4 3" />
+      <text x={O[0] + 6} y={20 * f + 6} fontSize="12" fontWeight="700" fill={VF.zweiText}>n</text>
       <line x1={O[0] - 0.4 * (E[0] - O[0])} y1={O[1] + 0.4 * (O[1] - E[1])} x2={E[0]} y2={E[1]} stroke={farbA} strokeWidth="3" strokeLinecap="round" />
       <text x={E[0] + 6} y={E[1] - 2} fontSize="13" fontWeight="800" fill={farbA}>g</text>
       <path d={`M${O[0] + R},${O[1]} A${R},${R} 0 0 0 ${O[0] + R * Math.cos(alpha)},${O[1] - R * Math.sin(alpha)}`} fill="none" stroke={C.tinte} strokeWidth="1.6" />
@@ -582,17 +662,17 @@ function SkalarproduktVerstehen() {
     pruefen: [zw("Passt das Vorzeichen zum Bild?", "Does the sign match the picture?"), zw("Rechne die drei Produkte einzeln nach.", "Recompute the three products one by one."), zw("Bei 0 muss das Bild einen rechten Winkel zeigen.", "At 0 the picture must show a right angle.")],
     regeln: [{ name: "Orthogonalität", bereich: "vektoren" }],
   });
-  return (
-    <div data-vek-modus="skalar">
-      <VektorBoxen namen={["a", "b"]} arten={[zw("Vektor", "Vector"), zw("Vektor", "Vector")]} w={w} setW={setW} zuruecksetzen={() => { setPr(null); setVm(null); setWinkelAn(false); }} />
-      <div style={{ marginTop: 12 }}>{fehler ? <Hinweis art="warn">{fehler}</Hinweis> : <BildRahmen><WinkelBild a={a} b={b} projektion={!!geprueft} /></BildRahmen>}</div>
-      {!fehler && (
-        <>
-          <Tafel nr={1} titel={zw("Deine Vermutung", "Your guess")} text={zw("Welcher Winkel liegt zwischen a und b?", "Which angle lies between a and b?")}>
+  const desktop = useDesktop();
+  const boxen = <VektorBoxen namen={["a", "b"]} arten={[zw("Vektor", "Vector"), zw("Vektor", "Vector")]} w={w} setW={setW} zuruecksetzen={() => { setPr(null); setVm(null); setWinkelAn(false); }} />;
+  const fehlerText = fehler && <Hinweis art="warn">{fehler}</Hinweis>;
+  const vermutung = (stil) => (
+          <Tafel nr={1} titel={zw("Deine Vermutung", "Your guess")} text={zw("Welcher Winkel liegt zwischen a und b?", "Which angle lies between a and b?")} stil={stil}>
             <TippKacheln spalten={3} label={zw("Winkelart", "Type of angle")} wert={vm} setWert={(v) => { setVm(v); setPr(null); }}
               loesung={geprueft ? art : undefined} optionen={winkelOptionen()} />
           </Tafel>
-          <Tafel nr={2} titel={zw("Rechne das Skalarprodukt", "Compute the dot product")}>
+  );
+  const rechnen = (stil) => (
+          <Tafel nr={2} titel={zw("Rechne das Skalarprodukt", "Compute the dot product")} stil={stil}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
               <span style={{ ...zeile, fontSize: 17 }}><M t="\vec{a} \cdot \vec{b} =" /></span>
               <ZahlFeld wert={antwort} setWert={(v) => { setAntwort(v); setPr(null); }} label={zw("Skalarprodukt", "Dot product")} onEnter={pruefen} breite={84} />
@@ -601,7 +681,8 @@ function SkalarproduktVerstehen() {
             {vm === null && <p style={{ ...erklaer, fontSize: 12.5 }}>{zw("Wähle zuerst oben deine Vermutung.", "Choose your guess above first.")}</p>}
             {pr && <Hinweis art={pr.art === "warn" ? "warn" : pr.art}>{pr.text}{geprueft && (vm === art ? zw(" Die Winkel-Vermutung stimmt auch.", " Your angle guess was right as well.") : zw(` Der Winkel ist aber ${art === "spitz" ? "spitz" : art === "stumpf" ? "stumpf" : "rechtwinklig"} – das Vorzeichen verrät es.`, ` But the angle is ${art === "spitz" ? "acute" : art === "stumpf" ? "obtuse" : "a right angle"} – the sign tells.`))}</Hinweis>}
           </Tafel>
-          {geprueft && (
+  );
+  const rechnung = geprueft && (
             <Tafel nr={3} titel={zw("Rechnung", "Calculation")}>
               <Rechenweg>
                 <RSchritt nr="1" titel={zw("Komponentenweise multiplizieren und addieren", "Multiply component-wise and add")}>
@@ -617,10 +698,33 @@ function SkalarproduktVerstehen() {
                 {winkelAn ? zw("Winkelrechnung ausblenden", "Hide the angle calculation") : zw("Und wie groß ist der Winkel genau?", "And what is the exact angle?")}
               </button>
             </Tafel>
-          )}
+  );
+  const fuss = <Fusszeile neu={neu} hilfe={<IchHaengeFest kontext={hilfe} />} />;
+
+  if (desktop) {
+    return (
+      <ModusBreit id="skalar"
+        links={<>{boxen}{!fehler && vermutung(TAFEL_BREIT)}</>}
+        rechts={fehlerText || <>
+          <VekBild>{(br) => <WinkelBild a={a} b={b} projektion={!!geprueft} breite={br} />}</VekBild>
+          {rechnen(TAFEL_BREIT)}
+        </>}
+        unten={!fehler && rechnung} fuss={fuss} />
+    );
+  }
+
+  return (
+    <div data-vek-modus="skalar">
+      {boxen}
+      <div style={{ marginTop: 12 }}>{fehler ? fehlerText : <BildRahmen><WinkelBild a={a} b={b} projektion={!!geprueft} /></BildRahmen>}</div>
+      {!fehler && (
+        <>
+          {vermutung()}
+          {rechnen()}
+          {rechnung}
         </>
       )}
-      <Fusszeile neu={neu} hilfe={<IchHaengeFest kontext={hilfe} />} />
+      {fuss}
     </div>
   );
 }
@@ -664,19 +768,19 @@ function Vektorwinkel() {
   });
   const ab = a && b ? skalar(a, b) : 0;
   const geprueft = pr && pr.art !== "warn";
-  return (
-    <div data-vek-modus="winkel">
-      <VektorBoxen namen={["a", "b"]} arten={[zw("Vektor", "Vector"), zw("Vektor", "Vector")]} w={w} setW={setW} zuruecksetzen={() => { setPr(null); setGeschaetzt(false); }} />
-      <div style={{ marginTop: 12 }}>{fehler ? <Hinweis art="warn">{fehler}</Hinweis> : <BildRahmen><WinkelBild a={a} b={b} /></BildRahmen>}</div>
-      {!fehler && (
-        <>
-          <Tafel nr={1} titel={zw("Schätze den Winkel", "Estimate the angle")} text={zw("Schieb den Regler auf den Winkel, den du im Bild siehst.", "Move the slider to the angle you see in the picture.")}>
+  const desktop = useDesktop();
+  const boxen = <VektorBoxen namen={["a", "b"]} arten={[zw("Vektor", "Vector"), zw("Vektor", "Vector")]} w={w} setW={setW} zuruecksetzen={() => { setPr(null); setGeschaetzt(false); }} />;
+  const fehlerText = fehler && <Hinweis art="warn">{fehler}</Hinweis>;
+  const schaetzen = (stil) => (
+          <Tafel nr={1} titel={zw("Schätze den Winkel", "Estimate the angle")} text={zw("Schieb den Regler auf den Winkel, den du im Bild siehst.", "Move the slider to the angle you see in the picture.")} stil={stil}>
             <label style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 14, fontWeight: 700 }}>
               <span style={{ minWidth: 52, height: 30, borderRadius: 8, background: VF.dreiHell, color: "#1F6E44", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{schaetz}°</span>
               <input type="range" min={0} max={180} step={1} value={schaetz} onChange={(e) => { setSchaetz(Number(e.target.value)); setGeschaetzt(true); }} aria-label={zw("Geschätzter Winkel", "Estimated angle")} style={{ flex: 1, accentColor: FS }} />
             </label>
           </Tafel>
-          <Tafel nr={2} titel={zw("Berechne den Winkel", "Compute the angle")}>
+  );
+  const rechnen = (stil) => (
+          <Tafel nr={2} titel={zw("Berechne den Winkel", "Compute the angle")} stil={stil}>
             <div role="group" aria-label={zw("Art des Winkels", "Kind of angle")} style={{ marginBottom: 12 }}>
               <FallWahl wert={gerade ? "gerade" : "vektor"} setWert={(x) => { setGerade(x === "gerade"); setPr(null); }}
                 optionen={[["vektor", zw("zwischen Vektoren (bis 180°)", "between vectors (up to 180°)"), "vektorwinkel"], ["gerade", zw("zwischen Geraden (bis 90°)", "between lines (up to 90°)"), "schneidend"]]} />
@@ -688,7 +792,8 @@ function Vektorwinkel() {
             </div>
             {pr && <Hinweis art={pr.art}>{pr.text}</Hinweis>}
           </Tafel>
-          {geprueft && (
+  );
+  const rechnung = geprueft && (
             <Tafel nr={3} titel={zw("Rechnung", "Calculation")}>
               <Rechenweg>
                 <RSchritt nr="1" titel={zw("Skalarprodukt und Längen einsetzen", "Plug in dot product and lengths")}>
@@ -704,10 +809,33 @@ function Vektorwinkel() {
                 </Ergebnis>
               </Rechenweg>
             </Tafel>
-          )}
+  );
+  const fuss = <Fusszeile neu={neu} hilfe={<IchHaengeFest kontext={hilfe} />} />;
+
+  if (desktop) {
+    return (
+      <ModusBreit id="winkel"
+        links={<>{boxen}{!fehler && schaetzen(TAFEL_BREIT)}</>}
+        rechts={fehlerText || <>
+          <VekBild>{(br) => <WinkelBild a={a} b={b} breite={br} />}</VekBild>
+          {rechnen(TAFEL_BREIT)}
+        </>}
+        unten={!fehler && rechnung} fuss={fuss} />
+    );
+  }
+
+  return (
+    <div data-vek-modus="winkel">
+      {boxen}
+      <div style={{ marginTop: 12 }}>{fehler ? fehlerText : <BildRahmen><WinkelBild a={a} b={b} /></BildRahmen>}</div>
+      {!fehler && (
+        <>
+          {schaetzen()}
+          {rechnen()}
+          {rechnung}
         </>
       )}
-      <Fusszeile neu={neu} hilfe={<IchHaengeFest kontext={hilfe} />} />
+      {fuss}
     </div>
   );
 }
@@ -747,11 +875,11 @@ function GeradeEbeneWinkel() {
   });
   const un = u && nv ? skalar(u, nv) : 0;
   const geprueft = pr && pr.art !== "warn";
-  return (
-    <div data-vek-modus="ge-winkel">
-      <VektorBoxen namen={["u", "n"]} arten={[zw("Richtung von g", "Direction of g"), zw("Normale von E", "Normal of E")]} w={w} setW={setW} zuruecksetzen={() => { setPr(null); setFormel(null); }} />
-      <div style={{ marginTop: 12 }}>{fehler ? <Hinweis art="warn">{fehler}</Hinweis> : <BildRahmen><GeBild u={u} nv={nv} /></BildRahmen>}</div>
-      <details style={{ marginTop: 10, background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 14, padding: "4px 14px" }}>
+  const desktop = useDesktop();
+  const boxen = <VektorBoxen namen={["u", "n"]} arten={[zw("Richtung von g", "Direction of g"), zw("Normale von E", "Normal of E")]} w={w} setW={setW} zuruecksetzen={() => { setPr(null); setFormel(null); }} />;
+  const fehlerText = fehler && <Hinweis art="warn">{fehler}</Hinweis>;
+  const warum = (
+      <details data-ger-warum="" style={{ marginTop: desktop ? 0 : 10, background: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 14, padding: "4px 14px" }}>
         <summary style={{ cursor: "pointer", fontSize: 14, fontWeight: 700, color: C.see, padding: "8px 0", listStylePosition: "inside" }}>{zw("Warum Sinus und nicht Kosinus?", "Why sine and not cosine?")}</summary>
         <div style={{ padding: "2px 0 12px" }}>
           <p style={{ ...erklaer, color: C.tinte, margin: "0 0 6px" }}>
@@ -769,14 +897,16 @@ function GeradeEbeneWinkel() {
           </p>
         </div>
       </details>
-      {!fehler && (
-        <>
-          <Tafel nr={1} titel={zw("Welche Formel passt?", "Which formula fits?")}>
+  );
+  const formelWahl = (stil) => (
+          <Tafel nr={1} titel={zw("Welche Formel passt?", "Which formula fits?")} stil={stil}>
             <TippKacheln spalten={1} label={zw("Formel wählen", "Choose formula")} wert={formel} setWert={setFormel} loesung={formel ? "sin" : undefined}
               optionen={[["sin", <span key="s" style={{ fontSize: 18, fontWeight: 400 }}><M t={"\\sin\\alpha = \\frac{|\\vec{u}\\cdot\\vec{n}|}{|\\vec{u}|\\cdot|\\vec{n}|}"} /></span>], ["cos", <span key="c" style={{ fontSize: 18, fontWeight: 400 }}><M t={"\\cos\\alpha = \\frac{|\\vec{u}\\cdot\\vec{n}|}{|\\vec{u}|\\cdot|\\vec{n}|}"} /></span>], ["tan", <span key="t" style={{ fontSize: 18, fontWeight: 400 }}><M t={"\\tan\\alpha = \\frac{|\\vec{u}\\cdot\\vec{n}|}{|\\vec{u}|\\cdot|\\vec{n}|}"} /></span>]]} />
             {formel && <Hinweis art={formel === "sin" ? "gut" : "schlecht"}>{formel === "sin" ? zw("Richtig: der Sinus, weil n senkrecht auf der Ebene steht.", "Right: the sine, because n is perpendicular to the plane.") : zw("Das ist nicht die Formel für den Winkel zur Ebene. Mit dem Kosinus bekommst du den Winkel zwischen u und n – das Komplement von α.", "That is not the formula for the angle to the plane. The cosine gives the angle between u and n – the complement of α.")}</Hinweis>}
           </Tafel>
-          <Tafel nr={2} titel={zw("Berechne α", "Compute α")}>
+  );
+  const rechnen = (stil) => (
+          <Tafel nr={2} titel={zw("Berechne α", "Compute α")} stil={stil}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
               <span style={{ ...zeile, fontSize: 17 }}>α =</span>
               <ZahlFeld wert={antwort} setWert={(v) => { setAntwort(v); setPr(null); }} label={zw("Winkel in Grad", "Angle in degrees")} onEnter={pruefen} breite={92} platzhalter="°" />
@@ -784,7 +914,8 @@ function GeradeEbeneWinkel() {
             </div>
             {pr && <Hinweis art={pr.art}>{pr.text}</Hinweis>}
           </Tafel>
-          {geprueft && (
+  );
+  const rechnung = geprueft && (
             <Tafel nr={3} titel={zw("Rechnung", "Calculation")}>
               <Rechenweg>
                 <RSchritt nr="1" titel={zw("In die Sinus-Formel einsetzen", "Plug into the sine formula")}>
@@ -799,10 +930,35 @@ function GeradeEbeneWinkel() {
                 </Ergebnis>
               </Rechenweg>
             </Tafel>
-          )}
+  );
+  const fuss = <Fusszeile neu={neu} hilfe={<IchHaengeFest kontext={hilfe} />} />;
+
+  if (desktop) {
+    return (
+      <ModusBreit id="ge-winkel"
+        links={<>{boxen}{!fehler && formelWahl(TAFEL_BREIT)}</>}
+        rechts={<>
+          {fehlerText || <VekBild>{(br) => <GeBild u={u} nv={nv} breite={br} />}</VekBild>}
+          {!fehler && rechnen(TAFEL_BREIT)}
+          {warum}
+        </>}
+        unten={!fehler && rechnung} fuss={fuss} />
+    );
+  }
+
+  return (
+    <div data-vek-modus="ge-winkel">
+      {boxen}
+      <div style={{ marginTop: 12 }}>{fehler ? fehlerText : <BildRahmen><GeBild u={u} nv={nv} /></BildRahmen>}</div>
+      {warum}
+      {!fehler && (
+        <>
+          {formelWahl()}
+          {rechnen()}
+          {rechnung}
         </>
       )}
-      <Fusszeile neu={neu} hilfe={<IchHaengeFest kontext={hilfe} />} />
+      {fuss}
     </div>
   );
 }

@@ -17,8 +17,8 @@ import { DrehKnoepfe, FARBE_ACHSE, GRUND_AUS, GrundebenenGitter, GrundebenenScha
 import { MatheFeld } from "./matheTastatur.jsx";
 import { wAdd, wGanz, wIstNull, wIstRational, wLies, wMul, wNegativ, wNum, wSub, wText, wZ } from "./wzahl.js";
 import { WurzelZeichen } from "./wurzelZeichen.jsx";
-import { Arbeitsflaeche, BildKarte, ErgebnisReihe, Werkzeugleiste, chipStil, feinKarte, hinweisStil, titelStil, toenKarte, useBreite, useDesktop } from "./arbeitsflaeche.jsx";
-import { BUEHNE, Bild, Ergebnis, FallWahl, ObjektBox, ObjektReihe, RSchritt, Rechenweg, Tafel, VekSeite } from "./vekUi.jsx";
+import { Arbeitsflaeche, BildKarte, ErgebnisReihe, FeinKarte, Werkzeugleiste, chipStil, feinKarte, hinweisStil, titelStil, toenKarte, useBreite, useDesktop } from "./arbeitsflaeche.jsx";
+import { BUEHNE, Bild, Ergebnis, FallWahl, ObjektBox, ObjektReihe, RSchritt, Rechenweg, ReglerSpalten, Tafel, VekArbeit, VekBild, VekSeite, farbSatz } from "./vekUi.jsx";
 
 const FARBE_E1 = C.see;
 const FARBE_E2 = C.gruen;
@@ -162,36 +162,22 @@ function EbenenPaar({ k1, setK1, k2, setK2 }) {
   );
 }
 
-/* ---------- Desktop: eine Ebene als Karte ----------
-   Oben die Gleichung, darunter je Koeffizient + / „a = 3“ / − untereinander. */
+/* ---------- Desktop: eine Ebene als Box (vekUi) ----------
+   Kopf „E₁ Ebene“ wie die Geschwister-Seiten, darunter die Gleichung und je Koeffizient + / „a = 3“ / − untereinander. */
 function EbenenKarte({ name, farbe, k, setK }) {
   const aendern = (i, delta) => { const n = [...k]; n[i] = Math.max(-10, Math.min(10, n[i] + delta)); setK(n); };
-  const knopf = (f) => ({
-    width: "100%", maxWidth: 66, height: 30, borderRadius: 9, border: `1.5px solid ${f}55`, background: `${f}12`,
-    color: f, fontSize: 18, fontWeight: 700, fontFamily: "inherit", cursor: "pointer", padding: 0, lineHeight: 1,
-    display: "flex", alignItems: "center", justifyContent: "center", touchAction: "manipulation",
-  });
   return (
-    <div data-eve-karte={name} style={toenKarte(farbe)}>
-      <Einzeilig max={19} min={12}>
-        <span style={{ color: farbe, fontWeight: 800 }}>E{name}:</span>
-        <span>{ebenenText(...k)}</span>
-      </Einzeilig>
-      <div style={{ height: 1, background: `${farbe}22`, margin: "12px 4px 12px" }} />
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 6 }}>
-        {k.map((v, i) => {
-          const f = KOEFF_FARBEN[i];
-          return (
-            <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-              <button className="eve-knopf" aria-label={`${BUCHSTABEN[i]} von E${name} erhöhen`} style={knopf(f)} onClick={() => aendern(i, 1)}>+</button>
-              <span style={{ fontSize: minus(v).length >= 3 ? 14 : 15.5, fontWeight: 800, color: f, fontVariantNumeric: "tabular-nums", lineHeight: 1.2, whiteSpace: "nowrap" }}>
-                {BUCHSTABEN[i]} = {minus(v)}
-              </span>
-              <button className="eve-knopf" aria-label={`${BUCHSTABEN[i]} von E${name} verringern`} style={knopf(f)} onClick={() => aendern(i, -1)}>−</button>
-            </div>
-          );
-        })}
-      </div>
+    <div data-eve-karte={name}>
+      <ObjektBox farbe={farbe} name={`E${name}`} art="Ebene" innen="12px 12px 14px">
+        <Einzeilig max={19} min={12}><span>{ebenenText(...k)}</span></Einzeilig>
+        <div style={{ height: 1, background: farbSatz(farbe).rand, margin: "12px 2px" }} />
+        <ReglerSpalten spalten={k.map((v, i) => ({
+          key: i, farbe: KOEFF_FARBEN[i],
+          plus: () => aendern(i, 1), minus: () => aendern(i, -1),
+          plusLabel: `${BUCHSTABEN[i]} von E${name} erhöhen`, minusLabel: `${BUCHSTABEN[i]} von E${name} verringern`,
+          mitte: <span style={{ fontSize: minus(v).length >= 3 ? 14 : 15.5, fontWeight: 800, color: KOEFF_FARBEN[i], fontVariantNumeric: "tabular-nums", lineHeight: 1.2, whiteSpace: "nowrap" }}>{BUCHSTABEN[i]} = {minus(v)}</span>,
+        }))} />
+      </ObjektBox>
     </div>
   );
 }
@@ -242,7 +228,7 @@ export function strahlImWuerfel(p, r, L) {
   return [p.map((v, k) => v + t0 * r[k]), p.map((v, k) => v + t1 * r[k])];
 }
 
-function Raum2({ k1, k2, info, phi, theta, setPhi, setTheta, zoom, grund, W = 360, H = 320 }) {
+function Raum2({ k1, k2, info, phi, theta, setPhi, setTheta, zoom, grund, W = 360, H = 320, ohneGrund = false }) {
   const abschnitte = [k1, k2].flatMap((k) => k.slice(0, 3).filter((v) => v !== 0).map((v) => Math.abs(k[3] / v)));
   const L = Math.min(12, Math.max(5, Math.ceil(Math.max(0, ...abschnitte) + 1)));
   const s = ((Math.min(W, H) / 2 - 18) / (L * 1.55)) * zoom;
@@ -274,7 +260,7 @@ function Raum2({ k1, k2, info, phi, theta, setPhi, setTheta, zoom, grund, W = 36
   const ende = () => { ziehen.current = null; };
 
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", display: "block", touchAction: "none", cursor: "grab", background: C.weiss, borderRadius: 14 }}
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", display: "block", touchAction: "none", cursor: "grab", background: ohneGrund ? "transparent" : C.weiss, borderRadius: 14 }}
       onPointerDown={start} onPointerMove={bewege} onPointerUp={ende} onPointerLeave={ende}>
       <defs>
         {[0, 1, 2].map((k) => (
@@ -411,24 +397,15 @@ export function EbeneVsEbene() {
   const breit = useDesktop();
   const [plotRef, plotBreite] = useBreite();
   const info = lage(k1, k2);
-  const karte = { background: C.weiss, borderRadius: 16, padding: 18, boxShadow: "0 2px 16px rgba(15,26,51,0.07)" };
-  const fein = feinKarte;
-  const titel = titelStil;
   const hinweis = { ...hinweisStil, marginTop: 10 };
-
-  const lageText = {
-    schnitt: "Die Ebenen schneiden sich in einer Geraden g.",
-    parallel: "Die Ebenen sind echt parallel – die Normalenvektoren sind Vielfache voneinander, die Ebenen haben keinen gemeinsamen Punkt.",
-    identisch: "Die Ebenen sind identisch – beide Gleichungen beschreiben dieselbe Ebene.",
-    keine: "Mindestens eine Gleichung ist keine Ebene: a, b und c dürfen nicht alle 0 sein.",
-  }[info.art];
 
   // Schaubild: Handy wie bisher im Format 360 × 320, Desktop quadratisch – immer in echten Pixeln
   const W = plotBreite || 360;
   const H = breit ? W : Math.round((W * 320) / 360);
-  const schaubild = (
-    <div ref={plotRef} style={{ position: "relative" }}>
-      <Raum2 k1={k1} k2={k2} info={info} phi={phi} theta={theta} setPhi={setPhi} setTheta={setTheta} zoom={zoom} grund={grund} W={W} H={H} />
+  // Desktop: in VekBild gemessen (echte Pixel, quadratisch), ohne eigenen weißen Grund – wie Raum3 der Geschwister-Seiten
+  const schaubildIn = (w, h, ref) => (
+    <div ref={ref} style={{ position: "relative" }}>
+      <Raum2 k1={k1} k2={k2} info={info} phi={phi} theta={theta} setPhi={setPhi} setTheta={setTheta} zoom={zoom} grund={grund} W={w} H={h} ohneGrund={!ref} />
       <DrehKnoepfe setPhi={setPhi} setTheta={setTheta} zuruecksetzen={() => { setPhi(0.62); setTheta(0.42); setZoom(1); }} />
       <div style={{ position: "absolute", right: 6, bottom: 6, display: "flex", flexDirection: "column", borderRadius: 10,
         overflow: "hidden", border: `1px solid ${C.linie}`, boxShadow: "0 2px 8px rgba(15,26,51,0.14)" }}>
@@ -441,32 +418,7 @@ export function EbeneVsEbene() {
       </div>
     </div>
   );
-
-  const beispiele = (umbruch) => (
-    <div style={{ display: "flex", gap: 6, ...(umbruch ? { flexWrap: "wrap", alignItems: "center" } : { overflowX: "auto", paddingTop: 14 }) }}>
-      {BEISPIELE.map((x) => (
-        <button key={x.name} onClick={() => { setK1(x.k1); setK2(x.k2); }}
-          style={chipStil()}>{x.name}</button>
-      ))}
-    </div>
-  );
-
-  const lageInhalt = (
-    <>
-      <p style={titel}>Lage der Ebenen</p>
-      <p style={{ fontSize: 14.5, color: C.tinte, lineHeight: 1.6, marginBottom: info.art === "schnitt" ? 14 : 0 }}>{lageText}</p>
-      {info.art === "schnitt" && (
-        <>
-          <p style={{ ...titel, marginBottom: 8 }}>Schnittgerade</p>
-          <Schnittgerade info={info} />
-          <p style={hinweis}>
-            Richtungsvektor: Kreuzprodukt der Normalenvektoren n₁ × n₂ (gekürzt). Stützpunkt: eine Koordinate 0 gesetzt
-            und das verbleibende Gleichungssystem gelöst.
-          </p>
-        </>
-      )}
-    </>
-  );
+  const schaubild = schaubildIn(W, H, plotRef);
 
   const winkelHinweis = (
     <p style={{ ...hinweis, marginTop: breit ? 0 : 10 }}>
@@ -475,42 +427,7 @@ export function EbeneVsEbene() {
     </p>
   );
 
-  /* ---------- Desktop: Arbeitsfläche in zwei Spalten ---------- */
-  if (breit) {
-    return (
-      <div className="mx-auto px-6 pb-16" data-eve="breit" style={{ maxWidth: 620, paddingTop: 16 }}>
-        <Arbeitsflaeche
-          links={<>
-            <EbenenKarte name="₁" farbe={FARBE_E1} k={k1} setK={setK1} />
-            <EbenenKarte name="₂" farbe={FARBE_E2} k={k2} setK={setK2} />
-            <div data-eve-lage style={fein}>{lageInhalt}</div>
-          </>}
-          rechts={<>
-            <BildKarte>{schaubild}</BildKarte>
-            <Werkzeugleiste gruppen={[
-              { titel: "Grundebenen einblenden", inhalt: <GrundebenenSchalter an={grund} setAn={setGrund} ohneTitel /> },
-              { titel: "Beispiele", inhalt: beispiele(true) },
-            ]} />
-          </>} />
-
-        {info.art !== "keine" && (
-          <div style={{ marginTop: 20 }}>
-            <ErgebnisReihe spalten="minmax(0, 1fr)">
-              <div data-eve-winkel style={{ ...fein, display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 240px)", columnGap: 32, alignItems: "center" }}>
-                <div style={{ minWidth: 0 }}>
-                  <p style={titel}>Schnittwinkel</p>
-                  <Winkelrechnung k1={k1} k2={k2} />
-                </div>
-                <div style={{ borderLeft: `2px solid ${C.linie}`, paddingLeft: 18 }}>{winkelHinweis}</div>
-              </div>
-            </ErgebnisReihe>
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  /* ---------- Handy und Tablet: eine Spalte im Design der Vektor-Werkzeuge (vekUi.jsx) ---------- */
+  /* ---------- gemeinsame Teile (Handy und Desktop) im Design der Vektor-Werkzeuge (vekUi.jsx) ---------- */
   const beispielAn = BEISPIELE.find((x) => x.k1.join() === k1.join() && x.k2.join() === k2.join());
   const lageKurz = { schnitt: "Die Ebenen schneiden sich in einer Geraden g.", parallel: "Die Ebenen sind echt parallel.", identisch: "Die Ebenen sind identisch.", keine: "Mindestens eine Gleichung ist keine Ebene." }[info.art];
   const lageZusatz = {
@@ -520,6 +437,66 @@ export function EbeneVsEbene() {
     keine: "a, b und c dürfen nicht alle 0 sein.",
   }[info.art];
   const lageBild = { schnitt: "ee-schnitt", parallel: "ee-parallel", identisch: "ee-identisch" }[info.art];
+  const beispielWahl = (titel) => (
+    <FallWahl titel={titel} wert={beispielAn ? beispielAn.name : null} setWert={(name) => { const x = BEISPIELE.find((y) => y.name === name); setK1(x.k1); setK2(x.k2); }}
+      optionen={BEISPIELE.map((x) => [x.name, x.name])} />
+  );
+  const lageErgebnis = (
+    <>
+      <Ergebnis art={info.art === "keine" ? "warn" : "gut"} titel="Lage" bild={lageBild ? <Bild art={lageBild} breite={44} farbe={FARBE_E1} farbe2={FARBE_E2} /> : null} zusatz={lageZusatz}>
+        {lageKurz}
+      </Ergebnis>
+      {info.art === "schnitt" && (
+        <div style={{ marginTop: 14 }}>
+          <ObjektBox farbe={FARBE_G} name="g" art="Schnittgerade"
+            fuss="Richtung: Kreuzprodukt der Normalenvektoren n₁ × n₂ (gekürzt). Stützpunkt: eine Koordinate 0 gesetzt und das übrige Gleichungssystem gelöst.">
+            <Schnittgerade info={info} ohneName />
+          </ObjektBox>
+        </div>
+      )}
+    </>
+  );
+
+  /* ---------- Desktop: Arbeitsfläche wie die Geschwister-Seiten (vekUi) – E₁/E₂ links, Schaubild rechts, Winkel darunter ---------- */
+  if (breit) {
+    return (
+      <VekSeite titel="Zwei Ebenen im Raum" text="Stell beide Ebenen ein und sieh sofort, ob sie sich schneiden, parallel oder identisch sind – mit Schnittgerade und Schnittwinkel.">
+        <div data-eve="breit">
+          <VekArbeit
+            links={<>
+              <EbenenKarte name="₁" farbe={FARBE_E1} k={k1} setK={setK1} />
+              <EbenenKarte name="₂" farbe={FARBE_E2} k={k2} setK={setK2} />
+              <div data-eve-lage="">{lageErgebnis}</div>
+            </>}
+            rechts={<>
+              <VekBild>{(br) => schaubildIn(br, br)}</VekBild>
+              <Werkzeugleiste gruppen={[
+                { titel: "Grundebenen einblenden", inhalt: <GrundebenenSchalter an={grund} setAn={setGrund} ohneTitel /> },
+                { titel: "Beispiele", inhalt: beispielWahl(null) },
+              ]} />
+            </>} />
+        </div>
+
+        {info.art !== "keine" && (
+          <div>
+            <Tafel stil={{ marginTop: 20, boxShadow: "none" }}>
+              <div data-eve-winkel="" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 240px)", columnGap: 32, alignItems: "center" }}>
+                <div style={{ minWidth: 0 }}>
+                  <h3 style={{ fontSize: 17, fontWeight: 800, letterSpacing: "-0.01em", color: C.tinte, margin: "0 0 10px" }}>Schnittwinkel</h3>
+                  <div style={{ background: "#F5F7FB", border: `1px solid ${C.linie}`, borderRadius: 12, padding: "6px 12px" }}>
+                    <Winkelrechnung k1={k1} k2={k2} />
+                  </div>
+                </div>
+                <div style={{ borderLeft: `2px solid ${C.linie}`, paddingLeft: 18 }}>{winkelHinweis}</div>
+              </div>
+            </Tafel>
+          </div>
+        )}
+      </VekSeite>
+    );
+  }
+
+  /* ---------- Handy und Tablet: eine Spalte ---------- */
   return (
     <VekSeite titel="Zwei Ebenen im Raum" text="Stell beide Ebenen ein und sieh sofort, ob sie sich schneiden, parallel oder identisch sind – mit Schnittgerade und Schnittwinkel.">
       <EbenenPaar k1={k1} setK1={setK1} k2={k2} setK2={setK2} />
@@ -714,80 +691,133 @@ export function KreuzproduktRechner() {
   const beispiel = KP_BEISPIELE.find((x) => kpLies(x.a).map(wText).join() === A.map(wText).join() && kpLies(x.b).map(wText).join() === B.map(wText).join());
   const textFarbeB = "#8A6D00";
 
+  const desktop = useDesktop();
+  const seitenTitel = "Kreuzprodukt auf einen Blick";
+  const seitenText = "Gib zwei Vektoren ein. Du siehst die Formel, die eingesetzten Zahlen und das Ergebnis – einen Vektor, der auf beiden senkrecht steht.";
+  const boxen = (
+    <ObjektReihe min={150}>
+      <ObjektBox farbe={FA} name={<VecName t="a" idx="" farbe={C.weiss} />} art="Vektor">
+        <VektorEingabe name="a" farbe={FA} werte={a} setWerte={setA} ohneKopf />
+      </ObjektBox>
+      <ObjektBox farbe={FB} name={<VecName t="b" idx="" farbe={C.weiss} />} art="Vektor">
+        <VektorEingabe name="b" farbe={textFarbeB} werte={b} setWerte={setB} ohneKopf />
+      </ObjektBox>
+    </ObjektReihe>
+  );
+  const bedienText = "− und + ändern die Zahl in ganzen Schritten. Tippe auf eine Zahl, um sie direkt einzugeben – auch als Bruch (1/2), Kommazahl (0,5) oder Wurzel (√5).";
+  const beispielWahl = (
+    <FallWahl titel="Beispiele" wert={beispiel ? beispiel.name : null} setWert={(name) => { const x = KP_BEISPIELE.find((y) => y.name === name); setA(kpLies(x.a)); setB(kpLies(x.b)); }}
+      optionen={KP_BEISPIELE.map((x) => [x.name, x.name])} />
+  );
+  const rechnung = (stil) => (
+    <Tafel titel="Rechnung" stil={stil}>
+      <Rechenweg>
+        <RSchritt nr="1" titel="Formel">
+          <Einzeilig max={16}>{kreuzZeichen}<span>=</span><SpaltenVektor farbe={C.tinte} eintraege={allgemein} /></Einzeilig>
+        </RSchritt>
+        <RSchritt nr="2" titel="Einsetzen und ausrechnen">
+          <Einzeilig max={16}><span>=</span><SpaltenVektor farbe={C.tinte} eintraege={eingesetzt} /><span>=</span><SpaltenVektor farbe={FE} eintraege={ergebnis} /></Einzeilig>
+        </RSchritt>
+        <Ergebnis bild={<Bild art="kreuz" breite={44} />} art={parallel ? "warn" : "gut"}
+          zusatz={parallel ? "Der Nullvektor: Die beiden Vektoren sind parallel (linear abhängig) und spannen keine Fläche auf." : null}>
+          <Einzeilig max={17}>{kreuzZeichen}<span>=</span><SpaltenVektor farbe={C.smaragd} eintraege={k.map((v, z) => <span key={z}>{wText(v)}</span>)} /></Einzeilig>
+        </Ergebnis>
+      </Rechenweg>
+    </Tafel>
+  );
+  const bedeutung = (
+    <>
+      <div style={{ background: "#F5F7FB", border: `1px solid ${C.linie}`, borderRadius: 12, padding: "10px 10px" }}>
+        <Einzeilig max={15.5}>
+          <span>Probe:</span>
+          <VecName t="a" idx="" farbe={FA} /><span>·</span><span>({kreuzZeichen})</span>
+          <span>= {wText(wSkalar(A, k))}</span>
+          <span style={{ margin: "0 0.4em", color: C.hellgrau }}>und</span>
+          <VecName t="b" idx="" farbe={textFarbeB} /><span>·</span><span>({kreuzZeichen})</span>
+          <span>= {wText(wSkalar(B, k))}</span>
+        </Einzeilig>
+      </div>
+      <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, margin: "8px 0 14px" }}>
+        Beide Skalarprodukte sind 0 – das Kreuzprodukt steht senkrecht auf <VecName t="a" idx="" farbe={FA} /> und auf <VecName t="b" idx="" farbe={textFarbeB} />. Deshalb liefert es zum Beispiel
+        den Normalenvektor einer Ebene aus zwei Spannvektoren.
+      </p>
+      <div style={{ background: "#F5F7FB", border: `1px solid ${C.linie}`, borderRadius: 12, padding: "10px 10px" }}>
+        <Einzeilig max={15.5}>
+          <span>|{kreuzZeichen}|</span>
+          <span>=</span>
+          <Wurzel>{k.map((v) => `${wKlammer(v)}²`).join(" + ")}</Wurzel>
+          <span>=</span>
+          {laengeGanz ? <span>{Math.round(laenge)}</span> : <><Wurzel>{wText(laenge2)}</Wurzel><span>≈ {dez(laenge, 3)}</span></>}
+        </Einzeilig>
+      </div>
+      <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, marginTop: 8 }}>
+        Die Länge des Kreuzprodukts ist der Flächeninhalt des Parallelogramms, das <VecName t="a" idx="" farbe={FA} /> und <VecName t="b" idx="" farbe={textFarbeB} /> aufspannen – das Dreieck hat die Hälfte davon.
+      </p>
+    </>
+  );
+  const merken = [
+    ["Zyklisch", "Die Indizes laufen im Kreis: Zeile 1 benutzt 2 und 3, Zeile 2 benutzt 3 und 1, Zeile 3 benutzt 1 und 2."],
+    ["Über Kreuz", "Jede Zeile: „überkreuz multiplizieren, dann abziehen“ – erst von oben links nach unten rechts, dann umgekehrt."],
+    ["Reihenfolge", <><VecName t="b" idx="" farbe={textFarbeB} /> × <VecName t="a" idx="" farbe={FA} /> = −(<VecName t="a" idx="" farbe={FA} /> × <VecName t="b" idx="" farbe={textFarbeB} />): Wer die Vektoren vertauscht, dreht das Ergebnis um.</>],
+  ].map(([t, x]) => (
+    <p key={t} style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, marginBottom: 6 }}>
+      <b style={{ color: C.tinte }}>{t}:</b> {x}
+    </p>
+  ));
+
+  /* ---------- Desktop: Vektoren links (a | b wie am Handy), Rechnung rechts, Bedeutung + Merkregel darunter ---------- */
+  if (desktop) {
+    return (
+      <VekSeite titel={seitenTitel} text={seitenText}>
+        <div data-kp="breit">
+          <VekArbeit linksBreite={380}
+            links={<>
+              <div data-kp-vektoren="">{boxen}</div>
+              <p style={{ ...hinweisStil, margin: "-2px 2px 0" }}>{bedienText}</p>
+              <FeinKarte>{beispielWahl}</FeinKarte>
+            </>}
+            rechts={rechnung({ marginTop: 0, boxShadow: "none" })} />
+        </div>
+        <div>
+          <Tafel stil={{ marginTop: 20, boxShadow: "none" }}>
+            <div data-kp-bedeutung="" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 240px)", columnGap: 32, alignItems: "start" }}>
+              <div style={{ minWidth: 0 }}>
+                <h3 style={{ fontSize: 17, fontWeight: 800, letterSpacing: "-0.01em", color: C.tinte, margin: "0 0 12px" }}>{parallel ? "Was der Nullvektor bedeutet" : "Was das Ergebnis bedeutet"}</h3>
+                {parallel
+                  ? <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6 }}>Die beiden Vektoren sind parallel (linear abhängig). Sie spannen kein Parallelogramm auf – deshalb gibt es keine senkrechte Richtung, und das Kreuzprodukt ist der Nullvektor.</p>
+                  : bedeutung}
+              </div>
+              <div style={{ borderLeft: `2px solid ${C.linie}`, paddingLeft: 18 }}>
+                <h3 style={{ fontSize: 15, fontWeight: 800, color: C.tinte, margin: "2px 0 10px" }}>So merkst du dir die Formel</h3>
+                {merken}
+              </div>
+            </div>
+          </Tafel>
+        </div>
+      </VekSeite>
+    );
+  }
+
   return (
-    <VekSeite titel="Kreuzprodukt auf einen Blick" text="Gib zwei Vektoren ein. Du siehst die Formel, die eingesetzten Zahlen und das Ergebnis – einen Vektor, der auf beiden senkrecht steht.">
-      <ObjektReihe min={150}>
-        <ObjektBox farbe={FA} name={<VecName t="a" idx="" farbe={C.weiss} />} art="Vektor">
-          <VektorEingabe name="a" farbe={FA} werte={a} setWerte={setA} ohneKopf />
-        </ObjektBox>
-        <ObjektBox farbe={FB} name={<VecName t="b" idx="" farbe={C.weiss} />} art="Vektor">
-          <VektorEingabe name="b" farbe={textFarbeB} werte={b} setWerte={setB} ohneKopf />
-        </ObjektBox>
-      </ObjektReihe>
+    <VekSeite titel={seitenTitel} text={seitenText}>
+      {boxen}
       <p style={{ fontSize: 12.5, lineHeight: 1.5, color: C.grau, margin: "10px 2px 0" }}>
-        − und + ändern die Zahl in ganzen Schritten. Tippe auf eine Zahl, um sie direkt einzugeben – auch als Bruch (1/2), Kommazahl (0,5) oder Wurzel (√5).
+        {bedienText}
       </p>
       <div style={{ marginTop: 12 }}>
-        <FallWahl titel="Beispiele" wert={beispiel ? beispiel.name : null} setWert={(name) => { const x = KP_BEISPIELE.find((y) => y.name === name); setA(kpLies(x.a)); setB(kpLies(x.b)); }}
-          optionen={KP_BEISPIELE.map((x) => [x.name, x.name])} />
+        {beispielWahl}
       </div>
 
-      <Tafel titel="Rechnung">
-        <Rechenweg>
-          <RSchritt nr="1" titel="Formel">
-            <Einzeilig max={16}>{kreuzZeichen}<span>=</span><SpaltenVektor farbe={C.tinte} eintraege={allgemein} /></Einzeilig>
-          </RSchritt>
-          <RSchritt nr="2" titel="Einsetzen und ausrechnen">
-            <Einzeilig max={16}><span>=</span><SpaltenVektor farbe={C.tinte} eintraege={eingesetzt} /><span>=</span><SpaltenVektor farbe={FE} eintraege={ergebnis} /></Einzeilig>
-          </RSchritt>
-          <Ergebnis bild={<Bild art="kreuz" breite={44} />} art={parallel ? "warn" : "gut"}
-            zusatz={parallel ? "Der Nullvektor: Die beiden Vektoren sind parallel (linear abhängig) und spannen keine Fläche auf." : null}>
-            <Einzeilig max={17}>{kreuzZeichen}<span>=</span><SpaltenVektor farbe={C.smaragd} eintraege={k.map((v, z) => <span key={z}>{wText(v)}</span>)} /></Einzeilig>
-          </Ergebnis>
-        </Rechenweg>
-      </Tafel>
+      {rechnung()}
 
       {!parallel && (
         <Tafel titel="Was das Ergebnis bedeutet">
-          <div style={{ background: "#F5F7FB", border: `1px solid ${C.linie}`, borderRadius: 12, padding: "10px 10px" }}>
-            <Einzeilig max={15.5}>
-              <span>Probe:</span>
-              <VecName t="a" idx="" farbe={FA} /><span>·</span><span>({kreuzZeichen})</span>
-              <span>= {wText(wSkalar(A, k))}</span>
-              <span style={{ margin: "0 0.4em", color: C.hellgrau }}>und</span>
-              <VecName t="b" idx="" farbe={textFarbeB} /><span>·</span><span>({kreuzZeichen})</span>
-              <span>= {wText(wSkalar(B, k))}</span>
-            </Einzeilig>
-          </div>
-          <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, margin: "8px 0 14px" }}>
-            Beide Skalarprodukte sind 0 – das Kreuzprodukt steht senkrecht auf <VecName t="a" idx="" farbe={FA} /> und auf <VecName t="b" idx="" farbe={textFarbeB} />. Deshalb liefert es zum Beispiel
-            den Normalenvektor einer Ebene aus zwei Spannvektoren.
-          </p>
-          <div style={{ background: "#F5F7FB", border: `1px solid ${C.linie}`, borderRadius: 12, padding: "10px 10px" }}>
-            <Einzeilig max={15.5}>
-              <span>|{kreuzZeichen}|</span>
-              <span>=</span>
-              <Wurzel>{k.map((v) => `${wKlammer(v)}²`).join(" + ")}</Wurzel>
-              <span>=</span>
-              {laengeGanz ? <span>{Math.round(laenge)}</span> : <><Wurzel>{wText(laenge2)}</Wurzel><span>≈ {dez(laenge, 3)}</span></>}
-            </Einzeilig>
-          </div>
-          <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, marginTop: 8 }}>
-            Die Länge des Kreuzprodukts ist der Flächeninhalt des Parallelogramms, das <VecName t="a" idx="" farbe={FA} /> und <VecName t="b" idx="" farbe={textFarbeB} /> aufspannen – das Dreieck hat die Hälfte davon.
-          </p>
+          {bedeutung}
         </Tafel>
       )}
 
       <Tafel titel="So merkst du dir die Formel">
-        {[
-          ["Zyklisch", "Die Indizes laufen im Kreis: Zeile 1 benutzt 2 und 3, Zeile 2 benutzt 3 und 1, Zeile 3 benutzt 1 und 2."],
-          ["Über Kreuz", "Jede Zeile: „überkreuz multiplizieren, dann abziehen“ – erst von oben links nach unten rechts, dann umgekehrt."],
-          ["Reihenfolge", <><VecName t="b" idx="" farbe={textFarbeB} /> × <VecName t="a" idx="" farbe={FA} /> = −(<VecName t="a" idx="" farbe={FA} /> × <VecName t="b" idx="" farbe={textFarbeB} />): Wer die Vektoren vertauscht, dreht das Ergebnis um.</>],
-        ].map(([t, x]) => (
-          <p key={t} style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, marginBottom: 6 }}>
-            <b style={{ color: C.tinte }}>{t}:</b> {x}
-          </p>
-        ))}
+        {merken}
       </Tafel>
     </VekSeite>
   );

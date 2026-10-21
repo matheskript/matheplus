@@ -15,7 +15,8 @@ import { WeiterKnopf, WeiterMit, ZentrumListe } from "./funcWerkzeuge.jsx";
 import { C } from "./base1.jsx";
 import { GesperrteKurse } from "./func1.jsx";
 import { M } from "./func3.jsx";
-import { BUEHNE, BUEHNE_SVG, FallWahl, ObjektBox, Tafel, VekSeite } from "./vekUi.jsx";
+import { BUEHNE, BUEHNE_SVG, FallWahl, ObjektBox, ReglerSpalten, Tafel, VekArbeit, VekBild, VekSeite, farbSatz } from "./vekUi.jsx";
+import { FeinKarte, Werkzeugleiste, useDesktop } from "./arbeitsflaeche.jsx";
 
 /* ---------- Zahlen und Brüche ---------- */
 
@@ -177,13 +178,15 @@ export function GrundebenenSchalter({ an, setAn, ohneTitel = false }) {
   );
 }
 
-function Raum({ a, b, c, d, phi, theta, setPhi, setTheta, zeigen, zoom = 1, grund }) {
+/* W, H: Handy wie bisher 360 × 320; Desktop in echten Pixeln (gemessene Breite, quadratisch) */
+function Raum({ a, b, c, d, phi, theta, setPhi, setTheta, zeigen, zoom = 1, grund, W = 360, H = 320 }) {
+  const gross = W > 400;
   const n = [a, b, c];
   const nLen = Math.hypot(a, b, c);
   // Würfelgröße: alle Spurpunkte sollen sichtbar sein
   const abschnitte = [a, b, c].filter((k) => k !== 0).map((k) => Math.abs(d / k));
   const L = Math.min(12, Math.max(5, Math.ceil(Math.max(0, ...abschnitte) + 1)));
-  const W = 360, H = 320, s = ((Math.min(W, H) / 2 - 18) / (L * 1.55)) * zoom;
+  const s = ((Math.min(W, H) / 2 - 18) / (L * 1.55)) * zoom;
   const cam = kamera(phi, theta);
   const P = (p) => { const q = cam.proj(p); return [W / 2 + s * q.u, H / 2 - s * q.v]; };
   const pfad = (pts) => pts.map((p, k) => `${k ? "L" : "M"}${P(p)[0].toFixed(1)},${P(p)[1].toFixed(1)}`).join(" ") + " Z";
@@ -254,7 +257,7 @@ function Raum({ a, b, c, d, phi, theta, setPhi, setTheta, zeigen, zoom = 1, grun
   };
 
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} style={BUEHNE_SVG}
+    <svg viewBox={`0 0 ${W} ${H}`} style={gross ? { ...BUEHNE_SVG, maxWidth: "none" } : BUEHNE_SVG}
       onPointerDown={start} onPointerMove={bewege} onPointerUp={ende} onPointerLeave={ende}>
       <defs>
         {[0, 1, 2].map((k) => (
@@ -292,7 +295,7 @@ function Raum({ a, b, c, d, phi, theta, setPhi, setTheta, zeigen, zoom = 1, grun
         return (
           <g key={`s${a0.k}`}>
             <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={FARBE_ACHSE[a0.k]} strokeWidth="2" markerEnd={`url(#pfeil${a0.k})`} />
-            <text x={lx} y={ly + 4} textAnchor="middle" fontSize="13" fontWeight="700" fontStyle="italic" fill={FARBE_ACHSE[a0.k]}>
+            <text x={lx} y={ly + 4} textAnchor="middle" fontSize={gross ? 14.5 : 13} fontWeight="700" fontStyle="italic" fill={FARBE_ACHSE[a0.k]}>
               x{["₁", "₂", "₃"][a0.k]}
             </text>
           </g>
@@ -303,7 +306,7 @@ function Raum({ a, b, c, d, phi, theta, setPhi, setTheta, zeigen, zoom = 1, grun
         return (
           <g key={`t${i}`}>
             <circle cx={x} cy={y} r="1.6" fill={FARBE_ACHSE[k]} opacity="0.7" />
-            {Math.abs(t) % (schritt * 2) === 0 && <text x={x + 5} y={y - 4} fontSize="8.5" fill={C.hellgrau}>{t}</text>}
+            {Math.abs(t) % (schritt * 2) === 0 && <text x={x + 5} y={y - 4} fontSize={gross ? 9.5 : 8.5} fill={C.hellgrau}>{t}</text>}
           </g>
         );
       })}
@@ -318,7 +321,7 @@ function Raum({ a, b, c, d, phi, theta, setPhi, setTheta, zeigen, zoom = 1, grun
           <g>
             <circle cx={x1} cy={y1} r="3" fill={C.smaragd} />
             <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={C.smaragd} strokeWidth="2.6" markerEnd="url(#pfeilN)" />
-            <text x={x2 + 6} y={y2 - 4} fontSize="12" fontWeight="700" fontStyle="italic" fill={C.smaragd}>n</text>
+            <text x={x2 + 6} y={y2 - 4} fontSize={gross ? 13.5 : 12} fontWeight="700" fontStyle="italic" fill={C.smaragd}>n</text>
           </g>
         ); })()}
 
@@ -327,7 +330,7 @@ function Raum({ a, b, c, d, phi, theta, setPhi, setTheta, zeigen, zoom = 1, grun
         return (
           <g key={`S${k}`}>
             <circle cx={x} cy={y} r="5" fill={C.gruen} stroke={C.weiss} strokeWidth="1.8" />
-            <text x={x + 8} y={y + 14} fontSize="11.5" fontWeight="700" fill={C.gruen}>S{["₁", "₂", "₃"][k]}</text>
+            <text x={x + 8} y={y + 14} fontSize={gross ? 13 : 11.5} fontWeight="700" fill={C.gruen}>S{["₁", "₂", "₃"][k]}</text>
           </g>
         ); })}
 
@@ -446,6 +449,31 @@ function GleichungMitReglern({ a, b, c, d, setA, setB, setC, setD }) {
   );
 }
 
+/* Desktop: die Ebene als Box wie in „Ebene vs. Ebene“ – oben die Gleichung, darunter je Koeffizient
+   + / Wert / − untereinander (ReglerSpalten aus vekUi). Gleiche aria-labels wie GleichungMitReglern. */
+function EbeneBoxBreit({ a, b, c, d, setA, setB, setC, setD }) {
+  const spalten = [
+    { name: "a", wert: a, setzen: setA, farbe: FARBE_ACHSE[0] },
+    { name: "b", wert: b, setzen: setB, farbe: FARBE_ACHSE[1] },
+    { name: "c", wert: c, setzen: setC, farbe: FARBE_ACHSE[2] },
+    { name: "d", wert: d, setzen: setD, farbe: C.smaragd },
+  ];
+  const text = ebenenText(a, b, c, d);
+  const gr = Math.max(13, Math.min(20, Math.floor((330 / (text.length + 3)) * 10) / 10));
+  return (
+    <ObjektBox farbe={C.see} name="E" art="Ebene in Koordinatenform" innen="12px 12px 14px">
+      <p data-ebene-gleichung="" style={{ fontSize: gr, fontWeight: 800, color: C.tinte, textAlign: "center", whiteSpace: "nowrap", lineHeight: 1.3, margin: "2px 0 0", fontVariantNumeric: "tabular-nums" }}>{text}</p>
+      <div style={{ height: 1, background: farbSatz(C.see).rand, margin: "12px 2px" }} />
+      <ReglerSpalten spalten={spalten.map((sp) => ({
+        key: sp.name, farbe: sp.farbe,
+        plus: () => sp.setzen(Math.min(10, sp.wert + 1)), minus: () => sp.setzen(Math.max(-10, sp.wert - 1)),
+        plusLabel: `${sp.name} erhöhen`, minusLabel: `${sp.name} verringern`,
+        mitte: <span style={{ fontSize: String(sp.wert).length >= 3 ? 14 : 15.5, fontWeight: 800, color: sp.farbe, fontVariantNumeric: "tabular-nums", lineHeight: 1.2, whiteSpace: "nowrap" }}>{sp.name} = {String(sp.wert).replace("-", "−")}</span>,
+      }))} />
+    </ObjektBox>
+  );
+}
+
 /* Drehknöpfe rund um das Schaubild; Gedrückthalten dreht weiter. */
 export function DrehKnoepfe({ setPhi, setTheta, zuruecksetzen }) {
   const timer = React.useRef(null);
@@ -533,74 +561,126 @@ export function EbenenVisualizer() {
   const ansichtAn = ANSICHTEN.find(([, p, t]) => Math.abs(p - phi) < 1e-3 && Math.abs(t - theta) < 1e-3);
   const beispiel = BEISPIELE.find((x) => x.k.join() === [a, b, c, d].join());
   const zeileTitel = { fontSize: 12.5, fontWeight: 600, color: C.grau, marginRight: 2 };
+  const desktop = useDesktop();
+
+  const zoomKnoepfe = (
+    <div style={{ position: "absolute", right: 6, bottom: 6, display: "flex", flexDirection: "column", borderRadius: 10,
+      overflow: "hidden", border: `1px solid ${C.linie}`, boxShadow: "0 2px 8px rgba(15,26,51,0.12)" }}>
+      {[["+", 1.25, "Hineinzoomen"], ["−", 1 / 1.25, "Herauszoomen"]].map(([z, f, t], i) => (
+        <button key={z} aria-label={t} title={t} onClick={() => setZoom((v) => Math.min(4, Math.max(0.4, v * f)))}
+          style={{ width: 32, height: 30, border: "none", borderTop: i ? `1px solid ${C.linie}` : "none",
+            background: "rgba(255,255,255,0.95)", color: C.see, fontSize: 18, fontWeight: 700, fontFamily: "inherit",
+            cursor: "pointer", padding: 0 }}>{z}</button>
+      ))}
+    </div>
+  );
+  const bild = (W, H) => (
+    <>
+      <Raum a={a} b={b} c={c} d={d} phi={phi} theta={theta} setPhi={setPhi} setTheta={setTheta} zeigen={zeigen} zoom={zoom} grund={grund} W={W} H={H} />
+      <DrehKnoepfe setPhi={setPhi} setTheta={setTheta} zuruecksetzen={() => { setPhi(0.62); setTheta(0.42); setZoom(1); }} />
+      {zoomKnoepfe}
+    </>
+  );
+  const beispielWahl = (titel) => (
+    <FallWahl titel={titel} wert={beispiel ? beispiel.name : null}
+      setWert={(name) => (name === "zufall" ? zufall() : setze(BEISPIELE.find((x) => x.name === name).k))}
+      optionen={[["zufall", "Zufall", "zufall"], ...BEISPIELE.map((x) => [x.name, x.name])]} />
+  );
+  const anzeigen = (mitTitel) => (
+    <div role="group" aria-label="Im Bild anzeigen" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 6 }}>
+      {mitTitel && <span style={zeileTitel}>Anzeigen</span>}
+      {schalter("spur", "Spurgeraden", C.flaggold)}
+      {schalter("normale", "Normalenvektor", C.smaragd)}
+      {schalter("box", "Würfel", C.hellgrau)}
+    </div>
+  );
+  const ansichten = (mitTitel) => (
+    <div role="group" aria-label="Blickrichtung" style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+      {mitTitel && <span style={zeileTitel}>Ansicht</span>}
+      {ANSICHTEN.map(([name, p, t]) => (
+        <button key={name} type="button" aria-pressed={ansichtAn ? ansichtAn[0] === name : false} onClick={() => { setPhi(p); setTheta(t); }}
+          style={chip(ansichtAn && ansichtAn[0] === name, C.see)}>{name}</button>
+      ))}
+    </div>
+  );
+  const weiter = (a !== 0 || b !== 0 || c !== 0) && (
+    <WeiterMit titel="Weiter mit dieser Ebene">
+      <WeiterKnopf ziel="ebenevsebene" von="Ebenen-Visualizer" daten={{ k: [a, b, c, d] }} zeile="Als E₁ mit einer zweiten Ebene schneiden – Schnittgerade und Schnittwinkel" />
+      <WeiterKnopf ziel="abstaende" von="Ebenen-Visualizer" daten={{ ebene: [a, b, c, d] }} zeile="Abstand eines Punktes zu genau dieser Ebene berechnen" />
+    </WeiterMit>
+  );
+  const lesehilfe = [
+    ["a, b, c", "bilden den Normalenvektor n = (a | b | c). Er legt fest, wie die Ebene im Raum geneigt ist."],
+    ["d", "verschiebt die Ebene parallel. Bei d = 0 geht sie durch den Ursprung."],
+    ["Spurpunkte", "entstehen, wenn man zwei Koordinaten null setzt: S₁(d/a | 0 | 0), S₂(0 | d/b | 0), S₃(0 | 0 | d/c)."],
+    ["Ein Koeffizient 0", "die Ebene ist parallel zur zugehörigen Achse – zwei Koeffizienten 0: parallel zu einer Koordinatenebene."],
+  ].map(([t, x]) => (
+    <p key={t} style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, marginBottom: 6 }}>
+      <b style={{ color: C.tinte }}>{t}:</b> {x}
+    </p>
+  ));
+  const seitenTitel = "Sieh, was die Koeffizienten mit der Ebene tun";
+  const seitenText = "Stell a, b, c und d ein: a, b und c kippen die Ebene (Normalenvektor), d schiebt sie parallel. Mit Finger oder Maus drehst du den Raum.";
+
+  /* ---------- Desktop: Ebene + Eigenschaften links, 3D-Bild rechts (wie „Ebene vs. Ebene“) ---------- */
+  if (desktop) {
+    return (
+      <VekSeite titel={seitenTitel} text={seitenText}>
+        <div data-ebenen="breit">
+          <VekArbeit
+            links={<>
+              <EbeneBoxBreit a={a} b={b} c={c} d={d} setA={setA} setB={setB} setC={setC} setD={setD} />
+              <FeinKarte data-ebenen-eigenschaften>
+                <h3 style={{ fontSize: 15, fontWeight: 800, color: C.tinte, margin: "0 0 4px" }}>Eigenschaften der Ebene</h3>
+                <Eigenschaften a={a} b={b} c={c} d={d} />
+              </FeinKarte>
+              {weiter && <div style={{ marginTop: -18 }}>{weiter}</div>}
+            </>}
+            rechts={<>
+              <VekBild>{(br) => bild(br, br)}</VekBild>
+              <Werkzeugleiste gruppen={[
+                { titel: "Beispiele", inhalt: beispielWahl(null) },
+                { titel: "Anzeigen", inhalt: anzeigen(false) },
+                { titel: "Grundebenen einblenden", inhalt: <GrundebenenSchalter an={grund} setAn={setGrund} ohneTitel /> },
+                { titel: "Ansicht", inhalt: ansichten(false) },
+              ]} />
+            </>} />
+        </div>
+        <div style={{ marginTop: 20 }}>
+          <FeinKarte>
+            <h3 style={{ fontSize: 15, fontWeight: 800, color: C.tinte, margin: "0 0 10px" }}>So liest du die Koordinatenform</h3>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", columnGap: 32 }}>
+              <div>{lesehilfe.slice(0, 2)}</div>
+              <div>{lesehilfe.slice(2)}</div>
+            </div>
+          </FeinKarte>
+        </div>
+      </VekSeite>
+    );
+  }
 
   return (
-    <VekSeite titel="Sieh, was die Koeffizienten mit der Ebene tun"
-      text="Stell a, b, c und d ein: a, b und c kippen die Ebene (Normalenvektor), d schiebt sie parallel. Mit Finger oder Maus drehst du den Raum.">
+    <VekSeite titel={seitenTitel} text={seitenText}>
       <ObjektBox farbe={C.see} name="E" art="Ebene in Koordinatenform" innen="14px 10px 4px">
         <GleichungMitReglern a={a} b={b} c={c} d={d} setA={setA} setB={setB} setC={setC} setD={setD} />
       </ObjektBox>
-      <div style={{ margin: "12px 0" }}>
-        <FallWahl titel="Beispiele" wert={beispiel ? beispiel.name : null}
-          setWert={(name) => (name === "zufall" ? zufall() : setze(BEISPIELE.find((x) => x.name === name).k))}
-          optionen={[["zufall", "Zufall", "zufall"], ...BEISPIELE.map((x) => [x.name, x.name])]} />
-      </div>
+      <div style={{ margin: "12px 0" }}>{beispielWahl("Beispiele")}</div>
 
-      <div style={BUEHNE}>
-        <Raum a={a} b={b} c={c} d={d} phi={phi} theta={theta} setPhi={setPhi} setTheta={setTheta} zeigen={zeigen} zoom={zoom} grund={grund} />
-        <DrehKnoepfe setPhi={setPhi} setTheta={setTheta} zuruecksetzen={() => { setPhi(0.62); setTheta(0.42); setZoom(1); }} />
-        {/* Zoom unten rechts */}
-        <div style={{ position: "absolute", right: 6, bottom: 6, display: "flex", flexDirection: "column", borderRadius: 10,
-          overflow: "hidden", border: `1px solid ${C.linie}`, boxShadow: "0 2px 8px rgba(15,26,51,0.12)" }}>
-          {[["+", 1.25, "Hineinzoomen"], ["−", 1 / 1.25, "Herauszoomen"]].map(([z, f, t], i) => (
-            <button key={z} aria-label={t} title={t} onClick={() => setZoom((v) => Math.min(4, Math.max(0.4, v * f)))}
-              style={{ width: 32, height: 30, border: "none", borderTop: i ? `1px solid ${C.linie}` : "none",
-                background: "rgba(255,255,255,0.95)", color: C.see, fontSize: 18, fontWeight: 700, fontFamily: "inherit",
-                cursor: "pointer", padding: 0 }}>{z}</button>
-          ))}
-        </div>
-      </div>
+      <div style={BUEHNE}>{bild(360, 320)}</div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 10 }}>
-        <div role="group" aria-label="Im Bild anzeigen" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 6 }}>
-          <span style={zeileTitel}>Anzeigen</span>
-          {schalter("spur", "Spurgeraden", C.flaggold)}
-          {schalter("normale", "Normalenvektor", C.smaragd)}
-          {schalter("box", "Würfel", C.hellgrau)}
-        </div>
+        {anzeigen(true)}
         <GrundebenenSchalter an={grund} setAn={setGrund} />
-        <div role="group" aria-label="Blickrichtung" style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-          <span style={zeileTitel}>Ansicht</span>
-          {ANSICHTEN.map(([name, p, t]) => (
-            <button key={name} type="button" aria-pressed={ansichtAn ? ansichtAn[0] === name : false} onClick={() => { setPhi(p); setTheta(t); }}
-              style={chip(ansichtAn && ansichtAn[0] === name, C.see)}>{name}</button>
-          ))}
-        </div>
+        {ansichten(true)}
       </div>
 
       <Tafel titel="Eigenschaften der Ebene">
         <Eigenschaften a={a} b={b} c={c} d={d} />
       </Tafel>
 
-      {(a !== 0 || b !== 0 || c !== 0) && (
-        <WeiterMit titel="Weiter mit dieser Ebene">
-          <WeiterKnopf ziel="ebenevsebene" von="Ebenen-Visualizer" daten={{ k: [a, b, c, d] }} zeile="Als E₁ mit einer zweiten Ebene schneiden – Schnittgerade und Schnittwinkel" />
-          <WeiterKnopf ziel="abstaende" von="Ebenen-Visualizer" daten={{ ebene: [a, b, c, d] }} zeile="Abstand eines Punktes zu genau dieser Ebene berechnen" />
-        </WeiterMit>
-      )}
+      {weiter}
 
-      <Tafel titel="So liest du die Koordinatenform">
-        {[
-          ["a, b, c", "bilden den Normalenvektor n = (a | b | c). Er legt fest, wie die Ebene im Raum geneigt ist."],
-          ["d", "verschiebt die Ebene parallel. Bei d = 0 geht sie durch den Ursprung."],
-          ["Spurpunkte", "entstehen, wenn man zwei Koordinaten null setzt: S₁(d/a | 0 | 0), S₂(0 | d/b | 0), S₃(0 | 0 | d/c)."],
-          ["Ein Koeffizient 0", "die Ebene ist parallel zur zugehörigen Achse – zwei Koeffizienten 0: parallel zu einer Koordinatenebene."],
-        ].map(([t, x]) => (
-          <p key={t} style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, marginBottom: 6 }}>
-            <b style={{ color: C.tinte }}>{t}:</b> {x}
-          </p>
-        ))}
-      </Tafel>
+      <Tafel titel="So liest du die Koordinatenform">{lesehilfe}</Tafel>
     </VekSeite>
   );
 }

@@ -36,6 +36,7 @@ Die neun Werkzeuge der Vektor-Stationen (Rechnen mit Vektoren, Kreuzprodukt, Win
 - Karten setzen `backgroundColor` (nicht `background`), sonst zieht `index.css` (`html[data-wz-voll]`) sie randlos über die ganze Breite.
 - Bildzeichen (Lagebeziehungen, Winkelarten, Punkt/Gerade/Ebene, Abstand, Lot) in `Bild` – neue dort ergänzen.
 - Browser: `tests/ui/vektoren-design.ui.py` (360/390/1280, g links neben h, Vermutung → Ergebnis, keine Überbreite).
+- **Desktop ab 840 px** (DESKTOP-STIL.md): `VekArbeit` (Boxen + Vermutung links, 340 px), Bild rechts in `VekBild` bzw. `Raum3 arbeitsflaeche` (echte Pixel, Werkzeugleiste mit Grundebenen/Übungsfall darunter), Rechnung darunter über die volle Breite; Regler am Desktop als `ReglerSpalten` (+ oben, − unten). Handy-Zweige bleiben unverändert. Browser: `tests/ui/desktop-a.ui.py`.
 
 ## Lernseiten → Werkzeug mit Aufgabentyp
 `uebenWunschSetzen(ansicht, { modus, art })` aus `src/uebenWunsch.js` vor `gehe()` öffnet ein Werkzeug gleich im gewünschten Modus und Aufgabentyp (ZweiModi/UebenRahmen in geoUi.jsx lesen den Wunsch). Das Modul Unterstufe (`funcUnterstufe.jsx`, Daten `unterstufeDaten5/6.js`, Doku `claude/modul-unterstufe.md`) nutzt das für jeden Übungsknopf.

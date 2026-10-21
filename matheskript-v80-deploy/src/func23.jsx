@@ -17,7 +17,8 @@ import { FA, FB, FE, FS, Gl, Name, Raum3, Schritt, Vek, k, koordText, n } from "
 import { IchHaengeFest } from "./funcHilfe.jsx";
 import { AufklappZeichen } from "./aufklappen.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
-import { HauptKnopf, ObjektBox, ObjektReihe, Tafel, VF, VekSeite, WuerfelKnopf } from "./vekUi.jsx";
+import { FallWahl, HauptKnopf, ObjektBox, ObjektReihe, Tafel, VF, VekArbeit, VekSeite, WuerfelKnopf } from "./vekUi.jsx";
+import { ErgebnisReihe, FeinKarte, useDesktop } from "./arbeitsflaeche.jsx";
 
 const pt = (P) => P.map(n).join(" | ");
 function geradeHilfe(A, B) {
@@ -253,48 +254,108 @@ export function ZweiPunkteGerade() {
   const pkt = { A, B }, farbe = { A: FA, B: FB };
 
   const fG = VF.drei;   // die Gerade ist das Ergebnis
+  const desktop = useDesktop();
+  const seitenTitel = "Durch zwei Punkte geht genau eine Gerade";
+  const seitenText = "Ein Punkt liefert den Stützvektor, der Weg zum anderen Punkt den Richtungsvektor. Welchen Punkt du als Stützpunkt nimmst, ist egal.";
+  const boxen = (
+    <ObjektReihe>
+      <PunktBox name="A" farbe={FA} werte={Aw} setWerte={setAw} />
+      <PunktBox name="B" farbe={FB} werte={Bw} setWerte={setBw} />
+    </ObjektReihe>
+  );
+  const fehler = !A || !B ? <Meldung art="warn">Bitte in jedes Feld eine ganze Zahl eintragen.</Meldung>
+    : gleich(A, B) ? <Meldung art="warn">A und B sind derselbe Punkt. Durch einen einzelnen Punkt gehen unendlich viele Geraden – die Gerade ist nicht eindeutig bestimmt.
+      Ändere einen der Punkte.</Meldung> : null;
+  const raum = (breit) => (
+    <Raum3 key={[...A, ...B].join()} punkte={[{ p: A, label: "A", farbe: FA }, { p: B, label: "B", farbe: VF.zweiText }]} gerade={{ p: A, r: diff(A, B), farbe: fG }}
+      legende={[{ text: "A", farbe: FA, art: "punkt" }, { text: "B", farbe: FB, art: "punkt" }, { text: "g", farbe: fG }]} arbeitsflaeche={breit} />
+  );
+  const wegInhalt = (S, Q) => (
+    <>
+      <Schritt nr="1" titel={`Stützvektor: Ortsvektor von ${S}`}>
+        <Einzeilig max={16}><Name t={"O" + S} farbe={farbe[S]} /><Gl /><Vek w={pkt[S].map(n)} farbe={farbe[S]} /></Einzeilig>
+      </Schritt>
+      <Schritt nr="2" titel={`Richtungsvektor: von ${S} nach ${Q}`}>
+        <Verb von={S} nach={Q} farbeVon={farbe[S]} farbeNach={farbe[Q]} P={pkt[S]} Q={pkt[Q]} />
+      </Schritt>
+      <Schritt nr="3" titel="Geradengleichung">
+        <Einzeilig max={17}>
+          <span>g:</span><Name t="x" /><Gl /><Vek w={pkt[S].map(n)} farbe={farbe[S]} /><span>+ t ·</span><Vek w={diff(pkt[S], pkt[Q]).map(n)} farbe={FE} />
+        </Einzeilig>
+      </Schritt>
+      <p style={{ ...hinweis, margin: "0 0 12px 36px" }}>Probe: t = 0 ergibt {S}, t = 1 ergibt {Q}.</p>
+    </>
+  );
+  const beideWege = (
+    <Meldung>
+      Beide Wege beschreiben dieselbe Gerade: <Name t="BA" farbe={FE} /> = −1 · <Name t="AB" farbe={FE} /> ist parallel zu <Name t="AB" farbe={FE} />,
+      und B liegt auf der Geraden aus Weg 1 (t = 1).
+    </Meldung>
+  );
+
+  /* ---------- Desktop: Punkte links, 3D-Bild rechts, beide Wege darunter nebeneinander ---------- */
+  if (desktop) {
+    return (
+      <VekSeite titel={seitenTitel} text={seitenText}>
+        <div data-zp="breit">
+          <VekArbeit
+            links={<>
+              {/* am Desktop untereinander: die Punktfelder brauchen ≈ 180 px je Box */}
+              <div data-zp-punkte="" style={{ display: "grid", gap: 10 }}>
+                <PunktBox name="A" farbe={FA} werte={Aw} setWerte={setAw} />
+                <PunktBox name="B" farbe={FB} werte={Bw} setWerte={setBw} />
+              </div>
+              <div style={{ display: "flex", justifyContent: "flex-end" }}><WuerfelKnopf onClick={neu}>Neue Punkte</WuerfelKnopf></div>
+              {!fehler && beideWege}
+            </>}
+            rechts={fehler || raum(true)} />
+        </div>
+        {!fehler && (
+          <div>
+            <Tafel titel="Zwei Wege zur Geradengleichung" stil={{ marginTop: 20 }}>
+              <ErgebnisReihe gap={20}>
+                {[["A", "B"], ["B", "A"]].map(([S, Q], i) => (
+                  <div key={S} data-zp-weg={S} style={{ minWidth: 0 }}>
+                    <p style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 15, fontWeight: 800, color: C.tinte, margin: "0 0 12px" }}>
+                      Weg {i + 1}
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 600, color: C.grau }}>
+                        Stützpunkt
+                        <span style={{ minWidth: 24, height: 24, padding: "0 6px", borderRadius: 7, background: farbe[S], color: C.weiss, fontSize: 13.5, fontWeight: 800,
+                          display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{S}</span>
+                      </span>
+                    </p>
+                    {wegInhalt(S, Q)}
+                  </div>
+                ))}
+              </ErgebnisReihe>
+            </Tafel>
+          </div>
+        )}
+        {A && B && !gleich(A, B) && <div><GeradePruefen A={A} B={B} key={[...A, ...B].join()} /></div>}
+      </VekSeite>
+    );
+  }
+
   return (
-    <VekSeite titel="Durch zwei Punkte geht genau eine Gerade"
-      text="Ein Punkt liefert den Stützvektor, der Weg zum anderen Punkt den Richtungsvektor. Welchen Punkt du als Stützpunkt nimmst, ist egal.">
-      <ObjektReihe>
-        <PunktBox name="A" farbe={FA} werte={Aw} setWerte={setAw} />
-        <PunktBox name="B" farbe={FB} werte={Bw} setWerte={setBw} />
-      </ObjektReihe>
+    <VekSeite titel={seitenTitel} text={seitenText}>
+      {boxen}
       <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 10 }}><WuerfelKnopf onClick={neu}>Neue Punkte</WuerfelKnopf></div>
 
-      {!A || !B ? (
-        <div style={{ marginTop: 12 }}><Meldung art="warn">Bitte in jedes Feld eine ganze Zahl eintragen.</Meldung></div>
-      ) : gleich(A, B) ? (
-        <div style={{ marginTop: 12 }}><Meldung art="warn">A und B sind derselbe Punkt. Durch einen einzelnen Punkt gehen unendlich viele Geraden – die Gerade ist nicht eindeutig bestimmt.
-          Ändere einen der Punkte.</Meldung></div>
+      {fehler ? (
+        <div style={{ marginTop: 12 }}>{fehler}</div>
       ) : (
         <>
           <div style={{ marginTop: 12 }}>
-            <Raum3 key={[...A, ...B].join()} punkte={[{ p: A, label: "A", farbe: FA }, { p: B, label: "B", farbe: VF.zweiText }]} gerade={{ p: A, r: diff(A, B), farbe: fG }}
-              legende={[{ text: "A", farbe: FA, art: "punkt" }, { text: "B", farbe: FB, art: "punkt" }, { text: "g", farbe: fG }]} />
+            {raum(false)}
           </div>
           <Tafel titel="Zwei Wege zur Geradengleichung" text="Öffne einen Weg – jeder Schritt steht einzeln da.">
             {[["A", "B"], ["B", "A"]].map(([S, Q], i) => (
               <Weg key={S} id={`zp-weg-${S}`} titel={`Weg ${i + 1}`} stuetz={S} farbe={farbe[S]} offen={offen === S} umschalten={() => setOffen(offen === S ? null : S)}>
-                <Schritt nr="1" titel={`Stützvektor: Ortsvektor von ${S}`}>
-                  <Einzeilig max={16}><Name t={"O" + S} farbe={farbe[S]} /><Gl /><Vek w={pkt[S].map(n)} farbe={farbe[S]} /></Einzeilig>
-                </Schritt>
-                <Schritt nr="2" titel={`Richtungsvektor: von ${S} nach ${Q}`}>
-                  <Verb von={S} nach={Q} farbeVon={farbe[S]} farbeNach={farbe[Q]} P={pkt[S]} Q={pkt[Q]} />
-                </Schritt>
-                <Schritt nr="3" titel="Geradengleichung">
-                  <Einzeilig max={17}>
-                    <span>g:</span><Name t="x" /><Gl /><Vek w={pkt[S].map(n)} farbe={farbe[S]} /><span>+ t ·</span><Vek w={diff(pkt[S], pkt[Q]).map(n)} farbe={FE} />
-                  </Einzeilig>
-                </Schritt>
-                <p style={{ ...hinweis, margin: "0 0 12px 36px" }}>Probe: t = 0 ergibt {S}, t = 1 ergibt {Q}.</p>
+                {wegInhalt(S, Q)}
               </Weg>
             ))}
             <div style={{ marginTop: 12 }}>
-              <Meldung>
-                Beide Wege beschreiben dieselbe Gerade: <Name t="BA" farbe={FE} /> = −1 · <Name t="AB" farbe={FE} /> ist parallel zu <Name t="AB" farbe={FE} />,
-                und B liegt auf der Geraden aus Weg 1 (t = 1).
-              </Meldung>
+              {beideWege}
             </div>
           </Tafel>
         </>
@@ -413,71 +474,147 @@ export function DreiPunkteEbene() {
     return { S, nv, d: skalar(pkt[S], nv), norm: normiere(nv, skalar(pkt[S], nv)) };
   }) : [];
 
+  const desktop = useDesktop();
+  const seitenTitel = "Drei Punkte, eine Ebene – drei Wege";
+  const seitenText = "Ein Punkt wird Stützpunkt, die Wege zu den beiden anderen werden Spannvektoren. Danach rechnest du die Parameterform in die Koordinatenform um.";
+  const punktBoxen = [
+    <PunktBox key="A" name="A" farbe={FA} werte={Aw} setWerte={setAw} />,
+    <PunktBox key="B" name="B" farbe={FB} werte={Bw} setWerte={setBw} />,
+    <PunktBox key="C" name="C" farbe={FS} werte={Cw} setWerte={setCw} />,
+  ];
+  const wuerfel = <WuerfelKnopf onClick={neu}>Neue Punkte</WuerfelKnopf>;
+  const raum = (breit) => !fehler && (
+    <Raum3 key={[...A, ...B, ...Cp].join()} punkte={[{ p: A, label: "A", farbe: FA }, { p: B, label: "B", farbe: VF.zweiText }, { p: Cp, label: "C", farbe: FS }]}
+      ebene={{ n: formen[0].nv, d: formen[0].d }}
+      legende={[{ text: "A", farbe: FA, art: "punkt" }, { text: "B", farbe: FB, art: "punkt" }, { text: "C", farbe: FS, art: "punkt" }, { text: "E", farbe: C.see, art: "flaeche" }]}
+      arbeitsflaeche={breit} />
+  );
+  const pruefText = <>Prüfung vorab: <Name t="AB" farbe={FE} /> × <Name t="AC" farbe={FE} /> ≠ <Name t="0" />, die Punkte liegen also nicht auf einer Geraden.</>;
+  /* ein Weg in zwei Teilen: Spannvektoren + Parameterform | Umrechnung in die Koordinatenform */
+  const wegTeile = ([S, P, Q]) => {
+    const u = diff(pkt[S], pkt[P]), v = diff(pkt[S], pkt[Q]);
+    return [
+      <>
+        <Schritt nr="1" titel="Spannvektoren">
+          <Verb von={S} nach={P} farbeVon={farbe[S]} farbeNach={farbe[P]} P={pkt[S]} Q={pkt[P]} />
+          <div style={{ height: 6 }} />
+          <Verb von={S} nach={Q} farbeVon={farbe[S]} farbeNach={farbe[Q]} P={pkt[S]} Q={pkt[Q]} />
+        </Schritt>
+        <Schritt nr="2" titel="Parameterform">
+          <Einzeilig max={16}>
+            <span>E:</span><Name t="x" /><Gl /><Vek w={pkt[S].map(n)} farbe={farbe[S]} />
+            <span>+ r ·</span><Vek w={u.map(n)} farbe={FE} /><span>+ s ·</span><Vek w={v.map(n)} farbe={FE} />
+          </Einzeilig>
+        </Schritt>
+      </>,
+      <KoordinatenformRechnung S={S} u={u} v={v} P={pkt[S]} farbeS={farbe[S]} nU={S + P} nV={S + Q} />,
+    ];
+  };
+  const vergleichInhalt = !fehler && (
+    <>
+      {formen.map((f, i) => (
+        <p key={f.S} style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, marginBottom: 6 }}>
+          <b style={{ color: C.tinte }}>Weg {String.fromCharCode(65 + i)}:</b> {koordText(f.nv, f.d)}
+          {i > 0 && (f.norm.faktor === formen[0].norm.faktor
+            ? <span> – identisch mit Weg A</span>
+            : <span> – das {n(f.norm.faktor / formen[0].norm.faktor)}-Fache der Gleichung aus Weg A</span>)}
+        </p>
+      ))}
+      <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, marginBottom: 8 }}>
+        Gekürzt ergibt sich jedes Mal <b style={{ color: FE }}>{koordText(formen[0].norm.n, formen[0].norm.d)}</b>. Unterscheiden sich zwei
+        Gleichungen nur um einen von 0 verschiedenen Gesamtfaktor, beschreiben sie dieselbe Ebene.
+      </p>
+    </>
+  );
+  const weiter = !fehler && (() => {
+    const k = [...formen[0].norm.n, formen[0].norm.d];
+    const passt = k.every((x) => Number.isInteger(x) && Math.abs(x) <= 10);
+    return (
+      <WeiterMit titel="Weiter mit dieser Ebene">
+        {passt && <WeiterKnopf ziel="ebenen" von="Drei Punkte – eine Ebene" daten={{ k }} zeile={`${koordText(formen[0].norm.n, formen[0].norm.d)} im Raum drehen, Spurpunkte und Normalenvektor sehen`} />}
+        <WeiterKnopf ziel="abstaende" von="Drei Punkte – eine Ebene" daten={{ ebene: k }} zeile="Abstand eines Punktes zu genau dieser Ebene berechnen" />
+      </WeiterMit>
+    );
+  })();
+
+  /* ---------- Desktop: Punkte und Vergleich links, 3D-Bild rechts, gewählter Weg darunter in zwei Spalten ---------- */
+  if (desktop) {
+    const wahl = varianten.find(([S]) => S === offen) || varianten[0];
+    const [teil1, teil2] = fehler ? [null, null] : wegTeile(wahl);
+    return (
+      <VekSeite titel={seitenTitel} text={seitenText}>
+        <div data-dp="breit">
+          <VekArbeit
+            links={<>
+              {/* am Desktop untereinander: die Punktfelder brauchen ≈ 180 px je Box */}
+              <div data-dp-punkte="" style={{ display: "grid", gap: 10 }}>{punktBoxen}</div>
+              <div style={{ display: "flex", justifyContent: "flex-end" }}>{wuerfel}</div>
+            </>}
+            rechts={fehler ? <Meldung art="warn">{fehler}</Meldung> : raum(true)} />
+        </div>
+        {!fehler && (
+          <div>
+            <Tafel titel={`Rechenweg mit Stützpunkt ${wahl[0]}`} text={pruefText} stil={{ marginTop: 20 }}
+              rechts={<FallWahl label="Weg wählen" wert={wahl[0]} setWert={(S) => setOffen(S)}
+                optionen={varianten.map(([S], i) => [S, `Weg ${String.fromCharCode(65 + i)}: Stützpunkt ${S}`])} />}>
+              <div data-dp-weg={wahl[0]}>
+                <ErgebnisReihe gap={20}>
+                  <div style={{ minWidth: 0 }}>{teil1}</div>
+                  <div style={{ minWidth: 0 }}>
+                    <p style={{ fontSize: 12.5, fontWeight: 700, color: C.see, margin: "3px 0 10px" }}>Parameterform in Koordinatenform umrechnen</p>
+                    {teil2}
+                  </div>
+                </ErgebnisReihe>
+              </div>
+            </Tafel>
+          </div>
+        )}
+        {!fehler && (
+          <div style={{ marginTop: 16 }}>
+            <ErgebnisReihe spalten="minmax(0, 1fr) minmax(0, 320px)" gap={20}>
+              <FeinKarte data-dp-vergleich="">
+                <p style={{ fontSize: 14, fontWeight: 800, color: C.tinte, margin: "0 0 8px" }}>Vergleich der drei Koordinatengleichungen</p>
+                {vergleichInhalt}
+              </FeinKarte>
+              <div style={{ marginTop: -18 }}>{weiter}</div>
+            </ErgebnisReihe>
+          </div>
+        )}
+        {!fehler && <div><EbenePruefen norm={formen[0].norm} A={A} B={B} Cp={Cp} key={[...A, ...B, ...Cp].join()} /></div>}
+      </VekSeite>
+    );
+  }
+
   return (
-    <VekSeite titel="Drei Punkte, eine Ebene – drei Wege"
-      text="Ein Punkt wird Stützpunkt, die Wege zu den beiden anderen werden Spannvektoren. Danach rechnest du die Parameterform in die Koordinatenform um.">
+    <VekSeite titel={seitenTitel} text={seitenText}>
       {/* vier Zellen: A, B, C und der Würfel – mobil 2 × 2, breit eine Reihe */}
       <ObjektReihe min={160}>
-        <PunktBox name="A" farbe={FA} werte={Aw} setWerte={setAw} />
-        <PunktBox name="B" farbe={FB} werte={Bw} setWerte={setBw} />
-        <PunktBox name="C" farbe={FS} werte={Cw} setWerte={setCw} />
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 60 }}><WuerfelKnopf onClick={neu}>Neue Punkte</WuerfelKnopf></div>
+        {punktBoxen}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 60 }}>{wuerfel}</div>
       </ObjektReihe>
 
       {fehler ? <div style={{ marginTop: 12 }}><Meldung art="warn">{fehler}</Meldung></div> : (
         <>
           <div style={{ marginTop: 12 }}>
-            <Raum3 key={[...A, ...B, ...Cp].join()} punkte={[{ p: A, label: "A", farbe: FA }, { p: B, label: "B", farbe: VF.zweiText }, { p: Cp, label: "C", farbe: FS }]}
-              ebene={{ n: formen[0].nv, d: formen[0].d }}
-              legende={[{ text: "A", farbe: FA, art: "punkt" }, { text: "B", farbe: FB, art: "punkt" }, { text: "C", farbe: FS, art: "punkt" }, { text: "E", farbe: C.see, art: "flaeche" }]} />
+            {raum(false)}
           </div>
-          <Tafel titel="Drei Wege zur Ebene" text={<>Prüfung vorab: <Name t="AB" farbe={FE} /> × <Name t="AC" farbe={FE} /> ≠ <Name t="0" />, die Punkte liegen also nicht auf einer Geraden.</>}>
+          <Tafel titel="Drei Wege zur Ebene" text={pruefText}>
             {varianten.map(([S, P, Q], i) => {
-              const u = diff(pkt[S], pkt[P]), v = diff(pkt[S], pkt[Q]);
+              const [teil1, teil2] = wegTeile([S, P, Q]);
               return (
                 <Weg key={S} id={`dp-weg-${S}`} titel={`Weg ${String.fromCharCode(65 + i)}`} stuetz={S} farbe={farbe[S]} offen={offen === S}
                   umschalten={() => setOffen(offen === S ? null : S)}>
-                  <Schritt nr="1" titel="Spannvektoren">
-                    <Verb von={S} nach={P} farbeVon={farbe[S]} farbeNach={farbe[P]} P={pkt[S]} Q={pkt[P]} />
-                    <div style={{ height: 6 }} />
-                    <Verb von={S} nach={Q} farbeVon={farbe[S]} farbeNach={farbe[Q]} P={pkt[S]} Q={pkt[Q]} />
-                  </Schritt>
-                  <Schritt nr="2" titel="Parameterform">
-                    <Einzeilig max={16}>
-                      <span>E:</span><Name t="x" /><Gl /><Vek w={pkt[S].map(n)} farbe={farbe[S]} />
-                      <span>+ r ·</span><Vek w={u.map(n)} farbe={FE} /><span>+ s ·</span><Vek w={v.map(n)} farbe={FE} />
-                    </Einzeilig>
-                  </Schritt>
-                  <KoordinatenformRechnung S={S} u={u} v={v} P={pkt[S]} farbeS={farbe[S]} nU={S + P} nV={S + Q} />
+                  {teil1}
+                  {teil2}
                 </Weg>
               );
             })}
             <div style={{ background: VF.flaeche, border: `1px solid ${C.linie}`, borderRadius: 14, padding: "12px 12px 4px", marginTop: 14 }}>
               <p style={{ fontSize: 14, fontWeight: 700, color: C.tinte, marginBottom: 8 }}>Vergleich der drei Koordinatengleichungen</p>
-              {formen.map((f, i) => (
-                <p key={f.S} style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, marginBottom: 6 }}>
-                  <b style={{ color: C.tinte }}>Weg {String.fromCharCode(65 + i)}:</b> {koordText(f.nv, f.d)}
-                  {i > 0 && (f.norm.faktor === formen[0].norm.faktor
-                    ? <span> – identisch mit Weg A</span>
-                    : <span> – das {n(f.norm.faktor / formen[0].norm.faktor)}-Fache der Gleichung aus Weg A</span>)}
-                </p>
-              ))}
-              <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.6, marginBottom: 8 }}>
-                Gekürzt ergibt sich jedes Mal <b style={{ color: FE }}>{koordText(formen[0].norm.n, formen[0].norm.d)}</b>. Unterscheiden sich zwei
-                Gleichungen nur um einen von 0 verschiedenen Gesamtfaktor, beschreiben sie dieselbe Ebene.
-              </p>
+              {vergleichInhalt}
             </div>
           </Tafel>
-          {(() => {
-            const k = [...formen[0].norm.n, formen[0].norm.d];
-            const passt = k.every((x) => Number.isInteger(x) && Math.abs(x) <= 10);
-            return (
-              <WeiterMit titel="Weiter mit dieser Ebene">
-                {passt && <WeiterKnopf ziel="ebenen" von="Drei Punkte – eine Ebene" daten={{ k }} zeile={`${koordText(formen[0].norm.n, formen[0].norm.d)} im Raum drehen, Spurpunkte und Normalenvektor sehen`} />}
-                <WeiterKnopf ziel="abstaende" von="Drei Punkte – eine Ebene" daten={{ ebene: k }} zeile="Abstand eines Punktes zu genau dieser Ebene berechnen" />
-              </WeiterMit>
-            );
-          })()}
+          {weiter}
         </>
       )}
 

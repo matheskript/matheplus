@@ -15,7 +15,8 @@ import { DrehKnoepfe, FARBE_ACHSE, GRUND_AUS, GrundebenenGitter, GrundebenenScha
 import { Bruch, Einzeilig, SpaltenVektor, VecName, Wurzel, ggT, kreuz, minus, skalar, strahlImWuerfel } from "./func19.jsx";
 
 import { springe } from "./sprung.js";
-import { BUEHNE, BUEHNE_SVG, FallWahl, Fusszeile, Legende, ModusReiter, RSchritt, Tafel, VF, VekSeite } from "./vekUi.jsx";
+import { BUEHNE, BUEHNE_SVG, FallWahl, Fusszeile, Legende, ModusReiter, RSchritt, Tafel, VF, VekArbeit, VekBild, VekSeite } from "./vekUi.jsx";
+import { FeinKarte, Werkzeugleiste, useDesktop } from "./arbeitsflaeche.jsx";
 export const FA = C.see, FB = C.gruen, FE = "#8A6D00", FS = C.smaragd;
 
 /* ---------- Zufall ---------- */
@@ -143,13 +144,34 @@ export function neueAufgabe(art) {
    gerade/gerade2: { p, r, farbe?, ohnePfeil? } · ebene/ebene2: { n, d, farbe? }
    legende: [{ text, farbe, art }] erscheint oben links im Bild (vekUi Legende). */
 
-export function Raum3({ punkte, gerade, gerade2, lot, ebene, ebene2, lot2, legende }) {
+/* Desktop (ab 840 px) mit arbeitsflaeche: Bild rechts in einer BildKarte (VekBild), quadratisch und in echten Pixeln,
+   darunter die Werkzeugleiste (Grundebenen + gruppen). Handy und ohne arbeitsflaeche: unverändert 360 × 300. */
+export function Raum3(props) {
+  const desktop = useDesktop();
+  if (props.arbeitsflaeche && desktop) return <Raum3Breit {...props} />;
+  return <Raum3Bild {...props} />;
+}
+
+function Raum3Breit(props) {
   const [grund, setGrund] = useState(GRUND_AUS);
+  return (
+    <div data-vek-raum="" data-raum3="breit" style={{ display: "flex", flexDirection: "column", gap: 14, minWidth: 0 }}>
+      <VekBild>{(breite) => <Raum3Bild {...props} grundAussen={grund} W={breite} H={breite} />}</VekBild>
+      <Werkzeugleiste gruppen={[{ titel: "Grundebenen einblenden", inhalt: <GrundebenenSchalter an={grund} setAn={setGrund} ohneTitel /> }, ...(props.gruppen || [])]} />
+    </div>
+  );
+}
+
+function Raum3Bild({ punkte, gerade, gerade2, lot, ebene, ebene2, lot2, legende, grundAussen, W = 360, H = 300 }) {
+  const [grundInnen, setGrund] = useState(GRUND_AUS);
+  const grund = grundAussen || grundInnen;
+  const breit = !!grundAussen;                       // Desktop-Bild: ohne eigenen Rahmen und Schalter (stehen in VekBild/Werkzeugleiste)
+  const gross = W > 400;
   const [phi, setPhi] = useState(0.62);
   const [theta, setTheta] = useState(0.42);
   const maxK = Math.max(4, ...punkte.flatMap((p) => p.p.map(Math.abs)));
   const L = Math.min(10, Math.ceil(maxK) + 1);
-  const W = 360, H = 300, s = (Math.min(W, H) / 2 - 16) / (L * 1.5);
+  const s = (Math.min(W, H) / 2 - 16) / (L * 1.5);
   const cam = kamera(phi, theta);
   const P = (p) => { const q = cam.proj(p); return [W / 2 + s * q.u, H / 2 - s * q.v]; };
   const pfad = (pts) => pts.map((p, i) => `${i ? "L" : "M"}${P(p)[0].toFixed(1)},${P(p)[1].toFixed(1)}`).join(" ") + " Z";
@@ -183,9 +205,9 @@ export function Raum3({ punkte, gerade, gerade2, lot, ebene, ebene2, lot2, legen
   };
 
   return (
-    <div data-vek-raum="">
-    <div style={BUEHNE}>
-      <svg viewBox={`0 0 ${W} ${H}`} style={BUEHNE_SVG}
+    <div data-vek-raum={breit ? undefined : ""}>
+    <div style={breit ? { position: "relative" } : BUEHNE}>
+      <svg viewBox={`0 0 ${W} ${H}`} style={breit ? { ...BUEHNE_SVG, maxWidth: "none" } : BUEHNE_SVG}
         onPointerDown={start} onPointerMove={bewege} onPointerUp={ende} onPointerLeave={ende}>
         <defs>
           {[0, 1, 2].map((i) => (
@@ -205,7 +227,7 @@ export function Raum3({ punkte, gerade, gerade2, lot, ebene, ebene2, lot2, legen
           return (
             <g key={i}>
               <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={FARBE_ACHSE[i]} strokeWidth="1.4" markerEnd={`url(#vg${i})`} opacity="0.7" />
-              <text x={lx} y={ly + 4} textAnchor="middle" fontSize="12.5" fontWeight="700" fontStyle="italic" fill={FARBE_ACHSE[i]}>x{["₁", "₂", "₃"][i]}</text>
+              <text x={lx} y={ly + 4} textAnchor="middle" fontSize={gross ? 14 : 12.5} fontWeight="700" fontStyle="italic" fill={FARBE_ACHSE[i]}>x{["₁", "₂", "₃"][i]}</text>
             </g>
           );
         })}
@@ -235,7 +257,7 @@ export function Raum3({ punkte, gerade, gerade2, lot, ebene, ebene2, lot2, legen
       {legende && <Legende eintraege={legende} stil={{ position: "absolute", left: 10, top: 10, maxWidth: "calc(50% - 30px)", pointerEvents: "none" }} />}
       <DrehKnoepfe setPhi={setPhi} setTheta={setTheta} zuruecksetzen={() => { setPhi(0.62); setTheta(0.42); }} />
     </div>
-      <div style={{ marginTop: 8 }}><GrundebenenSchalter an={grund} setAn={setGrund} /></div>
+      {!breit && <div style={{ marginTop: 8 }}><GrundebenenSchalter an={grund} setAn={setGrund} /></div>}
     </div>
   );
 }
@@ -558,35 +580,62 @@ export function VektorGenerator({ gehe }) {
   const wechsleUnten = (id) => { wechsle(id); requestAnimationFrame(() => karteRef.current && springe("bruch-beispiele", () => karteRef.current.scrollIntoView({ behavior: "smooth", block: "start" }))); };
   const info = ARTEN.find((x) => x.id === art);
   const titel = art === "addsub" ? (aufgabe.op === "+" ? "Vektoraddition" : "Vektorsubtraktion") : info.titel || info.name;
+  const desktop = useDesktop();
+
+  const reiter = (stapel) => (
+    <ModusReiter label="Rechenart" wert={ARTEN.find((x) => x.id === art && x.haupt) ? art : null} setWert={wechsle} stapel={stapel}
+      modi={ARTEN.filter((x) => x.haupt).map((x) => ({ id: x.id, name: stapel ? x.name : x.kurz, bild: x.bild }))} />
+  );
+  const rechnungTafel = (stil) => (
+    <Tafel stil={{ marginTop: 0, ...stil }} titel={titel} rechts={<span style={{ fontSize: 12.5, fontWeight: 600, color: C.grau, whiteSpace: "nowrap" }}>Beispiel {zaehler}</span>}>
+      <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.55, margin: "0 0 14px" }}>{info.info}</p>
+      <div key={zaehler + art}>
+        {art === "addsub" && <AddSub {...aufgabe} />}
+        {art === "skalar" && <SkalarMult {...aufgabe} />}
+        {art === "linear" && <Linear {...aufgabe} />}
+        {art === "skalarprodukt" && <SkalarProd {...aufgabe} />}
+        {art === "kreuzprodukt" && <KreuzProd {...aufgabe} />}
+        {art === "abstandPG" && <AbstandPG {...aufgabe} />}
+        {art === "abstandPE" && <AbstandPE {...aufgabe} />}
+        {art === "abstandGG" && <AbstandGG {...aufgabe} />}
+      </div>
+      <Fusszeile neu={neu} neuText="Neues Beispiel" stil={{ marginTop: 8 }} />
+    </Tafel>
+  );
+  /* Weitere Beispiele – Kreuzprodukt und Abstände führen in ihre eigenen Werkzeuge */
+  const weitere = (
+    <FallWahl titel="Weitere Beispiele" wert={ARTEN.find((x) => x.id === art && !x.haupt) ? art : null}
+      setWert={(id) => { const x = ARTEN.find((y) => y.id === id); if (x.link) { if (gehe) gehe({ ansicht: x.link }); } else wechsleUnten(id); }}
+      optionen={ARTEN.filter((x) => !x.haupt).map((x) => [x.id, x.link ? (x.id === "kreuzprodukt" ? "Zum Kreuzprodukt" : "Zu den Abständen") : x.name, x.id === "skalarprodukt" ? "skalar" : x.id === "kreuzprodukt" ? "kreuz" : "punkt"])} />
+  );
+  const seitenText = "Wähle eine Rechenart und lass dir so viele Beispiele zeigen, wie du willst – jedes mit vollständigem Rechenweg. Alle Koordinaten liegen zwischen −7 und 7.";
+
+  /* ---------- Desktop: Rechenarten links untereinander, Rechnung rechts (kein Bild – die Rechnung ist das Bild) ---------- */
+  if (desktop) {
+    return (
+      <VekSeite titel="Beispiele ohne Ende" text={seitenText}>
+        <div data-vg="breit" ref={karteRef} style={{ scrollMarginTop: 80 }}>
+          <VekArbeit
+            links={<>
+              <div data-vg-arten="">{reiter(true)}</div>
+              <FeinKarte>{weitere}</FeinKarte>
+            </>}
+            rechts={rechnungTafel({ boxShadow: "none" })} />
+        </div>
+      </VekSeite>
+    );
+  }
 
   return (
-    <VekSeite titel="Beispiele ohne Ende"
-      text="Wähle eine Rechenart und lass dir so viele Beispiele zeigen, wie du willst – jedes mit vollständigem Rechenweg. Alle Koordinaten liegen zwischen −7 und 7.">
-      <ModusReiter label="Rechenart" wert={ARTEN.find((x) => x.id === art && x.haupt) ? art : null} setWert={wechsle}
-        modi={ARTEN.filter((x) => x.haupt).map((x) => ({ id: x.id, name: x.kurz, bild: x.bild }))} />
+    <VekSeite titel="Beispiele ohne Ende" text={seitenText}>
+      {reiter(false)}
 
       <div ref={karteRef} style={{ scrollMarginTop: 80 }}>
-        <Tafel stil={{ marginTop: 0 }} titel={titel} rechts={<span style={{ fontSize: 12.5, fontWeight: 600, color: C.grau, whiteSpace: "nowrap" }}>Beispiel {zaehler}</span>}>
-          <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.55, margin: "0 0 14px" }}>{info.info}</p>
-          <div key={zaehler + art}>
-            {art === "addsub" && <AddSub {...aufgabe} />}
-            {art === "skalar" && <SkalarMult {...aufgabe} />}
-            {art === "linear" && <Linear {...aufgabe} />}
-            {art === "skalarprodukt" && <SkalarProd {...aufgabe} />}
-            {art === "kreuzprodukt" && <KreuzProd {...aufgabe} />}
-            {art === "abstandPG" && <AbstandPG {...aufgabe} />}
-            {art === "abstandPE" && <AbstandPE {...aufgabe} />}
-            {art === "abstandGG" && <AbstandGG {...aufgabe} />}
-          </div>
-          <Fusszeile neu={neu} neuText="Neues Beispiel" stil={{ marginTop: 8 }} />
-        </Tafel>
+        {rechnungTafel()}
       </div>
 
-      {/* Weitere Beispiele ganz unten – Kreuzprodukt und Abstände führen in ihre eigenen Werkzeuge */}
       <div style={{ marginTop: 22 }}>
-        <FallWahl titel="Weitere Beispiele" wert={ARTEN.find((x) => x.id === art && !x.haupt) ? art : null}
-          setWert={(id) => { const x = ARTEN.find((y) => y.id === id); if (x.link) { if (gehe) gehe({ ansicht: x.link }); } else wechsleUnten(id); }}
-          optionen={ARTEN.filter((x) => !x.haupt).map((x) => [x.id, x.link ? (x.id === "kreuzprodukt" ? "Zum Kreuzprodukt" : "Zu den Abständen") : x.name, x.id === "skalarprodukt" ? "skalar" : x.id === "kreuzprodukt" ? "kreuz" : "punkt"])} />
+        {weitere}
       </div>
     </VekSeite>
   );

@@ -20,12 +20,17 @@
      Legende       Farbzuordnung über dem 3D-Bild
      Fusszeile     „Neue Aufgabe“ + Hilfe
      Bild          kleine Bildzeichen (Lagebeziehungen, Winkel, Objekte)
-   Importiert nur base1 und i18n – darf von func16/19/20/23/24 und
+   Desktop (ab 840 px, DESKTOP-STIL.md):
+     VekArbeit     Arbeitsfläche: Objekt-Boxen/Einstellungen links (VEK_LINKS), Bild rechts
+     VekBild       3D-/2D-Bild rechts in einer BildKarte, in echten Pixeln gemessen
+     ReglerSpalten Koeffizienten/Koordinaten als Spalten: + oben, Wert in der Mitte, − unten
+   Importiert nur base1, i18n und arbeitsflaeche – darf von func16/19/20/23/24 und
    funcGeraden benutzt werden, ohne Kreise zu bilden.
    ============================================================ */
 import React from "react";
 import { C } from "./base1.jsx";
 import { englisch } from "./i18n.js";
+import { Arbeitsflaeche, BildKarte, useBreite } from "./arbeitsflaeche.jsx";
 
 const zw = (de, en) => (englisch() ? en : de);
 
@@ -154,19 +159,21 @@ export function VekSeite({ titel, text, children, oben = 28 }) {
 /* ---------- Reiter mit Bildzeichen ---------- */
 
 /* modi: [{ id, name, bild }] */
-export function ModusReiter({ modi, wert, setWert, label }) {
+/* stapel (nur Desktop, linke Spalte): Reiter untereinander, Bildzeichen links neben dem Namen */
+export function ModusReiter({ modi, wert, setWert, label, stapel = false }) {
   return (
-    <div role="tablist" aria-label={label} style={{ display: "grid", gridTemplateColumns: `repeat(${modi.length}, minmax(0, 1fr))`, gap: 8, marginBottom: 18 }}>
+    <div role="tablist" aria-label={label} style={{ display: "grid", gridTemplateColumns: stapel ? "minmax(0, 1fr)" : `repeat(${modi.length}, minmax(0, 1fr))`, gap: 8, marginBottom: stapel ? 0 : 18 }}>
       {modi.map((m) => {
         const an = wert === m.id;
         return (
           <button key={m.id} type="button" role="tab" aria-selected={an} onClick={() => setWert(m.id)} data-vek-reiter={m.id}
-            style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, minHeight: 80, padding: "10px 6px 9px",
+            style={{ display: "flex", flexDirection: stapel ? "row" : "column", alignItems: "center", justifyContent: stapel ? "flex-start" : "center", gap: stapel ? 12 : 6,
+              minHeight: stapel ? 56 : 80, padding: stapel ? "8px 14px 8px 10px" : "10px 6px 9px",
               borderRadius: 16, fontFamily: "inherit", cursor: "pointer", textAlign: "center",
               border: `1.5px solid ${an ? C.see : C.linie}`, background: an ? VF.einsHell : C.weiss,
               boxShadow: an ? "0 0 0 3px rgba(0,77,152,0.10)" : "none", transition: "background .15s, border-color .15s" }}>
             {m.bild && <Bild art={m.bild} breite={40} />}
-            <span style={{ fontSize: "clamp(11.5px, 3.3vw, 13.5px)", fontWeight: 700, lineHeight: 1.2, color: an ? C.see : C.tinte }}>{m.name}</span>
+            <span style={{ fontSize: stapel ? 14 : "clamp(11.5px, 3.3vw, 13.5px)", fontWeight: 700, lineHeight: 1.2, color: an ? C.see : C.tinte }}>{m.name}</span>
           </button>
         );
       })}
@@ -401,5 +408,50 @@ export function HauptKnopf({ children, onClick, disabled, art = "gruen", stil })
       style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, height: 46, padding: "0 22px", borderRadius: 999, border: "none",
         background: f[0], color: f[1], fontSize: 15, fontWeight: 800, fontFamily: "inherit", cursor: disabled ? "default" : "pointer",
         opacity: disabled ? 0.4 : 1, boxShadow: disabled ? "none" : `0 6px 16px -6px ${f[2]}`, ...stil }}>{children}</button>
+  );
+}
+
+/* ======================================================================
+   Desktop (ab 840 px) – Anordnung nach DESKTOP-STIL.md
+   ====================================================================== */
+
+/* Linke Spalte der Vektor-Werkzeuge: fast so breit wie die Handy-Spalte (340 px), damit die Objekt-Boxen
+   dort genauso stehen wie am Handy – zwei Boxen (g | h, a⃗ | b⃗, A | B) passen nebeneinander. */
+export const VEK_LINKS = 340;
+
+export function VekArbeit({ links, rechts, stil, linksBreite = VEK_LINKS }) {
+  return <Arbeitsflaeche linksBreite={linksBreite} links={links} rechts={rechts} style={stil} />;
+}
+
+/* Bild rechts: BildKarte mit dem Bühnen-Verlauf; children(breite) zeichnet in echten Pixeln
+   (breite = gemessene Innenbreite, 0 vor der ersten Messung → dann nichts zeichnen) */
+export function VekBild({ children, stil }) {
+  const [ref, breite] = useBreite();
+  return (
+    <BildKarte data-vek-bild="" style={{ background: BUEHNE.background, ...stil }}>
+      <div ref={ref} style={{ position: "relative" }}>{breite > 0 && children(breite)}</div>
+    </BildKarte>
+  );
+}
+
+/* Spalten aus + (oben) · Wert (Mitte) · − (unten) – wie die Ebenen-Karten in „Ebene vs. Ebene“.
+   spalten: [{ key, kopf?, mitte, farbe, plus, minus, plusLabel, minusLabel }] */
+export function ReglerSpalten({ spalten, abstand = 6 }) {
+  const knopf = (f) => ({
+    width: "100%", maxWidth: 66, height: 30, borderRadius: 9, border: `1.5px solid ${f}55`, background: `${f}12`,
+    color: f, fontSize: 18, fontWeight: 700, fontFamily: "inherit", cursor: "pointer", padding: 0, lineHeight: 1,
+    display: "flex", alignItems: "center", justifyContent: "center", touchAction: "manipulation",
+  });
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: `repeat(${spalten.length}, minmax(0, 1fr))`, gap: abstand }}>
+      {spalten.map((sp) => (
+        <div key={sp.key} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, minWidth: 0 }}>
+          {sp.kopf}
+          <button type="button" className="eve-knopf" aria-label={sp.plusLabel} style={knopf(sp.farbe)} onClick={sp.plus}>+</button>
+          {sp.mitte}
+          <button type="button" className="eve-knopf" aria-label={sp.minusLabel} style={knopf(sp.farbe)} onClick={sp.minus}>−</button>
+        </div>
+      ))}
+    </div>
   );
 }
