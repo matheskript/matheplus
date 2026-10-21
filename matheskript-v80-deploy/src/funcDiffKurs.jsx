@@ -64,7 +64,8 @@ export const KURS_WERKZEUGE = {
   plotter: ausWz("kurvendiskussion", { ansicht: "plotter", breit: true, render: () => <Plotter /> }),
   advplotter: { titel: "Kurvendiskussion beliebig", zeile: "Jede Funktion ableiten und zeichnen", zeichen: "f(x)", ansicht: "advplotter", breit: true, render: () => <AdvancedPlotter /> },
   geraden: ausWz("geradengleichung", { breit: true, render: () => <Geradengleichung start="pm" /> }),
-  geradenPQ: ausWz("geradengleichung", { zeile: "Gerade durch zwei Punkte – die Sekante", breit: true, render: () => <Geradengleichung start="pq" /> }),
+  /* Eine Karte „Geradentrainer“ im ganzen Kurs (seit 21.10.); „geraden“ (Start Punkt und Steigung) bleibt nur für alte Verweise */
+  geradenPQ: ausWz("geradengleichung", { zeile: "Zwei Punkte oder Punkt und Steigung – rechnen oder trainieren", breit: true, render: () => <Geradengleichung start="pq" /> }),
   parabeln: ausWz("parabeln", { breit: true, render: () => <ParabelTrainer /> }),
   funktionen: wzSeite("funktionen"),
   terme: wzSeite("terme"),

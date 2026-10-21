@@ -17,7 +17,7 @@ export const KARTEN = {
   zoomfilm: { art: "Film", text: "Ein Film zoomt Schritt für Schritt in den Graphen hinein – bis zum 1000-Fachen. Du siehst selbst, wie die Kurve zur Geraden wird und die Tangente auftaucht." },
   geradenBasics: { art: "Entdecken", text: "Mit Reglern verstellst du Steigung m und Achsenabschnitt c und siehst sofort, wie sich die Gerade dreht und verschiebt – die Grundlage für alles Weitere." },
   geraden: { art: "Rechnen und Üben", text: "Du findest die Gleichung y = m · x + c aus einem Punkt und der Steigung – mit Rechenweg und Aufgaben zum Üben." },
-  geradenPQ: { art: "Rechnen und Üben", text: "Gerade durch zwei Punkte: erst die Steigung aus Δy und Δx, dann c. Genau die Sekante, die du später für die Ableitung brauchst." },
+  geradenPQ: { art: "Rechnen und Üben", text: "Du findest y = m · x + c aus zwei Punkten oder aus Punkt und Steigung – erst m aus Δy und Δx, dann c. Im Modus Rechnen mit Musterlösung, im Modus Trainieren selbst. Die Gerade durch zwei Punkte ist genau die Sekante, die du später für die Ableitung brauchst." },
   diffq: { art: "Entdecken und Üben", text: "Zwei Punkte auf dem Graphen, eine Sekante – und ein h, das du schrumpfen lässt. Du übst die h-Methode und siehst, wie sich die Sekantensteigung einem Wert nähert." },
   grenzwert: { art: "Entdecken", text: "Die Sekante rutscht immer näher an den Berührpunkt, bis sie zur Tangente wird. Schritt für Schritt, mit Regler und Live-Grafik." },
   pascal: { art: "Entdecken", text: "Vom Zahlenmuster zur Potenzregel: Das Pascalsche Dreieck liefert die Faktoren, die beim Ausmultiplizieren von (x + h)ⁿ entstehen." },
