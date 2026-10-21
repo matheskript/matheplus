@@ -7,7 +7,7 @@
    Die Logik steckt in lernpfade.js (reine Daten, getestet); gespeichert wird in LERN.pfad
    (func6.jsx, Konto-Abgleich über lernSync). Keine base-Datei darf diese Datei importieren.
    ============================================================ */
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { C } from "./base1.jsx";
 import { lernAendern, useLern } from "./func6.jsx";
 import { Aufgabenlauf, ebbBuchen } from "./funcTraining.jsx";
@@ -426,7 +426,9 @@ export function LernpfadSeite({ gehe, start = null }) {
   const [modus, setModus] = useState(() => (start && start.einheit ? "einheit" : "plan"));   // plan | einrichten | check | einheit
   const [einst, setEinst] = useState(null);
   const [einheitId, setEinheitId] = useState(start && start.einheit ? start.einheit : null);
-  useEffect(() => { if (!P && modus === "plan") setModus("einrichten"); }, [P, modus]);
+  // Kein Effekt „ohne Plan → einrichten“: Der Lernstand wird asynchron geladen (lernLaden). Beim Direktlink oder Neuladen
+  // von /lernpfad war P im ersten Render noch leer, der Modus blieb dann auf „einrichten“ – und der gespeicherte Plan unsichtbar.
+  // Ohne Plan zeigt die Bedingung unten ohnehin die Einrichtung.
 
   if (!P || modus === "einrichten") {
     if (modus === "check" && einst) return <Standortcheck einst={einst} onAbbruch={() => setModus("einrichten")} onFertig={(check) => { pfadSetzen(planErzeugen({ ...einst, check })); setModus("plan"); springe("lernpfad", () => window.scrollTo(0, 0)); }} />;
