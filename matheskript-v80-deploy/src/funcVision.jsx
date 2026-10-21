@@ -32,7 +32,7 @@ import { useFrei } from "./func2.jsx";
 import { DiffKursKachel, VekKursKachel, UnterstufeKachel } from "./funcKursKachel.jsx";
 import { MasterclassKachel } from "./funcMasterclass.jsx";
 import { VISION_KAPITEL, VISION_ZIELE, TANGENTE, tangente, zahlDe, VERGESSEN, behalten } from "./vision.js";
-import { EVENT_START_MODUS, startModus } from "./startModus.js";
+import { basisModus, editionVon, EVENT_START_MODUS, startModus } from "./startModus.js";
 
 const NACHT = "#050B1F";
 const NACHT2 = "#0B1A44";
@@ -759,7 +759,7 @@ export function VisionSeite({ gehe }) {
   const aktivHell = aktiv && (VISION_KAPITEL.find((k) => k.id === aktiv) || {}).hell;
 
   return (
-    <div className={js ? "vi vi-js" : "vi"} ref={wurzel} data-vision data-modus={modus}>
+    <div className={js ? "vi vi-js" : "vi"} ref={wurzel} data-vision data-modus={basisModus(modus)} data-edition={editionVon(modus)}>
       <style>{CSS}</style>
 
       {/* Kapitel-Leiste links (ab 1360 px) */}

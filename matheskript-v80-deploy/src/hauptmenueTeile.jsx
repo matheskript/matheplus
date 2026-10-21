@@ -152,9 +152,13 @@ export function KlasseWaehlen({ setze, schulartStart }) {
 export const ETIKETT_FARBE = { entdecken: "#FFE58A", rechnen: "#BFD6F5", trainieren: "#FF9EC2" };
 export const ETIKETT_FARBE_HELL = { entdecken: C.flaggold, rechnen: C.seeHell, trainieren: "#D14D85" };
 
-export const MODUS_NAME = { dunkel: "Dunkel", hell: "Hell", mix: "Mix" };
-export const MODUS_NAME_EN = { dunkel: "Dark", hell: "Light", mix: "Mix" };
+export const MODUS_NAME = { dunkel: "Dunkel", hell: "Hell", mix: "Mix", stadion: "Stadion" };
+export const MODUS_NAME_EN = { dunkel: "Dark", hell: "Light", mix: "Mix", stadion: "Stadium" };
 export function ModusSymbol({ m }) {
+  /* Stadion: Kreis oben Rot, unten Blau, weißer Streifen dazwischen (eigenes Motiv, kein Wappen) */
+  if (m === "stadion") return (
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 12a8.5 8.5 0 0 1 17 0z" fill="#DC052D" /><path d="M3.5 12a8.5 8.5 0 0 0 17 0z" fill="#0066B2" /><path d="M3 12h18" stroke="#FFFFFF" strokeWidth="2.6" /></svg>
+  );
   if (m === "hell") return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
       <circle cx="12" cy="12" r="4" fill="currentColor" stroke="none" /><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8" />

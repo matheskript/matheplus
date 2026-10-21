@@ -27,7 +27,7 @@ import { MathildaName } from "./mathildaName.jsx";
 import { MathildaBild } from "./funcMathildaSeite.jsx";
 import { MarkenLogo } from "./markenLogo.jsx";
 import { ETIKETTEN } from "./werkzeuge.js";
-import { EVENT_START_MODUS, START_MODI, startModus, startModusSetzen } from "./startModus.js";
+import { basisModus, editionVon, EVENT_START_MODUS, START_MODI, startModus, startModusSetzen } from "./startModus.js";
 import {
   LEISTE, KI_MENUE, TRAINING, KURSE, BALD_KURSE, STUFEN, FORMELN, NACHSCHLAGEN,
   kontoArt, klasseLabel, klassenInhalt, trainingsBereiche, werkzeugAnzahl, entdeckenGruppen,
@@ -58,6 +58,9 @@ const CSS = `
   --licht1:rgba(255,229,138,0.22);--licht2:rgba(255,255,255,0.10);--karte:rgba(255,255,255,0.07);--rand:rgba(255,255,255,0.16);
   --kachel:rgba(5,11,31,0.22);--kachel-rand:rgba(255,255,255,0.16);--hover:rgba(5,11,31,0.3);
   --held:linear-gradient(155deg,#0B2560 0%,#081A46 60%,#06122F 100%)}
+.hmd[data-edition="stadion"]{--grund:rgba(163,0,31,0.92);--kopf:rgba(163,0,31,0.75);--t2:#FFE0E6;--t3:#FFC2CD;--gold:#FFFFFF;--gold-hell:#FFFFFF;
+  --licht1:rgba(255,255,255,0.18);--licht2:rgba(0,102,178,0.40);--kachel:rgba(0,68,122,0.28);--hover:rgba(0,68,122,0.38);
+  --held:linear-gradient(155deg,#0A78C9 0%,#0066B2 55%,#00447A 100%);--held-rand:rgba(255,255,255,0.5)}
 .hmd[data-modus="hell"]{--grund:rgba(241,244,250,0.95);--kopf:rgba(241,244,250,0.82);--t:${C.tinte};--t2:#46526F;--t3:${C.grau};--gold:#8A6A00;
   --licht1:rgba(237,187,0,0.16);--licht2:rgba(0,77,152,0.10);--karte:#FFFFFF;--rand:rgba(14,30,74,0.09);
   --schatten:0 1px 2px rgba(14,30,74,0.06),0 18px 40px -26px rgba(14,30,74,0.35);
@@ -587,7 +590,7 @@ export function DesktopMenue({
   };
 
   return (
-    <div ref={box} role="dialog" aria-modal="true" aria-label="Menü" tabIndex={-1} className="hmd" data-modus={modus} data-hauptmenue data-hm-desktop
+    <div ref={box} role="dialog" aria-modal="true" aria-label="Menü" tabIndex={-1} className="hmd" data-modus={basisModus(modus)} data-edition={editionVon(modus)} data-hauptmenue data-hm-desktop
       data-sprung="hauptmenue" data-scroll-box data-gescrollt={gescrollt ? "" : undefined} lang="de" onKeyDown={tasten}
       onScroll={(e) => { const g = e.currentTarget.scrollTop > 4; if (g !== gescrollt) setGescrollt(g); }}>
       <style>{CSS}</style>

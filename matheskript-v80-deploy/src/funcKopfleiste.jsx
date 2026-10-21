@@ -33,7 +33,7 @@ import { useKonto } from "./konto.js";
 import { HauptMenue, KontoBereich } from "./funcHauptmenue.jsx";
 import { zuletztAus, ZULETZT_SCHLUESSEL } from "./hauptmenue.js";
 import { wo } from "./werkzeuge.js";
-import { EVENT_START_MODUS, startModus } from "./startModus.js";
+import { EVENT_START_MODUS, startModus, basisModus, editionVon } from "./startModus.js";
 import { englisch } from "./i18n.js";
 import { springeZuId } from "./sprung.js";
 import { BESUCHER_MENUE, besucherAktiv } from "./kopfleiste.js";
@@ -200,6 +200,13 @@ const CSS = `
 /* Lese-Fortschritt (nur wenn die Leiste klebt) */
 .kl-fortschritt { position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; transform-origin: left; transform: scaleX(0); pointer-events: none;
   background: linear-gradient(90deg, ${GOLD} 0%, ${GOLD_HELL} 100%); box-shadow: 0 0 10px rgba(237,187,0,0.55); }
+/* Stadion (Rot-Weiß-Blau): Mix-Satz, Leiste in lackiertem Rot, Kurve und Akzente Weiß, Fortschritt Blau. Ohne Vereinslogo. */
+.kl[data-edition="stadion"] { --kl-hg: #DC052D; --kl-kurve: #FFFFFF; --kl-nebel: #FFD9E0; --kl-licht1: rgba(255,255,255,0.22); --kl-licht2: rgba(0,102,178,0.45);
+  --kl-pille-hg: rgba(0,68,122,0.30); --kl-pille-hover: rgba(0,68,122,0.5); --kl-chip-hg: #0066B2; --kl-plus: #FFFFFF; --kl-schatten: 0 18px 40px -22px rgba(163,0,31,.8); }
+.kl[data-edition="stadion"] .kl-hg { background: radial-gradient(120% 90% at 0% 0%, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0) 55%),
+  linear-gradient(155deg, #F0284A 0%, #DC052D 40%, #A3001F 100%); border-bottom: 3px solid #0066B2; box-shadow: inset 0 1px 0 rgba(255,255,255,0.25); }
+.kl[data-edition="stadion"] .kl-fortschritt { background: linear-gradient(90deg, #FFFFFF 0%, #0066B2 100%); box-shadow: none; }
+.kl[data-edition="stadion"] .kl-marke:focus-visible, .kl[data-edition="stadion"] button:focus-visible { outline-color: #FFFFFF; }
 @media (prefers-reduced-motion: reduce) { .kl-bm, .kl-bm-schleier { animation: none; } .kl-kurve, .kl-kurve path, .kl-punkt { animation: none !important; } .kl-kurve { clip-path: none; } .kl-kurve path { opacity: var(--kl-kurve-ruhe); } .kl-punkt { opacity: .55; } .kl-zeile, .kl-slogan { transition: none; } }
 `;
 
@@ -306,7 +313,7 @@ export function Kopfleiste({ ansicht, gehe, zurStartseite, hmOffen, setHmOffen, 
   };
 
   return (
-    <header ref={kopf} data-kopfleiste className="kl" data-bm-offen={bmOffen ? "1" : undefined} data-modus={modus} data-gast={gast ? "1" : undefined} data-kompakt={kompakt ? "1" : undefined} data-klebrig={klebrig ? "1" : undefined}>
+    <header ref={kopf} data-kopfleiste className="kl" data-bm-offen={bmOffen ? "1" : undefined} data-modus={basisModus(modus)} data-edition={editionVon(modus)} data-gast={gast ? "1" : undefined} data-kompakt={kompakt ? "1" : undefined} data-klebrig={klebrig ? "1" : undefined}>
       <style>{CSS}</style>
       <style>{`
         :root{--kopf-h:68px}

@@ -43,13 +43,15 @@ import { SpendenBereich } from "./funcSpendenBereich.jsx";
 import { ANGEBOT } from "./angebot.js";
 import { BEREICHE } from "./werkzeuge.js";
 import { ENTDECKEN_MENUE } from "./startMenues.js";
-import { EVENT_START_MODUS, startModus, startModusSetzen } from "./startModus.js";
+import { EVENT_START_MODUS, startModus, startModusSetzen, basisModus, editionVon } from "./startModus.js";
 
 /* ---------- Farben ---------- */
 const NACHT = "#050B1F";
 const GOLD = C.flaggold;
 const GOLD_HELL = "#FFE58A";
 const DESKTOP = "(min-width: 840px)";
+/* Stadion-Ansicht (Rot-Weiß-Blau): nur die Farben, kein Vereinslogo, kein Vereinsname */
+const ROT = "#DC052D", ROT_TIEF = "#A3001F", ROT_HELL = "#F0284A", BLAU = "#0066B2", BLAU_TIEF = "#00447A";
 
 /* Alle Farben hängen an Variablen; „hell“ und „mix“ setzen sie unten um (gleiche Fläche, weißer Grund).
    Im Mix bekommen die Inseln (sbb-insel) den dunklen Satz zurück. */
@@ -103,6 +105,56 @@ html[data-start-modus="hell"] .app-wurzel, html[data-start-modus="mix"] .app-wur
 .sbb[data-modus="mix"] .sbb-karte.sbb-insel.sbb-gold { border-color: rgba(237,187,0,0.8); box-shadow: 0 0 0 1px rgba(237,187,0,0.45), 0 14px 34px rgba(0,47,110,0.3); }
 .sbb[data-modus="mix"] .sbb-kachel:not(.sbb-insel) .weiter { color: ${C.gruenDunkel}; }
 html[data-start-modus="dunkel"] .fuss-paar button { color: #EEF2FF !important; background: rgba(255,255,255,0.06) !important; border-color: rgba(255,255,255,0.11) !important; }
+/* ---------- Stadion (Rot-Weiß-Blau) ----------
+   Baut auf dem Mix auf (data-modus="mix") und färbt über data-edition="stadion" um:
+   Bühne und Hauptkacheln Rot, die zwei Streifen Blau, das Blatt Weiß. Gold wird zu Weiß (auf Farbe)
+   bzw. Rot (auf Weiß). Kein Vereinslogo, kein Vereinsname. */
+.sbb[data-edition="stadion"] { --titel: ${BLAU_TIEF}; --glyph: ${ROT}; --knopf-hg: ${ROT}; --pille-hg: #FDECEF; --pille-text: ${ROT_TIEF}; --mythos-hg: #FDECEF;
+  --st-akzent: ${ROT}; --st-akzent-text: #FFFFFF; }
+.sbb[data-edition="stadion"] .sbb-insel { --akzent-text: ${ROT}; --st-akzent: #FFFFFF; --st-akzent-text: ${ROT}; --nebel: #FFD9E0; }
+.sbb[data-edition="stadion"] .sbb-streifen { --st-akzent: #FFFFFF; --st-akzent-text: ${BLAU}; --nebel: #CFE3F5; --akzent-text: ${BLAU}; }
+html[data-start-edition="stadion"] .app-wurzel { background: #FFFFFF !important; }
+.sbb[data-edition="stadion"] .sbb-held { background-color: ${ROT};
+  background-image: radial-gradient(110% 70% at 0% 0%, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0) 60%),
+    linear-gradient(155deg, ${ROT_HELL} 0%, ${ROT} 30%, #C10328 62%, ${ROT_TIEF} 100%); }
+.sbb[data-edition="stadion"] .sbb-held::before { background: radial-gradient(circle, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 70%); }
+.sbb[data-edition="stadion"] .sbb-held .sbb-band { background: ${BLAU}; border-color: rgba(255,255,255,0.25); }
+.sbb[data-edition="stadion"] .sbb-held .sbb-band span { color: #FFFFFF; }
+.sbb[data-edition="stadion"] .sbb-band span::after { background: #FFFFFF; }
+.sbb[data-edition="stadion"] .sbb-streifen { background-color: ${BLAU};
+  background-image: radial-gradient(110% 80% at 0% 0%, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 60%), linear-gradient(155deg, #0A78C9 0%, ${BLAU} 45%, ${BLAU_TIEF} 100%); }
+.sbb[data-edition="stadion"] .sbb-karte.sbb-insel { background: radial-gradient(120% 90% at 0% 0%, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0) 55%), linear-gradient(155deg, ${ROT_HELL} 0%, ${ROT} 40%, ${ROT_TIEF} 100%);
+  border-color: rgba(255,255,255,0.22); box-shadow: 0 10px 28px rgba(163,0,31,0.26), inset 0 1px 0 rgba(255,255,255,0.25); }
+.sbb[data-edition="stadion"] .sbb-karte.sbb-insel.sbb-gold { border-color: ${BLAU}; box-shadow: 0 0 0 2px ${BLAU}, 0 14px 34px rgba(163,0,31,0.3); }
+.sbb[data-edition="stadion"] .sbb-gold { border-color: ${ROT}; box-shadow: 0 0 0 1px rgba(220,5,45,0.35), 0 18px 40px -24px rgba(220,5,45,0.45); }
+.sbb[data-edition="stadion"] .sbb-held h1 .gold, .sbb[data-edition="stadion"] .sbb-zone .nr { background: none; color: #FFFFFF; -webkit-text-fill-color: currentColor; }
+.sbb[data-edition="stadion"] .sbb-zone .nr { color: ${ROT}; }
+.sbb[data-edition="stadion"] .sbb-schul h2 .gold { color: #FFFFFF; }
+.sbb[data-edition="stadion"] .sbb-kachel .weiter, .sbb[data-edition="stadion"] .sbb-schritt .nr, .sbb[data-edition="stadion"] .sbb-mythos .z { color: var(--st-akzent); }
+.sbb[data-edition="stadion"] .sbb-kachel:not(.sbb-insel) .weiter { color: ${ROT}; }
+.sbb[data-edition="stadion"] .sbb-mythos .z { background: rgba(220,5,45,0.10); }
+.sbb[data-edition="stadion"] .sbb-streifen .sbb-mythos .z { background: rgba(255,255,255,0.14); }
+.sbb[data-edition="stadion"] .sbb-haken, .sbb[data-edition="stadion"] .sbb-start-knopf, .sbb[data-edition="stadion"] .sbb-haupt .plus,
+.sbb[data-edition="stadion"] .sbb-bereich .pf, .sbb[data-edition="stadion"] .sbb-verbinder, .sbb[data-edition="stadion"] .sbb-training .pfeil,
+.sbb[data-edition="stadion"] .sbb-stufe .p, .sbb[data-edition="stadion"] .sbb-pille button i, .sbb[data-edition="stadion"] .sbb-schritt .knopf.gold {
+  background: var(--st-akzent); color: var(--st-akzent-text); box-shadow: 0 8px 22px rgba(0,0,0,0.18); }
+.sbb[data-edition="stadion"] .sbb-haken svg, .sbb[data-edition="stadion"] .sbb-haken svg * { stroke: var(--st-akzent-text); }
+.sbb[data-edition="stadion"] .sbb-stufe.abi { background: ${BLAU}; border-color: ${BLAU}; color: #FFFFFF; box-shadow: 0 8px 22px -6px rgba(0,102,178,0.5); }
+.sbb[data-edition="stadion"] .sbb-stufe.abi .p { background: #FFFFFF; color: ${BLAU}; }
+.sbb[data-edition="stadion"] .sbb-stufe[aria-expanded="true"] { background: #FFFFFF; border-color: #FFFFFF; color: ${ROT}; }
+.sbb[data-edition="stadion"] .sbb-stufe[aria-expanded="true"] .p { background: ${ROT}; color: #FFFFFF; }
+.sbb[data-edition="stadion"] .sbb-bereich.gold .logo { box-shadow: 0 0 0 2px ${ROT}; }
+.sbb[data-edition="stadion"] .sbb-kopf .strich { background: linear-gradient(90deg, ${ROT} 0%, ${ROT} 50%, ${BLAU} 50%, ${BLAU} 100%); box-shadow: none; }
+.sbb[data-edition="stadion"] .sbb-streifen .sbb-kopf .strich { background: linear-gradient(90deg, ${ROT} 0%, ${ROT} 50%, #FFFFFF 50%, #FFFFFF 100%); }
+.sbb[data-edition="stadion"] .sbb-held-kurve [stroke] { stroke: #FFFFFF; }
+.sbb[data-edition="stadion"] .sbb-held-kurve stop { stop-color: #FFFFFF; }
+.sbb[data-edition="stadion"] .sbb-held-kurve circle[fill]:not([fill="none"]) { fill: #FFFFFF; }
+.sbb[data-edition="stadion"] .sbb-licht .l1 { background: radial-gradient(circle, rgba(220,5,45,0.30) 0%, rgba(220,5,45,0) 70%); }
+.sbb[data-edition="stadion"] .sbb-licht .l2, .sbb[data-edition="stadion"] .sbb-licht .l3 { background: radial-gradient(circle, rgba(0,102,178,0.35) 0%, rgba(0,102,178,0) 70%); }
+.sbb[data-edition="stadion"] button:focus-visible { outline-color: ${BLAU}; }
+.sbb-schalter[data-edition="stadion"] button[aria-pressed="true"] { background: ${ROT}; color: #FFFFFF; }
+.sbb-schalter button.st[aria-pressed="false"] svg .rot { fill: ${ROT}; }
+.sbb-schalter button.st[aria-pressed="false"] svg .blau { fill: ${BLAU}; }
 .sbb { position: relative; color: var(--text); }
 .sbb *, .sbb *::before, .sbb *::after { box-sizing: border-box; }
 /* Das Licht liegt hinter allem (negativer z-index: unter jedem Inhalt, über dem Seitenhintergrund).
@@ -563,7 +615,7 @@ function Mythen() {
       <button type="button" className="sbb-mythen-kopf" onClick={() => { if (zu) { setFragen(!fragen); return; } setAuf(!auf); if (auf) setOffen(null); }} aria-expanded={zu ? fragen : auf}
         aria-label={zu ? "Die 7 Mathe-Mythen – noch gesperrt, Passwort nötig" : undefined}>
         <span><b>Die 7 Mathe-Mythen</b><span>Sieben Sätze, die dich bremsen – und warum sie nicht stimmen.</span></span>
-        {zu ? <SchlossZeichen /> : <span className="plus" aria-hidden="true" style={{ width: 40, height: 40, borderRadius: 999, background: GOLD, color: NACHT, display: "flex", alignItems: "center", justifyContent: "center", transform: auf ? "rotate(45deg)" : "none", transition: "transform .22s ease", flex: "none" }}><Plus /></span>}
+        {zu ? <SchlossZeichen /> : <span className="plus" aria-hidden="true" style={{ width: 40, height: 40, borderRadius: 999, background: `var(--st-akzent, ${GOLD})`, color: `var(--st-akzent-text, ${NACHT})`, display: "flex", alignItems: "center", justifyContent: "center", transform: auf ? "rotate(45deg)" : "none", transition: "transform .22s ease", flex: "none" }}><Plus /></span>}
       </button>
       {zu && fragen && <div style={{ padding: "0 14px 14px" }}><PasswortFeld onFrei={() => { setFragen(false); setAuf(true); }} /></div>}
       {!zu && auf && MYTHEN.map(([zeichen, titel, text], i) => {
@@ -573,7 +625,7 @@ function Mythen() {
             <button type="button" onClick={() => setOffen(o ? null : i)} aria-expanded={o}>
               <span className="z" aria-hidden="true">{zeichen}</span>
               <b><span className="n">{i + 1}</span>{titel}</b>
-              <span aria-hidden="true" style={{ color: GOLD, fontSize: 22, lineHeight: 1, transform: o ? "rotate(45deg)" : "none", transition: "transform .2s ease" }}>+</span>
+              <span aria-hidden="true" style={{ color: `var(--st-akzent, ${GOLD})`, fontSize: 22, lineHeight: 1, transform: o ? "rotate(45deg)" : "none", transition: "transform .2s ease" }}>+</span>
             </button>
             {o && <p>{text}</p>}
           </div>
@@ -584,6 +636,16 @@ function Mythen() {
 }
 
 /* ---------- Modus dunkel / hell ---------- */
+/* Zeichen der Stadion-Ansicht: ein Kreis, oben Rot, unten Blau, dazwischen ein weißer Streifen (eigenes Motiv, kein Vereinswappen) */
+export function StadionZeichen({ g = 13 }) {
+  return (
+    <svg width={g} height={g} viewBox="0 0 24 24" aria-hidden="true">
+      <path className="rot" d="M3 12a9 9 0 0 1 18 0z" fill="currentColor" />
+      <path className="blau" d="M3 12a9 9 0 0 0 18 0z" fill="currentColor" opacity=".55" />
+      <path d="M2.5 12h19" stroke="#FFFFFF" strokeWidth="2.6" />
+    </svg>
+  );
+}
 const ModusKontext = createContext("mix");
 const useHell = () => useContext(ModusKontext) === "hell";
 
@@ -601,7 +663,7 @@ export function useStartModus() {
 export function StartModusSchalter() {
   const v = useStartModus();
   return (
-    <div className="sbb-schalter" data-modus={v} role="group" aria-label="Startseite: dunkel oder hell">
+    <div className="sbb-schalter" data-modus={basisModus(v)} data-edition={editionVon(v)} role="group" aria-label="Startseite: dunkel, hell, mix oder Stadion">
       <style>{CSS}</style>
       <button type="button" aria-pressed={v === "dunkel"} onClick={() => startModusSetzen("dunkel")} aria-label="Dunkler Modus">
         <svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="currentColor" /></svg>Dunkel
@@ -611,6 +673,9 @@ export function StartModusSchalter() {
       </button>
       <button type="button" aria-pressed={v === "mix"} onClick={() => startModusSetzen("mix")} aria-label="Mix: hell mit dunklen Inseln">
         <svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="2.4" /><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor" /></svg>Mix
+      </button>
+      <button type="button" className="st" aria-pressed={v === "stadion"} onClick={() => startModusSetzen("stadion")} aria-label="Stadion: Rot, Weiß und Blau">
+        <StadionZeichen />Stadion
       </button>
     </div>
   );
@@ -632,8 +697,10 @@ export function Startseite({ gehe }) {
   const stufeSetzen = (w) => { stufeWaehlen(w); setBereichAuf(null); };
   /* Die ganze App-Fläche folgt dem Modus: Hintergrund und Fußknöpfe (Regeln oben in CSS) */
   useEffect(() => {
-    document.documentElement.setAttribute("data-start-modus", modus);
-    return () => document.documentElement.removeAttribute("data-start-modus");
+    const d = document.documentElement;
+    d.setAttribute("data-start-modus", basisModus(modus));
+    if (editionVon(modus)) d.setAttribute("data-start-edition", editionVon(modus)); else d.removeAttribute("data-start-edition");
+    return () => { d.removeAttribute("data-start-modus"); d.removeAttribute("data-start-edition"); };
   }, [modus]);
 
   const bereiche = schulBereiche(stufe);
@@ -647,7 +714,7 @@ export function Startseite({ gehe }) {
 
   return (
     <ModusKontext.Provider value={modus}>
-    <div className="sbb" data-modus={modus}>
+    <div className="sbb" data-modus={basisModus(modus)} data-edition={editionVon(modus)}>
       <style>{CSS}</style>
       <div className="sbb-licht" aria-hidden="true"><span className="l1" /><span className="l2" /><span className="l3" /></div>
 

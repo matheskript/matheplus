@@ -3,7 +3,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { START_MODI, modusAusPfad, naechsterModus, startModus } from "../src/startModus.js";
+import { START_MODI, basisModus, editionVon, modusAusPfad, naechsterModus, startModus } from "../src/startModus.js";
 
 const quelle = (f) => readFileSync(new URL(`../src/${f}`, import.meta.url), "utf8");
 
@@ -16,10 +16,12 @@ test("Pfade /start-hell und /start-dunkel (auch startseite-, frontpage-) wählen
   assert.equal(modusAusPfad("/start-mix"), "mix");
   assert.equal(modusAusPfad("/start-b"), null);
   assert.equal(modusAusPfad("/elternabend"), null);
-  assert.deepEqual(START_MODI, ["dunkel", "hell", "mix"]);
+  assert.equal(modusAusPfad("/start-stadion"), "stadion");
+  assert.deepEqual(START_MODI, ["dunkel", "hell", "mix", "stadion"]);
   assert.equal(naechsterModus("dunkel"), "hell");
   assert.equal(naechsterModus("hell"), "mix");
-  assert.equal(naechsterModus("mix"), "dunkel");
+  assert.equal(naechsterModus("mix"), "stadion");
+  assert.equal(naechsterModus("stadion"), "dunkel");
 });
 
 test("Ohne Browser-Speicher gilt der Mix-Modus", () => {
@@ -44,10 +46,21 @@ test("Alle drei Modi sind im Stil definiert, die Wahl hängt am Wurzelelement un
   assert.ok(q.includes('.sbb[data-modus="mix"] .sbb-insel'), "Inseln ohne dunklen Variablensatz");
   assert.ok((q.match(/sbb-streifen sbb-insel/g) || []).length >= 2, "weniger als zwei dunkle Streifen");
   assert.ok(q.includes('className="sbb-held sbb-insel"'), "Bühne ist keine Insel");
-  assert.ok(q.includes('data-modus={modus}'));
+  assert.ok(q.includes('data-modus={basisModus(modus)} data-edition={editionVon(modus)}'));
   const r = quelle("func10.jsx");
   assert.ok(r.includes("<StartModusSchalter />"), "Pille zum Umschalten fehlt");
   assert.ok(r.includes("modusAusPfad("));
   const m = quelle("funcArbeitsmenue.jsx");
   assert.ok(m.includes("data-arbeitsmenue-modus"), "Umschalter im Arbeitsmenü fehlt");
+});
+
+test("Stadion: Rot-Weiß-Blau auf Mix-Basis, ohne Vereinslogo und -namen", () => {
+  assert.equal(basisModus("stadion"), "mix");
+  assert.equal(editionVon("stadion"), "stadion");
+  assert.equal(editionVon("mix"), undefined);
+  const q = quelle("funcStartseite.jsx");
+  assert.ok(q.includes('.sbb[data-edition="stadion"] .sbb-held'), "Bühne ohne Stadion-Farben");
+  assert.ok(q.includes('startModusSetzen("stadion")'), "Pille ohne Stadion-Knopf");
+  assert.ok(quelle("funcKopfleiste.jsx").includes('.kl[data-edition="stadion"]'), "Kopfleiste ohne Stadion-Farben");
+  for (const f of ["funcStartseite.jsx", "funcKopfleiste.jsx", "hauptmenueTeile.jsx"]) assert.ok(!/bayern/i.test(quelle(f)), `${f} nennt einen Verein`);
 });
