@@ -19,7 +19,8 @@ DEMO = {"nutzer": {"id": "demo-1", "email": "lena@example.de"}, "profil": {"id":
 
 with sync_playwright() as p:
     b = p.chromium.launch()
-    for breite in (360, 390, 1280):
+    # ab 900 px öffnet ☰ das Desktop-Menü (eigener Test: hauptmenue-desktop.ui.py) – hier das ☰-Fenster bis 899 px
+    for breite in (360, 390, 860):
         for angemeldet in (False, True):
             ctx = b.new_context(viewport={"width": breite, "height": 820}, locale="de-DE")
             page = ctx.new_page()

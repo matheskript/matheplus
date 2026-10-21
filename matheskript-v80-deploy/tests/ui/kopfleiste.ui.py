@@ -111,20 +111,25 @@ with sync_playwright() as p:
                 if breite in (390, 1280) and (not angemeldet or modus == "mix"):
                     reihe = {"dunkel": "hell", "hell": "mix", "mix": "dunkel"}
                     page.locator("[data-hm-menue]").click(); page.wait_for_timeout(500)
-                    d = page.locator("[data-hm-darstellung]")
+                    # ab 900 px: Desktop-Menü, Darstellung steht dort in der Fußzeile
+                    hm = "hmd" if breite >= 900 else "hm"
+                    d = page.locator(f"[data-{hm}-darstellung]")
                     pruefe(d.count() == 1, f"{tag}: Darstellung fehlt im Menü")
-                    letzte = page.evaluate("(() => { const k = [...document.querySelector('[data-hauptmenue]').children].filter(e => e.tagName !== 'P'); return k[k.length - 1].hasAttribute('data-hm-darstellung'); })()")
-                    pruefe(letzte, f"{tag}: Darstellung ist nicht der letzte Punkt im Menü")
-                    pruefe(page.locator(f"[data-hm-modus={modus}]").get_attribute("aria-pressed") == "true", f"{tag}: aktueller Modus nicht markiert")
+                    if hm == "hm":
+                        letzte = page.evaluate("(() => { const k = [...document.querySelector('[data-hauptmenue]').children].filter(e => e.tagName !== 'P'); return k[k.length - 1].hasAttribute('data-hm-darstellung'); })()")
+                        pruefe(letzte, f"{tag}: Darstellung ist nicht der letzte Punkt im Menü")
+                    else:
+                        pruefe(page.locator(".hmd-fuss [data-hmd-darstellung]").count() == 1, f"{tag}: Darstellung steht nicht in der Fußzeile des Desktop-Menüs")
+                    pruefe(page.locator(f"[data-{hm}-modus={modus}]").get_attribute("aria-pressed") == "true", f"{tag}: aktueller Modus nicht markiert")
                     d.scroll_into_view_if_needed()
-                    page.locator(f"[data-hm-modus={reihe[modus]}]").click(); page.wait_for_timeout(300)
+                    page.locator(f"[data-{hm}-modus={reihe[modus]}]").click(); page.wait_for_timeout(300)
                     pruefe(kl.get_attribute("data-modus") == reihe[modus], f"{tag}: Menü schaltet die Leiste nicht um")
                     pruefe(page.evaluate("document.documentElement.getAttribute('data-start-modus')") == reihe[modus], f"{tag}: Startseite zieht nicht mit")
-                    pruefe(page.locator(f"[data-hm-modus={reihe[modus]}]").get_attribute("aria-pressed") == "true", f"{tag}: neue Wahl nicht markiert")
+                    pruefe(page.locator(f"[data-{hm}-modus={reihe[modus]}]").get_attribute("aria-pressed") == "true", f"{tag}: neue Wahl nicht markiert")
                     pruefe(page.locator("[data-hauptmenue]").count() == 1, f"{tag}: Menü schließt beim Umschalten")
                     clip = page.evaluate("getComputedStyle(document.querySelector('.kl-marke > span > span:nth-child(2)')).backgroundClip")
                     pruefe(clip == "text", f"{tag}: Wortmarke nach Moduswechsel ohne Text-Clip ({clip}) – „mathe“ wird ein goldener Block")
-                    page.locator(f"[data-hm-modus={modus}]").click(); page.wait_for_timeout(300)
+                    page.locator(f"[data-{hm}-modus={modus}]").click(); page.wait_for_timeout(300)
                     pruefe(kl.get_attribute("data-modus") == modus, f"{tag}: zurückschalten geht nicht")
                     foto(page, f"menue-{breite}-{'konto' if angemeldet else 'gast'}-{modus}", ganz=True)
                     page.keyboard.press("Escape"); page.wait_for_timeout(400)

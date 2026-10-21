@@ -53,6 +53,13 @@ const ZUSATZ = {
   "Foto vom Blatt – Mathilda prüft deinen Weg, nicht nur das Ergebnis.": "Snap your sheet – Mathilda checks your working, not just the answer.",
   "Chat": "Chat",
   "Klasse wählen – dann passt alles": "Pick your grade – everything adapts",
+  /* Desktop-Menü (funcHauptmenueDesktop.jsx) */
+  "Was möchtest du lernen? Werkzeug, Kapitel, Thema …": "What would you like to learn? Tool, chapter, topic …",
+  "Im Konto ändern": "Change in account",
+  "Andere Klasse": "Other grade",
+  "Pen & Paper · kostenlos": "Pen & Paper · free",
+  "Zum Kurs": "Open course",
+  "Für diese Klasse sind noch keine Kapitel hinterlegt.": "No chapters for this grade yet.",
   "Als Leiste": "As a row",
   "Tagesplan, Fehler, Prüfung": "Daily plan, mistakes, exam",
   "Herleiten und Wettbewerbe": "Derive it yourself and competitions",

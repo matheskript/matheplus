@@ -47,6 +47,14 @@ with sync_playwright() as p:
             pruefe(k.count() == 1, f"{tag}: ☰ in der Kopfleiste fehlt")
             if k.count():
                 k.click(); page.wait_for_timeout(300)
+                if breite >= 900:
+                    # Desktop: das Menü über den ganzen Bildschirm (funcHauptmenueDesktop.jsx)
+                    dm = page.locator("[data-hm-desktop]")
+                    pruefe(dm.count() == 1, f"{tag}: Desktop-Menü geht nicht auf")
+                    if dm.count():
+                        dm.locator("[data-hmd-training='warmup']").click(); page.wait_for_timeout(900)
+                        pruefe("5-minuten-mathe" in page.url, f"{tag}: Menüpunkt navigiert nicht ({page.url})")
+                    continue
                 fm = page.locator(".hm-fenster.hm-menue")
                 pruefe(fm.count() == 1, f"{tag}: Hauptmenü geht nicht auf")
                 if fm.count():
@@ -85,7 +93,7 @@ with sync_playwright() as p:
             ctx, page, konsole = neu(b, breite, rolle)
             page.goto(BASE); page.wait_for_timeout(1500)
             page.locator("[data-hm-menue]").click(); page.wait_for_timeout(250)
-            page.locator("[data-hm-konto] .hm-pille", has_text=eintrag).click(); page.wait_for_timeout(2200)
+            page.locator("[data-hm-konto] .hm-pille, [data-hm-konto] .hmd-chip", has_text=eintrag).first.click(); page.wait_for_timeout(2200)
             tag = f"{breite}/{rolle}"
             pruefe("/konto" in page.url, f"{tag}: {eintrag} führt nicht zur Kontoseite ({page.url})")
             oben = page.evaluate(f"(() => {{ const e = document.getElementById('{anker}'); return e ? Math.round(e.getBoundingClientRect().top) : null; }})()")

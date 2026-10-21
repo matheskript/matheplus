@@ -141,3 +141,36 @@ test("Aktiver Punkt", () => {
   assert.equal(aktiverPunkt("elternkurs"), "kurse");
   assert.equal(aktiverPunkt("start"), null);
 });
+
+/* ---------- Desktop-Menü (ab 900 px, funcHauptmenueDesktop.jsx) ---------- */
+import { readFileSync } from "node:fs";
+const datei = (n) => readFileSync(new URL(`../src/${n}`, import.meta.url), "utf-8");
+
+test("Desktop-Menü: ab 900 px statt des ☰-Fensters, Handy-Fenster bleibt", () => {
+  const hm = datei("funcHauptmenue.jsx");
+  const d = datei("funcHauptmenueDesktop.jsx");
+  assert.ok(d.includes("export const DESKTOP_MENUE_AB = 900;"));
+  assert.ok(hm.includes("{istOffen && desktop && (") && hm.includes("<DesktopMenue ") && hm.includes("{istOffen && !desktop && lage && ("), "HauptMenue wählt je nach Breite");
+  assert.ok(hm.includes("function DarstellungWahl") && hm.includes("<DarstellungWahl />"), "Handy-Fenster unverändert mit Darstellung ganz unten");
+});
+
+test("Desktop-Menü: alle Abschnitte, Darstellung in der Fußzeile, kein Karoraster", () => {
+  const d = datei("funcHauptmenueDesktop.jsx");
+  for (const a of ["data-hm-mathilda", "data-hm-weiter", 'data-hmd-abschnitt="klasse"', 'data-hmd-abschnitt="schultraining"', 'data-hmd-abschnitt="training"',
+    'data-hmd-abschnitt="mathematik"', "data-hm-kurse", 'data-hmd-abschnitt="entdecken"', "data-hm-konto", "data-hm-zugang", "data-hmd-darstellung"]) {
+    assert.ok(d.includes(a), `Abschnitt ${a} fehlt`);
+  }
+  assert.ok(d.indexOf("<Darstellung modus={modus} />") > d.indexOf('className="hmd-fuss"'), "Darstellung steht in der Fußzeile");
+  assert.ok(!/background-size:\s*\d+px \d+px/.test(d) && !/backgroundSize:\s*"\d+px \d+px"/.test(d), "Kein Karoraster (Marke)");
+});
+
+test("Desktop-Menü: große Kurse gibt es alle, Stand nur aus kursStand.js", () => {
+  const d = datei("funcHauptmenueDesktop.jsx");
+  const lack = [...d.split("const LACK = {")[1].split("\n};")[0].matchAll(/^\s{2}(\w+): \{/gm)].map((m) => m[1]);
+  assert.deepEqual(lack.sort(), ["diffkurs", "gfs", "kiwahl", "unterstufe", "vekkurs"]);
+  for (const id of lack) assert.ok(KURSE.some((k) => k.id === id), `${id} steht nicht in KURSE`);
+  const zurStufe = d.match(/KURS_ZUR_STUFE = \{([^}]+)\}/)[1];
+  for (const s of STUFEN) assert.ok(zurStufe.includes(`${s.id}:`), `Stufe ${s.id} ohne passenden Kurs`);
+  assert.ok(d.includes('from "./kursStand.js"'), "Fortschritt kommt aus kursStand.js");
+  assert.ok(!/\d+\s*%/.test(d.split("export function DesktopMenue")[1].replace(/\d+%\)/g, "")), "Keine erfundenen Prozentwerte im Menü");
+});
