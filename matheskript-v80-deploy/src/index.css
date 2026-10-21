@@ -35,3 +35,17 @@ html[data-kr-voll] .app-wurzel { min-height: 0 !important; height: 100%; overflo
 .eve-knopf { transition: filter .12s ease, transform .08s ease; }
 .eve-knopf:hover { filter: brightness(0.94); }
 .eve-knopf:active { transform: scale(0.95); }
+
+/* Kopfbereiche, Menüs und Knöpfe wirken wie Grafik: Text nicht markierbar, kein Text-Cursor.
+   Klicks bleiben unverändert; Eingabefelder darin bleiben normal bedienbar. */
+header, nav, .kl, .held, .kopfblock, .sbb-held, .lp-kopf, .titel-silber,
+button, [role="button"], [role="tab"], [role="menuitem"] {
+  -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
+}
+:is(header, nav, .kl, .held, .kopfblock, .sbb-held, .lp-kopf) :not(a, button, [role="button"], input, textarea, select, [contenteditable="true"]) { cursor: default; }
+:is(header, nav, .kl, .held, .kopfblock, .sbb-held, .lp-kopf) :is(a, button, [role="button"]),
+:is(header, nav, .kl, .held, .kopfblock, .sbb-held, .lp-kopf) :is(a, button, [role="button"]) * { cursor: pointer; }
+:is(header, nav, .kl, .held, .kopfblock, .sbb-held, .lp-kopf) :is(img, svg) { -webkit-user-drag: none; }
+:is(header, nav, .kl, .held, .kopfblock, .sbb-held, .lp-kopf) :is(input, textarea, select, [contenteditable="true"]) {
+  -webkit-user-select: text; user-select: text; -webkit-touch-callout: default;
+}
