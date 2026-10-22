@@ -1,5 +1,5 @@
 /* Animationen „Gerade durch zwei Punkte“: g_zweipunkte (Geradentrainer, y = mx + c) und v_zweipunkte (Vektoren, x⃗ = p⃗ + t · u⃗).
-   Motion-Norm (src/motion/NORM.md): frage ≤ 70 Zeichen mit „?“, kern 20–130 Zeichen, Untertitel ≤ 75 Zeichen, 8–26 s,
+   Motion-Norm (src/motion/NORM.md): frage ≤ 70 Zeichen mit „?“, kern 20–130 Zeichen, Untertitel ≤ 75 Zeichen, 10–35 s (mit Lesezeit, src/lesezeit.js),
    jedes Bild ohne NaN/undefined; eingebaut in beide Werkzeuge; Zahlen passen zur Rechnung des Werkzeugs. */
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -24,7 +24,7 @@ test("Texte nach der Motion-Norm", () => {
   }
 });
 
-test("beide Szenen: Dauer 8–26 s, Untertitel ≤ 75 Zeichen, saubere Bilder", async () => {
+test("beide Szenen: Dauer 8–35 s, Untertitel ≤ 75 Zeichen, saubere Bilder", async () => {
   const datei = path.join(wurzel, "node_modules", `.geraden-motion-${process.pid}.mjs`);
   await build({
     stdin: { contents: `
@@ -42,7 +42,7 @@ test("beide Szenen: Dauer 8–26 s, Untertitel ≤ 75 Zeichen, saubere Bilder", 
       const S = SZENEN[name];
       assert.ok(S, `${name} fehlt im Abspieler`);
       const plan = zeitplan(S.ablauf({}));
-      assert.ok(plan.dauer >= 8000 && plan.dauer <= 26000, `${name}: ${plan.dauer} ms`);
+      assert.ok(plan.dauer >= 8000 && plan.dauer <= 35000, `${name}: ${plan.dauer} ms`);
       for (const a of plan.abschnitte) assert.ok(!a.text || a.text.length <= 75, `${name}/${a.k}: ${a.text}`);
       for (let i = 0; i <= 40; i++) {
         const t = (plan.dauer * i) / 40, { Z, z } = fortschritt(plan, t);
